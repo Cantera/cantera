@@ -591,6 +591,9 @@ public:
      *    on rate constants are considered for the evaluation of derivatives.
      *  - `rtol-delta` (double) ... relative tolerance used to perturb properties
      *    when calculating numerical derivatives. The default value is 1e-8.
+     *
+     * @warning  The calculation of derivatives is an experimental part of the
+     *      %Cantera API and may be changed or removed without notice.
      */
     //! @{
 
@@ -642,6 +645,9 @@ public:
      * Calculate derivatives for forward rate constants with respect to molar
      * concentration at constant temperature, pressure and mole fractions.
      * @param dkfwd[out]  Output vector of derivatives. Length: nReactions().
+     *
+     * @warning  This method is an experimental part of the %Cantera API and
+     *      may be changed or removed without notice.
      */
     virtual void getFwdRateConstants_ddC(double* dkfwd)
     {
@@ -675,6 +681,9 @@ public:
      * Calculate derivatives for forward rates-of-progress with respect to molar
      * concentration at constant temperature, pressure and mole fractions.
      * @param drop[out]  Output vector of derivatives. Length: nReactions().
+     *
+     * @warning  This method is an experimental part of the %Cantera API and
+     *      may be changed or removed without notice.
      */
     virtual void getFwdRatesOfProgress_ddC(double* drop)
     {
@@ -689,6 +698,9 @@ public:
      * The method returns a matrix with nReactions rows and nTotalSpecies columns.
      * For a derivative with respect to \f$X_i$, all other \f$X_j$ are held constant,
      * rather than enforcing \f$\sum X_j = 1$.
+     *
+     * @warning  This method is an experimental part of the %Cantera API and
+     *      may be changed or removed without notice.
      */
     virtual Eigen::SparseMatrix<double> fwdRatesOfProgress_ddX()
     {
@@ -722,6 +734,9 @@ public:
      * Calculate derivatives for reverse rates-of-progress with respect to molar
      * concentration at constant temperature, pressure and mole fractions.
      * @param drop[out]  Output vector of derivatives. Length: nReactions().
+     *
+     * @warning  This method is an experimental part of the %Cantera API and
+     *      may be changed or removed without notice.
      */
     virtual void getRevRatesOfProgress_ddC(double* drop)
     {
@@ -736,6 +751,9 @@ public:
      * The method returns a matrix with nReactions rows and nTotalSpecies columns.
      * For a derivative with respect to \f$X_i$, all other \f$X_j$ are held constant,
      * rather than enforcing \f$\sum X_j = 1$.
+     *
+     * @warning  This method is an experimental part of the %Cantera API and
+     *      may be changed or removed without notice.
      */
     virtual Eigen::SparseMatrix<double> revRatesOfProgress_ddX()
     {
@@ -769,6 +787,9 @@ public:
      * Calculate derivatives for net rates-of-progress with respect to molar
      * concentration at constant temperature, pressure and mole fractions.
      * @param drop[out]  Output vector of derivatives. Length: nReactions().
+     *
+     * @warning  This method is an experimental part of the %Cantera API and
+     *      may be changed or removed without notice.
      */
     virtual void getNetRatesOfProgress_ddC(double* drop)
     {
@@ -783,6 +804,9 @@ public:
      * The method returns a matrix with nReactions rows and nTotalSpecies columns.
      * For a derivative with respect to \f$X_i$, all other \f$X_j$ are held constant,
      * rather than enforcing \f$\sum X_j = 1$.
+     *
+     * @warning  This method is an experimental part of the %Cantera API and
+     *      may be changed or removed without notice.
      */
     virtual Eigen::SparseMatrix<double> netRatesOfProgress_ddX()
     {
@@ -808,6 +832,9 @@ public:
      * Calculate derivatives for species creation rates with respect to molar
      * concentration at constant temperature, pressure and mole fractions.
      * @param dwdot[out]  Output vector of derivatives. Length: m_kk.
+     *
+     * @warning  This method is an experimental part of the %Cantera API and
+     *      may be changed or removed without notice.
      */
     void getCreationRates_ddC(double* dwdot);
 
@@ -818,6 +845,9 @@ public:
      * The method returns a matrix with nTotalSpecies rows and nTotalSpecies columns.
      * For a derivative with respect to \f$X_i$, all other \f$X_j$ are held constant,
      * rather than enforcing \f$\sum X_j = 1$.
+     *
+     * @warning  This method is an experimental part of the %Cantera API and
+     *      may be changed or removed without notice.
      */
     Eigen::SparseMatrix<double> creationRates_ddX();
 
@@ -839,6 +869,9 @@ public:
      * Calculate derivatives for species destruction rates with respect to molar
      * concentration at constant temperature, pressure and mole fractions.
      * @param dwdot[out]  Output vector of derivatives. Length: m_kk.
+     *
+     * @warning  This method is an experimental part of the %Cantera API and
+     *      may be changed or removed without notice.
      */
     void getDestructionRates_ddC(double* dwdot);
 
@@ -849,6 +882,9 @@ public:
      * The method returns a matrix with nTotalSpecies rows and nTotalSpecies columns.
      * For a derivative with respect to \f$X_i$, all other \f$X_j$ are held constant,
      * rather than enforcing \f$\sum X_j = 1$.
+     *
+     * @warning  This method is an experimental part of the %Cantera API and
+     *      may be changed or removed without notice.
      */
     Eigen::SparseMatrix<double> destructionRates_ddX();
 
@@ -870,6 +906,9 @@ public:
      * Calculate derivatives for species net production rates with respect to molar
      * concentration at constant temperature, pressure and mole fractions.
      * @param dwdot[out]  Output vector of derivatives. Length: m_kk.
+     *
+     * @warning  This method is an experimental part of the %Cantera API and
+     *      may be changed or removed without notice.
      */
     void getNetProductionRates_ddC(double* dwdot);
 
@@ -880,6 +919,9 @@ public:
      * The method returns a matrix with nTotalSpecies rows and nTotalSpecies columns.
      * For a derivative with respect to \f$X_i$, all other \f$X_j$ are held constant,
      * rather than enforcing \f$\sum X_j = 1$.
+     *
+     * @warning  This method is an experimental part of the %Cantera API and
+     *      may be changed or removed without notice.
      */
     Eigen::SparseMatrix<double> netProductionRates_ddX();
 
