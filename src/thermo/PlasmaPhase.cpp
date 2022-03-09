@@ -48,18 +48,15 @@ void PlasmaPhase::setElectronTemperature(const double Te) {
 void PlasmaPhase::setElectronEnergyLevels(const vector_fp& levels)
 {
     m_nPoints = levels.size();
-    m_electronEnergyLevels.resize(m_nPoints);
-    for (size_t i = 0; i < m_nPoints; i++) {
-        m_electronEnergyLevels(i) = levels[i];
-    }
+    m_electronEnergyLevels =
+        Eigen::Map<const Eigen::VectorXd>(levels.data(), levels.size());
+    updateIsotropicElectronEnergyDistribution();
 }
 
 void PlasmaPhase::getElectronEnergyLevels(vector_fp& levels) const
 {
     levels.resize(m_nPoints);
-    for (size_t i = 0; i < m_nPoints; i++) {
-        levels[i] = m_electronEnergyLevels(i);
-    }
+    Eigen::Map<Eigen::VectorXd>(levels.data(), m_nPoints) = m_electronEnergyLevels;
 }
 
 void PlasmaPhase::setElectronEnergyDistribution(const vector_fp& levels,
@@ -71,10 +68,8 @@ void PlasmaPhase::setElectronEnergyDistribution(const vector_fp& levels,
     }
     setElectronEnergyLevels(levels);
     m_nPoints = levels.size();
-    m_electronEnergyDistrb.resize(m_nPoints);
-    for (size_t i = 0; i < m_nPoints; i++) {
-        m_electronEnergyDistrb(i) = distrb[i];
-    }
+    m_electronEnergyDistrb =
+        Eigen::Map<const Eigen::VectorXd>(distrb.data(), distrb.size());
     // calculate mean electron energy and electron temperature
     Eigen::VectorXd eps52 = m_electronEnergyLevels.array().pow(5./2.);
     m_meanElectronEnergy =
@@ -87,9 +82,7 @@ void PlasmaPhase::setElectronEnergyDistribution(const vector_fp& levels,
 void PlasmaPhase::getElectronEnergyDistribution(vector_fp& distrb) const
 {
     distrb.resize(m_nPoints);
-    for (size_t i = 0; i < m_nPoints; i++) {
-        distrb[i] = m_electronEnergyDistrb(i);
-    }
+    Eigen::Map<Eigen::VectorXd>(distrb.data(), m_nPoints) = m_electronEnergyDistrb;
 }
 
 void PlasmaPhase::updateThermo() const
