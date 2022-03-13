@@ -17,7 +17,7 @@ namespace Cantera
 
 //! A class template handling ReactionRate specializations.
 template <class RateType, class DataType>
-class MultiRate final : public MultiRateBase
+class MultiRate : public MultiRateBase
 {
     CT_DEFINE_HAS_MEMBER(has_update, updateFromStruct)
     CT_DEFINE_HAS_MEMBER(has_ddT, ddTScaledFromStruct)

@@ -9,6 +9,8 @@
 #include "cantera/kinetics/ReactionData.h"
 #include "ReactionRate.h"
 #include "MultiRate.h"
+#include "cantera/numerics/eigen_dense.h"
+#include "cantera/base/global.h"
 
 namespace Cantera
 {
@@ -450,9 +452,60 @@ public:
     }
 };
 
-typedef BulkRate<Arrhenius3, ArrheniusData> ArrheniusRate;
 typedef BulkRate<TwoTempPlasma, TwoTempPlasmaData> TwoTempPlasmaRate;
 typedef BulkRate<BlowersMasel, BlowersMaselData> BlowersMaselRate;
+
+class ArrheniusRate : public BulkRate<Arrhenius3, ArrheniusData>
+{
+    using BulkRate::BulkRate;
+    unique_ptr<MultiRateBase> newMultiRate() const override;
+};
+
+//! A specialized rate evaluator for ArrheniusRate that avoids unnecessary rate
+//! calculations for reactions where the rate is simply a constant
+class MultiArrheniusRate : public MultiRate<ArrheniusRate, ArrheniusData>
+{
+public:
+    virtual void resize(size_t n_species, size_t n_reactions) override;
+    virtual void replace(const size_t rxn_index, ReactionRate& rate) override;
+    virtual void getRateConstants(double* kf) override;
+
+protected:
+    //! Partition rates based on whether they are temperature dependent or not
+    void partitionRates();
+
+    //! Pre-exponential factors for reactions where the rate is temperature dependent.
+    //! The corresponding element of #m_variable gives the reaction index.
+    Eigen::ArrayXd m_A;
+
+    //! Temperature exponents for reactions where the rate is temperature dependent
+    //! The corresponding element of #m_variable gives the reaction index.
+    Eigen::ArrayXd m_b;
+
+    //! Activation energies for reactions where the rate is temperature dependent
+    //! The corresponding element of #m_variable gives the reaction index.
+    Eigen::ArrayXd m_Ea_R;
+
+    //! Forward rate constants for reactions where the rate is temperature dependent
+    //! The corresponding element of #m_variable gives the reaction index.
+    Eigen::ArrayXd m_kf_var;
+
+    //! Forward rate constants for reactions where the rate is not temperature dependent
+    //! The corresponding element of #m_const gives the reaction index.
+    Eigen::ArrayXd m_kf_const;
+
+    //! Reaction indices for reactions where the rate is not temperature dependent
+    std::vector<size_t> m_const;
+
+    //! Reaction indices for reactions where the rate is temperature dependent
+    std::vector<size_t> m_variable;
+
+    //! Map from reaction index to index in #m_const
+    std::map<size_t, size_t> m_const_indices;
+
+    //! Map from reaction index to index in #m_variable
+    std::map<size_t, size_t> m_variable_indices;
+};
 
 }
 

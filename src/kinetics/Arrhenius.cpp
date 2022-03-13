@@ -194,4 +194,83 @@ void BlowersMasel::setContext(const Reaction& rxn, const Kinetics& kin)
     }
 }
 
+unique_ptr<MultiRateBase> ArrheniusRate::newMultiRate() const
+{
+    return unique_ptr<MultiRateBase>(new MultiArrheniusRate());
+}
+
+void MultiArrheniusRate::resize(size_t n_species, size_t n_reactions)
+{
+    MultiRate::resize(n_species, n_reactions);
+
+    if (m_kf_var.size() + m_kf_const.size() != m_rxn_rates.size()) {
+        partitionRates();
+    }
+}
+
+void MultiArrheniusRate::partitionRates()
+{
+    m_const.clear();
+    m_variable.clear();
+    m_const_indices.clear();
+    m_variable_indices.clear();
+
+    vector_fp A_const, A_var, b, Ea_R;
+    for (size_t i = 0; i < m_rxn_rates.size(); i++) {
+        auto& rate = m_rxn_rates[i].second;
+        if (rate.temperatureExponent() == 0 && rate.activationEnergy() == 0) {
+            m_const.push_back(m_rxn_rates[i].first);
+            m_const_indices[m_rxn_rates[i].first] = m_const.size() - 1;
+            A_const.push_back(rate.preExponentialFactor());
+        } else {
+            m_variable.push_back(m_rxn_rates[i].first);
+            m_variable_indices[m_rxn_rates[i].first] = m_variable.size() - 1;
+            A_var.push_back(rate.preExponentialFactor());
+            b.push_back(rate.temperatureExponent());
+            Ea_R.push_back(rate.activationEnergy() / GasConstant);
+        }
+    }
+
+    m_kf_const = Eigen::Map<Eigen::ArrayXd>(A_const.data(), A_const.size());
+    m_A = Eigen::Map<Eigen::ArrayXd>(A_var.data(), A_var.size());
+    m_b = Eigen::Map<Eigen::ArrayXd>(b.data(), b.size());
+    m_Ea_R = Eigen::Map<Eigen::ArrayXd>(Ea_R.data(), Ea_R.size());
+    m_kf_var.resize(A_var.size());
+}
+
+void MultiArrheniusRate::replace(const size_t rxn_index, ReactionRate& rate)
+{
+    auto& old_rate = m_rxn_rates[m_indices.at(rxn_index)].second;
+    bool old_const = (old_rate.temperatureExponent() == 0 &&
+                      old_rate.activationEnergy() == 0);
+    MultiRate::replace(rxn_index, rate);
+    auto& new_rate = m_rxn_rates[m_indices.at(rxn_index)].second;
+    bool new_const = (new_rate.temperatureExponent() == 0 &&
+                      new_rate.activationEnergy() == 0);
+    if (old_const && new_const) {
+        size_t j = m_const_indices.at(rxn_index);
+        m_kf_const[j] = new_rate.preExponentialFactor();
+    } else if (!old_const && !new_const) {
+        size_t j = m_variable_indices.at(rxn_index);
+        m_A[j] = new_rate.preExponentialFactor();
+        m_b[j] = new_rate.temperatureExponent();
+        m_Ea_R[j] = new_rate.activationEnergy() / GasConstant;
+    } else {
+        partitionRates();
+    }
+}
+
+void MultiArrheniusRate::getRateConstants(double* kf)
+{
+    AssertThrow(m_kf_var.size() + m_kf_const.size() == m_rxn_rates.size(),
+                "MultiArrheniusRate::getRateConstants");
+    m_kf_var = m_A * (m_b * m_shared.logT - m_Ea_R * m_shared.recipT).exp();
+    for (size_t i = 0; i < m_kf_var.size(); i++) {
+        kf[m_variable[i]] = m_kf_var[i];
+    }
+    for (size_t i = 0; i < m_kf_const.size(); i++) {
+        kf[m_const[i]] = m_kf_const[i];
+    }
+}
+
 }
