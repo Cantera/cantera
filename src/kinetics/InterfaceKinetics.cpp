@@ -45,7 +45,7 @@ void InterfaceKinetics::resizeReactions()
 {
     Kinetics::resizeReactions();
 
-    for (auto& rates : m_interface_rates) {
+    for (auto& rates : m_interfaceRates) {
         rates->resize(nTotalSpecies(), nReactions());
         // @todo ensure that ReactionData are updated; calling rates->update
         //      blocks correct behavior in InterfaceKinetics::_update_rates_T
@@ -99,7 +99,7 @@ void InterfaceKinetics::_update_rates_T()
     }
 
     // loop over MultiRate evaluators for each reaction type
-    for (auto& rates : m_interface_rates) {
+    for (auto& rates : m_interfaceRates) {
         bool changed = rates->update(thermo(), *this);
         if (changed) {
             rates->getRateConstants(m_rfn.data());
@@ -533,21 +533,36 @@ bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base, bool resize)
     }
 
     if (!(r_base->usesLegacy())) {
-        shared_ptr<ReactionRate> rate = r_base->rate();
-        // If necessary, add new MultiRate evaluator
-        if (m_interface_types.find(rate->type()) == m_interface_types.end()) {
-            m_interface_types[rate->type()] = m_interface_rates.size();
-            m_interface_rates.push_back(rate->newMultiRate());
-            m_interface_rates.back()->resize(m_kk, nReactions());
-        }
-
         // Set index of rate to number of reaction within kinetics
+        shared_ptr<ReactionRate> rate = r_base->rate();
         rate->setRateIndex(nReactions() - 1);
-        rate->setContext(*r_base.get(), *this);
+        rate->setContext(*r_base, *this);
 
-        // Add reaction rate to evaluator
-        size_t index = m_interface_types[rate->type()];
-        m_interface_rates[index]->add(nReactions() - 1, *rate);
+        if (rate->usesElectrochemistry()) {
+            m_has_electrochem_rxns = true;
+
+            // If necessary, add new electrochemical MultiRate evaluator
+            if (m_chargeTransferTypes.find(rate->type()) == m_chargeTransferTypes.end()) {
+                m_chargeTransferTypes[rate->type()] = m_chargeTransferRates.size();
+                m_chargeTransferRates.push_back(rate->newMultiRate());
+                m_chargeTransferRates.back()->resize(m_kk, nReactions());
+            }
+
+            // Add reaction rate to evaluator
+            size_t index = m_chargeTransferTypes[rate->type()];
+            m_chargeTransferRates[index]->add(nReactions() - 1, *rate);
+        } else {
+            // If necessary, add new interface MultiRate evaluator
+            if (m_interfaceTypes.find(rate->type()) == m_interfaceTypes.end()) {
+                m_interfaceTypes[rate->type()] = m_interfaceRates.size();
+                m_interfaceRates.push_back(rate->newMultiRate());
+                m_interfaceRates.back()->resize(m_kk, nReactions());
+            }
+
+            // Add reaction rate to evaluator
+            size_t index = m_interfaceTypes[rate->type()];
+            m_interfaceRates[index]->add(nReactions() - 1, *rate);
+        }
 
     } else if (r_base->reaction_type == SURFACE_RXN) {
         InterfaceReaction2& r = dynamic_cast<InterfaceReaction2&>(*r_base);
@@ -586,17 +601,31 @@ void InterfaceKinetics::modifyReaction(size_t i, shared_ptr<Reaction> r_base)
     Kinetics::modifyReaction(i, r_base);
     if (!(r_base->usesLegacy())) {
         shared_ptr<ReactionRate> rate = r_base->rate();
-        // Ensure that MultiBulkRate evaluator is available
-        if (!m_interface_types.count(rate->type())) {
-            throw CanteraError("InterfaceKinetics::modifyReaction",
-                 "Evaluator not available for type '{}'.", rate->type());
-        }
-
-        // Replace reaction rate evaluator
-        size_t index = m_interface_types[rate->type()];
         rate->setRateIndex(i);
         rate->setContext(*r_base, *this);
-        m_interface_rates[index]->replace(i, *rate);
+
+        const auto& rtype = rate->type();
+        if (rate->usesElectrochemistry()) {
+            // Ensure that electrochemical MultiRate evaluator is available
+            if (!m_chargeTransferTypes.count(rtype)) {
+                throw CanteraError("InterfaceKinetics::modifyReaction",
+                    "Electrochemistry evaluator not available for type '{}'.", rtype);
+            }
+            // Replace reaction rate evaluator
+            size_t index = m_chargeTransferTypes[rate->type()];
+            m_chargeTransferRates[index]->replace(i, *rate);
+
+        } else {
+            // Ensure that interface MultiRate evaluator is available
+            if (!m_interfaceTypes.count(rtype)) {
+                throw CanteraError("InterfaceKinetics::modifyReaction",
+                    "Interface evaluator not available for type '{}'.", rtype);
+            }
+            // Replace reaction rate evaluator
+            size_t index = m_interfaceTypes[rate->type()];
+            m_interfaceRates[index]->replace(i, *rate);
+        }
+
     } else if (r_base->reaction_type == SURFACE_RXN) {
         InterfaceReaction2& r = dynamic_cast<InterfaceReaction2&>(*r_base);
         SurfaceArrhenius rate = buildSurfaceArrhenius(i, r, true);

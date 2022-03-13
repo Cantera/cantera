@@ -154,7 +154,7 @@ public:
      *  @deprecated To be removed after Cantera 2.6.
      */
     double effectivePreExponentialFactor(size_t irxn) {
-        if (m_interface_rates.size()) {
+        if (m_interfaceRates.size()) {
             throw NotImplementedError(
                 "InterfaceKinetics::effectivePreExponentialFactor",
                 "Only implemented for legacy CTI/XML framework.");
@@ -173,7 +173,7 @@ public:
      *  @deprecated To be removed after Cantera 2.6.
      */
     double effectiveActivationEnergy_R(size_t irxn) {
-        if (m_interface_rates.size()) {
+        if (m_interfaceRates.size()) {
             throw NotImplementedError(
                 "InterfaceKinetics::effectiveActivationEnergy_R",
                 "Only implemented for legacy CTI/XML framework.");
@@ -193,7 +193,7 @@ public:
      *  @deprecated To be removed after Cantera 2.6.
      */
     double effectiveTemperatureExponent(size_t irxn) {
-        if (m_interface_rates.size()) {
+        if (m_interfaceRates.size()) {
             throw NotImplementedError(
                 "InterfaceKinetics::effectiveTemperatureExponent",
                 "Only implemented for legacy CTI/XML framework.");
@@ -426,9 +426,13 @@ protected:
 
     bool m_redo_rates;
 
-    //! Vector of rate handlers
-    std::vector<unique_ptr<MultiRateBase>> m_interface_rates;
-    std::map<std::string, size_t> m_interface_types; //!< Mapping of rate handlers
+    //! Vector of rate handlers for interface reactions without charge transfer
+    std::vector<unique_ptr<MultiRateBase>> m_interfaceRates;
+    std::map<std::string, size_t> m_interfaceTypes; //!< Rate handler mapping
+
+    //! Vector of rate handlers for charge transfer reactions
+    std::vector<unique_ptr<MultiRateBase>> m_chargeTransferRates;
+    std::map<std::string, size_t> m_chargeTransferTypes; //!< Rate handler mapping
 
     //! Vector of irreversible reaction numbers
     /*!
