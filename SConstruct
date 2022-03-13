@@ -2095,23 +2095,6 @@ def postInstallMessage(target, source, env):
               {matlab_ctpath_loc!s}
         """.format(**env_dict))
 
-    if os.name != 'nt':
-        env['setup_cantera'] = pjoin(env['ct_bindir'], 'setup_cantera')
-        env['setup_cantera_csh'] = pjoin(env['ct_bindir'], 'setup_cantera.csh')
-        install_message += textwrap.dedent("""
-
-            Setup scripts to configure the environment for Cantera are at:
-
-              setup script (bash)         {setup_cantera!s}
-              setup script (csh/tcsh)     {setup_cantera_csh!s}
-
-            It is recommended that you run the script for your shell by typing:
-
-              source {setup_cantera!s}
-
-            before using Cantera, or else include its contents in your shell login script.
-        """.format(**env_dict))
-
     print(install_message)
 
 finish_install = env.Command('finish_install', [], postInstallMessage)
