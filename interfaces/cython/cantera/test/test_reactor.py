@@ -2,6 +2,7 @@ import math
 import re
 
 import numpy as np
+import pytest
 from .utilities import unittest
 
 import cantera as ct
@@ -290,6 +291,12 @@ class TestReactor(utilities.CanteraTest):
         self.assertNear(self.net.time, 10.0)
         self.assertNear(self.r1.T, self.r2.T, 5e-7)
         self.assertNotAlmostEqual(self.r1.thermo.P, self.r2.thermo.P)
+
+    def test_advance_limits_invalid(self):
+        self.make_reactors(n_reactors=1)
+
+        with pytest.raises(ct.CanteraError, match="No component named 'spam'"):
+            self.r1.set_advance_limit("spam", 0.1)
 
     def test_heat_transfer2(self):
         # Result should be the same if (m * cp) / (U * A) is held constant

@@ -472,6 +472,9 @@ bool Reactor::getAdvanceLimits(double *limits)
 void Reactor::setAdvanceLimit(const string& nm, const double limit)
 {
     size_t k = componentIndex(nm);
+    if (k == npos) {
+        throw CanteraError("Reactor::setAdvanceLimit", "No component named '{}'", nm);
+    }
 
     if (m_thermo == 0) {
         throw CanteraError("Reactor::setAdvanceLimit",
