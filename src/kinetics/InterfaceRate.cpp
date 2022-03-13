@@ -16,7 +16,40 @@ CoverageBase::CoverageBase()
     , m_acov(0.)
     , m_ecov(0.)
     , m_mcov(0.)
+    , m_electrochemical(false)
+    , m_beta(0.5)
+    , m_exchange_current_density_formulation(false)
 {
+}
+
+void CoverageBase::setParameters(const AnyMap& node)
+{
+    if (node.hasKey("coverage-dependencies")) {
+        setCoverageDependencies(
+            node["coverage-dependencies"].as<AnyMap>(), node.units());
+    }
+    if (node.hasKey("beta")) {
+        m_beta = node["beta"].asDouble();
+    }
+    m_exchange_current_density_formulation = node.getBool(
+        "exchange-current-density-formulation", false);
+}
+
+void CoverageBase::getParameters(AnyMap& node) const
+{
+    if (!m_cov.empty()) {
+        AnyMap deps;
+        getCoverageDependencies(deps);
+        node["coverage-dependencies"] = std::move(deps);
+    }
+    if (m_electrochemical) {
+        if (m_beta != 0.5) {
+            node["beta"] = m_beta;
+        }
+        if (m_exchange_current_density_formulation) {
+            node["exchange-current-density-formulation"] = true;
+        }
+    }
 }
 
 void CoverageBase::setCoverageDependencies(const AnyMap& dependencies,

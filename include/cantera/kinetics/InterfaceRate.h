@@ -51,12 +51,20 @@ public:
     CoverageBase();
 
     //! Perform object setup based on AnyMap node information
+    //! @param node  AnyMap object containing reaction rate specification
+    void setParameters(const AnyMap& node);
+
+    //! Store parameters needed to reconstruct an identical object
+    //! @param node  AnyMap object receiving reaction rate specification
+    void getParameters(AnyMap& node) const;
+
+    //! Set coverage dependencies based on AnyMap node information
     //! @param dependencies  Coverage dependencies
     //! @param units  Unit system
     void setCoverageDependencies(const AnyMap& dependencies,
                                  const UnitSystem& units=UnitSystem());
 
-    //! Store parameters needed to reconstruct an identical object
+    //! Store parameters needed to reconstruct coverage dependencies
     //! @param dependencies  AnyMap receiving coverage information
     //! @param asVector  Optional boolean flag to override map output
     //! @todo  Remove vector version (which currently only serves testing purposes)
@@ -122,6 +130,9 @@ protected:
     double m_acov; //!< Coverage contribution to pre-exponential factor
     double m_ecov; //!< Coverage contribution to activation energy
     double m_mcov; //!< Coverage term in reaction rate
+    bool m_electrochemical; //!< Boolean indicating whether electrochemistry is used
+    double m_beta; //!< Forward value of apparent electrochemical transfer coefficient
+    bool m_exchange_current_density_formulation; //! Electrochemistry only
     std::map<size_t, size_t> m_indices; //!< Map holding indices of coverage species
     std::vector<std::string> m_cov; //!< Vector holding names of coverage species
     vector_fp m_ac; //!< Vector holding coverage-specific exponential dependence
@@ -256,10 +267,7 @@ public:
     virtual void setParameters(
         const AnyMap& node, const UnitStack& rate_units) override
     {
-        if (node.hasKey("coverage-dependencies")) {
-            setCoverageDependencies(
-                node["coverage-dependencies"].as<AnyMap>(), node.units());
-        }
+        CoverageBase::setParameters(node);
         RateType::m_negativeA_ok = node.getBool("negative-A", false);
         if (!node.hasKey("rate-constant")) {
             RateType::setRateParameters(AnyValue(), node.units(), rate_units);
@@ -279,11 +287,7 @@ public:
             // RateType object is configured
             node["rate-constant"] = std::move(rateNode);
         }
-        if (!m_cov.empty()) {
-            AnyMap deps;
-            getCoverageDependencies(deps);
-            node["coverage-dependencies"] = std::move(deps);
-        }
+        CoverageBase::getParameters(node);
     }
 
     virtual void setContext(const Reaction& rxn, const Kinetics& kin) override {
@@ -371,10 +375,7 @@ public:
     virtual void setParameters(
         const AnyMap& node, const UnitStack& rate_units) override
     {
-        if (node.hasKey("coverage-dependencies")) {
-            setCoverageDependencies(
-                node["coverage-dependencies"].as<AnyMap>(), node.units());
-        }
+        CoverageBase::setParameters(node);
         RateType::m_negativeA_ok = node.getBool("negative-A", false);
         setStickingParameters(node);
         if (!node.hasKey("sticking-coefficient")) {
@@ -397,11 +398,7 @@ public:
             // RateType object is configured
             node["sticking-coefficient"] = std::move(rateNode);
         }
-        if (!m_cov.empty()) {
-            AnyMap deps;
-            getCoverageDependencies(deps);
-            node["coverage-dependencies"] = std::move(deps);
-        }
+        CoverageBase::getParameters(node);
     }
 
     virtual void setContext(const Reaction& rxn, const Kinetics& kin) override {
