@@ -317,8 +317,15 @@ bool CoverageData::update(const ThermoPhase& phase, const Kinetics& kin)
             logCoverages[n] = std::log(std::max(coverages[n], Tiny));
         }
         for (size_t n = 0; n < kin.nPhases(); n++) {
-            kin.thermo(n).getPartialMolarEnthalpies(
-                partial_molar_enthalpies.data() + kin.kineticsSpeciesIndex(0, n));
+            size_t start = kin.kineticsSpeciesIndex(0, n);
+            const auto& ph = kin.thermo(n);
+            ph.getPartialMolarEnthalpies(partial_molar_enthalpies.data() + start);
+            ph.getStandardChemPotentials(standardChemPotentials.data() + start);
+            size_t nsp = ph.nSpecies();
+            for (size_t k = 0; k < nsp; k++) {
+                // only used for exchange current density formulation
+                standardConcentrations[k + start] = ph.standardConcentration(k);
+            }
         }
         m_state_mf_number = mf;
         changed = true;

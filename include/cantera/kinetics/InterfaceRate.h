@@ -95,6 +95,7 @@ public:
         if (shared_data.ready) {
             m_siteDensity = shared_data.density;
         }
+
         if (m_indices.size() != m_cov.size()) {
             // object is not set up correctly (setSpecies needs to be run)
             m_acov = NAN;
@@ -110,6 +111,79 @@ public:
             m_ecov += m_ec[item.first] * shared_data.coverages[item.second];
             m_mcov += m_mc[item.first] * shared_data.logCoverages[item.second];
         }
+
+        // Update quantities used for exchange current density formulation
+        if (m_exchangeCurrentDensityFormulation) {
+            m_deltaG0 = 0.;
+            m_prodStandardConcentrations = 1.;
+            for (const auto& item : m_stoichCoeffs) {
+                m_deltaG0 +=
+                    shared_data.standardChemPotentials[item.first] * item.second;
+                if (item.second > 0.) {
+                    m_prodStandardConcentrations *=
+                        shared_data.standardConcentrations[item.first];
+                }
+            }
+        }
+    }
+
+    //! Calculate modifications for the forward reaction rate for interfacial charge
+    //! transfer reactions.
+    /*!
+     *  For reactions that transfer charge across a potential difference, the
+     *  activation energies are modified by the potential difference. This method
+     *  calculates a correction factor based on the net electric potential energy
+     *  change due to the reaction
+     *  \f[
+     *   deltaElectricEnergy = sum_i ( pot_i nu_ij)
+     *  \f]
+     *  where potential energies \f$ pot_i = F phi_i z_i \f$ are passed as an argument.
+     *
+     *  When an electrode reaction rate is specified in terms of its exchange current
+     *  density, the correction factor is adjusted to the standard reaction rate
+     *  constant form and units. Specifically, this converts a reaction rate constant
+     *  that was specified in units of A/m2 to kmol/m2/s.
+     *
+     *  @param pot  Array of potential energies due to voltages
+     *
+     *  @warning  The updated calculation of voltage corrections is an experimental
+     *      part of the %Cantera API and may be changed or removed without notice.
+     */
+    //
+    double voltageCorrection(const double* pot, double RT) {
+        if (!m_chargeTransfer) {
+            return 1.;
+        }
+
+        // Compute the change in electrical potential energy.
+        // This will only be non-zero if a potential difference is present.
+        double deltaElectricEnergy = 0.;
+        for (const auto& item : m_stoichCoeffs) {
+            deltaElectricEnergy += pot[item.first] * item.second;
+        }
+
+        // Calculate reaction rate correction. Only modify those with a non-zero
+        // activation energy.
+        double correction = 1.;
+        if (deltaElectricEnergy != 0.) {
+            // Comments preserved from previous implementation:
+            // Below we decrease the activation energy below zero.
+            // NOTE, there is some discussion about this point. Should we decrease the
+            // activation energy below zero? I don't think this has been decided in any
+            // definitive way. The treatment below is numerically more stable, however.
+            correction = exp(-m_beta * deltaElectricEnergy / RT);
+        }
+
+        // Update correction if exchange current density formulation format is used.
+        if (m_exchangeCurrentDensityFormulation) {
+            // Comment preserved from previous implementation:
+            // We need to have the straight chemical reaction rate constant to
+            // come out of this calculation.
+            double tmp = exp(-m_beta * m_deltaG0 / RT);
+            tmp /= m_prodStandardConcentrations * Faraday;
+            correction *= tmp;
+        }
+        return correction;
     }
 
     //! Return site density [kmol/m^2]
@@ -139,14 +213,19 @@ protected:
     double m_acov; //!< Coverage contribution to pre-exponential factor
     double m_ecov; //!< Coverage contribution to activation energy
     double m_mcov; //!< Coverage term in reaction rate
-    bool m_electrochemistry; //!< Boolean indicating use of electrochemistry
+    bool m_chargeTransfer; //!< Boolean indicating use of electrochemistry
     double m_beta; //!< Forward value of apparent electrochemical transfer coefficient
     bool m_exchangeCurrentDensityFormulation; //! Electrochemistry only
+    double m_deltaG0; //!< Standard state Gibbs free energy
+    double m_prodStandardConcentrations; //!< Products of standard concentrations
     std::map<size_t, size_t> m_indices; //!< Map holding indices of coverage species
     std::vector<std::string> m_cov; //!< Vector holding names of coverage species
     vector_fp m_ac; //!< Vector holding coverage-specific exponential dependence
     vector_fp m_ec; //!< Vector holding coverage-specific activation energy dependence
     vector_fp m_mc; //!< Vector holding coverage-specific power-law exponents
+
+    //! Pairs of species indices and multiplers to calculate enthalpy change
+    std::vector<std::pair<size_t, double>> m_stoichCoeffs;
 };
 
 
@@ -305,7 +384,7 @@ public:
     }
 
     virtual bool usesElectrochemistry() override {
-        return m_electrochemistry;
+        return m_chargeTransfer;
     }
 
     //! Update reaction rate parameters
@@ -438,7 +517,7 @@ public:
     }
 
     virtual bool usesElectrochemistry() override {
-        return m_electrochemistry;
+        return m_chargeTransfer;
     }
 
     //! Update reaction rate parameters

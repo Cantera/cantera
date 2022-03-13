@@ -96,6 +96,9 @@ public:
 
     //! values needed to convert from exchange current density to surface
     //! reaction rate.
+    /*!
+     *  @deprecated  To be removed after Cantera 2.6.
+     */
     void updateExchangeCurrentQuantities();
 
     virtual void getDeltaGibbs(doublereal* deltaG);
@@ -127,6 +130,8 @@ public:
      *
      *  @return Beta parameter. This defaults to zero, even for charge
      *    transfer reactions.
+     *
+     *  @deprecated  To be removed after Cantera 2.6.
      */
     doublereal electrochem_beta(size_t irxn) const;
 
@@ -325,6 +330,8 @@ public:
      *
      * @param kfwd  Vector of forward reaction rate constants on which to have
      *              the voltage correction applied
+     *
+     * @deprecated  To be removed after Cantera 2.6.
      */
     void applyVoltageKfwdCorrection(doublereal* const kfwd);
 
@@ -343,6 +350,8 @@ public:
      *
      * @param kfwd  Vector of forward reaction rate constants, given in either
      *              normal form or in exchange current density form.
+     *
+     * @deprecated  To be removed after Cantera 2.6.
      */
     void convertExchangeCurrentDensityFormulation(doublereal* const kfwd);
 
@@ -520,6 +529,8 @@ protected:
      * potential energy change due to the reaction.
      *
      *  deltaElectricEnergy_[jrxn] = sum_i ( F V_i z_i nu_ij)
+     *
+     *  @deprecated  To be removed after Cantera 2.6.
      */
     vector_fp deltaElectricEnergy_;
 
@@ -538,6 +549,8 @@ protected:
     /*!
      *   Electrochemical transfer coefficient for all reactions that have
      *   transfer reactions the reaction is given by m_ctrxn[i]
+     *
+     *  @deprecated  To be removed after Cantera 2.6.
      */
     vector_fp m_beta;
 
@@ -548,6 +561,8 @@ protected:
      *  an index into the m_beta array.
      *
      *        irxn = m_ctrxn[i]
+     *
+     *  @deprecated  To be removed after Cantera 2.6.
      */
     std::vector<size_t> m_ctrxn;
 
@@ -560,6 +575,8 @@ protected:
      *                            the rate constant as a chemical forward rate constant, a standard format.
      *   m_ctrxn_ecdf[irxn] = 1   this means that the rate coefficient calculator will calculate
      *                            the rate constant as an exchange current density rate constant expression.
+     *
+     *  @deprecated  To be removed after Cantera 2.6.
      */
     vector_int m_ctrxn_ecdf;
 
@@ -567,6 +584,8 @@ protected:
     /*!
      *   Length number of kinetic species
      *   units depend on the definition of the standard concentration within each phase
+     *
+     *  @deprecated  To be removed after Cantera 2.6.
      */
     vector_fp m_StandardConc;
 
@@ -574,6 +593,8 @@ protected:
     /*!
      *    Length is the number of reactions
      *    units are Joule kmol-1
+     *
+     *  @deprecated  To be removed after Cantera 2.6.
      */
     vector_fp m_deltaG0;
 
@@ -581,6 +602,8 @@ protected:
     /*!
      *    Length is the number of reactions
      *    units are Joule kmol-1
+     *
+     *  @deprecated  To be removed after Cantera 2.6.
      */
     vector_fp m_deltaG;
 
@@ -588,6 +611,8 @@ protected:
     /*!
      *   Units vary wrt what the units of the standard concentrations are
      *   Length = number of reactions.
+     *
+     *  @deprecated  To be removed after Cantera 2.6.
      */
     vector_fp m_ProdStanConcReac;
 
@@ -623,6 +648,8 @@ protected:
      *  If this is true, the standard state Gibbs free energy of the reaction
      *  and the product of the reactant standard concentrations must be
      *  precalculated in order to calculate the rate constant.
+     *
+     *  @deprecated  To be removed after Cantera 2.6.
      */
     bool m_has_exchange_current_density_formulation;
 
