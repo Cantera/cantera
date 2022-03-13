@@ -75,9 +75,18 @@ public:
     //! where *e* is in Kelvin, i.e. energy divided by the molar gas constant.
     void addCoverageDependence(const std::string& sp, double a, double m, double e);
 
+    //! Boolean indicating whether rate uses exchange current density formulation
+    bool exchangeCurrentDensityFormulation() {
+        return m_exchangeCurrentDensityFormulation;
+    }
+
+    //! Build rate-specific parameters based on Reaction and Kinetics context
+    //! @param rxn  Reaction associated with rate parameterization
+    //! @param kin  Kinetics object associated with rate parameterization
+    void setContext(const Reaction& rxn, const Kinetics& kin);
+
     //! Set association with an ordered list of all species associated with a given
     //! `Kinetics` object.
-    void setSpecies(const Kinetics& kin);
     void setSpecies(const std::vector<std::string>& species);
 
     //! Update reaction rate parameters
@@ -130,9 +139,9 @@ protected:
     double m_acov; //!< Coverage contribution to pre-exponential factor
     double m_ecov; //!< Coverage contribution to activation energy
     double m_mcov; //!< Coverage term in reaction rate
-    bool m_electrochemical; //!< Boolean indicating whether electrochemistry is used
+    bool m_electrochemistry; //!< Boolean indicating use of electrochemistry
     double m_beta; //!< Forward value of apparent electrochemical transfer coefficient
-    bool m_exchange_current_density_formulation; //! Electrochemistry only
+    bool m_exchangeCurrentDensityFormulation; //! Electrochemistry only
     std::map<size_t, size_t> m_indices; //!< Map holding indices of coverage species
     std::vector<std::string> m_cov; //!< Vector holding names of coverage species
     vector_fp m_ac; //!< Vector holding coverage-specific exponential dependence
@@ -292,7 +301,11 @@ public:
 
     virtual void setContext(const Reaction& rxn, const Kinetics& kin) override {
         RateType::setContext(rxn, kin);
-        setSpecies(kin);
+        CoverageBase::setContext(rxn, kin);
+    }
+
+    virtual bool usesElectrochemistry() override {
+        return m_electrochemistry;
     }
 
     //! Update reaction rate parameters
@@ -403,7 +416,7 @@ public:
 
     virtual void setContext(const Reaction& rxn, const Kinetics& kin) override {
         RateType::setContext(rxn, kin);
-        setSpecies(kin);
+        CoverageBase::setContext(rxn, kin);
         StickingCoverage::setContext(rxn, kin);
     }
 
@@ -422,6 +435,10 @@ public:
         if (err_reactions.size()) {
             warn_user("StickingRate::validate", to_string(err_reactions));
         }
+    }
+
+    virtual bool usesElectrochemistry() override {
+        return m_electrochemistry;
     }
 
     //! Update reaction rate parameters
