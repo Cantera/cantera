@@ -51,6 +51,13 @@ void InterfaceKinetics::resizeReactions()
         //      blocks correct behavior in InterfaceKinetics::_update_rates_T
         //      and running updateROP() is premature
     }
+
+    for (auto& rates : m_chargeTransferRates) {
+        rates->resize(nTotalSpecies(), nReactions());
+        // @todo ensure that ReactionData are updated; calling rates->update
+        //      blocks correct behavior in InterfaceKinetics::_update_rates_T
+        //      and running updateROP() is premature
+    }
 }
 
 void InterfaceKinetics::setElectricPotential(int n, doublereal V)
@@ -98,11 +105,23 @@ void InterfaceKinetics::_update_rates_T()
         m_redo_rates = false;
     }
 
-    // loop over MultiRate evaluators for each reaction type
+    // loop over interface MultiRate evaluators for each reaction type
     for (auto& rates : m_interfaceRates) {
         bool changed = rates->update(thermo(), *this);
         if (changed) {
             rates->getRateConstants(m_rfn.data());
+            m_ROP_ok = false;
+            m_redo_rates = true;
+        }
+    }
+
+    // loop over charge transfer MultiRate evaluators for each reaction type
+    for (auto& rates : m_chargeTransferRates) {
+        bool changed = rates->update(thermo(), *this);
+        if (changed) {
+            rates->getRateConstants(m_rfn.data());
+            rates->processVoltageCorrections(
+                m_rfn.data(), m_pot.data(), thermo(reactionPhaseIndex()).RT());
             m_ROP_ok = false;
             m_redo_rates = true;
         }
