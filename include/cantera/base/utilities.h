@@ -188,7 +188,7 @@ const U& getValue(const std::map<T, U>& m, const T& key, const U& default_val) {
 
 //! A macro for generating member function detectors, which can then be used in
 //! combination with `std::enable_if` to allow selection of a particular template
-//! specialization based on the presence of that member function. See MultiBulkRate for
+//! specialization based on the presence of that member function. See MultiRate for
 //! examples of use.
 #define CT_DEFINE_HAS_MEMBER(detector_name, func_name)                   \
     template <typename T>                                                \

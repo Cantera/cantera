@@ -78,19 +78,6 @@ const int SURFACE_RXN = 20;
 //! A reaction occurring on an interface, e.g a surface or edge.
 const int INTERFACE_RXN = 20;
 
-//! A reaction occurring on an interface, e.g a surface or edge.
-//! The rate of the reaction can be calculated and updated by Blowers-
-//! Masel approximation
-const int BMINTERFACE_RXN =21;
-
-/**
- * A reaction occurring at a one-dimensional interface between two surface phases.
- *  NOTE: This is a bit ambiguous, and will be taken out in the future
- *        The dimensionality of the interface is a separate concept from the type
- *        of the reaction.
- */
-const int EDGE_RXN = 22;
-
 //! @}
 }
 

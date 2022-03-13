@@ -549,9 +549,7 @@ bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base, bool resize)
         size_t index = m_interface_types[rate->type()];
         m_interface_rates[index]->add(nReactions() - 1, *rate);
 
-    } else if (r_base->reaction_type == BMINTERFACE_RXN) {
-        throw NotImplementedError("InterfaceKinetics::addReaction");
-    } else {
+    } else if (r_base->reaction_type == SURFACE_RXN) {
         InterfaceReaction2& r = dynamic_cast<InterfaceReaction2&>(*r_base);
         SurfaceArrhenius rate = buildSurfaceArrhenius(i, r, false);
         m_rates.install(i, rate);
@@ -572,6 +570,8 @@ bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base, bool resize)
                 m_ctrxn_ecdf.push_back(0);
             }
         }
+    } else {
+        throw NotImplementedError("InterfaceKinetics::addReaction");
     }
     deltaElectricEnergy_.push_back(0.0);
     m_deltaG0.push_back(0.0);
@@ -597,12 +597,12 @@ void InterfaceKinetics::modifyReaction(size_t i, shared_ptr<Reaction> r_base)
         rate->setRateIndex(i);
         rate->setContext(*r_base, *this);
         m_interface_rates[index]->replace(i, *rate);
-    } else if (r_base->reaction_type == BMINTERFACE_RXN) {
-        throw NotImplementedError("InterfaceKinetics::modifyReaction");
-    } else {
+    } else if (r_base->reaction_type == SURFACE_RXN) {
         InterfaceReaction2& r = dynamic_cast<InterfaceReaction2&>(*r_base);
         SurfaceArrhenius rate = buildSurfaceArrhenius(i, r, true);
         m_rates.replace(i, rate);
+    } else {
+        throw NotImplementedError("InterfaceKinetics::modifyReaction");
     }
     // Invalidate cached data
     m_redo_rates = true;
