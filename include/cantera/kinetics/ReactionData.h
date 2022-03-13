@@ -327,13 +327,17 @@ struct CoverageData : public BlowersMaselData
         coverages.resize(n_species, 0.);
         logCoverages.resize(n_species, 0.);
         partial_molar_enthalpies.resize(n_species, 0.);
+        standardChemPotentials.resize(n_species, 0.);
+        standardConcentrations.resize(n_species, 0.);
         ready = true;
     }
 
     double sqrtT; //!< square root of temperature
 
-    vector_fp coverages; //!< vector holding surface coverages
-    vector_fp logCoverages; //!< vector holding logarithm of surface coverages
+    vector_fp coverages; //!< surface coverages
+    vector_fp logCoverages; //!< logarithm of surface coverages
+    vector_fp standardChemPotentials; //!< standard state chemical potentials
+    vector_fp standardConcentrations; //!< standard state concentrations
 };
 
 }

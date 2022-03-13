@@ -16,9 +16,11 @@ CoverageBase::CoverageBase()
     , m_acov(0.)
     , m_ecov(0.)
     , m_mcov(0.)
-    , m_electrochemistry(false)
+    , m_chargeTransfer(false)
     , m_beta(0.5)
     , m_exchangeCurrentDensityFormulation(false)
+    , m_deltaG0(NAN)
+    , m_prodStandardConcentrations(NAN)
 {
 }
 
@@ -42,7 +44,7 @@ void CoverageBase::getParameters(AnyMap& node) const
         getCoverageDependencies(deps);
         node["coverage-dependencies"] = std::move(deps);
     }
-    if (m_electrochemistry) {
+    if (m_chargeTransfer) {
         if (m_beta != 0.5) {
             node["beta"] = m_beta;
         }
@@ -127,8 +129,16 @@ void CoverageBase::setSpecies(const std::vector<std::string>& species)
 
 void CoverageBase::setContext(const Reaction& rxn, const Kinetics& kin)
 {
-    m_electrochemistry = rxn.checkElectrochemistry(kin);
+    m_chargeTransfer = rxn.checkElectrochemistry(kin);
     setSpecies(kin.thermo().speciesNames());
+
+    m_stoichCoeffs.clear();
+    for (const auto& sp : rxn.reactants) {
+        m_stoichCoeffs.emplace_back(kin.kineticsSpeciesIndex(sp.first), -sp.second);
+    }
+    for (const auto& sp : rxn.products) {
+        m_stoichCoeffs.emplace_back(kin.kineticsSpeciesIndex(sp.first), sp.second);
+    }
 }
 
 StickingCoverage::StickingCoverage()
