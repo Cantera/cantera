@@ -104,6 +104,12 @@ public:
     //! Validate the reaction rate expression
     virtual void validate(const std::string& equation, const Kinetics& kin) {}
 
+    //! Boolean indicating whether rate uses electrochemistry
+    virtual bool usesElectrochemistry() {
+        throw NotImplementedError("ReactionRate::usesElectrochemistry",
+                                  "Not implemented by '{}' object.", type());
+    }
+
     //! Validate the reaction rate expression (legacy call)
     //! @todo deprecate in favor of two-parameter version
     virtual void validate(const std::string& equation) {}

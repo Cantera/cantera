@@ -64,9 +64,10 @@ Reaction::Reaction(const AnyMap& node, const Kinetics& kin)
         if (nDim == 3) {
             setRate(newReactionRate(node, calculateRateCoeffUnits3(kin)));
         } else {
-            // Reaction type is not specified
+            // Instantiate rate object
             AnyMap rateNode = node;
             if (!rateNode.hasKey("type")) {
+                // Reaction type is not specified
                 rateNode["type"] = "Arrhenius";
             }
             std::string type = rateNode["type"].asString();
@@ -530,6 +531,37 @@ bool Reaction::checkSpecies(const Kinetics& kin) const
     checkBalance(kin);
 
     return true;
+}
+
+bool Reaction::checkElectrochemistry(const Kinetics& kin) const
+{
+    // Check electrochemistry
+    vector_fp e_counter(kin.nPhases(), 0.0);
+
+    // Find the number of electrons in the products for each phase
+    for (const auto& sp : products) {
+        size_t kkin = kin.kineticsSpeciesIndex(sp.first);
+        size_t i = kin.speciesPhaseIndex(kkin);
+        size_t kphase = kin.thermo(i).speciesIndex(sp.first);
+        e_counter[i] += sp.second * kin.thermo(i).charge(kphase);
+    }
+
+    // Subtract the number of electrons in the reactants for each phase
+    for (const auto& sp : reactants) {
+        size_t kkin = kin.kineticsSpeciesIndex(sp.first);
+        size_t i = kin.speciesPhaseIndex(kkin);
+        size_t kphase = kin.thermo(i).speciesIndex(sp.first);
+        e_counter[i] -= sp.second * kin.thermo(i).charge(kphase);
+    }
+
+    // If the electrons change phases then the reaction is electrochemical
+    for (double delta_e : e_counter) {
+        if (std::abs(delta_e) > 1e-4) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 ElementaryReaction2::ElementaryReaction2(const Composition& reactants_,

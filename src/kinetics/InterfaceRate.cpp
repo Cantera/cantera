@@ -16,9 +16,9 @@ CoverageBase::CoverageBase()
     , m_acov(0.)
     , m_ecov(0.)
     , m_mcov(0.)
-    , m_electrochemical(false)
+    , m_electrochemistry(false)
     , m_beta(0.5)
-    , m_exchange_current_density_formulation(false)
+    , m_exchangeCurrentDensityFormulation(false)
 {
 }
 
@@ -31,7 +31,7 @@ void CoverageBase::setParameters(const AnyMap& node)
     if (node.hasKey("beta")) {
         m_beta = node["beta"].asDouble();
     }
-    m_exchange_current_density_formulation = node.getBool(
+    m_exchangeCurrentDensityFormulation = node.getBool(
         "exchange-current-density-formulation", false);
 }
 
@@ -42,11 +42,11 @@ void CoverageBase::getParameters(AnyMap& node) const
         getCoverageDependencies(deps);
         node["coverage-dependencies"] = std::move(deps);
     }
-    if (m_electrochemical) {
+    if (m_electrochemistry) {
         if (m_beta != 0.5) {
             node["beta"] = m_beta;
         }
-        if (m_exchange_current_density_formulation) {
+        if (m_exchangeCurrentDensityFormulation) {
             node["exchange-current-density-formulation"] = true;
         }
     }
@@ -125,8 +125,9 @@ void CoverageBase::setSpecies(const std::vector<std::string>& species)
     }
 }
 
-void CoverageBase::setSpecies(const Kinetics& kin)
+void CoverageBase::setContext(const Reaction& rxn, const Kinetics& kin)
 {
+    m_electrochemistry = rxn.checkElectrochemistry(kin);
     setSpecies(kin.thermo().speciesNames());
 }
 
