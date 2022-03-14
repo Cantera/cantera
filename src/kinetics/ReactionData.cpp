@@ -296,7 +296,11 @@ void CoverageData::update(double T, const vector_fp& values)
 
 bool CoverageData::update(const ThermoPhase& phase, const Kinetics& kin)
 {
-    int mf = phase.stateMFNumber();
+    int mf = 0;
+    for (size_t n = 0; n < kin.nPhases(); n++) {
+        mf += kin.thermo(n).stateMFNumber();
+    }
+
     double T = phase.temperature();
     bool changed = false;
     const auto& surf = dynamic_cast<const SurfPhase&>(

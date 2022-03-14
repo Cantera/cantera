@@ -316,6 +316,7 @@ public:
      */
     void setElectricPotential(doublereal v) {
         m_phi = v;
+        invalidateCache();
     }
 
     //! Returns the electric potential of this phase (V).
