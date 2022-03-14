@@ -631,7 +631,7 @@ TEST_F(ReactionToYaml, electrochemical)
     oxide_surf->thermo()->setElectricPotential(-3.4);
     ox_surf->setCoveragesByName("O''(ox):0.2, OH'(ox):0.3, H2O(ox):0.5");
     duplicateReaction(0);
-    EXPECT_TRUE(std::dynamic_pointer_cast<ElectrochemicalReaction2>(duplicate));
+    EXPECT_TRUE(std::dynamic_pointer_cast<InterfaceArrheniusRate>(duplicate->rate()));
     compareReactions();
     compareReactions();
 }
