@@ -1757,7 +1757,7 @@ class InterfaceReactionTests(ReactionTests):
             args = list(cls._rate.values())
             cls._rate_obj = ct.Arrhenius(*args)
             cls._cls = ct.InterfaceReaction
-            cls._rxn_type = "interface"
+            cls._rxn_type = "interface-legacy"
             cls._rate_type = None
             cls._rate_cls = None
             cls._legacy_uses_rate = True
@@ -1815,6 +1815,16 @@ class InterfaceReactionTests(ReactionTests):
         if self._legacy and self._coverage_deps:
             pytest.skip("Legacy: interface rate does not include coverage terms")
         super().test_rate()
+
+    def test_electrochemistry(self):
+        if self._legacy:
+            pytest.skip("Legacy: property uses_electrochemisty not implemented")
+        rxn = self.from_yaml()
+        sol2 = ct.Interface(thermo="Surface", kinetics="interface",
+                    species=self.species, reactions=[rxn], adjacent=self.adj)
+        rate2 = sol2.reaction(0).rate
+        assert not rate2.uses_electrochemistry
+        assert np.isnan(rate2.beta)
 
 
 class TestArrheniusInterfaceReaction(InterfaceReactionTests, utilities.CanteraTest):
