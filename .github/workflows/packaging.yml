@@ -65,3 +65,10 @@ jobs:
           -f upload=${{ env.UPLOAD_TO_ANACONDA }}
         env:
           GITHUB_TOKEN: ${{ secrets.CONDA_PACKAGE_PAT }}
+      - name: Trigger Windows MSI Builds
+        run: >
+          gh workflow run -R cantera/cantera-windows-binaries
+          main.yaml
+          -f incoming_ref=${{ env.REF }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.WINDOWS_MSI_PAT }}
