@@ -186,6 +186,14 @@ public:
         return correction;
     }
 
+    //! Return the charge transfer beta parameter
+    double beta() const {
+        if (m_chargeTransfer) {
+            return m_beta;
+        }
+        return NAN;
+    }
+
     //! Return site density [kmol/m^2]
     /*!
      *  @warning  This method is an experimental part of the %Cantera API and
@@ -194,6 +202,7 @@ public:
     double siteDensity() const {
         return m_siteDensity;
     }
+
 
     //! Set site density [kmol/m^2]
     /*!
@@ -214,8 +223,8 @@ protected:
     double m_ecov; //!< Coverage contribution to activation energy
     double m_mcov; //!< Coverage term in reaction rate
     bool m_chargeTransfer; //!< Boolean indicating use of electrochemistry
-    double m_beta; //!< Forward value of apparent electrochemical transfer coefficient
     bool m_exchangeCurrentDensityFormulation; //! Electrochemistry only
+    double m_beta; //!< Forward value of apparent electrochemical transfer coefficient
     double m_deltaG0; //!< Standard state Gibbs free energy
     double m_prodStandardConcentrations; //!< Products of standard concentrations
     std::map<size_t, size_t> m_indices; //!< Map holding indices of coverage species
