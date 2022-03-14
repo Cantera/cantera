@@ -42,9 +42,10 @@ public:
     virtual bool replace(size_t rxn_index, ReactionRate& rate) = 0;
 
     //! Update number of species and reactions
-    //! @param n_species  number of species
-    //! @param n_reactions  number of reactions
-    virtual void resize(size_t n_species, size_t n_reactions) = 0;
+    //! @param nSpecies  number of species
+    //! @param nReactions  number of reactions
+    //! @param nPhases  number of phases
+    virtual void resize(size_t nSpecies, size_t nReactions, size_t nPhases) = 0;
 
     //! Evaluate all rate constants handled by the evaluator
     //! @param kf  array of rate constants

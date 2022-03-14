@@ -59,8 +59,8 @@ public:
         return false;
     }
 
-    virtual void resize(size_t n_species, size_t n_reactions) override {
-        m_shared.resize(n_species, n_reactions);
+    virtual void resize(size_t nSpecies, size_t nReactions, size_t nPhases) override {
+        m_shared.resize(nSpecies, nReactions, nPhases);
         m_shared.invalidateCache();
     }
 

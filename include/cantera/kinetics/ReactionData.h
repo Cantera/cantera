@@ -76,8 +76,8 @@ struct ReactionData
     //! Restore data container after a perturbation
     virtual void restore();
 
-    //! Update number of species and reactions
-    virtual void resize(size_t n_species, size_t n_reactions) {}
+    //! Update number of species, reactions and phases
+    virtual void resize(size_t nSpecies, size_t nReactions, size_t nPhases) {}
 
     //! Force shared data and reaction rates to be updated next time. This is called by
     //! functions that change quantities affecting rate calculations that are normally
@@ -153,8 +153,8 @@ struct BlowersMaselData : public ReactionData
 
     using ReactionData::update;
 
-    virtual void resize(size_t n_species, size_t n_reactions) override {
-        partial_molar_enthalpies.resize(n_species, 0.);
+    virtual void resize(size_t nSpecies, size_t nReactions, size_t nPhases) override {
+        partial_molar_enthalpies.resize(nSpecies, 0.);
         ready = true;
     }
 
@@ -193,9 +193,9 @@ struct FalloffData : public ReactionData
 
     virtual void restore() override;
 
-    virtual void resize(size_t n_species, size_t n_reactions) override {
-        conc_3b.resize(n_reactions, NAN);
-        m_conc_3b_buf.resize(n_reactions, NAN);
+    virtual void resize(size_t nSpecies, size_t nReactions, size_t nPhases) override {
+        conc_3b.resize(nReactions, NAN);
+        m_conc_3b_buf.resize(nReactions, NAN);
         ready = true;
     }
 
@@ -323,12 +323,13 @@ struct CoverageData : public BlowersMaselData
 
     virtual void perturbTemperature(double deltaT);
 
-    virtual void resize(size_t n_species, size_t n_reactions) override {
-        coverages.resize(n_species, 0.);
-        logCoverages.resize(n_species, 0.);
-        partial_molar_enthalpies.resize(n_species, 0.);
-        standardChemPotentials.resize(n_species, 0.);
-        standardConcentrations.resize(n_species, 0.);
+    virtual void resize(size_t nSpecies, size_t nReactions, size_t nPhases) override {
+        coverages.resize(nSpecies, 0.);
+        logCoverages.resize(nSpecies, 0.);
+        partial_molar_enthalpies.resize(nSpecies, 0.);
+        electricPotentials.resize(nPhases, 0.);
+        standardChemPotentials.resize(nSpecies, 0.);
+        standardConcentrations.resize(nSpecies, 0.);
         ready = true;
     }
 
@@ -336,6 +337,7 @@ struct CoverageData : public BlowersMaselData
 
     vector_fp coverages; //!< surface coverages
     vector_fp logCoverages; //!< logarithm of surface coverages
+    vector_fp electricPotentials; //!< electric potentials of phases
     vector_fp standardChemPotentials; //!< standard state chemical potentials
     vector_fp standardConcentrations; //!< standard state concentrations
 };
