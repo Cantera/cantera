@@ -105,14 +105,6 @@ if "clean" in COMMAND_LINE_TARGETS:
     remove_file("include/cantera/base/config.h")
     remove_file("src/pch/system.h.gch")
     remove_directory("include/cantera/ext")
-    remove_file("interfaces/cython/cantera/_cantera.cpp")
-    remove_file("interfaces/cython/cantera/_cantera.h")
-    remove_file("interfaces/cython/setup.cfg")
-    remove_file("interfaces/cython/LICENSE.txt")
-    remove_file("interfaces/cython/README.rst")
-    remove_file("interfaces/python_minimal/setup.cfg")
-    remove_file("interfaces/python_minimal/LICENSE.txt")
-    remove_file("interfaces/python_minimal/README.rst")
     remove_file("config.log")
     remove_directory("doc/sphinx/matlab/examples")
     remove_file("doc/sphinx/matlab/examples.rst")
@@ -121,24 +113,10 @@ if "clean" in COMMAND_LINE_TARGETS:
             remove_file(name)
     remove_directory("doc/sphinx/cython/examples")
     remove_file("doc/sphinx/cython/examples.rst")
-    remove_directory("interfaces/cython/Cantera.egg-info")
-    remove_directory("interfaces/python_minimal/Cantera_minimal.egg-info")
-    for name in Path("interfaces/cython/cantera/data/").iterdir():
-        if name.is_dir():
-            remove_directory(name)
-        elif name.name != "__init__.py":
-            remove_file(name)
-    remove_directory("interfaces/cython/cantera/test/data/test_subdir")
-    for name in Path("interfaces/cython/cantera/test/data/").iterdir():
-        if name.name != "__init__.py":
-            remove_file(name)
     for name in Path(".").glob("*.msi"):
         remove_file(name)
     for name in Path("site_scons").glob("**/*.pyc"):
         remove_file(name)
-    for name in Path("interfaces/python_minimal/cantera").iterdir():
-        if name.name != "__init__.py":
-            remove_file(name)
     remove_file("interfaces/matlab/toolbox/cantera_shared.dll")
     remove_file("interfaces/matlab/Contents.m")
     remove_file("interfaces/matlab/ctpath.m")
