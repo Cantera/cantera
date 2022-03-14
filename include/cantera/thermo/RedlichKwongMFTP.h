@@ -117,7 +117,9 @@ public:
     virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
     virtual void getPartialMolarEntropies(doublereal* sbar) const;
     virtual void getPartialMolarIntEnergies(doublereal* ubar) const;
-    virtual void getPartialMolarCp(doublereal* cpbar) const;
+    virtual void getPartialMolarCp(double* cpbar) const {
+        throw NotImplementedError("RedlichKwongMFTP::getPartialMolarCp");
+    }
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
     //! @}
 
