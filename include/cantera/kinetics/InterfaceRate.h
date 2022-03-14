@@ -112,18 +112,29 @@ public:
             m_mcov += m_mc[item.first] * shared_data.logCoverages[item.second];
         }
 
+        // Update change in electrical potential energy
+        if (m_chargeTransfer) {
+            m_deltaPotential_RT = 0.;
+            for (const auto& ch : m_netCharges) {
+                m_deltaPotential_RT +=
+                    shared_data.electricPotentials[ch.first] * ch.second;
+            }
+            m_deltaPotential_RT /= GasConstant * shared_data.temperature;
+        }
+
         // Update quantities used for exchange current density formulation
         if (m_exchangeCurrentDensityFormulation) {
-            m_deltaG0 = 0.;
+            m_deltaGibbs0_RT = 0.;
             m_prodStandardConcentrations = 1.;
             for (const auto& item : m_stoichCoeffs) {
-                m_deltaG0 +=
+                m_deltaGibbs0_RT +=
                     shared_data.standardChemPotentials[item.first] * item.second;
                 if (item.second > 0.) {
                     m_prodStandardConcentrations *=
                         shared_data.standardConcentrations[item.first];
                 }
             }
+            m_deltaGibbs0_RT /= GasConstant * shared_data.temperature;
         }
     }
 
@@ -131,47 +142,33 @@ public:
     //! transfer reactions.
     /*!
      *  For reactions that transfer charge across a potential difference, the
-     *  activation energies are modified by the potential difference. This method
-     *  calculates a correction factor based on the net electric potential energy
-     *  change due to the reaction
+     *  activation energies are modified by the potential difference. The correction
+     *  factor is based on the net electric potential energy change
      *  \f[
      *   deltaElectricEnergy = sum_i ( pot_i nu_ij)
      *  \f]
-     *  where potential energies \f$ pot_i = F phi_i z_i \f$ are passed as an argument.
+     *  where potential energies are calculated as \f$ pot_i = F phi_i z_i \f$.
      *
      *  When an electrode reaction rate is specified in terms of its exchange current
      *  density, the correction factor is adjusted to the standard reaction rate
      *  constant form and units. Specifically, this converts a reaction rate constant
      *  that was specified in units of A/m2 to kmol/m2/s.
      *
-     *  @param pot  Array of potential energies due to voltages
-     *
      *  @warning  The updated calculation of voltage corrections is an experimental
      *      part of the %Cantera API and may be changed or removed without notice.
      */
     //
-    double voltageCorrection(const double* pot, double RT) {
-        if (!m_chargeTransfer) {
-            return 1.;
-        }
-
-        // Compute the change in electrical potential energy.
-        // This will only be non-zero if a potential difference is present.
-        double deltaElectricEnergy = 0.;
-        for (const auto& item : m_stoichCoeffs) {
-            deltaElectricEnergy += pot[item.first] * item.second;
-        }
-
+    double voltageCorrection() const {
         // Calculate reaction rate correction. Only modify those with a non-zero
         // activation energy.
         double correction = 1.;
-        if (deltaElectricEnergy != 0.) {
+        if (m_deltaPotential_RT != 0.) {
             // Comments preserved from previous implementation:
             // Below we decrease the activation energy below zero.
             // NOTE, there is some discussion about this point. Should we decrease the
             // activation energy below zero? I don't think this has been decided in any
             // definitive way. The treatment below is numerically more stable, however.
-            correction = exp(-m_beta * deltaElectricEnergy / RT);
+            correction = exp(-m_beta * m_deltaPotential_RT);
         }
 
         // Update correction if exchange current density formulation format is used.
@@ -179,7 +176,7 @@ public:
             // Comment preserved from previous implementation:
             // We need to have the straight chemical reaction rate constant to
             // come out of this calculation.
-            double tmp = exp(-m_beta * m_deltaG0 / RT);
+            double tmp = exp(-m_beta * m_deltaGibbs0_RT);
             tmp /= m_prodStandardConcentrations * Faraday;
             correction *= tmp;
         }
@@ -214,7 +211,6 @@ public:
         return m_siteDensity;
     }
 
-
     //! Set site density [kmol/m^2]
     /*!
      *  @internal  This method is used for testing purposes only as the site density
@@ -236,7 +232,8 @@ protected:
     bool m_chargeTransfer; //!< Boolean indicating use of electrochemistry
     bool m_exchangeCurrentDensityFormulation; //! Electrochemistry only
     double m_beta; //!< Forward value of apparent electrochemical transfer coefficient
-    double m_deltaG0; //!< Standard state Gibbs free energy
+    double m_deltaPotential_RT; //!< Normalized electric potential energy change
+    double m_deltaGibbs0_RT; //!< Normalized standard state Gibbs free energy change
     double m_prodStandardConcentrations; //!< Products of standard concentrations
     std::map<size_t, size_t> m_indices; //!< Map holding indices of coverage species
     std::vector<std::string> m_cov; //!< Vector holding names of coverage species
@@ -244,8 +241,12 @@ protected:
     vector_fp m_ec; //!< Vector holding coverage-specific activation energy dependence
     vector_fp m_mc; //!< Vector holding coverage-specific power-law exponents
 
-    //! Pairs of species indices and multiplers to calculate enthalpy change
+private:
+    //! Pairs of species index and multiplers to calculate enthalpy change
     std::vector<std::pair<size_t, double>> m_stoichCoeffs;
+
+    //! Pairs of phase index and net electric charges (same order as m_stoichCoeffs)
+    std::vector<std::pair<size_t, double>> m_netCharges;
 };
 
 
@@ -413,8 +414,12 @@ public:
     //! Evaluate reaction rate
     //! @param shared_data  data shared by all reactions of a given type
     double evalFromStruct(const DataType& shared_data) const {
-        return RateType::evalRate(shared_data.logT, shared_data.recipT) *
+        double out = RateType::evalRate(shared_data.logT, shared_data.recipT) *
             std::exp(std::log(10.0) * m_acov - m_ecov * shared_data.recipT + m_mcov);
+        if (m_chargeTransfer) {
+            out *= voltageCorrection();
+        }
+        return out;
     }
 
     //! Evaluate derivative of reaction rate with respect to temperature
@@ -545,7 +550,11 @@ public:
     double evalFromStruct(const DataType& shared_data) const {
         double out = RateType::evalRate(shared_data.logT, shared_data.recipT) *
             std::exp(std::log(10.0) * m_acov - m_ecov * shared_data.recipT + m_mcov);
-
+        if (m_chargeTransfer) {
+            // the physical interpretation of a sticking charge transfer reaction
+            // remains to be resolved.
+            out *= voltageCorrection();
+        }
         if (m_motzWise) {
             out /= 1 - 0.5 * out;
         }
