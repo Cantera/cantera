@@ -748,6 +748,20 @@ cdef class InterfaceRateBase(ArrheniusRateBase):
         def __set__(self, double site_density):
             self.coverage.setSiteDensity(site_density)
 
+    property uses_electrochemistry:
+        """
+        Return boolean flag indicating whether rate involves a charge transfer.
+        """
+        def __get__(self):
+            return self.coverage.usesElectrochemistry()
+
+    property beta:
+        """
+        Return the charge transfer beta parameter
+        """
+        def __get__(self):
+            return self.coverage.beta()
+
 
 cdef class InterfaceArrheniusRate(InterfaceRateBase):
     r"""
@@ -2838,20 +2852,19 @@ cdef class InterfaceReaction(ElementaryReaction):
         `StickingArrheniusRate` reaction rate.
     """
     _reaction_type = "interface"
-    _has_legacy = False
+    _has_legacy = True
     _hybrid = False
-
-    property uses_legacy:
-        # legacy framework is implicitly used
-        def __get__(self):
-            return True
 
     def __init__(self, equation=None, rate=None, Kinetics kinetics=None,
                  init=True, legacy=False, **kwargs):
 
         if init and equation and kinetics:
-
-            rxn_type = self._reaction_type
+            warnings.warn(
+                "Class 'InterfaceReaction' to be removed after Cantera 2.6.\n"
+                "These reactions can be constructed by passing a "
+                "'InterfaceArrheniusRate' or 'StickingArrheniusRate' "
+                "object as the 'rate' argument to the 'Reaction' class.")
+            rxn_type = self._reaction_type + "-legacy"
             spec = {"equation": equation, "type": rxn_type}
             if isinstance(rate, dict):
                 spec["rate-constant"] = rate
