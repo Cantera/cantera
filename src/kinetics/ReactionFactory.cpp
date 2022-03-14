@@ -112,28 +112,29 @@ ReactionFactory::ReactionFactory()
     });
 
     // register interface reactions
-    reg("interface", [](const AnyMap& node, const Kinetics& kin) {
+    reg("interface-legacy", [](const AnyMap& node, const Kinetics& kin) {
         InterfaceReaction2* R = new InterfaceReaction2();
         if (!node.empty()) {
             setupInterfaceReaction(*R, node, kin);
         }
         return R;
     });
-    addAlias("interface", "surface");
-    addAlias("interface", "edge");
-    addAlias("interface", "interface-legacy");
+    addAlias("interface-legacy", "interface");
+    addAlias("interface-legacy", "surface");
+    addAlias("interface-legacy", "edge");
 
     addAlias("reaction", "interface-Arrhenius");
     addAlias("reaction", "sticking-Arrhenius");
 
     // register electrochemical reactions
-    reg("electrochemical", [](const AnyMap& node, const Kinetics& kin) {
+    reg("electrochemical-legacy", [](const AnyMap& node, const Kinetics& kin) {
         ElectrochemicalReaction2* R = new ElectrochemicalReaction2();
         if (!node.empty()) {
             setupElectrochemicalReaction(*R, node, kin);
         }
         return R;
     });
+    addAlias("electrochemical-legacy", "electrochemical");
 
     addAlias("reaction", "two-temperature-plasma");
 
@@ -204,20 +205,22 @@ ReactionFactoryXML::ReactionFactoryXML()
     addAlias("Chebyshev-legacy", "chebyshev");
 
     // register interface reactions
-    reg("interface", [](const XML_Node& node) {
+    reg("interface-legacy", [](const XML_Node& node) {
         Reaction* R = new InterfaceReaction2();
         setupInterfaceReaction(*(InterfaceReaction2*)R, node);
         return R;
     });
-    addAlias("interface", "surface");
-    addAlias("interface", "edge");
+    addAlias("interface-legacy", "interface");
+    addAlias("interface-legacy", "surface");
+    addAlias("interface-legacy", "edge");
 
     // register electrochemical reactions
-    reg("electrochemical", [](const XML_Node& node) {
+    reg("electrochemical-legacy", [](const XML_Node& node) {
         Reaction* R = new ElectrochemicalReaction2();
         setupElectrochemicalReaction(*(ElectrochemicalReaction2*)R, node);
         return R;
     });
+    addAlias("interface-legacy", "electrochemical");
 }
 
 bool isThreeBody(const Reaction& R)
@@ -256,11 +259,6 @@ bool isThreeBody(const Reaction& R)
 
     // either reactant or product side involves exactly three species
     return (nreac == 3) || (nprod == 3);
-}
-
-bool isElectrochemicalReaction(Reaction& R, const Kinetics& kin)
-{
-    return R.checkElectrochemistry(kin);
 }
 
 unique_ptr<Reaction> newReaction(const std::string& type)
@@ -313,17 +311,6 @@ unique_ptr<Reaction> newReaction(const AnyMap& rxn_node, const Kinetics& kin)
                               rxn_node, &kin);
         if (isThreeBody(testReaction)) {
             type = "three-body";
-        }
-    }
-
-    if (nDim < 3 && type == "elementary") {
-        // See if this is an electrochemical reaction: type of
-        // receiving reaction object is unimportant in this case
-        ElementaryReaction2 testReaction;
-        parseReactionEquation(testReaction, rxn_node["equation"].asString(),
-                              rxn_node, &kin);
-        if (isElectrochemicalReaction(testReaction, kin)) {
-            type = "electrochemical";
         }
     }
 

@@ -427,7 +427,7 @@ public:
     using Reaction::validate;
 
     virtual std::string type() const {
-        return "interface";
+        return "interface-legacy";
     }
 
     //! Adjustments to the Arrhenius rate expression dependent on surface
