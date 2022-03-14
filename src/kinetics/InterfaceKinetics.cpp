@@ -100,7 +100,7 @@ void InterfaceKinetics::_update_rates_T()
 
     // loop over interface MultiRate evaluators for each reaction type
     for (auto& rates : m_interfaceRates) {
-        bool changed = rates->update(thermo(), *this);
+        bool changed = rates->update(thermo(surfacePhaseIndex()), *this);
         if (changed) {
             rates->getRateConstants(m_rfn.data());
             m_ROP_ok = false;

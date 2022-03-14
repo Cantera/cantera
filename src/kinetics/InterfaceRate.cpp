@@ -19,7 +19,8 @@ CoverageBase::CoverageBase()
     , m_chargeTransfer(false)
     , m_exchangeCurrentDensityFormulation(false)
     , m_beta(0.5)
-    , m_deltaG0(NAN)
+    , m_deltaPotential_RT(NAN)
+    , m_deltaGibbs0_RT(NAN)
     , m_prodStandardConcentrations(NAN)
 {
 }
@@ -129,8 +130,12 @@ void CoverageBase::setSpecies(const std::vector<std::string>& species)
 
 void CoverageBase::setContext(const Reaction& rxn, const Kinetics& kin)
 {
-    m_chargeTransfer = rxn.checkElectrochemistry(kin);
     setSpecies(kin.thermo().speciesNames());
+
+    m_chargeTransfer = rxn.checkElectrochemistry(kin);
+    if (!m_chargeTransfer) {
+        return;
+    }
 
     m_stoichCoeffs.clear();
     for (const auto& sp : rxn.reactants) {
@@ -138,6 +143,14 @@ void CoverageBase::setContext(const Reaction& rxn, const Kinetics& kin)
     }
     for (const auto& sp : rxn.products) {
         m_stoichCoeffs.emplace_back(kin.kineticsSpeciesIndex(sp.first), sp.second);
+    }
+
+    m_netCharges.clear();
+    for (const auto& sp : m_stoichCoeffs) {
+        size_t n = kin.speciesPhaseIndex(sp.first);
+        size_t start = kin.kineticsSpeciesIndex(0, n);
+        double charge = kin.thermo(n).charge(sp.first - start);
+        m_netCharges.emplace_back(n, Faraday * charge * sp.second);
     }
 }
 
