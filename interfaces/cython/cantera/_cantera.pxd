@@ -552,6 +552,8 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         void setSpecies(vector[string]&) except +translate_exception
         double siteDensity()
         void setSiteDensity(double)
+        cbool usesElectrochemistry()
+        double beta()
 
     cdef cppclass CxxStickingCoverage "Cantera::StickingCoverage" (CxxCoverageBase):
         cbool motzWiseCorrection()
