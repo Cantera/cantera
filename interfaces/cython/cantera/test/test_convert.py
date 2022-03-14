@@ -663,12 +663,16 @@ class cti2yamlTest(utilities.CanteraTest):
 
         return ctiPhase, yamlPhase
 
-    def checkThermo(self, ctiPhase, yamlPhase, temperatures, tol=1e-7):
+    def checkThermo(self, ctiPhase, yamlPhase, temperatures, tol=1e-7, check_cp=True):
         for T in temperatures:
             ctiPhase.TP = T, ct.one_atm
             yamlPhase.TP = T, ct.one_atm
-            cp_cti = ctiPhase.partial_molar_cp
-            cp_yaml = yamlPhase.partial_molar_cp
+            if check_cp:
+                cp_cti = ctiPhase.partial_molar_cp
+                cp_yaml = yamlPhase.partial_molar_cp
+            else:
+                with pytest.raises(ct.CanteraError):
+                    yamlPhase.partial_molar_cp
             h_cti = ctiPhase.partial_molar_enthalpies
             h_yaml = yamlPhase.partial_molar_enthalpies
             s_cti = ctiPhase.partial_molar_entropies
@@ -676,7 +680,8 @@ class cti2yamlTest(utilities.CanteraTest):
             self.assertNear(ctiPhase.density, yamlPhase.density)
             for i in range(ctiPhase.n_species):
                 message = ' for species {0} at T = {1}'.format(i, T)
-                self.assertNear(cp_cti[i], cp_yaml[i], tol, msg='cp'+message)
+                if check_cp:
+                    self.assertNear(cp_cti[i], cp_yaml[i], tol, msg='cp'+message)
                 self.assertNear(h_cti[i], h_yaml[i], tol, msg='h'+message)
                 self.assertNear(s_cti[i], s_yaml[i], tol, msg='s'+message)
 
@@ -779,13 +784,13 @@ class cti2yamlTest(utilities.CanteraTest):
         ctiGas, yamlGas = self.checkConversion('co2_RK_example')
         for P in [1e5, 2e6, 1.3e7]:
             yamlGas.TP = ctiGas.TP = 300, P
-            self.checkThermo(ctiGas, yamlGas, [300, 400, 500])
+            self.checkThermo(ctiGas, yamlGas, [300, 400, 500], check_cp=False)
 
     @utilities.slow_test
     def test_Redlich_Kwong_ndodecane(self):
         self.convert("nDodecane_Reitz", self.cantera_data_path)
         ctiGas, yamlGas = self.checkConversion('nDodecane_Reitz')
-        self.checkThermo(ctiGas, yamlGas, [300, 400, 500])
+        self.checkThermo(ctiGas, yamlGas, [300, 400, 500], check_cp=False)
         self.checkKinetics(ctiGas, yamlGas, [300, 500, 1300], [1e5, 2e6, 1.4e7],
                            1e-6)
 
@@ -889,12 +894,17 @@ class ctml2yamlTest(utilities.CanteraTest):
 
         return ctmlPhase, yamlPhase
 
-    def checkThermo(self, ctmlPhase, yamlPhase, temperatures, pressure=ct.one_atm, tol=1e-7):
+    def checkThermo(self, ctmlPhase, yamlPhase, temperatures, pressure=ct.one_atm,
+                    tol=1e-7, check_cp=True):
         for T in temperatures:
             ctmlPhase.TP = T, pressure
             yamlPhase.TP = T, pressure
-            cp_ctml = ctmlPhase.partial_molar_cp
-            cp_yaml = yamlPhase.partial_molar_cp
+            if check_cp:
+                cp_ctml = ctmlPhase.partial_molar_cp
+                cp_yaml = yamlPhase.partial_molar_cp
+            else:
+                with pytest.raises(ct.CanteraError):
+                    yamlPhase.partial_molar_cp
             h_ctml = ctmlPhase.partial_molar_enthalpies
             h_yaml = yamlPhase.partial_molar_enthalpies
             s_ctml = ctmlPhase.partial_molar_entropies
@@ -902,7 +912,8 @@ class ctml2yamlTest(utilities.CanteraTest):
             self.assertNear(ctmlPhase.density, yamlPhase.density)
             for i in range(ctmlPhase.n_species):
                 message = ' for species {0} at T = {1}'.format(ctmlPhase.species_names[i], T)
-                self.assertNear(cp_ctml[i], cp_yaml[i], tol, msg='cp'+message)
+                if check_cp:
+                    self.assertNear(cp_ctml[i], cp_yaml[i], tol, msg='cp'+message)
                 self.assertNear(h_ctml[i], h_yaml[i], tol, msg='h'+message)
                 self.assertNear(s_ctml[i], s_yaml[i], tol, msg='s'+message)
 
@@ -1002,13 +1013,13 @@ class ctml2yamlTest(utilities.CanteraTest):
         ctmlGas, yamlGas = self.checkConversion('co2_RK_example')
         for P in [1e5, 2e6, 1.3e7]:
             yamlGas.TP = ctmlGas.TP = 300, P
-            self.checkThermo(ctmlGas, yamlGas, [300, 400, 500])
+            self.checkThermo(ctmlGas, yamlGas, [300, 400, 500], check_cp=False)
 
     @utilities.slow_test
     def test_Redlich_Kwong_ndodecane(self):
         self.convert("nDodecane_Reitz", self.cantera_data_path)
         ctmlGas, yamlGas = self.checkConversion('nDodecane_Reitz')
-        self.checkThermo(ctmlGas, yamlGas, [300, 400, 500])
+        self.checkThermo(ctmlGas, yamlGas, [300, 400, 500], check_cp=False)
         self.checkKinetics(ctmlGas, yamlGas, [300, 500, 1300], [1e5, 2e6, 1.4e7],
                            1e-6)
 

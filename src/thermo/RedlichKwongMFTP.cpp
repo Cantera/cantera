@@ -341,12 +341,6 @@ void RedlichKwongMFTP::getPartialMolarIntEnergies(doublereal* ubar) const
     scale(ubar, ubar+m_kk, ubar, RT());
 }
 
-void RedlichKwongMFTP::getPartialMolarCp(doublereal* cpbar) const
-{
-    getCp_R(cpbar);
-    scale(cpbar, cpbar+m_kk, cpbar, GasConstant);
-}
-
 void RedlichKwongMFTP::getPartialMolarVolumes(doublereal* vbar) const
 {
     for (size_t k = 0; k < m_kk; k++) {
