@@ -131,7 +131,8 @@ public:
      *  @return Beta parameter. This defaults to zero, even for charge
      *    transfer reactions.
      *
-     *  @deprecated  To be removed after Cantera 2.6.
+     *  @deprecated  To be removed after Cantera 2.6. Parameter should be accessed
+     *              from ReactionRate object instead.
      */
     doublereal electrochem_beta(size_t irxn) const;
 
@@ -413,6 +414,7 @@ protected:
     //! @param i  Reaction number
     //! @param r  Reaction object containing rate coefficient parameters
     //! @param replace  True if replacing an existing reaction
+    //! @deprecated  To be removed after Cantera 2.6.
     SurfaceArrhenius buildSurfaceArrhenius(size_t i, InterfaceReaction2& r,
                                            bool replace);
 

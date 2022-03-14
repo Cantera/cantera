@@ -204,6 +204,8 @@ void InterfaceKinetics::updateMu0()
     // First task is update the electrical potentials from the Phases
     _update_rates_phi();
 
+    // @todo  There is significant potential to further simplify calculations
+    //      once the old framework is removed
     updateExchangeCurrentQuantities();
     size_t ik = 0;
     for (size_t n = 0; n < nPhases(); n++) {
@@ -804,6 +806,10 @@ void InterfaceKinetics::resizeSpecies()
 
 doublereal InterfaceKinetics::electrochem_beta(size_t irxn) const
 {
+    warn_deprecated("InterfaceKinetics::electrochem_beta",
+                    "This function only works for the legacy framework. "
+                    "To be removed after Cantera 2.6.");
+
     for (size_t i = 0; i < m_ctrxn.size(); i++) {
         if (m_ctrxn[i] == irxn) {
             return m_beta[i];
