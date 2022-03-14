@@ -23,7 +23,6 @@ class MultiRate final : public MultiRateBase
     CT_DEFINE_HAS_MEMBER(has_ddT, ddTScaledFromStruct)
     CT_DEFINE_HAS_MEMBER(has_ddP, perturbPressure)
     CT_DEFINE_HAS_MEMBER(has_ddM, perturbThirdBodies)
-    CT_DEFINE_HAS_MEMBER(has_chargeTransfer, voltageCorrection)
 
 public:
     virtual std::string type() override {
@@ -99,15 +98,6 @@ public:
         _process_ddM(rop, kf, deltaM, overwrite);
     }
 
-    virtual void processVoltageCorrections(double* kf,
-                                           const double* pot,
-                                           double RT) override
-    {
-        // call helper function: implementation depends on whether
-        // ReactionRate::voltageCorrection is defined
-        _processVoltageCorrections(kf, pot, RT);
-    }
-
     virtual void update(double T) override {
         m_shared.update(T);
         _update();
@@ -169,22 +159,6 @@ protected:
     template <typename T=RateType,
         typename std::enable_if<!has_update<T>::value, bool>::type = true>
     void _updateRate(RateType& rate) {
-    }
-
-    //! Helper function to update a single rate that has a `voltageCorrection` method.
-    template <typename T=RateType,
-        typename std::enable_if<has_chargeTransfer<T>::value, bool>::type = true>
-    void _processVoltageCorrections(double* kf, const double* pot, double RT) {
-        for (auto& rxn : m_rxn_rates) {
-            kf[rxn.first] *= rxn.second.voltageCorrection(pot, RT);
-        }
-    }
-
-    //! Helper function for single rate that does not implement `updateFromStruct`.
-    //! Exists to allow generic implementations of `evalSingle` and `ddTSingle`.
-    template <typename T=RateType,
-        typename std::enable_if<!has_chargeTransfer<T>::value, bool>::type = true>
-    void _processVoltageCorrections(double* kf, const double* pot, double RT) {
     }
 
     //! Helper function to process temperature derivatives for rate types that

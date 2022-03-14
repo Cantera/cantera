@@ -437,13 +437,9 @@ protected:
 
     bool m_redo_rates;
 
-    //! Vector of rate handlers for interface reactions without charge transfer
+    //! Vector of rate handlers for interface reactions
     std::vector<unique_ptr<MultiRateBase>> m_interfaceRates;
     std::map<std::string, size_t> m_interfaceTypes; //!< Rate handler mapping
-
-    //! Vector of rate handlers for charge transfer reactions
-    std::vector<unique_ptr<MultiRateBase>> m_chargeTransferRates;
-    std::map<std::string, size_t> m_chargeTransferTypes; //!< Rate handler mapping
 
     //! Vector of irreversible reaction numbers
     /*!
@@ -641,6 +637,8 @@ protected:
      *  to the forward reaction rate for those reactions.
      *
      *    fac = exp ( - beta * (delta_phi))
+     *
+     *  @deprecated  To be removed after Cantera 2.6.
      */
     bool m_has_electrochem_rxns;
 

@@ -186,6 +186,17 @@ public:
         return correction;
     }
 
+    //! Boolean indicating whether rate uses electrochemistry
+    /*!
+     *  If this is true, the Butler-Volmer correction is applied
+     *  to the forward reaction rate.
+     *
+     *    fac = exp ( - beta * (delta_phi))
+     */
+    bool usesElectrochemistry() {
+        return m_chargeTransfer;
+    }
+
     //! Return the charge transfer beta parameter
     double beta() const {
         if (m_chargeTransfer) {
@@ -392,10 +403,6 @@ public:
         CoverageBase::setContext(rxn, kin);
     }
 
-    virtual bool usesElectrochemistry() override {
-        return m_chargeTransfer;
-    }
-
     //! Update reaction rate parameters
     //! @param shared_data  data shared by all reactions of a given type
     void updateFromStruct(const DataType& shared_data) {
@@ -523,10 +530,6 @@ public:
         if (err_reactions.size()) {
             warn_user("StickingRate::validate", to_string(err_reactions));
         }
-    }
-
-    virtual bool usesElectrochemistry() override {
-        return m_chargeTransfer;
     }
 
     //! Update reaction rate parameters
