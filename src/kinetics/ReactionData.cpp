@@ -319,6 +319,7 @@ bool CoverageData::update(const ThermoPhase& phase, const Kinetics& kin)
         for (size_t n = 0; n < kin.nPhases(); n++) {
             size_t start = kin.kineticsSpeciesIndex(0, n);
             const auto& ph = kin.thermo(n);
+            electricPotentials[n] = ph.electricPotential();
             ph.getPartialMolarEnthalpies(partial_molar_enthalpies.data() + start);
             ph.getStandardChemPotentials(standardChemPotentials.data() + start);
             size_t nsp = ph.nSpecies();

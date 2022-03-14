@@ -23,7 +23,7 @@ void BulkKinetics::resizeReactions()
 
     m_multi_concm.resizeCoeffs(nTotalSpecies(), nReactions());
     for (auto& rates : m_bulk_rates) {
-        rates->resize(nTotalSpecies(), nReactions());
+        rates->resize(nTotalSpecies(), nReactions(), nPhases());
         // @todo ensure that ReactionData are updated; calling rates->update
         //      blocks correct behavior in GasKinetics::update_rates_T
         //      and running updateROP() is premature
@@ -141,7 +141,7 @@ bool BulkKinetics::addReaction(shared_ptr<Reaction> r, bool resize)
         if (m_bulk_types.find(rate->type()) == m_bulk_types.end()) {
             m_bulk_types[rate->type()] = m_bulk_rates.size();
             m_bulk_rates.push_back(rate->newMultiRate());
-            m_bulk_rates.back()->resize(m_kk, nReactions());
+            m_bulk_rates.back()->resize(m_kk, nReactions(), nPhases());
         }
 
         // Set index of rate to number of reaction within kinetics
@@ -223,7 +223,7 @@ void BulkKinetics::resizeSpecies()
     m_phys_conc.resize(m_kk);
     m_grt.resize(m_kk);
     for (auto& rates : m_bulk_rates) {
-        rates->resize(m_kk, nReactions());
+        rates->resize(m_kk, nReactions(), nPhases());
     }
 }
 
