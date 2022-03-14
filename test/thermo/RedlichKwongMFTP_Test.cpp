@@ -204,4 +204,22 @@ TEST_F(RedlichKwongMFTP_Test, localCritProperties)
     EXPECT_NEAR(test_phase->critPressure(), 22.064e6, 1e-4);
 }
 
+TEST_F(RedlichKwongMFTP_Test, partialMolarIntEnergy)
+{
+    // Check that sum(X_k * u) = u
+    set_r(0.4);
+    test_phase->setState_TP(400, 1.3e7);
+    double u_ref = test_phase->intEnergy_mole();
+    size_t kk = test_phase->nSpecies();
+    vector_fp uk(kk);
+    vector_fp X(kk);
+    test_phase->getMoleFractions(X.data());
+    test_phase->getPartialMolarIntEnergies(uk.data());
+    double u_test = 0;
+    for (size_t k = 0; k < kk; k++) {
+        u_test += uk[k] * X[k];
+    }
+    EXPECT_NEAR(u_ref, u_test, 1e-13 * std::abs(u_ref));
+}
+
 };
