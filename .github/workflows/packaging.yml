@@ -21,7 +21,6 @@ on:
     # Run when main is pushed to
     branches:
       - main
-      - add-package-workflow
 
 jobs:
   build-packages:
