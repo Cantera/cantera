@@ -84,16 +84,6 @@ public:
                                           double deltaM,
                                           bool overwrite=true) = 0;
 
-    //! Process voltage correction for charge transfer reactions.
-    //! @param[in,out] kf  array of forward rate constants
-    //! @param pot  array of potential energies due to voltages
-    //! @param RT  product of gas constant and temperature of reacting phase
-    //! @warning  The updated calculation of voltage corrections is an experimental
-    //!     part of the %Cantera API and may be changed or removed without notice.
-    virtual void processVoltageCorrections(double* kf,
-                                           const double* pot,
-                                           double RT) = 0;
-
     //! Update common reaction rate data based on temperature.
     //! Only used in conjunction with evalSingle and ReactionRate::eval
     //! @param T  temperature [K]
