@@ -337,8 +337,13 @@ void RedlichKwongMFTP::getPartialMolarEntropies(doublereal* sbar) const
 
 void RedlichKwongMFTP::getPartialMolarIntEnergies(doublereal* ubar) const
 {
-    getIntEnergy_RT(ubar);
-    scale(ubar, ubar+m_kk, ubar, RT());
+    // u_k = h_k - P * v_k
+    getPartialMolarVolumes(m_partialMolarVolumes.data());
+    getPartialMolarEnthalpies(ubar);
+    double p = pressure();
+    for (size_t k = 0; k < nSpecies(); k++) {
+        ubar[k] -= p * m_partialMolarVolumes[k];
+    }
 }
 
 void RedlichKwongMFTP::getPartialMolarVolumes(doublereal* vbar) const
