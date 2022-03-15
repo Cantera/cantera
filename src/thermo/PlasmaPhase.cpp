@@ -41,7 +41,7 @@ void PlasmaPhase::updateIsotropicElectronEnergyDistribution()
 void PlasmaPhase::setElectronTemperature(const double Te) {
     m_electronTemp = Te;
     m_meanElectronEnergy = 3.0 / 2.0 * electronTemperature() *
-                           GasConstant / (Avogadro * ElectronCharge);
+                           Boltzmann / ElectronCharge;
     updateIsotropicElectronEnergyDistribution();
 }
 
