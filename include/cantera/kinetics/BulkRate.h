@@ -37,9 +37,9 @@ public:
 };
 
 
-using ArrheniusRate = BulkRate<Arrhenius3, ArrheniusData>;
+using ArrheniusRate = BulkRate<Arrhenius3, ReactionData>;
 using TwoTempPlasmaRate = BulkRate<TwoTempPlasma, TwoTempPlasmaData>;
-using BlowersMaselRate = BulkRate<BlowersMasel, BlowersMaselData>;
+using BlowersMaselRate = BulkRate<BlowersMasel, BulkData>;
 
 
 class ThreeBodyBase
@@ -89,7 +89,7 @@ public:
     }
 
     //! Apply correction
-    double applyCorrection(double value) {
+    double applyCorrection(double value) const {
         if (m_massAction) {
             return value * m_thirdBodyConc;
         }
@@ -189,6 +189,7 @@ protected:
 };
 
 using ThreeBodyArrheniusRate = ThreeBodyRate<Arrhenius3, BulkData>;
+using ThreeBodyBlowersMaselRate = ThreeBodyRate<BlowersMasel, BulkData>;
 
 }
 

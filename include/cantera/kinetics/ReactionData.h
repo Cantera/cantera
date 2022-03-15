@@ -61,10 +61,8 @@ struct ReactionData
      * This update mechanism is used by Kinetics reaction rate evaluators.
      * @returns  A boolean element indicating whether the `evalFromStruct` method
      *      needs to be called (assuming previously-calculated values were cached)
-     *
-     * @todo  Remove Kinetics argument
      */
-    virtual bool update(const ThermoPhase& phase, const Kinetics& kin) = 0;
+    virtual bool update(const ThermoPhase& phase, const Kinetics& kin);
 
     //! Perturb temperature of data container
     /**
@@ -96,18 +94,6 @@ protected:
 };
 
 
-//! Data container holding shared data specific to ArrheniusRate
-/**
- * The data container `ArrheniusData` holds precalculated data common to
- * all `ArrheniusRate` objects.
- */
-struct ArrheniusData : public ReactionData
-{
-    virtual bool update(const ThermoPhase& phase, const Kinetics& kin);
-    using ReactionData::update;
-};
-
-
 //! Data container holding shared data specific to TwoTempPlasmaRate
 /**
  * The data container `TwoTempPlasmaData` holds precalculated data common to
@@ -135,35 +121,6 @@ struct TwoTempPlasmaData : public ReactionData
     double electronTemp; //!< electron temperature
     double logTe; //!< logarithm of electron temperature
     double recipTe; //!< inverse of electron temperature
-};
-
-
-//! Data container holding shared data specific to BlowersMaselRate
-/**
- * The data container `BlowersMaselData` holds precalculated data common to
- * all `BlowersMaselRate` objects.
- */
-struct BlowersMaselData : public ReactionData
-{
-    BlowersMaselData();
-
-    virtual void update(double T) override;
-
-    virtual bool update(const ThermoPhase& phase, const Kinetics& kin) override;
-
-    using ReactionData::update;
-
-    virtual void resize(size_t n_species, size_t n_reactions) override {
-        partial_molar_enthalpies.resize(n_species, 0.);
-        ready = true;
-    }
-
-    bool ready; //!< boolean indicating whether vectors are accessible
-    double density; //!< used to determine if updates are needed
-    vector_fp partial_molar_enthalpies; //!< partial molar enthalpies
-
-protected:
-    int m_state_mf_number; //!< integer that is incremented when composition changes
 };
 
 
@@ -337,10 +294,10 @@ protected:
  * The data container CoverageData holds precalculated data common to
  * InterfaceRate and StickingRate objects.
  *
- * The data container inherits from BlowersMaselData, where density is used to
+ * The data container inherits from BulkData, where density is used to
  * hold the site density [kmol/m^2].
  */
-struct CoverageData : public BlowersMaselData
+struct CoverageData : public BulkData
 {
     CoverageData();
 
@@ -350,18 +307,19 @@ struct CoverageData : public BlowersMaselData
 
     virtual void update(double T, const vector_fp& values) override;
 
-    using BlowersMaselData::update;
+    using BulkData::update;
 
     virtual void perturbTemperature(double deltaT);
 
     virtual void resize(size_t n_species, size_t n_reactions) override {
         coverages.resize(n_species, 0.);
         logCoverages.resize(n_species, 0.);
-        partial_molar_enthalpies.resize(n_species, 0.);
+        partialMolarEnthalpies.resize(n_species, 0.);
         ready = true;
     }
 
     double sqrtT; //!< square root of temperature
+    double siteDensity; //!< site density
 
     vector_fp coverages; //!< vector holding surface coverages
     vector_fp logCoverages; //!< vector holding logarithm of surface coverages

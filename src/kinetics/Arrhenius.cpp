@@ -175,7 +175,7 @@ BlowersMasel::BlowersMasel(double A, double b, double Ea0, double w)
     m_E4_R = w / GasConstant;
 }
 
-double BlowersMasel::ddTScaledFromStruct(const BlowersMaselData& shared_data) const
+double BlowersMasel::ddTScaledFromStruct(const BulkData& shared_data) const
 {
     warn_user("BlowersMasel::ddTScaledFromStruct",
         "Temperature derivative does not consider changes of reaction enthalpy.");

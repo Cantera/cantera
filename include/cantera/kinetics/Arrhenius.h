@@ -215,7 +215,7 @@ public:
     /*!
      *  @param shared_data  data shared by all reactions of a given type
      */
-    double evalFromStruct(const ArrheniusData& shared_data) const {
+    double evalFromStruct(const ReactionData& shared_data) const {
         return m_A * std::exp(m_b * shared_data.logT - m_Ea_R * shared_data.recipT);
     }
 
@@ -224,7 +224,7 @@ public:
     /*!
      *  @param shared_data  data shared by all reactions of a given type
      */
-    double ddTScaledFromStruct(const ArrheniusData& shared_data) const {
+    double ddTScaledFromStruct(const ReactionData& shared_data) const {
         return (m_Ea_R * shared_data.recipT + m_b) * shared_data.recipT;
     }
 };
@@ -357,11 +357,12 @@ public:
     }
 
     //! Update information specific to reaction
-    void updateFromStruct(const BlowersMaselData& shared_data) {
+    void updateFromStruct(const BulkData& shared_data) {
         if (shared_data.ready) {
             m_deltaH_R = 0.;
             for (const auto& item : m_stoich_coeffs) {
-                m_deltaH_R += shared_data.partial_molar_enthalpies[item.first] * item.second;
+                m_deltaH_R +=
+                    shared_data.partialMolarEnthalpies[item.first] * item.second;
             }
             m_deltaH_R /= GasConstant;
         }
@@ -371,7 +372,7 @@ public:
     /*!
      *  @param shared_data  data shared by all reactions of a given type
      */
-    double evalFromStruct(const BlowersMaselData& shared_data) const {
+    double evalFromStruct(const BulkData& shared_data) const {
         double Ea_R = effectiveActivationEnergy_R(m_deltaH_R);
         return m_A * std::exp(m_b * shared_data.logT - Ea_R * shared_data.recipT);
     }
@@ -382,7 +383,7 @@ public:
      *  enthalpy. A corresponding warning is raised.
      *  @param shared_data  data shared by all reactions of a given type
      */
-    double ddTScaledFromStruct(const BlowersMaselData& shared_data) const;
+    double ddTScaledFromStruct(const BulkData& shared_data) const;
 
 protected:
     //! Return the effective activation energy (a function of the delta H of reaction)

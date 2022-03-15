@@ -19,7 +19,7 @@ void CustomFunc1Rate::setRateFunction(shared_ptr<Func1> f)
     m_ratefunc = f;
 }
 
-double CustomFunc1Rate::evalFromStruct(const ArrheniusData& shared_data) const
+double CustomFunc1Rate::evalFromStruct(const ReactionData& shared_data) const
 {
     if (m_ratefunc) {
         return m_ratefunc->eval(shared_data.temperature);

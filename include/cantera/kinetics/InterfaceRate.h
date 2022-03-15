@@ -76,7 +76,7 @@ public:
     //! @param shared_data  data shared by all reactions of a given type
     void updateFromStruct(const CoverageData& shared_data) {
         if (shared_data.ready) {
-            m_siteDensity = shared_data.density;
+            m_siteDensity = shared_data.siteDensity;
         }
         if (m_indices.size() != m_cov.size()) {
             // object is not set up correctly (setSpecies needs to be run)

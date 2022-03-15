@@ -44,7 +44,7 @@ void ReactionData::restore()
     m_temperature_buf = -1.;
 }
 
-bool ArrheniusData::update(const ThermoPhase& phase, const Kinetics& kin)
+bool ReactionData::update(const ThermoPhase& phase, const Kinetics& kin)
 {
     double T = phase.temperature();
     if (T == temperature) {
@@ -87,38 +87,6 @@ void TwoTempPlasmaData::updateTe(double Te)
     electronTemp = Te;
     logTe = std::log(Te);
     recipTe = 1./Te;
-}
-
-BlowersMaselData::BlowersMaselData()
-    : ready(false)
-    , density(NAN)
-    , m_state_mf_number(-1)
-{
-}
-
-void BlowersMaselData::update(double T) {
-    warn_user("BlowersMaselData::update",
-        "This method does not update the change of reaction enthalpy.");
-    ReactionData::update(T);
-}
-
-bool BlowersMaselData::update(const ThermoPhase& phase, const Kinetics& kin)
-{
-    double rho = phase.density();
-    int mf = phase.stateMFNumber();
-    double T = phase.temperature();
-    bool changed = false;
-    if (T != temperature) {
-        ReactionData::update(T);
-        changed = true;
-    }
-    if (changed || rho != density || mf != m_state_mf_number) {
-        density = rho;
-        m_state_mf_number = mf;
-        phase.getPartialMolarEnthalpies(partial_molar_enthalpies.data());
-        changed = true;
-    }
-    return changed;
 }
 
 BulkData::BulkData()
@@ -297,6 +265,7 @@ void ChebyshevData::restore()
 
 CoverageData::CoverageData()
     : sqrtT(NAN)
+    , siteDensity(NAN)
 {
 }
 
@@ -334,9 +303,9 @@ bool CoverageData::update(const ThermoPhase& phase, const Kinetics& kin)
     bool changed = false;
     const auto& surf = dynamic_cast<const SurfPhase&>(
         kin.thermo(kin.surfacePhaseIndex()));
-    double site_density = surf.siteDensity();
-    if (density != site_density) {
-        density = surf.siteDensity();
+    double rho = surf.siteDensity();
+    if (siteDensity != rho) {
+        siteDensity = rho;
         changed = true;
     }
     if (T != temperature) {
@@ -351,7 +320,7 @@ bool CoverageData::update(const ThermoPhase& phase, const Kinetics& kin)
         }
         for (size_t n = 0; n < kin.nPhases(); n++) {
             kin.thermo(n).getPartialMolarEnthalpies(
-                partial_molar_enthalpies.data() + kin.kineticsSpeciesIndex(0, n));
+                partialMolarEnthalpies.data() + kin.kineticsSpeciesIndex(0, n));
         }
         m_state_mf_number = mf;
         changed = true;
