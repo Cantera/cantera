@@ -469,15 +469,14 @@ jobs:
         test -f air-no-reaction-test.yaml
 
   windows:
-    name: ${{ matrix.os }}, MSVC ${{ matrix.vs-toolset }}, Python ${{ matrix.python-version }}
-    runs-on: ${{ matrix.os }}
+    name: "Windows 2019, MSVC ${{ matrix.vs-toolset }}, Python ${{ matrix.python-version }}"
+    runs-on: windows-2019
     timeout-minutes: 60
     env:
       BOOST_ROOT: ${{github.workspace}}/3rdparty/boost
-      BOOST_URL: https://pilotfiber.dl.sourceforge.net/project/boost/boost/1.75.0/boost_1_75_0.7z
+      BOOST_URL: https://boostorg.jfrog.io/artifactory/main/release/1.78.0/source/boost_1_78_0.7z
     strategy:
       matrix:
-        os: ['windows-2019']
         vs-toolset: ['14.0', '14.2']
         python-version: [ "3.7", "3.9", "3.10" ]
       fail-fast: false
@@ -617,7 +616,7 @@ jobs:
     timeout-minutes: 60
     env:
       BOOST_ROOT: ${{github.workspace}}/3rdparty/boost
-      BOOST_URL: https://pilotfiber.dl.sourceforge.net/project/boost/boost/1.75.0/boost_1_75_0.7z
+      BOOST_URL: https://boostorg.jfrog.io/artifactory/main/release/1.78.0/source/boost_1_78_0.7z
     steps:
     - uses: actions/checkout@v2
       name: Checkout the repository
