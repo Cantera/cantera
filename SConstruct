@@ -1600,24 +1600,6 @@ if env['python_package'] != 'none':
             print('INFO: Building the full Python package for Python {0}'.format(python_version))
             env['python_package'] = 'full'
 
-if env["python_package"] == "full" and env["OS"] == "Darwin":
-    # sysconfig.get_platform() looks something like: macosx-11.0-arm64
-    # MACOSX_DEPLOYMENT_TARGET should be the same as or lower than
-    # the one set when Python was compiled to ensure ABI compatibility.
-    # If it's been set in the user's environment and passed through env_vars
-    # configuration, use that value instead.
-    if not env["ENV"].get("MACOSX_DEPLOYMENT_TARGET", False):
-        info = get_command_output(
-            env["python_cmd"],
-            "-c",
-            "import sysconfig; print(sysconfig.get_platform())"
-        )
-        env["ENV"]["MACOSX_DEPLOYMENT_TARGET"] = info.split("-")[1]
-
-    env.Append(
-        CXXFLAGS=f"-mmacosx-version-min={env['ENV']['MACOSX_DEPLOYMENT_TARGET']}"
-    )
-
 # Matlab Toolbox settings
 if env['matlab_path'] != '' and env['matlab_toolbox'] == 'default':
     env['matlab_toolbox'] = 'y'
@@ -2123,9 +2105,9 @@ def removeDirectories(target, source, env):
 uninstall = env.Command("uninstall", None, Delete(allfiles))
 env.AddPostAction(uninstall, Action(removeDirectories))
 if env["python_package"] == "full":
-    env.AddPostAction(uninstall, Action("$python_cmd_esc -m pip uninstall Cantera"))
+    env.AddPostAction(uninstall, Action("$python_cmd_esc -m pip uninstall -y Cantera"))
 elif env["python_package"] == "minimal":
-    env.AddPostAction(uninstall, Action("$python_cmd_esc -m pip uninstall Cantera_minimal"))
+    env.AddPostAction(uninstall, Action("$python_cmd_esc -m pip uninstall -y Cantera_minimal"))
 
 ### Windows MSI Installer ###
 if 'msi' in COMMAND_LINE_TARGETS:
