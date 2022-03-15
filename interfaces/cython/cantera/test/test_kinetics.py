@@ -805,8 +805,10 @@ class ExplicitForwardOrderTest(utilities.CanteraTest):
 
 class TestSofcKinetics(utilities.CanteraTest):
     """ Test based on sofc.py """
+    _mech = "sofc.yaml"
+
     def test_sofc(self):
-        mech = "sofc.yaml"
+        mech = self._mech
         T = 1073.15  # T in K
         P = ct.one_atm
         TPB_length_per_area = 1.0e7  # TPB length per unit area [1/m]
@@ -900,6 +902,12 @@ class TestSofcKinetics(utilities.CanteraTest):
                              anode_bulk.electric_potential])
 
         self.compare(data, self.test_data_path / "sofc-test.csv", rtol=1e-7)
+
+
+@pytest.mark.usefixtures("allow_deprecated")
+class TestSofcKinetics2(TestSofcKinetics):
+    """ Test using legacy framework; included to retain coverage """
+    _mech = "sofc2.yaml"
 
 
 class TestDuplicateReactions(utilities.CanteraTest):
