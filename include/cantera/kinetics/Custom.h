@@ -33,24 +33,14 @@ class Func1;
  * @warning This class is an experimental part of the %Cantera API and
  *    may be changed or removed without notice.
  */
-class CustomFunc1Rate final : public ReactionRate
+class CustomFunc1Base : public ReactionRate
 {
 public:
-    CustomFunc1Rate();
-    CustomFunc1Rate(const AnyMap& node, const UnitStack& rate_units)
-        : CustomFunc1Rate()
-    {
-        setParameters(node, rate_units);
-    }
-
-    unique_ptr<MultiRateBase> newMultiRate() const override {
-        return unique_ptr<MultiRateBase>(new MultiRate<CustomFunc1Rate, ReactionData>);
-    }
+    CustomFunc1Base() = default;
 
     const std::string type() const override { return "custom-rate-function"; }
 
     void getParameters(AnyMap& rateNode, const Units& rate_units=Units(0.)) const;
-    using ReactionRate::getParameters;
 
     //! Update information specific to reaction
     /*!
@@ -66,7 +56,7 @@ public:
     void setRateFunction(shared_ptr<Func1> f);
 
 protected:
-    shared_ptr<Func1> m_ratefunc;
+    shared_ptr<Func1> m_ratefunc = 0;
 };
 
 

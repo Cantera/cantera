@@ -10,6 +10,7 @@
 #define CT_BULKRATE_H
 
 #include "Arrhenius.h"
+#include "Custom.h"
 
 namespace Cantera
 {
@@ -40,6 +41,7 @@ public:
 using ArrheniusRate = BulkRate<Arrhenius3, ReactionData>;
 using TwoTempPlasmaRate = BulkRate<TwoTempPlasma, TwoTempPlasmaData>;
 using BlowersMaselRate = BulkRate<BlowersMasel, BulkData>;
+using CustomFunc1Rate = BulkRate<CustomFunc1Base, ReactionData>;
 
 
 class ThreeBodyBase
