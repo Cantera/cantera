@@ -113,9 +113,6 @@ public:
     //!                Length: #m_nPoints.
     void getElectronEnergyDistribution(vector_fp& distrb) const;
 
-    //! Update electron energy distribution.
-    void updateIsotropicElectronEnergyDistribution();
-
     //! Set the internally stored electron temperature of the phase (K).
     //! @param  Te Electron temperature in Kelvin
     virtual void setElectronTemperature(double Te);
@@ -135,6 +132,9 @@ public:
 
 protected:
     virtual void updateThermo() const;
+
+    //! Update electron energy distribution.
+    void setIsotropicElectronEnergyDistribution();
 
     // Electron energy order in the exponential term
     double m_x;
