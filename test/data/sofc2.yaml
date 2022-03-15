@@ -1,0 +1,93 @@
+description: |-
+  This is a copy of sofc.yaml that uses the legacy framework.
+  It is retained to prevent a decrease in test coverage.
+
+generator: cti2yaml
+cantera-version: 2.5.0
+date: Wed, 11 Dec 2019 16:59:15 -0500
+input-files: [sofc.cti]
+
+units: {length: cm, quantity: mol, activation-energy: kJ/mol}
+
+phases:
+- name: gas
+  thermo: ideal-gas
+  elements: [H, O, N]
+  species:
+  - gri30.yaml/species: [H2, H2O, N2, O2]
+  transport: mixture-averaged
+  state:
+    T: 1073.15
+    P: 1.01325e+05
+    X: {H2: 0.95, H2O: 0.05}
+- name: metal
+  thermo: electron-cloud
+  elements: [E]
+  species:
+  - sofc.yaml/species: [electron]
+  state:
+    T: 1073.15
+    X: {electron: 1.0}
+  density: 9.0 kg/m^3
+- name: oxide_bulk
+  thermo: lattice
+  elements: [O, E]
+  species:
+  - sofc.yaml/species: [Ox, VO**]
+  state:
+    T: 1073.15
+    P: 1.01325e+05
+    X: {Ox: 0.95, VO**: 0.05}
+  site-density: 0.0176 mol/cm^3
+- name: metal_surface
+  thermo: ideal-surface
+  adjacent-phases: [gas]
+  elements: [H, O]
+  species:
+  - sofc.yaml/species: [(m), H(m), O(m), OH(m), H2O(m)]
+  kinetics: surface
+  reactions:
+  - sofc.yaml/metal_surface-reactions: declared-species
+  state:
+    T: 973.0
+    coverages: {(m): 0.5, H(m): 0.5}
+  site-density: 2.6e-09
+- name: oxide_surface
+  thermo: ideal-surface
+  adjacent-phases: [gas, oxide_bulk]
+  elements: [O, H, E]
+  species:
+  - sofc.yaml/species: [(ox), O''(ox), OH'(ox), H2O(ox)]
+  kinetics: surface
+  reactions:
+  - sofc.yaml/oxide_surface-reactions: declared-species
+  state:
+    T: 1073.15
+    coverages: {O''(ox): 2.0, (ox): 0.0}
+  site-density: 2.0e-09
+- name: tpb
+  thermo: edge
+  adjacent-phases: [metal, metal_surface, oxide_surface]
+  elements: [H, O]
+  species:
+  - sofc.yaml/species: [(tpb)]
+  kinetics: edge
+  reactions: [tpb-reactions]
+  state:
+    T: 1073.15
+    coverages: {(tpb): 1.0}
+  site-density: 5.0e-17
+  deprecated: >-
+    The input file 'sofc2.yaml' is deprecated and will be removed after Cantera 2.6.
+
+tpb-reactions:
+- equation: H(m) + O''(ox) <=> (m) + electron + OH'(ox)  # Reaction 10
+  id: edge-f2
+  rate-constant: {A: 5.0e+13, b: 0.0, Ea: 120.0}
+  beta: 0.5
+  type: electrochemical-legacy
+- equation: O(m) + (ox) + 2 electron <=> (m) + O''(ox)  # Reaction 11
+  id: edge-f3
+  rate-constant: {A: 5.0e+13, b: 0.0, Ea: 120.0}
+  beta: 0.5
+  type: electrochemical-legacy
