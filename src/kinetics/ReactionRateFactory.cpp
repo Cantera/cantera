@@ -29,6 +29,11 @@ ReactionRateFactory::ReactionRateFactory()
     addAlias("Arrhenius", "elementary");
     addAlias("Arrhenius", "three-body");
 
+    // ArrheniusRate evaluator with third-body collider
+    reg("three-body-Arrhenius", [](const AnyMap& node, const UnitStack& rate_units) {
+        return new ThreeBodyArrheniusRate(node, rate_units);
+    });
+
     // TwoTempPlasmaRate evaluator
     reg("two-temperature-plasma", [](const AnyMap& node, const UnitStack& rate_units) {
         return new TwoTempPlasmaRate(node, rate_units);
@@ -37,6 +42,11 @@ ReactionRateFactory::ReactionRateFactory()
     // BlowersMaselRate evaluator
     reg("Blowers-Masel", [](const AnyMap& node, const UnitStack& rate_units) {
         return new BlowersMaselRate(node, rate_units);
+    });
+
+    // BlowersMaselRate evaluator with third-body collider
+    reg("three-body-Blowers-Masel", [](const AnyMap& node, const UnitStack& rate_units) {
+        return new ThreeBodyBlowersMaselRate(node, rate_units);
     });
 
     // Lindemann falloff evaluator

@@ -111,6 +111,9 @@ ReactionFactory::ReactionFactory()
         return new CustomFunc1Reaction(node, kin);
     });
 
+    addAlias("reaction", "three-body-Arrhenius");
+    addAlias("reaction", "three-body-Blowers-Masel");
+
     // register interface reactions
     reg("interface", [](const AnyMap& node, const Kinetics& kin) {
         InterfaceReaction2* R = new InterfaceReaction2();
