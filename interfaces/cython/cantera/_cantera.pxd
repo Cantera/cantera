@@ -546,6 +546,18 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         CxxCustomFunc1Rate()
         void setRateFunction(shared_ptr[CxxFunc1]) except +translate_exception
 
+    cdef cppclass CxxThreeBodyBase "Cantera::ThreeBodyBase":
+        Composition efficiencies()
+        void setEfficiencies(Composition&) except +translate_exception
+        void efficiency(string&) except +translate_exception
+        double defaultEfficiency()
+        void setDefaultEfficiency(double)
+
+    cdef cppclass CxxThreeBodyArrheniusRate "Cantera::ThreeBodyArrheniusRate" (CxxReactionRate, CxxArrhenius, CxxThreeBodyBase):
+        CxxThreeBodyArrheniusRate()
+        CxxThreeBodyArrheniusRate(CxxAnyMap) except +translate_exception
+        CxxThreeBodyArrheniusRate(double, double, double)
+
     cdef cppclass CxxCoverageBase "Cantera::CoverageBase":
         void getCoverageDependencies(CxxAnyMap)
         void setCoverageDependencies(CxxAnyMap) except +translate_exception
@@ -1406,6 +1418,9 @@ cdef class FalloffRate(ReactionRate):
 cdef class CustomRate(ReactionRate):
     cdef CxxCustomFunc1Rate* cxx_object(self)
     cdef Func1 _rate_func
+
+cdef class ThreeBodyRateBase(ArrheniusRateBase):
+    cdef CxxThreeBodyBase* threebody
 
 cdef class InterfaceRateBase(ArrheniusRateBase):
     cdef CxxCoverageBase* coverage

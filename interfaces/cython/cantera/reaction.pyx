@@ -685,6 +685,68 @@ cdef class CustomRate(ReactionRate):
         self.cxx_object().setRateFunction(self._rate_func._func)
 
 
+cdef class ThreeBodyRateBase(ArrheniusRateBase):
+    """
+    Base class collecting commonly used features of Arrhenius-type rate objects
+    that include three-body rate parameterizations.
+    """
+
+    property efficiencies:
+        """
+        Get/set a `dict` defining non-default third-body efficiencies for this
+        reaction, where the keys are the species names and the values are the
+        efficiencies.
+        """
+        def __get__(self):
+            return comp_map_to_dict(self.threebody.efficiencies())
+        def __set__(self, efficiencies):
+            self.threebody.setEfficiencies(comp_map(efficiencies))
+
+    property default_efficiency:
+        """
+        Get the default third-body efficiency associated with this rate, used for
+        species used for species not in `efficiencies`.
+        """
+        def __get__(self):
+            return self.threebody.defaultEfficiency()
+        def __set__(self, double defaultEfficiency):
+            self.threebody.setDefaultEfficiency(defaultEfficiency)
+
+    def efficiency(self, species):
+        """
+        Get the efficiency of the third body named ``species`` considering both
+        the default efficiency and species-specific efficiencies.
+        """
+        return self.threebody.efficiency(stringify(species))
+
+
+cdef class ThreeBodyArrheniusRate(ThreeBodyRateBase):
+    r"""
+    A reaction rate coefficient which depends on temperature and the concentration of
+    a third-body collider
+    """
+    _reaction_rate_type = "three-body-Arrhenius"
+
+    def __cinit__(self, A=None, b=None, Ea=None, input_data=None, init=True):
+
+        if init:
+            self._cinit(input_data, A=A, b=b, Ea=Ea)
+
+    def _from_dict(self, dict input_data):
+        self._rate.reset(new CxxThreeBodyArrheniusRate(dict_to_anymap(input_data)))
+
+    def _from_parameters(self, A, b, Ea):
+        self._rate.reset(new CxxThreeBodyArrheniusRate(A, b, Ea))
+
+    cdef set_cxx_object(self):
+        self.rate = self._rate.get()
+        self.base = <CxxArrhenius*>self.rate
+        self.threebody = <CxxThreeBodyBase*>self.cxx_object()
+
+    cdef CxxThreeBodyArrheniusRate* cxx_object(self):
+        return <CxxThreeBodyArrheniusRate*>self.rate
+
+
 cdef class InterfaceRateBase(ArrheniusRateBase):
     """
     Base class collecting commonly used features of Arrhenius-type rate objects
@@ -718,7 +780,6 @@ cdef class InterfaceRateBase(ArrheniusRateBase):
             return anymap_to_dict(cxx_deps)
         def __set__(self, dict deps):
             cdef CxxAnyMap cxx_deps = dict_to_anymap(deps)
-
             self.coverage.setCoverageDependencies(cxx_deps)
 
     def set_species(self, species):
