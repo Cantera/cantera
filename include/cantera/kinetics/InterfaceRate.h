@@ -260,25 +260,12 @@ public:
             setCoverageDependencies(
                 node["coverage-dependencies"].as<AnyMap>(), node.units());
         }
-        RateType::m_negativeA_ok = node.getBool("negative-A", false);
-        if (!node.hasKey("rate-constant")) {
-            RateType::setRateParameters(AnyValue(), node.units(), rate_units);
-            return;
-        }
-        RateType::setRateParameters(node["rate-constant"], node.units(), rate_units);
+        RateType::setParameters(node, rate_units);
     }
 
     virtual void getParameters(AnyMap& node) const override {
+        RateType::getParameters(node);
         node["type"] = type();
-        if (RateType::m_negativeA_ok) {
-            node["negative-A"] = true;
-        }
-        AnyMap rateNode;
-        RateType::getRateParameters(rateNode);
-        if (!rateNode.empty()) {
-            // RateType object is configured
-            node["rate-constant"] = std::move(rateNode);
-        }
         if (!m_cov.empty()) {
             AnyMap deps;
             getCoverageDependencies(deps);

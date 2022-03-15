@@ -71,6 +71,33 @@ public:
     //! Return parameters
     void getRateParameters(AnyMap& node) const;
 
+    virtual void setParameters(
+        const AnyMap& node, const UnitStack& rate_units) override
+    {
+        ReactionRate::setParameters(node, rate_units);
+        m_negativeA_ok = node.getBool("negative-A", false);
+        if (!node.hasKey("rate-constant")) {
+            setRateParameters(AnyValue(), node.units(), rate_units);
+            return;
+        }
+        setRateParameters(node["rate-constant"], node.units(), rate_units);
+    }
+
+    virtual void getParameters(AnyMap& node) const override {
+        if (m_negativeA_ok) {
+            node["negative-A"] = true;
+        }
+        AnyMap rateNode;
+        getRateParameters(rateNode);
+        if (!rateNode.empty()) {
+            // RateType object is configured
+            node["rate-constant"] = std::move(rateNode);
+        }
+        if (type() != "Arrhenius") {
+            node["type"] = type();
+        }
+    }
+
     //! Check rate expression
     virtual void check(const std::string& equation, const AnyMap& node) override;
 
