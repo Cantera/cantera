@@ -24,7 +24,7 @@ PlasmaPhase::PlasmaPhase(const std::string& inputFile, const std::string& id_)
     setElectronTemperature(temperature());
 }
 
-void PlasmaPhase::updateIsotropicElectronEnergyDistribution()
+void PlasmaPhase::setIsotropicElectronEnergyDistribution()
 {
     m_electronEnergyDist.resize(m_nPoints);
     double gamma1 = boost::math::tgamma(3.0 / 2.0 * m_x);
@@ -42,7 +42,7 @@ void PlasmaPhase::setElectronTemperature(const double Te) {
     m_electronTemp = Te;
     m_meanElectronEnergy = 3.0 / 2.0 * electronTemperature() *
                            Boltzmann / ElectronCharge;
-    updateIsotropicElectronEnergyDistribution();
+    setIsotropicElectronEnergyDistribution();
 }
 
 void PlasmaPhase::setElectronEnergyLevels(const vector_fp& levels)
@@ -50,7 +50,7 @@ void PlasmaPhase::setElectronEnergyLevels(const vector_fp& levels)
     m_nPoints = levels.size();
     m_electronEnergyLevels =
         Eigen::Map<const Eigen::VectorXd>(levels.data(), levels.size());
-    updateIsotropicElectronEnergyDistribution();
+    setIsotropicElectronEnergyDistribution();
 }
 
 void PlasmaPhase::getElectronEnergyLevels(vector_fp& levels) const
