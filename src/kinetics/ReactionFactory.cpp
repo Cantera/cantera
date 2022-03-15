@@ -220,44 +220,6 @@ ReactionFactoryXML::ReactionFactoryXML()
     });
 }
 
-bool isThreeBody(const Reaction& R)
-{
-    // detect explicitly specified collision partner
-    size_t found = 0;
-    for (const auto& reac : R.reactants) {
-        auto prod = R.products.find(reac.first);
-        if (prod != R.products.end() &&
-            trunc(reac.second) == reac.second && trunc(prod->second) == prod->second) {
-            // candidate species with integer stoichiometric coefficients on both sides
-            found += 1;
-        }
-    }
-    if (found != 1) {
-        return false;
-    }
-
-    // ensure that all reactants have integer stoichiometric coefficients
-    size_t nreac = 0;
-    for (const auto& reac : R.reactants) {
-       if (trunc(reac.second) != reac.second) {
-           return false;
-       }
-       nreac += static_cast<size_t>(reac.second);
-    }
-
-    // ensure that all products have integer stoichiometric coefficients
-    size_t nprod = 0;
-    for (const auto& prod : R.products) {
-       if (trunc(prod.second) != prod.second) {
-           return false;
-       }
-       nprod += static_cast<size_t>(prod.second);
-    }
-
-    // either reactant or product side involves exactly three species
-    return (nreac == 3) || (nprod == 3);
-}
-
 bool isElectrochemicalReaction(Reaction& R, const Kinetics& kin)
 {
     vector_fp e_counter(kin.nPhases(), 0.0);
@@ -315,7 +277,7 @@ unique_ptr<Reaction> newReaction(const XML_Node& rxn_node)
         // See if this is a three-body reaction with a specified collision partner
         ElementaryReaction2 testReaction;
         setupReaction(testReaction, rxn_node);
-        if (isThreeBody(testReaction)) {
+        if (testReaction.checkThreeBody()) {
             type = "three-body";
         }
     }
@@ -335,7 +297,7 @@ unique_ptr<Reaction> newReaction(const AnyMap& rxn_node, const Kinetics& kin)
         ElementaryReaction2 testReaction;
         parseReactionEquation(testReaction, rxn_node["equation"].asString(),
                               rxn_node, &kin);
-        if (isThreeBody(testReaction)) {
+        if (testReaction.checkThreeBody()) {
             type = "three-body";
         }
     }

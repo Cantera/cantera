@@ -112,6 +112,9 @@ public:
     //! @param kin  Kinetics object
     void checkBalance(const Kinetics& kin) const;
 
+    //! Check whether reaction contains third-body collision partner
+    bool checkThreeBody() const;
+
     //! Verify that all species involved in the reaction are defined in the Kinetics
     //! object. The function returns true if all species are found, and raises an
     //! exception unless the kinetics object is configured to skip undeclared species,

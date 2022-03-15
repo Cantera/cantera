@@ -471,6 +471,44 @@ void Reaction::checkBalance(const Kinetics& kin) const
     }
 }
 
+bool Reaction::checkThreeBody() const
+{
+    // detect explicitly specified collision partner
+    size_t found = 0;
+    for (const auto& reac : reactants) {
+        auto prod = products.find(reac.first);
+        if (prod != products.end() &&
+            trunc(reac.second) == reac.second && trunc(prod->second) == prod->second) {
+            // candidate species with integer stoichiometric coefficients on both sides
+            found += 1;
+        }
+    }
+    if (found != 1) {
+        return false;
+    }
+
+    // ensure that all reactants have integer stoichiometric coefficients
+    size_t nreac = 0;
+    for (const auto& reac : reactants) {
+       if (trunc(reac.second) != reac.second) {
+           return false;
+       }
+       nreac += static_cast<size_t>(reac.second);
+    }
+
+    // ensure that all products have integer stoichiometric coefficients
+    size_t nprod = 0;
+    for (const auto& prod : products) {
+       if (trunc(prod.second) != prod.second) {
+           return false;
+       }
+       nprod += static_cast<size_t>(prod.second);
+    }
+
+    // either reactant or product side involves exactly three species
+    return (nreac == 3) || (nprod == 3);
+}
+
 bool Reaction::checkSpecies(const Kinetics& kin) const
 {
     // Check for undeclared species
