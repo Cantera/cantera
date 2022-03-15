@@ -167,6 +167,37 @@ protected:
 };
 
 
+//! Data container holding shared generic data specific to BulkRate
+/**
+ *  The data container `BulkData` holds generic precalculated data common to all
+ *  templated `BulkData<>` objects.
+ */
+struct BulkData : public ReactionData
+{
+    BulkData();
+
+    virtual void update(double T) override;
+
+    virtual bool update(const ThermoPhase& phase, const Kinetics& kin) override;
+
+    using ReactionData::update;
+
+    virtual void resize(size_t n_species, size_t n_reactions) override {
+        concentrations.resize(n_species, 0.);
+        partialMolarEnthalpies.resize(n_species, 0.);
+        ready = true;
+    }
+
+    bool ready; //!< boolean indicating whether vectors are accessible
+    double molarDensity; //!< total molar density (concentration)
+    vector_fp concentrations; //!< species concentrations
+    vector_fp partialMolarEnthalpies; //!< partial molar enthalpies
+
+protected:
+    int m_state_mf_number; //!< integer that is incremented when composition changes
+};
+
+
 //! Data container holding shared data specific to Falloff rates
 /**
  * The data container `FalloffData` holds precalculated data common to

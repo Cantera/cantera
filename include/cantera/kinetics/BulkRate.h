@@ -47,13 +47,22 @@ class ThreeBodyBase
 public:
     ThreeBodyBase();
 
-    //! Set third-body collision efficiency parameters
-    //! @param node  Coverage dependencies
-    void setEfficiencies(const AnyMap& node);
+    //! Perform object setup based on AnyMap node information
+    //! @param node  AnyMap object containing reaction rate specification
+    void setParameters(const AnyMap& node);
+
+    //! Store parameters needed to reconstruct an identical object
+    //! @param node  AnyMap object receiving reaction rate specification
+    void getParameters(AnyMap& node) const;
 
     //! Get third-body collision efficiency parameters
-    //! @param node  AnyMap receiving coverage information
-    void getEfficiencies(AnyMap& node) const;
+    //! @param efficiencies  AnyMap receiving coverage information
+    void getEfficiencies(AnyMap& efficiencies) const;
+
+    //! Get the default efficiency
+    double defaultEfficiency() const {
+        return m_defaultEfficiency;
+    }
 
     //! Get the third-body efficiency for species *k*
     double efficiency(const std::string& k) const;
@@ -65,18 +74,30 @@ public:
 
     //! Update reaction rate parameters
     //! @param shared_data  data shared by all reactions of a given type
-    void updateFromStruct(const ReactionData& shared_data) {}
+    void updateFromStruct(const BulkData& shared_data) {
+        if (shared_data.ready) {
+            m_thirdBodyConc = m_defaultEfficiency * shared_data.molarDensity;
+            for (const auto& eff : m_efficiencies) {
+                m_thirdBodyConc += shared_data.concentrations[eff.first] * eff.second;
+            }
+        }
+    }
+
+    //! Third-body concentration
+    double thirdBodyConcentration() const {
+        return m_thirdBodyConc;
+    }
 
     //! Apply correction
     double applyCorrection(double value) {
         if (m_massAction) {
-            return value * m_threeBodyConc;
+            return value * m_thirdBodyConc;
         }
         return value;
     }
 
 protected:
-    double m_threeBodyConc; //!< Effective third-body concentration
+    double m_thirdBodyConc; //!< Effective third-body concentration
 
     //! The default third body efficiency for species not listed in
     double m_defaultEfficiency;
@@ -123,13 +144,13 @@ public:
         const AnyMap& node, const UnitStack& rate_units) override
     {
         RateType::setParameters(node, rate_units);
-        ThreeBodyBase::setEfficiencies(node);
+        ThreeBodyBase::setParameters(node);
     }
 
     virtual void getParameters(AnyMap& node) const override {
         RateType::getParameters(node);
         node["type"] = type();
-        ThreeBodyBase::getEfficiencies(node);
+        ThreeBodyBase::getParameters(node);
     }
 
     virtual void setContext(const Reaction& rxn, const Kinetics& kin) override {
@@ -167,7 +188,7 @@ protected:
     }
 };
 
-using ThreeBodyArrheniusRate = ThreeBodyRate<Arrhenius3, ArrheniusData>;
+using ThreeBodyArrheniusRate = ThreeBodyRate<Arrhenius3, BulkData>;
 
 }
 

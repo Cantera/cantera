@@ -121,6 +121,39 @@ bool BlowersMaselData::update(const ThermoPhase& phase, const Kinetics& kin)
     return changed;
 }
 
+BulkData::BulkData()
+    : ready(false)
+    , molarDensity(NAN)
+    , m_state_mf_number(-1)
+{
+}
+
+void BulkData::update(double T) {
+    warn_user("BulkData::update",
+        "This method does not updates partial molar enthalpies or concentrations.");
+    ReactionData::update(T);
+}
+
+bool BulkData::update(const ThermoPhase& phase, const Kinetics& kin)
+{
+    double ctot = phase.molarDensity();
+    int mf = phase.stateMFNumber();
+    double T = phase.temperature();
+    bool changed = false;
+    if (T != temperature) {
+        ReactionData::update(T);
+        changed = true;
+    }
+    if (changed || ctot != molarDensity || mf != m_state_mf_number) {
+        molarDensity = ctot;
+        m_state_mf_number = mf;
+        phase.getConcentrations(concentrations.data());
+        phase.getPartialMolarEnthalpies(partialMolarEnthalpies.data());
+        changed = true;
+    }
+    return changed;
+}
+
 FalloffData::FalloffData()
     : ready(false)
     , molar_density(NAN)
