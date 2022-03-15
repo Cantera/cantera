@@ -23,13 +23,16 @@ void ThreeBodyBase::setParameters(const AnyMap& node)
     if (node.hasKey("efficiencies")) {
         m_efficiencyMap = node["efficiencies"].asMap<double>();
     }
+    m_specifiedCollisionPartner = node.getBool("specified-collider", false);
 }
 
 void ThreeBodyBase::getParameters(AnyMap& node) const
 {
     if (!m_specifiedCollisionPartner) {
-        node["efficiencies"] = m_efficiencyMap;
-        node["efficiencies"].setFlowStyle();
+        if (m_efficiencyMap.size()) {
+            node["efficiencies"] = m_efficiencyMap;
+            node["efficiencies"].setFlowStyle();
+        }
         if (m_defaultEfficiency != 1.0) {
             node["default-efficiency"] = m_defaultEfficiency;
         }

@@ -115,6 +115,10 @@ public:
     //! Check whether reaction contains third-body collision partner
     bool checkThreeBody() const;
 
+    //! Strip third-body name/synbol from reactant and product composition
+    //! @param detect  Run detection of unmarked third-body collider
+    bool stripThirdBody(bool detect=true);
+
     //! Verify that all species involved in the reaction are defined in the Kinetics
     //! object. The function returns true if all species are found, and raises an
     //! exception unless the kinetics object is configured to skip undeclared species,
@@ -192,6 +196,9 @@ protected:
 
     //! Flag indicating whether reaction is set up correctly
     bool m_valid;
+
+    //! Name or placeholder of third body species
+    std::string m_thirdBodyCollider;
 
     //! @internal  Helper function returning vector of undeclared third body species
     //! and a boolean expression indicating whether the third body is specified.

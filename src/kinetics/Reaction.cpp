@@ -51,6 +51,7 @@ Reaction::Reaction(const Composition& reactants_,
     , allow_negative_orders(false)
     , rate_units(0.0)
     , m_valid(true)
+    , m_thirdBodyCollider("")
     , m_rate(rate_)
 {
 }
@@ -62,7 +63,45 @@ Reaction::Reaction(const AnyMap& node, const Kinetics& kin)
     if (kin.nPhases()) {
         size_t nDim = kin.thermo(kin.reactionPhaseIndex()).nDim();
         if (nDim == 3) {
-            setRate(newReactionRate(node, calculateRateCoeffUnits3(kin)));
+            // lambda function to modify efficiencies
+            auto implicitEfficiencies = [](AnyMap& node, std::string name) {
+                if (!node.hasKey("default-efficiency")) {
+                    node["default-efficiency"] = 0.;
+                }
+                if (!node.hasKey("efficiencies")) {
+                    node["efficiencies"] = Composition({{name, 1.}});
+                }
+                node["specified-collider"] = true;
+            };
+
+            // Bulk phase
+            std::string type = node.getString("type", "");
+            if (boost::algorithm::starts_with(type, "three-body")) {
+                // declared three-body type
+                stripThirdBody(false);
+                if (m_thirdBodyCollider == "M") {
+                    // use all defaults
+                    setRate(newReactionRate(node, calculateRateCoeffUnits3(kin)));
+                } else {
+                    // explicit species name
+                    AnyMap rateNode = node;
+                    implicitEfficiencies(rateNode, m_thirdBodyCollider);
+                    setRate(newReactionRate(rateNode, calculateRateCoeffUnits3(kin)));
+                }
+            } else if (!node.hasKey("type") && stripThirdBody()) {
+                // only test for implicit three-body reactions when type is not
+                // defined
+                AnyMap rateNode = node;
+                rateNode["type"] = "three-body-Arrhenius";
+                if (m_thirdBodyCollider != "M") {
+                    // explicit species name
+                    implicitEfficiencies(rateNode, m_thirdBodyCollider);
+                }
+                setRate(newReactionRate(rateNode, calculateRateCoeffUnits3(kin)));
+            } else {
+                setRate(newReactionRate(node, calculateRateCoeffUnits3(kin)));
+            }
+
         } else {
             // Reaction type is not specified
             AnyMap rateNode = node;
@@ -84,6 +123,7 @@ Reaction::Reaction(const AnyMap& node, const Kinetics& kin)
             }
             setRate(newReactionRate(rateNode, calculateRateCoeffUnits3(kin)));
         }
+
     } else {
         // @deprecated This route is only used for legacy reaction types.
         setRate(newReactionRate(node));
@@ -270,7 +310,10 @@ std::string Reaction::reactantString() const
         }
         result << iter->first;
     }
-  return result.str();
+    if (m_thirdBodyCollider != "") {
+        result << " + " << m_thirdBodyCollider;
+    }
+    return result.str();
 }
 
 std::string Reaction::productString() const
@@ -285,7 +328,10 @@ std::string Reaction::productString() const
         }
         result << iter->first;
     }
-  return result.str();
+    if (m_thirdBodyCollider != "") {
+        result << " + " << m_thirdBodyCollider;
+    }
+    return result.str();
 }
 
 std::string Reaction::equation() const
@@ -507,6 +553,57 @@ bool Reaction::checkThreeBody() const
 
     // either reactant or product side involves exactly three species
     return (nreac == 3) || (nprod == 3);
+}
+
+bool Reaction::stripThirdBody(bool detect)
+{
+    // check for standard third-body colliders
+    if (reactants.count("M") == 1 || products.count("M") == 1) {
+        m_thirdBodyCollider = "M";
+        reactants.erase("M");
+        products.erase("M");
+        return true;
+    }
+
+    // check for named (implicit) third-body colliders
+    if (detect && !checkThreeBody()) {
+        return false;
+    }
+
+    // detect explicit name of implicitly specified collision partner
+    Composition efficiencies;
+    for (const auto& reac : reactants) {
+        if (products.count(reac.first)) {
+            efficiencies[reac.first] = 1.;
+        }
+    }
+
+    if (efficiencies.size() != 1) {
+        throw CanteraError("Reaction::stripThirdBody",
+            "Unable to detect unique third-body collision partner\n"
+            "in reaction '{}'.", equation());
+    }
+
+    auto sp = efficiencies.begin();
+    m_thirdBodyCollider = sp->first;
+
+    // adjust reactant coefficients
+    auto reac = reactants.find(m_thirdBodyCollider);
+    if (trunc(reac->second) != 1) {
+        reac->second -= 1.;
+    } else {
+        reactants.erase(reac);
+    }
+
+    // adjust product coefficients
+    auto prod = products.find(m_thirdBodyCollider);
+    if (trunc(prod->second) != 1) {
+        prod->second -= 1.;
+    } else {
+        products.erase(prod);
+    }
+
+    return true;
 }
 
 bool Reaction::checkSpecies(const Kinetics& kin) const
