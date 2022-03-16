@@ -215,6 +215,25 @@ std::pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
                 if (thirdBodyOk) {
                     continue; // No overlap in third body efficiencies
                 }
+            } else if (R.thirdBodyCollider() != "") {
+                auto tb1 = std::dynamic_pointer_cast<ThreeBodyArrheniusRate>(R.rate());
+                auto tb2 = std::dynamic_pointer_cast<ThreeBodyArrheniusRate>(other.rate());
+                if (!tb1 || !tb2) {
+                    continue;
+                }
+                bool thirdBodyOk = true;
+                for (size_t k = 0; k < nTotalSpecies(); k++) {
+                    string s = kineticsSpeciesName(k);
+                    if (tb1->efficiency(s) * tb2->efficiency(s) != 0.0) {
+                        // non-zero third body efficiencies for species `s` in
+                        // both reactions
+                        thirdBodyOk = false;
+                        break;
+                    }
+                }
+                if (thirdBodyOk) {
+                    continue; // No overlap in third body efficiencies
+                }
             }
             if (throw_err) {
                 throw InputFileError("Kinetics::checkDuplicates",
