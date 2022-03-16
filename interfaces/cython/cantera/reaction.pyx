@@ -727,10 +727,14 @@ cdef class ThreeBodyArrheniusRate(ThreeBodyRateBase):
     """
     _reaction_rate_type = "three-body-Arrhenius"
 
-    def __cinit__(self, A=None, b=None, Ea=None, input_data=None, init=True):
+    def __cinit__(
+        self, A=None, b=None, Ea=None, *,
+        input_data=None, efficiencies=None, init=True):
 
         if init:
             self._cinit(input_data, A=A, b=b, Ea=Ea)
+            if efficiencies:
+                self.efficiencies = efficiencies
 
     def _from_dict(self, dict input_data):
         self._rate.reset(new CxxThreeBodyArrheniusRate(dict_to_anymap(input_data)))
@@ -1101,7 +1105,19 @@ cdef class Reaction:
 
     def __cinit__(self, reactants=None, products=None, rate=None, *, legacy=False,
                   init=True, **kwargs):
+
+        cdef ReactionRate rate3
         if init:
+            from_scratch = [reactants, products, isinstance(rate, ReactionRate)]
+            if self._reaction_type == "" and all(from_scratch):
+                # generic instantiation from scratch
+                rate3 = rate
+                self._reaction.reset(
+                    new CxxReaction(comp_map(reactants), comp_map(products), rate3._rate))
+                self.reaction = self._reaction.get()
+                return
+
+            # instantiation of specialized reactions
             rxn_type = self._reaction_type
             if (not self._hybrid and self._has_legacy) or (self._hybrid and legacy):
                 rxn_type += "-legacy"
@@ -1115,7 +1131,8 @@ cdef class Reaction:
     def __init__(self, reactants=None, products=None, rate=None, *, equation=None,
                  init=True, legacy=False, **kwargs):
 
-        if legacy or not init:
+        from_scratch = [reactants, products, isinstance(rate, ReactionRate)]
+        if legacy or (self._reaction_type == "" and all(from_scratch)) or not init:
             return
 
         if equation:
@@ -2170,15 +2187,15 @@ cdef class ThreeBodyReaction(ElementaryReaction):
         type: three-body
         rate-constant: {A: 1.2e+17 cm^6/mol^2/s, b: -1.0, Ea: 0.0 cal/mol}
         efficiencies: {H2: 2.4, H2O: 15.4, AR: 0.83}
+
+    .. deprecated:: 2.6
+
+        To be deprecated with version 2.6, and removed thereafter.
+        Implemented by the `Reaction` class with a `ThreeBodyArrheniusRate` reaction rate.
     """
     _reaction_type = "three-body"
     _has_legacy = True
-    _hybrid = True
-
-    cdef CxxThreeBodyReaction3* cxx_threebody(self):
-        if self.uses_legacy:
-            raise AttributeError("Incorrect accessor for updated implementation")
-        return <CxxThreeBodyReaction3*>self.reaction
+    _hybrid = False
 
     cdef CxxThreeBodyReaction2* cxx_threebody2(self):
         if not self.uses_legacy:
@@ -2186,42 +2203,24 @@ cdef class ThreeBodyReaction(ElementaryReaction):
         return <CxxThreeBodyReaction2*>self.reaction
 
     cdef CxxThirdBody* thirdbody(self):
-        if self.uses_legacy:
-            return &(self.cxx_threebody2().third_body)
-        return <CxxThirdBody*>(self.cxx_threebody().thirdBody().get())
+        if not self.uses_legacy:
+            raise AttributeError("Incorrect accessor for legacy implementation")
+        return &(self.cxx_threebody2().third_body)
 
     def __init__(self, reactants=None, products=None, rate=None, *, equation=None,
-                 efficiencies=None, Kinetics kinetics=None, legacy=False, init=True,
-                 **kwargs):
+                 efficiencies=None, Kinetics kinetics=None, init=True, **kwargs):
 
-        if reactants and products and not equation:
-            equation = self.equation
-
-        if isinstance(rate, ArrheniusRate):
-            self._reaction.reset(new CxxThreeBodyReaction3())
-            self.reaction = self._reaction.get()
-            if reactants and products:
-                self.reactants = reactants
-                self.products = products
-            else:
-                self.reaction.setEquation(stringify(equation))
-            self.reaction.setRate((<ReactionRate>rate)._rate)
-            if efficiencies:
-                self.efficiencies = efficiencies
-            return
+        if reactants and products and efficiencies and not equation:
+            self.efficiencies = efficiencies
 
         if init and equation and kinetics:
-            rxn_type = self._reaction_type
-            if legacy:
-                rxn_type += "-legacy"
+            rxn_type = self._reaction_type + "-legacy"
             spec = {"equation": equation, "type": rxn_type}
             if isinstance(rate, dict):
                 spec["rate-constant"] = rate
-            elif legacy and (isinstance(rate, Arrhenius) or rate is None):
+            elif (isinstance(rate, Arrhenius) or rate is None):
                 spec["rate-constant"] = dict.fromkeys(["A", "b", "Ea"], 0.)
             elif rate is None:
-                pass
-            elif not legacy and isinstance(rate, (Arrhenius, ArrheniusRate)):
                 pass
             else:
                 raise TypeError("Invalid rate definition")
@@ -2233,9 +2232,7 @@ cdef class ThreeBodyReaction(ElementaryReaction):
                                             deref(kinetics.kinetics))
             self.reaction = self._reaction.get()
 
-            if legacy and isinstance(rate, Arrhenius):
-                self.rate = rate
-            elif not legacy and isinstance(rate, (Arrhenius, ArrheniusRate)):
+            if isinstance(rate, Arrhenius):
                 self.rate = rate
 
     property efficiencies:
@@ -2243,6 +2240,11 @@ cdef class ThreeBodyReaction(ElementaryReaction):
         Get/Set a `dict` defining non-default third-body efficiencies for this
         reaction, where the keys are the species names and the values are the
         efficiencies.
+
+        .. deprecated:: 2.6
+
+            To be deprecated with version 2.6, and removed thereafter.
+            Replaced by property ``ThreeBodyArrheniusRate.efficiencies``.
         """
         def __get__(self):
             return comp_map_to_dict(self.thirdbody().efficiencies)
@@ -2253,6 +2255,11 @@ cdef class ThreeBodyReaction(ElementaryReaction):
         """
         Get/Set the default third-body efficiency for this reaction, used for
         species used for species not in `efficiencies`.
+
+        .. deprecated:: 2.6
+
+            To be deprecated with version 2.6, and removed thereafter.
+            Replaced by property ``ThreeBodyArrheniusRate.default_efficiency``.
         """
         def __get__(self):
             return self.thirdbody().default_efficiency

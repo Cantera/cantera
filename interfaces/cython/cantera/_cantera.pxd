@@ -604,6 +604,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
 
     cdef cppclass CxxReaction "Cantera::Reaction":
         CxxReaction()
+        CxxReaction(Composition&, Composition&, shared_ptr[CxxReactionRate]) except +translate_exception
 
         string reactantString()
         string productString()
@@ -695,9 +696,6 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         cbool is_sticking_coefficient
         cbool use_motz_wise_correction
         string sticking_species
-
-    cdef cppclass CxxThreeBodyReaction3 "Cantera::ThreeBodyReaction3" (CxxReaction):
-        CxxThreeBodyReaction3()
 
     cdef cppclass CxxFalloffReaction3 "Cantera::FalloffReaction3" (CxxReaction):
         CxxFalloffReaction3()
