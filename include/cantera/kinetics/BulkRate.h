@@ -58,12 +58,22 @@ public:
     void getParameters(AnyMap& node) const;
 
     //! Get third-body collision efficiency parameters
-    //! @param efficiencies  AnyMap receiving coverage information
-    void getEfficiencies(AnyMap& efficiencies) const;
+    Composition efficiencies() const {
+        return m_efficiencies;
+    }
+
+    //! Set third-body collision efficiency parameters
+    //! @param efficiencies  Composition holding efficiency data
+    void setEfficiencies(const Composition& efficiencies);
 
     //! Get the default efficiency
     double defaultEfficiency() const {
         return m_defaultEfficiency;
+    }
+
+    //! Set the default efficiency
+    void setDefaultEfficiency(double defaultEfficiency) {
+        m_defaultEfficiency = defaultEfficiency;
     }
 
     //! Get the third-body efficiency for species *k*

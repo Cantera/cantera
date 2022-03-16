@@ -40,12 +40,13 @@ void ThreeBodyBase::getParameters(AnyMap& node) const
     }
 }
 
-void ThreeBodyBase::getEfficiencies(AnyMap& efficiencies) const
+void ThreeBodyBase::setEfficiencies(const Composition& efficiencies)
 {
-    efficiencies.clear();
-    for (const auto& eff : m_efficiencies) {
-        efficiencies[eff.first] = eff.second;
+    if (m_efficiencyMap.size()) {
+        throw CanteraError("ThreeBodyBase::setEfficiencies",
+            "Unable to set efficiencies once they have been processed.");
     }
+    m_efficiencies = efficiencies;
 }
 
 void ThreeBodyBase::getEfficiencyMap(std::map<size_t, double>& eff) const
