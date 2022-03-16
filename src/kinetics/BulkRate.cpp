@@ -21,16 +21,17 @@ void ThreeBodyBase::setParameters(const AnyMap& node)
 {
     m_defaultEfficiency = node.getDouble("default-efficiency", 1.0);
     if (node.hasKey("efficiencies")) {
-        m_efficiencyMap = node["efficiencies"].asMap<double>();
+        m_efficiencies = node["efficiencies"].asMap<double>();
     }
     m_specifiedCollisionPartner = node.getBool("specified-collider", false);
+    m_massAction = node.getBool("mass-action", true);
 }
 
 void ThreeBodyBase::getParameters(AnyMap& node) const
 {
     if (!m_specifiedCollisionPartner) {
-        if (m_efficiencyMap.size()) {
-            node["efficiencies"] = m_efficiencyMap;
+        if (m_efficiencies.size()) {
+            node["efficiencies"] = m_efficiencies;
             node["efficiencies"].setFlowStyle();
         }
         if (m_defaultEfficiency != 1.0) {
@@ -39,23 +40,32 @@ void ThreeBodyBase::getParameters(AnyMap& node) const
     }
 }
 
-void ThreeBodyBase::getEfficiencies(AnyMap& efficiencies) const {
+void ThreeBodyBase::getEfficiencies(AnyMap& efficiencies) const
+{
     efficiencies.clear();
-    for (const auto& eff : m_efficiencyMap) {
+    for (const auto& eff : m_efficiencies) {
         efficiencies[eff.first] = eff.second;
     }
 }
 
+void ThreeBodyBase::getEfficiencyMap(std::map<size_t, double>& eff) const
+{
+    eff.clear();
+    for (const auto& item : m_efficiencyMap) {
+        eff[item.first] = item.second + m_defaultEfficiency;
+    }
+}
+
 double ThreeBodyBase::efficiency(const std::string& k) const {
-    return getValue(m_efficiencyMap, k, m_defaultEfficiency);
+    return getValue(m_efficiencies, k, m_defaultEfficiency);
 }
 
 void ThreeBodyBase::setContext(const Reaction& rxn, const Kinetics& kin)
 {
-    for (const auto& eff : m_efficiencyMap) {
+    for (const auto& eff : m_efficiencies) {
         size_t k = kin.kineticsSpeciesIndex(eff.first);
         if (k != npos) {
-            m_efficiencies.emplace_back(k, eff.second - m_defaultEfficiency);
+            m_efficiencyMap.emplace_back(k, eff.second - m_defaultEfficiency);
         } else if (!kin.skipUndeclaredThirdBodies()) {
             throw CanteraError("ThreeBodyBase::setContext",
                 "Found third-body efficiency for undeclared species '{}' "

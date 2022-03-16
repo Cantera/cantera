@@ -69,6 +69,14 @@ public:
     //! Get the third-body efficiency for species *k*
     double efficiency(const std::string& k) const;
 
+    //! Get the third-body efficiency for species *k*
+    void getEfficiencyMap(std::map<size_t, double>& eff) const;
+
+    //! Get flag indicating whether third-body participates in the law of mass action
+    bool massAction() const {
+        return m_massAction;
+    }
+
     //! Build rate-specific parameters based on Reaction and Kinetics context
     //! @param rxn  Associated reaction object
     //! @param kin  Kinetics object holding the rate evaluator
@@ -79,7 +87,7 @@ public:
     void updateFromStruct(const BulkData& shared_data) {
         if (shared_data.ready) {
             m_thirdBodyConc = m_defaultEfficiency * shared_data.molarDensity;
-            for (const auto& eff : m_efficiencies) {
+            for (const auto& eff : m_efficiencyMap) {
                 m_thirdBodyConc += shared_data.concentrations[eff.first] * eff.second;
             }
         }
@@ -88,14 +96,6 @@ public:
     //! Third-body concentration
     double thirdBodyConcentration() const {
         return m_thirdBodyConc;
-    }
-
-    //! Apply correction
-    double applyCorrection(double value) const {
-        if (m_massAction) {
-            return value * m_thirdBodyConc;
-        }
-        return value;
     }
 
 protected:
@@ -111,11 +111,11 @@ protected:
     //! (`true` for three-body reactions, `false` for falloff reactions)
     bool m_massAction;
 
-    Composition m_efficiencyMap; //!< Map of species to third body efficiency
+    Composition m_efficiencies; //!< Composition defining third body efficiency
 
 private:
     //! Vector of pairs containing indices and efficiencies
-    std::vector<std::pair<size_t, double>> m_efficiencies;
+    std::vector<std::pair<size_t, double>> m_efficiencyMap;
 };
 
 
@@ -170,7 +170,7 @@ public:
     //! Evaluate reaction rate
     //! @param shared_data  data shared by all reactions of a given type
     double evalFromStruct(const DataType& shared_data) const {
-        return applyCorrection(RateType::evalFromStruct(shared_data));
+        return RateType::evalFromStruct(shared_data);
     }
 
 protected:

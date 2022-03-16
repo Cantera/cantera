@@ -156,6 +156,15 @@ bool BulkKinetics::addReaction(shared_ptr<Reaction> r, bool resize)
         if (r->thirdBody() != nullptr) {
             addThirdBody(r);
         }
+        const auto threeBody = std::dynamic_pointer_cast<ThreeBodyArrheniusRate>(rate);
+        if (threeBody) {
+            // preliminary proof-of-concept uses ThirdBodyCalc3
+            std::map<size_t, double> efficiencies;
+            threeBody->getEfficiencyMap(efficiencies);
+            m_multi_concm.install(
+                nReactions() - 1, efficiencies,
+                threeBody->defaultEfficiency(), threeBody->massAction());
+        }
     }
 
     m_concm.push_back(NAN);

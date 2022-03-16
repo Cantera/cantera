@@ -119,6 +119,10 @@ public:
     //! @param detect  Run detection of unmarked third-body collider
     bool stripThirdBody(bool detect=true);
 
+    std::string thirdBodyCollider() const {
+        return m_thirdBodyCollider;
+    }
+
     //! Verify that all species involved in the reaction are defined in the Kinetics
     //! object. The function returns true if all species are found, and raises an
     //! exception unless the kinetics object is configured to skip undeclared species,
