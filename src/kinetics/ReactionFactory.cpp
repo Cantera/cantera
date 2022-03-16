@@ -40,12 +40,10 @@ ReactionFactory::ReactionFactory()
         return R;
     });
 
-    // register three-body reactions
-    reg("three-body", [](const AnyMap& node, const Kinetics& kin) {
-        return new ThreeBodyReaction3(node, kin);
-    });
-    addAlias("three-body", "threebody");
-    addAlias("three-body", "three_body");
+    addAlias("reaction", "three-body-Arrhenius");
+    addAlias("reaction", "three-body");
+    addAlias("reaction", "three_body");
+    addAlias("reaction", "threebody");
 
     // register three-body reactions (old framework)
     reg("three-body-legacy", [](const AnyMap& node, const Kinetics& kin) {
@@ -110,9 +108,6 @@ ReactionFactory::ReactionFactory()
     reg("custom-rate-function", [](const AnyMap& node, const Kinetics& kin) {
         return new CustomFunc1Reaction(node, kin);
     });
-
-    addAlias("reaction", "three-body-Arrhenius");
-    addAlias("reaction", "three-body-Blowers-Masel");
 
     // register interface reactions
     reg("interface", [](const AnyMap& node, const Kinetics& kin) {
@@ -294,15 +289,6 @@ unique_ptr<Reaction> newReaction(const AnyMap& rxn_node, const Kinetics& kin)
     size_t nDim = kin.thermo(kin.reactionPhaseIndex()).nDim();
     if (rxn_node.hasKey("type")) {
         type = rxn_node["type"].asString();
-    } else if (nDim == 3) {
-        // Reaction type is not specified
-        // See if this is a three-body reaction with a specified collision partner
-        ElementaryReaction2 testReaction;
-        parseReactionEquation(testReaction, rxn_node["equation"].asString(),
-                              rxn_node, &kin);
-        if (testReaction.checkThreeBody()) {
-            type = "three-body";
-        }
     }
 
     if (nDim < 3 && type == "elementary") {

@@ -418,7 +418,7 @@ UnitStack Reaction::calculateRateCoeffUnits3(const Kinetics& kin)
         }
     }
 
-    if (m_third_body) {
+    if (m_third_body || m_thirdBodyCollider != "") {
         // Account for third-body collision partner as the last entry
         rate_units.join(-1);
     }

@@ -27,12 +27,12 @@ ReactionRateFactory::ReactionRateFactory()
     });
     addAlias("Arrhenius", "");
     addAlias("Arrhenius", "elementary");
-    addAlias("Arrhenius", "three-body");
 
     // ArrheniusRate evaluator with third-body collider
     reg("three-body-Arrhenius", [](const AnyMap& node, const UnitStack& rate_units) {
         return new ThreeBodyArrheniusRate(node, rate_units);
     });
+    addAlias("three-body-Arrhenius", "three-body");
 
     // TwoTempPlasmaRate evaluator
     reg("two-temperature-plasma", [](const AnyMap& node, const UnitStack& rate_units) {
