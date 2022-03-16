@@ -479,31 +479,6 @@ public:
 };
 
 
-//! A reaction with a non-reacting third body "M" that acts to add or remove
-//! energy from the reacting species
-class ThreeBodyReaction3 : public Reaction
-{
-public:
-    ThreeBodyReaction3();
-    ThreeBodyReaction3(const Composition& reactants, const Composition& products,
-                       const ArrheniusRate& rate, const ThirdBody& tbody);
-
-    ThreeBodyReaction3(const AnyMap& node, const Kinetics& kin);
-
-    virtual std::string type() const {
-        return "three-body";
-    }
-
-    virtual void setEquation(const std::string& equation, const Kinetics* kin=0);
-    bool detectEfficiencies();
-    virtual void setParameters(const AnyMap& node, const Kinetics& kin);
-    virtual void getParameters(AnyMap& reactionNode) const;
-
-    virtual std::string reactantString() const;
-    virtual std::string productString() const;
-};
-
-
 //! A falloff reaction that is first-order in [M] at low pressure, like a third-body
 //! reaction, but zeroth-order in [M] as pressure increases.
 //! In addition, the class supports chemically-activated reactions where the rate
@@ -552,7 +527,6 @@ public:
 
 
 #ifdef CT_NO_LEGACY_REACTIONS_26
-typedef ThreeBodyReaction3 ThreeBodyReaction;
 typedef FalloffReaction3 FalloffReaction;
 #else
 typedef ElementaryReaction2 ElementaryReaction;

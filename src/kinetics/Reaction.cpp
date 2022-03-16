@@ -580,9 +580,13 @@ bool Reaction::stripThirdBody(bool detect)
         }
     }
 
-    if (efficiencies.size() != 1) {
-        throw CanteraError("Reaction::stripThirdBody",
-            "Unable to detect unique third-body collision partner\n"
+    if (efficiencies.size() == 0) {
+        // pathway for detect = false
+        throw InputFileError("Reaction::stripThirdBody", input,
+            "Reaction equation '{}' does not contain third body 'M'", equation());
+    } else if (efficiencies.size() > 1) {
+        throw InputFileError("Reaction::stripThirdBody", input,
+            "Found more than one explicitly specified collision partner\n"
             "in reaction '{}'.", equation());
     }
 
@@ -1075,133 +1079,6 @@ void ElectrochemicalReaction2::getParameters(AnyMap& reactionNode) const
     }
     if (exchange_current_density_formulation) {
         reactionNode["exchange-current-density-formulation"] = true;
-    }
-}
-
-ThreeBodyReaction3::ThreeBodyReaction3()
-{
-    m_third_body.reset(new ThirdBody);
-    setRate(newReactionRate(type()));
-}
-
-ThreeBodyReaction3::ThreeBodyReaction3(const Composition& reactants,
-                                       const Composition& products,
-                                       const ArrheniusRate& rate,
-                                       const ThirdBody& tbody)
-    : Reaction(reactants, products, make_shared<ArrheniusRate>(rate))
-{
-    m_third_body = std::make_shared<ThirdBody>(tbody);
-}
-
-ThreeBodyReaction3::ThreeBodyReaction3(const AnyMap& node, const Kinetics& kin)
-{
-    m_third_body.reset(new ThirdBody);
-    if (!node.empty()) {
-        setParameters(node, kin);
-        setRate(newReactionRate(node, calculateRateCoeffUnits3(kin)));
-    } else {
-        setRate(newReactionRate(type()));
-    }
-}
-
-bool ThreeBodyReaction3::detectEfficiencies()
-{
-    for (const auto& reac : reactants) {
-        // detect explicitly specified collision partner
-        if (products.count(reac.first)) {
-            m_third_body->efficiencies[reac.first] = 1.;
-        }
-    }
-
-    if (m_third_body->efficiencies.size() == 0) {
-        return false;
-    } else if (m_third_body->efficiencies.size() > 1) {
-        throw CanteraError("ThreeBodyReaction3::detectEfficiencies",
-            "Found more than one explicitly specified collision partner\n"
-            "in reaction '{}'.", equation());
-    }
-
-    m_third_body->default_efficiency = 0.;
-    m_third_body->specified_collision_partner = true;
-    auto sp = m_third_body->efficiencies.begin();
-
-    // adjust reactant coefficients
-    auto reac = reactants.find(sp->first);
-    if (trunc(reac->second) != 1) {
-        reac->second -= 1.;
-    } else {
-        reactants.erase(reac);
-    }
-
-    // adjust product coefficients
-    auto prod = products.find(sp->first);
-    if (trunc(prod->second) != 1) {
-        prod->second -= 1.;
-    } else {
-        products.erase(prod);
-    }
-
-    return true;
-}
-
-void ThreeBodyReaction3::setEquation(const std::string& equation, const Kinetics* kin)
-{
-    Reaction::setEquation(equation, kin);
-    if (reactants.count("M") != 1 || products.count("M") != 1) {
-        if (!detectEfficiencies()) {
-            throw InputFileError("ThreeBodyReaction3::setParameters", input,
-                "Reaction equation '{}' does not contain third body 'M'",
-                equation);
-        }
-        return;
-    }
-
-    reactants.erase("M");
-    products.erase("M");
-}
-
-void ThreeBodyReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
-{
-    if (node.empty()) {
-        // empty node: used by newReaction() factory loader
-        return;
-    }
-    Reaction::setParameters(node, kin);
-    if (!m_third_body->specified_collision_partner) {
-        m_third_body->setEfficiencies(node);
-    }
-}
-
-void ThreeBodyReaction3::getParameters(AnyMap& reactionNode) const
-{
-    Reaction::getParameters(reactionNode);
-    if (!m_third_body->specified_collision_partner) {
-        reactionNode["type"] = "three-body";
-        reactionNode["efficiencies"] = m_third_body->efficiencies;
-        reactionNode["efficiencies"].setFlowStyle();
-        if (m_third_body->default_efficiency != 1.0) {
-            reactionNode["default-efficiency"] = m_third_body->default_efficiency;
-        }
-    }
-}
-
-std::string ThreeBodyReaction3::reactantString() const
-{
-    if (m_third_body->specified_collision_partner) {
-        return Reaction::reactantString() + " + "
-            + m_third_body->efficiencies.begin()->first;
-    } else {
-        return Reaction::reactantString() + " + M";
-    }
-}
-
-std::string ThreeBodyReaction3::productString() const
-{
-    if (m_third_body->specified_collision_partner) {
-        return Reaction::productString() + " + "
-            + m_third_body->efficiencies.begin()->first;
-    } else {
-        return Reaction::productString() + " + M";
     }
 }
 
