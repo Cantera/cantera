@@ -445,6 +445,11 @@ std::pair<std::vector<std::string>, bool> Reaction::undeclaredThirdBodies(
     if (m_third_body) {
         updateUndeclared(undeclared, m_third_body->efficiencies, kin);
         return std::make_pair(undeclared, m_third_body->specified_collision_partner);
+    } else if (std::dynamic_pointer_cast<const ThreeBodyArrheniusRate>(m_rate)) {
+        // @todo  this needs a more generic approach
+        auto threeBody = std::dynamic_pointer_cast<const ThreeBodyArrheniusRate>(m_rate);
+        updateUndeclared(undeclared, threeBody->efficiencies(), kin);
+        return std::make_pair(undeclared, m_thirdBodyCollider != "M");
     }
     return std::make_pair(undeclared, false);
 }
