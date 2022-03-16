@@ -79,11 +79,10 @@ TEST(Reaction, ThreeBodyFromYaml3)
 
     auto R = newReaction(rxn, *(sol->kinetics()));
     EXPECT_EQ(R->reactants.count("M"), (size_t) 0);
-    EXPECT_EQ(R->type(), "three-body");
-    EXPECT_DOUBLE_EQ(R->thirdBody()->efficiencies["H2O"], 5.0);
-    EXPECT_DOUBLE_EQ(R->thirdBody()->default_efficiency, 1.0);
-
-    const auto& rate = std::dynamic_pointer_cast<ArrheniusRate>(R->rate());
+    EXPECT_EQ(R->type(), "reaction");
+    const auto& rate = std::dynamic_pointer_cast<ThreeBodyArrheniusRate>(R->rate());
+    EXPECT_DOUBLE_EQ(rate->efficiencies()["H2O"], 5.0);
+    EXPECT_DOUBLE_EQ(rate->defaultEfficiency(), 1.0);
     EXPECT_DOUBLE_EQ(rate->preExponentialFactor(), 1.2e11);
 }
 
@@ -539,7 +538,7 @@ TEST_F(ReactionToYaml, threeBody)
     soln = newSolution("h2o2.yaml", "", "None");
     soln->thermo()->setState_TPY(1000, 2e5, "H2:1.0, O2:0.5, O:1e-8, OH:3e-8, H:2e-7");
     duplicateReaction(1);
-    EXPECT_TRUE(std::dynamic_pointer_cast<ThreeBodyReaction3>(duplicate));
+    EXPECT_TRUE(std::dynamic_pointer_cast<ThreeBodyArrheniusRate>(duplicate->rate()));
     compareReactions();
 }
 

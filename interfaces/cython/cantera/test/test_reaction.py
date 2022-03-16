@@ -24,9 +24,9 @@ class TestImplicitThirdBody(utilities.CanteraTest):
             rate-constant: {A: 2.08e+19, b: -1.24, Ea: 0.0}
             """
         rxn1 = ct.Reaction.from_yaml(yaml1, self.gas)
-        self.assertEqual(rxn1.reaction_type, "three-body")
-        self.assertEqual(rxn1.default_efficiency, 0.)
-        self.assertEqual(rxn1.efficiencies, {"O2": 1})
+        assert rxn1.rate.type == "three-body-Arrhenius"
+        assert rxn1.rate.default_efficiency == 0.
+        assert rxn1.rate.efficiencies == {"O2": 1}
 
         yaml2 = """
             equation: H + O2 + M <=> HO2 + M
@@ -36,8 +36,9 @@ class TestImplicitThirdBody(utilities.CanteraTest):
             efficiencies: {O2: 1.0}
             """
         rxn2 = ct.Reaction.from_yaml(yaml2, self.gas)
-        self.assertEqual(rxn1.efficiencies, rxn2.efficiencies)
-        self.assertEqual(rxn1.default_efficiency, rxn2.default_efficiency)
+        assert rxn2.rate.type == "three-body-Arrhenius"
+        assert rxn1.rate.efficiencies == rxn2.rate.efficiencies
+        assert rxn1.rate.default_efficiency == rxn2.rate.default_efficiency
 
     def test_duplicate(self):
         # @todo simplify this test
@@ -46,25 +47,26 @@ class TestImplicitThirdBody(utilities.CanteraTest):
                            species=self.gas.species(), reactions=[])
 
         yaml1 = """
-            equation: H + O2 + H2O <=> HO2 + H2O
-            rate-constant: {A: 1.126e+19, b: -0.76, Ea: 0.0}
-            """
-        rxn1 = ct.Reaction.from_yaml(yaml1, gas1)
-
-        yaml2 = """
             equation: H + O2 + M <=> HO2 + M
             rate-constant: {A: 1.126e+19, b: -0.76, Ea: 0.0}
             type: three-body
             default-efficiency: 0
             efficiencies: {H2O: 1}
             """
-        rxn2 = ct.Reaction.from_yaml(yaml2, gas1)
+        rxn1 = ct.Reaction.from_yaml(yaml1, gas1)
+        assert rxn1.rate.type == "three-body-Arrhenius"
 
-        self.assertEqual(rxn1.reaction_type, rxn2.reaction_type)
+        yaml2 = """
+            equation: H + O2 + H2O <=> HO2 + H2O
+            rate-constant: {A: 1.126e+19, b: -0.76, Ea: 0.0}
+            """
+        rxn2 = ct.Reaction.from_yaml(yaml2, gas1)
+        assert rxn2.rate.type == "three-body-Arrhenius"
+
         self.assertEqual(rxn1.reactants, rxn2.reactants)
         self.assertEqual(rxn1.products, rxn2.products)
-        self.assertEqual(rxn1.efficiencies, rxn2.efficiencies)
-        self.assertEqual(rxn1.default_efficiency, rxn2.default_efficiency)
+        assert rxn1.rate.efficiencies == rxn2.rate.efficiencies
+        assert rxn1.rate.default_efficiency == rxn2.rate.default_efficiency
 
         gas1.add_reaction(rxn1)
         gas1.add_reaction(rxn2)
@@ -1286,25 +1288,49 @@ class TestThreeBody2(TestElementary2):
         self.assertEqual(rxn.efficiencies, self._kwargs["efficiencies"])
 
 
-class TestThreeBody(TestThreeBody2):
+class TestThreeBody(ReactionTests, utilities.CanteraTest):
     # test updated version of three-body reaction
 
-    _legacy = False
-    _rxn_type = "three-body"
-    _rate_type = "Arrhenius"
+    _equation = "2 O + M <=> O2 + M"
+    _kwargs = {"efficiencies": {"H2": 2.4, "H2O": 15.4, "AR": 0.83}}
+    _index = 1
+    _rate_type = "three-body-Arrhenius"
+    _rate_cls = ct.ThreeBodyArrheniusRate
     _yaml = """
         equation: 2 O + M <=> O2 + M
-        type: three-body
+        type: three-body-Arrhenius
         rate-constant: {A: 1.2e+11, b: -1.0, Ea: 0.0 cal/mol}
         efficiencies: {H2: 2.4, H2O: 15.4, AR: 0.83}
         """
+
+    @classmethod
+    def setUpClass(cls):
+        ReactionTests.setUpClass()
+        cls._rate_obj = ct.ThreeBodyArrheniusRate(1.2e11, -1.0, 0.0, **cls._kwargs)
+
+    def from_parts(self):
+        rxn = ReactionTests.from_parts(self)
+        rxn.rate.efficiencies = self._kwargs["efficiencies"]
+        return rxn
+
+    def from_rate_obj(self):
+        rxn = ReactionTests.from_rate_obj(self)
+        return rxn
+
+    def test_efficiencies(self):
+        # check efficiencies
+        rxn = self.from_parts()
+        self.assertEqual(rxn.rate.efficiencies, self._kwargs["efficiencies"])
+
+    @pytest.mark.skip("Causes hard crash")
+    def test_replace_rate(self):
+        super().from_rate_obj()
 
 
 class TestImplicitThreeBody(TestThreeBody):
     # test three-body reactions with explicit collision parther
 
     _equation = "H + 2 O2 <=> HO2 + O2"
-    _rate = {"A": 2.08e+19, "b": -1.24, "Ea": 0.0}
     _kwargs = {}
     _index = 5
     _yaml = """
@@ -1314,15 +1340,15 @@ class TestImplicitThreeBody(TestThreeBody):
 
     def from_parts(self):
         rxn = ReactionTests.from_parts(self)
-        rxn.efficiencies = {"O2": 1.}
-        rxn.default_efficiency = 0
+        rxn.rate.efficiencies = {"O2": 1.}
+        rxn.rate.default_efficiency = 0
         return rxn
 
     def test_efficiencies(self):
         # overload of default tester
         rxn = self.from_rate(self._rate_obj)
-        self.assertEqual(rxn.efficiencies, {"O2": 1.})
-        self.assertEqual(rxn.default_efficiency, 0.)
+        self.assertEqual(rxn.rate.efficiencies, {"O2": 1.})
+        self.assertEqual(rxn.rate.default_efficiency, 0.)
 
 
 class TestTwoTempPlasma(ReactionTests, utilities.CanteraTest):

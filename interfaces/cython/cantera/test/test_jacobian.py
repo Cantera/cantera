@@ -395,7 +395,7 @@ class TestThreeBody(HydrogenOxygen, utilities.CanteraTest):
     # Three body reaction with default efficiency
     rxn_idx = 1
     equation = "H + O + M <=> OH + M"
-    rate_type = "Arrhenius"
+    rate_type = "three-body-Arrhenius"
 
     @classmethod
     def setUpClass(cls):
@@ -463,7 +463,7 @@ class TestThreeBodyNoDefault(EdgeCases, utilities.CanteraTest):
     # Three body reaction without default efficiency
     rxn_idx = 4
     equation = "H + O + M <=> OH + M"
-    rate_type = "Arrhenius"
+    rate_type = "three-body-Arrhenius"
 
     @classmethod
     def setUpClass(cls):
