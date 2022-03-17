@@ -116,8 +116,7 @@ public:
     bool checkThreeBody() const;
 
     //! Strip third-body name/synbol from reactant and product composition
-    //! @param detect  Run detection of unmarked third-body collider
-    bool stripThirdBody(bool detect=true);
+    bool stripThirdBody();
 
     std::string thirdBodyCollider() const {
         return m_thirdBodyCollider;

@@ -108,6 +108,16 @@ public:
         return m_thirdBodyConc;
     }
 
+    //! Get flag indicating whether collision partner is explicitly specified
+    bool specifiedCollisionPartner() {
+        return m_specifiedCollisionPartner;
+    }
+
+    //! Set flag indicating whether collision partner is explicitly specified
+    void setSpecifiedCollisionPartner(bool specified) {
+        m_specifiedCollisionPartner = specified;
+    }
+
 protected:
     double m_thirdBodyConc; //!< Effective third-body concentration
 

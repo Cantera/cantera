@@ -52,8 +52,12 @@ Reaction::Reaction(const Composition& reactants_,
     , rate_units(0.0)
     , m_valid(true)
     , m_thirdBodyCollider("")
-    , m_rate(rate_)
 {
+    if (std::dynamic_pointer_cast<ThreeBodyArrheniusRate>(rate_)) {
+        reactants["M"] = 1.;
+        products["M"] = 1.;
+    }
+    setRate(rate_);
 }
 
 Reaction::Reaction(const AnyMap& node, const Kinetics& kin)
@@ -63,41 +67,27 @@ Reaction::Reaction(const AnyMap& node, const Kinetics& kin)
     if (kin.nPhases()) {
         size_t nDim = kin.thermo(kin.reactionPhaseIndex()).nDim();
         if (nDim == 3) {
-            // lambda function to modify efficiencies
-            auto implicitEfficiencies = [](AnyMap& node, std::string name) {
-                if (!node.hasKey("default-efficiency")) {
-                    node["default-efficiency"] = 0.;
-                }
-                if (!node.hasKey("efficiencies")) {
-                    node["efficiencies"] = Composition({{name, 1.}});
-                }
-                node["specified-collider"] = true;
-            };
-
             // Bulk phase
             std::string type = node.getString("type", "");
             if (boost::algorithm::starts_with(type, "three-body")) {
-                // declared three-body type
-                stripThirdBody(false);
-                if (m_thirdBodyCollider == "M") {
-                    // use all defaults
-                    setRate(newReactionRate(node, calculateRateCoeffUnits3(kin)));
-                } else {
-                    // explicit species name
-                    AnyMap rateNode = node;
-                    implicitEfficiencies(rateNode, m_thirdBodyCollider);
-                    setRate(newReactionRate(rateNode, calculateRateCoeffUnits3(kin)));
-                }
-            } else if (!node.hasKey("type") && stripThirdBody()) {
-                // only test for implicit three-body reactions when type is not
-                // defined
+                // needed for calculateRateCoeffUnits3 / will be overwritten as needed
+                m_thirdBodyCollider = "M";
+            }
+            if (!node.hasKey("type") && checkThreeBody()) {
+                // unmarked three-body reaction
                 AnyMap rateNode = node;
                 rateNode["type"] = "three-body-Arrhenius";
-                if (m_thirdBodyCollider != "M") {
-                    // explicit species name
-                    implicitEfficiencies(rateNode, m_thirdBodyCollider);
-                }
+                m_thirdBodyCollider = "M";
                 setRate(newReactionRate(rateNode, calculateRateCoeffUnits3(kin)));
+
+                // re-write defaults as necessary
+                auto tb = std::dynamic_pointer_cast<ThreeBodyArrheniusRate>(m_rate);
+                if (node.hasKey("default-efficiency")) {
+                    tb->setDefaultEfficiency(node["default-efficiency"].asDouble());
+                }
+                if (node.hasKey("efficiencies")) {
+                    tb->setEfficiencies(node["efficiencies"].asMap<double>());
+                }
             } else {
                 setRate(newReactionRate(node, calculateRateCoeffUnits3(kin)));
             }
@@ -287,8 +277,18 @@ void Reaction::setRate(shared_ptr<ReactionRate> rate)
     if (!rate) {
         // null pointer
         m_rate.reset();
-    } else {
-        m_rate = rate;
+        return;
+    }
+    m_rate = rate;
+
+    auto tb = std::dynamic_pointer_cast<ThreeBodyArrheniusRate>(m_rate);
+    if (tb) {
+        stripThirdBody();
+        if (m_thirdBodyCollider != "M") {
+            tb->setDefaultEfficiency(0.);
+            tb->setEfficiencies(Composition({{m_thirdBodyCollider, 1.}}));
+            tb->setSpecifiedCollisionPartner(true);
+        }
     }
 
     if (reactants.count("(+M)") && std::dynamic_pointer_cast<ChebyshevRate>(m_rate)) {
@@ -562,7 +562,7 @@ bool Reaction::checkThreeBody() const
     return (nreac == 3) || (nprod == 3);
 }
 
-bool Reaction::stripThirdBody(bool detect)
+bool Reaction::stripThirdBody()
 {
     // check for standard third-body colliders
     if (reactants.count("M") == 1 || products.count("M") == 1) {
@@ -570,11 +570,6 @@ bool Reaction::stripThirdBody(bool detect)
         reactants.erase("M");
         products.erase("M");
         return true;
-    }
-
-    // check for named (implicit) third-body colliders
-    if (detect && !checkThreeBody()) {
-        return false;
     }
 
     // detect explicit name of implicitly specified collision partner
