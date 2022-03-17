@@ -61,8 +61,6 @@ struct ReactionData
      * This update mechanism is used by Kinetics reaction rate evaluators.
      * @returns  A boolean element indicating whether the `evalFromStruct` method
      *      needs to be called (assuming previously-calculated values were cached)
-     *
-     * @todo  Remove Kinetics argument
      */
     virtual bool update(const ThermoPhase& phase, const Kinetics& kin) = 0;
 
@@ -154,13 +152,13 @@ struct BlowersMaselData : public ReactionData
     using ReactionData::update;
 
     virtual void resize(size_t nSpecies, size_t nReactions, size_t nPhases) override {
-        partial_molar_enthalpies.resize(nSpecies, 0.);
+        partialMolarEnthalpies.resize(nSpecies, 0.);
         ready = true;
     }
 
     bool ready; //!< boolean indicating whether vectors are accessible
     double density; //!< used to determine if updates are needed
-    vector_fp partial_molar_enthalpies; //!< partial molar enthalpies
+    vector_fp partialMolarEnthalpies; //!< partial molar enthalpies
 
 protected:
     int m_state_mf_number; //!< integer that is incremented when composition changes
@@ -326,7 +324,7 @@ struct CoverageData : public BlowersMaselData
     virtual void resize(size_t nSpecies, size_t nReactions, size_t nPhases) override {
         coverages.resize(nSpecies, 0.);
         logCoverages.resize(nSpecies, 0.);
-        partial_molar_enthalpies.resize(nSpecies, 0.);
+        partialMolarEnthalpies.resize(nSpecies, 0.);
         electricPotentials.resize(nPhases, 0.);
         standardChemPotentials.resize(nSpecies, 0.);
         standardConcentrations.resize(nSpecies, 0.);
