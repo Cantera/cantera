@@ -758,6 +758,14 @@ void Kinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
             rOld->type(), rNew->type());
     }
 
+    if (!(rNew->usesLegacy())) {
+        if (rNew->rate()->type() != rOld->rate()->type()) {
+            throw CanteraError("Kinetics::modifyReaction",
+                "ReactionRate types are different: {} != {}.",
+                rOld->rate()->type(), rNew->rate()->type());
+        }
+    }
+
     if (rNew->reactants != rOld->reactants) {
         throw CanteraError("Kinetics::modifyReaction",
             "Reactants are different: '{}' != '{}'.",
