@@ -115,7 +115,7 @@ bool BlowersMaselData::update(const ThermoPhase& phase, const Kinetics& kin)
     if (changed || rho != density || mf != m_state_mf_number) {
         density = rho;
         m_state_mf_number = mf;
-        phase.getPartialMolarEnthalpies(partial_molar_enthalpies.data());
+        phase.getPartialMolarEnthalpies(partialMolarEnthalpies.data());
         changed = true;
     }
     return changed;
@@ -324,7 +324,7 @@ bool CoverageData::update(const ThermoPhase& phase, const Kinetics& kin)
             size_t start = kin.kineticsSpeciesIndex(0, n);
             const auto& ph = kin.thermo(n);
             electricPotentials[n] = ph.electricPotential();
-            ph.getPartialMolarEnthalpies(partial_molar_enthalpies.data() + start);
+            ph.getPartialMolarEnthalpies(partialMolarEnthalpies.data() + start);
             ph.getStandardChemPotentials(standardChemPotentials.data() + start);
             size_t nsp = ph.nSpecies();
             for (size_t k = 0; k < nsp; k++) {

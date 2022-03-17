@@ -1,3 +1,8 @@
+/**
+ * @file Arrhenius.h
+ * Header for reaction rates that involve Arrhenius-type kinetics.
+ */
+
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
@@ -329,7 +334,7 @@ public:
         if (shared_data.ready) {
             m_deltaH_R = 0.;
             for (const auto& item : m_stoich_coeffs) {
-                m_deltaH_R += shared_data.partial_molar_enthalpies[item.first] * item.second;
+                m_deltaH_R += shared_data.partialMolarEnthalpies[item.first] * item.second;
             }
             m_deltaH_R /= GasConstant;
         }
