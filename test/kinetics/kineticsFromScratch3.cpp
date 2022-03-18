@@ -42,11 +42,11 @@ public:
 
         kin.getFwdRateConstants(&k[0]);
         kin_ref->getFwdRateConstants(&k_ref[0]);
-        EXPECT_DOUBLE_EQ(k_ref[iRef], k[0]);
+        EXPECT_NEAR(k_ref[iRef], k[0], 1e-14 * k_ref[iRef]);
 
         kin.getRevRateConstants(&k[0]);
         kin_ref->getRevRateConstants(&k_ref[0]);
-        EXPECT_DOUBLE_EQ(k_ref[iRef], k[0]);
+        EXPECT_NEAR(k_ref[iRef], k[0], 1e-14 * k_ref[iRef]);
     }
 };
 
@@ -354,11 +354,11 @@ public:
 
         kin.getFwdRateConstants(&k[0]);
         kin_ref->getFwdRateConstants(&k_ref[0]);
-        EXPECT_DOUBLE_EQ(k_ref[iRef], k[0]);
+        EXPECT_NEAR(k_ref[iRef], k[0], 1e-14 * k_ref[iRef]);
 
         kin.getRevRateConstants(&k[0]);
         kin_ref->getRevRateConstants(&k_ref[0]);
-        EXPECT_DOUBLE_EQ(k_ref[iRef], k[0]);
+        EXPECT_NEAR(k_ref[iRef], k[0], 1e-14 * k_ref[iRef]);
     }
 };
 
@@ -447,13 +447,15 @@ public:
         kin.getFwdRateConstants(k.data());
         kin_ref->getFwdRateConstants(k_ref.data());
         for (size_t i = 0; i < kin.nReactions(); i++) {
-            EXPECT_DOUBLE_EQ(k_ref[i], k[i]) << "i = " << i << "; N = " << N;
+            EXPECT_NEAR(k_ref[i], k[i], 1e-14 * k_ref[i])
+                << "i = " << i << "; N = " << N;
         }
 
         kin.getFwdRatesOfProgress(k.data());
         kin_ref->getFwdRatesOfProgress(k_ref.data());
         for (size_t i = 0; i < kin.nReactions(); i++) {
-            EXPECT_DOUBLE_EQ(k_ref[i], k[i]) << "i = " << i << "; N = " << N;
+            EXPECT_NEAR(k_ref[i], k[i], 1e-14 * k_ref[i])
+                << "i = " << i << "; N = " << N;
         }
 
         kin.getRevRateConstants(k.data());
@@ -472,7 +474,8 @@ public:
         kin_ref->getCreationRates(w_ref.data());
         for (size_t i = 0; i < kin.nTotalSpecies(); i++) {
             size_t iref = p_ref.speciesIndex(p.speciesName(i));
-            EXPECT_NEAR(w_ref[iref], w[i], w_ref[iref]*1e-12) << "sp = " << p.speciesName(i) << "; N = " << N;
+            EXPECT_NEAR(w_ref[iref], w[i], w_ref[iref]*1e-12)
+                << "sp = " << p.speciesName(i) << "; N = " << N;
         }
     }
 };

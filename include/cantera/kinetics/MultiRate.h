@@ -17,7 +17,7 @@ namespace Cantera
 
 //! A class template handling ReactionRate specializations.
 template <class RateType, class DataType>
-class MultiRate final : public MultiRateBase
+class MultiRate : public MultiRateBase
 {
     CT_DEFINE_HAS_MEMBER(has_update, updateFromStruct)
     CT_DEFINE_HAS_MEMBER(has_ddT, ddTScaledFromStruct)
@@ -39,7 +39,7 @@ public:
         m_shared.invalidateCache();
     }
 
-    virtual bool replace(const size_t rxn_index, ReactionRate& rate) override {
+    virtual void replace(const size_t rxn_index, ReactionRate& rate) override {
         if (!m_rxn_rates.size()) {
             throw CanteraError("MultiRate::replace",
                  "Invalid operation: cannot replace rate object "
@@ -54,9 +54,7 @@ public:
         if (m_indices.find(rxn_index) != m_indices.end()) {
             size_t j = m_indices[rxn_index];
             m_rxn_rates.at(j).second = dynamic_cast<RateType&>(rate);
-            return true;
         }
-        return false;
     }
 
     virtual void resize(size_t n_species, size_t n_reactions) override {

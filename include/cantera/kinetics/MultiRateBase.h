@@ -39,7 +39,7 @@ public:
     //! Replace reaction rate object handled by the evaluator
     //! @param rxn_index  index of reaction
     //! @param rate  reaction rate object
-    virtual bool replace(size_t rxn_index, ReactionRate& rate) = 0;
+    virtual void replace(size_t rxn_index, ReactionRate& rate) = 0;
 
     //! Update number of species and reactions
     //! @param n_species  number of species
