@@ -546,7 +546,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         CxxCustomFunc1Rate()
         void setRateFunction(shared_ptr[CxxFunc1]) except +translate_exception
 
-    cdef cppclass CxxCoverageBase "Cantera::CoverageBase":
+    cdef cppclass CxxInterfaceRateBase "Cantera::InterfaceRateBase":
         void getCoverageDependencies(CxxAnyMap)
         void setCoverageDependencies(CxxAnyMap) except +translate_exception
         void setSpecies(vector[string]&) except +translate_exception
@@ -555,7 +555,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         cbool usesElectrochemistry()
         double beta()
 
-    cdef cppclass CxxStickingCoverage "Cantera::StickingCoverage" (CxxCoverageBase):
+    cdef cppclass CxxStickingCoverage "Cantera::StickingCoverage" (CxxInterfaceRateBase):
         cbool motzWiseCorrection()
         void setMotzWiseCorrection(cbool)
         string stickingSpecies()
@@ -565,7 +565,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         double stickingWeight()
         void setStickingWeight(double)
 
-    cdef cppclass CxxInterfaceArrheniusRate "Cantera::InterfaceArrheniusRate" (CxxReactionRate, CxxArrhenius, CxxCoverageBase):
+    cdef cppclass CxxInterfaceArrheniusRate "Cantera::InterfaceArrheniusRate" (CxxReactionRate, CxxArrhenius, CxxInterfaceRateBase):
         CxxInterfaceArrheniusRate()
         CxxInterfaceArrheniusRate(CxxAnyMap) except +translate_exception
         CxxInterfaceArrheniusRate(double, double, double)
@@ -575,7 +575,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         CxxStickingArrheniusRate(CxxAnyMap) except +translate_exception
         CxxStickingArrheniusRate(double, double, double)
 
-    cdef cppclass CxxInterfaceBlowersMaselRate "Cantera::InterfaceBlowersMaselRate" (CxxReactionRate, CxxBlowersMasel, CxxCoverageBase):
+    cdef cppclass CxxInterfaceBlowersMaselRate "Cantera::InterfaceBlowersMaselRate" (CxxReactionRate, CxxBlowersMasel, CxxInterfaceRateBase):
         CxxInterfaceBlowersMaselRate()
         CxxInterfaceBlowersMaselRate(CxxAnyMap) except +translate_exception
         CxxInterfaceBlowersMaselRate(double, double, double, double)
@@ -1410,7 +1410,7 @@ cdef class CustomRate(ReactionRate):
     cdef Func1 _rate_func
 
 cdef class InterfaceRateBase(ArrheniusRateBase):
-    cdef CxxCoverageBase* coverage
+    cdef CxxInterfaceRateBase* interface
 
 cdef class StickRateBase(InterfaceRateBase):
     cdef CxxStickingCoverage* stick
