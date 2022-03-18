@@ -708,7 +708,7 @@ class SurfaceReactionRateTests(ReactionRateTests):
         self.assertEqual(rate.site_density, self.soln.site_density)
         if "Blowers-Masel" in self._type:
             rate.delta_enthalpy = self.soln.delta_enthalpy[self._index]
-        with pytest.warns(UserWarning, match="CoverageData::update"):
+        with pytest.warns(UserWarning, match="InterfaceData::update"):
             return rate(self.soln.T, self.soln.coverages)
 
     def from_parts(self):
@@ -1785,7 +1785,7 @@ class InterfaceReactionTests(ReactionTests):
         self.assertEqual(rate.site_density, self.soln.site_density)
         if "Blowers-Masel" in self._rate_type:
             rate.delta_enthalpy = self.soln.delta_enthalpy[self._index]
-        with pytest.warns(UserWarning, match="CoverageData::update"):
+        with pytest.warns(UserWarning, match="InterfaceData::update"):
             return rate(self.soln.T, self.soln.coverages)
 
     def check_rate(self, rate_obj):

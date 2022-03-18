@@ -714,12 +714,12 @@ cdef class InterfaceRateBase(ArrheniusRateBase):
         """
         def __get__(self):
             cdef CxxAnyMap cxx_deps
-            self.coverage.getCoverageDependencies(cxx_deps)
+            self.interface.getCoverageDependencies(cxx_deps)
             return anymap_to_dict(cxx_deps)
         def __set__(self, dict deps):
             cdef CxxAnyMap cxx_deps = dict_to_anymap(deps)
 
-            self.coverage.setCoverageDependencies(cxx_deps)
+            self.interface.setCoverageDependencies(cxx_deps)
 
     def set_species(self, species):
         """
@@ -729,7 +729,7 @@ cdef class InterfaceRateBase(ArrheniusRateBase):
         cdef vector[string] cxxvector
         for s in species:
             cxxvector.push_back(stringify(s))
-        self.coverage.setSpecies(cxxvector)
+        self.interface.setSpecies(cxxvector)
 
     property site_density:
         """
@@ -744,23 +744,23 @@ cdef class InterfaceRateBase(ArrheniusRateBase):
         may be changed or removed without notice.
         """
         def __get__(self):
-            return self.coverage.siteDensity()
+            return self.interface.siteDensity()
         def __set__(self, double site_density):
-            self.coverage.setSiteDensity(site_density)
+            self.interface.setSiteDensity(site_density)
 
     property uses_electrochemistry:
         """
         Return boolean flag indicating whether rate involves a charge transfer.
         """
         def __get__(self):
-            return self.coverage.usesElectrochemistry()
+            return self.interface.usesElectrochemistry()
 
     property beta:
         """
         Return the charge transfer beta parameter
         """
         def __get__(self):
-            return self.coverage.beta()
+            return self.interface.beta()
 
 
 cdef class InterfaceArrheniusRate(InterfaceRateBase):
@@ -783,7 +783,7 @@ cdef class InterfaceArrheniusRate(InterfaceRateBase):
     cdef set_cxx_object(self):
         self.rate = self._rate.get()
         self.base = <CxxArrhenius*>self.rate
-        self.coverage = <CxxCoverageBase*>self.cxx_object()
+        self.interface = <CxxInterfaceRateBase*>self.cxx_object()
 
     cdef CxxInterfaceArrheniusRate* cxx_object(self):
         return <CxxInterfaceArrheniusRate*>self.rate
@@ -811,7 +811,7 @@ cdef class InterfaceBlowersMaselRate(InterfaceRateBase):
     cdef set_cxx_object(self):
         self.rate = self._rate.get()
         self.base = <CxxArrhenius*>self.rate
-        self.coverage = <CxxCoverageBase*>self.cxx_object()
+        self.interface = <CxxInterfaceRateBase*>self.cxx_object()
 
     cdef CxxInterfaceBlowersMaselRate* cxx_object(self):
         return <CxxInterfaceBlowersMaselRate*>self.rate
@@ -922,7 +922,7 @@ cdef class StickingArrheniusRate(StickRateBase):
         self.rate = self._rate.get()
         self.base = <CxxArrhenius*>self.rate
         self.stick = <CxxStickingCoverage*>self.cxx_object()
-        self.coverage = <CxxCoverageBase*>self.stick
+        self.interface = <CxxInterfaceRateBase*>self.stick
 
     cdef CxxStickingArrheniusRate* cxx_object(self):
         return <CxxStickingArrheniusRate*>self.rate
@@ -949,7 +949,7 @@ cdef class StickingBlowersMaselRate(StickRateBase):
         self.rate = self._rate.get()
         self.base = <CxxArrhenius*>self.rate
         self.stick = <CxxStickingCoverage*>self.cxx_object()
-        self.coverage = <CxxCoverageBase*>self.stick
+        self.interface = <CxxInterfaceRateBase*>self.stick
 
     cdef CxxStickingBlowersMaselRate* cxx_object(self):
         return <CxxStickingBlowersMaselRate*>self.rate
