@@ -41,14 +41,14 @@ class AnyMap;
  * It is evident that this expression combines a regular modified Arrhenius rate
  * expression \f$ A T^b \exp \left( - \frac{E_a}{RT} \right) \f$ with coverage-related
  * terms, where the parameters \f$ (a_k, E_k, m_k) \f$ describe the dependency on the
- * surface coverage of species \f$ k, \theta_k \f$. The CoverageBase class implements
+ * surface coverage of species \f$ k, \theta_k \f$. The InterfaceRateBase class implements
  * terms related to coverage only, which allows for combinations with arbitrary rate
  * parameterizations (for example Arrhenius and BlowersMasel).
  */
-class CoverageBase
+class InterfaceRateBase
 {
 public:
-    CoverageBase();
+    InterfaceRateBase();
 
     //! Perform object setup based on AnyMap node information
     //! @param node  AnyMap object containing reaction rate specification
@@ -91,52 +91,7 @@ public:
 
     //! Update reaction rate parameters
     //! @param shared_data  data shared by all reactions of a given type
-    void updateFromStruct(const CoverageData& shared_data) {
-        if (shared_data.ready) {
-            m_siteDensity = shared_data.density;
-        }
-
-        if (m_indices.size() != m_cov.size()) {
-            // object is not set up correctly (setSpecies needs to be run)
-            m_acov = NAN;
-            m_ecov = NAN;
-            m_mcov = NAN;
-            return;
-        }
-        m_acov = 0.0;
-        m_ecov = 0.0;
-        m_mcov = 0.0;
-        for (auto& item : m_indices) {
-            m_acov += m_ac[item.first] * shared_data.coverages[item.second];
-            m_ecov += m_ec[item.first] * shared_data.coverages[item.second];
-            m_mcov += m_mc[item.first] * shared_data.logCoverages[item.second];
-        }
-
-        // Update change in electrical potential energy
-        if (m_chargeTransfer) {
-            m_deltaPotential_RT = 0.;
-            for (const auto& ch : m_netCharges) {
-                m_deltaPotential_RT +=
-                    shared_data.electricPotentials[ch.first] * ch.second;
-            }
-            m_deltaPotential_RT /= GasConstant * shared_data.temperature;
-        }
-
-        // Update quantities used for exchange current density formulation
-        if (m_exchangeCurrentDensityFormulation) {
-            m_deltaGibbs0_RT = 0.;
-            m_prodStandardConcentrations = 1.;
-            for (const auto& item : m_stoichCoeffs) {
-                m_deltaGibbs0_RT +=
-                    shared_data.standardChemPotentials[item.first] * item.second;
-                if (item.second > 0.) {
-                    m_prodStandardConcentrations *=
-                        shared_data.standardConcentrations[item.first];
-                }
-            }
-            m_deltaGibbs0_RT /= GasConstant * shared_data.temperature;
-        }
-    }
+    void updateFromStruct(const InterfaceData& shared_data);
 
     //! Calculate modifications for the forward reaction rate for interfacial charge
     //! transfer reactions.
@@ -145,9 +100,11 @@ public:
      *  activation energies are modified by the potential difference. The correction
      *  factor is based on the net electric potential energy change
      *  \f[
-     *   deltaElectricEnergy = sum_i ( pot_i nu_ij)
+     *   \Delta E_{p,j} = \sum_i E_{p,i} \nu_{i,j}
      *  \f]
-     *  where potential energies are calculated as \f$ pot_i = F phi_i z_i \f$.
+     *  where potential energies are calculated as \f$ E_{p,i} = F \phi_i z_i \f$.
+     *  Here, \f$ F \f$ is Faraday's constant, \f$ \phi_i \f$ is the electric potential
+     *  of the species phase and \f$ z_i \f$ is the charge of the species.
      *
      *  When an electrode reaction rate is specified in terms of its exchange current
      *  density, the correction factor is adjusted to the standard reaction rate
@@ -157,7 +114,6 @@ public:
      *  @warning  The updated calculation of voltage corrections is an experimental
      *      part of the %Cantera API and may be changed or removed without notice.
      */
-    //
     double voltageCorrection() const {
         // Calculate reaction rate correction. Only modify those with a non-zero
         // activation energy.
@@ -185,10 +141,11 @@ public:
 
     //! Boolean indicating whether rate uses electrochemistry
     /*!
-     *  If this is true, the Butler-Volmer correction is applied
-     *  to the forward reaction rate.
-     *
-     *    fac = exp ( - beta * (delta_phi))
+     *  If this is true, the Butler-Volmer correction
+     *  \f[
+     *    f_{BV} = \exp ( - \beta * Delta E_{p,j} / R T )
+     *  \f]
+     *  is applied to the forward reaction rate, @see voltageCorrection.
      */
     bool usesElectrochemistry() {
         return m_chargeTransfer;
@@ -254,7 +211,7 @@ private:
 /**
  * The StickingCoverage class enhances Coverage to accommodate sticking coefficients.
  */
-class StickingCoverage : public CoverageBase
+class StickingCoverage : public InterfaceRateBase
 {
 public:
     StickingCoverage();
@@ -350,7 +307,7 @@ protected:
 
 //! A class template for interface reaction rate specifications
 template <class RateType, class DataType>
-class InterfaceRate : public RateType, public CoverageBase
+class InterfaceRate : public RateType, public InterfaceRateBase
 {
     CT_DEFINE_HAS_MEMBER(has_update, updateFromStruct)
 
@@ -376,7 +333,7 @@ public:
     virtual void setParameters(
         const AnyMap& node, const UnitStack& rate_units) override
     {
-        CoverageBase::setParameters(node);
+        InterfaceRateBase::setParameters(node);
         RateType::m_negativeA_ok = node.getBool("negative-A", false);
         if (!node.hasKey("rate-constant")) {
             RateType::setRateParameters(AnyValue(), node.units(), rate_units);
@@ -396,19 +353,19 @@ public:
             // RateType object is configured
             node["rate-constant"] = std::move(rateNode);
         }
-        CoverageBase::getParameters(node);
+        InterfaceRateBase::getParameters(node);
     }
 
     virtual void setContext(const Reaction& rxn, const Kinetics& kin) override {
         RateType::setContext(rxn, kin);
-        CoverageBase::setContext(rxn, kin);
+        InterfaceRateBase::setContext(rxn, kin);
     }
 
     //! Update reaction rate parameters
     //! @param shared_data  data shared by all reactions of a given type
     void updateFromStruct(const DataType& shared_data) {
         _update(shared_data);
-        CoverageBase::updateFromStruct(shared_data);
+        InterfaceRateBase::updateFromStruct(shared_data);
     }
 
     //! Evaluate reaction rate
@@ -455,8 +412,8 @@ protected:
     }
 };
 
-using InterfaceArrheniusRate = InterfaceRate<Arrhenius3, CoverageData>;
-using InterfaceBlowersMaselRate = InterfaceRate<BlowersMasel, CoverageData>;
+using InterfaceArrheniusRate = InterfaceRate<Arrhenius3, InterfaceData>;
+using InterfaceBlowersMaselRate = InterfaceRate<BlowersMasel, InterfaceData>;
 
 
 //! A class template for interface sticking rate specifications
@@ -488,7 +445,7 @@ public:
     virtual void setParameters(
         const AnyMap& node, const UnitStack& rate_units) override
     {
-        CoverageBase::setParameters(node);
+        InterfaceRateBase::setParameters(node);
         RateType::m_negativeA_ok = node.getBool("negative-A", false);
         setStickingParameters(node);
         if (!node.hasKey("sticking-coefficient")) {
@@ -511,12 +468,12 @@ public:
             // RateType object is configured
             node["sticking-coefficient"] = std::move(rateNode);
         }
-        CoverageBase::getParameters(node);
+        InterfaceRateBase::getParameters(node);
     }
 
     virtual void setContext(const Reaction& rxn, const Kinetics& kin) override {
         RateType::setContext(rxn, kin);
-        CoverageBase::setContext(rxn, kin);
+        InterfaceRateBase::setContext(rxn, kin);
         StickingCoverage::setContext(rxn, kin);
     }
 
@@ -541,7 +498,7 @@ public:
     //! @param shared_data  data shared by all reactions of a given type
     void updateFromStruct(const DataType& shared_data) {
         _update(shared_data);
-        CoverageBase::updateFromStruct(shared_data);
+        InterfaceRateBase::updateFromStruct(shared_data);
         m_factor = pow(m_siteDensity, -m_surfaceOrder);
     }
 
@@ -551,8 +508,8 @@ public:
         double out = RateType::evalRate(shared_data.logT, shared_data.recipT) *
             std::exp(std::log(10.0) * m_acov - m_ecov * shared_data.recipT + m_mcov);
         if (m_chargeTransfer) {
-            // the physical interpretation of a sticking charge transfer reaction
-            // remains to be resolved.
+            // @todo  the physical interpretation of a 'sticking' charge transfer
+            //      reaction remains to be resolved.
             out *= voltageCorrection();
         }
         if (m_motzWise) {
@@ -594,8 +551,8 @@ protected:
     }
 };
 
-using StickingArrheniusRate = StickingRate<Arrhenius3, CoverageData>;
-using StickingBlowersMaselRate = StickingRate<BlowersMasel, CoverageData>;
+using StickingArrheniusRate = StickingRate<Arrhenius3, InterfaceData>;
+using StickingBlowersMaselRate = StickingRate<BlowersMasel, InterfaceData>;
 
 }
 #endif

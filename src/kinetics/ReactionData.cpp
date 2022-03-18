@@ -262,20 +262,20 @@ void ChebyshevData::restore()
     m_pressure_buf = -1.;
 }
 
-CoverageData::CoverageData()
+InterfaceData::InterfaceData()
     : sqrtT(NAN)
 {
 }
 
-void CoverageData::update(double T)
+void InterfaceData::update(double T)
 {
-    throw CanteraError("CoverageData::update",
-        "Missing state information: 'CoverageData' requires species coverages.");
+    throw CanteraError("InterfaceData::update",
+        "Missing state information: 'InterfaceData' requires species coverages.");
 }
 
-void CoverageData::update(double T, const vector_fp& values)
+void InterfaceData::update(double T, const vector_fp& values)
 {
-    warn_user("CoverageData::update",
+    warn_user("InterfaceData::update",
         "This method does not update the site density.");
     ReactionData::update(T);
     sqrtT = sqrt(T);
@@ -285,7 +285,7 @@ void CoverageData::update(double T, const vector_fp& values)
     } else if (values.size() == coverages.size()) {
         std::copy(values.begin(), values.end(), coverages.begin());
     } else {
-        throw CanteraError("CoverageData::update",
+        throw CanteraError("InterfaceData::update",
             "Incompatible lengths of coverage arrays: received {} elements while "
             "{} are required.", values.size(), coverages.size());
     }
@@ -294,7 +294,7 @@ void CoverageData::update(double T, const vector_fp& values)
     }
 }
 
-bool CoverageData::update(const ThermoPhase& phase, const Kinetics& kin)
+bool InterfaceData::update(const ThermoPhase& phase, const Kinetics& kin)
 {
     int mf = 0;
     for (size_t n = 0; n < kin.nPhases(); n++) {
@@ -338,9 +338,9 @@ bool CoverageData::update(const ThermoPhase& phase, const Kinetics& kin)
     return changed;
 }
 
-void CoverageData::perturbTemperature(double deltaT)
+void InterfaceData::perturbTemperature(double deltaT)
 {
-    throw NotImplementedError("CoverageData::perturbTemperature");
+    throw NotImplementedError("InterfaceData::perturbTemperature");
 }
 
 }

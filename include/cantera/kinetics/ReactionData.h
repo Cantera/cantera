@@ -301,15 +301,15 @@ protected:
 
 //! Data container holding shared data for reaction rate specification with interfaces
 /**
- * The data container CoverageData holds precalculated data common to
+ * The data container InterfaceData holds precalculated data common to
  * InterfaceRate and StickingRate objects.
  *
  * The data container inherits from BlowersMaselData, where density is used to
  * hold the site density [kmol/m^2].
  */
-struct CoverageData : public BlowersMaselData
+struct InterfaceData : public BlowersMaselData
 {
-    CoverageData();
+    InterfaceData();
 
     virtual bool update(const ThermoPhase& bulk, const Kinetics& kin) override;
 

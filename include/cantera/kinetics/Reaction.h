@@ -120,7 +120,7 @@ public:
 
     //! Check whether reaction uses electrochemistry
     //! @param kin  Kinetics object
-    bool checkElectrochemistry(const Kinetics& kin) const;
+    bool usesElectrochemistry(const Kinetics& kin) const;
 
     //! Type of the reaction. The valid types are listed in the file,
     //! reaction_defs.h, with constants ending in `RXN`.
