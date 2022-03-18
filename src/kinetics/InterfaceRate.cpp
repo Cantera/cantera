@@ -11,7 +11,7 @@
 
 namespace Cantera
 {
-CoverageBase::CoverageBase()
+InterfaceRateBase::InterfaceRateBase()
     : m_siteDensity(NAN)
     , m_acov(0.)
     , m_ecov(0.)
@@ -25,7 +25,7 @@ CoverageBase::CoverageBase()
 {
 }
 
-void CoverageBase::setParameters(const AnyMap& node)
+void InterfaceRateBase::setParameters(const AnyMap& node)
 {
     if (node.hasKey("coverage-dependencies")) {
         setCoverageDependencies(
@@ -38,7 +38,7 @@ void CoverageBase::setParameters(const AnyMap& node)
         "exchange-current-density-formulation", false);
 }
 
-void CoverageBase::getParameters(AnyMap& node) const
+void InterfaceRateBase::getParameters(AnyMap& node) const
 {
     if (!m_cov.empty()) {
         AnyMap deps;
@@ -55,8 +55,8 @@ void CoverageBase::getParameters(AnyMap& node) const
     }
 }
 
-void CoverageBase::setCoverageDependencies(const AnyMap& dependencies,
-                                           const UnitSystem& units)
+void InterfaceRateBase::setCoverageDependencies(const AnyMap& dependencies,
+                                                const UnitSystem& units)
 {
     m_cov.clear();
     m_ac.clear();
@@ -79,7 +79,8 @@ void CoverageBase::setCoverageDependencies(const AnyMap& dependencies,
     }
 }
 
-void CoverageBase::getCoverageDependencies(AnyMap& dependencies, bool asVector) const
+void InterfaceRateBase::getCoverageDependencies(AnyMap& dependencies,
+                                                bool asVector) const
 {
     for (size_t k = 0; k < m_cov.size(); k++) {
         if (asVector) {
@@ -99,8 +100,8 @@ void CoverageBase::getCoverageDependencies(AnyMap& dependencies, bool asVector) 
     }
 }
 
-void CoverageBase::addCoverageDependence(const std::string& sp,
-                                         double a, double m, double e)
+void InterfaceRateBase::addCoverageDependence(const std::string& sp,
+                                              double a, double m, double e)
 {
     if (std::find(m_cov.begin(), m_cov.end(), sp) == m_cov.end()) {
         m_cov.push_back(sp);
@@ -109,12 +110,12 @@ void CoverageBase::addCoverageDependence(const std::string& sp,
         m_mc.push_back(m);
         m_indices.clear();
     } else {
-        throw CanteraError("CoverageBase::addCoverageDependence",
+        throw CanteraError("InterfaceRateBase::addCoverageDependence",
             "Coverage for species '{}' is already specified.", sp);
     }
 }
 
-void CoverageBase::setSpecies(const std::vector<std::string>& species)
+void InterfaceRateBase::setSpecies(const std::vector<std::string>& species)
 {
     m_indices.clear();
     for (size_t k = 0; k < m_cov.size(); k++) {
@@ -122,17 +123,64 @@ void CoverageBase::setSpecies(const std::vector<std::string>& species)
         if (it != species.end()) {
             m_indices.emplace(k, it - species.begin());
         } else {
-            throw CanteraError("CoverageBase:setSpeciesIndices",
+            throw CanteraError("InterfaceRateBase:setSpeciesIndices",
                 "Species list does not contain '{}'.", m_cov[k]);
         }
     }
 }
 
-void CoverageBase::setContext(const Reaction& rxn, const Kinetics& kin)
+void InterfaceRateBase::updateFromStruct(const InterfaceData& shared_data) {
+    if (shared_data.ready) {
+        m_siteDensity = shared_data.density;
+    }
+
+    if (m_indices.size() != m_cov.size()) {
+        // object is not set up correctly (setSpecies needs to be run)
+        m_acov = NAN;
+        m_ecov = NAN;
+        m_mcov = NAN;
+        return;
+    }
+    m_acov = 0.0;
+    m_ecov = 0.0;
+    m_mcov = 0.0;
+    for (auto& item : m_indices) {
+        m_acov += m_ac[item.first] * shared_data.coverages[item.second];
+        m_ecov += m_ec[item.first] * shared_data.coverages[item.second];
+        m_mcov += m_mc[item.first] * shared_data.logCoverages[item.second];
+    }
+
+    // Update change in electrical potential energy
+    if (m_chargeTransfer) {
+        m_deltaPotential_RT = 0.;
+        for (const auto& ch : m_netCharges) {
+            m_deltaPotential_RT +=
+                shared_data.electricPotentials[ch.first] * ch.second;
+        }
+        m_deltaPotential_RT /= GasConstant * shared_data.temperature;
+    }
+
+    // Update quantities used for exchange current density formulation
+    if (m_exchangeCurrentDensityFormulation) {
+        m_deltaGibbs0_RT = 0.;
+        m_prodStandardConcentrations = 1.;
+        for (const auto& item : m_stoichCoeffs) {
+            m_deltaGibbs0_RT +=
+                shared_data.standardChemPotentials[item.first] * item.second;
+            if (item.second > 0.) {
+                m_prodStandardConcentrations *=
+                    shared_data.standardConcentrations[item.first];
+            }
+        }
+        m_deltaGibbs0_RT /= GasConstant * shared_data.temperature;
+    }
+}
+
+void InterfaceRateBase::setContext(const Reaction& rxn, const Kinetics& kin)
 {
     setSpecies(kin.thermo().speciesNames());
 
-    m_chargeTransfer = rxn.checkElectrochemistry(kin);
+    m_chargeTransfer = rxn.usesElectrochemistry(kin);
     if (!m_chargeTransfer) {
         return;
     }

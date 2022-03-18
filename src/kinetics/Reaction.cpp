@@ -64,7 +64,6 @@ Reaction::Reaction(const AnyMap& node, const Kinetics& kin)
         if (nDim == 3) {
             setRate(newReactionRate(node, calculateRateCoeffUnits3(kin)));
         } else {
-            // Instantiate rate object
             AnyMap rateNode = node;
             if (!rateNode.hasKey("type")) {
                 // Reaction type is not specified
@@ -533,7 +532,7 @@ bool Reaction::checkSpecies(const Kinetics& kin) const
     return true;
 }
 
-bool Reaction::checkElectrochemistry(const Kinetics& kin) const
+bool Reaction::usesElectrochemistry(const Kinetics& kin) const
 {
     // Check electrochemistry
     vector_fp e_counter(kin.nPhases(), 0.0);
