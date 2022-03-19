@@ -53,7 +53,7 @@ class Option:
             name: str,
             description: str,
             default: "Union[str, bool, Dict[str, Union[str, bool]]]",
-            choices: "Optional[Union[Iterator[str], SCVariables]]" = None):
+            choices: "Optional[Union[Iterable[str], SCVariables]]" = None):
         self.name = name
         self.description = Option._deblank(description)
         self.default = default
@@ -139,7 +139,7 @@ class Option:
 
         # assemble title
         bullet = f"{'*':<{indent}}"
-        return  f"{bullet}{decorate(self.name, False)}: [ {choices} ]\n"
+        return f"{bullet}{decorate(self.name, False)}: [ {choices} ]\n"
 
     def _build_description(self, backticks: bool = True, indent: int = 3) -> str:
         """Assemble description block (help text)"""
