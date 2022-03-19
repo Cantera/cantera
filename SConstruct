@@ -1675,6 +1675,10 @@ if env["layout"] == "conda" and os.name == "nt":
     env["ct_incroot"] = pjoin(env["prefix"], "Library", "include")
 else:
     env["prefix"] = os.path.normpath(env["prefix"])
+    if env["prefix"] != config["prefix"].default:
+        env["default_prefix"] = False
+    else:
+        env["default_prefix"] = True
     env["ct_libdir"] = pjoin(env["prefix"], env["libdirname"])
     env["ct_bindir"] = pjoin(env["prefix"], "bin")
     env["ct_python_bindir"] = pjoin(env["prefix"], "bin")

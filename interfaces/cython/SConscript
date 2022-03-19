@@ -130,8 +130,11 @@ if localenv['python_prefix'] == 'USER':
     user_install = True
 elif localenv["python_prefix"]:
     # A specific location for the Cantera python module has been given
-    install_cmd.append(f"--prefix={localenv.subst('python_prefix')}")
-    python_prefix = localenv.subst("python_prefix")
+    install_cmd.append(f"--prefix={localenv.subst('$python_prefix')}")
+    python_prefix = localenv.subst("$python_prefix")
+elif not env["default_prefix"]:
+    install_cmd.append(f"--prefix={env['prefix']}")
+    python_prefix = env["prefix"]
 
 if env["stage_dir"]:
     # Get the absolute path to the stage directory. If the stage directory is a relative
