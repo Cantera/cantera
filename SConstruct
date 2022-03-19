@@ -2026,42 +2026,63 @@ def postInstallMessage(target, source, env):
         return '\n'.join([indent + spl for spl in inp_str.splitlines()])
 
     env_dict = env.Dictionary()
+    locations = {
+        "library files": "ct_libdir",
+        "C++ headers": "ct_incroot",
+        "samples": "ct_sampledir",
+        "data files": "ct_datadir",
+        "input file converters": "ct_pyscriptdir",
+    }
     install_message = textwrap.dedent("""
         Cantera has been successfully installed.
 
         File locations:
+        """
+    ).splitlines()
+    locations_message = "  {name:<28}{location}"
+    for name, location in locations.items():
+        install_message.append(locations_message.format(
+            name=name, location=env_dict[location]
+        ))
 
-          library files               {ct_libdir!s}
-          C++ headers                 {ct_incroot!s}
-          samples                     {ct_sampledir!s}
-          data files                  {ct_datadir!s}
-          input file converters       {ct_pyscriptdir!s}""".format(**env_dict))
+    if env["sphinx_docs"] or env["doxygen_docs"]:
+        name = "HTML documentation"
+        install_message.append(locations_message.format(
+            name="HTML documentation", location=env_dict["inst_docdir"]
+        ))
 
-    if env['sphinx_docs'] or env['doxygen_docs']:
-        install_message += indent(textwrap.dedent("""
-            HTML documentation          {inst_docdir!s}""".format(**env_dict)), '  ')
+    if env["python_package"] == "full":
+        env["python_example_loc"] = pjoin(env["python_module_loc"], "cantera", "examples")
+        install_message.append(locations_message.format(
+            name="Python package", location=env_dict["python_module_loc"]
+        ))
+        install_message.append(locations_message.format(
+            name="Python examples", location=env_dict["python_example_loc"]
+        ))
 
-    if env['python_package'] == 'full':
-        env['python_example_loc'] = pjoin(env['python_module_loc'], 'cantera', 'examples')
-        install_message += indent(textwrap.dedent("""
-            Python package              {python_module_loc!s}
-            Python samples              {python_example_loc!s}""".format(**env_dict)), '  ')
-
-    if env['matlab_toolbox'] == 'y':
-        env['matlab_sample_loc'] = pjoin(env['ct_sampledir'], 'matlab')
-        env['matlab_ctpath_loc'] = pjoin(env['ct_matlab_dir'], 'ctpath.m')
-        install_message += textwrap.dedent("""
-              Matlab toolbox              {ct_matlab_dir!s}
-              Matlab samples              {matlab_sample_loc!s}
-
+    if env["matlab_toolbox"] == "y":
+        env["matlab_sample_loc"] = pjoin(env["ct_sampledir"], "matlab")
+        env["matlab_ctpath_loc"] = pjoin(env["ct_matlab_dir"], "ctpath.m")
+        install_message.append(locations_message.format(
+            name="Matlab toolbox", location=env_dict["ct_matlab_dir"]
+        ))
+        install_message.append(locations_message.format(
+            name="Matlab samples", location=env_dict["matlab_sample_loc"]
+        ))
+        install_message.append(textwrap.dedent("""
             An m-file to set the correct matlab path for Cantera is at:
 
               {matlab_ctpath_loc!s}
-        """.format(**env_dict))
+        """.format(**env_dict)))
 
-    print(install_message)
+    install_message.append("")
 
-finish_install = env.Command('finish_install', [], postInstallMessage)
+    logger.info(
+        textwrap.indent("\n".join(install_message), 4*" "),
+        print_level=False
+    )
+
+finish_install = env.Command("finish_install", [], postInstallMessage)
 env.Depends(finish_install, installTargets)
 install_cantera = Alias('install', finish_install)
 
