@@ -2,6 +2,7 @@
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/base/Solution.h"
+#include "cantera/base/global.h"
 
 namespace Cantera
 {

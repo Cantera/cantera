@@ -16,7 +16,6 @@
 #include "cantera/kinetics/importKinetics.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/kinetics/Reaction.h"
-#include "cantera/kinetics/ReactionFactory.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctml.h"
 #include "cantera/base/yaml.h"
