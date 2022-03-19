@@ -1660,9 +1660,9 @@ def convert(filename=None, output_name=None, text=None, encoding="latin-1"):
 
         # information regarding conversion
         metadata = BlockMap([
-            ('generator', 'cti2yaml'),
-            ('cantera-version', '2.6.0a4'),
-            ('date', formatdate(localtime=True)),
+            ("generator", "cti2yaml"),
+            ("cantera-version", "2.6.0b1"),
+            ("date", formatdate(localtime=True)),
         ])
         if filename != "<string>":
             metadata['input-files'] = FlowList([base])

@@ -1900,10 +1900,10 @@ class Parser:
             # Additional information regarding conversion
             files = [os.path.basename(f) for f in self.files]
             metadata = BlockMap([
-                ('generator', 'ck2yaml'),
-                ('input-files', FlowList(files)),
-                ('cantera-version', '2.6.0a4'),
-                ('date', formatdate(localtime=True)),
+                ("generator", "ck2yaml"),
+                ("input-files", FlowList(files)),
+                ("cantera-version", "2.6.0b1"),
+                ("date", formatdate(localtime=True)),
             ])
             if desc.strip():
                 metadata.yaml_set_comment_before_after_key('generator', before='\n')
