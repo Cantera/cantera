@@ -554,6 +554,26 @@ typedef InterfaceReaction2 InterfaceReaction;
 typedef ElectrochemicalReaction2 ElectrochemicalReaction;
 #endif
 
+//! Create a new empty Reaction object
+/*!
+ * @param type string identifying type of reaction.
+ * @deprecated To be removed after Cantera 2.6. Only used for legacy reaction types.
+ */
+unique_ptr<Reaction> newReaction(const std::string& type);
+
+//! Create a new Reaction object for the reaction defined in `rxn_node`
+/*!
+ * @param rxn_node XML node describing reaction.
+ */
+unique_ptr<Reaction> newReaction(const XML_Node& rxn_node);
+
+//! Create a new Reaction object using the specified parameters
+/*!
+ * @param rxn_node AnyMap node describing reaction.
+ * @param kin kinetics manager
+ */
+unique_ptr<Reaction> newReaction(const AnyMap& rxn_node,
+                                 const Kinetics& kin);
 
 //! Create Reaction objects for all `<reaction>` nodes in an XML document.
 //!

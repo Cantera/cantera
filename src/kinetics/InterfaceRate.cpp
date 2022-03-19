@@ -5,6 +5,7 @@
 
 #include "cantera/kinetics/InterfaceRate.h"
 #include "cantera/kinetics/Kinetics.h"
+#include "cantera/kinetics/Reaction.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/base/AnyMap.h"

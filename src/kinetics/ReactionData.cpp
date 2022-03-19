@@ -8,6 +8,7 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/base/ctexceptions.h"
+#include "cantera/base/global.h"
 
 namespace Cantera
 {

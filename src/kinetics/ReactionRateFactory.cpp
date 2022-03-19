@@ -10,6 +10,8 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/kinetics/Falloff.h"
+#include "cantera/kinetics/Custom.h"
+#include "cantera/kinetics/RxnRates.h"
 #include "cantera/kinetics/InterfaceRate.h"
 #include "cantera/base/AnyMap.h"
 

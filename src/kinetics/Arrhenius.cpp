@@ -5,6 +5,7 @@
 
 #include "cantera/kinetics/Arrhenius.h"
 #include "cantera/kinetics/Kinetics.h"
+#include "cantera/kinetics/Reaction.h"
 
 namespace Cantera
 {

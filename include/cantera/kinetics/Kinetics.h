@@ -13,7 +13,6 @@
 
 #include "StoichManager.h"
 #include "cantera/base/ValueCache.h"
-#include "cantera/kinetics/ReactionFactory.h"
 
 namespace Cantera
 {

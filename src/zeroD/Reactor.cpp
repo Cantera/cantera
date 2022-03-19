@@ -11,6 +11,7 @@
 #include "cantera/zeroD/ReactorSurface.h"
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/base/Solution.h"
+#include "cantera/base/utilities.h"
 
 #include <boost/math/tools/roots.hpp>
 
