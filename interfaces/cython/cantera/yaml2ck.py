@@ -32,7 +32,7 @@
 #     or substantial portions of the Software.
 
 """
-yaml2ck.py: Convert Cantera YAML input files or `Solution` objects to 
+yaml2ck.py: Convert Cantera YAML input files or `Solution` objects to
             Chemkin-format mechanisms
 
 Usage:
@@ -47,21 +47,21 @@ Usage:
 Example:
     yaml2ck --input=chem.yaml --output-path=chem.ck --separate-thermo_file=False
 
-The input keyword is required. It specifies the file to be converted into a 
+The input keyword is required. It specifies the file to be converted into a
 Chemkin-format mechanism. If it is a string it can either be a path or a filename.
 A filename will assume the path is the working directory.
 
 The mechanism-out keyword is an optional keyword to specify the name of the output
-mechanism or the full path to write to if that is given. If this keyword is not 
+mechanism or the full path to write to if that is given. If this keyword is not
 specified it will default to placing a file of the same name as the input file
 with the extension changed to '.ck' in the working directory.
 
 The thermo-out keyword is an optional keyword to specify the name of the output
 thermodynamics data file or the full path to write to if that is given. If this keyword
-is not specified it will default to the thermodynamics inside the mechanism file. 
+is not specified it will default to the thermodynamics inside the mechanism file.
 
 The transport-out keyword is an optional keyword to specify the name of the output
-transport data file or the full path to write to if that is given. If this keyword is 
+transport data file or the full path to write to if that is given. If this keyword is
 not specified it will default to placing a file of the same name as the input file
 with the extension changed to '.tran' in the working directory.
 
@@ -73,19 +73,19 @@ Setting overwrite_files to True will allow yaml2ck to delete a prior version of 
 mechanism and write a file with the same name. If it is False then yaml2ck will throw
 an error.
 
-The cantera-validate keyword is a boolean choice to test that the converted 
+The cantera-validate keyword is a boolean choice to test that the converted
 Chemkin-formatted mechanism will load back into Cantera.
 
-Supported Thermodynamics: 
+Supported Thermodynamics:
     NASA7
 
-Supported Reaction models: 
+Supported Reaction models:
     Elementary, Three-Body, Falloff, Pressure-Dependent-Arrhenius (PLOGs), Chebyshev
 
 Unsupported Thermodynamic Property Models:
     NASA9, Shomate, constant-Cp
 
-Unsupported Reaction models (not comprehensive): 
+Unsupported Reaction models (not comprehensive):
     Chemically-activated, Blowers-Masel, Surface Reactions
 """
 
@@ -178,12 +178,12 @@ def build_header_text(solution, max_width=120):
         text.append(f"!\n{ct_note}")
 
     text.append("\n")
-    
+
 
     return "\n".join(text)
 
 
-def build_species_text(solution, max_width=80, sort_elements=True, 
+def build_species_text(solution, max_width=80, sort_elements=True,
                        sort_species=True):
     """
     Creates element and species declarations
@@ -363,7 +363,7 @@ def build_thermodynamics_text(solution, sort_species=True, separate_file=False):
             thermo_text.append("\n".join(text))
 
         return thermo_text
-    
+
     # get list of all thermo models used
     for species in solution.species():
         if species.input_data["thermo"]["model"] != "NASA7":
@@ -390,7 +390,7 @@ def build_thermodynamics_text(solution, sort_species=True, separate_file=False):
         thermo_text = [
             "THERMO ALL\n" f"   {temp_range[0]:.3f}  1000.000  {temp_range[1]:.3f}\n"
         ]
-    
+
     if sort_species:  # sort solution_species by molecular weight
         MW = solution.molecular_weights
         species_names = [species.name for species in solution.species()]
@@ -409,7 +409,7 @@ def build_thermodynamics_text(solution, sort_species=True, separate_file=False):
     return "".join(thermo_text)
 
 
-def build_reactions_text(solution, sort_reaction_equations=True, precision=7, 
+def build_reactions_text(solution, sort_reaction_equations=True, precision=7,
                          exp_digits=3, coef_space=3):
     """
     Creates reaction definition text in a well-organized format
@@ -469,7 +469,7 @@ def build_reactions_text(solution, sort_reaction_equations=True, precision=7,
 
         if sort_reaction_equations:
             # Search eqn for third body
-            for third_body in [" (+M)", " + M", ""]:  
+            for third_body in [" (+M)", " + M", ""]:
                 if third_body in rxn_eqn:  # if reaches '', doesn't exist
                     break
 
@@ -597,7 +597,7 @@ def build_reactions_text(solution, sort_reaction_equations=True, precision=7,
             falloff_string = f" SRI / {build_coeffs(parameters)} /"
 
         else:
-            raise NotImplementedError("Falloff function not supported: " 
+            raise NotImplementedError("Falloff function not supported: "
                                      f"({falloff_fcn}) {rxn_eqn}")
 
         return falloff_string
@@ -673,7 +673,7 @@ def build_reactions_text(solution, sort_reaction_equations=True, precision=7,
             text.append(
                 f"   TCHEB /  {T_bnds[0]:.3f}  {T_bnds[1]:.3f} /"
                 f"   PCHEB / {build_coeffs(P_bnds)} /\n"
-                f"   CHEB  /  {reaction.rate.n_temperature[1]}  {reaction.rate.n_pressure[1]} /"
+                f"   CHEB  /  {reaction.rate.n_temperature}  {reaction.rate.n_pressure} /"
             )
             for n, coeffs in enumerate(reaction.rate.data):
                 if n == 0:
@@ -863,12 +863,12 @@ def convert(solution, mech_path=None, thermo_path=None, tran_path=None,
     # write mechanism file
     text = []
     text.append(build_header_text(solution))
-    text.append(build_species_text(solution, sort_elements=sort_elements, 
+    text.append(build_species_text(solution, sort_elements=sort_elements,
                                    sort_species=sort_species))
     if path["thermo"] is None:
         text.append(build_thermodynamics_text(solution, sort_species=sort_species,
                                               separate_file=False))
-    text.append(build_reactions_text(solution, 
+    text.append(build_reactions_text(solution,
         sort_reaction_equations=sort_reaction_equations))
     if transport_exists and path["tran"] is None:
         text.append(build_transport_text(solution.species(), separate_file=False))
@@ -897,7 +897,7 @@ def convert(solution, mech_path=None, thermo_path=None, tran_path=None,
 
         with open(path["tran"], "w") as file:
             file.write(text)
-            
+
     else:
         path["tran"] = None
 
