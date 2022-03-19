@@ -635,17 +635,6 @@ class yaml2ckTest(utilities.CanteraTest):
                 message = 'dkm for species {0} at T = {1}'.format(i, T)
                 self.assertNear(Dkm_ck[i], Dkm_yaml[yaml_idx[i]], msg=message)
 
-    # @utilities.slow_test
-    # def test_gri30(self):
-    #     self.convert("gri30", self.cantera_data_path)
-    #     ckPhase, yamlPhase = self.checkConversion('gri30')
-    #     X = {'O2': 0.3, 'H2': 0.1, 'CH4': 0.2, 'CO2': 0.4}
-    #     ckPhase.X = X
-    #     yamlPhase.X = X
-    #     self.checkThermo(ckPhase, yamlPhase, [300, 500, 1300, 2000])
-    #     self.checkKinetics(ckPhase, yamlPhase, [900, 1800], [2e5, 20e5])
-    #     self.checkTransport(ckPhase, yamlPhase, [298, 1001, 2400])
-
     def test_third_body_reactions(self):
         self.convert("explicit-third-bodies")
         ckPhase, yamlPhase = self.checkConversion('explicit-third-bodies')
@@ -677,7 +666,7 @@ class yaml2ckTest(utilities.CanteraTest):
         ckPhase.X = X
         yamlPhase.X = X
         self.checkThermo(ckPhase, yamlPhase, [300, 500, 1300, 2000])
-        self.checkKinetics(ckPhase, yamlPhase, [900, 1800], [2e5, 20e5])
+        self.checkKinetics(ckPhase, yamlPhase, [900, 1800], [2e5, 20e5], tol=2e-7)
         self.checkTransport(ckPhase, yamlPhase, [298, 1001, 2400])
 
 
