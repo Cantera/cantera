@@ -1847,6 +1847,19 @@ cdef class ThermoPhase(_SolutionBase):
             self.plasma.getElectronEnergyDistribution(cxxdata)
             return np.fromiter(cxxdata, np.double)
 
+    property isotropic_shape_factor:
+        """ Shape factor of isotropic-velocity distribution for electron energy """
+        def __get__(self):
+            if not self._enable_plasma:
+                raise TypeError('This method is invalid for '
+                                f'thermal model: {self.thermo_model}.')
+            return self.plasma.isotropicShapeFactor()
+        def __set__(self, x):
+            if not self._enable_plasma:
+                raise TypeError('This method is invalid for '
+                                f'thermal model: {self.thermo_model}.')
+            self.plasma.setIsotropicShapeFactor(x)
+
     property mean_electron_energy:
         """ Mean electron energy [eV] """
         def __get__(self):

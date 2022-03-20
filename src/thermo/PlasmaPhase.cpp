@@ -12,7 +12,7 @@
 namespace Cantera {
 
 PlasmaPhase::PlasmaPhase(const std::string& inputFile, const std::string& id_)
-    : m_x(2.0)
+    : m_isotropicShapeFactor(2.0)
     , m_nPoints(1000)
     , m_electronSpeciesIndex(npos)
 {
@@ -28,15 +28,16 @@ PlasmaPhase::PlasmaPhase(const std::string& inputFile, const std::string& id_)
 void PlasmaPhase::setIsotropicElectronEnergyDistribution()
 {
     m_electronEnergyDist.resize(m_nPoints);
-    double gamma1 = boost::math::tgamma(3.0 / 2.0 * m_x);
-    double gamma2 = boost::math::tgamma(5.0 / 2.0 * m_x);
-    double c1 = m_x * std::pow(gamma2, 1.5) / std::pow(gamma1, 2.5);
-    double c2 = m_x * std::pow(gamma2 / gamma1, m_x);
+    double x = m_isotropicShapeFactor;
+    double gamma1 = boost::math::tgamma(3.0 / 2.0 * x);
+    double gamma2 = boost::math::tgamma(5.0 / 2.0 * x);
+    double c1 = x * std::pow(gamma2, 1.5) / std::pow(gamma1, 2.5);
+    double c2 = x * std::pow(gamma2 / gamma1, x);
     m_electronEnergyDist =
         c1 * m_electronEnergyLevels.array().sqrt() /
         std::pow(m_meanElectronEnergy, 1.5) *
         (-c2 * (m_electronEnergyLevels.array() /
-        m_meanElectronEnergy).pow(m_x)).exp();
+        m_meanElectronEnergy).pow(x)).exp();
 }
 
 void PlasmaPhase::setElectronTemperature(const double Te) {
@@ -84,6 +85,11 @@ void PlasmaPhase::getElectronEnergyDistribution(vector_fp& distrb) const
 {
     distrb.resize(m_nPoints);
     Eigen::Map<Eigen::VectorXd>(distrb.data(), m_nPoints) = m_electronEnergyDistrb;
+}
+
+void PlasmaPhase::setIsotropicShapeFactor(double x) {
+    m_isotropicShapeFactor = x;
+    setIsotropicElectronEnergyDistribution();
 }
 
 bool PlasmaPhase::addSpecies(shared_ptr<Species> spec)

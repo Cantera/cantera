@@ -448,6 +448,8 @@ cdef extern from "cantera/thermo/PlasmaPhase.h":
         void getElectronEnergyDistribution(vector[double]&)
         double electronTemperature() except +translate_exception
         void setElectronTemperature(double) except +translate_exception
+        void setIsotropicShapeFactor(double) except +translate_exception
+        double isotropicShapeFactor()
         double meanElectronEnergy()
 
 cdef extern from "cantera/kinetics/ReactionRateFactory.h" namespace "Cantera":

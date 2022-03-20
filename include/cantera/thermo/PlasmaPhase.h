@@ -115,6 +115,17 @@ public:
     //!                Length: #m_nPoints.
     void getElectronEnergyDistribution(vector_fp& distrb) const;
 
+    //! Set the shape factor of isotropic electron energy distribution.
+    //! Note that \f$ x = 1 \f$ and \f$ x = 2 \f$ correspond to the
+    //! Maxwellian and Druyvesteyn distribution, respectively.
+    //! @param  x The shape factor
+    void setIsotropicShapeFactor(double x);
+
+    //! The shape factor of isotropic electron energy distribution
+    double isotropicShapeFactor() const {
+        return m_isotropicShapeFactor;
+    }
+
     //! Set the internally stored electron temperature of the phase (K).
     //! @param  Te Electron temperature in Kelvin
     virtual void setElectronTemperature(double Te);
@@ -139,7 +150,7 @@ protected:
     void setIsotropicElectronEnergyDistribution();
 
     // Electron energy order in the exponential term
-    double m_x;
+    double m_isotropicShapeFactor;
 
     //! Number of points of electron energy levels
     size_t m_nPoints;
