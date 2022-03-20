@@ -5,6 +5,7 @@
 
 #include "cantera/thermo/PlasmaPhase.h"
 #include <boost/math/special_functions/gamma.hpp>
+#include "cantera/thermo/Species.h"
 #include "cantera/base/global.h"
 #include "cantera/numerics/funcs.h"
 
@@ -13,7 +14,7 @@ namespace Cantera {
 PlasmaPhase::PlasmaPhase(const std::string& inputFile, const std::string& id_)
     : m_x(2.0)
     , m_nPoints(1000)
-    , m_electronName("E")
+    , m_electronSpeciesIndex(npos)
 {
     initThermoFile(inputFile, id_);
 
@@ -85,6 +86,35 @@ void PlasmaPhase::getElectronEnergyDistribution(vector_fp& distrb) const
     Eigen::Map<Eigen::VectorXd>(distrb.data(), m_nPoints) = m_electronEnergyDistrb;
 }
 
+bool PlasmaPhase::addSpecies(shared_ptr<Species> spec)
+{
+    bool added = IdealGasPhase::addSpecies(spec);
+    size_t k = m_kk - 1;
+
+    if (spec->composition.find("E") != spec->composition.end() &&
+        spec->composition.size() == 1 &&
+        spec->composition["E"] == 1) {
+        if (m_electronSpeciesIndex == npos) {
+            m_electronSpeciesIndex = k;
+        } else {
+            throw CanteraError("PlasmaPhase::addSpecies",
+                               "Cannot add species, {}. "
+                               "Only one electron species is allowed.", spec->name);
+        }
+    }
+    return added;
+}
+
+void PlasmaPhase::initThermo()
+{
+    IdealGasPhase::initThermo();
+    // check electron species
+    if (m_electronSpeciesIndex == npos) {
+        throw CanteraError("PlasmaPhase::initThermo",
+                           "No electron species found.");
+    }
+}
+
 void PlasmaPhase::updateThermo() const
 {
     IdealGasPhase::updateThermo();
@@ -92,10 +122,10 @@ void PlasmaPhase::updateThermo() const
     CachedScalar cached = m_cache.getScalar(cacheId);
     double tempNow = temperature();
     double electronTempNow = electronTemperature();
-    size_t k = speciesIndex(m_electronName);
+    size_t k = m_electronSpeciesIndex;
     // If the electron temperature has changed since the last time these
     // properties were computed, recompute them.
-    if (cached.state1 != tempNow && cached.state2 != electronTempNow) {
+    if (cached.state1 != tempNow || cached.state2 != electronTempNow) {
         m_spthermo.update_single(k, electronTemperature(),
                 &m_cp0_R[k], &m_h0_RT[k], &m_s0_R[k]);
         cached.state1 = tempNow;
