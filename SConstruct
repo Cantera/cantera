@@ -196,13 +196,13 @@ config_options = [
         }),
     PathOption(
         "prefix",
-        """Set this to the directory where Cantera should be installed. If the Python
+        r"""Set this to the directory where Cantera should be installed. If the Python
            executable found during compilation is managed by 'conda', the installation
            'prefix' defaults to the corresponding environment and the 'conda' layout
            will be used for installation (specifying any of the options 'prefix',
-           'python_prefix', 'python_cmd' or 'layout' will override this default). On
+           'python_prefix', 'python_cmd', or 'layout' will override this default). On
            Windows systems, '$ProgramFiles' typically refers to "C:\Program Files".""",
-        {"Windows": "$ProgramFiles\Cantera", "default": "/usr/local"},
+        {"Windows": r"$ProgramFiles\Cantera", "default": "/usr/local"},
         PathVariable.PathAccept),
     PathOption(
         "libdirname",
@@ -1645,6 +1645,15 @@ env['debian'] = any(name.endswith('dist-packages') for name in sys.path)
 selected_options = set(line.split("=")[0].strip()
     for line in cantera_conf.splitlines())
 
+env["default_prefix"] = True
+if "prefix" in selected_options:
+    env["default_prefix"] = False
+
+# Remove back slashes from paths. For example, C:\Users results in a Unicode error
+# because \U is the prefix for a Unicode sequence. This kind of thing can happen
+# on other platforms too, so this replacement isn't conditional.
+env["prefix"] = env["prefix"].replace("\\", "/")
+
 # Check whether Cantera should be installed into a conda environment
 if conda_prefix is not None:
     if env["layout"] != "conda" and sys.executable.startswith(conda_prefix):
@@ -1675,10 +1684,6 @@ if env["layout"] == "conda" and os.name == "nt":
     env["ct_incroot"] = pjoin(env["prefix"], "Library", "include")
 else:
     env["prefix"] = os.path.normpath(env["prefix"])
-    if env["prefix"] != config["prefix"].default:
-        env["default_prefix"] = False
-    else:
-        env["default_prefix"] = True
     env["ct_libdir"] = pjoin(env["prefix"], env["libdirname"])
     env["ct_bindir"] = pjoin(env["prefix"], "bin")
     env["ct_python_bindir"] = pjoin(env["prefix"], "bin")
