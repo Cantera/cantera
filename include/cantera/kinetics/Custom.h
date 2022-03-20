@@ -13,7 +13,7 @@
 
 #include "cantera/base/ct_defs.h"
 #include "cantera/base/Units.h"
-#include "cantera/kinetics/ReactionData.h"
+#include "cantera/kinetics/Arrhenius.h"
 #include "ReactionRate.h"
 #include "MultiRate.h"
 

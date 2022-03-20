@@ -149,6 +149,16 @@ protected:
     Units m_rate_units; //!< Reaction rate units
 };
 
+//! Data container holding shared data specific to ArrheniusRate
+/**
+ * The data container `ArrheniusData` holds precalculated data common to
+ * all `ArrheniusRate` objects.
+ */
+struct ArrheniusData : public ReactionData
+{
+    virtual bool update(const ThermoPhase& phase, const Kinetics& kin);
+    using ReactionData::update;
+};
 
 //! Arrhenius reaction rate type depends only on temperature
 /*!

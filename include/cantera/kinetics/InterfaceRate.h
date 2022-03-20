@@ -27,6 +27,49 @@ class AnyMap;
  *  @ingroup chemkinetics
  */
 
+
+//! Data container holding shared data for reaction rate specification with interfaces
+/**
+ * The data container InterfaceData holds precalculated data common to
+ * InterfaceRate and StickingRate objects.
+ *
+ * The data container inherits from BlowersMaselData, where density is used to
+ * hold the site density [kmol/m^2].
+ */
+struct InterfaceData : public BlowersMaselData
+{
+    InterfaceData();
+
+    virtual bool update(const ThermoPhase& bulk, const Kinetics& kin) override;
+
+    virtual void update(double T) override;
+
+    virtual void update(double T, const vector_fp& values) override;
+
+    using BlowersMaselData::update;
+
+    virtual void perturbTemperature(double deltaT);
+
+    virtual void resize(size_t nSpecies, size_t nReactions, size_t nPhases) override {
+        coverages.resize(nSpecies, 0.);
+        logCoverages.resize(nSpecies, 0.);
+        partialMolarEnthalpies.resize(nSpecies, 0.);
+        electricPotentials.resize(nPhases, 0.);
+        standardChemPotentials.resize(nSpecies, 0.);
+        standardConcentrations.resize(nSpecies, 0.);
+        ready = true;
+    }
+
+    double sqrtT; //!< square root of temperature
+
+    vector_fp coverages; //!< surface coverages
+    vector_fp logCoverages; //!< logarithm of surface coverages
+    vector_fp electricPotentials; //!< electric potentials of phases
+    vector_fp standardChemPotentials; //!< standard state chemical potentials
+    vector_fp standardConcentrations; //!< standard state concentrations
+};
+
+
 //! Base class for rate parameterizations that involve interfaces
 /**
  * Rate expressions defined for interfaces may include coverage dependent terms,

@@ -11,10 +11,76 @@
 #include "cantera/base/global.h"
 #include "cantera/base/AnyMap.h"
 #include "cantera/kinetics/Falloff.h"
-
+#include "cantera/kinetics/Kinetics.h"
+#include "cantera/thermo/ThermoPhase.h"
 
 namespace Cantera
 {
+
+FalloffData::FalloffData()
+    : ready(false)
+    , molar_density(NAN)
+    , m_state_mf_number(-1)
+    , m_perturbed(false)
+{
+    conc_3b.resize(1, NAN);
+    m_conc_3b_buf.resize(1, NAN);
+}
+
+void FalloffData::update(double T)
+{
+    throw CanteraError("FalloffData::update",
+        "Missing state information: 'FalloffData' requires third-body concentration.");
+}
+
+void FalloffData::update(double T, double M)
+{
+    ReactionData::update(T);
+    conc_3b[0] = M;
+}
+
+bool FalloffData::update(const ThermoPhase& phase, const Kinetics& kin)
+{
+    double rho_m = phase.molarDensity();
+    int mf = phase.stateMFNumber();
+    double T = phase.temperature();
+    bool changed = false;
+    if (T != temperature) {
+        ReactionData::update(T);
+        changed = true;
+    }
+    if (rho_m != molar_density || mf != m_state_mf_number) {
+        molar_density = rho_m;
+        m_state_mf_number = mf;
+        conc_3b = kin.thirdBodyConcentrations();
+        changed = true;
+    }
+    return changed;
+}
+
+void FalloffData::perturbThirdBodies(double deltaM)
+{
+    if (m_perturbed) {
+        throw CanteraError("FalloffData::perturbThirdBodies",
+            "Cannot apply another perturbation as state is already perturbed.");
+    }
+    m_conc_3b_buf = conc_3b;
+    for (auto& c3b : conc_3b) {
+        c3b *= 1. + deltaM;
+    }
+    m_perturbed = true;
+}
+
+void FalloffData::restore()
+{
+    ReactionData::restore();
+    // only restore if there is a valid buffered value
+    if (!m_perturbed) {
+        return;
+    }
+    conc_3b = m_conc_3b_buf;
+    m_perturbed = false;
+}
 
 void FalloffRate::init(const vector_fp& c)
 {

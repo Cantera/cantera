@@ -6,6 +6,7 @@
 #include "cantera/kinetics/Arrhenius.h"
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/kinetics/Reaction.h"
+#include "cantera/thermo/ThermoPhase.h"
 
 namespace Cantera
 {
@@ -125,6 +126,16 @@ void ArrheniusBase::check(const std::string& equation, const AnyMap& node)
             "Undeclared negative pre-exponential factor found in reaction '{}'",
             equation);
     }
+}
+
+bool ArrheniusData::update(const ThermoPhase& phase, const Kinetics& kin)
+{
+    double T = phase.temperature();
+    if (T == temperature) {
+        return false;
+    }
+    update(T);
+    return true;
 }
 
 TwoTempPlasma::TwoTempPlasma()
