@@ -12,6 +12,88 @@
 
 namespace Cantera
 {
+
+InterfaceData::InterfaceData()
+    : sqrtT(NAN)
+{
+}
+
+void InterfaceData::update(double T)
+{
+    throw CanteraError("InterfaceData::update",
+        "Missing state information: 'InterfaceData' requires species coverages.");
+}
+
+void InterfaceData::update(double T, const vector_fp& values)
+{
+    warn_user("InterfaceData::update",
+        "This method does not update the site density.");
+    ReactionData::update(T);
+    sqrtT = sqrt(T);
+    if (coverages.size() == 0) {
+        coverages = values;
+        logCoverages.resize(values.size());
+    } else if (values.size() == coverages.size()) {
+        std::copy(values.begin(), values.end(), coverages.begin());
+    } else {
+        throw CanteraError("InterfaceData::update",
+            "Incompatible lengths of coverage arrays: received {} elements while "
+            "{} are required.", values.size(), coverages.size());
+    }
+    for (size_t n = 0; n < coverages.size(); n++) {
+        logCoverages[n] = std::log(std::max(coverages[n], Tiny));
+    }
+}
+
+bool InterfaceData::update(const ThermoPhase& phase, const Kinetics& kin)
+{
+    int mf = 0;
+    for (size_t n = 0; n < kin.nPhases(); n++) {
+        mf += kin.thermo(n).stateMFNumber();
+    }
+
+    double T = phase.temperature();
+    bool changed = false;
+    const auto& surf = dynamic_cast<const SurfPhase&>(
+        kin.thermo(kin.surfacePhaseIndex()));
+    double site_density = surf.siteDensity();
+    if (density != site_density) {
+        density = surf.siteDensity();
+        changed = true;
+    }
+    if (T != temperature) {
+        ReactionData::update(T);
+        sqrtT = sqrt(T);
+        changed = true;
+    }
+    if (changed || mf != m_state_mf_number) {
+        surf.getCoverages(coverages.data());
+        for (size_t n = 0; n < coverages.size(); n++) {
+            logCoverages[n] = std::log(std::max(coverages[n], Tiny));
+        }
+        for (size_t n = 0; n < kin.nPhases(); n++) {
+            size_t start = kin.kineticsSpeciesIndex(0, n);
+            const auto& ph = kin.thermo(n);
+            electricPotentials[n] = ph.electricPotential();
+            ph.getPartialMolarEnthalpies(partialMolarEnthalpies.data() + start);
+            ph.getStandardChemPotentials(standardChemPotentials.data() + start);
+            size_t nsp = ph.nSpecies();
+            for (size_t k = 0; k < nsp; k++) {
+                // only used for exchange current density formulation
+                standardConcentrations[k + start] = ph.standardConcentration(k);
+            }
+        }
+        m_state_mf_number = mf;
+        changed = true;
+    }
+    return changed;
+}
+
+void InterfaceData::perturbTemperature(double deltaT)
+{
+    throw NotImplementedError("InterfaceData::perturbTemperature");
+}
+
 InterfaceRateBase::InterfaceRateBase()
     : m_siteDensity(NAN)
     , m_acov(0.)

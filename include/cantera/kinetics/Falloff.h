@@ -21,6 +21,55 @@ class AnyMap;
  *  @ingroup chemkinetics
  */
 
+
+//! Data container holding shared data specific to Falloff rates
+/**
+ * The data container `FalloffData` holds precalculated data common to
+ * all Falloff related reaction rate classes.
+ */
+struct FalloffData : public ReactionData
+{
+    FalloffData();
+
+    virtual bool update(const ThermoPhase& phase, const Kinetics& kin) override;
+
+    virtual void update(double T) override;
+
+    virtual void update(double T, double M) override;
+
+    using ReactionData::update;
+
+    //! Perturb third-body concentration vector of data container
+    /**
+     * The method is used for the evaluation of numerical derivatives.
+     * @param deltaM  relative third-body perturbation
+     */
+    void perturbThirdBodies(double deltaM);
+
+    virtual void restore() override;
+
+    virtual void resize(size_t nSpecies, size_t nReactions, size_t nPhases) override {
+        conc_3b.resize(nReactions, NAN);
+        m_conc_3b_buf.resize(nReactions, NAN);
+        ready = true;
+    }
+
+    virtual void invalidateCache() override {
+        ReactionData::invalidateCache();
+        molar_density = NAN;
+    }
+
+    bool ready; //!< boolean indicating whether vectors are accessible
+    double molar_density; //!< used to determine if updates are needed
+    vector_fp conc_3b; //!< vector of effective third-body concentrations
+
+protected:
+    int m_state_mf_number; //!< integer that is incremented when composition changes
+    bool m_perturbed; //!< boolean indicating whether 3-rd body values are perturbed
+    vector_fp m_conc_3b_buf; //!< buffered third-body concentrations
+};
+
+
 /**
  * Base class for falloff rate calculators. Each instance of a subclass of FalloffRate
  * calculates the falloff reaction rate based on specific implementations of the

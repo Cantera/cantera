@@ -45,16 +45,6 @@ void ReactionData::restore()
     m_temperature_buf = -1.;
 }
 
-bool ArrheniusData::update(const ThermoPhase& phase, const Kinetics& kin)
-{
-    double T = phase.temperature();
-    if (T == temperature) {
-        return false;
-    }
-    update(T);
-    return true;
-}
-
 bool TwoTempPlasmaData::update(const ThermoPhase& phase, const Kinetics& kin)
 {
     double T = phase.temperature();
@@ -120,71 +110,6 @@ bool BlowersMaselData::update(const ThermoPhase& phase, const Kinetics& kin)
         changed = true;
     }
     return changed;
-}
-
-FalloffData::FalloffData()
-    : ready(false)
-    , molar_density(NAN)
-    , m_state_mf_number(-1)
-    , m_perturbed(false)
-{
-    conc_3b.resize(1, NAN);
-    m_conc_3b_buf.resize(1, NAN);
-}
-
-void FalloffData::update(double T)
-{
-    throw CanteraError("FalloffData::update",
-        "Missing state information: 'FalloffData' requires third-body concentration.");
-}
-
-void FalloffData::update(double T, double M)
-{
-    ReactionData::update(T);
-    conc_3b[0] = M;
-}
-
-bool FalloffData::update(const ThermoPhase& phase, const Kinetics& kin)
-{
-    double rho_m = phase.molarDensity();
-    int mf = phase.stateMFNumber();
-    double T = phase.temperature();
-    bool changed = false;
-    if (T != temperature) {
-        ReactionData::update(T);
-        changed = true;
-    }
-    if (rho_m != molar_density || mf != m_state_mf_number) {
-        molar_density = rho_m;
-        m_state_mf_number = mf;
-        conc_3b = kin.thirdBodyConcentrations();
-        changed = true;
-    }
-    return changed;
-}
-
-void FalloffData::perturbThirdBodies(double deltaM)
-{
-    if (m_perturbed) {
-        throw CanteraError("FalloffData::perturbThirdBodies",
-            "Cannot apply another perturbation as state is already perturbed.");
-    }
-    m_conc_3b_buf = conc_3b;
-    for (auto& c3b : conc_3b) {
-        c3b *= 1. + deltaM;
-    }
-    m_perturbed = true;
-}
-
-void FalloffData::restore()
-{
-    ReactionData::restore();
-    // only restore if there is a valid buffered value
-    if (!m_perturbed) {
-        return;
-    }
-    conc_3b = m_conc_3b_buf;
-    m_perturbed = false;
 }
 
 void PlogData::update(double T)
@@ -261,87 +186,6 @@ void ChebyshevData::restore()
     }
     update(temperature, m_pressure_buf);
     m_pressure_buf = -1.;
-}
-
-InterfaceData::InterfaceData()
-    : sqrtT(NAN)
-{
-}
-
-void InterfaceData::update(double T)
-{
-    throw CanteraError("InterfaceData::update",
-        "Missing state information: 'InterfaceData' requires species coverages.");
-}
-
-void InterfaceData::update(double T, const vector_fp& values)
-{
-    warn_user("InterfaceData::update",
-        "This method does not update the site density.");
-    ReactionData::update(T);
-    sqrtT = sqrt(T);
-    if (coverages.size() == 0) {
-        coverages = values;
-        logCoverages.resize(values.size());
-    } else if (values.size() == coverages.size()) {
-        std::copy(values.begin(), values.end(), coverages.begin());
-    } else {
-        throw CanteraError("InterfaceData::update",
-            "Incompatible lengths of coverage arrays: received {} elements while "
-            "{} are required.", values.size(), coverages.size());
-    }
-    for (size_t n = 0; n < coverages.size(); n++) {
-        logCoverages[n] = std::log(std::max(coverages[n], Tiny));
-    }
-}
-
-bool InterfaceData::update(const ThermoPhase& phase, const Kinetics& kin)
-{
-    int mf = 0;
-    for (size_t n = 0; n < kin.nPhases(); n++) {
-        mf += kin.thermo(n).stateMFNumber();
-    }
-
-    double T = phase.temperature();
-    bool changed = false;
-    const auto& surf = dynamic_cast<const SurfPhase&>(
-        kin.thermo(kin.surfacePhaseIndex()));
-    double site_density = surf.siteDensity();
-    if (density != site_density) {
-        density = surf.siteDensity();
-        changed = true;
-    }
-    if (T != temperature) {
-        ReactionData::update(T);
-        sqrtT = sqrt(T);
-        changed = true;
-    }
-    if (changed || mf != m_state_mf_number) {
-        surf.getCoverages(coverages.data());
-        for (size_t n = 0; n < coverages.size(); n++) {
-            logCoverages[n] = std::log(std::max(coverages[n], Tiny));
-        }
-        for (size_t n = 0; n < kin.nPhases(); n++) {
-            size_t start = kin.kineticsSpeciesIndex(0, n);
-            const auto& ph = kin.thermo(n);
-            electricPotentials[n] = ph.electricPotential();
-            ph.getPartialMolarEnthalpies(partialMolarEnthalpies.data() + start);
-            ph.getStandardChemPotentials(standardChemPotentials.data() + start);
-            size_t nsp = ph.nSpecies();
-            for (size_t k = 0; k < nsp; k++) {
-                // only used for exchange current density formulation
-                standardConcentrations[k + start] = ph.standardConcentration(k);
-            }
-        }
-        m_state_mf_number = mf;
-        changed = true;
-    }
-    return changed;
-}
-
-void InterfaceData::perturbTemperature(double deltaT)
-{
-    throw NotImplementedError("InterfaceData::perturbTemperature");
 }
 
 }
