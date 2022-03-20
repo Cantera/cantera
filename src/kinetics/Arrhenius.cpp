@@ -4,8 +4,6 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/kinetics/Arrhenius.h"
-#include "cantera/kinetics/Kinetics.h"
-#include "cantera/kinetics/Reaction.h"
 #include "cantera/thermo/ThermoPhase.h"
 
 namespace Cantera
@@ -136,41 +134,6 @@ bool ArrheniusData::update(const ThermoPhase& phase, const Kinetics& kin)
     }
     update(T);
     return true;
-}
-
-BlowersMasel::BlowersMasel()
-    : m_deltaH_R(0.)
-{
-    m_Ea_str = "Ea0";
-    m_E4_str = "w";
-}
-
-BlowersMasel::BlowersMasel(double A, double b, double Ea0, double w)
-    : ArrheniusBase(A, b, Ea0)
-    , m_deltaH_R(0.)
-{
-    m_Ea_str = "Ea0";
-    m_E4_str = "w";
-    m_E4_R = w / GasConstant;
-}
-
-double BlowersMasel::ddTScaledFromStruct(const BlowersMaselData& shared_data) const
-{
-    warn_user("BlowersMasel::ddTScaledFromStruct",
-        "Temperature derivative does not consider changes of reaction enthalpy.");
-    double Ea_R = effectiveActivationEnergy_R(m_deltaH_R);
-    return (Ea_R * shared_data.recipT + m_b) * shared_data.recipT;
-}
-
-void BlowersMasel::setContext(const Reaction& rxn, const Kinetics& kin)
-{
-    m_stoich_coeffs.clear();
-    for (const auto& sp : rxn.reactants) {
-        m_stoich_coeffs.emplace_back(kin.kineticsSpeciesIndex(sp.first), -sp.second);
-    }
-    for (const auto& sp : rxn.products) {
-        m_stoich_coeffs.emplace_back(kin.kineticsSpeciesIndex(sp.first), sp.second);
-    }
 }
 
 }

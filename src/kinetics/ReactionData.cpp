@@ -45,38 +45,6 @@ void ReactionData::restore()
     m_temperature_buf = -1.;
 }
 
-BlowersMaselData::BlowersMaselData()
-    : ready(false)
-    , density(NAN)
-    , m_state_mf_number(-1)
-{
-}
-
-void BlowersMaselData::update(double T) {
-    warn_user("BlowersMaselData::update",
-        "This method does not update the change of reaction enthalpy.");
-    ReactionData::update(T);
-}
-
-bool BlowersMaselData::update(const ThermoPhase& phase, const Kinetics& kin)
-{
-    double rho = phase.density();
-    int mf = phase.stateMFNumber();
-    double T = phase.temperature();
-    bool changed = false;
-    if (T != temperature) {
-        ReactionData::update(T);
-        changed = true;
-    }
-    if (changed || rho != density || mf != m_state_mf_number) {
-        density = rho;
-        m_state_mf_number = mf;
-        phase.getPartialMolarEnthalpies(partialMolarEnthalpies.data());
-        changed = true;
-    }
-    return changed;
-}
-
 void PlogData::update(double T)
 {
     throw CanteraError("PlogData::update",

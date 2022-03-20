@@ -94,35 +94,6 @@ protected:
 };
 
 
-//! Data container holding shared data specific to BlowersMaselRate
-/**
- * The data container `BlowersMaselData` holds precalculated data common to
- * all `BlowersMaselRate` objects.
- */
-struct BlowersMaselData : public ReactionData
-{
-    BlowersMaselData();
-
-    virtual void update(double T) override;
-
-    virtual bool update(const ThermoPhase& phase, const Kinetics& kin) override;
-
-    using ReactionData::update;
-
-    virtual void resize(size_t nSpecies, size_t nReactions, size_t nPhases) override {
-        partialMolarEnthalpies.resize(nSpecies, 0.);
-        ready = true;
-    }
-
-    bool ready; //!< boolean indicating whether vectors are accessible
-    double density; //!< used to determine if updates are needed
-    vector_fp partialMolarEnthalpies; //!< partial molar enthalpies
-
-protected:
-    int m_state_mf_number; //!< integer that is incremented when composition changes
-};
-
-
 //! Data container holding shared data specific to PlogRate
 /**
  * The data container `PlogData` holds precalculated data common to
