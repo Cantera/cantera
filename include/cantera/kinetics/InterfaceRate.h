@@ -10,7 +10,7 @@
 #define CT_INTERFACERATE_H
 
 #include "cantera/base/global.h"
-#include "cantera/kinetics/Arrhenius.h"
+#include "cantera/kinetics/BlowersMaselRate.h"
 #include "MultiRate.h"
 
 namespace Cantera
