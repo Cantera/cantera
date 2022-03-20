@@ -1,8 +1,7 @@
 /**
  *  @file RxnRates.h
- *
- * @todo  at least part of the content of this file should be transferred
- *     to ReactionRate.h once the old XML interface is removed after Cantera 2.6
+ *  @deprecated To be removed after Cantera 2.6. See class Cantera::ReactionRate and
+ *      derived classes for new reaction rate handlers.
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -36,6 +35,8 @@ class Func1;
  *   \f[
  *        k_f =  A T^b \exp (-E/RT)
  *   \f]
+ *
+ * @deprecated To be removed after Cantera 2.6. See Arrhenius3 / ArrheniusRate.
  */
 class Arrhenius2 final : public Arrhenius3
 {
@@ -127,6 +128,8 @@ public:
  *   \f]
  * where the parameters \f$ (a_k, E_k, m_k) \f$ describe the dependency on the
  * surface coverage of species \f$k, \theta_k \f$.
+ *
+ * @deprecated To be removed after Cantera 2.6. See InterfaceRate and StickingRate.
  */
 class SurfaceArrhenius
 {

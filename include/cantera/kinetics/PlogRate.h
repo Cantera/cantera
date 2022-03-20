@@ -147,6 +147,8 @@ public:
 
     //! Update concentration-dependent parts of the rate coefficient.
     //! @param c natural log of the pressure in Pa
+    //! @deprecated To be removed after Cantera 2.6. Implementation will be moved to
+    //! the updateFromStruct() method.
     void update_C(const double* c) {
         logP_ = c[0];
         if (logP_ > logP1_ && logP_ < logP2_) {
@@ -176,6 +178,8 @@ public:
      * Update the value the rate constant.
      *
      * This function returns the actual value of the rate constant.
+     * @deprecated To be removed after Cantera 2.6. Implementation will be moved to
+     * the evalFromStruct() method.
      */
     double updateRC(double logT, double recipT) const {
         double log_k1, log_k2;
