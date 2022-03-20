@@ -93,6 +93,8 @@ public:
         return "plasma";
     }
 
+    virtual void initThermo();
+
     //! Set electron energy levels.
     //! @param  levels The vector of electron energy levels (eV).
     //!                Length: #m_nPoints.
