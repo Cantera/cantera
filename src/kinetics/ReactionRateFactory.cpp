@@ -11,6 +11,7 @@
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/kinetics/Falloff.h"
 #include "cantera/kinetics/TwoTempPlasmaRate.h"
+#include "cantera/kinetics/ChebyshevRate.h"
 #include "cantera/kinetics/Custom.h"
 #include "cantera/kinetics/RxnRates.h"
 #include "cantera/kinetics/InterfaceRate.h"

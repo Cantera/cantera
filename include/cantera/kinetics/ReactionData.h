@@ -9,6 +9,7 @@
 #define CT_REACTIONDATA_H
 
 #include "cantera/base/ct_defs.h"
+#include "cantera/base/ctexceptions.h"
 
 namespace Cantera
 {
@@ -43,7 +44,10 @@ struct ReactionData
      * This method allows for testing of a reaction rate expression outside of
      * Kinetics reaction rate evaluators.
      */
-    virtual void update(double T, double extra);
+    virtual void update(double T, double extra) {
+        throw NotImplementedError("ReactionData::update",
+            "ReactionData type does not use extra scalar argument.");
+    }
 
     //! Update data container based on temperature *T* and a vector parameter *extra*
     /**
@@ -54,7 +58,10 @@ struct ReactionData
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
      */
-    virtual void update(double T, const vector_fp& extra);
+    virtual void update(double T, const vector_fp& extra) {
+        throw NotImplementedError("ReactionData::update",
+            "ReactionData type does not use extra vector argument.");
+    }
 
     //! Update data container based on thermodynamic phase state
     /**
@@ -69,10 +76,24 @@ struct ReactionData
      * The method is used for the evaluation of numerical derivatives.
      * @param  deltaT  relative temperature perturbation
      */
-    void perturbTemperature(double deltaT);
+    void perturbTemperature(double deltaT) {
+        if (m_temperature_buf > 0.) {
+            throw CanteraError("ReactionData::perturbTemperature",
+                "Cannot apply another perturbation as state is already perturbed.");
+        }
+        m_temperature_buf = temperature;
+        ReactionData::update(temperature * (1. + deltaT));
+    }
 
     //! Restore data container after a perturbation
-    virtual void restore();
+    virtual void restore() {
+        // only restore if there is a valid buffered value
+        if (m_temperature_buf < 0.) {
+            return;
+        }
+        ReactionData::update(m_temperature_buf);
+        m_temperature_buf = -1.;
+    }
 
     //! Update number of species, reactions and phases
     virtual void resize(size_t nSpecies, size_t nReactions, size_t nPhases) {}
@@ -91,49 +112,6 @@ struct ReactionData
 
 protected:
     double m_temperature_buf; //!< buffered temperature
-};
-
-
-//! Data container holding shared data specific to ChebyshevRate
-/**
- * The data container `ChebyshevData` holds precalculated data common to
- * all `ChebyshevRate` objects.
- */
-struct ChebyshevData : public ReactionData
-{
-    ChebyshevData() : pressure(NAN), log10P(0.), m_pressure_buf(-1.) {}
-
-    virtual void update(double T) override;
-
-    virtual void update(double T, double P) override {
-        ReactionData::update(T);
-        pressure = P;
-        log10P = std::log10(P);
-    }
-
-    virtual bool update(const ThermoPhase& phase, const Kinetics& kin) override;
-
-    using ReactionData::update;
-
-    //! Perturb pressure of data container
-    /**
-     * The method is used for the evaluation of numerical derivatives.
-     * @param  deltaP  relative pressure perturbation
-     */
-    void perturbPressure(double deltaP);
-
-    virtual void restore() override;
-
-    virtual void invalidateCache() override {
-        ReactionData::invalidateCache();
-        pressure = NAN;
-    }
-
-    double pressure; //!< pressure
-    double log10P; //!< base 10 logarithm of pressure
-
-protected:
-    double m_pressure_buf; //!< buffered pressure
 };
 
 }
