@@ -71,6 +71,11 @@ public:
     //! Return parameters
     void getRateParameters(AnyMap& node) const;
 
+    virtual void setParameters(
+        const AnyMap& node, const UnitStack& rate_units) override;
+
+    virtual void getParameters(AnyMap& node) const override;
+
     //! Check rate expression
     virtual void check(const std::string& equation, const AnyMap& node) override;
 
@@ -231,31 +236,8 @@ public:
             new MultiRate<BulkRate<RateType, DataType>, DataType>);
     }
 
-    virtual void setParameters(
-        const AnyMap& node, const UnitStack& rate_units) override
-    {
-        RateType::m_negativeA_ok = node.getBool("negative-A", false);
-        if (!node.hasKey("rate-constant")) {
-            RateType::setRateParameters(AnyValue(), node.units(), rate_units);
-            return;
-        }
-        RateType::setRateParameters(node["rate-constant"], node.units(), rate_units);
-    }
-
-    virtual void getParameters(AnyMap& node) const override {
-        if (RateType::m_negativeA_ok) {
-            node["negative-A"] = true;
-        }
-        AnyMap rateNode;
-        RateType::getRateParameters(rateNode);
-        if (!rateNode.empty()) {
-            // RateType object is configured
-            node["rate-constant"] = std::move(rateNode);
-        }
-        if (RateType::type() != "Arrhenius") {
-            node["type"] = RateType::type();
-        }
-    }
+    using RateType::getParameters;
+    using RateType::setParameters;
 };
 
 typedef BulkRate<Arrhenius3, ArrheniusData> ArrheniusRate;

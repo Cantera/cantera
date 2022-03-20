@@ -108,7 +108,32 @@ void ArrheniusBase::getRateParameters(AnyMap& node) const
         node[m_E4_str].setQuantity(m_E4_R, "K", true);
     }
     node.setFlowStyle();
+}
 
+void ArrheniusBase::setParameters(const AnyMap& node, const UnitStack& rate_units)
+{
+    ReactionRate::setParameters(node, rate_units);
+    m_negativeA_ok = node.getBool("negative-A", false);
+    if (!node.hasKey("rate-constant")) {
+        setRateParameters(AnyValue(), node.units(), rate_units);
+        return;
+    }
+    setRateParameters(node["rate-constant"], node.units(), rate_units);
+}
+
+void ArrheniusBase::getParameters(AnyMap& node) const {
+    if (m_negativeA_ok) {
+        node["negative-A"] = true;
+    }
+    AnyMap rateNode;
+    getRateParameters(rateNode);
+    if (!rateNode.empty()) {
+        // RateType object is configured
+        node["rate-constant"] = std::move(rateNode);
+    }
+    if (type() != "Arrhenius") {
+        node["type"] = type();
+    }
 }
 
 void ArrheniusBase::check(const std::string& equation, const AnyMap& node)
