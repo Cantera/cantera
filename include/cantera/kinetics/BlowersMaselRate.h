@@ -67,11 +67,11 @@ protected:
  *
  * @ingroup arrheniusGroup
  */
-class BlowersMasel : public ArrheniusBase
+class BlowersMaselRate : public ArrheniusBase
 {
 public:
     //! Default constructor.
-    BlowersMasel();
+    BlowersMaselRate();
 
     //! Constructor.
     /*!
@@ -82,7 +82,17 @@ public:
      *  @param w  Average bond dissociation energy of the bond being formed and
      *      broken in the reaction, in energy units [J/kmol]
      */
-    BlowersMasel(double A, double b, double Ea0, double w);
+    BlowersMaselRate(double A, double b, double Ea0, double w);
+
+    explicit BlowersMaselRate(const AnyMap& node, const UnitStack& rate_units={})
+        : BlowersMaselRate()
+    {
+        setParameters(node, rate_units);
+    }
+
+    unique_ptr<MultiRateBase> newMultiRate() const override {
+        return unique_ptr<MultiRateBase>(new MultiRate<BlowersMaselRate, BlowersMaselData>);
+    }
 
     virtual const std::string type() const override {
         return "Blowers-Masel";
@@ -176,8 +186,6 @@ protected:
 
     double m_deltaH_R; //!< enthalpy change of reaction (in temperature units)
 };
-
-typedef BulkRate<BlowersMasel, BlowersMaselData> BlowersMaselRate;
 
 }
 

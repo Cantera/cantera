@@ -9,7 +9,7 @@
 namespace Cantera
 {
 Arrhenius2::Arrhenius2()
-    : Arrhenius3()
+    : ArrheniusRate()
 {
     m_b = 0.0;
     m_A = 0.0;
@@ -17,7 +17,7 @@ Arrhenius2::Arrhenius2()
 }
 
 Arrhenius2::Arrhenius2(doublereal A, doublereal b, doublereal E)
-    : Arrhenius3(A, b, E * GasConstant)
+    : ArrheniusRate(A, b, E * GasConstant)
 {
     if (m_A  <= 0.0) {
         m_logA = -1.0E300;
@@ -30,8 +30,8 @@ Arrhenius2::Arrhenius2(const AnyValue& rate,
     setRateParameters(rate, units, rate_units);
 }
 
-Arrhenius2::Arrhenius2(const Arrhenius3& other)
-    : Arrhenius3(other.preExponentialFactor(),
+Arrhenius2::Arrhenius2(const ArrheniusRate& other)
+    : ArrheniusRate(other.preExponentialFactor(),
                  other.temperatureExponent(),
                  other.activationEnergy())
 {
@@ -41,7 +41,7 @@ void Arrhenius2::setRateParameters(const AnyValue& rate,
                                    const UnitSystem& units, const Units& rate_units)
 {
     UnitStack units_stack(rate_units);
-    Arrhenius3::setRateParameters(rate, units, units_stack);
+    ArrheniusRate::setRateParameters(rate, units, units_stack);
     if (m_A <= 0.0) {
         m_logA = -1.0E300;
     }

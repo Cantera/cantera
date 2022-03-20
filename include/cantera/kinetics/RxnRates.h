@@ -36,9 +36,9 @@ class Func1;
  *        k_f =  A T^b \exp (-E/RT)
  *   \f]
  *
- * @deprecated To be removed after Cantera 2.6. See Arrhenius3 / ArrheniusRate.
+ * @deprecated To be removed after Cantera 2.6. See ArrheniusRate.
  */
-class Arrhenius2 final : public Arrhenius3
+class Arrhenius2 final : public ArrheniusRate
 {
 public:
     //! Default constructor.
@@ -60,15 +60,15 @@ public:
                const UnitSystem& units, const Units& rate_units);
 
     //! Converting constructor (to facilitate back-ward compatibility)
-    Arrhenius2(const Arrhenius3& other);
+    Arrhenius2(const ArrheniusRate& other);
 
     void setRateParameters(const AnyValue& rate,
                            const UnitSystem& units, const Units& rate_units);
-    using Arrhenius3::setRateParameters;
+    using ArrheniusRate::setRateParameters;
 
     //! Return parameters - two-parameter version
     void getParameters(AnyMap& node, const Units& rate_units) const;
-    using Arrhenius3::getParameters;
+    using ArrheniusRate::getParameters;
 
     //! Update concentration-dependent parts of the rate coefficient.
     /*!
@@ -202,7 +202,7 @@ protected:
 
 
 #ifdef CT_NO_LEGACY_REACTIONS_26
-typedef Arrhenius3 Arrhenius;
+typedef ArrheniusRate Arrhenius;
 #else
 typedef Arrhenius2 Arrhenius;
 #endif

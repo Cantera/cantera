@@ -21,6 +21,18 @@ namespace Cantera
 class AnyValue;
 class AnyMap;
 
+//! Data container holding shared data specific to ArrheniusRate
+/**
+ * The data container `ArrheniusData` holds precalculated data common to
+ * all `ArrheniusRate` objects.
+ */
+struct ArrheniusData : public ReactionData
+{
+    virtual bool update(const ThermoPhase& phase, const Kinetics& kin);
+    using ReactionData::update;
+};
+
+
 /**
  *  @defgroup arrheniusGroup  Arrhenius-type Parameterizations
  *
@@ -56,6 +68,12 @@ public:
                   const UnitSystem& units, const UnitStack& rate_units)
     {
         setRateParameters(rate, units, rate_units);
+    }
+
+    explicit ArrheniusBase(const AnyMap& node, const UnitStack& rate_units={})
+        : ArrheniusBase()
+    {
+        setParameters(node, rate_units);
     }
 
     //! Perform object setup based on AnyValue node information
@@ -154,17 +172,6 @@ protected:
     Units m_rate_units; //!< Reaction rate units
 };
 
-//! Data container holding shared data specific to ArrheniusRate
-/**
- * The data container `ArrheniusData` holds precalculated data common to
- * all `ArrheniusRate` objects.
- */
-struct ArrheniusData : public ReactionData
-{
-    virtual bool update(const ThermoPhase& phase, const Kinetics& kin);
-    using ReactionData::update;
-};
-
 //! Arrhenius reaction rate type depends only on temperature
 /*!
  * A reaction rate coefficient of the following form.
@@ -175,15 +182,18 @@ struct ArrheniusData : public ReactionData
  *
  * @ingroup arrheniusGroup
  *
- * @todo supersedes Arrhenius2 and will replace Arrhenius(2) after Cantera 2.6,
- *      The class should be renamed to Arrhenius after removal of Arrhenius2. The new
+ * @todo supersedes Arrhenius2 and will replace Arrhenius after Cantera 2.6. The new
  *      behavior can be forced in self-compiled Cantera installations by defining
  *      CT_NO_LEGACY_REACTIONS_26 via the 'no_legacy_reactions' option in SCons.
  */
-class Arrhenius3 : public ArrheniusBase
+class ArrheniusRate : public ArrheniusBase
 {
 public:
     using ArrheniusBase::ArrheniusBase; // inherit constructors
+
+    unique_ptr<MultiRateBase> newMultiRate() const override {
+        return unique_ptr<MultiRateBase>(new MultiRate<ArrheniusRate, ArrheniusData>);
+    }
 
     virtual const std::string type() const override {
         return "Arrhenius";
@@ -216,31 +226,6 @@ public:
         return (m_Ea_R * shared_data.recipT + m_b) * shared_data.recipT;
     }
 };
-
-
-//! A class template for bulk phase reaction rate specifications
-template <class RateType, class DataType>
-class BulkRate : public RateType
-{
-public:
-    BulkRate() = default;
-    using RateType::RateType; // inherit constructors
-
-    //! Constructor based on AnyMap content
-    BulkRate(const AnyMap& node, const UnitStack& rate_units={}) {
-        setParameters(node, rate_units);
-    }
-
-    unique_ptr<MultiRateBase> newMultiRate() const override {
-        return unique_ptr<MultiRateBase>(
-            new MultiRate<BulkRate<RateType, DataType>, DataType>);
-    }
-
-    using RateType::getParameters;
-    using RateType::setParameters;
-};
-
-typedef BulkRate<Arrhenius3, ArrheniusData> ArrheniusRate;
 
 }
 

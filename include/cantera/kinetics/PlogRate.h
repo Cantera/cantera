@@ -81,7 +81,7 @@ public:
     PlogRate();
 
     //! Constructor from Arrhenius rate expressions at a set of pressures
-    explicit PlogRate(const std::multimap<double, Arrhenius3>& rates);
+    explicit PlogRate(const std::multimap<double, ArrheniusRate>& rates);
 
     //! Constructor using legacy Arrhenius2 framework
     explicit PlogRate(const std::multimap<double, Arrhenius2>& rates);
@@ -143,7 +143,7 @@ public:
     void setup(const std::multimap<double, Arrhenius2>& rates);
 
     //! Set up Plog object
-    void setRates(const std::multimap<double, Arrhenius3>& rates);
+    void setRates(const std::multimap<double, ArrheniusRate>& rates);
 
     //! Update concentration-dependent parts of the rate coefficient.
     //! @param c natural log of the pressure in Pa
@@ -226,14 +226,14 @@ public:
 
     //! Return the pressures and Arrhenius expressions which comprise this
     //! reaction.
-    std::multimap<double, Arrhenius3> getRates() const;
+    std::multimap<double, ArrheniusRate> getRates() const;
 
 protected:
     //! log(p) to (index range) in the rates_ vector
     std::map<double, std::pair<size_t, size_t>> pressures_;
 
     // Rate expressions which are referenced by the indices stored in pressures_
-    std::vector<Arrhenius3> rates_;
+    std::vector<ArrheniusRate> rates_;
 
     double logP_; //!< log(p) at the current state
     double logP1_, logP2_; //!< log(p) at the lower / upper pressure reference
