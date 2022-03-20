@@ -1536,43 +1536,44 @@ if env['python_package'] != 'none':
         if check_for_ruamel_yaml:
             ruamel_yaml_version = parse_version(info[3])
             if ruamel_yaml_version == parse_version("0.0.0"):
-                print("ERROR: ruamel.yaml was not found. {} or newer is "
-                    "required".format(ruamel_min_version))
+                logger.error(
+                    f"ruamel.yaml was not found. {ruamel_min_version} or newer "
+                    "is required.")
                 sys.exit(1)
             elif ruamel_yaml_version < ruamel_min_version:
-                print("ERROR: ruamel.yaml is an incompatible version: Found "
-                    "{}, but {} or newer is required.".format(
-                        ruamel_yaml_version, ruamel_min_version))
+                logger.error(
+                    "ruamel.yaml is an incompatible version: Found "
+                    f"{ruamel_yaml_version}, but {ruamel_min_version} or newer "
+                    "is required.")
                 sys.exit(1)
 
     if warn_no_python:
-        if env['python_package'] == 'default':
-            print('WARNING: Not building the Python package because the Python '
-                  'interpreter {!r} could not be found'.format(env['python_cmd']))
-            env['python_package'] = 'none'
+        if env["python_package"] == "default":
+            logger.warning(
+                "Not building the Python package because the Python interpreter "
+                f"'{env['python_cmd']!r}' could not be found.")
+            env["python_package"] = "none"
         else:
-            print('ERROR: Could not execute the Python interpreter {!r}'.format(
-                env['python_cmd']))
+            logger.error(
+                f"Could not execute the Python interpreter '{env['python_cmd']!r}'")
             sys.exit(1)
     elif python_version < python_min_version:
-        msg = ("{}: Python version is incompatible. Found {} but {} "
-               "or newer is required")
+        msg = "Python version is incompatible. Found {} but {} or newer is required."
         if env["python_package"] in ("minimal", "full"):
-            print(msg.format("ERROR", python_version, python_min_version))
+            logger.error(msg.format(python_version, python_min_version))
             sys.exit(1)
         elif env["python_package"] == "default":
-            print(msg.format("WARNING", python_version, python_min_version))
+            logger.warning(msg.format(python_version, python_min_version))
             env["python_package"] = "none"
-    elif env['python_package'] == 'minimal':
-        # If the minimal package was specified, no further checking
-        # needs to be done
-        print('INFO: Building the minimal Python package for Python {}'.format(python_version))
+    elif env["python_package"] == "minimal":
+        # If the minimal package was specified, no further checking needs to be done
+        logger.info(f"Building the minimal Python package for Python {python_version}")
     else:
 
         if len(info) > expected_output_lines:
-            print("WARNING: Unexpected output while checking Python "
-                  "dependency versions:")
-            print('| ' + '\n| '.join(info[expected_output_lines:]))
+            msg = "\n| ".join(info[expected_output_lines:])
+            logger.warning(
+                f"Unexpected output while checking Python dependency versions:{msg}")
 
         warn_no_full_package = False
         if python_version >= parse_version("3.8"):
@@ -1585,72 +1586,78 @@ if env['python_package'] != 'none':
             # Cython < 0.29.12.
             cython_min_version = parse_version("0.29.12")
 
-        if numpy_version == parse_version('0.0.0'):
-            print("NumPy not found.")
+        if numpy_version == parse_version("0.0.0"):
+            logger.info("NumPy not found.")
             warn_no_full_package = True
         elif numpy_version < numpy_min_version:
-            print("WARNING: NumPy is an incompatible version: "
-                  "Found {0} but {1} or newer is required".format(
-                  numpy_version, numpy_min_version))
+            logger.warning(
+                f"NumPy is an incompatible version: Found {numpy_version} but "
+                f"{numpy_min_version} or newer is required.")
             warn_no_full_package = True
         else:
-            print('INFO: Using NumPy version {0}.'.format(numpy_version))
+            logger.info(f"Using NumPy version {numpy_version}")
 
-        if cython_version == parse_version('0.0.0'):
-            print("Cython not found.")
+        if cython_version == parse_version("0.0.0"):
+            logger.info("Cython not found.")
             warn_no_full_package = True
         elif cython_version < cython_min_version:
-            print("WARNING: Cython is an incompatible version: "
-                  "Found {0} but {1} or newer is required.".format(
-                  cython_version, cython_min_version))
+            lopgger.warning(
+                f"Cython is an incompatible version: Found {cython_version} but "
+                f"{cython_min_version} or newer is required.")
             warn_no_full_package = True
         else:
-            print('INFO: Using Cython version {0}.'.format(cython_version))
+            logger.info(f"Using Cython version {cython_version}")
 
         if warn_no_full_package:
-            msg = ('{}: Unable to build the full Python package because compatible '
-                   'versions of Python, Numpy, and Cython could not be found.')
-            if env['python_package'] == 'default':
-                print(msg.format("WARNING"))
-                print('INFO: Building the minimal Python package for Python {}'.format(python_version))
-                env['python_package'] = 'minimal'
+            msg = ("Unable to build the full Python package because compatible "
+                   "versions of Python, Numpy, and Cython could not be found.")
+            if env["python_package"] == "default":
+                logger.warning(msg)
+                logger.info(
+                    f"Building the minimal Python package for Python {python_version}")
+                env["python_package"] = "minimal"
             else:
-                print(msg.format("ERROR"))
+                logger.error(msg)
                 sys.exit(1)
         else:
-            print('INFO: Building the full Python package for Python {0}'.format(python_version))
-            env['python_package'] = 'full'
+            logger.info(
+                f"Building the full Python package for Python {python_version}")
+            env["python_package"] = "full"
 
 # Matlab Toolbox settings
-if env['matlab_path'] != '' and env['matlab_toolbox'] == 'default':
-    env['matlab_toolbox'] = 'y'
+if env["matlab_path"] != "" and env["matlab_toolbox"] == "default":
+    env["matlab_toolbox"] = "y"
 
-if env['matlab_toolbox'] == 'y':
-    matPath = env['matlab_path']
-    if matPath == '':
-        print("ERROR: Unable to build the Matlab toolbox because 'matlab_path' has not been set.")
+if env["matlab_toolbox"] == "y":
+    matlab_path = env["matlab_path"]
+    if matlab_path == "":
+        logger.error(
+            "Unable to build the Matlab toolbox because 'matlab_path' "
+            "has not been set.")
         sys.exit(1)
 
     if env['blas_lapack_libs']:
-        print('ERROR: The Matlab toolbox is incompatible with external BLAS '
-              'and LAPACK libraries. Unset blas_lapack_libs (e.g. "scons '
-              'build blas_lapack_libs=") in order to build the Matlab '
-              'toolbox, or set matlab_toolbox=n to use the specified BLAS/'
-              'LAPACK libraries and skip building the Matlab toolbox.')
+        logger.error(
+            "The Matlab toolbox is incompatible with external BLAS "
+            "and LAPACK libraries. Unset blas_lapack_libs (e.g. 'scons "
+            "build blas_lapack_libs=') in order to build the Matlab "
+            "toolbox, or set 'matlab_toolbox=n' to use the specified BLAS/"
+            "LAPACK libraries and skip building the Matlab toolbox.")
         sys.exit(1)
 
-    if env['system_sundials'] == 'y':
-        print('ERROR: The Matlab toolbox is incompatible with external '
-              'SUNDIALS libraries. Set system_sundials to no (e.g., "scons build '
-              'system_sundials=n") in order to build the Matlab '
-              'toolbox, or set matlab_toolbox=n to use the specified '
-              'SUNDIALS libraries and skip building the Matlab toolbox.')
+    if env["system_sundials"] == "y":
+        logger.error(
+            "The Matlab toolbox is incompatible with external SUNDIALS "
+            "libraries. Set system_sundials to no (e.g., 'scons build "
+            "system_sundials=n') in order to build the Matlab "
+            "toolbox, or set 'matlab_toolbox=n' to use the specified "
+            "SUNDIALS libraries and skip building the Matlab toolbox.")
         sys.exit(1)
 
-    if not (os.path.isdir(matPath) and
-            os.path.isdir(pjoin(matPath, 'extern'))):
-        print("""ERROR: Path set for 'matlab_path' is not correct.""")
-        print("""ERROR: Path was: '%s'""" % matPath)
+    if not (os.path.isdir(matlab_path) and
+            os.path.isdir(pjoin(matlab_path, "extern"))):
+        logger.error(
+            f"Path set for 'matlab_path' is not correct. Path was '{matlab_path}'")
         sys.exit(1)
 
 
