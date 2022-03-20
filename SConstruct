@@ -1537,13 +1537,13 @@ if env['python_package'] != 'none':
                 f"Could not execute the Python interpreter '{env['python_cmd']!r}'")
             sys.exit(1)
     elif python_version < python_min_version:
-        msg = "Python version is incompatible. Found {} but {} or newer is required."
-        if env["python_package"] in ("minimal", "full"):
-            logger.error(msg.format(python_version, python_min_version))
+        msg = ""
+        if env["python_package"] in ("minimal", "full", "default"):
+            logger.error(
+                f"Python version is incompatible. Found {python_version} but "
+                f"{python_min_version} or newer is required. In order to install "
+                "Cantera without Python support, specify 'python_package=none'.")
             sys.exit(1)
-        elif env["python_package"] == "default":
-            logger.warning(msg.format(python_version, python_min_version))
-            env["python_package"] = "none"
     elif env["python_package"] == "minimal":
         # If the minimal package was specified, no further checking needs to be done
         logger.info(f"Building the minimal Python package for Python {python_version}")
@@ -1589,7 +1589,7 @@ if env['python_package'] != 'none':
 
         if warn_no_full_package:
             msg = ("Unable to build the full Python package because compatible "
-                   "versions of Python, Numpy, and Cython could not be found.")
+                   "versions of Numpy and/or Cython could not be found.")
             if env["python_package"] == "default":
                 logger.warning(msg)
                 logger.info(
