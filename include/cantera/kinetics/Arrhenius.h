@@ -213,74 +213,6 @@ public:
 };
 
 
-//! Two temperature plasma reaction rate type depends on both
-//! gas temperature and electron temperature.
-/*!
- * The form of the two temperature plasma reaction rate coefficient is similar to an
- * Arrhenius reaction rate coefficient. The temperature exponent (b) is applied to
- * the electron temperature instead. In addition, the exponential term with
- * activation energy for electron is included.
- *
- *   \f[
- *        k_f =  A T_e^b \exp (-E_a/RT) \exp (-E_{a,e}/RT_e)
- *   \f]
- *
- * Ref.: Kossyi, I. A., Kostinsky, A. Y., Matveyev, A. A., & Silakov, V. P. (1992).
- * Kinetic scheme of the non-equilibrium discharge in nitrogen-oxygen mixtures.
- * Plasma Sources Science and Technology, 1(3), 207.
- * doi: 10.1088/0963-0252/1/3/011
- *
- * @ingroup arrheniusGroup
- */
-class TwoTempPlasma : public ArrheniusBase
-{
-public:
-    TwoTempPlasma();
-
-    //! Constructor.
-    /*!
-     *  @param A  Pre-exponential factor. The unit system is (kmol, m, s); actual units
-     *      depend on the reaction order and the dimensionality (surface or bulk).
-     *  @param b  Temperature exponent (non-dimensional)
-     *  @param Ea  Activation energy in energy units [J/kmol]
-     *  @param EE  Activation electron energy in energy units [J/kmol]
-     */
-    TwoTempPlasma(double A, double b, double Ea=0.0, double EE=0.0);
-
-    virtual const std::string type() const override {
-        return "two-temperature-plasma";
-    }
-
-    virtual void setContext(const Reaction& rxn, const Kinetics& kin) override;
-
-    //! Evaluate reaction rate
-    /*!
-     *  @param shared_data  data shared by all reactions of a given type
-     */
-    double evalFromStruct(const TwoTempPlasmaData& shared_data) const {
-        // m_E4_R is the electron activation (in temperature units)
-        return m_A * std::exp(m_b * shared_data.logTe -
-                              m_Ea_R * shared_data.recipT +
-                              m_E4_R * (shared_data.electronTemp - shared_data.temperature)
-                              * shared_data.recipTe * shared_data.recipT);
-    }
-
-    //! Evaluate derivative of reaction rate with respect to temperature
-    //! divided by reaction rate
-    /*!
-     *  This method does not consider changes of electron temperature.
-     *  A corresponding warning is raised.
-     *  @param shared_data  data shared by all reactions of a given type
-     */
-    double ddTScaledFromStruct(const TwoTempPlasmaData& shared_data) const;
-
-    //! Return the electron activation energy *Ea* [J/kmol]
-    double activationElectronEnergy() const {
-        return m_E4_R * GasConstant;
-    }
-};
-
-
 //! Blowers Masel reaction rate type depends on the enthalpy of reaction
 /**
  * The Blowers Masel approximation is written by Paul Blowers,
@@ -466,7 +398,6 @@ public:
 };
 
 typedef BulkRate<Arrhenius3, ArrheniusData> ArrheniusRate;
-typedef BulkRate<TwoTempPlasma, TwoTempPlasmaData> TwoTempPlasmaRate;
 typedef BulkRate<BlowersMasel, BlowersMaselData> BlowersMaselRate;
 
 }

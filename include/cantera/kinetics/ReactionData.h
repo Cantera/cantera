@@ -94,36 +94,6 @@ protected:
 };
 
 
-//! Data container holding shared data specific to TwoTempPlasmaRate
-/**
- * The data container `TwoTempPlasmaData` holds precalculated data common to
- * all `TwoTempPlasmaRate` objects.
- */
-struct TwoTempPlasmaData : public ReactionData
-{
-    TwoTempPlasmaData() : electronTemp(1.), logTe(0.), recipTe(1.) {}
-
-    virtual bool update(const ThermoPhase& phase, const Kinetics& kin) override;
-
-    virtual void update(double T) override;
-
-    virtual void update(double T, double Te) override;
-
-    using ReactionData::update;
-
-    virtual void updateTe(double Te);
-
-    virtual void invalidateCache() override {
-        ReactionData::invalidateCache();
-        electronTemp = NAN;
-    }
-
-    double electronTemp; //!< electron temperature
-    double logTe; //!< logarithm of electron temperature
-    double recipTe; //!< inverse of electron temperature
-};
-
-
 //! Data container holding shared data specific to BlowersMaselRate
 /**
  * The data container `BlowersMaselData` holds precalculated data common to

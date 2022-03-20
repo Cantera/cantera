@@ -45,41 +45,6 @@ void ReactionData::restore()
     m_temperature_buf = -1.;
 }
 
-bool TwoTempPlasmaData::update(const ThermoPhase& phase, const Kinetics& kin)
-{
-    double T = phase.temperature();
-    double Te = phase.electronTemperature();
-    bool changed = false;
-    if (T != temperature) {
-        ReactionData::update(T);
-        changed = true;
-    }
-    if (Te != electronTemp) {
-        updateTe(Te);
-        changed = true;
-    }
-    return changed;
-}
-
-void TwoTempPlasmaData::update(double T)
-{
-    throw CanteraError("TwoTempPlasmaData::update",
-        "Missing state information: 'TwoTempPlasmaData' requires electron temperature.");
-}
-
-void TwoTempPlasmaData::update(double T, double Te)
-{
-    ReactionData::update(T);
-    updateTe(Te);
-}
-
-void TwoTempPlasmaData::updateTe(double Te)
-{
-    electronTemp = Te;
-    logTe = std::log(Te);
-    recipTe = 1./Te;
-}
-
 BlowersMaselData::BlowersMaselData()
     : ready(false)
     , density(NAN)
