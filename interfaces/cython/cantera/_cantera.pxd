@@ -444,13 +444,7 @@ cdef extern from "cantera/kinetics/ReactionRateFactory.h" namespace "Cantera":
     cdef shared_ptr[CxxReactionRate] CxxNewReactionRate "newReactionRate" (string) except +translate_exception
     cdef shared_ptr[CxxReactionRate] CxxNewReactionRate "newReactionRate" (CxxAnyMap&) except +translate_exception
 
-cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
-    cdef shared_ptr[CxxReaction] CxxNewReaction "Cantera::newReaction" (string) except +translate_exception
-    cdef shared_ptr[CxxReaction] CxxNewReaction "newReaction" (XML_Node&) except +translate_exception
-    cdef shared_ptr[CxxReaction] CxxNewReaction "newReaction" (CxxAnyMap&, CxxKinetics&) except +translate_exception
-    cdef vector[shared_ptr[CxxReaction]] CxxGetReactions "getReactions" (XML_Node&) except +translate_exception
-    cdef vector[shared_ptr[CxxReaction]] CxxGetReactions "getReactions" (CxxAnyValue&, CxxKinetics&) except +translate_exception
-
+cdef extern from "cantera/kinetics/ReactionRate.h" namespace "Cantera":
     cdef cppclass CxxReactionRate "Cantera::ReactionRate":
         CxxReactionRate()
         string type()
@@ -459,6 +453,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         double eval(double, vector[double]&) except +translate_exception
         CxxAnyMap parameters() except +translate_exception
 
+cdef extern from "cantera/kinetics/Arrhenius.h" namespace "Cantera":
     cdef cppclass CxxArrheniusBase "Cantera::ArrheniusBase" (CxxReactionRate):
         CxxArrheniusBase()
         double preExponentialFactor()
@@ -478,11 +473,6 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         CxxArrheniusRate(CxxAnyMap) except +translate_exception
         CxxArrheniusRate(double, double, double)
 
-    cdef cppclass CxxTwoTempPlasmaRate "Cantera::TwoTempPlasmaRate" (CxxArrheniusBase):
-        CxxTwoTempPlasmaRate(CxxAnyMap) except +translate_exception
-        CxxTwoTempPlasmaRate(double, double, double, double)
-        double activationElectronEnergy()
-
     cdef cppclass CxxBlowersMasel "Cantera::BlowersMasel" (CxxArrheniusBase):
         CxxBlowersMasel(double, double, double, double)
         double evalRate(double, double)
@@ -493,6 +483,19 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
     cdef cppclass CxxBlowersMaselRate "Cantera::BlowersMaselRate" (CxxBlowersMasel):
         CxxBlowersMaselRate(CxxAnyMap) except +translate_exception
         CxxBlowersMaselRate(double, double, double, double)
+
+cdef extern from "cantera/kinetics/TwoTempPlasmaRate.h" namespace "Cantera":
+    cdef cppclass CxxTwoTempPlasmaRate "Cantera::TwoTempPlasmaRate" (CxxArrheniusBase):
+        CxxTwoTempPlasmaRate(CxxAnyMap) except +translate_exception
+        CxxTwoTempPlasmaRate(double, double, double, double)
+        double activationElectronEnergy()
+
+cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
+    cdef shared_ptr[CxxReaction] CxxNewReaction "Cantera::newReaction" (string) except +translate_exception
+    cdef shared_ptr[CxxReaction] CxxNewReaction "newReaction" (XML_Node&) except +translate_exception
+    cdef shared_ptr[CxxReaction] CxxNewReaction "newReaction" (CxxAnyMap&, CxxKinetics&) except +translate_exception
+    cdef vector[shared_ptr[CxxReaction]] CxxGetReactions "getReactions" (XML_Node&) except +translate_exception
+    cdef vector[shared_ptr[CxxReaction]] CxxGetReactions "getReactions" (CxxAnyValue&, CxxKinetics&) except +translate_exception
 
     cdef cppclass CxxFalloffRate "Cantera::FalloffRate" (CxxReactionRate):
         CxxFalloffRate()

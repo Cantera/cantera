@@ -138,39 +138,6 @@ bool ArrheniusData::update(const ThermoPhase& phase, const Kinetics& kin)
     return true;
 }
 
-TwoTempPlasma::TwoTempPlasma()
-    : ArrheniusBase()
-{
-    m_Ea_str = "Ea-gas";
-    m_E4_str = "Ea-electron";
-}
-
-TwoTempPlasma::TwoTempPlasma(double A, double b, double Ea, double EE)
-    : ArrheniusBase(A, b, Ea)
-{
-    m_Ea_str = "Ea-gas";
-    m_E4_str = "Ea-electron";
-    m_E4_R = EE / GasConstant;
-}
-
-double TwoTempPlasma::ddTScaledFromStruct(const TwoTempPlasmaData& shared_data) const
-{
-    warn_user("TwoTempPlasma::ddTScaledFromStruct",
-        "Temperature derivative does not consider changes of electron temperature.");
-    return (m_Ea_R - m_E4_R) * shared_data.recipT * shared_data.recipT;
-}
-
-void TwoTempPlasma::setContext(const Reaction& rxn, const Kinetics& kin)
-{
-    // TwoTempPlasmaReaction is for a non-equilibrium plasma, and the reverse rate
-    // cannot be calculated from the conventional thermochemistry.
-    // @todo implement the reversible rate for non-equilibrium plasma
-    if (rxn.reversible) {
-        throw InputFileError("TwoTempPlasma::setContext", rxn.input,
-            "TwoTempPlasmaRate does not support reversible reactions");
-    }
-}
-
 BlowersMasel::BlowersMasel()
     : m_deltaH_R(0.)
 {
