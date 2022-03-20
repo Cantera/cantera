@@ -216,7 +216,7 @@ cdef class ArrheniusRate(ArrheniusRateBase):
 
     cdef set_cxx_object(self):
         self.rate = self._rate.get()
-        self.base = <CxxArrhenius*>self.rate
+        self.base = <CxxArrheniusRate*>self.rate
 
     cdef CxxArrheniusRate* cxx_object(self):
         return <CxxArrheniusRate*>self.rate
@@ -528,17 +528,17 @@ cdef class PlogRate(ReactionRate):
         """
         def __get__(self):
             rates = []
-            cdef multimap[double, CxxArrhenius] cxxrates
-            cdef pair[double, CxxArrhenius] p_rate
+            cdef multimap[double, CxxArrheniusRate] cxxrates
+            cdef pair[double, CxxArrheniusRate] p_rate
             cxxrates = self.cxx_object().getRates()
             for p_rate in cxxrates:
                 rates.append((p_rate.first, copyArrhenius(&p_rate.second)))
             return rates
 
         def __set__(self, rates):
-            cdef multimap[double, CxxArrhenius] ratemap
+            cdef multimap[double, CxxArrheniusRate] ratemap
             cdef Arrhenius rate
-            cdef pair[double, CxxArrhenius] item
+            cdef pair[double, CxxArrheniusRate] item
             for p, rate in rates:
                 item.first = p
                 item.second = deref(rate.base)
@@ -782,7 +782,7 @@ cdef class InterfaceArrheniusRate(InterfaceRateBase):
 
     cdef set_cxx_object(self):
         self.rate = self._rate.get()
-        self.base = <CxxArrhenius*>self.rate
+        self.base = <CxxArrheniusRate*>self.rate
         self.interface = <CxxInterfaceRateBase*>self.cxx_object()
 
     cdef CxxInterfaceArrheniusRate* cxx_object(self):
@@ -810,7 +810,7 @@ cdef class InterfaceBlowersMaselRate(InterfaceRateBase):
 
     cdef set_cxx_object(self):
         self.rate = self._rate.get()
-        self.base = <CxxArrhenius*>self.rate
+        self.base = <CxxArrheniusRate*>self.rate
         self.interface = <CxxInterfaceRateBase*>self.cxx_object()
 
     cdef CxxInterfaceBlowersMaselRate* cxx_object(self):
@@ -920,7 +920,7 @@ cdef class StickingArrheniusRate(StickRateBase):
 
     cdef set_cxx_object(self):
         self.rate = self._rate.get()
-        self.base = <CxxArrhenius*>self.rate
+        self.base = <CxxArrheniusRate*>self.rate
         self.stick = <CxxStickingCoverage*>self.cxx_object()
         self.interface = <CxxInterfaceRateBase*>self.stick
 
@@ -947,7 +947,7 @@ cdef class StickingBlowersMaselRate(StickRateBase):
 
     cdef set_cxx_object(self):
         self.rate = self._rate.get()
-        self.base = <CxxArrhenius*>self.rate
+        self.base = <CxxArrheniusRate*>self.rate
         self.stick = <CxxStickingCoverage*>self.cxx_object()
         self.interface = <CxxInterfaceRateBase*>self.stick
 
@@ -1920,7 +1920,7 @@ cdef class Arrhenius:
     """
     def __cinit__(self, A=0, b=0, E=0, init=True):
         if init:
-            self.base = new CxxArrhenius(A, b, E)
+            self.base = new CxxArrheniusRate(A, b, E)
             self.own_rate = True
             self.reaction = None
         else:
@@ -1931,7 +1931,7 @@ cdef class Arrhenius:
             del self.base
 
     @staticmethod
-    cdef wrap(CxxArrhenius* rate):
+    cdef wrap(CxxArrheniusRate* rate):
         r = Arrhenius(init=False)
         r.base = rate
         r.reaction = None
@@ -1968,7 +1968,7 @@ cdef class Arrhenius:
         return self.base.evalRate(np.log(T), 1/T)
 
 
-cdef wrapArrhenius(CxxArrhenius* rate, Reaction reaction):
+cdef wrapArrhenius(CxxArrheniusRate* rate, Reaction reaction):
     r = Arrhenius(init=False)
     r.base = rate
     if reaction.uses_legacy:
@@ -1982,7 +1982,7 @@ cdef copyArrhenius2(CxxArrhenius2* rate):
                   rate.activationEnergy())
     return r
 
-cdef copyArrhenius(CxxArrhenius* rate):
+cdef copyArrhenius(CxxArrheniusRate* rate):
     r = Arrhenius(rate.preExponentialFactor(), rate.temperatureExponent(),
                   rate.activationEnergy())
     return r

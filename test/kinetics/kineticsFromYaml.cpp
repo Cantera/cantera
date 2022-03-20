@@ -659,7 +659,7 @@ TEST_F(ReactionToYaml, unconvertible2)
     EXPECT_THROW(params.applyUnits(), CanteraError);
 }
 
-TEST_F(ReactionToYaml, BlowersMasel)
+TEST_F(ReactionToYaml, BlowersMaselRate)
 {
     soln = newSolution("blowers-masel.yaml", "gas");
     soln->thermo()->setState_TPY(1100, 0.1 * OneAtm, "O:0.01, H2:0.8, O2:0.19");

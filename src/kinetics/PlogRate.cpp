@@ -56,7 +56,7 @@ PlogRate::PlogRate()
 {
 }
 
-PlogRate::PlogRate(const std::multimap<double, Arrhenius3>& rates)
+PlogRate::PlogRate(const std::multimap<double, ArrheniusRate>& rates)
     : PlogRate()
 {
     setRates(rates);
@@ -83,16 +83,16 @@ void PlogRate::setParameters(const AnyMap& node, const UnitStack& units)
 void PlogRate::setRateParameters(const std::vector<AnyMap>& rates,
                                  const UnitSystem& units, const Units& rate_units)
 {
-    std::multimap<double, Arrhenius3> multi_rates;
+    std::multimap<double, ArrheniusRate> multi_rates;
     if (rates.size()) {
         for (const auto& rate : rates) {
             multi_rates.insert({rate.convert("P", "Pa"),
-                Arrhenius3(AnyValue(rate), units, rate_units)});
+                ArrheniusRate(AnyValue(rate), units, rate_units)});
         }
     } else {
         // ensure that reaction rate can be evaluated (but returns NaN)
-        multi_rates.insert({1.e-7, Arrhenius3(NAN, NAN, NAN)});
-        multi_rates.insert({1.e14, Arrhenius3(NAN, NAN, NAN)});
+        multi_rates.insert({1.e-7, ArrheniusRate(NAN, NAN, NAN)});
+        multi_rates.insert({1.e14, ArrheniusRate(NAN, NAN, NAN)});
     }
     setRates(multi_rates);
 }
@@ -123,14 +123,14 @@ void PlogRate::getParameters(AnyMap& rateNode, const Units& rate_units) const
 
 void PlogRate::setup(const std::multimap<double, Arrhenius2>& rates)
 {
-    std::multimap<double, Arrhenius3> rates2;
+    std::multimap<double, ArrheniusRate> rates2;
     for (const auto& item : rates) {
         rates2.emplace(item.first, item.second);
     }
     setRates(rates2);
 }
 
-void PlogRate::setRates(const std::multimap<double, Arrhenius3>& rates)
+void PlogRate::setRates(const std::multimap<double, ArrheniusRate>& rates)
 {
     size_t j = 0;
     rates_.clear();
@@ -191,9 +191,9 @@ std::vector<std::pair<double, Arrhenius2> > PlogRate::rates() const
     return out;
 }
 
-std::multimap<double, Arrhenius3> PlogRate::getRates() const
+std::multimap<double, ArrheniusRate> PlogRate::getRates() const
 {
-    std::multimap<double, Arrhenius3> rateMap;
+    std::multimap<double, ArrheniusRate> rateMap;
     // initial preincrement to skip rate for P --> 0
     for (auto iter = ++pressures_.begin();
             iter->first < 1000; // skip rates for (P --> infinity)

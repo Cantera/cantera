@@ -58,10 +58,10 @@ struct TwoTempPlasmaData : public ReactionData
  *
  * @ingroup arrheniusGroup
  */
-class TwoTempPlasma : public ArrheniusBase
+class TwoTempPlasmaRate : public ArrheniusBase
 {
 public:
-    TwoTempPlasma();
+    TwoTempPlasmaRate();
 
     //! Constructor.
     /*!
@@ -71,7 +71,16 @@ public:
      *  @param Ea  Activation energy in energy units [J/kmol]
      *  @param EE  Activation electron energy in energy units [J/kmol]
      */
-    TwoTempPlasma(double A, double b, double Ea=0.0, double EE=0.0);
+    TwoTempPlasmaRate(double A, double b, double Ea=0.0, double EE=0.0);
+
+    TwoTempPlasmaRate(const AnyMap& node, const UnitStack& rate_units={}) : TwoTempPlasmaRate() {
+        setParameters(node, rate_units);
+    }
+
+    unique_ptr<MultiRateBase> newMultiRate() const override {
+        return unique_ptr<MultiRateBase>(
+            new MultiRate<TwoTempPlasmaRate, TwoTempPlasmaData>);
+    }
 
     virtual const std::string type() const override {
         return "two-temperature-plasma";
@@ -105,8 +114,6 @@ public:
         return m_E4_R * GasConstant;
     }
 };
-
-typedef BulkRate<TwoTempPlasma, TwoTempPlasmaData> TwoTempPlasmaRate;
 
 }
 

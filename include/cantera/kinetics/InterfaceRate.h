@@ -86,7 +86,7 @@ struct InterfaceData : public BlowersMaselData
  * terms, where the parameters \f$ (a_k, E_k, m_k) \f$ describe the dependency on the
  * surface coverage of species \f$ k, \theta_k \f$. The InterfaceRateBase class implements
  * terms related to coverage only, which allows for combinations with arbitrary rate
- * parameterizations (for example Arrhenius and BlowersMasel).
+ * parameterizations (for example Arrhenius and BlowersMaselRate).
  */
 class InterfaceRateBase
 {
@@ -359,8 +359,11 @@ public:
     using RateType::RateType; // inherit constructors
 
     //! Constructor based on AnyMap content
-    InterfaceRate(const AnyMap& node, const UnitStack& rate_units={}) {
+    InterfaceRate(const AnyMap& node, const UnitStack& rate_units) {
         setParameters(node, rate_units);
+    }
+    explicit InterfaceRate(const AnyMap& node) {
+        setParameters(node, {});
     }
 
     unique_ptr<MultiRateBase> newMultiRate() const override {
@@ -442,8 +445,8 @@ protected:
     }
 };
 
-using InterfaceArrheniusRate = InterfaceRate<Arrhenius3, InterfaceData>;
-using InterfaceBlowersMaselRate = InterfaceRate<BlowersMasel, InterfaceData>;
+using InterfaceArrheniusRate = InterfaceRate<ArrheniusRate, InterfaceData>;
+using InterfaceBlowersMaselRate = InterfaceRate<BlowersMaselRate, InterfaceData>;
 
 
 //! A class template for interface sticking rate specifications
@@ -457,7 +460,11 @@ public:
     using RateType::RateType; // inherit constructors
 
     //! Constructor based on AnyMap content
-    StickingRate(const AnyMap& node, const UnitStack& rate_units={}) {
+    StickingRate(const AnyMap& node, const UnitStack& rate_units) {
+        // sticking coefficients are dimensionless
+        setParameters(node, Units(1.0));
+    }
+    explicit StickingRate(const AnyMap& node) {
         // sticking coefficients are dimensionless
         setParameters(node, Units(1.0));
     }
@@ -581,8 +588,8 @@ protected:
     }
 };
 
-using StickingArrheniusRate = StickingRate<Arrhenius3, InterfaceData>;
-using StickingBlowersMaselRate = StickingRate<BlowersMasel, InterfaceData>;
+using StickingArrheniusRate = StickingRate<ArrheniusRate, InterfaceData>;
+using StickingBlowersMaselRate = StickingRate<BlowersMaselRate, InterfaceData>;
 
 }
 #endif

@@ -43,14 +43,14 @@ bool BlowersMaselData::update(const ThermoPhase& phase, const Kinetics& kin)
     return changed;
 }
 
-BlowersMasel::BlowersMasel()
+BlowersMaselRate::BlowersMaselRate()
     : m_deltaH_R(0.)
 {
     m_Ea_str = "Ea0";
     m_E4_str = "w";
 }
 
-BlowersMasel::BlowersMasel(double A, double b, double Ea0, double w)
+BlowersMaselRate::BlowersMaselRate(double A, double b, double Ea0, double w)
     : ArrheniusBase(A, b, Ea0)
     , m_deltaH_R(0.)
 {
@@ -59,15 +59,15 @@ BlowersMasel::BlowersMasel(double A, double b, double Ea0, double w)
     m_E4_R = w / GasConstant;
 }
 
-double BlowersMasel::ddTScaledFromStruct(const BlowersMaselData& shared_data) const
+double BlowersMaselRate::ddTScaledFromStruct(const BlowersMaselData& shared_data) const
 {
-    warn_user("BlowersMasel::ddTScaledFromStruct",
+    warn_user("BlowersMaselRate::ddTScaledFromStruct",
         "Temperature derivative does not consider changes of reaction enthalpy.");
     double Ea_R = effectiveActivationEnergy_R(m_deltaH_R);
     return (Ea_R * shared_data.recipT + m_b) * shared_data.recipT;
 }
 
-void BlowersMasel::setContext(const Reaction& rxn, const Kinetics& kin)
+void BlowersMaselRate::setContext(const Reaction& rxn, const Kinetics& kin)
 {
     m_stoich_coeffs.clear();
     for (const auto& sp : rxn.reactants) {
