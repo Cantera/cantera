@@ -94,49 +94,6 @@ protected:
 };
 
 
-//! Data container holding shared data specific to PlogRate
-/**
- * The data container `PlogData` holds precalculated data common to
- * all `PlogRate` objects.
- */
-struct PlogData : public ReactionData
-{
-    PlogData() : pressure(NAN), logP(0.), m_pressure_buf(-1.) {}
-
-    virtual void update(double T) override;
-
-    virtual void update(double T, double P) override {
-        ReactionData::update(T);
-        pressure = P;
-        logP = std::log(P);
-    }
-
-    virtual bool update(const ThermoPhase& phase, const Kinetics& kin) override;
-
-    using ReactionData::update;
-
-    //! Perturb pressure of data container
-    /**
-     * The method is used for the evaluation of numerical derivatives.
-     * @param  deltaP  relative pressure perturbation
-     */
-    void perturbPressure(double deltaP);
-
-    virtual void restore() override;
-
-    virtual void invalidateCache() override {
-        ReactionData::invalidateCache();
-        pressure = NAN;
-    }
-
-    double pressure; //!< pressure
-    double logP; //!< logarithm of pressure
-
-protected:
-    double m_pressure_buf; //!< buffered pressure
-};
-
-
 //! Data container holding shared data specific to ChebyshevRate
 /**
  * The data container `ChebyshevData` holds precalculated data common to

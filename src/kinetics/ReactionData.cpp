@@ -45,44 +45,6 @@ void ReactionData::restore()
     m_temperature_buf = -1.;
 }
 
-void PlogData::update(double T)
-{
-    throw CanteraError("PlogData::update",
-        "Missing state information: 'PlogData' requires pressure.");
-}
-
-bool PlogData::update(const ThermoPhase& phase, const Kinetics& kin)
-{
-    double T = phase.temperature();
-    double P = phase.pressure();
-    if (P != pressure || T != temperature) {
-        update(T, P);
-        return true;
-    }
-    return false;
-}
-
-void PlogData::perturbPressure(double deltaP)
-{
-    if (m_pressure_buf > 0.) {
-        throw CanteraError("PlogData::perturbPressure",
-            "Cannot apply another perturbation as state is already perturbed.");
-    }
-    m_pressure_buf = pressure;
-    update(temperature, pressure * (1. + deltaP));
-}
-
-void PlogData::restore()
-{
-    ReactionData::restore();
-    // only restore if there is a valid buffered value
-    if (m_pressure_buf < 0.) {
-        return;
-    }
-    update(temperature, m_pressure_buf);
-    m_pressure_buf = -1.;
-}
-
 void ChebyshevData::update(double T)
 {
     throw CanteraError("ChebyshevData::update",
