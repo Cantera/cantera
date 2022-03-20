@@ -104,15 +104,6 @@ public:
      */
     void setParameters(const AnyMap& node, const UnitStack& units);
 
-    //! Perform object setup based on reaction rate information
-    /*!
-     *  @param rates  vector of AnyMap containing rate information
-     *  @param units  unit system
-     *  @param rate_units  unit definitions specific to rate information
-     */
-    void setRateParameters(const std::vector<AnyMap>& rates,
-                           const UnitSystem& units, const Units& rate_units);
-
     void getParameters(AnyMap& rateNode, const Units& rate_units) const;
     void getParameters(AnyMap& rateNode) const {
         return getParameters(rateNode, Units(0));

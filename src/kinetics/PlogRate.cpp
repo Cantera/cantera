@@ -70,29 +70,17 @@ PlogRate::PlogRate(const std::multimap<double, Arrhenius2>& rates)
 
 void PlogRate::setParameters(const AnyMap& node, const UnitStack& units)
 {
-    auto rate_units = units.product();
-    if (!node.hasKey("rate-constants")) {
-        PlogRate::setRateParameters(std::vector<AnyMap> (), node.units(), rate_units);
-        return;
-    }
-
-    setRateParameters(node.at("rate-constants").asVector<AnyMap>(),
-                      node.units(), rate_units);
-}
-
-void PlogRate::setRateParameters(const std::vector<AnyMap>& rates,
-                                 const UnitSystem& units, const Units& rate_units)
-{
     std::multimap<double, ArrheniusRate> multi_rates;
-    if (rates.size()) {
-        for (const auto& rate : rates) {
-            multi_rates.insert({rate.convert("P", "Pa"),
-                ArrheniusRate(AnyValue(rate), units, rate_units)});
-        }
-    } else {
-        // ensure that reaction rate can be evaluated (but returns NaN)
+    if (!node.hasKey("rate-constants")) {
+         // ensure that reaction rate can be evaluated (but returns NaN)
         multi_rates.insert({1.e-7, ArrheniusRate(NAN, NAN, NAN)});
         multi_rates.insert({1.e14, ArrheniusRate(NAN, NAN, NAN)});
+    } else {
+        auto& rates = node["rate-constants"].asVector<AnyMap>();
+        for (const auto& rate : rates) {
+            multi_rates.insert({rate.convert("P", "Pa"),
+                ArrheniusRate(AnyValue(rate), node.units(), units)});
+        }
     }
     setRates(multi_rates);
 }
