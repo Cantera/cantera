@@ -1649,11 +1649,6 @@ env["default_prefix"] = True
 if "prefix" in selected_options:
     env["default_prefix"] = False
 
-# Remove back slashes from paths. For example, C:\Users results in a Unicode error
-# because \U is the prefix for a Unicode sequence. This kind of thing can happen
-# on other platforms too, so this replacement isn't conditional.
-env["prefix"] = env["prefix"].replace("\\", "/")
-
 # Check whether Cantera should be installed into a conda environment
 if conda_prefix is not None and sys.executable.startswith(conda_prefix):
     # use conda layout unless any 'blocking' options were specified
@@ -1689,6 +1684,11 @@ else:
     env["ct_incroot"] = pjoin(env["prefix"], "include")
 
 env["ct_installroot"] = env["prefix"]
+
+# Remove back slashes from paths. For example, C:\Users results in a Unicode error
+# because \U is the prefix for a Unicode sequence. This kind of thing can happen
+# on other platforms too, so this replacement isn't conditional.
+env["prefix"] = env["prefix"].replace("\\", "/")
 
 if env['layout'] == 'compact':
     env['ct_datadir'] = pjoin(env['prefix'], 'data')
