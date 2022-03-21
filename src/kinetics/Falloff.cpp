@@ -320,10 +320,6 @@ void TroeRate::getParameters(AnyMap& node) const
         if (std::abs(m_t2) > SmallNumber) {
             params["T2"] = m_t2;
         }
-        // This can't be converted to a different unit system because the dimensions of
-        // the rate constant were not set. Can occur if the reaction was created outside
-        // the context of a Kinetics object and never added to a Kinetics object.
-        node["__unconvertible__"] = true;
     }
     params.setFlowStyle();
     node["Troe"] = std::move(params);
@@ -440,10 +436,6 @@ void SriRate::getParameters(AnyMap& node) const
             params["D"] = m_d;
             params["E"] = m_e;
         }
-        // This can't be converted to a different unit system because the dimensions of
-        // the rate constant were not set. Can occur if the reaction was created outside
-        // the context of a Kinetics object and never added to a Kinetics object.
-        node["__unconvertible__"] = true;
     }
     params.setFlowStyle();
     node["SRI"] = std::move(params);
