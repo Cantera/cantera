@@ -151,6 +151,14 @@ void ArrheniusBase::check(const std::string& equation, const AnyMap& node)
     }
 }
 
+void ArrheniusBase::validate(const std::string& equation, const Kinetics& kin)
+{
+    if (isnan(m_A) || isnan(m_b)) {
+        throw CanteraError("ArrheniusBase::validate",
+            "Rate object for reaction '{}' is not configured.", equation);
+    }
+}
+
 bool ArrheniusData::update(const ThermoPhase& phase, const Kinetics& kin)
 {
     double T = phase.temperature();

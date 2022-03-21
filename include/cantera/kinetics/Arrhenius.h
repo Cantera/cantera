@@ -97,6 +97,8 @@ public:
     //! Check rate expression
     virtual void check(const std::string& equation, const AnyMap& node) override;
 
+    virtual void validate(const std::string& equation, const Kinetics& kin) override;
+
     //! Return the pre-exponential factor *A* (in m, kmol, s to powers depending
     //! on the reaction order)
     /*!

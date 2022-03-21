@@ -1119,18 +1119,19 @@ class ReactionTests:
         else:
             self.assertIsNaN(self.eval_rate(rxn.rate))
 
-        sol2 = ct.Solution(thermo=self.soln.thermo_model, kinetics=self.soln.kinetics_model,
-                           species=self.species, reactions=[rxn], adjacent=self.adj)
-        sol2.TPX = self.soln.TPX
         if self._legacy:
+            sol2 = ct.Solution(thermo=self.soln.thermo_model,
+                               kinetics=self.soln.kinetics_model,
+                               species=self.species,
+                               reactions=[rxn], adjacent=self.adj)
+            sol2.TPX = self.soln.TPX
             self.assertNear(sol2.forward_rate_constants[0], 0.)
             self.assertNear(sol2.net_rates_of_progress[0], 0.)
-        elif not ct.debug_mode_enabled():
-            self.assertIsNaN(sol2.forward_rate_constants[0])
-            self.assertIsNaN(sol2.net_rates_of_progress[0])
         else:
-            with self.assertRaisesRegex(ct.CanteraError, "not finite"):
-                sol2.net_rates_of_progress
+            with self.assertRaisesRegex(ct.CanteraError, "validate"):
+                ct.Solution(thermo=self.soln.thermo_model,
+                            kinetics=self.soln.kinetics_model,
+                            species=self.species, reactions=[rxn], adjacent=self.adj)
 
     def test_replace_rate(self):
         # check replacing reaction rate expression
