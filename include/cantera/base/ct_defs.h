@@ -106,6 +106,7 @@ const double ElectronMass = 9.1093837015e-31;
 //! @{
 
 //! Reduced Planck constant \f$ \hbar \f$ [m2-kg/s]
+//! @deprecated Unused. To be removed after Cantera 2.6.
 const double Planck_bar = Planck / (2 * Pi);
 
 //! Universal Gas Constant \f$ R_u \f$ [J/kmol/K]
@@ -117,10 +118,11 @@ const double logGasConstant = std::log(GasConstant);
 const double GasConst_cal_mol_K = GasConstant / 4184.0;
 
 //! log(k_b/h)
+//! @deprecated Unused. To be removed after Cantera 2.6.
 const double logBoltz_Planck = std::log(Boltzmann / Planck);
 
 //! Stefan-Boltzmann constant \f$ \sigma \f$ [W/m2/K4]
-const double StefanBoltz = Pi * Pi * std::pow(Boltzmann, 4.0) / (60.0 * std::pow(Planck_bar, 3.0) * lightSpeed * lightSpeed); // 5.670374419e-8
+const double StefanBoltz = 2.0 * std::pow(Pi, 5) * std::pow(Boltzmann, 4) / (15.0 * std::pow(Planck, 3) * lightSpeed * lightSpeed); // 5.670374419e-8
 
 //! Faraday constant \f$ F \f$ [C/kmol]
 const double Faraday = ElectronCharge * Avogadro;
