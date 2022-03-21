@@ -52,6 +52,8 @@ public:
     void getParameters(AnyMap& rateNode, const Units& rate_units=Units(0.)) const;
     using ReactionRate::getParameters;
 
+    virtual void validate(const std::string& equation, const Kinetics& kin) override;
+
     //! Update information specific to reaction
     /*!
      *  @param shared_data  data shared by all reactions of a given type

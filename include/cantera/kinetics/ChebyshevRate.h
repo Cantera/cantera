@@ -130,6 +130,8 @@ public:
     }
     void getParameters(AnyMap& rateNode) const;
 
+    virtual void validate(const std::string& equation, const Kinetics& kin);
+
     //! Update information specific to reaction
     /*!
      *  @param shared_data  data shared by all reactions of a given type

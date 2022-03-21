@@ -515,7 +515,7 @@ public:
     }
 
     virtual void validate(const std::string &equation, const Kinetics& kin) override {
-        ReactionRate::validate(equation, kin);
+        RateType::validate(equation, kin);
         fmt::memory_buffer err_reactions;
         double T[] = {200.0, 500.0, 1000.0, 2000.0, 5000.0, 10000.0};
         for (size_t i=0; i < 6; i++) {

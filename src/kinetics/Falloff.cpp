@@ -200,6 +200,12 @@ void FalloffRate::check(const std::string& equation, const AnyMap& node)
     }
 }
 
+void FalloffRate::validate(const std::string& equation, const Kinetics& kin)
+{
+    m_lowRate.validate(equation, kin);
+    m_highRate.validate(equation, kin);
+}
+
 void TroeRate::setFalloffCoeffs(const vector_fp& c)
 {
     if (c.size() != 3 && c.size() != 4) {

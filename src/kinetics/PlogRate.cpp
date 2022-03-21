@@ -156,7 +156,7 @@ void PlogRate::validate(const std::string& equation)
             for (size_t p = ilow1_; p < ilow2_; p++) {
                 k += rates_.at(p).evalRate(log(T[i]), 1.0 / T[i]);
             }
-            if (k < 0) {
+            if (!(k > 0)) {
                 fmt_append(err_reactions,
                            "\nInvalid rate coefficient for reaction '{}'\n"
                            "at P = {:.5g}, T = {:.1f}\n",

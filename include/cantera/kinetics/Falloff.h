@@ -215,6 +215,7 @@ public:
     }
 
     void check(const std::string& equation, const AnyMap& node);
+    virtual void validate(const std::string& equation, const Kinetics& kin);
 
     //! Get flag indicating whether negative A values are permitted
     bool allowNegativePreExponentialFactor() const {

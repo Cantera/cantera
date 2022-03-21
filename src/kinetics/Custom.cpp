@@ -19,6 +19,14 @@ void CustomFunc1Rate::setRateFunction(shared_ptr<Func1> f)
     m_ratefunc = f;
 }
 
+void CustomFunc1Rate::validate(const std::string& equation, const Kinetics& kin)
+{
+    if (!m_ratefunc) {
+        throw CanteraError("CustomFunc1Rate::validate",
+            "Rate object for reaction '{}' is not configured.", equation);
+    }
+}
+
 double CustomFunc1Rate::evalFromStruct(const ArrheniusData& shared_data) const
 {
     if (m_ratefunc) {

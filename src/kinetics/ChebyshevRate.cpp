@@ -171,4 +171,12 @@ void ChebyshevRate::getParameters(AnyMap& rateNode) const
     rateNode["data"].setQuantity(coeffs, converter);
 }
 
+void ChebyshevRate::validate(const std::string& equation, const Kinetics& kin)
+{
+    if (m_coeffs.data().empty() || isnan(m_coeffs(0, 0))) {
+        throw CanteraError("ChebyshevRate::validate",
+            "Rate object for reaction '{}' is not configured.", equation);
+    }
+}
+
 }
