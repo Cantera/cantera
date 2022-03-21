@@ -42,13 +42,19 @@ void Boundary1D::_init(size_t n)
     // check for left and right flow objects
     if (m_index > 0) {
         Domain1D& r = container().domain(m_index-1);
-        if (!r.isConnector()) { // flow domain
-            m_flow_left = (StFlow*)&r;
-            m_left_nv = m_flow_left->nComponents();
-            m_left_points = m_flow_left->nPoints();
+        if (!r.isConnector()) { // multi-point domain
+            m_left_nv = r.nComponents();
+            if (m_left_nv > c_offset_Y) {
+                m_left_nsp = m_left_nv - c_offset_Y;
+            } else {
+                m_left_nsp = 0;
+            }
             m_left_loc = container().start(m_index-1);
-            m_left_nsp = m_left_nv - c_offset_Y;
-            m_phase_left = &m_flow_left->phase();
+            m_left_points = r.nPoints();
+            m_flow_left = dynamic_cast<StFlow*>(&r);
+            if (m_flow_left != nullptr) {
+                m_phase_left = &m_flow_left->phase();
+            }
         } else {
             throw CanteraError("Boundary1D::_init",
                 "Boundary domains can only be connected on the left to flow "
@@ -59,12 +65,18 @@ void Boundary1D::_init(size_t n)
     // if this is not the last domain, see what is connected on the right
     if (m_index + 1 < container().nDomains()) {
         Domain1D& r = container().domain(m_index+1);
-        if (!r.isConnector()) { // flow domain
-            m_flow_right = (StFlow*)&r;
-            m_right_nv = m_flow_right->nComponents();
+        if (!r.isConnector()) { // multi-point domain
+            m_right_nv = r.nComponents();
+            if (m_right_nv > c_offset_Y) {
+                m_right_nsp = m_right_nv - c_offset_Y;
+            } else {
+                m_right_nsp = 0;
+            }
             m_right_loc = container().start(m_index+1);
-            m_right_nsp = m_right_nv - c_offset_Y;
-            m_phase_right = &m_flow_right->phase();
+            m_flow_right = dynamic_cast<StFlow*>(&r);
+            if (m_flow_right != nullptr) {
+                m_phase_right = &m_flow_right->phase();
+            }
         } else {
             throw CanteraError("Boundary1D::_init",
                 "Boundary domains can only be connected on the right to flow "
