@@ -156,11 +156,11 @@ protected:
     size_t m_nPoints;
 
     //! electron energy levels [ev]. Length: #m_nPoints
-    Eigen::VectorXd m_electronEnergyLevels;
+    Eigen::ArrayXd m_electronEnergyLevels;
 
     //! Normalized electron energy distribution vector [-]
     //! Length: #m_nPoints
-    Eigen::VectorXd m_electronEnergyDist;
+    Eigen::ArrayXd m_electronEnergyDist;
 
     //! Mean electron energy
     double m_meanElectronEnergy;
