@@ -1655,26 +1655,24 @@ if "prefix" in selected_options:
 env["prefix"] = env["prefix"].replace("\\", "/")
 
 # Check whether Cantera should be installed into a conda environment
-if conda_prefix is not None:
-    if env["layout"] != "conda" and sys.executable.startswith(conda_prefix):
-        # use conda layout unless any 'blocking' options were specified
-        blocking_options = {"layout", "prefix", "python_prefix", "python_cmd"}
-        if not selected_options & blocking_options:
-            env["layout"] = "conda"
-            logger.info(
-                f"Using conda environment as default 'prefix': {conda_prefix}")
+if conda_prefix is not None and sys.executable.startswith(conda_prefix):
+    # use conda layout unless any 'blocking' options were specified
+    blocking_options = {"layout", "prefix", "python_prefix", "python_cmd"}
+    if not selected_options & blocking_options:
+        env["layout"] = "conda"
+        # Directories where things will be after actually being installed. These
+        # variables are the ones that are used to populate header files, scripts,
+        # etc.
+        conda_prefix = Path(conda_prefix)
+        if "stage_dir" in selected_options:
+            env["prefix"] = str(conda_prefix.relative_to(conda_prefix.parents[2]))
+        else:
+            env["prefix"] = str(conda_prefix.resolve())
+        logger.info(
+            f"Using conda environment as default 'prefix': {env['prefix']}")
 elif env["layout"] == "conda":
     logger.error("Layout option 'conda' requires a conda environment.")
     sys.exit(1)
-
-# Directories where things will be after actually being installed. These
-# variables are the ones that are used to populate header files, scripts, etc.
-if env["layout"] == "conda":
-    if "stage_dir" in selected_options:
-        conda_prefix = Path(conda_prefix)
-        env["prefix"] = str(conda_prefix.relative_to(conda_prefix.parents[2]))
-    else:
-        env["prefix"] = os.path.normpath(conda_prefix)
 
 if env["layout"] == "conda" and os.name == "nt":
     env["ct_libdir"] = pjoin(env["prefix"], "Library", env["libdirname"])
@@ -1683,7 +1681,7 @@ if env["layout"] == "conda" and os.name == "nt":
     env["ct_incdir"] = pjoin(env["prefix"], "Library", "include", "cantera")
     env["ct_incroot"] = pjoin(env["prefix"], "Library", "include")
 else:
-    env["prefix"] = os.path.normpath(env["prefix"])
+    env["prefix"] = str(Path(env["prefix"]).resolve())
     env["ct_libdir"] = pjoin(env["prefix"], env["libdirname"])
     env["ct_bindir"] = pjoin(env["prefix"], "bin")
     env["ct_python_bindir"] = pjoin(env["prefix"], "bin")
