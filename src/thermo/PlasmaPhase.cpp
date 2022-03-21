@@ -13,13 +13,13 @@ namespace Cantera {
 
 PlasmaPhase::PlasmaPhase(const std::string& inputFile, const std::string& id_)
     : m_isotropicShapeFactor(2.0)
-    , m_nPoints(1000)
+    , m_nPoints(1001)
     , m_electronSpeciesIndex(npos)
 {
     initThermoFile(inputFile, id_);
 
     // initial grid
-    m_electronEnergyLevels = Eigen::VectorXd::LinSpaced(m_nPoints, 0.001, 1.0);
+    m_electronEnergyLevels = Eigen::ArrayXd::LinSpaced(m_nPoints, 0.0, 1.0);
 
     // initial electron temperature
     setElectronTemperature(temperature());
@@ -34,9 +34,9 @@ void PlasmaPhase::setIsotropicElectronEnergyDistribution()
     double c1 = x * std::pow(gamma2, 1.5) / std::pow(gamma1, 2.5);
     double c2 = x * std::pow(gamma2 / gamma1, x);
     m_electronEnergyDist =
-        c1 * m_electronEnergyLevels.array().sqrt() /
+        c1 * m_electronEnergyLevels.sqrt() /
         std::pow(m_meanElectronEnergy, 1.5) *
-        (-c2 * (m_electronEnergyLevels.array() /
+        (-c2 * (m_electronEnergyLevels /
         m_meanElectronEnergy).pow(x)).exp();
 }
 
@@ -51,14 +51,14 @@ void PlasmaPhase::setElectronEnergyLevels(const vector_fp& levels)
 {
     m_nPoints = levels.size();
     m_electronEnergyLevels =
-        Eigen::Map<const Eigen::VectorXd>(levels.data(), levels.size());
+        Eigen::Map<const Eigen::ArrayXd>(levels.data(), levels.size());
     setIsotropicElectronEnergyDistribution();
 }
 
 void PlasmaPhase::getElectronEnergyLevels(vector_fp& levels) const
 {
     levels.resize(m_nPoints);
-    Eigen::Map<Eigen::VectorXd>(levels.data(), m_nPoints) = m_electronEnergyLevels;
+    Eigen::Map<Eigen::ArrayXd>(levels.data(), m_nPoints) = m_electronEnergyLevels;
 }
 
 void PlasmaPhase::setElectronEnergyDistribution(const vector_fp& levels,
@@ -73,7 +73,7 @@ void PlasmaPhase::setElectronEnergyDistribution(const vector_fp& levels,
     m_electronEnergyDistrb =
         Eigen::Map<const Eigen::VectorXd>(distrb.data(), distrb.size());
     // calculate mean electron energy and electron temperature
-    Eigen::VectorXd eps52 = m_electronEnergyLevels.array().pow(5./2.);
+    Eigen::ArrayXd eps52 = m_electronEnergyLevels.pow(5./2.);
     m_meanElectronEnergy =
         2.0 / 5.0 * trapezoidal(m_electronEnergyDist, eps52);
     Phase::setElectronTemperature(
