@@ -263,7 +263,7 @@ void suppress_thermo_warnings(bool suppress=true);
 //! @copydoc Application::thermo_warnings_suppressed
 bool thermo_warnings_suppressed();
 
-//! @copydoc Application::suppress_user_warnings
+//! @copydoc Application::suppress_warnings
 void suppress_warnings();
 
 //! @copydoc Application::warnings_suppressed
