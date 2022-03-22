@@ -1860,6 +1860,19 @@ cdef class ThermoPhase(_SolutionBase):
                                 f'thermal model: {self.thermo_model}.')
             self.plasma.setIsotropicShapeFactor(x)
 
+    property electron_energy_distribution_type:
+        """ Electron energy distribution type """
+        def __get__(self):
+            if not self._enable_plasma:
+                raise TypeError('This method is invalid for '
+                                f'thermo model: {self.thermo_model}.')
+            return pystr(self.plasma.electronEnergyDistributionType())
+        def __set__(self, distribution_type):
+            if not self._enable_plasma:
+                raise TypeError('This method is invalid for '
+                                f'thermo model: {self.thermo_model}.')
+            self.plasma.setElectronEnergyDistributionType(distribution_type)
+
     property mean_electron_energy:
         """ Mean electron energy [eV] """
         def __get__(self):
