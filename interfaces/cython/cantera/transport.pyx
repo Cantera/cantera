@@ -263,7 +263,9 @@ cdef class Transport(_SolutionBase):
     property multi_diff_coeffs:
         """Multicomponent diffusion coefficients, D_{i,j} [m^2/s].
         
-        The coefficient D_{row,column} is used for computing the contribution of concentration gradients in species [column] to the diffusive flux of species [row]."""
+        The coefficient D_{row,column} is used for computing the contribution 
+        of concentration gradients in species [column] to the diffusive flux of 
+        species [row]."""
         def __get__(self):
             return get_transport_2d(self, tran_getMultiDiffCoeffs)
 
