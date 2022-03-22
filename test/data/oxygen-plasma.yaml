@@ -14,9 +14,26 @@ phases:
   kinetics: gas
   reactions: all
   transport: Ion
-  state:
-    T: 300.0
-    P: 1.01325e+05
+  electron-energy-distribution-function:
+  - type: isotropic
+  - shape-factor: 2.0
+  - electron-temperature: 1e5
+
+- name: discretized-electron-energy-plasma
+  thermo: plasma
+  elements: [O, E]
+  species:
+  - species: [E]
+  - nasa_gas.yaml/species: [O2, O2-]
+
+  kinetics: gas
+  reactions: all
+  transport: Ion
+  electron-energy-distribution:
+    type: discretized
+    energy-levels: [0.0, 0.1, 1.0, 10.0]
+    distribution: [0.0, 0.2, 0.7, 0.01]
+    normalize: False
 
 species:
 - name: E
