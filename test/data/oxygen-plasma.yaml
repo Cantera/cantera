@@ -14,10 +14,10 @@ phases:
   kinetics: gas
   reactions: all
   transport: Ion
-  electron-energy-distribution-function:
-  - type: isotropic
-  - shape-factor: 2.0
-  - electron-temperature: 1e5
+  electron-energy-distribution:
+    type: isotropic
+    shape-factor: 2.0
+    electron-temperature: 1e5
 
 - name: discretized-electron-energy-plasma
   thermo: plasma

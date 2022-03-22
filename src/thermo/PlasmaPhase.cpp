@@ -15,6 +15,7 @@ PlasmaPhase::PlasmaPhase(const std::string& inputFile, const std::string& id_)
     : m_isotropicShapeFactor(2.0)
     , m_nPoints(1001)
     , m_electronSpeciesIndex(npos)
+    , m_distributionType("isotropic")
 {
     initThermoFile(inputFile, id_);
 
@@ -23,6 +24,27 @@ PlasmaPhase::PlasmaPhase(const std::string& inputFile, const std::string& id_)
 
     // initial electron temperature
     setElectronTemperature(temperature());
+}
+
+void PlasmaPhase::updateElectronEnergyDistribution()
+{
+    if (m_distributionType == "user-specified") {
+        throw CanteraError("PlasmaPhase::updateElectronEnergyDistribution",
+            "Invalid for user-specified electron energy distribution.");
+    } else if (m_distributionType == "isotropic") {
+        setIsotropicElectronEnergyDistribution();
+    }
+}
+
+void PlasmaPhase::setElectronEnergyDistributionType(const std::string& type)
+{
+    if (type == "user-specified" ||
+        type == "isotropic") {
+        m_distributionType = type;
+    } else {
+        throw CanteraError("PlasmaPhase::setElectronEnergyDistributionType",
+            "Unknown type for electron energy distribution.");
+    }
 }
 
 void PlasmaPhase::setIsotropicElectronEnergyDistribution()
@@ -44,7 +66,7 @@ void PlasmaPhase::setElectronTemperature(const double Te) {
     m_electronTemp = Te;
     m_meanElectronEnergy = 3.0 / 2.0 * electronTemperature() *
                            Boltzmann / ElectronCharge;
-    setIsotropicElectronEnergyDistribution();
+    updateElectronEnergyDistribution();
 }
 
 void PlasmaPhase::setElectronEnergyLevels(const vector_fp& levels)
@@ -52,7 +74,7 @@ void PlasmaPhase::setElectronEnergyLevels(const vector_fp& levels)
     m_nPoints = levels.size();
     m_electronEnergyLevels =
         Eigen::Map<const Eigen::ArrayXd>(levels.data(), levels.size());
-    setIsotropicElectronEnergyDistribution();
+    updateElectronEnergyDistribution();
 }
 
 void PlasmaPhase::getElectronEnergyLevels(vector_fp& levels) const
@@ -64,13 +86,15 @@ void PlasmaPhase::getElectronEnergyLevels(vector_fp& levels) const
 void PlasmaPhase::setElectronEnergyDistribution(const vector_fp& levels,
                                                 const vector_fp& distrb)
 {
+    m_distributionType = "user-specified";
     if (levels.size() != distrb.size()) {
         throw CanteraError("PlasmaPhase::setElectronEnergyDistribution",
                            "Vector lengths need to be the same.");
     }
-    setElectronEnergyLevels(levels);
     m_nPoints = levels.size();
-    m_electronEnergyDistrb =
+    m_electronEnergyLevels =
+        Eigen::Map<const Eigen::ArrayXd>(levels.data(), levels.size());
+    m_electronEnergyDist =
         Eigen::Map<const Eigen::VectorXd>(distrb.data(), distrb.size());
     // calculate mean electron energy and electron temperature
     Eigen::ArrayXd eps52 = m_electronEnergyLevels.pow(5./2.);
@@ -90,6 +114,25 @@ void PlasmaPhase::getElectronEnergyDistribution(vector_fp& distrb) const
 void PlasmaPhase::setIsotropicShapeFactor(double x) {
     m_isotropicShapeFactor = x;
     setIsotropicElectronEnergyDistribution();
+}
+
+void PlasmaPhase::getParameters(AnyMap& phaseNode) const
+{
+    IdealGasPhase::getParameters(phaseNode);
+    AnyMap eedf;
+    eedf["type"] = m_distributionType;
+    eedf["shape-factor"] = AnyValue(m_isotropicShapeFactor);
+    phaseNode["electron-energy-distribution"] = std::move(eedf);
+}
+
+void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
+{
+    IdealGasPhase::setParameters(phaseNode, rootNode);
+    if (phaseNode.hasKey("electron-energy-distribution")) {
+        const AnyMap eedf = phaseNode["electron-energy-distribution"].as<AnyMap>();
+        m_distributionType = eedf["type"].asString();
+        m_isotropicShapeFactor = eedf["shape-factor"].asDouble();
+    }
 }
 
 bool PlasmaPhase::addSpecies(shared_ptr<Species> spec)

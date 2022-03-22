@@ -130,6 +130,14 @@ public:
     //! @param  Te Electron temperature in Kelvin
     virtual void setElectronTemperature(double Te);
 
+    //! Get electron energy distribution type
+    std::string electronEnergyDistributionType() const {
+        return m_distributionType;
+    }
+
+    //! Set electron energy distribution type
+    void setElectronEnergyDistributionType(const std::string& type);
+
     //! Mean electron energy [eV]
     double meanElectronEnergy() {
         return m_meanElectronEnergy;
@@ -143,10 +151,23 @@ public:
         return m_electronTemp;
     }
 
+    //! Number of electron levels
+    size_t nElectronEnergyLevels() const {
+        return m_nPoints;
+    }
+
+    virtual void getParameters(AnyMap& phaseNode) const;
+
+    virtual void setParameters(const AnyMap& phaseNode,
+                               const AnyMap& rootNode=AnyMap());
+
 protected:
     virtual void updateThermo() const;
 
     //! Update electron energy distribution.
+    void updateElectronEnergyDistribution();
+
+    //! Set isotropic electron energy distribution
     void setIsotropicElectronEnergyDistribution();
 
     // Electron energy order in the exponential term
@@ -170,6 +191,9 @@ protected:
 
     //! Electron temperature [K]
     double m_electronTemp;
+
+    //! Electron energy distribution type
+    std::string m_distributionType;
 };
 
 }
