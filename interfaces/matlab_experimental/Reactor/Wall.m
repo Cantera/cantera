@@ -46,25 +46,25 @@ classdef Wall < handle
             % wall can be set by using empty strings or 0.0 for each of the
             % arguments before the velocity with no harm.
             %
-            % parameter left:
+            % :parameter left:
             %    Instance of class 'Reactor' to be used as the bulk phase
             %    on the left side of the wall.
-            % parameter right:
+            % :parameter right:
             %    Instance of class 'Reactor' to be used as the bulk phase
             %    on the right side of the wall.
-            % parameter area:
+            % :parameter area:
             %    The area of the wall in m^2. Defaults to 1.0 m^2 if not
             %    specified.
-            % parameter k:
+            % :parameter k:
             %    Expansion rate coefficient in m/(s-Pa). Defaults to 0.0 if
             %    not specified.
-            % parameter u:
+            % :parameter u:
             %    Heat transfer coefficient in W/(m^2-K). Defaults to 0.0 if
             %    not specified.
-            % parameter q:
+            % :parameter q:
             %    Heat flux in W/m^2. Defaults to 0.0 if not specified. Must
             %    be an instance of 'Func'.
-            % parameter v:
+            % :parameter v:
             %    Velocity of the wall in m/s. Defaults to 0.0 if not
             %    specified. Must be an instance of 'Func'.
 
@@ -137,14 +137,13 @@ classdef Wall < handle
 
         function clear(w)
             % Clear the Wall object from the memory.
-            checklib;
+
             calllib(ct, 'wall_del', w.id);
         end
 
         function install(w, l, r)
             % Install a wall between two reactors.
 
-            checklib;
             w.left = l;
             w.right = r;
             calllib(ct, 'wall_install', w.id, l.id, r.id);
@@ -152,7 +151,7 @@ classdef Wall < handle
 
         function ok = ready(w)
             % Check whether a wall is ready.
-            checklib;
+
             ok = calllib(ct, 'wall_ready', w.id);
         end
 
@@ -160,37 +159,34 @@ classdef Wall < handle
 
         function set.area(w, a)
             % Set the area of a wall.
-            checklib;
+
             calllib(ct, 'wall_setArea', w.id, a);
         end
 
         function setThermalResistance(w, r)
             % Set the thermal resistance.
             %
-            % parameter r:
+            % :parameter r:
             %    Thermal resistance. Unit: K*m^2/W.
 
-            checklib;
             calllib(ct, 'wall_setThermalResistance', w.id, r);
         end
 
         function setHeatTransferCoeff(w, u)
             % Set the thermal transfer coefficient.
             %
-            % parameter u:
+            % :parameter u:
             %    Heat transfer coefficient. Unit: W/(m^2-K).
 
-            checklib;
             calllib(ct, 'wall_setHeatTransferCoeff', w.id, u);
         end
 
         function setExpansionRateCoeff(w, k)
             % Set the expansion rate coefficient.
             %
-            % parameter k:
+            % :parameter k:
             %    Expanstion rate coefficient. Unit: m/(s-Pa).
 
-            checklib;
             calllib(ct, 'wall_setExpansionRateCoeff', w.id, k);
         end
 
@@ -202,10 +198,9 @@ classdef Wall < handle
             % to specify a constant heat flux by using the polynomial
             % functor with only the first term specified.
             %
-            % parameter f:
+            % :parameter f:
             %    Instance of class 'Func'. Unit: W/m^2.
 
-            checklib;
             calllib(ct, 'wall_setHeatFlux', w.id, f.id);
         end
 
@@ -217,10 +212,9 @@ classdef Wall < handle
             % to specify a constant velocity by using the polynomial
             % functor with only the first term specified.
             %
-            % parameter f:
+            % :parameter f:
             %    Instance of class 'Func'. Unit: m/s.
 
-            checklib;
             calllib(ct, 'wall_setVelocity', w.id, f.id);
         end
 
@@ -228,19 +222,19 @@ classdef Wall < handle
 
         function a = get.area(w)
             % Get the area of the wall in m^2.
-            checklib;
+
             a = calllib(ct, 'wall_area', w.id);
         end
 
         function q = qdot(w, t)
             % Get the total heat transfer through a wall at given time.
-            checklib;
+
             q = calllib(ct, 'wall_Q', w.id, t);
         end
 
         function v = vdot(w, t)
             % Get the rate of volumetric change at a given time.
-            checklib;
+
             v = calllib(ct, 'wall_vdot', w.id, t);
         end
 

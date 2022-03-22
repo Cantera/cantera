@@ -13,22 +13,14 @@ classdef FlowDevice < handle
         function x = FlowDevice(typ)
             % Flow Device class constructor.
             %
-            % parameter typ:
+            % :parameter typ:
             %    Type of flow device to be created. Type =
             %    'MassFlowController', 'PressureController' or 'Valve'.
 
             checklib;
 
             if nargin == 0
-                typ = 'MassFlowController';
-            end
-
-            if isa(typ, 'double')
-                warning(['Definition via integer type to be deprecated', ...
-                         ' after Cantera 2.5.']);
-                device_types = {'MassFlowController', 'PressureController', ...
-                                'Valve'};
-                typ = device_types(typ);
+                error('please specify the type of flow device to be created');
             end
 
             x.type = typ;
@@ -44,7 +36,7 @@ classdef FlowDevice < handle
 
         function clear(f)
             % Clear the specified flow device from memory.
-            checklib;
+
             calllib(ct, 'flowdev_del', f.id);
         end
 
@@ -53,12 +45,11 @@ classdef FlowDevice < handle
         function install(f, upstream, downstream)
             % Install a flow device between reactors or reservoirs.
             %
-            % parameter upstream:
+            % :parameter upstream:
             %    Upsteram 'Reactor' or 'Reservoir'.
-            % parameter downstream:
+            % :parameter downstream:
             %    Downstream 'Reactor' or 'Reservoir'.
 
-            checklib;
             if nargin == 3
                 if ~isa(upstream, 'Reactor') || ~isa(downstream, 'Reactor')
                     error(['Flow devices can only be installed between',...
@@ -74,32 +65,21 @@ classdef FlowDevice < handle
             end
         end
 
-        function mdot = massFlowRate(f, time)
-            % Get the mass flow rate at a given time.
+        function mdot = massFlowRate(f)
+            % Get the mass flow rate.
             %
-            % parameter time:
-            %    Time at which the mass flow rate is desired.
-            % return:
-            %    The mass flow rate through the flow device at the given
-            %    time.
+            % :return:
+            %    The mass flow rate through the flow device
 
-            checklib;
-            if nargin == 1
-                mdot = calllib(ct, 'flowdev_massFlowRate2', f.id);
-            else
-                warning(['"Time" argument to massFlowRate is deprecated', ...
-                         'and will be removed after Cantera 2.5.']);
-                mdot = calllib(ct, 'flowdev_massFlowRate', f.id, time);
-            end
+            mdot = calllib(ct, 'flowdev_massFlowRate2', f.id);
         end
 
         function setFunction(f, mf)
             % Set the time function with class 'func'.
             %
-            % parameter mf:
+            % :parameter mf:
             %    Instance of class 'func'.
 
-            checklib;
             if strcmp(f.type, 'MassFlowController')
                 k = calllib(ct, 'flowdev_setTimeFunction', f.id, ...
                             mf.id);
@@ -107,17 +87,16 @@ classdef FlowDevice < handle
 %                     error(geterr);
 %                 end
             else
-                error('Mass flow rate can only be set for mass flow controllers.');
+                error('Time function can only be set for mass flow controllers.');
             end
         end
 
         function setMassFlowRate(f, mdot)
             % Set the mass flow rate to a constant value.
             %
-            % parameter mdot:
+            % :parameter mdot:
             %    Mass flow rate
 
-            checklib;
             if strcmp(f.type, 'MassFlowController')
                 k = calllib(ct, 'flowdev_setMassFlowCoeff', f.id, mdot);
 %                 if k < 0
@@ -134,12 +113,11 @@ classdef FlowDevice < handle
             % The mass flow rate [kg/s] is computed from the expression
             % mdot = K(P_upstream - P_downstream)
             % as long as this produces a positive value. If thsi expression
-            % is negative, zero is returned.
+            % is negative, zero is :returned.
             %
-            % parameter k:
+            % :parameter k:
             %    Value fo the valve coefficient. Unit: kg/Pa-s.
 
-            checklib;
             if ~strcmp(f.type, 'Valve')
                 error('Valve coefficient can only be set for valves.');
             end

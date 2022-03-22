@@ -1,7 +1,7 @@
 classdef Stack < handle
 
     properties
-        st_id
+        stID
         domains
     end
 
@@ -13,27 +13,27 @@ classdef Stack < handle
             % which are instances of class Domain1D. The domains are of two
             % types - extended domains, and connector domains.
             %
-            % parameter domains:
+            % :parameter domains:
             %    Vector of domain instances.
-            % return:
+            % :return:
             %    Instance of class 'Stack'.
 
             checklib;
 
-            s.st_id = -1;
+            s.stID = -1;
             s.domains = domains;
             if nargin == 1
                 nd = length(domains);
                 ids = zeros(1, nd);
                 for n=1:nd
-                    ids(n) = domains(n).dom_id;
+                    ids(n) = domains(n).domID;
                 end
-                s.st_id = calllib(ct, 'sim1D_new', nd, ids);
+                s.stID = calllib(ct, 'sim1D_new', nd, ids);
             else
                 help(Stack);
-                error('Wrong number of parameters.');
+                error('Wrong number of :parameters.');
             end
-%             if s.st_id < 0
+%             if s.stID < 0
 %                 error(geterr);
 %             end
         end
@@ -42,24 +42,23 @@ classdef Stack < handle
 
         function st_clear(s)
             % Delete the Sim1D object
-            checklib;
-            calllib(ct, 'sim1D_del', s.st_id);
+
+            calllib(ct, 'sim1D_del', s.stID);
         end
 
         function display(s, fname)
             % Show all domains.
             %
-            % parameter s:
+            % :parameter s:
             %    Instance of class 'Stack'.
-            % parameter fname:
+            % :parameter fname:
             %    File to write summary to. If omitted, output is to the
             %    command window.
 
-            checklib;
             if nargin == 1
                 fname = '-';
             end
-            calllib(ct, 'sim1D_showSolution', s.st_id, fname);
+            calllib(ct, 'sim1D_showSolution', s.stID, fname);
         end
 
         %% Stack Methods
@@ -67,19 +66,18 @@ classdef Stack < handle
         function n = stackIndex(s, name)
             % Get the index of a domain in a stack given its name.
             %
-            % parameter s:
+            % :parameter s:
             %    Instance of class 'Stack'.
-            % parameter name:
-            %    If double, the value is returned. Otherwise, the name is
-            %    looked up and its index is returned.
-            % return:
+            % :parameter name:
+            %    If double, the value is :returned. Otherwise, the name is
+            %    looked up and its index is :returned.
+            % :return:
             %    Index of domain.
 
-            checklib;
             if isa(name, 'double')
                 n = name;
             else
-                n = calllib(ct, 'sim1D_domainIndex', s.st_id, name);
+                n = calllib(ct, 'sim1D_domainIndex', s.stID, name);
                 if n >= 0
                     n = n+1;
                 else
@@ -91,11 +89,11 @@ classdef Stack < handle
         function z = grid(s, name)
             % Get the grid in one domain.
             %
-            % parameter s:
+            % :parameter s:
             %    Instance of class 'Stack'.
-            % parameter name:
+            % :parameter name:
             %    Name of the domain for which the grid should be retrieved.
-            % return:
+            % :return:
             %    The grid in domain name.
 
             n = s.stackIndex(name);
@@ -106,12 +104,12 @@ classdef Stack < handle
         function plotSolution(s, domain, component)
             % Plot a specified solution component.
             %
-            % parameter s:
+            % :parameter s:
             %    Instance of class 'Stack'.
-            % parameter domain:
+            % :parameter domain:
             %    Name of domain from which the component should be
             %    retrieved.
-            % parameter component:
+            % :parameter component:
             %    Name of the component to be plotted.
 
             n = s.stackIndex(domain);
@@ -126,15 +124,13 @@ classdef Stack < handle
         function r = resid(s, domain, rdt, count)
             % Get the residuals.
             %
-            % parameter s:
+            % :parameter s:
             %    Instance of class 'Stack'.
-            % parameter domain:
+            % :parameter domain:
             %    Name of the domain.
-            % parameter rdt:
-            % parameter count:
-            % return:
-
-            checklib;
+            % :parameter rdt:
+            % :parameter count:
+            % :return:
 
             if nargin == 2
                 rdt = 0.0;
@@ -148,11 +144,11 @@ classdef Stack < handle
             np = d.nPoints;
 
             r = zeros(nc, np);
-            calllib(ct, 'sim1D_eval', s.st_id, rdt, count);
+            calllib(ct, 'sim1D_eval', s.stID, rdt, count);
             for m = 1:nc
                 for n = 1:np
                     r(m, n) = calllib(ct, 'sim1D_workValue', ...
-                                      s.st_id, idom - 1, m - 1, n - 1);
+                                      s.stID, idom - 1, m - 1, n - 1);
                 end
             end
         end
@@ -162,29 +158,28 @@ classdef Stack < handle
             % This method can be used ot provide an initial guess for the
             % solution.
             %
-            % parameter s:
+            % :parameter s:
             %    Instance of class 'Stack'.
-            % parameter fname:
+            % :parameter fname:
             %    File name of an XML file containing solution info.
-            % parameter id:
+            % :parameter id:
             %    ID of the element that should be restored.
-            checklib;
-            calllib(ct, 'sim1D_restore', s.st_id, fname, id)
+
+            calllib(ct, 'sim1D_restore', s.stID, fname, id)
         end
 
         function saveSoln(s, fname, id, desc)
             % Save a solution to a file.
             % The output file is in a format that can be used by 'restore'.
             %
-            % parameter s:
+            % :parameter s:
             %    Instance of class 'Stack'.
-            % parameter fname:
+            % :parameter fname:
             %    File name where XML file should be written.
-            % parameter id:
+            % :parameter id:
             %    ID to be assigned to the XMl element when it is written.
-            % parameter desc:
+            % :parameter desc:
             %    Description to be written to the output file.
-            checklib;
 
             if nargin == 1
                 fname = 'soln.xml';
@@ -196,22 +191,22 @@ classdef Stack < handle
             elseif nargin == 3
                 desc = '--';
             end
-            calllib(ct, 'sim1D_save', s.st_id, fname, id, desc);
+            calllib(ct, 'sim1D_save', s.stID, fname, id, desc);
         end
 
         function setFlatProfile(s, domain, comp, v)
             % Set a component to a value across the entire domain.
             %
-            % parameter s:
+            % :parameter s:
             %    Instance of class 'Stack'.
-            % parameter domain:
+            % :parameter domain:
             %    Integer ID of the domain.
-            % parameter comp:
+            % :parameter comp:
             %    Component to be set.
-            % parameter v:
+            % :parameter v:
             %    Double value to be set.
-            checklib;
-            calllib(ct, 'sim1D_setFlatProfile', s.st_id, ...
+
+            calllib(ct, 'sim1D_setFlatProfile', s.stID, ...
                     domain - 1, comp - 1, v);
         end
 
@@ -219,19 +214,18 @@ classdef Stack < handle
             % Set the number of times the Jacobian will be used before it
             % is recomputed.
             %
-            % parameter s:
+            % :parameter s:
             %    Instance of class 'Stack'.
-            % parameter ss_age:
+            % :parameter ss_age:
             %    Maximum age of the Jacobian for steady state analysis.
-            % parameter ts_age:
+            % :parameter ts_age:
             %    Maximum age of the Jacobian for transient analysis. If not
             %    specified, deftauls to 'ss_age'.
-            checklib;
 
             if nargin == 2
                 ts_age = ss_age;
             end
-            calllib(ct, 'sim1D_setMaxJacAge', s.st_id, ss_age, ts_age);
+            calllib(ct, 'sim1D_setMaxJacAge', s.stID, ss_age, ts_age);
         end
 
         function setProfile(s, name, comp, p)
@@ -251,18 +245,16 @@ classdef Stack < handle
             %    >> v = [500, 650, 700, 730, 800, 900];
             %    >> s.setProfile(1, 2, [zr, v]);
             %
-            % parameter s:
+            % :parameter s:
             %    Instance of class 'Stack'.
-            % parameter name:
+            % :parameter name:
             %    Domain name.
-            % parameter comp:
+            % :parameter comp:
             %    Component number.
-            % parameter p:
+            % :parameter p:
             %    n x 2 array, whose columns are the relative (normalized)
             %    positions and the component values at those points. The
             %    number of positions 'n' is arbitrary.
-
-            checklib;
 
             if isa(name, 'double')
                 n = name;
@@ -285,12 +277,12 @@ classdef Stack < handle
             if sz(1) == np + 1;
                 for j = 1:np
                     ic = d.componentIndex(c{j});
-                    calllib(ct, 'sim1D_setProfile', s.st_id, ...
+                    calllib(ct, 'sim1D_setProfile', s.stID, ...
                             n - 1, ic - 1, sz(1), p(1, :), sz(1), p(j+1, :));
                 end
             elseif sz(2) == np + 1;
                 ic = d.componentIndex(c{j});
-                calllib(ct, 'sim1D_setProfile', s.st_id, ...
+                calllib(ct, 'sim1D_setProfile', s.stID, ...
                         n - 1, ic - 1, sz(2), p(:, 1), sz(2), p(:, j+1));
             else
                 error('Wrong profile shape.');
@@ -300,23 +292,21 @@ classdef Stack < handle
         function setRefineCriteria(s, n, ratio, slope, curve, prune)
             % Set the criteria used to refine the grid.
             %
-            % parameter s:
+            % :parameter s:
             %    Instance of class 'Stack'.
-            % parameter ratio:
+            % :parameter ratio:
             %    Maximum size ratio between adjacent cells.
-            % parameter slope:
+            % :parameter slope:
             %    Maximum relative difference in value between adjacent
             %    points.
-            % parameter curve:
+            % :parameter curve:
             %    Maximum relative difference in slope between adjacent
             %    cells.
-            % parameter prune:
+            % :parameter prune:
             %    Minimum value for slope or curve for which points will be
             %    retained or curve value is below prune for all components,
             %    it will be deleted, unless either neighboring point is
             %    already marked for deletion.
-
-            checklib;
 
             if nargin < 3
                 ratio = 10.0;
@@ -330,23 +320,23 @@ classdef Stack < handle
             if nargin < 6
                 prune = -0.1;
             end
-            calllib(ct, 'sim1D_setRefineCriteria', s.st_id, ...
+            calllib(ct, 'sim1D_setRefineCriteria', s.stID, ...
                     n - 1, ratio, slope, curve, prune);
         end
 
         function setTimeStep(s, stepsize, steps)
             % Specify a sequence of time steps.
             %
-            % parameter stepsize:
+            % :parameter stepsize:
             %    Initial step size.
-            % parameter steps:
+            % :parameter steps:
             %    Vector of number of steps to take before re-attempting
             %    solution of steady-state problem.
             %    For example, steps = [1, 2, 5, 10] would cause one time
             %    step to be taken first time the steady-state solution
             %    attempted. If this failed, two time steps would be taken.
-            checklib;
-            calllib(ct, 'sim1D_TimeStep', s.st_id, ...
+
+            calllib(ct, 'sim1D_TimeStep', s.stID, ...
                     stepsize, length(steps), steps);
         end
 
@@ -363,37 +353,36 @@ classdef Stack < handle
             % the global index of the point, wchih depends on the location
             % of this domain in the stack.
             %
-            % parameter s:
+            % :parameter s:
             %    Instance of class 'Stack'.
-            % parameter n:
+            % :parameter n:
             %    Domain number.
-            % parameter comp:
+            % :parameter comp:
             %    Component number.
-            % parameter localPoints:
+            % :parameter localPoints:
             %    Local index of the grid point in the domain.
-            % parameter v:
+            % :parameter v:
             %    Value to be set.
-            checklib;
-            calllib(ct, 'sim1D_setValue', s.st_id, ...
+
+            calllib(ct, 'sim1D_setValue', s.stID, ...
                     n - 1, comp -  1, localPoints - 1, v);
         end
 
         function x = solution(s, domain, component)
             % Get a solution component in one domain.
             %
-            % parameter s:
+            % :parameter s:
             %    Instance of class 'Stack'.
-            % parameter domain:
+            % :parameter domain:
             %    String name of the domain from which the solution is
             %    desired.
-            % parameter component:
+            % :parameter component:
             %    String component for which the solution is desired. If
             %    omitted, solution for all of the components will be
-            %    returned in an 'nPoints' x 'nComponnts' array.
-            % return:
+            %    :returned in an 'nPoints' x 'nComponnts' array.
+            % :return:
             %    Either an 'nPoints' x 1 vector, or 'nPoints' x
             %    'nCOmponents' array.
-            checklib;
 
             idom = s.stackIndex(domain);
             d = s.domains(idom);
@@ -402,7 +391,7 @@ classdef Stack < handle
                 icomp = d.componentIndex(component);
                 x = zeros(1, np);
                 for n = 1:np
-                    x(n) = calllib(ct, 'sim1D_value', s.st_id, ...
+                    x(n) = calllib(ct, 'sim1D_value', s.stID, ...
                                    idom - 1, icomp - 1, n - 1);
                 end
             else
@@ -410,7 +399,7 @@ classdef Stack < handle
                 x = zeros(nc, np);
                 for m = 1:nc
                     for n = 1:np
-                        x(m, n) = calllib(ct, 'sim1D_value', s.st_id, ...
+                        x(m, n) = calllib(ct, 'sim1D_value', s.stID, ...
                                           idom - 1, m - 1, n - 1);
                     end
                 end
@@ -420,38 +409,25 @@ classdef Stack < handle
         function solve(s, loglevel, refine_grid)
             % Solve the problem.
             %
-            % parameter s:
+            % :parameter s:
             %    Instance of class 'Stack'.
-            % parameter loglevel:
+            % :parameter loglevel:
             %    Integer flag controlling the amount of diagnostic output.
             %    Zero supresses all output, and 5 produces very verbose
             %    output.
-            % parameter refine_grid:
+            % :parameter refine_grid:
             %    Integer, 1 to allow grid refinement, 0 to disallow.
-            checklib;
-            calllib(ct, 'sim1D_solve', s.st_id, loglevel, refine_grid);
-        end
 
-%         function b = subsref(s, index)
-%             % Redefine subscripted references.
-%             switch index.type
-%                 case '()'
-%                     b = s.domains(index.subs{:});
-%                 case '.'
-%                     n = s.domainIndex(index.subs);
-%                     b = s.domains(n);
-%                 otherwise
-%                     error('syntax error');
-%             end
-%         end
+            calllib(ct, 'sim1D_solve', s.stID, loglevel, refine_grid);
+        end
 
         function writeStats(s)
             % Print statistics for the current solution.
             % Prints a summary of the number of function and Jacobian
             % evaluations for each grid, and the CPU time spent on each
             % one.
-            checklib;
-            calllib(ct, 'sim1D_writeStats', s.st_id, 1);
+
+            calllib(ct, 'sim1D_writeStats', s.stID, 1);
         end
 
     end

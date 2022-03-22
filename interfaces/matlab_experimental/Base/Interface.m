@@ -8,13 +8,13 @@ classdef Interface < handle & ThermoPhase & Kinetics
         %% Interface class constructor
 
         function s = Interface(src, id, p1, p2, p3, p4)
-            % parameter src:
+            % :parameter src:
             %    CTI or CTML file containing the interface or edge phase.
-            % parameter id:
+            % :parameter id:
             %    Name of the interface or edge phase in the source file.
-            % parameter p1/p2/p3/p4:
+            % :parameter p1/p2/p3/p4:
             %    Adjoining phase to the interface;
-            % return:
+            % :return:
             %    Instance of class 'Interface'.
 
             checklib;
@@ -32,7 +32,7 @@ classdef Interface < handle & ThermoPhase & Kinetics
                 args = {p1, p2, p3, p4};
             end
             s@Kinetics(t, src, id, args{:});
-            s.tp_id = t.tp_id;
+            s.tpID = t.tpID;
         end
 
         %% Interface methods
@@ -40,70 +40,38 @@ classdef Interface < handle & ThermoPhase & Kinetics
         function c = get.coverages(s)
             % Get the surface coverages of the species on an interface.
             %
-            % return:
-            %    If no output value is assigned, a bar graph will be
-            %    plotted. Otherwise, a vector of length "n_surf_species"
-            %    will be returned.
+            % :return:
+            %    Vector of length "n_surf_species" for coverage.
 
-            checklib;
-            surf_id = s.tp_id;
+            surfID = s.tpID;
             nsp = s.nSpecies;
             xx = zeros(1, nsp);
             pt = libpointer('doublePtr', xx);
-            calllib(ct, 'surf_getCoverages', surf_id, xx);
+            calllib(ct, 'surf_getCoverages', surfID, xx);
             c = pt.Value;
-
-%             if nargout == 0
-%                 figure
-%                 set(gcf, 'Name', 'Coverages')
-%                 bar(c);
-%                 colormap(summer);
-%                 nm = s.speciesNames;
-%                 set(gca, 'XTickLabel', nm);
-%                 xlabel('Species Name');
-%                 ylabel('Coverage');
-%                 title('Surface Species Coverages');
-%             end
         end
 
         function c = concentrations(s)
             % Get the concentrations of the species on an interface.
             %
-            % return:
-            %    If no output value is assigned, a bar graph will be
-            %    plotted. Otherwise, a vector of length "n_surf_species"
-            %    will be returned.
+            % :return:
+            %    Vector of length "n_surf_species" for concentration.
 
-            checklib;
-            surf_id = s.tr_id;
+            surfID = s.tr_id;
             nsp = s.nSpecies;
             xx = zeros(1, nsp);
             pt = libpointer('doublePtr', xx);
-            calllib(ct, 'surf_getConcentrations', surf_id, xx);
+            calllib(ct, 'surf_getConcentrations', surfID, xx);
             c = pt.Value;
-
-%             if nargout == 0
-%                 figure
-%                 set(gcf, 'Name', 'Concentrations')
-%                 bar(c);
-%                 colormap(summer);
-%                 nm = speciesNames(s);
-%                 set(gca, 'XTickLabel', nm);
-%                 xlabel('Species Name');
-%                 ylabel('Concentration [kmol/m^2]');
-%                 title('Surface Species Concentrations');
-%             end
         end
 
         function set.coverages(s, cov, norm)
             % Set surface coverages of the species on an interface.
             %
-            % parameter cov:
+            % :parameter cov:
             %    Coverage of the species. "Cov" can be either a vector of
             %    length "n_surf_species", or a string in the format
             %    "Species:Coverage, Species:Coverage".
-
-            checklib;
 
             if nargin == 3 && strcmp(norm, 'nonorm')
                 norm_flag = 0;
@@ -111,7 +79,7 @@ classdef Interface < handle & ThermoPhase & Kinetics
                 norm_flag = 1;
             end
 
-            surf_id = s.tr_id;
+            surfID = s.tr_id;
             nsp = s.nSpecies;
             [m, n] = size(cov);
 
@@ -119,14 +87,14 @@ classdef Interface < handle & ThermoPhase & Kinetics
                 sz = length(cov);
                 if sz == nsp
                     if ((m == nsp && n == 1) || (m == 1 & n == nsp))
-                        calllib(ct, 'surf_setCoverages', surf_id, cov, norm_flag);
+                        calllib(ct, 'surf_setCoverages', surfID, cov, norm_flag);
                     else error('wrong size for coverage array');
                     end
                 else
                     error('wrong size for coverage array');
                 end
             elseif isa(cov, 'char')
-                calllib(ct, 'surf_setCoveragesByName', surf_id, cov);
+                calllib(ct, 'surf_setCoveragesByName', surfID, cov);
             end
         end
 

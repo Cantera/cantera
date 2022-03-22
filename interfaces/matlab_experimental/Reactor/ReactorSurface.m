@@ -1,7 +1,7 @@
 classdef ReactorSurface < handle
 
     properties
-        surf_id
+        surfID
         area
         reactor
     end
@@ -21,22 +21,22 @@ classdef ReactorSurface < handle
             % after initial construction by using the various methods of
             % the 'ReactorSurface' class.
             %
-            % parameter kleft:
+            % :parameter kleft:
             %    Surface reaction mechanisms for the left-facing surface.
             %    This must bean instance of class 'Kinetics', or of a class
             %    derived from 'Kinetics', such as 'Interface'.
-            % parameter reactor:
+            % :parameter reactor:
             %    Instance of class 'Reactor' to be used as the adjacent
             %    bulk phase.
-            % parameter area:
+            % :parameter area:
             %    The area of the surface in m^2. Defaults to 1.0 m^2 if not
             %    specified.
-            % return:
+            % :return:
             %    Instance of class 'ReactorSurface'.
 
             checklib;
 
-            s.surf_id = calllib(ct, 'reactorsurface_new', 0);
+            s.surfID = calllib(ct, 'reactorsurface_new', 0);
             s.reactor = -1;
 %             if r.id < 0
 %                 error(geterr);
@@ -68,48 +68,46 @@ classdef ReactorSurface < handle
 
         function clear(s)
             % Clear the ReactorSurface object from the memory.
-            checklib;
-            calllib(ct, 'reactorsurface_del', s.surf_id);
+
+            calllib(ct, 'reactorsurface_del', s.surfID);
         end
 
         function install(s, r)
             % Install a ReactorSurface in a Reactor.
-            checklib;
+
             s.reactor = r;
-            calllib(ct, 'reactorsurface_install', s.surf_id, r.id);
+            calllib(ct, 'reactorsurface_install', s.surfID, r.id);
         end
 
         %% ReactorSurface get methods
 
         function a = get.area(s)
             % Get the areaof the reactor surface in m^2.
-            checklib;
-            a = calllib(ct, 'reactorsurface_area', s.surf_id);
+
+            a = calllib(ct, 'reactorsurface_area', s.surfID);
         end
 
         %% ReactorSurface set methods
 
         function set.area(s, a)
             % Set the area of a reactor surface
-            checklib;
-            calllib(ct, 'reactorsurface_setArea', s.surf_id, a);
+
+            calllib(ct, 'reactorsurface_setArea', s.surfID, a);
         end
 
         function setKinetics(s, kin)
             % Setthe surface reaction mechanism on a reactor surface.
-            % parameter kin:
+            % :parameter kin:
             %    Instance of class 'Kinetics' (or another object derived
             %    from kin) to be used as the kinetic mechanism for this
             %    surface. Typically an instance of class 'Interface'.
 
-            checklib;
-
             ikin = 0;
             if isa(kin, 'Kinetics')
-                ikin = kin.kin_id;
+                ikin = kin.kinID;
             end
 
-            calllib(ct, 'reactorsurface_setkinetics', s.surf_id, ikin);
+            calllib(ct, 'reactorsurface_setkinetics', s.surfID, ikin);
         end
 
     end
