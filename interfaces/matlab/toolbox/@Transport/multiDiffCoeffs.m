@@ -20,8 +20,11 @@ function v = multiDiffCoeffs(a)
 %     for which multicomponent diffusion coefficients are desired.
 % :return:
 %     Matrix of size [nSpecies, nSpecies] with the multicomponent 
-%     diffusion coefficients D_{i,j}, where the row corresponds to
-%     species `i` and the column to species `j`. Units: m**2/s
+%     diffusion coefficients D_{i,j}. Units: m**2/s
+%
+%     The coefficient D_{row,column} is used for computing the
+%     contribution of concentration gradients in species [column] 
+%     to the diffusive flux of species [row].
 %
 
 v = trans_get(a.id, 22, nSpecies(a.th));

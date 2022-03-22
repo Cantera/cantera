@@ -576,7 +576,7 @@ public:
      * @param[in] ld  The dimension of the inner loop of d (usually equal to m_nsp)
      * @param[out] d  flat vector of diffusion coefficients, fortran ordering.
      *            d[ld*j+i] is the D_ij diffusion coefficient (the diffusion
-     *            coefficient for species i due to species j).
+     *            coefficient for species i due to concentration gradients in *            species j).
      */
     virtual void getMultiDiffCoeffs(const size_t ld, doublereal* const d) {
         throw NotImplementedError("Transport::getMultiDiffCoeffs",
