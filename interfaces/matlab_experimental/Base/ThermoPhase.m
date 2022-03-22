@@ -1,8 +1,7 @@
 classdef ThermoPhase < handle
 
     properties
-        tp_owner
-        tp_id
+        tpID
         T % temperature
         P % pressure
         D % density
@@ -72,8 +71,7 @@ classdef ThermoPhase < handle
             if nargin == 1
                 id = '-';
             end
-            tp.tp_owner = 1;
-            tp.tp_id = calllib(ct, 'thermo_newFromFile', src, id);
+            tp.tpID = calllib(ct, 'thermo_newFromFile', src, id);
             tp.basis = 'molar';
         end
 
@@ -85,14 +83,13 @@ classdef ThermoPhase < handle
             if nargin < 2 || ~isnumeric(threshold)
                 threshold = 1e-14;
             end
-            calllib(ct, 'thermo_print', tp.tp_id, 1, threshold);
+            calllib(ct, 'thermo_print', tp.tpID, 1, threshold);
         end
 
-        function tp_clear(tp)
+        function tpClear(tp)
             % Delete the kernel object.
 
-            checklib;
-            calllib(ct, 'thermo_del', tp.tp_id);
+            calllib(ct, 'thermo_del', tp.tpID);
         end
 
         function tp = set.basis(tp, b)
@@ -110,33 +107,31 @@ classdef ThermoPhase < handle
 
         %% PhaseGet single methods
 
-        function amu = atomicMasses(tp)
+        function amu = atomicWeights(tp)
             % Get the atomic masses of the elements.
             %
-            % return:
+            % :return:
             %    Vector of element atomic masses. Unit: kg/kmol
 
-            checklib;
             nel = tp.nElements;
             aa = zeros(1, nel);
             pt = libpointer('doublePtr', aa);
             calllib(ct, 'thermo_getAtomicWeights', ...
-                    tp.tp_id, nel, pt);
+                    tp.tpID, nel, pt);
             amu = pt.Value;
         end
 
         function e = charges(tp)
             % Get the array of species charges.
             %
-            % return:
+            % :return:
             %    Vector of species charges. Unit: elem. charge
 
-            checklib;
             nsp = tp.nSpecies;
             yy = zeros(1, nsp);
             pt = libpointer('doublePtr', yy);
             calllib(ct, 'thermo_getCharges', ...
-                    tp.tp_id, nsp, pt);
+                    tp.tpID, nsp, pt);
             e = pt.Value;
         end
 
@@ -149,19 +144,18 @@ classdef ThermoPhase < handle
             % indices start from 1 instead of 0 as in Cantera C++ and
             % Python interfaces.
             %
-            % parameter name:
+            % :parameter name:
             %    String or cell array of elements whose index is requested
-            % return:
+            % :return:
             %    Integer number of elements in the phase.
 
-            checklib;
             if iscell(name)
                 [m, n] = size(name);
                 k = zeros(m, n);
                 for i = 1:m
                     for j = 1:n
                         k(i, j) = calllib(ct, 'thermo_elementIndex', ...
-                                          tp.tp_id, name{i, j}) + 1;
+                                          tp.tpID, name{i, j}) + 1;
                         if k(i, j) > 1e3
                             warning(['Element ', name{i, j}, ...
                                    ' does not exist in the phase']);
@@ -171,7 +165,7 @@ classdef ThermoPhase < handle
                 end
             elseif ischar(name)
                 k = calllib(ct, 'thermo_elementIndex', ...
-                            tp.tp_id, name) + 1;
+                            tp.tpID, name) + 1;
                 if k > 1e3
                     warning(['Element ', name, ...
                              ' does not exist in the phase']);
@@ -184,9 +178,7 @@ classdef ThermoPhase < handle
 
         function elMassFrac = elementalMassFraction(tp, element)
             % Determine the elemental mass fraction in gas object.
-            checklib;
-
-            % Check input parameters.
+            % Check input :parameters.
             if nargin ~= 2
                 error('elementalMassFraction expects two input arguments.');
             end
@@ -226,43 +218,42 @@ classdef ThermoPhase < handle
         function mmw = meanMolecularWeight(tp)
             % Get the mean molecular weight.
             %
-            % return:
+            % :return:
             %    Double mean molecular weight. Unit: kg/kmol
 
-            checklib;
-            mmw = calllib(ct, 'thermo_meanMolecularWeight', tp.tp_id);
+            mmw = calllib(ct, 'thermo_meanMolecularWeight', tp.tpID);
         end
 
         function density = molarDensity(tp)
             % Get the molar basis density in kmol/m^3.
-            checklib;
-            density = calllib(ct, 'thermo_molarDensity', tp.tp_id);
+
+            density = calllib(ct, 'thermo_molarDensity', tp.tpID);
         end
 
         function mw = MolecularWeights(tp)
             % Get the array of molecular weights of all species.
             %
-            % return:
+            % :return:
             %   Vector of species molecular weights. Unit: kg/kmol
 
-            checklib;
             nsp = tp.nSpecies;
             yy = zeros(1, nsp);
             pt = libpointer('doublePtr', yy);
             calllib(ct, 'thermo_getMolecularWeights', ...
-                    tp.tp_id, nsp, pt);
+                    tp.tpID, nsp, pt);
             mw = pt.Value;
         end
 
         function n = nAtoms(tp, species, element)
             % Get the number of atoms of an element in a species.
             %
-            % parameter k:
+            % :parameter k:
             %    String species name or integer species number.
-            % parameter m:
+            % :parameter m:
             %    String element name or integer element number.
-            % return:
+            % :return:
             %    Integer number of atoms of the element in the species.
+
             if nargin == 3
                 if ischar(species)
                     k = tp.speciesIndex(species);
@@ -280,7 +271,7 @@ classdef ThermoPhase < handle
                     n = -1;
                     return
                 end
-                n = calllib(ct, 'thermo_nAtoms', tp.tp_id, k-1, m-1);
+                n = calllib(ct, 'thermo_nAtoms', tp.tpID, k-1, m-1);
             else
                 error('Two input arguments required.')
             end
@@ -289,21 +280,19 @@ classdef ThermoPhase < handle
         function nel = nElements(tp)
             % Get the number of elements.
             %
-            % return:
+            % :return:
             %    Integer number of elements in the phase.
 
-            checklib;
-            nel = calllib(ct, 'thermo_nElements', tp.tp_id);
+            nel = calllib(ct, 'thermo_nElements', tp.tpID);
         end
 
         function nsp = nSpecies(tp)
             % Get the number of species.
             %
-            % return:
+            % :return:
             %    Integer number of species in the phase.
 
-            checklib;
-            nsp = calllib(ct, 'thermo_nSpecies', tp.tp_id);
+            nsp = calllib(ct, 'thermo_nSpecies', tp.tpID);
         end
 
         function k = speciesIndex(tp, name)
@@ -315,19 +304,18 @@ classdef ThermoPhase < handle
             % indices start from 1 instead of 0 as in Cantera C++ and
             % Python interfaces.
             %
-            % parameter name:
+            % :parameter name:
             %    String or cell array of species whose index is requested.
-            % return:
+            % :return:
             %    Integer number of species in the phase.
 
-            checklib;
             if iscell(name)
                 [m, n] = size(name);
                 k = zeros(m, n);
                 for i = 1:m
                     for j = 1:n
                         k(i, j) = calllib(ct, 'thermo_speciesIndex', ...
-                                          tp.tp_id, name{i, j}) + 1;
+                                          tp.tpID, name{i, j}) + 1;
                         if k(i, j) > 1e3
                             warning(['Species ', name{i, j}, ...
                                    ' does not exist in the phase']);
@@ -337,7 +325,7 @@ classdef ThermoPhase < handle
                 end
             elseif ischar(name)
                 k = calllib(ct, 'thermo_speciesIndex', ...
-                            tp.tp_id, name) + 1;
+                            tp.tpID, name) + 1;
                 if k > 1e3
                     warning(['Species ', name, ...
                            ' does not exist in the phase.']);
@@ -351,21 +339,22 @@ classdef ThermoPhase < handle
         function nm = speciesName(tp, k)
             % Get the name of a species given the index.
             %
-            % parameter k:
+            % :parameter k:
             %    Scalar or array of integer species index.
-            % return:
+            % :return:
             %    Cell array of strings species name.
+
             [m, n] = size(k);
             nm = cell(m, n);
             for i = 1:m
                 for j = 1:n
                     ksp = k(i, j) - 1;
                     buflen = calllib(ct, 'thermo_getSpeciesName', ...
-                                     tp.tp_id, ksp, 0, '');
+                                     tp.tpID, ksp, 0, '');
                     if buflen > 0
                         aa = char(zeros(1, buflen));
                         [~, aa] = calllib(ct, 'thermo_getSpeciesName', ...
-                                          tp.tp_id, ksp, buflen, aa);
+                                          tp.tpID, ksp, buflen, aa);
                         nm{i, j} = aa;
                     end
                 end
@@ -374,56 +363,55 @@ classdef ThermoPhase < handle
 
         function n = speciesNames(tp)
             % Get all species names.
+
             n = tp.speciesName(1:tp.nSpecies);
         end
 
         function temperature = get.T(tp)
             % Get the temperature.
             %
-            % return:
+            % :return:
             %    Double temperature. Unit: K
 
-            checklib;
-            temperature = calllib(ct, 'thermo_temperature', tp.tp_id);
+            temperature = calllib(ct, 'thermo_temperature', tp.tpID);
         end
 
         function pressure = get.P(tp)
             % Get the pressure.
             %
-            % return:
+            % :return:
             %    Double pressure. Unit: Pa
 
-            checklib;
-            pressure = calllib(ct, 'thermo_pressure', tp.tp_id);
+            pressure = calllib(ct, 'thermo_pressure', tp.tpID);
         end
 
         function density = get.D(tp)
             % Get the mass basis density in kg/m^3.
-            checklib;
-            density = calllib(ct, 'thermo_density', tp.tp_id);
+
+            density = calllib(ct, 'thermo_density', tp.tpID);
         end
 
         function volume = get.V(tp)
             % Get the specific volume depending on the basis.
             %
-            % return:
+            % :return:
             %    Density depending on the basis. Units:
             %    m^3/kmol (molar) m^3/kg (mass).
+
             volume = 1/tp.D;
         end
 
         function moleFractions = get.X(tp)
             % Get the mole fractions of all species.
             %
-            % return:
+            % :return:
             %    Vector of species mole fractions.
 
-            checklib;
             nsp = tp.nSpecies;
             xx = zeros(1, nsp);
             pt = libpointer('doublePtr', xx);
             calllib(ct, 'thermo_getMoleFractions', ...
-                    tp.tp_id, nsp, pt);
+                    tp.tpID, nsp, pt);
             moleFractions = pt.Value;
 
             % if no output argument is specified, a bar plot is produced.
@@ -440,10 +428,10 @@ classdef ThermoPhase < handle
         function x = moleFraction(tp, species)
             % Get the mole fraction of one or a list of species.
             %
-            % parameter species:
+            % :parameter species:
             %    String or cell array of species whose mole fraction is
             %    requested.
-            % return:
+            % :return:
             %    Scalar or vector of species mole fractions.
 
             xarray = tp.X;
@@ -469,15 +457,14 @@ classdef ThermoPhase < handle
         function massFractions = get.Y(tp)
             % Get the mass fractions of all species.
             %
-            % return:
+            % :return:
             %   Vector of species mass fractions.
 
-            checklib;
             nsp = tp.nSpecies;
             yy = zeros(1, nsp);
             pt = libpointer('doublePtr', yy);
             calllib(ct, 'thermo_getMassFractions', ...
-                    tp.tp_id, nsp, pt);
+                    tp.tpID, nsp, pt);
             massFractions = pt.Value;
 
             % If no output argument is specified, a bar plot is produced.
@@ -494,10 +481,10 @@ classdef ThermoPhase < handle
         function y = massFraction(tp, species)
             % Get the mass fraction of one or a list of species.
             %
-            % parameter species:
+            % :parameter species:
             %    String or cell array of species whose mass fraction is
             %    requested.
-            % return:
+            % :return:
             %    Scalar or vector of species mass fractions.
 
             yy = tp.Y;
@@ -525,30 +512,28 @@ classdef ThermoPhase < handle
         function mu = chemical_potentials(tp)
             % Get the chemical potentials of the species.
             %
-            % return:
+            % :return:
             %    Vector of species chemical potentials. Unit: J/kmol.
 
-            checklib;
             nsp = tp.nSpecies;
             xx = zeros(1, nsp);
             pt = libpointer('doublePtr', xx);
             calllib(ct, 'thermo_chemPotentials', ...
-                    tp.tp_id, nsp, pt);
+                    tp.tpID, nsp, pt);
             mu = pt.Value;
         end
 
         function c = cv(tp)
             % Get the specific heat at constant volume.
             %
-            % return:
+            % :return:
             %    Specific heat of the mixture at constant volume depending
             %    on the basis. Units: J/kmol-K (molar) J/kg-K (mass).
 
-            checklib;
             if strcmp(tp.basis, 'molar')
-                c = calllib(ct, 'thermo_cv_mole', tp.tp_id);
+                c = calllib(ct, 'thermo_cv_mole', tp.tpID);
             elseif strcmp(tp.basis, 'mass')
-                c = calllib(ct, 'thermo_cv_mass', tp.tp_id);
+                c = calllib(ct, 'thermo_cv_mass', tp.tpID);
             else error("basis not specified");
             end
         end
@@ -556,15 +541,14 @@ classdef ThermoPhase < handle
         function c = cp(tp)
             % Get the specific heat at constant pressure.
             %
-            % return:
+            % :return:
             %    Specific heat of the mixture at constant pressure depending
             %    on the basis. Units: J/kmol-K (molar) J/kg-K (mass).
 
-            checklib;
             if strcmp(tp.basis, 'molar')
-                c = calllib(ct, 'thermo_cp_mole', tp.tp_id);
+                c = calllib(ct, 'thermo_cp_mole', tp.tpID);
             elseif strcmp(tp.basis, 'mass')
-                c = calllib(ct, 'thermo_cp_mass', tp.tp_id);
+                c = calllib(ct, 'thermo_cp_mass', tp.tpID);
             else error("basis not specified");
             end
         end
@@ -572,53 +556,49 @@ classdef ThermoPhase < handle
         function d = critDensity(tp)
             % Get the critical density.
             %
-            % return:
+            % :return:
             %    Critical density. Unit: K.
 
-            checklib;
-            d = calllib(ct, 'thermo_critDensity', tp.tp_id);
+            d = calllib(ct, 'thermo_critDensity', tp.tpID);
         end
 
         function p = critPressure(tp)
             % Get the critical pressure.
             %
-            % return:
+            % :return:
             %    Critical temperature. Unit: Pa.
 
-            checklib;
-            p = calllib(ct, 'thermo_critPressure', tp.tp_id);
+            p = calllib(ct, 'thermo_critPressure', tp.tpID);
         end
 
         function t = critTemperature(tp)
             % Get the critical temperature.
             %
-            % return:
+            % :return:
             %    Critical temperature. Unit: K.
-            checklib;
-            t = calllib(ct, 'thermo_critTemperature', tp.tp_id);
+
+            t = calllib(ct, 'thermo_critTemperature', tp.tpID);
         end
 
         function v = electricPotential(tp)
             % Get the electric potential
             %
-            % return:
+            % :return:
             %    Electric potential of the phase. Unit: V.
 
-            checklib;
-            v = calllib(ct, 'thermo_electricPotential', tp.tp_id);
+            v = calllib(ct, 'thermo_electricPotential', tp.tpID);
         end
 
         function e = eosType(tp)
             % Get the type of the equation of state
-%             checklib;
-%             buflen = calllib(ct, 'thermo_getEosType', tp.tp_id, 0, '');
-%             if buflen > 0
-%                 aa = char(zeros(1, buflen));
-%                 [~, aa] = calllib(ct, 'thermo_getEosType', ...
-%                                         tp.tp_id, buflen, aa);
-%             end
-%             e = aa;
-            e = 'IdealGas';
+
+            buflen = calllib(ct, 'thermo_getEosType', tp.tpID, 0, '');
+            if buflen > 0
+                aa = char(zeros(1, buflen));
+                [~, aa] = calllib(ct, 'thermo_getEosType', ...
+                                        tp.tpID, buflen, aa);
+            end
+            e = aa;
         end
 
         function v = isIdealGas(tp)
@@ -635,53 +615,48 @@ classdef ThermoPhase < handle
         function b = isothermalCompressibility(tp)
             % Get the isothermal compressibility
             %
-            % return:
+            % :return:
             %    Isothermal compressibility. Unit: 1/Pa.
 
-            checklib;
-            b = calllib(ct, 'thermo_isothermalCompressibility', tp.tp_id);
+            b = calllib(ct, 'thermo_isothermalCompressibility', tp.tpID);
         end
 
         function t = maxTemp(tp)
-            % Get the maximum temperature of the parameter fits.
+            % Get the maximum temperature of the :parameter fits.
             %
-            % return:
+            % :return:
             %    Vector of maximum temperatures of all species.
 
-            checklib;
-            t = calllib(ct, 'thermo_maxTemp', tp.tp_id, -1);
+            t = calllib(ct, 'thermo_maxTemp', tp.tpID, -1);
         end
 
         function t = minTemp(tp)
-            % Get the minimum temperature of the parameter fits.
+            % Get the minimum temperature of the :parameter fits.
             %
-            % return:
+            % :return:
             %    Vector of minimum temperatures of all species.
 
-            checklib;
-            t = calllib(ct, 'thermo_minTemp', tp.tp_id, -1);
+            t = calllib(ct, 'thermo_minTemp', tp.tpID, -1);
         end
 
         function p = P_sat(tp, t)
             % Get the saturation pressure for a given temperature.
             %
-            % parameter t:
+            % :parameter t:
             %    Temperature. Unit: K.
-            % return:
+            % :return:
             %    Saturation pressure for temperature t. Unit: Pa.
 
-            checklib;
-            p = calllib(ct, 'thermo_satPressure', tp.tp_id, t);
+            p = calllib(ct, 'thermo_satPressure', tp.tpID, t);
         end
 
         function p = refPressure(tp)
             % Get the reference pressure.
             %
-            % return:
+            % :return:
             %    Reference pressure. Unit: Pa.
 
-            checklib;
-            p = calllib(ct, 'thermo_refPressure', tp.tp_id, -1);
+            p = calllib(ct, 'thermo_refPressure', tp.tpID, -1);
         end
 
         function c = soundspeed(tp)
@@ -697,10 +672,9 @@ classdef ThermoPhase < handle
             %
             %    c = sqrt(
             %
-            % return:
+            % :return:
             %    The speed of sound. Unit: m/s
 
-            checklib;
             if tp.isIdealGas
                 tp.basis = 'mass';
                 gamma = tp.cp/tp.cv;
@@ -722,47 +696,43 @@ classdef ThermoPhase < handle
         function a = thermalExpansionCoeff(tp)
             % Get the thermal expansion coefficient.
             %
-            % return:
+            % :return:
             %    Thermal expansion coefficient. Unit: 1/K.
 
-            checklib;
-            a = calllib(ct, 'thermo_thermalExpansionCoeff', tp.tp_id);
+            a = calllib(ct, 'thermo_thermalExpansionCoeff', tp.tpID);
         end
 
         function t = T_sat(tp, p)
             % Get the saturation temperature for a given pressure.
             %
-            % parameter p:
+            % :parameter p:
             %    Pressure. Unit: Pa.
-            % return:
+            % :return:
             %    Saturation temperature for pressure p. Unit: K.
 
-            checklib;
-            t = calllib(ct, 'thermo_satTemperature', tp.tp_id, p);
+            t = calllib(ct, 'thermo_satTemperature', tp.tpID, p);
         end
 
         function v = vaporFraction(tp)
             % Get the vapor fractions.
             %
-            % return:
+            % :return:
             %    Vapor fraction.
 
-            checklib;
-            v = calllib(ct, 'thermo_vaporFraction', tp.tp_id);
+            v = calllib(ct, 'thermo_vaporFraction', tp.tpID);
         end
 
         function enthalpy = get.H(tp)
             % Get the enthalpy.
             %
-            % return:
+            % :return:
             %    Enthalpy of the mixture depending on the basis.
             %    Units: J/kmol (molar) J/kg (mass).
 
-            checklib;
             if strcmp(tp.basis, 'molar')
-                enthalpy = calllib(ct, 'thermo_enthalpy_mole', tp.tp_id);
+                enthalpy = calllib(ct, 'thermo_enthalpy_mole', tp.tpID);
             elseif strcmp(tp.basis, 'mass')
-                enthalpy = calllib(ct, 'thermo_enthalpy_mass', tp.tp_id);
+                enthalpy = calllib(ct, 'thermo_enthalpy_mass', tp.tpID);
             else error("basis not specified");
             end
         end
@@ -770,29 +740,27 @@ classdef ThermoPhase < handle
         function enthalpy = enthalpies_RT(tp)
             % Get the non-dimensional enthalpy.
             %
-            % return:
+            % :return:
             %    Vector of standard-state species enthalpies divided by RT.
 
-            checklib;
             nsp = tp.nSpecies;
             xx = zeros(1, nsp);
             pt = libpointer('doublePtr', xx);
-            calllib(ct, 'thermo_getEnthalpies_RT', tp.tp_id, nsp, pt);
+            calllib(ct, 'thermo_getEnthalpies_RT', tp.tpID, nsp, pt);
             enthalpy = pt.Value;
         end
 
         function entropy = get.S(tp)
             % Get the entropy.
             %
-            % return:
+            % :return:
             %    Entropy of the mixture depending on the basis.
             %    Units: J/kmol-K (molar) J/kg-K (mass).
 
-            checklib;
             if strcmp(tp.basis, 'molar')
-                entropy = calllib(ct, 'thermo_entropy_mole', tp.tp_id);
+                entropy = calllib(ct, 'thermo_entropy_mole', tp.tpID);
             elseif strcmp(tp.basis, 'mass')
-                entropy = calllib(ct, 'thermo_entropy_mass', tp.tp_id);
+                entropy = calllib(ct, 'thermo_entropy_mass', tp.tpID);
             else error("basis not specified");
             end
         end
@@ -800,15 +768,14 @@ classdef ThermoPhase < handle
         function intEnergy = get.U(tp)
             % Get the internal energy.
             %
-            % return:
+            % :return:
             %    Internal energy of the mixture depending on the basis.
             %    Units: J/kmol (molar) J/kg (mass).
 
-            checklib;
             if strcmp(tp.basis, 'molar')
-                intEnergy = calllib(ct, 'thermo_intEnergy_mole', tp.tp_id);
+                intEnergy = calllib(ct, 'thermo_intEnergy_mole', tp.tpID);
             elseif strcmp(tp.basis, 'mass')
-                intEnergy = calllib(ct, 'thermo_intEnergy_mass', tp.tp_id);
+                intEnergy = calllib(ct, 'thermo_intEnergy_mass', tp.tpID);
             else error("basis not specified");
             end
         end
@@ -816,15 +783,14 @@ classdef ThermoPhase < handle
         function gibbs = get.G(tp)
             % Get the Gibss free energy.
             %
-            % return:
+            % :return:
             %    Gibbs free energy of the mixture depending on the basis.
             %    Units: J/kmol (molar) J/kg (mass).
 
-            checklib;
             if strcmp(tp.basis, 'molar')
-                gibbs = calllib(ct, 'thermo_gibbs_mole', tp.tp_id);
+                gibbs = calllib(ct, 'thermo_gibbs_mole', tp.tpID);
             elseif strcmp(tp.basis, 'mass')
-                gibbs = calllib(ct, 'thermo_gibbs_mass', tp.tp_id);
+                gibbs = calllib(ct, 'thermo_gibbs_mass', tp.tpID);
             else error("basis not specified");
             end
         end
@@ -836,12 +802,6 @@ classdef ThermoPhase < handle
         end
 
         function output = get.DPX(tp)
-            % Get density, pressure, and mole fractions depending on the basis.
-            % return:
-            %    Density. Unit: kmol/m^3 (molar) kg/m^3 (mass).
-            %    Pressure. Unit: Pa.
-            %    Mole fractions of all species.
-
             output = {tp.D, tp.P, tp.X};
         end
 
@@ -854,12 +814,6 @@ classdef ThermoPhase < handle
         end
 
         function output = get.HPX(tp)
-            % Get enthalpy, pressure, and mole fractions depending on the basis.
-            % return:
-            %    Enthalpy. Unit: J/kmol (molar) J/kg (mass).
-            %    Pressure. Unit: Pa.
-            %    Mole fractions of all species.
-
             output = {tp.H, tp.P, tp.X};
         end
 
@@ -1015,47 +969,44 @@ classdef ThermoPhase < handle
 
         function tp = setElectricPotential(tp, phi)
             % Set the electric potential in V.
-            calllib(ct, 'thermo_setElectricPotential', tp.tp_id, phi);
+
+            calllib(ct, 'thermo_setElectricPotential', tp.tpID, phi);
         end
 
         function tp = setState_Psat(tp, p, q)
             % Set saturated vapor
-            checklib;
-            calllib(ct, 'thermo_setState_Psat', tp.tp_id, p, q);
+
+            calllib(ct, 'thermo_setState_Psat', tp.tpID, p, q);
         end
 
         function tp = setState_Tsat(tp, t, q)
             % Set saturated liquid
-            checklib;
-            calllib(ct, 'thermo_setState_Tsat', tp.tp_id, t, 1 - q);
+
+            calllib(ct, 'thermo_setState_Tsat', tp.tpID, t, 1 - q);
         end
 
         function set.T(tp, temperature)
-            checklib;
             if temperature <= 0
                 error('The temperature must be positive');
             end
-            calllib(ct, 'thermo_setTemperature', tp.tp_id, temperature);
+            calllib(ct, 'thermo_setTemperature', tp.tpID, temperature);
         end
 
         function set.P(tp, pressure)
-            checklib;
             if pressure <= 0
                 error('The pressure must be positive');
             end
-            calllib(ct, 'thermo_setPressure', tp.tp_id, pressure);
+            calllib(ct, 'thermo_setPressure', tp.tpID, pressure);
         end
 
         function set.D(tp, density)
-            checklib;
             if density <= 0
                 error('The density must be positive');
             end
-            calllib(ct, 'thermo_setDensity', tp.tp_id, density);
+            calllib(ct, 'thermo_setDensity', tp.tpID, density);
         end
 
         function set.X(tp, xx)
-            checklib;
             lim = 1e-9;
             if isa(xx, 'double')
                 nsp = tp.nSpecies;
@@ -1063,32 +1014,30 @@ classdef ThermoPhase < handle
                     norm = 0;
                 else norm = 1;
                 end
-                calllib(ct, 'thermo_setMoleFractions', tp.tp_id, ...
+                calllib(ct, 'thermo_setMoleFractions', tp.tpID, ...
                         nsp, xx, norm);
             elseif isa(xx, 'char')
-                calllib(ct, 'thermo_setMoleFractionsByName', tp.tp_id, xx);
+                calllib(ct, 'thermo_setMoleFractionsByName', tp.tpID, xx);
             end
         end
 
         function set.Y(tp, yy)
-            checklib;
             if isa(yy, 'double')
                 nsp = tp.nSpecies;
                 if sum(yy) -1 <= 1e-9
                     norm = 0;
                 else norm = 1;
                 end
-                calllib(ct, 'thermo_setMassFractions', tp.tp_id, ...
+                calllib(ct, 'thermo_setMassFractions', tp.tpID, ...
                         nsp, yy, norm);
             elseif isa(yy, 'char')
-                calllib(ct, 'thermo_setMassFractionsByName', tp.tp_id, yy);
+                calllib(ct, 'thermo_setMassFractionsByName', tp.tpID, yy);
             end
         end
 
         %% PhaseSet multi methods
 
         function set.DP(tp, input)
-            checklib;
             d = input{1};
             p = input{2};
             if d <= 0
@@ -1097,7 +1046,7 @@ classdef ThermoPhase < handle
             if p <= 0
                 error('The pressure must be positive');
             end
-            calllib(ct, 'thermo_set_RP', tp.tp_id, [d, p]);
+            calllib(ct, 'thermo_set_RP', tp.tpID, [d, p]);
         end
 
         function set.DPX(tp, input)
@@ -1111,13 +1060,12 @@ classdef ThermoPhase < handle
         end
 
         function set.HP(tp, input)
-            checklib;
             h = input{1};
             p = input{2};
             if p <= 0
                 error('The pressure must be positive');
             end
-            calllib(ct, 'thermo_set_HP', tp.tp_id, [h, p]);
+            calllib(ct, 'thermo_set_HP', tp.tpID, [h, p]);
         end
 
         function set.HPX(tp, input)
@@ -1131,7 +1079,6 @@ classdef ThermoPhase < handle
         end
 
         function set.PV(tp, input)
-            checklib;
             p = input{1};
             v = input{2};
             if p <= 0
@@ -1140,7 +1087,7 @@ classdef ThermoPhase < handle
             if v <= 0
                 error('The specific volume must be positive');
             end
-            calllib(ct, 'thermo_set_PV', tp.tp_id, [p, v]);
+            calllib(ct, 'thermo_set_PV', tp.tpID, [p, v]);
         end
 
         function set.PVX(tp, input)
@@ -1154,10 +1101,9 @@ classdef ThermoPhase < handle
         end
 
         function set.SH(tp, input)
-            checklib;
             s = input{1};
             h = input{2};
-            calllib(ct, 'thermo_set_SH', tp.tp_id, [s, h]);
+            calllib(ct, 'thermo_set_SH', tp.tpID, [s, h]);
         end
 
         function set.SHX(tp, input)
@@ -1171,13 +1117,12 @@ classdef ThermoPhase < handle
         end
 
         function set.SP(tp, input)
-            checklib;
             s = input{1};
             p = input{2};
             if p <= 0
                 error('The pressure must be positive');
             end
-            calllib(ct, 'thermo_set_SP', tp.tp_id, [s, p]);
+            calllib(ct, 'thermo_set_SP', tp.tpID, [s, p]);
         end
 
         function set.SPX(tp, input)
@@ -1191,13 +1136,12 @@ classdef ThermoPhase < handle
         end
 
         function set.ST(tp, input)
-            checklib;
             s = input{1};
             t = input{2};
             if t <= 0
                 error('The temperature must be positive');
             end
-            calllib(ct, 'thermo_set_ST', tp.tp_id, [s, t]);
+            calllib(ct, 'thermo_set_ST', tp.tpID, [s, t]);
         end
 
         function set.STX(tp, input)
@@ -1211,13 +1155,12 @@ classdef ThermoPhase < handle
         end
 
         function set.SV(tp, input)
-            checklib;
             s = input{1};
             v = input{2};
             if v <= 0
                 error('The specific volume must be positive');
             end
-            calllib(ct, 'thermo_set_SV', tp.tp_id, [s, v]);
+            calllib(ct, 'thermo_set_SV', tp.tpID, [s, v]);
         end
 
         function set.SVX(tp, input)
@@ -1254,13 +1197,12 @@ classdef ThermoPhase < handle
         end
 
         function set.TH(tp, input)
-            checklib;
             t = input{1};
             if t <= 0
                 error('The temperature must be positive');
             end
             h = input{2};
-            calllib(ct, 'thermo_set_TH', tp.tp_id, [t, h]);
+            calllib(ct, 'thermo_set_TH', tp.tpID, [t, h]);
         end
 
         function set.THX(tp, input)
@@ -1297,7 +1239,6 @@ classdef ThermoPhase < handle
         end
 
         function set.TV(tp, input)
-            checklib;
             t = input{1};
             v = input{2};
             if t <= 0
@@ -1306,7 +1247,7 @@ classdef ThermoPhase < handle
             if v <= 0
                 error('The specific volume must be positive');
             end
-            calllib(ct, 'thermo_set_TV', tp.tp_id, [t, v]);
+            calllib(ct, 'thermo_set_TV', tp.tpID, [t, v]);
         end
 
         function set.TVX(tp, input)
@@ -1320,13 +1261,12 @@ classdef ThermoPhase < handle
         end
 
         function set.UP(tp, input)
-            checklib;
             u = input{1};
             p = input{2};
             if p <= 0
                 error('The pressure must be positive');
             end
-            calllib(ct, 'thermo_set_UP', tp.tp_id, [u, p]);
+            calllib(ct, 'thermo_set_UP', tp.tpID, [u, p]);
         end
 
         function set.UPX(tp, input)
@@ -1340,13 +1280,12 @@ classdef ThermoPhase < handle
         end
 
         function set.UV(tp, input)
-            checklib;
             u = input{1};
             v = input{2};
             if v <= 0
                 error('The specific volume must be positive');
             end
-            calllib(ct, 'thermo_set_UV', tp.tp_id, [u, v]);
+            calllib(ct, 'thermo_set_UV', tp.tpID, [u, v]);
         end
 
         function set.UVX(tp, input)
@@ -1360,13 +1299,12 @@ classdef ThermoPhase < handle
         end
 
         function set.VH(tp, input)
-            checklib;
             v = input{1};
             h = input{2};
             if v <= 0
                 error('The specific volume must be positive');
             end
-            calllib(ct, 'thermo_set_VH', tp.tp_id, [v, h]);
+            calllib(ct, 'thermo_set_VH', tp.tpID, [v, h]);
         end
 
         function set.VHX(tp, input)
@@ -1381,7 +1319,6 @@ classdef ThermoPhase < handle
 
         function tp = equilibrate(tp, xy, solver, rtol, maxsteps, ...
                                   maxiter, loglevel)
-            checklib;
             % use the ChemEquil solver by default
             if nargin < 3
                 solver = -1;
@@ -1398,7 +1335,7 @@ classdef ThermoPhase < handle
             if nargin < 7
                 loglevel = 0;
             end
-            calllib(ct, 'thermo_equilibrate', tp.tp_id, xy, solver, ...
+            calllib(ct, 'thermo_equilibrate', tp.tpID, xy, solver, ...
                     rtol, maxsteps, maxiter, loglevel);
         end
 

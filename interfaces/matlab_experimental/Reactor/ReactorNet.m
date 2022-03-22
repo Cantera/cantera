@@ -17,10 +17,10 @@ classdef ReactorNet < handle
             % to simultaneously advance the state of one or more coupled
             % reactors.
             %
-            % parameter reactors:
+            % :parameter reactors:
             %    Instance of class 'Reactor' or a cell array of instance of
             %    'Reactor'.
-            % return:
+            % :return:
             %    Instance of class 'ReactorNet'.
 
             checklib;
@@ -51,19 +51,18 @@ classdef ReactorNet < handle
 
         function clear(r)
             % Clear the ReactorNet object from the memory.
-            checklib;
+
             calllib(ct, 'reactornet_del', r.id);
         end
 
         function addReactor(net, reactor)
             % Add a reactor to a network.
             %
-            % parameter net:
+            % :parameter net:
             %    Instance of class 'ReactorNet'.
-            % parameter reactor:
+            % :parameter reactor:
             %    Instance of class 'Solution'.
 
-            checklib;
             calllib(ct, 'reactornet_addreactor', net.id, reactor.id);
         end
 
@@ -77,10 +76,9 @@ classdef ReactorNet < handle
             % an absolute time, not a time interval.) The integrator may
             % take many internal timesteps before reaching tout.
             %
-            % parameter tout:
+            % :parameter tout:
             %    End time of the integration. Unit: s.
 
-            checklib;
             calllib(ct, 'reactornet_advance', r.id, tout);
         end
 
@@ -89,11 +87,10 @@ classdef ReactorNet < handle
         function setInitialTime(r, t)
             % Set the initial time of the integration.
             %
-            % parameter t:
+            % :parameter t:
             %    Time at which integration should be restarted, using the
             %    current state as the initial condition. Unit: s.
 
-            checklib;
             calllib(ct, 'reactornet_setInitialTime', r.id, t);
         end
 
@@ -108,19 +105,17 @@ classdef ReactorNet < handle
             % leads to numerical problems later. Use thismethod to set an
             % upper bound on the timestep.
 
-            checklib;
             calllib(ct, 'reactornet_setMaxTimeStep', r.id, maxstep);
         end
 
         function setTolerances(r, rerr, aerr)
             % Set the error tolerance.
             %
-            % parameter rtol:
+            % :parameter rtol:
             %    Scalar relative error tolerance.
-            % parameter atol:
+            % :parameter atol:
             %    Scalar absolute error tolerance.
 
-            checklib;
             calllib(ct, 'reactornet_setTolerances', r.id, rerr, aerr);
         end
 
@@ -134,25 +129,25 @@ classdef ReactorNet < handle
             % tolerance is maintained. At times when the solution is
             % rapidly changing, the time step becomes smaller to resolve
             % the solution.
-            checklib;
+
             t = calllib(ct, 'reactor_step', r.id);
         end
 
         function t = get.time(r)
             % Get the current time in s.
-            checklib;
+
             t = calllib(ct, 'reactornet_time', r.id);
         end
 
         function t = get.rtol(r)
             % Get the relative error tolerance
-            checklib;
+
             t = calllib(ct, 'reactornet_rtol', r.id);
         end
 
         function t = get.atol(r)
             % Get the absolute error tolerance
-            checklib;
+
             t = calllib(ct, 'reactornet_atol', r.id);
         end
 

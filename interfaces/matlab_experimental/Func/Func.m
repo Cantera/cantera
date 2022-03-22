@@ -24,7 +24,7 @@ classdef Func < handle
             % object 'f' is a functor that evaluates the polynomial
             % :math:'2x^2 - 3x + 1'. Then writing 'f(2)' would cause the
             % method that evaluates the function to be invoked, and would
-            % pass it the argument '2'. The return value would be 3.
+            % pass it the argument '2'. The :return value would be 3.
             %
             % The types of functors you can create in Cantera are these:
             % 1. A polynomial;
@@ -40,7 +40,7 @@ classdef Func < handle
             % class 'Func1'. See the Cantera C++ documentation for more
             % details.
             %
-            % parameter typ:
+            % :parameter typ:
             %    String indicating type of functor to create. Possible
             %    values are:
             %    * 'polynomial'
@@ -53,11 +53,11 @@ classdef Func < handle
             %    * 'composite'
             %    * 'periodic'
             %
-            % parameter n:
-            %    Number of parameters required for the functor
-            % parameter p:
-            %    Vector of parameters
-            % return:
+            % :parameter n:
+            %    Number of :parameters required for the functor
+            % :parameter p:
+            %    Vector of :parameters
+            % :return:
             %    Instance of class :mat:func:`Func`
 
             checklib;
@@ -70,8 +70,8 @@ classdef Func < handle
             x.f2 = 0;
             x.coeffs = 0;
 
-            function nn = new_func(itype, n, p)
-                % helper function to pass the correct parameters to the C
+            function nn = newFunc(itype, n, p)
+                % helper function to pass the correct :parameters to the C
                 % library
                 if itype < 20
                     ptr = libpointer('doublePtr', p);
@@ -89,12 +89,12 @@ classdef Func < handle
 
             if itype > 0
                 x.coeffs = p;
-                x.id = new_func(itype, n, p);
+                x.id = newFunc(itype, n, p);
             elseif strcmp(typ, 'periodic')
                 itype = 50;
                 x.f1 = n;
                 x.coeffs = p;
-                x.id = new_func(itype, n.id, p);
+                x.id = newFunc(itype, n.id, p);
             else
                 if strcmp(typ, 'sum')
                     itype = 20;
@@ -109,7 +109,7 @@ classdef Func < handle
                 end
                 x.f1 = n;
                 x.f2 = p;
-                x.id = new_func(itype, n.id, p.id);
+                x.id = newFunc(itype, n.id, p.id);
             end
 
             x.typ = typ;
@@ -119,14 +119,14 @@ classdef Func < handle
 
         function clear(f)
             % Clear the functor from memory.
-            checklib;
+
             calllib(ct, 'func_del', f.id);
         end
 
         function display(a)
             % Display the equation of the input function on the terminal.
             %
-            % parameter a:
+            % :parameter a:
             %    Instance of class 'Func'
 
             disp(' ');
@@ -158,14 +158,13 @@ classdef Func < handle
         function b = subsref(a, s)
             % Redefine subscripted references for functors.
             %
-            % parameter a:
+            % :parameter a:
             %    Instance of class 'Func'
-            % parameter s:
+            % :parameter s:
             %    Value at which the function should be evaluated.
-            % return:
+            % :return:
             %    The value of the function evaluated at 's'.
 
-            checklib;
             if strcmp(s.type, '()')
                 ind= s.subs{:};
                  b = zeros(1, length(ind));

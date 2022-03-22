@@ -20,14 +20,14 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
                 trans = 'default';
             end
             s@Transport(tp, trans, 0);
-            s.tp_id = tp.tp_id;
+            s.tpID = tp.tpID;
         end
 
         % Delete the kernel objects associated with a solution
         function clear(s)
-            s.tp_clear;
-            s.kin_clear;
-            s.tr_clear;
+            s.tpClear;
+            s.kinClear;
+            s.trClear;
         end
 
     end

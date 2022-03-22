@@ -5,7 +5,7 @@ function ignite_hp(gas)
     help ignite_hp
 
     if nargin == 0
-       gas = Solution('gri30.yaml');
+       gas = Solution('gri30.yaml', 'gri30');
     end
 
     mw = gas.MolecularWeights;
