@@ -98,22 +98,30 @@ public:
     //! Set electron energy levels.
     //! @param  levels The vector of electron energy levels (eV).
     //!                Length: #m_nPoints.
-    void setElectronEnergyLevels(const vector_fp& levels);
+    //! @param  length The length of the \p levels.
+    void setElectronEnergyLevels(const double* levels, size_t length);
 
     //! Get electron energy levels.
     //! @param  levels The vector of electron energy levels (eV). Length: #m_nPoints
-    void getElectronEnergyLevels(vector_fp& levels) const;
+    void getElectronEnergyLevels(double* levels) const {
+        Eigen::Map<Eigen::ArrayXd>(levels, m_nPoints) = m_electronEnergyLevels;
+    }
 
     //! Set electron energy distribution.
     //! @param  levels The vector of electron energy levels (eV).
     //!                Length: #m_nPoints.
     //! @param  distrb The vector of electron energy distribution.
-    void setElectronEnergyDistribution(const vector_fp& levels, const vector_fp& distrb);
+    //! @param  length The length of \p levels and \p distrb
+    void setElectronEnergyDistribution(const double* levels,
+                                       const double* distrb,
+                                       size_t length);
 
     //! Get electron energy distribution.
     //! @param  distrb The vector of electron energy distribution.
     //!                Length: #m_nPoints.
-    void getElectronEnergyDistribution(vector_fp& distrb) const;
+    void getElectronEnergyDistribution(double* distrb) const {
+        Eigen::Map<Eigen::VectorXd>(distrb, m_nPoints) = m_electronEnergyDist;
+    }
 
     //! Set the shape factor of isotropic electron energy distribution.
     //! Note that \f$ x = 1 \f$ and \f$ x = 2 \f$ correspond to the

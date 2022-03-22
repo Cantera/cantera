@@ -1810,14 +1810,26 @@ cdef class ThermoPhase(_SolutionBase):
         if not self._enable_plasma:
             raise TypeError('This method is invalid for '
                             f'thermo model: {self.thermo_model}.')
-        cdef vector[double] cxxdata_levels
-        cdef vector[double] cxxdata_distribution
-        for value in levels:
-            cxxdata_levels.push_back(value)
-        for value in distribution:
-            cxxdata_distribution.push_back(value)
-        self.plasma.setElectronEnergyDistribution(cxxdata_levels,
-                                                cxxdata_distribution)
+        # check length
+        if (len(levels) != len(distribution)):
+            raise ValueError('Length of levels and distribution are different')
+
+        cdef np.ndarray[np.double_t, ndim=1] data_levels = \
+            np.ascontiguousarray(levels, dtype=np.double)
+        cdef np.ndarray[np.double_t, ndim=1] data_dist = \
+            np.ascontiguousarray(distribution, dtype=np.double)
+
+        self.plasma.setElectronEnergyDistribution(&data_levels[0],
+                                                  &data_dist[0],
+                                                  len(levels))
+
+    property n_electron_energy_levels:
+        """ Number of electron energy levels """
+        def __get__(self):
+            if not self._enable_plasma:
+                raise TypeError('This method is invalid for '
+                                f'thermo model: {self.thermo_model}.')
+            return self.plasma.nElectronEnergyLevels()
 
     property electron_energy_levels:
         """ Electron energy levels [eV]"""
@@ -1825,17 +1837,17 @@ cdef class ThermoPhase(_SolutionBase):
             if not self._enable_plasma:
                 raise TypeError('This method is invalid for '
                                 f'thermo model: {self.thermo_model}.')
-            cdef vector[double] cxxdata
-            self.plasma.getElectronEnergyLevels(cxxdata)
-            return np.fromiter(cxxdata, np.double)
+            cdef np.ndarray[np.double_t, ndim=1] data = np.empty(
+                self.n_electron_energy_levels)
+            self.plasma.getElectronEnergyLevels(&data[0])
+            return data
         def __set__(self, levels):
             if not self._enable_plasma:
                 raise TypeError('This method is invalid for '
                                 f'thermo model: {self.thermo_model}.')
-            cdef vector[double] cxxdata
-            for value in levels:
-                cxxdata.push_back(value)
-            self.plasma.setElectronEnergyLevels(cxxdata)
+            cdef np.ndarray[np.double_t, ndim=1] data = \
+                np.ascontiguousarray(levels, dtype=np.double)
+            self.plasma.setElectronEnergyLevels(&data[0], len(levels))
 
     property electron_energy_distribution:
         """ Electron energy distribution """
@@ -1843,9 +1855,10 @@ cdef class ThermoPhase(_SolutionBase):
             if not self._enable_plasma:
                 raise TypeError('This method is invalid for '
                                 f'thermo model: {self.thermo_model}.')
-            cdef vector[double] cxxdata
-            self.plasma.getElectronEnergyDistribution(cxxdata)
-            return np.fromiter(cxxdata, np.double)
+            cdef np.ndarray[np.double_t, ndim=1] data = np.empty(
+                self.n_electron_energy_levels)
+            self.plasma.getElectronEnergyDistribution(&data[0])
+            return data
 
     property isotropic_shape_factor:
         """ Shape factor of isotropic-velocity distribution for electron energy """
