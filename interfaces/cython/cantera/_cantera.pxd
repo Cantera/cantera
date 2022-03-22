@@ -442,18 +442,19 @@ cdef extern from "cantera/thermo/SurfPhase.h":
 cdef extern from "cantera/thermo/PlasmaPhase.h":
     cdef cppclass CxxPlasmaPhase "Cantera::PlasmaPhase":
         CxxPlasmaPhase()
-        void setElectronEnergyLevels(vector[double]&) except +translate_exception
-        void getElectronEnergyLevels(vector[double]&)
-        void setElectronEnergyDistribution(vector[double]&, vector[double]&) except +translate_exception
-        void getElectronEnergyDistribution(vector[double]&)
         double electronTemperature() except +translate_exception
         void setElectronTemperature(double) except +translate_exception
+        void setElectronEnergyLevels(double*, size_t) except +translate_exception
+        void getElectronEnergyLevels(double*)
+        void setElectronEnergyDistribution(double*, double*, size_t) except +translate_exception
+        void getElectronEnergyDistribution(double*)
         void setIsotropicShapeFactor(double) except +translate_exception
         void setElectronEnergyDistributionType(const string&) except +translate_exception
         string electronEnergyDistributionType()
         void setMeanElectronEnergy(double) except +translate_exception
         double isotropicShapeFactor()
         double meanElectronEnergy()
+        size_t nElectronEnergyLevels() except +translate_exception
 
 cdef extern from "cantera/kinetics/ReactionRateFactory.h" namespace "Cantera":
     cdef shared_ptr[CxxReactionRate] CxxNewReactionRate "newReactionRate" (string) except +translate_exception

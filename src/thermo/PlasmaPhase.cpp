@@ -69,46 +69,29 @@ void PlasmaPhase::setElectronTemperature(const double Te) {
     updateElectronEnergyDistribution();
 }
 
-void PlasmaPhase::setElectronEnergyLevels(const vector_fp& levels)
+void PlasmaPhase::setElectronEnergyLevels(const double* levels, size_t length)
 {
-    m_nPoints = levels.size();
-    m_electronEnergyLevels =
-        Eigen::Map<const Eigen::ArrayXd>(levels.data(), levels.size());
+    m_nPoints = length;
+    m_electronEnergyLevels = Eigen::Map<const Eigen::ArrayXd>(levels, length);
     updateElectronEnergyDistribution();
 }
 
-void PlasmaPhase::getElectronEnergyLevels(vector_fp& levels) const
-{
-    levels.resize(m_nPoints);
-    Eigen::Map<Eigen::ArrayXd>(levels.data(), m_nPoints) = m_electronEnergyLevels;
-}
-
-void PlasmaPhase::setElectronEnergyDistribution(const vector_fp& levels,
-                                                const vector_fp& distrb)
+void PlasmaPhase::setElectronEnergyDistribution(const double* levels,
+                                                const double* dist,
+                                                size_t length)
 {
     m_distributionType = "user-specified";
-    if (levels.size() != distrb.size()) {
-        throw CanteraError("PlasmaPhase::setElectronEnergyDistribution",
-                           "Vector lengths need to be the same.");
-    }
-    m_nPoints = levels.size();
+    m_nPoints = length;
     m_electronEnergyLevels =
-        Eigen::Map<const Eigen::ArrayXd>(levels.data(), levels.size());
+        Eigen::Map<const Eigen::ArrayXd>(levels, length);
     m_electronEnergyDist =
-        Eigen::Map<const Eigen::VectorXd>(distrb.data(), distrb.size());
+        Eigen::Map<const Eigen::ArrayXd>(dist, length);
     // calculate mean electron energy and electron temperature
     Eigen::ArrayXd eps52 = m_electronEnergyLevels.pow(5./2.);
     m_meanElectronEnergy =
         2.0 / 5.0 * trapezoidal(m_electronEnergyDist, eps52);
-    Phase::setElectronTemperature(
-        2.0 / 3.0 * m_meanElectronEnergy * Avogadro *
-        ElectronCharge / GasConstant);
-}
-
-void PlasmaPhase::getElectronEnergyDistribution(vector_fp& distrb) const
-{
-    distrb.resize(m_nPoints);
-    Eigen::Map<Eigen::VectorXd>(distrb.data(), m_nPoints) = m_electronEnergyDistrb;
+    m_electronTemp = 2.0 / 3.0 * m_meanElectronEnergy *
+         ElectronCharge / Boltzmann;
 }
 
 void PlasmaPhase::setIsotropicShapeFactor(double x) {
