@@ -56,8 +56,9 @@ Additional help command options:
 # SConstruct is parsed by Python 2. This seems to be the most robust
 # and simplest option that will reliably trigger an error in Python 2
 # and provide actionable feedback for users.
+python_min_build_support = "3.7"
 f"""
-Cantera must be built using Python 3.6 or higher. You can invoke SCons by executing
+Cantera must be built using Python 3.7 or higher. You can invoke SCons by executing
     python3 `which scons`
 followed by any desired options.
 """
@@ -72,6 +73,15 @@ import textwrap
 from os.path import join as pjoin
 from pkg_resources import parse_version
 import SCons
+
+# ensure that Python version is sufficient for build process
+python_version = "{v.major}.{v.minor}".format(v=sys.version_info)
+if parse_version(python_version) < parse_version(python_min_build_support):
+    print(
+        f"ERROR: Cantera must be built using Python {python_min_build_support} or "
+        f"higher; Python {python_version} is not supported.", file=sys.stderr)
+    sys.exit(1)
+
 from buildutils import *
 
 if not COMMAND_LINE_TARGETS:
