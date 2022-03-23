@@ -1568,7 +1568,6 @@ if env['python_package'] != 'none':
                 f"Could not execute the Python interpreter '{env['python_cmd']!r}'")
             sys.exit(1)
     elif python_version < python_min_version:
-        msg = ""
         if env["python_package"] in ("minimal", "full", "default"):
             logger.error(
                 f"Python version is incompatible. Found {python_version} but "
@@ -1581,9 +1580,9 @@ if env['python_package'] != 'none':
     else:
 
         if len(info) > expected_output_lines:
-            msg = "\n| ".join(info[expected_output_lines:])
-            logger.warning(
-                f"Unexpected output while checking Python dependency versions:{msg}")
+            msg = ["Unexpected output while checking Python dependency versions:"]
+            msg.extend(info[expected_output_lines:])
+            logger.warning("\n| ".join(msg))
 
         warn_no_full_package = False
         if python_version >= parse_version("3.8"):
