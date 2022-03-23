@@ -577,7 +577,7 @@ public:
      * @param[out] d  flat vector of diffusion coefficients, fortran ordering.
      *            d[ld*j+i] is the D_ij diffusion coefficient (the diffusion
      *            coefficient for species i due to concentration gradients in 
-     *            species j).
+     *            species j). Units: m^2/s
      */
     virtual void getMultiDiffCoeffs(const size_t ld, doublereal* const d) {
         throw NotImplementedError("Transport::getMultiDiffCoeffs",
