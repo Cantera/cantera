@@ -33,6 +33,14 @@ binary: build
 	chmod a+x debian/cantera-common/usr/bin/*
 	rm -f debian/cantera-python3/usr/bin/*
 	rm -rf debian/cantera-python3/usr/lib/python3/dist-packages/cantera/data
+	rm -f debian/cantera-python3/usr/lib/python3/dist-packages/LICENSE.txt
+	rm -f debian/cantera-python3/usr/lib/python3/dist-packages/README.rst
+	rm -f debian/cantera-python3/usr/lib/python3/dist-packages/SConscript
+	rm -f debian/cantera-python3/usr/lib/python3/dist-packages/pyproject.toml
+	rm -f debian/cantera-python3/usr/lib/python3/dist-packages/setup.cfg
+	rm -f debian/cantera-python3/usr/lib/python3/dist-packages/setup.cfg.in
+	rm -f debian/cantera-python3/usr/lib/python3/dist-packages/setup.py
+	rm -rf debian/cantera-python3/usr/lib/python3/dist-packages/dist
 
 	mkdir -p debian/cantera-dev/usr/lib/${DEB_HOST_MULTIARCH}/pkgconfig
 	mv debian/cantera-dev/usr/lib/pkgconfig/cantera.pc debian/cantera-dev/usr/lib/${DEB_HOST_MULTIARCH}/pkgconfig/
