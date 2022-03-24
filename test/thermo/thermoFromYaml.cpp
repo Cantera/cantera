@@ -392,7 +392,7 @@ TEST(ThermoFromYaml, IdealSolidSolnPhase)
     EXPECT_NEAR(thermo->enthalpy_mass(), -15642788.8547624, 1e-4);
     EXPECT_NEAR(thermo->gibbs_mole(), -313642312.7114608, 1e-4);
 
-    // Test that molar enthalpy equals sum(h_k*X_k). Test first at default 
+    // Test that molar enthalpy equals sum(h_k*X_k). Test first at default
     // pressure:
     double h_avg = 0;
     size_t N = thermo->nSpecies();

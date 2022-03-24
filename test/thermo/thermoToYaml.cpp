@@ -3,6 +3,7 @@
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/base/YamlWriter.h"
 #include "cantera/thermo/Species.h"
+#include "cantera/thermo/PlasmaPhase.h"
 
 using namespace Cantera;
 typedef std::vector<std::string> strvec;
@@ -303,6 +304,25 @@ TEST_F(ThermoToYaml, IdealMolalSolution)
     EXPECT_DOUBLE_EQ(eosData[2]["molar-volume"].asDouble(), 0.1);
 }
 
+TEST_F(ThermoToYaml, IsotropicElectronEnergyPlasma)
+{
+    setup("oxygen-plasma.yaml", "isotropic-electron-energy-plasma");
+    auto& electronEnergyDist = data["electron-energy-distribution"].as<AnyMap>();
+    EXPECT_EQ(electronEnergyDist["type"], "isotropic");
+    EXPECT_DOUBLE_EQ(electronEnergyDist["shape-factor"].asDouble(), 2.0);
+}
+
+TEST_F(ThermoToYaml, DiscretizedElectronEnergyPlasma)
+{
+    setup("oxygen-plasma.yaml", "discretized-electron-energy-plasma");
+    auto& electronEnergyDist = data["electron-energy-distribution"].as<AnyMap>();
+    vector_fp levels = electronEnergyDist["energy-levels"].asVector<double>();
+    vector_fp dist = electronEnergyDist["distribution"].asVector<double>();
+    EXPECT_EQ(electronEnergyDist["type"], "discretized");
+    EXPECT_DOUBLE_EQ(levels[3], 10.0);
+    EXPECT_DOUBLE_EQ(dist[3], 0.01);
+}
+
 
 class ThermoYamlRoundTrip : public testing::Test
 {
@@ -488,4 +508,24 @@ TEST_F(ThermoYamlRoundTrip, Surface)
     auto origSurf = std::dynamic_pointer_cast<SurfPhase>(original);
     auto duplSurf = std::dynamic_pointer_cast<SurfPhase>(duplicate);
     EXPECT_DOUBLE_EQ(origSurf->siteDensity(), duplSurf->siteDensity());
+}
+
+TEST_F(ThermoYamlRoundTrip, IsotropicElectronEnergyPlasma)
+{
+    roundtrip("oxygen-plasma.yaml", "isotropic-electron-energy-plasma");
+    compareThermo(800, 2*OneAtm);
+    auto origPlasma = std::dynamic_pointer_cast<PlasmaPhase>(original);
+    auto duplPlasma = std::dynamic_pointer_cast<PlasmaPhase>(duplicate);
+    vector_fp origDist(origPlasma->nElectronEnergyLevels());
+    vector_fp duplDist(duplPlasma->nElectronEnergyLevels());
+    origPlasma->getElectronEnergyLevels(origDist.data());
+    duplPlasma->getElectronEnergyLevels(duplDist.data());
+    EXPECT_DOUBLE_EQ(origDist[2], duplDist[2]);
+}
+
+TEST_F(ThermoYamlRoundTrip, DiscretizedElectronEnergyPlasma)
+{
+    roundtrip("oxygen-plasma.yaml", "discretized-electron-energy-plasma");
+    compareThermo(800, 2*OneAtm);
+    EXPECT_DOUBLE_EQ(original->electronTemperature(), duplicate->electronTemperature());
 }

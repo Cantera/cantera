@@ -120,7 +120,7 @@ public:
     //! @param  distrb The vector of electron energy distribution.
     //!                Length: #m_nPoints.
     void getElectronEnergyDistribution(double* distrb) const {
-        Eigen::Map<Eigen::VectorXd>(distrb, m_nPoints) = m_electronEnergyDist;
+        Eigen::Map<Eigen::ArrayXd>(distrb, m_nPoints) = m_electronEnergyDist;
     }
 
     //! Set the shape factor of isotropic electron energy distribution.
@@ -138,6 +138,10 @@ public:
     //! @param  Te Electron temperature in Kelvin
     virtual void setElectronTemperature(double Te);
 
+    //! Set mean electron energy [eV]. This method also sets electron temperature
+    //! accordingly.
+    void setMeanElectronEnergy(double energy);
+
     //! Get electron energy distribution type
     std::string electronEnergyDistributionType() const {
         return m_distributionType;
@@ -147,8 +151,8 @@ public:
     void setElectronEnergyDistributionType(const std::string& type);
 
     //! Mean electron energy [eV]
-    double meanElectronEnergy() {
-        return m_meanElectronEnergy;
+    double meanElectronEnergy() const {
+        return 3.0 / 2.0 * electronTemperature() * Boltzmann / ElectronCharge;
     }
 
     virtual bool addSpecies(shared_ptr<Species> spec);
@@ -178,6 +182,10 @@ protected:
     //! Set isotropic electron energy distribution
     void setIsotropicElectronEnergyDistribution();
 
+    //! Update electron temperature (K) From energy distribution.
+    //! #m_electronTemp
+    void updateElectronTemperatureFromEnergyDist();
+
     // Electron energy order in the exponential term
     double m_isotropicShapeFactor;
 
@@ -190,9 +198,6 @@ protected:
     //! Normalized electron energy distribution vector [-]
     //! Length: #m_nPoints
     Eigen::ArrayXd m_electronEnergyDist;
-
-    //! Mean electron energy
-    double m_meanElectronEnergy;
 
     //! Index of electron species
     size_t m_electronSpeciesIndex;

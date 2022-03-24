@@ -28,9 +28,9 @@ PlasmaPhase::PlasmaPhase(const std::string& inputFile, const std::string& id_)
 
 void PlasmaPhase::updateElectronEnergyDistribution()
 {
-    if (m_distributionType == "user-specified") {
+    if (m_distributionType == "discretized") {
         throw CanteraError("PlasmaPhase::updateElectronEnergyDistribution",
-            "Invalid for user-specified electron energy distribution.");
+            "Invalid for discretized electron energy distribution.");
     } else if (m_distributionType == "isotropic") {
         setIsotropicElectronEnergyDistribution();
     }
@@ -38,7 +38,7 @@ void PlasmaPhase::updateElectronEnergyDistribution()
 
 void PlasmaPhase::setElectronEnergyDistributionType(const std::string& type)
 {
-    if (type == "user-specified" ||
+    if (type == "discretized" ||
         type == "isotropic") {
         m_distributionType = type;
     } else {
@@ -57,15 +57,18 @@ void PlasmaPhase::setIsotropicElectronEnergyDistribution()
     double c2 = x * std::pow(gamma2 / gamma1, x);
     m_electronEnergyDist =
         c1 * m_electronEnergyLevels.sqrt() /
-        std::pow(m_meanElectronEnergy, 1.5) *
+        std::pow(meanElectronEnergy(), 1.5) *
         (-c2 * (m_electronEnergyLevels /
-        m_meanElectronEnergy).pow(x)).exp();
+        meanElectronEnergy()).pow(x)).exp();
 }
 
 void PlasmaPhase::setElectronTemperature(const double Te) {
     m_electronTemp = Te;
-    m_meanElectronEnergy = 3.0 / 2.0 * electronTemperature() *
-                           Boltzmann / ElectronCharge;
+    updateElectronEnergyDistribution();
+}
+
+void PlasmaPhase::setMeanElectronEnergy(double energy) {
+    m_electronTemp = 2.0 / 3.0 * energy * ElectronCharge / Boltzmann;
     updateElectronEnergyDistribution();
 }
 
@@ -76,22 +79,43 @@ void PlasmaPhase::setElectronEnergyLevels(const double* levels, size_t length)
     updateElectronEnergyDistribution();
 }
 
+void PlasmaPhase::checkElectronEnergyDistribution() const
+{
+    if ((m_electronEnergyLevels < 0.0).any()) {
+        throw CanteraError("PlasmaPhase::checkElectronEnergyDistribution",
+            "Values of electron energy levels cannot be negative.");
+    }
+    if ((m_electronEnergyDist < 0.0).any()) {
+        throw CanteraError("PlasmaPhase::checkElectronEnergyDistribution",
+            "Values of electron energy distribution cannot be negative.");
+    }
+    if (m_electronEnergyDist[m_nPoints - 1] > 0.01) {
+        warn_user("PlasmaPhase::checkElectronEnergyDistribution",
+        "The value of the last element of electron energy distribution exceed 0.01. "
+        "This indicates that the value of electron energy level is not high enough "
+        "to contain the isotropic distribution at mean electron energy of "
+        "{} eV", meanElectronEnergy());
+    }
+}
+
 void PlasmaPhase::setElectronEnergyDistribution(const double* levels,
                                                 const double* dist,
                                                 size_t length)
 {
-    m_distributionType = "user-specified";
+    m_distributionType = "discretized";
     m_nPoints = length;
     m_electronEnergyLevels =
         Eigen::Map<const Eigen::ArrayXd>(levels, length);
     m_electronEnergyDist =
         Eigen::Map<const Eigen::ArrayXd>(dist, length);
-    // calculate mean electron energy and electron temperature
+    updateElectronTemperatureFromEnergyDist();
+}
+
+void PlasmaPhase::updateElectronTemperatureFromEnergyDist()
+{
     Eigen::ArrayXd eps52 = m_electronEnergyLevels.pow(5./2.);
-    m_meanElectronEnergy =
-        2.0 / 5.0 * trapezoidal(m_electronEnergyDist, eps52);
-    m_electronTemp = 2.0 / 3.0 * m_meanElectronEnergy *
-         ElectronCharge / Boltzmann;
+    double epsilon_m = 2.0 / 5.0 * trapezoidal(m_electronEnergyDist, eps52);
+    m_electronTemp = 2.0 / 3.0 * epsilon_m * ElectronCharge / Boltzmann;
 }
 
 void PlasmaPhase::setIsotropicShapeFactor(double x) {
@@ -104,7 +128,17 @@ void PlasmaPhase::getParameters(AnyMap& phaseNode) const
     IdealGasPhase::getParameters(phaseNode);
     AnyMap eedf;
     eedf["type"] = m_distributionType;
-    eedf["shape-factor"] = AnyValue(m_isotropicShapeFactor);
+    vector_fp levels(m_nPoints);
+    Eigen::Map<Eigen::ArrayXd>(levels.data(), m_nPoints) = m_electronEnergyLevels;
+    eedf["energy-levels"] = levels;
+    if (m_distributionType == "isotropic") {
+        eedf["shape-factor"] = m_isotropicShapeFactor;
+        eedf["mean-electron-energy"].setQuantity(meanElectronEnergy(), "eV");
+    } else if (m_distributionType == "discretized") {
+        vector_fp dist(m_nPoints);
+        Eigen::Map<Eigen::ArrayXd>(dist.data(), m_nPoints) = m_electronEnergyDist;
+        eedf["distribution"] = dist;
+    }
     phaseNode["electron-energy-distribution"] = std::move(eedf);
 }
 
@@ -114,7 +148,33 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
     if (phaseNode.hasKey("electron-energy-distribution")) {
         const AnyMap eedf = phaseNode["electron-energy-distribution"].as<AnyMap>();
         m_distributionType = eedf["type"].asString();
-        m_isotropicShapeFactor = eedf["shape-factor"].asDouble();
+        if (m_distributionType == "isotropic") {
+            if (eedf.hasKey("shape-factor")) {
+                m_isotropicShapeFactor = eedf["shape-factor"].asDouble();
+            } else {
+                throw CanteraError("PlasmaPhase::setParameters",
+                    "isotropic type requires shape-factor key.");
+            }
+            if (eedf.hasKey("mean-electron-energy")) {
+                double energy = eedf.convert("mean-electron-energy", "eV");
+                setMeanElectronEnergy(energy);
+            } else {
+                throw CanteraError("PlasmaPhase::setParameters",
+                    "isotropic type requires electron-temperature key.");
+            }
+        } else if (m_distributionType == "discretized") {
+            if (!eedf.hasKey("energy-levels")) {
+                throw CanteraError("PlasmaPhase::setParameters",
+                    "Cannot find key energy-levels.");
+            }
+            if (!eedf.hasKey("distribution")) {
+                throw CanteraError("PlasmaPhase::setParameters",
+                    "Cannot find key distribution.");
+            }
+            setElectronEnergyDistribution(eedf["energy-levels"].asVector<double>().data(),
+                                          eedf["distribution"].asVector<double>().data(),
+                                          eedf["energy-levels"].asVector<double>().size());
+        }
     }
 }
 
