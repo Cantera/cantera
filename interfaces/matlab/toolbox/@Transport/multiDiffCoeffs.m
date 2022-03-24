@@ -19,8 +19,10 @@ function v = multiDiffCoeffs(a)
 %     object derived from Transport)
 %     for which multicomponent diffusion coefficients are desired.
 % :return:
-%     Vector of length nSpecies with the multicomponent diffusion
-%     coefficients. Units: m**2/s
+%     Matrix of size [nSpecies, nSpecies] with the multicomponent 
+%     diffusion coefficients D(i,j), the diffusion coefficient for 
+%     species i due to concentration gradients in species j. 
+%     Units: m^2/s
 %
 
 v = trans_get(a.id, 22, nSpecies(a.th));
