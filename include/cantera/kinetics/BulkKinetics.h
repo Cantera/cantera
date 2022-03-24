@@ -11,17 +11,21 @@
 
 #include "Kinetics.h"
 #include "RateCoeffMgr.h"
+#include "ThirdBodyCalc.h"
+#include "cantera/kinetics/MultiRate.h"
 
 namespace Cantera
 {
 
-class ElementaryReaction;
+class ElementaryReaction2;
 
 //! Partial specialization of Kinetics for chemistry in a single bulk phase
 class BulkKinetics : public Kinetics
 {
 public:
-    BulkKinetics(thermo_t* thermo = 0);
+    BulkKinetics(ThermoPhase* thermo = 0);
+
+    virtual void resizeReactions();
 
     virtual bool isReversible(size_t i);
 
@@ -33,20 +37,28 @@ public:
     virtual void getDeltaSSEnthalpy(doublereal* deltaH);
     virtual void getDeltaSSEntropy(doublereal* deltaS);
 
-    virtual void getRevRateConstants(doublereal* krev,
+    virtual void getRevRateConstants(double* krev,
                                      bool doIrreversible = false);
 
-    virtual bool addReaction(shared_ptr<Reaction> r);
+    virtual bool addReaction(shared_ptr<Reaction> r, bool resize=true);
+    virtual void modifyReaction(size_t i, shared_ptr<Reaction> rNew);
+
     virtual void resizeSpecies();
 
     virtual void setMultiplier(size_t i, double f);
     virtual void invalidateCache();
 
-protected:
-    virtual void addElementaryReaction(ElementaryReaction& r);
-    virtual void modifyElementaryReaction(size_t i, ElementaryReaction& rNew);
+    void addThirdBody(shared_ptr<Reaction> r);
 
-    Rate1<Arrhenius> m_rates;
+protected:
+    virtual void addElementaryReaction(ElementaryReaction2& r);
+    virtual void modifyElementaryReaction(size_t i, ElementaryReaction2& rNew);
+
+    //! Vector of rate handlers
+    std::vector<unique_ptr<MultiRateBase>> m_bulk_rates;
+    std::map<std::string, size_t> m_bulk_types; //!< Mapping of rate handlers
+
+    Rate1<Arrhenius2> m_rates; //!< @deprecated (legacy only)
     std::vector<size_t> m_revindex; //!< Indices of reversible reactions
     std::vector<size_t> m_irrev; //!< Indices of irreversible reactions
 
@@ -55,7 +67,17 @@ protected:
     //! valued stoichiometries.
     vector_fp m_dn;
 
-    vector_fp m_conc;
+    ThirdBodyCalc3 m_multi_concm; //!< used with MultiRate evaluator
+
+    //! Third body concentrations
+    vector_fp m_concm;
+
+    //! Activity concentrations, as calculated by ThermoPhase::getActivityConcentrations
+    vector_fp m_act_conc;
+
+    //! Physical concentrations, as calculated by ThermoPhase::getConcentrations
+    vector_fp m_phys_conc;
+
     vector_fp m_grt;
 
     bool m_ROP_ok;

@@ -216,19 +216,15 @@ namespace Cantera
 class RedlichKisterVPSSTP : public GibbsExcessVPSSTP
 {
 public:
-    //! Constructor
-    /*!
-     * This doesn't do much more than initialize constants with default values.
-     */
-    RedlichKisterVPSSTP();
-
     //! Construct a RedlichKisterVPSSTP object from an input file
     /*!
-     * @param inputFile Name of the input file containing the phase definition
+     * @param inputFile Name of the input file containing the phase definition.
+     *                  If blank, an empty phase will be created.
      * @param id        name (ID) of the phase in the input file. If empty, the
      *                  first phase definition in the input file will be used.
      */
-    RedlichKisterVPSSTP(const std::string& inputFile, const std::string& id = "");
+    explicit RedlichKisterVPSSTP(const std::string& inputFile="",
+                                 const std::string& id="");
 
     //! Construct and initialize a RedlichKisterVPSSTP ThermoPhase object
     //! directly from an XML database
@@ -268,9 +264,9 @@ public:
 
     virtual void getLnActivityCoefficients(doublereal* lnac) const;
 
-    //@}
-    /// @name  Partial Molar Properties of the Solution
-    //@{
+    //! @}
+    //! @name  Partial Molar Properties of the Solution
+    //! @{
 
     virtual void getChemPotentials(doublereal* mu) const;
 
@@ -335,6 +331,7 @@ public:
     virtual void getPartialMolarCp(doublereal* cpbar) const;
 
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
+    //! @}
 
     //! Get the array of temperature second derivatives of the log activity
     //! coefficients
@@ -348,7 +345,6 @@ public:
 
     virtual void getdlnActCoeffdT(doublereal* dlnActCoeffdT) const;
 
-    /// @}
     /// @name Initialization
     /// The following methods are used in the process of constructing
     /// the phase and setting its parameters from a specification in an
@@ -356,6 +352,7 @@ public:
     /// To see how they are used, see importPhase().
 
     virtual void initThermo();
+    virtual void getParameters(AnyMap& phaseNode) const;
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     //! Add a binary species interaction with the specified parameters
@@ -371,7 +368,6 @@ public:
         const double* excess_enthalpy, size_t n_enthalpy,
         const double* excess_entropy, size_t n_entropy);
 
-    //! @}
     //! @name  Derivatives of Thermodynamic Variables needed for Applications
     //! @{
 
@@ -379,8 +375,7 @@ public:
     virtual void getdlnActCoeffdlnX_diag(doublereal* dlnActCoeffdlnX_diag) const;
     virtual void getdlnActCoeffdlnN_diag(doublereal* dlnActCoeffdlnN_diag) const;
     virtual void getdlnActCoeffdlnN(const size_t ld, doublereal* const dlnActCoeffdlnN);
-
-    //@}
+    //! @}
 
 private:
     //! Process an XML node called "binaryNeutralSpeciesParameters"

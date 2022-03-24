@@ -4,6 +4,35 @@
 
 using namespace Cantera;
 
+TEST(Units, from_string) {
+    EXPECT_EQ(Units("").str(), "1");
+    EXPECT_EQ(Units("1.").str(), "1");
+    EXPECT_EQ(Units("kg").str(), "kg");
+    EXPECT_EQ(Units("1.0 kg^0.5").str(), "kg^0.5");
+    EXPECT_EQ(Units("kg / m^3").str(), "kg / m^3");
+    EXPECT_EQ(Units("1 / s").str(), "1 / s");
+    EXPECT_EQ(Units("0.001 m^3").factor(), 0.001);
+    EXPECT_EQ(Units("0.001 m^3").str(), "0.001 m^3");
+}
+
+TEST(Units, from_string_long) {
+    EXPECT_EQ(Units("").str(false), "1.0");
+    EXPECT_EQ(Units("1.").str(false), "1.0");
+    EXPECT_EQ(Units("2").str(false), "2.0");
+    EXPECT_EQ(Units("kg").str(false), "1.0 kg");
+    EXPECT_EQ(Units("1.0 kg^0.5").str(false), "1.0 kg^0.5");
+    EXPECT_EQ(Units("kg / m^3").str(false), "1.0 kg / m^3");
+}
+
+TEST(Units, from_string_fail) {
+    EXPECT_THROW(Units("2", true), CanteraError);
+    EXPECT_THROW(Units("1 cal", true), CanteraError);
+    EXPECT_THROW(Units("1 atm", true), CanteraError);
+    EXPECT_THROW(Units("1 bar", true), CanteraError);
+    EXPECT_THROW(Units("1 kJ", true), CanteraError);
+    EXPECT_THROW(Units("0.001 m^3", true), CanteraError);
+}
+
 TEST(Units, convert_to_base_units) {
     UnitSystem U;
     EXPECT_DOUBLE_EQ(U.convert(1.0, "Pa", "kg/m/s^2"), 1.0);
@@ -42,20 +71,23 @@ TEST(Units, prefixes) {
 
 TEST(Units, with_defaults1) {
     UnitSystem U({"cm", "g", "mol", "atm", "kcal"});
-    EXPECT_DOUBLE_EQ(U.convert(1.0, "m"), 0.01);
-    EXPECT_DOUBLE_EQ(U.convert(1.0, "kmol/m^3"), 1000);
-    EXPECT_DOUBLE_EQ(U.convert(1.0, "kg/kmol"), 1.0);
-    EXPECT_DOUBLE_EQ(U.convert(1.0, "cm^2"), 1.0);
-    EXPECT_DOUBLE_EQ(U.convert(1.0, "Pa"), 101325);
-    EXPECT_DOUBLE_EQ(U.convert(1.0, "hPa"), 1013.25);
-    EXPECT_DOUBLE_EQ(U.convert(1.0, "Pa*m^6/kmol"), 101325*1e-12*1000);
-    EXPECT_DOUBLE_EQ(U.convert(1.0, "J"), 4184);
+    EXPECT_DOUBLE_EQ(U.convertTo(1.0, "m"), 0.01);
+    EXPECT_DOUBLE_EQ(U.convertTo(1.0, "kmol/m^3"), 1000);
+    EXPECT_DOUBLE_EQ(U.convertTo(1.0, "kg/kmol"), 1.0);
+    EXPECT_DOUBLE_EQ(U.convertTo(1.0, "cm^2"), 1.0);
+    EXPECT_DOUBLE_EQ(U.convertTo(1.0, "Pa"), 101325);
+    EXPECT_DOUBLE_EQ(U.convertFrom(101325, "Pa"), 1.0);
+    EXPECT_DOUBLE_EQ(U.convertTo(1.0, "hPa"), 1013.25);
+    EXPECT_DOUBLE_EQ(U.convertTo(1.0, "Pa*m^6/kmol"), 101325*1e-12*1000);
+    EXPECT_DOUBLE_EQ(U.convertTo(1.0, "J"), 4184);
 }
 
 TEST(Units, with_defaults2) {
-    UnitSystem U({"dyn/cm^2"});
-    EXPECT_DOUBLE_EQ(U.convert(1.0, "Pa"), 0.1);
-    EXPECT_DOUBLE_EQ(U.convert(1.0, "N/m^2"), 1.0);
+    UnitSystem U({"dyn/cm^2", "K"});
+    EXPECT_DOUBLE_EQ(U.convertTo(1.0, "Pa"), 0.1);
+    EXPECT_DOUBLE_EQ(U.convertFrom(1.0, "Pa"), 10);
+    EXPECT_DOUBLE_EQ(U.convertTo(1.0, "N/m^2"), 1.0);
+    EXPECT_DOUBLE_EQ(U.convertTo(300.0, "K"), 300.0);
 }
 
 TEST(Units, with_defaults_map) {
@@ -65,14 +97,14 @@ TEST(Units, with_defaults_map) {
     };
     UnitSystem U;
     U.setDefaults(defaults);
-    EXPECT_DOUBLE_EQ(U.convert(1.0, "m"), 0.01);
-    EXPECT_DOUBLE_EQ(U.convert(1.0, "kmol/m^3"), 1000);
-    EXPECT_DOUBLE_EQ(U.convert(1.0, "kg/kmol"), 1.0);
-    EXPECT_DOUBLE_EQ(U.convert(1.0, "cm^2"), 1.0);
-    EXPECT_DOUBLE_EQ(U.convert(1.0, "Pa"), 101325);
-    EXPECT_DOUBLE_EQ(U.convert(1.0, "hPa"), 1013.25);
-    EXPECT_DOUBLE_EQ(U.convert(1.0, "Pa*m^6/kmol"), 101325*1e-12*1000);
-    EXPECT_DOUBLE_EQ(U.convert(1.0, "J/cm^3"), 1.0);
+    EXPECT_DOUBLE_EQ(U.convertFrom(0.01, "m"), 1.0);
+    EXPECT_DOUBLE_EQ(U.convertTo(1.0, "kmol/m^3"), 1000);
+    EXPECT_DOUBLE_EQ(U.convertTo(1.0, "kg/kmol"), 1.0);
+    EXPECT_DOUBLE_EQ(U.convertTo(1.0, "cm^2"), 1.0);
+    EXPECT_DOUBLE_EQ(U.convertTo(1.0, "Pa"), 101325);
+    EXPECT_DOUBLE_EQ(U.convertTo(1.0, "hPa"), 1013.25);
+    EXPECT_DOUBLE_EQ(U.convertTo(1.0, "Pa*m^6/kmol"), 101325*1e-12*1000);
+    EXPECT_DOUBLE_EQ(U.convertTo(1.0, "J/cm^3"), 1.0);
 }
 
 TEST(Units, bad_defaults) {
@@ -96,23 +128,25 @@ TEST(Units, activation_energies2) {
     UnitSystem U;
     U.setDefaultActivationEnergy("cal/mol");
     U.setDefaults({"cm", "g", "J"});
-    EXPECT_DOUBLE_EQ(U.convertActivationEnergy(1000, "cal/mol"), 1000);
-    EXPECT_DOUBLE_EQ(U.convertActivationEnergy(1000, "J/kmol"), 4184e3);
-    EXPECT_DOUBLE_EQ(U.convertActivationEnergy(1000, "K"), 4184e3 / GasConstant);
+    EXPECT_DOUBLE_EQ(U.convertActivationEnergyTo(1000, "cal/mol"), 1000);
+    EXPECT_DOUBLE_EQ(U.convertActivationEnergyTo(1000, "J/kmol"), 4184e3);
+    EXPECT_DOUBLE_EQ(U.convertActivationEnergyFrom(4184e3, "J/kmol"), 1000);
+    EXPECT_DOUBLE_EQ(U.convertActivationEnergyTo(1000, "K"), 4184e3 / GasConstant);
 }
 
 TEST(Units, activation_energies3) {
     UnitSystem U({"cal", "mol"});
-    EXPECT_DOUBLE_EQ(U.convertActivationEnergy(1000, "cal/mol"), 1000);
-    EXPECT_DOUBLE_EQ(U.convertActivationEnergy(1000, "J/kmol"), 4184e3);
-    EXPECT_DOUBLE_EQ(U.convertActivationEnergy(1000, "K"), 4184e3 / GasConstant);
+    EXPECT_DOUBLE_EQ(U.convertActivationEnergyTo(1000, "cal/mol"), 1000);
+    EXPECT_DOUBLE_EQ(U.convertActivationEnergyTo(1000, "J/kmol"), 4184e3);
+    EXPECT_DOUBLE_EQ(U.convertActivationEnergyTo(1000, "K"), 4184e3 / GasConstant);
+    EXPECT_DOUBLE_EQ(U.convertActivationEnergyFrom(4184e3 / GasConstant, "K"), 1000);
 }
 
 TEST(Units, activation_energies4) {
     UnitSystem U;
     U.setDefaultActivationEnergy("K");
-    EXPECT_DOUBLE_EQ(U.convertActivationEnergy(2000, "K"), 2000);
-    EXPECT_DOUBLE_EQ(U.convertActivationEnergy(2000, "J/kmol"), 2000 * GasConstant);
+    EXPECT_DOUBLE_EQ(U.convertActivationEnergyTo(2000, "K"), 2000);
+    EXPECT_DOUBLE_EQ(U.convertActivationEnergyTo(2000, "J/kmol"), 2000 * GasConstant);
 }
 
 TEST(Units, activation_energies5) {
@@ -121,8 +155,8 @@ TEST(Units, activation_energies5) {
         {"quantity", "mol"}, {"energy", "cal"}, {"activation-energy", "K"}
     };
     U.setDefaults(defaults);
-    EXPECT_DOUBLE_EQ(U.convertActivationEnergy(2000, "K"), 2000);
-    EXPECT_DOUBLE_EQ(U.convertActivationEnergy(2000, "J/kmol"), 2000 * GasConstant);
+    EXPECT_DOUBLE_EQ(U.convertActivationEnergyTo(2000, "K"), 2000);
+    EXPECT_DOUBLE_EQ(U.convertActivationEnergyTo(2000, "J/kmol"), 2000 * GasConstant);
 }
 
 TEST(Units, activation_energies6) {
@@ -131,8 +165,14 @@ TEST(Units, activation_energies6) {
         {"activation-energy", "eV"}
     };
     U.setDefaults(defaults);
-    EXPECT_DOUBLE_EQ(U.convertActivationEnergy(1, "J/kmol"), ElectronCharge * Avogadro);
-    EXPECT_DOUBLE_EQ(U.convertActivationEnergy(1, "eV"), 1.0);
+    EXPECT_DOUBLE_EQ(U.convertActivationEnergyTo(1, "J/kmol"), ElectronCharge * Avogadro);
+    EXPECT_DOUBLE_EQ(U.convertActivationEnergyTo(1, "eV"), 1.0);
+}
+
+TEST(Units, activation_energies_bad) {
+    UnitSystem U;
+    EXPECT_THROW(U.convertActivationEnergyTo(1000, "kg"), CanteraError);
+    EXPECT_THROW(U.convertActivationEnergyFrom(1000, "K^2"), CanteraError);
 }
 
 TEST(Units, from_anymap) {
@@ -140,7 +180,8 @@ TEST(Units, from_anymap) {
         "{p: 12 bar, v: 10, A: 1 cm^2, V: 1,"
         " k1: [5e2, 2, 29000], k2: [1e14, -1, 1300 cal/kmol]}");
     UnitSystem U({"mm", "min", "atm"});
-    m.applyUnits(U);
+    m.setUnits(U);
+    m.applyUnits();
     EXPECT_DOUBLE_EQ(m.convert("p", "Pa"), 12e5);
     EXPECT_DOUBLE_EQ(m.convert("v", "cm/min"), 1.0);
     EXPECT_DOUBLE_EQ(m.convert("A", "mm^2"), 100);
@@ -148,6 +189,12 @@ TEST(Units, from_anymap) {
     auto k1 = m["k1"].asVector<AnyValue>();
     EXPECT_DOUBLE_EQ(U.convert(k1[0], "m^3/kmol"), 1e-9*5e2);
     EXPECT_DOUBLE_EQ(U.convertActivationEnergy(k1[2], "J/kmol"), 29000);
+
+    // calling applyUnits again should not affect results
+    m.setUnits(U);
+    m.applyUnits();
+    EXPECT_DOUBLE_EQ(m.convert("p", "Pa"), 12e5);
+    EXPECT_DOUBLE_EQ(U.convert(k1[0], "m^3/kmol"), 1e-9*5e2);
 }
 
 TEST(Units, from_anymap_default) {
@@ -156,6 +203,70 @@ TEST(Units, from_anymap_default) {
     EXPECT_DOUBLE_EQ(m.convert("p1", "Pa", 999), 999);
     EXPECT_DOUBLE_EQ(m.convert("h0", "J/kmol", 999), 41.84);
     EXPECT_DOUBLE_EQ(m.convert("h1", "J/kmol", 999), 999);
+}
+
+TEST(Units, to_anymap) {
+    UnitSystem U{"kcal", "mol", "cm"};
+    AnyMap m;
+    m["h0"].setQuantity(90, "kJ/kg");
+    m["density"].setQuantity({10, 20}, "kg/m^3");
+    m.setUnits(U);
+    m.applyUnits();
+    EXPECT_DOUBLE_EQ(m["h0"].asDouble(), 90e3 / 4184);
+    EXPECT_DOUBLE_EQ(m["density"].asVector<double>()[1], 20.0 * 1e-6);
+}
+
+TEST(Units, anymap_quantities) {
+    AnyMap m;
+    std::vector<AnyValue> values(2);
+    values[0].setQuantity(8, "kg/m^3");
+    values[1].setQuantity(12, "mg/cl");
+    m["a"] = values;
+    values.emplace_back("hello");
+    m["b"] = values;
+    m.applyUnits();
+    EXPECT_TRUE(m["a"].is<vector_fp>());
+    m.applyUnits();
+    EXPECT_TRUE(m["a"].is<vector_fp>());
+    auto converted = m["a"].asVector<double>();
+    EXPECT_DOUBLE_EQ(converted[0], 8.0);
+    EXPECT_DOUBLE_EQ(converted[1], 1.2);
+    EXPECT_FALSE(m["b"].is<vector_fp>());
+}
+
+TEST(Units, to_anymap_nested) {
+    UnitSystem U1{"g", "cm", "mol"};
+    UnitSystem U2{"mg", "km"};
+    for (int i = 0; i < 4; i++) {
+        AnyMap m;
+        m["A"].setQuantity(90, "kg/m");
+        m["nested"]["B"].setQuantity(12, "m^2");
+        auto C = std::vector<AnyMap>(2);
+        C[0]["foo"].setQuantity(17, "m^2");
+        C[1]["bar"].setQuantity(19, "kmol");
+        m["nested"]["C"] = C;
+        // Test different orders of setting units, and repeated calls to setUnits
+        if (i == 0) {
+            m.setUnits(U1);
+            m["nested"].as<AnyMap>().setUnits(U2);
+        } else if (i == 1) {
+            m["nested"].as<AnyMap>().setUnits(U2);
+            m.setUnits(U1);
+        } else if (i == 2) {
+            m.setUnits(U1);
+            m["nested"].as<AnyMap>().setUnits(U2);
+            m.setUnits(U1);
+        } else if (i == 3) {
+            m["nested"].as<AnyMap>().setUnits(U2);
+            m.setUnits(U1);
+            m["nested"].as<AnyMap>().setUnits(U2);
+        }
+        m.applyUnits();
+        EXPECT_DOUBLE_EQ(m["A"].asDouble(), 900) << "case " << i;
+        EXPECT_DOUBLE_EQ(m["nested"]["B"].asDouble(), 12e-6) << "case " << i;
+        EXPECT_DOUBLE_EQ(m["nested"]["C"].asVector<AnyMap>()[0]["foo"].asDouble(), 17e-6);
+        EXPECT_DOUBLE_EQ(m["nested"]["C"].asVector<AnyMap>()[1]["bar"].asDouble(), 19000);
+    }
 }
 
 TEST(Units, from_yaml) {
@@ -172,10 +283,10 @@ TEST(Units, from_yaml) {
     );
 
     EXPECT_FALSE(m.hasKey("units"));
-    EXPECT_DOUBLE_EQ(m.units().convert(1, "m"), 1000);
+    EXPECT_DOUBLE_EQ(m.units().convertTo(1, "m"), 1000);
     auto& foo = m["foo"].asVector<AnyMap>();
-    EXPECT_DOUBLE_EQ(foo[0].units().convert(1, "m"), 0.01);
-    EXPECT_DOUBLE_EQ(foo[1].units().convert(1, "m"), 0.001);
+    EXPECT_DOUBLE_EQ(foo[0].units().convertTo(1, "m"), 0.01);
+    EXPECT_DOUBLE_EQ(foo[1].units().convertTo(1, "m"), 0.001);
     EXPECT_DOUBLE_EQ(foo[0].convert("bar", "m"), 0.006);
     auto& spam = m["spam"].asVector<AnyMap>();
     EXPECT_DOUBLE_EQ(spam[0].convert("eggs", "m"), 3000);
@@ -196,4 +307,47 @@ TEST(Units, act_energy_from_yaml) {
     EXPECT_DOUBLE_EQ(foo[1].units().convertActivationEnergy(foo[1]["baz"], "K"), 0.2);
     EXPECT_DOUBLE_EQ(foo[0].convert("bar", "J/mol"), 0.0006);
     EXPECT_DOUBLE_EQ(foo[1].convert("baz", "J/mol"), 0.2);
+}
+
+TEST(UnitStack, aggregate) {
+    Units stdUnits = Units("m");
+    UnitStack ustack(stdUnits);
+    EXPECT_EQ(ustack.size(), 1);
+    EXPECT_TRUE(ustack.standardUnits() == stdUnits);
+    EXPECT_DOUBLE_EQ(ustack.standardExponent(), 0.);
+    EXPECT_DOUBLE_EQ(ustack.standardExponent(), 0.);
+    ustack.join(1.);
+    EXPECT_DOUBLE_EQ(ustack.standardExponent(), 1.);
+    ustack.update(stdUnits, 1.); // same effect as join
+    EXPECT_EQ(ustack.size(), 1);
+    EXPECT_DOUBLE_EQ(ustack.standardExponent(), 2.);
+    EXPECT_EQ(ustack.product().str(), "m^2");
+
+    ustack.update(Units("s"), -1);
+    EXPECT_EQ(ustack.size(), 2);
+    EXPECT_EQ(ustack.product().str(), "m^2 / s");
+
+    Units net = ustack.product();
+    EXPECT_DOUBLE_EQ(net.dimension("length"), 2.);
+    EXPECT_DOUBLE_EQ(net.dimension("time"), -1);
+    EXPECT_DOUBLE_EQ(net.dimension("mass"), 0);
+    EXPECT_DOUBLE_EQ(net.dimension("quantity"), 0);
+    EXPECT_DOUBLE_EQ(net.dimension("temperature"), 0);
+    EXPECT_DOUBLE_EQ(net.dimension("current"), 0);
+}
+
+TEST(UnitStack, empty) {
+    UnitStack ustack({});
+    EXPECT_EQ(ustack.size(), 0);
+    EXPECT_TRUE(ustack.standardUnits() == Units(0));
+    EXPECT_TRUE(std::isnan(ustack.standardExponent()));
+}
+
+TEST(UnitStack, from_list) {
+    Units stdUnits = Units("m");
+    UnitStack ustack({std::make_pair(stdUnits, 2), std::make_pair(Units("s"), -1)});
+    EXPECT_EQ(ustack.size(), 2);
+    EXPECT_TRUE(ustack.standardUnits() == stdUnits);
+    EXPECT_DOUBLE_EQ(ustack.standardExponent(), 2.);
+    EXPECT_EQ(ustack.product().str(), "m^2 / s");
 }

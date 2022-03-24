@@ -1,0 +1,238 @@
+generator: ctml2yaml + manual combination
+cantera-version: 2.6.0a2
+date: Sat, 15 May 2021 20:31:52 -0400
+input-files: [test_problems/stoichSolidKinetics/ReactionSurf.xml,
+  test_problems/stoichSolidKinetics/solidPhases.xml,
+  test_problems/stoichSolidKinetics/gas.xml]
+
+phases:
+- name: reaction_surface
+  elements: [Ca, C, O, Fe, N]
+  species:
+  - species_ReactingSurf: [empty_site]
+  thermo: ideal-surface
+  adjacent-phases: [air, CaO(S), CaCO3(S), C(S), Fe3O4(S), FeO(S), Fe(S)]
+  site-density: 3.0e-09 mol/cm^2
+  kinetics: surface
+  reactions: all
+  state: {T: 1500.0 K, coverages: {empty_site: 1.0}}
+- name: air
+  elements: [O, H, C, Fe, Ca, N]
+  species:
+  - gas-species: [O2, H2, H, CH2O, CHO, OH, CO2, H2O, CH4, CO, N2]
+  thermo: ideal-gas
+  state: {T: 1500.0 K, P: 1.01325e+05 Pa}
+- name: CaO(S)
+  elements: [O, H, C, Fe, Ca, N]
+  species: [{solid-species: [CaO(S)]}]
+  thermo: fixed-stoichiometry
+- name: CaCO3(S)
+  elements: [O, H, C, Fe, Ca, N]
+  species: [{solid-species: [CaCO3(S)]}]
+  thermo: fixed-stoichiometry
+- name: C(S)
+  elements: [O, H, C, Fe, Ca, N]
+  species: [{solid-species: [C(d)]}]
+  thermo: fixed-stoichiometry
+- name: Fe3O4(S)
+  elements: [O, H, C, Fe, Ca, N]
+  species: [{solid-species: [Fe3O4(S)]}]
+  thermo: fixed-stoichiometry
+- name: FeO(S)
+  elements: [O, H, C, Fe, Ca, N]
+  species: [{solid-species: [FeO_Solid]}]
+  thermo: fixed-stoichiometry
+- name: Fe(S)
+  elements: [O, H, C, Fe, Ca, N]
+  species: [{solid-species: [Fe_Solid]}]
+  thermo: fixed-stoichiometry
+
+species_ReactingSurf:
+- name: empty_site
+  composition: {}
+  thermo:
+    model: constant-cp
+    T0: 298.15 K
+    h0: 0.0 kJ/mol
+    s0: 0.0 J/mol/K
+    cp0: 0.0 J/mol/K
+    T-max: 5000.0
+
+gas-species:
+- name: O2
+  composition: {O: 2.0}
+  thermo:
+    model: constant-cp
+    T0: 1500.0 K
+    h0: 0.0 J/mol
+    s0: 0.0 J/mol/K
+    cp0: 0.0 J/mol/K
+    T-max: 5000.0
+- name: H2
+  composition: {H: 2.0}
+  thermo:
+    model: constant-cp
+    T0: 1500.0 K
+    h0: 0.0 J/mol
+    s0: 0.0 J/mol/K
+    cp0: 0.0 J/mol/K
+    T-max: 5000.0
+- name: H
+  composition: {H: 1.0}
+  thermo:
+    model: constant-cp
+    T0: 1500.0 K
+    h0: 1.0e+06 J/mol
+    s0: 0.0 J/mol/K
+    cp0: 0.0 J/mol/K
+    T-max: 5000.0
+- name: CH2O
+  composition: {C: 1.0, H: 2.0, O: 1.0}
+  thermo:
+    model: constant-cp
+    T0: 1500.0 K
+    h0: -8.611e+04 J/mol
+    s0: 0.0 J/mol/K
+    cp0: 0.0 J/mol/K
+    T-max: 5000.0
+- name: CHO
+  composition: {C: 1.0, H: 1.0, O: 1.0}
+  thermo:
+    model: constant-cp
+    T0: 1500.0 K
+    h0: -6.255e+04 J/mol
+    s0: 0.0 J/mol/K
+    cp0: 0.0 J/mol/K
+    T-max: 5000.0
+- name: OH
+  composition: {H: 1.0, O: 1.0}
+  thermo:
+    model: constant-cp
+    T0: 1500.0 K
+    h0: 2.259e+04 J/mol
+    s0: 0.0 J/mol/K
+    cp0: 0.0 J/mol/K
+    T-max: 5000.0
+- name: CO2
+  composition: {C: 1.0, O: 2.0}
+  thermo:
+    model: constant-cp
+    T0: 1500.0 K
+    h0: -3.9597e+05 J/mol
+    s0: 0.0 J/mol/K
+    cp0: 0.0 J/mol/K
+    T-max: 5000.0
+- name: H2O
+  composition: {H: 2.0, O: 1.0}
+  thermo:
+    model: constant-cp
+    T0: 1500.0 K
+    h0: -1.8987e+05 J/mol
+    s0: 0.0 J/mol/K
+    cp0: 0.0 J/mol/K
+    T-max: 5000.0
+- name: CH4
+  composition: {C: 1.0, H: 4.0}
+  thermo:
+    model: constant-cp
+    T0: 1500.0 K
+    h0: 2.485e+04 J/mol
+    s0: 0.0 J/mol/K
+    cp0: 0.0 J/mol/K
+    T-max: 5000.0
+- name: CO
+  composition: {C: 1.0, O: 1.0}
+  thermo:
+    model: constant-cp
+    T0: 1500.0 K
+    h0: -2.0464e+05 J/mol
+    s0: 0.0 J/mol/K
+    cp0: 0.0 J/mol/K
+    T-max: 5000.0
+- name: N2
+  composition: {N: 2.0}
+  thermo:
+    model: constant-cp
+    T0: 1500.0 K
+    h0: 0.0 J/mol
+    s0: 0.0 J/mol/K
+    cp0: 0.0 J/mol/K
+    T-max: 5000.0
+
+solid-species:
+- name: CaO(S)
+  composition: {O: 1.0, Ca: 1.0}
+  thermo:
+    model: constant-cp
+    T0: 298.15 K
+    h0: -5.2919e+05 J/mol
+    s0: 0.0 J/mol/K
+    cp0: 0.0 J/mol/K
+    T-max: 5000.0
+  equation-of-state:
+    model: constant-volume
+    density: 3.52 g/cm^3
+- name: CaCO3(S)
+  composition: {Ca: 1.0, C: 1.0, O: 3.0}
+  thermo:
+    model: constant-cp
+    T0: 298.15 K
+    h0: -9.4245e+05 J/mol
+    s0: 0.0 J/mol/K
+    cp0: 0.0 J/mol/K
+    T-max: 5000.0
+  equation-of-state:
+    model: constant-volume
+    density: 3.52 g/cm^3
+- name: C(d)
+  composition: {C: 1.0}
+  thermo:
+    model: constant-cp
+    T0: 298.15 K
+    h0: 0.0 J/mol
+    s0: 0.0 J/mol/K
+    cp0: 0.0 J/mol/K
+    T-max: 5000.0
+  equation-of-state:
+    model: constant-volume
+    density: 3.52 g/cm^3
+- name: Fe3O4(S)
+  composition: {O: 4.0, Fe: 3.0}
+  thermo:
+    model: constant-cp
+    T0: 298.15 K
+    h0: -7.6266e+05 J/mol
+    s0: 0.0 J/mol/K
+    cp0: 0.0 J/mol/K
+    T-max: 5000.0
+  equation-of-state:
+    model: constant-volume
+    density: 3.52 g/cm^3
+- name: FeO_Solid
+  composition: {Fe: 1.0, O: 1.0}
+  thermo:
+    model: constant-cp
+    T0: 298.15 K
+    h0: -1.9393e+05 J/mol
+    s0: 0.0 J/mol/K
+    cp0: 0.0 J/mol/K
+    T-max: 5000.0
+  equation-of-state:
+    model: constant-volume
+    density: 3.52 g/cm^3
+- name: Fe_Solid
+  composition: {Fe: 1.0}
+  thermo:
+    model: constant-cp
+    T0: 298.15 K
+    h0: 0.0 J/mol
+    s0: 0.0 J/mol/K
+    cp0: 0.0 J/mol/K
+    T-max: 5000.0
+  equation-of-state:
+    model: constant-volume
+    density: 3.52 g/cm^3
+
+reactions:
+- equation: ' CaCO3(S) <=>  CaO(S) + CO2 '
+  rate-constant: {A: 1.0e-05, b: 0.0, Ea: 20.0 kJ/mol}

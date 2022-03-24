@@ -13,6 +13,7 @@
 
 #include "cantera/thermo/DebyeHuckel.h"
 #include "cantera/thermo/ThermoFactory.h"
+#include "cantera/thermo/Species.h"
 #include "cantera/thermo/PDSS_Water.h"
 #include "cantera/thermo/PDSS_ConstVol.h"
 #include "cantera/thermo/electrolytes.h"
@@ -26,30 +27,23 @@ using namespace std;
 namespace Cantera
 {
 
-DebyeHuckel::DebyeHuckel() :
-    m_formDH(DHFORM_DILUTE_LIMIT),
-    m_IionicMolality(0.0),
-    m_maxIionicStrength(30.0),
-    m_useHelgesonFixedForm(false),
-    m_IionicMolalityStoich(0.0),
-    m_form_A_Debye(A_DEBYE_CONST),
-    m_A_Debye(1.172576), // units = sqrt(kg/gmol)
-    m_B_Debye(3.28640E9), // units = sqrt(kg/gmol) / m
-    m_waterSS(0),
-    m_densWaterSS(1000.)
-{
+namespace {
+double A_Debye_default = 1.172576; // units = sqrt(kg/gmol)
+double B_Debye_default = 3.28640E9; // units = sqrt(kg/gmol) / m
+double maxIionicStrength_default = 30.0;
 }
 
 DebyeHuckel::DebyeHuckel(const std::string& inputFile,
                          const std::string& id_) :
     m_formDH(DHFORM_DILUTE_LIMIT),
+    m_Aionic_default(NAN),
     m_IionicMolality(0.0),
-    m_maxIionicStrength(30.0),
+    m_maxIionicStrength(maxIionicStrength_default),
     m_useHelgesonFixedForm(false),
     m_IionicMolalityStoich(0.0),
     m_form_A_Debye(A_DEBYE_CONST),
-    m_A_Debye(1.172576), // units = sqrt(kg/gmol)
-    m_B_Debye(3.28640E9), // units = sqrt(kg/gmol) / m
+    m_A_Debye(A_Debye_default),
+    m_B_Debye(B_Debye_default),
     m_waterSS(0),
     m_densWaterSS(1000.)
 {
@@ -58,13 +52,14 @@ DebyeHuckel::DebyeHuckel(const std::string& inputFile,
 
 DebyeHuckel::DebyeHuckel(XML_Node& phaseRoot, const std::string& id_) :
     m_formDH(DHFORM_DILUTE_LIMIT),
+    m_Aionic_default(NAN),
     m_IionicMolality(0.0),
-    m_maxIionicStrength(3.0),
+    m_maxIionicStrength(maxIionicStrength_default),
     m_useHelgesonFixedForm(false),
     m_IionicMolalityStoich(0.0),
     m_form_A_Debye(A_DEBYE_CONST),
-    m_A_Debye(1.172576), // units = sqrt(kg/gmol)
-    m_B_Debye(3.28640E9), // units = sqrt(kg/gmol) / m
+    m_A_Debye(A_Debye_default),
+    m_B_Debye(B_Debye_default),
     m_waterSS(0),
     m_densWaterSS(1000.)
 {
@@ -113,30 +108,6 @@ void DebyeHuckel::calcDensity()
     getPartialMolarVolumes(m_tmpV.data());
     double dd = meanMolecularWeight() / mean_X(m_tmpV);
     Phase::assignDensity(dd);
-}
-
-void DebyeHuckel::setDensity(doublereal rho)
-{
-    warn_deprecated("DebyeHuckel::setDensity",
-        "Overloaded function to be removed after Cantera 2.5. "
-        "Error will be thrown by Phase::setDensity instead");
-    double dens = density();
-    if (rho != dens) {
-        throw CanteraError("DebyeHuckel::setDensity",
-                           "Density is not an independent variable");
-    }
-}
-
-void DebyeHuckel::setMolarDensity(const doublereal conc)
-{
-    warn_deprecated("DebyeHuckel::setMolarDensity",
-        "Overloaded function to be removed after Cantera 2.5. "
-        "Error will be thrown by Phase::setMolarDensity instead");
-    double concI = molarDensity();
-    if (conc != concI) {
-        throw CanteraError("DebyeHuckel::setMolarDensity",
-                           "molarDensity/density is not an independent variable");
-    }
 }
 
 // ------- Activities and Activity Concentrations
@@ -387,6 +358,7 @@ void DebyeHuckel::setB_dot(double bdot)
 
 void DebyeHuckel::setDefaultIonicRadius(double value)
 {
+    m_Aionic_default = value;
     for (size_t k = 0; k < m_kk; k++) {
         if (std::isnan(m_Aionic[k])) {
             m_Aionic[k] = value;
@@ -627,6 +599,129 @@ void DebyeHuckel::initThermo()
         }
     }
 }
+
+void DebyeHuckel::getParameters(AnyMap& phaseNode) const
+{
+    MolalityVPSSTP::getParameters(phaseNode);
+    AnyMap activityNode;
+
+    switch (m_formDH) {
+    case DHFORM_DILUTE_LIMIT:
+        activityNode["model"] = "dilute-limit";
+        break;
+    case DHFORM_BDOT_AK:
+        activityNode["model"] = "B-dot-with-variable-a";
+        break;
+    case DHFORM_BDOT_ACOMMON:
+        activityNode["model"] = "B-dot-with-common-a";
+        break;
+    case DHFORM_BETAIJ:
+        activityNode["model"] = "beta_ij";
+        break;
+    case DHFORM_PITZER_BETAIJ:
+        activityNode["model"] = "Pitzer-with-beta_ij";
+        break;
+    }
+
+    if (m_form_A_Debye == A_DEBYE_WATER) {
+        activityNode["A_Debye"] = "variable";
+    } else if (m_A_Debye != A_Debye_default) {
+        activityNode["A_Debye"].setQuantity(m_A_Debye, "kg^0.5/gmol^0.5");
+    }
+
+    if (m_B_Debye != B_Debye_default) {
+        activityNode["B_Debye"].setQuantity(m_B_Debye, "kg^0.5/gmol^0.5/m");
+    }
+    if (m_maxIionicStrength != maxIionicStrength_default) {
+        activityNode["max-ionic-strength"] = m_maxIionicStrength;
+    }
+    if (m_useHelgesonFixedForm) {
+        activityNode["use-Helgeson-fixed-form"] = true;
+    }
+    if (!isnan(m_Aionic_default)) {
+        activityNode["default-ionic-radius"].setQuantity(m_Aionic_default, "m");
+    }
+    for (double B_dot : m_B_Dot) {
+        if (B_dot != 0.0) {
+            activityNode["B-dot"] = B_dot;
+            break;
+        }
+    }
+    if (m_Beta_ij.nRows() && m_Beta_ij.nColumns()) {
+        std::vector<AnyMap> beta;
+        for (size_t i = 0; i < m_kk; i++) {
+            for (size_t j = i; j < m_kk; j++) {
+                if (m_Beta_ij(i, j) != 0) {
+                    AnyMap entry;
+                    entry["species"] = vector<std::string>{
+                        speciesName(i), speciesName(j)};
+                    entry["beta"] = m_Beta_ij(i, j);
+                    beta.push_back(std::move(entry));
+                }
+            }
+        }
+        activityNode["beta"] = std::move(beta);
+    }
+    phaseNode["activity-data"] = std::move(activityNode);
+}
+
+void DebyeHuckel::getSpeciesParameters(const std::string& name,
+                                       AnyMap& speciesNode) const
+{
+    MolalityVPSSTP::getSpeciesParameters(name, speciesNode);
+    size_t k = speciesIndex(name);
+    checkSpeciesIndex(k);
+    AnyMap dhNode;
+    if (m_Aionic[k] != m_Aionic_default) {
+        dhNode["ionic-radius"].setQuantity(m_Aionic[k], "m");
+    }
+
+    int estDefault = cEST_nonpolarNeutral;
+    if (k == 0) {
+        estDefault = cEST_solvent;
+    }
+
+    if (m_speciesCharge_Stoich[k] != charge(k)) {
+        dhNode["weak-acid-charge"] = m_speciesCharge_Stoich[k];
+        estDefault = cEST_weakAcidAssociated;
+    } else if (fabs(charge(k)) > 0.0001) {
+        estDefault = cEST_chargedSpecies;
+    }
+
+    if (m_electrolyteSpeciesType[k] != estDefault) {
+        string estType;
+        switch (m_electrolyteSpeciesType[k]) {
+        case cEST_solvent:
+            estType = "solvent";
+            break;
+        case cEST_chargedSpecies:
+            estType = "charged-species";
+            break;
+        case cEST_weakAcidAssociated:
+            estType = "weak-acid-associated";
+            break;
+        case cEST_strongAcidAssociated:
+            estType = "strong-acid-associated";
+            break;
+        case cEST_polarNeutral:
+            estType = "polar-neutral";
+            break;
+        case cEST_nonpolarNeutral:
+            estType = "nonpolar-neutral";
+            break;
+        default:
+            throw CanteraError("DebyeHuckel::getSpeciesParameters",
+                "Unknown electrolyte species type ({}) for species '{}'",
+                m_electrolyteSpeciesType[k], name);
+        }
+        dhNode["electrolyte-species-type"] = estType;
+    }
+
+    if (dhNode.size()) {
+        speciesNode["Debye-Huckel"] = std::move(dhNode);
+    }
+}
+
 
 double DebyeHuckel::A_Debye_TP(double tempArg, double presArg) const
 {

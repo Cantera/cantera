@@ -86,6 +86,11 @@ module cantera_funcs
       ierr = ctgetCanteraError(buf)
     end subroutine ctfunc_getCanteraError
 
+    subroutine ctfunc_turnOffExitOnError()
+      implicit none
+      call ctturnOffExitOnError()
+    end subroutine ctfunc_turnOffExitOnError
+
     subroutine ctfunc_addCanteraDirectory(self, buf)
       implicit none
       type(phase_t), intent(inout) :: self

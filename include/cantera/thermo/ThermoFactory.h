@@ -29,6 +29,8 @@ namespace Cantera
 /*!
  * This particular error class may be caught, if the application may have other
  * models that the main Cantera application doesn't know about.
+ *
+ * @deprecated Unused. To be removed after Cantera 2.6.
  */
 class UnknownThermoPhaseModel : public CanteraError
 {
@@ -42,7 +44,10 @@ public:
                             const std::string& thermoModel) :
         CanteraError(proc, "Specified ThermoPhase model "
                      + thermoModel +
-                     " does not match any known type.") {}
+                     " does not match any known type.") {
+        warn_deprecated("class UnknownThermoPhaseModel",
+            "Unused. To be removed after Cantera 2.6.");
+    }
 };
 
 
@@ -72,10 +77,9 @@ public:
 
     //! Create a new thermodynamic property manager.
     /*!
-     * @param model  String to look up the model against
-     * @returns a pointer to a new ThermoPhase instance matching the model
-     *   string. Returns NULL if something went wrong. Throws an exception
-     *   UnknownThermoPhaseModel if the string wasn't matched.
+     * @param model  The name of the thermo model
+     * @returns a pointer to a new ThermoPhase object of the type specified. Throws a
+     *     CanteraError if the named model isn't registered with ThermoFactory.
      */
     virtual ThermoPhase* newThermoPhase(const std::string& model);
 
@@ -90,16 +94,21 @@ private:
     static std::mutex thermo_mutex;
 };
 
-//! Create a new thermo manager instance.
-/*!
- * @param model   String to look up the model against
- * @returns a pointer to a new ThermoPhase instance matching the model string.
- *   Returns NULL if something went wrong. Throws an exception
- *   UnknownThermoPhaseModel if the string wasn't matched.
- */
+//! @copydoc ThermoFactory::newThermoPhase
 inline ThermoPhase* newThermoPhase(const std::string& model)
 {
     return ThermoFactory::factory()->create(model);
+}
+
+//! Create a new ThermoPhase instance.
+/*!
+ * @param model   String to look up the model against
+ * @returns a shared pointer to a new ThermoPhase instance matching the model string.
+ */
+inline shared_ptr<ThermoPhase> newThermo(const std::string& model)
+{
+    ThermoPhase* tptr = ThermoFactory::factory()->create(model);
+    return shared_ptr<ThermoPhase> (tptr);
 }
 
 //! Create a new ThermoPhase object and initializes it according to the XML tree
@@ -130,7 +139,7 @@ ThermoPhase* newPhase(XML_Node& phase);
  *     which will be used as the default location from which to read species
  *     definitions.
  */
-unique_ptr<ThermoPhase> newPhase(AnyMap& phaseNode,
+unique_ptr<ThermoPhase> newPhase(const AnyMap& phaseNode,
                                  const AnyMap& rootNode=AnyMap());
 
 //! Create and Initialize a ThermoPhase object from an input file.
@@ -216,7 +225,7 @@ void importPhase(XML_Node& phase, ThermoPhase* th);
  *     which will be used as the default location from which to read species
  *     definitions.
  */
-void setupPhase(ThermoPhase& phase, AnyMap& phaseNode,
+void setupPhase(ThermoPhase& phase, const AnyMap& phaseNode,
                 const AnyMap& rootNode=AnyMap());
 
 //! Add the elements given in an XML_Node tree to the specified phase

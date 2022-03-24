@@ -6,7 +6,9 @@
 #include "cantera/zeroD/ConstPressureReactor.h"
 #include "cantera/zeroD/FlowDevice.h"
 #include "cantera/zeroD/Wall.h"
+#include "cantera/kinetics/Kinetics.h"
 #include "cantera/thermo/SurfPhase.h"
+#include "cantera/base/utilities.h"
 
 using namespace std;
 
@@ -54,25 +56,26 @@ void ConstPressureReactor::updateState(doublereal* y)
         m_thermo->setPressure(m_pressure);
     }
     m_vol = m_mass / m_thermo->density();
-    updateSurfaceState(y + m_nsp + 2);
     updateConnected(false);
+    updateSurfaceState(y + m_nsp + 2);
 }
 
-void ConstPressureReactor::evalEqs(doublereal time, doublereal* y,
-                                   doublereal* ydot, doublereal* params)
+void ConstPressureReactor::eval(double time, double* LHS, double* RHS)
 {
-    double dmdt = 0.0; // dm/dt (gas phase)
-    double* dYdt = ydot + 2;
+    double& dmdt = RHS[0];
+    double* mdYdt = RHS + 2; // mass * dY/dt
+
+    dmdt = 0.0;
 
     evalWalls(time);
-    applySensitivity(params);
 
     m_thermo->restoreState(m_state);
-    double mdot_surf = evalSurfaces(time, ydot + m_nsp + 2);
-    dmdt += mdot_surf;
-
     const vector_fp& mw = m_thermo->molecularWeights();
     const doublereal* Y = m_thermo->massFractions();
+
+    evalSurfaces(LHS + m_nsp + 2, RHS + m_nsp + 2, m_sdot.data());
+    double mdot_surf = dot(m_sdot.begin(), m_sdot.end(), mw.begin());
+    dmdt += mdot_surf;
 
     if (m_chem) {
         m_kin->getNetProductionRates(&m_wdot[0]); // "omega dot"
@@ -80,13 +83,15 @@ void ConstPressureReactor::evalEqs(doublereal time, doublereal* y,
 
     for (size_t k = 0; k < m_nsp; k++) {
         // production in gas phase and from surfaces
-        dYdt[k] = (m_wdot[k] * m_vol + m_sdot[k]) * mw[k] / m_mass;
+        mdYdt[k] = (m_wdot[k] * m_vol + m_sdot[k]) * mw[k];
         // dilution by net surface mass flux
-        dYdt[k] -= Y[k] * mdot_surf / m_mass;
+        mdYdt[k] -= Y[k] * mdot_surf;
+        //Assign left-hand side of dYdt ODE as total mass
+        LHS[k+2] = m_mass;
     }
 
     // external heat transfer
-    double dHdt = - m_Q;
+    double dHdt = m_Qdot;
 
     // add terms for outlets
     for (auto outlet : m_outlet) {
@@ -102,20 +107,16 @@ void ConstPressureReactor::evalEqs(doublereal time, doublereal* y,
         for (size_t n = 0; n < m_nsp; n++) {
             double mdot_spec = inlet->outletSpeciesMassFlowRate(n);
             // flow of species into system and dilution by other species
-            dYdt[n] += (mdot_spec - mdot * Y[n]) / m_mass;
+            mdYdt[n] += mdot_spec - mdot * Y[n];
         }
         dHdt += mdot * inlet->enthalpy_mass();
     }
 
-    ydot[0] = dmdt;
     if (m_energy) {
-        ydot[1] = dHdt;
+        RHS[1] = dHdt;
     } else {
-        ydot[1] = 0.0;
+        RHS[1] = 0.0;
     }
-
-    // reset sensitivity parameters
-    resetSensitivity(params);
 }
 
 size_t ConstPressureReactor::componentIndex(const string& nm) const

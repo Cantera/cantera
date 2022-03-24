@@ -138,6 +138,6 @@ TEST_F(WaterPropsIAPWS_Test, expansion_coeffs)
         EXPECT_NEAR(water.coeffThermExp(), alpha[i], 2e-14);
         EXPECT_NEAR(water.coeffPresExp(), beta[i], beta[i] * 2e-12);
         EXPECT_NEAR(dPdT(TT[i], PP[i]) * 18.015268 / (8.314371E3 * rho),
-                    beta_num[i], 2e-10 * beta_num[i]);
+                    beta_num[i], 4e-10 * beta_num[i]);
     }
 }

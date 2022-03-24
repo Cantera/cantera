@@ -8,9 +8,7 @@
 #ifndef CT_CABINET_H
 #define CT_CABINET_H
 
-#include "cantera/base/stringUtils.h"
 #include "cantera/base/ctexceptions.h"
-#include "cantera/base/global.h"
 #include "clib_utils.h"
 
 /**

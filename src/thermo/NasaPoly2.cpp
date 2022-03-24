@@ -4,6 +4,7 @@
 #include "cantera/thermo/NasaPoly2.h"
 #include "cantera/base/global.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/AnyMap.h"
 
 namespace Cantera {
 
@@ -19,6 +20,17 @@ void NasaPoly2::setParameters(double Tmid, const vector_fp& low,
     mnp_high.setMinTemp(Tmid);
     mnp_low.setParameters(low);
     mnp_high.setParameters(high);
+}
+
+void NasaPoly2::getParameters(AnyMap& thermo) const
+{
+    thermo["model"] = "NASA7";
+    SpeciesThermoInterpType::getParameters(thermo);
+    vector_fp Tranges {m_lowT, m_midT, m_highT};
+    thermo["temperature-ranges"].setQuantity(Tranges, "K");
+    thermo["data"] = std::vector<vector_fp>();
+    mnp_low.getParameters(thermo);
+    mnp_high.getParameters(thermo);
 }
 
 void NasaPoly2::validate(const std::string& name)

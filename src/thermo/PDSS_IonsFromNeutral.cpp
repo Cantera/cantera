@@ -68,6 +68,18 @@ void PDSS_IonsFromNeutral::setParametersFromXML(const XML_Node& speciesNode)
     }
 }
 
+void PDSS_IonsFromNeutral::getParameters(AnyMap& eosNode) const
+{
+    PDSS::getParameters(eosNode);
+    eosNode["model"] = "ions-from-neutral-molecule";
+    if (!add2RTln2_) {
+        eosNode["special-species"] = true;
+    }
+    if (!neutralSpeciesMultipliers_.empty()) {
+        eosNode["multipliers"] = neutralSpeciesMultipliers_;
+    }
+}
+
 void PDSS_IonsFromNeutral::initThermo()
 {
     PDSS::initThermo();

@@ -110,13 +110,13 @@ public:
         ac[0] = 1.0;
     }
 
-    //@}
+    //! @}
     /// @name  Partial Molar Properties of the Solution
     ///
     /// These functions are resolved at this level, by reference to the partial
     /// molar functions and standard state functions for species 0. Derived
     /// classes don't need to supply entries for these functions.
-    //@{
+    //! @{
 
     //! Get the array of non-dimensional species chemical potentials. These are
     //! partial molar Gibbs free energies.
@@ -188,13 +188,13 @@ public:
      */
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
 
-    //@}
+    //! @}
     /// @name  Properties of the Standard State of the Species in the Solution
     /// These functions are the primary way real properties are
     /// supplied to derived thermodynamics classes of SingleSpeciesTP.
     /// These functions must be supplied in derived classes. They
     /// are not resolved at the SingleSpeciesTP level.
-    //@{
+    //! @{
 
     virtual void getPureGibbs(doublereal* gpure) const;
 
@@ -211,13 +211,13 @@ public:
      */
     virtual void getStandardVolumes(doublereal* vbar) const;
 
-    //@}
+    //! @}
     /// @name Thermodynamic Values for the Species Reference State
     ///
     /// Almost all functions in this group are resolved by this class. The
     /// internal energy function is not given by this class, since it would
     /// involve a specification of the equation of state.
-    //@{
+    //! @{
 
     virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
     virtual void getGibbs_RT_ref(doublereal* grt) const;
@@ -225,6 +225,7 @@ public:
     virtual void getEntropy_R_ref(doublereal* er) const;
     virtual void getCp_R_ref(doublereal* cprt) const;
 
+    //! @}
     /**
      * @name Setting the State
      *
@@ -242,7 +243,7 @@ public:
     virtual void setState_UV(double u, double v, double tol=1e-9);
     virtual void setState_SP(double s, double p, double tol=1e-9);
     virtual void setState_SV(double s, double v, double tol=1e-9);
-    //@}
+    //! @}
 
     virtual bool addSpecies(shared_ptr<Species> spec);
 

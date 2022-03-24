@@ -13,6 +13,21 @@
 
 namespace Cantera
 {
+
+AnyMap TransportData::parameters(bool withInput) const
+{
+    AnyMap out;
+    getParameters(out);
+    if (withInput) {
+        out.update(input);
+    }
+    return out;
+}
+
+void TransportData::getParameters(AnyMap &transportNode) const
+{
+}
+
 GasTransportData::GasTransportData()
     : diameter(0.0)
     , well_depth(0.0)
@@ -124,6 +139,37 @@ void GasTransportData::validate(const Species& sp)
     if (quadrupole_polarizability < 0.0) {
         throw CanteraError("GasTransportData::validate",
             "negative quadrupole polarizability for species '{}'.", sp.name);
+    }
+}
+
+void GasTransportData::getParameters(AnyMap& transportNode) const
+{
+    TransportData::getParameters(transportNode);
+    transportNode["model"] = "gas";
+    transportNode["geometry"] = geometry;
+    transportNode["diameter"] = diameter * 1e10; // convert from m to  Angstroms
+    transportNode["well-depth"] = well_depth / Boltzmann; // convert from J to K
+    if (dipole != 0) {
+        // convert from Debye to Coulomb-m
+        transportNode["dipole"] = dipole * 1e21 * lightSpeed;
+    }
+    if (polarizability != 0) {
+         // convert from m^3 to Angstroms^3
+        transportNode["polarizability"] = 1e30 * polarizability;
+    }
+    if (rotational_relaxation != 0) {
+        transportNode["rotational-relaxation"] = rotational_relaxation;
+    }
+    if (acentric_factor != 0) {
+        transportNode["acentric-factor"] = acentric_factor;
+    }
+    if (dispersion_coefficient != 0) {
+        // convert from m^5 to Angstroms^5
+        transportNode["dispersion-coefficient"] = dispersion_coefficient * 1e50;
+    }
+    if (quadrupole_polarizability) {
+        // convert from m^5 to Angstroms^5
+        transportNode["quadrupole-polarizability"] = quadrupole_polarizability * 1e50;
     }
 }
 

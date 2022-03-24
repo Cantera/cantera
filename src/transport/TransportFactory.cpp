@@ -25,29 +25,14 @@ TransportFactory* TransportFactory::s_factory = 0;
 // declaration of static storage for the mutex
 std::mutex TransportFactory::transport_mutex;
 
-//! Exception thrown if an error is encountered while reading the transport database
-//! @deprecated Unused. To be removed after Cantera 2.5.
-class TransportDBError : public CanteraError
-{
-public:
-    //! Default constructor
-    /*!
-     *  @param linenum  inputs the line number
-     *  @param msg      String message to be sent to the user
-     */
-    TransportDBError(size_t linenum, const std::string& msg) :
-        CanteraError("getTransportData", "error reading transport data: " + msg + "\n") {
-            warn_deprecated("class TransportDBError",
-                "Unused. To be removed after Cantera 2.5.");
-    }
-};
-
 //////////////////// class TransportFactory methods //////////////
 
 TransportFactory::TransportFactory()
 {
-    reg("", []() { return new Transport(); });
-    addAlias("", "None");
+    reg("none", []() { return new Transport(); });
+    addAlias("none", "Transport");
+    addAlias("none", "None");
+    addAlias("none", "");
     reg("unity-Lewis-number", []() { return new UnityLewisTransport(); });
     addAlias("unity-Lewis-number", "UnityLewis");
     reg("mixture-averaged", []() { return new MixTransport(); });
@@ -76,12 +61,17 @@ void TransportFactory::deleteFactory()
 }
 
 Transport* TransportFactory::newTransport(const std::string& transportModel,
-        thermo_t* phase, int log_level, int ndim)
+        ThermoPhase* phase, int log_level)
 {
-    if (ndim != -99) {
-        warn_deprecated("TransportFactory::newTransport", "The 'ndim' parameter"
-                        " is unused and will be removed after Cantera 2.5.");
+    if (transportModel != "DustyGas" && canonicalize(transportModel) == "none") {
+        return create(transportModel);
     }
+    if (!phase) {
+        throw CanteraError("TransportFactory::newTransport",
+            "Valid phase definition required for initialization of "
+            "new '{}' object", transportModel);
+    }
+
     vector_fp state;
     Transport* tr = 0;
     phase->saveState(state);
@@ -101,7 +91,7 @@ Transport* TransportFactory::newTransport(const std::string& transportModel,
     return tr;
 }
 
-Transport* TransportFactory::newTransport(thermo_t* phase, int log_level)
+Transport* TransportFactory::newTransport(ThermoPhase* phase, int log_level)
 {
     std::string transportModel = "None";
     XML_Node& phaseNode = phase->xml();
@@ -114,13 +104,13 @@ Transport* TransportFactory::newTransport(thermo_t* phase, int log_level)
     return newTransport(transportModel, phase,log_level);
 }
 
-Transport* newTransportMgr(const std::string& transportModel, thermo_t* thermo, int loglevel, int ndim)
+Transport* newTransportMgr(const std::string& model, ThermoPhase* thermo, int log_level)
 {
     TransportFactory* f = TransportFactory::factory();
-    return f->newTransport(transportModel, thermo, loglevel, ndim);
+    return f->newTransport(model, thermo, log_level);
 }
 
-Transport* newDefaultTransportMgr(thermo_t* thermo, int loglevel)
+Transport* newDefaultTransportMgr(ThermoPhase* thermo, int loglevel)
 {
     return TransportFactory::factory()->newTransport(thermo, loglevel);
 }

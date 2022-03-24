@@ -1,15 +1,18 @@
-
-
-**** WARNING ****
+CanteraWarning: NasaPoly2::validate:
 For species O2, discontinuity in cp/R detected at Tmid = 1000
-	Value computed using low-temperature polynomial:  3.19546.
-	Value computed using high-temperature polynomial: 4.19546.
+        Value computed using low-temperature polynomial:  3.19546
+        Value computed using high-temperature polynomial: 4.19546
 
+CanteraWarning: NasaPoly2::validate:
+For species O2, discontinuity in h/RT detected at Tmid = 1000
+        Value computed using low-temperature polynomial:  2.2310016
+        Value computed using high-temperature polynomial: 2.7310016
 
-**** WARNING ****
+CanteraWarning: NasaPoly2::validate:
 For species O2, discontinuity in s/R detected at Tmid = 1000
-	Value computed using low-temperature polynomial:  28.2967.
-	Value computed using high-temperature polynomial: 29.2967.
+        Value computed using low-temperature polynomial:  28.2967
+        Value computed using high-temperature polynomial: 29.2967
+
  enth = 742092
 attempted equil at (H,P) = 7.4189e+05,      1e+05
  enth = 685817

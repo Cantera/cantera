@@ -1,0 +1,90 @@
+description: |-
+  HACA Mechanism - very rough prototype
+  Reference:
+  (1) M. Frenklach, H. Wang,
+      "Detailed Mechanism and Modeling of Soot Particle Formation"
+      in Soot Formation in Combustion: Mechanisms and Models"
+      J. Bockhorn Ed., Springer Verlag, Heidelberg (1994).
+
+  For additional comments, see original CTI input
+
+generator: cti2yaml + manual additions
+cantera-version: 2.6.0a2
+date: Wed, 12 May 2021 13:19:43 -0400
+input-files: [haca2.cti]
+
+units: {length: cm, quantity: mol, activation-energy: kcal/mol}
+
+phases:
+- name: gas
+  thermo: ideal-gas
+  elements: [O, H, C, N, Ar]
+  species:
+  - gri30.yaml/species: [H, N2, CH3, CH4, C2H2, H2, OH, H2O, CO, O2]
+  state:
+    T: 1100.0
+    P: 1.01325e+05
+    X: {H: 0.01, N2: 0.8899, H2: 0.04, CH4: 0.01, C2H2: 0.01, OH: 1.0e-04,
+      H2O: 0.04, O2: 1.0e-03}
+- name: soot
+  thermo: fixed-stoichiometry
+  elements: [C]
+  species: [CB-CB3]
+- name: soot_interface
+  thermo: ideal-surface
+  adjacent-phases: [gas, soot]
+  elements: [H, C]
+  species: [Csoot-*, Csoot-H]
+  kinetics: surface
+  reactions: all
+  state:
+    T: 1400.0
+    coverages: {Csoot-*: 0.1, Csoot-H: 0.9}
+  site-density: 3.8e-09 mol/cm^2
+
+species:
+- name: CB-CB3
+  composition: {C: 1}
+  thermo:
+    model: constant-cp
+    T0: 1000.0 K
+    h0: 9.22 kcal/mol
+    s0: -3.02 cal/mol/K
+    cp0: 5.95 cal/mol/K
+  equation-of-state:
+    model: constant-volume
+    density: 3.52 g/cm^3
+- name: Csoot-*
+  composition: {H: 0, C: 1}
+  thermo:
+    model: constant-cp
+    T0: 1000.0 K
+    h0: 51.7 kcal/mol
+    s0: 19.5 cal/mol/K
+    cp0: 8.41 cal/mol/K
+- name: Csoot-H
+  composition: {H: 1, C: 1}
+  thermo:
+    model: constant-cp
+    T0: 1000.0 K
+    h0: 11.4 kcal/mol
+    s0: 21.0 cal/mol/K
+    cp0: 8.41 cal/mol/K
+
+reactions:
+- equation: Csoot-H + H  => Csoot-* + H2  # Reaction 1
+  rate-constant: {A: 4.17e+13, b: 0.0, Ea: 13.0}
+- equation: Csoot-* + H2 => Csoot-H + H  # Reaction 2
+  rate-constant: {A: 3.9e+12, b: 0.0, Ea: 11.0}
+- equation: Csoot-H + OH  => Csoot-* + H2O  # Reaction 3
+  rate-constant: {A: 1.0e+10, b: 0.734, Ea: 1.43}
+- equation: Csoot-* + H2O => Csoot-H + OH  # Reaction 4
+  rate-constant: {A: 3.68e+08, b: 1.139, Ea: 17.1}
+- equation: Csoot-* + H => Csoot-H  # Reaction 5
+  rate-constant: {A: 2.0e+13, b: 0.0, Ea: 0.0}
+- equation: Csoot-* + C2H2 => Csoot-H + H + 2 CB-CB3  # Reaction 6
+  rate-constant: {A: 8.0e+07, b: 1.56, Ea: 3.8}
+- equation: Csoot-* + O2 + 2 CB-CB3 => Csoot-* + 2 CO  # Reaction 7
+  rate-constant: {A: 2.2e+12, b: 0.0, Ea: 7.5}
+- equation: OH + Csoot-H + CB-CB3 => Csoot-* + CO + H2  # Reaction 8
+  sticking-coefficient: {A: 0.13, b: 0.0, Ea: 0.0}

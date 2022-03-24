@@ -13,6 +13,7 @@
 #define CT_MU0POLY_H
 
 #include "cantera/thermo/SpeciesThermoInterpType.h"
+#include "cantera/thermo/speciesThermoTypes.h"
 
 namespace Cantera
 {
@@ -134,6 +135,8 @@ public:
                                   doublereal& tlow, doublereal& thigh,
                                   doublereal& pref,
                                   doublereal* const coeffs) const;
+
+    virtual void getParameters(AnyMap& thermo) const;
 
 protected:
     //! Number of intervals in the interpolating linear approximation. Number

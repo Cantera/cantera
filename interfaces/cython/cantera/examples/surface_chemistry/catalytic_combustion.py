@@ -7,10 +7,10 @@ premixed methane/air mixture enters at ~6 cm/s (0.06 kg/m2/s), and burns
 catalytically on the platinum surface. Gas-phase chemistry is included too,
 and has some effect very near the surface.
 
-The catalytic combustion mechanism is from Deutschman et al., 26th
+The catalytic combustion mechanism is from Deutschmann et al., 26th
 Symp. (Intl.) on Combustion,1996 pp. 1747-1754
 
-Requires: cantera >= 2.5.0
+Requires: cantera >= 2.6.0
 """
 
 import numpy as np
@@ -37,24 +37,20 @@ width = 0.1  # m
 
 loglevel = 1  # amount of diagnostic output (0 to 5)
 
-################ create the gas object ########################
+################ create the phase objects ##################
 #
-# This object will be used to evaluate all thermodynamic, kinetic, and
-# transport properties. The gas phase will be taken from the definition of
-# phase 'gas' in input file 'ptcombust.yaml,' which is a stripped-down version
-# of GRI-Mech 3.0.
-gas = ct.Solution('ptcombust.yaml', 'gas', transport_model=transport)
-gas.TPX = tinlet, p, comp1
-
-################ create the interface object ##################
-#
-# This object will be used to evaluate all surface chemical production rates.
-# It will be created from the interface definition 'Pt_surf' in input file
+# The 'surf_phase' object will be used to evaluate all surface chemical production
+# rates. It will be created from the interface definition 'Pt_surf' in input file
 # 'ptcombust.yaml,' which implements the reaction mechanism of Deutschmann et
 # al., 1995 for catalytic combustion on platinum.
 #
-surf_phase = ct.Interface('ptcombust.yaml', 'Pt_surf', [gas])
+# This phase definition also references the phase 'gas' in the same input file,
+# which will be created and used to evaluate all thermodynamic, kinetic, and
+# transport properties. It is a stripped-down version of GRI-Mech 3.0.
+surf_phase = ct.Interface("ptcombust.yaml", "Pt_surf")
 surf_phase.TP = tsurf, p
+gas = surf_phase.adjacent["gas"]
+gas.TPX = tinlet, p, comp1
 
 # integrate the coverage equations in time for 1 s, holding the gas
 # composition fixed to generate a good starting estimate for the coverages.
@@ -111,13 +107,13 @@ sim.solve(loglevel)
 # show the solution
 sim.show_solution()
 
-# save the solution in XML format. The 'restore' method can be used to restart
+# save the full solution. The 'restore' method can be used to restart
 # a simulation from a solution stored in this form.
 try:
     sim.write_hdf('catalytic_combustion.h5', group='soln1', mode='w',
                   description='catalytic combustion example')
 except ImportError:
-    sim.save("catalytic_combustion.xml", "soln1")
+    sim.save("catalytic_combustion.yaml", "soln1")
 
 # save selected solution components in a CSV file for plotting in
 # Excel or MATLAB.

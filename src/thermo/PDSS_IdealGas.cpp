@@ -28,6 +28,12 @@ void PDSS_IdealGas::initThermo()
     m_maxTemp = m_spthermo->maxTemp();
 }
 
+void PDSS_IdealGas::getParameters(AnyMap &eosNode) const
+{
+    PDSS::getParameters(eosNode);
+    eosNode["model"] = "ideal-gas";
+}
+
 doublereal PDSS_IdealGas::intEnergy_mole() const
 {
     return (m_h0_RT - 1.0) * GasConstant * m_temp;

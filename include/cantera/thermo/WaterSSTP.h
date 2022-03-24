@@ -63,37 +63,9 @@ class WaterProps;
  *
  * This is unimplemented.
  *
- * ## Instantiation of the Class
- *
- * A new WaterSSTP object may be created by the following code snippets,
- * combined with an XML file given in the XML example section.
- *
- * @code
- *      ThermoPhase* w = newPhase("waterSSTPphase.xml");
- * @endcode
- *
- * or
- *
- * @code
- *      WaterSSTP *w = new WaterSSTP("waterSSTPphase.xml","");
- * @endcode
- *
- * or
- *
- * @code
- *    XML_Node *xm = get_XML_NameID("phase", "waterSSTPphase.xml#water", 0);
- *    WaterSSTP *w = new WaterSSTP(*xm);
- * @endcode
- *
- * or by the following call to importPhase():
- *
- * @code
- *    XML_Node *xm = get_XML_NameID("phase", "waterSSTPphase.xml#water", 0);
- *    WaterSSTP water;
- *    importPhase(*xm, &water);
- * @endcode
- *
  * ## XML Example
+ *
+ * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
  *
  * An example of an XML Element named phase setting up a WaterSSTP object with
  * id "water" is given below.
@@ -119,15 +91,13 @@ class WaterProps;
 class WaterSSTP : public SingleSpeciesTP
 {
 public:
-    //! Base constructor
-    WaterSSTP();
-
     //! Full constructor for a water phase
     /*!
      * @param inputFile String name of the input file
      * @param id        string id of the phase name
      */
-    explicit WaterSSTP(const std::string& inputFile, const std::string& id = "");
+    explicit WaterSSTP(const std::string& inputFile="",
+                       const std::string& id="");
 
     //! Full constructor for a water phase
     /*!
@@ -150,9 +120,9 @@ public:
 
     virtual doublereal cv_mole() const;
 
-    //@}
-    /// @name Mechanical Equation of State Properties
-    //@{
+    //! @}
+    //! @name Mechanical Equation of State Properties
+    //! @{
 
     virtual doublereal pressure() const;
     virtual void setPressure(doublereal p);
@@ -174,14 +144,14 @@ public:
     virtual void getCp_R(doublereal* cpr) const;
     virtual void getIntEnergy_RT(doublereal* urt) const;
 
-    //@}
+    //! @}
     //! @name Thermodynamic Values for the Species Reference State
     /*!
      *  All functions in this group need to be overridden, because the
      *  m_spthermo MultiSpeciesThermo function is not adequate for the real
      *  equation of state.
      */
-    //@{
+    //! @{
 
     virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
     virtual void getGibbs_RT_ref(doublereal* grt) const;

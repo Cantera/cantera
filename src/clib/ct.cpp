@@ -18,6 +18,7 @@
 #include "cantera/kinetics/KineticsFactory.h"
 #include "cantera/transport/TransportFactory.h"
 #include "cantera/base/ctml.h"
+#include "cantera/base/stringUtils.h"
 #include "cantera/kinetics/importKinetics.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "Cabinet.h"
@@ -367,7 +368,7 @@ extern "C" {
     {
         try {
             XML_Node& x = XmlCabinet::item(mxml);
-            thermo_t* th = newPhase(x);
+            ThermoPhase* th = newPhase(x);
             return ThermoCabinet::add(th);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -881,7 +882,7 @@ extern "C" {
                         int neighbor3, int neighbor4)
     {
         try {
-            vector<thermo_t*> phases;
+            vector<ThermoPhase*> phases;
             phases.push_back(&ThermoCabinet::item(reactingPhase));
             if (neighbor1 >= 0) {
                 phases.push_back(&ThermoCabinet::item(neighbor1));
@@ -908,7 +909,7 @@ extern "C" {
     {
         try {
             XML_Node& x = XmlCabinet::item(mxml);
-            vector<thermo_t*> phases;
+            vector<ThermoPhase*> phases;
             phases.push_back(&ThermoCabinet::item(iphase));
             if (neighbor1 >= 0) {
                 phases.push_back(&ThermoCabinet::item(neighbor1));
@@ -1487,6 +1488,16 @@ extern "C" {
     {
         try {
             suppress_thermo_warnings(suppress != 0);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int ct_use_legacy_rate_constants(int legacy)
+    {
+        try {
+            use_legacy_rate_constants(legacy != 0);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

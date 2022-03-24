@@ -33,8 +33,8 @@
 * Push the changes on your new feature branch to your forked copy of the
   `Cantera/cantera` repository on GitHub.
 
-* Submit a Pull Request on Github, from your forked copy. Check the results 
-  of the continuous-integration tests run using Travis and AppVeyor and resolve 
+* Submit a Pull Request on Github, from your forked copy. Check the results
+  of the continuous-integration tests run using GitHub Actions and resolve
   any issues that arise.
 * Additional discussion of good Git & Github workflow is provided at
   http://matplotlib.org/devel/gitwash/development_workflow.html and
@@ -53,8 +53,13 @@
 * Configure your editor to use 4 spaces per indentation level, and **never to
   use tabs**.
 * Avoid introducing trailing whitespace
-* Limit line lengths to 80 characters when possible
+* Limit line lengths to 88 characters when possible
 * Write comments to explain non-obvious operations
+* Use whitespaces to improve code readability (examples: after commas; before and
+  after mathematical operators (`+`/`-`/`*`/`/` except `^`), binary operators
+  (`&&`/`||`/...), and comparisons (`<`/`>`/`==`/...); before and after equality
+  signs `=` unless used for the assignment of a default parameter)
+* Do not go out of your way to change formatting in otherwise unmodified code
 
 ## C++
 
@@ -67,10 +72,8 @@
 * Class names use `InitialCapsNames`
 * Methods use `camelCaseNames`
 * Do not indent the contents of namespaces
-* Code may make use of most C++11 features, with the exceptions of delegating
-  constructors, inheriting constructors, and non-static data member
-  initializers. These limitations are needed to keep the minimum required
-  compiler versions at GCC 4.6, Clang 3.1, Visual Studio 2013 and Intel 14.0.
+* Code should follow the C++11 standard, with minimum required compiler versions
+  GCC 4.8, Clang 3.4, MSVC 14.0 (2015) and Intel 15.0.
 * Avoid manual memory management (i.e. `new` and `delete`), preferring to use
   standard library containers, as well as `std::unique_ptr` and
   `std::shared_ptr` when dynamic allocation is required.
@@ -92,6 +95,5 @@
 
 * Style generally follows PEP8 (https://www.python.org/dev/peps/pep-0008/)
 * Code in `.py` and `.pyx` files needs to be written to work with Python 3
-* The minimum Python version that Cantera supports is Python 3.4, so code should only use features added in Python 3.4 or earlier
-* Code in `ctml_writer.py` and `ck2cti.py` needs to be written to work with both Python 2 and Python 3
-* Code in the Python examples should be written for Python 3
+* The minimum Python version that Cantera supports is Python 3.6, so code should only use features added in Python 3.6 or earlier
+* Please use double quotes in all new Python code

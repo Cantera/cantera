@@ -1,0 +1,155 @@
+generator: cti2yaml
+cantera-version: 2.6.0a2
+date: Sun, 25 Apr 2021 16:46:47 -0400
+input-files: [duplicate-reactions.cti]
+
+units: {length: cm, quantity: mol, activation-energy: cal/mol}
+
+phases:
+- name: A
+  thermo: ideal-gas
+  species: [{h2o2.yaml/species: [H2, H, O, O2, OH, H2O, HO2, H2O2, AR]}]
+  kinetics: gas
+  reactions: [A-reactions]
+- name: B
+  thermo: ideal-gas
+  species: [{h2o2.yaml/species: [H2, H, O, O2, OH, H2O, HO2, H2O2, AR]}]
+  kinetics: gas
+  reactions: [B-reactions]
+- name: C
+  thermo: ideal-gas
+  species: [{h2o2.yaml/species: [H2, H, O, O2, OH, H2O, HO2, H2O2, AR]}]
+  kinetics: gas
+  reactions: [C-reactions]
+- name: D
+  thermo: ideal-gas
+  species: [{h2o2.yaml/species: [H2, H, O, O2, OH, H2O, HO2, H2O2, AR]}]
+  kinetics: gas
+  reactions: [D-reactions]
+- name: E
+  thermo: ideal-gas
+  species: [{h2o2.yaml/species: [H2, H, O, O2, OH, H2O, HO2, H2O2, AR]}]
+  kinetics: gas
+  reactions: [E-reactions]
+- name: F
+  thermo: ideal-gas
+  species: [{h2o2.yaml/species: [H2, H, O, O2, OH, H2O, HO2, H2O2, AR]}]
+  kinetics: gas
+  reactions: [F-reactions]
+- name: G
+  thermo: ideal-gas
+  species: [{h2o2.yaml/species: [H2, H, O, O2, OH, H2O, HO2, H2O2, AR]}]
+  kinetics: gas
+  reactions: [G-reactions]
+- name: H
+  thermo: ideal-gas
+  species: [{h2o2.yaml/species: [H2, H, O, O2, OH, H2O, HO2, H2O2, AR]}]
+  kinetics: gas
+  reactions: [H-reactions]
+- name: I
+  thermo: ideal-gas
+  species: [{h2o2.yaml/species: [H2, H, O, O2, OH, H2O, HO2, H2O2, AR]}]
+  kinetics: gas
+  reactions: [I-reactions]
+- name: J
+  thermo: ideal-gas
+  species: [{h2o2.yaml/species: [H2, H, O, O2, OH, H2O, HO2, H2O2, AR]}]
+  kinetics: gas
+  reactions: [J-reactions]
+- name: K
+  thermo: ideal-gas
+  species: [{h2o2.yaml/species: [H2, H, O, O2, OH, H2O, HO2, H2O2, AR]}]
+  kinetics: gas
+  reactions: [K-reactions]
+
+A-reactions:
+- equation: O + 2 H <=> H2O  # Reaction 1
+  rate-constant: {A: 1.0e+10, b: 0, Ea: 100}
+- equation: O + H2 <=> H + OH  # Reaction 2
+  rate-constant: {A: 1.0e+10, b: 0, Ea: 100}
+- equation: 2 O + 2 H2 <=> 2 H + 2 OH  # Reaction 3
+  rate-constant: {A: 1.0e+10, b: 0, Ea: 100}
+
+B-reactions:
+- equation: O + H2 <=> H + OH  # Reaction 4
+  rate-constant: {A: 1.0e+10, b: 0, Ea: 100}
+- equation: H + OH <=> O + H2  # Reaction 5
+  rate-constant: {A: 1.0e+10, b: 0, Ea: 100}
+
+C-reactions:
+- equation: H + O2 + AR <=> HO2 + AR  # Reaction 6
+  rate-constant: {A: 1.0e+10, b: 0, Ea: 100}
+- equation: HO2 + AR <=> H + O2 + AR  # Reaction 7
+  rate-constant: {A: 1.0e+10, b: 0, Ea: 100}
+
+D-reactions:
+- equation: O + 2 H <=> H2O  # Reaction 8
+  rate-constant: {A: 1.0e+10, b: 0, Ea: 100}
+- equation: H + O2 + AR <=> HO2 + AR  # Reaction 9
+  rate-constant: {A: 1.0e+10, b: 0, Ea: 100}
+- equation: HO2 + AR => H + O2 + AR  # Reaction 10
+  rate-constant: {A: 1.0e+10, b: 0, Ea: 100}
+
+E-reactions:
+- equation: H + O2 + AR => HO2 + AR  # Reaction 11
+  rate-constant: {A: 1.0e+10, b: 0, Ea: 100}
+- equation: HO2 + AR => H + O2 + AR  # Reaction 12
+  rate-constant: {A: 1.0e+10, b: 0, Ea: 100}
+
+F-reactions:
+- equation: 2 OH (+ M) <=> H2O2 (+ M)  # Reaction 13
+  type: falloff
+  low-P-rate-constant: {A: 1.0e+10, b: 0, Ea: 100}
+  high-P-rate-constant: {A: 1.0e+10, b: 0, Ea: 100}
+  efficiencies: {H2: 2.0, H2O: 6.0}
+- equation: 2 OH (+ M) <=> H2O2 (+ M)  # Reaction 14
+  type: falloff
+  low-P-rate-constant: {A: 1.0e+10, b: 0, Ea: 100}
+  high-P-rate-constant: {A: 1.0e+10, b: 0, Ea: 100}
+  efficiencies: {AR: 0.7, H2: 2.0}
+
+G-reactions:
+- equation: 2 OH (+ H2O) <=> H2O2 (+ H2O)  # Reaction 15
+  type: falloff
+  low-P-rate-constant: {A: 1.0e+10, b: 0, Ea: 100}
+  high-P-rate-constant: {A: 1.0e+10, b: 0, Ea: 100}
+- equation: 2 OH (+ M) <=> H2O2 (+ M)  # Reaction 16
+  type: falloff
+  low-P-rate-constant: {A: 1.0e+10, b: 0, Ea: 100}
+  high-P-rate-constant: {A: 1.0e+10, b: 0, Ea: 100}
+  efficiencies: {AR: 0.7, H2: 2.0, H2O: 0.0}
+
+H-reactions:
+- equation: O + H2 <=> H + OH  # Reaction 17
+  rate-constant: {A: 1.0e+10, b: 0, Ea: 100}
+- equation: O + H2 + M <=> H + OH + M  # Reaction 18
+  type: three-body
+  rate-constant: {A: 1.0e+10, b: 0, Ea: 100}
+
+I-reactions:
+- equation: O + H2 <=> H + OH  # Reaction 19
+  rate-constant: {A: 1.0e+10, b: 0, Ea: 100}
+  duplicate: true
+- equation: H + OH <=> O + H2  # Reaction 20
+  rate-constant: {A: 1.0e+10, b: 0, Ea: 100}
+  duplicate: true
+
+J-reactions:
+- equation: H + O2 + AR <=> HO2 + AR  # Reaction 6
+  rate-constant: {A: 1.0e+10, b: 0, Ea: 100}
+- equation: 2 OH (+ M) <=> H2O2 (+ M)  # Reaction 13
+  type: falloff
+  low-P-rate-constant: {A: 1.0e+10, b: 0, Ea: 100}
+  high-P-rate-constant: {A: 1.0e+10, b: 0, Ea: 100}
+  efficiencies: {H2: 2.0, H2O: 6.0}
+- equation: O + H2 <=> H + OH  # Reaction 19
+  rate-constant: {A: 1.0e+10, b: 0, Ea: 100}
+  duplicate: true
+
+K-reactions:
+- equation: O + 2 H <=> H2O  # Reaction 21
+  rate-constant: {A: 1.0e+10, b: 0, Ea: 100}
+- equation: 2 OH + H2 <=> H2O2 + H2  # Reaction 22
+  rate-constant: {A: 1.0e+10, b: 0, Ea: 100}
+- equation: 2 OH <=> H2O2  # Reaction 23
+  rate-constant: {A: 1.0e+10, b: 0, Ea: 100}

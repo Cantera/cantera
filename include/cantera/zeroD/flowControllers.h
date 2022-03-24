@@ -22,6 +22,12 @@ public:
     MassFlowController();
 
     virtual std::string typeStr() const {
+        warn_deprecated("MassFlowController::typeStr",
+                        "To be removed after Cantera 2.6. Use type() instead.");
+        return "MassFlowController";
+    }
+
+    virtual std::string type() const {
         return "MassFlowController";
     }
 
@@ -66,8 +72,15 @@ public:
     PressureController();
 
     virtual std::string typeStr() const {
+        warn_deprecated("PressureController::typeStr",
+                        "To be removed after Cantera 2.6. Use type() instead.");
         return "PressureController";
     }
+
+    virtual std::string type() const {
+        return "PressureController";
+    }
+
 
     virtual bool ready() {
         return FlowDevice::ready() && m_master != 0;
@@ -119,21 +132,13 @@ public:
     Valve();
 
     virtual std::string typeStr() const {
+        warn_deprecated("Valve::typeStr",
+                        "To be removed after Cantera 2.6. Use type() instead.");
         return "Valve";
     }
 
-    //! Set the proportionality constant between pressure drop and mass flow
-    //! rate
-    /*!
-     * *c* has units of kg/s/Pa. The mass flow rate is computed as:
-     * \f[\dot{m} = c \Delta P \f]
-     */
-    //! @deprecated To be removed after Cantera 2.5.
-    void setPressureCoeff(double c) {
-        warn_deprecated("Valve::setPressureCoeff",
-                        "To be removed after Cantera 2.5. "
-                        "Use Valve::setValveCoeff instead.");
-        m_coeff = c;
+    virtual std::string type() const {
+        return "Valve";
     }
 
     //! Set the proportionality constant between pressure drop and mass flow
@@ -155,7 +160,7 @@ public:
         return m_coeff;
     }
 
-    /// Compute the currrent mass flow rate, based on the pressure difference.
+    /// Compute the current mass flow rate, based on the pressure difference.
     virtual void updateMassFlowRate(double time);
 };
 

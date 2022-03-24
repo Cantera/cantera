@@ -18,13 +18,6 @@ using namespace std;
 
 namespace Cantera
 {
-MargulesVPSSTP::MargulesVPSSTP() :
-    numBinaryInteractions_(0),
-    formMargules_(0),
-    formTempModel_(0)
-{
-}
-
 MargulesVPSSTP::MargulesVPSSTP(const std::string& inputFile, const std::string& id_) :
     numBinaryInteractions_(0),
     formMargules_(0),
@@ -211,7 +204,7 @@ void MargulesVPSSTP::initThermo()
                 s = item.convertVector("excess-entropy", "J/kmol/K", 2);
             }
             if (item.hasKey("excess-volume-enthalpy")) {
-                vh = item.convertVector("excess-volume-enthalpy", "m^3/kmol/K", 2);
+                vh = item.convertVector("excess-volume-enthalpy", "m^3/kmol", 2);
             }
             if (item.hasKey("excess-volume-entropy")) {
                 vs = item.convertVector("excess-volume-entropy", "m^3/kmol/K", 2);
@@ -221,6 +214,35 @@ void MargulesVPSSTP::initThermo()
         }
     }
     GibbsExcessVPSSTP::initThermo();
+}
+
+void MargulesVPSSTP::getParameters(AnyMap& phaseNode) const
+{
+    GibbsExcessVPSSTP::getParameters(phaseNode);
+    vector<AnyMap> interactions;
+    for (size_t n = 0; n < m_pSpecies_A_ij.size(); n++) {
+        AnyMap interaction;
+        interaction["species"] = vector<std::string>{
+            speciesName(m_pSpecies_A_ij[n]), speciesName(m_pSpecies_B_ij[n])};
+        if (m_HE_b_ij[n] != 0 || m_HE_c_ij[n] != 0) {
+            interaction["excess-enthalpy"].setQuantity(
+                {m_HE_b_ij[n], m_HE_c_ij[n]}, "J/kmol");
+        }
+        if (m_SE_b_ij[n] != 0 || m_SE_c_ij[n] != 0) {
+            interaction["excess-entropy"].setQuantity(
+                {m_SE_b_ij[n], m_SE_c_ij[n]}, "J/kmol/K");
+        }
+        if (m_VHE_b_ij[n] != 0 || m_VHE_c_ij[n] != 0) {
+            interaction["excess-volume-enthalpy"].setQuantity(
+                {m_VHE_b_ij[n], m_VHE_c_ij[n]}, "m^3/kmol");
+        }
+        if (m_VSE_b_ij[n] != 0 || m_VSE_c_ij[n] != 0) {
+            interaction["excess-volume-entropy"].setQuantity(
+                {m_VSE_b_ij[n], m_VSE_c_ij[n]}, "m^3/kmol/K");
+        }
+        interactions.push_back(std::move(interaction));
+    }
+    phaseNode["interactions"] = std::move(interactions);
 }
 
 void MargulesVPSSTP::initLengths()
@@ -551,7 +573,7 @@ void MargulesVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
         //           excessVolume_Enthalpy
         //           excessVolume_Entropy
         // Other blocks are currently ignored.
-        // @TODO determine a policy about ignoring blocks that should or shouldn't be there.
+        // @todo determine a policy about ignoring blocks that should or shouldn't be there.
         if (nodeName == "excessenthalpy") {
             // Get the string containing all of the values
             getFloatArray(xmlChild, vParams, true, "toSI", "excessEnthalpy");

@@ -137,6 +137,14 @@ protected:
         //! Write an end of line character to the screen and flush output
         void writelogendl();
 
+        //!  Write a warning message to the screen.
+        /*!
+         * @param warning  String specifying type of warning; @see Logger::warn
+         * @param msg  String to be written to the screen
+         * @ingroup textlogs
+         */
+        void warnlog(const std::string& warning, const std::string& msg);
+
         //! Install a logger.
         /*!
          * Called by the language interfaces to install an appropriate logger.
@@ -331,6 +339,11 @@ public:
         pMessenger->writelogendl();
     }
 
+    //! @copydoc Messages::warnlog
+    void warnlog(const std::string& warning, const std::string& msg) {
+        pMessenger->warnlog(warning, msg);
+    }
+
     //! Print a warning indicating that *method* is deprecated. Additional
     //! information (removal version, alternatives) can be specified in
     //! *extra*. Deprecation warnings are printed once per method per
@@ -350,9 +363,30 @@ public:
         m_fatal_deprecation_warnings = true;
     }
 
-    //! Print a user warning arising during usage of *method*. Additional
-    //! information can be specified in *extra*.
-    void warn_user(const std::string& method, const std::string& extra="");
+    //! Generate a general purpose warning; repeated warnings are not suppressed
+    //! @param warning  Warning type; @see Logger::warn
+    //! @param method  Name of method triggering the warning
+    //! @param extra  Additional information printed for the warning
+    void warn(const std::string& warning,
+              const std::string& method, const std::string& extra="");
+
+    //! Globally disable printing of (user) warnings. Used primarily to
+    //! prevent certain tests from failing.
+    void suppress_warnings() {
+        m_suppress_warnings = true;
+        m_fatal_warnings = false;
+    }
+
+    //! Returns `true` if warnings should be suppressed.
+    bool warnings_suppressed() {
+        return m_suppress_warnings;
+    }
+
+    //! Turns Cantera warnings into exceptions. Activated within the test
+    //! suite to make sure that your warning message are being raised.
+    void make_warnings_fatal() {
+        m_fatal_warnings = true;
+    }
 
     //! Globally disable printing of warnings about problematic thermo data,
     //! e.g. NASA polynomials with discontinuities at the midpoint temperature.
@@ -363,6 +397,34 @@ public:
     //! Returns `true` if thermo warnings should be suppressed.
     bool thermo_warnings_suppressed() {
         return m_suppress_thermo_warnings;
+    }
+
+    //! Set definition used for rate constant calculation.
+    //! @see Kinetics::getFwdRateConstants()
+    /*!
+     * If set to 'false', rate constants of three-body reactions are consistent with
+     * conventional definitions. If set to 'true', output for rate constants of
+     * three-body reactions is multipied by third-body concentrations (legacy
+     * behavior). For the pre-compiled Cantera 2.6 distribution, the default value is
+     * set to 'true', which implies no change compared to previous behavior. For
+     * user-compiled Cantera, the default behavior can be changed by the SCons flag
+     * 'legacy_rate_constants'.
+     *
+     * @deprecated  Behavior to change after Cantera 2.6; for Cantera 2.6, rate
+     *              constants of three-body reactions are multiplied with third-body
+     *              concentrations (no change to legacy behavior). After Cantera 2.6,
+     *              results will no longer include third-body concentrations and be
+     *              consistent with conventional definitions (see Eq. 9.75 in
+     *              Kee, Coltrin and Glarborg, 'Chemically Reacting Flow', Wiley
+     *              Interscience, 2003).
+     */
+    void use_legacy_rate_constants(bool legacy=true) {
+        m_use_legacy_rate_constants = legacy;
+    }
+
+    //! Returns `true` if legacy rate constant definition should be used
+    bool legacy_rate_constants_used() {
+        return m_use_legacy_rate_constants;
     }
 
     //! @copydoc Messages::setLogger
@@ -425,6 +487,9 @@ protected:
     bool m_suppress_deprecation_warnings;
     bool m_fatal_deprecation_warnings;
     bool m_suppress_thermo_warnings;
+    bool m_suppress_warnings;
+    bool m_fatal_warnings;
+    bool m_use_legacy_rate_constants;
 
     ThreadMessages pMessenger;
 

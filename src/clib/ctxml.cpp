@@ -11,6 +11,8 @@
 // Cantera includes
 #include "cantera/base/ctml.h"
 #include "Cabinet.h"
+#include "cantera/base/global.h"
+#include "cantera/base/stringUtils.h"
 
 #include <string.h>
 #include <fstream>

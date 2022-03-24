@@ -1,4 +1,8 @@
 #!/bin/sh
+printf "%s\n" \
+    "The setup_cantera script is deprecated and will be removed after Cantera 2.6." \
+    "If you use this script, migration information is available from:" \
+    "https://github.com/Cantera/enhancements/issues/135"
 
 if [ -z $LD_LIBRARY_PATH ]; then
     LD_LIBRARY_PATH=@ct_libdir@
@@ -20,7 +24,7 @@ export PYTHON_CMD
 PATH=@ct_bindir@:$PATH
 export PATH
 
-if [ "@python_cmd@" != `which python` ]; then
+if [ "@python_cmd@" != "`which python`" ]; then
    alias ctpython=@python_cmd@
 fi
 

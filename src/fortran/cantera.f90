@@ -9,7 +9,6 @@
 MODULE CANTERA
 
   USE cantera_thermo
-  USE cantera_thermo
   USE cantera_kinetics
   USE cantera_transport
   USE cantera_xml
@@ -112,6 +111,10 @@ MODULE CANTERA
      MODULE PROCEDURE ctfunc_getCanteraError
   END INTERFACE getCanteraError
 
+  INTERFACE turnOffExitOnError
+     MODULE PROCEDURE ctfunc_TurnOffExitOnError
+  END INTERFACE turnOffExitOnError
+
   INTERFACE getCp_R
      MODULE PROCEDURE ctthermo_getCp_R
   END INTERFACE getCp_R
@@ -131,6 +134,10 @@ MODULE CANTERA
   INTERFACE getEnthalpies_RT
      MODULE PROCEDURE ctthermo_getEnthalpies_RT
   END INTERFACE getEnthalpies_RT
+
+  INTERFACE getGibbs_RT
+     MODULE PROCEDURE ctthermo_getGibbs_RT
+  END INTERFACE getGibbs_RT
 
   INTERFACE getEntropies_R
      MODULE PROCEDURE ctthermo_getEntropies_R
@@ -183,6 +190,14 @@ MODULE CANTERA
   INTERFACE getPartialMolarIntEnergies
      MODULE PROCEDURE ctthermo_getPartialMolarIntEnerg_R
   END INTERFACE getPartialMolarIntEnergies
+
+  INTERFACE getPartialMolarCp
+     MODULE PROCEDURE ctthermo_getPartialMolarCp
+  END INTERFACE getPartialMolarCp
+
+  INTERFACE getPartialMolarEnthalpies
+     MODULE PROCEDURE ctthermo_getPartialMolarEnthalpies
+  END INTERFACE getPartialMolarEnthalpies
 
   INTERFACE getReactionString
      MODULE PROCEDURE ctkin_getReactionString
@@ -429,4 +444,3 @@ MODULE CANTERA
   END INTERFACE write
 
 END MODULE CANTERA
-

@@ -1,6 +1,11 @@
-/// @file BoundaryValueProblem.h
-/// Simplified interface to the capabilities provided by Cantera to
-/// solve boundary value problems.
+/**
+ *  @file BoundaryValueProblem.h
+ *  Simplified interface to the capabilities provided by Cantera to
+ *  solve boundary value problems.
+ */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef BVP_H
 #define BVP_H
@@ -64,8 +69,7 @@ public:
      * @param zmin Location of left-hand side of domain
      * @param zmax Location of right-hand side of domain
      */
-    BoundaryValueProblem(int nv, int np,
-                         doublereal zmin, doublereal zmax) :
+    BoundaryValueProblem(int nv, int np, double zmin, double zmax) :
         m_left(0), m_right(0), m_sim(0)
     {
         // Create the initial uniform grid
@@ -84,8 +88,7 @@ public:
      * to start. The array z must contain the z coordinates of np
      * grid points.
      */
-    BoundaryValueProblem(int nv, int np,
-                         doublereal* z) :
+    BoundaryValueProblem(int nv, int np, double* z) :
         m_left(0), m_right(0), m_sim(0)
     {
         setupGrid(np, z);
@@ -187,7 +190,7 @@ public:
      * grid points. Overload in derived classes to specify other
      * choices for initial values.
      */
-    virtual doublereal initialValue(size_t n, size_t j) {
+    virtual double initialValue(size_t n, size_t j) {
         return 0.0;
     }
 
@@ -225,8 +228,7 @@ protected:
      * for use in writing overloaded versions of method 'residual'
      * in derived classes.
      */
-
-    //@{
+    //! @{
 
     /**
      * This method is provided for use in method residual when
@@ -235,9 +237,9 @@ protected:
      * @param n Component index.
      * @param j Grid point number.
      */
-    doublereal cdif2(const doublereal* x, int n, int j) const {
-        doublereal c1 = value(x,n,j) - value(x,n,j-1);
-        doublereal c2 = value(x,n,j+1) - value(x,n,j);
+    double cdif2(const double* x, int n, int j) const {
+        double c1 = value(x,n,j) - value(x,n,j-1);
+        double c2 = value(x,n,j+1) - value(x,n,j);
         return 2.0*(c2/(z(j+1) - z(j)) - c1/(z(j) - z(j-1)))/
                (z(j+1) - z(j-1));
     }
@@ -249,8 +251,7 @@ protected:
      * value to the right is used, and if it is zero (default) a
      * central-differenced first derivative is computed.
     */
-    doublereal firstDeriv(const doublereal* x, int n, int j,
-                          int type = 0) const {
+    double firstDeriv(const double* x, int n, int j, int type = 0) const {
         switch (type) {
         case -1:
             return leftFirstDeriv(x, n, j);
@@ -266,7 +267,7 @@ protected:
      * is formed to the right of point j, using values at point j
      * and point j + 1.
      */
-    doublereal rightFirstDeriv(const doublereal* x, int n, int j) const {
+    double rightFirstDeriv(const double* x, int n, int j) const {
         return (value(x,n,j+1) - value(x,n,j))/(z(j+1) - z(j));
     }
 
@@ -276,7 +277,7 @@ protected:
      * and point j - 1.
      */
 
-    doublereal leftFirstDeriv(const doublereal* x, int n, int j) const {
+    double leftFirstDeriv(const double* x, int n, int j) const {
         return (value(x,n,j) - value(x,n,j-1))/(z(j) - z(j-1));
     }
 
@@ -287,12 +288,12 @@ protected:
      * @param n Component index.
      * @param j Grid point number.
      */
-    doublereal centralFirstDeriv(const doublereal* x, int n, int j) const {
-        doublereal c1 = value(x,n,j+1) - value(x,n,j-1);
+    double centralFirstDeriv(const double* x, int n, int j) const {
+        double c1 = value(x,n,j+1) - value(x,n,j-1);
         return c1/(z(j+1) - z(j-1));
     }
 
-    //@}
+    //! @}
 };
 }
 #endif

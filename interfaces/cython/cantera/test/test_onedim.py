@@ -1,34 +1,34 @@
 import cantera as ct
 from . import utilities
 import numpy as np
-import os
-from os.path import join as pjoin
+from .utilities import allow_deprecated
+import pytest
 
 from cantera.composite import _h5py
 
 
 class TestOnedim(utilities.CanteraTest):
     def test_instantiate(self):
-        gas = ct.Solution('h2o2.xml')
+        gas = ct.Solution("h2o2.yaml")
 
         flame = ct.IdealGasFlow(gas)
 
     def test_badInstantiate(self):
-        solid = ct.Solution('diamond.xml', 'diamond')
+        solid = ct.Solution("diamond.yaml", "diamond")
         with self.assertRaises(TypeError):
             flame = ct.IdealGasFlow(solid)
 
     def test_instantiateSurface(self):
-        gas = ct.Solution('diamond.xml', 'gas')
-        solid = ct.Solution('diamond.xml', 'diamond')
-        interface = ct.Solution('diamond.xml', 'diamond_100', (gas, solid))
+        gas = ct.Solution("diamond.yaml", "gas")
+        solid = ct.Solution("diamond.yaml", "diamond")
+        interface = ct.Solution("diamond.yaml", "diamond_100", (gas, solid))
 
         surface = ct.ReactingSurface1D(phase=gas)
         surface.set_kinetics(interface)
 
     def test_boundaryProperties(self):
-        gas1 = ct.Solution('h2o2.xml')
-        gas2 = ct.Solution('h2o2.xml')
+        gas1 = ct.Solution("h2o2.yaml")
+        gas2 = ct.Solution("h2o2.yaml")
         inlet = ct.Inlet1D(name='something', phase=gas1)
         flame = ct.IdealGasFlow(gas1)
         sim = ct.Sim1D((inlet, flame))
@@ -54,7 +54,7 @@ class TestOnedim(utilities.CanteraTest):
         self.assertNear(inlet.X[gas2.species_index('H2')], 0.3)
 
     def test_grid_check(self):
-        gas = ct.Solution('h2o2.xml')
+        gas = ct.Solution("h2o2.yaml")
         flame = ct.IdealGasFlow(gas)
 
         with self.assertRaisesRegex(ct.CanteraError, 'monotonically'):
@@ -65,20 +65,20 @@ class TestOnedim(utilities.CanteraTest):
 
     def test_unpicklable(self):
         import pickle
-        gas = ct.Solution('h2o2.xml')
+        gas = ct.Solution("h2o2.yaml")
         flame = ct.IdealGasFlow(gas)
         with self.assertRaises(NotImplementedError):
             pickle.dumps(flame)
 
     def test_uncopyable(self):
         import copy
-        gas = ct.Solution('h2o2.xml')
+        gas = ct.Solution("h2o2.yaml")
         flame = ct.IdealGasFlow(gas)
         with self.assertRaises(NotImplementedError):
             copy.copy(flame)
 
     def test_invalid_property(self):
-        gas1 = ct.Solution('h2o2.xml')
+        gas1 = ct.Solution("h2o2.yaml")
         inlet = ct.Inlet1D(name='something', phase=gas1)
         flame = ct.IdealGasFlow(gas1)
         sim = ct.Sim1D((inlet, flame))
@@ -90,7 +90,7 @@ class TestOnedim(utilities.CanteraTest):
                 x.foobar
 
     def test_tolerances(self):
-        gas = ct.Solution('h2o2.xml')
+        gas = ct.Solution("h2o2.yaml")
         left = ct.Inlet1D(gas)
         flame = ct.IdealGasFlow(gas)
         right = ct.Inlet1D(gas)
@@ -123,7 +123,7 @@ class TestFreeFlame(utilities.CanteraTest):
     tol_ss = [1.0e-5, 1.0e-14]  # [rtol atol] for steady-state problem
     tol_ts = [1.0e-4, 1.0e-11]  # [rtol atol] for time stepping
 
-    def create_sim(self, p, Tin, reactants, width=0.05, mech='h2o2.xml'):
+    def create_sim(self, p, Tin, reactants, width=0.05, mech="h2o2.yaml"):
         # Solution object used to compute mixture properties
         self.gas = ct.Solution(mech)
         self.gas.TPX = Tin, p, reactants
@@ -181,22 +181,7 @@ class TestFreeFlame(utilities.CanteraTest):
         self.assertNear(self.sim.fixed_temperature, tfixed)
         self.assertNear(self.sim.fixed_temperature_location, zfixed)
 
-    def test_deprecated(self):
-        Tin = 300
-        p = ct.one_atm
-        reactants = 'H2:0.65, O2:0.5, AR:2'
-        self.create_sim(p, Tin, reactants, width=0.0001)
-        with self.assertWarnsRegex(DeprecationWarning, "Replaced by property"):
-            self.sim.flame.set_boundary_emissivities(0.5, 0.5)
-        with self.assertWarnsRegex(DeprecationWarning, "property 'velocity"):
-            self.sim.u
-        with self.assertWarnsRegex(DeprecationWarning, "property 'spread"):
-            self.sim.V
-        with self.assertRaisesRegex(ct.CanteraError, "renamed to 'velocity"):
-            self.sim.flame.component_index('u')
-        with self.assertRaisesRegex(ct.CanteraError, "renamed to 'spread_rate"):
-            self.sim.flame.component_index('V')
-
+    @utilities.slow_test
     def test_auto_width(self):
         Tin = 300
         p = ct.one_atm
@@ -222,11 +207,14 @@ class TestFreeFlame(utilities.CanteraTest):
                         width=0.1)
 
         self.sim.set_refine_criteria(ratio=4, slope=0.8, curve=0.8)
+        self.sim.flame.set_steady_tolerances(T=(2e-4, 1e-8))
         self.sim.solve(refine_grid=True, auto=True, loglevel=0)
+
         self.assertNear(self.sim.velocity[0], 17.02, 1e-1)
         self.assertLess(self.sim.grid[-1], 2.0) # grid should not be too wide
+        self.assertEqual(self.sim.flame.tolerances("T"), (2e-4, 1e-8))
 
-
+    @utilities.slow_test
     def test_converge_adiabatic(self):
         # Test that the adiabatic flame temperature and species profiles
         # converge to the correct equilibrium values as the grid is refined
@@ -288,7 +276,7 @@ class TestFreeFlame(utilities.CanteraTest):
     def test_solution_array_output(self):
         self.run_mix(phi=1.0, T=300, width=2.0, p=1.0, refine=False)
 
-        flow = self.sim.to_solution_array()
+        flow = self.sim.to_solution_array(normalize=True)
         self.assertArrayNear(self.sim.grid, flow.grid)
         self.assertArrayNear(self.sim.T, flow.T)
         for k in flow._extra.keys():
@@ -307,7 +295,7 @@ class TestFreeFlame(utilities.CanteraTest):
 
     def test_restart(self):
         self.run_mix(phi=1.0, T=300, width=2.0, p=1.0, refine=False)
-        arr = self.sim.to_solution_array()
+        arr = self.sim.to_solution_array(normalize=False)
 
         reactants = {'H2': 0.9, 'O2': 0.5, 'AR': 2}
         self.create_sim(1.1 * ct.one_atm, 500, reactants, 2.0)
@@ -370,24 +358,31 @@ class TestFreeFlame(utilities.CanteraTest):
     def test_mixture_averaged_case1(self):
         self.run_mix(phi=0.65, T=300, width=0.03, p=1.0, refine=True)
 
+    @utilities.slow_test
     def test_mixture_averaged_case2(self):
         self.run_mix(phi=0.5, T=300, width=2.0, p=1.0, refine=False)
 
+    @utilities.slow_test
     def test_mixture_averaged_case3(self):
         self.run_mix(phi=0.5, T=500, width=0.05, p=1.0, refine=False)
 
+    @utilities.slow_test
     def test_mixture_averaged_case4(self):
         self.run_mix(phi=0.7, T=400, width=2.0, p=5.0, refine=False)
 
+    @utilities.slow_test
     def test_mixture_averaged_case5(self):
         self.run_mix(phi=1.0, T=300, width=2.0, p=5.0, refine=False)
 
+    @utilities.slow_test
     def test_mixture_averaged_case6(self):
         self.run_mix(phi=1.5, T=300, width=0.2, p=1.0, refine=True)
 
+    @utilities.slow_test
     def test_mixture_averaged_case7(self):
         self.run_mix(phi=1.5, T=500, width=2.0, p=0.1, refine=False)
 
+    @utilities.slow_test
     def test_mixture_averaged_case8(self):
         self.run_mix(phi=2.0, T=400, width=2.0, p=5.0, refine=False)
 
@@ -411,7 +406,7 @@ class TestFreeFlame(utilities.CanteraTest):
             self.sim.solve(loglevel=0, refine_grid=False)
             Suminus = self.sim.velocity[0]
             fwd = (Suplus-Suminus)/(2*Su0*dk)
-            self.assertNear(fwd, dSdk_adj[m], 5e-3)
+            self.assertNear(fwd, dSdk_adj[m], rtol=5e-3, atol=1e-7)
 
     # @utilities.unittest.skip('sometimes slow')
     def test_multicomponent(self):
@@ -470,6 +465,7 @@ class TestFreeFlame(utilities.CanteraTest):
             self.sim.soret_enabled = True
             self.sim.solve(loglevel=0, auto=False)
 
+    @utilities.slow_test
     def test_soret_with_auto(self):
         # Test that auto solving with Soret enabled works
         self.create_sim(101325, 300, 'H2:2.0, O2:1.0')
@@ -509,16 +505,18 @@ class TestFreeFlame(utilities.CanteraTest):
         # TODO: check that the solution is actually correct (i.e. that the
         # residual satisfies the error tolerances) on the new grid.
 
-    def test_save_restore(self):
+    @pytest.mark.usefixtures("allow_deprecated")
+    def test_save_restore_xml(self):
         reactants = 'H2:1.1, O2:1, AR:5'
         p = 2 * ct.one_atm
         Tin = 400
 
         self.create_sim(p, Tin, reactants)
         self.solve_fixed_T()
-        filename = pjoin(self.test_work_dir, 'onedim-fixed-T.xml')
-        if os.path.exists(filename):
-            os.remove(filename)
+        filename = self.test_work_path / "onedim-fixed-T.xml"
+        # In Python >= 3.8, this can be replaced by the missing_ok argument
+        if filename.is_file():
+            filename.unlink()
 
         Y1 = self.sim.Y
         u1 = self.sim.velocity
@@ -559,11 +557,84 @@ class TestFreeFlame(utilities.CanteraTest):
         u3 = self.sim.velocity
         V3 = self.sim.spread_rate
 
-        # TODO: These tolereances seem too loose, but the tests fail on some
+        # TODO: These tolerances seem too loose, but the tests fail on some
         # systems with tighter tolerances.
         self.assertArrayNear(Y1, Y3, 3e-3)
         self.assertArrayNear(u1, u3, 1e-3)
         self.assertArrayNear(V1, V3, 1e-3)
+
+    def test_save_restore_yaml(self):
+        reactants = "H2:1.1, O2:1, AR:5"
+        p = 2 * ct.one_atm
+        Tin = 400
+
+        self.create_sim(p, Tin, reactants)
+        T_rtol = 1.1e-4
+        T_atol = 2e-6
+        self.sim.flame.set_steady_tolerances(T=(T_rtol, T_atol))
+
+        self.solve_fixed_T()
+        filename = self.test_work_path / "onedim-fixed-T.yaml"
+        # In Python >= 3.8, this can be replaced by the missing_ok argument
+        if filename.is_file():
+            filename.unlink()
+
+        Y1 = self.sim.Y
+        u1 = self.sim.velocity
+        V1 = self.sim.spread_rate
+        P1 = self.sim.P
+        T1 = self.sim.T
+
+        self.sim.save(filename, "test", loglevel=0)
+
+        # Save a second solution to the same file
+        self.sim.radiation_enabled = True
+        self.sim.boundary_emissivities = 0.3, 0.8
+        self.sim.save(filename, "test2", loglevel=0)
+
+        # Create flame object with dummy initial grid
+        self.sim = ct.FreeFlame(self.gas)
+        self.sim.restore(filename, "test", loglevel=0)
+
+        # Sim is initially in "steady-state" mode, so this returns the
+        # steady-state tolerances
+        rtol, atol = self.sim.flame.tolerances("T")
+        self.assertNear(rtol, T_rtol)
+        self.assertNear(atol, T_atol)
+        self.assertFalse(self.sim.energy_enabled)
+
+        P2a = self.sim.P
+
+        self.assertNear(p, P1)
+        self.assertNear(P1, P2a)
+
+        Y2 = self.sim.Y
+        u2 = self.sim.velocity
+        V2 = self.sim.spread_rate
+        T2 = self.sim.T
+
+        self.assertArrayNear(Y1, Y2)
+        self.assertArrayNear(u1, u2)
+        self.assertArrayNear(V1, V2)
+        self.assertArrayNear(T1, T2)
+
+        self.solve_fixed_T()
+        Y3 = self.sim.Y
+        u3 = self.sim.velocity
+        V3 = self.sim.spread_rate
+
+        # TODO: These tolerances seem too loose, but the tests fail on some
+        # systems with tighter tolerances.
+        self.assertArrayNear(Y1, Y3, 3e-3)
+        self.assertArrayNear(u1, u3, 1e-3)
+        self.assertArrayNear(V1, V3, 1e-3)
+
+        self.assertFalse(self.sim.radiation_enabled)
+        self.assertFalse(self.sim.soret_enabled)
+
+        self.sim.restore(filename, "test2", loglevel=0)
+        self.assertTrue(self.sim.radiation_enabled)
+        self.assertEqual(self.sim.boundary_emissivities, (0.3, 0.8))
 
     def test_array_properties(self):
         self.create_sim(ct.one_atm, 300, 'H2:1.1, O2:1, AR:5')
@@ -577,16 +648,19 @@ class TestFreeFlame(utilities.CanteraTest):
                 else:
                     getattr(self.sim, attr)
 
-    def test_save_restore_add_species(self):
+    @utilities.slow_test
+    @pytest.mark.usefixtures("allow_deprecated")
+    def test_save_restore_add_species_xml(self):
         reactants = 'H2:1.1, O2:1, AR:5'
         p = 2 * ct.one_atm
         Tin = 400
 
-        filename = pjoin(self.test_work_dir, 'onedim-add-species.xml')
-        if os.path.exists(filename):
-            os.remove(filename)
+        filename = self.test_work_path / "onedim-add-species.xml"
+        # In Python >= 3.8, this can be replaced by the missing_ok argument
+        if filename.is_file():
+            filename.unlink()
 
-        self.create_sim(p, Tin, reactants, mech='h2o2.xml')
+        self.create_sim(p, Tin, reactants, mech="h2o2.yaml")
         gas1 = self.gas
         self.solve_fixed_T()
         self.solve_mix(ratio=5, slope=0.5, curve=0.3)
@@ -594,7 +668,7 @@ class TestFreeFlame(utilities.CanteraTest):
         T1 = self.sim.T
         Y1 = self.sim.Y
 
-        gas2 = ct.Solution('h2o2-plus.xml')
+        gas2 = ct.Solution("h2o2-plus.yaml")
         self.sim = ct.FreeFlame(gas2)
         self.sim.restore(filename, 'test', loglevel=0)
         T2 = self.sim.T
@@ -605,16 +679,54 @@ class TestFreeFlame(utilities.CanteraTest):
             k2 = gas2.species_index(species)
             self.assertArrayNear(Y1[k1], Y2[k2])
 
-    def test_save_restore_remove_species(self):
+    @utilities.slow_test
+    def test_save_restore_add_species_yaml(self):
+        reactants = "H2:1.1, O2:1, AR:5"
+        p = 2 * ct.one_atm
+        Tin = 400
+
+        filename = self.test_work_path / "onedim-add-species.yaml"
+        # In Python >= 3.8, this can be replaced by the missing_ok argument
+        if filename.is_file():
+            filename.unlink()
+
+        self.create_sim(p, Tin, reactants, mech="h2o2.yaml")
+        gas1 = self.gas
+        self.sim.max_grid_points = 234
+        self.solve_fixed_T()
+        self.solve_mix(ratio=5, slope=0.5, curve=0.3)
+        self.sim.transport_model = "multicomponent"
+        self.sim.soret_enabled = True
+        self.sim.save(filename, "test", loglevel=0)
+        T1 = self.sim.T
+        Y1 = self.sim.Y
+
+        gas2 = ct.Solution("h2o2-plus.yaml", transport_model="multicomponent")
+        self.sim = ct.FreeFlame(gas2)
+        self.sim.restore(filename, "test", loglevel=0)
+        T2 = self.sim.T
+        Y2 = self.sim.Y
+
+        self.assertTrue(self.sim.soret_enabled)
+        self.assertEqual(self.sim.max_grid_points, 234)
+        self.assertArrayNear(T1, T2)
+        for k1, species in enumerate(gas1.species_names):
+            k2 = gas2.species_index(species)
+            self.assertArrayNear(Y1[k1], Y2[k2])
+
+    @utilities.slow_test
+    @pytest.mark.usefixtures("allow_deprecated")
+    def test_save_restore_remove_species_xml(self):
         reactants = 'H2:1.1, O2:1, AR:5'
         p = 2 * ct.one_atm
         Tin = 400
 
-        filename = pjoin(self.test_work_dir, 'onedim-add-species.xml')
-        if os.path.exists(filename):
-            os.remove(filename)
+        filename = self.test_work_path / "onedim-add-species.xml"
+        # In Python >= 3.8, this can be replaced by the missing_ok argument
+        if filename.is_file():
+            filename.unlink()
 
-        self.create_sim(p, Tin, reactants, mech='h2o2-plus.xml')
+        self.create_sim(p, Tin, reactants, mech="h2o2-plus.yaml")
         gas1 = self.gas
         self.solve_fixed_T()
         self.solve_mix(ratio=5, slope=0.5, curve=0.3)
@@ -622,7 +734,7 @@ class TestFreeFlame(utilities.CanteraTest):
         T1 = self.sim.T
         Y1 = self.sim.Y
 
-        gas2 = ct.Solution('h2o2.xml')
+        gas2 = ct.Solution("h2o2.yaml")
         self.sim = ct.FreeFlame(gas2)
         self.sim.restore(filename, 'test', loglevel=0)
         T2 = self.sim.T
@@ -633,12 +745,43 @@ class TestFreeFlame(utilities.CanteraTest):
             k1 = gas1.species_index(species)
             self.assertArrayNear(Y1[k1], Y2[k2])
 
-    def test_write_csv(self):
-        filename = pjoin(self.test_work_dir, 'onedim-write_csv.csv')
-        if os.path.exists(filename):
-            os.remove(filename)
+    @utilities.slow_test
+    def test_save_restore_remove_species_yaml(self):
+        reactants = "H2:1.1, O2:1, AR:5"
+        p = 2 * ct.one_atm
+        Tin = 400
 
-        self.create_sim(2e5, 350, 'H2:1.0, O2:2.0', mech='h2o2.xml')
+        filename = self.test_work_path / "onedim-remove-species.yaml"
+        # In Python >= 3.8, this can be replaced by the missing_ok argument
+        if filename.is_file():
+            filename.unlink()
+
+        self.create_sim(p, Tin, reactants, mech="h2o2-plus.yaml")
+        gas1 = self.gas
+        self.solve_fixed_T()
+        self.solve_mix(ratio=5, slope=0.5, curve=0.3)
+        self.sim.save(filename, "test", loglevel=0)
+        T1 = self.sim.T
+        Y1 = self.sim.Y
+
+        gas2 = ct.Solution("h2o2.yaml")
+        self.sim = ct.FreeFlame(gas2)
+        self.sim.restore(filename, "test", loglevel=0)
+        T2 = self.sim.T
+        Y2 = self.sim.Y
+
+        self.assertArrayNear(T1, T2)
+        for k2, species in enumerate(gas2.species_names):
+            k1 = gas1.species_index(species)
+            self.assertArrayNear(Y1[k1], Y2[k2])
+
+    def test_write_csv(self):
+        filename = self.test_work_path / "onedim-write_csv.csv"
+        # In Python >= 3.8, this can be replaced by the missing_ok argument
+        if filename.is_file():
+            filename.unlink()
+
+        self.create_sim(2e5, 350, 'H2:1.0, O2:2.0', mech="h2o2.yaml")
         self.sim.write_csv(filename)
         data = ct.SolutionArray(self.gas)
         data.read_csv(filename)
@@ -649,16 +792,17 @@ class TestFreeFlame(utilities.CanteraTest):
 
     @utilities.unittest.skipIf(isinstance(_h5py, ImportError), "h5py is not installed")
     def test_write_hdf(self):
-        filename = pjoin(self.test_work_dir, 'onedim-write_hdf.h5')
-        if os.path.exists(filename):
-            os.remove(filename)
+        filename = self.test_work_path / "onedim-write_hdf.h5"
+        # In Python >= 3.8, this can be replaced by the missing_ok argument
+        if filename.is_file():
+            filename.unlink()
 
         self.run_mix(phi=1.1, T=350, width=2.0, p=2.0, refine=False)
         desc = 'mixture-averaged simulation'
         self.sim.write_hdf(filename, description=desc)
 
         f = ct.FreeFlame(self.gas)
-        meta = f.read_hdf(filename)
+        meta = f.read_hdf(filename, normalize=False)
         self.assertArrayNear(f.grid, self.sim.grid)
         self.assertArrayNear(f.T, self.sim.T)
         self.assertEqual(meta['description'], desc)
@@ -728,18 +872,23 @@ class TestFreeFlame(utilities.CanteraTest):
 
 
 class TestDiffusionFlame(utilities.CanteraTest):
-    # Note: to re-create the reference file:
+    # Note: to re-create the reference files:
     # (1) set PYTHONPATH to build/python.
-    # (2) Start Python in the test/work directory and run:
+    # (2) Start Python and run:
     #     >>> import cantera.test
-    #     >>> t = cantera.test.test_onedim.TestDiffusionFlame("test_mixture_averaged")
+    #     >>> t = cantera.test.test_onedim.TestDiffusionFlame()
+    #     >>> t.setUpClass()
     #     >>> t.test_mixture_averaged(True)
+    #     >>> t.test_auto(True)
+    #     >>> t.test_mixture_averaged_rad(True)
+    # (3) Compare the reference files created in the current working directory with
+    #     the ones in test/data and replace them if needed.
 
     def create_sim(self, p, fuel='H2:1.0, AR:1.0', T_fuel=300, mdot_fuel=0.24,
                    oxidizer='O2:0.2, AR:0.8', T_ox=300, mdot_ox=0.72, width=0.02):
 
         # Solution object used to compute mixture properties
-        self.gas = ct.Solution('h2o2.xml', 'ohmech')
+        self.gas = ct.Solution("h2o2.yaml", "ohmech")
         self.gas.TP = T_fuel, p
 
         # Flame object
@@ -773,8 +922,9 @@ class TestDiffusionFlame(utilities.CanteraTest):
         self.assertTrue(self.sim.energy_enabled)
         self.assertEqual(self.sim.transport_model, 'Mix')
 
+    @utilities.slow_test
     def test_mixture_averaged(self, saveReference=False):
-        referenceFile = pjoin(self.test_data_dir, 'DiffusionFlameTest-h2-mix.csv')
+        referenceFile = "DiffusionFlameTest-h2-mix.csv"
         self.create_sim(p=ct.one_atm)
 
         nPoints = len(self.sim.grid)
@@ -794,12 +944,12 @@ class TestDiffusionFlame(utilities.CanteraTest):
         if saveReference:
             np.savetxt(referenceFile, data, '%11.6e', ', ')
         else:
-            bad = utilities.compareProfiles(referenceFile, data,
+            bad = utilities.compareProfiles(self.test_data_path / referenceFile, data,
                                             rtol=1e-2, atol=1e-8, xtol=1e-2)
             self.assertFalse(bad, bad)
 
     def test_auto(self, saveReference=False):
-        referenceFile = pjoin(self.test_data_dir, 'DiffusionFlameTest-h2-auto.csv')
+        referenceFile = "DiffusionFlameTest-h2-auto.csv"
         self.create_sim(p=ct.one_atm, mdot_fuel=2, mdot_ox=3)
 
         nPoints = []
@@ -833,37 +983,44 @@ class TestDiffusionFlame(utilities.CanteraTest):
         if saveReference:
             np.savetxt(referenceFile, data, '%11.6e', ', ')
         else:
-            bad = utilities.compareProfiles(referenceFile, data,
+            bad = utilities.compareProfiles(self.test_data_path / referenceFile, data,
                                             rtol=1e-2, atol=1e-8, xtol=1e-2)
             self.assertFalse(bad, bad)
 
     def run_extinction(self, mdot_fuel, mdot_ox, T_ox, width, P):
         self.create_sim(fuel='H2:1.0', oxidizer='O2:1.0', p=ct.one_atm*P,
-                        mdot_fuel=mdot_fuel, mdot_ox=mdot_ox, width=width)
+                        mdot_fuel=mdot_fuel, mdot_ox=mdot_ox, T_ox=T_ox, width=width)
         self.sim.solve(loglevel=0, auto=True)
         self.assertFalse(self.sim.extinct())
 
     def test_extinction_case1(self):
         self.run_extinction(mdot_fuel=0.5, mdot_ox=3.0, T_ox=300, width=0.018, P=1.0)
 
+    @utilities.slow_test
     def test_extinction_case2(self):
         self.run_extinction(mdot_fuel=0.5, mdot_ox=1.0, T_ox=300, width=0.01, P=5.0)
 
+    @utilities.slow_test
     def test_extinction_case3(self):
         self.run_extinction(mdot_fuel=1.0, mdot_ox=0.5, T_ox=500, width=0.02, P=5.0)
 
+    @utilities.slow_test
     def test_extinction_case4(self):
         self.run_extinction(mdot_fuel=1.0, mdot_ox=3.0, T_ox=400, width=0.05, P=2.0)
 
+    @utilities.slow_test
     def test_extinction_case5(self):
         self.run_extinction(mdot_fuel=1.0, mdot_ox=3.0, T_ox=300, width=0.1, P=1.0)
 
+    @utilities.slow_test
     def test_extinction_case6(self):
         self.run_extinction(mdot_fuel=0.5, mdot_ox=0.5, T_ox=600, width=0.2, P=0.05)
 
+    @utilities.slow_test
     def test_extinction_case7(self):
         self.run_extinction(mdot_fuel=0.2, mdot_ox=2.0, T_ox=600, width=0.2, P=0.05)
 
+    @utilities.slow_test
     def test_restart(self):
         self.run_extinction(mdot_fuel=0.5, mdot_ox=3.0, T_ox=300, width=0.018, P=1.0)
 
@@ -881,7 +1038,7 @@ class TestDiffusionFlame(utilities.CanteraTest):
         self.assertNear(mdot[-1], -self.sim.oxidizer_inlet.mdot, 1e-4)
 
     def test_mixture_averaged_rad(self, saveReference=False):
-        referenceFile = pjoin(self.test_data_dir, 'DiffusionFlameTest-h2-mix-rad.csv')
+        referenceFile = "DiffusionFlameTest-h2-mix-rad.csv"
         self.create_sim(p=ct.one_atm)
 
         nPoints = len(self.sim.grid)
@@ -908,9 +1065,19 @@ class TestDiffusionFlame(utilities.CanteraTest):
         if saveReference:
             np.savetxt(referenceFile, data, '%11.6e', ', ')
         else:
-            bad = utilities.compareProfiles(referenceFile, data,
+            bad = utilities.compareProfiles(self.test_data_path / referenceFile, data,
                                             rtol=1e-2, atol=1e-8, xtol=1e-2)
             self.assertFalse(bad, bad)
+
+        filename = self.test_work_path / "DiffusionFlameTest-h2-mix-rad.csv"
+        # In Python >= 3.8, this can be replaced by the missing_ok argument
+        if filename.is_file():
+            filename.unlink()
+
+        self.sim.write_csv(filename) # check output
+        self.assertTrue(filename.is_file())
+        csv_data = np.genfromtxt(filename, dtype=float, delimiter=',', names=True)
+        self.assertIn('qdot', csv_data.dtype.names)
 
     def test_strain_rate(self):
         # This doesn't test that the values are correct, just that they can be
@@ -955,16 +1122,19 @@ class TestDiffusionFlame(utilities.CanteraTest):
 class TestCounterflowPremixedFlame(utilities.CanteraTest):
     # Note: to re-create the reference file:
     # (1) set PYTHONPATH to build/python.
-    # (2) Start Python in the test/work directory and run:
+    # (2) Start Python and run:
     #     >>> import cantera.test
-    #     >>> t = cantera.test.test_onedim.TestCounterflowPremixedFlame("test_mixture_averaged")
+    #     >>> t = cantera.test.test_onedim.TestCounterflowPremixedFlame()
+    #     >>> t.setUpClass()
     #     >>> t.test_mixture_averaged(True)
+    # (3) Compare the reference files created in the current working directory with
+    #     the ones in test/data and replace them if needed.
 
     def test_mixture_averaged(self, saveReference=False):
         T_in = 373.0  # inlet temperature
         comp = 'H2:1.6, O2:1, AR:7'  # premixed gas composition
 
-        gas = ct.Solution('h2o2.xml')
+        gas = ct.Solution("h2o2.yaml")
         gas.TPX = T_in, 0.05 * ct.one_atm, comp
         width = 0.2 # m
 
@@ -995,16 +1165,26 @@ class TestCounterflowPremixedFlame(utilities.CanteraTest):
         data[:,3] = sim.T
         data[:,4:] = sim.Y.T
 
-        referenceFile = pjoin(self.test_data_dir, 'CounterflowPremixedFlame-h2-mix.csv')
+        referenceFile = "CounterflowPremixedFlame-h2-mix.csv"
         if saveReference:
             np.savetxt(referenceFile, data, '%11.6e', ', ')
         else:
-            bad = utilities.compareProfiles(referenceFile, data,
+            bad = utilities.compareProfiles(self.test_data_path / referenceFile, data,
                                             rtol=1e-2, atol=1e-8, xtol=1e-2)
             self.assertFalse(bad, bad)
 
+        filename = self.test_work_path / "CounterflowPremixedFlame-h2-mix.csv"
+        # In Python >= 3.8, this can be replaced by the missing_ok argument
+        if filename.is_file():
+            filename.unlink()
+
+        sim.write_csv(filename) # check output
+        self.assertTrue(filename.is_file())
+        csv_data = np.genfromtxt(filename, dtype=float, delimiter=',', names=True)
+        self.assertNotIn('qdot', csv_data.dtype.names)
+
     def run_case(self, phi, T, width, P):
-        gas = ct.Solution('h2o2.xml')
+        gas = ct.Solution("h2o2.yaml")
         gas.TPX = T, P * ct.one_atm, {'H2':phi, 'O2':0.5, 'AR':2}
         sim = ct.CounterflowPremixedFlame(gas=gas, width=width)
         sim.reactants.mdot = 10 * gas.density
@@ -1015,21 +1195,27 @@ class TestCounterflowPremixedFlame(utilities.CanteraTest):
         self.assertTrue(all(sim.spread_rate >= -1e-9))
         return sim
 
+    @utilities.slow_test
     def test_solve_case1(self):
         self.run_case(phi=0.4, T=400, width=0.05, P=10.0)
 
+    @utilities.slow_test
     def test_solve_case2(self):
         self.run_case(phi=0.5, T=500, width=0.03, P=2.0)
 
+    @utilities.slow_test
     def test_solve_case3(self):
         self.run_case(phi=0.7, T=300, width=0.05, P=2.0)
 
+    @utilities.slow_test
     def test_solve_case4(self):
         self.run_case(phi=1.5, T=400, width=0.03, P=0.02)
 
+    @utilities.slow_test
     def test_solve_case5(self):
         self.run_case(phi=2.0, T=300, width=0.2, P=0.2)
 
+    @utilities.slow_test
     def test_restart(self):
         sim = self.run_case(phi=2.0, T=300, width=0.2, P=0.2)
 
@@ -1047,7 +1233,7 @@ class TestCounterflowPremixedFlame(utilities.CanteraTest):
 
 class TestBurnerFlame(utilities.CanteraTest):
     def solve(self, phi, T, width, P):
-        gas = ct.Solution('h2o2.xml')
+        gas = ct.Solution("h2o2.yaml")
         gas.TPX = T, ct.one_atm*P, {'H2':phi, 'O2':0.5, 'AR':1.5}
         sim = ct.BurnerFlame(gas=gas, width=width)
         sim.burner.mdot = gas.density * 0.15
@@ -1057,20 +1243,24 @@ class TestBurnerFlame(utilities.CanteraTest):
     def test_case1(self):
         self.solve(phi=0.5, T=500, width=2.0, P=0.1)
 
+    @utilities.slow_test
     def test_case2(self):
         self.solve(phi=2.0, T=400, width=0.05, P=1.0)
 
+    @utilities.slow_test
     def test_case3(self):
         self.solve(phi=1.7, T=300, width=0.05, P=1.0)
 
+    @utilities.slow_test
     def test_case4(self):
         self.solve(phi=0.5, T=300, width=1.0, P=5.0)
 
+    @utilities.slow_test
     def test_case5(self):
         self.solve(phi=1.0, T=400, width=0.2, P=0.01)
 
     def test_fixed_temp(self):
-        gas = ct.Solution('h2o2.xml')
+        gas = ct.Solution("h2o2.yaml")
         gas.TPX = 400, 2*ct.one_atm, {'H2':0.7, 'O2':0.5, 'AR':1.5}
         sim = ct.BurnerFlame(gas=gas, width=0.05)
         sim.burner.mdot = gas.density * 0.15
@@ -1084,7 +1274,7 @@ class TestBurnerFlame(utilities.CanteraTest):
         self.assertNear(max(sim.T), 1100)
 
     def test_blowoff(self):
-        gas = ct.Solution('h2o2.cti')
+        gas = ct.Solution("h2o2.yaml")
         gas.set_equivalence_ratio(0.4, 'H2', 'O2:1.0, AR:5')
         gas.TP = 300, ct.one_atm
         sim = ct.BurnerFlame(gas=gas, width=0.1)
@@ -1097,7 +1287,7 @@ class TestBurnerFlame(utilities.CanteraTest):
         self.assertArrayNear(sim.Y[:,0], sim.Y[:,-1], 1e-6, atol=1e-6)
 
     def test_restart(self):
-        gas = ct.Solution('h2o2.cti')
+        gas = ct.Solution("h2o2.yaml")
         gas.set_equivalence_ratio(0.8, 'H2', 'O2:1.0, AR:5')
         gas.TP = 300, ct.one_atm
         sim = ct.BurnerFlame(gas=gas, width=0.1)
@@ -1117,18 +1307,17 @@ class TestBurnerFlame(utilities.CanteraTest):
 
 class TestImpingingJet(utilities.CanteraTest):
     def create_reacting_surface(self, comp, tsurf, tinlet, width):
-        gas = ct.Solution('ptcombust-simple.cti', 'gas')
-        surf_phase = ct.Interface('ptcombust-simple.cti',
-                                  'Pt_surf', [gas])
+        self.gas = ct.Solution("ptcombust-simple.yaml", "gas")
+        self.surf_phase = ct.Interface("ptcombust-simple.yaml", "Pt_surf", [self.gas])
 
-        gas.TPX = tinlet, ct.one_atm, comp
-        surf_phase.TP = tsurf, ct.one_atm
+        self.gas.TPX = tinlet, ct.one_atm, comp
+        self.surf_phase.TP = tsurf, ct.one_atm
 
         # integrate the coverage equations holding the gas composition fixed
         # to generate a good starting estimate for the coverages.
-        surf_phase.advance_coverages(1.)
+        self.surf_phase.advance_coverages(1.)
 
-        return ct.ImpingingJet(gas=gas, width=width, surface=surf_phase)
+        return ct.ImpingingJet(gas=self.gas, width=width, surface=self.surf_phase)
 
     def run_reacting_surface(self, xch4, tsurf, mdot, width):
         # Simplified version of the example 'catalytic_combustion.py'
@@ -1152,17 +1341,20 @@ class TestImpingingJet(utilities.CanteraTest):
     def test_reacting_surface_case1(self):
         self.run_reacting_surface(xch4=0.095, tsurf=900.0, mdot=0.06, width=0.1)
 
+    @utilities.slow_test
     def test_reacting_surface_case2(self):
         self.run_reacting_surface(xch4=0.07, tsurf=1200.0, mdot=0.2, width=0.05)
 
+    @utilities.slow_test
     def test_reacting_surface_case3(self):
         self.run_reacting_surface(xch4=0.2, tsurf=800.0, mdot=0.1, width=0.2)
 
     @utilities.unittest.skipIf(isinstance(_h5py, ImportError), "h5py is not installed")
     def test_write_hdf(self):
-        filename = pjoin(self.test_work_dir, 'impingingjet-write_hdf.h5')
-        if os.path.exists(filename):
-            os.remove(filename)
+        filename = self.test_work_path / "impingingjet-write_hdf.h5"
+        # In Python >= 3.8, this can be replaced by the missing_ok argument
+        if filename.is_file():
+            filename.unlink()
 
         self.run_reacting_surface(xch4=0.095, tsurf=900.0, mdot=0.06, width=0.1)
         self.sim.write_hdf(filename)
@@ -1184,14 +1376,40 @@ class TestImpingingJet(utilities.CanteraTest):
             if k != 'fixed_temperature':
                 self.assertEqual(settings[k], v)
 
+    def test_save_restore(self):
+        comp = {'CH4': 0.095, 'O2': 0.21, 'N2': 0.79}
+        self.sim = self.create_reacting_surface(comp, tsurf=900, tinlet=300, width=0.1)
+
+        self.sim.inlet.mdot = 0.06
+        self.sim.inlet.T = 300
+        self.sim.inlet.X = comp
+        self.sim.surface.T = 900
+
+        self.sim.solve(loglevel=0, auto=False)
+
+        filename = self.test_work_path / "impingingjet1.yaml"
+        self.sim.save(filename)
+
+        self.surf_phase.TPX = 300, ct.one_atm, "PT(S):1"
+        sim2 = ct.ImpingingJet(gas=self.gas, width=0.12, surface=self.surf_phase)
+        sim2.restore(filename)
+
+        self.assertArrayNear(self.sim.grid, sim2.grid)
+        self.assertArrayNear(self.sim.Y, sim2.Y)
+        for i in range(self.sim.surface.n_components):
+            self.assertNear(
+                self.sim.value("surface", i, 0),
+                sim2.value("surface", i, 0)
+            )
+
 
 class TestTwinFlame(utilities.CanteraTest):
     def solve(self, phi, T, width, P):
-        gas = ct.Solution('h2o2.xml')
+        gas = ct.Solution("h2o2.yaml")
         gas.TP = T, ct.one_atm
         gas.set_equivalence_ratio(phi, 'H2', 'O2:1.0, AR:4.0')
         sim = ct.CounterflowTwinPremixedFlame(gas=gas, width=width)
-        sim.set_refine_criteria(ratio=5, slope=0.6, curve=0.8, prune=0.1)
+        sim.set_refine_criteria(ratio=5, slope=0.8, curve=1.0, prune=0.4)
         axial_velocity = 2.0
         sim.reactants.mdot = gas.density * axial_velocity
         sim.solve(loglevel=0, auto=True)
@@ -1215,6 +1433,7 @@ class TestTwinFlame(utilities.CanteraTest):
 
 
 class TestIonFreeFlame(utilities.CanteraTest):
+    @utilities.slow_test
     def test_ion_profile(self):
         reactants = 'CH4:0.216, O2:2'
         p = ct.one_atm
@@ -1222,7 +1441,7 @@ class TestIonFreeFlame(utilities.CanteraTest):
         width = 0.03
 
         # Solution object used to compute mixture properties
-        self.gas = ct.Solution('ch4_ion.cti')
+        self.gas = ct.Solution('ch4_ion.yaml')
         self.gas.TPX = Tin, p, reactants
         self.sim = ct.IonFreeFlame(self.gas, width=width)
         self.sim.set_refine_criteria(ratio=4, slope=0.8, curve=1.0)
@@ -1248,7 +1467,7 @@ class TestIonBurnerFlame(utilities.CanteraTest):
         width = 0.01
 
         # Solution object used to compute mixture properties
-        self.gas = ct.Solution('ch4_ion.cti')
+        self.gas = ct.Solution('ch4_ion.yaml')
         self.gas.TPX = Tburner, p, reactants
         self.sim = ct.IonBurnerFlame(self.gas, width=width)
         self.sim.set_refine_criteria(ratio=4, slope=0.1, curve=0.1)

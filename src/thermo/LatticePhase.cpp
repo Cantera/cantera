@@ -11,6 +11,7 @@
 
 #include "cantera/thermo/LatticePhase.h"
 #include "cantera/thermo/ThermoFactory.h"
+#include "cantera/thermo/Species.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctml.h"
 #include "cantera/base/utilities.h"
@@ -18,15 +19,10 @@
 namespace Cantera
 {
 
-LatticePhase::LatticePhase() :
-    m_Pref(OneAtm),
-    m_Pcurrent(OneAtm),
-    m_speciesMolarVolume(0),
-    m_site_density(0.0)
-{
-}
-
 LatticePhase::LatticePhase(const std::string& inputFile, const std::string& id_)
+    : m_Pref(OneAtm)
+    , m_Pcurrent(OneAtm)
+    , m_site_density(0.0)
 {
     initThermoFile(inputFile, id_);
 }
@@ -253,9 +249,9 @@ bool LatticePhase::addSpecies(shared_ptr<Species> spec)
             } else if (eos.hasKey("molar-volume")) {
                 mv = eos.convert("molar-volume", "m^3/kmol");
             }
-        } else if (spec->extra.hasKey("molar_volume")) {
-            // from XML
-            mv = spec->extra["molar_volume"].asDouble();
+        } else if (spec->input.hasKey("molar_volume")) {
+            // @Deprecated - remove this case for Cantera 3.0 with removal of the XML format
+            mv = spec->input["molar_volume"].asDouble();
         }
         m_speciesMolarVolume.push_back(mv);
     }
@@ -266,7 +262,8 @@ void LatticePhase::setSiteDensity(double sitedens)
 {
     m_site_density = sitedens;
     for (size_t k = 0; k < m_kk; k++) {
-        if (species(k)->extra.hasKey("molar_volume")) {
+        if (species(k)->input.hasKey("molar_volume")) {
+            // @Deprecated - remove this case for Cantera 3.0 with removal of the XML format
             continue;
         } else if (species(k)->input.hasKey("equation-of-state")) {
             auto& eos = species(k)->input["equation-of-state"].getMapWhere(
@@ -299,6 +296,49 @@ void LatticePhase::initThermo()
         setSiteDensity(m_input.convert("site-density", "kmol/m^3"));
     }
 }
+
+void LatticePhase::getParameters(AnyMap& phaseNode) const
+{
+    ThermoPhase::getParameters(phaseNode);
+    phaseNode["site-density"].setQuantity(m_site_density, "kmol/m^3");
+}
+
+void LatticePhase::getSpeciesParameters(const std::string& name,
+                                        AnyMap& speciesNode) const
+{
+    ThermoPhase::getSpeciesParameters(name, speciesNode);
+    size_t k = speciesIndex(name);
+    // Output volume information in a form consistent with the input
+    const auto S = species(k);
+    if (S->input.hasKey("equation-of-state")) {
+        auto& eosIn = S->input["equation-of-state"].getMapWhere(
+            "model", "constant-volume");
+        auto& eosOut = speciesNode["equation-of-state"].getMapWhere(
+            "model", "constant-volume", true);
+
+        if (eosIn.hasKey("density")) {
+            eosOut["model"] = "constant-volume";
+            eosOut["density"].setQuantity(
+                molecularWeight(k) / m_speciesMolarVolume[k], "kg/m^3");
+        } else if (eosIn.hasKey("molar-density")) {
+            eosOut["model"] = "constant-volume";
+            eosOut["molar-density"].setQuantity(1.0 / m_speciesMolarVolume[k],
+                                                "kmol/m^3");
+        } else if (eosIn.hasKey("molar-volume")) {
+            eosOut["model"] = "constant-volume";
+            eosOut["molar-volume"].setQuantity(m_speciesMolarVolume[k],
+                                               "m^3/kmol");
+        }
+    } else if (S->input.hasKey("molar_volume")) {
+        // Species came from XML
+        auto& eosOut = speciesNode["equation-of-state"].getMapWhere(
+            "model", "constant-volume", true);
+        eosOut["model"] = "constant-volume";
+        eosOut["molar-volume"].setQuantity(m_speciesMolarVolume[k], "m^3/kmol");
+    }
+    // Otherwise, species volume is determined by the phase-level site density
+}
+
 
 void LatticePhase::setParametersFromXML(const XML_Node& eosdata)
 {

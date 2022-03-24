@@ -8,28 +8,31 @@
 
 #include "Reactor.h"
 #include "cantera/numerics/FuncEval.h"
-#include "cantera/numerics/Integrator.h"
-#include "cantera/base/Array.h"
 
 namespace Cantera
 {
+
+class Array2D;
+class Integrator;
 
 //! A class representing a network of connected reactors.
 /*!
  *  This class is used to integrate the time-dependent governing equations for
  *  a network of reactors (Reactor, ConstPressureReactor) connected by various
  *  means, e.g. Wall, MassFlowController, Valve, PressureController.
+ *
+ * @ingroup ZeroD
  */
 class ReactorNet : public FuncEval
 {
 public:
     ReactorNet();
-    virtual ~ReactorNet() {};
+    virtual ~ReactorNet();
     ReactorNet(const ReactorNet&) = delete;
     ReactorNet& operator=(const ReactorNet&) = delete;
 
     //! @name Methods to set up a simulation.
-    //@{
+    //! @{
 
     //! Set initial time. Default = 0.0 s. Restarts integration from this time
     //! using the current mixture state as the initial condition.
@@ -53,6 +56,8 @@ public:
     //! Set the relative and absolute tolerances for integrating the
     //! sensitivity equations.
     void setSensitivityTolerances(double rtol, double atol);
+
+    //! @}
 
     //! Current value of the simulation time.
     doublereal time() {
@@ -99,8 +104,6 @@ public:
 
     //! Advance the state of all reactors in time.
     double step();
-
-    //@}
 
     //! Add the reactor *r* to this reactor network.
     void addReactor(Reactor& r);
@@ -234,16 +237,12 @@ public:
     //! integrator will take before reaching the next output time
     //! @param nmax The maximum number of steps, setting this value
     //!             to zero disables this option.
-    virtual void setMaxSteps(int nmax) {
-        m_integ->setMaxSteps(nmax);
-    }
+    virtual void setMaxSteps(int nmax);
 
     //! Returns the maximum number of internal integration time-steps the
     //!  integrator will take before reaching the next output time
     //!
-    virtual int maxSteps() {
-        return m_integ->maxSteps();
-    }
+    virtual int maxSteps();
 
     //! Set absolute step size limits during advance
     void setAdvanceLimits(const double* limits);
@@ -264,9 +263,7 @@ protected:
     //! Returns the order used for last solution step of the ODE integrator
     //! The function is intended for internal use by ReactorNet::advance
     //! and deliberately not exposed in external interfaces.
-    virtual int lastOrder() {
-        return m_integ->lastOrder();
-    }
+    virtual int lastOrder();
 
     std::vector<Reactor*> m_reactors;
     std::unique_ptr<Integrator> m_integ;
@@ -294,6 +291,12 @@ protected:
     vector_fp m_ydot;
     vector_fp m_yest;
     vector_fp m_advancelimits;
+    //! m_LHS is a vector representing the coefficients on the
+    //! "left hand side" of each governing equation
+    vector_fp m_LHS;
+    vector_fp m_RHS;
+    bool m_checked_eval_deprecation; //!< @todo Remove after Cantera 2.6
+    std::vector<bool> m_have_deprecated_eval; //!< @todo Remove after Cantera 2.6
 };
 }
 

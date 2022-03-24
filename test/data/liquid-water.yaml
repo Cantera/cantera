@@ -1,0 +1,16 @@
+generator: ctml2yaml
+cantera-version: 2.6.0a3
+date: Sun, 19 Dec 2021 10:34:37 -0500
+input-files: [test/data/liquid-water.xml]
+
+phases:
+- name: water
+  elements: [O, H]
+  species: [H2O]
+  thermo: liquid-water-IAPWS95
+  transport: water
+  state: {T: 300.0 K, P: 1.01325e+05 Pa}
+
+species:
+- name: H2O
+  composition: {H: 2.0, O: 1.0}

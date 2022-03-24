@@ -4,28 +4,63 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/kinetics/RxnRates.h"
-#include "cantera/base/Array.h"
+#include "cantera/base/AnyMap.h"
 
 namespace Cantera
 {
-Arrhenius::Arrhenius()
-    : m_logA(-1.0E300)
-    , m_b(0.0)
-    , m_E(0.0)
-    , m_A(0.0)
+Arrhenius2::Arrhenius2()
+    : ArrheniusRate()
 {
+    m_b = 0.0;
+    m_A = 0.0;
+    m_logA = -1.0E300;
 }
 
-Arrhenius::Arrhenius(doublereal A, doublereal b, doublereal E)
-    : m_b(b)
-    , m_E(E)
-    , m_A(A)
+Arrhenius2::Arrhenius2(doublereal A, doublereal b, doublereal E)
+    : ArrheniusRate(A, b, E * GasConstant)
 {
     if (m_A  <= 0.0) {
         m_logA = -1.0E300;
-    } else {
-        m_logA = std::log(m_A);
     }
+}
+
+Arrhenius2::Arrhenius2(const AnyValue& rate,
+                       const UnitSystem& units, const Units& rate_units)
+{
+    setRateParameters(rate, units, rate_units);
+}
+
+Arrhenius2::Arrhenius2(const ArrheniusRate& other)
+    : ArrheniusRate(other.preExponentialFactor(),
+                 other.temperatureExponent(),
+                 other.activationEnergy())
+{
+}
+
+void Arrhenius2::setRateParameters(const AnyValue& rate,
+                                   const UnitSystem& units, const Units& rate_units)
+{
+    UnitStack units_stack(rate_units);
+    ArrheniusRate::setRateParameters(rate, units, units_stack);
+    if (m_A <= 0.0) {
+        m_logA = -1.0E300;
+    }
+}
+
+void Arrhenius2::getParameters(AnyMap& node, const Units& rate_units) const
+{
+    if (rate_units.factor() != 0.0) {
+        node["A"].setQuantity(m_A, rate_units);
+    } else {
+        node["A"] = preExponentialFactor();
+        // This can't be converted to a different unit system because the dimensions of
+        // the rate constant were not set. Can occur if the reaction was created outside
+        // the context of a Kinetics object and never added to a Kinetics object.
+        node["__unconvertible__"] = true;
+    }
+    node["b"] = m_b;
+    node["Ea"].setQuantity(m_Ea_R, "K", true);
+    node.setFlowStyle();
 }
 
 SurfaceArrhenius::SurfaceArrhenius()
@@ -57,104 +92,6 @@ void SurfaceArrhenius::addCoverageDependence(size_t k, doublereal a,
     if (m != 0.0) {
         m_msp.push_back(k);
         m_mc.push_back(m);
-    }
-}
-
-Plog::Plog(const std::multimap<double, Arrhenius>& rates)
-    : logP_(-1000)
-    , logP1_(1000)
-    , logP2_(-1000)
-    , rDeltaP_(-1.0)
-{
-    size_t j = 0;
-    rates_.reserve(rates.size());
-    // Insert intermediate pressures
-    for (const auto& rate : rates) {
-        double logp = std::log(rate.first);
-        if (pressures_.empty() || pressures_.rbegin()->first != logp) {
-            // starting a new group
-            pressures_[logp] = {j, j+1};
-        } else {
-            // another rate expression at the same pressure
-            pressures_[logp].second = j+1;
-        }
-
-        j++;
-        rates_.push_back(rate.second);
-    }
-
-    // Duplicate the first and last groups to handle P < P_0 and P > P_N
-    pressures_.insert({-1000.0, pressures_.begin()->second});
-    pressures_.insert({1000.0, pressures_.rbegin()->second});
-}
-
-void Plog::validate(const std::string& equation)
-{
-    fmt::memory_buffer err_reactions;
-    double T[] = {200.0, 500.0, 1000.0, 2000.0, 5000.0, 10000.0};
-
-    for (auto iter = ++pressures_.begin(); iter->first < 1000; iter++) {
-        update_C(&iter->first);
-        for (size_t i=0; i < 6; i++) {
-            double k = 0;
-            for (size_t p = ilow1_; p < ilow2_; p++) {
-                k += rates_[p].updateRC(log(T[i]), 1.0/T[i]);
-            }
-            if (k < 0) {
-                format_to(err_reactions,
-                          "\nInvalid rate coefficient for reaction '{}'\n"
-                          "at P = {:.5g}, T = {:.1f}\n",
-                          equation, std::exp(iter->first), T[i]);
-            }
-        }
-    }
-    if (err_reactions.size()) {
-        throw CanteraError("Plog::validate", to_string(err_reactions));
-    }
-}
-
-std::vector<std::pair<double, Arrhenius> > Plog::rates() const
-{
-    std::vector<std::pair<double, Arrhenius> > R;
-    // initial preincrement to skip rate for P --> 0
-    for (auto iter = ++pressures_.begin();
-         iter->first < 1000; // skip rates for (P --> infinity)
-         ++iter) {
-        for (size_t i = iter->second.first;
-             i < iter->second.second;
-             i++) {
-            R.emplace_back(std::exp(iter->first), rates_[i]);
-        }
-    }
-    return R;
-}
-
-
-ChebyshevRate::ChebyshevRate(double Tmin, double Tmax, double Pmin, double Pmax,
-                             const Array2D& coeffs)
-    : Tmin_(Tmin)
-    , Tmax_(Tmax)
-    , Pmin_(Pmin)
-    , Pmax_(Pmax)
-    , nP_(coeffs.nColumns())
-    , nT_(coeffs.nRows())
-    , chebCoeffs_(coeffs.nColumns() * coeffs.nRows(), 0.0)
-    , dotProd_(coeffs.nRows())
-{
-    double logPmin = std::log10(Pmin);
-    double logPmax = std::log10(Pmax);
-    double TminInv = 1.0 / Tmin;
-    double TmaxInv = 1.0 / Tmax;
-
-    TrNum_ = - TminInv - TmaxInv;
-    TrDen_ = 1.0 / (TmaxInv - TminInv);
-    PrNum_ = - logPmin - logPmax;
-    PrDen_ = 1.0 / (logPmax - logPmin);
-
-    for (size_t t = 0; t < nT_; t++) {
-        for (size_t p = 0; p < nP_; p++) {
-            chebCoeffs_[nP_*t + p] = coeffs(t,p);
-        }
     }
 }
 

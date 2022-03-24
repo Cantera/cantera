@@ -18,7 +18,7 @@ description: |-
   ****                                                                  *
   ***********************************************************************
 
-    Ref:- 1.) Deutschman et al., 26th Symp. (Intl.) on Combustion, 1996
+    Ref:- 1.) Deutschmann et al., 26th Symp. (Intl.) on Combustion, 1996
               pp. 1747-1754
   -----------------------------------------------------------------------
 
@@ -48,6 +48,7 @@ phases:
     X: {CH4: 0.095, O2: 0.21, AR: 0.79}
 - name: Pt_surf
   thermo: ideal-surface
+  adjacent-phases: [gas]
   elements: [Pt, H, O, C]
   species: [PT(S), H(S), H2O(S), OH(S), CO(S), CO2(S), CH3(S), CH2(S)s,
     CH(S), C(S), O(S)]

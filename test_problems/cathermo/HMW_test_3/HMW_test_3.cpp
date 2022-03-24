@@ -1,4 +1,5 @@
 #include "cantera/thermo/HMWSoln.h"
+#include "cantera/base/global.h"
 
 #include <cstdio>
 
@@ -37,7 +38,7 @@ int main(int argc, char** argv)
     int retn = 0;
     try {
 
-        HMWSoln* HMW = new HMWSoln("HMW_NaCl_tc.xml");
+        HMWSoln* HMW = new HMWSoln("thermo-models.yaml", "HMW-NaCl-electrolyte");
 
         size_t nsp = HMW->nSpecies();
 

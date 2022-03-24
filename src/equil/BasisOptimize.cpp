@@ -7,6 +7,8 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/equil/MultiPhase.h"
+#include "cantera/base/utilities.h"
+#include "cantera/base/global.h"
 
 using namespace std;
 

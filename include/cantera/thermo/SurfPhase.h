@@ -89,27 +89,9 @@ namespace Cantera
  *            C^0_k = \frac{n_0}{s_k}
  *        \f]
  *
- * ## Instantiation of the Class
- *
- * The constructor for this phase is located in the default ThermoFactory
- * for %Cantera. A new SurfPhase may be created by the following code snippet:
- *
- * @code
- *    XML_Node *xc = get_XML_File("diamond.xml");
- *    XML_Node * const xs = xc->findNameID("phase", "diamond_100");
- *    ThermoPhase *diamond100TP_tp = newPhase(*xs);
- *    SurfPhase *diamond100TP = dynamic_cast <SurfPhase *>(diamond100TP_tp);
- * @endcode
- *
- * or by the following constructor:
- *
- * @code
- *    XML_Node *xc = get_XML_File("diamond.xml");
- *    XML_Node * const xs = xc->findNameID("phase", "diamond_100");
- *    SurfPhase *diamond100TP = new SurfPhase(*xs);
- * @endcode
- *
  * ## XML Example
+ *
+ * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
  *
  * An example of an XML Element named phase setting up a SurfPhase object named
  * diamond_100 is given below.
@@ -146,8 +128,10 @@ public:
     /*!
      *  @param n0 Site Density of the Surface Phase
      *            Units: kmol m-2.
+     *  @deprecated The `n0` constructor argument is deprecated and will be
+     *      removed after Cantera 2.6. Use setSiteDensity() instead.
      */
-    SurfPhase(doublereal n0 = 1.0);
+    SurfPhase(doublereal n0 = -1.0);
 
     //! Construct and initialize a SurfPhase ThermoPhase object directly from an
     //! ASCII input file
@@ -156,7 +140,7 @@ public:
      * @param id     name of the phase id in the file.
      *               If this is blank, the first phase in the file is used.
      */
-    SurfPhase(const std::string& infile, const std::string& id);
+    explicit SurfPhase(const std::string& infile, const std::string& id="");
 
     //! Construct and initialize a SurfPhase ThermoPhase object directly from an
     //! XML database
@@ -265,6 +249,7 @@ public:
      * @param n number of parameters. Must be one
      * @param c array of \a n coefficients
      *           c[0] = The site density (kmol m-2)
+     * @deprecated To be removed after Cantera 2.6
      */
     virtual void setParameters(int n, doublereal* const c);
 
@@ -291,6 +276,7 @@ public:
      */
     virtual void setParametersFromXML(const XML_Node& thermoData);
     virtual void initThermo();
+    virtual void getParameters(AnyMap& phaseNode) const;
 
     virtual bool addSpecies(shared_ptr<Species> spec);
 
@@ -319,7 +305,7 @@ public:
     /*!
      * Site density kmol m-2
      */
-    doublereal siteDensity() {
+    double siteDensity() const {
         return m_n0;
     }
 

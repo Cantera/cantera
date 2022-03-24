@@ -10,6 +10,7 @@
 
 // Cantera includes
 #include "cantera/equil/MultiPhase.h"
+#include "cantera/thermo/ThermoPhase.h"
 #include "Cabinet.h"
 
 using namespace std;

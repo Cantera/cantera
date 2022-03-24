@@ -1,7 +1,11 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-#include "cantera/thermo/IdealGasPhase.h"
+// This test checks the algorithm used in setState_HP() to make sure that it is
+// tolerant of (small) jumps in the value of H or Cp at temperature boundaries.
+
+#include "cantera/thermo.h"
+#include "cantera/base/Solution.h"
 
 #include <iostream>
 
@@ -14,7 +18,7 @@ int main(int argc, char** argv)
     _set_output_format(_TWO_DIGIT_EXPONENT);
 #endif
     try {
-        auto sol = newSolution("bad_air.xml", "air");
+        auto sol = newSolution("bad_air.yaml");
         auto gas = sol->thermo();
         double pres = 1.0E5;
         gas->setState_TPX(1000.1, pres, "O2:0.4, N2:0.6");

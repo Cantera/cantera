@@ -1,10 +1,10 @@
 #include "gtest/gtest.h"
+#include "cantera/thermo/Species.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/PDSSFactory.h"
 #include "cantera/thermo/PDSS_ConstVol.h"
 #include "cantera/thermo/PDSS_Water.h"
 #include "cantera/thermo/PDSS_SSVol.h"
-#include "cantera/thermo/FixedChemPotSSTP.h"
 #include "cantera/thermo/PureFluidPhase.h"
 #include "cantera/thermo/WaterSSTP.h"
 #include "cantera/thermo/RedlichKwongMFTP.h"
@@ -77,51 +77,9 @@ shared_ptr<Species> make_const_cp_species(const std::string& name,
     return species;
 }
 
-//! @todo Remove after Cantera 2.5 - class FixedChemPotSSTP is deprecated
-class FixedChemPotSstpConstructorTest : public testing::Test
-{
-};
-
-TEST_F(FixedChemPotSstpConstructorTest, fromXML)
-{
-    suppress_deprecation_warnings();
-    std::unique_ptr<ThermoPhase> p(newPhase("../data/LiFixed.xml"));
-    ASSERT_EQ((int) p->nSpecies(), 1);
-    double mu;
-    p->getChemPotentials(&mu);
-    ASSERT_DOUBLE_EQ(-2.3e7, mu);
-    make_deprecation_warnings_fatal();
-}
-
-TEST_F(FixedChemPotSstpConstructorTest, SimpleConstructor)
-{
-    suppress_deprecation_warnings();
-    FixedChemPotSSTP p("Li", -2.3e7);
-    ASSERT_EQ((int) p.nSpecies(), 1);
-    double mu;
-    p.getChemPotentials(&mu);
-    ASSERT_DOUBLE_EQ(-2.3e7, mu);
-    make_deprecation_warnings_fatal();
-}
-
-TEST(IonsFromNeutralConstructor, fromXML)
-{
-    std::unique_ptr<ThermoPhase> p(newPhase("../data/mock_ion.xml",
-                                            "mock_ion_phase"));
-    ASSERT_EQ((int) p->nSpecies(), 2);
-    p->setState_TPX(500, 2e5, "K+:0.1, Cl-:0.1");
-    vector_fp mu(p->nSpecies());
-    p->getChemPotentials(mu.data());
-
-    // Values for regression testing only -- no reference values known for comparison
-    EXPECT_NEAR(p->density(), 1984.2507319669949, 1e-6);
-    EXPECT_NEAR(p->enthalpy_mass(), -14738312.44316336, 1e-6);
-    EXPECT_NEAR(mu[0], -4.66404010e+08, 1e1);
-    EXPECT_NEAR(mu[1], -2.88157316e+06, 1e-1);
-}
-
 TEST(IonsFromNeutralConstructor, fromScratch)
 {
+    // Compare to the "ions-from-neutral-molecule" phase in "thermo-models.yaml"
     auto neutral = make_shared<MargulesVPSSTP>();
     auto sKCl = make_shomate_species("KCl(L)", "K:1 Cl:1", kcl_shomate_coeffs);
     neutral->addSpecies(sKCl);
@@ -153,13 +111,14 @@ TEST(IonsFromNeutralConstructor, fromScratch)
     vector_fp mu(p.nSpecies());
     p.getChemPotentials(mu.data());
 
-    // Values for regression testing only -- same as XML test
+    // Values for regression testing only -- same as ThermoFromYaml test
     EXPECT_NEAR(p.density(), 1984.2507319669949, 1e-6);
     EXPECT_NEAR(p.enthalpy_mass(), -14738312.44316336, 1e-6);
     EXPECT_NEAR(mu[0], -4.66404010e+08, 1e1);
     EXPECT_NEAR(mu[1], -2.88157316e+06, 1e-1);
 }
 
+#ifndef CT_NO_PYTHON
 class CtiConversionTest : public testing::Test
 {
 public:
@@ -180,16 +139,20 @@ public:
 };
 
 TEST_F(CtiConversionTest, ExplicitConversion) {
+    suppress_deprecation_warnings();
     p1.reset(newPhase("../data/air-no-reactions.xml"));
     ct2ctml("../data/air-no-reactions.cti");
     p2.reset(newPhase("air-no-reactions.xml", ""));
     compare();
+    make_deprecation_warnings_fatal();
 }
 
 TEST_F(CtiConversionTest, ImplicitConversion) {
+    suppress_deprecation_warnings();
     p1.reset(newPhase("../data/air-no-reactions.xml"));
     p2.reset(newPhase("../data/air-no-reactions.cti"));
     compare();
+    make_deprecation_warnings_fatal();
 }
 
 class ChemkinConversionTest : public testing::Test {
@@ -203,10 +166,12 @@ public:
 };
 
 TEST_F(ChemkinConversionTest, ValidConversion) {
+    suppress_deprecation_warnings();
     copyInputFile("pdep-test.inp");
     ck2cti("pdep-test.inp");
     std::unique_ptr<ThermoPhase> p(newPhase("pdep-test.cti"));
     ASSERT_GT(p->temperature(), 0.0);
+    make_deprecation_warnings_fatal();
 }
 
 TEST_F(ChemkinConversionTest, MissingInputFile) {
@@ -219,6 +184,7 @@ TEST_F(ChemkinConversionTest, FailedConversion) {
     ASSERT_THROW(ck2cti("h2o2_missingThermo.inp"),
                  CanteraError);
 }
+#endif
 
 class ConstructFromScratch : public testing::Test
 {
@@ -346,35 +312,6 @@ TEST_F(ConstructFromScratch, RedlichKwongMFTP_missing_coeffs)
     p.setSpeciesCoeffs("H2O", 1.7458e8 * fa, -8e4 * fa, 18.18 * fb);
     p.setSpeciesCoeffs("H2", 30e7 * fa, -330e4 * fa, 31 * fb);
     EXPECT_THROW(p.setState_TP(300, 200e5), CanteraError);
-}
-
-//! @todo Remove after Cantera 2.5 - "gas" mode of IdealSolnGasVPSS is
-//!     deprecated
-TEST_F(ConstructFromScratch, IdealSolnGasVPSS_gas)
-{
-    suppress_deprecation_warnings();
-    IdealSolnGasVPSS p;
-    p.addSpecies(sH2O);
-    p.addSpecies(sH2);
-    p.addSpecies(sO2);
-    std::unique_ptr<PDSS> pH2O(newPDSS("ideal-gas"));
-    std::unique_ptr<PDSS> pH2(newPDSS("ideal-gas"));
-    std::unique_ptr<PDSS> pO2(newPDSS("ideal-gas"));
-    p.installPDSS(0, std::move(pH2O));
-    p.installPDSS(1, std::move(pH2));
-    p.installPDSS(2, std::move(pO2));
-
-    p.setGasMode();
-    EXPECT_THROW(p.setStandardConcentrationModel("unity"), CanteraError);
-    p.initThermo();
-
-    p.setState_TPX(400, 5*OneAtm, "H2:0.01, O2:0.99");
-    p.equilibrate("HP");
-
-    EXPECT_NEAR(p.temperature(), 479.929, 1e-3); // based on h2o2.cti
-    EXPECT_NEAR(p.moleFraction("H2O"), 0.01, 1e-4);
-    EXPECT_NEAR(p.moleFraction("H2"), 0.0, 1e-4);
-    make_deprecation_warnings_fatal();
 }
 
 TEST(PureFluidFromScratch, CarbonDioxide)
@@ -527,7 +464,7 @@ TEST(LatticeSolidPhase, fromScratch)
     interstital->setName("Li7Si3_Interstitial");
     auto sLii = make_const_cp_species("Li(i)", "Li:1", 298.15, 0, 2e4, 2e4);
     auto sVac = make_const_cp_species("V(i)", "", 298.15, 8.98e4, 0, 0);
-    sLii->extra["molar_volume"] = 0.2;
+    sLii->input["molar_volume"] = 0.2;
     interstital->setSiteDensity(10.46344);
     interstital->addSpecies(sLii);
     interstital->addSpecies(sVac);
@@ -561,11 +498,11 @@ TEST(IdealSolidSolnPhase, fromScratch)
     // Regression test based fictitious XML input file
     IdealSolidSolnPhase p;
     auto sp1 = make_species("sp1", "C:2, H:2", o2_nasa_coeffs);
-    sp1->extra["molar_volume"] = 1.5;
+    sp1->input["molar_volume"] = 1.5;
     auto sp2 = make_species("sp2", "C:1", h2o_nasa_coeffs);
-    sp2->extra["molar_volume"] = 1.3;
+    sp2->input["molar_volume"] = 1.3;
     auto sp3 = make_species("sp3", "H:2", h2_nasa_coeffs);
-    sp3->extra["molar_volume"] = 0.1;
+    sp3->input["molar_volume"] = 0.1;
     for (auto& s : {sp1, sp2, sp3}) {
         p.addSpecies(s);
     }
@@ -749,7 +686,6 @@ TEST(PDSS_SSVol, fromScratch)
         62.8859};
     auto sLi = make_shomate2_species("Li(L)", "Li:1", coeffs);
     p.addSpecies(sLi);
-    p.setSolnMode();
     p.setStandardConcentrationModel("unity");
     std::unique_ptr<PDSS_SSVol> ss(new PDSS_SSVol());
     double rho_coeffs[] = {536.504, -1.04279e-1, 3.84825e-6, -5.2853e-9};

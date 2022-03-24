@@ -76,7 +76,7 @@ sim.solve(loglevel, auto=True)
 if hdf_output:
     outfile = 'stagnation_flame.h5'
 else:
-    outfile = 'stagnation_flame.xml'
+    outfile = 'stagnation_flame.yaml'
 if os.path.exists(outfile):
     os.remove(outfile)
 

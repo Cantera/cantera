@@ -14,15 +14,16 @@ content.
 import sys
 import re
 import pathlib
+import textwrap
 from collections import OrderedDict
 import numpy as np
 from email.utils import formatdate
 import argparse
 
 try:
-    import ruamel_yaml as yaml
-except ImportError:
     from ruamel import yaml
+except ImportError:
+    import ruamel_yaml as yaml
 
 # yaml.version_info is a tuple with the three parts of the version
 yaml_version = yaml.version_info
@@ -208,7 +209,7 @@ def units(length = '', quantity = '', mass = '', time = '',
 
 def get_composition(atoms):
     if isinstance(atoms, dict): return atoms
-    a = atoms.replace(',',' ')
+    a = atoms.replace(",", " ").replace(": ", ":")
     toks = a.split()
     d = OrderedDict()
     for t in toks:
@@ -305,7 +306,7 @@ class species:
         else:
             self.thermo = const_cp()
 
-        self.transport = transport
+        self.transport = None if transport == "None" else transport
         self.standard_state = standardState
 
         self.rk_pure = {}
@@ -867,6 +868,8 @@ class chebyshev_reaction(reaction):
             ``id``, ``order``, and ``options`` may be specified as keyword
             arguments, with the same meanings as for class `reaction`.
         """
+        # Remove deprecated '(+M)' third body notation
+        equation = re.sub(r" *\( *\+ *M *\)", "", equation)
         super().__init__(equation, None, **kwargs)
         self.type = 'Chebyshev'
         self.Pmin = Pmin
@@ -1087,15 +1090,11 @@ class phase:
                 rnum = 'declared-species'
             if rnum != 'none':
                 self.reactions.append([datasrc, rnum])
-            if rnum in ('all', 'declared-species', 'none'):
+            if rnum.lower() in ("all", "declared-species", "none"):
                 continue
-            if '*' in rnum:
-                if datasrc != 'reactions':
-                    _printerr("WARNING: Reaction id-pattern matching from remote"
-                        " files not supported ({}: {})".format(datasrc, rnum))
-            else:
-                _printerr("WARNING: Reaction specification"
-                          " '{}' not supported".format(rnum))
+            if datasrc != "reactions":
+                _printerr("WARNING: Reaction id-pattern matching from remote"
+                    " files not supported ({}: {})".format(datasrc, rnum))
 
         self.initial_state = initial_state
 
@@ -1129,28 +1128,52 @@ class phase:
         # Convert reaction pattern matching to use of multiple reaction sections
         for i in range(len(self.reactions)):
             spec = self.reactions[i][1]
-            name = self.name + '-reactions'
-            if '*' in spec and name not in _reactions:
-                pattern = re.compile(spec.replace('*', '.*'))
-                misses = []
-                hits = []
-                for reaction in _reactions['reactions']:
-                    if pattern.match(reaction.id):
-                        hits.append(reaction)
-                    else:
-                        misses.append(reaction)
-                _reactions[name] = hits
-                _reactions['reactions'] = misses
-                self.reactions[i] = [name, 'all']
+            name = self.name + "-reactions"
 
-        if self.kinetics and self.reactions:
+            if name in _reactions:
+                continue
+            if spec.lower() in ("all", "declared-species", "none"):
+                continue
+
+            pattern = None
+            if "*" in spec:
+                pattern = re.compile(spec.replace("*", ".*"))
+
+            misses = []
+            hits = []
+            for reaction in _reactions['reactions']:
+                if reaction.id == spec:
+                    # exact match (single reaction is specified)
+                    hits.append(reaction)
+                elif pattern and pattern.match(reaction.id):
+                    # regex match (wildcard is specified)
+                    hits.append(reaction)
+                else:
+                    misses.append(reaction)
+
+            if not hits:
+                _printerr("WARNING: Unable to generate field '{}'\nfrom reaction "
+                          "specification '{}' ".format(name, self.reactions[i][1]))
+
+            _reactions[name] = hits
+            _reactions["reactions"] = misses
+            self.reactions[i] = [name, "all"]
+
+        if self.kinetics:
             out['kinetics'] = _newNames[self.kinetics]
-            if len(self.reactions) == 1 and self.reactions[0][0] == 'reactions':
-                out['reactions'] = self.reactions[0][1]
-            elif all(r[1] == 'all' for r in self.reactions):
-                out['reactions'] = FlowList(r[0] for r in self.reactions)
+            if self.reactions:
+                if len(self.reactions) == 1 and self.reactions[0][0] == 'reactions':
+                    if _reactions['reactions']:
+                        out['reactions'] = self.reactions[0][1]
+                    else:
+                        out['reactions'] = 'none'
+                elif all(r[1] == 'all' for r in self.reactions):
+                    out['reactions'] = FlowList(r[0] for r in self.reactions)
+                else:
+                    out['reactions'] = [BlockMap([(r[0], r[1])])
+                                        for r in self.reactions]
             else:
-                out['reactions'] = [BlockMap([(r[0], r[1])]) for r in self.reactions]
+                out["reactions"] = "none"
 
         if self.transport:
             out['transport'] = _newNames[self.transport]
@@ -1182,8 +1205,8 @@ class ideal_gas(phase):
 
         phase.__init__(self, name, elements, species, note, reactions,
                        initial_state, options)
-        self.kinetics = kinetics
-        self.transport = transport
+        self.kinetics = None if kinetics == "None" else kinetics
+        self.transport = None if transport == "None" else transport
         self.thermo_model = 'ideal-gas'
 
 
@@ -1206,7 +1229,7 @@ class stoichiometric_solid(phase):
         self.density = density
         if self.density is None:
             raise InputError('density must be specified.')
-        self.transport = None if transport == 'None' else transport
+        self.transport = None if transport == "None" else transport
 
     def get_yaml(self, out):
         super().get_yaml(out)
@@ -1234,23 +1257,6 @@ class metal(phase):
                        initial_state, options)
         self.thermo_model = 'electron-cloud'
         self.density = density
-
-    def get_yaml(self, out):
-        super().get_yaml(out)
-        out['density'] = applyUnits(self.density)
-
-
-class incompressible_solid(phase):
-    """An incompressible solid."""
-    def __init__(self, name='', elements='', species='', note='', density=None,
-                 transport='None', initial_state=None, options=()):
-
-        phase.__init__(self, name, elements, species, note, 'none',
-                       initial_state, options)
-        self.thermo_model = 'constant-density'
-        self.density = density
-        if self.density is None:
-            raise InputError('density must be specified.')
 
     def get_yaml(self, out):
         super().get_yaml(out)
@@ -1318,8 +1324,8 @@ class RedlichKwongMFTP(phase):
         phase.__init__(self,name, elements, species, note, reactions,
                        initial_state,options)
         self.thermo_model = 'Redlich-Kwong'
-        self.kinetics = kinetics
-        self.transport = None if transport == 'None' else transport
+        self.kinetics = None if kinetics == "None" else kinetics
+        self.transport = None if transport == "None" else transport
         self.activity_coefficients = activity_coefficients
 
     def get_yaml(self, out):
@@ -1362,7 +1368,7 @@ class IdealSolidSolution(phase):
         self.standard_concentration = standard_concentration
         if self.standard_concentration is None:
             raise InputError('In phase {}: standard_concentration must be specified.', name)
-        self.transport = None if transport == 'None' else transport
+        self.transport = None if transport == "None" else transport
 
     def get_yaml(self, out):
         super().get_yaml(out)
@@ -1474,12 +1480,15 @@ class ideal_interface(phase):
         phase.__init__(self, name, elements, species, note, reactions,
                        initial_state, options)
         self.thermo_model = 'ideal-surface'
-        self.kinetics = kinetics
-        self.transport = None if transport == 'None' else transport
+        self.kinetics = None if kinetics == "None" else kinetics
+        self.transport = None if transport == "None" else transport
         self.site_density = site_density
+        self.adjacent_phases = phases.split()
 
     def get_yaml(self, out):
         super().get_yaml(out)
+        if self.adjacent_phases:
+            out['adjacent-phases'] = FlowList(self.adjacent_phases)
         out['site-density'] = applyUnits(self.site_density)
         if _motz_wise is not None:
             out['Motz-Wise'] = _motz_wise
@@ -1545,7 +1554,7 @@ class Lindemann:
         pass
 
 
-def convert(filename=None, output_name=None, text=None):
+def convert(filename=None, output_name=None, text=None, encoding="latin-1"):
     # Reset global state, in case cti2yaml is being used as a module and convert
     # is being called multiple times.
     units('m', 'kmol', 'kg', 's', 'J/kmol', 'J', 'Pa')
@@ -1577,16 +1586,17 @@ def convert(filename=None, output_name=None, text=None):
 
     try:
         if filename is not None:
-            with filename.open('r', encoding='latin-1') as f:
-                code = compile(f.read(), str(filename), 'exec')
+            text = filename.read_text(encoding=encoding)
         else:
-            code = compile(text, '<string>', 'exec')
+            filename = "<string>"
+        code = compile(text, str(filename), "exec")
         exec(code)
+    except FileNotFoundError as err:
+        _printerr(f"Input file '{filename}' does not exist.")
+        sys.exit(2)
     except SyntaxError as err:
         # Show more context than the default SyntaxError message
         # to help see problems in multi-line statements
-        if filename:
-            text = pathlib.Path(filename).read_text()
         text = text.split('\n')
         _printerr('{} in "{}" on line {}:\n'.format(
             err.__class__.__name__, err.filename, err.lineno))
@@ -1601,10 +1611,6 @@ def convert(filename=None, output_name=None, text=None):
     except Exception as err:
         import traceback
 
-        if filename:
-            text = pathlib.Path(filename).read_text()
-        else:
-            filename = '<string>'
         text = text.split('\n')
         tb = traceback.extract_tb(sys.exc_info()[2])
         lineno = tb[-1][1]
@@ -1624,8 +1630,18 @@ def convert(filename=None, output_name=None, text=None):
         else:
             # Error in cti2yaml or elsewhere
             traceback.print_exc()
-
         sys.exit(4)
+
+    # get file description from header block
+    description = []
+    for line in text.splitlines():
+        # only consider comments in the initial contiguous comment block
+        # comments start with '#'; there may be empty leading lines
+        if description and not line.startswith("#"):
+            break
+        elif line.strip():
+            description.append(line[1:].rstrip())
+    description = textwrap.dedent("\n".join(description).strip("\n"))
 
     # write the YAML file
     emitter = yaml.YAML()
@@ -1636,14 +1652,22 @@ def convert(filename=None, output_name=None, text=None):
             emitter.register_class(cls)
 
     with output_name.open('w') as dest:
+        if description:
+            emitter.dump(
+                BlockMap([
+                    ("description", yaml.scalarstring.LiteralScalarString(description))
+                ]), dest)
+
         # information regarding conversion
         metadata = BlockMap([
-            ('generator', 'cti2yaml'),
-            ('cantera-version', '2.5.1'),
-            ('date', formatdate(localtime=True)),
+            ("generator", "cti2yaml"),
+            ("cantera-version", "2.6.0b1"),
+            ("date", formatdate(localtime=True)),
         ])
-        if filename is not None:
+        if filename != "<string>":
             metadata['input-files'] = FlowList([base])
+        if description:
+            metadata.yaml_set_comment_before_after_key("generator", before="\n")
         emitter.dump(metadata, dest)
 
         out_units = FlowMap([])
@@ -1688,22 +1712,42 @@ def convert(filename=None, output_name=None, text=None):
                 reactions_map.yaml_set_comment_before_after_key(name, before='\n')
                 emitter.dump(reactions_map, dest)
 
+    surfaces = []
+    for phase in _phases:
+        if isinstance(phase, ideal_interface):
+            surfaces.append(phase.name)
+
+    return len(_species), len(_reactions), surfaces, output_name
+
 
 def main():
     """Parse command line arguments and pass them to `convert`."""
     parser = argparse.ArgumentParser(
-        description="Convert legacy CTI input files to YAML format",
-        epilog=("The 'output' argument is optional. If it is not given, an output "
-                "file with the same name as the input file is used, with the extension "
-                "changed to '.yaml'.")
+        description=(
+            "Convert legacy CTI input files to YAML format, where the first contiguous "
+            "comment block is used as file description"),
+        epilog=(
+            "The 'output' argument is optional. If it is not given, an output "
+            "file with the same name as the input file is used, with the extension "
+            "changed to '.yaml'.")
     )
     parser.add_argument("input", help="The input CTI filename. Must be specified.")
     parser.add_argument("output", nargs="?", help="The output YAML filename. Optional.")
-    if len(sys.argv) not in [2, 3]:
-        if len(sys.argv) > 3:
+    parser.add_argument(
+        "--input-encoding", default="latin-1", metavar="",
+        help="Character encoding of the file. Default is 'latin-1'.")
+    parser.add_argument(
+        "--quiet", action="store_true", default=False,
+        help="Do not produce output.")
+    parser.add_argument(
+        "--no-validate", action="store_true", default=False,
+        help="Skip validation step.")
+
+    if len(sys.argv) not in [2, 3, 4, 5]:
+        if len(sys.argv) > 5:
             print(
                 "cti2yaml.py: error: unrecognized arguments:",
-                ' '.join(sys.argv[3:]),
+                ' '.join(sys.argv[5:]),
                 file=sys.stderr,
             )
         parser.print_help(sys.stderr)
@@ -1715,7 +1759,34 @@ def main():
     else:
         output_file = pathlib.Path(args.output)
 
-    convert(input_file, output_file)
+    n_spc, n_rxn, surfaces, output_name = convert(
+        input_file, output_file, encoding=args.input_encoding)
+
+    if not args.quiet:
+        print(f"Wrote YAML mechanism file to '{output_name}'.")
+        print(f"Mechanism contains {n_spc} species and {n_rxn} reactions.")
+
+    if args.no_validate:
+        return
+
+    # Do full validation by importing the resulting mechanism
+    try:
+        import cantera as ct
+    except ImportError:
+        print("WARNING: Unable to import Cantera Python module. "
+            "Output mechanism has not been validated")
+        sys.exit(0)
+
+    try:
+        print("Validating mechanism...")
+        gas = ct.Solution(output_name)
+        for surf_name in surfaces:
+            phase = ct.Interface(output_name, surf_name)
+        print("PASSED")
+    except RuntimeError as e:
+        print("FAILED")
+        _printerr(str(e))
+        sys.exit(1)
 
 
 if __name__ == "__main__":

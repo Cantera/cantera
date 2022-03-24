@@ -10,17 +10,22 @@
 
 #include "Kinetics.h"
 #include "cantera/base/FactoryBase.h"
+#include "cantera/base/AnyMap.h"
 
 namespace Cantera
 {
 
+//! @deprecated Unused. To be removed after Cantera 2.6.
 class UnknownKineticsModel : public CanteraError
 {
 public:
     UnknownKineticsModel(const std::string& proc, const std::string& kineticsModel) :
         CanteraError(proc, "Specified Kinetics model "
                      + kineticsModel +
-                     " does not match any known type.") {}
+                     " does not match any known type.") {
+        warn_deprecated("class UnknownKineticsModel",
+            "Unused. To be removed after Cantera 2.6.");
+    }
 };
 
 /**
@@ -97,6 +102,15 @@ inline Kinetics* newKineticsMgr(const std::string& model)
     return KineticsFactory::factory()->newKinetics(model);
 }
 
+/**
+ *  Create a new Kinetics instance.
+ */
+inline shared_ptr<Kinetics> newKinetics(const std::string& model)
+{
+    shared_ptr<Kinetics> kin(KineticsFactory::factory()->newKinetics(model));
+    return kin;
+}
+
 /*!
  * Create a new kinetics manager, initialize it, and add reactions
  *
@@ -109,7 +123,7 @@ inline Kinetics* newKineticsMgr(const std::string& model)
  * @param rootNode   The root node of the file containing the phase definition,
  *     which will be treated as the default source for reactions
  */
-unique_ptr<Kinetics> newKinetics(std::vector<ThermoPhase*>& phases,
+unique_ptr<Kinetics> newKinetics(const std::vector<ThermoPhase*>& phases,
                                  const AnyMap& phaseNode,
                                  const AnyMap& rootNode=AnyMap());
 
@@ -124,7 +138,7 @@ unique_ptr<Kinetics> newKinetics(std::vector<ThermoPhase*>& phases,
  * @param phase_name  The name of the reacting phase in the input file (i.e. the
  *     name of the first phase in the `phases` vector)
  */
-unique_ptr<Kinetics> newKinetics(std::vector<ThermoPhase*>& phases,
+unique_ptr<Kinetics> newKinetics(const std::vector<ThermoPhase*>& phases,
                                  const std::string& filename,
                                  const std::string& phase_name);
 

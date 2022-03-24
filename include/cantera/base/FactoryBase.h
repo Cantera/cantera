@@ -9,7 +9,6 @@
 #ifndef CT_FACTORY_BASE
 #define CT_FACTORY_BASE
 
-#include <vector>
 #include <mutex>
 #include <unordered_map>
 #include <functional>

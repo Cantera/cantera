@@ -1,3 +1,5 @@
+import os
+from os.path import join as pjoin
 from buildutils import *
 
 Import('env','build','install')
@@ -20,6 +22,7 @@ else:
     cantera_libs = localenv['cantera_libs']
 
 localenv['ENV']['CANTERA_DATA'] = (Dir('#build/data').abspath + os.pathsep +
+                                   Dir('#samples/data').abspath + os.pathsep +
                                    Dir('#test/data').abspath)
 
 # Add build/lib in order to find Cantera shared library
@@ -39,7 +42,11 @@ class Test(object):
                  blessedName='output_blessed.txt', arguments=(), options='',
                  artifacts=(), comparisons=(), profiles=(), ignoreLines=(),
                  tolerance=1e-5, threshold=1e-14,
-                 dependencies=(), source_files=()):
+                 dependencies=(), source_files=(), slow=False):
+
+        if slow and env["skip_slow_tests"]:
+            return
+
         self.subdir = subdir or testName
         self.programName = programName or testName
         if isinstance(arguments, str):
@@ -58,7 +65,7 @@ class Test(object):
         self.passedFile = '.passed-%s' % testName
         PASSED_FILES[self.testName] = pjoin(self.subdir, self.passedFile)
 
-        testResults.tests[self.testName] = self
+        test_results.tests[self.testName] = self
 
         if source_files:
             self.program = localenv.Program(
@@ -122,7 +129,7 @@ class CompileAndTest(Test):
                  blessedName='output_blessed.txt', libs=(), extensions=('cpp',),
                  **kwargs):
         self.libs = list(libs)
-        sources = mglob(env, subdir or testName, *extensions)
+        sources = multi_glob(env, subdir or testName, *extensions)
         Test.__init__(self, testName, subdir, programName, blessedName,
                       source_files=sources, **kwargs)
 
@@ -137,27 +144,32 @@ class CompileAndTest(Test):
 dhGraph = CompileAndTest('DH_graph_dilute', 'cathermo/DH_graph_1', 'DH_graph_1',
                'DH_NaCl_dilute_blessed.csv',
                artifacts=['DH_graph_1.log'],
-               arguments='DH_NaCl_dilute.xml')
+               arguments=File('#test/data/debye-huckel-all.yaml').abspath,
+               options='debye-huckel-dilute')
 Test('DH_graph_acommon', 'cathermo/DH_graph_1',
      dhGraph.program, 'DH_NaCl_acommon_blessed.csv',
      artifacts=['DH_graph_1.log'],
-     arguments='DH_NaCl_acommon.xml')
+     arguments=File('#test/data/debye-huckel-all.yaml').abspath,
+     options='debye-huckel-B-dot-a')
 Test('DH_graph_bdotak', 'cathermo/DH_graph_1',
      dhGraph.program, 'DH_NaCl_bdotak_blessed.csv',
      artifacts=['DH_graph_1.log'],
-     arguments='DH_NaCl_bdotak.xml')
+     arguments=File('#test/data/debye-huckel-all.yaml').abspath,
+     options='debye-huckel-B-dot-ak')
 Test('DH_graph_NM', 'cathermo/DH_graph_1',
      dhGraph.program, 'DH_NaCl_NM_blessed.csv',
      artifacts=['DH_graph_1.log'],
-     arguments='DH_NaCl_NM.xml')
+     arguments=File('#test/data/debye-huckel-all.yaml').abspath,
+     options='debye-huckel-beta_ij')
 Test('DH_graph_Pitzer', 'cathermo/DH_graph_1',
      dhGraph.program, 'DH_NaCl_Pitzer_blessed.csv',
      artifacts=['DH_graph_1.log'],
-     arguments='DH_NaCl_Pitzer.xml')
+     arguments=File('#test/data/debye-huckel-all.yaml').abspath,
+     options='debye-huckel-pitzer-beta_ij')
 
 CompileAndTest('HMW_graph_CpvT', 'cathermo/HMW_graph_CpvT',
                extensions=['^HMW_graph_CpvT.cpp'],
-               arguments=File('#test/data/HMW_NaCl_sp1977_alt.xml').abspath)
+               arguments=File('#test/data/HMW_NaCl_sp1977_alt.yaml').abspath)
 CompileAndTest('HMW_graph_GvI', 'cathermo/HMW_graph_GvI',
                blessedName=None,
                comparisons=[('T298_blessed.csv', 'T298.csv'),
@@ -166,13 +178,13 @@ CompileAndTest('HMW_graph_GvI', 'cathermo/HMW_graph_GvI',
                           'T548.csv','T573.csv'])
 CompileAndTest('HMW_graph_GvT', 'cathermo/HMW_graph_GvT',
                extensions=['^HMW_graph_GvT.cpp'],
-               arguments=File('#test/data/HMW_NaCl_sp1977_alt.xml').abspath)
+               arguments=File('#test/data/HMW_NaCl_sp1977_alt.yaml').abspath)
 CompileAndTest('HMW_graph_HvT', 'cathermo/HMW_graph_HvT',
                extensions=['^HMW_graph_HvT.cpp'],
-               arguments=File('#test/data/HMW_NaCl_sp1977_alt.xml').abspath)
+               arguments=File('#test/data/HMW_NaCl_sp1977_alt.yaml').abspath)
 CompileAndTest('HMW_graph_VvT', 'cathermo/HMW_graph_VvT',
                extensions=['^HMW_graph_VvT.cpp'],
-               arguments=File('#test/data/HMW_NaCl_sp1977_alt.xml').abspath)
+               arguments=File('#test/data/HMW_NaCl_sp1977_alt.yaml').abspath)
 CompileAndTest('HMW_test_1', 'cathermo/HMW_test_1',
                blessedName='output_noD_blessed.txt')
 CompileAndTest('HMW_test_3', 'cathermo/HMW_test_3',
@@ -185,27 +197,27 @@ CompileAndTest('WaterSSTP', 'cathermo/testWaterTP')
 CompileAndTest('ISSPTester2', 'cathermo/VPissp')
 CompileAndTest('ChemEquil_ionizedGas',
                comparisons=[('table_blessed.csv', 'table.csv')])
-#CompileAndTest('CpJump', 'CpJump', 'CpJump', 'output_blessed.txt')
+CompileAndTest('CpJump', 'CpJump', 'CpJump', 'output_blessed.txt')
 
-diamond = CompileAndTest('diamondSurf-xml', 'diamondSurf', 'diamondSurf',
-    'runDiamond_blessed.out', options='diamond_blessed.xml')
-Test('diamondSurf-cti', 'diamondSurf', diamond.program, 'runDiamond_blessed.out',
-     options='diamond.cti')
-CompileAndTest('dustyGasTransport')
+diamond = CompileAndTest('diamondSurf-yaml', 'diamondSurf', 'diamondSurf',
+    'runDiamond_blessed.out', options='diamond.yaml')
+if env["python_package"] != "none":
+    Test('diamondSurf-cti', 'diamondSurf', diamond.program, 'runDiamond_blessed.out',
+        options='diamond.cti')  # @todo: remove after Cantera 2.6
+Test('diamondSurf-xml', 'diamondSurf', diamond.program, 'runDiamond_blessed.out',
+     options='diamond.xml')  # @todo: remove after Cantera 2.6
+
+CompileAndTest('dustyGasTransport', slow=True)
 CompileAndTest('mixGasTransport')
 CompileAndTest('multiGasTransport')
 
 CompileAndTest('pureFluid', 'pureFluidTest')
-CompileAndTest('silane_equil')
 CompileAndTest('stoichSolidKinetics')
-CompileAndTest('surfkin')
 CompileAndTest('surfSolver', 'surfSolverTest', 'surfaceSolver', None,
-               arguments='haca2.cti',
                comparisons=[('results_blessed.txt', 'results.txt')],
                artifacts=['results.txt'],
                extensions=['^surfaceSolver.cpp'])
 CompileAndTest('surfSolver2', 'surfSolverTest', 'surfaceSolver2', None,
-               arguments='haca2.cti',
                comparisons=[('results2_blessed.txt', 'results2.txt')],
                artifacts=['results2.txt'],
                extensions=['^surfaceSolver2.cpp'])
@@ -219,10 +231,9 @@ vcs_LiSi = CompileAndTest('VCS-LiSi', 'VCSnonideal/LatticeSolid_LiSi', 'latsol',
 Test('VCS-LiSi-verbose', 'VCSnonideal/LatticeSolid_LiSi', vcs_LiSi.program,
      'verbose_blessed.txt', options='8',
      artifacts=['vcs_equilibrate_res.csv'])
-CompileAndTest('VPsilane_test')
 
 CompileAndTest('clib', 'clib_test', 'clib_test',
-               extensions=['^clib_test.c'], libs=['cantera_shared'])
+               extensions=['^clib_test.c'], libs=localenv['cantera_shared_libs'])
 
 # C++ Samples
 Test('cxx-bvp', 'cxx_samples', '#build/samples/cxx/bvp/blasius', None,
@@ -230,23 +241,26 @@ Test('cxx-bvp', 'cxx_samples', '#build/samples/cxx/bvp/blasius', None,
      tolerance=1e-4)
 Test('cxx-combustor', 'cxx_samples', '#build/samples/cxx/combustor/combustor', None,
      comparisons=[('combustor_cxx_blessed.csv', 'combustor_cxx.csv')],
-     threshold=1e-10, tolerance=2e-4)
+     threshold=1e-10, tolerance=2e-4, slow=True)
+Test('cxx-custom', 'cxx_samples', '#build/samples/cxx/custom/custom', None,
+     comparisons=[('custom_cxx_blessed.csv', 'custom_cxx.csv')],
+     threshold=1e-10, tolerance=2e-4, slow=True)
 Test('cxx-demo', 'cxx_samples', '#build/samples/cxx/demo/demo',
      'cxx_demo_blessed.txt',
-     threshold=1e-10, tolerance=2e-4)
+     threshold=1e-10, tolerance=2e-4, slow=True)
 Test('cxx-flamespeed', 'cxx_samples', '#build/samples/cxx/flamespeed/flamespeed',
      'cxx_flamespeed_blessed.txt',
      comparisons=[('flamespeed_blessed.csv', 'flamespeed.csv')],
      options='0.9 0 0')
 Test('cxx-kinetics1', 'cxx_samples', '#build/samples/cxx/kinetics1/kinetics1', None,
      comparisons=[('kin1_blessed.csv', 'kin1.csv')],
-     artifacts=['kin1.dat'])
+     artifacts=['kin1.dat'], slow=True, tolerance=2e-4)
 Test('cxx-gas-transport', 'cxx_samples',
-     '#build/samples/cxx/gas_transport/gas_transport', None,
+     '#build/samples/cxx/gas_transport/gas_transport', None, slow=True,
      comparisons=[('transport_mix_blessed.csv', 'transport_mix.csv'),
                   ('transport_multi_blessed.csv', 'transport_multi.csv')])
 Test('cxx-LiC6-electrode', 'cxx_samples',
-     '#build/samples/cxx/LiC6_electrode/LiC6_electrode', None,
+     '#build/samples/cxx/LiC6_electrode/LiC6_electrode', None, slow=True,
      comparisons=[('LiC6_electrode_blessed.csv', 'LiC6_electrode_output.csv')])
 if env['HAS_OPENMP']:
     Test('cxx-openmp-ignition', 'cxx_samples',

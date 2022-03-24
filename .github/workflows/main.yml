@@ -14,13 +14,18 @@ on:
     branches:
       - main
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   ubuntu-multiple-pythons:
-    name: Ubuntu with Python ${{ matrix.python-version }}
+    name: ${{ matrix.os }} with Python ${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
     strategy:
       matrix:
-        python-version: [ '3.5', '3.6', '3.7', '3.8', '3.9' ]
+        python-version: [ '3.7', '3.9', '3.10' ]
         os: ['ubuntu-18.04', 'ubuntu-20.04']
       fail-fast: false
     steps:
@@ -34,22 +39,58 @@ jobs:
         python-version: ${{ matrix.python-version }}
         architecture: x64
     - name: Install Apt dependencies
-      run: sudo apt-get install libboost-dev gfortran
+      run: |
+        sudo apt update
+        sudo apt install libboost-dev gfortran libopenmpi-dev
     - name: Upgrade pip
       run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
-      run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas
+      run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas pytest
+        pytest-github-actions-annotate-failures
     - name: Build Cantera
-      run: python3 `which scons` build -j2
+      run: python3 `which scons` build env_vars=all -j2 debug=n --debug=time
     - name: Test Cantera
-      run: python3 `which scons` test
+      run:
+        python3 `which scons` test show_long_tests=yes verbose_tests=yes --debug=time
+
+  clang-compiler:
+    name: LLVM/Clang with Python 3.8
+    runs-on: ubuntu-20.04
+    timeout-minutes: 60
+    steps:
+    - uses: actions/checkout@v2
+      name: Checkout the repository
+      with:
+        submodules: recursive
+    - name: Setup Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+        architecture: x64
+    - name: Install Apt dependencies
+      run: |
+        sudo apt update
+        sudo apt install libboost-dev gfortran libomp-dev libomp5
+    - name: Upgrade pip
+      run: python3 -m pip install -U pip setuptools wheel
+    - name: Install Python dependencies
+      run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas pytest
+        pytest-github-actions-annotate-failures
+    - name: Build Cantera
+      run: python3 `which scons` build env_vars=all
+        CXX=clang++-12 CC=clang-12 f90_interface=n extra_lib_dirs=/usr/lib/llvm/lib
+        -j2 debug=n --debug=time
+    - name: Test Cantera
+      run:
+        python3 `which scons` test show_long_tests=yes verbose_tests=yes --debug=time
 
   macos-multiple-pythons:
     name: macOS with Python ${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
     strategy:
       matrix:
-        python-version: [ '3.7', '3.8', '3.9' ]
+        python-version: [ '3.7', '3.9', '3.10' ]
         os: ['macos-10.15']
       fail-fast: false
     steps:
@@ -75,11 +116,13 @@ jobs:
     - name: Upgrade pip
       run: python3 -m pip install -U pip 'setuptools>=47.0.0,<48' wheel
     - name: Install Python dependencies
-      run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas
+      run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas pytest
+        pytest-github-actions-annotate-failures
     - name: Build Cantera
-      run: python3 `which scons` build -j2
+      run: python3 `which scons` build env_vars=all -j3 debug=n --debug=time
     - name: Test Cantera
-      run: python3 `which scons` test
+      run:
+        python3 `which scons` test show_long_tests=yes verbose_tests=yes --debug=time
 
   # Coverage is its own job because macOS builds of the samples
   # use Homebrew gfortran which is not compatible for coverage
@@ -88,7 +131,7 @@ jobs:
   coverage:
     name: Coverage
     runs-on: ubuntu-latest
-    needs: [ubuntu-multiple-pythons]
+    timeout-minutes: 90
     steps:
     - uses: actions/checkout@v2
       name: Checkout the repository
@@ -101,25 +144,44 @@ jobs:
         architecture: x64
     - name: Install Apt dependencies
       run: |
-        sudo apt-get install libboost-dev gfortran liblapack-dev libblas-dev
+        sudo apt update
+        sudo apt install libboost-dev gfortran liblapack-dev libblas-dev libsundials-dev
     - name: Upgrade pip
       run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
-      run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas
+      run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas scipy pytest
+        pytest-github-actions-annotate-failures gcovr
     - name: Build Cantera
       run: |
         python3 `which scons` build blas_lapack_libs=lapack,blas coverage=y \
-        optimize=n -j2
+        optimize=n skip_slow_tests=y no_optimize_flags='-DNDEBUG -O0' \
+        FORTRANFLAGS='-O0' env_vars=all -j2 --debug=time
     - name: Test Cantera
-      run: python3 `which scons` test
+      run:
+        python3 `which scons` test show_long_tests=yes verbose_tests=yes --debug=time
+    - name: Process coverage files
+      run: |
+        gcovr --root . --exclude-unreachable-branches --exclude-throw-branches \
+        --exclude-directories '\.sconf_temp' --exclude-directories 'build/ext$' \
+        --exclude '.*ext.*' --exclude '(.+/)?_cantera\.cpp$' --exclude '^test.*' \
+        --xml coverage.xml --html-details htmlcoverage.html --txt
+    - name: Archive code coverage results
+      uses: actions/upload-artifact@v2
+      with:
+        name: code-coverage-report
+        path: htmlcoverage*
+        retention-days: 5
     - name: Upload Coverage to Codecov
-      run: bash <(curl -s https://codecov.io/bash)
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      uses: codecov/codecov-action@v2
+      with:
+        verbose: true
+        files: ./coverage.xml
+        fail_ci_if_error: true
 
   docs:
     name: Build docs
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     env:
       DEPLOY: ${{ github.event_name == 'push' && github.repository_owner == 'Cantera' && endsWith(github.ref, 'main') }}
     steps:
@@ -133,7 +195,9 @@ jobs:
           python-version: '3.8'
           architecture: x64
       - name: Install Apt dependencies
-        run: sudo apt-get install libboost-dev doxygen graphviz
+        run: |
+          sudo apt update
+          sudo apt install libboost-dev doxygen graphviz
       - name: Upgrade pip
         run: python3 -m pip install -U pip setuptools wheel
       - name: Install Python dependencies
@@ -141,7 +205,27 @@ jobs:
           python3 -m pip install ruamel.yaml scons numpy cython sphinx\<4.0 \
           sphinxcontrib-katex sphinxcontrib-matlabdomain sphinxcontrib-doxylink
       - name: Build Cantera with documentation
-        run: python3 `which scons` build -j2 doxygen_docs=y sphinx_docs=y
+        run: python3 `which scons` build -j2 doxygen_docs=y sphinx_docs=y debug=n optimize=n use_pch=n
+      - name: Ensure 'scons help' options work
+        run: |
+          python3 `which scons` help --options
+          python3 `which scons` help --list-options
+          python3 `which scons` help --option=prefix
+      - name: Parse configuration options from SConstruct as reST
+        run: |
+          python3 `which scons` help --restructured-text --dev --output=config-options-dev.rst
+          mkdir build/docs/scons
+          mv config-options-dev.rst build/docs/scons/
+      - name: Create archive for docs output
+        run: |
+          cd build
+          tar -czf docs.tar.gz docs
+      - name: Store archive of docs output
+        uses: actions/upload-artifact@v2
+        with:
+          path: build/docs.tar.gz
+          name: docs
+          retention-days: 2
       # The known_hosts key is generated with `ssh-keygen -F cantera.org` from a
       # machine that has previously logged in to cantera.org and trusts
       # that it logged in to the right machine
@@ -163,33 +247,13 @@ jobs:
           --exclude='/doxygen/xml' --delete --delete-excluded \
           "${DOCS_OUTPUT_DIR}" ${RSYNC_USER}@${RSYNC_SERVER}:${RSYNC_DEST}
 
-  ubuntu-1804-py2:
-    # Ubuntu 18.04 using Python 2 to run SCons and the system Python 3 for the interface
-    name: Python 2 running SCons on Ubuntu 18.04
-    runs-on: ubuntu-18.04
-    steps:
-      - uses: actions/checkout@v2
-        name: Checkout the repository
-        with:
-          submodules: recursive
-      - name: Install Apt dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install libboost-dev gfortran scons python3-numpy \
-          python3-pip python3-setuptools python3-h5py python3-pandas \
-          python3-ruamel.yaml python-numpy cython3 libsundials-dev liblapack-dev \
-          libblas-dev
-      - name: Build Cantera
-        run: scons build python_cmd=/usr/bin/python3 blas_lapack_libs=lapack,blas -j2
-      - name: Test Cantera
-        run: scons test
-
   run-examples:
     name: Run the Python examples using bash
     runs-on: ubuntu-18.04
+    timeout-minutes: 60
     strategy:
       matrix:
-        python-version: ['3.5', '3.6', '3.7', '3.8', '3.9']
+        python-version: ['3.7', '3.9', '3.10']
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
@@ -202,13 +266,15 @@ jobs:
           python-version: ${{ matrix.python-version }}
           architecture: x64
       - name: Install Apt dependencies
-        run: sudo apt-get install libboost-dev gfortran graphviz liblapack-dev libblas-dev
+        run: |
+          sudo apt update
+          sudo apt install libboost-dev gfortran graphviz liblapack-dev libblas-dev
       - name: Upgrade pip
         run: python3 -m pip install -U pip setuptools wheel
       - name: Install Python dependencies
         run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas matplotlib scipy
       - name: Build Cantera
-        run: python3 `which scons` build -j2
+        run: python3 `which scons` build -j2 debug=n
       - name: Run the examples
         # See https://unix.stackexchange.com/a/392973 for an explanation of the -exec part
         run: |
@@ -222,6 +288,8 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           path: results.txt
+          retention-days: 2
+          name: example-results
         # Run this step if the job was successful or failed, but not if it was cancelled
         # Using always() would run this step if the job was cancelled as well.
         if: failure() || success()
@@ -229,9 +297,15 @@ jobs:
   multiple-sundials:
     name: Sundials ${{ matrix.sundials-ver }}
     runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      PYTHON_VERSION: 3.8
+    defaults:
+      run:
+        shell: bash -l {0}
     strategy:
       matrix:
-        sundials-ver: [ 2, 3, 4, 5.3 ]
+        sundials-ver: [ 2, 3, 4, 5.8, 6.0 ]
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
@@ -241,28 +315,46 @@ jobs:
       - uses: conda-incubator/setup-miniconda@v2
         with:
           auto-update-conda: true
-          python-version: 3.8
-          channel-priority: strict
-          channels: conda-forge
+          python-version: ${{ env.PYTHON_VERSION }}
+          miniforge-version: latest
+          activate-environment: test
         name: Set up conda
       - name: Install conda dependencies
-        shell: bash -l {0}
+        # See https://github.com/conda-forge/boost-cpp-feedstock/issues/41 for why we
+        # use boost-cpp rather than boost from conda-forge
         run: |
-          conda install -q sundials=${{ matrix.sundials-ver }} scons numpy ruamel_yaml \
-          cython libboost fmt eigen yaml-cpp h5py pandas
+          conda install -q sundials=${{ matrix.sundials-ver }} scons numpy ruamel.yaml \
+          cython boost-cpp fmt eigen yaml-cpp h5py pandas libgomp openblas pytest
       - name: Build Cantera
         run: |
-          scons build extra_inc_dirs=$CONDA_PREFIX/include:$CONDA_PREFIX/include/eigen3 \
-          extra_lib_dirs=$CONDA_PREFIX/lib system_fmt=y system_eigen=y system_yamlcpp=y \
-          system_sundials=y -j2 VERBOSE=True
-        shell: bash -l {0}
+          scons build system_fmt=y system_eigen=y system_yamlcpp=y system_sundials=y \
+          blas_lapack_libs='lapack,blas' -j2 VERBOSE=True debug=n \
+          optimize_flags='-O3 -ffast-math -fno-finite-math-only'
       - name: Test Cantera
-        run: scons test
-        shell: bash -l {0}
+        run: scons test show_long_tests=yes verbose_tests=yes
+      - name: Test Install
+        # spot-check installation locations
+        run: |
+          scons install
+          test -f ${CONDA_PREFIX}/lib/libcantera_shared.so
+          test -f ${CONDA_PREFIX}/include/cantera/base/Solution.h
+          test -f ${CONDA_PREFIX}/bin/ck2yaml
+          test -f ${CONDA_PREFIX}/share/cantera/data/gri30.yaml
+          test -d ${CONDA_PREFIX}/share/cantera/samples
+          test -d ${CONDA_PREFIX}/lib/python${{ env.PYTHON_VERSION }}/site-packages/cantera
+      - name: Test Essentials
+        # ensure that Python package loads and converter scripts work
+        run: |
+          python -c 'import cantera as ct; import sys; sys.exit(0) if ct.__version__.startswith("2.6.0") else sys.exit(1)'
+          ck2yaml --input=test/data/h2o2.inp --output=h2o2-test.yaml
+          test -f h2o2-test.yaml
+          cti2yaml test/data/air-no-reactions.cti air-no-reaction-test.yaml
+          test -f air-no-reaction-test.yaml
 
   cython-latest:
     name: Test pre-release version of Cython
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
     - uses: actions/checkout@v2
       name: Checkout the repository
@@ -274,44 +366,119 @@ jobs:
         python-version: '3.8'
         architecture: x64
     - name: Install Apt dependencies
-      run: sudo apt-get install libboost-dev liblapack-dev libblas-dev
+      run: |
+        sudo apt update
+        sudo apt install libboost-dev liblapack-dev libblas-dev
     - name: Upgrade pip
       run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
       run: |
-        python3 -m pip install ruamel.yaml scons numpy h5py pandas;
+        python3 -m pip install ruamel.yaml scons numpy h5py pandas pytest pytest-github-actions-annotate-failures
         python3 -m pip install https://github.com/cython/cython/archive/master.zip --install-option='--no-cython-compile';
     - name: Build Cantera
-      run: python3 `which scons` build blas_lapack_libs=lapack,blas python_package='full' -j2
+      run: python3 `which scons` build blas_lapack_libs=lapack,blas python_package='full' -j2 debug=n
     - name: Test Cantera
-      run: python3 `which scons` test
+      run: python3 `which scons` test show_long_tests=yes verbose_tests=yes
 
-  windows:
+  check-deprecations:
+    name: Run test suite without legacy typedefs
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+    - uses: actions/checkout@v2
+      name: Checkout the repository
+      with:
+        submodules: recursive
+    - name: Setup Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+        architecture: x64
+    - name: Install Apt dependencies
+      run: |
+        sudo apt update
+        sudo apt install libboost-dev gfortran libopenmpi-dev
+    - name: Upgrade pip
+      run: python3 -m pip install -U pip setuptools wheel
+    - name: Install Python dependencies
+      run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas pytest
+        pytest-github-actions-annotate-failures
+    - name: Build Cantera
+      run: python3 `which scons` build env_vars=all -j2 debug=n --debug=time no_legacy_reactions=y
+    - name: Test Cantera
+      run:
+        python3 `which scons` test show_long_tests=yes verbose_tests=yes --debug=time
+
+  windows-2022:
     name: ${{ matrix.os }}, MSVC ${{ matrix.vs-toolset }}, Python ${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    defaults:
+      run:
+        shell: bash -l {0}
     strategy:
       matrix:
-        os: ['windows-2019']
+        os: ["windows-2022"]
+        vs-toolset: ["14.3"] # 'cl' is not recognized for earlier toolsets
+        python-version: [ "3.7", "3.9", "3.10" ]
+      fail-fast: false
+    steps:
+    - uses: actions/checkout@v2
+      name: Checkout the repository
+      with:
+        submodules: recursive
+    - name: Set up conda
+      uses: conda-incubator/setup-miniconda@v2
+      with:
+        auto-update-conda: true
+        python-version: ${{ matrix.python-version }}
+        mamba-version: "*"
+        activate-environment: test
+        channels: conda-forge,defaults
+        channel-priority: true
+    - name: Install conda dependencies
+      # See https://github.com/conda-forge/boost-cpp-feedstock/issues/41 for why we
+      # use boost-cpp rather than boost from conda-forge
+      run: |
+        mamba install -q scons numpy cython ruamel.yaml boost-cpp eigen yaml-cpp h5py pandas pytest
+      shell: pwsh
+    - name: Build Cantera
+      run: scons build system_eigen=y system_yamlcpp=y VERBOSE=True
+        msvc_version=${{ matrix.vs-toolset }} f90_interface=n debug=n --debug=time -j2
+      shell: pwsh
+    - name: Test Cantera
+      run: scons test show_long_tests=yes verbose_tests=yes --debug=time
+      shell: pwsh
+    - name: Test Install
+      # spot-check installation locations
+      run: |
+        scons install
+        test -f ${CONDA_PREFIX}/Library/lib/cantera_shared.dll
+        test -f ${CONDA_PREFIX}/Library/include/cantera/base/Solution.h
+        test -f ${CONDA_PREFIX}/Scripts/ck2yaml
+        test -f ${CONDA_PREFIX}/share/cantera/data/gri30.yaml
+        test -d ${CONDA_PREFIX}/share/cantera/samples
+        test -d ${CONDA_PREFIX}/Lib/site-packages/cantera
+    - name: Test Essentials
+      # ensure that Python package loads and converter scripts work
+      run: |
+        python -c 'import cantera as ct; import sys; sys.exit(0) if ct.__version__.startswith("2.6.0") else sys.exit(1)'
+        ck2yaml --input=test/data/h2o2.inp --output=h2o2-test.yaml
+        test -f h2o2-test.yaml
+        cti2yaml test/data/air-no-reactions.cti air-no-reaction-test.yaml
+        test -f air-no-reaction-test.yaml
+
+  windows:
+    name: "Windows 2019, MSVC ${{ matrix.vs-toolset }}, Python ${{ matrix.python-version }}"
+    runs-on: windows-2019
+    timeout-minutes: 60
+    env:
+      BOOST_ROOT: ${{github.workspace}}/3rdparty/boost
+      BOOST_URL: https://boostorg.jfrog.io/artifactory/main/release/1.78.0/source/boost_1_78_0.7z
+    strategy:
+      matrix:
         vs-toolset: ['14.0', '14.2']
-        python-version: [ '3.5', '3.6', '3.7', '3.8', '3.9' ]
-        # Must use windows-2016 image because it installs VS2017 (MSVC 14.1)
-        # Scons cannot find MSVC 14.1 when VS2019 is installed
-        include:
-          - os: 'windows-2016'
-            vs-toolset: '14.1'
-            python-version: '3.5'
-          - os: 'windows-2016'
-            vs-toolset: '14.1'
-            python-version: '3.6'
-          - os: 'windows-2016'
-            vs-toolset: '14.1'
-            python-version: '3.7'
-          - os: 'windows-2016'
-            vs-toolset: '14.1'
-            python-version: '3.8'
-          - os: 'windows-2016'
-            vs-toolset: '14.1'
-            python-version: '3.9'
+        python-version: [ "3.7", "3.9", "3.10" ]
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
@@ -325,12 +492,169 @@ jobs:
           architecture: x64
       - name: Install Python dependencies
         run: |
-          python -m pip install -U pip 'setuptools>=47.0.0,<48'
-          python -m pip install scons pypiwin32 numpy ruamel.yaml cython h5py pandas
-      - name: Build Cantera
+          python -m pip install -U pip 'setuptools>=43.0.0' wheel
+          python -m pip install scons pypiwin32 numpy ruamel.yaml cython h5py pandas pytest pytest-github-actions-annotate-failures
+      - name: Restore Boost cache
+        uses: actions/cache@v2
+        id: cache-boost
+        with:
+          path: ${{env.BOOST_ROOT}}
+          key: boost
+
+      - name: Install Boost Headers
+        if: steps.cache-boost.outputs.cache-hit != 'true'
         run: |
-          scons build -j2 boost_inc_dir=%BOOST_ROOT_1_72_0% debug=n VERBOSE=y python_package=full ^
-          msvc_version=${{ matrix.vs-toolset }} f90_interface=n
+          BOOST_ROOT=$(echo $BOOST_ROOT | sed 's/\\/\//g')
+          mkdir -p $BOOST_ROOT
+          curl --progress-bar --location --output $BOOST_ROOT/download.7z $BOOST_URL
+          7z -o$BOOST_ROOT x $BOOST_ROOT/download.7z -y -bd boost_1_75_0/boost
+          mv $BOOST_ROOT/boost_1_75_0/boost $BOOST_ROOT/boost
+          rm $BOOST_ROOT/download.7z
+        shell: bash
+      - name: Build Cantera
+        run: scons build -j2 boost_inc_dir=%BOOST_ROOT% debug=n VERBOSE=y
+          python_package=full env_vars=PYTHONPATH,GITHUB_ACTIONS
+          msvc_version=${{ matrix.vs-toolset }} f90_interface=n --debug=time
         shell: cmd
       - name: Test Cantera
-        run: scons test
+        run: scons test show_long_tests=yes verbose_tests=yes --debug=time
+
+  # Adapted from https://www.scivision.dev/intel-oneapi-github-actions/
+  linux-intel-oneapi:
+    name: intel-oneAPI on Ubuntu, Python 3.8
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      INTEL_REPO: https://apt.repos.intel.com
+      INTEL_KEY: GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
+    steps:
+    - name: Intel Apt repository
+      timeout-minutes: 1
+      run: |
+        wget ${INTEL_REPO}/intel-gpg-keys/${INTEL_KEY}
+        sudo apt-key add ${INTEL_KEY}
+        rm ${INTEL_KEY}
+        echo "deb ${INTEL_REPO}/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
+        sudo apt-get update
+    - name: Install Intel oneAPI
+      timeout-minutes: 5
+      run: |
+        sudo apt-get install intel-oneapi-compiler-fortran intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic \
+        intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-mkl ninja-build libboost-dev
+    - uses: actions/checkout@v2
+      name: Checkout the repository
+      with:
+        submodules: recursive
+    - name: Setup Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+        architecture: x64
+    - name: Upgrade pip
+      run: python3 -m pip install -U pip setuptools wheel
+    - name: Install Python dependencies
+      run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas pytest
+        pytest-github-actions-annotate-failures
+    - name: Setup Intel oneAPI environment
+      run: |
+        source /opt/intel/oneapi/setvars.sh
+        printenv >> $GITHUB_ENV
+    - name: Build Cantera
+      run: python3 `which scons` build env_vars=all CC=icx CXX=icpx FORTRAN=ifx -j2 debug=n --debug=time
+    - name: Test Cantera
+      run:
+        python3 `which scons` test show_long_tests=yes verbose_tests=yes --debug=time
+
+  linux-intel-oneapi-classic:
+    name: intel-oneAPI classic on Ubuntu, Python 3.8
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      INTEL_REPO: https://apt.repos.intel.com
+      INTEL_KEY: GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
+    steps:
+    - name: Intel Apt repository
+      timeout-minutes: 1
+      run: |
+        wget ${INTEL_REPO}/intel-gpg-keys/${INTEL_KEY}
+        sudo apt-key add ${INTEL_KEY}
+        rm ${INTEL_KEY}
+        echo "deb ${INTEL_REPO}/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
+        sudo apt-get update
+    - name: Install Intel oneAPI
+      timeout-minutes: 5
+      run: |
+        sudo apt-get install intel-oneapi-compiler-fortran intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic \
+        intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-mkl ninja-build libboost-dev
+    - uses: actions/checkout@v2
+      name: Checkout the repository
+      with:
+        submodules: recursive
+    - name: Setup Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+        architecture: x64
+    - name: Upgrade pip
+      run: python3 -m pip install -U pip setuptools wheel
+    - name: Install Python dependencies
+      run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas pytest
+        pytest-github-actions-annotate-failures
+    - name: Setup Intel oneAPI environment
+      run: |
+        source /opt/intel/oneapi/setvars.sh
+        printenv >> $GITHUB_ENV
+    - name: Build Cantera
+      run: python3 `which scons` build env_vars=all CC=icc CXX=icpc FORTRAN=ifort -j2 debug=n --debug=time
+    - name: Test Cantera
+      run:
+        python3 `which scons` test show_long_tests=yes verbose_tests=yes --debug=time
+
+  windows-mingw:
+    name: mingw on Windows, Python 3.8
+    runs-on: windows-2019
+    timeout-minutes: 60
+    env:
+      BOOST_ROOT: ${{github.workspace}}/3rdparty/boost
+      BOOST_URL: https://boostorg.jfrog.io/artifactory/main/release/1.78.0/source/boost_1_78_0.7z
+    steps:
+    - uses: actions/checkout@v2
+      name: Checkout the repository
+      with:
+        submodules: recursive
+    - name: Set Up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+        architecture: x64
+    - name: Install Python dependencies
+      run: |
+        python -m pip install -U pip 'setuptools>=47.0.0,<48' wheel
+        python -m pip install scons pypiwin32 numpy ruamel.yaml cython h5py pandas pytest pytest-github-actions-annotate-failures
+    - name: Restore Boost cache
+      uses: actions/cache@v2
+      id: cache-boost
+      with:
+        path: ${{env.BOOST_ROOT}}
+        key: boost
+    - name: Set up MinGW
+      uses: egor-tensin/setup-mingw@v2
+      with:
+        platform: x64
+    - name: Install Boost Headers
+      if: steps.cache-boost.outputs.cache-hit != 'true'
+      run: |
+        BOOST_ROOT=$(echo $BOOST_ROOT | sed 's/\\/\//g')
+        mkdir -p $BOOST_ROOT
+        curl --progress-bar --location --output $BOOST_ROOT/download.7z $BOOST_URL
+        7z -o$BOOST_ROOT x $BOOST_ROOT/download.7z -y -bd boost_1_75_0/boost
+        mv $BOOST_ROOT/boost_1_75_0/boost $BOOST_ROOT/boost
+        rm $BOOST_ROOT/download.7z
+      shell: bash
+    - name: Build Cantera
+      run: scons build -j2 boost_inc_dir=%BOOST_ROOT% debug=n VERBOSE=y
+        python_package=full env_vars=PYTHONPATH,GITHUB_ACTIONS
+        toolchain=mingw f90_interface=n --debug=time
+      shell: cmd
+    - name: Test Cantera
+      run: scons test show_long_tests=yes verbose_tests=yes --debug=time

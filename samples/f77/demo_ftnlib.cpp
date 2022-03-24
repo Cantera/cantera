@@ -1,34 +1,36 @@
 /*!
-      A simple Fortran 77 interface
-
-
- This file is an example of how to write an interface to use Cantera
- in Fortran 77 programs. The basic idea is to store pointers to
- Cantera objects in global storage, and then create Fortran-callable
- functions that access the objects through the pointers.
-
- This particular example defines functions that return thermodynamic
- properties, transport properties, and kinetic rates for reacting
- ideal gas mixtures. Only a single pointer to an IdealGasPhase object is
- stored, so only one reaction mechanism may be used at any one time in
- the application.  Of course, it is a simple modification to store
- multiple objects if it is desired to use multiple reaction
- mechanisms.
-
- The functions defined here are ones commonly needed in application
- programs that simulate gas-phase combustion or similar
- processes. Similar libraries to access other capabilities of Cantera
- (surface chemistry, etc.) could be written in the same way.
-
- This library is designed for Fortran compilers that expect external
- procedure names to be lowercase with a trailing underscore. If this
- is not the case, the procedure names must be edited before use.
-
+ * demo_ftnlib.cpp
+ *
+ * This file is an example of how to write an interface to use Cantera
+ * in Fortran 77 programs. The basic idea is to store pointers to
+ * Cantera objects in global storage, and then create Fortran-callable
+ * functions that access the objects through the pointers.
+ *
+ * This particular example defines functions that return thermodynamic
+ * properties, transport properties, and kinetic rates for reacting
+ * ideal gas mixtures. Only a single pointer to an IdealGasPhase object is
+ * stored, so only one reaction mechanism may be used at any one time in
+ * the application.  Of course, it is a simple modification to store
+ * multiple objects if it is desired to use multiple reaction
+ * mechanisms.
+ *
+ * The functions defined here are ones commonly needed in application
+ * programs that simulate gas-phase combustion or similar
+ * processes. Similar libraries to access other capabilities of Cantera
+ * (surface chemistry, etc.) could be written in the same way.
+ *
+ * This library is designed for Fortran compilers that expect external
+ * procedure names to be lowercase with a trailing underscore. If this
+ * is not the case, the procedure names must be edited before use.
  */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at https://cantera.org/license.txt for license and copyright information.
 
 // add any other Cantera header files you need here
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/kinetics/GasKinetics.h"
+#include "cantera/base/Solution.h"
 #include "cantera/transport.h"
 
 #include <iostream>

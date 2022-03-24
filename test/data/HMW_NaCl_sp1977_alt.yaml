@@ -1,0 +1,145 @@
+description: >
+    NaCl modeling Based on the Silvester&Pitzer 1977 treatment:
+
+    (L. F. Silvester, K. S. Pitzer, "Thermodynamics of Electrolytes:
+     8. High-Temperature Properties, including Enthalpy and Heat
+     Capacity, with application to sodium chloride",
+     J. Phys. Chem., 81, 19 1822 - 1828 (1977)
+
+     This modification reworks the Na+ standard state Shomate
+     polynomial, so that the resulting DeltaG0 for the NaCl(s) -> Na+ + Cl-
+     reaction agrees closely with Silvester and Pitzer. The main
+     effect that this has is to change the predicted Na+ heat capacity
+     at low temperatures.
+generator: ctml2yaml
+cantera-version: 2.6.0a2
+date: Sat, 15 May 2021 15:42:46 -0400
+input-files: [test/data/HMW_NaCl_sp1977_alt.xml]
+
+phases:
+- name: NaCl_electrolyte
+  elements: [O, H, C, E, Fe, Si, N, Na, Cl]
+  species:
+  - species_waterSolution: [H2O(L), Cl-, H+, Na+, OH-]
+  thermo: HMW-electrolyte
+  activity-data:
+    source: These coefficients are from Pitzer's main paper, in his book.
+    temperature-model: complex1
+    A_Debye: variable
+    interactions:
+    - species: [Na+, Cl-]
+      beta0: [0.0765, 8.946e-03, -3.3158e-06, -777.03, -4.4706]
+      beta1: [0.2664, 6.1608e-05, 1.0715e-06, 0.0, 0.0]
+      beta2: [0.0, 0.0, 0.0, 0.0, 0.0]
+      Cphi: [1.27e-03, -4.655e-05, 0.0, 33.317, 0.09421]
+      alpha1: 2.0
+    - species: [H+, Cl-]
+      beta0: [0.1775, 0.0, 0.0, 0.0, 0.0]
+      beta1: [0.2945, 0.0, 0.0, 0.0, 0.0]
+      beta2: [0.0, 0.0, 0.0, 0.0, 0.0]
+      Cphi: [8.0e-04, 0.0, 0.0, 0.0, 0.0]
+      alpha1: 2.0
+    - species: [Na+, OH-]
+      beta0: [0.0864, 0.0, 0.0, 0.0, 0.0]
+      beta1: [0.253, 0.0, 0.0, 0.0, 0.0]
+      beta2: [0.0, 0.0, 0.0, 0.0, 0.0]
+      Cphi: [4.4e-03, 0.0, 0.0, 0.0, 0.0]
+      alpha1: 2.0
+    - species: [Cl-, OH-]
+      theta: -0.05
+    - species: [Na+, Cl-, OH-]
+      theta: -0.05
+      psi: -6.0e-03
+    - species: [Na+, H+]
+      theta: 0.036
+    - species: [Cl-, Na+, H+]
+      theta: 0.036
+      psi: -4.0e-03
+  state: {T: 298.15 K, P: 1.01325e+05 Pa, molalities: {Na+: 6.0954, Cl-: 6.0954, H+: 2.1628e-09,
+      OH-: 1.3977e-06}}
+
+species_waterSolution:
+- name: H2O(L)
+  composition: {H: 2.0, O: 1.0}
+  thermo:
+    model: NASA7
+    temperature-ranges: [273.15, 600.0]
+    data:
+    - [72.5575005, -0.662445402, 2.56198746e-03, -4.36591923e-06, 2.78178981e-09,
+      -4.18865499e+04, -288.280137]
+    comment:
+      H2O(L) liquid standard state -> pure H2O. The origin of the NASA polynomial
+      is a bit murky. It does fit the vapor pressure curve at 298K adequately.
+  equation-of-state:
+    model: liquid-water-IAPWS95
+- name: Na+
+  composition: {Na: 1.0, E: -1.0}
+  thermo:
+    model: Shomate
+    temperature-ranges: [293.15, 593.15]
+    data:
+    - [-5.799347558e+04, 3.05112604e+05, -5.922221591e+05, 4.019779827e+05, 804.419598,
+      1.062524901e+04, -1.337962298e+05]
+    comment: Differences in the delta_G0 reaction for salt formation were dumped into
+      this polynomial.
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 8.34e-03
+    comment: From Pitzer, Peiper, and Busey. We divide NaCl (aq) value by 2 to get this.
+- name: Cl-
+  composition: {Cl: 1.0, E: 1.0}
+  thermo:
+    model: Shomate
+    temperature-ranges: [298.0, 623.15]
+    data:
+    - [5.66962042e+04, -2.97835978e+05, 5.81426549e+05, -4.01759991e+05, -804.301136,
+      -1.08738257e+04, 1.30650697e+05]
+    comment:
+      Cl- (aq) standard state based on the unity molality convention. The Shomate
+      polynomial was created from the SUPCRT92 J. Phys Chem Ref article, and the CODATA
+      recommended values, DelHf(298.15) = -167.08 kJ/gmol and S(298.15) = 56.60 J/gmolK.
+      There was a slight discrepancy between those two, which was resolved in favor of
+      CODATA. Note, the order of the polynomials can be decreased by dropping terms
+      from the complete Shomate poly.
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 8.34e-03
+    comment: From Pitzer, Peiper, and Busey. We divide NaCl (aq) value by 2 to get this
+- name: H+
+  composition: {H: 1.0, E: -1.0}
+  thermo:
+    model: piecewise-Gibbs
+    reference-pressure: 1.0e+05
+    h0: 0.0 cal/mol
+    T-min: 273.15
+    T-max: 625.15
+    dimensionless: true
+    data:
+      273.15: 0.0
+      298.15: 0.0
+      623.15: 0.0
+    comment:
+      H+ (aq) standard state based on the unity molality convention. The H+ standard
+      state is set to zeroes by convention. This includes it's contribution to the molar
+      volume of solution.
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 0.0
+- name: OH-
+  composition: {O: 1.0, H: 1.0, E: 1.0}
+  thermo:
+    model: Shomate
+    temperature-ranges: [298.0, 623.15]
+    data:
+    - [4.467499961e+04, -2.349430414e+05, 4.60522826e+05, -3.206951836e+05, -638.5044716,
+      -8683.955813, 1.028742667e+05]
+    comment: OH- (aq) standard state based on the unity molality convention. The Shomate
+      polynomial was created with data from the SUPCRT92 J. Phys Chem Ref article, and
+      from the CODATA recommended values. DelHf(298.15) = -230.015 kJ/gmol;
+      S(298.15) = -10.90 J/gmolK. There was a slight discrepancy between those two,
+      which was resolved in favor of CODATA. Note, the order of the polynomials can be
+      decreased by dropping terms from the complete Shomate poly.
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 8.34e-03
+    comment: This value is currently made up.

@@ -15,6 +15,7 @@
 #define CT_NASA9POLY1_H
 
 #include "SpeciesThermoInterpType.h"
+#include "speciesThermoTypes.h"
 
 namespace Cantera
 {
@@ -122,6 +123,8 @@ public:
                                   doublereal& tlow, doublereal& thigh,
                                   doublereal& pref,
                                   doublereal* const coeffs) const;
+
+    virtual void getParameters(AnyMap& thermo) const;
 
 protected:
     //! array of polynomial coefficients

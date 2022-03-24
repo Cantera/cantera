@@ -3,15 +3,13 @@
  * Header for units conversion utilities, which are used to translate
  * user input from input files (See \ref inputfiles and
  * class \link Cantera::Unit Unit\endlink).
- *
- * This header is included only by file misc.cpp.
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-#ifndef CT_UNITS_H
-#define CT_UNITS_H
+#ifndef CT_LEGACY_UNITS_H
+#define CT_LEGACY_UNITS_H
 
 #include "cantera/base/ct_defs.h"
 #include "cantera/base/ctexceptions.h"
@@ -23,6 +21,7 @@ namespace Cantera
 //! Unit conversion utility
 /*!
  * @ingroup inputfiles
+ * @deprecated To be removed after Cantera 2.6. Used only with XML input.
  */
 class Unit
 {

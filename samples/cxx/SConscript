@@ -1,3 +1,5 @@
+from os.path import join as pjoin
+import os
 from buildutils import *
 
 Import('env', 'build', 'install', 'buildSample')
@@ -5,9 +7,11 @@ Import('env', 'build', 'install', 'buildSample')
 # (subdir, program name, [source extensions], openmp_flag)
 samples = [
     ('combustor', 'combustor', ['cpp'], False),
+    ('custom', 'custom', ['cpp'], False),
     ('demo', 'demo', ['cpp'], False),
     ('flamespeed', 'flamespeed', ['cpp'], False),
     ('kinetics1', 'kinetics1', ['cpp'], False),
+    ('jacobian', 'derivative_speed', ['cpp'], False),
     ('gas_transport', 'gas_transport', ['cpp'], False),
     ('rankine', 'rankine', ['cpp'], False),
     ('LiC6_electrode', 'LiC6_electrode', ['cpp'], False),
@@ -30,6 +34,7 @@ set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS})
     else:
         localenv['cmake_extra'] = ''
 
+    # TODO: Accelerate is only used if other BLAS/LAPACK are not used
     if env["OS"] == "Darwin":
         localenv["cmake_extra"] += "find_library(ACCELERATE_FRAMEWORK Accelerate)"
 
@@ -40,7 +45,7 @@ set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS})
         print("INFO: Skipping sample {} because 'omp.h' was not found.".format(name))
     else:
         buildSample(localenv.Program, pjoin(subdir, name),
-                    mglob(localenv, subdir, *extensions))
+                    multi_glob(localenv, subdir, *extensions))
 
     # Note: These Makefiles and SConstruct files are automatically installed
     # by the "RecursiveInstall" that grabs everything in the cxx directory.

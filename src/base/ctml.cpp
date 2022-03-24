@@ -9,6 +9,8 @@
 #include "cantera/base/ctml.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/Array.h"
+#include "cantera/base/ctexceptions.h"
+#include "cantera/base/global.h"
 
 using namespace std;
 

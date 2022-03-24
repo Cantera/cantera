@@ -24,7 +24,7 @@ void reactormethods(int nlhs, mxArray* plhs[],
     if (job == 0) {
         char* type = getString(prhs[2]);
 
-        n = reactor_new2(type);
+        n = reactor_new(type);
         plhs[0] = mxCreateNumericMatrix(1,1,mxDOUBLE_CLASS,mxREAL);
         double* h = mxGetPr(plhs[0]);
         *h = double(n);

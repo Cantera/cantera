@@ -1,23 +1,6 @@
 <?xml version="1.0"?>
 <ctml>
   <validate reaction="yes" species="yes"/>
-  <!-- Clearly, using an IdealGas-type phase is not appropriate
-       for a liquid water solvent. However, it seems to load
-       correctly and I needed a place to test the conversion of
-       these phase thermo types so \shrug
-  -->
-  <phase dim="3" id="vpss_gas_pdss_hkft_phase">
-    <elementArray datasrc="elements.xml">
-      Na Cl H O
-    </elementArray>
-    <speciesArray datasrc="#species_data">
-      H2O(L) Na+ Cl- H+ OH-
-    </speciesArray>
-    <thermo model="IdealGasVPSS"/>
-    <transport model="None"/>
-    <kinetics model="none"/>
-  </phase>
-
   <phase dim="3" id="vpss_soln_pdss_hkft_phase">
     <elementArray datasrc="elements.xml">
       Na Cl H O

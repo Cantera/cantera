@@ -105,6 +105,7 @@ public:
     void setOmega(double omega); //!< Set omega [J/kmol]
 
     void setParametersFromXML(const XML_Node& speciesNode);
+    virtual void getParameters(AnyMap& eosNode) const;
 
     //! This utility function reports back the type of parameterization and
     //! all of the parameters for the species, index.
@@ -135,7 +136,7 @@ public:
     virtual void reportParams(size_t& kindex, int& type, doublereal* const c,
                               doublereal& minTemp, doublereal& maxTemp,
                               doublereal& refPressure) const;
-    //@}
+    //! @}
 
 private:
     VPStandardStateTP* m_tp; //!< Parent VPStandardStateTP (ThermoPhase) object

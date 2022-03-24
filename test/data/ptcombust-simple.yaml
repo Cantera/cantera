@@ -1,0 +1,36 @@
+generator: cti2yaml
+cantera-version: 2.6.0a3
+date: Sat, 18 Dec 2021 11:27:47 -0500
+input-files: [ptcombust-simple.cti]
+
+phases:
+- name: gas
+  thermo: ideal-gas
+  elements: [O, H, C, N, Ar]
+  species:
+  - gri30.yaml/species: [H2, H, O, O2, OH, H2O, HO2, H2O2, CH3, CH4, CO,
+      CO2, CH2O, CH3O, CH3OH, C2H6, N2]
+  skip-undeclared-elements: true
+  skip-undeclared-third-bodies: true
+  kinetics: gas
+  reactions:
+  - gri30.yaml/reactions: declared-species
+  transport: mixture-averaged
+  state:
+    T: 300.0
+    P: 1.01325e+05
+    X: {CH4: 0.095, O2: 0.21, N2: 0.79}
+- name: Pt_surf
+  thermo: ideal-surface
+  adjacent-phases: [gas]
+  elements: [Pt, H, O, C]
+  species:
+  - ptcombust.yaml/species: all
+  skip-undeclared-elements: true
+  kinetics: surface
+  reactions:
+  - ptcombust.yaml/reactions: declared-species
+  state:
+    T: 900.0
+    coverages: {O(S): 0.0, PT(S): 0.5, H(S): 0.5}
+  site-density: 2.7063e-09 mol/cm^2

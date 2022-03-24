@@ -6,7 +6,6 @@
   <phase dim="3" id="carbondioxide">
     <elementArray datasrc="elements.xml">C O H N </elementArray>
     <speciesArray datasrc="#species_data">CO2  H2O H2 CO CH4 O2 N2 </speciesArray>
-    <reactionArray datasrc="#reaction_data"/>
     <state>
       <temperature units="K">300.0</temperature>
       <pressure units="Pa">101325.0</pressure>
@@ -77,8 +76,8 @@
         </crossFluidParameters>
       </activityCoefficients>
     </thermo>
+    <kinetics model="None" />
     <transport model="Multi"/>
-    <kinetics model="GasKinetics"/>
   </phase>
 
   <!-- species definitions     -->
@@ -280,20 +279,4 @@
       </transport>
     </species>
   </speciesData>
-  <reactionData id="reaction_data">
-
-    <!-- reaction 0001    -->
-    <reaction id="0001" reversible="yes">
-      <equation>CO2 + H2 [=] CO + H2O</equation>
-      <rateCoeff>
-        <Arrhenius>
-           <A>1.200000E+00</A>
-           <b>0</b>
-           <E units="cal/mol">0.000000</E>
-        </Arrhenius>
-      </rateCoeff>
-      <reactants>H2:1 CO2:1.0</reactants>
-      <products>H2O:1 CO:1.0</products>
-    </reaction>
-  </reactionData>
 </ctml>

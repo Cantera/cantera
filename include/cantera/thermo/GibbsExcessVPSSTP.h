@@ -90,8 +90,6 @@ public:
     GibbsExcessVPSSTP() {}
 
     //! @}
-
-    //! @}
     //! @name Mechanical Properties
     //! @{
 
@@ -206,9 +204,9 @@ public:
         throw NotImplementedError("GibbsExcessVPSSTP::getdlnActCoeffdlnX");
     }
 
-    //@}
+    //! @}
     /// @name  Partial Molar Properties of the Solution
-    //@{
+    //! @{
 
     //! Return an array of partial molar volumes for the
     //! species in the mixture. Units: m^3/kmol.
@@ -222,6 +220,7 @@ public:
      */
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
     virtual const vector_fp& getPartialMolarVolumesVector() const;
+    //! @}
 
     virtual bool addSpecies(shared_ptr<Species> spec);
 

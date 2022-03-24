@@ -14,10 +14,10 @@ cdef class Mixture:
     construct a mixture, supply a list of phases to the constructor, each
     paired with the number of moles for that phase::
 
-        >>> gas = cantera.Solution('gas.cti')
+        >>> gas = cantera.Solution("gas.yaml")
         >>> gas.species_names
         ['H2', 'H', 'O2', 'O', 'OH']
-        >>> graphite = cantera.Solution('graphite.cti')
+        >>> graphite = cantera.Solution("graphite.yaml")
         >>> graphite.species_names
         ['C(g)']
         >>> mix = cantera.Mixture([(gas, 1.0), (graphite, 0.1)])
@@ -109,7 +109,7 @@ cdef class Mixture:
             return self.mix.nSpecies()
 
     def species_name(self, k):
-        """Name of the species with index *k*. Note that index numbers
+        """Name of the species with index ``k``. Note that index numbers
         are assigned in order as phases are added."""
         return pystr(self.mix.speciesName(k))
 
@@ -124,7 +124,7 @@ cdef class Mixture:
         :param species:
             Species name or index
 
-        Returns the global index of species *species* in phase *phase*.
+        Returns the global index of species ``species`` in phase ``phase``.
         """
         p = self.phase_index(phase)
 
@@ -141,7 +141,7 @@ cdef class Mixture:
 
     def n_atoms(self, k, m):
         """
-        Number of atoms of element *m* in the species with global index *k*.
+        Number of atoms of element ``m`` in the species with global index ``k``.
         The element may be referenced either by name or by index.
 
         >>> n = mix.n_atoms(3, 'H')
@@ -160,7 +160,7 @@ cdef class Mixture:
         return self._phases[n]
 
     def phase_index(self, p):
-        """Index of the phase named *p*."""
+        """Index of the phase named ``p``."""
         if isinstance(p, ThermoPhase):
             p = p.name
 
@@ -222,12 +222,12 @@ cdef class Mixture:
             return self.mix.charge()
 
     def phase_charge(self, p):
-        """The charge of phase *p* in Coulombs."""
+        """The charge of phase ``p`` in Coulombs."""
         return self.mix.phaseCharge(self.phase_index(p))
 
     def phase_moles(self, p=None):
         """
-        Moles in phase *p*, if *p* is specified, otherwise the number of
+        Moles in phase ``p``, if ``p`` is specified, otherwise the number of
         moles in all phases.
         """
         if p is None:
@@ -237,7 +237,7 @@ cdef class Mixture:
 
     def set_phase_moles(self, p, moles):
         """
-        Set the number of moles of phase *p* to *moles*
+        Set the number of moles of phase ``p`` to ``moles``.
         """
         self.mix.setPhaseMoles(self.phase_index(p), moles)
 
@@ -271,7 +271,7 @@ cdef class Mixture:
 
     def element_moles(self, e):
         """
-        Total number of moles of element *e*, summed over all species.
+        Total number of moles of element ``e``, summed over all species.
         The element may be referenced either by index number or by name.
         """
         return self.mix.elementMoles(self.element_index(e))
@@ -286,7 +286,7 @@ cdef class Mixture:
     def equilibrate(self, XY, solver='auto', rtol=1e-9, max_steps=1000,
                     max_iter=100, estimate_equil=0, log_level=0):
         """
-        Set to a state of chemical equilibrium holding property pair *XY*
+        Set to a state of chemical equilibrium holding property pair ``XY``
         constant. This method uses a version of the VCS algorithm to find the
         composition that minimizes the total Gibbs free energy of the mixture,
         subject to element conservation constraints. For a description of the

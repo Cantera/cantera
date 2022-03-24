@@ -30,7 +30,7 @@ public:
     /*!
      * @param thermo  Optional parameter for the pointer to the ThermoPhase object
      */
-    MultiTransport(thermo_t* thermo=0);
+    MultiTransport(ThermoPhase* thermo=0);
 
     virtual std::string transportType() const {
         return (m_mode == CK_Mode) ? "CK_Multi" : "Multi";
@@ -133,9 +133,6 @@ protected:
     //! Dense matrix for cstar
     DenseMatrix m_cstar;
 
-    //! Dense matrix for omega22
-    DenseMatrix m_om22;
-
     vector_fp m_cinternal;
 
     vector_fp m_sqrt_eps_k;
@@ -188,9 +185,7 @@ protected:
     void eval_L0101(const doublereal* x);
     bool hasInternalModes(size_t j);
 
-    doublereal pressure_ig() {
-        return m_thermo->molarDensity() * GasConstant * m_thermo->temperature();
-    }
+    double pressure_ig();
 
     virtual void solveLMatrixEquation();
     DenseMatrix incl;

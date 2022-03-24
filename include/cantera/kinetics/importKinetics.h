@@ -21,6 +21,8 @@
 namespace Cantera
 {
 
+class XML_Node;
+
 //!  Install information about reactions into the kinetics object, kin.
 /*!
  *  At this point, parent usually refers to the phase XML element. One of the

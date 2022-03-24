@@ -104,6 +104,8 @@ namespace Cantera
  *
  * ## XML Example
  *
+ * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
+ *
  * The phase model name for this is called StoichSubstance. It must be supplied
  * as the model attribute of the thermo XML element entry. Within the phase XML
  * block, the density of the phase must be specified. An example of an XML file
@@ -149,17 +151,16 @@ namespace Cantera
 class StoichSubstance : public SingleSpeciesTP
 {
 public:
-    //! Default constructor for the StoichSubstance class
-    StoichSubstance() {}
-
     //! Construct and initialize a StoichSubstance ThermoPhase object directly
     //! from an ASCII input file
     /*!
-     * @param infile name of the input file
+     * @param infile name of the input file. If blank, an empty phase will be
+     *               created.
      * @param id     name of the phase id in the file.
      *               If this is blank, the first phase in the file is used.
      */
-    StoichSubstance(const std::string& infile, const std::string& id = "");
+    explicit StoichSubstance(const std::string& infile="",
+                             const std::string& id="");
 
     //! Construct and initialize a StoichSubstance ThermoPhase object directly
     //! from an XML database
@@ -262,9 +263,9 @@ public:
      */
     virtual void getStandardChemPotentials(doublereal* mu0) const;
 
-    //@}
-    /// @name  Properties of the Standard State of the Species in the Solution
-    //@{
+    //! @}
+    //! @name  Properties of the Standard State of the Species in the Solution
+    //! @{
 
     virtual void getEnthalpy_RT(doublereal* hrt) const;
     virtual void getEntropy_R(doublereal* sr) const;
@@ -285,9 +286,9 @@ public:
      */
     virtual void getIntEnergy_RT(doublereal* urt) const;
 
-    //@}
-    /// @name Thermodynamic Values for the Species Reference States
-    //@{
+    //! @}
+    //! @name Thermodynamic Values for the Species Reference States
+    //! @{
 
     //! Returns the vector of nondimensional internal Energies of the reference
     //! state at the current temperature of the solution and the reference
@@ -297,9 +298,11 @@ public:
      *               energies of the species. Length: m_kk
      */
     virtual void getIntEnergy_RT_ref(doublereal* urt) const;
-    // @}
+    //! @}
 
     virtual void initThermo();
+    virtual void getSpeciesParameters(const std::string& name,
+                                      AnyMap& speciesNode) const;
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     //! Set the equation of state parameters

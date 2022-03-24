@@ -1,0 +1,84 @@
+description: |-
+  This is a test input file for interface Blowers Masel reaction tests.
+  While input data are adapted from Deutschmann et al., they are not 
+  physically relevant, and thus should only be used for testing purposes.
+  See https://www.detchem.com/mechanisms for original model.
+  Ref:- 1.) Deutschmann et al., 26th Symp. (Intl.) on Combustion, 1996
+            pp. 1747-1754
+  -----------------------------------------------------------------------   
+
+generator: cti2yaml + manual edits
+cantera-version: 2.5.0
+date: Wed, 11 Dec 2019 16:59:14 -0500
+input-files: [ptcombust.cti]
+
+units: {length: cm, quantity: mol, activation-energy: J/mol}
+
+phases:
+- name: gas
+  thermo: ideal-gas
+  elements: [O, H, C, N, Ar]
+  species:
+  - gri30.yaml/species: [H2, H, O, O2, OH, H2O, CH4, AR, N2]
+  skip-undeclared-elements: true
+  kinetics: gas
+  reactions: [gas-reactions]
+  transport: mixture-averaged
+  state:
+    T: 300.0
+    P: 1.01325e+05
+- name: Pt_surf
+  thermo: ideal-surface
+  adjacent-phases: [gas]
+  elements: [Pt, H, O, C]
+  species:
+  - ptcombust.yaml/species: [PT(S), H(S), H2O(S), OH(S), O(S)]
+  kinetics: surface
+  reactions: [Pt-reactions]
+  state:
+    T: 900.0
+    coverages: {O(S): 0.0, PT(S): 0.5, H(S): 0.5}
+  site-density: 2.7063e-09
+- name: Pt_motz_wise
+  thermo: ideal-surface
+  adjacent-phases: [gas]
+  elements: [Pt, H, O, C]
+  species:
+  - ptcombust.yaml/species: [PT(S), H(S), H2O(S), OH(S), O(S)]
+  kinetics: surface
+  reactions: [Pt-reactions]
+  state:
+    T: 900.0
+    coverages: {O(S): 0.0, PT(S): 0.5, H(S): 0.5}
+  site-density: 2.7063e-09
+  Motz-Wise: true
+
+gas-reactions:
+- equation: O + H2 <=> H + OH  # Reaction 1
+  type: Blowers-Masel
+  rate-constant: {A: 38700, b: 2.7, Ea0: 2.619184e4, w: 4.184e9}
+
+Pt-reactions:
+- equation: 2 H(S) => H2 + 2 PT(S)  # Reaction 1
+  type: Blowers-Masel
+  rate-constant: {A: 3.7e+21, b: 0, Ea0: 67400, w: 1000000}
+  coverage-dependencies:
+    H(S): {a: 0.0, m: 0.0, E: -6000.0}
+- equation: H + PT(S) => H(S)  # Reaction 2
+  type: Blowers-Masel
+  sticking-coefficient: {A: 1.0, b: 0, Ea0: 0, w: 1000000}
+- equation: H2O + PT(S) => H2O(S)  # Reaction 3
+  type: Blowers-Masel
+  sticking-coefficient: {A: 0.75, b: 0, Ea0: 0, w: 1000000}
+- equation: O2 + 2 PT(S) => 2 O(S)  # Reaction 4
+  type: Blowers-Masel
+  sticking-coefficient: {A: 0.023, b: 0, Ea0: 0, w: 1000000}
+  Motz-Wise: false
+- equation: OH + PT(S) => OH(S)  # Reaction 5
+  type: Blowers-Masel
+  sticking-coefficient: {A: 1.0, b: 0, Ea0: 0, w: 100000}
+  Motz-Wise: true
+- equation: H2 + 2 PT(s) => 2 H(s)  # Reaction 6
+  type: Blowers-Masel
+  rate-constant: {A: 4.4579e10, b: 0.5, Ea0: 0.0, w: 1000000}
+  orders: {H2: 1.0, PT(s): 1.0}

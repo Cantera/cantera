@@ -134,6 +134,8 @@ public:
         type = NASA2;
     }
 
+    virtual void getParameters(AnyMap& thermo) const;
+
     doublereal reportHf298(doublereal* const h298 = 0) const {
         double h;
         if (298.15 <= m_midT) {

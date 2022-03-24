@@ -10,6 +10,7 @@
 #include "cantera/base/stringUtils.h"
 
 #include <cstdio>
+#include <numeric>
 
 using namespace std;
 

@@ -1,11 +1,13 @@
-from __future__ import print_function
+
+from collections import namedtuple
+from os.path import join as pjoin
+import os
 from buildutils import *
 
 Import('env', 'build', 'install')
 
 localenv = env.Clone()
 
-from collections import namedtuple
 Page = namedtuple('Page', ['name', 'title', 'objects'])
 
 
@@ -96,9 +98,9 @@ if localenv['doxygen_docs']:
     docs = build(localenv.Command('#build/docs/doxygen/html/index.html',
                                   'doxygen/Doxyfile', 'doxygen $SOURCE'))
     env.Depends(docs, env.Glob('#doc/doxygen/*') +
-                      mglob(env, '#include/cantera', 'h') +
-                      mglob(env, '#include/cantera/*', 'h') +
-                      mglob(env, '#src/cantera/*', 'h', 'cpp'))
+                      multi_glob(env, '#include/cantera', 'h') +
+                      multi_glob(env, '#include/cantera/*', 'h') +
+                      multi_glob(env, '#src/cantera/*', 'h', 'cpp'))
 
     env.Alias('doxygen', docs)
     install(localenv.RecursiveInstall, '$inst_docdir/doxygen/html',
@@ -135,7 +137,7 @@ if localenv['sphinx_docs']:
     # Create a dictionary of extra files associated with each class. These
     # files are listed relative to the top directory interfaces/matlab/cantera
     extra = {
-        '@Solution': ['IdealGasMix.m', 'GRI30.m', 'Air.m'],
+        '@Solution': ['GRI30.m', 'Air.m'],
         '@Pure Fluid Phases': ['CarbonDioxide.m', 'HFC134a.m', 'Hydrogen.m',
                                'Methane.m', 'Nitrogen.m', 'Oxygen.m', 'Water.m'],
         '@Func': ['gaussian.m', 'polynom.m'],

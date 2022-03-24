@@ -10,6 +10,7 @@
 
 #include "cantera/thermo/IdealSolidSolnPhase.h"
 #include "cantera/thermo/ThermoFactory.h"
+#include "cantera/thermo/Species.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctml.h"
 #include "cantera/base/utilities.h"
@@ -24,6 +25,18 @@ IdealSolidSolnPhase::IdealSolidSolnPhase(int formGC) :
     m_Pref(OneAtm),
     m_Pcurrent(OneAtm)
 {
+    // @todo: After Cantera 2.6, this constructor can be deleted and the default
+    // construction option can be provided by adding "" as the default argument
+    // to the constructor from input file name and phase id.
+    if (formGC == -1) {
+        formGC = 0;
+    } else {
+        warn_deprecated("IdealSolidSolnPhase(int formGC)",
+            "The formGC constructor argument is deprecated and will be removed"
+            " after Cantera 2.6. Use the setStandardConcentrationModel"
+            " method instead.");
+    }
+    m_formGC = formGC;
     if (formGC < 0 || formGC > 2) {
         throw CanteraError("IdealSolidSolnPhase::IdealSolidSolnPhase",
                            "Illegal value of formGC");
@@ -36,6 +49,15 @@ IdealSolidSolnPhase::IdealSolidSolnPhase(const std::string& inputFile,
     m_Pref(OneAtm),
     m_Pcurrent(OneAtm)
 {
+    if (formGC == -1) {
+        formGC = 0;
+    } else {
+        warn_deprecated("IdealSolidSolnPhase(string inputFile, string id_, int formGC)",
+            "The formGC constructor argument is deprecated and will be removed"
+            " after Cantera 2.6. Use the setStandardConcentrationModel"
+            " method instead.");
+    }
+    m_formGC = formGC;
     if (formGC < 0 || formGC > 2) {
         throw CanteraError("IdealSolidSolnPhase::IdealSolidSolnPhase",
                            "Illegal value of formGC");
@@ -49,6 +71,15 @@ IdealSolidSolnPhase::IdealSolidSolnPhase(XML_Node& root, const std::string& id_,
     m_Pref(OneAtm),
     m_Pcurrent(OneAtm)
 {
+    if (formGC == -1) {
+        formGC = 0;
+    } else {
+        warn_deprecated("IdealSolidSolnPhase(XML_Node root, string id_, int formGC)",
+            "The formGC constructor argument is deprecated and will be removed"
+            " after Cantera 2.6. Use the setStandardConcentrationModel"
+            " method instead.");
+    }
+    m_formGC = formGC;
     if (formGC < 0 || formGC > 2) {
         throw CanteraError("IdealSolidSolnPhase::IdealSolidSolnPhase",
                            "Illegal value of formGC");
@@ -93,33 +124,10 @@ void IdealSolidSolnPhase::calcDensity()
     Phase::assignDensity(1.0/invDens);
 }
 
-void IdealSolidSolnPhase::setDensity(const doublereal rho)
-{
-    // Unless the input density is exactly equal to the density calculated and
-    // stored in the State object, we throw an exception. This is because the
-    // density is NOT an independent variable.
-    warn_deprecated("IdealSolidSolnPhase::setDensity",
-        "Overloaded function to be removed after Cantera 2.5. "
-        "Error will be thrown by Phase::setDensity instead");
-    if (std::abs(rho/density() - 1.0) > 1e-15) {
-        throw CanteraError("IdealSolidSolnPhase::setDensity",
-                           "Density is not an independent variable");
-    }
-}
-
 void IdealSolidSolnPhase::setPressure(doublereal p)
 {
     m_Pcurrent = p;
     calcDensity();
-}
-
-void IdealSolidSolnPhase::setMolarDensity(const doublereal n)
-{
-    warn_deprecated("IdealSolidSolnPhase::setMolarDensity",
-        "Overloaded function to be removed after Cantera 2.5. "
-        "Error will be thrown by Phase::setMolarDensity instead");
-    throw CanteraError("IdealSolidSolnPhase::setMolarDensity",
-                       "Density is not an independent variable");
 }
 
 void IdealSolidSolnPhase::compositionChanged()
@@ -186,7 +194,7 @@ void IdealSolidSolnPhase::getActivityCoefficients(doublereal* ac) const
 
 void IdealSolidSolnPhase::getChemPotentials(doublereal* mu) const
 {
-    doublereal delta_p = m_Pcurrent - m_Pref;
+    double delta_p = m_Pcurrent - m_Pref;
     const vector_fp& g_RT = gibbs_RT_ref();
     for (size_t k = 0; k < m_kk; k++) {
         double xx = std::max(SmallNumber, moleFraction(k));
@@ -197,7 +205,7 @@ void IdealSolidSolnPhase::getChemPotentials(doublereal* mu) const
 
 void IdealSolidSolnPhase::getChemPotentials_RT(doublereal* mu) const
 {
-    doublereal delta_pdRT = (m_Pcurrent - m_Pref) / (temperature() * GasConstant);
+    double delta_pdRT = (m_Pcurrent - m_Pref) / (temperature() * GasConstant);
     const vector_fp& g_RT = gibbs_RT_ref();
     for (size_t k = 0; k < m_kk; k++) {
         double xx = std::max(SmallNumber, moleFraction(k));
@@ -211,7 +219,11 @@ void IdealSolidSolnPhase::getChemPotentials_RT(doublereal* mu) const
 void IdealSolidSolnPhase::getPartialMolarEnthalpies(doublereal* hbar) const
 {
     const vector_fp& _h = enthalpy_RT_ref();
-    scale(_h.begin(), _h.end(), hbar, RT());
+    double delta_p = m_Pcurrent - m_Pref;
+    for (size_t k = 0; k < m_kk; k++) {
+        hbar[k] = _h[k]*RT() + delta_p * m_speciesMolarVolume[k];
+    }
+    // scale(_h.begin(), _h.end(), hbar, RT());
 }
 
 void IdealSolidSolnPhase::getPartialMolarEntropies(doublereal* sbar) const
@@ -241,7 +253,7 @@ void IdealSolidSolnPhase::getPartialMolarVolumes(doublereal* vbar) const
 void IdealSolidSolnPhase::getPureGibbs(doublereal* gpure) const
 {
     const vector_fp& gibbsrt = gibbs_RT_ref();
-    doublereal delta_p = (m_Pcurrent - m_Pref);
+    double delta_p = (m_Pcurrent - m_Pref);
     for (size_t k = 0; k < m_kk; k++) {
         gpure[k] = RT() * gibbsrt[k] + delta_p * m_speciesMolarVolume[k];
     }
@@ -373,7 +385,6 @@ bool IdealSolidSolnPhase::addSpecies(shared_ptr<Species> spec)
         m_expg0_RT.push_back(0.0);
         m_cp0_R.push_back(0.0);
         m_s0_R.push_back(0.0);
-        m_pe.push_back(0.0);;
         m_pp.push_back(0.0);
         if (spec->input.hasKey("equation-of-state")) {
             auto& eos = spec->input["equation-of-state"].getMapWhere("model", "constant-volume");
@@ -391,9 +402,9 @@ bool IdealSolidSolnPhase::addSpecies(shared_ptr<Species> spec)
                     "specification", spec->name);
             }
             m_speciesMolarVolume.push_back(mv);
-        } else if (spec->extra.hasKey("molar_volume")) {
-            // From XML
-            m_speciesMolarVolume.push_back(spec->extra["molar_volume"].asDouble());
+        } else if (spec->input.hasKey("molar_volume")) {
+            // @Deprecated - remove this case for Cantera 3.0 with removal of the XML format
+            m_speciesMolarVolume.push_back(spec->input["molar_volume"].asDouble());
         } else {
             throw CanteraError("IdealSolidSolnPhase::addSpecies",
                 "Molar volume not specified for species '{}'", spec->name);
@@ -409,6 +420,43 @@ void IdealSolidSolnPhase::initThermo()
         setStandardConcentrationModel(m_input["standard-concentration-basis"].asString());
     }
     ThermoPhase::initThermo();
+}
+
+void IdealSolidSolnPhase::getParameters(AnyMap& phaseNode) const
+{
+    ThermoPhase::getParameters(phaseNode);
+    if (m_formGC == 1) {
+        phaseNode["standard-concentration-basis"] = "species-molar-volume";
+    } else if (m_formGC == 2) {
+        phaseNode["standard-concentration-basis"] = "solvent-molar-volume";
+    }
+}
+
+void IdealSolidSolnPhase::getSpeciesParameters(const std::string &name,
+                                               AnyMap& speciesNode) const
+{
+    ThermoPhase::getSpeciesParameters(name, speciesNode);
+    size_t k = speciesIndex(name);
+    const auto S = species(k);
+    auto& eosNode = speciesNode["equation-of-state"].getMapWhere(
+        "model", "constant-volume", true);
+    // Output volume information in a form consistent with the input
+    if (S->input.hasKey("equation-of-state")) {
+        auto& eosIn = S->input["equation-of-state"];
+        if (eosIn.hasKey("density")) {
+            eosNode["density"].setQuantity(
+                molecularWeight(k) / m_speciesMolarVolume[k], "kg/m^3");
+        } else if (eosIn.hasKey("molar-density")) {
+            eosNode["molar-density"].setQuantity(1.0 / m_speciesMolarVolume[k],
+                                                 "kmol/m^3");
+        } else {
+            eosNode["molar-volume"].setQuantity(m_speciesMolarVolume[k],
+                                                "m^3/kmol");
+        }
+    } else {
+        eosNode["molar-volume"].setQuantity(m_speciesMolarVolume[k],
+                                            "m^3/kmol");
+    }
 }
 
 void IdealSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string& id_)
@@ -450,7 +498,12 @@ void IdealSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string& 
 void IdealSolidSolnPhase::setToEquilState(const doublereal* mu_RT)
 {
     const vector_fp& grt = gibbs_RT_ref();
-
+    
+    // Within the method, we protect against inf results if the exponent is too
+    // high.
+    //
+    // If it is too low, we set the partial pressure to zero. This capability is
+    // needed by the elemental potential method.
     doublereal pres = 0.0;
     double m_p0 = refPressure();
     for (size_t k = 0; k < m_kk; k++) {
@@ -505,10 +558,7 @@ void IdealSolidSolnPhase::_updateThermo() const
         // Update the thermodynamic functions of the reference state.
         m_spthermo.update(tnow, m_cp0_R.data(), m_h0_RT.data(), m_s0_R.data());
         m_tlast = tnow;
-        doublereal rrt = 1.0 / RT();
         for (size_t k = 0; k < m_kk; k++) {
-            double deltaE = rrt * m_pe[k];
-            m_h0_RT[k] += deltaE;
             m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
         }
         m_tlast = tnow;

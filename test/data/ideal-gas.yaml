@@ -4,6 +4,14 @@ phases:
 - name: simple
   thermo: ideal-gas
   elements: [N, O]
+  custom-field:
+    first: true
+    second: [3.0, 5.0]
+    last: [100, 200, 300]
+  literal-string: |
+    spam
+    and
+    eggs
   species: [O2, NO, N2]
   state: {T: 500.0, P: 10 atm, X: {O2: 0.21, N2: 0.79}}
 
@@ -90,11 +98,15 @@ species:
     - [3.282537840E+00, 1.483087540E-03, -7.579666690E-07, 2.094705550E-10,
        -2.167177940E-14, -1.088457720E+03, 5.453231290E+00]
     note: "TPIS89"
+  another-literal-string: |
+    foo
+    bar
 
 - name: NO
   composition: {N: 1, O: 1}
   thermo:
     model: NASA7
+    bonus-field: green
     temperature-ranges: [200.00, 1000.00, 6000.00]
     data:
     - [4.218476300E+00, -4.638976000E-03, 1.104102200E-05, -9.336135400E-09,
@@ -102,6 +114,15 @@ species:
     - [3.260605600E+00, 1.191104300E-03, -4.291704800E-07, 6.945766900E-11,
        -4.033609900E-15, 9.920974600E+03, 6.369302700E+00]
     note: "RUS 78"
+  extra-field: blue
+  transport:
+    model: gas
+    geometry: linear
+    well-depth: 97.53
+    diameter: 3.621
+    polarizability: 1.76
+    rotational-relaxation: 4.0
+    bogus-field: red
 
 - name: N2
   composition: {N: 2}

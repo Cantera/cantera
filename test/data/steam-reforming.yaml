@@ -1,0 +1,27 @@
+generator: cti2yaml
+cantera-version: 2.6.0a3
+date: Sat, 18 Dec 2021 23:40:17 -0500
+input-files: [steam-reforming.cti]
+
+phases:
+- name: simple
+  thermo: ideal-gas
+  elements: [C, O, H, N]
+  species:
+  - nasa_gas.yaml/species: [CH4, O2, N2, CO2, H2O]
+  kinetics: gas
+  reactions: none
+- name: full
+  thermo: ideal-gas
+  elements: [C, O, H, N]
+  species:
+  - nasa_gas.yaml/species: [CH4, H2O, O2, CO2, CO, H2, N2]
+  kinetics: gas
+  reactions: none
+- name: syngas
+  thermo: ideal-gas
+  elements: [C, O, H, N]
+  species:
+  - nasa_gas.yaml/species: [CO, H2, O2, N2, CO2, H2O]
+  kinetics: gas
+  reactions: none

@@ -10,19 +10,11 @@
 #if CT_USE_LAPACK
     #include "cantera/numerics/ctlapack.h"
 #else
-    #if CT_SUNDIALS_USE_LAPACK
-        #if CT_SUNDIALS_VERSION >= 30
-            #include "sunlinsol/sunlinsol_lapackband.h"
-        #else
-            #include "cvodes/cvodes_lapack.h"
-        #endif
+    #if CT_SUNDIALS_VERSION >= 30
+        #include "sunlinsol/sunlinsol_band.h"
     #else
-        #if CT_SUNDIALS_VERSION >= 30
-            #include "sunlinsol/sunlinsol_band.h"
-        #else
-            #include "cvodes/cvodes_dense.h"
-            #include "cvodes/cvodes_band.h"
-        #endif
+        #include "cvodes/cvodes_dense.h"
+        #include "cvodes/cvodes_band.h"
     #endif
 #endif
 

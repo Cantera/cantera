@@ -166,7 +166,7 @@ zrel = zz/dz;
 %
 
 flame = Stack([left flow right]);
-setProfile(flame, 2, {'u', 'V'}, [zrel; u; v]);
+setProfile(flame, 2, {'velocity', 'spread_rate'}, [zrel; u; v]);
 setProfile(flame, 2, 'T', [zrel; t] );
 for n = 1:nsp
     nm = speciesName(tp_f, n);

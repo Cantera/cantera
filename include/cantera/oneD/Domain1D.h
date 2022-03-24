@@ -6,10 +6,7 @@
 #ifndef CT_DOMAIN1D_H
 #define CT_DOMAIN1D_H
 
-#include "cantera/base/stringUtils.h"
 #include "cantera/base/ctexceptions.h"
-#include "cantera/base/global.h"
-#include "refine.h"
 
 namespace Cantera
 {
@@ -29,6 +26,8 @@ const int cPorousType = 109;
 
 class MultiJac;
 class OneDim;
+class Refiner;
+class AnyMap;
 class XML_Node;
 
 /**
@@ -46,7 +45,7 @@ public:
      */
     Domain1D(size_t nv=1, size_t points=1, double time=0.0);
 
-    virtual ~Domain1D() {}
+    virtual ~Domain1D();
     Domain1D(const Domain1D&) = delete;
     Domain1D& operator=(const Domain1D&) = delete;
 
@@ -342,6 +341,21 @@ public:
      */
     virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
 
+    //! Save the state of this domain as an AnyMap
+    /*!
+     * @param soln local solution vector for this domain
+     */
+    virtual AnyMap serialize(const double* soln) const;
+
+    //! Restore the solution for this domain from an AnyMap
+    /*!
+     * @param[in]  state AnyMap defining the state of this domain
+     * @param[out] soln Value of the solution vector, local to this domain
+     * @param[in]  loglevel 0 to suppress all output; 1 to show warnings; 2 for
+     *      verbose output
+     */
+    virtual void restore(const AnyMap& state, double* soln, int loglevel);
+
     size_t size() const {
         return m_nv*m_points;
     }
@@ -513,7 +527,6 @@ protected:
 
     //! Identity tag for the domain
     std::string m_id;
-    std::string m_desc;
     std::unique_ptr<Refiner> m_refiner;
     std::vector<std::string> m_name;
     int m_bw;

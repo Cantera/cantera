@@ -1,3 +1,4 @@
+import unittest
 import cantera as ct
 from . import utilities
 
@@ -6,8 +7,8 @@ class TestMixture(utilities.CanteraTest):
     @classmethod
     def setUpClass(self):
         utilities.CanteraTest.setUpClass()
-        self.phase1 = ct.Solution('h2o2.xml')
-        self.phase2 = ct.Solution('air.xml')
+        self.phase1 = ct.Solution('h2o2.yaml', transport_model=None)
+        self.phase2 = ct.Solution('air.yaml')
 
     def setUp(self):
         self.mix = ct.Mixture([(self.phase1, 1.0), (self.phase2, 2.0)])
@@ -37,16 +38,16 @@ class TestMixture(utilities.CanteraTest):
     def test_speciesIndex(self):
         names = self.mix.species_names
         kOH = names.index('OH')
-        kN2 = names.index('N2')
+        kN2 = names.index('N2O')
         self.assertEqual(self.mix.species_name(kOH), 'OH')
-        self.assertEqual(self.mix.species_name(kN2), 'N2')
+        self.assertEqual(self.mix.species_name(kN2), 'N2O')
 
         self.assertEqual(self.mix.species_index(0, 'OH'), kOH)
         self.assertEqual(self.mix.species_index(self.phase1, 'OH'), kOH)
         self.assertEqual(self.mix.species_index(self.phase1.name, 'OH'), kOH)
         self.assertEqual(self.mix.species_index(0, self.phase1.species_index('OH')), kOH)
-        self.assertEqual(self.mix.species_index(1, self.phase2.species_index('N2')), kN2)
-        self.assertEqual(self.mix.species_index(1, 'N2'), kN2)
+        self.assertEqual(self.mix.species_index(1, self.phase2.species_index('N2O')), kN2)
+        self.assertEqual(self.mix.species_index(1, 'N2O'), kN2)
 
         with self.assertRaisesRegex(IndexError, 'out of range'):
             self.mix.species_index(3, 'OH')
@@ -119,7 +120,7 @@ class TestMixture(utilities.CanteraTest):
         self.assertEqual(self.mix.phase_moles(1), 4)
 
     def test_species_moles(self):
-        self.mix.species_moles = 'H2:1.0, N2:4.0'
+        self.mix.species_moles = 'H2:1.0, NO2:4.0'
         P = self.mix.phase_moles()
         S = self.mix.species_moles
 
@@ -127,7 +128,7 @@ class TestMixture(utilities.CanteraTest):
         self.assertEqual(P[1], 4)
 
         self.assertEqual(S[self.mix.species_index(0, 'H2')], 1)
-        self.assertEqual(S[self.mix.species_index(1, 'N2')], 4)
+        self.assertEqual(S[self.mix.species_index(1, 'NO2')], 4)
 
         S[2] = 7
         self.mix.species_moles = S
@@ -168,6 +169,7 @@ class TestMixture(utilities.CanteraTest):
         self.assertNear(self.mix.T, 400)
         self.assertNear(self.mix.P, 2 * ct.one_atm)
 
+    @unittest.expectedFailure  # See https://github.com/Cantera/cantera/issues/1023
     def test_equilibrate2(self):
         self.mix.species_moles = 'H2:1.0, O2:0.5, N2:1.0'
         self.mix.T = 400

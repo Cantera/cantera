@@ -1,6 +1,8 @@
 /**
  *  @file reaction_defs.h
  * This file defines some constants used to specify reaction types.
+ *
+ * @deprecated To be removed after Cantera 2.6.
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -19,7 +21,7 @@ const int NONE = 0;
 
 /// @name Reaction Types
 
-//@{
+//! @{
 
 //! A reaction with a rate coefficient that depends only on temperature and voltage
 //! that also obeys mass-action kinetics.
@@ -76,77 +78,7 @@ const int SURFACE_RXN = 20;
 //! A reaction occurring on an interface, e.g a surface or edge.
 const int INTERFACE_RXN = 20;
 
-//!  This is a surface reaction that is formulated using the Butler-Volmer
-//!  formulation and using concentrations instead of activity concentrations
-//!  for its exchange current density formula.
-//!  @deprecated To be removed after Cantera 2.5.
-const int BUTLERVOLMER_NOACTIVITYCOEFFS_RXN = 25;
-
-//!  This is a surface reaction that is formulated using the Butler-Volmer
-//!  formulation. Note the B-V equations can be derived from the forward
-//!  and reverse rate constants for a single step reaction. However, there
-//!  are some advantages to using the formulation directly.
-//!  @deprecated To be removed after Cantera 2.5.
-const int BUTLERVOLMER_RXN = 26;
-
-//!  This is a surface reaction that is formulated using the affinity
-//!  representation, common in the geochemistry community.
-//!  This is generally a global non-mass action reaction with an additional functional
-//!  form dependence on delta G of reaction.
-//!  @deprecated To be removed after Cantera 2.5.
-const int SURFACEAFFINITY_RXN = 27;
-
-/**
- * A reaction occurring at a one-dimensional interface between two surface phases.
- *  NOTE: This is a bit ambiguous, and will be taken out in the future
- *        The dimensionality of the interface is a separate concept from the type
- *        of the reaction.
- */
-const int EDGE_RXN = 22;
-
-/**
- * A global reaction. These may have non-mass action reaction orders,
- * and are not allowed to be reversible.
- * @deprecated To be removed after Cantera 2.5.
- */
-const int GLOBAL_RXN = 30;
-
-//@}
-
-/** @name Rate Coefficient Types
- * These types define the supported rate coefficient types for
- * elementary reactions. Any of these may also be used as the high and
- * low-pressure limits of falloff and chemical activation reactions.
- *
- * Note that not all of these are currently implemented!
- * @todo Finish implementing reaction rate types.
- *
- * Magic numbers
- * @deprecated To be removed after Cantera 2.5.
- */
-//@{
-
-const int ARRHENIUS_REACTION_RATECOEFF_TYPE = 1;
-const int LANDAUTELLER_REACTION_RATECOEFF_TYPE = 2;
-const int TSTRATE_REACTION_RATECOEFF_TYPE = 3;
-const int SURF_ARRHENIUS_REACTION_RATECOEFF_TYPE = 4;
-const int ARRHENIUS_SUM_REACTION_RATECOEFF_TYPE = 5;
-const int EXCHANGE_CURRENT_REACTION_RATECOEFF_TYPE = 6;
-const int PLOG_REACTION_RATECOEFF_TYPE = 7;
-const int CHEBYSHEV_REACTION_RATECOEFF_TYPE = 8;
-
-//@}
-
-/** @name Falloff Function Types
- *
- * Magic numbers
- * @deprecated To be removed after Cantera 2.5.
- */
-//@{
-const int SIMPLE_FALLOFF = 100;
-const int TROE_FALLOFF = 110;
-const int SRI_FALLOFF = 112;
-//@}
+//! @}
 }
 
 #endif

@@ -401,8 +401,8 @@ inline void ct_dtrtrs(ctlapack::upperlower_t uplot, ctlapack::transpose_t trans,
 }
 
 /*!
- *  @param work   Must be dimensioned equal to greater than 3N
- *  @param iwork  Must be dimensioned equal to or greater than N
+ *  - `work` must be dimensioned equal to greater than 3N
+ *  - `iwork` must be dimensioned equal to or greater than N
  */
 inline doublereal ct_dtrcon(const char* norm, ctlapack::upperlower_t uplot, const char* diag,
                             size_t n, doublereal* a, size_t lda, doublereal* work, int* iwork, int& info)

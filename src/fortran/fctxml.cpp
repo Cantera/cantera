@@ -8,6 +8,7 @@
 
 #include "clib/clib_utils.h"
 #include "cantera/base/ctml.h"
+#include "cantera/base/global.h"
 
 #include <cstring>
 #include <fstream>

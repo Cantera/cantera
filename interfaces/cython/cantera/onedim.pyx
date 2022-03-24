@@ -13,7 +13,6 @@ cdef class Domain1D:
     def __cinit__(self, *args, **kwargs):
         self.domain = NULL
 
-    # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, _SolutionBase phase, *args, name=None, **kwargs):
         self._weakref_proxy = _WeakrefProxy()
         if self.domain is NULL:
@@ -69,9 +68,9 @@ cdef class Domain1D:
         Set the lower and upper bounds on the solution.
 
         The argument list should consist of keyword/value pairs, with
-        component names as keywords and (lower_bound, upper_bound) tuples as
-        the values.  The keyword *default* may be used to specify default
-        bounds for all unspecified components. The keyword *Y* can be used to
+        component names as keywords and (lower bound, upper bound) tuples as
+        the values.  The keyword ``default`` may be used to specify default
+        bounds for all unspecified components. The keyword ``Y`` can be used to
         stand for all species mass fractions in flow domains.
 
         >>> d.set_bounds(default=(0, 1), Y=(-1.0e-5, 2.0))
@@ -93,12 +92,12 @@ cdef class Domain1D:
         """
         Set the error tolerances for the steady-state problem.
 
-        The argument list should consist of keyword/value pairs, with
-        component names as keywords and (rtol, atol) tuples as the values.
-        The keyword *default* may be used to specify default bounds for all
-        unspecified components. The keyword *Y* can be used to stand for all
+        The argument list should consist of keyword/value pairs, with component names as
+        keywords and (relative tolerance, absolute tolerance) tuples as the values.
+        The keyword ``default`` may be used to specify default bounds for all
+        unspecified components. The keyword ``Y`` can be used to stand for all
         species mass fractions in flow domains. Alternatively, the keywords
-        *abs* and *rel* can be used to specify arrays for the absolute and
+        ``abs`` and ``rel`` can be used to specify arrays for the absolute and
         relative tolerances for each solution component.
         """
         self.have_user_tolerances = True
@@ -128,12 +127,12 @@ cdef class Domain1D:
         """
         Set the error tolerances for the steady-state problem.
 
-        The argument list should consist of keyword/value pairs, with
-        component names as keywords and (rtol, atol) tuples as the values.
-        The keyword *default* may be used to specify default bounds for all
-        unspecified components. The keyword *Y* can be used to stand for all
+        The argument list should consist of keyword/value pairs, with component names as
+        keywords and (relative tolerance, absolute tolerance) tuples as the values.
+        The keyword ``default`` may be used to specify default bounds for all
+        unspecified components. The keyword ``Y`` can be used to stand for all
         species mass fractions in flow domains. Alternatively, the keywords
-        *abs* and *rel* can be used to specify arrays for the absolute and
+        ``abs`` and ``rel`` can be used to specify arrays for the absolute and
         relative tolerances for each solution component.
         """
         self.have_user_tolerances = True
@@ -280,7 +279,6 @@ cdef class Boundary1D(Domain1D):
     def __cinit__(self, *args, **kwargs):
         self.boundary = NULL
 
-    # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, *args, **kwargs):
         if self.boundary is NULL:
             raise TypeError("Can't instantiate abstract class Boundary1D.")
@@ -444,8 +442,12 @@ cdef class _FlowBase(Domain1D):
     def __init__(self, *args, **kwargs):
         self.domain = <CxxDomain1D*>(self.flow)
         super().__init__(*args, **kwargs)
-        if self.gas.transport_model == 'Transport':
-            self.gas.transport_model = 'Mix'
+        if self.gas.transport_model == "None":
+            warnings.warn(
+                "An appropriate transport model\nshould be set when instantiating the "
+                "Solution ('gas') object.\nImplicit setting of the transport model "
+                "may be deprecated in the future.", FutureWarning)
+            self.gas.transport_model = "Mix"
         self.flow.setKinetics(deref(self.gas.kinetics))
         self.flow.setTransport(deref(self.gas.transport))
         self.P = self.gas.P
@@ -562,18 +564,6 @@ cdef class _FlowBase(Domain1D):
                     self.set_steady_tolerances(**tol)
                 else:
                     self.set_transient_tolerances(**tol)
-
-    def set_boundary_emissivities(self, e_left, e_right):
-        """
-        .. deprecated:: 2.5
-
-             To be deprecated with version 2.5, and removed thereafter.
-             Replaced by property `boundary_emissivities`.
-        """
-        warnings.warn("Method 'set_boundary_emissivities' to be removed after "
-                      "Cantera 2.5. Replaced by property "
-                      "'boundary_emissivities'", DeprecationWarning)
-        self.boundary_emissivities = e_left, e_right
 
     property boundary_emissivities:
         """ Set/get boundary emissivities. """
@@ -716,7 +706,6 @@ cdef class Sim1D:
     def __cinit__(self, *args, **kwargs):
         self.sim = NULL
 
-    # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, domains, *args, **kwargs):
         cdef vector[CxxDomain1D*] D
         cdef Domain1D d
@@ -745,10 +734,10 @@ cdef class Sim1D:
 
     def set_interrupt(self, f):
         """
-        Set an interrupt function to be called each time that OneDim::eval is
-        called. The signature of *f* is `float f(float)`. The default
-        interrupt function is used to trap KeyboardInterrupt exceptions so
-        that `ctrl-c` can be used to break out of the C++ solver loop.
+        Set an interrupt function to be called each time that :ct:`OneDim::eval` is
+        called. The signature of ``f`` is ``float f(float)``. The default
+        interrupt function is used to trap `KeyboardInterrupt` exceptions so
+        that ``ctrl-c`` can be used to break out of the C++ solver loop.
         """
         if f is None:
             self.sim.setInterrupt(NULL)
@@ -763,7 +752,7 @@ cdef class Sim1D:
     def set_time_step_callback(self, f):
         """
         Set a callback function to be called after each successful timestep.
-        The signature of *f* is `float f(float)`. The argument passed to *f* is
+        The signature of ``f`` is ``float f(float)``. The argument passed to ``f`` is
         the size of the timestep. The output is ignored.
         """
         if f is None:
@@ -779,8 +768,8 @@ cdef class Sim1D:
     def set_steady_callback(self, f):
         """
         Set a callback function to be called after each successful steady-state
-        solve, before regridding. The signature of *f* is `float f(float)`. The
-        argument passed to *f* is "0" and the output is ignored.
+        solve, before regridding. The signature of ``f`` is ``float f(float)``. The
+        argument passed to ``f`` is 0.0 and the output is ignored.
         """
         if f is None:
             self.sim.setSteadyCallback(NULL)
@@ -834,7 +823,7 @@ cdef class Sim1D:
         :param component:
             component name or index
         :param point:
-            grid point number within *domain* starting with 0 on the left
+            grid point number within ``domain`` starting with 0 on the left
 
         >>> t = s.value('flow', 'T', 6)
         """
@@ -850,7 +839,7 @@ cdef class Sim1D:
         :param component:
             component name or index
         :param point:
-            grid point number within *domain* starting with 0 on the left
+            grid point number within ``domain`` starting with 0 on the left
         :param value:
             numerical value
 
@@ -919,7 +908,7 @@ cdef class Sim1D:
         :param positions:
             sequence of relative positions, from 0 on the left to 1 on the right
         :param values:
-            sequence of values at the relative positions specified in *positions*
+            sequence of values at the relative positions specified in ``positions``
 
         >>> s.set_profile(d, 'T', [0.0, 0.2, 1.0], [400.0, 800.0, 1500.0])
         """
@@ -950,14 +939,13 @@ cdef class Sim1D:
 
     def collect_data(self, domain, other):
         """
-        Return underlying data specifying a *domain*. Method is used as
+        Return the underlying data specifying a ``domain``. This method is used as
         a service function for export via `FlameBase.to_solution_array`.
 
-        Derived classes set default values for *domain* and *other*, where
-        defaults describe flow domain and essential non-thermodynamic solution
-        components of the configuration, respectively. An alternative *domain*
-        (e.g. inlet, outlet, etc.), can be specified either by name or the
-        corresponding `Domain1D` object itself.
+        Derived classes call this function with the flow domain as the ``domain`` and a
+        list of essential non-thermodynamic solution components of the configuration as
+        the ``components``. A different domain (for example, inlet or outlet) can be
+        specified either by name or as the corresponding Domain1D object itself.
         """
         idom = self.domain_index(domain)
         dom = self.domains[idom]
@@ -978,7 +966,7 @@ cdef class Sim1D:
                else:
                    other_cols[e] = self.profile(dom, e)
             if self.radiation_enabled:
-                other_cols['qdot'] = self.radiative_heat_loss
+                other_cols['qdot'] = self.flame.radiative_heat_loss
 
             return states, other_cols, meta
 
@@ -1006,12 +994,12 @@ cdef class Sim1D:
 
     def restore_data(self, domain, states, other_cols, meta):
         """
-        Restore a *domain* from underlying data. Method is used as
+        Restore a ``domain`` from underlying data. This method is used as
         a service function for import via `FlameBase.from_solution_array`.
 
-        Derived classes set default values for *domain* and *other*, where
+        Derived classes set default values for ``domain`` and ``other``, where
         defaults describe flow domain and essential non-thermodynamic solution
-        components of the configuration, respectively. An alternative *domain*
+        components of the configuration, respectively. An alternative ``domain``
         (e.g. inlet, outlet, etc.), can be specified either by name or the
         corresponding Domain1D object itself.
         """
@@ -1149,6 +1137,7 @@ cdef class Sim1D:
                 if isinstance(dom, _FlowBase):
                     dom.set_transport(self.gas)
 
+        # Do initial solution steps with default tolerances
         have_user_tolerances = any(dom.have_user_tolerances for dom in self.domains)
         if have_user_tolerances:
             # Save the user-specified tolerances
@@ -1156,6 +1145,14 @@ cdef class Sim1D:
             rtol_ss_final = [dom.steady_reltol() for dom in self.domains]
             atol_ts_final = [dom.transient_abstol() for dom in self.domains]
             rtol_ts_final = [dom.transient_reltol() for dom in self.domains]
+
+        def restore_tolerances():
+            if have_user_tolerances:
+                for i in range(len(self.domains)):
+                    self.domains[i].set_steady_tolerances(abs=atol_ss_final[i],
+                                                        rel=rtol_ss_final[i])
+                    self.domains[i].set_transient_tolerances(abs=atol_ts_final[i],
+                                                            rel=rtol_ts_final[i])
 
         for dom in self.domains:
             dom.set_default_tolerances()
@@ -1215,6 +1212,7 @@ cdef class Sim1D:
                 # restore settings before re-raising exception
                 set_transport(transport)
                 set_soret(True)
+                restore_tolerances()
                 raise e
 
             # If initial solve using energy equation fails, fall back on the
@@ -1233,6 +1231,7 @@ cdef class Sim1D:
                     # restore settings before re-raising exception
                     set_transport(transport)
                     set_soret(True)
+                    restore_tolerances()
                     raise e
 
                 if solved:
@@ -1248,6 +1247,7 @@ cdef class Sim1D:
                         # restore settings before re-raising exception
                         set_transport(transport)
                         set_soret(True)
+                        restore_tolerances()
                         raise e
 
             if solved and not self.extinct() and refine_grid:
@@ -1263,6 +1263,7 @@ cdef class Sim1D:
                     # restore settings before re-raising exception
                     set_transport(transport)
                     set_soret(True)
+                    restore_tolerances()
                     raise e
 
                 if solved and not self.extinct():
@@ -1288,11 +1289,7 @@ cdef class Sim1D:
 
         if have_user_tolerances:
             log('Solving with user-specified tolerances')
-            for i in range(len(self.domains)):
-                self.domains[i].set_steady_tolerances(abs=atol_ss_final[i],
-                                                      rel=rtol_ss_final[i])
-                self.domains[i].set_transient_tolerances(abs=atol_ts_final[i],
-                                                         rel=rtol_ts_final[i])
+            restore_tolerances()
 
         # Final call with expensive options enabled
         if have_user_tolerances or solve_multi or soret_doms:
@@ -1353,7 +1350,7 @@ cdef class Sim1D:
 
     def set_grid_min(self, dz, domain=None):
         """
-        Set the minimum grid spacing on *domain*. If *domain* is None, then
+        Set the minimum grid spacing on ``domain``. If ``domain`` is `None`, then
         set the grid spacing for all domains.
         """
         if domain is None:
@@ -1389,21 +1386,6 @@ cdef class Sim1D:
         """ Set the maximum time step. """
         self.sim.setMaxTimeStep(tsmax)
 
-    def set_fixed_temperature(self, T):
-        """
-        Set the temperature used to fix the spatial location of a freely
-        propagating flame.
-
-        .. deprecated:: 2.5
-
-             To be deprecated with version 2.5, and removed thereafter.
-             Replaced by property `fixed_temperature`.
-        """
-        warnings.warn("Method 'set_fixed_temperature' to be removed after "
-                      "Cantera 2.5. Replaced by property 'fixed_temperature'",
-                      DeprecationWarning)
-        self.fixed_temperature = T
-
     property fixed_temperature:
         """
         Set the temperature used to fix the spatial location of a freely
@@ -1422,10 +1404,13 @@ cdef class Sim1D:
         def __get__(self):
             return self.sim.fixedTemperatureLocation()
 
-    def save(self, filename='soln.xml', name='solution', description='none',
+    def save(self, filename='soln.yaml', name='solution', description='none',
              loglevel=1):
         """
-        Save the solution in XML format.
+        Save the solution in YAML or XML format.
+
+        .. deprecated:: 2.6
+           XML-based output is deprecated and will be removed in Cantera 3.0.
 
         :param filename:
             solution file
@@ -1434,15 +1419,18 @@ cdef class Sim1D:
         :param description:
             custom description text
 
-        >>> s.save(filename='save.xml', name='energy_off',
+        >>> s.save(filename='save.yaml', name='energy_off',
         ...        description='solution with energy eqn. disabled')
 
         """
-        self.sim.save(stringify(filename), stringify(name),
+        self.sim.save(stringify(str(filename)), stringify(name),
                       stringify(description), loglevel)
 
-    def restore(self, filename='soln.xml', name='solution', loglevel=2):
+    def restore(self, filename='soln.yaml', name='solution', loglevel=2):
         """Set the solution vector to a previously-saved solution.
+
+        .. deprecated:: 2.6
+           XML-based input is deprecated and will be removed in Cantera 3.0.
 
         :param filename:
             solution file
@@ -1452,9 +1440,9 @@ cdef class Sim1D:
             Amount of logging information to display while restoring,
             from 0 (disabled) to 2 (most verbose).
 
-        >>> s.restore(filename='save.xml', name='energy_off')
+        >>> s.restore(filename='save.yaml', name='energy_off')
         """
-        self.sim.restore(stringify(filename), stringify(name), loglevel)
+        self.sim.restore(stringify(str(filename)), stringify(name), loglevel)
         self._initialized = True
 
     def restore_time_stepping_solution(self):

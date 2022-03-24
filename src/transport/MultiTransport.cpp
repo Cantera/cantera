@@ -9,6 +9,7 @@
 #include "cantera/transport/MultiTransport.h"
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/utilities.h"
 
 using namespace std;
 
@@ -33,7 +34,7 @@ doublereal Frot(doublereal tr, doublereal sqtr)
 
 //////////////////// class MultiTransport methods //////////////
 
-MultiTransport::MultiTransport(thermo_t* thermo)
+MultiTransport::MultiTransport(ThermoPhase* thermo)
     : GasTransport(thermo)
 {
 }
@@ -51,7 +52,6 @@ void MultiTransport::init(ThermoPhase* thermo, int mode, int log_level)
     m_frot_298.resize(m_nsp);
     m_rotrelax.resize(m_nsp);
     m_cinternal.resize(m_nsp);
-    m_om22.resize(m_nsp, m_nsp);
     m_astar.resize(m_nsp, m_nsp);
     m_bstar.resize(m_nsp, m_nsp);
     m_cstar.resize(m_nsp, m_nsp);
@@ -104,6 +104,11 @@ void MultiTransport::getThermalDiffCoeffs(doublereal* const dt)
     for (size_t k = 0; k < m_nsp; k++) {
         dt[k] = c * m_mw[k] * m_molefracs[k] * m_a[k];
     }
+}
+
+double MultiTransport::pressure_ig()
+{
+    return m_thermo->molarDensity() * GasConstant * m_thermo->temperature();
 }
 
 void MultiTransport::solveLMatrixEquation()
@@ -383,6 +388,7 @@ void MultiTransport::getMultiDiffCoeffs(const size_t ld, doublereal* const d)
                           (m_Lmatrix(i,j) - m_Lmatrix(i,i));
         }
     }
+    
 }
 
 void MultiTransport::update_T()
@@ -427,20 +433,17 @@ void MultiTransport::updateThermal_T()
     // evaluate polynomial fits for A*, B*, C*
     for (size_t i = 0; i < m_nsp; i++) {
         for (size_t j = i; j < m_nsp; j++) {
-            double z = m_logt - m_log_eps_k(i,j);
+            double z = m_star_poly_uses_actualT[i][j] == 1 ? m_logt : m_logt - m_log_eps_k(i,j);
             int ipoly = m_poly[i][j];
             if (m_mode == CK_Mode) {
-                m_om22(i,j) = poly6(z, m_omega22_poly[ipoly].data());
                 m_astar(i,j) = poly6(z, m_astar_poly[ipoly].data());
                 m_bstar(i,j) = poly6(z, m_bstar_poly[ipoly].data());
                 m_cstar(i,j) = poly6(z, m_cstar_poly[ipoly].data());
             } else {
-                m_om22(i,j) = poly8(z, m_omega22_poly[ipoly].data());
                 m_astar(i,j) = poly8(z, m_astar_poly[ipoly].data());
                 m_bstar(i,j) = poly8(z, m_bstar_poly[ipoly].data());
                 m_cstar(i,j) = poly8(z, m_cstar_poly[ipoly].data());
             }
-            m_om22(j,i) = m_om22(i,j);
             m_astar(j,i) = m_astar(i,j);
             m_bstar(j,i) = m_bstar(i,j);
             m_cstar(j,i) = m_cstar(i,j);

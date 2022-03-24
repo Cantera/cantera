@@ -64,7 +64,7 @@ fl = flame(gas, inlet_o, f, inlet_f);
 
 % if the starting solution is to be read from a previously-saved
 % solution, uncomment this line and edit the file name and solution id.
-%restore(fl,'h2flame2.xml', 'energy')
+%restore(fl,'c2h6-flame.yaml', 'energy')
 
 % solve with fixed temperature profile first
 solve(fl, loglevel, refine_grid);
@@ -79,7 +79,7 @@ solve(fl, loglevel, refine_grid);
 enableEnergy(f);
 setRefineCriteria(fl, 2, 200.0, 0.1, 0.1);
 solve(fl, loglevel, refine_grid);
-saveSoln(fl,'c2h6.xml','energy',['solution with energy equation']);
+saveSoln(fl,'c2h6-flame.yaml','energy',['solution with energy equation']);
 
 %%%%%%%%%% show statistics %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 writeStats(fl);

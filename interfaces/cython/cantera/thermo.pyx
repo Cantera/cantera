@@ -43,7 +43,7 @@ cdef class Species:
     Either of the following will produce a list of 53 `Species` objects
     containing the species defined in the GRI 3.0 mechanism::
 
-        S = ct.Species.listFromFile('gri30.yaml')
+        S = ct.Species.list_from_file("gri30.yaml")
 
         import pathlib
         S = ct.Species.listFromYaml(
@@ -110,8 +110,37 @@ cdef class Species:
     def fromYaml(text):
         """
         Create a Species object from its YAML string representation.
+
+        .. deprecated:: 2.6
+             To be deprecated with version 2.6, and removed thereafter.
+             Replaced by `Reaction.from_yaml`.
+        """
+        warnings.warn("Class method 'fromYaml' is renamed to 'from_yaml' "
+            "and will be removed after Cantera 2.6.", DeprecationWarning)
+
+        return Species.from_yaml(text)
+
+    @staticmethod
+    def from_yaml(text):
+        """
+        Create a `Species` object from its YAML string representation.
         """
         cxx_species = CxxNewSpecies(AnyMapFromYamlString(stringify(text)))
+        species = Species(init=False)
+        species._assign(cxx_species)
+        return species
+
+    @staticmethod
+    def from_dict(data):
+        """
+        Create a `Species` object from a dictionary corresponding to its YAML
+        representation.
+
+        :param data:
+            A dictionary corresponding to the YAML representation.
+        """
+        cdef CxxAnyMap any_map = dict_to_anymap(data)
+        cxx_species = CxxNewSpecies(any_map)
         species = Species(init=False)
         species._assign(cxx_species)
         return species
@@ -121,7 +150,7 @@ cdef class Species:
         """
         Create a list of Species objects from all of the species defined in a
         YAML, CTI or XML file. For YAML files, return species from the section
-        *section*.
+        ``section``.
 
         Directories on Cantera's input file path will be searched for the
         specified file.
@@ -134,7 +163,14 @@ cdef class Species:
 
             The CTI and XML input formats are deprecated and will be removed in
             Cantera 3.0.
+
+        .. deprecated:: 2.6
+
+            To be removed after Cantera 2.6. Replaced by 'Species.list_from_file'.
         """
+        warnings.warn("Static method 'listFromFile' is renamed to 'list_from_file'."
+            " The old name will be removed after Cantera 2.6.", DeprecationWarning)
+
         if filename.lower().split('.')[-1] in ('yml', 'yaml'):
             root = AnyMapFromYamlFile(stringify(filename))
             cxx_species = CxxGetSpecies(root[stringify(section)])
@@ -143,6 +179,21 @@ cdef class Species:
 
         species = []
         for a in cxx_species:
+            b = Species(init=False)
+            b._assign(a)
+            species.append(b)
+        return species
+
+    @staticmethod
+    def list_from_file(filename, section="species"):
+        """
+        Create a list of Species objects from all of the species defined in the section
+        ``section`` of a YAML file. Directories on Cantera's input file path will be
+        searched for the specified file.
+        """
+        root = AnyMapFromYamlFile(stringify(filename))
+        species = []
+        for a in CxxGetSpecies(root[stringify(section)]):
             b = Species(init=False)
             b._assign(a)
             species.append(b)
@@ -190,6 +241,19 @@ cdef class Species:
 
     @staticmethod
     def listFromYaml(text, section=None):
+        """
+        Create a list of Species objects from all the species defined in a YAML string.
+
+        .. deprecated:: 2.6
+             To be deprecated with version 2.6, and removed thereafter.
+             Replaced by `Reaction.list_from_yaml`.
+        """
+        warnings.warn("Class method 'listFromYaml' is renamed to 'list_from_yaml' "
+            "and will be removed after Cantera 2.6.", DeprecationWarning)
+        return Species.list_from_yaml(text, section)
+
+    @staticmethod
+    def list_from_yaml(text, section=None):
         """
         Create a list of Species objects from all the species defined in a YAML
         string. If ``text`` is a YAML mapping, the ``section`` name of the list
@@ -262,6 +326,27 @@ cdef class Species:
         def __set__(self, GasTransportData tran):
             self.species.transport = tran._data
 
+    property input_data:
+        def __get__(self):
+            cdef CxxThermoPhase* phase = self._phase.thermo if self._phase else NULL
+            return anymap_to_dict(self.species.parameters(phase))
+
+    def update_user_data(self, data):
+        """
+        Add the contents of the provided `dict` as additional fields when generating
+        YAML phase definition files with `Solution.write_yaml` or in the data returned
+        by `input_data`. Existing keys with matching names are overwritten.
+        """
+        self.species.input.update(dict_to_anymap(data), False)
+
+    def clear_user_data(self):
+        """
+        Clear all saved input data, so that the data given by `input_data` or
+        `Solution.write_yaml` will only include values generated by Cantera based on
+        the current object state.
+        """
+        self.species.input.clear()
+
     def __repr__(self):
         return '<Species {}>'.format(self.name)
 
@@ -277,11 +362,13 @@ cdef class ThermoPhase(_SolutionBase):
     as a base class for classes `Solution` and `Interface`.
     """
 
-    # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if 'source' not in kwargs:
             self.thermo_basis = mass_basis
+        # In composite objects, the ThermoPhase constructor needs to be called first
+        # to prevent instantiation of stand-alone 'Kinetics' or 'Transport' objects.
+        # The following is used as a sentinel.
         self._references = weakref.WeakKeyDictionary()
 
     property thermo_model:
@@ -361,25 +448,6 @@ cdef class ThermoPhase(_SolutionBase):
             states = [pystr(s) for s in states]
             return {frozenset(k): k for k in states}
 
-    property ID:
-        """
-        The identifier of the object. The default value corresponds to the
-        CTI/XML/YAML input file phase entry.
-
-        .. deprecated:: 2.5
-
-             To be deprecated with version 2.5, and removed thereafter.
-             Usage merged with `name`.
-        """
-        def __get__(self):
-            warnings.warn("To be removed after Cantera 2.5. "
-                          "Use 'name' attribute instead", DeprecationWarning)
-            return pystr(self.base.name())
-        def __set__(self, id_):
-            warnings.warn("To be removed after Cantera 2.5. "
-                          "Use 'name' attribute instead", DeprecationWarning)
-            self.base.setName(stringify(id_))
-
     property basis:
         """
         Determines whether intensive thermodynamic properties are treated on a
@@ -419,10 +487,10 @@ cdef class ThermoPhase(_SolutionBase):
 
     def equilibrate(self, XY, solver='auto', double rtol=1e-9,
                     int max_steps=1000, int max_iter=100, int estimate_equil=0,
-                    int log_level=0, **kwargs):
+                    int log_level=0):
         """
         Set to a state of chemical equilibrium holding property pair
-        *XY* constant.
+        ``XY`` constant.
 
         :param XY:
             A two-letter string, which must be one of the set::
@@ -457,27 +525,6 @@ cdef class ThermoPhase(_SolutionBase):
         :param log_level:
             Set to a value greater than 0 to write diagnostic output.
         """
-        if 'maxsteps' in kwargs:
-            max_steps = kwargs['maxsteps']
-            warnings.warn(
-                "Keyword argument 'maxsteps' is deprecated and will be removed after "
-                "Cantera 2.5. Use argument 'max_steps' instead.", DeprecationWarning,
-            )
-
-        if 'maxiter' in kwargs:
-            max_iter = kwargs['maxiter']
-            warnings.warn(
-                "Keyword argument 'maxiter' is deprecated and will be removed after "
-                "Cantera 2.5. Use argument 'max_iter' instead.", DeprecationWarning,
-            )
-
-        if 'loglevel' in kwargs:
-            log_level = kwargs['loglevel']
-            warnings.warn(
-                "Keyword argument 'loglevel' is deprecated and will be removed after "
-                "Cantera 2.5. Use argument 'log_level' instead.", DeprecationWarning,
-            )
-
         self.thermo.equilibrate(stringify(XY.upper()), stringify(solver), rtol,
                                 max_steps, max_iter, estimate_equil, log_level)
 
@@ -490,7 +537,7 @@ cdef class ThermoPhase(_SolutionBase):
 
     cpdef int element_index(self, element) except *:
         """
-        The index of element *element*, which may be specified as a string or
+        The index of element ``element``, which may be specified as a string or
         an integer. In the latter case, the index is checked for validity and
         returned. If no such element is present, an exception is thrown.
         """
@@ -508,7 +555,7 @@ cdef class ThermoPhase(_SolutionBase):
         return index
 
     def element_name(self, m):
-        """Name of the element with index *m*."""
+        """Name of the element with index ``m``."""
         return pystr(self.thermo.elementName(m))
 
     property element_names:
@@ -517,7 +564,7 @@ cdef class ThermoPhase(_SolutionBase):
             return [self.element_name(m) for m in range(self.n_elements)]
 
     def atomic_weight(self, m):
-        """Atomic weight [kg/kmol] of element *m*"""
+        """Atomic weight [kg/kmol] of element ``m``"""
         return self.thermo.atomicWeight(self.element_index(m))
 
     property atomic_weights:
@@ -538,7 +585,7 @@ cdef class ThermoPhase(_SolutionBase):
             return self._selected_species.size or self.n_species
 
     def species_name(self, k):
-        """Name of the species with index *k*."""
+        """Name of the species with index ``k``."""
         return pystr(self.thermo.speciesName(k))
 
     property species_names:
@@ -552,7 +599,7 @@ cdef class ThermoPhase(_SolutionBase):
 
     cpdef int species_index(self, species) except *:
         """
-        The index of species *species*, which may be specified as a string or
+        The index of species ``species``, which may be specified as a string or
         an integer. In the latter case, the index is checked for validity and
         returned. If no such species is present, an exception is thrown.
         """
@@ -578,8 +625,8 @@ cdef class ThermoPhase(_SolutionBase):
 
     def species(self, k=None):
         """
-        Return the `Species` object for species *k*, where *k* is either the
-        species index or the species name. If *k* is not specified, a list of
+        Return the `Species` object for species ``k``, where ``k`` is either the
+        species index or the species name. If ``k`` is not specified, a list of
         all species objects is returned. Changes to this object do not affect
         the `ThermoPhase` or `Solution` object until the `modify_species`
         function is called.
@@ -588,6 +635,7 @@ cdef class ThermoPhase(_SolutionBase):
             return [self.species(i) for i in range(self.n_species)]
 
         s = Species(init=False)
+        s._phase = self
         if isinstance(k, (str, bytes)):
             s._assign(self.thermo.species(stringify(k)))
         elif isinstance(k, (int, float)):
@@ -612,19 +660,20 @@ cdef class ThermoPhase(_SolutionBase):
                 ' is linked to a Reactor, Domain1D (flame), or Mixture object.')
         self.thermo.addUndefinedElements()
         self.thermo.addSpecies(species._species)
+        species._phase = self
         self.thermo.initThermo()
         if self.kinetics:
             self.kinetics.invalidateCache()
 
     def add_species_alias(self, name, alias):
         """
-        Add the alternate species name *alias* for an original species *name*.
+        Add the alternate species name ``alias`` for an original species ``name``.
         """
         self.thermo.addSpeciesAlias(stringify(name), stringify(alias))
 
     def find_isomers(self, comp):
         """
-        Find species/isomers matching a composition specified by *comp*.
+        Find species/isomers matching a composition specified by ``comp``.
         """
 
         if isinstance(comp, dict):
@@ -638,7 +687,7 @@ cdef class ThermoPhase(_SolutionBase):
 
     def n_atoms(self, species, element):
         """
-        Number of atoms of element *element* in species *species*. The element
+        Number of atoms of element ``element`` in species ``species``. The element
         and species may be specified by name or by index.
 
         >>> phase.n_atoms('CH4','H')
@@ -760,7 +809,8 @@ cdef class ThermoPhase(_SolutionBase):
         self.state = original_state
         return arr
 
-    def set_equivalence_ratio(self, phi, fuel, oxidizer, basis='mole'):
+    def set_equivalence_ratio(self, phi, fuel, oxidizer, basis="mole", *, diluent=None,
+                              fraction=None):
         """
         Set the composition to a mixture of ``fuel`` and ``oxidizer`` at the
         specified equivalence ratio ``phi``, holding temperature and pressure
@@ -768,7 +818,11 @@ cdef class ThermoPhase(_SolutionBase):
         Other elements are assumed not to participate in oxidation (that is,
         N ends up as N2). The ``basis`` determines the fuel and oxidizer
         compositions: ``basis='mole'`` means mole fractions (default),
-        ``basis='mass'`` means mass fractions::
+        ``basis='mass'`` means mass fractions. The fuel/oxidizer mixture can be
+        be diluted by a ``diluent`` based on a mixing ``fraction``. The amount of
+        diluent is quantified as a fraction of fuel, oxidizer or the fuel/oxidizer
+        mixture. For more information, see `Python example
+        <https://cantera.org/examples/python/thermo/equivalenceRatio.py.html>`_ ::
 
             >>> gas.set_equivalence_ratio(0.5, 'CH4', 'O2:1.0, N2:3.76', basis='mole')
             >>> gas.mass_fraction_dict()
@@ -782,23 +836,130 @@ cdef class ThermoPhase(_SolutionBase):
         :param fuel:
             Fuel species name or mole/mass fractions as string, array, or dict.
         :param oxidizer:
-            Oxidizer species name or mole/mass fractions as a string, array, or
-            dict.
+            Oxidizer species name or mole/mass fractions as a string, array, or dict.
         :param basis:
             Determines if ``fuel`` and ``oxidizer`` are given in mole
             fractions (``basis='mole'``) or mass fractions (``basis='mass'``)
+        :param: diluent:
+            Optional parameter. Required if dilution is used. Specifies the composition
+            of the diluent in mole/mass fractions as a string, array or dict
+        :param: fraction:
+            Optional parameter. Dilutes the fuel/oxidizer mixture with the diluent
+            according to ``fraction``. Fraction can refer to the fraction of diluent in
+            the  mixture (for example ``fraction="diluent:0.7`` will create a mixture
+            with 30 % fuel/oxidizer and 70 % diluent), the fraction of fuel in the
+            mixture (for example ``fraction="fuel:0.1" means that the mixture contains
+            10 % fuel. The amount of oxidizer is determined from the equivalence ratio
+            and the remaining mixture is the diluent) or fraction of oxidizer in the
+            mixture (for example ``fraction="oxidizer:0.1")``. The fraction itself is
+            interpreted as mole or mass fraction based on ``basis``. The diluent is not
+            considered in the computation of the equivalence ratio. Default is no
+            dilution or ``fraction=None``. May be given as string or dictionary (for
+            example ``fraction={"fuel":0.7})``
         """
-        cdef np.ndarray[np.double_t, ndim=1] f = \
-                np.ascontiguousarray(self.__composition_to_array(fuel, basis), dtype=np.double)
-        cdef np.ndarray[np.double_t, ndim=1] o = \
-                np.ascontiguousarray(self.__composition_to_array(oxidizer, basis), dtype=np.double)
+        cdef np.ndarray[np.double_t, ndim=1] fuel_comp = np.ascontiguousarray(
+                self.__composition_to_array(fuel, basis), dtype=np.double)
+        cdef np.ndarray[np.double_t, ndim=1] ox_comp = np.ascontiguousarray(
+                self.__composition_to_array(oxidizer, basis), dtype=np.double)
 
-        self.thermo.setEquivalenceRatio(phi, &f[0], &o[0], ThermoBasis.mass if basis == 'mass' else ThermoBasis.molar)
+        self.thermo.setEquivalenceRatio(phi, &fuel_comp[0], &ox_comp[0],
+                                        ThermoBasis.mass if basis == "mass"
+                                                         else ThermoBasis.molar)
 
-    def set_mixture_fraction(self, mixture_fraction, fuel, oxidizer, basis='mole', mixFrac=None):
+        if (fraction is None) != (diluent is None):
+            raise ValueError("If dilution is used, both 'fraction' and 'diluent' "
+                             "parameters are required.")
+
+        if fraction is None:
+            return
+
+        if isinstance(fraction, str):
+            fraction_dict = comp_map_to_dict(parseCompString(stringify(fraction)))
+        elif isinstance(fraction, dict):
+            fraction_dict = fraction
+        else:
+            raise ValueError("The fraction argument must be given as string or "
+                             "dictionary.")
+
+        if len(fraction_dict) != 1:
+            raise ValueError("Invalid format for the fraction. Must be provided for "
+                             "example as fraction='fuel:0.1'")
+
+        fraction_type  = list(fraction_dict.keys())[0]
+        fraction_value = float(list(fraction_dict.values())[0])
+
+        if fraction_value < 0 or fraction_value > 1:
+            raise ValueError("The fraction must be between 0 and 1")
+
+        if fraction_type not in ["fuel", "oxidizer", "diluent"]:
+            raise ValueError("The fraction must specify 'fuel', 'oxidizer' or "
+                             "'diluent'")
+
+        cdef np.ndarray[np.double_t, ndim=1] diluent_comp = np.ascontiguousarray(
+                self.__composition_to_array(diluent, basis), dtype=np.double)
+
+        # this function changes the composition and fixes temperature and pressure
+        T, P = self.T, self.P
+        # if 'fraction' is specified for diluent, just scale the mass or mole fractions
+        # of the fuel/oxidizer mixture accordingly
+        if fraction_type == "diluent":
+            if basis == "mole":
+                X_fuelox = self.X
+                self.X = diluent_comp
+                self.X = (1.0 - fraction_value) * X_fuelox + fraction_value * self.X
+            else:
+                Y_fuelox = self.Y
+                self.Y = diluent_comp
+                self.Y = (1.0 - fraction_value) * Y_fuelox + fraction_value * self.Y
+            self.TP = T, P
+            return
+
+        # get the mixture fraction before scaling / diluent addition
+        Z_fuel = self.mixture_fraction(fuel, oxidizer, basis)
+
+        if Z_fuel == 0.0 and fraction_type == "fuel":
+            raise ValueError("No fuel in the fuel/oxidizer mixture")
+
+        if Z_fuel == 1.0 and fraction_type == "oxidzer":
+            raise ValueError("No oxidizer in the fuel/oxidizer mixture")
+
+        if basis == "mass": # for mass basis, it is straight forward
+            if fraction_type == "fuel":
+                Z = Z_fuel
+            else:  # oxidizer
+                Z = 1.0 - Z_fuel
+            if fraction_value > Z:
+                raise ValueError(f"The {fraction_type} fraction after dilution cannot "
+                                 "be higher than {fraction_type} fraction in the "
+                                 "original mixture.")
+            Y_mix = self.Y
+            self.Y = diluent_comp
+            factor = fraction_value / Z
+            self.Y = factor*Y_mix + (1.0 - factor) * self.Y
+        else:
+            # convert mass based mixture fraction to molar one, Z = kg fuel / kg mixture
+            X_mix = self.X
+            M_mix = self.mean_molecular_weight
+            self.X = fuel_comp
+            M_fuel = self.mean_molecular_weight
+            Z_fuel_mole = Z_fuel * M_mix / M_fuel # mol fuel / mol mixture
+            if fraction_type == "fuel":
+                Z = Z_fuel_mole
+            else: # oxidizer
+                Z = 1.0 - Z_fuel_mole
+            if fraction_value > Z:
+                raise ValueError(f"The {fraction_type} fuel or oxidizer fraction after "
+                                 "dilution cannot be higher than {fraction_type} "
+                                 "fraction in the original mixture.")
+            self.X = diluent_comp
+            factor = fraction_value / Z
+            self.X = factor * X_mix + (1.0 - factor) * self.X
+        self.TP = T, P
+
+    def set_mixture_fraction(self, mixture_fraction, fuel, oxidizer, basis='mole'):
         """
         Set the composition to a mixture of ``fuel`` and ``oxidizer`` at the
-        specified mixture fraction *mixture_fraction* (kg fuel / kg mixture), holding
+        specified mixture fraction ``mixture_fraction`` (kg fuel / kg mixture), holding
         temperature and pressure constant. Considers the oxidation of C to CO2,
         H to H2O and S to SO2. Other elements are assumed not to participate in
         oxidation (that is, N ends up as N2). The ``basis`` determines the composition
@@ -822,11 +983,6 @@ cdef class ThermoPhase(_SolutionBase):
         :param basis: determines if ``fuel`` and ``oxidizer`` are given in mole
             fractions (``basis='mole'``) or mass fractions (``basis='mass'``)
         """
-        if mixFrac is not None:
-            warnings.warn("The 'mixFrac' argument is deprecated and will be "
-                          "removed after 2.5. The argument can be replaced by "
-                          "'mixture_fraction'.", DeprecationWarning)
-            mixture_fraction = mixFrac
         cdef np.ndarray[np.double_t, ndim=1] f = \
                 np.ascontiguousarray(self.__composition_to_array(fuel, basis), dtype=np.double)
         cdef np.ndarray[np.double_t, ndim=1] o = \
@@ -834,67 +990,8 @@ cdef class ThermoPhase(_SolutionBase):
 
         self.thermo.setMixtureFraction(mixture_fraction, &f[0], &o[0], ThermoBasis.mass if basis == 'mass' else ThermoBasis.molar)
 
-    def get_equivalence_ratio(self, oxidizers=[], ignore=[]):
-        """
-        Get the composition of a fuel/oxidizer mixture. This gives the
-        equivalence ratio of an unburned mixture. This is not a quantity that is
-        conserved after oxidation. Considers the oxidation of C to CO2, H to H2O
-        and S to SO2. Other elements are assumed not to participate in oxidation
-        (that is, N ends up as N2).
-
-        :param oxidizers:
-            List of oxidizer species names as strings. Default: with
-            ``oxidizers=[]``, every species that contains O but does not contain
-            H, C, or S is considered to be an oxidizer.
-        :param ignore:
-            List of species names as strings to ignore.
-
-            >>> gas.set_equivalence_ratio(0.5, 'CH3:0.5, CH3OH:.5, N2:0.125', 'O2:0.21, N2:0.79, NO:0.01')
-            >>> gas.get_equivalence_ratio()
-            0.5
-            >>> gas.get_equivalence_ratio(['O2'])  # Only consider O2 as the oxidizer instead of O2 and NO
-            0.488095238095
-            >>> gas.X = 'CH4:1, O2:2, NO:0.1'
-            >>> gas.get_equivalence_ratio(ignore=['NO'])
-            1.0
-
-        .. deprecated:: 2.5
-
-            To be deprecated with version 2.5, and removed thereafter.
-            Replaced by function `equivalence_ratio`.
-        """
-        warnings.warn("To be removed after Cantera 2.5. "
-                      "Replaced by function 'equivalence_ratio'.", DeprecationWarning)
-
-        if not oxidizers:
-            # Default behavior, find all possible oxidizers
-            oxidizers = []
-            for s in self.species():
-                if all(y not in s.composition for y in ['C', 'H', 'S']):
-                    oxidizers.append(s.name)
-
-        alpha = 0
-        mol_O = 0
-        for k, s in enumerate(self.species()):
-            if s.name in ignore:
-                continue
-            elif s.name in oxidizers:
-                mol_O += s.composition.get('O', 0) * self.X[k]
-            else:
-                nC = s.composition.get('C', 0)
-                nH = s.composition.get('H', 0)
-                nO = s.composition.get('O', 0)
-                nS = s.composition.get('S', 0)
-
-                alpha += (2 * nC + nH / 2 + 2 * nS - nO) * self.X[k]
-
-        if mol_O == 0:
-            return float('inf')
-        else:
-            return alpha / mol_O
-
-
-    def equivalence_ratio(self, fuel=None, oxidizer=None, basis='mole'):
+    def equivalence_ratio(self, fuel=None, oxidizer=None, basis="mole",
+                          include_species=None):
         """
         Get the equivalence ratio of the current mixture, which is a
         conserved quantity. Considers the oxidation of C to CO2, H to H2O
@@ -903,10 +1000,14 @@ cdef class ThermoPhase(_SolutionBase):
         equivalence ratio is computed from the available oxygen and the
         required oxygen for complete oxidation. The ``basis`` determines the
         composition of fuel and oxidizer: ``basis='mole'`` (default) means mole
-        fractions, ``basis='mass'`` means mass fractions::
+        fractions, ``basis='mass'`` means mass fractions. Additionally, a
+        list of species can be provided with ``include_species``. This means that
+        only these species are considered for the computation of the equivalence
+        ratio. For more information, see `Python example
+        <https://cantera.org/examples/python/thermo/equivalenceRatio.py.html>`_ ::
 
-            >>> gas.set_equivalence_ratio(0.5, 'CH3:0.5, CH3OH:.5, N2:0.125', 'O2:0.21, N2:0.79, NO:0.01')
-            >>> gas.equivalence_ratio('CH3:0.5, CH3OH:.5, N2:0.125', 'O2:0.21, N2:0.79, NO:0.01')
+            >>> gas.set_equivalence_ratio(0.5, fuel='CH3:0.5, CH3OH:.5, N2:0.125', oxidizer='O2:0.21, N2:0.79, NO:0.01')
+            >>> gas.equivalence_ratio(fuel='CH3:0.5, CH3OH:.5, N2:0.125', oxidizer='O2:0.21, N2:0.79, NO:0.01')
             0.5
 
         :param fuel:
@@ -915,18 +1016,37 @@ cdef class ThermoPhase(_SolutionBase):
             Oxidizer species name or mole/mass fractions as a string, array, or dict.
         :param basis:
             Determines if ``fuel`` and ``oxidizer`` are given in mole fractions
-            (``basis='mole'``) or mass fractions (``basis='mass'``)
+            (``basis="mole"``) or mass fractions (``basis="mass"``)
+        :param include_species:
+            List of species names (optional). Only these species are considered for the
+            computation of the equivalence ratio. By default, all species are considered
         """
+        if include_species is not None:
+            # remove unwanted species temporarily
+            Y = np.zeros(self.n_species)
+            indices = [self.species_index(s) for s in include_species]
+            for k in indices:
+                Y[k] = self.Y[k]
+            T_orig, P_orig, Y_orig = self.T, self.P, self.Y
+            self.Y = Y
+
         if fuel is None and oxidizer is None:
-            return self.thermo.equivalenceRatio()
+            phi = self.thermo.equivalenceRatio()
+            if include_species is not None:
+                self.TPY = T_orig, P_orig, Y_orig
+            return phi
 
-        cdef np.ndarray[np.double_t, ndim=1] f = \
-                np.ascontiguousarray(self.__composition_to_array(fuel, basis), dtype=np.double)
-        cdef np.ndarray[np.double_t, ndim=1] o = \
-                np.ascontiguousarray(self.__composition_to_array(oxidizer, basis), dtype=np.double)
+        cdef np.ndarray[np.double_t, ndim=1] f = np.ascontiguousarray(
+                self.__composition_to_array(fuel, basis), dtype=np.double)
+        cdef np.ndarray[np.double_t, ndim=1] o = np.ascontiguousarray(
+                self.__composition_to_array(oxidizer, basis), dtype=np.double)
 
-        return self.thermo.equivalenceRatio(&f[0], &o[0], ThermoBasis.mass if basis=='mass' else ThermoBasis.molar)
-
+        phi = self.thermo.equivalenceRatio(&f[0], &o[0],
+                                           ThermoBasis.mass if basis=="mass"
+                                                            else ThermoBasis.molar)
+        if include_species is not None:
+            self.TPY = T_orig, P_orig, Y_orig
+        return phi
 
     def mixture_fraction(self, fuel, oxidizer, basis='mole', element="Bilger"):
         """
@@ -1041,8 +1161,8 @@ cdef class ThermoPhase(_SolutionBase):
 
     def set_unnormalized_mass_fractions(self, Y):
         """
-        Set the mass fractions without normalizing to force sum(Y) == 1.0.
-        Useful primarily when calculating derivatives with respect to Y[k] by
+        Set the mass fractions without normalizing to force ``sum(Y) == 1.0``.
+        Useful primarily when calculating derivatives with respect to ``Y[k]`` by
         finite difference.
         """
         cdef np.ndarray[np.double_t, ndim=1] data
@@ -1055,8 +1175,8 @@ cdef class ThermoPhase(_SolutionBase):
 
     def set_unnormalized_mole_fractions(self, X):
         """
-        Set the mole fractions without normalizing to force sum(X) == 1.0.
-        Useful primarily when calculating derivatives with respect to X[k]
+        Set the mole fractions without normalizing to force ``sum(X) == 1.0``.
+        Useful primarily when calculating derivatives with respect to ``X[k]``
         by finite difference.
         """
         cdef np.ndarray[np.double_t, ndim=1] data
@@ -1068,10 +1188,12 @@ cdef class ThermoPhase(_SolutionBase):
         self.thermo.setMoleFractions_NoNorm(&data[0])
 
     def mass_fraction_dict(self, double threshold=0.0):
+        cdef pair[string,double] item
         Y = self.thermo.getMassFractionsByName(threshold)
         return {pystr(item.first):item.second for item in Y}
 
     def mole_fraction_dict(self, double threshold=0.0):
+        cdef pair[string,double] item
         X = self.thermo.getMoleFractionsByName(threshold)
         return {pystr(item.first):item.second for item in X}
 
@@ -1517,6 +1639,14 @@ cdef class ThermoPhase(_SolutionBase):
             self.thermo.setState_SV(S / self._mass_factor(),
                                     V / self._mass_factor())
 
+    property Te:
+        """Get/Set electron Temperature [K]."""
+        def __get__(self):
+            return self.thermo.electronTemperature()
+        def __set__(self, value):
+            Te = value if value is not None else self.Te
+            self.thermo.setElectronTemperature(Te)
+
     # partial molar / non-dimensional properties
     property partial_molar_enthalpies:
         """Array of species partial molar enthalpies [J/kmol]."""
@@ -1650,13 +1780,29 @@ cdef class ThermoPhase(_SolutionBase):
         def __set__(self, double value):
             self.thermo.setElectricPotential(value)
 
+    property standard_concentration_units:
+        """Get standard concentration units for this phase."""
+        def __get__(self):
+            cdef CxxUnits units = self.thermo.standardConcentrationUnits()
+            return Units.copy(units)
+
 
 cdef class InterfacePhase(ThermoPhase):
     """ A class representing a surface or edge phase"""
     def __cinit__(self, *args, **kwargs):
+        if not kwargs.get("init", True):
+            return
         if pystr(self.thermo.type()) not in ("Surf", "Edge"):
             raise TypeError('Underlying ThermoPhase object is of the wrong type.')
         self.surf = <CxxSurfPhase*>(self.thermo)
+
+    property adjacent:
+        """
+        A dictionary containing higher-dimensional phases adjacent to this interface,
+        for example bulk phases adjacent to a surface.
+        """
+        def __get__(self):
+            return self._adjacent
 
     property site_density:
         """
@@ -1711,27 +1857,6 @@ cdef class PureFluid(ThermoPhase):
     or a fluid beyond its critical point.
     """
 
-    property X:
-        """
-        Get/Set vapor fraction (quality). Can be set only when in the two-phase
-        region.
-
-        .. deprecated:: 2.5
-
-             Behavior changes after version 2.5, when `X` will refer to mole
-             fraction. Renamed to `Q`.
-        """
-        def __get__(self):
-            warnings.warn("Behavior changes after Cantera 2.5, "
-                          "when 'X' will refer to mole fraction. "
-                          "Attribute renamed to 'Q'", DeprecationWarning)
-            return self.Q
-        def __set__(self, X):
-            warnings.warn("Behavior changes after Cantera 2.5, "
-                          "when 'X' will refer to mole fraction. "
-                          "Attribute renamed to 'Q'", DeprecationWarning)
-            self.Q = X
-
     property Q:
         """
         Get/Set vapor fraction (quality). Can be set only when in the two-phase
@@ -1746,23 +1871,6 @@ cdef class PureFluid(ThermoPhase):
                                  'two-phase region')
             self.thermo.setState_Psat(self.P, Q)
 
-    property TX:
-        """Get/Set the temperature [K] and vapor fraction of a two-phase state.
-
-        .. deprecated:: 2.5
-
-             To be deprecated with version 2.5, and removed thereafter.
-             Renamed to `TQ`.
-        """
-        def __get__(self):
-            warnings.warn("To be removed after Cantera 2.5. "
-                          "Attribute renamed to 'TQ'", DeprecationWarning)
-            return self.TQ
-        def __set__(self, values):
-            warnings.warn("To be removed after Cantera 2.5. "
-                          "Attribute renamed to 'TQ'", DeprecationWarning)
-            self.TQ = values
-
     property TQ:
         """Get/Set the temperature [K] and vapor fraction of a two-phase state."""
         def __get__(self):
@@ -1771,23 +1879,6 @@ cdef class PureFluid(ThermoPhase):
             T = values[0] if values[0] is not None else self.T
             Q = values[1] if values[1] is not None else self.Q
             self.thermo.setState_Tsat(T, Q)
-
-    property PX:
-        """Get/Set the pressure [Pa] and vapor fraction of a two-phase state.
-
-        .. deprecated:: 2.5
-
-             To be deprecated with version 2.5, and removed thereafter.
-             Renamed to `PQ`.
-        """
-        def __get__(self):
-            warnings.warn("To be removed after Cantera 2.5. "
-                          "Attribute renamed to 'PQ'", DeprecationWarning)
-            return self.PQ
-        def __set__(self, values):
-            warnings.warn("To be removed after Cantera 2.5. "
-                          "Attribute renamed to 'PQ'", DeprecationWarning)
-            self.PQ = values
 
     property PQ:
         """Get/Set the pressure [Pa] and vapor fraction of a two-phase state."""
@@ -1879,22 +1970,6 @@ cdef class PureFluid(ThermoPhase):
             H = values[1] if values[1] is not None else self.h
             self.thermo.setState_SH(S/self._mass_factor(), H/self._mass_factor())
 
-    property TDX:
-        """
-        Get the temperature [K], density [kg/m^3 or kmol/m^3], and vapor
-        fraction.
-
-        .. deprecated:: 2.5
-
-             Behavior changes after version 2.5, when `X` will refer to mole
-             fraction. Renamed to `TDQ`.
-        """
-        def __get__(self):
-            warnings.warn("Behavior changes after Cantera 2.5, "
-                          "when 'X' will refer to mole fraction. "
-                          "Attribute renamed to 'TDQ'", DeprecationWarning)
-            return self.TDQ
-
     property TDQ:
         """
         Get the temperature [K], density [kg/m^3 or kmol/m^3], and vapor
@@ -1902,29 +1977,6 @@ cdef class PureFluid(ThermoPhase):
         """
         def __get__(self):
             return self.T, self.density, self.Q
-
-    property TPX:
-        """
-        Get/Set the temperature [K], pressure [Pa], and vapor fraction of a
-        PureFluid.
-
-        An Exception is raised if the thermodynamic state is not consistent.
-
-        .. deprecated:: 2.5
-
-             Behavior changes after version 2.5, when `X` will refer to mole
-             fraction. Renamed to `TPQ`.
-        """
-        def __get__(self):
-            warnings.warn("Behavior changes after Cantera 2.5, "
-                          "when 'X' will refer to mole fraction. "
-                          "Attribute renamed to 'TPQ'", DeprecationWarning)
-            return self.TPQ
-        def __set__(self, values):
-            warnings.warn("Behavior changes after Cantera 2.5, "
-                          "when 'X' will refer to mole fraction. "
-                          "Attribute renamed to 'TPQ'", DeprecationWarning)
-            self.TPQ = values
 
     property TPQ:
         """
@@ -1941,22 +1993,6 @@ cdef class PureFluid(ThermoPhase):
             Q = values[2] if values[2] is not None else self.Q
             self.thermo.setState_TPQ(T, P, Q)
 
-    property UVX:
-        """
-        Get the internal energy [J/kg or J/kmol], specific volume
-        [m^3/kg or m^3/kmol], and vapor fraction.
-
-        .. deprecated:: 2.5
-
-             Behavior changes after version 2.5, when `X` will refer to mole
-             fraction. Renamed to `UVQ`.
-        """
-        def __get__(self):
-            warnings.warn("Behavior changes after Cantera 2.5, "
-                          "when 'X' will refer to mole fraction. "
-                          "Attribute renamed to 'UVQ'", DeprecationWarning)
-            return self.UVQ
-
     property UVQ:
         """
         Get the internal energy [J/kg or J/kmol], specific volume
@@ -1965,39 +2001,10 @@ cdef class PureFluid(ThermoPhase):
         def __get__(self):
             return self.u, self.v, self.Q
 
-    property DPX:
-        """Get the density [kg/m^3], pressure [Pa], and vapor fraction.
-
-        .. deprecated:: 2.5
-
-             Behavior changes after version 2.5, when `X` will refer to mole
-             fraction. Renamed to `DPQ`.
-        """
-        def __get__(self):
-            warnings.warn("Behavior changes after Cantera 2.5, "
-                          "when 'X' will refer to mole fraction. "
-                          "Attribute renamed to 'DPQ'", DeprecationWarning)
-            return self.DPQ
-
     property DPQ:
         """Get the density [kg/m^3], pressure [Pa], and vapor fraction."""
         def __get__(self):
             return self.density, self.P, self.Q
-
-    property HPX:
-        """
-        Get the enthalpy [J/kg or J/kmol], pressure [Pa] and vapor fraction.
-
-        .. deprecated:: 2.5
-
-             Behavior changes after version 2.5, when `X` will refer to mole
-             fraction. Renamed to `HPQ`.
-        """
-        def __get__(self):
-            warnings.warn("Behavior changes after Cantera 2.5, "
-                          "when 'X' will refer to mole fraction. "
-                          "Attribute renamed to 'HPQ'", DeprecationWarning)
-            return self.HPQ
 
     property HPQ:
         """
@@ -2006,43 +2013,12 @@ cdef class PureFluid(ThermoPhase):
         def __get__(self):
             return self.h, self.P, self.Q
 
-    property SPX:
-        """
-        Get the entropy [J/kg/K or J/kmol/K], pressure [Pa], and vapor fraction.
-
-        .. deprecated:: 2.5
-
-             Behavior changes after version 2.5, when `X` will refer to mole
-             fraction. Renamed to `SPQ`.
-        """
-        def __get__(self):
-            warnings.warn("Behavior changes after Cantera 2.5, "
-                          "when 'X' will refer to mole fraction. "
-                          "Attribute renamed to 'SPQ'", DeprecationWarning)
-            return self.SPQ
-
     property SPQ:
         """
         Get the entropy [J/kg/K or J/kmol/K], pressure [Pa], and vapor fraction.
         """
         def __get__(self):
             return self.s, self.P, self.Q
-
-    property SVX:
-        """
-        Get the entropy [J/kg/K or J/kmol/K], specific volume [m^3/kg or
-        m^3/kmol], and vapor fraction.
-
-        .. deprecated:: 2.5
-
-             Behavior changes after version 2.5, when `X` will refer to mole
-             fraction. Renamed to `SVQ`.
-        """
-        def __get__(self):
-            warnings.warn("Behavior changes after Cantera 2.5, "
-                          "when 'X' will refer to mole fraction. "
-                          "Attribute renamed to 'SVQ'", DeprecationWarning)
-            return self.SVQ
 
     property SVQ:
         """

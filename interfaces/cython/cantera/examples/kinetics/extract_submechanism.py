@@ -7,7 +7,7 @@ To test the submechanism, a premixed CO/H2 flame is simulated using the original
 mechanism and the submechanism, which demonstrates that the submechanism
 contains all of the important species and reactions.
 
-Requires: cantera >= 2.5.0, matplotlib >= 2.0
+Requires: cantera >= 2.6.0, matplotlib >= 2.0
 """
 
 from timeit import default_timer
@@ -15,7 +15,7 @@ import cantera as ct
 import matplotlib.pyplot as plt
 
 input_file = 'gri30.yaml'
-all_species = ct.Species.listFromFile(input_file)
+all_species = ct.Species.list_from_file(input_file)
 species = []
 
 # Filter species
@@ -38,7 +38,7 @@ print('Species: {0}'.format(', '.join(S.name for S in species)))
 
 # Filter reactions, keeping only those that only involve the selected species
 ref_phase = ct.Solution(thermo='ideal-gas', kinetics='gas', species=all_species)
-all_reactions = ct.Reaction.listFromFile(input_file, ref_phase)
+all_reactions = ct.Reaction.list_from_file(input_file, ref_phase)
 reactions = []
 
 print('\nReactions:')
@@ -54,9 +54,13 @@ for R in all_reactions:
 print('\n')
 
 gas1 = ct.Solution(input_file)
-gas2 = ct.Solution(thermo='ideal-gas', kinetics='gas',
+gas2 = ct.Solution(name="gri30-CO-H2-submech",
+                   thermo="ideal-gas", kinetics="gas", transport_model="Mix",
                    species=species, reactions=reactions)
 
+# Save the resulting mechanism for later use
+gas2.update_user_header({"description": "CO-H2 submechanism extracted from GRI-Mech 3.0"})
+gas2.write_yaml("gri30-CO-H2-submech.yaml", header=True)
 
 def solve_flame(gas):
     gas.TPX = 373, 0.05*ct.one_atm, 'H2:0.4, CO:0.6, O2:1, N2:3.76'

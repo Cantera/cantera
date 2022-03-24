@@ -46,8 +46,10 @@ public:
      * is supplied in the constructor or read from the input file.
      *
      * @param formCG This parameter initializes the #m_formGC variable.
+     * @deprecated the formGC argument is deprecated and will be removed after
+     *     Cantera 2.6. Use the setStandardConcentrationModel method instead.
      */
-    IdealSolidSolnPhase(int formCG=0);
+    IdealSolidSolnPhase(int formCG=-1);
 
     //! Construct and initialize an IdealSolidSolnPhase ThermoPhase object
     //! directly from an ASCII input file
@@ -58,12 +60,16 @@ public:
      * is supplied in the constructor or read from the input file.
      *
      * @param infile File name for the input file containing information
-     *               for this phase
+     *               for this phase. If blank, an empty phase will be
+     *               created.
      * @param id     The name of this phase. This is used to look up
      *               the phase in the input file.
      * @param formCG This parameter initializes the #m_formGC variable.
+     * @deprecated the formGC argument is deprecated and will be removed after
+     *     Cantera 2.6. Use the setStandardConcentrationModel method instead.
      */
-    IdealSolidSolnPhase(const std::string& infile, const std::string& id="", int formCG=0);
+    explicit IdealSolidSolnPhase(const std::string& infile,
+                                 const std::string& id="", int formCG=-1);
 
     //! Construct and initialize an IdealSolidSolnPhase ThermoPhase object
     //! directly from an XML database
@@ -82,10 +88,14 @@ public:
      * @deprecated The XML input format is deprecated and will be removed in
      *     Cantera 3.0.
      */
-    IdealSolidSolnPhase(XML_Node& root, const std::string& id="", int formCG=0);
+    IdealSolidSolnPhase(XML_Node& root, const std::string& id="", int formCG=-1);
 
     virtual std::string type() const {
         return "IdealSolidSoln";
+    }
+
+    virtual bool isIdeal() const {
+        return true;
     }
 
     virtual bool isCompressible() const {
@@ -165,7 +175,7 @@ public:
         return cp_mole();
     }
 
-    //@}
+    //! @}
     /** @name Mechanical Equation of State Properties
      *
      * In this equation of state implementation, the density is a function only
@@ -174,7 +184,7 @@ public:
      * which try to set the thermodynamic state by calling setDensity() will
      * cause an exception to be thrown.
      */
-    //@{
+    //! @{
 
     /**
      * Pressure. Units: Pa. For this incompressible system, we return the
@@ -213,35 +223,7 @@ public:
      */
     void calcDensity();
 
-    /**
-     * Overridden setDensity() function is necessary because the density is not
-     * an independent variable.
-     *
-     * This function will now throw an error condition
-     *
-     * @internal May have to adjust the strategy here to make the eos for these
-     *     materials slightly compressible, in order to create a condition where
-     *     the density is a function of the pressure.
-     *
-     * @param rho  Input density
-     * @deprecated Functionality merged with base function after Cantera 2.5.
-     *             (superseded by isCompressible check in Phase::setDensity)
-     */
-    virtual void setDensity(const doublereal rho);
-
-    /**
-     * Overridden setMolarDensity() function is necessary because the density
-     * is not an independent variable.
-     *
-     * This function will now throw an error condition.
-     *
-     * @param rho   Input Density
-     * @deprecated Functionality merged with base function after Cantera 2.5.
-     *             (superseded by isCompressible check in Phase::setDensity)
-     */
-    virtual void setMolarDensity(const doublereal rho);
-
-    //@}
+    //! @}
 
     /**
      * @name Chemical Potentials and Activities
@@ -365,9 +347,9 @@ public:
      */
     virtual void getChemPotentials_RT(doublereal* mu) const;
 
-    //@}
+    //! @}
     /// @name  Partial Molar Properties of the Solution
-    //@{
+    //! @{
 
     //! Returns an array of partial molar enthalpies for the species in the
     //! mixture.
@@ -427,9 +409,9 @@ public:
      */
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
 
-    //@}
+    //! @}
     /// @name  Properties of the Standard State of the Species in the Solution
-    //@{
+    //! @{
 
     /**
      * Get the standard state chemical potentials of the species. This is the
@@ -525,9 +507,9 @@ public:
 
     virtual void getStandardVolumes(doublereal* vol) const;
 
-    //@}
+    //! @}
     /// @name Thermodynamic Values for the Species Reference States
-    //@{
+    //! @{
 
     virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
     virtual void getGibbs_RT_ref(doublereal* grt) const;
@@ -574,27 +556,15 @@ public:
         return m_cp0_R;
     }
 
-    //! @deprecated To be removed after Cantera 2.5
-    virtual void setPotentialEnergy(int k, doublereal pe) {
-        warn_deprecated("IdealSolidSolnPhase::setPotentialEnergy",
-            "To be removed after Cantera 2.5");
-        m_pe[k] = pe;
-        _updateThermo();
-    }
-
-    //! @deprecated To be removed after Cantera 2.5
-    virtual doublereal potentialEnergy(int k) const {
-        warn_deprecated("IdealSolidSolnPhase::potentialEnergy",
-            "To be removed after Cantera 2.5");
-        return m_pe[k];
-    }
-
-    //@}
-    /// @name Utility Functions
-    //@{
+    //! @}
+    //! @name Utility Functions
+    //! @{
 
     virtual bool addSpecies(shared_ptr<Species> spec);
     virtual void initThermo();
+    virtual void getParameters(AnyMap& phaseNode) const;
+    virtual void getSpeciesParameters(const std::string& name,
+                                      AnyMap& speciesNode) const;
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
     virtual void setToEquilState(const doublereal* mu_RT);
 
@@ -633,7 +603,7 @@ public:
      */
     void getSpeciesMolarVolumes(doublereal* smv) const;
 
-    //@}
+    //! @}
 
 protected:
     virtual void compositionChanged();
@@ -685,16 +655,12 @@ protected:
     //! T = m_tlast
     mutable vector_fp m_expg0_RT;
 
-    //! Vector of potential energies for the species.
-    //! @deprecated To be removed after Cantera 2.5
-    mutable vector_fp m_pe;
-
     //! Temporary array used in equilibrium calculations
     mutable vector_fp m_pp;
 
 private:
-    /// @name Utility Functions
-    //@{
+    //! @name Utility Functions
+    //! @{
     /**
      * This function gets called for every call to functions in this class. It
      * checks to see whether the temperature has changed and thus the reference
@@ -704,7 +670,7 @@ private:
      */
     virtual void _updateThermo() const;
 
-    //@}
+    //! @}
 };
 }
 

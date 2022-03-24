@@ -1,6 +1,5 @@
 import itertools
 import numpy as np
-import warnings
 
 import cantera as ct
 from . import utilities
@@ -82,12 +81,6 @@ class TestPureFluid(utilities.CanteraTest):
         with self.assertRaises(ValueError):
             self.water.Q = 0.3
 
-    def test_X_deprecated(self):
-        with self.assertWarnsRegex(DeprecationWarning, "after Cantera 2.5"):
-            X = self.water.X
-        with self.assertWarnsRegex(DeprecationWarning, "after Cantera 2.5"):
-            self.water.TX = 300, 1
-
     def test_set_minmax(self):
         self.water.TP = self.water.min_temp, 101325
         self.assertNear(self.water.T, self.water.min_temp)
@@ -145,7 +138,7 @@ class TestPureFluid(utilities.CanteraTest):
 
     def test_isothermal_compressibility_lowP(self):
         # Low-pressure limit corresponds to ideal gas
-        ref = ct.Solution('gri30.xml')
+        ref = ct.Solution('h2o2.yaml', transport_model=None)
         ref.TPX = 450, 12, 'H2O:1.0'
         self.water.TP = 450, 12
         self.assertNear(ref.isothermal_compressibility,
@@ -153,7 +146,7 @@ class TestPureFluid(utilities.CanteraTest):
 
     def test_thermal_expansion_coeff_lowP(self):
         # Low-pressure limit corresponds to ideal gas
-        ref = ct.Solution('gri30.xml')
+        ref = ct.Solution('h2o2.yaml', transport_model=None)
         ref.TPX = 450, 12, 'H2O:1.0'
         self.water.TP = 450, 12
         self.assertNear(ref.thermal_expansion_coeff,
@@ -274,7 +267,7 @@ class TestPureFluid(utilities.CanteraTest):
         with self.assertRaisesRegex(ct.CanteraError, 'Illegal temperature'):
             self.water.TP = .999 * self.water.min_temp, ct.one_atm
             self.water.P_sat
-        # @TODO: test disabled pending fix of GitHub issue #605
+        # @todo: test disabled pending fix of GitHub issue #605
         # with self.assertRaisesRegex(ct.CanteraError, 'Illegal pressure value'):
         #     self.water.TP = 300, .999 * psat
         #     self.water.T_sat
@@ -305,37 +298,6 @@ class TestPureFluid(utilities.CanteraTest):
             self.water.TPQ = 500, 1e5, 0  # vapor fraction should be 1 (T < Tc)
         with self.assertRaisesRegex(ct.CanteraError, 'inconsistent'):
             self.water.TPQ = 700, 1e5, 0  # vapor fraction should be 1 (T > Tc)
-
-    def test_deprecated_X(self):
-
-        with self.assertWarnsRegex(DeprecationWarning, "renamed to 'TQ'"):
-            self.water.TX = 400, 0.8
-        with self.assertWarnsRegex(DeprecationWarning, "renamed to 'Q'"):
-            X = self.water.X
-        with self.assertWarnsRegex(DeprecationWarning, "renamed to 'Q'"):
-            self.water.X = X
-        with self.assertWarnsRegex(DeprecationWarning, "renamed to 'TPQ'"):
-            T, P, X = self.water.TPX
-        with self.assertWarnsRegex(DeprecationWarning, "renamed to 'TPQ'"):
-            self.water.TPX = T, P, X
-        with self.assertWarnsRegex(DeprecationWarning, "renamed to 'TQ'"):
-            T, X = self.water.TX
-        with self.assertWarnsRegex(DeprecationWarning, "renamed to 'TQ'"):
-            self.water.TX = T, X
-        with self.assertWarnsRegex(DeprecationWarning, "renamed to 'PQ'"):
-            P, X = self.water.PX
-        with self.assertWarnsRegex(DeprecationWarning, "renamed to 'PQ'"):
-            self.water.PX = P, X
-        with self.assertWarnsRegex(DeprecationWarning, "renamed to 'TDQ'"):
-            T, D, X = self.water.TDX
-        with self.assertWarnsRegex(DeprecationWarning, "renamed to 'UVQ'"):
-            U, V, X = self.water.UVX
-        with self.assertWarnsRegex(DeprecationWarning, "renamed to 'HPQ'"):
-            H, P, X = self.water.HPX
-        with self.assertWarnsRegex(DeprecationWarning, "renamed to 'SPQ'"):
-            S, P, X = self.water.SPX
-        with self.assertWarnsRegex(DeprecationWarning, "renamed to 'SVQ'"):
-            S, V, X = self.water.SVX
 
     def test_phase_of_matter(self):
         self.water.TP = 300, 101325
@@ -431,7 +393,7 @@ class PureFluidTestCases:
 
     def __init__(self, name, refState, tolerances=Tolerances()):
         if name not in self.fluids:
-            self.fluids[name] = ct.PureFluid('liquidvapor.xml', name)
+            self.fluids[name] = ct.PureFluid("liquidvapor.yaml", name)
 
         self.fluid = self.fluids[name]
 
@@ -550,7 +512,7 @@ class HFC134a(PureFluidTestCases, utilities.CanteraTest):
     def __init__(self, *args, **kwargs):
         refState = StateData('critical', 374.21, 4.05928,
                              rho=511.900, u=381.70937, s=1.5620991)
-        PureFluidTestCases.__init__(self, 'hfc134a', refState)
+        PureFluidTestCases.__init__(self, "HFC-134a", refState)
         utilities.CanteraTest.__init__(self, *args, **kwargs)
 
 
@@ -577,7 +539,7 @@ class CarbonDioxide(PureFluidTestCases, utilities.CanteraTest):
         refState = StateData('critical', 304.21, 7.3834,
                              rho=464.0, h=257.31, s=0.9312)
         tols = Tolerances(2e-3, 2e-3, 2e-3)
-        PureFluidTestCases.__init__(self, 'carbondioxide', refState, tols)
+        PureFluidTestCases.__init__(self, "carbon-dioxide", refState, tols)
         utilities.CanteraTest.__init__(self, *args, **kwargs)
 
 

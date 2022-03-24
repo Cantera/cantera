@@ -15,6 +15,7 @@
 #define CT_SHOMATEPOLY1_H
 
 #include "cantera/thermo/SpeciesThermoInterpType.h"
+#include "cantera/base/AnyMap.h"
 
 namespace Cantera
 {
@@ -157,6 +158,16 @@ public:
         for (int i = 0; i < 7; i++) {
             coeffs[i] = m_coeff[i] * GasConstant / 1000;
         }
+    }
+
+    virtual void getParameters(AnyMap& thermo) const {
+        // ShomatePoly is only used as an embedded model within ShomatePoly2, so
+        // all that needs to be added here are the polynomial coefficients
+        vector_fp dimensioned_coeffs(m_coeff.size());
+        for (size_t i = 0; i < m_coeff.size(); i++) {
+            dimensioned_coeffs[i] = m_coeff[i] * GasConstant / 1000;
+        }
+        thermo["data"].asVector<vector_fp>().push_back(dimensioned_coeffs);
     }
 
     virtual doublereal reportHf298(doublereal* const h298 = 0) const {
@@ -315,6 +326,16 @@ public:
         msp_low.reportParameters(n, type, tlow, coeffs[0], pref, coeffs + 1);
         msp_high.reportParameters(n, type, coeffs[0], thigh, pref, coeffs + 8);
         type = SHOMATE2;
+    }
+
+    virtual void getParameters(AnyMap& thermo) const {
+        SpeciesThermoInterpType::getParameters(thermo);
+        thermo["model"] = "Shomate";
+        vector_fp Tranges {m_lowT, m_midT, m_highT};
+        thermo["temperature-ranges"].setQuantity(Tranges, "K");
+        thermo["data"] = std::vector<vector_fp>();
+        msp_low.getParameters(thermo);
+        msp_high.getParameters(thermo);
     }
 
     virtual doublereal reportHf298(doublereal* const h298 = 0) const {

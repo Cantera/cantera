@@ -886,7 +886,7 @@ size_t vcs_VolPhase::transferElementsFM(const ThermoPhase* const tPhase)
     }
 
     if (cne) {
-        std::string pname = tPhase->id();
+        std::string pname = tPhase->name();
         if (pname == "") {
             pname = fmt::format("phase{}", VP_ID_);
         }

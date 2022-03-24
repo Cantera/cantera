@@ -19,12 +19,6 @@
 namespace Cantera
 {
 
-BinarySolutionTabulatedThermo::BinarySolutionTabulatedThermo()
-    : m_kk_tab(npos)
-    , m_xlast(-1)
-{
-}
-
 BinarySolutionTabulatedThermo::BinarySolutionTabulatedThermo(const std::string& inputFile,
                                                              const std::string& id_)
     : m_kk_tab(npos)
@@ -75,8 +69,6 @@ void BinarySolutionTabulatedThermo::_updateThermo() const
         m_h0_RT[m_kk_tab] += m_h0_tab * rrt;
         m_s0_R[m_kk_tab] += m_s0_tab / GasConstant;
         for (size_t k = 0; k < m_kk; k++) {
-            double deltaE = rrt * m_pe[k];
-            m_h0_RT[k] += deltaE;
             m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
         }
         m_tlast = tnow;
@@ -119,6 +111,17 @@ void BinarySolutionTabulatedThermo::initThermo()
         }
     }
     IdealSolidSolnPhase::initThermo();
+}
+
+void BinarySolutionTabulatedThermo::getParameters(AnyMap& phaseNode) const
+{
+    IdealSolidSolnPhase::getParameters(phaseNode);
+    phaseNode["tabulated-species"] = speciesName(m_kk_tab);
+    AnyMap tabThermo;
+    tabThermo["mole-fractions"] = m_molefrac_tab;
+    tabThermo["enthalpy"].setQuantity(m_enthalpy_tab, "J/kmol");
+    tabThermo["entropy"].setQuantity(m_entropy_tab, "J/kmol/K");
+    phaseNode["tabulated-thermo"] = std::move(tabThermo);
 }
 
 void BinarySolutionTabulatedThermo::initThermoXML(XML_Node& phaseNode, const std::string& id_)

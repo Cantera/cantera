@@ -5,10 +5,12 @@
 
 #include "cantera/oneD/IonFlow.h"
 #include "cantera/oneD/StFlow.h"
+#include "cantera/oneD/refine.h"
 #include "cantera/base/ctml.h"
 #include "cantera/transport/TransportBase.h"
 #include "cantera/numerics/funcs.h"
 #include "cantera/numerics/polyfit.h"
+#include "cantera/base/utilities.h"
 
 using namespace std;
 
@@ -61,6 +63,15 @@ void IonFlow::resize(size_t components, size_t points){
     m_mobility.resize(m_nsp*m_points);
     m_do_species.resize(m_nsp,true);
     m_do_electric_field.resize(m_points,false);
+}
+
+bool IonFlow::componentActive(size_t n) const
+{
+    if (n == c_offset_E) {
+        return true;
+    } else {
+        return StFlow::componentActive(n);
+    }
 }
 
 void IonFlow::updateTransport(double* x, size_t j0, size_t j1)

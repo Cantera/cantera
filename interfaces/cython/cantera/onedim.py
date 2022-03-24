@@ -33,7 +33,7 @@ class FlameBase(Sim1D):
     def other_components(self, domain=None):
         """
         The method returns simulation components that are specific to a class
-        derived from `FlameBase` or a specific *domain* within the `FlameBase`
+        derived from `FlameBase` or a specific ``domain`` within the `FlameBase`
         simulation object. Entries may include:
 
         * ``grid``: grid point positions along the flame [m]
@@ -104,11 +104,11 @@ class FlameBase(Sim1D):
         :param data:
             Restart data, which are typically based on an earlier simulation
             result. Restart data may be specified using a `SolutionArray`,
-            pandas' DataFrame, or previously saved CSV or HDF container files.
+            `pandas.DataFrame`, or previously saved CSV or HDF container files.
             Note that restart data do not overwrite boundary conditions.
-            DataFrame input requires a working installation of pandas, whereas
-            HDF input requires an installation of h5py. These packages can be
-            installed using pip or conda (`pandas` and `h5py`, respectively).
+            DataFrame input requires a working installation of *pandas*, whereas
+            HDF input requires an installation of *h5py*. These packages can be
+            installed using pip or conda (``pandas`` and ``h5py``, respectively).
         :param key:
             Group identifier within a HDF container file (only used in
             combination with HDF restart data).
@@ -190,7 +190,7 @@ class FlameBase(Sim1D):
         :param positions:
             sequence of relative positions, from 0 on the left to 1 on the right
         :param values:
-            sequence of values at the relative positions specified in *positions*
+            sequence of values at the relative positions specified in ``positions``
 
         >>> f.set_profile('T', [0.0, 0.2, 1.0], [400.0, 800.0, 1500.0])
         """
@@ -254,18 +254,6 @@ class FlameBase(Sim1D):
     def radiation_enabled(self, enable):
         self.flame.radiation_enabled = enable
 
-    def set_boundary_emissivities(self, e_left, e_right):
-        """
-        .. deprecated:: 2.5
-
-             To be deprecated with version 2.5, and removed thereafter.
-             Replaced by property `boundary_emissivities`.
-        """
-        warnings.warn("Method 'set_boundary_emissivities' to be removed after "
-                      "Cantera 2.5. Replaced by property "
-                      "'boundary_emissivities'", DeprecationWarning)
-        self.flame.boundary_emissivities = e_left, e_right
-
     @property
     def boundary_emissivities(self):
         """ Set/get boundary emissivities. """
@@ -297,41 +285,11 @@ class FlameBase(Sim1D):
         return self.profile(self.flame, 'T')
 
     @property
-    def u(self):
-        """
-        Array containing the velocity [m/s] normal to the flame at each point.
-
-        .. deprecated:: 2.5
-
-             To be deprecated with version 2.5, and removed thereafter.
-             Replaced by property `velocity`.
-        """
-        warnings.warn("Property 'u' to be removed after Cantera 2.5. "
-                      "Replaced by property 'velocity'",
-                      DeprecationWarning)
-        return self.profile(self.flame, 'velocity')
-
-    @property
     def velocity(self):
         """
         Array containing the velocity [m/s] normal to the flame at each point.
         """
         return self.profile(self.flame, 'velocity')
-
-    @property
-    def V(self):
-        """
-        Array containing the tangential velocity gradient [1/s] at each point.
-
-        .. deprecated:: 2.5
-
-             To be deprecated with version 2.5, and removed thereafter.
-             Replaced by property `spread_rate`.
-        """
-        warnings.warn("Property 'V' to be removed after Cantera 2.5. "
-                      "Replaced by property 'spread_rate'",
-                      DeprecationWarning)
-        return self.profile(self.flame, 'spread_rate')
 
     @property
     def spread_rate(self):
@@ -399,7 +357,7 @@ class FlameBase(Sim1D):
     def solution(self, component, point=None):
         """
         Get the solution at one point or for the full flame domain (if
-        `point=None`) for the specified *component*. The *component* can be
+        ``point=None``) for the specified ``component``. The ``component`` can be
         specified by name or index.
         """
         if point is None:
@@ -409,9 +367,9 @@ class FlameBase(Sim1D):
 
     def set_gas_state(self, point):
         """
-        Set the state of the the Solution object used for calculations,
-        `self.gas`, to the temperature and composition at the point with index
-        *point*.
+        Set the state of the the `Solution` object used for calculations
+        to the temperature and composition at the point with index
+        ``point``.
         """
         k0 = self.flame.component_index(self.gas.species_name(0))
         Y = [self.solution(k, point)
@@ -419,7 +377,7 @@ class FlameBase(Sim1D):
         self.gas.set_unnormalized_mass_fractions(Y)
         self.gas.TP = self.value(self.flame, 'T', point), self.P
 
-    def write_csv(self, filename, species='X', quiet=True):
+    def write_csv(self, filename, species='X', quiet=True, normalize=True):
         """
         Write the velocity, temperature, density, and species profiles
         to a CSV file.
@@ -429,20 +387,27 @@ class FlameBase(Sim1D):
         :param species:
             Attribute to use obtaining species profiles, e.g. ``X`` for
             mole fractions or ``Y`` for mass fractions.
+        :param normalize:
+            Boolean flag to indicate whether the mole/mass fractions should
+            be normalized.
         """
 
         # save data
         cols = ('extra', 'T', 'D', species)
-        self.to_solution_array().write_csv(filename, cols=cols)
+        self.to_solution_array(normalize=normalize).write_csv(filename, cols=cols)
 
         if not quiet:
             print("Solution saved to '{0}'.".format(filename))
 
-    def to_solution_array(self, domain=None):
+    def to_solution_array(self, domain=None, normalize=True):
         """
         Return the solution vector as a `SolutionArray` object.
 
         Derived classes define default values for *other*.
+
+        By default, the mass or mole fractions will be normalized i.e they
+        sum up to 1.0. If this is not desired, the ``normalize`` argument
+        can be set to ``False``.
         """
         if domain is None:
             domain = self.flame
@@ -455,7 +420,16 @@ class FlameBase(Sim1D):
         if n_points:
             arr = SolutionArray(self.phase(domain), n_points,
                                 extra=other_cols, meta=meta)
-            arr.TPY = states
+            if normalize:
+                arr.TPY = states
+            else:
+                if len(states) == 3:
+                    for i in range(n_points):
+                        arr._phase.set_unnormalized_mass_fractions(states[2][i])
+                        arr._phase.TP = np.atleast_1d(states[0])[i], states[1]
+                        arr._states[i] = arr._phase.state
+                else:
+                    arr.TP = states
             return arr
         else:
             return SolutionArray(self.phase(domain), meta=meta)
@@ -478,20 +452,23 @@ class FlameBase(Sim1D):
         meta = arr.meta
         super().restore_data(domain, states, other_cols, meta)
 
-    def to_pandas(self, species='X'):
+    def to_pandas(self, species='X', normalize=True):
         """
         Return the solution vector as a `pandas.DataFrame`.
 
         :param species:
             Attribute to use obtaining species profiles, e.g. ``X`` for
             mole fractions or ``Y`` for mass fractions.
+        :param normalize:
+            Boolean flag to indicate whether the mole/mass fractions should
+            be normalized (default is ``True``)
 
-        This method uses `to_solution_array` and requires a working pandas
-        installation. Use pip or conda to install `pandas` to enable this
+        This method uses `to_solution_array` and requires a working *pandas*
+        installation. Use pip or conda to install ``pandas`` to enable this
         method.
         """
         cols = ('extra', 'T', 'D', species)
-        return self.to_solution_array().to_pandas(cols=cols)
+        return self.to_solution_array(normalize=normalize).to_pandas(cols=cols)
 
     def from_pandas(self, df, restore_boundaries=True, settings=None):
         """
@@ -508,7 +485,7 @@ class FlameBase(Sim1D):
 
         This method is intendend for loading of data that were previously
         exported by `to_pandas`. The method uses `from_solution_array` and
-        requires a working pandas installation. The package 'pandas' can be
+        requires a working *pandas* installation. The package ``pandas`` can be
         installed using pip or conda.
         """
         arr = SolutionArray(self.gas, extra=self.other_components())
@@ -518,11 +495,11 @@ class FlameBase(Sim1D):
 
     def write_hdf(self, filename, *args, group=None, species='X', mode='a',
                   description=None, compression=None, compression_opts=None,
-                  quiet=True, **kwargs):
+                  quiet=True, normalize=True, **kwargs):
         """
         Write the solution vector to a HDF container file.
 
-        The `write_hdf` method preserves the stucture of a `FlameBase`-derived
+        The `write_hdf` method preserves the structure of a `FlameBase`-derived
         object (such as `FreeFlame`). Each simulation is saved as a *group*,
         whereas individual domains are saved as subgroups. In addition to
         datasets, information on `Sim1D.settings` and `Domain1D.settings` is
@@ -566,24 +543,27 @@ class FlameBase(Sim1D):
             Attribute to use obtaining species profiles, e.g. ``X`` for
             mole fractions or ``Y`` for mass fractions.
         :param mode:
-            Mode h5py uses to open the output file {'a' to read/write if file
+            Mode *h5py* uses to open the output file {'a' to read/write if file
             exists, create otherwise (default); 'w' to create file, truncate if
             exists; 'r+' to read/write, file must exist}.
         :param description:
             Custom comment describing the dataset to be stored.
         :param compression:
-            Pre-defined h5py compression filters {None, 'gzip', 'lzf', 'szip'}
+            Pre-defined *h5py* compression filters {None, 'gzip', 'lzf', 'szip'}
             used for data compression.
         :param compression_opts:
-            Options for the h5py compression filter; for 'gzip', this
+            Options for the *h5py* compression filter; for 'gzip', this
             corresponds to the compression level {None, 0-9}.
         :param quiet:
             Suppress message confirming successful file output.
+        :param normalize:
+            Boolean flag to indicate whether the mole/mass fractions should
+            be normalized (default is ``True``)
 
-        Additional arguments (i.e. *args* and *kwargs*) are passed on to
+        Additional arguments (that is, ``*args`` and ``**kwargs``) are passed on to
         `SolutionArray.collect_data`. The method exports data using
         `SolutionArray.write_hdf` via `to_solution_array` and requires a working
-        installation of h5py (`h5py` can be installed using pip or conda).
+        installation of *h5py* (``h5py`` can be installed using pip or conda).
         """
         cols = ('extra', 'T', 'D', species)
         meta = self.settings
@@ -593,7 +573,7 @@ class FlameBase(Sim1D):
         if description is not None:
             meta['description'] = description
         for i in range(3):
-            arr = self.to_solution_array(domain=self.domains[i])
+            arr = self.to_solution_array(domain=self.domains[i], normalize=normalize)
             group = arr.write_hdf(filename, *args, group=group, cols=cols,
                                   subgroup=self.domains[i].name,
                                   attrs=meta, mode=mode, append=(i > 0),
@@ -607,7 +587,7 @@ class FlameBase(Sim1D):
             msg = "Solution saved to '{0}' as group '{1}'."
             print(msg.format(filename, group))
 
-    def read_hdf(self, filename, group=None, restore_boundaries=True):
+    def read_hdf(self, filename, group=None, restore_boundaries=True, normalize=True):
         """
         Restore the solution vector from a HDF container file.
 
@@ -618,10 +598,13 @@ class FlameBase(Sim1D):
         :param restore_boundaries:
             Boolean flag to indicate whether boundaries should be restored
             (default is ``True``)
+        :param normalize:
+            Boolean flag to indicate whether the mole/mass fractions should
+            be normalized (default is ``True``)
 
         The method imports data using `SolutionArray.read_hdf` via
-        `from_solution_array` and requires a working installation of h5py
-        (`h5py` can be installed using pip or conda).
+        `from_solution_array` and requires a working installation of *h5py*
+        (``h5py`` can be installed using pip or conda).
         """
         if restore_boundaries:
             domains = range(3)
@@ -631,7 +614,7 @@ class FlameBase(Sim1D):
         for d in domains:
             arr = SolutionArray(self.phase(d), extra=self.other_components(d))
             meta = arr.read_hdf(filename, group=group,
-                                subgroup=self.domains[d].name)
+                                subgroup=self.domains[d].name, normalize=normalize)
             self.from_solution_array(arr, domain=d)
 
         self.settings = meta
@@ -1177,7 +1160,8 @@ class CounterflowDiffusionFlame(FlameBase):
         Yin_f = self.fuel_inlet.Y
         self.gas.TPY = self.fuel_inlet.T, self.P, Yin_f
         mdotf = self.fuel_inlet.mdot
-        u0f = mdotf / self.gas.density
+        rho0f = self.gas.density
+        u0f = mdotf / rho0f
         T0f = self.fuel_inlet.T
 
         sFuel = moles('O')
@@ -1189,7 +1173,8 @@ class CounterflowDiffusionFlame(FlameBase):
         Yin_o = self.oxidizer_inlet.Y
         self.gas.TPY = self.oxidizer_inlet.T, self.P, Yin_o
         mdoto = self.oxidizer_inlet.mdot
-        u0o = mdoto / self.gas.density
+        rho0o = self.gas.density
+        u0o = mdoto / rho0o
         T0o = self.oxidizer_inlet.T
 
         sOx = moles('O')
@@ -1215,6 +1200,7 @@ class CounterflowDiffusionFlame(FlameBase):
         kOx = (self.gas.species_index('O2') if 'O2' in self.gas.species_names else
                self.gas.species_index('o2'))
         f = np.sqrt(a / (2.0 * self.gas.mix_diff_coeffs[kOx]))
+        L = - 0.5 * (rho0o + rho0f) * a**2
 
         x0 = np.sqrt(mdotf*u0f) * dz / (np.sqrt(mdotf*u0f) + np.sqrt(mdoto*u0o))
         nz = len(zz)
@@ -1238,6 +1224,7 @@ class CounterflowDiffusionFlame(FlameBase):
 
         self.set_profile('velocity', [0.0, 1.0], [u0f, -u0o])
         self.set_profile('spread_rate', [0.0, x0/dz, 1.0], [0.0, a, 0.0])
+        self.set_profile("lambda", [0.0, 1.0], [L, L])
         self.set_profile('T', zrel, T)
         for k,spec in enumerate(self.gas.species_names):
             self.set_profile(spec, zrel, Y[:,k])
@@ -1299,15 +1286,15 @@ class CounterflowDiffusionFlame(FlameBase):
             The definition of the strain rate to be calculated. Options are:
             ``mean``, ``max``, ``stoichiometric``, ``potential_flow_fuel``, and
             ``potential_flow_oxidizer``.
-        :param fuel: The fuel species. Used only if *definition* is
+        :param fuel: The fuel species. Used only if ``definition`` is
             ``stoichiometric``.
         :param oxidizer: The oxidizer species, default ``O2``. Used only if
-            *definition* is ``stoichiometric``.
+            ``definition`` is ``stoichiometric``.
         :param stoich: The molar stoichiometric oxidizer-to-fuel ratio.
-            Can be omitted if the oxidizer is ``O2``. Used only if *definition*
+            Can be omitted if the oxidizer is ``O2``. Used only if ``definition``
             is ``stoichiometric``.
 
-        The parameter *definition* sets the method to compute the strain rate.
+        The parameter ``definition`` sets the method to compute the strain rate.
         Possible options are:
 
         ``mean``:
@@ -1328,8 +1315,8 @@ class CounterflowDiffusionFlame(FlameBase):
                 a_{stoichiometric} = \left| \left. \frac{du}{dz}
                 \right|_{\phi=1} \right|
 
-            This method uses the additional keyword arguments *fuel*,
-            *oxidizer*, and *stoich*.
+            This method uses the additional keyword arguments ``fuel``,
+            ``oxidizer``, and ``stoich``.
 
             >>> f.strain_rate('stoichiometric', fuel='H2', oxidizer='O2',
                               stoich=0.5)
@@ -1383,11 +1370,11 @@ class CounterflowDiffusionFlame(FlameBase):
 
     def mixture_fraction(self, m):
         r"""
-        Compute the mixture fraction based on element *m* or from the
-        Bilger mixture fraction (m="Bilger")
+        Compute the mixture fraction based on element ``m`` or from the
+        Bilger mixture fraction by setting ``m="Bilger"``
 
         The mixture fraction is computed from the elemental mass fraction of
-        element *m*, normalized by its values on the fuel and oxidizer
+        element ``m``, normalized by its values on the fuel and oxidizer
         inlets:
 
         .. math:: Z = \frac{Z_{\mathrm{mass},m}(z) -
@@ -1597,11 +1584,13 @@ class CounterflowPremixedFlame(FlameBase):
         zz = self.flame.grid
         dz = zz[-1] - zz[0]
         a = (uu + ub)/dz
+        L = - 0.5 * (rhou + rhob) * a**2
         # estimate stagnation point
         x0 = rhou*uu * dz / (rhou*uu + rhob*ub)
 
         self.set_profile('velocity', [0.0, 1.0], [uu, -ub])
         self.set_profile('spread_rate', [0.0, x0/dz, 1.0], [0.0, a, 0.0])
+        self.set_profile("lambda", [0.0, 1.0], [L, L])
 
 
 class CounterflowTwinPremixedFlame(FlameBase):
@@ -1649,17 +1638,20 @@ class CounterflowTwinPremixedFlame(FlameBase):
 
     def set_initial_guess(self, data=None, group=None):
         """
-        Set the initial guess for the solution based on an equiibrium solution.
+        Set the initial guess for the solution based on an equilibrium solution.
         Alternatively, a previously calculated result can be supplied as an
         initial guess via 'data' and 'key' inputs (see
         `FlameBase.set_initial_guess`).
         """
         super().set_initial_guess(data=data, group=group)
+        if data:
+            return
 
         Yu = self.reactants.Y
         Tu = self.reactants.T
         self.gas.TPY = Tu, self.flame.P, Yu
-        uu = self.reactants.mdot / self.gas.density
+        rhou = self.gas.density
+        uu = self.reactants.mdot / rhou
 
         self.gas.equilibrate('HP')
         Tb = self.gas.T
@@ -1675,6 +1667,8 @@ class CounterflowTwinPremixedFlame(FlameBase):
         zz = self.flame.grid
         dz = zz[-1] - zz[0]
         a = 2 * uu / dz
+        L = - rhou * a**2
 
         self.set_profile('velocity', [0.0, 1.0], [uu, 0])
         self.set_profile('spread_rate', [0.0, 1.0], [0.0, a])
+        self.set_profile("lambda", [0.0, 1.0], [L, L])

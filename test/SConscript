@@ -1,7 +1,11 @@
-from __future__ import print_function
-from buildutils import *
+import os
 import subprocess
 from xml.etree import ElementTree
+from os.path import join as pjoin
+import time
+import sys
+
+from buildutils import *
 
 Import('env','build','install')
 localenv = env.Clone()
@@ -32,6 +36,7 @@ for optimize_flag in ('-O3', '-O2', '/O2'):
 localenv['CCFLAGS'] = ccflags
 
 localenv['ENV']['CANTERA_DATA'] = (Dir('#build/data').abspath + os.pathsep +
+                                   Dir('#samples/data').abspath + os.pathsep +
                                    Dir('#test/data').abspath)
 
 PASSED_FILES = {}
@@ -48,7 +53,7 @@ def addTestProgram(subdir, progName, env_vars={}):
         """SCons Action to run a compiled gtest program"""
         program = source[0]
         passedFile = target[0]
-        testResults.tests.pop(passedFile.name, None)
+        test_results.tests.pop(passedFile.name, None)
         workDir = Dir('#test/work').abspath
         resultsFile = pjoin(workDir, 'gtest-%s.xml' % progName)
         if os.path.exists(resultsFile):
@@ -78,23 +83,27 @@ def addTestProgram(subdir, progName, env_vars={}):
                 testName = '{0}: {1}.{2}'.format(progName, test.get('classname'),
                                                  test.get('name'))
                 if test.findall('failure'):
-                    testResults.failed[testName] = 1
+                    test_results.failed[testName] = 1
                 else:
-                    testResults.passed[testName] = 1
+                    test_results.passed[testName] = 1
         else:
             # Total failure of the test program - unable to determine status of
             # individual tests. This is potentially very bad, so it counts as
             # more than one failure.
-            testResults.failed[passedFile.name +
+            test_results.failed[passedFile.name +
                 ' ***no results for entire test suite***'] = 100
 
     testenv = localenv.Clone()
     testenv['ENV'].update(env_vars)
+    if env["skip_slow_tests"]:
+        testenv.Append(CPPDEFINES=["CT_SKIP_SLOW"])
+    if env["python_package"] == "none":
+        testenv.Append(CPPDEFINES=["CT_NO_PYTHON"])
     program = testenv.Program(pjoin(subdir, progName),
-                              mglob(testenv, subdir, 'cpp'))
+                              multi_glob(testenv, subdir, 'cpp'))
     passedFile = File(pjoin(str(program[0].dir), '%s.passed' % program[0].name))
     PASSED_FILES[progName] = str(passedFile)
-    testResults.tests[passedFile.name] = program
+    test_results.tests[passedFile.name] = program
     if env['googletest'] != 'none':
         run_program = testenv.Command(passedFile, program, gtestRunner)
         env.Depends(run_program, env['build_targets'])
@@ -102,27 +111,28 @@ def addTestProgram(subdir, progName, env_vars={}):
         Alias('test-%s' % progName, run_program)
         env['testNames'].append(progName)
     else:
-        testResults.failed['test-%s (googletest disabled)' % progName] = 1
+        test_results.failed['test-%s (googletest disabled)' % progName] = 1
 
     if os.path.exists(passedFile.abspath):
         Alias('test-reset', testenv.Command('reset-%s%s' % (subdir, progName),
                                             [], [Delete(passedFile.abspath)]))
 
 
-def addPythonTest(testname, subdir, script, interpreter, outfile,
-                  args='', dependencies=(), env_vars={}, optional=False):
+def addPythonTest(testname, subdir, script, interpreter,
+                  args="", dependencies=(), env_vars={}, optional=False):
     """
     Create targets for running and resetting a test script.
     """
     def scriptRunner(target, source, env):
+        pytest_outfile = File("#test/work/pytest.xml").abspath
         """Scons Action to run a test script using the specified interpreter"""
         workDir = Dir('#test/work').abspath
         passedFile = target[0]
-        testResults.tests.pop(passedFile.name, None)
+        test_results.tests.pop(passedFile.name, None)
         if not os.path.isdir(workDir):
             os.mkdir(workDir)
-        if os.path.exists(outfile):
-            os.remove(outfile)
+        if os.path.exists(pytest_outfile):
+            os.remove(pytest_outfile)
 
         environ = dict(env['ENV'])
         for k,v in env_vars.items():
@@ -132,6 +142,12 @@ def addPythonTest(testname, subdir, script, interpreter, outfile,
         cmdargs = args.split()
         if env["fast_fail_tests"]:
             cmdargs.insert(0, "fast_fail")
+        if env["show_long_tests"]:
+            cmdargs.insert(0, "show_long")
+        if env["verbose_tests"]:
+            cmdargs.insert(0, "verbose")
+        if env["skip_slow_tests"]:
+            environ["CT_SKIP_SLOW"] = "1"
 
         code = subprocess.call(
             [env.subst(interpreter), source[0].abspath] + cmdargs,
@@ -145,20 +161,23 @@ def addPythonTest(testname, subdir, script, interpreter, outfile,
             sys.exit(1)
 
         failures = 0
-        if os.path.exists(outfile):
-            # Determine individual test status
-            for line in open(outfile):
-                status, name = line.strip().split(': ', 1)
-                if status == 'PASS':
-                    testResults.passed[':'.join((testname,name))] = 1
-                elif status in ('FAIL', 'ERROR'):
-                    testResults.failed[':'.join((testname,name))] = 1
+        if os.path.exists(pytest_outfile):
+            results = ElementTree.parse(pytest_outfile)
+            for test in results.findall('.//testcase'):
+                class_name = test.get('classname')
+                if class_name.startswith("build.python.cantera.test."):
+                    class_name = class_name[26:]
+                test_name = "python: {}.{}".format(class_name, test.get('name'))
+                if test.findall('failure'):
+                    test_results.failed[test_name] = 1
                     failures += 1
+                else:
+                    test_results.passed[test_name] = 1
 
         if code and failures == 0:
             # Failure, but unable to determine status of individual tests. This
             # gets counted as many failures.
-            testResults.failed[testname +
+            test_results.failed[testname +
                 ' ***no results for entire test suite***'] = 100
 
     testenv = localenv.Clone()
@@ -172,7 +191,7 @@ def addPythonTest(testname, subdir, script, interpreter, outfile,
         testenv.Depends(run_program, dep)
     if not optional:
         testenv.Depends(env['test_results'], run_program)
-        testResults.tests[passedFile.name] = True
+        test_results.tests[passedFile.name] = True
     if os.path.exists(passedFile.abspath):
         Alias('test-reset', testenv.Command('reset-%s%s' % (subdir, testname),
                                             [], [Delete(passedFile.abspath)]))
@@ -183,7 +202,7 @@ def addPythonTest(testname, subdir, script, interpreter, outfile,
 def addMatlabTest(script, testName, dependencies=None, env_vars=()):
     def matlabRunner(target, source, env):
         passedFile = target[0]
-        del testResults.tests[passedFile.name]
+        del test_results.tests[passedFile.name]
         workDir = Dir('#test/work').abspath
         if not os.path.isdir(workDir):
             os.mkdir(workDir)
@@ -208,7 +227,7 @@ def addMatlabTest(script, testName, dependencies=None, env_vars=()):
             with open(outfile, "r") as output_file:
                 results = output_file.read()
         except EnvironmentError: # TODO: replace with 'FileNotFoundError' after end of Python 2.7 support
-            testResults.failed['Matlab' +
+            test_results.failed['Matlab' +
                 ' ***no results for entire test suite***'] = 100
             return
 
@@ -229,10 +248,10 @@ def addMatlabTest(script, testName, dependencies=None, env_vars=()):
             elif label == section: # skip summary line for each section
                 continue
             elif 'FAILED' in line:
-                testResults.failed['.'.join(['Matlab', section, label])] = 1
+                test_results.failed['.'.join(['Matlab', section, label])] = 1
                 passed = False
             elif 'passed' in line:
-                testResults.passed['.'.join(['Matlab', section, label])] = 1
+                test_results.passed['.'.join(['Matlab', section, label])] = 1
 
         if passed:
             open(target[0].path, 'w').write(time.asctime()+'\n')
@@ -240,7 +259,7 @@ def addMatlabTest(script, testName, dependencies=None, env_vars=()):
     testenv = localenv.Clone()
     passedFile = File('matlab/%s.passed' % (script))
     PASSED_FILES[testName] = str(passedFile)
-    testResults.tests[passedFile.name] = True
+    test_results.tests[passedFile.name] = True
     run_program = testenv.Command(passedFile, pjoin('matlab', script), matlabRunner)
 
     dependencies = (dependencies or []) + localenv['matlab_extension']
@@ -262,10 +281,11 @@ addTestProgram('thermo', 'thermo')
 addTestProgram('equil', 'equil')
 addTestProgram('kinetics', 'kinetics')
 addTestProgram('transport', 'transport')
+addTestProgram('zeroD', 'zeroD')
 
 python_subtests = ['']
 test_root = '#interfaces/cython/cantera/test'
-for f in mglob(localenv, test_root, '^test_*.py'):
+for f in multi_glob(localenv, test_root, '^test_*.py'):
     python_subtests.append(f.name[5:-3])
 
 if localenv['python_package'] == 'full':
@@ -278,16 +298,15 @@ if localenv['python_package'] == 'full':
             name, 'python', 'runCythonTests.py',
             args=subset,
             interpreter='$python_cmd',
-            outfile=File('#test/work/python-results.txt').abspath,
             dependencies=(localenv['python_module'] + localenv['python_extension'] +
-                          mglob(localenv, test_root, 'py')),
+                          multi_glob(localenv, test_root, 'py')),
             optional=bool(subset))
         localenv.Alias('test-' + name, pyTest)
         env['testNames'].append(name)
 
 if localenv['matlab_toolbox'] == 'y':
     matlabTest = addMatlabTest('runCanteraTests.m', 'matlab',
-                               dependencies=mglob(localenv, 'matlab', 'm'))
+                               dependencies=multi_glob(localenv, 'matlab', 'm'))
     localenv.Alias('test-matlab', matlabTest)
     env['testNames'].append('matlab')
 

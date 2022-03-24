@@ -29,7 +29,7 @@ namespace Cantera
  * sublattice and the molar density within the LatticeSolidPhase have the same
  * values.
  *
- * The mole fraction vector is redefined witin the the LatticeSolidPhase object.
+ * The mole fraction vector is redefined within the LatticeSolidPhase object.
  * Each of the mole fractions sum to one on each of the sublattices.  The
  * routine getMoleFraction() and setMoleFraction() have been redefined to use
  * this convention.
@@ -416,12 +416,12 @@ public:
     virtual doublereal standardConcentration(size_t k=0) const;
     virtual doublereal logStandardConc(size_t k=0) const;
 
-    //@}
     /// @name Thermodynamic Values for the Species Reference States
-    //@{
+    //! @{
 
     virtual void getGibbs_RT_ref(doublereal* grt) const;
     virtual void getGibbs_ref(doublereal* g) const;
+    //! @}
 
     virtual bool addSpecies(shared_ptr<Species> spec);
 
@@ -434,6 +434,9 @@ public:
     virtual void setParameters(const AnyMap& phaseNode,
                                const AnyMap& rootNode=AnyMap());
     virtual void initThermo();
+    virtual void getParameters(AnyMap& phaseNode) const;
+    virtual void getSpeciesParameters(const std::string& name,
+                                      AnyMap& speciesNode) const;
 
     virtual void setParametersFromXML(const XML_Node& eosdata);
 

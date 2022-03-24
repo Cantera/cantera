@@ -10,7 +10,6 @@
 #define CT_IFACEKINETICS_H
 
 #include "Kinetics.h"
-#include "Reaction.h"
 #include "RateCoeffMgr.h"
 
 namespace Cantera
@@ -19,6 +18,7 @@ namespace Cantera
 // forward declarations
 class SurfPhase;
 class ImplicitSurfChem;
+class InterfaceReaction2;
 
 //! A kinetics manager for heterogeneous reaction mechanisms. The reactions are
 //! assumed to occur at a 2D interface between two 3D phases.
@@ -65,9 +65,11 @@ public:
      *               probably require multiple ThermoPhase objects, this is
      *               probably not a good idea to have this parameter.
      */
-    InterfaceKinetics(thermo_t* thermo = 0);
+    InterfaceKinetics(ThermoPhase* thermo = 0);
 
     virtual ~InterfaceKinetics();
+
+    virtual void resizeReactions();
 
     virtual std::string kineticsType() const {
         return "Surf";
@@ -94,6 +96,9 @@ public:
 
     //! values needed to convert from exchange current density to surface
     //! reaction rate.
+    /*!
+     *  @deprecated  To be removed after Cantera 2.6.
+     */
     void updateExchangeCurrentQuantities();
 
     virtual void getDeltaGibbs(doublereal* deltaG);
@@ -125,6 +130,9 @@ public:
      *
      *  @return Beta parameter. This defaults to zero, even for charge
      *    transfer reactions.
+     *
+     *  @deprecated  To be removed after Cantera 2.6. Parameter should be accessed
+     *              from ReactionRate object instead.
      */
     doublereal electrochem_beta(size_t irxn) const;
 
@@ -148,8 +156,15 @@ public:
      *
      *  @param irxn Reaction number in the kinetics mechanism
      *  @return Effective preexponent
+     *
+     *  @deprecated To be removed after Cantera 2.6.
      */
     double effectivePreExponentialFactor(size_t irxn) {
+        if (m_interfaceRates.size()) {
+            throw NotImplementedError(
+                "InterfaceKinetics::effectivePreExponentialFactor",
+                "Only implemented for legacy CTI/XML framework.");
+        }
         return m_rates.effectivePreExponentialFactor(irxn);
     }
 
@@ -160,8 +175,15 @@ public:
      *
      *  @param irxn Reaction number in the kinetics mechanism
      *  @return Effective activation energy divided by the gas constant
+     *
+     *  @deprecated To be removed after Cantera 2.6.
      */
     double effectiveActivationEnergy_R(size_t irxn) {
+        if (m_interfaceRates.size()) {
+            throw NotImplementedError(
+                "InterfaceKinetics::effectiveActivationEnergy_R",
+                "Only implemented for legacy CTI/XML framework.");
+        }
        return m_rates.effectiveActivationEnergy_R(irxn);
     }
 
@@ -173,8 +195,15 @@ public:
      *
      *  @param irxn Reaction number in the kinetics mechanism
      *  @return Effective temperature exponent
+     *
+     *  @deprecated To be removed after Cantera 2.6.
      */
     double effectiveTemperatureExponent(size_t irxn) {
+        if (m_interfaceRates.size()) {
+            throw NotImplementedError(
+                "InterfaceKinetics::effectiveTemperatureExponent",
+                "Only implemented for legacy CTI/XML framework.");
+        }
        return m_rates.effectiveTemperatureExponent(irxn);
     }
 
@@ -194,11 +223,11 @@ public:
      *
      * @param thermo    Reference to the ThermoPhase to be added.
      */
-    virtual void addPhase(thermo_t& thermo);
+    virtual void addPhase(ThermoPhase& thermo);
 
     virtual void init();
     virtual void resizeSpecies();
-    virtual bool addReaction(shared_ptr<Reaction> r);
+    virtual bool addReaction(shared_ptr<Reaction> r, bool resize=true);
     virtual void modifyReaction(size_t i, shared_ptr<Reaction> rNew);
     //! @}
 
@@ -302,6 +331,8 @@ public:
      *
      * @param kfwd  Vector of forward reaction rate constants on which to have
      *              the voltage correction applied
+     *
+     * @deprecated  To be removed after Cantera 2.6.
      */
     void applyVoltageKfwdCorrection(doublereal* const kfwd);
 
@@ -320,6 +351,8 @@ public:
      *
      * @param kfwd  Vector of forward reaction rate constants, given in either
      *              normal form or in exchange current density form.
+     *
+     * @deprecated  To be removed after Cantera 2.6.
      */
     void convertExchangeCurrentDensityFormulation(doublereal* const kfwd);
 
@@ -375,16 +408,14 @@ public:
      */
     int phaseStability(const size_t iphase) const;
 
-    //! @deprecated To be removed after Cantera 2.5.
-    virtual void determineFwdOrdersBV(ElectrochemicalReaction& r, vector_fp& fwdFullorders);
-
 protected:
     //! Build a SurfaceArrhenius object from a Reaction, taking into account
     //! the possible sticking coefficient form and coverage dependencies
     //! @param i  Reaction number
     //! @param r  Reaction object containing rate coefficient parameters
     //! @param replace  True if replacing an existing reaction
-    SurfaceArrhenius buildSurfaceArrhenius(size_t i, InterfaceReaction& r,
+    //! @deprecated  To be removed after Cantera 2.6.
+    SurfaceArrhenius buildSurfaceArrhenius(size_t i, InterfaceReaction2& r,
                                            bool replace);
 
     //! Temporary work vector of length m_kk
@@ -405,6 +436,10 @@ protected:
     Rate1<SurfaceArrhenius> m_rates;
 
     bool m_redo_rates;
+
+    //! Vector of rate handlers for interface reactions
+    std::vector<unique_ptr<MultiRateBase>> m_interfaceRates;
+    std::map<std::string, size_t> m_interfaceTypes; //!< Rate handler mapping
 
     //! Vector of irreversible reaction numbers
     /*!
@@ -492,6 +527,8 @@ protected:
      * potential energy change due to the reaction.
      *
      *  deltaElectricEnergy_[jrxn] = sum_i ( F V_i z_i nu_ij)
+     *
+     *  @deprecated  To be removed after Cantera 2.6.
      */
     vector_fp deltaElectricEnergy_;
 
@@ -510,6 +547,8 @@ protected:
     /*!
      *   Electrochemical transfer coefficient for all reactions that have
      *   transfer reactions the reaction is given by m_ctrxn[i]
+     *
+     *  @deprecated  To be removed after Cantera 2.6.
      */
     vector_fp m_beta;
 
@@ -517,26 +556,13 @@ protected:
     //! reactions in the mechanism
     /*!
      *  Vector of reaction indices which involve charge transfers. This provides
-     *  an index into the m_beta and m_ctrxn_BVform array.
+     *  an index into the m_beta array.
      *
      *        irxn = m_ctrxn[i]
+     *
+     *  @deprecated  To be removed after Cantera 2.6.
      */
     std::vector<size_t> m_ctrxn;
-
-    //! Vector of Reactions which follow the Butler-Volmer methodology for specifying the
-    //! exchange current density first. Then, the other forms are specified based on this form.
-    /*!
-     *     Length is equal to the number of reactions with charge transfer coefficients, m_ctrxn[]
-     *
-     *    m_ctrxn_BVform[i] = 0;  This means that the irxn reaction is calculated via the standard forward
-     *                            and reverse reaction rates
-     *    m_ctrxn_BVform[i] = 1;  This means that the irxn reaction is calculated via the BV format
-     *                            directly.
-     *    m_ctrxn_BVform[i] = 2;  this means that the irxn reaction is calculated via the BV format
-     *                            directly, using concentrations instead of activity concentrations.
-     * @deprecated To be removed after Cantera 2.5.
-     */
-    std::vector<size_t> m_ctrxn_BVform;
 
     //! Vector of booleans indicating whether the charge transfer reaction rate constant
     //! is described by an exchange current density rate constant expression
@@ -547,6 +573,8 @@ protected:
      *                            the rate constant as a chemical forward rate constant, a standard format.
      *   m_ctrxn_ecdf[irxn] = 1   this means that the rate coefficient calculator will calculate
      *                            the rate constant as an exchange current density rate constant expression.
+     *
+     *  @deprecated  To be removed after Cantera 2.6.
      */
     vector_int m_ctrxn_ecdf;
 
@@ -554,6 +582,8 @@ protected:
     /*!
      *   Length number of kinetic species
      *   units depend on the definition of the standard concentration within each phase
+     *
+     *  @deprecated  To be removed after Cantera 2.6.
      */
     vector_fp m_StandardConc;
 
@@ -561,6 +591,8 @@ protected:
     /*!
      *    Length is the number of reactions
      *    units are Joule kmol-1
+     *
+     *  @deprecated  To be removed after Cantera 2.6.
      */
     vector_fp m_deltaG0;
 
@@ -568,6 +600,8 @@ protected:
     /*!
      *    Length is the number of reactions
      *    units are Joule kmol-1
+     *
+     *  @deprecated  To be removed after Cantera 2.6.
      */
     vector_fp m_deltaG;
 
@@ -575,6 +609,8 @@ protected:
     /*!
      *   Units vary wrt what the units of the standard concentrations are
      *   Length = number of reactions.
+     *
+     *  @deprecated  To be removed after Cantera 2.6.
      */
     vector_fp m_ProdStanConcReac;
 
@@ -601,6 +637,8 @@ protected:
      *  to the forward reaction rate for those reactions.
      *
      *    fac = exp ( - beta * (delta_phi))
+     *
+     *  @deprecated  To be removed after Cantera 2.6.
      */
     bool m_has_electrochem_rxns;
 
@@ -610,6 +648,8 @@ protected:
      *  If this is true, the standard state Gibbs free energy of the reaction
      *  and the product of the reactant standard concentrations must be
      *  precalculated in order to calculate the rate constant.
+     *
+     *  @deprecated  To be removed after Cantera 2.6.
      */
     bool m_has_exchange_current_density_formulation;
 

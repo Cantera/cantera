@@ -191,6 +191,12 @@ public:
     NotImplementedError(const std::string& func) :
         CanteraError(func, "Not implemented.") {}
 
+    //! Alternative constructor taking same arguments as @see CanteraError
+    template <typename... Args>
+    NotImplementedError(const std::string& func, const std::string& msg,
+                        const Args&... args) :
+        CanteraError(func, msg, args...) {}
+
     virtual std::string getClass() const {
         return "NotImplementedError";
     }

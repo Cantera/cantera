@@ -21,14 +21,14 @@ int main(int argc, char** argv)
     int extraCols = 1;
 
     try {
-        std::string iFile = (argc > 1) ? argv[1] : "HMW_NaCl.xml";
+        std::string iFile = (argc > 1) ? argv[1] : "HMW_NaCl.yaml";
         HMWSoln* HMW = new HMWSoln(iFile, "NaCl_electrolyte");
 
 
         /*
          * Load in and initialize the
          */
-        string nacl_s = "NaCl_Solid.xml";
+        string nacl_s = "NaCl_Solid.yaml";
         string id = "NaCl(S)";
         Cantera::ThermoPhase* solid = Cantera::newPhase(nacl_s, id);
 

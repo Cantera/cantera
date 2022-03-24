@@ -18,35 +18,22 @@ public:
     FlowReactor();
 
     virtual std::string typeStr() const {
+        warn_deprecated("FlowReactor::typeStr",
+                        "To be removed after Cantera 2.6. Use type() instead.");
         return "FlowReactor";
     }
 
-    /*!
-     * @deprecated To be changed after Cantera 2.5.
-     */
-    virtual int type() const {
-        warn_deprecated("FlowReactor::type",
-                        "To be changed after Cantera 2.5. "
-                        "Return string instead of magic number; use "
-                        "FlowReactor::typeStr during transition");
-        return FlowReactorType;
+    virtual std::string type() const {
+        return "FlowReactor";
     }
 
     virtual void getState(doublereal* y);
 
     virtual void initialize(doublereal t0 = 0.0);
-    virtual void evalEqs(doublereal t, doublereal* y,
-                         doublereal* ydot, doublereal* params);
+    virtual void eval(double t, double* LHS, double* RHS);
     virtual void updateState(doublereal* y);
 
-    void setMassFlowRate(doublereal mdot) {
-        m_rho0 = m_thermo->density();
-        m_speed = mdot/m_rho0;
-        m_speed0 = m_speed;
-        m_T = m_thermo->temperature();
-        m_P0 = m_thermo->pressure() + m_rho0*m_speed*m_speed;
-        m_h0 = m_thermo->enthalpy_mass() + 0.5*m_speed*m_speed;
-    }
+    void setMassFlowRate(double mdot);
 
     void setTimeConstant(doublereal tau) {
         m_fctr = 1.0/tau;

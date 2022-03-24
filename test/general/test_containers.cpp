@@ -373,10 +373,84 @@ TEST(AnyMap, missingKeyAt)
     }
 }
 
-TEST(AnyMap, loadDeprecatedYaml)
+TEST(AnyMap, dumpYamlString)
 {
-    // The deprecation warning in this file is turned into an
-    // error by make_deprecation_warnings_fatal() called in main()
-    // for the test suite.
-    EXPECT_THROW(AnyMap::fromYamlFile("argon.yaml"), CanteraError);
+    AnyMap original = AnyMap::fromYamlFile("h2o2.yaml");
+    std::string serialized = original.toYamlString();
+    AnyMap generated = AnyMap::fromYamlString(serialized);
+    for (const auto& item : original) {
+        EXPECT_TRUE(generated.hasKey(item.first));
+    }
+    EXPECT_EQ(original["species"].getMapWhere("name", "OH")["thermo"]["data"].asVector<vector_fp>(),
+        generated["species"].getMapWhere("name", "OH")["thermo"]["data"].asVector<vector_fp>());
+}
+
+TEST(AnyMap, YamlFlowStyle)
+{
+    AnyMap original;
+    original["x"] = 3;
+    original["y"] = true;
+    original["z"] = AnyMap::fromYamlString("{zero: 1, half: 2}");
+    original.setFlowStyle();
+    std::string serialized = original.toYamlString();
+    // The serialized version should contain two lines, and end with a newline.
+    EXPECT_EQ(std::count(serialized.begin(), serialized.end(), '\n'), 2);
+    AnyMap generated = AnyMap::fromYamlString(serialized);
+    for (const auto& item : original) {
+        EXPECT_TRUE(generated.hasKey(item.first));
+    }
+}
+
+TEST(AnyMap, nestedVectorsToYaml)
+{
+    std::vector<std::string> words{"foo", "bar", "baz", "qux", "foobar"};
+    std::vector<std::vector<std::string>> strings;
+    std::vector<std::vector<bool>> booleans;
+    std::vector<std::vector<long int>> integers;
+    for (size_t i = 0; i < 3; i++) {
+        strings.emplace_back();
+        booleans.emplace_back();
+        integers.emplace_back();
+        for (size_t j = 0; j < 4; j++) {
+            strings.back().push_back(words[(i + 3 * j) % words.size()]);
+            booleans.back().push_back(i == j);
+            integers.back().push_back(6*i + j);
+        }
+    }
+    AnyMap original;
+    original["strings"] = strings;
+    original["booleans"] = booleans;
+    original["integers"] = integers;
+    std::string serialized = original.toYamlString();
+    AnyMap generated = AnyMap::fromYamlString(serialized);
+
+    EXPECT_EQ(generated["strings"].asVector<std::vector<std::string>>(), strings);
+    EXPECT_EQ(generated["booleans"].asVector<std::vector<bool>>(), booleans);
+    EXPECT_EQ(generated["integers"].asVector<std::vector<long int>>(), integers);
+}
+
+TEST(AnyMap, definedKeyOrdering)
+{
+    AnyMap m = AnyMap::fromYamlString("{zero: 1, half: 2}");
+    m["one"] = 1;
+    m["two"] = 2;
+    m["three"] = 3;
+    m["four"] = 4;
+    m["__type__"] = "Test";
+
+    AnyMap::addOrderingRules("Test", {
+        {"head", "three"},
+        {"tail", "one"}
+    });
+
+    std::string result = m.toYamlString();
+    std::unordered_map<std::string, size_t> loc;
+    for (auto& item : m) {
+        loc[item.first] = result.find(item.first);
+    }
+    EXPECT_LT(loc["three"], loc["one"]);
+    EXPECT_LT(loc["three"], loc["half"]);
+    EXPECT_LT(loc["four"], loc["one"]);
+    EXPECT_LT(loc["one"], loc["half"]);
+    EXPECT_LT(loc["zero"], loc["half"]);
 }

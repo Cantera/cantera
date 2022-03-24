@@ -23,12 +23,11 @@
 #include "cantera/thermo/IonsFromNeutralVPSSTP.h"
 #include "cantera/thermo/PureFluidPhase.h"
 #include "cantera/thermo/RedlichKwongMFTP.h"
-#include "cantera/thermo/ConstDensityThermo.h"
+#include "cantera/thermo/PengRobinson.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/thermo/EdgePhase.h"
 #include "cantera/thermo/MetalPhase.h"
 #include "cantera/thermo/StoichSubstance.h"
-#include "cantera/thermo/FixedChemPotSSTP.h"
 #include "cantera/thermo/LatticeSolidPhase.h"
 #include "cantera/thermo/LatticePhase.h"
 #include "cantera/thermo/HMWSoln.h"
@@ -49,12 +48,14 @@ std::mutex ThermoFactory::thermo_mutex;
 
 ThermoFactory::ThermoFactory()
 {
+    reg("none", []() { return new ThermoPhase(); });
+    addAlias("none", "ThermoPhase");
+    addAlias("none", "None");
     reg("ideal-gas", []() { return new IdealGasPhase(); });
     addAlias("ideal-gas", "IdealGas");
-    reg("constant-density", []() { return new ConstDensityThermo(); });
-    addAlias("constant-density", "Incompressible");
     reg("ideal-surface", []() { return new SurfPhase(); });
     addAlias("ideal-surface", "Surface");
+    addAlias("ideal-surface", "Surf");
     reg("edge", []() { return new EdgePhase(); });
     addAlias("edge", "Edge");
     reg("electron-cloud", []() { return new MetalPhase(); });
@@ -69,31 +70,38 @@ ThermoFactory::ThermoFactory()
     addAlias("lattice", "Lattice");
     reg("HMW-electrolyte", []() { return new HMWSoln(); });
     addAlias("HMW-electrolyte", "HMW");
+    addAlias("HMW-electrolyte", "HMWSoln");
     reg("ideal-condensed", []() { return new IdealSolidSolnPhase(); });
     addAlias("ideal-condensed", "IdealSolidSolution");
+    addAlias("ideal-condensed", "IdealSolidSoln");
     reg("Debye-Huckel", []() { return new DebyeHuckel(); });
     addAlias("Debye-Huckel", "DebyeHuckel");
     reg("ideal-molal-solution", []() { return new IdealMolalSoln(); });
     addAlias("ideal-molal-solution", "IdealMolalSolution");
+    addAlias("ideal-molal-solution", "IdealMolalSoln");
     reg("ideal-solution-VPSS", []() { return new IdealSolnGasVPSS(); });
     reg("ideal-gas-VPSS", []() { return new IdealSolnGasVPSS(); });
     addAlias("ideal-solution-VPSS", "IdealSolnVPSS");
+    addAlias("ideal-solution-VPSS", "IdealSolnGas");
     addAlias("ideal-gas-VPSS", "IdealGasVPSS");
     reg("Margules", []() { return new MargulesVPSSTP(); });
     reg("ions-from-neutral-molecule", []() { return new IonsFromNeutralVPSSTP(); });
     addAlias("ions-from-neutral-molecule", "IonsFromNeutralMolecule");
-    reg("fixed-chemical-potential", []() { return new FixedChemPotSSTP(); });
-    addAlias("fixed-chemical-potential", "FixedChemPot");
+    addAlias("ions-from-neutral-molecule", "IonsFromNeutral");
     reg("Redlich-Kister", []() { return new RedlichKisterVPSSTP(); });
+    addAlias("Redlich-Kister", "RedlichKister");
     reg("Redlich-Kwong", []() { return new RedlichKwongMFTP(); });
     addAlias("Redlich-Kwong", "RedlichKwongMFTP");
     addAlias("Redlich-Kwong", "RedlichKwong");
     reg("Maskell-solid-solution", []() { return new MaskellSolidSolnPhase(); });
     addAlias("Maskell-solid-solution", "MaskellSolidSolnPhase");
+    addAlias("Maskell-solid-solution", "MaskellSolidsoln");
     reg("liquid-water-IAPWS95", []() { return new WaterSSTP(); });
     addAlias("liquid-water-IAPWS95", "PureLiquidWater");
+    addAlias("liquid-water-IAPWS95", "Water");
     reg("binary-solution-tabulated", []() { return new BinarySolutionTabulatedThermo(); });
     addAlias("binary-solution-tabulated", "BinarySolutionTabulatedThermo");
+    reg("Peng-Robinson", []() { return new PengRobinson(); });
 }
 
 ThermoPhase* ThermoFactory::newThermoPhase(const std::string& model)
@@ -109,7 +117,7 @@ ThermoPhase* newPhase(XML_Node& xmlphase)
     return t.release();
 }
 
-unique_ptr<ThermoPhase> newPhase(AnyMap& phaseNode, const AnyMap& rootNode)
+unique_ptr<ThermoPhase> newPhase(const AnyMap& phaseNode, const AnyMap& rootNode)
 {
     unique_ptr<ThermoPhase> t(newThermoPhase(phaseNode["thermo"].asString()));
     setupPhase(*t, phaseNode, rootNode);
@@ -444,18 +452,16 @@ void addSpecies(ThermoPhase& thermo, const AnyValue& names, const AnyValue& spec
     }
 }
 
-void setupPhase(ThermoPhase& thermo, AnyMap& phaseNode, const AnyMap& rootNode)
+void setupPhase(ThermoPhase& thermo, const AnyMap& phaseNode, const AnyMap& rootNode)
 {
     thermo.setName(phaseNode["name"].asString());
-    if (rootNode.hasKey("__file__")) {
-        phaseNode["__file__"] = rootNode["__file__"];
-    }
 
     if (phaseNode.hasKey("deprecated")) {
         string msg = phaseNode["deprecated"].asString();
-        string filename = phaseNode.getString("__file__", "unknown file");
+        string filename = phaseNode.getString("__file__",
+            rootNode.getString("__file__", "unknown file"));
         string method = fmt::format("{}/{}", filename, phaseNode["name"].asString());
-        warn_deprecated(method, msg);
+        warn_deprecated(method, phaseNode, msg);
     }
 
     // Add elements

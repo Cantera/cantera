@@ -26,6 +26,12 @@ The fields of a ``species`` entry are:
     :ref:`sec-yaml-species-eos`. If this field is absent and a model is
     required, the ``ideal-gas`` model is assumed.
 
+``critical-parameters``
+    Mapping containing parameters related to the critical state of a species. Used in
+    models that incorporate "real gas" effects, such as
+    :ref:`sec-yaml-eos-redlich-kwong`.
+    See :ref:`sec-yaml-species-crit-props`.
+
 ``transport``
     Mapping containing the species transport model specification and
     parameters. See :ref:`sec-yaml-species-transport`.
@@ -257,6 +263,19 @@ Species equation of state models
     - :ref:`molar-volume-temperature-polynomial <sec-yaml-eos-molar-volume-temperature-polynomial>`
     - :ref:`Redlich-Kwong <sec-yaml-eos-redlich-kwong>`
 
+.. _sec-yaml-species-crit-props:
+
+Species critical state parameters
+=================================
+
+``critical-temperature``
+    The critical temperature of the species.
+
+``critical-pressure``
+    The critical pressure of the species.
+
+``acentric-factor``
+    Pitzer's acentric factor :math:`omega`.
 
 .. _sec-yaml-eos-constant-volume:
 
@@ -460,7 +479,9 @@ The additional fields of a ``gas`` transport entry are:
     The rotational relaxation collision number at 298 K [-]. Default 0.0.
 
 ``acentric-factor``
-    Pitzer's acentric factor [-]. Default 0.0.
+    Pitzer's acentric factor [-]. Default 0.0. This value may also be specified as part
+    of the :ref:`critical-parameters <sec-yaml-species-crit-props>` field, in which case
+    the value provided there supersedes this one.
 
 ``dispersion-coefficient``
     The dispersion coefficient, normalized by :math:`e^2` [Å^5]. Default 0.0.

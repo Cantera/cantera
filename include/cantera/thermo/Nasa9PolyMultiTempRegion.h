@@ -118,6 +118,8 @@ public:
                                   doublereal& pref,
                                   doublereal* const coeffs) const;
 
+    virtual void getParameters(AnyMap& thermo) const;
+
 protected:
     //! Lower boundaries of each temperature regions
     vector_fp m_lowerTempBounds;

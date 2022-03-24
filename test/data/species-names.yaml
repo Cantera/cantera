@@ -1,0 +1,152 @@
+generator: ck2yaml
+input-files: [species-names.inp]
+cantera-version: 2.6.0a3
+date: Sun, 05 Dec 2021 22:38:00 -0500
+
+units: {length: cm, time: s, quantity: mol, activation-energy: cal/mol}
+
+phases:
+- name: gas
+  thermo: ideal-gas
+  elements: [H, C]
+  species: [(Parens), '@#$%^-2', 'co:lons:', '[xy2]*{.}', plus+, eq=uals,
+    plus, trans_butene, co, amp&ersand]
+  kinetics: gas
+  state: {T: 300.0, P: 1 atm}
+
+species:
+- name: (Parens)
+  composition: {C: 1, H: 4}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [5.14987613, -0.0136709788, 4.91800599e-05, -4.84743026e-08, 1.66693956e-11,
+      -1.02466476e+04, -4.64130376]
+    - [0.074851495, 0.0133909467, -5.73285809e-06, 1.22292535e-09, -1.0181523e-13,
+      -9468.34459, 18.437318]
+- name: '@#$%^-2'
+  composition: {C: 1, H: 4}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [5.14987613, -0.0136709788, 4.91800599e-05, -4.84743026e-08, 1.66693956e-11,
+      -1.02466476e+04, -4.64130376]
+    - [0.074851495, 0.0133909467, -5.73285809e-06, 1.22292535e-09, -1.0181523e-13,
+      -9468.34459, 18.437318]
+- name: 'co:lons:'
+  composition: {C: 1, H: 4}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [5.14987613, -0.0136709788, 4.91800599e-05, -4.84743026e-08, 1.66693956e-11,
+      -1.02466476e+04, -4.64130376]
+    - [0.074851495, 0.0133909467, -5.73285809e-06, 1.22292535e-09, -1.0181523e-13,
+      -9468.34459, 18.437318]
+- name: '[xy2]*{.}'
+  composition: {C: 1, H: 4}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [5.14987613, -0.0136709788, 4.91800599e-05, -4.84743026e-08, 1.66693956e-11,
+      -1.02466476e+04, -4.64130376]
+    - [0.074851495, 0.0133909467, -5.73285809e-06, 1.22292535e-09, -1.0181523e-13,
+      -9468.34459, 18.437318]
+- name: plus+
+  composition: {C: 1, H: 4}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [5.14987613, -0.0136709788, 4.91800599e-05, -4.84743026e-08, 1.66693956e-11,
+      -1.02466476e+04, -4.64130376]
+    - [0.074851495, 0.0133909467, -5.73285809e-06, 1.22292535e-09, -1.0181523e-13,
+      -9468.34459, 18.437318]
+    note: nottheend
+- name: eq=uals
+  composition: {C: 1, H: 4}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [5.14987613, -0.0136709788, 4.91800599e-05, -4.84743026e-08, 1.66693956e-11,
+      -1.02466476e+04, -4.64130376]
+    - [0.074851495, 0.0133909467, -5.73285809e-06, 1.22292535e-09, -1.0181523e-13,
+      -9468.34459, 18.437318]
+- name: plus
+  composition: {C: 1, H: 4}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [5.14987613, -0.0136709788, 4.91800599e-05, -4.84743026e-08, 1.66693956e-11,
+      -1.02466476e+04, -4.64130376]
+    - [0.074851495, 0.0133909467, -5.73285809e-06, 1.22292535e-09, -1.0181523e-13,
+      -9468.34459, 18.437318]
+- name: trans_butene
+  composition: {C: 1, H: 4}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [5.14987613, -0.0136709788, 4.91800599e-05, -4.84743026e-08, 1.66693956e-11,
+      -1.02466476e+04, -4.64130376]
+    - [0.074851495, 0.0133909467, -5.73285809e-06, 1.22292535e-09, -1.0181523e-13,
+      -9468.34459, 18.437318]
+- name: co
+  composition: {C: 1, H: 4}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [5.14987613, -0.0136709788, 4.91800599e-05, -4.84743026e-08, 1.66693956e-11,
+      -1.02466476e+04, -4.64130376]
+    - [0.074851495, 0.0133909467, -5.73285809e-06, 1.22292535e-09, -1.0181523e-13,
+      -9468.34459, 18.437318]
+- name: amp&ersand
+  composition: {C: 1, H: 4}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [5.14987613, -0.0136709788, 4.91800599e-05, -4.84743026e-08, 1.66693956e-11,
+      -1.02466476e+04, -4.64130376]
+    - [0.074851495, 0.0133909467, -5.73285809e-06, 1.22292535e-09, -1.0181523e-13,
+      -9468.34459, 18.437318]
+
+reactions:
+- equation: (Parens) + @#$%^-2 <=> 2 [xy2]*{.}  # Reaction 1
+  rate-constant: {A: 1.2345e+12, b: 1.0, Ea: 200.0}
+- equation: 2 (Parens) + [xy2]*{.} <=> 3 @#$%^-2  # Reaction 2
+  rate-constant: {A: 5.4321e+10, b: 1.0, Ea: 500.0}
+- equation: plus+ + (Parens) <=> 2 plus+  # Reaction 3
+  rate-constant: {A: 9.999e+09, b: 9.9, Ea: 999.9}
+- equation: 2 plus+ + eq=uals <=> 3 (Parens)  # Reaction 4
+  rate-constant: {A: 9.999e+09, b: 9.9, Ea: 999.9}
+- equation: plus + plus+ <=> 2 (Parens)  # Reaction 5
+  rate-constant: {A: 9.999e+09, b: 9.9, Ea: 999.9}
+- equation: plus + eq=uals <=> plus+ + (Parens)  # Reaction 6
+  rate-constant: {A: 9.999e+09, b: 9.9, Ea: 999.9}
+- equation: 'co:lons: + eq=uals <=> 2 (Parens)'  # Reaction 7
+  rate-constant: {A: 9.999e+09, b: 9.9, Ea: 999.9}
+- equation: plus+ (+plus) <=> eq=uals (+plus)  # Reaction 8
+  type: falloff
+  low-P-rate-constant: {A: 8.888e+08, b: 8.8, Ea: 888.8}
+  high-P-rate-constant: {A: 9.999e+09, b: 9.9, Ea: 999.9}
+- equation: plus+ (+(Parens)) <=> eq=uals (+(Parens))  # Reaction 9
+  type: falloff
+  low-P-rate-constant: {A: 8.888e+08, b: 8.8, Ea: 888.8}
+  high-P-rate-constant: {A: 9.999e+09, b: 9.9, Ea: 999.9}
+- equation: plus+ (+plus+) <=> eq=uals (+plus+)  # Reaction 10
+  type: falloff
+  low-P-rate-constant: {A: 8.888e+08, b: 8.8, Ea: 888.8}
+  high-P-rate-constant: {A: 9.999e+09, b: 9.9, Ea: 999.9}
+- equation: 'trans_butene + co:lons: <=> 2 plus+'  # Reaction 11
+  rate-constant: {A: 9.999e+09, b: 9.9, Ea: 999.9}
+- equation: 'co + co:lons: <=> 2 plus+'  # Reaction 12
+  rate-constant: {A: 9.999e+09, b: 9.9, Ea: 999.9}
+- equation: amp&ersand <=> plus+  # Reaction 13
+  rate-constant: {A: 9.999e+09, b: 9.9, Ea: 999.9}

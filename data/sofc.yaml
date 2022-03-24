@@ -117,6 +117,7 @@ phases:
   site-density: 0.0176 mol/cm^3
 - name: metal_surface
   thermo: ideal-surface
+  adjacent-phases: [gas]
   elements: [H, O]
   species: [(m), H(m), O(m), OH(m), H2O(m)]
   kinetics: surface
@@ -127,6 +128,7 @@ phases:
   site-density: 2.6e-09
 - name: oxide_surface
   thermo: ideal-surface
+  adjacent-phases: [gas, oxide_bulk]
   elements: [O, H, E]
   species: [(ox), O''(ox), OH'(ox), H2O(ox)]
   kinetics: surface
@@ -137,6 +139,7 @@ phases:
   site-density: 2.0e-09
 - name: tpb
   thermo: edge
+  adjacent-phases: [metal, metal_surface, oxide_surface]
   elements: [H, O]
   species: [(tpb)]
   kinetics: edge

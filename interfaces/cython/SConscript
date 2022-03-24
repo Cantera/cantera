@@ -1,4 +1,8 @@
 """Cython-based Python Module"""
+import re
+from pathlib import Path
+from pkg_resources import parse_version
+import json
 from buildutils import *
 
 Import('env', 'build', 'install')
@@ -10,136 +14,150 @@ cythonized = localenv.Command(
     'cantera/_cantera.pyx',
     '''${python_cmd} -c "import Cython.Build; Cython.Build.cythonize('${SOURCE}')"''')
 
-for f in mglob(localenv, 'cantera', 'pyx', 'pxd'):
+for f in multi_glob(localenv, 'cantera', 'pyx', 'pxd'):
     localenv.Depends(cythonized, f)
 
-for line in open('cantera/_cantera.pxd'):
+# This must be the path to the real pxd file, not a file node pointing at the
+# possibly non-existent file in the build directory
+pxd_file = File("#interfaces/cython/cantera/_cantera.pxd").abspath
+for line in Path(pxd_file).read_text().splitlines():
     m = re.search(r'from "(cantera.*?)"', line)
     if m:
         localenv.Depends('cantera/_cantera.cpp', '#include/' + m.group(1))
 
-dataFiles = localenv.RecursiveInstall('#interfaces/cython/cantera/data',
-                                      '#build/data')
+dataFiles = localenv.RecursiveInstall("cantera/data", "#build/data")
 build(dataFiles)
 
-testFiles = localenv.RecursiveInstall('#interfaces/cython/cantera/test/data',
-                                      '#test/data')
+testFiles = localenv.RecursiveInstall("cantera/test/data", "#test/data")
 build(testFiles)
 
 # Get information needed to build the Python module
-script = '\n'.join(("from distutils.sysconfig import *",
-                    "import numpy",
-                    "print(get_config_var('EXT_SUFFIX') or get_config_var('SO'))",
-                    "print(get_config_var('INCLUDEPY'))",
-                    "print(get_config_var('LDLIBRARY'))",
-                    "print(get_config_var('prefix'))",
-                    "print(get_python_version())",
-                    "print(numpy.get_include())"))
-info = getCommandOutput(localenv['python_cmd'], '-c', script)
-module_ext, inc, pylib, prefix, py_version, numpy_include = info.splitlines()[-6:]
+script = """\
+from sysconfig import *
+import numpy
+import json
+vars = get_config_vars()
+vars["plat"] = get_platform()
+vars["numpy_include"] = numpy.get_include()
+print(json.dumps(vars))
+"""
+info = json.loads(get_command_output(localenv["python_cmd"], "-c", script))
+module_ext = info["EXT_SUFFIX"]
+inc = info["INCLUDEPY"]
+pylib = info.get("LDLIBRARY")
+prefix = info["prefix"]
+py_version_short = parse_version(info["py_version_short"])
+py_version_full = parse_version(info["py_version"])
+py_version_nodot = info["py_version_nodot"]
+numpy_include = info["numpy_include"]
 localenv.Prepend(CPPPATH=[Dir('#include'), inc, numpy_include])
 localenv.Prepend(LIBS=localenv['cantera_libs'])
+
+# Fix the module extension for Windows from the sysconfig library.
+# See https://github.com/python/cpython/pull/22088 and
+# https://bugs.python.org/issue39825
+if (
+    py_version_full < parse_version("3.8.7")
+    and localenv["OS"] == "Windows"
+    and module_ext == ".pyd"
+):
+    module_ext = f".cp{py_version_nodot}-{info['plat'].replace('-', '_')}.pyd"
 
 # Don't print deprecation warnings for internal Python changes.
 # Only applies to Python 3.8. The field that is deprecated in Python 3.8
 # and causes the warnings to appear will be removed in Python 3.9 so no
 # further warnings should be issued.
-if localenv['HAS_CLANG'] and parse_version(py_version) == parse_version('3.8'):
+if localenv["HAS_CLANG"] and py_version_short == parse_version("3.8"):
     localenv.Append(CXXFLAGS='-Wno-deprecated-declarations')
+
+if "icc" in localenv["CC"]:
+    localenv.Append(CPPDEFINES={"CYTHON_FALLTHROUGH": " __attribute__((fallthrough))"})
 
 if localenv['OS'] == 'Darwin':
     localenv.Append(LINKFLAGS='-undefined dynamic_lookup')
 elif localenv['OS'] == 'Windows':
-    localenv.Append(LIBPATH=prefix+'/libs')
+    localenv.Append(LIBPATH=prefix + '/libs')
     if localenv['toolchain'] == 'mingw':
-        localenv.Append(LIBS='python{}'.format(py_version.replace('.','')))
+        localenv.Append(LIBS=f"python{py_version_nodot}")
         if localenv['OS_BITS'] == 64:
             localenv.Append(CPPDEFINES='MS_WIN64')
-        # fix for http://bugs.python.org/issue11566
-        localenv.Append(CPPDEFINES={'_hypot':'hypot'})
+        # Fix for https://bugs.python.org/issue11566. Fixed in 3.7.3 and higher.
+        # See https://github.com/python/cpython/pull/11283
+        if py_version_full < parse_version("3.7.3"):
+            localenv.Append(CPPDEFINES={"_hypot": "hypot"})
 elif localenv['OS'] == 'Cygwin':
     # extract 'pythonX.Y' from 'libpythonX.Y.dll.a'
     localenv.Append(LIBS=pylib[3:-6])
 
+localenv["module_ext"] = module_ext
+setup_cfg = localenv.SubstFile("setup.cfg", "setup.cfg.in")
+readme = localenv.Command("README.rst", "#README.rst", Copy("$TARGET", "$SOURCE"))
+license = localenv.Command("LICENSE.txt", "#build/ext/LICENSE.txt",
+                           Copy("$TARGET", "$SOURCE"))
+localenv.Depends(license, localenv["license_target"])
+
 # Build the Python module
 obj = localenv.SharedObject('#build/temp-py/_cantera', 'cantera/_cantera.cpp')
-ext = localenv.LoadableModule('#build/python/cantera/_cantera{}'.format(module_ext),
-                            obj, LIBPREFIX='', SHLIBSUFFIX=module_ext,
-                            SHLIBPREFIX='', LIBSUFFIXES=[module_ext])
-localenv['py_extension'] = ext[0].name
+ext = localenv.LoadableModule(f"cantera/_cantera{module_ext}",
+                              obj, LIBPREFIX="", SHLIBSUFFIX=module_ext,
+                              SHLIBPREFIX="", LIBSUFFIXES=[module_ext])
 
-localenv.SubstFile('setup.py', 'setup.py.in')
-build_cmd = ('cd interfaces/cython &&'
-             ' $python_cmd_esc setup.py build --build-lib=../../build/python')
-mod = build(localenv.Command('#build/python/cantera/__init__.py', 'setup.py',
+build_cmd = ("$python_cmd_esc -m pip wheel --no-build-isolation --no-deps "
+             "--wheel-dir=build/python/dist build/python")
+wheel_name = (f"Cantera-{env['cantera_version']}-cp{py_version_nodot}"
+              f"-cp{py_version_nodot}-{info['plat'].replace('-', '_')}.whl")
+mod = build(localenv.Command(f"#build/python/dist/{wheel_name}", "setup.cfg",
                              build_cmd))
 env['python_module'] = mod
 env['python_extension'] = ext
 
-localenv.Depends(mod, ext)
-localenv.Depends(mod, dataFiles + testFiles)
+localenv.Depends(mod, [ext, dataFiles, testFiles, setup_cfg, readme, license,
+                       "setup.py", "pyproject.toml"])
 localenv.Depends(ext, localenv['cantera_staticlib'])
 
-for f in (mglob(localenv, 'cantera', 'py') +
-          mglob(localenv, 'cantera/test', 'py') +
-          mglob(localenv, 'cantera/examples/kinetics', 'py') +
-          mglob(localenv, 'cantera/examples/multiphase', 'py') +
-          mglob(localenv, 'cantera/examples/onedim', 'py') +
-          mglob(localenv, 'cantera/examples/reactors', 'py') +
-          mglob(localenv, 'cantera/examples/surface_chemistry', 'py') +
-          mglob(localenv, 'cantera/examples/thermo', 'py') +
-          mglob(localenv, 'cantera/examples/transport', 'py')):
+for f in (multi_glob(localenv, 'cantera', 'py') +
+          multi_glob(localenv, 'cantera/*', 'py') +
+          multi_glob(localenv, 'cantera/*/*', 'py')):
     localenv.Depends(mod, f)
 
 # Determine installation path and install the Python module
+install_cmd = ["$python_cmd_esc", "-m", "pip", "install"]
+user_install = False
+python_prefix = None
 if localenv['python_prefix'] == 'USER':
     # Install to the OS-dependent user site-packages directory
-    extra = '--user'
-    if localenv['OS'] == 'Darwin':
-        extra += ' --prefix=""'
-elif localenv['python_prefix']:
+    install_cmd.append("--user")
+    user_install = True
+elif localenv["python_prefix"]:
     # A specific location for the Cantera python module has been given
-    if localenv['debian'] and localenv.subst('${python_prefix}') == '/usr/local':
-        # Installation to /usr/local is the default on Debian-based distributions
-        extra = ''
-    elif localenv['OS'] == 'Darwin':
-        extra = localenv.subst(' --prefix=${python_prefix}')
-    elif localenv['libdirname'] != 'lib':
-        # 64-bit RHEL / Fedora etc. or e.g. x32 Gentoo profile
-        extra = localenv.subst(
-            ' --prefix=${{python_prefix}}'
-            ' --install-lib=${{python_prefix}}/${{libdirname}}/python{}/site-packages'.format(py_version))
-    else:
-        extra = '--user'
-        localenv.AppendENVPath(
-            'PYTHONUSERBASE',
-            normpath(localenv.subst('$python_prefix')))
-else:
-    # Install Python module in the default location
-    extra = ''
+    install_cmd.append(f"--prefix={localenv.subst('$python_prefix')}")
+    python_prefix = localenv.subst("$python_prefix")
+elif not env["default_prefix"]:
+    install_cmd.append(f"--prefix={env['prefix']}")
+    python_prefix = env["prefix"]
 
-env['python_module_loc'] = '<unspecified>'
+if env["stage_dir"]:
+    # Get the absolute path to the stage directory. If the stage directory is a relative
+    # path, consider it to be relative to the root of the Cantera source directory.
+    stage_dir = Path(env["stage_dir"])
+    if not stage_dir.is_absolute():
+        stage_dir = Path(Dir("#").abspath) / stage_dir
+
+    install_cmd.append(f"--root={stage_dir.resolve()}")
+
+install_cmd.extend(("--no-build-isolation", "--no-deps", "-v", "--force-reinstall",
+                    "build/python"))
 if localenv['PYTHON_INSTALLER'] == 'direct':
     mod_inst = install(localenv.Command, 'dummy', mod,
-                       build_cmd + ' install ' + extra +
-                       ' --record=../../build/python-installed-files.txt' +
-                       ' --single-version-externally-managed')
-    global_env = env
-    def find_module_dir(target, source, env):
-        check = pjoin('cantera', '__init__.py')
-        for filename in open('build/python-installed-files.txt').readlines():
-            filename = filename.strip()
-            if filename.endswith(check):
-                filename = filename.replace(check, '')
-                global_env['python_module_loc'] = normpath(filename)
-                break
-    localenv.AlwaysBuild(localenv.AddPostAction(mod_inst, find_module_dir))
-    env['install_python_action'] = mod_inst
+                       " ".join(install_cmd))
+    env["install_python_action"] = mod_inst
+    install_locs = get_pip_install_location(localenv["python_cmd"], user_install,
+                                            python_prefix)
+    env["python_module_loc"] = install_locs["platlib"]
+    env["ct_pyscriptdir"] = install_locs["scripts"]
 elif localenv['PYTHON_INSTALLER'] == 'debian':
-    extra = localenv.subst(' --root=${python_prefix}')
     install(localenv.Command, 'dummy', mod,
-            build_cmd + ' install --install-layout=deb --no-compile ' + extra)
-elif localenv['PYTHON_INSTALLER'] == 'binary':
-    install(localenv.Command, 'dummy', mod,
-            build_cmd + ' bdist_msi --dist-dir=../..' +
-            ' --target-version=' + py_version)
+            'cd build/python && '
+            '$python_cmd_esc setup.py build --build-lib=. '
+            'install --install-layout=deb --no-compile --root=${python_prefix}')
+    env["python_module_loc"] = "<unspecified>"

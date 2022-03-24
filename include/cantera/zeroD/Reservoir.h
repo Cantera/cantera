@@ -7,29 +7,28 @@
 #define CT_RESERVOIR_H
 
 #include "ReactorBase.h"
+#include "cantera/base/Solution.h"
 
 namespace Cantera
 {
 
+//! A source or sink whose state remains constant regardless of any flows or other
+//! interactions with other Reactor objects.
 class Reservoir : public ReactorBase
 {
 public:
     Reservoir() {}
 
     virtual std::string typeStr() const {
+        warn_deprecated("Reservoir::typeStr",
+                        "To be removed after Cantera 2.6. Use type() instead.");
         return "Reservoir";
     }
 
-    /*!
-     * @deprecated To be changed after Cantera 2.5.
-     */
-    virtual int type() const {
-        warn_deprecated("Reservoir::type",
-                        "To be changed after Cantera 2.5. "
-                        "Return string instead of magic number; use "
-                        "Reservoir::typeStr during transition");
-        return ReservoirType;
+    virtual std::string type() const {
+        return "Reservoir";
     }
+
     virtual void initialize(doublereal t0 = 0.0) {}
 
     void insert(ThermoPhase& contents) {

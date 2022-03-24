@@ -24,8 +24,21 @@ public:
 
     virtual void validate(const Species& species) {}
 
+    //! Return the parameters such that an identical species transport object
+    //! could be reconstructed using the newTransportData() function. Behavior
+    //! specific to derived classes is handled by the getParameters() method.
+    //! @param withInput  If true, include additional input data fields associated
+    //!   with the object, such as user-defined fields from a YAML input file, as
+    //!   stored in the #input attribute.
+    AnyMap parameters(bool withInput) const;
+
     //! Input data used for specific models
     AnyMap input;
+
+protected:
+    //! Store the parameters needed to reconstruct a TransportData object. Does
+    //! not include user-defined fields available in #input.
+    virtual void getParameters(AnyMap& transportNode) const;
 };
 
 //! Transport data for a single gas-phase species which can be used in
@@ -56,6 +69,8 @@ public:
     //! negative values for well depth, dipole, polarizability, or
     //! rotational relaxation number.
     virtual void validate(const Species& species);
+
+    virtual void getParameters(AnyMap& transportNode) const;
 
     //! A string specifying the molecular geometry. One of `atom`, `linear`, or
     //! `nonlinear`.

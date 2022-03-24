@@ -4,9 +4,13 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/oneD/StFlow.h"
+#include "cantera/oneD/refine.h"
 #include "cantera/base/ctml.h"
 #include "cantera/transport/TransportBase.h"
 #include "cantera/numerics/funcs.h"
+#include "cantera/base/global.h"
+
+#include <set>
 
 using namespace std;
 
@@ -75,6 +79,7 @@ StFlow::StFlow(ThermoPhase* ph, size_t nsp, size_t points) :
     setBounds(1, -1e20, 1e20); // V
     setBounds(2, 200.0, 2*m_thermo->maxTemp()); // temperature bounds
     setBounds(3, -1e20, 1e20); // lambda should be negative
+    setBounds(c_offset_E, -1e20, 1e20); // no bounds for inactive component
 
     // mass fraction bounds
     for (size_t k = 0; k < m_nsp; k++) {
@@ -151,7 +156,7 @@ void StFlow::resetBadValues(double* xg)
 void StFlow::setTransport(Transport& trans)
 {
     m_trans = &trans;
-    m_do_multicomponent = (m_trans->transportType() == "Multi");
+    m_do_multicomponent = (m_trans->transportType() == "Multi" || m_trans->transportType() == "CK_Multi");
 
     m_diff.resize(m_nsp*m_points);
     if (m_do_multicomponent) {
@@ -594,18 +599,8 @@ string StFlow::componentName(size_t n) const
 
 size_t StFlow::componentIndex(const std::string& name) const
 {
-    if (name=="u") {
-        warn_deprecated("StFlow::componentIndex",
-                        "To be changed after Cantera 2.5. "
-                        "Solution component 'u' renamed to 'velocity'");
+    if (name=="velocity") {
         return 0;
-    } else if (name=="velocity") {
-        return 0;
-    } else if (name=="V") {
-        warn_deprecated("StFlow::componentIndex",
-                        "To be changed after Cantera 2.5. "
-                        "Solution component 'V' renamed to 'spread_rate'");
-        return 1;
     } else if (name=="spread_rate") {
         return 1;
     } else if (name=="T") {
@@ -622,6 +617,20 @@ size_t StFlow::componentIndex(const std::string& name) const
         }
         throw CanteraError("StFlow1D::componentIndex",
                            "no component named " + name);
+    }
+}
+
+bool StFlow::componentActive(size_t n) const
+{
+    switch (n) {
+    case c_offset_V: // spread_rate
+        return m_type != cFreeFlow;
+    case c_offset_L: // lambda
+        return m_type != cFreeFlow;
+    case c_offset_E: // eField
+        return false;
+    default:
+        return true;
     }
 }
 
@@ -709,7 +718,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
             debuglog("lambda   ", loglevel >= 2);
             if (x.size() != np) {
                 throw CanteraError("StFlow::restore",
-                                   "lambda arary size error");
+                                   "lambda array size error");
             }
             for (size_t j = 0; j < np; j++) {
                 soln[index(c_offset_L,j)] = x[j];
@@ -798,9 +807,6 @@ XML_Node& StFlow::save(XML_Node& o, const doublereal* const sol)
     XML_Node& flow = Domain1D::save(o, sol);
     flow.addAttribute("type",flowType());
 
-    if (m_desc != "") {
-        addString(flow,"description",m_desc);
-    }
     XML_Node& gv = flow.addChild("grid_data");
     addFloat(flow, "pressure", m_press, "Pa", "pressure");
 
@@ -852,6 +858,142 @@ XML_Node& StFlow::save(XML_Node& o, const doublereal* const sol)
         addFloat(flow, "t_fixed", m_tfixed, "K");
     }
     return flow;
+}
+
+AnyMap StFlow::serialize(const double* soln) const
+{
+    AnyMap state = Domain1D::serialize(soln);
+    state["type"] = flowType();
+    state["pressure"] = m_press;
+
+    state["phase"]["name"] = m_thermo->name();
+    AnyValue source = m_thermo->input().getMetadata("filename");
+    state["phase"]["source"] = source.empty() ? "<unknown>" : source.asString();
+
+    state["radiation-enabled"] = m_do_radiation;
+    if (m_do_radiation) {
+        state["radiative-heat-loss"] = m_qdotRadiation;
+        state["emissivity-left"] = m_epsilon_left;
+        state["emissivity-right"] = m_epsilon_right;
+    }
+
+    std::set<bool> energy_flags(m_do_energy.begin(), m_do_energy.end());
+    if (energy_flags.size() == 1) {
+        state["energy-enabled"] = m_do_energy[0];
+    } else {
+        state["energy-enabled"] = m_do_energy;
+    }
+
+    state["Soret-enabled"] = m_do_soret;
+
+    std::set<bool> species_flags(m_do_species.begin(), m_do_species.end());
+    if (species_flags.size() == 1) {
+        state["species-enabled"] = m_do_species[0];
+    } else {
+        for (size_t k = 0; k < m_nsp; k++) {
+            state["species-enabled"][m_thermo->speciesName(k)] = m_do_species[k];
+        }
+    }
+
+    state["refine-criteria"]["ratio"] = m_refiner->maxRatio();
+    state["refine-criteria"]["slope"] = m_refiner->maxDelta();
+    state["refine-criteria"]["curve"] = m_refiner->maxSlope();
+    state["refine-criteria"]["prune"] = m_refiner->prune();
+    state["refine-criteria"]["grid-min"] = m_refiner->gridMin();
+    state["refine-criteria"]["max-points"] =
+        static_cast<long int>(m_refiner->maxPoints());
+
+    if (m_zfixed != Undef) {
+        state["fixed-point"]["location"] = m_zfixed;
+        state["fixed-point"]["temperature"] = m_tfixed;
+    }
+
+    state["grid"] = m_z;
+    vector_fp data(nPoints());
+    for (size_t i = 0; i < nComponents(); i++) {
+        if (componentActive(i)) {
+            for (size_t j = 0; j < nPoints(); j++) {
+                data[j] = soln[index(i,j)];
+            }
+            state[componentName(i)] = data;
+        }
+    }
+
+    return state;
+}
+
+void StFlow::restore(const AnyMap& state, double* soln, int loglevel)
+{
+    Domain1D::restore(state, soln, loglevel);
+    m_press = state["pressure"].asDouble();
+    setupGrid(nPoints(), state["grid"].asVector<double>(nPoints()).data());
+
+    for (size_t i = 0; i < nComponents(); i++) {
+        if (!componentActive(i)) {
+            continue;
+        }
+        std::string name = componentName(i);
+        if (state.hasKey(name)) {
+            const vector_fp& data = state[name].asVector<double>(nPoints());
+            for (size_t j = 0; j < nPoints(); j++) {
+                soln[index(i,j)] = data[j];
+            }
+        } else if (loglevel) {
+            warn_user("StFlow::restore", "Saved state does not contain values for "
+                "component '{}' in domain '{}'.", name, id());
+        }
+    }
+
+    if (state.hasKey("energy-enabled")) {
+        const AnyValue& ee = state["energy-enabled"];
+        if (ee.isScalar()) {
+            m_do_energy.assign(nPoints(), ee.asBool());
+        } else {
+            m_do_energy = ee.asVector<bool>(nPoints());
+        }
+    }
+
+    if (state.hasKey("Soret-enabled")) {
+        m_do_soret = state["Soret-enabled"].asBool();
+    }
+
+    if (state.hasKey("species-enabled")) {
+        const AnyValue& se = state["species-enabled"];
+        if (se.isScalar()) {
+            m_do_species.assign(m_thermo->nSpecies(), se.asBool());
+        } else {
+            m_do_species = se.asVector<bool>(m_thermo->nSpecies());
+        }
+    }
+
+    if (state.hasKey("radiation-enabled")) {
+        m_do_radiation = state["radiation-enabled"].asBool();
+        if (m_do_radiation) {
+            m_epsilon_left = state["emissivity-left"].asDouble();
+            m_epsilon_right = state["emissivity-right"].asDouble();
+        }
+    }
+
+    if (state.hasKey("refine-criteria")) {
+        const AnyMap& criteria = state["refine-criteria"].as<AnyMap>();
+        double ratio = criteria.getDouble("ratio", m_refiner->maxRatio());
+        double slope = criteria.getDouble("slope", m_refiner->maxDelta());
+        double curve = criteria.getDouble("curve", m_refiner->maxSlope());
+        double prune = criteria.getDouble("prune", m_refiner->prune());
+        m_refiner->setCriteria(ratio, slope, curve, prune);
+
+        if (criteria.hasKey("grid-min")) {
+            m_refiner->setGridMin(criteria["grid-min"].asDouble());
+        }
+        if (criteria.hasKey("max-points")) {
+            m_refiner->setMaxPoints(criteria["max-points"].asInt());
+        }
+    }
+
+    if (state.hasKey("fixed-point")) {
+        m_zfixed = state["fixed-point"]["location"].asDouble();
+        m_tfixed = state["fixed-point"]["temperature"].asDouble();
+    }
 }
 
 void StFlow::solveEnergyEqn(size_t j)

@@ -149,12 +149,14 @@ phases:
   density: 1.0 kg/m^3
 - name: edge_anode_electrolyte
   thermo: ideal-surface
+  adjacent-phases: [anode, electron, electrolyte]
   species: [(dummy)]
   kinetics: surface
   reactions: [edge_anode_electrolyte-reactions]
   site-density: 0.01 mol/cm^2
 - name: edge_cathode_electrolyte
   thermo: ideal-surface
+  adjacent-phases: [cathode, electron, electrolyte]
   species: [(dummy)]
   kinetics: surface
   reactions: [edge_cathode_electrolyte-reactions]

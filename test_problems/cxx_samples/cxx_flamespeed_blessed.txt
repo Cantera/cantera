@@ -144,18 +144,18 @@ phi = 0.9, Tad = 2133.7925650475245
           z 
 -------------------------------------------------------------------------------
           0 
-Flame speed with mixture-averaged transport: 0.31589325271842855 m/s
-Flame speed with multicomponent transport: 0.31857742697298835 m/s
-Flame speed with multicomponent transport + Soret: 0.31837134707571735 m/s
+Flame speed with mixture-averaged transport: 0.3158995218368368 m/s
+Flame speed with multicomponent transport: 0.318579363934684 m/s
+Flame speed with multicomponent transport + Soret: 0.3183709757821478 m/s
 
 z (m)    	T (K)   	U (m/s)	Y(CO)  
  0.000000	 300.000	0.318	0.00000
  0.020000	 300.070	0.318	0.00000
- 0.040000	 319.358	0.339	0.00074
+ 0.040000	 319.350	0.339	0.00074
  0.050000	1216.896	1.328	0.04408
- 0.060000	1971.787	2.108	0.00756
- 0.080000	2043.277	2.173	0.00208
- 0.100000	2043.277	2.173	0.00208
+ 0.060000	1971.794	2.108	0.00756
+ 0.080000	2043.286	2.173	0.00208
+ 0.100000	2043.286	2.173	0.00208
 
 Adiabatic flame temperature from equilibrium is: 2133.7925650475245
-Flame speed for phi=0.9 is 0.31837134707571735 m/s.
+Flame speed for phi=0.9 is 0.3183709757821478 m/s.

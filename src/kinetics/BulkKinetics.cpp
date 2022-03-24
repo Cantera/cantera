@@ -3,16 +3,30 @@
 
 #include "cantera/kinetics/BulkKinetics.h"
 #include "cantera/kinetics/Reaction.h"
+#include "cantera/thermo/ThermoPhase.h"
 
 namespace Cantera
 {
 
-BulkKinetics::BulkKinetics(thermo_t* thermo) :
+BulkKinetics::BulkKinetics(ThermoPhase* thermo) :
     m_ROP_ok(false),
     m_temp(0.0)
 {
     if (thermo) {
         addPhase(*thermo);
+    }
+}
+
+void BulkKinetics::resizeReactions()
+{
+    Kinetics::resizeReactions();
+
+    m_multi_concm.resizeCoeffs(nTotalSpecies(), nReactions());
+    for (auto& rates : m_bulk_rates) {
+        rates->resize(nTotalSpecies(), nReactions(), nPhases());
+        // @todo ensure that ReactionData are updated; calling rates->update
+        //      blocks correct behavior in GasKinetics::update_rates_T
+        //      and running updateROP() is premature
     }
 }
 
@@ -79,7 +93,7 @@ void BulkKinetics::getDeltaSSEntropy(doublereal* deltaS)
     getReactionDelta(m_grt.data(), deltaS);
 }
 
-void BulkKinetics::getRevRateConstants(doublereal* krev, bool doIrreversible)
+void BulkKinetics::getRevRateConstants(double* krev, bool doIrreversible)
 {
     // go get the forward rate constants. -> note, we don't really care about
     // speed or redundancy in these informational routines.
@@ -98,10 +112,11 @@ void BulkKinetics::getRevRateConstants(doublereal* krev, bool doIrreversible)
     }
 }
 
-bool BulkKinetics::addReaction(shared_ptr<Reaction> r)
+bool BulkKinetics::addReaction(shared_ptr<Reaction> r, bool resize)
 {
-    bool added = Kinetics::addReaction(r);
+    bool added = Kinetics::addReaction(r, resize);
     if (!added) {
+        // undeclared species, etc.
         return false;
     }
     double dn = 0.0;
@@ -119,15 +134,84 @@ bool BulkKinetics::addReaction(shared_ptr<Reaction> r)
     } else {
         m_irrev.push_back(nReactions()-1);
     }
+
+    if (!(r->usesLegacy())) {
+        shared_ptr<ReactionRate> rate = r->rate();
+        // If necessary, add new MultiRate evaluator
+        if (m_bulk_types.find(rate->type()) == m_bulk_types.end()) {
+            m_bulk_types[rate->type()] = m_bulk_rates.size();
+            m_bulk_rates.push_back(rate->newMultiRate());
+            m_bulk_rates.back()->resize(m_kk, nReactions(), nPhases());
+        }
+
+        // Set index of rate to number of reaction within kinetics
+        rate->setRateIndex(nReactions() - 1);
+        rate->setContext(*r, *this);
+
+        // Add reaction rate to evaluator
+        size_t index = m_bulk_types[rate->type()];
+        m_bulk_rates[index]->add(nReactions() - 1, *rate);
+
+        // Add reaction to third-body evaluator
+        if (r->thirdBody() != nullptr) {
+            addThirdBody(r);
+        }
+    }
+
+    m_concm.push_back(NAN);
+        m_ready = resize;
+
     return true;
 }
 
-void BulkKinetics::addElementaryReaction(ElementaryReaction& r)
+void BulkKinetics::addThirdBody(shared_ptr<Reaction> r)
+{
+    std::map<size_t, double> efficiencies;
+    for (const auto& eff : r->thirdBody()->efficiencies) {
+        size_t k = kineticsSpeciesIndex(eff.first);
+        if (k != npos) {
+            efficiencies[k] = eff.second;
+        } else if (!m_skipUndeclaredThirdBodies) {
+            throw CanteraError("BulkKinetics::addThirdBody", "Found "
+                "third-body efficiency for undefined species '" + eff.first +
+                "' while adding reaction '" + r->equation() + "'");
+        }
+    }
+    m_multi_concm.install(nReactions() - 1, efficiencies,
+                          r->thirdBody()->default_efficiency,
+                          r->thirdBody()->mass_action);
+}
+
+void BulkKinetics::addElementaryReaction(ElementaryReaction2& r)
 {
     m_rates.install(nReactions()-1, r.rate);
 }
 
-void BulkKinetics::modifyElementaryReaction(size_t i, ElementaryReaction& rNew)
+void BulkKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
+{
+    // operations common to all reaction types
+    Kinetics::modifyReaction(i, rNew);
+
+    if (!(rNew->usesLegacy())) {
+        shared_ptr<ReactionRate> rate = rNew->rate();
+        // Ensure that MultiRate evaluator is available
+        if (m_bulk_types.find(rate->type()) == m_bulk_types.end()) {
+            throw CanteraError("BulkKinetics::modifyReaction",
+                 "Evaluator not available for type '{}'.", rate->type());
+        }
+
+        // Replace reaction rate to evaluator
+        size_t index = m_bulk_types[rate->type()];
+        rate->setRateIndex(i);
+        rate->setContext(*rNew, *this);
+
+        m_bulk_rates[index]->replace(i, *rate);
+    }
+
+    invalidateCache();
+}
+
+void BulkKinetics::modifyElementaryReaction(size_t i, ElementaryReaction2& rNew)
 {
     m_rates.replace(i, rNew.rate);
 }
@@ -135,8 +219,12 @@ void BulkKinetics::modifyElementaryReaction(size_t i, ElementaryReaction& rNew)
 void BulkKinetics::resizeSpecies()
 {
     Kinetics::resizeSpecies();
-    m_conc.resize(m_kk);
+    m_act_conc.resize(m_kk);
+    m_phys_conc.resize(m_kk);
     m_grt.resize(m_kk);
+    for (auto& rates : m_bulk_rates) {
+        rates->resize(m_kk, nReactions(), nPhases());
+    }
 }
 
 void BulkKinetics::setMultiplier(size_t i, double f) {

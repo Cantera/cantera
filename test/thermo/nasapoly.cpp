@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 #include "cantera/thermo/NasaPoly1.h"
 #include "cantera/thermo/IdealGasPhase.h"
+#include "cantera/base/global.h"
 
 namespace Cantera
 {
@@ -94,7 +95,7 @@ TEST_F(NasaPoly1Test, updatePropertiesTemp)
 
 
 TEST(Nasa9Test, Nasa9Thermo) {
-    IdealGasPhase g("gasNASA9.xml", "nasa9");
+    IdealGasPhase g("gasNASA9.yaml", "nasa9");
     size_t nsp = g.nSpecies();
     double pres = 1.0E5;
     vector_fp Xset(nsp, 0.0);

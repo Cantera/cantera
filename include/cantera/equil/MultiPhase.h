@@ -11,12 +11,14 @@
 #define CT_MULTIPHASE_H
 
 #include "cantera/numerics/DenseMatrix.h"
-#include "cantera/thermo/ThermoPhase.h"
 
 namespace Cantera
 {
 
-//! @defgroup equilfunctions
+class ThermoPhase;
+
+//! @defgroup equilfunctions Classes and functions used for calculating
+//!     chemical equilibrium.
 
 //! A class for multiphase mixtures. The mixture can contain any
 //! number of phases of any type.
@@ -201,7 +203,7 @@ public:
      * @param n  Phase Index
      * @return   Reference to the ThermoPhase object for the phase
      */
-    thermo_t& phase(size_t n);
+    ThermoPhase& phase(size_t n);
 
     //! Check that the specified phase index is in range
     //! Throws an exception if m is greater than nPhases()
@@ -666,21 +668,7 @@ private:
  *  @param x  Reference to a MultiPhase
  *  @returns a reference to the ostream
  */
-inline std::ostream& operator<<(std::ostream& s, MultiPhase& x)
-{
-    x.updatePhases();
-    for (size_t ip = 0; ip < x.nPhases(); ip++) {
-        if (x.phase(ip).name() != "") {
-            s << "*************** " << x.phase(ip).name() << " *****************" << std::endl;
-        } else {
-            s << "*************** Phase " << ip << " *****************" << std::endl;
-        }
-        s << "Moles: " << x.phaseMoles(ip) << std::endl;
-
-        s << x.phase(ip).report() << std::endl;
-    }
-    return s;
-}
+std::ostream& operator<<(std::ostream& s, MultiPhase& x);
 
 //! Choose the optimum basis of species for the equilibrium calculations.
 /*!
@@ -700,7 +688,7 @@ inline std::ostream& operator<<(std::ostream& s, MultiPhase& x)
  * @param[in] orderVectorElements Order vector for the elements. The element
  *         rows in the formula matrix are rearranged according to this vector.
  * @param[in] orderVectorSpecies Order vector for the species. The species are
- *         rearranged according to this formula. The first nCompoments of this
+ *         rearranged according to this formula. The first nComponents of this
  *         vector contain the calculated species components on exit.
  * @param[in] doFormRxn  If true, the routine calculates the formation
  *         reaction matrix based on the calculated component species. If
@@ -761,7 +749,7 @@ void ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
                    std::vector<size_t>& orderVectorElements);
 
 //! External int that is used to turn on debug printing for the
-//! BasisOptimze program.
+//! BasisOptimize program.
 /*!
  *   Set this to 1 if you want debug printing from BasisOptimize.
  */

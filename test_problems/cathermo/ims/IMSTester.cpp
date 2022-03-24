@@ -26,7 +26,7 @@ int main(int argc, char** argv)
 
     try {
         double Tkelvin = 298.15;
-        IdealMolalSoln ims("WaterPlusSolutes.xml");
+        IdealMolalSoln ims("WaterPlusSolutes.yaml");
         ims.setState_TPM(Tkelvin, OneAtm,
                          "CH4(aq):0.01, H2S(aq):0.03, CO2(aq):0.1");
         double hm = ims.enthalpy_mole();

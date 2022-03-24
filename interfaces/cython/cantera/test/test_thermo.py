@@ -1,21 +1,25 @@
-from os.path import join as pjoin
-from pathlib import Path
 from collections import OrderedDict
-import os
 import numpy as np
 import gc
-import warnings
 
 import cantera as ct
 from . import utilities
+from .utilities import allow_deprecated
+import pytest
 
 
 class TestThermoPhase(utilities.CanteraTest):
     def setUp(self):
-        self.phase = ct.Solution('h2o2.xml')
+        self.phase = ct.Solution('h2o2.yaml', transport_model=None)
 
     def test_source(self):
-        self.assertEqual(self.phase.source, 'h2o2.xml')
+        self.assertEqual(self.phase.source, 'h2o2.yaml')
+
+    def test_input_header(self):
+        extra = self.phase.input_header
+        self.assertTrue(extra["description"].startswith("Hydrogen-Oxygen submechanism"))
+        self.assertEqual(extra["cantera-version"], "2.5.0")
+        self.assertEqual(extra["generator"], "ck2yaml")
 
     def test_missing_phases_key(self):
         yaml = '''
@@ -32,6 +36,17 @@ class TestThermoPhase(utilities.CanteraTest):
         '''
         with self.assertRaisesRegex(ct.CanteraError, "Key 'phases' not found"):
             _ = ct.Solution(yaml=yaml)
+
+    def test_deprecated_phase(self):
+        yaml = """
+        phases:
+        - name: phasename
+          thermo: ideal-gas
+          species: [{h2o2.yaml/species: all}]
+          deprecated: This phase is deprecated because I said so.
+        """
+        with self.assertRaisesRegex(ct.CanteraError, "(?s)phasename.*said so"):
+            ct.Solution(yaml=yaml)
 
     def test_base_attributes(self):
         self.assertIsInstance(self.phase.name, str)
@@ -60,7 +75,7 @@ class TestThermoPhase(utilities.CanteraTest):
         self.assertIn('TD', self.phase._partial_states.values())
 
     def test_species(self):
-        self.assertEqual(self.phase.n_species, 9)
+        self.assertEqual(self.phase.n_species, 10)
         for i,name in enumerate(self.phase.species_names):
             self.assertEqual(name, self.phase.species_name(i))
             self.assertEqual(i, self.phase.species_index(name))
@@ -69,7 +84,7 @@ class TestThermoPhase(utilities.CanteraTest):
             self.phase.species(self.phase.n_species)
 
     def test_elements(self):
-        self.assertEqual(self.phase.n_elements, 3)
+        self.assertEqual(self.phase.n_elements, 4)
         for i,symbol in enumerate(self.phase.element_names):
             self.assertEqual(symbol, self.phase.element_name(i))
             self.assertEqual(i, self.phase.element_index(symbol))
@@ -263,7 +278,13 @@ class TestThermoPhase(utilities.CanteraTest):
         self.assertNear(X[3], 0.9)
 
     def test_setCompositionSingleSpecies(self):
-        gas = ct.Solution('argon.xml')
+        yaml_def = """
+            phases:
+            - name: gas
+              species: [{h2o2.yaml/species: [AR]}]
+              thermo: ideal-gas
+        """
+        gas = ct.Solution(yaml=yaml_def)
         gas.X = [1]
         gas.Y = np.array([[1.001]])
         self.assertEqual(gas.Y[0], 1.0)
@@ -280,8 +301,9 @@ class TestThermoPhase(utilities.CanteraTest):
             self.phase.Y = np.array([])
         self.assertArrayNear(self.phase.X, X0)
 
+    @utilities.slow_test
     def test_set_equivalence_ratio_stoichiometric(self):
-        gas = ct.Solution('gri30.xml')
+        gas = ct.Solution('gri30.yaml', transport_model=None)
         for fuel in ('C2H6', 'H2:0.7, CO:0.3', 'NH3:0.4, CH3OH:0.6'):
             for oxidizer in ('O2:1.0, N2:3.76', 'H2O2:1.0'):
                 gas.set_equivalence_ratio(1.0, fuel, oxidizer)
@@ -290,7 +312,7 @@ class TestThermoPhase(utilities.CanteraTest):
                 self.assertGreater(sum(gas['H2O','CO2','N2'].X), 0.999999)
 
     def test_set_equivalence_ratio_lean(self):
-        gas = ct.Solution('gri30.xml')
+        gas = ct.Solution('gri30.yaml', transport_model=None)
         excess = 0
         for phi in np.linspace(0.9, 0, 5):
             gas.set_equivalence_ratio(phi, 'CH4:0.8, CH3OH:0.2', 'O2:1.0, N2:3.76')
@@ -300,12 +322,12 @@ class TestThermoPhase(utilities.CanteraTest):
         self.assertNear(sum(gas['O2','N2'].X), 1.0)
 
     def test_set_equivalence_ratio_sulfur(self):
-        sulfur_species = [k for k in ct.Species.listFromFile('nasa_gas.xml') if k.name in ("SO", "SO2")]
-        gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
-                          species=ct.Species.listFromFile('gri30.xml') + sulfur_species,
-                          reactions=ct.Reaction.listFromFile('gri30.xml'))
-        fuel = 'CH3:0.5, SO:0.25, OH:0.125, N2:0.125'
-        ox = 'O2:0.5, SO2:0.25, CO2:0.125, CH:0.125'
+        sulfur_species = [k for k in ct.Species.list_from_file("nasa_gas.yaml")
+                          if k.name in ("SO", "SO2")]
+        gas = ct.Solution(thermo="ideal-gas",
+                          species=ct.Species.list_from_file("gri30.yaml") + sulfur_species)
+        fuel = "CH3:0.5, SO:0.25, OH:0.125, N2:0.125"
+        ox = "O2:0.5, SO2:0.25, CO2:0.125, CH:0.125"
 
         def test_sulfur_results(gas, fuel, ox, basis):
             gas.set_equivalence_ratio(2.0, fuel, ox, basis)
@@ -331,14 +353,15 @@ class TestThermoPhase(utilities.CanteraTest):
         test_sulfur_results(gas, fuel, ox, 'mass')
 
     def test_equivalence_ratio(self):
-        gas = ct.Solution('gri30.xml')
+        gas = ct.Solution('gri30.yaml', transport_model=None)
         for phi in np.linspace(0.5, 2.0, 5):
             gas.set_equivalence_ratio(phi, 'CH4:0.8, CH3OH:0.2', 'O2:1.0, N2:3.76')
             self.assertNear(phi, gas.equivalence_ratio('CH4:0.8, CH3OH:0.2', 'O2:1.0, N2:3.76'))
         # Check sulfur species
-        sulfur_species = [k for k in ct.Species.listFromFile('nasa_gas.xml') if k.name in ("SO", "SO2")]
-        gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
-                          species=ct.Species.listFromFile('gri30.xml') + sulfur_species)
+        sulfur_species = [k for k in ct.Species.list_from_file("nasa_gas.yaml")
+                          if k.name in ("SO", "SO2")]
+        gas = ct.Solution(thermo="ideal-gas", kinetics="gas",
+                          species=ct.Species.list_from_file("gri30.yaml") + sulfur_species)
         for phi in np.linspace(0.5, 2.0, 5):
             gas.set_equivalence_ratio(phi, 'CH3:0.5, SO:0.25, OH:0.125, N2:0.125', 'O2:0.5, SO2:0.25, CO2:0.125')
             self.assertNear(phi, gas.equivalence_ratio('CH3:0.5, SO:0.25, OH:0.125, N2:0.125', 'O2:0.5, SO2:0.25, CO2:0.125'))
@@ -349,7 +372,7 @@ class TestThermoPhase(utilities.CanteraTest):
         fuel = "CH4:0.2,O2:0.02,N2:0.1,CO:0.05,CO2:0.02"
         ox = "O2:0.21,N2:0.79,CO:0.04,CH4:0.01,CO2:0.03"
 
-        gas = ct.Solution('gri30.xml')
+        gas = ct.Solution('gri30.yaml', transport_model=None)
         gas.TPX = 300, 1e5, fuel
         Y_Cf = gas.elemental_mass_fraction("C")
         Y_Of = gas.elemental_mass_fraction("O")
@@ -364,7 +387,7 @@ class TestThermoPhase(utilities.CanteraTest):
 
             # set mixture to burnt state to make sure that equivalence ratio and
             # mixture fraction are independent of reaction progress
-            gas.equilibrate("HP");
+            gas.equilibrate("HP")
 
             phi = gas.equivalence_ratio(fuel, ox, basis)
             phi_loc = gas.equivalence_ratio()
@@ -401,6 +424,158 @@ class TestThermoPhase(utilities.CanteraTest):
 
         test_equil_results(gas, fuel, ox, Y_Cf, Y_Of, Y_Co, Y_Oo, 'mass')
 
+    def test_equivalence_ratio_simple_dilution(self):
+        gas = ct.Solution("gri30.yaml")
+
+        phi = 2
+        inv_afr = 2 * phi # inverse molar AFR for H2/O2
+        X = "H2:4,O2:1,CO:3,CO2:4,N2:5,CH4:6"
+        T, P = 300, 1e5
+        gas.TPX = T, P, X
+        original_X = gas.X
+        self.assertNear(gas.equivalence_ratio(include_species=["H2", "O2"]), 2)
+        self.assertNear(gas.equivalence_ratio("H2", "O2",
+                                              include_species=["H2", "O2"]), 2)
+        self.assertNear(gas.T, T)
+        self.assertNear(gas.P, P)
+        self.assertArrayNear(gas.X, original_X)
+
+        def test_simple_dilution(fraction, basis):
+            if isinstance(fraction, str):
+                fraction_dict = {fraction[:fraction.find(":")]:
+                                 float(fraction[fraction.find(":")+1:])}
+            else:
+                fraction_dict = fraction
+
+            fraction_type  = list(fraction_dict.keys())[0]
+            fraction_value = float(list(fraction_dict.values())[0])
+
+            M_H2 = gas.molecular_weights[gas.species_index("H2")]
+            M_O2 = gas.molecular_weights[gas.species_index("O2")]
+
+            gas.TP = T, P
+            gas.set_equivalence_ratio(phi, "H2", "O2", fraction=fraction,
+                                      diluent="CO2", basis=basis)
+            if basis == "mole" and fraction_type == "diluent":
+                self.assertNear(gas["H2"].X[0], (1 - fraction_value)
+                                * inv_afr / (inv_afr + 1))
+                self.assertNear(gas["O2"].X[0], (1 - fraction_value) / (inv_afr + 1))
+                self.assertNear(gas["CO2"].X[0], fraction_value)
+            elif basis == "mass" and fraction_type == "diluent":
+                self.assertNear(gas["H2"].Y[0] / gas["O2"].Y[0], inv_afr * M_H2 / M_O2)
+                self.assertNear(gas["CO2"].Y[0], fraction_value)
+            elif basis == "mole" and fraction_type == "fuel":
+                self.assertNear(gas["H2"].X[0], fraction_value)
+                self.assertNear(gas["O2"].X[0], fraction_value / inv_afr)
+                self.assertNear(gas["CO2"].X[0], 1 - fraction_value * (1 + 1 / inv_afr))
+            elif basis == "mass" and fraction_type == "fuel":
+                self.assertNear(gas["H2"].Y[0], fraction_value)
+                self.assertNear(gas["H2"].Y[0] / gas["O2"].Y[0], inv_afr * M_H2 / M_O2)
+            elif basis == "mole" and fraction_type == "oxidizer":
+                self.assertNear(gas["H2"].X[0], fraction_value * inv_afr)
+                self.assertNear(gas["O2"].X[0], fraction_value)
+                self.assertNear(gas["CO2"].X[0], 1 - fraction_value * (1 + inv_afr))
+            elif basis == "mass" and fraction_type == "oxidizer":
+                self.assertNear(gas["O2"].Y[0], fraction_value)
+                self.assertNear(gas["H2"].Y[0] / gas["O2"].Y[0], inv_afr * M_H2 / M_O2)
+
+            Y = gas.Y
+            self.assertNear(gas.equivalence_ratio("H2", "O2",
+                                                  include_species=["H2", "O2"],
+                                                  basis=basis), phi)
+            self.assertNear(gas.equivalence_ratio(include_species=["H2", "O2"],
+                                                  basis=basis), phi)
+            self.assertArrayNear(Y, gas.Y)
+            self.assertNear(gas.T, T)
+            self.assertNear(gas.P, P)
+
+        # brute force all possible input combinations
+        test_simple_dilution("diluent:0.3", "mole")
+        test_simple_dilution({"diluent": 0.3}, "mole")
+        test_simple_dilution("diluent:0.3", "mass")
+        test_simple_dilution({"diluent": 0.3}, "mass")
+
+        test_simple_dilution("fuel:0.1", "mole")
+        test_simple_dilution({"fuel": 0.1}, "mole")
+        test_simple_dilution("fuel:0.1", "mass")
+        test_simple_dilution({"fuel": 0.1}, "mass")
+
+        test_simple_dilution("oxidizer:0.1", "mole")
+        test_simple_dilution({"oxidizer": 0.1}, "mole")
+        test_simple_dilution("oxidizer:0.1", "mass")
+        test_simple_dilution({"oxidizer": 0.1}, "mass")
+
+    def test_equivalence_ratio_arbitrary_dilution(self):
+        fuel = "CH4:1,O2:0.01,N2:0.1,CO:0.05,CO2:0.02"
+        oxidizer = "O2:0.8,N2:0.2,CO:0.01,CH4:0.005,CO2:0.03"
+        diluent = "CO2:1,CO:0.025,N2:0.3,CH4:0.07,O2:0.09"
+        gas = ct.Solution("gri30.yaml")
+
+        gas.X = fuel
+        X_fuel = gas.X
+        gas.Y = fuel
+        Y_fuel = gas.Y
+        gas.X = oxidizer
+        X_oxidizer = gas.X
+        gas.Y = oxidizer
+        Y_oxidizer = gas.Y
+        gas.X = diluent
+        X_diluent = gas.X
+        gas.Y = diluent
+        Y_diluent = gas.Y
+
+        phi = 2
+        fraction = 0.6
+        gas.set_equivalence_ratio(phi, fuel, oxidizer)
+        X_Mix = gas.X
+        gas.set_equivalence_ratio(phi, fuel, oxidizer, fraction={"diluent": fraction},
+                                  diluent=diluent)
+        X_expected = X_Mix * (1 - fraction) + fraction * X_diluent
+        self.assertArrayNear(gas.X, X_expected)
+
+        gas.set_equivalence_ratio(phi, fuel, oxidizer, basis="mass")
+        Y_Mix = gas.Y
+        gas.set_equivalence_ratio(phi, fuel, oxidizer, fraction={"diluent": fraction},
+                                  diluent=diluent, basis="mass")
+        Y_expected = Y_Mix * (1 - fraction) + fraction * Y_diluent
+        self.assertArrayNear(gas.Y, Y_expected)
+
+        phi = 0.8
+        fraction = 0.05
+        gas.set_equivalence_ratio(phi, fuel, oxidizer, basis="mass")
+        AFR = gas.stoich_air_fuel_ratio(fuel, oxidizer, basis="mass") / phi
+        gas.set_equivalence_ratio(phi, fuel, oxidizer, fraction={"fuel": fraction},
+                                  diluent=diluent, basis="mass")
+        Y_expected = fraction * (Y_fuel + AFR * Y_oxidizer) \
+                     + (1 - fraction * (1 + AFR)) * Y_diluent
+        self.assertArrayNear(gas.Y, Y_expected)
+
+        gas.set_equivalence_ratio(phi, fuel, oxidizer, fraction={"oxidizer": fraction},
+                                  diluent=diluent, basis="mass")
+        Y_expected = fraction * (Y_fuel / AFR + Y_oxidizer) \
+                     + (1 - fraction * (1 + 1 / AFR)) * Y_diluent
+        self.assertArrayNear(gas.Y, Y_expected)
+
+        gas.X = fuel
+        M_fuel = gas.mean_molecular_weight
+        gas.X = oxidizer
+        M_oxidizer = gas.mean_molecular_weight
+
+        gas.set_equivalence_ratio(phi, fuel, oxidizer)
+        AFR = M_fuel / M_oxidizer * gas.stoich_air_fuel_ratio(fuel, oxidizer) / phi
+
+        gas.set_equivalence_ratio(phi, fuel, oxidizer, fraction={"fuel": fraction},
+                                  diluent=diluent)
+        X_expected = fraction * (X_fuel + AFR * X_oxidizer) \
+                     + (1 - fraction * (1 + AFR)) * X_diluent
+        self.assertArrayNear(gas.X, X_expected)
+
+        gas.set_equivalence_ratio(phi, fuel, oxidizer, fraction={"oxidizer": fraction},
+                                  diluent=diluent)
+        X_expected = fraction * (X_fuel / AFR + X_oxidizer) \
+                     + (1 - fraction * (1 + 1 / AFR)) * X_diluent
+        self.assertArrayNear(gas.X, X_expected)
+
     def test_full_report(self):
         report = self.phase.report(threshold=0.0)
         self.assertIn(self.phase.name, report)
@@ -422,18 +597,6 @@ class TestThermoPhase(utilities.CanteraTest):
         self.phase.name = 'something'
         self.assertEqual(self.phase.name, 'something')
         self.assertIn('something', self.phase.report())
-
-    def test_phase(self):
-        self.assertEqual(self.phase.name, 'ohmech')
-        with self.assertWarnsRegex(DeprecationWarning, "after Cantera 2.5"):
-            self.assertEqual(self.phase.ID, 'ohmech')
-
-        with self.assertWarnsRegex(DeprecationWarning, "after Cantera 2.5"):
-            self.phase.ID = 'something'
-        self.assertEqual(self.phase.name, 'something')
-
-        with self.assertWarnsRegex(FutureWarning, "Keyword 'name' replaces 'phaseid'"):
-            gas = ct.Solution('h2o2.cti', phaseid='ohmech')
 
     def test_badLength(self):
         X = np.zeros(5)
@@ -472,9 +635,11 @@ class TestThermoPhase(utilities.CanteraTest):
         s1 = self.phase.s
         u1 = self.phase.u
         v1 = self.phase.v
+        self.phase.Te = T1
 
         def check_state(T, rho, Y):
             self.assertNear(self.phase.T, T)
+            self.assertNear(self.phase.Te, T)
             self.assertNear(self.phase.density, rho)
             self.assertArrayNear(self.phase.Y, Y)
 
@@ -528,12 +693,12 @@ class TestThermoPhase(utilities.CanteraTest):
 
     def test_setState_mass(self):
         self.check_setters(T1 = 500.0, rho1 = 1.5,
-                           Y1 = [0.1, 0.0, 0.0, 0.1, 0.4, 0.2, 0.0, 0.0, 0.2])
+                           Y1 = [0.1, 0.0, 0.0, 0.1, 0.4, 0.2, 0.0, 0.0, 0.2, 0.0])
 
     def test_setState_mole(self):
         self.phase.basis = 'molar'
         self.check_setters(T1 = 750.0, rho1 = 0.02,
-                           Y1 = [0.2, 0.1, 0.0, 0.3, 0.1, 0.0, 0.0, 0.2, 0.1])
+                           Y1 = [0.2, 0.1, 0.0, 0.3, 0.1, 0.0, 0.0, 0.2, 0.1, 0.0])
 
     def test_setters_hold_constant(self):
         props = ('T','P','s','h','u','v','X','Y')
@@ -688,6 +853,9 @@ class TestThermoPhase(utilities.CanteraTest):
         self.assertNear(D, self.phase.density)
         self.assertNear(P, self.phase.P)
 
+        Te = self.phase.Te
+        self.assertNear(Te, self.phase.Te)
+
     def test_getState_mass(self):
         self.phase.TDY = 350.0, 0.7, 'H2:0.1, H2O2:0.1, AR:0.8'
         self.check_getters()
@@ -749,18 +917,13 @@ class TestThermoPhase(utilities.CanteraTest):
         self.assertNear(self.phase.min_temp, 300.0)
         self.assertNear(self.phase.max_temp, 3500.0)
 
-    def test_unpicklable(self):
-        import pickle
-        with self.assertRaises(NotImplementedError):
-            pickle.dumps(self.phase)
-
     def test_uncopyable(self):
         import copy
         with self.assertRaises(NotImplementedError):
             copy.copy(self.phase)
 
     def test_add_species(self):
-        ref = ct.Solution('gri30.xml')
+        ref = ct.Solution('gri30.yaml', transport_model=None)
         n_orig = self.phase.n_species
         self.phase.add_species(ref.species('CO2'))
         self.phase.add_species(ref.species('CO'))
@@ -778,8 +941,9 @@ class TestThermoPhase(utilities.CanteraTest):
                              self.phase.partial_molar_cp)
 
     def test_add_species_disabled(self):
-        ref = ct.Solution('gri30.xml')
+        ref = ct.Solution('gri30.yaml', transport_model=None)
 
+        self.phase.transport_model = "unity-Lewis-number"
         reactor = ct.IdealGasReactor(self.phase)
         with self.assertRaisesRegex(ct.CanteraError, 'Cannot add species'):
             self.phase.add_species(ref.species('CH4'))
@@ -809,7 +973,7 @@ class TestThermoPhase(utilities.CanteraTest):
 
 class TestThermo(utilities.CanteraTest):
     def setUp(self):
-        self.gas = ct.ThermoPhase('h2o2.xml')
+        self.gas = ct.ThermoPhase("h2o2.yaml")
         self.gas.TPX = 450, 2e5, 'H2:1.0, O2:0.4, AR:3, H2O:0.1'
 
     def test_setSV_lowT(self):
@@ -928,9 +1092,9 @@ class TestThermo(utilities.CanteraTest):
 
 class TestInterfacePhase(utilities.CanteraTest):
     def setUp(self):
-        self.gas = ct.Solution('diamond.xml', 'gas')
-        self.solid = ct.Solution('diamond.xml', 'diamond')
-        self.interface = ct.Interface('diamond.xml', 'diamond_100',
+        self.gas = ct.Solution("diamond.yaml", "gas")
+        self.solid = ct.Solution("diamond.yaml", "diamond")
+        self.interface = ct.Interface("diamond.yaml", "diamond_100",
                                       (self.gas, self.solid))
 
     def test_properties(self):
@@ -974,6 +1138,7 @@ class ImportTest(utilities.CanteraTest):
         self.assertEqual(gas.n_species, nSpec)
         self.assertEqual(gas.n_elements, nElem)
 
+    @pytest.mark.usefixtures("allow_deprecated")
     def test_import_phase_cti(self):
         gas1 = ct.Solution('air-no-reactions.cti', 'air')
         self.check(gas1, 'air', 300, 101325, 8, 3)
@@ -981,11 +1146,13 @@ class ImportTest(utilities.CanteraTest):
         gas2 = ct.Solution('air-no-reactions.cti', 'notair')
         self.check(gas2, 'notair', 900, 5*101325, 7, 2)
 
+    @pytest.mark.usefixtures("allow_deprecated")
     def test_import_phase_cti2(self):
         # This should import the first phase, i.e. 'air'
         gas = ct.Solution('air-no-reactions.cti')
         self.check(gas, 'air', 300, 101325, 8, 3)
 
+    @pytest.mark.usefixtures("allow_deprecated")
     def test_import_phase_xml(self):
         gas1 = ct.Solution('air-no-reactions.xml', 'air')
         self.check(gas1, 'air', 300, 101325, 8, 3)
@@ -993,6 +1160,7 @@ class ImportTest(utilities.CanteraTest):
         gas2 = ct.Solution('air-no-reactions.xml', 'notair')
         self.check(gas2, 'notair', 900, 5*101325, 7, 2)
 
+    @pytest.mark.usefixtures("allow_deprecated")
     def test_import_phase_cti_text(self):
         cti_def = """
 ideal_gas(name='spam', elements='O H',
@@ -1003,6 +1171,7 @@ ideal_gas(name='spam', elements='O H',
         gas = ct.Solution(source=cti_def)
         self.check(gas, 'spam', 350, 2e6, 8, 2)
 
+    @pytest.mark.usefixtures("allow_deprecated")
     def test_import_phase_xml_text(self):
         xml_def = """
 <?xml version="1.0"?>
@@ -1026,11 +1195,11 @@ ideal_gas(name='spam', elements='O H',
         self.check(gas, 'spam', 350, 2e6, 2, 1)
 
     def test_import_from_species(self):
-        gas1 = ct.Solution('h2o2.xml')
+        gas1 = ct.Solution('h2o2.yaml', transport_model=None)
         gas1.TPX = 350, 101325, 'H2:0.3, O2:0.7'
         gas1.equilibrate('HP')
 
-        species = ct.Species.listFromFile('h2o2.xml')
+        species = ct.Species.list_from_file("h2o2.yaml")
         gas2 = ct.ThermoPhase(thermo='IdealGas', species=species)
         gas2.TPX = 350, 101325, 'H2:0.3, O2:0.7'
         gas2.equilibrate('HP')
@@ -1039,6 +1208,7 @@ ideal_gas(name='spam', elements='O H',
         self.assertNear(gas1.T, gas2.T)
         self.assertArrayNear(gas1.X, gas2.X)
 
+    @pytest.mark.usefixtures("allow_deprecated")
     def test_checkReactionBalance(self):
         with self.assertRaisesRegex(ct.CanteraError, 'reaction is unbalanced'):
             ct.Solution('h2o2_unbalancedReaction.xml')
@@ -1058,7 +1228,7 @@ ideal_gas(name='spam', elements='O H',
 
 class TestSpecies(utilities.CanteraTest):
     def setUp(self):
-        self.gas = ct.Solution('h2o2.xml')
+        self.gas = ct.Solution('h2o2.yaml', transport_model=None)
 
     def test_standalone(self):
         s = ct.Species('CH4', {'C':1, 'H':4})
@@ -1094,6 +1264,7 @@ class TestSpecies(utilities.CanteraTest):
             s = self.gas.species(name)
             self.assertEqual(s.name, name)
 
+    @pytest.mark.usefixtures("allow_deprecated")
     def test_fromCti(self):
         h2_cti = """
             species(
@@ -1122,10 +1293,10 @@ class TestSpecies(utilities.CanteraTest):
         self.assertEqual(s1.composition, s2.composition)
         self.assertEqual(s1.thermo.cp(350), s2.thermo.cp(350))
 
+    @pytest.mark.usefixtures("allow_deprecated")
     def test_fromXml(self):
         import xml.etree.ElementTree as ET
-        p = os.path.dirname(__file__)
-        root = ET.parse(pjoin(p, '..', 'data', 'h2o2.xml')).getroot()
+        root = ET.parse(self.cantera_data_path / "h2o2.xml").getroot()
         h2_node = root.find('.//species[@name="H2"]')
         h2_string = ET.tostring(h2_node)
 
@@ -1136,29 +1307,26 @@ class TestSpecies(utilities.CanteraTest):
         self.assertEqual(s1.composition, s2.composition)
         self.assertEqual(s1.thermo.cp(350), s2.thermo.cp(350))
 
+    @pytest.mark.usefixtures("allow_deprecated")
     def test_listFromFile_cti(self):
         S = ct.Species.listFromFile('h2o2.cti')
-        self.assertEqual({sp.name for sp in S},
-                         set(self.gas.species_names))
+        self.assertEqual(S[3].name, self.gas.species_name(3))
 
+    @pytest.mark.usefixtures("allow_deprecated")
     def test_listFromFile_xml(self):
         S = ct.Species.listFromFile('h2o2.xml')
-        self.assertEqual({sp.name for sp in S},
-                         set(self.gas.species_names))
+        self.assertEqual(S[3].name, self.gas.species_name(3))
 
     def test_listfromFile_yaml(self):
-        S = ct.Species.listFromFile('ideal-gas.yaml')
-        self.assertEqual(S[0].name, 'O2')
+        S = ct.Species.list_from_file("h2o2.yaml")
+        self.assertEqual({sp.name for sp in S}, set(self.gas.species_names))
 
+    @pytest.mark.usefixtures("allow_deprecated")
     def test_listFromCti(self):
-        p = os.path.dirname(__file__)
-        with open(pjoin(p, '..', 'data', 'h2o2.cti')) as f:
-            S = ct.Species.listFromCti(f.read())
+        S = ct.Species.listFromCti((self.cantera_data_path / "h2o2.cti").read_text())
+        self.assertEqual(S[3].name, self.gas.species_name(3))
 
-        self.assertEqual({sp.name for sp in S},
-                         set(self.gas.species_names))
-
-    def test_listFomYaml(self):
+    def test_list_from_yaml(self):
         yaml = '''
         - name: H2O
           composition: {H: 2, O: 1}
@@ -1167,29 +1335,48 @@ class TestSpecies(utilities.CanteraTest):
           composition: {H: 1, O: 2}
           thermo: {model: constant-cp, h0: 200}
         '''
-        species = ct.Species.listFromYaml(yaml)
+        species = ct.Species.list_from_yaml(yaml)
         self.assertEqual(species[0].name, 'H2O')
         self.assertEqual(species[1].composition, {'H': 1, 'O': 2})
         self.assertNear(species[0].thermo.h(300), 100)
 
-    def test_listFromYaml_section(self):
-        species = ct.Species.listFromYaml(
-            Path(__file__).parent.joinpath('data', 'ideal-gas.yaml').read_text(),
+    def test_list_from_yaml_section(self):
+        species = ct.Species.list_from_yaml(
+            (self.test_data_path / "ideal-gas.yaml").read_text(),
             'species')
 
         self.assertEqual(species[0].name, 'O2')
         self.assertEqual(species[1].composition, {'N': 1, 'O': 1})
 
-    def test_listFromXml(self):
-        p = os.path.dirname(__file__)
-        with open(pjoin(p, '..', 'data', 'h2o2.xml')) as f:
-            S = ct.Species.listFromXml(f.read())
+    def test_from_yaml(self):
+        yaml = """
+        name: H2O
+        composition: {H: 2, O: 1}
+        thermo: {model: constant-cp, h0: 100}
+        """
+        species = ct.Species.from_yaml(yaml)
+        self.assertEqual(species.name, 'H2O')
+        self.assertEqual(species.composition, {'H': 2, 'O': 1})
+        self.assertNear(species.thermo.h(300), 100)
 
-        self.assertEqual({sp.name for sp in S},
-                         set(self.gas.species_names))
+    def test_from_dict(self):
+        data = {
+            "name": "H2O",
+            "composition": {"H": 2, "O": 1},
+            "thermo": {"model": "constant-cp", "h0": 100},
+        }
+        species = ct.Species.from_dict(data)
+        self.assertEqual(species.name, 'H2O')
+        self.assertEqual(species.composition, {'H': 2, 'O': 1})
+        self.assertNear(species.thermo.h(300), 100)
+
+    @pytest.mark.usefixtures("allow_deprecated")
+    def test_listFromXml(self):
+        S = ct.Species.listFromXml((self.cantera_data_path / "h2o2.xml").read_text())
+        self.assertEqual(S[4].name, self.gas.species_name(4))
 
     def test_modify_thermo(self):
-        S = {sp.name: sp for sp in ct.Species.listFromFile('h2o2.xml')}
+        S = {sp.name: sp for sp in ct.Species.list_from_file("h2o2.yaml")}
         self.gas.TPX = 400, 2*ct.one_atm, 'H2:1.0'
         g0 = self.gas.gibbs_mole
 
@@ -1201,7 +1388,7 @@ class TestSpecies(utilities.CanteraTest):
         self.assertNear(g0, self.gas.gibbs_mole)
 
     def test_modify_thermo_invalid(self):
-        S = {sp.name: sp for sp in ct.Species.listFromFile('h2o2.xml')}
+        S = {sp.name: sp for sp in ct.Species.list_from_file("h2o2.yaml")}
 
         orig = S['H2']
         thermo = orig.thermo
@@ -1257,7 +1444,7 @@ class TestSpeciesThermo(utilities.CanteraTest):
         1.77197817E-12, -3.02937267E+04, -8.49032208E-01
     ]
     def setUp(self):
-        self.gas = ct.Solution('h2o2.xml')
+        self.gas = ct.Solution('h2o2.yaml', transport_model=None)
         self.gas.X = 'H2O:1.0'
 
     def test_create(self):
@@ -1296,14 +1483,14 @@ class TestSpeciesThermo(utilities.CanteraTest):
         self.assertTrue(st._check_n_coeffs(st.n_coeffs))
 
     def test_nasa9_load(self):
-        gas = ct.Solution('airNASA9.cti')
+        gas = ct.Solution("airNASA9.yaml")
         st = gas.species(3).thermo
         self.assertIsInstance(st, ct.Nasa9PolyMultiTempRegion)
         self.assertEqual(st.n_coeffs, len(st.coeffs))
         self.assertTrue(st._check_n_coeffs(st.n_coeffs))
 
     def test_nasa9_create(self):
-        gas = ct.Solution('airNASA9.cti')
+        gas = ct.Solution("airNASA9.yaml")
         st = gas.species(3).thermo
         t_min = st.min_temp
         t_max = st.max_temp
@@ -1386,7 +1573,7 @@ class TestQuantity(utilities.CanteraTest):
     @classmethod
     def setUpClass(cls):
         utilities.CanteraTest.setUpClass()
-        cls.gas = ct.Solution('gri30.xml')
+        cls.gas = ct.Solution('gri30.yaml', transport_model=None)
 
     def setUp(self):
         self.gas.TPX = 300, 101325, 'O2:1.0, N2:3.76'
@@ -1471,8 +1658,13 @@ class TestQuantity(utilities.CanteraTest):
         q1.equilibrate('HP')
         self.assertNear(q1.T, T2)
 
+    def test_invalid_setter(self):
+        q1 = ct.Quantity(self.gas, mass =3)
+        with self.assertRaises(AttributeError):
+            q1.HPQ = self.gas.H, self.gas.P, 1
+
     def test_incompatible(self):
-        gas2 = ct.Solution('h2o2.xml')
+        gas2 = ct.Solution('h2o2.yaml', transport_model=None)
         q1 = ct.Quantity(self.gas)
         q2 = ct.Quantity(gas2)
 
@@ -1486,7 +1678,7 @@ class TestMisc(utilities.CanteraTest):
             ct.Solution(3)
 
     def test_case_sensitive_names(self):
-        gas = ct.Solution('h2o2.xml')
+        gas = ct.Solution('h2o2.yaml', transport_model=None)
         self.assertFalse(gas.case_sensitive_species_names)
         self.assertEqual(gas.species_index('h2'), 0)
         gas.X = 'h2:.5, o2:.5'
@@ -1510,8 +1702,16 @@ class TestMisc(utilities.CanteraTest):
             options=["skip_undeclared_elements"],
             initial_state=state(temperature=300, pressure=(1, "bar"))
         )"""
+        gas_yaml = """
+            phases:
+            - name: gas
+              thermo: ideal-gas
+              elements: [S, C, Cs]
+              species: [{nasa_gas.yaml/species: all}]
+              skip-undeclared-elements: true
+        """
         ct.suppress_thermo_warnings(True)
-        gas = ct.Solution(source=gas_cti)
+        gas = ct.Solution(yaml=gas_yaml)
         with self.assertRaisesRegex(ct.CanteraError, 'is not unique'):
             gas.species_index('cs')
         gas.case_sensitive_species_names = True
@@ -1598,13 +1798,13 @@ class TestSolutionArray(utilities.CanteraTest):
     @classmethod
     def setUpClass(cls):
         utilities.CanteraTest.setUpClass()
-        cls.gas = ct.Solution('h2o2.xml')
+        cls.gas = ct.Solution('h2o2.yaml')
 
     def test_passthrough(self):
         states = ct.SolutionArray(self.gas, 3)
         self.assertEqual(states.n_species, self.gas.n_species)
-        self.assertEqual(states.reaction_equation(10),
-                         self.gas.reaction_equation(10))
+        self.assertEqual(states.reaction(10).equation,
+                         self.gas.reaction(10).equation)
 
     def test_meta(self):
         meta = {'foo': 'bar', 'spam': 'eggs'}
@@ -2033,8 +2233,8 @@ class TestSolutionArray(utilities.CanteraTest):
         states = ct.SolutionArray(self.gas, 4)
         arr1 = states[3:3]
         self.assertEqual(len(arr1.T), 0)
-        self.assertEqual(arr1.X.shape, (0,9))
-        self.assertEqual(arr1.n_reactions, 28)
+        self.assertEqual(arr1.X.shape, (0,10))
+        self.assertEqual(arr1.n_reactions, 29)
 
         states.TP = [100,300,900,323.23], ct.one_atm
         arr2 = states[slice(0)]

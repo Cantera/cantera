@@ -6,6 +6,16 @@ function kr = revRateConstants(a)
 % third body contributions. Units are a combination of kmol, m^3 and s, that
 % depend on the rate expression for the reaction.
 %
+% Deprecated 2.6:
+%
+%     Behavior to change after Cantera 2.6; for Cantera 2.6, rate constants of
+%     three-body reactions are multiplied with third-body concentrations
+%     (no change to legacy behavior). After Cantera 2.6, results will no longer
+%     include third-body concentrations and be consistent with conventional
+%     definitions (see Eq. 9.75 in Kee, Coltrin and Glarborg, 'Chemically
+%     Reacting Flow', Wiley Interscience, 2003).
+%     To switch to new behavior, run 'useLegacyRateConstants(0)'.
+%
 % See also: :mat:func:`fwdRateConstants`, :mat:func:`equil_KC`
 %
 % :param a:

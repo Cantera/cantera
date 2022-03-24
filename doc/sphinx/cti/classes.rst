@@ -35,9 +35,6 @@ Phases of Matter
 .. autoclass:: metal
    :no-undoc-members:
 
-.. autoclass:: incompressible_solid
-   :no-undoc-members:
-
 .. autoclass:: lattice
    :no-undoc-members:
 

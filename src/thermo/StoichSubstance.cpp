@@ -10,6 +10,7 @@
 
 #include "cantera/thermo/StoichSubstance.h"
 #include "cantera/thermo/ThermoFactory.h"
+#include "cantera/thermo/Species.h"
 #include "cantera/base/ctml.h"
 
 namespace Cantera
@@ -153,6 +154,31 @@ void StoichSubstance::initThermo()
 
     // Call the base class thermo initializer
     SingleSpeciesTP::initThermo();
+}
+
+void StoichSubstance::getSpeciesParameters(const std::string& name,
+                                           AnyMap& speciesNode) const
+{
+    SingleSpeciesTP::getSpeciesParameters(name, speciesNode);
+    size_t k = speciesIndex(name);
+    const auto S = species(k);
+    auto& eosNode = speciesNode["equation-of-state"].getMapWhere(
+        "model", "constant-volume", true);
+    // Output volume information in a form consistent with the input
+    if (S->input.hasKey("equation-of-state")) {
+        auto& eosIn = S->input["equation-of-state"];
+        if (eosIn.hasKey("density")) {
+            eosNode["density"].setQuantity(density(), "kg/m^3");
+        } else if (eosIn.hasKey("molar-density")) {
+            eosNode["molar-density"].setQuantity(density() / meanMolecularWeight(),
+                                                 "kmol/m^3");
+        } else {
+            eosNode["molar-volume"].setQuantity(meanMolecularWeight() / density(),
+                                                "m^3/kmol");
+        }
+    } else {
+        eosNode["molar-volume"].setQuantity(meanMolecularWeight() / density(), "m^3/kmol");
+    }
 }
 
 void StoichSubstance::initThermoXML(XML_Node& phaseNode, const std::string& id_)

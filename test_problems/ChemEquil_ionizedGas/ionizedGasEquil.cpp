@@ -2,6 +2,7 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/IdealGasPhase.h"
+#include "cantera/base/Solution.h"
 
 #include <iostream>
 
@@ -14,7 +15,7 @@ int main(int argc, char** argv)
     _set_output_format(_TWO_DIGIT_EXPONENT);
 #endif
     try {
-        auto sol = newSolution("air_below6000K.cti", "air_below6000K");
+        auto sol = newSolution("air_below6000K.yaml");
         auto gas = sol->thermo();
 
         vector_fp IndVar2(6, 0.0);

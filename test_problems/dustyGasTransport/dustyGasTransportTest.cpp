@@ -1,7 +1,7 @@
 #include "cantera/thermo.h"
 #include "cantera/transport.h"
 #include "cantera/transport/DustyGasTransport.h"
-
+#include "cantera/base/utilities.h"
 #include <cstdio>
 
 using namespace std;
@@ -12,7 +12,7 @@ int main(int argc, char** argv)
     try {
         int log_level = 0;
 
-        unique_ptr<ThermoPhase> g(newPhase("h2o2.xml"));
+        unique_ptr<ThermoPhase> g(newPhase("h2o2.yaml"));
         unique_ptr<Transport> tran(newTransportMgr("DustyGas", g.get(), log_level));
         DustyGasTransport* tranDusty = dynamic_cast<DustyGasTransport*>(tran.get());
 

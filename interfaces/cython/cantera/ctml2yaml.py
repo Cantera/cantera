@@ -27,9 +27,9 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 try:
-    import ruamel_yaml as yaml  # type: ignore
-except ImportError:
     from ruamel import yaml
+except ImportError:
+    import ruamel_yaml as yaml  # type: ignore
 
 # yaml.version_info is a tuple with the three parts of the version
 yaml_version = yaml.version_info
@@ -172,11 +172,11 @@ def float2string(data: float) -> str:
 
     :param data: The floating point data to be formatted.
 
-    Uses NumPy's ``format_float_positional()`` and ``format_float_scientific()`` if they
-    are is available, requires NumPy >= 1.14. In that case, values with magnitude
-    between 0.01 and 10000 are formatted using ``format_float_positional ()`` and other
-    values are formatted using ``format_float_scientific()``. If those NumPy functions
-    are not available, returns the ``repr`` of the input.
+    Uses *NumPy*'s ``format_float_positional()`` and ``format_float_scientific()`` if
+    they are is available, requires ``numpy >= 1.14``. In that case, values with
+    magnitude between 0.01 and 10000 are formatted using ``format_float_positional ()``
+    and other values are formatted using ``format_float_scientific()``. If those *NumPy*
+    functions are not available, returns the ``repr`` of the input.
     """
     if not HAS_FMT_FLT_POS:
         return repr(data)
@@ -315,7 +315,7 @@ def clean_node_text(node: etree.Element) -> str:
     text = node.text
     if text is None:
         raise MissingNodeText("The text of the node must exist", node)
-    return text.replace("\n", " ").replace("\t", " ").strip()
+    return text.replace("\n", " ").replace("\t", " ").strip(" ,")
 
 
 class Phase:
@@ -323,6 +323,7 @@ class Phase:
         "IdealGas": "ideal-gas",
         "Incompressible": "constant-density",
         "Surface": "ideal-surface",
+        "Surf": "ideal-surface",
         "Edge": "edge",
         "Metal": "electron-cloud",
         "StoichSubstance": "fixed-stoichiometry",
@@ -330,18 +331,26 @@ class Phase:
         "LatticeSolid": "compound-lattice",
         "Lattice": "lattice",
         "HMW": "HMW-electrolyte",
+        "HMWSoln": "HMW-electrolyte",
         "IdealSolidSolution": "ideal-condensed",
+        "IdealSolidSoln": "ideal-condensed",
         "DebyeHuckel": "Debye-Huckel",
         "IdealMolalSolution": "ideal-molal-solution",
-        "IdealGasVPSS": "ideal-gas-VPSS",
+        "IdealMolalSoln": "ideal-molal-solution",
         "IdealSolnVPSS": "ideal-solution-VPSS",
+        "IdealSolnGas": "ideal-solution-VPSS",
+        "IdealGasVPSS": "ideal-gas-VPSS",
         "Margules": "Margules",
         "IonsFromNeutralMolecule": "ions-from-neutral-molecule",
-        "FixedChemPot": "fixed-chemical-potential",
+        "IonsFromNeutral": "ions-from-neutral-molecule",
         "Redlich-Kister": "Redlich-Kister",
+        "RedlichKister": "Redlich-Kister",
         "RedlichKwongMFTP": "Redlich-Kwong",
+        "RedlichKwong": "Redlich-Kwong",
         "MaskellSolidSolnPhase": "Maskell-solid-solution",
+        "MaskellSolidSoln": "Maskell-solid-solution",
         "PureLiquidWater": "liquid-water-IAPWS95",
+        "Water": "liquid-water-IAPWS95",
         "BinarySolutionTabulatedThermo": "binary-solution-tabulated",
     }
     kinetics_model_mapping = {
@@ -447,6 +456,12 @@ class Phase:
                 "The 'thermo' node requires a 'model' attribute.", phase_thermo
             )
         self.attribs["thermo"] = self.thermo_model_mapping[phase_thermo_model]
+
+        phases_text = phase.findtext("phaseArray")
+        if phases_text is not None:
+            adjacent_phases = phases_text.replace("\n", " ").strip().split()
+            if adjacent_phases:
+                self.attribs["adjacent-phases"] = FlowList(adjacent_phases)
 
         if phase_thermo_model == "PureFluid":
             pure_fluid_type = phase_thermo.get("fluid_type")
@@ -566,8 +581,6 @@ class Phase:
                 self.attribs["tabulated-species"] = node.get("name")
             elif node.tag == "tabulatedThermo":
                 self.attribs["tabulated-thermo"] = self.get_tabulated_thermo(node)
-            elif node.tag == "chemicalPotential":
-                self.attribs["chemical-potential"] = get_float_or_quantity(node)
 
         transport_node = phase.find("transport")
         if transport_node is not None:
@@ -589,9 +602,9 @@ class Phase:
             reactions = []
             for rA_node in phase.iterfind("reactionArray"):
                 # If the reaction list associated with the datasrc for this
-                # reactionArray is empty, don't do anything.
+                # reactionArray is missing or empty, don't do anything.
                 datasrc = rA_node.get("datasrc", "")
-                if datasrc.startswith("#") and not reaction_data[datasrc[1:]]:
+                if datasrc.startswith("#") and not reaction_data.get(datasrc[1:]):
                     continue
                 reactions.append(self.get_reaction_array(rA_node, reaction_data))
             # The reactions list may be empty, don't include any kinetics stuff
@@ -629,7 +642,12 @@ class Phase:
 
         std_conc_node = phase.find("standardConc")
         if std_conc_node is not None:
-            self.attribs["standard-concentration-basis"] = std_conc_node.get("model")
+            model = std_conc_node.get("model")
+            if model == "solvent_volume":
+                model = "solvent-molar-volume"
+            elif model == "molar_volume":
+                model = "species-molar-volume"
+            self.attribs["standard-concentration-basis"] = model
 
         self.check_elements(species, species_data)
 
@@ -1240,7 +1258,9 @@ class Phase:
         The ``activityCoefficients`` must include the ``A_debye`` node, as well as
         any interaction parameters between species.
         """
-        activity_data = BlockMap({"temperature-model": activity_node.get("TempModel")})
+        activity_data = BlockMap(
+            {"temperature-model": activity_node.get("TempModel", "constant")}
+        )
         A_Debye_node = activity_node.find("A_Debye")
         if A_Debye_node is None:
             raise MissingXMLNode(
@@ -1589,7 +1609,7 @@ class SpeciesThermo:
         if tmin is not None and tmin != '100.0':
             thermo_attribs['T-min'] = float(tmin)
         tmax = const_cp_node.get('Tmax')
-        if tmax is not None and tmin != '5000.0':
+        if tmax is not None and tmax != '5000.0':
             thermo_attribs['T-max'] = float(tmax)
 
         return thermo_attribs
@@ -2034,10 +2054,11 @@ class Reaction:
         elif reaction_type in ["plog", "pdep_arrhenius"]:
             reaction_type = "plog"
         elif reaction_type == "chebyshev":
-            # There's only one way to spell Chebyshev, so no need to change anything
-            # However, we need to catch this case so it doesn't raise the TypeError
-            # in the else clause
-            pass
+            # Remove deprecated '(+M)' third body notation
+            self.attribs["equation"] = re.sub(r" *\( *\+ *M *\)", "",
+                                              self.attribs["equation"])
+            # There's only one way to spell Chebyshev, so no need to change the
+            # reaction_type.
         elif reaction_type in [
             "interface",
             "edge",
@@ -2620,7 +2641,7 @@ def convert(
     metadata = BlockMap(
         {
             "generator": "ctml2yaml",
-            "cantera-version": "2.5.1",
+            "cantera-version": "2.6.0b1",
             "date": formatdate(localtime=True),
         }
     )

@@ -63,7 +63,7 @@ try:
     f.write_hdf('flame_fixed_T.h5', group='mix', mode='w',
                 description='solution with mixture-averaged transport')
 except ImportError:
-    f.save('flame_fixed_T.xml','mixav',
+    f.save('flame_fixed_T.yaml','mixav',
            'solution with mixture-averaged transport')
 
 print('\n\n switching to multicomponent transport...\n\n')
@@ -75,7 +75,7 @@ try:
     f.write_hdf('flame_fixed_T.h5', group='multi',
                 description='solution with multicomponent transport')
 except ImportError:
-    f.save('flame_fixed_T.xml','multi',
+    f.save('flame_fixed_T.yaml','multi',
            'solution with  multicomponent transport')
 
 # write the velocity, temperature, density, and mole fractions to a CSV file

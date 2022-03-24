@@ -5,10 +5,10 @@ import sys
 
 cdef double func_callback(double t, void* obj, void** err):
     """
-    This function is called from C/C++ to evaluate a `Func1` object *obj*,
-    returning the value of the function at *t*. If an exception occurs while
+    This function is called from C/C++ to evaluate a `Func1` object ``obj``,
+    returning the value of the function at ``t``. If an exception occurs while
     evaluating the function, the Python exception info is saved in the
-    two-element array *err*.
+    two-element array ``err``.
     """
     try:
         return (<Func1>obj).callable(t)
@@ -86,10 +86,8 @@ cdef class Func1:
 
     cpdef void _set_callback(self, c) except *:
         self.callable = c
-        self.func = new CxxFunc1(func_callback, <void*>self)
-
-    def __dealloc__(self):
-        del self.func
+        self._func.reset(new CxxFunc1(func_callback, <void*>self))
+        self.func = self._func.get()
 
     def __call__(self, t):
         return self.func.eval(t)

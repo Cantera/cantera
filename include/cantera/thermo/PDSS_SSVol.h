@@ -103,6 +103,8 @@ namespace Cantera
  *
  * ## XML Example
  *
+ * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
+ *
  * An example of the specification of a standard state for the LiCl molten salt
  * which has a temperature dependent standard state volume.
  *
@@ -152,8 +154,6 @@ public:
     virtual void setPressure(doublereal pres);
     virtual void setTemperature(doublereal temp);
     virtual void setState_TP(doublereal temp, doublereal pres);
-    //! @deprecated To be removed after Cantera 2.5.
-    virtual void setState_TR(doublereal temp, doublereal rho);
 
     //! @}
     //! @name Miscellaneous properties of the standard state
@@ -178,7 +178,9 @@ public:
     void setDensityPolynomial(double* coeffs);
 
     virtual void setParametersFromXML(const XML_Node& speciesNode);
-    //@}
+    virtual void getParameters(AnyMap& eosNode) const;
+
+    //! @}
 
 private:
     //! Does the internal calculation of the volume

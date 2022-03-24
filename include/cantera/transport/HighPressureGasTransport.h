@@ -42,7 +42,7 @@ protected:
     /*!
      *   @param thermo  Optional parameter for the pointer to the ThermoPhase object
      */
-    HighPressureGasTransport(thermo_t* thermo=0);
+    HighPressureGasTransport(ThermoPhase* thermo=0);
 
 public:
     virtual std::string transportType() const {

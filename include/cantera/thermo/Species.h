@@ -15,6 +15,7 @@ namespace Cantera
 class SpeciesThermoInterpType;
 class TransportData;
 class XML_Node;
+class ThermoPhase;
 
 //! Contains data about a single chemical species
 /*!
@@ -35,6 +36,8 @@ public:
     Species& operator=(const Species& other) = delete;
     ~Species();
 
+    AnyMap parameters(const ThermoPhase* phase=0, bool withInput=true) const;
+
     //! The name of the species
     std::string name;
 
@@ -53,10 +56,6 @@ public:
 
     //! Thermodynamic data for the species
     shared_ptr<SpeciesThermoInterpType> thermo;
-
-    //! Extra data used for specific models
-    //! @deprecated Superseded by #input. To be removed after Cantera 2.5.
-    AnyMap extra;
 
     //! Input parameters used to define a species, e.g. from a YAML input file.
     AnyMap input;

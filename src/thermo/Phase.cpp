@@ -10,6 +10,7 @@
 #include "cantera/base/utilities.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctml.h"
+#include "cantera/thermo/Species.h"
 #include "cantera/thermo/ThermoFactory.h"
 
 using namespace std;
@@ -25,6 +26,7 @@ Phase::Phase() :
     m_xml(new XML_Node("phase")),
     m_id("<phase>"),
     m_temp(0.001),
+    m_electronTemp(0.001),
     m_dens(0.001),
     m_mmw(0.0),
     m_stateNum(-1),
@@ -64,21 +66,6 @@ void Phase::setXMLdata(XML_Node& xmlPhase)
     if (&m_xml->root() != root_xml) {
         throw CanteraError("Phase::setXMLdata", "Root XML node not found");
     }
-}
-
-std::string Phase::id() const
-{
-    warn_deprecated("Phase::id",
-        "To be removed after Cantera 2.5. Usage merged with 'Phase::name'");
-    return m_id;
-}
-
-void Phase::setID(const std::string& id_)
-{
-    warn_deprecated("Phase::setID",
-        "To be removed after Cantera 2.5. Usage merged with 'Phase::setName'");
-    m_id = id_;
-    m_name = id_;
 }
 
 std::string Phase::name() const
@@ -207,21 +194,6 @@ size_t Phase::speciesIndex(const std::string& nameStr) const
         return it->second;
     } else if (!m_caseSensitiveSpecies) {
         loc = findSpeciesLower(nameStr);
-    }
-    if (loc == npos && nameStr.find(':') != npos) {
-        std::string pn;
-        std::string sn = parseSpeciesName(nameStr, pn);
-        if (pn == "" || pn == m_name || pn == m_id) {
-            warn_deprecated("Phase::speciesIndex",
-                "Retrieval of species indices via 'PhaseId:speciesName' or "
-                "'phaseName:speciesName' to be removed after Cantera 2.5.");
-            it = m_speciesIndices.find(nameStr);
-            if (it != m_speciesIndices.end()) {
-                return it->second;
-            } else if (!m_caseSensitiveSpecies) {
-                return findSpeciesLower(sn);
-            }
-        }
     }
     return loc;
 }
@@ -378,7 +350,7 @@ void Phase::setMoleFractions(const double* const x)
         sum += m_molwts[k] * xk;
     }
 
-    // Set m_ym_ to the normalized mole fractions divided by the normalized mean
+    // Set m_ym to the normalized mole fractions divided by the normalized mean
     // molecular weight:
     //     m_ym_k = X_k / (sum_k X_k M_k)
     const double invSum = 1.0/sum;
@@ -780,11 +752,10 @@ size_t Phase::addElement(const std::string& symbol, doublereal weight,
     // Try to look up the standard entropy if not given. Fail silently.
     if (entropy298 == ENTROPY298_UNKNOWN) {
         try {
-            XML_Node* db = get_XML_File("elements.xml");
-            XML_Node* elnode = db->findByAttr("name", symbol);
-            if (elnode && elnode->hasChild("entropy298")) {
-                entropy298 = fpValueCheck(elnode->child("entropy298")["value"]);
-            }
+            const static AnyMap db = AnyMap::fromYamlFile(
+                "element-standard-entropies.yaml");
+            const AnyMap& elem = db["elements"].getMapWhere("symbol", symbol);
+            entropy298 = elem.convert("entropy298", "J/kmol/K", ENTROPY298_UNKNOWN);
         } catch (CanteraError&) {
         }
     }
@@ -1012,6 +983,7 @@ bool Phase::ready() const
 }
 
 void Phase::invalidateCache() {
+    m_stateNum++;
     m_cache.clear();
 }
 
@@ -1027,6 +999,11 @@ void Phase::setMolecularWeight(const int k, const double mw)
 
 void Phase::compositionChanged() {
     m_stateNum++;
+}
+
+void Phase::setRoot(std::shared_ptr<Solution> root) {
+    warn_deprecated("Phase::setRoot",
+                    "This function has no effect. To be removed after Cantera 2.6.");
 }
 
 vector_fp Phase::getCompositionFromMap(const compositionMap& comp) const

@@ -8,7 +8,7 @@
 #ifndef CT_STOICH_MGR_H
 #define CT_STOICH_MGR_H
 
-#include "cantera/base/stringUtils.h"
+#include "cantera/numerics/eigen_sparse.h"
 #include "cantera/base/ctexceptions.h"
 
 namespace Cantera
@@ -17,11 +17,8 @@ namespace Cantera
 /**
  * @defgroup Stoichiometry Stoichiometry
  *
- * Note: these classes are designed for internal use in class
- * ReactionStoichManager.
- *
  * The classes defined here implement simple operations that are used by class
- * ReactionStoichManager to compute things like rates of progress, species
+ * Kinetics to compute things like rates of progress, species
  * production rates, etc. In general, a reaction mechanism may involve many
  * species and many reactions, but any given reaction typically only involves
  * a few species as reactants, and a few as products. Therefore, the matrix of
@@ -63,17 +60,17 @@ namespace Cantera
  * They are designed to explicitly unroll loops over species or reactions for
  * operations on reactions that require knowing the reaction stoichiometry.
  *
- * This module consists of class StoichManager, and classes C1, C2, and C3.
+ * This module consists of class StoichManagerN, and classes C1, C2, and C3.
  * Classes C1, C2, and C3 handle operations involving one, two, or three
  * species, respectively, in a reaction. Instances are instantiated with a
  * reaction number, and n species numbers (n = 1 for C1, etc.). All three
  * classes have the same interface.
  *
- * These classes are designed for use by StoichManager, and the operations
+ * These classes are designed for use by StoichManagerN, and the operations
  * implemented are those needed to efficiently compute quantities such as
  * rates of progress, species production rates, reaction thermochemistry, etc.
  * The compiler will inline these methods into the body of the corresponding
- * StoichManager method, and so there is no performance penalty (unless
+ * StoichManagerN method, and so there is no performance penalty (unless
  * inlining is turned off).
  *
  * To describe the methods, consider class C3 and suppose an instance is
@@ -81,9 +78,6 @@ namespace Cantera
  *
  *  - multiply(in, out) : out[irxn] is multiplied by
  *    in[k0] * in[k1] * in[k2]
- *
- *  - power(in, out) : out[irxn] is multiplied by
- *     (in[k0]^order0) * (in[k1]^order1) * (in[k2]^order2)
  *
  *  - incrementReaction(in, out) : out[irxn] is incremented by
  *    in[k0] + in[k1] + in[k2]
@@ -118,6 +112,13 @@ namespace Cantera
  * by always assuming it is equal to one and then treating reactants and
  * products for a reaction separately. Bimolecular reactions involving the
  * identical species are treated as involving separate species.
+ *
+ * The methods resizeCoeffs(), derivatives() and scale() are used for the calculation
+ * of derivatives with respect to species mole fractions. In this context,
+ * resizeCoeffs() is used to establish a mapping between a reaction and corresponding
+ * non-zero entries of the sparse derivative matrix of the reaction rate-of-progress
+ * vector, which itself is evaluated by the derivatives() method. The scale() method is
+ * used to multiply rop entries by reaction order and a user-supplied factor.
  */
 
 /**
@@ -132,12 +133,6 @@ public:
     C1(size_t rxn = 0, size_t ic0 = 0) :
         m_rxn(rxn),
         m_ic0(ic0) {
-    }
-
-    size_t data(std::vector<size_t>& ic) {
-        ic.resize(1);
-        ic[0] = m_ic0;
-        return m_rxn;
     }
 
     void incrementSpecies(const doublereal* R, doublereal* S) const {
@@ -160,14 +155,20 @@ public:
         R[m_rxn] -= S[m_ic0];
     }
 
-    size_t rxnNumber() const {
-        return m_rxn;
+    void resizeCoeffs(const std::map<std::pair<size_t, size_t>, size_t>& indices)
+    {
+        m_jc0 = indices.at({m_rxn, m_ic0});
     }
-    size_t speciesIndex(size_t n) const {
-        return m_ic0;
+
+    void derivatives(const double* S, const double* R, vector_fp& jac) const
+    {
+        jac[m_jc0] += R[m_rxn]; // index (m_ic0, m_rxn)
     }
-    size_t nSpecies() {
-        return 1;
+
+
+    void scale(const double* R, double* out, double factor) const
+    {
+        out[m_rxn] = R[m_rxn] * factor;
     }
 
 private:
@@ -175,6 +176,8 @@ private:
     size_t m_rxn;
     //! Species number
     size_t m_ic0;
+
+    size_t m_jc0; //!< Index in derivative triplet vector
 };
 
 /**
@@ -187,13 +190,6 @@ class C2
 public:
     C2(size_t rxn = 0, size_t ic0 = 0, size_t ic1 = 0)
         : m_rxn(rxn), m_ic0(ic0), m_ic1(ic1) {}
-
-    size_t data(std::vector<size_t>& ic) {
-        ic.resize(2);
-        ic[0] = m_ic0;
-        ic[1] = m_ic1;
-        return m_rxn;
-    }
 
     void incrementSpecies(const doublereal* R, doublereal* S) const {
         S[m_ic0] += R[m_rxn];
@@ -221,14 +217,25 @@ public:
         R[m_rxn] -= (S[m_ic0] + S[m_ic1]);
     }
 
-    size_t rxnNumber() const {
-        return m_rxn;
+    void resizeCoeffs(const std::map<std::pair<size_t, size_t>, size_t>& indices)
+    {
+        m_jc0 = indices.at({m_rxn, m_ic0});
+        m_jc1 = indices.at({m_rxn, m_ic1});
     }
-    size_t speciesIndex(size_t n) const {
-        return (n == 0 ? m_ic0 : m_ic1);
+
+    void derivatives(const double* S, const double* R, vector_fp& jac) const
+    {
+        if (S[m_ic1] > 0) {
+            jac[m_jc0] += R[m_rxn] * S[m_ic1]; // index (m_ic0, m_rxn)
+        }
+        if (S[m_ic0] > 0) {
+            jac[m_jc1] += R[m_rxn] * S[m_ic0]; // index (m_ic1, m_rxn)
+        }
     }
-    size_t nSpecies() {
-        return 2;
+
+    void scale(const double* R, double* out, double factor) const
+    {
+        out[m_rxn] = 2 * R[m_rxn] * factor;
     }
 
 private:
@@ -237,6 +244,8 @@ private:
 
     //! Species index -> index into the species vector for the two species.
     size_t m_ic0, m_ic1;
+
+    size_t m_jc0, m_jc1; //!< Indices in derivative triplet vector
 };
 
 /**
@@ -249,14 +258,6 @@ class C3
 public:
     C3(size_t rxn = 0, size_t ic0 = 0, size_t ic1 = 0, size_t ic2 = 0)
         : m_rxn(rxn), m_ic0(ic0), m_ic1(ic1), m_ic2(ic2) {}
-
-    size_t data(std::vector<size_t>& ic) {
-        ic.resize(3);
-        ic[0] = m_ic0;
-        ic[1] = m_ic1;
-        ic[2] = m_ic2;
-        return m_rxn;
-    }
 
     void incrementSpecies(const doublereal* R, doublereal* S) const {
         S[m_ic0] += R[m_rxn];
@@ -287,14 +288,29 @@ public:
         R[m_rxn] -= (S[m_ic0] + S[m_ic1] + S[m_ic2]);
     }
 
-    size_t rxnNumber() const {
-        return m_rxn;
+    void resizeCoeffs(const std::map<std::pair<size_t, size_t>, size_t>& indices)
+    {
+        m_jc0 = indices.at({m_rxn, m_ic0});
+        m_jc1 = indices.at({m_rxn, m_ic1});
+        m_jc2 = indices.at({m_rxn, m_ic2});
     }
-    size_t speciesIndex(size_t n) const {
-        return (n == 0 ? m_ic0 : (n == 1 ? m_ic1 : m_ic2));
+
+    void derivatives(const double* S, const double* R, vector_fp& jac) const
+    {
+        if (S[m_ic1] > 0 && S[m_ic2] > 0) {
+            jac[m_jc0] += R[m_rxn] * S[m_ic1] * S[m_ic2];; // index (m_ic0, m_rxn)
+        }
+        if (S[m_ic0] > 0 && S[m_ic2] > 0) {
+            jac[m_jc1] += R[m_rxn] * S[m_ic0] * S[m_ic2]; // index (m_ic1, m_ic1)
+        }
+        if (S[m_ic0] > 0 && S[m_ic1] > 0) {
+            jac[m_jc2] += R[m_rxn] * S[m_ic0] * S[m_ic1]; // index (m_ic2, m_ic2)
+        }
     }
-    size_t nSpecies() {
-        return 3;
+
+    void scale(const double* R, double* out, double factor) const
+    {
+        out[m_rxn] = 3 * R[m_rxn] * factor;
     }
 
 private:
@@ -302,6 +318,8 @@ private:
     size_t m_ic0;
     size_t m_ic1;
     size_t m_ic2;
+
+    size_t m_jc0, m_jc1, m_jc2; //!< Indices in derivative triplet vector
 };
 
 /**
@@ -323,6 +341,7 @@ public:
         m_rxn(rxn) {
         m_n = ic.size();
         m_ic.resize(m_n);
+        m_jc.resize(m_n, 0);
         m_order.resize(m_n);
         m_stoich.resize(m_n);
         for (size_t n = 0; n < m_n; n++) {
@@ -330,24 +349,6 @@ public:
             m_order[n] = order_[n];
             m_stoich[n] = stoich_[n];
         }
-    }
-
-    size_t data(std::vector<size_t>& ic) {
-        ic.resize(m_n);
-        for (size_t n = 0; n < m_n; n++) {
-            ic[n] = m_ic[n];
-        }
-        return m_rxn;
-    }
-
-    doublereal order(size_t n) const {
-        return m_order[n];
-    }
-    doublereal stoich(size_t n) const {
-        return m_stoich[n];
-    }
-    size_t speciesIndex(size_t n) const {
-        return m_ic[n];
     }
 
     void multiply(const doublereal* input, doublereal* output) const {
@@ -394,6 +395,48 @@ public:
         }
     }
 
+    void resizeCoeffs(const std::map<std::pair<size_t, size_t>, size_t>& indices)
+    {
+        for (size_t i = 0; i < m_n; i++) {
+            m_jc[i] = indices.at({m_rxn, m_ic[i]});
+        }
+
+        m_sum_order = 0.;
+        for (size_t n = 0; n < m_n; ++n) {
+            m_sum_order += m_order[n];
+        }
+    }
+
+    void derivatives(const double* S, const double* R, vector_fp& jac) const
+    {
+        for (size_t i = 0; i < m_n; i++) {
+            // calculate derivative
+            double prod = R[m_rxn];
+            double order_i = m_order[i];
+            if (S[m_ic[i]] > 0. && order_i != 0.) {
+                prod *= order_i * std::pow(S[m_ic[i]], order_i - 1);
+                for (size_t j = 0; j < m_n; j++) {
+                    if (i != j) {
+                        if (S[m_ic[j]] > 0) {
+                            prod *= std::pow(S[m_ic[j]], m_order[j]);
+                        } else {
+                            prod = 0.;
+                            break;
+                        }
+                    }
+                }
+            } else {
+                prod = 0.;
+            }
+            jac[m_jc[i]] += prod;
+        }
+    }
+
+    void scale(const double* R, double* out, double factor) const
+    {
+        out[m_rxn] = m_sum_order * R[m_rxn] * factor;
+    }
+
 private:
     //! Length of the m_ic vector
     /*!
@@ -433,6 +476,10 @@ private:
      *  number m_ic[m], has a stoichiometric coefficient of m_stoich[n].
      */
     vector_fp m_stoich;
+
+    std::vector<size_t> m_jc; //!< Indices in derivative triplet vector
+
+    double m_sum_order; //!< Sum of reaction order vector
 };
 
 template<class InputIter, class Vec1, class Vec2>
@@ -480,7 +527,33 @@ inline static void _decrementReactions(InputIter begin,
     }
 }
 
-/*
+template<class InputIter, class Indices>
+inline static void _resizeCoeffs(InputIter begin, InputIter end, Indices& ix)
+{
+    for (; begin != end; ++begin) {
+        begin->resizeCoeffs(ix);
+    }
+}
+
+template<class InputIter, class Vec1, class Vec2, class Vec3>
+inline static void _derivatives(InputIter begin, InputIter end,
+                             const Vec1& S, const Vec2& R, Vec3& jac)
+{
+    for (; begin != end; ++begin) {
+        begin->derivatives(S, R, jac);
+    }
+}
+
+template<class InputIter, class Vec1, class Vec2>
+inline static void _scale(InputIter begin, InputIter end,
+                          const Vec1& in, Vec2& out, double factor)
+{
+    for (; begin != end; ++begin) {
+        begin->scale(in, out, factor);
+    }
+}
+
+/*!
  * This class handles operations involving the stoichiometric coefficients on
  * one side of a reaction (reactant or product) for a set of reactions
  * comprising a reaction mechanism. This class is used by class Kinetics, which
@@ -514,7 +587,7 @@ inline static void _decrementReactions(InputIter begin,
  * \f[
  * S_k = R_{i1} + \dots + R_{iM}
  * \f]
- * where M is the number of molecules, and $\f i(m) \f$ is the
+ * where M is the number of molecules, and \f$ i(m) \f$ is the
  * See @ref Stoichiometry
  * @ingroup Stoichiometry
  */
@@ -534,7 +607,49 @@ public:
      * DGG - the problem is that the number of reactions and species are not
      * known initially.
      */
-    StoichManagerN() {
+    StoichManagerN() : m_ready(true) {
+        m_stoichCoeffs.setZero();
+        m_stoichCoeffs.resize(0, 0);
+    }
+
+    //! Resize the sparse coefficient matrix
+    void resizeCoeffs(size_t nSpc, size_t nRxn)
+    {
+        size_t nCoeffs = m_coeffList.size();
+
+        // Stoichiometric coefficient matrix
+        m_stoichCoeffs.resize(nSpc, nRxn);
+        m_stoichCoeffs.reserve(nCoeffs);
+        m_stoichCoeffs.setFromTriplets(m_coeffList.begin(), m_coeffList.end());
+
+        // Set up outer/inner indices for mapped derivative output
+        Eigen::SparseMatrix<double> tmp = m_stoichCoeffs.transpose();
+        m_outerIndices.resize(nSpc + 1); // number of columns + 1
+        for (int i = 0; i < tmp.outerSize() + 1; i++) {
+            m_outerIndices[i] = tmp.outerIndexPtr()[i];
+        }
+        m_innerIndices.resize(nCoeffs);
+        for (size_t n = 0; n < nCoeffs; n++) {
+            m_innerIndices[n] = tmp.innerIndexPtr()[n];
+        }
+        m_values.resize(nCoeffs, 0.);
+
+        // Set up index pairs for derivatives
+        std::map<std::pair<size_t, size_t>, size_t> indices;
+        size_t n = 0;
+        for (int i = 0; i < tmp.outerSize(); i++) {
+            for (Eigen::SparseMatrix<double>::InnerIterator it(tmp, i); it; ++it) {
+                indices[{static_cast<size_t>(it.row()),
+                    static_cast<size_t>(it.col())}] = n++;
+            }
+        }
+        // update reaction setup
+        _resizeCoeffs(m_c1_list.begin(), m_c1_list.end(), indices);
+        _resizeCoeffs(m_c2_list.begin(), m_c2_list.end(), indices);
+        _resizeCoeffs(m_c3_list.begin(), m_c3_list.end(), indices);
+        _resizeCoeffs(m_cn_list.begin(), m_cn_list.end(), indices);
+
+        m_ready = true;
     }
 
     /**
@@ -581,9 +696,10 @@ public:
         }
         bool frac = false;
         for (size_t n = 0; n < stoich.size(); n++) {
+            m_coeffList.emplace_back(
+                static_cast<int>(k[n]), static_cast<int>(rxn), stoich[n]);
             if (fmod(stoich[n], 1.0) || stoich[n] != order[n]) {
                 frac = true;
-                break;
             }
         }
         if (frac || k.size() > 3) {
@@ -614,6 +730,7 @@ public:
                 m_cn_list.emplace_back(rxn, k, order, stoich);
             }
         }
+        m_ready = false;
     }
 
     void multiply(const doublereal* input, doublereal* output) const {
@@ -651,11 +768,68 @@ public:
         _decrementReactions(m_cn_list.begin(), m_cn_list.end(), input, output);
     }
 
+    //! Return matrix containing stoichiometric coefficients
+    const Eigen::SparseMatrix<double>& stoichCoeffs() const
+    {
+        if (!m_ready) {
+            // This can happen if a user overrides default behavior:
+            // Kinetics::resizeReactions is not called after adding reactions via
+            // Kinetics::addReaction with the 'resize' flag set to 'false'
+            throw CanteraError("StoichManagerN::stoichCoeffs", "The object "
+                "is not fully configured; make sure to call resizeCoeffs().");
+        }
+        return m_stoichCoeffs;
+    }
+
+    //! Calculate derivatives with respect to species concentrations.
+    /*!
+     * The species derivative is the term of the Jacobian that accounts for
+     * species products in the law of mass action. As StoichManagerN does not account
+     * for third bodies or rate constants that depend on species concentrations,
+     * corresponding derivatives are not included.
+     *
+     *  @param conc    Species concentration.
+     *  @param rates   Rates-of-progress.
+     */
+    Eigen::SparseMatrix<double> derivatives(const double* conc, const double* rates)
+    {
+        // calculate derivative entries using known sparse storage order
+        std::fill(m_values.begin(), m_values.end(), 0.);
+        _derivatives(m_c1_list.begin(), m_c1_list.end(), conc, rates, m_values);
+        _derivatives(m_c2_list.begin(), m_c2_list.end(), conc, rates, m_values);
+        _derivatives(m_c3_list.begin(), m_c3_list.end(), conc, rates, m_values);
+        _derivatives(m_cn_list.begin(), m_cn_list.end(), conc, rates, m_values);
+
+        return Eigen::Map<Eigen::SparseMatrix<double>>(
+            m_stoichCoeffs.cols(), m_stoichCoeffs.rows(), m_values.size(),
+            m_outerIndices.data(), m_innerIndices.data(), m_values.data());
+    }
+
+    //! Scale input by reaction order and factor
+    void scale(const double* in, double* out, double factor) const
+    {
+        _scale(m_c1_list.begin(), m_c1_list.end(), in, out, factor);
+        _scale(m_c2_list.begin(), m_c2_list.end(), in, out, factor);
+        _scale(m_c3_list.begin(), m_c3_list.end(), in, out, factor);
+        _scale(m_cn_list.begin(), m_cn_list.end(), in, out, factor);
+    }
+
 private:
+    bool m_ready; //!< Boolean flag indicating whether object is fully configured
+
     std::vector<C1> m_c1_list;
     std::vector<C2> m_c2_list;
     std::vector<C3> m_c3_list;
     std::vector<C_AnyN> m_cn_list;
+
+    //! Sparse matrices for stoichiometric coefficients
+    SparseTriplets m_coeffList;
+    Eigen::SparseMatrix<double> m_stoichCoeffs;
+
+    //! Storage indicies used to build derivatives
+    std::vector<int> m_outerIndices;
+    std::vector<int> m_innerIndices;
+    vector_fp m_values;
 };
 
 }

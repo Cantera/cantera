@@ -545,6 +545,13 @@ contains
       self%err = th_getenthalpies_rt(self%thermo_id, h_rt)
     end subroutine ctthermo_getenthalpies_rt
 
+    subroutine ctthermo_getGibbs_RT(self, grt)
+      implicit none
+      type(phase_t), intent(inout) :: self
+      double precision, intent(out) :: grt(self%nsp)
+      self%err = th_getgibbs_rt(self%thermo_id, grt)
+    end subroutine ctthermo_getGibbs_RT
+
     subroutine ctthermo_getEntropies_R(self, s_r)
       implicit none
       type(phase_t), intent(inout) :: self
@@ -567,4 +574,17 @@ contains
       self%err = th_getpartialmolarintenergies_r(self%thermo_id, ie)
     end subroutine ctthermo_getPartialMolarIntEnerg_R
 
+    subroutine ctthermo_getPartialMolarCp(self, cpbar)
+      implicit none
+      type(phase_t), intent(inout) :: self
+      double precision, intent(out) :: cpbar(self%nsp)
+      self%err = th_getpartialmolarcp(self%thermo_id, cpbar)
+    end subroutine ctthermo_getPartialMolarCp
+
+    subroutine ctthermo_getPartialMolarEnthalpies(self, hbar)
+      implicit none
+      type(phase_t), intent(inout) :: self
+      double precision, intent(out) :: hbar(self%nsp)
+      self%err = th_getpartialmolarenthalpies(self%thermo_id, hbar)
+    end subroutine ctthermo_getPartialMolarEnthalpies
 end module cantera_thermo

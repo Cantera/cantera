@@ -1,0 +1,139 @@
+description: |-
+  Sample reactions used for testing of kinetics from scratch.
+  Some reaction rate definitions use arbitrary parameters.
+
+generator: cti2yaml
+cantera-version: 2.6.0a2
+date: Thu, 29 Apr 2021 13:12:07 -0400
+input-files: [kineticsfromscratch.cti]
+
+units: {activation-energy: cal/mol}
+
+phases:
+- name: ohmech
+  thermo: ideal-gas
+  elements: [O, H, Ar]
+  species:
+  - h2o2.yaml/species: [AR, O, H2, H, OH, O2, H2O, H2O2, HO2]
+  kinetics: gas
+  reactions: [reactions]
+  state:
+    T: 300.0
+    P: 1.01325e+05
+- name: Pt_surf
+  thermo: ideal-surface
+  adjacent-phases: [ohmech]
+  elements: [Pt, H, O]
+  species:
+  - ptcombust.yaml/species: [PT(S), H(S), H2O(S), OH(S), O(S)]
+  kinetics: surface
+  reactions: [surface]
+  state:
+    T: 900.0
+    coverages: {PT(S): 0.35, H(S): 0.35, H2O(S): .1, OH(S): 0.1, O(S): 0.1}
+  site-density: 2.7063e-09
+
+reactions:
+- equation: O + H2 <=> H + OH  # Reaction 1
+  rate-constant: {A: 38.7, b: 2.7, Ea: 6260.0}
+- equation: 2 O + M <=> O2 + M  # Reaction 2
+  type: three-body
+  rate-constant: {A: 1.2e+11, b: -1.0, Ea: 0.0}
+  efficiencies: {AR: 0.83, H2: 2.4, H2O: 15.4}
+- equation: 2 OH (+ M) <=> H2O2 (+ M)  # Reaction 3
+  duplicate: true
+  type: falloff
+  low-P-rate-constant: {A: 2.3e+12, b: -0.9, Ea: -1700.0}
+  high-P-rate-constant: {A: 7.4e+10, b: -0.37, Ea: 0.0}
+  Troe: {A: 0.7346, T3: 94.0, T1: 1756.0, T2: 5182.0}
+  efficiencies: {AR: 0.7, H2: 2.0, H2O: 6.0}
+- equation: H2 + O2 <=> 2 OH  # Reaction 4
+  type: pressure-dependent-Arrhenius
+  rate-constants:
+  - {P: 0.01 atm, A: 1.2124e+16, b: -0.5779, Ea: 1.08727e+04}
+  - {P: 1.0 atm, A: 4.9108e+31, b: -4.8507, Ea: 2.47728e+04}
+  - {P: 10.0 atm, A: 1.2866e+47, b: -9.0246, Ea: 3.97965e+04}
+  - {P: 100.0 atm, A: 5.9632e+56, b: -11.529, Ea: 5.25996e+04}
+- equation: HO2 <=> OH + O  # Reaction 5
+  type: Chebyshev
+  temperature-range: [290.0, 3000.0]
+  pressure-range: [9.869232667160128e-03 atm, 98.69232667160128 atm]
+  data:
+  - [8.2883, -1.1397, -0.12059, 0.016034]
+  - [1.9764, 1.0037, 7.2865e-03, -0.030432]
+  - [0.3177, 0.26889, 0.094806, -7.6385e-03]
+- equation: H + 2 O2 <=> HO2 + O2 # Reaction 6
+  rate-constant: {A: 2.08e+19, b: -1.24, Ea: 0.0}
+- equation: O + H2 <=> H + OH  # Reaction 7
+  type: Blowers-Masel
+  rate-constant: {A: 38700, b: 2.7, Ea0: 2.619184e4, w: 4.184e9}
+- equation: 2 OH (+ M) <=> H2O2 (+ M)  # Reaction 8
+  duplicate: true
+  type: falloff
+  low-P-rate-constant: {A: 2.3e+12, b: -0.9, Ea: -1700.0}
+  high-P-rate-constant: {A: 7.4e+10, b: -0.37, Ea: 0.0}
+  efficiencies: {AR: 0.7, H2: 2.0, H2O: 6.0}
+- equation: H + HO2 (+ M) <=> H2 + O2 (+ M)  # Reaction 9
+  duplicate: true
+  type: falloff
+  high-P-rate-constant: {A: 4.0e+15, b: -0.5, Ea: 100.0 cal/mol}
+  low-P-rate-constant: {A: 7.0e+20, b: -1.0, Ea: 0.0 cal/mol}
+  efficiencies: {AR: 0.7, H2: 2.0, H2O: 6.0}
+  SRI: {A: 1.1, B: 700.0, C: 1234.0, D: 56.0, E: 0.7}
+- equation: H + HO2 (+ M) <=> H2 + O2 (+ M)  # Reaction 10
+  duplicate: true
+  type: falloff
+  high-P-rate-constant: {A: 4.0e+15, b: -0.5, Ea: 100.0 cal/mol}
+  low-P-rate-constant: {A: 7.0e+20, b: -1.0, Ea: 0.0 cal/mol}
+  efficiencies: {AR: 0.7, H2: 2.0, H2O: 6.0}
+  Tsang: {A: 0.95, B: -1.0e-04}
+- equation: H2O + OH (+M) <=> HO2 + H2 (+M)  # Reaction 11
+  units: {length: cm, quantity: mol}
+  type: chemically-activated
+  high-P-rate-constant: [5.88E-14, 6.721, -3022.227]
+  low-P-rate-constant: [282320.078, 1.46878, -3270.56495]
+- equation: O + H => O + H  # Reaction 12
+  type: two-temperature-plasma
+  rate-constant: {A: 17283, b: -3.1, Ea-gas: -5820 J/mol, Ea-electron: 1081 J/mol}
+- equation: O + OH => O + OH  # Reaction 13
+  type: two-temperature-plasma
+  rate-constant: {A: 17283, b: -3.1}
+
+surface:
+- units: {length: cm, quantity: mol, activation-energy: J/mol}
+- equation: H(S) + O(S) <=> OH(S) + PT(S)
+  rate-constant: {A: 3.7e+21, b: 0, Ea: 11500}
+  note: Reaction 12 from ptcombust.yaml
+- equation: 2 O(S) => O2 + 2 PT(S)
+  rate-constant: {A: 3.7e+21, b: 0, Ea: 213200}
+  coverage-dependencies:
+    O(S): {a: 0.0, m: 0.0, E: -6.0e+04}
+  note: Reaction 6 from ptcombust.yaml
+- equation: H + PT(S) => H(S)
+  sticking-coefficient: {A: 1.0, b: 0, Ea: 0}
+  note: Reaction 3 from ptcombust.yaml
+- equation: H2 + 2 PT(S) => 2 H(S)
+  sticking-coefficient: {A: 0.046, b: 0, Ea: 0}
+  coverage-dependencies:
+    PT(S): {a: 0.0, m: -1.0, E: 0.0}
+  note: Reaction 1 from methane_pox_on_pt.yaml
+- equation: OH + PT(S) => OH(S)
+  sticking-coefficient: {A: 1.0, b: 0, Ea: 0}
+  Motz-Wise: true
+  note: Reaction 10 from ptcombust-motzwise.yaml
+- equation: 2 H(S) => H2 + 2 PT(S)
+  type: Blowers-Masel
+  duplicate: true
+  rate-constant: {A: 3.7e+21, b: 0, Ea0: 67400, w: 1000000}
+- equation: 2 H(S) => H2 + 2 PT(S)
+  type: Blowers-Masel
+  duplicate: true
+  rate-constant: {A: 3.7e+21, b: 0, Ea0: 67400, w: 1000000}
+  coverage-dependencies:
+    H(S): {a: 0.0, m: 0.0, E: -6000.0}
+  note: Reaction 1 from blowers-masel.yaml
+- equation: OH + PT(S) => OH(S)
+  type: Blowers-Masel
+  sticking-coefficient: {A: 1.0, b: 0, Ea0: 0, w: 100000}
+  Motz-Wise: true
+  note: Reaction 5 from blowers-masel.yaml

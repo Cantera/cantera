@@ -11,12 +11,8 @@
 
 #include "cantera/thermo/VPStandardStateTP.h"
 #include "cantera/thermo/PDSS.h"
-#include "cantera/thermo/PDSS_Water.h"
-#include "cantera/thermo/IonsFromNeutralVPSSTP.h"
-#include "cantera/thermo/SpeciesThermoFactory.h"
-#include "cantera/thermo/PDSSFactory.h"
+#include "cantera/thermo/Species.h"
 #include "cantera/base/utilities.h"
-#include "cantera/base/ctml.h"
 
 using namespace std;
 
@@ -29,6 +25,10 @@ VPStandardStateTP::VPStandardStateTP() :
     m_maxTemp(BigNumber),
     m_Tlast_ss(-1.0),
     m_Plast_ss(-1.0)
+{
+}
+
+VPStandardStateTP::~VPStandardStateTP()
 {
 }
 
@@ -162,6 +162,15 @@ void VPStandardStateTP::initThermo()
         }
         kPDSS->initThermo();
     }
+}
+
+void VPStandardStateTP::getSpeciesParameters(const std::string& name,
+                                             AnyMap& speciesNode) const
+{
+    AnyMap eos;
+    providePDSS(speciesIndex(name))->getParameters(eos);
+    speciesNode["equation-of-state"].getMapWhere(
+        "model", eos.getString("model", ""), true) = std::move(eos);
 }
 
 bool VPStandardStateTP::addSpecies(shared_ptr<Species> spec)

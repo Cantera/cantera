@@ -40,7 +40,7 @@ class ReactorOde:
         return np.hstack((dTdt, dYdt))
 
 
-gas = ct.Solution('gri30.yaml')
+gas = ct.Solution('h2o2.yaml')
 
 # Initial condition
 P = ct.one_atm

@@ -1,7 +1,6 @@
-from __future__ import print_function
+from __future__ import annotations
+import json
 import os
-from os.path import join as pjoin
-from os.path import normpath
 import sys
 import platform
 import textwrap
@@ -9,110 +8,668 @@ import re
 import subprocess
 import difflib
 import time
-import types
 import shutil
-import itertools
-
-import SCons.Errors
-import SCons
-import SCons.Node.FS
-from pkg_resources import parse_version
-import distutils.sysconfig
+import enum
+from pathlib import Path
+import logging
+from typing import TYPE_CHECKING
+from collections.abc import Mapping as MappingABC
+from SCons.Variables import PathVariable, EnumVariable, BoolVariable
 
 try:
     import numpy as np
 except ImportError:
     np = None
 
-class DefineDict(object):
+__all__ = ("Option", "PathOption", "BoolOption", "EnumOption", "Configuration",
+           "logger", "remove_directory", "remove_file", "test_results",
+           "add_RegressionTest", "get_command_output", "listify", "which",
+           "ConfigBuilder", "multi_glob", "get_spawn", "quoted",
+           "get_pip_install_location")
+
+if TYPE_CHECKING:
+    from typing import Iterable, TypeVar, Union, List, Dict, Tuple, Optional, \
+        Iterator, Sequence
+    import SCons.Environment
+    import SCons.Node.FS
+    import SCons.Variables
+
+    SCEnvironment = SCons.Environment.Environment
+    LFSNode = List[Union[SCons.Node.FS.File, SCons.Node.FS.Dir]]
+    SCVariables = SCons.Variables.Variables
+    TPathLike = TypeVar("TPathLike", Path, str)
+
+
+class Option:
+    """Object corresponding to SCons configuration option.
+
+    The purpose of this class is to collect system-dependent default parameters for
+    SCons configuration options, which are made available to both help text and
+    reST documentation. The class works in conjunction with the `Configuration` class
+    to select and convert system-dependent parameters to SCons configuration options.
+    """
+
+    def __init__(self,
+            name: str,
+            description: str,
+            default: "Union[str, bool, Dict[str, Union[str, bool]]]",
+            choices: "Optional[Union[Iterable[str], SCVariables]]" = None):
+        self.name = name
+        self.description = Option._deblank(description)
+        self.default = default
+        self.choices = choices
+
+        self._wrapper = textwrap.TextWrapper(width=80)
+        self.set_wrapper_indent(4)
+
+    def to_scons(
+            self,
+            env: "Optional[SCEnvironment]" = None
+            ) -> "Union[SCVariables, Tuple[str, str, Union[str, Dict[str, str]]]]":
+        """Convert option to SCons variable"""
+        default = self.default
+        if isinstance(default, str) and "$" in default and env is not None:
+            default = env.subst(default)
+        elif not isinstance(default, (str, bool)):
+            raise TypeError(f"Invalid defaults option with type '{type(default)}'")
+
+        if self.choices is None:
+            out = self.name, self.description, default
+        else:
+            out = self.name, self.description, default, self.choices
+
+        try:
+            if isinstance(self, BoolOption):
+                return BoolVariable(*out)
+            elif isinstance(self, PathOption):
+                return PathVariable(*out)
+            elif isinstance(self, EnumOption):
+                return EnumVariable(*out)
+            else:
+                return out
+
+        except Exception as err:
+            logger.error(
+                f"Error converting '{self.name}' to SCons variable:\n{out}")
+            raise err
+
+    @property
+    def wrapper(self) -> "textwrap.TextWrapper":
+        """Line wrapper for text output"""
+        return self._wrapper
+
+    def set_wrapper_indent(self, indent: int = 4) -> None:
+        """Update indent used for line wrapping"""
+        self._wrapper.initial_indent = indent * " "
+        self._wrapper.subsequent_indent = indent * " "
+
+    @staticmethod
+    def _deblank(string: str) -> str:
+        """Remove whitespace before and after line breaks"""
+        out = [s.strip() for s in string.split("\n")]
+        if not len(out[-1]):
+            out = out[:-1]
+        out = "\n".join(out)
+        return out
+
+    def _build_title(self, backticks: bool = True, indent: int = 3) -> str:
+        """Build title describing option and defaults"""
+        # First line: "* option-name: [ 'choice1' | 'choice2' ]"
+
+        def decorate(key: str, tick: bool = True) -> str:
+            key = f"'{key}'" if tick else key
+            return f"``{key}``" if backticks else key
+
+        # format choices
+        if isinstance(self, PathOption):
+            choices = f"path/to/{self.name}"
+            choices = f"{decorate(choices, False)}"
+        elif isinstance(self.choices, (list, tuple)):
+            choices = list(self.choices)
+            for yes_no in ["y", "n"]:
+                if yes_no in choices:
+                    # ensure consistent order
+                    choices.remove(yes_no)
+                    choices = [yes_no] + choices
+            choices = " | ".join([decorate(c) for c in choices])
+        elif isinstance(self, BoolOption) or isinstance(self.default, bool):
+            choices = f"{decorate('yes')} | {decorate('no')}"
+        else:
+            choices = f"{decorate('string', False)}"
+
+        # assemble title
+        bullet = f"{'*':<{indent}}"
+        return f"{bullet}{decorate(self.name, False)}: [ {choices} ]\n"
+
+    def _build_description(self, backticks: bool = True, indent: int = 3) -> str:
+        """Assemble description block (help text)"""
+
+        if not backticks:
+            # Help text, wrapped and indented
+            self.set_wrapper_indent(indent)
+            out = self.wrapper.wrap(re.sub(r"\s+", " ", self.description))
+            return "\n".join(out) + "\n"
+
+        # assemble description
+        linebreak = "\n" + " " * indent
+        description = linebreak.join(self.description.split("\n"))
+        pat = r'"([a-zA-Z0-9\-\+\*$_.,: =/\'\\]+)"'
+        double_quoted = []
+        for item in re.findall(pat, description):
+            # enclose double-quoted strings in '``'
+            found = f'"{item}"'
+            double_quoted += [found]
+            replacement = f"``{found}``"
+            description = description.replace(found, replacement)
+        pat = r"\'([a-zA-Z0-9\-\+\*$_.,:=/\\]+)\'"
+        for item in re.findall(pat, description):
+            # replace "'" for single-quoted words by '``'; do not replace "'" when
+            # whitespace is enclosed or if word is part of double-quoted string
+            if any([item in dq for dq in double_quoted]):
+                continue
+            found = f"'{item}'"
+            replacement = found.replace("'", "``")
+            description = description.replace(found, replacement)
+        pat = r"\*([^\*]+)"
+        asterisks = re.findall(pat, description)
+        if len(asterisks) == 1:
+            # catch unbalanced '*', for example in '*nix'
+            found = f"*{asterisks[0]}"
+            replacement = f"\{found}"
+            description = description.replace(found, replacement)
+
+        return f"{'':<{indent}}{description}\n"
+
+    @staticmethod
+    def _build_defaults(
+            defaults: "Union[str, bool, Dict[str, Union[str, bool]]]",
+            backticks: bool = True,
+            title: str = "default",
+            indent: int = 3,
+            hanging: int = 0) -> str:
+        """Assemble defaults from dictionary"""
+
+        def decorate(key: str, tick: bool = True) -> str:
+            key = f"'{key}'" if tick else key
+            return f"``{key}``" if backticks else key
+
+        dash = f"{'-':<{indent}}"
+        level1 = f"{dash:>{2 * indent + hanging}}"
+        level2 = f"{dash:>{3 * indent + hanging}}"
+
+        # Add default platform-specific value
+        if isinstance(defaults, bool):
+            default = "yes" if defaults else "no"
+            return f"{level1}{title}: {decorate(default)}\n"
+
+        if not isinstance(defaults, dict):
+            return f"{level1}{title}: {decorate(defaults)}\n"
+
+        # First line of default options
+        compilers = {"cl": "MSVC", "gcc": "GCC", "icc": "ICC", "clang": "Clang"}
+        toolchains = {"mingw", "intel", "msvc"}
+        if any(d in compilers for d in defaults):
+            comment = "compiler"
+        elif any(d in toolchains for d in defaults):
+            comment = "toolchain"
+        else:
+            comment = "platform"
+        out = [f"{level1}{title}: {comment} dependent\n"]
+
+        # Compiler/toolchain options
+        if comment in ["compiler", "toolchain"]:
+            for key, value in defaults.items():
+                if isinstance(value, bool):
+                    value = "yes" if value else "no"
+                value = decorate(value)
+                if key in compilers:
+                    key = compilers[key]
+                if key == "default":
+                    out += [f"{level2}Otherwise: {value}"]
+                else:
+                    out += [f"{level2}If using {decorate(key, False)}: {value}"]
+            return "\n".join(out) + "\n"
+
+        # Platform options
+        for key, value in defaults.items():
+            if isinstance(value, bool):
+                value = "yes" if value else "no"
+            value = decorate(value)
+            if key == "default":
+                out += [f"{level2}Otherwise: {value}"]
+            else:
+                out += [f"{level2}{key}: {value}"]
+        return "\n".join(out) + "\n"
+
+    def to_rest(self, dev: bool = False, indent: int = 3) -> str:
+        """Convert description of option to restructured text (reST)"""
+        # assemble output
+        tag = self.name.replace("_", "-").lower()
+        if dev:
+            tag += "-dev"
+        out = f".. _{tag}:\n\n"
+        out += f"{self._build_title(backticks=True)}"
+        out += f"{self._build_description(indent=indent)}\n"
+        out += f"{self._build_defaults(self.default, backticks=True)}"
+
+        return out
+
+    def help(self, env: "Optional[SCEnvironment]" = None) -> str:
+        """Convert option help for command line interface (CLI) output"""
+        # assemble output
+        out = f"{self._build_title(backticks=False, indent=2)}"
+        out += self._build_description(backticks=False, indent=4)
+        out += self._build_defaults(self.default, backticks=False, indent=2, hanging=2)
+
+        if env is None:
+            return out
+
+        # Get the actual value in the current environment
+        actual = env[self.name] if self.name in env else None
+
+        # Fix the representation of Boolean options to match the default values
+        if actual in ["True", "False"]:
+            actual = True if actual == "True" else False
+
+        # Print the value if it differs from the default
+        if actual is not None and str(actual) != str(self.default):
+            out += self._build_defaults(
+                actual, backticks=False, title="actual", indent=2, hanging=2)
+
+        return out
+
+
+class PathOption(Option):
+    """Object corresponding to SCons PathVariable"""
+    pass
+
+
+class BoolOption(Option):
+    """Object corresponding to SCons BoolVariable"""
+    pass
+
+
+class EnumOption(Option):
+    """Object corresponding to SCons EnumVariable"""
+    pass
+
+
+class Configuration:
+    """
+    Class enabling selection of options based on a dictionary of `Option` objects
+    that allows for a differentiation between platform/compiler dependent options.
+
+    In addition, the class facilitiates the generation of formatted help text and
+    reST documentation.
+    """
+
+    header = [
+        textwrap.dedent(
+            """
+                **************************************************
+                *   Configuration options for building Cantera   *
+                **************************************************
+
+        The following options can be passed to SCons to customize the Cantera
+        build process. They should be given in the form:
+
+            scons build option1=value1 option2=value2
+
+        Variables set in this way will be stored in the 'cantera.conf' file and reused
+        automatically on subsequent invocations of scons. Alternatively, the
+        configuration options can be entered directly into 'cantera.conf' before
+        running 'scons build'. The format of this file is:
+
+            option1 = 'value1'
+            option2 = 'value2'
+        """
+        )
+    ]
+
+    def __init__(self):
+        self.options: "Dict[str, Option]" = {}
+        self.exported: "List[str]" = []
+
+    def add(self, options: "Union[Option, Sequence[Option]]") -> None:
+        """Add new options"""
+        if isinstance(options, Option):
+            options = [options]
+        for item in options:
+            if not isinstance(item, Option):
+                raise TypeError(f"Invalid option with type '{type(item)}'")
+            self.options[item.name] = item
+
+    def list_options(self):
+        """Create formatted list of available configuration options"""
+        options = sorted(self.options.keys())
+
+        # get formatting information
+        n_columns = 3
+        n_rows = len(options) // n_columns
+        n_extra = len(options) % n_columns
+        if n_extra:
+            # add one additional row to fit all options
+            n_rows += 1
+            options.extend([""] * (n_columns - n_extra))
+
+        # get width of individual columns
+        max_len = [
+            max([len(options[row + col * n_rows]) + 3
+                for row in range(n_rows)])
+            for col in range(n_columns)]
+
+        # format options as alphabetically ordered columns
+        out = []
+        for row in range(n_rows):
+            line = []
+            for col in range(n_columns):
+                line.append(f"{options[row + col * n_rows]:{max_len[col]}}")
+            out.append("".join(line))
+        return "\n".join(out)
+
+    def __getitem__(self, key: str) -> "Option":
+        """Make class subscriptable"""
+        return self.options[key]
+
+    def __iter__(self) -> "Iterator[str]":
+        """Returns itself as an iterator."""
+        for k in self.options.keys():
+            yield k
+
+    def select(self, key: str = "default") -> None:
+        """Select attribute dictionary entries corresponding to *key*"""
+        for attr, item in self.options.items():
+
+            if isinstance(item.default, dict) and key in item.default:
+                item.default = item.default[key]
+
+    def to_scons(
+            self,
+            keys: "Union[str, Sequence[str]]" = "",
+            env: "Optional[SCEnvironment]" = None
+        ) -> "List[SCVariables]":
+        """
+        Convert options to SCons variables.
+
+        To avoid redundant SCons options, each variable is only exported once.
+        """
+        if keys == "":
+            keys = list(self.options.keys())
+        elif isinstance(keys, str):
+            keys = [keys]
+
+        keys = [key for key in keys if key not in self.exported]
+        out = [self.options[key].to_scons(env) for key in keys]
+        self.exported += keys
+
+        return out
+
+    def to_rest(self, option: "Optional[str]" = None, dev: bool = False) -> str:
+        """Convert description of configuration options to restructured text (reST)"""
+        if option in self.options and option is not None:
+            return "\n" + self.options[option].to_rest(dev=dev)
+        elif option is not None:
+            raise KeyError(f"Unknown option '{option}'")
+
+        message = ["Options List"]
+        message.append(f"{'':^<{len(message[-1])}}")
+        message.append("")
+        for key in self.options.keys():
+            message.append(self.options[key].to_rest(dev=dev))
+
+        return "\n".join(message)
+
+    def help(
+            self,
+            option: "Optional[str]" = None,
+            env: "Optional[SCEnvironment]" = None) -> str:
+        """Convert configuration help for command line interface (CLI) output"""
+        if option in self.options and option is not None:
+            return "\n" + self.options[option].help(env=env)
+        elif option is not None:
+            raise KeyError(f"Unknown option '{option}'")
+
+        message = self.header
+        message.append(f"{'':->80}")
+        message.append("")
+
+        for value in self.options.values():
+            message.append(value.help(env=env))
+
+        return "\n".join(message)
+
+
+class LevelAdapter(logging.LoggerAdapter):
+    """This adapter processes the ``print_level`` keyword-argument to log functions.
+
+    In the default Logger functions, it is not possible to add extra keyword arguments
+    to modify behavior. This Adapter allows the Logger functions (.debug(), .info(),
+    etc.) to include the keyword argument ``print_level``, which takes a Boolean value
+    to determine whether or not the level of the message should be shown with the rest
+    of the message. The actual message formatting is handled elsewhere. Example::
+
+       >>> logger.info("Message", print_level=True)
+       INFO: Message
+       >>> logger.error("Message", print_level=False)
+       Message
+    """
+    def __init__(self, logger):
+        self.logger = logger
+
+    def process(self, msg, kwargs):
+        """Pop the value of ``print_level`` into the ``extra`` dictionary.
+
+        Key-value pairs in the "extra" dictionary are set as attributes on the
+        ``LogRecord`` instance.
+        """
+        if "print_level" in kwargs:
+            print_level = kwargs.pop("print_level")
+            if "extra" in kwargs:
+                kwargs["extra"].update(print_level=print_level)
+            else:
+                kwargs["extra"] = {"print_level": print_level}
+        return msg, kwargs
+
+
+# Modified from https://stackoverflow.com/a/42823461
+class BraceLogRecord(logging.LogRecord):
+    """Format a log record using brace syntax {} instead of %."""
+
+    def getMessage(self) -> str:
+        msg = str(self.msg)
+        if self.args:
+            if isinstance(self.args, MappingABC):
+                msg = msg.format_map(self.args)
+            else:
+                msg = msg.format(*self.args)
+        return msg
+
+
+class OutputFormatter(logging.Formatter):
+    """Format log output depending on whether the level should be shown.
+
+    Intended to be used with the LevelAdapter class to allow the ``print_level``
+    keyword argument to be added to Logger method calls (``.info()`` and others). The
+    ``print_level`` Boolean value is used to determine whether or not the level of the
+    logging message should be printed. By default, the level is shown. Example::
+
+       >>> logger.info("Message", print_level=False)
+       Message
+       >>> logger.info("Message")
+       INFO: Message
+    """
+
+    def format(self, record: logging.LogRecord) -> str:
+        if record.exc_info or record.exc_text:
+            raise ValueError("This formatter does not support exceptions")
+        elif record.stack_info:
+            raise ValueError("This formatter does not support stack traces")
+
+        no_level_style = "{message}"
+        level_style = "{levelname}: " + no_level_style
+        record.message = record.getMessage()
+        if getattr(record, "print_level", True):
+            s = level_style.format(**record.__dict__)
+        else:
+            s = no_level_style.format(**record.__dict__)
+        return s
+
+
+# Modified from https://stackoverflow.com/a/36338212
+class LevelFilter(logging.Filter):
+    """Filter out log messages above or below preset cutoffs.
+
+    Log levels in Python correspond to integers, with the lowest, DEBUG, set to
+    10 and the highest, CRITICAL, set to 50. This filter causes a log handler to
+    reject messages that are above or below numerical cutoffs. Example::
+
+    >>> # Handles log levels from debug up to, but not including, error
+    >>> handler.addFilter(LevelFilter(logging.DEBUG, logging.ERROR))
+    >>> # Handles log levels from warning up to and including critical
+    >>> handler.addFilter(LevelFilter(logging.WARNING, logging.CRITICAL+1))
+    """
+
+    def __init__(self, low: int, high: int) -> None:
+        self._low = low
+        self._high = high
+        super().__init__()
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        if self._low <= record.levelno < self._high:
+            return True
+        return False
+
+
+logging.setLogRecordFactory(BraceLogRecord)
+logger = logging.getLogger("cantera")
+logger.setLevel(logging.INFO)
+f = OutputFormatter()
+stdout_handler = logging.StreamHandler(sys.stdout)
+stdout_handler.setFormatter(f)
+stdout_handler.addFilter(LevelFilter(logging.DEBUG, logging.ERROR))
+logger.addHandler(stdout_handler)
+
+stderr_handler = logging.StreamHandler(sys.stderr)
+stderr_handler.setFormatter(f)
+stderr_handler.addFilter(LevelFilter(logging.ERROR, logging.CRITICAL + 1))
+logger.addHandler(stderr_handler)
+
+logger = LevelAdapter(logger)
+
+
+class TestResult(enum.IntEnum):
+    """Represent the passing/failing result of a test.
+
+    To be used instead of a bare integer for clarity.
+    """
+
+    PASS = 0
+    FAIL = 1
+
+
+class DefineDict:
     """
     A dictionary-like object which generates appropriate preprocessor
     define statements from its dict of variable / value
     pairs. Variables whose value is None or that are not in the dict
     are left undefined.
     """
-    def __init__(self, data):
+
+    def __init__(self, data: dict) -> None:
         self.data = data
         self.undefined = set()
 
-    def __getitem__(self, key):
-        if key not in self.data:
+    def __getitem__(self, key: str) -> str:
+        if key not in self.data or self.data[key] is None:
             self.undefined.add(key)
-            return '/* #undef %s */' % key
-        elif self.data[key] is None:
-            return '/* #undef %s */' % key
+            return f"/* #undef {key!s} */"
         else:
-            return '#define %s %s' % (key, self.data[key])
+            return f"#define {key!s} {self.data[key]!s}"
 
 
-class ConfigBuilder(object):
+class ConfigBuilder:
     """
     Used along with DefineDict to generate a customized config.h file
     from a config.h.in file using the variables given in 'defines'.
     """
-    def __init__(self, defines):
+
+    def __init__(self, defines: dict) -> None:
         self.defines = DefineDict(defines)
 
-    def __call__(self, source, target, env):
+    def __call__(self, target: "LFSNode", source: "LFSNode", env):
+        """
+        Note that all three arguments are required by SCons although only the first
+        two are used. All of them must be keyword arguments.
+        """
         for s, t in zip(source, target):
-            config_h_in = open(str(s), "r")
-            config_h = open(str(t), "w")
+            config_h_in = Path(str(s)).read_text()
+            config_h = Path(str(t))
 
-            config_h.write(config_h_in.read() % self.defines)
-            config_h_in.close()
-            config_h.close()
+            config_h.write_text(config_h_in.format_map(self.defines))
             self.print_config(str(t))
 
-    def print_config(self, filename):
-        print('Generating %s with the following settings:' % filename)
+    def print_config(self, filename: str):
+        message = [f"Generating {filename!s} with the following settings:"]
+
         for key, val in sorted(self.defines.data.items()):
             if val is not None:
-                print("    %-35s %s" % (key, val))
+                message.append(f"    {key!s:<35} {val}")
         for key in sorted(self.defines.undefined):
-            print("    %-35s %s" % (key, '*undefined*'))
+            message.append(f"    {key!s:<35} *undefined*")
+
+        logger.info("\n".join(message))
 
 
-class TestResults(object):
+class TestResults:
     """
     A class that stores information about all the regression tests
     that are defined and which ones have passed / failed in order to
     print a summary at the end of the build process.
     """
+
     def __init__(self):
         self.tests = {}
         self.passed = {}
         self.failed = {}
 
-    def printReport(self, target, source, env):
+    def print_report(self, target, source, env):
+        """Print the test results report.
+
+        Note that the three arguments are not used here but are required by SCons,
+        and they must be keyword arguments.
+        """
+        values = {
+            "passed": sum(self.passed.values()),
+            "failed": sum(self.failed.values()),
+            "skipped": len(self.tests),
+        }
+        message = textwrap.dedent(
+            """
+            *****************************
+            ***    Testing Summary    ***
+            *****************************
+
+            Tests passed: {passed!s}
+            Up-to-date tests skipped: {skipped!s}
+            Tests failed: {failed!s}
+            """
+        ).format_map(values)
         if self.failed:
-            failures = ('Failed tests:' +
-                        ''.join('\n    - ' + n for n in self.failed) +
-                        '\n')
+            message = (message + "Failed tests:" +
+                       "".join("\n    - " + n for n in self.failed) +
+                       "\n")
+        message = message + "*****************************"
+        if self.failed:
+            logger.error("One or more tests failed.\n" + message, print_level=False)
+            sys.exit(1)
         else:
-            failures = ''
-        print("""
-*****************************
-***    Testing Summary    ***
-*****************************
-
-Tests passed: %(passed)s
-Up-to-date tests skipped: %(skipped)s
-Tests failed: %(failed)s
-%(failures)s
-*****************************""" % dict(
-            passed=sum(self.passed.values()),
-            failed=sum(self.failed.values()),
-            skipped=len(self.tests),
-            failures=failures))
-
-        if self.failed:
-            raise SCons.Errors.BuildError(self, 'One or more tests failed.')
+            logger.info(message, print_level=False)
 
 
-testResults = TestResults()
+test_results = TestResults()
 
 
-def regression_test(target, source, env):
+def regression_test(target: "LFSNode", source: "LFSNode", env: "SCEnvironment"):
     """
     Run a regression test comparing the output of a test program with
     existing "blessed" output files.
@@ -138,73 +695,84 @@ def regression_test(target, source, env):
         clargs = []
 
     # Name to use for the output file
-    blessedName = env['test_blessed_file']
-    if blessedName is not None and 'blessed' in blessedName:
-        outputName = blessedName.replace('blessed', 'output')
+    blessed_name = env["test_blessed_file"]
+    if blessed_name is not None and "blessed" in blessed_name:
+        output_name = Path(blessed_name.replace("blessed", "output"))
     else:
-        outputName = 'test_output.txt'
+        output_name = Path("test_output.txt")
 
     # command line options
-    clopts = env['test_command_options'].split()
+    clopts = env["test_command_options"].split()
 
     # Run the test program
-    dir = str(target[0].dir.abspath)
-    with open(pjoin(dir,outputName), 'w') as outfile:
-        code = subprocess.call([program.abspath] + clopts + clargs,
-                               stdout=outfile, stderr=outfile,
-                               cwd=dir, env=env['ENV'])
-
-    if code:
-        print('FAILED (program exit code:{0})'.format(code))
+    dir = Path(target[0].dir.abspath)
+    ret = subprocess.run(
+        [program.abspath] + clopts + clargs,
+        stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+        cwd=dir, env=env["ENV"], universal_newlines=True,
+    )
+    if ret.returncode:
+        logger.error("FAILED (program exit code:{})", ret.returncode)
+    dir.joinpath(output_name).write_text(ret.stdout)
 
     diff = 0
     # Compare output files
-    comparisons = env['test_comparisons']
-    if blessedName is not None:
-        comparisons.append((blessedName,outputName))
+    comparisons = env["test_comparisons"]
+    if blessed_name is not None:
+        comparisons.append((Path(blessed_name), output_name))
 
-    for blessed,output in comparisons:
-        print("""Comparing '%s' with '%s'""" % (blessed, output))
-        d = compareFiles(env, pjoin(dir, blessed), pjoin(dir, output))
+    for blessed, output in comparisons:
+        if not dir.joinpath(output).is_file():
+            logger.info(f"Output file '{output}' not found", print_level=False)
+            logger.error("FAILED", print_level=False)
+            diff |= TestResult.FAIL
+            continue
+        logger.info(f"Comparing '{blessed}' with '{output}'", print_level=False)
+        d = compare_files(env, dir.joinpath(blessed), dir.joinpath(output))
         if d:
-            print('FAILED')
+            logger.error("FAILED", print_level=False)
         diff |= d
 
-    for blessed,output in env['test_profiles']:
-        print("Comparing '{}' with '{}'".format(blessed, output))
-        d = compareProfiles(env, pjoin(dir, blessed), pjoin(dir, output))
+    for blessed, output in env["test_profiles"]:
+        if not dir.joinpath(output).is_file():
+            logger.info(f"Output file '{output}' not found", print_level=False)
+            logger.error("FAILED", print_level=False)
+            diff |= TestResult.FAIL
+            continue
+        logger.info(f"Comparing '{blessed}' with '{output}'", print_level=False)
+        d = compare_profiles(env, dir.joinpath(blessed), dir.joinpath(output))
         if d:
-            print('FAILED')
+            logger.error("FAILED", print_level=False)
         diff |= d
 
-    del testResults.tests[env['active_test_name']]
+    del test_results.tests[env["active_test_name"]]
 
-    if diff or code:
-        if os.path.exists(target[0].abspath):
-            os.path.unlink(target[0].abspath)
+    passed_file = Path(target[0].abspath)
+    if diff or ret.returncode:
+        if passed_file.exists():
+            passed_file.unlink()
 
-        testResults.failed[env['active_test_name']] = 1
+        test_results.failed[env["active_test_name"]] = 1
         if env["fast_fail_tests"]:
             sys.exit(1)
     else:
-        print('PASSED')
-        with open(target[0].path, 'w') as passed_file:
-            passed_file.write(time.asctime()+'\n')
-        testResults.passed[env['active_test_name']] = 1
+        logger.info("PASSED", print_level=False)
+        passed_file.write_text(time.asctime())
+        test_results.passed[env["active_test_name"]] = 1
 
 
-def compareFiles(env, file1, file2):
+def compare_files(env: "SCEnvironment", file1: Path, file2: Path) -> TestResult:
     """
     Compare the contents of two files, using a method chosen based on
     their file extensions.
     """
-    if file1.endswith('csv') and file2.endswith('csv'):
-        return compareCsvFiles(env, file1, file2)
+    if file1.suffix == ".csv" and file2.suffix == ".csv":
+        return compare_csv_files(env, file1, file2)
     else:
-        return compareTextFiles(env, file1, file2)
+        return compare_text_files(env, file1, file2)
 
 
-def compareTextFiles(env, file1, file2):
+def compare_text_files(env: "SCEnvironment", file1: Path, file2: Path) -> TestResult:
     """
     Compare the contents of two text files while:
        - ignoring trailing whitespace
@@ -212,34 +780,30 @@ def compareTextFiles(env, file1, file2):
          variable env['test_ignoreLines'].
        - comparing floating point numbers only up to the printed precision
     """
-    text1 = [line.rstrip() for line in open(file1).readlines()
-             if not line.startswith(tuple(env['test_ignoreLines']))]
-    text2 = [line.rstrip() for line in open(file2).readlines()
-             if not line.startswith(tuple(env['test_ignoreLines']))]
+    text1 = [line.rstrip() for line in file1.read_text().split("\n")
+             if not line.startswith(tuple(env["test_ignoreLines"]))]
+    text2 = [line.rstrip() for line in file2.read_text().split("\n")
+             if not line.startswith(tuple(env["test_ignoreLines"]))]
 
     # Try to compare the files without testing the floating point numbers
     diff = list(difflib.unified_diff(text1, text2))
     if not diff:
-        return 0
+        return TestResult.PASS
 
-    atol = env['test_csv_threshold']
-    rtol = env['test_csv_tolerance']
+    atol = env["test_csv_threshold"]
+    rtol = env["test_csv_tolerance"]
 
     # Replace nearly-equal floating point numbers with exactly equivalent
     # representations to avoid confusing difflib
-    reFloat = re.compile(r'(\s*)([+-]{0,1}\d+\.{0,1}\d*([eE][+-]{0,1}\d*){0,1})')
-    for i in range(min(len(text1), len(text2))):
-        line1 = text1[i]
-        line2 = text2[i]
+    float_regex = re.compile(r"(\s*)([+-]{0,1}\d+\.{0,1}\d*([eE][+-]{0,1}\d*){0,1})")
+    for i, (line1, line2) in enumerate(zip(text1, text2)):
         if line1 == line2:
             continue
 
         # group(1) is the left space padding
         # group(2) is the number
-        floats1 = [(m.group(1),m.group(2))
-                   for m in list(reFloat.finditer(line1))]
-        floats2 = [(m.group(1),m.group(2))
-                   for m in list(reFloat.finditer(line2))]
+        floats1 = [(m.group(1), m.group(2)) for m in float_regex.finditer(line1)]
+        floats2 = [(m.group(1), m.group(2)) for m in float_regex.finditer(line2)]
 
         # If the lines don't contain the same number of numbers,
         # we're not going to pass the diff comparison no matter what
@@ -248,48 +812,84 @@ def compareTextFiles(env, file1, file2):
 
         # if the lines don't have the same non-numeric text,
         # we're not going to pass the diff comparison
-        if reFloat.sub('', line1).strip() != reFloat.sub('', line2).strip():
+        if float_regex.sub("", line1).strip() != float_regex.sub("", line2).strip():
             continue
 
-        allMatch = True
-        for j in range(len(floats1)):
-            if floats1[j] == floats2[j]:
+        all_match = True
+        for float_1, float_2 in zip(floats1, floats2):
+            if float_1 == float_2:
                 # String representations match, so replacement is unnecessary
                 continue
 
             try:
-                delta = max(getPrecision(floats1[j][1]), getPrecision(floats2[j][1]))
-                num1 = float(floats1[j][1])
-                num2 = float(floats2[j][1])
-                abserr = abs(num1-num2)
-                relerr = abserr / (0.5 * abs(num1 + num2) + atol)
-                if abserr > (1.1*delta + atol) and relerr > rtol:
-                    print('Values differ: {0: 14g} {1: 14g}; rel. err = {2:.3e}; abs. err = {3:.3e}'.format(num1, num2, relerr, abserr))
-                    allMatch = False
-                    break
-            except Exception as e:
+                num1 = float(float_1[1])
+                num2 = float(float_2[1])
+            except ValueError:
                 # Something went wrong -- one of the strings isn't actually a number,
                 # so just ignore this line and let the test fail
                 pass
+            else:
+                precision = max(get_precision(float_1[1]), get_precision(float_2[1]))
+                atol = atol + pow(10, precision) * 1.1
+                abserr = abs(num1 - num2)
+                relerr = abserr / (0.5 * abs(num1 + num2) + atol)
+                if abserr > atol and relerr > rtol:
+                    logger.error(
+                        "Values differ: {:14g} {:14g}; "
+                        "rel. err = {:.3e}; abs. err = {:.3e}",
+                        num1, num2, relerr, abserr, print_level=False,
+                    )
+                    all_match = False
+                    break
 
         # All the values are sufficiently close, so replace the string
         # so that the diff of this line will succeed
-        if allMatch:
+        if all_match:
             text2[i] = line1
 
     # Try the comparison again
     diff = list(difflib.unified_diff(text1, text2))
     if diff:
-        print('Found differences between %s and %s:' % (file1, file2))
-        print('>>>')
-        print('\n'.join(diff))
-        print('<<<')
-        return 1
+        message = [f"Found differences between {file1!s} and {file2!s}:", ">>>"]
+        message.extend(diff)
+        message.append("<<<")
+        logger.error("\n".join(message), print_level=False)
+        return TestResult.FAIL
 
-    return 0
+    return TestResult.PASS
 
 
-def compareProfiles(env, ref_file, sample_file):
+def get_precision(number: str) -> int:
+    """Return the precision of the least significant digit in a number.
+
+    Return an integer representing the power of 10 of the least significant digit in
+    ``number``, which must be a string.
+
+    Patterns to consider:
+    123 -> 0
+    123.45 -> -2
+    123.45e6 -> 4
+    123e4 -> 4
+    """
+
+    number = number.lower()
+    if "e" in number:
+        number, exponent = number.split("e")
+        exponent = int(exponent)
+    else:
+        exponent = 0
+
+    if "." in number:
+        digits = -len(number.split(".")[1])
+    else:
+        digits = 0
+
+    return exponent + digits
+
+
+def compare_profiles(
+    env: "SCEnvironment", ref_file: Path, sample_file: Path
+) -> TestResult:
     """
     Compare two 2D arrays of spatial or time profiles. Each data set should
     contain the time or space coordinate in the first column and data series
@@ -303,94 +903,89 @@ def compareProfiles(env, ref_file, sample_file):
     After interpolation, each data point must satisfy a combined relative and absolute
     error criterion specified by `rtol` and `atol`.
     """
-    atol = env['test_csv_threshold']
-    rtol = env['test_csv_tolerance']
-    xtol = env['test_csv_tolerance']
-
     if not np:
-        print('WARNING: skipping profile comparison because numpy is not available')
-        return 0
+        logger.warning("Skipping profile comparison because numpy is not available")
+        return TestResult.PASS
 
-    reference = np.genfromtxt(ref_file, delimiter=',').T
-    sample = np.genfromtxt(sample_file, delimiter=',').T
-    assert reference.shape[0] == sample.shape[0]
+    atol = env["test_csv_threshold"]
+    rtol = env["test_csv_tolerance"]
+    xtol = env["test_csv_tolerance"]
 
-    # trim header rows if present
-    if np.isnan(sample[0,0]) and np.isnan(reference[0,0]):
+    reference = np.genfromtxt(ref_file, delimiter=",").T
+    sample = np.genfromtxt(sample_file, delimiter=",").T
+    if reference.shape[0] != sample.shape[0]:
+        logger.error(
+            "The output array does not have the same number of variabls as the "
+            "reference array."
+        )
+        return TestResult.FAIL
+
+    # trim header columns if present
+    if np.isnan(sample[0, 0]) and np.isnan(reference[0, 0]):
         reference = reference[:, 1:]
         sample = sample[:, 1:]
-    assert not np.isnan(reference).any()
-    assert not np.isnan(sample).any()
+    if np.isnan(reference).any() or np.isnan(sample).any():
+        logger.error(
+            "The output array and reference array have different headers "
+            "or contain non-numeric data."
+        )
+        return TestResult.FAIL
 
-    nVars = reference.shape[0]
-    nTimes = reference.shape[1]
+    n_vars = reference.shape[0]
+    n_times = reference.shape[1]
 
     bad = []
-    template = '{0:9.4e}  {1: 3d}   {2:14.7e}  {3:14.7e}  {4:9.3e}  {5:9.3e}  {6:9.3e}'
-    for i in range(1, nVars):
-        scale = max(max(abs(reference[i])), reference[i].ptp(),
-                    max(abs(sample[i])), sample[i].ptp())
-        slope = np.zeros(nTimes)
-        slope[1:] = np.diff(reference[i]) / np.diff(reference[0]) * reference[0].ptp()
+    template = "{0:10.4e}  {1:5d}  {2:14.7e}  {3:14.7e}  {4:9.3e}  {5:9.3e}  {6:9.3e}"
+    header = ["Failed series comparisons:"]
+    header.append("{:10s}  {:5s}  {:14s}  {:14s}  {:9s}  {:9s}  {:9s}".format(
+        "coordinate", "comp.", "reference val.", "test value", "abs. err", "rel. err",
+        "pos. err"
+    ))
+    header.append(f"{10*'-'}  -----  {14*'-'}  {14*'-'}  {9*'-'}  {9*'-'}  {9*'-'}")
+    ref_ptp = reference.ptp(axis=1)
+    ref_max = np.abs(reference).max(axis=1)
+    sample_ptp = sample.ptp(axis=1)
+    sample_max = np.abs(sample).max(axis=1)
+    scale = np.maximum(
+        np.maximum(ref_ptp[1:], ref_max[1:]),
+        np.maximum(sample_ptp[1:], sample_max[1:])
+    ).reshape(n_vars - 1, -1)
+    ref_diff = np.diff(reference)
+    slope = ref_diff[1:, :] / ref_diff[0, :] * ref_ptp[0]
+    slope = np.hstack((np.zeros((n_vars - 1, 1)), slope))
+    comp = np.zeros((n_vars - 1, n_times))
+    for i, row in enumerate(sample[1:]):
+        comp[i, :] = np.interp(reference[0, :], sample[0, :], row)
 
-        comp = np.interp(reference[0], sample[0], sample[i])
-        for j in range(nTimes):
-            a = reference[i,j]
-            b = comp[j]
-            abserr = abs(a-b)
-            relerr = abs(a-b) / (scale + atol)
-
-            # error that can be accounted for by shifting the profile along
-            # the time / spatial coordinate
-            xerr = abserr / (abs(slope[j]) + atol)
-
-            if abserr > atol and relerr > rtol and xerr > xtol:
-                bad.append((reference[0][j], i, a, b, abserr, relerr, xerr))
+    abserr = np.abs(reference[1:] - comp)
+    relerr = abserr / (scale + atol)
+    # error that can be accounted for by shifting the profile along
+    # the time / spatial coordinate
+    xerr = abserr / (np.abs(slope) + atol)
+    if np.any(abserr > atol) and np.any(relerr > rtol) and np.any(xerr > xtol):
+        it = np.nditer((abserr, relerr, xerr), flags=["multi_index"])
+        for a, r, x in it:
+            i, j = it.multi_index
+            bad.append((reference[0, j], i, reference[i, j], comp[i, j], a, r, x))
 
     footer = []
     maxrows = 10
     if len(bad) > maxrows:
         bad.sort(key=lambda row: -row[5])
-        footer += ['Plus {0} more points exceeding error thresholds.'.format(len(bad)-maxrows)]
+        footer += [f"Plus {len(bad) - maxrows} more points exceeding error thresholds."]
         bad = bad[:maxrows]
 
     if bad:
-        header = ['Failed series comparisons:',
-                  'coordinate  comp.  reference val    test value    abs. err   rel. err    pos. err',
-                  '----------  ---   --------------  --------------  ---------  ---------  ---------']
-        print('\n'.join(header + [template.format(*row) for row in bad] + footer))
-        return 1
+        logger.error(
+            "\n".join(header + [template.format(*row) for row in bad] + footer),
+            print_level=False,
+        )
+        return TestResult.FAIL
     else:
-        return 0
+        return TestResult.PASS
 
 
-def getPrecision(x):
-    """
-    Return the number corresponding to the least significant digit of
-    the number represented by the string 'x'.
-    """
-    x = x.lower()
-    # Patterns to consider:
-    # 123
-    # 123.45
-    # 123.45e6
-    # 123e4
-    if 'e' in x:
-        x, exponent = x.split('e')
-        exponent = int(exponent)
-    else:
-        exponent = 0
-
-    decimalPt = x.find('.')
-    if decimalPt == -1:
-        decimalPt = len(x) - 1
-
-    precision = decimalPt + exponent - len(x) + 1
-
-    return 10**precision
-
-
-def compareCsvFiles(env, file1, file2):
+def compare_csv_files(env: "SCEnvironment", file1: Path, file2: Path) -> TestResult:
     """
     Compare the contents of two .csv file to see if they are
     similar. Similarity is defined according to tolerances stored in
@@ -407,227 +1002,139 @@ def compareCsvFiles(env, file1, file2):
     files are dissimilar. Lines containing non-numeric data are
     automatically ignored.
     """
-    try:
-        import numpy as np
-    except ImportError:
-        print('WARNING: skipping .csv diff because numpy is not installed')
-        return 0
+    if not np:
+        logger.warning("Skipping profile comparison because numpy is not available")
+        return TestResult.PASS
 
     # decide how many header lines to skip
-    f = open(file1)
-    headerRows = 0
-    goodChars = set('0123456789.+-eE, ')
+    f = Path(file1).read_text().split("\n")
+    header_rows = 0
+    good_chars = set("0123456789.+-eE, ")
     for line in f:
-        if not set(line[:-1]).issubset(goodChars):
-            headerRows += 1
+        if not set(line).issubset(good_chars):
+            header_rows += 1
         else:
             break
 
     try:
-        data1 = np.genfromtxt(file1, skip_header=headerRows, delimiter=',')
-        data2 = np.genfromtxt(file2, skip_header=headerRows, delimiter=',')
+        data1 = np.genfromtxt(file1, skip_header=header_rows, delimiter=",")
+        data2 = np.genfromtxt(file2, skip_header=header_rows, delimiter=",")
     except (IOError, StopIteration) as e:
-        print(e)
-        return 1
+        logger.error(f"Could not read data files: {file1}; {file2}", exc_info=e)
+        return TestResult.FAIL
 
+    threshold = env["test_csv_threshold"]
     try:
-        relerror = (np.abs(data2-data1) /
-                    (np.maximum(np.abs(data2), np.abs(data1)) +
-                     env['test_csv_threshold']))
+        denom = np.maximum(np.abs(data2), np.abs(data1)) + threshold
+        relerror = np.abs(data2 - data1) / denom
         maxerror = np.nanmax(relerror.flat)
-    except ValueError as e:
-        print(e)
-        return 1
+    except (ValueError, TypeError) as e:
+        logger.error("Could not compute error.", exc_info=e)
+        return TestResult.FAIL
 
-    tol = env['test_csv_tolerance']
-    if maxerror > tol: # Threshold based on printing 6 digits in the CSV file
-        print("Files differ. %i / %i elements above specified tolerance (%f)" %
-              (np.sum(relerror > tol), relerror.size, tol))
-        print('  row   col   reference       test            rel. error')
-        print('  ----  ----  --------------  --------------  ----------')
-        for i,j in itertools.product(*map(range, relerror.shape)):
-            if relerror[i,j] > tol:
-                row = i + headerRows + 1
-                col = j + 1
-                print('  % 4i  % 4i  % 14.7e  % 14.7e  % 10.4e' %
-                      (row, col, data1[i,j], data2[i,j], relerror[i,j]))
-        return 1
-    else:
-        return 0
+    tol = env["test_csv_tolerance"]
+    if maxerror < tol:  # Threshold based on printing 6 digits in the CSV file
+        return TestResult.PASS
+
+    n_fail = np.sum(relerror > tol)
+    n_tot = relerror.size
+    message = [
+        "Files differ.",
+        f"{n_fail:d} / {n_tot:d} elements above specified tolerance ({tol:f})",
+        "  row   col   reference       test            rel. error",
+        "  ----  ----  --------------  --------------  ----------",
+    ]
+    it = np.nditer([relerror, data1, data2], flags=["multi_index"])
+    for rele, ref, test in it:
+        if rele > tol:
+            r = it.multi_index[0] + header_rows + 1
+            c = it.multi_index[1] + 1
+            message.append(
+                f"  {r:4d}  {c:4d}  {ref:14.7e}  {test:14.7e}  {rele:10.4e}"
+            )
+    logger.error("\n".join(message))
+    return TestResult.FAIL
 
 
-def regression_test_message(target, source, env):
+def regression_test_message(target, source, env: "SCEnvironment") -> str:
     """
     Determines the message printed by SCons while building a
     RegressionTest target.
+
+    Note that the first two arguments are not used but are required by SCons and they
+    must be keyword arguments.
     """
-    return """* Running test '%s'...""" % env['active_test_name']
+    return f"""* Running test '{env["active_test_name"]}'..."""
 
 
-def add_RegressionTest(env):
+def add_RegressionTest(env: "SCEnvironment") -> None:
     """
     Add "RegressionTest" as a Builder in the specified Scons Environment.
     """
-    env['BUILDERS']['RegressionTest'] = env.Builder(
-        action=env.Action(regression_test, regression_test_message))
+    env["BUILDERS"]["RegressionTest"] = env.Builder(
+        action=env.Action(regression_test, regression_test_message)
+    )
 
 
-def quoted(s):
-    """ Returns the given string wrapped in double quotes."""
-    return '"%s"' % s
+def quoted(s: str) -> str:
+    """Return the given string wrapped in double quotes."""
+    return f'"{s}"'
 
 
-def mglob(env, subdir, *args):
-    """
-    Each arg in args is assumed to be file extension,
-    unless the arg starts with a '^', in which case the remainder
-    of the arg is taken to be a complete pattern.
+def multi_glob(env: "SCEnvironment", subdir: str, *args: str):
+    """Use SCons Glob to find nodes in a subdirectory using many file extensions.
+
+    Each argument in ``args`` is assumed to be file extension,
+    unless the arg starts with a ``'^'``, in which case the remainder
+    of the argument is taken to be a complete pattern.
     """
     matches = []
     for ext in args:
-        if ext.startswith('^'):
-            matches += env.Glob(pjoin(subdir, ext[1:]))
+        if ext.startswith("^"):
+            matches += env.Glob(Path(subdir).joinpath(ext[1:]))
         else:
-            matches += env.Glob(pjoin(subdir, '*.%s' % ext))
+            matches += env.Glob(Path(subdir).joinpath(f"*.{ext}"))
     return matches
 
 
-def psplit(s):
-    """
-    Split a path given as a string into a list.
-    This is the inverse of os.path.join.
-    """
-    s = s.strip('/\\')
-    head, tail = os.path.split(s)
-    path = [tail]
-    while head:
-        head, tail = os.path.split(head)
-        path.append(tail)
-
-    path.reverse()
-    return path
-
-
-def subdirs(path):
-    """ Get the subdirectories of a specified directory """
-    for subdir in os.listdir(path):
-        dirpath = pjoin(path, subdir)
-        if os.path.isdir(dirpath):
-            yield subdir
-
-def stripDrive(s):
-    """
-    Remove a Windows drive letter specification from a path.
-    """
-    if len(s) > 1 and s[1] == ':':
-        return s[2:]
-    else:
-        return s
-
-
-def which(program):
-    """ Replicates the functionality of the 'which' shell command """
-    def is_exe(fpath):
-        for ext in ('', '.exe', '.bat'):
-            if os.path.exists(fpath + ext):
-                return os.access(fpath + ext, os.X_OK)
-        return False
-
-    fpath, fname = os.path.split(program)
-    if fpath:
-        if is_exe(program):
-            return program
-    else:
+def which(program: str) -> bool:
+    """Replicates the functionality of the 'which' shell command."""
+    for ext in ("", ".exe", ".bat"):
+        fpath = Path(program + ext)
         for path in os.environ["PATH"].split(os.pathsep):
-            exe_file = os.path.join(path, program)
-            if is_exe(exe_file):
-                return exe_file
-
-    return None
-
-optionWrapper = textwrap.TextWrapper(initial_indent='    ',
-                                   subsequent_indent='    ',
-                                   width=72)
+            exe_file = Path(path).joinpath(fpath)
+            if exe_file.exists() and os.access(exe_file, os.X_OK):
+                return True
+    return False
 
 
-def formatOption(env, opt):
-    """
-    Print a nicely formatted description of a SCons configuration
-    option, its permitted values, default value, and current value
-    if different from the default.
-    """
-    # Extract the help description from the permitted values. Original format
-    # is in the format: "Help text ( value1|value2 )" or "Help text"
-    if opt.help.endswith(')'):
-        parts = opt.help.split('(')
-        help = '('.join(parts[:-1])
-        values = parts[-1][:-1].strip().replace('|', ' | ')
-        if values == '':
-            values = 'string'
-    else:
-        help = opt.help
-        values = 'string'
-
-    # Fix the representation of boolean options, which are stored as
-    # Python bools, but need to be passed by the user as strings
-    default = opt.default
-    if default is True:
-        default = 'yes'
-    elif default is False:
-        default = 'no'
-
-    # First line: "* option-name: [ choice1 | choice2 ]"
-    lines = ['* %s: [ %s ]' % (opt.key, values)]
-
-    # Help text, wrapped and idented 4 spaces
-    lines.extend(optionWrapper.wrap(re.sub(r'\s+', ' ',help)))
-
-    # Default value
-    lines.append('    - default: %r' % default)
-
-    # Get the actual value in the current environment
-    if opt.key in env:
-        actual = env.subst('${%s}' % opt.key)
-    else:
-        actual = None
-
-    # Fix the representation of boolean options
-    if actual == 'True':
-        actual = 'yes'
-    elif actual == 'False':
-        actual = 'no'
-
-    # Print the value if it differs from the default
-    if actual != default:
-        lines.append('    - actual: %r' % actual)
-    lines.append('')
-
-    return lines
-
-
-def listify(value):
+def listify(value: "Union[str, Iterable]") -> "List[str]":
     """
     Convert an option specified as a string to a list, using spaces as
-    delimiters. Passes lists transparently.
+    delimiters. Passes lists and tuples transparently.
     """
-    if isinstance(value, (list, tuple)):
+    if isinstance(value, str):
+        return value.split()
+    else:
         # Already a sequence. Return as a list
         return list(value)
-    else:
-        # assume `value` is a string
-        return value.split()
 
-def removeFile(name):
-    """ Remove file (if it exists) and print a log message """
-    if os.path.exists(name):
-        print('Removing file "%s"' % name)
-        os.remove(name)
 
-def removeDirectory(name):
-    """ Remove directory recursively and print a log message """
-    if os.path.exists(name):
-        print('Removing directory "%s"' % name)
-        shutil.rmtree(name)
+def remove_file(name: "TPathLike") -> None:
+    """Remove file (if it exists) and print a log message."""
+    path_name = Path(name)
+    if path_name.exists():
+        logger.info(f"Removing file '{name!s}'")
+        path_name.unlink()
+
+
+def remove_directory(name: "TPathLike") -> None:
+    """Remove directory recursively and print a log message."""
+    path_name = Path(name)
+    if path_name.exists() and path_name.is_dir():
+        logger.info(f"Removing directory '{name!s}'")
+        shutil.rmtree(path_name)
+
 
 def ipdb():
     """
@@ -635,14 +1142,14 @@ def ipdb():
     where this function is called.
     """
     from IPython.core.debugger import Pdb
-    from IPython.core import ipapi
+    from IPython.core import getipython
 
-    ip = ipapi.get()
+    ip = getipython.get_ipython()
     def_colors = ip.colors
     Pdb(def_colors).set_trace(sys._getframe().f_back)
 
 
-def getSpawn(env):
+def get_spawn(env: "SCEnvironment"):
     """
     A replacement for env['SPAWN'] on Windows that can deal with very long
     commands, namely those generated when linking. This is only used when
@@ -650,26 +1157,21 @@ def getSpawn(env):
     MSVC link command.
 
     Pass the return value of this function as the SPAWN keyword argument to
-    the Library target, e.g.:
+    the Library target, for example:
 
-        env.SharedLibrary(..., SPAWN=getSpawn(env))
+        env.SharedLibrary(..., SPAWN=get_spawn(env))
 
-    Adapted from http://www.scons.org/wiki/LongCmdLinesOnWin32
+    Adapted from https://github.com/SCons/scons/wiki/LongCmdLinesOnWin32
     """
 
-    if 'cmd.exe' not in env['SHELL'] or env.subst('$CXX') == 'cl':
-        return env['SPAWN']
+    if "cmd.exe" not in env["SHELL"] or env.subst("$CXX") == "cl":
+        return env["SPAWN"]
 
-    try:
-        useShowWindow = subprocess.STARTF_USESHOWWINDOW
-    except AttributeError:
-        useShowWindow = subprocess._subprocess.STARTF_USESHOWWINDOW
-
-    def ourSpawn(sh, escape, cmd, args, environ):
-        newargs = ' '.join(args[1:])
+    def our_spawn(sh: str, escape: str, cmd: str, args: str, environ: "Dict[str, str]"):
+        newargs = " ".join(args[1:])
         cmdline = cmd + " " + newargs
-        startupinfo = subprocess.STARTUPINFO()
-        startupinfo.dwFlags |= useShowWindow
+        startupinfo = subprocess.STARTUPINFO()  # type: ignore
+        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW  # type: ignore
         proc = subprocess.Popen(cmdline,
                                 stdin=subprocess.PIPE,
                                 stdout=subprocess.PIPE,
@@ -677,32 +1179,74 @@ def getSpawn(env):
                                 startupinfo=startupinfo,
                                 shell=False,
                                 env=environ)
-        data, err = proc.communicate()
+        _, err = proc.communicate()
         rv = proc.wait()
         if rv:
-            print("=====")
-            print(err)
-            print("=====")
+            logger.error(err)
         return rv
 
-    return ourSpawn
+    return our_spawn
 
 
-def getCommandOutput(cmd, *args):
+def get_command_output(cmd: str, *args: str):
     """
     Run a command with arguments and return its output.
     """
     environ = dict(os.environ)
-    if 'PYTHONHOME' in environ:
+    if "PYTHONHOME" in environ:
         # Can cause problems when trying to run a different Python interpreter
-        del environ['PYTHONHOME']
-    data = subprocess.check_output([cmd] + list(args), env=environ)
-    if sys.version_info.major == 3:
-        return data.strip().decode('utf-8')
-    else:
-        return data.strip()
+        del environ["PYTHONHOME"]
+    data = subprocess.run(
+        [cmd] + list(args),
+        env=environ,
+        stdout=subprocess.PIPE,
+        universal_newlines=True,
+        check=True,
+    )
+    return data.stdout.strip()
+
+
+def get_pip_install_location(
+    python_cmd: str,
+    user: bool = False,
+    prefix: str | None = None,
+    root: str | None = None
+) -> dict[str, str]:
+    """Determine the location where pip will install files.
+
+    This relies on pip's internal API so it may break in future versions.
+    Unfortunately, I don't really see another way to determine this information
+    reliably.
+    """
+    # These need to be quoted if they're not None, even if they're a falsey value
+    # like the empty string. Otherwise, we want the literal None value.
+    prefix = quoted(prefix) if prefix is not None else None
+    root = quoted(root) if root is not None else None
+    install_script = textwrap.dedent(f"""
+        from pip import __version__ as pip_version
+        from pkg_resources import parse_version
+        import pip
+        import json
+        pip_version = parse_version(pip_version)
+        if pip_version < parse_version("10.0.0"):
+            from pip.locations import distutils_scheme
+            scheme = distutils_scheme("Cantera", user={user}, root={root},
+                                      prefix={prefix})
+        else:
+            from pip._internal.locations import get_scheme
+            scheme = get_scheme("Cantera", user={user}, root={root},
+                                prefix={prefix})
+
+        if not isinstance(scheme, dict):
+            scheme = {{k: getattr(scheme, k) for k in dir(scheme)
+                       if not k.startswith("_")}}
+        print(json.dumps(scheme))
+    """)
+    return json.loads(get_command_output(python_cmd, "-c", install_script))
+
 
 # Monkey patch for SCons Cygwin bug
-# See http://scons.tigris.org/issues/show_bug.cgi?id=2664
-if 'cygwin' in platform.system().lower():
+# See https://github.com/SCons/scons/issues/2664
+if "cygwin" in platform.system().lower():
+    import SCons.Node.FS
     SCons.Node.FS._my_normcase = lambda x: x

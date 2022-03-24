@@ -9,10 +9,13 @@
 #include "cantera/oneD/MultiJac.h"
 #include "cantera/oneD/StFlow.h"
 #include "cantera/oneD/MultiNewton.h"
+#include "cantera/oneD/refine.h"
 #include "cantera/numerics/funcs.h"
 #include "cantera/base/xml.h"
+#include "cantera/base/stringUtils.h"
 #include "cantera/numerics/Func1.h"
 #include <limits>
+#include <fstream>
 
 using namespace std;
 
@@ -94,7 +97,54 @@ void Sim1D::setProfile(size_t dom, size_t comp,
 void Sim1D::save(const std::string& fname, const std::string& id,
                  const std::string& desc, int loglevel)
 {
-    OneDim::save(fname, id, desc, m_x.data(), loglevel);
+    size_t dot = fname.find_last_of(".");
+    string extension = (dot != npos) ? toLowerCopy(fname.substr(dot+1)) : "";
+    if (extension != "yml" && extension != "yaml") {
+        OneDim::save(fname, id, desc, m_x.data(), loglevel);
+        return;
+    }
+
+    // Check for an existing file and load it if present
+    AnyMap data;
+    if (ifstream(fname).good()) {
+        data = AnyMap::fromYamlFile(fname);
+    }
+    bool preexisting = data.hasKey(id);
+
+    // Add this simulation to the YAML
+    data[id] = serialize(m_x.data());
+
+    // Add metadata
+    data[id]["description"] = desc;
+    data[id]["generator"] = "Cantera Sim1D";
+    data[id]["cantera-version"] = CANTERA_VERSION;
+    data[id]["git-commit"] = gitCommit();
+
+    // Add a timestamp indicating the current time
+    time_t aclock;
+    ::time(&aclock); // Get time in seconds
+    struct tm* newtime = localtime(&aclock); // Convert time to struct tm form
+    data[id]["date"] = stripnonprint(asctime(newtime));
+
+    // Force metadata fields to the top of the file
+    data[id]["description"].setLoc(-6, 0);
+    data[id]["generator"].setLoc(-5, 0);
+    data[id]["cantera-version"].setLoc(-4, 0);
+    data[id]["git-commit"].setLoc(-3, 0);
+    data[id]["date"].setLoc(-2, 0);
+
+    // If this is not replacing an existing solution, put it at the end
+    if (!preexisting) {
+        data[id].setLoc(INT_MAX, 0);
+    }
+
+    // Write the output file and remove the now-outdated cached file
+    std::ofstream out(fname);
+    out << data.toYamlString();
+    AnyMap::clearCachedFile(fname);
+    if (loglevel > 0) {
+        writelog("Solution saved to file {} as solution '{}'.\n", fname, id);
+    }
 }
 
 void Sim1D::saveResidual(const std::string& fname, const std::string& id,
@@ -102,38 +152,67 @@ void Sim1D::saveResidual(const std::string& fname, const std::string& id,
 {
     vector_fp res(m_x.size(), -999);
     OneDim::eval(npos, &m_x[0], &res[0], 0.0);
-    OneDim::save(fname, id, desc, &res[0], loglevel);
+    // Temporarily put the residual into m_x, since this is the vector that the save()
+    // function reads.
+    std::swap(res, m_x);
+    save(fname, id, desc, loglevel);
+    std::swap(res, m_x);
 }
 
 void Sim1D::restore(const std::string& fname, const std::string& id,
                     int loglevel)
 {
-    XML_Node root;
-    root.build(fname);
-
-    XML_Node* f = root.findID(id);
-    if (!f) {
-        throw CanteraError("Sim1D::restore","No solution with id = "+id);
-    }
-
-    vector<XML_Node*> xd = f->getChildren("domain");
-    if (xd.size() != nDomains()) {
-        throw CanteraError("Sim1D::restore", "Solution does not contain the "
-            " correct number of domains. Found {} expected {}.\n",
-            xd.size(), nDomains());
-    }
-    for (size_t m = 0; m < nDomains(); m++) {
-        Domain1D& dom = domain(m);
-        if (loglevel > 0 && xd[m]->attrib("id") != dom.id()) {
-            warn_user("Sim1D::restore", "Domain names do not match: "
-                "'{} and '{}'", (*xd[m])["id"], dom.id());
+    size_t dot = fname.find_last_of(".");
+    string extension = (dot != npos) ? toLowerCopy(fname.substr(dot+1)) : "";
+    if (extension == "yml" || extension == "yaml") {
+        AnyMap root = AnyMap::fromYamlFile(fname);
+        if (!root.hasKey(id)) {
+            throw InputFileError("Sim1D::restore", root,
+                                 "No solution with id '{}'", id);
         }
-        dom.resize(domain(m).nComponents(), intValue((*xd[m])["points"]));
-    }
-    resize();
-    m_xlast_ts.clear();
-    for (size_t m = 0; m < nDomains(); m++) {
-        domain(m).restore(*xd[m], &m_x[start(m)], loglevel);
+        const auto& state = root[id];
+        for (auto dom : m_dom) {
+            if (!state.hasKey(dom->id())) {
+                throw InputFileError("Sim1D::restore", state,
+                    "Saved state '{}' does not contain a domain named '{}'.",
+                    id, dom->id());
+            }
+            dom->resize(dom->nComponents(), state[dom->id()]["points"].asInt());
+        }
+        resize();
+        m_xlast_ts.clear();
+        for (auto dom : m_dom) {
+            dom->restore(state[dom->id()].as<AnyMap>(), m_x.data() + dom->loc(),
+                         loglevel);
+        }
+    } else {
+        XML_Node root;
+        root.build(fname);
+
+        XML_Node* f = root.findID(id);
+        if (!f) {
+            throw CanteraError("Sim1D::restore","No solution with id = "+id);
+        }
+
+        vector<XML_Node*> xd = f->getChildren("domain");
+        if (xd.size() != nDomains()) {
+            throw CanteraError("Sim1D::restore", "Solution does not contain the "
+                " correct number of domains. Found {} expected {}.\n",
+                xd.size(), nDomains());
+        }
+        for (size_t m = 0; m < nDomains(); m++) {
+            Domain1D& dom = domain(m);
+            if (loglevel > 0 && xd[m]->attrib("id") != dom.id()) {
+                warn_user("Sim1D::restore", "Domain names do not match: "
+                    "'{} and '{}'", (*xd[m])["id"], dom.id());
+            }
+            dom.resize(domain(m).nComponents(), intValue((*xd[m])["points"]));
+        }
+        resize();
+        m_xlast_ts.clear();
+        for (size_t m = 0; m < nDomains(); m++) {
+            domain(m).restore(*xd[m], &m_x[start(m)], loglevel);
+        }
     }
     finalize();
 }
@@ -265,11 +344,11 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                 }
 
                 if (loglevel > 6) {
-                    save("debug_sim1d.xml", "debug",
+                    save("debug_sim1d.yaml", "debug",
                          "After successful Newton solve");
                 }
                 if (loglevel > 7) {
-                    saveResidual("debug_sim1d.xml", "residual",
+                    saveResidual("debug_sim1d.yaml", "residual",
                                  "After successful Newton solve");
                 }
                 ok = true;
@@ -277,11 +356,11 @@ void Sim1D::solve(int loglevel, bool refine_grid)
             } else {
                 debuglog("    failure. \n", loglevel);
                 if (loglevel > 6) {
-                    save("debug_sim1d.xml", "debug",
+                    save("debug_sim1d.yaml", "debug",
                          "After unsuccessful Newton solve");
                 }
                 if (loglevel > 7) {
-                    saveResidual("debug_sim1d.xml", "residual",
+                    saveResidual("debug_sim1d.yaml", "residual",
                                  "After unsuccessful Newton solve");
                 }
                 if (loglevel > 0) {
@@ -291,10 +370,10 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                               loglevel-1);
                 m_xlast_ts = m_x;
                 if (loglevel > 6) {
-                    save("debug_sim1d.xml", "debug", "After timestepping");
+                    save("debug_sim1d.yaml", "debug", "After timestepping");
                 }
                 if (loglevel > 7) {
-                    saveResidual("debug_sim1d.xml", "residual",
+                    saveResidual("debug_sim1d.yaml", "residual",
                                  "After timestepping");
                 }
 
@@ -326,10 +405,10 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                 dt = m_tstep;
             }
             if (new_points && loglevel > 6) {
-                save("debug_sim1d.xml", "debug", "After regridding");
+                save("debug_sim1d.yaml", "debug", "After regridding");
             }
             if (new_points && loglevel > 7) {
-                saveResidual("debug_sim1d.xml", "residual",
+                saveResidual("debug_sim1d.yaml", "residual",
                              "After regridding");
             }
         } else {

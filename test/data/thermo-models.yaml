@@ -15,12 +15,6 @@ phases:
   transport: water
   species: [H2O(l)]
 
-# @todo Remove after Cantera 2.5 - class FixedChemPotSSTP is deprecated
-- name: Li-fixed
-  thermo: fixed-chemical-potential
-  species: [Li]
-  chemical-potential: -2.3e7 J/kmol
-
 - name: molten-salt-Margules
   thermo: Margules
   species: [KCl(l), LiCl(l)]
@@ -94,13 +88,6 @@ phases:
   species: [KCl(l)]
   thermo: Margules
 
-# todo: Remove after Cantera 2.5 - the "gas" moode of class IdealSolnGasVPSS is
-# deprecated.
-- name: IdealSolnGas-gas
-  thermo: ideal-gas-VPSS
-  species: [{gas-species: [H2O, H2, O2]}]
-  state: {T: 400, P: 5 atm, X: {H2: 0.01, O2: 0.99}}
-
 - name: IdealSolnGas-liquid
   thermo: ideal-solution-VPSS
   standard-concentration-basis: unity
@@ -133,7 +120,7 @@ phases:
   activity-data:
     temperature-model: complex # "constant" or "linear" are the other options
     A_Debye: 1.175930 kg^0.5/gmol^0.5
-    interactions: &hmw-ineractions
+    interactions: &hmw-interactions
     - species: [Na+, Cl-]
       beta0: [0.0765, 0.008946, -3.3158E-6, -777.03, -4.4706]
       beta1: [0.2664, 6.1608E-5, 1.0715E-6, 0.0, 0.0]
@@ -170,11 +157,50 @@ phases:
   activity-data:
     temperature-model: complex # "constant" or "linear" are the other options
     A_Debye: variable
-    interactions: *hmw-ineractions
+    interactions: *hmw-interactions
+
+- name: HMW-bogus
+  species:
+  - {HMW-species: [H2O(L), Cl-, H+, Na+, OH-]}
+  - {dh-electrolyte-species: [NaCl(aq)]}
+  thermo: HMW-electrolyte
+  state:
+    T: 423.15
+    P: 101325
+    molalities: {Na+: 6.0997, Cl-: 6.0997, H+: 2.16e-9, OH-: 2.16e-9}
+  activity-data:
+    temperature-model: linear
+    interactions:
+    - species: [NaCl(aq), Cl-]
+      lambda: [0.3, 0.01]
+    - species: [NaCl(aq), Na+]
+      lambda: [0.2, 0.02]
+    - species: [NaCl(aq), Na+, OH-]
+      zeta: [0.5, 0.2]
+    - species: [NaCl(aq)]
+      mu: [0.0, 0.3]
+    cropping-coefficients:
+      ln_gamma_k_min: -8.0
+      ln_gamma_k_max: 20
 
 - name: CO2-RK
   species: [{rk-species: [CO2, H2O, H2]}]
   thermo: Redlich-Kwong
+  state: {T: 300, P: 200 atm, mole-fractions: {CO2: 0.9998, H2O: 0.0002}}
+
+- name: CO2-RK-params
+  species: [{species-with-critical-properties: [CO2, H2O, H2]}]
+  thermo: Redlich-Kwong
+  state: {T: 300, P: 200 atm, mole-fractions: {CO2: 0.9998, H2O: 0.0002}}
+
+- name: CO2-PR
+  species: [{pr-species: [CO2, H2O, H2]}]
+  thermo: Peng-Robinson
+  state: {T: 300, P: 200 atm, mole-fractions: {CO2: 0.9998, H2O: 0.0002}}
+
+- name: CO2-PR-params
+  species: [{species-with-critical-properties: [CO2, H2O, H2]}]
+  thermo: Peng-Robinson
   state: {T: 300, P: 200 atm, mole-fractions: {CO2: 0.9998, H2O: 0.0002}}
 
 - name: nitrogen
@@ -188,15 +214,15 @@ phases:
   pure-fluid-name: carbondioxide
   state: {T: 275, vapor-fraction: 0.1}
 
-- name: const-density
-  thermo: constant-density
-  density: 0.7 g/cm^3
-  species: [NaCl(s), KCl(s)]
-  state: {T: 320, P: 1 atm}
-
 - name: IdealSolidSolnPhase
   thermo: ideal-condensed
   standard-concentration-basis: unity
+  species: [{ISSP-species: all}]
+  state: {T: 500, P: 2 bar, X: {sp1: 0.1, sp2: 0.89, sp3: 0.01}}
+
+- name: IdealSolidSolnPhase2
+  thermo: ideal-condensed
+  standard-concentration-basis: solvent-molar-volume
   species: [{ISSP-species: all}]
   state: {T: 500, P: 2 bar, X: {sp1: 0.1, sp2: 0.89, sp3: 0.01}}
 
@@ -263,9 +289,6 @@ species:
 
 - name: H2O(l)
   composition: {H: 2, O: 1}
-
-- name: Li
-  composition: {Li: 1}
 
 - name: KCl(l)
   composition: {K: 1, Cl: 1}
@@ -580,6 +603,109 @@ rk-species:
     a: [7.54e7, -4.13e4]
     b: 27.80
 
+
+pr-species:
+- name: H2
+  composition: {H: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [2.34433112, 0.00798052075, -1.9478151e-05, 2.01572094e-08, -7.37611761e-12,
+      -917.935173, 0.683010238]
+    - [3.3372792, -4.94024731e-05, 4.99456778e-07, -1.79566394e-10, 2.00255376e-14,
+      -950.158922, -3.20502331]
+  equation-of-state:
+    model: Peng-Robinson
+    units: {length: cm, quantity: mol}
+    a: 2.668423E+10
+    b: 16.5478
+    acentric-factor: -0.22
+- name: H2O
+  composition: {H: 2, O: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [4.19864056, -0.0020364341, 6.52040211e-06, -5.48797062e-09, 1.77197817e-12,
+      -30293.7267, -0.849032208]
+    - [3.03399249, 0.00217691804, -1.64072518e-07, -9.7041987e-11, 1.68200992e-14,
+      -30004.2971, 4.9667701]
+  equation-of-state:
+    model: Peng-Robinson
+    units: {length: cm, quantity: mol}
+    a: 5.998873E+11
+    b: 18.9714
+    acentric-factor: 0.344
+    binary-a:
+      H2: 4 bar*cm^6/mol^2
+      CO2: 7.897e7 bar*cm^6/mol^2
+- name: CO2
+  composition: {C: 1, O: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [2.35677352, 0.00898459677, -7.12356269e-06, 2.45919022e-09, -1.43699548e-13,
+      -48371.9697, 9.90105222]
+    - [3.85746029, 0.00441437026, -2.21481404e-06, 5.23490188e-10, -4.72084164e-14,
+      -48759.166, 2.27163806]
+  equation-of-state:
+    model: Peng-Robinson
+    units: {length: cm, quantity: mol}
+    a: 3.958134E+11
+    b: 26.6275
+    acentric-factor: 0.228
+
+
+species-with-critical-properties:
+- name: H2
+  composition: {H: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [2.34433112, 0.00798052075, -1.9478151e-05, 2.01572094e-08, -7.37611761e-12,
+      -917.935173, 0.683010238]
+    - [3.3372792, -4.94024731e-05, 4.99456778e-07, -1.79566394e-10, 2.00255376e-14,
+      -950.158922, -3.20502331]
+  critical-parameters:
+    critical-temperature: 32.938
+    critical-pressure: 1.2858 MPa
+    acentric-factor: -0.22
+- name: H2O
+  composition: {H: 2, O: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [4.19864056, -0.0020364341, 6.52040211e-06, -5.48797062e-09, 1.77197817e-12,
+      -30293.7267, -0.849032208]
+    - [3.03399249, 0.00217691804, -1.64072518e-07, -9.7041987e-11, 1.68200992e-14,
+      -30004.2971, 4.9667701]
+  critical-parameters:
+    critical-temperature: 647.096
+    critical-pressure: 22.064 MPa
+    acentric-factor: 0.344
+  equation-of-state:
+    model: Peng-Robinson
+    binary-a:
+      H2: 4 bar*cm^6/mol^2
+      CO2: 7.897e7 bar*cm^6/mol^2
+- name: CO2
+  composition: {C: 1, O: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [2.35677352, 0.00898459677, -7.12356269e-06, 2.45919022e-09, -1.43699548e-13,
+      -48371.9697, 9.90105222]
+    - [3.85746029, 0.00441437026, -2.21481404e-06, 5.23490188e-10, -4.72084164e-14,
+      -48759.166, 2.27163806]
+  critical-parameters:
+    critical-temperature: 304.128
+    critical-pressure: 7.3773 MPa
+    acentric-factor: 0.228
 
 HMW-species:
 - name: H2O(L)

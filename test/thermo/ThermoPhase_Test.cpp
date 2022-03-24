@@ -1,34 +1,17 @@
 #include "gtest/gtest.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/thermo/ThermoFactory.h"
-#include <vector>
+#include "cantera/base/Solution.h"
 
 namespace Cantera
 {
-
-class ThermoPhase_Fixture : public testing::Test
-{
-protected:
-    ThermoPhase test_phase;
-public:
-    ThermoPhase_Fixture() {}
-
-    ~ThermoPhase_Fixture() {}
-
-    void initializeElements()
-    {
-      test_phase.addElement("A", 1.);
-      test_phase.addElement("B", 2.);
-      test_phase.addElement("C", 3.);
-    }
-};
 
 class TestThermoMethods : public testing::Test
 {
 public:
     std::unique_ptr<ThermoPhase> thermo;
     TestThermoMethods() {
-        thermo.reset(newPhase("h2o2.xml"));
+        thermo.reset(newPhase("h2o2.yaml"));
     }
 };
 

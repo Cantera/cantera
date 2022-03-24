@@ -1,0 +1,57 @@
+units: {length: cm, quantity: mol, activation-energy: J/mol}
+
+phases:
+- name: gas
+  thermo: ideal-gas
+  elements: [O, H, C, N, Ar]
+  species:
+  - gri30.yaml/species: [ O2, OH]
+  skip-undeclared-elements: true
+  kinetics: gas
+  reactions:
+  - gri30.yaml/reactions: declared-species
+  transport: mixture-averaged
+- name: Pt_surf
+  thermo: ideal-surface
+  adjacent-phases: [gas]
+  elements: [Pt, H, O, C]
+  species: [{Pt-surf-species: all}]
+  kinetics: surface
+  reactions: [Pt-reactions]
+
+Pt-surf-species:
+- name: PT(S)
+  composition: {Pt: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 3000.0]
+    data:
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+- name: OH(S)
+  composition: {O: 1, H: 1, Pt: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 3000.0]
+    data:
+    - [-2.0340881, 9.3662683e-03, 6.6275214e-07, -5.2074887e-09, 1.7088735e-12,
+      -2.5319949e+04, 8.9863186]
+    - [1.8249973, 3.2501565e-03, -3.1197541e-07, -3.4603206e-10, 7.9171472e-14,
+      -2.6685492e+04, -12.280891]
+- name: O(S)
+  composition: {O: 1, Pt: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 3000.0]
+    data:
+    - [-0.94986904, 7.4042305e-03, -1.0451424e-06, -6.112042e-09, 3.3787992e-12,
+      -1.3209912e+04, 3.6137905]
+    - [1.945418, 9.1761647e-04, -1.1226719e-07, -9.9099624e-11, 2.4307699e-14,
+      -1.4005187e+04, -11.531663]
+
+Pt-reactions:
+- equation: O2 + 2 PT(S) => 2 O(S)  # Reaction 1
+  sticking-coefficient: {A: 2.0, b: 0, Ea: 0}
+- equation: OH + PT(S) => OH(S)  # Reaction 2
+  type: Blowers-Masel
+  sticking-coefficient: {A: 2.0, b: 0, Ea0: 0, w: 100000}

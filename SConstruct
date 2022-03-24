@@ -2,7 +2,7 @@
 SCons build script for Cantera
 
 Basic usage:
-    'scons help' - print a description of user-specifiable options.
+    'scons help' - Show this help message.
 
     'scons build' - Compile Cantera and the language interfaces using
                     default options.
@@ -25,7 +25,7 @@ Basic usage:
     'scons test-NAME' - Run the test named "NAME".
 
     'scons <command> dump' - Dump the state of the SCons environment to the
-                             screen instead of doing <command>, e.g.
+                             screen instead of doing <command>, for example
                              'scons build dump'. For debugging purposes.
 
     'scons samples' - Compile the C++ and Fortran samples.
@@ -35,340 +35,220 @@ Basic usage:
     'scons sphinx' - Build the Sphinx documentation
 
     'scons doxygen' - Build the Doxygen documentation
+
+Additional help command options:
+    'scons help --options' - Print a description of user-specifiable options.
+
+    'scons help --list-options' - Print formatted list of available options.
+
+    'scons help --option=<opt>' - Print the description of a specific option
+                                  with name <opt>, for example
+                                  'scons help --option=prefix'
+"""
+# Note that 'scons help' supports additional command options that are intended for
+# internal use (debugging or reST parsing of options) and thus are not listed above:
+#  --defaults ... list default values for all supported platforms
+#  --restructured-text ... format configuration as reST
+#  --dev ... add '-dev' to reST output
+#  --output=<fname> ... send output to file (reST only)
+
+# This f-string is deliberately here to trigger a SyntaxError when
+# SConstruct is parsed by Python 2. This seems to be the most robust
+# and simplest option that will reliably trigger an error in Python 2
+# and provide actionable feedback for users.
+python_min_build_support = "3.7"
+f"""
+Cantera must be built using Python 3.7 or higher. You can invoke SCons by executing
+    python3 `which scons`
+followed by any desired options.
 """
 
-from __future__ import print_function
+from pathlib import Path
+import sys
+import os
+import platform
+import subprocess
+import re
+import textwrap
+from os.path import join as pjoin
+from pkg_resources import parse_version
+import SCons
+
+# ensure that Python version is sufficient for build process
+python_version = "{v.major}.{v.minor}".format(v=sys.version_info)
+if parse_version(python_version) < parse_version(python_min_build_support):
+    print(
+        f"ERROR: Cantera must be built using Python {python_min_build_support} or "
+        f"higher; Python {python_version} is not supported.", file=sys.stderr)
+    sys.exit(1)
+
 from buildutils import *
 
 if not COMMAND_LINE_TARGETS:
     # Print usage help
-    print(__doc__)
-    sys.exit(0)
+    logger.error("Missing command argument: type 'scons help' for information.")
+    sys.exit(1)
 
-valid_commands = ('build','clean','install','uninstall',
-                  'help','msi','samples','sphinx','doxygen','dump')
+if parse_version(SCons.__version__) < parse_version("3.0.0"):
+    logger.error("Cantera requires SCons with a minimum version of 3.0.0. Exiting.")
+    sys.exit(1)
+
+if os.name not in ["nt", "posix"]:
+    logger.error(f"Error: Unrecognized operating system '{os.name}'")
+    sys.exit(1)
+
+valid_commands = ("build", "clean", "install", "uninstall",
+                  "help", "msi", "samples", "sphinx", "doxygen", "dump",
+                  "sdist")
 
 for command in COMMAND_LINE_TARGETS:
     if command not in valid_commands and not command.startswith('test'):
-        print('ERROR: unrecognized command line target: %r' % command)
-        sys.exit(0)
+        logger.error("Unrecognized command line target: {!r}", command)
+        sys.exit(1)
 
-extraEnvArgs = {}
+if "clean" in COMMAND_LINE_TARGETS:
+    remove_directory("build")
+    remove_directory("stage")
+    remove_directory(".sconf_temp")
+    remove_directory("test/work")
+    remove_file(".sconsign.dblite")
+    remove_file("include/cantera/base/config.h")
+    remove_file("src/pch/system.h.gch")
+    remove_directory("include/cantera/ext")
+    remove_file("config.log")
+    remove_directory("doc/sphinx/matlab/examples")
+    remove_file("doc/sphinx/matlab/examples.rst")
+    for name in Path("doc/sphinx/matlab/").glob("**/*.rst"):
+        if name.name != "index.rst":
+            remove_file(name)
+    remove_directory("doc/sphinx/cython/examples")
+    remove_file("doc/sphinx/cython/examples.rst")
+    for name in Path(".").glob("*.msi"):
+        remove_file(name)
+    for name in Path("site_scons").glob("**/*.pyc"):
+        remove_file(name)
+    remove_file("interfaces/matlab/toolbox/cantera_shared.dll")
+    remove_file("interfaces/matlab/Contents.m")
+    remove_file("interfaces/matlab/ctpath.m")
+    for name in Path("interfaces/matlab/toolbox").glob("ctmethods.*"):
+        remove_file(name)
 
-if 'clean' in COMMAND_LINE_TARGETS:
-    removeDirectory('build')
-    removeDirectory('stage')
-    removeDirectory('.sconf_temp')
-    removeDirectory('test/work')
-    removeFile('.sconsign.dblite')
-    removeFile('include/cantera/base/config.h')
-    removeFile('src/pch/system.h.gch')
-    removeDirectory('include/cantera/ext')
-    removeFile('interfaces/cython/cantera/_cantera.cpp')
-    removeFile('interfaces/cython/cantera/_cantera.h')
-    removeFile('interfaces/cython/setup.py')
-    removeFile('interfaces/python_minimal/setup.py')
-    removeFile('config.log')
-    removeDirectory('doc/sphinx/matlab/examples')
-    removeFile('doc/sphinx/matlab/examples.rst')
-    for name in os.listdir('doc/sphinx/matlab/'):
-        if name.endswith('.rst') and name != 'index.rst':
-            removeFile('doc/sphinx/matlab/' + name)
-    removeDirectory('doc/sphinx/cython/examples')
-    removeFile('doc/sphinx/cython/examples.rst')
-    removeDirectory('interfaces/cython/Cantera.egg-info')
-    removeDirectory('interfaces/python_minimal/Cantera_minimal.egg-info')
-    for name in os.listdir('interfaces/cython/cantera/data/'):
-        if os.path.isdir('interfaces/cython/cantera/data/' + name):
-            removeDirectory('interfaces/cython/cantera/data/' + name)
-        elif name != '__init__.py':
-            removeFile('interfaces/cython/cantera/data/' + name)
-    removeDirectory('interfaces/cython/cantera/test/data/test_subdir')
-    for name in os.listdir('interfaces/cython/cantera/test/data/'):
-        if name != '__init__.py':
-            removeFile('interfaces/cython/cantera/test/data/' + name)
-    for name in os.listdir('.'):
-        if name.endswith('.msi'):
-            removeFile(name)
-    for name in os.listdir('site_scons/'):
-        if name.endswith('.pyc'):
-            removeFile('site_scons/' + name)
-    for name in os.listdir('site_scons/site_tools/'):
-        if name.endswith('.pyc'):
-            removeFile('site_scons/site_tools/' + name)
-    for name in os.listdir('interfaces/python_minimal/cantera'):
-        if name != '__init__.py':
-            removeFile('interfaces/python_minimal/cantera/' + name)
-    removeFile('interfaces/matlab/toolbox/cantera_shared.dll')
-    removeFile('interfaces/matlab/Contents.m')
-    removeFile('interfaces/matlab/ctpath.m')
-    for name in os.listdir('interfaces/matlab/toolbox'):
-        if name.startswith('ctmethods.'):
-            removeFile('interfaces/matlab/toolbox/' + name)
+    print("Done removing output files.")
 
-    print('Done removing output files.')
-
-    if COMMAND_LINE_TARGETS == ['clean']:
+    if COMMAND_LINE_TARGETS == ["clean"]:
         # Just exit if there's nothing else to do
         sys.exit(0)
     else:
-        Alias('clean', [])
+        Alias("clean", [])
 
-if 'test-clean' in COMMAND_LINE_TARGETS:
-    removeDirectory('build/test')
-    removeDirectory('test/work')
-    removeDirectory('build/python_local')
+if "test-clean" in COMMAND_LINE_TARGETS:
+    remove_directory("build/test")
+    remove_directory("test/work")
+    remove_directory("build/python_local")
 
-# ******************************************************
-# *** Set system-dependent defaults for some options ***
-# ******************************************************
+logger.info("SCons is using the following Python interpreter: {}", sys.executable)
 
-print('INFO: SCons is using the following Python interpreter:', sys.executable)
+# ******************************************
+# *** Specify defaults for SCons options ***
+# ******************************************
 
-opts = Variables('cantera.conf')
-
-windows_compiler_options = []
-if os.name == 'nt':
-    # On Windows, target the same architecture as the current copy of Python,
-    # unless the user specified another option.
-    if '64 bit' in sys.version:
-        target_arch = 'amd64'
-    else:
-        target_arch = 'x86'
-
-    # Make an educated guess about the right default compiler
-    if which('g++') and not which('cl.exe'):
-        defaultToolchain = 'mingw'
-    else:
-        defaultToolchain = 'msvc'
-
-    windows_compiler_options.extend([
-        ('msvc_version',
-         """Version of Visual Studio to use. The default is the newest
-            installed version. Specify '12.0' for Visual Studio 2013 or '14.0'
-            for Visual Studio 2015.""",
-         ''),
-        EnumVariable(
-            'target_arch',
-            """Target architecture. The default is the same architecture as the
-               installed version of Python.""",
-            target_arch, ('amd64', 'x86'))
-    ])
-    opts.AddVariables(*windows_compiler_options)
-
-    pickCompilerEnv = Environment()
-    opts.Update(pickCompilerEnv)
-
-    if pickCompilerEnv['msvc_version']:
-        defaultToolchain = 'msvc'
-
-    windows_compiler_options.append(EnumVariable(
-        'toolchain',
-        """The preferred compiler toolchain.""",
-        defaultToolchain, ('msvc', 'mingw', 'intel')))
-    opts.AddVariables(windows_compiler_options[-1])
-    opts.Update(pickCompilerEnv)
-
-    if pickCompilerEnv['toolchain'] == 'msvc':
-        toolchain = ['default']
-        if pickCompilerEnv['msvc_version']:
-            extraEnvArgs['MSVC_VERSION'] = pickCompilerEnv['msvc_version']
-        print('INFO: Compiling with MSVC', (pickCompilerEnv['msvc_version'] or
-                                            pickCompilerEnv['MSVC_VERSION']))
-
-    elif pickCompilerEnv['toolchain'] == 'mingw':
-        toolchain = ['mingw', 'f90']
-        extraEnvArgs['F77'] = None
-        # Next line fixes http://scons.tigris.org/issues/show_bug.cgi?id=2683
-        extraEnvArgs['WINDOWS_INSERT_DEF'] = 1
-
-    elif pickCompilerEnv['toolchain'] == 'intel':
-        toolchain = ['intelc'] # note: untested
-
-    extraEnvArgs['TARGET_ARCH'] = pickCompilerEnv['target_arch']
-    print('INFO: Compiling for architecture:', pickCompilerEnv['target_arch'])
-    print('INFO: Compiling using the following toolchain(s):', repr(toolchain))
-
-else:
-    toolchain = ['default']
-
-env = Environment(tools=toolchain+['textfile', 'subst', 'recursiveInstall', 'wix', 'gch'],
-                  ENV={'PATH': os.environ['PATH']},
-                  toolchain=toolchain,
-                  **extraEnvArgs)
-
-env['OS'] = platform.system()
-env['OS_BITS'] = int(platform.architecture()[0][:2])
-if 'cygwin' in env['OS'].lower():
-    env['OS'] = 'Cygwin' # remove Windows version suffix
-
-# Fixes a linker error in Windows
-if os.name == 'nt' and 'TMP' in os.environ:
-    env['ENV']['TMP'] = os.environ['TMP']
-
-# Fixes issues with Python subprocesses. See http://bugs.python.org/issue13524
-if os.name == 'nt':
-    env['ENV']['SystemRoot'] = os.environ['SystemRoot']
-
-# Needed for Matlab to source ~/.matlab7rc.sh
-if 'HOME' in os.environ:
-    env['ENV']['HOME'] = os.environ['HOME']
-
-# Fix an issue with Unicode sneaking into the environment on Windows
-if os.name == 'nt':
-    for key,val in env['ENV'].items():
-        env['ENV'][key] = str(val)
-
-if 'FRAMEWORKS' not in env:
-    env['FRAMEWORKS'] = []
-
-add_RegressionTest(env)
-
-class defaults: pass
-
-if os.name == 'posix':
-    defaults.prefix = '/usr/local'
-    defaults.boostIncDir = ''
-    env['INSTALL_MANPAGES'] = True
-elif os.name == 'nt':
-    defaults.prefix = pjoin(os.environ['ProgramFiles'], 'Cantera')
-    defaults.boostIncDir = ''
-    env['INSTALL_MANPAGES'] = False
-else:
-    print("Error: Unrecognized operating system '%s'" % os.name)
-    sys.exit(1)
-
-compiler_options = [
-    ('CXX',
-     """The C++ compiler to use.""",
-     env['CXX']),
-    ('CC',
-     """The C compiler to use. This is only used to compile CVODE.""",
-     env['CC'])]
-opts.AddVariables(*compiler_options)
-opts.Update(env)
-
-defaults.cxxFlags = ''
-defaults.ccFlags = ''
-defaults.noOptimizeCcFlags = '-O0'
-defaults.optimizeCcFlags = '-O3'
-defaults.debugCcFlags = '-g'
-defaults.noDebugCcFlags = ''
-defaults.debugLinkFlags = ''
-defaults.noDebugLinkFlags = ''
-defaults.warningFlags = '-Wall'
-defaults.buildPch = False
-defaults.sphinx_options = '-W --keep-going'
-env['pch_flags'] = []
-env['openmp_flag'] = ['-fopenmp'] # used to generate sample build scripts
-
-env['using_apple_clang'] = False
-# Check if this is actually Apple's clang on macOS
-if env['OS'] == 'Darwin':
-    result = subprocess.check_output([env.subst('$CC'), '--version']).decode('utf-8')
-    if 'clang' in result.lower() and ('Xcode' in result or 'Apple' in result):
-        env['using_apple_clang'] = True
-        env['openmp_flag'].insert(0, '-Xpreprocessor')
-
-if 'gcc' in env.subst('$CC') or 'gnu-cc' in env.subst('$CC'):
-    defaults.optimizeCcFlags += ' -Wno-inline'
-    if env['OS'] == 'Cygwin':
-        # See http://stackoverflow.com/questions/18784112
-        defaults.cxxFlags = '-std=gnu++0x'
-    else:
-        defaults.cxxFlags = '-std=c++0x'
-    defaults.buildPch = True
-    env['pch_flags'] = ['-include', 'src/pch/system.h']
-
-elif env['CC'] == 'cl': # Visual Studio
-    defaults.cxxFlags = ['/EHsc']
-    defaults.ccFlags = ['/MD', '/nologo',
-                        '/D_SCL_SECURE_NO_WARNINGS', '/D_CRT_SECURE_NO_WARNINGS']
-    defaults.debugCcFlags = '/Zi /Fd${TARGET}.pdb'
-    defaults.noOptimizeCcFlags = '/Od /Ob0'
-    defaults.optimizeCcFlags = '/O2'
-    defaults.debugLinkFlags = '/DEBUG'
-    defaults.warningFlags = '/W3'
-    defaults.buildPch = True
-    env['pch_flags'] = ['/FIpch/system.h']
-    env['openmp_flag'] = ['/openmp']
-
-elif 'icc' in env.subst('$CC'):
-    defaults.cxxFlags = '-std=c++0x'
-    defaults.ccFlags = '-vec-report0 -diag-disable 1478'
-    defaults.warningFlags = '-Wcheck'
-    env['openmp_flag'] = ['-openmp']
-
-elif 'clang' in env.subst('$CC'):
-    defaults.ccFlags = '-fcolor-diagnostics'
-    defaults.cxxFlags = '-std=c++11'
-    defaults.buildPch = True
-    env['pch_flags'] = ['-include-pch', 'src/pch/system.h.gch']
-
-else:
-    print("WARNING: Unrecognized C compiler '%s'" % env['CC'])
-
-if env['OS'] in ('Windows', 'Darwin'):
-    defaults.threadFlags = ''
-else:
-    defaults.threadFlags = '-pthread'
-
-# InstallVersionedLib only fully functional in SCons >= 2.4.0
-# SHLIBVERSION fails with MinGW: http://scons.tigris.org/issues/show_bug.cgi?id=3035
-if (env['toolchain'] == 'mingw'
-    or parse_version(SCons.__version__) < parse_version('2.4.0')):
-    defaults.versionedSharedLibrary = False
-else:
-    defaults.versionedSharedLibrary = True
-
-defaults.fsLayout = 'compact' if env['OS'] == 'Windows' else 'standard'
-defaults.env_vars = 'PATH,LD_LIBRARY_PATH,PYTHONPATH'
-
-defaults.python_prefix = '$prefix' if env['OS'] != 'Windows' else ''
-
-# Transform lists into strings to keep cantera.conf clean
-for key,value in defaults.__dict__.items():
-    if isinstance(value, (list, tuple)):
-        setattr(defaults, key, ' '.join(value))
-
-# **************************************
-# *** Read user-configurable options ***
-# **************************************
+windows_options = [
+    Option(
+        "msvc_version",
+        """Version of Visual Studio to use. The default is the newest
+           installed version. Specify '12.0' for Visual Studio 2013, '14.0' for
+           Visual Studio 2015, '14.1' ('14.1x') Visual Studio 2017, '14.2'
+           ('14.2x') for Visual Studio 2019, or '14.3' ('14.3x') for
+           Visual Studio 2022. For version numbers in parentheses,
+           'x' is a placeholder for a minor version number. Windows MSVC only.""",
+        ""),
+    EnumOption(
+        "target_arch",
+        """Target architecture. The default is the same architecture as the
+           installed version of Python. Windows only.""",
+        {"Windows": "amd64"},
+        ("amd64", "x86")),
+    EnumOption(
+        "toolchain",
+        """The preferred compiler toolchain. If MSVC is not on the path but
+           'g++' is on the path, 'mingw' is used as a backup. Windows only.""",
+        {"Windows": "msvc"},
+        ("msvc", "mingw", "intel")),
+]
 
 config_options = [
-    PathVariable(
-        'prefix',
-        'Set this to the directory where Cantera should be installed.',
-        defaults.prefix, PathVariable.PathAccept),
-    PathVariable(
-        'libdirname',
+    Option(
+        "CXX",
+        "The C++ compiler to use.",
+        "${CXX}"),
+    Option(
+        "cxx_flags",
+        """Compiler flags passed to the C++ compiler only. Separate multiple
+           options with spaces, for example, "cxx_flags='-g -Wextra -O3 --std=c++11'"
+           """,
+        {
+            "cl": "/EHsc",
+            "Cygwin": "-std=gnu++11", # See http://stackoverflow.com/questions/18784112
+            "default": "-std=c++11"
+        }),
+    Option(
+        "CC",
+        "The C compiler to use. This is only used to compile CVODE.",
+        "${CC}"),
+    Option(
+        "cc_flags",
+        """Compiler flags passed to both the C and C++ compilers, regardless of
+           optimization level.""",
+        {
+            "cl": "/MD /nologo /D_SCL_SECURE_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS",
+            "clang": "-fcolor-diagnostics",
+            "default": "",
+        }),
+    PathOption(
+        "prefix",
+        r"""Set this to the directory where Cantera should be installed. If the Python
+           executable found during compilation is managed by 'conda', the installation
+           'prefix' defaults to the corresponding environment and the 'conda' layout
+           will be used for installation (specifying any of the options 'prefix',
+           'python_prefix', 'python_cmd', or 'layout' will override this default). On
+           Windows systems, '$ProgramFiles' typically refers to "C:\Program Files".""",
+        {"Windows": r"$ProgramFiles\Cantera", "default": "/usr/local"},
+        PathVariable.PathAccept),
+    PathOption(
+        "libdirname",
         """Set this to the directory where Cantera libraries should be installed.
-           Some distributions (for example, Fedora/RHEL) use 'lib64' instead of 'lib' on 64-bit systems
-           or could use some other library directory name instead of 'lib' depends
-           on architecture and profile (for example, Gentoo 'libx32' on x32 profile).
-           If user didn't set 'libdirname' configuration variable set it to default value 'lib'""",
-        'lib', PathVariable.PathAccept),
-    EnumVariable(
-        'python_package',
-        """If you plan to work in Python, then you need the ``full`` Cantera Python
+           Some distributions (for example, Fedora/RHEL) use 'lib64' instead of 'lib'
+           on 64-bit systems or could use some other library directory name instead of
+           'lib', depending on architecture and profile (for example, Gentoo 'libx32'
+           on x32 profile). If the user didn't set the 'libdirname' configuration
+           variable, set it to the default value 'lib'""",
+        "lib", PathVariable.PathAccept),
+    EnumOption(
+        "python_package",
+        """If you plan to work in Python, then you need the 'full' Cantera Python
            package. If, on the other hand, you will only use Cantera from some
            other language (for example, MATLAB or Fortran 90/95) and only need Python
-           to process CTI files, then you only need a ``minimal`` subset of the
-           package and Cython and NumPy are not necessary. The ``none`` option
+           to process YAML files, then you only need a 'minimal' subset of the
+           package and Cython and NumPy are not necessary. The 'none' option
            doesn't install any components of the Python interface. The default
            behavior is to build the full Python module for whichever version of
            Python is running SCons if the required prerequisites (NumPy and
-           Cython) are installed. Note: ``y`` is a synonym for ``full`` and ``n``
-           is a synonym for ``none``.""",
-        'default', ('new', 'full', 'minimal', 'none', 'n', 'y', 'default')),
-    PathVariable(
-        'python_cmd',
+           Cython) are installed. Note: 'y' is a synonym for 'full' and 'n'
+           is a synonym for 'none'.""",
+        "default", ("full", "minimal", "none", "n", "y", "default")),
+    BoolOption(
+        "python_sdist",
+        """Setting this option to True builds the Python sdist.""",
+        False),
+    PathOption(
+        "python_cmd",
         """Cantera needs to know where to find the Python interpreter. If
-           PYTHON_CMD is not set, then the configuration process will use the
+           'PYTHON_CMD' is not set, then the configuration process will use the
            same Python interpreter being used by SCons.""",
-        sys.executable, PathVariable.PathAccept),
-    PathVariable(
-        'python_prefix',
+        "${PYTHON_CMD}",
+        PathVariable.PathAccept),
+    PathOption(
+        "python_prefix",
         """Use this option if you want to install the Cantera Python package to
            an alternate location. On Unix-like systems, the default is the same
            as the 'prefix' option. If the 'python_prefix' option is set to
@@ -376,121 +256,112 @@ config_options = [
            will be installed to the system default 'site-packages' directory.
            To install to the current user's 'site-packages' directory, use
            'python_prefix=USER'.""",
-        defaults.python_prefix, PathVariable.PathAccept),
-    EnumVariable(
-        'python3_package',
-        """Deprecated synonym for the 'python_package' option. Will be overridden
-        if 'python_package' is set.""",
-        'default', ('full', 'minimal', 'y', 'n', 'none', 'default')),
-    PathVariable(
-        'python3_cmd',
-        """Deprecated synonym for the 'python_cmd' option. Will be overridden
-           if 'python_cmd' is set.""",
-        sys.executable, PathVariable.PathAccept),
-    PathVariable(
-        'python3_prefix',
-        """Deprecated synonym for the 'python_prefix' option. Will be overridden
-           if 'python_prefix' is set.""",
-        defaults.python_prefix, PathVariable.PathAccept),
-     EnumVariable(
-        'matlab_toolbox',
+        {"default": ""},
+        PathVariable.PathAccept),
+    EnumOption(
+        "matlab_toolbox",
         """This variable controls whether the MATLAB toolbox will be built. If
            set to 'y', you will also need to set the value of the 'matlab_path'
            variable. If set to 'default', the MATLAB toolbox will be built if
            'matlab_path' is set.""",
-        'default', ('y', 'n', 'default')),
-    PathVariable(
-        'matlab_path',
+        "default", ("y", "n", "default")),
+    PathOption(
+        "matlab_path",
         """Path to the MATLAB install directory. This should be the directory
            containing the 'extern', 'bin', etc. subdirectories. Typical values
-           are: "C:/Program Files/MATLAB/R2011a" on Windows,
-           "/Applications/MATLAB_R2011a.app" on OS X, or
-           "/opt/MATLAB/R2011a" on Linux.""",
-        '', PathVariable.PathAccept),
-    EnumVariable(
-        'f90_interface',
+           are: "C:\\Program Files\\MATLAB\\R2021a" on Windows,
+           "/Applications/MATLAB_R2021a.app" on macOS, or
+           "/opt/MATLAB/R2021a" on Linux.""",
+        "", PathVariable.PathAccept),
+    EnumOption(
+        "f90_interface",
         """This variable controls whether the Fortran 90/95 interface will be
            built. If set to 'default', the builder will look for a compatible
            Fortran compiler in the 'PATH' environment variable, and compile
            the Fortran 90 interface if one is found.""",
-        'default', ('y', 'n', 'default')),
-    PathVariable(
-        'FORTRAN',
-        """The Fortran (90) compiler. If unspecified, the builder will look for
-           a compatible compiler (pgfortran, gfortran, ifort, g95) in the 'PATH' environment
-           variable. Used only for compiling the Fortran 90 interface.""",
-        '', PathVariable.PathAccept),
-    ('FORTRANFLAGS',
-     'Compilation options for the Fortran (90) compiler.',
-     '-O3'),
-    BoolVariable(
-        'coverage',
+        "default", ("y", "n", "default")),
+    PathOption(
+        "FORTRAN",
+        """The Fortran (90) compiler. If unspecified, the builder will look for a
+           compatible compiler (pgfortran, gfortran, ifort, ifx, g95) in the 'PATH'
+           environment variable. Used only for compiling the Fortran 90 interface.""",
+        "", PathVariable.PathAccept),
+    Option(
+        "FORTRANFLAGS",
+        "Compilation options for the Fortran (90) compiler.",
+        "-O3"),
+    BoolOption(
+        "coverage",
         """Enable collection of code coverage information with gcov.
            Available only when compiling with gcc.""",
         False),
-    BoolVariable(
-        'doxygen_docs',
-        """Build HTML documentation for the C++ interface using Doxygen.""",
+    BoolOption(
+        "doxygen_docs",
+        "Build HTML documentation for the C++ interface using Doxygen.",
         False),
-    BoolVariable(
-        'sphinx_docs',
-        """Build HTML documentation for Cantera using Sphinx.""",
+    BoolOption(
+        "sphinx_docs",
+        "Build HTML documentation for Cantera using Sphinx.",
         False),
-    PathVariable(
-        'sphinx_cmd',
-        """Command to use for building the Sphinx documentation.""",
-        'sphinx-build', PathVariable.PathAccept),
-    (
+    PathOption(
+        "sphinx_cmd",
+        "Command to use for building the Sphinx documentation.",
+        "sphinx-build", PathVariable.PathAccept),
+    Option(
         "sphinx_options",
         """Options passed to the 'sphinx_cmd' command line. Separate multiple
            options with spaces, for example, "-W --keep-going".""",
-        defaults.sphinx_options,
-    ),
-    EnumVariable(
-        'system_eigen',
+        "-W --keep-going"),
+    EnumOption(
+        "system_eigen",
         """Select whether to use Eigen from a system installation ('y'), from a
            Git submodule ('n'), or to decide automatically ('default'). If Eigen
-           is not installed directly into a system include directory, for example, it is
-           installed in '/opt/include/eigen3/Eigen', then you will need to add
+           is not installed directly into a system include directory, for example, it
+           is installed in '/opt/include/eigen3/Eigen', then you will need to add
            '/opt/include/eigen3' to 'extra_inc_dirs'.
            """,
-        'default', ('default', 'y', 'n')),
-    EnumVariable(
-        'system_fmt',
+        "default", ("default", "y", "n")),
+    EnumOption(
+        "system_fmt",
         """Select whether to use the fmt library from a system installation
            ('y'), from a Git submodule ('n'), or to decide automatically
-           ('default').""",
-        'default', ('default', 'y', 'n')),
-    EnumVariable(
-        'system_yamlcpp',
+           ('default'). If you do not want to use the Git submodule and fmt
+           is not installed directly into system include and library
+           directories, then you will need to add those directories to
+           'extra_inc_dirs' and 'extra_lib_dirs'. This installation of fmt
+           must include the shared version of the library, for example,
+           'libfmt.so'.""",
+        "default", ("default", "y", "n")),
+    EnumOption(
+        "system_yamlcpp",
         """Select whether to use the yaml-cpp library from a system installation
            ('y'), from a Git submodule ('n'), or to decide automatically
            ('default'). If yaml-cpp is not installed directly into system
            include and library directories, then you will need to add those
            directories to 'extra_inc_dirs' and 'extra_lib_dirs'.""",
-        'default', ('default', 'y', 'n')),
-    EnumVariable(
-        'system_sundials',
+        "default", ("default", "y", "n")),
+    EnumOption(
+        "system_sundials",
         """Select whether to use SUNDIALS from a system installation ('y'), from
            a Git submodule ('n'), or to decide automatically ('default').
            Specifying 'sundials_include' or 'sundials_libdir' changes the
            default to 'y'.""",
-        'default', ('default', 'y', 'n')),
-    PathVariable(
-        'sundials_include',
+        "default", ("default", "y", "n")),
+    PathOption(
+        "sundials_include",
         """The directory where the SUNDIALS header files are installed. This
            should be the directory that contains the "cvodes", "nvector", etc.
            subdirectories. Not needed if the headers are installed in a
            standard location, for example, '/usr/include'.""",
-        '', PathVariable.PathAccept),
-    PathVariable(
-        'sundials_libdir',
+        "", PathVariable.PathAccept),
+    PathOption(
+        "sundials_libdir",
         """The directory where the SUNDIALS static libraries are installed.
            Not needed if the libraries are installed in a standard location,
            for example, '/usr/lib'.""",
-        '', PathVariable.PathAccept),
-    (
-        'blas_lapack_libs',
+        "", PathVariable.PathAccept),
+    Option(
+        "blas_lapack_libs",
         """Cantera can use BLAS and LAPACK libraries available on your system if
            you have optimized versions available (for example, Intel MKL). Otherwise,
            Cantera will use Eigen for linear algebra support. To use BLAS
@@ -498,143 +369,149 @@ config_options = [
            that should be passed to the linker, separated by commas, for example,
            "lapack,blas" or "lapack,f77blas,cblas,atlas". Eigen is required
            whether or not BLAS/LAPACK are used.""",
-        ''),
-    PathVariable(
-        'blas_lapack_dir',
+        ""),
+    PathOption(
+        "blas_lapack_dir",
         """Directory containing the libraries specified by 'blas_lapack_libs'. Not
            needed if the libraries are installed in a standard location, for example,
-           ``/usr/lib``.""",
-        '', PathVariable.PathAccept),
-    EnumVariable(
-        'lapack_names',
+           '/usr/lib'.""",
+        "", PathVariable.PathAccept),
+    EnumOption(
+        "lapack_names",
         """Set depending on whether the procedure names in the specified
            libraries are lowercase or uppercase. If you don't know, run 'nm' on
-           the library file (for example, 'nm libblas.a').""",
-        'lower', ('lower','upper')),
-    BoolVariable(
-        'lapack_ftn_trailing_underscore',
+           the library file (for example, "nm libblas.a").""",
+        "lower", ("lower", "upper")),
+    BoolOption(
+        "lapack_ftn_trailing_underscore",
         """Controls whether the LAPACK functions have a trailing underscore
            in the Fortran libraries.""",
         True),
-    BoolVariable(
-        'lapack_ftn_string_len_at_end',
+    BoolOption(
+        "lapack_ftn_string_len_at_end",
         """Controls whether the LAPACK functions have the string length
            argument at the end of the argument list ('yes') or after
            each argument ('no') in the Fortran libraries.""",
         True),
-    EnumVariable(
-        'system_googletest',
-        """Select whether to use gtest/gmock from system
-           installation ('y'), from a Git submodule ('n'), or to decide
-           automatically ('default'). Deprecated option, please use 'googletest' instead.
-           This option is suppressed by 'googletest' option.""",
-        'unspecified', ('unspecified','default', 'y', 'n')),
-    EnumVariable(
-        'googletest',
+    EnumOption(
+        "googletest",
         """Select whether to use gtest/gmock from system
            installation ('system'), from a Git submodule ('submodule'), to decide
            automatically ('default') or don't look for gtest/gmock ('none')
-           and don't run tests that depend on gtest/gmock. If this option is
-           set then it suppresses the deprecated 'system_googletest' option.""",
-        'default', ('default', 'system', 'submodule', 'none')),
-    (
-        'env_vars',
+           and don't run tests that depend on gtest/gmock.""",
+        "default", ("default", "system", "submodule", "none")),
+    Option(
+        "env_vars",
         """Environment variables to propagate through to SCons. Either the
-           string "all" or a comma separated list of variable names, for example,
+           string 'all' or a comma separated list of variable names, for example,
            'LD_LIBRARY_PATH,HOME'.""",
-        defaults.env_vars),
-    BoolVariable(
-        'use_pch',
-        """Use a precompiled-header to speed up compilation""",
-        defaults.buildPch),
-    (
-        'cxx_flags',
-        """Compiler flags passed to the C++ compiler only. Separate multiple
-           options with spaces, for example, "cxx_flags='-g -Wextra -O3 --std=c++11'"
-           """,
-        defaults.cxxFlags),
-    (
-        'cc_flags',
-        """Compiler flags passed to both the C and C++ compilers, regardless of optimization level.""",
-        defaults.ccFlags),
-    (
-        'thread_flags',
-        """Compiler and linker flags for POSIX multithreading support.""",
-        defaults.threadFlags),
-    BoolVariable(
-        'optimize',
+        "PATH,LD_LIBRARY_PATH,PYTHONPATH"),
+    BoolOption(
+        "use_pch",
+        "Use a precompiled-header to speed up compilation",
+        {"icc": False, "default": True}),
+    Option(
+        "pch_flags",
+        "Compiler flags when using precompiled-header.",
+        {
+            "cl": "/FIpch/system.h",
+            "gcc": "-include src/pch/system.h",
+            "icx": "-include-pch src/pch/system.h.gch",
+            "clang": "-include-pch src/pch/system.h.gch",
+            "default": "",
+        }),
+    Option(
+        "thread_flags",
+        "Compiler and linker flags for POSIX multithreading support.",
+        {"Windows": "", "macOS": "", "default": "-pthread"}),
+    BoolOption(
+        "optimize",
         """Enable extra compiler optimizations specified by the
            'optimize_flags' variable, instead of the flags specified by the
            'no_optimize_flags' variable.""",
         True),
-    (
-        'optimize_flags',
-        """Additional compiler flags passed to the C/C++ compiler when 'optimize=yes'.""",
-        defaults.optimizeCcFlags),
-    (
-        'no_optimize_flags',
-        """Additional compiler flags passed to the C/C++ compiler when 'optimize=no'.""",
-        defaults.noOptimizeCcFlags),
-    BoolVariable(
-        'debug',
-        """Enable compiler debugging symbols.""",
+    Option(
+        "optimize_flags",
+        "Additional compiler flags passed to the C/C++ compiler when 'optimize=yes'.",
+        {
+            "cl": "/O2",
+            "icc": "-O3 -fp-model precise",
+            "icx": "-O3 -fp-model precise", # cannot assume finite math
+            "gcc": "-O3 -Wno-inline",
+            "default": "-O3",
+        }),
+    Option(
+        "no_optimize_flags",
+        "Additional compiler flags passed to the C/C++ compiler when 'optimize=no'.",
+        {"cl": "/Od /Ob0", "default": "-O0"}),
+    BoolOption(
+        "debug",
+        "Enable compiler debugging symbols.",
         True),
-    (
-        'debug_flags',
-        """Additional compiler flags passed to the C/C++ compiler when 'debug=yes'.""",
-        defaults.debugCcFlags),
-    (
-        'no_debug_flags',
-        """Additional compiler flags passed to the C/C++ compiler when 'debug=no'.""",
-        defaults.noDebugCcFlags),
-    (
-        'debug_linker_flags',
-        """Additional options passed to the linker when 'debug=yes'.""",
-        defaults.debugLinkFlags),
-    (
-        'no_debug_linker_flags',
-        """Additional options passed to the linker when 'debug=no'.""",
-        defaults.noDebugLinkFlags),
-    (
-        'warning_flags',
+    Option(
+        "debug_flags",
+        "Additional compiler flags passed to the C/C++ compiler when 'debug=yes'.",
+        {"cl": "/Zi /Fd${TARGET}.pdb", "default": "-g"}),
+    Option(
+        "no_debug_flags",
+        "Additional compiler flags passed to the C/C++ compiler when 'debug=no'.",
+        ""),
+    Option(
+        "debug_linker_flags",
+        "Additional options passed to the linker when 'debug=yes'.",
+        {"cl": "/DEBUG", "default": ""}),
+    Option(
+        "no_debug_linker_flags",
+        "Additional options passed to the linker when 'debug=no'.",
+        ""),
+    Option(
+        "warning_flags",
         """Additional compiler flags passed to the C/C++ compiler to enable
            extra warnings. Used only when compiling source code that is part
            of Cantera (for example, excluding code in the 'ext' directory).""",
-        defaults.warningFlags),
-    (
-        'extra_inc_dirs',
+        {
+            "cl": "/W3",
+            "default": "-Wall",
+        }),
+    Option(
+        "extra_inc_dirs",
         """Additional directories to search for header files, with multiple
-        directories separated by colons (*nix, macOS) or semicolons (Windows)""",
-        ''),
-    (
-        'extra_lib_dirs',
+           directories separated by colons (*nix, macOS) or semicolons (Windows).
+           If an active 'conda' environment is detected, the corresponding include
+           path is automatically added.""",
+        ""),
+    Option(
+        "extra_lib_dirs",
         """Additional directories to search for libraries, with multiple
-        directories separated by colons (*nix, macOS) or semicolons (Windows)""",
-        ''),
-    PathVariable(
-        'boost_inc_dir',
+           directories separated by colons (*nix, macOS) or semicolons (Windows).
+           If an active 'conda' environment is detected, the corresponding library
+           path is automatically added.""",
+        ""),
+    PathOption(
+        "boost_inc_dir",
         """Location of the Boost header files. Not needed if the headers are
            installed in a standard location, for example, '/usr/include'.""",
-        defaults.boostIncDir, PathVariable.PathAccept),
-    PathVariable(
-        'stage_dir',
+        "",
+        PathVariable.PathAccept),
+    PathOption(
+        "stage_dir",
         """Directory relative to the Cantera source directory to be
            used as a staging area for building for example, a Debian
            package. If specified, 'scons install' will install files
            to 'stage_dir/prefix/...'.""",
-        '',
+        "",
         PathVariable.PathAccept),
-    BoolVariable(
-        'VERBOSE',
-        """Create verbose output about what SCons is doing.""",
+    BoolOption(
+        "VERBOSE",
+        "Create verbose output about what SCons is doing.",
         False),
-    (
-        'gtest_flags',
+    Option(
+        "gtest_flags",
         """Additional options passed to each GTest test suite, for example,
            '--gtest_filter=*pattern*'. Separate multiple options with spaces.""",
-        ''),
-    BoolVariable(
-        'renamed_shared_libraries',
+        ""),
+    BoolOption(
+        "renamed_shared_libraries",
         """If this option is turned on, the shared libraries that are created
            will be renamed to have a '_shared' extension added to their base name.
            If not, the base names will be the same as the static libraries.
@@ -642,37 +519,306 @@ config_options = [
            static libraries and avoids a bug with using valgrind with
            the '-static' linking flag.""",
         True),
-    BoolVariable(
-        'versioned_shared_library',
+    BoolOption(
+        "versioned_shared_library",
         """If enabled, create a versioned shared library, with symlinks to the
            more generic library name, for example, 'libcantera_shared.so.2.5.0' as the
            actual library and 'libcantera_shared.so' and 'libcantera_shared.so.2'
-           as symlinks.
-           """,
-        defaults.versionedSharedLibrary),
-    BoolVariable(
-        'use_rpath_linkage',
+           as symlinks.""",
+        {"mingw": False, "default": True}),
+    BoolOption(
+        "use_rpath_linkage",
         """If enabled, link to all shared libraries using 'rpath', i.e., a fixed
            run-time search path for dynamic library loading.""",
         True),
-    EnumVariable(
-        'layout',
+    Option(
+        "openmp_flag",
+        """Compiler flags used for multiprocessing (only used to generate sample build
+           scripts).""",
+        {
+            "cl": "/openmp",
+            "icc": "-qopenmp",
+            "icx": "-qopenmp",
+            "apple-clang": "-Xpreprocessor -fopenmp",
+            "default": "-fopenmp",
+        }),
+    EnumOption(
+        "layout",
         """The layout of the directory structure. 'standard' installs files to
            several subdirectories under 'prefix', for example, 'prefix/bin',
            'prefix/include/cantera', 'prefix/lib' etc. This layout is best used in
-           conjunction with "prefix'='/usr/local'". 'compact' puts all installed
-           files in the subdirectory defined by 'prefix'. This layout is best
-           with a prefix like '/opt/cantera'. 'debian' installs to the stage
-           directory in a layout used for generating Debian packages.""",
-        defaults.fsLayout, ('standard','compact','debian')),
-    BoolVariable(
+           conjunction with "prefix='/usr/local'". 'compact' puts all installed files
+           in the subdirectory defined by 'prefix'. This layout is best with a prefix
+           like '/opt/cantera'. 'debian' installs to the stage directory in a layout
+           used for generating Debian packages. If the Python executable found during
+           compilation is managed by 'conda', the layout will default to 'conda'
+           irrespective of operating system. For the 'conda' layout, the Python package
+           as well as all libraries and header files are installed into the active
+           'conda' environment. Input data, samples, and other files are installed in
+           the 'shared/cantera' subdirectory of the active 'conda' environment.""",
+        {"Windows": "compact", "default": "standard"},
+        ("standard", "compact", "debian", "conda")),
+    BoolOption(
         "fast_fail_tests",
-        """If enabled, tests will exit at the first failure.""",
-        False,
-    )
+        "If enabled, tests will exit at the first failure.",
+        False),
+    BoolOption(
+        "skip_slow_tests",
+        """If enabled, skip a subset of tests that are known to have long runtimes.
+           Skipping these may be desirable when running with options that cause tests
+           to run slowly, like disabling optimization or activating code profiling.""",
+        False),
+    BoolOption(
+        "show_long_tests",
+        "If enabled, duration of slowest tests will be shown.",
+        False),
+    BoolOption(
+        "verbose_tests",
+        "If enabled, verbose test output will be shown.",
+        False),
+    BoolOption(
+        "legacy_rate_constants",
+        """If enabled, rate constant calculations include third-body concentrations
+           for three-body reactions, which corresponds to the legacy implementation.
+           For Cantera 2.6, the option remains enabled (no change compared to past
+           behavior). After Cantera 2.6, the default will be to disable this option,
+           and rate constant calculations will be consistent with conventional
+           definitions (see Eq. 9.75 in Kee, Coltrin and Glarborg, 'Chemically Reacting
+           Flow', Wiley Interscience, 2003).""",
+        True),
+    BoolOption(
+        "no_legacy_reactions",
+        """If disabled ('no'/default), legacy 'Reaction' and associated rate objects
+           that are deprecated in Cantera 2.6 are used. If enabled ('yes'), internal
+           objects will use new objects introduced in Cantera 2.6. The flag is used
+           for testing purposes only and has no effect on results.""",
+        False),
 ]
 
-opts.AddVariables(*config_options)
+config = Configuration()
+
+if "help" in COMMAND_LINE_TARGETS:
+    AddOption(
+        "--options", dest="options",
+        action="store_true", help="Print description of available options")
+    AddOption(
+        "--list-options", dest="list",
+        action="store_true", help="List available options")
+    AddOption(
+        "--restructured-text", dest="rest",
+        action="store_true", help="Format defaults as reST")
+    AddOption(
+        "--option", dest="option", nargs=1, type="string",
+        action="store", help="Output help for specific option")
+    AddOption(
+        "--defaults", dest="defaults",
+        action="store_true", help="All defaults (CLI only)")
+    AddOption(
+        "--dev", dest="dev",
+        action="store_true", help="Append -dev (reST only)")
+    AddOption(
+        "--output", dest="output", nargs=1, type="string",
+        action="store", help="Output file (reST only)")
+
+    list = GetOption("list")
+    rest = GetOption("rest")
+    defaults = GetOption("defaults") is not None
+    options = GetOption("options")
+    option = GetOption("option")
+
+    if not (list or rest or defaults or options or option):
+        # show basic help information
+        logger.info(__doc__, print_level=False)
+        sys.exit(0)
+
+    if defaults or rest or list:
+
+        config.add(windows_options)
+        config.add(config_options)
+
+        if list:
+            # show formatted list of options
+            logger.info("\nConfiguration options for building Cantera:", print_level=False)
+            logger.info(config.list_options(), print_level=False)
+            sys.exit(0)
+
+        if defaults:
+            try:
+                # print default values: if option is None, show description for all
+                # available options, otherwise show description for specified option
+                logger.info(config.help(option), print_level=False)
+                sys.exit(0)
+            except KeyError as err:
+                message = "Run 'scons help --list-options' to see available options."
+                logger.error(f"{err}.\n{message}")
+                sys.exit(1)
+
+        dev = GetOption("dev") is not None
+        try:
+            # format default values as reST: if option is None, all descriptions are
+            # rendered, otherwise only the description of specified option is shown
+            message = config.to_rest(option, dev=dev)
+        except KeyError as err:
+            message = "Run 'scons help --list-options' to see available options."
+            logger.error(f"{err}.\n{message}")
+            sys.exit(1)
+
+        output = GetOption("output")
+        if output:
+            # write output to file
+            output_file = Path(output).with_suffix(".rst")
+            with open(output_file, "w+") as fid:
+                fid.write(message)
+
+            logger.info(f"Done writing output options to '{output_file}'.",
+                        print_level=False)
+
+        else:
+            logger.info(message, print_level=False)
+
+        sys.exit(0)
+
+# **************************************
+# *** Read user-configurable options ***
+# **************************************
+
+opts = Variables("cantera.conf")
+
+extraEnvArgs = {}
+
+if os.name == "nt":
+    config.add(windows_options)
+    config.add(config_options)
+
+    config["prefix"].default = pjoin(os.environ["ProgramFiles"], "Cantera")
+    config.select("Windows")
+
+    # On Windows, target the same architecture as the current copy of Python,
+    # unless the user specified another option.
+    if "64 bit" not in sys.version:
+        config["target_arch"].default = "x86"
+
+    opts.AddVariables(*config.to_scons(("msvc_version", "target_arch")))
+
+    windows_compiler_env = Environment()
+    opts.Update(windows_compiler_env)
+
+    # Make an educated guess about the right default compiler
+    if which("g++") and not which("cl.exe"):
+        config["toolchain"].default = "mingw"
+
+    if windows_compiler_env["msvc_version"]:
+        config["toolchain"].default = "msvc"
+
+    opts.AddVariables(*config.to_scons("toolchain"))
+    opts.Update(windows_compiler_env)
+
+    if windows_compiler_env["toolchain"] == "msvc":
+        toolchain = ["default"]
+        if windows_compiler_env["msvc_version"]:
+            extraEnvArgs["MSVC_VERSION"] = windows_compiler_env["msvc_version"]
+        msvc_version = (windows_compiler_env["msvc_version"] or
+                        windows_compiler_env["MSVC_VERSION"])
+        logger.info(f"Compiling with MSVC {msvc_version}", print_level=False)
+
+    elif windows_compiler_env["toolchain"] == "mingw":
+        toolchain = ["mingw", "f90"]
+        extraEnvArgs["F77"] = None
+        # Next line fixes https://github.com/SCons/scons/issues/2683
+        extraEnvArgs["WINDOWS_INSERT_DEF"] = 1
+
+    elif windows_compiler_env["toolchain"] == "intel":
+        toolchain = ["intelc"] # note: untested
+
+    extraEnvArgs["TARGET_ARCH"] = windows_compiler_env["target_arch"]
+    logger.info(f"Compiling for architecture: {windows_compiler_env['target_arch']}",
+        print_level=False)
+    logger.info(f"Compiling using the following toolchain(s): {repr(toolchain)}",
+        print_level=False)
+else:
+    config.add(config_options)
+    toolchain = ["default"]
+
+env = Environment(tools=toolchain+["textfile", "subst", "recursiveInstall", "wix", "gch"],
+                  ENV={"PATH": os.environ["PATH"]},
+                  toolchain=toolchain,
+                  **extraEnvArgs)
+
+env["OS"] = platform.system()
+env["OS_BITS"] = int(platform.architecture()[0][:2])
+if "cygwin" in env["OS"].lower():
+    env["OS"] = "Cygwin" # remove Windows version suffix
+
+if "FRAMEWORKS" not in env:
+    env["FRAMEWORKS"] = []
+
+# Needed for Matlab to source ~/.matlab7rc.sh
+if "HOME" in os.environ:
+    env["ENV"]["HOME"] = os.environ["HOME"]
+
+if os.name == "nt":
+    env["INSTALL_MANPAGES"] = False
+
+    # Fixes a linker error in Windows
+    if "TMP" in os.environ:
+        env["ENV"]["TMP"] = os.environ["TMP"]
+
+    # Fixes issues with Python subprocesses. See http://bugs.python.org/issue13524
+    env["ENV"]["SystemRoot"] = os.environ["SystemRoot"]
+
+    # Fix an issue with Unicode sneaking into the environment on Windows
+    for key,val in env["ENV"].items():
+        env["ENV"][key] = str(val)
+
+else:
+    env["INSTALL_MANPAGES"] = True
+
+add_RegressionTest(env)
+
+opts.AddVariables(*config.to_scons(["CC", "CXX"], env=env))
+opts.Update(env)
+
+# Check if this is actually Apple's clang on macOS
+env["using_apple_clang"] = False
+if env["OS"] == "Darwin":
+    result = subprocess.check_output([env.subst("$CC"), "--version"]).decode("utf-8")
+    if "clang" in result.lower() and ("Xcode" in result or "Apple" in result):
+        env["using_apple_clang"] = True
+        config.select("apple-clang")
+
+if "gcc" in env.subst("$CC") or "gnu-cc" in env.subst("$CC"):
+    if env["OS"] == "Cygwin":
+        config.select("Cygwin")
+    config.select("gcc")
+
+elif env["CC"] == "cl": # Visual Studio
+    config.select("cl")
+
+elif "icc" in env.subst("$CC"):
+    config.select("icc")
+
+elif "icx" in env.subst("$CC"):
+    config.select("icx")
+
+elif "clang" in env.subst("$CC"):
+    config.select("clang")
+
+else:
+    print(f"WARNING: Unrecognized C compiler '{env['CC']}'")
+
+if env["OS"] == "Windows":
+    config.select("Windows")
+elif env["OS"] == "Darwin":
+    config.select("macOS")
+
+# SHLIBVERSION fails with MinGW: http://scons.tigris.org/issues/show_bug.cgi?id=3035
+if (env["toolchain"] == "mingw"):
+    config.select("mingw")
+
+config.select("default")
+config["python_cmd"].default = sys.executable
+
+opts.AddVariables(*config.to_scons())
 opts.Update(env)
 opts.Save('cantera.conf', env)
 
@@ -686,61 +832,46 @@ for option in opts.keys():
             print('INFO: Expanding {!r} to {!r}'.format(original, modified))
             env[option] = modified
 
-if 'help' in COMMAND_LINE_TARGETS:
-    ### Print help about configuration options and exit.
-    print("""
-        **************************************************
-        *   Configuration options for building Cantera   *
-        **************************************************
-
-The following options can be passed to SCons to customize the Cantera
-build process. They should be given in the form:
-
-    scons build option1=value1 option2=value2
-
-Variables set in this way will be stored in the 'cantera.conf' file and reused
-automatically on subsequent invocations of scons. Alternatively, the
-configuration options can be entered directly into 'cantera.conf' before
-running 'scons build'. The format of this file is:
-
-    option1 = 'value1'
-    option2 = 'value2'
-
-        **************************************************
-""")
-
-    for opt in opts.options:
-        print('\n'.join(formatOption(env, opt)))
-    sys.exit(0)
+if "help" in COMMAND_LINE_TARGETS:
+    option = GetOption("option")
+    try:
+        # print configuration: if option is None, description is shown for all
+        # options; otherwise description is shown for specified option
+        logger.info(config.help(option, env=env), print_level=False)
+        sys.exit(0)
+    except KeyError as err:
+        message = "Run 'scons help --list-options' to see available options."
+        logger.error(f"{err}.\n{message}")
+        sys.exit(1)
 
 if 'doxygen' in COMMAND_LINE_TARGETS:
     env['doxygen_docs'] = True
 if 'sphinx' in COMMAND_LINE_TARGETS:
     env['sphinx_docs'] = True
+if "sdist" in COMMAND_LINE_TARGETS:
+    env["python_sdist"] = True
 
-valid_arguments = (set(opt[0] for opt in windows_compiler_options) |
-                   set(opt[0] for opt in compiler_options) |
-                   set(opt[0] for opt in config_options))
 for arg in ARGUMENTS:
-    if arg not in valid_arguments:
-        print('Encountered unexpected command line argument: %r' % arg)
+    if arg not in config:
+        logger.error(f"Encountered unexpected command line option: '{arg}'")
         sys.exit(1)
 
-env['cantera_version'] = "2.5.1"
+env["cantera_version"] = "2.6.0b1"
 # For use where pre-release tags are not permitted (MSI, sonames)
 env['cantera_pure_version'] = re.match(r'(\d+\.\d+\.\d+)', env['cantera_version']).group(0)
 env['cantera_short_version'] = re.match(r'(\d+\.\d+)', env['cantera_version']).group(0)
 
 try:
-    env['git_commit'] = getCommandOutput('git', 'rev-parse', '--short', 'HEAD')
-except Exception:
-    env['git_commit'] = 'unknown'
+    env["git_commit"] = get_command_output("git", "rev-parse", "--short", "HEAD")
+    logger.info(f"Building Cantera from git commit '{env['git_commit']}'")
+except (subprocess.CalledProcessError, FileNotFoundError):
+    env["git_commit"] = "unknown"
 
 # Print values of all build options:
-print("Configuration variables read from 'cantera.conf' and command line:")
-for line in open('cantera.conf'):
-    print('   ', line.strip())
-print()
+# the (updated) "cantera.conf" combines all options that were specified by the user
+cantera_conf = Path("cantera.conf").read_text()
+logger.info("Configuration variables read from 'cantera.conf' and command line:")
+logger.info(textwrap.indent(cantera_conf, "    "), print_level=False)
 
 # ********************************************
 # *** Configure system-specific properties ***
@@ -760,7 +891,7 @@ elif env['env_vars']:
                 env['ENV'][name] = os.environ[name]
             if env['VERBOSE']:
                 print('Propagating environment variable {0}={1}'.format(name, env['ENV'][name]))
-        elif name not in defaults.env_vars.split(','):
+        elif name not in config["env_vars"].default.split(','):
             print('WARNING: failed to propagate environment variable', repr(name))
             print('         Edit cantera.conf or the build command line to fix this.')
 
@@ -775,6 +906,19 @@ if os.pathsep == ';':
 
 env['extra_inc_dirs'] = [d for d in env['extra_inc_dirs'].split(os.pathsep) if d]
 env['extra_lib_dirs'] = [d for d in env['extra_lib_dirs'].split(os.pathsep) if d]
+
+# Add conda library/include paths (if applicable) to extra
+conda_prefix = os.environ.get("CONDA_PREFIX")
+if conda_prefix is not None:
+    if os.name == "nt":
+        conda_inc_dir = pjoin(conda_prefix, "Library", "include")
+        conda_lib_dir = pjoin(conda_prefix, "Library", env["libdirname"])
+    else:
+        conda_inc_dir = pjoin(conda_prefix, "include")
+        conda_lib_dir = pjoin(conda_prefix, env["libdirname"])
+    env["extra_inc_dirs"].append(conda_inc_dir)
+    env["extra_lib_dirs"].append(conda_lib_dir)
+    logger.info(f"Adding conda include and library paths: {conda_prefix}")
 
 env.Append(CPPPATH=env['extra_inc_dirs'],
            LIBPATH=env['extra_lib_dirs'])
@@ -839,8 +983,6 @@ int main(int argc, char** argv) {
     context.Result(result)
     return result
 
-conf = Configure(env, custom_tests={'CheckStatement': CheckStatement})
-
 # Set up compiler options before running configuration tests
 env['CXXFLAGS'] = listify(env['cxx_flags'])
 env['CCFLAGS'] = listify(env['cc_flags']) + listify(env['thread_flags'])
@@ -848,6 +990,8 @@ env['LINKFLAGS'] += listify(env['thread_flags'])
 env['CPPDEFINES'] = {}
 
 env['warning_flags'] = listify(env['warning_flags'])
+env["pch_flags"] = listify(env["pch_flags"])
+env["openmp_flag"] = listify(env["openmp_flag"])
 
 if env['optimize']:
     env['CCFLAGS'] += listify(env['optimize_flags'])
@@ -884,13 +1028,18 @@ def config_error(message):
         print("See 'config.log' for details.")
     sys.exit(1)
 
+conf = Configure(env, custom_tests={'CheckStatement': CheckStatement})
+env = conf.env  # Retain updates to `env` after the end of the `Configure` context
+
 # First, a sanity check:
-if not conf.CheckCXXHeader('cmath', '<>'):
-    config_error('The C++ compiler is not correctly configured.')
+if not conf.CheckCXXHeader("cmath", "<>"):
+    config_error(
+        "The C++ compiler is not correctly configured (incomplete include paths)."
+    )
 
-
-def get_expression_value(includes, expression):
-    s = ['#include ' + i for i in includes]
+def get_expression_value(includes, expression, defines=()):
+    s = ['#define ' + d for d in defines]
+    s.extend('#include ' + i for i in includes)
     s.extend(('#define Q(x) #x',
               '#define QUOTE(x) Q(x)',
               '#include <iostream>',
@@ -902,6 +1051,24 @@ def get_expression_value(includes, expression):
               '    return 0;',
               '}\n'))
     return '\n'.join(s)
+
+# Check that libraries link correctly
+cmath_check_source = get_expression_value(["<cmath>"], "cos(0. * argc)")
+retcode, cmath_works = conf.TryRun(cmath_check_source, ".cpp")
+if cmath_works.strip() != "1":
+    config_error(
+        "The C++ compiler is not correctly configured (failed at linking stage)."
+    )
+
+# Check that NaN is treated correctly
+nan_check_source = get_expression_value(["<cmath>"], "std::isnan(NAN + argc)")
+retcode, nan_works = conf.TryRun(nan_check_source, ".cpp")
+if nan_works.strip() != "1":
+    config_error(
+        "Cantera requires a working implementation of 'std::isnan'.\n"
+        "If you have specified '-ffast-math' or equivalent as an optimization option,\n"
+        "either remove this option or add the '-fno-finite-math-only option'."
+    )
 
 # Check for fmt library and checkout submodule if needed
 # Test for 'ostream.h' to ensure that version >= 3.0.0 is available
@@ -932,7 +1099,7 @@ if env['system_fmt'] in ('n', 'default'):
                          '    git submodule update --init --recursive ext/fmt\n')
 
 fmt_include = '<fmt/format.h>' if env['system_fmt'] else '"../ext/fmt/include/fmt/format.h"'
-fmt_version_source = get_expression_value([fmt_include], 'FMT_VERSION')
+fmt_version_source = get_expression_value([fmt_include], 'FMT_VERSION', ['FMT_HEADER_ONLY'])
 retcode, fmt_lib_version = conf.TryRun(fmt_version_source, '.cpp')
 try:
     fmt_lib_version = divmod(float(fmt_lib_version.strip()), 10000)
@@ -943,26 +1110,16 @@ except ValueError:
     env['FMT_VERSION'] = '0.0.0'
     print('INFO: Could not find version of fmt')
 
-# Convert setting of the deprecated system_googletest option
-if env['system_googletest'] != 'unspecified':
-    print("WARNING: The 'system_googletest' option is deprecated. "
-        "Use the 'googletest' option instead.")
-if env['system_googletest'] == 'default':
-    env['googletest'] = 'default'
-elif env['system_googletest'] == 'y':
-    env['googletest'] = 'system'
-elif env['system_googletest'] == 'n':
-    env['googletest'] = 'submodule'
-
 # Check for yaml-cpp library and checkout submodule if needed
 if env['system_yamlcpp'] in ('y', 'default'):
-    if conf.CheckCXXHeader('yaml-cpp/yaml.h', '""'):
+    # We need the Mark() function, which was added in version 0.5.3
+    if conf.CheckStatement('YAML::Node().Mark()', '#include "yaml-cpp/yaml.h"'):
         env['system_yamlcpp'] = True
         print("""INFO: Using system installation of yaml-cpp library.""")
 
     elif env['system_yamlcpp'] == 'y':
-        config_error('Expected system installation of yaml-cpp library, but it '
-            'could not be found.')
+        config_error("Expected system installation of yaml-cpp library, but it "
+            "could not be found or it is too old (0.6 or newer is required).")
 
 if env['system_yamlcpp'] in ('n', 'default'):
     env['system_yamlcpp'] = False
@@ -1015,37 +1172,44 @@ if env['googletest'] == 'none':
     print("""INFO: Not using Googletest -- unable to run complete test suite""")
 
 # Check for Eigen and checkout submodule if needed
-if env['system_eigen'] in ('y', 'default'):
-    if conf.CheckCXXHeader('Eigen/Dense', '<>'):
-        env['system_eigen'] = True
+if env["system_eigen"] in ("y", "default"):
+    if conf.CheckCXXHeader("eigen3/Eigen/Dense", "<>"):
+        env["system_eigen"] = True
+        env["system_eigen_prefixed"] = True
         print("""INFO: Using system installation of Eigen.""")
-    elif env['system_eigen'] == 'y':
-        config_error('Expected system installation of Eigen, but it '
-                     'could not be found.')
+        eigen_include = "<eigen3/Eigen/Core>"
+    elif conf.CheckCXXHeader("Eigen/Dense", "<>"):
+        env["system_eigen"] = True
+        env["system_eigen_prefixed"] = False
+        print("""INFO: Using system installation of Eigen.""")
+        eigen_include = "<Eigen/Core>"
+    elif env["system_eigen"] == "y":
+        config_error("Expected system installation of Eigen, but it "
+                     "could not be found.")
 
-if env['system_eigen'] in ('n', 'default'):
-    env['system_eigen'] = False
+if env["system_eigen"] in ("n", "default"):
+    env["system_eigen"] = False
     print("""INFO: Using private installation of Eigen.""")
-    if not os.path.exists('ext/eigen/Eigen/Dense'):
-        if not os.path.exists('.git'):
-            config_error('Eigen is missing. Install Eigen in ext/eigen.')
+    if not os.path.exists("ext/eigen/Eigen/Dense"):
+        if not os.path.exists(".git"):
+            config_error("Eigen is missing. Install Eigen in ext/eigen.")
 
         try:
-            code = subprocess.call(['git','submodule','update','--init',
-                                    '--recursive','ext/eigen'])
+            code = subprocess.call(["git","submodule","update","--init",
+                                    "--recursive","ext/eigen"])
         except Exception:
             code = -1
         if code:
-            config_error('Eigen not found and submodule checkout failed.\n'
-                         'Try manually checking out the submodule with:\n\n'
-                         '    git submodule update --init --recursive ext/eigen\n')
+            config_error("Eigen not found and submodule checkout failed.\n"
+                         "Try manually checking out the submodule with:\n\n"
+                         "    git submodule update --init --recursive ext/eigen\n")
+    eigen_include = "'../ext/eigen/Eigen/Core'"
 
-eigen_include = '<Eigen/Core>' if env['system_eigen'] else '"../ext/eigen/Eigen/Core"'
 eigen_versions = 'QUOTE(EIGEN_WORLD_VERSION) "." QUOTE(EIGEN_MAJOR_VERSION) "." QUOTE(EIGEN_MINOR_VERSION)'
 eigen_version_source = get_expression_value([eigen_include], eigen_versions)
-retcode, eigen_lib_version = conf.TryRun(eigen_version_source, '.cpp')
-env['EIGEN_LIB_VERSION'] = eigen_lib_version.strip()
-print('INFO: Found Eigen version {}'.format(env['EIGEN_LIB_VERSION']))
+retcode, eigen_lib_version = conf.TryRun(eigen_version_source, ".cpp")
+env["EIGEN_LIB_VERSION"] = eigen_lib_version.strip()
+print("INFO: Found Eigen version {}".format(env["EIGEN_LIB_VERSION"]))
 
 # Determine which standard library to link to when using Fortran to
 # compile code that links to Cantera
@@ -1057,24 +1221,39 @@ else:
     env['cxx_stdlib'] = []
 
 env['HAS_CLANG'] = conf.CheckDeclaration('__clang__', '', 'C++')
-env['HAS_OPENMP'] = conf.CheckCXXHeader('omp.h', '""')
+if not env["using_apple_clang"]:
+    # This checks for these three libraries in order and stops when it finds the
+    # first success. Intel = iomp5, LLVM/clang = omp, GCC = gomp. Since gomp is
+    # likely to be installed on the system even if other compilers are installed
+    # or in use, it needs to go last in the check.
+    env['HAS_OPENMP'] = conf.CheckLibWithHeader(
+        ["iomp5", "omp", "gomp"], "omp.h", language="C++"
+    )
+else:
+    env["HAS_OPENMP"] = False
+    logger.info("Not checking for OpenMP support due to using XCode compiler.")
 
 boost_version_source = get_expression_value(['<boost/version.hpp>'], 'BOOST_LIB_VERSION')
 retcode, boost_lib_version = conf.TryRun(boost_version_source, '.cpp')
 env['BOOST_LIB_VERSION'] = '.'.join(boost_lib_version.strip().split('_'))
-print('INFO: Found Boost version {0}'.format(env['BOOST_LIB_VERSION']))
 if not env['BOOST_LIB_VERSION']:
     config_error("Boost could not be found. Install Boost headers or set"
                  " 'boost_inc_dir' to point to the boost headers.")
-# demangle is availble in Boost 1.55 or newer
+else:
+    print('INFO: Found Boost version {0}'.format(env['BOOST_LIB_VERSION']))
+# demangle is available in Boost 1.56 or newer
 env['has_demangle'] = conf.CheckDeclaration("boost::core::demangle",
                                 '#include <boost/core/demangle.hpp>', 'C++')
 
 import SCons.Conftest, SCons.SConf
 context = SCons.SConf.CheckContext(conf)
 
-# Check initially for Sundials<=3.2 and then for Sundials>=4.0
-for cvode_call in ['CVodeCreate(CV_BDF, CV_NEWTON);','CVodeCreate(CV_BDF);']:
+cvode_checks = [
+    "CVodeCreate(CV_BDF, CV_NEWTON);",  # Sundials <= 3.2
+    "CVodeCreate(CV_BDF);",  # Sundials>=4.0,<6.0
+    "SUNContext ctx; SUNContext_Create(0, &ctx);"  # Sundials>=6.0
+]
+for cvode_call in cvode_checks:
     ret = SCons.Conftest.CheckLib(context,
                                   ['sundials_cvodes'],
                                   header='#include "cvodes/cvodes.h"',
@@ -1119,7 +1298,7 @@ env['LIBM'] = ['m'] if env['NEED_LIBM'] else []
 
 if env['system_sundials'] == 'y':
     for subdir in ('sundials', 'nvector', 'cvodes', 'ida', 'sunlinsol', 'sunmatrix'):
-        removeDirectory('include/cantera/ext/'+subdir)
+        remove_directory('include/cantera/ext/' + subdir)
 
     # Determine Sundials version
     sundials_version_source = get_expression_value(['"sundials/sundials_config.h"'],
@@ -1132,15 +1311,15 @@ if env['system_sundials'] == 'y':
     # Ignore the minor version, e.g. 2.4.x -> 2.4
     env['sundials_version'] = '.'.join(sundials_version.split('.')[:2])
     sundials_ver = parse_version(env['sundials_version'])
-    if sundials_ver < parse_version('2.4') or sundials_ver >= parse_version('6.0'):
+    if sundials_ver < parse_version("2.4") or sundials_ver >= parse_version("7.0"):
         print("""ERROR: Sundials version %r is not supported.""" % env['sundials_version'])
         sys.exit(1)
-    elif sundials_ver > parse_version('5.7'):
+    elif sundials_ver > parse_version("6.0"):
         print("WARNING: Sundials version %r has not been tested." % env['sundials_version'])
 
     print("""INFO: Using system installation of Sundials version %s.""" % sundials_version)
 
-    #Determine whether or not Sundials was built with BLAS/LAPACK
+    # Determine whether or not Sundials was built with BLAS/LAPACK
     if sundials_ver < parse_version('2.6'):
         # In Sundials 2.4 / 2.5, SUNDIALS_BLAS_LAPACK is either 0 or 1
         sundials_blas_lapack = get_expression_value(['"sundials/sundials_config.h"'],
@@ -1149,10 +1328,24 @@ if env['system_sundials'] == 'y':
         if retcode == 0:
             config_error("Failed to determine Sundials BLAS/LAPACK.")
         env['has_sundials_lapack'] = int(has_sundials_lapack.strip())
-    else:
-        # In Sundials 2.6, SUNDIALS_BLAS_LAPACK is either defined or undefined
+    elif sundials_ver < parse_version('5.5'):
+        # In Sundials 2.6-5.5, SUNDIALS_BLAS_LAPACK is either defined or undefined
         env['has_sundials_lapack'] = conf.CheckDeclaration('SUNDIALS_BLAS_LAPACK',
                 '#include "sundials/sundials_config.h"', 'C++')
+    else:
+        # In Sundials 5.5 and higher, two defines are included specific to the
+        # SUNLINSOL packages indicating whether SUNDIALS has been built with LAPACK
+        lapackband = conf.CheckDeclaration(
+            "SUNDIALS_SUNLINSOL_LAPACKBAND",
+            '#include "sundials/sundials_config.h"',
+            "C++",
+        )
+        lapackdense = conf.CheckDeclaration(
+            "SUNDIALS_SUNLINSOL_LAPACKDENSE",
+            '#include "sundials/sundials_config.h"',
+            "C++",
+        )
+        env["has_sundials_lapack"] = lapackband and lapackdense
 
     # In the case where a user is trying to link Cantera to an external BLAS/LAPACK
     # library, but Sundials was configured without this support, print a Warning.
@@ -1164,6 +1357,10 @@ else: # env['system_sundials'] == 'n'
     env['sundials_version'] = '5.3'
     env['has_sundials_lapack'] = int(env['use_lapack'])
 
+def set_fortran(pattern, value):
+    # Set compiler / flags for all Fortran versions to be the same
+    for version in ("FORTRAN", "F77", "F90", "F95", "F03", "F08"):
+        env[pattern.format(version)] = value
 
 # Try to find a working Fortran compiler:
 def check_fortran(compiler, expected=False):
@@ -1172,8 +1369,8 @@ program main
    write(*,'(a)') 'Hello, world!'
 end program main
     '''
-    if which(compiler) is not None:
-        env['F77'] = env['F90'] = env['F95'] = env['F03'] = env['FORTRAN'] = compiler
+    if which(compiler):
+        set_fortran("{}", compiler)
         success, output = conf.TryRun(hello_world, '.f90')
         if success and 'Hello, world!' in output:
             return True
@@ -1187,14 +1384,14 @@ end program main
 
     return False
 
-env['F77FLAGS'] = env['F90FLAGS'] = env['F95FLAGS'] = env['F03FLAGS'] = env['FORTRANFLAGS']
+set_fortran("{}FLAGS", env["FORTRANFLAGS"])
 
 if env['f90_interface'] in ('y','default'):
     foundF90 = False
     if env['FORTRAN']:
         foundF90 = check_fortran(env['FORTRAN'], True)
 
-    for compiler in ('pgfortran', 'gfortran', 'ifort', 'g95'):
+    for compiler in ("pgfortran", "gfortran", "ifort", "ifx", "g95"):
         if foundF90:
             break
         foundF90 = check_fortran(compiler)
@@ -1219,9 +1416,11 @@ elif 'g95' in env['FORTRAN']:
     env['FORTRANMODDIRPREFIX'] = '-fmod='
 elif 'ifort' in env['FORTRAN']:
     env['FORTRANMODDIRPREFIX'] = '-module '
+elif "ifx" in env["FORTRAN"]:
+    env["FORTRANMODDIRPREFIX"] = "-module "
 
-env['F77'] = env['F90'] = env['F95'] = env['F03'] = env['FORTRAN']
-
+set_fortran("{}", env["FORTRAN"])
+set_fortran("SH{}", env["FORTRAN"])
 env['FORTRANMODDIR'] = '${TARGET.dir}'
 
 env = conf.Finish()
@@ -1234,8 +1433,8 @@ if env['VERBOSE']:
 env['python_cmd_esc'] = quoted(env['python_cmd'])
 
 # Python Package Settings
-python_min_version = parse_version('3.5')
-# The string is used to set python_requires in setup.py.in
+python_min_version = parse_version("3.7")
+# The string is used to set python_requires in setup.cfg.in
 env['py_min_ver_str'] = str(python_min_version)
 # Note: cython_min_version is redefined below if the Python version is 3.8 or higher
 cython_min_version = parse_version('0.23')
@@ -1256,32 +1455,14 @@ check_for_ruamel_yaml = any(
     for target in ["install", "test", "test-python-convert"]
 )
 
-# Handle the version-specific Python package options
-python_options = (('package', 'default'),
-                  ('cmd', sys.executable),
-                  ('prefix', defaults.python_prefix))
-for option, default in python_options:
-    if env['python3_' + option] != default:
-        print("WARNING: Option 'python3_{0}' is deprecated."
-            " Use 'python_{0}' instead.".format(option))
-        if env['python_' + option] == default:
-            env['python_' + option] = env['python3_' + option]
-        else:
-            print("WARNING: Ignoring option 'python3_{0}'"
-                " because 'python_{0}' was also set.".format(option))
-
-if env['python_package'] == 'new':
-    print("WARNING: The 'new' option for the Python package is "
-          "deprecated and will be removed in the future. Use "
-          "'full' instead.")
-    env['python_package'] = 'full'  # Allow 'new' as a synonym for 'full'
-elif env['python_package'] == 'y':
+if env['python_package'] == 'y':
     env['python_package'] = 'full'  # Allow 'y' as a synonym for 'full'
 elif env['python_package'] == 'n':
   env['python_package'] = 'none'  # Allow 'n' as a synonym for 'none'
 
 env['install_python_action'] = ''
 env['python_module_loc'] = ''
+env["ct_pyscriptdir"] = "<not installed>"
 
 if env['python_package'] != 'none':
     # Test to see if we can import numpy and Cython
@@ -1308,11 +1489,11 @@ if env['python_package'] != 'none':
     if check_for_ruamel_yaml:
         ru_script = textwrap.dedent("""\
             try:
-                import ruamel_yaml as yaml
+                from ruamel import yaml
                 print(yaml.__version__)
             except ImportError as ru_err:
                 try:
-                    from ruamel import yaml
+                    import ruamel_yaml as yaml
                     print(yaml.__version__)
                 except ImportError as ru_err_2:
                     print('0.0.0')
@@ -1325,7 +1506,7 @@ if env['python_package'] != 'none':
         expected_output_lines = 4
 
     try:
-        info = getCommandOutput(env['python_cmd'], '-c', script).splitlines()
+        info = get_command_output(env["python_cmd"], "-c", script).splitlines()
     except OSError as err:
         if env['VERBOSE']:
             print('Error checking for Python:')
@@ -1344,43 +1525,43 @@ if env['python_package'] != 'none':
         if check_for_ruamel_yaml:
             ruamel_yaml_version = parse_version(info[3])
             if ruamel_yaml_version == parse_version("0.0.0"):
-                print("ERROR: ruamel.yaml was not found. {} or newer is "
-                    "required".format(ruamel_min_version))
+                logger.error(
+                    f"ruamel.yaml was not found. {ruamel_min_version} or newer "
+                    "is required.")
                 sys.exit(1)
             elif ruamel_yaml_version < ruamel_min_version:
-                print("ERROR: ruamel.yaml is an incompatible version: Found "
-                    "{}, but {} or newer is required.".format(
-                        ruamel_yaml_version, ruamel_min_version))
+                logger.error(
+                    "ruamel.yaml is an incompatible version: Found "
+                    f"{ruamel_yaml_version}, but {ruamel_min_version} or newer "
+                    "is required.")
                 sys.exit(1)
 
     if warn_no_python:
-        if env['python_package'] == 'default':
-            print('WARNING: Not building the Python package because the Python '
-                  'interpreter {!r} could not be found'.format(env['python_cmd']))
-            env['python_package'] = 'none'
+        if env["python_package"] == "default":
+            logger.warning(
+                "Not building the Python package because the Python interpreter "
+                f"'{env['python_cmd']!r}' could not be found.")
+            env["python_package"] = "none"
         else:
-            print('ERROR: Could not execute the Python interpreter {!r}'.format(
-                env['python_cmd']))
+            logger.error(
+                f"Could not execute the Python interpreter '{env['python_cmd']!r}'")
             sys.exit(1)
     elif python_version < python_min_version:
-        msg = ("{}: Python version is incompatible. Found {} but {} "
-               "or newer is required")
-        if env["python_package"] in ("minimal", "full"):
-            print(msg.format("ERROR", python_version, python_min_version))
+        if env["python_package"] in ("minimal", "full", "default"):
+            logger.error(
+                f"Python version is incompatible. Found {python_version} but "
+                f"{python_min_version} or newer is required. In order to install "
+                "Cantera without Python support, specify 'python_package=none'.")
             sys.exit(1)
-        elif env["python_package"] == "default":
-            print(msg.format("WARNING", python_version, python_min_version))
-            env["python_package"] = "none"
-    elif env['python_package'] == 'minimal':
-        # If the minimal package was specified, no further checking
-        # needs to be done
-        print('INFO: Building the minimal Python package for Python {}'.format(python_version))
+    elif env["python_package"] == "minimal":
+        # If the minimal package was specified, no further checking needs to be done
+        logger.info(f"Building the minimal Python package for Python {python_version}")
     else:
 
         if len(info) > expected_output_lines:
-            print("WARNING: Unexpected output while checking Python "
-                  "dependency versions:")
-            print('| ' + '\n| '.join(info[expected_output_lines:]))
+            msg = ["Unexpected output while checking Python dependency versions:"]
+            msg.extend(info[expected_output_lines:])
+            logger.warning("\n| ".join(msg))
 
         warn_no_full_package = False
         if python_version >= parse_version("3.8"):
@@ -1393,72 +1574,78 @@ if env['python_package'] != 'none':
             # Cython < 0.29.12.
             cython_min_version = parse_version("0.29.12")
 
-        if numpy_version == parse_version('0.0.0'):
-            print("NumPy not found.")
+        if numpy_version == parse_version("0.0.0"):
+            logger.info("NumPy not found.")
             warn_no_full_package = True
         elif numpy_version < numpy_min_version:
-            print("WARNING: NumPy is an incompatible version: "
-                  "Found {0} but {1} or newer is required".format(
-                  numpy_version, numpy_min_version))
+            logger.warning(
+                f"NumPy is an incompatible version: Found {numpy_version} but "
+                f"{numpy_min_version} or newer is required.")
             warn_no_full_package = True
         else:
-            print('INFO: Using NumPy version {0}.'.format(numpy_version))
+            logger.info(f"Using NumPy version {numpy_version}")
 
-        if cython_version == parse_version('0.0.0'):
-            print("Cython not found.")
+        if cython_version == parse_version("0.0.0"):
+            logger.info("Cython not found.")
             warn_no_full_package = True
         elif cython_version < cython_min_version:
-            print("WARNING: Cython is an incompatible version: "
-                  "Found {0} but {1} or newer is required.".format(
-                  cython_version, cython_min_version))
+            lopgger.warning(
+                f"Cython is an incompatible version: Found {cython_version} but "
+                f"{cython_min_version} or newer is required.")
             warn_no_full_package = True
         else:
-            print('INFO: Using Cython version {0}.'.format(cython_version))
+            logger.info(f"Using Cython version {cython_version}")
 
         if warn_no_full_package:
-            msg = ('{}: Unable to build the full Python package because compatible '
-                   'versions of Python, Numpy, and Cython could not be found.')
-            if env['python_package'] == 'default':
-                print(msg.format("WARNING"))
-                print('INFO: Building the minimal Python package for Python {}'.format(python_version))
-                env['python_package'] = 'minimal'
+            msg = ("Unable to build the full Python package because compatible "
+                   "versions of Numpy and/or Cython could not be found.")
+            if env["python_package"] == "default":
+                logger.warning(msg)
+                logger.info(
+                    f"Building the minimal Python package for Python {python_version}")
+                env["python_package"] = "minimal"
             else:
-                print(msg.format("ERROR"))
+                logger.error(msg)
                 sys.exit(1)
         else:
-            print('INFO: Building the full Python package for Python {0}'.format(python_version))
-            env['python_package'] = 'full'
+            logger.info(
+                f"Building the full Python package for Python {python_version}")
+            env["python_package"] = "full"
 
 # Matlab Toolbox settings
-if env['matlab_path'] != '' and env['matlab_toolbox'] == 'default':
-    env['matlab_toolbox'] = 'y'
+if env["matlab_path"] != "" and env["matlab_toolbox"] == "default":
+    env["matlab_toolbox"] = "y"
 
-if env['matlab_toolbox'] == 'y':
-    matPath = env['matlab_path']
-    if matPath == '':
-        print("ERROR: Unable to build the Matlab toolbox because 'matlab_path' has not been set.")
+if env["matlab_toolbox"] == "y":
+    matlab_path = env["matlab_path"]
+    if matlab_path == "":
+        logger.error(
+            "Unable to build the Matlab toolbox because 'matlab_path' "
+            "has not been set.")
         sys.exit(1)
 
     if env['blas_lapack_libs']:
-        print('ERROR: The Matlab toolbox is incompatible with external BLAS '
-              'and LAPACK libraries. Unset blas_lapack_libs (e.g. "scons '
-              'build blas_lapack_libs=") in order to build the Matlab '
-              'toolbox, or set matlab_toolbox=n to use the specified BLAS/'
-              'LAPACK libraries and skip building the Matlab toolbox.')
+        logger.error(
+            "The Matlab toolbox is incompatible with external BLAS "
+            "and LAPACK libraries. Unset blas_lapack_libs (e.g. 'scons "
+            "build blas_lapack_libs=') in order to build the Matlab "
+            "toolbox, or set 'matlab_toolbox=n' to use the specified BLAS/"
+            "LAPACK libraries and skip building the Matlab toolbox.")
         sys.exit(1)
 
-    if env['system_sundials'] == 'y':
-        print('ERROR: The Matlab toolbox is incompatible with external '
-              'SUNDIALS libraries. Set system_sundials to no (e.g., "scons build '
-              'system_sundials=n") in order to build the Matlab '
-              'toolbox, or set matlab_toolbox=n to use the specified '
-              'SUNDIALS libraries and skip building the Matlab toolbox.')
+    if env["system_sundials"] == "y":
+        logger.error(
+            "The Matlab toolbox is incompatible with external SUNDIALS "
+            "libraries. Set system_sundials to no (e.g., 'scons build "
+            "system_sundials=n') in order to build the Matlab "
+            "toolbox, or set 'matlab_toolbox=n' to use the specified "
+            "SUNDIALS libraries and skip building the Matlab toolbox.")
         sys.exit(1)
 
-    if not (os.path.isdir(matPath) and
-            os.path.isdir(pjoin(matPath, 'extern'))):
-        print("""ERROR: Path set for 'matlab_path' is not correct.""")
-        print("""ERROR: Path was: '%s'""" % matPath)
+    if not (os.path.isdir(matlab_path) and
+            os.path.isdir(pjoin(matlab_path, "extern"))):
+        logger.error(
+            f"Path set for 'matlab_path' is not correct. Path was '{matlab_path}'")
         sys.exit(1)
 
 
@@ -1470,33 +1657,78 @@ if env['matlab_toolbox'] == 'y':
 # /usr/local because of dist-packages vs site-packages
 env['debian'] = any(name.endswith('dist-packages') for name in sys.path)
 
-# Directories where things will be after actually being installed. These
-# variables are the ones that are used to populate header files, scripts, etc.
-env['prefix'] = os.path.normpath(env['prefix'])
-env['ct_installroot'] = env['prefix']
-env['ct_libdir'] = pjoin(env['prefix'], env['libdirname'])
-env['ct_bindir'] = pjoin(env['prefix'], 'bin')
-env['ct_incdir'] = pjoin(env['prefix'], 'include', 'cantera')
-env['ct_incroot'] = pjoin(env['prefix'], 'include')
+# Identify options selected either on command line or in cantera.conf
+selected_options = set(line.split("=")[0].strip()
+    for line in cantera_conf.splitlines())
+
+env["default_prefix"] = True
+if "prefix" in selected_options:
+    env["default_prefix"] = False
+
+# Check whether Cantera should be installed into a conda environment
+if conda_prefix is not None and sys.executable.startswith(conda_prefix):
+    # use conda layout unless any 'blocking' options were specified
+    blocking_options = {"layout", "prefix", "python_prefix", "python_cmd"}
+    if not selected_options & blocking_options:
+        env["layout"] = "conda"
+        # Directories where things will be after actually being installed. These
+        # variables are the ones that are used to populate header files, scripts,
+        # etc.
+        conda_prefix = Path(conda_prefix)
+        if "stage_dir" in selected_options:
+            env["prefix"] = str(conda_prefix.relative_to(conda_prefix.parents[2]))
+        else:
+            env["prefix"] = str(conda_prefix.resolve())
+        logger.info(
+            f"Using conda environment as default 'prefix': {env['prefix']}")
+elif env["layout"] == "conda":
+    logger.error("Layout option 'conda' requires a conda environment.")
+    sys.exit(1)
+
+if env["layout"] == "conda" and os.name == "nt":
+    env["ct_libdir"] = pjoin(env["prefix"], "Library", env["libdirname"])
+    env["ct_bindir"] = pjoin(env["prefix"], "Scripts")
+    env["ct_python_bindir"] = pjoin(env["prefix"], "Scripts")
+    env["ct_incdir"] = pjoin(env["prefix"], "Library", "include", "cantera")
+    env["ct_incroot"] = pjoin(env["prefix"], "Library", "include")
+else:
+    env["prefix"] = str(Path(env["prefix"]).resolve())
+    env["ct_libdir"] = pjoin(env["prefix"], env["libdirname"])
+    env["ct_bindir"] = pjoin(env["prefix"], "bin")
+    env["ct_python_bindir"] = pjoin(env["prefix"], "bin")
+    env["ct_incdir"] = pjoin(env["prefix"], "include", "cantera")
+    env["ct_incroot"] = pjoin(env["prefix"], "include")
+
+env["ct_installroot"] = env["prefix"]
+
+# Remove back slashes from paths. For example, C:\Users results in a Unicode error
+# because \U is the prefix for a Unicode sequence. This kind of thing can happen
+# on other platforms too, so this replacement isn't conditional.
+env["prefix"] = env["prefix"].replace("\\", "/")
 
 if env['layout'] == 'compact':
     env['ct_datadir'] = pjoin(env['prefix'], 'data')
     env['ct_sampledir'] = pjoin(env['prefix'], 'samples')
+    env["ct_docdir"] = pjoin(env["prefix"], "doc")
     env['ct_mandir'] = pjoin(env['prefix'], 'man1')
     env['ct_matlab_dir'] = pjoin(env['prefix'], 'matlab', 'toolbox')
 else:
     env['ct_datadir'] = pjoin(env['prefix'], 'share', 'cantera', 'data')
     env['ct_sampledir'] = pjoin(env['prefix'], 'share', 'cantera', 'samples')
+    env["ct_docdir"] = pjoin(env["prefix"], "share", "cantera", "doc")
     env['ct_mandir'] = pjoin(env['prefix'], 'share', 'man', 'man1')
-    env['ct_matlab_dir'] = pjoin(env['prefix'], env['libdirname'],
-                                 'cantera', 'matlab', 'toolbox')
+    if env["layout"] == "conda":
+        env["ct_matlab_dir"] = pjoin(
+            env["prefix"], "share", "cantera", "matlab", "toolbox")
+    else:
+        env["ct_matlab_dir"] = pjoin(
+            env["prefix"], env["libdirname"], "cantera", "matlab", "toolbox")
 
 # Always set the stage directory before building an MSI installer
 if 'msi' in COMMAND_LINE_TARGETS:
     COMMAND_LINE_TARGETS.append('install')
     env['stage_dir'] = 'stage'
     env['prefix'] = '.'
-    env['PYTHON_INSTALLER'] = 'binary'
 elif env['layout'] == 'debian':
     COMMAND_LINE_TARGETS.append('install')
     env['stage_dir'] = 'stage/cantera'
@@ -1511,16 +1743,15 @@ addInstallActions = ('install' in COMMAND_LINE_TARGETS or
 
 # Directories where things will be staged for package creation. These
 # variables should always be used by the Install(...) targets
-if env['stage_dir']:
-    instRoot = pjoin(os.getcwd(), env['stage_dir'],
-                     stripDrive(env['prefix']).strip('/\\'))
-    if env['python_prefix']:
-        env['python_prefix'] = pjoin(os.getcwd(), env['stage_dir'],
-                       stripDrive(env['python_prefix']).strip('/\\'))
-    else:
-        env['python_prefix'] = pjoin(os.getcwd(), env['stage_dir'])
+if env["stage_dir"]:
+    stage_prefix = Path(env["prefix"])
+    # Strip the root off the prefix if it's absolute
+    if stage_prefix.is_absolute():
+        stage_prefix = Path(*stage_prefix.parts[1:])
+
+    instRoot = str(Path.cwd().joinpath(env["stage_dir"], stage_prefix))
 else:
-    instRoot = env['prefix']
+    instRoot = env["prefix"]
 
 # Prevent setting Cantera installation path to source directory
 if os.path.abspath(instRoot) == Dir('.').abspath:
@@ -1529,6 +1760,7 @@ if os.path.abspath(instRoot) == Dir('.').abspath:
 
 if env['layout'] == 'debian':
     base = pjoin(os.getcwd(), 'debian')
+    env["inst_root"] = base
 
     env['inst_libdir'] = pjoin(base, 'cantera-dev', 'usr', env['libdirname'])
     env['inst_incdir'] = pjoin(base, 'cantera-dev', 'usr', 'include', 'cantera')
@@ -1546,25 +1778,11 @@ if env['layout'] == 'debian':
     env['inst_python_bindir'] = pjoin(base, 'cantera-python', 'usr', 'bin')
     env['python_prefix'] = pjoin(base, 'cantera-python3')
 else:
-    env['inst_libdir'] = pjoin(instRoot, env['libdirname'])
-    env['inst_bindir'] = pjoin(instRoot, 'bin')
-    env['inst_python_bindir'] = pjoin(instRoot, 'bin')
-    env['inst_incdir'] = pjoin(instRoot, 'include', 'cantera')
-    env['inst_incroot'] = pjoin(instRoot, 'include')
-
-    if env['layout'] == 'compact':
-        env['inst_matlab_dir'] = pjoin(instRoot, 'matlab', 'toolbox')
-        env['inst_datadir'] = pjoin(instRoot, 'data')
-        env['inst_sampledir'] = pjoin(instRoot, 'samples')
-        env['inst_docdir'] = pjoin(instRoot, 'doc')
-        env['inst_mandir'] = pjoin(instRoot, 'man1')
-    else: # env['layout'] == 'standard'
-        env['inst_matlab_dir'] = pjoin(instRoot, env['libdirname'], 'cantera',
-                                       'matlab', 'toolbox')
-        env['inst_datadir'] = pjoin(instRoot, 'share', 'cantera', 'data')
-        env['inst_sampledir'] = pjoin(instRoot, 'share', 'cantera', 'samples')
-        env['inst_docdir'] = pjoin(instRoot, 'share', 'cantera', 'doc')
-        env['inst_mandir'] = pjoin(instRoot, 'share', 'man', 'man1')
+    env["inst_root"] = instRoot
+    locations = ["libdir", "bindir", "python_bindir", "incdir", "incroot",
+        "matlab_dir", "datadir", "sampledir", "docdir", "mandir"]
+    for loc in locations:
+        env[f"inst_{loc}"] = env[f"ct_{loc}"].replace(env["ct_installroot"], instRoot)
 
 # **************************************
 # *** Set options needed in config.h ***
@@ -1588,6 +1806,7 @@ configh['DARWIN'] = 1 if env['OS'] == 'Darwin' else None
 
 if env['OS'] == 'Solaris' or env['HAS_CLANG']:
     configh['NEEDS_GENERIC_TEMPL_STATIC_DECL'] = 1
+    env["RPATHPREFIX"] = "-Wl,-rpath,"
 
 configh['CT_SUNDIALS_VERSION'] = env['sundials_version'].replace('.','')
 
@@ -1596,15 +1815,22 @@ if env.get('has_sundials_lapack') and env['use_lapack']:
 else:
     configh['CT_SUNDIALS_USE_LAPACK'] = 0
 
+if env['legacy_rate_constants']:
+    configh['CT_LEGACY_RATE_CONSTANTS'] = 1
+else:
+    configh['CT_LEGACY_RATE_CONSTANTS'] = 0
+
 cdefine('LAPACK_FTN_STRING_LEN_AT_END', 'lapack_ftn_string_len_at_end')
 cdefine('LAPACK_FTN_TRAILING_UNDERSCORE', 'lapack_ftn_trailing_underscore')
 cdefine('FTN_TRAILING_UNDERSCORE', 'lapack_ftn_trailing_underscore')
 cdefine('LAPACK_NAMES_LOWERCASE', 'lapack_names', 'lower')
 cdefine('CT_USE_LAPACK', 'use_lapack')
-cdefine('CT_USE_SYSTEM_EIGEN', 'system_eigen')
+cdefine("CT_USE_SYSTEM_EIGEN", "system_eigen")
+cdefine("CT_USE_SYSTEM_EIGEN_PREFIXED", "system_eigen_prefixed")
 cdefine('CT_USE_SYSTEM_FMT', 'system_fmt')
 cdefine('CT_USE_SYSTEM_YAMLCPP', 'system_yamlcpp')
 cdefine('CT_USE_DEMANGLE', 'has_demangle')
+cdefine("CT_NO_LEGACY_REACTIONS_26", "no_legacy_reactions")
 
 config_h_build = env.Command('build/src/config.h.build',
                              'include/cantera/base/config.h.in',
@@ -1662,7 +1888,7 @@ env.Prepend(CPPPATH=[],
 
 # preprocess input files (cti -> xml)
 convertedInputFiles = set()
-for cti in mglob(env, 'data/inputs', 'cti'):
+for cti in multi_glob(env, 'data/inputs', 'cti'):
     build(env.Command('build/data/%s' % cti.name, cti.path,
                       Copy('$TARGET', '$SOURCE')))
     outName = os.path.splitext(cti.name)[0] + '.xml'
@@ -1671,17 +1897,17 @@ for cti in mglob(env, 'data/inputs', 'cti'):
                       '$python_cmd_esc interfaces/cython/cantera/ctml_writer.py $SOURCE $TARGET'))
 
 # Copy XML input files which are not present as cti:
-for xml in mglob(env, 'data/inputs', 'xml'):
+for xml in multi_glob(env, 'data/inputs', 'xml'):
     dest = pjoin('build','data',xml.name)
     if xml.name not in convertedInputFiles:
         build(env.Command(dest, xml.path, Copy('$TARGET', '$SOURCE')))
 
-for yaml in mglob(env, "data", "yaml"):
+for yaml in multi_glob(env, "data", "yaml"):
     dest = pjoin("build", "data", yaml.name)
     build(env.Command(dest, yaml.path, Copy("$TARGET", "$SOURCE")))
 for subdir in os.listdir('data'):
     if os.path.isdir(pjoin('data', subdir)):
-        for yaml in mglob(env, pjoin("data", subdir), "yaml"):
+        for yaml in multi_glob(env, pjoin("data", subdir), "yaml"):
             dest = pjoin("build", "data", subdir, yaml.name)
             if not os.path.exists(pjoin("build", "data", subdir)):
                 os.makedirs(pjoin("build", "data", subdir))
@@ -1718,6 +1944,10 @@ else:
 linkLibs.extend(env['sundials_libs'])
 linkSharedLibs.extend(env['sundials_libs'])
 
+if env['system_fmt']:
+    linkLibs.append('fmt')
+    linkSharedLibs.append('fmt')
+
 if env['system_yamlcpp']:
     linkLibs.append('yaml-cpp')
     linkSharedLibs.append('yaml-cpp')
@@ -1748,10 +1978,12 @@ if env['f90_interface'] == 'y':
 VariantDir('build/src', 'src', duplicate=0)
 SConscript('build/src/SConscript')
 
-if env['python_package'] == 'full':
-    SConscript('interfaces/cython/SConscript')
-elif env['python_package'] == 'minimal':
-    SConscript('interfaces/python_minimal/SConscript')
+if env["python_package"] == "full":
+    VariantDir("build/python", "interfaces/cython", duplicate=True)
+    SConscript("build/python/SConscript")
+elif env["python_package"] == "minimal":
+    VariantDir("build/python_minimal", "interfaces/python_minimal", duplicate=True)
+    SConscript("build/python_minimal/SConscript")
 
 if env['CC'] != 'cl':
     VariantDir('build/platform', 'platform/posix', duplicate=0)
@@ -1762,6 +1994,10 @@ if env['matlab_toolbox'] == 'y':
 
 if env['doxygen_docs'] or env['sphinx_docs']:
     SConscript('doc/SConscript')
+
+if env["python_sdist"]:
+    VariantDir("build/python_sdist", "interfaces/python_sdist", duplicate=1)
+    SConscript("interfaces/python_sdist/SConscript", variant_dir="build/python_sdist")
 
 # Sample programs (also used from test_problems/SConscript)
 VariantDir('build/samples', 'samples', duplicate=0)
@@ -1789,13 +2025,12 @@ def postBuildMessage(target, source, env):
     print("*******************************************************")
     print("Compilation completed successfully.\n")
     print("- To run the test suite, type 'scons test'.")
+    print("- To list available tests, type 'scons test-help'.")
     if env['googletest'] == 'none':
-        print("  WARNING: You set the 'googletest' to 'none' and all it's tests will be skipped.")
+        print("  WARNING: You set the 'googletest' to 'none' and all its tests will be skipped.")
+    print("- To install, type 'scons install'.")
     if os.name == 'nt':
-        print("- To install, type 'scons install'.")
         print("- To create a Windows MSI installer, type 'scons msi'.")
-    else:
-        print("- To install, type 'scons install'.")
     print("*******************************************************")
 
 finish_build = env.Command('finish_build', [], postBuildMessage)
@@ -1810,62 +2045,63 @@ def postInstallMessage(target, source, env):
         return '\n'.join([indent + spl for spl in inp_str.splitlines()])
 
     env_dict = env.Dictionary()
+    locations = {
+        "library files": "ct_libdir",
+        "C++ headers": "ct_incroot",
+        "samples": "ct_sampledir",
+        "data files": "ct_datadir",
+        "input file converters": "ct_pyscriptdir",
+    }
     install_message = textwrap.dedent("""
         Cantera has been successfully installed.
 
         File locations:
+        """
+    ).splitlines()
+    locations_message = "  {name:<28}{location}"
+    for name, location in locations.items():
+        install_message.append(locations_message.format(
+            name=name, location=env_dict[location]
+        ))
 
-          applications                {ct_bindir!s}
-          library files               {ct_libdir!s}
-          C++ headers                 {ct_incroot!s}
-          samples                     {ct_sampledir!s}
-          data files                  {ct_datadir!s}""".format(**env_dict))
+    if env["sphinx_docs"] or env["doxygen_docs"]:
+        name = "HTML documentation"
+        install_message.append(locations_message.format(
+            name="HTML documentation", location=env_dict["inst_docdir"]
+        ))
 
-    if env['sphinx_docs'] or env['doxygen_docs']:
-        install_message += indent(textwrap.dedent("""
-            HTML documentation          {inst_docdir!s}""".format(**env_dict)), '  ')
+    if env["python_package"] == "full":
+        env["python_example_loc"] = pjoin(env["python_module_loc"], "cantera", "examples")
+        install_message.append(locations_message.format(
+            name="Python package", location=env_dict["python_module_loc"]
+        ))
+        install_message.append(locations_message.format(
+            name="Python examples", location=env_dict["python_example_loc"]
+        ))
 
-    if env['python_package'] == 'full':
-        env['python_example_loc'] = pjoin(env['python_module_loc'], 'cantera', 'examples')
-        install_message += indent(textwrap.dedent("""
-            Python package (cantera)    {python_module_loc!s}
-            Python samples              {python_example_loc!s}""".format(**env_dict)), '  ')
-    elif env['python_package'] == 'minimal':
-        install_message += indent(textwrap.dedent("""
-            minimal Python module       {python_module_loc!s}""".format(**env_dict)), '  ')
-
-    if env['matlab_toolbox'] == 'y':
-        env['matlab_sample_loc'] = pjoin(env['ct_sampledir'], 'matlab')
-        env['matlab_ctpath_loc'] = pjoin(env['ct_matlab_dir'], 'ctpath.m')
-        install_message += textwrap.dedent("""
-              Matlab toolbox              {ct_matlab_dir!s}
-              Matlab samples              {matlab_sample_loc!s}
-
+    if env["matlab_toolbox"] == "y":
+        env["matlab_sample_loc"] = pjoin(env["ct_sampledir"], "matlab")
+        env["matlab_ctpath_loc"] = pjoin(env["ct_matlab_dir"], "ctpath.m")
+        install_message.append(locations_message.format(
+            name="Matlab toolbox", location=env_dict["ct_matlab_dir"]
+        ))
+        install_message.append(locations_message.format(
+            name="Matlab samples", location=env_dict["matlab_sample_loc"]
+        ))
+        install_message.append(textwrap.dedent("""
             An m-file to set the correct matlab path for Cantera is at:
 
               {matlab_ctpath_loc!s}
-        """.format(**env_dict))
+        """.format(**env_dict)))
 
-    if os.name != 'nt':
-        env['setup_cantera'] = pjoin(env['ct_bindir'], 'setup_cantera')
-        env['setup_cantera_csh'] = pjoin(env['ct_bindir'], 'setup_cantera.csh')
-        install_message += textwrap.dedent("""
+    install_message.append("")
 
-            Setup scripts to configure the environment for Cantera are at:
+    logger.info(
+        textwrap.indent("\n".join(install_message), 4*" "),
+        print_level=False
+    )
 
-              setup script (bash)         {setup_cantera!s}
-              setup script (csh/tcsh)     {setup_cantera_csh!s}
-
-            It is recommended that you run the script for your shell by typing:
-
-              source {setup_cantera!s}
-
-            before using Cantera, or else include its contents in your shell login script.
-        """.format(**env_dict))
-
-    print(install_message)
-
-finish_install = env.Command('finish_install', [], postInstallMessage)
+finish_install = env.Command("finish_install", [], postInstallMessage)
 env.Depends(finish_install, installTargets)
 install_cantera = Alias('install', finish_install)
 
@@ -1886,23 +2122,6 @@ def getParentDirs(path, top=True):
 
 # Files installed by SCons
 allfiles = FindInstalledFiles()
-
-# Files installed by the Python installer
-if os.path.exists('build/python-installed-files.txt'):
-    with open('build/python-installed-files.txt', 'r') as f:
-        file_list = f.readlines()
-
-    install_base = os.path.dirname(file_list[0].strip())
-    if os.path.exists(install_base):
-        not_listed_files = [s for s in os.listdir(install_base) if not any(s in j for j in file_list)]
-        for f in not_listed_files:
-            f = pjoin(install_base, f)
-            if not os.path.isdir(f) and os.path.exists(f):
-                allfiles.append(File(f))
-    for f in file_list:
-        f = f.strip()
-        if not os.path.isdir(f) and os.path.exists(f):
-            allfiles.append(File(f))
 
 # After removing files (which SCons keeps track of),
 # remove any empty directories (which SCons doesn't track)
@@ -1929,6 +2148,10 @@ def removeDirectories(target, source, env):
 
 uninstall = env.Command("uninstall", None, Delete(allfiles))
 env.AddPostAction(uninstall, Action(removeDirectories))
+if env["python_package"] == "full":
+    env.AddPostAction(uninstall, Action("$python_cmd_esc -m pip uninstall -y Cantera"))
+elif env["python_package"] == "minimal":
+    env.AddPostAction(uninstall, Action("$python_cmd_esc -m pip uninstall -y Cantera_minimal"))
 
 ### Windows MSI Installer ###
 if 'msi' in COMMAND_LINE_TARGETS:
@@ -1953,7 +2176,7 @@ if 'msi' in COMMAND_LINE_TARGETS:
 ### Tests ###
 if any(target.startswith('test') for target in COMMAND_LINE_TARGETS):
     env['testNames'] = []
-    env['test_results'] = env.Command('test_results', [], testResults.printReport)
+    env['test_results'] = env.Command('test_results', [], test_results.print_report)
 
     if env['python_package'] == 'none':
         # copy scripts from the full Cython module

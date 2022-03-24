@@ -53,7 +53,7 @@ f.set_refine_criteria(ratio=3.0, slope=0.1, curve=0.2, prune=0.03)
 
 # Define a limit for the maximum temperature below which the flame is
 # considered as extinguished and the computation is aborted
-temperature_limit_extinction = 500  # K
+temperature_limit_extinction = max(f.oxidizer_inlet.T, f.fuel_inlet.T)
 
 # Initialize and solve
 print('Creating the initial solution')
@@ -65,10 +65,9 @@ if hdf_output:
                 description=('Initial solution'))
 else:
     # Save to data directory
-    file_name = 'initial_solution.xml'
+    file_name = 'initial_solution.yaml'
     f.save(os.path.join(data_directory, file_name), name='solution',
-           description='Cantera version ' + ct.__version__ +
-           ', reaction mechanism ' + reaction_mechanism)
+           description="Initial solution")
 
 
 # PART 2: COMPUTE EXTINCTION STRAIN
@@ -114,6 +113,7 @@ while True:
     strain_factor = alpha[-1] / alpha[n_last_burning]
     # Create an initial guess based on the previous solution
     # Update grid
+    # Note that grid scaling changes the diffusion flame width
     f.flame.grid *= strain_factor ** exp_d_a
     normalized_grid = f.grid / (f.grid[-1] - f.grid[0])
     # Update mass fluxes
@@ -137,11 +137,10 @@ while True:
             group = 'extinction/{0:04d}'.format(n)
             f.write_hdf(file_name, group=group, quiet=True)
         else:
-            file_name = 'extinction_{0:04d}.xml'.format(n)
+            file_name = 'extinction_{0:04d}.yaml'.format(n)
             f.save(os.path.join(data_directory, file_name),
                    name='solution', loglevel=0,
-                   description='Cantera version ' + ct.__version__ +
-                   ', reaction mechanism ' + reaction_mechanism)
+                   description=f"Solution at alpha = {alpha[-1]}")
         T_max.append(np.max(f.T))
         a_max.append(np.max(np.abs(np.gradient(f.velocity) / np.gradient(f.grid))))
         print('Flame burning at alpha = {:8.4F}. Proceeding to the next iteration, '
@@ -156,7 +155,7 @@ while True:
             group = 'extinction/{0:04d}'.format(n)
             f.write_hdf(file_name, group=group, quiet=True)
         else:
-            file_name = 'extinction_{0:04d}.xml'.format(n)
+            file_name = 'extinction_{0:04d}.yaml'.format(n)
             f.save(os.path.join(data_directory, file_name), name='solution', loglevel=0)
         print('Flame extinguished at alpha = {0:8.4F}.'.format(alpha[-1]),
               'Abortion criterion satisfied.')
@@ -175,7 +174,7 @@ while True:
             group = 'extinction/{0:04d}'.format(n_last_burning)
             f.read_hdf(file_name, group=group)
         else:
-            file_name = 'extinction_{0:04d}.xml'.format(n_last_burning)
+            file_name = 'extinction_{0:04d}.yaml'.format(n_last_burning)
             f.restore(os.path.join(data_directory, file_name),
                       name='solution', loglevel=0)
 
@@ -186,7 +185,7 @@ if hdf_output:
     group = 'extinction/{0:04d}'.format(n_last_burning)
     f.read_hdf(file_name, group=group)
 else:
-    file_name = 'extinction_{0:04d}.xml'.format(n_last_burning)
+    file_name = 'extinction_{0:04d}.yaml'.format(n_last_burning)
     f.restore(os.path.join(data_directory, file_name),
               name='solution', loglevel=0)
 print('----------------------------------------------------------------------')

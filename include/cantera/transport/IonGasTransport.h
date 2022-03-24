@@ -55,7 +55,7 @@ public:
         return "Ion";
     }
 
-    virtual void init(thermo_t* thermo, int mode, int log_level);
+    virtual void init(ThermoPhase* thermo, int mode, int log_level);
 
     //! Viscosity of the mixture  (kg/m/s).
     //! Only Neutral species contribute to Viscosity.

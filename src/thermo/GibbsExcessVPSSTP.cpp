@@ -15,6 +15,7 @@
 
 #include "cantera/thermo/GibbsExcessVPSSTP.h"
 #include "cantera/base/stringUtils.h"
+#include <numeric>
 
 using namespace std;
 

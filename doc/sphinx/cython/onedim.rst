@@ -13,27 +13,27 @@ Composite Domains
 
 FreeFlame
 ^^^^^^^^^
-.. autoclass:: FreeFlame(gas, grid=None, width=None)
+.. autoclass:: FreeFlame
 
 BurnerFlame
 ^^^^^^^^^^^
-.. autoclass:: BurnerFlame(gas, grid=None, width=None)
+.. autoclass:: BurnerFlame
 
 CounterflowDiffusionFlame
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-.. autoclass:: CounterflowDiffusionFlame(gas, grid=None, width=None)
+.. autoclass:: CounterflowDiffusionFlame
 
 CounterflowPremixedFlame
 ^^^^^^^^^^^^^^^^^^^^^^^^
-.. autoclass:: CounterflowPremixedFlame(gas, grid=None, width=None)
+.. autoclass:: CounterflowPremixedFlame
 
 ImpingingJet
 ^^^^^^^^^^^^
-.. autoclass:: ImpingingJet(gas, grid=None, width=None)
+.. autoclass:: ImpingingJet
 
 IonFreeFlame
 ^^^^^^^^^^^^
-.. autoclass:: IonFreeFlame(gas, grid=None, width=None)
+.. autoclass:: IonFreeFlame
 
    .. autoattribute:: E
    .. autoattribute:: electric_field_enabled
@@ -41,7 +41,7 @@ IonFreeFlame
 
 IonBurnerFlame
 ^^^^^^^^^^^^^^
-.. autoclass:: IonBurnerFlame(gas, grid=None, width=None)
+.. autoclass:: IonBurnerFlame
 
    .. autoattribute:: E
    .. autoattribute:: electric_field_enabled
@@ -72,38 +72,38 @@ Boundaries
 
 Inlet1D
 ^^^^^^^
-.. autoclass:: Inlet1D(phase, name=None)
+.. autoclass:: Inlet1D(phase, *, name=None)
 
 Outlet1D
 ^^^^^^^^
-.. autoclass:: Outlet1D(phase, name=None)
+.. autoclass:: Outlet1D(phase, *, name=None)
 
 OutletReservoir1D
 ^^^^^^^^^^^^^^^^^
-.. autoclass:: OutletReservoir1D(phase, name=None)
+.. autoclass:: OutletReservoir1D(phase, *, name=None)
 
 SymmetryPlane1D
 ^^^^^^^^^^^^^^^
-.. autoclass:: SymmetryPlane1D(phase, name=None)
+.. autoclass:: SymmetryPlane1D(phase, *, name=None)
 
 Surface1D
 ^^^^^^^^^
-.. autoclass:: Surface1D(phase, name=None)
+.. autoclass:: Surface1D(phase, * name=None)
 
 ReactingSurface1D
 ^^^^^^^^^^^^^^^^^
-.. autoclass:: ReactingSurface1D(phase, name=None)
+.. autoclass:: ReactingSurface1D(phase, *, name=None)
 
 
 Base Classes
 ------------
 Domain1D
 ^^^^^^^^
-.. autoclass:: Domain1D(name=None)
+.. autoclass:: Domain1D(phase, *, name=None)
 
 Boundary1D
 ^^^^^^^^^^
-.. autoclass:: Boundary1D(phase, name=None)
+.. autoclass:: Boundary1D(phase, *, name=None)
 
 Sim1D
 ^^^^^
@@ -111,4 +111,4 @@ Sim1D
 
 FlameBase
 ^^^^^^^^^
-.. autoclass:: FlameBase(domains, gas, grid=None)
+.. autoclass:: FlameBase

@@ -22,7 +22,7 @@ enum ResidEval_Type_Enum {
     Base_ResidEval = 0,
     //! Base residual calculation for the Jacobian calculation
     JacBase_ResidEval,
-    //! Delta residual calculation for the Jacbobian calculation
+    //! Delta residual calculation for the Jacobian calculation
     JacDelta_ResidEval,
     //! Base residual calculation for the showSolution routine
     /*!
@@ -32,7 +32,7 @@ enum ResidEval_Type_Enum {
     //! Base residual calculation containing any lagged components
     /*!
      * We use this to calculate residuals when doing line searches along
-     * irections determined by Jacobians that are missing contributions from
+     * directions determined by Jacobians that are missing contributions from
      * lagged entries.
      */
     Base_LaggedSolutionComponents

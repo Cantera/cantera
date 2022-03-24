@@ -1,7 +1,9 @@
 #include "gtest/gtest.h"
+#include "cantera/test/gtest_utils.h"
 
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/IdealGasPhase.h"
+#include "cantera/thermo/Species.h"
 #include "cantera/equil/MultiPhase.h"
 #include "cantera/base/global.h"
 #include "cantera/base/utilities.h"
@@ -19,14 +21,15 @@ class OverconstrainedEquil : public testing::Test
 {
 public:
     OverconstrainedEquil() {}
-    void setup(const std::string& elements="H C O N Ar") {
-        XML_Node* phase = get_XML_from_string(
-            "ideal_gas(elements='" + elements + "', species='gri30: CH C2H2')");
-        gas.reset(newPhase(*phase->findByName("phase")));
+    void setup(const std::string& elements="H, C, O, N, Ar") {
+        AnyMap phase = AnyMap::fromYamlString(
+            "{name: gas, thermo: ideal-gas, elements: [" + elements + "], "
+            " species: [{gri30.yaml/species: [CH, C2H2]}]}");
+        gas = newPhase(phase);
         gas->setState_TPX(1000, 1e5, "C2H2:0.9, CH:0.1");
     }
 
-    shared_ptr<ThermoPhase> gas;
+    unique_ptr<ThermoPhase> gas;
 };
 
 TEST_F(OverconstrainedEquil, ChemEquil)
@@ -83,7 +86,7 @@ TEST_F(OverconstrainedEquil, BasisOptimize)
 
 TEST_F(OverconstrainedEquil, DISABLED_BasisOptimize2)
 {
-    setup("O H C N Ar");
+    setup("O, H, C, N, Ar");
     MultiPhase mphase;
     mphase.addPhase(gas.get(), 10.0);
     mphase.init();
@@ -103,7 +106,7 @@ TEST_F(OverconstrainedEquil, DISABLED_BasisOptimize2)
 class GriEquilibriumTest : public testing::Test
 {
 public:
-    GriEquilibriumTest() : gas("gri30.xml", "gri30") {
+    GriEquilibriumTest() : gas("gri30.yaml") {
         X.resize(gas.nSpecies());
         Yelem.resize(gas.nElements());
     };
@@ -209,15 +212,15 @@ public:
 TEST_F(GriMatrix, ChemEquil_CH4_N2) { check_CH4_N2("element_potential"); }
 TEST_F(GriMatrix, ChemEquil_O2_N2) { check_O2_N2("element_potential"); }
 TEST_F(GriMatrix, ChemEquil_CH4_O2_N2) { check_CH4_O2_N2("element_potential"); }
-TEST_F(GriMatrix, ChemEquil_CH4_O2) { check_CH4_O2("element_potential"); }
+TEST_F(GriMatrix, SLOW_TEST(ChemEquil_CH4_O2)) { check_CH4_O2("element_potential"); }
 TEST_F(GriMatrix, MultiPhase_CH4_N2) { check_CH4_N2("gibbs"); }
 TEST_F(GriMatrix, MultiPhase_O2_N2) { check_O2_N2("gibbs"); }
-TEST_F(GriMatrix, MultiPhase_CH4_O2_N2) { check_CH4_O2_N2("gibbs"); }
+TEST_F(GriMatrix, SLOW_TEST(MultiPhase_CH4_O2_N2)) { check_CH4_O2_N2("gibbs"); }
 TEST_F(GriMatrix, DISABLED_MultiPhase_CH4_O2) { check_CH4_O2("gibbs"); }
 TEST_F(GriMatrix, VcsNonideal_CH4_N2) { check_CH4_N2("vcs"); }
 TEST_F(GriMatrix, VcsNonideal_O2_N2) { check_O2_N2("vcs"); }
 TEST_F(GriMatrix, VcsNonideal_CH4_O2_N2) { check_CH4_O2_N2("vcs"); }
-TEST_F(GriMatrix, VcsNonideal_CH4_O2) { check_CH4_O2("vcs"); }
+TEST_F(GriMatrix, SLOW_TEST(VcsNonideal_CH4_O2)) { check_CH4_O2("vcs"); }
 
 // Test for equilibrium at property pairs other than T and P, which require
 // nested iterations.

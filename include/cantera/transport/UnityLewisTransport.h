@@ -13,6 +13,7 @@
 #define CT_UNITYLEWISTRAN_H
 
 #include "MixTransport.h"
+#include "cantera/thermo/ThermoPhase.h"
 
 namespace Cantera
 {

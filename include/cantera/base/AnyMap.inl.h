@@ -10,6 +10,8 @@
 
 namespace Cantera
 {
+// re-declared to avoid needing to include global.h here
+std::string demangle(const std::type_info& type);
 
 // Definitions for AnyValue templated functions
 
@@ -20,6 +22,16 @@ const T &AnyValue::as() const {
             // Implicit conversion of long int to double
             *m_value = static_cast<double>(as<long int>());
             m_equals = eq_comparer<double>;
+        } else if (typeid(T) == typeid(std::vector<double>)
+                   && m_value->type() == typeid(std::vector<AnyValue>)) {
+            // Implicit conversion of vector<AnyValue> to vector<double>
+            auto& asAny = as<std::vector<AnyValue>>();
+            vector_fp asDouble(asAny.size());
+            for (size_t i = 0; i < asAny.size(); i++) {
+                asDouble[i] = asAny[i].as<double>();
+            }
+            *m_value = std::move(asDouble);
+            m_equals = eq_comparer<std::vector<double>>;
         }
         return boost::any_cast<const T&>(*m_value);
     } catch (boost::bad_any_cast&) {
@@ -37,30 +49,17 @@ const T &AnyValue::as() const {
 
 template<class T>
 T &AnyValue::as() {
-    try {
-        if (typeid(T) == typeid(double) && m_value->type() == typeid(long int)) {
-            // Implicit conversion of long int to double
-            *m_value = static_cast<double>(as<long int>());
-            m_equals = eq_comparer<double>;
-        }
-        return boost::any_cast<T&>(*m_value);
-    } catch (boost::bad_any_cast&) {
-        if (m_value->type() == typeid(void)) {
-            // Values that have not been set are of type 'void'
-            throw InputFileError("AnyValue::as", *this,
-                "Key '{}' not found or contains no value", m_key);
-        } else {
-            throw InputFileError("AnyValue::as", *this,
-                "Key '{}' contains a '{}',\nnot a '{}'",
-                m_key, demangle(m_value->type()), demangle(typeid(T)));
-        }
-    }
+    // To avoid duplicating the code from the const version, call that version
+    // and just remove the const specifier from the return value
+    return const_cast<T&>(const_cast<const AnyValue*>(this)->as<T>());
 }
 
 template<class T>
 bool AnyValue::is() const {
     return m_value->type() == typeid(T);
 }
+
+template<> bool AnyValue::is<std::vector<double>>() const;
 
 template<class T>
 AnyValue &AnyValue::operator=(const std::vector<T> &value) {

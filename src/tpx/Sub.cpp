@@ -294,7 +294,7 @@ double Substance::Tsat(double p)
 {
     double Tsave = T;
     if (p <= 0. || p > Pcrit()) {
-        // @TODO: this check should also fail below the triple point pressure
+        // @todo: this check should also fail below the triple point pressure
         // (calculated as Ps() for Tmin() as it is not available as a numerical
         // parameter). A bug causing low-temperature TP setters to fail for
         // Heptane (GitHub issue #605) prevents this at the moment.

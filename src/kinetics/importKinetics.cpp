@@ -81,7 +81,7 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
         if (incl.empty()) {
             for (size_t i = 0; i < allrxns.size(); i++) {
                 checkElectrochemReaction(p,kin,*allrxns[i]);
-                kin.addReaction(newReaction(*allrxns[i]));
+                kin.addReaction(newReaction(*allrxns[i]), false);
                 ++itot;
             }
         } else {
@@ -113,7 +113,7 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
                         // has surprising results.
                         if ((rxid >= imin) && (rxid <= imax)) {
                             checkElectrochemReaction(p,kin,*r);
-                            kin.addReaction(newReaction(*r));
+                            kin.addReaction(newReaction(*r), false);
                             ++itot;
                         }
                     }
@@ -125,6 +125,8 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
     if (check_for_duplicates) {
         kin.checkDuplicates();
     }
+
+    kin.resizeReactions();
 
     return true;
 }

@@ -7,10 +7,11 @@
 #define CT_REACTOR_H
 
 #include "ReactorBase.h"
-#include "cantera/kinetics/Kinetics.h"
 
 namespace Cantera
 {
+
+class Solution;
 
 /**
  * Class Reactor is a general-purpose class for stirred reactors. The reactor
@@ -33,6 +34,8 @@ namespace Cantera
  *  - rate of change of the total volume (m^3/s)
  *  - surface heat loss rate (W)
  *  - species surface production rates (kmol/s)
+ *
+ * @ingroup ZeroD
  */
 class Reactor : public ReactorBase
 {
@@ -40,18 +43,13 @@ public:
     Reactor();
 
     virtual std::string typeStr() const {
+        warn_deprecated("Reactor::typeStr",
+                        "To be removed after Cantera 2.6. Use type() instead.");
         return "Reactor";
     }
 
-    /*!
-     * @deprecated To be changed after Cantera 2.5.
-     */
-    virtual int type() const {
-        warn_deprecated("Reactor::type",
-                        "To be changed after Cantera 2.5. "
-                        "Return string instead of magic number; use "
-                        "Reactor::typeStr during transition");
-        return ReactorType;
+    virtual std::string type() const {
+        return "Reactor";
     }
 
     /**
@@ -64,14 +62,11 @@ public:
         setKineticsMgr(contents);
     }
 
-    void insert(shared_ptr<Solution> sol) {
-        setThermoMgr(*sol->thermo());
-        setKineticsMgr(*sol->kinetics());
-    }
+    void insert(shared_ptr<Solution> sol);
 
     virtual void setKineticsMgr(Kinetics& kin);
 
-    virtual void setChemistry(bool cflag = true) {
+    void setChemistry(bool cflag=true) {
         m_chem = cflag;
     }
 
@@ -80,7 +75,7 @@ public:
         return m_chem;
     }
 
-    virtual void setEnergy(int eflag = 1) {
+    void setEnergy(int eflag=1) {
         if (eflag > 0) {
             m_energy = true;
         } else {
@@ -94,7 +89,7 @@ public:
     }
 
     //! Number of equations (state variables) for this reactor
-    virtual size_t neq() {
+    size_t neq() {
         if (!m_nv) {
             initialize();
         }
@@ -115,9 +110,20 @@ public:
      * @param[in] y solution vector, length neq()
      * @param[out] ydot rate of change of solution vector, length neq()
      * @param[in] params sensitivity parameter vector, length ReactorNet::nparams()
+     * @deprecated Replaced by eval(double t, double* LHS, double* RHS). To be removed after
+     *     Cantera 2.6.
      */
-    virtual void evalEqs(doublereal t, doublereal* y,
-                         doublereal* ydot, doublereal* params);
+    virtual void evalEqs(double t, double* y, double* ydot, double* params) {
+        throw NotImplementedError("Reactor::evalEqs", "Deprecated");
+    }
+
+    //! Evaluate the reactor governing equations. Called by ReactorNet::eval.
+    //! @param[in] t time.
+    //! @param[out] LHS pointer to start of vector of left-hand side
+    //! coefficients for governing equations, length m_nv, default values 1
+    //! @param[out] RHS pointer to start of vector of right-hand side
+    //! coefficients for governing equations, length m_nv, default values 0
+    virtual void eval(double t, double* LHS, double* RHS);
 
     virtual void syncState();
 
@@ -161,18 +167,18 @@ public:
     //! @returns           True if at least one limit is set, False otherwise
     bool getAdvanceLimits(double* limits);
 
-    //! Set individual step size limit for compoment name *nm*
+    //! Set individual step size limit for component name *nm*
     //! @param nm component name
     //! @param limit value for step size limit
     void setAdvanceLimit(const std::string& nm, const double limit);
 
-protected:
     //! Set reaction rate multipliers based on the sensitivity variables in
     //! *params*.
     virtual void applySensitivity(double* params);
     //! Reset the reaction rate multipliers
     virtual void resetSensitivity(double* params);
 
+protected:
     //! Return the index in the solution vector for this reactor of the species
     //! named *nm*, in either the homogeneous phase or a surface phase, relative
     //! to the start of the species terms. Used to implement componentIndex for
@@ -184,12 +190,13 @@ protected:
     //! @param t     the current time
     virtual void evalWalls(double t);
 
-    //! Evaluate terms related to surface reactions. Calculates #m_sdot and rate
-    //! of change in surface species coverages.
-    //! @param t          the current time
-    //! @param[out] ydot  array of d(coverage)/dt for surface species
-    //! @returns          Net mass flux from surfaces
-    virtual double evalSurfaces(double t, double* ydot);
+    //! Evaluate terms related to surface reactions.
+    //! @param[out] LHS   Multiplicative factor on the left hand side of ODE for surface
+    //!                   species coverages
+    //! @param[out] RHS   Right hand side of ODE for surface species coverages
+    //! @param[out] sdot  array of production rates of bulk phase species on surfaces
+    //!                   [kmol/s]
+    virtual void evalSurfaces(double* LHS, double* RHS, double* sdot);
 
     //! Update the state of SurfPhase objects attached to this reactor
     virtual void updateSurfaceState(double* y);
@@ -209,7 +216,14 @@ protected:
     Kinetics* m_kin;
 
     doublereal m_vdot; //!< net rate of volume change from moving walls [m^3/s]
-    doublereal m_Q; //!< net heat transfer through walls [W]
+
+    //! net heat transfer out of the reactor, through walls [W]
+    //! @deprecated To be removed after Cantera 2.6. Replaced with #m_Qdot, which
+    //!     has the opposite sign convention.
+    double m_Q;
+
+    double m_Qdot; //!< net heat transfer into the reactor, through walls [W]
+
     doublereal m_mass; //!< total mass
     vector_fp m_work;
 
@@ -221,6 +235,7 @@ protected:
     bool m_chem;
     bool m_energy;
     size_t m_nv;
+    size_t m_nv_surf; //!!< Number of variables associated with reactor surfaces
 
     vector_fp m_advancelimits; //!< Advance step limit
 

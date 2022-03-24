@@ -35,7 +35,10 @@ public:
                    double quantity=0);
 
     //! Create an object with the specified dimensions
-    explicit Units(const std::string& name);
+    //! @param units        A string representation of the units. See UnitSystem
+    //!                     for a description of the formatting options.
+    //! @param force_unity  ensure that conversion factor is equal to one
+    explicit Units(const std::string& units, bool force_unity=false);
 
     //! Returns `true` if the specified Units are dimensionally consistent
     bool convertible(const Units& other) const;
@@ -49,11 +52,18 @@ public:
     Units& operator*=(const Units& other);
 
     //! Provide a string representation of these Units
-    std::string str() const;
+    //! @param skip_unity  do not print '1' if conversion factor is equal to one
+    std::string str(bool skip_unity=true) const;
 
     //! Raise these Units to a power, changing both the conversion factor and
     //! the dimensions of these Units.
-    Units pow(double expoonent) const;
+    Units pow(double exponent) const;
+
+    bool operator==(const Units& other) const;
+
+    //! Return dimension of primary unit component
+    //! ("mass", "length", "time", "temperature", "current" or "quantity")
+    double dimension(const std::string& primary) const;
 
 private:
     //! Scale the unit by the factor `k`
@@ -70,6 +80,56 @@ private:
     double m_energy_dim; //!< pseudo-dimension to track explicit energy units
 
     friend class UnitSystem;
+};
+
+
+//! Unit aggregation utility
+/*!
+ *  Provides functions for updating and calculating effective units from a stack
+ *  of unit-exponent pairs. Matching units are aggregated, where a standard unit
+ *  simplifies access when joining exponents. The utility is used in the context
+ *  of effective reaction rate units.
+ *
+ * @internal Helper utility class.
+ *
+ * @warning This class is an experimental part of the %Cantera API and
+ *    may be changed or removed without notice.
+ */
+struct UnitStack
+{
+    UnitStack(const Units& standardUnits) {
+        stack.reserve(2); // covers memory requirements for most applications
+        stack.emplace_back(standardUnits, 0.);
+    }
+
+    //! Alternative constructor allows for direct assignment of vector
+    UnitStack(std::initializer_list<std::pair<Units, double>> units)
+        : stack(units) {}
+
+    //! Size of UnitStack
+    size_t size() const { return stack.size(); }
+
+    //! Get standard unit used by UnitStack
+    Units standardUnits() const;
+
+    //! Set standard units
+    void setStandardUnits(Units& standardUnits);
+
+    //! Effective exponent of standard unit
+    double standardExponent() const;
+
+    //! Join (update) exponent of standard units, where the updated exponent is
+    //! the sum of the pre-existing exponent and the exponent passed as the argument.
+    void join(double exponent);
+
+    //! Update exponent of item with matching units; if it does not exist,
+    //! add unit-exponent pair at end of stack
+    void update(const Units& units, double exponent);
+
+    //! Calculate product of units-exponent stack
+    Units product() const;
+
+    std::vector<std::pair<Units, double>> stack; //!< Stack uses vector of pairs
 };
 
 
@@ -107,6 +167,9 @@ public:
     //! recognize an optional argument with a default value)
     UnitSystem() : UnitSystem({}) {}
 
+    //! Return default units used by the unit system
+    std::map<std::string, std::string> defaults() const;
+
     //! Set the default units to convert from when explicit units are not
     //! provided. Defaults can be set for mass, length, time, quantity, energy,
     //! and pressure. Conversion using the pressure or energy units is done only
@@ -140,13 +203,15 @@ public:
                    const std::string& dest) const;
     double convert(double value, const Units& src, const Units& dest) const;
 
-    //! Convert `value` from this unit system (defined by `setDefaults`) to the
-    //! specified units.
-    //!
-    //! @warning This function is an experimental part of the %Cantera API and
-    //!    may be changed or removed without notice.
-    double convert(double value, const std::string& dest) const;
-    double convert(double value, const Units& dest) const;
+    //! Convert `value` to the specified `dest` units from the appropriate units
+    //! for this unit system (defined by `setDefaults`)
+    double convertTo(double value, const std::string& dest) const;
+    double convertTo(double value, const Units& dest) const;
+
+    //! Convert `value` from the specified `src` units to units appropriate for
+    //! this unit system (defined by `setDefaults`)
+    double convertFrom(double value, const std::string& src) const;
+    double convertFrom(double value, const Units& src) const;
 
     //! Convert a generic AnyValue node to the units specified in `dest`. If the
     //! input is a double, convert it using the default units. If the input is a
@@ -168,12 +233,14 @@ public:
     double convertActivationEnergy(double value, const std::string& src,
                                    const std::string& dest) const;
 
-    //! Convert `value` from the default activation energy units to the
-    //! specified units
-    //!
-    //! @warning This function is an experimental part of the %Cantera API and
-    //!    may be changed or removed without notice.
-    double convertActivationEnergy(double value, const std::string& dest) const;
+    //! Convert `value` to the units specified by `dest` from the default
+    //! activation energy units
+    double convertActivationEnergyTo(double value, const std::string& dest) const;
+    double convertActivationEnergyTo(double value, const Units& dest) const;
+
+    //! Convert `value` from the units specified by `src` to the default
+    //! activation energy units
+    double convertActivationEnergyFrom(double value, const std::string& src) const;
 
     //! Convert a generic AnyValue node to the units specified in `dest`. If the
     //! input is a double, convert it using the default units. If the input is a
@@ -181,6 +248,9 @@ public:
     //! convert from the specified units.
     double convertActivationEnergy(const AnyValue& val,
                                    const std::string& dest) const;
+
+    //! Get the changes to the defaults from `other` to this UnitSystem
+    AnyMap getDelta(const UnitSystem& other) const;
 
 private:
     //! Factor to convert mass from this unit system to kg
@@ -207,6 +277,10 @@ private:
     //! True if activation energy units are set explicitly, rather than as a
     //! combination of energy and quantity units
     bool m_explicit_activation_energy;
+
+    //! Map of dimensions (mass, length, etc.) to names of specified default
+    //! units
+    std::map<std::string, std::string> m_defaults;
 };
 
 }

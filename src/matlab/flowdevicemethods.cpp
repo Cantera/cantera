@@ -20,7 +20,7 @@ void flowdevicemethods(int nlhs, mxArray* plhs[],
     if (job == 0) {
         char* type = getString(prhs[2]);
 
-        n = flowdev_new2(type);
+        n = flowdev_new(type);
         plhs[0] = mxCreateNumericMatrix(1,1,mxDOUBLE_CLASS,mxREAL);
         double* h = mxGetPr(plhs[0]);
         *h = double(n);
@@ -42,16 +42,8 @@ void flowdevicemethods(int nlhs, mxArray* plhs[],
             m = getInt(prhs[4]);
             iok = flowdev_install(i, int(v), m);
             break;
-        case 3:
-            // @deprecated To be removed after Cantera 2.5.
-            iok = flowdev_setMassFlowRate(i, v);
-            break;
         case 4:
             iok = flowdev_setValveCoeff(i, v);
-            break;
-        case 5:
-            // @deprecated To be removed after Cantera 2.5.
-            iok = flowdev_setFunction(i, int(v));
             break;
         case 7:
             iok = flowdev_setMaster(i, int(v));
@@ -79,11 +71,7 @@ void flowdevicemethods(int nlhs, mxArray* plhs[],
         // options that return a value of type 'double'
         switch (job) {
         case 21:
-            if (v == Undef) {
-                r = flowdev_massFlowRate2(i);
-            } else {
-                r = flowdev_massFlowRate(i, v);
-            }
+            r = flowdev_massFlowRate(i);
             break;
         default:
             mexErrMsgTxt("unknown job parameter");

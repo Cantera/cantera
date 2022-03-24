@@ -1,0 +1,99 @@
+generator: cti2yaml
+cantera-version: 2.6.0a3
+date: Sat, 18 Dec 2021 10:58:54 -0500
+input-files: [ptcombust-motzwise.cti]
+
+units: {length: cm, quantity: mol, activation-energy: J/mol}
+
+phases:
+- name: gas
+  thermo: ideal-gas
+  elements: [O, H, C, N, Ar]
+  species:
+  - gri30.yaml/species: [H2, H, O, O2, OH, H2O, HO2, H2O2, C, CH, CH2, CH2(S),
+      CH3, CH4, CO, CO2, HCO, CH2O, CH2OH, CH3O, CH3OH, C2H, C2H2, C2H3,
+      C2H4, C2H5, C2H6, HCCO, CH2CO, HCCOH, AR, N2]
+  skip-undeclared-elements: true
+  kinetics: gas
+  reactions:
+  - gri30.yaml/reactions: declared-species
+  transport: mixture-averaged
+  state:
+    T: 300.0
+    P: 1.01325e+05
+    X: {CH4: 0.095, O2: 0.21, AR: 0.79}
+- name: Pt_surf
+  thermo: ideal-surface
+  adjacent-phases: [gas]
+  elements: [Pt, H, O, C]
+  species:
+  - ptcombust.yaml/species: [PT(S), H(S), H2O(S), OH(S), CO(S), CO2(S),
+      CH3(S), CH2(S)s, CH(S), C(S), O(S)]
+  kinetics: surface
+  reactions: all
+  state:
+    T: 900.0
+    coverages: {O(S): 0.0, PT(S): 0.5, H(S): 0.5}
+  site-density: 2.7063e-09
+  Motz-Wise: true
+
+reactions:
+- equation: H2 + 2 PT(S) => 2 H(S)  # Reaction 1
+  rate-constant: {A: 4.4579e+10, b: 0.5, Ea: 0}
+  orders: {PT(S): 1}
+- equation: 2 H(S) => H2 + 2 PT(S)  # Reaction 2
+  rate-constant: {A: 3.7e+21, b: 0, Ea: 67400}
+  coverage-dependencies:
+    H(S): {a: 0.0, m: 0.0, E: -6000.0}
+- equation: H + PT(S) => H(S)  # Reaction 3
+  sticking-coefficient: {A: 1.0, b: 0, Ea: 0}
+- equation: O2 + 2 PT(S) => 2 O(S)  # Reaction 4
+  rate-constant: {A: 1.8e+21, b: -0.5, Ea: 0}
+  duplicate: true
+- equation: O2 + 2 PT(S) => 2 O(S)  # Reaction 5
+  sticking-coefficient: {A: 0.023, b: 0, Ea: 0}
+  duplicate: true
+  Motz-Wise: false
+- equation: 2 O(S) => O2 + 2 PT(S)  # Reaction 6
+  rate-constant: {A: 3.7e+21, b: 0, Ea: 213200}
+  coverage-dependencies:
+    O(S): {a: 0.0, m: 0.0, E: -6.0e+04}
+- equation: O + PT(S) => O(S)  # Reaction 7
+  sticking-coefficient: {A: 1.0, b: 0, Ea: 0}
+- equation: H2O + PT(S) => H2O(S)  # Reaction 8
+  sticking-coefficient: {A: 0.75, b: 0, Ea: 0}
+- equation: H2O(S) => H2O + PT(S)  # Reaction 9
+  rate-constant: {A: 1.0e+13, b: 0, Ea: 40300}
+- equation: OH + PT(S) => OH(S)  # Reaction 10
+  sticking-coefficient: {A: 1.0, b: 0, Ea: 0}
+  Motz-Wise: true
+- equation: OH(S) => OH + PT(S)  # Reaction 11
+  rate-constant: {A: 1.0e+13, b: 0, Ea: 192800}
+- equation: H(S) + O(S) <=> OH(S) + PT(S)  # Reaction 12
+  rate-constant: {A: 3.7e+21, b: 0, Ea: 11500}
+- equation: H(S) + OH(S) <=> H2O(S) + PT(S)  # Reaction 13
+  rate-constant: {A: 3.7e+21, b: 0, Ea: 17400}
+- equation: OH(S) + OH(S) <=> H2O(S) + O(S)  # Reaction 14
+  rate-constant: {A: 3.7e+21, b: 0, Ea: 48200}
+- equation: CO + PT(S) => CO(S)  # Reaction 15
+  rate-constant: {A: 1.618e+20, b: 0.5, Ea: 0}
+  orders: {PT(S): 2}
+- equation: CO(S) => CO + PT(S)  # Reaction 16
+  rate-constant: {A: 1.0e+13, b: 0, Ea: 125500}
+- equation: CO2(S) => CO2 + PT(S)  # Reaction 17
+  rate-constant: {A: 1.0e+13, b: 0, Ea: 20500}
+- equation: CO(S) + O(S) => CO2(S) + PT(S)  # Reaction 18
+  rate-constant: {A: 3.7e+21, b: 0, Ea: 105000}
+- equation: CH4 + 2 PT(S) => CH3(S) + H(S)  # Reaction 19
+  rate-constant: {A: 4.6334e+20, b: 0.5, Ea: 0}
+  orders: {PT(S): 2.3}
+- equation: CH3(S) + PT(S) => CH2(S)s + H(S)  # Reaction 20
+  rate-constant: {A: 3.7e+21, b: 0, Ea: 20000}
+- equation: CH2(S)s + PT(S) => CH(S) + H(S)  # Reaction 21
+  rate-constant: {A: 3.7e+21, b: 0, Ea: 20000}
+- equation: CH(S) + PT(S) => C(S) + H(S)  # Reaction 22
+  rate-constant: {A: 3.7e+21, b: 0, Ea: 20000}
+- equation: C(S) + O(S) => CO(S) + PT(S)  # Reaction 23
+  rate-constant: {A: 3.7e+21, b: 0, Ea: 62800}
+- equation: CO(S) + PT(S) => C(S) + O(S)  # Reaction 24
+  rate-constant: {A: 1.0e+18, b: 0, Ea: 184000}

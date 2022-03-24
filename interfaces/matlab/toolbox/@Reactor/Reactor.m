@@ -40,14 +40,6 @@ elseif nargin > 2
     error('too many arguments');
 end
 
-if isa(typ, 'double')
-    warning('Definition via integer type to be deprecated after Cantera 2.5')
-    reactor_types = {'Reservoir' 'Reactor' 'FlowReactor' ...
-                     'ConstPressureReactor' 'IdealGasReactor' ...
-                     'IdealGasConstPressureReactor'};
-    typ = reactor_types(typ);
-end
-
 x.type = char(typ);
 x.index = reactormethods(0, x.type);
 if x.index < 0

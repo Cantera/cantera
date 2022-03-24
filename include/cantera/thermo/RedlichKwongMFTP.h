@@ -19,19 +19,15 @@ namespace Cantera
 class RedlichKwongMFTP : public MixtureFugacityTP
 {
 public:
-    //! @name Constructors and Duplicators
-    //! @{
-
-    //! Base constructor.
-    RedlichKwongMFTP();
-
     //! Construct a RedlichKwongMFTP object from an input file
     /*!
-     * @param inputFile Name of the input file containing the phase definition
-     * @param id        name (ID) of the phase in the input file. If empty, the
-     *                  first phase definition in the input file will be used.
+     * @param infile Name of the input file containing the phase definition.
+     *               If blank, an empty phase will be created.
+     * @param id     name (ID) of the phase in the input file. If empty, the
+     *               first phase definition in the input file will be used.
      */
-    RedlichKwongMFTP(const std::string& infile, const std::string& id="");
+    explicit RedlichKwongMFTP(const std::string& infile="",
+                              const std::string& id="");
 
     //! Construct and initialize a RedlichKwongMFTP object directly from an
     //! XML database
@@ -51,12 +47,8 @@ public:
 
     //! @name Molar Thermodynamic properties
     //! @{
-
-    virtual doublereal enthalpy_mole() const;
-    virtual doublereal entropy_mole() const;
     virtual doublereal cp_mole() const;
     virtual doublereal cv_mole() const;
-
     //! @}
     //! @name Mechanical Properties
     //! @{
@@ -73,34 +65,9 @@ public:
      */
     virtual doublereal pressure() const;
 
-    // @}
-
-protected:
-    /**
-     * Calculate the density of the mixture using the partial molar volumes and
-     * mole fractions as input
-     *
-     * The formula for this is
-     *
-     * \f[
-     * \rho = \frac{\sum_k{X_k W_k}}{\sum_k{X_k V_k}}
-     * \f]
-     *
-     * where \f$X_k\f$ are the mole fractions, \f$W_k\f$ are the molecular
-     * weights, and \f$V_k\f$ are the pure species molar volumes.
-     *
-     * Note, the basis behind this formula is that in an ideal solution the
-     * partial molar volumes are equal to the species standard state molar
-     * volumes. The species molar volumes may be functions of temperature and
-     * pressure.
-     */
-    virtual void calcDensity();
-
-    virtual void setTemperature(const doublereal temp);
-    virtual void compositionChanged();
+    //! @}
 
 public:
-    virtual void getActivityConcentrations(doublereal* c) const;
 
     //! Returns the standard concentration \f$ C^0_k \f$, which is used to
     //! normalize the generalized concentration.
@@ -130,7 +97,7 @@ public:
     virtual void getActivityCoefficients(doublereal* ac) const;
 
     /// @name  Partial Molar Properties of the Solution
-    //@{
+    //! @{
 
     //! Get the array of non-dimensional species chemical potentials.
     //! These are partial molar Gibbs free energies.
@@ -150,21 +117,13 @@ public:
     virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
     virtual void getPartialMolarEntropies(doublereal* sbar) const;
     virtual void getPartialMolarIntEnergies(doublereal* ubar) const;
-    virtual void getPartialMolarCp(doublereal* cpbar) const;
+    virtual void getPartialMolarCp(double* cpbar) const {
+        throw NotImplementedError("RedlichKwongMFTP::getPartialMolarCp");
+    }
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
-
-    //@}
-    /// @name Critical State Properties.
-    //@{
-
-    virtual doublereal critTemperature() const;
-    virtual doublereal critPressure() const;
-    virtual doublereal critVolume() const;
-    virtual doublereal critCompressibility() const;
-    virtual doublereal critDensity() const;
+    //! @}
 
 public:
-    //@}
     //! @name Initialization Methods - For Internal use
     /*!
      * The following methods are used in the process of constructing
@@ -172,22 +131,27 @@ public:
      * input file. They are not normally used in application programs.
      * To see how they are used, see importPhase().
      */
-    //@{
+    //! @{
 
     virtual bool addSpecies(shared_ptr<Species> spec);
     virtual void setParametersFromXML(const XML_Node& thermoNode);
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
     virtual void initThermo();
+    virtual void getSpeciesParameters(const std::string& name,
+                                      AnyMap& speciesNode) const;
 
     //! Retrieve a and b coefficients by looking up tabulated critical parameters
     /*!
      *  If pureFluidParameters are not provided for any species in the phase,
-     *  consult the critical properties tabulated in /thermo/critProperties.xml.
+     *  consult the critical properties tabulated in `critical-properties.yaml`.
      *  If the species is found there, calculate pure fluid parameters a_k and b_k as:
      *  \f[ a_k = 0.4278*R**2*T_c^2.5/P_c \f]
      *
      *  and:
      *  \f[ b_k = 0.08664*R*T_c/P_c \f]
+     *
+     * @deprecated To be removed after Cantera 2.6. Use of critical-properties.yaml is
+     *     integrated into initThermo() for YAML input files.
      *
      *  @param iName    Name of the species
      */
@@ -240,7 +204,7 @@ private:
      */
     void readXMLCrossFluid(XML_Node& pureFluidParam);
 
-    // @}
+    //! @}
 
 protected:
     // Special functions inherited from MixtureFugacityTP
@@ -249,11 +213,10 @@ protected:
 
 public:
     virtual doublereal liquidVolEst(doublereal TKelvin, doublereal& pres) const;
-    virtual doublereal densityCalc(doublereal TKelvin, doublereal pressure, int phase, doublereal rhoguess);
+    virtual doublereal densityCalc(doublereal T, doublereal pressure, int phase, doublereal rhoguess);
 
     virtual doublereal densSpinodalLiquid() const;
     virtual doublereal densSpinodalGas() const;
-    virtual doublereal pressureCalc(doublereal TKelvin, doublereal molarVol) const;
     virtual doublereal dpdVCalc(doublereal TKelvin, doublereal molarVol, doublereal& presCalc) const;
 
     //! Calculate dpdV and dpdT at the current conditions
@@ -262,15 +225,13 @@ public:
      */
     void pressureDerivatives() const;
 
-    virtual void updateMixingExpressions();
-
     //! Update the a and b parameters
     /*!
      *  The a and the b parameters depend on the mole fraction and the
      *  temperature. This function updates the internal numbers based on the
      *  state of the object.
      */
-    void updateAB();
+    virtual void updateMixingExpressions();
 
     //! Calculate the a and the b parameters given the temperature
     /*!
@@ -287,21 +248,10 @@ public:
 
     doublereal da_dt() const;
 
-    void calcCriticalConditions(doublereal a, doublereal b, doublereal a0_coeff, doublereal aT_coeff,
-                                doublereal& pc, doublereal& tc, doublereal& vc) const;
+    void calcCriticalConditions(doublereal& pc, doublereal& tc, doublereal& vc) const;
 
-    //! Solve the cubic equation of state
-    /*!
-     * The R-K equation of state may be solved via the following formula:
-     *
-     *     V**3 - V**2(RT/P)  - V(RTb/P - a/(P T**.5) + b*b) - (a b / (P T**.5)) = 0
-     *
-     * Returns the number of solutions found. If it only finds the liquid
-     * branch solution, it will return a -1 or a -2 instead of 1 or 2.  If it
-     * returns 0, then there is an error.
-     */
-    int NicholsSolve(double TKelvin, double pres, doublereal a, doublereal b,
-                     doublereal Vroot[3]) const;
+    //! Prepare variables and call the function to solve the cubic equation of state
+    int solveCubic(double T, double pres, double a, double b, double Vroot[3]) const;
 
 protected:
     //! Form of the temperature parameterization
@@ -328,15 +278,19 @@ protected:
 
     Array2D a_coeff_vec;
 
+    //! Explicitly-specified binary interaction parameters
+    std::map<std::string, std::map<std::string, std::pair<double, double>>> m_binaryParameters;
+
+    enum class CoeffSource { EoS, CritProps, Database };
+    //! For each species, specifies the source of the a and b coefficients
+    std::vector<CoeffSource> m_coeffSource;
+
     int NSolns_;
 
     doublereal Vroot_[3];
 
     //! Temporary storage - length = m_kk.
     mutable vector_fp m_pp;
-
-    //! Temporary storage - length = m_kk.
-    mutable vector_fp m_tmpV;
 
     // Partial molar volumes of the species
     mutable vector_fp m_partialMolarVolumes;
@@ -362,7 +316,7 @@ protected:
      */
     mutable vector_fp dpdni_;
 
-public:
+private:
     //! Omega constant for a -> value of a in terms of critical properties
     /*!
      *  this was calculated from a small nonlinear solve

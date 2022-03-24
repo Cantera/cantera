@@ -1,0 +1,115 @@
+generator: ctml2yaml
+cantera-version: 2.6.0a2
+date: Sat, 15 May 2021 16:51:15 -0400
+input-files: [test_problems/cathermo/HMW_test_1/HMW_NaCl.xml]
+
+phases:
+- name: NaCl_electrolyte
+  elements: [O, H, C, E, Fe, Si, N, Na, Cl]
+  species:
+  - species_waterSolution: [H2O(L), Cl-, H+, Na+, OH-]
+  thermo: HMW-electrolyte
+  activity-data:
+    temperature-model: constant
+    A_Debye: 1.175930 kg^0.5/gmol^0.5
+    interactions:
+    - species: [Na+, Cl-]
+      beta0: 0.0765
+      beta1: 0.2664
+      beta2: 0.0
+      Cphi: 1.27e-03
+      alpha1: 2.0
+    - species: [H+, Cl-]
+      beta0: 0.1775
+      beta1: 0.2945
+      beta2: 0.0
+      Cphi: 8.0e-04
+      alpha1: 2.0
+    - species: [Na+, OH-]
+      beta0: 0.0864
+      beta1: 0.253
+      beta2: 0.0
+      Cphi: 4.4e-03
+      alpha1: 2.0
+    - species: [Cl-, OH-]
+      theta: -0.05
+    - species: [Na+, Cl-, OH-]
+      psi: -6.0e-03
+    - species: [Na+, H+]
+      theta: 0.036
+    - species: [Cl-, Na+, H+]
+      psi: -4.0e-03
+  state: {T: 298.15 K, P: 1.01325e+05 Pa, molalities: {Na+: 6.0954, Cl-: 6.0954, H+: 2.1628e-09,
+      OH-: 1.3977e-06}}
+
+species_waterSolution:
+- name: H2O(L)
+  composition: {H: 2.0, O: 1.0}
+  thermo:
+    model: NASA7
+    temperature-ranges: [273.15, 600.0]
+    data:
+    - [72.5575005, -0.662445402, 2.56198746e-03, -4.36591923e-06, 2.78178981e-09,
+      -4.18865499e+04, -288.280137]
+  equation-of-state:
+    model: liquid-water-IAPWS95
+- name: Na+
+  composition: {Na: 1.0, E: -1.0}
+  thermo:
+    model: piecewise-Gibbs
+    reference-pressure: 1.0e+05
+    h0: 0.0 cal/mol
+    T-min: 200.0
+    T-max: 1000.0
+    dimensionless: true
+    data:
+      298.15: -125.5213
+      333.15: -125.5213
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 1.3
+- name: Cl-
+  composition: {Cl: 1.0, E: 1.0}
+  thermo:
+    model: piecewise-Gibbs
+    reference-pressure: 1.0e+05
+    h0: 0.0 cal/mol
+    T-min: 298.0
+    T-max: 333.0
+    dimensionless: true
+    data:
+      298.15: -52.8716
+      333.15: -52.8716
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 1.3
+- name: H+
+  composition: {H: 1.0, E: -1.0}
+  thermo:
+    model: piecewise-Gibbs
+    reference-pressure: 1.0e+05
+    h0: 0.0 cal/mol
+    T-min: 298.0
+    T-max: 333.0
+    dimensionless: true
+    data:
+      298.15: 0.0
+      333.15: 0.0
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 1.3
+- name: OH-
+  composition: {O: 1.0, H: 1.0, E: 1.0}
+  thermo:
+    model: piecewise-Gibbs
+    reference-pressure: 1.0e+05
+    h0: 0.0 cal/mol
+    T-min: 298.0
+    T-max: 333.0
+    dimensionless: true
+    data:
+      298.15: -91.523
+      333.15: -91.523
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 1.3

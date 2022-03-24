@@ -115,7 +115,51 @@ public:
      */
     virtual void getMixDiffCoeffsMass(doublereal* const d);
 
-    virtual void init(thermo_t* thermo, int mode=0, int log_level=0);
+    //! Return the polynomial fits to the viscosity of species i
+    //! @see fitProperties()
+    virtual void getViscosityPolynomial(size_t i, double* coeffs) const;
+
+    //! Return the temperature fits of the heat conductivity of species i
+    //! @see fitProperties()
+    virtual void getConductivityPolynomial(size_t i, double* coeffs) const;
+
+    //! Return the polynomial fits to the binary diffusivity of species pair (i, j)
+    //! @see fitDiffCoeffs()
+    virtual void getBinDiffusivityPolynomial(size_t i, size_t j, double* coeffs) const;
+
+    //! Return the polynomial fits to the collision integral of species pair (i, j)
+    //! @see fitCollisionIntegrals()
+    virtual void getCollisionIntegralPolynomial(size_t i, size_t j, 
+                                                double* astar_coeffs, 
+                                                double* bstar_coeffs, 
+                                                double* cstar_coeffs) const;
+
+    //! Modify the polynomial fits to the viscosity of species i
+    //! @see fitProperties()
+    virtual void setViscosityPolynomial(size_t i, double* coeffs);
+
+    //! Modify the temperature fits of the heat conductivity of species i
+    //! @see fitProperties()
+    virtual void setConductivityPolynomial(size_t i, double* coeffs);
+
+    //! Modify the polynomial fits to the binary diffusivity of species pair (i, j)
+    //! @see fitDiffCoeffs()
+    virtual void setBinDiffusivityPolynomial(size_t i, size_t j, double* coeffs);
+
+    //! Modify the polynomial fits to the collision integral of species pair (i, j)
+    //! @see fitCollisionIntegrals()
+    virtual void setCollisionIntegralPolynomial(size_t i, size_t j, 
+                                                double* astar_coeffs, 
+                                                double* bstar_coeffs, 
+                                                double* cstar_coeffs, bool actualT);
+
+    virtual void init(ThermoPhase* thermo, int mode=0, int log_level=0);
+    
+    //! Boolean indicating the form of the transport properties polynomial fits.
+    //! Returns true if the Chemkin form is used.
+    bool CKMode() const {
+        return m_mode == CK_Mode;
+    }
 
 protected:
     GasTransport(ThermoPhase* thermo=0);
@@ -374,6 +418,10 @@ protected:
      * (i,j).
      */
     std::vector<vector_fp> m_omega22_poly;
+    
+    //! Flag to indicate for which (i,j) interaction pairs the 
+    //! actual temperature is used instead of the reduced temperature
+    std::vector<vector_int> m_star_poly_uses_actualT;
 
     //! Fit for astar collision integral
     /*!

@@ -15,15 +15,6 @@ using namespace std;
 
 namespace Cantera
 {
-WaterSSTP::WaterSSTP() :
-    m_mw(0.0),
-    EW_Offset(0.0),
-    SW_Offset(0.0),
-    m_ready(false),
-    m_allowGasPhase(false)
-{
-}
-
 WaterSSTP::WaterSSTP(const std::string& inputFile, const std::string& id) :
     m_mw(0.0),
     EW_Offset(0.0),

@@ -18,13 +18,6 @@ using namespace std;
 
 namespace Cantera
 {
-RedlichKisterVPSSTP::RedlichKisterVPSSTP() :
-    numBinaryInteractions_(0),
-    formRedlichKister_(0),
-    formTempModel_(0)
-{
-}
-
 RedlichKisterVPSSTP::RedlichKisterVPSSTP(const std::string& inputFile,
         const std::string& id_) :
     numBinaryInteractions_(0),
@@ -191,6 +184,29 @@ void RedlichKisterVPSSTP::initThermo()
     }
     initLengths();
     GibbsExcessVPSSTP::initThermo();
+}
+
+void RedlichKisterVPSSTP::getParameters(AnyMap& phaseNode) const
+{
+    GibbsExcessVPSSTP::getParameters(phaseNode);
+    vector<AnyMap> interactions;
+    for (size_t n = 0; n < m_pSpecies_A_ij.size(); n++) {
+        AnyMap interaction;
+        interaction["species"] = vector<std::string>{
+            speciesName(m_pSpecies_A_ij[n]), speciesName(m_pSpecies_B_ij[n])};
+        vector_fp h = m_HE_m_ij[n];
+        vector_fp s = m_SE_m_ij[n];
+        while (h.size() > 1 && h.back() == 0) {
+            h.pop_back();
+        }
+        while (s.size() > 1 && s.back() == 0) {
+            s.pop_back();
+        }
+        interaction["excess-enthalpy"].setQuantity(std::move(h), "J/kmol");
+        interaction["excess-entropy"].setQuantity(std::move(s), "J/kmol/K");
+        interactions.push_back(std::move(interaction));
+    }
+    phaseNode["interactions"] = std::move(interactions);
 }
 
 void RedlichKisterVPSSTP::initLengths()

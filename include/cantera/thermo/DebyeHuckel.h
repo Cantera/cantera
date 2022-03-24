@@ -25,20 +25,20 @@ namespace Cantera
  *
  *   These are possible formats for the molality-based activity coefficients.
  */
-//@{
+//! @{
 #define DHFORM_DILUTE_LIMIT 0
 #define DHFORM_BDOT_AK 1
 #define DHFORM_BDOT_ACOMMON 2
 #define DHFORM_BETAIJ 3
 #define DHFORM_PITZER_BETAIJ 4
-//@}
+//! @}
 /*!
  *  @name  Acceptable ways to calculate the value of A_Debye
  */
-//@{
+//! @{
 #define A_DEBYE_CONST 0
 #define A_DEBYE_WATER 1
-//@}
+//! @}
 
 class WaterProps;
 class PDSS_Water;
@@ -170,6 +170,8 @@ class PDSS_Water;
  * input file via the `stoichIsMods` XML block, where the charge for k1 is also
  * specified. An example is given below:
  *
+ * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
+ *
  * @code
  *          <stoichIsMods>
  *                NaCl(aq):-1.0
@@ -200,6 +202,8 @@ class PDSS_Water;
  * Note, this is not considered a part of the specification of the standard
  * state for the species, at this time. Therefore, this information is put under
  * the `activityCoefficient` XML block. An example is given below
+ *
+ * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
  *
  * @code
  *         <electrolyteSpeciesType>
@@ -327,6 +331,8 @@ class PDSS_Water;
  * An example `activityCoefficients` XML block for this formulation is supplied
  * below
  *
+ * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
+ *
  * @code
  *  <activityCoefficients model="Beta_ij">
  *         <!-- A_Debye units = sqrt(kg/gmol) -->
@@ -407,6 +413,9 @@ class PDSS_Water;
  *   - B_Debye = 3.28640E9 (kg/gmol)^(1/2) / m
  *
  * An example of a fixed value implementation is given below.
+ *
+ * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
+ *
  * @code
  *   <activityCoefficients model="Beta_ij">
  *         <!-- A_Debye units = sqrt(kg/gmol)  -->
@@ -475,32 +484,9 @@ class PDSS_Water;
  *
  * Note, this treatment may be modified in the future, as events dictate.
  *
- * ## Instantiation of the Class
- *
- * The constructor for this phase is NOT located in the default ThermoFactory
- * for %Cantera. However, a new DebyeHuckel object may be created by
- * the following code snippets:
- *
- * @code
- *      DebyeHuckel *DH = new DebyeHuckel("DH_NaCl.xml", "NaCl_electrolyte");
- * @endcode
- *
- * or
- *
- * @code
- *    XML_Node *xm = get_XML_NameID("phase", "DH_NaCl.xml#NaCl_electrolyte", 0);
- *    DebyeHuckel *dh = new DebyeHuckel(*xm);
- * @endcode
- *
- * or by the following call to importPhase():
- *
- * @code
- *    XML_Node *xm = get_XML_NameID("phase", "DH_NaCl.xml#NaCl_electrolyte", 0);
- *    DebyeHuckel dhphase;
- *    importPhase(*xm, &dhphase);
- * @endcode
- *
  * ## XML Example
+ *
+ * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
  *
  * The phase model name for this is called StoichSubstance. It must be supplied
  * as the model attribute of the thermo XML element entry. Within the phase XML
@@ -558,17 +544,16 @@ class PDSS_Water;
 class DebyeHuckel : public MolalityVPSSTP
 {
 public:
-    //! Default Constructor
-    DebyeHuckel();
-
     virtual ~DebyeHuckel();
 
     //! Full constructor for creating the phase.
     /*!
-     *  @param inputFile  File name containing the definition of the phase
+     *  @param inputFile  File name containing the definition of the phase.
+     *                    If blank, an empty phase will be created.
      *  @param id         id attribute containing the name of the phase.
      */
-    DebyeHuckel(const std::string& inputFile, const std::string& id = "");
+    explicit DebyeHuckel(const std::string& inputFile="",
+                         const std::string& id="");
 
     //! Full constructor for creating the phase.
     /*!
@@ -613,58 +598,20 @@ public:
     virtual doublereal gibbs_mole() const;
     virtual doublereal cp_mole() const;
 
-    //@}
+    //! @}
     /** @name Mechanical Equation of State Properties
-     //@{
      * In this equation of state implementation, the density is a function only
      * of the mole fractions. Therefore, it can't be an independent variable.
      * Instead, the pressure is used as the independent variable. Functions
      * which try to set the thermodynamic state by calling setDensity() will
      * cause an exception to be thrown.
+     * @{
      */
 
 protected:
     virtual void calcDensity();
 
 public:
-    //! Set the internally stored density (gm/m^3) of the phase.
-    /*!
-     * Overridden setDensity() function is necessary because the density is not
-     * an independent variable.
-     *
-     * This function will now throw an error condition
-     *
-     * @internal May have to adjust the strategy here to make the eos for these
-     *     materials slightly compressible, in order to create a condition where
-     *     the density is a function of the pressure.
-     *
-     * This function will now throw an error condition if the input isn't
-     * exactly equal to the current density.
-     *
-     * @todo Now have a compressible ss equation for liquid water. Therefore,
-     *       this phase is compressible. May still want to change the
-     *       independent variable however.
-     *
-     * @param rho Input density (kg/m^3).
-     * @deprecated Functionality merged with base function after Cantera 2.5.
-     *             (superseded by isCompressible check in Phase::setDensity)
-     */
-    virtual void setDensity(const doublereal rho);
-
-    //! Set the internally stored molar density (kmol/m^3) of the phase.
-    /**
-     * Overridden setMolarDensity() function is necessary because the density
-     * is not an independent variable.
-     *
-     * This function will now throw an error condition if the input isn't
-     * exactly equal to the current molar density.
-     *
-     * @param conc   Input molar density (kmol/m^3).
-     * @deprecated Functionality merged with base function after Cantera 2.5.
-     *             (superseded by isCompressible check in Phase::setDensity)
-     */
-    virtual void setMolarDensity(const doublereal conc);
-
     /**
      * @}
      * @name Activities, Standard States, and Activity Concentrations
@@ -717,9 +664,9 @@ public:
      */
     virtual void getMolalityActivityCoefficients(doublereal* acMolality) const;
 
-    //@}
-    /// @name  Partial Molar Properties of the Solution
-    //@{
+    //! @}
+    //! @name  Partial Molar Properties of the Solution
+    //! @{
 
     //! Get the species chemical potentials. Units: J/kmol.
     /*!
@@ -809,7 +756,7 @@ public:
      */
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
 
-    //@}
+    //! @}
 
     /*
      *  -------------- Utilities -------------------------------
@@ -817,6 +764,9 @@ public:
 
     virtual bool addSpecies(shared_ptr<Species> spec);
     virtual void initThermo();
+    virtual void getParameters(AnyMap& phaseNode) const;
+    virtual void getSpeciesParameters(const std::string& name,
+                                  AnyMap& speciesNode) const;
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     //! Return the Debye Huckel constant as a function of temperature
@@ -972,7 +922,6 @@ private:
      *  used with extreme caution.
      */
     double _lnactivityWaterHelgesonFixedForm() const;
-    //@}
 
 protected:
     //! form of the Debye-Huckel parameterization used in the model.
@@ -1004,6 +953,9 @@ protected:
 
     //! a_k = Size of the ionic species in the DH formulation. units = meters
     vector_fp m_Aionic;
+
+    //! Default ionic radius for species where it is not specified
+    double m_Aionic_default;
 
     //! Current value of the ionic strength on the molality scale
     mutable double m_IionicMolality;

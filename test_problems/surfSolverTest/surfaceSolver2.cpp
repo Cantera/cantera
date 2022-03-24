@@ -6,20 +6,7 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-//  Example
-//
-//  Read a surface growth mechanism and calculate the solution
-//  using Placid.
-//
-
 #define MSSIZE 200
-
-/*****************************************************************/
-/*****************************************************************/
-/*****************************************************************/
-static void printUsage()
-{
-}
 
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/kinetics.h"
@@ -71,7 +58,7 @@ void printBulk(ostream& oooo,ThermoPhase* bulkPhaseTP, InterfaceKinetics* iKin_p
     double x[MSSIZE];
     double C[MSSIZE];
     oooo.precision(3);
-    string bulkParticlePhaseName = bulkPhaseTP->id();
+    string bulkParticlePhaseName = bulkPhaseTP->name();
     bulkPhaseTP->getMoleFractions(x);
     bulkPhaseTP->getConcentrations(C);
     size_t kstart = iKin_ptr->kineticsSpeciesIndex(0, 1);
@@ -114,7 +101,7 @@ void printSurf(ostream& oooo, ThermoPhase* surfPhaseTP,
 {
     double x[MSSIZE];
     oooo.precision(3);
-    string surfParticlePhaseName = surfPhaseTP->id();
+    string surfParticlePhaseName = surfPhaseTP->name();
     surfPhaseTP->getMoleFractions(x);
     size_t kstart = iKin_ptr->kineticsSpeciesIndex(0, 2);
     oooo << "Surface Phase:  " << surfParticlePhaseName
@@ -142,179 +129,52 @@ void printSurf(ostream& oooo, ThermoPhase* surfPhaseTP,
 
 int main(int argc, char** argv)
 {
-    string infile;
-    int i, k;
+    string infile = "haca2.yaml";
+    string gasPhaseName = "gas";
+    string bulkParticlePhaseName = "soot";
+    string surfParticlePhaseName = "soot_interface";
     int ioflag = 1;
-    // look for command-line options
-    if (argc > 1) {
-        string tok;
-        for (int j = 1; j < argc; j++) {
-            tok = string(argv[j]);
-            if (tok[0] == '-') {
-                int nopt = static_cast<int>(tok.size());
-                for (int n = 1; n < nopt; n++) {
-                    if (tok[n] == 'h') {
-                        printUsage();
-                        exit(0);
-                    } else if (tok[n] == 'd') {
-                        int lvl = 0;
-                        if (j < (argc - 1)) {
-                            string tokla = string(argv[j+1]);
-                            if (strlen(tokla.c_str()) > 0) {
-                                lvl = atoi(tokla.c_str());
-                                n = nopt - 1;
-                                j += 1;
-                                ioflag = lvl;
-                            }
-                        }
-                    } else {
-                        printUsage();
-                        exit(1);
-                    }
-                }
-            } else if (infile == "") {
-                infile = tok;
-            } else {
-                printUsage();
-                exit(1);
-            }
-        }
-    }
-    if (infile == "") {
-        infile = "diamond.cti";
-    }
 
     try {
-        /*************************************************************/
-
-        /*
-         *  FILL IN THESE NAMES FOR EACH PROBLEM
-         */
-        /*
-         * ProblemNumber = 0 : diamond.cti
-         *               = 1 : haca.cti
-         */
-        int ProblemNumber = 1;
-        string gasPhaseName          = "gas";
-        string bulkParticlePhaseName = "diamond";
-        string surfParticlePhaseName = "diamond_100";
-        if (ProblemNumber == 1) {
-            gasPhaseName          = "gas";
-            bulkParticlePhaseName = "soot";
-            surfParticlePhaseName = "soot_interface";
-        }
-
-        /************************************************************/
-        XML_Node* xc = get_XML_File(infile);
-        XML_Node* const xg = (XML_Node*) findXMLPhase(xc, gasPhaseName);
-        if (!xg) {
-            printf("ERROR: Could not find gas phase named, %s, in file\n",
-                   gasPhaseName.c_str());
-            exit(-1);
-        }
-        ThermoPhase* gasTP = newPhase(*xg);
+        ThermoPhase* gasTP = newPhase(infile, gasPhaseName);
         size_t nspGas = gasTP->nSpecies();
         cout << "Number of species = " << nspGas << endl;
 
-        XML_Node* const xd =
-            (XML_Node*) findXMLPhase(xc, bulkParticlePhaseName);
-        if (!xd) {
-            printf("ERROR: Could not find bulk phase named, %s, in file\n",
-                   bulkParticlePhaseName.c_str());
-            exit(-1);
-        }
-        ThermoPhase* bulkPhaseTP = newPhase(*xd);
+        ThermoPhase* bulkPhaseTP = newPhase(infile, bulkParticlePhaseName);
         size_t nspBulk = bulkPhaseTP->nSpecies();
         cout << "Number of species in bulk phase named " <<
              bulkParticlePhaseName << " = " << nspBulk << endl;
 
-
-        XML_Node* const xs =
-            (XML_Node*) findXMLPhase(xc, surfParticlePhaseName);
-        if (!xs) {
-            printf("ERROR: Could not find surf Particle phase named,"
-                   "%s, in file\n",
-                   surfParticlePhaseName.c_str());
-            exit(-1);
-        }
-        ThermoPhase* surfPhaseTP = newPhase(*xs);
+        ThermoPhase* surfPhaseTP = newPhase(infile, surfParticlePhaseName);
         size_t nsp_d100 = surfPhaseTP->nSpecies();
         cout << "Number of species in surface phase, " << surfParticlePhaseName
              << " = " << nsp_d100 << endl;
 
-        vector<ThermoPhase*> phaseList { gasTP, bulkPhaseTP, surfPhaseTP };
-        InterfaceKinetics* iKin_ptr = new InterfaceKinetics();
-        importKinetics(*xs, phaseList, iKin_ptr);
+        auto kin = newKinetics({gasTP, bulkPhaseTP, surfPhaseTP},
+                               infile, surfParticlePhaseName);
+        InterfaceKinetics* iKin_ptr = dynamic_cast<InterfaceKinetics*>(kin.get());
         size_t nr = iKin_ptr->nReactions();
         cout << "Number of reactions = " << nr << endl;
 
         ofstream ofile("results2.txt");
 
-
         // create a second copy of the same surface phase
         // (this is a made up problem btw to check the software capability)
-        ThermoPhase* surfPhaseTP2 = newPhase(*xs);
+        ThermoPhase* surfPhaseTP2 = newPhase(infile, surfParticlePhaseName);
         size_t nsp2 = surfPhaseTP2->nSpecies();
-        string pname = surfPhaseTP2->id();
+        string pname = surfPhaseTP2->name();
         cout << "Number of species in 2nd surface phase, " << pname
              << " = " << nsp2 << endl;
 
-        vector<ThermoPhase*> phaseList2 { gasTP, bulkPhaseTP, surfPhaseTP2 };
-
         // create the second  InterfaceKinetics object based on the
         // second surface phase.
-        InterfaceKinetics* iKin2_ptr = new InterfaceKinetics();
-        importKinetics(*xs, phaseList2, iKin2_ptr);
+        auto kin2 = newKinetics({gasTP, bulkPhaseTP, surfPhaseTP2},
+                                infile, surfParticlePhaseName);
+        InterfaceKinetics* iKin2_ptr = dynamic_cast<InterfaceKinetics*>(kin2.get());
         nr = iKin_ptr->nReactions();
         cout << "Number of reactions = " << nr << endl;
 
-        double x[MSSIZE], p = OneAtm;
-
-        /*
-         * Set the Gas State:
-         * -> note that the states are set in the XML files too
-         */
-        for (i = 0; i < MSSIZE; i++) {
-            x[i] = 0.0;
-        }
-        if (ProblemNumber == 0) {
-            x[0] = 0.0010;
-            x[1] = 0.9888;
-            x[2] = 0.0002;
-            x[3] = 0.0100;
-            p = 20.0*OneAtm/760.0;
-            gasTP->setState_TPX(1200., p, x);
-        }
-
-        /*
-         * Set the surface initial state
-         *  other problem numbers take their initial state from the XML files.
-         */
-        for (i = 0; i < MSSIZE; i++) {
-            x[i] = 0.0;
-        }
-        if (ProblemNumber == 0) {
-            size_t i0 = surfPhaseTP->speciesIndex("c6H*");
-            if (i0 != npos) {
-                x[i0] = 0.1;
-            }
-            size_t i1 = surfPhaseTP->speciesIndex("c6HH");
-            if (i1 != npos) {
-                x[i1] = 0.9;
-            }
-            surfPhaseTP->setState_TX(1200., x);
-        }
-
-        /*
-         * Set the bulk Phase State
-         */
-        for (i = 0; i < MSSIZE; i++) {
-            x[i] = 0.0;
-        }
-        if (ProblemNumber == 0) {
-            x[0] = 1.0;
-            bulkPhaseTP->setState_TPX(1200., p, x);
-        }
+        double x[MSSIZE];
 
         /*
          *  Set-up the Surface Problem
@@ -337,30 +197,6 @@ int main(int argc, char** argv)
         iKin_ptr->getNetProductionRates(src);
         iKin2_ptr->getNetProductionRates(src2);
 
-        double sum = 0.0;
-        if (ProblemNumber == 0) {
-            double naH;
-            for (k = 0; k < 13; k++) {
-                if (k < 4) {
-                    naH = gasTP->nAtoms(k, 0);
-                } else if (k == 4) {
-                    naH = 0;
-                } else if (k > 4) {
-                    int itp = k - 5;
-                    naH = surfPhaseTP->nAtoms(itp, 0);
-                }
-                cout << k << "  " << naH << "  " ;
-                if (fabs(src[k]) < 2.0E-17) {
-                    cout << " nil" << endl;
-                } else {
-                    cout << src[k] << endl;
-                }
-                sum += naH * src[k];
-            }
-            cout << "sum = " << sum << endl;
-        }
-
-
         printGas(cout, gasTP, iKin_ptr, src);
         printBulk(cout, bulkPhaseTP, iKin_ptr, src);
         printSurf(cout, surfPhaseTP, iKin_ptr, src) ;
@@ -378,7 +214,7 @@ int main(int argc, char** argv)
 
         /*
          * Set the Gas State:
-         * -> note that the states are set in the XML files too
+         * -> note that the states are set in the input file too
          */
         double pres = gasTP->pressure();
         gasTP->getMoleFractions(x);
@@ -430,9 +266,7 @@ int main(int argc, char** argv)
 
         delete surfaceProb;
         surfaceProb = 0;
-        delete iKin_ptr;
         iKin_ptr = 0;
-        delete iKin2_ptr;
         iKin2_ptr = 0;
         delete gasTP;
         gasTP = 0;

@@ -12,7 +12,7 @@ and the associated species, and run the simulations again with these mechanisms
 to see whether the reduced mechanisms with a certain number of species are able
 to adequately simulate the ignition delay problem.
 
-Requires: cantera >= 2.5.0, matplotlib >= 2.0
+Requires: cantera >= 2.6.0, matplotlib >= 2.0
 """
 
 import cantera as ct
@@ -64,6 +64,9 @@ for i, N in enumerate([40, 50, 60, 70, 80]):
     # create the new reduced mechanism
     gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
                        species=species, reactions=reactions)
+
+    # save the reduced mechanism for later use
+    gas2.write_yaml("gri30-reduced-{}-reaction.yaml".format(N))
 
     # Re-run the ignition problem with the reduced mechanism
     gas2.TPX = initial_state

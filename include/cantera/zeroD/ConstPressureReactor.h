@@ -25,25 +25,19 @@ public:
     ConstPressureReactor() {}
 
     virtual std::string typeStr() const {
+        warn_deprecated("ConstPressureReactor::typeStr",
+                        "To be removed after Cantera 2.6. Use type() instead.");
         return "ConstPressureReactor";
     }
 
-    /*!
-     * @deprecated To be changed after Cantera 2.5.
-     */
-    virtual int type() const {
-        warn_deprecated("ConstPressureReactor::type",
-                        "To be changed after Cantera 2.5. "
-                        "Return string instead of magic number; use "
-                        "ConstPressureReactor::typeStr during transition");
-        return ConstPressureReactorType;
+    virtual std::string type() const {
+        return "ConstPressureReactor";
     }
 
     virtual void getState(doublereal* y);
 
     virtual void initialize(doublereal t0 = 0.0);
-    virtual void evalEqs(doublereal t, doublereal* y,
-                         doublereal* ydot, doublereal* params);
+    virtual void eval(double t, double* LHS, double* RHS);
 
     virtual void updateState(doublereal* y);
 

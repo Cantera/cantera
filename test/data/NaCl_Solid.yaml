@@ -1,0 +1,23 @@
+generator: ctml2yaml
+cantera-version: 2.6.0a2
+date: Sat, 15 May 2021 19:57:23 -0400
+input-files: [test/data/NaCl_Solid.xml]
+
+phases:
+- name: NaCl(S)
+  elements: [O, H, C, Fe, Ca, N, Na, Cl]
+  species:
+  - species_NaCl(S): [NaCl(S)]
+  thermo: fixed-stoichiometry
+
+species_NaCl(S):
+- name: NaCl(S)
+  composition: {Na: 1.0, Cl: 1.0}
+  thermo:
+    model: Shomate
+    temperature-ranges: [250.0, 1075.0]
+    data:
+    - [50.72389, 6.672267, -2.517167, 10.15934, -0.200675, -427.2115, 130.3973]
+  equation-of-state:
+    model: constant-volume
+    density: 2.165 g/cm^3

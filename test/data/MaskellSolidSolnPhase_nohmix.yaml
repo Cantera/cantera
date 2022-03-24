@@ -1,0 +1,34 @@
+generator: ctml2yaml
+cantera-version: 2.6.0a2
+date: Fri, 30 Apr 2021 14:52:28 -0400
+input-files: [test/data/MaskellSolidSolnPhase_nohmix.xml]
+
+phases:
+- name: Soln_Maskell9
+  elements: [H, He]
+  species:
+  - species_Soln: [H(s), He(s)]
+  thermo: Maskell-solid-solution
+  state: {T: 298.15, P: 1.0 atm, X: {H(s): 0.9, He(s): 0.1}}
+
+species_Soln:
+- name: H(s)
+  composition: {H: 1.0, He: 2.0}
+  thermo:
+    model: Shomate
+    temperature-ranges: [250.0, 800.0]
+    data:
+    - [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 5.0e-03 m^3/kmol
+- name: He(s)
+  composition: {H: 0.0, He: 1.0}
+  thermo:
+    model: Shomate
+    temperature-ranges: [250.0, 800.0]
+    data:
+    - [69.4544, 69.4544, 69.4544, 69.4544, 69.4544, 69.4544, 69.4544]
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 5.0e-03 m^3/kmol

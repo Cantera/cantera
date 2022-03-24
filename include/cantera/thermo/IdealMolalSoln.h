@@ -58,6 +58,8 @@ namespace Cantera
  * The value and form of the activity concentration will affect reaction rate
  * constants involving species in this phase.
  *
+ * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
+ *
  *      <thermo model="IdealMolalSoln">
  *         <standardConc model="solvent_volume" />
  *         <solvent> H2O(l) </solvent>
@@ -78,19 +80,17 @@ namespace Cantera
 class IdealMolalSoln : public MolalityVPSSTP
 {
 public:
-    /// Constructor
-    IdealMolalSoln();
-
     //! Constructor for phase initialization
     /*!
      * This constructor will initialize a phase, by reading the required
      * information from an input file.
      *
      *  @param inputFile   Name of the Input file that contains information
-     *      about the phase
+     *      about the phase. If blank, an empty phase will be created.
      *  @param id          id of the phase within the input file
      */
-    IdealMolalSoln(const std::string& inputFile, const std::string& id = "");
+    explicit IdealMolalSoln(const std::string& inputFile="",
+                            const std::string& id="");
 
     //! Constructor for phase initialization
     /*!
@@ -110,7 +110,10 @@ public:
         return "IdealMolalSoln";
     }
 
-    //! @}
+    virtual bool isIdeal() const {
+        return true;
+    }
+
     //! @name  Molar Thermodynamic Properties of the Solution
     //! @{
 
@@ -180,7 +183,7 @@ public:
      */
     virtual doublereal cp_mole() const;
 
-    //@}
+    //! @}
     /** @name Mechanical Equation of State Properties
      *
      * In this equation of state implementation, the density is a function only
@@ -189,7 +192,7 @@ public:
      * which try to set the thermodynamic state by calling setDensity() will
      * cause an exception to be thrown.
      */
-    //@{
+    //! @{
 
 protected:
     /**
@@ -213,34 +216,6 @@ protected:
     void calcDensity();
 
 public:
-    /**
-     * Overridden setDensity() function is necessary because the density is not
-     * an independent variable.
-     *
-     * This function will now throw an error condition
-     *
-     * @internal May have to adjust the strategy here to make the eos for these
-     *     materials slightly compressible, in order to create a condition where
-     *     the density is a function of the pressure.
-     *
-     * @param rho   Input Density
-     * @deprecated Functionality merged with base function after Cantera 2.5.
-     *             (superseded by isCompressible check in Phase::setDensity)
-     */
-    virtual void setDensity(const doublereal rho);
-
-    /**
-     * Overridden setMolarDensity() function is necessary because the density
-     * is not an independent variable.
-     *
-     * This function will now throw an error condition.
-     *
-     * @param rho   Input Density
-     * @deprecated Functionality merged with base function after Cantera 2.5.
-     *             (superseded by isCompressible check in Phase::setDensity)
-     */
-    virtual void setMolarDensity(const doublereal rho);
-
     //! The isothermal compressibility. Units: 1/Pa.
     /*!
      * The isothermal compressibility is defined as
@@ -303,9 +278,9 @@ public:
      */
     virtual void getMolalityActivityCoefficients(doublereal* acMolality) const;
 
-    //@}
+    //! @}
     /// @name  Partial Molar Properties of the Solution
-    //@{
+    //! @{
 
     //!Get the species chemical potentials: Units: J/kmol.
     /*!
@@ -408,7 +383,7 @@ public:
      */
     virtual void getPartialMolarCp(doublereal* cpbar) const;
 
-    //@}
+    //! @}
 
     // -------------- Utilities -------------------------------
 
@@ -417,6 +392,8 @@ public:
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id="");
 
     virtual void initThermo();
+
+    virtual void getParameters(AnyMap& phaseNode) const;
 
     //! Set the standard concentration model.
     /*!
@@ -449,7 +426,6 @@ public:
      * @param smv Output vector of species molar volumes.
      */
     void getSpeciesMolarVolumes(double* smv) const;
-    //@}
 
 protected:
     //! Species molar volume \f$ m^3 kmol^{-1} \f$

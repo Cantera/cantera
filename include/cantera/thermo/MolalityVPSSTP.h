@@ -185,7 +185,7 @@ public:
     /*!
      * This doesn't do much more than initialize constants with default values
      * for water at 25C. Water molecular weight comes from the default
-     * elements.xml file. It actually differs slightly from the IAPWS95 value of
+     * elements definitions. It actually differs slightly from the IAPWS95 value of
      * 18.015268. However, density conservation and therefore element
      * conservation is the more important principle to follow.
      */
@@ -441,7 +441,7 @@ public:
      */
     virtual double osmoticCoefficient() const;
 
-    //@}
+    //! @}
 
     //! Set equation of state parameter values from XML entries.
     /*!
@@ -470,18 +470,17 @@ public:
      */
     virtual void setStateFromXML(const XML_Node& state);
 
-    //@}
     //! @name Initialization
     /// The following methods are used in the process of constructing the phase
     /// and setting its parameters from a specification in an input file. They
     /// are not normally used in application programs. To see how they are used,
     /// see importPhase().
-    //@{
+    //! @{
 
     virtual bool addSpecies(shared_ptr<Species> spec);
     virtual void initThermo();
 
-    //@}
+    //! @}
 
     //! Set the temperature (K), pressure (Pa), and molalities
     //!(gmol kg-1) of the solutes

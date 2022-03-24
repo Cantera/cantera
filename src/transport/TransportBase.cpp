@@ -7,12 +7,14 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/transport/TransportBase.h"
+#include "cantera/thermo/ThermoPhase.h"
+#include "cantera/transport/TransportFactory.h"
 
 using namespace std;
 
 namespace Cantera
 {
-Transport::Transport(thermo_t* thermo, size_t ndim) :
+Transport::Transport(ThermoPhase* thermo, size_t ndim) :
     m_thermo(thermo),
     m_ready(false),
     m_nsp(0),
@@ -45,13 +47,17 @@ void Transport::checkSpeciesArraySize(size_t kk) const
     }
 }
 
-void Transport::setParameters(const int type, const int k,
-                              const doublereal* const p)
+AnyMap Transport::parameters() const
 {
-    throw NotImplementedError("Transport::setParameters");
+    AnyMap out;
+    string name = TransportFactory::factory()->canonicalize(transportType());
+    if (name != "") {
+        out["transport"] = name;
+    }
+    return out;
 }
 
-void Transport::setThermo(thermo_t& thermo)
+void Transport::setThermo(ThermoPhase& thermo)
 {
     if (!ready()) {
         m_thermo = &thermo;
@@ -77,6 +83,11 @@ void Transport::setThermo(thermo_t& thermo)
     }
 }
 
+void Transport::setRoot(std::shared_ptr<Solution> root)
+{
+    m_root = root;
+}
+
 void Transport::finalize()
 {
     if (!ready()) {
@@ -85,12 +96,5 @@ void Transport::finalize()
         throw CanteraError("Transport::finalize",
                            "finalize has already been called.");
     }
-}
-
-void Transport::getSpeciesFluxes(size_t ndim, const doublereal* const grad_T,
-                                 size_t ldx, const doublereal* const grad_X,
-                                 size_t ldf, doublereal* const fluxes)
-{
-    throw NotImplementedError("Transport::getSpeciesFluxes");
 }
 }

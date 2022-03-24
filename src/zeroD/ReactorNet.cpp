@@ -6,8 +6,9 @@
 #include "cantera/zeroD/ReactorNet.h"
 #include "cantera/zeroD/FlowDevice.h"
 #include "cantera/zeroD/Wall.h"
-
-#include <cstdio>
+#include "cantera/base/utilities.h"
+#include "cantera/base/Array.h"
+#include "cantera/numerics/Integrator.h"
 
 using namespace std;
 
@@ -20,7 +21,7 @@ ReactorNet::ReactorNet() :
     m_nv(0), m_rtol(1.0e-9), m_rtolsens(1.0e-4),
     m_atols(1.0e-15), m_atolsens(1.0e-6),
     m_maxstep(0.0), m_maxErrTestFails(0),
-    m_verbose(false)
+    m_verbose(false), m_checked_eval_deprecation(false)
 {
     suppressErrors(true);
 
@@ -28,6 +29,10 @@ ReactorNet::ReactorNet() :
     // numerically, and use a Newton linear iterator
     m_integ->setMethod(BDF_Method);
     m_integ->setProblemType(DENSE + NOJAC);
+}
+
+ReactorNet::~ReactorNet()
+{
 }
 
 void ReactorNet::setInitialTime(double time)
@@ -90,7 +95,7 @@ void ReactorNet::initialize()
             writelog("Reactor {:d}: {:d} variables.\n", n, nv);
             writelog("              {:d} sensitivity params.\n", r.nSensParams());
         }
-        if (r.typeStr() == "FlowReactor" && m_reactors.size() > 1) {
+        if (r.type() == "FlowReactor" && m_reactors.size() > 1) {
             throw CanteraError("ReactorNet::initialize",
                                "FlowReactors must be used alone.");
         }
@@ -123,6 +128,16 @@ void ReactorNet::reinitialize()
     } else {
         initialize();
     }
+}
+
+void ReactorNet::setMaxSteps(int nmax)
+{
+    m_integ->setMaxSteps(nmax);
+}
+
+int ReactorNet::maxSteps()
+{
+    return m_integ->maxSteps();
 }
 
 void ReactorNet::advance(doublereal time)
@@ -224,6 +239,11 @@ void ReactorNet::getEstimate(double time, int k, double* yest)
     }
 }
 
+int ReactorNet::lastOrder()
+{
+    return m_integ->lastOrder();
+}
+
 void ReactorNet::addReactor(Reactor& r)
 {
     r.setNetwork(this);
@@ -233,10 +253,55 @@ void ReactorNet::addReactor(Reactor& r)
 void ReactorNet::eval(doublereal t, doublereal* y,
                       doublereal* ydot, doublereal* p)
 {
-    m_time = t; // This will be replaced at the end of the timestep
+    m_time = t;
     updateState(y);
-    for (size_t n = 0; n < m_reactors.size(); n++) {
-        m_reactors[n]->evalEqs(t, y + m_start[n], ydot + m_start[n], p);
+    m_LHS.assign(m_nv, 1);
+    m_RHS.assign(m_nv, 0);
+    if (!m_checked_eval_deprecation) {
+        m_have_deprecated_eval.assign(m_reactors.size(), false);
+        for (size_t n = 0; n < m_reactors.size(); n++) {
+            m_reactors[n]->applySensitivity(p);
+            try {
+                m_reactors[n]->evalEqs(t, y + m_start[n], ydot + m_start[n], p);
+                warn_deprecated(m_reactors[n]->type() +
+                    "::evalEqs(double t, double* y , double* ydot, double* params)",
+                    "Reactor time derivative evaluation now uses signature "
+                    "eval(double t, double* ydot)");
+                m_have_deprecated_eval[n] = true;
+            } catch (NotImplementedError&) {
+                m_reactors[n]->eval(t, m_LHS.data() + m_start[n], m_RHS.data() + m_start[n]);
+                size_t yEnd = 0;
+                if (n == m_reactors.size() - 1) {
+                    yEnd = m_RHS.size();
+                } else {
+                    yEnd = m_start[n + 1];
+                }
+                for (size_t i = m_start[n]; i < yEnd; i++) {
+                    ydot[i] = m_RHS[i] / m_LHS[i];
+                }
+            }
+            m_reactors[n]->resetSensitivity(p);
+        }
+        m_checked_eval_deprecation = true;
+    } else {
+        for (size_t n = 0; n < m_reactors.size(); n++) {
+            m_reactors[n]->applySensitivity(p);
+            if (m_have_deprecated_eval[n]) {
+                m_reactors[n]->evalEqs(t, y + m_start[n], ydot + m_start[n], p);
+            } else {
+                m_reactors[n]->eval(t, m_LHS.data() + m_start[n], m_RHS.data() + m_start[n]);
+                size_t yEnd = 0;
+                if (n == m_reactors.size() - 1) {
+                    yEnd = m_RHS.size();
+                } else {
+                    yEnd = m_start[n + 1];
+                }
+                for (size_t i = m_start[n]; i < yEnd; i++) {
+                    ydot[i] = m_RHS[i] / m_LHS[i];
+                }
+            }
+            m_reactors[n]->resetSensitivity(p);
+        }
     }
     checkFinite("ydot", ydot, m_nv);
 }

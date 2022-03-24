@@ -4,10 +4,12 @@
 #include "cantera/thermo/Species.h"
 #include "cantera/thermo/SpeciesThermoInterpType.h"
 #include "cantera/thermo/SpeciesThermoFactory.h"
+#include "cantera/thermo/ThermoPhase.h"
 #include "cantera/transport/TransportData.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/ctml.h"
+#include "cantera/base/global.h"
 #include <iostream>
 #include <limits>
 #include <set>
@@ -31,6 +33,45 @@ Species::Species(const std::string& name_, const compositionMap& comp_,
 
 Species::~Species()
 {
+}
+
+AnyMap Species::parameters(const ThermoPhase* phase, bool withInput) const
+{
+    AnyMap speciesNode;
+    speciesNode["name"] = name;
+    speciesNode["composition"] = composition;
+    speciesNode["composition"].setFlowStyle();
+
+    if (charge != 0) {
+        speciesNode["charge"] = charge;
+    }
+    if (size != 1) {
+        speciesNode["size"] = size;
+    }
+    if (thermo) {
+        AnyMap thermoNode = thermo->parameters(withInput);
+        if (thermoNode.size()) {
+            speciesNode["thermo"] = std::move(thermoNode);
+        }
+    }
+    if (transport) {
+        speciesNode["transport"] = transport->parameters(withInput);
+    }
+    if (phase) {
+        phase->getSpeciesParameters(name, speciesNode);
+    }
+    if (withInput && input.hasKey("equation-of-state")) {
+        auto& eosIn = input["equation-of-state"].asVector<AnyMap>();
+        for (const auto& eos : eosIn) {
+            auto& out = speciesNode["equation-of-state"].getMapWhere(
+                "model", eos["model"].asString(), true);
+            out.update(eos);
+        }
+    }
+    if (withInput) {
+        speciesNode.update(input);
+    }
+    return speciesNode;
 }
 
 shared_ptr<Species> newSpecies(const XML_Node& species_node)
@@ -70,7 +111,7 @@ shared_ptr<Species> newSpecies(const XML_Node& species_node)
     // Extra data optionally used by LatticePhase
     const XML_Node* stdstate = species_node.findByName("standardState");
     if (stdstate && stdstate->findByName("molarVolume")) {
-        s->extra["molar_volume"] = getFloat(*stdstate, "molarVolume", "toSI");
+        s->input["molar_volume"] = getFloat(*stdstate, "molarVolume", "toSI");
     }
 
     // Extra data possibly used by IonsFromNeutralVPSSTP
@@ -110,14 +151,16 @@ unique_ptr<Species> newSpecies(const AnyMap& node)
     // Store input parameters in the "input" map, unless they are stored in a
     // child object
     const static std::set<std::string> known_keys{
-        "transport"
+        "thermo", "transport"
     };
-    s->input.applyUnits(node.units());
+    s->input.setUnits(node.units());
     for (const auto& item : node) {
         if (known_keys.count(item.first) == 0) {
             s->input[item.first] = item.second;
         }
     }
+    s->input.applyUnits();
+    s->input.copyMetadata(node);
 
     return s;
 }

@@ -1,0 +1,112 @@
+description: |-
+  NaCl modeling Based on the Silvester&Pitzer 1977 treatment:
+
+  (L. F. Silvester, K. S. Pitzer, "Thermodynamics of Electrolytes:
+    8. High-Temperature Properties, including Enthalpy and Heat
+    Capacity, with application to sodium chloride",
+    J. Phys. Chem., 81, 19 1822 - 1828 (1977)
+
+generator: ctml2yaml + manual additions
+cantera-version: 2.6.0a2
+date: Sat, 15 May 2021 16:41:14 -0400
+input-files: [test_problems/cathermo/HMW_graph_GvI/HMW_NaCl.xml]
+
+phases:
+- name: NaCl_electrolyte_complex_shomate
+  elements: [O, H, C, E, Fe, Si, N, Na, Cl]
+  species:
+  - species_waterSolution: [H2O(L), Cl-, H+, Na+, OH-]
+  thermo: HMW-electrolyte
+  activity-data:
+    temperature-model: complex1
+    A_Debye: variable
+    interactions:
+    - species: [Na+, Cl-]
+      beta0: [0.0765, 8.946e-03, -3.3158e-06, -777.03, -4.4706]
+      beta1: [0.2664, 6.1608e-05, 1.0715e-06, 0.0, 0.0]
+      beta2: [0.0, 0.0, 0.0, 0.0, 0.0]
+      Cphi: [1.27e-03, -4.655e-05, 0.0, 33.317, 0.09421]
+      alpha1: 2.0
+    - species: [H+, Cl-]
+      beta0: 0.1775
+      beta1: 0.2945
+      beta2: 0.0
+      Cphi: 8.0e-04
+      alpha1: 2.0
+    - species: [Na+, OH-]
+      beta0: 0.0864
+      beta1: 0.253
+      beta2: 0.0
+      Cphi: 4.4e-03
+      alpha1: 2.0
+    - species: [Cl-, OH-]
+      theta: -0.05
+    - species: [Na+, Cl-, OH-]
+      psi: -6.0e-03
+    - species: [Na+, H+]
+      theta: 0.036
+    - species: [Cl-, Na+, H+]
+      psi: -4.0e-03
+  state: {T: 298.15 K, P: 1.01325e+05 Pa, molalities: {Na+: 6.0954, Cl-: 6.0954, H+: 2.1628e-09,
+      OH-: 1.3977e-06}}
+
+species_waterSolution:
+- name: H2O(L)
+  composition: {H: 2.0, O: 1.0}
+  thermo:
+    model: NASA7
+    temperature-ranges: [273.15, 600.0]
+    data:
+    - [72.5575005, -0.662445402, 2.56198746e-03, -4.36591923e-06, 2.78178981e-09,
+      -4.18865499e+04, -288.280137]
+  equation-of-state:
+    model: liquid-water-IAPWS95
+- name: Na+
+  composition: {Na: 1.0, E: -1.0}
+  thermo:
+    model: Shomate
+    temperature-ranges: [298.0, 623.15]
+    data:
+    - [1.232125829e+04, -5.498445383e+04, 9.169571717e+04, -5.441215442e+04, -234.4221295,
+      -2958.883542, 2.644931197e+04]
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 8.34e-03
+- name: Cl-
+  composition: {Cl: 1.0, E: 1.0}
+  thermo:
+    model: Shomate
+    temperature-ranges: [298.0, 623.15]
+    data:
+    - [5.66962042e+04, -2.97835978e+05, 5.81426549e+05, -4.01759991e+05, -804.301136,
+      -1.08738257e+04, 1.30650697e+05]
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 8.34e-03
+- name: H+
+  composition: {H: 1.0, E: -1.0}
+  thermo:
+    model: piecewise-Gibbs
+    reference-pressure: 1.0e+05
+    h0: 0.0 cal/mol
+    T-min: 273.15
+    T-max: 625.15
+    dimensionless: true
+    data:
+      273.15: 0.0
+      298.15: 0.0
+      623.15: 0.0
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 0.0
+- name: OH-
+  composition: {O: 1.0, H: 1.0, E: 1.0}
+  thermo:
+    model: Shomate
+    temperature-ranges: [298.0, 623.15]
+    data:
+    - [4.467499961e+04, -2.349430414e+05, 4.60522826e+05, -3.206951836e+05, -638.5044716,
+      -8683.955813, 1.028742667e+05]
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 8.34e-03

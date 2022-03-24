@@ -65,6 +65,26 @@ void PDSS_SSVol::setDensityPolynomial(double* coeffs) {
     volumeModel_ = SSVolume_Model::density_tpoly;
 }
 
+void PDSS_SSVol::getParameters(AnyMap& eosNode) const
+{
+    PDSS::getParameters(eosNode);
+    std::vector<AnyValue> data(4);
+    if (volumeModel_ == SSVolume_Model::density_tpoly) {
+        eosNode["model"] = "density-temperature-polynomial";
+        data[0].setQuantity(TCoeff_[0], "kg/m^3");
+        data[1].setQuantity(TCoeff_[1], "kg/m^3/K");
+        data[2].setQuantity(TCoeff_[2], "kg/m^3/K^2");
+        data[3].setQuantity(TCoeff_[3], "kg/m^3/K^3");
+    } else {
+        eosNode["model"] = "molar-volume-temperature-polynomial";
+        data[0].setQuantity(TCoeff_[0], "m^3/kmol");
+        data[1].setQuantity(TCoeff_[1], "m^3/kmol/K");
+        data[2].setQuantity(TCoeff_[2], "m^3/kmol/K^2");
+        data[3].setQuantity(TCoeff_[3], "m^3/kmol/K^3");
+    }
+    eosNode["data"] = std::move(data);
+}
+
 void PDSS_SSVol::initThermo()
 {
     PDSS::initThermo();
@@ -171,19 +191,6 @@ void PDSS_SSVol::setState_TP(doublereal temp, doublereal pres)
 {
     m_pres = pres;
     setTemperature(temp);
-}
-
-void PDSS_SSVol::setState_TR(doublereal temp, doublereal rho)
-{
-    setTemperature(temp);
-    warn_deprecated("PDSS_SSVol::setState_TR",
-        "Setter only changes temperature and "
-        "will be removed after Cantera 2.5.");
-    doublereal rhoStored = m_mw / m_Vss;
-    if (fabs(rhoStored - rho) / (rhoStored + rho) > 1.0E-4) {
-        throw CanteraError("PDSS_SSVol::setState_TR",
-                           "Inconsistent supplied rho");
-    }
 }
 
 doublereal PDSS_SSVol::satPressure(doublereal t)

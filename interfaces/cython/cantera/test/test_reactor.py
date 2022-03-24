@@ -1,15 +1,12 @@
 import math
 import re
-from os.path import join as pjoin
-import os
 
 import numpy as np
+import pytest
 from .utilities import unittest
 
 import cantera as ct
 from . import utilities
-
-import warnings
 
 class TestReactor(utilities.CanteraTest):
     reactorClass = ct.Reactor
@@ -20,13 +17,13 @@ class TestReactor(utilities.CanteraTest):
 
         self.net = ct.ReactorNet()
 
-        self.gas1 = ct.Solution('h2o2.xml')
+        self.gas1 = ct.Solution('h2o2.yaml', transport_model=None)
         self.gas1.TPX = T1, P1, X1
         self.r1 = self.reactorClass(self.gas1)
         self.net.add_reactor(self.r1)
 
         if independent:
-            self.gas2 = ct.Solution('h2o2.xml')
+            self.gas2 = ct.Solution('h2o2.yaml', transport_model=None)
         else:
             self.gas2 = self.gas1
 
@@ -52,7 +49,7 @@ class TestReactor(utilities.CanteraTest):
         with self.assertRaisesRegex(ct.CanteraError, 'No phase'):
             R.kinetics.net_production_rates
 
-        g = ct.Solution('h2o2.xml')
+        g = ct.Solution('h2o2.yaml', transport_model=None)
         g.TP = 300, 101325
         R.insert(g)
 
@@ -149,9 +146,6 @@ class TestReactor(utilities.CanteraTest):
         tEnd = 10.0
         dt_max = 0.07
         t = tStart
-
-        with self.assertWarnsRegex(DeprecationWarning, "after Cantera 2.5"):
-            self.net.set_max_time_step(dt_max)
 
         self.net.max_time_step = dt_max
         self.assertEqual(self.net.max_time_step, dt_max)
@@ -298,6 +292,12 @@ class TestReactor(utilities.CanteraTest):
         self.assertNear(self.r1.T, self.r2.T, 5e-7)
         self.assertNotAlmostEqual(self.r1.thermo.P, self.r2.thermo.P)
 
+    def test_advance_limits_invalid(self):
+        self.make_reactors(n_reactors=1)
+
+        with pytest.raises(ct.CanteraError, match="No component named 'spam'"):
+            self.r1.set_advance_limit("spam", 0.1)
+
     def test_heat_transfer2(self):
         # Result should be the same if (m * cp) / (U * A) is held constant
         self.make_reactors(T1=300, T2=1000)
@@ -334,7 +334,7 @@ class TestReactor(utilities.CanteraTest):
 
         self.net.advance(1.0)
 
-        gas = ct.Solution('h2o2.xml')
+        gas = ct.Solution('h2o2.yaml', transport_model=None)
         gas.TPX = T0, P0, X0
         gas.equilibrate('UV')
 
@@ -351,7 +351,7 @@ class TestReactor(utilities.CanteraTest):
         T0 = 1100
         X0 = 'H2:1.0, O2:0.5, AR:8.0'
 
-        gas1 = ct.Solution('h2o2.xml')
+        gas1 = ct.Solution('h2o2.yaml', transport_model=None)
         gas1.TPX = T0, P0, X0
         r1 = ct.IdealGasConstPressureReactor(gas1)
 
@@ -359,7 +359,7 @@ class TestReactor(utilities.CanteraTest):
         net.add_reactor(r1)
         net.advance(1.0)
 
-        gas2 = ct.Solution('h2o2.xml')
+        gas2 = ct.Solution('h2o2.yaml', transport_model=None)
         gas2.TPX = T0, P0, X0
         gas2.equilibrate('HP')
 
@@ -400,7 +400,6 @@ class TestReactor(utilities.CanteraTest):
         self.make_reactors(T1=500)
         self.r1.energy_enabled = False
         self.add_wall(A=1.0, U=2500)
-
         self.net.advance(11.0)
 
         self.assertNear(self.r1.T, 500)
@@ -441,12 +440,25 @@ class TestReactor(utilities.CanteraTest):
 
     def test_mass_flow_controller(self):
         self.make_reactors(n_reactors=1)
-        gas2 = ct.Solution('h2o2.xml')
+        gas2 = ct.Solution('h2o2.yaml', transport_model=None)
         gas2.TPX = 300, 10*101325, 'H2:1.0'
         reservoir = ct.Reservoir(gas2)
 
+        # Apply a mass flow rate that is not a smooth function of time. This
+        # demonstrates the accuracy that can be achieved by having the mass flow rate
+        # evaluated simultaneously with the rest of the governing equations, as opposed
+        # to doing only between integrator time steps. In the latter case, larger
+        # errors would be introduced when the integrator steps past the times where the
+        # function's behavior changes and can't dynamically reduce the steps size for
+        # the already-completed steps.
         mfc = ct.MassFlowController(reservoir, self.r1)
-        mfc.mass_flow_rate = lambda t: 0.1 if 0.2 <= t < 1.2 else 0.0
+        # Triangular pulse with area = 0.1
+        def mdot(t):
+            if 0.2 <= t < 1.2:
+                return 0.2 - 0.4 * abs(t - 0.7)
+            else:
+                return 0.0
+        mfc.mass_flow_rate = mdot
         self.assertEqual(mfc.mass_flow_coeff, 1.)
 
         self.assertEqual(mfc.type, type(mfc).__name__)
@@ -465,10 +477,10 @@ class TestReactor(utilities.CanteraTest):
 
         self.net.advance(0.1)
         self.assertNear(mfc.mass_flow_rate, 0.)
-        self.net.advance(0.2)
-        self.assertNear(mfc.mass_flow_rate, 0.1)
-        self.net.advance(1.1)
-        self.assertNear(mfc.mass_flow_rate, 0.1)
+        self.net.advance(0.3)
+        self.assertNear(mfc.mass_flow_rate, 0.04)
+        self.net.advance(1.0)
+        self.assertNear(mfc.mass_flow_rate, 0.08)
         self.net.advance(1.2)
         self.assertNear(mfc.mass_flow_rate, 0.)
 
@@ -608,19 +620,6 @@ class TestReactor(utilities.CanteraTest):
         self.net.advance(0.02)
         self.assertNear(valve.mass_flow_rate, mdot())
 
-    def test_valve_deprecations(self):
-        # Make sure Python deprecation warnings actually get displayed
-
-        self.make_reactors()
-        valve = ct.Valve(self.r1, self.r2)
-        k = 2e-5
-
-        with self.assertWarnsRegex(DeprecationWarning, "after Cantera 2.5"):
-            valve.set_valve_coeff(k)
-
-        with self.assertWarnsRegex(DeprecationWarning, "after Cantera 2.5"):
-            valve.set_valve_function(lambda t: t>.01)
-
     def test_valve_errors(self):
         self.make_reactors()
         res = ct.Reservoir()
@@ -636,7 +635,7 @@ class TestReactor(utilities.CanteraTest):
 
     def test_pressure_controller1(self):
         self.make_reactors(n_reactors=1)
-        g = ct.Solution('h2o2.xml')
+        g = ct.Solution('h2o2.yaml', transport_model=None)
         g.TPX = 500, 2*101325, 'H2:1.0'
         inlet_reservoir = ct.Reservoir(g)
         g.TP = 300, 101325
@@ -661,7 +660,7 @@ class TestReactor(utilities.CanteraTest):
 
     def test_pressure_controller2(self):
         self.make_reactors(n_reactors=1)
-        g = ct.Solution('h2o2.xml')
+        g = ct.Solution('h2o2.yaml', transport_model=None)
         g.TPX = 500, 2*101325, 'H2:1.0'
         inlet_reservoir = ct.Reservoir(g)
         g.TP = 300, 101325
@@ -684,18 +683,6 @@ class TestReactor(utilities.CanteraTest):
             self.assertNear(mdot(t), mfc.mass_flow_rate)
             dP = self.r1.thermo.P - outlet_reservoir.thermo.P
             self.assertNear(mdot(t) + pfunc(dP), pc.mass_flow_rate)
-
-    def test_pressure_controller_deprecations(self):
-        # Make sure Python deprecation warnings actually get displayed
-
-        self.make_reactors()
-        res = ct.Reservoir(self.gas1)
-        mfc = ct.MassFlowController(res, self.r1, mdot=0.6)
-
-        p = ct.PressureController(self.r1, self.r2, master=mfc, K=0.5)
-
-        with self.assertWarnsRegex(DeprecationWarning, "after Cantera 2.5"):
-            p.set_pressure_coeff(2.)
 
     def test_pressure_controller_errors(self):
         self.make_reactors()
@@ -806,8 +793,20 @@ class TestIdealGasReactor(TestReactor):
 class TestWellStirredReactorIgnition(utilities.CanteraTest):
     """ Ignition (or not) of a well-stirred reactor """
     def setup(self, T0, P0, mdot_fuel, mdot_ox):
+        gas_def = """
+        phases:
+        - name: gas
+          species:
+          - gri30.yaml/species: [H2, H, O, O2, OH, H2O, HO2, H2O2, CH2, CH2(S), CH3,
+              CH4, CO, CO2, HCO, CH2O, CH2OH, CH3O, CH3OH, C2H4, C2H5, C2H6, N2, AR]
+          thermo: ideal-gas
+          kinetics: gas
+          reactions:
+          - gri30.yaml/reactions: declared-species
+          skip-undeclared-third-bodies: true
+        """
 
-        self.gas = ct.Solution('gri30.xml')
+        self.gas = ct.Solution(yaml=gas_def)
 
         # fuel inlet
         self.gas.TPX = T0, P0, "CH4:1.0"
@@ -901,9 +900,9 @@ class TestWellStirredReactorIgnition(utilities.CanteraTest):
         # test if steady state is reached
         self.assertTrue(residuals[-1] < 10. * self.net.rtol)
         # regression test; no external basis for these results
-        self.assertNear(self.combustor.T, 2486.14, 1e-5)
-        self.assertNear(self.combustor.thermo['H2O'].Y[0], 0.103801, 1e-5)
-        self.assertNear(self.combustor.thermo['HO2'].Y[0], 7.71278e-06, 1e-5)
+        self.assertNear(self.combustor.T, 2498.94, 1e-5)
+        self.assertNear(self.combustor.thermo['H2O'].Y[0], 0.103658, 1e-5)
+        self.assertNear(self.combustor.thermo['HO2'].Y[0], 8.734515e-06, 1e-5)
 
 
 class TestConstPressureReactor(utilities.CanteraTest):
@@ -916,15 +915,25 @@ class TestConstPressureReactor(utilities.CanteraTest):
     reactorClass = ct.ConstPressureReactor
 
     def create_reactors(self, add_Q=False, add_mdot=False, add_surf=False):
-        self.gas = ct.Solution('gri30.xml')
+        gas_def = """
+        phases:
+        - name: gas
+          species:
+          - gri30.yaml/species: [H2, H, O, O2, OH, H2O, HO2, H2O2, CH3, CH4, CO, CO2,
+              HCO, CH2O, CH3O, CH3OH, N2, AR]
+          thermo: ideal-gas
+          kinetics: gas
+          reactions:
+          - gri30.yaml/reactions: declared-species
+          skip-undeclared-third-bodies: true
+        """
+        self.gas = ct.Solution(yaml=gas_def)
         self.gas.TPX = 900, 25*ct.one_atm, 'CO:0.5, H2O:0.2'
 
-        self.gas1 = ct.Solution('gri30.xml')
-        self.gas1.name = 'gas'
-        self.gas2 = ct.Solution('gri30.xml')
-        self.gas2.name = 'gas'
-        resGas = ct.Solution('gri30.xml')
-        solid = ct.Solution('diamond.xml', 'diamond')
+        self.gas1 = ct.Solution(yaml=gas_def)
+        self.gas2 = ct.Solution(yaml=gas_def)
+        resGas = ct.Solution(yaml=gas_def)
+        solid = ct.Solution('diamond.yaml', 'diamond')
 
         T0 = 1200
         P0 = 25*ct.one_atm
@@ -952,9 +961,9 @@ class TestConstPressureReactor(utilities.CanteraTest):
             mfc2 = ct.MassFlowController(env, self.r2, mdot=0.05)
 
         if add_surf:
-            self.interface1 = ct.Interface('diamond.xml', 'diamond_100',
+            self.interface1 = ct.Interface('diamond.yaml', 'diamond_100',
                                       (self.gas1, solid))
-            self.interface2 = ct.Interface('diamond.xml', 'diamond_100',
+            self.interface2 = ct.Interface('diamond.yaml', 'diamond_100',
                                       (self.gas2, solid))
 
             C = np.zeros(self.interface1.n_species)
@@ -1029,8 +1038,21 @@ class TestIdealGasConstPressureReactor(TestConstPressureReactor):
 
 
 class TestFlowReactor(utilities.CanteraTest):
+    gas_def = """
+    phases:
+    - name: gas
+      species:
+      - gri30.yaml/species: [H2, H, O, O2, OH, H2O, HO2, H2O2, CH3, CH4, CO, CO2,
+          HCO, CH2O, CH3O, CH3OH, AR, N2]
+      thermo: ideal-gas
+      kinetics: gas
+      reactions:
+      - gri30.yaml/reactions: declared-species
+      skip-undeclared-third-bodies: true
+    """
+
     def test_nonreacting(self):
-        g = ct.Solution('h2o2.xml')
+        g = ct.Solution(yaml=self.gas_def)
         g.TPX = 300, 101325, 'O2:1.0'
         r = ct.FlowReactor(g)
         r.mass_flow_rate = 10
@@ -1048,7 +1070,7 @@ class TestFlowReactor(utilities.CanteraTest):
             self.assertNear(r.distance, v0 * t)
 
     def test_reacting(self):
-        g = ct.Solution('gri30.xml')
+        g = ct.Solution(yaml=self.gas_def)
         g.TPX = 1400, 20*101325, 'CO:1.0, H2O:1.0'
 
         r = ct.FlowReactor(g)
@@ -1076,9 +1098,9 @@ class TestSurfaceKinetics(utilities.CanteraTest):
     def make_reactors(self):
         self.net = ct.ReactorNet()
 
-        self.gas = ct.Solution('diamond.xml', 'gas')
-        self.solid = ct.Solution('diamond.xml', 'diamond')
-        self.interface = ct.Interface('diamond.xml', 'diamond_100',
+        self.gas = ct.Solution('diamond.yaml', 'gas')
+        self.solid = ct.Solution('diamond.yaml', 'diamond')
+        self.interface = ct.Interface('diamond.yaml', 'diamond_100',
                                       (self.gas, self.solid))
         self.gas.TPX = None, 1.0e3, 'H:0.002, H2:1, CH4:0.01, CH3:0.0002'
         self.r1 = ct.IdealGasReactor(self.gas)
@@ -1125,8 +1147,8 @@ class TestSurfaceKinetics(utilities.CanteraTest):
         surf1.coverages = C
         self.assertArrayNear(surf1.coverages, C)
         data = []
-        test_file = pjoin(self.test_work_dir, 'test_coverages_regression1.csv')
-        reference_file = pjoin(self.test_data_dir, 'WallKinetics-coverages-regression1.csv')
+        test_file = self.test_work_path / "test_coverages_regression1.csv"
+        reference_file = self.test_data_path / "WallKinetics-coverages-regression1.csv"
         data = []
         for t in np.linspace(1e-6, 1e-3):
             self.net.advance(t)
@@ -1150,8 +1172,8 @@ class TestSurfaceKinetics(utilities.CanteraTest):
         surf.coverages = C
         self.assertArrayNear(surf.coverages, C)
         data = []
-        test_file = pjoin(self.test_work_dir, 'test_coverages_regression2.csv')
-        reference_file = pjoin(self.test_data_dir, 'WallKinetics-coverages-regression2.csv')
+        test_file = self.test_work_path / "test_coverages_regression2.csv"
+        reference_file = self.test_data_path / "WallKinetics-coverages-regression2.csv"
         data = []
         for t in np.linspace(1e-6, 1e-3):
             self.net.advance(t)
@@ -1167,7 +1189,7 @@ class TestSurfaceKinetics(utilities.CanteraTest):
 class TestReactorSensitivities(utilities.CanteraTest):
     def test_sensitivities1(self):
         net = ct.ReactorNet()
-        gas = ct.Solution('gri30.xml')
+        gas = ct.Solution('gri30.yaml', transport_model=None)
         gas.TPX = 1300, 20*101325, 'CO:1.0, H2:0.1, CH4:0.1, H2O:0.5'
         r1 = ct.IdealGasReactor(gas)
         net.add_reactor(r1)
@@ -1187,16 +1209,15 @@ class TestReactorSensitivities(utilities.CanteraTest):
     def test_sensitivities2(self):
         net = ct.ReactorNet()
 
-        gas1 = ct.Solution('diamond.xml', 'gas')
-        solid = ct.Solution('diamond.xml', 'diamond')
-        interface = ct.Interface('diamond.xml', 'diamond_100',
-                                 (gas1, solid))
+        gas1 = ct.Solution("diamond.yaml", "gas")
+        solid = ct.Solution("diamond.yaml", "diamond")
+        interface = ct.Interface("diamond.yaml", "diamond_100", (gas1, solid))
         r1 = ct.IdealGasReactor(gas1)
         net.add_reactor(r1)
         net.atol_sensitivity = 1e-10
         net.rtol_sensitivity = 1e-8
 
-        gas2 = ct.Solution('h2o2.xml')
+        gas2 = ct.Solution('h2o2.yaml', transport_model=None)
         gas2.TPX = 900, 101325, 'H2:0.1, OH:1e-7, O2:0.1, AR:1e-5'
         r2 = ct.IdealGasReactor(gas2)
         net.add_reactor(r2)
@@ -1233,7 +1254,7 @@ class TestReactorSensitivities(utilities.CanteraTest):
 
     def _test_parameter_order1(self, reactorClass):
         # Single reactor, changing the order in which parameters are added
-        gas = ct.Solution('h2o2.xml')
+        gas = ct.Solution('h2o2.yaml', transport_model=None)
 
         def setup(params):
             net = ct.ReactorNet()
@@ -1259,7 +1280,7 @@ class TestReactorSensitivities(utilities.CanteraTest):
                 rname, comp = net.sensitivity_parameter_name(i).split(': ')
                 self.assertEqual(reactor.name, rname)
                 if kind == 'r':
-                    self.assertEqual(gas.reaction_equation(p), comp)
+                    self.assertEqual(gas.reaction(p).equation, comp)
                 elif kind == 's':
                     self.assertEqual(p + ' enthalpy', comp)
 
@@ -1281,20 +1302,22 @@ class TestReactorSensitivities(utilities.CanteraTest):
     def test_parameter_order1a(self):
         self._test_parameter_order1(ct.IdealGasReactor)
 
+    @utilities.slow_test
     def test_parameter_order1b(self):
         self._test_parameter_order1(ct.IdealGasConstPressureReactor)
 
+    @utilities.slow_test
     def test_parameter_order2(self):
         # Multiple reactors, changing the order in which parameters are added
-        gas = ct.Solution('h2o2.xml')
+        gas = ct.Solution('h2o2.yaml', transport_model=None)
 
         def setup(reverse=False):
             net = ct.ReactorNet()
-            gas1 = ct.Solution('h2o2.xml')
+            gas1 = ct.Solution('h2o2.yaml', transport_model=None)
             gas1.TPX = 900, 101325, 'H2:0.1, OH:1e-7, O2:0.1, AR:1e-5'
             rA = ct.IdealGasReactor(gas1)
 
-            gas2 = ct.Solution('h2o2.xml')
+            gas2 = ct.Solution('h2o2.yaml', transport_model=None)
             gas2.TPX = 920, 101325, 'H2:0.1, OH:1e-7, O2:0.1, AR:0.5'
             rB = ct.IdealGasReactor(gas2)
             if reverse:
@@ -1319,7 +1342,7 @@ class TestReactorSensitivities(utilities.CanteraTest):
                 r.add_sensitivity_reaction(p)
             S.append(integrate(rA1, net1))
 
-            pname = lambda r,i: '%s: %s' % (r.name, gas.reaction_equation(i))
+            pname = lambda r,i: '%s: %s' % (r.name, gas.reaction(i).equation)
             for i,(r,p) in enumerate(params1):
                 self.assertEqual(pname(r,p), net1.sensitivity_parameter_name(i))
 
@@ -1345,14 +1368,14 @@ class TestReactorSensitivities(utilities.CanteraTest):
         self.assertArrayNear(S[1][:N], S[3][N:], 1e-5, 1e-5)
         self.assertArrayNear(S[1][N:], S[3][:N], 1e-5, 1e-5)
 
+    @utilities.slow_test
     def test_parameter_order3(self):
         # Test including reacting surfaces
-        gas1 = ct.Solution('diamond.xml', 'gas')
-        solid = ct.Solution('diamond.xml', 'diamond')
-        interface = ct.Interface('diamond.xml', 'diamond_100',
-                                 (gas1, solid))
+        gas1 = ct.Solution("diamond.yaml", "gas")
+        solid = ct.Solution("diamond.yaml", "diamond")
+        interface = ct.Interface("diamond.yaml", "diamond_100", (gas1, solid))
 
-        gas2 = ct.Solution('h2o2.xml')
+        gas2 = ct.Solution('h2o2.yaml', transport_model=None)
 
         def setup(order):
             gas1.TPX = 1200, 1e3, 'H:0.002, H2:1, CH4:0.01, CH3:0.0002'
@@ -1414,7 +1437,7 @@ class TestReactorSensitivities(utilities.CanteraTest):
                 self.assertArrayNear(S[a][:,i], S[b][:,j], 1e-2, 1e-3)
 
     def setup_ignition_delay(self):
-        gas = ct.Solution('h2o2.xml')
+        gas = ct.Solution('h2o2.yaml', transport_model=None)
         gas.TP = 900, 5*ct.one_atm
         gas.set_equivalence_ratio(0.4, 'H2', 'O2:1.0, AR:4.0')
         r = ct.IdealGasReactor(gas)
@@ -1470,6 +1493,8 @@ class TestReactorSensitivities(utilities.CanteraTest):
         dtdp = ((t[-1] - tig)*S[-1,:]*Tf - np.trapz(S*T[:,None], t, axis=0))/(Tf-To)
         return dtdp
 
+    # See https://github.com/Cantera/enhancements/issues/55
+    @unittest.skip("Integration of sensitivity ODEs is unreliable")
     def test_ignition_delay_sensitivity(self):
         species = ('H2', 'H', 'O2', 'H2O2', 'H2O', 'OH', 'HO2')
         dtigdh_cvodes = self.calc_dtdh(species)
@@ -1491,8 +1516,8 @@ class CombustorTestImplementation:
     """
 
     def setUp(self):
-        self.referenceFile = pjoin(os.path.dirname(__file__), 'data', 'CombustorTest-integrateWithAdvance.csv')
-        self.gas = ct.Solution('h2o2.xml')
+        self.referenceFile = utilities.TEST_DATA_PATH / "CombustorTest-integrateWithAdvance.csv"
+        self.gas = ct.Solution('h2o2.yaml', transport_model=None)
 
         # create a reservoir for the fuel inlet, and set to pure methane.
         self.gas.TPX = 300.0, ct.one_atm, 'H2:1.0'
@@ -1597,19 +1622,19 @@ class WallTestImplementation:
     """
 
     def setUp(self):
-        self.referenceFile = pjoin(os.path.dirname(__file__), 'data', 'WallTest-integrateWithAdvance.csv')
+        self.referenceFile = utilities.TEST_DATA_PATH / "WallTest-integrateWithAdvance.csv"
         # reservoir to represent the environment
-        self.gas0 = ct.Solution('air.xml')
+        self.gas0 = ct.Solution("air.yaml")
         self.gas0.TP = 300, ct.one_atm
         self.env = ct.Reservoir(self.gas0)
 
         # reactor to represent the side filled with Argon
-        self.gas1 = ct.Solution('air.xml')
+        self.gas1 = ct.Solution("air.yaml")
         self.gas1.TPX = 1000.0, 30*ct.one_atm, 'AR:1.0'
         self.r1 = ct.Reactor(self.gas1)
 
         # reactor to represent the combustible mixture
-        self.gas2 = ct.Solution('h2o2.xml')
+        self.gas2 = ct.Solution('h2o2.yaml', transport_model=None)
         self.gas2.TPX = 500.0, 1.5*ct.one_atm, 'H2:0.5, O2:1.0, AR:10.0'
         self.r2 = ct.Reactor(self.gas2)
 
@@ -1663,8 +1688,8 @@ class WallTest(WallTestImplementation, unittest.TestCase): pass
 
 class PureFluidReactorTest(utilities.CanteraTest):
     def test_Reactor(self):
-        phase = ct.PureFluid('liquidvapor.xml', 'oxygen')
-        air = ct.Solution('air.xml')
+        phase = ct.PureFluid("liquidvapor.yaml", "oxygen")
+        air = ct.Solution("air.yaml")
 
         phase.TP = 93, 4e5
         r1 = ct.Reactor(phase)
@@ -1694,8 +1719,8 @@ class PureFluidReactorTest(utilities.CanteraTest):
         self.assertNear(states.Q[30], 0.54806, 1e-4)
 
     def test_Reactor_2(self):
-        phase = ct.PureFluid('liquidvapor.xml', 'carbondioxide')
-        air = ct.Solution('air.xml')
+        phase = ct.PureFluid("liquidvapor.yaml", "carbon-dioxide")
+        air = ct.Solution("air.yaml")
 
         phase.TP = 218, 5e6
         r1 = ct.Reactor(phase)
@@ -1721,7 +1746,7 @@ class PureFluidReactorTest(utilities.CanteraTest):
 
     def test_ConstPressureReactor(self):
         phase = ct.Nitrogen()
-        air = ct.Solution('air.xml')
+        air = ct.Solution("air.yaml")
 
         phase.TP = 75, 4e5
         r1 = ct.ConstPressureReactor(phase)
@@ -1745,11 +1770,10 @@ class PureFluidReactorTest(utilities.CanteraTest):
 
 
 class AdvanceCoveragesTest(utilities.CanteraTest):
-    def setup(self, model='ptcombust.xml', gas_phase='gas',
-              interface_phase='Pt_surf'):
+    def setup(self, model="ptcombust.yaml", gas_phase="gas", interface_phase="Pt_surf"):
         # create gas and interface
-        self.gas = ct.Solution('ptcombust.xml', 'gas')
-        self.surf = ct.Interface('ptcombust.xml', 'Pt_surf', [self.gas])
+        self.gas = ct.Solution(model, gas_phase)
+        self.surf = ct.Interface(model, interface_phase, [self.gas])
 
     def test_advance_coverages_parameters(self):
         # create gas and interface
@@ -1779,3 +1803,360 @@ class AdvanceCoveragesTest(utilities.CanteraTest):
         # check that the solutions are similar, but not identical
         self.assertArrayNear(cov, self.surf.coverages)
         self.assertTrue(any(cov != self.surf.coverages))
+
+
+class ExtensibleReactorTest(utilities.CanteraTest):
+    def setUp(self):
+        self.gas = ct.Solution("h2o2.yaml")
+
+    def test_extra_variable(self):
+        class InertialWallReactor(ct.ExtensibleIdealGasReactor):
+            def __init__(self, *args, neighbor, **kwargs):
+                super().__init__(*args, **kwargs)
+                self.v_wall = 0
+                self.k_wall = 1e-5
+                self.neighbor = neighbor
+
+            def after_initialize(self, t0):
+                self.n_vars += 1
+                self.i_wall = self.n_vars - 1
+
+            def after_get_state(self, y):
+                y[self.i_wall] = self.v_wall
+
+            def after_update_state(self, y):
+                self.v_wall = y[self.i_wall]
+                self.walls[0].set_velocity(self.v_wall)
+
+            def after_eval(self, t, LHS, RHS):
+                # Extra equation is d(v_wall)/dt = k * delta P
+                a = self.k_wall * (self.thermo.P - self.neighbor.thermo.P)
+                RHS[self.i_wall] = a
+
+            def before_component_index(self, name):
+                if name == 'v_wall':
+                    return self.i_wall
+
+            def before_component_name(self, i):
+                if i == self.i_wall:
+                    return 'v_wall'
+
+        self.gas.TP = 300, ct.one_atm
+        res = ct.Reservoir(self.gas)
+        self.gas.TP = 300, 2 * ct.one_atm
+        r = InertialWallReactor(self.gas, neighbor=res)
+        w = ct.Wall(r, res)
+        net = ct.ReactorNet([r])
+
+        V = []
+        for i in range(20):
+            net.advance(0.05 * i)
+            V.append(r.volume)
+
+        # Wall is accelerating
+        self.assertTrue((np.diff(V, 2) > 0).all())
+
+        self.assertIn('v_wall', net.component_name(self.gas.n_species + 3))
+        self.assertEqual(r.component_index('volume'), 1)
+        self.assertEqual(r.component_name(self.gas.n_species + 3), 'v_wall')
+        self.assertEqual(r.component_name(2), 'temperature')
+
+    def test_replace_equations(self):
+        nsp = self.gas.n_species
+        tau = np.linspace(0.5, 2, nsp + 3)
+        class DummyReactor(ct.ExtensibleReactor):
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                self.y = np.ones(nsp + 3)
+
+            def replace_get_state(self, y):
+                y[:] = self.y
+
+            def replace_update_state(self, y):
+                self.y[:] = y
+
+            def replace_eval(self, t, LHS, RHS):
+                RHS[:] = - self.y / tau
+
+        r = DummyReactor(self.gas)
+        net = ct.ReactorNet([r])
+        net.rtol *= 0.1
+
+        while(net.time < 1):
+            net.step()
+            self.assertArrayNear(r.get_state(), np.exp(- net.time / tau))
+
+    def test_error_handling(self):
+        class DummyReactor1(ct.ExtensibleReactor):
+            def replace_eval(self, t): # wrong number of arguments
+                pass
+
+        with self.assertRaisesRegex(ValueError, "right number of arguments"):
+            DummyReactor1(self.gas)
+
+        class DummyReactor2(ct.ExtensibleReactor):
+            def replace_component_index(self, name):
+                if name == "succeed":
+                    return 0
+                elif name == "wrong-type":
+                    return "spam"
+                # Otherwise, does not return a value
+
+        r2 = DummyReactor2(self.gas)
+        self.assertEqual(r2.component_index("succeed"), 0)
+        with self.assertRaises(TypeError):
+            r2.component_index("wrong-type")
+        # Error information should have been reset
+        self.assertEqual(r2.component_index("succeed"), 0)
+        with self.assertRaisesRegex(ct.CanteraError, "did not return a value"):
+            r2.component_index("H2")
+        self.assertEqual(r2.component_index("succeed"), 0)
+
+    def test_delegate_throws(self):
+        class TestException(Exception):
+            pass
+
+        class DummyReactor(ct.ExtensibleConstPressureReactor):
+            def before_eval(self, t, LHS, RHS):
+                if t > 0.1:
+                    raise TestException()
+
+            def before_component_index(self, name):
+                if name == "fail":
+                    raise TestException()
+
+        r = DummyReactor(self.gas)
+        net = ct.ReactorNet([r])
+
+        # Because the TestException is raised inside code called by CVODES, the actual
+        # error raised will be a CanteraError
+        with self.assertRaises(ct.CanteraError):
+            net.advance(0.2)
+
+        self.assertEqual(r.component_index("enthalpy"), 1)
+        with self.assertRaises(TestException):
+            r.component_index("fail")
+
+    def test_misc(self):
+        class DummyReactor(ct.ExtensibleReactor):
+            def __init__(self, gas):
+                super().__init__(gas)
+                self.sync_calls = 0
+
+            def after_species_index(self, name):
+                # This will cause returned species indices to be higher by 5 than they
+                # would be otherwise
+                return 5
+
+            def before_sync_state(self):
+                self.sync_calls += 1
+
+        r = DummyReactor(self.gas)
+        net = ct.ReactorNet([r])
+        self.assertEqual(r.component_index("H2"), 5 + 3 + self.gas.species_index("H2"))
+        r.syncState()
+        net.advance(1)
+        r.syncState()
+        self.assertEqual(r.sync_calls, 2)
+
+    def test_RHS_LHS(self):
+        # set initial state
+        self.gas.TPX = 500, ct.one_atm, 'H2:2,O2:1,N2:4'
+        gas_initial_enthalpy = self.gas.enthalpy_mass
+
+        # define properties of gas and solid
+        mass_gas = 20  # [kg]
+        Q = 100  # [J/s]
+        mass_lump = 10  # [kg]
+        cp_lump = 1.0  # [J/kg/K]
+
+        # initialize time at zero
+        time = 0  # [s]
+        n_steps = 300
+
+        # define a class representing reactor with a solid mass and gas inside of it
+        class DummyReactor(ct.ExtensibleIdealGasConstPressureReactor):
+            # modify energy equation to include solid mass in reactor
+            def after_eval(self,t,LHS,RHS):
+                self.m_mass = mass_gas
+                LHS[1] = mass_lump * cp_lump + self.m_mass * self.thermo.cp_mass
+                RHS[1] = Q
+
+        r1 = DummyReactor(self.gas)
+        r1_net = ct.ReactorNet([r1])
+
+        for n in range(n_steps):
+            time += 4.e-4
+            r1_net.advance(time)
+
+        # compare heat added (add_heat) to the equivalent energy contained by the solid
+        # and gaseous mass in the reactor
+        r1_heat = (mass_lump * cp_lump * (r1.thermo.T - 500) +
+                   mass_gas * (self.gas.enthalpy_mass - gas_initial_enthalpy))
+        add_heat = Q * time
+        self.assertNear(add_heat, r1_heat, atol=1e-5)
+
+    def test_heat_addition(self):
+        # Applying heat via 'qdot' property should be equivalent to adding it via a wall
+        Qext = 100
+        Qwall = -66
+        class HeatedReactor(ct.ExtensibleReactor):
+            def after_eval_walls(self, y):
+                self.qdot += Qext
+
+        self.gas.TPX = 300, ct.one_atm, "N2:1.0"
+        r1 = HeatedReactor(self.gas)
+        res = ct.Reservoir(self.gas)
+        wall = ct.Wall(res, r1, Q=Qwall, A=1)
+        net = ct.ReactorNet([r1])
+        U0 = r1.thermo.int_energy_mass * r1.mass
+        for t in np.linspace(0.1, 5, 10):
+            net.advance(t)
+            U = r1.thermo.int_energy_mass * r1.mass
+            self.assertNear(U - U0, (Qext + Qwall) * t)
+            self.assertNear(r1.qdot, Qext + Qwall)
+
+    def test_with_surface(self):
+        phase_defs = """
+            units: {length: cm, quantity: mol, activation-energy: J/mol}
+            phases:
+            - name: gas
+              thermo: ideal-gas
+              species:
+              - gri30.yaml/species: [H2, H2O, H2O2, O2]
+              kinetics: gas
+              reactions:
+              - gri30.yaml/reactions: declared-species
+              skip-undeclared-third-bodies: true
+            - name: Pt_surf
+              thermo: ideal-surface
+              species:
+              - ptcombust.yaml/species: [PT(S), H(S), H2O(S), OH(S), O(S)]
+              kinetics: surface
+              reactions: [ptcombust.yaml/reactions: declared-species]
+              site-density: 3e-09
+        """
+
+        gas = ct.Solution(yaml=phase_defs, name="gas")
+        surf = ct.Interface(yaml=phase_defs, name="Pt_surf", adjacent=[gas])
+        gas.TPX = 800, 0.01*ct.one_atm, "H2:2.0, O2:1.0"
+        surf.TP = 800, 0.01*ct.one_atm
+        surf.coverages = {"H(S)": 1.0}  # dummy values to be replaced by delegate
+
+        kHs = surf.species_index("H(S)")
+        kPts = surf.species_index("PT(S)")
+        kH2 = gas.species_index("H2")
+        kO2 = gas.species_index("O2")
+        class SurfReactor(ct.ExtensibleIdealGasReactor):
+            def replace_eval_surfaces(self, LHS, RHS, sdot):
+                site_density = self.surfaces[0].kinetics.site_density
+                sdot[:] = 0.0
+                LHS[:] = 1.0
+                RHS[:] = 0.0
+                C = self.thermo.concentrations
+                theta = self.surfaces[0].coverages
+
+                # Replace actual reactions with simple absorption of H2 -> H(S)
+                rop = 1e-4 * C[kH2] * theta[kPts]
+                RHS[kHs] = 2 * rop / site_density
+                RHS[kPts] = - 2 * rop / site_density
+                sdot[kH2] = - rop * self.surfaces[0].area
+
+            def replace_get_surface_initial_conditions(self, y):
+                y[:] = 0
+                y[kPts] = 1
+
+            def replace_update_surface_state(self, y):
+                # this is the same thing the original method does
+                self.surfaces[0].coverages = y
+
+        r1 = SurfReactor(gas)
+        r1.volume = 1e-6 # 1 cm^3
+        r1.energy_enabled = False
+        rsurf = ct.ReactorSurface(surf, A=0.01)
+        rsurf.install(r1)
+        net = ct.ReactorNet([r1])
+
+        Hweight = ct.Element("H").weight
+        total_sites = rsurf.area * surf.site_density
+        def masses():
+            mass_H = (gas.elemental_mass_fraction("H") * r1.mass +
+                      total_sites * r1.surfaces[0].kinetics["H(s)"].X * Hweight)
+            mass_O = gas.elemental_mass_fraction("O") * r1.mass
+            return mass_H, mass_O
+
+        net.step()
+        mH0, mO0 = masses()
+
+        for t in np.linspace(0.1, 1, 12):
+            net.advance(t)
+            mH, mO = masses()
+            self.assertNear(mH, mH0)
+            self.assertNear(mO, mO0)
+
+        # Regression test values
+        self.assertNear(r1.thermo.P, 647.56016304)
+        self.assertNear(r1.thermo.X[kH2], 0.4784268406)
+        self.assertNear(r1.thermo.X[kO2], 0.5215731594)
+        self.assertNear(r1.surfaces[0].kinetics.X[kHs], 0.3665198138)
+        self.assertNear(r1.surfaces[0].kinetics.X[kPts], 0.6334801862)
+
+    def test_interactions(self):
+        # Reactors connected by a movable, H2-permeable surface
+        kH2 = self.gas.species_index("H2")
+        class TestReactor(ct.ExtensibleIdealGasReactor):
+            def __init__(self, gas):
+                super().__init__(gas)
+                self.neighbor = None
+                self.h2coeff = 12  # mass transfer coeff
+                self.p_coeff = 5 # expansion coeff
+
+            def after_update_connected(self, do_pressure):
+                self.conc_H2 = self.thermo.concentrations[kH2]
+                self.P = self.thermo.P
+
+            def replace_eval_walls(self, t):
+                if self.neighbor:
+                    self.vdot = np.clip(self.p_coeff * (self.P - self.neighbor.P),
+                                        -1.7, 1.7)
+
+            def after_eval(self, t, LHS, RHS):
+                if self.neighbor:
+                    mdot_H2 = self.h2coeff * (self.neighbor.conc_H2 - self.conc_H2)
+                    RHS[kH2+3] += mdot_H2
+                    RHS[3:] -= self.thermo.Y * mdot_H2
+                    RHS[0] += mdot_H2
+                    # enthalpy flux is neglected, so energy isn't properly conserved
+
+        self.gas.TPX = 300, 2*101325, "H2:0.8, N2:0.2"
+        r1 = TestReactor(self.gas)
+        self.gas.TPX = 300, 101325, "H2:0.1, O2:0.9"
+        r2 = TestReactor(self.gas)
+        r1.neighbor = r2
+        r2.neighbor = r1
+        net = ct.ReactorNet([r1, r2])
+        states1 = ct.SolutionArray(self.gas, extra=["t", "mass", "vdot"])
+        states2 = ct.SolutionArray(self.gas, extra=["t", "mass", "vdot"])
+        net.step()
+        M0 = r1.mass * r1.thermo.Y + r2.mass * r2.thermo.Y
+
+        def deltaC():
+            return r1.thermo["H2"].concentrations[0] - r2.thermo["H2"].concentrations[0]
+        deltaCprev = deltaC()
+
+        V0 = r1.volume + r2.volume
+        for t in np.linspace(0.01, 0.2, 50):
+            net.advance(t)
+            self.assertNear(r1.vdot, -r2.vdot)
+            self.assertNear(V0, r1.volume + r2.volume)
+            deltaCnow = deltaC()
+            self.assertLess(deltaCnow, deltaCprev) # difference is always decreasing
+            deltaCprev = deltaCnow
+            self.assertArrayNear(M0, r1.mass * r1.thermo.Y + r2.mass * r2.thermo.Y, rtol=2e-8)
+            states1.append(r1.thermo.state, t=net.time, mass=r1.mass, vdot=r1.vdot)
+            states2.append(r2.thermo.state, t=net.time, mass=r2.mass, vdot=r2.vdot)
+
+        # Regression test values
+        self.assertNear(r1.thermo.P, 151561.15, rtol=1e-6)
+        self.assertNear(r1.thermo["H2"].Y[0], 0.13765976, rtol=1e-6)
+        self.assertNear(r2.thermo["O2"].Y[0], 0.94617029, rtol=1e-6)

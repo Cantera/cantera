@@ -14,6 +14,7 @@
 #include "cantera/thermo/PDSS_Water.h"
 #include "cantera/thermo/VPStandardStateTP.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/global.h"
 
 using namespace std;
 
@@ -451,6 +452,28 @@ void PDSS_HKFT::setParametersFromXML(const XML_Node& speciesNode)
                            "Missing 2 or more of DG0_f_Pr_Tr, DH0_f_Pr_Tr, or S0_f_Pr_Tr fields. "
                            "Need to supply at least two of these fields");
     }
+}
+
+void PDSS_HKFT::getParameters(AnyMap& eosNode) const
+{
+    PDSS::getParameters(eosNode);
+    eosNode["model"] = "HKFT";
+    eosNode["h0"].setQuantity(m_deltaH_formation_tr_pr, "cal/gmol");
+    eosNode["g0"].setQuantity(m_deltaG_formation_tr_pr, "cal/gmol");
+    eosNode["s0"].setQuantity(m_Entrop_tr_pr, "cal/gmol/K");
+
+    std::vector<AnyValue> a(4), c(2);
+    a[0].setQuantity(m_a1, "cal/gmol/bar");
+    a[1].setQuantity(m_a2, "cal/gmol");
+    a[2].setQuantity(m_a3, "cal*K/gmol/bar");
+    a[3].setQuantity(m_a4, "cal*K/gmol");
+    eosNode["a"] = std::move(a);
+
+    c[0].setQuantity(m_c1, "cal/gmol/K");
+    c[1].setQuantity(m_c2, "cal*K/gmol");
+    eosNode["c"] = std::move(c);
+
+    eosNode["omega"].setQuantity(m_omega_pr_tr, "cal/gmol");
 }
 
 doublereal PDSS_HKFT::deltaH() const

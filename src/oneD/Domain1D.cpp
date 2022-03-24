@@ -7,7 +7,11 @@
 
 #include "cantera/oneD/Domain1D.h"
 #include "cantera/oneD/MultiJac.h"
+#include "cantera/oneD/refine.h"
 #include "cantera/base/ctml.h"
+#include "cantera/base/AnyMap.h"
+
+#include <set>
 
 using namespace std;
 
@@ -28,6 +32,10 @@ Domain1D::Domain1D(size_t nv, size_t points, double time) :
     m_force_full_update(false)
 {
     resize(nv, points);
+}
+
+Domain1D::~Domain1D()
+{
 }
 
 void Domain1D::resize(size_t nv, size_t np)
@@ -158,6 +166,65 @@ void Domain1D::restore(const XML_Node& dom, doublereal* soln, int loglevel)
             throw CanteraError("Domain1D::restore",
                                "Got an unexpected array, '" + title + "'");
         }
+    }
+}
+
+AnyMap Domain1D::serialize(const double* soln) const
+{
+    auto wrap_tols = [this](const vector_fp& tols) {
+        // If all tolerances are the same, just store the scalar value.
+        // Otherwise, store them by component name
+        std::set<double> unique_tols(tols.begin(), tols.end());
+        if (unique_tols.size() == 1) {
+            return AnyValue(tols[0]);
+        } else {
+            AnyMap out;
+            for (size_t i = 0; i < tols.size(); i++) {
+                out[componentName(i)] = tols[i];
+            }
+            return AnyValue(out);
+        }
+    };
+    AnyMap state;
+    state["points"] = static_cast<long int>(nPoints());
+    if (nComponents() && nPoints()) {
+        state["tolerances"]["transient-abstol"] = wrap_tols(m_atol_ts);
+        state["tolerances"]["steady-abstol"] = wrap_tols(m_atol_ss);
+        state["tolerances"]["transient-reltol"] = wrap_tols(m_rtol_ts);
+        state["tolerances"]["steady-reltol"] = wrap_tols(m_rtol_ss);
+    }
+    return state;
+}
+
+void Domain1D::restore(const AnyMap& state, double* soln, int loglevel)
+{
+    auto set_tols = [&](const AnyValue& tols, const string& which, vector_fp& out)
+    {
+        if (!tols.hasKey(which)) {
+            return;
+        }
+        const auto& tol = tols[which];
+        if (tol.isScalar()) {
+            out.assign(nComponents(), tol.asDouble());
+        } else {
+            for (size_t i = 0; i < nComponents(); i++) {
+                std::string name = componentName(i);
+                if (tol.hasKey(name)) {
+                    out[i] = tol[name].asDouble();
+                } else if (loglevel) {
+                    warn_user("Domain1D::restore", "No {} found for component '{}'",
+                              which, name);
+                }
+            }
+        }
+    };
+
+    if (state.hasKey("tolerances")) {
+        const auto& tols = state["tolerances"];
+        set_tols(tols, "transient-abstol", m_atol_ts);
+        set_tols(tols, "transient-reltol", m_rtol_ts);
+        set_tols(tols, "steady-abstol", m_atol_ss);
+        set_tols(tols, "steady-reltol", m_rtol_ss);
     }
 }
 

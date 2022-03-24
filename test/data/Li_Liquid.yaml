@@ -1,0 +1,38 @@
+generator: ctml2yaml
+cantera-version: 2.6.0a3
+date: Sat, 18 Dec 2021 15:54:52 -0500
+input-files: [test/data/Li_Liquid.xml]
+
+phases:
+- name: Li(L)
+  elements: [Li]
+  species:
+  - species_Li(L): [Li(L), Li(L)2]
+  thermo: Margules
+  state: {T: 300.0 K, P: 1.01325e+05 Pa, X: {Li(L): 0.5, Li(L)2: 0.5}}
+
+species_Li(L):
+- name: Li(L)
+  composition: {Li: 1.0}
+  thermo:
+    model: Shomate
+    temperature-ranges: [298.0, 700.0, 3000.0]
+    data:
+    - [26.3072, 30.4657, -69.1692, 44.1951, 0.0776, -6.0337, 59.8106]
+    - [22.6832, 10.476, -6.5428, 1.3255, 0.8783, -2.0426, 62.8859]
+  equation-of-state:
+    model: density-temperature-polynomial
+    data: [0.536504 g/L, -1.04279e-4 g/L/K, 3.84825e-9 g/L/K^2, -5.2853e-12 g/L/K^3]
+- name: Li(L)2
+  composition: {Li: 1.0}
+  note: This species is invented for the purposes of the test
+  thermo:
+    model: Shomate
+    temperature-ranges: [298.0, 700.0, 3000.0]
+    data:
+    - [26.3072, 30.4657, -69.1692, 44.1951, 0.0776, -6.0337, 59.8106]
+    - [22.6832, 10.476, -6.5428, 1.3255, 0.8783, -2.0426, 62.8859]
+  equation-of-state:
+    model: molar-volume-temperature-polynomial
+    data: [0.536504 cm^3/mol, -1.04279e-4 cm^3/mol/K, 3.84825e-9 cm^3/mol/K^2, -5.2853e-12
+        cm^3/mol/K^3]

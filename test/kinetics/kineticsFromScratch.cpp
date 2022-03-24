@@ -1,10 +1,13 @@
 #include "gtest/gtest.h"
-#include "cantera/kinetics/importKinetics.h"
+#include "cantera/kinetics/KineticsFactory.h"
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/thermo/SurfPhase.h"
+#include "cantera/thermo/Species.h"
 #include "cantera/kinetics/GasKinetics.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
+#include "cantera/kinetics/FalloffFactory.h"
 #include "cantera/base/Array.h"
+#include "cantera/base/stringUtils.h"
 
 using namespace Cantera;
 
@@ -12,19 +15,18 @@ class KineticsFromScratch : public testing::Test
 {
 public:
     KineticsFromScratch()
-        : p("../data/kineticsfromscratch.cti")
-        , p_ref("../data/kineticsfromscratch.cti")
+        : p("../data/kineticsfromscratch.yaml")
+        , p_ref("../data/kineticsfromscratch.yaml")
     {
-        std::vector<ThermoPhase*> th;
-        th.push_back(&p_ref);
-        importKinetics(p_ref.xml(), th, &kin_ref);
+        kin_ref = newKinetics({&p_ref}, "../data/kineticsfromscratch.yaml", "ohmech");
         kin.addPhase(p);
+        kin.init();
     }
 
     IdealGasPhase p;
     IdealGasPhase p_ref;
     GasKinetics kin;
-    GasKinetics kin_ref;
+    unique_ptr<Kinetics> kin_ref;
 
     //! iRef is the index of the corresponding reaction in the reference mech
     void check_rates(int iRef) {
@@ -34,14 +36,14 @@ public:
         p.setState_TPX(1200, 5*OneAtm, X);
         p_ref.setState_TPX(1200, 5*OneAtm, X);
 
-        vector_fp k(1), k_ref(kin_ref.nReactions());
+        vector_fp k(1), k_ref(kin_ref->nReactions());
 
         kin.getFwdRateConstants(&k[0]);
-        kin_ref.getFwdRateConstants(&k_ref[0]);
+        kin_ref->getFwdRateConstants(&k_ref[0]);
         EXPECT_DOUBLE_EQ(k_ref[iRef], k[0]);
 
         kin.getRevRateConstants(&k[0]);
-        kin_ref.getRevRateConstants(&k_ref[0]);
+        kin_ref->getRevRateConstants(&k_ref[0]);
         EXPECT_DOUBLE_EQ(k_ref[iRef], k[0]);
     }
 };
@@ -52,8 +54,8 @@ TEST_F(KineticsFromScratch, add_elementary_reaction)
     // reaction('O + H2 <=> H + OH', [3.870000e+01, 2.7, 6260.0])
     Composition reac = parseCompString("O:1 H2:1");
     Composition prod = parseCompString("H:1 OH:1");
-    Arrhenius rate(3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
-    auto R = make_shared<ElementaryReaction>(reac, prod, rate);
+    Arrhenius2 rate(3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
+    auto R = make_shared<ElementaryReaction2>(reac, prod, rate);
 
     kin.addReaction(R);
     check_rates(0);
@@ -66,10 +68,10 @@ TEST_F(KineticsFromScratch, add_three_body_reaction)
     //                     efficiencies='AR:0.83 H2:2.4 H2O:15.4')
     Composition reac = parseCompString("O:2");
     Composition prod = parseCompString("O2:1");
-    Arrhenius rate(1.2e11, -1.0, 0.0);
+    Arrhenius2 rate(1.2e11, -1.0, 0.0);
     ThirdBody tbody;
     tbody.efficiencies = parseCompString("AR:0.83 H2:2.4 H2O:15.4");
-    auto R = make_shared<ThreeBodyReaction>(reac, prod, rate, tbody);
+    auto R = make_shared<ThreeBodyReaction2>(reac, prod, rate, tbody);
 
     kin.addReaction(R);
     check_rates(1);
@@ -79,10 +81,10 @@ TEST_F(KineticsFromScratch, undefined_third_body)
 {
     Composition reac = parseCompString("O:2");
     Composition prod = parseCompString("O2:1");
-    Arrhenius rate(1.2e11, -1.0, 0.0);
+    Arrhenius2 rate(1.2e11, -1.0, 0.0);
     ThirdBody tbody;
     tbody.efficiencies = parseCompString("H2:0.1 CO2:0.83");
-    auto R = make_shared<ThreeBodyReaction>(reac, prod, rate, tbody);
+    auto R = make_shared<ThreeBodyReaction2>(reac, prod, rate, tbody);
 
     ASSERT_THROW(kin.addReaction(R), CanteraError);
 }
@@ -91,10 +93,10 @@ TEST_F(KineticsFromScratch, skip_undefined_third_body)
 {
     Composition reac = parseCompString("O:2");
     Composition prod = parseCompString("O2:1");
-    Arrhenius rate(1.2e11, -1.0, 0.0);
+    Arrhenius2 rate(1.2e11, -1.0, 0.0);
     ThirdBody tbody;
     tbody.efficiencies = parseCompString("H2:0.1 CO2:0.83");
-    auto R = make_shared<ThreeBodyReaction>(reac, prod, rate, tbody);
+    auto R = make_shared<ThreeBodyReaction2>(reac, prod, rate, tbody);
 
     kin.skipUndeclaredThirdBodies(true);
     kin.addReaction(R);
@@ -112,12 +114,12 @@ TEST_F(KineticsFromScratch, add_falloff_reaction)
     //                  falloff=Troe(A=0.7346, T3=94.0, T1=1756.0, T2=5182.0))
     Composition reac = parseCompString("OH:2");
     Composition prod = parseCompString("H2O2:1");
-    Arrhenius high_rate(7.4e10, -0.37, 0.0);
-    Arrhenius low_rate(2.3e12, -0.9, -1700.0 / GasConst_cal_mol_K);
+    Arrhenius2 high_rate(7.4e10, -0.37, 0.0);
+    Arrhenius2 low_rate(2.3e12, -0.9, -1700.0 / GasConst_cal_mol_K);
     vector_fp falloff_params { 0.7346, 94.0, 1756.0, 5182.0 };
     ThirdBody tbody;
     tbody.efficiencies = parseCompString("AR:0.7 H2:2.0 H2O:6.0");
-    auto R = make_shared<FalloffReaction>(reac, prod, low_rate, high_rate, tbody);
+    auto R = make_shared<FalloffReaction2>(reac, prod, low_rate, high_rate, tbody);
     R->falloff = newFalloff("Troe", falloff_params);
     kin.addReaction(R);
     check_rates(2);
@@ -133,14 +135,14 @@ TEST_F(KineticsFromScratch, add_plog_reaction)
     //                [(100.0, 'atm'), 5.963200e+56, -11.529, 52599.6])
     Composition reac = parseCompString("H2:1, O2:1");
     Composition prod = parseCompString("OH:2");
-    std::multimap<double, Arrhenius> rates {
-        { 0.01*101325, Arrhenius(1.212400e+16, -0.5779, 10872.7 / GasConst_cal_mol_K) },
-        { 1.0*101325, Arrhenius(4.910800e+31, -4.8507, 24772.8 / GasConst_cal_mol_K) },
-        { 10.0*101325, Arrhenius(1.286600e+47, -9.0246, 39796.5 / GasConst_cal_mol_K) },
-        { 100.0*101325, Arrhenius(5.963200e+56, -11.529, 52599.6 / GasConst_cal_mol_K) }
+    std::multimap<double, Arrhenius2> rates {
+        { 0.01*101325, Arrhenius2(1.212400e+16, -0.5779, 10872.7 / GasConst_cal_mol_K) },
+        { 1.0*101325, Arrhenius2(4.910800e+31, -4.8507, 24772.8 / GasConst_cal_mol_K) },
+        { 10.0*101325, Arrhenius2(1.286600e+47, -9.0246, 39796.5 / GasConst_cal_mol_K) },
+        { 100.0*101325, Arrhenius2(5.963200e+56, -11.529, 52599.6 / GasConst_cal_mol_K) }
     };
 
-    auto R = make_shared<PlogReaction>(reac, prod, Plog(rates));
+    auto R = make_shared<PlogReaction2>(reac, prod, Plog(rates));
     kin.addReaction(R);
     check_rates(3);
 }
@@ -149,14 +151,14 @@ TEST_F(KineticsFromScratch, plog_invalid_rate)
 {
     Composition reac = parseCompString("H2:1, O2:1");
     Composition prod = parseCompString("OH:2");
-    std::multimap<double, Arrhenius> rates {
-        { 0.01*101325, Arrhenius(1.2124e+16, -0.5779, 10872.7 / GasConst_cal_mol_K) },
-        { 10.0*101325, Arrhenius(1e15, -1, 10000 / GasConst_cal_mol_K) },
-        { 10.0*101325, Arrhenius(-2e20, -2.0, 20000 / GasConst_cal_mol_K) },
-        { 100.0*101325, Arrhenius(5.9632e+56, -11.529, 52599.6 / GasConst_cal_mol_K) }
+    std::multimap<double, Arrhenius2> rates {
+        { 0.01*101325, Arrhenius2(1.2124e+16, -0.5779, 10872.7 / GasConst_cal_mol_K) },
+        { 10.0*101325, Arrhenius2(1e15, -1, 10000 / GasConst_cal_mol_K) },
+        { 10.0*101325, Arrhenius2(-2e20, -2.0, 20000 / GasConst_cal_mol_K) },
+        { 100.0*101325, Arrhenius2(5.9632e+56, -11.529, 52599.6 / GasConst_cal_mol_K) }
     };
 
-    auto R = make_shared<PlogReaction>(reac, prod, Plog(rates));
+    auto R = make_shared<PlogReaction2>(reac, prod, Plog(rates));
     ASSERT_THROW(kin.addReaction(R), CanteraError);
 }
 
@@ -185,9 +187,9 @@ TEST_F(KineticsFromScratch, add_chebyshev_reaction)
     coeffs(2,1) = 2.6889e-01;
     coeffs(2,2) = 9.4806e-02;
     coeffs(2,3) = -7.6385e-03;
-    ChebyshevRate rate(290, 3000, 1000.0, 10000000.0, coeffs);
+    ChebyshevRate rate(290., 3000., 1000.0, 10000000.0, coeffs);
 
-    auto R = make_shared<ChebyshevReaction>(reac, prod, rate);
+    auto R = make_shared<ChebyshevReaction2>(reac, prod, rate);
     kin.addReaction(R);
     check_rates(4);
 }
@@ -196,8 +198,8 @@ TEST_F(KineticsFromScratch, undeclared_species)
 {
     Composition reac = parseCompString("CO:1 OH:1");
     Composition prod = parseCompString("CO2:1 H:1");
-    Arrhenius rate(3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
-    auto R = make_shared<ElementaryReaction>(reac, prod, rate);
+    Arrhenius2 rate(3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
+    auto R = make_shared<ElementaryReaction2>(reac, prod, rate);
 
     ASSERT_THROW(kin.addReaction(R), CanteraError);
     ASSERT_EQ((size_t) 0, kin.nReactions());
@@ -207,8 +209,8 @@ TEST_F(KineticsFromScratch, skip_undeclared_species)
 {
     Composition reac = parseCompString("CO:1 OH:1");
     Composition prod = parseCompString("CO2:1 H:1");
-    Arrhenius rate(3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
-    auto R = make_shared<ElementaryReaction>(reac, prod, rate);
+    Arrhenius2 rate(3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
+    auto R = make_shared<ElementaryReaction2>(reac, prod, rate);
 
     kin.skipUndeclaredSpecies(true);
     kin.addReaction(R);
@@ -219,8 +221,8 @@ TEST_F(KineticsFromScratch, negative_A_error)
 {
     Composition reac = parseCompString("O:1 H2:1");
     Composition prod = parseCompString("H:1 OH:1");
-    Arrhenius rate(-3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
-    auto R = make_shared<ElementaryReaction>(reac, prod, rate);
+    Arrhenius2 rate(-3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
+    auto R = make_shared<ElementaryReaction2>(reac, prod, rate);
 
     ASSERT_THROW(kin.addReaction(R), CanteraError);
     ASSERT_EQ((size_t) 0, kin.nReactions());
@@ -230,8 +232,8 @@ TEST_F(KineticsFromScratch, allow_negative_A)
 {
     Composition reac = parseCompString("O:1 H2:1");
     Composition prod = parseCompString("H:1 OH:1");
-    Arrhenius rate(-3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
-    auto R = make_shared<ElementaryReaction>(reac, prod, rate);
+    Arrhenius2 rate(-3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
+    auto R = make_shared<ElementaryReaction2>(reac, prod, rate);
     R->allow_negative_pre_exponential_factor = true;
 
     kin.addReaction(R);
@@ -242,8 +244,8 @@ TEST_F(KineticsFromScratch, invalid_reversible_with_orders)
 {
     Composition reac = parseCompString("O:1 H2:1");
     Composition prod = parseCompString("H:1 OH:1");
-    Arrhenius rate(3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
-    auto R = make_shared<ElementaryReaction>(reac, prod, rate);
+    Arrhenius2 rate(3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
+    auto R = make_shared<ElementaryReaction2>(reac, prod, rate);
     R->orders["H2"] = 0.5;
 
     ASSERT_THROW(kin.addReaction(R), CanteraError);
@@ -254,8 +256,8 @@ TEST_F(KineticsFromScratch, negative_order_override)
 {
     Composition reac = parseCompString("O:1 H2:1");
     Composition prod = parseCompString("H:1 OH:1");
-    Arrhenius rate(3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
-    auto R = make_shared<ElementaryReaction>(reac, prod, rate);
+    Arrhenius2 rate(3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
+    auto R = make_shared<ElementaryReaction2>(reac, prod, rate);
     R->reversible = false;
     R->allow_negative_orders = true;
     R->orders["H2"] = - 0.5;
@@ -268,8 +270,8 @@ TEST_F(KineticsFromScratch, invalid_negative_orders)
 {
     Composition reac = parseCompString("O:1 H2:1");
     Composition prod = parseCompString("H:1 OH:1");
-    Arrhenius rate(3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
-    auto R = make_shared<ElementaryReaction>(reac, prod, rate);
+    Arrhenius2 rate(3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
+    auto R = make_shared<ElementaryReaction2>(reac, prod, rate);
     R->reversible = false;
     R->orders["H2"] = - 0.5;
 
@@ -281,8 +283,8 @@ TEST_F(KineticsFromScratch, nonreactant_order_override)
 {
     Composition reac = parseCompString("O:1 H2:1");
     Composition prod = parseCompString("H:1 OH:1");
-    Arrhenius rate(3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
-    auto R = make_shared<ElementaryReaction>(reac, prod, rate);
+    Arrhenius2 rate(3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
+    auto R = make_shared<ElementaryReaction2>(reac, prod, rate);
     R->reversible = false;
     R->allow_nonreactant_orders = true;
     R->orders["OH"] = 0.5;
@@ -295,8 +297,8 @@ TEST_F(KineticsFromScratch, invalid_nonreactant_order)
 {
     Composition reac = parseCompString("O:1 H2:1");
     Composition prod = parseCompString("H:1 OH:1");
-    Arrhenius rate(3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
-    auto R = make_shared<ElementaryReaction>(reac, prod, rate);
+    Arrhenius2 rate(3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
+    auto R = make_shared<ElementaryReaction2>(reac, prod, rate);
     R->reversible = false;
     R->orders["OH"] = 0.5;
 
@@ -308,13 +310,12 @@ class InterfaceKineticsFromScratch : public testing::Test
 {
 public:
     InterfaceKineticsFromScratch()
-        : gas("../data/sofc-test.xml", "gas")
-        , gas_ref("../data/sofc-test.xml", "gas")
-        , surf("../data/sofc-test.xml", "metal_surface")
-        , surf_ref("../data/sofc-test.xml", "metal_surface")
+        : gas("sofc.yaml", "gas")
+        , gas_ref("sofc.yaml", "gas")
+        , surf("sofc.yaml", "metal_surface")
+        , surf_ref("sofc.yaml", "metal_surface")
     {
-        std::vector<ThermoPhase*> th = { &surf_ref, &gas_ref };
-        importKinetics(surf_ref.xml(), th, &kin_ref);
+        kin_ref = newKinetics({&surf_ref, &gas_ref}, "sofc.yaml", "metal_surface");
         kin.addPhase(surf);
         kin.addPhase(gas);
     }
@@ -324,7 +325,7 @@ public:
     SurfPhase surf;
     SurfPhase surf_ref;
     InterfaceKinetics kin;
-    InterfaceKinetics kin_ref;
+    unique_ptr<Kinetics> kin_ref;
 
     //! iRef is the index of the corresponding reaction in the reference mech
     void check_rates(int iRef) {
@@ -339,14 +340,14 @@ public:
         surf.setCoveragesByName(Xs);
         surf_ref.setCoveragesByName(Xs);
 
-        vector_fp k(1), k_ref(kin_ref.nReactions());
+        vector_fp k(1), k_ref(kin_ref->nReactions());
 
         kin.getFwdRateConstants(&k[0]);
-        kin_ref.getFwdRateConstants(&k_ref[0]);
+        kin_ref->getFwdRateConstants(&k_ref[0]);
         EXPECT_DOUBLE_EQ(k_ref[iRef], k[0]);
 
         kin.getRevRateConstants(&k[0]);
-        kin_ref.getRevRateConstants(&k_ref[0]);
+        kin_ref->getRevRateConstants(&k_ref[0]);
         EXPECT_DOUBLE_EQ(k_ref[iRef], k[0]);
     }
 };
@@ -358,9 +359,9 @@ TEST_F(InterfaceKineticsFromScratch, add_surface_reaction)
     //                   [5.00000E+22, 0, 100.0], id = 'metal-rxn4')
     Composition reac = parseCompString("H(m):1 O(m):1");
     Composition prod = parseCompString("OH(m):1 (m):1");
-    Arrhenius rate(5e21, 0, 100.0e6 / GasConstant); // kJ/mol -> J/kmol
+    Arrhenius2 rate(5e21, 0, 100.0e6 / GasConstant); // kJ/mol -> J/kmol
 
-    auto R = make_shared<InterfaceReaction>(reac, prod, rate);
+    auto R = make_shared<InterfaceReaction2>(reac, prod, rate);
     kin.addReaction(R);
     check_rates(3);
 }
@@ -372,9 +373,9 @@ TEST_F(InterfaceKineticsFromScratch, add_sticking_reaction)
     //                   stick(0.1, 0, 0), id = 'metal-rxn1')
     Composition reac = parseCompString("H2:1 (m):2");
     Composition prod = parseCompString("H(m):2");
-    Arrhenius rate(0.1, 0, 0.0);
+    Arrhenius2 rate(0.1, 0, 0.0);
 
-    auto R = make_shared<InterfaceReaction>(reac, prod, rate, true);
+    auto R = make_shared<InterfaceReaction2>(reac, prod, rate, true);
     kin.addReaction(R);
     check_rates(0);
 }
@@ -383,9 +384,9 @@ TEST_F(InterfaceKineticsFromScratch, unbalanced_sites)
 {
     Composition reac = parseCompString("H(m):1 O(m):1");
     Composition prod = parseCompString("OH(m):1");
-    Arrhenius rate(5e21, 0, 100.0e6 / GasConstant);
+    Arrhenius2 rate(5e21, 0, 100.0e6 / GasConstant);
 
-    auto R = make_shared<InterfaceReaction>(reac, prod, rate);
+    auto R = make_shared<InterfaceReaction2>(reac, prod, rate);
     ASSERT_THROW(kin.addReaction(R), CanteraError);
 }
 
@@ -393,67 +394,68 @@ class KineticsAddSpecies : public testing::Test
 {
 public:
     KineticsAddSpecies()
-        : p_ref("../data/kineticsfromscratch.cti")
+        : p_ref("../data/kineticsfromscratch.yaml")
     {
-        std::vector<ThermoPhase*> th;
-        th.push_back(&p_ref);
-        importKinetics(p_ref.xml(), th, &kin_ref);
+        kin_ref = newKinetics({&p_ref}, "../data/kineticsfromscratch.yaml", "ohmech");
         kin.addPhase(p);
 
-        std::vector<shared_ptr<Species>> S = getSpecies(*get_XML_File("h2o2.cti"));
+        std::vector<shared_ptr<Species>> S = getSpecies(
+            AnyMap::fromYamlFile("h2o2.yaml")["species"]);
         for (auto sp : S) {
             species[sp->name] = sp;
         }
-        reactions = getReactions(*get_XML_File("../data/kineticsfromscratch.cti"));
+        reactions = getReactions(
+            AnyMap::fromYamlFile("../data/kineticsfromscratch.yaml")["reactions"],
+            *kin_ref);
     }
 
     IdealGasPhase p;
     IdealGasPhase p_ref;
     GasKinetics kin;
-    GasKinetics kin_ref;
+    unique_ptr<Kinetics> kin_ref;
     std::vector<shared_ptr<Reaction>> reactions;
     std::map<std::string, shared_ptr<Species>> species;
 
     void check_rates(size_t N, const std::string& X) {
-        for (size_t i = 0; i < kin_ref.nReactions(); i++) {
+        for (size_t i = 0; i < kin_ref->nReactions(); i++) {
             if (i >= N) {
-                kin_ref.setMultiplier(i, 0);
+                kin_ref->setMultiplier(i, 0);
             } else {
-                kin_ref.setMultiplier(i, 1);
+                kin_ref->setMultiplier(i, 1);
             }
         }
         p.setState_TPX(1200, 5*OneAtm, X);
         p_ref.setState_TPX(1200, 5*OneAtm, X);
 
-        vector_fp k(kin.nReactions()), k_ref(kin_ref.nReactions());
-        vector_fp w(kin.nTotalSpecies()), w_ref(kin_ref.nTotalSpecies());
+        vector_fp k(kin.nReactions()), k_ref(kin_ref->nReactions());
+        vector_fp w(kin.nTotalSpecies()), w_ref(kin_ref->nTotalSpecies());
 
         kin.getFwdRateConstants(k.data());
-        kin_ref.getFwdRateConstants(k_ref.data());
+        kin_ref->getFwdRateConstants(k_ref.data());
         for (size_t i = 0; i < kin.nReactions(); i++) {
             EXPECT_DOUBLE_EQ(k_ref[i], k[i]) << "i = " << i << "; N = " << N;
         }
 
         kin.getFwdRatesOfProgress(k.data());
-        kin_ref.getFwdRatesOfProgress(k_ref.data());
+        kin_ref->getFwdRatesOfProgress(k_ref.data());
         for (size_t i = 0; i < kin.nReactions(); i++) {
             EXPECT_DOUBLE_EQ(k_ref[i], k[i]) << "i = " << i << "; N = " << N;
         }
 
         kin.getRevRateConstants(k.data());
-        kin_ref.getRevRateConstants(k_ref.data());
+        kin_ref->getRevRateConstants(k_ref.data());
         for (size_t i = 0; i < kin.nReactions(); i++) {
             EXPECT_DOUBLE_EQ(k_ref[i], k[i]) << "i = " << i << "; N = " << N;
         }
 
         kin.getRevRatesOfProgress(k.data());
-        kin_ref.getRevRatesOfProgress(k_ref.data());
+        kin_ref->getRevRatesOfProgress(k_ref.data());
         for (size_t i = 0; i < kin.nReactions(); i++) {
             EXPECT_DOUBLE_EQ(k_ref[i], k[i]) << "i = " << i << "; N = " << N;
         }
 
         kin.getCreationRates(w.data());
-        kin_ref.getCreationRates(w_ref.data());
+        kin_ref->getCreationRates(w_ref.data());
         for (size_t i = 0; i < kin.nTotalSpecies(); i++) {
             size_t iref = p_ref.speciesIndex(p.speciesName(i));
             EXPECT_DOUBLE_EQ(w_ref[iref], w[i]) << "sp = " << p.speciesName(i) << "; N = " << N;

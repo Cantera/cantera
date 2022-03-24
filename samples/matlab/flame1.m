@@ -72,7 +72,7 @@ setMaxJacAge(fl, max_jacobian_age(1),  max_jacobian_age(2));
 
 % if the starting solution is to be read from a previously-saved
 % solution, uncomment this line and edit the file name and solution id.
-%restore(fl,'h2flame2.xml', 'energy')
+%restore(fl,'h2flame.yaml', 'energy')
 
 solve(fl, loglevel, refine_grid);
 
@@ -86,7 +86,7 @@ solve(fl, loglevel, refine_grid);
 enableEnergy(f);
 setRefineCriteria(fl, 2, 200.0, 0.05, 0.1);
 solve(fl, 1, 1);
-saveSoln(fl,'h2fl.xml','energy',['solution with energy equation']);
+saveSoln(fl,'h2flame.yaml','energy',['solution with energy equation']);
 
 %%%%%%%%%% show statistics %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 writeStats(fl);

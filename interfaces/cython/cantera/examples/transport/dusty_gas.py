@@ -4,7 +4,7 @@ Dusty Gas transport model.
 The Dusty Gas model is a multicomponent transport model for gas transport
 through the pores of a stationary porous medium. This example shows how to
 create a transport manager that implements the Dusty Gas model and use it to
-compute the multicomponent diffusion coefficients.
+compute the multicomponent diffusion coefficients and thermal conductivity.
 
 Requires:  cantera >= 2.5.0
 """
@@ -28,6 +28,9 @@ g.mean_particle_diameter = 1.5e-6  # lengths in meters
 
 # print the multicomponent diffusion coefficients
 print(g.multi_diff_coeffs)
+
+# print the thermal conductivity of the gas phase
+print(g.thermal_conductivity)
 
 # compute molar species fluxes
 T1, rho1, Y1 = g.TDY

@@ -119,9 +119,16 @@ public:
         throw NotImplementedError("MixtureFugacityTP::getdlnActCoeffdlnN_diag");
     }
 
-    //@}
-    /// @name  Partial Molar Properties of the Solution
-    //@{
+    //! @}
+    //! @name Molar Thermodynamic properties
+    //! @{
+
+    virtual double enthalpy_mole() const;
+    virtual double entropy_mole() const;
+
+    //! @}
+    //! @name  Partial Molar Properties of the Solution
+    //! @{
 
     //! Get the array of non-dimensional species chemical potentials
     //! These are partial molar Gibbs free energies.
@@ -137,7 +144,7 @@ public:
      */
     virtual void getChemPotentials_RT(doublereal* mu) const;
 
-    //@}
+    //! @}
     /*!
      * @name  Properties of the Standard State of the Species in the Solution
      *
@@ -146,7 +153,7 @@ public:
      * inherited objects. The values are cached within this object, and are not
      * recalculated unless the temperature or pressure changes.
      */
-    //@{
+    //! @{
 
     //! Get the array of chemical potentials at unit activity.
     /*!
@@ -251,7 +258,7 @@ public:
      *            units =  m^3 / kmol
      */
     virtual void getStandardVolumes(doublereal* vol) const;
-    // @}
+    //! @}
 
     //! Set the temperature of the phase
     /*!
@@ -273,36 +280,8 @@ public:
     virtual void setPressure(doublereal p);
 
 protected:
-    /**
-     * Calculate the density of the mixture using the partial molar volumes and
-     * mole fractions as input
-     *
-     * The formula for this is
-     *
-     * \f[
-     *     \rho = \frac{\sum_k{X_k W_k}}{\sum_k{X_k V_k}}
-     * \f]
-     *
-     * where \f$X_k\f$ are the mole fractions, \f$W_k\f$ are the molecular
-     * weights, and \f$V_k\f$ are the pure species molar volumes.
-     *
-     * Note, the basis behind this formula is that in an ideal solution the
-     * partial molar volumes are equal to the pure species molar volumes. We
-     * have additionally specified in this class that the pure species molar
-     * volumes are independent of temperature and pressure.
-     */
-    virtual void calcDensity();
-
-public:
-    virtual void setState_TP(doublereal T, doublereal pres);
-    virtual void setState_TR(doublereal T, doublereal rho);
-    virtual void setState_TPX(doublereal t, doublereal p, const doublereal* x);
-
-protected:
     virtual void compositionChanged();
-    void setMoleFractions_NoState(const doublereal* const x);
 
-protected:
     //! Updates the reference state thermodynamic functions at the current T of
     //! the solution.
     /*!
@@ -318,6 +297,9 @@ protected:
      *  -  m_s0_R;
      */
     virtual void _updateReferenceStateThermo() const;
+
+    //! Temporary storage - length = m_kk.
+    mutable vector_fp m_tmpV;
 public:
 
     /// @name Thermodynamic Values for the Species Reference States
@@ -328,7 +310,7 @@ public:
      * made using the previous temperature. All calculations are done within the
      * routine _updateRefStateThermo().
      */
-    //@{
+    //! @{
 
     virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
     virtual void getGibbs_RT_ref(doublereal* grt) const;
@@ -350,7 +332,7 @@ public:
     virtual void getCp_R_ref(doublereal* cprt) const;
     virtual void getStandardVolumes_ref(doublereal* vol) const;
 
-    //@}
+    //! @}
     //! @name Initialization Methods - For Internal use
     /*!
      * The following methods are used in the process of constructing
@@ -358,10 +340,10 @@ public:
      * input file. They are not normally used in application programs.
      * To see how they are used, see importPhase().
      */
-    //@{
-
+    //! @{
     virtual bool addSpecies(shared_ptr<Species> spec);
     virtual void setStateFromXML(const XML_Node& state);
+    //! @}
 
 protected:
     //! @name Special Functions for fugacity classes
@@ -429,8 +411,6 @@ public:
      * vapor dome in this. This is protected because it is called during
      * setState_TP() routines. Infinite loops would result if it were not
      * protected.
-     *
-     *  -> why is this not const?
      *
      * @param TKelvin   Temperature in Kelvin
      * @param pressure  Pressure in Pascals (Newton/m**2)
@@ -509,16 +489,9 @@ public:
      * @return          The saturation pressure at the given temperature
      */
     virtual doublereal satPressure(doublereal TKelvin);
+    virtual void getActivityConcentrations(double* c) const;
 
 protected:
-    //! Calculate the pressure given the temperature and the molar volume
-    /*!
-     * @param   TKelvin   temperature in kelvin
-     * @param   molarVol  molar volume ( m3/kmol)
-     * @returns the pressure.
-     */
-    virtual doublereal pressureCalc(doublereal TKelvin, doublereal molarVol) const;
-
     //! Calculate the pressure and the pressure derivative given the temperature
     //! and the molar volume
     /*!
@@ -533,10 +506,47 @@ protected:
 
     virtual void updateMixingExpressions();
 
-    //@}
+    //! @}
+    //! @name Critical State Properties.
+    //! @{
 
-protected:
-    virtual void invalidateCache();
+    virtual double critTemperature() const;
+    virtual double critPressure() const;
+    virtual double critVolume() const;
+    virtual double critCompressibility() const;
+    virtual double critDensity() const;
+    virtual void calcCriticalConditions(double& pc, double& tc, double& vc) const;
+
+    //! Solve the cubic equation of state
+    /*!
+     *
+     * Returns the number of solutions found. For the gas phase solution, it returns
+     * a positive number (1 or 2). If it only finds the liquid branch solution,
+     * it will return -1 or -2 instead of 1 or 2.
+     * If it returns 0, then there is an error.
+     * The cubic equation is solved using Nickall's method
+     * (Ref: The Mathematical Gazette(1993), 77(November), 354--359,
+     *  https://www.jstor.org/stable/3619777)
+     *
+     * @param   T         temperature (kelvin)
+     * @param   pres      pressure (Pa)
+     * @param   a         "a" parameter in the non-ideal EoS [Pa-m^6/kmol^2]
+     * @param   b         "b" parameter in the non-ideal EoS [m^3/kmol]
+     * @param   aAlpha    a*alpha (temperature dependent function for P-R EoS, 1 for R-K EoS)
+     * @param   Vroot     Roots of the cubic equation for molar volume (m3/kmol)
+     * @param   an        constant used in cubic equation
+     * @param   bn        constant used in cubic equation
+     * @param   cn        constant used in cubic equation
+     * @param   dn        constant used in cubic equation
+     * @param   tc        Critical temperature (kelvin)
+     * @param   vc        Critical volume
+     * @returns the number of solutions found
+     */
+    int solveCubic(double T, double pres, double a, double b,
+                   double aAlpha, double Vroot[3], double an,
+                   double bn, double cn, double dn, double tc, double vc) const;
+
+    //! @}
 
     //! Storage for the current values of the mole fractions of the species
     /*!
@@ -555,10 +565,6 @@ protected:
 
     //! Force the system to be on a particular side of the spinodal curve
     int forcedState_;
-
-    //! The last temperature at which the reference state thermodynamic
-    //! properties were calculated at.
-    mutable doublereal m_Tlast_ref;
 
     //! Temporary storage for dimensionless reference state enthalpies
     mutable vector_fp m_h0_RT;

@@ -10,6 +10,7 @@
 #include "cantera/zeroD/ConstPressureReactor.h"
 #include "cantera/zeroD/IdealGasReactor.h"
 #include "cantera/zeroD/IdealGasConstPressureReactor.h"
+#include "cantera/zeroD/ReactorDelegator.h"
 
 using namespace std;
 namespace Cantera
@@ -28,29 +29,18 @@ ReactorFactory::ReactorFactory()
     reg("FlowReactor", []() { return new FlowReactor(); });
     reg("IdealGasReactor", []() { return new IdealGasReactor(); });
     reg("IdealGasConstPressureReactor", []() { return new IdealGasConstPressureReactor(); });
-
-    // only used by clib
-    reg_type("Reservoir", ReservoirType);
-    reg_type("Reactor", ReactorType);
-    reg_type("ConstPressureReactor", ConstPressureReactorType);
-    reg_type("FlowReactor", FlowReactorType);
-    reg_type("IdealGasReactor", IdealGasReactorType);
-    reg_type("IdealGasConstPressureReactor", IdealGasConstPressureReactorType);
+    reg("ExtensibleReactor", []() { return new ReactorDelegator<Reactor>(); });
+    reg("ExtensibleIdealGasReactor",
+        []() { return new ReactorDelegator<IdealGasReactor>(); });
+    reg("ExtensibleConstPressureReactor",
+        []() { return new ReactorDelegator<ConstPressureReactor>(); });
+    reg("ExtensibleIdealGasConstPressureReactor",
+        []() { return new ReactorDelegator<IdealGasConstPressureReactor>(); });
 }
 
 ReactorBase* ReactorFactory::newReactor(const std::string& reactorType)
 {
     return create(reactorType);
-}
-
-ReactorBase* ReactorFactory::newReactor(int ir)
-{
-    try {
-        return create(m_types.at(ir));
-    } catch (out_of_range&) {
-        throw CanteraError("ReactorFactory::newReactor",
-                           "unknown reactor type!");
-    }
 }
 
 }

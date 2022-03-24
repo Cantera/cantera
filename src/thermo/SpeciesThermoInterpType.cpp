@@ -52,6 +52,23 @@ void SpeciesThermoInterpType::reportParameters(size_t& index, int& type,
     throw NotImplementedError("SpeciesThermoInterpType::reportParameters");
 }
 
+AnyMap SpeciesThermoInterpType::parameters(bool withInput) const
+{
+    AnyMap out;
+    getParameters(out);
+    if (withInput) {
+        out.update(m_input);
+    }
+    return out;
+}
+
+void SpeciesThermoInterpType::getParameters(AnyMap& thermo) const
+{
+    if (m_Pref != OneAtm && reportType() != 0) {
+        thermo["reference-pressure"].setQuantity(m_Pref, "Pa");
+    }
+}
+
 doublereal SpeciesThermoInterpType::reportHf298(doublereal* const h298) const
 {
     throw NotImplementedError("SpeciesThermoInterpType::reportHf298");
@@ -61,6 +78,16 @@ void SpeciesThermoInterpType::modifyOneHf298(const size_t k,
                                              const doublereal Hf298New)
 {
     throw NotImplementedError("SpeciesThermoInterpType::modifyOneHf298");
+}
+
+const AnyMap& SpeciesThermoInterpType::input() const
+{
+    return m_input;
+}
+
+AnyMap& SpeciesThermoInterpType::input()
+{
+    return m_input;
 }
 
 }

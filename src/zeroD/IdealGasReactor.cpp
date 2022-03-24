@@ -6,6 +6,9 @@
 #include "cantera/zeroD/IdealGasReactor.h"
 #include "cantera/zeroD/FlowDevice.h"
 #include "cantera/zeroD/Wall.h"
+#include "cantera/kinetics/Kinetics.h"
+#include "cantera/thermo/ThermoPhase.h"
+#include "cantera/base/utilities.h"
 
 using namespace std;
 
@@ -14,7 +17,7 @@ namespace Cantera
 
 void IdealGasReactor::setThermoMgr(ThermoPhase& thermo)
 {
-    //! @TODO: Add a method to ThermoPhase that indicates whether a given
+    //! @todo: Add a method to ThermoPhase that indicates whether a given
     //! subclass is compatible with this reactor model
     if (thermo.type() != "IdealGas") {
         throw CanteraError("IdealGasReactor::setThermoMgr",
@@ -64,19 +67,17 @@ void IdealGasReactor::updateState(doublereal* y)
     m_vol = y[1];
     m_thermo->setMassFractions_NoNorm(y+3);
     m_thermo->setState_TR(y[2], m_mass / m_vol);
-    updateSurfaceState(y + m_nsp + 3);
     updateConnected(true);
+    updateSurfaceState(y + m_nsp + 3);
 }
 
-void IdealGasReactor::evalEqs(doublereal time, doublereal* y,
-                      doublereal* ydot, doublereal* params)
+void IdealGasReactor::eval(double time, double* LHS, double* RHS)
 {
-    double dmdt = 0.0; // dm/dt (gas phase)
-    double mcvdTdt = 0.0; // m * c_v * dT/dt
-    double* dYdt = ydot + 3;
+    double& dmdt = RHS[0]; // dm/dt (gas phase)
+    double& mcvdTdt = RHS[2]; // m * c_v * dT/dt
+    double* mdYdt = RHS + 3; // mass * dY/dt
 
     evalWalls(time);
-    applySensitivity(params);
     m_thermo->restoreState(m_state);
     m_thermo->getPartialMolarIntEnergies(&m_uk[0]);
     const vector_fp& mw = m_thermo->molecularWeights();
@@ -86,20 +87,23 @@ void IdealGasReactor::evalEqs(doublereal time, doublereal* y,
         m_kin->getNetProductionRates(&m_wdot[0]); // "omega dot"
     }
 
-    double mdot_surf = evalSurfaces(time, ydot + m_nsp + 3);
+    evalSurfaces(LHS + m_nsp + 3, RHS + m_nsp + 3, m_sdot.data());
+    double mdot_surf = dot(m_sdot.begin(), m_sdot.end(), mw.begin());
     dmdt += mdot_surf;
 
     // compression work and external heat transfer
-    mcvdTdt += - m_pressure * m_vdot - m_Q;
+    mcvdTdt += - m_pressure * m_vdot + m_Qdot;
 
     for (size_t n = 0; n < m_nsp; n++) {
         // heat release from gas phase and surface reactions
         mcvdTdt -= m_wdot[n] * m_uk[n] * m_vol;
         mcvdTdt -= m_sdot[n] * m_uk[n];
         // production in gas phase and from surfaces
-        dYdt[n] = (m_wdot[n] * m_vol + m_sdot[n]) * mw[n] / m_mass;
+        mdYdt[n] = (m_wdot[n] * m_vol + m_sdot[n]) * mw[n];
         // dilution by net surface mass flux
-        dYdt[n] -= Y[n] * mdot_surf / m_mass;
+        mdYdt[n] -= Y[n] * mdot_surf;
+        //Assign left-hand side of dYdt ODE as total mass
+        LHS[n+3] = m_mass;
     }
 
     // add terms for outlets
@@ -117,7 +121,7 @@ void IdealGasReactor::evalEqs(doublereal time, doublereal* y,
         for (size_t n = 0; n < m_nsp; n++) {
             double mdot_spec = inlet->outletSpeciesMassFlowRate(n);
             // flow of species into system and dilution by other species
-            dYdt[n] += (mdot_spec - mdot * Y[n]) / m_mass;
+            mdYdt[n] += mdot_spec - mdot * Y[n];
 
             // In combination with h_in*mdot_in, flow work plus thermal
             // energy carried with the species
@@ -125,15 +129,12 @@ void IdealGasReactor::evalEqs(doublereal time, doublereal* y,
         }
     }
 
-    ydot[0] = dmdt;
-    ydot[1] = m_vdot;
+    RHS[1] = m_vdot;
     if (m_energy) {
-        ydot[2] = mcvdTdt / (m_mass * m_thermo->cv_mass());
+        LHS[2] = m_mass * m_thermo->cv_mass();
     } else {
-        ydot[2] = 0;
+        RHS[2] = 0;
     }
-
-    resetSensitivity(params);
 }
 
 size_t IdealGasReactor::componentIndex(const string& nm) const

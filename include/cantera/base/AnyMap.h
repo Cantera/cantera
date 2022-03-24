@@ -7,19 +7,22 @@
 #define CT_ANYMAP_H
 
 #include "cantera/base/ct_defs.h"
-#include "cantera/base/global.h"
-#include "cantera/base/Units.h"
 #include "cantera/base/ctexceptions.h"
+#include "cantera/base/Units.h"
 
-#include <string>
-#include <vector>
-#include <memory>
 #include <unordered_map>
 #include <functional>
 
 namespace boost
 {
 class any;
+}
+
+namespace YAML
+{
+class Emitter;
+Emitter& operator<<(Emitter& out, const Cantera::AnyMap& rhs);
+Emitter& operator<<(Emitter& out, const Cantera::AnyValue& rhs);
 }
 
 namespace Cantera
@@ -42,10 +45,12 @@ public:
     const AnyValue& getMetadata(const std::string& key) const;
 
 protected:
-    //! Line where this node occurs in the input file
+    //! The line where this value occurs in the input file. Set to -1 for values
+    //! that weren't created from an input file.
     int m_line;
 
-    //! Column where this node occurs in the input file
+    //! If m_line >= 0, the column where this value occurs in the input file.
+    //! If m_line == -1, a value used for determining output ordering
     int m_column;
 
     //! Metadata relevant to an entire AnyMap tree, such as information about
@@ -53,6 +58,8 @@ protected:
     shared_ptr<AnyMap> m_metadata;
 
     friend class InputFileError;
+    friend void warn_deprecated(const std::string& source, const AnyBase& node,
+                                const std::string& message);
 };
 
 class AnyMap;
@@ -114,6 +121,9 @@ public:
     //! Returns a string specifying the type of the held value.
     std::string type_str() const;
 
+    //! Return boolean indicating whether AnyValue is empty.
+    bool empty() const;
+
     //! Returns `true` if the held value is of the specified type.
     template<class T>
     bool is() const;
@@ -132,6 +142,33 @@ public:
     bool operator!=(const std::string& other) const;
     friend bool operator==(const std::string& lhs, const AnyValue& rhs);
     friend bool operator!=(const std::string& lhs, const AnyValue& rhs);
+
+    //! @name Quantity conversions
+    //! Assign a quantity consisting of one or more values and their
+    //! corresponding units, which will be converted to a target unit system
+    //! when the applyUnits() function is later called on the root of the
+    //! AnyMap.
+    //! @{
+
+    //! Assign a scalar quantity with units as a string, for example
+    //! `{3.0, "m^2"}`. If the `is_act_energy` flag is set to `true`, the units
+    //! will be converted using the special rules for activation energies.
+    void setQuantity(double value, const std::string& units, bool is_act_energy=false);
+
+    //! Assign a scalar quantity with units as a Units object, for cases where
+    //! the units vary and are determined dynamically, such as reaction
+    //! pre-exponential factors
+    void setQuantity(double value, const Units& units);
+
+    //! Assign a vector where all the values have the same units
+    void setQuantity(const vector_fp& values, const std::string& units);
+
+    typedef std::function<void(AnyValue&, const UnitSystem&)> unitConverter;
+
+    //! Assign a value of any type where the unit conversion requires a
+    //! different behavior besides scaling all values by the same factor
+    void setQuantity(const AnyValue& value, const unitConverter& converter);
+    //! @} end group quantity conversions
 
     explicit AnyValue(double value);
     AnyValue& operator=(double value);
@@ -221,12 +258,16 @@ public:
     //! Returns `true` when getMapWhere() would succeed
     bool hasMapWhere(const std::string& key, const std::string& value) const;
 
-    //! @see AnyMap::applyUnits
-    void applyUnits(const UnitSystem& units);
+    //! Return values used to determine the sort order when outputting to YAML
+    std::pair <int, int> order() const;
+
+    //! @see AnyMap::applyUnits(const UnitSystem&)
+    void applyUnits(shared_ptr<UnitSystem>& units);
+
+    //! @see AnyMap::setFlowStyle
+    void setFlowStyle(bool flow=true);
 
 private:
-    std::string demangle(const std::type_info& type) const;
-
     template<class T>
     void checkSize(const std::vector<T>& v, size_t nMin, size_t nMax) const;
 
@@ -235,10 +276,6 @@ private:
 
     //! The held value
     std::unique_ptr<boost::any> m_value;
-
-    //! Human-readable names for some common types, for use when
-    //! `boost::demangle` is not available.
-    static std::map<std::string, std::string> s_typenames;
 
     typedef bool (*Comparer)(const boost::any&, const boost::any&);
 
@@ -258,6 +295,8 @@ private:
     static bool vector2_eq(const boost::any& lhs, const boost::any& rhs);
 
     mutable Comparer m_equals;
+
+    friend YAML::Emitter& YAML::operator<<(YAML::Emitter& out, const AnyValue& rhs);
 };
 
 //! Implicit conversion to vector<AnyValue>
@@ -359,7 +398,7 @@ std::vector<AnyMap>& AnyValue::asVector<AnyMap>(size_t nMin, size_t nMax);
 class AnyMap : public AnyBase
 {
 public:
-    AnyMap(): m_units() {};
+    AnyMap();
 
     //! Create an AnyMap from a YAML file.
     /*!
@@ -373,13 +412,23 @@ public:
     //! Create an AnyMap from a string containing a YAML document
     static AnyMap fromYamlString(const std::string& yaml);
 
+    std::string toYamlString() const;
+
     //! Get the value of the item stored in `key`.
     AnyValue& operator[](const std::string& key);
     const AnyValue& operator[](const std::string& key) const;
 
+    //! Used to create a new item which will be populated from a YAML input
+    //! string, where the item with `key` occurs at the specified line and
+    //! column within the string.
+    AnyValue& createForYaml(const std::string& key, int line, int column);
+
     //! Get the value of the item stored in `key`. Raises an exception if the
     //! value does not exist.
     const AnyValue& at(const std::string& key) const;
+
+    //! Return boolean indicating whether AnyMap is empty.
+    bool empty() const;
 
     //! Returns `true` if the map contains an item named `key`.
     bool hasKey(const std::string& key) const;
@@ -390,6 +439,10 @@ public:
     //! Erase all items in the mapping
     void clear();
 
+    //! Add items from `other` to this AnyMap. If keys in `other` also exist in
+    //! this AnyMap, the `keepExisting` option determines which item is used.
+    void update(const AnyMap& other, bool keepExisting=true);
+
     //! Return a string listing the keys in this AnyMap, e.g. for use in error
     //! messages
     std::string keys_str() const;
@@ -397,6 +450,9 @@ public:
     //! Set a metadata value that applies to this AnyMap and its children.
     //! Mainly for internal use in reading or writing from files.
     void setMetadata(const std::string& key, const AnyValue& value);
+
+    //! Copy metadata including input line/column from an existing AnyMap
+    void copyMetadata(const AnyMap& other);
 
     //! Propagate metadata to any child elements
     void propagateMetadata(shared_ptr<AnyMap>& file);
@@ -451,6 +507,7 @@ public:
     //! skips over keys that start and end with double underscores.
     class Iterator {
     public:
+        Iterator() {}
         Iterator(const std::unordered_map<std::string, AnyValue>::const_iterator& start,
                  const std::unordered_map<std::string, AnyValue>::const_iterator& stop);
 
@@ -480,6 +537,55 @@ public:
         return Iterator(m_data.end(), m_data.end());
     }
 
+    class OrderedIterator;
+
+    //! Proxy for iterating over an AnyMap in the defined output ordering.
+    //! See ordered().
+    class OrderedProxy {
+    public:
+        OrderedProxy() {}
+        OrderedProxy(const AnyMap& data);
+        OrderedIterator begin() const;
+        OrderedIterator end() const;
+
+        typedef std::vector<std::pair<
+            std::pair<int, int>,
+            const std::pair<const std::string, AnyValue>*>> OrderVector;
+    private:
+        const AnyMap* m_data;
+        OrderVector m_ordered;
+        std::unique_ptr<std::pair<const std::string, AnyValue>> m_units;
+    };
+
+    //! Defined to allow the OrderedProxy class to be used with range-based
+    //! for loops.
+    class OrderedIterator {
+    public:
+        OrderedIterator() {}
+        OrderedIterator(const OrderedProxy::OrderVector::const_iterator& start,
+                        const OrderedProxy::OrderVector::const_iterator& stop);
+
+        const std::pair<const std::string, AnyValue>& operator*() const {
+            return *m_iter->second;
+        }
+        const std::pair<const std::string, AnyValue>* operator->() const {
+            return &(*m_iter->second);
+        }
+        bool operator!=(const OrderedIterator& right) const {
+            return m_iter != right.m_iter;
+        }
+        OrderedIterator& operator++() { ++m_iter; return *this; }
+
+    private:
+        OrderedProxy::OrderVector::const_iterator m_iter;
+        OrderedProxy::OrderVector::const_iterator m_stop;
+    };
+
+    // Return a proxy object that allows iteration in an order determined by the
+    // order of insertion, the location in an input file, and rules specified by
+    // the addOrderingRules() method.
+    OrderedProxy ordered() const { return OrderedProxy(*this); }
+
     //! Returns the number of elements in this map
     size_t size() const {
         return m_data.size();
@@ -489,7 +595,7 @@ public:
     bool operator!=(const AnyMap& other) const;
 
     //! Return the default units that should be used to convert stored values
-    const UnitSystem& units() const { return m_units; }
+    const UnitSystem& units() const { return *m_units; }
 
     //! Use the supplied UnitSystem to set the default units, and recursively
     //! process overrides from nodes named `units`.
@@ -500,28 +606,85 @@ public:
      * then the specified units are taken to be the defaults for all the maps in
      * the list.
      *
-     * After being processed, the `units` nodes are removed, so this function
-     * should be called only once, on the root AnyMap. This function is called
-     * automatically by the fromYamlFile() and fromYamlString() constructors.
+     * After being processed, the `units` nodes are removed. This function is
+     * called automatically by the fromYamlFile() and fromYamlString()
+     * constructors.
      *
      * @warning This function is an experimental part of the %Cantera API and
      *     may be changed or removed without notice.
      */
-    void applyUnits(const UnitSystem& units);
+    void applyUnits();
+
+    //! @see applyUnits(const UnitSystem&)
+    void applyUnits(shared_ptr<UnitSystem>& units);
+
+    //! Set the unit system for this AnyMap. The applyUnits() method should be
+    //! called on the root AnyMap object after all desired calls to setUnits()
+    //! in the tree have been made.
+    void setUnits(const UnitSystem& units);
+
+    //! Use "flow" style when outputting this AnyMap to YAML
+    void setFlowStyle(bool flow=true);
+
+    //! Add global rules for setting the order of elements when outputting
+    //! AnyMap objects to YAML
+    /*!
+     * Enables specifying keys that should appear at either the beginning
+     * or end of the generated YAML mapping. Only programmatically-added keys
+     * are rearranged. Keys which come from YAML input retain their existing
+     * ordering, and are output after programmatically-added keys.
+     *
+     * This function should be called exactly once for any given spec that
+     * is to be added. To facilitate this, the method returns a bool so that
+     * it can be called as part of initializing a static variable. To avoid
+     * spurious compiler warnings about unused variables, the following
+     * structure can be used:
+     *
+     * ```
+     * static bool reg = AnyMap::addOrderingRules("Reaction",
+     *         {{"head", "equation"}, {"tail", "duplicate"}});
+     * if (reg) {
+     *     reactionMap["__type__"] = "Reaction";
+     * }
+     * ```
+     *
+     * @param objectType  Apply rules to maps where the hidden `__type__` key
+     *     has the corresponding value.
+     * @param specs       A list of rule specifications. Each rule consists of
+     *     two strings. The first string is either "head" or "tail", and the
+     *     second string is the name of a key
+     * @returns  ``true``, to facilitate static initialization
+     */
+    static bool addOrderingRules(const std::string& objectType,
+                                 const std::vector<std::vector<std::string>>& specs);
+
+    //! Remove the specified file from the input cache if it is present
+    static void clearCachedFile(const std::string& filename);
 
 private:
     //! The stored data
     std::unordered_map<std::string, AnyValue> m_data;
 
     //! The default units that are used to convert stored values
-    UnitSystem m_units;
+    std::shared_ptr<UnitSystem> m_units;
 
     //! Cache for previously-parsed input (YAML) files. The key is the full path
     //! to the file, and the second element of the value is the last-modified
     //! time for the file, which is used to enable change detection.
     static std::unordered_map<std::string, std::pair<AnyMap, int>> s_cache;
 
+    //! Information about fields that should appear first when outputting to
+    //! YAML. Keys in this map are matched to `__type__` keys in AnyMap
+    //! objects, and values are a list of field names.
+    static std::unordered_map<std::string, std::vector<std::string>> s_headFields;
+
+    //! Information about fields that should appear last when outputting to
+    //! YAML. Keys in this map are matched to `__type__` keys in AnyMap
+    //! objects, and values are a list of field names.
+    static std::unordered_map<std::string, std::vector<std::string>> s_tailFields;
+
     friend class AnyValue;
+    friend YAML::Emitter& YAML::operator<<(YAML::Emitter& out, const AnyMap& rhs);
 };
 
 // Define begin() and end() to allow use with range-based for loops
@@ -578,6 +741,10 @@ protected:
         int line1, int column1, const shared_ptr<AnyMap>& metadata1,
         int line2, int column2, const shared_ptr<AnyMap>& metadata2);
 };
+
+//! A deprecation warning for syntax in an input file
+void warn_deprecated(const std::string& source, const AnyBase& node,
+                     const std::string& message);
 
 }
 

@@ -36,6 +36,7 @@ public:
     virtual void setSolvingStage(const size_t phase);
 
     virtual void resize(size_t components, size_t points);
+    virtual bool componentActive(size_t n) const;
 
     virtual void _finalize(const double* x);
     //! set to solve electric field on a point

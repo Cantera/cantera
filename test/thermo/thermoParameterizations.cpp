@@ -1,12 +1,14 @@
 #include "gtest/gtest.h"
 #include "cantera/thermo/speciesThermoTypes.h"
 #include "cantera/thermo/SpeciesThermoFactory.h"
+#include "cantera/thermo/Species.h"
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/thermo/ConstCpPoly.h"
 #include "cantera/thermo/NasaPoly2.h"
 #include "cantera/thermo/ShomatePoly.h"
 #include "cantera/thermo/PDSS_HKFT.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/Solution.h"
 #include "thermo_data.h"
 #include <sstream>
 
@@ -32,8 +34,8 @@ double c_co2[] = {298.15, -3.9351e8, 2.13785e5, 3.712e4};
 
 TEST_F(SpeciesThermoInterpTypeTest, install_const_cp)
 {
-    // Compare against instantiation from CTI file
-    IdealGasPhase p2("../data/simplephases.cti", "simple1");
+    // Compare against instantiation from YAML file
+    IdealGasPhase p2("simplephases.yaml", "simple1");
     auto sO2 = make_shared<Species>("O2", parseCompString("O:2"));
     auto sH2 = make_shared<Species>("H2", parseCompString("H:2"));
     auto sH2O = make_shared<Species>("H2O", parseCompString("H:2 O:1"));
@@ -67,8 +69,8 @@ TEST_F(SpeciesThermoInterpTypeTest, DISABLED_install_bad_pref)
 
 TEST_F(SpeciesThermoInterpTypeTest, install_nasa)
 {
-    // Compare against instantiation from CTI file
-    IdealGasPhase p2("../data/simplephases.cti", "nasa1");
+    // Compare against instantiation from YAML file
+    IdealGasPhase p2("simplephases.yaml", "nasa1");
     auto sO2 = make_shared<Species>("O2", parseCompString("O:2"));
     auto sH2 = make_shared<Species>("H2", parseCompString("H:2"));
     auto sH2O = make_shared<Species>("H2O", parseCompString("H:2 O:1"));
@@ -89,8 +91,8 @@ TEST_F(SpeciesThermoInterpTypeTest, install_nasa)
 
 TEST_F(SpeciesThermoInterpTypeTest, install_shomate)
 {
-    // Compare against instantiation from CTI file
-    IdealGasPhase p2("../data/simplephases.cti", "shomate1");
+    // Compare against instantiation from YAML file
+    IdealGasPhase p2("simplephases.yaml", "shomate1");
     auto sCO = make_shared<Species>("CO", parseCompString("C:1 O:1"));
     auto sCO2 = make_shared<Species>("CO2", parseCompString("C:1 O:2"));
     sCO->thermo.reset(new ShomatePoly2(200, 6000, 101325, co_shomate_coeffs));
@@ -238,4 +240,89 @@ TEST(SpeciesThermo, Mu0PolyFromYaml) {
     EXPECT_DOUBLE_EQ(s_R, -433.36374417010006);
     EXPECT_DOUBLE_EQ(st->minTemp(), 273.15);
     EXPECT_DOUBLE_EQ(st->maxTemp(), 350);
+}
+
+TEST(SpeciesThermo, NasaPoly2ToYaml) {
+    shared_ptr<Solution> soln = newSolution("simplephases.yaml", "nasa1");
+    auto original = soln->thermo()->species("H2O")->thermo;
+    AnyMap h2o_data1 = original->parameters();
+    AnyMap h2o_data2 = AnyMap::fromYamlString(h2o_data1.toYamlString());
+    auto duplicate = newSpeciesThermo(h2o_data2);
+    double cp1, cp2, h1, h2, s1, s2;
+    for (double T : {500, 900, 1300, 2100}) {
+        original->updatePropertiesTemp(T, &cp1, &h1, &s1);
+        duplicate->updatePropertiesTemp(T, &cp2, &h2, &s2);
+        EXPECT_DOUBLE_EQ(cp1, cp2);
+        EXPECT_DOUBLE_EQ(h1, h2);
+        EXPECT_DOUBLE_EQ(s1, s2);
+    }
+    EXPECT_EQ(original->refPressure(), duplicate->refPressure());
+}
+
+TEST(SpeciesThermo, ShomatePolyToYaml) {
+    shared_ptr<Solution> soln = newSolution("simplephases.yaml", "shomate1");
+    auto original = soln->thermo()->species("CO2")->thermo;
+    AnyMap co2_data1 = original->parameters();
+    AnyMap co2_data2 = AnyMap::fromYamlString(co2_data1.toYamlString());
+    auto duplicate = newSpeciesThermo(co2_data2);
+    double cp1, cp2, h1, h2, s1, s2;
+    for (double T : {500, 900, 1300, 2100}) {
+        original->updatePropertiesTemp(T, &cp1, &h1, &s1);
+        duplicate->updatePropertiesTemp(T, &cp2, &h2, &s2);
+        EXPECT_DOUBLE_EQ(cp1, cp2);
+        EXPECT_DOUBLE_EQ(h1, h2);
+        EXPECT_DOUBLE_EQ(s1, s2);
+    }
+    EXPECT_EQ(original->refPressure(), duplicate->refPressure());
+}
+
+TEST(SpeciesThermo, ConstCpToYaml) {
+    shared_ptr<Solution> soln = newSolution("simplephases.yaml", "simple1");
+    auto original = soln->thermo()->species("H2O")->thermo;
+    AnyMap h2o_data1 = original->parameters();
+    AnyMap h2o_data2 = AnyMap::fromYamlString(h2o_data1.toYamlString());
+    auto duplicate = newSpeciesThermo(h2o_data2);
+    double cp1, cp2, h1, h2, s1, s2;
+    for (double T : {300, 500, 900}) {
+        original->updatePropertiesTemp(T, &cp1, &h1, &s1);
+        duplicate->updatePropertiesTemp(T, &cp2, &h2, &s2);
+        EXPECT_DOUBLE_EQ(cp1, cp2);
+        EXPECT_DOUBLE_EQ(h1, h2);
+        EXPECT_DOUBLE_EQ(s1, s2);
+    }
+    EXPECT_EQ(original->refPressure(), duplicate->refPressure());
+}
+
+TEST(SpeciesThermo, PiecewiseGibbsToYaml) {
+    shared_ptr<Solution> soln = newSolution("../data/thermo-models.yaml",
+                                            "debye-huckel-beta_ij");
+    auto original = soln->thermo()->species("OH-")->thermo;
+    AnyMap oh_data = original->parameters();
+    auto duplicate = newSpeciesThermo(AnyMap::fromYamlString(oh_data.toYamlString()));
+    double cp1, cp2, h1, h2, s1, s2;
+    for (double T : {274, 300, 330, 340}) {
+        original->updatePropertiesTemp(T, &cp1, &h1, &s1);
+        duplicate->updatePropertiesTemp(T, &cp2, &h2, &s2);
+        EXPECT_DOUBLE_EQ(cp1, cp2) << T;
+        EXPECT_DOUBLE_EQ(h1, h2) << T;
+        EXPECT_DOUBLE_EQ(s1, s2) << T;
+    }
+    EXPECT_EQ(original->refPressure(), duplicate->refPressure());
+}
+
+TEST(SpeciesThermo, Nasa9PolyToYaml) {
+    shared_ptr<Solution> soln = newSolution("airNASA9.yaml");
+    auto original = soln->thermo()->species("N2+")->thermo;
+    AnyMap n2p_data1 = original->parameters();
+    AnyMap n2p_data2 = AnyMap::fromYamlString(n2p_data1.toYamlString());
+    auto duplicate = newSpeciesThermo(n2p_data2);
+    double cp1, cp2, h1, h2, s1, s2;
+    for (double T : {300, 900, 1500, 7000}) {
+        original->updatePropertiesTemp(T, &cp1, &h1, &s1);
+        duplicate->updatePropertiesTemp(T, &cp2, &h2, &s2);
+        EXPECT_DOUBLE_EQ(cp1, cp2);
+        EXPECT_DOUBLE_EQ(h1, h2);
+        EXPECT_DOUBLE_EQ(s1, s2);
+    }
+    EXPECT_EQ(original->refPressure(), duplicate->refPressure());
 }

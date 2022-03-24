@@ -44,14 +44,14 @@ public:
      * Return a reference to a path object connecting this node
      *  to another node.
      */
-    //@{
+    //! @{
     Path* path(int n) {
         return m_paths[n];
     }
     const Path* path(int n) const {
         return m_paths[n];
     }
-    //@}
+    //! @}
 
     /// Total number of paths to or from this node
     int nPaths() const {

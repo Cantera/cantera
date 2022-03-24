@@ -1,14 +1,23 @@
 /*!
  * @file flamespeed.cpp
+ *
+ * Freely-propagating flame
+ *
  * C++ demo program to compute flame speeds using GRI-Mech.
+ *
  * Usage: flamespeed [equivalence_ratio] [refine_grid] [loglevel]
  */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/oneD/Sim1D.h"
 #include "cantera/oneD/Boundary1D.h"
 #include "cantera/oneD/StFlow.h"
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/transport.h"
+#include "cantera/base/Solution.h"
+#include "cantera/base/stringUtils.h"
 #include <fstream>
 
 using namespace Cantera;
@@ -195,10 +204,10 @@ int main(int argc, char** argv)
         std::cin >> phi;
     }
     if (argc >= 3) {
-        refine_grid = bool(intValue(argv[2]));
+        refine_grid = bool(std::stoi(argv[2]));
     }
     if (argc >= 4) {
-        loglevel = intValue(argv[3]);
+        loglevel = std::stoi(argv[3]);
     }
     return flamespeed(phi, refine_grid, loglevel);
 }

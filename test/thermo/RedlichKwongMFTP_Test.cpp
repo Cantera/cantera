@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 #include "cantera/thermo/RedlichKwongMFTP.h"
 #include "cantera/thermo/ThermoFactory.h"
+#include "cantera/thermo/Species.h"
 
 
 namespace Cantera
@@ -10,7 +11,7 @@ class RedlichKwongMFTP_Test : public testing::Test
 {
 public:
     RedlichKwongMFTP_Test() {
-        test_phase.reset(newPhase("../data/co2_RK_example.cti"));
+        test_phase.reset(newPhase("co2_RK_example.yaml"));
     }
 
     //vary the composition of a co2-h2 mixture:
@@ -24,7 +25,7 @@ public:
     std::unique_ptr<ThermoPhase> test_phase;
 };
 
-TEST_F(RedlichKwongMFTP_Test, construct_from_cti)
+TEST_F(RedlichKwongMFTP_Test, construct_from_file)
 {
     RedlichKwongMFTP* redlich_kwong_phase = dynamic_cast<RedlichKwongMFTP*>(test_phase.get());
     EXPECT_TRUE(redlich_kwong_phase != NULL);
@@ -170,14 +171,14 @@ TEST_F(RedlichKwongMFTP_Test, critPropLookup)
 {
     // Check to make sure that RedlichKwongMFTP is able to properly calculate a and b
     // pureFluidParameters based on tabulated critical properties
-    test_phase.reset(newPhase("../data/co2_RK_lookup.cti"));
+    test_phase.reset(newPhase("co2_RK_lookup.yaml"));
 
     // Check that the critical properties (temperature and pressure) are calculated correctly for
     // pure fluids, both for those with pureFluidParameters provided in the cti file (i.e., h2) and
     // those where the pureFluidParameters are calculated based on the tabulated critical properties
     // (i.e. co2):
 
-    // CO2 - should match tabulated values in critProperties.xml
+    // CO2 - should match tabulated values in critical-properties.yaml
     set_r(1.0);
     EXPECT_DOUBLE_EQ(test_phase->critTemperature(), 304.2);
     EXPECT_DOUBLE_EQ(test_phase->critPressure(), 7390000);
@@ -188,4 +189,37 @@ TEST_F(RedlichKwongMFTP_Test, critPropLookup)
     EXPECT_NEAR(test_phase->critPressure(), 1347700, 100);
 
 }
+
+TEST_F(RedlichKwongMFTP_Test, localCritProperties)
+{
+    // Test calculation based on critical properties stored in the YAML species
+    // definition, in the "critical-parameters" field
+    test_phase.reset(newPhase("thermo-models.yaml", "CO2-RK-params"));
+    test_phase->setState_TPX(400, 1.2e6, "CO2: 1.0");
+    EXPECT_NEAR(test_phase->critTemperature(), 304.128, 1e-5);
+    EXPECT_NEAR(test_phase->critPressure(), 7.3773e6, 1e-4);
+
+    test_phase->setState_TPX(400, 1.2e6, "H2O: 1.0");
+    EXPECT_NEAR(test_phase->critTemperature(), 647.096, 1e-5);
+    EXPECT_NEAR(test_phase->critPressure(), 22.064e6, 1e-4);
+}
+
+TEST_F(RedlichKwongMFTP_Test, partialMolarIntEnergy)
+{
+    // Check that sum(X_k * u) = u
+    set_r(0.4);
+    test_phase->setState_TP(400, 1.3e7);
+    double u_ref = test_phase->intEnergy_mole();
+    size_t kk = test_phase->nSpecies();
+    vector_fp uk(kk);
+    vector_fp X(kk);
+    test_phase->getMoleFractions(X.data());
+    test_phase->getPartialMolarIntEnergies(uk.data());
+    double u_test = 0;
+    for (size_t k = 0; k < kk; k++) {
+        u_test += uk[k] * X[k];
+    }
+    EXPECT_NEAR(u_ref, u_test, 1e-13 * std::abs(u_ref));
+}
+
 };

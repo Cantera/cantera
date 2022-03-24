@@ -4,7 +4,7 @@ Import('env', 'build', 'install', 'libraryTargets')
 
 def defaultSetup(env, subdir, extensions):
     env.Append(CCFLAGS=env['pch_flags'])
-    return mglob(env, subdir, *extensions)
+    return multi_glob(env, subdir, *extensions)
 
 def applicationSetup(env, subdir, extensions):
     # Add #define variables unique to application.cpp
@@ -57,7 +57,7 @@ if env['use_pch']:
         pch = localenv.GchSh('#src/pch/system.h.gch',
                              localenv['precompiled_header'])
 else:
-    removeFile('src/pch/system.h.gch')
+    remove_file('src/pch/system.h.gch')
     localenv['pch_flags'] = []
     pch = None
 
@@ -73,7 +73,7 @@ for subdir, extensions, setup in libs:
 
 # build the Cantera static library
 lib = build(localenv.StaticLibrary('../lib/cantera', libraryTargets,
-                                   SPAWN=getSpawn(localenv)))
+                                   SPAWN=get_spawn(localenv)))
 localenv.Depends(lib, localenv['config_h_target'])
 install('$inst_libdir', lib)
 env['cantera_staticlib'] = lib
@@ -97,12 +97,12 @@ if localenv['layout'] != 'debian':
 
     if localenv['versioned_shared_library']:
         lib = build(localenv.SharedLibrary(sharedName, libraryTargets,
-                                           SPAWN=getSpawn(localenv),
+                                           SPAWN=get_spawn(localenv),
                                            SHLIBVERSION=localenv['cantera_pure_version']))
         install(localenv.InstallVersionedLib, '$inst_libdir', lib)
     else:
         lib = build(localenv.SharedLibrary(sharedName, libraryTargets,
-                                           SPAWN=getSpawn(localenv)))
+                                           SPAWN=get_spawn(localenv)))
         install('$inst_libdir', lib)
     env['cantera_shlib'] = lib
     localenv.Depends(lib, localenv['config_h_target'])

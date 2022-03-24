@@ -19,12 +19,12 @@ cdef class ReactorBase:
     def __cinit__(self, *args, **kwargs):
         self.rbase = newReactor(stringify(self.reactor_type))
 
-    # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, ThermoPhase contents=None, name=None, *, volume=None):
         self._weakref_proxy = _WeakrefProxy()
         self._inlets = []
         self._outlets = []
         self._walls = []
+        self._surfaces = []
         if isinstance(contents, ThermoPhase):
             self.insert(contents)
 
@@ -43,7 +43,7 @@ cdef class ReactorBase:
 
     def insert(self, _SolutionBase solution):
         """
-        Set *solution* to be the object used to compute thermodynamic
+        Set ``solution`` to be the object used to compute thermodynamic
         properties and kinetic rates for this reactor.
         """
         self._thermo = solution
@@ -53,7 +53,7 @@ cdef class ReactorBase:
     property type:
         """The type of the reactor."""
         def __get__(self):
-            return pystr(self.rbase.typeStr())
+            return pystr(self.rbase.type())
 
     property name:
         """The name of the reactor."""
@@ -121,23 +121,28 @@ cdef class ReactorBase:
         def __get__(self):
             return self._walls
 
+    property surfaces:
+        """List of reacting surfaces installed on this reactor"""
+        def __get__(self):
+            return self._surfaces
+
     def _add_inlet(self, inlet):
         """
-        Store a reference to *inlet* to prevent it from being prematurely
+        Store a reference to ``inlet`` to prevent it from being prematurely
         garbage collected.
         """
         self._inlets.append(inlet)
 
     def _add_outlet(self, outlet):
         """
-        Store a reference to *outlet* to prevent it from being prematurely
+        Store a reference to ``outlet`` to prevent it from being prematurely
         garbage collected.
         """
         self._outlets.append(outlet)
 
     def _add_wall(self, wall):
         """
-        Store a reference to *wall* to prevent it from being prematurely
+        Store a reference to ``wall`` to prevent it from being prematurely
         garbage collected.
         """
         self._walls.append(wall)
@@ -161,7 +166,6 @@ cdef class Reactor(ReactorBase):
     def __cinit__(self, *args, **kwargs):
         self.reactor = <CxxReactor*>(self.rbase)
 
-    # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, contents=None, *, name=None, energy='on', **kwargs):
         """
         :param contents:
@@ -179,7 +183,7 @@ cdef class Reactor(ReactorBase):
         Some examples showing how to create :class:`Reactor` objects are
         shown below.
 
-        >>> gas = Solution('gri30.xml')
+        >>> gas = Solution('gri30.yaml')
         >>> r1 = Reactor(gas)
 
         This is equivalent to:
@@ -218,8 +222,8 @@ cdef class Reactor(ReactorBase):
 
     property chemistry_enabled:
         """
-        *True* when the reactor composition is allowed to change due to
-        chemical reactions in this reactor. When this is *False*, the
+        `True` when the reactor composition is allowed to change due to
+        chemical reactions in this reactor. When this is `False`, the
         reactor composition is held constant.
         """
         def __get__(self):
@@ -230,8 +234,8 @@ cdef class Reactor(ReactorBase):
 
     property energy_enabled:
         """
-        *True* when the energy equation is being solved for this reactor.
-        When this is *False*, the reactor temperature is held constant.
+        `True` when the energy equation is being solved for this reactor.
+        When this is `False`, the reactor temperature is held constant.
         """
         def __get__(self):
             return self.reactor.energyEnabled()
@@ -242,7 +246,7 @@ cdef class Reactor(ReactorBase):
     def add_sensitivity_reaction(self, m):
         """
         Specifies that the sensitivity of the state variables with respect to
-        reaction *m* should be computed. *m* is the 0-based reaction index.
+        reaction ``m`` should be computed. ``m`` is the 0-based reaction index.
         The reactor must be part of a network first. Specifying the same
         reaction more than one time raises an exception.
         """
@@ -251,20 +255,18 @@ cdef class Reactor(ReactorBase):
     def add_sensitivity_species_enthalpy(self, k):
         """
         Specifies that the sensitivity of the state variables with respect to
-        species *k* should be computed. The reactor must be part of a network
+        species ``k`` should be computed. The reactor must be part of a network
         first.
         """
         self.reactor.addSensitivitySpeciesEnthalpy(self.thermo.species_index(k))
 
     def component_index(self, name):
         """
-        Returns the index of the component named *name* in the system. This
-        determines the (relative) index of the component in the vector of
-        sensitivity coefficients. *name* is either a species name or the name of
-        a reactor state variable, e.g. 'int_energy', 'temperature', depending on
-        the reactor's equations.
+        Returns the index of the component named ``name`` in the system. This determines
+        the index of the component in the vector of sensitivity coefficients. ``name``
+        is either a species name or the name of a reactor state variable, for example
+        ``'int_energy'`` or ``'temperature'``, depending on the reactor's equations.
         """
-
         k = self.reactor.componentIndex(stringify(name))
         if k == CxxNpos:
             raise IndexError('No such component: {!r}'.format(name))
@@ -272,7 +274,7 @@ cdef class Reactor(ReactorBase):
 
     def component_name(self, int i):
         """
-        Returns the name of the component with index *i* within the array of
+        Returns the name of the component with index ``i`` within the array of
         variables returned by `get_state`. This is the inverse of
         `component_index`.
         """
@@ -323,8 +325,8 @@ cdef class Reactor(ReactorBase):
 
     def set_advance_limit(self, name, limit):
         """
-        Limit absolute change of component *name* during `ReactorNet.advance`.
-        (positive *limit* values are considered; negative values disable a
+        Limit absolute change of component ``name`` during `ReactorNet.advance`.
+        (positive ``limit`` values are considered; negative values disable a
         previously set advance limit for a solution component). Note that
         limits are disabled by default (with individual values set to -1.).
         """
@@ -388,6 +390,178 @@ cdef class FlowReactor(Reactor):
             return (<CxxFlowReactor*>self.reactor).distance()
 
 
+cdef class ExtensibleReactor(Reactor):
+    """
+    A base class for a reactor with delegated methods where the base
+    functionality corresponds to the `Reactor` class.
+
+    The following methods of the C++ :ct:`Reactor` class can be modified by a
+    Python class which inherits from this class. For each method, the name below
+    should be prefixed with ``before_``, ``after_``, or ``replace_``, indicating
+    whether the this method should be called before, after, or instead of the
+    corresponding method from the base class.
+
+    For methods that return a value and have a ``before`` method specified, if
+    that method returns a value other than ``None`` that value will be returned
+    without calling the base class method; otherwise, the value from the base
+    class method will be returned. For methods that return a value and have an
+    ``after`` method specified, the returned value wil be the sum of the values
+    from the supplied method and the base class method.
+
+    ``initialize(self, t0: double) -> None``
+        Responsible for allocating and setting the sizes of any internal
+        variables, initializing attached walls, and setting the total number of
+        state variables associated with this reactor, `n_vars`.
+
+        Called once before the start of time integration.
+
+    ``sync_state(self) -> None``
+        Responsible for setting the state of the reactor to correspond to the
+        state of the associated ThermoPhase object.
+
+    ``get_state(self, y : double[:]) -> None``
+        Responsible for populating the state vector ``y`` (length `n_vars`)
+        with the initial state of the reactor.
+
+    ``update_state(self, y : double[:]) -> None``
+        Responsible for setting the state of the reactor object from the
+        values in the state vector ``y`` (length `n_vars`)
+
+    ``update_surface_state(self, y : double[:]) -> None``
+        Responsible for setting the state of surface phases in this reactor
+        from the values in the state vector ``y``. The length of ``y`` is the
+        total number of surface species in all surfaces.
+
+    ``get_surface_initial_conditions(self, y : double[:]) -> None``
+        Responsible for populating the state vector ``y`` with the initial
+        state of each surface phase in this reactor. The length of ``y`` is the
+        total number of surface species in all surfaces.
+
+    ``update_connected(self, update_pressure : bool) -> None``
+        Responsible for storing properties which may be accessed by connected
+        reactors, and for updating the mass flow rates of connected flow devices.
+
+    ``eval(self, t : double, LHS : double[:], RHS : double[:]) -> None``
+        Responsible for calculating the time derivative of the state at time ``t``
+        based on the current state of the reactor. For each component ``i`` of the
+        state vector, the time derivative ``dy[i]/dt`` is calculated as
+        ``LHS[i] * dy[i]/dt = RHS[i]``. ``LHS`` and ``RHS`` are arrays of length
+        `n_vars`.
+
+    ``eval_walls(self, t : double) -> None``
+        Responsible for calculating the net rate of volume change `vdot`
+        and the net rate of heat transfer `qdot` caused by walls connected
+        to this reactor.
+
+    ``eval_surfaces(LHS : double[:], RHS : double[:], sdot : double[:]) -> None``
+        Responsible for calculating the ``LHS`` and ``RHS`` (length: total number of
+        surface species in all surfaces) of the ODEs for surface species coverages,
+        and the molar production rate of bulk phase species ``sdot`` (length: number
+        of bulk phase species).
+
+    ``component_name(i : int) -> string``
+        Returns the name of the state vector component with index ``i``
+
+    ``component_index(name: string) -> int``
+        Returns the index of the state vector component named ``name``
+
+    ``species_index(name : string) -> int``
+        Returns the index of the species named ``name``, in either the bulk
+        phase or a surface phase, relative to the start of the species terms in
+        the state vector.
+    """
+
+    reactor_type = "ExtensibleReactor"
+
+    delegatable_methods = {
+        'initialize': ('initialize', 'void(double)'),
+        'sync_state': ('syncState', 'void()'),
+        'get_state': ('getState', 'void(double*)'),
+        'update_state': ('updateState', 'void(double*)'),
+        'update_surface_state': ('updateSurfaceState', 'void(double*)'),
+        'get_surface_initial_conditions': ('getSurfaceInitialConditions', 'void(double*)'),
+        'update_connected': ('updateConnected', 'void(bool)'),
+        'eval': ('eval', 'void(double, double*, double*)'),
+        'eval_walls': ('evalWalls', 'void(double)'),
+        'eval_surfaces': ('evalSurfaces', 'void(double*,double*,double*)'),
+        'component_name': ('componentName', 'string(size_t)'),
+        'component_index': ('componentIndex', 'size_t(string)'),
+        'species_index': ('speciesIndex', 'size_t(string)')
+    }
+
+    def __cinit__(self, *args, **kwargs):
+        self.accessor = dynamic_cast[CxxReactorAccessorPtr](self.rbase)
+
+    def __init__(self, *args, **kwargs):
+        assign_delegates(self, dynamic_cast[CxxDelegatorPtr](self.rbase))
+        super().__init__(*args, **kwargs)
+
+    property n_vars:
+        """
+        Get/Set the number of state variables in the reactor.
+        """
+        def __get__(self):
+            return self.reactor.neq()
+        def __set__(self, n):
+            self.accessor.setNEq(n)
+
+    property vdot:
+        """
+        Get/Set the net rate of volume change (for example, from moving walls) [m^3/s]
+        """
+        def __get__(self):
+            return self.accessor.vdot()
+        def __set__(self, vdot):
+            self.accessor.setVdot(vdot)
+
+    property qdot:
+        """
+        Get/Set the net heat transfer rate (for example, through walls) [W]
+        """
+        def __get__(self):
+            return self.accessor.qdot()
+        def __set__(self, qdot):
+            self.accessor.setQdot(qdot)
+
+    def restore_thermo_state(self):
+        """
+        Set the state of the thermo object to correspond to the state of the
+        reactor.
+        """
+        self.accessor.restoreThermoState()
+
+    def restore_surface_state(self, n):
+        """
+        Set the state of the thermo object for surface ``n`` to correspond to the
+        state of that surface
+        """
+        self.accessor.restoreSurfaceState(n)
+
+
+cdef class ExtensibleIdealGasReactor(ExtensibleReactor):
+    """
+    A variant of `ExtensibleReactor` where the base behavior corresponds to the
+    `IdealGasReactor` class.
+    """
+    reactor_type = "ExtensibleIdealGasReactor"
+
+
+cdef class ExtensibleConstPressureReactor(ExtensibleReactor):
+    """
+    A variant of `ExtensibleReactor` where the base behavior corresponds to the
+    `ConstPressureReactor` class.
+    """
+    reactor_type = "ExtensibleConstPressureReactor"
+
+
+cdef class ExtensibleIdealGasConstPressureReactor(ExtensibleReactor):
+    """
+    A variant of `ExtensibleReactor` where the base behavior corresponds to the
+    `IdealGasConstPressureReactor` class.
+    """
+    reactor_type = "ExtensibleIdealGasConstPressureReactor"
+
+
 cdef class ReactorSurface:
     """
     Represents a surface in contact with the contents of a reactor.
@@ -415,6 +589,7 @@ cdef class ReactorSurface:
             self.area = A
 
     def install(self, Reactor r):
+        r._surfaces.append(self)
         r.reactor.addSurface(self.surface)
 
     property area:
@@ -430,6 +605,7 @@ cdef class ReactorSurface:
         this surface.
         """
         def __get__(self):
+            self.surface.syncState()
             return self._kinetics
         def __set__(self, Kinetics k):
             self._kinetics = k
@@ -442,7 +618,7 @@ cdef class ReactorSurface:
         def __get__(self):
             if self._kinetics is None:
                 raise CanteraError('No kinetics manager present')
-            self.surface.syncCoverages()
+            self.surface.syncState()
             return self._kinetics.coverages
         def __set__(self, coverages):
             if self._kinetics is None:
@@ -461,7 +637,7 @@ cdef class ReactorSurface:
     def add_sensitivity_reaction(self, int m):
         """
         Specifies that the sensitivity of the state variables with respect to
-        reaction *m* should be computed. *m* is the 0-based reaction index.
+        reaction ``m`` should be computed. ``m`` is the 0-based reaction index.
         The Surface must be installed on a reactor and part of a network first.
         """
         self.surface.addSensitivityReaction(m)
@@ -475,7 +651,6 @@ cdef class WallBase:
     def __cinit__(self, *args, **kwargs):
         self.wall = newWall(stringify(self.wall_type))
 
-    # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, left, right, *, name=None, A=None, K=None, U=None,
                  Q=None, velocity=None):
         """
@@ -500,9 +675,6 @@ cdef class WallBase:
             Wall velocity function :math:`v_0(t)` [m/s].
             Default: :math:`v_0(t) = 0.0`.
         """
-        self.left_surface = WallSurface(self, 0)
-        self.right_surface = WallSurface(self, 1)
-
         self._velocity_func = None
         self._heat_flux_func = None
 
@@ -542,16 +714,6 @@ cdef class WallBase:
         def __get__(self):
             return pystr(self.wall.type())
 
-    property left:
-        """ The left surface of this wall. """
-        def __get__(self):
-            return self.left_surface
-
-    property right:
-        """ The right surface of this wall. """
-        def __get__(self):
-            return self.right_surface
-
     property area:
         """ The wall area [m^2]. """
         def __get__(self):
@@ -562,14 +724,14 @@ cdef class WallBase:
     def vdot(self, double t):
         """
         The rate of volumetric change [m^3/s] associated with the wall
-        at time *t*. A positive value corresponds to the left-hand reactor
+        at time ``t``. A positive value corresponds to the left-hand reactor
         volume increasing, and the right-hand reactor volume decreasing.
         """
         return self.wall.vdot(t)
 
     def qdot(self, double t):
         """
-        Total heat flux [W] through the wall at time *t*. A positive value
+        Total heat flux [W] through the wall at time ``t``. A positive value
         corresponds to heat flowing from the left-hand reactor to the
         right-hand one.
         """
@@ -673,7 +835,6 @@ cdef class FlowDevice:
     def __cinit__(self, *args, **kwargs):
         self.dev = newFlowDevice(stringify(self.flowdevice_type))
 
-    # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, upstream, downstream, *, name=None):
         assert self.dev != NULL
         self._rate_func = None
@@ -693,11 +854,11 @@ cdef class FlowDevice:
     property type:
         """The type of the flow device."""
         def __get__(self):
-            return pystr(self.dev.typeStr())
+            return pystr(self.dev.type())
 
     def _install(self, ReactorBase upstream, ReactorBase downstream):
         """
-        Install the device between the *upstream* (source) and *downstream*
+        Install the device between the ``upstream`` (source) and ``downstream``
         (destination) reactors or reservoirs.
         """
         upstream._add_outlet(self)
@@ -714,20 +875,6 @@ cdef class FlowDevice:
             network time.
             """
             return self.dev.massFlowRate()
-
-    def mdot(self, double t=-999):
-        """
-        The mass flow rate [kg/s] through this device at time *t* [s].
-
-        .. deprecated:: 2.5
-
-             To be removed after Cantera 2.5. Replaced with the
-             `mass_flow_rate` property.
-        """
-        warnings.warn("To be removed after Cantera 2.5. "
-                "Replaced by property 'mass_flow_rate'", DeprecationWarning)
-
-        return self.dev.massFlowRate(t)
 
     def set_pressure_function(self, k):
         r"""
@@ -793,7 +940,6 @@ cdef class MassFlowController(FlowDevice):
     """
     flowdevice_type = "MassFlowController"
 
-    # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, upstream, downstream, *, name=None, mdot=1.):
         super().__init__(upstream, downstream, name=name)
         self.mass_flow_rate = mdot
@@ -834,27 +980,6 @@ cdef class MassFlowController(FlowDevice):
                 self.mass_flow_coeff = 1.
                 self.set_time_function(m)
 
-    def set_mass_flow_rate(self, m):
-        r"""
-        Set the mass flow rate [kg/s] through this controller to be either
-        a constant or an arbitrary function of time. See `Func1`.
-
-        Note that depending on the argument type, this method either changes
-        the property `mass_flow_coeff` or calls the `set_time_function` method.
-
-        >>> mfc.set_mass_flow_rate(0.3)
-        >>> mfc.set_mass_flow_rate(lambda t: 2.5 * exp(-10 * (t - 0.5)**2))
-
-        .. deprecated:: 2.5
-
-             To be deprecated with version 2.5, and removed thereafter.
-             Replaced by property `mass_flow_rate`.
-        """
-        warnings.warn("To be removed after Cantera 2.5. "
-                      "Replaced by property 'mass_flow_rate'", DeprecationWarning)
-
-        self.mass_flow_rate = m
-
 
 cdef class Valve(FlowDevice):
     r"""
@@ -889,7 +1014,6 @@ cdef class Valve(FlowDevice):
     """
     flowdevice_type = "Valve"
 
-    # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, upstream, downstream, *, name=None, K=1.):
         super().__init__(upstream, downstream, name=name)
         if isinstance(K, _numbers.Real):
@@ -910,51 +1034,6 @@ cdef class Valve(FlowDevice):
             return (<CxxValve*>self.dev).getValveCoeff()
         def __set__(self, double value):
             (<CxxValve*>self.dev).setValveCoeff(value)
-
-    def set_valve_function(self, k):
-        r"""
-        Set the relationship between mass flow rate and the pressure drop across the
-        valve. The mass flow rate [kg/s] is calculated given the pressure drop [Pa].
-
-        >>> V = Valve(res1, reactor1)
-        >>> V.set_valve_function(lambda dP: (1e-5 * dP)**2)
-
-        .. deprecated:: 2.5
-
-             To be deprecated with version 2.5, and removed thereafter.
-             Renamed to `set_pressure_function`.
-        """
-        warnings.warn("To be removed after Cantera 2.5. "
-                      "Renamed to 'set_pressure_function' instead", DeprecationWarning)
-
-        self.set_pressure_function(k)
-
-    def set_valve_coeff(self, k):
-        """
-        Set the relationship between mass flow rate and the pressure drop across
-        the valve. If a number is given, it is the proportionality constant
-        [kg/s/Pa]. If a function is given, it should compute the mass flow
-        rate [kg/s] given the pressure drop [Pa].
-
-        >>> V = Valve(res1, reactor1)
-        >>> V.set_valve_coeff(1e-4)  # Set the value of K to a constant
-        >>> V.set_valve_coeff(lambda dP: (1e-5 * dP)**2)  # Set to a function
-
-        .. deprecated:: 2.5
-
-             To be deprecated with version 2.5, and removed thereafter.
-             Functionality is now handled by property `valve_coeff` and
-             `set_pressure_function`.
-        """
-        warnings.warn("To be removed after Cantera 2.5. "
-                      "Use property 'valve_coeff' and/or function "
-                      "'set_pressure_function' instead.", DeprecationWarning)
-
-        if isinstance(k, _numbers.Real):
-            self.valve_coeff = k
-        else:
-            self.valve_coeff = 1.
-            self.set_pressure_function(k)
 
 
 cdef class PressureController(FlowDevice):
@@ -978,7 +1057,6 @@ cdef class PressureController(FlowDevice):
     """
     flowdevice_type = "PressureController"
 
-    # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, upstream, downstream, *, name=None, master=None, K=1.):
         super().__init__(upstream, downstream, name=name)
         if master is not None:
@@ -998,20 +1076,6 @@ cdef class PressureController(FlowDevice):
             return (<CxxPressureController*>self.dev).getPressureCoeff()
         def __set__(self, double value):
             (<CxxPressureController*>self.dev).setPressureCoeff(value)
-
-    def set_pressure_coeff(self, double k):
-        """
-        Set the proportionality constant :math:`K_v` [kg/s/Pa] between the pressure
-        drop and the mass flow rate.
-
-        .. deprecated:: 2.5
-
-             To be deprecated with version 2.5, and removed thereafter.
-             Replaced by property `pressure_coeff`.
-        """
-        warnings.warn("To be removed after Cantera 2.5. "
-                      "Use property 'pressure_coeff' instead", DeprecationWarning)
-        (<CxxPressureController*>self.dev).setPressureCoeff(k)
 
     def set_master(self, FlowDevice d):
         """
@@ -1048,8 +1112,8 @@ cdef class ReactorNet:
     def advance(self, double t, pybool apply_limit=True):
         """
         Advance the state of the reactor network in time from the current time
-        towards time *t* [s], taking as many integrator timesteps as necessary.
-        If *apply_limit* is true and an advance limit is specified, the reactor
+        towards time ``t`` in seconds, taking as many integrator time steps as necessary.
+        If ``apply_limit`` is true and an advance limit is specified, the reactor
         state at the end of the timestep is estimated prior to advancing. If
         the difference exceed limits, the end time is reduced by half until
         the projected end state remains within specified limits.
@@ -1101,20 +1165,6 @@ cdef class ReactorNet:
 
         def __set__(self, double t):
             self.net.setMaxTimeStep(t)
-
-    def set_max_time_step(self, double t):
-        """
-        Set the maximum time step *t* [s] that the integrator is allowed
-        to use.
-
-        .. deprecated:: 2.5
-
-             To be deprecated with version 2.5, and removed thereafter.
-             Replaced by property `max_time_step`.
-        """
-        warnings.warn("To be removed after Cantera 2.5. "
-                      "Use property 'max_time_step' instead", DeprecationWarning)
-        self.net.setMaxTimeStep(t)
 
     property max_err_test_fails:
         """
@@ -1174,8 +1224,8 @@ cdef class ReactorNet:
 
     property verbose:
         """
-        If *True*, verbose debug information will be printed during
-        integration. The default is *False*.
+        If `True`, verbose debug information will be printed during
+        integration. The default is `False`.
         """
         def __get__(self):
             return pybool(self.net.verbose())
@@ -1184,11 +1234,11 @@ cdef class ReactorNet:
 
     def global_component_index(self, name, int reactor):
         """
-        Returns the index of a component named *name* of a reactor with index
-        *reactor* within the global state vector. I.e. this determines the
-        (absolute) index of the component, where *reactor* is the index of the
-        reactor that holds the component. *name* is either a species name or the
-        name of a reactor state variable, e.g. 'int_energy', 'temperature', etc.
+        Returns the index of a component named ``name`` of a reactor with index
+        ``reactor`` within the global state vector. That is, this determines the
+        absolute index of the component, where ``reactor`` is the index of the
+        reactor that holds the component. ``name`` is either a species name or the
+        name of a reactor state variable, for example, ``'int_energy'``, ``'temperature'``, etc.
         depending on the reactor's equations.
         """
         return self.net.globalComponentIndex(stringify(name), reactor)
@@ -1203,11 +1253,11 @@ cdef class ReactorNet:
 
     def sensitivity(self, component, int p, int r=0):
         """
-        Returns the sensitivity of the solution variable *component* in
-        reactor *r* with respect to the parameter *p*. *component* can be a
+        Returns the sensitivity of the solution variable ``component`` in
+        reactor ``r`` with respect to the parameter ``p``. ``component`` can be a
         string or an integer. See `component_index` and `sensitivities` to
         determine the integer index for the variables and the definition of the
-        resulting sensitivity coefficient. If it is not given, *r* defaults to
+        resulting sensitivity coefficient. If it is not given, ``r`` defaults to
         the first reactor. Returns an empty array until the first time step is
         taken.
         """
@@ -1257,7 +1307,7 @@ cdef class ReactorNet:
 
     def sensitivity_parameter_name(self, int p):
         """
-        Name of the sensitivity parameter with index *p*.
+        Name of the sensitivity parameter with index ``p``.
         """
         return pystr(self.net.sensitivityParameterName(p))
 

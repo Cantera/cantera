@@ -60,12 +60,8 @@ public:
      *  @param model     String name for the transport manager
      *  @param thermo    ThermoPhase object
      *  @param log_level log level
-     *  @param ndim      Number of dimensions for fluxes
-     *
-     * @deprecated The `ndim` parameter is unused and will be removed after
-     *     Cantera 2.5.
      */
-    virtual Transport* newTransport(const std::string& model, thermo_t* thermo, int log_level=0, int ndim=-99);
+    virtual Transport* newTransport(const std::string& model, ThermoPhase* thermo, int log_level=0);
 
     //! Build a new transport manager using the default transport manager
     //! in the phase description and return a base class pointer to it
@@ -73,7 +69,7 @@ public:
      * @param thermo    ThermoPhase object
      * @param log_level log level
      */
-    virtual Transport* newTransport(thermo_t* thermo, int log_level=0);
+    virtual Transport* newTransport(ThermoPhase* thermo, int log_level=0);
 
 private:
     //! Static instance of the factor -> This is the only instance of this
@@ -96,9 +92,28 @@ private:
     std::map<std::string, bool> m_CK_mode;
 };
 
-//! @copydoc TransportFactory::newTransport(const std::string&, thermo_t*, int, int)
-Transport* newTransportMgr(const std::string& transportModel = "",
-                           thermo_t* thermo = 0, int loglevel = 0, int ndim=-99);
+//! @copydoc TransportFactory::newTransport(const std::string&, ThermoPhase*, int)
+Transport* newTransportMgr(const std::string& model="", ThermoPhase* thermo=0,
+                           int log_level=0);
+
+//!  Create a new Transport instance.
+/*!
+ *  @param thermo   the ThermoPhase object associated with the phase
+ *  @param model    name of transport model; if "default", the default
+ *                  transport model for the ThermoPhase object is created
+ *  @returns a Transport object for the phase
+ * @ingroup tranprops
+ */
+inline shared_ptr<Transport> newTransport(ThermoPhase* thermo,
+                                          const std::string& model = "default") {
+    Transport* tr;
+    if (model == "default") {
+        tr = TransportFactory::factory()->newTransport(thermo, 0);
+    } else {
+        tr = TransportFactory::factory()->newTransport(model, thermo, 0);
+    }
+    return shared_ptr<Transport> (tr);
+}
 
 //!  Create a new transport manager instance.
 /*!
@@ -107,7 +122,7 @@ Transport* newTransportMgr(const std::string& transportModel = "",
  *  @returns a transport manager for the phase
  * @ingroup tranprops
  */
-Transport* newDefaultTransportMgr(thermo_t* thermo, int loglevel = 0);
+Transport* newDefaultTransportMgr(ThermoPhase* thermo, int loglevel = 0);
 
 } // End of namespace Cantera
 

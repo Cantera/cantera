@@ -41,11 +41,6 @@ public:
     virtual void setTemperature(doublereal temp);
     virtual void setState_TP(doublereal temp, doublereal pres);
     virtual void setState_TR(doublereal temp, doublereal rho);
-
-    //! @}
-    //!  @name  Miscellaneous properties of the standard state
-    //! @{
-
     virtual doublereal satPressure(doublereal t);
 
     //! @}
@@ -54,6 +49,7 @@ public:
 
     virtual void initThermo();
     virtual void setParametersFromXML(const XML_Node& speciesNode);
+    virtual void getParameters(AnyMap& eosNode) const;
 
     //! Set the (constant) molar volume [m3/kmol] of the species. Must be called before
     //! initThermo().
@@ -61,7 +57,7 @@ public:
         m_constMolarVolume = v;
     }
 
-    //@}
+    //! @}
 
 private:
     //! Value of the constant molar volume for the species

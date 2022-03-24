@@ -93,7 +93,7 @@ void addDirectory(const std::string& dir);
 
 //! @copydoc Application::getDataDirectories
 std::string getDataDirectories(const std::string& sep);
-//@}
+//! @}
 
 //! Delete and free all memory associated with the application
 /*!
@@ -113,10 +113,16 @@ std::string gitCommit();
  * @returns a string containing the name of the base directory where %Cantera is
  *     installed. If the environmental variable CANTERA_ROOT is defined, this
  *     function will return its value, preferentially.
+ * @deprecated Unused within Cantera. To be removed after Cantera 2.6
  *
  * @ingroup inputfiles
  */
 std::string canteraRoot();
+
+//! Returns true if Cantera was compiled in debug mode. Used for handling some cases
+//! where behavior tested in the test suite changes depending on whether the `NDEBUG`
+//! preprocessor macro is defined.
+bool debugModeEnabled();
 
 /*!
  * @defgroup logs Diagnostic Output
@@ -186,18 +192,51 @@ void writelogendl();
 void writeline(char repeat, size_t count,
                bool endl_after=true, bool endl_before=false);
 
-//! @copydoc Application::warn_deprecated
-void warn_deprecated(const std::string& method, const std::string& extra="");
+//! helper function passing deprecation warning to global handler
+void _warn_deprecated(const std::string& method, const std::string& extra="");
+
+//! Print a deprecation warning raised from *method*. @see Application::warn_deprecated
+/*!
+ * @param method  method name
+ * @param msg  Python-style format string with the following arguments
+ * @param args  arguments for the format string
+ */
+template <typename... Args>
+void warn_deprecated(const std::string& method, const std::string& msg,
+                     const Args&... args) {
+    if (sizeof...(args) == 0) {
+        _warn_deprecated(method, msg);
+    } else {
+        _warn_deprecated(method, fmt::format(msg, args...));
+    }
+}
 
 //! @copydoc Application::suppress_deprecation_warnings
 void suppress_deprecation_warnings();
 
-//! helper function passing user warning to global handler
-void _warn_user(const std::string& method, const std::string& extra);
+//! helper function passing generic warning to global handler
+void _warn(const std::string& warning,
+           const std::string& method, const std::string& extra);
 
+//! Print a generic warning raised from *method*. @see Application::warn
 /*!
- * Print a user warning raised from *method*.
- *
+ * @param warning  type of warning; @see Logger::warn
+ * @param method  method name
+ * @param msg  Python-style format string with the following arguments
+ * @param args  arguments for the format string
+ */
+template <typename... Args>
+void warn(const std::string& warning, const std::string& method,
+          const std::string& msg, const Args&... args) {
+    if (sizeof...(args) == 0) {
+        _warn(warning, method, msg);
+    } else {
+        _warn(warning, method, fmt::format(msg, args...));
+    }
+}
+
+//! Print a user warning raised from *method* as `CanteraWarning`.
+/*!
  * @param method  method name
  * @param msg  Python-style format string with the following arguments
  * @param args  arguments for the format string
@@ -206,20 +245,35 @@ template <typename... Args>
 void warn_user(const std::string& method, const std::string& msg,
                const Args&... args) {
     if (sizeof...(args) == 0) {
-        _warn_user(method, msg);
+        _warn("Cantera", method, msg);
     } else {
-        _warn_user(method, fmt::format(msg, args...));
+        _warn("Cantera", method, fmt::format(msg, args...));
     }
 }
 
 //! @copydoc Application::make_deprecation_warnings_fatal
 void make_deprecation_warnings_fatal();
 
+//! @copydoc Application::make_warnings_fatal
+void make_warnings_fatal();
+
 //! @copydoc Application::suppress_thermo_warnings
 void suppress_thermo_warnings(bool suppress=true);
 
 //! @copydoc Application::thermo_warnings_suppressed
 bool thermo_warnings_suppressed();
+
+//! @copydoc Application::suppress_warnings
+void suppress_warnings();
+
+//! @copydoc Application::warnings_suppressed
+bool warnings_suppressed();
+
+//! @copydoc Application::use_legacy_rate_constants
+void use_legacy_rate_constants(bool legacy=true);
+
+//! @copydoc Application::legacy_rate_constants_used
+bool legacy_rate_constants_used();
 
 //! @copydoc Application::Messages::setLogger
 void setLogger(Logger* logwriter);
@@ -228,6 +282,7 @@ void setLogger(Logger* logwriter);
 //! to SI units.
 /*!
  * @param unit String containing the units
+ * @deprecated To be removed after Cantera 2.6. Used only with XML input.
  */
 doublereal toSI(const std::string& unit);
 
@@ -235,6 +290,7 @@ doublereal toSI(const std::string& unit);
 /// std::string 'unit' to Kelvin.
 /*!
  * @param unit  String containing the activation energy units
+ * @deprecated To be removed after Cantera 2.6. Used only with XML input.
  */
 doublereal actEnergyToSI(const std::string& unit);
 
@@ -306,6 +362,11 @@ inline T clip(const T& value, const T& lower, const T& upper)
 template <typename T> int sign(T x) {
     return (T(0) < x) - (x < T(0));
 }
+
+//! Convert a type name to a human readable string, using `boost::core::demangle` if
+//! available. Also has a set of short names for some common types.
+//! @internal Mainly for use by AnyMap and Delegator
+std::string demangle(const std::type_info& type);
 
 }
 

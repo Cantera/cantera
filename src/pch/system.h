@@ -3,7 +3,6 @@
 
 // commonly-included system headers
 #include <cmath>
-#include <cstdio>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -16,5 +15,6 @@
 
 #include <boost/algorithm/string.hpp>
 #include "cantera/base/fmt.h"
+#include "cantera/base/AnyMap.h"
 
 #endif

@@ -14,5 +14,10 @@ classdef TestImport < TestCase
             gas = Solution('h2o2.cti');
             assertEqual(temperature(gas), 300)
         end
+
+        function testImportYaml(self)
+            gas = Solution('h2o2.yaml');
+            assertEqual(temperature(gas), 300)
+        end
     end
 end

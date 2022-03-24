@@ -1,6 +1,14 @@
-// Ignition delay calculation with OpenMP. This example shows how to use OpenMP
-// to run multiple reactor network calculations in parallel by using separate
-// Cantera objects for each thread.
+/*!
+ * @file openmp_ignition.cpp
+ *
+ * Ignition delay calculation with OpenMP
+ *
+ * This example shows how to use OpenMP to run multiple reactor network
+ * calculations in parallel by using separate Cantera objects for each thread.
+ */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/zerodim.h"
 #include "cantera/thermo/IdealGasPhase.h"

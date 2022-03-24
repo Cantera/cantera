@@ -11,7 +11,7 @@ classdef TestThermo < TestCase
         function setUp(self)
             global staticTestThermoGas
             if isempty(staticTestThermoGas)
-                staticTestThermoGas = Solution('../data/steam-reforming.xml', 'full');
+                staticTestThermoGas = Solution('../data/steam-reforming.yaml', 'full');
             end
             self.gas = staticTestThermoGas;
             set(self.gas, 'T', 300, 'P', oneatm, 'Y', [0.5, 0, 0.5, 0, 0, 0, 0]);

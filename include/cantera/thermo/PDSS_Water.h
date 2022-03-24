@@ -148,6 +148,8 @@ public:
         return &m_waterProps;
     }
 
+    virtual void getParameters(AnyMap& eosNode) const;
+
     //! @}
 
 private:

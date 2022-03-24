@@ -12,6 +12,8 @@ from ._cantera cimport *
 include "utils.pyx"
 include "constants.pyx"
 include "func1.pyx"
+include "units.pyx"
+include "delegator.pyx"
 
 include "base.pyx"
 include "speciesthermo.pyx"
@@ -20,6 +22,7 @@ include "reaction.pyx"
 include "kinetics.pyx"
 include "transport.pyx"
 
+include "yamlwriter.pyx"
 include "mixture.pyx"
 include "reactor.pyx"
 include "onedim.pyx"

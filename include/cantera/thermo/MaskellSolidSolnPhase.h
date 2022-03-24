@@ -44,7 +44,7 @@ public:
     virtual doublereal enthalpy_mole() const;
     virtual doublereal entropy_mole() const;
 
-    //@}
+    //! @}
     /** @name Mechanical Equation of State Properties
      *
      * In this equation of state implementation, the density is a function only
@@ -53,7 +53,7 @@ public:
      * which try to set the thermodynamic state by calling setDensity() will
      * cause an exception to be thrown.
      */
-    //@{
+    //! @{
 
     /**
      * Pressure. Units: Pa.
@@ -73,46 +73,19 @@ public:
      */
     virtual void setPressure(doublereal p);
 
-    /**
-     * Overridden setDensity() function is necessary because the density is not
-     * an independent variable.
-     *
-     * This function will now throw an error condition
-     *
-     * @param rho  Input density
-     * @deprecated Functionality merged with base function after Cantera 2.5.
-     *             (superseded by isCompressible check in Phase::setDensity)
-     */
-    virtual void setDensity(const doublereal rho);
-
     virtual void calcDensity();
 
-    /**
-     * Overridden setMolarDensity() function is necessary because the density
-     * is not an independent variable.
-     *
-     * This function will now throw an error condition.
-     *
-     * @param rho   Input Density
-     * @deprecated Functionality merged with base function after Cantera 2.5.
-     *             (superseded by isCompressible check in Phase::setDensity)
-     */
-    virtual void setMolarDensity(const doublereal rho);
-
-    //@}
-
-    /**
-     * @name Chemical Potentials and Activities
-     * @{
-     */
+    //! @}
+    //! @name Chemical Potentials and Activities
+    //! @{
 
     virtual void getActivityCoefficients(doublereal* ac) const;
     virtual void getChemPotentials(doublereal* mu) const;
     virtual void getChemPotentials_RT(doublereal* mu) const;
 
-    //@}
-    /// @name  Partial Molar Properties of the Solution
-    //@{
+    //! @}
+    //! @name  Partial Molar Properties of the Solution
+    //! @{
 
     virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
     virtual void getPartialMolarEntropies(doublereal* sbar) const;
@@ -121,18 +94,19 @@ public:
     virtual void getPureGibbs(doublereal* gpure) const;
     virtual void getStandardChemPotentials(doublereal* mu) const;
 
-    //@}
-    /// @name Utility Functions
-    //@{
+    //! @}
+    //! @name Utility Functions
+    //! @{
 
     virtual void initThermo();
+    virtual void getParameters(AnyMap& phaseNode) const;
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     void set_h_mix(const doublereal hmix) { h_mixing = hmix; }
 
     //! Set the product Species. Must be called after species have been added.
     void setProductSpecies(const std::string& name);
-    //@}
+    //! @}
 
 private:
     /**

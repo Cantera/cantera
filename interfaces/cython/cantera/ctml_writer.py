@@ -19,7 +19,7 @@
 # .. deprecated:: 2.5
 #
 #    The CTI and XML input file formats are deprecated and will be removed in
-#    Cantera 3.0. Use `cti2yaml.py` to convert CTI input files to the YAML
+#    Cantera 3.0. Use 'cti2yaml.py' to convert CTI input files to the YAML
 #    format.
 #
 
@@ -1214,8 +1214,7 @@ class reaction(object):
         self.ldim = 0
 
         rxnph = []
-        for s in self._r:
-            ns = self._rxnorder[s]
+        for s, ns in self._rxnorder.items():
             nm = -999
             nl = -999
 
@@ -1234,8 +1233,14 @@ class reaction(object):
                                 mindim = ph._dim
                         break
                 if nm == -999:
-                    raise CTI_Error("species '{0}' not found while parsing "
-                        "reaction: '{1}'.".format(s, self._e))
+                    if s in self._r:
+                        raise CTI_Error("species '{0}' not found while parsing "
+                            "reaction: '{1}'.".format(s, self._e))
+                    else:
+                        # This reaction will either be skipped or raise an error later
+                        # due to an order being specified for an undeclared species
+                        nm = 0
+                        nl = 0
             else:
                 # If no phases are defined, assume all reactants are in bulk
                 # phases
@@ -2112,49 +2117,6 @@ class metal(phase):
         k['model'] = 'none'
 
 
-class incompressible_solid(phase):
-    """An incompressible solid.
-
-    .. deprecated:: 2.5
-
-        To be deprecated with version 2.5, and removed thereafter.
-        This phase pointed to an ill-considered constant_density ThermoPhase
-        model, which assumed a constant mass density. This underlying phase is
-        simultaneously being deprecated. Please consider switching to
-        either `IdealSolidSolution` or `lattice` phase, instead.
-    """
-    def __init__(self,
-                 name = '',
-                 elements = '',
-                 species = '',
-                 note = '',
-                 density = None,
-                 transport = 'None',
-                 initial_state = None,
-                 options = []):
-
-        phase.__init__(self, name, 3, elements, species, note, 'none',
-                       initial_state, options)
-        self._dens = density
-        self._pure = 0
-        if self._dens is None:
-            raise CTI_Error('density must be specified.')
-        self._tr = transport
-
-    def conc_dim(self):
-        return (1,-3)
-
-    def build(self, p):
-        ph = phase.build(self, p)
-        e = ph.child("thermo")
-        e['model'] = 'Incompressible'
-        addFloat(e, 'density', self._dens, defunits = _umass+'/'+_ulen+'3')
-        if self._tr:
-            t = ph.addChild('transport')
-            t['model'] = self._tr
-        k = ph.addChild("kinetics")
-        k['model'] = 'none'
-
 class IdealSolidSolution(phase):
     """An IdealSolidSolution phase."""
     def __init__(self,
@@ -2799,6 +2761,11 @@ def convert(filename=None, outName=None, text=None):
 def main():
     if len(sys.argv) not in (2,3):
         raise ValueError('Incorrect number of command line arguments.')
+    print("WARNING: The CTI and XML input file formats are deprecated and will be\n"
+          "removed in Cantera 3.0. Use 'cti2yaml.py' to convert CTI input files to\n"
+          "the YAML format. See https://cantera.org/tutorials/legacy2yaml.html for\n"
+          "more information.")
+
     convert(*sys.argv[1:])
 
 if __name__ == "__main__":

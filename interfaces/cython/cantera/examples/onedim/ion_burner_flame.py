@@ -29,6 +29,6 @@ try:
     f.write_hdf('ion_burner_flame.h5', group='ion', mode='w',
                 description='solution with ionized gas transport')
 except ImportError:
-    f.save('ion_burner_flame.xml', 'mix', 'solution with mixture-averaged transport')
+    f.save('ion_burner_flame.yaml', 'mix', 'solution with mixture-averaged transport')
 
 f.write_csv('ion_burner_flame.csv', quiet=False)

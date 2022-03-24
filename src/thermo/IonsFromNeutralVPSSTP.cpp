@@ -16,6 +16,7 @@
 
 #include "cantera/thermo/IonsFromNeutralVPSSTP.h"
 #include "cantera/thermo/ThermoFactory.h"
+#include "cantera/thermo/Species.h"
 #include "cantera/thermo/PDSS_IonsFromNeutral.h"
 #include "cantera/base/stringUtils.h"
 
@@ -25,15 +26,6 @@ using namespace std;
 
 namespace Cantera
 {
-
-IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP() :
-    ionSolnType_(cIonSolnType_SINGLEANION),
-    numNeutralMoleculeSpecies_(0),
-    indexSpecialSpecies_(npos),
-    neutralMoleculePhase_(0),
-    geThermo(0)
-{
-}
 
 IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(const std::string& inputFile,
         const std::string& id_) :
@@ -587,6 +579,14 @@ void IonsFromNeutralVPSSTP::initThermo()
     }
 
     GibbsExcessVPSSTP::initThermo();
+}
+
+void IonsFromNeutralVPSSTP::getParameters(AnyMap& phaseNode) const
+{
+    ThermoPhase::getParameters(phaseNode);
+    if (neutralMoleculePhase_) {
+        phaseNode["neutral-phase"] = neutralMoleculePhase_->name();
+    }
 }
 
 void IonsFromNeutralVPSSTP::setNeutralMoleculePhase(shared_ptr<ThermoPhase> neutral)

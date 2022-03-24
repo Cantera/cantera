@@ -1,0 +1,42 @@
+generator: ctml2yaml
+cantera-version: 2.6.0a2
+date: Fri, 30 Apr 2021 14:40:13 -0400
+input-files: [test/data/MaskellSolidSolnPhase_valid.xml]
+
+phases:
+- name: Soln_Maskell9
+  elements: [H, He]
+  species:
+  - species_Soln: [H(s), He(s)]
+  thermo: Maskell-solid-solution
+  excess-enthalpy: -1000.0
+  product-species: H(s)
+  state: {T: 298.15, P: 1.0 atm, X: {H(s): 0.9, He(s): 0.1}}
+
+species_Soln:
+- name: H(s)
+  composition: {H: 1.0, He: 2.0}
+  thermo:
+    model: constant-cp
+    T0: 1.0
+    h0: 0.0
+    s0: 0.0
+    cp0: 0.0
+    T-min: 250.0
+    T-max: 800.0
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 5.0e-03 m^3/kmol
+- name: He(s)
+  composition: {H: 0.0, He: 1.0}
+  thermo:
+    model: constant-cp
+    T0: 1.0
+    h0: 1000.0
+    s0: 0.0
+    cp0: 0.0
+    T-min: 250.0
+    T-max: 800.0
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 0.01 m^3/kmol

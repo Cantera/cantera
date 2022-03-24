@@ -53,9 +53,9 @@ import textwrap
 from email.utils import formatdate
 
 try:
-    import ruamel_yaml as yaml
-except ImportError:
     from ruamel import yaml
+except ImportError:
+    import ruamel_yaml as yaml
 
 # yaml.version_info is a tuple with the three parts of the version
 yaml_version = yaml.version_info
@@ -527,9 +527,6 @@ class Chebyshev(KineticsModel):
         self.Pmax = Pmax
         self.coeffs = coeffs
         self.quantity_units = quantity_units
-
-    def reaction_string_suffix(self, species):
-        return ' (+{})'.format(species if species else 'M')
 
     def reduce(self, output):
         output['type'] = 'Chebyshev'
@@ -1375,8 +1372,15 @@ class Parser:
         """
         Load YAML-formatted entries from ``path`` on disk.
         """
-        with open(path, 'rt', encoding="utf-8") as stream:
-            yml = yaml.round_trip_load(stream)
+        try:
+            yaml_ = yaml.YAML(typ="rt")
+            with open(path, 'rt', encoding="utf-8") as stream:
+                yml = yaml_.load(stream)
+        except yaml.constructor.ConstructorError:
+            with open(path, "rt", encoding="utf-8") as stream:
+                # Ensure that the loader remains backward-compatible with legacy
+                # ruamel.yaml versions (prior to 0.17.0).
+                yml = yaml.round_trip_load(stream)
 
         # do not overwrite reserved field names
         reserved = {'generator', 'input-files', 'cantera-version', 'date',
@@ -1419,7 +1423,7 @@ class Parser:
                 else:
                     return None, None
 
-            # @TODO: This loop is a bit of a mess, and could probably be cleaned
+            # @todo: This loop is a bit of a mess, and could probably be cleaned
             # up by refactoring it into a set of methods for processing each
             # input file section.
             line, comment = readline()
@@ -1896,10 +1900,10 @@ class Parser:
             # Additional information regarding conversion
             files = [os.path.basename(f) for f in self.files]
             metadata = BlockMap([
-                ('generator', 'ck2yaml'),
-                ('input-files', FlowList(files)),
-                ('cantera-version', '2.5.1'),
-                ('date', formatdate(localtime=True)),
+                ("generator", "ck2yaml"),
+                ("input-files", FlowList(files)),
+                ("cantera-version", "2.6.0b1"),
+                ("date", formatdate(localtime=True)),
             ])
             if desc.strip():
                 metadata.yaml_set_comment_before_after_key('generator', before='\n')
@@ -1945,6 +1949,7 @@ class Parser:
                 phase = BlockMap()
                 phase['name'] = surf.name
                 phase['thermo'] = 'ideal-surface'
+                phase['adjacent-phases'] = FlowList([name])
                 phase['elements'] = FlowList(self.elements)
                 phase['species'] = FlowList(S.label for S in surf.species_list)
                 phase['site-density'] = surf.site_density

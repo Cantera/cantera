@@ -1,5 +1,8 @@
 /**
  *  @file FalloffFactory.cpp
+ *
+ *  @deprecated  Deprecated in Cantera 2.6 and removed thereafter. Replaced by
+ *      FalloffRate objects managed by MultiRate evaluators.
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -16,38 +19,17 @@ std::mutex FalloffFactory::falloff_mutex;
 
 FalloffFactory::FalloffFactory()
 {
-    reg("Lindemann", []() { return new Falloff(); });
+    reg("Lindemann", []() { return new Lindemann(); });
     addAlias("Lindemann", "Simple");
     reg("Troe", []() { return new Troe(); });
     reg("SRI", []() { return new SRI(); });
-}
-
-Falloff* FalloffFactory::newFalloff(int type, const vector_fp& c)
-{
-    warn_deprecated("FalloffFactory::newFalloff",
-        "Instantiation using magic numbers is deprecated; use string "
-        "identifier instead. To be removed after Cantera 2.5.");
-    static const std::unordered_map<int, std::string> types {
-        {SIMPLE_FALLOFF, "Simple"},
-        {TROE_FALLOFF, "Troe"},
-        {SRI_FALLOFF, "SRI"}
-    };
-
-    Falloff* f = create(types.at(type));
-    f->init(c);
-    return f;
+    reg("Tsang", []() { return new Tsang(); });
 }
 
 Falloff* FalloffFactory::newFalloff(const std::string& type, const vector_fp& c)
 {
     Falloff* f = create(type);
     f->init(c);
-    return f;
-}
-
-shared_ptr<Falloff> newFalloff(int type, const vector_fp& c)
-{
-    shared_ptr<Falloff> f(FalloffFactory::factory()->newFalloff(type, c));
     return f;
 }
 

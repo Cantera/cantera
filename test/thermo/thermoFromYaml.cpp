@@ -1,9 +1,11 @@
 #include "gtest/gtest.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/Elements.h"
+#include "cantera/thermo/Species.h"
 #include "cantera/thermo/MolalityVPSSTP.h"
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/thermo/SurfPhase.h"
+#include "cantera/thermo/EdgePhase.h"
 #include <fstream>
 
 using namespace Cantera;
@@ -110,6 +112,13 @@ TEST(ThermoFromYaml, EdgePhase)
     EXPECT_DOUBLE_EQ(edge->siteDensity(), 5e-18);
 }
 
+TEST(ThermoFromYaml, EdgePhase_direct)
+{
+    EdgePhase tpb("surface-phases.yaml", "TPB");
+    EXPECT_EQ(tpb.nSpecies(), (size_t) 1);
+    EXPECT_DOUBLE_EQ(tpb.siteDensity(), 5e-18);
+}
+
 TEST(ThermoFromYaml, WaterSSTP)
 {
     auto thermo = newThermo("thermo-models.yaml", "liquid-water");
@@ -118,18 +127,6 @@ TEST(ThermoFromYaml, WaterSSTP)
     // Regression tests based on XML
     EXPECT_NEAR(thermo->density(), 973.7736331, 1e-6);
     EXPECT_NEAR(thermo->enthalpy_mass(), -15649685.52296013, 1e-6);
-}
-
-//! @todo Remove after Cantera 2.5 - class FixedChemPotSSTP is deprecated
-TEST(ThermoFromYaml, FixedChemPot)
-{
-    suppress_deprecation_warnings();
-    auto thermo = newThermo("thermo-models.yaml", "Li-fixed");
-    EXPECT_EQ(thermo->nSpecies(), (size_t) 1);
-    double mu;
-    thermo->getChemPotentials(&mu);
-    EXPECT_DOUBLE_EQ(mu, -2.3e7);
-    make_deprecation_warnings_fatal();
 }
 
 TEST(ThermoFromYaml, Margules)
@@ -235,19 +232,6 @@ TEST(ThermoFromYaml, IonsFromNeutral_fromString)
     EXPECT_NEAR(thermo->enthalpy_mass(), -14738312.44316336, 1e-6);
     EXPECT_NEAR(mu[0], -4.66404010e+08, 1e1);
     EXPECT_NEAR(mu[1], -2.88157316e+06, 1e-1);
-}
-
-//! @todo Remove after Cantera 2.5 - "gas" mode of IdealSolnGasVPSS is
-//!     deprecated
-TEST(ThermoFromYaml, IdealSolnGas_gas)
-{
-    suppress_deprecation_warnings();
-    auto thermo = newThermo("thermo-models.yaml", "IdealSolnGas-gas");
-    make_deprecation_warnings_fatal();
-    thermo->equilibrate("HP");
-    EXPECT_NEAR(thermo->temperature(), 479.929, 1e-3); // based on h2o2.cti
-    EXPECT_NEAR(thermo->moleFraction("H2O"), 0.01, 1e-4);
-    EXPECT_NEAR(thermo->moleFraction("H2"), 0.0, 1e-4);
 }
 
 TEST(ThermoFromYaml, IdealSolnGas_liquid)
@@ -356,6 +340,21 @@ TEST(ThermoFromYaml, RedlichKwong_CO2)
     EXPECT_NEAR(thermo->cp_mass(), 3358.492543261, 1e-8);
 }
 
+
+TEST(ThermoFromYaml, PengRobinson_CO2)
+{
+    auto thermo = newThermo("thermo-models.yaml", "CO2-PR");
+    EXPECT_NEAR(thermo->density(), 924.3096421928459, 1e-8);
+    EXPECT_NEAR(thermo->enthalpy_mass(), -9206947.0793171767, 1e-6);
+    EXPECT_NEAR(thermo->cp_mass(), 2212.6205116910733, 1e-8);
+
+    thermo->setState_TPX(350, 180*OneAtm, "CO2:0.6, H2O:0.02, H2:0.38");
+    EXPECT_NEAR(thermo->density(), 606.92307568968181, 1e-8);
+    EXPECT_NEAR(thermo->enthalpy_mass(), -9147086.2113218177, 1e-6);
+    EXPECT_NEAR(thermo->cp_mass(), 4225.2945233381452, 1e-8);
+    EXPECT_NEAR(thermo->cv_mole(), 37260.903998741924, 1e-8);
+}
+
 TEST(ThermoFromYaml, PureFluid_nitrogen)
 {
     auto thermo = newThermo("thermo-models.yaml", "nitrogen");
@@ -384,14 +383,6 @@ TEST(ThermoFromYaml, PureFluid_Unknown)
     EXPECT_THROW(newPhase(phase, root), CanteraError);
 }
 
-TEST(ThermoFromYaml, ConstDensityThermo)
-{
-    suppress_deprecation_warnings();
-    auto thermo = newThermo("thermo-models.yaml", "const-density");
-    EXPECT_DOUBLE_EQ(thermo->density(), 700.0);
-    make_deprecation_warnings_fatal();
-}
-
 TEST(ThermoFromYaml, IdealSolidSolnPhase)
 {
     auto thermo = newThermo("thermo-models.yaml", "IdealSolidSolnPhase");
@@ -400,6 +391,28 @@ TEST(ThermoFromYaml, IdealSolidSolnPhase)
     EXPECT_NEAR(thermo->density(), 10.1787080, 1e-6);
     EXPECT_NEAR(thermo->enthalpy_mass(), -15642788.8547624, 1e-4);
     EXPECT_NEAR(thermo->gibbs_mole(), -313642312.7114608, 1e-4);
+
+    // Test that molar enthalpy equals sum(h_k*X_k). Test first at default 
+    // pressure:
+    double h_avg = 0;
+    size_t N = thermo->nSpecies();
+    vector_fp X_k(N);
+    vector_fp h_k(N);
+    thermo->getMoleFractions(X_k.data());
+    thermo->getPartialMolarEnthalpies(h_k.data());
+    for (size_t k = 0; k < N; k++) {
+        h_avg += X_k[k]*h_k[k];
+    }
+    EXPECT_NEAR(thermo->enthalpy_mole(), h_avg, 1e-6);
+
+    // Now test the pressure dependence, by repeating at 2 atm:
+    thermo->setState_TP(298, 2*OneAtm);
+    thermo->getPartialMolarEnthalpies(h_k.data());
+    h_avg = 0;
+    for (size_t k = 0; k < N; k++) {
+        h_avg += X_k[k]*h_k[k];
+    }
+    EXPECT_NEAR(thermo->enthalpy_mole(), h_avg, 1e-6);
 }
 
 TEST(ThermoFromYaml, Lattice)
@@ -463,12 +476,4 @@ TEST(ThermoFromYaml, BinarySolutionTabulatedThermo)
     EXPECT_NEAR(thermo->entropy_mass(), 90.443481807823474, 1e-12);
     thermo->setMoleFractionsByName("Li[anode]: 0.55, V[anode]: 0.45");
     EXPECT_NEAR(thermo->gibbs_mass(), -87066.246182649265, 1e-9);
-}
-
-TEST(ThermoFromYaml, DeprecatedPhase)
-{
-    // The deprecation warning in this file is turned into an
-    // error by make_deprecation_warnings_fatal() called in main()
-    // for the test suite.
-    EXPECT_THROW(newThermo("gri30.yaml", "gri30_mix"), CanteraError);
 }

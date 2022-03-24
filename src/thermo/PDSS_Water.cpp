@@ -259,4 +259,9 @@ doublereal PDSS_Water::satPressure(doublereal t)
     return pp;
 }
 
+void PDSS_Water::getParameters(AnyMap& eosNode) const
+{
+    eosNode["model"] = "liquid-water-IAPWS95";
+}
+
 }

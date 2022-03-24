@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 #include "cantera/base/xml.h"
+#include "cantera/base/global.h"
 #include <fstream>
 
 namespace Cantera
@@ -7,6 +8,7 @@ namespace Cantera
 
 TEST(XML_Node, read_write)
 {
+    suppress_deprecation_warnings();
     // Check that we can re-read our own XML output
     XML_Node node1, node2;
     std::stringstream out;
@@ -24,6 +26,7 @@ TEST(XML_Node, read_write)
     for (size_t i = 0; i < species1.size(); i++) {
         ASSERT_EQ(species1[i]->attrib("name"), species2[i]->attrib("name"));
     }
+    make_deprecation_warnings_fatal();
 }
 
 }

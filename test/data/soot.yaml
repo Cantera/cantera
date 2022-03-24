@@ -1,0 +1,144 @@
+description: |-
+  This artificial reaction mechanism is extracted from the MIT soot
+  mechanism of Prof. Jack Howard. This is used to test Cantera's
+  ability to handle the extensions to the Chemkin format used to
+  specify very large molecules, and also to test the parsing of
+  non-integral stoichiometric coefficients.
+
+generator: ctml2yaml + manual additions
+cantera-version: 2.6.0a3
+date: Sat, 18 Dec 2021 23:08:59 -0500
+input-files: [test/data/soot.xml]
+
+phases:
+- name: soot
+  elements: [H, O, C]
+  species: [H, H2, C6H5, A1C2HJ2, C10H7J1, C10H7J2, A2CH2-1, A2CH2-2, BIN5, BIN6]
+  thermo: ideal-gas
+  kinetics: gas
+  reactions: all
+  state: {T: 300.0 K, P: 1.01325e+05 Pa}
+
+species:
+- name: H
+  composition: {H: 1.0}
+  note: '120186'
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 5000.0]
+    data:
+    - [2.5, 0.0, 0.0, 0.0, 0.0, 2.547162e+04, -0.4601176]
+    - [2.5, 0.0, 0.0, 0.0, 0.0, 2.547162e+04, -0.4601176]
+- name: H2
+  composition: {H: 2.0}
+  note: '121286'
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 5000.0]
+    data:
+    - [3.298124, 8.249441e-04, -8.143015e-07, -9.475434e-11, 4.134872e-13, -1012.5209,
+      -3.294094]
+    - [2.991423, 7.000644e-04, -5.633828e-08, -9.231578e-12, 1.5827519e-15, -835.034,
+      -1.3551101]
+- name: C6H5
+  composition: {H: 5.0, C: 6.0}
+  note: HR 4/99 BLYP00
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1401.0, 5000.0]
+    data:
+    - [-4.79363838, 0.0641256261, -5.63088346e-05, 2.50628417e-08, -4.43680766e-12,
+      3.97940632e+04, 44.7040879]
+    - [13.9113231, 0.0144510477, -4.97643143e-06, 7.763502e-10, -4.52009699e-14, 3.39370888e+04,
+      -53.5639096]
+- name: A1C2HJ2
+  composition: {H: 5.0, C: 8.0}
+  note: HR 6/99 BLYP00
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1403.0, 5000.0]
+    data:
+    - [-1.49929738, 0.0701891496, -6.2942991e-05, 2.85073827e-08, -5.11137313e-12,
+      6.59494823e+04, 31.5838359]
+    - [18.8370382, 0.0152445522, -5.22469596e-06, 8.12518874e-10, -4.72045178e-14,
+      5.96821996e+04, -74.9107592]
+- name: C10H7J1
+  composition: {H: 7.0, C: 10.0}
+  note: TB 1/99 BLYP00
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1401.0, 5000.0]
+    data:
+    - [-7.74269427, 0.104220941, -9.25076899e-05, 4.12403544e-08, -7.28199643e-12,
+      4.72057155e+04, 58.6484815]
+    - [23.2134837, 0.0219245132, -7.57801031e-06, 1.18526564e-09, -6.91369406e-14,
+      3.75456274e+04, -103.911378]
+- name: C10H7J2
+  composition: {H: 7.0, C: 10.0}
+  note: TB 1/99 BLYP00
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1401.0, 5000.0]
+    data:
+    - [-7.71898395, 0.104275854, -9.26741654e-05, 4.13767346e-08, -7.31737931e-12,
+      4.73225871e+04, 58.4596982]
+    - [23.235655, 0.0219168575, -7.57777612e-06, 1.18547456e-09, -6.91588767e-14,
+      3.76662306e+04, -104.0742]
+- name: A2CH2-1
+  composition: {H: 9.0, C: 11.0}
+  note: 'HR 6/99 BLYP  '
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1393.0, 5000.0]
+    data:
+    - [-9.42561321, 0.126956297, -1.19253218e-04, 5.69889164e-08, -1.07817848e-11,
+      2.90341851e+04, 65.675052]
+    - [26.7591143, 0.0266944366, -9.34672512e-06, 1.47411301e-09, -8.64694573e-14,
+      1.79163708e+04, -123.291372]
+- name: A2CH2-2
+  composition: {H: 9.0, C: 11.0}
+  note: 'HR 6/99 BLYP  '
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1393.0, 5000.0]
+    data:
+    - [-9.37163916, 0.12733762, -1.20319319e-04, 5.78670534e-08, -1.10107665e-11,
+      2.91224235e+04, 65.300158]
+    - [26.7837993, 0.0267091735, -9.35972813e-06, 1.47696837e-09, -8.66691339e-14,
+      1.8036158e+04, -123.392042]
+- name: BIN5
+  composition: {H: 144.0, C: 388.0}
+  note: PYRENE
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1401.0, 5000.0]
+    data:
+    - [-12.975898, 0.163790064, -1.43851166e-04, 6.31057915e-08, -1.09568047e-11,
+      2.48866399e+04, 79.4950474]
+    - [36.5839677, 0.0336764102, -1.16783938e-05, 1.83077466e-09, -1.06963777e-13,
+      9298.09483, -181.27207]
+- name: BIN6
+  composition: {H: 264.0, C: 778.0}
+  note: PYRENE
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1401.0, 5000.0]
+    data:
+    - [-12.975898, 0.163790064, -1.43851166e-04, 6.31057915e-08, -1.09568047e-11,
+      2.48866399e+04, 79.4950474]
+    - [36.5839677, 0.0336764102, -1.16783938e-05, 1.83077466e-09, -1.06963777e-13,
+      9298.09483, -181.27207]
+
+reactions:
+- equation: C6H5 + BIN5 => 0.984615 BIN5 + 0.0153846 BIN6 + 1.0769 H2 + H
+  rate-constant: {A: 5.62e+09, b: 0.5, Ea: 0.0 cal/mol}
+- equation: A1C2HJ2 + BIN5 => 0.979487 BIN5 + 0.0205128 BIN6 + 0.7692 H2 + H
+  rate-constant: {A: 5.1e+09, b: 0.5, Ea: 0.0 cal/mol}
+- equation: C10H7J1 + BIN5 => 0.974359 BIN5 + 0.025641 BIN6 + 1.4615 H2 + H
+  rate-constant: {A: 4.72e+09, b: 0.5, Ea: 0.0 cal/mol}
+- equation: C10H7J2 + BIN5 => 0.974359 BIN5 + 0.025641 BIN6 + 1.4615 H2 + H
+  rate-constant: {A: 4.72e+09, b: 0.5, Ea: 0.0 cal/mol}
+- equation: A2CH2-1 + BIN5 => 0.971795 BIN5 + 0.0282051 BIN6 + 2.3077 H2 + H
+  rate-constant: {A: 4.56e+09, b: 0.5, Ea: 0.0 cal/mol}
+- equation: A2CH2-2 + BIN5 => 0.971795 BIN5 + 0.0282051 BIN6 + 2.3077 H2 + H
+  rate-constant: {A: 4.56e+09, b: 0.5, Ea: 0.0 cal/mol}

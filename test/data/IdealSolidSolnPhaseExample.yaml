@@ -1,0 +1,69 @@
+generator: ctml2yaml
+cantera-version: 2.6.0a2
+date: Sun, 16 May 2021 09:36:36 -0400
+input-files: [test/data/IdealSolidSolnPhaseExample.xml]
+
+phases:
+- name: solidSolutionExample
+  elements: [H, C]
+  species:
+  - species_solidSolution: [C2H2-graph, C-graph, H2-solute]
+  thermo: ideal-condensed
+  state: {T: 500.0 K}
+  standard-concentration-basis: unity
+- name: VpssSolidSolutionExample
+  elements: [H, C]
+  species:
+  - species_solidSolution: [C2H2-graph, C-graph, H2-solute]
+  thermo: ideal-solution-VPSS
+  state: {T: 500.0 K}
+  standard-concentration-basis: unity
+
+species_solidSolution:
+- name: C2H2-graph
+  composition: {C: 2.0, H: 2.0}
+  note: This corresponds to new soot
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [2.34433112, 7.98052075e-03, -1.9478151e-05, 2.01572094e-08, -7.37611761e-12,
+      -917.935173, 0.683010238]
+    - [3.3372792, -4.94024731e-05, 4.99456778e-07, -1.79566394e-10, 2.00255376e-14,
+      -950.158922, -3.20502331]
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 1.5
+- name: C-graph
+  composition: {C: 1.0}
+  note: This corresponds to old soot
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [2.34433112, 7.98052075e-03, -1.9478151e-05, 2.01572094e-08, -7.37611761e-12,
+      -917.935173, 0.683010238]
+    - [3.3372792, -4.94024731e-05, 4.99456778e-07, -1.79566394e-10, 2.00255376e-14,
+      -950.158922, -3.20502331]
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 1.3
+- name: H2-solute
+  composition: {H: 2.0}
+  note: This species diffuses back into the gas phase
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [2.34433112, 7.98052075e-03, -1.9478151e-05, 2.01572094e-08, -7.37611761e-12,
+      -917.935173, 0.683010238]
+    - [3.3372792, -4.94024731e-05, 4.99456778e-07, -1.79566394e-10, 2.00255376e-14,
+      -950.158922, -3.20502331]
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 0.1
+
+reactions_solidSolution:
+- id: bulk_rxn_1
+  equation: C2H2-graph <=> H2-solute + 2 C-graph
+  rate-constant: {A: 1.0e+10, b: 0.0, Ea: 1.0e+04 cal/mol}

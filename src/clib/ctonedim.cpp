@@ -14,6 +14,7 @@
 #include "cantera/oneD/Boundary1D.h"
 #include "cantera/transport/TransportBase.h"
 #include "Cabinet.h"
+#include "cantera/base/stringUtils.h"
 
 #include <fstream>
 

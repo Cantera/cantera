@@ -149,6 +149,7 @@ void setupSpeciesThermo(SpeciesThermoInterpType& thermo,
 {
     double Pref = node.convert("reference-pressure", "Pa", OneAtm);
     thermo.setRefPressure(Pref);
+    thermo.input() = node;
 }
 
 void setupNasaPoly(NasaPoly2& thermo, const AnyMap& node)
@@ -386,7 +387,7 @@ void setupMu0(Mu0Poly& thermo, const AnyMap& node)
     double h0 = node.convert("h0", "J/kmol", 0.0);
     map<double, double> T_mu;
     for (const auto& item : node["data"]) {
-        double T = node.units().convert(fpValueCheck(item.first), "K");
+        double T = node.units().convertTo(fpValueCheck(item.first), "K");
         if (dimensionless) {
             T_mu[T] = item.second.asDouble() * GasConstant * T;
         } else {

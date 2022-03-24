@@ -7,13 +7,15 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/transport/DustyGasTransport.h"
+#include "cantera/thermo/ThermoPhase.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/utilities.h"
 
 using namespace std;
 
 namespace Cantera
 {
-DustyGasTransport::DustyGasTransport(thermo_t* thermo) :
+DustyGasTransport::DustyGasTransport(ThermoPhase* thermo) :
     Transport(thermo),
     m_temp(-1.0),
     m_gradP(0.0),
@@ -27,7 +29,7 @@ DustyGasTransport::DustyGasTransport(thermo_t* thermo) :
 {
 }
 
-void DustyGasTransport::setThermo(thermo_t& thermo)
+void DustyGasTransport::setThermo(ThermoPhase& thermo)
 {
     Transport::setThermo(thermo);
     m_gastran->setThermo(thermo);

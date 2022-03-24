@@ -5,6 +5,7 @@
 
 #include "cantera/oneD/refine.h"
 #include "cantera/oneD/StFlow.h"
+#include "cantera/base/global.h"
 
 using namespace std;
 

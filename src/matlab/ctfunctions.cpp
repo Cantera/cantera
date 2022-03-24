@@ -33,7 +33,7 @@ void ctfunctions(int nlhs, mxArray* plhs[],
                  int nrhs, const mxArray* prhs[])
 {
     int job = getInt(prhs[1]);
-    int iok = 0, dbg, validate;
+    int iok = 0, dbg, validate, legacy;
     char* infile, *dbfile, *trfile, *idtag, *sep;
     int buflen = 0;
     char* output_buf = 0;
@@ -104,6 +104,12 @@ void ctfunctions(int nlhs, mxArray* plhs[],
         output_buf = (char*)mxCalloc(buflen, sizeof(char));
         iok = ct_getGitCommit(buflen, output_buf);
         plhs[0] = mxCreateString(output_buf);
+        return;
+
+        // set definition used for rate constant calculation
+    case 8:
+        legacy = getInt(prhs[2]);
+        iok = ct_use_legacy_rate_constants(legacy);
         return;
 
     default:

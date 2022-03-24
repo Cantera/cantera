@@ -67,6 +67,16 @@ public:
         std::cout << std::endl;
     }
 
+    //! Write a warning message.
+    /*!
+     * The default behavior is to write to the logging output.
+     * @param warning  String specifying type of warning; @see Logger::warn
+     * @param msg      String message to be written to cout
+     */
+    virtual void warn(const std::string& warning, const std::string& msg) {
+        std::clog << warning << "Warning: " << msg << std::endl;
+    }
+
     //! Write an error message and quit.
     /*!
      * The default behavior is to write to the standard error stream, and then
