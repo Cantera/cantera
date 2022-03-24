@@ -4,7 +4,7 @@ description: |-
 units: {length: cm, quantity: molec, activation-energy: K}
 
 phases:
-- name: gas
+- name: isotropic-electron-energy-plasma
   thermo: plasma
   elements: [O, E]
   species:
@@ -17,7 +17,8 @@ phases:
   electron-energy-distribution:
     type: isotropic
     shape-factor: 2.0
-    electron-temperature: 1e5
+    mean-electron-energy: 1.0 eV
+    energy-levels: [0.0, 0.1, 1.0, 10.0]
 
 - name: discretized-electron-energy-plasma
   thermo: plasma

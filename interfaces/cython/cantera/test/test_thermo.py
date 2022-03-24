@@ -1,6 +1,7 @@
 from collections import OrderedDict
 import numpy as np
 import gc
+from scipy import integrate
 
 import cantera as ct
 from . import utilities
@@ -1128,14 +1129,19 @@ class TestInterfacePhase(utilities.CanteraTest):
 
 class TestPlasmaPhase(utilities.CanteraTest):
     def setUp(self):
-        self.phase = ct.Solution('oxygen-plasma.yaml', transport_model=None)
+        self.phase = ct.Solution('oxygen-plasma.yaml',
+                                 'isotropic-electron-energy-plasma',
+                                 transport_model=None)
 
-    def test_mean_electron_energy(self):
-        self.phase.Te = 60000
-        h = self.phase.standard_enthalpies_RT[0]
-        epi = (self.phase.mean_electron_energy * ct.avogadro * ct.electron_charge /
-                (ct.gas_constant * self.phase.Te))
-        self.assertNear(epi, h - 1.0, 1e-2)
+    def test_converting_electron_energy_to_temperature(self):
+        self.phase.mean_electron_energy = 1.0
+        Te = 2.0 / 3.0 * ct.electron_charge / ct.boltzmann
+        self.assertNear(self.phase.Te, Te)
+
+    def test_converting_electron_temperature_to_energy(self):
+        self.phase.Te = 10000
+        energy = self.phase.Te * 3.0 / 2.0 / ct.electron_charge * ct.boltzmann
+        self.assertNear(self.phase.mean_electron_energy, energy)
 
     def test_set_get_electron_energy_levels(self):
         levels = np.linspace(0.01, 10, num=9)
@@ -1148,15 +1154,17 @@ class TestPlasmaPhase(utilities.CanteraTest):
         self.phase.Te = 2e5
         mean_electron_energy = 3.0 / 2.0 * (self.phase.Te * ct.gas_constant /
                                (ct.avogadro * ct.electron_charge))
-        self.assertNear(mean_electron_energy , self.phase.mean_electron_energy)
+        self.assertNear(mean_electron_energy, self.phase.mean_electron_energy)
 
-    def test_user_specified_electron_energy_distribution(self):
-        levels = np.linspace(0, 1, num=2)
-        distrb = np.linspace(0, 1, num=2)
-        self.phase.set_electron_energy_distribution(levels, distrb)
+    def test_discretized_electron_energy_distribution(self):
+        levels = np.array([0.0, 1.0, 10.0])
+        dist = np.array([0.0, 0.9, 0.01])
+        self.phase.normalize_electron_energy_distribution_enabled = False
+        self.phase.set_electron_energy_distribution(levels, dist)
         self.assertArrayNear(levels, self.phase.electron_energy_levels)
-        self.assertArrayNear(distrb, self.phase.electron_energy_distribution)
-        self.assertNear(self.phase.mean_electron_energy, 0.2)
+        self.assertArrayNear(dist, self.phase.electron_energy_distribution)
+        mean_energy = 2.0 / 5.0 * integrate.simpson(dist, np.power(levels, 5./2.))
+        self.assertNear(self.phase.mean_electron_energy, mean_energy, 1e-4)
         electron_temp = 2.0 / 3.0 * (self.phase.mean_electron_energy *
                         ct.avogadro * ct.electron_charge / ct.gas_constant)
         self.assertNear(self.phase.Te, electron_temp)

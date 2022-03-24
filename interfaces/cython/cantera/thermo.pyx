@@ -1893,6 +1893,11 @@ cdef class ThermoPhase(_SolutionBase):
                 raise TypeError('This method is invalid for '
                                 f'thermo model: {self.thermo_model}.')
             return self.plasma.meanElectronEnergy()
+        def __set__(self, double energy):
+            if not self._enable_plasma:
+                raise TypeError('This method is invalid for '
+                                f'thermo model: {self.thermo_model}.')
+            self.plasma.setMeanElectronEnergy(energy)
 
 
 cdef class InterfacePhase(ThermoPhase):
