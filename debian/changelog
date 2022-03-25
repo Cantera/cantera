@@ -1,3 +1,10 @@
+cantera (2.6.0b1-1+jammy1) jammy; urgency=medium
+
+  * Fix forced dependency on wrong version of libyaml-cpp
+  * Remove extraneous files installed with Python package
+
+ -- Raymond Speth <speth@mit.edu>  Fri, 25 Mar 2022 10:39:00 -0400
+
 cantera (2.6.0b1-1+jammy0) jammy; urgency=medium
 
   * Build for Jammy
