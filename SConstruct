@@ -1821,6 +1821,12 @@ if env['OS'] == 'Solaris' or env['HAS_CLANG']:
     configh['NEEDS_GENERIC_TEMPL_STATIC_DECL'] = 1
     env["RPATHPREFIX"] = "-Wl,-rpath,"
 
+if env["OS"] == "Darwin" and env["use_rpath_linkage"] and not env.subst("$__RPATH"):
+    # SCons doesn't want to specify RPATH on macOS, so circumvent that behavior by
+    # specifying this directly as part of LINKFLAGS
+    env.Append(LINKFLAGS=[env.subst(f'$RPATHPREFIX{x}$RPATHSUFFIX')
+                          for x in env['RPATH']])
+
 configh['CT_SUNDIALS_VERSION'] = env['sundials_version'].replace('.','')
 
 if env.get('has_sundials_lapack') and env['use_lapack']:
