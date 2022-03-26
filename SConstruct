@@ -1923,12 +1923,6 @@ if addInstallActions:
     install(env.RecursiveInstall, '$inst_datadir', 'build/data')
 
 
-### List of libraries needed to link to Cantera ###
-linkLibs = ['cantera']
-
-### List of shared libraries needed to link applications to Cantera
-linkSharedLibs = ['cantera_shared']
-
 if env['system_sundials'] == 'y':
     env['sundials_libs'] = ['sundials_cvodes', 'sundials_ida', 'sundials_nvecserial']
     if env['use_lapack'] and sundials_ver >= parse_version('3.0'):
@@ -1941,27 +1935,27 @@ if env['system_sundials'] == 'y':
 else:
     env['sundials_libs'] = []
 
-linkLibs.extend(env['sundials_libs'])
-linkSharedLibs.extend(env['sundials_libs'])
+# External libraries to link to
+env["external_libs"] = []
+env["external_libs"].extend(env["sundials_libs"])
 
-if env['system_fmt']:
-    linkLibs.append('fmt')
-    linkSharedLibs.append('fmt')
+if env["system_fmt"]:
+    env["external_libs"].append("fmt")
 
-if env['system_yamlcpp']:
-    linkLibs.append('yaml-cpp')
-    linkSharedLibs.append('yaml-cpp')
+if env["system_yamlcpp"]:
+    env["external_libs"].append("yaml-cpp")
 
-#  Add LAPACK and BLAS to the link line
-if env['blas_lapack_libs']:
-    linkLibs.extend(env['blas_lapack_libs'])
-    linkSharedLibs.extend(env['blas_lapack_libs'])
+if env["blas_lapack_libs"]:
+    env["external_libs"].extend(env["blas_lapack_libs"])
 
-# Store the list of needed static link libraries in the environment
-env['cantera_libs'] = linkLibs
-env['cantera_shared_libs'] = linkSharedLibs
-if not env['renamed_shared_libraries']:
-    env['cantera_shared_libs'] = linkLibs
+# List of static libraries needed to link to Cantera
+env["cantera_libs"] = ["cantera"] + env["external_libs"]
+
+# List of shared libraries needed to link to Cantera
+if env["renamed_shared_libraries"]:
+    env["cantera_shared_libs"] = ["cantera_shared"] + env["external_libs"]
+else:
+    env["cantera_shared_libs"] = ["cantera"] + env["external_libs"]
 
 # Add targets from the SConscript files in the various subdirectories
 Export('env', 'build', 'libraryTargets', 'install', 'buildSample')
