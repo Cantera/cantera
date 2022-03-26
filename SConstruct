@@ -1612,6 +1612,19 @@ if env['python_package'] != 'none':
                 f"Building the full Python package for Python {python_version}")
             env["python_package"] = "full"
 
+if env["python_package"] == "full" and env["OS"] == "Darwin":
+    # We need to know the macOS deployment target in advance to be able to determine
+    # the name of the wheel file for the Python module. If this is not specified by the
+    # MACOSX_DEPLOYMENT_TARGET environment variable, get the value from the Python
+    # installation and use that.
+    if not env["ENV"].get("MACOSX_DEPLOYMENT_TARGET", False):
+        info = get_command_output(
+            env["python_cmd"],
+            "-c",
+            "import sysconfig; print(sysconfig.get_platform())"
+        )
+        env["ENV"]["MACOSX_DEPLOYMENT_TARGET"] = info.split("-")[1]
+
 # Matlab Toolbox settings
 if env["matlab_path"] != "" and env["matlab_toolbox"] == "default":
     env["matlab_toolbox"] = "y"
