@@ -28,19 +28,16 @@ os.chdir(str(CANTERA_ROOT / "test" / "work"))
 try:
     import pytest
 except ImportError:
-    pytest = None
-import cantera
-import cantera.test
-
-
-if __name__ == "__main__":
-    if pytest is None:
         print("\n* ERROR: The Cantera Python test suite requires "
             "the Python package 'pytest'.")
         print("* ERROR: Use pip or conda to install 'pytest', "
             "which will enable this feature.")
-        sys.exit(1)
+        sys.exit(21)  # test/SConscript has special handling for this error code
 
+import cantera
+import cantera.test
+
+if __name__ == "__main__":
     print("\n* INFO: using Cantera module found at this location:")
     print(f"*       '{cantera.__file__}'")
     print(f"* INFO: Cantera version: {cantera.__version__}")
