@@ -6,7 +6,7 @@ through the pores of a stationary porous medium. This example shows how to
 create a transport manager that implements the Dusty Gas model and use it to
 compute the multicomponent diffusion coefficients and thermal conductivity.
 
-Requires:  cantera >= 2.5.0
+Requires:  cantera >= 2.6.0
 """
 
 import cantera as ct
