@@ -312,7 +312,7 @@ Includes the fields of an :ref:`sec-yaml-elementary` reaction plus:
 
 ``coverage-dependencies``
     A mapping of species names to coverage dependence parameters, where these
-    parameters are contained in a mapping with the fields:
+    parameters are contained in either a mapping with the fields:
 
     ``a``
         Coefficient for exponential dependence on the coverage
@@ -324,17 +324,24 @@ Includes the fields of an :ref:`sec-yaml-elementary` reaction plus:
         Activation energy dependence on coverage, which uses the same sign convention
         as the leading-order activation energy term
 
+    or a list containing the three elements above, in the given order.
+
     Note that parameters ``a``, ``m`` and ``E`` correspond to parameters
     :math:`\eta_{ki}`, :math:`\mu_{ki}` and :math:`\epsilon_{ki}` in Eq 11.113 of
     [Kee, R. J., Coltrin, M. E., & Glarborg, P.(2003). Chemically reacting flow:
     theory and practice. John Wiley & Sons], respectively.
 
-Example::
+Examples::
 
-    equation: 2 H(s) => H2 + 2 Pt(s)
-    rate-constant: {A: 3.7e21 cm^2/mol/s, b: 0, Ea: 67400 J/mol}
-    coverage-dependencies: {H(s): {a: 0, m: 0, E: -6000 J/mol}}
+    - equation: 2 H(s) => H2 + 2 Pt(s)
+      rate-constant: {A: 3.7e21 cm^2/mol/s, b: 0, Ea: 67400 J/mol}
+      coverage-dependencies: {H(s): {a: 0, m: 0, E: -6000 J/mol}}
 
+    - equation: CH4 + PT(S) + O(S) => CH3(S) + OH(S)
+      rate-constant: {A: 5.0e+18, b: 0.7, Ea: 4.2e+04}
+      coverage-dependencies:
+        O(S): [0, 0, 8000]
+        PT(S): [0, -1.0, 0]
 
 .. _sec-yaml-electrochemical-reaction:
 
