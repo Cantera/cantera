@@ -1907,13 +1907,16 @@ env.Prepend(CPPPATH=[],
 
 # preprocess input files (cti -> xml)
 convertedInputFiles = set()
+convertEnv = env.Clone()
+convertEnv["ENV"]["CT_NO_XML_WARNINGS"] = "1"
 for cti in multi_glob(env, 'data/inputs', 'cti'):
-    build(env.Command('build/data/%s' % cti.name, cti.path,
-                      Copy('$TARGET', '$SOURCE')))
+    build(convertEnv.Command('build/data/%s' % cti.name, cti.path,
+                             Copy('$TARGET', '$SOURCE')))
     outName = os.path.splitext(cti.name)[0] + '.xml'
     convertedInputFiles.add(outName)
-    build(env.Command('build/data/%s' % outName, cti.path,
-                      '$python_cmd_esc interfaces/cython/cantera/ctml_writer.py $SOURCE $TARGET'))
+    build(convertEnv.Command(
+        'build/data/%s' % outName, cti.path,
+        '$python_cmd_esc interfaces/cython/cantera/ctml_writer.py $SOURCE $TARGET'))
 
 # Copy XML input files which are not present as cti:
 for xml in multi_glob(env, 'data/inputs', 'xml'):
