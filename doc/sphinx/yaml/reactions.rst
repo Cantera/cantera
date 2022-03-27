@@ -26,6 +26,7 @@ The fields common to all ``reaction`` entries are:
     - :ref:`chemically-activated <sec-yaml-chemically-activated>`
     - :ref:`pressure-dependent-Arrhenius <sec-yaml-pressure-dependent-Arrhenius>`
     - :ref:`Chebyshev <sec-yaml-Chebyshev>`
+    - :ref:`two-temperature-plasma <sec-yaml-two-temperature-plasma>`
     - :ref:`Blowers-Masel <sec-yaml-Blowers-Masel>`
     - :ref:`surface-Blowers-Masel <sec-yaml-surface-Blowers-Masel>`
 
@@ -286,6 +287,26 @@ Example::
     type: Blowers-Masel
     rate-constant: {A: 3.87e+04 cm^2/mol/s, b: 2.7, Ea0: 6260.0 cal/mol, w: 1e9 cal/mol}
 
+.. _sec-yaml-two-temperature-plasma:
+
+``two-temperature-plasma``
+--------------------------
+
+A reaction involving an electron as one of the reactants, where the electron temperature
+may differ from the gas temperature as `described here <https://cantera.org/science/reactions.html#two-temperature-plasma-reactions>`__.
+
+Includes the fields of an :ref:`sec-yaml-elementary` reaction, except that the
+``rate-constant`` field is a mapping with the fields:
+
+``A``
+    The pre-exponential factor
+``b``
+    The temperature exponent, which is applied to the electron temperature
+``Ea_T``
+    The activation energy term :math:`E_{a,g}` that is related to the gas temperature
+``Ea_Te``
+    The activation energy term :math:`E_{a,e}` that is related to the electron
+    temperature
 
 .. _sec-yaml-interface-reaction:
 
