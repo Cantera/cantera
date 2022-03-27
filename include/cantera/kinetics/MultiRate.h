@@ -33,13 +33,13 @@ public:
         return m_rxn_rates.at(0).second.type();
     }
 
-    virtual void add(const size_t rxn_index, ReactionRate& rate) override {
+    virtual void add(size_t rxn_index, ReactionRate& rate) override {
         m_indices[rxn_index] = m_rxn_rates.size();
         m_rxn_rates.emplace_back(rxn_index, dynamic_cast<RateType&>(rate));
         m_shared.invalidateCache();
     }
 
-    virtual bool replace(const size_t rxn_index, ReactionRate& rate) override {
+    virtual bool replace(size_t rxn_index, ReactionRate& rate) override {
         if (!m_rxn_rates.size()) {
             throw CanteraError("MultiRate::replace",
                  "Invalid operation: cannot replace rate object "
