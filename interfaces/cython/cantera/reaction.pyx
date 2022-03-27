@@ -131,8 +131,9 @@ cdef class ArrheniusRateBase(ReactionRate):
     def _cinit(self, input_data, **kwargs):
         """
         Helper function called by __cinit__. The method is used as a uniform interface
-        for object construction. A separate method is necessary as Cython does not
-        support overloading of special methods such as __cinit__.
+        for object construction. A separate method is necessary as default argument
+        values to __cinit__ defined in derived classes are not available in the base
+        class's __cinit__ (which gets called first).
         """
         if self._reaction_rate_type is None:
             raise TypeError(
