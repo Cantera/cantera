@@ -3,6 +3,8 @@ A burner-stabilized, premixed methane/air flat flame with multicomponent
 transport properties and a specified temperature profile.
 
 Requires: cantera >= 2.5.0
+Keywords: combustion, 1D flow, burner-stabilized flame, premixed flame, plotting,
+          saving output
 """
 
 import cantera as ct

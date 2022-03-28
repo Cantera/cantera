@@ -8,6 +8,7 @@ Since the goal is to simulate a continuous flow system, the mixing takes place
 at constant enthalpy and pressure.
 
 Requires: cantera >= 2.5.0
+Keywords: thermodynamics, mixture
 """
 
 import cantera as ct

@@ -3,6 +3,8 @@ A freely-propagating, premixed hydrogen flat flame with multicomponent
 transport properties.
 
 Requires: cantera >= 2.5.0
+Keywords: combustion, 1D flow, premixed flame, multicomponent transport,
+          saving output
 """
 
 import cantera as ct

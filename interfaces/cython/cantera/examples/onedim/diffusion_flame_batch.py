@@ -14,6 +14,8 @@ This example can, for example, be used to iterate to a counterflow diffusion fla
 awkward pressure and strain rate, or to create the basis for a flamelet table.
 
 Requires: cantera >= 2.5.0, matplotlib >= 2.0
+Keywords: combustion, 1D flow, extinction, diffusion flame, strained flame,
+          saving output, plotting
 """
 
 import os

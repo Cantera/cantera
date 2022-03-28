@@ -3,6 +3,7 @@ Adiabatic flame temperature and equilibrium composition for a fuel/air mixture
 as a function of equivalence ratio, including formation of solid carbon.
 
 Requires: cantera >= 2.5.0, matplotlib >= 2.0
+Keywords: equilibrium, combustion, multiphase
 """
 
 import cantera as ct

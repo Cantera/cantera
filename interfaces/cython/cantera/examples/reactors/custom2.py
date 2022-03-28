@@ -15,6 +15,7 @@ determined by integrating the equation of motion. This requires adding a new
 variable to the reactor's state vector which represents the wall velocity.
 
 Requires: cantera >= 2.6.0, matplotlib >= 2.0
+Keywords: combustion, reactor network, user-defined model, plotting
 """
 
 import cantera as ct

@@ -11,6 +11,7 @@ The catalytic combustion mechanism is from Deutschmann et al., 26th
 Symp. (Intl.) on Combustion,1996 pp. 1747-1754
 
 Requires: cantera >= 2.6.0
+Keywords: catalysis, combustion, 1D flow, surface chemistry
 """
 
 import numpy as np

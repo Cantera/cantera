@@ -17,6 +17,9 @@ for any number of equations of state and constant-volume, adiabatic reactors.
 
 Other than the typical Cantera dependencies, plotting functions require that
 you have matplotlib (https://matplotlib.org/) installed.
+
+Requires: cantera >= 2.5.0, matplotlib >= 2.0
+Keywords: combustion, reactor network, non-ideal fluid, ignition delay, plotting
 """
 
 # Dependencies: numpy, and matplotlib

@@ -2,6 +2,7 @@
 A freely-propagating, premixed methane-air flat flame with charged species.
 
 Requires: cantera >= 2.5.0
+Keywords: combustion, 1D flow, burner-stabilized flame, plasma, premixed flame
 """
 
 import cantera as ct

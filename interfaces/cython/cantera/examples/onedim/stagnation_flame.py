@@ -15,6 +15,7 @@ points would be concentrated upsteam of the flame, where the flamefront had
 been previously. (To see this, try setting prune to zero.)
 
 Requires: cantera >= 2.5.0
+Keywords: combustion, 1D flow, premixed flame, strained flame
 """
 
 import os

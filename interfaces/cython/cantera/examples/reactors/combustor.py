@@ -11,6 +11,7 @@ enclosing scope. Also shows the use of a PressureController to create a constant
 pressure reactor with a fixed volume.
 
 Requires: cantera >= 2.5.0, matplotlib >= 2.0
+Keywords: combustion, reactor network, well-stirred reactor, plotting
 """
 
 import numpy as np
