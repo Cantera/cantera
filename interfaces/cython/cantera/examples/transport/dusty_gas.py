@@ -7,6 +7,7 @@ create a transport manager that implements the Dusty Gas model and use it to
 compute the multicomponent diffusion coefficients and thermal conductivity.
 
 Requires:  cantera >= 2.6.0
+Keywords: transport, multicomponent transport
 """
 
 import cantera as ct

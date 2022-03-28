@@ -4,6 +4,8 @@ surface chemistry. The specific problem simulated is the partial oxidation of
 methane over a platinum catalyst in a packed bed reactor.
 
 Requires: cantera >= 2.5.0
+Keywords: catalysis, reactor network, surface chemistry, plug flow reactor,
+          packed bed reactor
 """
 
 import csv

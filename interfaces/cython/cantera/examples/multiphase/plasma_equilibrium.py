@@ -3,6 +3,7 @@ An equilibrium example with charged species in the gas phase
 and multiple condensed phases.
 
 Requires: cantera >= 2.5.0, matplotlib >= 2.0
+Keywords: equilibrium, multiphase, plasma, saving output
 """
 
 import cantera as ct

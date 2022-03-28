@@ -2,6 +2,7 @@
 A Rankine vapor power cycle
 
 Requires: Cantera >= 2.5.0
+Keywords: thermodynamics, thermodynamic cycle, non-ideal fluid
 """
 
 import cantera as ct

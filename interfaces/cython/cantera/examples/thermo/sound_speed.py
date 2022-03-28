@@ -2,6 +2,7 @@
 Compute the "equilibrium" and "frozen" sound speeds for a gas
 
 Requires: cantera >= 2.5.0
+Keywords: thermodynamics, equilibrium
 """
 
 import cantera as ct

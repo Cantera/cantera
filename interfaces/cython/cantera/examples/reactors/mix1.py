@@ -16,6 +16,7 @@ Compare this approach for the transient problem to the method used for the
 steady-state problem in thermo/mixing.py.
 
 Requires: cantera >= 2.5.0
+Keywords: thermodynamics, reactor network, mixture
 """
 
 import cantera as ct

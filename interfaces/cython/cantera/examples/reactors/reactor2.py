@@ -16,6 +16,7 @@ Note that this simulation, being zero-dimensional, takes no account of shock
 wave propagation. It is somewhat artificial, but nevertheless instructive.
 
 Requires: cantera >= 2.5.0, matplotlib >= 2.0
+Keywords: combustion, reactor network, plotting
 """
 
 import sys

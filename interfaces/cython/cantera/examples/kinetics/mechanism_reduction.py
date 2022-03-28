@@ -13,6 +13,8 @@ to see whether the reduced mechanisms with a certain number of species are able
 to adequately simulate the ignition delay problem.
 
 Requires: cantera >= 2.6.0, matplotlib >= 2.0
+Keywords: kinetics, combustion, reactor network, editing mechanisms, ignition delay,
+          plotting
 """
 
 import cantera as ct

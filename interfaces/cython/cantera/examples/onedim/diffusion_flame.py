@@ -2,6 +2,8 @@
 An opposed-flow ethane/air diffusion flame
 
 Requires: cantera >= 2.5.0, matplotlib >= 2.0
+Keywords: combustion, 1D flow, diffusion flame, strained flame, plotting,
+          saving output
 """
 
 import cantera as ct
