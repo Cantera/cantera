@@ -29,6 +29,9 @@ template<> DomainCabinet* DomainCabinet::s_storage = 0;
 typedef Cabinet<ThermoPhase> ThermoCabinet;
 typedef Cabinet<Kinetics> KineticsCabinet;
 typedef Cabinet<Transport> TransportCabinet;
+template<> ThermoCabinet* ThermoCabinet::s_storage; // defined in ct.cpp
+template<> KineticsCabinet* KineticsCabinet::s_storage; // defined in ct.cpp
+template<> TransportCabinet* TransportCabinet::s_storage; // defined in ct.cpp
 
 extern "C" {
 

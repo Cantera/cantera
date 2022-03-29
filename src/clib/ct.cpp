@@ -36,6 +36,7 @@ typedef Cabinet<XML_Node, false> XmlCabinet;
 template<> ThermoCabinet* ThermoCabinet::s_storage = 0;
 template<> KineticsCabinet* KineticsCabinet::s_storage = 0;
 template<> TransportCabinet* TransportCabinet::s_storage = 0;
+template<> XmlCabinet* XmlCabinet::s_storage; // defined in ctxml.cpp
 
 /**
  * Exported functions.
