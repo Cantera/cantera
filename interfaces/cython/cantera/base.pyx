@@ -417,7 +417,7 @@ cdef class _SolutionBase:
             Y.skip_user_defined = skip_user_defined
         if filename is None:
             return Y.to_string()
-        Y.to_file(filename)
+        Y.to_file(str(filename))
 
     def __getitem__(self, selection):
         copy = self.__class__(origin=self)
