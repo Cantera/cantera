@@ -2,6 +2,7 @@ include cantera/_cantera.cpp
 include cantera/_cantera.h
 recursive-include cantera *.pyx
 include sundials_config.h.in
+include config.h.in
 graft include
 recursive-include ext *.h
 recursive-include src *.h

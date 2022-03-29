@@ -1995,7 +1995,7 @@ else:
     env["cantera_shared_libs"] = ["cantera"] + env["external_libs"]
 
 # Add targets from the SConscript files in the various subdirectories
-Export('env', 'build', 'libraryTargets', 'install', 'buildSample')
+Export('env', 'build', 'libraryTargets', 'install', 'buildSample', "configh")
 
 # ext needs to come before src so that libraryTargets is fully populated
 VariantDir('build/ext', 'ext', duplicate=0)
