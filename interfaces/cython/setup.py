@@ -1,5 +1,10 @@
-from setuptools import setup, Extension
+from setuptools import setup
+from setuptools.dist import Distribution
 
-extension = Extension("cantera._cantera", sources=[])
+class BinaryDistribution(Distribution):
+    def has_ext_modules(self):
+        return True
 
-setup(ext_modules=[extension])
+setup(
+    distclass=BinaryDistribution,
+)
