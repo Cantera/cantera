@@ -59,20 +59,6 @@ typedef int ftnlen;       // Fortran hidden string length type
 // with a native compiler
 {SOLARIS!s}
 
-//---------- C++ Compiler Variations ------------------------------
-
-// This define is needed to account for the variability for how
-// static variables in templated classes are defined. Right now
-// this is only turned on for the SunPro compiler on Solaris.
-// in that system , you need to declare the static storage variable.
-// with the following line in the include file
-//
-//    template<class M> Cabinet<M>* Cabinet<M>::s_storage;
-//
-// Note, on other systems that declaration is treated as a definition
-// and this leads to multiple defines at link time
-{NEEDS_GENERIC_TEMPL_STATIC_DECL!s}
-
 //-------------- Optional Cantera Capabilities ----------------------
 
 //    Enable Sundials to use an external BLAS/LAPACK library if it was

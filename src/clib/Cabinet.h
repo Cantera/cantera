@@ -205,13 +205,4 @@ private:
     std::vector<M*> m_table;
 };
 
-//! Declaration stating that the storage for the static member
-//! of each instantiated template will exist
-/*!
- *   The actual storage will be allocated in .cpp files
- */
-#ifdef NEEDS_GENERIC_TEMPL_STATIC_DECL
-template<class M, bool canDelete> Cabinet<M, canDelete>* Cabinet<M, canDelete>::s_storage;
-#endif
-
 #endif
