@@ -507,8 +507,8 @@ jobs:
           BOOST_ROOT=$(echo $BOOST_ROOT | sed 's/\\/\//g')
           mkdir -p $BOOST_ROOT
           curl --progress-bar --location --output $BOOST_ROOT/download.7z $BOOST_URL
-          7z -o$BOOST_ROOT x $BOOST_ROOT/download.7z -y -bd boost_1_75_0/boost
-          mv $BOOST_ROOT/boost_1_75_0/boost $BOOST_ROOT/boost
+          7z -o$BOOST_ROOT x $BOOST_ROOT/download.7z -y -bd boost_1_78_0/boost
+          mv $BOOST_ROOT/boost_1_78_0/boost $BOOST_ROOT/boost
           rm $BOOST_ROOT/download.7z
         shell: bash
       - name: Build Cantera
@@ -647,8 +647,8 @@ jobs:
         BOOST_ROOT=$(echo $BOOST_ROOT | sed 's/\\/\//g')
         mkdir -p $BOOST_ROOT
         curl --progress-bar --location --output $BOOST_ROOT/download.7z $BOOST_URL
-        7z -o$BOOST_ROOT x $BOOST_ROOT/download.7z -y -bd boost_1_75_0/boost
-        mv $BOOST_ROOT/boost_1_75_0/boost $BOOST_ROOT/boost
+        7z -o$BOOST_ROOT x $BOOST_ROOT/download.7z -y -bd boost_1_78_0/boost
+        mv $BOOST_ROOT/boost_1_78_0/boost $BOOST_ROOT/boost
         rm $BOOST_ROOT/download.7z
       shell: bash
     - name: Build Cantera
