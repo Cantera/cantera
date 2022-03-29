@@ -851,6 +851,22 @@ if 'sphinx' in COMMAND_LINE_TARGETS:
 if "sdist" in COMMAND_LINE_TARGETS:
     env["python_sdist"] = True
 
+    if env["python_package"] == "default":
+        logger.info("'sdist' target was specified. Setting 'python_package' to none.")
+        env["python_package"] = "none"
+    elif env["python_package"] in ("full", "y"):
+        logger.error("'sdist' target was specified. Cannot also build Python package.")
+        sys.exit(1)
+    for ext_dependency in ("sundials", "fmt", "yamlcpp", "eigen"):
+        if env[f"system_{ext_dependency}"] == "y":
+            logger.error(f"'sdist' target was specified. Cannot use 'system_{ext_dependency}'.")
+            sys.exit(1)
+        else:
+            env[f"system_{ext_dependency}"] = "n"
+
+    logger.info("'sdist' target was specified. Setting 'use_pch' to False.")
+    env["use_pch"] = False
+
 for arg in ARGUMENTS:
     if arg not in config:
         logger.error(f"Encountered unexpected command line option: '{arg}'")
