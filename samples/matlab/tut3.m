@@ -1,5 +1,7 @@
 % Tutorial 3:   Getting Help
 %
+% Keywords: tutorial
+
 help tut3
 
 % Suppose you have created a Cantera object and want to know what

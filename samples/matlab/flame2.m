@@ -1,6 +1,8 @@
 % FLAME1 - An axisymmetric stagnation-point non-premixed flame
 %
 %    This script simulates a stagnation-point ethane-air flame.
+%
+% Keywords: combustion, 1D flow, strained flame, diffusion flame, plotting
 
 t0 = cputime;  % record the starting time
 

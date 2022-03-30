@@ -5,6 +5,8 @@
 %     - specifying fixed TP, HP, UV, SV, or SP
 %     - checking reaction rates of progress
 %
+% Keywords: tutorial, equilibrium, kinetics
+
 help tut4
 
 % To set a gas mixture to a state of chemical equilibrium, use the

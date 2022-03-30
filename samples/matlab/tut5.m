@@ -8,6 +8,8 @@
 %       - equilibrium constants
 %       - rate multipliers
 %
+% Keywords: tutorial, kinetics
+
 help tut5
 
 g = GRI30('None');

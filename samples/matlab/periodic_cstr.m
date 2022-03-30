@@ -18,7 +18,7 @@ function periodic_cstr
 %  conditions needed to see the oscillations came from Bob Kee,
 %  Colorado School of Mines
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Keywords: combustion, reactor network, well-stirred reactor, plotting
 
 help periodic_cstr
 

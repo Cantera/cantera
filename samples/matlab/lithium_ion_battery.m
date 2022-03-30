@@ -16,6 +16,8 @@
 % of the thermodynamics of lithium-ion battery intercalation materials in the
 % open-source software Cantera,” Electrochim. Acta 323, 134797 (2019),
 % https://doi.org/10.1016/j.electacta.2019.134797
+%
+% Keywords: surface chemistry, kinetics, electrochemistry, battery, plotting
 
 % -----------------------------------------------------------------------------
 % Input
