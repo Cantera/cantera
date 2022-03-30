@@ -1721,7 +1721,8 @@ if env["layout"] == "conda" and os.name == "nt":
     env["ct_incdir"] = pjoin(env["prefix"], "Library", "include", "cantera")
     env["ct_incroot"] = pjoin(env["prefix"], "Library", "include")
 else:
-    env["prefix"] = str(Path(env["prefix"]).resolve())
+    if "stage_dir" not in selected_options:
+        env["prefix"] = str(Path(env["prefix"]).resolve())
     env["ct_libdir"] = pjoin(env["prefix"], env["libdirname"])
     env["ct_bindir"] = pjoin(env["prefix"], "bin")
     env["ct_python_bindir"] = pjoin(env["prefix"], "bin")
