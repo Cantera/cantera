@@ -138,6 +138,13 @@ for key in ("SOLARIS", "DARWIN", "CT_USE_DEMANGLE"):
 
 
 class DefineDict:
+    """dict-like class used to fill config.h.in partially.
+
+    We cannot use buildutils.DefineDict because missing keys in self.data are replaced
+    with /* #undef {key} */, but here we want to leave those as template strings for
+    setup.py to fill in on the final build machine.
+    """
+
     def __init__(self, data):
         self.data = data
 
