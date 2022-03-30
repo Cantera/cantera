@@ -9,6 +9,7 @@ function reactor1(g)
 %    set so that the reactor is adiabatic and very close to constant
 %    pressure.
 %
+% Keywords: combustion, reactor network, ignition delay, plotting
 
 help reactor1
 

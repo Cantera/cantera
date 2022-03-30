@@ -5,6 +5,8 @@
 %    - setting the state
 %    - cleaning up
 %
+% Keywords: tutorial
+
 help tut1
 
 % Start MATLAB, and at the prompt type:

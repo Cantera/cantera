@@ -5,6 +5,7 @@ function reactor2(g)
 %    zero-dimensional kinetics simulations. Here the parameters are
 %    set so that the reactor is adiabatic and constant volume.
 %
+% Keywords: combustion, reactor network, ignition delay, plotting
 
 help reactor2
 

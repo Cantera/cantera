@@ -1,5 +1,7 @@
 %  Tutorial 7: Thermodynamic Properties
 %
+% Keywords: tutorial, thermodynamics
+
 help tut7
 
 % A variety of thermodynamic property methods are provided.
