@@ -5,6 +5,8 @@
  *
  * This example shows how to use OpenMP to run multiple reactor network
  * calculations in parallel by using separate Cantera objects for each thread.
+ *
+ * Keywords: combustion, reactor network, ignition delay, parallel computing
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

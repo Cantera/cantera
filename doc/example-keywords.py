@@ -45,10 +45,23 @@ def get_matlab_keywords(filename):
         logging.warning(f"No keywords found in {filename}")
         return False
     keywords = set(kw.strip() for kw in match[1].split(","))
-    if '' in keywords:
-        print(docstring)
     return keywords
 
+
+def get_cxx_keywords(filename):
+    text = Path(filename).read_text()
+    match = re.search(r"\/\*[!\*](.*?)\*\/", text, re.DOTALL | re.MULTILINE)
+    if not match:
+        logging.error(f"Couldn't parse docstring for {filename}")
+        return False
+    docstring = match.group(1) + "\n\n"
+    docstring = "\n".join(line.lstrip("* ") for line in docstring.split("\n"))
+    match = re.search(r"\s*Keywords:(.*?)\n\n", docstring, re.DOTALL | re.MULTILINE)
+    if not match:
+        logging.warning(f"No keywords found in {filename}")
+        return False
+    keywords = set(kw.strip() for kw in match[1].split(","))
+    return keywords
 
 def get_all_keywords():
     """
@@ -66,6 +79,11 @@ def get_all_keywords():
         kw = get_matlab_keywords(f)
         if kw:
             all_keywords.update(kw)
+
+    for d in Path("samples/cxx").glob("**"):
+        if d.is_dir():
+            for f in d.glob("*.cpp"):
+                all_keywords.update(get_cxx_keywords(f))
 
     for kw, count in sorted(all_keywords.items()):
         print(f"{kw} ({count})")

@@ -7,6 +7,8 @@
  * profile of a laminar boundary layer over a flat plate. It defines class
  * BoundaryValueProblem, which provides a simplified interface to the boundary
  * value problem capabilities of Cantera.
+ *
+ * Keywords: user-defined model
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
