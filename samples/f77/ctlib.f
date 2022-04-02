@@ -18,6 +18,7 @@ c     Only a few subroutines are implemented here, but the same idea can
 c     be applied to create Cantera-based versions of any other
 c     subroutines in the CKLIB library.
 c
+c     Keywords: tutorial, kinetics
 
 c     This file is part of Cantera. See License.txt in the top-level directory or
 c     at https://cantera.org/license.txt for license and copyright information.

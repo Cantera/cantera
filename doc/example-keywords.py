@@ -63,6 +63,26 @@ def get_cxx_keywords(filename):
     keywords = set(kw.strip() for kw in match[1].split(","))
     return keywords
 
+
+def get_fortran_keywords(filename, comment_char):
+    text = Path(filename).read_text()
+    match = re.search(fr"(?:{comment_char}.*?\n)+", text,
+                      re.DOTALL | re.MULTILINE | re.IGNORECASE)
+    if not match:
+        logging.error(f"Couldn't parse docstring for {filename}")
+        return False
+    docstring = match.group(0) + "\n\n"
+    docstring = "\n".join(line.lstrip(f"{comment_char} ")
+                          for line in docstring.split("\n"))
+
+    match = re.search(r"\s*Keywords:(.*?)\n\n", docstring, re.DOTALL | re.MULTILINE)
+    if not match:
+        logging.warning(f"No keywords found in {filename}")
+        return False
+    keywords = set(kw.strip() for kw in match[1].split(","))
+    return keywords
+
+
 def get_all_keywords():
     """
     Read keywords from all Cantera examples and print out a summary list
@@ -84,6 +104,16 @@ def get_all_keywords():
         if d.is_dir():
             for f in d.glob("*.cpp"):
                 all_keywords.update(get_cxx_keywords(f))
+
+    for f in Path("samples/f77").glob("*.f"):
+        kw = get_fortran_keywords(f, "c")
+        if kw:
+            all_keywords.update(kw)
+
+    for f in Path("samples/f90").glob("*.f90"):
+        kw = get_fortran_keywords(f, "!")
+        if kw:
+            all_keywords.update(kw)
 
     for kw, count in sorted(all_keywords.items()):
         print(f"{kw} ({count})")
