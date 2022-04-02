@@ -178,6 +178,20 @@ jobs:
         files: ./coverage.xml
         fail_ci_if_error: true
 
+  example-keywords:
+    name: Check example keywords
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v2
+        name: Checkout the repository
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+      - name: Check keywords
+        run: python3 doc/example-keywords.py compare
+
   docs:
     name: Build docs
     runs-on: ubuntu-latest
