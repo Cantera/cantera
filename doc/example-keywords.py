@@ -1,9 +1,29 @@
 #!/usr/bin/env python3
 
+"""
+example-keywords.py
+
+Parse Cantera examples for "Keywords" declarations to ensure that all examples have
+keyword definitions and to help maintain consistency in the keywords chosen.
+
+Usage:
+
+    example-keywords.py print
+        Print a list of keywords found and the number of occurrences of each
+
+    example-keywords.py compare
+        Compare the keywords appearing in the examples with the list of known keywords
+        from example-keywords.txt. List any that only occur in the examples. Exits with
+        an error status code if any keywords are not listed in the known keywords list.
+    example-keywords.py save
+       Save an updated list of known keywords list, example-keywords.txt
+"""
+
 from pathlib import Path
 import re
 import logging
 from collections import Counter
+import sys
 
 def get_python_keywords(filename):
     """
@@ -21,6 +41,7 @@ def get_python_keywords(filename):
     match = re.search(r"\s*Keywords:(.*?)\n\n", docstring, re.DOTALL | re.MULTILINE)
     if not match:
         logging.warning(f"No keywords found in {filename}")
+        return False
     keywords = set(kw.strip() for kw in match[1].split(","))
     return keywords
 
@@ -93,7 +114,9 @@ def get_all_keywords():
             for f in d.glob("*.py"):
                 if str(f.name).startswith("_"):
                     continue
-                all_keywords.update(get_python_keywords(f))
+                kw = get_python_keywords(f)
+                if kw:
+                    all_keywords.update(kw)
 
     for f in Path("samples/matlab").glob("*.m"):
         kw = get_matlab_keywords(f)
@@ -115,9 +138,47 @@ def get_all_keywords():
         if kw:
             all_keywords.update(kw)
 
-    for kw, count in sorted(all_keywords.items()):
+    return all_keywords
+
+
+def compare():
+    """
+    Print a list of keywords appearing in examples that are not in the known keywords
+    list. Return True if there are any such items.
+    """
+    text = (Path(__file__).parent / "example-keywords.txt").read_text()
+    known = set(text.split("\n"))
+    current = set(get_all_keywords())
+    delta = current - known
+    for kw in delta:
+        logging.warning(f"Keyword {kw!r} not in known keywords list")
+    return len(delta) > 0
+
+
+def save_keywords():
+    """
+    Save an updated version of the known keywords list based on keywords appearing in
+    any of the examples.
+    """
+    found_kw = get_all_keywords()
+    with open(Path(__file__).parent / "example-keywords.txt", "w") as known:
+        known.writelines(kw + "\n" for kw in sorted(found_kw))
+
+
+def print_keywords():
+    found_kw = get_all_keywords()
+    for kw, count in found_kw.most_common():
         print(f"{kw} ({count})")
 
 
 if __name__ == "__main__":
-    get_all_keywords()
+    if "compare" in sys.argv:
+        delta = compare()
+        if delta:
+            sys.exit(1)
+    elif "save" in sys.argv:
+        save_keywords()
+    elif "print" in sys.argv:
+        print_keywords()
+    else:
+        print("Valid options are 'print', 'save', or 'compare'")
