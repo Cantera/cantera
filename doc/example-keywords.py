@@ -25,6 +25,8 @@ import logging
 from collections import Counter
 import sys
 
+EXIT_CODE = 0
+
 def get_python_keywords(filename):
     """
     Get keywords defined in the file docstring of a Python example. Keywords
@@ -33,13 +35,16 @@ def get_python_keywords(filename):
     """
     text = Path(filename).read_text()
     match = re.search(r"(\"\"\"|\'\'\')(.*?)\1", text, re.DOTALL | re.MULTILINE)
+    global EXIT_CODE
     if not match:
         logging.error(f"Couldn't parse docstring for {filename}")
+        EXIT_CODE = 1
         return False
     docstring = match.group(2) + "\n\n"
 
     match = re.search(r"\s*Keywords:(.*?)\n\n", docstring, re.DOTALL | re.MULTILINE)
     if not match:
+        EXIT_CODE = 1
         logging.warning(f"No keywords found in {filename}")
         return False
     keywords = set(kw.strip() for kw in match[1].split(","))
@@ -55,7 +60,9 @@ def get_matlab_keywords(filename):
     """
     text = Path(filename).read_text()
     match = re.search(r"(?:%.*?\n)+", text, re.DOTALL | re.MULTILINE)
+    global EXIT_CODE
     if not match:
+        EXIT_CODE = 1
         logging.error(f"Couldn't parse docstring for {filename}")
         return False
     docstring = match.group(0) + "\n\n"
@@ -63,6 +70,7 @@ def get_matlab_keywords(filename):
 
     match = re.search(r"\s*Keywords:(.*?)\n\n", docstring, re.DOTALL | re.MULTILINE)
     if not match:
+        EXIT_CODE = 1
         logging.warning(f"No keywords found in {filename}")
         return False
     keywords = set(kw.strip() for kw in match[1].split(","))
@@ -72,13 +80,16 @@ def get_matlab_keywords(filename):
 def get_cxx_keywords(filename):
     text = Path(filename).read_text()
     match = re.search(r"\/\*[!\*](.*?)\*\/", text, re.DOTALL | re.MULTILINE)
+    global EXIT_CODE
     if not match:
+        EXIT_CODE = 1
         logging.error(f"Couldn't parse docstring for {filename}")
         return False
     docstring = match.group(1) + "\n\n"
     docstring = "\n".join(line.lstrip("* ") for line in docstring.split("\n"))
     match = re.search(r"\s*Keywords:(.*?)\n\n", docstring, re.DOTALL | re.MULTILINE)
     if not match:
+        EXIT_CODE = 1
         logging.warning(f"No keywords found in {filename}")
         return False
     keywords = set(kw.strip() for kw in match[1].split(","))
@@ -89,7 +100,9 @@ def get_fortran_keywords(filename, comment_char):
     text = Path(filename).read_text()
     match = re.search(fr"(?:{comment_char}.*?\n)+", text,
                       re.DOTALL | re.MULTILINE | re.IGNORECASE)
+    global EXIT_CODE
     if not match:
+        EXIT_CODE = 1
         logging.error(f"Couldn't parse docstring for {filename}")
         return False
     docstring = match.group(0) + "\n\n"
@@ -98,6 +111,7 @@ def get_fortran_keywords(filename, comment_char):
 
     match = re.search(r"\s*Keywords:(.*?)\n\n", docstring, re.DOTALL | re.MULTILINE)
     if not match:
+        EXIT_CODE = 1
         logging.warning(f"No keywords found in {filename}")
         return False
     keywords = set(kw.strip() for kw in match[1].split(","))
@@ -108,32 +122,43 @@ def get_all_keywords():
     """
     Read keywords from all Cantera examples and print out a summary list
     """
+    text = (Path(__file__).parent / "example-skip-keywords.txt").read_text()
+    skip = set(text.split("\n"))
+
     all_keywords = Counter()
     for d in Path("interfaces/cython/cantera/examples").glob("**"):
         if d.is_dir():
             for f in d.glob("*.py"):
-                if str(f.name).startswith("_"):
+                if f.name.startswith("_") or f.name in skip:
                     continue
                 kw = get_python_keywords(f)
                 if kw:
                     all_keywords.update(kw)
 
     for f in Path("samples/matlab").glob("*.m"):
+        if f.name in skip:
+            continue
         kw = get_matlab_keywords(f)
         if kw:
             all_keywords.update(kw)
 
     for d in Path("samples/cxx").glob("**"):
+        if f.name in skip:
+            continue
         if d.is_dir():
             for f in d.glob("*.cpp"):
                 all_keywords.update(get_cxx_keywords(f))
 
     for f in Path("samples/f77").glob("*.f"):
+        if f.name in skip:
+            continue
         kw = get_fortran_keywords(f, "c")
         if kw:
             all_keywords.update(kw)
 
     for f in Path("samples/f90").glob("*.f90"):
+        if f.name in skip:
+            continue
         kw = get_fortran_keywords(f, "!")
         if kw:
             all_keywords.update(kw)
@@ -182,3 +207,5 @@ if __name__ == "__main__":
         print_keywords()
     else:
         print("Valid options are 'print', 'save', or 'compare'")
+
+    sys.exit(EXIT_CODE)
