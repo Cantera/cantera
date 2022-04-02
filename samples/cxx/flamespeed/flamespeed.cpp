@@ -6,6 +6,8 @@
  * C++ demo program to compute flame speeds using GRI-Mech.
  *
  * Usage: flamespeed [equivalence_ratio] [refine_grid] [loglevel]
+ *
+ * Keywords: combustion, 1D flow, premixed flame, flame speed
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

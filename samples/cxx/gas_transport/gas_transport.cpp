@@ -6,6 +6,8 @@
  * Construct a gas phase Solution object and use it to compute viscosity,
  * thermal conductivity, mixture-averaged diffusion coefficients, and thermal
  * diffusivities for a range of temperatures.
+ *
+ * Keywords: tutorial, transport, saving output
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

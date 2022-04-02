@@ -6,6 +6,8 @@
  * This demonstration program builds an object representing a reacting gas
  * mixture, and uses it to compute thermodynamic properties, chemical
  * equilibrium, and transport properties.
+ *
+ * Keywords: tutorial, thermodynamics, equilibrium, transport
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
