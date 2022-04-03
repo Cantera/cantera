@@ -66,7 +66,7 @@ def get_matlab_keywords(filename):
         logging.error(f"Couldn't parse docstring for {filename}")
         return False
     docstring = match.group(0) + "\n\n"
-    docstring = "\n".join(line.lstrip("% ") for line in docstring.split("\n"))
+    docstring = "\n".join(line.lstrip("% ") for line in docstring.splitlines())
 
     match = re.search(r"\s*Keywords:(.*?)\n\n", docstring, re.DOTALL | re.MULTILINE)
     if not match:
@@ -86,7 +86,7 @@ def get_cxx_keywords(filename):
         logging.error(f"Couldn't parse docstring for {filename}")
         return False
     docstring = match.group(1) + "\n\n"
-    docstring = "\n".join(line.lstrip("* ") for line in docstring.split("\n"))
+    docstring = "\n".join(line.lstrip("* ") for line in docstring.splitlines())
     match = re.search(r"\s*Keywords:(.*?)\n\n", docstring, re.DOTALL | re.MULTILINE)
     if not match:
         EXIT_CODE = 1
@@ -107,7 +107,7 @@ def get_fortran_keywords(filename, comment_char):
         return False
     docstring = match.group(0) + "\n\n"
     docstring = "\n".join(line.lstrip(f"{comment_char} ")
-                          for line in docstring.split("\n"))
+                          for line in docstring.splitlines())
 
     match = re.search(r"\s*Keywords:(.*?)\n\n", docstring, re.DOTALL | re.MULTILINE)
     if not match:
@@ -123,10 +123,12 @@ def get_all_keywords():
     Read keywords from all Cantera examples and print out a summary list
     """
     text = (Path(__file__).parent / "example-skip-keywords.txt").read_text()
-    skip = set(text.split("\n"))
+    # Root of the Cantera source directory
+    cantera_root = Path(__file__).parents[1]
+    skip = set(text.splitlines())
 
     all_keywords = Counter()
-    for d in Path("interfaces/cython/cantera/examples").glob("**"):
+    for d in (cantera_root / "interfaces/cython/cantera/examples").glob("**"):
         if d.is_dir():
             for f in d.glob("*.py"):
                 if f.name.startswith("_") or f.name in skip:
@@ -135,28 +137,28 @@ def get_all_keywords():
                 if kw:
                     all_keywords.update(kw)
 
-    for f in Path("samples/matlab").glob("*.m"):
+    for f in (cantera_root / "samples/matlab").glob("*.m"):
         if f.name in skip:
             continue
         kw = get_matlab_keywords(f)
         if kw:
             all_keywords.update(kw)
 
-    for d in Path("samples/cxx").glob("**"):
+    for d in (cantera_root / "samples/cxx").glob("**"):
         if f.name in skip:
             continue
         if d.is_dir():
             for f in d.glob("*.cpp"):
                 all_keywords.update(get_cxx_keywords(f))
 
-    for f in Path("samples/f77").glob("*.f"):
+    for f in (cantera_root / "samples/f77").glob("*.f"):
         if f.name in skip:
             continue
         kw = get_fortran_keywords(f, "c")
         if kw:
             all_keywords.update(kw)
 
-    for f in Path("samples/f90").glob("*.f90"):
+    for f in (cantera_root / "samples/f90").glob("*.f90"):
         if f.name in skip:
             continue
         kw = get_fortran_keywords(f, "!")
@@ -172,7 +174,7 @@ def compare():
     list. Return True if there are any such items.
     """
     text = (Path(__file__).parent / "example-keywords.txt").read_text()
-    known = set(text.split("\n"))
+    known = set(text.splitlines())
     current = set(get_all_keywords())
     delta = current - known
     for kw in delta:
@@ -185,9 +187,8 @@ def save_keywords():
     Save an updated version of the known keywords list based on keywords appearing in
     any of the examples.
     """
-    found_kw = get_all_keywords()
-    with open(Path(__file__).parent / "example-keywords.txt", "w") as known:
-        known.writelines(kw + "\n" for kw in sorted(found_kw))
+    found_kw = "\n".join(sorted(get_all_keywords()) + [""])
+    (Path(__file__).parent / "example-keywords.txt").write_text(found_kw)
 
 
 def print_keywords():
