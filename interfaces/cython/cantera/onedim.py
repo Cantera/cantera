@@ -472,7 +472,8 @@ class FlameBase(Sim1D):
 
     def from_pandas(self, df, restore_boundaries=True, settings=None):
         """
-        Restore the solution vector from a `pandas.DataFrame`.
+        Restore the solution vector from a `pandas.DataFrame`; currently disabled
+        (`save`/`restore` or `write_hdf`/`read_hdf` should be used as alternatives).
 
         :param df:
             `pandas.DataFrame` containing data to be restored
@@ -488,10 +489,9 @@ class FlameBase(Sim1D):
         requires a working *pandas* installation. The package ``pandas`` can be
         installed using pip or conda.
         """
-        arr = SolutionArray(self.gas, extra=self.other_components())
-        arr.from_pandas(df)
-        self.from_solution_array(arr, restore_boundaries=restore_boundaries,
-                                 settings=settings)
+        # @todo: Discuss implementation that allows for restoration of boundaries
+        raise NotImplementedError(
+            "Use 'save'/'restore' or 'write_hdf'/'read_hdf' as alternatives.")
 
     def write_hdf(self, filename, *args, group=None, species='X', mode='a',
                   description=None, compression=None, compression_opts=None,
