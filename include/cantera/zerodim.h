@@ -6,6 +6,9 @@
 #ifndef CT_INCL_ZERODIM_H
 #define CT_INCL_ZERODIM_H
 
+// Cantera core
+#include "cantera/core.h"
+
 // reactor network
 #include "cantera/zeroD/ReactorNet.h"
 
