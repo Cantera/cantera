@@ -9,7 +9,6 @@
 #ifndef CT_INCL_CORE_H
 #define CT_INCL_CORE_H
 
-// #include "cantera/base/global.h"
 #include "cantera/base/Solution.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/kinetics/Kinetics.h"

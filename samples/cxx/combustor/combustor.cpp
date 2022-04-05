@@ -17,8 +17,6 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/zerodim.h"
-#include "cantera/thermo/IdealGasPhase.h"
-
 #include <fstream>
 
 using namespace Cantera;

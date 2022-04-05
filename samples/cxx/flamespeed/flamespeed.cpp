@@ -13,12 +13,7 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-#include "cantera/oneD/Sim1D.h"
-#include "cantera/oneD/Boundary1D.h"
-#include "cantera/oneD/StFlow.h"
-#include "cantera/thermo/IdealGasPhase.h"
-#include "cantera/transport.h"
-#include "cantera/base/Solution.h"
+#include "cantera/onedim.h"
 #include "cantera/base/stringUtils.h"
 #include <fstream>
 
@@ -75,10 +70,8 @@ int flamespeed(double phi, bool refine_grid, int loglevel)
         // specify the objects to use to compute kinetic rates and
         // transport properties
 
-        std::unique_ptr<Transport> trmix(newTransportMgr("Mix", sol->thermo().get()));
-        std::unique_ptr<Transport> trmulti(newTransportMgr("Multi", sol->thermo().get()));
-
-        flow.setTransport(*trmix);
+        sol->setTransport("mixture-averaged");
+        flow.setTransport(*sol->transport());
         flow.setKinetics(*sol->kinetics());
         flow.setPressure(pressure);
 
@@ -145,7 +138,8 @@ int flamespeed(double phi, bool refine_grid, int loglevel)
               flameSpeed_mix);
 
         // now switch to multicomponent transport
-        flow.setTransport(*trmulti);
+        sol->setTransport("multicomponent");
+        flow.setTransport(*sol->transport());
         flame.solve(loglevel, refine_grid);
         double flameSpeed_multi = flame.value(flowdomain,
                                               flow.componentIndex("velocity"),0);
