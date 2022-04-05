@@ -13,11 +13,10 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-#include "cantera/thermo.h"
-#include "cantera/transport.h"
-#include "cantera/base/Solution.h"
+#include "cantera/core.h"
 #include "cantera/base/Array.h"
 
+#include <fstream>
 #include <iostream>
 #include <fstream>
 
@@ -85,18 +84,17 @@ void transport_example()
     // Save transport properties to a file
     write_csv("transport_mix.csv", labels, output);
 
-    // Create a new transport manager for multicomponent properties
-    unique_ptr<Transport> multi(
-        newTransportMgr("multicomponent", sol->thermo().get()));
+    // Switch transport manager to multicomponent properties
+    sol->setTransport("multicomponent");
 
     // Get multicomponent properties at several temperatures
     for (int i = 0; i < ntemps; i++) {
         temp = 500.0 + 100.0*i;
         gas->setState_TP(temp, pres);
         output(0,i) = temp;
-        output(1,i) = multi->viscosity();
-        output(2,i) = multi->thermalConductivity();
-        multi->getThermalDiffCoeffs(&output(3,i));
+        output(1,i) = sol->transport()->viscosity();
+        output(2,i) = sol->transport()->thermalConductivity();
+        sol->transport()->getThermalDiffCoeffs(&output(3,i));
     }
 
     // Save transport properties to a file

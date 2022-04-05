@@ -18,10 +18,8 @@
 // provide a simplified interface to the Cantera header files. If you need
 // to include core headers directly, use the format "cantera/module/*.h".
 
-#include "cantera/thermo/IdealGasPhase.h" // defines class IdealGasPhase
-#include "cantera/base/Solution.h"
-#include "cantera/kinetics/GasKinetics.h"
-#include "cantera/transport.h" // transport properties
+#include "cantera/core.h"
+#include "cantera/base/global.h" // provides Cantera::writelog
 #include <iostream>
 
 // All Cantera kernel names are in namespace Cantera. You can either
@@ -98,7 +96,8 @@ void demoprog()
 
     // create a transport manager for the gas that computes
     // mixture-averaged properties
-    std::unique_ptr<Transport> tr(newTransportMgr("Mix", sol->thermo().get()));
+    sol->setTransport("mixture-averaged");
+    auto tr = sol->transport();
 
     // print the viscosity, thermal conductivity, and diffusion
     // coefficients

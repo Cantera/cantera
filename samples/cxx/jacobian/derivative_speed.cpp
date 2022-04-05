@@ -17,9 +17,7 @@
 #include <iostream>
 #include <iomanip>
 #include <numeric>
-#include "cantera/base/Solution.h"
-#include "cantera/thermo/IdealGasPhase.h"
-#include "cantera/kinetics.h"
+#include "cantera/core.h"
 #include "cantera/numerics/eigen_sparse.h"
 
 using namespace Cantera;

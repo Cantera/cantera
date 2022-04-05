@@ -13,7 +13,7 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-#include "cantera/thermo.h"
+#include "cantera/core.h"
 #include <iostream>
 #include <fstream>
 
@@ -21,12 +21,12 @@ using namespace Cantera;
 
 void calc_potentials()
 {
-    suppress_deprecation_warnings();
     double Tk = 273.15 + 25.0;
 
     std::string filename = "LiC6_electrodebulk.yaml";
     std::string phasename = "LiC6_and_Vacancies";
-    std::unique_ptr<ThermoPhase> electrodebulk(newPhase(filename,phasename));
+    auto sol = newSolution(filename, phasename);
+    auto electrodebulk = sol->thermo();
     std::string intercalatingSpeciesName("Li(C6)");
     size_t intercalatingSpeciesIdx = electrodebulk->speciesIndex(intercalatingSpeciesName);
     size_t nsp_tot = electrodebulk->nSpecies();
