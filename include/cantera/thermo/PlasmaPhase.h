@@ -176,6 +176,26 @@ public:
 protected:
     virtual void updateThermo() const;
 
+    //! Check the electron energy levels
+    /*!
+     *  The values of electron energy levels need to be positive and
+     *  monotonically increasing.
+     */
+    void checkElectronEnergyLevels() const;
+
+    //! Check the electron energy distribution
+    /*!
+     *  This method check the electron energy distribution for the criteria
+     *  below.
+     *
+     *  1. The values of electron energy distribution cannot be negative.
+     *
+     *  2. If the last value of electron energy distribution is larger
+     *  than 0.01, it will raise a warning to suggest using a higher electron
+     *  energy levels.
+     */
+    void checkElectronEnergyDistribution() const;
+
     //! Update electron energy distribution.
     void updateElectronEnergyDistribution();
 

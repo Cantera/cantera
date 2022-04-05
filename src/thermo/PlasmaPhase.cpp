@@ -60,6 +60,7 @@ void PlasmaPhase::setIsotropicElectronEnergyDistribution()
         std::pow(meanElectronEnergy(), 1.5) *
         (-c2 * (m_electronEnergyLevels /
         meanElectronEnergy()).pow(x)).exp();
+    checkElectronEnergyDistribution();
 }
 
 void PlasmaPhase::setElectronTemperature(const double Te) {
@@ -76,15 +77,25 @@ void PlasmaPhase::setElectronEnergyLevels(const double* levels, size_t length)
 {
     m_nPoints = length;
     m_electronEnergyLevels = Eigen::Map<const Eigen::ArrayXd>(levels, length);
+    checkElectronEnergyLevels();
     updateElectronEnergyDistribution();
+}
+
+void PlasmaPhase::checkElectronEnergyLevels() const
+{
+    Eigen::ArrayXd h = m_electronEnergyLevels.tail(m_nPoints - 1) -
+                       m_electronEnergyLevels.head(m_nPoints - 1);
+    if (m_electronEnergyLevels[0] < 0.0 || (h <= 0.0).any()) {
+        throw CanteraError("PlasmaPhase::checkElectronEnergyLevels",
+            "Values of electron energy levels need to be positive and "
+            "monotonically increasing.");
+    }
 }
 
 void PlasmaPhase::checkElectronEnergyDistribution() const
 {
-    if ((m_electronEnergyLevels < 0.0).any()) {
-        throw CanteraError("PlasmaPhase::checkElectronEnergyDistribution",
-            "Values of electron energy levels cannot be negative.");
-    }
+    Eigen::ArrayXd h = m_electronEnergyLevels.tail(m_nPoints - 1) -
+                       m_electronEnergyLevels.head(m_nPoints - 1);
     if ((m_electronEnergyDist < 0.0).any()) {
         throw CanteraError("PlasmaPhase::checkElectronEnergyDistribution",
             "Values of electron energy distribution cannot be negative.");
@@ -108,11 +119,14 @@ void PlasmaPhase::setElectronEnergyDistribution(const double* levels,
         Eigen::Map<const Eigen::ArrayXd>(levels, length);
     m_electronEnergyDist =
         Eigen::Map<const Eigen::ArrayXd>(dist, length);
+    checkElectronEnergyLevels();
+    checkElectronEnergyDistribution();
     updateElectronTemperatureFromEnergyDist();
 }
 
 void PlasmaPhase::updateElectronTemperatureFromEnergyDist()
 {
+    // calculate mean electron energy and electron temperature
     Eigen::ArrayXd eps52 = m_electronEnergyLevels.pow(5./2.);
     double epsilon_m = 2.0 / 5.0 * trapezoidal(m_electronEnergyDist, eps52);
     m_electronTemp = 2.0 / 3.0 * epsilon_m * ElectronCharge / Boltzmann;
