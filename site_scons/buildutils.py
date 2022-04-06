@@ -1188,7 +1188,7 @@ def get_spawn(env: "SCEnvironment"):
     return our_spawn
 
 
-def get_command_output(cmd: str, *args: str):
+def get_command_output(cmd: str, *args: str, ignore_errors=False):
     """
     Run a command with arguments and return its output.
     """
@@ -1196,12 +1196,16 @@ def get_command_output(cmd: str, *args: str):
     if "PYTHONHOME" in environ:
         # Can cause problems when trying to run a different Python interpreter
         del environ["PYTHONHOME"]
+    kwargs = {}
+    if ignore_errors:
+        kwargs["stderr"] = subprocess.DEVNULL
     data = subprocess.run(
         [cmd] + list(args),
         env=environ,
         stdout=subprocess.PIPE,
         universal_newlines=True,
-        check=True,
+        check=not ignore_errors,
+        **kwargs,
     )
     return data.stdout.strip()
 
