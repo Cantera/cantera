@@ -108,6 +108,54 @@ namespace Cantera
  *  tabulated thermo data is performed to update the standard state
  *  thermodynamic data for the tabulated species.
  *
+ *  Furthermore, there is an optional feature to include non-ideal effects regarding
+ *  partial molar volumes of the species, \f$ \bar V_k\f$. Being derived from
+ *  IdealSolidSolnPhase, the default assumption in BinarySolutionTabulatedThermo
+ *  is that the species comprising the binary solution have constant partial molar
+ *  volumes equal to their pure species molar volumes. However, this assumption only
+ *  holds true if there is no or only weak interactions between the two species in the
+ *  binary mixture. In non-ideal solid materials, for example intercalation-based
+ *  lithium storage materials, the partial molar volumes of the species typically show a
+ *  strong non-linear dependency on the composition of the mixture. These dependencies
+ *  can most often only be determined experimentally, for example via X-ray diffraction
+ *  (XRD) measurements of the unit cell volume. Therefore, the user can provide an optional fourth vector of
+ *  tabulated molar volume data with the same size as the other tabulated data:
+ *
+ *  - \f$ V_{\mathrm{m,tab}}\f$ = array of the molar volume of the binary solution phase at
+ *  the tabulated mole fractions.
+ *
+ *  The partial molar volumes \f$ \bar V_1\f$ of the tabulated species and
+ *  \f$ \bar V_2\f$ of the 'reference' species, respectively, can then be derived from
+ *  the provided molar volume:
+ *
+ *  \f[
+ *  \bar V_1 = V_{\mathrm{m,tab}} + \left(1-x_{\mathrm {tab}}\right) \cdot
+ *  \frac{\mathrm{d}V_{\mathrm{m,tab}}}{\mathrm{d}x_{\mathrm {tab}}} \\
+ *  \bar V_2 = V_{\mathrm{m,tab}} - x_{\mathrm {tab}} \cdot
+ *  \frac{\mathrm{d}V_{\mathrm{m,tab}}}{\mathrm{d}x_{\mathrm {tab}}}
+ *  \f]
+ *
+ *  The derivation is implemented using forward differences at the boundaries of the
+ *  input vector and a central differencing scheme at interior points. As the
+ *  derivative is determined numerically, the input data should be relatively smooth
+ *  (recommended is one data point for every mole fraction per cent). The calculated
+ *  partial molar volumes are accessible to the user via getPartialMolarVolumes().
+ *
+ *  The calculation of the mass density incorporates the non-ideal behavior by using
+ *  the provided molar volume in the equation:
+ *
+ *  \f[
+ *  \rho = \frac{\sum_k{x_k W_k}}{V_\mathrm{m}}
+ *  \f]
+ *
+ *  where \f$x_k\f$ are the mole fractions, \f$W_k\f$ are the molecular weights, and
+ *  \f$V_\mathrm{m}\f$ is the molar volume interpolated from \f$V_{\mathrm{m,tab}}\f$.
+ *
+ *  If the optional fourth input vector is not specified, the molar volume is calculated
+ *  by using the pure species molar volumes, as in IdealSolidSolnPhase. Regardless if the
+ *  molarVolume key is provided or not, the equation-of-state field in the pure species
+ *  entries has to be defined.
+ *
  * @ingroup thermoprops
  */
 class BinarySolutionTabulatedThermo : public IdealSolidSolnPhase
@@ -143,25 +191,58 @@ public:
         return "BinarySolutionTabulatedThermo";
     }
 
+    virtual bool addSpecies(shared_ptr<Species> spec);
     virtual void initThermo();
     virtual void getParameters(AnyMap& phaseNode) const;
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id_);
 
-    void getIntegratedPartialMolarVolumes(double* integrated_vbar) const;
-    void getPartialMolarVolumes(double* vbar) const;
+    /**
+     * returns an array of partial molar volumes of the species
+     * in the solution. Units: m^3 kmol-1.
+     *
+     * The partial molar volumes are derived as shown in the equations in the detailed
+     * description section.
+     *
+     * @param vbar  Output vector of partial molar volumes. Length: m_kk.
+     */
+    virtual void getPartialMolarVolumes(doublereal* vbar) const;
+
+    /**
+     * Overloads the calcDensity() method of IdealSolidSoln to also consider non-ideal
+     * behavior.
+     *
+     * The formula for this is
+     *
+     * \f[
+     * \rho = \frac{\sum_k{X_k W_k}}{V_\mathrm{m}}
+     * \f]
+     *
+     * where \f$X_k\f$ are the mole fractions, \f$W_k\f$ are the molecular weights, and
+     * \f$V_\mathrm{m}\f$ is the molar volume interpolated from \f$V_{\mathrm{m,tab}}\f$.
+     */
     virtual void calcDensity();
 
 protected:
     //! If the compositions have changed, update the tabulated thermo lookup
     virtual void compositionChanged();
 
-    //! Species thermodynamics interpolation functions
+    //! Species thermodynamics linear interpolation function
+    /*!
+     *  Tabulated values are only interpolated within the limits of the provided mole
+     *  fraction. If these limits are exceeded, the values are capped at the lower or
+     *  the upper limit.
+     */
     double interpolate(double x, const vector_fp& molefrac,
-            const vector_fp& inputData) const;
+                       const vector_fp& inputData) const;
 
-    //! Piecewise trapezoidal integration of the partial molar volume table
-    void integrate(vector_fp& inputData, vector_fp& integratedData,
-            vector_fp& moleFraction);
+    //! Numerical derivation of the molar volume table
+    /*!
+     *  Tabulated values are only interpolated within the limits of the provided mole
+     *  fraction. If these limits are exceeded, the values are capped at the lower or
+     *  the upper limit.
+     */
+    void derive(vector_fp& inputData, vector_fp& derivedData,
+                vector_fp& moleFraction);
 
     //! Current tabulated species index
     size_t m_kk_tab;
@@ -180,8 +261,10 @@ protected:
     vector_fp m_molefrac_tab;
     vector_fp m_enthalpy_tab;
     vector_fp m_entropy_tab;
-    vector_fp m_partial_molar_volume_tab;
-    vector_fp m_integrated_partial_molar_volume_tab;
+    vector_fp m_molar_volume_tab;
+    vector_fp m_derived_molar_volume_tab;
+    vector_fp m_partial_molar_volume_1_tab;
+    vector_fp m_partial_molar_volume_2_tab;
 
 private:
     virtual void _updateThermo() const;

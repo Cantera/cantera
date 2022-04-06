@@ -165,4 +165,87 @@ TEST_F(BinarySolutionTabulatedThermo_Test,partialMolarEntropies)
         EXPECT_NEAR(expected_result[i], partialMolarEntropies[0], 1.e-6);
     }
 }
+
+TEST_F(BinarySolutionTabulatedThermo_Test,molarVolumes)
+{
+    test_phase->setState_TP(298.15,101325.);
+    // These expected results are purely a regression test
+    const double expected_result[9] = {
+        0.03531501777842358,
+        0.035715748862103429,
+        0.03590414327870764,
+        0.035968621429308907,
+        0.035977245280539603,
+        0.035995403732700486,
+        0.036093852117078863,
+        0.036325488894662347,
+        0.036697196991506385
+    };
+
+    double xmin = 0.10;
+    double xmax = 0.75;
+    int numSteps= 9;
+    double dx = (xmax-xmin)/(numSteps-1);
+    for (int i = 0; i < 9; ++i)
+    {
+        set_defect_X(xmin + i*dx);
+        EXPECT_NEAR(expected_result[i], test_phase->molarVolume(), 1.e-6);
+    }
+}
+
+TEST_F(BinarySolutionTabulatedThermo_Test,partialMolarVolumes)
+{
+    test_phase->setState_TP(298.15,101325.);
+    // These expected results are purely a regression test
+    const double expected_result[9] = {
+        0.041207972037360034,
+        0.038534004157808582,
+        0.036935982981359229,
+        0.036182506843878831,
+        0.035990796804076991,
+        0.036280986542177367,
+        0.036903215973399468,
+        0.037569211282710353,
+        0.038022737191326351
+    };
+
+    double xmin = 0.10;
+    double xmax = 0.75;
+    int numSteps= 9;
+    double dx = (xmax-xmin)/(numSteps-1);
+    vector_fp partialMolarVolumes(2);
+    for (int i = 0; i < 9; ++i)
+    {
+        set_defect_X(xmin + i*dx);
+        test_phase->getPartialMolarVolumes(&partialMolarVolumes[0]);
+        EXPECT_NEAR(expected_result[i], partialMolarVolumes[0], 1.e-6);
+    }
+}
+
+TEST_F(BinarySolutionTabulatedThermo_Test,calcDensity)
+{
+    test_phase->setState_TP(298.15,101325.);
+    // These expected results are purely a regression test
+    const double expected_result[9] = {
+        2060.3132768194214,
+        2052.9843930502343,
+        2057.9170884664422,
+        2069.9048793494585,
+        2085.0818181061941,
+        2099.6951600056354,
+        2109.590568305415,
+        2111.6611870644724,
+        2105.6376599521886
+    };
+
+    double xmin = 0.10;
+    double xmax = 0.75;
+    int numSteps= 9;
+    double dx = (xmax-xmin)/(numSteps-1);
+    for (int i = 0; i < 9; ++i)
+    {
+        set_defect_X(xmin + i*dx);
+        EXPECT_NEAR(expected_result[i], test_phase->density(), 1.e-6);
+    }
+}
 }

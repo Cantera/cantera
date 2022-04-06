@@ -11,6 +11,7 @@
 #include "cantera/thermo/BinarySolutionTabulatedThermo.h"
 #include "cantera/thermo/PDSS.h"
 #include "cantera/thermo/ThermoFactory.h"
+#include "cantera/thermo/Species.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctml.h"
 #include "cantera/thermo/SpeciesThermoFactory.h"
@@ -56,8 +57,8 @@ void BinarySolutionTabulatedThermo::_updateThermo() const
             m_s0_tab = BigNumber;
         } else {
             m_s0_tab += GasConstant*std::log(xnow/(1.0-xnow)) +
-              GasConstant/Faraday*std::log(standardConcentration(1-m_kk_tab)
-              /standardConcentration(m_kk_tab));
+                    GasConstant/Faraday*std::log(standardConcentration(1-m_kk_tab)
+                    /standardConcentration(m_kk_tab));
         }
         m_xlast = xnow;
     }
@@ -76,10 +77,59 @@ void BinarySolutionTabulatedThermo::_updateThermo() const
     }
 }
 
+bool BinarySolutionTabulatedThermo::addSpecies(shared_ptr<Species> spec)
+{
+    bool added = ThermoPhase::addSpecies(spec);
+    if (added) {
+        if (m_kk == 1) {
+            // Obtain the reference pressure by calling the ThermoPhase function
+            // refPressure, which in turn calls the species thermo reference
+            // pressure function of the same name.
+            m_Pref = refPressure();
+        }
+
+        m_h0_RT.push_back(0.0);
+        m_g0_RT.push_back(0.0);
+        m_expg0_RT.push_back(0.0);
+        m_cp0_R.push_back(0.0);
+        m_s0_R.push_back(0.0);
+        m_pp.push_back(0.0);
+        if (spec->input.hasKey("equation-of-state")) {
+            auto& eos = spec->input["equation-of-state"].getMapWhere("model", "constant-volume");
+            double mv;
+            if (eos.hasKey("density")) {
+                mv = molecularWeight(m_kk-1) / eos.convert("density", "kg/m^3");
+            } else if (eos.hasKey("molar-density")) {
+                mv = 1.0 / eos.convert("molar-density", "kmol/m^3");
+            } else if (eos.hasKey("molar-volume")) {
+                mv = eos.convert("molar-volume", "m^3/kmol");
+            } else {
+                throw CanteraError("IdealSolidSolnPhase::addSpecies",
+                    "equation-of-state entry for species '{}' is missing "
+                    "'density', 'molar-volume', or 'molar-density' "
+                    "specification", spec->name);
+            }
+            m_speciesMolarVolume.push_back(mv);
+        } else if (spec->input.hasKey("molar_volume")) {
+            // @Deprecated - remove this case for Cantera 3.0 with removal of the XML format
+            m_speciesMolarVolume.push_back(spec->input["molar_volume"].asDouble());
+        } else {
+            throw CanteraError("IdealSolidSolnPhase::addSpecies",
+                "Molar volume not specified for species '{}'", spec->name);
+        }
+    }
+    return added;
+}
+
 void BinarySolutionTabulatedThermo::initThermo()
 {
     if (m_input.hasKey("tabulated-thermo")) {
         m_kk_tab = speciesIndex(m_input["tabulated-species"].asString());
+        if (nSpecies() != 2) {
+            throw InputFileError("BinarySolutionTabulatedThermo::initThermo",
+                m_input["species"],
+                "No. of species should be equal to 2 in phase '{}'!",name());
+        }
         if (m_kk_tab == npos) {
             throw InputFileError("BinarySolutionTabulatedThermo::initThermo",
                 m_input["tabulated-species"],
@@ -91,51 +141,55 @@ void BinarySolutionTabulatedThermo::initThermo()
         size_t N = x.size();
         vector_fp h = table.convertVector("enthalpy", "J/kmol", N);
         vector_fp s = table.convertVector("entropy", "J/kmol/K", N);
-        vector_fp vbar;
-        // Check for partialMolarVolume tag in tabulatedThermo table,
-        // take m_speciesMolarVolume[0] if false (for backward compatibility)
-        if (table.hasKey("partialMolarVolume")) {
-            vbar = table.convertVector("partialMolarVolume", "m3/kmol", N);
-            for(size_t i = 0; i < N; i++) {
-                vbar[i] += m_speciesMolarVolume[1];
-            }
+        vector_fp vmol(N);
+        // Check for molarVolume key in tabulatedThermo table,
+        // otherwise calculate molar volume from pure species molar volumes
+        if (table.hasKey("molarVolume")) {
+            vmol = table.convertVector("molarVolume", "m^3/kmol", N);
         }
+
         else {
-            vbar.resize(N);
             for(size_t i = 0; i < N; i++) {
-                vbar[i] = m_speciesMolarVolume[0];
+                vmol[i] = x[i] * m_speciesMolarVolume[m_kk_tab] + (1-x[i])
+                        * m_speciesMolarVolume[1-m_kk_tab];
             }
         }
 
-
-        // Sort the x, h, s, vbar data in the order of increasing x
-        std::vector<std::pair<double,double>> x_h(N), x_s(N), x_vbar(N);
+        // Sort the x, h, s, vmol data in the order of increasing x
+        std::vector<std::pair<double,double>> x_h(N), x_s(N), x_vmol(N);
         for(size_t i = 0; i < N; i++) {
             x_h[i] = {x[i], h[i]};
             x_s[i] = {x[i], s[i]};
-            x_vbar[i] = {x[i], vbar[i]};
+            x_vmol[i] = {x[i], vmol[i]};
         }
         std::sort(x_h.begin(), x_h.end());
         std::sort(x_s.begin(), x_s.end());
-        std::sort(x_vbar.begin(), x_vbar.end());
+        std::sort(x_vmol.begin(), x_vmol.end());
 
         // Store the sorted values in different arrays
         m_molefrac_tab.resize(N);
         m_enthalpy_tab.resize(N);
         m_entropy_tab.resize(N);
-        m_partial_molar_volume_tab.resize(N);
+        m_molar_volume_tab.resize(N);
+        m_derived_molar_volume_tab.resize(N);
+        m_partial_molar_volume_1_tab.resize(N);
+        m_partial_molar_volume_2_tab.resize(N);
 
         for (size_t i = 0; i < N; i++) {
             m_molefrac_tab[i] = x_h[i].first;
             m_enthalpy_tab[i] = x_h[i].second;
             m_entropy_tab[i] = x_s[i].second;
-            m_partial_molar_volume_tab[i] = x_vbar[i].second;
+            m_molar_volume_tab[i] = x_vmol[i].second;
         }
 
-        // To save runtime, integrate the partial molar volume over stoichiometry range
-        // only once and provide the stepwise results as data table
-        integrate(m_partial_molar_volume_tab, m_integrated_partial_molar_volume_tab,
-                m_molefrac_tab);
+        derive(m_molar_volume_tab, m_derived_molar_volume_tab, m_molefrac_tab);
+
+        for (size_t i = 0; i < N; i++) {
+            m_partial_molar_volume_1_tab[i] = m_molar_volume_tab[i] +
+                    (1-m_molefrac_tab[i]) * m_derived_molar_volume_tab[i];
+            m_partial_molar_volume_2_tab[i] = m_molar_volume_tab[i] -
+                    m_molefrac_tab[i] * m_derived_molar_volume_tab[i];
+        }
     }
 
     IdealSolidSolnPhase::initThermo();
@@ -154,8 +208,8 @@ void BinarySolutionTabulatedThermo::getParameters(AnyMap& phaseNode) const
 
 void BinarySolutionTabulatedThermo::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
-    vector_fp x, h, s;
-    std::vector<std::pair<double,double>> x_h_temp, x_s_temp;
+    vector_fp x, h, s, vmol;
+    std::vector<std::pair<double,double>> x_h_temp, x_s_temp, x_vmol_temp;
 
     if (id_.size() > 0) {
         if (phaseNode.id() != id_) {
@@ -165,7 +219,7 @@ void BinarySolutionTabulatedThermo::initThermoXML(XML_Node& phaseNode, const std
     }
     if (nSpecies()!=2) {
         throw CanteraError("BinarySolutionTabulatedThermo::initThermoXML",
-                            "No. of species should be equal to 2!");
+                "No. of species should be equal to 2!");
     }
     if (phaseNode.hasChild("thermo")) {
         XML_Node& thermoNode = phaseNode.child("thermo");
@@ -188,9 +242,14 @@ void BinarySolutionTabulatedThermo::initThermoXML(XML_Node& phaseNode, const std
             getFloatArray(dataNode, x, true, "", "moleFraction");
             getFloatArray(dataNode, h, true, "J/kmol", "enthalpy");
             getFloatArray(dataNode, s, true, "J/kmol/K", "entropy");
-
+            vmol.resize(x.size());
+            for(size_t i=0; i<vmol.size(); i++) {
+                vmol[i] = x[i] * m_speciesMolarVolume[m_kk_tab] + (1-x[i]) *
+                    m_speciesMolarVolume[1-m_kk_tab];
+            }
             // Check for data length consistency
-            if ((x.size() != h.size()) || (x.size() != s.size()) || (h.size() != s.size())) {
+            if ((x.size() != h.size()) || (x.size() != s.size()) ||
+                (x.size() != vmol.size())) {
                 throw CanteraError("BinarySolutionTabulatedThermo::initThermoXML",
                         "Species tabulated thermo data has different lengths.");
             }
@@ -198,18 +257,35 @@ void BinarySolutionTabulatedThermo::initThermoXML(XML_Node& phaseNode, const std
             for(size_t i = 0; i < x.size(); i++){
                 x_h_temp.push_back(std::make_pair(x[i],h[i]));
                 x_s_temp.push_back(std::make_pair(x[i],s[i]));
+                x_vmol_temp.push_back(std::make_pair(x[i],vmol[i]));
             }
             std::sort(x_h_temp.begin(), x_h_temp.end());
             std::sort(x_s_temp.begin(), x_s_temp.end());
+            std::sort(x_vmol_temp.begin(), x_vmol_temp.end());
 
             // Store the sorted values in different arrays
             m_molefrac_tab.resize(x_h_temp.size());
             m_enthalpy_tab.resize(x_h_temp.size());
             m_entropy_tab.resize(x_h_temp.size());
+            m_molar_volume_tab.resize(x_h_temp.size());
+            m_derived_molar_volume_tab.resize(x_h_temp.size());
+            m_partial_molar_volume_1_tab.resize(x_h_temp.size());
+            m_partial_molar_volume_2_tab.resize(x_h_temp.size());
+
             for (size_t i = 0; i < x_h_temp.size(); i++) {
                 m_molefrac_tab[i] = x_h_temp[i].first;
                 m_enthalpy_tab[i] = x_h_temp[i].second;
                 m_entropy_tab[i] = x_s_temp[i].second;
+                m_molar_volume_tab[i] = x_vmol_temp[i].second;
+            }
+
+            derive(m_molar_volume_tab, m_derived_molar_volume_tab, m_molefrac_tab);
+
+            for (size_t i = 0; i < x_h_temp.size(); i++) {
+                m_partial_molar_volume_1_tab[i] = m_molar_volume_tab[i] +
+                    (1-m_molefrac_tab[i]) * m_derived_molar_volume_tab[i];
+                m_partial_molar_volume_2_tab[i] = m_molar_volume_tab[i] -
+                    m_molefrac_tab[i] * m_derived_molar_volume_tab[i];
             }
         }
         else {
@@ -241,7 +317,7 @@ void BinarySolutionTabulatedThermo::initThermoXML(XML_Node& phaseNode, const std
 }
 
 double BinarySolutionTabulatedThermo::interpolate(double x, const vector_fp& molefrac,
-        const vector_fp& inputData) const
+                                                  const vector_fp& inputData) const
 {
     double c;
     // Check if x is out of bound
@@ -260,50 +336,45 @@ double BinarySolutionTabulatedThermo::interpolate(double x, const vector_fp& mol
     return c;
 }
 
-void BinarySolutionTabulatedThermo::integrate(vector_fp& inputData,
-        vector_fp& integratedData, vector_fp& moleFraction)
+void BinarySolutionTabulatedThermo::derive(vector_fp& inputData, vector_fp& derivedData,
+                                           vector_fp& moleFraction)
 {
-    integratedData.resize(inputData.size());
-    integratedData[0] = moleFraction[0] * inputData[0];
-    for(size_t i = 1; i < integratedData.size(); i++) {
-        integratedData[i] = integratedData[i-1] + (moleFraction[i] - moleFraction[i-1])
-                / 2 * (inputData[i] + inputData[i-1]);
+    if (inputData.size() > 1) {
+        derivedData[0] = (inputData[1] - inputData[0]) /
+                (moleFraction[1] - moleFraction[0]);
+        derivedData.back() = (inputData.back() - inputData[inputData.size()-2]) /
+                (moleFraction.back() - moleFraction[moleFraction.size()-2]);
+
+        if (inputData.size() > 2) {
+            for (size_t i = 1; i < inputData.size()-1; i++) {
+                derivedData[i] = (inputData[i+1] - inputData[i-1]) /
+                        (moleFraction[i+1] - moleFraction[i-1]);
+            }
+        }
+    }
+    else {
+        derivedData.front() = 0;
     }
 }
 
-void BinarySolutionTabulatedThermo::getIntegratedPartialMolarVolumes(double* integrated_vbar) const
+void BinarySolutionTabulatedThermo::getPartialMolarVolumes(doublereal* vbar) const
 {
-    double x[2];
-    IdealSolidSolnPhase::getPartialMolarVolumes(integrated_vbar);
-    Phase::getMoleFractions(x);
-    integrated_vbar[0] = interpolate(x[0], m_molefrac_tab,
-            m_integrated_partial_molar_volume_tab);
-    integrated_vbar[1] = x[1] * integrated_vbar[1];
-}
-
-void BinarySolutionTabulatedThermo::getPartialMolarVolumes(double* vbar) const
-{
-    double x[2];
-    IdealSolidSolnPhase::getPartialMolarVolumes(vbar);
-    Phase::getMoleFractions(x);
-    vbar[0] = interpolate(x[0], m_molefrac_tab, m_partial_molar_volume_tab);
+    vbar[m_kk_tab] = interpolate(Phase::moleFraction(m_kk_tab), m_molefrac_tab,
+                                 m_partial_molar_volume_1_tab);
+    vbar[1-m_kk_tab] = interpolate(Phase::moleFraction(m_kk_tab), m_molefrac_tab,
+                                   m_partial_molar_volume_2_tab);
 }
 
 void BinarySolutionTabulatedThermo::calcDensity()
 {
-    // Fallback to IdealSolidSolnPhase::calcDensity() if called before
-    // m_integrated_partial_molar_volume_tab is initialized
-    if (m_integrated_partial_molar_volume_tab.empty()) {
-        IdealSolidSolnPhase::calcDensity();
-    }
-    else {
-        double integrated_vbar[2];
-        getIntegratedPartialMolarVolumes(integrated_vbar);
-        double density = Phase::meanMolecularWeight()
-                / (integrated_vbar[0] + integrated_vbar[1]);
+    {
+        double vmol = interpolate(Phase::moleFraction(m_kk_tab), m_molefrac_tab,
+                                  m_molar_volume_tab);
+        double dens = Phase::meanMolecularWeight()/vmol;
+
         // Set the density in the parent State object directly, by calling the
         // Phase::assignDensity() function.
-        Phase::assignDensity(density);
+        Phase::assignDensity(dens);
     }
 
 }
