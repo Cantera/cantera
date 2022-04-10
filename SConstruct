@@ -1690,6 +1690,22 @@ env['debian'] = any(name.endswith('dist-packages') for name in sys.path)
 selected_options = set(line.split("=")[0].strip()
     for line in cantera_conf.splitlines())
 
+# Always set the stage directory before building an MSI installer
+if "msi" in COMMAND_LINE_TARGETS:
+    COMMAND_LINE_TARGETS.append("install")
+    env["stage_dir"] = "stage"
+    env["prefix"] = "."
+    selected_options.add("prefix")
+    selected_options.add("stage_dir")
+    env["python_package"] = "none"
+elif env["layout"] == "debian":
+    COMMAND_LINE_TARGETS.append("install")
+    env["stage_dir"] = "stage/cantera"
+    env["PYTHON_INSTALLER"] = "debian"
+    env["INSTALL_MANPAGES"] = False
+else:
+    env["PYTHON_INSTALLER"] = "direct"
+
 env["default_prefix"] = True
 if "prefix" in selected_options:
     env["default_prefix"] = False
@@ -1753,19 +1769,6 @@ else:
     else:
         env["ct_matlab_dir"] = pjoin(
             env["prefix"], env["libdirname"], "cantera", "matlab", "toolbox")
-
-# Always set the stage directory before building an MSI installer
-if 'msi' in COMMAND_LINE_TARGETS:
-    COMMAND_LINE_TARGETS.append('install')
-    env['stage_dir'] = 'stage'
-    env['prefix'] = '.'
-elif env['layout'] == 'debian':
-    COMMAND_LINE_TARGETS.append('install')
-    env['stage_dir'] = 'stage/cantera'
-    env['PYTHON_INSTALLER'] = 'debian'
-    env['INSTALL_MANPAGES'] = False
-else:
-    env['PYTHON_INSTALLER'] = 'direct'
 
 
 addInstallActions = ('install' in COMMAND_LINE_TARGETS or
