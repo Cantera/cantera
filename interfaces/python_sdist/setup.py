@@ -1,5 +1,6 @@
 import sys
 import os
+import re
 from setuptools import setup, Extension
 from setuptools.command.install import install
 from setuptools.command.develop import develop
@@ -92,28 +93,95 @@ if "BOOST_INCLUDE" in os.environ:
 elif BOOST_INCLUDE is not None:
     include_dirs.append(BOOST_INCLUDE)
 
-if sys.platform != "win32":
-    extra_compile_flags = ["-std=c++11"]
-    sundials_configh = {
-        "SUNDIALS_USE_GENERIC_MATH": "#define SUNDIALS_USE_GENERIC_MATH 1",
-        "SUNDIALS_BLAS_LAPACK": "/* #undef SUNDIALS_BLAS_LAPACK */"
-    }
-    sundials_cflags = ["-w"]
-    sundials_macros = []
+
+def configure_build():
+    boost_version = ""
+    boost_locs = (os.environ.get("BOOST_INCLUDE", None), BOOST_INCLUDE, "/usr/include",
+                  "/usr/local/include")
+    for boost_dir in boost_locs:
+        if boost_dir is None:
+            continue
+        version_hpp = Path(boost_dir) / "boost" / "version.hpp"
+        if not version_hpp.exists():
+            continue
+        boost_lib_version = re.search(
+            r'^#define.*BOOST_LIB_VERSION.*"(\d+_\d+[_\d]*?)"$',
+            version_hpp.read_text(),
+            flags=re.MULTILINE,
+        )
+        if boost_lib_version is not None:
+            boost_version = boost_lib_version.group(1)
+            break
+
+    config_h = {}
+
+    def create_config(key, value):
+        config_h[key] = f"#define {key} {value}"
+
+    if not boost_version:
+        raise ValueError(
+            "Could not find Boost headers. Please set an environment variable called "
+            "BOOST_INCLUDE that contains the path to the Boost headers."
+        )
+    try:
+        boost_minor_version = int(boost_version.split("_")[1])
+    except ValueError:
+        raise ValueError(
+            f"Could not convert Boost minor version to integer: '{boost_version}'"
+        ) from None
+    if boost_minor_version < 56:
+        create_config("CT_USE_DEMANGLE", 0)
+    else:
+        create_config("CT_USE_DEMANGLE", 1)
+
+    if sys.platform == "darwin":
+        create_config("DARWIN", 1)
+    else:
+        create_config("DARWIN", 0)
+
+    # I have no idea if this is the value for Solaris, and I don't have a Solaris
+    # machine handy to test. YOLO!
+    if sys.platform.startswith("sunos"):
+        create_config("SOLARIS", 1)
+    else:
+        create_config("SOLARIS", 0)
+
+    if sys.platform != "win32":
+        extra_compile_flags = ["-std=c++11", "-g0"]
+        sundials_configh = {
+            "SUNDIALS_USE_GENERIC_MATH": "#define SUNDIALS_USE_GENERIC_MATH 1",
+            "SUNDIALS_BLAS_LAPACK": "/* #undef SUNDIALS_BLAS_LAPACK */"
+        }
+        sundials_cflags = ["-w"]
+        sundials_macros = []
+    else:
+        extra_compile_flags = []
+        sundials_macros = [("_CRT_SECURE_NO_WARNINGS", None)]
+        sundials_configh = {
+            "SUNDIALS_USE_GENERIC_MATH": "/* #undef SUNDIALS_USE_GENERIC_MATH */",
+            "SUNDIALS_BLAS_LAPACK": "/* #undef SUNDIALS_BLAS_LAPACK */"
+        }
+        sundials_cflags = []
+
+    sun_config_h_in = (HERE / "sundials_config.h.in").read_text()
+    sun_config_h = HERE / "sundials_config.h"
+    sun_config_h.write_text(sun_config_h_in.format_map(sundials_configh))
+    shutil.copy2(sun_config_h, EXT_SRC / "sundials" / "sundials")
+    shutil.copy2(sun_config_h, CT_INCLUDE / "cantera" / "ext" / "sundials")
+
+    config_h_in = (HERE / "config.h.in").read_text()
+    ct_config_h = HERE / "include" / "cantera" / "base" / "config.h"
+    ct_config_h.write_text(config_h_in.format_map(config_h))
+
+    return extra_compile_flags, sundials_cflags, sundials_macros
+
+
+if "bdist_wheel" in sys.argv:
+    extra_compile_flags, sundials_cflags, sundials_macros = configure_build()
 else:
     extra_compile_flags = []
-    sundials_macros = [("_CRT_SECURE_NO_WARNINGS", None)]
-    sundials_configh = {
-        "SUNDIALS_USE_GENERIC_MATH": "/* #undef SUNDIALS_USE_GENERIC_MATH */",
-        "SUNDIALS_BLAS_LAPACK": "/* #undef SUNDIALS_BLAS_LAPACK */"
-    }
     sundials_cflags = []
-
-config_h_in = (HERE / "sundials_config.h.in").read_text()
-config_h = HERE / "sundials_config.h"
-config_h.write_text(config_h_in.format_map(sundials_configh))
-shutil.copy2(config_h, EXT_SRC / "sundials" / "sundials")
-shutil.copy2(config_h, CT_INCLUDE / "cantera" / "ext" / "sundials")
+    sundials_macros = []
 
 extensions = cythonize([
     Extension(
@@ -138,7 +206,7 @@ libraries = [
                          sundials_macros)),
     ("yaml-cpp", lib_def(yaml_cpp_sources, extra_compile_flags, include_dirs, [])),
     ("fmtlib", lib_def(fmt_sources, extra_compile_flags, include_dirs, [])),
-    ("libexecstream", {"sources": libexecstream_sources, "include_dirs": include_dirs})
+    ("libexecstream", {"sources": libexecstream_sources, "include_dirs": include_dirs}),
 ]
 
 setup(

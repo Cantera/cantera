@@ -6,6 +6,8 @@
  * Solve a closed-system constant pressure ignition problem where the governing
  * equations are custom-implemented, using Cantera's interface to CVODES to
  * integrate the equations.
+ *
+ * Keywords: combustion, reactor network, user-defined model, ignition delay
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

@@ -36,9 +36,12 @@ script = """\
 from sysconfig import *
 import numpy
 import json
+import site
 vars = get_config_vars()
 vars["plat"] = get_platform()
 vars["numpy_include"] = numpy.get_include()
+vars["site_packages"] = site.getsitepackages()
+vars["user_site_packages"] = site.getusersitepackages()
 print(json.dumps(vars))
 """
 info = json.loads(get_command_output(localenv["python_cmd"], "-c", script))
@@ -50,6 +53,8 @@ py_version_short = parse_version(info["py_version_short"])
 py_version_full = parse_version(info["py_version"])
 py_version_nodot = info["py_version_nodot"]
 numpy_include = info["numpy_include"]
+site_packages = info["site_packages"]
+user_site_packages = info["user_site_packages"]
 localenv.Prepend(CPPPATH=[Dir('#include'), inc, numpy_include])
 localenv.Prepend(LIBS=localenv['cantera_libs'])
 
@@ -102,10 +107,11 @@ ext = localenv.LoadableModule(f"cantera/_cantera{module_ext}",
                               obj, LIBPREFIX="", SHLIBSUFFIX=module_ext,
                               SHLIBPREFIX="", LIBSUFFIXES=[module_ext])
 
-build_cmd = ("$python_cmd_esc -m pip wheel --no-build-isolation --no-deps "
+build_cmd = ("$python_cmd_esc -m pip wheel -v --no-build-isolation --no-deps "
              "--wheel-dir=build/python/dist build/python")
+plat = info['plat'].replace('-', '_').replace('.', '_')
 wheel_name = (f"Cantera-{env['cantera_version']}-cp{py_version_nodot}"
-              f"-cp{py_version_nodot}-{info['plat'].replace('-', '_')}.whl")
+              f"-cp{py_version_nodot}-{plat}.whl")
 mod = build(localenv.Command(f"#build/python/dist/{wheel_name}", "setup.cfg",
                              build_cmd))
 env['python_module'] = mod
@@ -135,6 +141,27 @@ elif localenv["python_prefix"]:
 elif not env["default_prefix"]:
     install_cmd.append(f"--prefix={env['prefix']}")
     python_prefix = env["prefix"]
+
+# Check for existing Python module installation. Allow pip to remove an existing
+# installation only if we're installing to the same location. Also disable
+# uninstallation if we're installing to a staging directory.
+if env["stage_dir"]:
+    install_cmd.append("--ignore-installed")
+else:
+    info = get_command_output(localenv["python_cmd"], "-m", "pip", "show", "cantera",
+                              ignore_errors=True)
+
+    if user_install:
+        test_prefix = Path(user_site_packages).parents[2]
+    elif python_prefix is None:
+        test_prefix = Path(site_packages[0]).parents[2]
+    else:
+        test_prefix = Path(python_prefix)
+
+    match = re.search(r"Location: (.*)\n", info, re.MULTILINE)
+    existing_prefix = Path(match.group(1)).parents[2] if match else None
+    if existing_prefix and existing_prefix != test_prefix:
+        install_cmd.append("--ignore-installed")
 
 if env["stage_dir"]:
     # Get the absolute path to the stage directory. If the stage directory is a relative

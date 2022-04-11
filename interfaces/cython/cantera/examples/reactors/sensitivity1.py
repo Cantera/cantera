@@ -2,6 +2,7 @@
 Constant-pressure, adiabatic kinetics simulation with sensitivity analysis
 
 Requires: cantera >= 2.5.0, matplotlib >= 2.0
+Keywords: combustion, reactor network, sensitivity analysis, plotting
 """
 
 import sys

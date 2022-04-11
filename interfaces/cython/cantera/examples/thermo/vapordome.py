@@ -4,6 +4,7 @@ steam table corresponds to data typically found in thermodynamic text books
 and uses the same customary units.
 
 Requires: Cantera >= 2.5.0, matplotlib >= 2.0, pandas >= 1.1.0, numpy >= 1.12
+Keywords: thermodynamics, non-ideal fluid, plotting
 """
 
 import cantera as ct

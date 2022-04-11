@@ -5,6 +5,8 @@ function prandtl1(g)
 %    hydrogen / oxygen mixture in chemical equilibrium for P = 1
 %    atm and a range of temperatures and elemental O/(O+H) ratios.
 %
+% Keywords: equilibrium, transport, plotting
+
 help prandtl1
 
 if nargin == 1

@@ -2,6 +2,7 @@
 Constant-pressure, adiabatic kinetics simulation.
 
 Requires: cantera >= 2.5.0, matplotlib >= 2.0
+Keywords: combustion, reactor network, plotting
 """
 
 import sys

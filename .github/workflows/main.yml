@@ -178,6 +178,20 @@ jobs:
         files: ./coverage.xml
         fail_ci_if_error: true
 
+  example-keywords:
+    name: Check example keywords
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v2
+        name: Checkout the repository
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+      - name: Check keywords
+        run: python3 doc/example-keywords.py compare
+
   docs:
     name: Build docs
     runs-on: ubuntu-latest
@@ -202,7 +216,7 @@ jobs:
         run: python3 -m pip install -U pip setuptools wheel
       - name: Install Python dependencies
         run: |
-          python3 -m pip install ruamel.yaml scons numpy cython sphinx\<4.0 \
+          python3 -m pip install ruamel.yaml scons numpy cython sphinx\<4.0 jinja2\<3.1.0 \
           sphinxcontrib-katex sphinxcontrib-matlabdomain sphinxcontrib-doxylink
       - name: Build Cantera with documentation
         run: python3 `which scons` build -j2 doxygen_docs=y sphinx_docs=y debug=n optimize=n use_pch=n
@@ -492,7 +506,7 @@ jobs:
           architecture: x64
       - name: Install Python dependencies
         run: |
-          python -m pip install -U pip 'setuptools>=43.0.0' wheel
+          python -m pip install -U pip setuptools wheel
           python -m pip install scons pypiwin32 numpy ruamel.yaml cython h5py pandas pytest pytest-github-actions-annotate-failures
       - name: Restore Boost cache
         uses: actions/cache@v2
@@ -507,8 +521,8 @@ jobs:
           BOOST_ROOT=$(echo $BOOST_ROOT | sed 's/\\/\//g')
           mkdir -p $BOOST_ROOT
           curl --progress-bar --location --output $BOOST_ROOT/download.7z $BOOST_URL
-          7z -o$BOOST_ROOT x $BOOST_ROOT/download.7z -y -bd boost_1_75_0/boost
-          mv $BOOST_ROOT/boost_1_75_0/boost $BOOST_ROOT/boost
+          7z -o$BOOST_ROOT x $BOOST_ROOT/download.7z -y -bd boost_1_78_0/boost
+          mv $BOOST_ROOT/boost_1_78_0/boost $BOOST_ROOT/boost
           rm $BOOST_ROOT/download.7z
         shell: bash
       - name: Build Cantera
@@ -647,8 +661,8 @@ jobs:
         BOOST_ROOT=$(echo $BOOST_ROOT | sed 's/\\/\//g')
         mkdir -p $BOOST_ROOT
         curl --progress-bar --location --output $BOOST_ROOT/download.7z $BOOST_URL
-        7z -o$BOOST_ROOT x $BOOST_ROOT/download.7z -y -bd boost_1_75_0/boost
-        mv $BOOST_ROOT/boost_1_75_0/boost $BOOST_ROOT/boost
+        7z -o$BOOST_ROOT x $BOOST_ROOT/download.7z -y -bd boost_1_78_0/boost
+        mv $BOOST_ROOT/boost_1_78_0/boost $BOOST_ROOT/boost
         rm $BOOST_ROOT/download.7z
       shell: bash
     - name: Build Cantera

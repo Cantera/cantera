@@ -5,6 +5,8 @@
  *
  * Calculate the thermodynamic states and efficiency of an open Rankine cycle
  * using a pure substance model for water.
+ *
+ * Keywords: thermodynamics, thermodynamic cycle, non-ideal fluid
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

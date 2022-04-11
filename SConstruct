@@ -851,12 +851,28 @@ if 'sphinx' in COMMAND_LINE_TARGETS:
 if "sdist" in COMMAND_LINE_TARGETS:
     env["python_sdist"] = True
 
+    if env["python_package"] == "default":
+        logger.info("'sdist' target was specified. Setting 'python_package' to none.")
+        env["python_package"] = "none"
+    elif env["python_package"] in ("full", "y"):
+        logger.error("'sdist' target was specified. Cannot also build Python package.")
+        sys.exit(1)
+    for ext_dependency in ("sundials", "fmt", "yamlcpp", "eigen"):
+        if env[f"system_{ext_dependency}"] == "y":
+            logger.error(f"'sdist' target was specified. Cannot use 'system_{ext_dependency}'.")
+            sys.exit(1)
+        else:
+            env[f"system_{ext_dependency}"] = "n"
+
+    logger.info("'sdist' target was specified. Setting 'use_pch' to False.")
+    env["use_pch"] = False
+
 for arg in ARGUMENTS:
     if arg not in config:
         logger.error(f"Encountered unexpected command line option: '{arg}'")
         sys.exit(1)
 
-env["cantera_version"] = "2.6.0b1"
+env["cantera_version"] = "2.6.0b2"
 # For use where pre-release tags are not permitted (MSI, sonames)
 env['cantera_pure_version'] = re.match(r'(\d+\.\d+\.\d+)', env['cantera_version']).group(0)
 env['cantera_short_version'] = re.match(r'(\d+\.\d+)', env['cantera_version']).group(0)
@@ -1612,6 +1628,19 @@ if env['python_package'] != 'none':
                 f"Building the full Python package for Python {python_version}")
             env["python_package"] = "full"
 
+if env["python_package"] == "full" and env["OS"] == "Darwin":
+    # We need to know the macOS deployment target in advance to be able to determine
+    # the name of the wheel file for the Python module. If this is not specified by the
+    # MACOSX_DEPLOYMENT_TARGET environment variable, get the value from the Python
+    # installation and use that.
+    if not env["ENV"].get("MACOSX_DEPLOYMENT_TARGET", False):
+        info = get_command_output(
+            env["python_cmd"],
+            "-c",
+            "import sysconfig; print(sysconfig.get_platform())"
+        )
+        env["ENV"]["MACOSX_DEPLOYMENT_TARGET"] = info.split("-")[1]
+
 # Matlab Toolbox settings
 if env["matlab_path"] != "" and env["matlab_toolbox"] == "default":
     env["matlab_toolbox"] = "y"
@@ -1692,7 +1721,8 @@ if env["layout"] == "conda" and os.name == "nt":
     env["ct_incdir"] = pjoin(env["prefix"], "Library", "include", "cantera")
     env["ct_incroot"] = pjoin(env["prefix"], "Library", "include")
 else:
-    env["prefix"] = str(Path(env["prefix"]).resolve())
+    if "stage_dir" not in selected_options:
+        env["prefix"] = str(Path(env["prefix"]).resolve())
     env["ct_libdir"] = pjoin(env["prefix"], env["libdirname"])
     env["ct_bindir"] = pjoin(env["prefix"], "bin")
     env["ct_python_bindir"] = pjoin(env["prefix"], "bin")
@@ -1805,8 +1835,13 @@ configh['SOLARIS'] = 1 if env['OS'] == 'Solaris' else None
 configh['DARWIN'] = 1 if env['OS'] == 'Darwin' else None
 
 if env['OS'] == 'Solaris' or env['HAS_CLANG']:
-    configh['NEEDS_GENERIC_TEMPL_STATIC_DECL'] = 1
     env["RPATHPREFIX"] = "-Wl,-rpath,"
+
+if env["OS"] == "Darwin" and env["use_rpath_linkage"] and not env.subst("$__RPATH"):
+    # SCons doesn't want to specify RPATH on macOS, so circumvent that behavior by
+    # specifying this directly as part of LINKFLAGS
+    env.Append(LINKFLAGS=[env.subst(f'$RPATHPREFIX{x}$RPATHSUFFIX')
+                          for x in env['RPATH']])
 
 configh['CT_SUNDIALS_VERSION'] = env['sundials_version'].replace('.','')
 
@@ -1888,13 +1923,16 @@ env.Prepend(CPPPATH=[],
 
 # preprocess input files (cti -> xml)
 convertedInputFiles = set()
+convertEnv = env.Clone()
+convertEnv["ENV"]["CT_NO_XML_WARNINGS"] = "1"
 for cti in multi_glob(env, 'data/inputs', 'cti'):
-    build(env.Command('build/data/%s' % cti.name, cti.path,
-                      Copy('$TARGET', '$SOURCE')))
+    build(convertEnv.Command('build/data/%s' % cti.name, cti.path,
+                             Copy('$TARGET', '$SOURCE')))
     outName = os.path.splitext(cti.name)[0] + '.xml'
     convertedInputFiles.add(outName)
-    build(env.Command('build/data/%s' % outName, cti.path,
-                      '$python_cmd_esc interfaces/cython/cantera/ctml_writer.py $SOURCE $TARGET'))
+    build(convertEnv.Command(
+        'build/data/%s' % outName, cti.path,
+        '$python_cmd_esc interfaces/cython/cantera/ctml_writer.py $SOURCE $TARGET'))
 
 # Copy XML input files which are not present as cti:
 for xml in multi_glob(env, 'data/inputs', 'xml'):
@@ -1923,12 +1961,6 @@ if addInstallActions:
     install(env.RecursiveInstall, '$inst_datadir', 'build/data')
 
 
-### List of libraries needed to link to Cantera ###
-linkLibs = ['cantera']
-
-### List of shared libraries needed to link applications to Cantera
-linkSharedLibs = ['cantera_shared']
-
 if env['system_sundials'] == 'y':
     env['sundials_libs'] = ['sundials_cvodes', 'sundials_ida', 'sundials_nvecserial']
     if env['use_lapack'] and sundials_ver >= parse_version('3.0'):
@@ -1941,30 +1973,30 @@ if env['system_sundials'] == 'y':
 else:
     env['sundials_libs'] = []
 
-linkLibs.extend(env['sundials_libs'])
-linkSharedLibs.extend(env['sundials_libs'])
+# External libraries to link to
+env["external_libs"] = []
+env["external_libs"].extend(env["sundials_libs"])
 
-if env['system_fmt']:
-    linkLibs.append('fmt')
-    linkSharedLibs.append('fmt')
+if env["system_fmt"]:
+    env["external_libs"].append("fmt")
 
-if env['system_yamlcpp']:
-    linkLibs.append('yaml-cpp')
-    linkSharedLibs.append('yaml-cpp')
+if env["system_yamlcpp"]:
+    env["external_libs"].append("yaml-cpp")
 
-#  Add LAPACK and BLAS to the link line
-if env['blas_lapack_libs']:
-    linkLibs.extend(env['blas_lapack_libs'])
-    linkSharedLibs.extend(env['blas_lapack_libs'])
+if env["blas_lapack_libs"]:
+    env["external_libs"].extend(env["blas_lapack_libs"])
 
-# Store the list of needed static link libraries in the environment
-env['cantera_libs'] = linkLibs
-env['cantera_shared_libs'] = linkSharedLibs
-if not env['renamed_shared_libraries']:
-    env['cantera_shared_libs'] = linkLibs
+# List of static libraries needed to link to Cantera
+env["cantera_libs"] = ["cantera"] + env["external_libs"]
+
+# List of shared libraries needed to link to Cantera
+if env["renamed_shared_libraries"]:
+    env["cantera_shared_libs"] = ["cantera_shared"] + env["external_libs"]
+else:
+    env["cantera_shared_libs"] = ["cantera"] + env["external_libs"]
 
 # Add targets from the SConscript files in the various subdirectories
-Export('env', 'build', 'libraryTargets', 'install', 'buildSample')
+Export('env', 'build', 'libraryTargets', 'install', 'buildSample', "configh")
 
 # ext needs to come before src so that libraryTargets is fully populated
 VariantDir('build/ext', 'ext', duplicate=0)

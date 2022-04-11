@@ -18,6 +18,7 @@ It is recommended that you read input file sofc.yaml before reading or running
 this script!
 
 Requires: cantera >= 2.6.0
+Keywords: kinetics, electrochemistry, surface chemistry, fuel cell
 """
 
 import cantera as ct

@@ -122,10 +122,10 @@ class TestPickle(utilities.CanteraTest):
     def test_pickle_gas(self):
         gas = ct.Solution("h2o2.yaml", transport_model=None)
         gas.TPX = 500, 500000, "H2:.75,O2:.25"
-        with open("gas.pkl", "wb") as pkl:
+        with open(self.test_work_path / "gas.pkl", "wb") as pkl:
             pickle.dump(gas, pkl)
 
-        with open("gas.pkl", "rb") as pkl:
+        with open(self.test_work_path / "gas.pkl", "rb") as pkl:
             gas2 = pickle.load(pkl)
         self.assertNear(gas.T, gas2.T)
         self.assertNear(gas.P, gas2.P)
@@ -137,10 +137,10 @@ class TestPickle(utilities.CanteraTest):
         gas = ct.Solution("h2o2.yaml")
         gas.TPX = 500, 500000, "H2:.75,O2:.25"
         gas.transport_model = "Multi"
-        with open("gas.pkl", "wb") as pkl:
+        with open(self.test_work_path / "gas.pkl", "wb") as pkl:
             pickle.dump(gas, pkl)
 
-        with open("gas.pkl", "rb") as pkl:
+        with open(self.test_work_path / "gas.pkl", "rb") as pkl:
             gas2 = pickle.load(pkl)
         self.assertNear(gas.T, gas2.T)
         self.assertNear(gas.P, gas2.P)
@@ -154,7 +154,7 @@ class TestPickle(utilities.CanteraTest):
         interface = ct.Interface("diamond.yaml", "diamond_100", (gas, solid))
 
         with self.assertRaises(NotImplementedError):
-            with open("interface.pkl", "wb") as pkl:
+            with open(self.test_work_path / "interface.pkl", "wb") as pkl:
                 pickle.dump(interface, pkl)
 
 
@@ -660,8 +660,8 @@ class TestSolutionSerialization(utilities.CanteraTest):
         gas.TPX = 500, ct.one_atm, 'H2: 1.0, O2: 1.0'
         gas.equilibrate('HP')
         gas.TP = 1500, ct.one_atm
-        gas.write_yaml('h2o2-generated.yaml')
-        generated = utilities.load_yaml("h2o2-generated.yaml")
+        gas.write_yaml(self.test_work_path / "h2o2-generated.yaml")
+        generated = utilities.load_yaml(self.test_work_path / "h2o2-generated.yaml")
         for key in ('generator', 'date', 'phases', 'species', 'reactions'):
             self.assertIn(key, generated)
         self.assertEqual(generated['phases'][0]['transport'], 'mixture-averaged')
@@ -670,7 +670,7 @@ class TestSolutionSerialization(utilities.CanteraTest):
         for blessed, generated in zip(gas.reactions(), generated["reactions"]):
             assert blessed.equation == generated["equation"]
 
-        gas2 = ct.Solution("h2o2-generated.yaml")
+        gas2 = ct.Solution(self.test_work_path / "h2o2-generated.yaml")
         self.assertArrayNear(gas.concentrations, gas2.concentrations)
         self.assertArrayNear(gas.partial_molar_enthalpies,
                              gas2.partial_molar_enthalpies)
@@ -684,8 +684,8 @@ class TestSolutionSerialization(utilities.CanteraTest):
         gas.equilibrate('HP')
         gas.TP = 1500, ct.one_atm
         units = {'length': 'cm', 'quantity': 'mol', 'energy': 'cal'}
-        gas.write_yaml('h2o2-generated.yaml', units=units)
-        generated = utilities.load_yaml("h2o2-generated.yaml")
+        gas.write_yaml(self.test_work_path / "h2o2-generated.yaml", units=units)
+        generated = utilities.load_yaml(self.test_work_path / "h2o2-generated.yaml")
         original = utilities.load_yaml(self.cantera_data_path / "h2o2.yaml")
         self.assertEqual(generated['units'], units)
 
@@ -694,7 +694,7 @@ class TestSolutionSerialization(utilities.CanteraTest):
                 self.assertNear(r1['rate-constant']['A'], r2['rate-constant']['A'])
                 self.assertNear(r1['rate-constant']['Ea'], r2['rate-constant']['Ea'])
 
-        gas2 = ct.Solution("h2o2-generated.yaml")
+        gas2 = ct.Solution(self.test_work_path / "h2o2-generated.yaml")
         self.assertArrayNear(gas.concentrations, gas2.concentrations)
         self.assertArrayNear(gas.partial_molar_enthalpies,
                              gas2.partial_molar_enthalpies)
@@ -709,8 +709,8 @@ class TestSolutionSerialization(utilities.CanteraTest):
         gas.TP = 1500, ct.one_atm
         units = {'length': 'cm', 'quantity': 'mol', 'energy': 'cal'}
         system = ct.UnitSystem(units)
-        gas.write_yaml('h2o2-generated.yaml', units=system)
-        generated = utilities.load_yaml("h2o2-generated.yaml")
+        gas.write_yaml(self.test_work_path / "h2o2-generated.yaml", units=system)
+        generated = utilities.load_yaml(self.test_work_path / "h2o2-generated.yaml")
         original = utilities.load_yaml(self.cantera_data_path / "h2o2.yaml")
 
         for r1, r2 in zip(original['reactions'], generated['reactions']):
@@ -718,7 +718,7 @@ class TestSolutionSerialization(utilities.CanteraTest):
                 self.assertNear(r1['rate-constant']['A'], r2['rate-constant']['A'])
                 self.assertNear(r1['rate-constant']['Ea'], r2['rate-constant']['Ea'])
 
-        gas2 = ct.Solution("h2o2-generated.yaml")
+        gas2 = ct.Solution(self.test_work_path / "h2o2-generated.yaml")
         self.assertArrayNear(gas.concentrations, gas2.concentrations)
         self.assertArrayNear(gas.partial_molar_enthalpies,
                              gas2.partial_molar_enthalpies)
@@ -727,14 +727,14 @@ class TestSolutionSerialization(utilities.CanteraTest):
         self.assertArrayNear(gas.mix_diff_coeffs, gas2.mix_diff_coeffs)
 
     def check_ptcombust(self, gas, surf):
-        generated = utilities.load_yaml("ptcombust-generated.yaml")
+        generated = utilities.load_yaml(self.test_work_path / "ptcombust-generated.yaml")
         for key in ("phases", "species", "gas-reactions", "Pt_surf-reactions"):
             self.assertIn(key, generated)
         self.assertEqual(len(generated["gas-reactions"]), gas.n_reactions)
         self.assertEqual(len(generated["Pt_surf-reactions"]), surf.n_reactions)
         self.assertEqual(len(generated["species"]), surf.n_total_species)
 
-        surf2 = ct.Solution("ptcombust-generated.yaml", "Pt_surf")
+        surf2 = ct.Solution(self.test_work_path / "ptcombust-generated.yaml", "Pt_surf")
         self.assertArrayNear(surf.concentrations, surf2.concentrations)
         self.assertArrayNear(surf.partial_molar_enthalpies,
                              surf2.partial_molar_enthalpies)
@@ -746,7 +746,7 @@ class TestSolutionSerialization(utilities.CanteraTest):
         surf = ct.Interface("ptcombust.yaml", "Pt_surf", [gas])
         gas.TPY = 900, ct.one_atm, np.ones(gas.n_species)
         surf.coverages = np.ones(surf.n_species)
-        surf.write_yaml("ptcombust-generated.yaml")
+        surf.write_yaml(self.test_work_path / "ptcombust-generated.yaml")
         self.check_ptcombust(gas, surf)
 
     def test_yaml_surface_adjacent(self):
@@ -754,15 +754,15 @@ class TestSolutionSerialization(utilities.CanteraTest):
         gas = surf.adjacent["gas"]
         gas.TPY = 900, ct.one_atm, np.ones(gas.n_species)
         surf.coverages = np.ones(surf.n_species)
-        surf.write_yaml("ptcombust-generated.yaml")
+        surf.write_yaml(self.test_work_path / "ptcombust-generated.yaml")
         self.check_ptcombust(gas, surf)
 
     def test_yaml_eos(self):
         ice = ct.Solution('water.yaml', 'ice')
         ice.TP = 270, 2 * ct.one_atm
-        ice.write_yaml('ice-generated.yaml', units={'length': 'mm', 'mass': 'g'})
+        ice.write_yaml(self.test_work_path / "ice-generated.yaml", units={'length': 'mm', 'mass': 'g'})
 
-        ice2 = ct.Solution('ice-generated.yaml')
+        ice2 = ct.Solution(self.test_work_path / "ice-generated.yaml")
         self.assertNear(ice.density, ice2.density)
         self.assertNear(ice.entropy_mole, ice2.entropy_mole)
 
@@ -779,7 +779,7 @@ class TestSolutionSerialization(utilities.CanteraTest):
                                  h2.thermo.reference_pressure, nasa_coeffs)
         gas2.modify_species(gas2.species_index('H2'), h2)
         with self.assertRaisesRegex(ct.CanteraError, "different definitions"):
-            gas.write_yaml('h2o2-error.yaml', phases=gas2)
+            gas.write_yaml(self.test_work_path / "h2o2-error.yaml", phases=gas2)
 
     def test_yaml_user_data(self):
         gas = ct.Solution("h2o2.yaml")
@@ -791,8 +791,8 @@ class TestSolutionSerialization(utilities.CanteraTest):
         S.thermo.update_user_data({"something": (False, True)})
         gas.reaction(5).update_user_data({"baked-beans": True})
 
-        gas.write_yaml("h2o2-generated-user-data.yaml")
-        gas2 = ct.Solution("h2o2-generated-user-data.yaml")
+        gas.write_yaml(self.test_work_path / "h2o2-generated-user-data.yaml")
+        gas2 = ct.Solution(self.test_work_path / "h2o2-generated-user-data.yaml")
         data2 = gas2.species(2).input_data
 
         self.assertEqual(gas2.input_data["spam"], extra["spam"])

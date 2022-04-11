@@ -2,6 +2,8 @@
 A burner-stabilized lean premixed hydrogen-oxygen flame at low pressure.
 
 Requires: cantera >= 2.5.0
+Keywords: combustion, 1D flow, premixed flame, saving output,
+          multicomponent transport
 """
 
 import cantera as ct

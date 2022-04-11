@@ -7,6 +7,8 @@
 %     - CTML files
 %     - converting from CK format
 %
+% Keywords: tutorial, input files
+
 help tut2
 
 t0 = cputime;

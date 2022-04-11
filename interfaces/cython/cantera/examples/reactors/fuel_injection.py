@@ -7,6 +7,7 @@ a MassFlowController, and the use of the SolutionArray class to store results
 during reactor network integration and use these results to generate plots.
 
 Requires: cantera >= 2.5.0, matplotlib >= 2.0
+Keywords: combustion, reactor network, kinetics, pollutant formation, plotting
 """
 
 import numpy as np

@@ -18,6 +18,7 @@ proportional to the pressure difference between the two chambers.
 Note that each side uses a *different* reaction mechanism
 
 Requires: cantera >= 2.5.0, matplotlib >= 2.0
+Keywords: combustion, reactor network, plotting
 """
 
 import sys

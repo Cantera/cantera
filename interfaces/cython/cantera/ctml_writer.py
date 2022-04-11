@@ -30,6 +30,7 @@ from __future__ import print_function
 
 import sys
 import re
+import os
 
 # Python 2/3 compatibility
 try:
@@ -2761,10 +2762,11 @@ def convert(filename=None, outName=None, text=None):
 def main():
     if len(sys.argv) not in (2,3):
         raise ValueError('Incorrect number of command line arguments.')
-    print("WARNING: The CTI and XML input file formats are deprecated and will be\n"
-          "removed in Cantera 3.0. Use 'cti2yaml.py' to convert CTI input files to\n"
-          "the YAML format. See https://cantera.org/tutorials/legacy2yaml.html for\n"
-          "more information.")
+    if os.environ.get("CT_NO_XML_WARNINGS") != "1":
+        print("WARNING: The CTI and XML input file formats are deprecated and will be\n"
+              "removed in Cantera 3.0. Use 'cti2yaml.py' to convert CTI input files\n"
+              "to the YAML format. See https://cantera.org/tutorials/legacy2yaml.html\n"
+              "for more information.")
 
     convert(*sys.argv[1:])
 

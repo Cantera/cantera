@@ -32,6 +32,9 @@ template<> NetworkCabinet* NetworkCabinet::s_storage = 0;
 template<> FlowDeviceCabinet* FlowDeviceCabinet::s_storage = 0;
 template<> WallCabinet* WallCabinet::s_storage = 0;
 template<> ReactorSurfaceCabinet* ReactorSurfaceCabinet::s_storage = 0;
+template<> FuncCabinet* FuncCabinet::s_storage; // defined in ctfunc.cpp
+template<> ThermoCabinet* ThermoCabinet::s_storage; // defined in ct.cpp
+template<> KineticsCabinet* KineticsCabinet::s_storage; // defined in ct.cpp
 
 extern "C" {
 

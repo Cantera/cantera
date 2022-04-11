@@ -157,6 +157,12 @@ def addPythonTest(testname, subdir, script, interpreter,
             # Test was successful
             with open(target[0].path, 'w') as passed_file:
                 passed_file.write(time.asctime()+'\n')
+        elif code == 21:  # Special error code from runCythonTests.py for pytest errors
+            msg = (f"{testname}: Test suite requires the Python package 'pytest',"
+                " which can be installed using pip or conda"
+            )
+            test_results.failed[msg] = 100
+            return
         elif env["fast_fail_tests"]:
             sys.exit(1)
 

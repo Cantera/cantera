@@ -1,6 +1,8 @@
 """
 Print the critical state properties for the fluids for which Cantera has
 built-in liquid/vapor equations of state.
+
+Keywords: thermodynamics, multiphase, non-ideal fluid
 """
 
 import cantera as ct

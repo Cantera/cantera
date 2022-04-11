@@ -9,7 +9,8 @@ from build.env import IsolatedEnvBuilder
 
 from buildutils import logger
 
-Import("env")
+Import("env", "configh")
+configh = configh.copy()
 
 localenv = env.Clone()
 
@@ -89,18 +90,86 @@ def replace_git_hash(target, source, env):
 sdist(localenv.RecursiveInstall(
     "src",
     "#src",
-    exclude=["fortran", "matlab", r"global\.cpp", "SCons.*"],
+    exclude=["fortran", "matlab", "clib", r"global\.cpp", "SCons.*"],
 ))
 
 sdist(localenv.Command("src/base/global.cpp", "#src/base/global.cpp",
                        replace_git_hash))
 
-include_target = sdist(localenv.Command("include", "#include",
-                                        Copy("$TARGET", "$SOURCE")))
-localenv.Depends(include_target, env["config_h_target"])
-localenv.Depends(include_target, env["ext_include_copies_target"])
+# This is the only bit of the clib that we need for the Python interface
+clib_defs_target = sdist(localenv.Command(
+    "include/cantera/clib/clib_defs.h",
+    "#include/cantera/clib/clib_defs.h",
+    Copy("$TARGET", "$SOURCE")
+))
 
-sdist(localenv.Command("ext", "#ext", copy_ext_src))
+# The clib is handled by clib_defs_target. The include/cantera/ext folder is handled by
+# ext_include_target. config.h needs to be filled on the user's machine by setup.py and
+# the template file is handled by config_h_in_target.
+include_target = sdist(localenv.RecursiveInstall(
+    "include",
+    "#include",
+    exclude=[
+        "clib$",
+        "ext$",
+        r"config\.h\.in",
+        r"config\.h",
+    ],
+))
+localenv.Depends(clib_defs_target, include_target)
+
+ext_include_target = sdist(localenv.Command(
+    "include/cantera/ext",
+    "#include/cantera/ext",
+    Copy("$TARGET", "$SOURCE"),
+))
+localenv.Depends(ext_include_target, env["ext_include_copies_target"])
+localenv.Depends(ext_include_target, include_target)
+
+ext_target = sdist(localenv.Command("ext", "#ext", copy_ext_src))
+
+# Disable Lapack for the sdist
+configh["CT_USE_LAPACK"] = None
+configh["CT_SUNDIALS_USE_LAPACK"] = None
+
+# These keys are determined by the build machine
+for key in ("SOLARIS", "DARWIN", "CT_USE_DEMANGLE"):
+    del configh[key]
+
+
+class DefineDict:
+    """dict-like class used to fill config.h.in partially.
+
+    We cannot use buildutils.DefineDict because missing keys in self.data are replaced
+    with /* #undef {key} */, but here we want to leave those as template strings for
+    setup.py to fill in on the final build machine.
+    """
+
+    def __init__(self, data):
+        self.data = data
+
+    def __getitem__(self, key):
+        if key not in self.data:
+            return f"{{{key!s}!s}}"
+        elif self.data[key] is None:
+            return f"/* #undef {key!s} */"
+        else:
+            return f"#define {key!s} {self.data[key]!s}"
+
+
+def config_builder(target, source, env):
+    configh = env["configh"]
+    config_h = Path(str(target[0]))
+    config_h_in = Path(str(source[0])).read_text()
+    config_h.write_text(config_h_in.format_map(configh))
+
+
+localenv["configh"] = DefineDict(configh)
+config_h_in_target = sdist(localenv.Command(
+    "config.h.in",
+    "#include/cantera/base/config.h.in",
+    config_builder,
+))
 
 # Use RecursiveInstall to make sure that files are not overwritten during the copy.
 # A normal Copy Action would fail because of the existing directories.

@@ -6,6 +6,7 @@ simulation differs from the similar premixed_counterflow_flame.py example as the
 latter simulates a jet of reactants shooting into products.
 
 Requires: cantera >= 2.5.0
+Keywords: combustion, 1D flow, premixed flame, strained flame, plotting
 """
 
 import cantera as ct

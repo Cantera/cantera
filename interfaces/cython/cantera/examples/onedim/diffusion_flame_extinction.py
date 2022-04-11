@@ -10,6 +10,8 @@ The tutorial makes use of the scaling rules derived by Fiala and Sattelmayer
 explanation. Also, please don't forget to cite it if you make use of it.
 
 Requires: cantera >= 2.5.0, matplotlib >= 2.0
+Keywords: combustion, 1D flow, diffusion flame, strained flame, extinction,
+          saving output, plotting
 """
 
 import os

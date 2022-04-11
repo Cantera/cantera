@@ -1,6 +1,8 @@
 """Minimal Python Module"""
 from pathlib import Path
 from buildutils import *
+import json
+import re
 
 Import('env', 'build', 'install')
 
@@ -32,7 +34,6 @@ localenv.Depends(mod, [make_setup, readme, license, "setup.py", "pyproject.toml"
 install_cmd = ["$python_cmd_esc", "-m", "pip", "install"]
 user_install = False
 python_prefix = None
-python_root = None
 if localenv["PYTHON_INSTALLER"] == "direct":
     if localenv["python_prefix"] == "USER":
         # Install to the OS-dependent user site-packages directory
@@ -40,9 +41,49 @@ if localenv["PYTHON_INSTALLER"] == "direct":
         user_install = True
     elif localenv["python_prefix"]:
         # A specific location for the Cantera python module has been given
-        install_cmd.extend((f"--prefix={localenv.subst('python_prefix')}",
+        install_cmd.extend((f"--prefix={localenv.subst('$python_prefix')}",
                             "--no-warn-script-location"))
-        python_prefix = localenv.subst("python_prefix")
+        python_prefix = localenv.subst("$python_prefix")
+    elif not env["default_prefix"]:
+        install_cmd.append(f"--prefix={env['prefix']}")
+        python_prefix = env["prefix"]
+
+# Get information about installation paths
+script = """\
+import json
+import site
+vars = {
+    "site_packages": site.getsitepackages(),
+    "user_site_packages": site.getusersitepackages(),
+}
+print(json.dumps(vars))
+"""
+info = json.loads(get_command_output(localenv["python_cmd"], "-c", script))
+site_packages = info["site_packages"]
+user_site_packages = info["user_site_packages"]
+
+# Check for existing Python module installation. Allow pip to remove an existing
+# installation only if we're installing to the same location. Also disable
+# uninstallation if we're installing to a staging directory.
+if env["stage_dir"]:
+    install_cmd.append("--ignore-installed")
+else:
+    info = get_command_output(
+        localenv["python_cmd"], "-m", "pip", "show", "cantera-minimal",
+        ignore_errors=True
+    )
+
+    if user_install:
+        test_prefix = Path(user_site_packages).parents[2]
+    elif python_prefix is None:
+        test_prefix = Path(site_packages[0]).parents[2]
+    else:
+        test_prefix = Path(python_prefix)
+
+    match = re.search(r"Location: (.*)\n", info, re.MULTILINE)
+    existing_prefix = Path(match.group(1)).parents[2] if match else None
+    if existing_prefix and existing_prefix != test_prefix:
+        install_cmd.append("--ignore-installed")
 
 if env["stage_dir"]:
     # Get the absolute path to the stage directory. If the stage directory is a relative

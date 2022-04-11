@@ -3,6 +3,7 @@ This example demonstrates how to set a mixture according to equivalence ratio
 and mixture fraction.
 
 Requires: cantera >= 2.6.0
+Keywords: combustion, thermodynamics, mixture
 """
 
 import cantera as ct

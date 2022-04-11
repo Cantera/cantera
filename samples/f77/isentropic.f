@@ -4,6 +4,8 @@ c     Calculated Mach number vs. area for an isentropic flow. Relies on the
 c     wrapper functions defined in demo_ftnlib.cpp to call the Cantera C++
 c     interface. See also the Python version of this problem in the Python
 c     examples.
+c
+c     Keywords: compressible flow
 
 c     This file is part of Cantera. See License.txt in the top-level directory or
 c     at https://cantera.org/license.txt for license and copyright information.

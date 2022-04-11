@@ -9,6 +9,7 @@ do this is by storing the objects in (module) global variables, which are
 initialized once per worker process.
 
 Requires: cantera >= 2.5.0
+Keywords: transport, benchmarking, parallel computing
 """
 
 import multiprocessing

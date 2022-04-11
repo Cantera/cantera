@@ -16,6 +16,7 @@ for elementary and Blower-Masel reactions. The second plot shows the activation 
 change of a Blowers-Masel reaction with respect to the delta enthalpy of the reaction.
 
 Requires: cantera >= 2.6.0, matplotlib >= 2.0
+Keywords: kinetics, sensitivity analysis
 """
 
 import cantera as ct

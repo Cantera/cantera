@@ -5,6 +5,7 @@ This script simulates a lean hydrogen-oxygen flame stabilized in a strained
 flowfield, with an opposed flow consisting of equilibrium products.
 
 Requires: cantera >= 2.5.0
+Keywords: combustion, 1D flow, premixed flame, strained flame
 """
 
 import cantera as ct

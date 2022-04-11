@@ -18,6 +18,7 @@ Acknowledgments: The idea for this example and an estimate of the conditions
 needed to see the oscillations came from Bob Kee, Colorado School of Mines
 
 Requires: cantera >= 2.5.0, matplotlib >= 2.0
+Keywords: combustion, reactor network, well-stirred reactor, plotting
 """
 
 import cantera as ct

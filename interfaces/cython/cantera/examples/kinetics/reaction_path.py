@@ -7,6 +7,7 @@ Graphviz can be obtained from https://www.graphviz.org/ or (possibly) installed
 using your operating system's package manager.
 
 Requires: cantera >= 2.5.0
+Keywords: kinetics, reaction path analysis, pollutant formation
 """
 
 from subprocess import run

@@ -78,15 +78,8 @@ localenv.Depends(lib, localenv['config_h_target'])
 install('$inst_libdir', lib)
 env['cantera_staticlib'] = lib
 
-if (localenv['system_sundials'] == 'y'):
-    localenv.Append(LIBS=localenv['sundials_libs'],
-                    LIBPATH=localenv['sundials_libdir'])
-if localenv['blas_lapack_libs']:
-    localenv.Append(LIBS=localenv['blas_lapack_libs'],
-                    LIBPATH=localenv['blas_lapack_dir'])
-
-if localenv['system_yamlcpp']:
-    localenv.Append(LIBS=['yaml-cpp'])
+localenv.Append(LIBS=localenv['external_libs'],
+                LIBPATH=localenv['sundials_libdir'] + localenv['blas_lapack_dir'])
 
 # Build the Cantera shared library
 if localenv['layout'] != 'debian':

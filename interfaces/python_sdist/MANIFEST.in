@@ -1,10 +1,18 @@
+# The files listed here will be included in the sdist. They will also be included in
+# the wheel file if they are also listed in setup.cfg:options.package_data and not
+# listed in setup.cfg:options.exclude_package_data.
+
 include cantera/_cantera.cpp
 include cantera/_cantera.h
 recursive-include cantera *.pyx
 include sundials_config.h.in
+include config.h.in
 graft include
+
+# The C/C++ files in these folders are included automatically because they're in
+# the source of the extension.
 recursive-include ext *.h
 recursive-include src *.h
-recursive-include ext/libexecstream/posix *.cpp
-recursive-include ext/libexecstream/win *.cpp
+
+recursive-include ext/libexecstream *.cpp
 exclude include/cantera/ext/sundials/sundials_config.h

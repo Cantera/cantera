@@ -23,6 +23,7 @@ template<> DiagramCabinet* DiagramCabinet::s_storage = 0;
 template<> BuilderCabinet* BuilderCabinet::s_storage = 0;
 
 typedef Cabinet<Kinetics> KineticsCabinet;
+template<> KineticsCabinet* KineticsCabinet::s_storage; // defined in ct.cpp
 
 extern "C" {
 

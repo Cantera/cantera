@@ -17,7 +17,10 @@ using namespace std;
 using namespace Cantera;
 
 typedef Cabinet<MultiPhase> mixCabinet;
+typedef Cabinet<ThermoPhase> ThermoCabinet;
+
 template<> mixCabinet* mixCabinet::s_storage = 0;
+template<> ThermoCabinet* ThermoCabinet::s_storage; // defined in ct.cpp
 
 extern "C" {
 
@@ -54,7 +57,7 @@ extern "C" {
     int mix_addPhase(int i, int j, double moles)
     {
         try {
-            mixCabinet::item(i).addPhase(&Cabinet<ThermoPhase>::item(j), moles);
+            mixCabinet::item(i).addPhase(&ThermoCabinet::item(j), moles);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

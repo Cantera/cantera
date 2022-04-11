@@ -131,8 +131,9 @@ cdef class ArrheniusRateBase(ReactionRate):
     def _cinit(self, input_data, **kwargs):
         """
         Helper function called by __cinit__. The method is used as a uniform interface
-        for object construction. A separate method is necessary as Cython does not
-        support overloading of special methods such as __cinit__.
+        for object construction. A separate method is necessary as default argument
+        values to __cinit__ defined in derived classes are not available in the base
+        class's __cinit__ (which gets called first).
         """
         if self._reaction_rate_type is None:
             raise TypeError(
@@ -283,11 +284,14 @@ cdef class TwoTempPlasmaRate(ArrheniusRateBase):
 
     .. math::
 
-        k_f = A T_e^b \exp(-\tfrac{E_{a,g}}{RT}) \exp(-\tfrac{E_{a,e}}{RT_e})
+        k_f = A T_e^b \exp(-\tfrac{E_{a,g}}{RT}) \exp(\tfrac{E_{a,e}(T_e - T)}{R T T_e})
 
-    where :math:`A` is the `pre_exponential_factor`, :math:`b` is the
-    `temperature_exponent`, :math:`E_{a,g}` is the `activation_energy`, and
-    :math:`E_{a,e}` is the `activation_electron_energy`.
+    where :math:`A` is the
+    `pre_exponential_factor <ArrheniusRateBase.pre_exponential_factor>`,
+    :math:`b` is the `temperature_exponent <ArrheniusRateBase.temperature_exponent>`,
+    :math:`E_{a,g}` (``Ea_gas``) is the
+    `activation_energy <ArrheniusRateBase.activation_energy>`, and
+    :math:`E_{a,e}` (``Ea_electron``) is the `activation_electron_energy`.
     """
     _reaction_rate_type = "two-temperature-plasma"
 
