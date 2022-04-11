@@ -1,3 +1,9 @@
+cantera (2.6.0b2-1+jammy0) jammy; urgency=medium
+
+  * New upstream release
+
+ -- Raymond Speth <speth@mit.edu>  Sun, 10 Apr 2022 23:00:00 -0400
+
 cantera (2.6.0b1-1+jammy1) jammy; urgency=medium
 
   * Fix forced dependency on wrong version of libyaml-cpp
