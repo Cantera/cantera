@@ -49,8 +49,8 @@ void BinarySolutionTabulatedThermo::_updateThermo() const
     bool x_changed = (m_xlast != xnow);
 
     if (x_changed) {
-        m_h0_tab = interpolate(xnow, m_molefrac_tab, m_enthalpy_tab);
-        m_s0_tab = interpolate(xnow, m_molefrac_tab, m_entropy_tab);
+        m_h0_tab = interpolate(xnow, m_enthalpy_tab);
+        m_s0_tab = interpolate(xnow, m_entropy_tab);
         if (xnow == 0) {
             m_s0_tab = -BigNumber;
         } else if (xnow == 1) {
@@ -79,45 +79,11 @@ void BinarySolutionTabulatedThermo::_updateThermo() const
 
 bool BinarySolutionTabulatedThermo::addSpecies(shared_ptr<Species> spec)
 {
-    bool added = ThermoPhase::addSpecies(spec);
-    if (added) {
-        if (m_kk == 1) {
-            // Obtain the reference pressure by calling the ThermoPhase function
-            // refPressure, which in turn calls the species thermo reference
-            // pressure function of the same name.
-            m_Pref = refPressure();
-        }
-
-        m_h0_RT.push_back(0.0);
-        m_g0_RT.push_back(0.0);
-        m_expg0_RT.push_back(0.0);
-        m_cp0_R.push_back(0.0);
-        m_s0_R.push_back(0.0);
-        m_pp.push_back(0.0);
-        if (spec->input.hasKey("equation-of-state")) {
-            auto& eos = spec->input["equation-of-state"].getMapWhere("model", "constant-volume");
-            double mv;
-            if (eos.hasKey("density")) {
-                mv = molecularWeight(m_kk-1) / eos.convert("density", "kg/m^3");
-            } else if (eos.hasKey("molar-density")) {
-                mv = 1.0 / eos.convert("molar-density", "kmol/m^3");
-            } else if (eos.hasKey("molar-volume")) {
-                mv = eos.convert("molar-volume", "m^3/kmol");
-            } else {
-                throw CanteraError("IdealSolidSolnPhase::addSpecies",
-                    "equation-of-state entry for species '{}' is missing "
-                    "'density', 'molar-volume', or 'molar-density' "
-                    "specification", spec->name);
-            }
-            m_speciesMolarVolume.push_back(mv);
-        } else if (spec->input.hasKey("molar_volume")) {
-            // @Deprecated - remove this case for Cantera 3.0 with removal of the XML format
-            m_speciesMolarVolume.push_back(spec->input["molar_volume"].asDouble());
-        } else {
-            throw CanteraError("IdealSolidSolnPhase::addSpecies",
-                "Molar volume not specified for species '{}'", spec->name);
-        }
+    if  (m_kk == 2) {
+        throw CanteraError("BinarySolutionTabulatedThermo::addSpecies",
+                           "No. of species should be equal to 2");
     }
+    bool added = IdealSolidSolnPhase::addSpecies(spec);
     return added;
 }
 
@@ -142,13 +108,11 @@ void BinarySolutionTabulatedThermo::initThermo()
         vector_fp h = table.convertVector("enthalpy", "J/kmol", N);
         vector_fp s = table.convertVector("entropy", "J/kmol/K", N);
         vector_fp vmol(N);
-        // Check for molarVolume key in tabulatedThermo table,
+        // Check for molar-volume key in tabulatedThermo table,
         // otherwise calculate molar volume from pure species molar volumes
-        if (table.hasKey("molarVolume")) {
-            vmol = table.convertVector("molarVolume", "m^3/kmol", N);
-        }
-
-        else {
+        if (table.hasKey("molar-volume")) {
+            vmol = table.convertVector("molar-volume", "m^3/kmol", N);
+        } else {
             for(size_t i = 0; i < N; i++) {
                 vmol[i] = x[i] * m_speciesMolarVolume[m_kk_tab] + (1-x[i])
                         * m_speciesMolarVolume[1-m_kk_tab];
@@ -182,7 +146,7 @@ void BinarySolutionTabulatedThermo::initThermo()
             m_molar_volume_tab[i] = x_vmol[i].second;
         }
 
-        derive(m_molar_volume_tab, m_derived_molar_volume_tab, m_molefrac_tab);
+        diff(m_molar_volume_tab, m_derived_molar_volume_tab);
 
         for (size_t i = 0; i < N; i++) {
             m_partial_molar_volume_1_tab[i] = m_molar_volume_tab[i] +
@@ -191,8 +155,12 @@ void BinarySolutionTabulatedThermo::initThermo()
                     m_molefrac_tab[i] * m_derived_molar_volume_tab[i];
         }
     }
-
     IdealSolidSolnPhase::initThermo();
+}
+
+bool BinarySolutionTabulatedThermo::ready() const
+{
+    return !m_molefrac_tab.empty();
 }
 
 void BinarySolutionTabulatedThermo::getParameters(AnyMap& phaseNode) const
@@ -279,7 +247,7 @@ void BinarySolutionTabulatedThermo::initThermoXML(XML_Node& phaseNode, const std
                 m_molar_volume_tab[i] = x_vmol_temp[i].second;
             }
 
-            derive(m_molar_volume_tab, m_derived_molar_volume_tab, m_molefrac_tab);
+            diff(m_molar_volume_tab, m_derived_molar_volume_tab);
 
             for (size_t i = 0; i < x_h_temp.size(); i++) {
                 m_partial_molar_volume_1_tab[i] = m_molar_volume_tab[i] +
@@ -287,8 +255,7 @@ void BinarySolutionTabulatedThermo::initThermoXML(XML_Node& phaseNode, const std
                 m_partial_molar_volume_2_tab[i] = m_molar_volume_tab[i] -
                     m_molefrac_tab[i] * m_derived_molar_volume_tab[i];
             }
-        }
-        else {
+        } else {
             throw CanteraError("BinarySolutionTabulatedThermo::initThermoXML",
                     "Unspecified tabulated species or thermo");
         }
@@ -316,66 +283,60 @@ void BinarySolutionTabulatedThermo::initThermoXML(XML_Node& phaseNode, const std
     ThermoPhase::initThermoXML(phaseNode, id_);
 }
 
-double BinarySolutionTabulatedThermo::interpolate(double x, const vector_fp& molefrac,
+double BinarySolutionTabulatedThermo::interpolate(const double x,
                                                   const vector_fp& inputData) const
 {
     double c;
     // Check if x is out of bound
-    if (x > molefrac.back()) {
+    if (x > m_molefrac_tab.back()) {
         c = inputData.back();
         return c;
     }
-    if (x < molefrac.front()) {
+    if (x < m_molefrac_tab.front()) {
         c = inputData.front();
         return c;
     }
-    size_t i = std::distance(molefrac.begin(),
-            std::lower_bound(molefrac.begin(), molefrac.end(), x));
+    size_t i = std::distance(m_molefrac_tab.begin(),
+            std::lower_bound(m_molefrac_tab.begin(), m_molefrac_tab.end(), x));
     c = inputData[i-1] + (inputData[i] - inputData[i-1])
-            * (x - molefrac[i-1]) / (molefrac[i] - molefrac[i-1]);
+            * (x - m_molefrac_tab[i-1]) / (m_molefrac_tab[i] - m_molefrac_tab[i-1]);
     return c;
 }
 
-void BinarySolutionTabulatedThermo::derive(vector_fp& inputData, vector_fp& derivedData,
-                                           vector_fp& moleFraction)
+void BinarySolutionTabulatedThermo::diff(const vector_fp& inputData,
+                                         vector_fp& derivedData) const
 {
     if (inputData.size() > 1) {
         derivedData[0] = (inputData[1] - inputData[0]) /
-                (moleFraction[1] - moleFraction[0]);
+                (m_molefrac_tab[1] - m_molefrac_tab[0]);
         derivedData.back() = (inputData.back() - inputData[inputData.size()-2]) /
-                (moleFraction.back() - moleFraction[moleFraction.size()-2]);
+                (m_molefrac_tab.back() - m_molefrac_tab[m_molefrac_tab.size()-2]);
 
         if (inputData.size() > 2) {
             for (size_t i = 1; i < inputData.size()-1; i++) {
                 derivedData[i] = (inputData[i+1] - inputData[i-1]) /
-                        (moleFraction[i+1] - moleFraction[i-1]);
+                        (m_molefrac_tab[i+1] - m_molefrac_tab[i-1]);
             }
         }
-    }
-    else {
+    } else {
         derivedData.front() = 0;
     }
 }
 
-void BinarySolutionTabulatedThermo::getPartialMolarVolumes(doublereal* vbar) const
+void BinarySolutionTabulatedThermo::getPartialMolarVolumes(double* vbar) const
 {
-    vbar[m_kk_tab] = interpolate(Phase::moleFraction(m_kk_tab), m_molefrac_tab,
-                                 m_partial_molar_volume_1_tab);
-    vbar[1-m_kk_tab] = interpolate(Phase::moleFraction(m_kk_tab), m_molefrac_tab,
+    vbar[m_kk_tab] = interpolate(moleFraction(m_kk_tab), m_partial_molar_volume_1_tab);
+    vbar[1-m_kk_tab] = interpolate(moleFraction(m_kk_tab),
                                    m_partial_molar_volume_2_tab);
 }
 
 void BinarySolutionTabulatedThermo::calcDensity()
 {
-    {
-        double vmol = interpolate(Phase::moleFraction(m_kk_tab), m_molefrac_tab,
-                                  m_molar_volume_tab);
-        double dens = Phase::meanMolecularWeight()/vmol;
+    double vmol = interpolate(moleFraction(m_kk_tab), m_molar_volume_tab);
+    double dens = meanMolecularWeight()/vmol;
 
-        // Set the density in the parent State object directly, by calling the
-        // Phase::assignDensity() function.
-        Phase::assignDensity(dens);
-    }
-
+    // Set the density in the parent State object directly, by calling the
+    // Phase::assignDensity() function.
+    Phase::assignDensity(dens);
 }
 }

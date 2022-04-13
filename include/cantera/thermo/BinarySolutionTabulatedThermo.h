@@ -193,6 +193,7 @@ public:
 
     virtual bool addSpecies(shared_ptr<Species> spec);
     virtual void initThermo();
+    virtual bool ready() const;
     virtual void getParameters(AnyMap& phaseNode) const;
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id_);
 
@@ -205,7 +206,7 @@ public:
      *
      * @param vbar  Output vector of partial molar volumes. Length: m_kk.
      */
-    virtual void getPartialMolarVolumes(doublereal* vbar) const;
+    virtual void getPartialMolarVolumes(double* vbar) const;
 
     /**
      * Overloads the calcDensity() method of IdealSolidSoln to also consider non-ideal
@@ -231,18 +232,25 @@ protected:
      *  Tabulated values are only interpolated within the limits of the provided mole
      *  fraction. If these limits are exceeded, the values are capped at the lower or
      *  the upper limit.
+     *
+     *  @param x          Current mole fraction at which to interpolate.
+     *  @param inputData  Input vector of the data to be interpolated.
+     *  @returns          Linear interpolation of tabulated data at the current
+     *                    mole fraction x.
      */
-    double interpolate(double x, const vector_fp& molefrac,
-                       const vector_fp& inputData) const;
+    double interpolate(const double x, const vector_fp& inputData) const;
 
-    //! Numerical derivation of the molar volume table
+    //! Numerical derivative of the molar volume table
     /*!
      *  Tabulated values are only interpolated within the limits of the provided mole
      *  fraction. If these limits are exceeded, the values are capped at the lower or
      *  the upper limit.
+     *
+     *  @param  inputData    Input vector of tabulated data to be derived.
+     *  @param  derivedData  Output vector of tabulated data that is numerically
+     *                       derived with respect to the mole fraction.
      */
-    void derive(vector_fp& inputData, vector_fp& derivedData,
-                vector_fp& moleFraction);
+    void diff(const vector_fp& inputData, vector_fp& derivedData) const;
 
     //! Current tabulated species index
     size_t m_kk_tab;
@@ -255,7 +263,6 @@ protected:
 
     //! Tabulated contribution to s0[m_kk_tab] at the current composition
     mutable double m_s0_tab;
-
 
     //! Vector for storing tabulated thermo
     vector_fp m_molefrac_tab;
