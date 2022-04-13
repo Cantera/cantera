@@ -563,9 +563,9 @@ public:
         throw NotImplementedError("ThermoPhase::getPartialMolarVolumes");
     }
 
-    //@}
-    /// @name Properties of the Standard State of the Species in the Solution
-    //@{
+    //! @}
+    //! @name Properties of the Standard State of the Species in the Solution
+    //! @{
 
     //! Get the array of chemical potentials at unit activity for the species at
     //! their standard states at the current *T* and *P* of the solution.

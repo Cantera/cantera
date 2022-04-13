@@ -409,7 +409,9 @@ bool IdealSolidSolnPhase::addSpecies(shared_ptr<Species> spec)
             throw CanteraError("IdealSolidSolnPhase::addSpecies",
                 "Molar volume not specified for species '{}'", spec->name);
         }
-        calcDensity();
+        if (ready()) {
+            calcDensity();
+        }
     }
     return added;
 }
