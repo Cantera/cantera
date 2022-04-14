@@ -1001,6 +1001,25 @@ class SolutionArray:
             self._phase.set_equivalence_ratio(phi[index], *args, **kwargs)
             self._states[index][:] = self._phase.state
 
+    def set_mixture_fraction(self, mixture_fraction, *args, **kwargs):
+        """
+        See `ThermoPhase.set_mixture_fraction`
+
+        Note that ``mixture_fraction`` either needs to be a scalar value or 
+        dimensions have to be matched to the `SolutionArray`.
+        """
+
+        # broadcast argument shape
+        mixture_fraction, _ = np.broadcast_arrays(mixture_fraction, 
+            self._output_dummy)
+
+        # loop over values
+        for index in self._indices:
+            self._phase.state = self._states[index]
+            self._phase.set_mixture_fraction(mixture_fraction[index], *args, 
+                **kwargs)
+            self._states[index][:] = self._phase.state
+
     def collect_data(self, cols=None, tabular=False, threshold=0, species=None):
         """
         Returns the data specified by ``cols`` in an ordered dictionary, where
