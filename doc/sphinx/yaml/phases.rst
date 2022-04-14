@@ -213,7 +213,7 @@ Includes the fields of :ref:`sec-yaml-ideal-molal-solution`, plus:
     added.
 
 ``tabulated-thermo``
-    A mapping containing three lists of equal lengths:
+    A mapping containing three (optionally four) lists of equal lengths:
 
     ``mole-fractions``
         A list of mole fraction values for the tabulated species.
@@ -225,6 +225,10 @@ Includes the fields of :ref:`sec-yaml-ideal-molal-solution`, plus:
     ``entropy``
         The extra molar entropy to be added to the tabulated species at these
         mole fractions.
+
+    ``molar-volume``
+        The molar volume of the phase at these mole fractions. This input is
+        optional.
 
 
 .. _sec-yaml-compound-lattice:
