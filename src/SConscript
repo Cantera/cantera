@@ -97,5 +97,10 @@ if localenv['layout'] != 'debian':
         lib = build(localenv.SharedLibrary(sharedName, libraryTargets,
                                            SPAWN=get_spawn(localenv)))
         install('$inst_libdir', lib)
+
+    if env["OS"] == "Darwin":
+        localenv.AddPostAction(lib,
+            Action(f"install_name_tool -id @rpath/{lib[0].name} {lib[0].relpath}"))
+
     env['cantera_shlib'] = lib
     localenv.Depends(lib, localenv['config_h_target'])
