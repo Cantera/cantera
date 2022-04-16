@@ -150,6 +150,17 @@ public:
     //! Set electron energy distribution type
     void setElectronEnergyDistributionType(const std::string& type);
 
+    //! Numerical quadrature method. Method: #m_quadratureMethod
+    std::string quadratureMethod() const {
+        return m_quadratureMethod;
+    }
+
+    //! Set numerical quadrature method for intergating electron
+    //! energy distribution function. Method: #m_quadratureMethod
+    void setQuadratureMethod(const std::string& method) {
+        m_quadratureMethod = method;
+    }
+
     //! Mean electron energy [eV]
     double meanElectronEnergy() const {
         return 3.0 / 2.0 * electronTemperature() * Boltzmann / ElectronCharge;
@@ -227,6 +238,9 @@ protected:
 
     //! Electron energy distribution type
     std::string m_distributionType;
+
+    //! Numerical quadrature method for electron energy distribution
+    std::string m_quadratureMethod;
 };
 
 }

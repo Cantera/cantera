@@ -1899,6 +1899,19 @@ cdef class ThermoPhase(_SolutionBase):
                                 f'thermo model: {self.thermo_model}.')
             self.plasma.setMeanElectronEnergy(energy)
 
+    property quadrature_method:
+        """ Quadrature method """
+        def __get__(self):
+            if not self._enable_plasma:
+                raise TypeError('This method is invalid for '
+                                f'thermo model: {self.thermo_model}.')
+            return pystr(self.plasma.quadratureMethod())
+        def __set__(self, method):
+            if not self._enable_plasma:
+                raise TypeError('This method is invalid for '
+                                f'thermo model: {self.thermo_model}.')
+            self.plasma.setQuadratureMethod(stringify(method))
+
 
 cdef class InterfacePhase(ThermoPhase):
     """ A class representing a surface or edge phase"""
