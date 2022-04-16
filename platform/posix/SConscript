@@ -36,18 +36,20 @@ pc_cflags = list(localenv['CXXFLAGS'])
 
 localenv['mak_corelibs'] = ' '.join('-l' + lib for lib in localenv['cantera_libs'])
 
-localenv['mak_extra_includes'] = ' '.join('-I%s' % s for s in localenv['extra_inc_dirs'])
-pc_incdirs.extend(localenv['extra_inc_dirs'])
+localenv["mak_extra_includes"] = " ".join(
+    f"-I{dir}" for dir in localenv["extra_inc_dirs"])
+pc_incdirs.extend(localenv["extra_inc_dirs"])
 
-localenv['mak_extra_libdirs'] = ' '.join('-L%s' % s for s in localenv['extra_lib_dirs'])
-pc_libdirs.extend(localenv['extra_lib_dirs'])
+localenv["mak_extra_libdirs"] = " ".join(
+    f"-L{dir} -Wl,-rpath,{dir}" for dir in localenv["extra_lib_dirs"])
+pc_libdirs.extend(localenv["extra_lib_dirs"])
 
 localenv['mak_stdlib'] = ''.join('-l' + lib for lib in env['cxx_stdlib'])
 
 if localenv['system_sundials']:
     # Add links to the sundials environment
-    localenv['mak_sundials_libs'] = ' '.join('-l%s' % s
-                                             for s in localenv['sundials_libs'])
+    localenv["mak_sundials_libs"] = " ".join(
+        f"-l{lib}" for lib in localenv["sundials_libs"])
     if localenv['sundials_libdir']:
         localenv['mak_sundials_libdir'] = '-L' + localenv['sundials_libdir']
         pc_libdirs.append(localenv['sundials_libdir'])
@@ -67,7 +69,7 @@ else:
     localenv['mak_boost_include'] = ''
 
 # Handle BLAS/LAPACK linkage
-blas_lapack_libs = ' '.join('-l%s' % s for s in localenv['blas_lapack_libs'])
+blas_lapack_libs = " ".join(f"-l{lib}" for lib in localenv["blas_lapack_libs"])
 if localenv['blas_lapack_dir']:
     localenv['mak_blas_lapack_libs'] = '-L{} {}'.format(localenv['blas_lapack_dir'],
                                                         blas_lapack_libs)
