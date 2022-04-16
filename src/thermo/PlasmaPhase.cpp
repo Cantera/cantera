@@ -16,6 +16,7 @@ PlasmaPhase::PlasmaPhase(const std::string& inputFile, const std::string& id_)
     , m_nPoints(1001)
     , m_electronSpeciesIndex(npos)
     , m_distributionType("isotropic")
+    , m_quadratureMethod("simpson")
 {
     initThermoFile(inputFile, id_);
 
@@ -128,7 +129,8 @@ void PlasmaPhase::updateElectronTemperatureFromEnergyDist()
 {
     // calculate mean electron energy and electron temperature
     Eigen::ArrayXd eps52 = m_electronEnergyLevels.pow(5./2.);
-    double epsilon_m = 2.0 / 5.0 * trapezoidal(m_electronEnergyDist, eps52);
+    double epsilon_m = 2.0 / 5.0 * numericalQuadrature(m_quadratureMethod,
+                                                       m_electronEnergyDist, eps52);
     m_electronTemp = 2.0 / 3.0 * epsilon_m * ElectronCharge / Boltzmann;
 }
 

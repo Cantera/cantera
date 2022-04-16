@@ -1,7 +1,6 @@
 from collections import OrderedDict
 import numpy as np
 import gc
-from scipy import integrate
 
 import cantera as ct
 from . import utilities
@@ -1160,10 +1159,11 @@ class TestPlasmaPhase(utilities.CanteraTest):
         levels = np.array([0.0, 1.0, 10.0])
         dist = np.array([0.0, 0.9, 0.01])
         self.phase.normalize_electron_energy_distribution_enabled = False
+        self.phase.quadrature_method = "trapezoidal"
         self.phase.set_electron_energy_distribution(levels, dist)
         self.assertArrayNear(levels, self.phase.electron_energy_levels)
         self.assertArrayNear(dist, self.phase.electron_energy_distribution)
-        mean_energy = 2.0 / 5.0 * integrate.simpson(dist, np.power(levels, 5./2.))
+        mean_energy = 2.0 / 5.0 * np.trapz(dist, np.power(levels, 5./2.))
         self.assertNear(self.phase.mean_electron_energy, mean_energy, 1e-4)
         electron_temp = 2.0 / 3.0 * (self.phase.mean_electron_energy *
                         ct.avogadro * ct.electron_charge / ct.gas_constant)
