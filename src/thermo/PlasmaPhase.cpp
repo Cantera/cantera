@@ -17,6 +17,7 @@ PlasmaPhase::PlasmaPhase(const std::string& inputFile, const std::string& id_)
     , m_electronSpeciesIndex(npos)
     , m_distributionType("isotropic")
     , m_quadratureMethod("simpson")
+    , m_do_normalizeElectronEnergyDist(true)
 {
     initThermoFile(inputFile, id_);
 
@@ -35,6 +36,18 @@ void PlasmaPhase::updateElectronEnergyDistribution()
     } else if (m_distributionType == "isotropic") {
         setIsotropicElectronEnergyDistribution();
     }
+}
+
+void PlasmaPhase::normalizeElectronEnergyDistribution() {
+    Eigen::ArrayXd eps32 = m_electronEnergyLevels.pow(3./2.);
+    double norm = 2./3. * numericalQuadrature(m_quadratureMethod,
+                                              m_electronEnergyDist, eps32);
+    if (norm < 0.0) {
+        throw CanteraError("PlasmaPhase::normalizeElectronEnergyDistribution",
+                           "The norm is negative. This might be caused by bad "
+                           "electron energy distribution");
+    }
+    m_electronEnergyDist /= norm;
 }
 
 void PlasmaPhase::setElectronEnergyDistributionType(const std::string& type)
@@ -61,6 +74,9 @@ void PlasmaPhase::setIsotropicElectronEnergyDistribution()
         std::pow(meanElectronEnergy(), 1.5) *
         (-c2 * (m_electronEnergyLevels /
         meanElectronEnergy()).pow(x)).exp();
+    if (m_do_normalizeElectronEnergyDist) {
+        normalizeElectronEnergyDistribution();
+    }
     checkElectronEnergyDistribution();
 }
 
@@ -121,6 +137,9 @@ void PlasmaPhase::setElectronEnergyDistribution(const double* levels,
     m_electronEnergyDist =
         Eigen::Map<const Eigen::ArrayXd>(dist, length);
     checkElectronEnergyLevels();
+    if (m_do_normalizeElectronEnergyDist) {
+        normalizeElectronEnergyDistribution();
+    }
     checkElectronEnergyDistribution();
     updateElectronTemperatureFromEnergyDist();
 }
