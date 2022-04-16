@@ -32,7 +32,7 @@ CANTERA_CORE_INCLUDES=-I$(CANTERA_INSTALL_ROOT)/include
 CANTERA_EXTRA_INCLUDES=@mak_extra_includes@ 
 
 # Required Cantera libraries
-CANTERA_CORE_LIBS=@mak_threadflags@ -L@ct_libdir@ @mak_corelibs@
+CANTERA_CORE_LIBS=@mak_threadflags@ -L@ct_libdir@ @mak_corelibs@ -Wl,-rpath,@ct_libdir@
 
 CANTERA_CORE_LIBS_DEP = @ct_libdir@/libcantera.a
 
