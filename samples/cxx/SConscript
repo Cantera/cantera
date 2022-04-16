@@ -37,6 +37,8 @@ set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS})
     # TODO: Accelerate is only used if other BLAS/LAPACK are not used
     if env["OS"] == "Darwin":
         localenv["cmake_extra"] += "find_library(ACCELERATE_FRAMEWORK Accelerate)"
+        localenv.Append(
+            LINKFLAGS=env.subst("${RPATHPREFIX}${ct_libdir}${RPATHSUFFIX}"))
 
     localenv.Append(LIBS=env['cantera_libs'])
     localenv.Prepend(CPPPATH=['#include'])
