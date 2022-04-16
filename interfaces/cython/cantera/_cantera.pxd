@@ -453,6 +453,8 @@ cdef extern from "cantera/thermo/PlasmaPhase.h":
         string electronEnergyDistributionType()
         void setQuadratureMethod(const string&) except +translate_exception
         string quadratureMethod()
+        void enableNormalizeElectronEnergyDist(cbool) except +translate_exception
+        cbool normalizeElectronEnergyDistEnabled()
         void setMeanElectronEnergy(double) except +translate_exception
         double isotropicShapeFactor()
         double meanElectronEnergy()

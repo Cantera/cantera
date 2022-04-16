@@ -166,6 +166,18 @@ public:
         return 3.0 / 2.0 * electronTemperature() * Boltzmann / ElectronCharge;
     }
 
+    //! Set flag of automatically normalize electron energy distribution
+    //! Flag: #m_do_normalizeElectronEnergyDist
+    void enableNormalizeElectronEnergyDist(bool enable) {
+        m_do_normalizeElectronEnergyDist = enable;
+    }
+
+    //! Flag of automatically normalize electron energy distribution.
+    //! Flag: #m_do_normalizeElectronEnergyDist
+    bool normalizeElectronEnergyDistEnabled() const {
+        return m_do_normalizeElectronEnergyDist;
+    }
+
     virtual bool addSpecies(shared_ptr<Species> spec);
 
     //! Electron Temperature (K)
@@ -217,6 +229,9 @@ protected:
     //! #m_electronTemp
     void updateElectronTemperatureFromEnergyDist();
 
+    //! Electron energy distribution norm
+    void normalizeElectronEnergyDistribution();
+
     // Electron energy order in the exponential term
     double m_isotropicShapeFactor;
 
@@ -241,6 +256,9 @@ protected:
 
     //! Numerical quadrature method for electron energy distribution
     std::string m_quadratureMethod;
+
+    //! Flag of normalizing electron energy distribution
+    bool m_do_normalizeElectronEnergyDist;
 };
 
 }

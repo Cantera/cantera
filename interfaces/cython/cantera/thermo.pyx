@@ -1912,6 +1912,19 @@ cdef class ThermoPhase(_SolutionBase):
                                 f'thermo model: {self.thermo_model}.')
             self.plasma.setQuadratureMethod(stringify(method))
 
+    property normalize_electron_energy_distribution_enabled:
+        """ Automatically normalize electron energy distribuion """
+        def __get__(self):
+            if not self._enable_plasma:
+                raise TypeError('This method is invalid for '
+                                f'thermo model: {self.thermo_model}.')
+            return self.plasma.normalizeElectronEnergyDistEnabled()
+        def __set__(self, enable):
+            if not self._enable_plasma:
+                raise TypeError('This method is invalid for '
+                                f'thermo model: {self.thermo_model}.')
+            self.plasma.enableNormalizeElectronEnergyDist(enable)
+
 
 cdef class InterfacePhase(ThermoPhase):
     """ A class representing a surface or edge phase"""
