@@ -992,10 +992,9 @@ class SolutionArray:
         to be matched to the `SolutionArray`.
         """
 
-        # broadcast argument shape
+        # If ``phi`` is a scalar, broadcast it to the correct argument shape:
         phi, _ = np.broadcast_arrays(phi, self._output_dummy)
 
-        # loop over values
         for index in self._indices:
             self._phase.state = self._states[index]
             self._phase.set_equivalence_ratio(phi[index], *args, **kwargs)
@@ -1009,11 +1008,11 @@ class SolutionArray:
         dimensions have to be matched to the `SolutionArray`.
         """
 
-        # broadcast argument shape
+        # If ``mixture_fraction`` is a scalar, broadcast it to the correct 
+        # argument shape:
         mixture_fraction, _ = np.broadcast_arrays(mixture_fraction, 
             self._output_dummy)
 
-        # loop over values
         for index in self._indices:
             self._phase.state = self._states[index]
             self._phase.set_mixture_fraction(mixture_fraction[index], *args, 
