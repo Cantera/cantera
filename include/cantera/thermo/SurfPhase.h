@@ -271,7 +271,7 @@ public:
      *
      * This routine normalizes the theta's to 1, before application
      */
-    virtual void setCoverages(const doublereal* theta);
+    void setCoverages(const doublereal* theta);
 
     //! Set the surface site fractions to a specified state.
     /*!
@@ -283,7 +283,7 @@ public:
      * @param theta    This is the surface site fraction for the kth species in
      *                 the surface phase. This is a dimensionless quantity.
      */
-    virtual void setCoveragesNoNorm(const doublereal* theta);
+    void setCoveragesNoNorm(const doublereal* theta);
 
     //! Set the coverages from a string of colon-separated name:value pairs.
     /*!
@@ -346,7 +346,6 @@ protected:
      */
     mutable vector_fp m_logsize;
 
-private:
     //! Update the species reference state thermodynamic functions
     /*!
      * The polynomials for the standard state functions are only reevaluated if
