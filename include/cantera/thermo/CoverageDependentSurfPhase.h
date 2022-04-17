@@ -17,30 +17,29 @@
 
 namespace Cantera
 {
-
 //! Set of parameters modifying SurfPhase enthalpy and entropy based on fractional surface coverages
 //! using a polynomial model. Linear model is a subset of the polynomial model.
 struct PolynomialDependency
 {
     //! Constructor
-    //! @param name_k_  name of a species whose thermodynamics are calculated
-    //! @param name_j_  name of a species whose coverage affects thermodynamics of the target species
+    //! @param k_  index of a species whose thermodynamics are calculated
+    //! @param j_  index of a species whose coverage affects thermodynamics of the target species
     //! @param enthalpy_coeffs_  array of polynomial coefficients describing enthalpy change
     //!                          containing 1st-order, 2nd-order, 3rd-order, and 4th-order
     //!                          coefficients as a function of coverage [J/kmol]
     //! @param entropy_coeffs_  array of polynomial coefficients describing entropy change
     //!                         containing 1st-order, 2nd-order, 3rd-order, and 4th-order
     //!                         coefficients as a function of coverage [J/kmol/K]
-    PolynomialDependency(std::string name_k_, std::string name_j_,
+    PolynomialDependency(size_t k_, size_t j_,
                          vector_fp enthalpy_coeffs_, vector_fp entropy_coeffs_):
-                         name_k(name_k_), name_j(name_j_),
+                         k(k_), j(j_),
                          enthalpy_coeffs(enthalpy_coeffs_),
                          entropy_coeffs(entropy_coeffs_) {}
     PolynomialDependency() {}
-    //! name of a species whose thermodynamics are calculated
-    std::string name_k;
-    //! name of a species whose coverage affects thermodynamics of the target species
-    std::string name_j;
+    //! index of a species whose thermodynamics are calculated
+    size_t k;
+    //! index of a species whose coverage affects thermodynamics of the target species
+    size_t j;
     //! array of polynomial coefficients describing enthalpy change containing 1st-order, 2nd-order,
     //! 3rd-order, and 4th-order coefficients as a function of coverage [J/kmol]
     vector_fp enthalpy_coeffs;
@@ -54,8 +53,8 @@ struct PolynomialDependency
 struct PiecewiseDependency
 {
     //! Constructor
-    //! @param name_k_  name of a species whose thermodynamics are calculated
-    //! @param name_j_  name of a species whose coverage affects thermodynamics of the target species
+    //! @param k_  index of a species whose thermodynamics are calculated
+    //! @param j_  index of a species whose coverage affects thermodynamics of the target species
     //! @param enthalpy_params_  array of three parameters to calculate coverage-dependent enthalpy:
     //!                          slope of enthalpy change in the first region [J/kmol], slope of
     //!                          enthalpy change in the second region [J/kmol], and coverage
@@ -64,16 +63,16 @@ struct PiecewiseDependency
     //!                         slope of entropy change in the first region [J/kmol/K], slope of
     //!                         entropy change in the second region [J/kmol/K], and coverage
     //!                         dividing first and second region [dimensionless]
-    PiecewiseDependency(std::string name_k_, std::string name_j_,
+    PiecewiseDependency(size_t k_, size_t j_,
                         vector_fp enthalpy_params_, vector_fp entropy_params_):
-                        name_k(name_k_), name_j(name_j_),
+                        k(k_), j(j_),
                         enthalpy_params(enthalpy_params_),
                         entropy_params(entropy_params_) {}
     PiecewiseDependency() {}
-    //! name of a species whose thermodynamics are calculated
-    std::string name_k;
-    //! name of a species whose coverage affects thermodynamics of the target species
-    std::string name_j;
+    //! index of a species whose thermodynamics are calculated
+    size_t k;
+    //! index of a species whose coverage affects thermodynamics of the target species
+    size_t j;
     //! array of three parameters to calculate coverage-dependent enthalpy: slope of enthalpy change
     //! in the first region [J/kmol], slope of enthalpy change in the second region [J/kmol],
     //! and coverage dividing first and second region [dimensionless]
@@ -89,37 +88,27 @@ struct PiecewiseDependency
 struct InterpolativeDependency
 {
     //! Constructor
-    //! @param name_k_  name of a species whose thermodynamics are calculated
-    //! @param name_j_  name of a species whose coverage affects thermodynamics of the target species
-    //! @param enthalpy_coverages_  array of coverages for coverage-dependent enthalpy interpolation
-    //!                             [dimensionless]
-    //! @param enthalpies_ array of enthalpies at corresponding coverages in enthalpy-coverages
-    //!                    [J/kmol]
-    //! @param entropy_coverages_  array of coverages for coverage-dependent entropy interpolation
-    //!                            [dimensionless]
-    //! @param entropies_  array of entropies at corresponding coverages in entropy-coverages
-    //!                    [J/kmol/K]
-    InterpolativeDependency(std::string name_k_, std::string name_j_,
-                            vector_fp enthalpy_coverages_, vector_fp enthalpies_,
-                            vector_fp entropy_coverages_, vector_fp entropies_):
-                            name_k(name_k_), name_j(name_j_),
-                            enthalpy_coverages(enthalpy_coverages_),
-                            enthalpies(enthalpies_),
-                            entropy_coverages(entropy_coverages_),
-                            entropies(entropies_) {}
+    //! @param k_  index of a species whose thermodynamics are calculated
+    //! @param j_  index of a species whose coverage affects thermodynamics of the target species
+    //! @param enthalpy_map_  map of <coverage, enthalpy> as a key-value pair where coverage
+    //!                       is [dimensionless] and enthalpy has [J/kmol] unit
+    //! @param entropy_map_  map of <coverage, entropy> as a key-value pair where coverage
+    //!                      is [dimensionless] and entropy has [J/kmol/K] unit
+    InterpolativeDependency(size_t k_, size_t j_,
+                            std::map<double, double> enthalpy_map_,
+                            std::map<double, double> entropy_map_):
+                            k(k_), j(j_),
+                            enthalpy_map(enthalpy_map_),
+                            entropy_map(entropy_map_){}
     InterpolativeDependency() {}
-    //! name of a species whose thermodynamics are calculated
-    std::string name_k;
-    //! name of a species whose coverage affects thermodynamics of the target species
-    std::string name_j;
-    //! array of coverages for coverage-dependent enthalpy interpolation [dimensionless]
-    vector_fp enthalpy_coverages;
-    //! array of enthalpies at corresponding coverages in enthalpy-coverages [J/kmol]
-    vector_fp enthalpies;
-    //! array of coverages for coverage-dependent entropy interpolation [dimensionless]
-    vector_fp entropy_coverages;
-    //! array of entropies at corresponding coverages in entropy-coverages [J/kmol/K]
-    vector_fp entropies;
+    //! index of a species whose thermodynamics are calculated
+    size_t k;
+    //! index of a species whose coverage affects thermodynamics of the target species
+    size_t j;
+    //! map of coverage-enthalpy pairs for coverage-dependent enthalpy interpolation
+    std::map<double, double> enthalpy_map;
+    //! map of coverage-entropy pairs for coverage-dependent entropy interpolation
+    std::map<double, double> entropy_map;
 };
 
 //! Set of parameters modifying SurfPhase heat capacity based on fractional surface coverages
@@ -127,19 +116,19 @@ struct InterpolativeDependency
 struct HeatCapacityDependency
 {
     //! Constructor
-    //! @param name_k_  name of a species whose thermodynamics are calculated
-    //! @param name_j_  name of a species whose coverage affects thermodynamics of the target species
+    //! @param k_  index of a species whose thermodynamics are calculated
+    //! @param j_  index of a species whose coverage affects thermodynamics of the target species
     //! @param cpcov_a_  log model coefficient a [J/kmol/K]
     //! @param cpcov_b_  log model coefficient b [J/kmol/K]
-    HeatCapacityDependency(std::string name_k_, std::string name_j_,
+    HeatCapacityDependency(size_t k_, size_t j_,
                            double cpcov_a_, double cpcov_b_):
-                           name_k(name_k_), name_j(name_j_),
+                           k(k_), j(j_),
                            cpcov_a(cpcov_a_), cpcov_b(cpcov_b_) {}
     HeatCapacityDependency() {}
-    //! name of a species whose thermodynamics are calculated
-    std::string name_k;
-    //! name of a species whose coverage affects thermodynamics of the target species
-    std::string name_j;
+    //! index of a species whose thermodynamics are calculated
+    size_t k;
+    //! index of a species whose coverage affects thermodynamics of the target species
+    size_t j;
     double cpcov_a; //! log model coefficient a [J/kmol/K]
     double cpcov_b; //! log model coefficient b [J/kmol/K]
 };
@@ -147,16 +136,16 @@ struct HeatCapacityDependency
 class CoverageDependentSurfPhase : public SurfPhase
 {
 public:
-    //! Constructor.
-    //! @param n0 Site Density of the Surface Phase [kmol m^-2]
-    CoverageDependentSurfPhase(double n0 = 1.0);
+    //! Default constructor
+    CoverageDependentSurfPhase();
 
     //! Construct and initialize a CoverageDependentSurfPhase ThermoPhase object directly
     //! from an input file
     //! @param infile name of the input file
     //! @param id     name of the phase id in the file. If this is blank, the first phase
     //!               in the file is used
-    explicit CoverageDependentSurfPhase(const std::string& infile, const std::string& id);
+    explicit CoverageDependentSurfPhase(const std::string& infile,
+                                        const std::string& id="");
 
     //! Set the polynomial coverage dependece for species
     /*!
@@ -244,25 +233,6 @@ public:
 
     virtual void initThermo();
     virtual bool addSpecies(shared_ptr<Species> spec);
-
-    //! @copydoc SurfPhase::setCoverages
-    //! After setting coverages, covstateNum is incremented by 1.
-    virtual void setCoverages(const double* theta);
-
-    //! @copydoc SurfPhase::setCoveragesNoNorm
-    //! After setting coverages, covstateNum is incremented by 1.
-    virtual void setCoveragesNoNorm(const double* theta);
-
-    //! Return the covstateNum
-    int statecovNumber() const {
-        return m_covstateNum;
-    }
-
-    //! Convert given eneregy to the quantity with its default unit of J/kmol.
-    double convertEnergy(double value, const std::string& src) const;
-
-    //! Convert given energy per temperature to the quantity with its default unit of J/kmol/K.
-    double convertEnergy_T(double value, const std::string& src) const;
 
     // Functions calculating reference state thermodyanmic properties--------------
 
@@ -428,17 +398,8 @@ public:
     virtual double cp_mole() const;
 
 protected:
-    //! Temporary storage for the reference state enthalpies.
-    mutable vector_fp m_h_ref;
-
-    //! Temporary storage for the reference state entropies.
-    mutable vector_fp m_s_ref;
-
-    //! Temporary storage for the reference state heat capacities.
-    mutable vector_fp m_cp_ref;
-
-    //! Temporary storage for the reference state chemical potentials.
-    mutable vector_fp m_mu_ref;
+    //! Temporary storage for the coverages.
+    mutable vector_fp m_cov;
 
     //! Temporary storage for the coverage-dependent enthalpies.
     mutable vector_fp m_h_cov;
@@ -468,95 +429,28 @@ protected:
     //! and coverage-dependent chemical potentials.
     mutable vector_fp m_chempot;
 
-    /*! Indicate the surface coverages have changed by incrementing the
-     *  coverage state number by one. This function is called whenever
-     *  the setCoverages() or setCoveragesNoNorm() was used to update the
-     *  coverage array.
-     */
-    void coverageChanged();
-
     //! Array of enthalpy and entropy coverage dependency parameters used in
     //! the linear and polynomial models.
-    mutable std::vector<PolynomialDependency> m_PolynomialDependency;
+    std::vector<PolynomialDependency> m_PolynomialDependency;
 
     //! Array of enthalpy and entropy coverage dependency parameters used in
     //! the piecewise linear model.
-    mutable std::vector<PiecewiseDependency> m_PiecewiseDependency;
+    std::vector<PiecewiseDependency> m_PiecewiseDependency;
 
     //! Array of enthalpy and entropy coverage dependency parameters used in
     //! the interpolative model.
-    mutable std::vector<InterpolativeDependency> m_InterpolativeDependency;
+    std::vector<InterpolativeDependency> m_InterpolativeDependency;
 
     //! Array of heat capacity coverage dependency parameters.
-    mutable std::vector<HeatCapacityDependency> m_HeatCapacityDependency;
-
-    //! Storage for the linear and polynomial model coverage dependency
-    //! parameters for enthalpy.
-    mutable vector_fp m_polynomial_h;
-
-    //! Storage for the linear and polynomial model coverage dependency
-    //! parameters for entropy.
-    mutable vector_fp m_polynomial_s;
-
-    //! Storage for the piecewise linear model coverage dependency parameters
-    //! for enthalpy.
-    mutable vector_fp m_piecewise_h;
-
-    //! Storage for the piecewise linear model coverage dependency parameters
-    //! for entropy.
-    mutable vector_fp m_piecewise_s;
-
-    //! Storage for the interpolative model coverage array for enthalpy.
-    mutable vector_fp m_interpolative_hcov;
-
-    //! Storage for the interpolative model enthalpy array.
-    mutable vector_fp m_interpolative_h;
-
-    //! Storage for the interpolative model coverage array for entropy.
-    mutable vector_fp m_interpolative_scov;
-
-    //! Storage for the interpolative model entropy array.
-    mutable vector_fp m_interpolative_s;
-
-    //! Storage for the coverage-dependent heat capacity log model coefficients.
-    mutable double m_cpcov_a, m_cpcov_b;
+    std::vector<HeatCapacityDependency> m_HeatCapacityDependency;
 
 private:
-    //! Coverage state change variable. Whenever the coverage array changes,
-    //! this number is incremented.
-    int m_covstateNum;
-
-    //! Last value of the coverage state number processed.
-    mutable int m_covstateNumlast;
-
-    //! Flag indicating polynomial coverage-dependent model is being used.
-    mutable bool m_has_polynomial_dependency;
-
-    //! Flag indicating piecewise linear coverage-dependent model is being used.
-    mutable bool m_has_piecewise_dependency;
-
-    //! Flag indicating interpolative coverage-dependent model is being used.
-    mutable bool m_has_interpolative_dependency;
-
-    //! Flag indicating coverage-dependent heat capacity is being calculated.
-    mutable bool m_has_heatcapacity_dependency;
-
-    //! Flag indicating user has defined the reference coverage.
-    mutable bool m_has_ref_coverage;
+    //! Last value of the state number processed.
+    mutable int m_stateNumlast;
 
     //! Storage for the user-defined reference state coverage which has to be
-    //! greater than 0.0 and less than or equal to 1.0.
+    //! greater than 0.0 and less than or equal to 1.0. default = 1.0.
     mutable double m_theta_ref;
-
-    //! Update the species ideal reference state thermodynamic functions
-    /*!
-     * The polynomials for the ideal surface reference functions are only
-     * reevaluated if the temperature has changed.
-     *
-     * @param force  Boolean, which if true, forces a reevaluation of the thermo
-     *               polynomials. default = false.
-     */
-    void _updateReferenceThermo(bool force=false) const;
 
     //! Update the species coverage-dependent thermodynamic functions
     /*!
@@ -578,7 +472,7 @@ private:
      *               reference state as well as coverage-dependent functions.
      *               default = false.
      */
-    void _updateThermo(bool force=false) const;
+    void _updateTotalThermo(bool force=false) const;
 
 };
 

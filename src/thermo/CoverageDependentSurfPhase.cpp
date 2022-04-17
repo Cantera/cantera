@@ -21,69 +21,32 @@ using namespace std;
 
 namespace Cantera
 {
-CoverageDependentSurfPhase::CoverageDependentSurfPhase(double n0):
-    m_covstateNum(-1),
-    m_covstateNumlast(0),
-    m_has_polynomial_dependency(false),
-    m_has_piecewise_dependency(false),
-    m_has_interpolative_dependency(false),
-    m_has_heatcapacity_dependency(false),
-    m_has_ref_coverage(false)
+CoverageDependentSurfPhase::CoverageDependentSurfPhase():
+    m_stateNumlast(-2),
+    m_theta_ref(1.0)
 {
-    setSiteDensity(n0);
+    setSiteDensity(1.0);
     setNDim(2);
 }
 
 CoverageDependentSurfPhase::CoverageDependentSurfPhase(const std::string& infile,
-                                                       const std::string& id_):
-    m_covstateNum(-1),
-    m_covstateNumlast(0),
-    m_has_polynomial_dependency(false),
-    m_has_piecewise_dependency(false),
-    m_has_interpolative_dependency(false),
-    m_has_heatcapacity_dependency(false),
-    m_has_ref_coverage(false)
+                                                       const std::string& id_)
 {
+    CoverageDependentSurfPhase();
     initThermoFile(infile, id_);
 }
 
 void CoverageDependentSurfPhase::setPolynomialDependency(const PolynomialDependency&
                                                          poly_deps)
 {
-    size_t k = speciesIndex(poly_deps.name_k);
-    size_t j = speciesIndex(poly_deps.name_j);
-
-    if (k == npos) {
-        throw CanteraError("CoverageDependentSurfPhase::setPolynomialDependency",
-            "Unknown species '{}'.", poly_deps.name_k);
-    }
-
-    if (j == npos) {
-        throw CanteraError("CoverageDependentSurfPhase::setPolynomialDependency",
-            "Unknown species '{}'.", poly_deps.name_k);
-    }
-
     m_PolynomialDependency.push_back(poly_deps);
-    m_has_polynomial_dependency = true;
 }
 
 void CoverageDependentSurfPhase::setPiecewiseDependency(const PiecewiseDependency&
                                                         plin_deps)
 {
-    size_t k = speciesIndex(plin_deps.name_k);
-    size_t j = speciesIndex(plin_deps.name_j);
     double hcov_change = plin_deps.enthalpy_params[2];
     double scov_change = plin_deps.entropy_params[2];
-
-    if (k == npos) {
-        throw CanteraError("CoverageDependentSurfPhase::setPiecewiseDependency",
-            "Unknown species '{}'.", plin_deps.name_k);
-    }
-
-    if (j == npos) {
-        throw CanteraError("CoverageDependentSurfPhase::setPiecewiseDependency",
-            "Unknown species '{}'.", plin_deps.name_j);
-    }
 
     if (hcov_change <= 0.0 || hcov_change > 1.0 || scov_change <= 0.0 || scov_change > 1.0) {
         throw CanteraError("CoverageDependentSurfPhase::setPiecewiseDependency",
@@ -91,88 +54,53 @@ void CoverageDependentSurfPhase::setPiecewiseDependency(const PiecewiseDependenc
     }
 
     m_PiecewiseDependency.push_back(plin_deps);
-    m_has_piecewise_dependency = true;
 }
 
 void CoverageDependentSurfPhase::setInterpolativeDependency(const
                                                             InterpolativeDependency&
                                                             int_deps)
 {
-    size_t k = speciesIndex(int_deps.name_k);
-    size_t j = speciesIndex(int_deps.name_j);
-
-    if (k == npos) {
-        throw CanteraError("CoverageDependentSurfPhase::setInterpolativeDependency",
-            "Unknown species '{}'.", int_deps.name_k);
-    }
-    if (int_deps.enthalpy_coverages.size() != int_deps.enthalpies.size()) {
-        throw CanteraError("CoverageDependentSurfPhase::setInterpolativeDependency",
-            "Sizes of coverages array and enthalpies array are not equal.");
-    }
     double hcov_last = 0.0;
-    for (const auto& hcov_now : int_deps.enthalpy_coverages) {
-        if (hcov_now < hcov_last) {
+    for (auto iter=int_deps.enthalpy_map.begin();iter!=int_deps.enthalpy_map.end();++iter){
+        if (iter->first < hcov_last) {
             throw CanteraError("CoverageDependentSurfPhase::setInterpolativeDependency",
-                "Coverages are not in ascending order.");
+            "Coverages are not in ascending order.");
         }
-        hcov_last = hcov_now;
+        hcov_last = iter->first;
     }
-    if (int_deps.enthalpy_coverages.front() != 0.0) {
+    if (int_deps.enthalpy_map.count(0.0) == 0) {
         throw CanteraError("CoverageDependentSurfPhase::setInterpolativeDependency",
             "The first element of enthalpy-coverages array must be 0.0.");
     }
-    if (int_deps.enthalpy_coverages.back() != 1.0) {
+    if (int_deps.enthalpy_map.count(1.0) == 0) {
         throw CanteraError("CoverageDependentSurfPhase::setInterpolativeDependency",
             "The last element of enthalpy-coverages array must be 1.0.");
     }
 
-    if (j == npos) {
-        throw CanteraError("CoverageDependentSurfPhase::setInterpolativeDependency",
-            "Unknown species '{}'.", int_deps.name_j);
-    }
-    if (int_deps.entropy_coverages.size() != int_deps.entropies.size()) {
-        throw CanteraError("CoverageDependentSurfPhase::setInterpolativeDependency",
-            "Sizes of coverages array and entropies array are not equal.");
-    }
     double scov_last = 0.0;
-    for (const auto& scov_now : int_deps.entropy_coverages) {
-        if (scov_now < scov_last) {
+    for (auto iter=int_deps.entropy_map.begin();iter!=int_deps.entropy_map.end();++iter){
+        if (iter->first < scov_last) {
             throw CanteraError("CoverageDependentSurfPhase::setInterpolativeDependency",
-                "Coverages are not in ascending order.");
+            "Coverages are not in ascending order.");
         }
-        scov_last = scov_now;
+        scov_last = iter->first;
     }
-    if (int_deps.entropy_coverages.front() != 0.0) {
+    if (int_deps.entropy_map.count(0.0) == 0) {
         throw CanteraError("CoverageDependentSurfPhase::setInterpolativeDependency",
             "The first element of entropy-coverages array must be 0.0.");
     }
-    if (int_deps.entropy_coverages.back() != 1.0) {
+    if (int_deps.entropy_map.count(1.0) == 0) {
         throw CanteraError("CoverageDependentSurfPhase::setInterpolativeDependency",
             "The last element of entropy-coverages array must be 1.0.");
     }
 
     m_InterpolativeDependency.push_back(int_deps);
-    m_has_interpolative_dependency = true;
 }
 
 void CoverageDependentSurfPhase::setHeatCapacityDependency(const HeatCapacityDependency&
                                                            cpcov_deps)
 {
-    size_t k = speciesIndex(cpcov_deps.name_k);
-    size_t j = speciesIndex(cpcov_deps.name_j);
-
-    if (k == npos) {
-        throw CanteraError("CoverageDependentSurfPhase::setHeatCapacityDependency",
-            "Unknown species '{}'.", cpcov_deps.name_k);
-    }
-
-    if (j == npos) {
-        throw CanteraError("CoverageDependentSurfPhase::setHeatCapacityDependency",
-            "Unknown species '{}'.", cpcov_deps.name_j);
-    }
-
     m_HeatCapacityDependency.push_back(cpcov_deps);
-    m_has_heatcapacity_dependency = true;
 }
 
 void CoverageDependentSurfPhase::initThermo()
@@ -188,154 +116,105 @@ void CoverageDependentSurfPhase::initThermo()
             throw CanteraError("CoverageDependentSurfPhase::initThermo",
                "Reference state coverage must be greater than 0.0 and less than or equal to 1.0.");
         }
-        m_has_ref_coverage = true;
     }
     for (auto& item : m_species) {
         // Read enthalpy and entropy dependencies from species 'input' information
         // (i.e. as specified in a YAML input file) for both self- and cross-
         // interactions.
         if (item.second->input.hasKey("coverage-dependencies")) {
-            auto cov_map = item.second->input["coverage-dependencies"];
+            auto& cov_map = item.second->input["coverage-dependencies"];
             for (const auto& item2 : cov_map) {
-                auto cov_map2 = item2.second.as<AnyMap>();
-                // For linear and polynomial model
-                if (cov_map2["model"] == "Linear" || cov_map2["model"] == "Polynomial") {
-                    m_polynomial_h = {0.0, 0.0, 0.0, 0.0};
-                    m_polynomial_s = {0.0, 0.0, 0.0, 0.0};
+                size_t k = speciesIndex(item.first);
+                size_t j = speciesIndex(item2.first);
+                if (k == npos) {
+                   throw CanteraError("CoverageDependentSurfPhase::initThermo",
+                        "Unknown species '{}'.", item.first);
+                }
+                if (j == npos) {
+                    throw CanteraError("CoverageDependentSurfPhase::initThermo",
+                        "Unknown species '{}'.", item2.first);
+                }
+                auto& cov_map2 = item2.second.as<AnyMap>();
+                // For linear model
+                if (cov_map2["model"] == "linear") {
+                    vector_fp h_coeffs (5, 0.0);
+                    vector_fp s_coeffs (5, 0.0);
                     if (cov_map2.hasKey("enthalpy")) {
-                        auto enthalpy = cov_map2["enthalpy"].as<double>();
-                        m_polynomial_h[0] = enthalpy;
-                    } else {
-                        if (cov_map2.hasKey("enthalpy-1st-order")) {
-                            auto h_a = cov_map2["enthalpy-1st-order"].as<double>();
-                            m_polynomial_h[0] = h_a;
-                        }
-                        if (cov_map2.hasKey("enthalpy-2nd-order")) {
-                            auto h_b = cov_map2["enthalpy-2nd-order"].as<double>();
-                            m_polynomial_h[1] = h_b;
-                        }
-                        if (cov_map2.hasKey("enthalpy-3rd-order")) {
-                            auto h_c = cov_map2["enthalpy-3rd-order"].as<double>();
-                            m_polynomial_h[2] = h_c;
-                        }
-                        if (cov_map2.hasKey("enthalpy-4th-order")) {
-                            auto h_d = cov_map2["enthalpy-4th-order"].as<double>();
-                            m_polynomial_h[3] = h_d;
-                        }
+                        double h_slope = cov_map2.convert("enthalpy", "J/kmol");
+                        h_coeffs[1] = h_slope;
                     }
-                    if (cov_map2.hasKey("enthalpy-unit")) {
-                        auto enthalpy_unit = cov_map2["enthalpy-unit"].as<string>();
-                        for (size_t i = 0; i < 4; i++) {
-                            m_polynomial_h[i] = convertEnergy(m_polynomial_h[i], enthalpy_unit);
-                        }
-                    }
-
                     if (cov_map2.hasKey("entropy")) {
-                        auto entropy = cov_map2["entropy"].as<double>();
-                        m_polynomial_s[0] = entropy;
-                    } else {
-                        if (cov_map2.hasKey("entropy-1st-order")) {
-                            auto s_a = cov_map2["entropy-1st-order"].as<double>();
-                            m_polynomial_s[0] = s_a;
-                        }
-                        if (cov_map2.hasKey("entropy-2nd-order")) {
-                            auto s_b = cov_map2["entropy-2nd-order"].as<double>();
-                            m_polynomial_s[1] = s_b;
-                        }
-                        if (cov_map2.hasKey("entropy-3rd-order")) {
-                            auto s_c = cov_map2["entropy-3rd-order"].as<double>();
-                            m_polynomial_s[2] = s_c;
-                        }
-                        if (cov_map2.hasKey("entropy-4th-order")) {
-                            auto s_d = cov_map2["entropy-4th-order"].as<double>();
-                            m_polynomial_s[3] = s_d;
-                        }
-                    }
-                    if (cov_map2.hasKey("entropy-unit")) {
-                        auto entropy_unit = cov_map2["entropy-unit"].as<string>();
-                        for (size_t i = 0; i < 4; i++) {
-                            m_polynomial_s[i] = convertEnergy_T(m_polynomial_s[i], entropy_unit);
-                        }
+                        double s_slope = cov_map2.convert("entropy", "J/kmol/K");
+                        s_coeffs[1] = s_slope;
                     }
 
-                    PolynomialDependency poly_deps(item.first, item2.first,
-                                                   m_polynomial_h, m_polynomial_s);
+                    PolynomialDependency poly_deps(k, j, h_coeffs, s_coeffs);
+                    setPolynomialDependency(poly_deps);
+                // For polynomial(4th) model
+                } else if (cov_map2["model"] == "polynomial") {
+                    vector_fp h_coeffs (5, 0.0);
+                    vector_fp s_coeffs (5, 0.0);
+                    if (cov_map2.hasKey("enthalpy-coefficients")) {
+                        h_coeffs = cov_map2.convertVector("enthalpy-coefficients", "J/kmol");
+                        h_coeffs.insert(h_coeffs.begin(), 0.0);
+                    }
+                    if (cov_map2.hasKey("entropy-coefficients")) {
+                        s_coeffs = cov_map2.convertVector("entropy-coefficients", "J/kmol/K");
+                        s_coeffs.insert(s_coeffs.begin(), 0.0);
+                    }
+
+                    PolynomialDependency poly_deps(k, j, h_coeffs, s_coeffs);
                     setPolynomialDependency(poly_deps);
                 // For piecewise linear model
-                } else if (cov_map2["model"] == "Piecewise-Linear") {
-                    m_piecewise_h = {0.0, 0.0, 0.5};
-                    m_piecewise_s = {0.0, 0.0, 0.5};
+                } else if (cov_map2["model"] == "piecewise-linear") {
+                    vector_fp h_piecewise = {0.0, 0.0, 0.5};
+                    vector_fp s_piecewise = {0.0, 0.0, 0.5};
                     if (cov_map2.hasKey("enthalpy-low")) {
-                        auto enthalpy_low = cov_map2["enthalpy-low"].as<double>();
-                        auto enthalpy_high = cov_map2["enthalpy-high"].as<double>();
-                        auto enthalpy_change = cov_map2["enthalpy-change"].as<double>();
-                        if (cov_map2.hasKey("enthalpy-unit")) {
-                            auto enthalpy_unit = cov_map2["enthalpy-unit"].as<string>();
-                            enthalpy_low = convertEnergy(enthalpy_low, enthalpy_unit);
-                            enthalpy_high = convertEnergy(enthalpy_high, enthalpy_unit);
-                        }
-                        m_piecewise_h[0] = enthalpy_low;
-                        m_piecewise_h[1] = enthalpy_high;
-                        m_piecewise_h[2] = enthalpy_change;
+                        h_piecewise[0] = cov_map2.convert("enthalpy-low", "J/kmol");
+                        h_piecewise[1] = cov_map2.convert("enthalpy-high", "J/kmol");
+                        h_piecewise[2] = cov_map2["enthalpy-change"].as<double>();
                     }
-
                     if (cov_map2.hasKey("entropy-low")) {
-                        auto entropy_low = cov_map2["entropy-low"].as<double>();
-                        auto entropy_high = cov_map2["entropy-high"].as<double>();
-                        auto entropy_change = cov_map2["entropy-change"].as<double>();
-                        if (cov_map2.hasKey("entropy-unit")) {
-                            auto entropy_unit = cov_map2["entropy-unit"].as<string>();
-                            entropy_low = convertEnergy_T(entropy_low, entropy_unit);
-                            entropy_high = convertEnergy_T(entropy_high, entropy_unit);
-                        }
-                        m_piecewise_s[0] = entropy_low;
-                        m_piecewise_s[1] = entropy_high;
-                        m_piecewise_s[2] = entropy_change;
+                        s_piecewise[0] = cov_map2.convert("entropy-low", "J/kmol/K");
+                        s_piecewise[1] = cov_map2.convert("entropy-high", "J/kmol/K");
+                        s_piecewise[2] = cov_map2["entropy-change"].as<double>();
                     }
 
-                    PiecewiseDependency plin_deps(item.first, item2.first,
-                                                  m_piecewise_h,
-                                                  m_piecewise_s);
+                    PiecewiseDependency plin_deps(k, j, h_piecewise, s_piecewise);
                     setPiecewiseDependency(plin_deps);
                 // For interpolative model
-                } else if (cov_map2["model"] == "Interpolative") {
-                    m_interpolative_hcov = {0.0, 1.0};
-                    m_interpolative_h = {0.0, 0.0};
-                    m_interpolative_scov = {0.0, 1.0};
-                    m_interpolative_s = {0.0, 0.0};
-                    if (cov_map2.hasKey("enthalpy-coverages")) {
-                        m_interpolative_hcov = cov_map2["enthalpy-coverages"].as<vector_fp>();
-                        auto enthalpies = cov_map2["enthalpies"].as<vector_fp>();
-                        if (cov_map2.hasKey("enthalpy-unit")) {
-                            m_interpolative_h.resize(enthalpies.size());
-                            auto enthalpy_unit = cov_map2["enthalpy-unit"].as<string>();
-                            for (size_t k = 0; k < enthalpies.size(); k++) {
-                                m_interpolative_h[k] = convertEnergy(enthalpies[k], enthalpy_unit);
-                            }
-                        } else {
-                            m_interpolative_h = enthalpies;
+                } else if (cov_map2["model"] == "interpolative") {
+                    std::map<double, double> hmap, smap;
+                    if (cov_map2.hasKey("enthalpy-coverages") && cov_map2.hasKey("enthalpies")) {
+                        auto hcovs = cov_map2["enthalpy-coverages"].as<vector_fp>();
+                        vector_fp enthalpies = cov_map2.convertVector("enthalpies", "J/kmol");
+                        if (hcovs.size() != enthalpies.size()) {
+                            throw CanteraError("CoverageDependentSurfPhase::setInterpolativeDependency",
+                            "Sizes of coverages array and enthalpies array are not equal.");
                         }
+                        for (size_t i = 0; i < hcovs.size(); i++) {
+                            hmap.insert({hcovs[i], enthalpies[i]});
+                        }
+                    } else {
+                        hmap.insert({0.0, 0.0});
+                        hmap.insert({1.0, 0.0});
+                    }
+                    if (cov_map2.hasKey("entropy-coverages") && cov_map2.hasKey("entropies")) {
+                        auto scovs = cov_map2["entropy-coverages"].as<vector_fp>();
+                        vector_fp entropies = cov_map2.convertVector("entropies", "J/kmol/K");
+                        if (scovs.size() != entropies.size()) {
+                            throw CanteraError("CoverageDependentSurfPhase::setInterpolativeDependency",
+                            "Sizes of coverages array and entropies array are not equal.");
+                        }
+                        for (size_t i = 0; i < scovs.size(); i++) {
+                            smap.insert({scovs[i], entropies[i]});
+                        }
+                    } else {
+                        smap.insert({0.0, 0.0});
+                        smap.insert({1.0, 0.0});
                     }
 
-                    if (cov_map2.hasKey("entropy-coverages")) {
-                        m_interpolative_scov = cov_map2["entropy-coverages"].as<vector_fp>();
-                        auto entropies = cov_map2["entropies"].as<vector_fp>();
-                        if (cov_map2.hasKey("entropy-unit")) {
-                            m_interpolative_s.resize(entropies.size());
-                            auto entropy_unit = cov_map2["entropy-unit"].as<string>();
-                            for (size_t k = 0; k < entropies.size(); k++) {
-                                m_interpolative_s[k] = convertEnergy_T(entropies[k], entropy_unit);
-                            }
-                        } else {
-                            m_interpolative_s = entropies;
-                        }
-                    }
-
-                    InterpolativeDependency int_deps(item.first, item2.first,
-                                                     m_interpolative_hcov,
-                                                     m_interpolative_h,
-                                                     m_interpolative_scov,
-                                                     m_interpolative_s);
+                    InterpolativeDependency int_deps(k, j, hmap, smap);
                     setInterpolativeDependency(int_deps);
                 } else {
                     throw CanteraError("CoverageDependentSurfPhase::initThermo",
@@ -344,18 +223,10 @@ void CoverageDependentSurfPhase::initThermo()
                 }
                 // For coverage-dependent heat capacity parameters, if present
                 if (cov_map2.hasKey("heat-capacity-a")) {
-                    auto cpcov_a = cov_map2["heat-capacity-a"].as<double>();
-                    auto cpcov_b = cov_map2["heat-capacity-b"].as<double>();
-                    if (cov_map2.hasKey("heat-capacity-unit")){
-                        auto cpcov_unit = cov_map2["heat-capacity-unit"].as<string>();
-                        m_cpcov_a = convertEnergy_T(cpcov_a, cpcov_unit);
-                        m_cpcov_b = convertEnergy_T(cpcov_b, cpcov_unit);
-                    } else {
-                        m_cpcov_a = cpcov_a;
-                        m_cpcov_b = cpcov_b;
-                    }
-                    HeatCapacityDependency cpcov_deps(item.first, item2.first,
-                                                      m_cpcov_a, m_cpcov_b);
+                    double cpcov_a = cov_map2.convert("heat-capacity-a", "J/kmol/K");
+                    double cpcov_b = cov_map2.convert("heat-capacity-b", "J/kmol/K");
+
+                    HeatCapacityDependency cpcov_deps(k, j, cpcov_a, cpcov_b);
                     setHeatCapacityDependency(cpcov_deps);
                 }
             }
@@ -367,10 +238,7 @@ bool CoverageDependentSurfPhase::addSpecies(shared_ptr<Species> spec)
 {
     bool added = SurfPhase::addSpecies(spec);
     if (added) {
-        m_h_ref.push_back(0.0);
-        m_s_ref.push_back(0.0);
-        m_cp_ref.push_back(0.0);
-        m_mu_ref.push_back(0.0);
+        m_cov.push_back(0.0);
         m_h_cov.push_back(0.0);
         m_s_cov.push_back(0.0);
         m_cp_cov.push_back(0.0);
@@ -383,93 +251,45 @@ bool CoverageDependentSurfPhase::addSpecies(shared_ptr<Species> spec)
     return added;
 }
 
-void CoverageDependentSurfPhase::setCoverages(const double* theta)
-{
-    SurfPhase::setCoverages(theta);
-    coverageChanged();
-}
-
-void CoverageDependentSurfPhase::setCoveragesNoNorm(const double* theta)
-{
-    SurfPhase::setCoveragesNoNorm(theta);
-    coverageChanged();
-}
-
-double CoverageDependentSurfPhase::convertEnergy(double value,
-                                                 const std::string& src) const
-{
-    // Convert to J/kmol
-    Units usrc(src);
-    if (usrc.convertible(Units("J/kmol"))) {
-        value *= usrc.factor();
-    } else if (src == "eV" || src == "meV" ) {
-        value *= Avogadro * usrc.factor();
-    } else {
-        throw CanteraError("CoverageDependentSurfPhase::convertEnergy",
-            "Don't understand units '{}' as energy", src);
-    }
-    return value;
-}
-
-double CoverageDependentSurfPhase::convertEnergy_T(double value,
-                                                  const std::string& src) const
-{
-    // Convert to J/kmol/K
-    Units usrc(src);
-    if (usrc.convertible(Units("J/kmol/K"))) {
-        value *= usrc.factor();
-    } else if (src == "eV/K" || src == "meV/K") {
-        value *= Avogadro * usrc.factor();
-    } else {
-        throw CanteraError("CoverageDependentSurfPhase::convertEnergy_T",
-            "Don't understand units '{}' as energy over temperature", src);
-    }
-    return value;
-}
-
-void CoverageDependentSurfPhase::coverageChanged() {
-    m_covstateNum++;
-}
-
 // Functions calculating reference state thermodyanmic properties--------------
 
 void CoverageDependentSurfPhase::getGibbs_RT_ref(double* grt) const
 {
-    _updateReferenceThermo();
-    scale(m_mu_ref.begin(), m_mu_ref.end(), grt, 1.0/RT());
+    SurfPhase::_updateThermo();
+    scale(m_mu0.begin(), m_mu0.end(), grt, 1.0/RT());
 }
 
 void CoverageDependentSurfPhase::getEnthalpy_RT_ref(double* hrt) const
 {
-    _updateReferenceThermo();
-    scale(m_h_ref.begin(), m_h_ref.end(), hrt, 1.0/RT());
+    SurfPhase::_updateThermo();
+    scale(m_h0.begin(), m_h0.end(), hrt, 1.0/RT());
 }
 
 void CoverageDependentSurfPhase::getEntropy_R_ref(double* sr) const
 {
-    _updateReferenceThermo();
-    scale(m_s_ref.begin(), m_s_ref.end(), sr, 1.0/GasConstant);
+    SurfPhase::_updateThermo();
+    scale(m_s0.begin(), m_s0.end(), sr, 1.0/GasConstant);
 }
 
 void CoverageDependentSurfPhase::getCp_R_ref(double* cpr) const
 {
-    _updateReferenceThermo();
-    scale(m_cp_ref.begin(), m_cp_ref.end(), cpr, 1.0/GasConstant);
+    SurfPhase::_updateThermo();
+    scale(m_cp0.begin(), m_cp0.end(), cpr, 1.0/GasConstant);
 }
 
 // Functions calculating standard state thermodyanmic properties---------------
 
 void CoverageDependentSurfPhase::getEnthalpy_RT(double* hrt) const
 {
-    _updateThermo();
+    _updateTotalThermo();
     scale(m_enthalpy.begin(), m_enthalpy.end(), hrt, 1.0/RT());
 }
 
 void CoverageDependentSurfPhase::getEntropy_R(double* sr) const
 {
-    _updateThermo();
+    _updateTotalThermo();
     scale(m_entropy.begin(), m_entropy.end(), sr, 1.0/GasConstant);
-    if (m_has_ref_coverage) {
+    if (m_theta_ref != 1.0) {
         double tmp = -log(m_theta_ref);
         for (size_t k = 0; k < m_kk; k++) {
             sr[k] -= tmp;
@@ -479,15 +299,15 @@ void CoverageDependentSurfPhase::getEntropy_R(double* sr) const
 
 void CoverageDependentSurfPhase::getCp_R(double* cpr) const
 {
-    _updateThermo();
+    _updateTotalThermo();
     scale(m_heatcapacity.begin(), m_heatcapacity.end(), cpr, 1.0/GasConstant);
 }
 
 void CoverageDependentSurfPhase::getGibbs_RT(double* grt) const
 {
-    _updateThermo();
+    _updateTotalThermo();
     scale(m_chempot.begin(), m_chempot.end(), grt, 1.0/RT());
-    if (m_has_ref_coverage) {
+    if (m_theta_ref != 1.0) {
         double tmp = -log(m_theta_ref);
         for (size_t k = 0; k < m_kk; k++) {
             grt[k] += tmp;
@@ -505,9 +325,9 @@ void CoverageDependentSurfPhase::getPureGibbs(double* g) const
 
 void CoverageDependentSurfPhase::getStandardChemPotentials(double* mu0) const
 {
-    _updateThermo();
+    _updateTotalThermo();
     copy(m_chempot.begin(), m_chempot.end(), mu0);
-    if (m_has_ref_coverage) {
+    if (m_theta_ref != 1.0) {
         double tmp = RT() * -log(m_theta_ref);
         for (size_t k = 0; k < m_kk; k++) {
             mu0[k] += tmp;
@@ -519,48 +339,33 @@ void CoverageDependentSurfPhase::getStandardChemPotentials(double* mu0) const
 
 void CoverageDependentSurfPhase::getPartialMolarEnthalpies(double* hbar) const
 {
-    _updateThermo();
+    _updateTotalThermo();
     copy(m_enthalpy.begin(), m_enthalpy.end(), hbar);
 }
 
 void CoverageDependentSurfPhase::getPartialMolarEntropies(double* sbar) const
 {
-    _updateThermo();
+    _updateTotalThermo();
     copy(m_entropy.begin(), m_entropy.end(), sbar);
-    if (m_has_ref_coverage) {
-        for (size_t k = 0; k < m_kk; k++) {
-            sbar[k] -= GasConstant * log(std::max(concentration(k) * size(k)/m_n0,
-                SmallNumber) / m_theta_ref);
-        }
-    } else {
-        for (size_t k = 0; k < m_kk; k++) {
-            sbar[k] -= GasConstant * log(std::max(concentration(k) * size(k)/m_n0,
-                SmallNumber));
-        }
+    for (size_t k = 0; k < m_kk; k++) {
+        sbar[k] -= GasConstant * log(std::max(m_cov[k], SmallNumber)
+            / m_theta_ref);
     }
 }
 
 void CoverageDependentSurfPhase::getPartialMolarCp(double* cpbar) const
 {
-    _updateThermo();
+    _updateTotalThermo();
     copy(m_heatcapacity.begin(), m_heatcapacity.end(), cpbar);
 }
 
 
 void CoverageDependentSurfPhase::getChemPotentials(double* mu) const
 {
-    _updateThermo();
+    _updateTotalThermo();
     copy(m_chempot.begin(), m_chempot.end(), mu);
-    if (m_has_ref_coverage) {
-        for (size_t k = 0; k < m_kk; k++) {
-            mu[k] += RT() * log(std::max(concentration(k) * size(k)/m_n0,
-                SmallNumber) / m_theta_ref);
-        }
-    } else {
-        for (size_t k = 0; k < m_kk; k++) {
-            mu[k] += RT() * log(std::max(concentration(k) * size(k)/m_n0,
-                SmallNumber));
-        }
+    for (size_t k = 0; k < m_kk; k++) {
+        mu[k] += RT() * log(std::max(m_cov[k], SmallNumber) / m_theta_ref);
     }
 }
 
@@ -568,192 +373,132 @@ void CoverageDependentSurfPhase::getChemPotentials(double* mu) const
 
 double CoverageDependentSurfPhase::enthalpy_mole() const
 {
-    if (m_n0 <= 0.0) {
-        return 0.0;
-    }
-    _updateThermo();
+    _updateTotalThermo();
     return mean_X(m_enthalpy);
 }
 
 double CoverageDependentSurfPhase::entropy_mole() const
 {
-    _updateThermo();
+    _updateTotalThermo();
     double entropy = 0.0;
-    if (m_has_ref_coverage) {
-        for (size_t k = 0; k < m_kk; k++) {
-            entropy += moleFraction(k) * (m_entropy[k] -
-                GasConstant * log(std::max(concentration(k) * size(k)/m_n0,
-                SmallNumber) / m_theta_ref));
-        }
-    } else {
-        for (size_t k = 0; k < m_kk; k++) {
-            entropy += moleFraction(k) * (m_entropy[k] -
-                GasConstant * log(std::max(concentration(k) * size(k)/m_n0,
-                SmallNumber)));
-        }
+    for (size_t k = 0; k < m_kk; k++) {
+        entropy += moleFraction(k) * (m_entropy[k] -
+            GasConstant * log(std::max(m_cov[k], SmallNumber) / m_theta_ref));
     }
     return entropy;
 }
 
 double CoverageDependentSurfPhase::cp_mole() const
 {
-    _updateThermo();
+    _updateTotalThermo();
     return mean_X(m_heatcapacity);
-}
-
-void CoverageDependentSurfPhase::_updateReferenceThermo(bool force) const
-{
-    double tnow = temperature();
-    if (m_tlast != tnow || force) {
-        m_spthermo.update(tnow, m_cp_ref.data(), m_h_ref.data(), m_s_ref.data());
-        for (size_t k = 0; k < m_kk; k++) {
-            m_h_ref[k] *= GasConstant * tnow;
-            m_s_ref[k] *= GasConstant;
-            m_cp_ref[k] *= GasConstant;
-            m_mu_ref[k] = m_h_ref[k] - tnow * m_s_ref[k];
-        }
-    }
 }
 
 void CoverageDependentSurfPhase::_updateCovDepThermo(bool force) const
 {
-    int covstateNumnow = statecovNumber();
+    int stateNumnow = stateMFNumber();
     double tnow = temperature();
-    if (m_covstateNumlast != covstateNumnow || force) {
+    if (m_stateNumlast != stateNumnow || m_tlast != tnow || force) {
         for (size_t k = 0; k < m_kk; k++) {
             m_h_cov[k] = 0.0;
             m_s_cov[k] = 0.0;
+            m_cp_cov[k] = 0.0;
         }
-        vector_fp cov(m_kk, 0.0);
-        SurfPhase::getCoverages(cov.data());
+        getCoverages(m_cov.data());
 
         // For linear and polynomial model
-        if (m_has_polynomial_dependency) {
-            for (auto& item : m_PolynomialDependency) {
-                size_t k = speciesIndex(item.name_k);
-                size_t j = speciesIndex(item.name_j);
-                for (size_t i = 0; i < 4; i++) {
-                    double h_coeff = item.enthalpy_coeffs[i];
-                    if (h_coeff != 0.0) {
-                        double expo = double (i+1);
-                        m_h_cov[k] += h_coeff * pow(cov[j], expo);
-                    }
-                    double s_coeff = item.entropy_coeffs[i];
-                    if (s_coeff != 0.0) {
-                        double expo = double (i+1);
-                        m_s_cov[k] += s_coeff * pow(cov[j], expo);
-                    }
-                }
-            }
+        for (auto& item : m_PolynomialDependency) {
+            m_h_cov[item.k] += poly4(m_cov[item.j], item.enthalpy_coeffs.data());
+            m_s_cov[item.k] += poly4(m_cov[item.j], item.entropy_coeffs.data());
         }
 
         // For piecewise linear model
-        if (m_has_piecewise_dependency) {
-            for (auto& item : m_PiecewiseDependency) {
-                size_t k = speciesIndex(item.name_k);
-                size_t j = speciesIndex(item.name_j);
-                double h_slope_low = item.enthalpy_params[0];
-                double h_slope_high = item.enthalpy_params[1];
-                double h_cov_change = item.enthalpy_params[2];
-                if (cov[j] <= h_cov_change) {
-                    m_h_cov[k] += h_slope_low * cov[j];
-                } else {
-                    m_h_cov[k] += h_slope_high
-                        * (cov[j] - h_cov_change)
-                        + (h_cov_change * h_slope_low);
-                }
-                double s_slope_low = item.entropy_params[0];
-                double s_slope_high = item.entropy_params[1];
-                double s_cov_change = item.entropy_params[2];
-                if (cov[j] <= s_cov_change) {
-                    m_s_cov[k] += s_slope_low * cov[j];
-                } else {
-                    m_s_cov[k] += s_slope_high
-                        * (cov[j] - s_cov_change)
-                        + (s_cov_change * s_slope_low);
-                }
+        for (auto& item : m_PiecewiseDependency) {
+            double h_slope_low = item.enthalpy_params[0];
+            double h_slope_high = item.enthalpy_params[1];
+            double h_cov_change = item.enthalpy_params[2];
+            if (m_cov[item.j] <= h_cov_change) {
+                m_h_cov[item.k] += h_slope_low * m_cov[item.j];
+            } else {
+                m_h_cov[item.k] += h_slope_low * h_cov_change;
+                m_h_cov[item.k] += h_slope_high * (m_cov[item.j] - h_cov_change);
+            }
+
+            double s_slope_low = item.entropy_params[0];
+            double s_slope_high = item.entropy_params[1];
+            double s_cov_change = item.entropy_params[2];
+            if (m_cov[item.j] <= s_cov_change) {
+                m_s_cov[item.k] += s_slope_low * m_cov[item.j];
+            } else {
+                m_s_cov[item.k] += s_slope_low * s_cov_change;
+                m_s_cov[item.k] += s_slope_high * (m_cov[item.j] - s_cov_change);
             }
         }
 
         // For interpolative model
-        if (m_has_interpolative_dependency) {
-            for (auto& item : m_InterpolativeDependency) {
-                size_t k = speciesIndex(item.name_k);
-                size_t j = speciesIndex(item.name_j);
-                vector_fp h_covs = item.enthalpy_coverages;
-                size_t i_inter = 0;
-                for (size_t i = 0; i < (h_covs.size()-1); i++) {
-                    if (h_covs[i] <= cov[j] && cov[j] <= h_covs[i+1]) {
-                        i_inter = i;
-                        break;
-                    }
-                }
-                double h_left = item.enthalpies[i_inter];
-                double h_right = item.enthalpies[i_inter+1];
-                m_h_cov[k] += (h_right - h_left) /
-                    (h_covs[i_inter+1] - h_covs[i_inter])
-                    * (cov[j]  - h_covs[i_inter])
-                    + h_left;
+        for (auto& item : m_InterpolativeDependency) {
+            auto h_iter = item.enthalpy_map.upper_bound(m_cov[item.j]);
+            auto s_iter = item.entropy_map.upper_bound(m_cov[item.j]);
+            AssertThrowMsg(h_iter != m_cov.end(),
+                           "CoverageDependentSurfPhase::_updateCovDepThermo",
+                           "Coverage out of range: {}", m_cov[iterm.j]);
+            AssertThrowMsg(h_iter != m_cov.begin(),
+                           "CoverageDependentSurfPhase::_updateCovDepThermo",
+                           "Coverage out of range: {}", m_cov[iterm.j]);
+            AssertThrowMsg(s_iter != m_cov.end(),
+                           "CoverageDependentSurfPhase::_updateCovDepThermo",
+                           "Coverage out of range: {}", m_cov[iterm.j]);
+            AssertThrowMsg(s_iter != m_cov.begin(),
+                           "CoverageDependentSurfPhase::_updateCovDepThermo",
+                           "Coverage out of range: {}", m_cov[iterm.j]);
 
-                vector_fp s_covs = item.entropy_coverages;
-                i_inter = 0;
-                for (size_t i = 0; i < (s_covs.size()-1); i++) {
-                    if (s_covs[i] <= cov[j] && cov[j] <= s_covs[i+1]) {
-                        i_inter = i;
-                        break;
-                    }
-                }
-                double s_left = item.entropies[i_inter];
-                double s_right = item.entropies[i_inter+1];
-                m_s_cov[k] += (s_right - s_left) /
-                    (s_covs[i_inter+1] - s_covs[i_inter])
-                    * (cov[j] - s_covs[i_inter])
-                    + s_left;
-            }
+            double highHcov = h_iter->first;
+            double highH = h_iter->second;
+            double lowHcov = (--h_iter)->first;
+            double lowH = h_iter->second;
+
+            double highScov = s_iter->first;
+            double highS = s_iter->second;
+            double lowScov = (--s_iter)->first;
+            double lowS = s_iter->second;
+
+            m_h_cov[item.k] += (highH - lowH) / (highHcov - lowHcov)
+                * (m_cov[item.j] - lowHcov) + lowH;
+
+            m_s_cov[item.k] += (highS - lowS) / (highScov - lowScov)
+                * (m_cov[item.j] - lowScov) + lowS;
         }
-    }
 
-    if (m_covstateNumlast != covstateNumnow || m_tlast != tnow || force) {
         // For coverage-depedent heat capacity
-        if (m_has_heatcapacity_dependency) {
-            for (size_t k = 0; k < m_kk; k++) {
-            m_cp_cov[k] = 0.0;
-            }
-            vector_fp cov(m_kk, 0.0);
-            SurfPhase::getCoverages(cov.data());
-
-            for (auto& item : m_HeatCapacityDependency) {
-                size_t k = speciesIndex(item.name_k);
-                size_t j = speciesIndex(item.name_j);
-                double a = item.cpcov_a;
-                double b = item.cpcov_b;
-                m_cp_cov[k] += (a * log(tnow) + b) * cov[j] * cov[j];
-                double int_cp_tnow = tnow * (a * log(tnow) - a + b);
-                double int_cp_298 = 298.15 * (a * log(298.15) - a + b);
-                m_h_cov[k] += (int_cp_tnow - int_cp_298) * cov[j] * cov[j];
-                double int_cp_T_tnow = log(tnow) * (a * log(tnow) + 2 * b);
-                double int_cp_T_298 = log(298.15) * (a * log(298.15) + 2 * b);
-                m_s_cov[k] += 0.5 * (int_cp_T_tnow - int_cp_T_298) * cov[j] * cov[j];
-            }
+        for (auto& item : m_HeatCapacityDependency) {
+            double a = item.cpcov_a;
+            double b = item.cpcov_b;
+            m_cp_cov[item.k] += (a * log(tnow) + b) * m_cov[item.j] * m_cov[item.j];
+            double int_cp_tnow = tnow * (a * log(tnow) - a + b);
+            double int_cp_298 = 298.15 * (a * log(298.15) - a + b);
+            m_h_cov[item.k] += (int_cp_tnow - int_cp_298) * m_cov[item.j] * m_cov[item.j];
+            double int_cp_T_tnow = log(tnow) * (a * log(tnow) + 2 * b);
+            double int_cp_T_298 = log(298.15) * (a * log(298.15) + 2 * b);
+            m_s_cov[item.k] += 0.5 * (int_cp_T_tnow - int_cp_T_298) * m_cov[item.j] * m_cov[item.j];
         }
+
+        for (size_t k = 0; k < m_kk; k++) {
+            m_mu_cov[k] = m_h_cov[k] - tnow * m_s_cov[k];
+        }
+        m_stateNumlast = stateNumnow;
     }
-    for (size_t k = 0; k < m_kk; k++) {
-        m_mu_cov[k] = m_h_cov[k] - tnow * m_s_cov[k];
-    }
-    m_covstateNumlast = covstateNumnow;
-    m_tlast = tnow;
 }
 
-void CoverageDependentSurfPhase::_updateThermo(bool force) const
+void CoverageDependentSurfPhase::_updateTotalThermo(bool force) const
 {
-    _updateReferenceThermo(force);
     _updateCovDepThermo(force);
+    SurfPhase::_updateThermo(force);
 
     for (size_t k = 0; k < m_kk; k++) {
-        m_enthalpy[k] = m_h_ref[k] + m_h_cov[k];
-        m_entropy[k] = m_s_ref[k] + m_s_cov[k];
-        m_heatcapacity[k] = m_cp_ref[k] + m_cp_cov[k];
-        m_chempot[k] = m_mu_ref[k] + m_mu_cov[k];
+        m_enthalpy[k] = m_h0[k] + m_h_cov[k];
+        m_entropy[k] = m_s0[k] + m_s_cov[k];
+        m_heatcapacity[k] = m_cp0[k] + m_cp_cov[k];
+        m_chempot[k] = m_mu0[k] + m_mu_cov[k];
     }
 }
 

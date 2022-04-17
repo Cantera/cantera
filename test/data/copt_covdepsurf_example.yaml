@@ -1,14 +1,7 @@
 units: {length: cm, quantity: mol, activation-energy: kcal/mol}
 
 phases:
-- name: gas
-  thermo: ideal-gas
-  species: [O2, CO2, CO, N2]
-  transport: mixture-averaged
-  state:
-    T: 300.0
-    P: 1.01325e+05
-- name: coverages_0
+- name: covdep
   thermo: coverage-dependent-surface
   species: [Pt, OC_Pt, CO2_Pt, C_Pt, O_Pt]
   kinetics: surface
@@ -18,105 +11,8 @@ phases:
     P: 1.01325e+05
     coverages: {Pt: 0.5, OC_Pt: 0.5, CO2_Pt: 0.0, C_Pt: 0.0, O_Pt: 0.0}
   site-density: 2.72e-09
-- name: coverages_1
-  thermo: coverage-dependent-surface
-  species: [Pt, OC_Pt, CO2_Pt, C_Pt, O_Pt]
-  kinetics: surface
-  reactions: [reactions]
-  state:
-    T: 625.0
-    P: 1.01325e+05
-    coverages: {Pt: 0.20, OC_Pt: 0.13, CO2_Pt: 0.21, C_Pt: 0.44, O_Pt: 0.02}
-  site-density: 2.72e-09
   reference-state-coverage: 0.22
-- name: coverages_2
-  thermo: coverage-dependent-surface
-  species: [Pt, OC_Pt, CO2_Pt, C_Pt, O_Pt]
-  kinetics: surface
-  reactions: [reactions]
-  state:
-    T: 427.0
-    P: 1.01325e+05
-    coverages: {Pt: 0.00, OC_Pt: 0.66, CO2_Pt: 0.12, C_Pt: 0.13, O_Pt: 0.09}
-  site-density: 2.72e-09
-  reference-state-coverage: 0.5
-- name: coverages_3
-  thermo: coverage-dependent-surface
-  species: [Pt, OC_Pt, CO2_Pt, C_Pt, O_Pt]
-  kinetics: surface
-  reactions: [reactions]
-  state:
-    T: 711.0
-    P: 1.01325e+05
-    coverages: {Pt: 0.07, OC_Pt: 0.13, CO2_Pt: 0.55, C_Pt: 0.15, O_Pt: 0.10}
-  site-density: 2.72e-09
-- name: coverages_4
-  thermo: coverage-dependent-surface
-  species: [Pt, OC_Pt, CO2_Pt, C_Pt, O_Pt]
-  kinetics: surface
-  reactions: [reactions]
-  state:
-    T: 260.0
-    P: 1.01325e+05
-    coverages: {Pt: 0.11, OC_Pt: 0.07, CO2_Pt: 0.02, C_Pt: 0.68, O_Pt: 0.12}
-  site-density: 2.72e-09
-  reference-state-coverage: 0.99
-- name: coverages_5
-  thermo: coverage-dependent-surface
-  species: [Pt, OC_Pt, CO2_Pt, C_Pt, O_Pt]
-  kinetics: surface
-  reactions: [reactions]
-  state:
-    T: 903.0
-    P: 1.01325e+05
-    coverages: {Pt: 0.02, OC_Pt: 0.05, CO2_Pt: 0.10, C_Pt: 0.11, O_Pt: 0.72}
-  site-density: 2.72e-09
-  reference-state-coverage: 0.8
-- name: coverages_6
-  thermo: coverage-dependent-surface
-  species: [Pt, OC_Pt, CO2_Pt, C_Pt, O_Pt]
-  kinetics: surface
-  reactions: [reactions]
-  state:
-    T: 475.3
-    P: 1.01325e+05
-    coverages: {Pt: 0.19, OC_Pt: 0.25, CO2_Pt: 0.21, C_Pt: 0.19, O_Pt: 0.16}
-  site-density: 2.72e-09
-  reference-state-coverage: 0.67
-- name: coverages_7
-  thermo: coverage-dependent-surface
-  species: [Pt, OC_Pt, CO2_Pt, C_Pt, O_Pt]
-  kinetics: surface
-  reactions: [reactions]
-  state:
-    T: 748.3
-    P: 1.01325e+05
-    coverages: {Pt: 0.19, OC_Pt: 0.13, CO2_Pt: 0.27, C_Pt: 0.29, O_Pt: 0.12}
-  site-density: 2.72e-09
-  reference-state-coverage: 0.0625
-- name: coverages_8
-  thermo: coverage-dependent-surface
-  species: [Pt, OC_Pt, CO2_Pt, C_Pt, O_Pt]
-  kinetics: surface
-  reactions: [reactions]
-  state:
-    T: 100.1
-    P: 1.01325e+05
-    coverages: {Pt: 0.27, OC_Pt: 0.18, CO2_Pt: 0.20, C_Pt: 0.32, O_Pt: 0.03}
-  site-density: 2.72e-09
-  reference-state-coverage: 0.1
-- name: coverages_9
-  thermo: coverage-dependent-surface
-  species: [Pt, OC_Pt, CO2_Pt, C_Pt, O_Pt]
-  kinetics: surface
-  reactions: [reactions]
-  state:
-    T: 372.1
-    P: 1.01325e+05
-    coverages: {Pt: 0.03, OC_Pt: 0.01, CO2_Pt: 0.32, C_Pt: 0.30, O_Pt: 0.34}
-  site-density: 2.72e-09
-  reference-state-coverage: 0.4
-- name: ideal_0
+- name: ideal
   thermo: ideal-surface
   species: [Pt, OC_Pt, CO2_Pt, C_Pt, O_Pt]
   kinetics: surface
@@ -126,170 +22,8 @@ phases:
     P: 1.01325e+05
     coverages: {Pt: 0.5, OC_Pt: 0.5, CO2_Pt: 0.0, C_Pt: 0.0, O_Pt: 0.0}
   site-density: 2.72e-09
-- name: ideal_1
-  thermo: ideal-surface
-  species: [Pt, OC_Pt, CO2_Pt, C_Pt, O_Pt]
-  kinetics: surface
-  reactions: [reactions]
-  state:
-    T: 625.0
-    P: 1.01325e+05
-    coverages: {Pt: 0.20, OC_Pt: 0.13, CO2_Pt: 0.21, C_Pt: 0.44, O_Pt: 0.02}
-  site-density: 2.72e-09
-  reference-state-coverage: 0.22
-- name: ideal_2
-  thermo: ideal-surface
-  species: [Pt, OC_Pt, CO2_Pt, C_Pt, O_Pt]
-  kinetics: surface
-  reactions: [reactions]
-  state:
-    T: 427.0
-    P: 1.01325e+05
-    coverages: {Pt: 0.00, OC_Pt: 0.66, CO2_Pt: 0.12, C_Pt: 0.13, O_Pt: 0.09}
-  site-density: 2.72e-09
-  reference-state-coverage: 0.5
-- name: ideal_3
-  thermo: ideal-surface
-  species: [Pt, OC_Pt, CO2_Pt, C_Pt, O_Pt]
-  kinetics: surface
-  reactions: [reactions]
-  state:
-    T: 711.0
-    P: 1.01325e+05
-    coverages: {Pt: 0.07, OC_Pt: 0.13, CO2_Pt: 0.55, C_Pt: 0.15, O_Pt: 0.10}
-  site-density: 2.72e-09
-- name: ideal_4
-  thermo: ideal-surface
-  species: [Pt, OC_Pt, CO2_Pt, C_Pt, O_Pt]
-  kinetics: surface
-  reactions: [reactions]
-  state:
-    T: 260.0
-    P: 1.01325e+05
-    coverages: {Pt: 0.11, OC_Pt: 0.07, CO2_Pt: 0.02, C_Pt: 0.68, O_Pt: 0.12}
-  site-density: 2.72e-09
-  reference-state-coverage: 0.99
-- name: ideal_5
-  thermo: ideal-surface
-  species: [Pt, OC_Pt, CO2_Pt, C_Pt, O_Pt]
-  kinetics: surface
-  reactions: [reactions]
-  state:
-    T: 903.0
-    P: 1.01325e+05
-    coverages: {Pt: 0.02, OC_Pt: 0.05, CO2_Pt: 0.10, C_Pt: 0.11, O_Pt: 0.72}
-  site-density: 2.72e-09
-  reference-state-coverage: 0.8
-- name: ideal_6
-  thermo: ideal-surface
-  species: [Pt, OC_Pt, CO2_Pt, C_Pt, O_Pt]
-  kinetics: surface
-  reactions: [reactions]
-  state:
-    T: 475.3
-    P: 1.01325e+05
-    coverages: {Pt: 0.19, OC_Pt: 0.25, CO2_Pt: 0.21, C_Pt: 0.19, O_Pt: 0.16}
-  site-density: 2.72e-09
-  reference-state-coverage: 0.67
-- name: ideal_7
-  thermo: ideal-surface
-  species: [Pt, OC_Pt, CO2_Pt, C_Pt, O_Pt]
-  kinetics: surface
-  reactions: [reactions]
-  state:
-    T: 748.3
-    P: 1.01325e+05
-    coverages: {Pt: 0.19, OC_Pt: 0.13, CO2_Pt: 0.27, C_Pt: 0.29, O_Pt: 0.12}
-  site-density: 2.72e-09
-  reference-state-coverage: 0.0625
-- name: ideal_8
-  thermo: ideal-surface
-  species: [Pt, OC_Pt, CO2_Pt, C_Pt, O_Pt]
-  kinetics: surface
-  reactions: [reactions]
-  state:
-    T: 100.1
-    P: 1.01325e+05
-    coverages: {Pt: 0.27, OC_Pt: 0.18, CO2_Pt: 0.20, C_Pt: 0.32, O_Pt: 0.03}
-  site-density: 2.72e-09
-  reference-state-coverage: 0.1
-- name: ideal_9
-  thermo: ideal-surface
-  species: [Pt, OC_Pt, CO2_Pt, C_Pt, O_Pt]
-  kinetics: surface
-  reactions: [reactions]
-  state:
-    T: 372.1
-    P: 1.01325e+05
-    coverages: {Pt: 0.03, OC_Pt: 0.01, CO2_Pt: 0.32, C_Pt: 0.30, O_Pt: 0.34}
-  site-density: 2.72e-09
-  reference-state-coverage: 0.4
 
 species:
-- name: N2
-  composition: {N: 2}
-  thermo:
-    model: NASA7
-    temperature-ranges: [200.0, 1000.0, 6000.0]
-    data:
-    - [3.53101, -1.23661e-04, -5.02999e-07, 2.43531e-09, -1.40881e-12, -1046.98,
-      2.96747]
-    - [2.95258, 1.3969e-03, -4.92632e-07, 7.8601e-11, -4.60755e-15, -923.949,
-      5.87189]
-  transport:
-    model: gas
-    geometry: linear
-    diameter: 3.621
-    well-depth: 97.53
-    polarizability: 1.76
-    rotational-relaxation: 4.0
-- name: O2
-  composition: {O: 2}
-  thermo:
-    model: NASA7
-    temperature-ranges: [100.0, 1074.55, 5000.0]
-    data:
-    - [3.53732243, -1.21571647e-03, 5.31620254e-06, -4.89446434e-09, 1.45846258e-12,
-      -1038.58849, 4.68368183]
-    - [3.15382081, 1.67804371e-03, -7.69974236e-07, 1.51275462e-10, -1.08782414e-14,
-      -1040.81728, 6.16755832]
-  transport:
-    model: gas
-    geometry: linear
-    diameter: 3.467
-    well-depth: 106.7
-- name: CO2
-  composition: {C: 1, O: 2}
-  thermo:
-    model: NASA7
-    temperature-ranges: [100.0, 978.22, 5000.0]
-    data:
-    - [3.28084453, 2.5018564e-03, 8.08192142e-06, -1.20510369e-08, 4.66542684e-12,
-      -4.84008303e+04, 6.00081438]
-    - [4.67427416, 2.60962879e-03, -9.85683184e-07, 1.95712276e-10, -1.49834931e-14,
-      -4.89512168e+04, -2.11077406]
-  transport:
-    model: gas
-    geometry: linear
-    diameter: 3.941
-    well-depth: 195.201
-- name: CO
-  composition: {C: 1, O: 1}
-  thermo:
-    model: NASA7
-    temperature-ranges: [100.0, 1571.65, 5000.0]
-    data:
-    - [3.5683795, -8.52120978e-04, 2.4891658e-06, -1.5632992e-09, 3.13591992e-13,
-      -1.42842549e+04, 3.57912359]
-    - [2.91308, 1.64655944e-03, -6.88605521e-07, 1.21035372e-10, -7.840028e-15,
-      -1.41808916e+04, 6.71038]
-  transport:
-    model: gas
-    geometry: linear
-    diameter: 3.69
-    well-depth: 91.7
-    polarizability: 1.76
-    rotational-relaxation: 4.0
 - name: Pt
   composition: {Pt: 1}
   thermo:
@@ -311,26 +45,27 @@ species:
     - [1.3809066, 8.0571901e-03, -4.6430896e-06, 8.91170699e-10, -5.90048361e-14,
       -3.43319289e+04, -4.85318015]
   coverage-dependencies:
-    OC_Pt: {model: Piecewise-Linear,
-            enthalpy-low: 0.5, enthalpy-high: 1.0,
-            enthalpy-change: 0.4, enthalpy-unit: eV,
-            entropy-low: 0.1, entropy-high: -0.2,
-            entropy-change: 0.4, entropy-unit: meV/K,
-            heat-capacity-a: 0.020, heat-capacity-b: -0.156,
-            heat-capacity-unit: meV/K}
-    CO2_Pt: {model: Linear,
-             enthalpy: 0.48, enthalpy-unit: eV,
-             entropy: -0.031, entropy-unit: eV/K}
-    C_Pt: {model: Polynomial,
-           enthalpy-2nd-order: 3.86e4, enthalpy-unit: J/mol,
-           entropy-3rd-order: -1.26e4, entropy-unit: J/mol/K}
-    O_Pt: {model: Interpolative,
-           enthalpy-coverages: [0.0, 0.2, 0.5, 0.7, 0.9, 1.0],
-           enthalpies: [0.0, 0.5, 1.2, 2.7, 3.5, 4.0],
-           enthalpy-unit: kcal/mol,
+    OC_Pt: {model: linear,
+            units: {energy: eV, quantity: molec},
+            enthalpy: 0.48,
+            entropy: -0.031}
+    CO2_Pt: {model: piecewise-linear,
+             units: {energy: kJ, quantity: mol},
+             enthalpy-low: 0.5e2, enthalpy-high: 1.0e2,
+             enthalpy-change: 0.4,
+             entropy-low: 0.1e2, entropy-high: -0.2e2,
+             entropy-change: 0.4,
+             heat-capacity-a: 0.02e-1, heat-capacity-b: -0.156e-1}
+    C_Pt: {model: polynomial,
+           units: {energy: J, quantity: mol},
+           enthalpy-coefficients: [0.0, -3.86e4, 0.0, 4.2e5],
+           entropy-coefficients: [0.8e3, 0.0, -1.26e4, 0.0]}
+    O_Pt: {model: interpolative,
+           units: {energy: kcal, quantity: mol},
+           enthalpy-coverages: [0.0, 0.2, 0.4, 0.7, 0.9, 1.0],
+           enthalpies: [0.0, 0.5, 1.0, 2.7, 3.5, 4.0],
            entropy-coverages: [0.0, 0.5, 1.0],
-           entropies: [0.0, -0.7, -2.0],
-           entropy-unit: kcal/mol/K}
+           entropies: [0.0, -0.7, -2.0]}
 - name: CO2_Pt
   composition: {Pt: 1, C: 1, O: 2}
   thermo:
@@ -342,14 +77,16 @@ species:
     - [5.99803259, 2.27485222e-03, -6.81092723e-07, 1.34432446e-10, -1.11509701e-14,
       -4.61838262e+04, -21.1649844]
   coverage-dependencies:
-    OC_Pt: {model: Piecewise-Linear,
+    OC_Pt: {model: piecewise-linear,
+            units: {energy: eV, quantity: molec},
             enthalpy-low: 0.1, enthalpy-high: 0.3,
-            enthalpy-change: 0.5, enthalpy-unit: eV,
+            enthalpy-change: 0.5,
             entropy-low: -0.05, entropy-high: -0.1,
-            entropy-change: 0.5, entropy-unit: eV/K}
-    CO2_Pt: {model: Linear,
-	     enthalpy: 0.73, enthalpy-unit: eV,
-	     entropy: -0.44, entropy-unit: eV/K}
+            entropy-change: 0.5}
+    CO2_Pt: {model: linear,
+             units: {energy: eV, quantity: molec},
+             enthalpy: 0.43,
+             entropy: -0.44}
 - name: C_Pt
   composition: {Pt: 1, C: 1}
   thermo:
@@ -361,18 +98,17 @@ species:
     - [3.08076078, -6.87465602e-04, 5.17589597e-07, -9.73022048e-11, 6.24243898e-15,
       5335.31839, -17.0991414]
   coverage-dependencies:
-    C_Pt: {model: Interpolative,
+    C_Pt: {model: interpolative,
+           units: {energy: eV, quantity: molec},
            enthalpy-coverages: [0.0, 0.18, 0.67, 1.0],
            enthalpies: [0.0, 0.12, 0.70, 0.82],
-           enthalpy-unit: eV,
            entropy-coverages: [0.0, 0.11, 0.33, 0.77, 1.0],
            entropies: [0.0, 0.05, -0.12, -0.40, -0.55],
-           entropy-unit: eV/K,
-           heat-capacity-a: 0.07, heat-capacity-b: -0.21,
-           heat-capacity-unit: meV/K}
-    O_Pt: {model: Linear,
-           enthalpy: 0.12, enthalpy-unit: eV,
-           entropy: 0.09, entropy-unit: eV/K}
+           heat-capacity-a: 0.07e-3, heat-capacity-b: -0.21e-3}
+    O_Pt: {model: linear,
+           units: {energy: eV, quantity: molec},
+           enthalpy: 0.12,
+           entropy: 0.09}
 - name: O_Pt
   composition: {Pt: 1, O: 1}
   thermo:
@@ -384,15 +120,10 @@ species:
     - [1.89893619, 2.03295425e-03, -1.19976574e-06, 2.32680659e-10, -1.53508282e-14,
       -1.75144954e+04, -9.6410408]
   coverage-dependencies:
-    O_Pt: {model: Polynomial,
-           enthalpy-1st-order: 0.14,
-           enthalpy-2nd-order: -1.74,
-           enthalpy-4th-order: 2.11,
-           enthalpy-unit: eV,
-           entropy-1st-order: 0.07,
-           entropy-3rd-order: -0.0145,
-           entropy-4th-order: 0.023,
-           entropy-unit: eV/K}
+    O_Pt: {model: polynomial,
+           units: {energy: eV, quantity: molec},
+           enthalpy-coefficients: [0.14, -1.74, 0.0, 2.11],
+           entropy-coefficients: [0.07, 0.0, -0.0145, 0.023]}
 
 reactions:
 - equation: Pt + Pt + O2 <=> O_Pt + O_Pt  # Reaction 202
@@ -410,4 +141,3 @@ reactions:
 - equation: CO2 + Pt <=> CO2_Pt  # Reaction 225
   sticking-coefficient: {A: 5.0e-03, b: 0.0, Ea: 0.0}
   id: surface1-24
-
