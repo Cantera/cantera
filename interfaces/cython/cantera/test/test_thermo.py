@@ -1174,6 +1174,13 @@ class TestPlasmaPhase(utilities.CanteraTest):
                         self.phase.standard_enthalpies_RT[0] -
                         self.phase.standard_entropies_R[0])
 
+    def test_add_multiple_electron_species(self):
+        electron = ct.Species('Electron', 'E:1')
+        electron.thermo = ct.ConstantCp(100, 200, 101325, coeffs=(300, 1, 1, 1))
+        with self.assertRaisesRegex(ct.CanteraError,
+                                    'Only one electron species is allowed'):
+            self.phase.add_species(electron)
+
 
 class ImportTest(utilities.CanteraTest):
     """
