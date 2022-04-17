@@ -74,9 +74,6 @@ void PlasmaPhase::setIsotropicElectronEnergyDistribution()
         std::pow(meanElectronEnergy(), 1.5) *
         (-c2 * (m_electronEnergyLevels /
         meanElectronEnergy()).pow(x)).exp();
-    if (m_do_normalizeElectronEnergyDist) {
-        normalizeElectronEnergyDistribution();
-    }
     checkElectronEnergyDistribution();
 }
 
@@ -173,6 +170,7 @@ void PlasmaPhase::getParameters(AnyMap& phaseNode) const
         vector_fp dist(m_nPoints);
         Eigen::Map<Eigen::ArrayXd>(dist.data(), m_nPoints) = m_electronEnergyDist;
         eedf["distribution"] = dist;
+        eedf["normalize"] = m_do_normalizeElectronEnergyDist;
     }
     phaseNode["electron-energy-distribution"] = std::move(eedf);
 }
@@ -185,7 +183,7 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
         m_distributionType = eedf["type"].asString();
         if (m_distributionType == "isotropic") {
             if (eedf.hasKey("shape-factor")) {
-                m_isotropicShapeFactor = eedf["shape-factor"].asDouble();
+                setIsotropicShapeFactor(eedf["shape-factor"].asDouble());
             } else {
                 throw CanteraError("PlasmaPhase::setParameters",
                     "isotropic type requires shape-factor key.");
@@ -197,6 +195,11 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
                 throw CanteraError("PlasmaPhase::setParameters",
                     "isotropic type requires electron-temperature key.");
             }
+            if (eedf.hasKey("energy-levels")) {
+                setElectronEnergyLevels(eedf["energy-levels"].asVector<double>().data(),
+                                        eedf["energy-levels"].asVector<double>().size());
+            }
+            setIsotropicElectronEnergyDistribution();
         } else if (m_distributionType == "discretized") {
             if (!eedf.hasKey("energy-levels")) {
                 throw CanteraError("PlasmaPhase::setParameters",
@@ -205,6 +208,9 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
             if (!eedf.hasKey("distribution")) {
                 throw CanteraError("PlasmaPhase::setParameters",
                     "Cannot find key distribution.");
+            }
+            if (eedf.hasKey("normalize")) {
+                enableNormalizeElectronEnergyDist(eedf["normalize"].asBool());
             }
             setElectronEnergyDistribution(eedf["energy-levels"].asVector<double>().data(),
                                           eedf["distribution"].asVector<double>().data(),
