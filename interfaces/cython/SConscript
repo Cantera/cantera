@@ -40,7 +40,7 @@ import site
 vars = get_config_vars()
 vars["plat"] = get_platform()
 vars["numpy_include"] = numpy.get_include()
-vars["site_packages"] = site.getsitepackages()
+vars["site_packages"] = [d for d in site.getsitepackages() if d.endswith("-packages")]
 vars["user_site_packages"] = site.getusersitepackages()
 print(json.dumps(vars))
 """
