@@ -1160,7 +1160,7 @@ class TestPlasmaPhase(utilities.CanteraTest):
         dist = np.array([0.0, 0.9, 0.01])
         self.phase.normalize_electron_energy_distribution_enabled = False
         self.phase.quadrature_method = "trapezoidal"
-        self.phase.set_electron_energy_distribution(levels, dist)
+        self.phase.set_discretized_electron_energy_distribution(levels, dist)
         self.assertArrayNear(levels, self.phase.electron_energy_levels)
         self.assertArrayNear(dist, self.phase.electron_energy_distribution)
         mean_energy = 2.0 / 5.0 * np.trapz(dist, np.power(levels, 5./2.))

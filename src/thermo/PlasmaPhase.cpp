@@ -123,7 +123,7 @@ void PlasmaPhase::checkElectronEnergyDistribution() const
     }
 }
 
-void PlasmaPhase::setElectronEnergyDistribution(const double* levels,
+void PlasmaPhase::setDiscretizedElectronEnergyDist(const double* levels,
                                                 const double* dist,
                                                 size_t length)
 {
@@ -212,9 +212,9 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
             if (eedf.hasKey("normalize")) {
                 enableNormalizeElectronEnergyDist(eedf["normalize"].asBool());
             }
-            setElectronEnergyDistribution(eedf["energy-levels"].asVector<double>().data(),
-                                          eedf["distribution"].asVector<double>().data(),
-                                          eedf["energy-levels"].asVector<double>().size());
+            setDiscretizedElectronEnergyDist(eedf["energy-levels"].asVector<double>().data(),
+                                             eedf["distribution"].asVector<double>().data(),
+                                             eedf["energy-levels"].asVector<double>().size());
         }
     }
 }

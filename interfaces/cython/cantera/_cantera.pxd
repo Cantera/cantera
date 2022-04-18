@@ -446,7 +446,7 @@ cdef extern from "cantera/thermo/PlasmaPhase.h":
         void setElectronTemperature(double) except +translate_exception
         void setElectronEnergyLevels(double*, size_t) except +translate_exception
         void getElectronEnergyLevels(double*)
-        void setElectronEnergyDistribution(double*, double*, size_t) except +translate_exception
+        void setDiscretizedElectronEnergyDist(double*, double*, size_t) except +translate_exception
         void getElectronEnergyDistribution(double*)
         void setIsotropicShapeFactor(double) except +translate_exception
         void setElectronEnergyDistributionType(const string&) except +translate_exception
