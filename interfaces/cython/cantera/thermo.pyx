@@ -1797,7 +1797,7 @@ cdef class ThermoPhase(_SolutionBase):
                                 f'thermo model: {self.thermo_model}.')
             self.plasma.setElectronTemperature(value)
 
-    def set_electron_energy_distribution(self, levels, distribution):
+    def set_discretized_electron_energy_distribution(self, levels, distribution):
         """
         Set electron energy distribution. When this method is used, electron
         temperature is calculated from the distribution.
@@ -1819,9 +1819,9 @@ cdef class ThermoPhase(_SolutionBase):
         cdef np.ndarray[np.double_t, ndim=1] data_dist = \
             np.ascontiguousarray(distribution, dtype=np.double)
 
-        self.plasma.setElectronEnergyDistribution(&data_levels[0],
-                                                  &data_dist[0],
-                                                  len(levels))
+        self.plasma.setDiscretizedElectronEnergyDist(&data_levels[0],
+                                                     &data_dist[0],
+                                                     len(levels))
 
     property n_electron_energy_levels:
         """ Number of electron energy levels """

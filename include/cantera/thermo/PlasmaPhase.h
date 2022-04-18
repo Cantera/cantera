@@ -31,7 +31,7 @@ namespace Cantera
  * where \f$ x = 1 \f$ and \f$ x = 2 \f$ correspond to the Maxwellian and
  * Druyvesteyn (default) electron energy distribution, respectively.
  * \f$ \epsilon_m = 3/2 T_e \f$ [eV] (mean electron energy). The second
- * method uses setElectronEnergyDistribution() to manually set electron
+ * method uses setDiscretizedElectronEnergyDist() to manually set electron
  * energy distribution and calculate electron temperature from mean electron
  * energy, which is calculated as [3],
  *   \f[
@@ -107,14 +107,15 @@ public:
         Eigen::Map<Eigen::ArrayXd>(levels, m_nPoints) = m_electronEnergyLevels;
     }
 
-    //! Set electron energy distribution.
+    //! Set discretized electron energy distribution.
     //! @param  levels The vector of electron energy levels (eV).
     //!                Length: #m_nPoints.
     //! @param  distrb The vector of electron energy distribution.
-    //! @param  length The length of \p levels and \p distrb
-    void setElectronEnergyDistribution(const double* levels,
-                                       const double* distrb,
-                                       size_t length);
+    //!                Length: #m_nPoints.
+    //! @param  length The length of the vectors, which equals #m_nPoints.
+    void setDiscretizedElectronEnergyDist(const double* levels,
+                                          const double* distrb,
+                                          size_t length);
 
     //! Get electron energy distribution.
     //! @param  distrb The vector of electron energy distribution.
