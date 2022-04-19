@@ -463,6 +463,21 @@ TEST(KineticsFromYaml, KineticsModelWithoutReactionsSection2)
                  InputFileError);
 }
 
+TEST(KineticsFromYaml, KineticsModelWithoutReactionsSection3)
+{
+    auto soln = newSolution("phase-reaction-spec1.yaml",
+                            "kinetics-no-reaction-section3");
+    EXPECT_EQ(soln->kinetics()->kineticsType(), "Surf");
+    EXPECT_EQ(soln->kinetics()->nReactions(), (size_t) 0);
+}
+
+TEST(KineticsFromYaml, KineticsModelWithoutReactionsSection4)
+{
+    EXPECT_THROW(newSolution("phase-reaction-spec1.yaml",
+                             "kinetics-no-reaction-section4"),
+                 InputFileError);
+}
+
 TEST(KineticsFromYaml, KineticsModelWithoutReactionsField)
 {
     auto soln = newSolution("phase-reaction-spec2.yaml",
