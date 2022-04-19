@@ -10,6 +10,7 @@
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/kinetics/EdgeKinetics.h"
 #include "cantera/kinetics/importKinetics.h"
+#include "cantera/thermo/ThermoPhase.h"
 #include "cantera/base/xml.h"
 #include "cantera/base/stringUtils.h"
 
@@ -63,8 +64,23 @@ unique_ptr<Kinetics> newKinetics(const vector<ThermoPhase*>& phases,
                                  const AnyMap& phaseNode,
                                  const AnyMap& rootNode)
 {
-    unique_ptr<Kinetics> kin(KineticsFactory::factory()->newKinetics(
-        phaseNode.getString("kinetics", "none")));
+    std::string kinType = phaseNode.getString("kinetics", "none");
+    kinType = KineticsFactory::factory()->canonicalize(kinType);
+    if (kinType == "none") {
+        // determine phase with minimum number of dimensions
+        size_t nDim = 3;
+        for (auto& phase : phases) {
+            nDim = std::min(phase->nDim(), nDim);
+        }
+        // change kinetics type as necessary
+        if (nDim == 2) {
+            kinType = "surface";
+        } else if (nDim == 1) {
+            kinType = "edge";
+        }
+    }
+
+    unique_ptr<Kinetics> kin(KineticsFactory::factory()->newKinetics(kinType));
     for (auto& phase : phases) {
         kin->addPhase(*phase);
     }
