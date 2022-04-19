@@ -124,11 +124,6 @@ void addReactions(Kinetics& kin, const AnyMap& phaseNode, const AnyMap& rootNode
     vector<string> sections, rules;
 
     if (phaseNode.hasKey("reactions")) {
-        if (kin.kineticsType() == "None") {
-            throw InputFileError("addReactions", phaseNode["reactions"],
-                "Phase entry includes a 'reactions' field but does not "
-                "specify a kinetics model.");
-        }
         const auto& reactionsNode = phaseNode.at("reactions");
         if (reactionsNode.is<string>()) {
             if (rootNode.hasKey("reactions")) {
@@ -156,7 +151,10 @@ void addReactions(Kinetics& kin, const AnyMap& phaseNode, const AnyMap& rootNode
             }
         }
     } else if (kin.kineticsType() != "None") {
-        if (rootNode.hasKey("reactions")) {
+        if (!phaseNode.hasKey("kinetics")) {
+            // Do nothing - default surface or edge kinetics require separate detection
+            // while not adding reactions
+        } else if (rootNode.hasKey("reactions")) {
             // Default behavior is to add all reactions from the 'reactions'
             // section, if a 'kinetics' model has been specified
             sections.push_back("reactions");
