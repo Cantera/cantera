@@ -12,8 +12,7 @@ from cantera import ck2cti, ck2yaml, cti2yaml, ctml2yaml
 
 class converterTestCommon:
     def convert(self, inputFile, thermo=None, transport=None,
-                surface=None, output=None, extra=None,
-                quiet=True, permissive=None):
+                surface=None, output=None, extra=None, **kwargs):
         if output is None:
             output = Path(inputFile).stem  # strip '.inp'
         if inputFile is not None:
@@ -31,8 +30,7 @@ class converterTestCommon:
         if output.is_file():
             output.unlink()
         self._convert(inputFile, thermo=thermo, transport=transport,
-            surface=surface, output=output, extra=extra,
-            quiet=quiet, permissive=permissive)
+            surface=surface, output=output, extra=extra, **kwargs)
         return output
 
     def checkConversion(self, refFile, testFile):
@@ -482,10 +480,9 @@ class ck2ctiTest(converterTestCommon, utilities.CanteraTest):
         ct.make_deprecation_warnings_fatal()
 
     def _convert(self, inputFile, *, thermo, transport, surface, output, extra,
-                 quiet, permissive):
+                 **kwargs):
         ck2cti.convertMech(inputFile, thermoFile=thermo,
-            transportFile=transport, surfaceFile=surface, outName=output,
-            quiet=quiet, permissive=permissive)
+            transportFile=transport, surfaceFile=surface, outName=output, **kwargs)
 
     def test_missingElement(self):
         with self.assertRaisesRegex(self.InputError, 'Undefined elements'):
@@ -497,10 +494,10 @@ class ck2yamlTest(converterTestCommon, utilities.CanteraTest):
     InputError = ck2yaml.InputError
 
     def _convert(self, inputFile, *, thermo, transport, surface, output, extra,
-                 quiet, permissive):
+                 **kwargs):
         ck2yaml.convert_mech(inputFile, thermo_file=thermo,
             transport_file=transport, surface_file=surface, out_name=output,
-            extra_file=extra, quiet=quiet, permissive=permissive)
+            extra_file=extra, **kwargs)
 
     @utilities.slow_test
     def test_extra(self):
@@ -554,6 +551,36 @@ class ck2yamlTest(converterTestCommon, utilities.CanteraTest):
         message = log_stream.getvalue()
         for token in ('FAILED', 'lines 12 and 14', 'R1A', 'R1B'):
             self.assertIn(token, message)
+
+    def test_single_Tint(self):
+        output = self.convert(None, thermo="thermo_single_Tint.dat",
+                              output="thermo_single_Tint",
+                              single_intermediate_temperature=True)
+        mech = utilities.load_yaml(output)
+
+        # Al(cr)
+        thermo = mech["species"][0]["thermo"]
+        assert thermo["temperature-ranges"] == [200.0, 933.61]
+        assert len(thermo["data"]) == 1
+        assert thermo["data"][0][0] == 1.01040191
+
+        # AlBr3(L)
+        thermo = mech["species"][1]["thermo"]
+        assert thermo["temperature-ranges"] == [370.6, 5000.0]
+        assert len(thermo["data"]) == 1
+        assert thermo["data"][0][0] == 15.02975
+
+        # AlF3(b)
+        thermo = mech["species"][2]["thermo"]
+        assert thermo["temperature-ranges"] == [728.0, 1000.0, 2523.0]
+        assert len(thermo["data"]) == 2
+        assert thermo["data"][1][0] == 10.41947
+
+        # AlF3(L)
+        thermo = mech["species"][3]["thermo"]
+        assert thermo["temperature-ranges"] == [2523.0, 5000.0]
+        assert len(thermo["data"]) == 1
+        assert thermo["data"][0][0] == 15.096679
 
     def test_error_for_big_element_number(self):
         with self.assertRaisesRegex(self.InputError, 'Element amounts can have no more than 3 digits.'):

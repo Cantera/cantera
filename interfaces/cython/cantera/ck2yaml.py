@@ -15,6 +15,7 @@ Usage:
             [--name=<name>]
             [--extra=<filename>]
             [--output=<filename>]
+            [--single-intermediate-temperature]
             [--permissive]
             [--quiet]
             [--no-validate]
@@ -33,6 +34,10 @@ thermo file.
 For the case of a surface mechanism, the gas phase input file should be
 specified as 'input' and the surface phase input file should be specified as
 'surface'.
+
+The '--single-intermediate-temperature' option should be used with thermo data where
+only a single break temperature is used and the last value in the first line of each
+species thermo entry is the molecular weight instead.
 
 The '--permissive' option allows certain recoverable parsing errors (e.g.
 duplicate transport data) to be ignored. The '--name=<name>' option
@@ -217,8 +222,12 @@ class Nasa7:
     @classmethod
     def to_yaml(cls, representer, node):
         out = BlockMap([('model', 'NASA7')])
-        out['temperature-ranges'] = FlowList([node.Tmin, node.Tmid, node.Tmax])
-        out['data'] = [FlowList(node.low_coeffs), FlowList(node.high_coeffs)]
+        if node.Tmid is not None:
+            out['temperature-ranges'] = FlowList([node.Tmin, node.Tmid, node.Tmax])
+            out['data'] = [FlowList(node.low_coeffs), FlowList(node.high_coeffs)]
+        else:
+            out['temperature-ranges'] = FlowList([node.Tmin, node.Tmax])
+            out['data'] = [FlowList(node.low_coeffs)]
         if node.note:
             note = textwrap.dedent(node.note.rstrip())
             if '\n' in note:
@@ -761,6 +770,7 @@ class Parser:
         self.quantity_units = 'mol'  # for the current REACTIONS section
         self.output_quantity_units = 'mol'  # for the output file
         self.motz_wise = None
+        self.single_intermediate_temperature = False
         self.warning_as_error = True
 
         self.elements = []
@@ -901,10 +911,16 @@ class Parser:
         # Remember that the high-T polynomial comes first!
         Tmin = fortFloat(lines[0][45:55])
         Tmax = fortFloat(lines[0][55:65])
-        try:
-            Tint = fortFloat(lines[0][65:75])
-        except ValueError:
-            Tint = TintDefault
+        if self.single_intermediate_temperature:
+            # Intermediate temperature is shared across all species, except if the
+            # species only has one temperature range
+            Tint = TintDefault if Tmin < TintDefault < Tmax else None
+        else:
+            # Non-default intermediate temperature can be provided
+            try:
+                Tint = fortFloat(lines[0][65:75])
+            except ValueError:
+                Tint = TintDefault if Tmin < TintDefault < Tmax else None
 
         high_coeffs = [fortFloat(lines[i][j:k])
                        for i,j,k in [(1,0,15), (1,15,30), (1,30,45), (1,45,60),
@@ -913,16 +929,31 @@ class Parser:
                        for i,j,k in [(2,30,45), (2,45,60), (2,60,75), (3,0,15),
                                      (3,15,30), (3,30,45), (3,45,60)]]
 
-        # Duplicate the valid set of coefficients if only one range is provided
-        if all(c == 0 for c in low_coeffs) and Tmin == Tint:
-            low_coeffs = high_coeffs
-        elif all(c == 0 for c in high_coeffs) and Tmax == Tint:
-            high_coeffs = low_coeffs
+        # Cases where only one temperature range is needed
+        if Tint == Tmin or Tint == Tmax or high_coeffs == low_coeffs:
+            Tint = None
 
-        # Construct and return the thermodynamics model
-        thermo = Nasa7(Tmin=Tmin, Tmax=Tmax, Tmid=Tint,
-                           low_coeffs=low_coeffs, high_coeffs=high_coeffs,
-                           note=note)
+        # Duplicate the valid set of coefficients if only one range is provided
+        if Tint is None:
+            if all(c == 0 for c in low_coeffs):
+                # Use the first set of coefficients if the second is all zeros
+                coeffs = high_coeffs
+            elif all(c == 0 for c in high_coeffs):
+                # Use the second set of coefficients if the first is all zeros
+                coeffs = low_coeffs
+            elif high_coeffs == low_coeffs:
+                # If the coefficients are duplicated, that's fine too
+                coeffs = low_coeffs
+            else:
+                raise InputError(
+                    "Only one temperature range defined but two distinct sets of "
+                    "coefficients given for species thermo entry:\n{}\n",
+                    "".join(lines))
+            thermo = Nasa7(Tmin=Tmin, Tmax=Tmax, Tmid=None, low_coeffs=coeffs,
+                           high_coeffs=None, note=note)
+        else:
+            thermo = Nasa7(Tmin=Tmin, Tmax=Tmax, Tmid=Tint, low_coeffs=low_coeffs,
+                           high_coeffs=high_coeffs, note=note)
 
         return species, thermo, composition
 
@@ -2007,9 +2038,11 @@ class Parser:
     @staticmethod
     def convert_mech(input_file, thermo_file=None, transport_file=None,
                      surface_file=None, phase_name='gas', extra_file=None,
-                     out_name=None, quiet=False, permissive=None):
+                     out_name=None, single_intermediate_temperature=False, quiet=False,
+                     permissive=None):
 
         parser = Parser()
+        parser.single_intermediate_temperature = single_intermediate_temperature
         if quiet:
             logger.setLevel(level=logging.ERROR)
         else:
@@ -2126,18 +2159,19 @@ class Parser:
 
 def convert_mech(input_file, thermo_file=None, transport_file=None,
                  surface_file=None, phase_name='gas', extra_file=None,
-                 out_name=None, quiet=False, permissive=None):
+                 out_name=None, single_intermediate_temperature=False, quiet=False,
+                 permissive=None):
     _, surface_names = Parser.convert_mech(
         input_file, thermo_file, transport_file, surface_file, phase_name,
-        extra_file, out_name, quiet, permissive)
+        extra_file, out_name, single_intermediate_temperature, quiet, permissive)
     return surface_names
 
 
 def main(argv):
 
     longOptions = ['input=', 'thermo=', 'transport=', 'surface=', 'name=',
-                   'extra=', 'output=', 'permissive', 'help', 'debug', 'quiet',
-                   'no-validate', 'id=']
+                   'extra=', 'output=', 'permissive', 'help', 'debug',
+                   'single-intermediate-temperature', 'quiet', 'no-validate', 'id=']
 
     try:
         optlist, args = getopt.getopt(argv, 'dh', longOptions)
@@ -2161,6 +2195,7 @@ def main(argv):
 
     input_file = options.get('--input')
     thermo_file = options.get('--thermo')
+    single_intermediate_temperature = '--single-intermediate-temperature' in options
     permissive = '--permissive' in options
     quiet = '--quiet' in options
     transport_file = options.get('--transport')
@@ -2191,7 +2226,7 @@ def main(argv):
 
     parser, surfaces = Parser.convert_mech(input_file, thermo_file,
             transport_file, surface_file, phase_name, extra_file, out_name,
-            quiet, permissive)
+            single_intermediate_temperature, quiet, permissive)
 
     # Do full validation by importing the resulting mechanism
     if not input_file:
