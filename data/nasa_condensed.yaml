@@ -12,71 +12,62 @@ description: |-
   Thermodynamic and Transport Properties of Individual Species", NASA
   Report TM-4513, October 1993.
 
-generator: cti2yaml
-cantera-version: 2.5.0
-date: Wed, 11 Dec 2019 16:59:11 -0500
-input-files: [nasa_condensed.cti]
+generator: ck2yaml
+input-files: [nasa_condensed.dat]
+cantera-version: 2.6.0b2
+date: Wed, 20 Apr 2022 13:43:45 -0400
 
 species:
 - name: AL(cr)
   composition: {Al: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [200.0, 1000.0, 933.61]
+    temperature-ranges: [200.0, 933.61]
     data:
     - [1.01040191, 0.0120769743, -2.62083556e-05, 2.64282413e-08, -9.01916513e-12,
       -654.454196, -5.00471254]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: AL(L)
   composition: {Al: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [933.61, 1000.0, 6000.0]
+    temperature-ranges: [933.61, 6000.0]
     data:
-    - [3.81862551, 0.0, 0.0, 0.0, 0.0, -94.9651808, -17.5229704]
     - [3.81862551, 0.0, 0.0, 0.0, 0.0, -94.9651808, -17.5229704]
 - name: ALBr3(s)
   composition: {Al: 1, Br: 3}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 370.6]
+    temperature-ranges: [300.0, 370.6]
     data:
-    - [5.8447956, 0.020926334, 0.0, 0.0, 0.0, -6.417051e+04, -17.876901]
     - [5.8447956, 0.020926334, 0.0, 0.0, 0.0, -6.417051e+04, -17.876901]
 - name: ALBr3(L)
   composition: {Al: 1, Br: 3}
   thermo:
     model: NASA7
-    temperature-ranges: [370.6, 1000.0, 5000.0]
+    temperature-ranges: [370.6, 5000.0]
     data:
-    - [15.02975, 0.0, 0.0, 0.0, 0.0, -6.4783729e+04, -60.799101]
     - [15.02975, 0.0, 0.0, 0.0, 0.0, -6.4783729e+04, -60.799101]
 - name: ALCL3(s)
   composition: {Al: 1, Cl: 3}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 465.7]
+    temperature-ranges: [300.0, 465.7]
     data:
-    - [7.8093375, 0.010570985, -3.2859248e-09, 0.0, 0.0, -8.7666783e+04,
-      -34.501722]
     - [7.8093375, 0.010570985, -3.2859248e-09, 0.0, 0.0, -8.7666783e+04,
       -34.501722]
 - name: ALCL3(L)
   composition: {Al: 1, Cl: 3}
   thermo:
     model: NASA7
-    temperature-ranges: [465.7, 1000.0, 5000.0]
+    temperature-ranges: [465.7, 5000.0]
     data:
-    - [15.096679, 0.0, 0.0, 0.0, 0.0, -8.5662079e+04, -65.218419]
     - [15.096679, 0.0, 0.0, 0.0, 0.0, -8.5662079e+04, -65.218419]
 - name: ALF3(a)
   composition: {Al: 1, F: 3}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 728.0]
+    temperature-ranges: [300.0, 728.0]
     data:
-    - [-3.0835272, 0.070350317, -1.2249405e-04, 7.6241362e-08, 1.5843687e-12,
-      -1.8294032e+05, 9.3570683]
     - [-3.0835272, 0.070350317, -1.2249405e-04, 7.6241362e-08, 1.5843687e-12,
       -1.8294032e+05, 9.3570683]
 - name: ALF3(b)
@@ -93,25 +84,22 @@ species:
   composition: {Al: 1, F: 3}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [2523.0, 5000.0]
     data:
-    - [15.096679, 0.0, 0.0, 0.0, 0.0, -1.7998686e+05, -80.049103]
     - [15.096679, 0.0, 0.0, 0.0, 0.0, -1.7998686e+05, -80.049103]
 - name: ALI3(s)
   composition: {Al: 1, I: 3}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 464.14]
+    temperature-ranges: [300.0, 464.14]
     data:
-    - [8.52416, 0.011257799, 1.6443005e-07, 0.0, 0.0, -3.9476666e+04, -28.344595]
     - [8.52416, 0.011257799, 1.6443005e-07, 0.0, 0.0, -3.9476666e+04, -28.344595]
 - name: ALI3(L)
   composition: {Al: 1, I: 3}
   thermo:
     model: NASA7
-    temperature-ranges: [464.14, 1000.0, 5000.0]
+    temperature-ranges: [464.14, 5000.0]
     data:
-    - [14.593456, 0.0, 0.0, 0.0, 0.0, -3.9163332e+04, -56.248322]
     - [14.593456, 0.0, 0.0, 0.0, 0.0, -3.9163332e+04, -56.248322]
 - name: ALN(s)
   composition: {Al: 1, N: 1}
@@ -137,9 +125,8 @@ species:
   composition: {Al: 2, O: 3}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 6000.0, 1000.0]
+    temperature-ranges: [2327.0, 6000.0]
     data:
-    - [23.148241, 0.0, 0.0, 0.0, 0.0, -2.114052e+05, -138.60205]
     - [23.148241, 0.0, 0.0, 0.0, 0.0, -2.114052e+05, -138.60205]
 - name: AL2SiO5(an)
   composition: {Al: 2, Si: 1, O: 5}
@@ -175,10 +162,9 @@ species:
   composition: {B: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 6000.0, 1000.0]
+    temperature-ranges: [2350.0, 6000.0]
     data:
     - [3.81862551, 0.0, 0.0, 0.0, 0.0, 3360.99275, -20.7326473]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: BN(s)
   composition: {B: 1, N: 1}
   thermo:
@@ -212,17 +198,15 @@ species:
   composition: {Ba: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [298.15, 1000.0, 1000.0]
+    temperature-ranges: [298.15, 1000.0]
     data:
     - [2.77334443, 2.03752236e-03, 0.0, 0.0, 0.0, -917.43381, -8.90970626]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: Ba(L)
   composition: {Ba: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 1000.0, 6000.0]
+    temperature-ranges: [1000.0, 6000.0]
     data:
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
     - [4.81086679, 0.0, 0.0, 0.0, 0.0, -992.062381, -20.0027571]
 - name: BaBr2(s)
   composition: {Ba: 1, Br: 2}
@@ -238,9 +222,8 @@ species:
   composition: {Ba: 1, Br: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [1130.0, 5000.0]
     data:
-    - [12.610931, 0.0, 0.0, 0.0, 0.0, -9.2936418e+04, -53.916673]
     - [12.610931, 0.0, 0.0, 0.0, 0.0, -9.2936418e+04, -53.916673]
 - name: BaCL2(a)
   composition: {Ba: 1, Cl: 2}
@@ -256,17 +239,15 @@ species:
   composition: {Ba: 1, Cl: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 1235.0, 1000.0]
+    temperature-ranges: [1198.0, 1235.0]
     data:
-    - [14.895592, 0.0, 0.0, 0.0, 0.0, -1.0994135e+05, -75.272702]
     - [14.895592, 0.0, 0.0, 0.0, 0.0, -1.0994135e+05, -75.272702]
 - name: BaCL2(L)
   composition: {Ba: 1, Cl: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [1235.0, 5000.0]
     data:
-    - [13.083967, 0.0, 0.0, 0.0, 0.0, -1.0578059e+05, -60.818647]
     - [13.083967, 0.0, 0.0, 0.0, 0.0, -1.0578059e+05, -60.818647]
 - name: BaF2(a)
   composition: {Ba: 1, F: 2}
@@ -282,17 +263,15 @@ species:
   composition: {Ba: 1, F: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 1641.0, 1000.0]
+    temperature-ranges: [1480.0, 1641.0]
     data:
-    - [12.948094, 0.0, 0.0, 0.0, 0.0, -1.5033175e+05, -65.383663]
     - [12.948094, 0.0, 0.0, 0.0, 0.0, -1.5033175e+05, -65.383663]
 - name: BaF2(L)
   composition: {Ba: 1, F: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [1641.0, 5000.0]
     data:
-    - [12.006552, 0.0, 0.0, 0.0, 0.0, -1.4597715e+05, -56.701282]
     - [12.006552, 0.0, 0.0, 0.0, 0.0, -1.4597715e+05, -56.701282]
 - name: BaO(s)
   composition: {Ba: 1, O: 1}
@@ -308,27 +287,23 @@ species:
   composition: {Ba: 1, O: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [2286.0, 5000.0]
     data:
-    - [8.0516715, 0.0, 0.0, 0.0, 0.0, -6.3223737e+04, -36.818601]
     - [8.0516715, 0.0, 0.0, 0.0, 0.0, -6.3223737e+04, -36.818601]
 - name: BaO2H2(s)
   composition: {Ba: 1, O: 2, H: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 681.15]
+    temperature-ranges: [300.0, 681.15]
     data:
-    - [-0.15429168, 0.075108738, -1.4915072e-04, 1.3462514e-07, -4.2715409e-11,
-      -1.1603552e+05, -3.1075078]
     - [-0.15429168, 0.075108738, -1.4915072e-04, 1.3462514e-07, -4.2715409e-11,
       -1.1603552e+05, -3.1075078]
 - name: BaO2H2(L)
   composition: {Ba: 1, O: 2, H: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [681.15, 1000.0, 5000.0]
+    temperature-ranges: [681.15, 5000.0]
     data:
-    - [16.958833, 0.0, 0.0, 0.0, 0.0, -1.1797498e+05, -83.351611]
     - [16.958833, 0.0, 0.0, 0.0, 0.0, -1.1797498e+05, -83.351611]
 - name: BaS(s)
   composition: {Ba: 1, S: 1}
@@ -354,18 +329,16 @@ species:
   composition: {Be: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 1563.0, 1000.0]
+    temperature-ranges: [1543.0, 1563.0]
     data:
     - [3.60815009, 0.0, 0.0, 0.0, 0.0, -852.229192, -20.0291024]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: Be(L)
   composition: {Be: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 6000.0, 1000.0]
+    temperature-ranges: [1563.0, 6000.0]
     data:
     - [3.54560882, 0.0, 0.0, 0.0, 0.0, 207.47558, -18.9534126]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: BeAL2O4(s)
   composition: {Be: 1, Al: 2, O: 4}
   thermo:
@@ -380,9 +353,8 @@ species:
   composition: {Be: 1, Al: 2, O: 4}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [2146.0, 5000.0]
     data:
-    - [29.636291, 0.0, 0.0, 0.0, 0.0, -2.8056982e+05, -171.16954]
     - [29.636291, 0.0, 0.0, 0.0, 0.0, -2.8056982e+05, -171.16954]
 - name: BeBr2(s)
   composition: {Be: 1, Br: 2}
@@ -398,37 +370,31 @@ species:
   composition: {Be: 1, Cl: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 688.0]
+    temperature-ranges: [300.0, 688.0]
     data:
-    - [3.0065745, 0.019539559, -4.8913605e-06, -2.9604158e-08, 2.3534861e-11,
-      -6.07221e+04, -12.579772]
     - [3.0065745, 0.019539559, -4.8913605e-06, -2.9604158e-08, 2.3534861e-11,
       -6.07221e+04, -12.579772]
 - name: BeCL2(L)
   composition: {Be: 1, Cl: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [688.0, 1000.0, 5000.0]
+    temperature-ranges: [688.0, 5000.0]
     data:
-    - [14.603719, 0.0, 0.0, 0.0, 0.0, -6.4498417e+04, -76.448784]
     - [14.603719, 0.0, 0.0, 0.0, 0.0, -6.4498417e+04, -76.448784]
 - name: BeF2(Lqz)
   composition: {Be: 1, F: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 500.0]
+    temperature-ranges: [300.0, 500.0]
     data:
-    - [20.59377, -0.06639693, -1.2032398e-04, 8.9800555e-07, -9.6669264e-10,
-      -1.2693708e+05, -91.785113]
     - [20.59377, -0.06639693, -1.2032398e-04, 8.9800555e-07, -9.6669264e-10,
       -1.2693708e+05, -91.785113]
 - name: BeF2(hqz)
   composition: {Be: 1, F: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [500.0, 1000.0, 825.0]
+    temperature-ranges: [500.0, 825.0]
     data:
-    - [5.6965576, 4.0258358e-03, 0.0, 0.0, 0.0, -1.2528884e+05, -27.091389]
     - [5.6965576, 4.0258358e-03, 0.0, 0.0, 0.0, -1.2528884e+05, -27.091389]
 - name: BeF2(L)
   composition: {Be: 1, F: 2}
@@ -444,25 +410,22 @@ species:
   composition: {Be: 1, I: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 753.0]
+    temperature-ranges: [300.0, 753.0]
     data:
-    - [2.6772295, 0.026923092, -2.8895204e-05, 4.0076604e-09, 6.4051702e-12,
-      -2.4446968e+04, -7.5530919]
     - [2.6772295, 0.026923092, -2.8895204e-05, 4.0076604e-09, 6.4051702e-12,
       -2.4446968e+04, -7.5530919]
 - name: BeI2(L)
   composition: {Be: 1, I: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [753.0, 1000.0, 5000.0]
+    temperature-ranges: [753.0, 5000.0]
     data:
-    - [13.587196, 0.0, 0.0, 0.0, 0.0, -2.5993312e+04, -63.313573]
     - [13.587196, 0.0, 0.0, 0.0, 0.0, -2.5993312e+04, -63.313573]
 - name: BeO(a)
   composition: {Be: 1, O: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [200.0, 1000.0, 2373.0]
+    temperature-ranges: [200.0, 1000.0, 2373.001]
     data:
     - [-3.06995225, 0.0322099414, -4.85141436e-05, 3.51263133e-08, -9.82600858e-12,
       -7.3320234e+04, 11.4094979]
@@ -472,27 +435,23 @@ species:
   composition: {Be: 1, O: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 2821.22, 1000.0]
+    temperature-ranges: [2373.001, 2821.22]
     data:
     - [12.3933471, -0.0103223075, 6.52733591e-06, -1.73093889e-09, 1.70986494e-13,
       -7.8175961e+04, -70.5417631]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: BeO(L)
   composition: {Be: 1, O: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 6000.0, 1000.0]
+    temperature-ranges: [2821.22, 6000.0]
     data:
     - [9.56123164, 0.0, 0.0, 0.0, 0.0, -7.42016413e+04, -58.0635442]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: BeO2H2(b)
   composition: {Be: 1, O: 2, H: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 1000.0]
+    temperature-ranges: [300.0, 1000.0]
     data:
-    - [-7.0168325, 0.083005654, -1.4152029e-04, 1.1421665e-07, -3.5105535e-11,
-      -1.0950711e+05, 26.616061]
     - [-7.0168325, 0.083005654, -1.4152029e-04, 1.1421665e-07, -3.5105535e-11,
       -1.0950711e+05, 26.616061]
 - name: BeS(s)
@@ -509,36 +468,32 @@ species:
   composition: {Be: 2, C: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 2400.0]
+    temperature-ranges: [300.0, 2400.0]
     data:
-    - [4.437417, 2.5694538e-03, 0.0, 0.0, 0.0, -1.5507324e+04, -24.086121]
     - [4.437417, 2.5694538e-03, 0.0, 0.0, 0.0, -1.5507324e+04, -24.086121]
 - name: Be2C(L)
   composition: {Be: 2, C: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [2400.0, 5000.0]
     data:
-    - [11.070897, 0.0, 0.0, 0.0, 0.0, -1.4969641e+04, -65.775116]
     - [11.070897, 0.0, 0.0, 0.0, 0.0, -1.4969641e+04, -65.775116]
 - name: Br2(cr)
   composition: {Br: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [200.0, 1000.0, 265.9]
+    temperature-ranges: [200.0, 265.9]
     data:
     - [9.12545994, -0.0826160881, 6.99861517e-04, -2.40843064e-06, 3.21106016e-09,
       -3304.0882, -30.1727996]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: Br2(L)
   composition: {Br: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [265.9, 1000.0, 332.5]
+    temperature-ranges: [265.9, 332.503]
     data:
     - [10.4252937, 0.111181227, -1.06856988e-03, 3.25976572e-06, -3.27490398e-09,
       -3506.20403, -49.0757083]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: C(gr)
   composition: {C: 1}
   thermo:
@@ -553,66 +508,57 @@ species:
   composition: {C: 6, H: 6}
   thermo:
     model: NASA7
-    temperature-ranges: [278.68, 1000.0, 500.0]
+    temperature-ranges: [278.68, 500.0]
     data:
     - [63.6690229, -0.600534398, 2.6679281e-03, -5.06308828e-06, 3.63955562e-09,
       -1670.85472, -243.891797]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: C7H8(L)
   composition: {C: 7, H: 8}
   thermo:
     model: NASA7
-    temperature-ranges: [178.15, 1000.0, 500.0]
+    temperature-ranges: [178.15, 500.0]
     data:
     - [29.3676022, -0.194722686, 9.74773096e-04, -1.91472689e-06, 1.48097019e-09,
       -4163.18442, -112.019966]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: C8H18(L),n-octa
   composition: {C: 8, H: 18}
   thermo:
     model: NASA7
-    temperature-ranges: [220.0, 1000.0, 300.0]
+    temperature-ranges: [220.0, 300.0]
     data:
-    - [71.413393, -0.5020795, 1.834199e-03, -2.0450165e-06, 0.0, -4.1243725e+04,
-      -277.2224]
     - [71.413393, -0.5020795, 1.834199e-03, -2.0450165e-06, 0.0, -4.1243725e+04,
       -277.2224]
 - name: Jet-A(L)
   composition: {C: 12, H: 23}
   thermo:
     model: NASA7
-    temperature-ranges: [220.0, 1000.0, 550.0]
+    temperature-ranges: [220.0, 550.0]
     data:
     - [19.049613, -0.016918532, 6.3022035e-04, -1.3336577e-06, 9.4335638e-10,
       -4.4803964e+04, -67.6902]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: Ca(a)
   composition: {Ca: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [298.15, 1000.0, 716.0]
+    temperature-ranges: [298.15, 716.0]
     data:
     - [3.03325649, -1.41800064e-03, 7.24487574e-06, -6.68790594e-09, 2.49903889e-12,
       -893.310508, -12.0114288]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: Ca(b)
   composition: {Ca: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [716.0, 1000.0, 1115.0]
+    temperature-ranges: [716.0, 1115.0]
     data:
-    - [5.70111768, -5.8105649e-03, 4.02212518e-06, 0.0, 0.0, -1516.76361,
-      -26.0758134]
     - [5.70111768, -5.8105649e-03, 4.02212518e-06, 0.0, 0.0, -1516.76361,
       -26.0758134]
 - name: Ca(L)
   composition: {Ca: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 6000.0, 1000.0]
+    temperature-ranges: [1115.0, 6000.0]
     data:
     - [4.57032345, 0.0, 0.0, 0.0, 0.0, -982.243308, -21.1988643]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: CaBr2(s)
   composition: {Ca: 1, Br: 2}
   thermo:
@@ -626,9 +572,8 @@ species:
   composition: {Ca: 1, Br: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [1015.0, 5000.0]
     data:
-    - [13.587196, 0.0, 0.0, 0.0, 0.0, -8.5428738e+04, -63.151659]
     - [13.587196, 0.0, 0.0, 0.0, 0.0, -8.5428738e+04, -63.151659]
 - name: CaCO3(caL)
   composition: {Ca: 1, C: 1, O: 3}
@@ -654,9 +599,8 @@ species:
   composition: {Ca: 1, Cl: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [1045.0, 5000.0]
     data:
-    - [12.332141, 0.0, 0.0, 0.0, 0.0, -9.8023952e+04, -58.047468]
     - [12.332141, 0.0, 0.0, 0.0, 0.0, -9.8023952e+04, -58.047468]
 - name: CaF2(a)
   composition: {Ca: 1, F: 2}
@@ -672,19 +616,17 @@ species:
   composition: {Ca: 1, F: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 1691.0, 1000.0]
+    temperature-ranges: [1424.0, 1691.0]
     data:
     - [14.2866105, -1.10249437e-03, 1.41775401e-06, -2.81232082e-10, 0.0,
       -1.5545332e+05, -79.186636]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: CaF2(L)
   composition: {Ca: 1, F: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 6000.0, 1000.0]
+    temperature-ranges: [1691.0, 6000.0]
     data:
     - [12.016814, 0.0, 0.0, 0.0, 0.0, -1.47908292e+05, -60.4927984]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: CaO(s)
   composition: {Ca: 1, O: 1}
   thermo:
@@ -699,18 +641,15 @@ species:
   composition: {Ca: 1, O: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [3200.0, 5000.0]
     data:
-    - [7.5484421, 0.0, 0.0, 0.0, 0.0, -7.1179292e+04, -38.083948]
     - [7.5484421, 0.0, 0.0, 0.0, 0.0, -7.1179292e+04, -38.083948]
 - name: CaO2H2(s)
   composition: {Ca: 1, O: 2, H: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 1000.0]
+    temperature-ranges: [300.0, 1000.0]
     data:
-    - [-0.74022767, 0.067566468, -1.3191281e-04, 1.1989068e-07, -4.0613045e-11,
-      -1.2043543e+05, -1.0097075]
     - [-0.74022767, 0.067566468, -1.3191281e-04, 1.1989068e-07, -4.0613045e-11,
       -1.2043543e+05, -1.0097075]
 - name: CaS(s)
@@ -727,27 +666,24 @@ species:
   composition: {Ca: 1, S: 1, O: 4}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 5000.0]
+    temperature-ranges: [300.0, 5000.0]
     data:
-    - [8.4441905, 0.011876215, 0.0, 0.0, 0.0, -1.7553242e+05, -38.820134]
     - [8.4441905, 0.011876215, 0.0, 0.0, 0.0, -1.7553242e+05, -38.820134]
 - name: Cr(cr)
   composition: {Cr: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [200.0, 1000.0, 311.5]
+    temperature-ranges: [200.0, 311.5]
     data:
     - [7.84826024, -0.11627602, 8.12369251e-04, -2.30807086e-06, 2.35328142e-09,
       -898.013946, -27.5733139]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: Cr(L)
   composition: {Cr: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 6000.0, 1000.0]
+    temperature-ranges: [2130.0, 6000.0]
     data:
     - [4.73028477, 0.0, 0.0, 0.0, 0.0, 575.359221, -24.5318309]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: CrN(s)
   composition: {Cr: 1, N: 1}
   thermo:
@@ -782,19 +718,17 @@ species:
   composition: {Cr: 2, O: 3}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [2603.0, 5000.0]
     data:
-    - [18.871105, 0.0, 0.0, 0.0, 0.0, -1.3369498e+05, -99.96147]
     - [18.871105, 0.0, 0.0, 0.0, 0.0, -1.3369498e+05, -99.96147]
 - name: Cs(cr)
   composition: {Cs: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [100.0, 1000.0, 301.59]
+    temperature-ranges: [100.0, 301.59]
     data:
     - [3.31157194, -9.67974793e-03, 1.19926576e-04, -5.20608084e-07, 8.33415927e-10,
       -980.844435, -8.10866871]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: Cs(L)
   composition: {Cs: 1}
   thermo:
@@ -809,89 +743,75 @@ species:
   composition: {Cs: 1, Cl: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 743.0]
+    temperature-ranges: [300.0, 743.0]
     data:
-    - [5.54534, 2.3805834e-03, 8.357033e-07, -9.957164e-10, 3.8054803e-13,
-      -5.5026535e+04, -20.16426]
     - [5.54534, 2.3805834e-03, 8.357033e-07, -9.957164e-10, 3.8054803e-13,
       -5.5026535e+04, -20.16426]
 - name: CsCL(b)
   composition: {Cs: 1, Cl: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [743.0, 1000.0, 918.0]
+    temperature-ranges: [743.0, 918.0]
     data:
-    - [8.1610737, -1.7623568e-03, -2.2508516e-07, 3.9307317e-09, -2.3452341e-12,
-      -5.5480431e+04, -33.941396]
     - [8.1610737, -1.7623568e-03, -2.2508516e-07, 3.9307317e-09, -2.3452341e-12,
       -5.5480431e+04, -33.941396]
 - name: CsCL(L)
   composition: {Cs: 1, Cl: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [918.0, 1000.0, 5000.0]
+    temperature-ranges: [918.0, 5000.0]
     data:
-    - [9.3097452, 0.0, 0.0, 0.0, 0.0, -5.5031161e+04, -40.810133]
     - [9.3097452, 0.0, 0.0, 0.0, 0.0, -5.5031161e+04, -40.810133]
 - name: CsF(s)
   composition: {Cs: 1, F: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 976.0]
+    temperature-ranges: [300.0, 976.0]
     data:
-    - [5.6489993, 1.8711398e-03, 6.6242382e-07, -6.3084871e-10, 1.8692339e-13,
-      -6.8485102e+04, -22.149959]
     - [5.6489993, 1.8711398e-03, 6.6242382e-07, -6.3084871e-10, 1.8692339e-13,
       -6.8485102e+04, -22.149959]
 - name: CsF(L)
   composition: {Cs: 1, F: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [976.0, 1000.0, 5000.0]
+    temperature-ranges: [976.0, 5000.0]
     data:
-    - [8.9071617, 0.0, 0.0, 0.0, 0.0, -6.8066817e+04, -39.912774]
     - [8.9071617, 0.0, 0.0, 0.0, 0.0, -6.8066817e+04, -39.912774]
 - name: CsOH(a)
   composition: {Cs: 1, O: 1, H: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [298.15, 1000.0, 410.0]
+    temperature-ranges: [298.15, 410.0]
     data:
     - [5.88946051, 6.13189982e-03, 8.60763952e-06, -1.20614689e-08, 0.0,
       -5.22010341e+04, -23.7840127]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: CsOH(b)
   composition: {Cs: 1, O: 1, H: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [410.0, 1000.0, 493.0]
+    temperature-ranges: [410.0, 493.0]
     data:
     - [4.92104624, 0.0100655116, 0.0, 0.0, 0.0, -5.18660681e+04, -18.7438113]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: CsOH(c)
   composition: {Cs: 1, O: 1, H: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [493.0, 1000.0, 588.0]
+    temperature-ranges: [493.0, 588.0]
     data:
     - [10.0644544, 0.0, 0.0, 0.0, 0.0, -5.2448865e+04, -44.1931478]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: CsOH(L)
   composition: {Cs: 1, O: 1, H: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [588.0, 1000.0, 6000.0]
+    temperature-ranges: [588.0, 6000.0]
     data:
-    - [9.812843, 0.0, 0.0, 0.0, 0.0, -5.17524722e+04, -41.6559605]
     - [9.812843, 0.0, 0.0, 0.0, 0.0, -5.17524722e+04, -41.6559605]
 - name: Cs2SO4(II)
   composition: {Cs: 2, S: 1, O: 4}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 940.0]
+    temperature-ranges: [300.0, 940.0]
     data:
-    - [-2.9789307, 0.12650884, -2.9553206e-04, 3.3207308e-07, -1.3104991e-10,
-      -1.7623352e+05, 15.185747]
     - [-2.9789307, 0.12650884, -2.9553206e-04, 3.3207308e-07, -1.3104991e-10,
       -1.7623352e+05, 15.185747]
 - name: Cs2SO4(I)
@@ -907,9 +827,8 @@ species:
   composition: {Cs: 2, S: 1, O: 4}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [1278.0, 5000.0]
     data:
-    - [24.859198, 0.0, 0.0, 0.0, 0.0, -1.7776198e+05, -116.65744]
     - [24.859198, 0.0, 0.0, 0.0, 0.0, -1.7776198e+05, -116.65744]
 - name: Cu(cr)
   composition: {Cu: 1}
@@ -925,10 +844,9 @@ species:
   composition: {Cu: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 6000.0, 1000.0]
+    temperature-ranges: [1358.0, 6000.0]
     data:
     - [3.94491076, 0.0, 0.0, 0.0, 0.0, -210.634669, -18.3585676]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: CuF(s)
   composition: {Cu: 1, F: 1}
   thermo:
@@ -953,9 +871,8 @@ species:
   composition: {Cu: 1, F: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [1109.0, 5000.0]
     data:
-    - [12.077507, 0.0, 0.0, 0.0, 0.0, -6.3487998e+04, -56.73037]
     - [12.077507, 0.0, 0.0, 0.0, 0.0, -6.3487998e+04, -56.73037]
 - name: CuO(s)
   composition: {Cu: 1, O: 1}
@@ -1001,9 +918,8 @@ species:
   composition: {Cu: 2, O: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [1516.72, 5000.0]
     data:
-    - [12.01712, 0.0, 0.0, 0.0, 0.0, -1.9252387e+04, -56.886866]
     - [12.01712, 0.0, 0.0, 0.0, 0.0, -1.9252387e+04, -56.886866]
 - name: Cu2O5S(s)
   composition: {Cu: 2, O: 5, S: 1}
@@ -1029,70 +945,61 @@ species:
   composition: {Fe: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 1665.0, 1000.0]
+    temperature-ranges: [1184.0, 1665.0]
     data:
     - [61.010999, -0.160945061, 1.68369493e-04, -7.74563702e-08, 1.3309129e-11,
       -1.65335454e+04, -313.710668]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: Fe(d)
   composition: {Fe: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 1809.0, 1000.0]
+    temperature-ranges: [1665.0, 1809.0]
     data:
     - [-435.904698, 0.768489448, -4.46898892e-04, 8.67070913e-08, 0.0, 1.87925534e+05,
       2450.57619]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: Fe(L)
   composition: {Fe: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 6000.0, 1000.0]
+    temperature-ranges: [1809.0, 6000.0]
     data:
     - [5.53538332, 0.0, 0.0, 0.0, 0.0, -1274.28941, -29.4772271]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: FeC5O5(L)
   composition: {Fe: 1, C: 5, O: 5}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 5000.0]
+    temperature-ranges: [300.0, 5000.0]
     data:
-    - [28.11845, 0.0, 0.0, 0.0, 0.0, -1.0052483e+05, -119.66541]
     - [28.11845, 0.0, 0.0, 0.0, 0.0, -1.0052483e+05, -119.66541]
 - name: FeCL2(s)
   composition: {Fe: 1, Cl: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 950.0]
+    temperature-ranges: [300.0, 950.0]
     data:
-    - [7.1122271, 0.011086953, -1.7072742e-05, 1.3515817e-08, -4.1365036e-12,
-      -4.3600985e+04, -28.994055]
     - [7.1122271, 0.011086953, -1.7072742e-05, 1.3515817e-08, -4.1365036e-12,
       -4.3600985e+04, -28.994055]
 - name: FeCL2(L)
   composition: {Fe: 1, Cl: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [950.0, 1000.0, 5000.0]
+    temperature-ranges: [950.0, 5000.0]
     data:
-    - [12.288863, 0.0, 0.0, 0.0, 0.0, -4.1109821e+04, -53.193057]
     - [12.288863, 0.0, 0.0, 0.0, 0.0, -4.1109821e+04, -53.193057]
 - name: FeCL3(s)
   composition: {Fe: 1, Cl: 3}
   thermo:
     model: NASA7
-    temperature-ranges: [200.0, 1000.0, 577.0]
+    temperature-ranges: [200.0, 577.0]
     data:
     - [-7.39556855, 0.202608434, -8.44505923e-04, 1.59286602e-06, -1.07989321e-09,
       -5.00144664e+04, 24.4450935]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: FeCL3(L)
   composition: {Fe: 1, Cl: 3}
   thermo:
     model: NASA7
-    temperature-ranges: [577.0, 1000.0, 6000.0]
+    temperature-ranges: [577.0, 6000.0]
     data:
-    - [16.103127, 0.0, 0.0, 0.0, 0.0, -4.84135278e+04, -67.575899]
     - [16.103127, 0.0, 0.0, 0.0, 0.0, -4.84135278e+04, -67.575899]
 - name: FeO(s)
   composition: {Fe: 1, O: 1}
@@ -1108,9 +1015,8 @@ species:
   composition: {Fe: 1, O: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [1650.0, 5000.0]
     data:
-    - [8.2022482, 0.0, 0.0, 0.0, 0.0, -3.3848615e+04, -40.079129]
     - [8.2022482, 0.0, 0.0, 0.0, 0.0, -3.3848615e+04, -40.079129]
 - name: Fe(OH)2(s)
   composition: {Fe: 1, O: 2, H: 2}
@@ -1136,19 +1042,16 @@ species:
   composition: {Fe: 1, S: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 411.0]
+    temperature-ranges: [300.0, 411.0]
     data:
-    - [18.977627, -0.10954282, 2.2186016e-04, 0.0, 0.0, -1.4995242e+04,
-      -78.125435]
     - [18.977627, -0.10954282, 2.2186016e-04, 0.0, 0.0, -1.4995242e+04,
       -78.125435]
 - name: FeS(b)
   composition: {Fe: 1, S: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [411.0, 1000.0, 598.0]
+    temperature-ranges: [411.0, 598.0]
     data:
-    - [8.7028505, 0.0, 0.0, 0.0, 0.0, -1.4689738e+04, -42.082102]
     - [8.7028505, 0.0, 0.0, 0.0, 0.0, -1.4689738e+04, -42.082102]
 - name: FeS(c)
   composition: {Fe: 1, S: 1}
@@ -1164,9 +1067,8 @@ species:
   composition: {Fe: 1, S: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [1463.0, 5000.0]
     data:
-    - [7.5232806, 0.0, 0.0, 0.0, 0.0, -1.0164237e+04, -31.97093]
     - [7.5232806, 0.0, 0.0, 0.0, 0.0, -1.0164237e+04, -31.97093]
 - name: FeSO4(s)
   composition: {Fe: 1, S: 1, O: 4}
@@ -1246,10 +1148,9 @@ species:
   composition: {Hg: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [200.0, 1000.0, 234.29]
+    temperature-ranges: [200.0, 234.29]
     data:
     - [2.43103385, 4.24646658e-03, 0.0, 0.0, 0.0, -1178.86806, -7.11248114]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: Hg(L)
   composition: {Hg: 1}
   thermo:
@@ -1264,46 +1165,39 @@ species:
   composition: {Hg: 1, Br: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 514.0]
+    temperature-ranges: [300.0, 514.0]
     data:
-    - [8.2829714, 1.6302364e-03, 3.4229879e-06, 7.0961992e-10, -4.3353862e-12,
-      -2.2952438e+04, -27.345276]
     - [8.2829714, 1.6302364e-03, 3.4229879e-06, 7.0961992e-10, -4.3353862e-12,
       -2.2952438e+04, -27.345276]
 - name: HgBr2(L)
   composition: {Hg: 1, Br: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [514.0, 1000.0, 5000.0]
+    temperature-ranges: [514.0, 5000.0]
     data:
-    - [12.278799, 0.0, 0.0, 0.0, 0.0, -2.2500898e+04, -46.851212]
     - [12.278799, 0.0, 0.0, 0.0, 0.0, -2.2500898e+04, -46.851212]
 - name: HgO(s)
   composition: {Hg: 1, O: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 1000.0]
+    temperature-ranges: [300.0, 1000.0]
     data:
-    - [3.4170866, 7.116057e-03, -1.4896996e-06, -4.4913548e-09, 2.5937924e-12,
-      -1.223327e+04, -13.037185]
     - [3.4170866, 7.116057e-03, -1.4896996e-06, -4.4913548e-09, 2.5937924e-12,
       -1.223327e+04, -13.037185]
 - name: I2(cr)
   composition: {I: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [200.0, 1000.0, 386.75]
+    temperature-ranges: [200.0, 386.75]
     data:
     - [-10.5757713, 0.226905653, -1.12461645e-03, 2.41678452e-06, -1.84901377e-09,
       -899.721615, 38.8598964]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: I2(L)
   composition: {I: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [386.75, 1000.0, 6000.0]
+    temperature-ranges: [386.75, 6000.0]
     data:
-    - [9.56821268, 0.0, 0.0, 0.0, 0.0, -1204.51948, -36.3733927]
     - [9.56821268, 0.0, 0.0, 0.0, 0.0, -1204.51948, -36.3733927]
 - name: K(cr)
   composition: {K: 1}
@@ -1327,19 +1221,16 @@ species:
   composition: {K: 1, C: 1, N: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 895.0]
+    temperature-ranges: [300.0, 895.0]
     data:
-    - [8.1799728, -1.4010782e-03, 3.4237725e-06, -3.4961738e-09, 1.305278e-12,
-      -1.6048201e+04, -30.944525]
     - [8.1799728, -1.4010782e-03, 3.4237725e-06, -3.4961738e-09, 1.305278e-12,
       -1.6048201e+04, -30.944525]
 - name: KCN(L)
   composition: {K: 1, C: 1, N: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [895.0, 1000.0, 5000.0]
+    temperature-ranges: [895.0, 5000.0]
     data:
-    - [9.0581305, 0.0, 0.0, 0.0, 0.0, -1.5226717e+04, -35.454083]
     - [9.0581305, 0.0, 0.0, 0.0, 0.0, -1.5226717e+04, -35.454083]
 - name: KCL(s)
   composition: {K: 1, Cl: 1}
@@ -1355,9 +1246,8 @@ species:
   composition: {K: 1, Cl: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [1044.0, 5000.0]
     data:
-    - [8.8518064, 0.0, 0.0, 0.0, 0.0, -5.3369478e+04, -40.010059]
     - [8.8518064, 0.0, 0.0, 0.0, 0.0, -5.3369478e+04, -40.010059]
 - name: KF(s)
   composition: {K: 1, F: 1}
@@ -1373,35 +1263,30 @@ species:
   composition: {K: 1, F: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [1131.0, 5000.0]
     data:
-    - [8.6555469, 0.0, 0.0, 0.0, 0.0, -6.9268025e+04, -41.179932]
     - [8.6555469, 0.0, 0.0, 0.0, 0.0, -6.9268025e+04, -41.179932]
 - name: KHF2(a)
   composition: {K: 1, H: 1, F: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 469.85]
+    temperature-ranges: [300.0, 469.85]
     data:
-    - [-9.1298498, 0.086618889, 4.3904412e-05, -6.6867599e-07, 8.0454163e-10,
-      -1.1258259e+05, 41.0828]
     - [-9.1298498, 0.086618889, 4.3904412e-05, -6.6867599e-07, 8.0454163e-10,
       -1.1258259e+05, 41.0828]
 - name: KHF2(b)
   composition: {K: 1, H: 1, F: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [469.85, 1000.0, 511.95]
+    temperature-ranges: [469.85, 511.95]
     data:
-    - [12.057378, 0.0, 0.0, 0.0, 0.0, -1.1457126e+05, -54.17014]
     - [12.057378, 0.0, 0.0, 0.0, 0.0, -1.1457126e+05, -54.17014]
 - name: KHF2(L)
   composition: {K: 1, H: 1, F: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [511.95, 1000.0, 6000.0]
+    temperature-ranges: [511.95, 6000.0]
     data:
-    - [12.580737, 0.0, 0.0, 0.0, 0.0, -1.1404309e+05, -55.879915]
     - [12.580737, 0.0, 0.0, 0.0, 0.0, -1.1404309e+05, -55.879915]
 - name: KOH(a)
   composition: {K: 1, O: 1, H: 1}
@@ -1449,9 +1334,8 @@ species:
   composition: {K: 2, C: 1, O: 3}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [1174.0, 5000.0]
     data:
-    - [25.161469, 0.0, 0.0, 0.0, 0.0, -1.4740138e+05, -131.1073]
     - [25.161469, 0.0, 0.0, 0.0, 0.0, -1.4740138e+05, -131.1073]
 - name: K2O(s)
   composition: {K: 2, O: 1}
@@ -1486,34 +1370,29 @@ species:
   composition: {K: 2, S: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 1100.0, 1000.0]
+    temperature-ranges: [1050.0, 1100.0]
     data:
-    - [156.42816, -0.12664444, 0.0, 0.0, 0.0, -1.3114419e+05, -927.94275]
     - [156.42816, -0.12664444, 0.0, 0.0, 0.0, -1.3114419e+05, -927.94275]
 - name: K2S(3)
   composition: {K: 2, S: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 1221.0, 1000.0]
+    temperature-ranges: [1100.0, 1221.0]
     data:
-    - [17.119867, 0.0, 0.0, 0.0, 0.0, -5.4524953e+04, -91.666511]
     - [17.119867, 0.0, 0.0, 0.0, 0.0, -5.4524953e+04, -91.666511]
 - name: K2S(L)
   composition: {K: 2, S: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [1221.0, 5000.0]
     data:
-    - [12.142927, 0.0, 0.0, 0.0, 0.0, -4.6520349e+04, -54.716043]
     - [12.142927, 0.0, 0.0, 0.0, 0.0, -4.6520349e+04, -54.716043]
 - name: K2SO4(a)
   composition: {K: 2, S: 1, O: 4}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 857.0]
+    temperature-ranges: [300.0, 857.0]
     data:
-    - [1.7026526, 0.084709714, -1.7632573e-04, 1.9282803e-07, -7.647089e-11,
-      -1.7598087e+05, -7.5631951]
     - [1.7026526, 0.084709714, -1.7632573e-04, 1.9282803e-07, -7.647089e-11,
       -1.7598087e+05, -7.5631951]
 - name: K2SO4(b)
@@ -1530,19 +1409,17 @@ species:
   composition: {K: 2, S: 1, O: 4}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [1342.0, 5000.0]
     data:
-    - [24.230499, 0.0, 0.0, 0.0, 0.0, -1.7695519e+05, -117.40222]
     - [24.230499, 0.0, 0.0, 0.0, 0.0, -1.7695519e+05, -117.40222]
 - name: Li(cr)
   composition: {Li: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [200.0, 1000.0, 453.69]
+    temperature-ranges: [200.0, 453.69]
     data:
     - [0.610909942, 0.0141041217, -1.7495817e-05, -3.33741023e-08, 7.76629665e-11,
       -625.121208, -3.26449947]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: Li(L)
   composition: {Li: 1}
   thermo:
@@ -1567,18 +1444,15 @@ species:
   composition: {Li: 1, Al: 1, O: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [1973.0, 5000.0]
     data:
-    - [15.096679, 0.0, 0.0, 0.0, 0.0, -1.4165839e+05, -80.993767]
     - [15.096679, 0.0, 0.0, 0.0, 0.0, -1.4165839e+05, -80.993767]
 - name: LiCL(s)
   composition: {Li: 1, Cl: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 883.0]
+    temperature-ranges: [300.0, 883.0]
     data:
-    - [4.1095245, 8.1981003e-03, -1.1541874e-05, 1.0585386e-08, -3.6457022e-12,
-      -5.0608266e+04, -18.298894]
     - [4.1095245, 8.1981003e-03, -1.1541874e-05, 1.0585386e-08, -3.6457022e-12,
       -5.0608266e+04, -18.298894]
 - name: LiCL(L)
@@ -1605,45 +1479,38 @@ species:
   composition: {Li: 1, F: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [1121.3, 5000.0]
     data:
-    - [7.7195401, 0.0, 0.0, 0.0, 0.0, -7.4304347e+04, -38.815487]
     - [7.7195401, 0.0, 0.0, 0.0, 0.0, -7.4304347e+04, -38.815487]
 - name: LiH(s)
   composition: {Li: 1, H: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 961.8]
+    temperature-ranges: [300.0, 961.8]
     data:
-    - [0.38611812, 0.012127957, -8.6900336e-06, 5.6311555e-09, -1.2693483e-12,
-      -1.1486991e+04, -3.0654575]
     - [0.38611812, 0.012127957, -8.6900336e-06, 5.6311555e-09, -1.2693483e-12,
       -1.1486991e+04, -3.0654575]
 - name: LiH(L)
   composition: {Li: 1, H: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [961.8, 1000.0, 5000.0]
+    temperature-ranges: [961.8, 5000.0]
     data:
-    - [7.4981191, 0.0, 0.0, 0.0, 0.0, -1.1581826e+04, -40.047278]
     - [7.4981191, 0.0, 0.0, 0.0, 0.0, -1.1581826e+04, -40.047278]
 - name: LiOH(s)
   composition: {Li: 1, O: 1, H: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 744.3]
+    temperature-ranges: [300.0, 744.3]
     data:
-    - [0.63227797, 0.025340538, -2.789795e-05, 8.6925893e-09, 4.1499894e-12,
-      -5.941268e+04, -4.8382697]
     - [0.63227797, 0.025340538, -2.789795e-05, 8.6925893e-09, 4.1499894e-12,
       -5.941268e+04, -4.8382697]
 - name: LiOH(L)
   composition: {Li: 1, O: 1, H: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [744.3, 1000.0, 5000.0]
+    temperature-ranges: [744.3, 5000.0]
     data:
-    - [10.474218, 0.0, 0.0, 0.0, 0.0, -6.0185671e+04, -53.89714]
     - [10.474218, 0.0, 0.0, 0.0, 0.0, -6.0185671e+04, -53.89714]
 - name: Li2O(s)
   composition: {Li: 2, O: 1}
@@ -1659,19 +1526,17 @@ species:
   composition: {Li: 2, O: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [1843.0, 5000.0]
     data:
-    - [12.076931, 0.0, 0.0, 0.0, 0.0, -7.1337921e+04, -65.174974]
     - [12.076931, 0.0, 0.0, 0.0, 0.0, -7.1337921e+04, -65.174974]
 - name: Li2SO4(a)
   composition: {Li: 2, S: 1, O: 4}
   thermo:
     model: NASA7
-    temperature-ranges: [200.0, 1000.0, 848.0]
+    temperature-ranges: [200.0, 848.0]
     data:
     - [-4.13873597, 0.106940568, -2.09346052e-04, 2.12892822e-07, -8.01625106e-11,
       -1.74806776e+05, 12.9835773]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: Li2SO4(b)
   composition: {Li: 2, S: 1, O: 4}
   thermo:
@@ -1686,10 +1551,9 @@ species:
   composition: {Li: 2, S: 1, O: 4}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 6000.0, 1000.0]
+    temperature-ranges: [1132.0, 6000.0]
     data:
     - [24.6579132, 0.0, 0.0, 0.0, 0.0, -1.78097798e+05, -127.626158]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: Li3N(s)
   composition: {Li: 3, N: 1}
   thermo:
@@ -1704,18 +1568,16 @@ species:
   composition: {Mg: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [298.15, 1000.0, 923.0]
+    temperature-ranges: [298.15, 923.0]
     data:
     - [1.47884944, 9.27430526e-03, -1.95050788e-05, 1.98215527e-08, -7.04927374e-12,
       -716.649299, -6.57222695]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: Mg(L)
   composition: {Mg: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [923.0, 1000.0, 6000.0]
+    temperature-ranges: [923.0, 6000.0]
     data:
-    - [4.12531827, 0.0, 0.0, 0.0, 0.0, -658.934341, -19.3786894]
     - [4.12531827, 0.0, 0.0, 0.0, 0.0, -658.934341, -19.3786894]
 - name: MgAL2O4(s)
   composition: {Mg: 1, Al: 2, O: 4}
@@ -1731,55 +1593,46 @@ species:
   composition: {Mg: 1, Al: 2, O: 4}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [2408.0, 5000.0]
     data:
-    - [26.419188, 0.0, 0.0, 0.0, 0.0, -2.6883536e+05, -141.98581]
     - [26.419188, 0.0, 0.0, 0.0, 0.0, -2.6883536e+05, -141.98581]
 - name: MgBr2(s)
   composition: {Mg: 1, Br: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 984.0]
+    temperature-ranges: [300.0, 984.0]
     data:
-    - [5.1966422, 0.020670253, -3.7253939e-05, 3.1937564e-08, -9.9507016e-12,
-      -6.5252616e+04, -20.28891]
     - [5.1966422, 0.020670253, -3.7253939e-05, 3.1937564e-08, -9.9507016e-12,
       -6.5252616e+04, -20.28891]
 - name: MgBr2(L)
   composition: {Mg: 1, Br: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [984.0, 1000.0, 5000.0]
+    temperature-ranges: [984.0, 5000.0]
     data:
-    - [12.580737, 0.0, 0.0, 0.0, 0.0, -6.3962982e+04, -56.25546]
     - [12.580737, 0.0, 0.0, 0.0, 0.0, -6.3962982e+04, -56.25546]
 - name: MgCO3(s)
   composition: {Mg: 1, C: 1, O: 3}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 1000.0]
+    temperature-ranges: [300.0, 1000.0]
     data:
-    - [1.3491924, 0.036934112, -4.4492952e-05, 3.1815906e-08, -9.75453e-12,
-      -1.3541685e+05, -9.0618732]
     - [1.3491924, 0.036934112, -4.4492952e-05, 3.1815906e-08, -9.75453e-12,
       -1.3541685e+05, -9.0618732]
 - name: MgCL2(s)
   composition: {Mg: 1, Cl: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 987.0]
+    temperature-ranges: [300.0, 987.0]
     data:
-    - [5.4491296, 0.016745224, -2.5956907e-05, 1.9111573e-08, -5.1059014e-12,
-      -7.9343894e+04, -24.261084]
     - [5.4491296, 0.016745224, -2.5956907e-05, 1.9111573e-08, -5.1059014e-12,
       -7.9343894e+04, -24.261084]
 - name: MgCL2(L)
   composition: {Mg: 1, Cl: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [987.0, 1000.0, 5000.0]
+    temperature-ranges: [987.0, 5000.0]
     data:
-    - [11.071048, 0.0, 0.0, 0.0, 0.0, -7.6294618e+04, -48.972588]
     - [11.071048, 0.0, 0.0, 0.0, 0.0, -7.6294618e+04, -48.972588]
 - name: MgF2(s)
   composition: {Mg: 1, F: 2}
@@ -1795,27 +1648,23 @@ species:
   composition: {Mg: 1, F: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [1536.0, 5000.0]
     data:
-    - [11.416767, 0.0, 0.0, 0.0, 0.0, -1.340841e+05, -57.425069]
     - [11.416767, 0.0, 0.0, 0.0, 0.0, -1.340841e+05, -57.425069]
 - name: MgI2(s)
   composition: {Mg: 1, I: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 907.0]
+    temperature-ranges: [300.0, 907.0]
     data:
-    - [6.7017159, 0.011697022, -1.6836308e-05, 1.3143809e-08, -4.0099957e-12,
-      -4.6527761e+04, -25.432043]
     - [6.7017159, 0.011697022, -1.6836308e-05, 1.3143809e-08, -4.0099957e-12,
       -4.6527761e+04, -25.432043]
 - name: MgI2(L)
   composition: {Mg: 1, I: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [907.0, 1000.0, 5000.0]
+    temperature-ranges: [907.0, 5000.0]
     data:
-    - [12.077507, 0.0, 0.0, 0.0, 0.0, -4.552566e+04, -51.883526]
     - [12.077507, 0.0, 0.0, 0.0, 0.0, -4.552566e+04, -51.883526]
 - name: MgO(s)
   composition: {Mg: 1, O: 1}
@@ -1831,18 +1680,15 @@ species:
   composition: {Mg: 1, O: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [3105.0, 5000.0]
     data:
-    - [8.0516715, 0.0, 0.0, 0.0, 0.0, -6.9879451e+04, -44.343825]
     - [8.0516715, 0.0, 0.0, 0.0, 0.0, -6.9879451e+04, -44.343825]
 - name: MgO2H2(s)
   composition: {Mg: 1, O: 2, H: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 1000.0]
+    temperature-ranges: [300.0, 1000.0]
     data:
-    - [-4.1664248, 0.076844987, -1.3720767e-04, 1.1426859e-07, -3.5925837e-11,
-      -1.1238434e+05, 13.592637]
     - [-4.1664248, 0.076844987, -1.3720767e-04, 1.1426859e-07, -3.5925837e-11,
       -1.1238434e+05, 13.592637]
 - name: MgS(s)
@@ -1869,43 +1715,37 @@ species:
   composition: {Mg: 1, S: 1, O: 4}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [1400.0, 5000.0]
     data:
-    - [19.12272, 0.0, 0.0, 0.0, 0.0, -1.6092876e+05, -101.80465]
     - [19.12272, 0.0, 0.0, 0.0, 0.0, -1.6092876e+05, -101.80465]
 - name: MgSiO3(I)
   composition: {Mg: 1, Si: 1, O: 3}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 903.0]
+    temperature-ranges: [300.0, 903.0]
     data:
-    - [1.3377779, 0.044453222, -6.5973753e-05, 4.7414257e-08, -1.2331098e-11,
-      -1.8817226e+05, -10.178936]
     - [1.3377779, 0.044453222, -6.5973753e-05, 4.7414257e-08, -1.2331098e-11,
       -1.8817226e+05, -10.178936]
 - name: MgSiO3(II)
   composition: {Mg: 1, Si: 1, O: 3}
   thermo:
     model: NASA7
-    temperature-ranges: [903.0, 1000.0, 1258.0]
+    temperature-ranges: [903.0, 1258.0]
     data:
-    - [14.473886, 0.0, 0.0, 0.0, 0.0, -1.9162172e+05, -76.659464]
     - [14.473886, 0.0, 0.0, 0.0, 0.0, -1.9162172e+05, -76.659464]
 - name: MgSiO3(III)
   composition: {Mg: 1, Si: 1, O: 3}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 1850.0, 1000.0]
+    temperature-ranges: [1258.0, 1850.0]
     data:
-    - [14.725501, 0.0, 0.0, 0.0, 0.0, -1.9174199e+05, -78.299298]
     - [14.725501, 0.0, 0.0, 0.0, 0.0, -1.9174199e+05, -78.299298]
 - name: MgSiO3(L)
   composition: {Mg: 1, Si: 1, O: 3}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [1850.0, 5000.0]
     data:
-    - [17.613031, 0.0, 0.0, 0.0, 0.0, -1.8802579e+05, -95.125731]
     - [17.613031, 0.0, 0.0, 0.0, 0.0, -1.8802579e+05, -95.125731]
 - name: MgTiO3(s)
   composition: {Mg: 1, Ti: 1, O: 3}
@@ -1921,9 +1761,8 @@ species:
   composition: {Mg: 1, Ti: 1, O: 3}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [1953.0, 5000.0]
     data:
-    - [19.625949, 0.0, 0.0, 0.0, 0.0, -1.9091812e+05, -106.56204]
     - [19.625949, 0.0, 0.0, 0.0, 0.0, -1.9091812e+05, -106.56204]
 - name: MgTi2O5(s)
   composition: {Mg: 1, Ti: 2, O: 5}
@@ -1939,9 +1778,8 @@ species:
   composition: {Mg: 1, Ti: 2, O: 5}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [1963.0, 5000.0]
     data:
-    - [31.401519, 0.0, 0.0, 0.0, 0.0, -3.0410001e+05, -168.58649]
     - [31.401519, 0.0, 0.0, 0.0, 0.0, -3.0410001e+05, -168.58649]
 - name: Mg2SiO4(s)
   composition: {Mg: 2, Si: 1, O: 4}
@@ -1957,9 +1795,8 @@ species:
   composition: {Mg: 2, Si: 1, O: 4}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [2171.0, 5000.0]
     data:
-    - [24.658244, 0.0, 0.0, 0.0, 0.0, -2.6692549e+05, -134.6151]
     - [24.658244, 0.0, 0.0, 0.0, 0.0, -2.6692549e+05, -134.6151]
 - name: Mg2TiO4(s)
   composition: {Mg: 2, Ti: 1, O: 4}
@@ -1975,9 +1812,8 @@ species:
   composition: {Mg: 2, Ti: 1, O: 4}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [2013.0, 5000.0]
     data:
-    - [27.476329, 0.0, 0.0, 0.0, 0.0, -2.6153559e+05, -147.45837]
     - [27.476329, 0.0, 0.0, 0.0, 0.0, -2.6153559e+05, -147.45837]
 - name: Mo(cr)
   composition: {Mo: 1}
@@ -1993,35 +1829,31 @@ species:
   composition: {Mo: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 6000.0, 1000.0]
+    temperature-ranges: [2896.0, 6000.0]
     data:
     - [4.52894999, 0.0, 0.0, 0.0, 0.0, 2021.40667, -22.8074752]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: NH4CL(a)
   composition: {N: 1, H: 4, Cl: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [298.15, 1000.0, 458.0]
+    temperature-ranges: [298.15, 458.0]
     data:
-    - [4.6749383, 0.019273425, 0.0, 0.0, 0.0, -4.0082751e+04, -20.959133]
     - [4.6749383, 0.019273425, 0.0, 0.0, 0.0, -4.0082751e+04, -20.959133]
 - name: NH4CL(b)
   composition: {N: 1, H: 4, Cl: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [458.0, 1000.0, 793.2]
+    temperature-ranges: [458.0, 793.2]
     data:
-    - [4.166685, 0.013436049, 0.0, 0.0, 0.0, -3.8762693e+04, -14.134402]
     - [4.166685, 0.013436049, 0.0, 0.0, 0.0, -3.8762693e+04, -14.134402]
 - name: Na(cr)
   composition: {Na: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [200.0, 1000.0, 371.01]
+    temperature-ranges: [200.0, 371.01]
     data:
     - [1.23954242, 0.0200562189, -7.36418252e-05, 1.02712149e-07, 0.0, -813.320916,
       -4.50651391]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: Na(L)
   composition: {Na: 1}
   thermo:
@@ -2036,10 +1868,8 @@ species:
   composition: {Na: 1, Al: 1, O: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 740.0]
+    temperature-ranges: [300.0, 740.0]
     data:
-    - [-0.8050478, 0.058434968, -1.1884415e-04, 1.1970042e-07, -4.6224793e-11,
-      -1.3781665e+05, -0.053335282]
     - [-0.8050478, 0.058434968, -1.1884415e-04, 1.1970042e-07, -4.6224793e-11,
       -1.3781665e+05, -0.053335282]
 - name: NaALO2(b)
@@ -2066,27 +1896,23 @@ species:
   composition: {Na: 1, Br: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [1020.0, 5000.0]
     data:
-    - [7.4981191, 0.0, 0.0, 0.0, 0.0, -4.304977e+04, -30.170451]
     - [7.4981191, 0.0, 0.0, 0.0, 0.0, -4.304977e+04, -30.170451]
 - name: NaCN(s)
   composition: {Na: 1, C: 1, N: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 835.0]
+    temperature-ranges: [300.0, 835.0]
     data:
-    - [7.9967732, 1.915455e-03, -5.3421591e-06, 6.8091642e-09, -3.1414911e-12,
-      -1.3340294e+04, -31.703933]
     - [7.9967732, 1.915455e-03, -5.3421591e-06, 6.8091642e-09, -3.1414911e-12,
       -1.3340294e+04, -31.703933]
 - name: NaCN(L)
   composition: {Na: 1, C: 1, N: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [835.0, 1000.0, 5000.0]
+    temperature-ranges: [835.0, 5000.0]
     data:
-    - [9.56136, 0.0, 0.0, 0.0, 0.0, -1.3386407e+04, -40.287309]
     - [9.56136, 0.0, 0.0, 0.0, 0.0, -1.3386407e+04, -40.287309]
 - name: NaCL(s)
   composition: {Na: 1, Cl: 1}
@@ -2102,10 +1928,8 @@ species:
   composition: {Na: 1, Cl: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [1073.8, 5000.0]
     data:
-    - [12.358488, -6.3071201e-03, 3.2004723e-06, -6.7717362e-10, 5.1015612e-14,
-      -5.1423265e+04, -60.58553]
     - [12.358488, -6.3071201e-03, 3.2004723e-06, -6.7717362e-10, 5.1015612e-14,
       -5.1423265e+04, -60.58553]
 - name: NaF(s)
@@ -2122,38 +1946,31 @@ species:
   composition: {Na: 1, F: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 3500.0, 1000.0]
+    temperature-ranges: [1269.0, 3500.0]
     data:
-    - [10.963261, -3.2068459e-03, 1.1611662e-06, -1.6299297e-10, 5.2456141e-15,
-      -7.0673943e+04, -56.375695]
     - [10.963261, -3.2068459e-03, 1.1611662e-06, -1.6299297e-10, 5.2456141e-15,
       -7.0673943e+04, -56.375695]
 - name: NaI(s)
   composition: {Na: 1, I: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 933.0]
+    temperature-ranges: [300.0, 933.0]
     data:
-    - [5.4995984, 3.5668053e-03, -3.996563e-06, 3.1841073e-09, -9.5308722e-13,
-      -3.6390356e+04, -20.399251]
     - [5.4995984, 3.5668053e-03, -3.996563e-06, 3.1841073e-09, -9.5308722e-13,
       -3.6390356e+04, -20.399251]
 - name: NaI(L)
   composition: {Na: 1, I: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [933.0, 1000.0, 5000.0]
+    temperature-ranges: [933.0, 5000.0]
     data:
-    - [7.8000568, 0.0, 0.0, 0.0, 0.0, -3.4759568e+04, -30.818881]
     - [7.8000568, 0.0, 0.0, 0.0, 0.0, -3.4759568e+04, -30.818881]
 - name: NaOH(a)
   composition: {Na: 1, O: 1, H: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 596.0]
+    temperature-ranges: [300.0, 596.0]
     data:
-    - [8.5879494, -3.5406013e-03, -4.5533394e-05, 1.8418483e-07, -1.5018973e-10,
-      -5.3511851e+04, -39.407585]
     - [8.5879494, -3.5406013e-03, -4.5533394e-05, 1.8418483e-07, -1.5018973e-10,
       -5.3511851e+04, -39.407585]
 - name: NaOH(L)
@@ -2180,10 +1997,8 @@ species:
   composition: {Na: 2, C: 1, O: 3}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 723.15]
+    temperature-ranges: [300.0, 723.15]
     data:
-    - [6.7835659, 0.038829701, -9.8262455e-05, 1.6543084e-07, -8.3294515e-11,
-      -1.391701e+05, -30.463293]
     - [6.7835659, 0.038829701, -9.8262455e-05, 1.6543084e-07, -8.3294515e-11,
       -1.391701e+05, -30.463293]
 - name: Na2CO3(II)
@@ -2200,9 +2015,8 @@ species:
   composition: {Na: 2, C: 1, O: 3}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [1123.15, 5000.0]
     data:
-    - [22.796295, 0.0, 0.0, 0.0, 0.0, -1.4229218e+05, -116.22121]
     - [22.796295, 0.0, 0.0, 0.0, 0.0, -1.4229218e+05, -116.22121]
 - name: Na2O(c)
   composition: {Na: 2, O: 1}
@@ -2218,37 +2032,31 @@ species:
   composition: {Na: 2, O: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 1405.2, 1000.0]
+    temperature-ranges: [1243.2, 1405.2]
     data:
-    - [-149.0659, 0.22799038, 3.8391268e-05, -1.7099919e-07, 6.1395926e-11,
-      1.1614795e+04, 846.89268]
     - [-149.0659, 0.22799038, 3.8391268e-05, -1.7099919e-07, 6.1395926e-11,
       1.1614795e+04, 846.89268]
 - name: Na2O(L)
   composition: {Na: 2, O: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [1405.2, 5000.0]
     data:
-    - [12.580737, 0.0, 0.0, 0.0, 0.0, -4.8594857e+04, -60.661549]
     - [12.580737, 0.0, 0.0, 0.0, 0.0, -4.8594857e+04, -60.661549]
 - name: Na2O2(a)
   composition: {Na: 2, O: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 785.0]
+    temperature-ranges: [300.0, 785.0]
     data:
-    - [4.5815278, 0.03245591, -5.1154201e-05, 4.2663979e-08, -1.3991637e-11,
-      -6.4161053e+04, -22.455453]
     - [4.5815278, 0.03245591, -5.1154201e-05, 4.2663979e-08, -1.3991637e-11,
       -6.4161053e+04, -22.455453]
 - name: Na2O2(b)
   composition: {Na: 2, O: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [785.0, 1000.0, 5000.0]
+    temperature-ranges: [785.0, 5000.0]
     data:
-    - [13.66268, 0.0, 0.0, 0.0, 0.0, -6.5632571e+04, -66.841551]
     - [13.66268, 0.0, 0.0, 0.0, 0.0, -6.5632571e+04, -66.841551]
 - name: Na2S(1)
   composition: {Na: 2, S: 1}
@@ -2264,38 +2072,33 @@ species:
   composition: {Na: 2, S: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 1445.0, 1000.0]
+    temperature-ranges: [1276.0, 1445.0]
     data:
-    - [-5.6793549e+05, 1680.4121, -1.8622679, 9.1620588e-04, -1.6884879e-07,
-      1.5332805e+08, 2.9108687e+06]
     - [-5.6793549e+05, 1680.4121, -1.8622679, 9.1620588e-04, -1.6884879e-07,
       1.5332805e+08, 2.9108687e+06]
 - name: Na2S(L)
   composition: {Na: 2, S: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [1445.0, 5000.0]
     data:
-    - [11.071048, 0.0, 0.0, 0.0, 0.0, -4.279093e+04, -48.615889]
     - [11.071048, 0.0, 0.0, 0.0, 0.0, -4.279093e+04, -48.615889]
 - name: Na2SO4(V)
   composition: {Na: 2, S: 1, O: 4}
   thermo:
     model: NASA7
-    temperature-ranges: [200.0, 1000.0, 458.0]
+    temperature-ranges: [200.0, 458.0]
     data:
     - [5.83393186, 0.0308201992, 5.9798635e-05, -2.59779078e-07, 2.47853998e-10,
       -1.70156075e+05, -25.2886427]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: Na2SO4(IV)
   composition: {Na: 2, S: 1, O: 4}
   thermo:
     model: NASA7
-    temperature-ranges: [458.0, 1000.0, 514.0]
+    temperature-ranges: [458.0, 514.0]
     data:
     - [9.71967784, 0.021882042, -6.19770747e-06, 0.0, 0.0, -1.70712819e+05,
       -43.6063369]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: Na2SO4(I)
   composition: {Na: 2, S: 1, O: 4}
   thermo:
@@ -2310,18 +2113,15 @@ species:
   composition: {Na: 2, S: 1, O: 4}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 6000.0, 1000.0]
+    temperature-ranges: [1157.0, 6000.0]
     data:
     - [23.6977729, 0.0, 0.0, 0.0, 0.0, -1.71658912e+05, -116.358482]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: Na3ALF6(a)
   composition: {Na: 3, Al: 1, F: 6}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 836.0]
+    temperature-ranges: [300.0, 836.0]
     data:
-    - [2.2592958, 0.15569666, -3.6161844e-04, 4.047908e-07, -1.6505552e-10,
-      -4.0405993e+05, -17.798545]
     - [2.2592958, 0.15569666, -3.6161844e-04, 4.047908e-07, -1.6505552e-10,
       -4.0405993e+05, -17.798545]
 - name: Na3ALF6(b)
@@ -2337,9 +2137,8 @@ species:
   composition: {Na: 3, Al: 1, F: 6}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [1285.0, 5000.0]
     data:
-    - [47.567623, 0.0, 0.0, 0.0, 0.0, -4.1296538e+05, -253.7588]
     - [47.567623, 0.0, 0.0, 0.0, 0.0, -4.1296538e+05, -253.7588]
 - name: Na5AL3F14(s)
   composition: {Na: 5, Al: 3, F: 14}
@@ -2354,9 +2153,8 @@ species:
   composition: {Na: 5, Al: 3, F: 14}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [1010.0, 5000.0]
     data:
-    - [117.1301, 0.0, 0.0, 0.0, 0.0, -9.5612884e+05, -647.05309]
     - [117.1301, 0.0, 0.0, 0.0, 0.0, -9.5612884e+05, -647.05309]
 - name: Nb(cr)
   composition: {Nb: 1}
@@ -2372,10 +2170,9 @@ species:
   composition: {Nb: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 6000.0, 1000.0]
+    temperature-ranges: [2750.0, 6000.0]
     data:
     - [4.02573333, 0.0, 0.0, 0.0, 0.0, 1427.04047, -18.5790552]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: NbO(s)
   composition: {Nb: 1, O: 1}
   thermo:
@@ -2390,9 +2187,8 @@ species:
   composition: {Nb: 1, O: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [2210.0, 5000.0]
     data:
-    - [7.5484421, 0.0, 0.0, 0.0, 0.0, -4.4587138e+04, -35.81734]
     - [7.5484421, 0.0, 0.0, 0.0, 0.0, -4.4587138e+04, -35.81734]
 - name: NbO2(I)
   composition: {Nb: 1, O: 2}
@@ -2407,26 +2203,23 @@ species:
   composition: {Nb: 1, O: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 1200.0, 1000.0]
+    temperature-ranges: [1090.0, 1200.0]
     data:
     - [11.17141, 0.0, 0.0, 0.0, 0.0, -1.00205998e+05, -59.9819441]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: NbO2(III)
   composition: {Nb: 1, O: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 2175.0, 1000.0]
+    temperature-ranges: [1200.0, 2175.0]
     data:
     - [9.98885082, 0.0, 0.0, 0.0, 0.0, -9.87869274e+04, -51.5975088]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: NbO2(L)
   composition: {Nb: 1, O: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 6000.0, 1000.0]
+    temperature-ranges: [2175.0, 6000.0]
     data:
     - [11.322375, 0.0, 0.0, 0.0, 0.0, -9.06165758e+04, -56.7553462]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: Nb2O5(s)
   composition: {Nb: 2, O: 5}
   thermo:
@@ -2441,35 +2234,30 @@ species:
   composition: {Nb: 2, O: 5}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [1785.0, 5000.0]
     data:
-    - [29.136987, 0.0, 0.0, 0.0, 0.0, -2.3736025e+05, -159.33396]
     - [29.136987, 0.0, 0.0, 0.0, 0.0, -2.3736025e+05, -159.33396]
 - name: Ni(cr)
   composition: {Ni: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [200.0, 1000.0, 631.0]
+    temperature-ranges: [200.0, 631.0]
     data:
     - [3.92097614, -0.0234184719, 1.34230145e-04, -2.75971639e-07, 1.98530861e-10,
       -862.387206, -15.6856186]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: Ni(L)
   composition: {Ni: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 6000.0, 1000.0]
+    temperature-ranges: [1728.0, 6000.0]
     data:
     - [4.67989094, 0.0, 0.0, 0.0, 0.0, -322.238346, -23.3517797]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: NiS(b)
   composition: {Ni: 1, S: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 652.0]
+    temperature-ranges: [300.0, 652.0]
     data:
-    - [2.5150513, 0.019810879, -4.4751713e-05, 5.3552736e-08, -2.4739151e-11,
-      -1.1897275e+04, -12.298805]
     - [2.5150513, 0.019810879, -4.4751713e-05, 5.3552736e-08, -2.4739151e-11,
       -1.1897275e+04, -12.298805]
 - name: NiS(a)
@@ -2486,9 +2274,8 @@ species:
   composition: {Ni: 1, S: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [1249.0, 5000.0]
     data:
-    - [9.2342608, 0.0, 0.0, 0.0, 0.0, -1.1053652e+04, -45.769736]
     - [9.2342608, 0.0, 0.0, 0.0, 0.0, -1.1053652e+04, -45.769736]
 - name: NiS2(s)
   composition: {Ni: 1, S: 2}
@@ -2504,35 +2291,30 @@ species:
   composition: {Ni: 1, S: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [1280.0, 5000.0]
     data:
-    - [10.945241, 0.0, 0.0, 0.0, 0.0, -1.2344925e+04, -49.720624]
     - [10.945241, 0.0, 0.0, 0.0, 0.0, -1.2344925e+04, -49.720624]
 - name: Ni3S2(I)
   composition: {Ni: 3, S: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 829.0]
+    temperature-ranges: [300.0, 829.0]
     data:
-    - [6.92383, 0.04044668, -7.3073957e-05, 7.1007076e-08, -2.6221859e-11,
-      -2.9362196e+04, -32.735052]
     - [6.92383, 0.04044668, -7.3073957e-05, 7.1007076e-08, -2.6221859e-11,
       -2.9362196e+04, -32.735052]
 - name: Ni3S2(II)
   composition: {Ni: 3, S: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [829.0, 1000.0, 1062.0]
+    temperature-ranges: [829.0, 1062.0]
     data:
-    - [22.685585, 0.0, 0.0, 0.0, 0.0, -2.9313479e+04, -111.68978]
     - [22.685585, 0.0, 0.0, 0.0, 0.0, -2.9313479e+04, -111.68978]
 - name: Ni3S2(L)
   composition: {Ni: 3, S: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [1062.0, 5000.0]
     data:
-    - [23.068039, 0.0, 0.0, 0.0, 0.0, -2.7344402e+04, -112.11811]
     - [23.068039, 0.0, 0.0, 0.0, 0.0, -2.7344402e+04, -112.11811]
 - name: Ni3S4(s)
   composition: {Ni: 3, S: 4}
@@ -2547,18 +2329,16 @@ species:
   composition: {P: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [195.4, 1000.0, 317.3]
+    temperature-ranges: [195.4, 317.3]
     data:
     - [0.802469681, 0.0185779347, -8.34080748e-05, 2.11104876e-07, -2.09658894e-10,
       -646.36257, -2.91281027]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: P(L)
   composition: {P: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [317.3, 1000.0, 6000.0]
+    temperature-ranges: [317.3, 6000.0]
     data:
-    - [3.14149601, 0.0, 0.0, 0.0, 0.0, -862.148564, -12.7227472]
     - [3.14149601, 0.0, 0.0, 0.0, 0.0, -862.148564, -12.7227472]
 - name: P4O10(s)
   composition: {P: 4, O: 10}
@@ -2574,11 +2354,10 @@ species:
   composition: {Pb: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [200.0, 1000.0, 600.65]
+    temperature-ranges: [200.0, 600.65]
     data:
     - [3.36014248, -4.31525514e-03, 2.10404411e-05, -3.35897357e-08, 1.91850988e-11,
       -938.593007, -10.7408687]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: Pb(L)
   composition: {Pb: 1}
   thermo:
@@ -2593,47 +2372,40 @@ species:
   composition: {Pb: 1, Br: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 644.0]
+    temperature-ranges: [300.0, 644.0]
     data:
-    - [10.557554, -7.0617393e-03, 1.0187602e-05, 1.3052876e-08, -1.6373094e-11,
-      -3.6304801e+04, -39.199032]
     - [10.557554, -7.0617393e-03, 1.0187602e-05, 1.3052876e-08, -1.6373094e-11,
       -3.6304801e+04, -39.199032]
 - name: PbBr2(L)
   composition: {Pb: 1, Br: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [644.0, 1000.0, 5000.0]
+    temperature-ranges: [644.0, 5000.0]
     data:
-    - [13.486549, 0.0, 0.0, 0.0, 0.0, -3.6572201e+04, -57.049087]
     - [13.486549, 0.0, 0.0, 0.0, 0.0, -3.6572201e+04, -57.049087]
 - name: PbCL2(s)
   composition: {Pb: 1, Cl: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 774.0]
+    temperature-ranges: [300.0, 774.0]
     data:
-    - [8.280269, 3.0414343e-03, 1.560258e-06, -2.228461e-09, 1.111544e-12,
-      -4.5841218e+04, -31.781242]
     - [8.280269, 3.0414343e-03, 1.560258e-06, -2.228461e-09, 1.111544e-12,
       -4.5841218e+04, -31.781242]
 - name: PbCL2(L)
   composition: {Pb: 1, Cl: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [774.0, 1000.0, 5000.0]
+    temperature-ranges: [774.0, 5000.0]
     data:
-    - [13.411065, 0.0, 0.0, 0.0, 0.0, -4.6167077e+04, -59.932654]
     - [13.411065, 0.0, 0.0, 0.0, 0.0, -4.6167077e+04, -59.932654]
 - name: PbF2(a)
   composition: {Pb: 1, F: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [298.15, 1000.0, 583.0]
+    temperature-ranges: [298.15, 583.0]
     data:
     - [24.6966471, -0.159658886, 5.67676318e-04, -8.51030524e-07, 4.66841985e-10,
       -8.52413317e+04, -98.1573714]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: PbF2(b)
   composition: {Pb: 1, F: 2}
   thermo:
@@ -2648,36 +2420,30 @@ species:
   composition: {Pb: 1, F: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 6000.0, 1000.0]
+    temperature-ranges: [1103.0, 6000.0]
     data:
     - [13.1340648, 0.0, 0.0, 0.0, 0.0, -8.47552152e+04, -62.0713278]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: PbI2(s)
   composition: {Pb: 1, I: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 683.0]
+    temperature-ranges: [300.0, 683.0]
     data:
-    - [8.4424431, 5.9195772e-03, -1.3888686e-05, 1.3221393e-08, 1.6164068e-12,
-      -2.3779049e+04, -28.3379]
     - [8.4424431, 5.9195772e-03, -1.3888686e-05, 1.3221393e-08, 1.6164068e-12,
       -2.3779049e+04, -28.3379]
 - name: PbI2(L)
   composition: {Pb: 1, I: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [683.0, 1000.0, 5000.0]
+    temperature-ranges: [683.0, 5000.0]
     data:
-    - [13.058805, 0.0, 0.0, 0.0, 0.0, -2.3440932e+04, -52.044807]
     - [13.058805, 0.0, 0.0, 0.0, 0.0, -2.3440932e+04, -52.044807]
 - name: PbO(rd)
   composition: {Pb: 1, O: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 762.0]
+    temperature-ranges: [300.0, 762.0]
     data:
-    - [2.864601, 0.010772372, -3.6613096e-06, -1.2281087e-08, 1.0066435e-11,
-      -2.7670174e+04, -11.304513]
     - [2.864601, 0.010772372, -3.6613096e-06, -1.2281087e-08, 1.0066435e-11,
       -2.7670174e+04, -11.304513]
 - name: PbO(yw)
@@ -2694,9 +2460,8 @@ species:
   composition: {Pb: 1, O: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [1159.0, 5000.0]
     data:
-    - [7.8176698, 0.0, 0.0, 0.0, 0.0, -2.6656533e+04, -35.716934]
     - [7.8176698, 0.0, 0.0, 0.0, 0.0, -2.6656533e+04, -35.716934]
 - name: PbO2(s)
   composition: {Pb: 1, O: 2}
@@ -2722,9 +2487,8 @@ species:
   composition: {Pb: 1, S: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [1386.5, 5000.0]
     data:
-    - [8.0516715, 0.0, 0.0, 0.0, 0.0, -1.356606e+04, -35.757796]
     - [8.0516715, 0.0, 0.0, 0.0, 0.0, -1.356606e+04, -35.757796]
 - name: Pb3O4(s)
   composition: {Pb: 3, O: 4}
@@ -2740,19 +2504,17 @@ species:
   composition: {S: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [200.0, 1000.0, 368.3]
+    temperature-ranges: [200.0, 368.3]
     data:
     - [0.371369512, 0.0153373501, -3.35441107e-05, 2.892495e-08, 0.0, -553.21385,
       -1.59624498]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: S(cr2)
   composition: {S: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [368.3, 1000.0, 388.36]
+    temperature-ranges: [368.3, 388.36]
     data:
     - [2.08033146, 2.44137554e-03, 0.0, 0.0, 0.0, -685.306695, -8.60715487]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: S(L)
   composition: {S: 1}
   thermo:
@@ -2767,17 +2529,15 @@ species:
   composition: {S: 1, Cl: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 5000.0]
+    temperature-ranges: [300.0, 5000.0]
     data:
-    - [10.945241, 0.0, 0.0, 0.0, 0.0, -9251.7543, -40.269795]
     - [10.945241, 0.0, 0.0, 0.0, 0.0, -9251.7543, -40.269795]
 - name: S2CL2(L)
   composition: {S: 2, Cl: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 5000.0]
+    temperature-ranges: [300.0, 5000.0]
     data:
-    - [14.948935, 0.0, 0.0, 0.0, 0.0, -1.1451915e+04, -58.250225]
     - [14.948935, 0.0, 0.0, 0.0, 0.0, -1.1451915e+04, -58.250225]
 - name: Si(cr)
   composition: {Si: 1}
@@ -2793,10 +2553,9 @@ species:
   composition: {Si: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 6000.0, 1000.0]
+    temperature-ranges: [1690.0, 6000.0]
     data:
     - [3.27138941, 0.0, 0.0, 0.0, 0.0, 4882.86795, -13.2665477]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: SiC(b)
   composition: {Si: 1, C: 1}
   thermo:
@@ -2811,11 +2570,10 @@ species:
   composition: {Si: 1, O: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [200.0, 1000.0, 847.0]
+    temperature-ranges: [200.0, 847.0]
     data:
     - [-0.75851138, 0.0305773989, -4.00861855e-05, 2.16194849e-08, -6.17249042e-13,
       -1.10371483e+05, 1.78384529]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: SiO2(hqz)
   composition: {Si: 1, O: 2}
   thermo:
@@ -2830,10 +2588,9 @@ species:
   composition: {Si: 1, O: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 6000.0, 1000.0]
+    temperature-ranges: [1696.0, 6000.0]
     data:
     - [10.3160657, 0.0, 0.0, 0.0, 0.0, -1.14600563e+05, -57.6266603]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: Si2N2O(s)
   composition: {Si: 2, N: 2, O: 1}
   thermo:
@@ -2858,52 +2615,45 @@ species:
   composition: {Sr: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [298.15, 1000.0, 820.0]
+    temperature-ranges: [298.15, 820.0]
     data:
     - [2.61121855, 3.06923896e-03, -4.43980854e-06, 4.03524789e-09, -1.48087835e-12,
       -883.002675, -9.01331093]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: Sr(b)
   composition: {Sr: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [820.0, 1000.0, 1041.0]
+    temperature-ranges: [820.0, 1041.0]
     data:
-    - [3.19032631, 4.83732655e-04, 0.0, 0.0, 0.0, -856.080629, -11.5723466]
     - [3.19032631, 4.83732655e-04, 0.0, 0.0, 0.0, -856.080629, -11.5723466]
 - name: Sr(L)
   composition: {Sr: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 6000.0, 1000.0]
+    temperature-ranges: [1041.0, 6000.0]
     data:
     - [4.45005178, 0.0, 0.0, 0.0, 0.0, -943.17554, -18.8969962]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: SrCL2(a)
   composition: {Sr: 1, Cl: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 1000.0]
+    temperature-ranges: [300.0, 1000.0]
     data:
-    - [6.9369635, 0.0107876, -1.390794e-05, 5.8982276e-09, 3.0133326e-12,
-      -1.0212719e+05, -28.370882]
     - [6.9369635, 0.0107876, -1.390794e-05, 5.8982276e-09, 3.0133326e-12,
       -1.0212719e+05, -28.370882]
 - name: SrCL2(b)
   composition: {Sr: 1, Cl: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 1000.0, 1147.0]
+    temperature-ranges: [1000.0, 1147.0]
     data:
-    - [14.794947, 0.0, 0.0, 0.0, 0.0, -1.064275e+05, -75.376228]
     - [14.794947, 0.0, 0.0, 0.0, 0.0, -1.064275e+05, -75.376228]
 - name: SrCL2(L)
   composition: {Sr: 1, Cl: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [1147.0, 5000.0]
     data:
-    - [12.580737, 0.0, 0.0, 0.0, 0.0, -1.0193677e+05, -58.076353]
     - [12.580737, 0.0, 0.0, 0.0, 0.0, -1.0193677e+05, -58.076353]
 - name: SrF2(s)
   composition: {Sr: 1, F: 2}
@@ -2919,9 +2669,8 @@ species:
   composition: {Sr: 1, F: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [1750.0, 5000.0]
     data:
-    - [11.912951, 0.0, 0.0, 0.0, 0.0, -1.4642808e+05, -58.022842]
     - [11.912951, 0.0, 0.0, 0.0, 0.0, -1.4642808e+05, -58.022842]
 - name: SrO(s)
   composition: {Sr: 1, O: 1}
@@ -2937,27 +2686,23 @@ species:
   composition: {Sr: 1, O: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [2938.0, 5000.0]
     data:
-    - [8.0516715, 0.0, 0.0, 0.0, 0.0, -6.6734769e+04, -39.092944]
     - [8.0516715, 0.0, 0.0, 0.0, 0.0, -6.6734769e+04, -39.092944]
 - name: SrO2H2(s)
   composition: {Sr: 1, O: 2, H: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 783.15]
+    temperature-ranges: [300.0, 783.15]
     data:
-    - [4.1706956, 0.016503701, -1.3029745e-06, 1.3971819e-09, -5.3948942e-13,
-      -1.1850056e+05, -16.962813]
     - [4.1706956, 0.016503701, -1.3029745e-06, 1.3971819e-09, -5.3948942e-13,
       -1.1850056e+05, -16.962813]
 - name: SrO2H2(L)
   composition: {Sr: 1, O: 2, H: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [783.15, 1000.0, 5000.0]
+    temperature-ranges: [783.15, 5000.0]
     data:
-    - [18.971751, 0.0, 0.0, 0.0, 0.0, -1.2261174e+05, -99.660501]
     - [18.971751, 0.0, 0.0, 0.0, 0.0, -1.2261174e+05, -99.660501]
 - name: SrS(s)
   composition: {Sr: 1, S: 1}
@@ -2983,10 +2728,9 @@ species:
   composition: {Ta: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 6000.0, 1000.0]
+    temperature-ranges: [3258.0, 6000.0]
     data:
     - [5.03216666, 0.0, 0.0, 0.0, 0.0, -744.223758, -25.9736577]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: TaC(s)
   composition: {Ta: 1, C: 1}
   thermo:
@@ -3001,9 +2745,8 @@ species:
   composition: {Ta: 1, C: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [4273.0, 5000.0]
     data:
-    - [8.0516715, 0.0, 0.0, 0.0, 0.0, -1.0103338e+04, -42.085545]
     - [8.0516715, 0.0, 0.0, 0.0, 0.0, -1.0103338e+04, -42.085545]
 - name: Ta2O5(s)
   composition: {Ta: 2, O: 5}
@@ -3019,9 +2762,8 @@ species:
   composition: {Ta: 2, O: 5}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [2058.0, 5000.0]
     data:
-    - [29.187309, 0.0, 0.0, 0.0, 0.0, -2.5336245e+05, -158.57774]
     - [29.187309, 0.0, 0.0, 0.0, 0.0, -2.5336245e+05, -158.57774]
 - name: Ti(a)
   composition: {Ti: 1}
@@ -3037,19 +2779,17 @@ species:
   composition: {Ti: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 1944.0, 1000.0]
+    temperature-ranges: [1156.0, 1944.0]
     data:
     - [4.55050938, -5.78446834e-03, 6.58428776e-06, -2.60523484e-09, 4.06930218e-13,
       -186.695724, -19.795304]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: Ti(L)
   composition: {Ti: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 6000.0, 1000.0]
+    temperature-ranges: [1944.0, 6000.0]
     data:
     - [5.62871414, 0.0, 0.0, 0.0, 0.0, -2375.09598, -30.7872691]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: TiC(s)
   composition: {Ti: 1, C: 1}
   thermo:
@@ -3064,9 +2804,8 @@ species:
   composition: {Ti: 1, C: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [3290.0, 5000.0]
     data:
-    - [7.5484421, 0.0, 0.0, 0.0, 0.0, -1.7660204e+04, -40.629661]
     - [7.5484421, 0.0, 0.0, 0.0, 0.0, -1.7660204e+04, -40.629661]
 - name: TiCL2(s)
   composition: {Ti: 1, Cl: 2}
@@ -3112,9 +2851,8 @@ species:
   composition: {Ti: 1, N: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [3220.0, 5000.0]
     data:
-    - [7.5484421, 0.0, 0.0, 0.0, 0.0, -3.6261709e+04, -39.583906]
     - [7.5484421, 0.0, 0.0, 0.0, 0.0, -3.6261709e+04, -39.583906]
 - name: TiO(a)
   composition: {Ti: 1, O: 1}
@@ -3130,19 +2868,16 @@ species:
   composition: {Ti: 1, O: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 2023.0, 1000.0]
+    temperature-ranges: [1265.0, 2023.0]
     data:
-    - [1.7971419, 0.010128863, -7.4585571e-06, 3.0835815e-09, -4.7561747e-13,
-      -6.5482773e+04, -7.9349175]
     - [1.7971419, 0.010128863, -7.4585571e-06, 3.0835815e-09, -4.7561747e-13,
       -6.5482773e+04, -7.9349175]
 - name: TiO(L)
   composition: {Ti: 1, O: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [2023.0, 5000.0]
     data:
-    - [8.0516715, 0.0, 0.0, 0.0, 0.0, -6.3272138e+04, -41.312109]
     - [8.0516715, 0.0, 0.0, 0.0, 0.0, -6.3272138e+04, -41.312109]
 - name: TiO2(ru)
   composition: {Ti: 1, O: 2}
@@ -3158,18 +2893,15 @@ species:
   composition: {Ti: 1, O: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [2130.0, 5000.0]
     data:
-    - [12.077507, 0.0, 0.0, 0.0, 0.0, -1.149423e+05, -65.910759]
     - [12.077507, 0.0, 0.0, 0.0, 0.0, -1.149423e+05, -65.910759]
 - name: Ti2O3(a)
   composition: {Ti: 2, O: 3}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 470.0]
+    temperature-ranges: [300.0, 470.0]
     data:
-    - [14.623542, -0.037161717, 9.002647e-05, 0.0, 0.0, -1.8641693e+05,
-      -66.914899]
     - [14.623542, -0.037161717, 9.002647e-05, 0.0, 0.0, -1.8641693e+05,
       -66.914899]
 - name: Ti2O3(b)
@@ -3186,18 +2918,15 @@ species:
   composition: {Ti: 2, O: 3}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [2115.0, 5000.0]
     data:
-    - [18.871105, 0.0, 0.0, 0.0, 0.0, -1.7858698e+05, -96.567257]
     - [18.871105, 0.0, 0.0, 0.0, 0.0, -1.7858698e+05, -96.567257]
 - name: Ti3O5(a)
   composition: {Ti: 3, O: 5}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 450.0]
+    temperature-ranges: [300.0, 450.0]
     data:
-    - [-3.7337434, 0.10619319, -1.0472381e-04, 0.0, 0.0, -2.9845617e+05,
-      9.8241016]
     - [-3.7337434, 0.10619319, -1.0472381e-04, 0.0, 0.0, -2.9845617e+05,
       9.8241016]
 - name: Ti3O5(b)
@@ -3214,9 +2943,8 @@ species:
   composition: {Ti: 3, O: 5}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [2050.0, 5000.0]
     data:
-    - [32.206686, 0.0, 0.0, 0.0, 0.0, -2.9368541e+05, -169.12703]
     - [32.206686, 0.0, 0.0, 0.0, 0.0, -2.9368541e+05, -169.12703]
 - name: Ti4O7(s)
   composition: {Ti: 4, O: 7}
@@ -3232,9 +2960,8 @@ species:
   composition: {Ti: 4, O: 7}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [1950.0, 5000.0]
     data:
-    - [44.284194, 0.0, 0.0, 0.0, 0.0, -4.1089673e+05, -235.16043]
     - [44.284194, 0.0, 0.0, 0.0, 0.0, -4.1089673e+05, -235.16043]
 - name: V(cr)
   composition: {V: 1}
@@ -3250,10 +2977,9 @@ species:
   composition: {V: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 6000.0, 1000.0]
+    temperature-ranges: [2190.0, 6000.0]
     data:
     - [5.55703222, 0.0, 0.0, 0.0, 0.0, -1899.58163, -30.7034308]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: VCL2(s)
   composition: {V: 1, Cl: 2}
   thermo:
@@ -3268,19 +2994,16 @@ species:
   composition: {V: 1, Cl: 3}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 1000.0]
+    temperature-ranges: [300.0, 1000.0]
     data:
-    - [6.9770413, 0.023542011, -4.0745272e-05, 3.4928483e-08, -1.12449e-11,
-      -7.2678169e+04, -29.493712]
     - [6.9770413, 0.023542011, -4.0745272e-05, 3.4928483e-08, -1.12449e-11,
       -7.2678169e+04, -29.493712]
 - name: VCL4(L)
   composition: {V: 1, Cl: 4}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 2000.0]
+    temperature-ranges: [300.0, 2000.0]
     data:
-    - [17.462063, 0.0, 0.0, 0.0, 0.0, -7.3695845e+04, -68.794792]
     - [17.462063, 0.0, 0.0, 0.0, 0.0, -7.3695845e+04, -68.794792]
 - name: VN(s)
   composition: {V: 1, N: 1}
@@ -3306,9 +3029,8 @@ species:
   composition: {V: 1, O: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [2063.0, 5000.0]
     data:
-    - [7.5484421, 0.0, 0.0, 0.0, 0.0, -4.7600474e+04, -36.154213]
     - [7.5484421, 0.0, 0.0, 0.0, 0.0, -4.7600474e+04, -36.154213]
 - name: V2O3(s)
   composition: {V: 2, O: 3}
@@ -3324,18 +3046,15 @@ species:
   composition: {V: 2, O: 3}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [2340.0, 5000.0]
     data:
-    - [18.871105, 0.0, 0.0, 0.0, 0.0, -1.4034063e+05, -94.58092]
     - [18.871105, 0.0, 0.0, 0.0, 0.0, -1.4034063e+05, -94.58092]
 - name: V2O4(I)
   composition: {V: 2, O: 4}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 340.0]
+    temperature-ranges: [300.0, 340.0]
     data:
-    - [6.8914542, 9.9142022e-03, 5.7837101e-05, 4.3053919e-08, -2.8482694e-10,
-      -1.7460864e+05, -32.157358]
     - [6.8914542, 9.9142022e-03, 5.7837101e-05, 4.3053919e-08, -2.8482694e-10,
       -1.7460864e+05, -32.157358]
 - name: V2O4(II)
@@ -3352,62 +3071,53 @@ species:
   composition: {V: 2, O: 4}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [1818.0, 5000.0]
     data:
-    - [25.664703, 0.0, 0.0, 0.0, 0.0, -1.7463009e+05, -136.5594]
     - [25.664703, 0.0, 0.0, 0.0, 0.0, -1.7463009e+05, -136.5594]
 - name: V2O5(s)
   composition: {V: 2, O: 5}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 943.0]
+    temperature-ranges: [300.0, 943.0]
     data:
-    - [-1.164036, 0.093535884, -1.5675097e-04, 1.2223524e-07, -3.5738845e-11,
-      -1.8914531e+05, 0.40722753]
     - [-1.164036, 0.093535884, -1.5675097e-04, 1.2223524e-07, -3.5738845e-11,
       -1.8914531e+05, 0.40722753]
 - name: V2O5(L)
   composition: {V: 2, O: 5}
   thermo:
     model: NASA7
-    temperature-ranges: [943.0, 1000.0, 5000.0]
+    temperature-ranges: [943.0, 5000.0]
     data:
-    - [22.947264, 0.0, 0.0, 0.0, 0.0, -1.8751447e+05, -110.89277]
     - [22.947264, 0.0, 0.0, 0.0, 0.0, -1.8751447e+05, -110.89277]
 - name: Zn(cr)
   composition: {Zn: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [200.0, 1000.0, 692.73]
+    temperature-ranges: [200.0, 692.73]
     data:
     - [1.85068929, 9.1779141e-03, -2.61047009e-05, 3.38568767e-08, -1.39430709e-11,
       -789.403133, -7.38526333]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: Zn(L)
   composition: {Zn: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [692.73, 1000.0, 6000.0]
+    temperature-ranges: [692.73, 6000.0]
     data:
-    - [3.77653043, 0.0, 0.0, 0.0, 0.0, -431.695298, -15.6708437]
     - [3.77653043, 0.0, 0.0, 0.0, 0.0, -431.695298, -15.6708437]
 - name: ZnSO4(a)
   composition: {Zn: 1, S: 1, O: 4}
   thermo:
     model: NASA7
-    temperature-ranges: [300.0, 1000.0, 540.0]
+    temperature-ranges: [300.0, 540.0]
     data:
-    - [5.1657364, 0.023977394, -3.0700744e-06, -4.8450164e-09, 0.0, -1.2045359e+05,
-      -23.105369]
     - [5.1657364, 0.023977394, -3.0700744e-06, -4.8450164e-09, 0.0, -1.2045359e+05,
       -23.105369]
 - name: ZnSO4(b)
   composition: {Zn: 1, S: 1, O: 4}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [1013.0, 5000.0]
     data:
-    - [17.461825, 0.0, 0.0, 0.0, 0.0, -1.2113806e+05, -85.143253]
     - [17.461825, 0.0, 0.0, 0.0, 0.0, -1.2113806e+05, -85.143253]
 - name: Zr(a)
   composition: {Zr: 1}
@@ -3423,19 +3133,17 @@ species:
   composition: {Zr: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 2125.0, 1000.0]
+    temperature-ranges: [1135.0, 2125.0]
     data:
     - [4.06876245, -1.58489721e-03, 1.02995129e-06, -1.55767557e-10, 2.30284611e-14,
       -691.172261, -17.8593403]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: Zr(L)
   composition: {Zr: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 6000.0, 1000.0]
+    temperature-ranges: [2125.0, 6000.0]
     data:
     - [5.03216666, 0.0, 0.0, 0.0, 0.0, -1100.84626, -25.4797587]
-    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 - name: ZrN(s)
   composition: {Zr: 1, N: 1}
   thermo:
@@ -3450,9 +3158,8 @@ species:
   composition: {Zr: 1, N: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [3225.0, 5000.0]
     data:
-    - [7.0451164, 0.0, 0.0, 0.0, 0.0, -3.8105527e+04, -34.436264]
     - [7.0451164, 0.0, 0.0, 0.0, 0.0, -3.8105527e+04, -34.436264]
 - name: ZrO2(a)
   composition: {Zr: 1, O: 2}
@@ -3468,15 +3175,13 @@ species:
   composition: {Zr: 1, O: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 2950.0, 1000.0]
+    temperature-ranges: [1478.0, 2950.0]
     data:
-    - [8.9573629, 0.0, 0.0, 0.0, 0.0, -1.3414354e+05, -45.274017]
     - [8.9573629, 0.0, 0.0, 0.0, 0.0, -1.3414354e+05, -45.274017]
 - name: ZrO2(L)
   composition: {Zr: 1, O: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [1000.0, 5000.0, 1000.0]
+    temperature-ranges: [2950.0, 5000.0]
     data:
-    - [10.567675, 0.0, 0.0, 0.0, 0.0, -1.2842745e+05, -54.592264]
     - [10.567675, 0.0, 0.0, 0.0, 0.0, -1.2842745e+05, -54.592264]
