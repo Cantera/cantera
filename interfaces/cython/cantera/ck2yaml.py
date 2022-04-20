@@ -842,11 +842,11 @@ class Parser:
         For more details on this format, see `Debugging common errors in CK files
         <https://cantera.org/tutorials/ck2cti-tutorial.html#debugging-common-errors-in-ck-files>`__.
         """
-        identifier = lines[0][0:24].split()
+        identifier = lines[0][0:24].split(maxsplit=1)
         species = identifier[0].strip()
 
         if len(identifier) > 1:
-            note = ''.join(identifier[1:]).strip()
+            note = identifier[1]
         else:
             note = ''
 
