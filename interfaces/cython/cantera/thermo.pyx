@@ -11,6 +11,19 @@ cdef enum ThermoBasisType:
 
 ctypedef CxxPlasmaPhase* CxxPlasmaPhasePtr
 
+class ThermoModelMethodError(Exception):
+    """Exception raised for an invalid method used by a thermo model
+
+    :param thermo_model:
+        The thermo model used by class `ThermoPhase`
+
+    """
+
+    def __init__(self, thermo_model):
+        self.thermo_model = thermo_model
+        super().__init__(f"This method is invalid for {self.thermo_model}")
+
+
 cdef class Species:
     """
     A class which stores data about a single chemical species that may be
@@ -1793,8 +1806,7 @@ cdef class ThermoPhase(_SolutionBase):
 
         def __set__(self, value):
             if not self._enable_plasma:
-                raise TypeError('This method is invalid for '
-                                f'thermo model: {self.thermo_model}.')
+                raise ThermoModelMethodError(self.thermo_model)
             self.plasma.setElectronTemperature(value)
 
     def set_discretized_electron_energy_distribution(self, levels, distribution):
@@ -1827,24 +1839,21 @@ cdef class ThermoPhase(_SolutionBase):
         """ Number of electron energy levels """
         def __get__(self):
             if not self._enable_plasma:
-                raise TypeError('This method is invalid for '
-                                f'thermo model: {self.thermo_model}.')
+                raise ThermoModelMethodError(self.thermo_model)
             return self.plasma.nElectronEnergyLevels()
 
     property electron_energy_levels:
         """ Electron energy levels [eV]"""
         def __get__(self):
             if not self._enable_plasma:
-                raise TypeError('This method is invalid for '
-                                f'thermo model: {self.thermo_model}.')
+                raise ThermoModelMethodError(self.thermo_model)
             cdef np.ndarray[np.double_t, ndim=1] data = np.empty(
                 self.n_electron_energy_levels)
             self.plasma.getElectronEnergyLevels(&data[0])
             return data
         def __set__(self, levels):
             if not self._enable_plasma:
-                raise TypeError('This method is invalid for '
-                                f'thermo model: {self.thermo_model}.')
+                raise ThermoModelMethodError(self.thermo_model)
             cdef np.ndarray[np.double_t, ndim=1] data = \
                 np.ascontiguousarray(levels, dtype=np.double)
             self.plasma.setElectronEnergyLevels(&data[0], len(levels))
@@ -1853,8 +1862,7 @@ cdef class ThermoPhase(_SolutionBase):
         """ Electron energy distribution """
         def __get__(self):
             if not self._enable_plasma:
-                raise TypeError('This method is invalid for '
-                                f'thermo model: {self.thermo_model}.')
+                raise ThermoModelMethodError(self.thermo_model)
             cdef np.ndarray[np.double_t, ndim=1] data = np.empty(
                 self.n_electron_energy_levels)
             self.plasma.getElectronEnergyDistribution(&data[0])
@@ -1864,65 +1872,55 @@ cdef class ThermoPhase(_SolutionBase):
         """ Shape factor of isotropic-velocity distribution for electron energy """
         def __get__(self):
             if not self._enable_plasma:
-                raise TypeError('This method is invalid for '
-                                f'thermal model: {self.thermo_model}.')
+                raise ThermoModelMethodError(self.thermo_model)
             return self.plasma.isotropicShapeFactor()
         def __set__(self, x):
             if not self._enable_plasma:
-                raise TypeError('This method is invalid for '
-                                f'thermal model: {self.thermo_model}.')
+                raise ThermoModelMethodError(self.thermo_model)
             self.plasma.setIsotropicShapeFactor(x)
 
     property electron_energy_distribution_type:
         """ Electron energy distribution type """
         def __get__(self):
             if not self._enable_plasma:
-                raise TypeError('This method is invalid for '
-                                f'thermo model: {self.thermo_model}.')
+                raise ThermoModelMethodError(self.thermo_model)
             return pystr(self.plasma.electronEnergyDistributionType())
         def __set__(self, distribution_type):
             if not self._enable_plasma:
-                raise TypeError('This method is invalid for '
-                                f'thermo model: {self.thermo_model}.')
+                raise ThermoModelMethodError(self.thermo_model)
             self.plasma.setElectronEnergyDistributionType(distribution_type)
 
     property mean_electron_energy:
         """ Mean electron energy [eV] """
         def __get__(self):
             if not self._enable_plasma:
-                raise TypeError('This method is invalid for '
-                                f'thermo model: {self.thermo_model}.')
+                raise ThermoModelMethodError(self.thermo_model)
             return self.plasma.meanElectronEnergy()
         def __set__(self, double energy):
             if not self._enable_plasma:
-                raise TypeError('This method is invalid for '
-                                f'thermo model: {self.thermo_model}.')
+                raise ThermoModelMethodError(self.thermo_model)
             self.plasma.setMeanElectronEnergy(energy)
 
     property quadrature_method:
         """ Quadrature method """
         def __get__(self):
             if not self._enable_plasma:
-                raise TypeError('This method is invalid for '
-                                f'thermo model: {self.thermo_model}.')
+                raise ThermoModelMethodError(self.thermo_model)
             return pystr(self.plasma.quadratureMethod())
         def __set__(self, method):
             if not self._enable_plasma:
-                raise TypeError('This method is invalid for '
-                                f'thermo model: {self.thermo_model}.')
+                raise ThermoModelMethodError(self.thermo_model)
             self.plasma.setQuadratureMethod(stringify(method))
 
     property normalize_electron_energy_distribution_enabled:
         """ Automatically normalize electron energy distribuion """
         def __get__(self):
             if not self._enable_plasma:
-                raise TypeError('This method is invalid for '
-                                f'thermo model: {self.thermo_model}.')
+                raise ThermoModelMethodError(self.thermo_model)
             return self.plasma.normalizeElectronEnergyDistEnabled()
         def __set__(self, enable):
             if not self._enable_plasma:
-                raise TypeError('This method is invalid for '
-                                f'thermo model: {self.thermo_model}.')
+                raise ThermoModelMethodError(self.thermo_model)
             self.plasma.enableNormalizeElectronEnergyDist(enable)
 
 
