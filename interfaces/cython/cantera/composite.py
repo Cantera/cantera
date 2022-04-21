@@ -992,7 +992,9 @@ class SolutionArray:
         to be matched to the `SolutionArray`.
         """
 
-        # If ``phi`` is a scalar, broadcast it to the correct argument shape:
+        # If ``phi`` is lower-dimensional than the SolutionArray's  shape (for 
+        # example, a scalar), broadcast it to have the right number of 
+        # dimensions.
         phi, _ = np.broadcast_arrays(phi, self._output_dummy)
 
         for index in self._indices:
@@ -1008,8 +1010,9 @@ class SolutionArray:
         dimensions have to be matched to the `SolutionArray`.
         """
 
-        # If ``mixture_fraction`` is a scalar, broadcast it to the correct 
-        # argument shape:
+        # If ``mixture_fraction`` is lower-dimensional than the SolutionArray's 
+        # shape (for example, a scalar), broadcast it to have the right number 
+        # of dimensions.
         mixture_fraction, _ = np.broadcast_arrays(mixture_fraction, 
             self._output_dummy)
 
