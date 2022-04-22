@@ -2215,7 +2215,7 @@ class TestSolutionArray(utilities.CanteraTest):
         states = ct.SolutionArray(self.gas, 8)
         phi = np.linspace(0.5, 2, 7)
         fuel, oxidizer = "H2:1.0", "O2:1.0"
-        with self.assertRaisesRegex(ValueError, r"shape mismatch:.*\(7,\).*\(8,\)"):
+        with self.assertRaisesRegex(ValueError, r"shape mismatch"):
             states.set_equivalence_ratio(phi, fuel, oxidizer)
 
     def test_set_equivalence_ratio_2d(self):
@@ -2250,7 +2250,7 @@ class TestSolutionArray(utilities.CanteraTest):
         states = ct.SolutionArray(self.gas, 8)
         mixture_fraction = np.linspace(0.5, 1, 7)
         fuel, oxidizer = "H2:1.0", "O2:1.0"
-        with self.assertRaisesRegex(ValueError, r"shape mismatch:.*\(7,\).*\(8,\)"):
+        with self.assertRaisesRegex(ValueError, r"shape mismatch"):
             states.set_mixture_fraction(mixture_fraction, fuel, oxidizer)
 
     def test_set_mixture_fraction_2D(self):
