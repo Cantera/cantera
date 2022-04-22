@@ -2196,22 +2196,38 @@ class TestSolutionArray(utilities.CanteraTest):
 
     def test_set_equivalence_ratio(self):
         states = ct.SolutionArray(self.gas, 8)
-        phi = np.linspace(.5, 2., 8)
-        args = 'H2:1.0', 'O2:1.0'
-        states.set_equivalence_ratio(phi, *args)
-        states.set_equivalence_ratio(phi[0], *args)
-        states.set_equivalence_ratio(list(phi), *args)
+        phi = np.linspace(0.5, 2, 8)
+        fuel, oxidizer = "H2:1.0", "O2:1.0"
+        # The mole fraction arrays need to be squeezed here to reduce their
+        # dimensionality from a 2-d column array to a vector for comparison
+        # with phi.
+        states.set_equivalence_ratio(phi, fuel, oxidizer)
+        comp = (states("H2").X / (2 * states("O2").X)).squeeze(1)
+        self.assertArrayNear(comp, phi)
+        states.set_equivalence_ratio(phi[0], fuel, oxidizer)
+        comp = (states("H2").X / (2 * states("O2").X)).squeeze(1)
+        self.assertArrayNear(comp, np.full_like(phi, phi[0]))
+        states.set_equivalence_ratio(phi.tolist(), fuel, oxidizer)
+        comp = (states("H2").X / (2 * states("O2").X)).squeeze(1)
+        self.assertArrayNear(comp, phi)
 
-        with self.assertRaises(ValueError):
-            states.set_equivalence_ratio(phi[:-1], *args)
+    def test_set_equivalence_ratio_wrong_shape_raises(self):
+        states = ct.SolutionArray(self.gas, 8)
+        phi = np.linspace(0.5, 2, 7)
+        fuel, oxidizer = "H2:1.0", "O2:1.0"
+        with self.assertRaisesRegex(ValueError, r"shape mismatch:.*\(7,\).*\(8,\)"):
+            states.set_equivalence_ratio(phi, fuel, oxidizer)
 
-        states = ct.SolutionArray(self.gas, (2,4))
-        states.set_equivalence_ratio(phi.reshape((2,4)), *args)
-
-        with self.assertRaises(ValueError):
-            states.set_equivalence_ratio(phi, *args)
-        with self.assertRaises(ValueError):
-            states.set_equivalence_ratio(phi.reshape((4,2)), *args)
+    def test_set_equivalence_ratio_2d(self):
+        states = ct.SolutionArray(self.gas, (2, 4))
+        phi = np.linspace(0.5, 2, 8).reshape((2, 4))
+        fuel, oxidizer = "H2:1.0", "O2:1.0"
+        # The mole fraction arrays need to be squeezed here to reduce their
+        # dimensionality from a 2-d column array to a vector for comparison
+        # with phi.
+        states.set_equivalence_ratio(phi, fuel, oxidizer)
+        comp = (states("H2").X / (2 * states("O2").X)).squeeze(2)
+        self.assertArrayNear(comp, phi)
 
     def test_set_mixture_fraction(self):
         states = ct.SolutionArray(self.gas, 8)
@@ -2225,9 +2241,9 @@ class TestSolutionArray(utilities.CanteraTest):
         states.set_mixture_fraction(mixture_fraction[0], fuel, oxidizer)
         self.assertArrayNear(
             states("H2").Y.squeeze(1),
-            np.ones_like(mixture_fraction) * mixture_fraction[0],
+            np.full_like(mixture_fraction, mixture_fraction[0]),
         )
-        states.set_mixture_fraction(list(mixture_fraction), fuel, oxidizer)
+        states.set_mixture_fraction(mixture_fraction.tolist(), fuel, oxidizer)
         self.assertArrayNear(states("H2").Y.squeeze(1), mixture_fraction)
 
     def test_set_mixture_fraction_wrong_shape_raises(self):
