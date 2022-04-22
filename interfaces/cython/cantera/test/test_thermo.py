@@ -2213,6 +2213,32 @@ class TestSolutionArray(utilities.CanteraTest):
         with self.assertRaises(ValueError):
             states.set_equivalence_ratio(phi.reshape((4,2)), *args)
 
+    def test_set_mixture_fraction(self):
+        states = ct.SolutionArray(self.gas, 8)
+        mixture_fraction = np.linspace(.5, 1., 8)
+        args = 'H2:1.0', 'O2:1.0'
+        states.set_mixture_fraction(mixture_fraction, *args)
+        states.set_mixture_fraction(mixture_fraction[0], *args)
+        states.set_mixture_fraction(list(mixture_fraction), *args)
+
+        # Test that the mixture fraction is set correctly:
+        n_H2 = self.gas.species_index('H2')
+        self.assertTrue((states.Y[:, n_H2] - mixture_fraction[:] 
+            == 0.).all())
+
+        with self.assertRaises(ValueError):
+            states.set_mixture_fraction(mixture_fraction[:-1], *args)
+
+        states = ct.SolutionArray(self.gas, (2,4))
+        states.set_mixture_fraction(mixture_fraction.reshape((2,4)), 
+            *args)
+
+        with self.assertRaises(ValueError):
+            states.set_mixture_fraction(mixture_fraction, *args)
+        with self.assertRaises(ValueError):
+            states.set_mixture_fraction(mixture_fraction.reshape(
+                (4,2)), *args)
+
     def test_species_slicing(self):
         states = ct.SolutionArray(self.gas, (2,5))
         states.TPX = np.linspace(500, 1000, 5), 2e5, 'H2:0.5, O2:0.4'
