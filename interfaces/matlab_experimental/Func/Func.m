@@ -60,8 +60,6 @@ classdef Func < handle
             % :return:
             %    Instance of class :mat:func:`Func`
 
-            checklib;
-
             if ~isa(typ, 'char')
                 error('Function type must be a string');
             end
@@ -69,22 +67,31 @@ classdef Func < handle
             x.f1 = 0;
             x.f2 = 0;
             x.coeffs = 0;
+            itype = -1;
 
             function nn = newFunc(itype, n, p)
                 % helper function to pass the correct :parameters to the C
                 % library
                 if itype < 20
-                    ptr = libpointer('doublePtr', p);
                     [m, n] = size(p);
                     lenp = m * n;
-                    nn = calllib(ct, 'func_new', type, n, lenp, ptr);
+                    nn = calllib(ct, 'func_new', itype, n, lenp, p);
                 elseif itype < 45
                     m = n;
-                    nn = calllib(ct, 'func_new', type, n, m, 0);
+                    nn = calllib(ct, 'func_new', itype, n, m, 0);
                 else
-                    ptr = libpointer('doublePtr', p);
-                    nn = calllib(ct, 'func_new', type, n, 0, ptr);
+                    nn = calllib(ct, 'func_new', itype, n, 0, p);
                 end
+            end
+
+            if strcmp(typ, 'polynomial')
+                itype = 2;
+            elseif strcmp(typ, 'fourier')
+                itype = 1;
+            elseif strcmp(typ, 'arrhenius')
+                itype = 3;
+            elseif strcmp(typ, 'gaussian')
+                itype = 4;
             end
 
             if itype > 0
@@ -134,25 +141,6 @@ classdef Func < handle
             disp(' ');
             disp(['   ' char(a)])
             disp(' ');
-        end
-
-        %% Functor methods
-
-        function r = plus(a, b)
-            % Get a functor representing the sum two input functors 'a' and
-            % 'b'.
-            r = Func('sum', a, b);
-        end
-
-        function r = rdivide(a, b)
-            % Get a functor that is the ratio of the input functors 'a' and
-            % 'b'.
-            r = Func('ratio', a, b);
-        end
-
-        function r = times(a, b)
-             % Get a functor that multiplies two functors 'a' and 'b'
-             r = Func('prod', a, b);
         end
 
         function b = subsref(a, s)

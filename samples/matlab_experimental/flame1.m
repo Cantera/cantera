@@ -50,7 +50,7 @@ gas.TPX = {tburner, p, comp};
 %% Create the flow object
 
 f = AxisymmetricFlow(gas, 'flow');
-f.setPressure(p);
+f.P = p;
 f.setupGrid(initial_grid);
 f.setSteadyTolerances('default', tol_ss{:});
 f.setTransientTolerances('default', tol_ts{:});

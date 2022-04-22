@@ -79,6 +79,17 @@ classdef ReactorSurface < handle
             calllib(ct, 'reactorsurface_install', s.surfID, r.id);
         end
 
+        function addSensitivityReaction(s, r)
+            % Specifies that the sensitivity of the state variables with
+            % respect to reaction m should be computed. The surface must be
+            % installed on a reactor and part of a network first.
+            %
+            % :parameter m:
+            %    Index number of reaction.
+
+            calllib(ct, 'reactorsurface_addSensitivityReaction', s.surfID, r);
+        end
+
         %% ReactorSurface get methods
 
         function a = get.area(s)

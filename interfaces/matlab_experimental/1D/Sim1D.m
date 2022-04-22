@@ -40,7 +40,7 @@ classdef Stack < handle
 
         %% Utility Methods
 
-        function st_clear(s)
+        function clear(s)
             % Delete the Sim1D object
 
             calllib(ct, 'sim1D_del', s.stID);
@@ -84,6 +84,12 @@ classdef Stack < handle
                     error('Domain not found');
                 end
             end
+        end
+
+        function getInitialSoln(s)
+            % Get the initial solution.
+
+            calllib(ct, 'sim1D_getInitialSoln', s.stID);
         end
 
         function z = grid(s, name)
@@ -194,6 +200,19 @@ classdef Stack < handle
             calllib(ct, 'sim1D_save', s.stID, fname, id, desc);
         end
 
+        function setFixedTemperature(s, T)
+            % Set the temperature used to fix the spatial location of a
+            % freely propagating flame.
+            %
+            % :parameter T:
+            %    Double Temperature to be set. Unit: K.
+
+            if T <= 0
+                error('temperature must be positive');
+            end
+            calllib(ct, 'sim1D_setFixedTemperature', s.stID, T);
+        end
+
         function setFlatProfile(s, domain, comp, v)
             % Set a component to a value across the entire domain.
             %
@@ -208,6 +227,17 @@ classdef Stack < handle
 
             calllib(ct, 'sim1D_setFlatProfile', s.stID, ...
                     domain - 1, comp - 1, v);
+        end
+
+        function setGridMin(s, domain, gridmin)
+            % Set the minimum grid spacing on domain.
+            %
+            % :parameter domain:
+            %    Integer ID of the domain.
+            % :parameter gridmin:
+            %    Double minimum grid spacing.
+
+            calllib(ct, 'sim1D_setGridMin', s.stID, domain-1, gridmin);
         end
 
         function setMaxJacAge(s, ss_age, ts_age)
@@ -406,7 +436,7 @@ classdef Stack < handle
             end
         end
 
-        function solve(s, loglevel, refine_grid)
+        function solve(s, loglevel, refineGrid)
             % Solve the problem.
             %
             % :parameter s:
@@ -418,7 +448,7 @@ classdef Stack < handle
             % :parameter refine_grid:
             %    Integer, 1 to allow grid refinement, 0 to disallow.
 
-            calllib(ct, 'sim1D_solve', s.stID, loglevel, refine_grid);
+            calllib(ct, 'sim1D_solve', s.stID, loglevel, refineGrid);
         end
 
         function writeStats(s)

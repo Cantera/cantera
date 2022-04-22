@@ -4,15 +4,13 @@ classdef ReactorNet < handle
         id
         time
         dt
-        atol
-        rtol
     end
 
     methods
         %% ReactorNet class constructor
 
         function r = ReactorNet(reactors)
-            % A 'ReactorNet' object is a container that holds one ormore
+            % A 'ReactorNet' object is a container that holds one or more
             % 'Reactor' objects in a network. 'ReactorNet' objects are used
             % to simultaneously advance the state of one or more coupled
             % reactors.
@@ -108,12 +106,23 @@ classdef ReactorNet < handle
             calllib(ct, 'reactornet_setMaxTimeStep', r.id, maxstep);
         end
 
+        function setSensitivityTolerances(r, rerr, aerr)
+            % Set the error tolerance for sensitivity analysis.
+            %
+            % :parameter rerr:
+            %    Scalar relative error tolerance.
+            % :parameter aerr:
+            %    Scalar absolute error tolerance.
+
+            calllib(ct, 'reactornet_setSensitivityTolerances', r.id, rerr, aerr);
+        end
+
         function setTolerances(r, rerr, aerr)
             % Set the error tolerance.
             %
-            % :parameter rtol:
+            % :parameter rerr:
             %    Scalar relative error tolerance.
-            % :parameter atol:
+            % :parameter aerr:
             %    Scalar absolute error tolerance.
 
             calllib(ct, 'reactornet_setTolerances', r.id, rerr, aerr);
@@ -139,16 +148,34 @@ classdef ReactorNet < handle
             t = calllib(ct, 'reactornet_time', r.id);
         end
 
-        function t = get.rtol(r)
-            % Get the relative error tolerance
+        function t = atol(r)
+            % Get the absolute error tolerance.
+
+            t = calllib(ct, 'reactornet_atol', r.id);
+        end
+
+        function t = rtol(r)
+            % Get the relative error tolerance.
 
             t = calllib(ct, 'reactornet_rtol', r.id);
         end
 
-        function t = get.atol(r)
-            % Get the absolute error tolerance
+        function s = sensitivity(r, component, p, rxtr)
+            % Get the sensitivity of the solution variable c in reactor
+            % rxtr with respect to the parameter p.
+            %
+            % :param component:
+            %    String name of variable.
+            % :param p:
+            %    Integer sensitivity parameter.
+            % :param rxtr:
+            %    Instance of class 'reactor'.
 
-            t = calllib(ct, 'reactornet_atol', r.id);
+            if isa(component, 'string')
+                calllib(ct, 'reactornet_sensitivity', r.id, component, ...
+                        p, rxtr.id);
+            end
+            % Check back on this one to add cases for component type integer.
         end
 
     end

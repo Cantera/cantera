@@ -2,8 +2,9 @@ classdef Domain1D < handle
 
     properties
         domainID
-        domainType
+        type
         T
+        P
     end
 
     methods
@@ -89,17 +90,64 @@ classdef Domain1D < handle
 %             if d.domainID < 0
 %                 error(geterr);
 %             end
-            d.domainType = a;
+            d.type = a;
         end
 
         %% Utility Methods
 
-        function domClear(d)
+        function clear(d)
             % Delete the Domain1D object
             calllib(ct, 'domain_del', d.domainID);
         end
 
-        %% Domain Methods
+        function d = disableEnergy(d)
+            % Disable the energy equation.
+
+            disp(' ');
+            disp('Disabling the energy equation...');
+            calllib(ct, 'stflow_solveEnergyEqn', d.domainID, 0);
+        end
+
+        function d = enableEnergy(d)
+            % Enable the energy equation.
+
+            disp(' ');
+            disp('Enabling the energy equation...');
+            calllib(ct, 'stflow_solveEnergyEqn', d.domainID, 1);
+        end
+
+        function d = disableSoret(d)
+            % Disable the diffusive mass fluxes due to the Soret effect.
+
+            disp(' ');
+            disp('Disabling the Soret effect...');
+            calllib(ct, 'stflow_enableSoret', d.domainID, 0);
+        end
+
+        function d = enableSoret(d)
+            % Enable the diffusive mass fluxes due to the Soret effect.
+
+            disp(' ');
+            disp('Disabling the Soret effect...');
+            calllib(ct, 'stflow_enableSoret', d.domainID, 1);
+        end
+
+        %% Domain Get Methods
+
+        function b = bounds(d, component)
+            % Return the (lower, upper) bounds for a solution component.
+            %
+            % :param component:
+            %    String name of the component for which the bounds are
+            %    returned.
+            % :return:
+            %    1x2 Vector of the lower and upper bounds.
+
+            n = d.componentIndex(component);
+            lower = calllib(ct, 'domain_lowerBound', d.domainID, n);
+            upper = calllib(ct, 'domain_upperBound', d.domainID, n);
+            b = [lower, upper];
+        end
 
         function n = componentIndex(d, name)
             % Get the index of a component given its name
@@ -151,17 +199,6 @@ classdef Domain1D < handle
             end
         end
 
-        function d = disableEnergy(d)
-            % Disable the energy equation.
-            %
-            % :parameter d:
-            %    Instance of class 'Domain1D'.
-
-            disp(' ');
-            disp('Disabling the energy equation...');
-            calllib(ct, 'stflow_solveEnergyEqn', d.domainID, 0);
-        end
-
         function i = domainIndex(d)
             % Get the domain index.
             % :return:
@@ -183,17 +220,7 @@ classdef Domain1D < handle
             %    This function :returns an integer flag denoting the domain
             %    type.
 
-            i = calllib(ct, 'domainType', d.domainID);
-        end
-
-        function d = enableEnergy(d)
-            % Enable the energy equation.
-            % :parameter d:
-            %    Instance of class 'Domain1D'.
-
-            disp(' ');
-            disp('Enabling the energy equation...');
-            calllib(ct, 'stflow_solveEnergyEqn', d.domainID, 1);
+            i = calllib(ct, 'domain_type', d.domainID);
         end
 
         function zz = gridPoints(d, n)
@@ -312,6 +339,54 @@ classdef Domain1D < handle
             n = calllib(ct, 'domain_nPoints', d.domainID);
         end
 
+        function tol = tolerances(d, component)
+            % Return the (relative, absolute) error tolerances for a
+            % solution component.
+            %
+            % :param component:
+            %    String name of the component for which the bounds are
+            %    returned.
+            % :return:
+            %    1x2 Vector of the relative and absolute error tolerances.
+
+            n = d.componentIndex(component);
+            rerr = calllib(ct, 'domain_rtol', d.domainID, n);
+            aerr = calllib(ct, 'domain_atol', d.domainID, n);
+            tol = [rerr, aerr];
+        end
+
+        function temperature = get.T(d)
+            % Get the boundary temperature (K).
+
+            temperature = calllib(ct, 'bdry_temperature', d.domainID);
+        end
+
+        function pressure = get.P(d)
+            % Get the pressure (Pa).
+
+            pressure = calllibt(ct, 'stflow_pressure', d.domainID);
+        end
+
+        %% Domain Set Methods
+
+        function set.T(d, t)
+            % Set the temperature (K).
+
+            if t <= 0
+                error('The temperature must be positive');
+            end
+            calllib(ct, 'bdry_setTemperature', d.domainID, t);
+        end
+
+        function set.P(d, p)
+            % Set the pressure (K).
+
+            if p <= 0
+                error('The pressure must be positive');
+            end
+            calllib(ct, 'stflow_setPressure', d.domainID, p);
+        end
+
         function setBounds(d, component, lower, upper)
             % Set bounds on the solution components.
             % :parameter d:
@@ -405,14 +480,6 @@ classdef Domain1D < handle
             calllib(ct, 'bdry_setMoleFractions', d.domainID, x);
         end
 
-        function setPressure(d, p)
-            % Set the pressure.
-            % :parameter p:
-            %    Pressure to be set. Unit: Pa.
-
-            calllib(ct, 'stflow_setPressure', d.domainID, p);
-        end
-
         function setProfileD(d, n, p)
             % Set the profile of a component.
             % Convenience function to allow an instance of 'Domain1D' to
@@ -502,19 +569,15 @@ classdef Domain1D < handle
             end
         end
 
-        function temperature = get.T(d)
-            % Get the boundary temperature (K).
+        function setTransport(d, itr)
+            % Set the solution object used for calculating transport
+            % properties.
+            %
+            % :param itr:
+            %    ID of the solution object for which transport properties
+            %    are calculated.
 
-            temperature = calllib(ct, 'bdry_temperature', d.domainID);
-        end
-
-        function set.T(d, t)
-            % Set the temperature (K).
-
-            if t <= 0
-                error('The temperature must be positive');
-            end
-            calllib(ct, 'bdry_setTemperature', d.domainID, t);
+            calllib(ct, 'stflow_setTransport', d.domainID, itr);
         end
 
         function setupGrid(d, grid)

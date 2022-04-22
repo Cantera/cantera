@@ -181,6 +181,15 @@ classdef Wall < handle
             calllib(ct, 'wall_setHeatTransferCoeff', w.id, u);
         end
 
+        function setEmissivity(w, epsilon)
+            % Set the emissivity.
+            %
+            % :param epsilon:
+            %    Nondimensional emissivity.
+
+            calllib(ct, 'wall_setEmissivity', w.id, epsilon);
+        end
+
         function setExpansionRateCoeff(w, k)
             % Set the expansion rate coefficient.
             %

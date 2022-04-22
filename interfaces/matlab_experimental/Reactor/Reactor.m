@@ -74,6 +74,17 @@ classdef Reactor < handle
             calllib(ct, 'reactor_del', r.id);
         end
 
+        function addSensitivityReaction(r, m)
+            % Specifies that the sensitivity of the state variables with
+            % respect to reaction m should be computed. The reactor must be
+            % part of a network first.
+            %
+            % :parameter m:
+            %    Index number of reaction.
+
+            calllib(ct, 'reactor_addSensitivityReaction', r.id, m);
+        end
+
         function insert(r, gas)
             % Insert a solution or mixture into a reactor.
             %

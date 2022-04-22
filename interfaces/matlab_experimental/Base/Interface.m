@@ -2,6 +2,7 @@ classdef Interface < handle & ThermoPhase & Kinetics
 
     properties
         coverages
+        siteDensity
     end
 
     methods
@@ -51,6 +52,17 @@ classdef Interface < handle & ThermoPhase & Kinetics
             c = pt.Value;
         end
 
+        function d = get.siteDensity(s)
+            % Get the site density.
+            %
+            % :return:
+            %    Double site density. Unit: kmol/m^2 for surface phases,
+            %    kmol/m for edge phases.
+
+            surfID = s.tpID;
+            d = calllibt(ct, 'surf_siteDensity', surfID);
+        end
+
         function c = concentrations(s)
             % Get the concentrations of the species on an interface.
             %
@@ -79,7 +91,7 @@ classdef Interface < handle & ThermoPhase & Kinetics
                 norm_flag = 1;
             end
 
-            surfID = s.tr_id;
+            surfID = s.tpID;
             nsp = s.nSpecies;
             [m, n] = size(cov);
 
@@ -98,5 +110,17 @@ classdef Interface < handle & ThermoPhase & Kinetics
             end
         end
 
+        function set.siteDensity(s, d)
+            % Set surface site densities.
+            %
+            % :parameter density:
+            %    Double site density. Unit: kmol/m^2 for surface phases,
+            %    kmol/m for edge phases.
+
+            surfID = s.tpID;
+            calllib(ct, 'surf_setSiteDensity', surfID, d);
+        end
+
     end
 end
+
