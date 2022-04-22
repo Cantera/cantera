@@ -138,16 +138,27 @@ classdef Mixture < handle
             pressure = calllib(ct, 'mix_pressure', m.mixID);
         end
 
-        function n = nPhases(m)
-            % Get the number of phases in the mixture.
+        function n = nAtoms(m, k, e)
+            % Get the number of atoms of element e in species k.
+            %
+            % Note: In keeping with the conventions used by Matlab, the
+            % indices start from 1 instead of 0 as in Cantera C++ and
+            % Python interfaces.
 
-            n = calllib(ct, 'mix_nPhases', m.mixID);
+            n = calllib(ct, 'mix_nPhases', m.mixID, k-1, e-1);
+            % Check back on this one!
         end
 
         function n = nElements(m)
             % Get the number of elements in the mixture.
 
             n = calllib(ct, 'mix_nElements', m.mixID);
+        end
+
+        function n = nPhases(m)
+            % Get the number of phases in the mixture.
+
+            n = calllib(ct, 'mix_nPhases', m.mixID);
         end
 
         function n = nSpecies(m)
@@ -167,23 +178,47 @@ classdef Mixture < handle
         end
 
         function n = speciesIndex(m, k, p)
-            % Get the index of element 'name'.
+            % Get the index of species k in phase p.
             %
+            % :param k:
+            %    Double
             % Note: In keeping with the conventions used by Matlab, the
             % indices start from 1 instead of 0 as in Cantera C++ and
             % Python interfaces.
 
             n = calllib(ct, 'mix_speciesIndex', m.mixID, k-1, p-1) + 1;
-            % check back on this one!
+            % Check back on this one!
+        end
+
+        function moles = elementMoles(m, e)
+            % Get the number of moles of an element in a mixture.
+            %
+            % :parameter e:
+            %    Integer element number.
+            % :return:
+            %    Moles of element number 'e'. If input 'e' is empty, return
+            %    moles of every element in the mixture. Unit: kmol.
+
+            if nargin == 2
+                moles = calllib(ct, 'mix_elementMoles', m.mixID, e)
+            elseif nargin == 1
+                nel = m.nElements;
+                moles = zeros(1, nel);
+                for i = 1:nel
+                    moles(i) = calllib(ct, 'mix_elementMoles', m.mixID, i);
+                end
+            else error('wrong number of arguments');
+            end
         end
 
         function moles = phaseMoles(m, n)
             % Get the number of moles of a phase in a mixture.
             %
             % :parameter n:
-            %    Integer phase number in the input.
+            %    Integer phase number.
             % :return:
-            %    Moles of phase number 'n'. Unit: kmol.
+            %    Moles of phase number 'n'. If input 'n' is empty, return
+            %    moles of phase element in the mixture. Unit: kmol.
 
             if nargin == 2
                 moles = calllib(ct, 'mix_phaseMoles', m.mixID, n);
@@ -192,6 +227,28 @@ classdef Mixture < handle
                 moles = zeros(1, np);
                 for i = 1:np
                     moles(i) = calllib(ct, 'mix_phaseMoles', ...
+                                       m.mixID, i);
+                end
+            else error('wrong number of arguments');
+            end
+        end
+
+        function moles = speciesMoles(m, k)
+            % Get the number of moles of a species in a mixture.
+            %
+            % :parameter k:
+            %    Integer species number.
+            % :return:
+            %    Moles of species number 'k'. If input 'k' is empty, return
+            %    moles of every species in the mixture. Unit: kmol.
+
+            if nargin == 2
+                moles = calllib(ct, 'mix_speciesMoles', m.mixID, k);
+            elseif nargin == 1
+                nsp = m.nSpecies;
+                moles = zeros(1, nsp);
+                for i = 1:nsp
+                    moles(i) = calllib(ct, 'mix_speciesMoles', ...
                                        m.mixID, i);
                 end
             else error('wrong number of arguments');
@@ -252,8 +309,14 @@ classdef Mixture < handle
             % :parameter moles:
             %    Vector or string specifying the moles of species.
 
-            calllib(ct, 'mix_setMolesByName', m.mixID, moles);
-            % check back on this one!
+            if isa(moles, 'double')
+                l = length(moles);
+                calllib(ct, 'mix_setMoles', m.mixID, l, moles);
+            elseif isa(moles, 'string')
+                calllib(ct, 'mix_setMolesByName', m.mixID, moles);
+            else
+                error('The input must be a vector or string!');
+            end
         end
 
         function r = equilibrate(m, XY, err, maxsteps, maxiter, loglevel)

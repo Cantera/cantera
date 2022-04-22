@@ -364,6 +364,20 @@ classdef Kinetics < handle
             enthalpy = pt.Value;
         end
 
+        function enthalpy = get.dHss(kin)
+            % Get the standard state enthalpy of reaction for each reaction.
+            %
+            % :return:
+            %    A vector of the standard state enthalpy of reaction for each reaction.
+            %    Unit: J/kmol.
+
+            nr = kin.nReactions;
+            xx = zeros(1, nr);
+            pt = libpointer('doublePtr', xx);
+            calllib(ct, 'kin_getDelta', kin.kinID, 3, nr, pt);
+            enthalpy = pt.Value;
+        end
+
         function entropy = get.dS(kin)
             % Get the entropy of reaction for each reaction.
             %
@@ -378,6 +392,20 @@ classdef Kinetics < handle
             entropy = pt.Value;
         end
 
+        function entropy = get.dSss(kin)
+            % Get the standard state entropy of reaction for each reaction.
+            %
+            % :return:
+            %    A vector of the standard state entropy of reaction for each reaction.
+            %    Unit: J/kmol-K.
+
+            nr = kin.nReactions;
+            xx = zeros(1, nr);
+            pt = libpointer('doublePtr', xx);
+            calllib(ct, 'kin_getDelta', kin.kinID, 5, nr, pt);
+            entropy = pt.Value;
+        end
+
         function gibbs = get.dG(kin)
             % Get the Gibbs free energy of reaction for each reaction.
             %
@@ -389,6 +417,20 @@ classdef Kinetics < handle
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
             calllib(ct, 'kin_getDelta', kin.kinID, 1, nr, pt);
+            gibbs = pt.Value;
+        end
+
+        function gibbs = get.dGss(kin)
+            % Get the standard state Gibbs free energy of reaction for each reaction.
+            %
+            % :return:
+            %    A vector of the standard state Gibbs free energy of reaction for each
+            %    reaction. Unit: J/kmol.
+
+            nr = kin.nReactions;
+            xx = zeros(1, nr);
+            pt = libpointer('doublePtr', xx);
+            calllib(ct, 'kin_getDelta', kin.kinID, 4, nr, pt);
             gibbs = pt.Value;
         end
 

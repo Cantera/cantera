@@ -53,7 +53,7 @@ ox.TPX = {tin, p, oxcomp};
 % prior, same for the tolerances.
 
 f = AxisymmetricFlow(fuel, 'flow');
-f.setPressure(p);
+f.P = p;
 f.setupGrid(initial_grid);
 f.setSteadyTolerances('default', tol_ss{:});
 f.setTransientTolerances('default', tol_ts{:});

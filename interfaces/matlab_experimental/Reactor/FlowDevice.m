@@ -107,6 +107,17 @@ classdef FlowDevice < handle
             end
         end
 
+        function setMaster(f, d)
+            % Set the Master flow device used to compute this device's mass
+            % flow rate.
+
+            if strcmp(f.type, 'PressureController')
+                k = calllib(ct, 'flowdev_setMaster', f.id, d);
+            else
+                error('Master flow device can only be set for pressure controllers.');
+            end
+        end
+
         function setValveCoeff(f, k)
             % Set the valve coefficient 'K'.
             %

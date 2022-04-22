@@ -1,6 +1,6 @@
 function LoadCantera
-    addpath('Class', 'Utility', 'PresetMixtures', 'PresetReactors', ...
-            'PresetObjects', '1D');
+    addpath('Class', 'Utility', 'PresetFlowDevices', 'PresetFunctors', ...
+            'PresetMixtures', 'PresetReactors', 'PresetObjects', '1D');
     if ispc
         ctname = 'cantera_shared.dll';
     elseif ismac
