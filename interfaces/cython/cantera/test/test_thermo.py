@@ -2215,29 +2215,37 @@ class TestSolutionArray(utilities.CanteraTest):
 
     def test_set_mixture_fraction(self):
         states = ct.SolutionArray(self.gas, 8)
-        mixture_fraction = np.linspace(.5, 1., 8)
-        args = 'H2:1.0', 'O2:1.0'
-        states.set_mixture_fraction(mixture_fraction, *args)
-        states.set_mixture_fraction(mixture_fraction[0], *args)
-        states.set_mixture_fraction(list(mixture_fraction), *args)
+        mixture_fraction = np.linspace(0.5, 1, 8)
+        fuel, oxidizer = "H2:1.0", "O2:1.0"
+        # The mass fraction arrays need to be squeezed here to reduce their
+        # dimensionality from a 2-d column array to a vector for comparison
+        # with mixture_fraction.
+        states.set_mixture_fraction(mixture_fraction, fuel, oxidizer)
+        self.assertArrayNear(states("H2").Y.squeeze(1), mixture_fraction)
+        states.set_mixture_fraction(mixture_fraction[0], fuel, oxidizer)
+        self.assertArrayNear(
+            states("H2").Y.squeeze(1),
+            np.ones_like(mixture_fraction) * mixture_fraction[0],
+        )
+        states.set_mixture_fraction(list(mixture_fraction), fuel, oxidizer)
+        self.assertArrayNear(states("H2").Y.squeeze(1), mixture_fraction)
 
-        # Test that the mixture fraction is set correctly:
-        n_H2 = self.gas.species_index('H2')
-        self.assertTrue((states.Y[:, n_H2] - mixture_fraction[:] 
-            == 0.).all())
+    def test_set_mixture_fraction_wrong_shape_raises(self):
+        states = ct.SolutionArray(self.gas, 8)
+        mixture_fraction = np.linspace(0.5, 1, 7)
+        fuel, oxidizer = "H2:1.0", "O2:1.0"
+        with self.assertRaisesRegex(ValueError, r"shape mismatch:.*\(7,\).*\(8,\)"):
+            states.set_mixture_fraction(mixture_fraction, fuel, oxidizer)
 
-        with self.assertRaises(ValueError):
-            states.set_mixture_fraction(mixture_fraction[:-1], *args)
-
-        states = ct.SolutionArray(self.gas, (2,4))
-        states.set_mixture_fraction(mixture_fraction.reshape((2,4)), 
-            *args)
-
-        with self.assertRaises(ValueError):
-            states.set_mixture_fraction(mixture_fraction, *args)
-        with self.assertRaises(ValueError):
-            states.set_mixture_fraction(mixture_fraction.reshape(
-                (4,2)), *args)
+    def test_set_mixture_fraction_2D(self):
+        states = ct.SolutionArray(self.gas, (2, 4))
+        mixture_fraction = np.linspace(0.5, 1, 8).reshape((2, 4))
+        fuel, oxidizer = "H2:1.0", "O2:1.0"
+        states.set_mixture_fraction(mixture_fraction, fuel, oxidizer)
+        # The mass fraction array needs to be squeezed here to reduce its
+        # dimensionality from a 3-d array to a 2-d array for comparison
+        # with mixture_fraction.
+        self.assertArrayNear(states("H2").Y.squeeze(2), mixture_fraction)
 
     def test_species_slicing(self):
         states = ct.SolutionArray(self.gas, (2,5))
