@@ -826,3 +826,70 @@ A multi-species Redlich-Kwong phase as
 
 The parameters for each species are contained in the corresponding species
 entries.
+
+.. _sec-yaml-plasma-phase:
+
+``plasma-phase``
+----------------
+
+A phase for plasma. This phase handles plasma properties such as the electron
+energy distribution and electron temperature with different models as
+`described here <https://cantera.org/documentation/dev/doxygen/html/d5/dd7/classCantera_1_1PlasmaPhase.html#details>`__.
+
+
+Additional fields:
+
+``electron-energy-distribution``
+    A mapping with the following fields:
+
+    ``type``
+        String specifying the type of the electron energy distribution to be used.
+        Supported model strings are:
+
+        - `isotropic`
+        - `discretized`
+
+    ``shape-factor``
+        A constant in the isotropic distribution, which is shown as x in the
+        detailed description of this class. The value needs to be a positive
+        number. This field is only used with `isotropic`. Defaults to 2.0.
+
+    ``mean-electron-energy``
+        Mean electron energy of the isotropic distribution. The default sets
+        the electron temperature equal gas temperature and uses the
+        corresponding electron energy as mean electron energy.  This field
+        is only used with `isotropic`.
+
+    ``energy-levels``
+        A list of values specifying the electron energy levels. The default
+        uses 1001 equal spaced points from 0 to 1 eV.
+
+    ``distribution``
+        A list of values specifying the discretized electron energy distribution.
+        This field is only used with `discretized`.
+
+    ``normalize``
+        A flag specifying whether normalizing the discretized electron energy
+        distribution or not. This field is only used with `discretized`.
+        Defaults to ``true``.
+
+Example::
+
+    - name: isotropic-electron-energy-plasma
+      thermo: plasma
+      kinetics: gas
+      transport: Ion
+      electron-energy-distribution:
+        type: isotropic
+        shape-factor: 2.0
+        mean-electron-energy: 1.0 eV
+        energy-levels: [0.0, 0.1, 1.0, 10.0]
+    - name: discretized-electron-energy-plasma
+      thermo: plasma
+      kinetics: gas
+      transport: Ion
+      electron-energy-distribution:
+        type: discretized
+        energy-levels: [0.0, 0.1, 1.0, 10.0]
+        distribution: [0.0, 0.2, 0.7, 0.01]
+        normalize: False
