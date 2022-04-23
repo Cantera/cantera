@@ -2,15 +2,15 @@ description: |-
   This file contains data for condensed phase species from the NASA
   thermodynamic database, which is available for download from
   https://shepherd.caltech.edu/EDL/PublicResources/sdt/thermo.html.
-  The original sources are
-
-  S. Gordon and B.J. McBride, "Computer Program for Calculation of Complex
-  Chemical Equilibrium Composition, Rocket Performance, Incident and
-  Reflected Shocks and Chapman-Jouguet Detonations", NASA Report SP-273, 1971.
+  The original source is:
 
   B.J. McBride, S. Gordon, and M.A. Reno, "Coefficients for Calculating
   Thermodynamic and Transport Properties of Individual Species", NASA
-  Report TM-4513, October 1993.
+  Report TM-4513, October 1993. https://ntrs.nasa.gov/citations/19940013151
+
+  The 'note' field for each species indicates the source and date for the data used
+  to generate the polynomial fits, as given by McBride et al. The abbreviations and
+  corresponding references are given in the report.
 
 generator: ck2yaml
 input-files: [nasa_condensed.dat]
@@ -26,6 +26,7 @@ species:
     data:
     - [1.01040191, 0.0120769743, -2.62083556e-05, 2.64282413e-08, -9.01916513e-12,
       -654.454196, -5.00471254]
+    note: CODA89
 - name: AL(L)
   composition: {Al: 1}
   thermo:
@@ -33,6 +34,7 @@ species:
     temperature-ranges: [933.61, 6000.0]
     data:
     - [3.81862551, 0.0, 0.0, 0.0, 0.0, -94.9651808, -17.5229704]
+    note: CODA89
 - name: ALBr3(s)
   composition: {Al: 1, Br: 3}
   thermo:
@@ -40,6 +42,7 @@ species:
     temperature-ranges: [300.0, 370.6]
     data:
     - [5.8447956, 0.020926334, 0.0, 0.0, 0.0, -6.417051e+04, -17.876901]
+    note: J 9/79
 - name: ALBr3(L)
   composition: {Al: 1, Br: 3}
   thermo:
@@ -47,6 +50,7 @@ species:
     temperature-ranges: [370.6, 5000.0]
     data:
     - [15.02975, 0.0, 0.0, 0.0, 0.0, -6.4783729e+04, -60.799101]
+    note: J 9/79
 - name: ALCL3(s)
   composition: {Al: 1, Cl: 3}
   thermo:
@@ -55,6 +59,7 @@ species:
     data:
     - [7.8093375, 0.010570985, -3.2859248e-09, 0.0, 0.0, -8.7666783e+04,
       -34.501722]
+    note: J 9/79
 - name: ALCL3(L)
   composition: {Al: 1, Cl: 3}
   thermo:
@@ -62,6 +67,7 @@ species:
     temperature-ranges: [465.7, 5000.0]
     data:
     - [15.096679, 0.0, 0.0, 0.0, 0.0, -8.5662079e+04, -65.218419]
+    note: J 9/79
 - name: ALF3(a)
   composition: {Al: 1, F: 3}
   thermo:
@@ -70,6 +76,7 @@ species:
     data:
     - [-3.0835272, 0.070350317, -1.2249405e-04, 7.6241362e-08, 1.5843687e-12,
       -1.8294032e+05, 9.3570683]
+    note: J 9/79
 - name: ALF3(b)
   composition: {Al: 1, F: 3}
   thermo:
@@ -80,6 +87,7 @@ species:
       -47.736147]
     - [10.41947, 2.3376501e-03, -8.8083077e-07, 2.8557883e-10, -3.4607263e-14,
       -1.8492205e+05, -52.371402]
+    note: J 9/79
 - name: ALF3(L)
   composition: {Al: 1, F: 3}
   thermo:
@@ -87,6 +95,7 @@ species:
     temperature-ranges: [2523.0, 5000.0]
     data:
     - [15.096679, 0.0, 0.0, 0.0, 0.0, -1.7998686e+05, -80.049103]
+    note: J 9/79
 - name: ALI3(s)
   composition: {Al: 1, I: 3}
   thermo:
@@ -94,6 +103,7 @@ species:
     temperature-ranges: [300.0, 464.14]
     data:
     - [8.52416, 0.011257799, 1.6443005e-07, 0.0, 0.0, -3.9476666e+04, -28.344595]
+    note: J 9/79
 - name: ALI3(L)
   composition: {Al: 1, I: 3}
   thermo:
@@ -101,6 +111,7 @@ species:
     temperature-ranges: [464.14, 5000.0]
     data:
     - [14.593456, 0.0, 0.0, 0.0, 0.0, -3.9163332e+04, -56.248322]
+    note: J 9/79
 - name: ALN(s)
   composition: {Al: 1, N: 1}
   thermo:
@@ -111,6 +122,7 @@ species:
       -3.8688614e+04, 4.6492822]
     - [4.0841212, 3.1881496e-03, -1.9029765e-06, 5.2523411e-10, -5.5133066e-14,
       -3.9781843e+04, -22.190145]
+    note: J12/79
 - name: AL2O3(a)
   composition: {Al: 2, O: 3}
   thermo:
@@ -121,6 +133,7 @@ species:
       -2.0262622e+05, 15.478073]
     - [11.833666, 3.7708878e-03, -1.7863191e-07, -5.6008807e-10, 1.4076825e-13,
       -2.0571131e+05, -63.599835]
+    note: J12/79
 - name: AL2O3(L)
   composition: {Al: 2, O: 3}
   thermo:
@@ -128,6 +141,7 @@ species:
     temperature-ranges: [2327.0, 6000.0]
     data:
     - [23.148241, 0.0, 0.0, 0.0, 0.0, -2.114052e+05, -138.60205]
+    note: J12/79
 - name: AL2SiO5(an)
   composition: {Al: 2, Si: 1, O: 5}
   thermo:
@@ -138,6 +152,7 @@ species:
       -3.1327664e+05, 32.715859]
     - [17.351742, 8.7438135e-03, -3.7084718e-06, 1.0688283e-09, -1.176395e-13,
       -3.1794151e+05, -91.738744]
+    note: J 9/67
 - name: AL6Si2O13(s)
   composition: {Al: 6, Si: 2, O: 13}
   thermo:
@@ -148,6 +163,7 @@ species:
       -8.256587e+05, 32.254791]
     - [45.238364, 0.027661424, -1.4675512e-05, 3.8885848e-09, -3.6660482e-13,
       -8.3686417e+05, -237.39565]
+    note: J 9/67
 - name: B(b)
   composition: {B: 1}
   thermo:
@@ -158,6 +174,7 @@ species:
       -71.333921, 4.36439895]
     - [1.83494094, 1.79198702e-03, -7.97879498e-07, 2.02764512e-10, -1.92028345e-14,
       -783.202899, -10.6433298]
+    note: J 6/83
 - name: B(L)
   composition: {B: 1}
   thermo:
@@ -165,6 +182,7 @@ species:
     temperature-ranges: [2350.0, 6000.0]
     data:
     - [3.81862551, 0.0, 0.0, 0.0, 0.0, 3360.99275, -20.7326473]
+    note: J 6/83
 - name: BN(s)
   composition: {B: 1, N: 1}
   thermo:
@@ -175,6 +193,7 @@ species:
       -3.04539002e+04, 2.41361166]
     - [2.6873993, 4.24674311e-03, -1.92817705e-06, 3.60170748e-10, -2.36706055e-14,
       -3.14630126e+04, -15.4187735]
+    note: J 6/66
 - name: B2O3(L)
   composition: {B: 2, O: 3}
   thermo:
@@ -184,6 +203,7 @@ species:
     - [31.433274, -0.21578039, 6.4057986e-04, -7.057242e-07, 2.650915e-10,
       -1.5490139e+05, -128.0388]
     - [15.600114, 0.0, 0.0, 0.0, 0.0, -1.5684455e+05, -83.126444]
+    note: J 6/71
 - name: B3O3H3(cr)
   composition: {B: 3, H: 3, O: 3}
   thermo:
@@ -194,6 +214,7 @@ species:
       -1.5456963e+05, -27.5254035]
     - [-12.8470517, 0.0919581322, -8.10609436e-05, 3.2732284e-08, -5.01611948e-12,
       -1.51109722e+05, 70.153615]
+    note: J 3/65
 - name: Ba(cr)
   composition: {Ba: 1}
   thermo:
@@ -201,6 +222,7 @@ species:
     temperature-ranges: [298.15, 1000.0]
     data:
     - [2.77334443, 2.03752236e-03, 0.0, 0.0, 0.0, -917.43381, -8.90970626]
+    note: SRD 93
 - name: Ba(L)
   composition: {Ba: 1}
   thermo:
@@ -208,6 +230,7 @@ species:
     temperature-ranges: [1000.0, 6000.0]
     data:
     - [4.81086679, 0.0, 0.0, 0.0, 0.0, -992.062381, -20.0027571]
+    note: SRD 93
 - name: BaBr2(s)
   composition: {Ba: 1, Br: 2}
   thermo:
@@ -218,6 +241,7 @@ species:
       -9.3782241e+04, -31.312732]
     - [8.2135924, 3.1143715e-03, -2.4011629e-07, 0.0, 0.0, -9.3684982e+04,
       -29.771808]
+    note: J12/74
 - name: BaBr2(L)
   composition: {Ba: 1, Br: 2}
   thermo:
@@ -225,6 +249,7 @@ species:
     temperature-ranges: [1130.0, 5000.0]
     data:
     - [12.610931, 0.0, 0.0, 0.0, 0.0, -9.2936418e+04, -53.916673]
+    note: J12/74
 - name: BaCL2(a)
   composition: {Ba: 1, Cl: 2}
   thermo:
@@ -235,6 +260,7 @@ species:
       -1.0579202e+05, -30.768305]
     - [11.096404, -1.1135002e-03, -8.1801937e-07, -2.3651376e-10, 1.832684e-12,
       -1.0693777e+05, -48.926746]
+    note: J12/72
 - name: BaCL2(b)
   composition: {Ba: 1, Cl: 2}
   thermo:
@@ -242,6 +268,7 @@ species:
     temperature-ranges: [1198.0, 1235.0]
     data:
     - [14.895592, 0.0, 0.0, 0.0, 0.0, -1.0994135e+05, -75.272702]
+    note: J12/72
 - name: BaCL2(L)
   composition: {Ba: 1, Cl: 2}
   thermo:
@@ -249,6 +276,7 @@ species:
     temperature-ranges: [1235.0, 5000.0]
     data:
     - [13.083967, 0.0, 0.0, 0.0, 0.0, -1.0578059e+05, -60.818647]
+    note: J12/72
 - name: BaF2(a)
   composition: {Ba: 1, F: 2}
   thermo:
@@ -259,6 +287,7 @@ species:
       -1.4745246e+05, -19.121916]
     - [-2.8439288, -0.021997213, 4.4201061e-05, 5.582469e-09, -1.3906912e-11,
       -1.3789919e+05, 44.472932]
+    note: J12/72
 - name: BaF2(b,c)
   composition: {Ba: 1, F: 2}
   thermo:
@@ -266,6 +295,7 @@ species:
     temperature-ranges: [1480.0, 1641.0]
     data:
     - [12.948094, 0.0, 0.0, 0.0, 0.0, -1.5033175e+05, -65.383663]
+    note: J12/72
 - name: BaF2(L)
   composition: {Ba: 1, F: 2}
   thermo:
@@ -273,6 +303,7 @@ species:
     temperature-ranges: [1641.0, 5000.0]
     data:
     - [12.006552, 0.0, 0.0, 0.0, 0.0, -1.4597715e+05, -56.701282]
+    note: J12/72
 - name: BaO(s)
   composition: {Ba: 1, O: 1}
   thermo:
@@ -283,6 +314,7 @@ species:
       -6.7394369e+04, -15.842468]
     - [5.5970566, 1.7242864e-03, -6.0249513e-07, 1.7400017e-10, -1.8594791e-14,
       -6.7719687e+04, -23.848521]
+    note: J 6/74
 - name: BaO(L)
   composition: {Ba: 1, O: 1}
   thermo:
@@ -290,6 +322,7 @@ species:
     temperature-ranges: [2286.0, 5000.0]
     data:
     - [8.0516715, 0.0, 0.0, 0.0, 0.0, -6.3223737e+04, -36.818601]
+    note: J 6/74
 - name: BaO2H2(s)
   composition: {Ba: 1, O: 2, H: 2}
   thermo:
@@ -298,6 +331,7 @@ species:
     data:
     - [-0.15429168, 0.075108738, -1.4915072e-04, 1.3462514e-07, -4.2715409e-11,
       -1.1603552e+05, -3.1075078]
+    note: J12/75
 - name: BaO2H2(L)
   composition: {Ba: 1, O: 2, H: 2}
   thermo:
@@ -305,6 +339,7 @@ species:
     temperature-ranges: [681.15, 5000.0]
     data:
     - [16.958833, 0.0, 0.0, 0.0, 0.0, -1.1797498e+05, -83.351611]
+    note: J12/75
 - name: BaS(s)
   composition: {Ba: 1, S: 1}
   thermo:
@@ -315,6 +350,7 @@ species:
       -5.743627e+04, -21.638102]
     - [5.9096631, 1.1593561e-03, -1.927981e-07, 6.6609007e-11, -8.3280411e-15,
       -5.7624538e+04, -24.710737]
+    note: J 9/77
 - name: Be(a)
   composition: {Be: 1}
   thermo:
@@ -325,6 +361,7 @@ species:
       -196.446005, 4.40835822]
     - [0.806036468, 5.37325946e-03, -4.86241757e-06, 2.39834017e-09, -4.37186552e-13,
       -410.525129, -4.79961716]
+    note: SRD 93
 - name: Be(b)
   composition: {Be: 1}
   thermo:
@@ -332,6 +369,7 @@ species:
     temperature-ranges: [1543.0, 1563.0]
     data:
     - [3.60815009, 0.0, 0.0, 0.0, 0.0, -852.229192, -20.0291024]
+    note: SRD 93
 - name: Be(L)
   composition: {Be: 1}
   thermo:
@@ -339,6 +377,7 @@ species:
     temperature-ranges: [1563.0, 6000.0]
     data:
     - [3.54560882, 0.0, 0.0, 0.0, 0.0, 207.47558, -18.9534126]
+    note: SRD 93
 - name: BeAL2O4(s)
   composition: {Be: 1, Al: 2, O: 4}
   thermo:
@@ -349,6 +388,7 @@ species:
       -2.7798044e+05, 27.135719]
     - [20.265559, -0.010466649, 2.3043954e-05, -1.5493683e-08, 3.602494e-12,
       -2.8336301e+05, -107.47222]
+    note: J12/79
 - name: BeAL2O4(L)
   composition: {Be: 1, Al: 2, O: 4}
   thermo:
@@ -356,6 +396,7 @@ species:
     temperature-ranges: [2146.0, 5000.0]
     data:
     - [29.636291, 0.0, 0.0, 0.0, 0.0, -2.8056982e+05, -171.16954]
+    note: J12/79
 - name: BeBr2(s)
   composition: {Be: 1, Br: 2}
   thermo:
@@ -366,6 +407,7 @@ species:
       -4.4840483e+04, -23.444886]
     - [-2.2718329, 0.037185084, -4.3321639e-05, 2.3058006e-08, -4.5749641e-12,
       -4.2971251e+04, 16.708869]
+    note: J 6/75
 - name: BeCL2(s)
   composition: {Be: 1, Cl: 2}
   thermo:
@@ -374,6 +416,7 @@ species:
     data:
     - [3.0065745, 0.019539559, -4.8913605e-06, -2.9604158e-08, 2.3534861e-11,
       -6.07221e+04, -12.579772]
+    note: J 6/65
 - name: BeCL2(L)
   composition: {Be: 1, Cl: 2}
   thermo:
@@ -381,6 +424,7 @@ species:
     temperature-ranges: [688.0, 5000.0]
     data:
     - [14.603719, 0.0, 0.0, 0.0, 0.0, -6.4498417e+04, -76.448784]
+    note: J 6/65
 - name: BeF2(Lqz)
   composition: {Be: 1, F: 2}
   thermo:
@@ -389,6 +433,7 @@ species:
     data:
     - [20.59377, -0.06639693, -1.2032398e-04, 8.9800555e-07, -9.6669264e-10,
       -1.2693708e+05, -91.785113]
+    note: J 6/70
 - name: BeF2(hqz)
   composition: {Be: 1, F: 2}
   thermo:
@@ -396,6 +441,7 @@ species:
     temperature-ranges: [500.0, 825.0]
     data:
     - [5.6965576, 4.0258358e-03, 0.0, 0.0, 0.0, -1.2528884e+05, -27.091389]
+    note: J 6/70
 - name: BeF2(L)
   composition: {Be: 1, F: 2}
   thermo:
@@ -406,6 +452,7 @@ species:
       -1.254653e+05, -37.440304]
     - [6.0489639, 4.3328498e-03, 1.8754403e-07, -3.6019482e-10, 9.1338822e-14,
       -1.2511361e+05, -29.026248]
+    note: J 6/70
 - name: BeI2(s)
   composition: {Be: 1, I: 2}
   thermo:
@@ -414,6 +461,7 @@ species:
     data:
     - [2.6772295, 0.026923092, -2.8895204e-05, 4.0076604e-09, 6.4051702e-12,
       -2.4446968e+04, -7.5530919]
+    note: J12/75
 - name: BeI2(L)
   composition: {Be: 1, I: 2}
   thermo:
@@ -421,6 +469,7 @@ species:
     temperature-ranges: [753.0, 5000.0]
     data:
     - [13.587196, 0.0, 0.0, 0.0, 0.0, -2.5993312e+04, -63.313573]
+    note: J12/75
 - name: BeO(a)
   composition: {Be: 1, O: 1}
   thermo:
@@ -431,6 +480,7 @@ species:
       -7.3320234e+04, 11.4094979]
     - [3.22375488, 4.89276244e-03, -3.05832591e-06, 9.91401433e-10, -1.23442571e-13,
       -7.45140761e+04, -18.5239582]
+    note: J12/74
 - name: BeO(b)
   composition: {Be: 1, O: 1}
   thermo:
@@ -439,6 +489,7 @@ species:
     data:
     - [12.3933471, -0.0103223075, 6.52733591e-06, -1.73093889e-09, 1.70986494e-13,
       -7.8175961e+04, -70.5417631]
+    note: J12/74
 - name: BeO(L)
   composition: {Be: 1, O: 1}
   thermo:
@@ -446,6 +497,7 @@ species:
     temperature-ranges: [2821.22, 6000.0]
     data:
     - [9.56123164, 0.0, 0.0, 0.0, 0.0, -7.42016413e+04, -58.0635442]
+    note: J12/74
 - name: BeO2H2(b)
   composition: {Be: 1, O: 2, H: 2}
   thermo:
@@ -454,6 +506,7 @@ species:
     data:
     - [-7.0168325, 0.083005654, -1.4152029e-04, 1.1421665e-07, -3.5105535e-11,
       -1.0950711e+05, 26.616061]
+    note: J12/75
 - name: BeS(s)
   composition: {Be: 1, S: 1}
   thermo:
@@ -464,6 +517,7 @@ species:
       -2.8555182e+04, 11.842922]
     - [3.4787036, 6.5106233e-03, -4.1314045e-06, 1.244993e-09, -1.3821947e-13,
       -2.956653e+04, -17.391326]
+    note: J 9/77
 - name: Be2C(s)
   composition: {Be: 2, C: 1}
   thermo:
@@ -471,6 +525,7 @@ species:
     temperature-ranges: [300.0, 2400.0]
     data:
     - [4.437417, 2.5694538e-03, 0.0, 0.0, 0.0, -1.5507324e+04, -24.086121]
+    note: BAR 73
 - name: Be2C(L)
   composition: {Be: 2, C: 1}
   thermo:
@@ -478,6 +533,7 @@ species:
     temperature-ranges: [2400.0, 5000.0]
     data:
     - [11.070897, 0.0, 0.0, 0.0, 0.0, -1.4969641e+04, -65.775116]
+    note: BAR 73
 - name: Br2(cr)
   composition: {Br: 2}
   thermo:
@@ -486,6 +542,7 @@ species:
     data:
     - [9.12545994, -0.0826160881, 6.99861517e-04, -2.40843064e-06, 3.21106016e-09,
       -3304.0882, -30.1727996]
+    note: L 1/93
 - name: Br2(L)
   composition: {Br: 2}
   thermo:
@@ -494,6 +551,7 @@ species:
     data:
     - [10.4252937, 0.111181227, -1.06856988e-03, 3.25976572e-06, -3.27490398e-09,
       -3506.20403, -49.0757083]
+    note: L 1/93
 - name: C(gr)
   composition: {C: 1}
   thermo:
@@ -504,6 +562,7 @@ species:
       -108.650794, 1.11382953]
     - [1.45571829, 1.71702216e-03, -6.97562786e-07, 1.35277032e-10, -9.67590652e-15,
       -695.138814, -8.52583033]
+    note: X 4/83
 - name: C6H6(L)
   composition: {C: 6, H: 6}
   thermo:
@@ -512,6 +571,7 @@ species:
     data:
     - [63.6690229, -0.600534398, 2.6679281e-03, -5.06308828e-06, 3.63955562e-09,
       -1670.85472, -243.891797]
+    note: X10/86
 - name: C7H8(L)
   composition: {C: 7, H: 8}
   thermo:
@@ -520,6 +580,7 @@ species:
     data:
     - [29.3676022, -0.194722686, 9.74773096e-04, -1.91472689e-06, 1.48097019e-09,
       -4163.18442, -112.019966]
+    note: X10/86
 - name: C8H18(L),n-octa
   composition: {C: 8, H: 18}
   thermo:
@@ -528,6 +589,7 @@ species:
     data:
     - [71.413393, -0.5020795, 1.834199e-03, -2.0450165e-06, 0.0, -4.1243725e+04,
       -277.2224]
+    note: X10/76
 - name: Jet-A(L)
   composition: {C: 12, H: 23}
   thermo:
@@ -536,6 +598,7 @@ species:
     data:
     - [19.049613, -0.016918532, 6.3022035e-04, -1.3336577e-06, 9.4335638e-10,
       -4.4803964e+04, -67.6902]
+    note: L 6/88
 - name: Ca(a)
   composition: {Ca: 1}
   thermo:
@@ -544,6 +607,7 @@ species:
     data:
     - [3.03325649, -1.41800064e-03, 7.24487574e-06, -6.68790594e-09, 2.49903889e-12,
       -893.310508, -12.0114288]
+    note: SRD 93
 - name: Ca(b)
   composition: {Ca: 1}
   thermo:
@@ -552,6 +616,7 @@ species:
     data:
     - [5.70111768, -5.8105649e-03, 4.02212518e-06, 0.0, 0.0, -1516.76361,
       -26.0758134]
+    note: SRD 93
 - name: Ca(L)
   composition: {Ca: 1}
   thermo:
@@ -559,6 +624,7 @@ species:
     temperature-ranges: [1115.0, 6000.0]
     data:
     - [4.57032345, 0.0, 0.0, 0.0, 0.0, -982.243308, -21.1988643]
+    note: SRD 93
 - name: CaBr2(s)
   composition: {Ca: 1, Br: 2}
   thermo:
@@ -568,6 +634,7 @@ species:
     - [5.2693394, 0.023697805, -4.9799909e-05, 4.6707224e-08, -1.5216097e-11,
       -8.4447367e+04, -19.659445]
     - [6.6299707, 4.028391e-03, 0.0, 0.0, 0.0, -8.3939674e+04, -22.523843]
+    note: J 6/74
 - name: CaBr2(L)
   composition: {Ca: 1, Br: 2}
   thermo:
@@ -575,6 +642,7 @@ species:
     temperature-ranges: [1015.0, 5000.0]
     data:
     - [13.587196, 0.0, 0.0, 0.0, 0.0, -8.5428738e+04, -63.151659]
+    note: J 6/74
 - name: CaCO3(caL)
   composition: {Ca: 1, C: 1, O: 3}
   thermo:
@@ -585,6 +653,7 @@ species:
       -1.46691812e+05, 6.32412532]
     - [14.4388162, -1.39777807e-03, 2.04333103e-06, 0.0, 0.0, -1.5040071e+05,
       -72.8445489]
+    note: BAR 89
 - name: CaCL2(s)
   composition: {Ca: 1, Cl: 2}
   thermo:
@@ -595,6 +664,7 @@ species:
       -9.8041783e+04, -26.814146]
     - [8.7332408, 2.3955141e-04, 9.4467377e-07, 4.5851863e-10, -5.9749529e-14,
       -9.830808e+04, -37.236667]
+    note: J 6/70
 - name: CaCL2(L)
   composition: {Ca: 1, Cl: 2}
   thermo:
@@ -602,6 +672,7 @@ species:
     temperature-ranges: [1045.0, 5000.0]
     data:
     - [12.332141, 0.0, 0.0, 0.0, 0.0, -9.8023952e+04, -58.047468]
+    note: J 6/70
 - name: CaF2(a)
   composition: {Ca: 1, F: 2}
   thermo:
@@ -612,6 +683,7 @@ species:
       -1.48963614e+05, -1.91796873]
     - [1.03439908, 0.0218402489, -2.04796113e-05, 1.03381996e-08, -1.91843768e-12,
       -1.48010445e+05, -2.08048925]
+    note: J12/68
 - name: CaF2(b)
   composition: {Ca: 1, F: 2}
   thermo:
@@ -620,6 +692,7 @@ species:
     data:
     - [14.2866105, -1.10249437e-03, 1.41775401e-06, -2.81232082e-10, 0.0,
       -1.5545332e+05, -79.186636]
+    note: J12/68
 - name: CaF2(L)
   composition: {Ca: 1, F: 2}
   thermo:
@@ -627,6 +700,7 @@ species:
     temperature-ranges: [1691.0, 6000.0]
     data:
     - [12.016814, 0.0, 0.0, 0.0, 0.0, -1.47908292e+05, -60.4927984]
+    note: J12/68
 - name: CaO(s)
   composition: {Ca: 1, O: 1}
   thermo:
@@ -637,6 +711,7 @@ species:
       -7.7482769e+04, -9.3710081]
     - [5.6557517, 1.0165439e-03, -2.5576899e-07, 5.4514395e-11, -4.257995e-15,
       -7.8238381e+04, -28.223372]
+    note: J 6/73
 - name: CaO(L)
   composition: {Ca: 1, O: 1}
   thermo:
@@ -644,6 +719,7 @@ species:
     temperature-ranges: [3200.0, 5000.0]
     data:
     - [7.5484421, 0.0, 0.0, 0.0, 0.0, -7.1179292e+04, -38.083948]
+    note: J 6/73
 - name: CaO2H2(s)
   composition: {Ca: 1, O: 2, H: 2}
   thermo:
@@ -652,6 +728,7 @@ species:
     data:
     - [-0.74022767, 0.067566468, -1.3191281e-04, 1.1989068e-07, -4.0613045e-11,
       -1.2043543e+05, -1.0097075]
+    note: J12/75
 - name: CaS(s)
   composition: {Ca: 1, S: 1}
   thermo:
@@ -662,6 +739,7 @@ species:
       -5.8477047e+04, -20.92271]
     - [5.6530519, 1.3625874e-03, -7.2781176e-07, 2.4989763e-10, -3.0968126e-14,
       -5.8710341e+04, -25.906395]
+    note: J 9/77
 - name: CaSO4(s)
   composition: {Ca: 1, S: 1, O: 4}
   thermo:
@@ -669,6 +747,7 @@ species:
     temperature-ranges: [300.0, 5000.0]
     data:
     - [8.4441905, 0.011876215, 0.0, 0.0, 0.0, -1.7553242e+05, -38.820134]
+    note: BAR 73
 - name: Cr(cr)
   composition: {Cr: 1}
   thermo:
@@ -677,6 +756,7 @@ species:
     data:
     - [7.84826024, -0.11627602, 8.12369251e-04, -2.30807086e-06, 2.35328142e-09,
       -898.013946, -27.5733139]
+    note: J 6/73
 - name: Cr(L)
   composition: {Cr: 1}
   thermo:
@@ -684,6 +764,7 @@ species:
     temperature-ranges: [2130.0, 6000.0]
     data:
     - [4.73028477, 0.0, 0.0, 0.0, 0.0, 575.359221, -24.5318309]
+    note: J 6/73
 - name: CrN(s)
   composition: {Cr: 1, N: 1}
   thermo:
@@ -694,6 +775,7 @@ species:
       -1.6323422e+04, -45.73005]
     - [5.6944539, 5.301169e-04, 2.2705829e-07, -8.1483254e-11, 1.0803796e-14,
       -1.5836002e+04, -28.131704]
+    note: J12/73
 - name: Cr2N(s)
   composition: {Cr: 2, N: 1}
   thermo:
@@ -704,6 +786,7 @@ species:
       -1.6768313e+04, -11.600698]
     - [8.0984185, 1.8533611e-03, 1.4227306e-06, -5.589639e-10, 6.930711e-14,
       -1.7684801e+04, -39.147472]
+    note: J12/73
 - name: Cr2O3(s)
   composition: {Cr: 2, O: 3}
   thermo:
@@ -714,6 +797,7 @@ species:
       -1.4240406e+05, -135.74281]
     - [14.012235, 1.3823978e-03, -2.3779226e-07, 1.6995085e-10, -3.7705857e-14,
       -1.4098217e+05, -71.101569]
+    note: J12/73
 - name: Cr2O3(L)
   composition: {Cr: 2, O: 3}
   thermo:
@@ -721,6 +805,7 @@ species:
     temperature-ranges: [2603.0, 5000.0]
     data:
     - [18.871105, 0.0, 0.0, 0.0, 0.0, -1.3369498e+05, -99.96147]
+    note: J12/73
 - name: Cs(cr)
   composition: {Cs: 1}
   thermo:
@@ -729,6 +814,7 @@ species:
     data:
     - [3.31157194, -9.67974793e-03, 1.19926576e-04, -5.20608084e-07, 8.33415927e-10,
       -980.844435, -8.10866871]
+    note: CODA89
 - name: Cs(L)
   composition: {Cs: 1}
   thermo:
@@ -739,6 +825,7 @@ species:
       -861.341855, -8.43100388]
     - [5.11512955, -3.83970291e-03, 2.01555257e-06, 3.64202599e-10, -5.43974501e-14,
       -1138.41767, -17.0567624]
+    note: CODA89
 - name: CsCL(a)
   composition: {Cs: 1, Cl: 1}
   thermo:
@@ -747,6 +834,7 @@ species:
     data:
     - [5.54534, 2.3805834e-03, 8.357033e-07, -9.957164e-10, 3.8054803e-13,
       -5.5026535e+04, -20.16426]
+    note: J 6/68
 - name: CsCL(b)
   composition: {Cs: 1, Cl: 1}
   thermo:
@@ -755,6 +843,7 @@ species:
     data:
     - [8.1610737, -1.7623568e-03, -2.2508516e-07, 3.9307317e-09, -2.3452341e-12,
       -5.5480431e+04, -33.941396]
+    note: J 6/68
 - name: CsCL(L)
   composition: {Cs: 1, Cl: 1}
   thermo:
@@ -762,6 +851,7 @@ species:
     temperature-ranges: [918.0, 5000.0]
     data:
     - [9.3097452, 0.0, 0.0, 0.0, 0.0, -5.5031161e+04, -40.810133]
+    note: J 6/68
 - name: CsF(s)
   composition: {Cs: 1, F: 1}
   thermo:
@@ -770,6 +860,7 @@ species:
     data:
     - [5.6489993, 1.8711398e-03, 6.6242382e-07, -6.3084871e-10, 1.8692339e-13,
       -6.8485102e+04, -22.149959]
+    note: J 6/68
 - name: CsF(L)
   composition: {Cs: 1, F: 1}
   thermo:
@@ -777,6 +868,7 @@ species:
     temperature-ranges: [976.0, 5000.0]
     data:
     - [8.9071617, 0.0, 0.0, 0.0, 0.0, -6.8066817e+04, -39.912774]
+    note: J 6/68
 - name: CsOH(a)
   composition: {Cs: 1, O: 1, H: 1}
   thermo:
@@ -785,6 +877,7 @@ species:
     data:
     - [5.88946051, 6.13189982e-03, 8.60763952e-06, -1.20614689e-08, 0.0,
       -5.22010341e+04, -23.7840127]
+    note: J 6/71
 - name: CsOH(b)
   composition: {Cs: 1, O: 1, H: 1}
   thermo:
@@ -792,6 +885,7 @@ species:
     temperature-ranges: [410.0, 493.0]
     data:
     - [4.92104624, 0.0100655116, 0.0, 0.0, 0.0, -5.18660681e+04, -18.7438113]
+    note: J 6/71
 - name: CsOH(c)
   composition: {Cs: 1, O: 1, H: 1}
   thermo:
@@ -799,6 +893,7 @@ species:
     temperature-ranges: [493.0, 588.0]
     data:
     - [10.0644544, 0.0, 0.0, 0.0, 0.0, -5.2448865e+04, -44.1931478]
+    note: J 6/71
 - name: CsOH(L)
   composition: {Cs: 1, O: 1, H: 1}
   thermo:
@@ -806,6 +901,7 @@ species:
     temperature-ranges: [588.0, 6000.0]
     data:
     - [9.812843, 0.0, 0.0, 0.0, 0.0, -5.17524722e+04, -41.6559605]
+    note: J 6/71
 - name: Cs2SO4(II)
   composition: {Cs: 2, S: 1, O: 4}
   thermo:
@@ -814,6 +910,7 @@ species:
     data:
     - [-2.9789307, 0.12650884, -2.9553206e-04, 3.3207308e-07, -1.3104991e-10,
       -1.7623352e+05, 15.185747]
+    note: J 6/79
 - name: Cs2SO4(I)
   composition: {Cs: 2, S: 1, O: 4}
   thermo:
@@ -823,6 +920,7 @@ species:
     - [4.7349836, 0.0186196, 0.0, 0.0, 0.0, -1.7154139e+05, 0.13737046]
     - [-0.027232722, 0.031354036, -1.1300531e-05, 3.3283108e-09, 0.0, -1.7021163e+05,
       24.839988]
+    note: J 6/79
 - name: Cs2SO4(L)
   composition: {Cs: 2, S: 1, O: 4}
   thermo:
@@ -830,6 +928,7 @@ species:
     temperature-ranges: [1278.0, 5000.0]
     data:
     - [24.859198, 0.0, 0.0, 0.0, 0.0, -1.7776198e+05, -116.65744]
+    note: J 6/79
 - name: Cu(cr)
   composition: {Cu: 1}
   thermo:
@@ -840,6 +939,7 @@ species:
       -743.882087, -7.70454044]
     - [3.4200891, -1.61201394e-03, 3.05145917e-06, -2.11162788e-09, 6.99858397e-13,
       -990.295636, -15.1932294]
+    note: CODA89
 - name: Cu(L)
   composition: {Cu: 1}
   thermo:
@@ -847,6 +947,7 @@ species:
     temperature-ranges: [1358.0, 6000.0]
     data:
     - [3.94491076, 0.0, 0.0, 0.0, 0.0, -210.634669, -18.3585676]
+    note: CODA89
 - name: CuF(s)
   composition: {Cu: 1, F: 1}
   thermo:
@@ -857,6 +958,7 @@ species:
       -3.5336168e+04, -19.58517]
     - [5.3215506, 4.8549832e-03, -3.5440048e-06, 1.1109023e-09, -1.2453716e-13,
       -3.5521715e+04, -23.902643]
+    note: J12/77
 - name: CuF2(s)
   composition: {Cu: 1, F: 2}
   thermo:
@@ -867,6 +969,7 @@ species:
       -6.6685585e+04, -19.580561]
     - [2.3557676, 0.014913508, -6.3995193e-06, 0.0, 0.0, -6.5610622e+04,
       -7.1626757]
+    note: J12/77
 - name: CuF2(L)
   composition: {Cu: 1, F: 2}
   thermo:
@@ -874,6 +977,7 @@ species:
     temperature-ranges: [1109.0, 5000.0]
     data:
     - [12.077507, 0.0, 0.0, 0.0, 0.0, -6.3487998e+04, -56.73037]
+    note: J12/77
 - name: CuO(s)
   composition: {Cu: 1, O: 1}
   thermo:
@@ -884,6 +988,7 @@ species:
       -1.9788382e+04, -5.472388]
     - [5.0258124, 2.5424077e-03, -1.3768294e-06, 5.3492831e-10, -7.9664281e-14,
       -2.0433281e+04, -24.376695]
+    note: J12/77
 - name: CuO2H2(s)
   composition: {Cu: 1, O: 2, H: 2}
   thermo:
@@ -894,6 +999,7 @@ species:
       -5.7406865e+04, -47.238803]
     - [8.6730787, 0.010385762, -4.6994841e-06, -5.0292513e-10, 5.359316e-13,
       -5.7230382e+04, -39.366161]
+    note: J 6/66
 - name: CuSO4(s)
   composition: {Cu: 1, S: 1, O: 4}
   thermo:
@@ -904,6 +1010,7 @@ species:
       -9.4993621e+04, -15.465878]
     - [11.314536, 0.014050352, -1.0063568e-05, 3.7204221e-09, -5.2805914e-13,
       -9.6998208e+04, -56.25469]
+    note: J 6/66
 - name: Cu2O(s)
   composition: {Cu: 2, O: 1}
   thermo:
@@ -914,6 +1021,7 @@ species:
       -2.2273157e+04, -13.530713]
     - [14.755641, -0.015876657, 1.4971193e-05, -4.4840264e-09, 4.0556005e-13,
       -2.5065068e+04, -70.541877]
+    note: J12/77
 - name: Cu2O(L)
   composition: {Cu: 2, O: 1}
   thermo:
@@ -921,6 +1029,7 @@ species:
     temperature-ranges: [1516.72, 5000.0]
     data:
     - [12.01712, 0.0, 0.0, 0.0, 0.0, -1.9252387e+04, -56.886866]
+    note: J12/77
 - name: Cu2O5S(s)
   composition: {Cu: 2, O: 5, S: 1}
   thermo:
@@ -931,6 +1040,7 @@ species:
       -1.1478646e+05, -13.196112]
     - [16.011634, 0.019424668, -1.8448251e-05, 1.1187204e-08, -2.6111983e-12,
       -1.176162e+05, -78.727489]
+    note: J 6/66
 - name: Fe(a)
   composition: {Fe: 1}
   thermo:
@@ -941,6 +1051,7 @@ species:
       -774.380998, -10.6560296]
     - [4690.80173, -9.90659991, 2.69427446e-03, 5.54445321e-06, -3.01659823e-09,
       -1.41547586e+06, -2.49294387e+04]
+    note: J 3/78
 - name: Fe(c)
   composition: {Fe: 1}
   thermo:
@@ -949,6 +1060,7 @@ species:
     data:
     - [61.010999, -0.160945061, 1.68369493e-04, -7.74563702e-08, 1.3309129e-11,
       -1.65335454e+04, -313.710668]
+    note: J 3/78
 - name: Fe(d)
   composition: {Fe: 1}
   thermo:
@@ -957,6 +1069,7 @@ species:
     data:
     - [-435.904698, 0.768489448, -4.46898892e-04, 8.67070913e-08, 0.0, 1.87925534e+05,
       2450.57619]
+    note: J 3/78
 - name: Fe(L)
   composition: {Fe: 1}
   thermo:
@@ -964,6 +1077,7 @@ species:
     temperature-ranges: [1809.0, 6000.0]
     data:
     - [5.53538332, 0.0, 0.0, 0.0, 0.0, -1274.28941, -29.4772271]
+    note: J 3/78
 - name: FeC5O5(L)
   composition: {Fe: 1, C: 5, O: 5}
   thermo:
@@ -971,6 +1085,7 @@ species:
     temperature-ranges: [300.0, 5000.0]
     data:
     - [28.11845, 0.0, 0.0, 0.0, 0.0, -1.0052483e+05, -119.66541]
+    note: J 3/78
 - name: FeCL2(s)
   composition: {Fe: 1, Cl: 2}
   thermo:
@@ -979,6 +1094,7 @@ species:
     data:
     - [7.1122271, 0.011086953, -1.7072742e-05, 1.3515817e-08, -4.1365036e-12,
       -4.3600985e+04, -28.994055]
+    note: J12/70
 - name: FeCL2(L)
   composition: {Fe: 1, Cl: 2}
   thermo:
@@ -986,6 +1102,7 @@ species:
     temperature-ranges: [950.0, 5000.0]
     data:
     - [12.288863, 0.0, 0.0, 0.0, 0.0, -4.1109821e+04, -53.193057]
+    note: J12/70
 - name: FeCL3(s)
   composition: {Fe: 1, Cl: 3}
   thermo:
@@ -994,6 +1111,7 @@ species:
     data:
     - [-7.39556855, 0.202608434, -8.44505923e-04, 1.59286602e-06, -1.07989321e-09,
       -5.00144664e+04, 24.4450935]
+    note: J 6/65
 - name: FeCL3(L)
   composition: {Fe: 1, Cl: 3}
   thermo:
@@ -1001,6 +1119,7 @@ species:
     temperature-ranges: [577.0, 6000.0]
     data:
     - [16.103127, 0.0, 0.0, 0.0, 0.0, -4.84135278e+04, -67.575899]
+    note: J 6/65
 - name: FeO(s)
   composition: {Fe: 1, O: 1}
   thermo:
@@ -1011,6 +1130,7 @@ species:
       -3.4407165e+04, -23.686034]
     - [5.8316489, 1.4275156e-03, -9.3208143e-08, -6.5997763e-12, -2.2512143e-14,
       -3.4566902e+04, -26.44699]
+    note: J 6/65
 - name: FeO(L)
   composition: {Fe: 1, O: 1}
   thermo:
@@ -1018,6 +1138,7 @@ species:
     temperature-ranges: [1650.0, 5000.0]
     data:
     - [8.2022482, 0.0, 0.0, 0.0, 0.0, -3.3848615e+04, -40.079129]
+    note: J 6/65
 - name: Fe(OH)2(s)
   composition: {Fe: 1, O: 2, H: 2}
   thermo:
@@ -1028,6 +1149,7 @@ species:
       -7.2277688e+04, -48.400034]
     - [7.4031808, 0.011981742, -1.4957611e-06, -5.0526359e-09, 2.0037111e-12,
       -7.1592266e+04, -34.673267]
+    note: J 6/66
 - name: Fe(OH)3(s)
   composition: {Fe: 1, O: 3, H: 3}
   thermo:
@@ -1038,6 +1160,7 @@ species:
       -1.0271834e+05, -21.331014]
     - [8.0223926, 0.016420135, -1.2369378e-07, -6.8192838e-09, 2.3276907e-12,
       -1.0321336e+05, -37.93402]
+    note: J 6/66
 - name: FeS(a)
   composition: {Fe: 1, S: 1}
   thermo:
@@ -1046,6 +1169,7 @@ species:
     data:
     - [18.977627, -0.10954282, 2.2186016e-04, 0.0, 0.0, -1.4995242e+04,
       -78.125435]
+    note: J 9/77
 - name: FeS(b)
   composition: {Fe: 1, S: 1}
   thermo:
@@ -1053,6 +1177,7 @@ species:
     temperature-ranges: [411.0, 598.0]
     data:
     - [8.7028505, 0.0, 0.0, 0.0, 0.0, -1.4689738e+04, -42.082102]
+    note: J 9/77
 - name: FeS(c)
   composition: {Fe: 1, S: 1}
   thermo:
@@ -1063,6 +1188,7 @@ species:
       -1.4581685e+04, -45.141516]
     - [-2.6830483, 0.036765104, -5.2182274e-05, 3.160717e-08, -6.4126041e-12,
       -1.1498684e+04, 16.239124]
+    note: J 9/77
 - name: FeS(L)
   composition: {Fe: 1, S: 1}
   thermo:
@@ -1070,6 +1196,7 @@ species:
     temperature-ranges: [1463.0, 5000.0]
     data:
     - [7.5232806, 0.0, 0.0, 0.0, 0.0, -1.0164237e+04, -31.97093]
+    note: J 9/77
 - name: FeSO4(s)
   composition: {Fe: 1, S: 1, O: 4}
   thermo:
@@ -1080,6 +1207,7 @@ species:
       -1.141625e+05, -15.223241]
     - [11.608929, 0.013804697, -9.812638e-06, 3.6087811e-09, -5.0976279e-13,
       -1.1619186e+05, -56.477817]
+    note: J 6/66
 - name: FeS2(s)
   composition: {Fe: 1, S: 2}
   thermo:
@@ -1090,6 +1218,7 @@ species:
       -2.2045927e+04, -5.5456393]
     - [-88.51532, 0.32748931, -4.1057439e-04, 2.2928146e-07, -4.7764415e-11,
       -465.12476, 441.73045]
+    note: J 9/77
 - name: Fe2O3(s)
   composition: {Fe: 2, O: 3}
   thermo:
@@ -1100,6 +1229,7 @@ species:
       -1.0080076e+05, 25.292085]
     - [40.49753, -0.046131596, 3.1826406e-05, -8.9226331e-09, 8.4655417e-13,
       -1.1317627e+05, -216.35088]
+    note: J 6/65
 - name: Fe2S3O12(s)
   composition: {Fe: 2, S: 3, O: 12}
   thermo:
@@ -1110,6 +1240,7 @@ species:
       -3.1729782e+05, -49.28875]
     - [39.114438, 0.011796327, -3.3871014e-08, -2.2970399e-09, 6.4101986e-13,
       -3.2478262e+05, -194.00429]
+    note: J 6/66
 - name: Fe3O4(s)
   composition: {Fe: 3, O: 4}
   thermo:
@@ -1120,6 +1251,7 @@ species:
       -1.413873e+05, -155.56683]
     - [24.13372, 4.1592226e-05, -2.6331492e-08, 6.6035094e-12, -5.692468e-16,
       -1.4121052e+05, -120.06412]
+    note: J 6/65
 - name: H2O(s)
   composition: {H: 2, O: 1}
   thermo:
@@ -1128,6 +1260,7 @@ species:
     data:
     - [5.2967797, -0.0675749247, 5.16942109e-04, -1.4385336e-06, 1.52564794e-09,
       -3.62266557e+04, -17.9220428]
+    note: L 8/89
 - name: H2O(L)
   composition: {H: 2, O: 1}
   thermo:
@@ -1136,6 +1269,7 @@ species:
     data:
     - [72.5575005, -0.662445402, 2.56198746e-03, -4.36591923e-06, 2.78178981e-09,
       -4.18865499e+04, -288.280137]
+    note: L 8/89
 - name: H2SO4(L)
   composition: {H: 2, S: 1, O: 4}
   thermo:
@@ -1144,6 +1278,7 @@ species:
     data:
     - [9.9421525, 0.021786369, 3.4974458e-06, -3.3548857e-09, 1.1699586e-12,
       -1.0185979e+05, -44.398695]
+    note: J 9/77
 - name: Hg(cr)
   composition: {Hg: 1}
   thermo:
@@ -1151,6 +1286,7 @@ species:
     temperature-ranges: [200.0, 234.29]
     data:
     - [2.43103385, 4.24646658e-03, 0.0, 0.0, 0.0, -1178.86806, -7.11248114]
+    note: J12/61
 - name: Hg(L)
   composition: {Hg: 1}
   thermo:
@@ -1161,6 +1297,7 @@ species:
       -1058.34631, -11.9626936]
     - [3.03653487, 3.16006666e-04, 6.43901172e-08, -2.92306991e-11, 4.86860918e-15,
       -888.170502, -8.17243018]
+    note: J12/61
 - name: HgBr2(s)
   composition: {Hg: 1, Br: 2}
   thermo:
@@ -1169,6 +1306,7 @@ species:
     data:
     - [8.2829714, 1.6302364e-03, 3.4229879e-06, 7.0961992e-10, -4.3353862e-12,
       -2.2952438e+04, -27.345276]
+    note: J 3/62
 - name: HgBr2(L)
   composition: {Hg: 1, Br: 2}
   thermo:
@@ -1176,6 +1314,7 @@ species:
     temperature-ranges: [514.0, 5000.0]
     data:
     - [12.278799, 0.0, 0.0, 0.0, 0.0, -2.2500898e+04, -46.851212]
+    note: J 3/62
 - name: HgO(s)
   composition: {Hg: 1, O: 1}
   thermo:
@@ -1184,6 +1323,7 @@ species:
     data:
     - [3.4170866, 7.116057e-03, -1.4896996e-06, -4.4913548e-09, 2.5937924e-12,
       -1.223327e+04, -13.037185]
+    note: J 6/62
 - name: I2(cr)
   composition: {I: 2}
   thermo:
@@ -1192,6 +1332,7 @@ species:
     data:
     - [-10.5757713, 0.226905653, -1.12461645e-03, 2.41678452e-06, -1.84901377e-09,
       -899.721615, 38.8598964]
+    note: TPIS89
 - name: I2(L)
   composition: {I: 2}
   thermo:
@@ -1199,6 +1340,7 @@ species:
     temperature-ranges: [386.75, 6000.0]
     data:
     - [9.56821268, 0.0, 0.0, 0.0, 0.0, -1204.51948, -36.3733927]
+    note: TPIS89
 - name: K(cr)
   composition: {K: 1}
   thermo:
@@ -1207,6 +1349,7 @@ species:
     data:
     - [-2.08951123, 0.0616320193, -2.40731903e-04, 3.27255823e-07, 0.0,
       -636.098059, 9.1173691]
+    note: CODA89
 - name: K(L)
   composition: {K: 1}
   thermo:
@@ -1217,6 +1360,7 @@ species:
       -945.117514, -15.2340054]
     - [4.64954931, -2.79174106e-03, 1.80836337e-06, 3.41244868e-11, -4.48782184e-15,
       -1014.67797, -17.1767347]
+    note: CODA89
 - name: KCN(s)
   composition: {K: 1, C: 1, N: 1}
   thermo:
@@ -1225,6 +1369,7 @@ species:
     data:
     - [8.1799728, -1.4010782e-03, 3.4237725e-06, -3.4961738e-09, 1.305278e-12,
       -1.6048201e+04, -30.944525]
+    note: J 3/66
 - name: KCN(L)
   composition: {K: 1, C: 1, N: 1}
   thermo:
@@ -1232,6 +1377,7 @@ species:
     temperature-ranges: [895.0, 5000.0]
     data:
     - [9.0581305, 0.0, 0.0, 0.0, 0.0, -1.5226717e+04, -35.454083]
+    note: J 3/66
 - name: KCL(s)
   composition: {K: 1, Cl: 1}
   thermo:
@@ -1242,6 +1388,7 @@ species:
       -5.4248389e+04, -21.596814]
     - [3.9157169, -2.0927271e-03, 4.7310182e-06, 7.0152537e-09, -5.5146098e-12,
       -5.2747066e+04, -10.1448]
+    note: J 3/66
 - name: KCL(L)
   composition: {K: 1, Cl: 1}
   thermo:
@@ -1249,6 +1396,7 @@ species:
     temperature-ranges: [1044.0, 5000.0]
     data:
     - [8.8518064, 0.0, 0.0, 0.0, 0.0, -5.3369478e+04, -40.010059]
+    note: J 3/66
 - name: KF(s)
   composition: {K: 1, F: 1}
   thermo:
@@ -1259,6 +1407,7 @@ species:
       -7.0018149e+04, -21.384504]
     - [9.4627782, -6.4057512e-03, 6.3913262e-08, 7.5949589e-09, -3.3598104e-12,
       -7.1249107e+04, -44.831804]
+    note: J 6/69
 - name: KF(L)
   composition: {K: 1, F: 1}
   thermo:
@@ -1266,6 +1415,7 @@ species:
     temperature-ranges: [1131.0, 5000.0]
     data:
     - [8.6555469, 0.0, 0.0, 0.0, 0.0, -6.9268025e+04, -41.179932]
+    note: J 6/69
 - name: KHF2(a)
   composition: {K: 1, H: 1, F: 2}
   thermo:
@@ -1274,6 +1424,7 @@ species:
     data:
     - [-9.1298498, 0.086618889, 4.3904412e-05, -6.6867599e-07, 8.0454163e-10,
       -1.1258259e+05, 41.0828]
+    note: J 6/71
 - name: KHF2(b)
   composition: {K: 1, H: 1, F: 2}
   thermo:
@@ -1281,6 +1432,7 @@ species:
     temperature-ranges: [469.85, 511.95]
     data:
     - [12.057378, 0.0, 0.0, 0.0, 0.0, -1.1457126e+05, -54.17014]
+    note: J 6/71
 - name: KHF2(L)
   composition: {K: 1, H: 1, F: 2}
   thermo:
@@ -1288,6 +1440,7 @@ species:
     temperature-ranges: [511.95, 6000.0]
     data:
     - [12.580737, 0.0, 0.0, 0.0, 0.0, -1.1404309e+05, -55.879915]
+    note: J 6/71
 - name: KOH(a)
   composition: {K: 1, O: 1, H: 1}
   thermo:
@@ -1296,6 +1449,7 @@ species:
     data:
     - [6.4400977, 1.1310168e-03, 1.5073272e-05, -1.4906119e-08, 1.0556325e-11,
       -5.3161898e+04, -28.098853]
+    note: J12/70
 - name: KOH(b)
   composition: {K: 1, O: 1, H: 1}
   thermo:
@@ -1303,6 +1457,7 @@ species:
     temperature-ranges: [516.0, 679.0]
     data:
     - [9.460714, 0.0, 0.0, 0.0, 0.0, -5.3291648e+04, -43.369326]
+    note: J12/70
 - name: KOH(L)
   composition: {K: 1, O: 1, H: 1}
   thermo:
@@ -1310,6 +1465,7 @@ species:
     temperature-ranges: [679.0, 5000.0]
     data:
     - [9.9956469, 0.0, 0.0, 0.0, 0.0, -5.2620731e+04, -45.334392]
+    note: J12/70
 - name: KO2(s)
   composition: {K: 1, O: 2}
   thermo:
@@ -1320,6 +1476,7 @@ species:
       -3.6340727e+04, -14.419032]
     - [-10.494545, 0.068858988, -8.1402307e-05, 4.2947692e-08, -8.4965832e-12,
       -3.2489989e+04, 59.685913]
+    note: J 6/71
 - name: K2CO3(s)
   composition: {K: 2, C: 1, O: 3}
   thermo:
@@ -1330,6 +1487,7 @@ species:
       -1.4166744e+05, -34.894424]
     - [22.824341, -0.013580993, 8.740989e-06, 1.1494425e-08, -6.7588149e-12,
       -1.4577844e+05, -110.48665]
+    note: J 3/66
 - name: K2CO3(L)
   composition: {K: 2, C: 1, O: 3}
   thermo:
@@ -1337,6 +1495,7 @@ species:
     temperature-ranges: [1174.0, 5000.0]
     data:
     - [25.161469, 0.0, 0.0, 0.0, 0.0, -1.4740138e+05, -131.1073]
+    note: J 3/66
 - name: K2O(s)
   composition: {K: 2, O: 1}
   thermo:
@@ -1347,6 +1506,7 @@ species:
       -4.56125862e+04, -4.7590347]
     - [7.1870264, 9.11492365e-03, -4.1806688e-06, 1.79898267e-09, -2.83941251e-13,
       -4.60009426e+04, -31.7449802]
+    note: J 6/63
 - name: K2O2(s)
   composition: {K: 2, O: 2}
   thermo:
@@ -1357,6 +1517,7 @@ species:
       -6.27735254e+04, -40.2514321]
     - [10.4816299, 6.90861807e-03, 4.86567038e-07, -2.54902723e-10, 4.08386186e-14,
       -6.31814318e+04, -48.4772902]
+    note: J 9/63
 - name: K2S(1)
   composition: {K: 2, S: 1}
   thermo:
@@ -1366,6 +1527,7 @@ species:
     - [31.364431, -0.18810663, 5.6005727e-04, -6.9703555e-07, 3.1249094e-10,
       -4.9997406e+04, -128.10455]
     - [-74.849337, 0.093619796, 0.0, 0.0, 0.0, -9721.7939, 449.67393]
+    note: J 3/78
 - name: K2S(2)
   composition: {K: 2, S: 1}
   thermo:
@@ -1373,6 +1535,7 @@ species:
     temperature-ranges: [1050.0, 1100.0]
     data:
     - [156.42816, -0.12664444, 0.0, 0.0, 0.0, -1.3114419e+05, -927.94275]
+    note: J 3/78
 - name: K2S(3)
   composition: {K: 2, S: 1}
   thermo:
@@ -1380,6 +1543,7 @@ species:
     temperature-ranges: [1100.0, 1221.0]
     data:
     - [17.119867, 0.0, 0.0, 0.0, 0.0, -5.4524953e+04, -91.666511]
+    note: J 3/78
 - name: K2S(L)
   composition: {K: 2, S: 1}
   thermo:
@@ -1387,6 +1551,7 @@ species:
     temperature-ranges: [1221.0, 5000.0]
     data:
     - [12.142927, 0.0, 0.0, 0.0, 0.0, -4.6520349e+04, -54.716043]
+    note: J 3/78
 - name: K2SO4(a)
   composition: {K: 2, S: 1, O: 4}
   thermo:
@@ -1395,6 +1560,7 @@ species:
     data:
     - [1.7026526, 0.084709714, -1.7632573e-04, 1.9282803e-07, -7.647089e-11,
       -1.7598087e+05, -7.5631951]
+    note: J 6/78
 - name: K2SO4(b)
   composition: {K: 2, S: 1, O: 4}
   thermo:
@@ -1405,6 +1571,7 @@ species:
       -58.441296]
     - [-290.19866, 1.0569631, -1.3475299e-03, 7.6766576e-07, -1.633744e-10,
       -1.0554214e+05, 1453.0094]
+    note: J 6/78
 - name: K2SO4(L)
   composition: {K: 2, S: 1, O: 4}
   thermo:
@@ -1412,6 +1579,7 @@ species:
     temperature-ranges: [1342.0, 5000.0]
     data:
     - [24.230499, 0.0, 0.0, 0.0, 0.0, -1.7695519e+05, -117.40222]
+    note: J 6/78
 - name: Li(cr)
   composition: {Li: 1}
   thermo:
@@ -1420,6 +1588,7 @@ species:
     data:
     - [0.610909942, 0.0141041217, -1.7495817e-05, -3.33741023e-08, 7.76629665e-11,
       -625.121208, -3.26449947]
+    note: TPIS82
 - name: Li(L)
   composition: {Li: 1}
   thermo:
@@ -1430,6 +1599,7 @@ species:
       -958.811267, -21.2778501]
     - [3.89314223, -8.42787696e-04, 4.45546328e-07, -3.65337454e-11, 3.8927922e-15,
       -822.019556, -17.8183077]
+    note: TPIS82
 - name: LiALO2(s)
   composition: {Li: 1, Al: 1, O: 2}
   thermo:
@@ -1440,6 +1610,7 @@ species:
       -1.4381831e+05, 18.576733]
     - [8.5440894, 6.4886791e-03, -4.0863969e-06, 1.5471466e-09, -2.2495038e-13,
       -1.459815e+05, -44.590618]
+    note: J12/79
 - name: LiALO2(L)
   composition: {Li: 1, Al: 1, O: 2}
   thermo:
@@ -1447,6 +1618,7 @@ species:
     temperature-ranges: [1973.0, 5000.0]
     data:
     - [15.096679, 0.0, 0.0, 0.0, 0.0, -1.4165839e+05, -80.993767]
+    note: J12/79
 - name: LiCL(s)
   composition: {Li: 1, Cl: 1}
   thermo:
@@ -1455,6 +1627,7 @@ species:
     data:
     - [4.1095245, 8.1981003e-03, -1.1541874e-05, 1.0585386e-08, -3.6457022e-12,
       -5.0608266e+04, -18.298894]
+    note: J 6/62
 - name: LiCL(L)
   composition: {Li: 1, Cl: 1}
   thermo:
@@ -1465,6 +1638,7 @@ species:
       -5.053912e+04, -49.92196]
     - [8.2149477, 5.6391361e-04, -1.7350331e-06, 7.6595008e-10, -1.2378477e-13,
       -5.0007322e+04, -38.808961]
+    note: J 6/62
 - name: LiF(s)
   composition: {Li: 1, F: 1}
   thermo:
@@ -1475,6 +1649,7 @@ species:
       -7.5299278e+04, -9.9478057]
     - [5.5405738, -1.342108e-04, 1.7825606e-06, 8.8996444e-10, -9.1296654e-13,
       -7.5900365e+04, -27.447276]
+    note: J12/68
 - name: LiF(L)
   composition: {Li: 1, F: 1}
   thermo:
@@ -1482,6 +1657,7 @@ species:
     temperature-ranges: [1121.3, 5000.0]
     data:
     - [7.7195401, 0.0, 0.0, 0.0, 0.0, -7.4304347e+04, -38.815487]
+    note: J12/68
 - name: LiH(s)
   composition: {Li: 1, H: 1}
   thermo:
@@ -1490,6 +1666,7 @@ species:
     data:
     - [0.38611812, 0.012127957, -8.6900336e-06, 5.6311555e-09, -1.2693483e-12,
       -1.1486991e+04, -3.0654575]
+    note: J 9/67
 - name: LiH(L)
   composition: {Li: 1, H: 1}
   thermo:
@@ -1497,6 +1674,7 @@ species:
     temperature-ranges: [961.8, 5000.0]
     data:
     - [7.4981191, 0.0, 0.0, 0.0, 0.0, -1.1581826e+04, -40.047278]
+    note: J 9/67
 - name: LiOH(s)
   composition: {Li: 1, O: 1, H: 1}
   thermo:
@@ -1505,6 +1683,7 @@ species:
     data:
     - [0.63227797, 0.025340538, -2.789795e-05, 8.6925893e-09, 4.1499894e-12,
       -5.941268e+04, -4.8382697]
+    note: J 6/71
 - name: LiOH(L)
   composition: {Li: 1, O: 1, H: 1}
   thermo:
@@ -1512,6 +1691,7 @@ species:
     temperature-ranges: [744.3, 5000.0]
     data:
     - [10.474218, 0.0, 0.0, 0.0, 0.0, -6.0185671e+04, -53.89714]
+    note: J 6/71
 - name: Li2O(s)
   composition: {Li: 2, O: 1}
   thermo:
@@ -1522,6 +1702,7 @@ species:
       -7.3106196e+04, -2.288833]
     - [4.2774776, 7.8521672e-03, -5.222509e-07, -1.7864426e-09, 5.3961035e-13,
       -7.3396278e+04, -21.765497]
+    note: J 3/64
 - name: Li2O(L)
   composition: {Li: 2, O: 1}
   thermo:
@@ -1529,6 +1710,7 @@ species:
     temperature-ranges: [1843.0, 5000.0]
     data:
     - [12.076931, 0.0, 0.0, 0.0, 0.0, -7.1337921e+04, -65.174974]
+    note: J 3/64
 - name: Li2SO4(a)
   composition: {Li: 2, S: 1, O: 4}
   thermo:
@@ -1537,6 +1719,7 @@ species:
     data:
     - [-4.13873597, 0.106940568, -2.09346052e-04, 2.12892822e-07, -8.01625106e-11,
       -1.74806776e+05, 12.9835773]
+    note: J12/78
 - name: Li2SO4(b)
   composition: {Li: 2, S: 1, O: 4}
   thermo:
@@ -1547,6 +1730,7 @@ species:
       -136.312168]
     - [26.1026513, -8.29304728e-04, 3.90810735e-07, 0.0, 0.0, -1.80422445e+05,
       -138.008099]
+    note: J12/78
 - name: Li2SO4(L)
   composition: {Li: 2, S: 1, O: 4}
   thermo:
@@ -1554,6 +1738,7 @@ species:
     temperature-ranges: [1132.0, 6000.0]
     data:
     - [24.6579132, 0.0, 0.0, 0.0, 0.0, -1.78097798e+05, -127.626158]
+    note: J12/78
 - name: Li3N(s)
   composition: {Li: 3, N: 1}
   thermo:
@@ -1564,6 +1749,7 @@ species:
       -2.1678029e+04, -16.331057]
     - [5.4422503, 0.013477737, -1.9422322e-06, -2.4960109e-11, 0.0, -2.2015776e+04,
       -27.457275]
+    note: J 3/78
 - name: Mg(cr)
   composition: {Mg: 1}
   thermo:
@@ -1572,6 +1758,7 @@ species:
     data:
     - [1.47884944, 9.27430526e-03, -1.95050788e-05, 1.98215527e-08, -7.04927374e-12,
       -716.649299, -6.57222695]
+    note: SRD 93
 - name: Mg(L)
   composition: {Mg: 1}
   thermo:
@@ -1579,6 +1766,7 @@ species:
     temperature-ranges: [923.0, 6000.0]
     data:
     - [4.12531827, 0.0, 0.0, 0.0, 0.0, -658.934341, -19.3786894]
+    note: SRD 93
 - name: MgAL2O4(s)
   composition: {Mg: 1, Al: 2, O: 4}
   thermo:
@@ -1589,6 +1777,7 @@ species:
       -2.7827141e+05, 20.132701]
     - [14.697679, 9.3304797e-03, -3.5522598e-06, 1.155053e-09, -1.4334531e-13,
       -2.8166411e+05, -76.668685]
+    note: J12/79
 - name: MgAL2O4(L)
   composition: {Mg: 1, Al: 2, O: 4}
   thermo:
@@ -1596,6 +1785,7 @@ species:
     temperature-ranges: [2408.0, 5000.0]
     data:
     - [26.419188, 0.0, 0.0, 0.0, 0.0, -2.6883536e+05, -141.98581]
+    note: J12/79
 - name: MgBr2(s)
   composition: {Mg: 1, Br: 2}
   thermo:
@@ -1604,6 +1794,7 @@ species:
     data:
     - [5.1966422, 0.020670253, -3.7253939e-05, 3.1937564e-08, -9.9507016e-12,
       -6.5252616e+04, -20.28891]
+    note: J 6/74
 - name: MgBr2(L)
   composition: {Mg: 1, Br: 2}
   thermo:
@@ -1611,6 +1802,7 @@ species:
     temperature-ranges: [984.0, 5000.0]
     data:
     - [12.580737, 0.0, 0.0, 0.0, 0.0, -6.3962982e+04, -56.25546]
+    note: J 6/74
 - name: MgCO3(s)
   composition: {Mg: 1, C: 1, O: 3}
   thermo:
@@ -1619,6 +1811,7 @@ species:
     data:
     - [1.3491924, 0.036934112, -4.4492952e-05, 3.1815906e-08, -9.75453e-12,
       -1.3541685e+05, -9.0618732]
+    note: J12/66
 - name: MgCL2(s)
   composition: {Mg: 1, Cl: 2}
   thermo:
@@ -1627,6 +1820,7 @@ species:
     data:
     - [5.4491296, 0.016745224, -2.5956907e-05, 1.9111573e-08, -5.1059014e-12,
       -7.9343894e+04, -24.261084]
+    note: J12/65
 - name: MgCL2(L)
   composition: {Mg: 1, Cl: 2}
   thermo:
@@ -1634,6 +1828,7 @@ species:
     temperature-ranges: [987.0, 5000.0]
     data:
     - [11.071048, 0.0, 0.0, 0.0, 0.0, -7.6294618e+04, -48.972588]
+    note: J12/65
 - name: MgF2(s)
   composition: {Mg: 1, F: 2}
   thermo:
@@ -1644,6 +1839,7 @@ species:
       -1.3672034e+05, -9.7323171]
     - [-2.1022427, 0.035024228, -3.9749893e-05, 2.0461859e-08, -3.953441e-12,
       -1.3539308e+05, 11.044555]
+    note: J 6/75
 - name: MgF2(L)
   composition: {Mg: 1, F: 2}
   thermo:
@@ -1651,6 +1847,7 @@ species:
     temperature-ranges: [1536.0, 5000.0]
     data:
     - [11.416767, 0.0, 0.0, 0.0, 0.0, -1.340841e+05, -57.425069]
+    note: J 6/75
 - name: MgI2(s)
   composition: {Mg: 1, I: 2}
   thermo:
@@ -1659,6 +1856,7 @@ species:
     data:
     - [6.7017159, 0.011697022, -1.6836308e-05, 1.3143809e-08, -4.0099957e-12,
       -4.6527761e+04, -25.432043]
+    note: J12/74
 - name: MgI2(L)
   composition: {Mg: 1, I: 2}
   thermo:
@@ -1666,6 +1864,7 @@ species:
     temperature-ranges: [907.0, 5000.0]
     data:
     - [12.077507, 0.0, 0.0, 0.0, 0.0, -4.552566e+04, -51.883526]
+    note: J12/74
 - name: MgO(s)
   composition: {Mg: 1, O: 1}
   thermo:
@@ -1676,6 +1875,7 @@ species:
       -7.3057948e+04, -0.6355202]
     - [5.0448681, 1.6898201e-03, -7.5617695e-07, 2.0286893e-10, -2.0591271e-14,
       -7.4029285e+04, -26.328892]
+    note: J12/74
 - name: MgO(L)
   composition: {Mg: 1, O: 1}
   thermo:
@@ -1683,6 +1883,7 @@ species:
     temperature-ranges: [3105.0, 5000.0]
     data:
     - [8.0516715, 0.0, 0.0, 0.0, 0.0, -6.9879451e+04, -44.343825]
+    note: J12/74
 - name: MgO2H2(s)
   composition: {Mg: 1, O: 2, H: 2}
   thermo:
@@ -1691,6 +1892,7 @@ species:
     data:
     - [-4.1664248, 0.076844987, -1.3720767e-04, 1.1426859e-07, -3.5925837e-11,
       -1.1238434e+05, 13.592637]
+    note: J12/75
 - name: MgS(s)
   composition: {Mg: 1, S: 1}
   thermo:
@@ -1701,6 +1903,7 @@ species:
       -4.3040759e+04, -18.996001]
     - [5.3501229, 1.3433655e-03, -6.2905e-07, 1.9819858e-10, -2.2591648e-14,
       -4.3238548e+04, -24.837831]
+    note: J 9/77
 - name: MgSO4(s)
   composition: {Mg: 1, S: 1, O: 4}
   thermo:
@@ -1711,6 +1914,7 @@ species:
       -1.5680962e+05, -13.028444]
     - [-64.47692, 0.26375317, -3.2491884e-04, 1.8257234e-07, -3.8690767e-11,
       -1.4066107e+05, 321.88389]
+    note: L 7/76
 - name: MgSO4(L)
   composition: {Mg: 1, S: 1, O: 4}
   thermo:
@@ -1718,6 +1922,7 @@ species:
     temperature-ranges: [1400.0, 5000.0]
     data:
     - [19.12272, 0.0, 0.0, 0.0, 0.0, -1.6092876e+05, -101.80465]
+    note: L 7/76
 - name: MgSiO3(I)
   composition: {Mg: 1, Si: 1, O: 3}
   thermo:
@@ -1726,6 +1931,7 @@ species:
     data:
     - [1.3377779, 0.044453222, -6.5973753e-05, 4.7414257e-08, -1.2331098e-11,
       -1.8817226e+05, -10.178936]
+    note: J12/67
 - name: MgSiO3(II)
   composition: {Mg: 1, Si: 1, O: 3}
   thermo:
@@ -1733,6 +1939,7 @@ species:
     temperature-ranges: [903.0, 1258.0]
     data:
     - [14.473886, 0.0, 0.0, 0.0, 0.0, -1.9162172e+05, -76.659464]
+    note: J12/67
 - name: MgSiO3(III)
   composition: {Mg: 1, Si: 1, O: 3}
   thermo:
@@ -1740,6 +1947,7 @@ species:
     temperature-ranges: [1258.0, 1850.0]
     data:
     - [14.725501, 0.0, 0.0, 0.0, 0.0, -1.9174199e+05, -78.299298]
+    note: J12/67
 - name: MgSiO3(L)
   composition: {Mg: 1, Si: 1, O: 3}
   thermo:
@@ -1747,6 +1955,7 @@ species:
     temperature-ranges: [1850.0, 5000.0]
     data:
     - [17.613031, 0.0, 0.0, 0.0, 0.0, -1.8802579e+05, -95.125731]
+    note: J12/67
 - name: MgTiO3(s)
   composition: {Mg: 1, Ti: 1, O: 3}
   thermo:
@@ -1757,6 +1966,7 @@ species:
       -1.9107738e+05, -4.6616535]
     - [10.288224, 0.01034373, -7.4012179e-06, 2.7928824e-09, -3.9532448e-13,
       -1.9281168e+05, -52.958088]
+    note: J 6/67
 - name: MgTiO3(L)
   composition: {Mg: 1, Ti: 1, O: 3}
   thermo:
@@ -1764,6 +1974,7 @@ species:
     temperature-ranges: [1953.0, 5000.0]
     data:
     - [19.625949, 0.0, 0.0, 0.0, 0.0, -1.9091812e+05, -106.56204]
+    note: J 6/67
 - name: MgTi2O5(s)
   composition: {Mg: 1, Ti: 2, O: 5}
   thermo:
@@ -1774,6 +1985,7 @@ species:
       -3.0511613e+05, -12.422102]
     - [16.776608, 0.012237791, -6.301316e-06, 2.4019488e-09, -3.541293e-13,
       -3.0754655e+05, -83.29339]
+    note: J 6/67
 - name: MgTi2O5(L)
   composition: {Mg: 1, Ti: 2, O: 5}
   thermo:
@@ -1781,6 +1993,7 @@ species:
     temperature-ranges: [1963.0, 5000.0]
     data:
     - [31.401519, 0.0, 0.0, 0.0, 0.0, -3.0410001e+05, -168.58649]
+    note: J 6/67
 - name: Mg2SiO4(s)
   composition: {Mg: 2, Si: 1, O: 4}
   thermo:
@@ -1791,6 +2004,7 @@ species:
       -2.6446901e+05, -12.399162]
     - [15.752679, 6.800465e-03, -1.6203951e-06, 7.7368112e-12, 6.3337573e-14,
       -2.6729955e+05, -81.457992]
+    note: J12/67
 - name: Mg2SiO4(L)
   composition: {Mg: 2, Si: 1, O: 4}
   thermo:
@@ -1798,6 +2012,7 @@ species:
     temperature-ranges: [2171.0, 5000.0]
     data:
     - [24.658244, 0.0, 0.0, 0.0, 0.0, -2.6692549e+05, -134.6151]
+    note: J12/67
 - name: Mg2TiO4(s)
   composition: {Mg: 2, Ti: 1, O: 4}
   thermo:
@@ -1808,6 +2023,7 @@ species:
       -2.6307865e+05, -6.2537507]
     - [14.772577, 0.010824147, -4.990756e-06, 1.7407944e-09, -2.5398195e-13,
       -2.6539078e+05, -73.93371]
+    note: J 6/67
 - name: Mg2TiO4(L)
   composition: {Mg: 2, Ti: 1, O: 4}
   thermo:
@@ -1815,6 +2031,7 @@ species:
     temperature-ranges: [2013.0, 5000.0]
     data:
     - [27.476329, 0.0, 0.0, 0.0, 0.0, -2.6153559e+05, -147.45837]
+    note: J 6/67
 - name: Mo(cr)
   composition: {Mo: 1}
   thermo:
@@ -1825,6 +2042,7 @@ species:
       -684.364789, -6.29286538]
     - [5.38432823, -6.0162218e-03, 6.01482526e-06, -2.32962338e-09, 3.52007808e-13,
       -1626.5722, -26.2488891]
+    note: J 3/78
 - name: Mo(L)
   composition: {Mo: 1}
   thermo:
@@ -1832,6 +2050,7 @@ species:
     temperature-ranges: [2896.0, 6000.0]
     data:
     - [4.52894999, 0.0, 0.0, 0.0, 0.0, 2021.40667, -22.8074752]
+    note: J 3/78
 - name: NH4CL(a)
   composition: {N: 1, H: 4, Cl: 1}
   thermo:
@@ -1839,6 +2058,7 @@ species:
     temperature-ranges: [298.15, 458.0]
     data:
     - [4.6749383, 0.019273425, 0.0, 0.0, 0.0, -4.0082751e+04, -20.959133]
+    note: BAR 73
 - name: NH4CL(b)
   composition: {N: 1, H: 4, Cl: 1}
   thermo:
@@ -1846,6 +2066,7 @@ species:
     temperature-ranges: [458.0, 793.2]
     data:
     - [4.166685, 0.013436049, 0.0, 0.0, 0.0, -3.8762693e+04, -14.134402]
+    note: BAR 73
 - name: Na(cr)
   composition: {Na: 1}
   thermo:
@@ -1854,6 +2075,7 @@ species:
     data:
     - [1.23954242, 0.0200562189, -7.36418252e-05, 1.02712149e-07, 0.0, -813.320916,
       -4.50651391]
+    note: CODA89
 - name: Na(L)
   composition: {Na: 1}
   thermo:
@@ -1864,6 +2086,7 @@ species:
       -936.522263, -17.2722638]
     - [4.59858543, -2.42459406e-03, 1.32453794e-06, -4.12375317e-11, 6.40167081e-15,
       -998.535534, -18.6257127]
+    note: CODA89
 - name: NaALO2(a)
   composition: {Na: 1, Al: 1, O: 2}
   thermo:
@@ -1872,6 +2095,7 @@ species:
     data:
     - [-0.8050478, 0.058434968, -1.1884415e-04, 1.1970042e-07, -4.6224793e-11,
       -1.3781665e+05, -0.053335282]
+    note: J 3/63
 - name: NaALO2(b)
   composition: {Na: 1, Al: 1, O: 2}
   thermo:
@@ -1882,6 +2106,7 @@ species:
       -52.371362]
     - [11.966215, -2.2817277e-03, 3.7713741e-06, -1.293267e-09, 1.4135022e-13,
       -1.4004818e+05, -60.006455]
+    note: J 3/63
 - name: NaBr(s)
   composition: {Na: 1, Br: 1}
   thermo:
@@ -1892,6 +2117,7 @@ species:
       -4.5148644e+04, -18.982545]
     - [6.6246448, 1.2382983e-04, 4.0990276e-07, 2.0683651e-10, -1.8076485e-14,
       -4.5560372e+04, -27.6058]
+    note: J 9/64
 - name: NaBr(L)
   composition: {Na: 1, Br: 1}
   thermo:
@@ -1899,6 +2125,7 @@ species:
     temperature-ranges: [1020.0, 5000.0]
     data:
     - [7.4981191, 0.0, 0.0, 0.0, 0.0, -4.304977e+04, -30.170451]
+    note: J 9/64
 - name: NaCN(s)
   composition: {Na: 1, C: 1, N: 1}
   thermo:
@@ -1907,6 +2134,7 @@ species:
     data:
     - [7.9967732, 1.915455e-03, -5.3421591e-06, 6.8091642e-09, -3.1414911e-12,
       -1.3340294e+04, -31.703933]
+    note: J 3/66
 - name: NaCN(L)
   composition: {Na: 1, C: 1, N: 1}
   thermo:
@@ -1914,6 +2142,7 @@ species:
     temperature-ranges: [835.0, 5000.0]
     data:
     - [9.56136, 0.0, 0.0, 0.0, 0.0, -1.3386407e+04, -40.287309]
+    note: J 3/66
 - name: NaCL(s)
   composition: {Na: 1, Cl: 1}
   thermo:
@@ -1924,6 +2153,7 @@ species:
       -5.1123335e+04, -21.227201]
     - [2.2134927, 1.5859902e-03, 5.0486383e-06, 2.6020549e-09, -3.6487096e-12,
       -4.9263203e+04, -2.602566]
+    note: J 9/64
 - name: NaCL(L)
   composition: {Na: 1, Cl: 1}
   thermo:
@@ -1932,6 +2162,7 @@ species:
     data:
     - [12.358488, -6.3071201e-03, 3.2004723e-06, -6.7717362e-10, 5.1015612e-14,
       -5.1423265e+04, -60.58553]
+    note: J 9/64
 - name: NaF(s)
   composition: {Na: 1, F: 1}
   thermo:
@@ -1942,6 +2173,7 @@ species:
       -7.0647183e+04, -17.393633]
     - [7.8342026, -9.483918e-04, -5.4843986e-06, 8.6843022e-09, -2.928586e-12,
       -7.1810405e+04, -38.81571]
+    note: J12/68
 - name: NaF(L)
   composition: {Na: 1, F: 1}
   thermo:
@@ -1950,6 +2182,7 @@ species:
     data:
     - [10.963261, -3.2068459e-03, 1.1611662e-06, -1.6299297e-10, 5.2456141e-15,
       -7.0673943e+04, -56.375695]
+    note: J12/68
 - name: NaI(s)
   composition: {Na: 1, I: 1}
   thermo:
@@ -1958,6 +2191,7 @@ species:
     data:
     - [5.4995984, 3.5668053e-03, -3.996563e-06, 3.1841073e-09, -9.5308722e-13,
       -3.6390356e+04, -20.399251]
+    note: J 9/63
 - name: NaI(L)
   composition: {Na: 1, I: 1}
   thermo:
@@ -1965,6 +2199,7 @@ species:
     temperature-ranges: [933.0, 5000.0]
     data:
     - [7.8000568, 0.0, 0.0, 0.0, 0.0, -3.4759568e+04, -30.818881]
+    note: J 9/63
 - name: NaOH(a)
   composition: {Na: 1, O: 1, H: 1}
   thermo:
@@ -1973,6 +2208,7 @@ species:
     data:
     - [8.5879494, -3.5406013e-03, -4.5533394e-05, 1.8418483e-07, -1.5018973e-10,
       -5.3511851e+04, -39.407585]
+    note: J12/70
 - name: NaOH(L)
   composition: {Na: 1, O: 1, H: 1}
   thermo:
@@ -1983,6 +2219,7 @@ species:
       -5.2942445e+04, -43.51514]
     - [9.4972321, 2.2717972e-03, -2.3977934e-06, 7.8398477e-10, -8.1976472e-14,
       -5.2906824e+04, -45.2999]
+    note: J12/70
 - name: NaO2(s)
   composition: {Na: 1, O: 2}
   thermo:
@@ -1993,6 +2230,7 @@ species:
       -3.3726561e+04, -28.899807]
     - [6.6753177, 6.4234513e-03, -1.5437773e-06, 6.8357774e-10, -1.1073922e-13,
       -3.3572546e+04, -25.848608]
+    note: J 6/63
 - name: Na2CO3(I)
   composition: {Na: 2, C: 1, O: 3}
   thermo:
@@ -2001,6 +2239,7 @@ species:
     data:
     - [6.7835659, 0.038829701, -9.8262455e-05, 1.6543084e-07, -8.3294515e-11,
       -1.391701e+05, -30.463293]
+    note: J 3/66
 - name: Na2CO3(II)
   composition: {Na: 2, C: 1, O: 3}
   thermo:
@@ -2011,6 +2250,7 @@ species:
       -48.064368]
     - [8.2817755, 0.011275389, 1.9963294e-06, 0.0, 0.0, -1.3761266e+05,
       -31.37258]
+    note: J 3/66
 - name: Na2CO3(L)
   composition: {Na: 2, C: 1, O: 3}
   thermo:
@@ -2018,6 +2258,7 @@ species:
     temperature-ranges: [1123.15, 5000.0]
     data:
     - [22.796295, 0.0, 0.0, 0.0, 0.0, -1.4229218e+05, -116.22121]
+    note: J 3/66
 - name: Na2O(c)
   composition: {Na: 2, O: 1}
   thermo:
@@ -2028,6 +2269,7 @@ species:
       -5.2314345e+04, -24.187024]
     - [24.168956, -0.025279744, -4.7390658e-06, 3.1836387e-08, -1.4570265e-11,
       -5.8048236e+04, -125.18065]
+    note: J 6/68
 - name: Na2O(a)
   composition: {Na: 2, O: 1}
   thermo:
@@ -2036,6 +2278,7 @@ species:
     data:
     - [-149.0659, 0.22799038, 3.8391268e-05, -1.7099919e-07, 6.1395926e-11,
       1.1614795e+04, 846.89268]
+    note: J 6/68
 - name: Na2O(L)
   composition: {Na: 2, O: 1}
   thermo:
@@ -2043,6 +2286,7 @@ species:
     temperature-ranges: [1405.2, 5000.0]
     data:
     - [12.580737, 0.0, 0.0, 0.0, 0.0, -4.8594857e+04, -60.661549]
+    note: J 6/68
 - name: Na2O2(a)
   composition: {Na: 2, O: 2}
   thermo:
@@ -2051,6 +2295,7 @@ species:
     data:
     - [4.5815278, 0.03245591, -5.1154201e-05, 4.2663979e-08, -1.3991637e-11,
       -6.4161053e+04, -22.455453]
+    note: J 6/68
 - name: Na2O2(b)
   composition: {Na: 2, O: 2}
   thermo:
@@ -2058,6 +2303,7 @@ species:
     temperature-ranges: [785.0, 5000.0]
     data:
     - [13.66268, 0.0, 0.0, 0.0, 0.0, -6.5632571e+04, -66.841551]
+    note: J 6/68
 - name: Na2S(1)
   composition: {Na: 2, S: 1}
   thermo:
@@ -2068,6 +2314,7 @@ species:
       -4.6950379e+04, -43.837613]
     - [446.7556, -1.0585111, 8.1170093e-04, -1.8877878e-07, 0.0, -1.7748394e+05,
       -2346.2659]
+    note: J 3/78
 - name: Na2S(2)
   composition: {Na: 2, S: 1}
   thermo:
@@ -2076,6 +2323,7 @@ species:
     data:
     - [-5.6793549e+05, 1680.4121, -1.8622679, 9.1620588e-04, -1.6884879e-07,
       1.5332805e+08, 2.9108687e+06]
+    note: J 3/78
 - name: Na2S(L)
   composition: {Na: 2, S: 1}
   thermo:
@@ -2083,6 +2331,7 @@ species:
     temperature-ranges: [1445.0, 5000.0]
     data:
     - [11.071048, 0.0, 0.0, 0.0, 0.0, -4.279093e+04, -48.615889]
+    note: J 3/78
 - name: Na2SO4(V)
   composition: {Na: 2, S: 1, O: 4}
   thermo:
@@ -2091,6 +2340,7 @@ species:
     data:
     - [5.83393186, 0.0308201992, 5.9798635e-05, -2.59779078e-07, 2.47853998e-10,
       -1.70156075e+05, -25.2886427]
+    note: J 6/78
 - name: Na2SO4(IV)
   composition: {Na: 2, S: 1, O: 4}
   thermo:
@@ -2099,6 +2349,7 @@ species:
     data:
     - [9.71967784, 0.021882042, -6.19770747e-06, 0.0, 0.0, -1.70712819e+05,
       -43.6063369]
+    note: J 6/78
 - name: Na2SO4(I)
   composition: {Na: 2, S: 1, O: 4}
   thermo:
@@ -2109,6 +2360,7 @@ species:
       -1.71322923e+05, -73.5127015]
     - [16.1157389, 8.20925891e-03, -2.33305547e-07, 0.0, 0.0, -1.71129101e+05,
       -74.6990748]
+    note: J 6/78
 - name: Na2SO4(L)
   composition: {Na: 2, S: 1, O: 4}
   thermo:
@@ -2116,6 +2368,7 @@ species:
     temperature-ranges: [1157.0, 6000.0]
     data:
     - [23.6977729, 0.0, 0.0, 0.0, 0.0, -1.71658912e+05, -116.358482]
+    note: J 6/78
 - name: Na3ALF6(a)
   composition: {Na: 3, Al: 1, F: 6}
   thermo:
@@ -2124,6 +2377,7 @@ species:
     data:
     - [2.2592958, 0.15569666, -3.6161844e-04, 4.047908e-07, -1.6505552e-10,
       -4.0405993e+05, -17.798545]
+    note: J12/79
 - name: Na3ALF6(b)
   composition: {Na: 3, Al: 1, F: 6}
   thermo:
@@ -2133,6 +2387,7 @@ species:
     - [16.593657, 0.016911694, 1.03166e-06, 0.0, 0.0, -4.0108689e+05, -64.910792]
     - [9.5543957, 0.035201542, -1.4620994e-05, 4.4020669e-09, 0.0, -3.9907552e+05,
       -28.216177]
+    note: J12/79
 - name: Na3ALF6(L)
   composition: {Na: 3, Al: 1, F: 6}
   thermo:
@@ -2140,6 +2395,7 @@ species:
     temperature-ranges: [1285.0, 5000.0]
     data:
     - [47.567623, 0.0, 0.0, 0.0, 0.0, -4.1296538e+05, -253.7588]
+    note: J12/79
 - name: Na5AL3F14(s)
   composition: {Na: 5, Al: 3, F: 14}
   thermo:
@@ -2149,6 +2405,7 @@ species:
     - [13.728171, 0.232983, -4.1672172e-04, 3.5373268e-07, -1.1276774e-10,
       -9.2325582e+05, -73.913754]
     - [60.805376, 0.010149015, 0.0, 0.0, 0.0, -9.3194365e+05, -294.91948]
+    note: J12/79
 - name: Na5AL3F14(L)
   composition: {Na: 5, Al: 3, F: 14}
   thermo:
@@ -2156,6 +2413,7 @@ species:
     temperature-ranges: [1010.0, 5000.0]
     data:
     - [117.1301, 0.0, 0.0, 0.0, 0.0, -9.5612884e+05, -647.05309]
+    note: J12/79
 - name: Nb(cr)
   composition: {Nb: 1}
   thermo:
@@ -2166,6 +2424,7 @@ species:
       -769.037196, -8.00990261]
     - [4.21499986, -2.90686491e-03, 3.1239699e-06, -1.27909749e-09, 2.09229406e-13,
       -1286.82102, -19.1976179]
+    note: J12/73
 - name: Nb(L)
   composition: {Nb: 1}
   thermo:
@@ -2173,6 +2432,7 @@ species:
     temperature-ranges: [2750.0, 6000.0]
     data:
     - [4.02573333, 0.0, 0.0, 0.0, 0.0, 1427.04047, -18.5790552]
+    note: J12/73
 - name: NbO(s)
   composition: {Nb: 1, O: 1}
   thermo:
@@ -2183,6 +2443,7 @@ species:
       -5.1703369e+04, -13.918597]
     - [5.1236553, 8.937586e-04, 3.0930845e-07, -1.6433702e-10, 2.8569835e-14,
       -5.211091e+04, -24.09952]
+    note: J12/73
 - name: NbO(L)
   composition: {Nb: 1, O: 1}
   thermo:
@@ -2190,6 +2451,7 @@ species:
     temperature-ranges: [2210.0, 5000.0]
     data:
     - [7.5484421, 0.0, 0.0, 0.0, 0.0, -4.4587138e+04, -35.81734]
+    note: J12/73
 - name: NbO2(I)
   composition: {Nb: 1, O: 2}
   thermo:
@@ -2199,6 +2461,7 @@ species:
     - [-1.54841792, 0.0545536428, -1.20674626e-04, 1.2377777e-07, -4.56154808e-11,
       -9.6731163e+04, 3.47268215]
     - [5.28902716, 5.20386062e-03, 0.0, 0.0, 0.0, -9.72972461e+04, -24.8908597]
+    note: J12/73
 - name: NbO2(II)
   composition: {Nb: 1, O: 2}
   thermo:
@@ -2206,6 +2469,7 @@ species:
     temperature-ranges: [1090.0, 1200.0]
     data:
     - [11.17141, 0.0, 0.0, 0.0, 0.0, -1.00205998e+05, -59.9819441]
+    note: J12/73
 - name: NbO2(III)
   composition: {Nb: 1, O: 2}
   thermo:
@@ -2213,6 +2477,7 @@ species:
     temperature-ranges: [1200.0, 2175.0]
     data:
     - [9.98885082, 0.0, 0.0, 0.0, 0.0, -9.87869274e+04, -51.5975088]
+    note: J12/73
 - name: NbO2(L)
   composition: {Nb: 1, O: 2}
   thermo:
@@ -2220,6 +2485,7 @@ species:
     temperature-ranges: [2175.0, 6000.0]
     data:
     - [11.322375, 0.0, 0.0, 0.0, 0.0, -9.06165758e+04, -56.7553462]
+    note: J12/73
 - name: Nb2O5(s)
   composition: {Nb: 2, O: 5}
   thermo:
@@ -2230,6 +2496,7 @@ species:
       -2.3223229e+05, -40.68492]
     - [17.054892, 4.9140558e-03, 4.7294644e-07, -1.8376071e-09, 5.0621922e-13,
       -2.3423027e+05, -83.224799]
+    note: J12/72
 - name: Nb2O5(L)
   composition: {Nb: 2, O: 5}
   thermo:
@@ -2237,6 +2504,7 @@ species:
     temperature-ranges: [1785.0, 5000.0]
     data:
     - [29.136987, 0.0, 0.0, 0.0, 0.0, -2.3736025e+05, -159.33396]
+    note: J12/72
 - name: Ni(cr)
   composition: {Ni: 1}
   thermo:
@@ -2245,6 +2513,7 @@ species:
     data:
     - [3.92097614, -0.0234184719, 1.34230145e-04, -2.75971639e-07, 1.98530861e-10,
       -862.387206, -15.6856186]
+    note: J12/76
 - name: Ni(L)
   composition: {Ni: 1}
   thermo:
@@ -2252,6 +2521,7 @@ species:
     temperature-ranges: [1728.0, 6000.0]
     data:
     - [4.67989094, 0.0, 0.0, 0.0, 0.0, -322.238346, -23.3517797]
+    note: J12/76
 - name: NiS(b)
   composition: {Ni: 1, S: 1}
   thermo:
@@ -2260,6 +2530,7 @@ species:
     data:
     - [2.5150513, 0.019810879, -4.4751713e-05, 5.3552736e-08, -2.4739151e-11,
       -1.1897275e+04, -12.298805]
+    note: J12/76
 - name: NiS(a)
   composition: {Ni: 1, S: 1}
   thermo:
@@ -2270,6 +2541,7 @@ species:
       -1.0605192e+04, -4.9988414]
     - [-2.1688277, 0.020467261, -1.5239068e-05, 4.5242039e-09, 0.0, -9253.9731,
       16.018976]
+    note: J12/76
 - name: NiS(L)
   composition: {Ni: 1, S: 1}
   thermo:
@@ -2277,6 +2549,7 @@ species:
     temperature-ranges: [1249.0, 5000.0]
     data:
     - [9.2342608, 0.0, 0.0, 0.0, 0.0, -1.1053652e+04, -45.769736]
+    note: J12/76
 - name: NiS2(s)
   composition: {Ni: 1, S: 2}
   thermo:
@@ -2287,6 +2560,7 @@ species:
       -1.8222539e+04, -36.224388]
     - [5.274264, 9.0870931e-03, -5.8201099e-06, 1.7050081e-09, 0.0, -1.7528725e+04,
       -23.392219]
+    note: J 3/77
 - name: NiS2(L)
   composition: {Ni: 1, S: 2}
   thermo:
@@ -2294,6 +2568,7 @@ species:
     temperature-ranges: [1280.0, 5000.0]
     data:
     - [10.945241, 0.0, 0.0, 0.0, 0.0, -1.2344925e+04, -49.720624]
+    note: J 3/77
 - name: Ni3S2(I)
   composition: {Ni: 3, S: 2}
   thermo:
@@ -2302,6 +2577,7 @@ species:
     data:
     - [6.92383, 0.04044668, -7.3073957e-05, 7.1007076e-08, -2.6221859e-11,
       -2.9362196e+04, -32.735052]
+    note: J12/76
 - name: Ni3S2(II)
   composition: {Ni: 3, S: 2}
   thermo:
@@ -2309,6 +2585,7 @@ species:
     temperature-ranges: [829.0, 1062.0]
     data:
     - [22.685585, 0.0, 0.0, 0.0, 0.0, -2.9313479e+04, -111.68978]
+    note: J12/76
 - name: Ni3S2(L)
   composition: {Ni: 3, S: 2}
   thermo:
@@ -2316,6 +2593,7 @@ species:
     temperature-ranges: [1062.0, 5000.0]
     data:
     - [23.068039, 0.0, 0.0, 0.0, 0.0, -2.7344402e+04, -112.11811]
+    note: J12/76
 - name: Ni3S4(s)
   composition: {Ni: 3, S: 4}
   thermo:
@@ -2325,6 +2603,7 @@ species:
     - [14.671193, 0.017277164, -2.7569284e-09, 1.0233858e-11, -6.2983956e-15,
       -4.1358479e+04, -66.312939]
     - [14.673818, 0.017275718, 0.0, 0.0, 0.0, -4.1360001e+04, -66.329162]
+    note: J 3/77
 - name: P(cr)
   composition: {P: 1}
   thermo:
@@ -2333,6 +2612,7 @@ species:
     data:
     - [0.802469681, 0.0185779347, -8.34080748e-05, 2.11104876e-07, -2.09658894e-10,
       -646.36257, -2.91281027]
+    note: TPIS89
 - name: P(L)
   composition: {P: 1}
   thermo:
@@ -2340,6 +2620,7 @@ species:
     temperature-ranges: [317.3, 6000.0]
     data:
     - [3.14149601, 0.0, 0.0, 0.0, 0.0, -862.148564, -12.7227472]
+    note: TPIS89
 - name: P4O10(s)
   composition: {P: 4, O: 10}
   thermo:
@@ -2350,6 +2631,7 @@ species:
       -3.66256443e+05, -3.8090697]
     - [-43.300625, 0.21567376, -1.7686344e-04, 6.7642852e-08, -9.910871e-12,
       -3.53461393e+05, 226.05472]
+    note: J12/65
 - name: Pb(cr)
   composition: {Pb: 1}
   thermo:
@@ -2358,6 +2640,7 @@ species:
     data:
     - [3.36014248, -4.31525514e-03, 2.10404411e-05, -3.35897357e-08, 1.91850988e-11,
       -938.593007, -10.7408687]
+    note: TPIS91
 - name: Pb(L)
   composition: {Pb: 1}
   thermo:
@@ -2368,6 +2651,7 @@ species:
       -592.027769, -11.3377955]
     - [4.18191355, -9.84150979e-04, 3.55339809e-07, -1.75808349e-11, -3.23884419e-15,
       -756.065769, -15.1099545]
+    note: TPIS91
 - name: PbBr2(s)
   composition: {Pb: 1, Br: 2}
   thermo:
@@ -2376,6 +2660,7 @@ species:
     data:
     - [10.557554, -7.0617393e-03, 1.0187602e-05, 1.3052876e-08, -1.6373094e-11,
       -3.6304801e+04, -39.199032]
+    note: J12/73
 - name: PbBr2(L)
   composition: {Pb: 1, Br: 2}
   thermo:
@@ -2383,6 +2668,7 @@ species:
     temperature-ranges: [644.0, 5000.0]
     data:
     - [13.486549, 0.0, 0.0, 0.0, 0.0, -3.6572201e+04, -57.049087]
+    note: J12/73
 - name: PbCL2(s)
   composition: {Pb: 1, Cl: 2}
   thermo:
@@ -2391,6 +2677,7 @@ species:
     data:
     - [8.280269, 3.0414343e-03, 1.560258e-06, -2.228461e-09, 1.111544e-12,
       -4.5841218e+04, -31.781242]
+    note: J 6/73
 - name: PbCL2(L)
   composition: {Pb: 1, Cl: 2}
   thermo:
@@ -2398,6 +2685,7 @@ species:
     temperature-ranges: [774.0, 5000.0]
     data:
     - [13.411065, 0.0, 0.0, 0.0, 0.0, -4.6167077e+04, -59.932654]
+    note: J 6/73
 - name: PbF2(a)
   composition: {Pb: 1, F: 2}
   thermo:
@@ -2406,6 +2694,7 @@ species:
     data:
     - [24.6966471, -0.159658886, 5.67676318e-04, -8.51030524e-07, 4.66841985e-10,
       -8.52413317e+04, -98.1573714]
+    note: J12/73
 - name: PbF2(b)
   composition: {Pb: 1, F: 2}
   thermo:
@@ -2416,6 +2705,7 @@ species:
       7.85231255e+04, 4495.31736]
     - [993.284674, -1.87255943, 8.90699273e-04, 0.0, 0.0, -4.26962008e+05,
       -5406.78897]
+    note: J12/73
 - name: PbF2(L)
   composition: {Pb: 1, F: 2}
   thermo:
@@ -2423,6 +2713,7 @@ species:
     temperature-ranges: [1103.0, 6000.0]
     data:
     - [13.1340648, 0.0, 0.0, 0.0, 0.0, -8.47552152e+04, -62.0713278]
+    note: J12/73
 - name: PbI2(s)
   composition: {Pb: 1, I: 2}
   thermo:
@@ -2431,6 +2722,7 @@ species:
     data:
     - [8.4424431, 5.9195772e-03, -1.3888686e-05, 1.3221393e-08, 1.6164068e-12,
       -2.3779049e+04, -28.3379]
+    note: J12/73
 - name: PbI2(L)
   composition: {Pb: 1, I: 2}
   thermo:
@@ -2438,6 +2730,7 @@ species:
     temperature-ranges: [683.0, 5000.0]
     data:
     - [13.058805, 0.0, 0.0, 0.0, 0.0, -2.3440932e+04, -52.044807]
+    note: J12/73
 - name: PbO(rd)
   composition: {Pb: 1, O: 1}
   thermo:
@@ -2446,6 +2739,7 @@ species:
     data:
     - [2.864601, 0.010772372, -3.6613096e-06, -1.2281087e-08, 1.0066435e-11,
       -2.7670174e+04, -11.304513]
+    note: J12/71
 - name: PbO(yw)
   composition: {Pb: 1, O: 1}
   thermo:
@@ -2456,6 +2750,7 @@ species:
       -17.064476]
     - [5.1124626, 2.0394489e-03, -2.0428228e-07, 0.0, 0.0, -2.7854661e+04,
       -21.505944]
+    note: J12/71
 - name: PbO(L)
   composition: {Pb: 1, O: 1}
   thermo:
@@ -2463,6 +2758,7 @@ species:
     temperature-ranges: [1159.0, 5000.0]
     data:
     - [7.8176698, 0.0, 0.0, 0.0, 0.0, -2.6656533e+04, -35.716934]
+    note: J12/71
 - name: PbO2(s)
   composition: {Pb: 1, O: 2}
   thermo:
@@ -2473,6 +2769,7 @@ species:
       -3.4585291e+04, -11.069931]
     - [6.869549, 4.688794e-03, -2.0206349e-06, 0.0, 0.0, -3.531875e+04,
       -32.001372]
+    note: J12/71
 - name: PbS(s)
   composition: {Pb: 1, S: 1}
   thermo:
@@ -2483,6 +2780,7 @@ species:
       -1.353818e+04, -20.909267]
     - [4.8695408, 2.5509848e-03, -3.8042879e-07, -5.4814638e-10, 2.6573819e-13,
       -1.3298452e+04, -17.299606]
+    note: J 6/73
 - name: PbS(L)
   composition: {Pb: 1, S: 1}
   thermo:
@@ -2490,6 +2788,7 @@ species:
     temperature-ranges: [1386.5, 5000.0]
     data:
     - [8.0516715, 0.0, 0.0, 0.0, 0.0, -1.356606e+04, -35.757796]
+    note: J 6/73
 - name: Pb3O4(s)
   composition: {Pb: 3, O: 4}
   thermo:
@@ -2500,6 +2799,7 @@ species:
       -9.0047726e+04, -9.6062235]
     - [19.927203, 5.0336233e-03, -8.3439217e-10, 2.0760899e-13, -1.777088e-17,
       -9.2876787e+04, -90.288407]
+    note: J12/71
 - name: S(cr1)
   composition: {S: 1}
   thermo:
@@ -2508,6 +2808,7 @@ species:
     data:
     - [0.371369512, 0.0153373501, -3.35441107e-05, 2.892495e-08, 0.0, -553.21385,
       -1.59624498]
+    note: TPIS89
 - name: S(cr2)
   composition: {S: 1}
   thermo:
@@ -2515,6 +2816,7 @@ species:
     temperature-ranges: [368.3, 388.36]
     data:
     - [2.08033146, 2.44137554e-03, 0.0, 0.0, 0.0, -685.306695, -8.60715487]
+    note: TPIS89
 - name: S(L)
   composition: {S: 1}
   thermo:
@@ -2525,6 +2827,7 @@ species:
       8291.34856, 315.269743]
     - [3.5007841, 3.816621e-04, -1.55569962e-07, 2.72783689e-11, -1.72812554e-15,
       -590.873035, -15.216727]
+    note: TPIS89
 - name: SCL2(L)
   composition: {S: 1, Cl: 2}
   thermo:
@@ -2532,6 +2835,7 @@ species:
     temperature-ranges: [300.0, 5000.0]
     data:
     - [10.945241, 0.0, 0.0, 0.0, 0.0, -9251.7543, -40.269795]
+    note: J 6/78
 - name: S2CL2(L)
   composition: {S: 2, Cl: 2}
   thermo:
@@ -2539,6 +2843,7 @@ species:
     temperature-ranges: [300.0, 5000.0]
     data:
     - [14.948935, 0.0, 0.0, 0.0, 0.0, -1.1451915e+04, -58.250225]
+    note: J 6/78
 - name: Si(cr)
   composition: {Si: 1}
   thermo:
@@ -2549,6 +2854,7 @@ species:
       -415.516417, -0.359570008]
     - [1.75547382, 3.17285497e-03, -2.78236402e-06, 1.26458065e-09, -2.17128464e-13,
       -628.657363, -8.55341177]
+    note: TPIS91
 - name: Si(L)
   composition: {Si: 1}
   thermo:
@@ -2556,6 +2862,7 @@ species:
     temperature-ranges: [1690.0, 6000.0]
     data:
     - [3.27138941, 0.0, 0.0, 0.0, 0.0, 4882.86795, -13.2665477]
+    note: TPIS91
 - name: SiC(b)
   composition: {Si: 1, C: 1}
   thermo:
@@ -2566,6 +2873,7 @@ species:
       -9069.126, 8.8009214]
     - [3.7974809, 3.1872886e-03, -1.4502334e-06, 3.1549744e-10, -2.6158991e-14,
       -1.0291937e+04, -21.067791]
+    note: J 3/67
 - name: SiO2(Lqz)
   composition: {Si: 1, O: 2}
   thermo:
@@ -2574,6 +2882,7 @@ species:
     data:
     - [-0.75851138, 0.0305773989, -4.00861855e-05, 2.16194849e-08, -6.17249042e-13,
       -1.10371483e+05, 1.78384529]
+    note: J 6/67
 - name: SiO2(hqz)
   composition: {Si: 1, O: 2}
   thermo:
@@ -2584,6 +2893,7 @@ species:
       -36.3708064]
     - [7.23537106, 7.61842227e-04, 4.89502294e-07, -2.35754591e-10, 4.20839131e-14,
       -1.11823834e+05, -36.9642796]
+    note: J 6/67
 - name: SiO2(L)
   composition: {Si: 1, O: 2}
   thermo:
@@ -2591,6 +2901,7 @@ species:
     temperature-ranges: [1696.0, 6000.0]
     data:
     - [10.3160657, 0.0, 0.0, 0.0, 0.0, -1.14600563e+05, -57.6266603]
+    note: J 6/67
 - name: Si2N2O(s)
   composition: {Si: 2, N: 2, O: 1}
   thermo:
@@ -2601,6 +2912,7 @@ species:
       -1.14746e+05, 14.822158]
     - [11.849023, 2.4244681e-03, 3.6529235e-07, -4.2578829e-10, 8.627593e-14,
       -1.1821494e+05, -64.250092]
+    note: L 1/84
 - name: Si3N4(a)
   composition: {Si: 3, N: 4}
   thermo:
@@ -2611,6 +2923,7 @@ species:
       -9.2466651e+04, -32.442431]
     - [2.7981745, 0.027975018, -1.5020578e-05, 3.5872288e-09, -3.1776969e-13,
       -9.1017241e+04, -8.9268819]
+    note: J 3/67
 - name: Sr(a)
   composition: {Sr: 1}
   thermo:
@@ -2619,6 +2932,7 @@ species:
     data:
     - [2.61121855, 3.06923896e-03, -4.43980854e-06, 4.03524789e-09, -1.48087835e-12,
       -883.002675, -9.01331093]
+    note: SRD 93
 - name: Sr(b)
   composition: {Sr: 1}
   thermo:
@@ -2626,6 +2940,7 @@ species:
     temperature-ranges: [820.0, 1041.0]
     data:
     - [3.19032631, 4.83732655e-04, 0.0, 0.0, 0.0, -856.080629, -11.5723466]
+    note: SRD 93
 - name: Sr(L)
   composition: {Sr: 1}
   thermo:
@@ -2633,6 +2948,7 @@ species:
     temperature-ranges: [1041.0, 6000.0]
     data:
     - [4.45005178, 0.0, 0.0, 0.0, 0.0, -943.17554, -18.8969962]
+    note: SRD 93
 - name: SrCL2(a)
   composition: {Sr: 1, Cl: 2}
   thermo:
@@ -2641,6 +2957,7 @@ species:
     data:
     - [6.9369635, 0.0107876, -1.390794e-05, 5.8982276e-09, 3.0133326e-12,
       -1.0212719e+05, -28.370882]
+    note: J12/72
 - name: SrCL2(b)
   composition: {Sr: 1, Cl: 2}
   thermo:
@@ -2648,6 +2965,7 @@ species:
     temperature-ranges: [1000.0, 1147.0]
     data:
     - [14.794947, 0.0, 0.0, 0.0, 0.0, -1.064275e+05, -75.376228]
+    note: J12/72
 - name: SrCL2(L)
   composition: {Sr: 1, Cl: 2}
   thermo:
@@ -2655,6 +2973,7 @@ species:
     temperature-ranges: [1147.0, 5000.0]
     data:
     - [12.580737, 0.0, 0.0, 0.0, 0.0, -1.0193677e+05, -58.076353]
+    note: J12/72
 - name: SrF2(s)
   composition: {Sr: 1, F: 2}
   thermo:
@@ -2665,6 +2984,7 @@ species:
       -1.485305e+05, -24.089153]
     - [88.747168, -0.16376508, 6.5196899e-05, 4.3548395e-08, -2.3673474e-11,
       -1.7456122e+05, -469.34523]
+    note: J12/72
 - name: SrF2(L)
   composition: {Sr: 1, F: 2}
   thermo:
@@ -2672,6 +2992,7 @@ species:
     temperature-ranges: [1750.0, 5000.0]
     data:
     - [11.912951, 0.0, 0.0, 0.0, 0.0, -1.4642808e+05, -58.022842]
+    note: J12/72
 - name: SrO(s)
   composition: {Sr: 1, O: 1}
   thermo:
@@ -2682,6 +3003,7 @@ species:
       -7.2591404e+04, -15.928796]
     - [5.6477935, 1.3153999e-03, -2.7640412e-07, 6.7308331e-11, -6.5626353e-15,
       -7.3037344e+04, -26.09836]
+    note: J12/72
 - name: SrO(L)
   composition: {Sr: 1, O: 1}
   thermo:
@@ -2689,6 +3011,7 @@ species:
     temperature-ranges: [2938.0, 5000.0]
     data:
     - [8.0516715, 0.0, 0.0, 0.0, 0.0, -6.6734769e+04, -39.092944]
+    note: J12/72
 - name: SrO2H2(s)
   composition: {Sr: 1, O: 2, H: 2}
   thermo:
@@ -2697,6 +3020,7 @@ species:
     data:
     - [4.1706956, 0.016503701, -1.3029745e-06, 1.3971819e-09, -5.3948942e-13,
       -1.1850056e+05, -16.962813]
+    note: J12/75
 - name: SrO2H2(L)
   composition: {Sr: 1, O: 2, H: 2}
   thermo:
@@ -2704,6 +3028,7 @@ species:
     temperature-ranges: [783.15, 5000.0]
     data:
     - [18.971751, 0.0, 0.0, 0.0, 0.0, -1.2261174e+05, -99.660501]
+    note: J12/75
 - name: SrS(s)
   composition: {Sr: 1, S: 1}
   thermo:
@@ -2714,6 +3039,7 @@ species:
       -5.8062998e+04, -24.307318]
     - [5.9405463, 1.0447328e-03, -3.0794392e-07, 9.7198545e-11, -1.1129685e-14,
       -5.8254729e+04, -26.099961]
+    note: J 9/77
 - name: Ta(cr)
   composition: {Ta: 1}
   thermo:
@@ -2724,6 +3050,7 @@ species:
       -826.091467, -9.27093646]
     - [2.89594963, 5.33759133e-04, -3.59144721e-08, -7.20761461e-11, 3.13302008e-14,
       -871.255826, -11.644028]
+    note: J12/72
 - name: Ta(L)
   composition: {Ta: 1}
   thermo:
@@ -2731,6 +3058,7 @@ species:
     temperature-ranges: [3258.0, 6000.0]
     data:
     - [5.03216666, 0.0, 0.0, 0.0, 0.0, -744.223758, -25.9736577]
+    note: J12/72
 - name: TaC(s)
   composition: {Ta: 1, C: 1}
   thermo:
@@ -2741,6 +3069,7 @@ species:
       -1.8226597e+04, -5.0093127]
     - [5.0027056, 1.2849041e-03, -1.7495939e-07, 3.5245581e-11, -2.642926e-15,
       -1.9020553e+04, -24.129691]
+    note: J12/73
 - name: TaC(L)
   composition: {Ta: 1, C: 1}
   thermo:
@@ -2748,6 +3077,7 @@ species:
     temperature-ranges: [4273.0, 5000.0]
     data:
     - [8.0516715, 0.0, 0.0, 0.0, 0.0, -1.0103338e+04, -42.085545]
+    note: J12/73
 - name: Ta2O5(s)
   composition: {Ta: 2, O: 5}
   thermo:
@@ -2758,6 +3088,7 @@ species:
       -2.5008174e+05, -47.310877]
     - [18.473684, 3.4902433e-03, 9.1156584e-07, -1.1508287e-09, 2.470206e-13,
       -2.5245911e+05, -90.733491]
+    note: J12/72
 - name: Ta2O5(L)
   composition: {Ta: 2, O: 5}
   thermo:
@@ -2765,6 +3096,7 @@ species:
     temperature-ranges: [2058.0, 5000.0]
     data:
     - [29.187309, 0.0, 0.0, 0.0, 0.0, -2.5336245e+05, -158.57774]
+    note: J12/72
 - name: Ti(a)
   composition: {Ti: 1}
   thermo:
@@ -2775,6 +3107,7 @@ species:
       -706.881044, -6.19722912]
     - [29.7987171, -0.0567369024, 3.0848735e-05, 0.0, 0.0, -9275.57025,
       -156.730793]
+    note: CODA89
 - name: Ti(b)
   composition: {Ti: 1}
   thermo:
@@ -2783,6 +3116,7 @@ species:
     data:
     - [4.55050938, -5.78446834e-03, 6.58428776e-06, -2.60523484e-09, 4.06930218e-13,
       -186.695724, -19.795304]
+    note: CODA89
 - name: Ti(L)
   composition: {Ti: 1}
   thermo:
@@ -2790,6 +3124,7 @@ species:
     temperature-ranges: [1944.0, 6000.0]
     data:
     - [5.62871414, 0.0, 0.0, 0.0, 0.0, -2375.09598, -30.7872691]
+    note: CODA89
 - name: TiC(s)
   composition: {Ti: 1, C: 1}
   thermo:
@@ -2800,6 +3135,7 @@ species:
       -2.2678352e+04, 3.8626483]
     - [5.9413936, -3.7279967e-04, 7.1209953e-07, -1.351709e-10, 9.980366e-15,
       -2.4173445e+04, -31.530222]
+    note: J 6/68
 - name: TiC(L)
   composition: {Ti: 1, C: 1}
   thermo:
@@ -2807,6 +3143,7 @@ species:
     temperature-ranges: [3290.0, 5000.0]
     data:
     - [7.5484421, 0.0, 0.0, 0.0, 0.0, -1.7660204e+04, -40.629661]
+    note: J 6/68
 - name: TiCL2(s)
   composition: {Ti: 1, Cl: 2}
   thermo:
@@ -2817,6 +3154,7 @@ species:
       -6.4169918e+04, -25.585456]
     - [7.9684147, 2.5447925e-03, -2.8648119e-07, 1.3187806e-10, -2.2270826e-14,
       -6.4508442e+04, -35.713089]
+    note: J12/68
 - name: TiCL3(s)
   composition: {Ti: 1, Cl: 3}
   thermo:
@@ -2827,6 +3165,7 @@ species:
       -9.0182668e+04, -46.287287]
     - [11.462658, 1.4017806e-03, -3.0689724e-08, 1.2339007e-13, -1.0561298e-17,
       -9.031696e+04, -48.993078]
+    note: J 6/68
 - name: TiCL4(L)
   composition: {Ti: 1, Cl: 4}
   thermo:
@@ -2837,6 +3176,7 @@ species:
       -1.0187134e+05, -67.308228]
     - [17.142643, 1.0937087e-03, -1.0690311e-09, 2.6616757e-13, -2.279448e-17,
       -1.0188027e+05, -67.640142]
+    note: J12/67
 - name: TiN(s)
   composition: {Ti: 1, N: 1}
   thermo:
@@ -2847,6 +3187,7 @@ species:
       -4.1124666e+04, 8.6750796]
     - [5.6010051, 3.5645939e-04, 3.9521803e-07, -8.8718002e-11, 7.7844513e-15,
       -4.244343e+04, -28.773293]
+    note: J 6/68
 - name: TiN(L)
   composition: {Ti: 1, N: 1}
   thermo:
@@ -2854,6 +3195,7 @@ species:
     temperature-ranges: [3220.0, 5000.0]
     data:
     - [7.5484421, 0.0, 0.0, 0.0, 0.0, -3.6261709e+04, -39.583906]
+    note: J 6/68
 - name: TiO(a)
   composition: {Ti: 1, O: 1}
   thermo:
@@ -2864,6 +3206,7 @@ species:
       -6.6224332e+04, -5.9567004]
     - [2.6516785, 7.9963203e-03, -4.9552828e-06, 1.4128842e-09, 0.0, -6.6288361e+04,
       -12.918703]
+    note: J12/73
 - name: TiO(b)
   composition: {Ti: 1, O: 1}
   thermo:
@@ -2872,6 +3215,7 @@ species:
     data:
     - [1.7971419, 0.010128863, -7.4585571e-06, 3.0835815e-09, -4.7561747e-13,
       -6.5482773e+04, -7.9349175]
+    note: J12/73
 - name: TiO(L)
   composition: {Ti: 1, O: 1}
   thermo:
@@ -2879,6 +3223,7 @@ species:
     temperature-ranges: [2023.0, 5000.0]
     data:
     - [8.0516715, 0.0, 0.0, 0.0, 0.0, -6.3272138e+04, -41.312109]
+    note: J12/73
 - name: TiO2(ru)
   composition: {Ti: 1, O: 2}
   thermo:
@@ -2889,6 +3234,7 @@ species:
       -1.1478897e+05, -1.8874035]
     - [6.8489151, 4.2463461e-03, -3.0088984e-06, 1.0602519e-09, -1.4379597e-13,
       -1.1599246e+05, -34.514106]
+    note: J12/73
 - name: TiO2(L)
   composition: {Ti: 1, O: 2}
   thermo:
@@ -2896,6 +3242,7 @@ species:
     temperature-ranges: [2130.0, 5000.0]
     data:
     - [12.077507, 0.0, 0.0, 0.0, 0.0, -1.149423e+05, -65.910759]
+    note: J12/73
 - name: Ti2O3(a)
   composition: {Ti: 2, O: 3}
   thermo:
@@ -2904,6 +3251,7 @@ species:
     data:
     - [14.623542, -0.037161717, 9.002647e-05, 0.0, 0.0, -1.8641693e+05,
       -66.914899]
+    note: J 6/73
 - name: Ti2O3(b)
   composition: {Ti: 2, O: 3}
   thermo:
@@ -2914,6 +3262,7 @@ species:
       -1.8525036e+05, -14.066559]
     - [14.874222, 4.5465695e-03, -2.3646363e-06, 5.9960392e-10, -5.341426e-14,
       -1.8797342e+05, -77.863165]
+    note: J 6/73
 - name: Ti2O3(L)
   composition: {Ti: 2, O: 3}
   thermo:
@@ -2921,6 +3270,7 @@ species:
     temperature-ranges: [2115.0, 5000.0]
     data:
     - [18.871105, 0.0, 0.0, 0.0, 0.0, -1.7858698e+05, -96.567257]
+    note: J 6/73
 - name: Ti3O5(a)
   composition: {Ti: 3, O: 5}
   thermo:
@@ -2929,6 +3279,7 @@ species:
     data:
     - [-3.7337434, 0.10619319, -1.0472381e-04, 0.0, 0.0, -2.9845617e+05,
       9.8241016]
+    note: J12/73
 - name: Ti3O5(b)
   composition: {Ti: 3, O: 5}
   thermo:
@@ -2939,6 +3290,7 @@ species:
       -3.0012895e+05, -89.889586]
     - [18.415159, 8.0013102e-03, -1.9907056e-06, 8.7812397e-10, -1.4245275e-13,
       -2.9998684e+05, -88.135479]
+    note: J12/73
 - name: Ti3O5(L)
   composition: {Ti: 3, O: 5}
   thermo:
@@ -2946,6 +3298,7 @@ species:
     temperature-ranges: [2050.0, 5000.0]
     data:
     - [32.206686, 0.0, 0.0, 0.0, 0.0, -2.9368541e+05, -169.12703]
+    note: J12/73
 - name: Ti4O7(s)
   composition: {Ti: 4, O: 7}
   thermo:
@@ -2956,6 +3309,7 @@ species:
       -4.1379484e+05, -4.563758]
     - [24.112915, 0.022927714, -1.7119163e-05, 6.4849206e-09, -9.4883811e-13,
       -4.1810716e+05, -121.0465]
+    note: J12/73
 - name: Ti4O7(L)
   composition: {Ti: 4, O: 7}
   thermo:
@@ -2963,6 +3317,7 @@ species:
     temperature-ranges: [1950.0, 5000.0]
     data:
     - [44.284194, 0.0, 0.0, 0.0, 0.0, -4.1089673e+05, -235.16043]
+    note: J12/73
 - name: V(cr)
   composition: {V: 1}
   thermo:
@@ -2973,6 +3328,7 @@ species:
       -659.969586, -4.48332268]
     - [4.48215589, -4.25728053e-03, 5.38325211e-06, -2.42044016e-09, 4.23981192e-13,
       -1284.20195, -21.2401625]
+    note: J 6/73
 - name: V(L)
   composition: {V: 1}
   thermo:
@@ -2980,6 +3336,7 @@ species:
     temperature-ranges: [2190.0, 6000.0]
     data:
     - [5.55703222, 0.0, 0.0, 0.0, 0.0, -1899.58163, -30.7034308]
+    note: J 6/73
 - name: VCL2(s)
   composition: {V: 1, Cl: 2}
   thermo:
@@ -2990,6 +3347,7 @@ species:
       -5.6698886e+04, -29.205704]
     - [6.2711216, 7.4890046e-03, -5.2531e-06, 1.5067369e-09, 0.0, -5.6358056e+04,
       -25.726538]
+    note: L 2/76
 - name: VCL3(s)
   composition: {V: 1, Cl: 3}
   thermo:
@@ -2998,6 +3356,7 @@ species:
     data:
     - [6.9770413, 0.023542011, -4.0745272e-05, 3.4928483e-08, -1.12449e-11,
       -7.2678169e+04, -29.493712]
+    note: L 2/76
 - name: VCL4(L)
   composition: {V: 1, Cl: 4}
   thermo:
@@ -3005,6 +3364,7 @@ species:
     temperature-ranges: [300.0, 2000.0]
     data:
     - [17.462063, 0.0, 0.0, 0.0, 0.0, -7.3695845e+04, -68.794792]
+    note: L 2/76
 - name: VN(s)
   composition: {V: 1, N: 1}
   thermo:
@@ -3015,6 +3375,7 @@ species:
       -2.7020094e+04, -4.9457436]
     - [4.836874, 1.8900147e-03, -3.1610463e-07, 4.605066e-11, -1.9102037e-15,
       -2.7738152e+04, -23.873353]
+    note: J12/73
 - name: VO(s)
   composition: {V: 1, O: 1}
   thermo:
@@ -3025,6 +3386,7 @@ species:
       -5.3211919e+04, -13.599758]
     - [5.3398715, 1.7591703e-03, 3.8477617e-07, -2.6182471e-10, 5.1009395e-14,
       -5.3651379e+04, -26.382364]
+    note: J12/73
 - name: VO(L)
   composition: {V: 1, O: 1}
   thermo:
@@ -3032,6 +3394,7 @@ species:
     temperature-ranges: [2063.0, 5000.0]
     data:
     - [7.5484421, 0.0, 0.0, 0.0, 0.0, -4.7600474e+04, -36.154213]
+    note: J12/73
 - name: V2O3(s)
   composition: {V: 2, O: 3}
   thermo:
@@ -3042,6 +3405,7 @@ species:
       -1.4911189e+05, -14.723446]
     - [13.964211, 1.6871298e-03, 1.1371206e-06, -2.0806007e-10, 1.0028325e-14,
       -1.5100575e+05, -68.782894]
+    note: J12/73
 - name: V2O3(L)
   composition: {V: 2, O: 3}
   thermo:
@@ -3049,6 +3413,7 @@ species:
     temperature-ranges: [2340.0, 5000.0]
     data:
     - [18.871105, 0.0, 0.0, 0.0, 0.0, -1.4034063e+05, -94.58092]
+    note: J12/73
 - name: V2O4(I)
   composition: {V: 2, O: 4}
   thermo:
@@ -3057,6 +3422,7 @@ species:
     data:
     - [6.8914542, 9.9142022e-03, 5.7837101e-05, 4.3053919e-08, -2.8482694e-10,
       -1.7460864e+05, -32.157358]
+    note: J 6/73
 - name: V2O4(II)
   composition: {V: 2, O: 4}
   thermo:
@@ -3067,6 +3433,7 @@ species:
       -1.7373676e+05, -24.503375]
     - [16.610256, 2.3329419e-03, 9.8904786e-07, -7.5032496e-10, 1.6135461e-13,
       -1.7607389e+05, -80.831997]
+    note: J 6/73
 - name: V2O4(L)
   composition: {V: 2, O: 4}
   thermo:
@@ -3074,6 +3441,7 @@ species:
     temperature-ranges: [1818.0, 5000.0]
     data:
     - [25.664703, 0.0, 0.0, 0.0, 0.0, -1.7463009e+05, -136.5594]
+    note: J 6/73
 - name: V2O5(s)
   composition: {V: 2, O: 5}
   thermo:
@@ -3082,6 +3450,7 @@ species:
     data:
     - [-1.164036, 0.093535884, -1.5675097e-04, 1.2223524e-07, -3.5738845e-11,
       -1.8914531e+05, 0.40722753]
+    note: J 6/73
 - name: V2O5(L)
   composition: {V: 2, O: 5}
   thermo:
@@ -3089,6 +3458,7 @@ species:
     temperature-ranges: [943.0, 5000.0]
     data:
     - [22.947264, 0.0, 0.0, 0.0, 0.0, -1.8751447e+05, -110.89277]
+    note: J 6/73
 - name: Zn(cr)
   composition: {Zn: 1}
   thermo:
@@ -3097,6 +3467,7 @@ species:
     data:
     - [1.85068929, 9.1779141e-03, -2.61047009e-05, 3.38568767e-08, -1.39430709e-11,
       -789.403133, -7.38526333]
+    note: CODA89
 - name: Zn(L)
   composition: {Zn: 1}
   thermo:
@@ -3104,6 +3475,7 @@ species:
     temperature-ranges: [692.73, 6000.0]
     data:
     - [3.77653043, 0.0, 0.0, 0.0, 0.0, -431.695298, -15.6708437]
+    note: CODA89
 - name: ZnSO4(a)
   composition: {Zn: 1, S: 1, O: 4}
   thermo:
@@ -3112,6 +3484,7 @@ species:
     data:
     - [5.1657364, 0.023977394, -3.0700744e-06, -4.8450164e-09, 0.0, -1.2045359e+05,
       -23.105369]
+    note: J 3/79
 - name: ZnSO4(b)
   composition: {Zn: 1, S: 1, O: 4}
   thermo:
@@ -3119,6 +3492,7 @@ species:
     temperature-ranges: [1013.0, 5000.0]
     data:
     - [17.461825, 0.0, 0.0, 0.0, 0.0, -1.2113806e+05, -85.143253]
+    note: J 3/79
 - name: Zr(a)
   composition: {Zr: 1}
   thermo:
@@ -3129,6 +3503,7 @@ species:
       -808.441355, -8.94741836]
     - [2.28119546, 1.46971684e-03, -1.04657616e-08, 0.0, 0.0, -661.803147,
       -8.57377198]
+    note: J 6/79
 - name: Zr(b)
   composition: {Zr: 1}
   thermo:
@@ -3137,6 +3512,7 @@ species:
     data:
     - [4.06876245, -1.58489721e-03, 1.02995129e-06, -1.55767557e-10, 2.30284611e-14,
       -691.172261, -17.8593403]
+    note: J 6/79
 - name: Zr(L)
   composition: {Zr: 1}
   thermo:
@@ -3144,6 +3520,7 @@ species:
     temperature-ranges: [2125.0, 6000.0]
     data:
     - [5.03216666, 0.0, 0.0, 0.0, 0.0, -1100.84626, -25.4797587]
+    note: J 6/79
 - name: ZrN(s)
   composition: {Zr: 1, N: 1}
   thermo:
@@ -3154,6 +3531,7 @@ species:
       -4.511202e+04, -13.901069]
     - [5.540782, 6.1839353e-04, 2.954211e-07, -1.1784311e-10, 1.524143e-14,
       -4.5751324e+04, -27.420654]
+    note: J 6/61
 - name: ZrN(L)
   composition: {Zr: 1, N: 1}
   thermo:
@@ -3161,6 +3539,7 @@ species:
     temperature-ranges: [3225.0, 5000.0]
     data:
     - [7.0451164, 0.0, 0.0, 0.0, 0.0, -3.8105527e+04, -34.436264]
+    note: J 6/61
 - name: ZrO2(a)
   composition: {Zr: 1, O: 2}
   thermo:
@@ -3171,6 +3550,7 @@ species:
       -1.3311967e+05, 0.53221009]
     - [-22.144395, 0.099639763, -1.2006688e-04, 6.4686736e-08, -1.3004881e-11,
       -1.2732797e+05, 111.00891]
+    note: J12/65
 - name: ZrO2(b)
   composition: {Zr: 1, O: 2}
   thermo:
@@ -3178,6 +3558,7 @@ species:
     temperature-ranges: [1478.0, 2950.0]
     data:
     - [8.9573629, 0.0, 0.0, 0.0, 0.0, -1.3414354e+05, -45.274017]
+    note: J12/65
 - name: ZrO2(L)
   composition: {Zr: 1, O: 2}
   thermo:
@@ -3185,3 +3566,4 @@ species:
     temperature-ranges: [2950.0, 5000.0]
     data:
     - [10.567675, 0.0, 0.0, 0.0, 0.0, -1.2842745e+05, -54.592264]
+    note: J12/65
