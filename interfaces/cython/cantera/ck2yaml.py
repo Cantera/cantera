@@ -412,7 +412,7 @@ class Arrhenius:
 class ElementaryRate(KineticsModel):
     """
     A reaction rate described by a single Arrhenius expression.
-    See https://cantera.org/science/reactions.html#reactions-with-a-pressure-independent-rate
+    See https://cantera.org/science/kinetics.html#reactions-with-a-pressure-independent-rate
 
     :param rate:
         The Arrhenius expression describing this reaction rate.
@@ -431,7 +431,7 @@ class ElementaryRate(KineticsModel):
 class SurfaceRate(KineticsModel):
     """
     An Arrhenius-like reaction occurring on a surface
-    See https://cantera.org/science/reactions.html#surface-reactions
+    See https://cantera.org/science/kinetics.html#surface-reactions
 
     :param rate:
         The Arrhenius expression describing this reaction rate.
@@ -479,7 +479,7 @@ class PDepArrhenius(KineticsModel):
     """
     A rate calculated by interpolating between Arrhenius expressions at
     various pressures.
-    See https://cantera.org/science/reactions.html#pressure-dependent-arrhenius-rate-expressions-p-log
+    See https://cantera.org/science/kinetics.html#pressure-dependent-arrhenius-rate-expressions-p-log
 
     :param pressures:
         A list of pressures at which Arrhenius expressions are given.
@@ -508,7 +508,7 @@ class PDepArrhenius(KineticsModel):
 class Chebyshev(KineticsModel):
     """
     A rate calculated in terms of a bivariate Chebyshev polynomial.
-    See https://cantera.org/science/reactions.html#chebyshev-reaction-rate-expressions
+    See https://cantera.org/science/kinetics.html#chebyshev-reaction-rate-expressions
 
     :param coeffs:
         Matrix of Chebyshev coefficients, dimension N_T by N_P
@@ -550,7 +550,7 @@ class Chebyshev(KineticsModel):
 class ThreeBody(KineticsModel):
     """
     A rate calculated for a reaction which includes a third-body collider.
-    See https://cantera.org/science/reactions.html#three-body-reactions
+    See https://cantera.org/science/kinetics.html#three-body-reactions
 
     :param high_rate:
         The Arrhenius kinetics (high-pressure limit)
@@ -579,7 +579,7 @@ class ThreeBody(KineticsModel):
 class Falloff(ThreeBody):
     """
     A rate for a pressure-dependent falloff reaction.
-    See https://cantera.org/science/reactions.html#falloff-reactions
+    See https://cantera.org/science/kinetics.html#falloff-reactions
 
     :param low_rate:
         The Arrhenius kinetics at the low-pressure limit
@@ -613,7 +613,7 @@ class Falloff(ThreeBody):
 class ChemicallyActivated(ThreeBody):
     """
     A rate for a chemically-activated reaction.
-    See https://cantera.org/science/reactions.html#chemically-activated-reactions
+    See https://cantera.org/science/kinetics.html#chemically-activated-reactions
 
     :param low_rate:
         The Arrhenius kinetics at the low-pressure limit
@@ -647,7 +647,7 @@ class ChemicallyActivated(ThreeBody):
 class Troe:
     """
     The Troe falloff function, described with either 3 or 4 parameters.
-    See https://cantera.org/science/reactions.html#the-troe-falloff-function
+    See https://cantera.org/science/kinetics.html#the-troe-falloff-function
     """
     def __init__(self, A=0.0, T3=0.0, T1=0.0, T2=None):
         self.A = A
@@ -665,7 +665,7 @@ class Troe:
 class Sri:
     """
     The SRI falloff function, described with either 3 or 5 parameters.
-    See https://cantera.org/science/reactions.html#the-sri-falloff-function
+    See https://cantera.org/science/kinetics.html#the-sri-falloff-function
     """
     def __init__(self, *, A, B, C, D=None, E=None):
         self.A = A
