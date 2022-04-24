@@ -28,16 +28,17 @@ The fields common to all ``reaction`` entries are:
     - :ref:`Chebyshev <sec-yaml-Chebyshev>`
     - :ref:`two-temperature-plasma <sec-yaml-two-temperature-plasma>`
     - :ref:`Blowers-Masel <sec-yaml-Blowers-Masel>`
-    - :ref:`surface-Blowers-Masel <sec-yaml-surface-Blowers-Masel>`
 
     Reactions without a specified ``type`` on surfaces or edges are
-    automatically treated as :ref:`interface <sec-yaml-interface-reaction>`
-    reactions, and reactions that involve charge transfer between phases are
-    automatically treated as :ref:`electrochemical <sec-yaml-electrochemical-reaction>`
-    reactions. Reactions on surfaces or edges specifying ``type`` as
-    ``Blowers-Masel`` are treated as
-    :ref:`surface-Blowers-Masel <sec-yaml-surface-Blowers-Masel>`.
+    automatically treated as :ref:`interface-Arrhenius <sec-yaml-interface-Arrhenius>`
+    reactions, unless a ``sticking-coefficient`` implies a
+    :ref:`sticking-Arrhenius <sec-yaml-sticking-Arrhenius>` reaction. Interface
+    reactions that involve charge transfer between phases are automatically treated as
+    :ref:`electrochemical <sec-yaml-electrochemical-reaction>` reactions.
 
+    Reactions on surfaces or edges specifying ``type`` as ``Blowers-Masel`` are treated
+    as :ref:`interface-Blowers-Masel <sec-yaml-interface-Blowers-Masel>` or
+    :ref:`sticking-Blowers-Masel <sec-yaml-sticking-Blowers-Masel>`.
 
 ``duplicate``
     Boolean indicating whether the reaction is a known duplicate of another
@@ -422,7 +423,7 @@ Example::
 Interface reactions involving charge transfer between phases,
 as `described here <https://cantera.org/documentation/dev/doxygen/html/d6/ddd/classCantera_1_1ElectrochemicalReaction.html#details>`__.
 
-Includes the fields of an :ref:`sec-yaml-interface-reaction` reaction, plus:
+Includes the fields of an :ref:`sec-yaml-interface-Arrhenius` reaction, plus:
 
 ``beta``
     The symmetry factor for the reaction. Default is 0.5.
