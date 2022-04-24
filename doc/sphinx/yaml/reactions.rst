@@ -22,12 +22,12 @@ The fields common to all ``reaction`` entries are:
 
     - :ref:`elementary <sec-yaml-elementary>`
     - :ref:`three-body <sec-yaml-three-body>`
+    - :ref:`Blowers-Masel <sec-yaml-Blowers-Masel>`
+    - :ref:`two-temperature-plasma <sec-yaml-two-temperature-plasma>`
     - :ref:`falloff <sec-yaml-falloff>`
     - :ref:`chemically-activated <sec-yaml-chemically-activated>`
     - :ref:`pressure-dependent-Arrhenius <sec-yaml-pressure-dependent-Arrhenius>`
     - :ref:`Chebyshev <sec-yaml-Chebyshev>`
-    - :ref:`two-temperature-plasma <sec-yaml-two-temperature-plasma>`
-    - :ref:`Blowers-Masel <sec-yaml-Blowers-Masel>`
 
     Reactions without a specified ``type`` on surfaces or edges are
     automatically treated as :ref:`interface-Arrhenius <sec-yaml-interface-Arrhenius>`
@@ -62,18 +62,80 @@ The fields common to all ``reaction`` entries are:
 Depending on the reaction ``type``, other fields may be necessary to specify
 the rate of the reaction.
 
-.. _sec-yaml-arrhenius:
 
-Arrhenius expression
-====================
+Reaction rate expressions
+=========================
 
-Arrhenius expressions can be specified as either a three-element list containing
-the pre-exponential factor :math:`A`, the temperature exponent :math:`b`, and
-the activation energy :math:`E_a`, or a mapping containing the fields ``A``,
-``b``, and ``Ea``. The following are equivalent::
+.. _sec-yaml-Arrhenius-rate:
+
+Arrhenius
+---------
+
+Arrhenius rate expressions are specified as a mapping with fields:
+
+``A``
+    The pre-exponential factor :math:`A`
+``b``
+    The temperature exponent :math:`b`
+``Ea``
+    The activation energy :math:`E_a`
+
+or a corresponding three-element list. The following are equivalent::
 
     {A: -2.70000E+13 cm^3/mol/s, b: 0, Ea: 355 cal/mol}
     [-2.70000E+13 cm^3/mol/s, 0, 355 cal/mol]
+
+
+.. _sec-yaml-Blowers-Masel-rate:
+
+Blowers-Masel
+-------------
+
+Blowers-Masel rate expressions calculate the rate constant based on the Blowers Masel
+approximation as
+`described here <https://cantera.org/science/kinetics.html#sec-blowers-masel>`__.
+The rate parameters are specified as a mapping with fields:
+
+``A``
+    The pre-exponential factor :math:`A`
+``b``
+    The temperature exponent :math:`b`
+``Ea0``
+    The intrinsic activation energy :math:`E_{a0}`
+``w``
+    The average of the bond dissociation energy of the bond breaking and that being
+    formed in the reaction :math:`w`
+
+or a corresponding four-element list. The following are equivalent::
+
+    {A: 3.87e+04 cm^3/mol/s, b: 2.7, Ea0: 6260.0 cal/mol, w: 1e9 cal/mol}
+    [3.87e+04 cm^3/mol/s, 2.7, 6260.0 cal/mol, 1e9 cal/mol]
+
+
+.. _sec-yaml-two-temperature-plasma-rate:
+
+Two-Temperature Plasma
+----------------------
+
+Two-temperature plasma reactions involve an electron as one of the reactants, where the
+electron temperature may differ from the gas temperature as
+`described here <https://cantera.org/science/kinetics.html#two-temperature-plasma-reactions>`__.
+The rate parameters are specified as a mapping with fields:
+
+``A``
+    The pre-exponential factor
+``b``
+    The temperature exponent, which is applied to the electron temperature
+``Ea-gas``
+    The activation energy term :math:`E_{a,g}` that is related to the gas temperature
+``Ea-electron``
+    The activation energy term :math:`E_{a,e}` that is related to the electron
+    temperature
+
+or a corresponding four-element list. The following are equivalent::
+
+    {A: 17283, b: -3.1, Ea-gas: -5820 J/mol, Ea-electron: 1081 J/mol}
+    [17283, -3.1, -5820 J/mol, 1081 J/mol]
 
 
 .. _sec-yaml-efficiencies:
@@ -108,7 +170,7 @@ action kinetics, as
 Additional fields are:
 
 ``rate-constant``
-    An :ref:`Arrhenius-type <sec-yaml-arrhenius>` list or mapping.
+    An :ref:`Arrhenius-type <sec-yaml-Arrhenius-rate>` list or mapping.
 
 ``negative-A``
     A boolean indicating whether a negative value for the pre-exponential factor
@@ -142,6 +204,39 @@ Example::
     efficiencies: {AR: 0.83, H2O: 5}
 
 
+.. _sec-yaml-Blowers-Masel:
+
+``Blowers-Masel``
+-----------------
+
+Includes the fields of an :ref:`elemntary <sec-yaml-elementary>` reaction, except that
+the ``rate-constant`` field is a
+:ref:`Blowers-Masel-type <sec-yaml-Blowers-Masel-rate>` list or mapping.
+
+Example::
+
+    equation: O + H2 <=> H + OH
+    type: Blowers-Masel
+    rate-constant: {A: 3.87e+04 cm^2/mol/s, b: 2.7, Ea0: 6260.0 cal/mol, w: 1e9 cal/mol}
+
+
+.. _sec-yaml-two-temperature-plasma:
+
+``two-temperature-plasma``
+--------------------------
+
+Includes the fields of an :ref:`elementary <sec-yaml-elementary>` reaction, except that
+the ``rate-constant`` field is a
+:ref:`Two-temperature-plasma-type <sec-yaml-two-temperature-plasma-rate>` list or
+mapping.
+
+Example::
+
+    equation: O + H => O + H
+    type: two-temperature-plasma
+    rate-constant: {A: 17283, b: -3.1, Ea-gas: -5820 J/mol, Ea-electron: 1081 J/mol}
+
+
 .. _sec-yaml-falloff:
 
 ``falloff``
@@ -159,10 +254,10 @@ Includes field for specifying :ref:`efficiencies <sec-yaml-efficiencies>` as wel
 as:
 
 ``high-P-rate-constant``
-    An :ref:`sec-yaml-arrhenius` expression for the high-pressure limit
+    An :ref:`sec-yaml-Arrhenius-rate` expression for the high-pressure limit
 
 ``low-P-rate-constant``
-    An :ref:`sec-yaml-arrhenius` expression for the low-pressure limit
+    An :ref:`sec-yaml-Arrhenius-rate` expression for the low-pressure limit
 
 ``Troe``
     Parameters for the
@@ -209,6 +304,7 @@ Example::
     high-P-rate-constant: [5.88E-14, 6.721, -3022.227]
     low-P-rate-constant: [282320.078, 1.46878, -3270.56495]
 
+
 .. _sec-yaml-pressure-dependent-Arrhenius:
 
 ``pressure-dependent-Arrhenius``
@@ -221,7 +317,7 @@ The only additional field in this reaction type is:
 
 ``rate-constants``
     A list of mappings, where each mapping is the mapping form of an
-    :ref:`sec-yaml-arrhenius` expression with the addition of a pressure ``P``.
+    :ref:`sec-yaml-Arrhenius-rate` expression with the addition of a pressure ``P``.
 
 Example::
 
@@ -268,52 +364,6 @@ Example::
            [-2.26210e-01,  1.69190e-01,  4.85810e-03, -2.38030e-03],
            [-1.43220e-01,  7.71110e-02,  1.27080e-02, -6.41540e-04]]
 
-.. _sec-yaml-Blowers-Masel:
-
-``Blowers-Masel``
------------------
-
-A reaction with parameters to calculate rate constant based on Blowers Masel
-approximation as `described here <https://cantera.org/science/kinetics.html#sec-blowers-masel>`__.
-
-Additional fields are:
-
-``rate-constant``
-    A list of values containing the pre-exponential factor :math:`A`, the
-    temperature exponent :math:`b`, the intrinsic activation energy :math:`E_{a0}`,
-    and the average of the bond dissociation energy of the bond breaking and that
-    being formed in the reaction :math:`w`.
-
-``negative-A``
-    A boolean indicating whether a negative value for the pre-exponential factor
-    is allowed. The default is ``false``.
-
-Example::
-
-    equation: O + H2 <=> H + OH
-    type: Blowers-Masel
-    rate-constant: {A: 3.87e+04 cm^2/mol/s, b: 2.7, Ea0: 6260.0 cal/mol, w: 1e9 cal/mol}
-
-.. _sec-yaml-two-temperature-plasma:
-
-``two-temperature-plasma``
---------------------------
-
-A reaction involving an electron as one of the reactants, where the electron temperature
-may differ from the gas temperature as `described here <https://cantera.org/science/kinetics.html#two-temperature-plasma-reactions>`__.
-
-Includes the fields of an :ref:`sec-yaml-elementary` reaction, except that the
-``rate-constant`` field is a mapping with the fields:
-
-``A``
-    The pre-exponential factor
-``b``
-    The temperature exponent, which is applied to the electron temperature
-``Ea_T``
-    The activation energy term :math:`E_{a,g}` that is related to the gas temperature
-``Ea_Te``
-    The activation energy term :math:`E_{a,e}` that is related to the electron
-    temperature
 
 .. _sec-yaml-interface-Arrhenius:
 
@@ -359,13 +409,15 @@ Examples::
         O(S): [0, 0, 8000]
         PT(S): [0, -1.0, 0]
 
+
 .. _sec-yaml-interface-Blowers-Masel:
 
 ``interface-Blowers-Masel``
 ---------------------------
 
 Includes the same fields as :ref:`interface-Arrhenius <sec-yaml-interface-Arrhenius>`,
-while using the :ref:`Blowers-Masel <sec-yaml-Blowers-Masel>` rate parameterization.
+while using the :ref:`Blowers-Masel <sec-yaml-Blowers-Masel-rate>` parameterization
+for the rate constant.
 
 Example::
 
@@ -374,10 +426,11 @@ Example::
     rate-constant: {A: 3.7e21 cm^2/mol/s, b: 0, Ea0: 67400 J/mol, w: 1000000 J/mol}
     coverage-dependencies: {H(s): {a: 0, m: 0, E: -6000 J/mol}}
 
+
 .. _sec-yaml-sticking-Arrhenius:
 
 ``sticking-Arrhenius``
------------------------
+----------------------
 
 A sticking reaction occurring on a surface adjacent to a bulk phase, as
 `described here <https://cantera.org/science/kinetics.html#sec-sticking>`__.
@@ -385,7 +438,8 @@ A sticking reaction occurring on a surface adjacent to a bulk phase, as
 Includes the fields of an :ref:`sec-yaml-interface-Arrhenius` reaction plus:
 
 ``sticking-coefficient``
-    An :ref:`Arrhenius-type <sec-yaml-arrhenius>` expression for the sticking coefficient
+    An :ref:`Arrhenius-type <sec-yaml-Arrhenius-rate>` expression for the sticking
+    coefficient
 
 ``Motz-Wise``
     A boolean indicating whether to use the Motz-Wise correction factor for sticking
@@ -400,13 +454,15 @@ Example::
     equation: OH + PT(S) => OH(S)
     sticking-coefficient: {A: 1.0, b: 0, Ea: 0}
 
+
 .. _sec-yaml-sticking-Blowers-Masel:
 
 ``sticking-Blowers-Masel``
----------------------------
+--------------------------
 
 Includes the same fields as :ref:`sticking-Arrhenius <sec-yaml-sticking-Arrhenius>`,
-while using the :ref:`Blowers-Masel <sec-yaml-Blowers-Masel>` rate parameterization.
+while using the :ref:`Blowers-Masel <sec-yaml-Blowers-Masel-rate>` parameterization
+for the sticking coefficient.
 
 Example::
 
@@ -414,6 +470,7 @@ Example::
     type: Blowers-Masel
     sticking-coefficient: {A: 1.0, b: 0, Ea0: 0, w: 100000}
     Motz-Wise: true
+
 
 .. _sec-yaml-electrochemical-reaction:
 
