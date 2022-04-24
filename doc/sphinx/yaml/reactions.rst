@@ -314,28 +314,16 @@ Includes the fields of an :ref:`sec-yaml-elementary` reaction, except that the
     The activation energy term :math:`E_{a,e}` that is related to the electron
     temperature
 
-.. _sec-yaml-interface-reaction:
+.. _sec-yaml-interface-Arrhenius:
 
-``interface``
--------------
+``interface-Arrhenius``
+-----------------------
 
 A reaction occurring on a surface between two bulk phases, or along an edge
 at the intersection of two surfaces, as
 `described here <https://cantera.org/science/kinetics.html#sec-surface>`__.
 
 Includes the fields of an :ref:`sec-yaml-elementary` reaction plus:
-
-``sticking-coefficient``
-    An :ref:`Arrhenius-type <sec-yaml-arrhenius>` expression for the sticking coefficient
-
-``Motz-Wise``
-    A boolean applicable to sticking reactions, indicating whether to use the
-    Motz-Wise correction factor for sticking coefficients near unity. Defaults
-    to ``false``.
-
-``sticking-species``
-    The name of the sticking species. Required for sticking reactions only if
-    the reaction includes multiple non-surface species.
 
 ``coverage-dependencies``
     A mapping of species names to coverage dependence parameters, where these
@@ -370,6 +358,62 @@ Examples::
         O(S): [0, 0, 8000]
         PT(S): [0, -1.0, 0]
 
+.. _sec-yaml-interface-Blowers-Masel:
+
+``interface-Blowers-Masel``
+---------------------------
+
+Includes the same fields as :ref:`interface-Arrhenius <sec-yaml-interface-Arrhenius>`,
+while using the :ref:`Blowers-Masel <sec-yaml-Blowers-Masel>` rate parameterization.
+
+Example::
+
+    equation: 2 H(s) => H2 + 2 Pt(s)
+    type: Blowers-Masel
+    rate-constant: {A: 3.7e21 cm^2/mol/s, b: 0, Ea0: 67400 J/mol, w: 1000000 J/mol}
+    coverage-dependencies: {H(s): {a: 0, m: 0, E: -6000 J/mol}}
+
+.. _sec-yaml-sticking-Arrhenius:
+
+``sticking-Arrhenius``
+-----------------------
+
+A sticking reaction occurring on a surface adjacent to a bulk phase, as
+`described here <https://cantera.org/science/kinetics.html#sec-sticking>`__.
+
+Includes the fields of an :ref:`sec-yaml-interface-Arrhenius` reaction plus:
+
+``sticking-coefficient``
+    An :ref:`Arrhenius-type <sec-yaml-arrhenius>` expression for the sticking coefficient
+
+``Motz-Wise``
+    A boolean indicating whether to use the Motz-Wise correction factor for sticking
+    coefficients near unity. Defaults to ``false``.
+
+``sticking-species``
+    The name of the sticking species. Required if the reaction includes multiple
+    non-surface species.
+
+Example::
+
+    equation: OH + PT(S) => OH(S)
+    sticking-coefficient: {A: 1.0, b: 0, Ea: 0}
+
+.. _sec-yaml-sticking-Blowers-Masel:
+
+``sticking-Blowers-Masel``
+---------------------------
+
+Includes the same fields as :ref:`sticking-Arrhenius <sec-yaml-sticking-Arrhenius>`,
+while using the :ref:`Blowers-Masel <sec-yaml-Blowers-Masel>` rate parameterization.
+
+Example::
+
+    equation: OH + PT(S) => OH(S)
+    type: Blowers-Masel
+    sticking-coefficient: {A: 1.0, b: 0, Ea0: 0, w: 100000}
+    Motz-Wise: true
+
 .. _sec-yaml-electrochemical-reaction:
 
 ``electrochemical``
@@ -392,23 +436,3 @@ Example::
     equation: LiC6 <=> Li+(e) + C6
     rate-constant: [5.74, 0.0, 0.0]
     beta: 0.4
-
-.. _sec-yaml-surface-Blowers-Masel:
-
-``surface-Blowers-Masel``
--------------------------
-
-A reaction occurring on a surface between two bulk phases, or along an edge
-at the intersection of two surfaces, which the rate constant can be calculated
-by Blowers Masel Approximation with Arrhenius expression as
-`described here <https://cantera.org/science/kinetics.html#surface-blowers-masel-reactions>`__.
-
-Includes the fields of a :ref:`sec-yaml-Blowers-Masel` reaction and
-the fields of an :ref:`sec-yaml-interface-reaction` reaction.
-
-Example::
-
-    equation: 2 H(s) => H2 + 2 Pt(s)
-    type: Blowers-Masel
-    rate-constant: {A: 3.7e21 cm^2/mol/s, b: 0, Ea0: 67400 J/mol, w: 1000000 J/mol}
-    coverage-dependencies: {H(s): {a: 0, m: 0, E: -6000 J/mol}}
