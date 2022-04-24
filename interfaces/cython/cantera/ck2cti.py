@@ -835,7 +835,7 @@ class Sri(object):
     A kinetic model of a phenomenological rate coefficient :math:`k(T, P)` using the
     "SRI" formulation of the blending function :math:`F` using either 3 or
     5 parameters. See `The SRI Falloff Function
-    <https://cantera.org/science/reactions.html#sec-sri-falloff>`__.
+    <https://cantera.org/science/kinetics.html#sec-sri-falloff>`__.
 
     The attributes are:
 
