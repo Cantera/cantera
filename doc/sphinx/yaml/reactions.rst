@@ -176,6 +176,12 @@ as:
     optionally ``D`` and ``E``. The default values for ``D`` and ``E`` are 1.0
     and 0.0, respectively.
 
+``Tsang``
+    Parameters for the
+    `Tsang <https://cantera.org/science/kinetics.html#tsang-s-approximation-to-f-cent>`__
+    falloff function. A mapping containing the keys ``A`` and ``B``. The default value
+    for ``B`` is 0.0.
+
 Example::
 
     equation: H + CH2 (+ N2) <=> CH3 (+N2)
