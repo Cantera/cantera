@@ -256,6 +256,11 @@ void Reaction::setRate(shared_ptr<ReactionRate> rate)
         reactants.erase("(+M)");
         products.erase("(+M)");
     }
+
+    if (reactants.count("M") && std::dynamic_pointer_cast<PlogRate>(m_rate)) {
+        throw InputFileError("Reaction::setRate", input, "Found superfluous 'M' in "
+            "pressure-dependent-Arrhenius reaction.");
+    }
 }
 
 std::string Reaction::reactantString() const
