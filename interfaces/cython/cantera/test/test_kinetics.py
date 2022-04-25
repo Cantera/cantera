@@ -1196,6 +1196,10 @@ class TestReaction(utilities.CanteraTest):
             self.assertNear(gas1.reaction(i).rate(gas1.T, gas1.P),
                             gas1.forward_rate_constants[i])
 
+    def test_plog_invalid_third_body(self):
+        with self.assertRaisesRegex(ct.CanteraError, "Found superfluous"):
+            gas = ct.Solution("pdep-test.yaml", "plog-invalid")
+
     def test_chebyshev(self):
         gas1 = ct.Solution('pdep-test.yaml')
         species = ct.Species.list_from_file("pdep-test.yaml")
