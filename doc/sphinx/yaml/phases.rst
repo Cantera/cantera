@@ -1,5 +1,7 @@
 .. highlight:: yaml
 
+.. _sec-yaml-phases:
+
 *****************
 Phase Definitions
 *****************
