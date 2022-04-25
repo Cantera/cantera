@@ -1323,6 +1323,7 @@ class Parser:
             elif 'plog' in line.lower():
                 # Pressure-dependent Arrhenius parameters
                 parsed = True
+                third_body = False # strip optional third-body collider
                 tokens = tokens[1].split()
                 pdep_arrhenius.append([float(tokens[0].strip()), Arrhenius(
                     A=(float(tokens[1].strip()), kunits),
