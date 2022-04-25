@@ -547,11 +547,14 @@ species:
   composition: {Br: 2}
   thermo:
     model: NASA7
-    temperature-ranges: [265.9, 332.503]
+    temperature-ranges: [265.9, 332.503, 6000.0]
     data:
     - [10.4252937, 0.111181227, -1.06856988e-03, 3.25976572e-06, -3.27490398e-09,
       -3506.20403, -49.0757083]
-    note: L 1/93
+    - [9.05669727, 0.0, 0.0, 0.0, 0.0, -2699.88017, -33.2936281]
+    note: >
+      L 1/93; This is a combination of the 7-coefficient polynomials below and above the
+      normal boiling point (332.503 K) given by McBride et al. (1993)
 - name: C(gr)
   composition: {C: 1}
   thermo:
@@ -751,12 +754,19 @@ species:
 - name: Cr(cr)
   composition: {Cr: 1}
   thermo:
-    model: NASA7
-    temperature-ranges: [200.0, 311.5]
+    model: NASA9
+    temperature-ranges: [200.0, 311.5, 1000.0, 2130.0]
     data:
-    - [7.84826024, -0.11627602, 8.12369251e-04, -2.30807086e-06, 2.35328142e-09,
-      -898.013946, -27.5733139]
-    note: J 6/73
+    - [0.0, 0.0, 7.84826024, -0.11627602, 8.12369251e-04, -2.30807086e-06,
+      2.35328142e-09, -898.013946, -27.5733139]
+    - [0.0, 0.0, 1.82863471, 4.19562267e-03, -2.82735082e-06, -9.15990578e-10,
+      1.5520304e-12, -705.502663, -8.69806103]
+    - [0.0, 0.0, 4.59782637, -4.81791132e-03, 5.84129754e-06, -2.07036847e-09,
+      2.82102268e-13, -1314.89668, -22.4454748]
+    note: >
+      J 6/73; This is a combination of the polynomials given by McBride et al. (1993)
+      for the regions below and above the "Cp lambda maximum transition" indicated at
+      311.5 K in the JANAF table.
 - name: Cr(L)
   composition: {Cr: 1}
   thermo:
@@ -1044,14 +1054,18 @@ species:
 - name: Fe(a)
   composition: {Fe: 1}
   thermo:
-    model: NASA7
-    temperature-ranges: [200.0, 1000.0, 1042.0]
+    model: NASA9
+    temperature-ranges: [200.0, 1000.0, 1042.0, 1184.0]
     data:
-    - [2.41337476, -1.57780744e-03, 2.14701339e-05, -3.80171438e-08, 2.20426984e-11,
-      -774.380998, -10.6560296]
-    - [4690.80173, -9.90659991, 2.69427446e-03, 5.54445321e-06, -3.01659823e-09,
-      -1.41547586e+06, -2.49294387e+04]
-    note: J 3/78
+    - [0.0, 0.0, 2.41337476, -1.57780744e-03, 2.14701339e-05, -3.80171438e-08,
+      2.20426984e-11, -774.380998, -10.6560296]
+    - [0.0, 0.0, 4690.80173, -9.90659991, 2.69427446e-03, 5.54445321e-06,
+      -3.01659823e-09, -1.41547586e+06, -2.49294387e+04]
+    - [0.0, 0.0, 659.678809, -1.14058217, 4.96306997e-04, 0.0, 0.0, -2.52106802e+05,
+      -3656.65236]
+    note: >
+      J 3/78; This is a combination of the 7-coefficient polynomials below and above the
+      Curie temperature (1042 K) for Fe(a) given by McBride et al. (1993).
 - name: Fe(c)
   composition: {Fe: 1}
   thermo:
@@ -2508,12 +2522,18 @@ species:
 - name: Ni(cr)
   composition: {Ni: 1}
   thermo:
-    model: NASA7
-    temperature-ranges: [200.0, 631.0]
+    model: NASA9
+    temperature-ranges: [200.0, 631.0, 1000.0, 1728.0]
     data:
-    - [3.92097614, -0.0234184719, 1.34230145e-04, -2.75971639e-07, 1.98530861e-10,
-      -862.387206, -15.6856186]
-    note: J12/76
+    - [0.0, 0.0, 3.92097614, -0.0234184719, 1.34230145e-04, -2.75971639e-07,
+      1.98530861e-10, -862.387206, -15.6856186]
+    - [0.0, 0.0, 485.484877, -2.3039538, 4.10622634e-03, -3.23350101e-06,
+      9.49617381e-10, -8.11709085e+04, -2254.2896]
+    - [0.0, 0.0, 9.58208572, -0.0178945122, 1.97185112e-05, -9.11957952e-09,
+      1.58728609e-12, -2617.82185, -47.4612393]
+    note: >
+      J12/76; This is a combination of the 7-coefficient polynomials below and above the
+      Curie temperature (631 K) for Ni(cr) given by McBride et al. (1993).
 - name: Ni(L)
   composition: {Ni: 1}
   thermo:
@@ -3479,12 +3499,18 @@ species:
 - name: ZnSO4(a)
   composition: {Zn: 1, S: 1, O: 4}
   thermo:
-    model: NASA7
-    temperature-ranges: [300.0, 540.0]
+    model: NASA9
+    temperature-ranges: [300.0, 540.0, 1000.0, 1013.0]
     data:
-    - [5.1657364, 0.023977394, -3.0700744e-06, -4.8450164e-09, 0.0, -1.2045359e+05,
-      -23.105369]
-    note: J 3/79
+    - [0.0, 0.0, 5.1657364, 0.023977394, -3.0700744e-06, -4.8450164e-09, 0.0,
+      -1.2045359e+05, -23.105369]
+    - [0.0, 0.0, 15.553495, 2.7737319e-03, -3.8034721e-06, 4.0845543e-09,
+      -1.5289562e-12, -1.225049e+05, -76.221684]
+    - [0.0, 0.0, 15.895259, 1.1840942e-03, 0.0, 0.0, 0.0, -1.2260433e+05, -77.915322]
+    note: >
+      J 3/79; This is a combination of the polynomials given by McBride et al. (1993)
+      for the regions below and above the "I-II transition" indicated at 540 K in the
+      JANAF table.
 - name: ZnSO4(b)
   composition: {Zn: 1, S: 1, O: 4}
   thermo:
