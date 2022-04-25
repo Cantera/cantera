@@ -112,8 +112,8 @@ P7B                     C   1H   4          G   200.000  3500.000  1000.000    1
 END
 
 REACTIONS
-! Single PLOG reaction
-R1A+R1B=P1+H  1.0 0.0 0.0
+! Single PLOG reaction with optional third-body collider
+R1A+R1B+M=P1+H+M  1.0 0.0 0.0
 PLOG / 0.01 1.2124e+16  -0.5779     10872.7 /
 PLOG / 1    4.9108e+31  -4.8507     24772.8 /
 PLOG / 10   1.2866e+47  -9.0246     39796.5 /
