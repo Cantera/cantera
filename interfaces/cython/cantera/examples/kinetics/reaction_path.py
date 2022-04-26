@@ -47,4 +47,4 @@ print("Wrote graphviz output file to '{0}'.".format(img_path))
 
 if "-view" in sys.argv:
     import webbrowser
-    webbrowser.open('file:///' + img_path)
+    webbrowser.open(f"file:///{img_path}")
