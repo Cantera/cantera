@@ -52,6 +52,13 @@ cdef object _wrap_Solution(shared_ptr[CxxSolution] cxx_soln):
 
 
 cdef class _SolutionBase:
+    """
+    Class _SolutionBase is a common base class for the `ThermoPhase`, `Kinetics`, and
+    `Transport` classes. Its methods are available for all
+    `Solution <cantera.Solution>`, `Interface <cantera.Interface>`,
+    `Quantity <cantera.Quantity>`, and `SolutionArray <cantera.SolutionArray>` objects
+    as well.
+    """
     def __cinit__(self, infile='', name='', adjacent=(), *, origin=None,
                   source=None, yaml=None, thermo=None, species=(),
                   kinetics=None, reactions=(), init=True, **kwargs):
