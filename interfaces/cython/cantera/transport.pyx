@@ -221,8 +221,6 @@ cdef class Transport(_SolutionBase):
     property thermal_conductivity:
         """
         Thermal conductivity. [W/m/K]
-        Returns thermal conductivity of the ideal gas object using the multicomponent
-        model. The value is not specific to the dusty gas model.
         """
         def __get__(self):
             return self.transport.thermalConductivity()
@@ -411,6 +409,11 @@ cdef class DustyGasTransport(Transport):
             (<CxxDustyGasTransport*>self.transport).setPermeability(value)
 
     property thermal_conductivity:
+        """
+        Thermal conductivity. [W/m/K]
+        Returns the thermal conductivity of the ideal gas object using the
+        multicomponent model. The value is not specific to the dusty gas model.
+        """
         def __get__(self):
             return (<CxxDustyGasTransport*>self.transport).gasTransport().thermalConductivity()
 
