@@ -1483,7 +1483,7 @@ cdef class Reaction:
         .. deprecated:: 2.6
 
             To be deprecated with version 2.6, and removed thereafter.
-            Replaced by property `ArrheniusRate.allow_negative_pre_exponential_factor`.
+            Replaced by property `ArrheniusRateBase.allow_negative_pre_exponential_factor`.
         """
         def __get__(self):
             if self.uses_legacy:
@@ -2088,7 +2088,7 @@ cdef class ElementaryReaction(Reaction):
         .. deprecated:: 2.6
 
             To be deprecated with version 2.6, and removed thereafter.
-            Replaced by property `ArrheniusRate.allow_negative_pre_exponential_factor`.
+            Replaced by property `ArrheniusRateBase.allow_negative_pre_exponential_factor`.
         """
         def __get__(self):
             if self.uses_legacy:

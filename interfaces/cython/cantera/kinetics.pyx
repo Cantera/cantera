@@ -980,7 +980,7 @@ cdef class InterfaceKinetics(Kinetics):
     def write_yaml(self, filename, phases=None, units=None, precision=None,
                    skip_user_defined=None):
         """
-        See `_SolutionBase.write_yaml`.
+        See `_SolutionBase.write_yaml <cantera._cantera._SolutionBase.write_yaml>`.
         """
         if phases is not None:
             phases = list(phases)
