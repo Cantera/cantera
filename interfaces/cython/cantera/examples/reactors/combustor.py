@@ -1,5 +1,6 @@
 """
-A combustor, modeled as a single well-stirred reactor.
+Calculate steady-state solutions for a combustor, modeled as a single well-stirred
+reactor, for different residence times.
 
 We are interested in the steady-state burning solution. This example explores
 the effect of changing the residence time on completeness of reaction (through

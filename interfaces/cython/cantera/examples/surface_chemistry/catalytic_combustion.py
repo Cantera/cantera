@@ -1,5 +1,5 @@
 """
-CATCOMB -- Catalytic combustion of methane on platinum.
+Catalytic combustion of methane on platinum
 
 This script solves a catalytic combustion problem. A stagnation flow is set
 up, with a gas inlet 10 cm from a platinum surface at 900 K. The lean,
