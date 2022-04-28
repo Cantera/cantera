@@ -114,6 +114,7 @@ cdef class Mixture:
         return pystr(self.mix.speciesName(k))
 
     property species_names:
+        """ Get the names of the species from all phases in the mixture """
         def __get__(self):
             return [self.species_name(k) for k in range(self.n_species)]
 
@@ -157,6 +158,7 @@ cdef class Mixture:
             return len(self._phases)
 
     def phase(self, n):
+        """ Return the ThermoPhase object for phase number ``n`` in the mixture. """
         return self._phases[n]
 
     def phase_index(self, p):

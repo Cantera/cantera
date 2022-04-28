@@ -87,6 +87,10 @@ cdef class SpeciesThermo:
         raise NotImplementedError('Needs to be overloaded')
 
     property input_data:
+        """
+        Get input data defining this SpeciesThermo object, along with any user-specified
+        data provided with its input (YAML) definition.
+        """
         def __get__(self):
             return anymap_to_dict(self.spthermo.parameters(True))
 

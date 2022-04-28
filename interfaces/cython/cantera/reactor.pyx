@@ -206,6 +206,10 @@ cdef class Reactor(ReactorBase):
             raise ValueError("'energy' must be either 'on' or 'off'")
 
     def insert(self, _SolutionBase solution):
+        """
+        Set ``solution`` to be the object used to compute thermodynamic
+        properties and kinetic rates for this reactor.
+        """
         ReactorBase.insert(self, solution)
         self._kinetics = solution
         if solution.kinetics != NULL:
@@ -589,6 +593,9 @@ cdef class ReactorSurface:
             self.area = A
 
     def install(self, Reactor r):
+        """
+        Add this `ReactorSurface` to the specified `Reactor`
+        """
         r._surfaces.append(self)
         r.reactor.addSurface(self.surface)
 
@@ -869,11 +876,11 @@ cdef class FlowDevice:
         self._downstream = downstream
 
     property mass_flow_rate:
+        """
+        Get the mass flow rate [kg/s] through this device at the current reactor
+        network time.
+        """
         def __get__(self):
-            """
-            The mass flow rate [kg/s] through this device at the current reactor
-            network time.
-            """
             return self.dev.massFlowRate()
 
     def set_pressure_function(self, k):
