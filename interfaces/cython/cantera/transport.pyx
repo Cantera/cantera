@@ -69,6 +69,10 @@ cdef class GasTransportData:
             dispersion_coefficient, quadrupole_polarizability)
 
     property input_data:
+        """
+        Get input data defining this GasTransportData object, along with any
+        user-specified data provided with its input (YAML) definition.
+        """
         def __get__(self):
             return anymap_to_dict(self.data.parameters(True))
 

@@ -342,6 +342,10 @@ cdef class Species:
             self.species.transport = tran._data
 
     property input_data:
+        """
+        Get input data defining this Species, along with any user-specified data
+        provided with its input (YAML) definition.
+        """
         def __get__(self):
             cdef CxxThermoPhase* phase = self._phase.thermo if self._phase else NULL
             return anymap_to_dict(self.species.parameters(phase))
@@ -666,6 +670,10 @@ cdef class ThermoPhase(_SolutionBase):
         return s
 
     def modify_species(self, k, Species species):
+        """
+        Modify the thermodynamic data associated with a species. The species name,
+        elemental composition, and type of thermo parameterization must be unchanged.
+        """
         self.thermo.modifySpecies(k, species._species)
         if self.kinetics:
             self.kinetics.invalidateCache()
@@ -1208,11 +1216,19 @@ cdef class ThermoPhase(_SolutionBase):
         self.thermo.setMoleFractions_NoNorm(&data[0])
 
     def mass_fraction_dict(self, double threshold=0.0):
+        """
+        Return a dictionary giving the mass fraction for each species by name where the
+        mass fraction is greater than ``threshold``.
+        """
         cdef pair[string,double] item
         Y = self.thermo.getMassFractionsByName(threshold)
         return {pystr(item.first):item.second for item in Y}
 
     def mole_fraction_dict(self, double threshold=0.0):
+        """
+        Return a dictionary giving the mole fraction for each species by name where the
+        mole fraction is greater than ``threshold``.
+        """
         cdef pair[string,double] item
         X = self.thermo.getMoleFractionsByName(threshold)
         return {pystr(item.first):item.second for item in X}

@@ -142,6 +142,10 @@ cdef class ReactionPathDiagram:
         self.diagram.add(other.diagram)
 
     def display_only(self, int k):
+        """
+        Include only species and fluxes that are directly connected to the
+        species with index ``k``. Set to -1 to include all species.
+        """
         self.diagram.displayOnly(k)
 
     def get_dot(self):

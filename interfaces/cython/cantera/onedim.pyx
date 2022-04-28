@@ -414,6 +414,9 @@ cdef class ReactingSurface1D(Boundary1D):
         del self.surf
 
     property phase:
+        """
+        Get the `Interface` object representing species and reactions on the surface
+        """
         def __get__(self):
             return self.surface
 
@@ -513,6 +516,10 @@ cdef class _FlowBase(Domain1D):
         del self.flow
 
     property settings:
+        """
+        Get a dictionary describing type, name, and simulation specific to this domain
+        type.
+        """
         def __get__(self):
             out = super().settings
 
@@ -669,6 +676,13 @@ cdef class IonFlow(_FlowBase):
         self.flow = <CxxStFlow*>(new CxxIonFlow(gas, thermo.n_species, 2))
 
     def set_solving_stage(self, stage):
+        """
+        Set the mode for handling ionized species:
+
+        - ``stage == 1``: the fluxes of charged species are set to zero
+        - ``stage == 2``: the electric field equation is solved, and the drift flux for
+          ionized species is evaluated
+        """
         (<CxxIonFlow*>self.flow).setSolvingStage(stage)
 
     property electric_field_enabled:
@@ -682,6 +696,7 @@ cdef class IonFlow(_FlowBase):
                 (<CxxIonFlow*>self.flow).fixElectricField()
 
     def set_default_tolerances(self):
+        """ Set all tolerances to their default values """
         super().set_default_tolerances()
         chargetol = {}
         for S in self.gas.species():
