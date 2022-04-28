@@ -1,5 +1,6 @@
 """
-A Rankine vapor power cycle
+Calculate the efficiency of a Rankine vapor power cycle using a pure fluid model
+for water.
 
 Requires: Cantera >= 2.5.0
 Keywords: thermodynamics, thermodynamic cycle, non-ideal fluid

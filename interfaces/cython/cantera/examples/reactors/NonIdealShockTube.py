@@ -1,9 +1,7 @@
 # coding: utf-8
 """
-Non-Ideal Shock Tube Example
-
 Ignition delay time computations in a high-pressure reflected shock tube
-reactor
+reactor, comparing ideal gas and Redlich-Kwong real gas models.
 
 In this example we illustrate how to setup and use a constant volume,
 adiabatic reactor to simulate reflected shock tube experiments. This reactor
