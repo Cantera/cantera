@@ -72,7 +72,7 @@ public:
     virtual void modifySpecies(size_t index,
                                shared_ptr<SpeciesThermoInterpType> spec);
 
-    //! Like update_one, but without applying offsets to the output pointers
+    //! Get reference-state properties for a single species
     /*!
      * @param k       species index
      * @param T       Temperature (Kelvin)
