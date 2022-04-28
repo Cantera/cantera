@@ -702,6 +702,9 @@ def _array_property(attr, size=None):
     else:
         extradoc = "\nReturns an array of size `%s` x `n_points`." % size
 
+    basedoc = getattr(Solution, attr).__doc__
+
+
     doc = _trim(getattr(Solution, attr).__doc__) +'\n' + extradoc
     return property(getter, doc=doc)
 
@@ -727,6 +730,12 @@ for _attr in ['X', 'Y', 'concentrations', 'partial_molar_enthalpies',
               'destruction_rates', 'net_production_rates', 'mix_diff_coeffs',
               'mix_diff_coeffs_mass', 'mix_diff_coeffs_mole', 'thermal_diff_coeffs']:
     setattr(FlameBase, _attr, _array_property(_attr, 'n_species'))
+
+# Remove misleading examples and references to setters that don't exist
+FlameBase.X.__doc__ = "Array of mole fractions of size `n_species` x `n_points`"
+FlameBase.Y.__doc__ = "Array of mass fractions of size `n_species` x `n_points`"
+FlameBase.concentrations.__doc__ = ("Array of species concentrations [kmol/m^3]"
+                                    " of size `n_species` x `n_points`")
 
 # Add properties with values for each reaction
 for _attr in ['forward_rates_of_progress', 'reverse_rates_of_progress', 'net_rates_of_progress',
