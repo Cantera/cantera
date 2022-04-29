@@ -418,12 +418,11 @@ cdef class FalloffRate(ReactionRate):
         def __set__(self, cbool activated):
             self.falloff.setChemicallyActivated(activated)
 
-    def falloff_function(self, double temperature, conc3b=None):
+    def falloff_function(self, double temperature, double conc3b):
         """
-        Evaluate the falloff function
+        Evaluate the falloff function based on temperature and third-body
+        concentration.
         """
-        if conc3b is None:
-            conc3b = self.third_body_concentration
         return self.falloff.evalF(temperature, conc3b)
 
 
