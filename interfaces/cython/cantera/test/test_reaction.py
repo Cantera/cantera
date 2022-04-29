@@ -486,6 +486,11 @@ class TestLindemannRate(FalloffRateTests, utilities.CanteraTest):
         high-P-rate-constant: {A: 7.4e+10, b: -0.37, Ea: 0.0}
         """
 
+    def test_falloff_function(self):
+        rate = self.from_parts()
+        # Falloff-function for Lindemann is unity by definition
+        assert np.isclose(rate.falloff_function(300, 0.), 1.)
+
 
 class TestTroeRate(FalloffRateTests, utilities.CanteraTest):
     # test Troe rate expressions
