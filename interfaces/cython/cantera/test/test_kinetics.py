@@ -910,6 +910,12 @@ class TestSofcKinetics2(TestSofcKinetics):
     _mech = "sofc2.yaml"
 
 
+@pytest.mark.usefixtures("allow_deprecated")
+class TestSofcKinetics3(TestSofcKinetics):
+    """ Test using legacy framework; included to retain coverage """
+    _mech = "sofc.cti"
+
+
 class TestDuplicateReactions(utilities.CanteraTest):
     infile = 'duplicate-reactions.yaml'
 
