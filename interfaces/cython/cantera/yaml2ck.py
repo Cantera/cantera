@@ -88,13 +88,14 @@ Unsupported Thermodynamic Property Models:
 Unsupported Reaction models (not comprehensive):
     Chemically-activated, Blowers-Masel, Surface Reactions
 """
+from __future__ import annotations
 
 import os
 import sys
 import math
 import re
 import argparse
-from pathlib import PurePath, Path
+from pathlib import Path
 from textwrap import fill, dedent
 import cantera as ct
 
@@ -102,6 +103,7 @@ import cantera as ct
 CALORIES_CONSTANT = 4184.0
 
 # Conversion from 1 debye to coulomb-meters
+DEBYE_CONVERSION = 1e-21 / ct.light_speed
 DEBYE_CONVERSION = 3.33564095e-30
 
 
@@ -167,8 +169,10 @@ def build_header_text(solution, max_width=120):
 
     has_ct_note = False
     for n, line in enumerate(text):
-        is_ct_header = ("! Chemkin file was converted from a Cantera" == line[:43]
-            and "`Solution` object" == line[-17:])
+        is_ct_header = (
+            "! Chemkin file was converted from a Cantera" == line[:43]
+            and "`Solution` object" == line[-17:]
+        )
         if is_ct_header:
             text[n] = ct_note
             has_ct_note = True
@@ -179,12 +183,10 @@ def build_header_text(solution, max_width=120):
 
     text.append("\n")
 
-
     return "\n".join(text)
 
 
-def build_species_text(solution, max_width=80, sort_elements=True,
-                       sort_species=True):
+def build_species_text(solution, max_width=80, sort_elements=True, sort_species=True):
     """
     Creates element and species declarations
 
@@ -209,12 +211,14 @@ def build_species_text(solution, max_width=80, sort_elements=True,
             break_on_hyphens=False,
         )
 
-        text = dedent(f"""\
+        text = dedent(
+            f"""\
             ELEMENTS
             {elements_text}
             END
 
-            """)
+            """
+        )
 
         return text
 
@@ -260,157 +264,120 @@ def build_species_text(solution, max_width=80, sort_elements=True,
     return "\n".join(text)
 
 
-def build_thermodynamics_text(solution, sort_species=True, separate_file=False):
-    """
-    Creates the thermodynamic definition text of all species
+def build_thermodynamics_text(
+    solution: ct.Solution, sort_species: str | None = None, separate_file: bool = False
+) -> str:
+    """Creates the thermodynamic definition text of all species.
 
     :param solution:
         The `Solution` object being converted
+    :param sort_species:
+        The method of sorting the species. Options are:
+        * ``'alphabetical'``
+        * ``'molecular-weight'``
+        * ``None``, input order
     :param separate_file:
         A boolean flag to indicate if the file will be written separately or
         in the mechanism file
     """
-
-    def build_thermo_notes(solution_species):
+    fmt = dedent(
+        """\
+        {name:<18}{note:<6}{atoms:<20}G{low_and_high_temp:20}{mid_temp:8}      1
+        {coeff_1_5:<75}    2
+        {coeff_6_10:<75}    3
+        {coeff_11_14:<60}                   4\
         """
-        Tries to infer if a note is within the NASA7 definition or is a note to be
-        placed as a comment.
-        """
-        comment = {}
-        note = {}
-        for species in solution_species:
-            note_raw = species.input_data["thermo"].get("note", "")
-
-            # attempt to split note and comment
-            #  note: seen as information in the NASA7 definition in the extra space
-            #    after the name
-            #  comment: precedes the species thermo or commented out next to it
-            if len(note_raw.split("\n", 1)) == 1:
-                comment[species.name] = ""
-                comment_str = ""
-                note[species.name] = note_raw
-            else:
-                comment[species.name] = "!\n"
-                note[species.name], comment_str = note_raw.split("\n", 1)
-
-            if len(f"{species.name} {note[species.name]}") > 24:
-                comment_str += "\n" + note[species.name]
-                note[species.name] = ""
-
-            comment_str = comment_str.replace("\n", "\n! ")
-            comment[species.name] = f"{comment[species.name]}! {comment_str}"
-
-        return note, comment
-
-    def build_nasa7_text(solution_species):
-        # first line has species name, space for notes/date, elemental composition,
-        # phase, thermodynamic range temperatures (low, high, middle), and a "1"
-        # total length should be 80
-        #
-        # Ex:
-        # C6 linear biradi  T04/09C  6.   0.   0.   0.G   200.000  6000.000 1000.        1
-        #  1.06841281E+01 5.62944075E-03-2.13152905E-06 3.56133777E-10-2.18273469E-14    2
-        #  1.43741693E+05-2.87959136E+01 3.06949687E+00 3.71386246E-02-5.95698852E-05    3
-        #  5.15924485E-08-1.77143386E-11 1.45477274E+05 8.35844575E+00 1.47610437E+05    4
-
-        # get notes and comments for all species
-        note, comment = build_thermo_notes(solution_species)
-
-        # write data for each species in the Solution object
-        thermo_text = []
-        for species in solution_species:
-            if len(species.composition.items()) > 4:
-                raise ValueError("More than 4 elements in a species "
-                                f"is unsupported: {species.name}")
-
-            composition_string = "".join(
-                [f"{s:2}{int(v):>3}" for s, v in species.composition.items()]
-            )
-
-            # TODO: Currently hardcoded for gas phase
-            name_and_note = f"{species.name} {note[species.name]}"
-            text = [comment[species.name]]
-            text.append(
-                f"{name_and_note[:24]:<24}"  # name and date/note field
-                + f"{composition_string[:20]:<20}"
-                + "G"  # only supports gas phase
-                + f"{species.thermo.min_temp:10.3f}"
-                + f"{species.thermo.max_temp:10.3f}"
-                + f"{species.thermo.coeffs[0]:8.2f}  "
-                + f"{1:>5}"
-            )
-
-            # second line has first five coefficients of high-temperature range,
-            # ending with a "2" in column 80
-            text.append(
-                "".join([f"{c:15.8e}" for c in species.thermo.coeffs[1:6]]) + f"{2:>5}"
-            )
-
-            # third line has the last two coefficients of the high-temperature range,
-            # first three coefficients of low-temperature range, and "3"
-            text.append(
-                "".join([f"{c:15.8e}" for c in species.thermo.coeffs[6:11]])
-                + f"{3:>5}"
-            )
-
-            # fourth and last line has the last four coefficients of the
-            # low-temperature range, and "4"
-            text.append(
-                "".join([f"{c:15.8e}" for c in species.thermo.coeffs[11:15]])
-                + f"{4:>20}\n"
-            )
-
-            thermo_text.append("\n".join(text))
-
-        return thermo_text
-
-    # get list of all thermo models used
+    )
+    five_coeff_line = "{0: #015.8E}{1: #015.8E}{2: #015.8E}{3: #015.8E}{4: #015.8E}"
+    four_coeff_line = "{0: #015.8E}{1: #015.8E}{2: #015.8E}{3: #015.8E}"
+    low_and_high_temp = "{0:<#10.3F}{1:<#10.3F}"
+    thermo_data: dict[str, str] = {}
+    min_temp = 1.0e30
+    max_temp = 0.0
     for species in solution.species():
-        if species.input_data["thermo"]["model"] != "NASA7":
-            raise NotImplementedError(
-                f"Unsupported thermo model: "
-                f"{species.input_data['thermo']['model']}\n"
-                f"For species: {species.name}"
+        if len(species.composition) > 4:
+            raise ValueError(
+                f"More than 4 elements in a species is unsupported: {species.name}"
+            )
+        atoms = ""
+        for atom, amount in species.composition.items():
+            atoms += f"{atom:<2}{int(amount):>3d}"
+        fmt_data = {"name": species.name}
+        fmt_data["atoms"] = atoms
+
+        input_data = species.input_data
+        if input_data["thermo"]["model"] != "NASA7":
+            raise ValueError(
+                f"Species '{species.name}' has unsupported thermo model '"
+                f"{input_data['thermo']['model']}. Supported thermo models are: NASA7"
             )
 
-    # Get temperature breakpoints
-    temp_range = [1e30, 0]
-    for species in solution.species():
-        if species.thermo.min_temp < temp_range[0]:
-            temp_range[0] = species.thermo.min_temp
+        if species.thermo.min_temp < min_temp:
+            min_temp = species.thermo.min_temp
+        if species.thermo.max_temp > max_temp:
+            max_temp = species.thermo.max_temp
 
-        if species.thermo.max_temp > temp_range[1]:
-            temp_range[1] = species.thermo.max_temp
+        note = input_data["thermo"].get("note", "")
+        if len(note) <= 6:
+            comment = ""
+            fmt_data["note"] = note
+        else:
+            comment = note
+            fmt_data["note"] = ""
+        # TODO: Handle cases with a single temperature range, that is, temperature-range: [200, 1000]
+        temperature_range = input_data["thermo"]["temperature-ranges"]
+        if len(temperature_range) == 3:
+            fmt_data["low_and_high_temp"] = low_and_high_temp.format(
+                temperature_range[0], temperature_range[2]
+            )
+            fmt_data["mid_temp"] = f"{temperature_range[1]:<#8.3F}"
+        elif len(temperature_range) == 2:
+            fmt_data["low_and_high_temp"] = low_and_high_temp.format(*temperature_range)
+            fmt_data["mid_temp"] = f"{' ':8}"
+        else:
+            raise ValueError(
+                f"Species '{species.name}' has more than 2 temperature ranges. Only "
+                "1 or 2 are supported."
+            )
+        low_coeffs = input_data["thermo"]["data"][0]
+        high_coeffs = input_data["thermo"]["data"][1]
+        fmt_data["coeff_1_5"] = five_coeff_line.format(*high_coeffs[:5])
+        fmt_data["coeff_6_10"] = five_coeff_line.format(
+            *(high_coeffs[5:] + low_coeffs[:3])
+        )
+        fmt_data["coeff_11_14"] = four_coeff_line.format(*low_coeffs[3:])
+        text = fmt.format(**fmt_data)
+        if comment:
+            text = f"!{comment}\n" + text
+        thermo_data[species.name] = text
 
     if separate_file:
-        thermo_text = [
-            "THERMO\n" f"   {temp_range[0]:.3f}  1000.000  {temp_range[1]:.3f}\n"
-        ]
+        leader = "THERMO"
     else:
-        thermo_text = [
-            "THERMO ALL\n" f"   {temp_range[0]:.3f}  1000.000  {temp_range[1]:.3f}\n"
-        ]
+        leader = "THERMO ALL"
 
-    if sort_species:  # sort solution_species by molecular weight
-        MW = solution.molecular_weights
-        species_names = [species.name for species in solution.species()]
-        species_names = [c for _, c in sorted(zip(MW, species_names))][::-1]
+    if sort_species == "alphabetical":
+        thermo_data = dict(sorted(thermo_data.items()))
+    elif sort_species == "molecular-weight":
+        thermo_data = dict(
+            sorted(thermo_data.items(), key=lambda s: solution[s[0]].molecular_weights)
+        )
+    elif sort_species is not None:
+        raise ValueError(
+            "sort_species must be None, 'alphabetical', or 'molecular-weight'. "
+            f"Got '{sort_species}'"
+        )
 
-        solution_species = [solution.species(name) for name in species_names]
-        thermo_text.extend(build_nasa7_text(solution_species))
-    else:
-        thermo_text.extend(build_nasa7_text(solution.species()))
-
-    if separate_file:
-        thermo_text.append("END\n")
-    else:
-        thermo_text.append("END\n\n")
-
-    return "".join(thermo_text)
+    return (
+        f"{leader}\n{min_temp:.3F}   1000.000  {max_temp:.3F}\n\n"
+        + "\n".join(thermo_data.values())
+        + "\nEND\n"
+    )
 
 
-def build_reactions_text(solution, sort_reaction_equations=True, precision=7,
-                         exp_digits=3, coef_space=3):
+def build_reactions_text(
+    solution, sort_reaction_equations=True, precision=8, exp_digits=3, coef_space=3
+):
     """
     Creates reaction definition text in a well-organized format
 
@@ -573,8 +540,9 @@ def build_reactions_text(solution, sort_reaction_equations=True, precision=7,
             coeffs = build_coeffs([1.0, 0.0, 0.0])
 
         else:
-            raise NotImplementedError("Unsupported reaction type: "
-                                     f"({type(reaction)}) {reaction.equation}")
+            raise NotImplementedError(
+                "Unsupported reaction type: " f"({type(reaction)}) {reaction.equation}"
+            )
 
         if rxn_note is None:
             text = f"{rxn_eqn}{coeffs}"
@@ -597,8 +565,9 @@ def build_reactions_text(solution, sort_reaction_equations=True, precision=7,
             falloff_string = f" SRI / {build_coeffs(parameters)} /"
 
         else:
-            raise NotImplementedError("Falloff function not supported: "
-                                     f"({falloff_fcn}) {rxn_eqn}")
+            raise NotImplementedError(
+                "Falloff function not supported: " f"({falloff_fcn}) {rxn_eqn}"
+            )
 
         return falloff_string
 
@@ -669,7 +638,7 @@ def build_reactions_text(solution, sort_reaction_equations=True, precision=7,
 
         elif type(reaction.rate) is ct.ChebyshevRate:
             T_bnds = reaction.rate.temperature_range
-            P_bnds = [P/ct.one_atm for P in reaction.rate.pressure_range]
+            P_bnds = [P / ct.one_atm for P in reaction.rate.pressure_range]
             text.append(
                 f"   TCHEB /  {T_bnds[0]:.3f}  {T_bnds[1]:.3f} /"
                 f"   PCHEB / {build_coeffs(P_bnds)} /\n"
@@ -678,7 +647,7 @@ def build_reactions_text(solution, sort_reaction_equations=True, precision=7,
             for n, coeffs in enumerate(reaction.rate.data):
                 if n == 0:
                     rxn_order = sum(reaction.reactants.values()) - 1
-                    coeffs[0] += rxn_order*3
+                    coeffs[0] += rxn_order * 3
 
                 text.append(f"   CHEB  / {build_coeffs(coeffs)} /")
 
@@ -763,145 +732,133 @@ def build_transport_text(solution_species, separate_file=False):
     return "\n".join(text)
 
 
-def convert(solution, mech_path=None, thermo_path=None, tran_path=None,
-    sort_reaction_equations=True, sort_elements=True, sort_species=True,
-    overwrite=False):
+def convert(
+    solution: str | Path | ct.Solution,
+    mechanism_path: str | Path | None = None,
+    thermo_path: str | Path | None = None,
+    transport_path: str | Path | None = None,
+    sort_reaction_equations: bool = True,
+    sort_elements: bool = True,
+    sort_species: str | None = None,
+    overwrite: bool = False,
+    phase_name: str = "",
+) -> tuple[Path | None, Path | None, Path | None]:
     """
     Writes Cantera solution object to Chemkin-format file(s).
 
-    :param solution:
+    :param: solution:
         Either the `Solution` object being converted or the path leading to it
-    :param mech_path:
+    :param: mech_path:
         The Optional path to the output mechanism file, if this is unspecified it will
         go to the cwd under the name in the `Solution` object.
         It can be a file name with or without the extension, directory, or a full path
-    :param thermo_path:
+    :param: thermo_path:
         The Optional path to the output thermo file, if this is unspecified it will
         go to the cwd under the name in the `Solution` object.
         It can be a file name with or without the extension, directory, or a full path
-    :param tran_path:
+    :param: tran_path:
         The Optional path to the output transport file, if this is unspecified it will
         go to the cwd under the name in the `Solution` object.
         It can be a file name with or without the extension, directory, or a full path
-    :param sort_reaction_equations
+    :param: sort_reaction_equations
         Boolean flag to sort reaction equations based upon molecular weight
-    :param overwrite
+    :param: overwrite
         Boolean flag to allow files to be overwritten or not
     """
+    # TODO: Error if the phase is an interface phase
     if not isinstance(solution, ct.Solution):
-        if not isinstance(solution, PurePath):
-            try:  # try to turn full path into pathlib Path
-                solution = Path(solution)
-            except:
-                raise ValueError(f"Invalid path: {str(solution)}")
+        solution_name = Path(solution)
+        solution = ct.Solution(solution, phase_name)
+    else:
+        solution_name = Path(solution.name)
 
-            if len(solution.parts) == 1:
-                solution = solution.resolve()
+    # NOTE: solution.transport_model returns back a string. If no transport model is
+    # present, the string is "None". We guard here against a future API change to
+    # return the singleton None.
+    if solution.transport_model in ("None", None):
+        transport_exists = False
+    else:
+        transport_exists = True
 
-        try:
-            solution = ct.Solution(solution)
-        except:
-            raise ValueError(f"Invalid path: {str(solution)}")
+    if mechanism_path is None:
+        mechanism_path = solution_name.with_suffix(".ck")
+    else:
+        mechanism_path = Path(mechanism_path)
+        if mechanism_path.is_dir():
+            thermo_path = mechanism_path / solution_name.with_suffix(".thermo")
+            transport_path = mechanism_path / solution_name.with_suffix(".tran")
+            mechanism_path = mechanism_path / solution_name.with_suffix(".ck")
 
-    if mech_path is None:
-        mech_path = Path(f"{solution.name}.ck").resolve()
+    if thermo_path is not None:
+        thermo_path = Path(thermo_path)
 
-    ext = {"mech": "ck", "thermo": "therm", "tran": "tran"}
-    path = {"mech": mech_path, "thermo": thermo_path, "tran": tran_path}
-    parent = Path.cwd()
+    if transport_path is not None:
+        if not transport_exists:
+            raise ValueError(
+                "An output path for transport was given but no transport data is "
+                "available in the input."
+            )
+        transport_path = Path(transport_path)
 
-    for key, val in path.items():
-        if val is None:
-            continue
+    output_files = (mechanism_path, thermo_path, transport_path)
 
-        if not isinstance(val, PurePath):
-            # try to turn full str into pathlib Path
-            try:
-                path[key] = Path(val)
-            except:
-                raise ValueError("Could not make a path from: {val}")
-
-        if key == "mech":
-            # only want to reset parent to mech parent if it has parents
-            if len(path[key].parts) > 1:
-                # directory given
-                if not path[key].suffix:
-                    parent = path[key]
-                    path[key] = parent / f"{solution.name}.{ext[key]}"
-
-                # file given
-                else:
-                    parent = path[key].parent
-                    path[key] = parent / val
-
-        # if no extension was specified, use default
-        if not path[key].suffix:
-            path[key] = parent / f"{path[key].name}.{ext[key]}"
-
-        # it's a file, but does it have a directory?
-        elif len(path[key].parts) == 1:
-            path[key] = parent / path[key]
-
-        # delete file if it exists or throw error
-        if path[key].is_file():
+    for fil in output_files:
+        if fil is not None and fil.exists():
             if overwrite:
-                path[key].unlink()
-
+                fil.unlink()
             else:
-                raise Exception(
-                    "Path already exists."
-                    "\nSpecify a new path or set overwrite to True"
-                    f"\nCurrent Path: {str(path[key])}"
+                raise RuntimeError(
+                    f"Output file '{fil}' exists. Remove it or specify 'overwrite=True'"
                 )
 
-    # NOTE: solution.transport_model returns back a string that is None right now
-    if solution.transport_model == "None" or solution.transport_model is None:
-        transport_exists=False
+    # Write output files
+    header_text = build_header_text(solution)
+    mechanism_text = [
+        header_text,
+        build_species_text(
+            solution,
+            sort_elements=sort_elements,
+            sort_species=sort_species,
+        ),
+    ]
+    if thermo_path is None:
+        mechanism_text.append(
+            build_thermodynamics_text(
+                solution,
+                sort_species=sort_species,
+                separate_file=False,
+            ),
+        )
     else:
-        transport_exists=True
+        thermo_text = [
+            header_text,
+            build_thermodynamics_text(
+                solution,
+                sort_species=sort_species,
+                separate_file=True,
+            ),
+        ]
+        thermo_path.write_text("\n".join(thermo_text))
 
-    # write mechanism file
-    text = []
-    text.append(build_header_text(solution))
-    text.append(build_species_text(solution, sort_elements=sort_elements,
-                                   sort_species=sort_species))
-    if path["thermo"] is None:
-        text.append(build_thermodynamics_text(solution, sort_species=sort_species,
-                                              separate_file=False))
-    text.append(build_reactions_text(solution,
-        sort_reaction_equations=sort_reaction_equations))
-    if transport_exists and path["tran"] is None:
-        text.append(build_transport_text(solution.species(), separate_file=False))
-    text = "\n".join(text)
+    # TODO: Handle phases without reactions
+    mechanism_text.append(
+        build_reactions_text(solution, sort_reaction_equations=sort_reaction_equations)
+    )
 
-    with open(path["mech"], "w") as file:
-        file.write(text)
+    if transport_path is None and transport_exists:
+        mechanism_text.append(
+            build_transport_text(solution.species(), separate_file=False)
+        )
+    elif transport_path is not None and transport_exists:
+        transport_text = [
+            header_text,
+            build_transport_text(solution.species(), separate_file=True),
+        ]
+        transport_path.write_text("\n".join(transport_text))
 
-    # write thermo data file
-    if isinstance(path["thermo"], PurePath):
-        text = []
-        text.append(build_header_text(solution))
-        text.append(build_thermodynamics_text(solution, sort_species=sort_species,
-                                              separate_file=True))
-        text = "\n".join(text)
+    mechanism_path.write_text("\n".join(mechanism_text))
 
-        with open(path["thermo"], "w") as file:
-            file.write(text)
-
-    # write transport data file
-    if transport_exists and isinstance(path["tran"], PurePath):
-        text = []
-        text.append(build_header_text(solution))
-        text.append(build_transport_text(solution.species(), separate_file=True))
-        text = "\n".join(text)
-
-        with open(path["tran"], "w") as file:
-            file.write(text)
-
-    else:
-        path["tran"] = None
-
-    return path.values()
+    return output_files
 
 
 def main():
@@ -909,56 +866,51 @@ def main():
     Parse command line arguments and pass them to `convert`
     """
 
-    def str_to_bool(value):
-        if isinstance(value, bool):
-            return value
-        if value.lower() in {"false", "f", "0", "no", "n"}:
-            return False
-        elif value.lower() in {"true", "t", "1", "yes", "y"}:
-            return True
-        raise ValueError(f"{value} is not a valid boolean value")
-
     parser = argparse.ArgumentParser(
         description="Convert Cantera YAML input files to Chemkin-format mechanisms",
     )
 
     parser.add_argument("input", help="The input YAML filename. Required.")
-    parser.add_argument("-mechanism-out", help="The output mechanism filename.")
-    parser.add_argument("-thermo-out", help="The output thermodynamics filename.")
-    parser.add_argument("-transport-out", help="The output transport filename.")
     parser.add_argument(
-        "-sort-elements",
+        "--phase-id", help="Identifier of the phase to load from the input."
+    )
+    parser.add_argument("--mechanism", help="The output mechanism filename.")
+    parser.add_argument("--thermo", help="The output thermodynamics filename.")
+    parser.add_argument("--transport", help="The output transport filename.")
+    parser.add_argument(
+        "--sort-elements",
         choices=[True, False],
         default=True,
-        type=str_to_bool,
-        help="Sort elements from smallest to largest.",
+        type=bool,
+        help="Sort elements list in the output from lowest to highest atomic mass.",
     )
     parser.add_argument(
-        "-sort-species",
+        "--sort-species",
         choices=[True, False],
         default=True,
-        type=str_to_bool,
-        help="Sort species from largest to smallest.",
+        type=bool,
+        help="Sort species list in the output from lowest to highest molecular weight.",
     )
     parser.add_argument(
-        "-sort-reaction-equations",
-        choices=[True, False],
-        default=True,
-        type=str_to_bool,
-        help="Sort reaction species from largest to smallest.",
-    )
-    parser.add_argument(
-        "-overwrite-files",
+        "--sort-reaction-equations",
         choices=[True, False],
         default=False,
-        type=str_to_bool,
-        help="Allow existing files to be overwritten if given as outputs.",
+        type=bool,
+        help="Sort species in the reactants or products of a reaction from "
+        "highest to lowest molecular weight.",
     )
     parser.add_argument(
-        "-cantera-validate",
+        "--overwrite",
         choices=[True, False],
         default=False,
-        type=str_to_bool,
+        type=bool,
+        help="Overwrite existing output files.",
+    )
+    parser.add_argument(
+        "--validate",
+        choices=[True, False],
+        default=False,
+        type=bool,
         help="Check that the mechanism can be loaded back into Cantera.",
     )
 
@@ -966,16 +918,17 @@ def main():
 
     output_paths = convert(
         args.input,
-        args.mechanism_out,
-        args.thermo_out,
-        args.transport_out,
+        args.mechanism,
+        args.thermo,
+        args.transport,
         args.sort_elements,
         args.sort_species,
         args.sort_reaction_equations,
-        args.overwrite_files,
+        args.overwrite,
+        args.phase_id,
     )
 
-    if args.cantera_validate:
+    if args.validate:
         # test mechanism back into cantera if command is given
         try:
             from cantera import ck2yaml
@@ -1003,12 +956,10 @@ def main():
                 phase_name="gas",
                 out_name=tf.name,
                 quiet=True,
-                permissive=True,
+                permissive=False,
             )
-            gas = ct.Solution(tf.name)
+            ct.Solution(tf.name)
 
-            # for surf_name in surfaces:
-            #     phase = ct.Interface(out_name, surf_name, [gas])
             tf.close()
             os.remove(tf.name)
             print("PASSED.")
