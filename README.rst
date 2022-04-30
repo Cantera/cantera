@@ -33,18 +33,23 @@ using the following MyBinder link:
 Installation
 ============
 
+|pip| |anaconda| |conda-forge|
+
 `Installation instructions for the current release of Cantera
 <https://cantera.org/install/index.html>`_ are available from the main `Cantera
-documentation site <https://cantera.org>`_. Installers are provided for Windows (MSI
-packages), macOS, and Ubuntu. Anaconda packages containing the Cantera Python and Matlab
-modules are also available for Windows, macOS, and Linux.
+documentation site <https://cantera.org>`_.
 
-.. image:: https://anaconda.org/cantera/cantera/badges/installer/conda.svg
-    :target: https://anaconda.org/Cantera/cantera
+- The Python module can also be installed using pip on Windows, macOS, and Linux.
 
-For other platforms, or for users wishing to install a development version of
-Cantera, `compilation instructions <https://cantera.org/install/index.html>`_
-are also available.
+- Conda packages containing the Cantera Python and Matlab modules are also available
+  for Windows, macOS, and Linux.
+
+- Additional installation packages are provided for Windows, macOS, Ubuntu, Fedora,
+  RHEL, Gentoo, and FreeBSD.
+
+- For other platforms, or for users wishing to install a development version of
+  Cantera, `compilation instructions <https://cantera.org/install/compiling-install.html#sec-compiling>`_
+  are also available.
 
 Documentation
 =============
@@ -55,7 +60,7 @@ offers a number of starting points:
 - `Python tutorial
   <https://cantera.org/tutorials/python-tutorial.html>`_
 - `Application Examples in Python
-  <https://github.com/Cantera/cantera-jupyter#cantera-jupyter>`_
+  <https://cantera.org/examples/jupyter/index.html>`_
 - `A guide to Cantera's input file format
   <https://cantera.org/tutorials/input-files.html>`_
 - `Information about the Cantera community
@@ -107,7 +112,6 @@ Continuous Integration Status
 
 |ci|
 
-
 NumFOCUS
 ========
 
@@ -139,3 +143,12 @@ development of Cantera through NumFOCUS.
 .. |release| image:: https://img.shields.io/github/release/cantera/cantera.svg
    :target: https://github.com/Cantera/cantera/releases
    :alt: GitHub release
+
+.. |pip| image:: https://img.shields.io/pypi/v/cantera
+   :target: https://pypi.org/project/Cantera/
+
+.. |anaconda| image:: https://img.shields.io/conda/v/cantera/cantera
+   :target: https://anaconda.org/Cantera/cantera
+
+.. |conda-forge| image:: https://img.shields.io/conda/v/conda-forge/cantera
+   :target: https://anaconda.org/conda-forge/cantera
