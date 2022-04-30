@@ -518,11 +518,12 @@ class ck2yamlTest(utilities.CanteraTest):
 class yaml2ckTest(utilities.CanteraTest):
     """Test yaml2ck by converting to CK then back to YAML to read with Cantera."""
     ext: str = ".yaml2ck.yaml"
+
     def _convert_to_ck(
         self,
         input_file: Path,
         phase_name: str = "",
-        output: tuple[str, str, str] = (),
+        output: tuple[str, str, str] | tuple = (),
     ) -> tuple[Path | None, Path | None, Path | None]:
         mechanism_path: Path | str
         if not output:
@@ -536,9 +537,16 @@ class yaml2ckTest(utilities.CanteraTest):
                 )
             mechanism_path, thermo_path, transport_path = output
 
-        mech, thermo, transport = yaml2ck.convert(input_file, phase_name=phase_name, mechanism_path=mechanism_path,
-            thermo_path=thermo_path, transport_path=transport_path, overwrite=True,
-            sort_elements=False, sort_species=None, sort_reaction_equations=True)
+        mech, thermo, transport = yaml2ck.convert(
+            input_file,
+            phase_name=phase_name,
+            mechanism_path=mechanism_path,
+            thermo_path=thermo_path,
+            transport_path=transport_path,
+            overwrite=True,
+            sort_elements=None,
+            sort_species=None
+        )
 
         return mech, thermo, transport
 
@@ -546,11 +554,16 @@ class yaml2ckTest(utilities.CanteraTest):
         self,
         input_file: Path,
         phase_name: str = "",
-        mech: str | None = None,
-        thermo: str | None = None,
-        transport: str | None = None,
+        mech: str | Path | None = None,
+        thermo: str | Path | None = None,
+        transport: str | Path | None = None,
+        permissive: bool = False,
     ) -> None:
-        mech, thermo, transport = self._convert_to_ck(input_file, phase_name, (mech, thermo, transport))
+        mech, thermo, transport = self._convert_to_ck(
+            input_file,
+            phase_name,
+            (mech, thermo, transport),
+        )
         output = input_file.with_suffix(self.ext)
         ck2yaml.convert_mech(
             mech,
@@ -558,9 +571,8 @@ class yaml2ckTest(utilities.CanteraTest):
             transport_file=transport,
             out_name=output,
             quiet=True,
-            permissive=False,
+            permissive=permissive,
         )
-        print(mech, thermo, transport)
 
     def check_conversion(self, basename, cls=ct.Solution, **kwargs):
         # The round-trip YAML->CK->YAML will always have the single phase name 'gas'
@@ -652,19 +664,30 @@ class yaml2ckTest(utilities.CanteraTest):
         self.check_kinetics(ck_phase, yaml_phase, [900, 1800], [2e5, 20e5])
         self.check_transport(ck_phase, yaml_phase, [298, 1001, 2400])
 
+    def test_nonreactant_orders(self):
+        input_file = self.test_data_path / "reaction-orders.yaml"
+        self.convert(input_file, permissive=True)
+        ck_phase, yaml_phase = self.check_conversion(input_file)
+        self.check_thermo(ck_phase, yaml_phase, [300, 500])
+        self.check_kinetics(ck_phase, yaml_phase, [300, 1001, 2500], [1e5, 10e5])
+
     def test_phase_id(self):
         input_file = self.cantera_data_path / "nDodecane_Reitz.yaml"
         self.convert(input_file, "nDodecane_IG")
         ck_phase, yaml_phase = self.check_conversion(input_file, name="nDodecane_IG")
         ck_phase.X = "h2:1"
         yaml_phase.X = "h2:1"
-        self.check_kinetics(ck_phase, yaml_phase, [300, 800, 1450, 2800], [5e3, 1e5, 2e6], tol=4e-6)
+        self.check_kinetics(
+            ck_phase, yaml_phase, [300, 800, 1450, 2800], [5e3, 1e5, 2e6], tol=4e-6
+        )
 
     def test_third_body_reactions(self):
         input_file = self.test_data_path / "explicit-third-bodies.yaml"
         self.convert(input_file)
         ck_phase, yaml_phase = self.check_conversion(input_file)
-        self.check_kinetics(ck_phase, yaml_phase, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
+        self.check_kinetics(
+            ck_phase, yaml_phase, [300, 800, 1450, 2800], [5e3, 1e5, 2e6]
+        )
 
     def test_pdep(self):
         input_file = self.test_data_path / "pdep-test.yaml"
@@ -672,7 +695,7 @@ class yaml2ckTest(utilities.CanteraTest):
         ck_phase, yaml_phase = self.check_conversion(input_file)
         # Chebyshev coefficients in XML are truncated to 6 digits, limiting accuracy
         self.check_kinetics(ck_phase, yaml_phase, [300, 1000, 2200],
-                           [100, ct.one_atm, 2e5, 2e6, 9.9e6], tol=2e-4)
+                            [100, ct.one_atm, 2e5, 2e6, 9.9e6], tol=2e-4)
 
     def test_sri_falloff(self):
         input_file = self.test_data_path / "sri-falloff.yaml"
@@ -685,8 +708,9 @@ class yaml2ckTest(utilities.CanteraTest):
         self.convert(input_file)
         ck_phase, yaml_phase = self.check_conversion(input_file)
         # pre-exponential factor in XML is truncated to 7 sig figs, limiting accuracy
-        self.check_kinetics(ck_phase, yaml_phase, [300, 800, 1450, 2800], [5e3, 1e5, 2e6, 1e7],
-                           tol=1e-7)
+        self.check_kinetics(
+            ck_phase, yaml_phase, [300, 800, 1450, 2800], [5e3, 1e5, 2e6, 1e7], tol=1e-7
+        )
 
     def test_yaml_2_ck_reactions(self):
         input_file = self.test_data_path / "yaml-ck-reactions.yaml"

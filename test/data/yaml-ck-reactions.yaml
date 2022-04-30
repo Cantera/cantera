@@ -2,6 +2,8 @@ description: |-
   Sample reactions used for testing of round trip yaml to chemkin to yaml.
   Some reaction rate definitions use arbitrary parameters.
 
+  ! generator: yaml2ck
+
 units: {activation-energy: cal/mol}
 
 phases:
@@ -34,13 +36,11 @@ species:
   composition: {O: 1}
   thermo:
     model: NASA7
-    temperature-ranges: [200.0, 1000.0, 6000.0]
+    temperature-ranges: [200.0, 1000.0]
     data:
     - [3.1682671, -3.27931884e-03, 6.64306396e-06, -6.12806624e-09, 2.11265971e-12,
       2.91222592e+04, 2.05193346]
-    - [2.54363697, -2.73162486e-05, -4.1902952e-09, 4.95481845e-12, -4.79553694e-16,
-      2.9226012e+04, 4.92229457]
-    note: L1/90
+    note: Modified to have only one temperature range
   transport:
     model: gas
     geometry: atom
