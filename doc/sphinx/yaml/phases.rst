@@ -78,6 +78,7 @@ and optionally reactions that can take place in that phase. The fields of a
     - :ref:`constant-density <sec-yaml-constant-density>`
     - :ref:`Debye-Huckel <sec-yaml-Debye-Huckel>`
     - :ref:`edge <sec-yaml-edge>`
+    - :ref:`electron-cloud <sec-yaml-electron-cloud>`
     - :ref:`fixed-stoichiometry <sec-yaml-fixed-stoichiometry>`
     - :ref:`HMW-electrolyte <sec-yaml-HMW-electrolyte>`
     - :ref:`ideal-gas <sec-yaml-ideal-gas>`
@@ -90,7 +91,8 @@ and optionally reactions that can take place in that phase. The fields of a
     - :ref:`liquid-water-IAPWS95 <sec-yaml-liquid-water-IAPWS95>`
     - :ref:`Margules <sec-yaml-Margules>`
     - :ref:`Maskell-solid-solution <sec-yaml-Maskell-solid-solution>`
-    - :ref:`electron-cloud <sec-yaml-electron-cloud>`
+    - :ref:`Peng-Robinson <sec-yaml-Peng-Robinson>`
+    - :ref:`plasma <sec-yaml-plasma>`
     - :ref:`pure-fluid <sec-yaml-pure-fluid>`
     - :ref:`Redlich-Kister <sec-yaml-Redlich-Kister>`
     - :ref:`Redlich-Kwong <sec-yaml-Redlich-Kwong>`
@@ -829,10 +831,21 @@ A multi-species Redlich-Kwong phase as
 The parameters for each species are contained in the corresponding species
 entries.
 
-.. _sec-yaml-plasma-phase:
+.. _sec-yaml-Peng-Robinson:
 
-``plasma-phase``
-----------------
+``Peng-Robinson``
+-----------------
+
+A multi-species Peng-Robinson phase as
+`described here <https://cantera.org/documentation/dev/doxygen/html/d3/ddc/classCantera_1_1PengRobinson.html#details>`__.
+
+The parameters for each species are contained in the corresponding species
+entries.
+
+.. _sec-yaml-plasma:
+
+``plasma``
+----------
 
 A phase for plasma. This phase handles plasma properties such as the electron
 energy distribution and electron temperature with different models as
