@@ -96,8 +96,9 @@ import math
 import re
 import argparse
 from pathlib import Path
-from textwrap import fill, dedent
+from textwrap import fill, dedent, TextWrapper
 import cantera as ct
+from email.utils import formatdate
 
 # number of calories in 1000 Joules
 CALORIES_CONSTANT = 4184.0
@@ -136,54 +137,47 @@ def Eformat(val, precision=7, exp_digits=3):
     return f"{mantissa}E{int(exponent):+0{exp_digits}d}"
 
 
-def build_header_text(solution, max_width=120):
-    """
-    Creates the header text for all output files
+class HeaderTextWrapper(TextWrapper):
+    def __init__(self, input_files: list[str], *args, **kwargs):
+        self.input_files = input_files
+        super().__init__(*args, **kwargs)
 
-    :param solution:
-        The `Solution` object being converted
-    :param max_width:
-        The maximum width of lines before they start to wrap
-    """
-    text = []
-
-    if "description" in solution.input_header:
-        text_wrap = lambda t: fill(
-            t,
-            width=max_width,
-            break_long_words=False,
-            break_on_hyphens=False,
-            initial_indent="! ",
-            subsequent_indent="!   ",
+    def _add_metadata(self, text: list[str]) -> list[str]:
+        """Replace existing metadata in the description, or add it if it's not there."""
+        # TODO: Replace with regex module
+        metadata = (
+            "! generator: yaml2ck",
+            "! cantera-version:",
+            "! date:",
+            "! input-files:"
         )
+        if any(line.startswith(metadata) for line in text):
+            new_text = []
+            for line in text:
+                if line.startswith(metadata[0]):
+                    new_text.append(metadata[0])
+                elif line.startswith(metadata[1]):
+                    new_text.append(metadata[1] + f" {ct.__version__}")
+                elif line.startswith(metadata[2]):
+                    new_text.append(f"! date: {formatdate(localtime=True)}")
+                elif line.startswith(metadata[3]):
+                    new_text.append(metadata[3] + f" {self.input_files}")
+                else:
+                    new_text.append(line)
+        else:
+            new_text = [
+                metadata[0],
+                metadata[1] + f" {ct.__version__}",
+                f"! date: {formatdate(localtime=True)}",
+                metadata[3] + f" {self.input_files}",
+                "!",
+            ]
+            new_text.extend(text)
 
-        text = solution.input_header["description"].splitlines()
-        text = [text_wrap(line) for line in text]
-    else:
-        note = ""
+        return new_text
 
-    ct_note = (
-        f"! Chemkin file was converted from a Cantera {ct.__version__} "
-        "`Solution` object\n! "
-    )
-
-    has_ct_note = False
-    for n, line in enumerate(text):
-        is_ct_header = (
-            "! Chemkin file was converted from a Cantera" == line[:43]
-            and "`Solution` object" == line[-17:]
-        )
-        if is_ct_header:
-            text[n] = ct_note
-            has_ct_note = True
-            break
-
-    if not has_ct_note:
-        text.append(f"!\n{ct_note}")
-
-    text.append("\n")
-
-    return "\n".join(text)
+    def wrap(self, text: str) -> list[str]:
+        return self._add_metadata(super().wrap(text))
 
 
 def build_species_text(solution, max_width=80, sort_elements=True, sort_species=True):
@@ -296,7 +290,7 @@ def build_thermodynamics_text(
     max_temp = 0.0
     for species in solution.species():
         if len(species.composition) > 4:
-            raise ValueError(
+            raise NotImplementedError(
                 f"More than 4 elements in a species is unsupported: {species.name}"
             )
         atoms = ""
@@ -307,7 +301,7 @@ def build_thermodynamics_text(
 
         input_data = species.input_data
         if input_data["thermo"]["model"] != "NASA7":
-            raise ValueError(
+            raise NotImplementedError(
                 f"Species '{species.name}' has unsupported thermo model '"
                 f"{input_data['thermo']['model']}. Supported thermo models are: NASA7"
             )
@@ -335,7 +329,7 @@ def build_thermodynamics_text(
             fmt_data["low_and_high_temp"] = low_and_high_temp.format(*temperature_range)
             fmt_data["mid_temp"] = f"{' ':8}"
         else:
-            raise ValueError(
+            raise NotImplementedError(
                 f"Species '{species.name}' has more than 2 temperature ranges. Only "
                 "1 or 2 are supported."
             )
@@ -812,7 +806,20 @@ def convert(
                 )
 
     # Write output files
-    header_text = build_header_text(solution)
+    header_wrapper = HeaderTextWrapper(
+            [solution_name.name],
+            width=120,
+            initial_indent="! ",
+            subsequent_indent="! ",
+            break_long_words=False,
+            break_on_hyphens=False,
+        )
+    if "description" in solution.input_header:
+        header_text = header_wrapper.fill(
+            solution.input_header["description"],
+        )
+    else:
+        header_text = header_wrapper.fill("")
     mechanism_text = [
         header_text,
         build_species_text(
