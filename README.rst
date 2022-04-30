@@ -74,9 +74,9 @@ offers a number of starting points:
 Code of Conduct
 ===============
 
-.. image:: https://img.shields.io/badge/code%20of%20conduct-contributor%20covenant-green.svg?style=flat-square
+.. image:: https://img.shields.io/badge/Contributor%20Covenant-2.0-4baaaa.svg
     :alt: conduct
-    :target: https://www.contributor-covenant.org/version/1/4/code-of-conduct.html
+    :target: https://www.contributor-covenant.org/version/2/0/code-of-conduct.html
 
 In order to have a more open and welcoming community, Cantera adheres to a
 `code of conduct <CODE_OF_CONDUCT.md>`_ adapted from the `Contributor Covenant
