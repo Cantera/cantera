@@ -51,6 +51,22 @@ public:
     //! species, where it represents the number of sites occupied.
     double size;
 
+    //! The molecular weight [amu] of the species.
+    const double molecularWeight();
+
+    //! Set the molecular weight of the species.
+    /*!
+     * Since phases can have custom element weights, the phase will always call this
+     * method when a species is added to that phase. The species may also call this
+     * method the first time the molecularWeight method is called if the species has
+     * not been added to a phase.
+     *
+     * @param weight: The weight of this species to assign, unless `compute` is `true`
+     * @param compute: If `true`, the weight will be computed from standard element
+     * weights from Elements.cpp, and the value of `weight` is ignored.
+     */
+    void setMolecularWeight(double weight, bool compute=false);
+
     shared_ptr<TransportData> transport;
 
     //! Thermodynamic data for the species
@@ -58,6 +74,12 @@ public:
 
     //! Input parameters used to define a species, for example from a YAML input file.
     AnyMap input;
+
+protected:
+
+    //! The molecular weight of the species, in atomic mass units. Includes
+    //! electron mass for charged species.
+    double m_molecularWeight = Undef;
 };
 
 //! Create a new Species object from an AnyMap specification
@@ -65,7 +87,6 @@ unique_ptr<Species> newSpecies(const AnyMap& node);
 
 //! Generate Species objects for each item (an AnyMap) in `items`.
 std::vector<shared_ptr<Species>> getSpecies(const AnyValue& items);
-
 }
 
 #endif

@@ -176,6 +176,11 @@ cdef class Species:
         def __get__(self):
             return self.species.size
 
+    property molecular_weight:
+        """ The molecular weight [amu] of the species. """
+        def __get__(self):
+            return self.species.molecularWeight()
+
     property thermo:
         """
         Get/Set the species reference-state thermodynamic data, as an instance
@@ -2054,6 +2059,7 @@ def _element_symbols():
 def _element_names():
     names = elementNames()
     return tuple(pystr(n) for n in names)
+
 
 class Element:
     """

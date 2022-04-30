@@ -233,6 +233,7 @@ cdef extern from "cantera/thermo/Species.h" namespace "Cantera":
         Composition composition
         double charge
         double size
+        double molecularWeight() except +translate_exception
         CxxAnyMap parameters(CxxThermoPhase*) except +translate_exception
         CxxAnyMap input
 

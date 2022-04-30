@@ -1,6 +1,7 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
+#include "cantera/thermo/Elements.h"
 #include "cantera/thermo/Species.h"
 #include "cantera/thermo/SpeciesThermoInterpType.h"
 #include "cantera/thermo/SpeciesThermoFactory.h"
@@ -12,6 +13,8 @@
 #include <iostream>
 #include <limits>
 #include <set>
+
+using namespace std;
 
 namespace Cantera {
 
@@ -32,6 +35,47 @@ Species::Species(const std::string& name_, const compositionMap& comp_,
 
 Species::~Species()
 {
+}
+
+const double Species::molecularWeight() {
+    if (m_molecularWeight == Undef) {
+        setMolecularWeight(-1.0, true);
+    }
+    return m_molecularWeight;
+}
+
+void Species::setMolecularWeight(double weight, bool compute) {
+    if (compute) {
+        weight = 0.0;
+        const auto& elements = elementSymbolToWeight();
+        const auto& isotopes = isotopeSymbolToWeight();
+        for (const auto& comp : composition) {
+            auto search = elements.find(comp.first);
+            if (search != elements.end()) {
+                if (search->second < 0) {
+                    throw CanteraError("setMolecularWeight",
+                        "element '{}' has no stable isotopes", comp.first);
+                }
+                weight += search->second * comp.second;
+            } else {
+                search = isotopes.find(comp.first);
+                if (search != isotopes.end() && search->second > 0) {
+                    weight += search->second * comp.second;
+                }
+            }
+        }
+    }
+    if (m_molecularWeight != Undef) {
+        double weight_cmp = fabs(weight - m_molecularWeight) / max(weight, m_molecularWeight);
+        if (weight_cmp > 1.0e-9) {
+            throw CanteraError(
+                "Species::setMolecularWeight",
+                "Molecular weight of a species cannot be changed."
+            );
+        }
+    }
+
+    m_molecularWeight = weight;
 }
 
 AnyMap Species::parameters(const ThermoPhase* phase, bool withInput) const
