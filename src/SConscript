@@ -100,7 +100,7 @@ if localenv['layout'] != 'debian':
 
     if env["OS"] == "Darwin":
         localenv.AddPostAction(lib,
-            Action(f"install_name_tool -id @rpath/{lib[0].name} {lib[0].relpath}"))
+            Action(f"install_name_tool -id @rpath/{lib[0].name} {lib[0].get_abspath()}"))
 
     env['cantera_shlib'] = lib
     localenv.Depends(lib, localenv['config_h_target'])
