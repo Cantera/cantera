@@ -29,9 +29,9 @@
  * calculated for
  * the reference state of each species, the standard state values for
  * each species, the thermodynamic functions for solution values, both
- * on a per mole of solution basis (i.e., enthalpy_mole()), on a per kg of
+ * on a per mole of solution basis (such as enthalpy_mole()), on a per kg of
  * solution basis,  and on a
- * partial molar basis for each species (i.e.,
+ * partial molar basis for each species (such as
  * getPartialMolarEnthalpies(double *hbar)).
  * At each level, functions for the enthalpy, entropy, Gibbs free energy,
  * internal energy, and volume are provided. So, 5 levels (reference state,
@@ -415,7 +415,7 @@
  *   The actual units used in a kinetics expression depend
  *   on the context or the relative field of study. For example, in
  *   gas phase kinetics, species in kinetics expressions are expressed in
- *   terms of concentrations, i.e., gmol cm-3. In solid phase studies,
+ *   terms of concentrations, for example, gmol cm-3. In solid phase studies,
  *   however, kinetics is usually expressed in terms of unitless activities,
  *   which most often equate to solid phase mole fractions. In order to
  *   accommodate variability here, %Cantera has come up with the idea
@@ -483,14 +483,14 @@
  *  one of its arguments.
  *
  *  Within importPhase(), a decision is made as to what type of
- *  standard state, i.e.,
+ *  standard state, that is,
  *  either a reference state (just T dependent)  or a standard state
  *  (both P and T dependent), is to be used to calculate the
  *  standard state properties of the species within the phase.
  *  If only a reference state is needed
  *  then a call to newSpeciesThermoMgr()
  *  is made in order
- *  pick a manager, i.e., a derivative of the SpeciesThermo
+ *  pick a manager, that is, a derivative of the SpeciesThermo
  *  object, to use.
  *
  *  Once these determinations are made, the %ThermoPhase object is

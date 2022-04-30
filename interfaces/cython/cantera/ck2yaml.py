@@ -39,9 +39,9 @@ The '--single-intermediate-temperature' option should be used with thermo data w
 only a single break temperature is used and the last value in the first line of each
 species thermo entry is the molecular weight instead.
 
-The '--permissive' option allows certain recoverable parsing errors (e.g.
+The '--permissive' option allows certain recoverable parsing errors (such as
 duplicate transport data) to be ignored. The '--name=<name>' option
-is used to override default phase names (i.e. 'gas').
+is used to override default phase names (that is, 'gas').
 
 The '--extra=<filename>' option takes a YAML file as input. This option can be
 used to add to the file description, or to define custom fields that are
@@ -317,7 +317,7 @@ class Reaction:
 
     def __str__(self):
         """
-        Return a string representation of the reaction, e.g. 'A + B <=> C + D'.
+        Return a string representation of the reaction, such as 'A + B <=> C + D'.
         """
         return '{}{}{}'.format(self._coeff_string(self.reactants),
                                ' <=> ' if self.reversible else ' => ',
@@ -1384,7 +1384,7 @@ class Parser:
                                           efficiencies=efficiencies)
         elif reaction.third_body:
             raise InputError('Reaction equation implies pressure '
-                'dependence but no alternate rate parameters (i.e. HIGH or '
+                'dependence but no alternate rate parameters (such as HIGH or '
                 'LOW) were given for reaction {}.', reaction)
         elif surface:
             reaction.kinetics = SurfaceRate(rate=arrhenius,

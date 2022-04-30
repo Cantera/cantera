@@ -27,7 +27,7 @@ cdef class Domain1D:
 
     property phase:
         """
-        Phase describing the domain (i.e. gas phase or surface phase).
+        Phase describing the domain (that is, a gas phase or surface phase).
         """
         def __get__(self):
             return self.gas
@@ -736,7 +736,7 @@ cdef class Sim1D:
 
     def phase(self, domain=None):
         """
-        Return phase describing a domain (i.e. gas phase or surface phase).
+        Return phase describing a domain (that is, a gas phase or surface phase).
 
         :param domain: Index of domain within `Sim1D.domains` list; the default
             is to return the phase of the parent `Sim1D` object.
@@ -1015,7 +1015,7 @@ cdef class Sim1D:
         Derived classes set default values for ``domain`` and ``other``, where
         defaults describe flow domain and essential non-thermodynamic solution
         components of the configuration, respectively. An alternative ``domain``
-        (e.g. inlet, outlet, etc.), can be specified either by name or the
+        (such as inlet, outlet, etc.), can be specified either by name or the
         corresponding Domain1D object itself.
         """
         idom = self.domain_index(domain)
@@ -1520,7 +1520,7 @@ cdef class Sim1D:
             A function with the signature ``value = g(sim)`` which computes the
             value of :math:`g(x,p)` at the current system state. This is used to
             compute :math:`\partial g/\partial p`. If this is identically zero
-            (i.e. :math:`g` is independent of :math:`p`) then this argument may
+            (that is, :math:`g` is independent of :math:`p`) then this argument may
             be omitted.
         :param dp:
             A relative value by which to perturb each parameter

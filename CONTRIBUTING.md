@@ -21,9 +21,9 @@
     followed by a blank line and a more detailed summary, if any)
   * Make related changes in a single commit, and unrelated changes in separate
     commits
-  * Make sure that your commits do not include any undesired files, e.g., files
+  * Make sure that your commits do not include any undesired files, such as files
     produced as part of the build process or other temporary files.
-  * Use Git's history-rewriting features (i.e., `git rebase -i`; see
+  * Use Git's history-rewriting features (such as `git rebase -i`; see
     https://help.github.com/articles/about-git-rebase/) to organize your commits
     and squash "fixup" commits and reversions.
   * Do not merge your branch with `main`. If needed, you should rebase your branch
@@ -60,11 +60,13 @@
   (`&&`/`||`/...), and comparisons (`<`/`>`/`==`/...); before and after equality
   signs `=` unless used for the assignment of a default parameter)
 * Do not go out of your way to change formatting in otherwise unmodified code
+* Write 'for example', 'such as', or 'that is' instead of using the Latin
+  abbreviations 'i.e.' and 'e.g.'.
 
 ## C++
 
 * All classes, member variables, and methods should have Doxygen-style comments
-  (e.g., comment lines starting with `//!` or comment blocks starting with `/*!`)
+  (for example, comment lines starting with `//!` or comment blocks starting with `/*!`)
 * Avoid defining non-trivial functions in header files
 * Header files should include an 'include guard'
 * Protected and private member variable names are generally prefixed with
@@ -74,7 +76,7 @@
 * Do not indent the contents of namespaces
 * Code should follow the C++11 standard, with minimum required compiler versions
   GCC 4.8, Clang 3.4, MSVC 14.0 (2015) and Intel 15.0.
-* Avoid manual memory management (i.e. `new` and `delete`), preferring to use
+* Avoid manual memory management (that is, `new` and `delete`), preferring to use
   standard library containers, as well as `std::unique_ptr` and
   `std::shared_ptr` when dynamic allocation is required.
 * Portions of Boost which are "header only" may be used. If possible, include

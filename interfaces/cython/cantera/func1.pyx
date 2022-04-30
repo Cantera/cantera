@@ -24,10 +24,10 @@ cdef double func_callback(double t, void* obj, void** err):
 
 cdef class Func1:
     """
-    This class is used as a wrapper for a function of one variable, i.e.
+    This class is used as a wrapper for a function of one variable,
     :math:`y = f(t)`, that is defined in Python and can be called by the
     Cantera C++ core. `Func1` objects are constructed from callable Python
-    objects, e.g. functions or classes which implement the `__call__` method::
+    objects, for example functions or classes which implement the `__call__` method::
 
         >>> f1 = Func1(math.sin)
         >>> f1(math.pi/4)

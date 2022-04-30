@@ -57,7 +57,7 @@ public:
     //! Thermodynamic data for the species
     shared_ptr<SpeciesThermoInterpType> thermo;
 
-    //! Input parameters used to define a species, e.g. from a YAML input file.
+    //! Input parameters used to define a species, for example from a YAML input file.
     AnyMap input;
 };
 

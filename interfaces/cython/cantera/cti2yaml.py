@@ -646,7 +646,7 @@ class reaction:
         :param order:
             Override the default reaction orders implied by the reactant
             stoichiometric coefficients. Given as a string of key:value pairs,
-            e.g., ``"CH4:0.25 O2:1.5"``.
+            for example, ``"CH4:0.25 O2:1.5"``.
         :param options:
             Processing options, as described in
             `Options <https://cantera.org/tutorials/cti/reactions.html#options>`__.

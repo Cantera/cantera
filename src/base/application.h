@@ -389,7 +389,7 @@ public:
     }
 
     //! Globally disable printing of warnings about problematic thermo data,
-    //! e.g. NASA polynomials with discontinuities at the midpoint temperature.
+    //! such as NASA polynomials with discontinuities at the midpoint temperature.
     void suppress_thermo_warnings(bool suppress=true) {
         m_suppress_thermo_warnings = suppress;
     }

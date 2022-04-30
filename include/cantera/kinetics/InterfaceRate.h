@@ -115,7 +115,7 @@ public:
 
     //! Add a coverage dependency for species *sp*, with exponential dependence
     //! *a*, power-law exponent *m*, and activation energy dependence *e*,
-    //! where *e* is in Kelvin, i.e. energy divided by the molar gas constant.
+    //! where *e* is in Kelvin, that is, energy divided by the molar gas constant.
     void addCoverageDependence(const std::string& sp, double a, double m, double e);
 
     //! Boolean indicating whether rate uses exchange current density formulation

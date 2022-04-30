@@ -3,7 +3,7 @@
  *     Declarations of global routines for the importing
  *     of kinetics data from XML files (see \ref inputfiles).
  *
- *     This file contains routines which are global routines, i.e.,
+ *     This file contains routines which are global routines, that is,
  *     not part of any object. These routine take as input, ctml
  *     pointers to data, and pointers to %Cantera objects. The purpose
  *     of these routines is to initialize the %Cantera objects with data

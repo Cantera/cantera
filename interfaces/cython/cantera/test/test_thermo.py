@@ -1203,7 +1203,7 @@ class ImportTest(utilities.CanteraTest):
 
     @pytest.mark.usefixtures("allow_deprecated")
     def test_import_phase_cti2(self):
-        # This should import the first phase, i.e. 'air'
+        # This should import the first phase, that is, 'air'
         gas = ct.Solution('air-no-reactions.cti')
         self.check(gas, 'air', 300, 101325, 8, 3)
 

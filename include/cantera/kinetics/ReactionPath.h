@@ -320,7 +320,7 @@ protected:
     std::vector<std::string> m_elementSymbols;
 
     //! m_transfer[reaction][reactant number][product number] where "reactant
-    //! number" means the number of the reactant in the reaction equation, e.g.
+    //! number" means the number of the reactant in the reaction equation. For example,
     //! for "A+B -> C+D", "B" is reactant number 1 and "C" is product number 0.
     std::map<size_t, std::map<size_t, std::map<size_t, Group> > > m_transfer;
 

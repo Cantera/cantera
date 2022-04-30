@@ -45,7 +45,7 @@ namespace Cantera
  * Their first argument is a boolean. If the boolean is not true, a CanteraError
  * is thrown, with descriptive information indicating where the error occurred.
  * The Assert* checks are skipped if the NDEBUG preprocessor symbol is defined,
- * e.g. with the compiler option -DNDEBUG.
+ * for example with the compiler option -DNDEBUG.
  */
 
 
@@ -66,10 +66,10 @@ public:
      *             generated. For member functions, this should be written as
      *             `ClassName::functionName`. For constructors, this should be
      *             `ClassName::ClassName`. Arguments can be specified to
-     *             disambiguate overloaded functions, e.g.
+     *             disambiguate overloaded functions, such as
      *             `ClassName::functionName(int, int)`.
      * @param msg  Descriptive string describing the type of error message. This
-     *     can be a fmt-style format string (i.e. using curly braces to indicate
+     *     can be a fmt-style format string (that is, using curly braces to indicate
      *     fields), which will be used with additional arguments to generate a
      *     formatted error message
      * @param args Arguments which will be used to interpolate the format string
@@ -186,7 +186,7 @@ private:
 class NotImplementedError : public CanteraError
 {
 public:
-    //! @param func Name of the unimplemented function, e.g.
+    //! @param func Name of the unimplemented function, such as
     //!     `ClassName::functionName`
     NotImplementedError(const std::string& func) :
         CanteraError(func, "Not implemented.") {}

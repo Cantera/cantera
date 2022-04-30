@@ -24,7 +24,7 @@ public:
     //! Set grid refinement criteria
     /*!
      *  @param ratio Maximum ratio between grid spacing at adjacent intervals.
-     *      E.g. `(x[j+1] - x[j]) / (x[j] - x[j-1]) < ratio`
+     *      That is, `(x[j+1] - x[j]) / (x[j] - x[j-1]) < ratio`
      *  @param slope Maximum fractional change in the value of each solution
      *      component between adjacent grid points
      *  @param curve Maximum fractional change in the derivative of each

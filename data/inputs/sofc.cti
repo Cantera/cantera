@@ -9,7 +9,7 @@
 #########################################################################
 
 # These units will be used by default for any quantities entered
-# without units. Quantities with compound units (e.g. concentration)
+# without units. Quantities with compound units (such as concentration)
 # will be constructed from these - the units of concentration will be
 # mol/cm^3, etc.
 units(length = "cm", time = "s", quantity = "mol", act_energy = "kJ/mol")

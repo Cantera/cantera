@@ -31,10 +31,10 @@ cdef class Species:
     underlying `ThermoPhase` and `Transport` objects).
 
     :param name:
-        A string giving the name of the species, e.g. ``'CH4'``
+        A string giving the name of the species, such as ``'CH4'``
     :param composition:
         The elemental composition of the species, given either as a dict or a
-        composition string, e.g. ``{'C':1, 'H':4}`` or ``'C:1, H:4'``.
+        composition string, such as ``{'C':1, 'H':4}`` or ``'C:1, H:4'``.
     :param charge:
         The electrical charge, in units of the elementary charge. Default 0.0.
     :param size:

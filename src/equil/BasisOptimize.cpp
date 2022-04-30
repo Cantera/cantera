@@ -218,7 +218,7 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
     // Then, the first row in sm[], below will be identically zero. bleh.
     //
     // What needs to be done is to perform a rearrangement of the ELEMENTS ->
-    // i.e. rearrange, FormulaMatrix, sp, and gai, such that the first nc
+    // that is, rearrange, FormulaMatrix, sp, and gai, such that the first nc
     // elements form in combination with the nc components create an invertible
     // sm[]. not a small project, but very doable.
     //

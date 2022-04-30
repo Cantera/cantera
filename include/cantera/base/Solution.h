@@ -148,7 +148,7 @@ shared_ptr<Solution> newSolution(const std::string& infile,
  * This constructor wraps newPhase(), newKinetics() and
  * newTransportMgr() routines for initialization.
  *
- * @param phaseNode the node containing the phase definition (i.e. thermo model,
+ * @param phaseNode the node containing the phase definition (that is, thermo model,
  *     list of species, and initial state)
  * @param rootNode the root node of the tree containing the phase definition, which
  *     will be used as the default location from which to read species definitions.

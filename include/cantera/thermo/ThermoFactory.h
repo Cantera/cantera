@@ -133,7 +133,7 @@ ThermoPhase* newPhase(XML_Node& phase);
 
 //! Create a new ThermoPhase object and initialize it
 /*!
- * @param phaseNode  The node containing the phase definition (i.e. thermo
+ * @param phaseNode  The node containing the phase definition (that is, thermo
  *     model, list of species, and initial state)
  * @param rootNode   The root node of the tree containing the phase definition,
  *     which will be used as the default location from which to read species
@@ -197,7 +197,7 @@ ThermoPhase* newPhase(const std::string& infile, std::string id="");
  * Finally, we call initThermoXML(), a member function of the ThermoPhase
  * object, to "finish" the description. Now that the species are known,
  * additional information may be read in about the thermodynamics of the phase,
- * (e.g.,  virial coefficients, which are binary or ternary interaction
+ * (for example,  virial coefficients, which are binary or ternary interaction
  * parameters between species).
  *
  * @param phase This object must be the phase node of a complete XML tree
@@ -219,7 +219,7 @@ void importPhase(XML_Node& phase, ThermoPhase* th);
 //! Initialize a ThermoPhase object
 /*!
  *  @param phase      The ThermoPhase object to be initialized
- *  @param phaseNode  The node containing the phase definition (i.e. thermo
+ *  @param phaseNode  The node containing the phase definition (that is, thermo
  *     model, list of species, and initial state)
  * @param rootNode    The root node of the tree containing the phase definition,
  *     which will be used as the default location from which to read species

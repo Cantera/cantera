@@ -450,7 +450,7 @@ private:
     /*!
      *  This is used within the interface to select the array position to read
      *  and write to Normally this is associated with the reaction number in an
-     *  array of quantities indexed by the reaction number, e.g., ROP[irxn].
+     *  array of quantities indexed by the reaction number, for example, ROP[irxn].
      */
     size_t m_rxn;
 

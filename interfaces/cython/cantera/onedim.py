@@ -296,7 +296,7 @@ class FlameBase(Sim1D):
     @property
     def spread_rate(self):
         """
-        Array containing the tangential velocity gradient [1/s] (e.g. radial
+        Array containing the tangential velocity gradient [1/s] (that is, radial
         velocity divided by radius) at each point.
         """
         return self.profile(self.flame, 'spread_rate')
@@ -387,7 +387,7 @@ class FlameBase(Sim1D):
         :param filename:
             Output file name
         :param species:
-            Attribute to use obtaining species profiles, e.g. ``X`` for
+            Attribute to use obtaining species profiles, for example ``X`` for
             mole fractions or ``Y`` for mass fractions.
         :param normalize:
             Boolean flag to indicate whether the mole/mass fractions should
@@ -459,7 +459,7 @@ class FlameBase(Sim1D):
         Return the solution vector as a `pandas.DataFrame`.
 
         :param species:
-            Attribute to use obtaining species profiles, e.g. ``X`` for
+            Attribute to use obtaining species profiles, for example ``X`` for
             mole fractions or ``Y`` for mass fractions.
         :param normalize:
             Boolean flag to indicate whether the mole/mass fractions should
@@ -542,7 +542,7 @@ class FlameBase(Sim1D):
             Identifier for the group in the container file. A group may contain
             multiple `SolutionArray` objects.
         :param species:
-            Attribute to use obtaining species profiles, e.g. ``X`` for
+            Attribute to use obtaining species profiles, for example ``X`` for
             mole fractions or ``Y`` for mass fractions.
         :param mode:
             Mode *h5py* uses to open the output file {'a' to read/write if file

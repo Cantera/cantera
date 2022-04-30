@@ -528,7 +528,7 @@ config_options = [
         {"mingw": False, "default": True}),
     BoolOption(
         "use_rpath_linkage",
-        """If enabled, link to all shared libraries using 'rpath', i.e., a fixed
+        """If enabled, link to all shared libraries using 'rpath', that is, a fixed
            run-time search path for dynamic library loading.""",
         True),
     Option(
@@ -1324,7 +1324,7 @@ if env['system_sundials'] == 'y':
         config_error("Failed to determine Sundials version.")
     sundials_version = sundials_version.strip(' "\n')
 
-    # Ignore the minor version, e.g. 2.4.x -> 2.4
+    # Ignore the minor version, for example 2.4.x -> 2.4
     env['sundials_version'] = '.'.join(sundials_version.split('.')[:2])
     sundials_ver = parse_version(env['sundials_version'])
     if sundials_ver < parse_version("2.4") or sundials_ver >= parse_version("7.0"):
@@ -1656,7 +1656,7 @@ if env["matlab_toolbox"] == "y":
     if env['blas_lapack_libs']:
         logger.error(
             "The Matlab toolbox is incompatible with external BLAS "
-            "and LAPACK libraries. Unset blas_lapack_libs (e.g. 'scons "
+            "and LAPACK libraries. Unset blas_lapack_libs (for example, 'scons "
             "build blas_lapack_libs=') in order to build the Matlab "
             "toolbox, or set 'matlab_toolbox=n' to use the specified BLAS/"
             "LAPACK libraries and skip building the Matlab toolbox.")
@@ -1665,7 +1665,7 @@ if env["matlab_toolbox"] == "y":
     if env["system_sundials"] == "y":
         logger.error(
             "The Matlab toolbox is incompatible with external SUNDIALS "
-            "libraries. Set system_sundials to no (e.g., 'scons build "
+            "libraries. Set system_sundials to no (for example, 'scons build "
             "system_sundials=n') in order to build the Matlab "
             "toolbox, or set 'matlab_toolbox=n' to use the specified "
             "SUNDIALS libraries and skip building the Matlab toolbox.")

@@ -99,7 +99,7 @@ public:
         return "Arrhenius2";
     }
 
-    //! Return the activation energy divided by the gas constant (i.e. the
+    //! Return the activation energy divided by the gas constant (that is, the
     //! activation temperature) [K]
     double activationEnergy_R() const {
         return m_Ea_R;
@@ -140,7 +140,7 @@ public:
 
     //! Add a coverage dependency for species *k*, with exponential dependence
     //! *a*, power-law exponent *m*, and activation energy dependence *e*,
-    //! where *e* is in Kelvin, i.e. energy divided by the molar gas constant.
+    //! where *e* is in Kelvin, that is, energy divided by the molar gas constant.
     void addCoverageDependence(size_t k, doublereal a,
                                doublereal m, doublereal e);
 
@@ -187,7 +187,7 @@ public:
         return m_b;
     }
 
-    //! Return the activation energy divided by the gas constant (i.e. the
+    //! Return the activation energy divided by the gas constant (that is, the
     //! activation temperature) [K], accounting coverage dependence.
     doublereal activationEnergy_R() const {
         return m_E + m_ecov;

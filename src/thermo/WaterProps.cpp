@@ -181,7 +181,7 @@ doublereal WaterProps::ADebye(doublereal T, doublereal P_input, int ifunc)
         doublereal depsRelWaterdT = relEpsilon(T, P, 1);
         dAdT -= A_Debye * (1.5 * depsRelWaterdT / epsRelWater);
 
-        // calculate d(lnV)/dT _constantP, i.e., the cte
+        // calculate d(lnV)/dT _constantP, that is, the cte
         doublereal cte = coeffThermalExp_IAPWS(T, P);
         doublereal contrib2 = - A_Debye * (0.5 * cte);
         dAdT += contrib2;

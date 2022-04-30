@@ -606,7 +606,7 @@ double UnitSystem::convertFrom(double value, const Units& src) const
 
 static std::pair<double, std::string> split_unit(const AnyValue& v) {
     if (v.is<std::string>()) {
-        // Should be a value and units, separated by a space, e.g. '2e4 J/kmol'
+        // Should be a value and units, separated by a space, for example '2e4 J/kmol'
         std::string val_units = v.asString();
         size_t space = val_units.find(" ");
         if (space == npos) {
