@@ -916,6 +916,106 @@ class TestSofcKinetics3(TestSofcKinetics):
     _mech = "sofc.cti"
 
 
+class TestLithiumIonBatteryKinetics(utilities.CanteraTest):
+    """ Test based on lithium_ion_battery.py """
+    _mech = "lithium_ion_battery.yaml"
+
+    def test_lithium_ion_battery(self):
+        mech = self._mech
+        samples = 11
+        soc = np.linspace(0., 1., samples)  # [-] Input state of charge (0...1)
+        current = -1  # [A] Externally-applied current, negative for discharge
+        T = 293  # T in K
+        P = ct.one_atm
+        R_electrolyte = 0.0384  # [Ohm] Electrolyte resistance
+        area_cathode = 1.1167  # [m^2] Cathode total active material surface area
+        area_anode = 0.7824  # [m^2] Anode total active material surface area
+
+        # Calculate mole fractions from SOC
+        X_Li_anode_0 = 0.01  # [-] anode Li mole fraction at SOC = 0
+        X_Li_anode_1 = 0.75  # [-] anode Li mole fraction at SOC = 100
+        X_Li_cathode_0 = 0.99  # [-] cathode Li mole fraction at SOC = 0
+        X_Li_cathode_1 = 0.49  # [-] cathode Li mole fraction at SOC = 100
+        X_Li_anode = (X_Li_anode_1 - X_Li_anode_0) * soc + X_Li_anode_0
+        X_Li_cathode = (X_Li_cathode_0 - X_Li_cathode_1) * (1 - soc) + X_Li_cathode_1
+
+        def newton_solve(f, xstart, C=0.0):
+            """ Solve f(x) = C by Newton iteration. """
+            x0 = xstart
+            dx = 1.0e-6
+            n = 0
+            while True:
+                n += 1
+                f0 = f(x0) - C
+                x0 -= f0 / (f(x0 + dx) - C - f0) * dx
+                if n > 1000:
+                    raise Exception('No convergence in Newton solve')
+                if abs(f0) < 0.00001:
+                    return x0
+
+        # Phases
+        anode, cathode, metal, electrolyte = ct.import_phases(
+            mech, ["anode", "cathode", "electron", "electrolyte"])
+        anode_int = ct.Interface(
+            mech, "edge_anode_electrolyte", adjacent=[anode, metal, electrolyte])
+        cathode_int = ct.Interface(
+            mech, "edge_cathode_electrolyte", adjacent=[cathode, metal, electrolyte])
+
+        # initialization
+        for phase in [anode, cathode, metal, electrolyte, anode_int, cathode_int]:
+            phase.TP = T, P
+
+        # This function returns the Cantera calculated anode current
+        def anode_current(phi_s, phi_l, X_Li_anode):
+            # Set mole fraction and electrode and electrolyte potential
+            anode.X = {"Li[anode]": X_Li_anode, "V[anode]": 1 - X_Li_anode}
+            metal.electric_potential = phi_s
+            electrolyte.electric_potential = phi_l
+
+            # Calculate the current.
+            return ct.faraday * anode_int.net_rates_of_progress * area_anode
+
+        # This function returns the Cantera calculated cathode current
+        def cathode_current(phi_s, phi_l, X_Li_cathode):
+            # Set mole fraction and electrode and electrolyte potential
+            cathode.X = {"Li[cathode]": X_Li_cathode, "V[cathode]": 1 - X_Li_cathode}
+            metal.electric_potential = phi_s
+            electrolyte.electric_potential = phi_l
+
+            # Calculate the current. Should be negative for cell discharge.
+            return - ct.faraday * cathode_int.net_rates_of_progress * area_cathode
+
+        # Calculate cell voltage, separately for each entry of the input vectors
+        data = []
+        phi_l_anode = 0
+        phi_s_cathode = 0
+        for i in range(samples):
+            # Calculate anode electrolyte potential
+            phi_s_anode = 0
+            phi_l_anode = newton_solve(
+                lambda E: anode_current(phi_s_anode, E, X_Li_anode[i]),
+                phi_l_anode, C=current)
+
+            # Calculate cathode electrode potential
+            phi_l_cathode = phi_l_anode + current * R_electrolyte
+            phi_s_cathode = newton_solve(
+                lambda E: cathode_current(E, phi_l_cathode, X_Li_cathode[i]),
+                phi_s_cathode, C=current)
+
+            # Calculate cell voltage
+            data.append(phi_s_cathode - phi_s_anode)
+
+        data = np.array(data).ravel()
+        ref = np.genfromtxt(self.test_data_path / "lithium-ion-battery-test.csv")
+        assert np.allclose(data, ref, rtol=1e-7)
+
+
+@pytest.mark.usefixtures("allow_deprecated")
+class TestLithiumIonBatteryKinetics2(TestLithiumIonBatteryKinetics):
+    """ Test using legacy framework; included to retain coverage """
+    _mech = "lithium_ion_battery.cti"
+
+
 class TestDuplicateReactions(utilities.CanteraTest):
     infile = 'duplicate-reactions.yaml'
 
