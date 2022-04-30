@@ -118,7 +118,7 @@ void IonFlow::frozenIonMethod(const double* x, size_t j0, size_t j1)
         }
 
         // flux for ions
-        // Set flux to zero to prevent some fast charged species (e.g. electron)
+        // Set flux to zero to prevent some fast charged species (such electrons)
         // to run away
         for (size_t k : m_kCharge) {
             m_flux(k,j) = 0;

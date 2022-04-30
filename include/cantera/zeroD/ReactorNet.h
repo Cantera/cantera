@@ -19,7 +19,7 @@ class Integrator;
 /*!
  *  This class is used to integrate the time-dependent governing equations for
  *  a network of reactors (Reactor, ConstPressureReactor) connected by various
- *  means, e.g. Wall, MassFlowController, Valve, PressureController.
+ *  means, for example Wall, MassFlowController, Valve, or PressureController.
  *
  * @ingroup ZeroD
  */
@@ -197,13 +197,13 @@ public:
 
     //! Return the name of the i-th component of the global state vector. The
     //! name returned includes both the name of the reactor and the specific
-    //! component, e.g. `'reactor1: CH4'`.
+    //! component, for example `'reactor1: CH4'`.
     std::string componentName(size_t i) const;
 
     //! Used by Reactor and Wall objects to register the addition of
     //! sensitivity parameters so that the ReactorNet can keep track of the
     //! order in which sensitivity parameters are added.
-    //! @param name A name describing the parameter, e.g. the reaction string
+    //! @param name A name describing the parameter, for example the reaction string
     //! @param value The nominal value of the parameter
     //! @param scale A scaling factor to be applied to the sensitivity
     //!     coefficient

@@ -2901,7 +2901,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
             }
 
             // Both species have a non-zero charge, and they
-            // have the same sign, e.g., both positive or both negative.
+            // have the same sign, that is, both positive or both negative.
             if (charge(i)*charge(j) > 0) {
                 dFdT += molality[i]*molality[j] * m_Phiprime_IJ[counterIJ];
             }
@@ -3414,7 +3414,7 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
             }
 
             // Both species have a non-zero charge, and they
-            // have the same sign, e.g., both positive or both negative.
+            // have the same sign, that is, both positive or both negative.
             if (charge(i)*charge(j) > 0) {
                 d2FdT2 += molality[i]*molality[j] * m_Phiprime_IJ[counterIJ];
             }
@@ -3924,7 +3924,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
             }
 
             // Both species have a non-zero charge, and they
-            // have the same sign, e.g., both positive or both negative.
+            // have the same sign, that is, both positive or both negative.
             if (charge(i)*charge(j) > 0) {
                 dFdP += molality[i]*molality[j] * m_Phiprime_IJ[counterIJ];
             }

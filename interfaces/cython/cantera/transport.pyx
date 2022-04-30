@@ -3,7 +3,7 @@
 
 # NOTE: These cdef functions cannot be members of Transport because they would
 # cause "layout conflicts" when creating derived classes with multiple bases,
-# e.g. class Solution. [Cython 0.16]
+# such as class Solution. [Cython 0.16]
 cdef np.ndarray get_transport_1d(Transport tran, transportMethod1d method):
     cdef np.ndarray[np.double_t, ndim=1] data = np.empty(tran.thermo.nSpecies())
     method(tran.transport, &data[0])

@@ -25,7 +25,7 @@ class InterfaceReaction2;
 /*!
  * There are some important additions to the behavior of the kinetics class due
  * to the presence of multiple phases and a heterogeneous interface. If a
- * reactant phase doesn't exists, i.e., has a mole number of zero, a
+ * reactant phase doesn't exists, that is, has a mole number of zero, a
  * heterogeneous reaction can not proceed from reactants to products. Note it
  * could perhaps proceed from products to reactants if all of the product phases
  * exist.
@@ -33,7 +33,7 @@ class InterfaceReaction2;
  * In order to make the determination of whether a phase exists or not actually
  * involves the specification of additional information to the kinetics object.,
  * which heretofore has only had access to intrinsic field information about the
- * phases (i.e., temperature pressure, and mole fraction).
+ * phases (for example, temperature, pressure, and mole fraction).
  *
  * The extrinsic specification of whether a phase exists or not must be
  * specified on top of the intrinsic calculation of the reaction rate. This

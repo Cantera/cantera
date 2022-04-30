@@ -5,11 +5,11 @@
 To compile using the default options, run `scons build` followed by
 `scons install`.
 
-Configuration options are specified with `name=value` on the command line, e.g.:
+Configuration options are specified with `name=value` on the command line, for example:
 `scons build optimize=n prefix=/home/$USER/cantera`
 
 The full list of configuration options and their default values can be shown by running
-`scons help --options`. The list of available `scons` commands (e.g. `build`) can be
+`scons help --options`. The list of available `scons` commands (such as `build`) can be
 shown by running `scons help`.
 
 

@@ -7,7 +7,7 @@ In this example we illustrate how to setup and use a constant volume,
 adiabatic reactor to simulate reflected shock tube experiments. This reactor
 will then be used to compute the ignition delay of a gas at a specified
 initial temperature and pressure. The example is written in a general way,
-i.e., no particular EoS is presumed and ideal and real gas EoS can be used
+that is, no particular EoS is presumed and ideal and real gas EoS can be used
 equally easily.
 
 The reactor (system) is simply an 'insulated box,' and can technically be used

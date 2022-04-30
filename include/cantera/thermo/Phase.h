@@ -141,8 +141,8 @@ public:
      *
      * However, the name field may be changed to another value during the
      * course of a calculation. For example, if duplicates of a phase object
-     * are instantiated and used in multiple places (e.g. a ReactorNet), they
-     * will have the same constitutive input, i.e. the names of the phases will
+     * are instantiated and used in multiple places (such as a ReactorNet), they
+     * will have the same constitutive input, that is, the names of the phases will
      * be the same. Note that this is not a problem for Cantera internally;
      * however, a user may want to rename phase objects in order to clarify.
      */
@@ -312,7 +312,7 @@ public:
     //! Full states list combinations of properties that allow for the
     //! specification of a thermodynamic state based on user input.
     //! Properties and states are represented by single letter acronyms, and
-    //! combinations of letters, respectively (e.g. "TDY", "TPX", "SVX").
+    //! combinations of letters, respectively (for example, "TDY", "TPX", "SVX").
     //! Supported property acronyms are:
     //!    "T": temperature
     //!    "P": pressure
@@ -330,7 +330,7 @@ public:
     //! Return a vector of settable partial property sets within a phase.
     //! Partial states encompass all valid combinations of properties that allow
     //! for the specification of a state while ignoring species concentrations
-    //! (e.g. "TD", "TP", "SV").
+    //! (such as "TD", "TP", "SV").
     virtual std::vector<std::string> partialStates() const;
 
     //! Return size of vector defining internal state of the phase.
@@ -775,7 +775,7 @@ public:
     //!         which is interpreted as an unknown, and if used will cause
     //!         %Cantera to throw an error.
     //!     @param elem_type Specifies the type of the element constraint
-    //!         equation. This defaults to CT_ELEM_TYPE_ABSPOS, i.e., an element.
+    //!         equation. This defaults to CT_ELEM_TYPE_ABSPOS, that is, an element.
     //!     @return index of the element added
     size_t addElement(const std::string& symbol, doublereal weight=-12345.0,
                       int atomicNumber=0, doublereal entropy298=ENTROPY298_UNKNOWN,
@@ -802,12 +802,12 @@ public:
      */
     virtual void modifySpecies(size_t k, shared_ptr<Species> spec);
 
-    //! Add a species alias (i.e. user-defined alternative species name).
+    //! Add a species alias (that is, a user-defined alternative species name).
     //! Aliases are case-sensitive.
     //!     @param name original species name std::string.
     //!     @param alias alternate name std::string.
     //!     @return `true` if the alias was successfully added
-    //!             (i.e. the original species name is found)
+    //!             (that is, the original species name is found)
     void addSpeciesAlias(const std::string& name, const std::string& alias);
 
     //! Return a vector with isomers names matching a given composition map
@@ -869,7 +869,7 @@ public:
     }
 
     //! Set flag that determines whether case sensitive species are enforced
-    //! in look-up operations, e.g. speciesIndex
+    //! in look-up operations, for example speciesIndex
     void setCaseSensitiveSpecies(bool cflag = true) {
         m_caseSensitiveSpecies = cflag;
     }
@@ -911,7 +911,7 @@ protected:
 
     //! Set the internally stored constant density (kg/m^3) of the phase.
     //! Used for incompressible phases where the density is not an independent
-    //! variable, e.g. density does not affect pressure in state calculations.
+    //! variable, that is, density does not affect pressure in state calculations.
     //!     @param[in] density_ density (kg/m^3).
     void assignDensity(const double density_);
 

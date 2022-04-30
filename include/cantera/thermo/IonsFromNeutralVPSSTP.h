@@ -205,7 +205,7 @@ public:
     //! Calculate neutral molecule mole fractions
     /*!
      * This routine calculates the neutral molecule mole fraction given the
-     * vector of ion mole fractions, i.e., the mole fractions from this
+     * vector of ion mole fractions, that is, the mole fractions from this
      * ThermoPhase. Note, this routine basically assumes that there is charge
      * neutrality. If there isn't, then it wouldn't make much sense.
      *
@@ -252,7 +252,7 @@ public:
     //! Calculate neutral molecule mole fractions
     /*!
      * This routine calculates the neutral molecule mole fraction given the
-     * vector of ion mole fractions, i.e., the mole fractions from this
+     * vector of ion mole fractions, that is, the mole fractions from this
      * ThermoPhase. Note, this routine basically assumes that there is charge
      * neutrality. If there isn't, then it wouldn't make much sense.
      *

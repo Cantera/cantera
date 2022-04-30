@@ -128,7 +128,7 @@ public:
     template<class T>
     bool is() const;
 
-    //! Returns `true` if the held value is a scalar type (e.g. `double`, `long
+    //! Returns `true` if the held value is a scalar type (such as `double`, `long
     //! int`, `string`, or `bool`).
     bool isScalar() const;
 
@@ -284,12 +284,12 @@ private:
     static bool eq_comparer(const boost::any& lhs, const boost::any& rhs);
 
     //! Helper function for comparing vectors of different (but comparable)
-    //! types, e.g. `vector<double>` and `vector<long int>`
+    //! types, for example `vector<double>` and `vector<long int>`
     template<class T, class U>
     static bool vector_eq(const boost::any& lhs, const boost::any& rhs);
 
     //! Helper function for comparing nested vectors of different (but
-    //! comparable) types, e.g. `vector<vector<double>>` and
+    //! comparable) types, for example `vector<vector<double>>` and
     //! `vector<vector<long int>>`
     template<class T, class U>
     static bool vector2_eq(const boost::any& lhs, const boost::any& rhs);
@@ -443,8 +443,8 @@ public:
     //! this AnyMap, the `keepExisting` option determines which item is used.
     void update(const AnyMap& other, bool keepExisting=true);
 
-    //! Return a string listing the keys in this AnyMap, e.g. for use in error
-    //! messages
+    //! Return a string listing the keys in this AnyMap, for use in error
+    //! messages, for example
     std::string keys_str() const;
 
     //! Set a metadata value that applies to this AnyMap and its children.
@@ -472,15 +472,15 @@ public:
 
     //! Convert the item stored by the given `key` to the units specified in
     //! `units`. If the stored value is a double, convert it using the default
-    //! units. If the input is a string, treat this as a dimensioned value, e.g.
-    //! '988 kg/m^3' and convert from the specified units.
+    //! units. If the input is a string, treat this as a dimensioned value, such
+    //! as '988 kg/m^3' and convert from the specified units.
     double convert(const std::string& key, const std::string& units) const;
     double convert(const std::string& key, const Units& units) const;
 
     //! Convert the item stored by the given `key` to the units specified in
     //! `units`. If the stored value is a double, convert it using the default
-    //! units. If the input is a string, treat this as a dimensioned value, e.g.
-    //! '988 kg/m^3' and convert from the specified units. If the key is
+    //! units. If the input is a string, treat this as a dimensioned value, such
+    //! as '988 kg/m^3' and convert from the specified units. If the key is
     //! missing, the `default_` value is returned.
     double convert(const std::string& key, const std::string& units,
                    double default_) const;
@@ -489,7 +489,7 @@ public:
     /*!
      * For each item in the vector, if the stored value is a double, convert it
      * using the default units. If the value is a string, treat it as a
-     * dimensioned value, e.g. '988 kg/m^3', and convert from the specified
+     * dimensioned value, such as '988 kg/m^3', and convert from the specified
      * units.
      *
      * @param key    Location of the vector in this AnyMap

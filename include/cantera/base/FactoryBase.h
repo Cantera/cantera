@@ -65,7 +65,7 @@ private:
 //!
 //! Template arguments for the class are the base type created by the factory,
 //! followed by the types of any arguments which need to be passed to the
-//! functions used to create objects, e.g. arguments to the constructor.
+//! functions used to create objects, that is, arguments to the constructor.
 template <class T, typename ... Args>
 class Factory : public FactoryBase {
 public:

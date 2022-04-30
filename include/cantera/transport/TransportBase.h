@@ -256,7 +256,7 @@ public:
      *
      *         mobRat(i,j) = mu_i / mu_j
      *
-     * It is returned in fortran-ordering format. i.e. it is returned as
+     * It is returned in fortran-ordering format. That is, it is returned as
      * mobRat[k], where
      *
      *        k = j * nsp + i

@@ -9,7 +9,7 @@ Reactions
 The fields common to all ``reaction`` entries are:
 
 ``equation``
-    The stoichiometric equation for the reaction. Each term (i.e.,
+    The stoichiometric equation for the reaction. Each term (that is,
     stoichiometric coefficient, species name, ``+`` or ``<=>``) in the equation
     must be separated by a space.
 

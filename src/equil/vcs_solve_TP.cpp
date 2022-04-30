@@ -2294,7 +2294,7 @@ L_END_LOOP:
     // Then, the first row in sm[], below will be identically zero. bleh.
     //
     // What needs to be done is to perform a rearrangement of the ELEMENTS ->
-    // i.e. rearrange, m_formulaMatrix, sp, and m_elemAbundancesGoal, such that
+    // that is, rearrange, m_formulaMatrix, sp, and m_elemAbundancesGoal, such that
     // the first nc elements form in combination with the nc components create
     // an invertible sm[]. not a small project, but very doable.
     //
@@ -2669,7 +2669,7 @@ int VCS_SOLVE::vcs_species_type(const size_t kspec) const
 
     // Check to see whether the current species is a major component of its
     // phase. If it is, it is a major component. This is consistent with the
-    // above rule about single species phases. A major component i.e., a species
+    // above rule about single species phases. A major component that is, a species
     // with a high mole fraction) in any phase is always treated as a major
     // species
     if (m_molNumSpecies_old[kspec] > (m_tPhaseMoles_old[iph] * 0.001)) {

@@ -95,7 +95,7 @@ class PDSS_Water;
  * solutes. The molar volume for the water solvent, however, is obtained from a
  * pure water equation of state, waterSS. Therefore, the water standard state
  * varies with both T and P. It is an error to request standard state water
- * properties at a T and P where the water phase is not a stable phase, i.e.,
+ * properties at a T and P where the water phase is not a stable phase, that is,
  * beyond its spinodal curve.
  *
  * ## Specification of Solution Thermodynamic Properties
@@ -629,7 +629,7 @@ public:
     //! Return the standard concentration for the kth species
     /*!
      * The standard concentration \f$ C^0_k \f$ used to normalize the activity
-     * (i.e., generalized) concentration in kinetics calculations.
+     * (that is, generalized) concentration in kinetics calculations.
      *
      * For the time being, we will use the concentration of pure solvent for the
      * the standard concentration of all species. This has the effect of making

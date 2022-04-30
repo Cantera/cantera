@@ -235,7 +235,7 @@ public:
     //! Return the standard concentration for the kth species
     /*!
      * The standard concentration \f$ C^0_k \f$ used to normalize the activity
-     * (i.e., generalized) concentration. This phase assumes that the kinetics
+     * (that is, generalized) concentration. This phase assumes that the kinetics
      * operator works on an dimensionless basis. Thus, the standard
      * concentration is equal to 1.0.
      *

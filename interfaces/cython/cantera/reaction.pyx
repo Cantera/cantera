@@ -1354,8 +1354,8 @@ cdef class Reaction:
     property reactants:
         """
         Get/Set the reactants in this reaction as a dict where the keys are
-        species names and the values, are the stoichiometric coefficients, e.g.
-        ``{'CH4':1, 'OH':1}``, or as a composition string, e.g.
+        species names and the values, are the stoichiometric coefficients, for example
+        ``{'CH4':1, 'OH':1}``, or as a composition string, for example
         ``'CH4:1, OH:1'``.
         """
         def __get__(self):
@@ -1366,8 +1366,8 @@ cdef class Reaction:
     property products:
         """
         Get/Set the products in this reaction as a dict where the keys are
-        species names and the values, are the stoichiometric coefficients, e.g.
-        ``{'CH3':1, 'H2O':1}``, or as a composition string, e.g.
+        species names and the values, are the stoichiometric coefficients, for example
+        ``{'CH3':1, 'H2O':1}``, or as a composition string, for example
         ``'CH3:1, H2O:1'``.
         """
         def __get__(self):
@@ -2836,7 +2836,7 @@ cdef class ChebyshevReaction(Reaction):
 
 cdef class InterfaceReaction(ElementaryReaction):
     """
-    A reaction occurring on an `Interface` (i.e. a surface or an edge)
+    A reaction occurring on an `Interface` (that is, a surface or an edge)
 
         rxn = InterfaceReaction(
             equation="H(S) + O(S) <=> OH(S) + PT(S)",

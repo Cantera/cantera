@@ -64,7 +64,7 @@ public:
      *              calculate the reaction mechanism.
      * @param th    Vector of phases. The first phase is the phase in which
      *              the reactions occur, and the subsequent phases (if any)
-     *              are e.g. bulk phases adjacent to a reacting surface.
+     *              are for example bulk phases adjacent to a reacting surface.
      * @return Pointer to the new kinetics manager.
      *
      * @deprecated The XML input format is deprecated and will be removed in
@@ -135,7 +135,7 @@ unique_ptr<Kinetics> newKinetics(const std::vector<ThermoPhase*>& phases,
  *     phase) listed first.
  * @param filename    File containing the phase definition for the phase where
  *     the reactions occur. Searches the Cantera data for this file.
- * @param phase_name  The name of the reacting phase in the input file (i.e. the
+ * @param phase_name  The name of the reacting phase in the input file (that is, the
  *     name of the first phase in the `phases` vector)
  */
 unique_ptr<Kinetics> newKinetics(const std::vector<ThermoPhase*>& phases,

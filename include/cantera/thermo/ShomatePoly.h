@@ -51,7 +51,7 @@ namespace Cantera
  * http://webbook.nist.gov/
  *
  * Before being used within Cantera, the dimensions must be adjusted to those
- * used by Cantera (i.e., Joules and kmol).
+ * used by Cantera (for example, Joules and kmol).
  *
  * @ingroup spthermo
  */
@@ -224,7 +224,7 @@ protected:
  * http://webbook.nist.gov/
  *
  * Before being used within Cantera, the dimensions must be adjusted to those
- * used by Cantera (i.e., Joules and kmol).
+ * used by Cantera (for example, Joules and kmol).
  *
  * This function uses two temperature regions, each with a Shomate polynomial
  * representation to represent the thermo functions. There are 15 coefficients,

@@ -24,7 +24,7 @@ namespace Cantera
  * to recompute the cached values.
  *
  * References to CachedValue objects are returned by the "get" methods of
- * ValueCache, e.g. ValueCache::getScalar. Functions accessing cached values
+ * ValueCache, for example ValueCache::getScalar. Functions accessing cached values
  * should use the typedefs CachedScalar and CachedArray. See ValueCache for
  * details on how these classes should be used together.
  */
@@ -103,11 +103,11 @@ struct CachedValue {
     }
 
     //! Value of the first state variable for the state at which #value was
-    //! evaluated, e.g. temperature.
+    //! evaluated, for example temperature.
     double state1;
 
     //! Value of the second state variable for the state at which #value was
-    //! evaluated, e.g. density or pressure.
+    //! evaluated, for example density or pressure.
     double state2;
 
     //! A surrogate for the composition. For cached properties of Phase,

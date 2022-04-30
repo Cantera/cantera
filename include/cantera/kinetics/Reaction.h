@@ -414,7 +414,7 @@ struct CoverageDependency
 };
 
 
-//! A reaction occurring on an interface (i.e. a SurfPhase or an EdgePhase)
+//! A reaction occurring on an interface (for example, a SurfPhase or an EdgePhase)
 class InterfaceReaction2 : public ElementaryReaction2
 {
 public:
@@ -593,7 +593,7 @@ unique_ptr<Reaction> newReaction(const AnyMap& rxn_node,
 //!
 //!   - The rate constants are expressed in (kmol, meter, second) units
 //!   - A `units` directive is included **and** all reactions take place in
-//!     bulk (e.g. gas) phases
+//!     bulk (for example, gas) phases
 //!
 //! @deprecated The XML input format is deprecated and will be removed in
 //!     Cantera 3.0.

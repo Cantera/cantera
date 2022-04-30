@@ -56,7 +56,7 @@ SpeciesThermoInterpType* newSpeciesThermoInterpType(const XML_Node& thermoNode);
 
 //! Create a new SpeciesThermoInterpType object using the specified parameters
 /*!
- * @param thermo_node  An AnyMap specifying the model type (e.g. "NASA") and any
+ * @param thermo_node  An AnyMap specifying the model type (for example, "NASA") and any
  *                     model parameters necessary to instantiate the object
  */
 unique_ptr<SpeciesThermoInterpType> newSpeciesThermo(const AnyMap& thermo_node);

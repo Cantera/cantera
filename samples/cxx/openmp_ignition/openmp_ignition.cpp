@@ -59,7 +59,7 @@ void run()
     // This option causes points [0, nThreads, 2*nThreads, ...] to be handled by
     // the same thread, rather than the default behavior of one thread handling
     // points [0 ... nPoints/nThreads]. This helps balance the workload for each
-    // thread in cases where the workload is biased, e.g. calculations for low
+    // thread in cases where the workload is biased. For example, calculations for low
     // T0 take longer than calculations for high T0.
     #pragma omp parallel for schedule(static, 1)
     for (int i = 0; i < nPoints; i++) {

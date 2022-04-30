@@ -13,7 +13,7 @@ The fields of a ``species`` entry are:
 
 ``composition``
     Mapping that specifies the elemental composition of the species,
-    e.g., ``{C: 1, H: 4}``. Required.
+    for example, ``{C: 1, H: 4}``. Required.
 
 ``thermo``
     Mapping containing the reference state thermodynamic model specification
@@ -219,7 +219,7 @@ Additional fields of a ``piecewise-Gibbs`` entry are:
 
 ``dimensionless``
     A boolean flag indicating whether the values of the Gibbs free energy are
-    given in a dimensionless form, i.e., divided by :math:`RT`. Defaults to
+    given in a dimensionless form, that is, divided by :math:`RT`. Defaults to
     ``false``.
 
 ``data``

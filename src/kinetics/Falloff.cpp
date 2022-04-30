@@ -234,7 +234,7 @@ void TroeRate::setFalloffCoeffs(const vector_fp& c)
                 "for T2 from the input file. In the unlikely case that the "
                 "exp(T2/T) term should be included with T2 effectively equal "
                 "to 0, set T2 to a sufficiently small value "
-                "(i.e. T2 < 1e-16).");
+                "(for example, T2 < 1e-16).");
         }
         m_t2 = c[3];
     } else {

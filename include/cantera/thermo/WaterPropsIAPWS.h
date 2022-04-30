@@ -76,7 +76,7 @@ namespace Cantera
  * density over its entire range.
  *
  * Note, the base thermodynamic state for this class is the one used in the
- * steam tables, i.e., the liquid at the triple point for water has the
+ * steam tables, such that the liquid at the triple point for water has the
  * following properties:
  *
  *   - u(273.16, rho)    = 0.0

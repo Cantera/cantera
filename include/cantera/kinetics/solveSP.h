@@ -435,7 +435,7 @@ private:
     //! Vector containing the indices of the largest species
     //! in each surface phase
     /*!
-     *  `k = m_spSurfLarge[i]` where `k` is the local species index, i.e., it
+     *  `k = m_spSurfLarge[i]` where `k` is the local species index, that is, it
      *  varies from 0 to (num species in phase - 1) and `i` is the surface
      *  phase index in the problem. Length is equal to #m_numSurfPhases.
      */

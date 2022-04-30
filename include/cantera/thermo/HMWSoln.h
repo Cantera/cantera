@@ -122,7 +122,7 @@ class WaterProps;
  * solutes. The molar volume for the water solvent, however, is obtained from a
  * pure water equation of state, waterSS. Therefore, the water standard state
  * varies with both T and P. It is an error to request standard state water
- * properties at a T and P where the water phase is not a stable phase, i.e.,
+ * properties at a T and P where the water phase is not a stable phase, that is,
  * beyond its spinodal curve.
  *
  * ## Specification of Solution Thermodynamic Properties
@@ -1198,7 +1198,7 @@ public:
     //! Return the standard concentration for the kth species
     /*!
      * The standard concentration \f$ C^0_k \f$ used to normalize the activity
-     * (i.e., generalized) concentration for use
+     * (that is, generalized) concentration for use
      *
      * We have set the standard concentration for all solute species in this
      * phase equal to the default concentration of the solvent at the system
@@ -1938,7 +1938,7 @@ private:
      * Array of 2D data used in the Pitzer/HMW formulation. Lambda_nj[n][j]
      * represents the lambda coefficient for the ij interaction. This is a
      * general interaction representing neutral species. The neutral species
-     * occupy the first index, i.e., n. The charged species occupy the j
+     * occupy the first index, that is, n. The charged species occupy the j
      * coordinate. neutral, neutral interactions are also included here.
      */
     mutable Array2D m_Lambda_nj;
@@ -1957,7 +1957,7 @@ private:
      *  Array of 2D data used in the Pitzer/HMW formulation. Lambda_ij[i][j]
      *  represents the lambda coefficient for the ij interaction. This is a
      *  general interaction representing neutral species. The neutral species
-     *  occupy the first index, i.e., i. The charged species occupy the j
+     *  occupy the first index, that is, i. The charged species occupy the j
      *  coordinate. Neutral, neutral interactions are also included here.
      *
      *      n = j + m_kk * i

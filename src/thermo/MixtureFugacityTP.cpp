@@ -948,9 +948,9 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
             }
         }
     } else if (disc == 0.0) {
-        //Three equal roots are obtained, i.e. alpha = beta = gamma
+        //Three equal roots are obtained, that is, alpha = beta = gamma
         if (yN < 1e-18 && h < 1e-18) {
-            // yN = 0.0 and h = 0 i.e. disc = 0
+            // yN = 0.0 and h = 0 (that is, disc = 0)
             Vroot[0] = xN;
             Vroot[1] = xN;
             Vroot[2] = xN;

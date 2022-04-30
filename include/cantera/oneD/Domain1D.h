@@ -277,7 +277,7 @@ public:
 
     /*!
      * Set this if something has changed in the governing
-     * equations (e.g. the value of a constant has been changed,
+     * equations (for example, the value of a constant has been changed,
      * so that the last-computed Jacobian is no longer valid.
      */
     void needJacUpdate();
@@ -375,7 +375,7 @@ public:
     }
 
     /**
-     * The index of the first (i.e., left-most) grid point belonging to this
+     * The index of the first (that is, left-most) grid point belonging to this
      * domain.
      */
     size_t firstPoint() const {
@@ -383,7 +383,7 @@ public:
     }
 
     /**
-     * The index of the last (i.e., right-most) grid point belonging to this
+     * The index of the last (that is, right-most) grid point belonging to this
      * domain.
      */
     size_t lastPoint() const {
@@ -491,7 +491,7 @@ public:
     virtual void _finalize(const doublereal* x) {}
 
     /**
-     * In some cases, for computational efficiency some properties (e.g.
+     * In some cases, for computational efficiency some properties (such as
      * transport coefficients) may not be updated during Jacobian evaluations.
      * Set this to `true` to force these properties to be udpated even while
      * calculating Jacobian elements.
