@@ -25,7 +25,7 @@ source: |-
       ISBN 978-0-07-135854-5.
 
 input-files: critProperties.xml
-cantera-version: 2.6.0a3
+cantera-version: 2.6.0
 date: Sat, 20 Nov 2021 22:47:06 -0500
 
 species:
