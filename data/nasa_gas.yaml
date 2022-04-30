@@ -14,7 +14,7 @@ description: |-
 
 generator: ck2yaml
 input-files: [nasa_gas.dat]
-cantera-version: 2.6.0b2
+cantera-version: 2.6.0
 date: Wed, 20 Apr 2022 22:21:10 -0400
 
 units: {length: cm, time: s, quantity: mol, activation-energy: cal/mol}

@@ -14,7 +14,7 @@ description: |-
 
 generator: ck2yaml
 input-files: [nasa_condensed.dat]
-cantera-version: 2.6.0b2
+cantera-version: 2.6.0
 date: Wed, 20 Apr 2022 13:43:45 -0400
 
 species:
