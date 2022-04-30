@@ -846,6 +846,7 @@ bool Phase::addSpecies(shared_ptr<Species> spec) {
     wt = std::max(wt, Tiny);
     m_molwts.push_back(wt);
     m_rmolwts.push_back(1.0/wt);
+    spec->setMolecularWeight(wt);
     m_kk++;
 
     // Ensure that the Phase has a valid mass fraction vector that sums to

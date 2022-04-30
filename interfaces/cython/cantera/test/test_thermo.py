@@ -1232,6 +1232,19 @@ class TestSpecies(utilities.CanteraTest):
         self.assertEqual(len(c), 2)
         self.assertEqual(c['C'], 1)
         self.assertEqual(c['H'], 4)
+        self.assertNear(s.molecular_weight, 16.043)
+
+    def test_molecular_weight_with_electron(self):
+        yaml = """
+            name: Li+[elyt]
+            composition: {Li: 1, E: -1}
+            thermo:
+              model: constant-cp
+              h0: -278.49 kJ/mol
+              s0: 13.4 J/mol/K
+        """
+        s = ct.Species.from_yaml(yaml)
+        assert np.isclose(s.molecular_weight, 6.939451420091127)
 
     def test_defaults(self):
         s = ct.Species('H2')
