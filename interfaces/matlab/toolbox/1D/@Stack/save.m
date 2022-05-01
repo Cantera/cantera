@@ -7,9 +7,9 @@ function save(s, fname, id, desc)
 % :param s:
 %     Instance of class :mat:func:`Stack`
 % :param fname:
-%     File name where XML file should be written
+%     File name where YAML file should be written
 % :param id:
-%     ID to be assigned to the XML element when it is
+%     ID to be assigned to the YAML element when it is
 %     written
 % :param desc:
 %     Description to be written to the output file

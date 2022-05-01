@@ -2,7 +2,7 @@ function t = ThermoPhase(src, id)
 % THERMOPHASE  ThermoPhase class constructor.
 % t = ThermoPhase(src, id)
 % :param src:
-%     Input string of YAML, CTI, or XML file name.
+%     Input string of YAML file name.
 % :param id:
 %     ID of the phase to import as specified in the input file. (optional)
 % :return:

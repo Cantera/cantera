@@ -8,7 +8,7 @@ function restore(s, fname, id)
 % :param s:
 %     Instance of class :mat:func:`Stack`
 % :param fname:
-%     File name of an XML file containing solution information
+%     File name of a YAML file containing solution information
 % :param id:
 %     ID of the element that should be restored
 %

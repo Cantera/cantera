@@ -151,9 +151,8 @@ if localenv['sphinx_docs']:
         '1D/@Stack': ['1D/FreeFlame.m', '1D/CounterFlowDiffusionFlame.m'],
         '@Interface': ['importEdge.m', 'importInterface.m'],
         '@Data': ['gasconstant.m', 'oneatm.m'],
-        '@Utilities': ['adddir.m', 'ck2cti.m', 'cleanup.m', 'geterr.m',
-                       'getDataDirectories.m', 'canteraVersion.m',
-                       'canteraGitCommit.m']
+        '@Utilities': ['adddir.m', 'cleanup.m', 'geterr.m', 'getDataDirectories.m',
+                       'canteraVersion.m', 'canteraGitCommit.m']
     }
 
     # These files do not need to be documented in the MATLAB classes because they

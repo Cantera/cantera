@@ -3,7 +3,7 @@ function k = Kinetics(ph, src, id, neighbor1, neighbor2, neighbor3, neighbor4)
 % k = Kinetics(r, ph, neighbor1, neighbor2, neighbor3, neighbor4)
 % Class Kinetics represents kinetics managers, which are classes
 % that manage reaction mechanisms.  The reaction mechanism
-% attributes are specified in a CTML file.
+% attributes are specified in a YAML file.
 % Instances of class :mat:func:`Kinetics` are responsible for evaluating reaction rates
 % of progress, species production rates, and other quantities pertaining to
 % a reaction mechanism.
@@ -12,7 +12,7 @@ function k = Kinetics(ph, src, id, neighbor1, neighbor2, neighbor3, neighbor4)
 %     An instance of class :mat:func:`ThermoPhase` representing the phase
 %     in which reactions occur
 % :param src:
-%     Input string of YAML, CTI, or XML file name.
+%     Input string of YAML file name.
 % :param id:
 %     ID of the phase to import as specified in the input file. (optional)
 % :param neighbor1:
