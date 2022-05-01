@@ -6,7 +6,7 @@ function tr = Transport(th, model, loglevel)
 % :mat:func:`ThermoPhase`. The second (optional) argument is the type of
 % model desired, specified by the string ``'default'``, ``'Mix'`` or
 % ``'Multi'``. ``'default'`` uses the default transport specified in the
-% :mat:func:`XML_Node`. The third argument is the logging level desired.
+% phase definition. The third argument is the logging level desired.
 %
 % :param th:
 %     Instance of class :mat:func:`ThermoPhase`

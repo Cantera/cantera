@@ -111,9 +111,6 @@ void phasemethods(int nlhs, mxArray* plhs[],
     } else if (job < 20) {
         double threshold;
         switch (job) {
-        case 0:
-            vv = (double) thermo_newFromXML(ph);
-            break;
         case 1:
             // floating-point attributes
             vv = thermo_temperature(ph);

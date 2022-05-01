@@ -4,7 +4,7 @@ function s = importInterface(file, name, phase1, phase2)
 % See `Interfaces <https://cantera.org/tutorials/cti/phases.html#interfaces>`__.
 %
 % :param file:
-%     CTI or CTML file containing the interface
+%     YAML file containing the interface
 % :param name:
 %     Name of the interface to import
 % :param phase1:
