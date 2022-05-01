@@ -9,7 +9,6 @@
 #define CT_METALPHASE_H
 
 #include "ThermoPhase.h"
-#include "cantera/base/ctml.h"
 
 namespace Cantera
 {
@@ -116,12 +115,6 @@ public:
     virtual void getParameters(AnyMap& phaseNode) const {
         ThermoPhase::getParameters(phaseNode);
         phaseNode["density"].setQuantity(density(), "kg/m^3");
-    }
-
-    virtual void setParametersFromXML(const XML_Node& eosdata) {
-        eosdata._require("model","Metal");
-        doublereal rho = getFloat(eosdata, "density", "density");
-        assignDensity(rho);
     }
 
 private:

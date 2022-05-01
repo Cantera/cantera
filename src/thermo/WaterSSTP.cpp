@@ -25,16 +25,6 @@ WaterSSTP::WaterSSTP(const std::string& inputFile, const std::string& id) :
     initThermoFile(inputFile, id);
 }
 
-WaterSSTP::WaterSSTP(XML_Node& phaseRoot, const std::string& id) :
-    m_mw(0.0),
-    EW_Offset(0.0),
-    SW_Offset(0.0),
-    m_ready(false),
-    m_allowGasPhase(false)
-{
-    importPhase(phaseRoot, this);
-}
-
 std::string WaterSSTP::phaseOfMatter() const {
     const vector<std::string> phases = {
         "gas", "liquid", "supercritical", "unstable-liquid", "unstable-gas"
@@ -100,11 +90,6 @@ void WaterSSTP::initThermo()
 
     // Set the flag to say we are ready to calculate stuff
     m_ready = true;
-}
-
-void WaterSSTP::setParametersFromXML(const XML_Node& eosdata)
-{
-    eosdata._require("model","PureLiquidWater");
 }
 
 void WaterSSTP::getEnthalpy_RT(doublereal* hrt) const

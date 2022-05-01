@@ -13,7 +13,6 @@
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/SpeciesThermoFactory.h"
 #include "cantera/thermo/MultiSpeciesThermo.h"
-#include "cantera/base/ctml.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/utilities.h"
 
@@ -431,17 +430,6 @@ void LatticeSolidPhase::setLatticeMoleFractionsByName(int nn, const std::string&
         }
     }
     setMoleFractions(m_x.data());
-}
-
-void LatticeSolidPhase::setParametersFromXML(const XML_Node& eosdata)
-{
-    eosdata._require("model","LatticeSolid");
-    XML_Node& la = eosdata.child("LatticeArray");
-    std::vector<XML_Node*> lattices = la.getChildren("phase");
-    for (auto lattice : lattices) {
-        addLattice(shared_ptr<ThermoPhase>(newPhase(*lattice)));
-    }
-    setLatticeStoichiometry(parseCompString(eosdata.child("LatticeStoichiometry").value()));
 }
 
 void LatticeSolidPhase::modifyOneHf298SS(const size_t k, const doublereal Hf298New)

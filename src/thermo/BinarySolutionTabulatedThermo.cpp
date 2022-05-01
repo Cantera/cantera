@@ -13,7 +13,6 @@
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/Species.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/base/ctml.h"
 #include "cantera/thermo/SpeciesThermoFactory.h"
 #include "cantera/thermo/MultiSpeciesThermo.h"
 
@@ -27,14 +26,6 @@ BinarySolutionTabulatedThermo::BinarySolutionTabulatedThermo(const std::string& 
 
 {
     initThermoFile(inputFile, id_);
-}
-
-BinarySolutionTabulatedThermo::BinarySolutionTabulatedThermo(XML_Node& root,
-                                                             const std::string& id_)
-    : m_kk_tab(npos)
-    , m_xlast(-1)
-{
-    importPhase(root, this);
 }
 
 void BinarySolutionTabulatedThermo::compositionChanged()
@@ -172,115 +163,6 @@ void BinarySolutionTabulatedThermo::getParameters(AnyMap& phaseNode) const
     tabThermo["enthalpy"].setQuantity(m_enthalpy_tab, "J/kmol");
     tabThermo["entropy"].setQuantity(m_entropy_tab, "J/kmol/K");
     phaseNode["tabulated-thermo"] = std::move(tabThermo);
-}
-
-void BinarySolutionTabulatedThermo::initThermoXML(XML_Node& phaseNode, const std::string& id_)
-{
-    vector_fp x, h, s, vmol;
-    std::vector<std::pair<double,double>> x_h_temp, x_s_temp, x_vmol_temp;
-
-    if (id_.size() > 0) {
-        if (phaseNode.id() != id_) {
-            throw CanteraError("BinarySolutionTabulatedThermo::initThermoXML",
-                    "phasenode and Id are incompatible");
-        }
-    }
-    if (nSpecies()!=2) {
-        throw CanteraError("BinarySolutionTabulatedThermo::initThermoXML",
-                "No. of species should be equal to 2!");
-    }
-    if (phaseNode.hasChild("thermo")) {
-        XML_Node& thermoNode = phaseNode.child("thermo");
-        std::string mString = thermoNode["model"];
-        if (!caseInsensitiveEquals(mString, "binarysolutiontabulatedthermo")) {
-            throw CanteraError("BinarySolutionTabulatedThermo::initThermoXML",
-                    "Unknown thermo model: " + mString);
-        }
-        if (thermoNode.hasChild("tabulatedSpecies")) {
-            XML_Node& speciesNode = thermoNode.child("tabulatedSpecies");
-            std::string tabulated_species_name = speciesNode["name"];
-            m_kk_tab = speciesIndex(tabulated_species_name);
-            if (m_kk_tab == npos) {
-                throw CanteraError("BinarySolutionTabulatedThermo::initThermoXML",
-                        "Species " + tabulated_species_name + " not found.");
-            }
-        }
-        if (thermoNode.hasChild("tabulatedThermo")) {
-            XML_Node& dataNode = thermoNode.child("tabulatedThermo");
-            getFloatArray(dataNode, x, true, "", "moleFraction");
-            getFloatArray(dataNode, h, true, "J/kmol", "enthalpy");
-            getFloatArray(dataNode, s, true, "J/kmol/K", "entropy");
-            vmol.resize(x.size());
-            for(size_t i=0; i<vmol.size(); i++) {
-                vmol[i] = x[i] * m_speciesMolarVolume[m_kk_tab] + (1-x[i]) *
-                    m_speciesMolarVolume[1-m_kk_tab];
-            }
-            // Check for data length consistency
-            if ((x.size() != h.size()) || (x.size() != s.size()) ||
-                (x.size() != vmol.size())) {
-                throw CanteraError("BinarySolutionTabulatedThermo::initThermoXML",
-                        "Species tabulated thermo data has different lengths.");
-            }
-            // Sort the x, h, s data in the order of increasing x
-            for(size_t i = 0; i < x.size(); i++){
-                x_h_temp.push_back(std::make_pair(x[i],h[i]));
-                x_s_temp.push_back(std::make_pair(x[i],s[i]));
-                x_vmol_temp.push_back(std::make_pair(x[i],vmol[i]));
-            }
-            std::sort(x_h_temp.begin(), x_h_temp.end());
-            std::sort(x_s_temp.begin(), x_s_temp.end());
-            std::sort(x_vmol_temp.begin(), x_vmol_temp.end());
-
-            // Store the sorted values in different arrays
-            m_molefrac_tab.resize(x_h_temp.size());
-            m_enthalpy_tab.resize(x_h_temp.size());
-            m_entropy_tab.resize(x_h_temp.size());
-            m_molar_volume_tab.resize(x_h_temp.size());
-            m_derived_molar_volume_tab.resize(x_h_temp.size());
-            m_partial_molar_volume_1_tab.resize(x_h_temp.size());
-            m_partial_molar_volume_2_tab.resize(x_h_temp.size());
-
-            for (size_t i = 0; i < x_h_temp.size(); i++) {
-                m_molefrac_tab[i] = x_h_temp[i].first;
-                m_enthalpy_tab[i] = x_h_temp[i].second;
-                m_entropy_tab[i] = x_s_temp[i].second;
-                m_molar_volume_tab[i] = x_vmol_temp[i].second;
-            }
-
-            diff(m_molar_volume_tab, m_derived_molar_volume_tab);
-
-            for (size_t i = 0; i < x_h_temp.size(); i++) {
-                m_partial_molar_volume_1_tab[i] = m_molar_volume_tab[i] +
-                    (1-m_molefrac_tab[i]) * m_derived_molar_volume_tab[i];
-                m_partial_molar_volume_2_tab[i] = m_molar_volume_tab[i] -
-                    m_molefrac_tab[i] * m_derived_molar_volume_tab[i];
-            }
-        } else {
-            throw CanteraError("BinarySolutionTabulatedThermo::initThermoXML",
-                    "Unspecified tabulated species or thermo");
-        }
-    } else {
-        throw CanteraError("BinarySolutionTabulatedThermo::initThermoXML",
-                "Unspecified thermo model");
-    }
-
-    /*
-     * Form of the standard concentrations. Must have one of:
-     *
-     *     <standardConc model="unity" />
-     *     <standardConc model="molar_volume" />
-     *     <standardConc model="solvent_volume" />
-     */
-    if (phaseNode.hasChild("standardConc")) {
-        XML_Node& scNode = phaseNode.child("standardConc");
-        setStandardConcentrationModel(scNode.attrib("model"));
-    } else {
-        throw CanteraError("BinarySolutionTabulatedThermo::initThermoXML",
-                "Unspecified standardConc model");
-    }
-
-    // Call the base initThermo, which handles setting the initial state
-    ThermoPhase::initThermoXML(phaseNode, id_);
 }
 
 double BinarySolutionTabulatedThermo::interpolate(const double x,

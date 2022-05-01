@@ -71,25 +71,6 @@ public:
     explicit IdealSolidSolnPhase(const std::string& infile,
                                  const std::string& id="", int formCG=-1);
 
-    //! Construct and initialize an IdealSolidSolnPhase ThermoPhase object
-    //! directly from an XML database
-    /*!
-     * The generalized concentrations can have three different forms
-     * depending on the value of the member attribute #m_formGC, which
-     * is supplied in the constructor and/or read from the data file.
-     *
-     * @param root   XML tree containing a description of the phase.
-     *               The tree must be positioned at the XML element
-     *               named phase with id, "id", on input to this routine.
-     * @param id     The name of this phase. This is used to look up
-     *               the phase in the XML datafile.
-     * @param formCG This parameter initializes the #m_formGC variable.
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    IdealSolidSolnPhase(XML_Node& root, const std::string& id="", int formCG=-1);
-
     virtual std::string type() const {
         return "IdealSolidSoln";
     }
@@ -561,7 +542,6 @@ public:
     virtual void getParameters(AnyMap& phaseNode) const;
     virtual void getSpeciesParameters(const std::string& name,
                                       AnyMap& speciesNode) const;
-    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
     virtual void setToEquilState(const doublereal* mu_RT);
 
     //! Set the form for the standard and generalized concentrations

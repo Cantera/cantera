@@ -134,7 +134,6 @@ public:
     virtual void initThermo();
     virtual void getParameters(AnyMap& phaseNode) const;
     virtual void setToEquilState(const doublereal* lambda_RT);
-    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     //! @}
 

@@ -9,7 +9,6 @@
 #include "cantera/thermo/Phase.h"
 #include "cantera/base/utilities.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/base/ctml.h"
 #include "cantera/thermo/Species.h"
 #include "cantera/thermo/ThermoFactory.h"
 
@@ -23,8 +22,6 @@ Phase::Phase() :
     m_ndim(3),
     m_undefinedElementBehavior(UndefElement::add),
     m_caseSensitiveSpecies(false),
-    m_xml(new XML_Node("phase")),
-    m_id("<phase>"),
     m_temp(0.001),
     m_dens(0.001),
     m_mmw(0.0),
@@ -36,35 +33,6 @@ Phase::Phase() :
 
 Phase::~Phase()
 {
-    if (m_xml) {
-        XML_Node* xroot = &m_xml->root();
-        delete xroot;
-    }
-    m_xml = 0;
-}
-
-XML_Node& Phase::xml() const
-{
-    return *m_xml;
-}
-
-void Phase::setXMLdata(XML_Node& xmlPhase)
-{
-    XML_Node* xroot = &xmlPhase.root();
-    XML_Node *root_xml = new XML_Node();
-    xroot->copy(root_xml);
-    if (m_xml) {
-       XML_Node *rOld = &m_xml->root();
-       delete rOld;
-       m_xml = 0;
-    }
-    m_xml = findXMLPhase(root_xml, xmlPhase.id());
-    if (!m_xml) {
-        throw CanteraError("Phase::setXMLdata", "XML 'phase' node not found");
-    }
-    if (&m_xml->root() != root_xml) {
-        throw CanteraError("Phase::setXMLdata", "Root XML node not found");
-    }
 }
 
 std::string Phase::name() const
@@ -75,7 +43,6 @@ std::string Phase::name() const
 void Phase::setName(const std::string& name)
 {
     m_name = name;
-    m_id = name;
 }
 
 size_t Phase::nElements() const

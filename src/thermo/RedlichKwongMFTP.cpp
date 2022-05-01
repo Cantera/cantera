@@ -7,7 +7,6 @@
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/Species.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/base/ctml.h"
 
 #include <boost/math/tools/roots.hpp>
 
@@ -33,18 +32,6 @@ RedlichKwongMFTP::RedlichKwongMFTP(const std::string& infile, const std::string&
 {
     fill_n(Vroot_, 3, 0.0);
     initThermoFile(infile, id_);
-}
-
-RedlichKwongMFTP::RedlichKwongMFTP(XML_Node& phaseRefRoot, const std::string& id_) :
-    m_formTempParam(0),
-    m_b_current(0.0),
-    m_a_current(0.0),
-    NSolns_(0),
-    dpdV_(0.0),
-    dpdT_(0.0)
-{
-    fill_n(Vroot_, 3, 0.0);
-    importPhase(phaseRefRoot, this);
 }
 
 void RedlichKwongMFTP::setSpeciesCoeffs(const std::string& species,
@@ -398,79 +385,6 @@ bool RedlichKwongMFTP::addSpecies(shared_ptr<Species> spec)
     return added;
 }
 
-void RedlichKwongMFTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
-{
-    if (phaseNode.hasChild("thermo")) {
-        XML_Node& thermoNode = phaseNode.child("thermo");
-        std::string model = thermoNode["model"];
-        if (model != "RedlichKwong" && model != "RedlichKwongMFTP") {
-            throw CanteraError("RedlichKwongMFTP::initThermoXML",
-                               "Unknown thermo model : " + model);
-        }
-
-        // Reset any coefficients which may have been set using values from
-        // 'critical-properties.yaml' as part of non-XML initialization, so that
-        // off-diagonal elements can be correctly initialized
-        a_coeff_vec.data().assign(a_coeff_vec.data().size(), NAN);
-
-        // Go get all of the coefficients and factors in the
-        // activityCoefficients XML block
-        if (thermoNode.hasChild("activityCoefficients")) {
-            XML_Node& acNode = thermoNode.child("activityCoefficients");
-
-            // Loop through the children and read out fluid parameters.  Process
-            //   all the pureFluidParameters, first:
-            // Loop back through the "activityCoefficients" children and process the
-            // crossFluidParameters in the XML tree:
-            for (size_t i = 0; i < acNode.nChildren(); i++) {
-                XML_Node& xmlACChild = acNode.child(i);
-                if (caseInsensitiveEquals(xmlACChild.name(), "purefluidparameters")) {
-                    readXMLPureFluid(xmlACChild);
-                } else if (caseInsensitiveEquals(xmlACChild.name(), "crossfluidparameters")) {
-                    readXMLCrossFluid(xmlACChild);
-                }
-            }
-        }
-        // If any species exist which have undefined pureFluidParameters,
-        // search the database in 'critical-properties.yaml' to find critical
-        // temperature and pressure to calculate a and b.
-
-        // Loop through all species in the CTI file
-        size_t iSpecies = 0;
-
-        for (size_t i = 0; i < m_kk; i++) {
-            string iName = speciesName(i);
-
-            // Get the index of the species
-            iSpecies = speciesIndex(iName);
-
-            // Check if a and b are already populated (only the diagonal elements of a).
-            size_t counter = iSpecies + m_kk * iSpecies;
-
-            // If not, then search the database:
-            if (isnan(a_coeff_vec(0, counter))) {
-
-                vector<double> coeffArray;
-
-                // Search the database for the species name and calculate
-                // coefficients a and b, from critical properties:
-                // coeffArray[0] = a0, coeffArray[1] = b;
-                coeffArray = getCoeff(iName);
-
-                // Check if species was found in the database of critical properties,
-                // and assign the results
-                if (!isnan(coeffArray[0])) {
-                    //Assuming no temperature dependence (i,e a1 = 0)
-                    setSpeciesCoeffs(iName, coeffArray[0], 0.0, coeffArray[1]);
-                    m_coeffSource[i] = CoeffSource::EoS;
-                }
-            }
-        }
-    }
-
-    MixtureFugacityTP::initThermoXML(phaseNode, id);
-}
-
 void RedlichKwongMFTP::initThermo()
 {
     // Contents of 'critical-properties.yaml', loaded later if needed
@@ -562,9 +476,11 @@ void RedlichKwongMFTP::initThermo()
             double a = omega_a * pow(GasConstant, 2) * pow(Tc, 2.5) / Pc;
             double b = omega_b * GasConstant * Tc / Pc;
             setSpeciesCoeffs(item.first, a, 0.0, b);
+        } else {
+            throw InputFileError("RedlichKwongMFTP::initThermo", data,
+                    "No critical property or Redlich-Kwong parameters found "
+                    "for species {}.", item.first);
         }
-        // @todo: After XML is removed, this can throw an InputFileError if neither
-        // R-K parameters or critical properties were found.
     }
 }
 
@@ -615,108 +531,6 @@ void RedlichKwongMFTP::getSpeciesParameters(const std::string& name,
         }
         eosNode["binary-a"] = std::move(bin_a);
     }
-}
-
-vector<double> RedlichKwongMFTP::getCoeff(const std::string& iName)
-{
-    warn_deprecated("RedlichKwongMFTP::getCoeff", "To be removed after Cantera 2.6. "
-                    "Use of critical-properties.yaml is integrated into initThermo() "
-                    "for YAML input files.");
-    vector_fp spCoeff{NAN, NAN};
-    AnyMap data = AnyMap::fromYamlFile("critical-properties.yaml");
-    const auto& species = data["species"].asMap("name");
-
-    // All names in critical-properties.yaml are upper case
-    auto ucName = boost::algorithm::to_upper_copy(iName);
-    if (species.count(ucName)) {
-        auto& critProps = species.at(ucName)->at("critical-parameters").as<AnyMap>();
-        double Tc = critProps.convert("critical-temperature", "K");
-        double Pc = critProps.convert("critical-pressure", "Pa");
-
-        // calculate pure fluid parameters a_k and b_k based on T_c and P_c assuming
-        // no temperature dependence
-        spCoeff[0] = omega_a * pow(GasConstant, 2) * pow(Tc, 2.5) / Pc; //coeff a
-        spCoeff[1] = omega_b * GasConstant * Tc / Pc; // coeff b
-    }
-    return spCoeff;
-}
-
-void RedlichKwongMFTP::readXMLPureFluid(XML_Node& pureFluidParam)
-{
-    string xname = pureFluidParam.name();
-    if (xname != "pureFluidParameters") {
-        throw CanteraError("RedlichKwongMFTP::readXMLPureFluid",
-                           "Incorrect name for processing this routine: " + xname);
-    }
-
-    double a0 = 0.0;
-    double a1 = 0.0;
-    double b = 0.0;
-    for (size_t iChild = 0; iChild < pureFluidParam.nChildren(); iChild++) {
-        XML_Node& xmlChild = pureFluidParam.child(iChild);
-        string nodeName = toLowerCopy(xmlChild.name());
-
-        if (nodeName == "a_coeff") {
-            vector_fp vParams;
-            string iModel = toLowerCopy(xmlChild.attrib("model"));
-            getFloatArray(xmlChild, vParams, true, "Pascal-m6/kmol2", "a_coeff");
-
-            if (iModel == "constant" && vParams.size() == 1) {
-                a0 = vParams[0];
-                a1 = 0;
-            } else if (iModel == "linear_a" && vParams.size() == 2) {
-                a0 = vParams[0];
-                a1 = vParams[1];
-            } else {
-                throw CanteraError("RedlichKwongMFTP::readXMLPureFluid",
-                    "unknown model or incorrect number of parameters");
-            }
-
-        } else if (nodeName == "b_coeff") {
-            b = getFloatCurrent(xmlChild, "toSI");
-        }
-    }
-    setSpeciesCoeffs(pureFluidParam.attrib("species"), a0, a1, b);
-    m_coeffSource[speciesIndex(pureFluidParam.attrib("species"))] = CoeffSource::EoS;
-}
-
-void RedlichKwongMFTP::readXMLCrossFluid(XML_Node& CrossFluidParam)
-{
-    string xname = CrossFluidParam.name();
-    if (xname != "crossFluidParameters") {
-        throw CanteraError("RedlichKwongMFTP::readXMLCrossFluid",
-                           "Incorrect name for processing this routine: " + xname);
-    }
-
-    string iName = CrossFluidParam.attrib("species1");
-    string jName = CrossFluidParam.attrib("species2");
-
-    size_t num = CrossFluidParam.nChildren();
-    for (size_t iChild = 0; iChild < num; iChild++) {
-        XML_Node& xmlChild = CrossFluidParam.child(iChild);
-        string nodeName = toLowerCopy(xmlChild.name());
-
-        if (nodeName == "a_coeff") {
-            vector_fp vParams;
-            getFloatArray(xmlChild, vParams, true, "Pascal-m6/kmol2", "a_coeff");
-            string iModel = toLowerCopy(xmlChild.attrib("model"));
-            if (iModel == "constant" && vParams.size() == 1) {
-                setBinaryCoeffs(iName, jName, vParams[0], 0.0);
-            } else if (iModel == "linear_a") {
-                setBinaryCoeffs(iName, jName, vParams[0], vParams[1]);
-            } else {
-                throw CanteraError("RedlichKwongMFTP::readXMLCrossFluid",
-                    "unknown model ({}) or wrong number of parameters ({})",
-                    iModel, vParams.size());
-            }
-        }
-    }
-}
-
-void RedlichKwongMFTP::setParametersFromXML(const XML_Node& thermoNode)
-{
-    MixtureFugacityTP::setParametersFromXML(thermoNode);
-    std::string model = thermoNode["model"];
 }
 
 doublereal RedlichKwongMFTP::sresid() const

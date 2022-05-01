@@ -438,8 +438,6 @@ public:
     virtual void getSpeciesParameters(const std::string& name,
                                       AnyMap& speciesNode) const;
 
-    virtual void setParametersFromXML(const XML_Node& eosdata);
-
     //! Set the Lattice mole fractions using a string
     /*!
      * @param n  Integer value of the lattice whose mole fractions are being set

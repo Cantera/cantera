@@ -104,7 +104,6 @@ public:
     void set_c(double* c);
     void setOmega(double omega); //!< Set omega [J/kmol]
 
-    void setParametersFromXML(const XML_Node& speciesNode);
     virtual void getParameters(AnyMap& eosNode) const;
 
     //! This utility function reports back the type of parameterization and

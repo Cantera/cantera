@@ -18,7 +18,6 @@ namespace Cantera
 
 class Solution;
 class Species;
-class XML_Node;
 
 /**
  * @defgroup phases Models of Phases of Matter
@@ -110,43 +109,19 @@ public:
     Phase(const Phase&) = delete;
     Phase& operator=(const Phase&) = delete;
 
-    //! Returns a const reference to the XML_Node that describes the phase.
-    /*!
-     *  The XML_Node for the phase contains all of the input data used to set up
-     *  the model for the phase during its initialization.
+    /*! @name Name
+     * Class Phase uses the string name to identify a phase. For phases instantiated
+     * from YAML input files, the name is the value of the corresponding key in the
+     * phase map.
      *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
+     * However, the name field may be changed to another value during the
+     * course of a calculation. For example, if duplicates of a phase object
+     * are instantiated and used in multiple places (such as a ReactorNet), they
+     * will have the same constitutive input, that is, the names of the phases will
+     * be the same. Note that this is not a problem for Cantera internally;
+     * however, a user may want to rename phase objects in order to clarify.
      */
-    XML_Node& xml() const;
-
-    //! Stores the XML tree information for the current phase
-    /*!
-     *  This function now stores the complete XML_Node tree as read into the
-     *  code via a file. This is needed to move around within the XML tree
-     *  during construction of transport and kinetics mechanisms after copy
-     *  construction operations.
-     *
-     *  @param xmlPhase Reference to the XML node corresponding to the phase
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    void setXMLdata(XML_Node& xmlPhase);
-
-    //! @name Name
-    //!
-    //! Class Phase uses the string name to identify a phase. The name is the
-    //! value of the corresponding key in the phase map (in YAML), name (in
-    //! CTI), or id (in XML) that is used to initialize a phase when it is read.
-    //!
-    //! However, the name field may be changed to another value during the
-    //! course of a calculation. For example, if duplicates of a phase object
-    //! are instantiated and used in multiple places (such as a ReactorNet), they
-    //! will have the same constitutive input, that is, the names of the phases will
-    //! be the same. Note that this is not a problem for Cantera internally;
-    //! however, a user may want to rename phase objects in order to clarify.
-    //! @{
+    //!@{
 
     //! Return the name of the phase.
     /*!
@@ -967,12 +942,6 @@ private:
     //! species names are not enforced and a user specifies a non-canonical
     //! species name. Raise exception if lowercase name is not unique.
     size_t findSpeciesLower(const std::string& nameStr) const;
-
-    XML_Node* m_xml; //!< XML node containing the XML info for this phase
-
-    //! ID of the phase. This is the value of the ID attribute of the XML
-    //! phase node. The field will stay that way even if the name is changed.
-    std::string m_id;
 
     //! Name of the phase.
     //! Initially, this is the name specified in the YAML or CTI input file, or

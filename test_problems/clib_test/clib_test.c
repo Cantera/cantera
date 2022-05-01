@@ -7,7 +7,6 @@
 #include "cantera/clib/ctreactor.h"
 #include "cantera/clib/ctrpath.h"
 #include "cantera/clib/ctsurf.h"
-#include "cantera/clib/ctxml.h"
 
 #include <stdio.h>
 #include <assert.h>

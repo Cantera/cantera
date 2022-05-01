@@ -56,17 +56,6 @@ std::string stripnonprint(const std::string& s);
 compositionMap parseCompString(const std::string& ss,
         const std::vector<std::string>& names=std::vector<std::string>());
 
-//! Translate a string into one integer value
-/*!
- * No error checking is done on the conversion. The c stdlib function atoi() is
- * used.
- *
- * @param val   String value of the integer
- * @returns     an integer
- * @deprecated To be removed after Cantera 2.6. Use std::stoi instead.
- */
-int intValue(const std::string& val);
-
 //! Translate a string into one doublereal value
 /*!
  * No error checking is done on the conversion.
@@ -98,35 +87,6 @@ doublereal fpValue(const std::string& val);
  * @returns     a double
  */
 doublereal fpValueCheck(const std::string& val);
-
-//! Parse a name string, separating out the phase name from the species name
-/*!
- * Name strings must not contain these internal characters "; \n \t ," Only one
- * colon is allowed, the one separating the phase name from the species name.
- * Therefore, names may not include a colon.
- *
- * @param[in] nameStr    Name string containing the phase name and the species
- *                       name separated by a colon. The phase name is optional.
- *                       example: "silane:SiH4"
- * @param[out] phaseName Name of the phase, if specified. If not specified, a
- *                       blank string is returned.
- * @returns species name. If nameStr is blank an empty string is returned.
- * @deprecated To be removed after Cantera 2.6.
- */
-std::string parseSpeciesName(const std::string& nameStr, std::string& phaseName);
-
-//! Interpret one or two token string as a single double
-/*!
- * This is similar to atof(). However, the second token is interpreted as an
- * MKS units string and a conversion factor to MKS is applied.
- *
- * Example: "1.0 atm" results in the number 1.01325e5.
- *
- * @param strSI string to be converted. One or two tokens
- * @returns a converted double
- * @deprecated To be removed after Cantera 2.6.
- */
-doublereal strSItoDbl(const std::string& strSI);
 
 //! This function separates a string up into tokens according to the location of
 //! white space.

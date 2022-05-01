@@ -131,7 +131,7 @@ if localenv['sphinx_docs']:
              ['@Func', '@Reactor', '@ReactorNet', '@FlowDevice', '@Wall']),
         Page('one-dim', 'One-Dimensional Reacting Flows', ['1D/@Domain1D', '1D/@Stack']),
         Page('data', 'Physical Constants', ['@Data']),
-        Page('utilities', 'Utility Functions', ['@Utilities', '@XML_Node']),
+        Page('utilities', 'Utility Functions', ['@Utilities']),
     ]
 
     # Create a dictionary of extra files associated with each class. These

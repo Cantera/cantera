@@ -554,16 +554,6 @@ public:
     explicit DebyeHuckel(const std::string& inputFile="",
                          const std::string& id="");
 
-    //! Full constructor for creating the phase.
-    /*!
-     *  @param phaseRef XML phase node containing the description of the phase
-     *  @param id       id attribute containing the name of the phase.
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    DebyeHuckel(XML_Node& phaseRef, const std::string& id = "");
-
     //! @name  Utilities
     //! @{
 
@@ -764,7 +754,6 @@ public:
     virtual void getParameters(AnyMap& phaseNode) const;
     virtual void getSpeciesParameters(const std::string& name,
                                   AnyMap& speciesNode) const;
-    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     //! Return the Debye Huckel constant as a function of temperature
     //! and pressure (Units = sqrt(kg/gmol))

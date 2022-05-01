@@ -131,8 +131,6 @@ public:
     virtual void init();
     virtual void eval(size_t jg, double* xg, double* rg,
                       integer* diagg, double rdt);
-    virtual XML_Node& save(XML_Node& o, const double* const soln);
-    virtual void restore(const XML_Node& dom, double* soln, int loglevel);
     virtual AnyMap serialize(const double* soln) const;
     virtual void restore(const AnyMap& state, double* soln, int loglevel);
 
@@ -163,8 +161,6 @@ public:
     virtual void eval(size_t jg, double* xg, double* rg,
                       integer* diagg, double rdt);
 
-    virtual XML_Node& save(XML_Node& o, const double* const soln);
-    virtual void restore(const XML_Node& dom, double* soln, int loglevel);
     virtual AnyMap serialize(const double* soln) const;
 };
 
@@ -185,8 +181,6 @@ public:
     virtual void eval(size_t jg, double* xg, double* rg,
                       integer* diagg, double rdt);
 
-    virtual XML_Node& save(XML_Node& o, const double* const soln);
-    virtual void restore(const XML_Node& dom, double* soln, int loglevel);
     virtual AnyMap serialize(const double* soln) const;
 };
 
@@ -207,8 +201,6 @@ public:
     virtual void eval(size_t jg, double* xg, double* rg,
                       integer* diagg, double rdt);
 
-    virtual XML_Node& save(XML_Node& o, const double* const soln);
-    virtual void restore(const XML_Node& dom, double* soln, int loglevel);
     virtual AnyMap serialize(const double* soln) const;
 };
 
@@ -236,8 +228,6 @@ public:
     virtual void init();
     virtual void eval(size_t jg, double* xg, double* rg,
                       integer* diagg, double rdt);
-    virtual XML_Node& save(XML_Node& o, const double* const soln);
-    virtual void restore(const XML_Node& dom, double* soln, int loglevel);
     virtual AnyMap serialize(const double* soln) const;
     virtual void restore(const AnyMap& state, double* soln, int loglevel);
 
@@ -266,8 +256,6 @@ public:
     virtual void eval(size_t jg, double* xg, double* rg,
                       integer* diagg, double rdt);
 
-    virtual XML_Node& save(XML_Node& o, const double* const soln);
-    virtual void restore(const XML_Node& dom, double* soln, int loglevel);
     virtual AnyMap serialize(const double* soln) const;
     virtual void restore(const AnyMap& state, double* soln, int loglevel);
 
@@ -303,8 +291,6 @@ public:
     virtual void eval(size_t jg, double* xg, double* rg,
                       integer* diagg, double rdt);
 
-    virtual XML_Node& save(XML_Node& o, const double* const soln);
-    virtual void restore(const XML_Node& dom, double* soln, int loglevel);
     virtual AnyMap serialize(const double* soln) const;
     virtual void restore(const AnyMap& state, double* soln, int loglevel);
 

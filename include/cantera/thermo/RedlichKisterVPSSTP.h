@@ -226,18 +226,6 @@ public:
     explicit RedlichKisterVPSSTP(const std::string& inputFile="",
                                  const std::string& id="");
 
-    //! Construct and initialize a RedlichKisterVPSSTP ThermoPhase object
-    //! directly from an XML database
-    /*!
-     *  @param phaseRef XML phase node containing the description of the phase
-     *  @param id     id attribute containing the name of the phase.
-     *                (default is the empty string)
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    RedlichKisterVPSSTP(XML_Node& phaseRef, const std::string& id = "");
-
     virtual std::string type() const {
         return "RedlichKister";
     }
@@ -352,7 +340,6 @@ public:
 
     virtual void initThermo();
     virtual void getParameters(AnyMap& phaseNode) const;
-    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     //! Add a binary species interaction with the specified parameters
     /*!
@@ -377,18 +364,6 @@ public:
     //! @}
 
 private:
-    //! Process an XML node called "binaryNeutralSpeciesParameters"
-    /*!
-     * This node contains all of the parameters necessary to describe the
-     * Redlich-Kister model for a particular binary interaction. This function
-     * reads the XML file and writes the coefficients it finds to an internal
-     * data structures.
-     *
-     * @param xmlBinarySpecies  Reference to the XML_Node named
-     *     "binaryNeutralSpeciesParameters" containing the binary interaction
-     */
-    void readXMLBinarySpecies(XML_Node& xmlBinarySpecies);
-
     //! Initialize lengths of local variables after all species have been
     //! identified.
     void initLengths();

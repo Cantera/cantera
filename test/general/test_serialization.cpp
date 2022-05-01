@@ -217,35 +217,6 @@ TEST(YamlWriter, reaction_units_from_Yaml)
     }
 }
 
-TEST(YamlWriter, reaction_units_from_Xml)
-{
-    suppress_deprecation_warnings();
-    auto original = newSolution("h2o2.xml", "", "None");
-    make_deprecation_warnings_fatal();
-    YamlWriter writer;
-    writer.addPhase(original);
-    writer.setPrecision(14);
-    writer.setUnits({
-        {"activation-energy", "K"},
-        {"quantity", "mol"},
-        {"length", "cm"}
-    });
-
-    writer.toYamlFile("generated-h2o2-from-xml.yaml");
-    auto duplicate = newSolution("generated-h2o2-from-xml.yaml", "", "None");
-
-    auto kin1 = original->kinetics();
-    auto kin2 = duplicate->kinetics();
-
-    ASSERT_EQ(kin1->nReactions(), kin2->nReactions());
-    vector_fp kf1(kin1->nReactions()), kf2(kin1->nReactions());
-    kin1->getFwdRateConstants(kf1.data());
-    kin2->getFwdRateConstants(kf2.data());
-    for (size_t i = 0; i < kin1->nReactions(); i++) {
-        EXPECT_NEAR(kf1[i], kf2[i], 1e-13 * kf1[i]) << "for reaction i = " << i;
-    }
-}
-
 TEST(YamlWriter, chebyshev_units_from_Yaml)
 {
     auto original = newSolution("pdep-test.yaml");

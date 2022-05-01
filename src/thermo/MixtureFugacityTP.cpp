@@ -10,7 +10,6 @@
 
 #include "cantera/thermo/MixtureFugacityTP.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/base/ctml.h"
 
 using namespace std;
 
@@ -170,39 +169,6 @@ void MixtureFugacityTP::getStandardVolumes_ref(doublereal* vol) const
 {
     for (size_t i = 0; i < m_kk; i++) {
         vol[i]= RT() / refPressure();
-    }
-}
-
-void MixtureFugacityTP::setStateFromXML(const XML_Node& state)
-{
-    int doTP = 0;
-    string comp = getChildValue(state,"moleFractions");
-    if (comp != "") {
-        // not overloaded in current object -> phase state is not calculated.
-        setMoleFractionsByName(comp);
-        doTP = 1;
-    } else {
-        comp = getChildValue(state,"massFractions");
-        if (comp != "") {
-            // not overloaded in current object -> phase state is not calculated.
-            setMassFractionsByName(comp);
-            doTP = 1;
-        }
-    }
-    double t = temperature();
-    if (state.hasChild("temperature")) {
-        t = getFloat(state, "temperature", "temperature");
-        doTP = 1;
-    }
-    if (state.hasChild("pressure")) {
-        double p = getFloat(state, "pressure", "pressure");
-        setState_TP(t, p);
-    } else if (state.hasChild("density")) {
-        double rho = getFloat(state, "density", "density");
-        setState_TR(t, rho);
-    } else if (doTP) {
-        double rho = density();
-        setState_TR(t, rho);
     }
 }
 

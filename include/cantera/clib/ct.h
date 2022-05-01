@@ -17,7 +17,6 @@ extern "C" {
     CANTERA_CAPI int ct_appdelete();
 
     CANTERA_CAPI int thermo_newFromFile(const char* filename, const char* phasename);
-    CANTERA_CAPI int thermo_newFromXML(int mxml);
     CANTERA_CAPI int thermo_del(int n);
     CANTERA_CAPI size_t thermo_nElements(int n);
     CANTERA_CAPI size_t thermo_nSpecies(int n);
@@ -106,9 +105,6 @@ extern "C" {
     CANTERA_CAPI int kin_newFromFile(const char* filename, const char* phasename,
                                      int reactingPhase, int neighbor1, int neighbor2,
                                      int neighbor3, int neighbor4);
-    CANTERA_CAPI int kin_newFromXML(int mxml, int iphase,
-                                    int neighbor1, int neighbor2, int neighbor3,
-                                    int neighbor4);
     CANTERA_CAPI int kin_del(int n);
     CANTERA_CAPI size_t kin_nSpecies(int n);
     CANTERA_CAPI size_t kin_nReactions(int n);
@@ -166,10 +162,6 @@ extern "C" {
     CANTERA_CAPI int ct_suppress_thermo_warnings(int suppress);
     CANTERA_CAPI int ct_use_legacy_rate_constants(int legacy);
     CANTERA_CAPI int ct_clearStorage();
-
-    CANTERA_CAPI int ct_ck2cti(const char* in_file, const char* db_file,
-                               const char* tr_file, const char* id_tag,
-                               int debug, int validate);
 
 #ifdef __cplusplus
 }

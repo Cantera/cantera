@@ -281,18 +281,6 @@ public:
     explicit IdealGasPhase(const std::string& inputFile="",
                            const std::string& id="");
 
-    //! Construct and initialize an IdealGasPhase ThermoPhase object
-    //! directly from an XML database
-    /*!
-     *  @param phaseRef XML phase node containing the description of the phase
-     *  @param id     id attribute containing the name of the phase.
-     *                (default is the empty string)
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    IdealGasPhase(XML_Node& phaseRef, const std::string& id = "");
-
     virtual std::string type() const {
         return "IdealGas";
     }

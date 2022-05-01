@@ -17,9 +17,7 @@
 // Cantera includes
 #include "cantera/kinetics/KineticsFactory.h"
 #include "cantera/transport/TransportFactory.h"
-#include "cantera/base/ctml.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/kinetics/importKinetics.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "Cabinet.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
@@ -31,12 +29,10 @@ using namespace Cantera;
 typedef Cabinet<ThermoPhase> ThermoCabinet;
 typedef Cabinet<Kinetics> KineticsCabinet;
 typedef Cabinet<Transport> TransportCabinet;
-typedef Cabinet<XML_Node, false> XmlCabinet;
 
 template<> ThermoCabinet* ThermoCabinet::s_storage = 0;
 template<> KineticsCabinet* KineticsCabinet::s_storage = 0;
 template<> TransportCabinet* TransportCabinet::s_storage = 0;
-template<> XmlCabinet* XmlCabinet::s_storage; // defined in ctxml.cpp
 
 /**
  * Exported functions.
@@ -360,17 +356,6 @@ extern "C" {
     int thermo_newFromFile(const char* filename, const char* phasename) {
         try {
             return ThermoCabinet::add(newPhase(filename, phasename));
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int thermo_newFromXML(int mxml)
-    {
-        try {
-            XML_Node& x = XmlCabinet::item(mxml);
-            ThermoPhase* th = newPhase(x);
-            return ThermoCabinet::add(th);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -899,37 +884,6 @@ extern "C" {
             }
             unique_ptr<Kinetics> kin = newKinetics(phases, filename, phasename);
             return KineticsCabinet::add(kin.release());
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int kin_newFromXML(int mxml, int iphase,
-                       int neighbor1, int neighbor2, int neighbor3,
-                       int neighbor4)
-    {
-        try {
-            XML_Node& x = XmlCabinet::item(mxml);
-            vector<ThermoPhase*> phases;
-            phases.push_back(&ThermoCabinet::item(iphase));
-            if (neighbor1 >= 0) {
-                phases.push_back(&ThermoCabinet::item(neighbor1));
-                if (neighbor2 >= 0) {
-                    phases.push_back(&ThermoCabinet::item(neighbor2));
-                    if (neighbor3 >= 0) {
-                        phases.push_back(&ThermoCabinet::item(neighbor3));
-                        if (neighbor4 >= 0) {
-                            phases.push_back(&ThermoCabinet::item(neighbor4));
-                        }
-                    }
-                }
-            }
-            Kinetics* kin = newKineticsMgr(x, phases);
-            if (kin) {
-                return KineticsCabinet::add(kin);
-            } else {
-                return 0;
-            }
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -1552,17 +1506,6 @@ extern "C" {
     {
         try {
             TransportCabinet::del(n);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int ct_ck2cti(const char* in_file, const char* db_file, const char* tr_file,
-                  const char* id_tag, int debug, int validate)
-    {
-        try {
-            ck2cti(in_file, db_file, tr_file, id_tag);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

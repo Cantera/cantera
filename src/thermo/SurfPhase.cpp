@@ -14,7 +14,6 @@
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/Species.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/base/ctml.h"
 #include "cantera/base/utilities.h"
 
 using namespace std;
@@ -44,13 +43,6 @@ SurfPhase::SurfPhase(const std::string& infile, const std::string& id_) :
 {
     setNDim(2);
     initThermoFile(infile, id_);
-}
-
-SurfPhase::SurfPhase(XML_Node& xmlphase) :
-    m_n0(1.0),
-    m_press(OneAtm)
-{
-    importPhase(xmlphase, this);
 }
 
 doublereal SurfPhase::enthalpy_mole() const
@@ -332,13 +324,6 @@ void SurfPhase::_updateThermo(bool force) const
     }
 }
 
-void SurfPhase::setParametersFromXML(const XML_Node& eosdata)
-{
-    eosdata._require("model","Surface");
-    doublereal n = getFloat(eosdata, "site_density", "toSI");
-    setSiteDensity(n);
-}
-
 void SurfPhase::initThermo()
 {
     if (m_input.hasKey("site-density")) {
@@ -353,19 +338,6 @@ void SurfPhase::getParameters(AnyMap& phaseNode) const
     ThermoPhase::getParameters(phaseNode);
     phaseNode["site-density"].setQuantity(
         m_n0, Units(1.0, 0, -static_cast<double>(m_ndim), 0, 0, 0, 1));
-}
-
-void SurfPhase::setStateFromXML(const XML_Node& state)
-{
-    double t;
-    if (getOptionalFloat(state, "temperature", t, "temperature")) {
-        setTemperature(t);
-    }
-
-    if (state.hasChild("coverages")) {
-        string comp = getChildValue(state,"coverages");
-        setCoveragesByName(comp);
-    }
 }
 
 EdgePhase::EdgePhase(doublereal n0)
@@ -385,13 +357,6 @@ EdgePhase::EdgePhase(const std::string& infile, const std::string& id_)
 {
     setNDim(1);
     initThermoFile(infile, id_);
-}
-
-void EdgePhase::setParametersFromXML(const XML_Node& eosdata)
-{
-    eosdata._require("model","Edge");
-    doublereal n = getFloat(eosdata, "site_density", "toSI");
-    setSiteDensity(n);
 }
 
 }

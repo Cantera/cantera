@@ -12,7 +12,6 @@
 #include "cantera/transport/DustyGasTransport.h"
 #include "cantera/transport/HighPressureGasTransport.h"
 #include "cantera/transport/TransportFactory.h"
-#include "cantera/base/ctml.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/utilities.h"
 
@@ -94,12 +93,9 @@ Transport* TransportFactory::newTransport(const std::string& transportModel,
 Transport* TransportFactory::newTransport(ThermoPhase* phase, int log_level)
 {
     std::string transportModel = "None";
-    XML_Node& phaseNode = phase->xml();
     AnyMap& input = phase->input();
     if (input.hasKey("transport")) {
         transportModel = input["transport"].asString();
-    } else if (phaseNode.hasChild("transport")) {
-        transportModel = phaseNode.child("transport").attrib("model");
     }
     return newTransport(transportModel, phase,log_level);
 }

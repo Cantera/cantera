@@ -5,7 +5,6 @@
 
 #include "cantera/oneD/OneDim.h"
 #include "cantera/numerics/Func1.h"
-#include "cantera/base/ctml.h"
 #include "cantera/oneD/MultiNewton.h"
 #include "cantera/base/AnyMap.h"
 
@@ -419,46 +418,6 @@ void OneDim::resetBadValues(double* x)
     for (auto dom : m_dom) {
         dom->resetBadValues(x);
     }
-}
-
-void OneDim::save(const std::string& fname, std::string id,
-                  const std::string& desc, doublereal* sol,
-                  int loglevel)
-{
-    time_t aclock;
-    ::time(&aclock); // Get time in seconds
-    struct tm* newtime = localtime(&aclock); // Convert time to struct tm form
-
-    XML_Node root("ctml");
-    ifstream fin(fname);
-    if (fin) {
-        root.build(fin, fname);
-        // Remove existing solution with the same id
-        XML_Node* same_ID = root.findID(id);
-        if (same_ID) {
-            same_ID->parent()->removeChild(same_ID);
-        }
-        fin.close();
-    }
-    XML_Node& sim = root.addChild("simulation");
-    sim.addAttribute("id",id);
-    addString(sim,"timestamp",asctime(newtime));
-    if (desc != "") {
-        addString(sim,"description",desc);
-    }
-
-    Domain1D* d = left();
-    while (d) {
-        d->save(sim, sol);
-        d = d->right();
-    }
-    ofstream s(fname);
-    if (!s) {
-        throw CanteraError("OneDim::save","could not open file "+fname);
-    }
-    root.write(s);
-    s.close();
-    debuglog("Solution saved to file "+fname+" as solution "+id+".\n", loglevel);
 }
 
 AnyMap OneDim::serialize(const double* soln) const

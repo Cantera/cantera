@@ -17,8 +17,6 @@
 namespace Cantera
 {
 
-class XML_Node;
-
 int get_modified_time(const std::string& path);
 
 /*!
@@ -205,10 +203,7 @@ public:
     static Application* Instance();
 
     //! Destructor for class deletes global data
-    /*!
-     *  Deletes any open XML trees.
-     */
-    virtual ~Application();
+    virtual ~Application() {}
 
     //! Static function that destroys the application class's data
     static void ApplicationDestroy();
@@ -287,42 +282,6 @@ public:
     std::string getDataDirectories(const std::string& sep) {
         return boost::algorithm::join(inputDirs, sep);
     }
-
-    //! Return a pointer to the XML tree for a Cantera input file.
-    /*!
-     * This routine will find the file and read the XML file into an XML tree
-     * structure. Then, a pointer will be returned. If the file has already been
-     * processed, then just the pointer will be returned.
-     *
-     * @param file String containing the relative or absolute file name
-     * @param debug Debug flag
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    XML_Node* get_XML_File(const std::string& file, int debug=0);
-
-    //! Read a CTI or CTML string and fill up an XML tree.
-    /*!
-     * Return a pointer to the XML tree corresponding to the specified CTI or
-     * XML string. If the given string has been processed before, the cached XML
-     * tree will be returned. Otherwise, the XML tree will be generated and
-     * stored in the cache.
-     * @param text    CTI or CTML string
-     * @return        Root of the corresponding XML tree
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    XML_Node* get_XML_from_string(const std::string& text);
-
-    //! Close an XML File
-    /*!
-     * Close a file that is opened by this application object
-     *
-     * @param file String containing the relative or absolute file name
-     */
-    void close_XML_File(const std::string& file);
 
 #ifdef _WIN32
     long int readStringRegistryKey(const std::string& keyName, const std::string& valueName,
@@ -473,13 +432,6 @@ protected:
     //! Current vector of input directories to search for input files
     std::vector<std::string> inputDirs;
 
-    //! Current vector of XML file trees that have been previously parsed
-    //! The second element of the value is used to store the last-modified time
-    //! for the file, to enable change detection.
-    //!
-    //! @deprecated The XML input format is deprecated and will be removed in
-    //!     Cantera 3.0.
-    std::map<std::string, std::pair<XML_Node*, int> > xmlfiles;
     //! Vector of deprecation warnings that have been emitted (to suppress
     //! duplicates)
     std::set<std::string> warnings;

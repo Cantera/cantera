@@ -11,7 +11,6 @@
 #include "cantera/oneD/MultiNewton.h"
 #include "cantera/oneD/refine.h"
 #include "cantera/numerics/funcs.h"
-#include "cantera/base/xml.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/numerics/Func1.h"
 #include <limits>
@@ -97,13 +96,6 @@ void Sim1D::setProfile(size_t dom, size_t comp,
 void Sim1D::save(const std::string& fname, const std::string& id,
                  const std::string& desc, int loglevel)
 {
-    size_t dot = fname.find_last_of(".");
-    string extension = (dot != npos) ? toLowerCopy(fname.substr(dot+1)) : "";
-    if (extension != "yml" && extension != "yaml") {
-        OneDim::save(fname, id, desc, m_x.data(), loglevel);
-        return;
-    }
-
     // Check for an existing file and load it if present
     AnyMap data;
     if (ifstream(fname).good()) {
@@ -164,55 +156,29 @@ void Sim1D::restore(const std::string& fname, const std::string& id,
 {
     size_t dot = fname.find_last_of(".");
     string extension = (dot != npos) ? toLowerCopy(fname.substr(dot+1)) : "";
-    if (extension == "yml" || extension == "yaml") {
-        AnyMap root = AnyMap::fromYamlFile(fname);
-        if (!root.hasKey(id)) {
-            throw InputFileError("Sim1D::restore", root,
-                                 "No solution with id '{}'", id);
+    if (extension == "xml") {
+        throw CanteraError("Sim1D::restore",
+                           "Restoring from XML is no longer supported.");
+    }
+    AnyMap root = AnyMap::fromYamlFile(fname);
+    if (!root.hasKey(id)) {
+        throw InputFileError("Sim1D::restore", root,
+                                "No solution with id '{}'", id);
+    }
+    const auto& state = root[id];
+    for (auto dom : m_dom) {
+        if (!state.hasKey(dom->id())) {
+            throw InputFileError("Sim1D::restore", state,
+                "Saved state '{}' does not contain a domain named '{}'.",
+                id, dom->id());
         }
-        const auto& state = root[id];
-        for (auto dom : m_dom) {
-            if (!state.hasKey(dom->id())) {
-                throw InputFileError("Sim1D::restore", state,
-                    "Saved state '{}' does not contain a domain named '{}'.",
-                    id, dom->id());
-            }
-            dom->resize(dom->nComponents(), state[dom->id()]["points"].asInt());
-        }
-        resize();
-        m_xlast_ts.clear();
-        for (auto dom : m_dom) {
-            dom->restore(state[dom->id()].as<AnyMap>(), m_x.data() + dom->loc(),
-                         loglevel);
-        }
-    } else {
-        XML_Node root;
-        root.build(fname);
-
-        XML_Node* f = root.findID(id);
-        if (!f) {
-            throw CanteraError("Sim1D::restore","No solution with id = "+id);
-        }
-
-        vector<XML_Node*> xd = f->getChildren("domain");
-        if (xd.size() != nDomains()) {
-            throw CanteraError("Sim1D::restore", "Solution does not contain the "
-                " correct number of domains. Found {} expected {}.\n",
-                xd.size(), nDomains());
-        }
-        for (size_t m = 0; m < nDomains(); m++) {
-            Domain1D& dom = domain(m);
-            if (loglevel > 0 && xd[m]->attrib("id") != dom.id()) {
-                warn_user("Sim1D::restore", "Domain names do not match: "
-                    "'{} and '{}'", (*xd[m])["id"], dom.id());
-            }
-            dom.resize(domain(m).nComponents(), intValue((*xd[m])["points"]));
-        }
-        resize();
-        m_xlast_ts.clear();
-        for (size_t m = 0; m < nDomains(); m++) {
-            domain(m).restore(*xd[m], &m_x[start(m)], loglevel);
-        }
+        dom->resize(dom->nComponents(), state[dom->id()]["points"].asInt());
+    }
+    resize();
+    m_xlast_ts.clear();
+    for (auto dom : m_dom) {
+        dom->restore(state[dom->id()].as<AnyMap>(), m_x.data() + dom->loc(),
+                        loglevel);
     }
     finalize();
 }

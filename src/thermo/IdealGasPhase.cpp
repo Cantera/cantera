@@ -23,12 +23,6 @@ IdealGasPhase::IdealGasPhase(const std::string& inputFile, const std::string& id
     initThermoFile(inputFile, id_);
 }
 
-IdealGasPhase::IdealGasPhase(XML_Node& phaseRef, const std::string& id_) :
-    m_p0(-1.0)
-{
-    importPhase(phaseRef, this);
-}
-
 // Molar Thermodynamic Properties of the Solution ------------------
 
 doublereal IdealGasPhase::entropy_mole() const

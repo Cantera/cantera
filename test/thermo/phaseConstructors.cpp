@@ -26,7 +26,6 @@
 #include "cantera/thermo/ShomatePoly.h"
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/thermo/Mu0Poly.h"
-#include "cantera/base/ctml.h"
 #include "cantera/base/stringUtils.h"
 #include <fstream>
 #include "thermo_data.h"
@@ -280,7 +279,7 @@ TEST(IdealMolalSoln, fromScratch)
         ss->setMolarVolume(v);
         p.installPDSS(k++, std::move(ss));
     }
-    p.setStandardConcentrationModel("solvent_volume");
+    p.setStandardConcentrationModel("solvent-molar-volume");
     p.setCutoffModel("polyexp");
     // These propreties probably shouldn't be public
     p.IMS_X_o_cutoff_ = 0.20;
@@ -396,7 +395,8 @@ TEST(LatticeSolidPhase, fromScratch)
     interstital->setName("Li7Si3_Interstitial");
     auto sLii = make_const_cp_species("Li(i)", "Li:1", 298.15, 0, 2e4, 2e4);
     auto sVac = make_const_cp_species("V(i)", "", 298.15, 8.98e4, 0, 0);
-    sLii->input["molar_volume"] = 0.2;
+    sLii->input["equation-of-state"]["molar-volume"] = 0.2;
+    sLii->input["equation-of-state"]["model"] = "constant-volume";
     interstital->setSiteDensity(10.46344);
     interstital->addSpecies(sLii);
     interstital->addSpecies(sVac);
@@ -430,11 +430,14 @@ TEST(IdealSolidSolnPhase, fromScratch)
     // Regression test based fictitious XML input file
     IdealSolidSolnPhase p;
     auto sp1 = make_species("sp1", "C:2, H:2", o2_nasa_coeffs);
-    sp1->input["molar_volume"] = 1.5;
+    sp1->input["equation-of-state"]["molar-volume"] = 1.5;
+    sp1->input["equation-of-state"]["model"] = "constant-volume";
     auto sp2 = make_species("sp2", "C:1", h2o_nasa_coeffs);
-    sp2->input["molar_volume"] = 1.3;
+    sp2->input["equation-of-state"]["molar-volume"] = 1.3;
+    sp2->input["equation-of-state"]["model"] = "constant-volume";
     auto sp3 = make_species("sp3", "H:2", h2_nasa_coeffs);
-    sp3->input["molar_volume"] = 0.1;
+    sp3->input["equation-of-state"]["molar-volume"] = 0.1;
+    sp3->input["equation-of-state"]["model"] = "constant-volume";
     for (auto& s : {sp1, sp2, sp3}) {
         p.addSpecies(s);
     }

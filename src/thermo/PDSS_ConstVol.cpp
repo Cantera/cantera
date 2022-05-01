@@ -7,7 +7,6 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-#include "cantera/base/ctml.h"
 #include "cantera/thermo/PDSS_ConstVol.h"
 #include "cantera/thermo/VPStandardStateTP.h"
 
@@ -18,25 +17,6 @@ namespace Cantera
 
 PDSS_ConstVol::PDSS_ConstVol()
 {
-}
-
-void PDSS_ConstVol::setParametersFromXML(const XML_Node& speciesNode)
-{
-    PDSS::setParametersFromXML(speciesNode);
-
-    const XML_Node* ss = speciesNode.findByName("standardState");
-    if (!ss) {
-        throw CanteraError("PDSS_ConstVol::setParametersFromXML",
-                           "no standardState Node for species '{}'",
-                           speciesNode.name());
-    }
-    if (ss->attrib("model") != "constant_incompressible") {
-        throw CanteraError("PDSS_ConstVol::setParametersFromXML",
-                           "standardState model for species '{}' isn't "
-                           "'constant_incompressible'", speciesNode.name());
-    }
-
-    setMolarVolume(getFloat(*ss, "molarVolume", "toSI"));
 }
 
 void PDSS_ConstVol::initThermo()

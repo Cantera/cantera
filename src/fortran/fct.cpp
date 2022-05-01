@@ -14,10 +14,8 @@
 #include "cantera/kinetics/KineticsFactory.h"
 #include "cantera/transport/TransportFactory.h"
 #include "cantera/thermo/ThermoFactory.h"
-#include "cantera/base/ctml.h"
 #include "cantera/base/NoExitLogger.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/kinetics/importKinetics.h"
 #include "clib/Cabinet.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
 

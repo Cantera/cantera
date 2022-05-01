@@ -13,7 +13,6 @@ namespace Cantera
 {
 
 class Species;
-class XML_Node;
 
 //! Base class for transport data for a single species
 class TransportData
@@ -102,12 +101,6 @@ public:
     //! quadrupole. Default 0.0.
     double quadrupole_polarizability;
 };
-
-//! Create a new TransportData object from a 'transport' XML_Node.
-//!
-//! @deprecated The XML input format is deprecated and will be removed in
-//!     Cantera 3.0.
-shared_ptr<TransportData> newTransportData(const XML_Node& transport_node);
 
 //! Create a new TransportData object from an AnyMap specification
 unique_ptr<TransportData> newTransportData(const AnyMap& node);

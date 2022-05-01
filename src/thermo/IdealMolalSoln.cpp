@@ -18,7 +18,6 @@
 #include "cantera/thermo/IdealMolalSoln.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/PDSS.h"
-#include "cantera/base/ctml.h"
 #include "cantera/base/stringUtils.h"
 
 #include <iostream>
@@ -56,28 +55,6 @@ IdealMolalSoln::IdealMolalSoln(const std::string& inputFile,
     IMS_bgCut_(0.0)
 {
     initThermoFile(inputFile, id_);
-}
-
-IdealMolalSoln::IdealMolalSoln(XML_Node& root, const std::string& id_) :
-    MolalityVPSSTP(),
-    m_formGC(2),
-    IMS_typeCutoff_(0),
-    IMS_X_o_cutoff_(X_o_cutoff_default),
-    IMS_gamma_o_min_(gamma_o_min_default),
-    IMS_gamma_k_min_(gamma_k_min_default),
-    IMS_slopefCut_(slopefCut_default),
-    IMS_slopegCut_(slopegCut_default),
-    IMS_cCut_(cCut_default),
-    IMS_dfCut_(0.0),
-    IMS_efCut_(0.0),
-    IMS_afCut_(0.0),
-    IMS_bfCut_(0.0),
-    IMS_dgCut_(0.0),
-    IMS_egCut_(0.0),
-    IMS_agCut_(0.0),
-    IMS_bgCut_(0.0)
-{
-    importPhase(root, this);
 }
 
 doublereal IdealMolalSoln::enthalpy_mole() const
@@ -326,65 +303,6 @@ bool IdealMolalSoln::addSpecies(shared_ptr<Species> spec)
         IMS_lnActCoeffMolal_.push_back(0.0);
     }
     return added;
-}
-
-void IdealMolalSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
-{
-    MolalityVPSSTP::initThermoXML(phaseNode, id_);
-
-    if (id_.size() > 0 && phaseNode.id() != id_) {
-        throw CanteraError("IdealMolalSoln::initThermoXML",
-                           "phasenode and Id are incompatible");
-    }
-
-    // Find the Thermo XML node
-    if (!phaseNode.hasChild("thermo")) {
-        throw CanteraError("IdealMolalSoln::initThermoXML",
-                           "no thermo XML node");
-    }
-    XML_Node& thermoNode = phaseNode.child("thermo");
-
-    // Possible change the form of the standard concentrations
-    if (thermoNode.hasChild("standardConc")) {
-        XML_Node& scNode = thermoNode.child("standardConc");
-        setStandardConcentrationModel(scNode["model"]);
-    }
-
-    if (thermoNode.hasChild("activityCoefficients")) {
-        XML_Node& acNode = thermoNode.child("activityCoefficients");
-        std::string modelString = acNode.attrib("model");
-        if (modelString != "IdealMolalSoln") {
-            throw CanteraError("IdealMolalSoln::initThermoXML",
-                               "unknown ActivityCoefficient model: " + modelString);
-        }
-        if (acNode.hasChild("idealMolalSolnCutoff")) {
-            XML_Node& ccNode = acNode.child("idealMolalSolnCutoff");
-            modelString = ccNode.attrib("model");
-            if (modelString != "") {
-                setCutoffModel(modelString);
-                if (ccNode.hasChild("gamma_o_limit")) {
-                    IMS_gamma_o_min_ = getFloat(ccNode, "gamma_o_limit");
-                }
-                if (ccNode.hasChild("gamma_k_limit")) {
-                    IMS_gamma_k_min_ = getFloat(ccNode, "gamma_k_limit");
-                }
-                if (ccNode.hasChild("X_o_cutoff")) {
-                    IMS_X_o_cutoff_ = getFloat(ccNode, "X_o_cutoff");
-                }
-                if (ccNode.hasChild("c_0_param")) {
-                    IMS_cCut_ = getFloat(ccNode, "c_0_param");
-                }
-                if (ccNode.hasChild("slope_f_limit")) {
-                    IMS_slopefCut_ = getFloat(ccNode, "slope_f_limit");
-                }
-                if (ccNode.hasChild("slope_g_limit")) {
-                    IMS_slopegCut_ = getFloat(ccNode, "slope_g_limit");
-                }
-            }
-        } else {
-            setCutoffModel("none");
-        }
-    }
 }
 
 void IdealMolalSoln::initThermo()

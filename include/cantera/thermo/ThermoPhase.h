@@ -103,8 +103,6 @@ public:
     //! so this constructor should not be called explicitly.
     ThermoPhase();
 
-    virtual ~ThermoPhase();
-
     //! @name  Information Methods
     //! @{
 
@@ -1574,28 +1572,6 @@ public:
 
     virtual void modifySpecies(size_t k, shared_ptr<Species> spec);
 
-    //! Store a reference pointer to the XML tree containing the species data
-    //! for this phase.
-    /*!
-     *   This is used to access data needed to construct transport manager later.
-     *   @internal
-     *
-     * @param k      Species index
-     * @param data   Pointer to the XML_Node data containing
-     *               information about the species in the phase.
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    void saveSpeciesData(const size_t k, const XML_Node* const data);
-
-    //!  Return a pointer to the vector of XML nodes containing the species
-    //!  data for this phase.
-    //!
-    //! @deprecated The XML input format is deprecated and will be removed in
-    //!     Cantera 3.0.
-    const std::vector<const XML_Node*> & speciesData() const;
-
     //! Return a changeable reference to the calculation manager for species
     //! reference-state thermodynamic properties
     /*!
@@ -1620,35 +1596,6 @@ public:
      *            blank, the first phase definition encountered will be used.
      */
     void initThermoFile(const std::string& inputFile, const std::string& id);
-
-    //!Import and initialize a ThermoPhase object using an XML tree.
-    /*!
-     * @internal
-     *
-     * Here we read extra information about the XML description of a phase.
-     * Regular information about elements and species and their reference state
-     * thermodynamic information have already been read at this point. For
-     * example, we do not need to call this function for ideal gas equations of
-     * state. This function is called from importPhase() after the elements and
-     * the species are initialized with default ideal solution level data.
-     *
-     * The default implementation in ThermoPhase calls the virtual function
-     * initThermo() and then sets the "state" of the phase by looking for an XML
-     * element named "state", and then interpreting its contents by calling the
-     * virtual function setStateFromXML().
-     *
-     * @param phaseNode This object must be the phase node of a complete XML
-     *     tree description of the phase, including all of the species data. In
-     *     other words while "phase" must point to an XML phase object, it must
-     *     have sibling nodes "speciesData" that describe the species in the
-     *     phase.
-     * @param id   ID of the phase. If nonnull, a check is done to see if
-     *             phaseNode is pointing to the phase with the correct id.
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     //! Initialize the ThermoPhase object after all species have been set up
     /*!
@@ -1717,36 +1664,6 @@ public:
     //! Access input data associated with the phase description
     const AnyMap& input() const;
     AnyMap& input();
-
-    //! Set equation of state parameter values from XML entries.
-    /*!
-     * This method is called by function importPhase() when processing a phase
-     * definition in an input file. It should be overloaded in subclasses to set
-     * any parameters that are specific to that particular phase model. Note,
-     * this method is called before the phase is initialized with elements
-     * and/or species.
-     *
-     * @param eosdata An XML_Node object corresponding to
-     *                the "thermo" entry for this phase in the input file.
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    virtual void setParametersFromXML(const XML_Node& eosdata) {}
-
-    //! Set the initial state of the phase to the conditions specified in the
-    //! state XML element.
-    /*!
-     * This method sets the temperature, pressure, and mole fraction vector to a
-     * set default value.
-     *
-     * @param state AN XML_Node object corresponding to the "state" entry for
-     *              this phase in the input file.
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    virtual void setStateFromXML(const XML_Node& state);
 
     virtual void invalidateCache();
 
@@ -1884,17 +1801,6 @@ protected:
     //! Data supplied via setParameters. When first set, this may include
     //! parameters used by different phase models when initThermo() is called.
     AnyMap m_input;
-
-    //! Vector of pointers to the species databases.
-    /*!
-     * This is used to access data needed to construct the transport manager and
-     * other properties later in the initialization process. We create a copy of
-     * the XML_Node data read in here. Therefore, we own this data.
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    std::vector<const XML_Node*> m_speciesData;
 
     //! Stored value of the electric potential for this phase. Units are Volts.
     doublereal m_phi;

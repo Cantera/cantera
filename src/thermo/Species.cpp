@@ -8,7 +8,6 @@
 #include "cantera/transport/TransportData.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctexceptions.h"
-#include "cantera/base/ctml.h"
 #include "cantera/base/global.h"
 #include <iostream>
 #include <limits>
@@ -74,59 +73,6 @@ AnyMap Species::parameters(const ThermoPhase* phase, bool withInput) const
     return speciesNode;
 }
 
-shared_ptr<Species> newSpecies(const XML_Node& species_node)
-{
-    std::string name = species_node["name"];
-    compositionMap comp = parseCompString(species_node.child("atomArray").value());
-    auto s = make_shared<Species>(name, comp);
-    if (species_node.hasChild("charge")) {
-        s->charge = getFloat(species_node, "charge");
-    }
-    if (species_node.hasChild("size")) {
-        s->size = getFloat(species_node, "size");
-    }
-    if (species_node.hasChild("thermo")) {
-        s->thermo.reset(newSpeciesThermoInterpType(species_node.child("thermo")));
-    } else {
-        s->thermo.reset(new SpeciesThermoInterpType());
-    }
-
-    // Read transport data, if provided
-    if (species_node.hasChild("transport")) {
-        s->transport = newTransportData(species_node.child("transport"));
-        s->transport->validate(*s);
-    }
-
-    // Extra data used for electrolyte species in Debye-Huckel model
-    if (species_node.hasChild("stoichIsMods")) {
-        s->input["Debye-Huckel"]["weak-acid-charge"] =
-            getFloat(species_node, "stoichIsMods");
-    }
-
-    if (species_node.hasChild("electrolyteSpeciesType")) {
-        s->input["Debye-Huckel"]["electrolyte-species-type"] =
-            species_node.child("electrolyteSpeciesType").value();
-    }
-
-    // Extra data optionally used by LatticePhase
-    const XML_Node* stdstate = species_node.findByName("standardState");
-    if (stdstate && stdstate->findByName("molarVolume")) {
-        s->input["molar_volume"] = getFloat(*stdstate, "molarVolume", "toSI");
-    }
-
-    // Extra data possibly used by IonsFromNeutralVPSSTP
-    const XML_Node* thermo = species_node.findByName("thermo");
-    if (thermo && thermo->attrib("model") == "IonFromNeutral") {
-        if (thermo->hasChild("specialSpecies")) {
-            auto& eos = s->input["equation-of-state"].getMapWhere(
-                "model", "ions-from-neutral-molecule", true);
-            eos["special-species"] = true;
-        }
-    }
-
-    return s;
-}
-
 unique_ptr<Species> newSpecies(const AnyMap& node)
 {
     unique_ptr<Species> s(new Species(node["name"].asString(),
@@ -163,15 +109,6 @@ unique_ptr<Species> newSpecies(const AnyMap& node)
     s->input.copyMetadata(node);
 
     return s;
-}
-
-std::vector<shared_ptr<Species> > getSpecies(const XML_Node& node)
-{
-    std::vector<shared_ptr<Species> > all_species;
-    for (const auto& spnode : node.child("speciesData").getChildren("species")) {
-        all_species.push_back(newSpecies(*spnode));
-    }
-    return all_species;
 }
 
 std::vector<shared_ptr<Species>> getSpecies(const AnyValue& items)

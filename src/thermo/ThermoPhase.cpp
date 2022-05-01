@@ -15,7 +15,6 @@
 #include "cantera/thermo/SpeciesThermoInterpType.h"
 #include "cantera/equil/ChemEquil.h"
 #include "cantera/equil/MultiPhase.h"
-#include "cantera/base/ctml.h"
 
 #include <iomanip>
 #include <fstream>
@@ -27,19 +26,11 @@ namespace Cantera
 {
 
 ThermoPhase::ThermoPhase() :
-    m_speciesData(0),
     m_phi(0.0),
     m_chargeNeutralityNecessary(false),
     m_ssConvention(cSS_CONVENTION_TEMPERATURE),
     m_tlast(0.0)
 {
-}
-
-ThermoPhase::~ThermoPhase()
-{
-    for (size_t k = 0; k < m_speciesData.size(); k++) {
-        delete m_speciesData[k];
-    }
 }
 
 void ThermoPhase::resetHf298(size_t k) {
@@ -1075,28 +1066,14 @@ void ThermoPhase::initThermoFile(const std::string& inputFile,
     if (dot != npos) {
         extension = inputFile.substr(dot+1);
     }
-
-    if (extension == "yml" || extension == "yaml") {
-        AnyMap root = AnyMap::fromYamlFile(inputFile);
-        auto& phase = root["phases"].getMapWhere("name", id);
-        setupPhase(*this, phase, root);
-    } else {
-        XML_Node* fxml = get_XML_File(inputFile);
-        XML_Node* fxml_phase = findXMLPhase(fxml, id);
-        if (!fxml_phase) {
-            throw CanteraError("ThermoPhase::initThermoFile",
-                               "ERROR: Can not find phase named {} in file"
-                               " named {}", id, inputFile);
-        }
-        importPhase(*fxml_phase, this);
+    if (extension == "xml" || extension == "cti") {
+        throw CanteraError("ThermoPhase::initThermoFile",
+                           "The CTI and XML formats are no longer supported.");
     }
-}
 
-void ThermoPhase::initThermoXML(XML_Node& phaseNode, const std::string& id)
-{
-    if (phaseNode.hasChild("state")) {
-        setStateFromXML(phaseNode.child("state"));
-    }
+    AnyMap root = AnyMap::fromYamlFile(inputFile);
+    auto& phase = root["phases"].getMapWhere("name", id);
+    setupPhase(*this, phase, root);
 }
 
 void ThermoPhase::initThermo()
@@ -1165,23 +1142,6 @@ void ThermoPhase::modifySpecies(size_t k, shared_ptr<Species> spec)
     }
     spec->thermo->validate(spec->name);
     m_spthermo.modifySpecies(k, spec->thermo);
-}
-
-void ThermoPhase::saveSpeciesData(const size_t k, const XML_Node* const data)
-{
-    if (m_speciesData.size() < (k + 1)) {
-        m_speciesData.resize(k+1, 0);
-    }
-    m_speciesData[k] = new XML_Node(*data);
-}
-
-const std::vector<const XML_Node*> & ThermoPhase::speciesData() const
-{
-    if (m_speciesData.size() != m_kk) {
-        throw CanteraError("ThermoPhase::speciesData",
-                           "m_speciesData is the wrong size");
-    }
-    return m_speciesData;
 }
 
 void ThermoPhase::setParameters(int n, doublereal* const c)
@@ -1273,31 +1233,6 @@ const AnyMap& ThermoPhase::input() const
 AnyMap& ThermoPhase::input()
 {
     return m_input;
-}
-
-void ThermoPhase::setStateFromXML(const XML_Node& state)
-{
-    string comp = getChildValue(state,"moleFractions");
-    if (comp != "") {
-        setMoleFractionsByName(comp);
-    } else {
-        comp = getChildValue(state,"massFractions");
-        if (comp != "") {
-            setMassFractionsByName(comp);
-        }
-    }
-    if (state.hasChild("temperature")) {
-        double t = getFloat(state, "temperature", "temperature");
-        setTemperature(t);
-    }
-    if (state.hasChild("pressure")) {
-        double p = getFloat(state, "pressure", "pressure");
-        setPressure(p);
-    }
-    if (state.hasChild("density")) {
-        double rho = getFloat(state, "density", "density");
-        setDensity(rho);
-    }
 }
 
 void ThermoPhase::invalidateCache() {

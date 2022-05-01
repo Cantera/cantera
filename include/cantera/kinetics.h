@@ -12,6 +12,5 @@
 #include "kinetics/Kinetics.h"
 #include "kinetics/Reaction.h"
 #include "kinetics/KineticsFactory.h"
-#include "kinetics/importKinetics.h"
 
 #endif
