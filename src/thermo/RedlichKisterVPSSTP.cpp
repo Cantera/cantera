@@ -12,7 +12,6 @@
 #include "cantera/thermo/RedlichKisterVPSSTP.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/base/ctml.h"
 
 using namespace std;
 
@@ -25,15 +24,6 @@ RedlichKisterVPSSTP::RedlichKisterVPSSTP(const std::string& inputFile,
     formTempModel_(0)
 {
     initThermoFile(inputFile, id_);
-}
-
-RedlichKisterVPSSTP::RedlichKisterVPSSTP(XML_Node& phaseRoot,
-        const std::string& id_) :
-    numBinaryInteractions_(0),
-    formRedlichKister_(0),
-    formTempModel_(0)
-{
-    importPhase(phaseRoot, this);
 }
 
 // - Activities, Standard States, Activity Concentrations -----------
@@ -212,49 +202,6 @@ void RedlichKisterVPSSTP::getParameters(AnyMap& phaseNode) const
 void RedlichKisterVPSSTP::initLengths()
 {
     dlnActCoeffdlnN_.resize(m_kk, m_kk);
-}
-
-void RedlichKisterVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id_)
-{
-    if ((int) id_.size() > 0 && phaseNode.id() != id_) {
-        throw CanteraError("RedlichKisterVPSSTP::initThermoXML",
-                           "phasenode and Id are incompatible");
-    }
-
-    // Check on the thermo field. Must have:
-    // <thermo model="Redlich-Kister" />
-    if (!phaseNode.hasChild("thermo")) {
-        throw CanteraError("RedlichKisterVPSSTP::initThermoXML",
-                           "no thermo XML node");
-    }
-    XML_Node& thermoNode = phaseNode.child("thermo");
-    if (!caseInsensitiveEquals(thermoNode["model"], "redlich-kister")) {
-        throw CanteraError("RedlichKisterVPSSTP::initThermoXML",
-                           "Unknown thermo model: " + thermoNode["model"]
-                           + " - This object only knows \"Redlich-Kister\" ");
-    }
-
-    // Go get all of the coefficients and factors in the activityCoefficients
-    // XML block
-    if (thermoNode.hasChild("activityCoefficients")) {
-        XML_Node& acNode = thermoNode.child("activityCoefficients");
-        if (!caseInsensitiveEquals(acNode["model"], "redlich-kister")) {
-            throw CanteraError("RedlichKisterVPSSTP::initThermoXML",
-                               "Unknown activity coefficient model: " + acNode["model"]);
-        }
-        for (size_t i = 0; i < acNode.nChildren(); i++) {
-            XML_Node& xmlACChild = acNode.child(i);
-
-            // Process a binary salt field, or any of the other XML fields that
-            // make up the Pitzer Database. Entries will be ignored if any of
-            // the species in the entry isn't in the solution.
-            if (caseInsensitiveEquals(xmlACChild.name(), "binaryneutralspeciesparameters")) {
-                readXMLBinarySpecies(xmlACChild);
-            }
-        }
-    }
-    // Go down the chain
-    GibbsExcessVPSSTP::initThermoXML(phaseNode, id_);
 }
 
 void RedlichKisterVPSSTP::s_update_lnActCoeff() const
@@ -517,51 +464,6 @@ void RedlichKisterVPSSTP::getdlnActCoeffdlnN(const size_t ld, doublereal* dlnAct
             dlnActCoeffdlnN[ld * k + m] = data[m_kk * k + m];
         }
     }
-}
-
-void RedlichKisterVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
-{
-    std::string xname = xmLBinarySpecies.name();
-    if (xname != "binaryNeutralSpeciesParameters") {
-        throw CanteraError("RedlichKisterVPSSTP::readXMLBinarySpecies",
-                           "Incorrect name for processing this routine: " + xname);
-    }
-    vector_fp hParams, sParams;
-    std::string iName = xmLBinarySpecies.attrib("speciesA");
-    if (iName == "") {
-        throw CanteraError("RedlichKisterVPSSTP::readXMLBinarySpecies", "no speciesA attrib");
-    }
-    std::string jName = xmLBinarySpecies.attrib("speciesB");
-    if (jName == "") {
-        throw CanteraError("RedlichKisterVPSSTP::readXMLBinarySpecies", "no speciesB attrib");
-    }
-
-    // Find the index of the species in the current phase. It's not an error to
-    // not find the species. This means that the interaction doesn't occur for
-    // the current implementation of the phase.
-    size_t iSpecies = speciesIndex(iName);
-    if (iSpecies == npos) {
-        return;
-    }
-    size_t jSpecies = speciesIndex(jName);
-    if (jSpecies == npos) {
-        return;
-    }
-
-    // Ok we have found a valid interaction
-    for (size_t iChild = 0; iChild < xmLBinarySpecies.nChildren(); iChild++) {
-        XML_Node& xmlChild = xmLBinarySpecies.child(iChild);
-        string nodeName = toLowerCopy(xmlChild.name());
-
-        // Process the binary species interaction child elements
-        if (nodeName == "excessenthalpy") {
-            getFloatArray(xmlChild, hParams, true, "toSI", "excessEnthalpy");
-        } else if (nodeName == "excessentropy") {
-            getFloatArray(xmlChild, sParams, true, "toSI", "excessEntropy");
-        }
-    }
-    addBinaryInteraction(iName, jName, hParams.data(), hParams.size(),
-                         sParams.data(), sParams.size());
 }
 
 void RedlichKisterVPSSTP::addBinaryInteraction(

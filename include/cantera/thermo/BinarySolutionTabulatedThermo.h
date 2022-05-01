@@ -173,20 +173,6 @@ public:
      */
     explicit BinarySolutionTabulatedThermo(const std::string& infile="", const std::string& id="");
 
-    //! Construct and initialize an BinarySolutionTabulatedThermo ThermoPhase object
-    //! directly from an XML database
-    /*!
-     * @param root   XML tree containing a description of the phase.
-     *               The tree must be positioned at the XML element
-     *               named phase with id, "id", on input to this routine.
-     * @param id     The name of this phase. This is used to look up
-     *               the phase in the XML datafile.
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    BinarySolutionTabulatedThermo(XML_Node& root, const std::string& id="");
-
     virtual std::string type() const {
         return "BinarySolutionTabulatedThermo";
     }
@@ -195,7 +181,6 @@ public:
     virtual void initThermo();
     virtual bool ready() const;
     virtual void getParameters(AnyMap& phaseNode) const;
-    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id_);
 
     /**
      * returns an array of partial molar volumes of the species

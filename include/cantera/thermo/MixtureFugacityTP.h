@@ -338,7 +338,6 @@ public:
     //! To see how they are used, see importPhase().
     //! @{
     virtual bool addSpecies(shared_ptr<Species> spec);
-    virtual void setStateFromXML(const XML_Node& state);
     //! @}
 
 protected:

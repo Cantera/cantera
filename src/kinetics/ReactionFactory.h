@@ -60,38 +60,5 @@ private:
     static std::mutex reaction_mutex;
 };
 
-class ReactionFactoryXML : public Factory<Reaction, const XML_Node&>
-{
-public:
-    /**
-     * Return a pointer to the factory. On the first call, a new instance is
-     * created. Since there is no need to instantiate more than one factory,
-     * on all subsequent calls, a pointer to the existing factory is returned.
-     */
-    static ReactionFactoryXML* factory() {
-        std::unique_lock<std::mutex> lock(reaction_mutex);
-        if (!s_factory) {
-            s_factory = new ReactionFactoryXML;
-        }
-        return s_factory;
-    }
-
-    virtual void deleteFactory() {
-        std::unique_lock<std::mutex> lock(reaction_mutex);
-        delete s_factory;
-        s_factory = 0;
-    }
-
-private:
-    //! Pointer to the single instance of the factory
-    static ReactionFactoryXML* s_factory;
-
-    //! default constructor, which is defined as private
-    ReactionFactoryXML();
-
-    //!  Mutex for use when calling the factory
-    static std::mutex reaction_mutex;
-};
-
 }
 #endif

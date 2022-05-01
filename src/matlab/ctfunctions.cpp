@@ -12,7 +12,6 @@
 #include "cantera/clib/ctreactor.h"
 #include "cantera/clib/ctonedim.h"
 #include "cantera/clib/ctmultiphase.h"
-#include "cantera/clib/ctxml.h"
 #include "cantera/clib/ctfunc.h"
 #include "cantera/clib/ctrpath.h"
 #include "ctmatutils.h"

@@ -441,33 +441,6 @@ public:
 
     //! @}
 
-    //! Set equation of state parameter values from XML entries.
-    /*!
-     * This method is called by function importPhase() when processing a phase
-     * definition in an input file. It should be overloaded in subclasses to set
-     * any parameters that are specific to that particular phase model.
-     *
-     * The MolalityVPSSTP object defines a new method for setting the
-     * concentrations of a phase. The new method is defined by a block called
-     * "soluteMolalities". If this block is found, the concentrations within
-     * that phase are set to the "name":"molalities pairs found within that XML
-     * block. The solvent concentration is then set to everything else.
-     *
-     * The function first calls the overloaded function,
-     * VPStandardStateTP::setStateFromXML(), to pick up the parent class
-     * behavior.
-     *
-     * usage: Overloaded functions should call this function before carrying out
-     *        their own behavior.
-     *
-     * @param state An XML_Node object corresponding to the "state" entry for
-     *              this phase in the input file.
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    virtual void setStateFromXML(const XML_Node& state);
-
     //! @name Initialization
     //!
     //! The following methods are used in the process of constructing the phase

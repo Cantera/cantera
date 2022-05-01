@@ -92,20 +92,6 @@ public:
     explicit IdealMolalSoln(const std::string& inputFile="",
                             const std::string& id="");
 
-    //! Constructor for phase initialization
-    /*!
-     * This constructor will initialize a phase, by reading the required
-     * information from XML_Node tree.
-     *
-     *  @param phaseRef    reference for an XML_Node tree that contains
-     *                     the information necessary to initialize the phase.
-     *  @param id          id of the phase within the input file
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    IdealMolalSoln(XML_Node& phaseRef, const std::string& id = "");
-
     virtual std::string type() const {
         return "IdealMolalSoln";
     }
@@ -385,8 +371,6 @@ public:
     // -------------- Utilities -------------------------------
 
     virtual bool addSpecies(shared_ptr<Species> spec);
-
-    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id="");
 
     virtual void initThermo();
 

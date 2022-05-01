@@ -24,35 +24,24 @@ int main(int argc, char** argv)
 #if defined(_MSC_VER) && _MSC_VER < 1900
     _set_output_format(_TWO_DIGIT_EXPONENT);
 #endif
-    if (argc != 2) {
-        cout << "Error: no input file specified.\n"
-             "Choose 'diamond.yaml', 'diamond.cti', or 'diamond.xml'" << endl;
-        exit(-1);
-    }
-    std::string infile(argv[1]);
     int i, k;
-    if (boost::algorithm::ends_with(infile, "xml") ||
-        boost::algorithm::ends_with(infile, "cti"))
-    {
-        suppress_deprecation_warnings();
-    }
 
     try {
-        shared_ptr<ThermoPhase> gas(newPhase(infile, "gas"));
+        shared_ptr<ThermoPhase> gas(newPhase("diamond.yaml", "gas"));
         size_t nsp = gas->nSpecies();
         cout.precision(4);
         cout << "Number of species = " << nsp << endl;
 
-        shared_ptr<ThermoPhase> diamond(newPhase(infile, "diamond"));
+        shared_ptr<ThermoPhase> diamond(newPhase("diamond.yaml", "diamond"));
         size_t nsp_diamond = diamond->nSpecies();
         cout << "Number of species in diamond = " << nsp_diamond << endl;
 
-        shared_ptr<ThermoPhase> diamond100(newPhase(infile, "diamond_100"));
+        shared_ptr<ThermoPhase> diamond100(newPhase("diamond.yaml", "diamond_100"));
         size_t nsp_d100 = diamond100->nSpecies();
         cout << "Number of species in diamond_100 = " << nsp_d100 << endl;
 
         auto kin = newKinetics({gas.get(), diamond.get(), diamond100.get()},
-                               infile, "diamond_100");
+                               "diamond.yaml", "diamond_100");
         InterfaceKinetics& ikin = dynamic_cast<InterfaceKinetics&>(*kin);
         size_t nr = kin->nReactions();
         cout << "Number of reactions = " << nr << endl;

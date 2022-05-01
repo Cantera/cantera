@@ -198,12 +198,7 @@ CompileAndTest('ISSPTester2', 'cathermo/VPissp')
 CompileAndTest('ChemEquil_ionizedGas',
                comparisons=[('table_blessed.csv', 'table.csv')])
 CompileAndTest('CpJump', 'CpJump', 'CpJump', 'output_blessed.txt')
-
-diamond = CompileAndTest('diamondSurf-yaml', 'diamondSurf', 'diamondSurf',
-    'runDiamond_blessed.out', options='diamond.yaml')
-Test('diamondSurf-xml', 'diamondSurf', diamond.program, 'runDiamond_blessed.out',
-     options='diamond.xml')  # @todo: remove after Cantera 2.6
-
+CompileAndTest('diamondSurf', 'diamondSurf', 'diamondSurf', 'runDiamond_blessed.out')
 CompileAndTest('dustyGasTransport', slow=True)
 CompileAndTest('mixGasTransport')
 CompileAndTest('multiGasTransport')

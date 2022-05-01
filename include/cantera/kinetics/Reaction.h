@@ -21,7 +21,6 @@ namespace Cantera
 
 class Kinetics;
 class FalloffRate;
-class XML_Node;
 class ThirdBody;
 
 //! @defgroup reactionGroup Reactions and reaction rates
@@ -562,12 +561,6 @@ typedef ElectrochemicalReaction2 ElectrochemicalReaction;
  */
 unique_ptr<Reaction> newReaction(const std::string& type);
 
-//! Create a new Reaction object for the reaction defined in `rxn_node`
-/*!
- * @param rxn_node XML node describing reaction.
- */
-unique_ptr<Reaction> newReaction(const XML_Node& rxn_node);
-
 //! Create a new Reaction object using the specified parameters
 /*!
  * @param rxn_node AnyMap node describing reaction.
@@ -575,29 +568,6 @@ unique_ptr<Reaction> newReaction(const XML_Node& rxn_node);
  */
 unique_ptr<Reaction> newReaction(const AnyMap& rxn_node,
                                  const Kinetics& kin);
-
-//! Create Reaction objects for all `<reaction>` nodes in an XML document.
-//!
-//! The `<reaction>` nodes are assumed to be children of the `<reactionData>`
-//! node in an XML document with a `<ctml>` root node, as in the case of XML
-//! files produced by conversion from CTI files.
-//!
-//! This function can be used in combination with get_XML_File() and
-//! get_XML_from_string() to get Reaction objects from either a file or a
-//! string, respectively, where the string or file is formatted as either CTI
-//! or XML.
-//!
-//! If Reaction objects are being created from a CTI definition that does not
-//! contain corresponding phase definitions, then one of the following must be
-//! true, or the resulting rate constants will be incorrect:
-//!
-//!   - The rate constants are expressed in (kmol, meter, second) units
-//!   - A `units` directive is included **and** all reactions take place in
-//!     bulk (for example, gas) phases
-//!
-//! @deprecated The XML input format is deprecated and will be removed in
-//!     Cantera 3.0.
-std::vector<shared_ptr<Reaction> > getReactions(const XML_Node& node);
 
 //! Create Reaction objects for each item (an AnyMap) in `items`. The species
 //! involved in these reactions must exist in the phases associated with the
@@ -610,43 +580,30 @@ void parseReactionEquation(Reaction& R, const std::string& equation,
                            const AnyBase& reactionNode, const Kinetics* kin);
 
 // declarations of setup functions
-void setupReaction(Reaction& R, const XML_Node& rxn_node);
 
-void setupElementaryReaction(ElementaryReaction2&, const XML_Node&);
 //! @internal May be changed without notice in future versions
 void setupElementaryReaction(ElementaryReaction2&, const AnyMap&,
                              const Kinetics&);
 
-void setupThreeBodyReaction(ThreeBodyReaction2&, const XML_Node&);
 //! @deprecated Cantera 2.6 (replaced by setParameters)
 void setupThreeBodyReaction(ThreeBodyReaction2&, const AnyMap&,
                             const Kinetics&);
 
-void setupFalloffReaction(FalloffReaction2&, const XML_Node&);
 //! @deprecated Cantera 2.6 (replaced by setParameters)
 void setupFalloffReaction(FalloffReaction2&, const AnyMap&,
                           const Kinetics&);
 
 //! @deprecated Cantera 2.6 (replaced by setParameters)
-void setupChemicallyActivatedReaction(ChemicallyActivatedReaction2&,
-                                      const XML_Node&);
-
-void setupPlogReaction(PlogReaction2&, const XML_Node&);
-//! @deprecated Cantera 2.6 (replaced by setParameters)
 void setupPlogReaction(PlogReaction2&, const AnyMap&, const Kinetics&);
 
-void setupChebyshevReaction(ChebyshevReaction2&, const XML_Node&);
 //! @deprecated Cantera 2.6 (replaced by setParameters)
 void setupChebyshevReaction(ChebyshevReaction2&, const AnyMap&,
                             const Kinetics&);
 
-void setupInterfaceReaction(InterfaceReaction2&, const XML_Node&);
 //! @internal May be changed without notice in future versions
 void setupInterfaceReaction(InterfaceReaction2&, const AnyMap&,
                             const Kinetics&);
 
-void setupElectrochemicalReaction(ElectrochemicalReaction2&,
-                                  const XML_Node&);
 //! @internal May be changed without notice in future versions
 void setupElectrochemicalReaction(ElectrochemicalReaction2&,
                                   const AnyMap&, const Kinetics&);

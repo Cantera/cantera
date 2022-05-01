@@ -18,7 +18,6 @@
 #include "cantera/thermo/ConstCpPoly.h"
 #include "cantera/thermo/speciesThermoTypes.h"
 #include "cantera/thermo/VPStandardStateTP.h"
-#include "cantera/base/ctml.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/Units.h"
 
@@ -80,70 +79,6 @@ SpeciesThermoInterpType* newSpeciesThermoInterpType(const std::string& stype,
     return newSpeciesThermoInterpType(itype, tlow, thigh, pref, coeffs);
 }
 
-//! Create a NASA polynomial thermodynamic property parameterization for a
-//! species from a set ! of XML nodes
-/*!
- * This is called if a 'NASA' node is found in the XML input.
- *
- *  @param nodes        vector of 1 or 2 'NASA' XML_Nodes, each defining the
- *      coefficients for a temperature range
- */
-static SpeciesThermoInterpType* newNasaThermoFromXML(vector<XML_Node*> nodes)
-{
-    const XML_Node& f0 = *nodes[0];
-    bool dualRange = (nodes.size() > 1);
-    double tmin0 = fpValue(f0["Tmin"]);
-    double tmax0 = fpValue(f0["Tmax"]);
-
-    doublereal p0 = OneAtm;
-    if (f0.hasAttrib("P0")) {
-        p0 = fpValue(f0["P0"]);
-    }
-    if (f0.hasAttrib("Pref")) {
-        p0 = fpValue(f0["Pref"]);
-    }
-    p0 = OneAtm;
-
-    double tmin1 = tmax0;
-    double tmax1 = tmin1 + 0.0001;
-    if (dualRange) {
-        tmin1 = fpValue(nodes[1]->attrib("Tmin"));
-        tmax1 = fpValue(nodes[1]->attrib("Tmax"));
-    }
-
-    vector_fp c0, c1;
-    doublereal tmin, tmid, tmax;
-    if (fabs(tmax0 - tmin1) < 0.01) {
-        // f0 has the lower T data, and f1 the higher T data
-        tmin = tmin0;
-        tmid = tmax0;
-        tmax = tmax1;
-        getFloatArray(f0.child("floatArray"), c0, false);
-        if (dualRange) {
-            getFloatArray(nodes[1]->child("floatArray"), c1, false);
-        } else {
-            // if there is no higher range data, then copy c0 to c1.
-            c1 = c0;
-        }
-    } else if (fabs(tmax1 - tmin0) < 0.01) {
-        // f1 has the lower T data, and f0 the higher T data
-        tmin = tmin1;
-        tmid = tmax1;
-        tmax = tmax0;
-        getFloatArray(nodes[1]->child("floatArray"), c0, false);
-        getFloatArray(f0.child("floatArray"), c1, false);
-    } else {
-        throw CanteraError("newNasaThermoFromXML",
-                           "non-continuous temperature ranges.");
-    }
-
-    vector_fp c(15);
-    c[0] = tmid;
-    copy(c1.begin(), c1.begin()+7, c.begin() + 1); // high-T coefficients
-    copy(c0.begin(), c0.begin()+7, c.begin() + 8); // low-T coefficients
-    return newSpeciesThermoInterpType(NASA, tmin, tmax, p0, &c[0]);
-}
-
 void setupSpeciesThermo(SpeciesThermoInterpType& thermo,
                         const AnyMap& node)
 {
@@ -172,82 +107,6 @@ void setupNasaPoly(NasaPoly2& thermo, const AnyMap& node)
     }
 }
 
-
-//! Create a Shomate polynomial thermodynamic property parameterization for a
-//! species
-/*!
- *  This is called if a 'Shomate' node is found in the XML input.
- *
- *  @param nodes        vector of 1 or 2 'Shomate' XML_Nodes, each defining the
- *      coefficients for a temperature range
- */
-static SpeciesThermoInterpType* newShomateThermoFromXML(
-    vector<XML_Node*>& nodes)
-{
-    bool dualRange = false;
-    if (nodes.size() == 2) {
-        dualRange = true;
-    }
-    double tmin0 = fpValue(nodes[0]->attrib("Tmin"));
-    double tmax0 = fpValue(nodes[0]->attrib("Tmax"));
-
-    doublereal p0 = OneAtm;
-    if (nodes[0]->hasAttrib("P0")) {
-        p0 = fpValue(nodes[0]->attrib("P0"));
-    }
-    if (nodes[0]->hasAttrib("Pref")) {
-        p0 = fpValue(nodes[0]->attrib("Pref"));
-    }
-    p0 = OneAtm;
-
-    double tmin1 = tmax0;
-    double tmax1 = tmin1 + 0.0001;
-    if (dualRange) {
-        tmin1 = fpValue(nodes[1]->attrib("Tmin"));
-        tmax1 = fpValue(nodes[1]->attrib("Tmax"));
-    }
-
-    vector_fp c0, c1;
-    doublereal tmin, tmid, tmax;
-    if (fabs(tmax0 - tmin1) < 0.01) {
-        tmin = tmin0;
-        tmid = tmax0;
-        tmax = tmax1;
-        getFloatArray(nodes[0]->child("floatArray"), c0, false);
-        if (dualRange) {
-            getFloatArray(nodes[1]->child("floatArray"), c1, false);
-        } else {
-            if(c0.size() != 7)
-            {
-              throw CanteraError("newShomateThermoFromXML",
-                                 "Shomate thermo requires 7 coefficients in float array.");
-            }
-            c1.resize(7,0.0);
-            copy(c0.begin(), c0.begin()+7, c1.begin());
-        }
-    } else if (fabs(tmax1 - tmin0) < 0.01) {
-        tmin = tmin1;
-        tmid = tmax1;
-        tmax = tmax0;
-        getFloatArray(nodes[1]->child("floatArray"), c0, false);
-        getFloatArray(nodes[0]->child("floatArray"), c1, false);
-    } else {
-        throw CanteraError("newShomateThermoFromXML",
-                           "non-continuous temperature ranges.");
-    }
-    if(c0.size() != 7 || c1.size() != 7)
-    {
-      throw CanteraError("newShomateThermoFromXML",
-                         "Shomate thermo requires 7 coefficients in float array.");
-    }
-    vector_fp c(15);
-    c[0] = tmid;
-    copy(c0.begin(), c0.begin()+7, c.begin() + 1);
-    copy(c1.begin(), c1.begin()+7, c.begin() + 8);
-    return newSpeciesThermoInterpType(SHOMATE, tmin, tmax, p0, &c[0]);
-}
-
-
 void setupShomatePoly(ShomatePoly2& thermo, const AnyMap& node)
 {
     setupSpeciesThermo(thermo, node);
@@ -268,31 +127,6 @@ void setupShomatePoly(ShomatePoly2& thermo, const AnyMap& node)
     }
 }
 
-
-//! Create a "simple" constant heat capacity thermodynamic property
-//! parameterization for a ! species
-/*!
- * This is called if a 'const_cp' XML node is found
- *
- *  @param f            'const_cp' XML node
- */
-static SpeciesThermoInterpType* newConstCpThermoFromXML(XML_Node& f)
-{
-    double tmin = fpValue(f["Tmin"]);
-    double tmax = fpValue(f["Tmax"]);
-    if (tmax == 0.0) {
-        tmax = 1.0e30;
-    }
-
-    vector_fp c(4);
-    c[0] = getFloat(f, "t0", "toSI");
-    c[1] = getFloat(f, "h0", "toSI");
-    c[2] = getFloat(f, "s0", "toSI");
-    c[3] = getFloat(f, "cp0", "toSI");
-    doublereal p0 = OneAtm;
-    return newSpeciesThermoInterpType(CONSTANT_CP, tmin, tmax, p0, &c[0]);
-}
-
 void setupConstCp(ConstCpPoly& thermo, const AnyMap& node)
 {
     setupSpeciesThermo(thermo, node);
@@ -308,52 +142,6 @@ void setupConstCp(ConstCpPoly& thermo, const AnyMap& node)
     double cp0 = node.convert("cp0", "J/kmol/K", 0.0);
     thermo.setParameters(T0, h0, s0, cp0);
 }
-
-//! Create a NASA9 polynomial thermodynamic property parameterization for a
-//! species
-/*!
- *  This is called if a 'NASA9' Node is found in the XML input.
- *
- *  @param tp           Vector of XML Nodes that make up the parameterization
- */
-static SpeciesThermoInterpType* newNasa9ThermoFromXML(
-    const std::vector<XML_Node*>& tp)
-{
-    int nRegions = 0;
-    vector_fp cPoly;
-    std::vector<Nasa9Poly1*> regionPtrs;
-    doublereal pref = OneAtm;
-    // Loop over all of the possible temperature regions
-    for (size_t i = 0; i < tp.size(); i++) {
-        const XML_Node& fptr = *tp[i];
-        if (fptr.name() == "NASA9" && fptr.hasChild("floatArray")) {
-            double tmin = fpValue(fptr["Tmin"]);
-            double tmax = fpValue(fptr["Tmax"]);
-            if (fptr.hasAttrib("P0")) {
-                pref = fpValue(fptr["P0"]);
-            }
-            if (fptr.hasAttrib("Pref")) {
-                pref = fpValue(fptr["Pref"]);
-            }
-
-            getFloatArray(fptr.child("floatArray"), cPoly, false);
-            if (cPoly.size() != 9) {
-                throw CanteraError("newNasa9ThermoFromXML",
-                                   "Expected 9 coeff polynomial");
-            }
-            regionPtrs.push_back(new Nasa9Poly1(tmin, tmax, pref, &cPoly[0]));
-            nRegions++;
-        }
-    }
-    if (nRegions == 0) {
-        throw CanteraError("newNasa9ThermoFromXML", "zero regions found");
-    } else if (nRegions == 1) {
-        return regionPtrs[0];
-    } else {
-        return new Nasa9PolyMultiTempRegion(regionPtrs);
-    }
-}
-
 
 void setupNasa9Poly(Nasa9PolyMultiTempRegion& thermo, const AnyMap& node)
 {
@@ -396,61 +184,6 @@ void setupMu0(Mu0Poly& thermo, const AnyMap& node)
     }
     thermo.setParameters(h0, T_mu);
 }
-
-SpeciesThermoInterpType* newSpeciesThermoInterpType(const XML_Node& thermo)
-{
-    std::string model = toLowerCopy(thermo["model"]);
-    if (model == "hkft" || model == "ionfromneutral") {
-        // Some PDSS species use the 'thermo' node, but don't specify a
-        // SpeciesThermoInterpType parameterization. This function needs to
-        // just ignore this data.
-        return 0;
-    }
-
-    // Get the children of the thermo XML node. In the next bit of code we take
-    // out the comments that may have been children of the thermo XML node by
-    // doing a selective copy. These shouldn't interfere with the algorithm at
-    // any point.
-    const std::vector<XML_Node*>& tpWC = thermo.children();
-    std::vector<XML_Node*> tp;
-    for (size_t i = 0; i < tpWC.size(); i++) {
-        if (!tpWC[i]->isComment()) {
-            tp.push_back(tpWC[i]);
-        }
-    }
-
-    std::string thermoType = toLowerCopy(tp[0]->name());
-
-    for (size_t i = 1; i < tp.size(); i++) {
-        if (!caseInsensitiveEquals(tp[i]->name(), thermoType)) {
-            throw CanteraError("newSpeciesThermoInterpType",
-                "Encountered unsupported mixed species thermo "
-                "parameterizations, '{}' and '{}'", tp[i]->name(), thermoType);
-        }
-    }
-    if ((tp.size() > 2 && thermoType != "nasa9") ||
-        (tp.size() > 1 && (thermoType == "const_cp" ||
-                           thermoType == "mu0"))) {
-        throw CanteraError("newSpeciesThermoInterpType",
-            "Too many regions in thermo parameterization.");
-    }
-
-    if (thermoType == "shomate") {
-        return newShomateThermoFromXML(tp);
-    } else if (thermoType == "const_cp") {
-        return newConstCpThermoFromXML(*tp[0]);
-    } else if (thermoType == "nasa") {
-        return newNasaThermoFromXML(tp);
-    } else if (thermoType == "mu0") {
-        return newMu0ThermoFromXML(*tp[0]);
-    } else if (thermoType == "nasa9") {
-        return newNasa9ThermoFromXML(tp);
-    } else {
-        throw CanteraError("newSpeciesThermoInterpType",
-            "Unknown species thermo model '" + thermoType + "'.");
-    }
-}
-
 
 unique_ptr<SpeciesThermoInterpType> newSpeciesThermo(const AnyMap& node)
 {

@@ -142,16 +142,6 @@ public:
      */
     explicit SurfPhase(const std::string& infile, const std::string& id="");
 
-    //! Construct and initialize a SurfPhase ThermoPhase object directly from an
-    //! XML database
-    /*!
-     *  @param xmlphase XML node pointing to a SurfPhase description
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    SurfPhase(XML_Node& xmlphase);
-
     virtual std::string type() const {
         return "Surf";
     }
@@ -253,53 +243,10 @@ public:
      */
     virtual void setParameters(int n, doublereal* const c);
 
-    //! Set the Equation-of-State parameters by reading an XML Node Input
-    /*!
-     * The Equation-of-State data consists of one item, the site density.
-     *
-     * @param thermoData   Reference to an XML_Node named thermo containing the
-     *                     equation-of-state data. The XML_Node is within the
-     *                     phase XML_Node describing the SurfPhase object.
-     *
-     * An example of the contents of the thermoData XML_Node is provided below.
-     * The units attribute is used to supply the units of the site density in
-     * any convenient form. Internally it is changed into MKS form.
-     *
-     * @code
-     *    <thermo model="Surface">
-     *       <site_density units="mol/cm2"> 3e-09 </site_density>
-     *    </thermo>
-     * @endcode
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    virtual void setParametersFromXML(const XML_Node& thermoData);
     virtual void initThermo();
     virtual void getParameters(AnyMap& phaseNode) const;
 
     virtual bool addSpecies(shared_ptr<Species> spec);
-
-    //! Set the initial state of the Surface Phase from an XML_Node
-    /*!
-     * State variables that can be set by this routine are the temperature and
-     * the surface site coverages.
-     *
-     * @param state  XML_Node containing the state information
-     *
-     * An example of the XML code block is given below.
-     *
-     * @code
-     *   <state>
-     *      <temperature units="K">1200.0</temperature>
-     *      <coverages>c6H*:0.1, c6HH:0.9</coverages>
-     *   </state>
-     * @endcode
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    virtual void setStateFromXML(const XML_Node& state);
 
     //! Returns the site density
     /*!

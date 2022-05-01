@@ -80,18 +80,6 @@ public:
     explicit IonsFromNeutralVPSSTP(const std::string& inputFile="",
                                    const std::string& id="");
 
-    //! Construct and initialize an IonsFromNeutralVPSSTP object
-    //! directly from an XML database
-    /*!
-     * @param phaseRoot XML phase node containing the description of the phase
-     * @param id     id attribute containing the name of the phase.
-     *               (default is the empty string)
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    IonsFromNeutralVPSSTP(XML_Node& phaseRoot, const std::string& id = "");
-
     //! @}
     //! @name  Utilities
     //! @{
@@ -270,7 +258,6 @@ public:
                                const AnyMap& rootNode=AnyMap());
     virtual void initThermo();
     virtual void getParameters(AnyMap& phaseNode) const;
-    virtual void setParametersFromXML(const XML_Node& thermoNode);
 
 private:
     //! Update the activity coefficients

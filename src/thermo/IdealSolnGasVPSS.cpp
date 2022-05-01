@@ -14,7 +14,6 @@
 #include "cantera/thermo/PDSS.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/utilities.h"
-#include "cantera/base/xml.h"
 
 using namespace std;
 
@@ -235,24 +234,6 @@ void IdealSolnGasVPSS::getParameters(AnyMap& phaseNode) const
     } else if (m_formGC == 2) {
         phaseNode["standard-concentration-basis"] = "solvent-molar-volume";
     }
-}
-
-void IdealSolnGasVPSS::initThermoXML(XML_Node& phaseNode, const std::string& id_)
-{
-    // Form of the standard concentrations. Must have one of:
-    //
-    //     <standardConc model="unity" />
-    //     <standardConc model="molar_volume" />
-    //     <standardConc model="solvent_volume" />
-    if (phaseNode.hasChild("standardConc")) {
-        XML_Node& scNode = phaseNode.child("standardConc");
-        setStandardConcentrationModel(scNode.attrib("model"));
-    } else {
-        throw CanteraError("IdealSolnGasVPSS::initThermoXML",
-                           "Unspecified standardConc model");
-    }
-
-    VPStandardStateTP::initThermoXML(phaseNode, id_);
 }
 
 }

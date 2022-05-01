@@ -177,7 +177,6 @@ public:
     //! is the constant (temperature-independent) term [kg/m^3].
     void setDensityPolynomial(double* coeffs);
 
-    virtual void setParametersFromXML(const XML_Node& speciesNode);
     virtual void getParameters(AnyMap& eosNode) const;
 
     //! @}

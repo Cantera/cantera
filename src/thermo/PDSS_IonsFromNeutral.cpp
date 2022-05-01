@@ -10,7 +10,6 @@
 #include "cantera/thermo/PDSS_IonsFromNeutral.h"
 #include "cantera/thermo/IonsFromNeutralVPSSTP.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/base/ctml.h"
 
 using namespace std;
 
@@ -37,35 +36,6 @@ void PDSS_IonsFromNeutral::setNeutralSpeciesMultiplier(const std::string& specie
 
 void PDSS_IonsFromNeutral::setSpecialSpecies(bool special) {
     add2RTln2_ = !special;
-}
-
-void PDSS_IonsFromNeutral::setParametersFromXML(const XML_Node& speciesNode)
-{
-    PDSS::setParametersFromXML(speciesNode);
-    const XML_Node* tn = speciesNode.findByName("thermo");
-    if (!tn) {
-        throw CanteraError("PDSS_IonsFromNeutral::setParametersFromXML",
-                           "no 'thermo' Node for species '{}'", speciesNode.name());
-    }
-    if (!caseInsensitiveEquals(tn->attrib("model"), "ionfromneutral")) {
-        throw CanteraError("PDSS_IonsFromNeutral::setParametersFromXML",
-                           "thermo model for species '{}' isn't 'IonsFromNeutral'",
-                           speciesNode.name());
-    }
-    const XML_Node* nsm = tn->findByName("neutralSpeciesMultipliers");
-    if (!nsm) {
-        throw CanteraError("PDSS_IonsFromNeutral::setParametersFromXML",
-                           "no 'Thermo::neutralSpeciesMultipliers' Node for species '{}'",
-                           speciesNode.name());
-    }
-
-    for (auto& species_mult : parseCompString(nsm->value())) {
-        setNeutralSpeciesMultiplier(species_mult.first, species_mult.second);
-    }
-
-    if (tn->findByName("specialSpecies")) {
-        setSpecialSpecies();
-    }
 }
 
 void PDSS_IonsFromNeutral::getParameters(AnyMap& eosNode) const

@@ -9,7 +9,6 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-#include "cantera/base/ctml.h"
 #include "cantera/thermo/PDSS_HKFT.h"
 #include "cantera/thermo/PDSS_Water.h"
 #include "cantera/thermo/VPStandardStateTP.h"
@@ -367,89 +366,6 @@ void PDSS_HKFT::set_c(double* c) {
 
 void PDSS_HKFT::setOmega(double omega) {
     m_omega_pr_tr = m_units.convertFrom(omega, "J/kmol");
-}
-
-void PDSS_HKFT::setParametersFromXML(const XML_Node& speciesNode)
-{
-    PDSS::setParametersFromXML(speciesNode);
-    int hasDGO = 0;
-    int hasSO = 0;
-    int hasDHO = 0;
-
-    const XML_Node* tn = speciesNode.findByName("thermo");
-    if (!tn) {
-        throw CanteraError("PDSS_HKFT::setParametersFromXML",
-                           "no thermo Node for species '{}'", speciesNode.name());
-    }
-    if (!caseInsensitiveEquals(tn->attrib("model"), "hkft")) {
-        throw CanteraError("PDSS_HKFT::setParametersFromXML",
-                           "thermo model for species '{}' isn't 'hkft'",
-                           speciesNode.name());
-    }
-    const XML_Node* hh = tn->findByName("HKFT");
-    if (!hh) {
-        throw CanteraError("PDSS_HKFT::setParametersFromXML",
-                           "no Thermo::HKFT Node for species '{}'", speciesNode.name());
-    }
-
-    // go get the attributes
-    m_p0 = OneAtm;
-    std::string p0string = hh->attrib("Pref");
-    if (p0string != "") {
-        m_p0 = strSItoDbl(p0string);
-    }
-
-    std::string minTstring = hh->attrib("Tmin");
-    if (minTstring != "") {
-        m_minTemp = fpValueCheck(minTstring);
-    }
-
-    std::string maxTstring = hh->attrib("Tmax");
-    if (maxTstring != "") {
-        m_maxTemp = fpValueCheck(maxTstring);
-    }
-
-    if (hh->hasChild("DG0_f_Pr_Tr")) {
-        setDeltaG0(getFloat(*hh, "DG0_f_Pr_Tr", "toSI"));
-        hasDGO = 1;
-    }
-
-    if (hh->hasChild("DH0_f_Pr_Tr")) {
-        setDeltaH0(getFloat(*hh, "DH0_f_Pr_Tr", "toSI"));
-        hasDHO = 1;
-    }
-
-    if (hh->hasChild("S0_Pr_Tr")) {
-        setS0(getFloat(*hh, "S0_Pr_Tr", "toSI"));
-        hasSO = 1;
-    }
-
-    const XML_Node* ss = speciesNode.findByName("standardState");
-    if (!ss) {
-        throw CanteraError("PDSS_HKFT::setParametersFromXML",
-                           "no 'standardState' Node for species '{}'",
-                           speciesNode.name());
-    }
-    if (!caseInsensitiveEquals(ss->attrib("model"), "hkft")) {
-        throw CanteraError("PDSS_HKFT::setParametersFromXML",
-                           "standardState model for species '{}' isn't 'hkft'",
-                           speciesNode.name());
-    }
-    double a[4] = {getFloat(*ss, "a1", "toSI"), getFloat(*ss, "a2", "toSI"),
-                   getFloat(*ss, "a3", "toSI"), getFloat(*ss, "a4", "toSI")};
-    set_a(a);
-
-    double c[2] = {getFloat(*ss, "c1", "toSI"), getFloat(*ss, "c2", "toSI")};
-    set_c(c);
-
-    setOmega(getFloat(*ss, "omega_Pr_Tr", "toSI"));
-
-    int isum = hasDGO + hasDHO + hasSO;
-    if (isum < 2) {
-        throw CanteraError("PDSS_HKFT::setParametersFromXML",
-                           "Missing 2 or more of DG0_f_Pr_Tr, DH0_f_Pr_Tr, or S0_f_Pr_Tr fields. "
-                           "Need to supply at least two of these fields");
-    }
 }
 
 void PDSS_HKFT::getParameters(AnyMap& eosNode) const

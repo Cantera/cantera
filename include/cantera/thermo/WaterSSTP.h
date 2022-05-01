@@ -99,16 +99,6 @@ public:
     explicit WaterSSTP(const std::string& inputFile="",
                        const std::string& id="");
 
-    //! Full constructor for a water phase
-    /*!
-     * @param phaseRef  XML node referencing the water phase.
-     * @param id        string id of the phase name
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    explicit WaterSSTP(XML_Node& phaseRef, const std::string& id = "");
-
     virtual std::string type() const {
         return "liquid-water-IAPWS95";
     }
@@ -197,7 +187,6 @@ public:
     virtual void setDensity(const doublereal dens);
 
     virtual void initThermo();
-    virtual void setParametersFromXML(const XML_Node& eosdata);
 
     //! Get a pointer to a changeable WaterPropsIAPWS object
     WaterPropsIAPWS* getWater() {

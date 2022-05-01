@@ -1038,18 +1038,6 @@ public:
      */
     explicit HMWSoln(const std::string& inputFile="", const std::string& id="");
 
-    //! Construct and initialize an HMWSoln ThermoPhase object
-    //! directly from an XML database
-    /*!
-     *  @param phaseRef XML phase node containing the description of the phase
-     *  @param id     id attribute containing the name of the phase.
-     *                (default is the empty string)
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    HMWSoln(XML_Node& phaseRef, const std::string& id = "");
-
     //! @name  Utilities
     //! @{
 
@@ -1448,25 +1436,6 @@ public:
 
     virtual void initThermo();
     virtual void getParameters(AnyMap& phaseNode) const;
-
-    //! Initialize the phase parameters from an XML file.
-    /*!
-     * This gets called from importPhase(). It processes the XML file after the
-     * species are set up. This is the main routine for reading in activity
-     * coefficient parameters.
-     *
-     * @param phaseNode This object must be the phase node of a complete XML
-     *             tree description of the phase, including all of the species
-     *             data. In other words while "phase" must point to an XML phase
-     *             object, it must have sibling nodes "speciesData" that
-     *             describe the species in the phase.
-     * @param id   ID of the phase. If nonnull, a check is done to see if
-     *             phaseNode is pointing to the phase with the correct id.
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     //! Value of the Debye Huckel constant as a function of temperature
     //! and pressure.
@@ -2375,69 +2344,6 @@ private:
      * from m_molalities
      */
     void calcMolalitiesCropped() const;
-
-    //! Process an XML node called "binarySaltParameters"
-    /*!
-     * This node contains all of the parameters necessary to describe the Pitzer
-     * model for that particular binary salt. This function reads the XML file
-     * and writes the coefficients it finds to an internal data structures.
-     *
-     * @param BinSalt  reference to the XML_Node named binarySaltParameters
-     *                 containing the anion - cation interaction
-     */
-    void readXMLBinarySalt(XML_Node& BinSalt);
-
-    //! Process an XML node called "thetaAnion" or "thetaCation"
-    /*!
-     * This node contains all of the parameters necessary to describe the binary
-     * interactions between two anions or two cations.
-     *
-     * @param BinSalt  reference to the XML_Node named thetaAnion containing the
-     *                 anion - anion interaction
-     */
-    void readXMLTheta(XML_Node& BinSalt);
-
-    //! Process an XML node called "psiCommonAnion" or "psiCommonCation"
-    /*!
-     * This node contains all of the parameters necessary to describe
-     * the ternary interactions between one anion and two cations or two anions
-     * and one cation.
-     *
-     * @param BinSalt  reference to the XML_Node named psiCommonAnion containing
-     *                 the anion - cation1 - cation2 interaction
-     */
-    void readXMLPsi(XML_Node& BinSalt);
-
-    //! Process an XML node called "lambdaNeutral"
-    /*!
-     * This node contains all of the parameters necessary to describe the binary
-     * interactions between one neutral species and any other species (neutral
-     * or otherwise) in the mechanism.
-     *
-     * @param BinSalt  reference to the XML_Node named lambdaNeutral containing
-     *                 multiple Neutral - species interactions
-     */
-    void readXMLLambdaNeutral(XML_Node& BinSalt);
-
-    //! Process an XML node called "MunnnNeutral"
-    /*!
-     * This node contains all of the parameters necessary to describe
-     * the self-ternary interactions for one neutral species.
-     *
-     * @param BinSalt  reference to the XML_Node named Munnn containing the
-     *                 self-ternary interaction
-     */
-    void readXMLMunnnNeutral(XML_Node& BinSalt);
-
-    //! Process an XML node called "zetaCation"
-    /*!
-     * This node contains all of the parameters necessary to describe
-     * the ternary interactions between one neutral, one cation, and one anion.
-     *
-     * @param BinSalt  reference to the XML_Node named psiCommonCation
-     *                 containing the neutral - cation - anion interaction
-     */
-    void readXMLZetaCation(const XML_Node& BinSalt);
 
     //! Precalculate the IMS Cutoff parameters for typeCutoff = 2
     void calcIMSCutoffParams_();

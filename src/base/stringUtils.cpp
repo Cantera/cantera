@@ -120,11 +120,6 @@ compositionMap parseCompString(const std::string& ss,
     return x;
 }
 
-int intValue(const std::string& val)
-{
-    return std::atoi(ba::trim_copy(val).c_str());
-}
-
 doublereal fpValue(const std::string& val)
 {
     doublereal rval;
@@ -186,49 +181,6 @@ doublereal fpValueCheck(const std::string& val)
         }
     }
     return fpValue(str);
-}
-
-std::string parseSpeciesName(const std::string& nameStr, std::string& phaseName)
-{
-    warn_deprecated("parseSpeciesName", "To be removed after Cantera 2.6");
-    std::string s = ba::trim_copy(nameStr);
-    phaseName = "";
-    size_t ibegin = s.find_first_not_of(" ;\n\t");
-    if (ibegin != std::string::npos) {
-        s = s.substr(ibegin,s.size());
-        size_t icolon = s.find(':');
-        size_t iend = s.find_first_of(" ;\n\t");
-        if (icolon != std::string::npos) {
-            phaseName = s.substr(0, icolon);
-            s = s.substr(icolon+1, s.size());
-            icolon = s.find(':');
-            if (icolon != std::string::npos) {
-                throw CanteraError("parseSpeciesName",
-                                   "two colons in name: '{}'", nameStr);
-            }
-        }
-        if (iend != std::string::npos) {
-            throw CanteraError("parseSpeciesName", "Species name has "
-                               "\" ;/\n/\t\" in the middle of it: '{}'", nameStr);
-        }
-    }
-    return s;
-}
-
-doublereal strSItoDbl(const std::string& strSI)
-{
-    std::vector<std::string> v;
-    tokenizeString(strSI, v);
-    doublereal fp = 1.0;
-    size_t n = v.size();
-    if (n > 2 || n < 1) {
-        throw CanteraError("strSItoDbl",
-                           "number of tokens is too high");
-    } else if (n == 2) {
-        fp = toSI(v[1]);
-    }
-    doublereal val = fpValueCheck(v[0]);
-    return val * fp;
 }
 
 void tokenizeString(const std::string& in_val, std::vector<std::string>& v)

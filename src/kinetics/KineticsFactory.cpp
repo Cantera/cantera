@@ -9,9 +9,7 @@
 #include "cantera/kinetics/GasKinetics.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/kinetics/EdgeKinetics.h"
-#include "cantera/kinetics/importKinetics.h"
 #include "cantera/thermo/ThermoPhase.h"
-#include "cantera/base/xml.h"
 #include "cantera/base/stringUtils.h"
 
 using namespace std;
@@ -21,24 +19,6 @@ namespace Cantera
 
 KineticsFactory* KineticsFactory::s_factory = 0;
 std::mutex KineticsFactory::kinetics_mutex;
-
-Kinetics* KineticsFactory::newKinetics(XML_Node& phaseData,
-                                       vector<ThermoPhase*> th)
-{
-    // Look for a child of the XML element phase called "kinetics". It has an
-    // attribute name "model". Store the value of that attribute in the variable
-    // kintype
-    string kintype = phaseData.child("kinetics")["model"];
-
-    // Create a kinetics object of the desired type
-    Kinetics* k = newKinetics(kintype);
-    // Now that we have the kinetics manager, we can import the reaction
-    // mechanism into it.
-    importKinetics(phaseData, th, k);
-
-    // Return the pointer to the kinetics manager
-    return k;
-}
 
 KineticsFactory::KineticsFactory() {
     reg("none", []() { return new Kinetics(); });
@@ -93,26 +73,9 @@ unique_ptr<Kinetics> newKinetics(const std::vector<ThermoPhase*>& phases,
                                  const std::string& filename,
                                  const std::string& phase_name)
 {
-    size_t dot = filename.find_last_of(".");
-    string extension;
-    if (dot != npos) {
-        extension = toLowerCopy(filename.substr(dot+1));
-    }
-
-    if (extension == "yml" || extension == "yaml") {
-        AnyMap root = AnyMap::fromYamlFile(filename);
-        AnyMap& phaseNode = root["phases"].getMapWhere("name", phase_name);
-        return newKinetics(phases, phaseNode, root);
-    } else {
-        XML_Node* root = get_XML_File(filename);
-        XML_Node* xphase = get_XML_NameID("phase", "#"+phase_name, root);
-        if (!xphase) {
-            throw CanteraError("newKinetics",
-                "Couldn't find phase named '{}' in file '{}'.",
-                phase_name, filename);
-        }
-        return unique_ptr<Kinetics>(newKineticsMgr(*xphase, phases));
-    }
+    AnyMap root = AnyMap::fromYamlFile(filename);
+    AnyMap& phaseNode = root["phases"].getMapWhere("name", phase_name);
+    return newKinetics(phases, phaseNode, root);
 }
 
 void addReactions(Kinetics& kin, const AnyMap& phaseNode, const AnyMap& rootNode)

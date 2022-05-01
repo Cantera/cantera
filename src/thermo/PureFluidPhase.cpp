@@ -8,7 +8,6 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-#include "cantera/base/xml.h"
 #include "cantera/thermo/PureFluidPhase.h"
 
 #include "cantera/tpx/Sub.h"
@@ -66,16 +65,6 @@ void PureFluidPhase::getParameters(AnyMap& phaseNode) const
 {
     ThermoPhase::getParameters(phaseNode);
     phaseNode["pure-fluid-name"] = m_sub->name();
-}
-
-void PureFluidPhase::setParametersFromXML(const XML_Node& eosdata)
-{
-    eosdata._require("model","PureFluid");
-    m_subflag = atoi(eosdata["fluid_type"].c_str());
-    if (m_subflag < 0) {
-        throw CanteraError("PureFluidPhase::setParametersFromXML",
-                           "missing or negative substance flag");
-    }
 }
 
 std::vector<std::string> PureFluidPhase::fullStates() const

@@ -6,7 +6,6 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/WaterProps.h"
-#include "cantera/base/ctml.h"
 #include "cantera/thermo/PDSS_Water.h"
 #include "cantera/base/stringUtils.h"
 

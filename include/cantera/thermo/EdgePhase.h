@@ -49,29 +49,6 @@ public:
     virtual std::string type() const {
         return "Edge";
     }
-
-    //! Set the Equation-of-State parameters by reading an XML Node Input
-    /*!
-     * The Equation-of-State data consists of one item, the site density.
-     *
-     * @param thermoData   Reference to an XML_Node named thermo containing the
-     *                     equation-of-state data. The XML_Node is within the
-     *                     phase XML_Node describing the EdgePhase object.
-     *
-     * An example of the contents of the thermoData XML_Node is provided below.
-     * The units attribute is used to supply the units of the site density in
-     * any convenient form. Internally it is changed into MKS form.
-     *
-     * @code
-     *    <thermo model="Edge">
-     *       <site_density units="mol/cm"> 3e-15 </site_density>
-     *    </thermo>
-     * @endcode
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    virtual void setParametersFromXML(const XML_Node& thermoData);
 };
 }
 

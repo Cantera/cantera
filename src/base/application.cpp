@@ -4,10 +4,8 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "application.h"
-
-#include "cantera/base/ctml.h"
+#include "cantera/base/ctexceptions.h"
 #include "cantera/base/stringUtils.h"
-#include "units.h"
 
 #include <fstream>
 #include <sstream>
@@ -34,9 +32,6 @@ static std::mutex dir_mutex;
 
 //! Mutex for creating singletons within the application object
 static std::mutex app_mutex;
-
-//! Mutex for controlling access to XML file storage
-static std::mutex xml_mutex;
 
 int get_modified_time(const std::string& path) {
 #ifdef _WIN32
@@ -143,7 +138,6 @@ Application::Application() :
     // install a default logwriter that writes to standard
     // output / standard error
     setDefaultDirectories();
-    Unit::units();
 }
 
 Application* Application::Instance()
@@ -153,15 +147,6 @@ Application* Application::Instance()
         Application::s_app = new Application();
     }
     return s_app;
-}
-
-Application::~Application()
-{
-    for (auto& f : xmlfiles) {
-        f.second.first->unlock();
-        delete f.second.first;
-        f.second.first = 0;
-    }
 }
 
 void Application::ApplicationDestroy()
@@ -200,79 +185,6 @@ void Application::warn(const std::string& warning,
 void Application::thread_complete()
 {
     pMessenger.removeThreadMessages();
-}
-
-XML_Node* Application::get_XML_File(const std::string& file, int debug)
-{
-    std::unique_lock<std::mutex> xmlLock(xml_mutex);
-    std::string path = findInputFile(file);
-    int mtime = get_modified_time(path);
-
-    if (xmlfiles.find(path) != xmlfiles.end()) {
-        // Already have a parsed XML tree for this file cached. Check the
-        // last-modified time.
-        std::pair<XML_Node*, int> cache = xmlfiles[path];
-        if (cache.second == mtime) {
-            return cache.first;
-        }
-    }
-
-    // Check whether or not the file is XML (based on the file extension). If
-    // not, it will be first processed with the preprocessor.
-    string::size_type idot = path.rfind('.');
-    string ext;
-    if (idot != string::npos) {
-        ext = path.substr(idot, path.size());
-    } else {
-        ext = "";
-    }
-    XML_Node* x = new XML_Node("doc");
-    if (ext != ".xml" && ext != ".ctml") {
-        // Assume that we are trying to open a cti file. Do the conversion to XML.
-        std::stringstream phase_xml(ct2ctml_string(path));
-        x->build(phase_xml, path);
-    } else {
-        x->build(path);
-    }
-    x->lock();
-    xmlfiles[path] = {x, mtime};
-    return x;
-}
-
-XML_Node* Application::get_XML_from_string(const std::string& text)
-{
-    std::unique_lock<std::mutex> xmlLock(xml_mutex);
-    std::pair<XML_Node*, int>& entry = xmlfiles[text];
-    if (entry.first) {
-        // Return existing cached XML tree
-        return entry.first;
-    }
-    std::stringstream s;
-    size_t start = text.find_first_not_of(" \t\r\n");
-    if (text.substr(start,1) == "<") {
-        s << text;
-    } else {
-        s << ct_string2ctml_string(text.substr(start));
-    }
-    entry.first = new XML_Node();
-    entry.first->build(s, "[string]");
-    return entry.first;
-}
-
-void Application::close_XML_File(const std::string& file)
-{
-    std::unique_lock<std::mutex> xmlLock(xml_mutex);
-    if (file == "all") {
-        for (const auto& f : xmlfiles) {
-            f.second.first->unlock();
-            delete f.second.first;
-        }
-        xmlfiles.clear();
-    } else if (xmlfiles.find(file) != xmlfiles.end()) {
-        xmlfiles[file].first->unlock();
-        delete xmlfiles[file].first;
-        xmlfiles.erase(file);
-    }
 }
 
 #ifdef _WIN32

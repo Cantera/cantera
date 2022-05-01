@@ -25,7 +25,6 @@
 namespace Cantera
 {
 
-class XML_Node;
 class Logger;
 
 /*!
@@ -56,31 +55,14 @@ class Logger;
  *
  * Additional directories may be added by calling function addDirectory.
  *
- * There are currently three different types of input files within %Cantera. The
- * YAML format is new in Cantera 2.5, and replaces both the CTI and CTML (XML)
- * formats, which are deprecated and will be removed in Cantera 3.0. The scripts
- * `cti2yaml.py` and `ctml2yaml.py` can be used to convert legacy input files to
- * the YAML format.
+ * %Cantera input files are written using YAML syntax. For more information on using
+ * YAML files in Cantera, see the
+ * <a href="https://cantera.org/tutorials/yaml/defining-phases.html">YAML Users' Guide</a>
+ * or the <a href="../../../../sphinx/html/yaml/index.html">YAML Input File API Reference</a>.
  *
- *  - YAML: A human-readable input file written using YAML syntax which
- *    defines species, phases, and reactions, and contains thermodynamic,
- *    chemical kinetic, and transport data needed by %Cantera.
- *
- *  - CTI: A human-readable input file written using Python syntax. Some options
- *    for non-ideal equations of state available in the CTML format have not
- *    been implemented for the CTI format.
- *
- *  - CTML: This is an XML file laid out in such a way that %Cantera can
- *    interpret the contents directly. Given a file in CTI format, %Cantera will
- *    convert the CTI file into the CTML format on-the-fly using a Python script
- *    (ctml_writer). This process is done in-memory without writing any new
- *    files to disk. Explicit use of the CTML format is not recommended.
- *
- * %Cantera provides converters (`ck2yaml` and `ckcti`) for converting
- * Chemkin-format mechanisms to the YAML and CTI formats, respectively.
- *
- * Other input routines in other modules:
- *   @see importKinetics()
+ * %Cantera provides the `ck2yaml` tool for converting Chemkin-format mechanisms to the
+ * YAML format. The scripts `cti2yaml.py` and `ctml2yaml.py` can be used to convert
+ * legacy CTI and XML input files (from Cantera 2.6 and earlier) to the YAML format.
  *
  * @{
  */
@@ -277,79 +259,6 @@ bool legacy_rate_constants_used();
 
 //! @copydoc Application::Messages::setLogger
 void setLogger(Logger* logwriter);
-
-//! Return the conversion factor to convert unit std::string 'unit'
-//! to SI units.
-/*!
- * @param unit String containing the units
- * @deprecated To be removed after Cantera 2.6. Used only with XML input.
- */
-doublereal toSI(const std::string& unit);
-
-//! Return the conversion factor to convert activation energy unit
-//! std::string 'unit' to Kelvin.
-/*!
- * @param unit  String containing the activation energy units
- * @deprecated To be removed after Cantera 2.6. Used only with XML input.
- */
-doublereal actEnergyToSI(const std::string& unit);
-
-//! @copydoc Application::get_XML_File
-XML_Node* get_XML_File(const std::string& file, int debug = 0);
-
-//! @copydoc Application::get_XML_from_string
-XML_Node* get_XML_from_string(const std::string& text);
-
-//! @copydoc Application::close_XML_File
-void close_XML_File(const std::string& file);
-
-//! This routine will locate an XML node in either the input
-//! XML tree or in another input file specified by the file
-//! part of the file_ID string.
-/*!
- * Searches are based on the ID attribute of the XML element only.
- *
- * @param file_ID This is a concatenation of two strings separated by the "#"
- *                character. The string before the pound character is the file
- *                name of an XML file to carry out the search. The string after
- *                the # character is the ID attribute of the XML element to
- *                search for. The string is interpreted as a file string if no #
- *                character is in the string.
- * @param root    If the file string is empty, searches for the XML element with
- *                matching ID attribute are carried out from this XML node.
- * @returns the XML_Node, if found. Returns null if not found.
- *
- * @deprecated The XML input format is deprecated and will be removed in
- *     Cantera 3.0.
- */
-XML_Node* get_XML_Node(const std::string& file_ID, XML_Node* root);
-
-
-//! This routine will locate an XML node in either the input XML tree or in
-//! another input file specified by the file part of the file_ID string.
-/*!
- * Searches are based on the XML element name and the ID attribute of the XML
- * element. An exact match of both is usually required. However, the ID
- * attribute may be set to "", in which case the first XML element with the
- * correct element name will be returned.
- *
- * @param nameTarget This is the XML element name to look for.
- * @param file_ID This is a concatenation of two strings separated by the "#"
- *                character. The string before the pound character is the file
- *                name of an XML file to carry out the search. The string after
- *                the # character is the ID attribute of the XML element to
- *                search for. The string is interpreted as a file string if no #
- *                character is in the string.
- * @param root    If the file string is empty, searches for the XML element with
- *                matching ID attribute are carried out from this XML node.
- * @returns the XML_Node, if found. Returns null if not found.
- *
- * @deprecated The XML input format is deprecated and will be removed in
- *     Cantera 3.0.
- */
-XML_Node* get_XML_NameID(const std::string& nameTarget,
-                         const std::string& file_ID,
-                         XML_Node* root);
 
 //! Clip *value* such that lower <= value <= upper
 template <class T>

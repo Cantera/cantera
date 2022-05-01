@@ -11,7 +11,6 @@
 #include "cantera/thermo/StoichSubstance.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/Species.h"
-#include "cantera/base/ctml.h"
 
 namespace Cantera
 {
@@ -21,11 +20,6 @@ namespace Cantera
 StoichSubstance::StoichSubstance(const std::string& infile, const std::string& id_)
 {
     initThermoFile(infile, id_);
-}
-
-StoichSubstance::StoichSubstance(XML_Node& xmlphase, const std::string& id_)
-{
-    importPhase(xmlphase, this);
 }
 
 // ----- Mechanical Equation of State ------
@@ -181,24 +175,6 @@ void StoichSubstance::getSpeciesParameters(const std::string& name,
     }
 }
 
-void StoichSubstance::initThermoXML(XML_Node& phaseNode, const std::string& id_)
-{
-    // Find the Thermo XML node
-    if (!phaseNode.hasChild("thermo")) {
-        throw CanteraError("StoichSubstance::initThermoXML",
-                           "no thermo XML node");
-    }
-    XML_Node& tnode = phaseNode.child("thermo");
-    std::string model = tnode["model"];
-    if (model != "StoichSubstance" && model != "StoichSubstanceSSTP") {
-        throw CanteraError("StoichSubstance::initThermoXML",
-                           "thermo model attribute must be StoichSubstance");
-    }
-    double dens = getFloat(tnode, "density", "toSI");
-    assignDensity(dens);
-    SingleSpeciesTP::initThermoXML(phaseNode, id_);
-}
-
 void StoichSubstance::setParameters(int n, doublereal* const c)
 {
     assignDensity(c[0]);
@@ -208,16 +184,6 @@ void StoichSubstance::getParameters(int& n, doublereal* const c) const
 {
     n = 1;
     c[0] = density();
-}
-
-void StoichSubstance::setParametersFromXML(const XML_Node& eosdata)
-{
-    std::string model = eosdata["model"];
-    if (model != "StoichSubstance" && model != "StoichSubstanceSSTP") {
-        throw CanteraError("StoichSubstance::setParametersFromXML",
-                           "thermo model attribute must be StoichSubstance");
-    }
-    assignDensity(getFloat(eosdata, "density", "toSI"));
 }
 
 }

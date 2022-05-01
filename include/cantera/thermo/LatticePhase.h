@@ -218,16 +218,6 @@ public:
     explicit LatticePhase(const std::string& inputFile="",
                           const std::string& id="");
 
-    //! Full constructor for a water phase
-    /*!
-     * @param phaseRef  XML node referencing the lattice phase.
-     * @param id        string id of the phase name
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    LatticePhase(XML_Node& phaseRef, const std::string& id = "");
-
     virtual std::string type() const {
         return "Lattice";
     }
@@ -593,34 +583,6 @@ public:
     virtual void getSpeciesParameters(const std::string& name,
                                       AnyMap& speciesNode) const;
 
-    //! Set equation of state parameter values from XML entries.
-    /*!
-     * This method is called by function importPhase() when processing a phase
-     * definition in an input file. It should be overloaded in subclasses to set
-     * any parameters that are specific to that particular phase
-     * model. Note, this method is called before the phase is
-     * initialized with elements and/or species.
-     *
-     * For this phase, the molar density of the phase is specified in this
-     * block, and is a required parameter.
-     *
-     * @param eosdata An XML_Node object corresponding to
-     *                the "thermo" entry for this phase in the input file.
-     *
-     * eosdata points to the thermo block, and looks like this:
-     *
-     * @code
-     * <phase id="O_lattice_SiO2" >
-     *   <thermo model="Lattice">
-     *     <site_density units="kmol/m^3"> 73.159 </site_density>
-     *   </thermo>
-     * </phase>
-     * @endcode
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    virtual void setParametersFromXML(const XML_Node& eosdata);
     //! @}
 
 protected:

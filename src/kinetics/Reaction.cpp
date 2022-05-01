@@ -12,7 +12,6 @@
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/thermo/SurfPhase.h"
-#include "cantera/base/ctml.h"
 #include "cantera/base/Array.h"
 #include "cantera/base/AnyMap.h"
 #include "cantera/base/utilities.h"
@@ -1312,34 +1311,6 @@ unique_ptr<Reaction> newReaction(const std::string& type)
     return R;
 }
 
-unique_ptr<Reaction> newReaction(const XML_Node& rxn_node)
-{
-    std::string type = toLowerCopy(rxn_node["type"]);
-
-    // Modify the reaction type for interface reactions which contain
-    // electrochemical reaction data
-    if (rxn_node.child("rateCoeff").hasChild("electrochem")
-        && (type == "edge" || type == "surface")) {
-        type = "electrochemical";
-    }
-
-    if (!(ReactionFactoryXML::factory()->exists(type))) {
-        throw CanteraError("newReaction",
-            "Unknown reaction type '" + rxn_node["type"] + "'");
-    }
-    if (type.empty()) {
-        // Reaction type is not specified
-        // See if this is a three-body reaction with a specified collision partner
-        ElementaryReaction2 testReaction;
-        setupReaction(testReaction, rxn_node);
-        if (isThreeBody(testReaction)) {
-            type = "three-body";
-        }
-    }
-    Reaction* R = ReactionFactoryXML::factory()->create(type, rxn_node);
-    return unique_ptr<Reaction>(R);
-}
-
 unique_ptr<Reaction> newReaction(const AnyMap& rxn_node, const Kinetics& kin)
 {
     std::string type = "elementary";
@@ -1365,13 +1336,6 @@ unique_ptr<Reaction> newReaction(const AnyMap& rxn_node, const Kinetics& kin)
     return unique_ptr<Reaction>(R);
 }
 
-Arrhenius2 readArrhenius(const XML_Node& arrhenius_node)
-{
-    return Arrhenius2(getFloat(arrhenius_node, "A", "toSI"),
-                      getFloat(arrhenius_node, "b"),
-                      getFloat(arrhenius_node, "E", "actEnergy") / GasConstant);
-}
-
 Arrhenius2 readArrhenius(const Reaction& R, const AnyValue& rate,
                          const Kinetics& kin, const UnitSystem& units,
                          int pressure_dependence=0)
@@ -1394,53 +1358,6 @@ Arrhenius2 readArrhenius(const Reaction& R, const AnyValue& rate,
         Ta = units.convertActivationEnergy(rate_vec[2], "K");
     }
     return Arrhenius2(A, b, Ta);
-}
-
-//! Parse falloff parameters, given a rateCoeff node
-/*!
- * @verbatim
- <falloff type="Troe"> 0.5 73.2 5000. 9999. </falloff>
- @endverbatim
-*/
-void readFalloff(FalloffReaction2& R, const XML_Node& rc_node)
-{
-    XML_Node& falloff = rc_node.child("falloff");
-    std::vector<std::string> p;
-    vector_fp falloff_parameters;
-    getStringArray(falloff, p);
-    size_t np = p.size();
-    for (size_t n = 0; n < np; n++) {
-        falloff_parameters.push_back(fpValueCheck(p[n]));
-    }
-
-    if (caseInsensitiveEquals(falloff["type"], "lindemann")) {
-        if (np != 0) {
-            throw CanteraError("readFalloff", "Lindemann parameterization "
-                "takes no parameters, but {} were given", np);
-        }
-        R.falloff = newFalloff("Lindemann", falloff_parameters);
-    } else if (caseInsensitiveEquals(falloff["type"], "troe")) {
-        if (np != 3 && np != 4) {
-            throw CanteraError("readFalloff", "Troe parameterization takes "
-                "3 or 4 parameters, but {} were given", np);
-        }
-        R.falloff = newFalloff("Troe", falloff_parameters);
-    } else if (caseInsensitiveEquals(falloff["type"], "sri")) {
-        if (np != 3 && np != 5) {
-            throw CanteraError("readFalloff", "SRI parameterization takes "
-                "3 or 5 parameters, but {} were given", np);
-        }
-        R.falloff = newFalloff("SRI", falloff_parameters);
-    } else if (caseInsensitiveEquals(falloff["type"], "tsang")) {
-        if (np != 2) {
-            throw CanteraError("readFalloff", "Tsang parameterization takes "
-                "2 parameters, but {} were given", np);
-        }
-        R.falloff = newFalloff("Tsang", falloff_parameters);
-    } else {
-        throw CanteraError("readFalloff", "Unrecognized falloff type: '{}'",
-                           falloff["type"]);
-    }
 }
 
 void readFalloff(FalloffReaction2& R, const AnyMap& node)
@@ -1480,17 +1397,6 @@ void readFalloff(FalloffReaction2& R, const AnyMap& node)
     } else {
         R.falloff = newFalloff("Lindemann", {});
     }
-}
-
-void readEfficiencies(ThirdBody& tbody, const XML_Node& rc_node)
-{
-    if (!rc_node.hasChild("efficiencies")) {
-        tbody.default_efficiency = 1.0;
-        return;
-    }
-    const XML_Node& eff_node = rc_node.child("efficiencies");
-    tbody.default_efficiency = fpValue(eff_node["default"]);
-    tbody.efficiencies = parseCompString(eff_node.value());
 }
 
 void readEfficiencies(ThirdBody& tbody, const AnyMap& node)
@@ -1536,25 +1442,6 @@ bool detectEfficiencies(ThreeBodyReaction2& R)
     }
 
     return true;
-}
-
-void setupReaction(Reaction& R, const XML_Node& rxn_node)
-{
-    // Reactant and product stoichiometries
-    R.reactants = parseCompString(rxn_node.child("reactants").value());
-    R.products = parseCompString(rxn_node.child("products").value());
-
-    // Non-stoichiometric reaction orders
-    std::vector<XML_Node*> orders = rxn_node.getChildren("order");
-    for (size_t i = 0; i < orders.size(); i++) {
-        R.orders[orders[i]->attrib("species")] = orders[i]->fp_value();
-    }
-
-    // Flags
-    R.id = rxn_node.attrib("id");
-    R.duplicate = rxn_node.hasAttrib("duplicate");
-    const std::string& rev = rxn_node["reversible"];
-    R.reversible = (rev == "true" || rev == "yes");
 }
 
 void parseReactionEquation(Reaction& R, const std::string& equation,
@@ -1647,43 +1534,12 @@ void setupReaction(Reaction& R, const AnyMap& node, const Kinetics& kin)
     R.calculateRateCoeffUnits(kin);
 }
 
-void setupElementaryReaction(ElementaryReaction2& R, const XML_Node& rxn_node)
-{
-    const XML_Node& rc_node = rxn_node.child("rateCoeff");
-    if (rc_node.hasChild("Arrhenius")) {
-        R.rate = readArrhenius(rc_node.child("Arrhenius"));
-    } else if (rc_node.hasChild("Arrhenius_ExchangeCurrentDensity")) {
-        R.rate = readArrhenius(rc_node.child("Arrhenius_ExchangeCurrentDensity"));
-    } else {
-        throw CanteraError("setupElementaryReaction", "Couldn't find Arrhenius node");
-    }
-    if (rxn_node["negative_A"] == "yes") {
-        R.allow_negative_pre_exponential_factor = true;
-    }
-    if (rxn_node["negative_orders"] == "yes") {
-        R.allow_negative_orders = true;
-    }
-    if (rxn_node["nonreactant_orders"] == "yes") {
-        R.allow_nonreactant_orders = true;
-    }
-    setupReaction(R, rxn_node);
-}
-
 void setupElementaryReaction(ElementaryReaction2& R, const AnyMap& node,
                              const Kinetics& kin)
 {
     setupReaction(R, node, kin);
     R.allow_negative_pre_exponential_factor = node.getBool("negative-A", false);
     R.rate = readArrhenius(R, node["rate-constant"], kin, node.units());
-}
-
-void setupThreeBodyReaction(ThreeBodyReaction2& R, const XML_Node& rxn_node)
-{
-    readEfficiencies(R.third_body, rxn_node.child("rateCoeff"));
-    setupElementaryReaction(R, rxn_node);
-    if (R.third_body.efficiencies.size() == 0) {
-        detectEfficiencies(R);
-    }
 }
 
 void setupThreeBodyReaction(ThreeBodyReaction2& R, const AnyMap& node,
@@ -1701,37 +1557,6 @@ void setupThreeBodyReaction(ThreeBodyReaction2& R, const AnyMap& node,
         R.products.erase("M");
         readEfficiencies(R.third_body, node);
     }
-}
-
-void setupFalloffReaction(FalloffReaction2& R, const XML_Node& rxn_node)
-{
-    XML_Node& rc_node = rxn_node.child("rateCoeff");
-    std::vector<XML_Node*> rates = rc_node.getChildren("Arrhenius");
-    int nLow = 0;
-    int nHigh = 0;
-    for (size_t i = 0; i < rates.size(); i++) {
-        XML_Node& node = *rates[i];
-        if (node["name"] == "") {
-            R.high_rate = readArrhenius(node);
-            nHigh++;
-        } else if (node["name"] == "k0") {
-            R.low_rate = readArrhenius(node);
-            nLow++;
-        } else {
-            throw CanteraError("setupFalloffReaction", "Found an Arrhenius XML "
-                "node with an unexpected type '" + node["name"] + "'");
-        }
-    }
-    if (nLow != 1 || nHigh != 1) {
-        throw CanteraError("setupFalloffReaction", "Did not find the correct "
-            "number of Arrhenius rate expressions");
-    }
-    if (rxn_node["negative_A"] == "yes") {
-        R.allow_negative_pre_exponential_factor = true;
-    }
-    readFalloff(R, rc_node);
-    readEfficiencies(R.third_body, rc_node);
-    setupReaction(R, rxn_node);
 }
 
 void setupFalloffReaction(FalloffReaction2& R, const AnyMap& node,
@@ -1780,47 +1605,6 @@ void setupFalloffReaction(FalloffReaction2& R, const AnyMap& node,
     readFalloff(R, node);
 }
 
-void setupChemicallyActivatedReaction(ChemicallyActivatedReaction2& R,
-                                      const XML_Node& rxn_node)
-{
-    XML_Node& rc_node = rxn_node.child("rateCoeff");
-    std::vector<XML_Node*> rates = rc_node.getChildren("Arrhenius");
-    int nLow = 0;
-    int nHigh = 0;
-    for (size_t i = 0; i < rates.size(); i++) {
-        XML_Node& node = *rates[i];
-        if (node["name"] == "kHigh") {
-            R.high_rate = readArrhenius(node);
-            nHigh++;
-        } else if (node["name"] == "") {
-            R.low_rate = readArrhenius(node);
-            nLow++;
-        } else {
-            throw CanteraError("setupChemicallyActivatedReaction", "Found an "
-                "Arrhenius XML node with an unexpected type '" + node["name"] + "'");
-        }
-    }
-    if (nLow != 1 || nHigh != 1) {
-        throw CanteraError("setupChemicallyActivatedReaction", "Did not find "
-            "the correct number of Arrhenius rate expressions");
-    }
-    readFalloff(R, rc_node);
-    readEfficiencies(R.third_body, rc_node);
-    setupReaction(R, rxn_node);
-}
-
-void setupPlogReaction(PlogReaction2& R, const XML_Node& rxn_node)
-{
-    XML_Node& rc = rxn_node.child("rateCoeff");
-    std::multimap<double, Arrhenius2> rates;
-    for (size_t m = 0; m < rc.nChildren(); m++) {
-        const XML_Node& node = rc.child(m);
-        rates.insert({getFloat(node, "P", "toSI"), readArrhenius(node)});
-    }
-    R.rate = Plog(rates);
-    setupReaction(R, rxn_node);
-}
-
 void setupPlogReaction(PlogReaction2& R, const AnyMap& node, const Kinetics& kin)
 {
     setupReaction(R, node, kin);
@@ -1836,29 +1620,6 @@ void PlogReaction2::validate()
 {
     Reaction::validate();
     rate.validate(equation());
-}
-
-void setupChebyshevReaction(ChebyshevReaction2& R, const XML_Node& rxn_node)
-{
-    XML_Node& rc = rxn_node.child("rateCoeff");
-    const XML_Node& coeff_node = rc.child("floatArray");
-    size_t nP = atoi(coeff_node["degreeP"].c_str());
-    size_t nT = atoi(coeff_node["degreeT"].c_str());
-
-    vector_fp coeffs_flat;
-    getFloatArray(rc, coeffs_flat, false);
-    Array2D coeffs(nT, nP);
-    for (size_t t = 0; t < nT; t++) {
-        for (size_t p = 0; p < nP; p++) {
-            coeffs(t,p) = coeffs_flat[nP*t + p];
-        }
-    }
-    R.rate = ChebyshevRate(getFloat(rc, "Tmin", "toSI"),
-                           getFloat(rc, "Tmax", "toSI"),
-                           getFloat(rc, "Pmin", "toSI"),
-                           getFloat(rc, "Pmax", "toSI"),
-                           coeffs);
-    setupReaction(R, rxn_node);
 }
 
 void setupChebyshevReaction(ChebyshevReaction2&R, const AnyMap& node,
@@ -1887,36 +1648,6 @@ void setupChebyshevReaction(ChebyshevReaction2&R, const AnyMap& node,
                            units.convert(P_range[0], "Pa"),
                            units.convert(P_range[1], "Pa"),
                            coeffs);
-}
-
-void setupInterfaceReaction(InterfaceReaction2& R, const XML_Node& rxn_node)
-{
-    XML_Node& arr = rxn_node.child("rateCoeff").child("Arrhenius");
-    if (caseInsensitiveEquals(arr["type"], "stick")) {
-        R.is_sticking_coefficient = true;
-        R.sticking_species = arr["species"];
-
-        if (caseInsensitiveEquals(arr["motz_wise"], "true")) {
-            R.use_motz_wise_correction = true;
-        } else if (caseInsensitiveEquals(arr["motz_wise"], "false")) {
-            R.use_motz_wise_correction = false;
-        } else {
-            // Default value for all reactions
-            XML_Node* parent = rxn_node.parent();
-            if (parent && parent->name() == "reactionData"
-                && caseInsensitiveEquals((*parent)["motz_wise"], "true")) {
-                R.use_motz_wise_correction = true;
-            }
-        }
-    }
-    std::vector<XML_Node*> cov = arr.getChildren("coverage");
-    for (const auto& node : cov) {
-        CoverageDependency& cdep = R.coverage_deps[node->attrib("species")];
-        cdep.a = getFloat(*node, "a", "toSI");
-        cdep.m = getFloat(*node, "m");
-        cdep.E = getFloat(*node, "e", "actEnergy") / GasConstant;
-    }
-    setupElementaryReaction(R, rxn_node);
 }
 
 void setupInterfaceReaction(InterfaceReaction2& R, const AnyMap& node,
@@ -1959,51 +1690,12 @@ void setupInterfaceReaction(InterfaceReaction2& R, const AnyMap& node,
 }
 
 void setupElectrochemicalReaction(ElectrochemicalReaction2& R,
-                                  const XML_Node& rxn_node)
-{
-    XML_Node& rc = rxn_node.child("rateCoeff");
-    std::string rc_type = toLowerCopy(rc["type"]);
-    if (rc_type == "exchangecurrentdensity") {
-        R.exchange_current_density_formulation = true;
-    } else if (rc_type != "" && rc_type != "arrhenius") {
-        throw CanteraError("setupElectrochemicalReaction",
-            "Unknown rate coefficient type: '" + rc_type + "'");
-    }
-    if (rc.hasChild("Arrhenius_ExchangeCurrentDensity")) {
-        R.exchange_current_density_formulation = true;
-    }
-
-    if (rc.hasChild("electrochem") && rc.child("electrochem").hasAttrib("beta")) {
-        R.beta = fpValueCheck(rc.child("electrochem")["beta"]);
-    }
-
-    setupInterfaceReaction(R, rxn_node);
-
-    // Override orders based on the <orders> node
-    if (rxn_node.hasChild("orders")) {
-        Composition orders = parseCompString(rxn_node.child("orders").value());
-        for (const auto& order : orders) {
-            R.orders[order.first] = order.second;
-        }
-    }
-}
-
-void setupElectrochemicalReaction(ElectrochemicalReaction2& R,
                                   const AnyMap& node, const Kinetics& kin)
 {
     setupInterfaceReaction(R, node, kin);
     R.beta = node.getDouble("beta", 0.5);
     R.exchange_current_density_formulation = node.getBool(
         "exchange-current-density-formulation", false);
-}
-
-std::vector<shared_ptr<Reaction> > getReactions(const XML_Node& node)
-{
-    std::vector<shared_ptr<Reaction> > all_reactions;
-    for (const auto& rxnnode : node.child("reactionData").getChildren("reaction")) {
-        all_reactions.push_back(newReaction(*rxnnode));
-    }
-    return all_reactions;
 }
 
 std::vector<shared_ptr<Reaction>> getReactions(const AnyValue& items,

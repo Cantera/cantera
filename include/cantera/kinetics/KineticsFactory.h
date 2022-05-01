@@ -49,30 +49,6 @@ public:
     }
 
     /**
-     * Return a new kinetics manager that implements a reaction mechanism
-     * specified in a CTML file. In other words, the kinetics manager, given
-     * the rate constants and formulation of the reactions that make up a
-     * kinetics mechanism, is responsible for calculating the rates of
-     * progress of the reactions and for calculating the source terms for
-     * species.
-     *
-     * @param phase An XML_Node that contains the XML data describing the
-     *              phase. Of particular note to this routine is the child XML
-     *              element called "kinetics". The element has one attribute
-     *              called "model", with a string value. The value of this
-     *              string is used to decide which kinetics manager is used to
-     *              calculate the reaction mechanism.
-     * @param th    Vector of phases. The first phase is the phase in which
-     *              the reactions occur, and the subsequent phases (if any)
-     *              are for example bulk phases adjacent to a reacting surface.
-     * @return Pointer to the new kinetics manager.
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    virtual Kinetics* newKinetics(XML_Node& phase, std::vector<ThermoPhase*> th);
-
-    /**
      * Return a new, empty kinetics manager.
      */
     virtual Kinetics* newKinetics(const std::string& model);
@@ -82,17 +58,6 @@ private:
     KineticsFactory();
     static std::mutex kinetics_mutex;
 };
-
-/**
- *  Create a new kinetics manager.
- *
- * @deprecated The XML input format is deprecated and will be removed in
- *     Cantera 3.0.
- */
-inline Kinetics* newKineticsMgr(XML_Node& phase, std::vector<ThermoPhase*> th)
-{
-    return KineticsFactory::factory()->newKinetics(phase, th);
-}
 
 /**
  *  Create a new kinetics manager.

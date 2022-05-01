@@ -173,10 +173,10 @@ TEST_F(RedlichKwongMFTP_Test, critPropLookup)
     // pureFluidParameters based on tabulated critical properties
     test_phase.reset(newPhase("co2_RK_lookup.yaml"));
 
-    // Check that the critical properties (temperature and pressure) are calculated correctly for
-    // pure fluids, both for those with pureFluidParameters provided in the cti file (for example, h2) and
-    // those where the pureFluidParameters are calculated based on the tabulated critical properties
-    // (for example, co2):
+    // Check that the critical properties (temperature and pressure) are calculated
+    // correctly for pure fluids, both for those with pureFluidParameters provided in
+    // the YAML file (for example, h2) and those where the pureFluidParameters are
+    // calculated based on the tabulated critical properties (for example, co2):
 
     // CO2 - should match tabulated values in critical-properties.yaml
     set_r(1.0);

@@ -119,7 +119,6 @@ namespace Cantera
  * @ingroup thermoprops
  */
 
-class XML_Node;
 class SpeciesThermoInterpType;
 class VPStandardStateTP;
 
@@ -421,16 +420,6 @@ public:
 
     //! Store the parameters needed to reconstruct a copy of this PDSS object
     virtual void getParameters(AnyMap& eosNode) const {}
-
-    //! Initialization routine for the PDSS object based on the speciesNode
-    /*!
-     * This is a cascading call, where each level should call the the parent
-     * level. This function is called before initThermo()
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    virtual void setParametersFromXML(const XML_Node& speciesNode) {}
 
     //! This utility function reports back the type of parameterization and
     //! all of the parameters for the species, index.

@@ -5,7 +5,6 @@
 
 #include "cantera/oneD/Boundary1D.h"
 #include "cantera/oneD/OneDim.h"
-#include "cantera/base/ctml.h"
 #include "cantera/oneD/StFlow.h"
 
 using namespace std;
@@ -219,39 +218,6 @@ void Inlet1D::eval(size_t jg, double* xg, double* rg,
     }
 }
 
-XML_Node& Inlet1D::save(XML_Node& o, const double* const soln)
-{
-    XML_Node& inlt = Domain1D::save(o, soln);
-    inlt.addAttribute("type","inlet");
-    addFloat(inlt, "temperature", m_temp);
-    addFloat(inlt, "mdot", m_mdot);
-    for (size_t k=0; k < m_nsp; k++) {
-        addFloat(inlt, "massFraction", m_yin[k], "",
-                       m_flow->phase().speciesName(k));
-    }
-    return inlt;
-}
-
-void Inlet1D::restore(const XML_Node& dom, double* soln, int loglevel)
-{
-    Domain1D::restore(dom, soln, loglevel);
-    m_mdot = getFloat(dom, "mdot");
-    m_temp = getFloat(dom, "temperature");
-
-    m_yin.assign(m_nsp, 0.0);
-
-    for (size_t i = 0; i < dom.nChildren(); i++) {
-        const XML_Node& node = dom.child(i);
-        if (node.name() == "massFraction") {
-            size_t k = m_flow->phase().speciesIndex(node.attrib("type"));
-            if (k != npos) {
-                m_yin[k] = node.fp_value();
-            }
-        }
-    }
-    resize(0, 1);
-}
-
 AnyMap Inlet1D::serialize(const double* soln) const
 {
     AnyMap state = Boundary1D::serialize(soln);
@@ -301,19 +267,6 @@ void Empty1D::init()
 void Empty1D::eval(size_t jg, double* xg, double* rg,
      integer* diagg, double rdt)
 {
-}
-
-XML_Node& Empty1D::save(XML_Node& o, const double* const soln)
-{
-    XML_Node& symm = Domain1D::save(o, soln);
-    symm.addAttribute("type","empty");
-    return symm;
-}
-
-void Empty1D::restore(const XML_Node& dom, double* soln, int loglevel)
-{
-    Domain1D::restore(dom, soln, loglevel);
-    resize(0, 1);
 }
 
 AnyMap Empty1D::serialize(const double* soln) const
@@ -367,19 +320,6 @@ void Symm1D::eval(size_t jg, double* xg, double* rg, integer* diagg,
             rb[c_offset_T] = xb[c_offset_T] - xb[c_offset_T - nc]; // zero dT/dz
         }
     }
-}
-
-XML_Node& Symm1D::save(XML_Node& o, const double* const soln)
-{
-    XML_Node& symm = Domain1D::save(o, soln);
-    symm.addAttribute("type","symmetry");
-    return symm;
-}
-
-void Symm1D::restore(const XML_Node& dom, double* soln, int loglevel)
-{
-    Domain1D::restore(dom, soln, loglevel);
-    resize(0, 1);
 }
 
 AnyMap Symm1D::serialize(const double* soln) const
@@ -458,19 +398,6 @@ void Outlet1D::eval(size_t jg, double* xg, double* rg, integer* diagg,
             }
         }
     }
-}
-
-XML_Node& Outlet1D::save(XML_Node& o, const double* const soln)
-{
-    XML_Node& outlt = Domain1D::save(o, soln);
-    outlt.addAttribute("type","outlet");
-    return outlt;
-}
-
-void Outlet1D::restore(const XML_Node& dom, double* soln, int loglevel)
-{
-    Domain1D::restore(dom, soln, loglevel);
-    resize(0, 1);
 }
 
 AnyMap Outlet1D::serialize(const double* soln) const
@@ -578,37 +505,6 @@ void OutletRes1D::eval(size_t jg, double* xg, double* rg,
     }
 }
 
-XML_Node& OutletRes1D::save(XML_Node& o, const double* const soln)
-{
-    XML_Node& outlt = Domain1D::save(o, soln);
-    outlt.addAttribute("type","outletres");
-    addFloat(outlt, "temperature", m_temp, "K");
-    for (size_t k=0; k < m_nsp; k++) {
-        addFloat(outlt, "massFraction", m_yres[k], "",
-                       m_flow->phase().speciesName(k));
-    }
-    return outlt;
-}
-
-void OutletRes1D::restore(const XML_Node& dom, double* soln, int loglevel)
-{
-    Domain1D::restore(dom, soln, loglevel);
-    m_temp = getFloat(dom, "temperature");
-
-    m_yres.assign(m_nsp, 0.0);
-    for (size_t i = 0; i < dom.nChildren(); i++) {
-        const XML_Node& node = dom.child(i);
-        if (node.name() == "massFraction") {
-            size_t k = m_flow->phase().speciesIndex(node.attrib("type"));
-            if (k != npos) {
-                m_yres[k] = node.fp_value();
-            }
-        }
-    }
-
-    resize(0, 1);
-}
-
 AnyMap OutletRes1D::serialize(const double* soln) const
 {
     AnyMap state = Boundary1D::serialize(soln);
@@ -677,21 +573,6 @@ void Surf1D::eval(size_t jg, double* xg, double* rg,
         double* xb = x - nc;
         rb[c_offset_T] = xb[c_offset_T] - m_temp; // specified T
     }
-}
-
-XML_Node& Surf1D::save(XML_Node& o, const double* const soln)
-{
-    XML_Node& inlt = Domain1D::save(o, soln);
-    inlt.addAttribute("type","surface");
-    addFloat(inlt, "temperature", m_temp);
-    return inlt;
-}
-
-void Surf1D::restore(const XML_Node& dom, double* soln, int loglevel)
-{
-    Domain1D::restore(dom, soln, loglevel);
-    m_temp = getFloat(dom, "temperature");
-    resize(0, 1);
 }
 
 AnyMap Surf1D::serialize(const double* soln) const
@@ -848,39 +729,6 @@ void ReactingSurf1D::eval(size_t jg, double* xg, double* rg,
             }
         }
     }
-}
-
-XML_Node& ReactingSurf1D::save(XML_Node& o, const double* const soln)
-{
-    const double* s = soln + loc();
-    XML_Node& dom = Domain1D::save(o, soln);
-    dom.addAttribute("type","surface");
-    addFloat(dom, "temperature", m_temp, "K");
-    for (size_t k=0; k < m_nsp; k++) {
-        addFloat(dom, "coverage", s[k], "", m_sphase->speciesName(k));
-    }
-    return dom;
-}
-
-void ReactingSurf1D::restore(const XML_Node& dom, double* soln,
-                             int loglevel)
-{
-    Domain1D::restore(dom, soln, loglevel);
-    m_temp = getFloat(dom, "temperature");
-
-    m_fixed_cov.assign(m_nsp, 0.0);
-    for (size_t i = 0; i < dom.nChildren(); i++) {
-        const XML_Node& node = dom.child(i);
-        if (node.name() == "coverage") {
-            size_t k = m_sphase->speciesIndex(node.attrib("type"));
-            if (k != npos) {
-                m_fixed_cov[k] = soln[k] = node.fp_value();
-            }
-        }
-    }
-    m_sphase->setCoverages(&m_fixed_cov[0]);
-
-    resize(m_nsp, 1);
 }
 
 AnyMap ReactingSurf1D::serialize(const double* soln) const

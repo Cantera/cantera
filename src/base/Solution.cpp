@@ -131,61 +131,22 @@ shared_ptr<Solution> newSolution(const std::string& infile,
         extension = toLowerCopy(infile.substr(dot+1));
     }
 
-    if (extension == "yml" || extension == "yaml") {
-        // load YAML file
-        auto rootNode = AnyMap::fromYamlFile(infile);
-        AnyMap& phaseNode = rootNode["phases"].getMapWhere("name", name);
-        auto sol = newSolution(phaseNode, rootNode, transport, adjacent);
-        sol->setSource(infile);
-        return sol;
+    if (extension == "cti" || extension == "xml") {
+        throw CanteraError("newPhase",
+                           "The CTI and XML formats are no longer supported.");
     }
 
-    // instantiate Solution object
-    auto sol = Solution::create();
+    // load YAML file
+    auto rootNode = AnyMap::fromYamlFile(infile);
+    AnyMap& phaseNode = rootNode["phases"].getMapWhere("name", name);
+    auto sol = newSolution(phaseNode, rootNode, transport, adjacent);
     sol->setSource(infile);
-
-    // thermo phase
-    sol->setThermo(shared_ptr<ThermoPhase>(newPhase(infile, name)));
-
-    // kinetics
-    std::vector<ThermoPhase*> phases;
-    phases.push_back(sol->thermo().get());
-    for (auto& adj : adjacent) {
-        phases.push_back(adj->thermo().get());
-    }
-    sol->setKinetics(newKinetics(phases, infile, name));
-
-    // transport
-    if (transport == "") {
-        sol->setTransport(shared_ptr<Transport>(
-            newDefaultTransportMgr(sol->thermo().get())));
-    } else if (transport == "None") {
-        sol->setTransport(shared_ptr<Transport>(newTransportMgr("None")));
-    } else {
-        sol->setTransport(shared_ptr<Transport>(
-            newTransportMgr(transport, sol->thermo().get())));
-    }
-
     return sol;
 }
 
 shared_ptr<Solution> newSolution(const std::string& infile, const std::string& name,
     const std::string& transport, const std::vector<std::string>& adjacent)
 {
-    // @todo Remove file extension check after Cantera 2.6
-    // get file extension
-    size_t dot = infile.find_last_of(".");
-    std::string extension;
-    if (dot != npos) {
-        extension = toLowerCopy(infile.substr(dot+1));
-    }
-
-    if (extension == "xml" || extension == "cti") {
-        throw CanteraError("newSolution(string infile, string name, string transport, "
-            "vector<string> adjacent)",
-            "This constructor is only compatible with YAML input files");
-    }
-
     auto rootNode = AnyMap::fromYamlFile(infile);
     AnyMap& phaseNode = rootNode["phases"].getMapWhere("name", name);
 

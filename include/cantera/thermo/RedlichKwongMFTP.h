@@ -29,18 +29,6 @@ public:
     explicit RedlichKwongMFTP(const std::string& infile="",
                               const std::string& id="");
 
-    //! Construct and initialize a RedlichKwongMFTP object directly from an
-    //! XML database
-    /*!
-     *  @param phaseRef XML phase node containing the description of the phase
-     *  @param id       id attribute containing the name of the phase.  (default
-     *      is the empty string)
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    RedlichKwongMFTP(XML_Node& phaseRef, const std::string& id = "");
-
     virtual std::string type() const {
         return "RedlichKwong";
     }
@@ -133,28 +121,9 @@ public:
     //! @{
 
     virtual bool addSpecies(shared_ptr<Species> spec);
-    virtual void setParametersFromXML(const XML_Node& thermoNode);
-    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
     virtual void initThermo();
     virtual void getSpeciesParameters(const std::string& name,
                                       AnyMap& speciesNode) const;
-
-    //! Retrieve a and b coefficients by looking up tabulated critical parameters
-    /*!
-     *  If pureFluidParameters are not provided for any species in the phase,
-     *  consult the critical properties tabulated in `critical-properties.yaml`.
-     *  If the species is found there, calculate pure fluid parameters a_k and b_k as:
-     *  \f[ a_k = 0.4278*R**2*T_c^2.5/P_c \f]
-     *
-     *  and:
-     *  \f[ b_k = 0.08664*R*T_c/P_c \f]
-     *
-     * @deprecated To be removed after Cantera 2.6. Use of critical-properties.yaml is
-     *     integrated into initThermo() for YAML input files.
-     *
-     *  @param iName    Name of the species
-     */
-    virtual std::vector<double> getCoeff(const std::string& iName);
 
     //! Set the pure fluid interaction parameters for a species
     /*!
@@ -189,20 +158,6 @@ public:
      */
     void setBinaryCoeffs(const std::string& species_i,
                          const std::string& species_j, double a0, double a1);
-
-private:
-    //! Read the pure species RedlichKwong input parameters
-    /*!
-     *  @param pureFluidParam   XML_Node for the pure fluid parameters
-     */
-    void readXMLPureFluid(XML_Node& pureFluidParam);
-
-    //! Read the cross species RedlichKwong input parameters
-    /*!
-     *  @param pureFluidParam   XML_Node for the cross fluid parameters
-     */
-    void readXMLCrossFluid(XML_Node& pureFluidParam);
-
     //! @}
 
 protected:
