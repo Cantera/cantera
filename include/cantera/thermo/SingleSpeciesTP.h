@@ -44,7 +44,7 @@ namespace Cantera
  *
  * Note, this class can handle the thermodynamic description of one phase of one
  * species. It can not handle the description of phase equilibrium between two
- * phases of a stoichiometric compound (e.g. water liquid and water vapor, below
+ * phases of a stoichiometric compound (such as water liquid and water vapor, below
  * the critical point). However, it may be used to describe the thermodynamics
  * of one phase of such a compound even past the phase equilibrium point, up to
  * the point where the phase itself ceases to be a stable phase.

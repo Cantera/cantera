@@ -1132,7 +1132,7 @@ void ThermoPhase::setState_TPQ(double T, double P, double Q)
             "Temperature ({}), pressure ({}) and vapor fraction ({}) "
             "are inconsistent.\nPsat at this T: {}\n"
             "Consider specifying the state using two fully independent "
-            "properties (e.g. temperature and density)",
+            "properties (for example, temperature and density)",
             T, P, Q, Psat);
     }
 }

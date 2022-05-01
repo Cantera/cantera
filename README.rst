@@ -33,18 +33,23 @@ using the following MyBinder link:
 Installation
 ============
 
+|pip| |anaconda| |conda-forge|
+
 `Installation instructions for the current release of Cantera
 <https://cantera.org/install/index.html>`_ are available from the main `Cantera
-documentation site <https://cantera.org>`_. Installers are provided for Windows (MSI
-packages), macOS, and Ubuntu. Anaconda packages containing the Cantera Python and Matlab
-modules are also available for Windows, macOS, and Linux.
+documentation site <https://cantera.org>`_.
 
-.. image:: https://anaconda.org/cantera/cantera/badges/installer/conda.svg
-    :target: https://anaconda.org/Cantera/cantera
+- The Python module can also be installed using pip on Windows, macOS, and Linux.
 
-For other platforms, or for users wishing to install a development version of
-Cantera, `compilation instructions <https://cantera.org/install/index.html>`_
-are also available.
+- Conda packages containing the Cantera Python and Matlab modules are also available
+  for Windows, macOS, and Linux.
+
+- Additional installation packages are provided for Windows, macOS, Ubuntu, Fedora,
+  RHEL, Gentoo, and FreeBSD.
+
+- For other platforms, or for users wishing to install a development version of
+  Cantera, `compilation instructions <https://cantera.org/install/compiling-install.html#sec-compiling>`_
+  are also available.
 
 Documentation
 =============
@@ -55,7 +60,7 @@ offers a number of starting points:
 - `Python tutorial
   <https://cantera.org/tutorials/python-tutorial.html>`_
 - `Application Examples in Python
-  <https://github.com/Cantera/cantera-jupyter#cantera-jupyter>`_
+  <https://cantera.org/examples/jupyter/index.html>`_
 - `A guide to Cantera's input file format
   <https://cantera.org/tutorials/input-files.html>`_
 - `Information about the Cantera community
@@ -69,9 +74,9 @@ offers a number of starting points:
 Code of Conduct
 ===============
 
-.. image:: https://img.shields.io/badge/code%20of%20conduct-contributor%20covenant-green.svg?style=flat-square
+.. image:: https://img.shields.io/badge/Contributor%20Covenant-2.0-4baaaa.svg
     :alt: conduct
-    :target: https://www.contributor-covenant.org/version/1/4/code-of-conduct.html
+    :target: https://www.contributor-covenant.org/version/2/0/code-of-conduct.html
 
 In order to have a more open and welcoming community, Cantera adheres to a
 `code of conduct <CODE_OF_CONDUCT.md>`_ adapted from the `Contributor Covenant
@@ -89,8 +94,8 @@ possible.
 Development Site
 ================
 
-The current development version is 2.6.0b2. The current stable version is
-2.5.1. The `latest Cantera source code <https://github.com/Cantera/cantera>`_,
+The current development version is 2.6.0. The current stable version is
+2.6.0. The `latest Cantera source code <https://github.com/Cantera/cantera>`_,
 the `issue tracker <https://github.com/Cantera/cantera/issues>`_ for bugs and
 enhancement requests, `downloads of Cantera releases and binary installers
 <https://github.com/Cantera/cantera/releases>`_ , and the `Cantera wiki
@@ -106,7 +111,6 @@ Continuous Integration Status
 =============================
 
 |ci|
-
 
 NumFOCUS
 ========
@@ -130,8 +134,8 @@ development of Cantera through NumFOCUS.
 .. |ci| image:: https://github.com/Cantera/cantera/workflows/CI/badge.svg
     :target: https://github.com/Cantera/cantera/actions?query=workflow%3ACI+event%3Apush
 
-.. |doi| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.170284.svg
-   :target: https://doi.org/10.5281/zenodo.1174508
+.. |doi| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.6387882.svg
+   :target: https://doi.org/10.5281/zenodo.6387882
 
 .. |codecov| image:: https://img.shields.io/codecov/c/github/Cantera/cantera/main.svg
    :target: https://codecov.io/gh/Cantera/cantera?branch=main
@@ -139,3 +143,12 @@ development of Cantera through NumFOCUS.
 .. |release| image:: https://img.shields.io/github/release/cantera/cantera.svg
    :target: https://github.com/Cantera/cantera/releases
    :alt: GitHub release
+
+.. |pip| image:: https://img.shields.io/pypi/v/cantera
+   :target: https://pypi.org/project/Cantera/
+
+.. |anaconda| image:: https://img.shields.io/conda/v/cantera/cantera
+   :target: https://anaconda.org/Cantera/cantera
+
+.. |conda-forge| image:: https://img.shields.io/conda/v/conda-forge/cantera
+   :target: https://anaconda.org/conda-forge/cantera

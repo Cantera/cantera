@@ -70,7 +70,7 @@ extern "C" {
      * residual routines:
      *
      * A IDAResFn res should return a value of 0 if successful, a positive value
-     * if a recoverable error occurred (e.g. yy has an illegal value), or a
+     * if a recoverable error occurred (for example, yy has an illegal value), or a
      * negative value if a nonrecoverable error occurred. In the latter case, the
      * program halts. If a recoverable error occurred, the integrator will
      * attempt to correct and retry.

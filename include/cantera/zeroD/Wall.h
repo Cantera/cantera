@@ -39,7 +39,7 @@ public:
     //! Rate of volume change (m^3/s) for the adjacent reactors.
     /*!
      * This method is called by Reactor::evalWalls(). Base class method
-     * does nothing (i.e. constant volume), but may be overloaded.
+     * does nothing (that is, constant volume), but may be overloaded.
      */
     virtual double vdot(double t) {
         return 0.0;
@@ -48,7 +48,7 @@ public:
     //! Heat flow rate through the wall (W).
     /*!
      * This method is called by Reactor::evalWalls(). Base class method
-     * does nothing (i.e. adiabatic wall), but may be overloaded.
+     * does nothing (that is, an adiabatic wall), but may be overloaded.
      */
     virtual double Q(double t) {
         return 0.0;
@@ -108,7 +108,7 @@ public:
         return "Wall";
     }
 
-    //! Set the wall velocity to a specified function of time, i.e. \f$ v(t) \f$.
+    //! Set the wall velocity to a specified function of time, \f$ v(t) \f$.
     void setVelocity(Func1* f=0) {
         if (f) {
             m_vf = f;

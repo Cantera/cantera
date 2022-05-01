@@ -31,7 +31,7 @@ public:
     /**
      * Standard constructor.
      * @param domains A vector of pointers to the domains to be linked together.
-     *     The domain pointers must be entered in left-to-right order --- i.e.,
+     *     The domain pointers must be entered in left-to-right order --- that is,
      *     the pointer to the leftmost domain is domain[0], the pointer to the
      *     domain to its right is domain[1], etc.
      */
@@ -148,7 +148,7 @@ public:
 
     /**
      * Get the grid refinement criteria. dom must be greater than
-     * or equal to zero (i.e., the domain must be specified).
+     * or equal to zero (that is, the domain must be specified).
      * @see Refiner::getCriteria
      */
     vector_fp getRefineCriteria(int dom);

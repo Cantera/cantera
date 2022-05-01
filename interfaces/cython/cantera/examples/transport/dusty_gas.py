@@ -1,5 +1,5 @@
 """
-Dusty Gas transport model.
+Calculate transport properties in a porous medium using the dusty gas transport model.
 
 The Dusty Gas model is a multicomponent transport model for gas transport
 through the pores of a stationary porous medium. This example shows how to

@@ -10,7 +10,7 @@ Sections
 The top level of a Cantera `YAML <https://yaml.org/spec/1.2/spec.html#Introduction>`__
 input file is a mapping that defines different input file sections. Each
 section consists of a list of mappings that define objects of the same type,
-e.g., reactions, species, phases, or elements. The ``phases`` section of an input
+such as reactions, species, phases, or elements. The ``phases`` section of an input
 file contains all of the phase definitions. Multiple sections containing
 reaction, species, or element definitions can be used. The specific names
 ``reactions``, ``species``, and ``elements`` are used as defaults when looking

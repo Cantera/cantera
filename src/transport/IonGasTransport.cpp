@@ -34,8 +34,18 @@ void IonGasTransport::init(ThermoPhase* thermo, int mode, int log_level)
     }
 
     // Find the index of electron
-    if (m_thermo->speciesIndex("E") != npos ) {
-        m_kElectron = m_thermo->speciesIndex("E");
+    size_t nElectronSpecies = 0;
+    for (size_t k = 0; k < m_nsp; k++) {
+        if (m_thermo->molecularWeight(k) ==
+            m_thermo->atomicWeight(m_thermo->elementIndex("E")) &&
+            m_thermo->charge(k)  == -1) {
+            m_kElectron = k;
+            nElectronSpecies++;
+        }
+    }
+    if (nElectronSpecies > 1) {
+        throw CanteraError("IonGasTransport::init",
+                           "Found multiple electron species.");
     }
 
     // Find indices for charge of species

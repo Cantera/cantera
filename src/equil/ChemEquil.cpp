@@ -1024,7 +1024,7 @@ int ChemEquil::estimateEP_Brinkley(ThermoPhase& s, vector_fp& x,
             //
             // The way around rank-deficiency is to lump-sum the corresponding
             // row of the matrix. Note, lump-summing seems to work very well in
-            // terms of its stability properties, i.e., it heads in the right
+            // terms of its stability properties, that is, it heads in the right
             // direction, albeit with lousy convergence rates.
             //
             // NOTE: This probably should be extended to a full blown Gauss-

@@ -87,6 +87,10 @@ cdef class SpeciesThermo:
         raise NotImplementedError('Needs to be overloaded')
 
     property input_data:
+        """
+        Get input data defining this SpeciesThermo object, along with any user-specified
+        data provided with its input (YAML) definition.
+        """
         def __get__(self):
             return anymap_to_dict(self.spthermo.parameters(True))
 
@@ -232,7 +236,7 @@ cdef class ShomatePoly2(SpeciesThermo):
             - `coeffs[8:15]`: The 7 coefficients of the high-temperature
               parameterization
 
-        These coefficients should be provided in their customary units (i.e.
+        These coefficients should be provided in their customary units (that is,
         such that :math:`c_p^o` is in J/gmol-K and :math:`H^o` is in kJ/gmol,
         as in the NIST Chemistry WebBook).
     """

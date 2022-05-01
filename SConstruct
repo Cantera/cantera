@@ -146,7 +146,9 @@ if "test-clean" in COMMAND_LINE_TARGETS:
     remove_directory("test/work")
     remove_directory("build/python_local")
 
-logger.info("SCons is using the following Python interpreter: {}", sys.executable)
+logger.info(
+    f"SCons {SCons.__version__} is using the following Python interpreter:\n"
+    f"{sys.executable} (Python {python_version})")
 
 # ******************************************
 # *** Specify defaults for SCons options ***
@@ -528,7 +530,7 @@ config_options = [
         {"mingw": False, "default": True}),
     BoolOption(
         "use_rpath_linkage",
-        """If enabled, link to all shared libraries using 'rpath', i.e., a fixed
+        """If enabled, link to all shared libraries using 'rpath', that is, a fixed
            run-time search path for dynamic library loading.""",
         True),
     Option(
@@ -872,7 +874,7 @@ for arg in ARGUMENTS:
         logger.error(f"Encountered unexpected command line option: '{arg}'")
         sys.exit(1)
 
-env["cantera_version"] = "2.6.0b2"
+env["cantera_version"] = "2.6.0"
 # For use where pre-release tags are not permitted (MSI, sonames)
 env['cantera_pure_version'] = re.match(r'(\d+\.\d+\.\d+)', env['cantera_version']).group(0)
 env['cantera_short_version'] = re.match(r'(\d+\.\d+)', env['cantera_version']).group(0)
@@ -1324,7 +1326,7 @@ if env['system_sundials'] == 'y':
         config_error("Failed to determine Sundials version.")
     sundials_version = sundials_version.strip(' "\n')
 
-    # Ignore the minor version, e.g. 2.4.x -> 2.4
+    # Ignore the minor version, for example 2.4.x -> 2.4
     env['sundials_version'] = '.'.join(sundials_version.split('.')[:2])
     sundials_ver = parse_version(env['sundials_version'])
     if sundials_ver < parse_version("2.4") or sundials_ver >= parse_version("7.0"):
@@ -1656,7 +1658,7 @@ if env["matlab_toolbox"] == "y":
     if env['blas_lapack_libs']:
         logger.error(
             "The Matlab toolbox is incompatible with external BLAS "
-            "and LAPACK libraries. Unset blas_lapack_libs (e.g. 'scons "
+            "and LAPACK libraries. Unset blas_lapack_libs (for example, 'scons "
             "build blas_lapack_libs=') in order to build the Matlab "
             "toolbox, or set 'matlab_toolbox=n' to use the specified BLAS/"
             "LAPACK libraries and skip building the Matlab toolbox.")
@@ -1665,7 +1667,7 @@ if env["matlab_toolbox"] == "y":
     if env["system_sundials"] == "y":
         logger.error(
             "The Matlab toolbox is incompatible with external SUNDIALS "
-            "libraries. Set system_sundials to no (e.g., 'scons build "
+            "libraries. Set system_sundials to no (for example, 'scons build "
             "system_sundials=n') in order to build the Matlab "
             "toolbox, or set 'matlab_toolbox=n' to use the specified "
             "SUNDIALS libraries and skip building the Matlab toolbox.")
@@ -1689,6 +1691,22 @@ env['debian'] = any(name.endswith('dist-packages') for name in sys.path)
 # Identify options selected either on command line or in cantera.conf
 selected_options = set(line.split("=")[0].strip()
     for line in cantera_conf.splitlines())
+
+# Always set the stage directory before building an MSI installer
+if "msi" in COMMAND_LINE_TARGETS:
+    COMMAND_LINE_TARGETS.append("install")
+    env["stage_dir"] = "stage"
+    env["prefix"] = "."
+    selected_options.add("prefix")
+    selected_options.add("stage_dir")
+    env["python_package"] = "none"
+elif env["layout"] == "debian":
+    COMMAND_LINE_TARGETS.append("install")
+    env["stage_dir"] = "stage/cantera"
+    env["PYTHON_INSTALLER"] = "debian"
+    env["INSTALL_MANPAGES"] = False
+else:
+    env["PYTHON_INSTALLER"] = "direct"
 
 env["default_prefix"] = True
 if "prefix" in selected_options:
@@ -1753,19 +1771,6 @@ else:
     else:
         env["ct_matlab_dir"] = pjoin(
             env["prefix"], env["libdirname"], "cantera", "matlab", "toolbox")
-
-# Always set the stage directory before building an MSI installer
-if 'msi' in COMMAND_LINE_TARGETS:
-    COMMAND_LINE_TARGETS.append('install')
-    env['stage_dir'] = 'stage'
-    env['prefix'] = '.'
-elif env['layout'] == 'debian':
-    COMMAND_LINE_TARGETS.append('install')
-    env['stage_dir'] = 'stage/cantera'
-    env['PYTHON_INSTALLER'] = 'debian'
-    env['INSTALL_MANPAGES'] = False
-else:
-    env['PYTHON_INSTALLER'] = 'direct'
 
 
 addInstallActions = ('install' in COMMAND_LINE_TARGETS or

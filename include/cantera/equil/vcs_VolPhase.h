@@ -364,7 +364,7 @@ public:
      * - VCS_PHASE_EXIST_ALWAYS = 3: Always exists because it contains inerts
      *   which can't exist in any other phase. Or, the phase exists always
      *   because it consists of a single species, which is identified with the
-     *   voltage, i.e., it's an electron metal phase.
+     *   voltage, for example, it's an electron metal phase.
      */
     int exists() const;
 
@@ -647,7 +647,7 @@ private:
      * - VCS_PHASE_EXIST_ALWAYS = 3: Always exists because it contains inerts
      *   which can't exist in any other phase. Or, the phase exists always
      *   because it consists of a single species, which is identified with the
-     *   voltage, i.e., its an electron metal phase.
+     *   voltage, for example, its an electron metal phase.
      */
     int m_existence;
 

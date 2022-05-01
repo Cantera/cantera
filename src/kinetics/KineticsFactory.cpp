@@ -10,6 +10,7 @@
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/kinetics/EdgeKinetics.h"
 #include "cantera/kinetics/importKinetics.h"
+#include "cantera/thermo/ThermoPhase.h"
 #include "cantera/base/xml.h"
 #include "cantera/base/stringUtils.h"
 
@@ -63,8 +64,23 @@ unique_ptr<Kinetics> newKinetics(const vector<ThermoPhase*>& phases,
                                  const AnyMap& phaseNode,
                                  const AnyMap& rootNode)
 {
-    unique_ptr<Kinetics> kin(KineticsFactory::factory()->newKinetics(
-        phaseNode.getString("kinetics", "none")));
+    std::string kinType = phaseNode.getString("kinetics", "none");
+    kinType = KineticsFactory::factory()->canonicalize(kinType);
+    if (kinType == "none") {
+        // determine phase with minimum number of dimensions
+        size_t nDim = 3;
+        for (auto& phase : phases) {
+            nDim = std::min(phase->nDim(), nDim);
+        }
+        // change kinetics type as necessary
+        if (nDim == 2) {
+            kinType = "surface";
+        } else if (nDim == 1) {
+            kinType = "edge";
+        }
+    }
+
+    unique_ptr<Kinetics> kin(KineticsFactory::factory()->newKinetics(kinType));
     for (auto& phase : phases) {
         kin->addPhase(*phase);
     }
@@ -108,11 +124,6 @@ void addReactions(Kinetics& kin, const AnyMap& phaseNode, const AnyMap& rootNode
     vector<string> sections, rules;
 
     if (phaseNode.hasKey("reactions")) {
-        if (kin.kineticsType() == "None") {
-            throw InputFileError("addReactions", phaseNode["reactions"],
-                "Phase entry includes a 'reactions' field but does not "
-                "specify a kinetics model.");
-        }
         const auto& reactionsNode = phaseNode.at("reactions");
         if (reactionsNode.is<string>()) {
             if (rootNode.hasKey("reactions")) {
@@ -140,7 +151,10 @@ void addReactions(Kinetics& kin, const AnyMap& phaseNode, const AnyMap& rootNode
             }
         }
     } else if (kin.kineticsType() != "None") {
-        if (rootNode.hasKey("reactions")) {
+        if (!phaseNode.hasKey("kinetics")) {
+            // Do nothing - default surface or edge kinetics require separate detection
+            // while not adding reactions
+        } else if (rootNode.hasKey("reactions")) {
             // Default behavior is to add all reactions from the 'reactions'
             // section, if a 'kinetics' model has been specified
             sections.push_back("reactions");

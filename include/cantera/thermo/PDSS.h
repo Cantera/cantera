@@ -26,7 +26,7 @@ namespace Cantera
  * necessary to know something about the thermodynamic properties of the
  * individual species present in the solution. Exactly what sort of species
  * properties are required depends on the thermodynamic model for the solution.
- * For a gaseous solution (i.e., a gas mixture), the species properties required
+ * For a gaseous solution (that is, a gas mixture), the species properties required
  * are usually ideal gas properties at the mixture temperature and at a
  * reference pressure (almost always at 1 bar). For other types of solutions,
  * however, it may not be possible to isolate the species in a "pure" state. For
@@ -113,7 +113,7 @@ namespace Cantera
  * represent a duplication of work. Additionally, when evaluating thermodynamic
  * properties at higher pressures and temperatures, near the critical point,
  * evaluation of the thermodynamics at a pressure of 1 bar may lead to
- * situations where the liquid is unstable, i.e., beyond the spinodal curve
+ * situations where the liquid is unstable, that is, beyond the spinodal curve
  * leading to potentially wrong evaluation results.
  *
  * @ingroup thermoprops
@@ -414,7 +414,7 @@ public:
      */
     virtual void initThermo() {}
 
-    //! Set model parameters from an AnyMap phase description, e.g. from the
+    //! Set model parameters from an AnyMap phase description, for example from the
     //! `equation-of-state` field of a species definition.
     void setParameters(const AnyMap& node) {
         m_input = node;

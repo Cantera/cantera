@@ -27,6 +27,8 @@ class FlameBase(Sim1D):
             grid = np.linspace(0.0, 0.1, 6)
         self.flame.grid = grid
         super().__init__(domains)
+
+        #: The `Solution` object representing the species and reactions in the flame
         self.gas = gas
         self.flame.P = gas.P
 
@@ -294,7 +296,7 @@ class FlameBase(Sim1D):
     @property
     def spread_rate(self):
         """
-        Array containing the tangential velocity gradient [1/s] (e.g. radial
+        Array containing the tangential velocity gradient [1/s] (that is, radial
         velocity divided by radius) at each point.
         """
         return self.profile(self.flame, 'spread_rate')
@@ -385,7 +387,7 @@ class FlameBase(Sim1D):
         :param filename:
             Output file name
         :param species:
-            Attribute to use obtaining species profiles, e.g. ``X`` for
+            Attribute to use obtaining species profiles, for example ``X`` for
             mole fractions or ``Y`` for mass fractions.
         :param normalize:
             Boolean flag to indicate whether the mole/mass fractions should
@@ -457,7 +459,7 @@ class FlameBase(Sim1D):
         Return the solution vector as a `pandas.DataFrame`.
 
         :param species:
-            Attribute to use obtaining species profiles, e.g. ``X`` for
+            Attribute to use obtaining species profiles, for example ``X`` for
             mole fractions or ``Y`` for mass fractions.
         :param normalize:
             Boolean flag to indicate whether the mole/mass fractions should
@@ -540,7 +542,7 @@ class FlameBase(Sim1D):
             Identifier for the group in the container file. A group may contain
             multiple `SolutionArray` objects.
         :param species:
-            Attribute to use obtaining species profiles, e.g. ``X`` for
+            Attribute to use obtaining species profiles, for example ``X`` for
             mole fractions or ``Y`` for mass fractions.
         :param mode:
             Mode *h5py* uses to open the output file {'a' to read/write if file
@@ -700,6 +702,9 @@ def _array_property(attr, size=None):
     else:
         extradoc = "\nReturns an array of size `%s` x `n_points`." % size
 
+    basedoc = getattr(Solution, attr).__doc__
+
+
     doc = _trim(getattr(Solution, attr).__doc__) +'\n' + extradoc
     return property(getter, doc=doc)
 
@@ -725,6 +730,12 @@ for _attr in ['X', 'Y', 'concentrations', 'partial_molar_enthalpies',
               'destruction_rates', 'net_production_rates', 'mix_diff_coeffs',
               'mix_diff_coeffs_mass', 'mix_diff_coeffs_mole', 'thermal_diff_coeffs']:
     setattr(FlameBase, _attr, _array_property(_attr, 'n_species'))
+
+# Remove misleading examples and references to setters that don't exist
+FlameBase.X.__doc__ = "Array of mole fractions of size `n_species` x `n_points`"
+FlameBase.Y.__doc__ = "Array of mass fractions of size `n_species` x `n_points`"
+FlameBase.concentrations.__doc__ = ("Array of species concentrations [kmol/m^3]"
+                                    " of size `n_species` x `n_points`")
 
 # Add properties with values for each reaction
 for _attr in ['forward_rates_of_progress', 'reverse_rates_of_progress', 'net_rates_of_progress',
@@ -754,10 +765,16 @@ class FreeFlame(FlameBase):
             Defines a grid on the interval [0, width] with internal points
             determined automatically by the solver.
         """
+
+        #: `Inlet1D` at the left of the domain representing premixed reactants
         self.inlet = Inlet1D(name='reactants', phase=gas)
+
+        #: `Outlet1D` at the right of the domain representing the burned products
         self.outlet = Outlet1D(name='products', phase=gas)
+
         if not hasattr(self, 'flame'):
             # Create flame domain if not already instantiated by a child class
+            #: `IdealGasFlow` domain representing the flame
             self.flame = IdealGasFlow(gas, name='flame')
             self.flame.set_free_flow()
 
@@ -955,6 +972,7 @@ class IonFreeFlame(IonFlameBase, FreeFlame):
     def __init__(self, gas, grid=None, width=None):
         if not hasattr(self, 'flame'):
             # Create flame domain if not already instantiated by a child class
+            #: `IonFlow` domain representing the flame
             self.flame = IonFlow(gas, name='flame')
             self.flame.set_free_flow()
 
@@ -984,10 +1002,16 @@ class BurnerFlame(FlameBase):
         domains comprising the stack are stored as ``self.burner``,
         ``self.flame``, and ``self.outlet``.
         """
+        #: `Inlet1D` at the left of the domain representing the burner surface through
+        #: which reactants flow
         self.burner = Inlet1D(name='burner', phase=gas)
+
+        #: `Outlet1D` at the right of the domain representing the burned gas
         self.outlet = Outlet1D(name='outlet', phase=gas)
+
         if not hasattr(self, 'flame'):
             # Create flame domain if not already instantiated by a child class
+            #: `IdealGasFlow` domain representing the flame
             self.flame = IdealGasFlow(gas, name='flame')
             self.flame.set_axisymmetric_flow()
 
@@ -1099,6 +1123,7 @@ class IonBurnerFlame(IonFlameBase, BurnerFlame):
     def __init__(self, gas, grid=None, width=None):
         if not hasattr(self, 'flame'):
             # Create flame domain if not already instantiated by a child class
+            #: `IonFlow` domain representing the flame
             self.flame = IonFlow(gas, name='flame')
             self.flame.set_axisymmetric_flow()
 
@@ -1128,12 +1153,16 @@ class CounterflowDiffusionFlame(FlameBase):
         domains comprising the stack are stored as ``self.fuel_inlet``,
         ``self.flame``, and ``self.oxidizer_inlet``.
         """
+
+        #: `Inlet1D` at the left of the domain representing the fuel mixture
         self.fuel_inlet = Inlet1D(name='fuel_inlet', phase=gas)
         self.fuel_inlet.T = gas.T
 
+        #: `Inlet1D` at the right of the domain representing the oxidizer mixture
         self.oxidizer_inlet = Inlet1D(name='oxidizer_inlet', phase=gas)
         self.oxidizer_inlet.T = gas.T
 
+        #: `IdealGasFlow` domain representing the flame
         self.flame = IdealGasFlow(gas, name='flame')
         self.flame.set_axisymmetric_flow()
 
@@ -1436,7 +1465,11 @@ class ImpingingJet(FlameBase):
         domains comprising the stack are stored as ``self.inlet``,
         ``self.flame``, and ``self.surface``.
         """
+
+        #: `Inlet1D` at the left of the domain representing the incoming reactants
         self.inlet = Inlet1D(name='inlet', phase=gas)
+
+        #: `IdealGasFlow` domain representing the flame
         self.flame = IdealGasFlow(gas, name='flame')
         self.flame.set_axisymmetric_flow()
 
@@ -1444,6 +1477,8 @@ class ImpingingJet(FlameBase):
             grid = np.array([0.0, 0.2, 0.4, 0.6, 0.8, 1.0]) * width
 
         if surface is None:
+            #: `Surface1D` or `ReactingSurface1D` domain representing the surface the
+            #: flow is impinging on
             self.surface = Surface1D(name='surface', phase=gas)
             self.surface.T = gas.T
         else:
@@ -1518,12 +1553,16 @@ class CounterflowPremixedFlame(FlameBase):
         domains comprising the stack are stored as ``self.reactants``,
         ``self.flame``, and ``self.products``.
         """
+
+        #: `Inlet1D` at the left of the domain representing premixed reactants
         self.reactants = Inlet1D(name='reactants', phase=gas)
         self.reactants.T = gas.T
 
+        #: `Inlet1D` at the right of the domain representing burned products
         self.products = Inlet1D(name='products', phase=gas)
         self.products.T = gas.T
 
+        #: `IdealGasFlow` domain representing the flame
         self.flame = IdealGasFlow(gas, name='flame')
         self.flame.set_axisymmetric_flow()
 

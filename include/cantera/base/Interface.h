@@ -84,7 +84,7 @@ shared_ptr<Interface> newInterface(const std::string& infile,
 /*!
  * This constructor wraps newPhase() and newKinetics()
  *
- * @param phaseNode the node containing the phase definition (i.e. thermo model,
+ * @param phaseNode the node containing the phase definition (that is, thermo model,
  *     list of species, and initial state)
  * @param rootNode the root node of the tree containing the phase definition, which
  *     will be used as the default location from which to read species definitions.

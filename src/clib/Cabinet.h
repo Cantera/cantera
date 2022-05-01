@@ -26,7 +26,7 @@
  * non-C++ calling routine, as some other interfacing schemes do.
  *
  * The Cabinet<M> class can be used to store pointers to any class
- * that is default-constructible (i.e., has a constructor that takes
+ * that is default-constructible (that is, has a constructor that takes
  * no arguments). The requirement that the class be
  * default-constructible arises since the Cabinet constructor always
  * creates an instance of M by invoking 'new M', and stores a pointer

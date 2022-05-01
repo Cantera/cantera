@@ -3,7 +3,7 @@
  *   Definitions of global routines for the importing
  *   of data from XML files (see \ref inputfiles).
  *
- *     This file contains routines which are global routines, i.e.,
+ *     This file contains routines which are global routines, that is,
  *     not part of any object. These routine take as input, ctml
  *     pointers to data, and pointers to %Cantera objects. The purpose
  *     of these routines is to initialize the %Cantera objects with data
@@ -125,7 +125,7 @@ bool buildSolutionFromXML(XML_Node& root, const std::string& id,
 //! Check to ensure that all electrochemical reactions are specified correctly
 /*!
  *  This function ensures the user has correctly specified all electrochemical
- *  reactions. The routine counts the amount of charge (i.e. number of electron
+ *  reactions. The routine counts the amount of charge (that is, number of electron
  *  elements specified for each species in each phase) for both reactants and
  *  products. If net charge transfer phases during a reaction, the reaction is
  *  electrochemical. If not already specified as such, the function defines the

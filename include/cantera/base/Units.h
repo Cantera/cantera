@@ -138,7 +138,7 @@ struct UnitStack
  * Provides functions for converting dimensional values from a given unit system.
  * The main use is for converting values specified in input files to Cantera's
  * native unit system, which is SI units except for the use of kmol as the base
- * unit of quantity, i.e. kilogram, meter, second, kelvin, ampere, and kmol.
+ * unit of quantity, that is, kilogram, meter, second, kelvin, ampere, and kmol.
  *
  * String representations of units can be written using multiplication,
  * division, and exponentiation. Spaces are ignored. Positive, negative, and
@@ -149,10 +149,10 @@ struct UnitStack
  *     m*s^-2
  *     J/kg/K
  *
- * Metric prefixes are recognized for all units, e.g. nm, hPa, mg, EJ, mL, kcal.
+ * Metric prefixes are recognized for all units, such as nm, hPa, mg, EJ, mL, kcal.
  *
  * Special functions for converting activation energies allow these values to be
- * expressed as either energy per quantity, energy (e.g. eV), or temperature by
+ * expressed as either energy per quantity, energy (for example, eV), or temperature by
  * applying a factor of the Avogadro number or the gas constant where needed.
  *
  * @ingroup inputfiles
@@ -215,7 +215,7 @@ public:
 
     //! Convert a generic AnyValue node to the units specified in `dest`. If the
     //! input is a double, convert it using the default units. If the input is a
-    //! string, treat this as a dimensioned value, e.g. '988 kg/m^3' and convert
+    //! string, treat this as a dimensioned value, such as '988 kg/m^3' and convert
     //! from the specified units.
     double convert(const AnyValue& val, const std::string& dest) const;
     double convert(const AnyValue& val, const Units& dest) const;
@@ -244,7 +244,7 @@ public:
 
     //! Convert a generic AnyValue node to the units specified in `dest`. If the
     //! input is a double, convert it using the default units. If the input is a
-    //! string, treat this as a dimensioned value, e.g. '2.7e4 J/kmol' and
+    //! string, treat this as a dimensioned value, such as '2.7e4 J/kmol', and
     //! convert from the specified units.
     double convertActivationEnergy(const AnyValue& val,
                                    const std::string& dest) const;

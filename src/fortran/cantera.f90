@@ -1,4 +1,4 @@
-! This module is the only 'public' one - i.e., the only one visible in
+! This module is the only 'public' one - that is, the only one visible in
 ! an application program. It's primary purpose is to provide generic
 ! procedure names that map to specific procedures depending on the
 ! argument types.

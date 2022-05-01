@@ -221,7 +221,7 @@ public:
      * have additionally specified in this class that the pure species molar
      * volumes are independent of temperature and pressure.
      */
-    void calcDensity();
+    virtual void calcDensity();
 
     //! @}
 
@@ -450,7 +450,7 @@ public:
     //! current T and P of the solution.
     /*!
      * Note, this is equal to the reference state entropies due to the zero
-     * volume expansivity: i.e., (dS/dP)_T = (dV/dT)_P = 0.0
+     * volume expansivity: that is, (dS/dP)_T = (dV/dT)_P = 0.0
      *
      * @param sr Vector of length m_kk, which on return sr[k] will contain the
      *           nondimensional standard state entropy for species k.

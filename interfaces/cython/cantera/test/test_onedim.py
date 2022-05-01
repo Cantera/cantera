@@ -502,7 +502,7 @@ class TestFreeFlame(utilities.CanteraTest):
 
         self.assertLess(N2, N1)
 
-        # TODO: check that the solution is actually correct (i.e. that the
+        # TODO: check that the solution is actually correct (that is, that the
         # residual satisfies the error tolerances) on the new grid.
 
     @pytest.mark.usefixtures("allow_deprecated")

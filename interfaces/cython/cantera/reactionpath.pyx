@@ -142,6 +142,10 @@ cdef class ReactionPathDiagram:
         self.diagram.add(other.diagram)
 
     def display_only(self, int k):
+        """
+        Include only species and fluxes that are directly connected to the
+        species with index ``k``. Set to -1 to include all species.
+        """
         self.diagram.displayOnly(k)
 
     def get_dot(self):
@@ -176,7 +180,7 @@ cdef class ReactionPathDiagram:
     def build(self, verbose=False):
         """
         Build the reaction path diagram. Called automatically by methods which
-        return representations of the diagram, e.g. write_dot().
+        return representations of the diagram, for example write_dot().
         """
         self.builder.build(deref(self.kinetics.kinetics),
                            stringify(self.element), deref(self._log),

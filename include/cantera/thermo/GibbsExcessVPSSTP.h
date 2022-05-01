@@ -138,7 +138,7 @@ public:
      * for all species in a phase - for example, for an ideal gas
      * \f$ C^0_k = P/\hat R T \f$. For this reason, this method returns a single
      * value, instead of an array.  However, for phases in which the standard
-     * concentration is species-specific (e.g. surface species of different
+     * concentration is species-specific (for example, surface species of different
      * sizes), this method may be called with an optional parameter indicating
      * the species.
      *
@@ -190,7 +190,7 @@ public:
      * This function is a virtual method.  For ideal mixtures (unity activity
      * coefficients), this can return zero. Implementations should take the
      * derivative of the logarithm of the activity coefficient with respect to
-     * the logarithm of the concentration-like variable (i.e. number of moles in
+     * the logarithm of the concentration-like variable (for example, number of moles in
      * in a unit volume. ) that represents the standard state. This quantity is
      * to be used in conjunction with derivatives of that concentration-like
      * variable when the derivative of the chemical potential is taken.

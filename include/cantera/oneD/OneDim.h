@@ -194,7 +194,7 @@ public:
      */
     Domain1D* pointDomain(size_t i);
 
-    //! Call after one or more grids has changed size, e.g. after being refined.
+    //! Call after one or more grids has changed size, for example after being refined.
     virtual void resize();
 
     vector_int& transientMask() {
@@ -375,7 +375,7 @@ private:
     vector_int m_funcEvals;
     vector_fp m_funcElapsed;
 
-    //! Number of time steps taken in each call to solve() (e.g. for each
+    //! Number of time steps taken in each call to solve() (for example, for each
     //! successive grid refinement)
     vector_int m_timeSteps;
 };

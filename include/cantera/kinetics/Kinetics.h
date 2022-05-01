@@ -317,7 +317,7 @@ public:
 
     /**
      * This function takes as an argument the kineticsSpecies index
-     * (i.e., the list index in the list of species in the kinetics
+     * (that is, the list index in the list of species in the kinetics
      * manager) and returns the species' owning ThermoPhase object.
      *
      * @param k          Species index
@@ -327,7 +327,7 @@ public:
     }
 
     /**
-     * This function takes as an argument the kineticsSpecies index (i.e., the
+     * This function takes as an argument the kineticsSpecies index (that is, the
      * list index in the list of species in the kinetics manager) and returns
      * the index of the phase owning the species.
      *

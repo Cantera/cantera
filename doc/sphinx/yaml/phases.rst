@@ -1,5 +1,7 @@
 .. highlight:: yaml
 
+.. _sec-yaml-phases:
+
 *****************
 Phase Definitions
 *****************
@@ -76,6 +78,7 @@ and optionally reactions that can take place in that phase. The fields of a
     - :ref:`constant-density <sec-yaml-constant-density>`
     - :ref:`Debye-Huckel <sec-yaml-Debye-Huckel>`
     - :ref:`edge <sec-yaml-edge>`
+    - :ref:`electron-cloud <sec-yaml-electron-cloud>`
     - :ref:`fixed-stoichiometry <sec-yaml-fixed-stoichiometry>`
     - :ref:`HMW-electrolyte <sec-yaml-HMW-electrolyte>`
     - :ref:`ideal-gas <sec-yaml-ideal-gas>`
@@ -88,7 +91,8 @@ and optionally reactions that can take place in that phase. The fields of a
     - :ref:`liquid-water-IAPWS95 <sec-yaml-liquid-water-IAPWS95>`
     - :ref:`Margules <sec-yaml-Margules>`
     - :ref:`Maskell-solid-solution <sec-yaml-Maskell-solid-solution>`
-    - :ref:`electron-cloud <sec-yaml-electron-cloud>`
+    - :ref:`Peng-Robinson <sec-yaml-Peng-Robinson>`
+    - :ref:`plasma <sec-yaml-plasma>`
     - :ref:`pure-fluid <sec-yaml-pure-fluid>`
     - :ref:`Redlich-Kister <sec-yaml-Redlich-Kister>`
     - :ref:`Redlich-Kwong <sec-yaml-Redlich-Kwong>`
@@ -213,7 +217,7 @@ Includes the fields of :ref:`sec-yaml-ideal-molal-solution`, plus:
     added.
 
 ``tabulated-thermo``
-    A mapping containing three lists of equal lengths:
+    A mapping containing three (optionally four) lists of equal lengths:
 
     ``mole-fractions``
         A list of mole fraction values for the tabulated species.
@@ -225,6 +229,10 @@ Includes the fields of :ref:`sec-yaml-ideal-molal-solution`, plus:
     ``entropy``
         The extra molar entropy to be added to the tabulated species at these
         mole fractions.
+
+    ``molar-volume``
+        The molar volume of the phase at these mole fractions. This input is
+        optional.
 
 
 .. _sec-yaml-compound-lattice:
@@ -822,3 +830,81 @@ A multi-species Redlich-Kwong phase as
 
 The parameters for each species are contained in the corresponding species
 entries.
+
+.. _sec-yaml-Peng-Robinson:
+
+``Peng-Robinson``
+-----------------
+
+A multi-species Peng-Robinson phase as
+`described here <https://cantera.org/documentation/dev/doxygen/html/d3/ddc/classCantera_1_1PengRobinson.html#details>`__.
+
+The parameters for each species are contained in the corresponding species
+entries.
+
+.. _sec-yaml-plasma:
+
+``plasma``
+----------
+
+A phase for plasma. This phase handles plasma properties such as the electron
+energy distribution and electron temperature with different models as
+`described here <https://cantera.org/documentation/dev/doxygen/html/d5/dd7/classCantera_1_1PlasmaPhase.html#details>`__.
+
+
+Additional fields:
+
+``electron-energy-distribution``
+    A mapping with the following fields:
+
+    ``type``
+        String specifying the type of the electron energy distribution to be used.
+        Supported model strings are:
+
+        - `isotropic`
+        - `discretized`
+
+    ``shape-factor``
+        A constant in the isotropic distribution, which is shown as x in the
+        detailed description of this class. The value needs to be a positive
+        number. This field is only used with `isotropic`. Defaults to 2.0.
+
+    ``mean-electron-energy``
+        Mean electron energy of the isotropic distribution. The default sets
+        the electron temperature equal gas temperature and uses the
+        corresponding electron energy as mean electron energy.  This field
+        is only used with `isotropic`.
+
+    ``energy-levels``
+        A list of values specifying the electron energy levels. The default
+        uses 1001 equal spaced points from 0 to 1 eV.
+
+    ``distribution``
+        A list of values specifying the discretized electron energy distribution.
+        This field is only used with `discretized`.
+
+    ``normalize``
+        A flag specifying whether normalizing the discretized electron energy
+        distribution or not. This field is only used with `discretized`.
+        Defaults to ``true``.
+
+Example::
+
+    - name: isotropic-electron-energy-plasma
+      thermo: plasma
+      kinetics: gas
+      transport: Ion
+      electron-energy-distribution:
+        type: isotropic
+        shape-factor: 2.0
+        mean-electron-energy: 1.0 eV
+        energy-levels: [0.0, 0.1, 1.0, 10.0]
+    - name: discretized-electron-energy-plasma
+      thermo: plasma
+      kinetics: gas
+      transport: Ion
+      electron-energy-distribution:
+        type: discretized
+        energy-levels: [0.0, 0.1, 1.0, 10.0]
+        distribution: [0.0, 0.2, 0.7, 0.01]
+        normalize: False

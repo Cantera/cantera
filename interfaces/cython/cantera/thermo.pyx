@@ -9,6 +9,21 @@ cdef enum ThermoBasisType:
     mass_basis = 0
     molar_basis = 1
 
+ctypedef CxxPlasmaPhase* CxxPlasmaPhasePtr
+
+class ThermoModelMethodError(Exception):
+    """Exception raised for an invalid method used by a thermo model
+
+    :param thermo_model:
+        The thermo model used by class `ThermoPhase`
+
+    """
+
+    def __init__(self, thermo_model):
+        self.thermo_model = thermo_model
+        super().__init__(f"This method is invalid for {self.thermo_model}")
+
+
 cdef class Species:
     """
     A class which stores data about a single chemical species that may be
@@ -16,10 +31,10 @@ cdef class Species:
     underlying `ThermoPhase` and `Transport` objects).
 
     :param name:
-        A string giving the name of the species, e.g. ``'CH4'``
+        A string giving the name of the species, such as ``'CH4'``
     :param composition:
         The elemental composition of the species, given either as a dict or a
-        composition string, e.g. ``{'C':1, 'H':4}`` or ``'C:1, H:4'``.
+        composition string, such as ``{'C':1, 'H':4}`` or ``'C:1, H:4'``.
     :param charge:
         The electrical charge, in units of the elementary charge. Default 0.0.
     :param size:
@@ -327,6 +342,10 @@ cdef class Species:
             self.species.transport = tran._data
 
     property input_data:
+        """
+        Get input data defining this Species, along with any user-specified data
+        provided with its input (YAML) definition.
+        """
         def __get__(self):
             cdef CxxThermoPhase* phase = self._phase.thermo if self._phase else NULL
             return anymap_to_dict(self.species.parameters(phase))
@@ -370,6 +389,11 @@ cdef class ThermoPhase(_SolutionBase):
         # to prevent instantiation of stand-alone 'Kinetics' or 'Transport' objects.
         # The following is used as a sentinel.
         self._references = weakref.WeakKeyDictionary()
+        # validate plasma phase
+        self._enable_plasma = False
+        if dynamic_cast[CxxPlasmaPhasePtr](self.thermo):
+            self._enable_plasma = True
+            self.plasma = <CxxPlasmaPhase*>self.thermo
 
     property thermo_model:
         """
@@ -646,6 +670,10 @@ cdef class ThermoPhase(_SolutionBase):
         return s
 
     def modify_species(self, k, Species species):
+        """
+        Modify the thermodynamic data associated with a species. The species name,
+        elemental composition, and type of thermo parameterization must be unchanged.
+        """
         self.thermo.modifySpecies(k, species._species)
         if self.kinetics:
             self.kinetics.invalidateCache()
@@ -1188,11 +1216,19 @@ cdef class ThermoPhase(_SolutionBase):
         self.thermo.setMoleFractions_NoNorm(&data[0])
 
     def mass_fraction_dict(self, double threshold=0.0):
+        """
+        Return a dictionary giving the mass fraction for each species by name where the
+        mass fraction is greater than ``threshold``.
+        """
         cdef pair[string,double] item
         Y = self.thermo.getMassFractionsByName(threshold)
         return {pystr(item.first):item.second for item in Y}
 
     def mole_fraction_dict(self, double threshold=0.0):
+        """
+        Return a dictionary giving the mole fraction for each species by name where the
+        mole fraction is greater than ``threshold``.
+        """
         cdef pair[string,double] item
         X = self.thermo.getMoleFractionsByName(threshold)
         return {pystr(item.first):item.second for item in X}
@@ -1639,14 +1675,6 @@ cdef class ThermoPhase(_SolutionBase):
             self.thermo.setState_SV(S / self._mass_factor(),
                                     V / self._mass_factor())
 
-    property Te:
-        """Get/Set electron Temperature [K]."""
-        def __get__(self):
-            return self.thermo.electronTemperature()
-        def __set__(self, value):
-            Te = value if value is not None else self.Te
-            self.thermo.setElectronTemperature(Te)
-
     # partial molar / non-dimensional properties
     property partial_molar_enthalpies:
         """Array of species partial molar enthalpies [J/kmol]."""
@@ -1785,6 +1813,131 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             cdef CxxUnits units = self.thermo.standardConcentrationUnits()
             return Units.copy(units)
+
+    # methods for plasma
+    property Te:
+        """Get/Set electron Temperature [K]."""
+        def __get__(self):
+                return self.thermo.electronTemperature()
+
+        def __set__(self, value):
+            if not self._enable_plasma:
+                raise ThermoModelMethodError(self.thermo_model)
+            self.plasma.setElectronTemperature(value)
+
+    def set_discretized_electron_energy_distribution(self, levels, distribution):
+        """
+        Set electron energy distribution. When this method is used, electron
+        temperature is calculated from the distribution.
+
+        :param levels:
+            vector of electron energy levels [eV]
+        :param distribution:
+            vector of distribution
+        """
+        if not self._enable_plasma:
+            raise TypeError('This method is invalid for '
+                            f'thermo model: {self.thermo_model}.')
+        # check length
+        if (len(levels) != len(distribution)):
+            raise ValueError('Length of levels and distribution are different')
+
+        cdef np.ndarray[np.double_t, ndim=1] data_levels = \
+            np.ascontiguousarray(levels, dtype=np.double)
+        cdef np.ndarray[np.double_t, ndim=1] data_dist = \
+            np.ascontiguousarray(distribution, dtype=np.double)
+
+        self.plasma.setDiscretizedElectronEnergyDist(&data_levels[0],
+                                                     &data_dist[0],
+                                                     len(levels))
+
+    property n_electron_energy_levels:
+        """ Number of electron energy levels """
+        def __get__(self):
+            if not self._enable_plasma:
+                raise ThermoModelMethodError(self.thermo_model)
+            return self.plasma.nElectronEnergyLevels()
+
+    property electron_energy_levels:
+        """ Electron energy levels [eV]"""
+        def __get__(self):
+            if not self._enable_plasma:
+                raise ThermoModelMethodError(self.thermo_model)
+            cdef np.ndarray[np.double_t, ndim=1] data = np.empty(
+                self.n_electron_energy_levels)
+            self.plasma.getElectronEnergyLevels(&data[0])
+            return data
+        def __set__(self, levels):
+            if not self._enable_plasma:
+                raise ThermoModelMethodError(self.thermo_model)
+            cdef np.ndarray[np.double_t, ndim=1] data = \
+                np.ascontiguousarray(levels, dtype=np.double)
+            self.plasma.setElectronEnergyLevels(&data[0], len(levels))
+
+    property electron_energy_distribution:
+        """ Electron energy distribution """
+        def __get__(self):
+            if not self._enable_plasma:
+                raise ThermoModelMethodError(self.thermo_model)
+            cdef np.ndarray[np.double_t, ndim=1] data = np.empty(
+                self.n_electron_energy_levels)
+            self.plasma.getElectronEnergyDistribution(&data[0])
+            return data
+
+    property isotropic_shape_factor:
+        """ Shape factor of isotropic-velocity distribution for electron energy """
+        def __get__(self):
+            if not self._enable_plasma:
+                raise ThermoModelMethodError(self.thermo_model)
+            return self.plasma.isotropicShapeFactor()
+        def __set__(self, x):
+            if not self._enable_plasma:
+                raise ThermoModelMethodError(self.thermo_model)
+            self.plasma.setIsotropicShapeFactor(x)
+
+    property electron_energy_distribution_type:
+        """ Electron energy distribution type """
+        def __get__(self):
+            if not self._enable_plasma:
+                raise ThermoModelMethodError(self.thermo_model)
+            return pystr(self.plasma.electronEnergyDistributionType())
+        def __set__(self, distribution_type):
+            if not self._enable_plasma:
+                raise ThermoModelMethodError(self.thermo_model)
+            self.plasma.setElectronEnergyDistributionType(distribution_type)
+
+    property mean_electron_energy:
+        """ Mean electron energy [eV] """
+        def __get__(self):
+            if not self._enable_plasma:
+                raise ThermoModelMethodError(self.thermo_model)
+            return self.plasma.meanElectronEnergy()
+        def __set__(self, double energy):
+            if not self._enable_plasma:
+                raise ThermoModelMethodError(self.thermo_model)
+            self.plasma.setMeanElectronEnergy(energy)
+
+    property quadrature_method:
+        """ Quadrature method """
+        def __get__(self):
+            if not self._enable_plasma:
+                raise ThermoModelMethodError(self.thermo_model)
+            return pystr(self.plasma.quadratureMethod())
+        def __set__(self, method):
+            if not self._enable_plasma:
+                raise ThermoModelMethodError(self.thermo_model)
+            self.plasma.setQuadratureMethod(stringify(method))
+
+    property normalize_electron_energy_distribution_enabled:
+        """ Automatically normalize electron energy distribuion """
+        def __get__(self):
+            if not self._enable_plasma:
+                raise ThermoModelMethodError(self.thermo_model)
+            return self.plasma.normalizeElectronEnergyDistEnabled()
+        def __set__(self, enable):
+            if not self._enable_plasma:
+                raise ThermoModelMethodError(self.thermo_model)
+            self.plasma.enableNormalizeElectronEnergyDist(enable)
 
 
 cdef class InterfacePhase(ThermoPhase):

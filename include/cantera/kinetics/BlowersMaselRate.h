@@ -137,7 +137,7 @@ public:
 
 protected:
     //! Return the effective activation energy (a function of the delta H of reaction)
-    //! divided by the gas constant (i.e. the activation temperature) [K]
+    //! divided by the gas constant (that is, the activation temperature) [K]
     //! @internal  The enthalpy change of reaction is not an independent parameter
     double effectiveActivationEnergy_R(double deltaH_R) const {
         if (deltaH_R < -4 * m_Ea_R) {

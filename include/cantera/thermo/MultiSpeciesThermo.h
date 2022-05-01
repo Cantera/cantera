@@ -19,7 +19,7 @@ namespace Cantera
 /*!
  * This is a general manager that can handle a wide variety of species
  * thermodynamic polynomials for individual species and compute their
- * nondimensional, reference-state thermodynamic properties (i.e. as a function
+ * nondimensional, reference-state thermodynamic properties (that is, as a function
  * of temperature only).
  *
  * The ThermoPhase object relies on MultiSpeciesThermo to calculate the
@@ -72,7 +72,7 @@ public:
     virtual void modifySpecies(size_t index,
                                shared_ptr<SpeciesThermoInterpType> spec);
 
-    //! Like update_one, but without applying offsets to the output pointers
+    //! Get reference-state properties for a single species
     /*!
      * @param k       species index
      * @param T       Temperature (Kelvin)

@@ -388,7 +388,6 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         void setState_VH(double, double) except +translate_exception
         void setState_TH(double, double) except +translate_exception
         void setState_SH(double, double) except +translate_exception
-        void setElectronTemperature(double) except +translate_exception
 
         # molar thermodynamic properties:
         double enthalpy_mole() except +translate_exception
@@ -439,6 +438,27 @@ cdef extern from "cantera/thermo/SurfPhase.h":
         void setCoveragesByName(Composition&) except +translate_exception
         void setCoveragesNoNorm(double*) except +translate_exception
         void getCoverages(double*) except +translate_exception
+
+cdef extern from "cantera/thermo/PlasmaPhase.h":
+    cdef cppclass CxxPlasmaPhase "Cantera::PlasmaPhase":
+        CxxPlasmaPhase()
+        double electronTemperature() except +translate_exception
+        void setElectronTemperature(double) except +translate_exception
+        void setElectronEnergyLevels(double*, size_t) except +translate_exception
+        void getElectronEnergyLevels(double*)
+        void setDiscretizedElectronEnergyDist(double*, double*, size_t) except +translate_exception
+        void getElectronEnergyDistribution(double*)
+        void setIsotropicShapeFactor(double) except +translate_exception
+        void setElectronEnergyDistributionType(const string&) except +translate_exception
+        string electronEnergyDistributionType()
+        void setQuadratureMethod(const string&) except +translate_exception
+        string quadratureMethod()
+        void enableNormalizeElectronEnergyDist(cbool) except +translate_exception
+        cbool normalizeElectronEnergyDistEnabled()
+        void setMeanElectronEnergy(double) except +translate_exception
+        double isotropicShapeFactor()
+        double meanElectronEnergy()
+        size_t nElectronEnergyLevels() except +translate_exception
 
 cdef extern from "cantera/kinetics/ReactionRateFactory.h" namespace "Cantera":
     cdef shared_ptr[CxxReactionRate] CxxNewReactionRate "newReactionRate" (string) except +translate_exception
@@ -1384,6 +1404,8 @@ cdef class ThermoPhase(_SolutionBase):
     cpdef int species_index(self, species) except *
     cdef np.ndarray _getArray1(self, thermoMethod1d method)
     cdef void _setArray1(self, thermoMethod1d method, values) except *
+    cdef CxxPlasmaPhase* plasma
+    cdef public object _enable_plasma
 
 cdef class InterfacePhase(ThermoPhase):
     cdef CxxSurfPhase* surf

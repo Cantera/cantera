@@ -5,7 +5,7 @@ from ctypes import c_int
 
 # NOTE: These cdef functions cannot be members of Kinetics because they would
 # cause "layout conflicts" when creating derived classes with multiple bases,
-# e.g. class Solution. [Cython 0.16]
+# such as class Solution. [Cython 0.16]
 cdef np.ndarray get_species_array(Kinetics kin, kineticsMethod1d method):
     cdef np.ndarray[np.double_t, ndim=1] data = np.empty(kin.n_total_species)
     if kin.n_total_species == 0:
@@ -164,7 +164,7 @@ cdef class Kinetics(_SolutionBase):
         """
         Modify the `Reaction` with index ``irxn`` to have the same rate
         parameters as ``rxn``. ``rxn`` must have the same reactants and products
-        and be of the same type (i.e. `ElementaryReaction`, `FalloffReaction`,
+        and be of the same type (for example, `ElementaryReaction`, `FalloffReaction`,
         `PlogReaction`, etc.) as the existing reaction. This method does not
         modify the third-body efficiencies, reaction orders, or reversibility of
         the reaction.
@@ -980,7 +980,7 @@ cdef class InterfaceKinetics(Kinetics):
     def write_yaml(self, filename, phases=None, units=None, precision=None,
                    skip_user_defined=None):
         """
-        See `_SolutionBase.write_yaml`.
+        See `_SolutionBase.write_yaml <cantera._cantera._SolutionBase.write_yaml>`.
         """
         if phases is not None:
             phases = list(phases)

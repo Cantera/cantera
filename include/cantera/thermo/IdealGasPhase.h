@@ -42,7 +42,7 @@ namespace Cantera
  * This class is optimized for speed of execution. All calls to thermodynamic
  * functions first call internal routines (aka #enthalpy_RT_ref()) which return
  * references the reference state thermodynamics functions. Within these
- * internal reference state functions, the function #_updateThermo() is called,
+ * internal reference state functions, the function #updateThermo() is called,
  * that first checks to see whether the temperature has changed. If it has, it
  * updates the internal reference state thermo functions by calling the
  * MultiSpeciesThermo object.
@@ -548,7 +548,7 @@ public:
      * state thermo functions.
      */
     const vector_fp& enthalpy_RT_ref() const {
-        _updateThermo();
+        updateThermo();
         return m_h0_RT;
     }
 
@@ -558,7 +558,7 @@ public:
      * state thermo functions.
      */
     const vector_fp& gibbs_RT_ref() const {
-        _updateThermo();
+        updateThermo();
         return m_g0_RT;
     }
 
@@ -568,7 +568,7 @@ public:
      * state thermo functions.
      */
     const vector_fp& entropy_R_ref() const {
-        _updateThermo();
+        updateThermo();
         return m_s0_R;
     }
 
@@ -578,7 +578,7 @@ public:
      * state thermo functions.
      */
     const vector_fp& cp_R_ref() const {
-        _updateThermo();
+        updateThermo();
         return m_cp0_R;
     }
 
@@ -612,8 +612,7 @@ protected:
     //! Temporary array containing internally calculated partial pressures
     mutable vector_fp m_pp;
 
-private:
-    //! Update the species reference state thermodynamic functions
+    //! @internal Update the species reference state thermodynamic functions
     /*!
      *  This method is called each time a thermodynamic property is requested,
      *  to check whether the internal species properties within the object
@@ -625,7 +624,7 @@ private:
      *  concentration dependent information at the time the setMoleFractions()
      *  (or equivalent) call is made.
      */
-    void _updateThermo() const;
+    virtual void updateThermo() const;
 };
 
 }

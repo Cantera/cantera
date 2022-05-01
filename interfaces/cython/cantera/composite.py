@@ -375,7 +375,7 @@ class SolutionArray:
 
     Computed properties are returned as *NumPy* arrays with the same shape as the
     array of states, with additional dimensions appended as necessary for non-
-    scalar output (e.g. per-species or per-reaction properties)::
+    scalar output (for example, per-species or per-reaction properties)::
 
         >>> h = states.enthalpy_mass
         >>> h[i,j] # -> enthalpy at P[i] and T[j]
@@ -401,10 +401,10 @@ class SolutionArray:
         >>> states[0].TP = 400, None # set the temperature of the first row to 400 K
         >>> cp = states[:,1].cp_mass # heat capacity of the second column
 
-    If many slices or elements of a property are going to be accessed (i.e.
+    If many slices or elements of a property are going to be accessed (for example,
     within a loop), it is generally more efficient to compute the property array
     once and access this directly, rather than repeatedly slicing the
-    `SolutionArray` object, e.g.::
+    `SolutionArray` object, for example::
 
         >>> mu = states.viscosity
         >>> for i,j in np.ndindex(mu.shape):
@@ -668,7 +668,7 @@ class SolutionArray:
               mystates.append(gas.state)
 
         - as a tuple of three elements that corresponds to any of the full-state
-          setters of `Solution`, e.g. `TPY` or `HPX`::
+          setters of `Solution`, such as `TPY` or `HPX`::
 
               mystates.append(TPX=(300, 101325, 'O2:1.0, N2:3.76'))
 
@@ -805,7 +805,7 @@ class SolutionArray:
         `collect_data`.
 
         :param data: Dictionary holding data to be restored, where keys
-            refer to thermodynamic states (e.g. ``T``, ``density``) or extra
+            refer to thermodynamic states (for example, ``T``, ``density``) or extra
             entries, and values contain corresponding data.
         :param normalize: If True, mole or mass fractions are normalized
             so that they sum up to 1.0. If False, mole or mass fractions
@@ -938,7 +938,7 @@ class SolutionArray:
 
         # labels may include calculated properties that must not be restored:
         # compare column labels to names that are reserved for SolutionArray
-        # attributes (see `SolutionArray.collect_data`), i.e. scalar values,
+        # attributes (see `SolutionArray.collect_data`), such as scalar values,
         # arrays with number of species, and arrays with number of reactions.
         exclude = [lab for lab in labels
                    if any([lab in self._scalar,
@@ -992,13 +992,34 @@ class SolutionArray:
         to be matched to the `SolutionArray`.
         """
 
-        # broadcast argument shape
+        # If ``phi`` is lower-dimensional than the SolutionArray's  shape (for 
+        # example, a scalar), broadcast it to have the right number of 
+        # dimensions.
         phi, _ = np.broadcast_arrays(phi, self._output_dummy)
 
-        # loop over values
         for index in self._indices:
             self._phase.state = self._states[index]
             self._phase.set_equivalence_ratio(phi[index], *args, **kwargs)
+            self._states[index][:] = self._phase.state
+
+    def set_mixture_fraction(self, mixture_fraction, *args, **kwargs):
+        """
+        See `ThermoPhase.set_mixture_fraction`
+
+        Note that ``mixture_fraction`` either needs to be a scalar value or 
+        dimensions have to be matched to the `SolutionArray`.
+        """
+
+        # If ``mixture_fraction`` is lower-dimensional than the SolutionArray's 
+        # shape (for example, a scalar), broadcast it to have the right number 
+        # of dimensions.
+        mixture_fraction, _ = np.broadcast_arrays(mixture_fraction, 
+            self._output_dummy)
+
+        for index in self._indices:
+            self._phase.state = self._states[index]
+            self._phase.set_mixture_fraction(mixture_fraction[index], *args, 
+                **kwargs)
             self._states[index][:] = self._phase.state
 
     def collect_data(self, cols=None, tabular=False, threshold=0, species=None):
@@ -1018,7 +1039,7 @@ class SolutionArray:
         :param threshold: Relative tolerance for including a particular column
             if tabular output is enabled. The tolerance is applied by comparing
             the maximum absolute value for a particular column to the maximum
-            absolute value in all columns for the same variable (e.g. mass
+            absolute value in all columns for the same variable (for example, mass
             fraction).
         :param species: Specifies whether to use mass ('Y') or mole ('X')
             fractions for individual species specified in 'cols'
@@ -1316,9 +1337,9 @@ class SolutionArray:
             Optional name identifier for a subgroup representing a `SolutionArray`
             object to be read. If 'None', no subgroup is assumed to exist.
         :param force: If False, matching `SolutionArray` source identifiers are
-            enforced (e.g. input file used for the creation of the underlying
-            `Solution` object), with an error being raised if the current source
-            does not match the original source. If True, the error is
+            enforced (for example, the input file used for the creation of the
+            underlying `Solution` object), with an error being raised if the current
+            source does not match the original source. If True, the error is
             suppressed.
         :param normalize: Passed on to `restore_data`. If True, mole or mass
             fractions are normalized so that they sum up to 1.0. If False, mole
@@ -1409,7 +1430,7 @@ class SolutionArray:
 
 def _state2_prop(name, doc_source):
     # Factory for creating properties which consist of a tuple of two variables,
-    # e.g. 'TP' or 'SV'
+    # such as 'TP' or 'SV'
     def getter(self):
         a = np.empty(self._shape)
         b = np.empty(self._shape)
@@ -1431,7 +1452,7 @@ def _state2_prop(name, doc_source):
 
 def _state3_prop(name, doc_source, scalar=False):
     # Factory for creating properties which consist of a tuple of three
-    # variables, e.g. 'TPY' or 'UVX'
+    # variables, such as 'TPY' or 'UVX'
     def getter(self):
         a = np.empty(self._shape)
         b = np.empty(self._shape)

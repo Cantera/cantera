@@ -81,7 +81,7 @@ diamond = Solution('diamond.yaml','diamond');  % bulk diamond
 diamonnd_surf = importInterface('diamond.yaml','diamond_100',...
                                 gas2, diamond);
 
-% Note that the bulk (i.e., 3D) phases that participate in the surface
+% Note that the bulk (that is, 3D) phases that participate in the surface
 % reactions must also be passed as arguments to importInterface.
 
 % Converting CK-format files

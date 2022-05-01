@@ -470,7 +470,7 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
             // code to read in these parameters.
             if (m_formDH == DHFORM_BDOT_AK) {
                 // Define a string-string map, and interpret the value of the
-                // XML element as binary pairs separated by colons, e.g.:
+                // XML element as binary pairs separated by colons, for example:
                 //      Na+:3.0
                 //      Cl-:4.0
                 //      H+:9.0

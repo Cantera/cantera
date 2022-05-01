@@ -220,7 +220,7 @@ ReactionFactoryXML::ReactionFactoryXML()
         setupElectrochemicalReaction(*(ElectrochemicalReaction2*)R, node);
         return R;
     });
-    addAlias("interface-legacy", "electrochemical");
+    addAlias("electrochemical-legacy", "electrochemical");
 }
 
 }

@@ -159,7 +159,7 @@ cdef class Reactor(ReactorBase):
     A homogeneous zero-dimensional reactor. By default, they are closed
     (no inlets or outlets), have fixed volume, and have adiabatic,
     chemically-inert walls. These properties may all be changed by adding
-    appropriate components, e.g. `Wall`, `MassFlowController` and `Valve`.
+    appropriate components such as `Wall`, `MassFlowController` and `Valve`.
     """
     reactor_type = "Reactor"
 
@@ -206,6 +206,10 @@ cdef class Reactor(ReactorBase):
             raise ValueError("'energy' must be either 'on' or 'off'")
 
     def insert(self, _SolutionBase solution):
+        """
+        Set ``solution`` to be the object used to compute thermodynamic
+        properties and kinetic rates for this reactor.
+        """
         ReactorBase.insert(self, solution)
         self._kinetics = solution
         if solution.kinetics != NULL:
@@ -298,7 +302,7 @@ cdef class Reactor(ReactorBase):
         """
         Get the state vector of the reactor.
 
-        The order of the variables (i.e. rows) is:
+        The order of the variables (that is, rows) is:
 
         `Reactor` or `IdealGasReactor`:
 
@@ -589,6 +593,9 @@ cdef class ReactorSurface:
             self.area = A
 
     def install(self, Reactor r):
+        """
+        Add this `ReactorSurface` to the specified `Reactor`
+        """
         r._surfaces.append(self)
         r.reactor.addSurface(self.surface)
 
@@ -869,11 +876,11 @@ cdef class FlowDevice:
         self._downstream = downstream
 
     property mass_flow_rate:
+        """
+        Get the mass flow rate [kg/s] through this device at the current reactor
+        network time.
+        """
         def __get__(self):
-            """
-            The mass flow rate [kg/s] through this device at the current reactor
-            network time.
-            """
             return self.dev.massFlowRate()
 
     def set_pressure_function(self, k):
@@ -1023,7 +1030,7 @@ cdef class Valve(FlowDevice):
             self.set_pressure_function(K)
 
     property valve_coeff:
-        r"""Set valve coefficient, i.e. the proportionality constant between mass
+        r"""Set valve coefficient, that is, the proportionality constant between mass
         flow rate and pressure drop [kg/s/Pa].
 
         >>> V = Valve(res1, reactor1)
@@ -1157,7 +1164,7 @@ cdef class ReactorNet:
     property max_time_step:
         """
         Get/set the maximum time step *t* [s] that the integrator is
-        allowed to use. The default value is set to zero, i.e. no time
+        allowed to use. The default value is set to zero, so that no time
         step maximum is used.
         """
         def __get__(self):
@@ -1247,7 +1254,7 @@ cdef class ReactorNet:
         """
         Return the name of the i-th component of the global state vector. The
         name returned includes both the name of the reactor and the specific
-        component, e.g. `'reactor1: CH4'`.
+        component, for example `'reactor1: CH4'`.
         """
         return pystr(self.net.componentName(i))
 
@@ -1282,7 +1289,7 @@ cdef class ReactorNet:
         The sensitivities are returned in an array with dimensions *(n_vars,
         n_sensitivity_params)*, unless no timesteps have been taken, in which
         case the shape is *(0, n_sensitivity_params)*. The order of the
-        variables (i.e., rows) is:
+        variables (that is, rows) is:
 
         `Reactor` or `IdealGasReactor`:
 

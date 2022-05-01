@@ -832,8 +832,8 @@ class Phase:
             instance ``attribs`` dictionary because the attribute could be a mapping or
             a list of mappings, whereas this argument is always a list of mappings.
         :param species_data:
-            Mapping of species data sources (i.e., ``id`` attributes on ``speciesData``
-            nodes) to lists of `Species` instances.
+            Mapping of species data sources (that is, ``id`` attributes on
+            ``speciesData`` nodes) to lists of `Species` instances.
 
         Some species include a charge node that adds an electron to the species
         composition. The `Phase`s that include these species don't necessarily include
@@ -874,8 +874,8 @@ class Phase:
         :param activity_coeffs:
             XML ``activityCoefficients`` node.
         :param species_data:
-            Mapping of species data sources (i.e., ``id`` attributes on ``speciesData``
-            nodes) to lists of `Species` instances.
+            Mapping of species data sources (that is, ``id`` attributes on
+            ``speciesData`` nodes) to lists of `Species` instances.
 
         The YAML format moves the specification of Redlich-Kwong binary interaction
         parameters from the `Phase` node into the `Species` nodes. This modifies the
@@ -996,8 +996,8 @@ class Phase:
         :param phase_thermo:
             XML ``thermo`` node.
         :param species_data:
-            Mapping of species data sources (i.e., ``id`` attributes on ``speciesData``
-            nodes) to lists of `Species` instances.
+            Mapping of species data sources (that is, ``id`` attributes on
+            ``speciesData`` nodes) to lists of `Species` instances.
 
         The YAML format moves the specification of density for ``StoichSubstance``
         phase-thermo types from the `Phase` node into the `Species` nodes. This modifies
@@ -1144,7 +1144,7 @@ class Phase:
             The text specified in the ``filter`` node telling which reactions are being
             filtered.
         :param reaction_data:
-            Mapping of reaction data sources (i.e., ``id`` attributes on
+            Mapping of reaction data sources (that is, ``id`` attributes on
             ``reactionData`` nodes) to lists of `Reaction` instances.
 
         The YAML format does not support filtering reactions by setting options in the
@@ -1320,8 +1320,8 @@ class Phase:
         :param activity_node:
             XML ``activityCoefficients`` node.
         :param species_data:
-            Mapping of species data sources (i.e., ``id`` attributes on ``speciesData``
-            nodes) to lists of `Species` instances.
+            Mapping of species data sources (that is, ``id`` attributes on
+            ``speciesData`` nodes) to lists of `Species` instances.
         """
         model_map = {
             "dilute_limit": "dilute-limit",
@@ -2215,7 +2215,7 @@ class Reaction:
         troe_names = ["A", "T3", "T1", "T2"]
         reaction_attribs["Troe"] = FlowMap()
         # zip stops when the shortest iterable is exhausted. If T2 is not present
-        # in the Troe parameters (i.e., troe_params is three elements long), it
+        # in the Troe parameters (that is, troe_params is three elements long), it
         # will be omitted here as well.
         for name, param in zip(troe_names, troe_params):
             reaction_attribs["Troe"].update({name: float(param)})  # type: ignore
@@ -2254,7 +2254,7 @@ class Reaction:
         troe_names = ["A", "T3", "T1", "T2"]
         reaction_attribs["Troe"] = FlowMap()
         # zip stops when the shortest iterable is exhausted. If T2 is not present
-        # in the Troe parameters (i.e., troe_params is three elements long), it
+        # in the Troe parameters (that is, troe_params is three elements long), it
         # will be omitted here as well.
         for name, param in zip(troe_names, troe_params):
             reaction_attribs["Troe"].update({name: float(param)})
@@ -2641,7 +2641,7 @@ def convert(
     metadata = BlockMap(
         {
             "generator": "ctml2yaml",
-            "cantera-version": "2.6.0b2",
+            "cantera-version": "2.6.0",
             "date": formatdate(localtime=True),
         }
     )

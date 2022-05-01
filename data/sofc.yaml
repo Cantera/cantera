@@ -294,7 +294,7 @@ tpb-reactions:
 # this reaction is commented out, but you can explore its effects by
 # uncommenting it. Be careful, if you are not solving for the OH'
 # concentration that the system does not become overdetermined
-# (i.e. impossible for all reactions to be simultaneously in
+# (that is, impossible for all reactions to be simultaneously in
 # equilibrium). If this happens, the wrong OCVs will result.
 
 # - equation: H(m) + OH'(ox) <=> H2O(ox) + (m) + electron

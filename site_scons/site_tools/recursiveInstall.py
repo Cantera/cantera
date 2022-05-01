@@ -14,7 +14,7 @@ def RecursiveInstall(env, target, dir, exclude=None):
     and if any thing in dir_source is updated the install is rerun
 
     'exclude' is a list of regular expression patterns for files
-    to skip, e.g. ['\\.o$', '^~']
+    to skip, for example ['\\.o$', '^~']
 
     It behaves similar to the env.Install builtin. However it expects
     two directories and correctly sets up the dependencies between each

@@ -469,7 +469,7 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
             // We assume here that species 0 is the solvent. The solvent isn't
             // on a unity activity basis The activity for the solvent assumes
             // that the it goes to one as the species mole fraction goes to one;
-            // i.e., it's really on a molarity framework. So
+            // that is, it's really on a molarity framework. So
             // SpecLnMnaught[iSolvent] = 0.0, and the loop below starts at 1,
             // not 0.
             size_t iSolvent = Vphase->spGlobalIndexVCS(0);

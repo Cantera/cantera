@@ -15,6 +15,7 @@ Usage:
             [--name=<name>]
             [--extra=<filename>]
             [--output=<filename>]
+            [--single-intermediate-temperature]
             [--permissive]
             [--quiet]
             [--no-validate]
@@ -34,9 +35,13 @@ For the case of a surface mechanism, the gas phase input file should be
 specified as 'input' and the surface phase input file should be specified as
 'surface'.
 
-The '--permissive' option allows certain recoverable parsing errors (e.g.
+The '--single-intermediate-temperature' option should be used with thermo data where
+only a single break temperature is used and the last value in the first line of each
+species thermo entry is the molecular weight instead.
+
+The '--permissive' option allows certain recoverable parsing errors (such as
 duplicate transport data) to be ignored. The '--name=<name>' option
-is used to override default phase names (i.e. 'gas').
+is used to override default phase names (that is, 'gas').
 
 The '--extra=<filename>' option takes a YAML file as input. This option can be
 used to add to the file description, or to define custom fields that are
@@ -217,8 +222,12 @@ class Nasa7:
     @classmethod
     def to_yaml(cls, representer, node):
         out = BlockMap([('model', 'NASA7')])
-        out['temperature-ranges'] = FlowList([node.Tmin, node.Tmid, node.Tmax])
-        out['data'] = [FlowList(node.low_coeffs), FlowList(node.high_coeffs)]
+        if node.Tmid is not None:
+            out['temperature-ranges'] = FlowList([node.Tmin, node.Tmid, node.Tmax])
+            out['data'] = [FlowList(node.low_coeffs), FlowList(node.high_coeffs)]
+        else:
+            out['temperature-ranges'] = FlowList([node.Tmin, node.Tmax])
+            out['data'] = [FlowList(node.low_coeffs)]
         if node.note:
             note = textwrap.dedent(node.note.rstrip())
             if '\n' in note:
@@ -308,7 +317,7 @@ class Reaction:
 
     def __str__(self):
         """
-        Return a string representation of the reaction, e.g. 'A + B <=> C + D'.
+        Return a string representation of the reaction, such as 'A + B <=> C + D'.
         """
         return '{}{}{}'.format(self._coeff_string(self.reactants),
                                ' <=> ' if self.reversible else ' => ',
@@ -403,7 +412,7 @@ class Arrhenius:
 class ElementaryRate(KineticsModel):
     """
     A reaction rate described by a single Arrhenius expression.
-    See https://cantera.org/science/reactions.html#reactions-with-a-pressure-independent-rate
+    See https://cantera.org/science/kinetics.html#reactions-with-a-pressure-independent-rate
 
     :param rate:
         The Arrhenius expression describing this reaction rate.
@@ -422,7 +431,7 @@ class ElementaryRate(KineticsModel):
 class SurfaceRate(KineticsModel):
     """
     An Arrhenius-like reaction occurring on a surface
-    See https://cantera.org/science/reactions.html#surface-reactions
+    See https://cantera.org/science/kinetics.html#surface-reactions
 
     :param rate:
         The Arrhenius expression describing this reaction rate.
@@ -470,7 +479,7 @@ class PDepArrhenius(KineticsModel):
     """
     A rate calculated by interpolating between Arrhenius expressions at
     various pressures.
-    See https://cantera.org/science/reactions.html#pressure-dependent-arrhenius-rate-expressions-p-log
+    See https://cantera.org/science/kinetics.html#pressure-dependent-arrhenius-rate-expressions-p-log
 
     :param pressures:
         A list of pressures at which Arrhenius expressions are given.
@@ -499,7 +508,7 @@ class PDepArrhenius(KineticsModel):
 class Chebyshev(KineticsModel):
     """
     A rate calculated in terms of a bivariate Chebyshev polynomial.
-    See https://cantera.org/science/reactions.html#chebyshev-reaction-rate-expressions
+    See https://cantera.org/science/kinetics.html#chebyshev-reaction-rate-expressions
 
     :param coeffs:
         Matrix of Chebyshev coefficients, dimension N_T by N_P
@@ -541,7 +550,7 @@ class Chebyshev(KineticsModel):
 class ThreeBody(KineticsModel):
     """
     A rate calculated for a reaction which includes a third-body collider.
-    See https://cantera.org/science/reactions.html#three-body-reactions
+    See https://cantera.org/science/kinetics.html#three-body-reactions
 
     :param high_rate:
         The Arrhenius kinetics (high-pressure limit)
@@ -570,7 +579,7 @@ class ThreeBody(KineticsModel):
 class Falloff(ThreeBody):
     """
     A rate for a pressure-dependent falloff reaction.
-    See https://cantera.org/science/reactions.html#falloff-reactions
+    See https://cantera.org/science/kinetics.html#falloff-reactions
 
     :param low_rate:
         The Arrhenius kinetics at the low-pressure limit
@@ -604,7 +613,7 @@ class Falloff(ThreeBody):
 class ChemicallyActivated(ThreeBody):
     """
     A rate for a chemically-activated reaction.
-    See https://cantera.org/science/reactions.html#chemically-activated-reactions
+    See https://cantera.org/science/kinetics.html#chemically-activated-reactions
 
     :param low_rate:
         The Arrhenius kinetics at the low-pressure limit
@@ -638,7 +647,7 @@ class ChemicallyActivated(ThreeBody):
 class Troe:
     """
     The Troe falloff function, described with either 3 or 4 parameters.
-    See https://cantera.org/science/reactions.html#the-troe-falloff-function
+    See https://cantera.org/science/kinetics.html#the-troe-falloff-function
     """
     def __init__(self, A=0.0, T3=0.0, T1=0.0, T2=None):
         self.A = A
@@ -656,7 +665,7 @@ class Troe:
 class Sri:
     """
     The SRI falloff function, described with either 3 or 5 parameters.
-    See https://cantera.org/science/reactions.html#the-sri-falloff-function
+    See https://cantera.org/science/kinetics.html#the-sri-falloff-function
     """
     def __init__(self, *, A, B, C, D=None, E=None):
         self.A = A
@@ -761,6 +770,7 @@ class Parser:
         self.quantity_units = 'mol'  # for the current REACTIONS section
         self.output_quantity_units = 'mol'  # for the output file
         self.motz_wise = None
+        self.single_intermediate_temperature = False
         self.warning_as_error = True
 
         self.elements = []
@@ -842,11 +852,11 @@ class Parser:
         For more details on this format, see `Debugging common errors in CK files
         <https://cantera.org/tutorials/ck2cti-tutorial.html#debugging-common-errors-in-ck-files>`__.
         """
-        identifier = lines[0][0:24].split()
+        identifier = lines[0][0:24].split(maxsplit=1)
         species = identifier[0].strip()
 
         if len(identifier) > 1:
-            note = ''.join(identifier[1:]).strip()
+            note = identifier[1]
         else:
             note = ''
 
@@ -901,10 +911,16 @@ class Parser:
         # Remember that the high-T polynomial comes first!
         Tmin = fortFloat(lines[0][45:55])
         Tmax = fortFloat(lines[0][55:65])
-        try:
-            Tint = fortFloat(lines[0][65:75])
-        except ValueError:
-            Tint = TintDefault
+        if self.single_intermediate_temperature:
+            # Intermediate temperature is shared across all species, except if the
+            # species only has one temperature range
+            Tint = TintDefault if Tmin < TintDefault < Tmax else None
+        else:
+            # Non-default intermediate temperature can be provided
+            try:
+                Tint = fortFloat(lines[0][65:75])
+            except ValueError:
+                Tint = TintDefault if Tmin < TintDefault < Tmax else None
 
         high_coeffs = [fortFloat(lines[i][j:k])
                        for i,j,k in [(1,0,15), (1,15,30), (1,30,45), (1,45,60),
@@ -913,16 +929,31 @@ class Parser:
                        for i,j,k in [(2,30,45), (2,45,60), (2,60,75), (3,0,15),
                                      (3,15,30), (3,30,45), (3,45,60)]]
 
-        # Duplicate the valid set of coefficients if only one range is provided
-        if all(c == 0 for c in low_coeffs) and Tmin == Tint:
-            low_coeffs = high_coeffs
-        elif all(c == 0 for c in high_coeffs) and Tmax == Tint:
-            high_coeffs = low_coeffs
+        # Cases where only one temperature range is needed
+        if Tint == Tmin or Tint == Tmax or high_coeffs == low_coeffs:
+            Tint = None
 
-        # Construct and return the thermodynamics model
-        thermo = Nasa7(Tmin=Tmin, Tmax=Tmax, Tmid=Tint,
-                           low_coeffs=low_coeffs, high_coeffs=high_coeffs,
-                           note=note)
+        # Duplicate the valid set of coefficients if only one range is provided
+        if Tint is None:
+            if all(c == 0 for c in low_coeffs):
+                # Use the first set of coefficients if the second is all zeros
+                coeffs = high_coeffs
+            elif all(c == 0 for c in high_coeffs):
+                # Use the second set of coefficients if the first is all zeros
+                coeffs = low_coeffs
+            elif high_coeffs == low_coeffs:
+                # If the coefficients are duplicated, that's fine too
+                coeffs = low_coeffs
+            else:
+                raise InputError(
+                    "Only one temperature range defined but two distinct sets of "
+                    "coefficients given for species thermo entry:\n{}\n",
+                    "".join(lines))
+            thermo = Nasa7(Tmin=Tmin, Tmax=Tmax, Tmid=None, low_coeffs=coeffs,
+                           high_coeffs=None, note=note)
+        else:
+            thermo = Nasa7(Tmin=Tmin, Tmax=Tmax, Tmid=Tint, low_coeffs=low_coeffs,
+                           high_coeffs=high_coeffs, note=note)
 
         return species, thermo, composition
 
@@ -1292,6 +1323,7 @@ class Parser:
             elif 'plog' in line.lower():
                 # Pressure-dependent Arrhenius parameters
                 parsed = True
+                third_body = False # strip optional third-body collider
                 tokens = tokens[1].split()
                 pdep_arrhenius.append([float(tokens[0].strip()), Arrhenius(
                     A=(float(tokens[1].strip()), kunits),
@@ -1352,7 +1384,7 @@ class Parser:
                                           efficiencies=efficiencies)
         elif reaction.third_body:
             raise InputError('Reaction equation implies pressure '
-                'dependence but no alternate rate parameters (i.e. HIGH or '
+                'dependence but no alternate rate parameters (such as HIGH or '
                 'LOW) were given for reaction {}.', reaction)
         elif surface:
             reaction.kinetics = SurfaceRate(rate=arrhenius,
@@ -1902,7 +1934,7 @@ class Parser:
             metadata = BlockMap([
                 ("generator", "ck2yaml"),
                 ("input-files", FlowList(files)),
-                ("cantera-version", "2.6.0b2"),
+                ("cantera-version", "2.6.0"),
                 ("date", formatdate(localtime=True)),
             ])
             if desc.strip():
@@ -2007,9 +2039,11 @@ class Parser:
     @staticmethod
     def convert_mech(input_file, thermo_file=None, transport_file=None,
                      surface_file=None, phase_name='gas', extra_file=None,
-                     out_name=None, quiet=False, permissive=None):
+                     out_name=None, single_intermediate_temperature=False, quiet=False,
+                     permissive=None):
 
         parser = Parser()
+        parser.single_intermediate_temperature = single_intermediate_temperature
         if quiet:
             logger.setLevel(level=logging.ERROR)
         else:
@@ -2126,18 +2160,19 @@ class Parser:
 
 def convert_mech(input_file, thermo_file=None, transport_file=None,
                  surface_file=None, phase_name='gas', extra_file=None,
-                 out_name=None, quiet=False, permissive=None):
+                 out_name=None, single_intermediate_temperature=False, quiet=False,
+                 permissive=None):
     _, surface_names = Parser.convert_mech(
         input_file, thermo_file, transport_file, surface_file, phase_name,
-        extra_file, out_name, quiet, permissive)
+        extra_file, out_name, single_intermediate_temperature, quiet, permissive)
     return surface_names
 
 
 def main(argv):
 
     longOptions = ['input=', 'thermo=', 'transport=', 'surface=', 'name=',
-                   'extra=', 'output=', 'permissive', 'help', 'debug', 'quiet',
-                   'no-validate', 'id=']
+                   'extra=', 'output=', 'permissive', 'help', 'debug',
+                   'single-intermediate-temperature', 'quiet', 'no-validate', 'id=']
 
     try:
         optlist, args = getopt.getopt(argv, 'dh', longOptions)
@@ -2161,6 +2196,7 @@ def main(argv):
 
     input_file = options.get('--input')
     thermo_file = options.get('--thermo')
+    single_intermediate_temperature = '--single-intermediate-temperature' in options
     permissive = '--permissive' in options
     quiet = '--quiet' in options
     transport_file = options.get('--transport')
@@ -2191,7 +2227,7 @@ def main(argv):
 
     parser, surfaces = Parser.convert_mech(input_file, thermo_file,
             transport_file, surface_file, phase_name, extra_file, out_name,
-            quiet, permissive)
+            single_intermediate_temperature, quiet, permissive)
 
     # Do full validation by importing the resulting mechanism
     if not input_file:

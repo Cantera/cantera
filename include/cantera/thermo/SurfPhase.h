@@ -224,7 +224,7 @@ public:
     //! Return the standard concentration for the kth species
     /*!
      * The standard concentration \f$ C^0_k \f$ used to normalize the activity
-     * (i.e., generalized) concentration. For this phase, the standard
+     * (that is, generalized) concentration. For this phase, the standard
      * concentration is species- specific
      *
      *        \f[

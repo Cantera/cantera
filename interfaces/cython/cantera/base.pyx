@@ -52,6 +52,14 @@ cdef object _wrap_Solution(shared_ptr[CxxSolution] cxx_soln):
 
 
 cdef class _SolutionBase:
+    """
+    Class _SolutionBase is a common base class for the `ThermoPhase`, `Kinetics`, and
+    `Transport` classes. Its methods are available for all
+    `Solution <cantera.Solution>`, `Interface <cantera.Interface>`,
+    `PureFluid <cantera.PureFluid>`, `Quantity <cantera.Quantity>`, and
+    `SolutionArray <cantera.SolutionArray>` objects
+    as well.
+    """
     def __cinit__(self, infile='', name='', adjacent=(), *, origin=None,
                   source=None, yaml=None, thermo=None, species=(),
                   kinetics=None, reactions=(), init=True, **kwargs):
@@ -429,6 +437,24 @@ cdef class _SolutionBase:
         return copy
 
     property selected_species:
+        """
+        Get/set the set of species that are included when returning results that have
+        a value for each species, such as `species_names <cantera.ThermoPhase.species_names>`,
+        `partial_molar_enthalpies <cantera.ThermoPhase.partial_molar_enthalpies>`, or
+        `net_production_rates <cantera.Kinetics.net_production_rates>`. The list of
+        selected species can be set by name or index. This property returns the
+        species by index.::
+
+           >>> gas.selected_species = ["H2", "O2"]
+           >>> print(gas.molecular_weights)
+           [ 2.016 31.998]
+
+        This method is often used implicitly by using an indexing expression on a
+        `Solution` object::
+
+           >>> print(gas["H2", "O2"].molecular_weights)
+           [ 2.016 31.998]
+        """
         def __get__(self):
             return list(self._selected_species)
         def __set__(self, species):

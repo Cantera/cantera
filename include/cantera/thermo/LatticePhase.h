@@ -372,7 +372,7 @@ public:
     //! Return the standard concentration for the kth species
     /*!
      * The standard concentration \f$ C^0_k \f$ used to normalize
-     * the activity (i.e., generalized) concentration for use
+     * the activity (that is, generalized) concentration for use
      *
      * For the time being, we will use the concentration of pure solvent for the
      * the standard concentration of all species. This has the effect of making

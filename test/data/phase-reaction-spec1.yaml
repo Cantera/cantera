@@ -24,6 +24,18 @@ phases:
   kinetics: gas
   reactions: all
 
+  # should work fine (kinetics model with no reactions)
+- name: kinetics-no-reaction-section3
+  thermo: ideal-surface
+  species: [{ptcombust.yaml/species: all}]
+  state: {T: 300, P: 1 atm}
+
+  # should be an error
+- name: kinetics-no-reaction-section4
+  species: [{gri30.yaml/species: [O2, H2, H2O]}]
+  thermo: ideal-gas
+  reactions: none
+
   # should be an error
 - name: nokinetics-reactions
   species: [{gri30.yaml/species: [O2, H2, H2O]}]

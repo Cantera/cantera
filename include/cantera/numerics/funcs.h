@@ -10,6 +10,7 @@
 #define CT_FUNCS_H
 
 #include "cantera/base/ct_defs.h"
+#include "cantera/numerics/eigen_sparse.h"
 
 namespace Cantera
 {
@@ -28,6 +29,44 @@ namespace Cantera
  */
 doublereal linearInterp(doublereal x, const vector_fp& xpts,
                         const vector_fp& fpts);
-}
 
+//! Numerical integration of a function using the trapezoidal rule.
+/*!
+ * Vector x contanins a monotonic sequence of grid points, and
+ * Vector f contains function values defined at these points.
+ * The size of x and f must be the same.
+ *
+ * @param  f vector of function value
+ * @param  x vector of function coordinate
+ */
+double trapezoidal(const Eigen::ArrayXd& f, const Eigen::ArrayXd& x);
+
+//! Numerical integration of a function using Simpson's rule
+//! with flexibility of taking odd and even number of points.
+//! For even number, Simpson's rule is used for the first
+//! N-2 intervals with a trapezoidal rule on the last interval.
+/*!
+ * Vector x contanins a monotonic sequence of grid points, and
+ * Vector f contains function values defined at these points.
+ * The size of x and f must be the same.
+ *
+ * @param  f vector of function value
+ * @param  x vector of function coordinate
+ */
+double simpson(const Eigen::ArrayXd& f, const Eigen::ArrayXd& x);
+
+//! Numerical integration of a function.
+/*!
+ * Vector x contanins a monotonic sequence of grid points, and
+ * Vector f contains function values defined at these points.
+ * The size of x and f must be the same.
+ *
+ * @param  method method name
+ * @param  f vector of function value
+ * @param  x vector of function coordinate
+ */
+double numericalQuadrature(const std::string& method,
+                           const Eigen::ArrayXd& f,
+                           const Eigen::ArrayXd& x);
+}
 #endif

@@ -1,5 +1,6 @@
 """
-Two reactors separated by a piston
+Two reactors separated by a piston that moves with a speed proportional to the pressure
+difference between the reactors.
 
 Gas 1: a stoichiometric H2/O2/Ar mixture
 Gas 2: a wet CO/O2 mixture

@@ -23,6 +23,12 @@ phases:
   kinetics: gas
   reactions: [chebyshev-deprecated-rxns]
   state: {T: 300.0, P: 1 atm}
+- name: plog-invalid
+  thermo: ideal-gas
+  species: all
+  kinetics: gas
+  reactions: [plog-invalid-rxns]
+  state: {T: 300.0, P: 1 atm}
 
 species:
 - name: H
@@ -321,3 +327,13 @@ chebyshev-deprecated-rxns:
   - [0.3177, 0.26889, 0.094806, -7.6385e-03]
   - [-0.031285, -0.039412, 0.044375, 0.014458]
   note: Chebyshev reaction written with the deprecated "(+M)" notation
+
+plog-invalid-rxns:
+- equation: R1A + R1B + M <=> P1 + H + M
+  type: pressure-dependent-Arrhenius
+  rate-constants:
+  - {P: 0.01 atm, A: 1.2124e+16, b: -0.5779, Ea: 1.08727e+04}
+  - {P: 1.0 atm, A: 4.9108e+31, b: -4.8507, Ea: 2.47728e+04}
+  - {P: 10.0 atm, A: 1.2866e+47, b: -9.0246, Ea: 3.97965e+04}
+  - {P: 100.0 atm, A: 5.9632e+56, b: -11.529, Ea: 5.25996e+04}
+  note: PLOG Reaction with invalid +M

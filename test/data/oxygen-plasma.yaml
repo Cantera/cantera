@@ -1,0 +1,52 @@
+description: |-
+  This file is for testing purpose. We use constant Cp for electron with no Tmax.
+
+units: {length: cm, quantity: molec, activation-energy: K}
+
+phases:
+- name: isotropic-electron-energy-plasma
+  thermo: plasma
+  elements: [O, E]
+  species:
+  - species: [E]
+  - nasa_gas.yaml/species: [O2, O2-]
+
+  kinetics: gas
+  reactions: all
+  transport: Ion
+  electron-energy-distribution:
+    type: isotropic
+    shape-factor: 2.0
+    mean-electron-energy: 1.0 eV
+    energy-levels: [0.0, 0.1, 1.0, 10.0]
+
+- name: discretized-electron-energy-plasma
+  thermo: plasma
+  elements: [O, E]
+  species:
+  - species: [E]
+  - nasa_gas.yaml/species: [O2, O2-]
+
+  kinetics: gas
+  reactions: all
+  transport: Ion
+  electron-energy-distribution:
+    type: discretized
+    energy-levels: [0.0, 0.1, 1.0, 10.0]
+    distribution: [0.0, 0.2, 0.7, 0.01]
+    normalize: False
+
+species:
+- name: E
+  composition: {E: 1}
+  thermo:
+    model: constant-cp
+    T0: 200 K
+    h0: -2.04 kJ/mol
+    s0: 12.679 J/mol/K
+    cp0: 20.786 J/mol/K
+
+reactions:
+- equation: E + O2 + O2 => O2- + O2
+  type: two-temperature-plasma
+  rate-constant: {A: 4.2e-27, b: -1.0, Ea-gas: 600, Ea-electron: 700}

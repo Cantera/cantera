@@ -36,7 +36,7 @@ cdef class UnitSystem:
     The `UnitSystem` class is used to specify dimensional values for a given unit
     system. The main use is for converting values specified in input files to Cantera's
     native unit system, which is SI units except for the use of kmol as the base
-    unit of quantity, i.e. kilogram, meter, second, kelvin, ampere, and kmol.
+    unit of quantity, that is, kilogram, meter, second, kelvin, ampere, and kmol.
 
     The default unit system used by Cantera is SI+kmol::
 

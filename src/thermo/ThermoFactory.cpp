@@ -15,6 +15,7 @@
 #include "cantera/thermo/PDSSFactory.h"
 #include "cantera/thermo/MultiSpeciesThermo.h"
 #include "cantera/thermo/IdealGasPhase.h"
+#include "cantera/thermo/PlasmaPhase.h"
 
 #include "cantera/thermo/IdealSolidSolnPhase.h"
 #include "cantera/thermo/MaskellSolidSolnPhase.h"
@@ -53,6 +54,7 @@ ThermoFactory::ThermoFactory()
     addAlias("none", "None");
     reg("ideal-gas", []() { return new IdealGasPhase(); });
     addAlias("ideal-gas", "IdealGas");
+    reg("plasma", []() { return new PlasmaPhase(); });
     reg("ideal-surface", []() { return new SurfPhase(); });
     addAlias("ideal-surface", "Surface");
     addAlias("ideal-surface", "Surf");
@@ -119,6 +121,11 @@ ThermoPhase* newPhase(XML_Node& xmlphase)
 
 unique_ptr<ThermoPhase> newPhase(const AnyMap& phaseNode, const AnyMap& rootNode)
 {
+    if (!phaseNode.hasKey("kinetics") && phaseNode.hasKey("reactions")) {
+        throw InputFileError("newPhase", phaseNode["reactions"],
+            "Phase entry includes a 'reactions' field but does not "
+            "specify a kinetics model.");
+    }
     unique_ptr<ThermoPhase> t(newThermoPhase(phaseNode["thermo"].asString()));
     setupPhase(*t, phaseNode, rootNode);
     return t;
@@ -138,9 +145,7 @@ ThermoPhase* newPhase(const std::string& infile, std::string id)
     if (extension == "yml" || extension == "yaml") {
         AnyMap root = AnyMap::fromYamlFile(infile);
         AnyMap& phase = root["phases"].getMapWhere("name", id);
-        unique_ptr<ThermoPhase> t(newThermoPhase(phase["thermo"].asString()));
-        setupPhase(*t, phase, root);
-        return t.release();
+        return newPhase(phase, root).release();
     } else {
         XML_Node* root = get_XML_File(infile);
         XML_Node* xphase = get_XML_NameID("phase", "#"+id, root);

@@ -646,7 +646,7 @@ class reaction:
         :param order:
             Override the default reaction orders implied by the reactant
             stoichiometric coefficients. Given as a string of key:value pairs,
-            e.g., ``"CH4:0.25 O2:1.5"``.
+            for example, ``"CH4:0.25 O2:1.5"``.
         :param options:
             Processing options, as described in
             `Options <https://cantera.org/tutorials/cti/reactions.html#options>`__.
@@ -1661,7 +1661,7 @@ def convert(filename=None, output_name=None, text=None, encoding="latin-1"):
         # information regarding conversion
         metadata = BlockMap([
             ("generator", "cti2yaml"),
-            ("cantera-version", "2.6.0b2"),
+            ("cantera-version", "2.6.0"),
             ("date", formatdate(localtime=True)),
         ])
         if filename != "<string>":

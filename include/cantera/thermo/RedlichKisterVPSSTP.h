@@ -425,7 +425,7 @@ private:
     //! coefficients with respect to the log of the mole fractions.
     /*!
      * This function will be called to update the internally stored vector of
-     * the total derivatives (i.e. not assuming other mole fractions are
+     * the total derivatives (that is, not assuming other mole fractions are
      * constant) of the natural logarithm of the activity coefficients with
      * respect to the log of the mole fraction.
      */

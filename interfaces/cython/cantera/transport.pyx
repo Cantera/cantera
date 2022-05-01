@@ -3,7 +3,7 @@
 
 # NOTE: These cdef functions cannot be members of Transport because they would
 # cause "layout conflicts" when creating derived classes with multiple bases,
-# e.g. class Solution. [Cython 0.16]
+# such as class Solution. [Cython 0.16]
 cdef np.ndarray get_transport_1d(Transport tran, transportMethod1d method):
     cdef np.ndarray[np.double_t, ndim=1] data = np.empty(tran.thermo.nSpecies())
     method(tran.transport, &data[0])
@@ -69,6 +69,10 @@ cdef class GasTransportData:
             dispersion_coefficient, quadrupole_polarizability)
 
     property input_data:
+        """
+        Get input data defining this GasTransportData object, along with any
+        user-specified data provided with its input (YAML) definition.
+        """
         def __get__(self):
             return anymap_to_dict(self.data.parameters(True))
 
@@ -221,8 +225,6 @@ cdef class Transport(_SolutionBase):
     property thermal_conductivity:
         """
         Thermal conductivity. [W/m/K]
-        Returns thermal conductivity of the ideal gas object using the multicomponent
-        model. The value is not specific to the dusty gas model.
         """
         def __get__(self):
             return self.transport.thermalConductivity()
@@ -411,6 +413,11 @@ cdef class DustyGasTransport(Transport):
             (<CxxDustyGasTransport*>self.transport).setPermeability(value)
 
     property thermal_conductivity:
+        """
+        Thermal conductivity. [W/m/K]
+        Returns the thermal conductivity of the ideal gas object using the
+        multicomponent model. The value is not specific to the dusty gas model.
+        """
         def __get__(self):
             return (<CxxDustyGasTransport*>self.transport).gasTransport().thermalConductivity()
 

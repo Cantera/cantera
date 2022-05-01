@@ -488,7 +488,7 @@ void RedlichKwongMFTP::initThermo()
         if (data.hasKey("equation-of-state") &&
             data["equation-of-state"].hasMapWhere("model", "Redlich-Kwong"))
         {
-            // Read a and b coefficients from species 'input' information (i.e. as
+            // Read a and b coefficients from species 'input' information (that is, as
             // specified in a YAML input file) specific to the Redlich-Kwong model
             auto eos = data["equation-of-state"].getMapWhere(
                 "model", "Redlich-Kwong");
@@ -558,7 +558,7 @@ void RedlichKwongMFTP::initThermo()
 
         // Check if critical properties were found in either location
         if (!isnan(Tc)) {
-            // Assuming no temperature dependence (i.e. a1 = 0)
+            // Assuming no temperature dependence (that is, a1 = 0)
             double a = omega_a * pow(GasConstant, 2) * pow(Tc, 2.5) / Pc;
             double b = omega_b * GasConstant * Tc / Pc;
             setSpeciesCoeffs(item.first, a, 0.0, b);

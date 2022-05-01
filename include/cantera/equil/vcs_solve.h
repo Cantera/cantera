@@ -291,7 +291,7 @@ public:
      *
      * @param stateCalc   Determines whether z is old or new or tentative:
      *            - 1: Use the tentative values for the total number of
-     *                 moles in the phases, i.e., use TG1 instead of TG etc.
+     *                 moles in the phases, that is, use TG1 instead of TG etc.
      *            - 0: Use the base values of the total number of
      *                 moles in each system.
      *
@@ -887,7 +887,7 @@ private:
      *  - s2 = slope of Gibbs function at al = 1, which is the current
      *    solution = d(Gibbs)/d(al).
      *
-     * Only if there has been an inflection point (i.e., s1 < 0 and s2 > 0),
+     * Only if there has been an inflection point (that is, s1 < 0 and s2 > 0),
      * does this code section kick in. It finds the point on the parabola
      * where the slope is equal to zero.
      */

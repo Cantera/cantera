@@ -635,7 +635,6 @@ class TestThermoPhase(utilities.CanteraTest):
         s1 = self.phase.s
         u1 = self.phase.u
         v1 = self.phase.v
-        self.phase.Te = T1
 
         def check_state(T, rho, Y):
             self.assertNear(self.phase.T, T)
@@ -1127,6 +1126,62 @@ class TestInterfacePhase(utilities.CanteraTest):
         self.assertNear(C[self.interface.species_index('c6*M')], 0.75)
 
 
+class TestPlasmaPhase(utilities.CanteraTest):
+    def setUp(self):
+        self.phase = ct.Solution('oxygen-plasma.yaml',
+                                 'isotropic-electron-energy-plasma',
+                                 transport_model=None)
+
+    def test_converting_electron_energy_to_temperature(self):
+        self.phase.mean_electron_energy = 1.0
+        Te = 2.0 / 3.0 * ct.electron_charge / ct.boltzmann
+        self.assertNear(self.phase.Te, Te)
+
+    def test_converting_electron_temperature_to_energy(self):
+        self.phase.Te = 10000
+        energy = self.phase.Te * 3.0 / 2.0 / ct.electron_charge * ct.boltzmann
+        self.assertNear(self.phase.mean_electron_energy, energy)
+
+    def test_set_get_electron_energy_levels(self):
+        levels = np.linspace(0.01, 10, num=9)
+        self.phase.electron_energy_levels = levels
+        self.assertArrayNear(levels, self.phase.electron_energy_levels)
+
+    def test_isotropic_velocity_electron_energy_distribution(self):
+        levels = np.linspace(0.01, 10, num=9)
+        self.phase.electron_energy_levels = levels
+        self.phase.Te = 2e5
+        mean_electron_energy = 3.0 / 2.0 * (self.phase.Te * ct.gas_constant /
+                               (ct.avogadro * ct.electron_charge))
+        self.assertNear(mean_electron_energy, self.phase.mean_electron_energy)
+
+    def test_discretized_electron_energy_distribution(self):
+        levels = np.array([0.0, 1.0, 10.0])
+        dist = np.array([0.0, 0.9, 0.01])
+        self.phase.normalize_electron_energy_distribution_enabled = False
+        self.phase.quadrature_method = "trapezoidal"
+        self.phase.set_discretized_electron_energy_distribution(levels, dist)
+        self.assertArrayNear(levels, self.phase.electron_energy_levels)
+        self.assertArrayNear(dist, self.phase.electron_energy_distribution)
+        mean_energy = 2.0 / 5.0 * np.trapz(dist, np.power(levels, 5./2.))
+        self.assertNear(self.phase.mean_electron_energy, mean_energy, 1e-4)
+        electron_temp = 2.0 / 3.0 * (self.phase.mean_electron_energy *
+                        ct.avogadro * ct.electron_charge / ct.gas_constant)
+        self.assertNear(self.phase.Te, electron_temp)
+
+    def test_electron_thermodynamic_properties(self):
+        self.assertNear(self.phase.standard_gibbs_RT[0],
+                        self.phase.standard_enthalpies_RT[0] -
+                        self.phase.standard_entropies_R[0])
+
+    def test_add_multiple_electron_species(self):
+        electron = ct.Species('Electron', 'E:1')
+        electron.thermo = ct.ConstantCp(100, 200, 101325, coeffs=(300, 1, 1, 1))
+        with self.assertRaisesRegex(ct.CanteraError,
+                                    'Only one electron species is allowed'):
+            self.phase.add_species(electron)
+
+
 class ImportTest(utilities.CanteraTest):
     """
     Test the various ways of creating a Solution object
@@ -1148,7 +1203,7 @@ class ImportTest(utilities.CanteraTest):
 
     @pytest.mark.usefixtures("allow_deprecated")
     def test_import_phase_cti2(self):
-        # This should import the first phase, i.e. 'air'
+        # This should import the first phase, that is, 'air'
         gas = ct.Solution('air-no-reactions.cti')
         self.check(gas, 'air', 300, 101325, 8, 3)
 
@@ -2196,22 +2251,72 @@ class TestSolutionArray(utilities.CanteraTest):
 
     def test_set_equivalence_ratio(self):
         states = ct.SolutionArray(self.gas, 8)
-        phi = np.linspace(.5, 2., 8)
-        args = 'H2:1.0', 'O2:1.0'
-        states.set_equivalence_ratio(phi, *args)
-        states.set_equivalence_ratio(phi[0], *args)
-        states.set_equivalence_ratio(list(phi), *args)
+        phi = np.linspace(0.5, 2, 8)
+        fuel, oxidizer = "H2:1.0", "O2:1.0"
+        # The mole fraction arrays need to be squeezed here to reduce their
+        # dimensionality from a 2-d column array to a vector for comparison
+        # with phi.
+        states.set_equivalence_ratio(phi, fuel, oxidizer)
+        comp = (states("H2").X / (2 * states("O2").X)).squeeze(1)
+        self.assertArrayNear(comp, phi)
+        states.set_equivalence_ratio(phi[0], fuel, oxidizer)
+        comp = (states("H2").X / (2 * states("O2").X)).squeeze(1)
+        self.assertArrayNear(comp, np.full_like(phi, phi[0]))
+        states.set_equivalence_ratio(phi.tolist(), fuel, oxidizer)
+        comp = (states("H2").X / (2 * states("O2").X)).squeeze(1)
+        self.assertArrayNear(comp, phi)
 
-        with self.assertRaises(ValueError):
-            states.set_equivalence_ratio(phi[:-1], *args)
+    def test_set_equivalence_ratio_wrong_shape_raises(self):
+        states = ct.SolutionArray(self.gas, 8)
+        phi = np.linspace(0.5, 2, 7)
+        fuel, oxidizer = "H2:1.0", "O2:1.0"
+        with self.assertRaisesRegex(ValueError, r"shape mismatch"):
+            states.set_equivalence_ratio(phi, fuel, oxidizer)
 
-        states = ct.SolutionArray(self.gas, (2,4))
-        states.set_equivalence_ratio(phi.reshape((2,4)), *args)
+    def test_set_equivalence_ratio_2d(self):
+        states = ct.SolutionArray(self.gas, (2, 4))
+        phi = np.linspace(0.5, 2, 8).reshape((2, 4))
+        fuel, oxidizer = "H2:1.0", "O2:1.0"
+        # The mole fraction arrays need to be squeezed here to reduce their
+        # dimensionality from a 2-d column array to a vector for comparison
+        # with phi.
+        states.set_equivalence_ratio(phi, fuel, oxidizer)
+        comp = (states("H2").X / (2 * states("O2").X)).squeeze(2)
+        self.assertArrayNear(comp, phi)
 
-        with self.assertRaises(ValueError):
-            states.set_equivalence_ratio(phi, *args)
-        with self.assertRaises(ValueError):
-            states.set_equivalence_ratio(phi.reshape((4,2)), *args)
+    def test_set_mixture_fraction(self):
+        states = ct.SolutionArray(self.gas, 8)
+        mixture_fraction = np.linspace(0.5, 1, 8)
+        fuel, oxidizer = "H2:1.0", "O2:1.0"
+        # The mass fraction arrays need to be squeezed here to reduce their
+        # dimensionality from a 2-d column array to a vector for comparison
+        # with mixture_fraction.
+        states.set_mixture_fraction(mixture_fraction, fuel, oxidizer)
+        self.assertArrayNear(states("H2").Y.squeeze(1), mixture_fraction)
+        states.set_mixture_fraction(mixture_fraction[0], fuel, oxidizer)
+        self.assertArrayNear(
+            states("H2").Y.squeeze(1),
+            np.full_like(mixture_fraction, mixture_fraction[0]),
+        )
+        states.set_mixture_fraction(mixture_fraction.tolist(), fuel, oxidizer)
+        self.assertArrayNear(states("H2").Y.squeeze(1), mixture_fraction)
+
+    def test_set_mixture_fraction_wrong_shape_raises(self):
+        states = ct.SolutionArray(self.gas, 8)
+        mixture_fraction = np.linspace(0.5, 1, 7)
+        fuel, oxidizer = "H2:1.0", "O2:1.0"
+        with self.assertRaisesRegex(ValueError, r"shape mismatch"):
+            states.set_mixture_fraction(mixture_fraction, fuel, oxidizer)
+
+    def test_set_mixture_fraction_2D(self):
+        states = ct.SolutionArray(self.gas, (2, 4))
+        mixture_fraction = np.linspace(0.5, 1, 8).reshape((2, 4))
+        fuel, oxidizer = "H2:1.0", "O2:1.0"
+        states.set_mixture_fraction(mixture_fraction, fuel, oxidizer)
+        # The mass fraction array needs to be squeezed here to reduce its
+        # dimensionality from a 3-d array to a 2-d array for comparison
+        # with mixture_fraction.
+        self.assertArrayNear(states("H2").Y.squeeze(2), mixture_fraction)
 
     def test_species_slicing(self):
         states = ct.SolutionArray(self.gas, (2,5))

@@ -256,6 +256,11 @@ void Reaction::setRate(shared_ptr<ReactionRate> rate)
         reactants.erase("(+M)");
         products.erase("(+M)");
     }
+
+    if (reactants.count("M") && std::dynamic_pointer_cast<PlogRate>(m_rate)) {
+        throw InputFileError("Reaction::setRate", input, "Found superfluous 'M' in "
+            "pressure-dependent-Arrhenius reaction.");
+    }
 }
 
 std::string Reaction::reactantString() const
@@ -499,7 +504,7 @@ bool Reaction::checkSpecies(const Kinetics& kin) const
                     "defines reaction orders for undeclared species: '{}'",
                     equation(), boost::algorithm::join(undeclared, "', '"));
             }
-            // Error for empty input AnyMap (e.g. XML)
+            // Error for empty input AnyMap (that is, XML)
             throw InputFileError("Reaction::checkSpecies", input, "Reaction '{}'\n"
                 "defines reaction orders for undeclared species: '{}'",
                 equation(), boost::algorithm::join(undeclared, "', '"));
@@ -1570,12 +1575,12 @@ void parseReactionEquation(Reaction& R, const std::string& equation,
 
             double stoich;
             if (last_used != npos && tokens[last_used] == "(+") {
-                // Falloff third body with space, e.g. "(+ M)"
+                // Falloff third body with space, such as "(+ M)"
                 species = "(+" + species;
                 stoich = -1;
             } else if (last_used == i-1 && ba::starts_with(species, "(+")
                        && ba::ends_with(species, ")")) {
-                // Falloff 3rd body written without space, e.g. "(+M)"
+                // Falloff 3rd body written without space, such as "(+M)"
                 stoich = -1;
             } else if (last_used == i-2) { // Species with no stoich. coefficient
                 stoich = 1.0;
