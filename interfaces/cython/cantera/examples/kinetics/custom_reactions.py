@@ -31,13 +31,6 @@ custom_reactions[2] = ct.CustomReaction(
 gas1 = ct.Solution(thermo='ideal-gas', kinetics='gas',
                    species=species, reactions=custom_reactions)
 
-# old framework - use xml input (to be removed after Cantera 2.6)
-
-with warnings.catch_warnings():
-    # suppress warning: XML input is deprecated
-    warnings.simplefilter("ignore")
-    gas2 = ct.Solution(mech.replace(".yaml", ".xml"))
-
 # construct test case - simulate ignition
 
 def ignition(gas):
@@ -75,11 +68,3 @@ sim1 /= repeat
 print('- One Python reaction: '
       '{0:.2f} ms (T_final={1:.2f}) ... '
       '{2:+.2f}%'.format(sim1, gas1.T, 100 * sim1 / sim0 - 100))
-
-sim2 = 0
-for i in range(repeat):
-    sim2 += ignition(gas2)
-sim2 /= repeat
-print('- Old framework (XML): '
-      '{0:.2f} ms (T_final={1:.2f}) ... '
-      '{2:+.2f}%'.format(sim2, gas2.T, 100 * sim2 / sim0 - 100))

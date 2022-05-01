@@ -5,12 +5,10 @@ import io
 import pytest
 
 from . import utilities
-from .utilities import allow_deprecated
 import cantera as ct
-from cantera import ck2cti, ck2yaml, cti2yaml, ctml2yaml
+from cantera import ck2yaml, cti2yaml, ctml2yaml
 
-
-class converterTestCommon:
+class ck2yamlTest(utilities.CanteraTest):
     def convert(self, inputFile, thermo=None, transport=None,
                 surface=None, output=None, extra=None, **kwargs):
         if output is None:
@@ -25,12 +23,13 @@ class converterTestCommon:
             surface = self.test_data_path / surface
         if extra is not None:
             extra = self.test_data_path / extra
-        output = self.test_work_path / (output + "-from-ck" + self.ext)
+        output = self.test_work_path / (output + "-from-ck.yaml")
         # In Python >= 3.8, this can be replaced by the missing_ok argument
         if output.is_file():
             output.unlink()
-        self._convert(inputFile, thermo=thermo, transport=transport,
-            surface=surface, output=output, extra=extra, **kwargs)
+        ck2yaml.convert_mech(inputFile, thermo_file=thermo,
+            transport_file=transport, surface_file=surface, out_name=output,
+            extra_file=extra, **kwargs)
         return output
 
     def checkConversion(self, refFile, testFile):
@@ -98,29 +97,23 @@ class converterTestCommon:
     def test_pdep(self):
         output = self.convert('pdep-test.inp')
         ref, gas = self.checkConversion('pdep-test.yaml', output)
-        # Chebyshev coefficients in XML are truncated to 6 digits, limiting accuracy
-        self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6],
-                           tol=2e-4)
+        self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
 
     def test_species_only(self):
         self.convert(None, thermo='dummy-thermo.dat', output='dummy-thermo')
-        if self.ext == ".cti":
-            cti = "ideal_gas(elements='C H', species='dummy-thermo-from-ck:R1A R1B P1')"
-            gas = ct.Solution(source=cti)
-        elif self.ext == ".yaml":
-            yaml = ("{phases: [{name: gas, species: "
-                    "[{dummy-thermo-from-ck.yaml/species: [R1A, R1B, P1]}], "
-                    "thermo: ideal-gas}]}")
-            gas = ct.Solution(yaml=yaml)
+        yaml = ("{phases: [{name: gas, species: "
+                "[{dummy-thermo-from-ck.yaml/species: [R1A, R1B, P1]}], "
+                "thermo: ideal-gas}]}")
+        gas = ct.Solution(yaml=yaml)
         self.assertEqual(gas.n_species, 3)
         self.assertEqual(gas.n_reactions, 0)
 
     def test_missingThermo(self):
-        with self.assertRaisesRegex(self.InputError, 'No thermo data'):
+        with self.assertRaisesRegex(ck2yaml.InputError, 'No thermo data'):
             self.convert('h2o2_missingThermo.inp')
 
     def test_duplicate_thermo(self):
-        with self.assertRaisesRegex(self.InputError, 'additional thermo'):
+        with self.assertRaisesRegex(ck2yaml.InputError, 'additional thermo'):
             self.convert('duplicate-thermo.inp')
 
         output = self.convert('duplicate-thermo.inp', permissive=True)
@@ -130,7 +123,7 @@ class converterTestCommon:
         self.assertEqual(gas.n_reactions, 2)
 
     def test_duplicate_species(self):
-        with self.assertRaisesRegex(self.InputError, 'additional declaration'):
+        with self.assertRaisesRegex(ck2yaml.InputError, 'additional declaration'):
             self.convert('duplicate-species.inp')
 
         output = self.convert('duplicate-species.inp', permissive=True)
@@ -171,7 +164,7 @@ class converterTestCommon:
         self.assertEqual(list(nu[:,12]), [0, 0, 0, 0, 1, 0, 0, 0, 0, -1])
 
     def test_unterminatedSections(self):
-        with self.assertRaisesRegex(self.InputError, 'implicitly ended'):
+        with self.assertRaisesRegex(ck2yaml.InputError, 'implicitly ended'):
             self.convert('unterminated-sections.inp')
 
         output = self.convert('unterminated-sections.inp', permissive=True)
@@ -180,7 +173,7 @@ class converterTestCommon:
         self.assertEqual(gas.n_reactions, 2)
 
     def test_unterminatedSections2(self):
-        with self.assertRaisesRegex(self.InputError, 'implicitly ended'):
+        with self.assertRaisesRegex(ck2yaml.InputError, 'implicitly ended'):
             self.convert('unterminated-sections2.inp')
 
         output = self.convert('unterminated-sections2.inp', permissive=True)
@@ -189,7 +182,7 @@ class converterTestCommon:
         self.assertEqual(gas.n_reactions, 2)
 
     def test_unrecognized_section(self):
-        with self.assertRaisesRegex(self.InputError, 'SPAM'):
+        with self.assertRaisesRegex(ck2yaml.InputError, 'SPAM'):
             self.convert('unrecognized-section.inp', thermo='dummy-thermo.dat',
                          permissive=True)
 
@@ -212,9 +205,7 @@ class converterTestCommon:
         output = self.convert("chemically-activated-reaction.inp")
         ref, gas = self.checkConversion("chemically-activated-reaction.yaml",
                                         output)
-        # pre-exponential factor in XML is truncated to 7 sig figs, limiting accuracy
-        self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6, 1e7],
-                           tol=1e-7)
+        self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6, 1e7])
 
     def test_explicit_third_bodies(self):
         output = self.convert("explicit-third-bodies.inp", thermo="dummy-thermo.dat")
@@ -247,21 +238,17 @@ class converterTestCommon:
     def test_explicit_forward_order(self):
         output = self.convert("explicit-forward-order.inp", thermo="dummy-thermo.dat")
         ref, gas = self.checkConversion("explicit-forward-order.yaml", output)
-        # pre-exponential factor in XML is truncated to 7 sig figs, limiting accuracy
-        self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6],
-                           tol=2e-7)
+        self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
 
     def test_negative_order(self):
-        with self.assertRaisesRegex(self.InputError, 'Negative reaction order'):
+        with self.assertRaisesRegex(ck2yaml.InputError, 'Negative reaction order'):
             self.convert('negative-order.inp', thermo='dummy-thermo.dat')
 
     def test_negative_order_permissive(self):
         output = self.convert('negative-order.inp', thermo='dummy-thermo.dat',
                               permissive=True)
         ref, gas = self.checkConversion("negative-order.yaml", output)
-        # pre-exponential factor in XML is truncated to 7 sig figs, limiting accuracy
-        self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6],
-                           tol=2e-7)
+        self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
 
     def test_negative_A_factor(self):
         output = self.convert('negative-rate.inp', thermo='dummy-thermo.dat')
@@ -276,7 +263,7 @@ class converterTestCommon:
             self.convert('bad-troe.inp', thermo='dummy-thermo.dat')
 
     def test_invalid_reaction_equation(self):
-        with self.assertRaisesRegex(self.InputError, 'Unparsable'):
+        with self.assertRaisesRegex(ck2yaml.InputError, 'Unparsable'):
             self.convert('invalid-equation.inp', thermo='dummy-thermo.dat')
 
     @utilities.slow_test
@@ -322,34 +309,34 @@ class converterTestCommon:
             self.assertTrue(d > 0.0)
 
     def test_transport_missing_species(self):
-        with self.assertRaisesRegex(self.InputError, 'No transport data'):
+        with self.assertRaisesRegex(ck2yaml.InputError, 'No transport data'):
             self.convert('h2o2.inp', transport='h2o2-missing-species-tran.dat',
                 output='h2o2_transport_missing_species')
 
     def test_transport_extra_column_entries(self):
-        with self.assertRaisesRegex(self.InputError, '572.400'):
+        with self.assertRaisesRegex(ck2yaml.InputError, '572.400'):
             self.convert('h2o2.inp',
                 transport='h2o2-extra-column-entries-tran.dat',
                 output='h2o2_extra-column-entries-tran')
 
     def test_transport_duplicate_species(self):
-        with self.assertRaisesRegex(self.InputError, 'duplicate transport'):
+        with self.assertRaisesRegex(ck2yaml.InputError, 'duplicate transport'):
             self.convert('h2o2.inp',
                 transport='h2o2-duplicate-species-tran.dat',
-                output='h2o2_transport_duplicate_species.cti')
+                output='h2o2_transport_duplicate_species')
 
         self.convert('h2o2.inp',
             transport='h2o2-duplicate-species-tran.dat',
             output='h2o2_transport_duplicate_species', permissive=True)
 
     def test_transport_bad_geometry(self):
-        with self.assertRaisesRegex(self.InputError, 'geometry flag'):
+        with self.assertRaisesRegex(ck2yaml.InputError, 'geometry flag'):
             self.convert('h2o2.inp',
                 transport='h2o2-bad-geometry-tran.dat',
                 output='h2o2_transport_bad_geometry')
 
     def test_transport_float_geometry(self):
-        with self.assertRaisesRegex(self.InputError, 'geometry flag'):
+        with self.assertRaisesRegex(ck2yaml.InputError, 'geometry flag'):
             self.convert('h2o2.inp',
                 transport='h2o2-float-geometry-tran.dat',
                 output='h2o2_transport_float_geometry')
@@ -386,12 +373,8 @@ class converterTestCommon:
         output = self.convert('surface1-gas.inp', surface='surface1.inp',
                               output='surface1')
 
-        if self.ext == ".cti":
-            gas = ct.Solution(output, 'gas')
-            surf = ct.Interface(output, 'PT_SURFACE', [gas])
-        else:
-            surf = ct.Interface(output, 'PT_SURFACE')
-            gas = surf.adjacent["gas"]
+        surf = ct.Interface(output, 'PT_SURFACE')
+        gas = surf.adjacent["gas"]
 
         self.assertEqual(gas.n_reactions, 11)
         self.assertEqual(surf.n_reactions, 15)
@@ -405,35 +388,19 @@ class converterTestCommon:
 
         # Sticking coefficients
         self.assertTrue(surf.reaction(4).duplicate)
-        if self.ext == ".yaml":
-            self.assertNotIsInstance(surf.reaction(1).rate, ct.StickingArrheniusRate)
-            self.assertIsInstance(surf.reaction(2).rate, ct.StickingArrheniusRate)
-            self.assertTrue(surf.reaction(2).rate.motz_wise_correction)
-            self.assertIsInstance(surf.reaction(4).rate, ct.StickingArrheniusRate)
-            self.assertFalse(surf.reaction(4).rate.motz_wise_correction)
-            self.assertTrue(surf.reaction(6).rate.motz_wise_correction)
+        self.assertNotIsInstance(surf.reaction(1).rate, ct.StickingArrheniusRate)
+        self.assertIsInstance(surf.reaction(2).rate, ct.StickingArrheniusRate)
+        self.assertTrue(surf.reaction(2).rate.motz_wise_correction)
+        self.assertIsInstance(surf.reaction(4).rate, ct.StickingArrheniusRate)
+        self.assertFalse(surf.reaction(4).rate.motz_wise_correction)
+        self.assertTrue(surf.reaction(6).rate.motz_wise_correction)
 
-            # Coverage dependencies
-            covdeps = surf.reaction(1).rate.coverage_dependencies
-            self.assertEqual(len(covdeps), 2)
-            self.assertIn("H_Pt", covdeps)
-            self.assertEqual(covdeps["OH_Pt"]["m"], 1.0)
-            self.assertNear(covdeps["H_Pt"]["E"], -6e6) # 6000 J/gmol = 6e6 J/kmol
-
-        else:
-            self.assertFalse(surf.reaction(1).is_sticking_coefficient)
-            self.assertTrue(surf.reaction(2).is_sticking_coefficient)
-            self.assertTrue(surf.reaction(2).use_motz_wise_correction)
-            self.assertTrue(surf.reaction(4).is_sticking_coefficient)
-            self.assertFalse(surf.reaction(4).use_motz_wise_correction)
-            self.assertTrue(surf.reaction(6).use_motz_wise_correction)
-
-            # Coverage dependencies
-            covdeps = surf.reaction(1).coverage_deps
-            self.assertEqual(len(covdeps), 2)
-            self.assertIn("H_Pt", covdeps)
-            self.assertEqual(covdeps["OH_Pt"][1], 1.0)
-            self.assertNear(covdeps["H_Pt"][2], -6e6) # 6000 J/gmol = 6e6 J/kmol
+        # Coverage dependencies
+        covdeps = surf.reaction(1).rate.coverage_dependencies
+        self.assertEqual(len(covdeps), 2)
+        self.assertIn("H_Pt", covdeps)
+        self.assertEqual(covdeps["OH_Pt"]["m"], 1.0)
+        self.assertNear(covdeps["H_Pt"]["E"], -6e6) # 6000 J/gmol = 6e6 J/kmol
 
     def test_surface_mech2(self):
         output = self.convert('surface1-gas-noreac.inp', surface='surface1.inp',
@@ -445,17 +412,10 @@ class converterTestCommon:
         self.assertEqual(gas.n_reactions, 0)
         self.assertEqual(surf.n_reactions, 15)
 
-        # Coverage dependencies
-        if self.ext == ".yaml":
-            covdeps = surf.reaction(1).rate.coverage_dependencies
-            self.assertIn("H_Pt", covdeps)
-            self.assertEqual(covdeps["OH_Pt"]["m"], 1.0)
-            self.assertNear(covdeps["H_Pt"]["E"], -6e6)
-        else:
-            covdeps = surf.reaction(1).coverage_deps
-            self.assertIn("H_Pt", covdeps)
-            self.assertEqual(covdeps["OH_Pt"][1], 1.0)
-            self.assertNear(covdeps["H_Pt"][2], -6e6)
+        covdeps = surf.reaction(1).rate.coverage_dependencies
+        self.assertIn("H_Pt", covdeps)
+        self.assertEqual(covdeps["OH_Pt"]["m"], 1.0)
+        self.assertNear(covdeps["H_Pt"]["E"], -6e6)
 
     def test_third_body_plus_falloff_reactions(self):
         output = self.convert("third_body_plus_falloff_reaction.inp")
@@ -466,38 +426,6 @@ class converterTestCommon:
         output = self.convert("blank_line_in_header.inp")
         gas = ct.Solution(output)
         self.assertEqual(gas.n_reactions, 1)
-
-
-class ck2ctiTest(converterTestCommon, utilities.CanteraTest):
-    ext = '.cti'
-    InputError = ck2cti.InputParseError
-    def setUp(self):
-        super().setUp()
-        ct.suppress_deprecation_warnings()
-
-    def tearDown(self):
-        super().tearDown()
-        ct.make_deprecation_warnings_fatal()
-
-    def _convert(self, inputFile, *, thermo, transport, surface, output, extra,
-                 **kwargs):
-        ck2cti.convertMech(inputFile, thermoFile=thermo,
-            transportFile=transport, surfaceFile=surface, outName=output, **kwargs)
-
-    def test_missingElement(self):
-        with self.assertRaisesRegex(self.InputError, 'Undefined elements'):
-            self.convert('h2o2_missingElement.inp', output='h2o2_missingElement')
-
-
-class ck2yamlTest(converterTestCommon, utilities.CanteraTest):
-    ext = '.yaml'
-    InputError = ck2yaml.InputError
-
-    def _convert(self, inputFile, *, thermo, transport, surface, output, extra,
-                 **kwargs):
-        ck2yaml.convert_mech(inputFile, thermo_file=thermo,
-            transport_file=transport, surface_file=surface, out_name=output,
-            extra_file=extra, **kwargs)
 
     @utilities.slow_test
     def test_extra(self):
@@ -525,9 +453,6 @@ class ck2yamlTest(converterTestCommon, utilities.CanteraTest):
         # Running a test this way instead of using the convertMech function
         # tests the behavior of the ck2yaml.main function and the mechanism
         # validation step.
-
-        # clear global handler created by logging.basicConfig() in ck2cti
-        logging.getLogger().handlers.clear()
 
         # Replace the ck2yaml logger with our own in order to capture the output
         log_stream = io.StringIO()
@@ -583,78 +508,9 @@ class ck2yamlTest(converterTestCommon, utilities.CanteraTest):
         assert thermo["data"][0][0] == 15.096679
 
     def test_error_for_big_element_number(self):
-        with self.assertRaisesRegex(self.InputError, 'Element amounts can have no more than 3 digits.'):
+        with self.assertRaisesRegex(ck2yaml.InputError,
+                                    'Element amounts can have no more than 3 digits.'):
             self.convert('big_element_num_err.inp')
-
-
-@pytest.mark.usefixtures("allow_deprecated")
-class CtmlConverterTest(utilities.CanteraTest):
-
-    def test_sofc(self):
-        gas_a, anode_bulk, oxide_a = ct.import_phases(
-            'sofc.cti',
-            ['gas', 'metal', 'oxide_bulk'])
-
-        self.assertNear(gas_a.P, ct.one_atm)
-        self.assertNear(anode_bulk['electron'].X, 1.0)
-        self.assertNear(oxide_a.density_mole, 17.6)
-
-    @utilities.slow_test
-    def test_diamond(self):
-        gas, solid = ct.import_phases('diamond.cti', ['gas','diamond'])
-        face = ct.Interface('diamond.cti', 'diamond_100', [gas, solid])
-
-        self.assertNear(face.site_density, 3e-8)
-
-    def test_invalid(self):
-        try:
-            gas = ct.Solution('invalid.cti')
-        except ct.CanteraError as e:
-            err = e
-
-        self.assertIn('already contains', err.args[0])
-
-    def test_noninteger_atomicity(self):
-        gas = ct.Solution('noninteger-atomicity.cti')
-        self.assertNear(gas.molecular_weights[gas.species_index('CnHm')],
-                        10.65*gas.atomic_weight('C') + 21.8*gas.atomic_weight('H'))
-
-    def test_reaction_orders(self):
-        gas = ct.Solution('reaction-orders.cti')
-        self.assertEqual(gas.n_reactions, 1)
-        R = gas.reaction(0)
-        self.assertTrue(R.allow_nonreactant_orders)
-        self.assertNear(R.orders.get('OH'), 0.15)
-        self.assertTrue(R.allow_negative_orders)
-        self.assertNear(R.orders.get('H2'), -0.25)
-
-    def test_long_source_input(self):
-        """
-        Here we are testing if passing a very long string will result in a
-        Solution object. This should result in a temp file creation in most OS's
-        """
-
-        gas = ct.Solution('pdep-test.yaml')
-
-        data = (self.test_data_path / "pdep-test.cti").read_text()
-        data_size_2048kB = data + ' '*2048*1024
-        gas2 = ct.Solution(source=data_size_2048kB)
-
-        self.assertEqual(gas.n_reactions, gas2.n_reactions)
-
-    def test_short_source_input(self):
-        """
-        Here we are testing if passing a short string will result in a Solution
-        object. This should not result in a temp file creation in most OS's
-        """
-
-        gas = ct.Solution('pdep-test.yaml')
-
-        data = (self.test_data_path / "pdep-test.cti").read_text()
-        data_size_32kB = data + ' '*18000
-        gas2 = ct.Solution(source=data_size_32kB)
-
-        self.assertEqual(gas.n_reactions, gas2.n_reactions)
 
 
 class cti2yamlTest(utilities.CanteraTest):
@@ -744,7 +600,7 @@ class cti2yamlTest(utilities.CanteraTest):
 
     @utilities.slow_test
     def test_gri30(self):
-        self.convert("gri30", self.cantera_data_path)
+        self.convert("gri30")
         ctiPhase, yamlPhase = self.checkConversion('gri30')
         X = {'O2': 0.3, 'H2': 0.1, 'CH4': 0.2, 'CO2': 0.4}
         ctiPhase.X = X
@@ -761,7 +617,7 @@ class cti2yamlTest(utilities.CanteraTest):
                            [100, ct.one_atm, 2e5, 2e6, 9.9e6], tol=2e-4)
 
     def test_ptcombust(self):
-        self.convert("ptcombust", self.cantera_data_path)
+        self.convert("ptcombust")
         ctiSurf, yamlSurf = self.checkConversion("ptcombust", ct.Interface,
             name="Pt_surf")
         yamlGas = yamlSurf.adjacent["gas"]
@@ -784,7 +640,7 @@ class cti2yamlTest(utilities.CanteraTest):
         self.checkKinetics(ctiSurf, yamlSurf, [900], [101325])
 
     def test_sofc(self):
-        self.convert("sofc", self.cantera_data_path)
+        self.convert("sofc")
         cti_tpb, yaml_tpb = self.checkConversion("sofc", ct.Interface, name="tpb")
         ctiMetal, ctiMSurf, ctiOSurf = cti_tpb.adjacent.values()
         yamlMetal, yamlMSurf, yamlOSurf = yaml_tpb.adjacent.values()
@@ -801,7 +657,7 @@ class cti2yamlTest(utilities.CanteraTest):
 
     @utilities.slow_test
     def test_liquidvapor(self):
-        self.convert("liquidvapor", self.cantera_data_path)
+        self.convert("liquidvapor")
         for name in ["water", "nitrogen", "methane", "hydrogen", "oxygen", "heptane"]:
             ctiPhase, yamlPhase = self.checkConversion("liquidvapor", name=name)
             self.checkThermo(ctiPhase, yamlPhase,
@@ -814,16 +670,8 @@ class cti2yamlTest(utilities.CanteraTest):
             yamlGas.TP = ctiGas.TP = 300, P
             self.checkThermo(ctiGas, yamlGas, [300, 400, 500], check_cp=False)
 
-    @utilities.slow_test
-    def test_Redlich_Kwong_ndodecane(self):
-        self.convert("nDodecane_Reitz", self.cantera_data_path)
-        ctiGas, yamlGas = self.checkConversion('nDodecane_Reitz')
-        self.checkThermo(ctiGas, yamlGas, [300, 400, 500], check_cp=False)
-        self.checkKinetics(ctiGas, yamlGas, [300, 500, 1300], [1e5, 2e6, 1.4e7],
-                           1e-6)
-
     def test_diamond(self):
-        self.convert("diamond", self.cantera_data_path)
+        self.convert("diamond")
         ctiSurf, yamlSurf = self.checkConversion("diamond", ct.Interface,
             name="diamond_100")
         ctiSolid = ctiSurf.adjacent["diamond"]
@@ -834,7 +682,7 @@ class cti2yamlTest(utilities.CanteraTest):
 
     def test_lithium_ion_battery(self):
         name = 'lithium_ion_battery'
-        self.convert(name, self.cantera_data_path, encoding="utf-8")
+        self.convert(name, encoding="utf-8")
         ctiAnode, yamlAnode = self.checkConversion(name, name='anode')
         ctiCathode, yamlCathode = self.checkConversion(name, name='cathode')
         ctiMetal, yamlMetal = self.checkConversion(name, name='electron')
@@ -976,7 +824,7 @@ class ctml2yamlTest(utilities.CanteraTest):
 
     @utilities.slow_test
     def test_gri30(self):
-        self.convert("gri30", self.cantera_data_path)
+        self.convert("gri30")
         ctmlPhase, yamlPhase = self.checkConversion('gri30')
         X = {'O2': 0.3, 'H2': 0.1, 'CH4': 0.2, 'CO2': 0.4}
         ctmlPhase.X = X
@@ -993,7 +841,7 @@ class ctml2yamlTest(utilities.CanteraTest):
                            [100, ct.one_atm, 2e5, 2e6, 9.9e6], tol=2e-4)
 
     def test_ptcombust(self):
-        self.convert("ptcombust", self.cantera_data_path)
+        self.convert("ptcombust")
         ctmlSurf, yamlSurf = self.checkConversion("ptcombust", ct.Interface,
             name="Pt_surf")
         ctmlGas = ctmlSurf.adjacent["gas"]
@@ -1014,7 +862,7 @@ class ctml2yamlTest(utilities.CanteraTest):
         self.checkKinetics(ctmlSurf, yamlSurf, [500, 1200], [1e4, 3e5])
 
     def test_sofc(self):
-        self.convert("sofc", self.cantera_data_path)
+        self.convert("sofc")
         ctml_tpb, yaml_tpb = self.checkConversion("sofc", ct.Interface, name="tpb")
         ctmlMetal, ctmlMSurf, ctmlOSurf = ctml_tpb.adjacent.values()
         yamlMetal, yamlMSurf, yamlOSurf = yaml_tpb.adjacent.values()
@@ -1030,7 +878,7 @@ class ctml2yamlTest(utilities.CanteraTest):
         self.checkKinetics(ctml_tpb, yaml_tpb, [900, 1000, 1100], [1e5])
 
     def test_liquidvapor(self):
-        self.convert("liquidvapor", self.cantera_data_path)
+        self.convert("liquidvapor")
         for name in ["water", "nitrogen", "methane", "hydrogen", "oxygen", "heptane"]:
             ctmlPhase, yamlPhase = self.checkConversion("liquidvapor", name=name)
             self.checkThermo(ctmlPhase, yamlPhase,
@@ -1043,16 +891,8 @@ class ctml2yamlTest(utilities.CanteraTest):
             yamlGas.TP = ctmlGas.TP = 300, P
             self.checkThermo(ctmlGas, yamlGas, [300, 400, 500], check_cp=False)
 
-    @utilities.slow_test
-    def test_Redlich_Kwong_ndodecane(self):
-        self.convert("nDodecane_Reitz", self.cantera_data_path)
-        ctmlGas, yamlGas = self.checkConversion('nDodecane_Reitz')
-        self.checkThermo(ctmlGas, yamlGas, [300, 400, 500], check_cp=False)
-        self.checkKinetics(ctmlGas, yamlGas, [300, 500, 1300], [1e5, 2e6, 1.4e7],
-                           1e-6)
-
     def test_diamond(self):
-        self.convert("diamond", self.cantera_data_path)
+        self.convert("diamond")
         ctmlGas, yamlGas = self.checkConversion('diamond', name='gas')
         ctmlSolid, yamlSolid = self.checkConversion('diamond', name='diamond')
         ctmlSurf, yamlSurf = self.checkConversion('diamond',
@@ -1064,7 +904,7 @@ class ctml2yamlTest(utilities.CanteraTest):
 
     def test_lithium_ion_battery(self):
         name = 'lithium_ion_battery'
-        self.convert(name, self.cantera_data_path)
+        self.convert(name)
         ctmlAnode, yamlAnode = self.checkConversion(name, name='anode')
         ctmlCathode, yamlCathode = self.checkConversion(name, name='cathode')
         ctmlMetal, yamlMetal = self.checkConversion(name, name='electron')

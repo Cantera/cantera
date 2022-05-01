@@ -1422,10 +1422,7 @@ cdef class Sim1D:
     def save(self, filename='soln.yaml', name='solution', description='none',
              loglevel=1):
         """
-        Save the solution in YAML or XML format.
-
-        .. deprecated:: 2.6
-           XML-based output is deprecated and will be removed in Cantera 3.0.
+        Save the solution in YAML format.
 
         :param filename:
             solution file
@@ -1443,9 +1440,6 @@ cdef class Sim1D:
 
     def restore(self, filename='soln.yaml', name='solution', loglevel=2):
         """Set the solution vector to a previously-saved solution.
-
-        .. deprecated:: 2.6
-           XML-based input is deprecated and will be removed in Cantera 3.0.
 
         :param filename:
             solution file

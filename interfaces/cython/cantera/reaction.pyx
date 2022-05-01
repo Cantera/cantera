@@ -1011,15 +1011,11 @@ cdef class Reaction:
                         rate={"A": 38.7, "b", 2.7, "Ea": 26191840.0})
         R = ct.Reaction(equation="HO2 <=> OH + O", rate=ChebyshevRate(...))
 
-    The static methods `list_from_file`, `list_from_yaml`, `listFromCti`, and
-    `listFromXml` can be used to create lists of `Reaction` objects from
-    existing definitions in the YAML, CTI, or XML formats. All of the following
-    will produce a list of the 325 reactions which make up the GRI 3.0
-    mechanism::
+    The static method `list_from_file` can be used to create a list of `Reaction`
+    objects from existing definitions in the YAML format. The following will produce a
+    list of the 325 reactions which make up the GRI 3.0 mechanism::
 
         R = ct.Reaction.list_from_file("gri30.yaml", gas)
-        R = ct.Reaction.listFromCti(open("path/to/gri30.cti").read())
-        R = ct.Reaction.listFromXml(open("path/to/gri30.xml").read())
 
     where `gas` is a `Solution` object with the appropriate thermodynamic model,
     which is the `ideal-gas` model in this case.
@@ -1035,21 +1031,14 @@ cdef class Reaction:
         '''
         R = ct.Reaction.list_from_yaml(rxns, gas)
 
-    The methods `from_yaml`, `fromCti`, and `fromXml` can be used to create
-    individual `Reaction` objects from definitions in these formats. In the case
-    of using YAML or CTI definitions, it is important to verify that either the
+    The method `from_yaml` can be used to create individual `Reaction` objects from
+    definitions in the YAML format. It is important to verify that either the
     pre-exponential factor and activation energy are supplied in SI units, or
     that they have their units specified::
 
         R = ct.Reaction.from_yaml('''{equation: O + H2 <=> H + OH,
                 rate-constant: {A: 3.87e+04 cm^3/mol/s, b: 2.7, Ea: 6260 cal/mol}}''',
                 gas)
-
-        R = ct.Reaction.fromCti('''reaction('O + H2 <=> H + OH',
-                [3.87e1, 2.7, 2.619184e7])''')
-
-        R = ct.Reaction.fromCti('''reaction('O + H2 <=> H + OH',
-                        [(3.87e4, 'cm3/mol/s'), 2.7, (6260, 'cal/mol')])''')
     """
     _reaction_type = ""
     _has_legacy = False
@@ -1117,31 +1106,6 @@ cdef class Reaction:
         R._reaction = reaction
         R.reaction = R._reaction.get()
         return R
-
-    @staticmethod
-    def fromCti(text):
-        """
-        Create a Reaction object from its CTI string representation.
-
-        .. deprecated:: 2.5
-
-            The CTI input format is deprecated and will be removed in Cantera 3.0.
-        """
-        cxx_reactions = CxxGetReactions(deref(CxxGetXmlFromString(stringify(text))))
-        assert cxx_reactions.size() == 1, cxx_reactions.size()
-        return Reaction.wrap(cxx_reactions[0])
-
-    @staticmethod
-    def fromXml(text):
-        """
-        Create a Reaction object from its XML string representation.
-
-        .. deprecated:: 2.5
-
-            The XML input format is deprecated and will be removed in Cantera 3.0.
-        """
-        cxx_reaction = CxxNewReaction(deref(CxxGetXmlFromString(stringify(text))))
-        return Reaction.wrap(cxx_reaction)
 
     @classmethod
     def from_dict(cls, data, Kinetics kinetics):
@@ -1219,44 +1183,6 @@ cdef class Reaction:
         return Reaction.wrap(cxx_reaction)
 
     @staticmethod
-    def listFromFile(filename, Kinetics kinetics=None, section='reactions'):
-        """
-        Create a list of Reaction objects from all of the reactions defined in a
-        YAML, CTI, or XML file.
-
-        For YAML input files, a `Kinetics` object is required as the second
-        argument, and reactions from the section ``section`` will be returned.
-
-        Directories on Cantera's input file path will be searched for the
-        specified file.
-
-        In the case of an XML file, the ``<reactions>`` nodes are assumed to be
-        children of the ``<reactionsData>`` node in a document with a ``<ctml>``
-        root node, as in the XML files produced by conversion from CTI files.
-
-        .. deprecated:: 2.5
-
-            The CTI and XML input formats are deprecated and will be removed in
-            Cantera 3.0.
-
-        .. deprecated:: 2.6
-
-            To be removed after Cantera 2.6. Replaced by ``Reaction.list_from_file``.
-        """
-        warnings.warn("Static method 'listFromFile' is renamed to 'list_from_file'."
-            " The old name will be removed after Cantera 2.6.", DeprecationWarning)
-
-        if filename.lower().split('.')[-1] in ('yml', 'yaml'):
-            if kinetics is None:
-                raise ValueError("A Kinetics object is required.")
-            root = AnyMapFromYamlFile(stringify(filename))
-            cxx_reactions = CxxGetReactions(root[stringify(section)],
-                                            deref(kinetics.kinetics))
-        else:
-            cxx_reactions = CxxGetReactions(deref(CxxGetXmlFile(stringify(filename))))
-        return [Reaction.wrap(r) for r in cxx_reactions]
-
-    @staticmethod
     def list_from_file(filename, Kinetics kinetics, section="reactions"):
         """
         Create a list of Reaction objects from all of the reactions defined in a
@@ -1269,52 +1195,6 @@ cdef class Reaction:
         cxx_reactions = CxxGetReactions(root[stringify(section)],
                                         deref(kinetics.kinetics))
         return [Reaction.wrap(r) for r in cxx_reactions]
-
-    @staticmethod
-    def listFromXml(text):
-        """
-        Create a list of Reaction objects from all the reaction defined in an
-        XML string. The ``<reaction>`` nodes are assumed to be children of the
-        ``<reactionData>`` node in a document with a ``<ctml>`` root node, as in
-        the XML files produced by conversion from CTI files.
-
-        .. deprecated:: 2.5
-
-            The XML input format is deprecated and will be removed in Cantera 3.0.
-        """
-        cxx_reactions = CxxGetReactions(deref(CxxGetXmlFromString(stringify(text))))
-        return [Reaction.wrap(r) for r in cxx_reactions]
-
-    @staticmethod
-    def listFromCti(text):
-        """
-        Create a list of `Reaction` objects from all the reactions defined in a
-        CTI string.
-
-        .. deprecated:: 2.5
-
-            The CTI input format is deprecated and will be removed in Cantera 3.0.
-        """
-        # Currently identical to listFromXml since get_XML_from_string is able
-        # to distinguish between CTI and XML.
-        cxx_reactions = CxxGetReactions(deref(CxxGetXmlFromString(stringify(text))))
-        return [Reaction.wrap(r) for r in cxx_reactions]
-
-    @staticmethod
-    def listFromYaml(text, Kinetics kinetics):
-        """
-        Create a list of `Reaction` objects from all the reactions defined in a
-        YAML string.
-
-        .. deprecated:: 2.6
-
-            To be deprecated with version 2.6, and removed thereafter.
-            Replaced by `Reaction.list_from_yaml`.
-        """
-        warnings.warn("Class method 'listFromYaml' is renamed to 'list_from_yaml' "
-            "and will be removed after Cantera 2.6.", DeprecationWarning)
-
-        return Reaction.list_from_yaml(text, kinetics)
 
     @staticmethod
     def list_from_yaml(text, Kinetics kinetics):

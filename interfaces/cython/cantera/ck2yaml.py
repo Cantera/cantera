@@ -850,7 +850,7 @@ class Parser:
         the elemental composition of the species.
 
         For more details on this format, see `Debugging common errors in CK files
-        <https://cantera.org/tutorials/ck2cti-tutorial.html#debugging-common-errors-in-ck-files>`__.
+        <https://cantera.org/tutorials/ck2yaml-tutorial.html#debugging-common-errors-in-ck-files>`__.
         """
         identifier = lines[0][0:24].split(maxsplit=1)
         species = identifier[0].strip()

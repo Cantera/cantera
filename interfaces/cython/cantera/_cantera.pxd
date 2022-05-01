@@ -93,12 +93,6 @@ cdef extern from "cantera/numerics/eigen_sparse.h" namespace "Eigen":
         size_t cols()
         size_t outerSize()
 
-cdef extern from "cantera/base/xml.h" namespace "Cantera":
-    cdef cppclass XML_Node:
-        XML_Node* findByName(string)
-        XML_Node* findID(string)
-        int nChildren()
-
 cdef extern from "cantera/base/Units.h" namespace "Cantera":
     cdef cppclass CxxUnits "Cantera::Units":
         CxxUnits()
@@ -170,8 +164,6 @@ cdef extern from "cantera/base/global.h" namespace "Cantera":
     cdef string CxxGetDataDirectories "Cantera::getDataDirectories" (string)
     cdef size_t CxxNpos "Cantera::npos"
     cdef void CxxAppdelete "Cantera::appdelete" ()
-    cdef XML_Node* CxxGetXmlFile "Cantera::get_XML_File" (string) except +translate_exception
-    cdef XML_Node* CxxGetXmlFromString "Cantera::get_XML_from_string" (string) except +translate_exception
     cdef void Cxx_make_deprecation_warnings_fatal "Cantera::make_deprecation_warnings_fatal" ()
     cdef void Cxx_suppress_deprecation_warnings "Cantera::suppress_deprecation_warnings" ()
     cdef void Cxx_suppress_thermo_warnings "Cantera::suppress_thermo_warnings" (cbool)
@@ -243,8 +235,6 @@ cdef extern from "cantera/thermo/Species.h" namespace "Cantera":
         CxxAnyMap parameters(CxxThermoPhase*) except +translate_exception
         CxxAnyMap input
 
-    cdef shared_ptr[CxxSpecies] CxxNewSpecies "newSpecies" (XML_Node&)
-    cdef vector[shared_ptr[CxxSpecies]] CxxGetSpecies "getSpecies" (XML_Node&)
     cdef shared_ptr[CxxSpecies] CxxNewSpecies "newSpecies" (CxxAnyMap&) except +translate_exception
     cdef vector[shared_ptr[CxxSpecies]] CxxGetSpecies "getSpecies" (CxxAnyValue&) except +translate_exception
 
@@ -509,9 +499,7 @@ cdef extern from "cantera/kinetics/TwoTempPlasmaRate.h" namespace "Cantera":
 
 cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
     cdef shared_ptr[CxxReaction] CxxNewReaction "Cantera::newReaction" (string) except +translate_exception
-    cdef shared_ptr[CxxReaction] CxxNewReaction "newReaction" (XML_Node&) except +translate_exception
     cdef shared_ptr[CxxReaction] CxxNewReaction "newReaction" (CxxAnyMap&, CxxKinetics&) except +translate_exception
-    cdef vector[shared_ptr[CxxReaction]] CxxGetReactions "getReactions" (XML_Node&) except +translate_exception
     cdef vector[shared_ptr[CxxReaction]] CxxGetReactions "getReactions" (CxxAnyValue&, CxxKinetics&) except +translate_exception
 
     cdef cppclass CxxFalloffRate "Cantera::FalloffRate" (CxxReactionRate):
@@ -1024,13 +1012,11 @@ ctypedef CxxReactorAccessor* CxxReactorAccessorPtr
 
 cdef extern from "cantera/thermo/ThermoFactory.h" namespace "Cantera":
     cdef CxxThermoPhase* newPhase(string, string) except +translate_exception
-    cdef CxxThermoPhase* newPhase(XML_Node&) except +translate_exception
     cdef shared_ptr[CxxThermoPhase] newPhase(CxxAnyMap&, CxxAnyMap&) except +translate_exception
     cdef CxxThermoPhase* newThermoPhase(string) except +translate_exception
     cdef shared_ptr[CxxThermoPhase] newThermo(string) except +translate_exception
 
 cdef extern from "cantera/kinetics/KineticsFactory.h" namespace "Cantera":
-    cdef CxxKinetics* newKineticsMgr(XML_Node&, vector[CxxThermoPhase*]) except +translate_exception
     cdef shared_ptr[CxxKinetics] newKinetics(vector[CxxThermoPhase*], CxxAnyMap&, CxxAnyMap&) except +translate_exception
     cdef CxxKinetics* CxxNewKinetics "Cantera::newKineticsMgr" (string) except +translate_exception
     cdef shared_ptr[CxxKinetics] newKinetics (string) except +translate_exception

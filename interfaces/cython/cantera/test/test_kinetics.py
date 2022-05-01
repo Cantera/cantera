@@ -910,12 +910,6 @@ class TestSofcKinetics2(TestSofcKinetics):
     _mech = "sofc2.yaml"
 
 
-@pytest.mark.usefixtures("allow_deprecated")
-class TestSofcKinetics3(TestSofcKinetics):
-    """ Test using legacy framework; included to retain coverage """
-    _mech = "sofc.cti"
-
-
 class TestLithiumIonBatteryKinetics(utilities.CanteraTest):
     """ Test based on lithium_ion_battery.py """
     _mech = "lithium_ion_battery.yaml"
@@ -1010,12 +1004,6 @@ class TestLithiumIonBatteryKinetics(utilities.CanteraTest):
         assert np.allclose(data, ref, rtol=1e-7)
 
 
-@pytest.mark.usefixtures("allow_deprecated")
-class TestLithiumIonBatteryKinetics2(TestLithiumIonBatteryKinetics):
-    """ Test using legacy framework; included to retain coverage """
-    _mech = "lithium_ion_battery.cti"
-
-
 class TestDuplicateReactions(utilities.CanteraTest):
     infile = 'duplicate-reactions.yaml'
 
@@ -1071,33 +1059,6 @@ class TestReaction(utilities.CanteraTest):
         cls.gas.TP = 900, 2*ct.one_atm
         cls.species = ct.Species.list_from_file("h2o2.yaml")
 
-    @pytest.mark.usefixtures("allow_deprecated")
-    def test_fromCti(self):
-        r = ct.Reaction.fromCti('''three_body_reaction('2 O + M <=> O2 + M',
-            [1.200000e+11, -1.0, 0.0], efficiencies='AR:0.83 H2:2.4 H2O:15.4')''')
-
-        self.assertTrue(isinstance(r, ct.ThreeBodyReaction))
-        self.assertEqual(r.reactants['O'], 2)
-        self.assertEqual(r.products['O2'], 1)
-        self.assertEqual(r.efficiencies['H2O'], 15.4)
-        self.assertEqual(r.rate.temperature_exponent, -1.0)
-        self.assertIn('O', r)
-        self.assertIn('O2', r)
-        self.assertNotIn('H2O', r)
-
-    @pytest.mark.usefixtures("allow_deprecated")
-    def test_fromXml(self):
-        import xml.etree.ElementTree as ET
-        root = ET.parse(self.cantera_data_path / "h2o2.xml").getroot()
-        rxn_node = root.find('.//reaction[@id="0001"]')
-        r = ct.Reaction.fromXml(ET.tostring(rxn_node))
-
-        self.assertTrue(isinstance(r, ct.ThreeBodyReaction))
-        self.assertEqual(r.reactants['O'], 2)
-        self.assertEqual(r.products['O2'], 1)
-        self.assertEqual(r.efficiencies['H2O'], 15.4)
-        self.assertEqual(r.rate.temperature_exponent, -1.0)
-
     def test_from_yaml(self):
         r = ct.Reaction.from_yaml(
                 "{equation: 2 O + M <=> O2 + M,"
@@ -1121,22 +1082,6 @@ class TestReaction(utilities.CanteraTest):
         eq2 = [r.equation for r in self.gas.reactions()]
         self.assertEqual(eq1, eq2)
 
-    @pytest.mark.usefixtures("allow_deprecated")
-    def test_listFromCti(self):
-        gas = ct.Solution("h2o2.xml", transport_model=None)
-        R = ct.Reaction.listFromCti((self.cantera_data_path / "h2o2.cti").read_text())
-        eq1 = [r.equation for r in R]
-        eq2 = [r.equation for r in gas.reactions()]
-        self.assertEqual(eq1, eq2)
-
-    @pytest.mark.usefixtures("allow_deprecated")
-    def test_listFromXml(self):
-        gas = ct.Solution("h2o2.xml", transport_model=None)
-        R = ct.Reaction.listFromXml((self.cantera_data_path / "h2o2.xml").read_text())
-        eq1 = [r.equation for r in R]
-        eq2 = [r.equation for r in gas.reactions()]
-        self.assertEqual(eq1, eq2)
-
     def test_list_from_yaml(self):
         yaml = """
             - equation: O + H2 <=> H + OH  # Reaction 3
@@ -1147,21 +1092,6 @@ class TestReaction(utilities.CanteraTest):
               rate-constant: {A: 9.63e+06, b: 2.0, Ea: 4000.0}
         """
         R = ct.Reaction.list_from_yaml(yaml, self.gas)
-        self.assertEqual(len(R), 3)
-        self.assertIn('HO2', R[2].products)
-        self.assertEqual(R[0].rate.temperature_exponent, 2.7)
-
-    def test_listFromYaml(self):
-        yaml = """
-            - equation: O + H2 <=> H + OH  # Reaction 3
-              rate-constant: {A: 3.87e+04, b: 2.7, Ea: 6260.0}
-            - equation: O + HO2 <=> OH + O2  # Reaction 4
-              rate-constant: {A: 2.0e+13, b: 0.0, Ea: 0.0}
-            - equation: O + H2O2 <=> OH + HO2  # Reaction 5
-              rate-constant: {A: 9.63e+06, b: 2.0, Ea: 4000.0}
-        """
-        with self.assertWarnsRegex(DeprecationWarning, "is renamed to 'list_from_yaml'"):
-            R = ct.Reaction.listFromYaml(yaml, self.gas)
         self.assertEqual(len(R), 3)
         self.assertIn('HO2', R[2].products)
         self.assertEqual(R[0].rate.temperature_exponent, 2.7)
@@ -1378,17 +1308,6 @@ class TestReaction(utilities.CanteraTest):
         for i in range(4,6):
             self.assertNear(gas1.reaction(i).rate(gas1.T, gas1.P),
                             gas1.forward_rate_constants[i])
-
-    def test_chebyshev_bad_shape_cti(self):
-        with self.assertRaisesRegex(ct.CanteraError, "same number"):
-            r = ct.Reaction.fromCti('''
-                chebyshev_reaction('R5 + H (+ M) <=> P5A + P5B (+M)',
-                   Tmin=300.0, Tmax=2000.0,
-                   Pmin=(0.00986, 'atm'), Pmax=(98.6, 'atm'),
-                   coeffs=[[ 8.28830e+00, -1.13970e+00, -1.20590e-01],
-                           [ 1.97640e+00,  1.00370e+00,  7.28650e-03, -3.04320e-02],
-                           [ 3.17700e-01,  2.68890e-01,  9.48060e-02, -7.63850e-03],
-                           [-3.12850e-02, -3.94120e-02,  4.43750e-02,  1.44580e-02]])''')
 
     def test_chebyshev_bad_shape_yaml(self):
         species = ct.Species.list_from_file("pdep-test.yaml")

@@ -61,22 +61,21 @@ cdef class _SolutionBase:
     as well.
     """
     def __cinit__(self, infile='', name='', adjacent=(), *, origin=None,
-                  source=None, yaml=None, thermo=None, species=(),
+                  yaml=None, thermo=None, species=(),
                   kinetics=None, reactions=(), init=True, **kwargs):
 
         # run instantiation only if valid sources are specified
         self._references = None
-        if origin or infile or source or yaml or (thermo and species):
+        if origin or infile or yaml or (thermo and species):
 
-            self._cinit(infile=infile, name=name, adjacent=adjacent,
-                        origin=origin, source=source, yaml=yaml,
-                        thermo=thermo, species=species, kinetics=kinetics,
+            self._cinit(infile=infile, name=name, adjacent=adjacent, origin=origin,
+                        yaml=yaml, thermo=thermo, species=species, kinetics=kinetics,
                         reactions=reactions, **kwargs)
             return
         elif not init:
             return
-        elif any([infile, source, adjacent, origin, source, yaml,
-                  thermo, species, kinetics, reactions, kwargs]):
+        elif any([infile, adjacent, origin, yaml, thermo, species, kinetics, reactions,
+                  kwargs]):
             raise ValueError("Arguments are insufficient to define a phase")
 
         cdef shared_ptr[CxxSolution] cxx_soln = CxxNewSolution()
@@ -87,9 +86,8 @@ cdef class _SolutionBase:
         _assign_Solution(self, cxx_soln, True)
         self._selected_species = np.ndarray(0, dtype=np.uint64)
 
-    def _cinit(self, infile='', name='', adjacent=(), origin=None,
-                  source=None, yaml=None, thermo=None, species=(),
-                  kinetics=None, reactions=(), **kwargs):
+    def _cinit(self, infile="", name="", adjacent=(), origin=None, yaml=None,
+               thermo=None, species=(), kinetics=None, reactions=(), **kwargs):
 
         if 'phaseid' in kwargs:
             if name is not '':
@@ -122,20 +120,16 @@ cdef class _SolutionBase:
             infile = str(infile)
 
         # Parse YAML input
-        if infile.endswith(".yml") or infile.endswith(".yaml") or yaml:
+        if infile or yaml:
             # Transport model: "" is a sentinel value to use the default model
             transport_model = kwargs.get("transport_model", "")
             self._init_yaml(infile, name, adjacent, yaml, transport_model)
             self._selected_species = np.ndarray(0, dtype=np.uint64)
             return
 
-        # Assign base and set managers to NULL
-        _assign_Solution(self, CxxNewSolution(), True)
-
-        # Parse inputs
-        if infile or source:
-            self._init_cti_xml(infile, name, adjacent, source)
         else:
+            # Assign base and set managers to NULL
+            _assign_Solution(self, CxxNewSolution(), True)
             self._init_parts(thermo, species, kinetics, adjacent, reactions)
 
         self._selected_species = np.ndarray(0, dtype=np.uint64)
@@ -151,7 +145,7 @@ cdef class _SolutionBase:
     property name:
         """
         The name assigned to this object. The default value corresponds
-        to the CTI/XML/YAML input file phase entry.
+        to the YAML input file phase entry.
         """
         def __get__(self):
             return pystr(self.base.name())
@@ -246,54 +240,6 @@ cdef class _SolutionBase:
             soln.get().setKinetics(newKinetics(stringify("none")))
 
         _assign_Solution(self, soln, reset_adjacent)
-
-    def _init_cti_xml(self, infile, name, adjacent, source):
-        """
-        Instantiate a set of new Cantera C++ objects from a CTI or XML
-        phase definition
-        """
-        if infile:
-            rootNode = CxxGetXmlFile(stringify(infile))
-            self.base.setSource(stringify(infile))
-        elif source:
-            rootNode = CxxGetXmlFromString(stringify(source))
-            self.base.setSource(stringify("custom CTI/XML"))
-
-        # Get XML data
-        cdef XML_Node* phaseNode
-        if name:
-            phaseNode = rootNode.findID(stringify(name))
-        else:
-            phaseNode = rootNode.findByName(stringify('phase'))
-        if phaseNode is NULL:
-            raise ValueError("Couldn't read phase node from XML file")
-
-        # Thermo
-        cdef shared_ptr[CxxThermoPhase] _thermo
-        if isinstance(self, ThermoPhase):
-            _thermo.reset(newPhase(deref(phaseNode)))
-            self.base.setThermo(_thermo)
-            self.thermo = self.base.thermo().get()
-        else:
-            msg = ("Cannot instantiate a standalone '{}' object; use "
-                   "'Solution' instead").format(type(self).__name__)
-            raise NotImplementedError(msg)
-
-        # Kinetics
-        cdef vector[CxxThermoPhase*] v
-        cdef _SolutionBase phase
-
-        cdef shared_ptr[CxxKinetics] _kinetics
-        if isinstance(self, Kinetics):
-            v.push_back(self.thermo)
-            for phase in adjacent:
-                # adjacent bulk phases for a surface phase
-                v.push_back(phase.thermo)
-            _kinetics.reset(newKineticsMgr(deref(phaseNode), v))
-            self.base.setKinetics(_kinetics)
-        else:
-            self.base.setKinetics(newKinetics(stringify("none")))
-        self.kinetics = self.base.kinetics().get()
 
     def _init_parts(self, thermo, species, kinetics, adjacent, reactions):
         """
