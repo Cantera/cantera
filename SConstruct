@@ -146,7 +146,9 @@ if "test-clean" in COMMAND_LINE_TARGETS:
     remove_directory("test/work")
     remove_directory("build/python_local")
 
-logger.info("SCons is using the following Python interpreter: {}", sys.executable)
+logger.info(
+    f"SCons {SCons.__version__} is using the following Python interpreter:\n"
+    f"{sys.executable} (Python {python_version})")
 
 # ******************************************
 # *** Specify defaults for SCons options ***
