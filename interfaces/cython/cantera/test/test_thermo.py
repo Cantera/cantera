@@ -1193,62 +1193,6 @@ class ImportTest(utilities.CanteraTest):
         self.assertEqual(gas.n_species, nSpec)
         self.assertEqual(gas.n_elements, nElem)
 
-    @pytest.mark.usefixtures("allow_deprecated")
-    def test_import_phase_cti(self):
-        gas1 = ct.Solution('air-no-reactions.cti', 'air')
-        self.check(gas1, 'air', 300, 101325, 8, 3)
-
-        gas2 = ct.Solution('air-no-reactions.cti', 'notair')
-        self.check(gas2, 'notair', 900, 5*101325, 7, 2)
-
-    @pytest.mark.usefixtures("allow_deprecated")
-    def test_import_phase_cti2(self):
-        # This should import the first phase, that is, 'air'
-        gas = ct.Solution('air-no-reactions.cti')
-        self.check(gas, 'air', 300, 101325, 8, 3)
-
-    @pytest.mark.usefixtures("allow_deprecated")
-    def test_import_phase_xml(self):
-        gas1 = ct.Solution('air-no-reactions.xml', 'air')
-        self.check(gas1, 'air', 300, 101325, 8, 3)
-
-        gas2 = ct.Solution('air-no-reactions.xml', 'notair')
-        self.check(gas2, 'notair', 900, 5*101325, 7, 2)
-
-    @pytest.mark.usefixtures("allow_deprecated")
-    def test_import_phase_cti_text(self):
-        cti_def = """
-ideal_gas(name='spam', elements='O H',
-          species='gri30: all',
-          options='skip_undeclared_elements',
-          initial_state=state(temperature=350, pressure=2e6))
-"""
-        gas = ct.Solution(source=cti_def)
-        self.check(gas, 'spam', 350, 2e6, 8, 2)
-
-    @pytest.mark.usefixtures("allow_deprecated")
-    def test_import_phase_xml_text(self):
-        xml_def = """
-<?xml version="1.0"?>
-<ctml>
-  <validate reactions="yes" species="yes"/>
-  <phase dim="3" id="spam">
-    <elementArray datasrc="elements.xml">O</elementArray>
-    <speciesArray datasrc="gri30.xml#species_data">all
-      <skip element="undeclared"/>
-    </speciesArray>
-    <state>
-      <temperature units="K">350.0</temperature>
-      <pressure units="Pa">2000000.0</pressure>
-    </state>
-    <thermo model="IdealGas"/>
-    <kinetics model="GasKinetics"/>
-    <transport model="None"/>
-  </phase>
-</ctml>"""
-        gas = ct.Solution(source=xml_def)
-        self.check(gas, 'spam', 350, 2e6, 2, 1)
-
     def test_import_from_species(self):
         gas1 = ct.Solution('h2o2.yaml', transport_model=None)
         gas1.TPX = 350, 101325, 'H2:0.3, O2:0.7'
@@ -1262,11 +1206,6 @@ ideal_gas(name='spam', elements='O H',
         self.assertEqual(gas1.species_names, gas2.species_names)
         self.assertNear(gas1.T, gas2.T)
         self.assertArrayNear(gas1.X, gas2.X)
-
-    @pytest.mark.usefixtures("allow_deprecated")
-    def test_checkReactionBalance(self):
-        with self.assertRaisesRegex(ct.CanteraError, 'reaction is unbalanced'):
-            ct.Solution('h2o2_unbalancedReaction.xml')
 
     def test_yaml_ideal_gas_simple(self):
         gas = ct.ThermoPhase('ideal-gas.yaml', 'simple')
@@ -1319,67 +1258,9 @@ class TestSpecies(utilities.CanteraTest):
             s = self.gas.species(name)
             self.assertEqual(s.name, name)
 
-    @pytest.mark.usefixtures("allow_deprecated")
-    def test_fromCti(self):
-        h2_cti = """
-            species(
-                name="H2",
-                atoms="H:2",
-                thermo=(
-                    NASA([200.00, 1000.00],
-                         [2.344331120E+00, 7.980520750E-03, -1.947815100E-05,
-                          2.015720940E-08, -7.376117610E-12, -9.179351730E+02,
-                          6.830102380E-01]),
-                    NASA([1000.00, 3500.00],
-                         [3.337279200E+00, -4.940247310E-05, 4.994567780E-07,
-                         -1.795663940E-10, 2.002553760E-14, -9.501589220E+02,
-                         -3.205023310E+00])
-                ),
-                transport=gas_transport(geom="linear",
-                                        diam=2.92,
-                                        well_depth=38.00,
-                                        polar=0.79,
-                                        rot_relax=280.00),
-                note = "TPIS78"
-            )"""
-        s1 = self.gas.species('H2')
-        s2 = ct.Species.fromCti(h2_cti)
-        self.assertEqual(s2.name, 'H2')
-        self.assertEqual(s1.composition, s2.composition)
-        self.assertEqual(s1.thermo.cp(350), s2.thermo.cp(350))
-
-    @pytest.mark.usefixtures("allow_deprecated")
-    def test_fromXml(self):
-        import xml.etree.ElementTree as ET
-        root = ET.parse(self.cantera_data_path / "h2o2.xml").getroot()
-        h2_node = root.find('.//species[@name="H2"]')
-        h2_string = ET.tostring(h2_node)
-
-        s1 = self.gas.species('H2')
-        s2 = ct.Species.fromXml(h2_string)
-
-        self.assertEqual(s2.name, 'H2')
-        self.assertEqual(s1.composition, s2.composition)
-        self.assertEqual(s1.thermo.cp(350), s2.thermo.cp(350))
-
-    @pytest.mark.usefixtures("allow_deprecated")
-    def test_listFromFile_cti(self):
-        S = ct.Species.listFromFile('h2o2.cti')
-        self.assertEqual(S[3].name, self.gas.species_name(3))
-
-    @pytest.mark.usefixtures("allow_deprecated")
-    def test_listFromFile_xml(self):
-        S = ct.Species.listFromFile('h2o2.xml')
-        self.assertEqual(S[3].name, self.gas.species_name(3))
-
     def test_listfromFile_yaml(self):
         S = ct.Species.list_from_file("h2o2.yaml")
         self.assertEqual({sp.name for sp in S}, set(self.gas.species_names))
-
-    @pytest.mark.usefixtures("allow_deprecated")
-    def test_listFromCti(self):
-        S = ct.Species.listFromCti((self.cantera_data_path / "h2o2.cti").read_text())
-        self.assertEqual(S[3].name, self.gas.species_name(3))
 
     def test_list_from_yaml(self):
         yaml = '''
@@ -1424,11 +1305,6 @@ class TestSpecies(utilities.CanteraTest):
         self.assertEqual(species.name, 'H2O')
         self.assertEqual(species.composition, {'H': 2, 'O': 1})
         self.assertNear(species.thermo.h(300), 100)
-
-    @pytest.mark.usefixtures("allow_deprecated")
-    def test_listFromXml(self):
-        S = ct.Species.listFromXml((self.cantera_data_path / "h2o2.xml").read_text())
-        self.assertEqual(S[4].name, self.gas.species_name(4))
 
     def test_modify_thermo(self):
         S = {sp.name: sp for sp in ct.Species.list_from_file("h2o2.yaml")}

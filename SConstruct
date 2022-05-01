@@ -1926,25 +1926,6 @@ env.SConsignFile()
 env.Prepend(CPPPATH=[],
            LIBPATH=[Dir('build/lib')])
 
-# preprocess input files (cti -> xml)
-convertedInputFiles = set()
-convertEnv = env.Clone()
-convertEnv["ENV"]["CT_NO_XML_WARNINGS"] = "1"
-for cti in multi_glob(env, 'data/inputs', 'cti'):
-    build(convertEnv.Command('build/data/%s' % cti.name, cti.path,
-                             Copy('$TARGET', '$SOURCE')))
-    outName = os.path.splitext(cti.name)[0] + '.xml'
-    convertedInputFiles.add(outName)
-    build(convertEnv.Command(
-        'build/data/%s' % outName, cti.path,
-        '$python_cmd_esc interfaces/cython/cantera/ctml_writer.py $SOURCE $TARGET'))
-
-# Copy XML input files which are not present as cti:
-for xml in multi_glob(env, 'data/inputs', 'xml'):
-    dest = pjoin('build','data',xml.name)
-    if xml.name not in convertedInputFiles:
-        build(env.Command(dest, xml.path, Copy('$TARGET', '$SOURCE')))
-
 for yaml in multi_glob(env, "data", "yaml"):
     dest = pjoin("build", "data", yaml.name)
     build(env.Command(dest, yaml.path, Copy("$TARGET", "$SOURCE")))
@@ -2220,7 +2201,7 @@ if any(target.startswith('test') for target in COMMAND_LINE_TARGETS):
         test_py_int = env.Command('#build/python_local/cantera/__init__.py',
                                   '#interfaces/python_minimal/cantera/__init__.py',
                                   Copy('$TARGET', '$SOURCE'))
-        for script in ['ctml_writer', 'ck2cti', 'ck2yaml', 'ctml2yaml']:
+        for script in ['ck2yaml', 'ctml2yaml']:
             s = env.Command('#build/python_local/cantera/{}.py'.format(script),
                             '#interfaces/cython/cantera/{}.py'.format(script),
                             Copy('$TARGET', '$SOURCE'))

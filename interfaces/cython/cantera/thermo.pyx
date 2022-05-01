@@ -52,16 +52,15 @@ cdef class Species:
         ch4.transport = tran
         gas = ct.Solution(thermo='IdealGas', species=[ch4])
 
-    The static methods `fromYaml`, `fromCti`, `fromXml`, `listFromFile`,
-    `listFromYaml`, `listFromCti`, and `listFromXml` can be used to create
-    `Species` objects from existing definitions in the CTI or XML formats.
-    Either of the following will produce a list of 53 `Species` objects
-    containing the species defined in the GRI 3.0 mechanism::
+    The static methods `list_from_file` and `list_from_yaml` can be used to create
+    `Species` objects from existing definitions in the YAML format. Either of the
+    following will produce a list of 53 `Species` objects containing the species defined
+    in the GRI 3.0 mechanism::
 
         S = ct.Species.list_from_file("gri30.yaml")
 
         import pathlib
-        S = ct.Species.listFromYaml(
+        S = ct.Species.list_from_yaml(
             pathlib.Path('path/to/gri30.yaml').read_text(),
             section='species')
 
@@ -93,49 +92,6 @@ cdef class Species:
         self.species = self._species.get()
 
     @staticmethod
-    def fromCti(text):
-        """
-        Create a Species object from its CTI string representation.
-
-        .. deprecated:: 2.5
-
-            The CTI input format is deprecated and will be removed in Cantera 3.0.
-        """
-        cxx_species = CxxGetSpecies(deref(CxxGetXmlFromString(stringify(text))))
-        assert cxx_species.size() == 1, cxx_species.size()
-        species = Species(init=False)
-        species._assign(cxx_species[0])
-        return species
-
-    @staticmethod
-    def fromXml(text):
-        """
-        Create a Species object from its XML string representation.
-
-        .. deprecated:: 2.5
-
-            The XML input format is deprecated and will be removed in Cantera 3.0.
-        """
-        cxx_species = CxxNewSpecies(deref(CxxGetXmlFromString(stringify(text))))
-        species = Species(init=False)
-        species._assign(cxx_species)
-        return species
-
-    @staticmethod
-    def fromYaml(text):
-        """
-        Create a Species object from its YAML string representation.
-
-        .. deprecated:: 2.6
-             To be deprecated with version 2.6, and removed thereafter.
-             Replaced by `Reaction.from_yaml`.
-        """
-        warnings.warn("Class method 'fromYaml' is renamed to 'from_yaml' "
-            "and will be removed after Cantera 2.6.", DeprecationWarning)
-
-        return Species.from_yaml(text)
-
-    @staticmethod
     def from_yaml(text):
         """
         Create a `Species` object from its YAML string representation.
@@ -161,45 +117,6 @@ cdef class Species:
         return species
 
     @staticmethod
-    def listFromFile(filename, section='species'):
-        """
-        Create a list of Species objects from all of the species defined in a
-        YAML, CTI or XML file. For YAML files, return species from the section
-        ``section``.
-
-        Directories on Cantera's input file path will be searched for the
-        specified file.
-
-        In the case of an XML file, the ``<species>`` nodes are assumed to be
-        children of the ``<speciesData>`` node in a document with a ``<ctml>``
-        root node, as in the XML files produced by conversion from CTI files.
-
-        .. deprecated:: 2.5
-
-            The CTI and XML input formats are deprecated and will be removed in
-            Cantera 3.0.
-
-        .. deprecated:: 2.6
-
-            To be removed after Cantera 2.6. Replaced by 'Species.list_from_file'.
-        """
-        warnings.warn("Static method 'listFromFile' is renamed to 'list_from_file'."
-            " The old name will be removed after Cantera 2.6.", DeprecationWarning)
-
-        if filename.lower().split('.')[-1] in ('yml', 'yaml'):
-            root = AnyMapFromYamlFile(stringify(filename))
-            cxx_species = CxxGetSpecies(root[stringify(section)])
-        else:
-            cxx_species = CxxGetSpecies(deref(CxxGetXmlFile(stringify(filename))))
-
-        species = []
-        for a in cxx_species:
-            b = Species(init=False)
-            b._assign(a)
-            species.append(b)
-        return species
-
-    @staticmethod
     def list_from_file(filename, section="species"):
         """
         Create a list of Species objects from all of the species defined in the section
@@ -213,59 +130,6 @@ cdef class Species:
             b._assign(a)
             species.append(b)
         return species
-
-    @staticmethod
-    def listFromXml(text):
-        """
-        Create a list of Species objects from all the species defined in an XML
-        string. The ``<species>`` nodes are assumed to be children of the
-        ``<speciesData>`` node in a document with a ``<ctml>`` root node, as in
-        the XML files produced by conversion from CTI files.
-
-        .. deprecated:: 2.5
-
-            The XML input format is deprecated and will be removed in Cantera 3.0.
-        """
-        cxx_species = CxxGetSpecies(deref(CxxGetXmlFromString(stringify(text))))
-        species = []
-        for a in cxx_species:
-            b = Species(init=False)
-            b._assign(a)
-            species.append(b)
-        return species
-
-    @staticmethod
-    def listFromCti(text):
-        """
-        Create a list of Species objects from all the species defined in a CTI
-        string.
-
-        .. deprecated:: 2.5
-
-            The CTI input format is deprecated and will be removed in Cantera 3.0.
-        """
-        # Currently identical to listFromXml since get_XML_from_string is able
-        # to distinguish between CTI and XML.
-        cxx_species = CxxGetSpecies(deref(CxxGetXmlFromString(stringify(text))))
-        species = []
-        for a in cxx_species:
-            b = Species(init=False)
-            b._assign(a)
-            species.append(b)
-        return species
-
-    @staticmethod
-    def listFromYaml(text, section=None):
-        """
-        Create a list of Species objects from all the species defined in a YAML string.
-
-        .. deprecated:: 2.6
-             To be deprecated with version 2.6, and removed thereafter.
-             Replaced by `Reaction.list_from_yaml`.
-        """
-        warnings.warn("Class method 'listFromYaml' is renamed to 'list_from_yaml' "
-            "and will be removed after Cantera 2.6.", DeprecationWarning)
-        return Species.list_from_yaml(text, section)
 
     @staticmethod
     def list_from_yaml(text, section=None):

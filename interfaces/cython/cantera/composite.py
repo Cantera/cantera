@@ -45,9 +45,8 @@ class Solution(Transport, Kinetics, ThermoPhase):
         gas = ct.Solution('gri30.yaml')
 
     If an input file defines multiple phases, the corresponding key in the
-    ``phases`` map (in YAML), ``name`` (in CTI), or ``id`` (in XML) can be used
-    to specify the desired phase via the ``name`` keyword argument of
-    the constructor::
+    ``phases`` map can be used to specify the desired phase via the ``name`` keyword
+    argument of the constructor::
 
         gas = ct.Solution('diamond.yaml', name='gas')
         diamond = ct.Solution('diamond.yaml', name='diamond')
@@ -1390,7 +1389,7 @@ class SolutionArray:
             def strip_ext(source):
                 """Strip extension if source identifies a file name"""
                 out = source
-                for ext in ['.yml', '.yaml', '.xml', '.cti']:
+                for ext in ('.yml', '.yaml'):
                     if source.endswith(ext):
                         out = '.'.join(source.split('.')[:-1])
                         break

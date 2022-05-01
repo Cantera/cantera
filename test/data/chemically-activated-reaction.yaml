@@ -72,6 +72,6 @@ species:
 reactions:
 - equation: ch3 + oh (+ M) <=> ch2o + h2 (+ M)
   type: chemically-activated
-  low-P-rate-constant: {A: 282.3201, b: 1.46878, Ea: -3270.56495 cal/mol}
+  low-P-rate-constant: {A: 282.320078, b: 1.46878, Ea: -3270.56495 cal/mol}
   high-P-rate-constant: {A: 5.88e-14, b: 6.721, Ea: -3022.227 cal/mol}
   Troe: {A: 1.671, T3: 434.782, T1: 2934.21, T2: 3919.0}

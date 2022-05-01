@@ -208,13 +208,11 @@ class TestTransport(utilities.CanteraTest):
         self.assertEqual(D23, D23new)
 
 
-@pytest.mark.usefixtures("allow_deprecated")
 class TestIonTransport(utilities.CanteraTest):
-
     def setUp(self):
         self.p = ct.one_atm
         self.T = 2237
-        self.gas = ct.Solution('ch4_ion.cti')
+        self.gas = ct.Solution('ch4_ion.yaml')
         self.gas.X = 'O2:0.7010, H2O:0.1885, CO2:9.558e-2'
         self.gas.TP = self.T, self.p
         self.kN2 = self.gas.species_index("N2")
@@ -244,17 +242,6 @@ class TestIonTransport(utilities.CanteraTest):
         self.assertTrue(bdiff != self.gas.binary_diff_coeffs[self.kN2][self.kH3Op])
         self.assertTrue(mdiff != self.gas.mix_diff_coeffs[self.kH3Op])
         self.assertTrue(mobi != self.gas.mobilities[self.kH3Op])
-
-
-class TestIonTransportYAML(TestIonTransport):
-    def setUp(self):
-        self.p = ct.one_atm
-        self.T = 2237
-        self.gas = ct.Solution('ch4_ion.yaml')
-        self.gas.X = 'O2:0.7010, H2O:0.1885, CO2:9.558e-2'
-        self.gas.TP = self.T, self.p
-        self.kN2 = self.gas.species_index("N2")
-        self.kH3Op = self.gas.species_index("H3O+")
 
 
 class TestTransportGeometryFlags(utilities.CanteraTest):

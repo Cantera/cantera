@@ -9,35 +9,6 @@
 namespace Cantera
 {
 
-#ifndef CT_NO_PYTHON
-TEST(FracCoeff, ConvertFracCoeff)
-{
-    suppress_deprecation_warnings();
-    IdealGasPhase thermo1("../data/frac.cti", "gas");
-    std::vector<ThermoPhase*> phases1 { &thermo1 };
-    GasKinetics kinetics1;
-    importKinetics(thermo1.xml(), phases1, &kinetics1);
-
-    IdealGasPhase thermo2("../data/frac.xml", "gas");
-    std::vector<ThermoPhase*> phases2 { &thermo2 };
-    GasKinetics kinetics2;
-    importKinetics(thermo2.xml(), phases2, &kinetics2);
-    make_deprecation_warnings_fatal();
-
-    ASSERT_EQ(thermo2.nSpecies(), thermo1.nSpecies());
-    ASSERT_EQ(kinetics2.nReactions(), kinetics1.nReactions());
-
-    for (size_t i = 0; i < kinetics1.nReactions(); i++) {
-        for (size_t k = 0; k < thermo1.nSpecies(); k++) {
-            EXPECT_EQ(kinetics1.reactantStoichCoeff(k,i),
-                      kinetics2.reactantStoichCoeff(k,i));
-            EXPECT_EQ(kinetics1.productStoichCoeff(k,i),
-                      kinetics2.productStoichCoeff(k,i));
-        }
-    }
-}
-#endif
-
 class FracCoeffTest : public testing::Test
 {
 public:
@@ -184,16 +155,6 @@ public:
     shared_ptr<Solution> soln;
     size_t nRxn, nSpec;
 };
-
-#ifndef CT_NO_PYTHON
-TEST_F(NegativePreexponentialFactor, fromCti)
-{
-    suppress_deprecation_warnings();
-    setup("../data/noxNeg.cti");
-    make_deprecation_warnings_fatal();
-    testNetProductionRates();
-}
-#endif
 
 TEST_F(NegativePreexponentialFactor, fromYaml)
 {
