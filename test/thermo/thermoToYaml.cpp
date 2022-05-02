@@ -342,7 +342,7 @@ public:
                              input1);
         skip_cp = false;
         skip_activities = false;
-        rtol = 1e-14;
+        rtol = 1.2e-14;
     }
 
     void compareThermo(double T, double P, const std::string& X="") {
