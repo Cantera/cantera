@@ -266,8 +266,9 @@ cdef class BlowersMaselRate(ArrheniusRateBase):
         testing purposes, as any value will be overwritten by an update of the
         thermodynamic state.
 
-        **Warning:** this property is an experimental part of the Cantera API and
-        may be changed or removed without notice.
+        .. versionadded:: 2.6
+            **Warning:** this property is an experimental part of the Cantera API and
+            may be changed or removed without notice.
         """
         def __get__(self):
             return self.cxx_object().deltaH()
@@ -651,8 +652,9 @@ cdef class CustomRate(ReactionRate):
 
         rr = CustomRate(lambda T: 38.7 * T**2.7 * exp(-3150.15/T))
 
-    **Warning:** this class is an experimental part of the Cantera API and
-    may be changed or removed without notice.
+    .. versionadded:: 2.6
+        **Warning:** this class is an experimental part of the Cantera API and
+        may be changed or removed without notice.
     """
     _reaction_rate_type = "custom-rate-function"
 
@@ -698,8 +700,9 @@ cdef class InterfaceRateBase(ArrheniusRateBase):
         """
         Evaluate rate expression based on temperature and surface coverages.
 
-        **Warning:** this method is an experimental part of the Cantera API and
-        may be changed or removed without notice.
+        .. versionadded:: 2.6
+            **Warning:** this method is an experimental part of the Cantera API and
+            may be changed or removed without notice.
         """
         cdef vector[double] cxxdata
         for c in coverages:
@@ -743,8 +746,9 @@ cdef class InterfaceRateBase(ArrheniusRateBase):
         testing purposes, as the value will be overwritten by an update of the
         thermodynamic state.
 
-        **Warning:** this property is an experimental part of the Cantera API and
-        may be changed or removed without notice.
+        .. versionadded:: 2.6
+            **Warning:** this property is an experimental part of the Cantera API and
+            may be changed or removed without notice.
         """
         def __get__(self):
             return self.interface.siteDensity()
@@ -836,8 +840,9 @@ cdef class InterfaceBlowersMaselRate(InterfaceRateBase):
         testing purposes, as any value will be overwritten by an update of the
         thermodynamic state.
 
-        **Warning:** this property is an experimental part of the Cantera API and
-        may be changed or removed without notice.
+        .. versionadded:: 2.6
+            **Warning:** this property is an experimental part of the Cantera API and
+            may be changed or removed without notice.
         """
         def __get__(self):
             return self.cxx_object().deltaH()
@@ -880,8 +885,9 @@ cdef class StickRateBase(InterfaceRateBase):
         The sticking order is not an independent property and is detected automatically
         by Cantera. Accordingly, the setter should be only used for testing purposes.
 
-        **Warning:** this property is an experimental part of the Cantera API and
-        may be changed or removed without notice.
+        .. versionadded:: 2.6
+            **Warning:** this property is an experimental part of the Cantera API and
+            may be changed or removed without notice.
         """
         def __get__(self):
             return self.stick.stickingOrder()
@@ -895,8 +901,9 @@ cdef class StickRateBase(InterfaceRateBase):
         The sticking weight is not an independent property and is detected automatically
         by Cantera. Accordingly, the setter should be only used for testing purposes.
 
-        **Warning:** this property is an experimental part of the Cantera API and
-        may be changed or removed without notice.
+        .. versionadded:: 2.6
+            **Warning:** this property is an experimental part of the Cantera API and
+            may be changed or removed without notice.
         """
         def __get__(self):
             return self.stick.stickingWeight()
@@ -974,8 +981,9 @@ cdef class StickingBlowersMaselRate(StickRateBase):
         testing purposes, as any value will be overwritten by an update of the
         thermodynamic state.
 
-        **Warning:** this property is an experimental part of the Cantera API and
-        may be changed or removed without notice.
+        .. versionadded:: 2.6
+            **Warning:** this property is an experimental part of the Cantera API and
+            may be changed or removed without notice.
         """
         def __get__(self):
             return self.cxx_object().deltaH()
@@ -2982,8 +2990,9 @@ cdef class CustomReaction(Reaction):
             rate=lambda T: 38.7 * T**2.7 * exp(-3150.15428/T),
             kinetics=gas)
 
-    **Warning:** this class is an experimental part of the Cantera API and
-    may be changed or removed without notice.
+    .. versionadded:: 2.6
+        **Warning:** this class is an experimental part of the Cantera API and
+        may be changed or removed without notice.
     """
     _reaction_type = "custom-rate-function"
 
