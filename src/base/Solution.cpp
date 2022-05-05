@@ -51,6 +51,18 @@ void Solution::setTransport(shared_ptr<Transport> transport) {
     m_transport = transport;
 }
 
+void Solution::setTransport(const std::string& model) {
+    if (model == "") {
+        setTransport(shared_ptr<Transport>(
+            newDefaultTransportMgr(m_thermo.get())));
+    } else if (model == "None") {
+        setTransport(shared_ptr<Transport>(newTransportMgr("None")));
+    } else {
+        setTransport(shared_ptr<Transport>(
+            newTransportMgr(model, m_thermo.get())));
+    }
+}
+
 void Solution::addAdjacent(shared_ptr<Solution> adjacent) {
     if (m_adjacentByName.count(adjacent->name())) {
         throw CanteraError("Solution::addAdjacent",
@@ -257,16 +269,8 @@ shared_ptr<Solution> newSolution(const AnyMap& phaseNode,
     }
     sol->setKinetics(newKinetics(phases, phaseNode, rootNode));
 
-    // transport
-    if (transport == "") {
-        sol->setTransport(shared_ptr<Transport>(
-            newDefaultTransportMgr(sol->thermo().get())));
-    } else if (transport == "None") {
-        sol->setTransport(shared_ptr<Transport>(newTransportMgr("None")));
-    } else {
-        sol->setTransport(shared_ptr<Transport>(
-            newTransportMgr(transport, sol->thermo().get())));
-    }
+    // set transport model by name
+    sol->setTransport(transport);
 
     // save root-level information (YAML header)
     AnyMap header;
