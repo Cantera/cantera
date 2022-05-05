@@ -518,6 +518,8 @@ cdef class Kinetics(_SolutionBase):
             >>> gas.derivative_settings = {"skip-falloff": True}
 
         Passing an empty dictionary will reset all values to their defaults.
+
+        .. versionadded:: 2.6
         """
         def __get__(self):
             cdef CxxAnyMap settings
@@ -530,6 +532,8 @@ cdef class Kinetics(_SolutionBase):
         """
         Calculate derivatives for forward rate constants with respect to temperature
         at constant pressure, molar concentration and mole fractions.
+
+        .. versionadded:: 2.6
         """
         def __get__(self):
             return get_reaction_array(self, kin_getFwdRateConstants_ddT)
@@ -538,6 +542,8 @@ cdef class Kinetics(_SolutionBase):
         """
         Calculate derivatives for forward rate constants with respect to pressure
         at constant temperature, molar concentration and mole fractions.
+
+        .. versionadded:: 2.6
         """
         def __get__(self):
             return get_reaction_array(self, kin_getFwdRateConstants_ddP)
@@ -558,6 +564,8 @@ cdef class Kinetics(_SolutionBase):
         """
         Calculate derivatives for forward rates-of-progress with respect to temperature
         at constant pressure, molar concentration and mole fractions.
+
+        .. versionadded:: 2.6
         """
         def __get__(self):
             return get_reaction_array(self, kin_getFwdRatesOfProgress_ddT)
@@ -566,6 +574,8 @@ cdef class Kinetics(_SolutionBase):
         """
         Calculate derivatives for forward rates-of-progress with respect to pressure
         at constant temperature, molar concentration and mole fractions.
+
+        .. versionadded:: 2.6
         """
         def __get__(self):
             return get_reaction_array(self, kin_getFwdRatesOfProgress_ddP)
@@ -606,6 +616,8 @@ cdef class Kinetics(_SolutionBase):
         """
         Calculate derivatives for reverse rates-of-progress with respect to temperature
         at constant pressure, molar concentration and mole fractions.
+
+        .. versionadded:: 2.6
         """
         def __get__(self):
             return get_reaction_array(self, kin_getRevRatesOfProgress_ddT)
@@ -614,6 +626,8 @@ cdef class Kinetics(_SolutionBase):
         """
         Calculate derivatives for reverse rates-of-progress with respect to pressure
         at constant temperature, molar concentration and mole fractions.
+
+        .. versionadded:: 2.6
         """
         def __get__(self):
             return get_reaction_array(self, kin_getRevRatesOfProgress_ddP)
@@ -654,6 +668,8 @@ cdef class Kinetics(_SolutionBase):
         """
         Calculate derivatives for net rates-of-progress with respect to temperature
         at constant pressure, molar concentration and mole fractions.
+
+        .. versionadded:: 2.6
         """
         def __get__(self):
             return get_reaction_array(self, kin_getNetRatesOfProgress_ddT)
@@ -662,6 +678,8 @@ cdef class Kinetics(_SolutionBase):
         """
         Calculate derivatives for net rates-of-progress with respect to pressure
         at constant temperature, molar concentration and mole fractions.
+
+        .. versionadded:: 2.6
         """
         def __get__(self):
             return get_reaction_array(self, kin_getNetRatesOfProgress_ddP)
@@ -750,6 +768,8 @@ cdef class Kinetics(_SolutionBase):
         """
         Calculate derivatives of species destruction rates with respect to temperature
         at constant pressure, molar concentration and mole fractions.
+
+        .. versionadded:: 2.6
         """
         def __get__(self):
             return get_species_array(self, kin_getDestructionRates_ddT)
@@ -758,6 +778,8 @@ cdef class Kinetics(_SolutionBase):
         """
         Calculate derivatives of species destruction rates with respect to pressure
         at constant temperature, molar concentration and mole fractions.
+
+        .. versionadded:: 2.6
         """
         def __get__(self):
             return get_species_array(self, kin_getDestructionRates_ddP)
@@ -798,6 +820,8 @@ cdef class Kinetics(_SolutionBase):
         """
         Calculate derivatives of species net production rates with respect to
         temperature at constant pressure, molar concentration and mole fractions.
+
+        .. versionadded:: 2.6
         """
         def __get__(self):
             return get_species_array(self, kin_getNetProductionRates_ddT)
@@ -806,6 +830,8 @@ cdef class Kinetics(_SolutionBase):
         """
         Calculate derivatives of species net production rates with respect to pressure
         at constant temperature, molar concentration and mole fractions.
+
+        .. versionadded:: 2.6
         """
         def __get__(self):
             return get_species_array(self, kin_getNetProductionRates_ddP)
