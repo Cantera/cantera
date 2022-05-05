@@ -44,8 +44,12 @@ public:
     //! Set the Kinetics object
     virtual void setKinetics(shared_ptr<Kinetics> kinetics);
 
-    //! Set the Transport object
+    //! Set the Transport object directly
     virtual void setTransport(shared_ptr<Transport> transport);
+
+    //! Set the Transport object by name
+    //! @param model  name of transport model
+    virtual void setTransport(const std::string& model);
 
     //! Accessor for the ThermoPhase pointer
     shared_ptr<ThermoPhase> thermo() {
