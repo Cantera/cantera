@@ -173,6 +173,7 @@ public:
      *  @internal  used for testing purposes only; note that this quantity is not an
      *      independent variable and will be overwritten during an update of the state.
      *
+     *  @since  Cantera 2.6
      *  @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
      */

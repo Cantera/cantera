@@ -1,6 +1,7 @@
 /**
  * @file Custom.h
  *
+ * @since  Cantera 2.6
  * @warning This file is an experimental part of the %Cantera API and
  *    may be changed or removed without notice.
  */
@@ -30,6 +31,7 @@ class Func1;
  * The rate expression is provided by a Func1 object taking a single
  * argument (temperature) and does not use a formalized parameterization.
  *
+ * @since  Cantera 2.6
  * @warning This class is an experimental part of the %Cantera API and
  *    may be changed or removed without notice.
  */

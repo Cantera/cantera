@@ -591,14 +591,15 @@ public:
     //!  - `rtol-delta` (double) ... relative tolerance used to perturb properties
     //!    when calculating numerical derivatives. The default value is 1e-8.
     //!
+    //! @since  Cantera 2.6
     //! @warning  The calculation of derivatives is an experimental part of the
     //!      %Cantera API and may be changed or removed without notice.
     //! @{
 
     /**
      * Retrieve derivative settings.
-     *
      * @param settings  AnyMap containing settings determining derivative evaluation.
+     * @since  Cantera 2.6
      */
     virtual void getDerivativeSettings(AnyMap& settings) const
     {
@@ -608,8 +609,8 @@ public:
 
     /**
      * Set/modify derivative settings.
-     *
      * @param settings  AnyMap containing settings determining derivative evaluation.
+     * @since  Cantera 2.6
      */
     virtual void setDerivativeSettings(const AnyMap& settings)
     {
@@ -621,6 +622,7 @@ public:
      * Calculate derivatives for forward rate constants with respect to temperature
      * at constant pressure, molar concentration and mole fractions
      * @param[out] dkfwd  Output vector of derivatives. Length: nReactions().
+     * @since  Cantera 2.6
      */
     virtual void getFwdRateConstants_ddT(double* dkfwd)
     {
@@ -632,6 +634,7 @@ public:
      * Calculate derivatives for forward rate constants with respect to pressure
      * at constant temperature, molar concentration and mole fractions.
      * @param[out] dkfwd  Output vector of derivatives. Length: nReactions().
+     * @since  Cantera 2.6
      */
     virtual void getFwdRateConstants_ddP(double* dkfwd)
     {
@@ -643,7 +646,7 @@ public:
      * Calculate derivatives for forward rate constants with respect to molar
      * concentration at constant temperature, pressure and mole fractions.
      * @param[out] dkfwd  Output vector of derivatives. Length: nReactions().
-     *
+     * @since  Cantera 2.6
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
      */
@@ -657,6 +660,7 @@ public:
      * Calculate derivatives for forward rates-of-progress with respect to temperature
      * at constant pressure, molar concentration and mole fractions.
      * @param[out] drop  Output vector of derivatives. Length: nReactions().
+     * @since  Cantera 2.6
      */
     virtual void getFwdRatesOfProgress_ddT(double* drop)
     {
@@ -668,6 +672,7 @@ public:
      * Calculate derivatives for forward rates-of-progress with respect to pressure
      * at constant temperature, molar concentration and mole fractions.
      * @param[out] drop  Output vector of derivatives. Length: nReactions().
+     * @since  Cantera 2.6
      */
     virtual void getFwdRatesOfProgress_ddP(double* drop)
     {
@@ -679,7 +684,7 @@ public:
      * Calculate derivatives for forward rates-of-progress with respect to molar
      * concentration at constant temperature, pressure and mole fractions.
      * @param[out] drop  Output vector of derivatives. Length: nReactions().
-     *
+     * @since  Cantera 2.6
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
      */
@@ -697,6 +702,7 @@ public:
      * For a derivative with respect to \f$X_i\f$, all other \f$X_j\f$ are held
      * constant, rather than enforcing \f$\sum X_j = 1\f$.
      *
+     * @since  Cantera 2.6
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
      */
@@ -710,6 +716,7 @@ public:
      * Calculate derivatives for reverse rates-of-progress with respect to temperature
      * at constant pressure, molar concentration and mole fractions.
      * @param[out] drop  Output vector of derivatives. Length: nReactions().
+     * @since  Cantera 2.6
      */
     virtual void getRevRatesOfProgress_ddT(double* drop)
     {
@@ -721,6 +728,7 @@ public:
      * Calculate derivatives for reverse rates-of-progress with respect to pressure
      * at constant temperature, molar concentration and mole fractions.
      * @param[out] drop  Output vector of derivatives. Length: nReactions().
+     * @since  Cantera 2.6
      */
     virtual void getRevRatesOfProgress_ddP(double* drop)
     {
@@ -732,7 +740,7 @@ public:
      * Calculate derivatives for reverse rates-of-progress with respect to molar
      * concentration at constant temperature, pressure and mole fractions.
      * @param[out] drop  Output vector of derivatives. Length: nReactions().
-     *
+     * @since  Cantera 2.6
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
      */
@@ -750,6 +758,7 @@ public:
      * For a derivative with respect to \f$X_i\f$, all other \f$X_j\f$ are held
      * constant, rather than enforcing \f$\sum X_j = 1\f$.
      *
+     * @since  Cantera 2.6
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
      */
@@ -763,6 +772,7 @@ public:
      * Calculate derivatives for net rates-of-progress with respect to temperature
      * at constant pressure, molar concentration and mole fractions.
      * @param[out] drop  Output vector of derivatives. Length: nReactions().
+     * @since  Cantera 2.6
      */
     virtual void getNetRatesOfProgress_ddT(double* drop)
     {
@@ -774,6 +784,7 @@ public:
      * Calculate derivatives for net rates-of-progress with respect to pressure
      * at constant temperature, molar concentration and mole fractions.
      * @param[out] drop  Output vector of derivatives. Length: nReactions().
+     * @since  Cantera 2.6
      */
     virtual void getNetRatesOfProgress_ddP(double* drop)
     {
@@ -785,7 +796,7 @@ public:
      * Calculate derivatives for net rates-of-progress with respect to molar
      * concentration at constant temperature, pressure and mole fractions.
      * @param[out] drop  Output vector of derivatives. Length: nReactions().
-     *
+     * @since  Cantera 2.6
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
      */
@@ -803,6 +814,7 @@ public:
      * For a derivative with respect to \f$X_i\f$, all other \f$X_j\f$ are held
      * constant, rather than enforcing \f$\sum X_j = 1\f$.
      *
+     * @since  Cantera 2.6
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
      */
@@ -816,6 +828,7 @@ public:
      * Calculate derivatives for species creation rates with respect to temperature
      * at constant pressure, molar concentration and mole fractions.
      * @param[out] dwdot  Output vector of derivatives. Length: m_kk.
+     * @since  Cantera 2.6
      */
     void getCreationRates_ddT(double* dwdot);
 
@@ -823,6 +836,7 @@ public:
      * Calculate derivatives for species creation rates with respect to pressure
      * at constant temperature, molar concentration and mole fractions.
      * @param[out] dwdot  Output vector of derivatives. Length: m_kk.
+     * @since  Cantera 2.6
      */
     void getCreationRates_ddP(double* dwdot);
 
@@ -830,7 +844,7 @@ public:
      * Calculate derivatives for species creation rates with respect to molar
      * concentration at constant temperature, pressure and mole fractions.
      * @param[out] dwdot  Output vector of derivatives. Length: m_kk.
-     *
+     * @since  Cantera 2.6
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
      */
@@ -844,6 +858,7 @@ public:
      * For a derivative with respect to \f$X_i\f$, all other \f$X_j\f$ are held
      * constant, rather than enforcing \f$\sum X_j = 1\f$.
      *
+     * @since  Cantera 2.6
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
      */
@@ -853,6 +868,7 @@ public:
      * Calculate derivatives for species destruction rates with respect to temperature
      * at constant pressure, molar concentration and mole fractions.
      * @param[out] dwdot  Output vector of derivatives. Length: m_kk.
+     * @since  Cantera 2.6
      */
     void getDestructionRates_ddT(double* dwdot);
 
@@ -860,6 +876,7 @@ public:
      * Calculate derivatives for species destruction rates with respect to pressure
      * at constant temperature, molar concentration and mole fractions.
      * @param[out] dwdot  Output vector of derivatives. Length: m_kk.
+     * @since  Cantera 2.6
      */
     void getDestructionRates_ddP(double* dwdot);
 
@@ -867,7 +884,7 @@ public:
      * Calculate derivatives for species destruction rates with respect to molar
      * concentration at constant temperature, pressure and mole fractions.
      * @param[out] dwdot  Output vector of derivatives. Length: m_kk.
-     *
+     * @since  Cantera 2.6
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
      */
@@ -881,6 +898,7 @@ public:
      * For a derivative with respect to \f$X_i\f$, all other \f$X_j\f$ are held
      * constant, rather than enforcing \f$\sum X_j = 1\f$.
      *
+     * @since  Cantera 2.6
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
      */
@@ -890,6 +908,7 @@ public:
      * Calculate derivatives for species net production rates with respect to
      * temperature at constant pressure, molar concentration and mole fractions.
      * @param[out] dwdot  Output vector of derivatives. Length: m_kk.
+     * @since  Cantera 2.6
      */
     void getNetProductionRates_ddT(double* dwdot);
 
@@ -897,6 +916,7 @@ public:
      * Calculate derivatives for species net production rates with respect to pressure
      * at constant temperature, molar concentration and mole fractions.
      * @param[out] dwdot  Output vector of derivatives. Length: m_kk.
+     * @since  Cantera 2.6
      */
     void getNetProductionRates_ddP(double* dwdot);
 
@@ -904,7 +924,7 @@ public:
      * Calculate derivatives for species net production rates with respect to molar
      * concentration at constant temperature, pressure and mole fractions.
      * @param[out] dwdot  Output vector of derivatives. Length: m_kk.
-     *
+     * @since  Cantera 2.6
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
      */
@@ -918,6 +938,7 @@ public:
      * For a derivative with respect to \f$X_i\f$, all other \f$X_j\f$ are held constant,
      * rather than enforcing \f$\sum X_j = 1\f$.
      *
+     * @since  Cantera 2.6
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
      */

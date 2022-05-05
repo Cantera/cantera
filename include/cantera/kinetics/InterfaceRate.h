@@ -154,6 +154,7 @@ public:
      *  constant form and units. Specifically, this converts a reaction rate constant
      *  that was specified in units of A/m2 to kmol/m2/s.
      *
+     *  @since  Cantera 2.6
      *  @warning  The updated calculation of voltage corrections is an experimental
      *      part of the %Cantera API and may be changed or removed without notice.
      */
@@ -204,6 +205,7 @@ public:
 
     //! Return site density [kmol/m^2]
     /*!
+     *  @since  Cantera 2.6
      *  @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
      */
@@ -217,6 +219,7 @@ public:
      *      is a property of InterfaceKinetics and will be overwritten during an update
      *      of the thermodynamic state.
      *
+     *  @since  Cantera 2.6
      *  @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
      */
@@ -306,6 +309,7 @@ public:
      *  @internal  This method is used for testing purposes only as the value is
      *      determined automatically by setContext.
      *
+     *  @since  Cantera 2.6
      *  @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
      */
@@ -323,6 +327,7 @@ public:
      *  @internal  This method is used for testing purposes only as the value is
      *      determined automatically by setContext.
      *
+     *  @since  Cantera 2.6
      *  @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
      */
