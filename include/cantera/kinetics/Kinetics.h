@@ -569,31 +569,30 @@ public:
 
     //! @}
     //! @name Routines to Calculate Derivatives (Jacobians)
-    /*!
-     * Derivatives are calculated with respect to temperature, pressure, molar
-     * concentrations and species mole fractions for forward/reverse/net rates of
-     * progress as well as creation/destruction and net production of species.
-     *
-     * The following suffixes are used to indicate derivatives:
-     *  - `_ddT`: derivative with respect to temperature (a vector)
-     *  - `_ddP`: derivative with respect to pressure (a vector)
-     *  - `_ddC`: derivative with respect to molar concentration (a vector)
-     *  - `_ddX`: derivative with respect to species mole fractions (a matrix)
-     *
-     * Settings for derivative evaluation are set by keyword/value pairs using
-     * the methods @see getDerivativeSettings and @see setDerivativeSettings.
-     *
-     * For GasKinetics, the following keyword/value pairs are supported:
-     *  - `skip-third-bodies` (boolean) ... if `false` (default), third body
-     *    concentrations are considered for the evaluation of jacobians
-     *  - `skip-falloff` (boolean) ... if `false` (default), third-body effects
-     *    on rate constants are considered for the evaluation of derivatives.
-     *  - `rtol-delta` (double) ... relative tolerance used to perturb properties
-     *    when calculating numerical derivatives. The default value is 1e-8.
-     *
-     * @warning  The calculation of derivatives is an experimental part of the
-     *      %Cantera API and may be changed or removed without notice.
-     */
+    //!
+    //! Derivatives are calculated with respect to temperature, pressure, molar
+    //! concentrations and species mole fractions for forward/reverse/net rates of
+    //! progress as well as creation/destruction and net production of species.
+    //!
+    //! The following suffixes are used to indicate derivatives:
+    //!  - `_ddT`: derivative with respect to temperature (a vector)
+    //!  - `_ddP`: derivative with respect to pressure (a vector)
+    //!  - `_ddC`: derivative with respect to molar concentration (a vector)
+    //!  - `_ddX`: derivative with respect to species mole fractions (a matrix)
+    //!
+    //! Settings for derivative evaluation are set by keyword/value pairs using
+    //! the methods @see getDerivativeSettings and @see setDerivativeSettings.
+    //!
+    //! For GasKinetics, the following keyword/value pairs are supported:
+    //!  - `skip-third-bodies` (boolean) ... if `false` (default), third body
+    //!    concentrations are considered for the evaluation of jacobians
+    //!  - `skip-falloff` (boolean) ... if `false` (default), third-body effects
+    //!    on rate constants are considered for the evaluation of derivatives.
+    //!  - `rtol-delta` (double) ... relative tolerance used to perturb properties
+    //!    when calculating numerical derivatives. The default value is 1e-8.
+    //!
+    //! @warning  The calculation of derivatives is an experimental part of the
+    //!      %Cantera API and may be changed or removed without notice.
     //! @{
 
     /**
@@ -1189,15 +1188,14 @@ public:
 
     //! @}
     //! @name Altering Reaction Rates
-    /*!
-     * These methods alter reaction rates. They are designed primarily for
-     * carrying out sensitivity analysis, but may be used for any purpose
-     * requiring dynamic alteration of rate constants. For each reaction, a
-     * real-valued multiplier may be defined that multiplies the reaction rate
-     * coefficient. The multiplier may be set to zero to completely remove a
-     * reaction from the mechanism.
-     * @{
-     */
+    //!
+    //! These methods alter reaction rates. They are designed primarily for
+    //! carrying out sensitivity analysis, but may be used for any purpose
+    //! requiring dynamic alteration of rate constants. For each reaction, a
+    //! real-valued multiplier may be defined that multiplies the reaction rate
+    //! coefficient. The multiplier may be set to zero to completely remove a
+    //! reaction from the mechanism.
+    //! @{
 
     //! The current value of the multiplier for reaction i.
     /*!
@@ -1289,12 +1287,11 @@ protected:
     void checkReactionBalance(const Reaction& R);
 
     //! @name Stoichiometry management
-    /*!
-     *  These objects and functions handle turning reaction extents into species
-     *  production rates and also handle turning thermo properties into reaction
-     *  thermo properties.
-     *  @{
-     */
+    //!
+    //! These objects and functions handle turning reaction extents into species
+    //! production rates and also handle turning thermo properties into reaction
+    //! thermo properties.
+    //! @{
 
     //! Stoichiometry manager for the reactants for each reaction
     StoichManagerN m_reactantStoich;

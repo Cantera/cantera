@@ -91,11 +91,10 @@ public:
 
 protected:
     //! @name Internal service methods
-    /*!
-     * These methods are for @internal use, and seek to avoid code duplication
-     * while evaluating terms used for rate constants, rates of progress, and
-     * their derivatives.
-     */
+    //!
+    //! These methods are for @internal use, and seek to avoid code duplication
+    //! while evaluating terms used for rate constants, rates of progress, and
+    //! their derivatives.
     //! @{
 
     //! Calculate rate coefficients
@@ -170,7 +169,8 @@ protected:
     Rate1<ChebyshevRate> m_cheb_rates; //!< @deprecated (legacy only)
 
     //! @name Reaction rate data
-    //!@{
+    //! @{
+
     doublereal m_logStandConc;
     vector_fp m_rfn_low; //!< @deprecated (legacy only)
     vector_fp m_rfn_high; //!< @deprecated (legacy only)
@@ -180,7 +180,7 @@ protected:
     vector_fp concm_3b_values; //!< @deprecated (legacy only)
     vector_fp concm_falloff_values; //!< @deprecated (legacy only)
 
-    //!@}
+    //! @}
 
     //! Buffers for partial rop results with length nReactions()
     vector_fp m_rbuf0;
