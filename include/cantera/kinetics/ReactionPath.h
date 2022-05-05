@@ -39,11 +39,10 @@ public:
     doublereal value; ///< May be used to set node appearance
     bool visible; ///< Visible on graph;
 
-    /**
-     *  @name References.
-     * Return a reference to a path object connecting this node
-     *  to another node.
-     */
+    //! @name References
+    //!
+    //! Return a reference to a path object connecting this node
+    //! to another node.
     //! @{
     Path* path(int n) {
         return m_paths[n];
