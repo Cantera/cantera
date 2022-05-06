@@ -121,13 +121,12 @@ public:
     //! Returns a reference to the substance object
     tpx::Substance& TPX_Substance();
 
-    /// @name Properties of the Standard State of the Species in the Solution
-    /*!
-     *  The standard state of the pure fluid is defined as the real properties
-     *  of the pure fluid at the most stable state of the fluid at the current
-     *  temperature and pressure of the solution. With this definition, the
-     *  activity of the fluid is always then defined to be equal to one.
-     */
+    //! @name Properties of the Standard State of the Species in the Solution
+    //!
+    //! The standard state of the pure fluid is defined as the real properties
+    //! of the pure fluid at the most stable state of the fluid at the current
+    //! temperature and pressure of the solution. With this definition, the
+    //! activity of the fluid is always then defined to be equal to one.
     //! @{
 
     virtual void getStandardChemPotentials(doublereal* mu) const;
@@ -136,11 +135,10 @@ public:
     virtual void getGibbs_RT(doublereal* grt) const;
 
     //! @}
-    /// @name Thermodynamic Values for the Species Reference States
-    /*!
-     * The species reference state for pure fluids is defined as an ideal gas at
-     * the reference pressure and current temperature of the fluid.
-     */
+    //! @name Thermodynamic Values for the Species Reference States
+    //!
+    //! The species reference state for pure fluids is defined as an ideal gas at
+    //! the reference pressure and current temperature of the fluid.
     //! @{
 
     virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
@@ -149,12 +147,10 @@ public:
     virtual void getEntropy_R_ref(doublereal* er) const;
 
     //! @}
-    /**
-     * @name Setting the State
-     *
-     * These methods set all or part of the thermodynamic state.
-     * @{
-     */
+    //! @name Setting the State
+    //!
+    //! These methods set all or part of the thermodynamic state.
+    //! @{
 
     virtual void setState_HP(double h, double p, double tol=1e-9);
     virtual void setState_UV(double u, double v, double tol=1e-9);

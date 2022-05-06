@@ -134,19 +134,19 @@ public:
      */
     void setXMLdata(XML_Node& xmlPhase);
 
-    /*! @name Name
-     * Class Phase uses the string name to identify a phase. The name is the
-     * value of the corresponding key in the phase map (in YAML), name (in
-     * CTI), or id (in XML) that is used to initialize a phase when it is read.
-     *
-     * However, the name field may be changed to another value during the
-     * course of a calculation. For example, if duplicates of a phase object
-     * are instantiated and used in multiple places (such as a ReactorNet), they
-     * will have the same constitutive input, that is, the names of the phases will
-     * be the same. Note that this is not a problem for Cantera internally;
-     * however, a user may want to rename phase objects in order to clarify.
-     */
-    //!@{
+    //! @name Name
+    //!
+    //! Class Phase uses the string name to identify a phase. The name is the
+    //! value of the corresponding key in the phase map (in YAML), name (in
+    //! CTI), or id (in XML) that is used to initialize a phase when it is read.
+    //!
+    //! However, the name field may be changed to another value during the
+    //! course of a calculation. For example, if duplicates of a phase object
+    //! are instantiated and used in multiple places (such as a ReactorNet), they
+    //! will have the same constitutive input, that is, the names of the phases will
+    //! be the same. Note that this is not a problem for Cantera internally;
+    //! however, a user may want to rename phase objects in order to clarify.
+    //! @{
 
     //! Return the name of the phase.
     /*!
@@ -165,10 +165,10 @@ public:
         return "Phase";
     }
 
-    //!@} end group Name
+    //! @} end group Name
 
     //! @name Element and Species Information
-    //!@{
+    //! @{
 
     //! Name of the element with index m.
     //!     @param m  Element index.
@@ -283,7 +283,7 @@ public:
     //! which take an array pointer.
     void checkSpeciesArraySize(size_t kk) const;
 
-    //!@} end group Element and Species Information
+    //! @} end group Element and Species Information
 
     //! Return whether phase represents a pure (single species) substance
     virtual bool isPure() const {
@@ -357,14 +357,14 @@ public:
     //!     @param state      Vector of state conditions.
     virtual void restoreState(size_t lenstate, const doublereal* state);
 
-    /*! @name Set thermodynamic state
-     * Set the internal thermodynamic state by setting the internally stored
-     * temperature, density and species composition. Note that the composition
-     * is always set first.
-     *
-     * Temperature and density are held constant if not explicitly set.
-     */
-    //!@{
+    //! @name Set Thermodynamic State
+    //!
+    //! Set the internal thermodynamic state by setting the internally stored
+    //! temperature, density and species composition. Note that the composition
+    //! is always set first.
+    //!
+    //! Temperature and density are held constant if not explicitly set.
+    //! @{
 
     //! Set the species mole fractions by name.
     //! Species not listed by name in \c xMap are set to zero.
@@ -446,7 +446,7 @@ public:
     //!     @param y    vector of species mass fractions, length m_kk
     void setState_RY(doublereal rho, doublereal* y);
 
-    //!@} end group set thermo state
+    //! @} end group set thermo state
 
     //! Molecular weight of species \c k.
     //!     @param k   index of species \c k
@@ -758,6 +758,7 @@ public:
 
     //! @}
     //! @name Adding Elements and Species
+    //!
     //! These methods are used to add new elements or species. These are not
     //! usually called by user programs.
     //!
@@ -846,7 +847,7 @@ public:
         error, ignore, add
     }; };
 
-    //!@} end group adding species and elements
+    //! @} end group adding species and elements
 
     //!  Returns a bool indicating whether the object is ready for use
     /*!

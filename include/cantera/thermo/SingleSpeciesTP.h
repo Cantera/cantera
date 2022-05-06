@@ -67,14 +67,12 @@ public:
         return true;
     }
 
-    /**
-     * @name  Molar Thermodynamic Properties of the Solution
-     *
-     * These functions are resolved at this level, by reference to the partial
-     * molar functions and standard state functions for species 0. Derived
-     * classes don't need to supply entries for these functions.
-     * @{
-     */
+    //! @name  Molar Thermodynamic Properties of the Solution
+    //!
+    //! These functions are resolved at this level, by reference to the partial
+    //! molar functions and standard state functions for species 0. Derived
+    //! classes don't need to supply entries for these functions.
+    //! @{
 
     virtual doublereal enthalpy_mole() const;
     virtual doublereal intEnergy_mole() const;
@@ -83,16 +81,14 @@ public:
     virtual doublereal cp_mole() const;
     virtual doublereal cv_mole() const;
 
-    /**
-     * @}
-     * @name Activities, Standard State, and Activity Concentrations
-     *
-     * The activity \f$a_k\f$ of a species in solution is related to the
-     * chemical potential by \f[ \mu_k = \mu_k^0(T) + \hat R T \log a_k. \f]
-     * The quantity \f$\mu_k^0(T)\f$ is the chemical potential at unit activity,
-     * which depends only on temperature.
-     * @{
-     */
+    //! @}
+    //! @name Activities, Standard State, and Activity Concentrations
+    //!
+    //! The activity \f$a_k\f$ of a species in solution is related to the
+    //! chemical potential by \f[ \mu_k = \mu_k^0(T) + \hat R T \log a_k. \f]
+    //! The quantity \f$\mu_k^0(T)\f$ is the chemical potential at unit activity,
+    //! which depends only on temperature.
+    //! @{
 
     /**
      * Get the array of non-dimensional activities at the current solution
@@ -111,11 +107,11 @@ public:
     }
 
     //! @}
-    /// @name  Partial Molar Properties of the Solution
-    ///
-    /// These functions are resolved at this level, by reference to the partial
-    /// molar functions and standard state functions for species 0. Derived
-    /// classes don't need to supply entries for these functions.
+    //! @name  Partial Molar Properties of the Solution
+    //!
+    //! These functions are resolved at this level, by reference to the partial
+    //! molar functions and standard state functions for species 0. Derived
+    //! classes don't need to supply entries for these functions.
     //! @{
 
     //! Get the array of non-dimensional species chemical potentials. These are
@@ -189,11 +185,12 @@ public:
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
 
     //! @}
-    /// @name  Properties of the Standard State of the Species in the Solution
-    /// These functions are the primary way real properties are
-    /// supplied to derived thermodynamics classes of SingleSpeciesTP.
-    /// These functions must be supplied in derived classes. They
-    /// are not resolved at the SingleSpeciesTP level.
+    //! @name  Properties of the Standard State of the Species in the Solution
+    //!
+    //! These functions are the primary way real properties are
+    //! supplied to derived thermodynamics classes of SingleSpeciesTP.
+    //! These functions must be supplied in derived classes. They
+    //! are not resolved at the SingleSpeciesTP level.
     //! @{
 
     virtual void getPureGibbs(doublereal* gpure) const;
@@ -212,11 +209,11 @@ public:
     virtual void getStandardVolumes(doublereal* vbar) const;
 
     //! @}
-    /// @name Thermodynamic Values for the Species Reference State
-    ///
-    /// Almost all functions in this group are resolved by this class. The
-    /// internal energy function is not given by this class, since it would
-    /// involve a specification of the equation of state.
+    //! @name Thermodynamic Values for the Species Reference State
+    //!
+    //! Almost all functions in this group are resolved by this class. The
+    //! internal energy function is not given by this class, since it would
+    //! involve a specification of the equation of state.
     //! @{
 
     virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
@@ -226,12 +223,10 @@ public:
     virtual void getCp_R_ref(doublereal* cprt) const;
 
     //! @}
-    /**
-     * @name Setting the State
-     *
-     * These methods set all or part of the thermodynamic state.
-     * @{
-     */
+    //! @name Setting the State
+    //!
+    //! These methods set all or part of the thermodynamic state.
+    //! @{
 
     //! Mass fractions are fixed, with Y[0] = 1.0.
     virtual void setMassFractions(const doublereal* const y) {};

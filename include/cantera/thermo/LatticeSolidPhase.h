@@ -416,7 +416,7 @@ public:
     virtual doublereal standardConcentration(size_t k=0) const;
     virtual doublereal logStandardConc(size_t k=0) const;
 
-    /// @name Thermodynamic Values for the Species Reference States
+    //! @name Thermodynamic Values for the Species Reference States
     //! @{
 
     virtual void getGibbs_RT_ref(doublereal* grt) const;

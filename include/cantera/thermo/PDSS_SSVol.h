@@ -138,7 +138,7 @@ public:
     //! Default Constructor
     PDSS_SSVol();
 
-    //! @name  Molar Thermodynamic Properties of the Species Standard State in the Solution
+    //! @name  Molar Thermodynamic Properties of the Species Standard State
     //! @{
 
     // See PDSS.h for documentation of functions overridden from Class PDSS

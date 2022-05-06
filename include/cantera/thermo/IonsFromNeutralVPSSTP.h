@@ -115,17 +115,15 @@ public:
     virtual doublereal cp_mole() const;
     virtual doublereal cv_mole() const;
 
-    /**
-     * @}
-     * @name Activities, Standard States, and Activity Concentrations
-     *
-     * The activity \f$a_k\f$ of a species in solution is
-     * related to the chemical potential by \f[ \mu_k = \mu_k^0(T)
-     * + \hat R T \log a_k. \f] The quantity \f$\mu_k^0(T,P)\f$ is
-     * the chemical potential at unit activity, which depends only
-     * on temperature and pressure.
-     * @{
-     */
+    //! @}
+    //! @name Activities, Standard States, and Activity Concentrations
+    //!
+    //! The activity \f$a_k\f$ of a species in solution is
+    //! related to the chemical potential by \f[ \mu_k = \mu_k^0(T)
+    //! + \hat R T \log a_k. \f] The quantity \f$\mu_k^0(T,P)\f$ is
+    //! the chemical potential at unit activity, which depends only
+    //! on temperature and pressure.
+    //! @{
 
     virtual void getActivityCoefficients(doublereal* ac) const;
 
@@ -235,11 +233,10 @@ public:
         anion=anionList_;
     }
 
-    /**
-     * @name Setting the State
-     * These methods set all or part of the thermodynamic state.
-     * @{
-     */
+    //! @name Setting the State
+    //!
+    //! These methods set all or part of the thermodynamic state.
+    //! @{
 
     virtual void calcDensity();
 

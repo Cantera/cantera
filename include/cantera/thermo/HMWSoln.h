@@ -1120,16 +1120,15 @@ public:
      */
     virtual doublereal cv_mole() const;
 
-    //!@}
+    //! @}
     //! @name Mechanical Equation of State Properties
-    /*!
-     * In this equation of state implementation, the density is a function
-     * only of the mole fractions. Therefore, it can't be an independent
-     * variable. Instead, the pressure is used as the independent variable.
-     * Functions which try to set the thermodynamic state by calling
-     * setDensity() will cause an exception to be thrown.
-     */
-    //!@{
+    //!
+    //! In this equation of state implementation, the density is a function
+    //! only of the mole fractions. Therefore, it can't be an independent
+    //! variable. Instead, the pressure is used as the independent variable.
+    //! Functions which try to set the thermodynamic state by calling
+    //! setDensity() will cause an exception to be thrown.
+    //! @{
 
 protected:
     /**
@@ -1156,17 +1155,15 @@ protected:
     void calcDensity();
 
 public:
-    /**
-     * @}
-     * @name Activities, Standard States, and Activity Concentrations
-     *
-     * The activity \f$a_k\f$ of a species in solution is related to the
-     * chemical potential by \f[ \mu_k = \mu_k^0(T) + \hat R T \log a_k. \f] The
-     * quantity \f$\mu_k^0(T,P)\f$ is the chemical potential at unit activity,
-     * which depends only on temperature and the pressure. Activity is assumed
-     * to be molality-based here.
-     * @{
-     */
+    //! @}
+    //! @name Activities, Standard States, and Activity Concentrations
+    //!
+    //! The activity \f$a_k\f$ of a species in solution is related to the
+    //! chemical potential by \f[ \mu_k = \mu_k^0(T) + \hat R T \log a_k. \f] The
+    //! quantity \f$\mu_k^0(T,P)\f$ is the chemical potential at unit activity,
+    //! which depends only on temperature and the pressure. Activity is assumed
+    //! to be molality-based here.
+    //! @{
 
     //! This method returns an array of generalized activity concentrations
     /*!

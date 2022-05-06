@@ -204,14 +204,12 @@ public:
     virtual doublereal isothermalCompressibility() const;
     virtual doublereal thermalExpansionCoeff() const;
 
-    /**
-     * @}
-     * @name Activities, Standard States, and Activity Concentrations
-     *
-     *  This section is largely handled by parent classes, since there
-     *  is only one species. Therefore, the activity is equal to one.
-     * @{
-     */
+    //! @}
+    //! @name Activities, Standard States, and Activity Concentrations
+    //!
+    //! This section is largely handled by parent classes, since there
+    //! is only one species. Therefore, the activity is equal to one.
+    //! @{
 
     virtual Units standardConcentrationUnits() const;
 

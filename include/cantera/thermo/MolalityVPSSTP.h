@@ -327,16 +327,14 @@ public:
      */
     void setMolalitiesByName(const std::string& name);
 
-    /**
-     * @}
-     * @name Activities, Standard States, and Activity Concentrations
-     *
-     * The activity \f$a_k\f$ of a species in solution is related to the
-     * chemical potential by \f[ \mu_k = \mu_k^0(T) + \hat R T \log a_k. \f] The
-     * quantity \f$\mu_k^0(T,P)\f$ is the chemical potential at unit activity,
-     * which depends only on temperature and pressure.
-     * @{
-     */
+    //! @}
+    //! @name Activities, Standard States, and Activity Concentrations
+    //!
+    //! The activity \f$a_k\f$ of a species in solution is related to the
+    //! chemical potential by \f[ \mu_k = \mu_k^0(T) + \hat R T \log a_k. \f] The
+    //! quantity \f$\mu_k^0(T,P)\f$ is the chemical potential at unit activity,
+    //! which depends only on temperature and pressure.
+    //! @{
 
     /**
      *  We set the convention to molality here.
@@ -471,10 +469,11 @@ public:
     virtual void setStateFromXML(const XML_Node& state);
 
     //! @name Initialization
-    /// The following methods are used in the process of constructing the phase
-    /// and setting its parameters from a specification in an input file. They
-    /// are not normally used in application programs. To see how they are used,
-    /// see importPhase().
+    //!
+    //! The following methods are used in the process of constructing the phase
+    //! and setting its parameters from a specification in an input file. They
+    //! are not normally used in application programs. To see how they are used,
+    //! see importPhase().
     //! @{
 
     virtual bool addSpecies(shared_ptr<Species> spec);
