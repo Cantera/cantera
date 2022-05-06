@@ -37,11 +37,9 @@ public:
      */
     Sim1D(std::vector<Domain1D*>& domains);
 
-    /**
-     * @name Setting initial values
-     *
-     * These methods are used to set the initial values of solution components.
-     */
+    //! @name Setting initial values
+    //!
+    //! These methods are used to set the initial values of solution components.
     //! @{
 
     /// Set initial guess for one component for all domains

@@ -370,6 +370,7 @@ protected:
     //! @}
 
     //! @name convective spatial derivatives.
+    //!
     //! These use upwind differencing, assuming u(z) is negative
     //! @{
     doublereal dVdz(const doublereal* x, size_t j) const {

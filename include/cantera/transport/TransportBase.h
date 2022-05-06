@@ -196,9 +196,7 @@ public:
     //! pointer.
     void checkSpeciesArraySize(size_t kk) const;
 
-    /**
-     * @name Transport Properties
-     */
+    //! @name Transport Properties
     //! @{
 
     /*!
@@ -576,7 +574,7 @@ public:
      * @param[in] ld  The dimension of the inner loop of d (usually equal to m_nsp)
      * @param[out] d  flat vector of diffusion coefficients, fortran ordering.
      *            d[ld*j+i] is the D_ij diffusion coefficient (the diffusion
-     *            coefficient for species i due to concentration gradients in 
+     *            coefficient for species i due to concentration gradients in
      *            species j). Units: m^2/s
      */
     virtual void getMultiDiffCoeffs(const size_t ld, doublereal* const d) {
@@ -715,11 +713,10 @@ public:
         return m_velocityBasis;
     }
 
-    /**
-     * @name Transport manager construction
-     * These methods are used during construction.
-     * @{
-     */
+    //! @name Transport manager construction
+    //!
+    //! These methods are used during construction.
+    //! @{
 
     //! Initialize a transport manager
     /*!

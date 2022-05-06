@@ -31,7 +31,7 @@ public:
     ReactorNet(const ReactorNet&) = delete;
     ReactorNet& operator=(const ReactorNet&) = delete;
 
-    //! @name Methods to set up a simulation.
+    //! @name Methods to set up a simulation
     //! @{
 
     //! Set initial time. Default = 0.0 s. Restarts integration from this time

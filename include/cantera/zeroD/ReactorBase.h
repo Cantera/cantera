@@ -78,7 +78,7 @@ public:
         m_name = name;
     }
 
-    //! @name Methods to set up a simulation.
+    //! @name Methods to set up a simulation
     //! @{
 
     //! Set the initial reactor volume. By default, the volume is 1.0 m^3.
@@ -192,11 +192,10 @@ public:
     //! on the outlet mass flow rates and the mass of the reactor contents.
     doublereal residenceTime();
 
-    /**
-     * @name Solution components.
-     * The values returned are those after the last call to ReactorNet::advance
-     * or ReactorNet::step.
-     */
+    //! @name Solution components
+    //!
+    //! The values returned are those after the last call to ReactorNet::advance
+    //! or ReactorNet::step.
     //! @{
 
     //! Returns the current volume (m^3) of the reactor.
