@@ -96,7 +96,7 @@ public:
      */
     virtual void getActivityCoefficients(doublereal* ac) const;
 
-    /// @name  Partial Molar Properties of the Solution
+    //! @name  Partial Molar Properties of the Solution
     //! @{
 
     //! Get the array of non-dimensional species chemical potentials.
@@ -125,12 +125,11 @@ public:
 
 public:
     //! @name Initialization Methods - For Internal use
-    /*!
-     * The following methods are used in the process of constructing
-     * the phase and setting its parameters from a specification in an
-     * input file. They are not normally used in application programs.
-     * To see how they are used, see importPhase().
-     */
+    //!
+    //! The following methods are used in the process of constructing
+    //! the phase and setting its parameters from a specification in an
+    //! input file. They are not normally used in application programs.
+    //! To see how they are used, see importPhase().
     //! @{
 
     virtual bool addSpecies(shared_ptr<Species> spec);

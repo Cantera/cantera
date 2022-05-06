@@ -433,37 +433,34 @@ public:
     }
 
     //! @}
-
-    /**
-     * @name Chemical Potentials and Activities
-     *
-     * The activity \f$a_k\f$ of a species in solution is
-     * related to the chemical potential by
-     * \f[
-     *  \mu_k(T,P,X_k) = \mu_k^0(T,P)
-     * + \hat R T \log a_k.
-     *  \f]
-     * The quantity \f$\mu_k^0(T,P)\f$ is the standard state chemical potential
-     * at unit activity. It may depend on the pressure and the temperature.
-     * However, it may not depend on the mole fractions of the species in the
-     * solution.
-     *
-     * The activities are related to the generalized concentrations, \f$\tilde
-     * C_k\f$, and standard concentrations, \f$C^0_k\f$, by the following
-     * formula:
-     *
-     *  \f[
-     *  a_k = \frac{\tilde C_k}{C^0_k}
-     *  \f]
-     * The generalized concentrations are used in the kinetics classes to
-     * describe the rates of progress of reactions involving the species. Their
-     * formulation depends upon the specification of the rate constants for
-     * reaction, especially the units used in specifying the rate constants. The
-     * bridge between the thermodynamic equilibrium expressions that use a_k and
-     * the kinetics expressions which use the generalized concentrations is
-     * provided by the multiplicative factor of the standard concentrations.
-     * @{
-     */
+    //! @name Chemical Potentials and Activities
+    //!
+    //! The activity \f$a_k\f$ of a species in solution is
+    //! related to the chemical potential by
+    //! \f[
+    //!  \mu_k(T,P,X_k) = \mu_k^0(T,P)
+    //! + \hat R T \log a_k.
+    //!  \f]
+    //! The quantity \f$\mu_k^0(T,P)\f$ is the standard state chemical potential
+    //! at unit activity. It may depend on the pressure and the temperature.
+    //! However, it may not depend on the mole fractions of the species in the
+    //! solution.
+    //!
+    //! The activities are related to the generalized concentrations, \f$\tilde
+    //! C_k\f$, and standard concentrations, \f$C^0_k\f$, by the following
+    //! formula:
+    //!
+    //!  \f[
+    //!  a_k = \frac{\tilde C_k}{C^0_k}
+    //!  \f]
+    //! The generalized concentrations are used in the kinetics classes to
+    //! describe the rates of progress of reactions involving the species. Their
+    //! formulation depends upon the specification of the rate constants for
+    //! reaction, especially the units used in specifying the rate constants. The
+    //! bridge between the thermodynamic equilibrium expressions that use a_k and
+    //! the kinetics expressions which use the generalized concentrations is
+    //! provided by the multiplicative factor of the standard concentrations.
+    //! @{
 
     //! This method returns the array of generalized concentrations.
     /*!
@@ -503,7 +500,7 @@ public:
     virtual void getActivityCoefficients(doublereal* ac) const;
 
     //! @}
-    /// @name Partial Molar Properties of the Solution
+    //! @name Partial Molar Properties of the Solution
     //! @{
 
     virtual void getChemPotentials(doublereal* mu) const;
@@ -514,7 +511,7 @@ public:
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
 
     //! @}
-    /// @name  Properties of the Standard State of the Species in the Solution
+    //! @name  Properties of the Standard State of the Species in the Solution
     //! @{
 
     virtual void getStandardChemPotentials(doublereal* mu) const;
@@ -527,7 +524,7 @@ public:
     virtual void getStandardVolumes(doublereal* vol) const;
 
     //! @}
-    /// @name Thermodynamic Values for the Species Reference States
+    //! @name Thermodynamic Values for the Species Reference States
     //! @{
 
     virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
@@ -539,7 +536,7 @@ public:
     virtual void getStandardVolumes_ref(doublereal* vol) const;
 
     //! @}
-    /// @name NonVirtual Internal methods to Return References to Reference State Thermo
+    //! @name NonVirtual Internal methods to Return References to Reference State Thermo
     //! @{
 
     //! Returns a reference to the dimensionless reference state enthalpy vector.

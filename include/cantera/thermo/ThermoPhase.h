@@ -295,13 +295,11 @@ public:
         throw NotImplementedError("ThermoPhase::thermalExpansionCoeff");
     }
 
-    /**
-     * @}
-     * @name Electric Potential
-     *
-     * The phase may be at some non-zero electrical potential. These methods
-     * set or get the value of the electric potential.
-     */
+    //! @}
+    //! @name Electric Potential
+    //!
+    //! The phase may be at some non-zero electrical potential. These methods
+    //! set or get the value of the electric potential.
     //! @{
 
     //! Set the electric potential of this phase (V).
@@ -327,17 +325,15 @@ public:
         return m_phi;
     }
 
-    /**
-     * @}
-     * @name Activities, Standard States, and Activity Concentrations
-     *
-     * The activity \f$a_k\f$ of a species in solution is related to the
-     * chemical potential by \f[ \mu_k = \mu_k^0(T,P) + \hat R T \log a_k. \f]
-     * The quantity \f$\mu_k^0(T,P)\f$ is the standard chemical potential at
-     * unit activity, which depends on temperature and pressure, but not on
-     * composition. The activity is dimensionless.
-     * @{
-     */
+    //! @}
+    //! @name Activities, Standard States, and Activity Concentrations
+    //!
+    //! The activity \f$a_k\f$ of a species in solution is related to the
+    //! chemical potential by \f[ \mu_k = \mu_k^0(T,P) + \hat R T \log a_k. \f]
+    //! The quantity \f$\mu_k^0(T,P)\f$ is the standard chemical potential at
+    //! unit activity, which depends on temperature and pressure, but not on
+    //! composition. The activity is dimensionless.
+    //! @{
 
     //! This method returns the convention used in specification of the
     //! activities, of which there are currently two, molar- and molality-based
@@ -783,12 +779,10 @@ public:
         return temperature() * GasConstant;
     }
 
-    /**
-     * @name Setting the State
-     *
-     * These methods set all or part of the thermodynamic state.
-     * @{
-     */
+    //! @name Setting the State
+    //!
+    //! These methods set all or part of the thermodynamic state.
+    //! @{
 
     //! Set the temperature (K), pressure (Pa), and mole fractions.
     /*!
@@ -1410,11 +1404,10 @@ private:
     double o2Present(const double* y) const;
 
 public:
-    /**
-     * @name Chemical Equilibrium
-     * Chemical equilibrium.
-     * @{
-     */
+    //! @name Chemical Equilibrium
+    //!
+    //! Chemical equilibrium.
+    //! @{
 
     //! Equilibrate a ThermoPhase object
     /*!
@@ -1475,9 +1468,10 @@ public:
     }
 
     //! @}
-    /// @name Critical State Properties.
-    /// These methods are only implemented by subclasses that implement
-    /// liquid-vapor equations of state.
+    //! @name Critical State Properties
+    //!
+    //! These methods are only implemented by subclasses that implement
+    //! liquid-vapor equations of state.
     //! @{
 
     /// Critical temperature (K).
@@ -1506,12 +1500,10 @@ public:
     }
 
     //! @}
-
-    /** @name Saturation Properties.
-     *
-     *  These methods are only implemented by subclasses that implement full
-     *  liquid-vapor equations of state.
-     */
+    //! @name Saturation Properties
+    //!
+    //! These methods are only implemented by subclasses that implement full
+    //! liquid-vapor equations of state.
     //! @{
 
     //! Return the saturation temperature given the pressure
@@ -1572,14 +1564,12 @@ public:
     void setState_TPQ(double T, double P, double Q);
 
     //! @}
-
     //! @name Initialization Methods - For Internal Use (ThermoPhase)
-    /*!
-     * The following methods are used in the process of constructing
-     * the phase and setting its parameters from a specification in an
-     * input file. They are not normally used in application programs.
-     * To see how they are used, see importPhase().
-     */
+    //!
+    //! The following methods are used in the process of constructing
+    //! the phase and setting its parameters from a specification in an
+    //! input file. They are not normally used in application programs.
+    //! To see how they are used, see importPhase().
     //! @{
 
     virtual bool addSpecies(shared_ptr<Species> spec);

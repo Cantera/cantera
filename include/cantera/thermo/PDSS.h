@@ -158,10 +158,9 @@ public:
     PDSS& operator=(const PDSS& b) = delete;
     virtual ~PDSS() {}
 
-     //! @}
-     //! @name Molar Thermodynamic Properties of the Species Standard State in
-     //!     the Solution
-     //! @{
+    //! @}
+    //! @name Molar Thermodynamic Properties of the Species Standard State
+    //! @{
 
     //! Return the molar enthalpy in units of J kmol-1
     /*!
@@ -317,7 +316,7 @@ public:
     virtual doublereal molarVolume_ref() const;
 
     //! @}
-    //!  @name Mechanical Equation of State Properties
+    //! @name Mechanical Equation of State Properties
     //! @{
 
     //! Returns the pressure (Pa)

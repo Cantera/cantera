@@ -146,11 +146,10 @@ public:
 
     //! @}
     //! @name Thermodynamic Values for the Species Reference State
-    /*!
-     *  All functions in this group need to be overridden, because the
-     *  m_spthermo MultiSpeciesThermo function is not adequate for the real
-     *  equation of state.
-     */
+    //!
+    //! All functions in this group need to be overridden, because the
+    //! m_spthermo MultiSpeciesThermo function is not adequate for the real
+    //! equation of state.
     //! @{
 
     virtual void getEnthalpy_RT_ref(doublereal* hrt) const;

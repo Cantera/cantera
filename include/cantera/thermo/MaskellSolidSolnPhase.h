@@ -45,14 +45,13 @@ public:
     virtual doublereal entropy_mole() const;
 
     //! @}
-    /** @name Mechanical Equation of State Properties
-     *
-     * In this equation of state implementation, the density is a function only
-     * of the mole fractions. Therefore, it can't be an independent variable.
-     * Instead, the pressure is used as the independent variable. Functions
-     * which try to set the thermodynamic state by calling setDensity() will
-     * cause an exception to be thrown.
-     */
+    //! @name Mechanical Equation of State Properties
+    //!
+    //! In this equation of state implementation, the density is a function only
+    //! of the mole fractions. Therefore, it can't be an independent variable.
+    //! Instead, the pressure is used as the independent variable. Functions
+    //! which try to set the thermodynamic state by calling setDensity() will
+    //! cause an exception to be thrown.
     //! @{
 
     /**
