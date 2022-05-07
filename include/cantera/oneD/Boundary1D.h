@@ -41,12 +41,12 @@ public:
         _init(1);
     }
 
-    /// Set the temperature.
+    //! Set the temperature.
     virtual void setTemperature(double t) {
         m_temp = t;
     }
 
-    /// Temperature [K].
+    //! Temperature [K].
     virtual double temperature() {
         return m_temp;
     }
@@ -55,27 +55,27 @@ public:
         return 0;
     }
 
-    /// Set the mole fractions by specifying a std::string.
+    //! Set the mole fractions by specifying a std::string.
     virtual void setMoleFractions(const std::string& xin) {
         throw NotImplementedError("Boundary1D::setMoleFractions");
     }
 
-    /// Set the mole fractions by specifying an array.
+    //! Set the mole fractions by specifying an array.
     virtual void setMoleFractions(const double* xin) {
         throw NotImplementedError("Boundary1D::setMoleFractions");
     }
 
-    /// Mass fraction of species k.
+    //! Mass fraction of species k.
     virtual double massFraction(size_t k) {
         throw NotImplementedError("Boundary1D::massFraction");
     }
 
-    /// Set the total mass flow rate.
+    //! Set the total mass flow rate.
     virtual void setMdot(double mdot) {
         m_mdot = mdot;
     }
 
-    /// The total mass flow rate [kg/m2/s].
+    //! The total mass flow rate [kg/m2/s].
     virtual double mdot() {
         return m_mdot;
     }
@@ -106,13 +106,13 @@ class Inlet1D : public Boundary1D
 public:
     Inlet1D();
 
-    /// set spreading rate
+    //! set spreading rate
     virtual void setSpreadRate(double V0) {
         m_V0 = V0;
         needJacUpdate();
     }
 
-    /// spreading rate
+    //! spreading rate
     virtual double spreadRate() {
         return m_V0;
     }

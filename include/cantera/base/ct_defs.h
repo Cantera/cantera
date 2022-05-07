@@ -73,7 +73,7 @@ const double Planck = 6.62607015e-34;
 //! Elementary charge \f$ e \f$ [C]
 const double ElectronCharge = 1.602176634e-19;
 
-/// Speed of Light in a vacuum \f$ c \f$ [m/s]
+//! Speed of Light in a vacuum \f$ c \f$ [m/s]
 const double lightSpeed = 299792458.0;
 
 //! One atmosphere [Pa]

@@ -181,7 +181,7 @@ namespace Cantera
 class MolalityVPSSTP : public VPStandardStateTP
 {
 public:
-    /// Default Constructor
+    //! Default Constructor
     /*!
      * This doesn't do much more than initialize constants with default values
      * for water at 25C. Water molecular weight comes from the default

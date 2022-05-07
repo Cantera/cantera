@@ -1061,7 +1061,7 @@ public:
     //! @name  Molar Thermodynamic Properties of the Solution
     //! @{
 
-    /// Molar enthalpy. Units: J/kmol.
+    //! Molar enthalpy. Units: J/kmol.
     /**
      * Molar enthalpy of the solution. Units: J/kmol.
      *      (HKM -> Bump up to Parent object)
@@ -1085,7 +1085,7 @@ public:
      */
     virtual doublereal relative_molal_enthalpy() const;
 
-    /// Molar entropy. Units: J/kmol/K.
+    //! Molar entropy. Units: J/kmol/K.
     /**
      * Molar entropy of the solution. Units: J/kmol/K. For an ideal, constant
      * partial molar volume solution mixture with pure species phases which
@@ -1104,7 +1104,7 @@ public:
      */
     virtual doublereal entropy_mole() const;
 
-    /// Molar Gibbs function. Units: J/kmol.
+    //! Molar Gibbs function. Units: J/kmol.
     /*!
      *      (HKM -> Bump up to Parent object)
      */
@@ -1112,7 +1112,7 @@ public:
 
     virtual doublereal cp_mole() const;
 
-    /// Molar heat capacity at constant volume. Units: J/kmol/K.
+    //! Molar heat capacity at constant volume. Units: J/kmol/K.
     /*!
      *      (HKM -> Bump up to Parent object)
      */

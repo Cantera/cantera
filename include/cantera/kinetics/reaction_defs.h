@@ -19,7 +19,7 @@ namespace Cantera
 const int INVALID_RXN = 0;
 const int NONE = 0;
 
-/// @name Reaction Types
+//! @name Reaction Types
 
 //! @{
 

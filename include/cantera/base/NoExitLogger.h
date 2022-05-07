@@ -10,8 +10,8 @@
 #include "cantera/base/logger.h"
 
 namespace Cantera {
-/// Logger that doesn't exit when an error is thrown.
-/// @ingroup textlogs
+//! Logger that doesn't exit when an error is thrown.
+//! @ingroup textlogs
 class NoExitLogger : public Logger {
 public:
     NoExitLogger() {}

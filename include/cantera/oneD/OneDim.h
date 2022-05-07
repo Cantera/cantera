@@ -34,13 +34,13 @@ public:
     OneDim(const OneDim&) = delete;
     OneDim& operator=(const OneDim&) = delete;
 
-    /// Add a domain. Domains are added left-to-right.
+    //! Add a domain. Domains are added left-to-right.
     void addDomain(Domain1D* d);
 
     //! Return a reference to the Jacobian evaluator.
     MultiJac& jacobian();
 
-    /// Return a reference to the Newton iterator.
+    //! Return a reference to the Newton iterator.
     MultiNewton& newton();
 
     /**
@@ -51,12 +51,12 @@ public:
      */
     int solve(doublereal* x0, doublereal* x1, int loglevel);
 
-    /// Number of domains.
+    //! Number of domains.
     size_t nDomains() const {
         return m_dom.size();
     }
 
-    /// Return a reference to domain i.
+    //! Return a reference to domain i.
     Domain1D& domain(size_t i) const {
         return *m_dom[i];
     }
@@ -82,7 +82,7 @@ public:
         }
     }
 
-    /// The index of the start of domain i in the solution vector.
+    //! The index of the start of domain i in the solution vector.
     size_t start(size_t i) const {
         if (m_dom[i]->nComponents()) {
             return m_dom[i]->loc();
@@ -93,22 +93,22 @@ public:
         }
     }
 
-    /// Total solution vector length;
+    //! Total solution vector length;
     size_t size() const {
         return m_size;
     }
 
-    /// Pointer to left-most domain (first added).
+    //! Pointer to left-most domain (first added).
     Domain1D* left() {
         return m_dom[0];
     }
 
-    /// Pointer to right-most domain (last added).
+    //! Pointer to right-most domain (last added).
     Domain1D* right() {
         return m_dom.back();
     }
 
-    /// Number of solution components at global point jg.
+    //! Number of solution components at global point jg.
     size_t nVars(size_t jg) {
         return m_nvars[jg];
     }
@@ -123,7 +123,7 @@ public:
     //! component of the global solution vector
     std::tuple<std::string, size_t, std::string> component(size_t i);
 
-    /// Jacobian bandwidth.
+    //! Jacobian bandwidth.
     size_t bandwidth() const {
         return m_bw;
     }
@@ -135,7 +135,7 @@ public:
      */
     void init();
 
-    /// Total number of points.
+    //! Total number of points.
     size_t points() {
         return m_pts;
     }
@@ -147,7 +147,7 @@ public:
      */
     doublereal ssnorm(doublereal* x, doublereal* r);
 
-    /// Reciprocal of the time step.
+    //! Reciprocal of the time step.
     doublereal rdt() const {
         return m_rdt;
     }
@@ -155,12 +155,12 @@ public:
     //! Prepare for time stepping beginning with solution *x* and timestep *dt*.
     void initTimeInteg(doublereal dt, doublereal* x);
 
-    /// True if transient mode.
+    //! True if transient mode.
     bool transient() const {
         return (m_rdt != 0.0);
     }
 
-    /// True if steady mode.
+    //! True if steady mode.
     bool steady() const {
         return (m_rdt == 0.0);
     }

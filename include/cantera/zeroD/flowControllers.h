@@ -55,9 +55,9 @@ public:
         throw NotImplementedError("MassFlowController::setPressureFunction");
     }
 
-    /// If a function of time has been specified for mdot, then update the
-    /// stored mass flow rate. Otherwise, mdot is a constant, and does not
-    /// need updating.
+    //! If a function of time has been specified for mdot, then update the
+    //! stored mass flow rate. Otherwise, mdot is a constant, and does not
+    //! need updating.
     virtual void updateMassFlowRate(double time);
 };
 
@@ -160,7 +160,7 @@ public:
         return m_coeff;
     }
 
-    /// Compute the current mass flow rate, based on the pressure difference.
+    //! Compute the current mass flow rate, based on the pressure difference.
     virtual void updateMassFlowRate(double time);
 };
 

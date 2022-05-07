@@ -27,7 +27,7 @@ namespace Cantera
 class IdealSolnGasVPSS : public VPStandardStateTP
 {
 public:
-    /// Create an object from an input file
+    //! Create an object from an input file
     explicit IdealSolnGasVPSS(const std::string& infile="", std::string id="");
 
     //! @name  Utilities (IdealSolnGasVPSS)

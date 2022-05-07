@@ -42,7 +42,7 @@ public:
     //! These methods are used to set the initial values of solution components.
     //! @{
 
-    /// Set initial guess for one component for all domains
+    //! Set initial guess for one component for all domains
     /**
      * @param component component name
      * @param locs A vector of relative positions, beginning with 0.0 at the
@@ -91,7 +91,7 @@ public:
     void setProfile(size_t dom, size_t comp, const vector_fp& pos,
                     const vector_fp& values);
 
-    /// Set component 'comp' of domain 'dom' to value 'v' at all points.
+    //! Set component 'comp' of domain 'dom' to value 'v' at all points.
     void setFlatProfile(size_t dom, size_t comp, doublereal v);
 
     //! @}
@@ -102,7 +102,7 @@ public:
     void saveResidual(const std::string& fname, const std::string& id,
                       const std::string& desc, int loglevel=1);
 
-    /// Print to stream s the current solution for all domains.
+    //! Print to stream s the current solution for all domains.
     void showSolution(std::ostream& s);
     void showSolution();
 
@@ -123,7 +123,7 @@ public:
         OneDim::eval(npos, m_x.data(), resid, rdt, 0);
     }
 
-    /// Refine the grid in all domains.
+    //! Refine the grid in all domains.
     int refine(int loglevel=0);
 
     //! Add node for fixed temperature point of freely propagating flame
@@ -253,7 +253,7 @@ protected:
     Func1* m_steady_callback;
 
 private:
-    /// Calls method _finalize in each domain.
+    //! Calls method _finalize in each domain.
     void finalize();
 
     //! Wrapper around the Newton solver

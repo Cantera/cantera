@@ -194,7 +194,7 @@ public:
         return 0;
     }
 
-    /// Number of equations.
+    //! Number of equations.
     int nEquations() const {
         return m_resid.nEquations();
     }
@@ -219,7 +219,7 @@ public:
         return 0.0;
     }
 
-    /// the current value of solution component k.
+    //! the current value of solution component k.
     virtual doublereal solution(int k) const {
         warn("solution");
         return 0.0;
@@ -230,7 +230,7 @@ public:
         return &m_dummy;
     }
 
-    /// the current value of the derivative of solution component k.
+    //! the current value of the derivative of solution component k.
     virtual doublereal derivative(int k) const {
         warn("derivative");
         return 0.0;

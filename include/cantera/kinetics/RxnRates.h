@@ -44,15 +44,15 @@ public:
     //! Default constructor.
     Arrhenius2();
 
-    /// Constructor.
-    /// @param A pre-exponential. The unit system is
-    ///     (kmol, m, s). The actual units depend on the reaction
-    ///     order and the dimensionality (surface or bulk).
-    /// @param b Temperature exponent. Non-dimensional.
-    /// @param E Activation energy in temperature units. Kelvin.
-    ///
-    /// @todo  Add deprecation warning pointing out change of activation
-    ///     energy units.
+    //! Constructor.
+    //! @param A pre-exponential. The unit system is
+    //!     (kmol, m, s). The actual units depend on the reaction
+    //!     order and the dimensionality (surface or bulk).
+    //! @param b Temperature exponent. Non-dimensional.
+    //! @param E Activation energy in temperature units. Kelvin.
+    //!
+    //! @todo  Add deprecation warning pointing out change of activation
+    //!     energy units.
     Arrhenius2(doublereal A, doublereal b, doublereal E);
 
     //! Constructor based on AnyMap content

@@ -16,7 +16,7 @@ namespace Cantera
 
 class DenseMatrix;
 class ThermoPhase;
-/// map property strings to integers
+//! map property strings to integers
 int _equilflag(const char* xy);
 
 /**
@@ -29,10 +29,10 @@ public:
         iterations(0),
         maxStepSize(10.0), propertyPair(TP), contin(false) {}
 
-    doublereal relTolerance; ///< Relative tolerance
-    doublereal absElemTol; ///< Abs Tol in element number
-    int maxIterations; ///< Maximum number of iterations
-    int iterations; ///< Iteration counter
+    doublereal relTolerance; //! < Relative tolerance
+    doublereal absElemTol; //! < Abs Tol in element number
+    int maxIterations; //! < Maximum number of iterations
+    int iterations; //! < Iteration counter
 
     /**
      * Maximum step size. Largest change in any element potential or
