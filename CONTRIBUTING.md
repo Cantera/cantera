@@ -66,7 +66,9 @@
 ## C++
 
 * All classes, member variables, and methods should have Doxygen-style comments
-  (for example, comment lines starting with `//!` or comment blocks starting with `/*!`)
+  (for example, comment lines starting with `//!` or comment blocks starting with
+  `/*!`; do not use `///` or `/**` in new code)
+* Doxygen-style groupings should bracket code using `//! @{` and `//! @}`
 * Avoid defining non-trivial functions in header files
 * Header files should include an 'include guard'
 * Protected and private member variable names are generally prefixed with
