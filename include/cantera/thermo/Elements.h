@@ -15,14 +15,12 @@
 namespace Cantera
 {
 
-/*!
- * @name Types of Element Constraint Equations
- *
- * There may be several different types of element constraints handled by the
- * equilibrium program and by Cantera in other contexts. These defines are used
- * to assign each constraint to one category.
- * @{
- */
+//! @name Types of Element Constraint Equations
+//!
+//! There may be several different types of element constraints handled by the
+//! equilibrium program and by Cantera in other contexts. These defines are used
+//! to assign each constraint to one category.
+//! @{
 
 //! An element constraint that is current turned off
 #define CT_ELEM_TYPE_TURNEDOFF -1

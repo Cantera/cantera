@@ -20,22 +20,21 @@
 namespace Cantera
 {
 
-/*!
- * @name Formats for the Activity Coefficients
- *
- *   These are possible formats for the molality-based activity coefficients.
- */
+//! @name Formats for the Activity Coefficients
+//!
+//! These are possible formats for the molality-based activity coefficients.
 //! @{
+
 #define DHFORM_DILUTE_LIMIT 0
 #define DHFORM_BDOT_AK 1
 #define DHFORM_BDOT_ACOMMON 2
 #define DHFORM_BETAIJ 3
 #define DHFORM_PITZER_BETAIJ 4
+
 //! @}
-/*!
- * @name  Acceptable ways to calculate the value of A_Debye
- */
+//! @name  Acceptable ways to calculate the value of A_Debye
 //! @{
+
 #define A_DEBYE_CONST 0
 #define A_DEBYE_WATER 1
 //! @}
