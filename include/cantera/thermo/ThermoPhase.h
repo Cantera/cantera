@@ -19,20 +19,18 @@
 namespace Cantera
 {
 
-/*!
- * @name CONSTANTS - Specification of the Molality convention
- */
+//! @name CONSTANTS - Specification of the Molality convention
 //! @{
+
 //! Standard state uses the molar convention
 const int cAC_CONVENTION_MOLAR = 0;
 //! Standard state uses the molality convention
 const int cAC_CONVENTION_MOLALITY = 1;
-//! @}
 
-/*!
- * @name CONSTANTS - Specification of the SS convention
- */
+//! @}
+//! @name CONSTANTS - Specification of the SS convention
 //! @{
+
 //! Standard state uses the molar convention
 const int cSS_CONVENTION_TEMPERATURE = 0;
 //! Standard state uses the molality convention

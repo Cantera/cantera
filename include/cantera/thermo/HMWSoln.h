@@ -21,40 +21,38 @@
 namespace Cantera
 {
 
-/*!
- * @name Temperature Dependence of the Pitzer Coefficients
- *
- * Note, the temperature dependence of the Gibbs free energy also depends on the
- * temperature dependence of the standard state and the temperature dependence
- * of the Debye-Huckel constant, which includes the dielectric constant and the
- * density. Therefore, this expression defines only part of the temperature
- * dependence for the mixture thermodynamic functions.
- *
- *  PITZER_TEMP_CONSTANT
- *     All coefficients are considered constant wrt temperature
- *  PITZER_TEMP_LINEAR
- *     All coefficients are assumed to have a linear dependence
- *     wrt to temperature.
- *  PITZER_TEMP_COMPLEX1
- *     All coefficients are assumed to have a complex functional
- *     based dependence wrt temperature;  See:
- *    (Silvester, Pitzer, J. Phys. Chem. 81, 19 1822 (1977)).
- *
- *       beta0 = q0 + q3(1/T - 1/Tr) + q4(ln(T/Tr)) +
- *               q1(T - Tr) + q2(T**2 - Tr**2)
- */
+//! @name Temperature Dependence of the Pitzer Coefficients
+//!
+//! Note, the temperature dependence of the Gibbs free energy also depends on the
+//! temperature dependence of the standard state and the temperature dependence
+//! of the Debye-Huckel constant, which includes the dielectric constant and the
+//! density. Therefore, this expression defines only part of the temperature
+//! dependence for the mixture thermodynamic functions.
+//!
+//!  PITZER_TEMP_CONSTANT
+//!     All coefficients are considered constant wrt temperature
+//!  PITZER_TEMP_LINEAR
+//!     All coefficients are assumed to have a linear dependence
+//!     wrt to temperature.
+//!  PITZER_TEMP_COMPLEX1
+//!     All coefficients are assumed to have a complex functional
+//!     based dependence wrt temperature;  See:
+//!    (Silvester, Pitzer, J. Phys. Chem. 81, 19 1822 (1977)).
+//!
+//!       beta0 = q0 + q3(1/T - 1/Tr) + q4(ln(T/Tr)) +
+//!               q1(T - Tr) + q2(T**2 - Tr**2)
 //! @{
+
 #define PITZER_TEMP_CONSTANT 0
 #define PITZER_TEMP_LINEAR 1
 #define PITZER_TEMP_COMPLEX1 2
-//! @}
 
-/*!
- * @name ways to calculate the value of A_Debye
- *
- * These defines determine the way A_Debye is calculated
- */
+//! @}
+//! @name ways to calculate the value of A_Debye
+//!
+//! These defines determine the way A_Debye is calculated
 //! @{
+
 #define A_DEBYE_CONST 0
 #define A_DEBYE_WATER 1
 //! @}

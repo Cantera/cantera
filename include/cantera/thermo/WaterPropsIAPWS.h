@@ -15,19 +15,18 @@
 
 namespace Cantera
 {
-/**
- * @name Names for the phase regions
- *
- * These constants are defined and used in the interface to describe the
- * location of where we are in (T,rho) space.
- *
- * WATER_UNSTABLELIQUID indicates that we are in the unstable region, inside the
- * spinodal curve where dpdrho < 0.0 amongst other properties. The difference
- * between WATER_UNSTABLELIQUID and WATER_UNSTABLEGAS is that
- *     for WATER_UNSTABLELIQUID  d2pdrho2 > 0   and dpdrho < 0.0
- *     for WATER_UNSTABLEGAS     d2pdrho2 < 0   and dpdrho < 0.0
- */
+//! @name Names for the phase regions
+//!
+//! These constants are defined and used in the interface to describe the
+//! location of where we are in (T,rho) space.
+//!
+//! WATER_UNSTABLELIQUID indicates that we are in the unstable region, inside the
+//! spinodal curve where dpdrho < 0.0 amongst other properties. The difference
+//! between WATER_UNSTABLELIQUID and WATER_UNSTABLEGAS is that
+//!     for WATER_UNSTABLELIQUID  d2pdrho2 > 0   and dpdrho < 0.0
+//!     for WATER_UNSTABLEGAS     d2pdrho2 < 0   and dpdrho < 0.0
 //@{
+
 #define WATER_GAS 0
 #define WATER_LIQUID 1
 #define WATER_SUPERCRIT 2

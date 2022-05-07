@@ -29,12 +29,10 @@ namespace Cantera
 #define VCS_SSVOL_IDEALGAS 0
 #define VCS_SSVOL_CONSTANT 1
 
-/*!
- * @name  Sizes of Phases and Cutoff Mole Numbers
- *
- *      All size parameters are listed here
- * @{
- */
+//! @name  Sizes of Phases and Cutoff Mole Numbers
+//!
+//! All size parameters are listed here
+//! @{
 
 //! Cutoff relative mole fraction value, below which species are deleted from
 //! the equilibrium problem.
@@ -208,16 +206,12 @@ namespace Cantera
 #define VCS_PHASE_EXIST_ZEROEDPHASE -6
 
 //! @}
-
-/*!
- * @name Types of Element Constraint Equations
- *
- * There may be several different types of element constraints handled by the
- * equilibrium program.  These defines are used to assign each constraint to one
- * category.
- * @{
- */
-
+//! @name Types of Element Constraint Equations
+//!
+//! There may be several different types of element constraints handled by the
+//! equilibrium program.  These defines are used to assign each constraint to one
+//! category.
+//! @{
 
 //! An element constraint that is current turned off
 #define VCS_ELEM_TYPE_TURNEDOFF -1
@@ -275,12 +269,11 @@ namespace Cantera
  * currently there are none
  */
 #define VCS_ELEM_TYPE_OTHERCONSTRAINT 6
-//! @}
 
-/*!
- * @name  Types of Species Unknowns in the problem
- * @{
- */
+//! @}
+//! @name  Types of Species Unknowns in the problem
+//! @{
+
 //! Unknown refers to mole number of a single species
 #define VCS_SPECIES_TYPE_MOLNUM 0
 
@@ -291,13 +284,13 @@ namespace Cantera
  * for example if the open circuit voltage is sought after.
  */
 #define VCS_SPECIES_TYPE_INTERFACIALVOLTAGE -5
-//! @}
 
-/*!
- * @name  Types of State Calculations within VCS. These values determine where
- *        the results are stored within the VCS_SOLVE object.
- * @{
- */
+//! @}
+//! @name  Types of State Calculations within VCS
+//!
+//! These values determine where the results are stored within the VCS_SOLVE object.
+//! @{
+
 //! State Calculation is currently in an unknown state
 #define VCS_STATECALC_UNKNOWN -1
 //! State Calculation based on the old or base mole numbers

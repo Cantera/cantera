@@ -55,11 +55,10 @@ const double Pi = 3.14159265358979323846;
 const double Sqrt2 = 1.41421356237309504880;
 
 //! @}
-/*!
- * @name Defined Constants
- * These constants are defined by CODATA to have a particular value.
- * https://physics.nist.gov/cuu/Constants/index.html
- */
+//! @name Defined Constants
+//!
+//! These constants are defined by CODATA to have a particular value.
+//! https://physics.nist.gov/cuu/Constants/index.html
 //! @{
 
 //! Avogadro's Number \f$ N_{\mathrm{A}} \f$ [number/kmol]
@@ -84,11 +83,9 @@ const double OneAtm = 1.01325e5;
 const double OneBar = 1.0E5;
 
 //! @}
-
-/*!
- * @name Measured Constants
- * These constants are measured and reported by CODATA
- */
+//! @name Measured Constants
+//!
+//! These constants are measured and reported by CODATA
 //! @{
 
 //! Fine structure constant \f$ \alpha \f$ []
@@ -98,11 +95,9 @@ const double fineStructureConstant = 7.2973525693e-3;
 const double ElectronMass = 9.1093837015e-31;
 
 //! @}
-
-/*!
- * @name Derived Constants
- * These constants are found from the defined and measured constants
- */
+//! @name Derived Constants
+//!
+//! These constants are found from the defined and measured constants
 //! @{
 
 //! Reduced Planck constant \f$ \hbar \f$ [m2-kg/s]
@@ -134,13 +129,12 @@ const double permeability_0 = 2 * fineStructureConstant * Planck / (ElectronChar
 const double epsilon_0 = 1.0 / (lightSpeed * lightSpeed * permeability_0);
 
 //! @}
-
-/*!
- * @name Thermodynamic Equilibrium Constraints
- * Integer numbers representing pairs of thermodynamic variables
- * which are held constant during equilibration.
- */
+//! @name Thermodynamic Equilibrium Constraints
+//!
+//! Integer numbers representing pairs of thermodynamic variables
+//! which are held constant during equilibration.
 //! @{
+
 const int TV = 100, HP = 101, SP = 102, PV = 103, TP = 104, UV = 105,
           ST = 106, SV = 107, UP = 108, VH = 109, TH = 110, SH = 111,
           PX = 112, TX = 113;
