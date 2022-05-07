@@ -577,7 +577,7 @@ public:
 
     virtual doublereal enthalpy_mole() const;
 
-    /// Molar entropy. Units: J/kmol/K.
+    //! Molar entropy. Units: J/kmol/K.
     /**
      * For an ideal, constant partial molar volume solution mixture with
      * pure species phases which exhibit zero volume expansivity:

@@ -63,7 +63,7 @@ public:
     //! Calls method eval to evaluate the function
     doublereal operator()(doublereal t) const;
 
-    /// Evaluate the function.
+    //! Evaluate the function.
     virtual doublereal eval(doublereal t) const;
 
     //! Creates a derivative to the current function

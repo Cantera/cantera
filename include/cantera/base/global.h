@@ -286,8 +286,8 @@ void setLogger(Logger* logwriter);
  */
 doublereal toSI(const std::string& unit);
 
-/// Return the conversion factor to convert activation energy unit
-/// std::string 'unit' to Kelvin.
+//! Return the conversion factor to convert activation energy unit
+//! std::string 'unit' to Kelvin.
 /*!
  * @param unit  String containing the activation energy units
  * @deprecated To be removed after Cantera 2.6. Used only with XML input.

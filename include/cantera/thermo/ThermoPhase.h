@@ -233,32 +233,32 @@ public:
     //! @name  Molar Thermodynamic Properties of the Solution
     //! @{
 
-    /// Molar enthalpy. Units: J/kmol.
+    //! Molar enthalpy. Units: J/kmol.
     virtual doublereal enthalpy_mole() const {
         throw NotImplementedError("ThermoPhase::enthalpy_mole");
     }
 
-    /// Molar internal energy. Units: J/kmol.
+    //! Molar internal energy. Units: J/kmol.
     virtual doublereal intEnergy_mole() const {
         return enthalpy_mole() - pressure()* molarVolume();
     }
 
-    /// Molar entropy. Units: J/kmol/K.
+    //! Molar entropy. Units: J/kmol/K.
     virtual doublereal entropy_mole() const {
         throw NotImplementedError("ThermoPhase::entropy_mole");
     }
 
-    /// Molar Gibbs function. Units: J/kmol.
+    //! Molar Gibbs function. Units: J/kmol.
     virtual doublereal gibbs_mole() const {
         return enthalpy_mole() - temperature()*entropy_mole();
     }
 
-    /// Molar heat capacity at constant pressure. Units: J/kmol/K.
+    //! Molar heat capacity at constant pressure. Units: J/kmol/K.
     virtual doublereal cp_mole() const {
         throw NotImplementedError("ThermoPhase::cp_mole");
     }
 
-    /// Molar heat capacity at constant volume. Units: J/kmol/K.
+    //! Molar heat capacity at constant volume. Units: J/kmol/K.
     virtual doublereal cv_mole() const {
         throw NotImplementedError("ThermoPhase::cv_mole");
     }
@@ -1472,27 +1472,27 @@ public:
     //! liquid-vapor equations of state.
     //! @{
 
-    /// Critical temperature (K).
+    //! Critical temperature (K).
     virtual doublereal critTemperature() const {
         throw NotImplementedError("ThermoPhase::critTemperature");
     }
 
-    /// Critical pressure (Pa).
+    //! Critical pressure (Pa).
     virtual doublereal critPressure() const {
         throw NotImplementedError("ThermoPhase::critPressure");
     }
 
-    /// Critical volume (m3/kmol).
+    //! Critical volume (m3/kmol).
     virtual doublereal critVolume() const {
         throw NotImplementedError("ThermoPhase::critVolume");
     }
 
-    /// Critical compressibility (unitless).
+    //! Critical compressibility (unitless).
     virtual doublereal critCompressibility() const {
         throw NotImplementedError("ThermoPhase::critCompressibility");
     }
 
-    /// Critical density (kg/m3).
+    //! Critical density (kg/m3).
     virtual doublereal critDensity() const {
         throw NotImplementedError("ThermoPhase::critDensity");
     }

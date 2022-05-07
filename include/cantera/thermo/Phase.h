@@ -269,7 +269,7 @@ public:
     //! Return a const reference to the vector of species names
     const std::vector<std::string>& speciesNames() const;
 
-    /// Returns the number of species in the phase
+    //! Returns the number of species in the phase
     size_t nSpecies() const {
         return m_kk;
     }

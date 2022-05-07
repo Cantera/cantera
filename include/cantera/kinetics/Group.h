@@ -109,7 +109,7 @@ public:
         return m_comp.size();
     }
 
-    /// Number of atoms in the group (>= 0)
+    //! Number of atoms in the group (>= 0)
     int nAtoms() const {
         int sum = 0;
         for (size_t m = 0; m < m_comp.size(); m++) {
@@ -117,7 +117,7 @@ public:
         }
         return sum;
     }
-    /// Number of atoms of element m (positive or negative)
+    //! Number of atoms of element m (positive or negative)
     int nAtoms(size_t m) const {
         if (m_comp.empty()) {
             return 0;
