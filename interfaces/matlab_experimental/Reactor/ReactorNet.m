@@ -34,9 +34,6 @@ classdef ReactorNet < handle
             end
 
             r.id = calllib(ct, 'reactornet_new');
-%             if r.id < 0
-%                 error(geterr);
-%             end
 
             % add reactors
             nr = length(reactors);

@@ -37,7 +37,7 @@ P0 = 4.47*101325;
 Phi = 0.2899;
 
 % Import the gas phase, read out key species indices:
-gas_calc = Solution('gri30.yaml');
+gas_calc = Solution('gri30.yaml', 'gri30');
 ich4 = gas_calc.speciesIndex('CH4');
 io2  = gas_calc.speciesIndex('O2');
 in2  = gas_calc.speciesIndex('N2');

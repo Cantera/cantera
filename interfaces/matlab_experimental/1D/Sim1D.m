@@ -26,7 +26,7 @@ classdef Stack < handle
                 nd = length(domains);
                 ids = zeros(1, nd);
                 for n=1:nd
-                    ids(n) = domains(n).domID;
+                    ids(n) = domains(n).domainID;
                 end
                 s.stID = calllib(ct, 'sim1D_new', nd, ids);
             else
