@@ -118,7 +118,7 @@ function anCurr = anode_curr(phi_s, phi_l, X_Li_an, anode, elde, elyt, anode_int
 
     % Get the net reaction rate at the anode-side interface
     % Reaction according to cti file: Li+[elyt] + V[anode] + electron <=> Li[anode]
-    r = anode_interface.rop_net; % [kmol/m2/s]
+    r = anode_interface.ropNet; % [kmol/m2/s]
 
     % Calculate the current. Should be negative for cell discharge.
     anCurr = r*faradayconstant*S_an; %
@@ -135,7 +135,7 @@ function caCurr = cathode_curr(phi_s, phi_l, X_Li_ca, cathode, elde, elyt, catho
 
     % Get the net reaction rate at the cathode-side interface
     % Reaction according to cti file: Li+[elyt] + V[cathode] + electron <=> Li[cathode]
-    r = cathode_interface.rop_net; % [kmol/m2/s]
+    r = cathode_interface.ropNet; % [kmol/m2/s]
 
     % Calculate the current. Should be negative for cell discharge.
     caCurr = r*faradayconstant*S_ca*(-1); %

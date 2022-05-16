@@ -1,6 +1,6 @@
 function LoadCantera
     addpath('Class', 'Utility', 'PresetFlowDevices', 'PresetFunctors', ...
-            'PresetMixtures', 'PresetReactors', 'PresetObjects', '1D');
+            'PresetMixtures', 'PresetReactors', '1D');
     if ispc
         ctname = 'cantera_shared.dll';
     elseif ismac
@@ -14,6 +14,7 @@ function LoadCantera
     end
     if ~libisloaded(ct)
         load('Utility/cantera_root.mat');
+        addpath([cantera_root, '/samples/matlab_new']);
         [~,warnings] = loadlibrary([cantera_root '/lib/' ctname], ...
                                    [cantera_root '/include/cantera/clib/ctmatlab.h'], ...
                                    'includepath', [cantera_root '/include'], ...

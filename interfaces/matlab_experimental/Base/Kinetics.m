@@ -6,8 +6,11 @@ classdef Kinetics < handle
         Kf % forward reaction rate
         Kr % reverse reaction rate
         dH % enthalpy of reaction
+        dHss % standard state enthalpy of reaction
         dS % entropy of reaction
+        dSss % standard state entropy of reaction
         dG % gibbs free energy of reaction
+        dGss % standard state gibbs free energy of reaction
     end
 
     methods

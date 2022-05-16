@@ -9,7 +9,7 @@ function isentropic(g)
     if nargin == 1
        gas = g;
     else
-       gas = Solution('gri30.yaml');
+       gas = Solution('gri30.yaml', 'gri30');
     end
 
     % set the stagnation state

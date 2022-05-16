@@ -1,6 +1,6 @@
 function m = Outlet(id)
     % Create an outlet domain.
-    m = Domain1D(5);
+    m = Domain1D('Outlet1D');
     if nargin == 0
         m.setID('outlet');
     else
