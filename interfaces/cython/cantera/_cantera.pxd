@@ -1563,6 +1563,8 @@ cdef wrapSpeciesThermo(shared_ptr[CxxSpeciesThermo] spthermo)
 cdef int assign_delegates(object, CxxDelegator*) except -1
 
 cdef extern from "cantera/thermo/Elements.h" namespace "Cantera":
+    vector[string] elementSymbols()
+    vector[string] elementNames()
     double getElementWeight(string ename) except +translate_exception
     double getElementWeight(int atomicNumber) except +translate_exception
     int numElementsDefined()

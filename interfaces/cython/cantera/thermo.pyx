@@ -2046,6 +2046,15 @@ cdef class PureFluid(ThermoPhase):
             return self.s, self.v, self.Q
 
 
+def _element_symbols():
+    syms = elementSymbols()
+    return tuple(pystr(s) for s in syms)
+
+
+def _element_names():
+    names = elementNames()
+    return tuple(pystr(n) for n in names)
+
 class Element:
     """
     An element or a named isotope defined in Cantera.
@@ -2092,13 +2101,11 @@ class Element:
 
     #: A list of the symbols of all the elements (not isotopes) defined
     #: in Cantera
-    element_symbols = [pystr(getElementSymbol(<int>(m+1)))
-                       for m in range(num_elements_defined)]
+    element_symbols = _element_symbols()
 
     #: A list of the names of all the elements (not isotopes) defined
     #: in Cantera
-    element_names = [pystr(getElementName(<int>m+1))
-                     for m in range(num_elements_defined)]
+    element_names = _element_names()
 
     def __init__(self, arg):
         if isinstance(arg, (str, bytes)):
