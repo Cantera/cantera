@@ -175,11 +175,11 @@ int getAtomicNumber(const std::string& ename);
 
 //! Get the number of named elements defined in Cantera.
 //! This array excludes named isotopes
-int numElementsDefined();
+size_t numElementsDefined();
 
 //! Get the number of named isotopes defined in Cantera.
 //! This array excludes the named elements
-int numIsotopesDefined();
+size_t numIsotopesDefined();
 
 } // namespace
 
