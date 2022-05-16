@@ -84,6 +84,40 @@ namespace Cantera
 //! stable state at 298.15 K and 1 bar.
 #define ENTROPY298_UNKNOWN -123456789.
 
+//! Get a vector of the atomic symbols of the elements defined in Cantera.
+const std::vector<std::string>& elementSymbols();
+
+//! Get a vector of the names of the elements defined in Cantera.
+const std::vector<std::string>& elementNames();
+
+//! Get a map with the element symbols as keys and weights as values.
+/*!
+ * This is a constant in the application so it is only generated once
+ * when it is first needed.
+ */
+const std::map<std::string, double>& elementSymbolToWeight();
+
+//! Get a map with the element names as keys and weights as values.
+/*!
+ * This is a constant in the application so it is only generated once
+ * when it is first needed.
+ */
+const std::map<std::string, double>& elementNameToWeight();
+
+//! Get a map with the isotope symbols as keys and weights as values.
+/*!
+ * This is a constant in the application so it is only generated once
+ * when it is first needed.
+ */
+const std::map<std::string, double>& isotopeSymbolToWeight();
+
+//! Get a map with the isotope names as keys and weights as values.
+/*!
+ * This is a constant in the application so it is only generated once
+ * when it is first needed.
+ */
+const std::map<std::string, double>& isotopeNameToWeight();
+
 //! Get the atomic weight of an element.
 /*!
  * Get the atomic weight of an element defined in Cantera by its symbol
