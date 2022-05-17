@@ -654,6 +654,33 @@ class SolutionArray:
         return SolutionArray(self._phase[species], states=self._states,
                              extra=self._extra)
 
+    def __len__(self) -> int:
+        return self._shape[0]
+
+    @property
+    def ndim(self) -> int:
+        """The number of dimensions in the SolutionArray.
+
+        :return: `int`
+        """
+        return len(self.shape)
+
+    @property
+    def shape(self) -> tuple[int, ...]:
+        """The shape of the SolutionArray.
+
+        :return: A tuple of integers with the number of elements in each dimension.
+        """
+        return self._shape
+
+    @property
+    def size(self) -> int:
+        """The number of elements in the SolutionArray.
+
+        :return: `int`
+        """
+        return np.prod(self.shape)
+
     def append(self, state=None, normalize=True, **kwargs):
         """
         Append an element to the array with the specified state. Elements can

@@ -240,6 +240,10 @@ class TestSolutionArrayIO(utilities.CanteraTest):
         self.assertEqual(states[0].T, gas.T)
         self.assertEqual(states[0].P, gas.P)
         self.assertArrayNear(states[0].X, gas.X)
+        self.assertEqual(len(states), 1)
+        self.assertEqual(states.shape, (1,))
+        self.assertEqual(states.ndim, 1)
+        self.assertEqual(states.size, 1)
 
     def test_append_no_norm_data(self):
         gas = ct.Solution("h2o2.yaml")
