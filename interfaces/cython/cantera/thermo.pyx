@@ -2050,7 +2050,9 @@ cdef class PureFluid(ThermoPhase):
         def __get__(self):
             return self.s, self.v, self.Q
 
-
+# TODO: Remove these helper methods when support for Python 3.8 is dropped. Python 3.9
+# allows the classmethod and property decorators to be chained, so these can be
+# implemented as properties in the Element class.
 def _element_symbols():
     syms = elementSymbols()
     return tuple(pystr(s) for s in syms)
