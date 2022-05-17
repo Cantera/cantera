@@ -1234,17 +1234,72 @@ class TestSpecies(utilities.CanteraTest):
         self.assertEqual(c['H'], 4)
         self.assertNear(s.molecular_weight, 16.043)
 
+    def test_molecular_weight_with_unstable_element(self):
+        s = ct.Species("CPo", {"C": 1, "Po": 1})
+        with pytest.raises(ct.CanteraError, match="has no stable isotopes"):
+            s.molecular_weight
+
     def test_molecular_weight_with_electron(self):
         yaml = """
             name: Li+[elyt]
             composition: {Li: 1, E: -1}
-            thermo:
-              model: constant-cp
-              h0: -278.49 kJ/mol
-              s0: 13.4 J/mol/K
         """
         s = ct.Species.from_yaml(yaml)
         assert np.isclose(s.molecular_weight, 6.939451420091127)
+
+    def test_custom_element_weight_is_set_on_species(self):
+        gas = ct.Solution("ideal-gas.yaml", "element-override")
+        # Check that the molecular weight stored in the phase definition is the same
+        # as the one on the element
+        self.assertNear(gas["AR"].molecular_weights[0], gas.species("AR").molecular_weight)
+        # Check that the custom value is actually used
+        self.assertNear(gas.species("AR").molecular_weight, 36.0)
+
+    def test_species_can_be_added_to_phase(self):
+        s = ct.Species.from_dict({
+            "name": "AR2",
+            "composition": {"Ar": 2},
+            "thermo": {"model": "constant-cp", "h0": 100}
+        })
+        # Access the molecular weight to make sure it's been computed by the Species
+        self.assertNear(s.molecular_weight, 39.95 * 2)
+        # This should not cause an error because the existing Ar definition is the
+        # default molecular weight
+        self.gas.add_species(s)
+        self.assertNear(
+            self.gas["AR2"].molecular_weights[0],
+            self.gas.species("AR2").molecular_weight
+        )
+
+    def test_species_cannot_be_added_to_phase_custom_element(self):
+        s = ct.Species.from_dict({
+            "name": "AR2",
+            "composition": {"Ar": 2},
+            "thermo": {"model": "constant-cp", "h0": 100}
+        })
+        # Access the molecular weight to make sure it's been computed by the Species
+        self.assertNear(s.molecular_weight, 39.95 * 2)
+        gas = ct.Solution("ideal-gas.yaml", "element-override")
+        # The error here is because the weight of the Argon element has been changed in
+        # the phase definition, but the molecular weight of the species has already been
+        # computed
+        with pytest.raises(ct.CanteraError, match="Molecular weight.*changed"):
+            gas.add_species(s)
+
+    def test_species_cant_be_added_to_phase_custom_element(self):
+        s = ct.Species.from_dict({
+            "name": "AR2",
+            "composition": {"Ar": 2},
+            "thermo": {"model": "constant-cp", "h0": 100}
+        })
+        # DO NOT access the molecular weight to make sure it's not been computed by the Species
+        gas = ct.Solution("ideal-gas.yaml", "element-override")
+        gas.add_species(s)
+        self.assertNear(
+            gas["AR2"].molecular_weights[0],
+            gas.species("AR2").molecular_weight
+        )
+        self.assertNear(s.molecular_weight, gas.species("AR2").molecular_weight)
 
     def test_defaults(self):
         s = ct.Species('H2')
@@ -1639,13 +1694,6 @@ class TestMisc(utilities.CanteraTest):
         with self.assertRaisesRegex(ct.CanteraError, 'Unknown species'):
             gas.Y = 'h2:1.0, o2:1.0'
 
-        gas_cti = """ideal_gas(
-            name="gas",
-            elements=" S C Cs ",
-            species=" nasa: all ",
-            options=["skip_undeclared_elements"],
-            initial_state=state(temperature=300, pressure=(1, "bar"))
-        )"""
         gas_yaml = """
             phases:
             - name: gas
@@ -1661,6 +1709,19 @@ class TestMisc(utilities.CanteraTest):
         gas.case_sensitive_species_names = True
         with self.assertRaises(ValueError):
             gas.species_index('cs')
+
+    def test_unstable_element_in_phase(self):
+        gas_yaml = """
+            phases:
+            - name: gas
+              thermo: ideal-gas
+              elements: [Po]
+            species:
+            - name: Po
+              composition: {Po: 1}
+        """
+        with pytest.raises(ct.CanteraError, match="has no stable isotopes"):
+            ct.Solution(yaml=gas_yaml)
 
 
 class TestElement(utilities.CanteraTest):
