@@ -62,7 +62,7 @@ public:
     bool operator==(const Units& other) const;
 
     //! Return dimension of primary unit component
-    //! ("mass", "length", "time", "temperature", "current" or "quantity")
+    //! ("mass", "length", "time", "temperature", "current", or "quantity")
     double dimension(const std::string& primary) const;
 
 private:
