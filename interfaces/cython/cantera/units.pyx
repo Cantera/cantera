@@ -1,5 +1,6 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
+from typing import Dict
 
 cdef class Units:
     """
@@ -20,6 +21,29 @@ cdef class Units:
 
     def __repr__(self):
         return f"<Units({pystr(self.units.str())}) at {id(self):0x}>"
+
+    def __str__(self):
+        return pystr(self.units.str())
+
+    def dimension(self, primary):
+        return self.units.dimension(stringify(primary))
+
+    @property
+    def dimensions(self) -> Dict[str, str]:
+        """A dictionary of the primary unit components to their dimensions.
+
+        .. versionadded: 3.0
+        """
+        dimensions = ("mass", "length", "time", "temperature", "current", "quantity")
+        return {d: self.dimension(d) for d in dimensions}
+
+    @property
+    def factor(self) -> float:
+        """The factor required to convert from this unit to Cantera's base units.
+
+        .. versionadded: 3.0
+        """
+        return self.units.factor()
 
     @staticmethod
     cdef copy(CxxUnits other):

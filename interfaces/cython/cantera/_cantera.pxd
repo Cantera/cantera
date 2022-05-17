@@ -100,6 +100,7 @@ cdef extern from "cantera/base/Units.h" namespace "Cantera":
         CxxUnits(string, cbool) except +translate_exception
         string str()
         double factor()
+        double dimension(string) except +translate_exception
 
     cdef cppclass CxxUnitSystem "Cantera::UnitSystem":
         CxxUnitSystem()
