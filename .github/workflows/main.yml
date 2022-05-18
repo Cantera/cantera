@@ -365,35 +365,6 @@ jobs:
           cti2yaml test/data/air-no-reactions.cti air-no-reaction-test.yaml
           test -f air-no-reaction-test.yaml
 
-  cython-latest:
-    name: Test pre-release version of Cython
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    steps:
-    - uses: actions/checkout@v2
-      name: Checkout the repository
-      with:
-        submodules: recursive
-    - name: Setup python
-      uses: actions/setup-python@v3
-      with:
-        python-version: '3.10'
-        architecture: x64
-    - name: Install Apt dependencies
-      run: |
-        sudo apt update
-        sudo apt install libboost-dev liblapack-dev libblas-dev
-    - name: Upgrade pip
-      run: python3 -m pip install -U pip setuptools wheel
-    - name: Install Python dependencies
-      run: |
-        python3 -m pip install ruamel.yaml scons numpy h5py pandas pytest pytest-github-actions-annotate-failures
-        python3 -m pip install https://github.com/cython/cython/archive/master.zip --install-option='--no-cython-compile';
-    - name: Build Cantera
-      run: python3 `which scons` build blas_lapack_libs=lapack,blas python_package='full' -j2 debug=n
-    - name: Test Cantera
-      run: python3 `which scons` test show_long_tests=yes verbose_tests=yes
-
   check-deprecations:
     name: Run test suite without legacy typedefs
     runs-on: ubuntu-latest
