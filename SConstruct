@@ -56,9 +56,9 @@ Additional help command options:
 # SConstruct is parsed by Python 2. This seems to be the most robust
 # and simplest option that will reliably trigger an error in Python 2
 # and provide actionable feedback for users.
-python_min_build_support = "3.7"
+python_min_build_support = "3.8"
 f"""
-Cantera must be built using Python 3.7 or higher. You can invoke SCons by executing
+Cantera must be built using Python 3.8 or higher. You can invoke SCons by executing
     python3 `which scons`
 followed by any desired options.
 """
@@ -1451,7 +1451,7 @@ if env['VERBOSE']:
 env['python_cmd_esc'] = quoted(env['python_cmd'])
 
 # Python Package Settings
-python_min_version = parse_version("3.7")
+python_min_version = parse_version("3.8")
 # The string is used to set python_requires in setup.cfg.in
 env['py_min_ver_str'] = str(python_min_version)
 # Note: cython_min_version is redefined below if the Python version is 3.8 or higher
