@@ -359,7 +359,7 @@ jobs:
       - name: Test Essentials
         # ensure that Python package loads and converter scripts work
         run: |
-          python -c 'import cantera as ct; import sys; sys.exit(0) if ct.__version__.startswith("2.6.0") else sys.exit(1)'
+          python -c 'import cantera as ct; import sys; sys.exit(0) if ct.__version__.startswith("3.0.0") else sys.exit(1)'
           ck2yaml --input=test/data/h2o2.inp --output=h2o2-test.yaml
           test -f h2o2-test.yaml
           cti2yaml test/data/air-no-reactions.cti air-no-reaction-test.yaml
@@ -476,7 +476,7 @@ jobs:
     - name: Test Essentials
       # ensure that Python package loads and converter scripts work
       run: |
-        python -c 'import cantera as ct; import sys; sys.exit(0) if ct.__version__.startswith("2.6.0") else sys.exit(1)'
+        python -c 'import cantera as ct; import sys; sys.exit(0) if ct.__version__.startswith("3.0.0") else sys.exit(1)'
         ck2yaml --input=test/data/h2o2.inp --output=h2o2-test.yaml
         test -f h2o2-test.yaml
         cti2yaml test/data/air-no-reactions.cti air-no-reaction-test.yaml
