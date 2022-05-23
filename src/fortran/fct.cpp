@@ -26,7 +26,6 @@
 
 using namespace Cantera;
 
-typedef Cabinet<XML_Node, false> XmlCabinet;
 typedef Cabinet<ThermoPhase> ThermoCabinet;
 typedef Cabinet<Kinetics> KineticsCabinet;
 typedef Cabinet<Transport> TransportCabinet;
@@ -34,11 +33,6 @@ typedef Cabinet<Transport> TransportCabinet;
 typedef integer status_t;
 
 namespace {
-
-XML_Node* _xml(const integer* n)
-{
-    return &XmlCabinet::item(*n);
-}
 
 ThermoPhase* _fph(const integer* n)
 {
@@ -374,17 +368,6 @@ extern "C" {
         }
     }
 
-    integer newthermofromxml_(integer* mxml)
-    {
-        try {
-            XML_Node* x = _xml(mxml);
-            ThermoPhase* th = newPhase(*x);
-            return ThermoCabinet::add(th);
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
     integer th_geteostype_(const integer* n, char* buf, ftnlen lenbuf)
     {
         try {
@@ -708,37 +691,6 @@ extern "C" {
             auto kin = newKinetics(phases, f2string(filename, nlen),
                                    f2string(phasename, plen));
             return KineticsCabinet::add(kin.release());
-        } catch (...) {
-            return handleAllExceptions(999, ERR);
-        }
-    }
-
-    integer newkineticsfromxml_(integer* mxml, integer* iphase,
-                                const integer* neighbor1, const integer* neighbor2, const integer* neighbor3,
-                                const integer* neighbor4)
-    {
-        try {
-            XML_Node* x = _xml(mxml);
-            std::vector<ThermoPhase*> phases;
-            phases.push_back(_fth(iphase));
-            if (*neighbor1 >= 0) {
-                phases.push_back(_fth(neighbor1));
-                if (*neighbor2 >= 0) {
-                    phases.push_back(_fth(neighbor2));
-                    if (*neighbor3 >= 0) {
-                        phases.push_back(_fth(neighbor3));
-                        if (*neighbor4 >= 0) {
-                            phases.push_back(_fth(neighbor4));
-                        }
-                    }
-                }
-            }
-            Kinetics* kin = newKineticsMgr(*x, phases);
-            if (kin) {
-                return KineticsCabinet::add(kin);
-            } else {
-                return 0;
-            }
         } catch (...) {
             return handleAllExceptions(999, ERR);
         }
@@ -1140,50 +1092,6 @@ extern "C" {
     {
         try {
             addDirectory(std::string(buf));
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-        return 0;
-    }
-
-    status_t ctbuildsolutionfromxml(char* src, integer* ixml, char* id,
-                                    integer* ith, integer* ikin, ftnlen lensrc, ftnlen lenid)
-    {
-        try {
-            XML_Node* root = 0;
-            if (*ixml > 0) {
-                root = _xml(ixml);
-            }
-
-            ThermoPhase* t = _fth(ith);
-            Kinetics* k = _fkin(ikin);
-
-            XML_Node* x, *r=0;
-            if (root) {
-                r = &root->root();
-            }
-            std::string srcS = f2string(src, lensrc);
-            std::string idS = f2string(id, lenid);
-            if (srcS != "") {
-                x = get_XML_Node(srcS, r);
-            } else {
-                x = get_XML_Node(idS, r);
-            }
-            if (!x) {
-                return 0;
-            }
-            importPhase(*x, t);
-            k->addPhase(*t);
-            k->init();
-            installReactionArrays(*x, *k, x->id());
-            t->setState_TP(300.0, OneAtm);
-            if (r) {
-                if (&x->root() != &r->root()) {
-                    delete &x->root();
-                }
-            } else {
-                delete &x->root();
-            }
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }

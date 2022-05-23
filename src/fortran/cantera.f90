@@ -11,25 +11,11 @@ MODULE CANTERA
   USE cantera_thermo
   USE cantera_kinetics
   USE cantera_transport
-  USE cantera_xml
   USE cantera_funcs
-  USE cantera_iface
-
-  INTERFACE addAttrib
-     MODULE PROCEDURE ctxml_addAttrib
-  END INTERFACE addAttrib
 
   INTERFACE addCanteraDirectory
      MODULE PROCEDURE ctfunc_addCanteraDirectory
   END INTERFACE addCanteraDirectory
-
-  INTERFACE addChild
-     MODULE PROCEDURE ctxml_addChild
-  END INTERFACE addChild
-
-  INTERFACE addComment
-     MODULE PROCEDURE ctxml_addComment
-  END INTERFACE addComment
 
   INTERFACE advanceCoverages
      MODULE PROCEDURE ctkin_advanceCoverages
@@ -38,14 +24,6 @@ MODULE CANTERA
   INTERFACE chemPotentials
      MODULE PROCEDURE ctthermo_chemPotentials
   END INTERFACE chemPotentials
-
-  INTERFACE child
-     MODULE PROCEDURE ctxml_child
-  END INTERFACE child
-
-  INTERFACE clear
-     MODULE PROCEDURE ctxml_clear
-  END INTERFACE clear
 
   INTERFACE cp_mass
      MODULE PROCEDURE ctthermo_cp_mass
@@ -98,10 +76,6 @@ MODULE CANTERA
   INTERFACE getAtomicWeights
      MODULE PROCEDURE ctthermo_getAtomicWeights
   END INTERFACE getAtomicWeights
-
-  INTERFACE getAttrib
-     MODULE PROCEDURE ctxml_getAttrib
-  END INTERFACE getAttrib
 
   INTERFACE getBinDiffCoeffs
      MODULE PROCEDURE ctrans_getBinDiffCoeffs
@@ -211,17 +185,9 @@ MODULE CANTERA
      MODULE PROCEDURE ctthermo_getSpeciesName
   END INTERFACE getSpeciesName
 
-  INTERFACE getTag
-     MODULE PROCEDURE ctxml_getTag
-  END INTERFACE getTag
-
   INTERFACE getThermalDiffCoeffs
      MODULE PROCEDURE ctrans_getThermalDiffCoeffs
   END INTERFACE getThermalDiffCoeffs
-
-  INTERFACE getValue
-     MODULE PROCEDURE ctxml_getValue
-  END INTERFACE getValue
 
   INTERFACE gibbs_mass
      MODULE PROCEDURE ctthermo_gibbs_mass
@@ -294,10 +260,6 @@ MODULE CANTERA
   INTERFACE nAtoms
      MODULE PROCEDURE ctthermo_nAtoms
   END INTERFACE nAtoms
-
-  INTERFACE nChildren
-     MODULE PROCEDURE ctxml_nChildren
-  END INTERFACE nChildren
 
   INTERFACE nElements
      MODULE PROCEDURE ctthermo_nElements
@@ -438,9 +400,5 @@ MODULE CANTERA
   INTERFACE viscosity
      MODULE PROCEDURE ctrans_viscosity
   END INTERFACE viscosity
-
-  INTERFACE write
-     MODULE PROCEDURE ctxml_write
-  END INTERFACE write
 
 END MODULE CANTERA
