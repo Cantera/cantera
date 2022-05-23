@@ -5,9 +5,7 @@ Import('env', 'build', 'install', 'libraryTargets')
 localenv = env.Clone()
 copyenv = localenv.Clone() # no CPPPATH addition, to avoid circular dependencies
 
-license_files = {"Cantera": File("#License.txt"),
-                 "Libexecstream": File("#ext/libexecstream/doc/license.txt")}
-
+license_files = {"Cantera": File("#License.txt")}
 
 def prep_default(env):
     localenv = env.Clone()
@@ -35,14 +33,6 @@ def prep_gmock(env):
                      CPPDEFINES={'GTEST_HAS_PTHREAD': 0})
     return localenv
 
-
-# each element of libs is: (subdir, (file extensions), prepfunction)
-libs = [('libexecstream', ['cpp'], prep_default)]
-
-for subdir, extensions, prepFunction in libs:
-    localenv = prepFunction(env)
-    objects = localenv.SharedObject(multi_glob(localenv, subdir, *extensions))
-    libraryTargets.extend(objects)
 
 ext_copies = []
 

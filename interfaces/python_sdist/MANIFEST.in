@@ -14,5 +14,4 @@ graft include
 recursive-include ext *.h
 recursive-include src *.h
 
-recursive-include ext/libexecstream *.cpp
 exclude include/cantera/ext/sundials/sundials_config.h
