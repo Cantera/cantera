@@ -41,13 +41,16 @@ module cantera_funcs
       implicit none
       character*(*), intent(in) :: src
       character*(*), intent(in), optional :: id
-      type(phase_t) gas, bulk, surf
+      type(phase_t) gas, surf
+      type(phase_t), intent(in), optional :: bulk
       integer, intent(in), optional :: loglevel
 
       type(interface_t) self
 
       self%surf = ctthermo_newFromFile(src, id)
-      self%bulk = bulk
+      if (present(bulk)) then
+        self%bulk = bulk
+      end if
       self%gas = gas
       call ctkin_newFromFile(self%surf, src, id, gas, bulk)
 
