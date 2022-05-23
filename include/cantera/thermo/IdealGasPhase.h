@@ -239,32 +239,12 @@ namespace Cantera
  *
  * \f$k^{-1} \f$ has units of s-1.
  *
- * ## XML Example
+ * ## YAML Example
  *
- * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
+ * An example ideal gas phase definition is given in the
+ * <a href="../../sphinx/html/yaml/phases.html#ideal-gas">YAML API Reference</a>.
  *
- *   An example of an XML Element named phase setting up a IdealGasPhase
- *   object named silane is given below.
- *
- * @code
- * <!--     phase silane      -->
- * <phase dim="3" id="silane">
- *   <elementArray datasrc="elements.xml"> Si  H  He </elementArray>
- *   <speciesArray datasrc="#species_data">
- *     H2  H  HE  SIH4  SI  SIH  SIH2  SIH3  H3SISIH  SI2H6
- *     H2SISIH2  SI3H8  SI2  SI3
- *   </speciesArray>
- *   <reactionArray datasrc="#reaction_data"/>
- *   <thermo model="IdealGas"/>
- *   <kinetics model="GasKinetics"/>
- *   <transport model="None"/>
- * </phase>
- * @endcode
- *
- * The model attribute "IdealGas" of the thermo XML element identifies the phase
- * as being of the type handled by the IdealGasPhase object.
- *
- *    @ingroup thermoprops
+ * @ingroup thermoprops
  */
 class IdealGasPhase: public ThermoPhase
 {

@@ -944,8 +944,7 @@ private:
     size_t findSpeciesLower(const std::string& nameStr) const;
 
     //! Name of the phase.
-    //! Initially, this is the name specified in the YAML or CTI input file, or
-    //! the value of the ID attribute of the XML phase node. It may be changed
+    //! Initially, this is the name specified in the YAML input file. It may be changed
     //! to another value during the course of a calculation.
     std::string m_name;
 

@@ -21,9 +21,7 @@ Reactions
 ---------
 
 These classes contain the definition of a single reaction, independent of a specific
-`Kinetics` object. For legacy objects (CTI/XML input), each class integrates associated
-rate expressions, whereas for the new, YAML-based implementation, reaction rate
-evaluation is handled by dedicated `ReactionRate` objects.
+`Kinetics` object. Reaction rate evaluation is handled by `ReactionRate` objects.
 
 Reaction
 ^^^^^^^^

@@ -42,8 +42,8 @@ msg = sprintf('time to create gas1b: %f', cputime - t0)
 % Since GRI-Mech is a rather small mechanism, there might not be much
 % difference in these times.
 
-% CTI files distributed with Cantera
-%-----------------------------------
+% YAML files distributed with Cantera
+%------------------------------------
 
 % Several reaction mechanism files in this format are included in the
 % Cantera distribution, including ones that model high-temperature

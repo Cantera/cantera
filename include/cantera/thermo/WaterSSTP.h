@@ -63,29 +63,6 @@ class WaterProps;
  *
  * This is unimplemented.
  *
- * ## XML Example
- *
- * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
- *
- * An example of an XML Element named phase setting up a WaterSSTP object with
- * id "water" is given below.
- *
- * @code
- * <!-- phase water     -->
- * <phase dim="3" id="water">
- *   <elementArray datasrc="elements.xml">O  H </elementArray>
- *   <speciesArray datasrc="#species_data">H2O</speciesArray>
- *   <state>
- *     <temperature units="K">300.0</temperature>
- *     <pressure units="Pa">101325.0</pressure>
- *   </state>
- *   <thermo model="PureLiquidWater"/>
- *   <kinetics model="none"/>
- * </phase>
- * @endcode
- *
- *  Note the model "PureLiquidWater" indicates the usage of the WaterSSTP object.
- *
  * @ingroup thermoprops
  */
 class WaterSSTP : public SingleSpeciesTP

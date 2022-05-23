@@ -178,32 +178,6 @@ namespace Cantera
  * K_c \f$, using the second and third part of the above expression as a
  * definition for the concentration equilibrium constant.
  *
- * ## XML Example
- *
- * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
- *
- * An example of an XML Element named phase setting up a LatticePhase object
- * named "O_lattice_SiO2" is given below.
- *
- * @code
- * <!--     phase O_lattice_SiO2      -->
- *   <phase dim="3" id="O_lattice_SiO2">
- *     <elementArray datasrc="elements.xml"> Si  H  He </elementArray>
- *     <speciesArray datasrc="#species_data">
- *       O_O  Vac_O
- *     </speciesArray>
- *     <reactionArray datasrc="#reaction_data"/>
- *     <thermo model="Lattice">
- *       <site_density> 73.159 </site_density>
- *     </thermo>
- *     <kinetics model="BulkKinetics"/>
- *     <transport model="None"/>
- *  </phase>
- *  @endcode
- *
- * The model attribute "Lattice" of the thermo XML element identifies the phase
- * as being of the type handled by the LatticePhase object.
- *
  * @ingroup thermoprops
  */
 class LatticePhase : public ThermoPhase

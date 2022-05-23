@@ -1609,13 +1609,9 @@ public:
      * classes which do override this function should call their parent class's
      * implementation of this function as their last action.
      *
-     * When importing a CTML phase description, this method is called from
-     * initThermoXML(), which is called from importPhase(), just prior to
-     * returning from function importPhase().
-     *
      * When importing from an AnyMap phase description (or from a YAML file),
-     * this method is responsible for setting model parameters from the data
-     * stored in #m_input.
+     * setupPhase() adds all the species, stores the input data in #m_input, and then
+     * calls this method to set model parameters from the data stored in #m_input.
      */
     virtual void initThermo();
 

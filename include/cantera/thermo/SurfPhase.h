@@ -89,35 +89,8 @@ namespace Cantera
  *            C^0_k = \frac{n_0}{s_k}
  *        \f]
  *
- * ## XML Example
- *
- * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
- *
- * An example of an XML Element named phase setting up a SurfPhase object named
- * diamond_100 is given below.
- *
- * @code
- * <phase dim="2" id="diamond_100">
- *    <elementArray datasrc="elements.xml">H C</elementArray>
- *    <speciesArray datasrc="#species_data">c6HH c6H* c6*H c6** c6HM c6HM* c6*M c6B </speciesArray>
- *    <reactionArray datasrc="#reaction_data"/>
- *    <state>
- *       <temperature units="K">1200.0</temperature>
- *       <coverages>c6H*:0.1, c6HH:0.9</coverages>
- *    </state>
- *    <thermo model="Surface">
- *       <site_density units="mol/cm2">3e-09</site_density>
- *    </thermo>
- *    <kinetics model="Interface"/>
- *    <transport model="None"/>
- *    <phaseArray>
- *         gas_phase diamond_bulk
- *    </phaseArray>
- * </phase>
- * @endcode
- *
- * The model attribute, "Surface", on the thermo element identifies the phase as being
- * a SurfPhase object.
+ * An example phase definition is given in the
+ * <a href="../../sphinx/html/yaml/phases.html#ideal-surface"> YAML API Reference</a>.
  *
  * @ingroup thermoprops
  */

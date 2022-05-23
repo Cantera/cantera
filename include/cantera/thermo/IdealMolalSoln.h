@@ -58,22 +58,9 @@ namespace Cantera
  * The value and form of the activity concentration will affect reaction rate
  * constants involving species in this phase.
  *
- * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
- *
- *      <thermo model="IdealMolalSoln">
- *         <standardConc model="solvent_volume" />
- *         <solvent> H2O(l) </solvent>
- *         <activityCoefficients model="IdealMolalSoln" >
- *             <idealMolalSolnCutoff model="polyExp">
- *                 <gamma_O_limit> 1.0E-5  </gamma_O_limit>
- *                 <gamma_k_limit> 1.0E-5  <gamma_k_limit>
- *                 <X_o_cutoff>    0.20    </X_o_cutoff>
- *                 <C_0_param>     0.05    </C_0_param>
- *                 <slope_f_limit> 0.6     </slope_f_limit>
- *                 <slope_g_limit> 0.0     </slope_g_limit>
- *             </idealMolalSolnCutoff>
- *          </activityCoefficients>
- *      </thermo>
+ * An example phase definition is given in the
+ * <a href="../../sphinx/html/yaml/phases.html#ideal-molal-solution">
+ * YAML API Reference</a>.
  *
  * @ingroup thermoprops
  */
@@ -378,14 +365,14 @@ public:
 
     //! Set the standard concentration model.
     /*!
-     * Must be one of 'unity', 'molar_volume', or 'solvent_volume'.
-     * The default is 'solvent_volume'.
+     * Must be one of 'unity', 'species-molar-volume', or 'solvent-molar-volume'.
+     * The default is 'solvent-molar-volume'.
      *
-     * | model          | ActivityConc                     | StandardConc       |
-     * | -------------- | -------------------------------- | ------------------ |
-     * | unity          | \f$ {m_k}/ { m^{\Delta}}\f$      | \f$ 1.0        \f$ |
-     * | molar_volume   | \f$  m_k / (m^{\Delta} V_k)\f$   | \f$ 1.0 / V_k  \f$ |
-     * | solvent_volume | \f$  m_k / (m^{\Delta} V^0_0)\f$ | \f$ 1.0 / V^0_0\f$ |
+     * | model                | ActivityConc                     | StandardConc       |
+     * | -------------------- | -------------------------------- | ------------------ |
+     * | unity                | \f$ {m_k}/ { m^{\Delta}}\f$      | \f$ 1.0        \f$ |
+     * | species-molar-volume | \f$  m_k / (m^{\Delta} V_k)\f$   | \f$ 1.0 / V_k  \f$ |
+     * | solvent-molar-volume | \f$  m_k / (m^{\Delta} V^0_0)\f$ | \f$ 1.0 / V^0_0\f$ |
      */
     void setStandardConcentrationModel(const std::string& model);
 
@@ -414,7 +401,7 @@ protected:
 
     /**
      * The standard concentrations can have one of three different forms:
-     * 0 = 'unity', 1 = 'molar_volume', 2 = 'solvent_volume'. See
+     * 0 = 'unity', 1 = 'species-molar-volume', 2 = 'solvent-molar-volume'. See
      * setStandardConcentrationModel().
      */
     int m_formGC;

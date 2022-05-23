@@ -279,7 +279,7 @@ void Application::setDefaultDirectories()
     if (installDir != "") {
         inputDirs.push_back(installDir + "data");
 
-        // Scripts for converting mechanisms to CTI and CMTL are installed in
+        // Scripts for converting mechanisms to YAML are installed in
         // the 'bin' subdirectory. Add that directory to the PYTHONPATH.
         const char* old_pythonpath = getenv("PYTHONPATH");
         std::string pythonpath = "PYTHONPATH=" + installDir + "\\bin";

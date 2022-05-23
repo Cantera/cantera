@@ -111,7 +111,7 @@ function anCurr = anode_curr(phi_s,phi_l,X_Li_an,anode,elde,elyt,anode_interface
     setElectricPotential(elyt,phi_l);
 
     % Get the net reaction rate at the anode-side interface
-    % Reaction according to cti file: Li+[elyt] + V[anode] + electron <=> Li[anode]
+    % Reaction according to YAML file: Li+[elyt] + V[anode] + electron <=> Li[anode]
     r = rop_net(anode_interface); % [kmol/m2/s]
 
     % Calculate the current. Should be negative for cell discharge.
@@ -128,7 +128,7 @@ function caCurr = cathode_curr(phi_s,phi_l,X_Li_ca,cathode,elde,elyt,cathode_int
     setElectricPotential(elyt,phi_l);
 
     % Get the net reaction rate at the cathode-side interface
-    % Reaction according to cti file: Li+[elyt] + V[cathode] + electron <=> Li[cathode]
+    % Reaction according to YAML file: Li+[elyt] + V[cathode] + electron <=> Li[cathode]
     r = rop_net(cathode_interface); % [kmol/m2/s]
 
     % Calculate the current. Should be negative for cell discharge.

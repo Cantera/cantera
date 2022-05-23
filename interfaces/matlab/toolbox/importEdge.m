@@ -2,7 +2,8 @@ function s = importEdge(file, name, phase1, phase2, phase3, phase4)
 % IMPORTEDGE  Import edges between phases.
 % s = importEdge(file, name, phase1, phase2, phase3, phase4)
 % Supports up to four neighbor phases. See
-% `Interfaces <https://cantera.org/tutorials/cti/phases.html#interfaces>`__
+% `edge <https://cantera.org/documentation/docs-2.6/sphinx/html/yaml/phases.html#sec-yaml-edge>`__
+% and `Declaring adjacent phases <https://cantera.org/tutorials/yaml/phases.html#declaring-adjacent-phases>`__.
 %
 % :param file:
 %     File containing phases

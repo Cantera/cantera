@@ -494,32 +494,12 @@ class WaterProps;
  *        and \f$ C^{\phi}_{MX} \f$ coefficients described above.
  *        There are 2 coefficients for each term.
  *
- * The temperature dependence is specified in an attributes field in the
- * `activityCoefficients` XML block, called `TempModel`. Permissible values for
- * that attribute are `CONSTANT`, `COMPLEX1`, and `LINEAR`.
- *
  * The specification of the binary interaction between a cation and an anion is
  * given by the coefficients, \f$ B_{MX}\f$ and \f$ C_{MX}\f$ The specification
  * of \f$ B_{MX}\f$ is a function of \f$\beta^{(0)}_{MX} \f$,
  * \f$\beta^{(1)}_{MX} \f$, \f$\beta^{(2)}_{MX} \f$, \f$\alpha^{(1)}_{MX} \f$,
  * and \f$\alpha^{(2)}_{MX} \f$. \f$ C_{MX}\f$ is calculated from
- * \f$C^{\phi}_{MX} \f$ from the formula above. All of the underlying
- * coefficients are specified in the XML element block `binarySaltParameters`,
- * which has the attribute `cation` and `anion` to identify the interaction. XML
- * elements named `beta0, beta1, beta2, Cphi, Alpha1, Alpha2` within each
- * `binarySaltParameters` block specify the parameters. Within each of these
- * blocks multiple parameters describing temperature or pressure dependence are
- * serially listed in the order that they appear in the equation in this
- * document. An example of the `beta0` block that fits the `COMPLEX1`
- * temperature dependence given above is
- *
- * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
- *
- * @code
- *  <binarySaltParameters cation="Na+" anion="OH-">
- *    <beta0> q0, q1, q2, q3, q4  </beta0>
- *  </binarySaltParameters>
- * @endcode
+ * \f$C^{\phi}_{MX} \f$ from the formula above.
  *
  * The parameters for \f$ \beta^{(0)}\f$ fit the following equation:
  *
@@ -583,133 +563,27 @@ class WaterProps;
  * and \f$ q = - (\frac{x}{y}) e^{-y} \f$. \f$ J(x) \f$ is evaluated by
  * numerical integration.
  *
- * The \f$  \Theta_{ij} \f$ term is a constant that is specified by the XML
- * element `thetaCation` and `thetaAnion`, which has the attribute `cation1`,
- * `cation2` and `anion1`, `anion2` respectively to identify the interaction. No
- * temperature or pressure dependence of this parameter is currently allowed. An
- * example of the block is presented below.
- *
- * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
- *
- * @code
- *   <thetaCation cation1="Na+" cation2="H+">
- *              <Theta> 0.036 </Theta>
- *   </thetaCation>
- * @endcode
+ * The \f$  \Theta_{ij} \f$ term is a constant value, specified for pair of cations
+ * or a pair of anions.
  *
  * ### Ternary Pitzer Parameters
  *
  * The \f$  \Psi_{c{c'}a} \f$ and \f$  \Psi_{ca{a'}} \f$ terms represent ternary
  * interactions between two cations and an anion and two anions and a cation,
  * respectively. In Pitzer's implementation these terms are usually small in
- * absolute size. Currently these parameters do not have any dependence on
- * temperature, pressure, or ionic strength.
- *
- * Their values are input using the XML element `psiCommonCation` and
- * `psiCommonAnion`. The species id's are specified in attribute fields in the
- * XML element. The fields `cation`, `anion1`, and `anion2` are used for
- * `psiCommonCation`. The fields `anion`, `cation1` and `cation2` are used for
- * `psiCommonAnion`. An example block is given below. The `Theta` field below is
- * a duplicate of the `thetaAnion` field mentioned above. The two fields are
- * input into the same block for convenience, and because their data are highly
- * correlated, in practice. It is an error for the two blocks to specify
- * different information about thetaAnion (or thetaCation) in different blocks.
- * It's ok to specify duplicate but consistent information in multiple blocks.
- *
- * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
- *
- * @code
- * <psiCommonCation cation="Na+" anion1="Cl-" anion2="OH-">
- *     <Theta> -0.05 </Theta>
- *     <Psi> -0.006 </Psi>
- * </psiCommonCation>
- * @endcode
+ * absolute size.
  *
  * ### Treatment of Neutral Species
  *
  * Binary virial-coefficient-like interactions between two neutral species may
  * be specified in the \f$ \lambda_{mn} \f$ terms that appear in the formulas
- * above. Currently these interactions are independent of temperature, pressure,
- * and ionic strength. Also, currently, the neutrality of the species are not
- * checked. Therefore, this interaction may involve charged species in the
- * solution as well. The identity of the species is specified by the `species1`
- * and `species2` attributes to the XML `lambdaNeutral` node. These terms are
- * symmetrical; `species1` and `species2` may be reversed and the term will be
- * the same. An example is given below.
+ * above. Currently these interactions are independent of pressure and ionic strength.
+ * Also, currently, the neutrality of the species are not checked. Therefore, this
+ * interaction may involve charged species in the solution as well.
  *
- * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
- *
- * @code
- * <lambdaNeutral species1="CO2" species2="CH4">
- *     <lambda> 0.05 </lambda>
- * </lambdaNeutral>
- * @endcode
- *
- * ## Example of the Specification of Parameters for the Activity Coefficients
- *
- * An example is given below.
- *
- * An example `activityCoefficients` XML block for this formulation is supplied
- * below
- *
- * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
- *
- * @code
- * <activityCoefficients model="Pitzer" TempModel="complex1">
- *     <!-- Pitzer Coefficients
- *          These coefficients are from Pitzer's main
- *          paper, in his book.
- *       -->
- *     <A_Debye model="water" />
- *     <ionicRadius default="3.042843"  units="Angstroms">
- *     </ionicRadius>
- *     <binarySaltParameters cation="Na+" anion="Cl-">
- *       <beta0> 0.0765, 0.008946, -3.3158E-6,
- *               -777.03, -4.4706
- *       </beta0>
- *       <beta1> 0.2664, 6.1608E-5, 1.0715E-6, 0.0, 0.0 </beta1>
- *       <beta2> 0.0,   0.0, 0.0, 0.0, 0.0  </beta2>
- *       <Cphi> 0.00127, -4.655E-5, 0.0,
- *              33.317, 0.09421
- *       </Cphi>
- *       <Alpha1> 2.0 </Alpha1>
- *     </binarySaltParameters>
- *
- *     <binarySaltParameters cation="H+" anion="Cl-">
- *       <beta0> 0.1775, 0.0, 0.0, 0.0, 0.0 </beta0>
- *       <beta1> 0.2945, 0.0, 0.0, 0.0, 0.0 </beta1>
- *       <beta2> 0.0,    0.0, 0.0, 0.0, 0.0 </beta2>
- *       <Cphi> 0.0008, 0.0, 0.0, 0.0, 0.0 </Cphi>
- *       <Alpha1> 2.0 </Alpha1>
- *     </binarySaltParameters>
- *
- *     <binarySaltParameters cation="Na+" anion="OH-">
- *       <beta0> 0.0864, 0.0, 0.0, 0.0, 0.0 </beta0>
- *       <beta1> 0.253,  0.0, 0.0  0.0, 0.0 </beta1>
- *       <beta2> 0.0     0.0, 0.0, 0.0, 0.0 </beta2>
- *       <Cphi> 0.0044,  0.0, 0.0, 0.0, 0.0 </Cphi>
- *       <Alpha1> 2.0 </Alpha1>
- *     </binarySaltParameters>
- *
- *     <thetaAnion anion1="Cl-" anion2="OH-">
- *       <Theta> -0.05,  0.0, 0.0, 0.0, 0.0 </Theta>
- *     </thetaAnion>
- *
- *     <psiCommonCation cation="Na+" anion1="Cl-" anion2="OH-">
- *       <Theta> -0.05,  0.0, 0.0, 0.0, 0.0 </Theta>
- *       <Psi> -0.006 </Psi>
- *     </psiCommonCation>
- *
- *     <thetaCation cation1="Na+" cation2="H+">
- *       <Theta> 0.036,  0.0, 0.0, 0.0, 0.0 </Theta>
- *     </thetaCation>
- *
- *     <psiCommonAnion anion="Cl-" cation1="Na+" cation2="H+">
- *       <Theta> 0.036,  0.0, 0.0, 0.0, 0.0 </Theta>
- *       <Psi> -0.004 </Psi>
- *     </psiCommonAnion>
- *   </activityCoefficients>
- * @endcode
+ * An example phase definition specifying a number of the above species interaction
+ * parameters is given in the
+ * <a href="../../sphinx/html/yaml/phases.html#hmw-electrolyte">YAML API Reference</a>.
  *
  * ### Specification of the Debye-Huckel Constant
  *
@@ -753,31 +627,6 @@ class WaterProps;
  *  - \f$ \epsilon / \epsilon_0 \f$ = 78.54 (water at 25C)
  *  - T = 298.15 K
  *  - B_Debye = 3.28640E9 (kg/gmol)^(1/2) / m
- *
- * An example of a fixed value implementation is given below.
- *
- * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
- *
- * @code
- *   <activityCoefficients model="Pitzer">
- *         <!-- A_Debye units = sqrt(kg/gmol)  -->
- *         <A_Debye> 1.172576 </A_Debye>
- *         <!-- object description continues -->
- *   </activityCoefficients>
- * @endcode
- *
- * An example of a variable value implementation within the HMWSoln object is
- * given below. The model attribute, "water", triggers the full implementation.
- *
- * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
- *
- * @code
- *   <activityCoefficients model="Pitzer">
- *         <!-- A_Debye units = sqrt(kg/gmol)  -->
- *         <A_Debye model="water" />
- *         <!-- object description continues -->
- *   </activityCoefficients>
- * @endcode
  *
  * ### Temperature and Pressure Dependence of the Activity Coefficients
  *
@@ -842,7 +691,7 @@ class WaterProps;
  * s_update_d2lnMolalityActCoeff_dT2(), and the first derivative of the log
  * activity coefficients wrt pressure, s_update_dlnMolalityActCoeff_dP().
  *
- * ## %Application within Kinetics Managers
+ * ## Application within Kinetics Managers
  *
  * For the time being, we have set the standard concentration for all solute
  * species in this phase equal to the default concentration of the solvent at
@@ -923,100 +772,6 @@ class WaterProps;
  *
  * \f$ k^{-1} \f$ has units of 1/s.
  *
- * Note, this treatment may be modified in the future, as events dictate.
- *
- * ## XML Example
- *
- * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
- *
- * The phase model name for this is called StoichSubstance. It must be supplied
- * as the model attribute of the thermo XML element entry. Within the phase XML
- * block, the density of the phase must be specified. An example of an XML file
- * this phase is given below.
- *
- * @code
- * <phase id="NaCl_electrolyte" dim="3">
- *   <speciesArray datasrc="#species_waterSolution">
- *              H2O(L) Na+ Cl- H+ OH-
- *   </speciesArray>
- *   <state>
- *     <temperature units="K"> 300  </temperature>
- *     <pressure units="Pa">101325.0</pressure>
- *     <soluteMolalities>
- *            Na+:3.0
- *            Cl-:3.0
- *            H+:1.0499E-8
- *            OH-:1.3765E-6
- *     </soluteMolalities>
- *   </state>
- *   <!-- thermo model identifies the inherited class
- *        from ThermoPhase that will handle the thermodynamics.
- *     -->
- *   <thermo model="HMW">
- *      <standardConc model="solvent_volume" />
- *    <activityCoefficients model="Pitzer" TempModel="complex1">
- *               <!-- Pitzer Coefficients
- *                    These coefficients are from Pitzer's main
- *                    paper, in his book.
- *                 -->
- *               <A_Debye model="water" />
- *               <ionicRadius default="3.042843"  units="Angstroms">
- *               </ionicRadius>
- *               <binarySaltParameters cation="Na+" anion="Cl-">
- *                 <beta0> 0.0765, 0.008946, -3.3158E-6,
- *                         -777.03, -4.4706
- *                 </beta0>
- *                 <beta1> 0.2664, 6.1608E-5, 1.0715E-6 </beta1>
- *                 <beta2> 0.0    </beta2>
- *                 <Cphi> 0.00127, -4.655E-5, 0.0,
- *                        33.317, 0.09421
- *                 </Cphi>
- *                 <Alpha1> 2.0 </Alpha1>
- *               </binarySaltParameters>
- *
- *               <binarySaltParameters cation="H+" anion="Cl-">
- *                 <beta0> 0.1775, 0.0, 0.0, 0.0, 0.0</beta0>
- *                 <beta1> 0.2945, 0.0, 0.0 </beta1>
- *                 <beta2> 0.0    </beta2>
- *                 <Cphi> 0.0008, 0.0, 0.0, 0.0, 0.0 </Cphi>
- *                 <Alpha1> 2.0 </Alpha1>
- *               </binarySaltParameters>
- *
- *               <binarySaltParameters cation="Na+" anion="OH-">
- *                 <beta0> 0.0864, 0.0, 0.0, 0.0, 0.0 </beta0>
- *                 <beta1> 0.253, 0.0, 0.0 </beta1>
- *                 <beta2> 0.0    </beta2>
- *                 <Cphi> 0.0044, 0.0, 0.0, 0.0, 0.0 </Cphi>
- *                 <Alpha1> 2.0 </Alpha1>
- *               </binarySaltParameters>
- *
- *               <thetaAnion anion1="Cl-" anion2="OH-">
- *                 <Theta> -0.05 </Theta>
- *               </thetaAnion>
- *
- *               <psiCommonCation cation="Na+" anion1="Cl-" anion2="OH-">
- *                 <Theta> -0.05 </Theta>
- *                 <Psi> -0.006 </Psi>
- *               </psiCommonCation>
- *
- *               <thetaCation cation1="Na+" cation2="H+">
- *                 <Theta> 0.036 </Theta>
- *               </thetaCation>
- *
- *               <psiCommonAnion anion="Cl-" cation1="Na+" cation2="H+">
- *                 <Theta> 0.036 </Theta>
- *                 <Psi> -0.004 </Psi>
- *               </psiCommonAnion>
- *
- *      </activityCoefficients>
- *
- *      <solvent> H2O(L) </solvent>
- *   </thermo>
- *   <elementArray datasrc="elements.xml"> O H Na Cl </elementArray>
- *   <kinetics model="none" >
- *   </kinetics>
- * </phase>
- * @endcode
  * @ingroup thermoprops
  */
 class HMWSoln : public MolalityVPSSTP
