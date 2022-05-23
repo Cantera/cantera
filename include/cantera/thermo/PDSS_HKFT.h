@@ -261,6 +261,8 @@ private:
      */
     PDSS_Water* m_waterSS;
 
+    UnitSystem m_units;
+
     //! density of standard-state water. internal temporary variable
     mutable doublereal m_densWaterSS;
 

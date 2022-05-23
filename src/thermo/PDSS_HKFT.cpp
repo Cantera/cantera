@@ -46,6 +46,7 @@ PDSS_HKFT::PDSS_HKFT()
     m_pres = OneAtm;
     m_presR_bar = OneAtm * 1.0E-5;
     m_presR_bar = 1.0;
+    m_units.setDefaults({"cm", "gmol", "cal", "bar"});
 }
 
 doublereal PDSS_HKFT::enthalpy_mole() const
@@ -57,7 +58,7 @@ doublereal PDSS_HKFT::enthalpy_mole() const
 
 doublereal PDSS_HKFT::enthalpy_mole2() const
 {
-    double enthTRPR = m_Mu0_tr_pr + 298.15 * m_Entrop_tr_pr * toSI("cal/gmol");
+    double enthTRPR = m_Mu0_tr_pr + 298.15 * m_units.convertTo(m_Entrop_tr_pr, "J/kmol");
     return deltaH() + enthTRPR;
 }
 
@@ -68,7 +69,7 @@ doublereal PDSS_HKFT::intEnergy_mole() const
 
 doublereal PDSS_HKFT::entropy_mole() const
 {
-    return m_Entrop_tr_pr * toSI("cal/gmol") + deltaS();
+    return m_units.convertTo(m_Entrop_tr_pr, "J/kmol") + deltaS();
 }
 
 doublereal PDSS_HKFT::gibbs_mole() const
@@ -129,10 +130,7 @@ doublereal PDSS_HKFT::cp_mole() const
 
     doublereal Cp_calgmol = c1term + c2term + a3term + a4term + yterm + xterm + otterm + rterm;
 
-    // Convert to Joules / kmol
-    doublereal Cp = Cp_calgmol * toSI("cal/gmol");
-
-    return Cp;
+    return m_units.convertTo(Cp_calgmol, "J/kmol");
 }
 
 doublereal PDSS_HKFT::molarVolume() const
@@ -175,7 +173,7 @@ doublereal PDSS_HKFT::molarVolume() const
     doublereal molVol_calgmolPascal = a1term + a2term + a3term + a4term + wterm + qterm;
 
     // Convert to m**3 / kmol from (cal/gmol/Pa)
-    return molVol_calgmolPascal * toSI("cal/gmol");
+    return m_units.convertTo(molVol_calgmolPascal, "J/kmol");
 }
 
 doublereal PDSS_HKFT::density() const
@@ -268,21 +266,21 @@ void PDSS_HKFT::initThermo()
     m_charge_j = m_tp->charge(m_spindex);
     if (std::isnan(m_deltaH_formation_tr_pr)) {
         convertDGFormation();
-        doublereal Hcalc = m_Mu0_tr_pr + 298.15 * (m_Entrop_tr_pr * toSI("cal/gmol"));
-        m_deltaH_formation_tr_pr = Hcalc / toSI("cal/gmol");
+        double Hcalc = m_Mu0_tr_pr + 298.15 * m_units.convertTo(m_Entrop_tr_pr, "J/kmol");
+        m_deltaH_formation_tr_pr = m_units.convertFrom(Hcalc, "J/kmol");
     } else if (std::isnan(m_deltaG_formation_tr_pr)) {
-        doublereal DHjmol = m_deltaH_formation_tr_pr * toSI("cal/gmol");
-        m_Mu0_tr_pr = DHjmol - 298.15 * (m_Entrop_tr_pr * toSI("cal/gmol"));
-        m_deltaG_formation_tr_pr = m_Mu0_tr_pr / toSI("cal/gmol");
+        double DHjmol = m_units.convertTo(m_deltaH_formation_tr_pr, "J/kmol");
+        m_Mu0_tr_pr = DHjmol - 298.15 * m_units.convertTo(m_Entrop_tr_pr, "J/kmol");
+        m_deltaG_formation_tr_pr = m_units.convertFrom(m_Mu0_tr_pr, "J/kmol");
         double tmp = m_Mu0_tr_pr;
         convertDGFormation();
         double totalSum = m_Mu0_tr_pr - tmp;
         m_Mu0_tr_pr = tmp;
-        m_deltaG_formation_tr_pr = (m_Mu0_tr_pr - totalSum)/ toSI("cal/gmol");
+        m_deltaG_formation_tr_pr = m_units.convertFrom(m_Mu0_tr_pr - totalSum, "J/kmol");
     } else if (std::isnan(m_Entrop_tr_pr)) {
         convertDGFormation();
-        doublereal DHjmol = m_deltaH_formation_tr_pr * toSI("cal/gmol");
-        m_Entrop_tr_pr = (DHjmol - m_Mu0_tr_pr) / (298.15 * toSI("cal/gmol"));
+        double DHjmol = m_units.convertTo(m_deltaH_formation_tr_pr, "J/kmol");
+        m_Entrop_tr_pr = m_units.convertFrom((DHjmol - m_Mu0_tr_pr) / 298.15, "J/kmol");
     }
 
     m_waterSS = &dynamic_cast<PDSS_Water&>(*m_tp->providePDSS(0));
@@ -303,24 +301,24 @@ void PDSS_HKFT::initThermo()
 
     // Ok, we have mu. Let's check it against the input value
     // of DH_F to see that we have some internal consistency
-    doublereal Hcalc = m_Mu0_tr_pr + 298.15 * (m_Entrop_tr_pr * toSI("cal/gmol"));
-    doublereal DHjmol = m_deltaH_formation_tr_pr * toSI("cal/gmol");
+    double Hcalc = m_Mu0_tr_pr + 298.15 * m_units.convertTo(m_Entrop_tr_pr, "J/kmol");
+    double DHjmol = m_units.convertTo(m_deltaH_formation_tr_pr, "J/kmol");
 
     // If the discrepancy is greater than 100 cal gmol-1, print
     // an error and exit.
-    if (fabs(Hcalc -DHjmol) > 100.* toSI("cal/gmol")) {
+    if (fabs(Hcalc -DHjmol) > m_units.convertTo(100, "J/kmol")) {
         std::string sname = m_tp->speciesName(m_spindex);
         if (s_InputInconsistencyErrorExit) {
             throw CanteraError("PDSS_HKFT::initThermo", "For {}, DHjmol is"
-                " not consistent with G and S: {} vs {} cal gmol-1",
-                sname, Hcalc/toSI("cal/gmol"), m_deltaH_formation_tr_pr);
+                " not consistent with G and S: {} vs {} J/kmol",
+                sname, Hcalc, m_units.convertTo(m_deltaH_formation_tr_pr, "J/kmol"));
         } else {
             warn_user("PDSS_HKFT::initThermo",
                 "DHjmol for {} is not consistent with G and S: calculated {} "
-                "vs input {} cal gmol-1; continuing with consistent DHjmol = {}",
-                sname, Hcalc/toSI("cal/gmol"), m_deltaH_formation_tr_pr,
-                Hcalc/toSI("cal/gmol"));
-            m_deltaH_formation_tr_pr = Hcalc / toSI("cal/gmol");
+                "vs input {} J/kmol; continuing with consistent DHjmol = {}",
+                sname, Hcalc, m_units.convertTo(m_deltaH_formation_tr_pr, "J/kmol"),
+                Hcalc);
+            m_deltaH_formation_tr_pr = m_units.convertFrom(Hcalc, "J/kmol");
         }
     }
     doublereal nu = 166027;
@@ -344,31 +342,31 @@ void PDSS_HKFT::initThermo()
 }
 
 void PDSS_HKFT::setDeltaH0(double dh0) {
-    m_deltaH_formation_tr_pr = dh0 / toSI("cal/gmol");
+    m_deltaH_formation_tr_pr = m_units.convertFrom(dh0, "J/kmol");
 }
 
 void PDSS_HKFT::setDeltaG0(double dg0) {
-    m_deltaG_formation_tr_pr = dg0 / toSI("cal/gmol");
+    m_deltaG_formation_tr_pr = m_units.convertFrom(dg0, "J/kmol");
 }
 
 void PDSS_HKFT::setS0(double s0) {
-    m_Entrop_tr_pr = s0 / toSI("cal/gmol/K");
+    m_Entrop_tr_pr = m_units.convertFrom(s0, "J/kmol/K");
 }
 
 void PDSS_HKFT::set_a(double* a) {
-    m_a1 = a[0] / toSI("cal/gmol/bar");
-    m_a2 = a[1] / toSI("cal/gmol");
-    m_a3 = a[2] / toSI("cal-K/gmol/bar");
-    m_a4 = a[3] / toSI("cal-K/gmol");
+    m_a1 = m_units.convertFrom(a[0], "J/kmol/Pa");
+    m_a2 = m_units.convertFrom(a[1], "J/kmol");
+    m_a3 = m_units.convertFrom(a[2], "J*K/kmol/Pa");
+    m_a4 = m_units.convertFrom(a[3], "J*K/kmol");
 }
 
 void PDSS_HKFT::set_c(double* c) {
-    m_c1 = c[0] / toSI("cal/gmol/K");
-    m_c2 = c[1] / toSI("cal-K/gmol");
+    m_c1 = m_units.convertFrom(c[0], "J/kmol/K");
+    m_c2 = m_units.convertFrom(c[1], "J*K/kmol");
 }
 
 void PDSS_HKFT::setOmega(double omega) {
-    m_omega_pr_tr = omega / toSI("cal/gmol");
+    m_omega_pr_tr = m_units.convertFrom(omega, "J/kmol");
 }
 
 void PDSS_HKFT::setParametersFromXML(const XML_Node& speciesNode)
@@ -521,8 +519,7 @@ doublereal PDSS_HKFT::deltaH() const
     doublereal deltaH_calgmol = c1term + a1term + a2term + c2term + a3term + a4term
                                 + yterm + yrterm + wterm + wrterm + otterm + otrterm;
 
-    // Convert to Joules / kmol
-    return deltaH_calgmol * toSI("cal/gmol");
+    return m_units.convertTo(deltaH_calgmol, "J/kmol");
 }
 
 doublereal PDSS_HKFT::deltaG() const
@@ -555,8 +552,7 @@ doublereal PDSS_HKFT::deltaG() const
     doublereal yterm = m_omega_pr_tr * m_Y_pr_tr * (m_temp - 298.15);
     doublereal deltaG_calgmol = sterm + c1term + a1term + a2term + c2term + a3term + a4term + wterm + wrterm + yterm;
 
-    // Convert to Joules / kmol
-    return deltaG_calgmol * toSI("cal/gmol");
+    return m_units.convertTo(deltaG_calgmol, "J/kmol");
 }
 
 doublereal PDSS_HKFT::deltaS() const
@@ -596,8 +592,7 @@ doublereal PDSS_HKFT::deltaS() const
     doublereal otrterm = - m_domega_jdT_prtr * (m_Z_pr_tr + 1.0);
     doublereal deltaS_calgmol = c1term + c2term + a3term + a4term + wterm + wrterm + otterm + otrterm;
 
-    // Convert to Joules / kmol
-    return deltaS_calgmol * toSI("cal/gmol");
+    return m_units.convertTo(deltaS_calgmol, "J/kmol/K");
 }
 
 doublereal PDSS_HKFT::ag(const doublereal temp, const int ifunc) const
@@ -751,8 +746,7 @@ void PDSS_HKFT::convertDGFormation()
     if (m_charge_j != 0.0) {
         totalSum -= m_charge_j * LookupGe("H");
     }
-    // Ok, now do the calculation. Convert to joules kmol-1
-    doublereal dg = m_deltaG_formation_tr_pr * toSI("cal/gmol");
+    doublereal dg = m_units.convertTo(m_deltaG_formation_tr_pr, "J/kmol");
     //! Store the result into an internal variable.
     m_Mu0_tr_pr = dg + totalSum;
 }
