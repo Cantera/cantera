@@ -211,8 +211,9 @@ TEST_F(ConstructFromScratch, RedlichKwongMFTP)
     p.addSpecies(sCO2);
     p.addSpecies(sH2O);
     p.addSpecies(sH2);
-    double fa = toSI("bar-cm6/mol2");
-    double fb = toSI("cm3/mol");
+    UnitSystem units;
+    double fa = units.convertFrom(1.0, "bar*cm^6/gmol^2");
+    double fb = units.convertFrom(1.0, "cm^3/gmol");
     p.setBinaryCoeffs("H2", "H2O", 4 * fa, 40 * fa);
     p.setSpeciesCoeffs("CO2", 7.54e7 * fa, -4.13e4 * fa, 27.80 * fb);
     p.setBinaryCoeffs("CO2", "H2O", 7.897e7 * fa, 0.0);
@@ -238,8 +239,9 @@ TEST_F(ConstructFromScratch, RedlichKwongMFTP_missing_coeffs)
     p.addSpecies(sH2O);
     p.addSpecies(sCO2);
     p.addSpecies(sH2);
-    double fa = toSI("bar-cm6/mol2");
-    double fb = toSI("cm3/mol");
+    UnitSystem units;
+    double fa = units.convertFrom(1.0, "bar*cm^6/gmol^2");
+    double fb = units.convertFrom(1.0, "cm^3/gmol");
     p.setSpeciesCoeffs("H2O", 1.7458e8 * fa, -8e4 * fa, 18.18 * fb);
     p.setSpeciesCoeffs("H2", 30e7 * fa, -330e4 * fa, 31 * fb);
     EXPECT_THROW(p.setState_TP(300, 200e5), CanteraError);
@@ -567,26 +569,27 @@ TEST(HMWSoln, fromScratch_HKFT)
 
     std::unique_ptr<PDSS_Water> ss(new PDSS_Water());
     p.installPDSS(0, std::move(ss));
+    UnitSystem units;
     for (size_t k = 0; k < 4; k++) {
         std::unique_ptr<PDSS_HKFT> ss(new PDSS_HKFT());
         if (h0[k] != Undef) {
-            ss->setDeltaH0(h0[k] * toSI("cal/gmol"));
+            ss->setDeltaH0(units.convertFrom(h0[k], "cal/gmol"));
         }
         if (g0[k] != Undef) {
-            ss->setDeltaG0(g0[k] * toSI("cal/gmol"));
+            ss->setDeltaG0(units.convertFrom(g0[k], "cal/gmol"));
         }
         if (s0[k] != Undef) {
-            ss->setS0(s0[k] * toSI("cal/gmol/K"));
+            ss->setS0(units.convertFrom(s0[k], "cal/gmol/K"));
         }
-        a[k][0] *= toSI("cal/gmol/bar");
-        a[k][1] *= toSI("cal/gmol");
-        a[k][2] *= toSI("cal-K/gmol/bar");
-        a[k][3] *= toSI("cal-K/gmol");
-        c[k][0] *= toSI("cal/gmol/K");
-        c[k][1] *= toSI("cal-K/gmol");
+        a[k][0] *= units.convertFrom(1.0, "cal/gmol/bar");
+        a[k][1] *= units.convertFrom(1.0, "cal/gmol");
+        a[k][2] *= units.convertFrom(1.0, "cal*K/gmol/bar");
+        a[k][3] *= units.convertFrom(1.0, "cal*K/gmol");
+        c[k][0] *= units.convertFrom(1.0, "cal/gmol/K");
+        c[k][1] *= units.convertFrom(1.0, "cal*K/gmol");
         ss->set_a(a[k]);
         ss->set_c(c[k]);
-        ss->setOmega(omega[k] * toSI("cal/gmol"));
+        ss->setOmega(units.convertFrom(omega[k], "cal/gmol"));
         p.installPDSS(k+1, std::move(ss));
     }
     p.setPitzerTempModel("complex");
