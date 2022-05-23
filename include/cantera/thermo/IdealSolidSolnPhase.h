@@ -586,7 +586,7 @@ protected:
 
     /**
      * The standard concentrations can have one of three different forms:
-     * 0 = 'unity', 1 = 'molar_volume', 2 = 'solvent_volume'. See
+     * 0 = 'unity', 1 = 'species-molar-volume', 2 = 'solvent-molar-volume'. See
      * setStandardConcentrationModel().
      */
     int m_formGC;

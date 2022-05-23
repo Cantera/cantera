@@ -165,17 +165,9 @@ class PDSS_Water;
  *               \sum_{k,weak_assoc}(m_k  z_{k1}^2 + m_k  z_{k2}^2) \right)
  *  \f]
  *
- * The specification of which species are weakly associated acids is made in the
- * input file via the `stoichIsMods` XML block, where the charge for k1 is also
- * specified. An example is given below:
- *
- * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
- *
- * @code
- *          <stoichIsMods>
- *                NaCl(aq):-1.0
- *          </stoichIsMods>
- * @endcode
+ * The specification of which species are weakly associated acids is made in YAML
+ * input files by specifying the corresponding charge \f$k1\f$ as the `weak-acid-charge`
+ * parameter of the `Debye-Huckel` block in the corresponding species entry.
  *
  * Because we need the concept of a weakly associated acid in order to calculate
  * \f$ I_s \f$ we need to catalog all species in the phase. This is done using
@@ -197,23 +189,10 @@ class PDSS_Water;
  * additions to the activity coefficient expressions distinguish between these
  * two types of solutes. This is the so-called salt-out effect.
  *
- * The type of species is specified in the `electrolyteSpeciesType` XML block.
- * Note, this is not considered a part of the specification of the standard
- * state for the species, at this time. Therefore, this information is put under
- * the `activityCoefficient` XML block. An example is given below
- *
- * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
- *
- * @code
- *         <electrolyteSpeciesType>
- *                H2L(L):solvent
- *                H+:chargedSpecies
- *                NaOH(aq):weakAcidAssociated
- *                NaCl(aq):strongAcidAssociated
- *                NH3(aq):polarNeutral
- *                O2(aq):nonpolarNeutral
- *         </electrolyteSpeciesType>
- * @endcode
+ * In a YAML input file, the type of species is specified in the
+ * `electrolyte-species-type` field of the `Debye-Huckel` block in the corresponding
+ * species entry. Note, this is not considered a part of the specification of the
+ * standard state for the species, at this time.
  *
  * Much of the species electrolyte type information is inferred from other
  * information in the input file. For example, as species which is charged is
@@ -318,42 +297,12 @@ class PDSS_Water;
  *     -  \tilde{M}_o  \sum_j \sum_k \beta_{j,k} m_j m_k
  * \f]
  *
- * In this formulation the ionic radius, \f$ a \f$, is a constant. This must be
- * supplied to the model, in an <DFN> ionicRadius </DFN> XML block.
+ * In this formulation the ionic radius, \f$ a \f$, is a constant, specified as part
+ * of the species definition.
  *
- * The \f$ \beta_{j,k} \f$ parameters are binary interaction parameters. They
- * are supplied to the object in an `DHBetaMatrix` XML block. There are in
+ * The \f$ \beta_{j,k} \f$ parameters are binary interaction parameters. There are in
  * principle \f$ N (N-1) /2 \f$ different, symmetric interaction parameters,
- * where \f$ N \f$ are the number of solute species in the mechanism. An example
- * is given below.
- *
- * An example `activityCoefficients` XML block for this formulation is supplied
- * below
- *
- * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
- *
- * @code
- *  <activityCoefficients model="Beta_ij">
- *         <!-- A_Debye units = sqrt(kg/gmol) -->
- *         <A_Debye> 1.172576 </A_Debye>
- *         <!-- B_Debye units = sqrt(kg/gmol)/m   -->
- *         <B_Debye> 3.28640E9 </B_Debye>
- *         <ionicRadius default="3.042843"  units="Angstroms">
- *         </ionicRadius>
- *         <DHBetaMatrix>
- *               H+:Cl-:0.27
- *               Na+:Cl-:0.15
- *               Na+:OH-:0.06
- *         </DHBetaMatrix>
- *         <stoichIsMods>
- *                NaCl(aq):-1.0
- *         </stoichIsMods>
- *         <electrolyteSpeciesType>
- *                H+:chargedSpecies
- *                NaCl(aq):weakAcidAssociated
- *         </electrolyteSpeciesType>
- *  </activityCoefficients>
- * @endcode
+ * where \f$ N \f$ are the number of solute species in the mechanism.
  *
  * ### Pitzer Beta_IJ formulation
  *
@@ -411,33 +360,14 @@ class PDSS_Water;
  *   - T = 298.15 K
  *   - B_Debye = 3.28640E9 (kg/gmol)^(1/2) / m
  *
- * An example of a fixed value implementation is given below.
- *
- * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
- *
- * @code
- *   <activityCoefficients model="Beta_ij">
- *         <!-- A_Debye units = sqrt(kg/gmol)  -->
- *         <A_Debye> 1.172576 </A_Debye>
- *         <!-- B_Debye units = sqrt(kg/gmol)/m  -->
- *         <B_Debye> 3.28640E9 </B_Debye>
- *   </activityCoefficients>
- * @endcode
- *
- * An example of a variable value implementation is given below.
- * @code
- *   <activityCoefficients model="Beta_ij">
- *         <A_Debye model="water" />
- *         <!-- B_Debye units = sqrt(kg/gmol)/m  -->
- *         <B_Debye> 3.28640E9 </B_Debye>
- *   </activityCoefficients>
- * @endcode
- *
  * Currently, \f$  B_{Debye} \f$ is a constant in the model, specified either by
  * a default water value, or through the input file. This may have to be looked
  * at, in the future.
  *
- * ## %Application within Kinetics Managers
+ * Example phase and species definitions are given in the
+ * <a href="../../sphinx/html/yaml/phases.html#debye-huckel">YAML API Reference</a>.
+ *
+ * ## Application within Kinetics Managers
  *
  * For the time being, we have set the standard concentration for all species in
  * this phase equal to the default concentration of the solvent at 298 K and 1
@@ -480,65 +410,6 @@ class PDSS_Water;
  * \f]
  *
  * \f$k^{-1} \f$ has units of s-1.
- *
- * Note, this treatment may be modified in the future, as events dictate.
- *
- * ## XML Example
- *
- * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
- *
- * The phase model name for this is called StoichSubstance. It must be supplied
- * as the model attribute of the thermo XML element entry. Within the phase XML
- * block, the density of the phase must be specified. An example of an XML file
- * this phase is given below.
- *
- * @code
- * <phase id="NaCl_electrolyte" dim="3">
- *  <speciesArray datasrc="#species_waterSolution">
- *             H2O(L) Na+ Cl- H+ OH- NaCl(aq) NaOH(aq)
- *  </speciesArray>
- *  <state>
- *    <temperature units="K"> 300  </temperature>
- *    <pressure units="Pa">101325.0</pressure>
- *    <soluteMolalities>
- *           Na+:3.0
- *           Cl-:3.0
- *           H+:1.0499E-8
- *           OH-:1.3765E-6
- *           NaCl(aq):0.98492
- *           NaOH(aq):3.8836E-6
- *    </soluteMolalities>
- *  </state>
- *  <!-- thermo model identifies the inherited class
- *       from ThermoPhase that will handle the thermodynamics.
- *    -->
- *  <thermo model="DebyeHuckel">
- *     <standardConc model="solvent_volume" />
- *     <activityCoefficients model="Beta_ij">
- *              <!-- A_Debye units = sqrt(kg/gmol)  -->
- *              <A_Debye> 1.172576 </A_Debye>
- *              <!-- B_Debye units = sqrt(kg/gmol)/m   -->
- *              <B_Debye> 3.28640E9 </B_Debye>
- *              <ionicRadius default="3.042843"  units="Angstroms">
- *              </ionicRadius>
- *              <DHBetaMatrix>
- *                H+:Cl-:0.27
- *                Na+:Cl-:0.15
- *                Na+:OH-:0.06
- *              </DHBetaMatrix>
- *              <stoichIsMods>
- *                 NaCl(aq):-1.0
- *              </stoichIsMods>
- *              <electrolyteSpeciesType>
- *                 H+:chargedSpecies
- *                 NaCl(aq):weakAcidAssociated
- *              </electrolyteSpeciesType>
- *     </activityCoefficients>
- *     <solvent> H2O(L) </solvent>
- *  </thermo>
- *  <elementArray datasrc="elements.xml"> O H Na Cl </elementArray>
- * </phase>
- * @endcode
  */
 class DebyeHuckel : public MolalityVPSSTP
 {

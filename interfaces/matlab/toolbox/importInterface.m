@@ -1,7 +1,9 @@
 function s = importInterface(file, name, phase1, phase2)
 % IMPORTINTERFACE  Import an interface between phases.
 % s = importInterface(file, name, phase1, phase2)
-% See `Interfaces <https://cantera.org/tutorials/cti/phases.html#interfaces>`__.
+%
+% See `ideal-surface <https://cantera.org/documentation/docs-2.6/sphinx/html/yaml/phases.html#sec-yaml-ideal-surface>`__
+% and `Declaring adjacent phases <https://cantera.org/tutorials/yaml/phases.html#declaring-adjacent-phases>`__.
 %
 % :param file:
 %     YAML file containing the interface

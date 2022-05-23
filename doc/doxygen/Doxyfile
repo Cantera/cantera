@@ -947,7 +947,7 @@ EXCLUDE_SYMBOLS        = std::*
 # command).
 
 EXAMPLE_PATH           = samples \
-                         data/inputs \
+                         data \
                          doc/doxygen
 
 # If the value of the EXAMPLE_PATH tag contains directories, you can use the
@@ -958,7 +958,7 @@ EXAMPLE_PATH           = samples \
 EXAMPLE_PATTERNS       = *.cpp \
                          *.h \
                          *.py \
-                         *.cti
+                         *.yaml
 
 # If the EXAMPLE_RECURSIVE tag is set to YES then subdirectories will be
 # searched for input files to be used with the \include or \dontinclude commands

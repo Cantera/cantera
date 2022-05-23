@@ -293,10 +293,12 @@ field:
 
     ``A_Debye``
         The value of the Debye "A" parameter, or the string ``variable`` to use
-        a calculation based on the water equation of state.
+        a calculation based on the water equation of state. Defaults to the constant
+        value of 1.172576 kg^0.5/gmol^0.5, a nominal value for water at 298 K and 1 atm.
 
     ``B_Debye``
-        The Debye "B" parameter
+        The Debye "B" parameter. Defaults to 3.2864e+09 kg^0.5/gmol^0.5/m, a nominal
+        value for water.
 
     ``max-ionic-strength``
         The maximum ionic strength
@@ -413,11 +415,12 @@ field:
 
     ``temperature-model``
         The form of the Pitzer temperature model. One of ``constant``,
-        ``linear`` or ``complex``.
+        ``linear`` or ``complex``. The default is ``constant``.
 
     ``A_Debye``
         The value of the Debye "A" parameter, or the string ``variable`` to use
-        a calculation based on the water equation of state.
+        a calculation based on the water equation of state. The default is
+        1.172576 kg^0.5/gmol^0.5, a nominal value for water at 298 K and 1 atm.
 
     ``max-ionic-strength``
         The maximum ionic strength
@@ -528,6 +531,16 @@ Example::
 The ideal gas model as
 `described here <https://cantera.org/documentation/dev/doxygen/html/d7/dfa/classCantera_1_1IdealGasPhase.html#details>`__.
 
+Example::
+
+    - name: ohmech
+      thermo: ideal-gas
+      elements: [O, H, Ar, N]
+      species: [H2, H, O, O2, OH, H2O, HO2, H2O2, AR, N2]
+      kinetics: gas
+      transport: mixture-averaged
+      state: {T: 300.0, P: 1 atm}
+
 
 .. _sec-yaml-ideal-molal-solution:
 
@@ -626,6 +639,21 @@ Additional fields:
 
 ``site-density``
     The molar density of surface sites
+
+Example::
+
+    - name: Pt_surf
+      thermo: ideal-surface
+      adjacent-phases: [gas]
+      elements: [Pt, H, O, C]
+      species: [PT(S), H(S), H2O(S), OH(S), CO(S), CO2(S), CH3(S), CH2(S)s,
+        CH(S), C(S), O(S)]
+      kinetics: surface
+      reactions: all
+      state:
+        T: 900.0
+        coverages: {O(S): 0.0, PT(S): 0.5, H(S): 0.5}
+      site-density: 2.7063e-09
 
 
 .. _sec-yaml-ions-from-neutral-molecule:
