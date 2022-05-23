@@ -41,14 +41,6 @@ def copy_ext_src(target, source, env):
         shutil.copy2(cc_file, FMT_ROOT)
     shutil.copytree(FMT_SOURCE / "include" / "fmt", FMT_ROOT / "fmt")
 
-    # libexecstream
-    EXECSTREAM_ROOT = target_ext / "libexecstream"
-    EXECSTREAM_ROOT.mkdir(parents=True)  # Needed to be able to use copy2
-    shutil.copy2(source_ext / "libexecstream" / "exec-stream.cpp", EXECSTREAM_ROOT)
-    shutil.copy2(source_ext / "libexecstream" / "exec-stream.h", EXECSTREAM_ROOT)
-    shutil.copytree(source_ext / "libexecstream" / "win", EXECSTREAM_ROOT / "win")
-    shutil.copytree(source_ext / "libexecstream" / "posix", EXECSTREAM_ROOT / "posix")
-
     # yaml-cpp library
     YAML_ROOT = target_ext / "yaml-cpp"
     YAML_SOURCE = source_ext / "yaml-cpp"

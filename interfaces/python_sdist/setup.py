@@ -79,7 +79,6 @@ source_files += list(map(str, CT_SRC.glob("**/*.cpp")))
 sundials_sources = list(map(str, EXT_SRC.glob("sundials/**/*.c")))
 yaml_cpp_sources = list(map(str, EXT_SRC.glob("yaml-cpp/**/*.cpp")))
 fmt_sources = list(map(str, EXT_SRC.glob("fmt/*.cc")))
-libexecstream_sources = [str(EXT_SRC / "libexecstream" / "exec-stream.cpp")]
 
 include_dirs = [
     str(CT_INCLUDE),
@@ -206,7 +205,6 @@ libraries = [
                          sundials_macros)),
     ("yaml-cpp", lib_def(yaml_cpp_sources, extra_compile_flags, include_dirs, [])),
     ("fmtlib", lib_def(fmt_sources, extra_compile_flags, include_dirs, [])),
-    ("libexecstream", {"sources": libexecstream_sources, "include_dirs": include_dirs}),
 ]
 
 setup(
