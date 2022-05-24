@@ -74,13 +74,6 @@ void ReactorSurface::getCoverages(double* cov) const
     copy(m_cov.begin(), m_cov.end(), cov);
 }
 
-void ReactorSurface::syncCoverages()
-{
-    warn_deprecated("ReactorSurface::syncCoverages",
-                    "To be removed after Cantera 2.6. Use syncState() instead.");
-    m_thermo->setCoveragesNoNorm(m_cov.data());
-}
-
 void ReactorSurface::syncState()
 {
     m_thermo->setTemperature(m_reactor->temperature());

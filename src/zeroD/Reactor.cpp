@@ -23,7 +23,6 @@ namespace Cantera
 Reactor::Reactor() :
     m_kin(0),
     m_vdot(0.0),
-    m_Q(0.0),
     m_Qdot(0.0),
     m_mass(0.0),
     m_chem(false),
@@ -273,7 +272,6 @@ void Reactor::evalWalls(double t)
         m_vdot -= f * m_wall[i]->vdot(t);
         m_Qdot += f * m_wall[i]->Q(t);
     }
-    m_Q = -m_Qdot;
 }
 
 void Reactor::evalSurfaces(double* LHS, double* RHS, double* sdot)

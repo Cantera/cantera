@@ -67,11 +67,6 @@ public:
     //! number of surface species.
     void getCoverages(double* cov) const;
 
-    //! Set the coverages in the surface phase object to the values for this
-    //! surface.
-    //! @deprecated To be removed after Cantera 2.6. Use syncState() instead.
-    void syncCoverages();
-
     //! Set the coverages and temperature in the surface phase object to the
     //! values for this surface. The temperature is set to match the bulk phase
     //! of the attached Reactor.

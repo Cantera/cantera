@@ -42,12 +42,6 @@ class Reactor : public ReactorBase
 public:
     Reactor();
 
-    virtual std::string typeStr() const {
-        warn_deprecated("Reactor::typeStr",
-                        "To be removed after Cantera 2.6. Use type() instead.");
-        return "Reactor";
-    }
-
     virtual std::string type() const {
         return "Reactor";
     }
@@ -103,19 +97,6 @@ public:
     virtual void getState(doublereal* y);
 
     virtual void initialize(doublereal t0 = 0.0);
-
-    /*!
-     * Evaluate the reactor governing equations. Called by ReactorNet::eval.
-     * @param[in] t time.
-     * @param[in] y solution vector, length neq()
-     * @param[out] ydot rate of change of solution vector, length neq()
-     * @param[in] params sensitivity parameter vector, length ReactorNet::nparams()
-     * @deprecated Replaced by eval(double t, double* LHS, double* RHS). To be removed after
-     *     Cantera 2.6.
-     */
-    virtual void evalEqs(double t, double* y, double* ydot, double* params) {
-        throw NotImplementedError("Reactor::evalEqs", "Deprecated");
-    }
 
     //! Evaluate the reactor governing equations. Called by ReactorNet::eval.
     //! @param[in] t time.
@@ -185,7 +166,7 @@ protected:
     //! specific reactor implementations.
     virtual size_t speciesIndex(const std::string& nm) const;
 
-    //! Evaluate terms related to Walls. Calculates #m_vdot and #m_Q based on
+    //! Evaluate terms related to Walls. Calculates #m_vdot and #m_Qdot based on
     //! wall movement and heat transfer.
     //! @param t     the current time
     virtual void evalWalls(double t);
@@ -216,11 +197,6 @@ protected:
     Kinetics* m_kin;
 
     doublereal m_vdot; //!< net rate of volume change from moving walls [m^3/s]
-
-    //! net heat transfer out of the reactor, through walls [W]
-    //! @deprecated To be removed after Cantera 2.6. Replaced with #m_Qdot, which
-    //!     has the opposite sign convention.
-    double m_Q;
 
     double m_Qdot; //!< net heat transfer into the reactor, through walls [W]
 

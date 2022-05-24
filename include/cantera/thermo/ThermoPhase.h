@@ -1615,26 +1615,6 @@ public:
      */
     virtual void initThermo();
 
-    //! Set the equation of state parameters
-    /*!
-     * @internal The number and meaning of these depends on the subclass.
-     *
-     * @param n number of parameters
-     * @param c array of \a n coefficients
-     * @deprecated To be removed after Cantera 2.6
-     */
-    virtual void setParameters(int n, doublereal* const c);
-
-    //! Get the equation of state parameters in a vector
-    /*!
-     * @internal The number and meaning of these depends on the subclass.
-     *
-     * @param n number of parameters
-     * @param c array of \a n coefficients
-     * @deprecated To be removed after Cantera 2.6
-     */
-    virtual void getParameters(int& n, doublereal* const c) const;
-
     //! Set equation of state parameters from an AnyMap phase description.
     //! Phases that need additional parameters from the root node should
     //! override this method.
@@ -1817,10 +1797,6 @@ protected:
     //! last value of the temperature processed by reference state
     mutable doublereal m_tlast;
 };
-
-//! typedef for the ThermoPhase class
-//! @deprecated To be removed after Cantera 2.6.
-typedef ThermoPhase thermo_t;
 
 }
 

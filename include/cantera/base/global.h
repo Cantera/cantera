@@ -90,17 +90,6 @@ void thread_complete();
 //! Returns the hash of the git commit from which Cantera was compiled, if known
 std::string gitCommit();
 
-//! Returns root directory where %Cantera is installed
-/*!
- * @returns a string containing the name of the base directory where %Cantera is
- *     installed. If the environmental variable CANTERA_ROOT is defined, this
- *     function will return its value, preferentially.
- * @deprecated Unused within Cantera. To be removed after Cantera 2.6
- *
- * @ingroup inputfiles
- */
-std::string canteraRoot();
-
 //! Returns true if Cantera was compiled in debug mode. Used for handling some cases
 //! where behavior tested in the test suite changes depending on whether the `NDEBUG`
 //! preprocessor macro is defined.

@@ -21,12 +21,6 @@ class MassFlowController : public FlowDevice
 public:
     MassFlowController();
 
-    virtual std::string typeStr() const {
-        warn_deprecated("MassFlowController::typeStr",
-                        "To be removed after Cantera 2.6. Use type() instead.");
-        return "MassFlowController";
-    }
-
     virtual std::string type() const {
         return "MassFlowController";
     }
@@ -70,12 +64,6 @@ class PressureController : public FlowDevice
 {
 public:
     PressureController();
-
-    virtual std::string typeStr() const {
-        warn_deprecated("PressureController::typeStr",
-                        "To be removed after Cantera 2.6. Use type() instead.");
-        return "PressureController";
-    }
 
     virtual std::string type() const {
         return "PressureController";
@@ -130,12 +118,6 @@ class Valve : public FlowDevice
 {
 public:
     Valve();
-
-    virtual std::string typeStr() const {
-        warn_deprecated("Valve::typeStr",
-                        "To be removed after Cantera 2.6. Use type() instead.");
-        return "Valve";
-    }
 
     virtual std::string type() const {
         return "Valve";

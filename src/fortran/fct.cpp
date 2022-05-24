@@ -646,7 +646,7 @@ extern "C" {
 
     status_t th_getpartialmolarenthalpies_(const integer* n, double* hbar) {
       try {
-        thermo_t* thrm = _fth(n);
+        ThermoPhase* thrm = _fth(n);
         thrm->getPartialMolarEnthalpies(hbar);
       } catch(...) {
         return handleAllExceptions(-1, ERR);
@@ -656,7 +656,7 @@ extern "C" {
 
     status_t th_getpartialmolarcp_(const integer* n, double* cpbar) {
       try {
-        thermo_t* thrm = _fth(n);
+        ThermoPhase* thrm = _fth(n);
         thrm->getPartialMolarCp(cpbar);
       } catch(...) {
         return handleAllExceptions(-1, ERR);

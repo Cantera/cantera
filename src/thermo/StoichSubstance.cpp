@@ -175,15 +175,4 @@ void StoichSubstance::getSpeciesParameters(const std::string& name,
     }
 }
 
-void StoichSubstance::setParameters(int n, doublereal* const c)
-{
-    assignDensity(c[0]);
-}
-
-void StoichSubstance::getParameters(int& n, doublereal* const c) const
-{
-    n = 1;
-    c[0] = density();
-}
-
 }

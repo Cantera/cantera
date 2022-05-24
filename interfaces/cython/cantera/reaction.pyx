@@ -1138,21 +1138,6 @@ cdef class Reaction:
         return Reaction.wrap(cxx_reaction)
 
     @classmethod
-    def fromYaml(cls, text, Kinetics kinetics=None):
-        """
-        Create a `Reaction` object from its YAML string representation.
-
-        .. deprecated:: 2.6
-
-            To be deprecated with version 2.6, and removed thereafter.
-            Replaced by `Reaction.from_yaml`.
-        """
-        warnings.warn("Class method 'fromYaml' is renamed to 'from_yaml' "
-            "and will be removed after Cantera 2.6.", DeprecationWarning)
-
-        return cls.from_yaml(text, kinetics)
-
-    @classmethod
     def from_yaml(cls, text, Kinetics kinetics):
         """
         Create a `Reaction` object from its YAML string representation.

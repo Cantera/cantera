@@ -19,48 +19,12 @@ using namespace std;
 namespace Cantera
 {
 
-IdealSolidSolnPhase::IdealSolidSolnPhase(int formGC) :
-    m_formGC(formGC),
-    m_Pref(OneAtm),
-    m_Pcurrent(OneAtm)
-{
-    // @todo: After Cantera 2.6, this constructor can be deleted and the default
-    // construction option can be provided by adding "" as the default argument
-    // to the constructor from input file name and phase id.
-    if (formGC == -1) {
-        formGC = 0;
-    } else {
-        warn_deprecated("IdealSolidSolnPhase(int formGC)",
-            "The formGC constructor argument is deprecated and will be removed"
-            " after Cantera 2.6. Use the setStandardConcentrationModel"
-            " method instead.");
-    }
-    m_formGC = formGC;
-    if (formGC < 0 || formGC > 2) {
-        throw CanteraError("IdealSolidSolnPhase::IdealSolidSolnPhase",
-                           "Illegal value of formGC");
-    }
-}
-
 IdealSolidSolnPhase::IdealSolidSolnPhase(const std::string& inputFile,
-        const std::string& id_, int formGC) :
-    m_formGC(formGC),
+        const std::string& id_) :
+    m_formGC(0),
     m_Pref(OneAtm),
     m_Pcurrent(OneAtm)
 {
-    if (formGC == -1) {
-        formGC = 0;
-    } else {
-        warn_deprecated("IdealSolidSolnPhase(string inputFile, string id_, int formGC)",
-            "The formGC constructor argument is deprecated and will be removed"
-            " after Cantera 2.6. Use the setStandardConcentrationModel"
-            " method instead.");
-    }
-    m_formGC = formGC;
-    if (formGC < 0 || formGC > 2) {
-        throw CanteraError("IdealSolidSolnPhase::IdealSolidSolnPhase",
-                           "Illegal value of formGC");
-    }
     initThermoFile(inputFile, id_);
 }
 
