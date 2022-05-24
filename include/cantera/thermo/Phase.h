@@ -850,10 +850,6 @@ public:
         m_caseSensitiveSpecies = cflag;
     }
 
-    //! Set root Solution holding all phase information
-    //! @deprecated This function has no effect. To be removed after Cantera 2.6.
-    virtual void setRoot(std::shared_ptr<Solution> root);
-
     //! Converts a compositionMap to a vector with entries for each species
     //! Species that are not specified are set to zero in the vector
     /*!

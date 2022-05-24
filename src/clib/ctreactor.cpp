@@ -50,13 +50,6 @@ extern "C" {
         }
     }
 
-    int reactor_new2(const char* type)
-    {
-        warn_deprecated("reactor_new2(char*)",
-                "To be removed after Cantera 2.6. Use reactor_new(char*) instead");
-        return reactor_new(type);
-    }
-
     int reactor_del(int i)
     {
         try {
@@ -357,18 +350,6 @@ extern "C" {
         }
     }
 
-    int flowdev_new2(const char* type)
-    {
-        warn_deprecated("flowdev_new2(char*)",
-                "To be removed after Cantera 2.6. Use flowdev_new(char*) instead.");
-        try {
-            FlowDevice* f = FlowDeviceFactory::factory()->newFlowDevice(type);
-            return FlowDeviceCabinet::add(f);
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
     int flowdev_del(int i)
     {
         try {
@@ -408,17 +389,6 @@ extern "C" {
     double flowdev_massFlowRate(int i)
     {
         try {
-            return FlowDeviceCabinet::item(i).massFlowRate();
-        } catch (...) {
-            return handleAllExceptions(DERR, DERR);
-        }
-    }
-
-    double flowdev_massFlowRate2(int i)
-    {
-        try {
-            warn_deprecated("flowdev_massFlowRate2(int i)",
-                "To be removed after Cantera 2.6. Use flowdev_massFlowRate(int i).");
             return FlowDeviceCabinet::item(i).massFlowRate();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
@@ -479,18 +449,6 @@ extern "C" {
 
     int wall_new(const char* type)
     {
-        try {
-            WallBase* w = WallFactory::factory()->newWall(type);
-            return WallCabinet::add(w);
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int wall_new2(const char* type)
-    {
-        warn_deprecated("wall_new2(char*)",
-                "To be removed after Cantera 2.6. Use wall_new(char*) instead.");
         try {
             WallBase* w = WallFactory::factory()->newWall(type);
             return WallCabinet::add(w);

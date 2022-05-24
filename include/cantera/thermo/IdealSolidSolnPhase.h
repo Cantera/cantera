@@ -39,18 +39,6 @@ namespace Cantera
 class IdealSolidSolnPhase : public ThermoPhase
 {
 public:
-    /**
-     * Constructor for IdealSolidSolnPhase.
-     * The generalized concentrations can have three different forms
-     * depending on the value of the member attribute #m_formGC, which
-     * is supplied in the constructor or read from the input file.
-     *
-     * @param formCG This parameter initializes the #m_formGC variable.
-     * @deprecated the formGC argument is deprecated and will be removed after
-     *     Cantera 2.6. Use the setStandardConcentrationModel method instead.
-     */
-    IdealSolidSolnPhase(int formCG=-1);
-
     //! Construct and initialize an IdealSolidSolnPhase ThermoPhase object
     //! directly from an ASCII input file
     /*!
@@ -64,12 +52,9 @@ public:
      *               created.
      * @param id     The name of this phase. This is used to look up
      *               the phase in the input file.
-     * @param formCG This parameter initializes the #m_formGC variable.
-     * @deprecated the formGC argument is deprecated and will be removed after
-     *     Cantera 2.6. Use the setStandardConcentrationModel method instead.
      */
-    explicit IdealSolidSolnPhase(const std::string& infile,
-                                 const std::string& id="", int formCG=-1);
+    explicit IdealSolidSolnPhase(const std::string& infile="",
+                                 const std::string& id="");
 
     virtual std::string type() const {
         return "IdealSolidSoln";

@@ -227,29 +227,6 @@ public:
     virtual void initThermo();
     virtual void getSpeciesParameters(const std::string& name,
                                       AnyMap& speciesNode) const;
-
-    //! Set the equation of state parameters
-    /*!
-     * @internal
-     *
-     * @param n number of parameters
-     * @param c array of \a n coefficients
-     *        c[0] = density of phase [ kg/m3 ]
-     */
-    virtual void setParameters(int n, doublereal* const c);
-
-    //! Get the equation of state parameters in a vector
-    /*!
-     * @internal
-     *
-     * @param n number of parameters
-     * @param c array of \a n coefficients
-     *
-     *  For this phase:
-     *       -  n = 1
-     *       -  c[0] = density of phase [ kg/m3 ]
-     */
-    virtual void getParameters(int& n, doublereal* const c) const;
 };
 
 }

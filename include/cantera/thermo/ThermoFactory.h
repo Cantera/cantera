@@ -24,31 +24,6 @@ namespace Cantera
  */
 //@{
 
-//! Specific error to be thrown if the type of Thermo manager is unrecognized.
-/*!
- * This particular error class may be caught, if the application may have other
- * models that the main Cantera application doesn't know about.
- *
- * @deprecated Unused. To be removed after Cantera 2.6.
- */
-class UnknownThermoPhaseModel : public CanteraError
-{
-public:
-    //! Constructor
-    /*!
-     * @param proc Function name where the error occurred.
-     * @param thermoModel Sting name of ThermoPhase which didn't match
-     */
-    UnknownThermoPhaseModel(const std::string& proc,
-                            const std::string& thermoModel) :
-        CanteraError(proc, "Specified ThermoPhase model "
-                     + thermoModel +
-                     " does not match any known type.") {
-        warn_deprecated("class UnknownThermoPhaseModel",
-            "Unused. To be removed after Cantera 2.6.");
-    }
-};
-
 
 //! Factory class for thermodynamic property managers.
 /*!

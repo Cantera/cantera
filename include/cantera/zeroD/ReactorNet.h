@@ -295,8 +295,6 @@ protected:
     //! "left hand side" of each governing equation
     vector_fp m_LHS;
     vector_fp m_RHS;
-    bool m_checked_eval_deprecation; //!< @todo Remove after Cantera 2.6
-    std::vector<bool> m_have_deprecated_eval; //!< @todo Remove after Cantera 2.6
 };
 }
 

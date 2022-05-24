@@ -146,22 +146,6 @@ std::string findInputFile(const std::string& name)
     return app()->findInputFile(name);
 }
 
-string canteraRoot()
-{
-    warn_deprecated("canteraRoot",
-                    "Unused in Cantera. To be removed after Cantera 2.6");
-    char* ctroot = getenv("CANTERA_ROOT");
-    if (ctroot != 0) {
-        return string(ctroot);
-    }
-#ifdef CANTERA_ROOT
-    return string(CANTERA_ROOT);
-#else
-    return "";
-#endif
-
-}
-
 bool debugModeEnabled()
 {
 #ifdef NDEBUG

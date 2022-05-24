@@ -19,12 +19,6 @@ class Reservoir : public ReactorBase
 public:
     Reservoir() {}
 
-    virtual std::string typeStr() const {
-        warn_deprecated("Reservoir::typeStr",
-                        "To be removed after Cantera 2.6. Use type() instead.");
-        return "Reservoir";
-    }
-
     virtual std::string type() const {
         return "Reservoir";
     }

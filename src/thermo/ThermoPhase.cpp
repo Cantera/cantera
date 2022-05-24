@@ -1144,19 +1144,6 @@ void ThermoPhase::modifySpecies(size_t k, shared_ptr<Species> spec)
     m_spthermo.modifySpecies(k, spec->thermo);
 }
 
-void ThermoPhase::setParameters(int n, doublereal* const c)
-{
-    warn_deprecated("ThermoPhase::setParamters(int, double*)",
-        "To be removed after Cantera 2.6.");
-}
-
-void ThermoPhase::getParameters(int& n, doublereal* const c) const
-{
-    warn_deprecated("ThermoPhase::getParamters(int&, double*)",
-        "To be removed after Cantera 2.6.");
-}
-
-
 void ThermoPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
 {
     m_input = phaseNode;

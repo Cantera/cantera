@@ -967,11 +967,6 @@ void Phase::compositionChanged() {
     m_stateNum++;
 }
 
-void Phase::setRoot(std::shared_ptr<Solution> root) {
-    warn_deprecated("Phase::setRoot",
-                    "This function has no effect. To be removed after Cantera 2.6.");
-}
-
 vector_fp Phase::getCompositionFromMap(const compositionMap& comp) const
 {
     vector_fp X(m_kk);

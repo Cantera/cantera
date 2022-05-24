@@ -20,22 +20,6 @@ using namespace std;
 
 namespace Cantera
 {
-SurfPhase::SurfPhase(doublereal n0):
-    m_press(OneAtm)
-{
-    // @todo After Cantera 2.6, this constructor can be deleted and a
-    // default value of "" can be added to for the infile argument of
-    // the other constructor to make this class default constructible.
-    if (n0 != -1.0) {
-        warn_deprecated("SurfPhase(double)", "The 'n0' argument to the "
-            "SurfPhase constructor is deprecated and will be removed after "
-            "Cantera 2.6. Use the 'setSiteDensity' method instead.");
-    } else {
-        n0 = 1.0;
-    }
-    setSiteDensity(n0);
-    setNDim(2);
-}
 
 SurfPhase::SurfPhase(const std::string& infile, const std::string& id_) :
     m_n0(1.0),
@@ -141,17 +125,6 @@ doublereal SurfPhase::standardConcentration(size_t k) const
 doublereal SurfPhase::logStandardConc(size_t k) const
 {
     return m_logn0 - m_logsize[k];
-}
-
-void SurfPhase::setParameters(int n, doublereal* const c)
-{
-    warn_deprecated("SurfPhase::setParamters(int, double*)",
-        "To be removed after Cantera 2.6.");
-    if (n != 1) {
-        throw CanteraError("SurfPhase::setParameters",
-                           "Bad value for number of parameter");
-    }
-    setSiteDensity(c[0]);
 }
 
 void SurfPhase::getPureGibbs(doublereal* g) const
@@ -338,19 +311,6 @@ void SurfPhase::getParameters(AnyMap& phaseNode) const
     ThermoPhase::getParameters(phaseNode);
     phaseNode["site-density"].setQuantity(
         m_n0, Units(1.0, 0, -static_cast<double>(m_ndim), 0, 0, 0, 1));
-}
-
-EdgePhase::EdgePhase(doublereal n0)
-{
-    if (n0 != -1.0) {
-        warn_deprecated("EdgePhase(double)", "The 'n0' argument to the "
-            "EdgePhase constructor is deprecated and will be removed after "
-            "Cantera 2.6. Use the 'setSiteDensity' method instead.");
-    } else {
-        n0 = 1.0;
-    }
-    setSiteDensity(n0);
-    setNDim(1);
 }
 
 EdgePhase::EdgePhase(const std::string& infile, const std::string& id_)

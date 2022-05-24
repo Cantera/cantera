@@ -17,12 +17,6 @@ class FlowReactor : public Reactor
 public:
     FlowReactor();
 
-    virtual std::string typeStr() const {
-        warn_deprecated("FlowReactor::typeStr",
-                        "To be removed after Cantera 2.6. Use type() instead.");
-        return "FlowReactor";
-    }
-
     virtual std::string type() const {
         return "FlowReactor";
     }

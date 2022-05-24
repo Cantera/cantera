@@ -968,13 +968,9 @@ class ReactionTests:
         # perform additional setup after construction (whenever applicable)
         return rxn
 
-    def from_yaml(self, deprecated=False):
+    def from_yaml(self):
         # create reaction object from yaml
-        if deprecated:
-            with self.assertWarnsRegex(DeprecationWarning, "is renamed to 'from_yaml'"):
-                rxn = ct.Reaction.fromYaml(self._yaml, kinetics=self.soln)
-        else:
-            rxn = self.finalize(ct.Reaction.from_yaml(self._yaml, kinetics=self.soln))
+        rxn = self.finalize(ct.Reaction.from_yaml(self._yaml, kinetics=self.soln))
         return self.finalize(rxn)
 
     def from_dict(self):
@@ -1086,7 +1082,6 @@ class ReactionTests:
     def test_from_yaml(self):
         # check constructors (from yaml input)
         self.check_rxn(self.from_yaml())
-        self.check_rxn(self.from_yaml(deprecated=True))
 
     def test_from_dict(self):
         # check instantiation from a yaml dictionary (input_data)
@@ -1722,7 +1717,7 @@ class TestCustom(ReactionTests, utilities.CanteraTest):
         super().setUp()
         self._rate = lambda T: 38.7 * T**2.7 * exp(-3150.15428/T)
 
-    def from_yaml(self, deprecated=False):
+    def from_yaml(self):
         pytest.skip("CustomReaction does not support YAML")
 
     def test_raises_invalid_rate(self):
