@@ -362,8 +362,8 @@ jobs:
           python -c 'import cantera as ct; import sys; sys.exit(0) if ct.__version__.startswith("3.0.0") else sys.exit(1)'
           ck2yaml --input=test/data/h2o2.inp --output=h2o2-test.yaml
           test -f h2o2-test.yaml
-          cti2yaml test/data/air-no-reactions.cti air-no-reaction-test.yaml
-          test -f air-no-reaction-test.yaml
+          cti2yaml test/data/ch4_ion.cti ch4_ion-test.yaml
+          test -f ch4_ion-test.yaml
 
   check-deprecations:
     name: Run test suite without legacy typedefs
@@ -450,8 +450,8 @@ jobs:
         python -c 'import cantera as ct; import sys; sys.exit(0) if ct.__version__.startswith("3.0.0") else sys.exit(1)'
         ck2yaml --input=test/data/h2o2.inp --output=h2o2-test.yaml
         test -f h2o2-test.yaml
-        cti2yaml test/data/air-no-reactions.cti air-no-reaction-test.yaml
-        test -f air-no-reaction-test.yaml
+        cti2yaml test/data/ch4_ion.cti ch4_ion-test.yaml
+        test -f ch4_ion-test.yaml
 
   windows:
     name: "Windows 2019, MSVC ${{ matrix.vs-toolset }}, Python ${{ matrix.python-version }}"
