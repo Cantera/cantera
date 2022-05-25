@@ -15,80 +15,10 @@ namespace Cantera
 
 //! Calculate and apply third-body effects on reaction rates, including non-
 //! unity third-body efficiencies.
-//! Used by legacy reactions
 class ThirdBodyCalc
 {
 public:
-    void install(size_t rxnNumber, const std::map<size_t, double>& enhanced,
-                 double dflt=1.0, size_t rxnIndex=npos) {
-        m_reaction_index.push_back(rxnNumber);
-        m_default.push_back(dflt);
-
-        m_species.emplace_back();
-        m_eff.emplace_back();
-        for (const auto& eff : enhanced) {
-            AssertTrace(eff.first != npos);
-            m_species.back().push_back(eff.first);
-            m_eff.back().push_back(eff.second - dflt);
-        }
-        if (rxnIndex == npos) {
-            m_true_index.push_back(rxnNumber);
-        } else {
-            m_true_index.push_back(rxnIndex);
-        }
-    }
-
-    void update(const vector_fp& conc, double ctot, double* work) {
-        for (size_t i = 0; i < m_species.size(); i++) {
-            double sum = 0.0;
-            for (size_t j = 0; j < m_species[i].size(); j++) {
-                sum += m_eff[i][j] * conc[m_species[i][j]];
-            }
-            work[i] = m_default[i] * ctot + sum;
-        }
-    }
-
-    //! Update third-body concentrations in full vector
-    void copy(const vector_fp& work, double* concm) {
-        for (size_t i = 0; i < m_true_index.size(); i++) {
-            concm[m_true_index[i]] = work[i];
-        }
-    }
-
-    void multiply(double* output, const double* work) {
-        for (size_t i = 0; i < m_reaction_index.size(); i++) {
-            output[m_reaction_index[i]] *= work[i];
-        }
-    }
-
-    size_t workSize() {
-        return m_reaction_index.size();
-    }
-
-protected:
-    //! Indices of reactions that use third-bodies within vector of concentrations
-    std::vector<size_t> m_reaction_index;
-
-    //! Actual index of reaction within the full reaction array
-    std::vector<size_t> m_true_index;
-
-    //! m_species[i][j] is the index of the j-th species in reaction i.
-    std::vector<std::vector<size_t> > m_species;
-
-    //! m_eff[i][j] is the efficiency of the j-th species in reaction i.
-    std::vector<vector_fp> m_eff;
-
-    //! The default efficiency for each reaction
-    vector_fp m_default;
-};
-
-
-//! Calculate and apply third-body effects on reaction rates, including non-
-//! unity third-body efficiencies.
-class ThirdBodyCalc3
-{
-public:
-    //! Install reaction that uses third-body effects in ThirdBodyCalc3 manager
+    //! Install reaction that uses third-body effects in ThirdBodyCalc manager
     void install(size_t rxnNumber, const std::map<size_t, double>& efficiencies,
                   double default_efficiency, bool mass_action) {
         m_reaction_index.push_back(rxnNumber);
@@ -187,7 +117,7 @@ public:
         }
     }
 
-    //! Return boolean indicating whether ThirdBodyCalc3 is empty
+    //! Return boolean indicating whether ThirdBodyCalc is empty
     bool empty() const {
         return m_reaction_index.empty();
     }

@@ -42,23 +42,8 @@ void GasKinetics::update_rates_T()
     double T = thermo().temperature();
     double P = thermo().pressure();
     m_logStandConc = log(thermo().standardConcentration());
-    double logT = log(T);
 
     if (T != m_temp) {
-        // Update forward rate constant for each reaction
-        if (!m_rfn.empty()) {
-            m_rates.update(T, logT, m_rfn.data());
-        }
-
-        // Falloff reactions (legacy)
-        if (!m_rfn_low.empty()) {
-            m_falloff_low_rates.update(T, logT, m_rfn_low.data());
-            m_falloff_high_rates.update(T, logT, m_rfn_high.data());
-        }
-        if (!falloff_work.empty()) {
-            m_falloffn.updateTemp(T, falloff_work.data());
-        }
-
         updateKc();
         m_ROP_ok = false;
     }
@@ -68,19 +53,6 @@ void GasKinetics::update_rates_T()
         bool changed = rates->update(thermo(), *this);
         if (changed) {
             rates->getRateConstants(m_rfn.data());
-            m_ROP_ok = false;
-        }
-    }
-    if (T != m_temp || P != m_pres) {
-        // P-log reactions (legacy)
-        if (m_plog_rates.nReactions()) {
-            m_plog_rates.update(T, logT, m_rfn.data());
-            m_ROP_ok = false;
-        }
-
-        // Chebyshev reactions (legacy)
-        if (m_cheb_rates.nReactions()) {
-            m_cheb_rates.update(T, logT, m_rfn.data());
             m_ROP_ok = false;
         }
     }
@@ -96,31 +68,6 @@ void GasKinetics::update_rates_C()
 
     // Third-body objects interacting with MultiRate evaluator
     m_multi_concm.update(m_phys_conc, ctot, m_concm.data());
-
-    // 3-body reactions (legacy)
-    if (!concm_3b_values.empty()) {
-        m_3b_concm.update(m_phys_conc, ctot, concm_3b_values.data());
-        m_3b_concm.copy(concm_3b_values, m_concm.data());
-    }
-
-    // Falloff reactions (legacy)
-    if (!concm_falloff_values.empty()) {
-        m_falloff_concm.update(m_phys_conc, ctot, concm_falloff_values.data());
-        m_falloff_concm.copy(concm_falloff_values, m_concm.data());
-    }
-
-    // P-log reactions (legacy)
-    if (m_plog_rates.nReactions()) {
-        double logP = log(thermo().pressure());
-        m_plog_rates.update_C(&logP);
-    }
-
-    // Chebyshev reactions (legacy)
-    if (m_cheb_rates.nReactions()) {
-        double log10P = log10(thermo().pressure());
-        m_cheb_rates.update_C(&log10P);
-    }
-
     m_ROP_ok = false;
 }
 
@@ -153,10 +100,6 @@ void GasKinetics::processFwdRateCoefficients(double* ropf)
     // copy rate coefficients into ropf
     copy(m_rfn.begin(), m_rfn.end(), ropf);
 
-    if (m_falloff_high_rates.nReactions()) {
-        processFalloffReactions(ropf);
-    }
-
     // Scale the forward rate coefficient by the perturbation factor
     for (size_t i = 0; i < nReactions(); ++i) {
         ropf[i] *= m_perturb[i];
@@ -165,11 +108,6 @@ void GasKinetics::processFwdRateCoefficients(double* ropf)
 
 void GasKinetics::processThirdBodies(double* rop)
 {
-    // multiply rop by enhanced 3b conc for all 3b rxns
-    if (!concm_3b_values.empty()) {
-        m_3b_concm.multiply(rop, concm_3b_values.data());
-    }
-
     // reactions involving third body
     if (!m_concm.empty()) {
         m_multi_concm.multiply(rop, m_concm.data());
@@ -198,29 +136,6 @@ void GasKinetics::getEquilibriumConstants(doublereal* kc)
     double rrt = 1.0 / thermo().RT();
     for (size_t i = 0; i < nReactions(); i++) {
         kc[i] = exp(-delta_gibbs0[i] * rrt + m_dn[i] * m_logStandConc);
-    }
-}
-
-void GasKinetics::processFalloffReactions(double* ropf)
-{
-    // use m_ropr for temporary storage of reduced pressure
-    vector_fp& pr = m_ropr;
-
-    for (size_t i = 0; i < m_falloff_low_rates.nReactions(); i++) {
-        pr[i] = concm_falloff_values[i] * m_rfn_low[i] / (m_rfn_high[i] + SmallNumber);
-        AssertFinite(pr[i], "GasKinetics::processFalloffReactions",
-                     "pr[{}] is not finite.", i);
-    }
-
-    m_falloffn.pr_to_falloff(pr.data(), falloff_work.data());
-
-    for (size_t i = 0; i < m_falloff_low_rates.nReactions(); i++) {
-        if (reactionTypeStr(m_fallindx[i]) == "falloff-legacy") {
-            pr[i] *= m_rfn_high[i];
-        } else { // CHEMACT_RXN
-            pr[i] *= m_rfn_low[i];
-        }
-        ropf[m_fallindx[i]] = pr[i];
     }
 }
 
@@ -286,11 +201,6 @@ void GasKinetics::setDerivativeSettings(const AnyMap& settings)
 
 void GasKinetics::assertDerivativesValid(const std::string& name)
 {
-    if (m_legacy.size()) {
-        // Do not support legacy CTI/XML-based reaction rate evaluators
-        throw CanteraError(name, "Not supported for legacy (CTI/XML) input format.");
-    }
-
     if (!thermo().isIdeal()) {
         throw NotImplementedError(name,
             "Not supported for non-ideal ThermoPhase models.");
