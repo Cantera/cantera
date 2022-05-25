@@ -28,11 +28,6 @@ Reaction
 .. autoclass:: Reaction
    :no-undoc-members:
 
-ElementaryReaction
-^^^^^^^^^^^^^^^^^^
-.. autoclass:: ElementaryReaction
-   :no-undoc-members:
-
 ThreeBodyReaction
 ^^^^^^^^^^^^^^^^^
 .. autoclass:: ThreeBodyReaction
@@ -41,26 +36,6 @@ ThreeBodyReaction
 FalloffReaction
 ^^^^^^^^^^^^^^^
 .. autoclass:: FalloffReaction
-   :no-undoc-members:
-
-ChemicallyActivatedReaction
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-.. autoclass:: ChemicallyActivatedReaction
-   :no-undoc-members:
-
-PlogReaction
-^^^^^^^^^^^^
-.. autoclass:: PlogReaction
-   :no-undoc-members:
-
-ChebyshevReaction
-^^^^^^^^^^^^^^^^^
-.. autoclass:: ChebyshevReaction
-   :no-undoc-members:
-
-InterfaceReaction
-^^^^^^^^^^^^^^^^^
-.. autoclass:: InterfaceReaction
    :no-undoc-members:
 
 Reaction Rates
@@ -160,27 +135,12 @@ StickingBlowersMaselRate
 .. autoclass:: StickingBlowersMaselRate(A, b, Ea0, w)
    :no-undoc-members:
 
-Auxiliary Reaction Data (legacy only)
--------------------------------------
+Auxiliary Reaction Data
+-----------------------
 
 Arrhenius
 ^^^^^^^^^
 .. autoclass:: Arrhenius(A, b, E)
-
-Falloff
-^^^^^^^
-.. autoclass:: Falloff(params=(), init=True)
-   :no-undoc-members:
-
-TroeFalloff
-^^^^^^^^^^^
-.. autoclass:: TroeFalloff(params=(), init=True)
-   :no-undoc-members:
-
-SriFalloff
-^^^^^^^^^^
-.. autoclass:: SriFalloff(params=(), init=True)
-   :no-undoc-members:
 
 Reaction Path Analysis
 ----------------------
