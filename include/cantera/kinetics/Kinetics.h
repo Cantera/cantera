@@ -1043,22 +1043,15 @@ public:
     /**
      * Return the forward rate constants
      *
-     * The computed values include all temperature-dependent, pressure-dependent,
-     * and third body contributions. Length is the number of reactions. Units are
-     * a combination of kmol, m^3 and s, that depend on the rate expression for
-     * the reaction.
+     * The computed values include all temperature-dependent and pressure-dependent
+     * contributions. By default, third-body concentrations are only considered if
+     * they are part of the reaction rate definition; for a legacy implementation that
+     * includes third-body concentrations @see Cantera::use_legacy_rate_constants().
+     * Length is the number of reactions. Units are a combination of kmol, m^3 and s,
+     * that depend on the rate expression for the reaction.
      *
      * @param kfwd    Output vector containing the forward reaction rate
      *                constants. Length: nReactions().
-     *
-     * @deprecated  Behavior to change after Cantera 2.6; for Cantera 2.6, rate
-     *              constants of three-body reactions are multiplied with third-body
-     *              concentrations (no change to legacy behavior). After Cantera 2.6,
-     *              results will no longer include third-body concentrations and be
-     *              consistent with conventional definitions (see Eq. 9.75 in
-     *              Kee, Coltrin and Glarborg, 'Chemically Reacting Flow', Wiley
-     *              Interscience, 2003).
-     *              For new behavior, set 'Cantera::use_legacy_rate_constants(false)'.
      */
     virtual void getFwdRateConstants(double* kfwd) {
         throw NotImplementedError("Kinetics::getFwdRateConstants");
@@ -1067,24 +1060,18 @@ public:
     /**
      * Return the reverse rate constants.
      *
-     * The computed values include all temperature-dependent, pressure-dependent,
-     * and third body contributions. Length is the number of reactions. Units are
-     * a combination of kmol, m^3 and s, that depend on the rate expression for
-     * the reaction. Note, this routine will return rate constants for
-     * irreversible reactions if the default for `doIrreversible` is overridden.
+     * The computed values include all temperature-dependent and pressure-dependent
+     * contributions. By default, third-body concentrations are only considered if
+     * they are part of the reaction rate definition; for a legacy implementation that
+     * includes third-body concentrations @see Cantera::use_legacy_rate_constants().
+     * Length is the number of reactions. Units are a combination of kmol, m^3 and s,
+     * that depend on the rate expression for the reaction. Note, this routine will
+     * return rate constants for irreversible reactions if the default for
+     * `doIrreversible` is overridden.
      *
      * @param krev   Output vector of reverse rate constants
      * @param doIrreversible boolean indicating whether irreversible reactions
      *                       should be included.
-     *
-     * @deprecated  Behavior to change after Cantera 2.6; for Cantera 2.6, rate
-     *              constants of three-body reactions are multiplied with third-body
-     *              concentrations (no change to legacy behavior). After Cantera 2.6,
-     *              results will no longer include third-body concentrations and be
-     *              consistent with conventional definitions (see Eq. 9.75 in
-     *              Kee, Coltrin and Glarborg, 'Chemically Reacting Flow', Wiley
-     *              Interscience, 2003).
-     *              For new behavior, set 'Cantera::use_legacy_rate_constants(false)'.
      */
     virtual void getRevRateConstants(double* krev,
                                      bool doIrreversible = false) {

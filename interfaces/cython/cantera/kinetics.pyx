@@ -436,40 +436,24 @@ cdef class Kinetics(_SolutionBase):
 
     property forward_rate_constants:
         """
-        Forward rate constants for all reactions. The computed values include
-        all temperature-dependent, pressure-dependent, and third body
-        contributions. Units are a combination of kmol, m^3 and s, that depend
-        on the rate expression for the reaction.
+        Forward rate constants for all reactions.
 
-        .. deprecated:: 2.6
-
-            Behavior to change after Cantera 2.6; for Cantera 2.6, rate constants of
-            three-body reactions are multiplied with third-body concentrations
-            (no change to legacy behavior). After Cantera 2.6, results will no longer
-            include third-body concentrations and be consistent with conventional
-            definitions (see Eq. 9.75 in Kee, Coltrin, and Glarborg, *Chemically
-            Reacting Flow*, Wiley Interscience, 2003).
-            To switch to new behavior, run ``ct.use_legacy_rate_constants(False)``.
+        The computed values include all temperature-dependent and pressure-dependent
+        contributions. By default, third-body concentrations are only considered if
+        they are part of the reaction rate definition; for a legacy implementation that
+        includes third-body concentrations @see Cantera::use_legacy_rate_constants().
         """
         def __get__(self):
             return get_reaction_array(self, kin_getFwdRateConstants)
 
     property reverse_rate_constants:
         """
-        Reverse rate constants for all reactions. The computed values include
-        all temperature-dependent, pressure-dependent, and third body
-        contributions. Units are a combination of kmol, m^3 and s, that depend
-        on the rate expression for the reaction.
+        Reverse rate constants for all reactions.
 
-        .. deprecated:: 2.6
-
-            Behavior to change after Cantera 2.6; for Cantera 2.6, rate constants of
-            three-body reactions are multiplied with third-body concentrations
-            (no change to legacy behavior). After Cantera 2.6, results will no longer
-            include third-body concentrations and be consistent with conventional
-            definitions (see Eq. 9.75 in Kee, Coltrin and Glarborg, *Chemically
-            Reacting Flow*, Wiley Interscience, 2003).
-            To switch to new behavior, run ``ct.use_legacy_rate_constants(False)``.
+        The computed values include all temperature-dependent and pressure-dependent
+        contributions. By default, third-body concentrations are only considered if
+        they are part of the reaction rate definition; for a legacy implementation that
+        includes third-body concentrations @see Cantera::use_legacy_rate_constants().
         """
         def __get__(self):
             return get_reaction_array(self, kin_getRevRateConstants)

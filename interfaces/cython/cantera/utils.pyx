@@ -84,21 +84,11 @@ def use_legacy_rate_constants(pybool legacy):
     """
     Set definition used for rate constant calculation.
 
-    If set to 'False', rate constants of three-body reactions are consistent with
-    conventional definitions. If set to 'True', output for rate constants of
-    three-body reactions is multipied by third-body concentrations (legacy behavior).
-    For the pre-compiled Cantera 2.6 distribution, the default value is set to 'True',
-    which implies no change compared to previous behavior. For user-compiled Cantera,
-    the default behavior can be changed by the SCons flag 'legacy_rate_constants'.
-
-    .. deprecated:: 2.6
-
-        Behavior to change after Cantera 2.6; for Cantera 2.6, rate constants of
-        three-body reactions are multiplied with third-body concentrations
-        (no change to legacy behavior). After Cantera 2.6, results will no longer
-        include third-body concentrations and be consistent with conventional
-        definitions (see Eq. 9.75 in Kee, Coltrin and Glarborg, 'Chemically
-        Reacting Flow', Wiley Interscience, 2003).
+    If set to `False` (default value), rate constants of three-body reactions are
+    consistent with conventional definitions (for example Eq. 9.75 in Kee, Coltrin
+    and Glarborg, 'Chemically Reacting Flow', Wiley Interscience, 2003). If set to
+    `True`, output for rate constants of three-body reactions is multiplied by
+    third-body concentrations, consistent with Cantera's behavior prior to version 3.0.
     """
     Cxx_use_legacy_rate_constants(legacy)
 
