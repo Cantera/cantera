@@ -540,19 +540,8 @@ public:
 };
 
 
-#ifdef CT_NO_LEGACY_REACTIONS_26
 typedef ThreeBodyReaction3 ThreeBodyReaction;
 typedef FalloffReaction3 FalloffReaction;
-#else
-typedef ElementaryReaction2 ElementaryReaction;
-typedef ThreeBodyReaction2 ThreeBodyReaction;
-typedef FalloffReaction2 FalloffReaction;
-typedef ChemicallyActivatedReaction2 ChemicallyActivatedReaction;
-typedef PlogReaction2 PlogReaction;
-typedef ChebyshevReaction2 ChebyshevReaction;
-typedef InterfaceReaction2 InterfaceReaction;
-typedef ElectrochemicalReaction2 ElectrochemicalReaction;
-#endif
 
 //! Create a new empty Reaction object
 /*!

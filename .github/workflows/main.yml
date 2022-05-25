@@ -365,35 +365,6 @@ jobs:
           cti2yaml test/data/ch4_ion.cti ch4_ion-test.yaml
           test -f ch4_ion-test.yaml
 
-  check-deprecations:
-    name: Run test suite without legacy typedefs
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    steps:
-    - uses: actions/checkout@v2
-      name: Checkout the repository
-      with:
-        submodules: recursive
-    - name: Setup Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.8
-        architecture: x64
-    - name: Install Apt dependencies
-      run: |
-        sudo apt update
-        sudo apt install libboost-dev gfortran libopenmpi-dev
-    - name: Upgrade pip
-      run: python3 -m pip install -U pip setuptools wheel
-    - name: Install Python dependencies
-      run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas pytest
-        pytest-github-actions-annotate-failures
-    - name: Build Cantera
-      run: python3 `which scons` build env_vars=all -j2 debug=n --debug=time no_legacy_reactions=y
-    - name: Test Cantera
-      run:
-        python3 `which scons` test show_long_tests=yes verbose_tests=yes --debug=time
-
   windows-2022:
     name: ${{ matrix.os }}, MSVC ${{ matrix.vs-toolset }}, Python ${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}

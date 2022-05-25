@@ -582,17 +582,10 @@ config_options = [
         "legacy_rate_constants",
         """If enabled, rate constant calculations include third-body concentrations
            for three-body reactions, which corresponds to a legacy implementation used
-           up to Cantera 2.6. The option is disabled by default, which means that rate
+           prior to Cantera 3.0. The option is disabled by default, such that rate
            constant calculations are consistent with conventional definitions
            (see Eq. 9.75 in Kee, Coltrin and Glarborg, 'Chemically Reacting Flow',
            Wiley Interscience, 2003).""",
-        False),
-    BoolOption(
-        "no_legacy_reactions",
-        """If disabled ('no'/default), legacy 'Reaction' and associated rate objects
-           that are deprecated in Cantera 2.6 are used. If enabled ('yes'), internal
-           objects will use new objects introduced in Cantera 2.6. The flag is used
-           for testing purposes only and has no effect on results.""",
         False),
 ]
 
@@ -1869,7 +1862,6 @@ cdefine("CT_USE_SYSTEM_EIGEN_PREFIXED", "system_eigen_prefixed")
 cdefine('CT_USE_SYSTEM_FMT', 'system_fmt')
 cdefine('CT_USE_SYSTEM_YAMLCPP', 'system_yamlcpp')
 cdefine('CT_USE_DEMANGLE', 'has_demangle')
-cdefine("CT_NO_LEGACY_REACTIONS_26", "no_legacy_reactions")
 
 config_h_build = env.Command('build/src/config.h.build',
                              'include/cantera/base/config.h.in',

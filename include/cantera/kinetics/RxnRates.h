@@ -201,11 +201,7 @@ protected:
 };
 
 
-#ifdef CT_NO_LEGACY_REACTIONS_26
 typedef ArrheniusRate Arrhenius;
-#else
-typedef Arrhenius2 Arrhenius;
-#endif
 
 typedef PlogRate Plog;
 
