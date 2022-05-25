@@ -54,27 +54,27 @@ public:
     //! The molecular weight [amu] of the species.
     /*!
      * Calculates and sets the molecular weight from the elemental composition of the
-     * species and element definitions in Elements.cpp, if the molcular weight is
+     * species and element definitions in Elements.cpp, if the molecular weight is
      * Undef.
      *
-     * @since 3.0
+     * @since New in version 3.0
      */
-    const double molecularWeight();
+    double molecularWeight();
 
     //! Set the molecular weight of the species.
     /*!
      * Since phases can have custom element weights, the phase will always call this
      * method when a species is added to that phase. The species may also call this
-     * method the first time the molecularWeight method is called if the species has
+     * method the first time the molecularWeight() method is called if the species has
      * not been added to a phase.
-     *
-     * @since 3.0
      *
      * @param weight: The weight of this species to assign, unless `compute` is `true`
      * @param compute: If `true`, the weight will be computed from standard element
      * weights from Elements.cpp, and the value of `weight` is ignored.
-     * @exception If the molecular weight has already been set and the updated value
+     * @exception CanteraError If the molecular weight has already been set and the updated value
      * is not close to the existing value.
+     *
+     * @since New in version 3.0
      */
     void setMolecularWeight(double weight, bool compute=false);
 

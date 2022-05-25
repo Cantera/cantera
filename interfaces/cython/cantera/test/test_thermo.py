@@ -1251,7 +1251,9 @@ class TestSpecies(utilities.CanteraTest):
         gas = ct.Solution("ideal-gas.yaml", "element-override")
         # Check that the molecular weight stored in the phase definition is the same
         # as the one on the element
-        self.assertNear(gas["AR"].molecular_weights[0], gas.species("AR").molecular_weight)
+        self.assertNear(
+            gas["AR"].molecular_weights[0], gas.species("AR").molecular_weight
+        )
         # Check that the custom value is actually used
         self.assertNear(gas.species("AR").molecular_weight, 36.0)
 
@@ -1286,13 +1288,14 @@ class TestSpecies(utilities.CanteraTest):
         with pytest.raises(ct.CanteraError, match="Molecular weight.*changed"):
             gas.add_species(s)
 
-    def test_species_cant_be_added_to_phase_custom_element(self):
+    def test_species_can_be_added_to_phase_custom_element(self):
         s = ct.Species.from_dict({
             "name": "AR2",
             "composition": {"Ar": 2},
             "thermo": {"model": "constant-cp", "h0": 100}
         })
-        # DO NOT access the molecular weight to make sure it's not been computed by the Species
+        # DO NOT access the molecular weight to make sure it's not been computed by the
+        # Species
         gas = ct.Solution("ideal-gas.yaml", "element-override")
         gas.add_species(s)
         self.assertNear(

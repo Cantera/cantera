@@ -179,7 +179,7 @@ cdef class Species:
     property molecular_weight:
         """The molecular weight [amu] of the species.
 
-        ..versionadded:: 3.0
+        .. versionadded:: 3.0
         """
         def __get__(self):
             return self.species.molecularWeight()
