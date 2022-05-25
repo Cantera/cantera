@@ -200,5 +200,6 @@ protected:
     double rDeltaP_; //!< reciprocal of (logP2 - logP1)
 };
 
+typedef PlogRate Plog;
 }
 #endif

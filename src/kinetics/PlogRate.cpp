@@ -4,7 +4,6 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/kinetics/PlogRate.h"
-#include "cantera/kinetics/RxnRates.h"
 #include "cantera/thermo/ThermoPhase.h"
 
 namespace Cantera
