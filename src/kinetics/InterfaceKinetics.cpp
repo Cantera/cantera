@@ -22,9 +22,6 @@ InterfaceKinetics::InterfaceKinetics(ThermoPhase* thermo) :
     m_integrator(0),
     m_ROP_ok(false),
     m_temp(0.0),
-    m_has_coverage_dependence(false),
-    m_has_electrochem_rxns(false),
-    m_has_exchange_current_density_formulation(false),
     m_phaseExistsCheck(false),
     m_ioFlag(0),
     m_nDim(2)
@@ -61,10 +58,6 @@ void InterfaceKinetics::_update_rates_T()
 {
     // First task is update the electrical potentials from the Phases
     _update_rates_phi();
-    if (m_has_coverage_dependence) {
-        m_surf->getCoverages(m_actConc.data());
-        m_redo_rates = true;
-    }
 
     // Go find the temperature from the surface
     doublereal T = thermo(surfacePhaseIndex()).temperature();
@@ -77,16 +70,7 @@ void InterfaceKinetics::_update_rates_T()
 
         // Use the stoichiometric manager to find deltaH for each reaction.
         getReactionDelta(m_grt.data(), m_dH.data());
-        applyStickingCorrection(T, m_rfn.data());
 
-        // If we need to do conversions between exchange current density
-        // formulation and regular formulation (either way) do it here.
-        if (m_has_exchange_current_density_formulation) {
-            convertExchangeCurrentDensityFormulation(m_rfn.data());
-        }
-        if (m_has_electrochem_rxns) {
-            applyVoltageKfwdCorrection(m_rfn.data());
-        }
         m_temp = T;
         m_ROP_ok = false;
         m_redo_rates = false;
@@ -181,7 +165,6 @@ void InterfaceKinetics::updateMu0()
 
     // @todo  There is significant potential to further simplify calculations
     //      once the old framework is removed
-    updateExchangeCurrentQuantities();
     size_t ik = 0;
     for (size_t n = 0; n < nPhases(); n++) {
         thermo(n).getStandardChemPotentials(m_mu0.data() + m_start[n]);
@@ -202,94 +185,6 @@ void InterfaceKinetics::getEquilibriumConstants(doublereal* kc)
     getReactionDelta(m_mu0_Kc.data(), kc);
     for (size_t i = 0; i < nReactions(); i++) {
         kc[i] = exp(-kc[i]*rrt);
-    }
-}
-
-void InterfaceKinetics::updateExchangeCurrentQuantities()
-{
-    // Calculate:
-    //   - m_StandardConc[]
-    //   - m_ProdStanConcReac[]
-    //   - m_deltaG0[]
-    //   - m_mu0[]
-
-    // First collect vectors of the standard Gibbs free energies of the
-    // species and the standard concentrations
-    //   - m_mu0
-    //   - m_StandardConc
-    size_t ik = 0;
-
-    for (size_t n = 0; n < nPhases(); n++) {
-        thermo(n).getStandardChemPotentials(m_mu0.data() + m_start[n]);
-        size_t nsp = thermo(n).nSpecies();
-        for (size_t k = 0; k < nsp; k++) {
-            m_StandardConc[ik] = thermo(n).standardConcentration(k);
-            ik++;
-        }
-    }
-
-    getReactionDelta(m_mu0.data(), m_deltaG0.data());
-
-    //  Calculate the product of the standard concentrations of the reactants
-    for (size_t i = 0; i < nReactions(); i++) {
-        m_ProdStanConcReac[i] = 1.0;
-    }
-    m_reactantStoich.multiply(m_StandardConc.data(), m_ProdStanConcReac.data());
-}
-
-void InterfaceKinetics::applyVoltageKfwdCorrection(doublereal* const kf)
-{
-    // Compute the electrical potential energy of each species
-    size_t ik = 0;
-    for (size_t n = 0; n < nPhases(); n++) {
-        size_t nsp = thermo(n).nSpecies();
-        for (size_t k = 0; k < nsp; k++) {
-            m_pot[ik] = Faraday * thermo(n).charge(k) * m_phi[n];
-            ik++;
-        }
-    }
-
-    // Compute the change in electrical potential energy for each reaction. This
-    // will only be non-zero if a potential difference is present.
-    getReactionDelta(m_pot.data(), deltaElectricEnergy_.data());
-
-    // Modify the reaction rates. Only modify those with a non-zero activation
-    // energy. Below we decrease the activation energy below zero but in some
-    // debug modes we print out a warning message about this.
-
-    // NOTE, there is some discussion about this point. Should we decrease the
-    // activation energy below zero? I don't think this has been decided in any
-    // definitive way. The treatment below is numerically more stable, however.
-    for (size_t i = 0; i < m_beta.size(); i++) {
-        size_t irxn = m_ctrxn[i];
-
-        // Add the voltage correction to the forward reaction rate constants.
-        double eamod = m_beta[i] * deltaElectricEnergy_[irxn];
-        if (eamod != 0.0) {
-            kf[irxn] *= exp(-eamod/thermo(reactionPhaseIndex()).RT());
-        }
-    }
-}
-
-void InterfaceKinetics::convertExchangeCurrentDensityFormulation(doublereal* const kfwd)
-{
-    updateExchangeCurrentQuantities();
-    // Loop over all reactions which are defined to have a voltage transfer
-    // coefficient that affects the activity energy for the reaction
-    for (size_t i = 0; i < m_ctrxn.size(); i++) {
-        size_t irxn = m_ctrxn[i];
-
-        // Determine whether the reaction rate constant is in an exchange
-        // current density formulation format.
-        int iECDFormulation = m_ctrxn_ecdf[i];
-        if (iECDFormulation) {
-            // We need to have the straight chemical reaction rate constant to
-            // come out of this calculation.
-            double tmp = exp(- m_beta[i] * m_deltaG0[irxn]
-                                / thermo(reactionPhaseIndex()).RT());
-            tmp *= 1.0 / m_ProdStanConcReac[irxn] / Faraday;
-            kfwd[irxn] *= tmp;
-        }
     }
 }
 
@@ -408,10 +303,10 @@ void InterfaceKinetics::getDeltaGibbs(doublereal* deltaG)
     }
 
     // Use the stoichiometric manager to find deltaG for each reaction.
-    getReactionDelta(m_mu.data(), m_deltaG.data());
-    if (deltaG != 0 && (m_deltaG.data() != deltaG)) {
+    getReactionDelta(m_mu.data(), m_rbuf.data());
+    if (deltaG != 0 && (m_rbuf.data() != deltaG)) {
         for (size_t j = 0; j < nReactions(); ++j) {
-            deltaG[j] = m_deltaG[j];
+            deltaG[j] = m_rbuf[j];
         }
     }
 }
@@ -548,10 +443,6 @@ bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base, bool resize)
     } else {
         throw NotImplementedError("InterfaceKinetics::addReaction");
     }
-    deltaElectricEnergy_.push_back(0.0);
-    m_deltaG0.push_back(0.0);
-    m_deltaG.push_back(0.0);
-    m_ProdStanConcReac.push_back(0.0);
 
     return true;
 }
@@ -624,27 +515,11 @@ void InterfaceKinetics::resizeSpecies()
     }
     m_actConc.resize(m_kk);
     m_conc.resize(m_kk);
-    m_StandardConc.resize(m_kk, 0.0);
     m_mu0.resize(m_kk);
     m_mu.resize(m_kk);
     m_mu0_Kc.resize(m_kk);
     m_grt.resize(m_kk);
-    m_pot.resize(m_kk, 0.0);
     m_phi.resize(nPhases(), 0.0);
-}
-
-doublereal InterfaceKinetics::electrochem_beta(size_t irxn) const
-{
-    warn_deprecated("InterfaceKinetics::electrochem_beta",
-                    "This function only works for the legacy framework. "
-                    "To be removed after Cantera 2.6.");
-
-    for (size_t i = 0; i < m_ctrxn.size(); i++) {
-        if (m_ctrxn[i] == irxn) {
-            return m_beta[i];
-        }
-    }
-    return 0.0;
 }
 
 void InterfaceKinetics::advanceCoverages(doublereal tstep, doublereal rtol,
@@ -716,33 +591,6 @@ void InterfaceKinetics::setPhaseStability(const size_t iphase, const int isStabl
         m_phaseIsStable[iphase] = true;
     } else {
         m_phaseIsStable[iphase] = false;
-    }
-}
-
-void InterfaceKinetics::applyStickingCorrection(double T, double* kf)
-{
-    if (m_stickingData.empty()) {
-        return;
-    }
-
-    static const int cacheId = m_cache.getId();
-    CachedArray cached = m_cache.getArray(cacheId);
-    vector_fp& factors = cached.value;
-
-    double n0 = m_surf->siteDensity();
-    if (!cached.validate(n0)) {
-        factors.resize(m_stickingData.size());
-        for (size_t n = 0; n < m_stickingData.size(); n++) {
-            factors[n] = pow(n0, -m_stickingData[n].order);
-        }
-    }
-
-    for (size_t n = 0; n < m_stickingData.size(); n++) {
-        const StickData& item = m_stickingData[n];
-        if (item.use_motz_wise) {
-            kf[item.index] /= 1 - 0.5 * kf[item.index];
-        }
-        kf[item.index] *= factors[n] * sqrt(T) * item.multiplier;
     }
 }
 

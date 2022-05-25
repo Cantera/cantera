@@ -93,13 +93,6 @@ public:
      */
     virtual void getEquilibriumConstants(doublereal* kc);
 
-    //! values needed to convert from exchange current density to surface
-    //! reaction rate.
-    /*!
-     *  @deprecated  To be removed after Cantera 2.6.
-     */
-    void updateExchangeCurrentQuantities();
-
     virtual void getDeltaGibbs(doublereal* deltaG);
 
     virtual void getDeltaElectrochemPotentials(doublereal* deltaM);
@@ -115,25 +108,6 @@ public:
     //! @{
 
     virtual void getActivityConcentrations(doublereal* const conc);
-
-    //! Return the charge transfer rxn Beta parameter for the ith reaction
-    /*!
-     *  Returns the beta parameter for a charge transfer reaction. This
-     *  parameter is not important for non-charge transfer reactions.
-     *  Note, the parameter defaults to zero. However, a value of 0.5
-     *  should be supplied for every charge transfer reaction if
-     *  no information is known, as a value of 0.5 pertains to a
-     *  symmetric transition state. The value can vary between 0 to 1.
-     *
-     *  @param irxn Reaction number in the kinetics mechanism
-     *
-     *  @return Beta parameter. This defaults to zero, even for charge
-     *    transfer reactions.
-     *
-     *  @deprecated  To be removed after Cantera 2.6. Parameter should be accessed
-     *              from ReactionRate object instead.
-     */
-    doublereal electrochem_beta(size_t irxn) const;
 
     virtual bool isReversible(size_t i) {
         if (std::find(m_revindex.begin(), m_revindex.end(), i)
@@ -260,40 +234,6 @@ public:
      *  constant is adjusted according to the electrostatic potential.
      */
     void updateKc();
-
-    //! Apply modifications for the forward reaction rate for interfacial charge
-    //! transfer reactions
-    /*!
-     * For reactions that transfer charge across a potential difference,
-     * the activation energies are modified by the potential difference.
-     * (see, for example, ...). This method applies this correction.
-     *
-     * @param kfwd  Vector of forward reaction rate constants on which to have
-     *              the voltage correction applied
-     *
-     * @deprecated  To be removed after Cantera 2.6.
-     */
-    void applyVoltageKfwdCorrection(doublereal* const kfwd);
-
-    //! When an electrode reaction rate is optionally specified in terms of its
-    //! exchange current density, adjust kfwd to the standard reaction rate
-    //! constant form and units. When the BV reaction types are used, keep the
-    //! exchange current density form.
-    /*!
-     *  For a reaction rate constant that was given in units of Amps/m2
-     *  (exchange current density formulation with iECDFormulation == true),
-     *  convert the rate to kmoles/m2/s.
-     *
-     *  For a reaction rate constant that was given in units of kmol/m2/sec when
-     *  the reaction type is a Butler-Volmer form, convert it to exchange
-     *  current density form (amps/m2).
-     *
-     * @param kfwd  Vector of forward reaction rate constants, given in either
-     *              normal form or in exchange current density form.
-     *
-     * @deprecated  To be removed after Cantera 2.6.
-     */
-    void convertExchangeCurrentDensityFormulation(doublereal* const kfwd);
 
     //! Set the existence of a phase in the reaction object
     /*!
@@ -437,24 +377,6 @@ protected:
      */
     vector_fp m_phi;
 
-    //! Vector of potential energies due to Voltages
-    /*!
-     * Length is the number of species in kinetics mech. It's used to store the
-     * potential energy due to the voltage.
-     */
-    vector_fp m_pot;
-
-    //! Storage for the net electric energy change due to reaction.
-    /*!
-     * Length is number of reactions. It's used to store the net electric
-     * potential energy change due to the reaction.
-     *
-     *  deltaElectricEnergy_[jrxn] = sum_i ( F V_i z_i nu_ij)
-     *
-     *  @deprecated  To be removed after Cantera 2.6.
-     */
-    vector_fp deltaElectricEnergy_;
-
     //! Pointer to the single surface phase
     SurfPhase* m_surf;
 
@@ -466,112 +388,10 @@ protected:
      */
     ImplicitSurfChem* m_integrator;
 
-    //! Electrochemical transfer coefficient for the forward direction
-    /*!
-     *   Electrochemical transfer coefficient for all reactions that have
-     *   transfer reactions the reaction is given by m_ctrxn[i]
-     *
-     *  @deprecated  To be removed after Cantera 2.6.
-     */
-    vector_fp m_beta;
-
-    //! Vector of reaction indexes specifying the id of the charge transfer
-    //! reactions in the mechanism
-    /*!
-     *  Vector of reaction indices which involve charge transfers. This provides
-     *  an index into the m_beta array.
-     *
-     *        irxn = m_ctrxn[i]
-     *
-     *  @deprecated  To be removed after Cantera 2.6.
-     */
-    std::vector<size_t> m_ctrxn;
-
-    //! Vector of booleans indicating whether the charge transfer reaction rate constant
-    //! is described by an exchange current density rate constant expression
-    /*!
-     *   Length is equal to the number of reactions with charge transfer coefficients, m_ctrxn[]
-     *
-     *   m_ctrxn_ecdf[irxn] = 0   This means that the rate coefficient calculator will calculate
-     *                            the rate constant as a chemical forward rate constant, a standard format.
-     *   m_ctrxn_ecdf[irxn] = 1   this means that the rate coefficient calculator will calculate
-     *                            the rate constant as an exchange current density rate constant expression.
-     *
-     *  @deprecated  To be removed after Cantera 2.6.
-     */
-    vector_int m_ctrxn_ecdf;
-
-    //! Vector of standard concentrations
-    /*!
-     *   Length number of kinetic species
-     *   units depend on the definition of the standard concentration within each phase
-     *
-     *  @deprecated  To be removed after Cantera 2.6.
-     */
-    vector_fp m_StandardConc;
-
-    //!  Vector of delta G^0, the standard state Gibbs free energies for each reaction
-    /*!
-     *    Length is the number of reactions
-     *    units are Joule kmol-1
-     *
-     *  @deprecated  To be removed after Cantera 2.6.
-     */
-    vector_fp m_deltaG0;
-
-    //! Vector of deltaG[] of reaction, the delta Gibbs free energies for each reaction
-    /*!
-     *    Length is the number of reactions
-     *    units are Joule kmol-1
-     *
-     *  @deprecated  To be removed after Cantera 2.6.
-     */
-    vector_fp m_deltaG;
-
-    //! Vector of the products of the standard concentrations of the reactants
-    /*!
-     *   Units vary wrt what the units of the standard concentrations are
-     *   Length = number of reactions.
-     *
-     *  @deprecated  To be removed after Cantera 2.6.
-     */
-    vector_fp m_ProdStanConcReac;
-
     bool m_ROP_ok;
 
     //! Current temperature of the data
     doublereal m_temp;
-
-    //! Boolean flag indicating whether any reaction in the mechanism
-    //! has a coverage dependent forward reaction rate
-    /*!
-     *   If this is true, then the coverage dependence is multiplied into
-     *   the forward reaction rates constant
-     */
-    bool m_has_coverage_dependence;
-
-    //! Boolean flag indicating whether any reaction in the mechanism
-    //! has a beta electrochemical parameter.
-    /*!
-     *  If this is true, the Butler-Volmer correction is applied
-     *  to the forward reaction rate for those reactions.
-     *
-     *    fac = exp ( - beta * (delta_phi))
-     *
-     *  @deprecated  To be removed after Cantera 2.6.
-     */
-    bool m_has_electrochem_rxns;
-
-    //! Boolean flag indicating whether any reaction in the mechanism
-    //! is described by an exchange current density expression
-    /*!
-     *  If this is true, the standard state Gibbs free energy of the reaction
-     *  and the product of the reactant standard concentrations must be
-     *  precalculated in order to calculate the rate constant.
-     *
-     *  @deprecated  To be removed after Cantera 2.6.
-     */
-    bool m_has_exchange_current_density_formulation;
 
     //! Int flag to indicate that some phases in the kinetics mechanism are
     //! non-existent.
@@ -620,19 +440,6 @@ protected:
      *  participates in reaction j as a product.
      */
     std::vector<std::vector<bool> > m_rxnPhaseIsProduct;
-
-    //! Values used for converting sticking coefficients into rate constants
-    struct StickData {
-        size_t index; //!< index of the sticking reaction in the full reaction list
-        double order; //!< exponent applied to site density term
-        double multiplier; //!< multiplicative factor in rate expression
-        bool use_motz_wise; //!< 'true' if Motz & Wise correction is being used
-    };
-
-    //! Data for sticking reactions
-    std::vector<StickData> m_stickingData;
-
-    void applyStickingCorrection(double T, double* kf);
 
     int m_ioFlag;
 
