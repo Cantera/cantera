@@ -132,7 +132,6 @@ class ReactionRateTests:
     @classmethod
     def setUpClass(cls):
         utilities.CanteraTest.setUpClass()
-        ct.use_legacy_rate_constants(False)
         cls.soln = ct.Solution("kineticsfromscratch.yaml")
 
     def setUp(self):
@@ -705,7 +704,6 @@ class SurfaceReactionRateTests(ReactionRateTests):
     @classmethod
     def setUpClass(cls):
         utilities.CanteraTest.setUpClass()
-        ct.use_legacy_rate_constants(False)
         cls.soln = ct.Interface("kineticsfromscratch.yaml", "Pt_surf", transport_model=None)
         cls.gas = cls.soln.adjacent["ohmech"]
 
@@ -942,12 +940,7 @@ class ReactionTests:
     _index = None # index of reaction in "kineticsfromscratch.yaml"
     _rxn_type = "reaction" # name of reaction type
     _rate_type = None # name of reaction rate type
-    _legacy = False # object uses legacy framework
-    _legacy_uses_rate = True # legacy object implements rate property
     _yaml = None # YAML parameterization
-    _deprecated_getters = {} # test legacy getters (old framework)
-    _deprecated_setters = {} # test legacy setters (old framework)
-    _deprecated_callers = {} # test legacy callers (old framework)
 
     @classmethod
     def setUpClass(cls):
@@ -988,57 +981,35 @@ class ReactionTests:
             # the only way they are distinguished is by the rate type
             rate = self._rate_cls()
         rxn = self._cls(equation=self._equation, rate=rate, kinetics=self.soln,
-                        legacy=self._legacy, **self._kwargs)
+                        **self._kwargs)
         return self.finalize(rxn)
 
     def from_rate(self, rate):
-        if not self._legacy_uses_rate:
-            pytest.skip("Legacy: rate object is not defined [1]")
         if rate is None and self._rate is None:
             # this does not work when no specialized reaction class exists
             pytest.skip("Creation from dictionary is not supported")
         rxn = self._cls(equation=self._equation, rate=rate, kinetics=self.soln,
-                        legacy=self._legacy, **self._kwargs)
+                        **self._kwargs)
         return self.finalize(rxn)
 
     def from_parts(self):
         # create reaction rate object from parts
-        if self._rate_obj is None:
-            pytest.skip("Legacy: rate object is not defined [2]")
         orig = self.soln.reaction(self._index)
-        if self._legacy:
-            rxn = self._cls(orig.reactants, orig.products, legacy=self._legacy)
-            rxn.rate = self._rate_obj
-            rxn.reversible = "<=>" in self._equation
-            return rxn
-
-        rxn = self._cls(orig.reactants, orig.products, rate=self._rate_obj,
-                        legacy=self._legacy)
+        rxn = self._cls(orig.reactants, orig.products, rate=self._rate_obj)
         rxn.reversible = "<=>" in self._equation
         return self.finalize(rxn)
 
     def check_rate(self, rate_obj):
-        if self._legacy:
-            rate = rate_obj(self.soln.T)
-        else:
-            rate = self.eval_rate(rate_obj)
+        rate = self.eval_rate(rate_obj)
         self.assertNear(rate, self.soln.forward_rate_constants[self._index])
 
-    def check_rxn(self, rxn, check_legacy=True):
+    def check_rxn(self, rxn):
         # helper function that checks reaction configuration
         ix = self._index
         self.assertEqual(rxn.reactants, self.soln.reaction(ix).reactants)
         self.assertEqual(rxn.products, self.soln.reaction(ix).products)
-        if check_legacy:
-            # self.assertEqual(rxn.uses_legacy, self._rxn_type.endswith("-legacy"))
-            self.assertEqual(rxn.uses_legacy, self._legacy)
-            self.assertEqual(rxn.reaction_type, self._rxn_type)
-            if not rxn.uses_legacy:
-                self.assertEqual(rxn.rate.type, self._rate_type)
+        self.check_rate(rxn.rate)
 
-        if not self._legacy:
-            # legacy rate evaluation is not consistent
-            self.check_rate(rxn.rate)
         if self.soln.thermo_model.lower() == "surf":
             sol2 = ct.Interface(thermo="Surface", kinetics="interface",
                                 species=self.species, reactions=[rxn], adjacent=self.adj)
@@ -1049,13 +1020,11 @@ class ReactionTests:
             sol2 = ct.Solution(thermo=self.soln.thermo_model, kinetics=self.soln.kinetics_model,
                                species=self.species, reactions=[rxn])
             sol2.TPX = self.soln.TPX
-        self.check_solution(sol2, check_legacy)
+        self.check_solution(sol2)
 
-    def check_solution(self, sol2, check_legacy=True):
+    def check_solution(self, sol2):
         # helper function that checks evaluation of reaction rates
         ix = self._index
-        if check_legacy:
-            self.assertEqual(sol2.reaction(0).reaction_type, self._rxn_type)
         self.assertNear(sol2.forward_rate_constants[0],
                         self.soln.forward_rate_constants[ix])
         self.assertNear(sol2.net_rates_of_progress[0],
@@ -1063,8 +1032,6 @@ class ReactionTests:
 
     def test_rate(self):
         # check consistency of reaction rate and forward rate constant
-        if self._rate_obj is None:
-            pytest.skip("Legacy: rate object is not defined [3]")
         self.check_rate(self._rate_obj)
 
     def test_from_rate(self):
@@ -1085,8 +1052,7 @@ class ReactionTests:
 
     def test_from_dict(self):
         # check instantiation from a yaml dictionary (input_data)
-        # cannot compare types as input_data does not recreate legacy objects
-        self.check_rxn(self.from_dict(), check_legacy=False)
+        self.check_rxn(self.from_dict())
 
     def test_add_rxn(self):
         # check adding new reaction to solution
@@ -1123,30 +1089,16 @@ class ReactionTests:
         if self._rate_obj is None:
             return
         rxn = self.from_empty()
-        if self._legacy:
-            self.assertNear(rxn.rate(self.soln.T), 0.)
-        else:
-            self.assertIsNaN(self.eval_rate(rxn.rate))
+        self.assertIsNaN(self.eval_rate(rxn.rate))
 
-        if self._legacy:
-            sol2 = ct.Solution(thermo=self.soln.thermo_model,
-                               kinetics=self.soln.kinetics_model,
-                               species=self.species,
-                               reactions=[rxn], adjacent=self.adj)
-            sol2.TPX = self.soln.TPX
-            self.assertNear(sol2.forward_rate_constants[0], 0.)
-            self.assertNear(sol2.net_rates_of_progress[0], 0.)
-        else:
-            with self.assertRaisesRegex(ct.CanteraError, "validate"):
-                ct.Solution(thermo=self.soln.thermo_model,
-                            kinetics=self.soln.kinetics_model,
-                            species=self.species, reactions=[rxn], adjacent=self.adj)
+        with pytest.raises(ct.CanteraError, match="validate"):
+            ct.Solution(thermo=self.soln.thermo_model,
+                        kinetics=self.soln.kinetics_model,
+                        species=self.species, reactions=[rxn], adjacent=self.adj)
 
     def test_replace_rate(self):
         # check replacing reaction rate expression
-        if not self._legacy_uses_rate:
-            pytest.skip("Legacy: rate property not implemented")
-        elif self._yaml is not None:
+        if self._yaml is not None:
             rxn = self.from_yaml()
         else:
             rxn = self.from_rate(self._rate_obj)
@@ -1156,9 +1108,6 @@ class ReactionTests:
 
     def test_roundtrip(self):
         # check round-trip instantiation via input_data
-        rxn = self.from_yaml()
-        if self._legacy:
-            pytest.skip("Legacy: round-trip conversion is not supported")
         rxn = self.from_rate(self._rate_obj)
         rate_input_data = rxn.rate.input_data
         rate_obj = rxn.rate.__class__(input_data=rate_input_data)
@@ -1175,110 +1124,41 @@ class ReactionTests:
         else:
             self.assertNear(one, two)
 
-    def test_deprecated_getters(self):
-        # check property getters deprecated in new framework
-        rxn = self.from_yaml()
-        for attr, default in self._deprecated_getters.items():
-            if self._legacy:
-                self.check_equal(getattr(rxn, attr), default)
-            else:
-                with self.assertWarnsRegex(DeprecationWarning, "This property is"):
-                    try:
-                        self.check_equal(getattr(rxn, attr), default)
-                    except Exception as err:
-                        print(f"Exception raised when testing getter for '{attr}'")
-                        raise err
 
-    def test_deprecated_setters(self):
-        # check property setters deprecated in new framework
-        rxn = self.from_yaml()
-        for attr, new in self._deprecated_setters.items():
-            if self._legacy:
-                setattr(rxn, attr, new)
-                self.check_equal(getattr(rxn, attr), new)
-            else:
-                with self.assertWarnsRegex(DeprecationWarning, "This property is"):
-                    setattr(rxn, attr, new)
-                with self.assertWarnsRegex(DeprecationWarning, "This property is"):
-                    self.check_equal(getattr(rxn, attr), new)
+class TestElementary(ReactionTests, utilities.CanteraTest):
+    # test elementary reaction
 
-    def test_deprecated_callers(self):
-        # check methods deprecated in new framework
-        rxn = self.from_yaml()
-        for state, value in self._deprecated_callers.items():
-            T, P = state
-            if self._legacy:
-                self.check_equal(rxn(T, P), value)
-            else:
-                with self.assertWarnsRegex(DeprecationWarning, "method is moved"):
-                    self.check_equal(rxn(T, P), value)
-
-
-class TestElementary2(ReactionTests, utilities.CanteraTest):
-    # test legacy version of elementary reaction
-
-    _cls = ct.ElementaryReaction
+    _cls = ct.Reaction
+    _rate_cls = ct.ArrheniusRate
     _equation = "H2 + O <=> H + OH"
     _rate = {"A": 38.7, "b": 2.7, "Ea": 2.619184e+07}
     _index = 0
-    _rxn_type = "elementary-legacy"
-    _legacy = True
+    _rxn_type = "reaction"
+    _rate_type = "Arrhenius"
     _yaml = """
         equation: O + H2 <=> H + OH
-        type: elementary-legacy
+        type: elementary
         rate-constant: {A: 38.7, b: 2.7, Ea: 6260.0 cal/mol}
         """
-    _deprecated_getters = {"allow_negative_pre_exponential_factor": False}
-    _deprecated_setters = {"allow_negative_pre_exponential_factor": True}
 
     @classmethod
     def setUpClass(cls):
         ReactionTests.setUpClass()
-        if cls._legacy:
-            args = list(cls._rate.values())
-            cls._rate_obj = ct.Arrhenius(*args)
-        else:
-            cls._rate_obj = ct.ArrheniusRate(**cls._rate)
-
-    def test_arrhenius(self):
-        # test assigning Arrhenius rate
-        rate = ct.Arrhenius(self._rate["A"], self._rate["b"], self._rate["Ea"])
-        rxn = self.from_empty()
-        if self._legacy:
-            rxn.rate = rate
-        else:
-            with self.assertWarnsRegex(DeprecationWarning, "'Arrhenius' object is deprecated"):
-                rxn.rate = rate
-        self.check_rxn(rxn)
+        cls._rate_obj = ct.ArrheniusRate(**cls._rate)
 
 
-class TestElementary(TestElementary2):
-    # test updated version of elementary reaction
-
-    _cls = ct.Reaction
-    _rxn_type = "reaction"
-    _rate_type = "Arrhenius"
-    _rate_cls = ct.ArrheniusRate
-    _legacy = False
-    _yaml = """
-        equation: O + H2 <=> H + OH
-        rate-constant: {A: 38.7, b: 2.7, Ea: 6260.0 cal/mol}
-        """
-
-
-class TestThreeBody2(TestElementary2):
-    # test legacy version of three-body reaction
+class TestThreeBody(TestElementary):
+    # test three-body reaction
 
     _cls = ct.ThreeBodyReaction
     _equation = "2 O + M <=> O2 + M"
     _rate = {"A": 1.2e11, "b": -1.0, "Ea": 0.0}
     _kwargs = {"efficiencies": {"H2": 2.4, "H2O": 15.4, "AR": 0.83}}
     _index = 1
-    _rxn_type = "three-body-legacy"
-    _legacy = True
+    _rxn_type = "three-body"
     _yaml = """
         equation: 2 O + M <=> O2 + M
-        type: three-body-legacy
+        type: three-body
         rate-constant: {A: 1.2e+11, b: -1.0, Ea: 0.0 cal/mol}
         efficiencies: {H2: 2.4, H2O: 15.4, AR: 0.83}
         """
@@ -1291,23 +1171,9 @@ class TestThreeBody2(TestElementary2):
     def test_efficiencies(self):
         # check efficiencies
         rxn = self._cls(equation=self._equation, rate=self._rate_obj, kinetics=self.soln,
-                        legacy=self._legacy, **self._kwargs)
+                        **self._kwargs)
 
         self.assertEqual(rxn.efficiencies, self._kwargs["efficiencies"])
-
-
-class TestThreeBody(TestThreeBody2):
-    # test updated version of three-body reaction
-
-    _legacy = False
-    _rxn_type = "three-body"
-    _rate_type = "Arrhenius"
-    _yaml = """
-        equation: 2 O + M <=> O2 + M
-        type: three-body
-        rate-constant: {A: 1.2e+11, b: -1.0, Ea: 0.0 cal/mol}
-        efficiencies: {H2: 2.4, H2O: 15.4, AR: 0.83}
-        """
 
 
 class TestImplicitThreeBody(TestThreeBody):
@@ -1379,27 +1245,8 @@ class TestBlowersMasel(ReactionTests, utilities.CanteraTest):
             return rate(self.soln.T)
 
 
-class TestTroe2(ReactionTests, utilities.CanteraTest):
-    # test legacy version of Troe falloff reaction
-
-    _cls = ct.FalloffReaction
-    _equation = "2 OH (+ M) <=> H2O2 (+ M)"
-    _kwargs = {"efficiencies": {"AR": 0.7, "H2": 2.0, "H2O": 6.0}}
-    _index = 2
-    _rxn_type = "falloff-legacy"
-    _legacy = True
-    _legacy_uses_rate = False
-    _yaml = """
-        equation: 2 OH (+ M) <=> H2O2 (+ M)  # Reaction 3
-        type: falloff-legacy
-        low-P-rate-constant: {A: 2.3e+12, b: -0.9, Ea: -1700.0 cal/mol}
-        high-P-rate-constant: {A: 7.4e+10, b: -0.37, Ea: 0.0 cal/mol}
-        Troe: {A: 0.7346, T3: 94.0, T1: 1756.0, T2: 5182.0}
-        efficiencies: {AR: 0.7, H2: 2.0, H2O: 6.0}
-        """
-
-
 class TestTroe(ReactionTests, utilities.CanteraTest):
+    # test Troe falloff reaction
 
     _cls = ct.FalloffReaction
     _equation = "2 OH (+ M) <=> H2O2 (+ M)"
@@ -1457,7 +1304,6 @@ class TestLindemann(ReactionTests, utilities.CanteraTest):
     _index = 7
     _rxn_type = "falloff"
     _rate_type = "Lindemann"
-    _legacy = False
     _yaml = """
         equation: 2 OH (+ M) <=> H2O2 (+ M)  # Reaction 8
         duplicate: true
@@ -1484,24 +1330,6 @@ class TestLindemann(ReactionTests, utilities.CanteraTest):
         rxn = ReactionTests.from_parts(self)
         rxn.efficiencies = self._kwargs["efficiencies"]
         return rxn
-
-
-class TestChemicallyActivated2(ReactionTests, utilities.CanteraTest):
-    # test legacy version of Chemically Activated falloff reaction
-
-    _cls = ct.ChemicallyActivatedReaction
-    _equation = "H2O + OH (+M) <=> HO2 + H2 (+M)"
-    _index = 10
-    _rxn_type = "chemically-activated-legacy"
-    _legacy = True
-    _legacy_uses_rate = False
-    _yaml = """
-        equation: H2O + OH (+M) <=> HO2 + H2 (+M)  # Reaction 11
-        units: {length: cm, quantity: mol, activation-energy: cal/mol}
-        type: chemically-activated-legacy
-        low-P-rate-constant: [282320.078, 1.46878, -3270.56495]
-        high-P-rate-constant: [5.88E-14, 6.721, -3022.227]
-        """
 
 
 class TestChemicallyActivated(ReactionTests, utilities.CanteraTest):
@@ -1540,70 +1368,14 @@ class TestChemicallyActivated(ReactionTests, utilities.CanteraTest):
         return rate(self.soln.T, concm)
 
 
-class TestPlog2(ReactionTests, utilities.CanteraTest):
-    # test legacy version of Plog reaction
-
-    _cls = ct.PlogReaction
-    _equation = "H2 + O2 <=> 2 OH"
-    _rate = [(1013.25, ct.Arrhenius(1.2124e+16, -0.5779, 45491376.8)),
-             (101325., ct.Arrhenius(4.9108e+31, -4.8507, 103649395.2)),
-             (1013250., ct.Arrhenius(1.2866e+47, -9.0246, 166508556.0)),
-             (10132500., ct.Arrhenius(5.9632e+56, -11.529, 220076726.4))]
-    _index = 3
-    _rxn_type = "pressure-dependent-Arrhenius-legacy"
-    _legacy = True
-    _legacy_uses_rate = False
-    _yaml = """
-        equation: H2 + O2 <=> 2 OH
-        type: pressure-dependent-Arrhenius-legacy
-        rate-constants:
-        - {P: 0.01 atm, A: 1.2124e+16, b: -0.5779, Ea: 1.08727e+04 cal/mol}
-        - {P: 1.0 atm, A: 4.9108e+31, b: -4.8507, Ea: 2.47728e+04 cal/mol}
-        - {P: 10.0 atm, A: 1.2866e+47, b: -9.0246, Ea: 3.97965e+04 cal/mol}
-        - {P: 100.0 atm, A: 5.9632e+56, b: -11.529, Ea: 5.25996e+04 cal/mol}
-        """
-    _deprecated_callers = {(1000., ct.one_atm): 530968934612.9017}
-
-    def check_rates(self, rates, other):
-        # helper function used by deprecation tests
-        self.assertEqual(len(rates), len(other))
-        for index, item in enumerate(rates):
-            P, rate = item
-            self.assertNear(P, other[index][0])
-            self.assertNear(rate.pre_exponential_factor, other[index][1].pre_exponential_factor)
-            self.assertNear(rate.temperature_exponent, other[index][1].temperature_exponent)
-            self.assertNear(rate.activation_energy, other[index][1].activation_energy)
-
-    def test_deprecated_getters(self):
-        # overload default tester for deprecated property getters
-        rxn = self.from_yaml()
-        if self._legacy:
-            self.check_rates(rxn.rates, self._rate)
-        else:
-            with self.assertWarnsRegex(DeprecationWarning, "property is moved"):
-                self.check_rates(rxn.rates, TestPlog2._rate)
-
-    def test_deprecated_setters(self):
-        # overload default tester for deprecated property setters
-        rate = ct.PlogRate(TestPlog2._rate)
-        rates = rate.rates
-
-        rxn = self.from_yaml()
-        if self._legacy:
-            rxn.rates = rates
-            self.check_rates(rxn.rates, self._rate)
-        else:
-            with self.assertWarnsRegex(DeprecationWarning, "Setter is replaceable"):
-                rxn.rates = rates
-            with self.assertWarnsRegex(DeprecationWarning, "property is moved"):
-                self.check_rates(rxn.rates, TestPlog2._rate)
-
-
-class TestPlog(TestPlog2):
-    # test updated version of Plog reaction
+class TestPlog(ReactionTests, utilities.CanteraTest):
+    # test Plog reaction
 
     _cls = ct.Reaction
     _rate_cls = ct.PlogRate
+    _rxn_type = "reaction"
+    _rate_type = "pressure-dependent-Arrhenius"
+    _equation = "H2 + O2 <=> 2 OH"
     _rate = {
         "type": "pressure-dependent-Arrhenius",
         "rate-constants":
@@ -1611,10 +1383,7 @@ class TestPlog(TestPlog2):
               {"P": 101325., "A": 4.9108e+31, "b": -4.8507, "Ea": 103649395.2},
               {"P": 1013250., "A": 1.2866e+47, "b": -9.0246, "Ea": 166508556.0},
               {"P": 10132500., "A": 5.9632e+56, "b": -11.529, "Ea": 220076726.4}]}
-    _rxn_type = "reaction"
-    _rate_type = "pressure-dependent-Arrhenius"
-    _legacy = False
-    _legacy_uses_rate = True
+    _index = 3
     _yaml = """
         equation: H2 + O2 <=> 2 OH
         type: pressure-dependent-Arrhenius
@@ -1633,57 +1402,32 @@ class TestPlog(TestPlog2):
     def eval_rate(self, rate):
         return rate(self.soln.T, self.soln.P)
 
-
-class TestChebyshev2(ReactionTests, utilities.CanteraTest):
-    # test legacy version of Chebyshev reaction
-
-    _cls = ct.ChebyshevReaction
-    _equation = "HO2 <=> OH + O"
-    _rate = {"temperature_range": (290., 3000.), "pressure_range": (1000., 10000000.0),
-             "data": [[ 8.2883e+00, -1.1397e+00, -1.2059e-01,  1.6034e-02],
-                      [ 1.9764e+00,  1.0037e+00,  7.2865e-03, -3.0432e-02],
-                      [ 3.1770e-01,  2.6889e-01,  9.4806e-02, -7.6385e-03]]}
-    _index = 4
-    _rxn_type = "Chebyshev-legacy"
-    _legacy = True
-    _legacy_uses_rate = False
-    _yaml = """
-        equation: HO2 <=> OH + O
-        type: Chebyshev-legacy
-        temperature-range: [290.0, 3000.0]
-        pressure-range: [9.869232667160128e-03 atm, 98.69232667160128 atm]
-        data:
-        - [8.2883, -1.1397, -0.12059, 0.016034]
-        - [1.9764, 1.0037, 7.2865e-03, -0.030432]
-        - [0.3177, 0.26889, 0.094806, -7.6385e-03]
-        """
-    _deprecated_getters = {"nPressure": 4, "nTemperature": 3}
-    _deprecated_callers = {(1000., ct.one_atm): 2858762454.1119065}
-
-    @classmethod
-    def setUpClass(cls):
-        ReactionTests.setUpClass()
-        cls._deprecated_getters.update({"coeffs": np.array(TestChebyshev2._rate["data"])})
-        cls._deprecated_getters.update(
-            {k: v for k, v in TestChebyshev2._rate.items()
-                if k not in ["data", "temperature_range", "pressure_range"]})
+    def check_rates(self, rates, other):
+        # helper function used by deprecation tests
+        self.assertEqual(len(rates), len(other))
+        for index, item in enumerate(rates):
+            P, rate = item
+            self.assertNear(P, other[index][0])
+            self.assertNear(rate.pre_exponential_factor, other[index][1].pre_exponential_factor)
+            self.assertNear(rate.temperature_exponent, other[index][1].temperature_exponent)
+            self.assertNear(rate.activation_energy, other[index][1].activation_energy)
 
 
-class TestChebyshev(TestChebyshev2):
-    # test updated version of Chebyshev reaction
+class TestChebyshev(ReactionTests, utilities.CanteraTest):
+    # test Chebyshev reaction
 
     _cls = ct.Reaction
     _rate_cls = ct.ChebyshevRate
     _rxn_type = "reaction"
     _rate_type = "Chebyshev"
+    _equation = "HO2 <=> OH + O"
     _rate = None
     _rate_obj = ct.ChebyshevRate(
         temperature_range=(290., 3000.), pressure_range=(1000., 10000000.0),
         data=[[ 8.2883e+00, -1.1397e+00, -1.2059e-01,  1.6034e-02],
               [ 1.9764e+00,  1.0037e+00,  7.2865e-03, -3.0432e-02],
               [ 3.1770e-01,  2.6889e-01,  9.4806e-02, -7.6385e-03]])
-    _legacy = False
-    _legacy_uses_rate = True
+    _index = 4
     _yaml = """
         equation: HO2 <=> OH + O
         type: Chebyshev
@@ -1709,7 +1453,6 @@ class TestCustom(ReactionTests, utilities.CanteraTest):
     _index = 0
     _rxn_type = "custom-rate-function"
     _rate_type = "custom-rate-function"
-    _legacy = False
     _yaml = None
 
     def setUp(self):
@@ -1719,6 +1462,9 @@ class TestCustom(ReactionTests, utilities.CanteraTest):
 
     def from_yaml(self):
         pytest.skip("CustomReaction does not support YAML")
+
+    def test_roundtrip(self):
+        pytest.skip("CustomReaction does not support roundtrip conversion")
 
     def test_raises_invalid_rate(self):
         # check exception for instantiation from keywords / invalid rate
@@ -1748,7 +1494,7 @@ class TestCustom(ReactionTests, utilities.CanteraTest):
 class InterfaceReactionTests(ReactionTests):
     # test suite for surface reaction expressions
 
-    _value = np.NAN # reference value (obtained from legacy framework)
+    _value = np.NAN # reference value
     _coverage_deps = None
 
     @classmethod
@@ -1763,14 +1509,6 @@ class InterfaceReactionTests(ReactionTests):
             cls._rate_obj = cls._rate_cls(**cls._rate)
             if cls._coverage_deps:
                 cls._rate_obj.coverage_dependencies = cls._coverage_deps
-        if cls._legacy:
-            args = list(cls._rate.values())
-            cls._rate_obj = ct.Arrhenius(*args)
-            cls._cls = ct.InterfaceReaction
-            cls._rxn_type = "interface-legacy"
-            cls._rate_type = None
-            cls._rate_cls = None
-            cls._legacy_uses_rate = True
 
     def setUp(self):
         self.soln.TP = 900, ct.one_atm
@@ -1780,16 +1518,9 @@ class InterfaceReactionTests(ReactionTests):
 
     def finalize(self, rxn):
         rxn = super().finalize(rxn)
-        if self._legacy and self._coverage_deps:
-            if not rxn.coverage_deps:
-                # legacy coverage dependencies use tuples
-                coverage_deps = {key: tuple(val.values()) for key, val in self._coverage_deps.items()}
-                rxn.coverage_deps = coverage_deps
         return rxn
 
     def eval_rate(self, rate):
-        if self._legacy:
-            return super().eval_rate(rate)
         rate.set_species(self.soln.species_names)
         rate.site_density = self.soln.site_density
         self.assertEqual(rate.site_density, self.soln.site_density)
@@ -1799,36 +1530,16 @@ class InterfaceReactionTests(ReactionTests):
             return rate(self.soln.T, self.soln.coverages)
 
     def check_rate(self, rate_obj):
-        if self._legacy:
-            rate = rate_obj(self.soln.T)
-        else:
-            rate = self.eval_rate(rate_obj)
+        rate = self.eval_rate(rate_obj)
         self.assertNear(self._value, rate)
         self.assertNear(self._value, self.soln.forward_rate_constants[self._index])
 
     def from_rate(self, rate):
-        if isinstance(rate, dict) and not self._legacy:
+        if isinstance(rate, dict):
             pytest.skip("Detection of rate from dictionary is ambiguous")
         return self.finalize(super().from_rate(rate))
 
-    def test_replace_rate(self):
-        if self._legacy:
-            pytest.skip("Legacy: modifying reactions is not supported")
-        super().test_replace_rate()
-
-    def test_from_parts(self):
-        if self._legacy and self._coverage_deps:
-            pytest.skip("Legacy: construction from parts is not tested")
-        super().test_from_parts()
-
-    def test_rate(self):
-        if self._legacy and self._coverage_deps:
-            pytest.skip("Legacy: interface rate does not include coverage terms")
-        super().test_rate()
-
     def test_electrochemistry(self):
-        if self._legacy:
-            pytest.skip("Legacy: property uses_electrochemisty not implemented")
         rxn = self.from_yaml()
         sol2 = ct.Interface(thermo="Surface", kinetics="interface",
                     species=self.species, reactions=[rxn], adjacent=self.adj)
@@ -1851,23 +1562,6 @@ class TestArrheniusInterfaceReaction(InterfaceReactionTests, utilities.CanteraTe
         type: interface-Arrhenius
         """
     _value = 7.9574172975288e+19
-    _deprecated_getters = {
-        "coverage_deps": {},
-        "is_sticking_coefficient": False}
-    _deprecated_setters = {
-        "coverage_deps": {"O(S)": {"a": 0.0, "m": 0.0, "E": -60000000.}}}
-
-
-class TestArrheniusInterfaceReaction2(TestArrheniusInterfaceReaction):
-    # test legacy version of interface reaction
-
-    _legacy = True
-    _yaml = """
-        equation: H(S) + O(S) <=> OH(S) + PT(S)
-        rate-constant: {A: 3.7e+20, b: 0, Ea: 11500 J/mol}
-        type: interface-legacy
-        """
-    _deprecated_setters = {"coverage_deps": {"O(S)": (0.0, 0.0, -60000000.)}}
 
 
 class TestArrheniusCoverageReaction(InterfaceReactionTests, utilities.CanteraTest):
@@ -1888,25 +1582,6 @@ class TestArrheniusCoverageReaction(InterfaceReactionTests, utilities.CanteraTes
         type: interface-Arrhenius
         """
     _value = 349029090.19755
-    _deprecated_getters = {
-        "coverage_deps": {"O(S)": {"a": 0.0, "m": 0.0, "E": -60000000.}},
-        "is_sticking_coefficient": False}
-    _deprecated_setters = {"coverage_deps": {}}
-
-
-class TestArrheniusCoverageReaction2(TestArrheniusCoverageReaction):
-    # test interface reaction with coverages
-
-    _legacy = True
-    _yaml = """
-        equation: 2 O(S) => O2 + 2 PT(S)
-        rate-constant: {A: 3.7e+21, b: 0, Ea: 213200}
-        coverage-dependencies:
-          O(S): {a: 0.0, m: 0.0, E: -6.0e+04}
-        units: {length: cm, quantity: mol, activation-energy: J/mol}
-        type: interface-legacy
-        """
-    _deprecated_getters = {"coverage_deps": {"O(S)": (0.0, 0.0, -60000000.)}}
 
 
 class TestBMInterfaceReaction(InterfaceReactionTests, utilities.CanteraTest):
@@ -1954,17 +1629,14 @@ class StickReactionTests(InterfaceReactionTests):
 
     def finalize(self, rxn):
         rxn = super().finalize(rxn)
-        if not self._legacy:
-            weight = self.gas.molecular_weights[self.gas.species_index(self._sticking_species)]
-            rxn.rate.sticking_species = self._sticking_species
-            rxn.rate.sticking_order = self._sticking_order
-            rxn.rate.sticking_weight = weight
+        weight = self.gas.molecular_weights[self.gas.species_index(self._sticking_species)]
+        rxn.rate.sticking_species = self._sticking_species
+        rxn.rate.sticking_order = self._sticking_order
+        rxn.rate.sticking_weight = weight
         return rxn
 
     def from_rate(self, rate):
         rxn = super().from_rate(rate)
-        if self._legacy:
-            pytest.skip("Legacy: construction from rate is not tested")
         rxn.rate.motz_wise_correction = "Motz-Wise" in self._yaml
         return rxn
 
@@ -1973,18 +1645,7 @@ class StickReactionTests(InterfaceReactionTests):
         rxn.rate.motz_wise_correction = "Motz-Wise" in self._yaml
         return rxn
 
-    def test_rate(self):
-        if self._legacy:
-            pytest.skip("Legacy: interface rate does not include sticking terms")
-        super().test_rate()
-
-    @pytest.mark.skip("Legacy: construction from parts is not tested")
-    def test_from_parts(self):
-        super().test_from_parts()
-
     def test_sticking_coeffs(self):
-        if self._legacy:
-            pytest.skip("Legacy: explicit sticking coefficients are not supported")
         rxn = self.from_yaml()
         if "Motz-Wise" in self._yaml:
             self.assertTrue(rxn.rate.motz_wise_correction)
@@ -1996,8 +1657,6 @@ class StickReactionTests(InterfaceReactionTests):
         assert rxn.rate.sticking_weight == pytest.approx(weight)
 
     def test_site_density(self):
-        if self._legacy:
-            pytest.skip("Legacy: interface rate does not include site density")
         self.assertEqual(self.soln.site_density,
             self.soln.reaction(self._index).rate.site_density)
 
@@ -2019,30 +1678,6 @@ class TestArrheniusStickReaction(StickReactionTests, utilities.CanteraTest):
         type: sticking-Arrhenius
         """
     _value = 401644856274.97
-    _deprecated_getters = {
-        "coverage_deps": {},
-        "sticking_species": "H",
-        "is_sticking_coefficient": True,
-        "use_motz_wise_correction": False}
-    _deprecated_setters = {
-        "coverage_deps": {"O(S)": {"a": 0.0, "m": 0.0, "E": -60000000.}}}
-
-
-class TestArrheniusStickReaction2(TestArrheniusStickReaction):
-    # test legacy interface reaction without coverages
-
-    _legacy = True
-    _yaml = """
-        equation: H + PT(S) => H(S)
-        sticking-coefficient: {A: 1.0, b: 0, Ea: 0}
-        units: {length: cm, quantity: mol, activation-energy: J/mol}
-        type: interface-legacy
-        """
-    _deprecated_getters = {
-        "coverage_deps": {},
-        "is_sticking_coefficient": True,
-        "use_motz_wise_correction": False}
-    _deprecated_setters = {"coverage_deps": {"O(S)": (0.0, 0.0, -60000000.)}}
 
 
 class TestArrheniusCovStickReaction(StickReactionTests, utilities.CanteraTest):
@@ -2067,20 +1702,6 @@ class TestArrheniusCovStickReaction(StickReactionTests, utilities.CanteraTest):
     _value = 1.3792438668539e+19
 
 
-class TestArrheniusCovStickReaction2(TestArrheniusCovStickReaction):
-    # test interface reaction with coverages
-
-    _legacy = True
-    _yaml = """
-        equation: H2 + 2 PT(S) => 2 H(S)
-        sticking-coefficient: {A: 0.046, b: 0, Ea: 0}
-        coverage-dependencies:
-          PT(S): {a: 0.0, m: -1.0, E: 0.0}
-        units: {length: cm, quantity: mol, activation-energy: J/mol}
-        type: interface-legacy
-        """
-
-
 class TestArrheniusMotzStickReaction(StickReactionTests, utilities.CanteraTest):
     # test interface reaction with coverages
 
@@ -2099,31 +1720,6 @@ class TestArrheniusMotzStickReaction(StickReactionTests, utilities.CanteraTest):
         type: sticking-Arrhenius
         """
     _value = 195563866595.97
-    _deprecated_getters = {
-        "coverage_deps": {},
-        "is_sticking_coefficient": True,
-        "sticking_species": "OH",
-        "use_motz_wise_correction": True}
-    _deprecated_setters = {
-        "coverage_deps": {"O(S)": {"a": 0.0, "m": 0.0, "E": -60000000.}}}
-
-
-class TestArrheniusMotzStickReaction2(TestArrheniusMotzStickReaction):
-    # test interface reaction with coverages
-
-    _legacy = True
-    _yaml = """
-        equation: OH + PT(S) => OH(S)
-        sticking-coefficient: {A: 1.0, b: 0, Ea: 0}
-        Motz-Wise: true
-        units: {length: cm, quantity: mol, activation-energy: J/mol}
-        type: interface-legacy
-        """
-    _deprecated_getters = {
-        "coverage_deps": {},
-        "is_sticking_coefficient": True,
-        "use_motz_wise_correction": True}
-    _deprecated_setters = {"coverage_deps": {"O(S)": (0.0, 0.0, -60000000.)}}
 
 
 class TestBlowersMaselStickReaction(StickReactionTests, utilities.CanteraTest):
