@@ -116,7 +116,7 @@ class FlameBase(Sim1D):
             combination with HDF restart data).
         """
         super().set_initial_guess(*args, data=data, group=group, **kwargs)
-        if not data:
+        if data is None:
             return
 
         # load restart data into SolutionArray
@@ -801,11 +801,11 @@ class FreeFlame(FlameBase):
             location. Locations are given as a fraction of the entire domain
         """
         super().set_initial_guess(data=data, group=group)
-        if data:
+        if data is not None:
             # set fixed temperature
             Tmid = .75 * self.T[0] + .25 * self.T[-1]
-            i = np.flatnonzero(data.T < Tmid)[-1]
-            self.fixed_temperature = data.T[i]
+            i = np.flatnonzero(self.T < Tmid)[-1]
+            self.fixed_temperature = self.T[i]
 
             return
 
