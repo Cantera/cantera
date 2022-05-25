@@ -732,10 +732,10 @@ cdef class ThermoPhase(_SolutionBase):
         :param basis:
             Determines if ``fuel`` and ``oxidizer`` are given in mole
             fractions (``basis='mole'``) or mass fractions (``basis='mass'``)
-        :param: diluent:
+        :param diluent:
             Optional parameter. Required if dilution is used. Specifies the composition
             of the diluent in mole/mass fractions as a string, array or dict
-        :param: fraction:
+        :param fraction:
             Optional parameter. Dilutes the fuel/oxidizer mixture with the diluent
             according to ``fraction``. Fraction can refer to the fraction of diluent in
             the  mixture (for example ``fraction="diluent:0.7`` will create a mixture
