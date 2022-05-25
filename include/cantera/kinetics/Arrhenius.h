@@ -184,9 +184,7 @@ protected:
  *
  * @ingroup arrheniusGroup
  *
- * @todo supersedes Arrhenius2 and will replace Arrhenius after Cantera 2.6. The new
- *      behavior can be forced in self-compiled Cantera installations by defining
- *      CT_NO_LEGACY_REACTIONS_26 via the 'no_legacy_reactions' option in SCons.
+ * @todo supersedes Arrhenius2 and will replace Arrhenius after Cantera 2.6.
  */
 class ArrheniusRate : public ArrheniusBase
 {

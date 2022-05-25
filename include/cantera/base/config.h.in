@@ -68,7 +68,4 @@ typedef int ftnlen;       // Fortran hidden string length type
 //    Use legacy rate constant by default
 {CT_LEGACY_RATE_CONSTANTS!s}
 
-//    Do not use reactions deprecated in Cantera 2.6
-{CT_NO_LEGACY_REACTIONS_26!s}
-
 #endif
