@@ -182,11 +182,6 @@ void BulkKinetics::addThirdBody(shared_ptr<Reaction> r)
                           r->thirdBody()->mass_action);
 }
 
-void BulkKinetics::addElementaryReaction(ElementaryReaction2& r)
-{
-    m_rates.install(nReactions()-1, r.rate);
-}
-
 void BulkKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
 {
     // operations common to all reaction types
@@ -209,11 +204,6 @@ void BulkKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
     }
 
     invalidateCache();
-}
-
-void BulkKinetics::modifyElementaryReaction(size_t i, ElementaryReaction2& rNew)
-{
-    m_rates.replace(i, rNew.rate);
 }
 
 void BulkKinetics::resizeSpecies()

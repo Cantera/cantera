@@ -200,24 +200,6 @@ protected:
     //! @deprecated To be removed after Cantera 2.6 (replaced by MultiRate approach)
     void processFalloffReactions(double* ropf);
 
-    //! @deprecated To be removed after Cantera 2.6 (replaced by MultiRate approach)
-    void addThreeBodyReaction(ThreeBodyReaction2& r);
-    //! @deprecated To be removed after Cantera 2.6 (replaced by MultiRate approach)
-    void addFalloffReaction(FalloffReaction2& r);
-    //! @deprecated To be removed after Cantera 2.6 (replaced by MultiRate approach)
-    void addPlogReaction(PlogReaction2& r);
-    //! @deprecated To be removed after Cantera 2.6 (replaced by MultiRate approach)
-    void addChebyshevReaction(ChebyshevReaction2& r);
-
-    //! @deprecated To be removed after Cantera 2.6 (replaced by MultiRate approach)
-    void modifyThreeBodyReaction(size_t i, ThreeBodyReaction2& r);
-    //! @deprecated To be removed after Cantera 2.6 (replaced by MultiRate approach)
-    void modifyFalloffReaction(size_t i, FalloffReaction2& r);
-    //! @deprecated To be removed after Cantera 2.6 (replaced by MultiRate approach)
-    void modifyPlogReaction(size_t i, PlogReaction2& r);
-    //! @deprecated To be removed after Cantera 2.6 (replaced by MultiRate approach)
-    void modifyChebyshevReaction(size_t i, ChebyshevReaction2& r);
-
     //! Update the equilibrium constants in molar units.
     void updateKc();
 };

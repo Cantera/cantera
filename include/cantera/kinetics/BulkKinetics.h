@@ -17,8 +17,6 @@
 namespace Cantera
 {
 
-class ElementaryReaction2;
-
 //! Partial specialization of Kinetics for chemistry in a single bulk phase
 class BulkKinetics : public Kinetics
 {
@@ -51,9 +49,6 @@ public:
     void addThirdBody(shared_ptr<Reaction> r);
 
 protected:
-    virtual void addElementaryReaction(ElementaryReaction2& r);
-    virtual void modifyElementaryReaction(size_t i, ElementaryReaction2& rNew);
-
     //! Vector of rate handlers
     std::vector<unique_ptr<MultiRateBase>> m_bulk_rates;
     std::map<std::string, size_t> m_bulk_types; //!< Mapping of rate handlers

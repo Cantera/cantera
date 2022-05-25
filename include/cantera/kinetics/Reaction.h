@@ -39,11 +39,6 @@ public:
     //! input.
     Reaction(const AnyMap& node, const Kinetics& kin);
 
-    //! @deprecated To be removed after Cantera 2.6.
-    explicit Reaction(int type);
-    //! @deprecated To be removed after Cantera 2.6.
-    Reaction(int type, const Composition& reactants,
-             const Composition& products);
     virtual ~Reaction() {}
 
     //! The reactant side of the chemical equation for this reaction
