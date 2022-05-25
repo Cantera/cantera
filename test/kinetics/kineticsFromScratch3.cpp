@@ -11,10 +11,10 @@
 
 using namespace Cantera;
 
-class KineticsFromScratch3 : public testing::Test
+class KineticsFromScratch : public testing::Test
 {
 public:
-    KineticsFromScratch3()
+    KineticsFromScratch()
         : p("../data/kineticsfromscratch.yaml")
         , p_ref("../data/kineticsfromscratch.yaml")
     {
@@ -50,7 +50,7 @@ public:
     }
 };
 
-TEST_F(KineticsFromScratch3, add_elementary_reaction)
+TEST_F(KineticsFromScratch, add_elementary_reaction)
 {
     // reaction 0:
     //     equation: O + H2 <=> H + OH  # Reaction 1
@@ -64,7 +64,7 @@ TEST_F(KineticsFromScratch3, add_elementary_reaction)
     check_rates(0);
 }
 
-TEST_F(KineticsFromScratch3, add_three_body_reaction)
+TEST_F(KineticsFromScratch, add_three_body_reaction)
 {
     // reaction 1:
     //     equation: 2 O + M <=> O2 + M  # Reaction 2
@@ -76,39 +76,39 @@ TEST_F(KineticsFromScratch3, add_three_body_reaction)
     ArrheniusRate rate(1.2e11, -1.0, 0.0);
     ThirdBody tbody;
     tbody.efficiencies = parseCompString("AR:0.83 H2:2.4 H2O:15.4");
-    auto R = make_shared<ThreeBodyReaction3>(reac, prod, rate, tbody);
+    auto R = make_shared<ThreeBodyReaction>(reac, prod, rate, tbody);
 
     kin.addReaction(R);
     check_rates(1);
 }
 
-TEST_F(KineticsFromScratch3, undefined_third_body)
+TEST_F(KineticsFromScratch, undefined_third_body)
 {
     Composition reac = parseCompString("O:2");
     Composition prod = parseCompString("O2:1");
     ArrheniusRate rate(1.2e11, -1.0, 0.0);
     ThirdBody tbody;
     tbody.efficiencies = parseCompString("H2:0.1 CO2:0.83");
-    auto R = make_shared<ThreeBodyReaction3>(reac, prod, rate, tbody);
+    auto R = make_shared<ThreeBodyReaction>(reac, prod, rate, tbody);
 
     ASSERT_THROW(kin.addReaction(R), CanteraError);
 }
 
-TEST_F(KineticsFromScratch3, skip_undefined_third_body)
+TEST_F(KineticsFromScratch, skip_undefined_third_body)
 {
     Composition reac = parseCompString("O:2");
     Composition prod = parseCompString("O2:1");
     ArrheniusRate rate(1.2e11, -1.0, 0.0);
     ThirdBody tbody;
     tbody.efficiencies = parseCompString("H2:0.1 CO2:0.83");
-    auto R = make_shared<ThreeBodyReaction3>(reac, prod, rate, tbody);
+    auto R = make_shared<ThreeBodyReaction>(reac, prod, rate, tbody);
 
     kin.skipUndeclaredThirdBodies(true);
     kin.addReaction(R);
     ASSERT_EQ((size_t) 1, kin.nReactions());
 }
 
-TEST_F(KineticsFromScratch3, add_falloff_reaction)
+TEST_F(KineticsFromScratch, add_falloff_reaction)
 {
     // reaction 2:
     //     equation: 2 OH (+ M) <=> H2O2 (+ M)  # Reaction 3
@@ -126,12 +126,12 @@ TEST_F(KineticsFromScratch3, add_falloff_reaction)
     TroeRate rate(low_rate, high_rate, falloff_params);
     ThirdBody tbody;
     tbody.efficiencies = parseCompString("AR:0.7 H2:2.0 H2O:6.0");
-    auto R = make_shared<FalloffReaction3>(reac, prod, rate, tbody);
+    auto R = make_shared<FalloffReaction>(reac, prod, rate, tbody);
     kin.addReaction(R);
     check_rates(2);
 }
 
-TEST_F(KineticsFromScratch3, add_plog_reaction)
+TEST_F(KineticsFromScratch, add_plog_reaction)
 {
     // reaction 3:
     //     equation: H2 + O2 <=> 2 OH  # Reaction 4
@@ -155,7 +155,7 @@ TEST_F(KineticsFromScratch3, add_plog_reaction)
     check_rates(3);
 }
 
-TEST_F(KineticsFromScratch3, plog_invalid_rate)
+TEST_F(KineticsFromScratch, plog_invalid_rate)
 {
     Composition reac = parseCompString("H2:1, O2:1");
     Composition prod = parseCompString("OH:2");
@@ -170,7 +170,7 @@ TEST_F(KineticsFromScratch3, plog_invalid_rate)
     ASSERT_THROW(kin.addReaction(R), CanteraError);
 }
 
-TEST_F(KineticsFromScratch3, add_chebyshev_reaction)
+TEST_F(KineticsFromScratch, add_chebyshev_reaction)
 {
     // reaction 4:
     //     equation: HO2 <=> OH + O  # Reaction 5
@@ -203,7 +203,7 @@ TEST_F(KineticsFromScratch3, add_chebyshev_reaction)
     check_rates(4);
 }
 
-TEST_F(KineticsFromScratch3, undeclared_species)
+TEST_F(KineticsFromScratch, undeclared_species)
 {
     Composition reac = parseCompString("CO:1 OH:1");
     Composition prod = parseCompString("CO2:1 H:1");
@@ -214,7 +214,7 @@ TEST_F(KineticsFromScratch3, undeclared_species)
     ASSERT_EQ((size_t) 0, kin.nReactions());
 }
 
-TEST_F(KineticsFromScratch3, skip_undeclared_species)
+TEST_F(KineticsFromScratch, skip_undeclared_species)
 {
     Composition reac = parseCompString("CO:1 OH:1");
     Composition prod = parseCompString("CO2:1 H:1");
@@ -226,7 +226,7 @@ TEST_F(KineticsFromScratch3, skip_undeclared_species)
     ASSERT_EQ((size_t) 0, kin.nReactions());
 }
 
-TEST_F(KineticsFromScratch3, negative_A_error)
+TEST_F(KineticsFromScratch, negative_A_error)
 {
     Composition reac = parseCompString("O:1 H2:1");
     Composition prod = parseCompString("H:1 OH:1");
@@ -237,7 +237,7 @@ TEST_F(KineticsFromScratch3, negative_A_error)
     ASSERT_EQ((size_t) 0, kin.nReactions());
 }
 
-TEST_F(KineticsFromScratch3, allow_negative_A)
+TEST_F(KineticsFromScratch, allow_negative_A)
 {
     Composition reac = parseCompString("O:1 H2:1");
     Composition prod = parseCompString("H:1 OH:1");
@@ -250,7 +250,7 @@ TEST_F(KineticsFromScratch3, allow_negative_A)
     ASSERT_EQ((size_t) 1, kin.nReactions());
 }
 
-TEST_F(KineticsFromScratch3, invalid_reversible_with_orders)
+TEST_F(KineticsFromScratch, invalid_reversible_with_orders)
 {
     Composition reac = parseCompString("O:1 H2:1");
     Composition prod = parseCompString("H:1 OH:1");
@@ -262,7 +262,7 @@ TEST_F(KineticsFromScratch3, invalid_reversible_with_orders)
     ASSERT_EQ((size_t) 0, kin.nReactions());
 }
 
-TEST_F(KineticsFromScratch3, negative_order_override)
+TEST_F(KineticsFromScratch, negative_order_override)
 {
     Composition reac = parseCompString("O:1 H2:1");
     Composition prod = parseCompString("H:1 OH:1");
@@ -276,7 +276,7 @@ TEST_F(KineticsFromScratch3, negative_order_override)
     ASSERT_EQ((size_t) 1, kin.nReactions());
 }
 
-TEST_F(KineticsFromScratch3, invalid_negative_orders)
+TEST_F(KineticsFromScratch, invalid_negative_orders)
 {
     Composition reac = parseCompString("O:1 H2:1");
     Composition prod = parseCompString("H:1 OH:1");
@@ -289,7 +289,7 @@ TEST_F(KineticsFromScratch3, invalid_negative_orders)
     ASSERT_EQ((size_t) 0, kin.nReactions());
 }
 
-TEST_F(KineticsFromScratch3, nonreactant_order_override)
+TEST_F(KineticsFromScratch, nonreactant_order_override)
 {
     Composition reac = parseCompString("O:1 H2:1");
     Composition prod = parseCompString("H:1 OH:1");
@@ -303,7 +303,7 @@ TEST_F(KineticsFromScratch3, nonreactant_order_override)
     ASSERT_EQ((size_t) 1, kin.nReactions());
 }
 
-TEST_F(KineticsFromScratch3, invalid_nonreactant_order)
+TEST_F(KineticsFromScratch, invalid_nonreactant_order)
 {
     Composition reac = parseCompString("O:1 H2:1");
     Composition prod = parseCompString("H:1 OH:1");
@@ -316,10 +316,10 @@ TEST_F(KineticsFromScratch3, invalid_nonreactant_order)
     ASSERT_EQ((size_t) 0, kin.nReactions());
 }
 
-class InterfaceKineticsFromScratch3 : public testing::Test
+class InterfaceKineticsFromScratch : public testing::Test
 {
 public:
-    InterfaceKineticsFromScratch3()
+    InterfaceKineticsFromScratch()
         : gas("sofc.yaml", "gas")
         , gas_ref("sofc.yaml", "gas")
         , surf("sofc.yaml", "metal_surface")
@@ -362,7 +362,7 @@ public:
     }
 };
 
-TEST_F(InterfaceKineticsFromScratch3, add_surface_reaction)
+TEST_F(InterfaceKineticsFromScratch, add_surface_reaction)
 {
     // Reaction 3 on the metal surface
     //     equation: H(m) + O(m) <=> OH(m) + (m)  # Reaction 4
@@ -376,7 +376,7 @@ TEST_F(InterfaceKineticsFromScratch3, add_surface_reaction)
     check_rates(3);
 }
 
-TEST_F(InterfaceKineticsFromScratch3, add_sticking_reaction)
+TEST_F(InterfaceKineticsFromScratch, add_sticking_reaction)
 {
     // Reaction 0 on the metal surface
     //     equation: H2 + (m) + (m) <=> H(m) + H(m)  # Reaction 1
@@ -390,7 +390,7 @@ TEST_F(InterfaceKineticsFromScratch3, add_sticking_reaction)
     check_rates(0);
 }
 
-TEST_F(InterfaceKineticsFromScratch3, unbalanced_sites)
+TEST_F(InterfaceKineticsFromScratch, unbalanced_sites)
 {
     Composition reac = parseCompString("H(m):1 O(m):1");
     Composition prod = parseCompString("OH(m):1");
@@ -399,10 +399,10 @@ TEST_F(InterfaceKineticsFromScratch3, unbalanced_sites)
     ASSERT_THROW(kin.addReaction(R), CanteraError);
 }
 
-class KineticsAddSpecies3 : public testing::Test
+class KineticsAddSpecies : public testing::Test
 {
 public:
-    KineticsAddSpecies3()
+    KineticsAddSpecies()
         : p_ref("../data/kineticsfromscratch.yaml")
     {
         std::vector<ThermoPhase*> th;
@@ -477,7 +477,7 @@ public:
     }
 };
 
-TEST_F(KineticsAddSpecies3, add_species_sequential)
+TEST_F(KineticsAddSpecies, add_species_sequential)
 {
     ASSERT_EQ((size_t) 0, kin.nReactions());
 
@@ -506,7 +506,7 @@ TEST_F(KineticsAddSpecies3, add_species_sequential)
     check_rates(5, "O:0.01, H2:0.1, H:0.02, OH:0.03, O2:0.4, AR:0.3, H2O2:0.03, HO2:0.01");
 }
 
-TEST_F(KineticsAddSpecies3, add_species_err_first)
+TEST_F(KineticsAddSpecies, add_species_err_first)
 {
     for (auto s : {"AR", "O", "H2", "H"}) {
         p.addSpecies(species[s]);
