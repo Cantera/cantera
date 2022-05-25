@@ -669,7 +669,7 @@ class SolutionArray:
     def shape(self) -> tuple[int, ...]:
         """The shape of the SolutionArray.
 
-        .. versionadded: 3.0
+        .. versionadded:: 3.0
 
         :return: A tuple of integers with the number of elements in each dimension.
         """
@@ -679,7 +679,7 @@ class SolutionArray:
     def size(self) -> int:
         """The number of elements in the SolutionArray.
 
-        .. versionadded: 3.0
+        .. versionadded:: 3.0
         """
         return np.prod(self.shape)
 

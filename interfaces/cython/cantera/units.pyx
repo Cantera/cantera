@@ -19,20 +19,29 @@ cdef class Units:
         if name:
             self.units = CxxUnits(stringify(name), True)
 
-    def __repr__(self):
-        return f"<Units({pystr(self.units.str())}) at {id(self):0x}>"
+    def __repr__(self) -> str:
+        return f"<Units({str(self)}) at {id(self):0x}>"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return pystr(self.units.str())
 
-    def dimension(self, primary):
+    def dimension(self, primary: str) -> float:
+        """The dimension of the given unit component.
+
+        .. versionadded:: 3.0
+
+        :param primary:
+            A string with the desired unit component. One of ``"mass"``,
+            ``"length"``, ``"time"``, ``"temperature"``, ``"current"``, or
+            ``"quantity"``.
+        """
         return self.units.dimension(stringify(primary))
 
     @property
     def dimensions(self) -> Dict[str, str]:
         """A dictionary of the primary unit components to their dimensions.
 
-        .. versionadded: 3.0
+        .. versionadded:: 3.0
         """
         dimensions = ("mass", "length", "time", "temperature", "current", "quantity")
         return {d: self.dimension(d) for d in dimensions}
@@ -41,7 +50,7 @@ cdef class Units:
     def factor(self) -> float:
         """The factor required to convert from this unit to Cantera's base units.
 
-        .. versionadded: 3.0
+        .. versionadded:: 3.0
         """
         return self.units.factor()
 
