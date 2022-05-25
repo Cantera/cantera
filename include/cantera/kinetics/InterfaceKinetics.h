@@ -148,64 +148,6 @@ public:
     virtual void getRevRateConstants(doublereal* krev,
                                      bool doIrreversible = false);
 
-    //! Return effective preexponent for the specified reaction
-    /*!
-     *  Returns effective preexponent, accounting for surface coverage
-     *  dependencies.
-     *
-     *  @param irxn Reaction number in the kinetics mechanism
-     *  @return Effective preexponent
-     *
-     *  @deprecated To be removed after Cantera 2.6.
-     */
-    double effectivePreExponentialFactor(size_t irxn) {
-        if (m_interfaceRates.size()) {
-            throw NotImplementedError(
-                "InterfaceKinetics::effectivePreExponentialFactor",
-                "Only implemented for legacy CTI/XML framework.");
-        }
-        return m_rates.effectivePreExponentialFactor(irxn);
-    }
-
-    //! Return effective activation energy for the specified reaction
-    /*!
-     *  Returns effective activation energy, accounting for surface coverage
-     *  dependencies.
-     *
-     *  @param irxn Reaction number in the kinetics mechanism
-     *  @return Effective activation energy divided by the gas constant
-     *
-     *  @deprecated To be removed after Cantera 2.6.
-     */
-    double effectiveActivationEnergy_R(size_t irxn) {
-        if (m_interfaceRates.size()) {
-            throw NotImplementedError(
-                "InterfaceKinetics::effectiveActivationEnergy_R",
-                "Only implemented for legacy CTI/XML framework.");
-        }
-       return m_rates.effectiveActivationEnergy_R(irxn);
-    }
-
-    //! Return effective temperature exponent for the specified reaction
-    /*!
-     *  Returns effective temperature exponent, accounting for surface coverage
-     *  dependencies. Current parameterization in SurfaceArrhenius does not
-     *  change this parameter with the change in surface coverages.
-     *
-     *  @param irxn Reaction number in the kinetics mechanism
-     *  @return Effective temperature exponent
-     *
-     *  @deprecated To be removed after Cantera 2.6.
-     */
-    double effectiveTemperatureExponent(size_t irxn) {
-        if (m_interfaceRates.size()) {
-            throw NotImplementedError(
-                "InterfaceKinetics::effectiveTemperatureExponent",
-                "Only implemented for legacy CTI/XML framework.");
-        }
-       return m_rates.effectiveTemperatureExponent(irxn);
-    }
-
     //! @}
     //! @name Reaction Mechanism Construction
     //! @{
@@ -239,9 +181,7 @@ public:
     //! Update properties that depend on temperature
     /*!
      *  Current objects that this function updates:
-     *       m_kdata->m_logtemp
      *       m_kdata->m_rfn
-     *       m_rates.
      *       updateKc();
      */
     void _update_rates_T();
@@ -417,13 +357,6 @@ protected:
      *  reversible. Length = number of reversible reactions
      */
     std::vector<size_t> m_revindex;
-
-    //! Templated class containing the vector of reactions for this interface
-    /*!
-     *  The templated class is described in RateCoeffMgr.h
-     *  The class SurfaceArrhenius is described in RxnRates.h
-     */
-    Rate1<SurfaceArrhenius> m_rates;
 
     bool m_redo_rates;
 
@@ -608,9 +541,6 @@ protected:
 
     //! Current temperature of the data
     doublereal m_temp;
-
-    //! Current log of the temperature
-    doublereal m_logtemp;
 
     //! Boolean flag indicating whether any reaction in the mechanism
     //! has a coverage dependent forward reaction rate
