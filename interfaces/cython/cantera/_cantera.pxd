@@ -477,9 +477,6 @@ cdef extern from "cantera/kinetics/Arrhenius.h" namespace "Cantera":
         CxxArrheniusRate(CxxAnyMap) except +translate_exception
         double evalRate(double, double)
 
-    cdef cppclass CxxArrhenius2 "Cantera::Arrhenius2" (CxxArrheniusRate):
-        CxxArrhenius2(double, double, double)
-
     cdef cppclass CxxBlowersMasel "Cantera::BlowersMasel" (CxxArrheniusBase):
         CxxBlowersMasel(double, double, double, double)
         double evalRate(double, double)
@@ -608,7 +605,6 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         void validate() except +translate_exception
         CxxAnyMap parameters(cbool) except +translate_exception
         CxxAnyMap input
-        int reaction_type
         Composition reactants
         Composition products
         Composition orders
@@ -618,20 +614,10 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         cbool allow_nonreactant_orders
         cbool allow_negative_orders
         shared_ptr[CxxThirdBody] thirdBody()
-        cbool usesLegacy()
         CxxUnits rate_units
 
         shared_ptr[CxxReactionRate] rate()
         void setRate(shared_ptr[CxxReactionRate])
-
-    cdef cppclass CxxElementaryReaction2 "Cantera::ElementaryReaction2" (CxxReaction):
-        CxxElementaryReaction2()
-        CxxArrhenius2 rate
-        cbool allow_negative_pre_exponential_factor
-
-    cdef cppclass CxxThreeBodyReaction2 "Cantera::ThreeBodyReaction2" (CxxElementaryReaction2):
-        CxxThreeBodyReaction2()
-        CxxThirdBody third_body
 
     cdef cppclass CxxFalloff "Cantera::FalloffRate":
         CxxFalloff()
@@ -643,27 +629,6 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         string type()
         void getParameters(double*)
 
-    cdef cppclass CxxFalloffReaction2 "Cantera::FalloffReaction2" (CxxReaction):
-        CxxFalloffReaction2()
-
-        CxxArrhenius2 low_rate
-        CxxArrhenius2 high_rate
-        CxxThirdBody third_body
-        shared_ptr[CxxFalloff] falloff
-        cbool allow_negative_pre_exponential_factor
-
-    cdef cppclass CxxChemicallyActivatedReaction "Cantera::ChemicallyActivatedReaction" (CxxFalloffReaction2):
-        CxxChemicallyActivatedReaction()
-
-    cdef cppclass CxxPlog "Cantera::Plog":
-        CxxPlog(multimap[double,CxxArrhenius2])
-        vector[pair[double, CxxArrhenius2]] rates()
-        void update_C(double*)
-        double updateRC(double, double)
-
-    cdef cppclass CxxPlogReaction2 "Cantera::PlogReaction2" (CxxReaction):
-        CxxPlog rate
-
     cdef cppclass CxxChebyshev "Cantera::ChebyshevRate":
         CxxChebyshev(double, double, double, double, CxxArray2D)
         double Tmin()
@@ -673,29 +638,12 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         size_t nTemperature()
         size_t nPressure()
         CxxArray2D& data()
-        void update_C(double*)
-        double updateRC(double, double)
 
-    cdef cppclass CxxChebyshevReaction2 "Cantera::ChebyshevReaction2" (CxxReaction):
-        CxxChebyshev rate
+    cdef cppclass CxxThreeBodyReaction "Cantera::ThreeBodyReaction" (CxxReaction):
+        CxxThreeBodyReaction()
 
-    cdef cppclass CxxCoverageDependency "Cantera::CoverageDependency":
-        CxxCoverageDependency(double, double, double)
-        double a
-        double E
-        double m
-
-    cdef cppclass CxxInterfaceReaction2 "Cantera::InterfaceReaction2" (CxxElementaryReaction2):
-        stdmap[string, CxxCoverageDependency] coverage_deps
-        cbool is_sticking_coefficient
-        cbool use_motz_wise_correction
-        string sticking_species
-
-    cdef cppclass CxxThreeBodyReaction3 "Cantera::ThreeBodyReaction3" (CxxReaction):
-        CxxThreeBodyReaction3()
-
-    cdef cppclass CxxFalloffReaction3 "Cantera::FalloffReaction3" (CxxReaction):
-        CxxFalloffReaction3()
+    cdef cppclass CxxFalloffReaction "Cantera::FalloffReaction" (CxxReaction):
+        CxxFalloffReaction()
 
     cdef cppclass CxxCustomFunc1Reaction "Cantera::CustomFunc1Reaction" (CxxReaction):
         CxxCustomFunc1Reaction()
@@ -1430,7 +1378,6 @@ cdef class CustomReaction(Reaction):
     cdef CustomRate _rate
 
 cdef class Arrhenius:
-    cdef CxxArrhenius2* legacy # used by legacy objects only
     cdef CxxArrheniusRate* base
     cdef cbool own_rate
     cdef Reaction reaction # parent reaction, to prevent garbage collection
