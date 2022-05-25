@@ -225,6 +225,7 @@ public:
     }
 };
 
+typedef ArrheniusRate Arrhenius;
 }
 
 #endif

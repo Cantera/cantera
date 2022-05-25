@@ -9,13 +9,13 @@
 #define CT_REACTION_H
 
 #include "cantera/base/AnyMap.h"
-#include "cantera/kinetics/ReactionRate.h"
-#include "cantera/kinetics/RxnRates.h"
 #include "cantera/base/Units.h"
-#include "Falloff.h"
+#include "Arrhenius.h"
 #include "ChebyshevRate.h"
-#include "InterfaceRate.h"
 #include "Custom.h"
+#include "Falloff.h"
+#include "InterfaceRate.h"
+#include "PlogRate.h"
 
 namespace Cantera
 {
@@ -113,7 +113,7 @@ public:
     bool usesElectrochemistry(const Kinetics& kin) const;
 
     //! Type of the reaction. The valid types are listed in the file,
-    //! reaction_defs.h, with constants ending in `RXN`.
+    //! reaction_defs.h (recently removed), with constants ending in `RXN`.
     /*!
      * @deprecated To be removed in Cantera 2.6.
      *             Superseded by Reaction::type().

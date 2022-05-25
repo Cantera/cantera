@@ -10,9 +10,8 @@
 #define CT_BULKKINETICS_H
 
 #include "Kinetics.h"
-#include "RxnRates.h"
+#include "MultiRate.h"
 #include "ThirdBodyCalc.h"
-#include "cantera/kinetics/MultiRate.h"
 
 namespace Cantera
 {

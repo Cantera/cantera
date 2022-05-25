@@ -5,17 +5,17 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-#include "cantera/kinetics/ReactionRateFactory.h"
-#include "cantera/kinetics/MultiRate.h"
+#include "cantera/base/AnyMap.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/kinetics/Kinetics.h"
-#include "cantera/kinetics/Falloff.h"
-#include "cantera/kinetics/TwoTempPlasmaRate.h"
+#include "cantera/kinetics/ReactionRateFactory.h"
+#include "cantera/kinetics/Arrhenius.h"
 #include "cantera/kinetics/ChebyshevRate.h"
 #include "cantera/kinetics/Custom.h"
-#include "cantera/kinetics/RxnRates.h"
+#include "cantera/kinetics/Falloff.h"
 #include "cantera/kinetics/InterfaceRate.h"
-#include "cantera/base/AnyMap.h"
+#include "cantera/kinetics/TwoTempPlasmaRate.h"
+#include "cantera/kinetics/PlogRate.h"
 
 namespace Cantera
 {

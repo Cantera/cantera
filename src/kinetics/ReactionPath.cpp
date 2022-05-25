@@ -7,7 +7,6 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/kinetics/ReactionPath.h"
-#include "cantera/kinetics/reaction_defs.h"
 #include "cantera/thermo/ThermoPhase.h"
 
 #include <boost/algorithm/string.hpp>
