@@ -18,7 +18,6 @@ namespace Cantera
 // forward declarations
 class SurfPhase;
 class ImplicitSurfChem;
-class InterfaceReaction2;
 
 //! A kinetics manager for heterogeneous reaction mechanisms. The reactions are
 //! assumed to occur at a 2D interface between two 3D phases.
@@ -409,15 +408,6 @@ public:
     int phaseStability(const size_t iphase) const;
 
 protected:
-    //! Build a SurfaceArrhenius object from a Reaction, taking into account
-    //! the possible sticking coefficient form and coverage dependencies
-    //! @param i  Reaction number
-    //! @param r  Reaction object containing rate coefficient parameters
-    //! @param replace  True if replacing an existing reaction
-    //! @deprecated  To be removed after Cantera 2.6.
-    SurfaceArrhenius buildSurfaceArrhenius(size_t i, InterfaceReaction2& r,
-                                           bool replace);
-
     //! Temporary work vector of length m_kk
     vector_fp m_grt;
 

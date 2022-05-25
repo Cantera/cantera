@@ -89,37 +89,6 @@ Reaction::Reaction(const AnyMap& node, const Kinetics& kin)
     }
 }
 
-Reaction::Reaction(int type)
-    : reaction_type(type)
-    , reversible(true)
-    , duplicate(false)
-    , allow_nonreactant_orders(false)
-    , allow_negative_orders(false)
-    , rate_units(0.0)
-    , m_valid(true)
-{
-    warn_deprecated("Reaction::Reaction()",
-        "To be removed after Cantera 2.6. Use constructor without parameter "
-        "'type' instead.");
-}
-
-Reaction::Reaction(int type, const Composition& reactants_,
-                   const Composition& products_)
-    : reaction_type(type)
-    , reactants(reactants_)
-    , products(products_)
-    , reversible(true)
-    , duplicate(false)
-    , allow_nonreactant_orders(false)
-    , allow_negative_orders(false)
-    , rate_units(0.0)
-    , m_valid(true)
-{
-    warn_deprecated("Reaction::Reaction()",
-        "To be removed after Cantera 2.6. Use constructor without parameter "
-        "'type' instead.");
-}
-
 void Reaction::validate()
 {
     if (!allow_nonreactant_orders) {

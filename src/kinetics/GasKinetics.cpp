@@ -574,82 +574,8 @@ bool GasKinetics::addReaction(shared_ptr<Reaction> r, bool resize)
         // Rate object already added in BulkKinetics::addReaction
         return true;
     }
-
-    if (r->type() == "elementary-legacy") {
-        addElementaryReaction(dynamic_cast<ElementaryReaction2&>(*r));
-    } else if (r->type() == "three-body-legacy") {
-        addThreeBodyReaction(dynamic_cast<ThreeBodyReaction2&>(*r));
-    } else if (r->type() == "falloff-legacy") {
-        addFalloffReaction(dynamic_cast<FalloffReaction2&>(*r));
-    } else if (r->type() == "chemically-activated-legacy") {
-        addFalloffReaction(dynamic_cast<FalloffReaction2&>(*r));
-    } else if (r->type() == "pressure-dependent-Arrhenius-legacy") {
-        addPlogReaction(dynamic_cast<PlogReaction2&>(*r));
-    } else if (r->type() == "Chebyshev-legacy") {
-        addChebyshevReaction(dynamic_cast<ChebyshevReaction2&>(*r));
-    } else {
-        throw CanteraError("GasKinetics::addReaction",
-            "Unknown reaction type specified: '{}'", r->type());
-    }
-    m_legacy.push_back(nReactions() - 1);
-    return true;
-}
-
-void GasKinetics::addFalloffReaction(FalloffReaction2& r)
-{
-    // install high and low rate coeff calculators and extend the high and low
-    // rate coeff value vectors
-    size_t nfall = m_falloff_high_rates.nReactions();
-    m_falloff_high_rates.install(nfall, r.high_rate);
-    m_rfn_high.push_back(0.0);
-    m_falloff_low_rates.install(nfall, r.low_rate);
-    m_rfn_low.push_back(0.0);
-
-    // add this reaction number to the list of falloff reactions
-    m_fallindx.push_back(nReactions()-1);
-    m_rfallindx[nReactions()-1] = nfall;
-
-    // install the enhanced third-body concentration calculator
-    map<size_t, double> efficiencies;
-    for (const auto& eff : r.third_body.efficiencies) {
-        size_t k = kineticsSpeciesIndex(eff.first);
-        if (k != npos) {
-            efficiencies[k] = eff.second;
-        }
-    }
-    m_falloff_concm.install(nfall, efficiencies,
-                            r.third_body.default_efficiency,
-                            nReactions() - 1);
-    concm_falloff_values.resize(m_falloff_concm.workSize());
-
-    // install the falloff function calculator for this reaction
-    m_falloffn.install(nfall, r.type(), r.falloff);
-    falloff_work.resize(m_falloffn.workSize());
-}
-
-void GasKinetics::addThreeBodyReaction(ThreeBodyReaction2& r)
-{
-    m_rates.install(nReactions()-1, r.rate);
-    map<size_t, double> efficiencies;
-    for (const auto& eff : r.third_body.efficiencies) {
-        size_t k = kineticsSpeciesIndex(eff.first);
-        if (k != npos) {
-            efficiencies[k] = eff.second;
-        }
-    }
-    m_3b_concm.install(nReactions()-1, efficiencies,
-                       r.third_body.default_efficiency);
-    concm_3b_values.resize(m_3b_concm.workSize());
-}
-
-void GasKinetics::addPlogReaction(PlogReaction2& r)
-{
-    m_plog_rates.install(nReactions()-1, r.rate);
-}
-
-void GasKinetics::addChebyshevReaction(ChebyshevReaction2& r)
-{
-    m_cheb_rates.install(nReactions()-1, r.rate);
+    throw CanteraError("GasKinetics::addReaction",
+        "Unknown reaction type specified: '{}'", r->type());
 }
 
 void GasKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
@@ -664,46 +590,8 @@ void GasKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
         // Rate object already modified in BulkKinetics::modifyReaction
         return;
     }
-
-    if (rNew->type() == "elementary-legacy") {
-        modifyElementaryReaction(i, dynamic_cast<ElementaryReaction2&>(*rNew));
-    } else if (rNew->type() == "three-body-legacy") {
-        modifyThreeBodyReaction(i, dynamic_cast<ThreeBodyReaction2&>(*rNew));
-    } else if (rNew->type() == "falloff-legacy") {
-        modifyFalloffReaction(i, dynamic_cast<FalloffReaction2&>(*rNew));
-    } else if (rNew->type() == "chemically-activated-legacy") {
-        modifyFalloffReaction(i, dynamic_cast<FalloffReaction2&>(*rNew));
-    } else if (rNew->type() == "pressure-dependent-Arrhenius-legacy") {
-        modifyPlogReaction(i, dynamic_cast<PlogReaction2&>(*rNew));
-    } else if (rNew->type() == "Chebyshev-legacy") {
-        modifyChebyshevReaction(i, dynamic_cast<ChebyshevReaction2&>(*rNew));
-    } else {
-        throw CanteraError("GasKinetics::modifyReaction",
-            "Unknown reaction type specified: '{}'", rNew->type());
-    }
-}
-
-void GasKinetics::modifyThreeBodyReaction(size_t i, ThreeBodyReaction2& r)
-{
-    m_rates.replace(i, r.rate);
-}
-
-void GasKinetics::modifyFalloffReaction(size_t i, FalloffReaction2& r)
-{
-    size_t iFall = m_rfallindx[i];
-    m_falloff_high_rates.replace(iFall, r.high_rate);
-    m_falloff_low_rates.replace(iFall, r.low_rate);
-    m_falloffn.replace(iFall, r.falloff);
-}
-
-void GasKinetics::modifyPlogReaction(size_t i, PlogReaction2& r)
-{
-    m_plog_rates.replace(i, r.rate);
-}
-
-void GasKinetics::modifyChebyshevReaction(size_t i, ChebyshevReaction2& r)
-{
-    m_cheb_rates.replace(i, r.rate);
+    throw CanteraError("GasKinetics::modifyReaction",
+        "Unknown reaction type specified: '{}'", rNew->type());
 }
 
 void GasKinetics::invalidateCache()

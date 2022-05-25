@@ -150,23 +150,6 @@ std::pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
                 continue; // stoichiometries differ (not by a multiple)
             } else if (c < 0.0 && !R.reversible && !other.reversible) {
                 continue; // irreversible reactions in opposite directions
-            } else if (R.type() == "falloff-legacy" ||
-                       R.type() == "chemically-activated-legacy") {
-                ThirdBody& tb1 = dynamic_cast<FalloffReaction2&>(R).third_body;
-                ThirdBody& tb2 = dynamic_cast<FalloffReaction2&>(other).third_body;
-                bool thirdBodyOk = true;
-                for (size_t k = 0; k < nTotalSpecies(); k++) {
-                    string s = kineticsSpeciesName(k);
-                    if (tb1.efficiency(s) * tb2.efficiency(s) != 0.0) {
-                        // non-zero third body efficiencies for species `s` in
-                        // both reactions
-                        thirdBodyOk = false;
-                        break;
-                    }
-                }
-                if (thirdBodyOk) {
-                    continue; // No overlap in third body efficiencies
-                }
             } else if (R.type() == "falloff" || R.type() == "chemically-activated") {
                 auto tb1 = dynamic_cast<FalloffReaction&>(R).thirdBody();
                 auto tb2 = dynamic_cast<FalloffReaction&>(other).thirdBody();
@@ -186,22 +169,6 @@ std::pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
             } else if (R.type() == "three-body") {
                 ThirdBody& tb1 = *(dynamic_cast<ThreeBodyReaction&>(R).thirdBody());
                 ThirdBody& tb2 = *(dynamic_cast<ThreeBodyReaction&>(other).thirdBody());
-                bool thirdBodyOk = true;
-                for (size_t k = 0; k < nTotalSpecies(); k++) {
-                    string s = kineticsSpeciesName(k);
-                    if (tb1.efficiency(s) * tb2.efficiency(s) != 0.0) {
-                        // non-zero third body efficiencies for species `s` in
-                        // both reactions
-                        thirdBodyOk = false;
-                        break;
-                    }
-                }
-                if (thirdBodyOk) {
-                    continue; // No overlap in third body efficiencies
-                }
-            } else if (R.type() == "three-body-legacy") {
-                ThirdBody& tb1 = dynamic_cast<ThreeBodyReaction2&>(R).third_body;
-                ThirdBody& tb2 = dynamic_cast<ThreeBodyReaction2&>(other).third_body;
                 bool thirdBodyOk = true;
                 for (size_t k = 0; k < nTotalSpecies(); k++) {
                     string s = kineticsSpeciesName(k);
@@ -753,14 +720,6 @@ void Kinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
         throw CanteraError("Kinetics::modifyReaction",
             "Reaction types are different: {} != {}.",
             rOld->type(), rNew->type());
-    }
-
-    if (!(rNew->usesLegacy())) {
-        if (rNew->rate()->type() != rOld->rate()->type()) {
-            throw CanteraError("Kinetics::modifyReaction",
-                "ReactionRate types are different: {} != {}.",
-                rOld->rate()->type(), rNew->rate()->type());
-        }
     }
 
     if (rNew->reactants != rOld->reactants) {
