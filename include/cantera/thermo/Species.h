@@ -76,7 +76,7 @@ public:
      *
      * @since New in version 3.0
      */
-    void setMolecularWeight(double weight, bool compute=false);
+    void setMolecularWeight(double weight);
 
     shared_ptr<TransportData> transport;
 
