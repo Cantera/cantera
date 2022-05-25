@@ -28,8 +28,10 @@ stage/
 .sconsign.dblite
 .sconf_temp
 .vscode
+.ipynb_checkpoints/
 cantera.conf*
 config.log
+environment.y*
 *.lib
 *.exp
 *.manifest
