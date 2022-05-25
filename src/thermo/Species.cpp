@@ -37,7 +37,7 @@ Species::~Species()
 {
 }
 
-const double Species::molecularWeight() {
+double Species::molecularWeight() {
     if (m_molecularWeight == Undef) {
         setMolecularWeight(-1.0, true);
     }

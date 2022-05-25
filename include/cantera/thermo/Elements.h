@@ -85,11 +85,11 @@ namespace Cantera
 #define ENTROPY298_UNKNOWN -123456789.
 
 //! Get a vector of the atomic symbols of the elements defined in Cantera.
-//! @since 3.0
+//! @since New in version 3.0
 const std::vector<std::string>& elementSymbols();
 
 //! Get a vector of the names of the elements defined in Cantera.
-//! @since 3.0
+//! @since New in version 3.0
 const std::vector<std::string>& elementNames();
 
 //! Get a map with the element symbols as keys and weights as values.
@@ -97,7 +97,7 @@ const std::vector<std::string>& elementNames();
  * This is a constant in the application so it is only generated once
  * when it is first needed.
  *
- * @since 3.0
+ * @since New in version 3.0
  */
 const std::map<std::string, double>& elementSymbolToWeight();
 
@@ -106,7 +106,7 @@ const std::map<std::string, double>& elementSymbolToWeight();
  * This is a constant in the application so it is only generated once
  * when it is first needed.
  *
- * @since 3.0
+ * @since New in version 3.0
  */
 const std::map<std::string, double>& elementNameToWeight();
 
@@ -115,7 +115,7 @@ const std::map<std::string, double>& elementNameToWeight();
  * This is a constant in the application so it is only generated once
  * when it is first needed.
  *
- * @since 3.0
+ * @since New in version 3.0
  */
 const std::map<std::string, double>& isotopeSymbolToWeight();
 
@@ -124,7 +124,7 @@ const std::map<std::string, double>& isotopeSymbolToWeight();
  * This is a constant in the application so it is only generated once
  * when it is first needed.
  *
- * @since 3.0
+ * @since New in version 3.0
  */
 const std::map<std::string, double>& isotopeNameToWeight();
 
