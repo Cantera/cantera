@@ -581,13 +581,12 @@ config_options = [
     BoolOption(
         "legacy_rate_constants",
         """If enabled, rate constant calculations include third-body concentrations
-           for three-body reactions, which corresponds to the legacy implementation.
-           For Cantera 2.6, the option remains enabled (no change compared to past
-           behavior). After Cantera 2.6, the default will be to disable this option,
-           and rate constant calculations will be consistent with conventional
-           definitions (see Eq. 9.75 in Kee, Coltrin and Glarborg, 'Chemically Reacting
-           Flow', Wiley Interscience, 2003).""",
-        True),
+           for three-body reactions, which corresponds to a legacy implementation used
+           up to Cantera 2.6. The option is disabled by default, which means that rate
+           constant calculations are consistent with conventional definitions
+           (see Eq. 9.75 in Kee, Coltrin and Glarborg, 'Chemically Reacting Flow',
+           Wiley Interscience, 2003).""",
+        False),
     BoolOption(
         "no_legacy_reactions",
         """If disabled ('no'/default), legacy 'Reaction' and associated rate objects
