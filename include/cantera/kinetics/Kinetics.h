@@ -1264,15 +1264,6 @@ protected:
     double checkDuplicateStoich(std::map<int, double>& r1,
                                 std::map<int, double>& r2) const;
 
-    //! Check that the specified reaction is balanced (same number of atoms for
-    //! each element in the reactants and products). Raises an exception if the
-    //! reaction is not balanced.
-    /*!
-     * @deprecated To be removed in Cantera 2.6.
-     *             Replaceable by Reaction::checkBalance.
-     */
-    void checkReactionBalance(const Reaction& R);
-
     //! @name Stoichiometry management
     //!
     //! These objects and functions handle turning reaction extents into species
