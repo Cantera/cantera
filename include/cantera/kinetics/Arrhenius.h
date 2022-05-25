@@ -183,8 +183,6 @@ protected:
  *   \f]
  *
  * @ingroup arrheniusGroup
- *
- * @todo supersedes Arrhenius2 and will replace Arrhenius after Cantera 2.6.
  */
 class ArrheniusRate : public ArrheniusBase
 {

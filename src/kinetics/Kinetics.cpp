@@ -253,13 +253,6 @@ double Kinetics::checkDuplicateStoich(std::map<int, double>& r1,
     return ratio;
 }
 
-void Kinetics::checkReactionBalance(const Reaction& R)
-{
-    R.checkBalance(*this);
-    warn_deprecated("Kinetics::checkReactionBalance",
-        "To be removed after Cantera 2.6. Replacable by Reaction::checkBalance.");
-}
-
 void Kinetics::selectPhase(const double* data, const ThermoPhase* phase,
                            double* phase_data)
 {
