@@ -904,12 +904,6 @@ class TestSofcKinetics(utilities.CanteraTest):
         self.compare(data, self.test_data_path / "sofc-test.csv", rtol=1e-7)
 
 
-@pytest.mark.usefixtures("allow_deprecated")
-class TestSofcKinetics2(TestSofcKinetics):
-    """ Test using legacy framework; included to retain coverage """
-    _mech = "sofc2.yaml"
-
-
 class TestLithiumIonBatteryKinetics(utilities.CanteraTest):
     """ Test based on lithium_ion_battery.py """
     _mech = "lithium_ion_battery.yaml"
@@ -1412,13 +1406,11 @@ class TestReaction(utilities.CanteraTest):
         surf_species = ct.Species.list_from_file("ptcombust.yaml")
         gas = ct.Solution("ptcombust.yaml", "gas")
         surf1 = ct.Interface("ptcombust.yaml", "Pt_surf", [gas])
-        r1 = ct.InterfaceReaction()
-        r1.reactants = 'H(S):2'
-        r1.products = 'H2:1, PT(S):2'
-        r1.rate = ct.Arrhenius(3.7e20, 0, 67.4e6)
-        r1.coverage_deps = {'H(S)': (0, 0, -6e6)}
 
-        self.assertNear(r1.coverage_deps['H(S)'][2], -6e6)
+        rate = ct.InterfaceArrheniusRate(3.7e20, 0, 67.4e6)
+        rate.coverage_dependencies = {'H(S)': (0, 0, -6e6)}
+        self.assertNear(rate.coverage_dependencies["H(S)"]["E"], -6e6)
+        r1 = ct.Reaction(equation="2 H(S) <=> H2 + 2 PT(S)", rate=rate)
 
         surf2 = ct.Interface(thermo='Surface', species=surf_species,
                              kinetics='interface', reactions=[r1], adjacent=[gas])
