@@ -10,7 +10,7 @@
 #define CT_BULKKINETICS_H
 
 #include "Kinetics.h"
-#include "RateCoeffMgr.h"
+#include "RxnRates.h"
 #include "ThirdBodyCalc.h"
 #include "cantera/kinetics/MultiRate.h"
 

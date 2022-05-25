@@ -12,6 +12,7 @@
 #include "cantera/kinetics/ReactionRate.h"
 #include "cantera/kinetics/RxnRates.h"
 #include "cantera/base/Units.h"
+#include "Falloff.h"
 #include "ChebyshevRate.h"
 #include "InterfaceRate.h"
 #include "Custom.h"
@@ -20,7 +21,6 @@ namespace Cantera
 {
 
 class Kinetics;
-class FalloffRate;
 class ThirdBody;
 
 //! @defgroup reactionGroup Reactions and reaction rates
