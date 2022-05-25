@@ -139,46 +139,16 @@ protected:
 
     //! Helper function ensuring that all rate derivatives can be calculated
     //! @param name  method name used for error output
-    //! @throw  CanteraError if legacy rates are present
     void assertDerivativesValid(const std::string& name);
 
     //! @}
-
-    //! Reaction index of each falloff reaction
-    std::vector<size_t> m_fallindx; //!< @deprecated (legacy only)
-
-    //! Reaction index of each legacy reaction (old framework)
-    std::vector<size_t> m_legacy;
-
-    //! Map of reaction index to falloff reaction index (i.e indices in
-    //! #m_falloff_low_rates and #m_falloff_high_rates)
-    std::map<size_t, size_t> m_rfallindx; //!< @deprecated (legacy only)
-
-    //! Rate expressions for falloff reactions at the low-pressure limit
-    Rate1<Arrhenius2> m_falloff_low_rates; //!< @deprecated (legacy only)
-
-    //! Rate expressions for falloff reactions at the high-pressure limit
-    Rate1<Arrhenius2> m_falloff_high_rates; //!< @deprecated (legacy only)
-
-    FalloffMgr m_falloffn; //!< @deprecated (legacy only)
-
-    ThirdBodyCalc m_3b_concm; //!< @deprecated (legacy only)
-    ThirdBodyCalc m_falloff_concm; //!< @deprecated (legacy only)
-
-    Rate1<Plog> m_plog_rates; //!< @deprecated (legacy only)
-    Rate1<ChebyshevRate> m_cheb_rates; //!< @deprecated (legacy only)
 
     //! @name Reaction rate data
     //! @{
 
     doublereal m_logStandConc;
-    vector_fp m_rfn_low; //!< @deprecated (legacy only)
-    vector_fp m_rfn_high; //!< @deprecated (legacy only)
 
     doublereal m_pres; //!< Last pressure at which rates were evaluated
-    vector_fp falloff_work; //!< @deprecated (legacy only)
-    vector_fp concm_3b_values; //!< @deprecated (legacy only)
-    vector_fp concm_falloff_values; //!< @deprecated (legacy only)
 
     //! @}
 
@@ -193,12 +163,6 @@ protected:
     bool m_jac_skip_third_bodies;
     bool m_jac_skip_falloff;
     double m_jac_rtol_delta;
-
-    // functions marked as deprecated below are only used for XML import and
-    // transitional reaction types that are marked as '-legacy'
-
-    //! @deprecated To be removed after Cantera 2.6 (replaced by MultiRate approach)
-    void processFalloffReactions(double* ropf);
 
     //! Update the equilibrium constants in molar units.
     void updateKc();

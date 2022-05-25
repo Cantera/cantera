@@ -53,7 +53,6 @@ protected:
     std::vector<unique_ptr<MultiRateBase>> m_bulk_rates;
     std::map<std::string, size_t> m_bulk_types; //!< Mapping of rate handlers
 
-    Rate1<Arrhenius2> m_rates; //!< @deprecated (legacy only)
     std::vector<size_t> m_revindex; //!< Indices of reversible reactions
     std::vector<size_t> m_irrev; //!< Indices of irreversible reactions
 
@@ -62,7 +61,7 @@ protected:
     //! valued stoichiometries.
     vector_fp m_dn;
 
-    ThirdBodyCalc3 m_multi_concm; //!< used with MultiRate evaluator
+    ThirdBodyCalc m_multi_concm; //!< used with MultiRate evaluator
 
     //! Third body concentrations
     vector_fp m_concm;
