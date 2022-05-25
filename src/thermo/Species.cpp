@@ -39,14 +39,7 @@ Species::~Species()
 
 double Species::molecularWeight() {
     if (m_molecularWeight == Undef) {
-        setMolecularWeight(-1.0, true);
-    }
-    return m_molecularWeight;
-}
-
-void Species::setMolecularWeight(double weight, bool compute) {
-    if (compute) {
-        weight = 0.0;
+        double weight = 0.0;
         const auto& elements = elementSymbolToWeight();
         const auto& isotopes = isotopeSymbolToWeight();
         for (const auto& comp : composition) {
@@ -64,9 +57,15 @@ void Species::setMolecularWeight(double weight, bool compute) {
                 }
             }
         }
+        setMolecularWeight(weight);
     }
+    return m_molecularWeight;
+}
+
+void Species::setMolecularWeight(double weight) {
     if (m_molecularWeight != Undef) {
-        double weight_cmp = fabs(weight - m_molecularWeight) / max(weight, m_molecularWeight);
+        double maxWeight = max(weight, m_molecularWeight);
+        double weight_cmp = fabs(weight - m_molecularWeight) / maxWeight;
         if (weight_cmp > 1.0e-9) {
             throw CanteraError(
                 "Species::setMolecularWeight",
