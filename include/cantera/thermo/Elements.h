@@ -85,15 +85,19 @@ namespace Cantera
 #define ENTROPY298_UNKNOWN -123456789.
 
 //! Get a vector of the atomic symbols of the elements defined in Cantera.
+//! @since 3.0
 const std::vector<std::string>& elementSymbols();
 
 //! Get a vector of the names of the elements defined in Cantera.
+//! @since 3.0
 const std::vector<std::string>& elementNames();
 
 //! Get a map with the element symbols as keys and weights as values.
 /*!
  * This is a constant in the application so it is only generated once
  * when it is first needed.
+ *
+ * @since 3.0
  */
 const std::map<std::string, double>& elementSymbolToWeight();
 
@@ -101,6 +105,8 @@ const std::map<std::string, double>& elementSymbolToWeight();
 /*!
  * This is a constant in the application so it is only generated once
  * when it is first needed.
+ *
+ * @since 3.0
  */
 const std::map<std::string, double>& elementNameToWeight();
 
@@ -108,6 +114,8 @@ const std::map<std::string, double>& elementNameToWeight();
 /*!
  * This is a constant in the application so it is only generated once
  * when it is first needed.
+ *
+ * @since 3.0
  */
 const std::map<std::string, double>& isotopeSymbolToWeight();
 
@@ -115,6 +123,8 @@ const std::map<std::string, double>& isotopeSymbolToWeight();
 /*!
  * This is a constant in the application so it is only generated once
  * when it is first needed.
+ *
+ * @since 3.0
  */
 const std::map<std::string, double>& isotopeNameToWeight();
 
@@ -209,10 +219,12 @@ int getAtomicNumber(const std::string& ename);
 
 //! Get the number of named elements defined in Cantera.
 //! This array excludes named isotopes
+//! @since Type is `size_t` in Cantera 3.0
 size_t numElementsDefined();
 
 //! Get the number of named isotopes defined in Cantera.
 //! This array excludes the named elements
+//! @since Type is `size_t` in Cantera 3.0
 size_t numIsotopesDefined();
 
 } // namespace
