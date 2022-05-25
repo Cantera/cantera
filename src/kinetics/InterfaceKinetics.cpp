@@ -23,7 +23,6 @@ InterfaceKinetics::InterfaceKinetics(ThermoPhase* thermo) :
     m_integrator(0),
     m_ROP_ok(false),
     m_temp(0.0),
-    m_logtemp(0.0),
     m_has_coverage_dependence(false),
     m_has_electrochem_rxns(false),
     m_has_exchange_current_density_formulation(false),
@@ -65,7 +64,6 @@ void InterfaceKinetics::_update_rates_T()
     _update_rates_phi();
     if (m_has_coverage_dependence) {
         m_surf->getCoverages(m_actConc.data());
-        m_rates.update_C(m_actConc.data());
         m_redo_rates = true;
     }
 
@@ -73,10 +71,7 @@ void InterfaceKinetics::_update_rates_T()
     doublereal T = thermo(surfacePhaseIndex()).temperature();
     m_redo_rates = true;
     if (T != m_temp || m_redo_rates) {
-        m_logtemp = log(T);
-
         //  Calculate the forward rate constant by calling m_rates and store it in m_rfn[]
-        m_rates.update(T, m_logtemp, m_rfn.data());
         for (size_t n = 0; n < nPhases(); n++) {
             thermo(n).getPartialMolarEnthalpies(m_grt.data() + m_start[n]);
         }
