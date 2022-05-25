@@ -138,7 +138,22 @@ public:
      */
     void updateFromStruct(const ChebyshevData& shared_data) {
         if (shared_data.log10P != m_log10P) {
-            update_C(&shared_data.log10P);
+            m_log10P = shared_data.log10P;
+            double Pr = (2 * shared_data.log10P + PrNum_) * PrDen_;
+            double Cnm1 = Pr;
+            double Cn = 1;
+            double Cnp1;
+            for (size_t i = 0; i < m_coeffs.nRows(); i++) {
+                dotProd_[i] = m_coeffs(i, 0);
+            }
+            for (size_t j = 1; j < m_coeffs.nColumns(); j++) {
+                Cnp1 = 2 * Pr * Cn - Cnm1;
+                for (size_t i = 0; i < m_coeffs.nRows(); i++) {
+                    dotProd_[i] += Cnp1 * m_coeffs(i, j);
+                }
+                Cnm1 = Cn;
+                Cn = Cnp1;
+            }
         }
     }
 
@@ -147,58 +162,7 @@ public:
      *  @param shared_data  data shared by all reactions of a given type
      */
     double evalFromStruct(const ChebyshevData& shared_data) {
-        return updateRC(0., shared_data.recipT);
-    }
-
-    //! Set up ChebyshevRate object
-    /*!
-     * @deprecated   Deprecated in Cantera 2.6. Replaceable with
-     *               @see setLimits() and @see setCoeffs().
-     */
-    void setup(double Tmin, double Tmax, double Pmin, double Pmax,
-                  const Array2D& coeffs);
-
-    //! Set limits for ChebyshevRate object
-    /*!
-     *  @param Tmin    Minimum temperature [K]
-     *  @param Tmax    Maximum temperature [K]
-     *  @param Pmin    Minimum pressure [Pa]
-     *  @param Pmax    Maximum pressure [Pa]
-     */
-    void setLimits(double Tmin, double Tmax, double Pmin, double Pmax);
-
-    //! Update concentration-dependent parts of the rate coefficient.
-    //! @param c base-10 logarithm of the pressure in Pa
-    //! @deprecated To be removed after Cantera 2.6. Implementation will be moved to
-    //! the updateFromStruct() method.
-    void update_C(const double* c) {
-        m_log10P = c[0];
-        double Pr = (2 * c[0] + PrNum_) * PrDen_;
-        double Cnm1 = Pr;
-        double Cn = 1;
-        double Cnp1;
-        for (size_t i = 0; i < m_coeffs.nRows(); i++) {
-            dotProd_[i] = m_coeffs(i, 0);
-        }
-        for (size_t j = 1; j < m_coeffs.nColumns(); j++) {
-            Cnp1 = 2 * Pr * Cn - Cnm1;
-            for (size_t i = 0; i < m_coeffs.nRows(); i++) {
-                dotProd_[i] += Cnp1 * m_coeffs(i, j);
-            }
-            Cnm1 = Cn;
-            Cn = Cnp1;
-        }
-    }
-
-    /**
-     * Update the value the rate constant.
-     *
-     * This function returns the actual value of the rate constant.
-     * @deprecated To be removed after Cantera 2.6. Implementation will be moved to
-     * the evalFromStruct() method.
-     */
-    double updateRC(double logT, double recipT) const {
-        double Tr = (2 * recipT + TrNum_) * TrDen_;
+        double Tr = (2 * shared_data.recipT + TrNum_) * TrDen_;
         double Cnm1 = Tr;
         double Cn = 1;
         double Cnp1;
@@ -211,6 +175,15 @@ public:
         }
         return std::pow(10, logk);
     }
+
+    //! Set limits for ChebyshevRate object
+    /*!
+     *  @param Tmin    Minimum temperature [K]
+     *  @param Tmax    Maximum temperature [K]
+     *  @param Pmin    Minimum pressure [Pa]
+     *  @param Pmax    Maximum pressure [Pa]
+     */
+    void setLimits(double Tmin, double Tmax, double Pmin, double Pmax);
 
     //! Minimum valid temperature [K]
     double Tmin() const {
@@ -242,19 +215,6 @@ public:
         return m_coeffs.nRows();
     }
 
-    //! Access the ChebyshevRate coefficients.
-    /*!
-     *  \f$ \alpha_{t,p} = \mathrm{coeffs}[N_P*t + p] \f$ where
-     *  \f$ 0 <= t < N_T \f$ and \f$ 0 <= p < N_P \f$.
-     *
-     * @deprecated   To be removed after Cantera 2.6. Replaceable by @see data().
-     */
-    const vector_fp& coeffs() const {
-        warn_deprecated("ChebyshevRate::coeffs", "Deprecated in Cantera 2.6 "
-            "and to be removed thereafter; replaceable by data().");
-        return chebCoeffs_;
-    }
-
     //! Access Chebyshev coefficients as 2-dimensional array with temperature and
     //! pressure dimensions corresponding to rows and columns, respectively.
     const Array2D& data() const {
@@ -272,8 +232,7 @@ protected:
     double PrNum_, PrDen_; //!< terms appearing in the reduced pressure
 
     Array2D m_coeffs; //!<< coefficient array
-    vector_fp chebCoeffs_; //!< Chebyshev coefficients, length nP * nT
-    vector_fp dotProd_; //!< dot product of chebCoeffs with the reduced pressure polynomial
+    vector_fp dotProd_; //!< dot product of coeffs with the reduced pressure polynomial
 
     Units m_rate_units; //!< Reaction rate units
 };

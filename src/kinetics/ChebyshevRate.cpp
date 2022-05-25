@@ -92,15 +92,6 @@ void ChebyshevRate::setParameters(const AnyMap& node, const UnitStack& units)
     setData(coeffs);
 }
 
-void ChebyshevRate::setup(double Tmin, double Tmax, double Pmin, double Pmax,
-                          const Array2D& coeffs)
-{
-    warn_deprecated("ChebyshevRate::setup", "Deprecated in Cantera 2.6; "
-        "replaceable with setLimits() and setData().");
-    setLimits(Tmin, Tmax, Pmin, Pmax);
-    setData(coeffs);
-}
-
 void ChebyshevRate::setLimits(double Tmin, double Tmax, double Pmin, double Pmax)
 {
     double logPmin = std::log10(Pmin);
@@ -123,17 +114,6 @@ void ChebyshevRate::setData(const Array2D& coeffs)
 {
     m_coeffs = coeffs;
     dotProd_.resize(coeffs.nRows());
-
-    // convert to row major for legacy output
-    // note: chebCoeffs_ is not used internally (@todo: remove after Cantera 2.6)
-    size_t rows = m_coeffs.nRows();
-    size_t cols = m_coeffs.nColumns();
-    chebCoeffs_.resize(rows * cols);
-    for (size_t i = 0; i < rows; i++) {
-        for (size_t j = 0; j < cols; j++) {
-            chebCoeffs_[cols * i + j] = m_coeffs(i, j);
-        }
-    }
 }
 
 void ChebyshevRate::getParameters(AnyMap& rateNode) const
