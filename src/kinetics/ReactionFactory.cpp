@@ -41,7 +41,7 @@ ReactionFactory::ReactionFactory()
 
     // register three-body reactions
     reg("three-body", [](const AnyMap& node, const Kinetics& kin) {
-        return new ThreeBodyReaction3(node, kin);
+        return new ThreeBodyReaction(node, kin);
     });
     addAlias("three-body", "threebody");
     addAlias("three-body", "three_body");
@@ -57,7 +57,7 @@ ReactionFactory::ReactionFactory()
 
     // register falloff reactions
     reg("falloff", [](const AnyMap& node, const Kinetics& kin) {
-        return new FalloffReaction3(node, kin);
+        return new FalloffReaction(node, kin);
     });
     addAlias("falloff", "chemically-activated");
 

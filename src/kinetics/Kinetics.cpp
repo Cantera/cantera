@@ -168,8 +168,8 @@ std::pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
                     continue; // No overlap in third body efficiencies
                 }
             } else if (R.type() == "falloff" || R.type() == "chemically-activated") {
-                auto tb1 = dynamic_cast<FalloffReaction3&>(R).thirdBody();
-                auto tb2 = dynamic_cast<FalloffReaction3&>(other).thirdBody();
+                auto tb1 = dynamic_cast<FalloffReaction&>(R).thirdBody();
+                auto tb2 = dynamic_cast<FalloffReaction&>(other).thirdBody();
                 bool thirdBodyOk = true;
                 for (size_t k = 0; k < nTotalSpecies(); k++) {
                     string s = kineticsSpeciesName(k);
@@ -184,8 +184,8 @@ std::pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
                     continue; // No overlap in third body efficiencies
                 }
             } else if (R.type() == "three-body") {
-                ThirdBody& tb1 = *(dynamic_cast<ThreeBodyReaction3&>(R).thirdBody());
-                ThirdBody& tb2 = *(dynamic_cast<ThreeBodyReaction3&>(other).thirdBody());
+                ThirdBody& tb1 = *(dynamic_cast<ThreeBodyReaction&>(R).thirdBody());
+                ThirdBody& tb2 = *(dynamic_cast<ThreeBodyReaction&>(other).thirdBody());
                 bool thirdBodyOk = true;
                 for (size_t k = 0; k < nTotalSpecies(); k++) {
                     string s = kineticsSpeciesName(k);

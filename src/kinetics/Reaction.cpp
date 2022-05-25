@@ -976,22 +976,22 @@ void ElectrochemicalReaction2::getParameters(AnyMap& reactionNode) const
     }
 }
 
-ThreeBodyReaction3::ThreeBodyReaction3()
+ThreeBodyReaction::ThreeBodyReaction()
 {
     m_third_body.reset(new ThirdBody);
     setRate(newReactionRate(type()));
 }
 
-ThreeBodyReaction3::ThreeBodyReaction3(const Composition& reactants,
-                                       const Composition& products,
-                                       const ArrheniusRate& rate,
-                                       const ThirdBody& tbody)
+ThreeBodyReaction::ThreeBodyReaction(const Composition& reactants,
+                                     const Composition& products,
+                                     const ArrheniusRate& rate,
+                                     const ThirdBody& tbody)
     : Reaction(reactants, products, make_shared<ArrheniusRate>(rate))
 {
     m_third_body = std::make_shared<ThirdBody>(tbody);
 }
 
-ThreeBodyReaction3::ThreeBodyReaction3(const AnyMap& node, const Kinetics& kin)
+ThreeBodyReaction::ThreeBodyReaction(const AnyMap& node, const Kinetics& kin)
 {
     m_third_body.reset(new ThirdBody);
     if (!node.empty()) {
@@ -1002,7 +1002,7 @@ ThreeBodyReaction3::ThreeBodyReaction3(const AnyMap& node, const Kinetics& kin)
     }
 }
 
-bool ThreeBodyReaction3::detectEfficiencies()
+bool ThreeBodyReaction::detectEfficiencies()
 {
     for (const auto& reac : reactants) {
         // detect explicitly specified collision partner
@@ -1014,7 +1014,7 @@ bool ThreeBodyReaction3::detectEfficiencies()
     if (m_third_body->efficiencies.size() == 0) {
         return false;
     } else if (m_third_body->efficiencies.size() > 1) {
-        throw CanteraError("ThreeBodyReaction3::detectEfficiencies",
+        throw CanteraError("ThreeBodyReaction::detectEfficiencies",
             "Found more than one explicitly specified collision partner\n"
             "in reaction '{}'.", equation());
     }
@@ -1042,12 +1042,12 @@ bool ThreeBodyReaction3::detectEfficiencies()
     return true;
 }
 
-void ThreeBodyReaction3::setEquation(const std::string& equation, const Kinetics* kin)
+void ThreeBodyReaction::setEquation(const std::string& equation, const Kinetics* kin)
 {
     Reaction::setEquation(equation, kin);
     if (reactants.count("M") != 1 || products.count("M") != 1) {
         if (!detectEfficiencies()) {
-            throw InputFileError("ThreeBodyReaction3::setParameters", input,
+            throw InputFileError("ThreeBodyReaction::setParameters", input,
                 "Reaction equation '{}' does not contain third body 'M'",
                 equation);
         }
@@ -1058,7 +1058,7 @@ void ThreeBodyReaction3::setEquation(const std::string& equation, const Kinetics
     products.erase("M");
 }
 
-void ThreeBodyReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
+void ThreeBodyReaction::setParameters(const AnyMap& node, const Kinetics& kin)
 {
     if (node.empty()) {
         // empty node: used by newReaction() factory loader
@@ -1070,7 +1070,7 @@ void ThreeBodyReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
     }
 }
 
-void ThreeBodyReaction3::getParameters(AnyMap& reactionNode) const
+void ThreeBodyReaction::getParameters(AnyMap& reactionNode) const
 {
     Reaction::getParameters(reactionNode);
     if (!m_third_body->specified_collision_partner) {
@@ -1083,7 +1083,7 @@ void ThreeBodyReaction3::getParameters(AnyMap& reactionNode) const
     }
 }
 
-std::string ThreeBodyReaction3::reactantString() const
+std::string ThreeBodyReaction::reactantString() const
 {
     if (m_third_body->specified_collision_partner) {
         return Reaction::reactantString() + " + "
@@ -1093,7 +1093,7 @@ std::string ThreeBodyReaction3::reactantString() const
     }
 }
 
-std::string ThreeBodyReaction3::productString() const
+std::string ThreeBodyReaction::productString() const
 {
     if (m_third_body->specified_collision_partner) {
         return Reaction::productString() + " + "
@@ -1103,7 +1103,7 @@ std::string ThreeBodyReaction3::productString() const
     }
 }
 
-FalloffReaction3::FalloffReaction3()
+FalloffReaction::FalloffReaction()
     : Reaction()
 {
     m_third_body.reset(new ThirdBody);
@@ -1111,10 +1111,10 @@ FalloffReaction3::FalloffReaction3()
     setRate(newReactionRate(type()));
 }
 
-FalloffReaction3::FalloffReaction3(const Composition& reactants,
-                                   const Composition& products,
-                                   const ReactionRate& rate,
-                                   const ThirdBody& tbody)
+FalloffReaction::FalloffReaction(const Composition& reactants,
+                                 const Composition& products,
+                                 const ReactionRate& rate,
+                                 const ThirdBody& tbody)
     : Reaction(reactants, products)
 {
     m_third_body = std::make_shared<ThirdBody>(tbody);
@@ -1124,13 +1124,13 @@ FalloffReaction3::FalloffReaction3(const Composition& reactants,
     std::string rate_type = node["type"].asString();
     if (rate_type != "falloff" && rate_type != "chemically-activated") {
         // use node information to determine whether rate is a falloff rate
-        throw CanteraError("FalloffReaction3::FalloffReaction3",
+        throw CanteraError("FalloffReaction::FalloffReaction",
             "Incompatible types: '{}' is not a falloff rate object.", rate.type());
     }
     setRate(newReactionRate(node));
 }
 
-FalloffReaction3::FalloffReaction3(const AnyMap& node, const Kinetics& kin)
+FalloffReaction::FalloffReaction(const AnyMap& node, const Kinetics& kin)
 {
     m_third_body.reset(new ThirdBody);
     m_third_body->mass_action = false;
@@ -1142,7 +1142,7 @@ FalloffReaction3::FalloffReaction3(const AnyMap& node, const Kinetics& kin)
     }
 }
 
-std::string FalloffReaction3::type() const
+std::string FalloffReaction::type() const
 {
     if (m_rate &&
         std::dynamic_pointer_cast<FalloffRate>(m_rate)->chemicallyActivated())
@@ -1152,7 +1152,7 @@ std::string FalloffReaction3::type() const
     return "falloff";
 }
 
-std::string FalloffReaction3::reactantString() const
+std::string FalloffReaction::reactantString() const
 {
     if (m_third_body->specified_collision_partner) {
         return Reaction::reactantString() + " (+" +
@@ -1162,7 +1162,7 @@ std::string FalloffReaction3::reactantString() const
     }
 }
 
-std::string FalloffReaction3::productString() const
+std::string FalloffReaction::productString() const
 {
     if (m_third_body->specified_collision_partner) {
         return Reaction::productString() + " (+" +
@@ -1172,7 +1172,7 @@ std::string FalloffReaction3::productString() const
     }
 }
 
-void FalloffReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
+void FalloffReaction::setParameters(const AnyMap& node, const Kinetics& kin)
 {
     if (node.empty()) {
         // empty node: used by newReaction() factory loader
@@ -1185,7 +1185,7 @@ void FalloffReaction3::setParameters(const AnyMap& node, const Kinetics& kin)
     }
 }
 
-void FalloffReaction3::setEquation(const std::string& equation, const Kinetics* kin)
+void FalloffReaction::setEquation(const std::string& equation, const Kinetics* kin)
 {
     Reaction::setEquation(equation, kin);
 
@@ -1204,12 +1204,12 @@ void FalloffReaction3::setEquation(const std::string& equation, const Kinetics* 
 
     // Equation must contain a third body, and it must appear on both sides
     if (third_body_str == "") {
-        throw InputFileError("FalloffReaction3::setParameters", input,
+        throw InputFileError("FalloffReaction::setParameters", input,
             "Reactants for reaction '{}' do not contain a pressure-dependent "
             "third body", equation);
     }
     if (products.count(third_body_str) == 0) {
-        throw InputFileError("FalloffReaction3::setParameters", input,
+        throw InputFileError("FalloffReaction::setParameters", input,
             "Unable to match third body '{}' in reactants and products of "
             "reaction '{}'", third_body, equation);
     }
@@ -1228,7 +1228,7 @@ void FalloffReaction3::setEquation(const std::string& equation, const Kinetics* 
     }
 }
 
-void FalloffReaction3::getParameters(AnyMap& reactionNode) const
+void FalloffReaction::getParameters(AnyMap& reactionNode) const
 {
     Reaction::getParameters(reactionNode);
     if (m_third_body->specified_collision_partner) {
