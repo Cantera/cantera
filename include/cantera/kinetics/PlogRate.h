@@ -11,8 +11,6 @@
 namespace Cantera
 {
 
-class Arrhenius2;
-
 //! Data container holding shared data specific to PlogRate
 /**
  * The data container `PlogData` holds precalculated data common to
@@ -83,9 +81,6 @@ public:
     //! Constructor from Arrhenius rate expressions at a set of pressures
     explicit PlogRate(const std::multimap<double, ArrheniusRate>& rates);
 
-    //! Constructor using legacy Arrhenius2 framework
-    explicit PlogRate(const std::multimap<double, Arrhenius2>& rates);
-
     PlogRate(const AnyMap& node, const UnitStack& rate_units={}) : PlogRate() {
         setParameters(node, rate_units);
     }
@@ -115,7 +110,28 @@ public:
      */
     void updateFromStruct(const PlogData& shared_data) {
         if (shared_data.logP != logP_) {
-            update_C(&shared_data.logP);
+            logP_ = shared_data.logP;
+            if (logP_ > logP1_ && logP_ < logP2_) {
+                return;
+            }
+
+            auto iter = pressures_.upper_bound(logP_);
+            AssertThrowMsg(iter != pressures_.end(), "PlogRate::updateFromStruct",
+                        "Pressure out of range: {}", logP_);
+            AssertThrowMsg(iter != pressures_.begin(), "PlogRate::updateFromStruct",
+                        "Pressure out of range: {}", logP_);
+
+            // upper interpolation pressure
+            logP2_ = iter->first;
+            ihigh1_ = iter->second.first;
+            ihigh2_ = iter->second.second;
+
+            // lower interpolation pressure
+            logP1_ = (--iter)->first;
+            ilow1_ = iter->second.first;
+            ilow2_ = iter->second.second;
+
+            rDeltaP_ = 1.0 / (logP2_ - logP1_);
         }
     }
 
@@ -124,78 +140,32 @@ public:
      *  @param shared_data  data shared by all reactions of a given type
      */
     double evalFromStruct(const PlogData& shared_data) {
-        return updateRC(shared_data.logT, shared_data.recipT);
-    }
-
-    //! Set up Plog object
-    /*!
-     * @deprecated   Deprecated in Cantera 2.6. Replaced by setRates.
-     */
-    void setup(const std::multimap<double, Arrhenius2>& rates);
-
-    //! Set up Plog object
-    void setRates(const std::multimap<double, ArrheniusRate>& rates);
-
-    //! Update concentration-dependent parts of the rate coefficient.
-    //! @param c natural log of the pressure in Pa
-    //! @deprecated To be removed after Cantera 2.6. Implementation will be moved to
-    //! the updateFromStruct() method.
-    void update_C(const double* c) {
-        logP_ = c[0];
-        if (logP_ > logP1_ && logP_ < logP2_) {
-            return;
-        }
-
-        auto iter = pressures_.upper_bound(c[0]);
-        AssertThrowMsg(iter != pressures_.end(), "PlogRate::update_C",
-                       "Pressure out of range: {}", logP_);
-        AssertThrowMsg(iter != pressures_.begin(), "PlogRate::update_C",
-                       "Pressure out of range: {}", logP_);
-
-        // upper interpolation pressure
-        logP2_ = iter->first;
-        ihigh1_ = iter->second.first;
-        ihigh2_ = iter->second.second;
-
-        // lower interpolation pressure
-        logP1_ = (--iter)->first;
-        ilow1_ = iter->second.first;
-        ilow2_ = iter->second.second;
-
-        rDeltaP_ = 1.0 / (logP2_ - logP1_);
-    }
-
-    /**
-     * Update the value the rate constant.
-     *
-     * This function returns the actual value of the rate constant.
-     * @deprecated To be removed after Cantera 2.6. Implementation will be moved to
-     * the evalFromStruct() method.
-     */
-    double updateRC(double logT, double recipT) const {
         double log_k1, log_k2;
         if (ilow1_ == ilow2_) {
-            log_k1 = rates_[ilow1_].evalLog(logT, recipT);
+            log_k1 = rates_[ilow1_].evalLog(shared_data.logT, shared_data.recipT);
         } else {
             double k = 1e-300; // non-zero to make log(k) finite
             for (size_t i = ilow1_; i < ilow2_; i++) {
-                k += rates_[i].evalRate(logT, recipT);
+                k += rates_[i].evalRate(shared_data.logT, shared_data.recipT);
             }
             log_k1 = std::log(k);
         }
 
         if (ihigh1_ == ihigh2_) {
-            log_k2 = rates_[ihigh1_].evalLog(logT, recipT);
+            log_k2 = rates_[ihigh1_].evalLog(shared_data.logT, shared_data.recipT);
         } else {
             double k = 1e-300; // non-zero to make log(k) finite
             for (size_t i = ihigh1_; i < ihigh2_; i++) {
-                k += rates_[i].evalRate(logT, recipT);
+                k += rates_[i].evalRate(shared_data.logT, shared_data.recipT);
             }
             log_k2 = std::log(k);
         }
 
-        return std::exp(log_k1 + (log_k2-log_k1) * (logP_-logP1_) * rDeltaP_);
+        return std::exp(log_k1 + (log_k2 - log_k1) * (logP_ - logP1_) * rDeltaP_);
     }
+
+    //! Set up Plog object
+    void setRates(const std::multimap<double, ArrheniusRate>& rates);
 
     //! Check to make sure that the rate expression is finite over a range of
     //! temperatures at each interpolation pressure. This is potentially an
@@ -206,14 +176,6 @@ public:
     }
 
     void validate(const std::string& equation);
-
-    //! Return the pressures and Arrhenius expressions which comprise this
-    //! reaction.
-    /*!
-     * @deprecated  Behavior to change after Cantera 2.6.
-     *              @see getRates for new behavior.
-     */
-    std::vector<std::pair<double, Arrhenius2>> rates() const;
 
     //! Return the pressures and Arrhenius expressions which comprise this
     //! reaction.

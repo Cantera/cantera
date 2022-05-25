@@ -62,12 +62,6 @@ PlogRate::PlogRate(const std::multimap<double, ArrheniusRate>& rates)
     setRates(rates);
 }
 
-PlogRate::PlogRate(const std::multimap<double, Arrhenius2>& rates)
-    : PlogRate()
-{
-    setup(rates);
-}
-
 void PlogRate::setParameters(const AnyMap& node, const UnitStack& units)
 {
     std::multimap<double, ArrheniusRate> multi_rates;
@@ -98,24 +92,10 @@ void PlogRate::getParameters(AnyMap& rateNode, const Units& rate_units) const
     for (const auto& r : getRates()) {
         AnyMap rateNode_;
         rateNode_["P"].setQuantity(r.first, "Pa");
-        if (rate_units.factor() == 0) {
-            r.second.getRateParameters(rateNode_);
-        } else {
-            // legacy rate
-            Arrhenius2(r.second).getParameters(rateNode_, rate_units);
-        }
+        r.second.getRateParameters(rateNode_);
         rateList.push_back(std::move(rateNode_));
     }
     rateNode["rate-constants"] = std::move(rateList);
-}
-
-void PlogRate::setup(const std::multimap<double, Arrhenius2>& rates)
-{
-    std::multimap<double, ArrheniusRate> rates2;
-    for (const auto& item : rates) {
-        rates2.emplace(item.first, item.second);
-    }
-    setRates(rates2);
 }
 
 void PlogRate::setRates(const std::multimap<double, ArrheniusRate>& rates)
@@ -148,9 +128,11 @@ void PlogRate::validate(const std::string& equation)
 {
     fmt::memory_buffer err_reactions;
     double T[] = {200.0, 500.0, 1000.0, 2000.0, 5000.0, 10000.0};
+    PlogData data;
 
     for (auto iter = ++pressures_.begin(); iter->first < 1000; iter++) {
-        update_C(&iter->first);
+        data.update(T[0], exp(iter->first)); // iter->first contains log(p)
+        updateFromStruct(data);
         for (size_t i=0; i < 6; i++) {
             double k = 0;
             for (size_t p = ilow1_; p < ilow2_; p++) {
@@ -167,16 +149,6 @@ void PlogRate::validate(const std::string& equation)
     if (err_reactions.size()) {
         throw CanteraError("PlogRate::validate", to_string(err_reactions));
     }
-}
-
-std::vector<std::pair<double, Arrhenius2> > PlogRate::rates() const
-{
-    auto rateMap = getRates();
-    std::vector<std::pair<double, Arrhenius2>> out;
-    for (const auto& item : rateMap) {
-        out.emplace_back(item.first, Arrhenius2(item.second));
-    }
-    return out;
 }
 
 std::multimap<double, ArrheniusRate> PlogRate::getRates() const
