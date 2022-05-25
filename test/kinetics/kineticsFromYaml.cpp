@@ -26,7 +26,7 @@ TEST(ReactionRate, ModifyArrheniusRate)
     EXPECT_FALSE(rr->allowNegativePreExponentialFactor());
 }
 
-TEST(Reaction, ElementaryFromYaml3)
+TEST(Reaction, ElementaryFromYaml)
 {
     auto sol = newSolution("gri30.yaml", "", "None");
     AnyMap rxn = AnyMap::fromYamlString(
@@ -47,28 +47,7 @@ TEST(Reaction, ElementaryFromYaml3)
     EXPECT_DOUBLE_EQ(rate->activationEnergy(), 355 * 4184.0);
 }
 
-TEST(Reaction, ElementaryFromYaml2)
-{
-    auto sol = newSolution("gri30.yaml");
-    AnyMap rxn = AnyMap::fromYamlString(
-        "{equation: N + NO <=> N2 + O,"
-        " type: elementary-legacy,"
-        " rate-constant: [-2.70000E+13 cm^3/mol/s, 0, 355 cal/mol],"
-        " negative-A: true}");
-
-    auto R = newReaction(rxn, *(sol->kinetics()));
-    EXPECT_EQ(R->reactants.at("NO"), 1);
-    EXPECT_EQ(R->products.at("N2"), 1);
-    EXPECT_EQ(R->type(), "elementary-legacy");
-
-    auto& ER = dynamic_cast<ElementaryReaction2&>(*R);
-    EXPECT_DOUBLE_EQ(ER.rate.preExponentialFactor(), -2.7e10);
-    EXPECT_DOUBLE_EQ(ER.rate.activationEnergy(), 355 * 4184.0);
-    EXPECT_TRUE(ER.allow_negative_pre_exponential_factor);
-    EXPECT_FALSE(ER.allow_negative_orders);
-}
-
-TEST(Reaction, ThreeBodyFromYaml3)
+TEST(Reaction, ThreeBodyFromYaml)
 {
     auto sol = newSolution("gri30.yaml", "", "None");
     AnyMap rxn = AnyMap::fromYamlString(
@@ -98,25 +77,6 @@ TEST(Reaction, ThreeBodyFromYamlMissingM)
     EXPECT_THROW(newReaction(rxn, *(sol->kinetics())), CanteraError);
 }
 
-TEST(Reaction, ThreeBodyFromYaml2)
-{
-    auto sol = newSolution("gri30.yaml");
-    AnyMap rxn = AnyMap::fromYamlString(
-        "{equation: 2 O + M = O2 + M,"
-        " type: three-body-legacy,"
-        " rate-constant: [1.20000E+17 cm^6/mol^2/s, -1, 0],"
-        " efficiencies: {AR: 0.83, H2O: 5}}");
-
-    auto R = newReaction(rxn, *(sol->kinetics()));
-    EXPECT_EQ(R->reactants.count("M"), (size_t) 0);
-    EXPECT_EQ(R->type(), "three-body-legacy");
-
-    auto& TBR = dynamic_cast<ThreeBodyReaction2&>(*R);
-    EXPECT_DOUBLE_EQ(TBR.rate.preExponentialFactor(), 1.2e11);
-    EXPECT_DOUBLE_EQ(TBR.third_body.efficiencies["H2O"], 5.0);
-    EXPECT_DOUBLE_EQ(TBR.third_body.default_efficiency, 1.0);
-}
-
 TEST(Reaction, FalloffFromYaml1)
 {
     auto sol = newSolution("gri30.yaml", "", "None");
@@ -129,7 +89,7 @@ TEST(Reaction, FalloffFromYaml1)
         " efficiencies: {AR: 0.625}}");
 
     auto R = newReaction(rxn, *(sol->kinetics()));
-    auto& FR = dynamic_cast<FalloffReaction3&>(*R);
+    auto& FR = dynamic_cast<FalloffReaction&>(*R);
     EXPECT_DOUBLE_EQ(FR.thirdBody()->efficiency("AR"), 0.625);
     EXPECT_DOUBLE_EQ(FR.thirdBody()->efficiency("N2"), 1.0);
     const auto rate = std::dynamic_pointer_cast<SriRate>(R->rate());
@@ -150,7 +110,7 @@ TEST(Reaction, FalloffFromYaml2)
         " source: somewhere}");
 
     auto R = newReaction(rxn, *(sol->kinetics()));
-    auto& FR = dynamic_cast<FalloffReaction3&>(*R);
+    auto& FR = dynamic_cast<FalloffReaction&>(*R);
     EXPECT_DOUBLE_EQ(FR.thirdBody()->efficiency("N2"), 1.0);
     EXPECT_DOUBLE_EQ(FR.thirdBody()->efficiency("H2O"), 0.0);
     const auto rate = std::dynamic_pointer_cast<TroeRate>(R->rate());
@@ -178,7 +138,7 @@ TEST(Reaction, FalloffFromYaml3)
         " source: ARL-TR-5088}");
 
     auto R = newReaction(rxn, *(sol->kinetics()));
-    auto& FR = dynamic_cast<FalloffReaction3&>(*R);
+    auto& FR = dynamic_cast<FalloffReaction&>(*R);
     EXPECT_DOUBLE_EQ(FR.thirdBody()->efficiency("N2"), 1.0);
     EXPECT_DOUBLE_EQ(FR.thirdBody()->efficiency("H2O"), 5.0);
     const auto rate = std::dynamic_pointer_cast<TsangRate>(R->rate());
@@ -253,14 +213,13 @@ TEST(Reaction, ChebyshevFromYaml)
     auto R = newReaction(rxn, *(sol->kinetics()));
     EXPECT_EQ(R->reactants.size(), (size_t) 1);
     const auto& rate = std::dynamic_pointer_cast<ChebyshevRate>(R->rate());
-    double logP = std::log10(2e6);
     double T = 1800;
-    rate->update_C(&logP);
+    double P = 2e6;
     EXPECT_EQ(rate->data().nRows(), (size_t) 6);
     EXPECT_EQ(rate->data().nColumns(), (size_t) 4);
     EXPECT_DOUBLE_EQ(rate->Tmax(), 3000);
     EXPECT_DOUBLE_EQ(rate->Pmin(), 1000);
-    EXPECT_NEAR(rate->updateRC(std::log(T), 1.0/T), 130512.2773948636, 2e-9);
+    EXPECT_NEAR(rate->eval(T, P), 130512.2773948636, 2e-9);
 }
 
 TEST(Reaction, BlowersMaselFromYaml)
@@ -554,7 +513,7 @@ TEST_F(ReactionToYaml, threeBody)
     soln = newSolution("h2o2.yaml", "", "None");
     soln->thermo()->setState_TPY(1000, 2e5, "H2:1.0, O2:0.5, O:1e-8, OH:3e-8, H:2e-7");
     duplicateReaction(1);
-    EXPECT_TRUE(std::dynamic_pointer_cast<ThreeBodyReaction3>(duplicate));
+    EXPECT_TRUE(std::dynamic_pointer_cast<ThreeBodyReaction>(duplicate));
     compareReactions();
 }
 
@@ -563,7 +522,7 @@ TEST_F(ReactionToYaml, TroeFalloff)
     soln = newSolution("h2o2.yaml", "", "None");
     soln->thermo()->setState_TPY(1000, 2e5, "H2:1.0, O2:0.5, H2O2:1e-8, OH:3e-8");
     duplicateReaction(21);
-    EXPECT_TRUE(std::dynamic_pointer_cast<FalloffReaction3>(duplicate));
+    EXPECT_TRUE(std::dynamic_pointer_cast<FalloffReaction>(duplicate));
     compareReactions();
 }
 
@@ -572,7 +531,7 @@ TEST_F(ReactionToYaml, SriFalloff)
     soln = newSolution("sri-falloff.yaml");
     soln->thermo()->setState_TPY(1000, 2e5, "R1A: 0.1, R1B:0.2, H: 0.2, R2:0.5");
     duplicateReaction(0);
-    EXPECT_TRUE(std::dynamic_pointer_cast<FalloffReaction3>(duplicate));
+    EXPECT_TRUE(std::dynamic_pointer_cast<FalloffReaction>(duplicate));
     compareReactions();
     duplicateReaction(1);
     compareReactions();
@@ -583,7 +542,7 @@ TEST_F(ReactionToYaml, TsangFalloff)
     soln = newSolution("tsang-falloff.yaml");
     soln->thermo()->setState_TPY(1000, 2e5, "NO:1.0, OH:1.0, H:1.0, CN:1.0");
     duplicateReaction(0);
-    EXPECT_TRUE(std::dynamic_pointer_cast<FalloffReaction3>(duplicate));
+    EXPECT_TRUE(std::dynamic_pointer_cast<FalloffReaction>(duplicate));
     compareReactions();
     duplicateReaction(1);
     compareReactions();
@@ -594,7 +553,7 @@ TEST_F(ReactionToYaml, chemicallyActivated)
     soln = newSolution("chemically-activated-reaction.yaml");
     soln->thermo()->setState_TPY(1000, 2e5, "H2:1.0, ch2o:0.1, ch3:1e-8, oh:3e-6");
     duplicateReaction(0);
-    EXPECT_TRUE(std::dynamic_pointer_cast<FalloffReaction3>(duplicate));
+    EXPECT_TRUE(std::dynamic_pointer_cast<FalloffReaction>(duplicate));
     compareReactions();
 }
 
@@ -653,9 +612,8 @@ TEST_F(ReactionToYaml, electrochemical)
 
 TEST_F(ReactionToYaml, unconvertible1)
 {
-    ElementaryReaction2 R({{"H2", 1}, {"OH", 1}},
-                          {{"H2O", 1}, {"H", 1}},
-                          Arrhenius(1e5, -1.0, 12.5));
+    auto rate = make_shared<ArrheniusRate>(1e5, -1.0, 12.5);
+    Reaction R({{"H2", 1}, {"OH", 1}}, {{"H2O", 1}, {"H", 1}}, rate);
     AnyMap params = R.parameters();
     UnitSystem U{"g", "cm", "mol"};
     params.setUnits(U);
@@ -665,9 +623,8 @@ TEST_F(ReactionToYaml, unconvertible1)
 TEST_F(ReactionToYaml, unconvertible2)
 {
     Array2D coeffs(2, 2, 1.0);
-    ChebyshevReaction2 R({{"H2", 1}, {"OH", 1}},
-                         {{"H2O", 1}, {"H", 1}},
-                         ChebyshevRate(273., 3000., 1.e2, 1.e7, coeffs));
+    auto rate = make_shared<ChebyshevRate>(273., 3000., 1.e2, 1.e7, coeffs);
+    Reaction R({{"H2", 1}, {"OH", 1}}, {{"H2O", 1}, {"H", 1}}, rate);
     UnitSystem U{"g", "cm", "mol"};
     AnyMap params = R.parameters();
     params.setUnits(U);
@@ -676,7 +633,7 @@ TEST_F(ReactionToYaml, unconvertible2)
 
 TEST_F(ReactionToYaml, unconvertible3)
 {
-    FalloffReaction3 R(
+    FalloffReaction R(
         {{"H2", 1}, {"OH", 1}}, {{"H2O", 1}, {"H", 1}},
         TroeRate(
             ArrheniusRate(1e5, -1.0, 12.5), ArrheniusRate(1e5, -1.0, 12.5),
