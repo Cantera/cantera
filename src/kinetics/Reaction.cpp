@@ -8,7 +8,6 @@
 #include "cantera/kinetics/Reaction.h"
 #include "ReactionFactory.h"
 #include "cantera/kinetics/ReactionRateFactory.h"
-#include "cantera/kinetics/FalloffFactory.h"
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/thermo/SurfPhase.h"

@@ -10,7 +10,7 @@
 #define CT_IFACEKINETICS_H
 
 #include "Kinetics.h"
-#include "RateCoeffMgr.h"
+#include "RxnRates.h"
 
 namespace Cantera
 {

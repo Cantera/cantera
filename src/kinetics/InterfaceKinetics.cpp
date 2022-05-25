@@ -6,7 +6,6 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/kinetics/InterfaceKinetics.h"
-#include "cantera/kinetics/RateCoeffMgr.h"
 #include "cantera/kinetics/ImplicitSurfChem.h"
 #include "cantera/kinetics/Reaction.h"
 #include "cantera/thermo/SurfPhase.h"
