@@ -470,14 +470,14 @@ public:
 
 //! A reaction with a non-reacting third body "M" that acts to add or remove
 //! energy from the reacting species
-class ThreeBodyReaction3 : public Reaction
+class ThreeBodyReaction : public Reaction
 {
 public:
-    ThreeBodyReaction3();
-    ThreeBodyReaction3(const Composition& reactants, const Composition& products,
-                       const ArrheniusRate& rate, const ThirdBody& tbody);
+    ThreeBodyReaction();
+    ThreeBodyReaction(const Composition& reactants, const Composition& products,
+                      const ArrheniusRate& rate, const ThirdBody& tbody);
 
-    ThreeBodyReaction3(const AnyMap& node, const Kinetics& kin);
+    ThreeBodyReaction(const AnyMap& node, const Kinetics& kin);
 
     virtual std::string type() const {
         return "three-body";
@@ -499,14 +499,14 @@ public:
 //! decreases as pressure increases due to collisional stabilization of a reaction
 //! intermediate; in this case, the forward rate constant is written as being
 //! proportional to the low-pressure rate constant.
-class FalloffReaction3 : public Reaction
+class FalloffReaction : public Reaction
 {
 public:
-    FalloffReaction3();
-    FalloffReaction3(const Composition& reactants, const Composition& products,
-                     const ReactionRate& rate, const ThirdBody& tbody);
+    FalloffReaction();
+    FalloffReaction(const Composition& reactants, const Composition& products,
+                    const ReactionRate& rate, const ThirdBody& tbody);
 
-    FalloffReaction3(const AnyMap& node, const Kinetics& kin);
+    FalloffReaction(const AnyMap& node, const Kinetics& kin);
 
     virtual std::string type() const;
 
@@ -539,9 +539,6 @@ public:
     }
 };
 
-
-typedef ThreeBodyReaction3 ThreeBodyReaction;
-typedef FalloffReaction3 FalloffReaction;
 
 //! Create a new empty Reaction object
 /*!
