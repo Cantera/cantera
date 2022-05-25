@@ -1,5 +1,6 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
+from __future__ import annotations
 
 from ._cantera import *
 import numpy as np
@@ -661,13 +662,15 @@ class SolutionArray:
     def ndim(self) -> int:
         """The number of dimensions in the SolutionArray.
 
-        :return: `int`
+        .. versionadded:: 3.0
         """
         return len(self.shape)
 
     @property
     def shape(self) -> tuple[int, ...]:
         """The shape of the SolutionArray.
+
+        .. versionadded: 3.0
 
         :return: A tuple of integers with the number of elements in each dimension.
         """
@@ -677,7 +680,7 @@ class SolutionArray:
     def size(self) -> int:
         """The number of elements in the SolutionArray.
 
-        :return: `int`
+        .. versionadded: 3.0
         """
         return np.prod(self.shape)
 
