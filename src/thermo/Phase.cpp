@@ -773,6 +773,7 @@ bool Phase::addSpecies(shared_ptr<Species> spec) {
             "Phase '{}' already contains a species named '{}'.",
             m_name, spec->name);
     }
+
     vector_fp comp(nElements());
     for (const auto& elem : spec->composition) {
         size_t m = elementIndex(elem.first);
@@ -797,20 +798,7 @@ bool Phase::addSpecies(shared_ptr<Species> spec) {
         comp[m] = elem.second;
     }
 
-    m_speciesNames.push_back(spec->name);
-    m_species[spec->name] = spec;
-    m_speciesIndices[spec->name] = m_kk;
-    m_speciesCharge.push_back(spec->charge);
     size_t ne = nElements();
-
-    std::string nLower = toLowerCopy(spec->name);
-    if (m_speciesLower.find(nLower) == m_speciesLower.end()) {
-        m_speciesLower[nLower] = m_kk;
-    } else {
-        m_speciesLower[nLower] = npos;
-    }
-
-    double wt = 0.0;
     const vector_fp& aw = atomicWeights();
     if (spec->charge != 0.0) {
         size_t eindex = elementIndex("E");
@@ -835,8 +823,9 @@ bool Phase::addSpecies(shared_ptr<Species> spec) {
             comp[ne - 1] = - spec->charge;
         }
     }
+
+    double wt = 0.0;
     for (size_t m = 0; m < ne; m++) {
-        m_speciesComp.push_back(comp[m]);
         wt += comp[m] * aw[m];
     }
 
@@ -844,9 +833,29 @@ bool Phase::addSpecies(shared_ptr<Species> spec) {
     // that have zero molecular weight. Give them a very small molecular
     // weight to avoid dividing by zero.
     wt = std::max(wt, Tiny);
+
+    // Since this method can throw, all the modifications of the member variables
+    // should be done after this method call to avoid inconsistent state.
+    spec->setMolecularWeight(wt);
+
     m_molwts.push_back(wt);
     m_rmolwts.push_back(1.0/wt);
-    spec->setMolecularWeight(wt);
+
+    for (size_t m = 0; m < ne; m++) {
+        m_speciesComp.push_back(comp[m]);
+    }
+
+    m_speciesNames.push_back(spec->name);
+    m_species[spec->name] = spec;
+    m_speciesIndices[spec->name] = m_kk;
+    m_speciesCharge.push_back(spec->charge);
+
+    std::string nLower = toLowerCopy(spec->name);
+    if (m_speciesLower.find(nLower) == m_speciesLower.end()) {
+        m_speciesLower[nLower] = m_kk;
+    } else {
+        m_speciesLower[nLower] = npos;
+    }
     m_kk++;
 
     // Ensure that the Phase has a valid mass fraction vector that sums to
