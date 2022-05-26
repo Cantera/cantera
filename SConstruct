@@ -578,15 +578,6 @@ config_options = [
         "verbose_tests",
         "If enabled, verbose test output will be shown.",
         False),
-    BoolOption(
-        "legacy_rate_constants",
-        """If enabled, rate constant calculations include third-body concentrations
-           for three-body reactions, which corresponds to a legacy implementation used
-           prior to Cantera 3.0. The option is disabled by default, such that rate
-           constant calculations are consistent with conventional definitions
-           (see Eq. 9.75 in Kee, Coltrin and Glarborg, 'Chemically Reacting Flow',
-           Wiley Interscience, 2003).""",
-        False),
 ]
 
 config = Configuration()
@@ -1846,11 +1837,6 @@ if env.get('has_sundials_lapack') and env['use_lapack']:
     configh['CT_SUNDIALS_USE_LAPACK'] = 1
 else:
     configh['CT_SUNDIALS_USE_LAPACK'] = 0
-
-if env['legacy_rate_constants']:
-    configh['CT_LEGACY_RATE_CONSTANTS'] = 1
-else:
-    configh['CT_LEGACY_RATE_CONSTANTS'] = 0
 
 cdefine('LAPACK_FTN_STRING_LEN_AT_END', 'lapack_ftn_string_len_at_end')
 cdefine('LAPACK_FTN_TRAILING_UNDERSCORE', 'lapack_ftn_trailing_underscore')

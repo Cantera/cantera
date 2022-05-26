@@ -366,8 +366,6 @@ public:
      * and Glarborg, 'Chemically Reacting Flow', Wiley Interscience, 2003). If set to
      * 'true', output for rate constants of three-body reactions is multiplied by
      * third-body concentrations (legacy behavior prior to Cantera 3.0).
-     * For user-compiled Cantera, the default behavior can be changed by the SCons flag
-     * 'legacy_rate_constants'.
      */
     void use_legacy_rate_constants(bool legacy=true) {
         m_use_legacy_rate_constants = legacy;

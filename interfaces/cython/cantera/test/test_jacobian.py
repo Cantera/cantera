@@ -20,7 +20,6 @@ class RateExpressionTests:
 
     @classmethod
     def setUpClass(cls):
-        ct.use_legacy_rate_constants(False)
         cls.tpx = cls.gas.TPX
 
         cls.r_stoich = cls.gas.reactant_stoich_coeffs
@@ -534,7 +533,6 @@ class FullTests:
 
     @classmethod
     def setUpClass(cls):
-        ct.use_legacy_rate_constants(False)
         cls.tpx = cls.gas.TPX
 
     def setUp(self):
