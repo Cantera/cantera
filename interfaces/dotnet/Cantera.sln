@@ -1,0 +1,22 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30114.105
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cantera", "Cantera\Cantera.csproj", "{9FAB2B8A-5BAA-4D44-B0E4-1B00A45A7DAC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9FAB2B8A-5BAA-4D44-B0E4-1B00A45A7DAC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9FAB2B8A-5BAA-4D44-B0E4-1B00A45A7DAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9FAB2B8A-5BAA-4D44-B0E4-1B00A45A7DAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9FAB2B8A-5BAA-4D44-B0E4-1B00A45A7DAC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
