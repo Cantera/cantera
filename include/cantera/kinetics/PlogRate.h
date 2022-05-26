@@ -117,9 +117,9 @@ public:
 
             auto iter = pressures_.upper_bound(logP_);
             AssertThrowMsg(iter != pressures_.end(), "PlogRate::updateFromStruct",
-                        "Pressure out of range: {}", logP_);
+                           "Pressure out of range: {}", logP_);
             AssertThrowMsg(iter != pressures_.begin(), "PlogRate::updateFromStruct",
-                        "Pressure out of range: {}", logP_);
+                           "Pressure out of range: {}", logP_);
 
             // upper interpolation pressure
             logP2_ = iter->first;
@@ -200,6 +200,5 @@ protected:
     double rDeltaP_; //!< reciprocal of (logP2 - logP1)
 };
 
-typedef PlogRate Plog;
 }
 #endif

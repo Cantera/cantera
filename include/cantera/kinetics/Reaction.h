@@ -62,6 +62,16 @@ public:
     //! where the reaction occurs. Sets the value of #rate_units.
     UnitStack calculateRateCoeffUnits(const Kinetics& kin);
 
+    //! Calculate the units of the rate constant.
+    //! @deprecated  To be removed after Cantera 3.0. Replaceable by
+    //!              calculateRateCoeffUnits.
+    UnitStack calculateRateCoeffUnits3(const Kinetics& kin) {
+        warn_deprecated("Reaction::calculateRateCoeffUnits3",
+            "Deprecated in Cantera 3.0 and to be removed thereafter; replaceable "
+            "by calculateRateCoeffUnits.");
+        return calculateRateCoeffUnits(kin);
+    }
+
     //! Ensure that the rate constant and other parameters for this reaction are
     //! valid.
     virtual void validate();
@@ -312,6 +322,9 @@ std::vector<shared_ptr<Reaction>> getReactions(const AnyValue& items,
 //! Parse reaction equation
 void parseReactionEquation(Reaction& R, const std::string& equation,
                            const AnyBase& reactionNode, const Kinetics* kin);
+
+using ThreeBodyReaction3 = ThreeBodyReaction; // @todo: remove after Cantera 3.0
+using FalloffReaction3 = FalloffReaction; // @todo: remove after Cantera 3.0
 
 }
 #endif

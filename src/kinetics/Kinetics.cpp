@@ -356,8 +356,7 @@ std::string Kinetics::reactionType(size_t i) const {
 }
 
 std::string Kinetics::reactionTypeStr(size_t i) const {
-    warn_deprecated("Kinetics::reactionTypeStr",
-        "To be removed after Cantera 3.0.");
+    warn_deprecated("Kinetics::reactionTypeStr", "To be removed after Cantera 3.0.");
     return reactionType(i);
 }
 
@@ -711,6 +710,12 @@ void Kinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
         throw CanteraError("Kinetics::modifyReaction",
             "Reaction types are different: {} != {}.",
             rOld->type(), rNew->type());
+    }
+
+    if (rNew->rate()->type() != rOld->rate()->type()) {
+        throw CanteraError("Kinetics::modifyReaction",
+            "ReactionRate types are different: {} != {}.",
+            rOld->rate()->type(), rNew->rate()->type());
     }
 
     if (rNew->reactants != rOld->reactants) {
