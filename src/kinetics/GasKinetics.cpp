@@ -480,12 +480,8 @@ bool GasKinetics::addReaction(shared_ptr<Reaction> r, bool resize)
     bool added = BulkKinetics::addReaction(r, resize);
     if (!added) {
         return false;
-    } else if (!(r->usesLegacy())) {
-        // Rate object already added in BulkKinetics::addReaction
-        return true;
     }
-    throw CanteraError("GasKinetics::addReaction",
-        "Unknown reaction type specified: '{}'", r->type());
+    return true;
 }
 
 void GasKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
@@ -495,13 +491,6 @@ void GasKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
 
     // invalidate all cached data
     invalidateCache();
-
-    if (!(rNew->usesLegacy())) {
-        // Rate object already modified in BulkKinetics::modifyReaction
-        return;
-    }
-    throw CanteraError("GasKinetics::modifyReaction",
-        "Unknown reaction type specified: '{}'", rNew->type());
 }
 
 void GasKinetics::invalidateCache()

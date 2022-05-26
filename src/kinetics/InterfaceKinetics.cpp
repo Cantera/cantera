@@ -423,26 +423,21 @@ bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base, bool resize)
         m_rxnPhaseIsProduct[i][p] = true;
     }
 
-    if (!(r_base->usesLegacy())) {
-        // Set index of rate to number of reaction within kinetics
-        shared_ptr<ReactionRate> rate = r_base->rate();
-        rate->setRateIndex(nReactions() - 1);
-        rate->setContext(*r_base, *this);
+    // Set index of rate to number of reaction within kinetics
+    shared_ptr<ReactionRate> rate = r_base->rate();
+    rate->setRateIndex(nReactions() - 1);
+    rate->setContext(*r_base, *this);
 
-        // If necessary, add new interface MultiRate evaluator
-        if (m_interfaceTypes.find(rate->type()) == m_interfaceTypes.end()) {
-            m_interfaceTypes[rate->type()] = m_interfaceRates.size();
-            m_interfaceRates.push_back(rate->newMultiRate());
-            m_interfaceRates.back()->resize(m_kk, nReactions(), nPhases());
-        }
-
-        // Add reaction rate to evaluator
-        size_t index = m_interfaceTypes[rate->type()];
-        m_interfaceRates[index]->add(nReactions() - 1, *rate);
-
-    } else {
-        throw NotImplementedError("InterfaceKinetics::addReaction");
+    // If necessary, add new interface MultiRate evaluator
+    if (m_interfaceTypes.find(rate->type()) == m_interfaceTypes.end()) {
+        m_interfaceTypes[rate->type()] = m_interfaceRates.size();
+        m_interfaceRates.push_back(rate->newMultiRate());
+        m_interfaceRates.back()->resize(m_kk, nReactions(), nPhases());
     }
+
+    // Add reaction rate to evaluator
+    size_t index = m_interfaceTypes[rate->type()];
+    m_interfaceRates[index]->add(nReactions() - 1, *rate);
 
     return true;
 }
@@ -450,24 +445,21 @@ bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base, bool resize)
 void InterfaceKinetics::modifyReaction(size_t i, shared_ptr<Reaction> r_base)
 {
     Kinetics::modifyReaction(i, r_base);
-    if (!(r_base->usesLegacy())) {
-        shared_ptr<ReactionRate> rate = r_base->rate();
-        rate->setRateIndex(i);
-        rate->setContext(*r_base, *this);
 
-        const auto& rtype = rate->type();
-        // Ensure that interface MultiRate evaluator is available
-        if (!m_interfaceTypes.count(rtype)) {
-            throw CanteraError("InterfaceKinetics::modifyReaction",
-                "Interface evaluator not available for type '{}'.", rtype);
-        }
-        // Replace reaction rate evaluator
-        size_t index = m_interfaceTypes[rate->type()];
-        m_interfaceRates[index]->replace(i, *rate);
+    shared_ptr<ReactionRate> rate = r_base->rate();
+    rate->setRateIndex(i);
+    rate->setContext(*r_base, *this);
 
-    } else {
-        throw NotImplementedError("InterfaceKinetics::modifyReaction");
+    const auto& rtype = rate->type();
+    // Ensure that interface MultiRate evaluator is available
+    if (!m_interfaceTypes.count(rtype)) {
+        throw CanteraError("InterfaceKinetics::modifyReaction",
+            "Interface evaluator not available for type '{}'.", rtype);
     }
+    // Replace reaction rate evaluator
+    size_t index = m_interfaceTypes[rate->type()];
+    m_interfaceRates[index]->replace(i, *rate);
+
     // Invalidate cached data
     m_redo_rates = true;
     m_temp += 0.1;
