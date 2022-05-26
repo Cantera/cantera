@@ -175,23 +175,6 @@ cdef class Kinetics(_SolutionBase):
         """ Add a new reaction to this phase. """
         self.kinetics.addReaction(rxn._reaction)
 
-    def is_reversible(self, int i_reaction):
-        """
-        True if reaction ``i_reaction`` is reversible.
-
-        .. deprecated:: 2.6
-
-            Replaced by property `Reaction.reversible`.
-            Example: ``gas.is_reversible(0)`` is replaced by
-            ``gas.reaction(0).reversible``
-        """
-        rxn = self.reaction(i_reaction)
-        warnings.warn(
-            "'is_reversible' is deprecated and will be removed after Cantera 2.6.\n"
-            "Replaceable by property 'reversible' of the corresponding "
-            "reaction object.", DeprecationWarning)
-        return rxn.reversible
-
     def multiplier(self, int i_reaction):
         """
         A scaling factor applied to the rate coefficient for reaction
@@ -213,74 +196,6 @@ cdef class Kinetics(_SolutionBase):
         else:
             self._check_reaction_index(i_reaction)
             self.kinetics.setMultiplier(i_reaction, value)
-
-    def reaction_type(self, int i_reaction):
-        """
-        Type code of reaction ``i_reaction``.
-
-        .. deprecated:: 2.6
-
-            Replaced by properties `Reaction.type` and `Reaction.rate.type`.
-            Example: ``gas.reaction_type(0)`` is replaced by
-            ``gas.reaction(0).reaction_type`` and ``gas.reaction(0).rate.type``
-        """
-        rxn = self.reaction(i_reaction)
-        if not rxn.uses_legacy:
-            warnings.warn(
-                "'reaction_type' is deprecated and will be removed after "
-                "Cantera 2.6.\nReplaceable by property 'reaction_type' of the "
-                "corresponding reaction object (or property 'type' of the\n"
-                "associated 'rate').", DeprecationWarning)
-        return rxn.type
-
-    def reaction_equation(self, int i_reaction):
-        """
-        The equation for the specified reaction. See also `reaction_equations`.
-
-        .. deprecated:: 2.6
-
-            Replaced by property `Reaction.equation`.
-            Example: ``gas.reaction_equation(0)`` is replaced by
-            ``gas.reaction(0).equation``
-        """
-        rxn = self.reaction(i_reaction)
-        warnings.warn(
-            "'reaction_equation' is deprecated and will be removed after "
-            "Cantera 2.6.\nReplaceable by property 'equation' of the corresponding "
-            "reaction object.", DeprecationWarning)
-        return rxn.equation
-
-    def reactants(self, int i_reaction):
-        """
-        The reactants portion of the reaction equation
-
-        .. deprecated:: 2.6
-
-            Replaced by property `Reaction.reactants`.
-            Example: ``gas.reactants(0)`` is replaced by ``gas.reaction(0).reactants``
-        """
-        rxn = self.reaction(i_reaction)
-        warnings.warn(
-            "'reactants' is deprecated and will be removed after Cantera 2.6.\n"
-            "Replaceable by property 'reactant_string' of the corresponding "
-            "reaction object.", DeprecationWarning)
-        return rxn.reactant_string
-
-    def products(self, int i_reaction):
-        """
-        The products portion of the reaction equation
-
-        .. deprecated:: 2.6
-
-            Replaced by property `Reaction.products`.
-            Example: ``gas.products(0)`` is replaced by ``gas.reaction(0).products``
-        """
-        rxn = self.reaction(i_reaction)
-        warnings.warn(
-            "'products' is deprecated and will be removed after Cantera 2.6.\n"
-            "Replaceable by property 'product_string' of the corresponding "
-            "reaction object.", DeprecationWarning)
-        return rxn.product_string
 
     def reaction_equations(self, indices=None):
         """
@@ -330,28 +245,17 @@ cdef class Kinetics(_SolutionBase):
         self._check_reaction_index(i_reaction)
         return self.kinetics.productStoichCoeff(k, i_reaction)
 
-    def reactant_stoich_coeffs(self):
-        """
-        The array of reactant stoichiometric coefficients. Element *[k,i]* of
-        this array is the reactant stoichiometric coefficient of species *k* in
-        reaction *i*.
-
-        .. deprecated:: 2.6
-
-            Behavior to change after Cantera 2.6; for new behavior, see property
-            `Kinetics.reactant_stoich_coeffs3`.
-        """
-        warnings.warn("Behavior to change after Cantera 2.6; for new behavior, see "
-                      "property 'reactant_stoich_coeffs3'.", DeprecationWarning)
-        return self.reactant_stoich_coeffs3
-
-    property reactant_stoich_coeffs3:
+    property reactant_stoich_coeffs:
         """
         The array of reactant stoichiometric coefficients. Element ``[k,i]`` of
         this array is the reactant stoichiometric coefficient of species ``k`` in
         reaction ``i``.
 
         For sparse output, set ``ct.use_sparse(True)``.
+
+        .. versionchanged:: 3.0
+
+            Method was changed to a property in Cantera 3.0.
         """
         def __get__(self):
             if _USE_SPARSE:
@@ -360,20 +264,42 @@ cdef class Kinetics(_SolutionBase):
                 return _scipy_sparse.csc_matrix(tup, shape=shape)
             return get_dense(self, kin_reactantStoichCoeffs)
 
-    def product_stoich_coeffs(self):
+    property reactant_stoich_coeffs3:
         """
-        The array of product stoichiometric coefficients. Element *[k,i]* of
-        this array is the product stoichiometric coefficient of species *k* in
-        reaction *i*.
+        The array of reactant stoichiometric coefficients. Element ``[k,i]`` of
+        this array is the reactant stoichiometric coefficient of species ``k`` in
+        reaction ``i``.
 
-        .. deprecated:: 2.6
+        For sparse output, set ``ct.use_sparse(True)``.
 
-            Behavior to change after Cantera 2.6; for new behavior, see property
-            `Kinetics.reactant_stoich_coeffs3`.
+        .. deprecated:: 3.0
+
+            Method to be removed after Cantera 3.0. Replaceable by
+            `Kinetics.reactant_stoich_coeffs`
         """
-        warnings.warn("Behavior to change after Cantera 2.6; for new behavior, see "
-                      "property 'product_stoich_coeffs3'.", DeprecationWarning)
-        return self.product_stoich_coeffs3
+        def __get__(self):
+            warnings.warn("Method to be removed after Cantera 3.0; use property "
+                        "'reactant_stoich_coeffs' instead.", DeprecationWarning)
+            return self.reactant_stoich_coeffs
+
+    property product_stoich_coeffs:
+        """
+        The array of product stoichiometric coefficients. Element ``[k,i]`` of
+        this array is the product stoichiometric coefficient of species ``k`` in
+        reaction ``i``.
+
+        For sparse output, set ``ct.use_sparse(True)``.
+
+        .. versionchanged:: 3.0
+
+            Method was changed to a property in Cantera 3.0.
+        """
+        def __get__(self):
+            if _USE_SPARSE:
+                tup = get_sparse(self, kin_productStoichCoeffs)
+                shape = self.n_total_species, self.n_reactions
+                return _scipy_sparse.csc_matrix(tup, shape=shape)
+            return get_dense(self, kin_productStoichCoeffs)
 
     property product_stoich_coeffs3:
         """
@@ -382,13 +308,16 @@ cdef class Kinetics(_SolutionBase):
         reaction ``i``.
 
         For sparse output, set ``ct.use_sparse(True)``.
+
+        .. deprecated:: 3.0
+
+            Method to be removed after Cantera 3.0. Replaceable by
+            `Kinetics.product_stoich_coeffs`
         """
         def __get__(self):
-            if _USE_SPARSE:
-                tup = get_sparse(self, kin_productStoichCoeffs)
-                shape = self.n_total_species, self.n_reactions
-                return _scipy_sparse.csc_matrix(tup, shape=shape)
-            return get_dense(self, kin_productStoichCoeffs)
+            warnings.warn("Method to be removed after Cantera 3.0; use property "
+                        "'product_stoich_coeffs' instead.", DeprecationWarning)
+            return self.product_stoich_coeffs
 
     property product_stoich_coeffs_reversible:
         """

@@ -109,8 +109,8 @@ class TestKinetics(utilities.CanteraTest):
                     self.assertIn(self.phase.species_name(k), P)
 
     def test_stoich_coeffs(self):
-        nu_r = self.phase.reactant_stoich_coeffs3
-        nu_p = self.phase.product_stoich_coeffs3
+        nu_r = self.phase.reactant_stoich_coeffs
+        nu_p = self.phase.product_stoich_coeffs
 
         def check_reactant(s, i, value):
             k = self.phase.kinetics_species_index(s)
@@ -143,12 +143,12 @@ class TestKinetics(utilities.CanteraTest):
 
     @utilities.unittest.skipIf(isinstance(_scipy_sparse, ImportError), "scipy is not installed")
     def test_stoich_coeffs_sparse(self):
-        nu_r_dense = self.phase.reactant_stoich_coeffs3
-        nu_p_dense = self.phase.product_stoich_coeffs3
+        nu_r_dense = self.phase.reactant_stoich_coeffs
+        nu_p_dense = self.phase.product_stoich_coeffs
 
         ct.use_sparse(True)
-        nu_r_sparse = self.phase.reactant_stoich_coeffs3
-        nu_p_sparse = self.phase.product_stoich_coeffs3
+        nu_r_sparse = self.phase.reactant_stoich_coeffs
+        nu_p_sparse = self.phase.product_stoich_coeffs
 
         self.assertTrue((nu_r_sparse.toarray() == nu_r_dense).all())
         self.assertTrue((nu_p_sparse.toarray() == nu_p_dense).all())
@@ -174,8 +174,8 @@ class TestKinetics(utilities.CanteraTest):
             self.phase.equilibrium_constants[ix])
 
     def test_species_rates(self):
-        nu_p = self.phase.product_stoich_coeffs3
-        nu_r = self.phase.reactant_stoich_coeffs3
+        nu_p = self.phase.product_stoich_coeffs
+        nu_r = self.phase.reactant_stoich_coeffs
         creation = (np.dot(nu_p, self.phase.forward_rates_of_progress) +
                     np.dot(nu_r, self.phase.reverse_rates_of_progress))
         destruction = (np.dot(nu_r, self.phase.forward_rates_of_progress) +
@@ -212,10 +212,10 @@ class KineticsFromReactions(utilities.CanteraTest):
         gas1.TPY = 800, 2*ct.one_atm, 'H2:0.3, O2:0.7, OH:2e-4, O:1e-3, H:5e-5'
         gas2.TPY = gas1.TPY
 
-        self.assertTrue((gas1.reactant_stoich_coeffs3 ==
-                         gas2.reactant_stoich_coeffs3).all())
-        self.assertTrue((gas1.product_stoich_coeffs3 ==
-                         gas2.product_stoich_coeffs3).all())
+        self.assertTrue((gas1.reactant_stoich_coeffs ==
+                         gas2.reactant_stoich_coeffs).all())
+        self.assertTrue((gas1.product_stoich_coeffs ==
+                         gas2.product_stoich_coeffs).all())
 
         self.assertArrayNear(gas1.delta_gibbs,
                              gas2.delta_gibbs)
@@ -287,10 +287,10 @@ class KineticsFromReactions(utilities.CanteraTest):
 
         self.assertEqual(gas1.n_reactions, gas2.n_reactions)
 
-        self.assertTrue((gas1.reactant_stoich_coeffs3 ==
-                         gas2.reactant_stoich_coeffs3).all())
-        self.assertTrue((gas1.product_stoich_coeffs3 ==
-                         gas2.product_stoich_coeffs3).all())
+        self.assertTrue((gas1.reactant_stoich_coeffs ==
+                         gas2.reactant_stoich_coeffs).all())
+        self.assertTrue((gas1.product_stoich_coeffs ==
+                         gas2.product_stoich_coeffs).all())
 
         self.assertArrayNear(gas1.delta_gibbs,
                              gas2.delta_gibbs)

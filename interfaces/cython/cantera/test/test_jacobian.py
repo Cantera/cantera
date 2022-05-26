@@ -23,8 +23,8 @@ class RateExpressionTests:
         ct.use_legacy_rate_constants(False)
         cls.tpx = cls.gas.TPX
 
-        cls.r_stoich = cls.gas.reactant_stoich_coeffs3
-        cls.p_stoich = cls.gas.product_stoich_coeffs3
+        cls.r_stoich = cls.gas.reactant_stoich_coeffs
+        cls.p_stoich = cls.gas.product_stoich_coeffs
 
         cls.rxn = cls.gas.reactions()[cls.rxn_idx]
         cls.rix = [cls.gas.species_index(k) for k in cls.rxn.reactants.keys()]
@@ -575,7 +575,7 @@ class FullTests:
         drop = self.gas.forward_rates_of_progress_ddX
         dropp = self.gas.forward_rates_of_progress_ddP
         drop_num = self.rop_ddX(mode="forward")
-        stoich = self.gas.reactant_stoich_coeffs3
+        stoich = self.gas.reactant_stoich_coeffs
         for i in range(self.gas.n_reactions):
             try:
                 # test entries that are not spurious
@@ -593,7 +593,7 @@ class FullTests:
         drop = self.gas.reverse_rates_of_progress_ddX
         dropp = self.gas.reverse_rates_of_progress_ddP
         drop_num = self.rop_ddX(mode="reverse")
-        stoich = self.gas.product_stoich_coeffs3
+        stoich = self.gas.product_stoich_coeffs
         for i in range(self.gas.n_reactions):
             try:
                 # test entries that are not spurious
@@ -611,7 +611,7 @@ class FullTests:
         drop = self.gas.net_rates_of_progress_ddX
         dropp = self.gas.net_rates_of_progress_ddP
         drop_num = self.rop_ddX(mode="net")
-        stoich = self.gas.product_stoich_coeffs3 - self.gas.reactant_stoich_coeffs3
+        stoich = self.gas.product_stoich_coeffs - self.gas.reactant_stoich_coeffs
         for i in range(self.gas.n_reactions):
             try:
                 # test entries that are not spurious
