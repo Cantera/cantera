@@ -301,9 +301,9 @@ MODULE CANTERA
      MODULE PROCEDURE ctkin_reactantStoichCoeff
   END INTERFACE reactantStoichCoeff
 
-  INTERFACE reactionType
-     MODULE PROCEDURE ctkin_reactionType
-  END INTERFACE reactionType
+  INTERFACE getReactionType
+     MODULE PROCEDURE ctkin_getReactionType
+  END INTERFACE getReactionType
 
   INTERFACE refPressure
      MODULE PROCEDURE ctthermo_refPressure

@@ -988,12 +988,12 @@ extern "C" {
         }
     }
 
-    int kin_reactionType(int n, int i)
+    int kin_getReactionType(int n, int i, size_t len, char* buf)
     {
         try {
             Kinetics& kin = KineticsCabinet::item(n);
             kin.checkReactionIndex(i);
-            return kin.reactionType(i);
+            return static_cast<int>(copyString(kin.reactionType(i), buf, len));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }

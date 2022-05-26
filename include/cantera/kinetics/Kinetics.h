@@ -1000,19 +1000,18 @@ public:
     }
 
     /**
-     * Flag specifying the type of reaction. The legal values and their meaning
-     * are specific to the particular kinetics manager.
+     * String specifying the type of reaction.
      *
      * @param i   reaction index
-     *
-     * @deprecated To be changed after Cantera 2.6.
+     * @version  Method returned magic number prior to Cantera 3.0.
      */
-    virtual int reactionType(size_t i) const;
+    virtual std::string reactionType(size_t i) const;
 
     /**
      * String specifying the type of reaction.
      *
      * @param i   reaction index
+     * @deprecated  To be removed after Cantera 3.0.
      */
     virtual std::string reactionTypeStr(size_t i) const;
 
