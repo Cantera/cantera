@@ -81,7 +81,7 @@ Reaction::Reaction(const AnyMap& node, const Kinetics& kin)
             setRate(newReactionRate(rateNode, calculateRateCoeffUnits(kin)));
         }
     } else {
-        // @deprecated This route is only used for legacy reaction types.
+        // This route is used by the Python API.
         setRate(newReactionRate(node));
     }
 }

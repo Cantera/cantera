@@ -300,7 +300,6 @@ public:
 //! Create a new empty Reaction object
 /*!
  * @param type string identifying type of reaction.
- * @deprecated To be removed after Cantera 2.6. Only used for legacy reaction types.
  */
 unique_ptr<Reaction> newReaction(const std::string& type);
 
