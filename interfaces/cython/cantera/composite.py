@@ -516,8 +516,7 @@ class SolutionArray:
         # From Kinetics
         'n_total_species', 'n_reactions', 'n_phases', 'reaction_phase_index',
         'kinetics_species_index', 'reaction', 'reactions', 'modify_reaction',
-        'is_reversible', 'multiplier', 'set_multiplier', 'reaction_type',
-        'reaction_equation', 'reactants', 'products', 'reaction_equations',
+        'multiplier', 'set_multiplier', 'reaction_equations',
         'reactant_stoich_coeff', 'product_stoich_coeff',
         'reactant_stoich_coeffs', 'product_stoich_coeffs',
         # from Transport
@@ -991,8 +990,8 @@ class SolutionArray:
         to be matched to the `SolutionArray`.
         """
 
-        # If ``phi`` is lower-dimensional than the SolutionArray's  shape (for 
-        # example, a scalar), broadcast it to have the right number of 
+        # If ``phi`` is lower-dimensional than the SolutionArray's shape (for
+        # example, a scalar), broadcast it to have the right number of
         # dimensions.
         phi, _ = np.broadcast_arrays(phi, self._output_dummy)
 
@@ -1005,19 +1004,19 @@ class SolutionArray:
         """
         See `ThermoPhase.set_mixture_fraction`
 
-        Note that ``mixture_fraction`` either needs to be a scalar value or 
+        Note that ``mixture_fraction`` either needs to be a scalar value or
         dimensions have to be matched to the `SolutionArray`.
         """
 
-        # If ``mixture_fraction`` is lower-dimensional than the SolutionArray's 
-        # shape (for example, a scalar), broadcast it to have the right number 
+        # If ``mixture_fraction`` is lower-dimensional than the SolutionArray's
+        # shape (for example, a scalar), broadcast it to have the right number
         # of dimensions.
-        mixture_fraction, _ = np.broadcast_arrays(mixture_fraction, 
+        mixture_fraction, _ = np.broadcast_arrays(mixture_fraction,
             self._output_dummy)
 
         for index in self._indices:
             self._phase.state = self._states[index]
-            self._phase.set_mixture_fraction(mixture_fraction[index], *args, 
+            self._phase.set_mixture_fraction(mixture_fraction[index], *args,
                 **kwargs)
             self._states[index][:] = self._phase.state
 
