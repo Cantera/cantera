@@ -129,11 +129,7 @@ Application::Application() :
     m_suppress_thermo_warnings(false),
     m_suppress_warnings(false),
     m_fatal_warnings(false),
-#if CT_LEGACY_RATE_CONSTANTS
-    m_use_legacy_rate_constants(true)
-#else
     m_use_legacy_rate_constants(false)
-#endif
 {
     // install a default logwriter that writes to standard
     // output / standard error
