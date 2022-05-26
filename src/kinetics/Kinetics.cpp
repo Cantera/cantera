@@ -351,16 +351,14 @@ double Kinetics::productStoichCoeff(size_t kSpec, size_t irxn) const
     return m_productStoich.stoichCoeffs().coeff(kSpec, irxn);
 }
 
-int Kinetics::reactionType(size_t i) const {
-    warn_deprecated("Kinetics::reactionType",
-        "To be changed after Cantera 2.6. "
-        "Return string instead of magic number; use "
-        "Kinetics::reactionTypeStr during transition.");
-    return m_reactions[i]->reaction_type;
+std::string Kinetics::reactionType(size_t i) const {
+    return m_reactions[i]->type();
 }
 
 std::string Kinetics::reactionTypeStr(size_t i) const {
-    return m_reactions[i]->type();
+    warn_deprecated("Kinetics::reactionTypeStr",
+        "To be removed after Cantera 3.0.");
+    return reactionType(i);
 }
 
 std::string Kinetics::reactionString(size_t i) const

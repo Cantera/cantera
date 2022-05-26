@@ -112,14 +112,6 @@ public:
     //! @param kin  Kinetics object
     bool usesElectrochemistry(const Kinetics& kin) const;
 
-    //! Type of the reaction. The valid types are listed in the file,
-    //! reaction_defs.h (recently removed), with constants ending in `RXN`.
-    /*!
-     * @deprecated To be removed in Cantera 2.6.
-     *             Superseded by Reaction::type().
-     */
-    int reaction_type;
-
     //! Reactant species and stoichiometric coefficients
     Composition reactants;
 

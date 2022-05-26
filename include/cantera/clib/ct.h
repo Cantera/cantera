@@ -113,7 +113,7 @@ extern "C" {
     CANTERA_CAPI size_t kin_reactionPhaseIndex(int n);
     CANTERA_CAPI double kin_reactantStoichCoeff(int n, int i, int k);
     CANTERA_CAPI double kin_productStoichCoeff(int n, int i, int k);
-    CANTERA_CAPI int kin_reactionType(int n, int i);
+    CANTERA_CAPI int kin_getReactionType(int n, int i, size_t len, char* name);
     CANTERA_CAPI int kin_getFwdRatesOfProgress(int n, size_t len, double* fwdROP);
     CANTERA_CAPI int kin_getRevRatesOfProgress(int n, size_t len, double* revROP);
     CANTERA_CAPI int kin_getNetRatesOfProgress(int n, size_t len, double* netROP);

@@ -780,13 +780,19 @@ extern "C" {
         }
     }
 
-    integer kin_reactiontype_(const integer* n, integer* i)
+    status_t kin_getreactiontype_(const integer* n, integer* i, char* buf, ftnlen lenbuf)
     {
         try {
-            return _fkin(n)->reactionType(*i-1);
+            std::string r = _fkin(n)->reactionType(*i-1);
+            int lout = std::min(lenbuf, (int) r.size());
+            std::copy(r.c_str(), r.c_str() + lout, buf);
+            for (int nn = lout; nn < lenbuf; nn++) {
+                buf[nn] = ' ';
+            }
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
+        return 0;
     }
 
     status_t kin_getfwdratesofprogress_(const integer* n, double* fwdROP)

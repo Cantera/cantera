@@ -335,10 +335,11 @@ interface
         integer, intent(in) :: i
     end function kin_productstoichcoeff
 
-    integer function kin_reactiontype(n, i)
+    integer function kin_getreactiontype(n, i, buf)
         integer, intent(in) :: n
         integer, intent(in) :: i
-    end function kin_reactiontype
+        character*(*), intent(out) :: buf
+    end function kin_getreactiontype
 
     integer function kin_getfwdratesofprogress(n, fwdROP)
         integer, intent(in) :: n
