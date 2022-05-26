@@ -118,10 +118,8 @@ void Reaction::validate()
     }
 
     // Call validation of reaction rate evaluator
-    if (!usesLegacy()) {
-        m_rate->check(equation(), input);
-        m_rate->validate(equation());
-    }
+    m_rate->check(equation(), input);
+    m_rate->validate(equation());
 }
 
 AnyMap Reaction::parameters(bool withInput) const

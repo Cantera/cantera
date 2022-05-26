@@ -169,11 +169,6 @@ public:
         return m_third_body;
     }
 
-    //! Indicate whether object uses legacy framework
-    bool usesLegacy() const {
-        return !m_rate;
-    }
-
 protected:
     //! Store the parameters of a Reaction needed to reconstruct an identical
     //! object using the newReaction(AnyMap&, Kinetics&) function. Does not
