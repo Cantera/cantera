@@ -365,7 +365,7 @@ public:
      * consistent with conventional definitions (for example Eq. 9.75 in Kee, Coltrin
      * and Glarborg, 'Chemically Reacting Flow', Wiley Interscience, 2003). If set to
      * 'true', output for rate constants of three-body reactions is multiplied by
-     * third-body concentrations (legacy behavior prior to Cantera 3.0).
+     * third-body concentrations, consistent with Cantera's behavior prior to version 3.0.
      */
     void use_legacy_rate_constants(bool legacy=true) {
         m_use_legacy_rate_constants = legacy;

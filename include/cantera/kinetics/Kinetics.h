@@ -581,7 +581,7 @@ public:
     //!  - `_ddX`: derivative with respect to species mole fractions (a matrix)
     //!
     //! Settings for derivative evaluation are set by keyword/value pairs using
-    //! the methods @see getDerivativeSettings and @see setDerivativeSettings.
+    //! the methods getDerivativeSettings() and setDerivativeSettings().
     //!
     //! For GasKinetics, the following keyword/value pairs are supported:
     //!  - `skip-third-bodies` (boolean) ... if `false` (default), third body
@@ -1003,7 +1003,7 @@ public:
      * String specifying the type of reaction.
      *
      * @param i   reaction index
-     * @version  Method returned magic number prior to Cantera 3.0.
+     * @since  Method returned magic number prior to Cantera 3.0.
      */
     virtual std::string reactionType(size_t i) const;
 
@@ -1045,7 +1045,7 @@ public:
      * The computed values include all temperature-dependent and pressure-dependent
      * contributions. By default, third-body concentrations are only considered if
      * they are part of the reaction rate definition; for a legacy implementation that
-     * includes third-body concentrations @see Cantera::use_legacy_rate_constants().
+     * includes third-body concentrations see Cantera::use_legacy_rate_constants().
      * Length is the number of reactions. Units are a combination of kmol, m^3 and s,
      * that depend on the rate expression for the reaction.
      *
@@ -1062,7 +1062,7 @@ public:
      * The computed values include all temperature-dependent and pressure-dependent
      * contributions. By default, third-body concentrations are only considered if
      * they are part of the reaction rate definition; for a legacy implementation that
-     * includes third-body concentrations @see Cantera::use_legacy_rate_constants().
+     * includes third-body concentrations see Cantera::use_legacy_rate_constants().
      * Length is the number of reactions. Units are a combination of kmol, m^3 and s,
      * that depend on the rate expression for the reaction. Note, this routine will
      * return rate constants for irreversible reactions if the default for
