@@ -106,7 +106,7 @@ class HeaderTextWrapper(TextWrapper):
 
         return meta, text
 
-    def wrap(self, text: str) -> Iterable[str]:
+    def wrap(self, text: str) -> list[str]:
         metadata, text = self._add_metadata(text)
         wrapped_text = super().wrap(text)
         return metadata + wrapped_text
@@ -269,7 +269,7 @@ def build_reactions_text(reactions: Iterable[ct.Reaction]):
     arrhenius_line = "{equation:<{max_reaction_length}} {A} {b} {E_a}"
     low_line = "LOW /{A} {b} {E_a}/"
     high_line = "HIGH /{A} {b} {E_a}/"
-    PLOG_line = "PLOG / {pressure} {A} {b} {E_a}/"
+    PLOG_line = "PLOG /{pressure} {A} {b} {E_a}/"
     max_reaction_length = max(len(r.equation) for r in reactions)
     reaction_lines = []
     for reac in reactions:
@@ -349,11 +349,15 @@ def build_reactions_text(reactions: Iterable[ct.Reaction]):
             )
             if rate.type == "Troe":
                 reaction_lines.append(
-                    f"TROE /{' '.join(map(str, rate.falloff_coeffs))}/"
+                    "TROE /" +
+                    " ".join(map(lambda s: format(s, ".7G"), rate.falloff_coeffs)) +
+                    "/"
                 )
             elif rate.type == "SRI":
                 reaction_lines.append(
-                    f"SRI /{' '.join(map(str, rate.falloff_coeffs))}/"
+                    "SRI /" +
+                    " ".join(map(lambda s: format(s, ".7G"), rate.falloff_coeffs)) +
+                    "/"
                 )
         elif reac.reaction_type == "falloff":
             rate = reac.rate
@@ -376,11 +380,15 @@ def build_reactions_text(reactions: Iterable[ct.Reaction]):
             )
             if rate.type == "Troe":
                 reaction_lines.append(
-                    f"TROE /{' '.join(map(str, rate.falloff_coeffs))}/"
+                    "TROE /" +
+                    " ".join(map(lambda s: format(s, ".7G"), rate.falloff_coeffs)) +
+                    "/"
                 )
             elif rate.type == "SRI":
                 reaction_lines.append(
-                    f"SRI /{' '.join(map(str, rate.falloff_coeffs))}/"
+                    "SRI /" +
+                    " ".join(map(lambda s: format(s, ".7G"), rate.falloff_coeffs)) +
+                    "/"
                 )
         else:
             raise ValueError(f"Unknown reaction type: '{reac.reaction_type}'")
@@ -494,11 +502,13 @@ def convert(
         raise NotImplementedError(
             "Interface phases are not supported yet."
         )
-    elif not isinstance(solution, ct.Solution):
+    elif isinstance(solution, ct.Solution):
+        # The input solution is a Solution instance, so get its name for the output
+        # file.
+        solution_name = Path(solution.name)
+    else:
         solution_name = Path(solution)
         solution = ct.Solution(solution, phase_name)
-    else:
-        solution_name = Path(solution.name)
 
     # NOTE: solution.transport_model returns back a string. If no transport model is
     # present, the string is "None". We guard here against a future API change to
@@ -611,12 +621,12 @@ def convert(
 
     if transport_path is None and transport_exists:
         mechanism_text.append(
-            build_transport_text(solution.species(), separate_file=False)
+            build_transport_text(all_species, separate_file=False)
         )
     elif transport_path is not None and transport_exists:
         transport_text = [
             header_text,
-            build_transport_text(solution.species(), separate_file=True),
+            build_transport_text(all_species, separate_file=True),
         ]
         transport_path.write_text("\n".join(transport_text))
 
@@ -674,60 +684,42 @@ def main():
 
     output_paths = convert(
         args.input,
+        args.phase_name,
         args.mechanism,
         args.thermo,
         args.transport,
         args.sort_elements,
         args.sort_species,
-        args.sort_reaction_equations,
         args.overwrite,
-        args.phase_id,
     )
 
+    ck_paths = tuple(o for o in output_paths if o is not None)
+
     if args.validate:
-        # test mechanism back into cantera if command is given
+        # Test mechanism can be loaded back into Cantera
         try:
             from cantera import ck2yaml
             import tempfile
 
             print("Validating mechanism...", end="")
-            ck = {
-                "mech": str(output_paths[0]),
-                "therm": str(output_paths[1]),
-                "tran": str(output_paths[2]),
-            }
+            with tempfile.TemporaryDirectory() as td:
+                out_name = Path(td) / "test_mech.yaml"
+                ck2yaml.convert_mech(
+                    *ck_paths,
+                    phase_name="gas",
+                    out_name=out_name,
+                    quiet=True,
+                    permissive=False,
+                )
+                ct.Solution(out_name)
 
-            for path in output_paths:
-                for key in ck.keys():
-                    if key in path.suffix:
-                        ck[key] = str(path)
-
-            tf = tempfile.NamedTemporaryFile(
-                suffix=".yaml", prefix="test_mech", delete=False
-            )
-            ck2yaml.convert(
-                ck["mech"],
-                thermo_file=ck["therm"],
-                transport_file=ck["tran"],
-                phase_name="gas",
-                out_name=tf.name,
-                quiet=True,
-                permissive=False,
-            )
-            ct.Solution(tf.name)
-
-            tf.close()
-            os.remove(tf.name)
             print("PASSED.")
         except RuntimeError as e:
             print("FAILED.")
             print(e)
-            tf.close()
-            os.remove(tf.name)
             sys.exit(1)
 
-    output = [str(p) for p in output_paths if p is not None]
-    output = "\n".join(output)
+    output = "\n".join(ck_paths)
 
     print(f"Files written to: \n{output}")
 
