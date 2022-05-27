@@ -32,55 +32,11 @@
 #     or substantial portions of the Software.
 
 """
-yaml2ck.py: Convert Cantera YAML input files or `Solution` objects to
-            Chemkin-format mechanisms
-
-Usage:
-    yaml2ck [--input=<file_path or str>]
-            [--mechanism-out=<file_path or str>]
-            [--thermo-out=<file_path or str>]
-            [--transport-out=<file_path or str>]
-            [--reorder-reactions=bool]
-            [--overwrite-files=bool]
-            [--cantera-validate]
-
-Example:
-    yaml2ck --input=chem.yaml --output-path=chem.ck --separate-thermo_file=False
-
-The input keyword is required. It specifies the file to be converted into a
-Chemkin-format mechanism. If it is a string it can either be a path or a filename.
-A filename will assume the path is the working directory.
-
-The mechanism-out keyword is an optional keyword to specify the name of the output
-mechanism or the full path to write to if that is given. If this keyword is not
-specified it will default to placing a file of the same name as the input file
-with the extension changed to '.ck' in the working directory.
-
-The thermo-out keyword is an optional keyword to specify the name of the output
-thermodynamics data file or the full path to write to if that is given. If this keyword
-is not specified it will default to the thermodynamics inside the mechanism file.
-
-The transport-out keyword is an optional keyword to specify the name of the output
-transport data file or the full path to write to if that is given. If this keyword is
-not specified it will default to placing a file of the same name as the input file
-with the extension changed to '.tran' in the working directory.
-
-Reordering the reactions will reorder the species inside of each reaction in descending
-order of molecular weight. This can be useful to create uniform mechanisms that can
-later be searched easily outside of Cantera.
-
-Setting overwrite_files to True will allow yaml2ck to delete a prior version of a
-mechanism and write a file with the same name. If it is False then yaml2ck will throw
-an error.
-
-The cantera-validate keyword is a boolean choice to test that the converted
-Chemkin-formatted mechanism will load back into Cantera.
-
 Supported Thermodynamics:
     NASA7
 
 Supported Reaction models:
-    Elementary, Three-Body, Falloff, Pressure-Dependent-Arrhenius (PLOGs), Chebyshev
+    Elementary, Three-Body, Falloff, Pressure-Dependent-Arrhenius (PLOG), Chebyshev
 
 Unsupported Thermodynamic Property Models:
     NASA9, Shomate, constant-Cp
@@ -157,7 +113,13 @@ class HeaderTextWrapper(TextWrapper):
 
 
 def build_elements_text(elements: Iterable[ct.Element], max_width=80) -> str:
-    """Create element definition."""
+    """Create element definition text.
+
+    :param elements:
+        List of `cantera.Element` instances for the elements in this file.
+    :param max_width:
+        The maximum width of a line in this section.
+    """
     elements_text = fill(
         " ".join(e.symbol for e in elements),
         width=max_width,
@@ -168,10 +130,12 @@ def build_elements_text(elements: Iterable[ct.Element], max_width=80) -> str:
 
 
 def build_species_text(species: Iterable[ct.Species], max_width=80) -> str:
-    """Create species declarations.
+    """Create species definition text.
 
+    :param species:
+        List of `cantera.Species` instances of the species in this file.
     :param max_width:
-        The maximum width of lines before they start to wrap
+        The maximum width of a line in this section.
     """
     species_names = {s.name: s.input_data.get("note", "") for s in species}
 
@@ -204,15 +168,10 @@ def build_thermodynamics_text(
 ) -> str:
     """Creates the thermodynamic definition text of all species.
 
-    :param solution:
-        The `Solution` object being converted
-    :param sort_species:
-        The method of sorting the species. Options are:
-        * ``'alphabetical'``
-        * ``'molecular-weight'``
-        * ``None``, input order
+    :param species:
+        An iterable of `cantera.Species` definitions for this file.
     :param separate_file:
-        A boolean flag to indicate if the file will be written separately or
+        A Boolean flag to indicate if the file will be written separately or
         in the mechanism file
     """
     fmt = dedent(
@@ -298,9 +257,14 @@ def build_thermodynamics_text(
 
 def build_reactions_text(reactions: Iterable[ct.Reaction]):
     """
-    Note: Cantera converts explicit reverse rate coefficients given by the REV keyword
-    into two independent irreversible reactions. Therefore, there's no need to handle
-    the REV keyword in this function.
+    Create the reaction definition section of this file.
+
+    :param reactions:
+        An iterable of `cantera.Reaction` instances to be included.
+
+    Note: Cantera converts explicit reverse rate coefficients given by the ``REV``
+    keyword into two independent irreversible reactions. Therefore, there's no need to
+    handle the ``REV`` keyword in this function.
     """
     arrhenius_line = "{equation:<{max_reaction_length}} {A} {b} {E_a}"
     low_line = "LOW /{A} {b} {E_a}/"
@@ -425,6 +389,7 @@ def build_reactions_text(reactions: Iterable[ct.Reaction]):
             reaction_lines.append(" ".join(
                 f"{spec}/{value:.3E}/" for spec, value in reac.efficiencies.items()
             ))
+
         if reac.duplicate:
             reaction_lines.append("DUPLICATE")
 
@@ -438,12 +403,12 @@ def build_reactions_text(reactions: Iterable[ct.Reaction]):
 
 def build_transport_text(species: Iterable[ct.Species], separate_file: bool = False):
     """
-    Creates transport parameter text
+    Create the transport section of this file.
 
-    :param solution_species:
-        The species from the `Solution` object being converted
+    :param species:
+        A list of `cantera.Species` instances to include in the file.
     :param separate_file:
-        A boolean flag to indicate if the file will be written separately or
+        A Boolean flag to indicate if the file will be written separately or
         in the mechanism file
     """
     if separate_file:
@@ -481,35 +446,49 @@ def build_transport_text(species: Iterable[ct.Species], separate_file: bool = Fa
 
 def convert(
     solution: str | Path | ct.Solution,
+    phase_name: str = "",
     mechanism_path: str | Path | None = None,
     thermo_path: str | Path | None = None,
     transport_path: str | Path | None = None,
     sort_elements: _SORTING_TYPE = None,
     sort_species: _SORTING_TYPE = None,
     overwrite: bool = False,
-    phase_name: str = "",
 ) -> tuple[Path | None, Path | None, Path | None]:
     """
     Writes Cantera solution object to Chemkin-format file(s).
 
-    :param: solution:
-        Either the `Solution` object being converted or the path leading to it
-    :param: mech_path:
-        The Optional path to the output mechanism file, if this is unspecified it will
-        go to the cwd under the name in the `Solution` object.
-        It can be a file name with or without the extension, directory, or a full path
-    :param: thermo_path:
-        The Optional path to the output thermo file, if this is unspecified it will
-        go to the cwd under the name in the `Solution` object.
-        It can be a file name with or without the extension, directory, or a full path
-    :param: tran_path:
-        The Optional path to the output transport file, if this is unspecified it will
-        go to the cwd under the name in the `Solution` object.
-        It can be a file name with or without the extension, directory, or a full path
-    :param: sort_reaction_equations
-        Boolean flag to sort reaction equations based upon molecular weight
-    :param: overwrite
-        Boolean flag to allow files to be overwritten or not
+    :param solution:
+        Either the `cantera.Solution` object being converted or the path of a YAML
+        input file as a `str` or `pathlib.Path` instance.
+    :param phase_name:
+        If a YAML input file is provided with multiple phase definitions, the name
+        provided here will be used to load a single phase from the input file.
+        Otherwise, Cantera's default behavior will load the first definition from the
+        file.
+    :param mechanism_path:
+        The path to the output mechanism file. Optional. If not provided, the name of
+        the input file will be used, with the extension replaced by ``.ck``. If a
+        `cantera.Solution` instance is provided, the ``name`` attribute is used to
+        generate the mechanism file name. If ``mechanism_path`` is an existing
+        directory, the output files will be placed in that directory.
+    :param thermo_path:
+        The path to the output thermodynamics database file. Optional. If not provided,
+        the thermodynamic data will be included in the ``mechanism_path`` file.
+    :param transport_path:
+        The path to the output transport database file. Optional. If not provided, the
+        transport data will be included in the ``mechanism_path`` file.
+    :param sort_elements:
+        Optional. One of ``'alphabetical'``, ``'molecular-weight'``, or ``None``. The
+        former two options will sort the elements in the ``mechanism_path`` file
+        alphabetically or by atomic mass, respectively. The default is to output
+        elements in the same order defined in the input `cantera.Solution`.
+    :param sort_species:
+        Optional. One of ``'alphabetical'``, ``'molecular-weight'``, or ``None``. The
+        former two options will sort the species definitions and their thermodynamic
+        data alphabetically or by molecular weight, respectively. The default is to
+        output the species in the same order defined in the input `cantera.Solution`.
+    :param overwrite:
+        Boolean flag to overwrite existing files.
     """
     if isinstance(solution, ct.Interface):
         raise NotImplementedError(
@@ -657,32 +636,24 @@ def main():
 
     parser.add_argument("input", help="The input YAML filename. Required.")
     parser.add_argument(
-        "--phase-id", help="Identifier of the phase to load from the input."
+        "--phase-name", help="Name of the phase to load from the input."
     )
     parser.add_argument("--mechanism", help="The output mechanism filename.")
     parser.add_argument("--thermo", help="The output thermodynamics filename.")
     parser.add_argument("--transport", help="The output transport filename.")
     parser.add_argument(
         "--sort-elements",
-        choices=[True, False],
-        default=True,
-        type=bool,
-        help="Sort elements list in the output from lowest to highest atomic mass.",
+        choices=[None, "alphabetical", "molecular-weight"],
+        default=None,
+        help=("Sort elements in source order (None), alphabetically, or from lowest to "
+              "highest atomic mass."),
     )
     parser.add_argument(
         "--sort-species",
-        choices=[True, False],
-        default=True,
-        type=bool,
-        help="Sort species list in the output from lowest to highest molecular weight.",
-    )
-    parser.add_argument(
-        "--sort-reaction-equations",
-        choices=[True, False],
-        default=False,
-        type=bool,
-        help="Sort species in the reactants or products of a reaction from "
-        "highest to lowest molecular weight.",
+        choices=[None, "alphabetical", "molecular-weight"],
+        default=None,
+        help=("Sort species in source order (None), alphabetically, or from lowest to "
+              "highest molecular weight."),
     )
     parser.add_argument(
         "--overwrite",
