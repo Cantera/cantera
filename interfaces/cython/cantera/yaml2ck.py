@@ -93,15 +93,18 @@ from __future__ import annotations
 import os
 import sys
 import math
-import re
 import argparse
 from pathlib import Path
 from textwrap import fill, dedent, TextWrapper
 import cantera as ct
 from email.utils import formatdate
-from typing import Literal, Optional, Iterable
+from typing import Optional, Iterable
+try:
+    from typing import Literal
+except ImportError:
+    # Needed for Python 3.7 support
+    from typing_extensions import Literal
 
-# Requires Python 3.8
 _SORTING_TYPE = Optional[Literal["alphabetical", "molecular-weight"]]
 
 # number of calories in 1000 Joules
@@ -112,13 +115,17 @@ DEBYE_CONVERSION = 1e-21 / ct.light_speed
 
 
 class HeaderTextWrapper(TextWrapper):
+    """Wrap header text from a YAML file, including Cantera metadata.
+
+    :param input_files:
+        Iterable of string input file names to include in the header
+    """
     def __init__(self, input_files: Iterable[str], *args, **kwargs):
         self.input_files = input_files
         super().__init__(*args, **kwargs)
 
     def _add_metadata(self, text: str) -> tuple[list[str], str]:
         """Replace existing metadata in the description, or add it if it's not there."""
-        # TODO: Replace with regex module
         metadata = (
             "! generator: yaml2ck",
             "! cantera-version:",
