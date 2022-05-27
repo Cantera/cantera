@@ -14,11 +14,11 @@ These classes are used to describe the thermodynamic state of a system.
 
 ThermoPhase
 ^^^^^^^^^^^
-.. autoclass:: ThermoPhase(infile='', name='', *, origin=None, source=None, yaml=None, thermo=None, species=(), **kwargs)
+.. autoclass:: ThermoPhase(infile='', name='', *, origin=None, yaml=None, thermo=None, species=(), **kwargs)
 
 InterfacePhase
 ^^^^^^^^^^^^^^
-.. autoclass:: InterfacePhase(infile='', name='', adjacent=(), *, origin=None, source=None, yaml=None, thermo=None, species=(), **kwargs)
+.. autoclass:: InterfacePhase(infile='', name='', adjacent=(), *, origin=None, yaml=None, thermo=None, species=(), **kwargs)
 
 PureFluid
 ^^^^^^^^^
