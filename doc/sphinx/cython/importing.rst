@@ -12,11 +12,11 @@ Composite Phase Objects
 These classes are composite representations of a substance which has
 thermodynamic, chemical kinetic, and (optionally) transport properties.
 
-.. autoclass:: Solution(infile='', name='', *, origin=None, source=None, yaml=None, thermo=None, species=(), kinetics=None, reactions=())
+.. autoclass:: Solution(infile='', name='', *, origin=None, yaml=None, thermo=None, species=(), kinetics=None, reactions=())
 
 .. autoclass:: cantera.solutionbase._SolutionBase()
 
-.. autoclass:: Interface(infile='', name='', adjacent=(), *, origin=None, source=None, yaml=None, thermo=None, species=(), kinetics=None, reactions=())
+.. autoclass:: Interface(infile='', name='', adjacent=(), *, origin=None, yaml=None, thermo=None, species=(), kinetics=None, reactions=())
 
 .. autoclass:: DustyGas(infile, name='')
 
