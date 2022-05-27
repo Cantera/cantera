@@ -347,6 +347,26 @@ cdef class _SolutionBase:
             return Y.to_string()
         Y.to_file(str(filename))
 
+    def write_chemkin(self, mechanism_path=None, thermo_path=None, transport_path=None,
+                      sort_species=False, sort_elements=False, overwrite=False):
+        """
+        Write this `~cantera.Solution` instance to one or more Chemkin-format files.
+        See the documentation for `cantera.yaml2ck.convert` for information about the
+        arguments to this function.
+        """
+
+        from cantera import yaml2ck
+        output_paths = yaml2ck.convert(
+            self,
+            mechanism_path=mechanism_path,
+            thermo_path=thermo_path,
+            transport_path=transport_path,
+            sort_species=sort_species,
+            sort_elements=sort_elements,
+            overwrite=overwrite,
+        )
+        print(f"Wrote: {output_paths}")
+
     def __getitem__(self, selection):
         copy = self.__class__(origin=self)
         if isinstance(selection, slice):
