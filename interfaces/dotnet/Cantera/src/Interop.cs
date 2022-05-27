@@ -5,7 +5,32 @@ namespace Cantera;
 
 internal static class Interop
 {
-    public unsafe delegate int GetStringFunc(int initialSize, byte* buffer);
+    /// <summary>
+    /// Represents a function that gets the length of an array for a particular property
+    /// of a Cantera object represented by <c>handle</c>.
+    /// </summary>
+    public delegate nuint GetSizeFunc<THandle>(THandle handle) where THandle : CanteraHandle;
+
+    /// <summary>
+    /// Represents a function that fills an array pointed to by <c>buffer</c> for particular property
+    /// of a Cantera object represented by <c>handle</c>.
+    /// </summary>
+    public unsafe delegate int FillDoubleBufferFunc<THandle>(THandle handle, nuint size, double* buffer)
+        where THandle : CanteraHandle;
+
+    /// <summary>
+    /// Represents a function that fills a byte buffer representing a native string.
+    /// </summary>
+    /// <remarks>
+    /// The Cantera C API is not very consistent on whether the size should be specifed as an int
+    /// or a nuint (size_t), so users of this delegate may need to wrap their LibCantera call in
+    /// a lambda to perform the appropriate conversions, and/or pass in the Cantera handle
+    /// as a capture. For example:
+    /// <code>
+    /// (size, buffer) => kin_getType(_handle, (nuint) size, buffer)
+    /// </code>
+    /// </remarks>
+    public unsafe delegate int FillStringBufferFunc(int size, byte* buffer);
 
     static ArrayPool<byte> Pool = ArrayPool<byte>.Shared;
 
@@ -22,6 +47,16 @@ internal static class Interop
         return code;
     }
 
+    public static nuint CheckReturn(nuint code)
+    {
+        var error = nuint.MaxValue;
+
+        if (code == error)
+            CanteraException.ThrowLatest();
+
+        return code;
+    }
+
     public static int CheckReturn(int code)
     {
         // Cantera returns this value when the function resulted in an error internal to Cantera
@@ -31,6 +66,7 @@ internal static class Interop
         // fill a buffer with a string. There is no way to account for the ambiguity that arises
         // when such a function returns -999!
         const int Error999 = -999;
+
         if (code == Error1 || code == Error999)
             CanteraException.ThrowLatest();
 
@@ -38,8 +74,21 @@ internal static class Interop
         return Math.Abs(code);
     }
 
+    public unsafe static double[] GetDoubles<T>(T handle, GetSizeFunc<T> getSizefunc, FillDoubleBufferFunc<T> fillBufferfunc)
+        where T : CanteraHandle
+    {
+        var size = getSizefunc(handle);
+
+        var array = new double[size];
+        fixed(double* buffer = array)
+        {
+            CheckReturn(fillBufferfunc(handle, size, buffer));
+        }
+        return array;
+    }
+
     [SuppressMessage("Reliability", "CA2014:NoStackallocInLoops", Justification = "Loop is executed at most twice.")]
-    public static string GetString(int initialSize, GetStringFunc func)
+    public static string GetString(int initialSize, FillStringBufferFunc func)
     {
         // take up to two tries
         // 1) use the initial size
@@ -77,7 +126,8 @@ internal static class Interop
 
         throw new InvalidOperationException("Could not retrieve a string value from Cantera!");
 
-        unsafe static bool TryGetString(Span<byte> span, GetStringFunc func, [NotNullWhen(true)] out string? value, out int neededSize)
+        static unsafe bool TryGetString(Span<byte> span, FillStringBufferFunc func,
+            [NotNullWhen(true)] out string? value, out int neededSize)
         {
             var initialSize = span.Length;
 
@@ -92,7 +142,7 @@ internal static class Interop
                 }
             }
 
-            value = null;
+            value = default;
             return false;
         }
     }
