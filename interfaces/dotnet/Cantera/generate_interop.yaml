@@ -1,0 +1,20 @@
+# How ignore works:
+# Put the name of a C header file with
+#   - an empty list to ignore the entire file
+#   - a list of function names to include the file but ignore those functions
+ignore:
+    clib_defs.h: []
+    ctfunc.h: []
+    ctmatlab.h: []
+    ctonedim.h: []
+    ctreactor.h:
+        - flowReactor_setMassFlowRate
+    ctrpath.h: []
+
+# Handles for which there is no special delete function,
+# so we need to generate them manually because we can't
+# discover the type name from the delete.
+# Declare these as
+#  Derived: Base
+derived_handles:
+    SurfHandle: ThermoHandle
