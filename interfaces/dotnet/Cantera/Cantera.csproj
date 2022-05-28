@@ -20,11 +20,11 @@
 
     <Target Name="GenerateInterop" BeforeTargets="CoreCompile">
     <PropertyGroup>
-      <IncludePath>$([MSBuild]::NormalizePath(../../../include/cantera/clib))</IncludePath>
+      <Script>$([MSBuild]::NormalizePath(../../../interfaces/sourcegen/generate_source.py))</Script>
       <GeneratedPath>$([MSBuild]::NormalizePath($(IntermediateOutputPath)))</GeneratedPath>
     </PropertyGroup>
-    
-    <Exec Command="python3 generate_interop.py $(IncludePath) $(GeneratedPath)"/>
+
+    <Exec Command="python3 $(Script) csharp $(GeneratedPath)"/>
 
     <ItemGroup>
 			<Compile Remove="$(GeneratedPath)Interop.*.cs" />
