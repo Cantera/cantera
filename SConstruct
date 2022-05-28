@@ -1737,6 +1737,7 @@ elif env['python_package'] == 'n':
 
 env['install_python_action'] = ''
 env['python_module_loc'] = ''
+env["python_module"] = None
 env["ct_pyscriptdir"] = "<not installed>"
 
 def check_module(name):
