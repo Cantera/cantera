@@ -18,4 +18,17 @@
     <PackageReference Include="System.Memory" Version="4.5.4" />
   </ItemGroup>
 
+    <Target Name="GenerateInterop" BeforeTargets="CoreCompile">
+    <PropertyGroup>
+      <IncludePath>$([MSBuild]::NormalizePath(../../../include/cantera/clib))</IncludePath>
+      <GeneratedPath>$([MSBuild]::NormalizePath($(IntermediateOutputPath)))</GeneratedPath>
+    </PropertyGroup>
+    
+    <Exec Command="python3 generate_interop.py $(IncludePath) $(GeneratedPath)"/>
+
+    <ItemGroup>
+			<Compile Remove="$(GeneratedPath)Interop.*.cs" />
+			<Compile Include="$(GeneratedPath)Interop.*.cs" />
+    </ItemGroup>
+  </Target>
 </Project>

@@ -1,9 +1,9 @@
 using System.Buffers;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Cantera;
+namespace Cantera.Interop;
 
-internal static class Interop
+static class InteropUtil
 {
     /// <summary>
     /// Represents a function that gets the length of an array for a particular property
@@ -34,8 +34,6 @@ internal static class Interop
 
     static ArrayPool<byte> Pool = ArrayPool<byte>.Shared;
 
-    public const string LIBCANTERA = "cantera.2.6.0";
-
     public static double CheckReturn(double code)
     {
         // Cantera returns this value when the function resulted in error
@@ -49,7 +47,7 @@ internal static class Interop
 
     public static nuint CheckReturn(nuint code)
     {
-        var error = nuint.MaxValue;
+        var error = unchecked((nuint) (-1));
 
         if (code == error)
             CanteraException.ThrowLatest();
@@ -142,7 +140,7 @@ internal static class Interop
                 }
             }
 
-            value = default;
+            value = null;
             return false;
         }
     }
