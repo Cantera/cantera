@@ -185,10 +185,7 @@ public:
     void _allowGasPhase(bool flag) { m_allowGasPhase = flag; }
 
 protected:
-    /**
-     * @internal This internal routine must be overridden because it is not
-     *        applicable.
-     */
+    //! This routine must be overridden because it is not applicable.
     void _updateThermo() const;
 
 private:

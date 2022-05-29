@@ -257,11 +257,8 @@ protected:
     //! Dimensionless entropy at the (mtlast, m_p0)
     mutable double m_s0_R;
 
-    /**
-     * @internal This crucial internal routine calls the species thermo update
-     *        program to calculate new species Cp0, H0, and S0 whenever the
-     *        temperature has changed.
-     */
+    //! This internal routine calculates new species Cp0, H0, and S0 whenever the
+    //! temperature has changed.
     void _updateThermo() const;
 };
 

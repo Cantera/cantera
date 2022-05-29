@@ -263,7 +263,7 @@ template <typename T> int sign(T x) {
 
 //! Convert a type name to a human readable string, using `boost::core::demangle` if
 //! available. Also has a set of short names for some common types.
-//! @internal Mainly for use by AnyMap and Delegator
+//! @note Mainly for internal use by AnyMap and Delegator
 std::string demangle(const std::type_info& type);
 
 }

@@ -577,7 +577,7 @@ protected:
     //! Temporary array containing internally calculated partial pressures
     mutable vector_fp m_pp;
 
-    //! @internal Update the species reference state thermodynamic functions
+    //! Update the species reference state thermodynamic functions
     /*!
      *  This method is called each time a thermodynamic property is requested,
      *  to check whether the internal species properties within the object

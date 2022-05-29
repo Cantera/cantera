@@ -138,7 +138,6 @@ public:
 protected:
     //! Return the effective activation energy (a function of the delta H of reaction)
     //! divided by the gas constant (that is, the activation temperature) [K]
-    //! @internal  The enthalpy change of reaction is not an independent parameter
     double effectiveActivationEnergy_R(double deltaH_R) const {
         if (deltaH_R < -4 * m_Ea_R) {
             return 0.;
@@ -170,7 +169,7 @@ public:
 
     //! Set current enthalpy change of reaction [J/kmol]
     /*!
-     *  @internal  used for testing purposes only; note that this quantity is not an
+     *  @note  used for testing purposes only; This quantity is not an
      *      independent variable and will be overwritten during an update of the state.
      *
      *  @warning  This method is an experimental part of the %Cantera API and
