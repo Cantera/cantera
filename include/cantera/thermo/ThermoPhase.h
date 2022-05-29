@@ -1576,15 +1576,12 @@ public:
     //! reference-state thermodynamic properties
     /*!
      * @param k   Species id. The default is -1, meaning return the default
-     *
-     * @internal
      */
     virtual MultiSpeciesThermo& speciesThermo(int k = -1);
 
     virtual const MultiSpeciesThermo& speciesThermo(int k = -1) const;
 
     /**
-     * @internal
      * Initialize a ThermoPhase object using an input file.
      *
      * Used to implement constructors for derived classes which take a
@@ -1599,8 +1596,6 @@ public:
 
     //! Initialize the ThermoPhase object after all species have been set up
     /*!
-     * @internal Initialize.
-     *
      * This method is provided to allow subclasses to perform any initialization
      * required after all species have been added. For example, it might be used
      * to resize internal work arrays that must have an entry for each species.

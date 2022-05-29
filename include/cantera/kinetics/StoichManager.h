@@ -125,7 +125,6 @@ namespace Cantera
  * Handles one species in a reaction.
  * See @ref Stoichiometry
  * @ingroup Stoichiometry
- * @internal
  */
 class C1
 {
@@ -596,16 +595,6 @@ class StoichManagerN
 public:
     /**
      * Constructor for the StoichManagerN class.
-     *
-     * @internal Consider adding defaulted entries here that supply the total
-     *     number of reactions in the mechanism and the total number of species
-     *     in the species list. Then, we could use those numbers to provide
-     *     error checks during the construction of the object. Those numbers
-     *     would also provide some clarity to the purpose and utility of this
-     *     class.
-     *
-     * DGG - the problem is that the number of reactions and species are not
-     * known initially.
      */
     StoichManagerN() : m_ready(true) {
         m_stoichCoeffs.setZero();

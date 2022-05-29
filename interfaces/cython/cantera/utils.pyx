@@ -373,7 +373,7 @@ cdef vector[vector[string]] list2_string_to_anyvalue(data):
     return v
 
 def _py_to_any_to_py(dd):
-    # @internal  used for testing purposes only
+    # used for internal testing purposes only
     cdef string name = stringify("test")
     cdef CxxAnyValue vv = python_to_anyvalue(dd)
     return anyvalue_to_python(name, vv), pystr(vv.type_str())

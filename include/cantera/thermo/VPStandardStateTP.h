@@ -190,8 +190,6 @@ protected:
     //! Updates the standard state thermodynamic functions at the current T and
     //! P of the solution.
     /*!
-     * @internal
-     *
      * If m_useTmpStandardStateStorage is true,
      * this function must be called for every call to functions in this class.
      *

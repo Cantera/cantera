@@ -90,7 +90,7 @@ private:
  *  simplifies access when joining exponents. The utility is used in the context
  *  of effective reaction rate units.
  *
- * @internal Helper utility class.
+ * @note Helper utility class for internal use within Cantera.
  *
  * @warning This class is an experimental part of the %Cantera API and
  *    may be changed or removed without notice.

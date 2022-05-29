@@ -91,7 +91,7 @@ public:
 protected:
     //! @name Internal service methods
     //!
-    //! These methods are for @internal use, and seek to avoid code duplication
+    //! @note These methods are for internal use, and seek to avoid code duplication
     //! while evaluating terms used for rate constants, rates of progress, and
     //! their derivatives.
     //! @{

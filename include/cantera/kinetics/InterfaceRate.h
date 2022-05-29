@@ -213,9 +213,9 @@ public:
 
     //! Set site density [kmol/m^2]
     /*!
-     *  @internal  This method is used for testing purposes only as the site density
-     *      is a property of InterfaceKinetics and will be overwritten during an update
-     *      of the thermodynamic state.
+     *  @note  This method is used internally, for testing purposes only as the site
+     *      density is a property of InterfaceKinetics and will be overwritten during an
+     *      update of the thermodynamic state.
      *
      *  @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
@@ -303,7 +303,7 @@ public:
 
     //! Set exponent applied to site density (sticking order)
     /*!
-     *  @internal  This method is used for testing purposes only as the value is
+     *  @note  This method is used for internal testing purposes only as the value is
      *      determined automatically by setContext.
      *
      *  @warning  This method is an experimental part of the %Cantera API and
@@ -320,7 +320,7 @@ public:
 
     //! Set the molecular weight of the sticking species
     /*!
-     *  @internal  This method is used for testing purposes only as the value is
+     *  @note  This method is used for internal testing purposes only as the value is
      *      determined automatically by setContext.
      *
      *  @warning  This method is an experimental part of the %Cantera API and

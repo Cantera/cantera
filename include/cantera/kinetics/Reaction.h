@@ -189,9 +189,9 @@ protected:
     //! Flag indicating whether reaction is set up correctly
     bool m_valid;
 
-    //! @internal  Helper function returning vector of undeclared third body species
+    //! Helper function returning vector of undeclared third body species
     //! and a boolean expression indicating whether the third body is specified.
-    //! The function is used by the checkSpecies method and only needed as long as
+    //! @note The function is used by the checkSpecies method and only needed as long as
     //! there is no unified approach to handle third body collision partners.
     //! @param kin  Kinetics object
     virtual std::pair<std::vector<std::string>, bool>
