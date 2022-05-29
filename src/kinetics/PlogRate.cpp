@@ -6,6 +6,9 @@
 #include "cantera/kinetics/PlogRate.h"
 #include "cantera/thermo/ThermoPhase.h"
 
+//! @todo remove after Cantera 3.0 (only used for deprecation)
+#include "cantera/kinetics/Kinetics.h"
+
 namespace Cantera
 {
 
@@ -123,7 +126,7 @@ void PlogRate::setRates(const std::multimap<double, ArrheniusRate>& rates)
     pressures_.insert({1000.0, pressures_.rbegin()->second});
 }
 
-void PlogRate::validate(const std::string& equation)
+void PlogRate::validate(const std::string& equation, const Kinetics& kin)
 {
     fmt::memory_buffer err_reactions;
     double T[] = {200.0, 500.0, 1000.0, 2000.0, 5000.0, 10000.0};
@@ -148,6 +151,12 @@ void PlogRate::validate(const std::string& equation)
     if (err_reactions.size()) {
         throw CanteraError("PlogRate::validate", to_string(err_reactions));
     }
+}
+
+void PlogRate::validate(const std::string& equation) {
+    warn_deprecated("PlogRate::validate",
+        "To be removed after Cantera 3.0; superseded by two-parameter version.");
+    validate(equation, Kinetics());
 }
 
 std::multimap<double, ArrheniusRate> PlogRate::getRates() const

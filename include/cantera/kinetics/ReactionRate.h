@@ -11,6 +11,7 @@
 #include "MultiRateBase.h"
 #include "cantera/base/AnyMap.h"
 #include "cantera/base/Units.h"
+#include "cantera/base/global.h"
 #include "cantera/base/ctexceptions.h"
 
 namespace Cantera
@@ -105,8 +106,12 @@ public:
     virtual void validate(const std::string& equation, const Kinetics& kin) {}
 
     //! Validate the reaction rate expression (legacy call)
-    //! @todo deprecate in favor of two-parameter version
-    virtual void validate(const std::string& equation) {}
+    //! @deprecated  To be removed after Cantera 3.0.
+    //!              Superseded by two-parameter version
+    virtual void validate(const std::string& equation) {
+        warn_deprecated("ReactionRate::validate",
+            "To be removed after Cantera 3.0; superseded by two-parameter version.");
+    }
 
     //! Reaction rate index within kinetics evaluator
     size_t rateIndex() const {

@@ -119,7 +119,6 @@ void Reaction::validate()
 
     // Call validation of reaction rate evaluator
     m_rate->check(equation(), input);
-    m_rate->validate(equation());
 }
 
 AnyMap Reaction::parameters(bool withInput) const
