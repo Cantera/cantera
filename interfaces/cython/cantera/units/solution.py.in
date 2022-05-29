@@ -1,7 +1,7 @@
 from .. import Solution as _Solution, PureFluid as _PureFluid, CanteraError
+from pint import get_application_registry
 
-from pint import UnitRegistry
-units = UnitRegistry()
+units = get_application_registry()
 Q_ = units.Quantity
 
 __all__ = ("units", "Q_", "Solution", "PureFluid", "Heptane", "CarbonDioxide",
