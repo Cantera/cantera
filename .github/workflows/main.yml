@@ -53,7 +53,7 @@ jobs:
       # h5py is optional; some versions don't have binaries (yet)
       run: |
         python3 -m pip install ruamel.yaml scons==3.1.2 numpy cython pandas pytest \
-        pytest-github-actions-annotate-failures
+        pytest-github-actions-annotate-failures pint
         python3 -m pip install h5py
     - name: Build Cantera
       run: |
@@ -96,7 +96,7 @@ jobs:
       run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
       run: |
-        python3 -m pip install ruamel.yaml scons numpy cython pandas h5py pytest pytest-github-actions-annotate-failures
+        python3 -m pip install ruamel.yaml scons numpy cython pandas h5py pytest pytest-github-actions-annotate-failures pint
     - name: Build Cantera
       run: python3 `which scons` build env_vars=all
         CXX=clang++-12 CC=clang-12 f90_interface=n extra_lib_dirs=/usr/lib/llvm/lib
@@ -147,7 +147,7 @@ jobs:
     - name: Install Python dependencies
       # h5py is optional; may fail if no wheel is present for a given OS/Python version
       run: |
-        $PYTHON_CMD -m pip install ruamel.yaml numpy cython pandas pytest pytest-github-actions-annotate-failures
+        $PYTHON_CMD -m pip install ruamel.yaml numpy cython pandas pytest pytest-github-actions-annotate-failures pint
         $PYTHON_CMD -m pip install h5py || true
     - name: Install Python dependencies for GH Python
       if: matrix.python-version == '3.11'
@@ -197,7 +197,7 @@ jobs:
     - name: Install Python dependencies
       run: |
         python3 -m pip install ruamel.yaml scons numpy cython pandas scipy pytest h5py \
-        pytest-github-actions-annotate-failures pytest-cov gcovr
+        pytest-github-actions-annotate-failures pytest-cov gcovr pint
     - name: Setup .NET Core SDK
       uses: actions/setup-dotnet@v2
       with:
@@ -367,7 +367,7 @@ jobs:
         run: python3 -m pip install -U pip setuptools wheel
       - name: Install Python dependencies
         run: |
-          python3 -m pip install ruamel.yaml scons numpy cython pandas matplotlib scipy h5py
+          python3 -m pip install ruamel.yaml scons numpy cython pandas matplotlib scipy pint h5py
       - name: Build Cantera
         # compile with GCC 9.4.0 on ubuntu-20.04 as an alternative to the default
         # (GCC 7.5.0 is both default and oldest supported version)
@@ -434,7 +434,7 @@ jobs:
         run: |
           conda install -q sundials=${{ matrix.sundials-ver }} scons numpy ruamel.yaml \
           cython boost-cpp fmt eigen yaml-cpp h5py pandas libgomp openblas pytest \
-          highfive
+          highfive pint
       - name: Build Cantera
         run: |
           scons build system_fmt=y system_eigen=y system_yamlcpp=y system_sundials=y \
@@ -495,7 +495,7 @@ jobs:
       # use boost-cpp rather than boost from conda-forge
       # Install SCons >=4.4.0 to make sure that MSVC_TOOLSET_VERSION variable is present
       run: |
-        mamba install -q '"scons>=4.4.0"' numpy cython ruamel.yaml boost-cpp eigen yaml-cpp h5py pandas pytest highfive
+        mamba install -q '"scons>=4.4.0"' numpy cython ruamel.yaml boost-cpp eigen yaml-cpp h5py pandas pytest highfive pint
       shell: pwsh
     - name: Build Cantera
       run: scons build system_eigen=y system_yamlcpp=y system_highfive=y logging=debug
@@ -558,7 +558,7 @@ jobs:
       - name: Install Python dependencies
         run: |
           python -m pip install -U pip setuptools wheel
-          python -m pip install '"scons<4.4.0"' pypiwin32 numpy ruamel.yaml cython pandas pytest pytest-github-actions-annotate-failures
+          python -m pip install '"scons<4.4.0"' pypiwin32 numpy ruamel.yaml cython pandas pytest pytest-github-actions-annotate-failures pint
       - name: Restore Boost cache
         uses: actions/cache@v3
         id: cache-boost
@@ -622,7 +622,7 @@ jobs:
     - name: Install Python dependencies
       run: |
         python3 -m pip install ruamel.yaml scons numpy cython pandas h5py pytest \
-        pytest-github-actions-annotate-failures
+        pytest-github-actions-annotate-failures pint
     - name: Setup Intel oneAPI environment
       run: |
         source /opt/intel/oneapi/setvars.sh
@@ -669,7 +669,7 @@ jobs:
       run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
       run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas pytest
-        pytest-github-actions-annotate-failures
+        pytest-github-actions-annotate-failures pint
     - name: Setup Intel oneAPI environment
       run: |
         source /opt/intel/oneapi/setvars.sh
@@ -701,7 +701,7 @@ jobs:
     - name: Install Python dependencies
       run: |
         python -m pip install -U pip setuptools wheel
-        python -m pip install scons pypiwin32 numpy ruamel.yaml cython h5py pandas pytest pytest-github-actions-annotate-failures
+        python -m pip install scons pypiwin32 numpy ruamel.yaml cython h5py pandas pytest pytest-github-actions-annotate-failures pint
     - name: Restore Boost cache
       uses: actions/cache@v3
       id: cache-boost
