@@ -110,7 +110,7 @@ public:
     //! Store parameters needed to reconstruct coverage dependencies
     //! @param dependencies  AnyMap receiving coverage information
     //! @param asVector  Optional boolean flag to override map output
-    //! @todo  Remove vector version (which currently only serves testing purposes)
+    //! @deprecated  After Cantera 3.0, the optional asVector argument will be removed.
     void getCoverageDependencies(AnyMap& dependencies, bool asVector=false) const;
 
     //! Add a coverage dependency for species *sp*, with exponential dependence

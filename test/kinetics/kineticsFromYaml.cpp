@@ -331,9 +331,10 @@ TEST(Kinetics, InterfaceKineticsFromYaml)
     const auto rate2 = std::dynamic_pointer_cast<InterfaceArrheniusRate>(R2->rate());
     EXPECT_DOUBLE_EQ(rate2->preExponentialFactor(), 3.7e20);
     Cantera::AnyMap coverage_deps;
-    rate2->getCoverageDependencies(coverage_deps, true);
-    auto& cov_map = coverage_deps["H(s)"].asVector<Cantera::AnyValue>(3);
-    EXPECT_DOUBLE_EQ(cov_map[2].asDouble(), -6e6 / GasConstant);
+    rate2->getCoverageDependencies(coverage_deps);
+    coverage_deps.applyUnits();
+    auto& cov_map = coverage_deps["H(s)"].as<Cantera::AnyMap>();
+    EXPECT_DOUBLE_EQ(cov_map["E"].asDouble(), -6e6);
 
     auto R3 = kin->reaction(2);
     EXPECT_TRUE(std::dynamic_pointer_cast<StickingArrheniusRate>(R3->rate()));
@@ -355,9 +356,10 @@ TEST(Kinetics, BMInterfaceKineticsFromYaml)
     const auto rate2 = std::dynamic_pointer_cast<InterfaceBlowersMaselRate>(R2->rate());
     EXPECT_DOUBLE_EQ(rate2->preExponentialFactor(), 3.7e20);
     Cantera::AnyMap coverage_deps;
-    rate2->getCoverageDependencies(coverage_deps, true);
-    auto& cov_map = coverage_deps["H(S)"].asVector<Cantera::AnyValue>(3);
-    EXPECT_DOUBLE_EQ(cov_map[2].asDouble(), -6e6 / GasConstant);
+    rate2->getCoverageDependencies(coverage_deps);
+    coverage_deps.applyUnits();
+    auto& cov_map = coverage_deps["H(S)"].as<Cantera::AnyMap>();
+    EXPECT_DOUBLE_EQ(cov_map["E"].asDouble(), -6e6);
 
     auto R3 = kin->reaction(1);
     EXPECT_TRUE(std::dynamic_pointer_cast<StickingBlowersMaselRate>(R3->rate()));
