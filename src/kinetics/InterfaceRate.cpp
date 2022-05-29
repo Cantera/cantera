@@ -168,6 +168,8 @@ void InterfaceRateBase::getCoverageDependencies(AnyMap& dependencies,
     for (size_t k = 0; k < m_cov.size(); k++) {
         if (asVector) {
             // this preserves the previous 'coverage_deps' units
+            warn_deprecated("InterfaceRateBase::getCoverageDependencies",
+                "To be changed after Cantera 3.0: second argument will be removed.");
             vector_fp dep(3);
             dep[0] = m_ac[k];
             dep[1] = m_mc[k];
