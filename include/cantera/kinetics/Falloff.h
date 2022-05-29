@@ -98,7 +98,7 @@ public:
      * @param c Vector of coefficients of the parameterization. The number and
      *     meaning of these coefficients is subclass-dependent.
      *
-     * @todo  deprecate; superseded by setFalloffCoeffs
+     * @deprecated  To be removed after Cantera 3.0; superseded by setFalloffCoeffs()
      */
     void init(const vector_fp& c);
 
@@ -161,9 +161,11 @@ public:
 
     //! The size of the work array required.
     /**
-     * @todo  deprecate; only used by legacy framework
+     * @deprecated  To be removed after Cantera 3.0; unused.
      */
     virtual size_t workSize() const {
+        warn_deprecated("FalloffRate::workSize",
+            "To be removed after Cantera 3.0; unused.");
         return 0;
     }
 
@@ -182,9 +184,12 @@ public:
     //! Get the values of the parameters for this object. *params* must be an
     //! array of at least nParameters() elements.
     /**
-     * @todo  deprecate; superseded by getFalloffCoeffs
+     * @deprecated  To be removed after Cantera 3.0; superseded by getFalloffCoeffs()
      */
-    virtual void getParameters(double* params) const {}
+    virtual void getParameters(double* params) const {
+        warn_deprecated("FalloffRate::getParameters",
+            "To be removed after Cantera 3.0; superseded by getFalloffCoeffs.");
+    }
 
     virtual void getParameters(AnyMap& node) const;
 
@@ -392,7 +397,7 @@ public:
 
     //! Sets params to contain, in order, \f[ (A, T_3, T_1, T_2) \f]
     /**
-     * @todo  deprecate; superseded by getFalloffCoeffs
+     * @deprecated  To be removed after Cantera 3.0; superseded by getFalloffCoeffs()
      */
     virtual void getParameters(double* params) const;
 
@@ -495,7 +500,7 @@ public:
 
     //! Sets params to contain, in order, \f[ (a, b, c, d, e) \f]
     /**
-     * @todo  deprecate; superseded by getFalloffCoeffs
+     * @deprecated  To be removed after Cantera 3.0; superseded by getFalloffCoeffs()
      */
     virtual void getParameters(double* params) const;
 
@@ -604,7 +609,7 @@ public:
 
     //! Sets params to contain, in order, \f[ (A, B) \f]
     /**
-     * @todo  deprecate; superseded by getFalloffCoeffs
+     * @deprecated  To be removed after Cantera 3.0; superseded by getFalloffCoeffs()
      */
     virtual void getParameters(double* params) const;
 

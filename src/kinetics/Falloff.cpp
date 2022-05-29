@@ -84,6 +84,8 @@ void FalloffData::restore()
 
 void FalloffRate::init(const vector_fp& c)
 {
+    warn_deprecated("FalloffRate::init",
+        "To be removed after Cantera 3.0; superseded by setFalloffCoeffs.");
     setFalloffCoeffs(c);
 }
 
@@ -244,11 +246,15 @@ void TroeRate::setFalloffCoeffs(const vector_fp& c)
 
 void TroeRate::getFalloffCoeffs(vector_fp& c) const
 {
-    c.resize(4, 0.);
-    getParameters(c.data());
-    if (std::abs(c[3]) < SmallNumber) {
+    if (std::abs(m_t2) < SmallNumber) {
         c.resize(3);
+    } else {
+        c.resize(4, 0.);
+        c[3] = m_t2;
     }
+    c[0] = m_a;
+    c[1] = 1.0 / m_rt3;
+    c[2] = 1.0 / m_rt1;
 }
 
 void TroeRate::updateTemp(double T, double* work) const
@@ -293,6 +299,8 @@ void TroeRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
 }
 
 void TroeRate::getParameters(double* params) const {
+    warn_deprecated("TroeRate::getParameters",
+        "To be removed after Cantera 3.0; superseded by getFalloffCoeffs.");
     params[0] = m_a;
     params[1] = 1.0/m_rt3;
     params[2] = 1.0/m_rt1;
@@ -356,11 +364,16 @@ void SriRate::setFalloffCoeffs(const vector_fp& c)
 
 void SriRate::getFalloffCoeffs(vector_fp& c) const
 {
-    c.resize(5, 0.);
-    getParameters(c.data());
     if (m_e < SmallNumber && std::abs(m_e - 1.) < SmallNumber) {
         c.resize(3);
+    } else {
+        c.resize(5, 0.);
+        c[3] = m_d;
+        c[4] = m_e;
     }
+    c[0] = m_a;
+    c[1] = m_b;
+    c[2] = m_c;
 }
 
 void SriRate::updateTemp(double T, double* work) const
@@ -406,6 +419,8 @@ void SriRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
 
 void SriRate::getParameters(double* params) const
 {
+    warn_deprecated("SriRate::getParameters",
+        "To be removed after Cantera 3.0; superseded by getFalloffCoeffs.");
     params[0] = m_a;
     params[1] = m_b;
     params[2] = m_c;
@@ -460,11 +475,13 @@ void TsangRate::setFalloffCoeffs(const vector_fp& c)
 
 void TsangRate::getFalloffCoeffs(vector_fp& c) const
 {
-    c.resize(2, 0.);
-    getParameters(c.data());
-    if (m_b < SmallNumber) {
+    if (std::abs(m_b) < SmallNumber) {
         c.resize(1);
+    } else {
+        c.resize(2, 0.);
+        c[1] = m_b;
     }
+    c[0] = m_a;
 }
 
 void TsangRate::updateTemp(double T, double* work) const
@@ -502,6 +519,8 @@ void TsangRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
 }
 
 void TsangRate::getParameters(double* params) const {
+    warn_deprecated("TsangRate::getParameters",
+        "To be removed after Cantera 3.0; superseded by getFalloffCoeffs.");
     params[0] = m_a;
     params[1] = m_b;
 }
