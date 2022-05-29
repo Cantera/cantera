@@ -780,10 +780,8 @@ public:
 
     //! Add a species alias (that is, a user-defined alternative species name).
     //! Aliases are case-sensitive.
-    //!     @param name original species name std::string.
-    //!     @param alias alternate name std::string.
-    //!     @return `true` if the alias was successfully added
-    //!             (that is, the original species name is found)
+    //!     @param name original species name
+    //!     @param alias alternate name
     void addSpeciesAlias(const std::string& name, const std::string& alias);
 
     //! Return a vector with isomers names matching a given composition map
