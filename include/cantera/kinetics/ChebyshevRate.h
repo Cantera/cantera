@@ -124,11 +124,15 @@ public:
      *  @param units  Unit definitions specific to rate information
      */
     void setParameters(const AnyMap& node, const UnitStack& units);
+
+    void getParameters(AnyMap& rateNode) const;
+
+    //! @deprecated  To be removed after Cantera 3.0.
     void getParameters(AnyMap& rateNode, const Units& rate_units) const {
-        // @todo: deprecate, as second argument is no longer needed
+        warn_deprecated("ChebyshevRate:getParameters",
+            "To be removed after Cantera 3.0. Second argument is no longer needed.");
         return getParameters(rateNode);
     }
-    void getParameters(AnyMap& rateNode) const;
 
     virtual void validate(const std::string& equation, const Kinetics& kin);
 
