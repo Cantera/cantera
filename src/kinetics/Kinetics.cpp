@@ -616,7 +616,7 @@ void Kinetics::resizeSpecies()
 
 bool Kinetics::addReaction(shared_ptr<Reaction> r, bool resize)
 {
-    r->validate();
+    r->check();
     r->validate(*this);
 
     if (m_kk == 0) {

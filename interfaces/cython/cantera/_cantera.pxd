@@ -602,7 +602,6 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         string equation()
         void setEquation(const string&) except +translate_exception
         string type()
-        void validate() except +translate_exception
         CxxAnyMap parameters(cbool) except +translate_exception
         CxxAnyMap input
         Composition reactants

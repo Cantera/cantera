@@ -72,9 +72,18 @@ public:
         return calculateRateCoeffUnits(kin);
     }
 
-    //! Ensure that the rate constant and other parameters for this reaction are
-    //! valid.
-    virtual void validate();
+    //! Ensure that the rate constant and other parameters for this reaction are valid.
+    //! @since  New in Cantera 3.0.
+    virtual void check();
+
+    //! Ensure that the rate constant and other parameters for this reaction are valid.
+    //! @deprecated  To be removed after Cantera 3.0. Replaceable by check.
+    virtual void validate() {
+        warn_deprecated("Reaction::validate",
+            "Deprecated in Cantera 3.0 and to be removed thereafter; replaceable "
+            "by Reaction::check.");
+        check();
+    }
 
     //! Perform validation checks that need access to a complete Kinetics objects, for
     // example to retrieve information about reactant / product species.
