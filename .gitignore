@@ -5,6 +5,7 @@ doc/ctdeploy_key
 *.so
 *.os
 *.pyc
+__pycache__
 *.obj
 *.exe.manifest
 build/

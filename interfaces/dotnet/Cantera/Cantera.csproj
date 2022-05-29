@@ -18,9 +18,9 @@
     <PackageReference Include="System.Memory" Version="4.5.4" />
   </ItemGroup>
 
-    <Target Name="GenerateInterop" BeforeTargets="CoreCompile">
+  <Target Name="GenerateInterop" BeforeTargets="CoreCompile">
     <PropertyGroup>
-      <Script>$([MSBuild]::NormalizePath(../../../interfaces/sourcegen/generate_source.py))</Script>
+      <Script>$([MSBuild]::NormalizePath(../../../interfaces/sourcegen/run.py))</Script>
       <GeneratedPath>$([MSBuild]::NormalizePath($(IntermediateOutputPath)))</GeneratedPath>
     </PropertyGroup>
 

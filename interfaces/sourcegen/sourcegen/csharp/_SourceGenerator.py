@@ -1,4 +1,26 @@
-class SourceGenerator:
+from dataclasses import dataclass
+import os
+import typing
+
+from .._types import * 
+from .._types import _unpack
+
+
+@dataclass
+class _CsFunc:
+    """ Represents a C# method """
+
+    ret_type: str
+    name: str
+    params: list[Param]
+    del_clazz: typing.Optional[str]
+
+    
+    def __iter__(self):
+        return _unpack(self)
+
+
+class SourceGenerator(SourceGeneratorBase):
     _prolog = '    [DllImport(LibFile)]\n    public static extern'
 
     _type_map = {
@@ -7,15 +29,16 @@ class SourceGenerator:
         'char*': 'byte*'
     }
 
+
     @staticmethod
     def _join_params(params):
-        return ', '.join((param_name + ' ' + param_type for param_name, param_type in params))
+        return ', '.join((p.p_type + ' ' + p.name for p in params))
 
 
     @classmethod
-    def get_function_text(cls, function):
+    def _get_function_text(cls, function):
         ref_type, name, params, _ = function
-        is_unsafe = any((param_type.endswith('*') for param_type, _ in params))
+        is_unsafe = any((p.p_type.endswith('*') for p in params))
         if is_unsafe:
             return f'{cls._prolog} unsafe {ref_type} {name}({cls._join_params(params)});'
         else:
@@ -23,7 +46,7 @@ class SourceGenerator:
 
 
     @staticmethod
-    def get_base_handle_text(handle):
+    def _get_base_handle_text(handle):
         name, del_clazz = handle
 
         handle = f'''class {del_clazz} : CanteraHandle
@@ -36,7 +59,7 @@ class SourceGenerator:
 
 
     @staticmethod
-    def get_derived_handle_text(derived):
+    def _get_derived_handle_text(derived):
         derived, base = derived
 
         derived = f'''class {derived} : {base} {{ }}'''
@@ -45,9 +68,9 @@ class SourceGenerator:
 
 
     @classmethod
-    def convert_func(cls, parsed):
+    def _convert_func(cls, parsed: Func):
         ret_type, name, params = parsed
-        clazz, method = tuple(name.split('_', 1))
+        clazz, method = name.split('_', 1)
 
         #copy the params list
         params = list(params)
@@ -72,7 +95,7 @@ class SourceGenerator:
             if ret_type == c_type:
                 ret_type = cs_type
                 break
-                
+
         for i in range(0, len(params)):
             param_type, param_name = params[i]
             
@@ -84,20 +107,20 @@ class SourceGenerator:
             if param_type.startswith('const '):
                 param_type = param_type.rsplit(' ', 1)[-1]
                 
-            params[i] = param_type, param_name
+            params[i] = Param(param_type, param_name)
             
-        return ret_type, name, params, del_clazz
+        return _CsFunc(ret_type, name, params, del_clazz)
 
 
-    def __init__(self, out_dir, config):
+    def __init__(self, out_dir: str, config: dict):
         self._out_dir = out_dir
         self._config = config
 
 
-    def generate_source(self, incl_file, funcs):
-        cs_funcs = [self.convert_func(f) for f in funcs]
+    def generate_source(self, incl_file: os.DirEntry, funcs: list[Func]):
+        cs_funcs = [self._convert_func(f) for f in funcs]
 
-        functions_text = '\n\n'.join((self.get_function_text(f) for f in cs_funcs))
+        functions_text = '\n\n'.join((self._get_function_text(f) for f in cs_funcs))
 
         interop_text = f'''using System.Runtime.InteropServices;
 
@@ -116,14 +139,14 @@ static partial class LibCantera
         if not handles:
             return
 
-        handles_text = 'namespace Cantera.Interop;\n\n' + '\n\n'.join((self.get_base_handle_text(h) for h in handles))
+        handles_text = 'namespace Cantera.Interop;\n\n' + '\n\n'.join((self._get_base_handle_text(h) for h in handles))
 
         with open(self._out_dir + 'Interop.Handles.' + incl_file.name + '.g.cs', 'w') as f:
             f.write(handles_text)
 
 
     def finalize(self):
-        derived_handles = '\n\n'.join((self.get_derived_handle_text(d) for d in self._config['derived_handles'].items()))
+        derived_handles = '\n\n'.join((self._get_derived_handle_text(d) for d in self._config['derived_handles'].items()))
 
         derived_handles_text = f'''using System.Runtime.InteropServices;
 
