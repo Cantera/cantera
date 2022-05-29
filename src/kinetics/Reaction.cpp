@@ -84,9 +84,10 @@ Reaction::Reaction(const AnyMap& node, const Kinetics& kin)
         // This route is used by the Python API.
         setRate(newReactionRate(node));
     }
+    check();
 }
 
-void Reaction::validate()
+void Reaction::check()
 {
     if (!allow_nonreactant_orders) {
         for (const auto& order : orders) {
@@ -117,7 +118,8 @@ void Reaction::validate()
             "Reaction orders may only be given for irreversible reactions");
     }
 
-    // Call validation of reaction rate evaluator
+    // Check reaction rate evaluator to ensure changes introduced after object
+    // instantiation are considered.
     m_rate->check(equation(), input);
 }
 
@@ -960,7 +962,7 @@ std::vector<shared_ptr<Reaction>> getReactions(const AnyValue& items,
     std::vector<shared_ptr<Reaction>> all_reactions;
     for (const auto& node : items.asVector<AnyMap>()) {
         shared_ptr<Reaction> R(newReaction(node, kinetics));
-        R->validate();
+        R->check();
         R->validate(kinetics);
         if (R->valid() && R->checkSpecies(kinetics)) {
             all_reactions.emplace_back(R);
