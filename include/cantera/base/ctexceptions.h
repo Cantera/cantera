@@ -76,8 +76,8 @@ public:
      * @param args Arguments which will be used to interpolate the format string
      */
     template <typename... Args>
-    CanteraError(const std::string& procedure, const std::string& msg,
-                 const Args&... args)
+    CT_API CanteraError(const std::string& procedure, const std::string& msg,
+                        const Args&... args)
         : procedure_(procedure)
     {
         if (sizeof...(args) == 0) {
@@ -94,13 +94,13 @@ public:
     const char* what() const throw();
 
     //! Method overridden by derived classes to format the error message
-    virtual std::string getMessage() const;
+    virtual std::string CT_API getMessage() const;
 
     //! Get the name of the method that threw the exception
     virtual std::string getMethod() const;
 
     //! Method overridden by derived classes to indicate their type
-    virtual std::string getClass() const {
+    virtual std::string CT_API getClass() const {
         return "CanteraError";
     }
 
