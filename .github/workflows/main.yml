@@ -282,13 +282,14 @@ jobs:
       - name: Install Apt dependencies
         run: |
           sudo apt update
-          sudo apt install libboost-dev gfortran graphviz liblapack-dev libblas-dev
+          sudo apt install libboost-dev gfortran graphviz liblapack-dev libblas-dev gcc-5 g++-5
       - name: Upgrade pip
         run: python3 -m pip install -U pip setuptools wheel
       - name: Install Python dependencies
         run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas matplotlib scipy
       - name: Build Cantera
-        run: python3 `which scons` build -j2 debug=n
+        # compile with GCC 5.5.0 on ubuntu-18.04
+        run: python3 `which scons` build -j2 debug=n CC=gcc-5 CXX=g++-5
       - name: Run the examples
         # See https://unix.stackexchange.com/a/392973 for an explanation of the -exec part
         run: |
