@@ -399,7 +399,7 @@ std::vector<AnyMap>& AnyValue::asVector<AnyMap>(size_t nMin, size_t nMax);
 class AnyMap : public AnyBase
 {
 public:
-    AnyMap();
+    CT_API AnyMap();
 
     //! Create an AnyMap from a YAML file.
     /*!
@@ -407,13 +407,13 @@ public:
      *  first, followed by the current working directory and the Cantera include
      *  path.
      */
-    static AnyMap fromYamlFile(const std::string& name,
-                               const std::string& parent_name="");
+    static AnyMap CT_API fromYamlFile(const std::string& name,
+                                      const std::string& parent_name="");
 
     //! Create an AnyMap from a string containing a YAML document
-    static AnyMap fromYamlString(const std::string& yaml);
+    static AnyMap CT_API fromYamlString(const std::string& yaml);
 
-    std::string toYamlString() const;
+    std::string CT_API toYamlString() const;
 
     //! Get the value of the item stored in `key`.
     AnyValue& operator[](const std::string& key);
