@@ -91,7 +91,7 @@ explicitly in the units that a value is being converted to within Cantera. For
 example, a conversion to ``N/m^2`` will use the default units for mass, length,
 and time, while a conversion to ``Pa`` will use the default units for pressure.
 
-Activation energies given in temperature units will be implicit converted to energy per
+Activation energies given in temperature units will be implicitly converted to energy per
 quantity by dividing by the gas constant. Activation energies given in pure energy units
 such as eV will be converted to energy per quantity by multiplying by the Avogadro
 constant. Setting default units for ``energy`` and ``quantity`` will determine the
