@@ -137,7 +137,7 @@ protected:
 
         //!  Write a warning message to the screen.
         /*!
-         * @param warning  String specifying type of warning; See Logger::warn
+         * @param warning  String specifying type of warning; see Logger::warn()
          * @param msg  String to be written to the screen
          * @ingroup textlogs
          */
@@ -323,7 +323,7 @@ public:
     }
 
     //! Generate a general purpose warning; repeated warnings are not suppressed
-    //! @param warning  Warning type; See Logger::warn
+    //! @param warning  Warning type; see Logger::warn()
     //! @param method  Name of method triggering the warning
     //! @param extra  Additional information printed for the warning
     void warn(const std::string& warning,

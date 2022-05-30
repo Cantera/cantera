@@ -169,7 +169,7 @@ public:
 
     //! Set current enthalpy change of reaction [J/kmol]
     /*!
-     *  @note  used for testing purposes only; This quantity is not an
+     *  @note  used for testing purposes only; this quantity is not an
      *      independent variable and will be overwritten during an update of the state.
      *
      *  @warning  This method is an experimental part of the %Cantera API and
