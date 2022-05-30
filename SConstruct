@@ -1134,6 +1134,9 @@ if env['coverage']:
 if env['toolchain'] == 'mingw':
     env.Append(LINKFLAGS=['-static-libgcc', '-static-libstdc++'])
 
+if env["OS"] == "Windows":
+    env.Append(CPPDEFINES=["CT_DLL_EXPORT"])
+
 def config_error(message):
     if env["logging"].lower() == "debug":
         logger.error(message)

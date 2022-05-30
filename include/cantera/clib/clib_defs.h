@@ -13,14 +13,14 @@
 
 #ifdef _WIN32
 // Windows (MSVC or MinGW)
-# ifdef CANTERA_USE_INTERNAL
+# ifdef CT_DLL_EXPORT
 #  define CANTERA_CAPI extern __declspec(dllexport)
 # else
 #  define CANTERA_CAPI extern __declspec(dllimport)
 # endif
 #else
 // Non-Windows platform
-# ifdef CANTERA_USE_INTERNAL
+# ifdef CT_DLL_EXPORT
 #  define CANTERA_CAPI extern
 # else
 #  define CANTERA_CAPI

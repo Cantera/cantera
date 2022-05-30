@@ -8,7 +8,6 @@
 #include "cantera/base/ctexceptions.h"
 #include <stdexcept>
 
-#define CANTERA_USE_INTERNAL
 #include "cantera/clib/clib_defs.h"
 #include "Python.h"
 
