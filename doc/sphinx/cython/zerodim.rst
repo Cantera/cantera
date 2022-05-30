@@ -78,6 +78,7 @@ Walls
 Wall
 ^^^^
 .. autoclass:: Wall(left, right, *, name=None, A=None, K=None, U=None, Q=None, velocity=None)
+   :inherited-members:
 
 Surfaces
 --------
