@@ -20,11 +20,7 @@
 # endif
 #else
 // Non-Windows platform
-# ifdef CT_DLL_EXPORT
-#  define CANTERA_CAPI extern
-# else
-#  define CANTERA_CAPI
-# endif
+# define CANTERA_CAPI extern
 #endif
 
 // Values returned for error conditions
