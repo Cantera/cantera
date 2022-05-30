@@ -38,6 +38,17 @@ FalloffReaction
 .. autoclass:: FalloffReaction
    :no-undoc-members:
 
+ChemicallyActivatedReaction
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: ChemicallyActivatedReaction
+   :no-undoc-members:
+
+CustomReaction
+^^^^^^^^^^^^^^
+.. autoclass:: CustomReaction
+   :no-undoc-members:
+
+
 Reaction Rates
 --------------
 

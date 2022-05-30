@@ -27,6 +27,10 @@ CounterflowPremixedFlame
 ^^^^^^^^^^^^^^^^^^^^^^^^
 .. autoclass:: CounterflowPremixedFlame
 
+CounterflowTwinPremixedFlame
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: CounterflowTwinPremixedFlame
+
 ImpingingJet
 ^^^^^^^^^^^^
 .. autoclass:: ImpingingJet
