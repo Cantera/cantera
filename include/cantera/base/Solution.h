@@ -34,70 +34,70 @@ public:
     }
 
     //! Return the name of this Solution object
-    std::string name() const;
+    std::string CT_API name() const;
 
     //! Set the name of this Solution object
-    void setName(const std::string& name);
+    void CT_API setName(const std::string& name);
 
     //! Set the ThermoPhase object
-    virtual void setThermo(shared_ptr<ThermoPhase> thermo);
+    virtual void CT_API setThermo(shared_ptr<ThermoPhase> thermo);
 
     //! Set the Kinetics object
-    virtual void setKinetics(shared_ptr<Kinetics> kinetics);
+    virtual void CT_API setKinetics(shared_ptr<Kinetics> kinetics);
 
     //! Set the Transport object directly
-    virtual void setTransport(shared_ptr<Transport> transport);
+    virtual void CT_API setTransport(shared_ptr<Transport> transport);
 
     //! Set the Transport object by name
     //! @param model  name of transport model
     //! @since New in Cantera 3.0
-    void setTransportModel(const std::string& model);
+    void CT_API setTransportModel(const std::string& model);
 
     //! Accessor for the ThermoPhase pointer
-    shared_ptr<ThermoPhase> thermo() {
+    shared_ptr<ThermoPhase> CT_API thermo() {
         return m_thermo;
     }
 
     //! Accessor for the Kinetics pointer
-    shared_ptr<Kinetics> kinetics() {
+    shared_ptr<Kinetics> CT_API kinetics() {
         return m_kinetics;
     }
 
     //! Accessor for the Transport pointer
-    shared_ptr<Transport> transport() {
+    shared_ptr<Transport> CT_API transport() {
         return m_transport;
     }
 
     //! Add a phase adjacent to this phase. Usually this means a higher-dimensional
     //! phase that participates in reactions in this phase.
-    void addAdjacent(shared_ptr<Solution> adjacent);
+    void CT_API addAdjacent(shared_ptr<Solution> adjacent);
 
     //! Get the Solution object for an adjacent phase by index
-    shared_ptr<Solution> adjacent(size_t i) {
+    shared_ptr<Solution> CT_API adjacent(size_t i) {
         return m_adjacent.at(i);
     }
 
     //! Get the Solution object for an adjacent phase by name
-    shared_ptr<Solution> adjacent(const std::string& name) {
+    shared_ptr<Solution> CT_API adjacent(const std::string& name) {
         return m_adjacentByName.at(name);
     }
 
     //! Get the number of adjacent phases
-    size_t nAdjacent() const {
+    size_t CT_API nAdjacent() const {
          return m_adjacent.size();
     }
 
-    AnyMap parameters(bool withInput=false) const;
+    AnyMap CT_API parameters(bool withInput=false) const;
 
     //! Access input data associated with header definition
-    const AnyMap& header() const;
-    AnyMap& header();
+    const AnyMap CT_API & header() const;
+    AnyMap CT_API & header();
 
     //! Retrieve source used for object creation; usually an input file name
-    const std::string source() const;
+    const std::string CT_API source() const;
 
     //! Overwrite source (only required if object is not created using newSolution)
-    void setSource(const std::string& source);
+    void CT_API setSource(const std::string& source);
 
     //! Store a handle to a wrapper for this Solution object from an external
     //! language interface (for example, a Python Solution object)
@@ -141,7 +141,8 @@ protected:
  *                 on the phase definition.
  * @returns an initialized Solution object.
  */
-shared_ptr<Solution> newSolution(const std::string& infile, const std::string& name,
+shared_ptr<Solution> CT_API newSolution(
+    const std::string& infile, const std::string& name,
     const std::string& transport, const std::vector<std::string>& adjacent);
 
 //! Create and initialize a new Solution manager from an input file
@@ -157,10 +158,10 @@ shared_ptr<Solution> newSolution(const std::string& infile, const std::string& n
  *                 phases will be instantiated based on the phase definition.
  * @returns an initialized Solution object.
  */
-shared_ptr<Solution> newSolution(const std::string& infile,
-                                 const std::string& name="",
-                                 const std::string& transport="",
-                                 const std::vector<shared_ptr<Solution>>& adjacent={});
+shared_ptr<Solution> CT_API newSolution(
+    const std::string& infile, const std::string& name="",
+    const std::string& transport="",
+    const std::vector<shared_ptr<Solution>>& adjacent={});
 
 //! Create and initialize a new Solution manager from AnyMap objects
 /*!
@@ -180,7 +181,7 @@ shared_ptr<Solution> newSolution(const std::string& infile,
  *                 instantiated only once.
  * @returns an initialized Solution object.
  */
-shared_ptr<Solution> newSolution(
+shared_ptr<Solution> CT_API newSolution(
     const AnyMap& phaseNode, const AnyMap& rootNode=AnyMap(),
     const std::string& transport="",
     const std::vector<shared_ptr<Solution>>& adjacent={},
