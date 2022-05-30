@@ -8,7 +8,6 @@
 #include "cantera/base/ctexceptions.h"
 #include <stdexcept>
 
-#include "cantera/clib/clib_defs.h"
 #include "Python.h"
 
 typedef double(*callback_wrapper)(double, void*, void**);
@@ -165,7 +164,7 @@ private:
 };
 
 extern "C" {
-    CANTERA_CAPI PyObject* pyCanteraError;
+    extern CT_API PyObject* pyCanteraError;
 }
 
 

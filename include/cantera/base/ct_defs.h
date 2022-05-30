@@ -26,6 +26,19 @@
 #include <algorithm>
 #include <memory>
 
+// Export of libraries
+#ifdef _WIN32
+// Windows (MSVC or MinGW)
+#ifdef CT_DLL_EXPORT
+#  define CT_API __declspec(dllexport)
+# else
+#  define CT_API __declspec(dllimport)
+# endif
+#else
+// Non-Windows platform
+# define CT_API
+#endif
+
 /**
  * Namespace for the Cantera kernel.
  */
