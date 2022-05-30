@@ -191,7 +191,7 @@ public:
     NotImplementedError(const std::string& func) :
         CanteraError(func, "Not implemented.") {}
 
-    //! Alternative constructor taking same arguments as @see CanteraError
+    //! Alternative constructor taking same arguments as CanteraError
     template <typename... Args>
     NotImplementedError(const std::string& func, const std::string& msg,
                         const Args&... args) :

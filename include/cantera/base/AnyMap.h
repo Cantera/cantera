@@ -261,10 +261,10 @@ public:
     //! Return values used to determine the sort order when outputting to YAML
     std::pair <int, int> order() const;
 
-    //! @see AnyMap::applyUnits(const UnitSystem&)
+    //! See AnyMap::applyUnits()
     void applyUnits(shared_ptr<UnitSystem>& units);
 
-    //! @see AnyMap::setFlowStyle
+    //! See AnyMap::setFlowStyle()
     void setFlowStyle(bool flow=true);
 
 private:
@@ -615,7 +615,7 @@ public:
      */
     void applyUnits();
 
-    //! @see applyUnits(const UnitSystem&)
+    //! See applyUnits()
     void applyUnits(shared_ptr<UnitSystem>& units);
 
     //! Set the unit system for this AnyMap. The applyUnits() method should be
