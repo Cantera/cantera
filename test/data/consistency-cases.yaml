@@ -11,5 +11,5 @@ redlich-kwong:
   input: {file: co2_RK_example.yaml}
   states:
   - {T: 300, P: 101325, X: {CO2: 0.7, CH4: 0.2, H2O: 0.1}}
-  - {T: 300, P: 200 bar, X: {CO2: 0.3, CH4: 0.5, H2O: 0.2}}
+  - {T: 320, P: 200 bar, X: {CO2: 0.3, CH4: 0.5, H2O: 0.2}}
   - {T: 600, P: 200 bar, X: {CO2: 0.4, CH4: 0.2, H2O: 0.4}}
