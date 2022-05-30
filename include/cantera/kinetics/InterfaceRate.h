@@ -188,7 +188,9 @@ public:
      *  \f[
      *    f_{BV} = \exp ( - \beta * Delta E_{p,j} / R T )
      *  \f]
-     *  is applied to the forward reaction rate, @see voltageCorrection.
+     *  is applied to the forward reaction rate.
+     *
+     *  @see voltageCorrection().
      */
     bool usesElectrochemistry() {
         return m_chargeTransfer;

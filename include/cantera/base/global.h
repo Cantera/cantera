@@ -166,8 +166,9 @@ void writeline(char repeat, size_t count,
 //! helper function passing deprecation warning to global handler
 void _warn_deprecated(const std::string& method, const std::string& extra="");
 
-//! Print a deprecation warning raised from *method*. @see Application::warn_deprecated
+//! Print a deprecation warning raised from *method*.
 /*!
+*  @see Application::warn_deprecated
  * @param method  method name
  * @param msg  Python-style format string with the following arguments
  * @param args  arguments for the format string
@@ -189,9 +190,10 @@ void suppress_deprecation_warnings();
 void _warn(const std::string& warning,
            const std::string& method, const std::string& extra);
 
-//! Print a generic warning raised from *method*. @see Application::warn
+//! Print a generic warning raised from *method*.
 /*!
- * @param warning  type of warning; @see Logger::warn
+ * @see Application::warn
+ * @param warning  type of warning; See Logger::warn
  * @param method  method name
  * @param msg  Python-style format string with the following arguments
  * @param args  arguments for the format string

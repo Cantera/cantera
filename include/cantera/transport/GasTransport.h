@@ -48,7 +48,7 @@ public:
      *
      * @returns the viscosity of the mixture (units =  Pa s = kg /m /s)
      *
-     * @see updateViscosity_T();
+     * @see updateViscosity_T()
      */
     virtual doublereal viscosity();
 

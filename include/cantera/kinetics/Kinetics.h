@@ -1363,10 +1363,10 @@ protected:
     //! Buffer used for storage of intermediate reaction-specific results
     vector_fp m_rbuf;
 
-    //! @see skipUndeclaredSpecies()
+    //! See skipUndeclaredSpecies()
     bool m_skipUndeclaredSpecies;
 
-    //! @see skipUndeclaredThirdBodies()
+    //! See skipUndeclaredThirdBodies()
     bool m_skipUndeclaredThirdBodies;
 
     //! reference to Solution

@@ -75,10 +75,10 @@ protected:
 
     std::vector<shared_ptr<Solution>> m_phases;
 
-    //! @see setPrecision()
+    //! See setPrecision()
     long int m_float_precision;
 
-    //! @see skipUserDefined()
+    //! See skipUserDefined()
     bool m_skip_user_defined;
 
     //! Top-level units directive for the output file. Defaults to Cantera's

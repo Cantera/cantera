@@ -124,7 +124,7 @@ public:
 
     /**
      * Options controlling how the calculation is carried out.
-     * @see EquilOptions
+     * @see EquilOpt
      */
     EquilOpt options;
 
