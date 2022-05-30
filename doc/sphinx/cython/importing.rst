@@ -44,9 +44,3 @@ Representing Multiple States
 ----------------------------
 
 .. autoclass:: SolutionArray
-
-Utility Functions
------------------
-
-.. autofunction:: add_directory
-.. autofunction:: get_data_directories

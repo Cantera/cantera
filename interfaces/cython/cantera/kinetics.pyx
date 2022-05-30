@@ -370,7 +370,7 @@ cdef class Kinetics(_SolutionBase):
         The computed values include all temperature-dependent and pressure-dependent
         contributions. By default, third-body concentrations are only considered if
         they are part of the reaction rate definition; for a legacy implementation that
-        includes third-body concentrations @see Cantera::use_legacy_rate_constants().
+        includes third-body concentrations, see `use_legacy_rate_constants`.
         """
         def __get__(self):
             return get_reaction_array(self, kin_getFwdRateConstants)
@@ -382,7 +382,7 @@ cdef class Kinetics(_SolutionBase):
         The computed values include all temperature-dependent and pressure-dependent
         contributions. By default, third-body concentrations are only considered if
         they are part of the reaction rate definition; for a legacy implementation that
-        includes third-body concentrations @see Cantera::use_legacy_rate_constants().
+        includes third-body concentrations, see `use_legacy_rate_constants`.
         """
         def __get__(self):
             return get_reaction_array(self, kin_getRevRateConstants)

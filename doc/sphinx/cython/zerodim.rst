@@ -13,6 +13,8 @@ Defining Functions
 
 .. autoclass:: Func1
 
+.. autoclass:: TabulatedFunction
+
 Base Classes
 ------------
 
