@@ -19,6 +19,18 @@ AnyMap getSetup(const string& name) {
     return cases[name]["input"].as<AnyMap>();
 }
 
+// For more informative output about failing test cases
+std::ostream& operator<<(std::ostream& s, const AnyMap& m)
+{
+    if (m.hasKey("file")) {
+        s << fmt::format("file: {}, phase: {}",
+                         m["file"].asString(), m.getString("phase", "<default>"));
+    } else {
+        s << "\n" << m.toYamlString();
+    }
+    return s;
+}
+
 class TestConsistency : public testing::TestWithParam<std::tuple<AnyMap, AnyMap>>
 {
 public:
@@ -70,7 +82,7 @@ TEST_P(TestConsistency, hk_eq_uk_plus_P_times_vk)
     phase->getPartialMolarIntEnergies(uk.data());
     phase->getPartialMolarVolumes(vk.data());
     for (size_t k = 0; k < nsp; k++) {
-        EXPECT_NEAR(hk[k], uk[k] + p * vk[k], atol);
+        EXPECT_NEAR(hk[k], uk[k] + p * vk[k], atol) << "k = " << k;
     }
 }
 
@@ -81,7 +93,7 @@ TEST_P(TestConsistency, gk_eq_hk_minus_T_times_sk)
     phase->getPartialMolarEnthalpies(hk.data());
     phase->getPartialMolarEntropies(sk.data());
     for (size_t k = 0; k < nsp; k++) {
-        EXPECT_NEAR(gk[k], hk[k] - T * sk[k], atol);
+        EXPECT_NEAR(gk[k], hk[k] - T * sk[k], atol) << "k = " << k;
     }
 }
 
