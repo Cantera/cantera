@@ -210,7 +210,7 @@ Phase thermodynamic models
 A phase implementing tabulated standard state thermodynamics for one species in
 a binary solution, as `described here <https://cantera.org/documentation/dev/doxygen/html/de/ddf/classCantera_1_1BinarySolutionTabulatedThermo.html#details>`__.
 
-Includes the fields of :ref:`sec-yaml-ideal-molal-solution`, plus:
+Includes the fields of :ref:`sec-yaml-ideal-condensed`, plus:
 
 ``tabulated-species``
     The name of the species to which the tabulated enthalpy and entropy is
