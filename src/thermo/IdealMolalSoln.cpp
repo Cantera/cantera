@@ -65,7 +65,7 @@ doublereal IdealMolalSoln::enthalpy_mole() const
 
 doublereal IdealMolalSoln::intEnergy_mole() const
 {
-    getPartialMolarEnthalpies(m_tmpV.data());
+    getPartialMolarIntEnergies(m_tmpV.data());
     return mean_X(m_tmpV);
 }
 
@@ -245,6 +245,14 @@ void IdealMolalSoln::getPartialMolarEnthalpies(doublereal* hbar) const
     getEnthalpy_RT(hbar);
     for (size_t k = 0; k < m_kk; k++) {
         hbar[k] *= RT();
+    }
+}
+
+void IdealMolalSoln::getPartialMolarIntEnergies(double* ubar) const
+{
+    getIntEnergy_RT(ubar);
+    for (size_t k = 0; k < m_kk; k++) {
+        ubar[k] *= RT();
     }
 }
 
