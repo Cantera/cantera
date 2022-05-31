@@ -3,6 +3,7 @@
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/base/Solution.h"
 #include "cantera/base/utilities.h"
+#include <regex>
 
 using namespace std;
 
@@ -16,7 +17,7 @@ vector<AnyMap> getStates(const string& name) {
 
 AnyMap getSetup(const string& name) {
     static AnyMap cases = AnyMap::fromYamlFile("consistency-cases.yaml");
-    return cases[name]["input"].as<AnyMap>();
+    return cases[name]["setup"].as<AnyMap>();
 }
 
 // For more informative output about failing test cases
@@ -36,13 +37,13 @@ class TestConsistency : public testing::TestWithParam<std::tuple<AnyMap, AnyMap>
 public:
     TestConsistency() {
         auto param = GetParam();
-        AnyMap inp = get<0>(param);
+        setup = get<0>(param);
         AnyMap state = get<1>(param);
-        pair<string, string> key = {inp["file"].asString(), inp.getString("phase", "")};
+        pair<string, string> key = {setup["file"].asString(), setup.getString("phase", "")};
         if (cache.count(key) == 0) {
             cache[key].reset(newPhase(key.first, key.second));
         }
-        atol = inp.getDouble("atol", 1e-5);
+        atol = setup.getDouble("atol", 1e-5);
 
         phase = cache[key];
         phase->setState(state);
@@ -51,8 +52,21 @@ public:
         T = phase->temperature();
     }
 
+    void SetUp() {
+        if (setup.hasKey("known-failures")) {
+            auto name = testing::UnitTest::GetInstance()->current_test_info()->name();
+            for (auto& item : setup["known-failures"].asMap<string>()) {
+                if (regex_search(name, regex(item.first))) {
+                    GTEST_SKIP() << item.second;
+                    break;
+                }
+            }
+        }
+    }
+
     static map<pair<string, string>, shared_ptr<ThermoPhase>> cache;
 
+    AnyMap setup;
     shared_ptr<ThermoPhase> phase;
     size_t nsp;
     double T, p;
@@ -142,6 +156,18 @@ INSTANTIATE_TEST_SUITE_P(RedlichKwong, TestConsistency,
     testing::Combine(
         testing::Values(getSetup("redlich-kwong")),
         testing::ValuesIn(getStates("redlich-kwong")))
+);
+
+INSTANTIATE_TEST_SUITE_P(PengRobinson, TestConsistency,
+    testing::Combine(
+        testing::Values(getSetup("peng-robinson")),
+        testing::ValuesIn(getStates("peng-robinson")))
+);
+
+INSTANTIATE_TEST_SUITE_P(IdealMolalSolution, TestConsistency,
+    testing::Combine(
+        testing::Values(getSetup("ideal-molal-solution")),
+        testing::ValuesIn(getStates("ideal-molal-solution")))
 );
 
 }
