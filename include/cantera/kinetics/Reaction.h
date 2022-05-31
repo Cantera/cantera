@@ -28,33 +28,33 @@ class FalloffRate; // @todo  Remove after Cantera 3.0
 class Reaction
 {
 public:
-    Reaction() {}
-    Reaction(const Composition& reactants, const Composition& products,
-             shared_ptr<ReactionRate> rate, shared_ptr<ThirdBody> tbody=nullptr);
-    Reaction(const std::string& equation,
-             shared_ptr<ReactionRate> rate, shared_ptr<ThirdBody> tbody=nullptr);
+    CT_API Reaction() {}
+    CT_API  Reaction(const Composition& reactants, const Composition& products,
+                     shared_ptr<ReactionRate> rate, shared_ptr<ThirdBody> tbody=nullptr);
+    CT_API Reaction(const std::string& equation,
+                    shared_ptr<ReactionRate> rate, shared_ptr<ThirdBody> tbody=nullptr);
 
     //! Construct a Reaction and corresponding ReactionRate based on AnyMap (YAML)
     //! input.
-    Reaction(const AnyMap& node, const Kinetics& kin);
+    CT_API Reaction(const AnyMap& node, const Kinetics& kin);
 
     virtual ~Reaction() {}
 
     //! The reactant side of the chemical equation for this reaction
-    std::string reactantString() const;
+    std::string CT_API reactantString() const;
 
     //! The product side of the chemical equation for this reaction
-    std::string productString() const;
+    std::string CT_API productString() const;
 
     //! The chemical equation for this reaction
-    std::string equation() const;
+    std::string CT_API equation() const;
 
     //! Set the reactants and products based on the reaction equation. If a Kinetics
     //! object is provided, it is used to check that all reactants and products exist.
     void setEquation(const std::string& equation, const Kinetics* kin=0);
 
     //! The type of reaction, including reaction rate information
-    std::string type() const;
+    std::string CT_API type() const;
 
     //! Calculate the units of the rate constant. These are determined by the units
     //! of the standard concentration of the reactant species' phases and the phase
@@ -98,10 +98,10 @@ public:
     //! @param withInput  If true, include additional input data fields associated
     //!   with the object, such as user-defined fields from a YAML input file, as
     //!   contained in the #input attribute.
-    AnyMap parameters(bool withInput=true) const;
+    AnyMap CT_API parameters(bool withInput=true) const;
 
     //! Set up reaction based on AnyMap *node*
-    void setParameters(const AnyMap& node, const Kinetics& kin);
+    void CT_API setParameters(const AnyMap& node, const Kinetics& kin);
 
     //! Get validity flag of reaction
     bool valid() const {
@@ -172,7 +172,7 @@ public:
     }
 
     //! Set reaction rate pointer
-    void setRate(shared_ptr<ReactionRate> rate);
+    void CT_API setRate(shared_ptr<ReactionRate> rate);
 
     //! Get pointer to third-body handler
     shared_ptr<ThirdBody> thirdBody() {

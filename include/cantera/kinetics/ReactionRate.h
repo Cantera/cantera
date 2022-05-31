@@ -45,11 +45,11 @@ class Reaction;
 class ReactionRate
 {
 public:
-    ReactionRate() {}
+    CT_API ReactionRate() {}
 
     // Copy constructor and assignment operator need to be defined because of the
     // #m_evaluator member that can't (and shouldn't) be copied.
-    ReactionRate(const ReactionRate& other)
+    CT_API ReactionRate(const ReactionRate& other)
         : m_input(other.m_input)
         , m_rate_index(other.m_rate_index)
         , m_valid(other.m_valid)
@@ -77,13 +77,13 @@ public:
     //!
     //! where `RateType` is the derived class name and `DataType` is the corresponding
     //! container for parameters needed to evaluate reactions of that type.
-    virtual unique_ptr<MultiRateBase> newMultiRate() const {
+    virtual unique_ptr<MultiRateBase> CT_API newMultiRate() const {
         throw NotImplementedError("ReactionRate::newMultiRate",
             "Not implemented by '{}' object.", type());
     }
 
     //! String identifying reaction rate specialization
-    virtual const std::string type() const = 0;
+    virtual const CT_API std::string type() const = 0;
 
     //! String identifying sub-type of reaction rate specialization
     virtual const std::string subType() const {
@@ -93,14 +93,14 @@ public:
     //! Set parameters
     //! @param node  AnyMap object containing reaction rate specification
     //! @param units  unit definitions specific to rate information
-    virtual void setParameters(const AnyMap& node, const UnitStack& units) {
+    virtual void CT_API setParameters(const AnyMap& node, const UnitStack& units) {
         m_input = node;
     }
 
     //! Return the parameters such that an identical Reaction could be reconstructed
     //! using the newReaction() function. Behavior specific to derived classes is
     //! handled by the getParameters() method.
-    AnyMap parameters() const {
+    AnyMap CT_API parameters() const {
         AnyMap out;
         getParameters(out);
         return out;

@@ -117,7 +117,7 @@ public:
     //! @{
 
     //! Default constructor.
-    Kinetics();
+    CT_API Kinetics();
 
     virtual ~Kinetics();
 
@@ -128,7 +128,7 @@ public:
     //! Identifies the Kinetics manager type.
     //! Each class derived from Kinetics should override this method to return
     //! a meaningful identifier.
-    virtual std::string kineticsType() const {
+    virtual std::string CT_API kineticsType() const {
         return "None";
     }
 
@@ -136,7 +136,7 @@ public:
     virtual void resizeReactions();
 
     //! Number of reactions in the reaction mechanism.
-    size_t nReactions() const {
+    size_t CT_API nReactions() const {
         return m_reactions.size();
     }
 
@@ -168,7 +168,7 @@ public:
      * heterogeneous mechanism it will return the total number of phases in the
      * mechanism.
      */
-    size_t nPhases() const {
+    size_t CT_API nPhases() const {
         return m_thermo.size();
     }
 
@@ -228,10 +228,10 @@ public:
      *
      * @param n Index of the ThermoPhase being sought.
      */
-    ThermoPhase& thermo(size_t n=0) {
+    ThermoPhase CT_API & thermo(size_t n=0) {
         return *m_thermo[n];
     }
-    const ThermoPhase& thermo(size_t n=0) const {
+    const ThermoPhase CT_API & thermo(size_t n=0) const {
         return *m_thermo[n];
     }
 
@@ -240,7 +240,7 @@ public:
      * mechanism. This is useful to dimension arrays for use in calls to
      * methods that return the species production rates, for example.
      */
-    size_t nTotalSpecies() const {
+    size_t CT_API nTotalSpecies() const {
         return m_kk;
     }
 
@@ -348,7 +348,7 @@ public:
      * @param fwdROP  Output vector containing forward rates
      *                of progress of the reactions. Length: nReactions().
      */
-    virtual void getFwdRatesOfProgress(doublereal* fwdROP);
+    virtual void CT_API getFwdRatesOfProgress(double* fwdROP);
 
     //!  Return the Reverse rates of progress of the reactions
     /*!
@@ -358,7 +358,7 @@ public:
      * @param revROP  Output vector containing reverse rates
      *                of progress of the reactions. Length: nReactions().
      */
-    virtual void getRevRatesOfProgress(doublereal* revROP);
+    virtual void CT_API getRevRatesOfProgress(double* revROP);
 
     /**
      * Net rates of progress. Return the net (forward - reverse) rates of
@@ -367,7 +367,7 @@ public:
      *
      * @param netROP  Output vector of the net ROP. Length: nReactions().
      */
-    virtual void getNetRatesOfProgress(doublereal* netROP);
+    virtual void CT_API getNetRatesOfProgress(double* netROP);
 
     //! Return a vector of Equilibrium constants.
     /*!
@@ -382,7 +382,7 @@ public:
      * @param kc   Output vector containing the equilibrium constants.
      *             Length: nReactions().
      */
-    virtual void getEquilibriumConstants(doublereal* kc) {
+    virtual void CT_API getEquilibriumConstants(double* kc) {
         throw NotImplementedError("Kinetics::getEquilibriumConstants");
     }
 
@@ -546,7 +546,7 @@ public:
      *
      * @param cdot   Output vector of creation rates. Length: m_kk.
      */
-    virtual void getCreationRates(doublereal* cdot);
+    virtual void CT_API getCreationRates(double* cdot);
 
     /**
      * Species destruction rates [kmol/m^3/s or kmol/m^2/s]. Return the species
@@ -555,7 +555,7 @@ public:
      *
      * @param ddot   Output vector of destruction rates. Length: m_kk.
      */
-    virtual void getDestructionRates(doublereal* ddot);
+    virtual void CT_API getDestructionRates(double* ddot);
 
     /**
      * Species net production rates [kmol/m^3/s or kmol/m^2/s]. Return the
@@ -565,7 +565,7 @@ public:
      *
      * @param wdot   Output vector of net production rates. Length: m_kk.
      */
-    virtual void getNetProductionRates(doublereal* wdot);
+    virtual void CT_API getNetProductionRates(double* wdot);
 
     //! @}
     //! @name Routines to Calculate Derivatives (Jacobians)
@@ -1052,7 +1052,7 @@ public:
      * @param kfwd    Output vector containing the forward reaction rate
      *                constants. Length: nReactions().
      */
-    virtual void getFwdRateConstants(double* kfwd) {
+    virtual void CT_API getFwdRateConstants(double* kfwd) {
         throw NotImplementedError("Kinetics::getFwdRateConstants");
     }
 
@@ -1072,8 +1072,8 @@ public:
      * @param doIrreversible boolean indicating whether irreversible reactions
      *                       should be included.
      */
-    virtual void getRevRateConstants(double* krev,
-                                     bool doIrreversible = false) {
+    virtual void CT_API getRevRateConstants(double* krev,
+                                            bool doIrreversible = false) {
         throw NotImplementedError("Kinetics::getRevRateConstants");
     }
 
@@ -1114,7 +1114,7 @@ public:
     //! Return the parameters for a phase definition which are needed to
     //! reconstruct an identical object using the newKinetics function. This
     //! excludes the reaction definitions, which are handled separately.
-    AnyMap parameters();
+    AnyMap CT_API parameters();
 
     /**
      * Resize arrays with sizes that depend on the total number of species.
@@ -1147,9 +1147,9 @@ public:
      * not affect the Kinetics object until the #modifyReaction function is
      * called.
      */
-    shared_ptr<Reaction> reaction(size_t i);
+    shared_ptr<Reaction> CT_API reaction(size_t i);
 
-    shared_ptr<const Reaction> reaction(size_t i) const;
+    shared_ptr<const Reaction> CT_API reaction(size_t i) const;
 
     //! Determine behavior when adding a new reaction that contains species not
     //! defined in any of the phases associated with this kinetics manager. If
