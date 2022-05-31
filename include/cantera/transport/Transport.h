@@ -148,7 +148,7 @@ public:
      *
      * @see TransportFactory
      */
-    Transport(ThermoPhase* thermo=0, size_t ndim = 1);
+    CT_API Transport(ThermoPhase* thermo=0, size_t ndim = 1);
 
     virtual ~Transport() {}
 
@@ -166,7 +166,7 @@ public:
     //! Identifies the Transport object type. Each derived class should override
     //! this method to return a meaningful identifier.
     //! @deprecated  To be removed after Cantera 3.0. Replaced by transportModel
-    std::string transportType() const {
+    std::string CT_API transportType() const {
         warn_deprecated("Transport::transportType",
             "To be removed after Cantera 3.0. Replaced by transportModel().");
             return transportModel();
@@ -178,7 +178,7 @@ public:
      * gas mixture, a surface, etc. This method returns a reference to the
      * object representing the phase itself.
      */
-    ThermoPhase& thermo() {
+    ThermoPhase CT_API & thermo() {
         return *m_thermo;
     }
 
@@ -213,7 +213,7 @@ public:
     /*!
      * The viscosity in Pa-s.
      */
-    virtual double viscosity() {
+    virtual double CT_API viscosity() {
         throw NotImplementedError("Transport::viscosity",
             "Not implemented for transport model '{}'.", transportModel());
     }
@@ -224,7 +224,7 @@ public:
      *
      * @param visc   Vector of viscosities
      */
-    virtual void getSpeciesViscosities(double* const visc) {
+    virtual void CT_API getSpeciesViscosities(double* const visc) {
         throw NotImplementedError("Transport::getSpeciesViscosities",
             "Not implemented for transport model '{}'.", transportModel());
     }
@@ -559,7 +559,7 @@ public:
      *           coefficients.  Dimension dt at least as large as the number of
      *           species. Units are kg/m/s.
      */
-    virtual void getThermalDiffCoeffs(double* const dt) {
+    virtual void CT_API getThermalDiffCoeffs(double* const dt) {
         throw NotImplementedError("Transport::getThermalDiffCoeffs",
             "Not implemented for transport model '{}'.", transportModel());
     }
@@ -603,19 +603,19 @@ public:
      * @param d  Return vector of mixture averaged diffusion coefficients
      *           Units = m2/s. Length = n_sp
      */
-    virtual void getMixDiffCoeffs(double* const d) {
+    virtual void CT_API getMixDiffCoeffs(double* const d) {
         throw NotImplementedError("Transport::getMixDiffCoeffs",
             "Not implemented for transport model '{}'.", transportModel());
     }
 
     //! Returns a vector of mixture averaged diffusion coefficients
-    virtual void getMixDiffCoeffsMole(double* const d) {
+    virtual void CT_API getMixDiffCoeffsMole(double* const d) {
         throw NotImplementedError("Transport::getMixDiffCoeffsMole",
             "Not implemented for transport model '{}'.", transportModel());
     }
 
     //! Returns a vector of mixture averaged diffusion coefficients
-    virtual void getMixDiffCoeffsMass(double* const d) {
+    virtual void CT_API getMixDiffCoeffsMass(double* const d) {
         throw NotImplementedError("Transport::getMixDiffCoeffsMass",
             "Not implemented for transport model '{}'.", transportModel());
     }
@@ -698,7 +698,7 @@ public:
     //! reconstruct an identical object using the newTransport function. This
     //! excludes the individual species transport properties, which are handled
     //! separately.
-    AnyMap parameters() const;
+    AnyMap CT_API parameters() const;
 
     //! Sets the velocity basis
     /*!
