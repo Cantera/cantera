@@ -1,15 +1,36 @@
 # Parameters for test cases defined in test/thermo/consistency.cpp
 
 ideal-gas-h2o2:
-  input: {file: h2o2.yaml}
+  setup: {file: h2o2.yaml}
   states:
   - {T: 300, P: 101325, X: {H2: 0.1, O2: 0.7, H2O2: 0.1}}
   - {T: 300, P: 101325, Y: {H2: 0.1, O2: 0.7, H2O2: 0.1}}
   - {T: 400, density: 5 g/cm^3 , X: {H2: 0.1, O2: 0.7, H2O2: 0.1}}
 
 redlich-kwong:
-  input: {file: co2_RK_example.yaml}
+  setup: {file: co2_RK_example.yaml}
   states:
   - {T: 300, P: 101325, X: {CO2: 0.7, CH4: 0.2, H2O: 0.1}}
   - {T: 320, P: 200 bar, X: {CO2: 0.3, CH4: 0.5, H2O: 0.2}}
   - {T: 600, P: 200 bar, X: {CO2: 0.4, CH4: 0.2, H2O: 0.4}}
+
+peng-robinson:
+  setup: {file: co2_PR_example.yaml}
+  states:
+  - {T: 300, P: 101325, X: {CO2: 0.7, CH4: 0.2, H2O: 0.1}}
+  - {T: 320, P: 200 bar, X: {CO2: 0.3, CH4: 0.5, H2O: 0.2}}
+  - {T: 600, P: 200 bar, X: {CO2: 0.4, CH4: 0.2, H2O: 0.4}}
+
+ideal-molal-solution:
+  setup:
+    file: thermo-models.yaml
+    phase: ideal-molal-aqueous
+    known-failures:
+      g_eq_h_minus_Ts:
+        "Implementations of g and s are inconsistent. See GitHub Issue #1300"
+      gk_eq_hk_minus_T_times_sk:
+        "Implementations of g and s are inconsistent. See GitHub Issue #1300"
+  states:
+  - {T: 300, P: 101325, molalities: {CH4(aq): 0.01, H2S(aq): 0.03, CO2(aq): 0.1}}
+  - {T: 300, P: 2 atm, molalities: {CH4(aq): 0.1, H2S(aq): 0.01, CO2(aq): 0.1}}
+  - {T: 340, P: 5 atm, molalities: {CH4(aq): 0.1, H2S(aq): 0.01, CO2(aq): 0.1}}
