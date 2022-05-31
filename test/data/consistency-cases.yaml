@@ -34,3 +34,32 @@ ideal-molal-solution:
   - {T: 300, P: 101325, molalities: {CH4(aq): 0.01, H2S(aq): 0.03, CO2(aq): 0.1}}
   - {T: 300, P: 2 atm, molalities: {CH4(aq): 0.1, H2S(aq): 0.01, CO2(aq): 0.1}}
   - {T: 340, P: 5 atm, molalities: {CH4(aq): 0.1, H2S(aq): 0.01, CO2(aq): 0.1}}
+
+ideal-condensed-1:
+  setup:
+    file: thermo-models.yaml
+    phase: IdealSolidSolnPhase
+    known-failures:
+      hk_eq_uk_plus_P_times_vk: getPartialMolarIntEnergies is not implemented
+      u_eq_sum_uk_Xk: getPartialMolarIntEnergies is not implemented
+      g_eq_h_minus_Ts: "Inconsistent result when P != 1 atm. See GitHub Issue #1301"
+      g_eq_sum_gk_Xk: "Inconsistent result when P != 1 atm. See GitHub Issue #1301"
+  states:
+  - {T: 300, P: 0.1 atm, X: {sp1: 1.0}}
+  - {T: 300, P: 1 atm, X: {sp1: 0.6, sp2: 0.4}}
+  - {T: 400, P: 0.1 atm, X: {sp1: 0.01, sp2: 0.03, sp3: 0.94}}
+  - {T: 500, P: 2 bar, X: {sp1: 0.1, sp2: 0.89, sp3: 0.01}}
+
+ideal-condensed-2:
+  setup:
+    file: thermo-models.yaml
+    phase: IdealSolidSolnPhase2
+    known-failures:
+      hk_eq_uk_plus_P_times_vk: getPartialMolarIntEnergies is not implemented
+      u_eq_sum_uk_Xk: getPartialMolarIntEnergies is not implemented
+      g_eq_h_minus_Ts: "Inconsistent result when P != 1 atm. See GitHub Issue #1301"
+      g_eq_sum_gk_Xk: "Inconsistent result when P != 1 atm. See GitHub Issue #1301"
+  states:
+  - {T: 300, P: 0.1 atm, X: {sp1: 1.0}}
+  - {T: 400, P: 0.1 atm, X: {sp1: 0.01, sp2: 0.03, sp3: 0.94}}
+  - {T: 500, P: 2 bar, X: {sp1: 0.1, sp2: 0.89, sp3: 0.01}}
