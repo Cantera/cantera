@@ -63,3 +63,25 @@ ideal-condensed-2:
   - {T: 300, P: 0.1 atm, X: {sp1: 1.0}}
   - {T: 400, P: 0.1 atm, X: {sp1: 0.01, sp2: 0.03, sp3: 0.94}}
   - {T: 500, P: 2 bar, X: {sp1: 0.1, sp2: 0.89, sp3: 0.01}}
+
+binary-solution-tabulated:
+  setup:
+    file: BinarySolutionTabulatedThermo.yaml
+    phase: anode
+    known-failures:
+      hk_eq_uk_plus_P_times_vk: getPartialMolarIntEnergies is not implemented
+      u_eq_sum_uk_Xk: getPartialMolarIntEnergies is not implemented
+      g_eq_h_minus_Ts: "Inconsistent results when P != 1 atm. See GitHub Issue #1301"
+      g_eq_sum_gk_Xk: "Inconsistent results when P != 1 atm. See GitHub Issue #1301"
+      v_eq_sum_vk_Xk: "Inconsistent results. See GitHub Issue #1302"
+      h_eq_sum_hk_Xk: "Inconsistent results. See GitHub Issue #1302"
+      s_eq_sum_sk_Xk: "Problems near composition limit. See GitHub Issue #1303"
+      gk_eq_hk_minus_T_times_sk: "Problems near composition limit. See GitHub Issue #1303"
+  states:
+  - {T: 300, P: 1 atm, X: {"Li[anode]": 0.3, "V[anode]": 0.7}}
+  - {T: 320, P: 1 atm, X: {"Li[anode]": 0.3, "V[anode]": 0.7}}
+  - {T: 340, P: 10 atm, X: {"Li[anode]": 0.6, "V[anode]": 0.4}}
+  - {T: 300, P: 5 atm, X: {"Li[anode]": 0.0, "V[anode]": 1.0}}
+  - {T: 300, P: 1 atm, X: {"Li[anode]": 1.0, "V[anode]": 0.0}}
+  - {T: 300, P: 5 atm, X: {"Li[anode]": 1.0e-10, "V[anode]": 1.0}}
+  - {T: 300, P: 1 atm, X: {"Li[anode]": 1.0, "V[anode]": 1.0e-10}}

@@ -44,6 +44,7 @@ public:
             cache[key].reset(newPhase(key.first, key.second));
         }
         atol = setup.getDouble("atol", 1e-5);
+        atol_v = setup.getDouble("atol_v", 1e-11);
 
         phase = cache[key];
         phase->setState(state);
@@ -70,7 +71,7 @@ public:
     shared_ptr<ThermoPhase> phase;
     size_t nsp;
     double T, p;
-    double atol;
+    double atol, atol_v;
 };
 
 map<pair<string, string>, shared_ptr<ThermoPhase>> TestConsistency::cache = {};
@@ -143,7 +144,7 @@ TEST_P(TestConsistency, v_eq_sum_vk_Xk)
 {
     vector_fp vk(nsp);
     phase->getPartialMolarVolumes(vk.data());
-    EXPECT_NEAR(phase->molarVolume(), phase->mean_X(vk), atol);
+    EXPECT_NEAR(phase->molarVolume(), phase->mean_X(vk), atol_v);
 }
 
 INSTANTIATE_TEST_SUITE_P(IdealGas, TestConsistency,
@@ -180,6 +181,12 @@ INSTANTIATE_TEST_SUITE_P(IdealSolidSolnPhase2, TestConsistency,
     testing::Combine(
         testing::Values(getSetup("ideal-condensed-2")),
         testing::ValuesIn(getStates("ideal-condensed-2")))
+);
+
+INSTANTIATE_TEST_SUITE_P(BinarySolutionTabulated, TestConsistency,
+    testing::Combine(
+        testing::Values(getSetup("binary-solution-tabulated")),
+        testing::ValuesIn(getStates("binary-solution-tabulated")))
 );
 
 }
