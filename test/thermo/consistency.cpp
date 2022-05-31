@@ -170,4 +170,16 @@ INSTANTIATE_TEST_SUITE_P(IdealMolalSolution, TestConsistency,
         testing::ValuesIn(getStates("ideal-molal-solution")))
 );
 
+INSTANTIATE_TEST_SUITE_P(IdealSolidSolnPhase1, TestConsistency,
+    testing::Combine(
+        testing::Values(getSetup("ideal-condensed-1")),
+        testing::ValuesIn(getStates("ideal-condensed-1")))
+);
+
+INSTANTIATE_TEST_SUITE_P(IdealSolidSolnPhase2, TestConsistency,
+    testing::Combine(
+        testing::Values(getSetup("ideal-condensed-2")),
+        testing::ValuesIn(getStates("ideal-condensed-2")))
+);
+
 }
