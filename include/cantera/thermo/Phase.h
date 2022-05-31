@@ -107,7 +107,7 @@ class Species;
 class Phase
 {
 public:
-    Phase(); //!< Default constructor.
+    CT_API Phase(); //!< Default constructor.
 
     virtual ~Phase();
 
@@ -133,16 +133,16 @@ public:
     /*!
      *   Names are unique within a Cantera problem.
      */
-    std::string name() const;
+    std::string CT_API name() const;
 
     //! Sets the string name for the phase.
     //!     @param nm String name of the phase
-    void setName(const std::string& nm);
+    void CT_API setName(const std::string& nm);
 
     //! String indicating the thermodynamic model implemented. Usually
     //! corresponds to the name of the derived class, less any suffixes such as
     //! "Phase", TP", "VPSS", etc.
-    virtual std::string type() const {
+    virtual std::string CT_API type() const {
         return "Phase";
     }
 
@@ -162,7 +162,7 @@ public:
     size_t elementIndex(const std::string& name) const;
 
     //! Return a read-only reference to the vector of element names.
-    const std::vector<std::string>& elementNames() const;
+    const std::vector<std::string> CT_API & elementNames() const;
 
     //! Atomic weight of element m.
     //!     @param m  Element index
@@ -206,7 +206,7 @@ public:
     const vector_fp& atomicWeights() const;
 
     //! Number of elements.
-    size_t nElements() const;
+    size_t CT_API nElements() const;
 
     //! Check that the specified element index is in range.
     //! Throws an exception if m is greater than nElements()-1
@@ -235,11 +235,11 @@ public:
     //!            phaseName:speciesName
     //!     @return The index of the species. If the name is not found,
     //!             the value \ref npos is returned.
-    size_t speciesIndex(const std::string& name) const;
+    size_t CT_API speciesIndex(const std::string& name) const;
 
     //! Name of the species with index k
     //!     @param k index of the species
-    std::string speciesName(size_t k) const;
+    std::string CT_API speciesName(size_t k) const;
 
     //! Returns the expanded species name of a species, including the phase name
     //! This is guaranteed to be unique within a Cantera problem.
@@ -248,10 +248,10 @@ public:
     std::string speciesSPName(int k) const;
 
     //! Return a const reference to the vector of species names
-    const std::vector<std::string>& speciesNames() const;
+    const std::vector<std::string> CT_API & speciesNames() const;
 
     //! Returns the number of species in the phase
-    size_t nSpecies() const {
+    size_t CT_API nSpecies() const {
         return m_kk;
     }
 
@@ -436,7 +436,7 @@ public:
 
     //! Copy the vector of molecular weights into vector weights.
     //!     @param weights Output vector of molecular weights (kg/kmol)
-    void getMolecularWeights(vector_fp& weights) const;
+    void CT_API getMolecularWeights(vector_fp& weights) const;
 
     //! Copy the vector of molecular weights into array weights.
     //!     @param weights  Output array of molecular weights (kg/kmol)
@@ -492,7 +492,7 @@ public:
     //! Get the species mole fraction vector.
     //!     @param x On return, x contains the mole fractions. Must have a
     //!          length greater than or equal to the number of species.
-    void getMoleFractions(double* const x) const;
+    void CT_API getMoleFractions(double* const x) const;
 
     //! Set the mole fractions to the specified values.
     //! There is no restriction on the sum of the mole fraction vector.
@@ -500,7 +500,7 @@ public:
     //! its contents.
     //!     @param x Array of unnormalized mole fraction values (input). Must
     //! have a length greater than or equal to the number of species, m_kk.
-    virtual void setMoleFractions(const double* const x);
+    virtual void CT_API setMoleFractions(const double* const x);
 
     //! Set the mole fractions to the specified values without normalizing.
     //! This is useful when the normalization condition is being handled by
@@ -511,7 +511,7 @@ public:
 
     //! Get the species mass fractions.
     //!     @param[out] y Array of mass fractions, length nSpecies()
-    void getMassFractions(double* const y) const;
+    void CT_API getMassFractions(double* const y) const;
 
     //! Return a const pointer to the mass fraction array
     const double* massFractions() const {
@@ -523,7 +523,7 @@ public:
     //!                  must be greater than or equal to the number of
     //!                  species. The Phase object will normalize this vector
     //!                  before storing its contents.
-    virtual void setMassFractions(const double* const y);
+    virtual void CT_API setMassFractions(const double* const y);
 
     //! Set the mass fractions to the specified values without normalizing.
     //! This is useful when the normalization condition is being handled by
@@ -538,7 +538,7 @@ public:
      *                  kmol/m^3. The length of the vector must be greater than
      *                  or equal to the number of species within the phase.
      */
-    virtual void getConcentrations(double* const c) const;
+    virtual void CT_API getConcentrations(double* const c) const;
 
     //! Concentration of species k.
     //! If k is outside the valid range, an exception will be thrown.
@@ -559,7 +559,7 @@ public:
     //!                     species in kmol/m3. For surface phases, c[k] is the
     //!                     concentration in kmol/m2. The length of the vector
     //!                     is the number of species in the phase.
-    virtual void setConcentrations(const double* const conc);
+    virtual void CT_API setConcentrations(const double* const conc);
 
     //! Set the concentrations without ignoring negative concentrations
     virtual void setConcentrationsNoNorm(const double* const conc);
@@ -639,7 +639,7 @@ public:
 
     //! Temperature (K).
     //!     @return The temperature of the phase
-    doublereal temperature() const {
+    double CT_API temperature() const {
         return m_temp;
     }
 
@@ -657,33 +657,33 @@ public:
      *  use these values to implement the mechanical equation of state \f$ P(T,
      *  \rho, Y_1, \dots, Y_K) \f$. Alternatively, it returns a stored value.
      */
-    virtual double pressure() const {
+    virtual double CT_API pressure() const {
         throw NotImplementedError("Phase::pressure",
             "Not implemented for thermo model '{}'", type());
     }
 
     //! Density (kg/m^3).
     //!     @return The density of the phase
-    virtual double density() const {
+    virtual double CT_API density() const {
         return m_dens;
     }
 
     //! Molar density (kmol/m^3).
     //!     @return The molar density of the phase
-    virtual double molarDensity() const;
+    virtual double CT_API molarDensity() const;
 
     //! Molar volume (m^3/kmol).
     //!     @return The molar volume of the phase
-    virtual double molarVolume() const;
+    virtual double CT_API molarVolume() const;
 
     //! Set the internally stored density (kg/m^3) of the phase.
     //! Note the density of a phase is an independent variable.
     //!     @param[in] density_ density (kg/m^3).
-    virtual void setDensity(const double density_);
+    virtual void CT_API setDensity(const double density_);
 
     //! Set the internally stored molar density (kmol/m^3) of the phase.
     //!     @param[in] molarDensity Input molar density (kmol/m^3).
-    virtual void setMolarDensity(const double molarDensity);
+    virtual void CT_API setMolarDensity(const double molarDensity);
 
     //! Set the internally stored pressure (Pa) at constant temperature and
     //! composition
@@ -697,14 +697,14 @@ public:
      *
      *  @param p input Pressure (Pa)
      */
-    virtual void setPressure(double p) {
+    virtual void CT_API setPressure(double p) {
         throw NotImplementedError("Phase::setPressure",
             "Not implemented for thermo model '{}'", type());
     }
 
     //! Set the internally stored temperature of the phase (K).
     //!     @param temp Temperature in Kelvin
-    virtual void setTemperature(double temp) {
+    virtual void CT_API setTemperature(double temp) {
         if (temp > 0) {
             m_temp = temp;
         } else {

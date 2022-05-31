@@ -112,9 +112,9 @@ class PDSS;
 class SpeciesThermoInterpType
 {
 public:
-    SpeciesThermoInterpType();
+    CT_API SpeciesThermoInterpType();
 
-    SpeciesThermoInterpType(double tlow, double thigh, double pref);
+    CT_API SpeciesThermoInterpType(double tlow, double thigh, double pref);
 
     // SpeciesThermoInterpType objects are not copyable or assignable
     SpeciesThermoInterpType(const SpeciesThermoInterpType& b) = delete;
@@ -234,7 +234,7 @@ public:
     //! @param withInput  If true, include additional input data fields associated
     //!   with the object, such as user-defined fields from a YAML input file, as
     //!   returned by the input() method.
-    AnyMap parameters(bool withInput=true) const;
+    AnyMap CT_API parameters(bool withInput=true) const;
 
     //! Report the 298 K Heat of Formation of the standard state of one species
     //! (J kmol-1)
@@ -273,8 +273,8 @@ public:
     }
 
     //! Access input data associated with the species thermo definition
-    const AnyMap& input() const;
-    AnyMap& input();
+    const AnyMap CT_API & input() const;
+    AnyMap CT_API & input();
 
 protected:
     //! Store the parameters of the species thermo object such that an identical

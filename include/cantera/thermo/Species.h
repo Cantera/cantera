@@ -24,18 +24,18 @@ class ThermoPhase;
 class Species
 {
 public:
-    Species();
+    CT_API Species();
 
     //! Constructor
-    Species(const std::string& name, const compositionMap& comp,
-            double charge=0.0, double size=1.0);
+    CT_API Species(const std::string& name, const compositionMap& comp,
+                   double charge=0.0, double size=1.0);
 
     //! Species objects are not copyable or assignable
     Species(const Species&) = delete;
     Species& operator=(const Species& other) = delete;
     ~Species();
 
-    AnyMap parameters(const ThermoPhase* phase=0, bool withInput=true) const;
+    AnyMap CT_API parameters(const ThermoPhase* phase=0, bool withInput=true) const;
 
     //! The name of the species
     std::string name;
@@ -90,7 +90,7 @@ protected:
 };
 
 //! Create a new Species object from an AnyMap specification
-unique_ptr<Species> newSpecies(const AnyMap& node);
+unique_ptr<Species> CT_API newSpecies(const AnyMap& node);
 
 //! Generate Species objects for each item (an AnyMap) in `items`.
 std::vector<shared_ptr<Species>> getSpecies(const AnyValue& items);
