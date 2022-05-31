@@ -1,5 +1,5 @@
 molar enthalpy   =      0.013282 J kg-1
-molar intEnergy  =      0.013282 J kg-1
+molar intEnergy  =   -1.5185e+05 J kg-1
 molar entropy    =        93.635 J kg-1 K-1
 molar gibbs      =   -3.8986e+07 J kg-1
 molar Cp         =         28836 J kg-1 K-1

@@ -295,6 +295,19 @@ public:
      */
     virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
 
+    //! Returns an array of partial molar internal energies for the species in the
+    //! mixture.
+    /*!
+     * Units (J/kmol). For this phase, the partial molar internal energies are equal to
+     * the species standard state internal energies (which are equal to the reference
+     * state internal energies)
+     *  \f[
+     * \bar u_k(T,P) = \hat u^{ref}_k(T)
+     * \f]
+     * @param hbar   Output vector of partial molar internal energies, length #m_kk
+     */
+    virtual void getPartialMolarIntEnergies(doublereal* hbar) const;
+
     //! Returns an array of partial molar entropies of the species in the
     //! solution. Units: J/kmol.
     /*!
