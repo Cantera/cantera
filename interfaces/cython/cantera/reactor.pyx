@@ -1415,7 +1415,7 @@ cdef class ReactorNet:
         """
         # get default tolerances:
         if not atol:
-            atol = self.rtol
+            atol = self.atol
         if not residual_threshold:
             residual_threshold = 10. * self.rtol
         if residual_threshold <= self.rtol:
