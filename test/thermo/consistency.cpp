@@ -201,4 +201,10 @@ INSTANTIATE_TEST_SUITE_P(NitrogenPureFluid, TestConsistency,
         testing::ValuesIn(getStates("nitrogen-purefluid")))
 );
 
+INSTANTIATE_TEST_SUITE_P(PlasmaPhase, TestConsistency,
+    testing::Combine(
+        testing::Values(getSetup("plasma")),
+        testing::ValuesIn(getStates("plasma")))
+);
+
 }
