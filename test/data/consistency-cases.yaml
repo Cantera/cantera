@@ -111,3 +111,12 @@ nitrogen-purefluid:
   - {T: 70, P: 1 atm}
   - {T: 80, P: 100 atm}
   - {T: 80, density: 100 kg/m^3}
+
+plasma:
+  setup:
+    file: oxygen-plasma.yaml
+    phase: discretized-electron-energy-plasma
+  states:
+  - {T: 300, P: 1 atm, X: {O2: 1.0, O2-: 1e-5, E: 1e-5}}
+  - {T: 300, P: 1 atm, X: {E: 1.0}}
+  - {T: 3500, P: 10 atm, X: {O2: 1.0, O2-: 2e-5, E: 2e-5}}
