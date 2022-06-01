@@ -114,12 +114,13 @@ for n in range(NReactors):
 
     if n % 10 == 0:
         print('  {0:10f}  {1:10f}  {2:10f}  {3:10f}'.format(
-            dist, *gas['CH4', 'H2', 'CO'].X))
+            dist, *r.thermo['CH4', 'H2', 'CO'].X))
 
     # write the gas mole fractions and surface coverages vs. distance
     output_data.append(
-        [dist, r.T - 273.15, r.thermo.P/ct.one_atm] + list(gas.X)
-        + list(surf.coverages)
+        [dist, r.T - 273.15, r.thermo.P / ct.one_atm]
+        + list(r.thermo.X)  # use r.thermo.X not gas.X
+        + list(rsurf.kinetics.coverages)  # use rsurf.kinetics.coverages not surf.coverages
     )
 
 with open(output_filename, 'w', newline="") as outfile:
