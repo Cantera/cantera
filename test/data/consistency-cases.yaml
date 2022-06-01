@@ -85,3 +85,17 @@ binary-solution-tabulated:
   - {T: 300, P: 1 atm, X: {"Li[anode]": 1.0, "V[anode]": 0.0}}
   - {T: 300, P: 5 atm, X: {"Li[anode]": 1.0e-10, "V[anode]": 1.0}}
   - {T: 300, P: 1 atm, X: {"Li[anode]": 1.0, "V[anode]": 1.0e-10}}
+
+electron-cloud:
+  setup:
+    file: thermo-models.yaml
+    phase: Metal
+    known-failures:
+      hk_eq_uk_plus_P_times_vk: partialMolarIntEnergies is not implemented
+      gk_eq_hk_minus_T_times_sk: partialMolarEntropies is not implemented
+      "[usv]_eq_sum_[usv]k_Xk": partialMolar IntEnergies/Entropies/Volumes not implemented
+
+  states:
+  - {T: 300, P: 1 atm}
+  - {T: 400, P: 1 atm}
+  - {T: 500, P: 10 atm}
