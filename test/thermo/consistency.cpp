@@ -195,4 +195,10 @@ INSTANTIATE_TEST_SUITE_P(ElectronCloud, TestConsistency,
         testing::ValuesIn(getStates("electron-cloud")))
 );
 
+INSTANTIATE_TEST_SUITE_P(NitrogenPureFluid, TestConsistency,
+    testing::Combine(
+        testing::Values(getSetup("nitrogen-purefluid")),
+        testing::ValuesIn(getStates("nitrogen-purefluid")))
+);
+
 }
