@@ -189,4 +189,10 @@ INSTANTIATE_TEST_SUITE_P(BinarySolutionTabulated, TestConsistency,
         testing::ValuesIn(getStates("binary-solution-tabulated")))
 );
 
+INSTANTIATE_TEST_SUITE_P(ElectronCloud, TestConsistency,
+    testing::Combine(
+        testing::Values(getSetup("electron-cloud")),
+        testing::ValuesIn(getStates("electron-cloud")))
+);
+
 }
