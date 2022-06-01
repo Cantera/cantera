@@ -99,3 +99,15 @@ electron-cloud:
   - {T: 300, P: 1 atm}
   - {T: 400, P: 1 atm}
   - {T: 500, P: 10 atm}
+
+# The Python test_purefluid.py test suite contains a much more extensive set of tests
+# for the pure substance models
+nitrogen-purefluid:
+  setup:
+    file: liquidvapor.yaml
+    phase: nitrogen
+  states:
+  - {T: 300, P: 1 atm}
+  - {T: 70, P: 1 atm}
+  - {T: 80, P: 100 atm}
+  - {T: 80, density: 100 kg/m^3}
