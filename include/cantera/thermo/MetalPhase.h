@@ -37,7 +37,7 @@ public:
         return 0.0;
     }
     virtual doublereal intEnergy_mole() const {
-        return 0.0;
+        return - pressure() * molarVolume();
     }
     virtual doublereal entropy_mole() const {
         return 0.0;
