@@ -8,14 +8,16 @@ ideal-gas-h2o2:
   - {T: 400, density: 5 g/cm^3 , X: {H2: 0.1, O2: 0.7, H2O2: 0.1}}
 
 redlich-kwong:
-  setup: {file: co2_RK_example.yaml}
+  setup:
+    file: co2_RK_example.yaml
   states:
   - {T: 300, P: 101325, X: {CO2: 0.7, CH4: 0.2, H2O: 0.1}}
   - {T: 320, P: 200 bar, X: {CO2: 0.3, CH4: 0.5, H2O: 0.2}}
   - {T: 600, P: 200 bar, X: {CO2: 0.4, CH4: 0.2, H2O: 0.4}}
 
 peng-robinson:
-  setup: {file: co2_PR_example.yaml}
+  setup:
+    file: co2_PR_example.yaml
   states:
   - {T: 300, P: 101325, X: {CO2: 0.7, CH4: 0.2, H2O: 0.1}}
   - {T: 320, P: 200 bar, X: {CO2: 0.3, CH4: 0.5, H2O: 0.2}}
@@ -106,6 +108,7 @@ nitrogen-purefluid:
   setup:
     file: liquidvapor.yaml
     phase: nitrogen
+    rtol_fd: 1e-5
   states:
   - {T: 300, P: 1 atm}
   - {T: 70, P: 1 atm}
@@ -116,6 +119,8 @@ plasma:
   setup:
     file: oxygen-plasma.yaml
     phase: discretized-electron-energy-plasma
+    known-failures:
+      cp_eq_dhdT/1: Test does not account for distinct electron temperature
   states:
   - {T: 300, P: 1 atm, X: {O2: 1.0, O2-: 1e-5, E: 1e-5}}
   - {T: 300, P: 1 atm, X: {E: 1.0}}
