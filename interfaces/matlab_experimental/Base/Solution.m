@@ -1,6 +1,6 @@
 classdef Solution < handle & ThermoPhase & Kinetics & Transport
 
-    properties
+    properties (Access = private)
         tp
     end
 
@@ -8,8 +8,10 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
 
         %% Solution class constructor
         function s = Solution(src, id, trans)
-            % SOLUTION  Solution class constructor.
+            % Solution class constructor.
+            %
             % s = Solution(src, id, trans)
+            %
             % Class :mat:func:`Solution` represents solutions of multiple species. A
             % solution is defined as a mixture of two or more constituents
             % (species) that are completely mixed on molecular length
@@ -73,8 +75,10 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
 
         % Delete the kernel objects associated with a solution
         function clear(s)
-            % CLEAR  Delete the kernel objects associated with a Solution.
+            % Delete the kernel objects associated with a Solution.
+            %
             % s.clear
+            %
             % :param s:
             %     Instance of class :mat:func:`Solution`
             %

@@ -1,25 +1,28 @@
 function flame = CounterFlowDiffusionFlame(left, flow, right, tp_f, tp_o, oxidizer)
-    % Create a counter flow flame stack.
+    % Create a counter flow diffusion flame stack.
+    % flame = CounterFlowDiffusionFlame(left, flow, right, tp_f, tp_o, oxidizer)
+    %
     % :param left:
-    %    Object representing the left inlet, which must be created using
-    %    function 'Inlet'.
+    %     Object representing the left inlet, which must be
+    %     created using function :mat:func:`Inlet`.
     % :param flow:
-    %    Object representing the flow, created with function
-    %    'AxisymmetricFlow'.
+    %     Object representing the flow, created with
+    %     function :mat:func:`AxisymmetricFlow`.
     % :param right:
-    %    Object representing the right inlet, which must be created using
-    %    function 'Inlet'.
+    %     Object representing the right inlet, which must be
+    %     created using function :mat:func:`Inlet`.
     % :param tp_f:
-    %    Object representing the fuel inlet gas, instance of class
-    %    'Solution', and an ideal gas.
+    %     Object representing the fuel inlet gas, instance of class
+    %     :mat:func:`Solution`, and an ideal gas.
     % :param tp_o:
-    %    Object representing the oxidizer inlet gas, instance of class
-    %    'Solution', and an ideal gas.
-    % :param oxidier:
-    %    String representing the oxidizer species. Most commonly O2.
+    %     Object representing the oxidizer inlet gas, instance of class
+    %     :mat:func:`Solution`, and an ideal gas.
+    % :param oxidizer:
+    %     String representing the oxidizer species. Most commonly O2.
     % :return:
-    %    Instance of 'Stack' representing the left inlet, flow, and right
-    %    inlet.
+    %     Instance of :mat:func:`Stack` object representing the left
+    %     inlet, flow, and right inlet.
+    %
 
     %% Check input parameters
 

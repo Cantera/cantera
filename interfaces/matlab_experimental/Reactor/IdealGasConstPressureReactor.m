@@ -1,11 +1,26 @@
 function r = IdealGasConstPressureReactor(contents)
-    % Create a constant pressure reactor object with an ideal gas.
-    % Pressure is held constant. The volume is not a state variable, but
-    % instead takes on whatever value is consistent with holding the
-    % pressure constant.
+    % Create a constant pressure reactor with an ideal gas.
+    % r = IdealGasConstPressureReactor(contents)
+    % An IdealGasConstPressureReactor is an instance of class Reactor where the
+    % pressure is held constant. The volume is not a state variable, but
+    % instead takes on whatever value is consistent with holding the pressure
+    % constant. Additionally, its governing equations are specialized for the
+    % ideal gas equation of state (and do not work correctly with other
+    % thermodynamic models). Examples:
     %
-    %: param contents:
-    %    Contents of the reactor of class 'Solution'.
+    % .. code-block:: matlab
+    %
+    %     r1 = IdealGasConstPressureReactor      % an empty reactor
+    %     r2 = IdealGasConstPressureReactor(gas) % a reactor containing a gas
+    %
+    %   See also: :mat:func:`Reactor`
+    %
+    % :param contents:
+    %     Cantera :mat:func:`Solution` to be set as the contents of the
+    %     reactor
+    % :return:
+    %     Instance of class :mat:func:`Reactor`
+    %
 
     if nargin == 0
         contents = 0;
