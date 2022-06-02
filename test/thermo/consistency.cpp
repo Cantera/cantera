@@ -44,6 +44,7 @@ public:
             cache[key].reset(newPhase(key.first, key.second));
         }
         atol = setup.getDouble("atol", 1e-5);
+        rtol_fd = setup.getDouble("rtol_fd", 1e-6);
         atol_v = setup.getDouble("atol_v", 1e-11);
 
         phase = cache[key];
@@ -72,6 +73,7 @@ public:
     size_t nsp;
     double T, p;
     double atol, atol_v;
+    double rtol_fd; // relative tolerance for finite difference comparisons
 };
 
 map<pair<string, string>, shared_ptr<ThermoPhase>> TestConsistency::cache = {};
@@ -145,6 +147,20 @@ TEST_P(TestConsistency, v_eq_sum_vk_Xk)
     vector_fp vk(nsp);
     phase->getPartialMolarVolumes(vk.data());
     EXPECT_NEAR(phase->molarVolume(), phase->mean_X(vk), atol_v);
+}
+
+TEST_P(TestConsistency, cp_eq_dhdT)
+{
+    double h1 = phase->enthalpy_mole();
+    double cp1 = phase->cp_mole();
+    double T1 = phase->temperature();
+    double dT = 1e-5 * phase->temperature();
+    phase->setState_TP(T1 + dT, phase->pressure());
+    double h2 = phase->enthalpy_mole();
+    double cp2 = phase->cp_mole();
+    double cp_mid = 0.5 * (cp1 + cp2);
+    double cp_fd = (h2 - h1)/dT;
+    EXPECT_NEAR(cp_fd, cp_mid, max({rtol_fd * cp_mid, rtol_fd * cp_fd, atol}));
 }
 
 INSTANTIATE_TEST_SUITE_P(IdealGas, TestConsistency,
