@@ -149,6 +149,13 @@ TEST_P(TestConsistency, v_eq_sum_vk_Xk)
     EXPECT_NEAR(phase->molarVolume(), phase->mean_X(vk), atol_v);
 }
 
+TEST_P(TestConsistency, cp_eq_sum_cpk_Xk)
+{
+    vector_fp cpk(nsp);
+    phase->getPartialMolarCp(cpk.data());
+    EXPECT_NEAR(phase->cp_mole(), phase->mean_X(cpk), atol);
+}
+
 TEST_P(TestConsistency, cp_eq_dhdT)
 {
     double h1 = phase->enthalpy_mole();
