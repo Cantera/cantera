@@ -32,6 +32,7 @@ ideal-molal-solution:
         "Implementations of g and s are inconsistent. See GitHub Issue #1300"
       gk_eq_hk_minus_T_times_sk:
         "Implementations of g and s are inconsistent. See GitHub Issue #1300"
+      cv_eq_dudT: cv not implemented
   states:
   - {T: 300, P: 101325, molalities: {CH4(aq): 0.01, H2S(aq): 0.03, CO2(aq): 0.1}}
   - {T: 300, P: 2 atm, molalities: {CH4(aq): 0.1, H2S(aq): 0.01, CO2(aq): 0.1}}
@@ -109,6 +110,8 @@ nitrogen-purefluid:
     file: liquidvapor.yaml
     phase: nitrogen
     rtol_fd: 1e-5
+    known-failures:
+      cv_eq_dudT/3: cv not defined in two-phase region
   states:
   - {T: 300, P: 1 atm}
   - {T: 70, P: 1 atm}
@@ -121,6 +124,7 @@ plasma:
     phase: discretized-electron-energy-plasma
     known-failures:
       cp_eq_dhdT/1: Test does not account for distinct electron temperature
+      cv_eq_dudT/1: Test does not account for distinct electron temperature
   states:
   - {T: 300, P: 1 atm, X: {O2: 1.0, O2-: 1e-5, E: 1e-5}}
   - {T: 300, P: 1 atm, X: {E: 1.0}}

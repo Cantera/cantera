@@ -163,6 +163,24 @@ TEST_P(TestConsistency, cp_eq_dhdT)
     EXPECT_NEAR(cp_fd, cp_mid, max({rtol_fd * cp_mid, rtol_fd * cp_fd, atol}));
 }
 
+TEST_P(TestConsistency, cv_eq_dudT)
+{
+    double u1 = phase->intEnergy_mole();
+    double cv1 = phase->cv_mole();
+    double T1 = phase->temperature();
+    double dT = 1e-5 * phase->temperature();
+    if (phase->isCompressible()) {
+        phase->setState_TR(T1 + dT, phase->density());
+    } else {
+        phase->setTemperature(T1 + dT);
+    }
+    double u2 = phase->intEnergy_mole();
+    double cv2 = phase->cv_mole();
+    double cv_mid = 0.5 * (cv1 + cv2);
+    double cv_fd = (u2 - u1)/dT;
+    EXPECT_NEAR(cv_fd, cv_mid, max({rtol_fd * cv_mid, rtol_fd * cv_fd, atol}));
+}
+
 INSTANTIATE_TEST_SUITE_P(IdealGas, TestConsistency,
     testing::Combine(
         testing::Values(getSetup("ideal-gas-h2o2")),
