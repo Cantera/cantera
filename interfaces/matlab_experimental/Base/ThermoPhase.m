@@ -10,7 +10,7 @@ classdef ThermoPhase < handle
         H % enthalpy
         S % entropy
         U % internal energy
-        G % Gibbs free energy
+        G % Gibbs free energye
         basis
     end
 

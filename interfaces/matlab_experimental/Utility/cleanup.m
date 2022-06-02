@@ -1,5 +1,6 @@
 function cleanup()
-% Delete all stored Cantera objects and reclaim memory
+    % Delete all stored Cantera objects and reclaim memory.
+    %
     checklib;
     calllib(ct, 'ct_clearOneDim');
     calllib(ct, 'ct_clearMix');

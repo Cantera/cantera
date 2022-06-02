@@ -12,8 +12,10 @@ classdef Func < handle
         %% Functor class constructor
 
         function x = Func(typ, n, p)
-            % FUNC  Func class constructor.
+            % Func class constructor.
+            %
             % x = Func(typ, n, p)
+            %
             % A class for functors.
             % A functor is an object that behaves like a function. Cantera
             % defines a set of functors to use to create arbitrary functions to
@@ -74,7 +76,7 @@ classdef Func < handle
             itype = -1;
 
             function nn = newFunc(itype, n, p)
-                % helper function to pass the correct :parameters to the C
+                % helper function to pass the correct parameters to the C
                 % library
                 if itype < 20
                     [m, n] = size(p);
@@ -129,8 +131,10 @@ classdef Func < handle
         %% Utility methods
 
         function clear(f)
-            % CLEAR  Delete the C++ Func1 object.
+            % Delete the C++ Func1 object.
+            %
             % f.clear
+            %
             % :param f:
             %     Instance of class :mat:func:`Func`
             %
@@ -138,8 +142,10 @@ classdef Func < handle
         end
 
         function display(f)
-            % DISPLAY  Display the equation of the input function on the terminal.
+            % Display the equation of the input function on the terminal.
+            %
             % f.display
+            %
             % :param f:
             %     Instance of class :mat:func:`Func`
             %
@@ -151,8 +157,10 @@ classdef Func < handle
         end
 
         function b = subsref(a, s)
-            % SUBSREF  Redefine subscripted references for functors.
+            % Redefine subscripted references for functors.
+            %
             % b = a.subsref(s)
+            %
             % :param a:
             %     Instance of class :mat:func:`Func`
             % :param s:
@@ -171,8 +179,10 @@ classdef Func < handle
         end
 
         function s = char(f)
-            % CHAR  Get the formatted string to display the function.
+            % Get the formatted string to display the function.
+            %
             % s = f.char
+            %
             % :param f:
             %     Instance of class :mat:func:`Func`
             % :return:

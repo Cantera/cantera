@@ -1,9 +1,22 @@
 function r = FlowReactor(contents)
     % Create a flow reactor object.
-    % A reactor representing adiabatic plug flow in a constant-area duct.
+    % r = FlowReactor(contents)
+    % A reactor representing adiabatic plug flow in a constant-area
+    % duct. Examples:
     %
-    %: param contents:
-    %    Contents of the reactor of class 'Solution'.
+    % .. code-block:: matlab
+    %
+    %     r1 = FlowReactor         % an empty reactor
+    %     r2 = FlowReactor(gas)    % a reactor containing a gas
+    %
+    % See also: :mat:func:`Reactor`
+    %
+    % :param contents:
+    %     Cantera :mat:func:`Solution` to be set as the contents of the
+    %     reactor
+    % :return:
+    %     Instance of class :mat:func:`Reactor`
+    %
 
     if nargin == 0
         contents = 0;
