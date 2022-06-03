@@ -95,6 +95,9 @@ public:
     //! Method overridden by derived classes to format the error message
     virtual std::string getMessage() const;
 
+    //! Get the name of the method that threw the exception
+    virtual std::string getMethod() const;
+
     //! Method overridden by derived classes to indicate their type
     virtual std::string getClass() const {
         return "CanteraError";

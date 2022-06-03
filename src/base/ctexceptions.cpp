@@ -47,6 +47,11 @@ std::string CanteraError::getMessage() const
     return msg_;
 }
 
+std::string CanteraError::getMethod() const
+{
+    return procedure_;
+}
+
 std::string ArraySizeError::getMessage() const
 {
     return fmt::format("Array size ({}) too small. Must be at least {}.",
