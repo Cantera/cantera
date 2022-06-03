@@ -188,6 +188,38 @@ TEST_P(TestConsistency, cv_eq_dudT)
     EXPECT_NEAR(cv_fd, cv_mid, max({rtol_fd * cv_mid, rtol_fd * cv_fd, atol}));
 }
 
+TEST_P(TestConsistency, cp_eq_dsdT_const_p_times_T)
+{
+    double s1 = phase->entropy_mole();
+    double cp1 = phase->cp_mole();
+    double T1 = phase->temperature();
+    double dT = 1e-4 * phase->temperature();
+    phase->setState_TP(T1 + dT, phase->pressure());
+    double s2 = phase->entropy_mole();
+    double cp2 = phase->cp_mole();
+    double cp_mid = 0.5 * (cp1 + cp2);
+    double cp_fd = (T1 + dT/2) * (s2 - s1) / dT;
+    EXPECT_NEAR(cp_fd, cp_mid, max({rtol_fd * cp_mid, rtol_fd * cp_fd, atol}));
+}
+
+TEST_P(TestConsistency, cv_eq_dsdT_const_v_times_T)
+{
+    double s1 = phase->entropy_mole();
+    double cv1 = phase->cv_mole();
+    double T1 = phase->temperature();
+    double dT = 1e-4 * phase->temperature();
+    if (phase->isCompressible()) {
+        phase->setState_TR(T1 + dT, phase->density());
+    } else {
+        phase->setTemperature(T1 + dT);
+    }
+    double s2 = phase->entropy_mole();
+    double cv2 = phase->cv_mole();
+    double cv_mid = 0.5 * (cv1 + cv2);
+    double cv_fd = (T1 + dT/2) * (s2 - s1) / dT;
+    EXPECT_NEAR(cv_fd, cv_mid, max({rtol_fd * cv_mid, rtol_fd * cv_fd, atol}));
+}
+
 INSTANTIATE_TEST_SUITE_P(IdealGas, TestConsistency,
     testing::Combine(
         testing::Values(getSetup("ideal-gas-h2o2")),
