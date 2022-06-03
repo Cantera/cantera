@@ -88,6 +88,7 @@ private:
     void* m_ida_mem; //!< Pointer to the IDA memory for the problem
     void* m_linsol; //!< Sundials linear solver object
     void* m_linsol_matrix; //!< matrix used by Sundials
+    void * m_ctx;           //!< contex object used by Sundials
     FuncEval* m_func;
     double m_t0;
     double m_time; //!< The current integrator time
