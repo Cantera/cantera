@@ -68,7 +68,7 @@ def addTestProgram(subdir, progName, env_vars={}):
         code = subprocess.call(cmd, env=env['ENV'], cwd=workDir)
 
         if code:
-            print("FAILED: Test '{0}' exited with code {1}".format(progName, code))
+            logger.failed(f"Test '{progName}' exited with code {code}")
             if env["fast_fail_tests"]:
                 sys.exit(1)
         else:
@@ -136,7 +136,6 @@ def addPythonTest(testname, subdir, script, interpreter,
 
         environ = dict(env['ENV'])
         for k,v in env_vars.items():
-            print(k,v)
             environ[k] = v
 
         cmdargs = args.split()
@@ -237,9 +236,12 @@ def addMatlabTest(script, testName, dependencies=None, env_vars=()):
                 ' ***no results for entire test suite***'] = 100
             return
 
-        print('-------- Matlab test results --------')
-        print(results)
-        print('------ end Matlab test results ------')
+        matlab_test_message = [
+            f"{' Matlab test results ':-^88}",
+            results,
+            f"{' end Matlab test results ':-^88}",
+        ]
+        logger.info("\n".join(matlab_test_message))
 
         passed = True
         for line in results.split('\n'):
