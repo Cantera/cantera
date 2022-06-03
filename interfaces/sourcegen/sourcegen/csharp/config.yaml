@@ -11,10 +11,24 @@ ignore:
         - flowReactor_setMassFlowRate
     ctrpath.h: []
 
+# replaces the name as determined by the C function prefix
+# with the name of the class that function is designed to expose
+handle_crosswalk:
+    flowdev: FlowDevice
+    kin: Kinetics
+    mix: Mixture
+    reactor: Reactor
+    reactornet: ReactorNet
+    reactorsurface: ReactorSurface
+    surf: Surface
+    thermo: ThermoPhase
+    trans: Transport
+    wall: Wall
+
 # Handles for which there is no special delete function,
 # so we need to generate them manually because we can't
 # discover the type name from the delete.
 # Declare these as
 #  Derived: Base
 derived_handles:
-    SurfHandle: ThermoHandle
+    SurfaceHandle: ThermoPhaseHandle
