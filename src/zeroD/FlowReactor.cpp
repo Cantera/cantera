@@ -72,7 +72,7 @@ void FlowReactor::getState(double* y, double* ydot)
         vector_fp cov(surf->nSpecies());
         surf->getCoverages(&cov[0]);
         m_surf->setCoverages(&cov[0]);
-        m_surf->syncCoverages();
+        m_surf->syncState();
     }
 
     // set the initial coverages
@@ -81,7 +81,7 @@ void FlowReactor::getState(double* y, double* ydot)
     // reset ydot vector
     std::fill(ydot, ydot + m_nv, 0.0);
     // calculate initial d(coverage)/dt values
-    evalSurfaces(0, ydot + m_non_spec_eq + m_nsp);
+    evalSurfaces(ydot + m_nsp + 4, m_sdot.data());
 
     // next, we must solve for the initial derivative values
     // a . ydot = b
@@ -234,12 +234,8 @@ void FlowReactor::updateState(doublereal* y)
 
 void FlowReactor::setMassFlowRate(double mdot)
 {
-    m_rho0 = m_thermo->density();
-    m_u = mdot/m_rho0;
-    m_u0 = m_u;
-    m_T = m_thermo->temperature();
-    m_P0 = m_thermo->pressure() + m_rho0*m_u*m_u;
-    m_h0 = m_thermo->enthalpy_mass() + 0.5*m_u*m_u;
+    m_rho = m_thermo->density();
+    m_u = mdot/(m_rho * m_area);
 }
 
 void FlowReactor::updateSurfaceState(double* y)
@@ -250,18 +246,18 @@ void FlowReactor::updateSurfaceState(double* y)
         // the system.
         // note: the ReactorSurface class doesn't normalize when calling setCoverages
         S->setCoverages(y+loc);
-        S->syncCoverages();
+        S->syncState();
         loc += S->thermo()->nSpecies();
     }
 }
 
-void FlowReactor::eval(double time, double* y,
+void FlowReactor::evalEqs(double time, double* y,
                           double* ydot, double* params,
                           double* residual)
 {
     m_thermo->restoreState(m_state);
 
-    evalSurfaces(t, &m_sdot_temp[0]);
+    evalSurfaces(ydot + m_nsp + 4, m_sdot.data());
     const vector_fp& mw = m_thermo->molecularWeights();
     double sk_wk = 0;
     for (size_t i = 0; i < m_nsp; ++i)

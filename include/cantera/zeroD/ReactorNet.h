@@ -68,12 +68,6 @@ public:
     //! sensitivity equations.
     void setSensitivityTolerances(double rtol, double atol);
 
-    //! Set the maximum number of internal integration time-steps the
-    //! integrator will take before reaching the next output time
-    //! @param nmax The maximum number of steps, setting this value
-    //!             to zero disables this option.
-    virtual void setMaxSteps(int nmax);
-
     //! Current value of the simulation time.
     doublereal time() {
         return m_time;
@@ -104,10 +98,7 @@ public:
 
     //! Returns the maximum number of internal integration time-steps the
     //!  integrator will take before reaching the next output time
-    //!
-    virtual int maxSteps() {
-        return m_nmax;
-    }
+    int maxSteps();
 
     /**
      * Advance the state of all reactors in time. Take as many internal
@@ -277,11 +268,6 @@ public:
     //!             to zero disables this option.
     virtual void setMaxSteps(int nmax);
 
-    //! Returns the maximum number of internal integration time-steps the
-    //!  integrator will take before reaching the next output time
-    //!
-    virtual int maxSteps();
-
     //! Set absolute step size limits during advance
     void setAdvanceLimits(const double* limits);
 
@@ -343,9 +329,6 @@ protected:
 
     // flag indicating whether this is a flow reactor net or a regular reactor net
     bool m_is_dae;
-
-    //! The maximum number of steps allowed in the integrator
-    size_t m_nmax;
 
     //! Names corresponding to each sensitivity parameter
     std::vector<std::string> m_paramNames;
