@@ -188,3 +188,15 @@ debye-huckel-beta_ij:
     phase: debye-huckel-beta_ij
     known-failures: *debye-huckel-failures
   states: *debye-huckel-states
+
+margules:
+  setup:
+    file: LiKCl_liquid.yaml
+    known-failures:
+      hk_eq_uk_plus_P_times_vk: getPartialMolarIntEnergies is not implemented
+      u_eq_sum_uk_Xk: getPartialMolarIntEnergies is not implemented
+      cv_eq.+: "Implementation of cv is incorrect. See GitHub Issue #1308"
+  states:
+  - {T: 900, P: 1 atm, X: {KCl(L): 0.2, LiCl(L): 0.8}}
+  - {T: 1000, P: 10 atm, X: {KCl(L): 0.99, LiCl(L): 0.01}}
+  - {T: 1400, P: 20 atm, X: {KCl(L): 2.0e-5, LiCl(L): 1}}

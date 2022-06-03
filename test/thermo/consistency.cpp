@@ -315,4 +315,10 @@ INSTANTIATE_TEST_SUITE_P(DebyeHuckel_beta_ij, TestConsistency,
         testing::ValuesIn(getStates("debye-huckel-beta_ij")))
 );
 
+INSTANTIATE_TEST_SUITE_P(Margules, TestConsistency,
+    testing::Combine(
+        testing::Values(getSetup("margules")),
+        testing::ValuesIn(getStates("margules")))
+);
+
 }
