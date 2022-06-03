@@ -146,6 +146,8 @@ void IdealSolidSolnPhase::getChemPotentials(doublereal* mu) const
 
 void IdealSolidSolnPhase::getChemPotentials_RT(doublereal* mu) const
 {
+    warn_deprecated("IdealSolidSolnPhase::getChemPotentials_RT",
+                    "To be removed after Cantera 3.0. Use getChemPotentials instead.");
     double delta_pdRT = (m_Pcurrent - m_Pref) / (temperature() * GasConstant);
     const vector_fp& g_RT = gibbs_RT_ref();
     for (size_t k = 0; k < m_kk; k++) {

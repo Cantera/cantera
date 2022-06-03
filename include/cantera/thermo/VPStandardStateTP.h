@@ -76,6 +76,7 @@ public:
      *
      * @param mu    Output vector of non-dimensional species chemical potentials
      *              Length: m_kk.
+     * @deprecated To be removed after Cantera 3.0. Use getChemPotentials() instead.
      */
     virtual void getChemPotentials_RT(doublereal* mu) const;
 

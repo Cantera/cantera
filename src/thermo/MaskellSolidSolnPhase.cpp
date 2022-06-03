@@ -10,6 +10,7 @@
 
 #include "cantera/thermo/MaskellSolidSolnPhase.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/global.h"
 
 #include <cassert>
 
@@ -112,6 +113,8 @@ void MaskellSolidSolnPhase::getChemPotentials(doublereal* mu) const
 
 void MaskellSolidSolnPhase::getChemPotentials_RT(doublereal* mu) const
 {
+    warn_deprecated("MaskellSolidSolnPhase::getChemPotentials_RT",
+                    "To be removed after Cantera 3.0. Use getChemPotentials instead.");
     getChemPotentials(mu);
     for (size_t sp=0; sp < m_kk; ++sp) {
         mu[sp] *= 1.0 / RT();

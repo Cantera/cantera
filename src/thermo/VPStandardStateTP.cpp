@@ -13,6 +13,7 @@
 #include "cantera/thermo/PDSS.h"
 #include "cantera/thermo/Species.h"
 #include "cantera/base/utilities.h"
+#include "cantera/base/global.h"
 
 using namespace std;
 
@@ -39,6 +40,8 @@ int VPStandardStateTP::standardStateConvention() const
 
 void VPStandardStateTP::getChemPotentials_RT(doublereal* muRT) const
 {
+    warn_deprecated("VPStandardStateTP::getChemPotentials_RT",
+                    "To be removed after Cantera 3.0. Use getChemPotentials instead.");
     getChemPotentials(muRT);
     for (size_t k = 0; k < m_kk; k++) {
         muRT[k] *= 1.0 / RT();
