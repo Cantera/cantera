@@ -439,7 +439,9 @@ class Configuration:
         return "\n".join(message)
 
 
-# Add custom logging level
+# Add custom logging levels
+LOGGING_STATUS_NUM = 32
+logging.addLevelName(LOGGING_STATUS_NUM, "STATUS")
 LOGGING_FAILED_NUM = 42
 logging.addLevelName(LOGGING_FAILED_NUM, "FAILED")
 
@@ -460,13 +462,22 @@ class LevelAdapter(logging.LoggerAdapter):
     """
     def __init__(self, logger):
         self.logger = logger
+        self.logger.status = self.status
         self.logger.failed = self.failed
+
+    def status(self, message, *args, **kws):
+        # custom logger adapted from https://stackoverflow.com/questions/2183233
+        if self.isEnabledFor(LOGGING_STATUS_NUM):
+            # logger takes its '*args' as 'args'.
+            msg, kwargs = self.process(message, kws)
+            self._log(LOGGING_STATUS_NUM, msg, args, **kwargs)
 
     def failed(self, message, *args, **kws):
         # custom logger adapted from https://stackoverflow.com/questions/2183233
         if self.isEnabledFor(LOGGING_FAILED_NUM):
             # logger takes its '*args' as 'args'.
-            self._log(LOGGING_FAILED_NUM, message, args, **kws)
+            msg, kwargs = self.process(message, kws)
+            self._log(LOGGING_FAILED_NUM, msg, args, **kwargs)
 
     def process(self, msg, kwargs):
         """Pop the value of ``print_level`` into the ``extra`` dictionary.
