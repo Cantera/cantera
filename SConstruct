@@ -909,15 +909,6 @@ elif env['env_vars']:
             logger.warning(f"failed to propagate environment variable '{repr(name)}'\n"
                 "Edit cantera.conf or the build command line to fix this.")
 
-# @todo: Remove this Warning after Cantera 2.5
-if os.pathsep == ';':
-    for dirs in (env['extra_inc_dirs'], env['extra_lib_dirs']):
-        if re.search(r':\w:', dirs):
-            print('ERROR: Multiple entries in "extra_inc_dirs" and "extra_lib_dirs" '
-                  'should be separated by semicolons (;) on Windows. Use of OS-specific '
-                  'path separator introduced in Cantera 2.5.')
-            sys.exit(1)
-
 env['extra_inc_dirs'] = [d for d in env['extra_inc_dirs'].split(os.pathsep) if d]
 env['extra_lib_dirs'] = [d for d in env['extra_lib_dirs'].split(os.pathsep) if d]
 
