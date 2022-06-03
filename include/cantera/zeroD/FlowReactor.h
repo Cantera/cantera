@@ -35,7 +35,6 @@ public:
 
     virtual void initialize(doublereal t0 = 0.0);
     virtual void updateState(doublereal* y);
-    void setMassFlowRate(double mdot);
     /*!
      * Evaluate the reactor governing equations. Called by ReactorNet::eval.
      * @param[in] t time.
@@ -57,7 +56,7 @@ public:
      * @param[in] params sensitivity parameter vector, length ReactorNet::nparams()
      * @param[out] residual resisduals vector, length neq()
      */
-    virtual void eval(double t, double* y,
+    virtual void evalEqs(double t, double* y,
                          double* ydot, double* params,
                          double* residual);
 
@@ -72,12 +71,8 @@ public:
 
 
     virtual void syncState();
-    virtual void updateState(doublereal* y);
-
-    void setMassFlowRate(doublereal mdot) {
-        m_rho = m_thermo->density();
-        m_u = mdot/(m_rho * m_area);
-    }
+    
+    void setMassFlowRate(doublereal mdot);
 
     //! The current gas speed in the reactor [m/s]
     double speed() const {
