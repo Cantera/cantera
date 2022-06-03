@@ -101,10 +101,20 @@ valid_commands = ("build", "clean", "install", "uninstall",
                   "help", "msi", "samples", "sphinx", "doxygen", "dump",
                   "sdist")
 
+# set default logging level
+if GetOption("silent"):
+    logger.logger.setLevel("ERROR")
+else:
+    logger.logger.setLevel("WARNING")
+
 for command in COMMAND_LINE_TARGETS:
     if command not in valid_commands and not command.startswith('test'):
         logger.error("Unrecognized command line target: {!r}", command)
         sys.exit(1)
+
+    # update default logging level
+    if command in ["build"] and not GetOption("silent"):
+        logger.logger.setLevel("INFO")
 
 if "clean" in COMMAND_LINE_TARGETS:
     remove_directory("build")
@@ -512,7 +522,7 @@ config_options = [
     EnumOption(
         "logging",
         """Select logging level for SCons output. """,
-        "info", ("debug", "info", "warning", "error")),
+        "default", ("debug", "info", "warning", "error", "default")),
     Option(
         "gtest_flags",
         """Additional options passed to each GTest test suite, for example,
@@ -885,7 +895,8 @@ logger.info(textwrap.indent(cantera_conf, "    "), print_level=False)
 # ********************************************
 
 loglevel = env["logging"]
-logger.logger.setLevel(loglevel.upper())
+if loglevel != "default":
+    logger.logger.setLevel(loglevel.upper())
 
 if env["VERBOSE"]:
     # @todo: Remove after Cantera 3.0
