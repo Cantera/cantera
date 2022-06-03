@@ -212,6 +212,8 @@ protected:
     //!                   [kmol/s]
     virtual void evalSurfaces(double* LHS, double* RHS, double* sdot);
 
+    virtual void evalSurfaces(double* RHS, double* sdot);
+
     //! Update the state of SurfPhase objects attached to this reactor
     virtual void updateSurfaceState(double* y);
 

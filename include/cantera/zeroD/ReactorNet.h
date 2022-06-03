@@ -57,12 +57,6 @@ public:
     //! sensitivity equations.
     void setSensitivityTolerances(double rtol, double atol);
 
-    //! Set the maximum number of internal integration time-steps the
-    //! integrator will take before reaching the next output time
-    //! @param nmax The maximum number of steps, setting this value
-    //!             to zero disables this option.
-    virtual void setMaxSteps(int nmax);
-
     //! Current value of the simulation time.
     doublereal time() {
         return m_time;
@@ -93,6 +87,7 @@ public:
     //!
     virtual int maxSteps() {
         return m_nmax;
+        //return m_integ->maxSteps();
     }
 
     /**
@@ -258,11 +253,6 @@ public:
     //!             to zero disables this option.
     virtual void setMaxSteps(int nmax);
 
-    //! Returns the maximum number of internal integration time-steps the
-    //!  integrator will take before reaching the next output time
-    //!
-    virtual int maxSteps();
-
     //! Set absolute step size limits during advance
     void setAdvanceLimits(const double* limits);
 
@@ -308,7 +298,7 @@ protected:
     bool m_is_dae;
 
     //! The maximum number of steps allowed in the integrator
-    size_t m_nmax;
+    int m_nmax;
 
     //! Names corresponding to each sensitivity parameter
     std::vector<std::string> m_paramNames;

@@ -307,6 +307,37 @@ void Reactor::evalSurfaces(double* LHS, double* RHS, double* sdot)
     }
 }
 
+void Reactor::evalSurfaces(double* RHS, double* sdot)
+{
+    fill(sdot, sdot + m_nsp, 0.0);
+    size_t loc = 0; // offset into ydot
+
+    for (auto S : m_surfaces) {
+        Kinetics* kin = S->kinetics();
+        SurfPhase* surf = S->thermo();
+
+        double rs0 = 1.0/surf->siteDensity();
+        size_t nk = surf->nSpecies();
+        double sum = 0.0;
+        S->syncState();
+        kin->getNetProductionRates(&m_work[0]);
+        size_t ns = kin->surfacePhaseIndex();
+        size_t surfloc = kin->kineticsSpeciesIndex(0,ns);
+        for (size_t k = 1; k < nk; k++) {
+            RHS[loc + k] = m_work[surfloc + k] * rs0 * surf->size(k);
+            sum -= RHS[loc + k];
+        }
+        RHS[loc] = sum;
+        loc += nk;
+
+        size_t bulkloc = kin->kineticsSpeciesIndex(m_thermo->speciesName(0));
+        double wallarea = S->area();
+        for (size_t k = 0; k < m_nsp; k++) {
+            sdot[k] += m_work[bulkloc + k] * wallarea;
+        }
+    }
+}
+
 void Reactor::addSensitivityReaction(size_t rxn)
 {
     if (!m_chem || rxn >= m_kin->nReactions()) {

@@ -31,6 +31,10 @@ ReactorNet::ReactorNet() :
     suppressErrors(true);
 }
 
+ReactorNet::~ReactorNet()
+{
+}
+
 void ReactorNet::setInitialTime(double time)
 {
     m_time = time;
@@ -73,6 +77,7 @@ void ReactorNet::setSensitivityTolerances(double rtol, double atol)
 
 void ReactorNet::setMaxSteps(int nmax)
 {
+    //m_integ->setMaxSteps(nmax);
     m_nmax = nmax;
     m_init= false;
 }
@@ -85,8 +90,7 @@ void ReactorNet::initialize()
     // numerically, and use a Newton linear iterator
     m_integ->setMethod(BDF_Method);
     m_integ->setProblemType(DENSE + NOJAC);
-    m_integ->setIterator(Newton_Iter);
-
+    
     debuglog("Initializing reactor network.\n", m_verbose);
     if (m_reactors.empty()) {
         throw CanteraError("ReactorNet::initialize",
@@ -139,16 +143,6 @@ void ReactorNet::reinitialize()
     } else {
         initialize();
     }
-}
-
-void ReactorNet::setMaxSteps(int nmax)
-{
-    m_integ->setMaxSteps(nmax);
-}
-
-int ReactorNet::maxSteps()
-{
-    return m_integ->maxSteps();
 }
 
 void ReactorNet::advance(doublereal time)
@@ -302,9 +296,10 @@ void ReactorNet::eval(doublereal t, doublereal* y,
                       doublereal* ydot, doublereal* p,
                       doublereal* residual)
 {
+    m_time = t;
     updateState(y);
     for (size_t n = 0; n < m_reactors.size(); n++) {
-        m_reactors[n]->evalEqs(t, y + m_start[n], ydot + m_start[n], p, residual);
+        m_reactors[n]->evalEqs(t, y, ydot, p, residual);
     }
     checkFinite("ydot", ydot, m_nv);
 }
@@ -398,6 +393,15 @@ bool ReactorNet::getAdvanceLimits(double *limits)
         has_limit |= m_reactors[n]->getAdvanceLimits(limits + m_start[n]);
     }
     return has_limit;
+}
+
+void ReactorNet::getState(double* y)
+{
+    for (size_t n = 0; n < m_reactors.size(); n++) {
+        m_reactors[n]->getState(y + m_start[n]);
+    }
+}
+
 void ReactorNet::getState(double* y, double* ydot)
 {
     for (size_t n = 0; n < m_reactors.size(); n++) {
