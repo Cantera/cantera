@@ -55,9 +55,9 @@ class SourceGenerator(SourceGeneratorBase):
 
         handle = normalize(f'''
             class {del_clazz} : CanteraHandle
-{{
-    protected override bool ReleaseHandle() =>
-        Convert.ToBoolean(LibCantera.{name}(Value));
+            {{
+                protected override bool ReleaseHandle() =>
+                    Convert.ToBoolean(LibCantera.{name}(Value));
             }}
         ''')
 
@@ -73,8 +73,12 @@ class SourceGenerator(SourceGeneratorBase):
         return derived
 
 
-    @classmethod
-    def _convert_func(cls, parsed: Func):
+    def __init__(self, out_dir: str, config: dict):
+        self._out_dir = out_dir
+        self._config = config
+
+
+    def _convert_func(self, parsed: Func):
         ret_type, name, params = parsed
         clazz, method = name.split('_', 1)
 
@@ -84,7 +88,7 @@ class SourceGenerator(SourceGeneratorBase):
         del_clazz = None
 
         if clazz != 'ct':
-            handle_clazz = clazz.capitalize() + 'Handle'
+            handle_clazz = self._config['handle_crosswalk'][clazz] + 'Handle'
             
             # It’s not a “global” function, therefore:
             #   * It wraps a constructor and returns a handle, or
@@ -97,7 +101,7 @@ class SourceGenerator(SourceGeneratorBase):
                 _, param_name = params[0]
                 params[0] = handle_clazz, param_name
                 
-        for c_type, cs_type in cls._type_map.items():
+        for c_type, cs_type in self._type_map.items():
             if ret_type == c_type:
                 ret_type = cs_type
                 break
@@ -105,7 +109,7 @@ class SourceGenerator(SourceGeneratorBase):
         for i in range(0, len(params)):
             param_type, param_name = params[i]
             
-            for c_type, cs_type in cls._type_map.items():
+            for c_type, cs_type in self._type_map.items():
                 if param_type == c_type:
                     param_type = cs_type
                     break
@@ -118,11 +122,6 @@ class SourceGenerator(SourceGeneratorBase):
         return _CsFunc(ret_type, name, params, del_clazz)
 
 
-    def __init__(self, out_dir: str, config: dict):
-        self._out_dir = out_dir
-        self._config = config
-
-
     def generate_source(self, incl_file: os.DirEntry, funcs: list[Func]):
         cs_funcs = [self._convert_func(f) for f in funcs]
 
@@ -131,10 +130,10 @@ class SourceGenerator(SourceGeneratorBase):
         interop_text = normalize(f'''
             using System.Runtime.InteropServices;
 
-namespace Cantera.Interop;
+            namespace Cantera.Interop;
 
-static partial class LibCantera
-{{
+            static partial class LibCantera
+            {{
                 {normalize(functions_text, 16, True)}
             }}
         ''')
@@ -163,7 +162,7 @@ static partial class LibCantera
         derived_handles = '\n\n'.join((self._get_derived_handle_text(d) for d in self._config['derived_handles'].items()))
 
         derived_handles_text = normalize(f'''
-namespace Cantera.Interop;
+            namespace Cantera.Interop;
 
             {derived_handles}
         ''')
