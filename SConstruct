@@ -2054,12 +2054,7 @@ def postInstallMessage(target, source, env):
         "data files": "ct_datadir",
         "input file converters": "ct_pyscriptdir",
     }
-    install_message = textwrap.dedent("""
-        Cantera has been successfully installed.
-
-        File locations:
-        """
-    ).splitlines()
+    install_message = ["File locations:\n"]
     locations_message = "  {name:<28}{location}"
     for name, location in locations.items():
         install_message.append(locations_message.format(
@@ -2096,12 +2091,12 @@ def postInstallMessage(target, source, env):
               {matlab_ctpath_loc!s}
         """.format(**env_dict)))
 
-    install_message.append("")
-
-    logger.info(
-        textwrap.indent("\n".join(install_message), 4*" "),
-        print_level=False
-    )
+    install_message = [
+        f"\n{' Cantera has been successfully installed ':*^88}\n",
+        "\n".join(install_message),
+        f"\n{'*' * 88}\n",
+    ]
+    logger.info("\n".join(install_message), print_level=False)
 
 finish_install = env.Command("finish_install", [], postInstallMessage)
 env.Depends(finish_install, installTargets)
