@@ -103,7 +103,10 @@ electron-cloud:
       hk_eq_uk_plus_P_times_vk: partialMolarIntEnergies is not implemented
       gk_eq_hk_minus_T_times_sk: partialMolarEntropies is not implemented
       .+_eq_sum_.+k_Xk: partialMolar IntEnergies/Entropies/Volumes not implemented
-
+      gk0_eq_hk0_minus_T_sk0: getGibbs_RT is not implemented
+      standard_gibbs_nondim: getGibbs_RT is not implemented
+      hk0_eq_uk0_plus_p_vk0: getIntEnergy_RT is not implemented
+      cpk0_eq_dhk0dT: getCp_R is not implemented
   states:
   - {T: 300, P: 1 atm}
   - {T: 400, P: 1 atm}
@@ -119,6 +122,8 @@ nitrogen-purefluid:
     known-failures:
       cv_eq_.+/3: cv not defined in two-phase region
       cp_eq_sum_cpk_Xk: cp is inf in the two-phase region
+      hk0_eq_uk0_plus_p_vk0: getIntEnergy_RT is not implemented
+      cpk0_eq_dhk0dT: getCp_R is not implemented
   states:
   - {T: 300, P: 1 atm}
   - {T: 70, P: 1 atm}
@@ -133,6 +138,7 @@ plasma:
       cp_eq_.+/1: Test does not account for distinct electron temperature
       cv_eq_.+/1: Test does not account for distinct electron temperature
       c._eq_dsdT_const_._times_T: Test does not account for distinct electron temperature
+      cpk0_eq_dhk0dT: Test does not account for distinct electron temperature
   states:
   - {T: 300, P: 1 atm, X: {O2: 1.0, O2-: 1e-5, E: 1e-5}}
   - {T: 300, P: 1 atm, X: {E: 1.0}}

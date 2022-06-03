@@ -225,6 +225,60 @@ TEST_P(TestConsistency, cv_eq_dsdT_const_v_times_T)
     EXPECT_NEAR(cv_fd, cv_mid, max({rtol_fd * cv_mid, rtol_fd * cv_fd, atol}));
 }
 
+TEST_P(TestConsistency, hk0_eq_uk0_plus_p_vk0)
+{
+    vector_fp h0(nsp), u0(nsp), v0(nsp);
+    phase->getEnthalpy_RT(h0.data());
+    phase->getIntEnergy_RT(u0.data());
+    phase->getStandardVolumes(v0.data());
+    double RT = phase->RT();
+    for (size_t k = 0; k < nsp; k++) {
+        EXPECT_NEAR(h0[k] * RT, u0[k] * RT + p * v0[k], atol) << "k = " << k;
+    }
+}
+
+TEST_P(TestConsistency, gk0_eq_hk0_minus_T_sk0)
+{
+    vector_fp g0(nsp), h0(nsp), s0(nsp);
+    phase->getEnthalpy_RT(h0.data());
+    phase->getGibbs_RT(g0.data());
+    phase->getEntropy_R(s0.data());
+    double RT = phase->RT();
+    for (size_t k = 0; k < nsp; k++) {
+        EXPECT_NEAR(g0[k] * RT ,
+                    h0[k] * RT - T * s0[k] * GasConstant, atol) << "k = " << k;
+    }
+}
+
+TEST_P(TestConsistency, cpk0_eq_dhk0dT)
+{
+    vector_fp h1(nsp), h2(nsp), cp1(nsp), cp2(nsp);
+    phase->getEnthalpy_RT(h1.data());
+    phase->getCp_R(cp1.data());
+    double T1 = phase->temperature();
+    double dT = 1e-5 * phase->temperature();
+    phase->setState_TP(T1 + dT, phase->pressure());
+    phase->getEnthalpy_RT(h2.data());
+    phase->getCp_R(cp2.data());
+    for (size_t k = 0; k < nsp; k++) {
+        double cp_mid = 0.5 * (cp1[k] + cp2[k]) * GasConstant;
+        double cp_fd = (h2[k] * (T1 + dT) - h1[k] * T1) / dT * GasConstant;
+        double tol = max({rtol_fd * std::abs(cp_mid), rtol_fd * std::abs(cp_fd), atol});
+        EXPECT_NEAR(cp_fd, cp_mid, tol) << "k = " << k;
+    }
+}
+
+TEST_P(TestConsistency, standard_gibbs_nondim)
+{
+    vector_fp g0_RT(nsp), mu0(nsp);
+    phase->getGibbs_RT(g0_RT.data());
+    phase->getStandardChemPotentials(mu0.data());
+    double RT = phase->RT();
+    for (size_t k = 0; k < nsp; k++) {
+        EXPECT_NEAR(g0_RT[k] * RT , mu0[k], atol);
+    }
+}
+
 INSTANTIATE_TEST_SUITE_P(IdealGas, TestConsistency,
     testing::Combine(
         testing::Values(getSetup("ideal-gas-h2o2")),
