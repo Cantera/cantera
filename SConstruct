@@ -504,8 +504,14 @@ config_options = [
         PathVariable.PathAccept),
     BoolOption(
         "VERBOSE",
-        "Create verbose output about what SCons is doing.",
+        """Create verbose output about what SCons is doing. Deprecated in Cantera 3.0
+           and to be removed thereafter; replaceable by 'logging=debug'.
+           """,
         False),
+    EnumOption(
+        "logging",
+        """Select logging level for SCons output. """,
+        "info", ("debug", "info", "warning", "error")),
     Option(
         "gtest_flags",
         """Additional options passed to each GTest test suite, for example,
@@ -877,6 +883,14 @@ logger.info(textwrap.indent(cantera_conf, "    "), print_level=False)
 # *** Configure system-specific properties ***
 # ********************************************
 
+loglevel = env["logging"]
+logger.logger.setLevel(loglevel.upper())
+
+if env["VERBOSE"]:
+    # @todo: Remove after Cantera 3.0
+    logger.warning("Option 'VERBOSE' is deprecated: replaceable by 'logging=debug'")
+    logger.logger.setLevel("DEBUG")
+
 # Copy in external environment variables
 if env['env_vars'] == 'all':
     env['ENV'].update(os.environ)
@@ -889,8 +903,7 @@ elif env['env_vars']:
                 env.AppendENVPath('PATH', os.environ['PATH'])
             else:
                 env['ENV'][name] = os.environ[name]
-            if env['VERBOSE']:
-                logger.info(f"Propagating environment variable {name}={env['ENV'][name]}")
+            logger.debug(f"Propagating environment variable {name}={env['ENV'][name]}")
         elif name not in config["env_vars"].default.split(','):
             logger.warning(f"failed to propagate environment variable '{repr(name)}'\n"
                 "Edit cantera.conf or the build command line to fix this.")
@@ -1019,14 +1032,18 @@ if env['toolchain'] == 'mingw':
     env.Append(LINKFLAGS=['-static-libgcc', '-static-libstdc++'])
 
 def config_error(message):
-    error_message = [message]
-    if env['VERBOSE']:
-        error_message.append(f"\n{' Contents of config.log: ':*^88}")
-        error_message.append(open("config.log").read().strip())
-        error_message.append(f"{' End of config.log ':*^88}")
+    if env["logging"].lower() == "debug":
+        logger.error(message)
+        debug_message = [
+            f"\n{' Contents of config.log: ':*^88}",
+            open("config.log").read().strip(),
+            f"{' End of config.log ':*^88}",
+        ]
+        logger.debug("\n".join(debug_message), print_level=False)
     else:
-        error_message.append("See 'config.log' for details.")
-    logger.error("\n".join(error_message))
+        error_message = [message]
+        error_message.append("\nSee 'config.log' for details.")
+        logger.error("\n".join(error_message))
     sys.exit(1)
 
 conf = Configure(env, custom_tests={'CheckStatement': CheckStatement})
@@ -1426,13 +1443,12 @@ env['FORTRANMODDIR'] = '${TARGET.dir}'
 
 env = conf.Finish()
 
-if env['VERBOSE']:
-    message = [
-        f"\n{' begin config.log ':-^88}",
-        open("config.log").read().strip(),
-        f"{' end config.log ':-^88}\n",
-    ]
-    logger.info("\n".join(message), print_level=False)
+debug_message = [
+    f"\n{' begin config.log ':-^88}",
+    open("config.log").read().strip(),
+    f"{' end config.log ':-^88}\n",
+]
+logger.debug("\n".join(debug_message), print_level=False)
 
 env['python_cmd_esc'] = quoted(env['python_cmd'])
 
@@ -1512,12 +1528,10 @@ if env['python_package'] != 'none':
     try:
         info = get_command_output(env["python_cmd"], "-c", script).splitlines()
     except OSError as err:
-        if env['VERBOSE']:
-            logger.warning(f"Error checking for Python:\n{err}")
+        logger.debug(f"Error checking for Python:\n{err}")
         warn_no_python = True
     except subprocess.CalledProcessError as err:
-        if env['VERBOSE']:
-            logger.warning(f"Error checking for Python:\n{err} {err.output}")
+        logger.debug(f"Error checking for Python:\n{err} {err.output}")
         warn_no_python = True
     else:
         warn_no_python = False
