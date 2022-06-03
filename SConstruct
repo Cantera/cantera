@@ -77,9 +77,9 @@ import SCons
 # ensure that Python version is sufficient for build process
 python_version = "{v.major}.{v.minor}".format(v=sys.version_info)
 if parse_version(python_version) < parse_version(python_min_build_support):
-    print(
-        f"ERROR: Cantera must be built using Python {python_min_build_support} or "
-        f"higher; Python {python_version} is not supported.", file=sys.stderr)
+    logger.error(
+        f"Cantera must be built using Python {python_min_build_support} or "
+        f"higher; Python {python_version} is not supported.")
     sys.exit(1)
 
 from buildutils import *
@@ -133,7 +133,7 @@ if "clean" in COMMAND_LINE_TARGETS:
     for name in Path("interfaces/matlab/toolbox").glob("ctmethods.*"):
         remove_file(name)
 
-    print("Done removing output files.")
+    logger.info("Done removing output files.")
 
     if COMMAND_LINE_TARGETS == ["clean"]:
         # Just exit if there's nothing else to do
@@ -148,7 +148,7 @@ if "test-clean" in COMMAND_LINE_TARGETS:
 
 logger.info(
     f"SCons {SCons.__version__} is using the following Python interpreter:\n"
-    f"{sys.executable} (Python {python_version})")
+    f"    {sys.executable} (Python {python_version})")
 
 # ******************************************
 # *** Specify defaults for SCons options ***
@@ -788,7 +788,7 @@ elif "clang" in env.subst("$CC"):
     config.select("clang")
 
 else:
-    print(f"WARNING: Unrecognized C compiler '{env['CC']}'")
+    logger.warning(f"Unrecognized C compiler '{env['CC']}'")
 
 if env["OS"] == "Windows":
     config.select("Windows")
@@ -813,7 +813,7 @@ for option in opts.keys():
     if isinstance(original, str):
         modified = os.path.expandvars(os.path.expanduser(env[option]))
         if original != modified:
-            print('INFO: Expanding {!r} to {!r}'.format(original, modified))
+            logger.info(f"Expanding {original:!r} to {modified:!r}")
             env[option] = modified
 
 if "help" in COMMAND_LINE_TARGETS:
@@ -890,10 +890,10 @@ elif env['env_vars']:
             else:
                 env['ENV'][name] = os.environ[name]
             if env['VERBOSE']:
-                print('Propagating environment variable {0}={1}'.format(name, env['ENV'][name]))
+                logger.info(f"Propagating environment variable {name}={env['ENV'][name]}")
         elif name not in config["env_vars"].default.split(','):
-            print('WARNING: failed to propagate environment variable', repr(name))
-            print('         Edit cantera.conf or the build command line to fix this.')
+            logger.warning(f"failed to propagate environment variable '{repr(name)}'\n"
+                "Edit cantera.conf or the build command line to fix this.")
 
 # @todo: Remove this Warning after Cantera 2.5
 if os.pathsep == ';':
@@ -1012,20 +1012,21 @@ if env['coverage']:
         env.Append(LINKFLAGS=['-fprofile-arcs', '-ftest-coverage'])
 
     else:
-        print('Error: coverage testing is only available with GCC.')
+        logger.error("Coverage testing is only available with GCC.")
         exit(0)
 
 if env['toolchain'] == 'mingw':
     env.Append(LINKFLAGS=['-static-libgcc', '-static-libstdc++'])
 
 def config_error(message):
-    print('ERROR:', message)
+    error_message = [message]
     if env['VERBOSE']:
-        print('*' * 25, 'Contents of config.log:', '*' * 25)
-        print(open('config.log').read())
-        print('*' * 28, 'End of config.log', '*' * 28)
+        error_message.append(f"\n{' Contents of config.log: ':*^88}")
+        error_message.append(open("config.log").read().strip())
+        error_message.append(f"{' End of config.log ':*^88}")
     else:
-        print("See 'config.log' for details.")
+        error_message.append("See 'config.log' for details.")
+    logger.error("\n".join(error_message))
     sys.exit(1)
 
 conf = Configure(env, custom_tests={'CheckStatement': CheckStatement})
@@ -1075,7 +1076,7 @@ if nan_works.strip() != "1":
 if env['system_fmt'] in ('y', 'default'):
     if conf.CheckCXXHeader('fmt/ostream.h', '""'):
         env['system_fmt'] = True
-        print("""INFO: Using system installation of fmt library.""")
+        logger.info("Using system installation of fmt library.")
 
     elif env['system_fmt'] == 'y':
         config_error('Expected system installation of fmt library, but it '
@@ -1083,7 +1084,7 @@ if env['system_fmt'] in ('y', 'default'):
 
 if env['system_fmt'] in ('n', 'default'):
     env['system_fmt'] = False
-    print("""INFO: Using private installation of fmt library.""")
+    logger.info("Using private installation of fmt library.")
     if not os.path.exists('ext/fmt/include/fmt/ostream.h'):
         if not os.path.exists('.git'):
             config_error('fmt is missing. Install source in ext/fmt.')
@@ -1105,17 +1106,17 @@ try:
     fmt_lib_version = divmod(float(fmt_lib_version.strip()), 10000)
     (fmt_maj, (fmt_min, fmt_pat)) = fmt_lib_version[0], divmod(fmt_lib_version[1], 100)
     env['FMT_VERSION'] = '{major:.0f}.{minor:.0f}.{patch:.0f}'.format(major=fmt_maj, minor=fmt_min, patch=fmt_pat)
-    print('INFO: Found fmt version {}'.format(env['FMT_VERSION']))
+    logger.info(f"Found fmt version {env['FMT_VERSION']}")
 except ValueError:
     env['FMT_VERSION'] = '0.0.0'
-    print('INFO: Could not find version of fmt')
+    logger.info("INFO: Could not find version of fmt")
 
 # Check for yaml-cpp library and checkout submodule if needed
 if env['system_yamlcpp'] in ('y', 'default'):
     # We need the Mark() function, which was added in version 0.5.3
     if conf.CheckStatement('YAML::Node().Mark()', '#include "yaml-cpp/yaml.h"'):
         env['system_yamlcpp'] = True
-        print("""INFO: Using system installation of yaml-cpp library.""")
+        logger.info("Using system installation of yaml-cpp library.")
 
     elif env['system_yamlcpp'] == 'y':
         config_error("Expected system installation of yaml-cpp library, but it "
@@ -1123,7 +1124,7 @@ if env['system_yamlcpp'] in ('y', 'default'):
 
 if env['system_yamlcpp'] in ('n', 'default'):
     env['system_yamlcpp'] = False
-    print("""INFO: Using private installation of yaml-cpp library.""")
+    logger.info("Using private installation of yaml-cpp library.")
     if not os.path.exists('ext/yaml-cpp/include/yaml-cpp/yaml.h'):
         if not os.path.exists('.git'):
             config_error('yaml-cpp is missing. Install source in ext/yaml-cpp.')
@@ -1144,7 +1145,7 @@ if env['googletest'] in ('system', 'default'):
     has_gmock = conf.CheckCXXHeader('gmock/gmock.h', '""')
     if has_gtest and has_gmock:
         env['googletest'] = 'system'
-        print("""INFO: Using system installation of Googletest""")
+        logger.info("Using system installation of Googletest")
     elif env['googletest'] == 'system':
         config_error('Expected system installation of Googletest-1.8.0, but it '
                      'could not be found.')
@@ -1166,22 +1167,22 @@ if env['googletest'] in ('submodule', 'default'):
             config_error('Googletest not found and submodule checkout failed.\n'
                          'Try manually checking out the submodule with:\n\n'
                          '    git submodule update --init --recursive ext/googletest\n')
-    print("""INFO: Using Googletest from Git submodule""")
+    logger.info("Using Googletest from Git submodule")
 
 if env['googletest'] == 'none':
-    print("""INFO: Not using Googletest -- unable to run complete test suite""")
+    logger.info("Not using Googletest -- unable to run complete test suite")
 
 # Check for Eigen and checkout submodule if needed
 if env["system_eigen"] in ("y", "default"):
     if conf.CheckCXXHeader("eigen3/Eigen/Dense", "<>"):
         env["system_eigen"] = True
         env["system_eigen_prefixed"] = True
-        print("""INFO: Using system installation of Eigen.""")
+        logger.info("Using system installation of Eigen.")
         eigen_include = "<eigen3/Eigen/Core>"
     elif conf.CheckCXXHeader("Eigen/Dense", "<>"):
         env["system_eigen"] = True
         env["system_eigen_prefixed"] = False
-        print("""INFO: Using system installation of Eigen.""")
+        logger.info("Using system installation of Eigen.")
         eigen_include = "<Eigen/Core>"
     elif env["system_eigen"] == "y":
         config_error("Expected system installation of Eigen, but it "
@@ -1189,7 +1190,7 @@ if env["system_eigen"] in ("y", "default"):
 
 if env["system_eigen"] in ("n", "default"):
     env["system_eigen"] = False
-    print("""INFO: Using private installation of Eigen.""")
+    logger.info("Using private installation of Eigen.")
     if not os.path.exists("ext/eigen/Eigen/Dense"):
         if not os.path.exists(".git"):
             config_error("Eigen is missing. Install Eigen in ext/eigen.")
@@ -1209,7 +1210,7 @@ eigen_versions = 'QUOTE(EIGEN_WORLD_VERSION) "." QUOTE(EIGEN_MAJOR_VERSION) "." 
 eigen_version_source = get_expression_value([eigen_include], eigen_versions)
 retcode, eigen_lib_version = conf.TryRun(eigen_version_source, ".cpp")
 env["EIGEN_LIB_VERSION"] = eigen_lib_version.strip()
-print("INFO: Found Eigen version {}".format(env["EIGEN_LIB_VERSION"]))
+logger.info(f"Found Eigen version {env['EIGEN_LIB_VERSION']}")
 
 # Determine which standard library to link to when using Fortran to
 # compile code that links to Cantera
@@ -1240,7 +1241,7 @@ if not env['BOOST_LIB_VERSION']:
     config_error("Boost could not be found. Install Boost headers or set"
                  " 'boost_inc_dir' to point to the boost headers.")
 else:
-    print('INFO: Found Boost version {0}'.format(env['BOOST_LIB_VERSION']))
+    logger.info(f"Found Boost version {env['BOOST_LIB_VERSION']}")
 # demangle is available in Boost 1.56 or newer
 env['has_demangle'] = conf.CheckDeclaration("boost::core::demangle",
                                 '#include <boost/core/demangle.hpp>', 'C++')
@@ -1312,12 +1313,12 @@ if env['system_sundials'] == 'y':
     env['sundials_version'] = '.'.join(sundials_version.split('.')[:2])
     sundials_ver = parse_version(env['sundials_version'])
     if sundials_ver < parse_version("2.4") or sundials_ver >= parse_version("7.0"):
-        print("""ERROR: Sundials version %r is not supported.""" % env['sundials_version'])
+        logger.error(f"Sundials version {env['sundials_version']} is not supported.")
         sys.exit(1)
     elif sundials_ver > parse_version("6.0"):
-        print("WARNING: Sundials version %r has not been tested." % env['sundials_version'])
+        logger.warning(f"Sundials version {env['sundials_version']} has not been tested.")
 
-    print("""INFO: Using system installation of Sundials version %s.""" % sundials_version)
+    logger.info("Using system installation of Sundials version {sundials_version}.")
 
     # Determine whether or not Sundials was built with BLAS/LAPACK
     if sundials_ver < parse_version('2.6'):
@@ -1350,10 +1351,10 @@ if env['system_sundials'] == 'y':
     # In the case where a user is trying to link Cantera to an external BLAS/LAPACK
     # library, but Sundials was configured without this support, print a Warning.
     if not env['has_sundials_lapack'] and env['use_lapack']:
-        print('WARNING: External BLAS/LAPACK has been specified for Cantera '
-              'but Sundials was built without this support.')
+        logger.warning("External BLAS/LAPACK has been specified for Cantera "
+              "but Sundials was built without this support.")
 else: # env['system_sundials'] == 'n'
-    print("""INFO: Using private installation of Sundials version 5.3.""")
+    logger.info("Using private installation of Sundials version 5.3.")
     env['sundials_version'] = '5.3'
     env['has_sundials_lapack'] = int(env['use_lapack'])
 
@@ -1375,11 +1376,11 @@ end program main
         if success and 'Hello, world!' in output:
             return True
         else:
-            print("WARNING: Unable to use '%s' to compile the Fortran "
-                  "interface. See config.log for details." % compiler)
+            logger.warning(f"Unable to use '{compiler}' to compile the Fortran "
+                  "interface. See config.log for details.")
             return False
     elif expected:
-        print("ERROR: Couldn't find specified Fortran compiler: '%s'" % compiler)
+        logger.error(f"Could not find specified Fortran compiler: '{compiler}'")
         sys.exit(1)
 
     return False
@@ -1397,16 +1398,16 @@ if env['f90_interface'] in ('y','default'):
         foundF90 = check_fortran(compiler)
 
     if foundF90:
-        print("INFO: Using '%s' to build the Fortran 90 interface" % env['FORTRAN'])
+        logger.info(f"Using '{env['FORTRAN']}' to build the Fortran 90 interface")
         env['f90_interface'] = 'y'
     else:
         if env['f90_interface'] == 'y':
-            print("ERROR: Couldn't find a suitable Fortran compiler to build the Fortran 90 interface.")
+            logger.error("Could not find a suitable Fortran compiler to build the Fortran 90 interface.")
             sys.exit(1)
         else:
             env['f90_interface'] = 'n'
             env['FORTRAN'] = ''
-            print("INFO: Skipping compilation of the Fortran 90 interface.")
+            logger.info("Skipping compilation of the Fortran 90 interface.")
 
 if 'pgfortran' in env['FORTRAN']:
     env['FORTRANMODDIRPREFIX'] = '-module '
@@ -1426,9 +1427,12 @@ env['FORTRANMODDIR'] = '${TARGET.dir}'
 env = conf.Finish()
 
 if env['VERBOSE']:
-    print('-------------------- begin config.log --------------------')
-    print(open('config.log').read())
-    print('--------------------- end config.log ---------------------')
+    message = [
+        f"\n{' begin config.log ':-^88}",
+        open("config.log").read().strip(),
+        f"{' end config.log ':-^88}\n",
+    ]
+    logger.info("\n".join(message), print_level=False)
 
 env['python_cmd_esc'] = quoted(env['python_cmd'])
 
@@ -1509,13 +1513,11 @@ if env['python_package'] != 'none':
         info = get_command_output(env["python_cmd"], "-c", script).splitlines()
     except OSError as err:
         if env['VERBOSE']:
-            print('Error checking for Python:')
-            print(err)
+            logger.warning(f"Error checking for Python:\n{err}")
         warn_no_python = True
     except subprocess.CalledProcessError as err:
         if env['VERBOSE']:
-            print('Error checking for Python:')
-            print(err, err.output)
+            logger.warning(f"Error checking for Python:\n{err} {err.output}")
         warn_no_python = True
     else:
         warn_no_python = False
@@ -1772,7 +1774,7 @@ else:
 
 # Prevent setting Cantera installation path to source directory
 if os.path.abspath(instRoot) == Dir('.').abspath:
-    print('ERROR: cannot install Cantera into source directory.')
+    logger.error("cannot install Cantera into source directory.")
     exit(1)
 
 if env['layout'] == 'debian':
@@ -2034,10 +2036,6 @@ build_cantera = Alias('build', finish_build)
 Default('build')
 
 def postInstallMessage(target, source, env):
-    # Only needed because Python 2 doesn't support textwrap.indent
-    def indent(inp_str, indent):
-        return '\n'.join([indent + spl for spl in inp_str.splitlines()])
-
     env_dict = env.Dictionary()
     locations = {
         "library files": "ct_libdir",
