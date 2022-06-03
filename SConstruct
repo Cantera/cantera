@@ -143,7 +143,7 @@ if "clean" in COMMAND_LINE_TARGETS:
     for name in Path("interfaces/matlab/toolbox").glob("ctmethods.*"):
         remove_file(name)
 
-    logger.info("Done removing output files.")
+    logger.status("Done removing output files.")
 
     if COMMAND_LINE_TARGETS == ["clean"]:
         # Just exit if there's nothing else to do
@@ -158,7 +158,7 @@ if "test-clean" in COMMAND_LINE_TARGETS:
 
 logger.info(
     f"SCons {SCons.__version__} is using the following Python interpreter:\n"
-    f"    {sys.executable} (Python {python_version})")
+    f"    {sys.executable} (Python {python_version})", print_level=False)
 
 # ******************************************
 # *** Specify defaults for SCons options ***
@@ -628,7 +628,7 @@ if "help" in COMMAND_LINE_TARGETS:
 
     if not (list or rest or defaults or options or option):
         # show basic help information
-        logger.info(__doc__, print_level=False)
+        logger.status(__doc__, print_level=False)
         sys.exit(0)
 
     if defaults or rest or list:
@@ -638,15 +638,15 @@ if "help" in COMMAND_LINE_TARGETS:
 
         if list:
             # show formatted list of options
-            logger.info("\nConfiguration options for building Cantera:", print_level=False)
-            logger.info(config.list_options(), print_level=False)
+            logger.status("\nConfiguration options for building Cantera:\n", print_level=False)
+            logger.status(config.list_options() + "\n", print_level=False)
             sys.exit(0)
 
         if defaults:
             try:
                 # print default values: if option is None, show description for all
                 # available options, otherwise show description for specified option
-                logger.info(config.help(option), print_level=False)
+                logger.status(config.help(option), print_level=False)
                 sys.exit(0)
             except KeyError as err:
                 message = "Run 'scons help --list-options' to see available options."
@@ -670,11 +670,11 @@ if "help" in COMMAND_LINE_TARGETS:
             with open(output_file, "w+") as fid:
                 fid.write(message)
 
-            logger.info(f"Done writing output options to '{output_file}'.",
-                        print_level=False)
+            logger.status(f"Done writing output options to '{output_file}'.",
+                          print_level=False)
 
         else:
-            logger.info(message, print_level=False)
+            logger.status(message, print_level=False)
 
         sys.exit(0)
 
@@ -837,7 +837,7 @@ if "help" in COMMAND_LINE_TARGETS:
     try:
         # print configuration: if option is None, description is shown for all
         # options; otherwise description is shown for specified option
-        logger.info(config.help(option, env=env), print_level=False)
+        logger.status(config.help(option, env=env), print_level=False)
         sys.exit(0)
     except KeyError as err:
         message = "Run 'scons help --list-options' to see available options."
@@ -2047,7 +2047,7 @@ def postBuildMessage(target, source, env):
         build_message.append("- To create a Windows MSI installer, type 'scons msi'.")
     build_message.append(f"\n{'*' * 88}\n")
 
-    logger.info("\n".join(build_message), print_level=False)
+    logger.status("\n".join(build_message), print_level=False)
 
 finish_build = env.Command('finish_build', [], postBuildMessage)
 env.Depends(finish_build, buildTargets)
@@ -2106,7 +2106,7 @@ def postInstallMessage(target, source, env):
         "\n".join(install_message),
         f"\n{'*' * 88}\n",
     ]
-    logger.info("\n".join(install_message), print_level=False)
+    logger.status("\n".join(install_message), print_level=False)
 
 finish_install = env.Command("finish_install", [], postInstallMessage)
 env.Depends(finish_install, installTargets)
