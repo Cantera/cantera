@@ -10,8 +10,6 @@ ideal-gas-h2o2:
 redlich-kwong:
   setup:
     file: co2_RK_example.yaml
-    known-failures:
-      cp_eq_sum_cpk_Xk: getPartialMolarCp not implemented
   states:
   - {T: 300, P: 101325, X: {CO2: 0.7, CH4: 0.2, H2O: 0.1}}
   - {T: 320, P: 200 bar, X: {CO2: 0.3, CH4: 0.5, H2O: 0.2}}
@@ -20,8 +18,6 @@ redlich-kwong:
 peng-robinson:
   setup:
     file: co2_PR_example.yaml
-    known-failures:
-      cp_eq_sum_cpk_Xk: getPartialMolarCp not implemented
   states:
   - {T: 300, P: 101325, X: {CO2: 0.7, CH4: 0.2, H2O: 0.1}}
   - {T: 320, P: 200 bar, X: {CO2: 0.3, CH4: 0.5, H2O: 0.2}}
@@ -49,8 +45,6 @@ ideal-condensed-1:
     file: thermo-models.yaml
     phase: IdealSolidSolnPhase
     known-failures:
-      hk_eq_uk_plus_P_times_vk: getPartialMolarIntEnergies is not implemented
-      u_eq_sum_uk_Xk: getPartialMolarIntEnergies is not implemented
       g_eq_h_minus_Ts: "Inconsistent result when P != 1 atm. See GitHub Issue #1301"
       g_eq_sum_gk_Xk: "Inconsistent result when P != 1 atm. See GitHub Issue #1301"
   states:
@@ -64,8 +58,6 @@ ideal-condensed-2:
     file: thermo-models.yaml
     phase: IdealSolidSolnPhase2
     known-failures:
-      hk_eq_uk_plus_P_times_vk: getPartialMolarIntEnergies is not implemented
-      u_eq_sum_uk_Xk: getPartialMolarIntEnergies is not implemented
       g_eq_h_minus_Ts: "Inconsistent result when P != 1 atm. See GitHub Issue #1301"
       g_eq_sum_gk_Xk: "Inconsistent result when P != 1 atm. See GitHub Issue #1301"
   states:
@@ -78,8 +70,6 @@ binary-solution-tabulated:
     file: BinarySolutionTabulatedThermo.yaml
     phase: anode
     known-failures:
-      hk_eq_uk_plus_P_times_vk: getPartialMolarIntEnergies is not implemented
-      u_eq_sum_uk_Xk: getPartialMolarIntEnergies is not implemented
       g_eq_h_minus_Ts: "Inconsistent results when P != 1 atm. See GitHub Issue #1301"
       g_eq_sum_gk_Xk: "Inconsistent results when P != 1 atm. See GitHub Issue #1301"
       v_eq_sum_vk_Xk: "Inconsistent results. See GitHub Issue #1302"
@@ -99,14 +89,6 @@ electron-cloud:
   setup:
     file: thermo-models.yaml
     phase: Metal
-    known-failures:
-      hk_eq_uk_plus_P_times_vk: partialMolarIntEnergies is not implemented
-      gk_eq_hk_minus_T_times_sk: partialMolarEntropies is not implemented
-      .+_eq_sum_.+k_Xk: partialMolar IntEnergies/Entropies/Volumes not implemented
-      gk0_eq_hk0_minus_T_sk0: getGibbs_RT is not implemented
-      standard_gibbs_nondim: getGibbs_RT is not implemented
-      hk0_eq_uk0_plus_p_vk0: getIntEnergy_RT is not implemented
-      cpk0_eq_dhk0dT: getCp_R is not implemented
   states:
   - {T: 300, P: 1 atm}
   - {T: 400, P: 1 atm}
@@ -122,8 +104,6 @@ nitrogen-purefluid:
     known-failures:
       cv_eq_.+/3: cv not defined in two-phase region
       cp_eq_sum_cpk_Xk: cp is inf in the two-phase region
-      hk0_eq_uk0_plus_p_vk0: getIntEnergy_RT is not implemented
-      cpk0_eq_dhk0dT: getCp_R is not implemented
   states:
   - {T: 300, P: 1 atm}
   - {T: 70, P: 1 atm}
@@ -150,8 +130,6 @@ debye-huckel-dilute:
     phase: debye-huckel-dilute
     known-failures: &debye-huckel-failures
       cv_eq_.+: cv not implemented
-      u_eq_sum_uk_Xk: partialMolarIntEnergies not implemented
-      hk_eq_uk_plus_P_times_vk: partialMolarIntEnergies not implemented
   states: &debye-huckel-states
   - {T: 300, P: 1 atm,
      molalities: {Na+: 9.3549, Cl-: 9.3549, H+: 1.05e-08, OH-: 1.3765e-06,
@@ -199,8 +177,6 @@ margules:
   setup:
     file: LiKCl_liquid.yaml
     known-failures:
-      hk_eq_uk_plus_P_times_vk: getPartialMolarIntEnergies is not implemented
-      u_eq_sum_uk_Xk: getPartialMolarIntEnergies is not implemented
       cv_eq.+: "Implementation of cv is incorrect. See GitHub Issue #1308"
   states:
   - {T: 900, P: 1 atm, X: {KCl(L): 0.2, LiCl(L): 0.8}}
@@ -212,9 +188,6 @@ lattice:
     file: thermo-models.yaml
     phase: Li7Si3-interstitial
     known-failures:
-      hk0_eq_uk0_plus_p_vk0: getIntEnergy_RT is not implemented
-      u_eq_sum_uk_Xk: getPartialMolarIntEnergies is not implemented
-      hk_eq_uk_plus_P_times_vk: getPartialMolarIntEnergies is not implemented
       _sum_.+_Xk: "Implementation is wrong. See GitHub Issue #1309"
       gk_eq_hk_minus_T_times_sk: "Implementation is wrong. See GitHub Issue #1309"
       standard_gibbs_nondim: "Implementation is wrong. See GitHub Issue #1309"
@@ -228,12 +201,6 @@ compound-lattice:
     file: thermo-models.yaml
     phase: Li7Si3_and_interstitials
     known-failures:
-      hk_eq_uk_plus_P_times_vk: getPartialMolarIntEnergies is not implemented
-      u_eq_sum_uk_Xk:  getPartialMolarIntEnergies is not implemented
-      hk0_eq_uk0_plus_p_vk0: getEnthalpy_RT is not implemented
-      cpk0_eq_dhk0dT: getEnthalpy_RT is not implemented
-      gk0_eq_hk0_minus_T_sk0: getEnthalpy_RT is not implemented
-      standard_gibbs_nondim: getGibbs_RT is not implemented
       _sum_.+_Xk: "LatticePhase implementation is wrong. See GitHub Issue #1309"
       h_eq_u_plus_Pv: "Implementation is inconsistent. See GitHub Issue #1310"
       gk_eq_hk_minus_T_times_sk: "Implementation is inconsistent. See GitHub Issue #1310"
