@@ -2024,16 +2024,20 @@ if env['f90_interface'] == 'y':
 build_samples = Alias('samples', sampleTargets)
 
 def postBuildMessage(target, source, env):
-    print("*******************************************************")
-    print("Compilation completed successfully.\n")
-    print("- To run the test suite, type 'scons test'.")
-    print("- To list available tests, type 'scons test-help'.")
-    if env['googletest'] == 'none':
-        print("  WARNING: You set the 'googletest' to 'none' and all its tests will be skipped.")
-    print("- To install, type 'scons install'.")
+    build_message = [
+        f"\n{' Compilation completed successfully ':*^88}\n",
+        "- To run the test suite, type 'scons test'.",
+        "- To list available tests, type 'scons test-help'.",
+    ]
+    if env["googletest"] == "none":
+        build_message.append("  WARNING: You set the 'googletest' to 'none' "
+            "and all its tests will be skipped.")
+    build_message.append("- To install, type 'scons install'.")
     if os.name == 'nt':
-        print("- To create a Windows MSI installer, type 'scons msi'.")
-    print("*******************************************************")
+        build_message.append("- To create a Windows MSI installer, type 'scons msi'.")
+    build_message.append(f"\n{'*' * 88}\n")
+
+    logger.info("\n".join(build_message), print_level=False)
 
 finish_build = env.Command('finish_build', [], postBuildMessage)
 env.Depends(finish_build, buildTargets)
