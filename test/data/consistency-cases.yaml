@@ -206,3 +206,37 @@ margules:
   - {T: 900, P: 1 atm, X: {KCl(L): 0.2, LiCl(L): 0.8}}
   - {T: 1000, P: 10 atm, X: {KCl(L): 0.99, LiCl(L): 0.01}}
   - {T: 1400, P: 20 atm, X: {KCl(L): 2.0e-5, LiCl(L): 1}}
+
+lattice:
+  setup:
+    file: thermo-models.yaml
+    phase: Li7Si3-interstitial
+    known-failures:
+      hk0_eq_uk0_plus_p_vk0: getIntEnergy_RT is not implemented
+      u_eq_sum_uk_Xk: getPartialMolarIntEnergies is not implemented
+      hk_eq_uk_plus_P_times_vk: getPartialMolarIntEnergies is not implemented
+      _sum_.+_Xk: "Implementation is wrong. See GitHub Issue #1309"
+      gk_eq_hk_minus_T_times_sk: "Implementation is wrong. See GitHub Issue #1309"
+      standard_gibbs_nondim: "Implementation is wrong. See GitHub Issue #1309"
+  states:
+  - {T: 725.0 K, P: 1.0 atm, X: {Li(i): 0.2, V(i): 0.8}}
+  - {T: 825.0 K, P: 50.0 bar, X: {Li(i): 0.7, V(i): 0.3}}
+  - {T: 925.0 K, P: 50.0 bar, X: {Li(i): 1.0, V(i): 0.0}}
+
+compound-lattice:
+  setup:
+    file: thermo-models.yaml
+    phase: Li7Si3_and_interstitials
+    known-failures:
+      hk_eq_uk_plus_P_times_vk: getPartialMolarIntEnergies is not implemented
+      u_eq_sum_uk_Xk:  getPartialMolarIntEnergies is not implemented
+      hk0_eq_uk0_plus_p_vk0: getEnthalpy_RT is not implemented
+      cpk0_eq_dhk0dT: getEnthalpy_RT is not implemented
+      gk0_eq_hk0_minus_T_sk0: getEnthalpy_RT is not implemented
+      standard_gibbs_nondim: getGibbs_RT is not implemented
+      _sum_.+_Xk: "LatticePhase implementation is wrong. See GitHub Issue #1309"
+      h_eq_u_plus_Pv: "Implementation is inconsistent. See GitHub Issue #1310"
+      gk_eq_hk_minus_T_times_sk: "Implementation is inconsistent. See GitHub Issue #1310"
+  states:
+  - {T: 725.0 K, P: 1.0 atm}
+  - {T: 825.0 K, P: 50.0 bar}

@@ -375,4 +375,16 @@ INSTANTIATE_TEST_SUITE_P(Margules, TestConsistency,
         testing::ValuesIn(getStates("margules")))
 );
 
+INSTANTIATE_TEST_SUITE_P(Lattice, TestConsistency,
+    testing::Combine(
+        testing::Values(getSetup("lattice")),
+        testing::ValuesIn(getStates("lattice")))
+);
+
+INSTANTIATE_TEST_SUITE_P(CompoundLattice, TestConsistency,
+    testing::Combine(
+        testing::Values(getSetup("compound-lattice")),
+        testing::ValuesIn(getStates("compound-lattice")))
+);
+
 }
