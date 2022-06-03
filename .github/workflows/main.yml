@@ -434,7 +434,7 @@ jobs:
       BOOST_URL: https://boostorg.jfrog.io/artifactory/main/release/1.78.0/source/boost_1_78_0.7z
     strategy:
       matrix:
-        vs-toolset: ['14.0', '14.2']
+        vs-toolset: ['14.2']
         python-version: [ "3.7", "3.9", "3.10" ]
       fail-fast: false
     steps:
