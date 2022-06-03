@@ -343,7 +343,7 @@ jobs:
       - name: Build Cantera
         run: |
           scons build system_fmt=y system_eigen=y system_yamlcpp=y system_sundials=y \
-          blas_lapack_libs='lapack,blas' -j2 VERBOSE=True debug=n \
+          blas_lapack_libs='lapack,blas' -j2 logging=debug debug=n \
           optimize_flags='-O3 -ffast-math -fno-finite-math-only'
       - name: Test Cantera
         run: scons test show_long_tests=yes verbose_tests=yes
@@ -400,7 +400,7 @@ jobs:
         mamba install -q scons numpy cython ruamel.yaml boost-cpp eigen yaml-cpp h5py pandas pytest
       shell: pwsh
     - name: Build Cantera
-      run: scons build system_eigen=y system_yamlcpp=y VERBOSE=True
+      run: scons build system_eigen=y system_yamlcpp=y logging=debug
         msvc_version=${{ matrix.vs-toolset }} f90_interface=n debug=n --debug=time -j2
       shell: pwsh
     - name: Test Cantera
@@ -469,7 +469,7 @@ jobs:
           rm $BOOST_ROOT/download.7z
         shell: bash
       - name: Build Cantera
-        run: scons build -j2 boost_inc_dir=%BOOST_ROOT% debug=n VERBOSE=y
+        run: scons build -j2 boost_inc_dir=%BOOST_ROOT% debug=n logging=debug
           python_package=full env_vars=PYTHONPATH,GITHUB_ACTIONS
           msvc_version=${{ matrix.vs-toolset }} f90_interface=n --debug=time
         shell: cmd
@@ -609,7 +609,7 @@ jobs:
         rm $BOOST_ROOT/download.7z
       shell: bash
     - name: Build Cantera
-      run: scons build -j2 boost_inc_dir=%BOOST_ROOT% debug=n VERBOSE=y
+      run: scons build -j2 boost_inc_dir=%BOOST_ROOT% debug=n logging=debug
         python_package=full env_vars=PYTHONPATH,GITHUB_ACTIONS
         toolchain=mingw f90_interface=n --debug=time
       shell: cmd
