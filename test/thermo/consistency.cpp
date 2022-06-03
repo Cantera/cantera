@@ -280,4 +280,34 @@ INSTANTIATE_TEST_SUITE_P(PlasmaPhase, TestConsistency,
         testing::ValuesIn(getStates("plasma")))
 );
 
+INSTANTIATE_TEST_SUITE_P(DebyeHuckelDilute, TestConsistency,
+    testing::Combine(
+        testing::Values(getSetup("debye-huckel-dilute")),
+        testing::ValuesIn(getStates("debye-huckel-dilute")))
+);
+
+INSTANTIATE_TEST_SUITE_P(DebyeHuckel_b_dot_ak, TestConsistency,
+    testing::Combine(
+        testing::Values(getSetup("debye-huckel-B-dot-ak")),
+        testing::ValuesIn(getStates("debye-huckel-B-dot-ak")))
+);
+
+INSTANTIATE_TEST_SUITE_P(DebyeHuckel_b_dot_a, TestConsistency,
+    testing::Combine(
+        testing::Values(getSetup("debye-huckel-B-dot-a")),
+        testing::ValuesIn(getStates("debye-huckel-B-dot-a")))
+);
+
+INSTANTIATE_TEST_SUITE_P(DebyeHuckel_pitzer_beta_ij, TestConsistency,
+    testing::Combine(
+        testing::Values(getSetup("debye-huckel-pitzer-beta_ij")),
+        testing::ValuesIn(getStates("debye-huckel-pitzer-beta_ij")))
+);
+
+INSTANTIATE_TEST_SUITE_P(DebyeHuckel_beta_ij, TestConsistency,
+    testing::Combine(
+        testing::Values(getSetup("debye-huckel-beta_ij")),
+        testing::ValuesIn(getStates("debye-huckel-beta_ij")))
+);
+
 }
