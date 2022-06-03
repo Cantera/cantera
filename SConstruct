@@ -521,7 +521,10 @@ config_options = [
         False),
     EnumOption(
         "logging",
-        """Select logging level for SCons output. """,
+        """Select logging level for SCons output. By default, logging messages use
+           the 'info' level for 'scons build' and the 'warning' level for all other
+           commands. In case the SCons option '--silent' is passed, all messages below
+           the 'error' level are suppressed.""",
         "default", ("debug", "info", "warning", "error", "default")),
     Option(
         "gtest_flags",
