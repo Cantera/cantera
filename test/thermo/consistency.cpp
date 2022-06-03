@@ -23,11 +23,16 @@ AnyMap getSetup(const string& name) {
 // For more informative output about failing test cases
 std::ostream& operator<<(std::ostream& s, const AnyMap& m)
 {
-    if (m.hasKey("file")) {
+    if (m.hasKey("phase")) {
         s << fmt::format("file: {}, phase: {}",
-                         m["file"].asString(), m.getString("phase", "<default>"));
+                         m["file"].asString(), m["phase"].asString());
+    } else if (m.hasKey("file")) {
+        s << fmt::format("file: {}", m["file"].asString());
     } else {
-        s << "\n" << m.toYamlString();
+        AnyMap out = m;
+        out.setFlowStyle();
+        s << "state: "
+          << boost::algorithm::replace_all_copy(out.toYamlString(), "\n", " ");
     }
     return s;
 }
