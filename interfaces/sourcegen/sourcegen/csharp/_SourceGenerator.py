@@ -2,6 +2,7 @@ from dataclasses import dataclass
 import os
 import typing
 
+from .._helpers import normalize
 from .._types import * 
 from .._types import _unpack
 
@@ -21,7 +22,10 @@ class _CsFunc:
 
 
 class SourceGenerator(SourceGeneratorBase):
-    _prolog = '    [DllImport(LibFile)]\n    public static extern'
+    _prolog = normalize("""
+        [DllImport(LibFile)]
+        public static extern
+    """)
 
     _type_map = {
         'const char*': 'string',
@@ -49,11 +53,13 @@ class SourceGenerator(SourceGeneratorBase):
     def _get_base_handle_text(handle):
         name, del_clazz = handle
 
-        handle = f'''class {del_clazz} : CanteraHandle
+        handle = normalize(f'''
+            class {del_clazz} : CanteraHandle
 {{
     protected override bool ReleaseHandle() =>
         Convert.ToBoolean(LibCantera.{name}(Value));
-}}'''
+            }}
+        ''')
 
         return handle
 
@@ -122,14 +128,16 @@ class SourceGenerator(SourceGeneratorBase):
 
         functions_text = '\n\n'.join((self._get_function_text(f) for f in cs_funcs))
 
-        interop_text = f'''using System.Runtime.InteropServices;
+        interop_text = normalize(f'''
+            using System.Runtime.InteropServices;
 
 namespace Cantera.Interop;
 
 static partial class LibCantera
 {{
-{functions_text}
-}}'''
+                {normalize(functions_text, 16, True)}
+            }}
+        ''')
 
         with open(self._out_dir + 'Interop.LibCantera.' + incl_file.name + '.g.cs', 'w') as f:
             f.write(interop_text)
@@ -139,7 +147,13 @@ static partial class LibCantera
         if not handles:
             return
 
-        handles_text = 'namespace Cantera.Interop;\n\n' + '\n\n'.join((self._get_base_handle_text(h) for h in handles))
+        handles_text = '\n\n'.join((self._get_base_handle_text(h) for h in handles))
+
+        handles_text = normalize(f"""
+            namespace Cantera.Interop;
+            
+            {normalize(handles_text, 12, True)}
+        """)
 
         with open(self._out_dir + 'Interop.Handles.' + incl_file.name + '.g.cs', 'w') as f:
             f.write(handles_text)
@@ -148,11 +162,11 @@ static partial class LibCantera
     def finalize(self):
         derived_handles = '\n\n'.join((self._get_derived_handle_text(d) for d in self._config['derived_handles'].items()))
 
-        derived_handles_text = f'''using System.Runtime.InteropServices;
-
+        derived_handles_text = normalize(f'''
 namespace Cantera.Interop;
 
-{derived_handles}'''
+            {derived_handles}
+        ''')
 
         with open(self._out_dir + 'Interop.Handles.g.cs', 'w') as f:
             f.write(derived_handles_text)
