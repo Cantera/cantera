@@ -44,7 +44,7 @@ set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS})
     localenv.Prepend(CPPPATH=['#include'])
 
     if openmp and not env['HAS_OPENMP']:
-        print("INFO: Skipping sample {} because 'omp.h' was not found.".format(name))
+        logger.info(f"Skipping sample {name} because 'omp.h' was not found.")
     else:
         buildSample(localenv.Program, pjoin(subdir, name),
                     multi_glob(localenv, subdir, *extensions))
