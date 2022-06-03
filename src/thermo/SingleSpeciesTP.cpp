@@ -95,6 +95,8 @@ void SingleSpeciesTP::getChemPotentials(doublereal* mu) const
 
 void SingleSpeciesTP::getChemPotentials_RT(doublereal* murt) const
 {
+    warn_deprecated("SingleSpeciesTP::getChemPotentials_RT",
+                    "To be removed after Cantera 3.0. Use getChemPotentials instead.");
     getStandardChemPotentials(murt);
     murt[0] /= RT();
 }
