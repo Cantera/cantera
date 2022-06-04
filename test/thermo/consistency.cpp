@@ -499,4 +499,10 @@ INSTANTIATE_TEST_SUITE_P(CompoundLattice, TestConsistency,
         testing::ValuesIn(getStates("compound-lattice")))
 );
 
+INSTANTIATE_TEST_SUITE_P(FixedStoichiometry, TestConsistency,
+    testing::Combine(
+        testing::Values(getSetup("fixed-stoichiometry")),
+        testing::ValuesIn(getStates("fixed-stoichiometry")))
+);
+
 }
