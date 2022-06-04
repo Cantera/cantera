@@ -258,3 +258,20 @@ ideal-edge:
   states:
   - {T: 300, P: 1 atm}
   - {T: 900, P: 20 atm}
+
+liquid-water-IAPWS95:
+  setup:
+    file: liquidvapor.yaml
+    phase: liquid-water-IAPWS95
+    known-failures:
+      h_eq_u_plus_Pv: "Error in internal energy calculation. See GitHub Issue #1315"
+      hk_eq_uk_plus_P_times_vk:
+        "Error in internal energy calculation. See GitHub Issue #1315"
+      cv_eq_dudT: "Error in internal energy calculation. See GitHub Issue #1315"
+      hk0_eq_uk0_plus_p_vk0:
+        "Error in internal energy calculation. See GitHub Issue #1315"
+      log_standard_concentrations: Not implemented
+  states:
+  - {T: 300, P: 1 atm}
+  - {T: 360, P: 1 atm}
+  - {T: 450, P: 100 atm}
