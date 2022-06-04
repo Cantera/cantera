@@ -35,6 +35,7 @@ ideal-molal-solution:
       cv_eq_.+: cv not implemented
       cp_eq_dsdT_const_p_times_T:
         "Implementation of cp and s are inconsistent. See GitHub Issue #1300"
+      activity_coeffs: "Activity coeffs are incorrect. See GitHub Issue #1311"
   states:
   - {T: 300, P: 101325, molalities: {CH4(aq): 0.01, H2S(aq): 0.03, CO2(aq): 0.1}}
   - {T: 300, P: 2 atm, molalities: {CH4(aq): 0.1, H2S(aq): 0.01, CO2(aq): 0.1}}
@@ -76,6 +77,10 @@ binary-solution-tabulated:
       h_eq_sum_hk_Xk: "Inconsistent results. See GitHub Issue #1302"
       s_eq_sum_sk_Xk: "Problems near composition limit. See GitHub Issue #1303"
       gk_eq_hk_minus_T_times_sk: "Problems near composition limit. See GitHub Issue #1303"
+      gk0_eq_hk0_minus_T_times_sk0/[34]:
+        "Problems near composition limit. See GitHub Issue #1303"
+      chem_potentials_to_activities/3:
+        "Problems near composition limit. See GitHub Issue #1303"
   states:
   - {T: 300, P: 1 atm, X: {"Li[anode]": 0.3, "V[anode]": 0.7}}
   - {T: 320, P: 1 atm, X: {"Li[anode]": 0.3, "V[anode]": 0.7}}
@@ -130,6 +135,8 @@ debye-huckel-dilute:
     phase: debye-huckel-dilute
     known-failures: &debye-huckel-failures
       cv_eq_.+: cv not implemented
+      activity_coeffs: "Activity coeffs are incorrect. See GitHub Issue #1311"
+
   states: &debye-huckel-states
   - {T: 300, P: 1 atm,
      molalities: {Na+: 9.3549, Cl-: 9.3549, H+: 1.05e-08, OH-: 1.3765e-06,
@@ -191,6 +198,7 @@ lattice:
       _sum_.+_Xk: "Implementation is wrong. See GitHub Issue #1309"
       gk_eq_hk_minus_T_times_sk: "Implementation is wrong. See GitHub Issue #1309"
       standard_gibbs_nondim: "Implementation is wrong. See GitHub Issue #1309"
+      chem_potentials_to_activities: "Implementation is wrong. See GitHub Issue #1309"
   states:
   - {T: 725.0 K, P: 1.0 atm, X: {Li(i): 0.2, V(i): 0.8}}
   - {T: 825.0 K, P: 50.0 bar, X: {Li(i): 0.7, V(i): 0.3}}
@@ -204,6 +212,10 @@ compound-lattice:
       _sum_.+_Xk: "LatticePhase implementation is wrong. See GitHub Issue #1309"
       h_eq_u_plus_Pv: "Implementation is inconsistent. See GitHub Issue #1310"
       gk_eq_hk_minus_T_times_sk: "Implementation is inconsistent. See GitHub Issue #1310"
+      chem_potentials_to_activities:
+        "LatticePhase implementation is wrong. See GitHub Issue #1309"
+      activity_coeffs: "See GitHub Issue #1309"
   states:
   - {T: 725.0 K, P: 1.0 atm}
   - {T: 825.0 K, P: 50.0 bar}
+  - {T: 825.0 K, P: 50.0 bar, X: {Li7Si3(s): 0.3, Li(i): 0.5, V(i): 0.2}}
