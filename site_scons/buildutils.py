@@ -468,15 +468,15 @@ class LevelAdapter(logging.LoggerAdapter):
     def status(self, message, *args, **kws):
         # custom logger adapted from https://stackoverflow.com/questions/2183233
         if self.isEnabledFor(LOGGING_STATUS_NUM):
-            # logger takes its '*args' as 'args'.
             msg, kwargs = self.process(message, kws)
+            # logger takes its '*args' as 'args'
             self._log(LOGGING_STATUS_NUM, msg, args, **kwargs)
 
     def failed(self, message, *args, **kws):
         # custom logger adapted from https://stackoverflow.com/questions/2183233
         if self.isEnabledFor(LOGGING_FAILED_NUM):
-            # logger takes its '*args' as 'args'.
             msg, kwargs = self.process(message, kws)
+            # logger takes its '*args' as 'args'
             self._log(LOGGING_FAILED_NUM, msg, args, **kwargs)
 
     def process(self, msg, kwargs):

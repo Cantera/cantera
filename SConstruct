@@ -93,7 +93,7 @@ if not COMMAND_LINE_TARGETS:
     sys.exit(1)
 
 if os.name not in ["nt", "posix"]:
-    logger.error(f"Error: Unrecognized operating system '{os.name}'")
+    logger.error(f"Unrecognized operating system {os.name!r}")
     sys.exit(1)
 
 valid_commands = ("build", "clean", "install", "uninstall",
@@ -108,7 +108,7 @@ else:
 
 for command in COMMAND_LINE_TARGETS:
     if command not in valid_commands and not command.startswith('test'):
-        logger.error("Unrecognized command line target: {!r}", command)
+        logger.error(f"Unrecognized command line target: {command!r}")
         sys.exit(1)
 
     # update default logging level
@@ -673,7 +673,7 @@ if "help" in COMMAND_LINE_TARGETS:
             with open(output_file, "w+") as fid:
                 fid.write(message)
 
-            logger.status(f"Done writing output options to '{output_file}'.",
+            logger.status(f"Done writing output options to {output_file!r}.",
                           print_level=False)
 
         else:
@@ -807,7 +807,8 @@ elif "clang" in env.subst("$CC"):
     config.select("clang")
 
 else:
-    logger.warning(f"Unrecognized C compiler '{env['CC']}'")
+    logger.error(f"Unrecognized C compiler {env['CC']!r}")
+    exit(1)
 
 if env["OS"] == "Windows":
     config.select("Windows")
@@ -872,7 +873,7 @@ if "sdist" in COMMAND_LINE_TARGETS:
 
 for arg in ARGUMENTS:
     if arg not in config:
-        logger.error(f"Encountered unexpected command line option: '{arg}'")
+        logger.error(f"Encountered unexpected command line option: {arg!r}")
         sys.exit(1)
 
 env["cantera_version"] = "3.0.0a1"
@@ -882,7 +883,7 @@ env['cantera_short_version'] = re.match(r'(\d+\.\d+)', env['cantera_version']).g
 
 try:
     env["git_commit"] = get_command_output("git", "rev-parse", "--short", "HEAD")
-    logger.info(f"Building Cantera from git commit '{env['git_commit']}'")
+    logger.info(f"Building Cantera from git commit {env['git_commit']!r}")
 except (subprocess.CalledProcessError, FileNotFoundError):
     env["git_commit"] = "unknown"
 
@@ -919,7 +920,7 @@ elif env['env_vars']:
                 env['ENV'][name] = os.environ[name]
             logger.debug(f"Propagating environment variable {name}={env['ENV'][name]}")
         elif name not in config["env_vars"].default.split(','):
-            logger.warning(f"failed to propagate environment variable '{repr(name)}'\n"
+            logger.warning(f"failed to propagate environment variable {name!r}\n"
                 "Edit cantera.conf or the build command line to fix this.")
 
 env['extra_inc_dirs'] = [d for d in env['extra_inc_dirs'].split(os.pathsep) if d]
@@ -1398,11 +1399,11 @@ end program main
         if success and 'Hello, world!' in output:
             return True
         else:
-            logger.warning(f"Unable to use '{compiler}' to compile the Fortran "
+            logger.warning(f"Unable to use {compiler!r} to compile the Fortran "
                   "interface. See config.log for details.")
             return False
     elif expected:
-        logger.error(f"Could not find specified Fortran compiler: '{compiler}'")
+        logger.error(f"Could not find specified Fortran compiler: {compiler!r}")
         sys.exit(1)
 
     return False
@@ -1420,7 +1421,7 @@ if env['f90_interface'] in ('y','default'):
         foundF90 = check_fortran(compiler)
 
     if foundF90:
-        logger.info(f"Using '{env['FORTRAN']}' to build the Fortran 90 interface")
+        logger.info(f"Using {env['FORTRAN']!r} to build the Fortran 90 interface")
         env['f90_interface'] = 'y'
     else:
         if env['f90_interface'] == 'y':
@@ -1561,11 +1562,11 @@ if env['python_package'] != 'none':
         if env["python_package"] == "default":
             logger.warning(
                 "Not building the Python package because the Python interpreter "
-                f"'{env['python_cmd']!r}' could not be found.")
+                f"{env['python_cmd']!r} could not be found.")
             env["python_package"] = "none"
         else:
             logger.error(
-                f"Could not execute the Python interpreter '{env['python_cmd']!r}'")
+                f"Could not execute the Python interpreter {env['python_cmd']!r}")
             sys.exit(1)
     elif python_version < python_min_version:
         if env["python_package"] in ("minimal", "full", "default"):
@@ -1679,7 +1680,7 @@ if env["matlab_toolbox"] == "y":
     if not (os.path.isdir(matlab_path) and
             os.path.isdir(pjoin(matlab_path, "extern"))):
         logger.error(
-            f"Path set for 'matlab_path' is not correct. Path was '{matlab_path}'")
+            f"Path set for 'matlab_path' is not correct. Path was {matlab_path!r}")
         sys.exit(1)
 
 
