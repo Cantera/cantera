@@ -2,6 +2,7 @@
 SCons build script for Cantera
 
 Basic usage:
+
     'scons help' - Show this help message.
 
     'scons build' - Compile Cantera and the language interfaces using
@@ -24,10 +25,6 @@ Basic usage:
 
     'scons test-NAME' - Run the test named "NAME".
 
-    'scons <command> dump' - Dump the state of the SCons environment to the
-                             screen instead of doing <command>, for example
-                             'scons build dump'. For debugging purposes.
-
     'scons samples' - Compile the C++ and Fortran samples.
 
     'scons msi' - Build a Windows installer (.msi) for Cantera.
@@ -36,7 +33,8 @@ Basic usage:
 
     'scons doxygen' - Build the Doxygen documentation
 
-Additional help command options:
+Additional command options:
+
     'scons help --options' - Print a description of user-specifiable options.
 
     'scons help --list-options' - Print formatted list of available options.
@@ -44,6 +42,11 @@ Additional help command options:
     'scons help --option=<opt>' - Print the description of a specific option
                                   with name <opt>, for example
                                   'scons help --option=prefix'
+
+    'scons <command> -j<X>' - Short form of '--jobs=<X>'. Run the <command> using '<X>'
+                              parallel jobs, for example 'scons build -j4'
+
+    'scons <command> -s' - Short form of '--silent' (or '--quiet'). Suppresses output.
 """
 # Note that 'scons help' supports additional command options that are intended for
 # internal use (debugging or reST parsing of options) and thus are not listed above:
@@ -51,6 +54,11 @@ Additional help command options:
 #  --restructured-text ... format configuration as reST
 #  --dev ... add '-dev' to reST output
 #  --output=<fname> ... send output to file (reST only)
+#
+# Other features not listed above:
+# 'scons <command> dump' - Dump the state of the SCons environment to the
+#                          screen instead of doing <command>, for example
+#                          'scons build dump'. For debugging purposes.
 
 # This f-string is deliberately here to trigger a SyntaxError when
 # SConstruct is parsed by Python 2. This seems to be the most robust
