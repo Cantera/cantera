@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/thermo/ThermoFactory.h"
+#include "cantera/thermo/MolalityVPSSTP.h"
 #include "cantera/base/Solution.h"
 #include "cantera/base/utilities.h"
 #include <regex>
@@ -57,6 +58,7 @@ public:
         nsp = phase->nSpecies();
         p = phase->pressure();
         T = phase->temperature();
+        RT = T * GasConstant;
     }
 
     void SetUp() {
@@ -76,7 +78,7 @@ public:
     AnyMap setup;
     shared_ptr<ThermoPhase> phase;
     size_t nsp;
-    double T, p;
+    double T, p, RT;
     double atol, atol_v;
     double rtol_fd; // relative tolerance for finite difference comparisons
 };
@@ -267,7 +269,6 @@ TEST_P(TestConsistency, hk0_eq_uk0_plus_p_vk0)
     } catch (NotImplementedError& err) {
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
     }
-    double RT = phase->RT();
     for (size_t k = 0; k < nsp; k++) {
         EXPECT_NEAR(h0[k] * RT, u0[k] * RT + p * v0[k], atol) << "k = " << k;
     }
@@ -283,7 +284,6 @@ TEST_P(TestConsistency, gk0_eq_hk0_minus_T_sk0)
     } catch (NotImplementedError& err) {
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
     }
-    double RT = phase->RT();
     for (size_t k = 0; k < nsp; k++) {
         EXPECT_NEAR(g0[k] * RT ,
                     h0[k] * RT - T * s0[k] * GasConstant, atol) << "k = " << k;
@@ -321,9 +321,73 @@ TEST_P(TestConsistency, standard_gibbs_nondim)
     } catch (NotImplementedError& err) {
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
     }
-    double RT = phase->RT();
     for (size_t k = 0; k < nsp; k++) {
         EXPECT_NEAR(g0_RT[k] * RT , mu0[k], atol);
+    }
+}
+
+TEST_P(TestConsistency, chem_potentials_to_activities) {
+    vector_fp mu0(nsp), mu(nsp), a(nsp);
+    try {
+        phase->getChemPotentials(mu.data());
+        phase->getStandardChemPotentials(mu0.data());
+        phase->getActivities(a.data());
+    } catch (NotImplementedError& err) {
+        GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
+    }
+    for (size_t k = 0; k < nsp; k++) {
+        double a_from_mu = exp((mu[k] - mu0[k]) / RT);
+        double scale = std::max(std::abs(a[k]), std::abs(a_from_mu));
+        EXPECT_NEAR(a_from_mu, a[k], 1e-9 * scale + 1e-14) << "k = " << k;
+    }
+}
+
+TEST_P(TestConsistency, activity_coeffs) {
+    vector_fp a(nsp), gamma(nsp), X(nsp);
+    try {
+        phase->getActivities(a.data());
+        phase->getActivityCoefficients(gamma.data());
+        phase->getMoleFractions(X.data());
+    } catch (NotImplementedError& err) {
+        GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
+    }
+    for (size_t k = 0; k < nsp; k++) {
+        double scale = std::max(std::abs(a[k]), std::abs(gamma[k] * X[k]));
+        EXPECT_NEAR(a[k], gamma[k] * X[k], 1e-10 * scale + 1e-20) << "k = " << k;
+    }
+}
+
+TEST_P(TestConsistency, activity_concentrations) {
+    vector_fp a(nsp), Cact(nsp);
+    try {
+        phase->getActivities(a.data());
+        phase->getActivityConcentrations(Cact.data());
+    } catch (NotImplementedError& err) {
+        GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
+    }
+    for (size_t k = 0; k < nsp; k++) {
+        double C0k = phase->standardConcentration(k);
+        EXPECT_NEAR(a[k], Cact[k] / C0k, 1e-9 * std::abs(a[k])) << "k = " << k;
+    }
+}
+
+TEST_P(TestConsistency, log_standard_concentrations) {
+    for (size_t k = 0; k < nsp; k++) {
+        double c0 = phase->standardConcentration(k);
+        EXPECT_NEAR(c0, exp(phase->logStandardConc(k)), 1e-10 * c0) << "k = " << k;
+    }
+}
+
+TEST_P(TestConsistency, log_activity_coeffs) {
+    vector_fp gamma(nsp), log_gamma(nsp);
+    try {
+        phase->getActivityCoefficients(gamma.data());
+        phase->getLnActivityCoefficients(log_gamma.data());
+    } catch (NotImplementedError& err) {
+        GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
+    }
+    for (size_t k = 0; k < nsp; k++) {
+        EXPECT_NEAR(gamma[k], exp(log_gamma[k]), 1e-10 * gamma[k]) << "k = " << k;
     }
 }
 
