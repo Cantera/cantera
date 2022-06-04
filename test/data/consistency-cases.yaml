@@ -219,3 +219,12 @@ compound-lattice:
   - {T: 725.0 K, P: 1.0 atm}
   - {T: 825.0 K, P: 50.0 bar}
   - {T: 825.0 K, P: 50.0 bar, X: {Li7Si3(s): 0.3, Li(i): 0.5, V(i): 0.2}}
+
+fixed-stoichiometry:
+  setup:
+    file: thermo-models.yaml
+    phase: KCl(s)
+  states:
+  - {T: 300, P: 1 atm}
+  - {T: 300, P: 10 atm}
+  - {T: 500, P: 10 atm}
