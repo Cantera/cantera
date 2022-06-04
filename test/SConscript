@@ -68,7 +68,7 @@ def addTestProgram(subdir, progName, env_vars={}):
         code = subprocess.call(cmd, env=env['ENV'], cwd=workDir)
 
         if code:
-            logger.failed(f"Test '{progName}' exited with code {code}")
+            logger.failed(f"Test {progName!r} exited with code {code}")
             if env["fast_fail_tests"]:
                 sys.exit(1)
         else:
