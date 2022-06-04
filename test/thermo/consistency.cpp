@@ -505,4 +505,16 @@ INSTANTIATE_TEST_SUITE_P(FixedStoichiometry, TestConsistency,
         testing::ValuesIn(getStates("fixed-stoichiometry")))
 );
 
+INSTANTIATE_TEST_SUITE_P(IdealSurface, TestConsistency,
+    testing::Combine(
+        testing::Values(getSetup("ideal-surface")),
+        testing::ValuesIn(getStates("ideal-surface")))
+);
+
+INSTANTIATE_TEST_SUITE_P(IdealEdge, TestConsistency,
+    testing::Combine(
+        testing::Values(getSetup("ideal-edge")),
+        testing::ValuesIn(getStates("ideal-edge")))
+);
+
 }

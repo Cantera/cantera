@@ -228,3 +228,33 @@ fixed-stoichiometry:
   - {T: 300, P: 1 atm}
   - {T: 300, P: 10 atm}
   - {T: 500, P: 10 atm}
+
+ideal-surface:
+  setup:
+    file: surface-phases.yaml
+    phase: Pt-surf
+    atol_v: 1e-7
+    known-failures:
+      h_eq_u_plus_Pv: "Definition of volume is unclear. See GitHub Issue #1312"
+      gk_eq_hk_minus_T_times_sk:
+        "Implementation of s_k is incorrect. See GitHub Issue #1313"
+      s_eq_sum_sk_Xk:
+        "Implementation of s_k is incorrect. See GitHub Issue #1313"
+      g_eq_sum_gk_Xk:
+        "chemPotentials does not protect against inf. See GitHub Issue #1314"
+  states:
+  - {T: 800, P: 1 atm, coverages: {Pt(s): 0.5, H(s): 0.4, O(s): 0.1}}
+  - {T: 800, P: 5 atm, coverages: {H(s): 1.0}}
+  - {T: 300, P: 20 atm, coverages: {Pt(s): 1.0}}
+  - {T: 600, P: 5 atm, coverages: {Pt(s): 0.1, O(s): 0.9}}
+
+ideal-edge:
+  setup:
+    file: surface-phases.yaml
+    phase: TPB
+    atol_v: 1e3  # site density of 5e-18 kmol/m = linear molar volume of 2e17 m/kmol
+    known-failures:
+      h_eq_u_plus_Pv: "Definition of volume is unclear. See GitHub Issue #1312"
+  states:
+  - {T: 300, P: 1 atm}
+  - {T: 900, P: 20 atm}
