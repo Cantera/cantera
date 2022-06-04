@@ -64,7 +64,6 @@ Additional command options:
 # SConstruct is parsed by Python 2. This seems to be the most robust
 # and simplest option that will reliably trigger an error in Python 2
 # and provide actionable feedback for users.
-python_min_build_support = "3.7"
 f"""
 Cantera must be built using Python 3.7 or higher. You can invoke SCons by executing
     python3 `which scons`
@@ -82,23 +81,15 @@ from os.path import join as pjoin
 from pkg_resources import parse_version
 import SCons
 
-# ensure that Python version is sufficient for build process
-python_version = "{v.major}.{v.minor}".format(v=sys.version_info)
-if parse_version(python_version) < parse_version(python_min_build_support):
-    logger.error(
-        f"Cantera must be built using Python {python_min_build_support} or "
-        f"higher; Python {python_version} is not supported.")
-    sys.exit(1)
+# ensure that Python and SCons versions are sufficient for the build process
+EnsurePythonVersion(3, 7)
+EnsureSConsVersion(3, 0, 0)
 
 from buildutils import *
 
 if not COMMAND_LINE_TARGETS:
     # Print usage help
     logger.error("Missing command argument: type 'scons help' for information.")
-    sys.exit(1)
-
-if parse_version(SCons.__version__) < parse_version("3.0.0"):
-    logger.error("Cantera requires SCons with a minimum version of 3.0.0. Exiting.")
     sys.exit(1)
 
 if os.name not in ["nt", "posix"]:
@@ -121,7 +112,7 @@ for command in COMMAND_LINE_TARGETS:
         sys.exit(1)
 
     # update default logging level
-    if command in ["build"] and not GetOption("silent"):
+    if command in ["build", "dump"] and not GetOption("silent"):
         logger.logger.setLevel("INFO")
 
 if "clean" in COMMAND_LINE_TARGETS:
@@ -164,6 +155,7 @@ if "test-clean" in COMMAND_LINE_TARGETS:
     remove_directory("test/work")
     remove_directory("build/python_local")
 
+python_version = f"{sys.version_info.major}.{sys.version_info.minor}"
 logger.info(
     f"SCons {SCons.__version__} is using the following Python interpreter:\n"
     f"    {sys.executable} (Python {python_version})", print_level=False)
