@@ -142,7 +142,7 @@ if "clean" in COMMAND_LINE_TARGETS:
     for name in Path("interfaces/matlab/toolbox").glob("ctmethods.*"):
         remove_file(name)
 
-    logger.status("Done removing output files.")
+    logger.status("Done removing output files.", print_level=False)
 
     if COMMAND_LINE_TARGETS == ["clean"]:
         # Just exit if there's nothing else to do
@@ -809,7 +809,7 @@ elif "clang" in env.subst("$CC"):
 
 else:
     logger.error(f"Unrecognized C compiler {env['CC']!r}")
-    exit(1)
+    sys.exit(1)
 
 if env["OS"] == "Windows":
     config.select("Windows")
@@ -921,8 +921,8 @@ elif env['env_vars']:
                 env['ENV'][name] = os.environ[name]
             logger.debug(f"Propagating environment variable {name}={env['ENV'][name]}")
         elif name not in config["env_vars"].default.split(','):
-            logger.warning(f"failed to propagate environment variable {name!r}\n"
-                "Edit cantera.conf or the build command line to fix this.")
+            logger.warning(f"Failed to propagate environment variable {name!r}\n"
+                           "Edit cantera.conf or the build command line to fix this.")
 
 env['extra_inc_dirs'] = [d for d in env['extra_inc_dirs'].split(os.pathsep) if d]
 env['extra_lib_dirs'] = [d for d in env['extra_lib_dirs'].split(os.pathsep) if d]
@@ -1042,9 +1042,9 @@ def config_error(message):
     if env["logging"].lower() == "debug":
         logger.error(message)
         debug_message = [
-            f"\n{' Contents of config.log: ':*^88}",
+            f"\n{' Contents of config.log: ':*^88}\n",
             open("config.log").read().strip(),
-            f"{' End of config.log ':*^88}",
+            f"\n{' End of config.log ':*^88}",
         ]
         logger.debug("\n".join(debug_message), print_level=False)
     else:
@@ -1337,12 +1337,12 @@ if env['system_sundials'] == 'y':
     env['sundials_version'] = '.'.join(sundials_version.split('.')[:2])
     sundials_ver = parse_version(env['sundials_version'])
     if sundials_ver < parse_version("2.4") or sundials_ver >= parse_version("7.0"):
-        logger.error(f"Sundials version {env['sundials_version']} is not supported.")
+        logger.error(f"Sundials version {env['sundials_version']!r} is not supported.")
         sys.exit(1)
     elif sundials_ver > parse_version("6.0"):
-        logger.warning(f"Sundials version {env['sundials_version']} has not been tested.")
+        logger.warning(f"Sundials version {env['sundials_version']!r} has not been tested.")
 
-    logger.info("Using system installation of Sundials version {sundials_version}.")
+    logger.info(f"Using system installation of Sundials version {sundials_version!r}.")
 
     # Determine whether or not Sundials was built with BLAS/LAPACK
     if sundials_ver < parse_version('2.6'):
@@ -1376,7 +1376,7 @@ if env['system_sundials'] == 'y':
     # library, but Sundials was configured without this support, print a Warning.
     if not env['has_sundials_lapack'] and env['use_lapack']:
         logger.warning("External BLAS/LAPACK has been specified for Cantera "
-              "but Sundials was built without this support.")
+                       "but Sundials was built without this support.")
 else: # env['system_sundials'] == 'n'
     logger.info("Using private installation of Sundials version 5.3.")
     env['sundials_version'] = '5.3'
@@ -1401,7 +1401,7 @@ end program main
             return True
         else:
             logger.warning(f"Unable to use {compiler!r} to compile the Fortran "
-                  "interface. See config.log for details.")
+                           "interface. See config.log for details.")
             return False
     elif expected:
         logger.error(f"Could not find specified Fortran compiler: {compiler!r}")
@@ -1451,9 +1451,9 @@ env['FORTRANMODDIR'] = '${TARGET.dir}'
 env = conf.Finish()
 
 debug_message = [
-    f"\n{' begin config.log ':-^88}",
+    f"\n{' begin config.log ':-^88}\n",
     open("config.log").read().strip(),
-    f"{' end config.log ':-^88}\n",
+    f"\n{' end config.log ':-^88}\n",
 ]
 logger.debug("\n".join(debug_message), print_level=False)
 
@@ -1796,7 +1796,7 @@ else:
 # Prevent setting Cantera installation path to source directory
 if os.path.abspath(instRoot) == Dir('.').abspath:
     logger.error("cannot install Cantera into source directory.")
-    exit(1)
+    sys.exit(1)
 
 if env['layout'] == 'debian':
     base = pjoin(os.getcwd(), 'debian')
