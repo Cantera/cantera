@@ -259,6 +259,46 @@ TEST_P(TestConsistency, cv_eq_dsdT_const_v_times_T)
     EXPECT_NEAR(cv_fd, cv_mid, max({rtol_fd * cv_mid, rtol_fd * cv_fd, atol}));
 }
 
+TEST_P(TestConsistency, dsdP_const_T_eq_minus_dV_dT_const_P)
+{
+    double s1 = phase->entropy_mole();
+    double P1 = phase->pressure();
+    double T1 = phase->temperature();
+    double v1 = phase->molarVolume();
+    double P2 = P1 * (1 + 1e-6);
+    phase->setState_TP(T1, P2);
+    double s2 = phase->entropy_mole();
+    double dsdP = (s2 - s1) / (P2 - P1);
+
+    double T2 = T1 * (1 + 1e-6);
+    phase->setState_TP(T2, P1);
+    double v2 = phase->molarVolume();
+    double dvdT = (v2 - v1) / (T2 - T1);
+    double tol = rtol_fd * std::max(std::abs(dsdP), std::abs(dvdT));
+    EXPECT_NEAR(dsdP, -dvdT, tol);
+}
+
+TEST_P(TestConsistency, dSdv_const_T_eq_dPdT_const_V) {
+    if (phase->isCompressible()) {
+        double s1 = phase->entropy_mass();
+        double v1 = 1 / phase->density();
+        double P1 = phase->pressure();
+        double v2 = v1 * (1 + 1e-7);
+        phase->setState_TR(T, 1 / v2);
+        double s2 = phase->entropy_mass();
+        double dsdv = (s2 - s1) / (v2 - v1);
+
+        double T2 = T * (1 + 1e-7);
+        phase->setState_TR(T2, 1 / v1);
+        double P2 = phase->pressure();
+        double dPdT = (P2 - P1) / (T2 - T);
+        double tol = rtol_fd * std::max(std::abs(dPdT), std::abs(dsdv));
+        EXPECT_NEAR(dsdv, dPdT, tol);
+    } else {
+        GTEST_SKIP() << "Undefined for incompressible phase";
+    }
+}
+
 TEST_P(TestConsistency, hk0_eq_uk0_plus_p_vk0)
 {
     vector_fp h0(nsp), u0(nsp), v0(nsp);
