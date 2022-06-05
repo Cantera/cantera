@@ -661,32 +661,25 @@ class TestResults:
         Note that the three arguments are not used here but are required by SCons,
         and they must be keyword arguments.
         """
-        values = {
-            "passed": sum(self.passed.values()),
-            "failed": sum(self.failed.values()),
-            "skipped": len(self.tests),
-        }
-        message = textwrap.dedent(
-            """
-            *****************************
-            ***    Testing Summary    ***
-            *****************************
+        message = [textwrap.dedent(
+            f"""
+            {' Testing Summary ':*^88}
 
-            Tests passed: {passed!s}
-            Up-to-date tests skipped: {skipped!s}
-            Tests failed: {failed!s}
-            """
-        ).format_map(values)
+            Tests passed: {sum(self.passed.values())!s}
+            Up-to-date tests skipped: {len(self.tests)!s}
+            Tests failed: {sum(self.failed.values())!s}
+            """)]
         if self.failed:
-            message = (message + "Failed tests:" +
-                       "".join("\n    - " + n for n in self.failed) +
-                       "\n")
-        message = message + "*****************************"
+            message.append("Failed tests:")
+            for failed in self.failed:
+                message.append(f"    - {failed}")
+            message.append("")
+        message.append(f"{'*' * 88}\n")
+        message = "\n".join(message)
+        logger.status(message, print_level=False)
         if self.failed:
-            logger.error("One or more tests failed.\n" + message, print_level=False)
+            logger.failed("One or more tests failed.")
             sys.exit(1)
-        else:
-            logger.info(message, print_level=False)
 
 
 test_results = TestResults()
