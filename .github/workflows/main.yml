@@ -41,7 +41,8 @@ jobs:
     - name: Install Apt dependencies
       run: |
         sudo apt update
-        sudo apt install libboost-dev gfortran libopenmpi-dev libpython3-dev
+        sudo apt install libboost-dev gfortran libopenmpi-dev libpython3-dev \
+        libblas-dev liblapack-dev
     - name: Upgrade pip
       run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
@@ -73,7 +74,7 @@ jobs:
     - name: Install Apt dependencies
       run: |
         sudo apt update
-        sudo apt install libboost-dev gfortran libomp-dev libomp5
+        sudo apt install libboost-dev gfortran libomp-dev libomp5 libopenblas-dev
     - name: Upgrade pip
       run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
@@ -410,8 +411,8 @@ jobs:
     - name: Install conda dependencies
       # See https://github.com/conda-forge/boost-cpp-feedstock/issues/41 for why we
       # use boost-cpp rather than boost from conda-forge
-      run: |
-        mamba install -q scons numpy cython ruamel.yaml boost-cpp eigen yaml-cpp h5py pandas pytest
+      run: mamba install -q scons numpy cython ruamel.yaml boost-cpp eigen yaml-cpp
+        h5py pandas pytest mkl mkl-devel
       shell: pwsh
     - name: Install typing_extensions for Python 3.7
       if: matrix.python-version == '3.7'
