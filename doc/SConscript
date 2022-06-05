@@ -31,7 +31,7 @@ def extract_matlab_docstring(mfile, level):
     elif level == 1:
         docstring = "    .. mat:function:: "
     else:
-        logger.error(f"Unknown level for MATLAB documentation.")
+        logger.error("Unknown level for MATLAB documentation.")
         sys.exit(1)
 
     # The leader is the number of spaces at the beginning of a regular line
