@@ -370,14 +370,22 @@ config_options = [
            Not needed if the libraries are installed in a standard location,
            for example, '/usr/lib'.""",
         "", PathVariable.PathAccept),
+    EnumOption(
+        "locate_lapack",
+        """Controls whether Cantera automatically checks for installations of BLAS and
+           LAPACK libraries. The option is disabled by default ('off'). If automatic
+           detection is enabled, libraries are added to the 'blas_lapack_libs' path.
+           For the 'auto' setting, MKL is prioritized over OpenBLAS.""",
+        "off", ("auto", "mkl", "openblas", "off")),
     Option(
         "blas_lapack_libs",
-        """Cantera can use BLAS and LAPACK libraries available on your system if
-           you have optimized versions available (for example, Intel MKL). Otherwise,
-           Cantera will use Eigen for linear algebra support. To use BLAS
-           and LAPACK, set 'blas_lapack_libs' to the the list of libraries
-           that should be passed to the linker, separated by commas, for example,
-           "lapack,blas" or "lapack,f77blas,cblas,atlas". Eigen is required
+        """Cantera can use BLAS and LAPACK libraries installed on your system if you
+           have optimized versions available. Cantera automatically checks for
+           installations of BLAS and LAPACK if the 'locate_lapack' option is enabled.
+           Otherwise, Cantera will use Eigen for linear algebra support. To use specific
+           versions of BLAS and LAPACK, set 'blas_lapack_libs' to the the list of
+           libraries that should be passed to the linker, separated by commas, for
+           example, "lapack,blas" or "lapack,f77blas,cblas,atlas". Eigen is required
            whether or not BLAS/LAPACK are used.""",
         ""),
     PathOption(
@@ -1278,6 +1286,60 @@ else:
 env['has_demangle'] = conf.CheckDeclaration("boost::core::demangle",
                                 '#include <boost/core/demangle.hpp>', 'C++')
 
+# check BLAS/LAPACK installations
+if env["blas_lapack_libs"]:
+    for lib in env["blas_lapack_libs"]:
+        if not conf.CheckLib(lib, autoadd=False):
+            config_error(f"Library {lib!r} could not be found.")
+
+elif env["matlab_path"] != "" and env["matlab_toolbox"] in {"default", "y"}:
+    # MATLAB provides the mwlapack and mwblas libraries in matlabroot/extern/lib.
+    logger.info("Skip auto-detection of Intel MKL / OpenBLAS as they are not "
+                "compatible with the MATLAB toolbox.")
+
+elif env["locate_lapack"] != "off":
+    # auto-detect versions
+    if env["locate_lapack"] == "auto":
+        blas_lapack_order = ["mkl_rt", "openblas"]
+    elif env["locate_lapack"] == "mkl":
+        blas_lapack_order = ["mkl_rt"]
+    else:
+        blas_lapack_order = [env["locate_lapack"]]
+    for lib in blas_lapack_order:
+        if conf.CheckLib(lib):
+            env["blas_lapack_libs"] = [lib]
+            env["use_lapack"] = True
+            break
+    if not env["blas_lapack_libs"]:
+        logger.warning(f"Failed to locate BLAS and LAPACK libraries with option "
+            f"'{env['locate_lapack']}'.")
+
+if "mkl_rt" in env["blas_lapack_libs"]:
+    mkl_version = textwrap.dedent("""\
+        #include <iostream>
+        #include "mkl.h"
+        int main(int argc, char** argv) {
+            MKLVersion Version;
+            mkl_get_version(&Version);
+            std::cout << Version.MajorVersion << "." << Version.MinorVersion << "."
+                << Version.UpdateVersion << " for " << Version.Platform;
+            return 0;
+        }
+    """)
+    retcode, mkl_version = conf.TryRun(mkl_version, ".cpp")
+    if retcode:
+        logger.info(f"Using MKL {mkl_version}")
+    else:
+        logger.warning("Failed to determine MKL version.")
+
+elif "openblas" in env["blas_lapack_libs"]:
+    openblas_version_source = get_expression_value(["<openblas_config.h>"], "OPENBLAS_VERSION")
+    retcode, openblas_version = conf.TryRun(openblas_version_source, ".cpp")
+    if retcode:
+        logger.info(f"Using {openblas_version.strip()}")
+    else:
+        logger.warning("Failed to determine OpenBLAS version.")
+
 import SCons.Conftest, SCons.SConf
 context = SCons.SConf.CheckContext(conf)
 
@@ -1323,7 +1385,6 @@ if (env['system_sundials'] == 'n' and
         config_error('Sundials not found and submodule checkout failed.\n'
                      'Try manually checking out the submodule with:\n\n'
                      '    git submodule update --init --recursive ext/sundials\n')
-
 
 env['NEED_LIBM'] = not conf.CheckLibWithHeader(None, 'math.h', 'C',
                                                'double x; log(x);', False)
