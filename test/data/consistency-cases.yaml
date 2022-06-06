@@ -326,3 +326,36 @@ Redlich-Kister:
   - {T: 440, P: 1 atm, X: {Li(C6): 0.75, V(C6): 0.25}}
   - {T: 350, P: 10 atm, X: {Li(C6): 1.0, V(C6): 0.0}}
   - {T: 350, P: 10 atm, X: {Li(C6): 0.0, V(C6): 1.0}}
+
+Maskell-solid-solution:
+  setup:
+    file: thermo-models.yaml
+    phase: MaskellSolidSoln
+    known-failures:
+      g_eq_sum_gk_Xk: "Inconsistent implementation. See GitHub Issue #1321"
+      hk0_eq_uk0_plus_p_vk0/[234]:
+        "Inconsistent except at P = 1 atm. See GitHub Issue #1321"
+      cpk0_eq_dhk0dT/[234]:
+        "Inconsistent except at P = 1 atm. See GitHub Issue #1321"
+      standard_gibbs_nondim/[234]:
+        "Inconsistent except at P = 1 atm. See GitHub Issue #1321"
+      g_eq_h_minus_Ts/[34]:
+        "Generates NaN at limiting composition. See GitHub Issue #1321"
+      dsdP_const_T_eq_minus_dV_dT_const_P/[34]:
+        "Generates NaN at limiting composition. See GitHub Issue #1321"
+      chem_potentials_to_activities/[34]:
+        "Generates NaN at limiting composition. See GitHub Issue #1321"
+      activity_coeffs/[34]:
+        "Generates NaN at limiting composition. See GitHub Issue #1321"
+      activity_concentrations/[34]:
+        "Generates NaN at limiting composition. See GitHub Issue #1321"
+      log_activity_coeffs/[34]:
+        "Generates NaN at limiting composition. See GitHub Issue #1321"
+      h_eq_u_plus_Pv/4:
+        "Generates NaN at limiting composition. See GitHub Issue #1321"
+  states:
+  - {T: 300, P: 1 atm, X: {H(s): 0.3, He(s): 0.7}}
+  - {T: 340, P: 1 atm, X: {H(s): 0.3, He(s): 0.7}}
+  - {T: 330, P: 10 atm, X: {H(s): 0.3, He(s): 0.7}}
+  - {T: 280, P: 20 atm, X: {H(s): 1.0, He(s): 0.0}}
+  - {T: 380, P: 5 atm, X: {H(s): 0.0, He(s): 1.0}}
