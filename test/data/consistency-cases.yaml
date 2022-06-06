@@ -314,3 +314,15 @@ ideal-solution-VPSS-HKFT:
   - {T: 360, P: 5 atm, X: {H2O(L): 0.6, Na+: 0.2, Cl-: 0.2}}
   - {T: 330, P: 10 atm, X: {H2O(L): 0.9, Na+: 0.05, Cl-: 0.05, H+: 1e-7, OH-: 1e-7}}
   - {T: 320, P: 1 atm, X: {H2O(L): 1.0, Na+: 0.01, Cl-: 0.05, H+: 0.04}}
+
+Redlich-Kister:
+  setup:
+    file: thermo-models.yaml
+    phase: Redlich-Kister-LiC6
+    known-failures:
+      c[vp]_eq_.+: "Implementation of cv is incorrect. See GitHub Issue #1320"
+  states:
+  - {T: 300, P: 1 atm, X: {Li(C6): 0.85, V(C6): 0.15}}
+  - {T: 440, P: 1 atm, X: {Li(C6): 0.75, V(C6): 0.25}}
+  - {T: 350, P: 10 atm, X: {Li(C6): 1.0, V(C6): 0.0}}
+  - {T: 350, P: 10 atm, X: {Li(C6): 0.0, V(C6): 1.0}}
