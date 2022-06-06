@@ -241,25 +241,25 @@ void PureFluidPhase::getGibbs_RT(doublereal* grt) const
 
 void PureFluidPhase::getEnthalpy_RT_ref(doublereal* hrt) const
 {
-    double psave = pressure();
+    double rhoSave = density();
     double t = temperature();
     double plow = 1.0E-8;
     Set(tpx::PropertyPair::TP, t, plow);
     getEnthalpy_RT(hrt);
-    Set(tpx::PropertyPair::TP, t, psave);
+    Set(tpx::PropertyPair::TV, t, 1 / rhoSave);
 
 }
 
 void PureFluidPhase::getGibbs_RT_ref(doublereal* grt) const
 {
-    double psave = pressure();
+    double rhoSave = density();
     double t = temperature();
     double pref = refPressure();
     double plow = 1.0E-8;
     Set(tpx::PropertyPair::TP, t, plow);
     getGibbs_RT(grt);
     grt[0] += log(pref/plow);
-    Set(tpx::PropertyPair::TP, t, psave);
+    Set(tpx::PropertyPair::TV, t, 1 / rhoSave);
 }
 
 void PureFluidPhase::getGibbs_ref(doublereal* g) const
@@ -270,14 +270,14 @@ void PureFluidPhase::getGibbs_ref(doublereal* g) const
 
 void PureFluidPhase::getEntropy_R_ref(doublereal* er) const
 {
-    double psave = pressure();
+    double rhoSave = density();
     double t = temperature();
     double pref = refPressure();
     double plow = 1.0E-8;
     Set(tpx::PropertyPair::TP, t, plow);
     getEntropy_R(er);
     er[0] -= log(pref/plow);
-    Set(tpx::PropertyPair::TP, t, psave);
+    Set(tpx::PropertyPair::TV, t, 1 / rhoSave);
 }
 
 doublereal PureFluidPhase::critTemperature() const
