@@ -630,4 +630,10 @@ INSTANTIATE_TEST_SUITE_P(IdealSolnVPSS_HKFT, TestConsistency,
         testing::ValuesIn(getStates("ideal-solution-VPSS-HKFT")))
 );
 
+INSTANTIATE_TEST_SUITE_P(RedlichKister, TestConsistency,
+    testing::Combine(
+        testing::Values(getSetup("Redlich-Kister")),
+        testing::ValuesIn(getStates("Redlich-Kister")))
+);
+
 }
