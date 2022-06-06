@@ -4,7 +4,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_IDAIntegrator_H
 #define CT_IDAIntegrator_H
@@ -67,7 +67,7 @@ public:
     //! responsible for integrator failures or unexpected small timesteps.
     virtual std::string getErrorInfo(int N);
 
-    //! Error message information provide by CVodes
+    //! Error message information provide by IDAS
     std::string m_error_message;
 
     virtual void setMaxNonlinIterations(int n);
@@ -78,7 +78,7 @@ public:
 
 protected:
     protected:
-    //! Applies user-specified options to the underlying CVODES solver. Called
+    //! Applies user-specified options to the underlying IDAS solver. Called
     //! during integrator initialization or reinitialization.
     void applyOptions();
 

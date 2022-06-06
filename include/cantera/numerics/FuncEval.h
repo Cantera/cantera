@@ -75,7 +75,7 @@ public:
      *  @returns 0 for a successful evaluation; 1 after a potentially-
      *      recoverable error; -1 after an unrecoverable error.
      */
-    int eval_nothrow(double t, double* y, double* ydot, double* residaul);
+    int eval_nothrow(double t, double* y, double* ydot, double* residual);
 
     //! Fill in the vector *y* with the current state of the system
     virtual void getState(double* y) {

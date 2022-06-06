@@ -66,7 +66,7 @@ public:
         // mark all variables differential equations unless otherwise specified
         std::fill(constraints, constraints + m_nv, 1.0);
         // the species coverages are algebraic constraints
-        std::fill(constraints + m_non_spec_eq + m_nsp, constraints + m_nv, 0.0);
+        std::fill(constraints + m_offset_Y + m_nsp, constraints + m_nv, 0.0);
     }
 
 
@@ -79,7 +79,7 @@ public:
         return m_u;
     }
 
-    //! The area of the reactor [m^2]
+    //! The cross-sectional area of the reactor [m^2]
     double area() const {
         return m_area;
     }
@@ -110,25 +110,25 @@ public:
 
     //! Set the steady state tolerances used to determine the initial state for
     //! surface coverages
-    void setSteadyStateAtol(double atol) {
+    void setInletSurfaceAtol(double atol) {
         m_ss_atol = atol;
     }
 
     //! Set the steady state tolerances used to determine the initial state for
     //! surface coverages
-    void setSteadyStateRtol(double rtol) {
+    void setInletSurfaceRtol(double rtol) {
         m_ss_rtol = rtol;
     }
 
     //! Set the steady state tolerances used to determine the initial state for
     //! surface coverages
-    void setSteadyStateMaxSteps(int max_steps) {
+    void setInletSurfaceMaxSteps(int max_steps) {
         m_max_ss_steps = max_steps;
     }
 
     //! Set the steady state tolerances used to determine the initial state for
     //! surface coverages
-    void setSteadyStateMaxErrorFailures(int max_fails) {
+    void setInletSurfaceMaxErrorFailures(int max_fails) {
         m_max_ss_error_fails = max_fails;
     }
 
@@ -144,7 +144,7 @@ public:
 protected:
     double m_u, m_T, m_P, m_rho;
     //! offset to the species equations
-    const size_t m_non_spec_eq = 4;
+    const size_t m_offset_Y = 4;
     //! reactor area [m^2]
     double m_area;
     //! reactor surface area to volume ratio [m^-1]

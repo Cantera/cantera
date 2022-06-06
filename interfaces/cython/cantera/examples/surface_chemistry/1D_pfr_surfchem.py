@@ -29,8 +29,7 @@ bulk_n.TP = T0, p0
 gas_si_n_interface.TP = T0, p0
 D = 5.08e-2  # diameter of the tube [m]
 Ac = np.pi * D**2 / 4  # cross section of the tube [m]
-mu = 5.7e-5  # kg/(m-s) dynamic viscosity
-perim = np.pi * D  # perimeter of the tube
+
 # calculate the site fractions of surface species at the entrance of the tube
 # at steady state
 u0 = 11.53  # m/s initial velocity of the flow

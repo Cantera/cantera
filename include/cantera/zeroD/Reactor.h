@@ -94,7 +94,7 @@ public:
     /*!
      *  @param[out] y state vector representing the initial state of the reactor
      */
-    virtual void getState(doublereal* y);
+    virtual void getState(double* y);
 
     //! Get the current state and derivative vector of the reactor for a DAE solver
     /*!
@@ -102,12 +102,12 @@ public:
      *  @param[out] ydot  state vector representing the initial derivatives of the
      *                    reactor
      */
-    virtual void getState(doublereal* y, doublereal* ydot)
+    virtual void getState(double* y, double* ydot)
     {
-        throw CanteraError("Reactor::getState", "Not Implemented");
+        throw CanteraError("Reactor::getState(y, ydot)", "Not Implemented");
     }
 
-    virtual void initialize(doublereal t0 = 0.0);
+    virtual void initialize(double t0 = 0.0);
 
     //! Evaluate the reactor governing equations. Called by ReactorNet::eval.
     //! @param[in] t time.
@@ -123,11 +123,11 @@ public:
      * @param[in] y solution vector, length neq()
      * @param[in] ydot rate of change of solution vector, length neq()
      * @param[in] params sensitivity parameter vector, length ReactorNet::nparams()
-     * @param[out] residual resisduals vector, length neq()
+     * @param[out] residual residuals vector, length neq()
      */
-    virtual void evalEqs(doublereal t, doublereal* y,
-                         doublereal* ydot, doublereal* params,
-                         doublereal* residual)
+    virtual void evalEqs(double t, double* y,
+                         double* ydot, double* params,
+                         double* residual)
     {
         throw CanteraError("Reactor::evalEqs", "Not Implemented");
     }
@@ -142,7 +142,7 @@ public:
     virtual void syncState();
 
     //! Set the state of the reactor to correspond to the state vector *y*.
-    virtual void updateState(doublereal* y);
+    virtual void updateState(double* y);
 
     //! Number of sensitivity parameters associated with this reactor
     //! (including walls)
@@ -231,11 +231,11 @@ protected:
     //! Pointer to the homogeneous Kinetics object that handles the reactions
     Kinetics* m_kin;
 
-    doublereal m_vdot; //!< net rate of volume change from moving walls [m^3/s]
+    double m_vdot; //!< net rate of volume change from moving walls [m^3/s]
 
     double m_Qdot; //!< net heat transfer into the reactor, through walls [W]
 
-    doublereal m_mass; //!< total mass
+    double m_mass; //!< total mass
     vector_fp m_work;
 
     //! Production rates of gas phase species on surfaces [kmol/s]

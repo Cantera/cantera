@@ -58,27 +58,27 @@ public:
     void setSensitivityTolerances(double rtol, double atol);
 
     //! Current value of the simulation time.
-    doublereal time() {
+    double time() {
         return m_time;
     }
 
     //! Relative tolerance.
-    doublereal rtol() {
+    double rtol() {
         return m_rtol;
     }
 
     //! Absolute integration tolerance
-    doublereal atol() {
+    double atol() {
         return m_atols;
     }
 
     //! Relative sensitivity tolerance
-    doublereal rtolSensitivity() const {
+    double rtolSensitivity() const {
         return m_rtolsens;
     }
 
     //! Absolute sensitivity tolerance
-    doublereal atolSensitivity() const {
+    double atolSensitivity() const {
         return m_atolsens;
     }
 
@@ -95,7 +95,7 @@ public:
      * timesteps as necessary to reach *time*.
      * @param time Time to advance to (s).
      */
-    void advance(doublereal time);
+    void advance(double time);
 
     /**
      * Advance the state of all reactors in time. Take as many internal
@@ -140,7 +140,7 @@ public:
 
     //! Update the state of all the reactors in the network to correspond to
     //! the values in the solution vector *y*.
-    void updateState(doublereal* y);
+    void updateState(double* y);
 
     //! Return the sensitivity of the *k*-th solution component with respect to
     //! the *p*-th sensitivity parameter.
@@ -177,28 +177,28 @@ public:
      *  @param[in] p sensitivity parameter vector (unused?)
      *  @param[out] j Jacobian matrix, size neq() by neq().
      */
-    void evalJacobian(doublereal t, doublereal* y,
-                      doublereal* ydot, doublereal* p, Array2D* j);
+    void evalJacobian(double t, double* y,
+                      double* ydot, double* p, Array2D* j);
 
     // overloaded methods of class FuncEval
     virtual size_t neq() {
         return m_nv;
     }
-    virtual void eval(doublereal t, doublereal* y,
-                      doublereal* ydot, doublereal* p);
+    virtual void eval(double t, double* y,
+                      double* ydot, double* p);
 
     //! eval coupling for IDA / DAEs
-    virtual void eval(doublereal t, doublereal* y,
-                      doublereal* ydot, doublereal* p,
-                      doublereal* residaul);
+    virtual void eval(double t, double* y,
+                      double* ydot, double* p,
+                      double* residaul);
 
-    virtual void getState(doublereal* y);
+    virtual void getState(double* y);
 
     //! Return k-th derivative at the current time
     virtual void getDerivative(int k, double* dky);
-    virtual void getState(doublereal* y, doublereal* ydot);
+    virtual void getState(double* y, double* ydot);
 
-    virtual void getConstraints(doublereal* constraints);
+    virtual void getConstraints(double* constraints);
 
     virtual size_t nparams() {
         return m_sens_params.size();
@@ -276,7 +276,7 @@ protected:
 
     std::vector<Reactor*> m_reactors;
     std::unique_ptr<Integrator> m_integ;
-    doublereal m_time;
+    double m_time;
     bool m_init;
     bool m_integrator_init; //!< True if integrator initialization is current
     size_t m_nv;
@@ -285,11 +285,11 @@ protected:
     std::vector<size_t> m_start;
 
     vector_fp m_atol;
-    doublereal m_rtol, m_rtolsens;
-    doublereal m_atols, m_atolsens;
+    double m_rtol, m_rtolsens;
+    double m_atols, m_atolsens;
 
     //! Maximum integrator internal timestep. Default of 0.0 means infinity.
-    doublereal m_maxstep;
+    double m_maxstep;
 
     int m_maxErrTestFails;
     bool m_verbose;
