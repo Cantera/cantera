@@ -283,3 +283,31 @@ liquid-water-IAPWS95:
   - {T: 300, P: 1 atm}
   - {T: 360, P: 1 atm}
   - {T: 450, P: 100 atm}
+
+ideal-solution-VPSS-simple:
+  setup:
+    file: IdealSolidSolnPhaseExample.yaml
+    phase: VpssSolidSolutionExample
+    known-failures:
+      cv_eq_dudT: "Implementation of cv is incorrect. See GitHub Issue #1317"
+      cv_eq_dsdT_const_v_times_T:
+        "Implementation of cv is incorrect. See GitHub Issue #1317"
+  states:
+  - {T: 300, P: 1 atm, X: {C2H2-graph: 0.2, C-graph: 0.5, H2-solute: 0.3}}
+  - {T: 400, P: 1 atm, X: {C2H2-graph: 1.0}}
+  - {T: 500, P: 10 atm, X: {C-graph: 0.6, H2-solute: 0.4}}
+
+ideal-solution-VPSS-HKFT:
+  setup:
+    file: pdss_hkft.yaml
+    known-failures:
+      cv_eq_dudT: "Implementation of cv is incorrect. See GitHub Issue #1317"
+      cv_eq_dsdT_const_v_times_T:
+        "Implementation of cv is incorrect. See GitHub Issue #1317"
+      dsdP_const_T_eq_minus_dV_dT_const_P:
+        "Implementation of cv is incorrect. See GitHub Issue #1318"
+  states:
+  - {T: 300, P: 1 atm, X: {H2O(L): 0.9, Na+: 0.05, Cl-: 0.05, H+: 1e-7, OH-: 1e-7}}
+  - {T: 360, P: 5 atm, X: {H2O(L): 0.6, Na+: 0.2, Cl-: 0.2}}
+  - {T: 330, P: 10 atm, X: {H2O(L): 0.9, Na+: 0.05, Cl-: 0.05, H+: 1e-7, OH-: 1e-7}}
+  - {T: 320, P: 1 atm, X: {H2O(L): 1.0, Na+: 0.01, Cl-: 0.05, H+: 0.04}}

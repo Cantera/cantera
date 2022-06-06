@@ -563,5 +563,16 @@ INSTANTIATE_TEST_SUITE_P(LiquidWaterIapws95, TestConsistency,
         testing::ValuesIn(getStates("liquid-water-IAPWS95")))
 );
 
+INSTANTIATE_TEST_SUITE_P(IdealSolnVPSS_simple, TestConsistency,
+    testing::Combine(
+        testing::Values(getSetup("ideal-solution-VPSS-simple")),
+        testing::ValuesIn(getStates("ideal-solution-VPSS-simple")))
+);
+
+INSTANTIATE_TEST_SUITE_P(IdealSolnVPSS_HKFT, TestConsistency,
+    testing::Combine(
+        testing::Values(getSetup("ideal-solution-VPSS-HKFT")),
+        testing::ValuesIn(getStates("ideal-solution-VPSS-HKFT")))
+);
 
 }
