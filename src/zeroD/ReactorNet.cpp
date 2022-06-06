@@ -229,7 +229,7 @@ double ReactorNet::step()
     } else if (!m_integrator_init) {
         reinitialize();
     }
-    m_time = m_integ->step(m_time + 1.0);;
+    m_time = m_integ->step(m_time + 1.0);
     updateState(m_integ->solution());
     return m_time;
 }
@@ -262,13 +262,11 @@ int ReactorNet::lastOrder()
 void ReactorNet::addReactor(Reactor& r)
 {
     r.setNetwork(this);
-    try
-    {
+    try {
         dynamic_cast<FlowReactor&>(r);
         m_is_dae = true;
-    }
-    catch(bad_cast)
-    {
+    } 
+    catch(std::bad_cast) {
         if (m_is_dae)
         {
             throw CanteraError("ReactorNet::addReactor",
@@ -330,8 +328,7 @@ double ReactorNet::sensitivity(size_t k, size_t p)
         throw IndexError("ReactorNet::sensitivity",
                          "m_sens_params", p, m_sens_params.size()-1);
     }
-    double denom;
-    denom = m_integ->solution(k);
+    double denom = m_integ->solution(k);
     if (denom == 0.0) {
         denom = SmallNumber;
     }

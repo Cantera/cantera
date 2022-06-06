@@ -3,7 +3,7 @@
  */
 
 /**
- * @defgroup intGroup Zero-dimensional Integrators
+ * @defgroup intGroup Integrators for initial value problems
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -68,8 +68,8 @@ public:
      * @param n      Number of equations
      * @param abstol array of N absolute tolerance values
      */
-    virtual void setTolerances(doublereal reltol, size_t n,
-                               doublereal* abstol) {
+    virtual void setTolerances(double reltol, size_t n,
+                               double* abstol) {
         warn("setTolerances");
     }
 
@@ -78,7 +78,7 @@ public:
      * @param reltol scalar relative tolerance
      * @param abstol scalar absolute tolerance
      */
-    virtual void setTolerances(doublereal reltol, doublereal abstol) {
+    virtual void setTolerances(double reltol, double abstol) {
         warn("setTolerances");
     }
 
@@ -87,7 +87,7 @@ public:
      * @param reltol scalar relative tolerance
      * @param abstol scalar absolute tolerance
      */
-    virtual void setSensitivityTolerances(doublereal reltol, doublereal abstol)
+    virtual void setSensitivityTolerances(double reltol, double abstol)
     { }
 
     //! Set the problem type.
@@ -164,11 +164,11 @@ public:
      * @param t0   initial time
      * @param func RHS evaluator object for system of equations.
      */
-    virtual void initialize(doublereal t0, FuncEval& func) {
+    virtual void initialize(double t0, FuncEval& func) {
         warn("initialize");
     }
 
-    virtual void reinitialize(doublereal t0, FuncEval& func) {
+    virtual void reinitialize(double t0, FuncEval& func) {
         warn("reinitialize");
     }
 
@@ -177,7 +177,7 @@ public:
      * @param tout Integrate to this time. Note that this is the
      *             absolute time value, not a time interval.
      */
-    virtual void integrate(doublereal tout) {
+    virtual void integrate(double tout) {
         warn("integrate");
     }
 
@@ -186,19 +186,19 @@ public:
      * @param tout integrate to this time. Note that this is the
      * absolute time value, not a time interval.
      */
-    virtual doublereal step(doublereal tout) {
+    virtual double step(double tout) {
         warn("step");
         return 0.0;
     }
 
     //! The current value of the solution of equation k.
-    virtual doublereal& solution(size_t k) {
+    virtual double& solution(size_t k) {
         warn("solution");
         return m_dummy;
     }
 
     //! The current value of the solution of the system of equations.
-    virtual doublereal* solution() {
+    virtual double* solution() {
         warn("solution");
         return 0;
     }
@@ -294,8 +294,8 @@ public:
     virtual void setMaxNonlinConvFailures(int n) {
         warn("setMaxNonlinConvFailures");
     }
-    virtual void inclAlgebraicInErrorTest(bool yesno) {
-        warn("inclAlgebraicInErrorTest");
+    virtual void includeAlgebraicInErrorTest(bool yesno) {
+        warn("includeAlgebraicInErrorTest");
     }
 
 protected:
@@ -308,7 +308,7 @@ protected:
     // methods for DAE solvers
 
 private:
-    doublereal m_dummy;
+    double m_dummy;
     void warn(const std::string& msg) const {
         writelog(">>>> Warning: method "+msg+" of base class "
                  +"Integrator called. Nothing done.\n");

@@ -235,8 +235,7 @@ void IDAIntegrator::initialize(double t0, FuncEval& func)
     m_y = N_VNew_Serial(static_cast<sd_size_t>(m_neq), (SUNContext) m_ctx); // allocate solution vector
     N_VConst(0.0, m_y);
 
-    if (m_ydot)
-    {
+    if (m_ydot) {
         N_VDestroy_Serial(m_ydot); // free derivative vector if already allocated
     }
     m_ydot = N_VNew_Serial(m_neq, (SUNContext) m_ctx);
@@ -374,7 +373,7 @@ void IDAIntegrator::applyOptions()
             m_linsol = SUNLinSol_SPGMR(m_y, PREC_NONE, 0, (SUNContext) m_ctx);
             IDASpilsSetLinearSolver(m_ida_mem, (SUNLinearSolver) m_linsol);
         #else
-            IDASpgmr(m_ida_mem, PREC_NONE, 0);
+            IDASpgmr(m_ida_mem, 0);
         #endif
     } else if (m_type == BAND + NOJAC) {
         sd_size_t N = static_cast<sd_size_t>(m_neq);

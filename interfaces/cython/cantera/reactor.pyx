@@ -478,29 +478,29 @@ cdef class FlowReactor(Reactor):
         def __set__(self, area):
             (<CxxFlowReactor*>self.reactor).setArea(area)
 
-    property steady_state_atol:
+    property inlet_surface_atol:
         """ Set the steady-state tolerances used to determine the initial surface
             species coverages"""
         def __set__(self, atol):
-            (<CxxFlowReactor*>self.reactor).setSteadyStateAtol(atol)
+            (<CxxFlowReactor*>self.reactor).setInletSurfaceAtol(atol)
 
-    property steady_state_rtol:
+    property inlet_surface_rtol:
         """ Set the steady-state tolerances used to determine the initial surface
             species coverages"""
         def __set__(self, rtol):
-            (<CxxFlowReactor*>self.reactor).setSteadyStateRtol(rtol)
+            (<CxxFlowReactor*>self.reactor).setInletSurfaceRtol(rtol)
 
-    property steady_state_max_steps:
+    property inlet_surface_max_steps:
         """ Set the maximum number of integrator steps used to determine the initial surface
             species coverages"""
         def __set__(self, nsteps):
-            (<CxxFlowReactor*>self.reactor).setSteadyStateMaxSteps(nsteps)
+            (<CxxFlowReactor*>self.reactor).setInletSurfaceMaxSteps(nsteps)
 
-    property steady_state_max_error_failures:
+    property inlet_surface_max_error_failures:
         """ Set the maximum number of integrator error failures allowed when determining
             the initial surface species coverages"""
         def __set__(self, nsteps):
-            (<CxxFlowReactor*>self.reactor).setSteadyStateMaxErrorFailures(nsteps)
+            (<CxxFlowReactor*>self.reactor).setInletSurfaceMaxErrorFailures(nsteps)
 
     property surface_area_to_volume_ratio:
         """ Get/set the surface area to volume ratio of the reactor [m^-1] """
