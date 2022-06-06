@@ -81,7 +81,7 @@ void Reactor::getSurfaceInitialConditions(double* y)
     }
 }
 
-void Reactor::initialize(doublereal t0)
+void Reactor::initialize(double t0)
 {
     if (!m_thermo || (m_chem && !m_kin)) {
         throw CanteraError("Reactor::initialize", "Reactor contents not set"
@@ -124,7 +124,7 @@ void Reactor::syncState()
     m_mass = m_thermo->density() * m_vol;
 }
 
-void Reactor::updateState(doublereal* y)
+void Reactor::updateState(double* y)
 {
     // The components of y are [0] the total mass, [1] the total volume,
     // [2] the total internal energy, [3...K+3] are the mass fractions of each
@@ -208,7 +208,7 @@ void Reactor::eval(double time, double* LHS, double* RHS)
     evalWalls(time);
     m_thermo->restoreState(m_state);
     const vector_fp& mw = m_thermo->molecularWeights();
-    const doublereal* Y = m_thermo->massFractions();
+    const double* Y = m_thermo->massFractions();
 
     evalSurfaces(LHS + m_nsp + 3, RHS + m_nsp + 3, m_sdot.data());
      // mass added to gas phase from surface reactions

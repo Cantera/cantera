@@ -69,27 +69,27 @@ public:
     void setSensitivityTolerances(double rtol, double atol);
 
     //! Current value of the simulation time.
-    doublereal time() {
+    double time() {
         return m_time;
     }
 
     //! Relative tolerance.
-    doublereal rtol() {
+    double rtol() {
         return m_rtol;
     }
 
     //! Absolute integration tolerance
-    doublereal atol() {
+    double atol() {
         return m_atols;
     }
 
     //! Relative sensitivity tolerance
-    doublereal rtolSensitivity() const {
+    double rtolSensitivity() const {
         return m_rtolsens;
     }
 
     //! Absolute sensitivity tolerance
-    doublereal atolSensitivity() const {
+    double atolSensitivity() const {
         return m_atolsens;
     }
 
@@ -105,7 +105,7 @@ public:
      * timesteps as necessary to reach *time*.
      * @param time Time to advance to (s).
      */
-    void advance(doublereal time);
+    void advance(double time);
 
     /**
      * Advance the state of all reactors in time. Take as many internal
@@ -150,7 +150,7 @@ public:
 
     //! Update the state of all the reactors in the network to correspond to
     //! the values in the solution vector *y*.
-    void updateState(doublereal* y);
+    void updateState(double* y);
 
     //! Return the sensitivity of the *k*-th solution component with respect to
     //! the *p*-th sensitivity parameter.
@@ -187,8 +187,8 @@ public:
      *  @param[in] p sensitivity parameter vector (unused?)
      *  @param[out] j Jacobian matrix, size neq() by neq().
      */
-    void evalJacobian(doublereal t, doublereal* y,
-                      doublereal* ydot, doublereal* p, Array2D* j);
+    void evalJacobian(double t, double* y,
+                      double* ydot, double* p, Array2D* j);
 
     // overloaded methods of class FuncEval
     virtual size_t neq() {
@@ -199,21 +199,21 @@ public:
         return m_reactors.size();
     }
 
-    virtual void eval(doublereal t, doublereal* y,
-                      doublereal* ydot, doublereal* p);
+    virtual void eval(double t, double* y,
+                      double* ydot, double* p);
 
     //! eval coupling for IDA / DAEs
-    virtual void eval(doublereal t, doublereal* y,
-                      doublereal* ydot, doublereal* p,
-                      doublereal* residaul);
+    virtual void eval(double t, double* y,
+                      double* ydot, double* p,
+                      double* residaul);
 
-    virtual void getState(doublereal* y);
+    virtual void getState(double* y);
 
     //! Return k-th derivative at the current time
     virtual void getDerivative(int k, double* dky);
-    virtual void getState(doublereal* y, doublereal* ydot);
+    virtual void getState(double* y, double* ydot);
 
-    virtual void getConstraints(doublereal* constraints);
+    virtual void getConstraints(double* constraints);
 
     virtual size_t nparams() {
         return m_sens_params.size();
