@@ -431,6 +431,61 @@ TEST_P(TestConsistency, log_activity_coeffs) {
     }
 }
 
+TEST_P(TestConsistency, hRef_eq_uRef_plus_P_vRef)
+{
+    vector_fp hRef(nsp), uRef(nsp), vRef(nsp);
+    try {
+        phase->getEnthalpy_RT_ref(hRef.data());
+        phase->getIntEnergy_RT_ref(uRef.data());
+        phase->getStandardVolumes_ref(vRef.data());
+    } catch (NotImplementedError& err) {
+        GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
+    }
+    for (size_t k = 0; k < nsp; k++) {
+        EXPECT_NEAR(hRef[k] * RT, uRef[k] * RT + OneAtm * vRef[k], atol) << "k = " << k;
+    }
+}
+
+TEST_P(TestConsistency, gRef_eq_hRef_minus_T_sRef)
+{
+    vector_fp hRef(nsp), gRef_RT(nsp), gRef(nsp), sRef(nsp);
+    try {
+        phase->getEnthalpy_RT_ref(hRef.data());
+        phase->getGibbs_ref(gRef.data());
+        phase->getGibbs_RT_ref(gRef_RT.data());
+        phase->getEntropy_R_ref(sRef.data());
+    } catch (NotImplementedError& err) {
+        GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
+    }
+    for (size_t k = 0; k < nsp; k++) {
+        EXPECT_NEAR(gRef[k], gRef_RT[k] * RT, atol) << "k = " << k;
+        EXPECT_NEAR(gRef[k], hRef[k] * RT - T * sRef[k] * GasConstant,
+                    atol) << "k = " << k;
+    }
+}
+
+TEST_P(TestConsistency, cpRef_eq_dhRefdT)
+{
+    vector_fp h1(nsp), h2(nsp), cp1(nsp), cp2(nsp);
+    try {
+        phase->getEnthalpy_RT_ref(h1.data());
+        phase->getCp_R_ref(cp1.data());
+    } catch (NotImplementedError& err) {
+        GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
+    }
+    double T1 = phase->temperature();
+    double dT = 1e-5 * phase->temperature();
+    phase->setState_TP(T1 + dT, phase->pressure());
+    phase->getEnthalpy_RT_ref(h2.data());
+    phase->getCp_R_ref(cp2.data());
+    for (size_t k = 0; k < nsp; k++) {
+        double cp_mid = 0.5 * (cp1[k] + cp2[k]) * GasConstant;
+        double cp_fd = (h2[k] * (T1 + dT) - h1[k] * T1) / dT * GasConstant;
+        double tol = max({rtol_fd * std::abs(cp_mid), rtol_fd * std::abs(cp_fd), atol});
+        EXPECT_NEAR(cp_fd, cp_mid, tol) << "k = " << k;
+    }
+}
+
 INSTANTIATE_TEST_SUITE_P(IdealGas, TestConsistency,
     testing::Combine(
         testing::Values(getSetup("ideal-gas-h2o2")),
