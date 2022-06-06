@@ -197,8 +197,13 @@ TEST_P(TestConsistency, cp_eq_sum_cpk_Xk)
 
 TEST_P(TestConsistency, cp_eq_dhdT)
 {
-    double h1 = phase->enthalpy_mole();
-    double cp1 = phase->cp_mole();
+    double h1, cp1;
+    try {
+        h1 = phase->enthalpy_mole();
+        cp1 = phase->cp_mole();
+    } catch (NotImplementedError& err) {
+        GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
+    }
     double T1 = phase->temperature();
     double dT = 1e-5 * phase->temperature();
     phase->setState_TP(T1 + dT, phase->pressure());
@@ -211,8 +216,13 @@ TEST_P(TestConsistency, cp_eq_dhdT)
 
 TEST_P(TestConsistency, cv_eq_dudT)
 {
-    double u1 = phase->intEnergy_mole();
-    double cv1 = phase->cv_mole();
+    double u1, cv1;
+    try {
+        u1 = phase->intEnergy_mole();
+        cv1 = phase->cv_mole();
+    } catch (NotImplementedError& err) {
+        GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
+    }
     double T1 = phase->temperature();
     double dT = 1e-5 * phase->temperature();
     if (phase->isCompressible()) {
@@ -229,8 +239,13 @@ TEST_P(TestConsistency, cv_eq_dudT)
 
 TEST_P(TestConsistency, cp_eq_dsdT_const_p_times_T)
 {
-    double s1 = phase->entropy_mole();
-    double cp1 = phase->cp_mole();
+    double s1, cp1;
+    try {
+        s1 = phase->entropy_mole();
+        cp1 = phase->cp_mole();
+    } catch (NotImplementedError& err) {
+        GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
+    }
     double T1 = phase->temperature();
     double dT = 1e-4 * phase->temperature();
     phase->setState_TP(T1 + dT, phase->pressure());
@@ -243,8 +258,13 @@ TEST_P(TestConsistency, cp_eq_dsdT_const_p_times_T)
 
 TEST_P(TestConsistency, cv_eq_dsdT_const_v_times_T)
 {
-    double s1 = phase->entropy_mole();
-    double cv1 = phase->cv_mole();
+    double s1, cv1;
+    try {
+        s1 = phase->entropy_mole();
+        cv1 = phase->cv_mole();
+    } catch (NotImplementedError& err) {
+        GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
+    }
     double T1 = phase->temperature();
     double dT = 1e-4 * phase->temperature();
     if (phase->isCompressible()) {
@@ -634,6 +654,12 @@ INSTANTIATE_TEST_SUITE_P(RedlichKister, TestConsistency,
     testing::Combine(
         testing::Values(getSetup("Redlich-Kister")),
         testing::ValuesIn(getStates("Redlich-Kister")))
+);
+
+INSTANTIATE_TEST_SUITE_P(MaskellSolidSolution, TestConsistency,
+    testing::Combine(
+        testing::Values(getSetup("Maskell-solid-solution")),
+        testing::ValuesIn(getStates("Maskell-solid-solution")))
 );
 
 }
