@@ -251,7 +251,7 @@ bool CoverageDependentSurfPhase::addSpecies(shared_ptr<Species> spec)
     return added;
 }
 
-// Functions calculating reference state thermodyanmic properties--------------
+// Functions calculating reference state thermodynamic properties--------------
 
 void CoverageDependentSurfPhase::getGibbs_RT_ref(double* grt) const
 {
@@ -277,7 +277,7 @@ void CoverageDependentSurfPhase::getCp_R_ref(double* cpr) const
     scale(m_cp0.begin(), m_cp0.end(), cpr, 1.0/GasConstant);
 }
 
-// Functions calculating standard state thermodyanmic properties---------------
+// Functions calculating standard state thermodynamic properties---------------
 
 void CoverageDependentSurfPhase::getEnthalpy_RT(double* hrt) const
 {
@@ -335,7 +335,7 @@ void CoverageDependentSurfPhase::getStandardChemPotentials(double* mu0) const
     }
 }
 
-// Functions calling partial molar thermodyanmic properties----------------
+// Functions calling partial molar thermodynamic properties----------------
 
 void CoverageDependentSurfPhase::getPartialMolarEnthalpies(double* hbar) const
 {
@@ -369,7 +369,7 @@ void CoverageDependentSurfPhase::getChemPotentials(double* mu) const
     }
 }
 
-// Functions calculating mixture thermodyanmic properties--------------------------
+// Functions calculating mixture thermodynamic properties--------------------------
 
 double CoverageDependentSurfPhase::enthalpy_mole() const
 {
@@ -469,7 +469,7 @@ void CoverageDependentSurfPhase::_updateCovDepThermo(bool force) const
                 * (m_cov[item.j] - lowScov) + lowS;
         }
 
-        // For coverage-depedent heat capacity
+        // For coverage-dependent heat capacity
         for (auto& item : m_HeatCapacityDependency) {
             double a = item.cpcov_a;
             double b = item.cpcov_b;

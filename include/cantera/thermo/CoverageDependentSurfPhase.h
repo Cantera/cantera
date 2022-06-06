@@ -150,10 +150,10 @@ public:
     //! Set the polynomial coverage dependece for species
     /*!
      *  enthalpy and entropy are sum of ideal surface species enthalpy and entropy
-     *  and coverage-dependent enthalpy and entropy which are caclulated with
+     *  and coverage-dependent enthalpy and entropy which are calculated with
      *  a polynomial function of coverages:
      *
-     *  For the linear depedence,
+     *  For the linear dependence,
      *  \f[ h^{cov}_k(\theta) = \sum_j h^{slope}_{k,j} \theta_j \f]
      *  \f[ s^{cov}_k(\theta) = \sum_j s^{slope}_{k,j} \theta_j \f]
      *
@@ -173,7 +173,7 @@ public:
     //! Set the piecewise linear coverage dependece for species
     /*!
      *  enthalpy and entropy are sum of ideal surface species enthalpy and entropy
-     *  and coverage-dependent enthalpy and entropy which are caclulated with
+     *  and coverage-dependent enthalpy and entropy which are calculated with
      *  a piecewise linear function of coverages:
      *
      *  \f[ h^{cov}_k(\theta) = \sum_j h^{low}_{k,j} \theta_j
@@ -200,7 +200,7 @@ public:
     //! Set the interpolative coverage dependece for species
     /*!
      *  enthalpy and entropy are sum of ideal surface species enthalpy and entropy
-     *  and coverage-dependent enthalpy and entropy which are caclulated with
+     *  and coverage-dependent enthalpy and entropy which are calculated with
      *  a linearly interpolated function of coverages:
      *
      *  \f[ h^{cov}_k(\theta) = \sum_j \frac{h^{right}_{k,j}
@@ -222,8 +222,8 @@ public:
     //! Set the heat capacity coverage dependece for species
     /*!
      *  heat capacity is sum of ideal surface species heat capacity and coverage-dependent
-     *  heat capacity which is caculated using a function with quadratic depedence on coverages
-     *  and a logarithimic dependence on temperature:
+     *  heat capacity which is calculated using a function with quadratic dependence on coverages
+     *  and a logarithmic dependence on temperature:
 
      *  \f[ cp^{cov}_k(\theta) = \sum_j (a_{k,j} ln(T) + b_{k,j}) \theta_j^2 \f]
      *
@@ -234,7 +234,7 @@ public:
     virtual void initThermo();
     virtual bool addSpecies(shared_ptr<Species> spec);
 
-    // Functions calculating reference state thermodyanmic properties--------------
+    // Functions calculating reference state thermodynamic properties--------------
 
     //! Return the nondimensionalized reference state enthalpy.
     /*!
@@ -271,7 +271,7 @@ public:
      */
     virtual void getGibbs_RT_ref(double* grt) const;
 
-    // Functions calculating standard state thermodyanmic properties---------------
+    // Functions calculating standard state thermodynamic properties---------------
 
     //! Return the nondimensionalized standard state enthalpy.
     /*!
@@ -324,7 +324,7 @@ public:
      */
     virtual void getStandardChemPotentials(double* mu0) const;
 
-    // Functions calculating partial molar thermodyanmic properties----------------
+    // Functions calculating partial molar thermodynamic properties----------------
 
     //! Return the partial molar enthalpy. Units: J/kmol
     /*!
@@ -362,11 +362,11 @@ public:
      */
     virtual void getChemPotentials(double* mu) const;
 
-    // Functions calculating mixture thermodyanmic properties----------------------
+    // Functions calculating mixture thermodynamic properties----------------------
 
     //! Return the solution's molar enthalpy. Units: J/kmol
     /*!
-     * Asumming an ideal solution,
+     * Assuming an ideal solution,
      * \f[
      * \hat h(T, P, \theta) = \sum_k \theta_k \overline{h}_k(T, \theta)
      *                      = \sum_k \theta_k h^o_k(T, \theta)
@@ -387,7 +387,7 @@ public:
 
     //! Return the solution's molar cp. Units: J/kmol/K
     /*!
-     * Asumming an ideal solution,
+     * Assuming an ideal solution,
      * \f[
      * \hat{cp} (T, P, \theta) = \sum_k \theta_k \overline{cp}_k(T, \theta)
      *                         = \sum_k \theta_k cp^o_k(T, \theta)
@@ -422,7 +422,7 @@ protected:
     mutable vector_fp m_entropy;
 
     //! Temporary storage for the sum of reference state heat capacities and
-    //! coverage-dependent heat capapcities.
+    //! coverage-dependent heat capacities.
     mutable vector_fp m_heatcapacity;
 
     //! Temporary storage for the sum of reference state chemical potentials
