@@ -99,7 +99,7 @@ TEST_P(TestConsistency, g_eq_h_minus_Ts) {
     EXPECT_NEAR(g, h - T * s, atol);
 }
 
-TEST_P(TestConsistency, hk_eq_uk_plus_P_times_vk)
+TEST_P(TestConsistency, hk_eq_uk_plus_P_vk)
 {
     vector_fp hk(nsp), uk(nsp), vk(nsp);
     try {
@@ -114,7 +114,7 @@ TEST_P(TestConsistency, hk_eq_uk_plus_P_times_vk)
     }
 }
 
-TEST_P(TestConsistency, gk_eq_hk_minus_T_times_sk)
+TEST_P(TestConsistency, gk_eq_hk_minus_T_sk)
 {
     vector_fp gk(nsp), hk(nsp), sk(nsp);
     try {
@@ -205,7 +205,7 @@ TEST_P(TestConsistency, cp_eq_dhdT)
     double h2 = phase->enthalpy_mole();
     double cp2 = phase->cp_mole();
     double cp_mid = 0.5 * (cp1 + cp2);
-    double cp_fd = (h2 - h1)/dT;
+    double cp_fd = (h2 - h1) / dT;
     EXPECT_NEAR(cp_fd, cp_mid, max({rtol_fd * cp_mid, rtol_fd * cp_fd, atol}));
 }
 
@@ -223,7 +223,7 @@ TEST_P(TestConsistency, cv_eq_dudT)
     double u2 = phase->intEnergy_mole();
     double cv2 = phase->cv_mole();
     double cv_mid = 0.5 * (cv1 + cv2);
-    double cv_fd = (u2 - u1)/dT;
+    double cv_fd = (u2 - u1) / dT;
     EXPECT_NEAR(cv_fd, cv_mid, max({rtol_fd * cv_mid, rtol_fd * cv_fd, atol}));
 }
 
@@ -362,7 +362,7 @@ TEST_P(TestConsistency, standard_gibbs_nondim)
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
     }
     for (size_t k = 0; k < nsp; k++) {
-        EXPECT_NEAR(g0_RT[k] * RT , mu0[k], atol);
+        EXPECT_NEAR(g0_RT[k] * RT , mu0[k], atol) << "k = " << k;
     }
 }
 
