@@ -6,11 +6,30 @@
 #include "cantera/base/utilities.h"
 #include <regex>
 
+// This is a set of tests that check all ThermoPhase models implemented in Cantera
+// for thermodynamic identities such as g = h - T*s and c_p = dh/dT at constant P.
+
+// Below the definition of the TestConsistency test fixture class, the individual
+// consistency tests are implemented in the functions declared using the TEST_P macro.
+// Each of these tests starts with the 'phase' object created and set to the
+// thermodynamic state that should be used for the test.
+
+// Following the individual test definitions, a "test suite" is created for each phase
+// model using the INSTANTIATE_TEST_SUITE_P macro. The string passed to the getSetup()
+// and getStates() functions in the test suite instantiation corresponds to a top-level
+// section of the file test/data/consistency-cases.yaml. Each of these sections defines
+// a phase definition and a sequence of thermodynamic states to be used for each of the
+// individual test functions. Generally, there is one test suite for each ThermoPhase
+// model. However, there are a few phase models that have multiple test suites to allow
+// testing the effects of parameters that can only be varied within the phase
+// definition.
+
 using namespace std;
 
 namespace Cantera
 {
 
+// Helper functions to reduce code duplication in test suite instantiations
 vector<AnyMap> getStates(const string& name) {
     static AnyMap cases = AnyMap::fromYamlFile("consistency-cases.yaml");
     return cases[name]["states"].asVector<AnyMap>();
@@ -45,6 +64,9 @@ public:
         auto param = GetParam();
         setup = get<0>(param);
         AnyMap state = get<1>(param);
+
+        // For efficiency, cache the instantiated phase object rather than recreating
+        // it for every single test case.
         pair<string, string> key = {setup["file"].asString(), setup.getString("phase", "")};
         if (cache.count(key) == 0) {
             cache[key].reset(newPhase(key.first, key.second));
@@ -62,6 +84,7 @@ public:
     }
 
     void SetUp() {
+        // See if we should skip this test specific test case
         if (setup.hasKey("known-failures")) {
             auto name = testing::UnitTest::GetInstance()->current_test_info()->name();
             for (auto& item : setup["known-failures"].asMap<string>()) {
@@ -79,11 +102,14 @@ public:
     shared_ptr<ThermoPhase> phase;
     size_t nsp;
     double T, p, RT;
-    double atol, atol_v;
+    double atol; // absolute tolerance for molar energy comparisons
+    double atol_v; // absolute tolerance for molar volume comparisons
     double rtol_fd; // relative tolerance for finite difference comparisons
 };
 
 map<pair<string, string>, shared_ptr<ThermoPhase>> TestConsistency::cache = {};
+
+// --------------- Definitions for individual consistency tests ---------------
 
 TEST_P(TestConsistency, h_eq_u_plus_Pv) {
     double h = phase->enthalpy_mole();
@@ -319,6 +345,8 @@ TEST_P(TestConsistency, dSdv_const_T_eq_dPdT_const_V) {
     }
 }
 
+// ---------- Tests for consistency of standard state properties ---------------
+
 TEST_P(TestConsistency, hk0_eq_uk0_plus_p_vk0)
 {
     vector_fp h0(nsp), u0(nsp), v0(nsp);
@@ -451,6 +479,8 @@ TEST_P(TestConsistency, log_activity_coeffs) {
     }
 }
 
+// -------------------- Tests for reference state properties -------------------
+
 TEST_P(TestConsistency, hRef_eq_uRef_plus_P_vRef)
 {
     vector_fp hRef(nsp), uRef(nsp), vRef(nsp);
@@ -505,6 +535,8 @@ TEST_P(TestConsistency, cpRef_eq_dhRefdT)
         EXPECT_NEAR(cp_fd, cp_mid, tol) << "k = " << k;
     }
 }
+
+// ------- Instantiation of test suites defined in consistency-cases.yaml ------
 
 INSTANTIATE_TEST_SUITE_P(IdealGas, TestConsistency,
     testing::Combine(

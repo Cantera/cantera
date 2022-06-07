@@ -1,4 +1,34 @@
 # Parameters for test cases defined in test/thermo/consistency.cpp
+#
+# Each top-level entry here corresponds to a Googletest "test suite" instantiation,
+# using the INSTANTIATE_TEST_SUITE_P macro.
+#
+# Each of these entries has two keys, 'setup' and 'states'. The 'setup' map defines the
+# phase to be loaded, information on cases that are known to fail, and optional
+# tolerance parameters that are used in some tests. Within the 'setup' map, the
+# following keys are recognized:
+# - file: the name of the input file, read from the usual data paths (which
+#   includes test/data when running the test suite)
+# - phase: The name of the phase to read. Optional - by default, the first phase
+#   in the file is used.
+# - known-failures: A map where the keys identify tests that should be skipped because
+#   they are known to fail and the values are messages to be printed in the test log
+#   explaining why the test has been skipped. The keys are regular expressions that are
+#   searched for in the test names (second argument to TEST_P) defined in
+#   consistency.cpp. The test name is suffixed with '/N' where 'N' is the (zero-indexed)
+#   index into the 'states' array and can be used to skip specific test instances. Where
+#   possible, known failures should reference GitHub Issue numbers documenting known
+#   errors. This mechanism is not used to handle test cases that raise
+#   NotImplementedError; Those tests should be skipped automatically.
+# - atol: An absolute tolerance used for tests comparing molar energy-like quantities.
+#   Default 1.0e-5.
+# - atol_v: An absolute tolerance used for tests comparing molar volumes.
+#   Default 1.0e-11.
+# - rtol_fd: A relative tolerance used in some finite difference tests. Default 1.0e-6.
+#
+# The 'states' key defines a list of maps, where each map provides a complete state
+# definition for the phase. The map is passed directly to ThermoPhase::setState(), and
+# supports setting the state using any of the variables supported there.
 
 ideal-gas-h2o2:
   setup: {file: h2o2.yaml}
