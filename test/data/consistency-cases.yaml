@@ -359,3 +359,16 @@ Maskell-solid-solution:
   - {T: 330, P: 10 atm, X: {H(s): 0.3, He(s): 0.7}}
   - {T: 280, P: 20 atm, X: {H(s): 1.0, He(s): 0.0}}
   - {T: 380, P: 5 atm, X: {H(s): 0.0, He(s): 1.0}}
+
+ions-from-neutral-molecule:
+  setup:
+    file: thermo-models.yaml
+    phase: ions-from-neutral-molecule
+    known-failures:
+      g_eq_h_minus_Ts: "Inconsistent results. See GitHub Issue #1322"
+      gk_eq_hk_minus_T_sk: "Inconsistent results. See GitHub Issue #1322"
+      v_eq_sum_vk_Xk: "Inconsistent results. See GitHub Issue #1322"
+      chem_potentials_to_activities: "Inconsistent results. See GitHub Issue #1322"
+  states:
+  - {T: 300, P: 1 atm, X: {K+: 0.1, Cl-: 0.1}}
+  - {T: 500, P: 5 bar, X: {K+: 0.1, Cl-: 0.1}}

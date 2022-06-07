@@ -662,4 +662,10 @@ INSTANTIATE_TEST_SUITE_P(MaskellSolidSolution, TestConsistency,
         testing::ValuesIn(getStates("Maskell-solid-solution")))
 );
 
+INSTANTIATE_TEST_SUITE_P(IonsFromNeutralMolecule, TestConsistency,
+    testing::Combine(
+        testing::Values(getSetup("ions-from-neutral-molecule")),
+        testing::ValuesIn(getStates("ions-from-neutral-molecule")))
+);
+
 }
