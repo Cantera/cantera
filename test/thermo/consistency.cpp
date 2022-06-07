@@ -668,4 +668,10 @@ INSTANTIATE_TEST_SUITE_P(IonsFromNeutralMolecule, TestConsistency,
         testing::ValuesIn(getStates("ions-from-neutral-molecule")))
 );
 
+INSTANTIATE_TEST_SUITE_P(HMWSoln, TestConsistency,
+    testing::Combine(
+        testing::Values(getSetup("HMW-electrolyte")),
+        testing::ValuesIn(getStates("HMW-electrolyte")))
+);
+
 }

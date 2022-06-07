@@ -372,3 +372,16 @@ ions-from-neutral-molecule:
   states:
   - {T: 300, P: 1 atm, X: {K+: 0.1, Cl-: 0.1}}
   - {T: 500, P: 5 bar, X: {K+: 0.1, Cl-: 0.1}}
+
+HMW-electrolyte:
+  setup:
+    file: HMW_NaCl.yaml
+    known-failures:
+      cp_eq_dhdT: "Moderate discrepancies. See GitHub Issue #1324"
+      cp_eq_dsdT_const_p_times_T: "Moderate discrepancies. See GitHub Issue #1324"
+      dsdP_const_T_eq_minus_dV_dT_const_P: "Moderate discrepancies. See GitHub Issue #1324"
+      activity_coeffs: "Major discrepancies for all solute species. See GitHub Issue #1324"
+  states:
+  - {T: 300, P: 1 atm, molalities: {Na+: 9.4, Cl-: 9.4, H+: 1.05e-05, OH-: 1.0e-05}}
+  - {T: 330, P: 1 atm, molalities: {Na+: 9.4, Cl-: 9.4, H+: 1.05e-04, OH-: 1.0e-04}}
+  - {T: 330, P: 10 atm, molalities: {Na+: 5.0, Cl-: 4.8, H+: 1.0e-07, OH-: 0.2}}
