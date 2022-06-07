@@ -22,12 +22,6 @@ public:
     std::unique_ptr<ThermoPhase> test_phase;
 };
 
-TEST_F(BinarySolutionTabulatedThermo_Test,construct_from_yaml)
-{
-    BinarySolutionTabulatedThermo* BinarySolutionTabulatedThermo_phase = dynamic_cast<BinarySolutionTabulatedThermo*>(test_phase.get());
-    EXPECT_TRUE(BinarySolutionTabulatedThermo_phase != NULL);
-}
-
 TEST_F(BinarySolutionTabulatedThermo_Test,interp_h)
 {
     test_phase->setState_TP(298.15, 101325.);
@@ -120,22 +114,6 @@ TEST_F(BinarySolutionTabulatedThermo_Test,chem_potentials)
     }
 }
 
-
-TEST_F(BinarySolutionTabulatedThermo_Test,mole_fractions)
-{
-    test_phase->setState_TP(298.15,101325.);
-    double xmin = 0.10;
-    double xmax = 0.75;
-    int numSteps= 9;
-    double dx = (xmax-xmin)/(numSteps-1);
-    vector_fp molefracs(2);
-    for (int i = 0; i < numSteps; ++i)
-    {
-        set_defect_X(xmin + i*dx);
-        test_phase->getMoleFractions(&molefracs[0]);
-        EXPECT_NEAR(xmin + i*dx, molefracs[0], 1.e-6);
-    }
-}
 
 TEST_F(BinarySolutionTabulatedThermo_Test,partialMolarEntropies)
 {

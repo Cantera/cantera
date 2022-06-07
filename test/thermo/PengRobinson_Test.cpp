@@ -24,12 +24,6 @@ public:
     std::unique_ptr<ThermoPhase> test_phase;
 };
 
-TEST_F(PengRobinson_Test, construct_from_yaml)
-{
-    PengRobinson* peng_robinson_phase = dynamic_cast<PengRobinson*>(test_phase.get());
-    EXPECT_TRUE(peng_robinson_phase != NULL);
-}
-
 TEST_F(PengRobinson_Test, chem_potentials)
 {
     test_phase->setState_TP(298.15, 101325.);
@@ -63,90 +57,12 @@ TEST_F(PengRobinson_Test, chem_potentials)
     }
 }
 
-TEST_F(PengRobinson_Test, chemPotentials_RT)
-{
-    double T = 410.0;
-    test_phase->setState_TP(T, 130 * OneAtm);
-
-    // Test that chemPotentials_RT*RT = chemPotentials
-    const double RT = GasConstant * T;
-    vector_fp mu(7);
-    vector_fp mu_RT(7);
-    double xmin = 0.6;
-    double xmax = 0.9;
-    int numSteps = 9;
-    double dx = (xmax-xmin)/(numSteps-1);
-
-    for(int i=0; i < numSteps; ++i)
-    {
-        const double r = xmin + i*dx;
-        set_r(r);
-        test_phase->getChemPotentials(&mu[0]);
-        test_phase->getChemPotentials_RT(&mu_RT[0]);
-        EXPECT_NEAR(mu[0], mu_RT[0]*RT, 1.e-6);
-        EXPECT_NEAR(mu[2], mu_RT[2]*RT, 1.e-6);
-    }
-}
-
-TEST_F(PengRobinson_Test, activityCoeffs)
-{
-    double T = 330.0;
-    test_phase->setState_TP(T, 120 * OneAtm);
-
-    // Test that mu0 + RT log(activityCoeff * MoleFrac) == mu
-    const double RT = GasConstant * T;
-    vector_fp mu0(7);
-    vector_fp activityCoeffs(7);
-    vector_fp chemPotentials(7);
-    double xmin = 0.6;
-    double xmax = 0.9;
-    int numSteps = 9;
-    double dx = (xmax-xmin)/(numSteps-1);
-
-    for(int i=0; i < numSteps; ++i)
-    {
-        const double r = xmin + i*dx;
-        set_r(r);
-        test_phase->getChemPotentials(&chemPotentials[0]);
-        test_phase->getActivityCoefficients(&activityCoeffs[0]);
-        test_phase->getStandardChemPotentials(&mu0[0]);
-        EXPECT_NEAR(chemPotentials[0], mu0[0] + RT*std::log(activityCoeffs[0] * r), 1.e-6);
-        EXPECT_NEAR(chemPotentials[2], mu0[2] + RT*std::log(activityCoeffs[2] * (1-r)), 1.e-6);
-    }
-}
-
 TEST_F(PengRobinson_Test, standardConcentrations)
 {
     EXPECT_DOUBLE_EQ(test_phase->pressure()/(test_phase->temperature()*GasConstant),
                      test_phase->standardConcentration(0));
     EXPECT_DOUBLE_EQ(test_phase->pressure()/(test_phase->temperature()*GasConstant),
                      test_phase->standardConcentration(1));
-}
-
-TEST_F(PengRobinson_Test, activityConcentrations)
-{
-    // Check to make sure activityConcentration_i == standardConcentration_i * gamma_i * X_i
-    vector_fp standardConcs(7);
-    vector_fp activityCoeffs(7);
-    vector_fp activityConcentrations(7);
-    double xmin = 0.6;
-    double xmax = 0.9;
-    int numSteps = 9;
-    double dx = (xmax-xmin)/(numSteps-1);
-    test_phase->setState_TP(350, 100 * OneAtm);
-
-    for(int i=0; i < numSteps; ++i)
-    {
-        const double r = xmin + i*dx;
-        set_r(r);
-        test_phase->getActivityCoefficients(&activityCoeffs[0]);
-        standardConcs[0] = test_phase->standardConcentration(0);
-        standardConcs[2] = test_phase->standardConcentration(2);
-        test_phase->getActivityConcentrations(&activityConcentrations[0]);
-
-        EXPECT_NEAR(standardConcs[0] * r * activityCoeffs[0], activityConcentrations[0], 1.e-6);
-        EXPECT_NEAR(standardConcs[2] * (1-r) * activityCoeffs[2], activityConcentrations[2], 1.e-6);
-    }
 }
 
 TEST_F(PengRobinson_Test, setTP)
@@ -234,78 +150,6 @@ TEST_F(PengRobinson_Test, getPressure)
     }
 }
 
-TEST_F(PengRobinson_Test, gibbsEnergy)
-{
-    // Test that g == h - T*s
-    const double T = 360.;
-    double xmin = 0.6;
-    double xmax = 0.9;
-    int numSteps = 9;
-    double dx = (xmax - xmin) / (numSteps - 1);
-    double gibbs_theoretical;
-
-    for (int i = 0; i < numSteps; ++i)
-    {
-        const double r = xmin + i * dx;
-        test_phase->setState_TP(T, 150e5);
-        set_r(r);
-        gibbs_theoretical = test_phase->enthalpy_mole() - T * (test_phase->entropy_mole());
-        EXPECT_NEAR(test_phase->gibbs_mole(), gibbs_theoretical, 1.e-6);
-    }
-}
-
-TEST_F(PengRobinson_Test, totalEnthalpy)
-{
-    // Test that hbar = \sum (h_k*x_k)
-    double hbar, sum = 0.0;
-    vector_fp partialEnthalpies(7);
-    vector_fp moleFractions(7);
-    double xmin = 0.6;
-    double xmax = 0.9;
-    int numSteps = 9;
-    double dx = (xmax - xmin) / (numSteps - 1);
-
-    for (int i = 0; i < numSteps; ++i)
-    {
-        sum = 0.0;
-        const double r = xmin + i * dx;
-        test_phase->setState_TP(430., 120e5);
-        set_r(r);
-        hbar = test_phase->enthalpy_mole();
-        test_phase->getMoleFractions(&moleFractions[0]);
-        test_phase->getPartialMolarEnthalpies(&partialEnthalpies[0]);
-        for (int k = 0; k < 7; k++)
-        {
-            sum += moleFractions[k] * partialEnthalpies[k];
-        }
-        EXPECT_NEAR(hbar, sum, 1.e-6);
-    }
-}
-
-TEST_F(PengRobinson_Test, cpValidate)
-{
-    // Test that cp = dH/dT at constant pressure using finite difference method
-
-    double p = 200e5;
-    double Tmin = 298;
-    int numSteps = 20;
-    double dT = 1e-4;
-    test_phase->setMoleFractionsByName("CO2: 0.7, H2O: 0.1, H2: 0.2");
-
-    for (int i = 0; i < numSteps; ++i) {
-        const double T = Tmin + 10 * i;
-        test_phase->setState_TP(T - dT, p);
-        double h1 = test_phase->enthalpy_mole();  // J/kmol
-        test_phase->setState_TP(T, p);
-        double cp = test_phase->cp_mole();        // unit is J/kmol/K
-        test_phase->setState_TP(T + dT, p);
-        double h2 = test_phase->enthalpy_mole();
-
-        double dh_dT = (h2 - h1) / (2 * dT);
-        EXPECT_NEAR(cp, dh_dT, 1e-6 * cp);
-    }
-}
-
 TEST_F(PengRobinson_Test, CoolPropValidate)
 {
     // Validate the P-R EoS in Cantera with P-R EoS from CoolProp
@@ -332,53 +176,6 @@ TEST_F(PengRobinson_Test, CoolPropValidate)
         set_r(1.0);
         test_phase->setState_TP(temp, p);
         EXPECT_NEAR(test_phase->density(),rhoCoolProp[i],1.e-5);
-    }
-}
-
-TEST_F(PengRobinson_Test, partialMolarPropertyIdentities)
-{
-    // unique_ptr<ThermoPhase> phase(newPhase("co2_PR_example.yaml"));
-    vector_fp hk(test_phase->nSpecies());
-    vector_fp uk(test_phase->nSpecies());
-    vector_fp sk(test_phase->nSpecies());
-    vector_fp gk(test_phase->nSpecies());
-    vector_fp vk(test_phase->nSpecies());
-    vector_fp X(test_phase->nSpecies());
-
-    test_phase->setMoleFractionsByName("CO2: 0.7, H2O: 0.1, H2: 0.2");
-    test_phase->getMoleFractions(X.data());
-    double P = 100 * OneAtm;
-
-    for (int i = 0; i < 5; i++) {
-        double T = 300 + i*60;
-        test_phase->setState_TP(T, P);
-        test_phase->getPartialMolarEnthalpies(hk.data());
-        test_phase->getPartialMolarIntEnergies(uk.data());
-        test_phase->getPartialMolarEntropies(sk.data());
-        test_phase->getChemPotentials(gk.data());
-        test_phase->getPartialMolarVolumes(vk.data());
-
-        double h_mix = test_phase->enthalpy_mole();
-        double u_mix = test_phase->intEnergy_mole();
-        double s_mix = test_phase->entropy_mole();
-        double g_mix = test_phase->gibbs_mole();
-        double v_mix = test_phase->molarVolume();
-
-        double h = dot(X.begin(), X.end(), hk.begin());
-        EXPECT_NEAR(h, h_mix, 1e-11 * std::abs(h_mix));
-        double u = dot(X.begin(), X.end(), uk.begin());
-        EXPECT_NEAR(u, u_mix, 1e-11 * std::abs(u_mix));
-        double s = dot(X.begin(), X.end(), sk.begin());
-        EXPECT_NEAR(s, s_mix, 1e-11 * std::abs(s_mix));
-        double g = dot(X.begin(), X.end(), gk.begin());
-        EXPECT_NEAR(g, g_mix, 1e-11 * std::abs(g_mix));
-        double v = dot(X.begin(), X.end(), vk.begin());
-        EXPECT_NEAR(v, v_mix, 1e-11 * std::abs(v_mix));
-
-        for (size_t k = 0; k < test_phase->nSpecies(); k++) {
-            EXPECT_NEAR(uk[k] + P * vk[k], hk[k], 1e-11 * std::abs(h_mix));
-            EXPECT_NEAR(hk[k] - T * sk[k], gk[k], 1e-11 * std::abs(g_mix));
-        }
     }
 }
 
