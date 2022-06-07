@@ -25,12 +25,6 @@ public:
     std::unique_ptr<ThermoPhase> test_phase;
 };
 
-TEST_F(RedlichKwongMFTP_Test, construct_from_file)
-{
-    RedlichKwongMFTP* redlich_kwong_phase = dynamic_cast<RedlichKwongMFTP*>(test_phase.get());
-    EXPECT_TRUE(redlich_kwong_phase != NULL);
-}
-
 TEST_F(RedlichKwongMFTP_Test, chem_potentials)
 {
     test_phase->setState_TP(298.15, 101325.);
@@ -63,61 +57,10 @@ TEST_F(RedlichKwongMFTP_Test, chem_potentials)
     }
 }
 
-TEST_F(RedlichKwongMFTP_Test, activityCoeffs)
-{
-    test_phase->setState_TP(298., 1.);
-
-    // Test that mu0 + RT log(activityCoeff * MoleFrac) == mu
-    const double RT = GasConstant * 298.;
-    vector_fp mu0(7);
-    vector_fp activityCoeffs(7);
-    vector_fp chemPotentials(7);
-    double xmin = 0.6;
-    double xmax = 0.9;
-    int numSteps = 9;
-    double dx = (xmax-xmin)/(numSteps-1);
-
-    for(int i=0; i < numSteps; ++i)
-    {
-        const double r = xmin + i*dx;
-        set_r(r);
-        test_phase->getChemPotentials(&chemPotentials[0]);
-        test_phase->getActivityCoefficients(&activityCoeffs[0]);
-        test_phase->getStandardChemPotentials(&mu0[0]);
-        EXPECT_NEAR(chemPotentials[0], mu0[0] + RT*std::log(activityCoeffs[0] * r), 1.e-6);
-        EXPECT_NEAR(chemPotentials[2], mu0[2] + RT*std::log(activityCoeffs[2] * (1-r)), 1.e-6);
-    }
-}
-
 TEST_F(RedlichKwongMFTP_Test, standardConcentrations)
 {
     EXPECT_DOUBLE_EQ(test_phase->pressure()/(test_phase->temperature()*GasConstant), test_phase->standardConcentration(0));
     EXPECT_DOUBLE_EQ(test_phase->pressure()/(test_phase->temperature()*GasConstant), test_phase->standardConcentration(1));
-}
-
-TEST_F(RedlichKwongMFTP_Test, activityConcentrations)
-{
-    // Check to make sure activityConcentration_i == standardConcentration_i * gamma_i * X_i
-    vector_fp standardConcs(7);
-    vector_fp activityCoeffs(7);
-    vector_fp activityConcentrations(7);
-    double xmin = 0.6;
-    double xmax = 0.9;
-    int numSteps = 9;
-    double dx = (xmax-xmin)/(numSteps-1);
-
-    for(int i=0; i < 9; ++i)
-    {
-        const double r = xmin + i*dx;
-        set_r(r);
-        test_phase->getActivityCoefficients(&activityCoeffs[0]);
-        standardConcs[0] = test_phase->standardConcentration(0);
-        standardConcs[2] = test_phase->standardConcentration(2);
-        test_phase->getActivityConcentrations(&activityConcentrations[0]);
-
-        EXPECT_NEAR(standardConcs[0] * r * activityCoeffs[0], activityConcentrations[0], 1.e-6);
-        EXPECT_NEAR(standardConcs[2] * (1-r) * activityCoeffs[2], activityConcentrations[2], 1.e-6);
-    }
 }
 
 TEST_F(RedlichKwongMFTP_Test, setTP)
@@ -202,24 +145,6 @@ TEST_F(RedlichKwongMFTP_Test, localCritProperties)
     test_phase->setState_TPX(400, 1.2e6, "H2O: 1.0");
     EXPECT_NEAR(test_phase->critTemperature(), 647.096, 1e-5);
     EXPECT_NEAR(test_phase->critPressure(), 22.064e6, 1e-4);
-}
-
-TEST_F(RedlichKwongMFTP_Test, partialMolarIntEnergy)
-{
-    // Check that sum(X_k * u) = u
-    set_r(0.4);
-    test_phase->setState_TP(400, 1.3e7);
-    double u_ref = test_phase->intEnergy_mole();
-    size_t kk = test_phase->nSpecies();
-    vector_fp uk(kk);
-    vector_fp X(kk);
-    test_phase->getMoleFractions(X.data());
-    test_phase->getPartialMolarIntEnergies(uk.data());
-    double u_test = 0;
-    for (size_t k = 0; k < kk; k++) {
-        u_test += uk[k] * X[k];
-    }
-    EXPECT_NEAR(u_ref, u_test, 1e-13 * std::abs(u_ref));
 }
 
 };

@@ -81,56 +81,11 @@ TEST_F(MaskellSolidSolnPhase_Test, partialMolarVolumes)
     EXPECT_EQ(0.01, pmv[1]);
 }
 
-TEST_F(MaskellSolidSolnPhase_Test, activityCoeffs)
-{
-    setup("MaskellSolidSolnPhase_valid.yaml");
-    test_phase->setState_TP(298., 1.);
-    set_r(0.5);
-
-    // Test that mu0 + RT log(activityCoeff * MoleFrac) == mu
-    const double RT = GasConstant * 298.;
-    vector_fp mu0(2);
-    vector_fp activityCoeffs(2);
-    vector_fp chemPotentials(2);
-    for(int i=0; i < 9; ++i)
-    {
-        const double r = 0.1 * (i+1);
-        set_r(r);
-        test_phase->getChemPotentials(&chemPotentials[0]);
-        test_phase->getActivityCoefficients(&activityCoeffs[0]);
-        test_phase->getStandardChemPotentials(&mu0[0]);
-        EXPECT_NEAR(chemPotentials[0], mu0[0] + RT*std::log(activityCoeffs[0] * r), 1.e-6);
-        EXPECT_NEAR(chemPotentials[1], mu0[1] + RT*std::log(activityCoeffs[1] * (1-r)), 1.e-6);
-    }
-}
-
 TEST_F(MaskellSolidSolnPhase_Test, standardConcentrations)
 {
     setup("MaskellSolidSolnPhase_valid.yaml");
     EXPECT_DOUBLE_EQ(1.0, test_phase->standardConcentration(0));
     EXPECT_DOUBLE_EQ(1.0, test_phase->standardConcentration(1));
-}
-
-TEST_F(MaskellSolidSolnPhase_Test, activityConcentrations)
-{
-    setup("MaskellSolidSolnPhase_valid.yaml");
-
-    // Check to make sure activityConcentration_i == standardConcentration_i * gamma_i * X_i
-    vector_fp standardConcs(2);
-    vector_fp activityCoeffs(2);
-    vector_fp activityConcentrations(2);
-    for(int i=0; i < 9; ++i)
-    {
-        const double r = 0.1 * (i+1);
-        set_r(r);
-        test_phase->getActivityCoefficients(&activityCoeffs[0]);
-        standardConcs[0] = test_phase->standardConcentration(0);
-        standardConcs[1] = test_phase->standardConcentration(1);
-        test_phase->getActivityConcentrations(&activityConcentrations[0]);
-
-        EXPECT_NEAR(standardConcs[0] * r * activityCoeffs[0], activityConcentrations[0], 1.e-6);
-        EXPECT_NEAR(standardConcs[1] * (1-r) * activityCoeffs[1], activityConcentrations[1], 1.e-6);
-    }
 }
 
 TEST_F(MaskellSolidSolnPhase_Test, fromScratch) {
