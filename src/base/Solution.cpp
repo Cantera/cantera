@@ -55,8 +55,6 @@ void Solution::setTransport(const std::string& model) {
     if (model == "") {
         setTransport(shared_ptr<Transport>(
             newDefaultTransportMgr(m_thermo.get())));
-    } else if (model == "None") {
-        setTransport(shared_ptr<Transport>(newTransportMgr("None")));
     } else {
         setTransport(shared_ptr<Transport>(
             newTransportMgr(model, m_thermo.get())));

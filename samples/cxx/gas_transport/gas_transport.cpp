@@ -16,7 +16,6 @@
 #include "cantera/core.h"
 #include "cantera/base/Array.h"
 
-#include <fstream>
 #include <iostream>
 #include <fstream>
 
