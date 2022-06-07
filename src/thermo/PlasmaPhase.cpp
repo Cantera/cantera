@@ -268,4 +268,70 @@ void PlasmaPhase::updateThermo() const
     m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
 }
 
+double PlasmaPhase::enthalpy_mole() const {
+    double value = IdealGasPhase::enthalpy_mole();
+    value += GasConstant * (electronTemperature() - temperature()) *
+             moleFraction(m_electronSpeciesIndex) *
+             m_h0_RT[m_electronSpeciesIndex];
+    return value;
+}
+
+double PlasmaPhase::entropy_mole() const {
+    warn_user("PlasmaPhase::entropy_mole",
+              "Use the same equation of IdealGasPhase::entropy_mole "
+              "which is not correct for plasma.");
+    return IdealGasPhase::entropy_mole();
+}
+
+double PlasmaPhase::gibbs_mole() const {
+    warn_user("PlasmaPhase::gibbs_mole",
+              "Use the same equation of IdealGasPhase::gibbs_mole "
+              "which is not correct for plasma.");
+    return IdealGasPhase::gibbs_mole();
+}
+
+void PlasmaPhase::getGibbs_ref(double* g) const
+{
+    IdealGasPhase::getGibbs_ref(g);
+    g[m_electronSpeciesIndex] *= electronTemperature() / temperature();
+}
+
+void PlasmaPhase::getStandardVolumes_ref(double* vol) const
+{
+    IdealGasPhase::getStandardVolumes_ref(vol);
+    vol[m_electronSpeciesIndex] *= electronTemperature() / temperature();
+}
+
+void PlasmaPhase::getStandardChemPotentials(double* muStar) const
+{
+    warn_user("PlasmaPhase::getStandardChemPotentials",
+              "Use the same equation of IdealGasPhase::getStandardChemPotentials "
+              "which is not correct for plasma.");
+    IdealGasPhase::getStandardChemPotentials(muStar);
+}
+
+void PlasmaPhase::getChemPotentials(double* mu) const
+{
+    warn_user("PlasmaPhase::getChemPotentials",
+              "Use the same equation of IdealGasPhase::getChemPotentials "
+              "which is not correct for plasma.");
+    IdealGasPhase::getChemPotentials(mu);
+}
+
+void PlasmaPhase::getPartialMolarEnthalpies(double* hbar) const
+{
+    IdealGasPhase::getPartialMolarEnthalpies(hbar);
+    hbar[m_electronSpeciesIndex] *= electronTemperature() / temperature();
+}
+
+void PlasmaPhase::getPartialMolarIntEnergies(double* ubar) const
+{
+    const vector_fp& _h = enthalpy_RT_ref();
+    for (size_t k = 0; k < m_kk; k++) {
+        ubar[k] = RT() * (_h[k] - 1.0);
+    }
+    size_t k = m_electronSpeciesIndex;
+    ubar[k] = RTe() * (_h[k] - 1.0);
+}
+
 }
