@@ -187,10 +187,77 @@ public:
         return m_electronTemp;
     }
 
+    //! Return the Gas Constant multiplied by the current electron temperature
+    /*!
+     *  The units are Joules kmol-1
+     */
+    double RTe() const {
+        return electronTemperature() * GasConstant;
+    }
+
+    //! Pressure
+    //! Units: Pa. For an ideal gas mixture with additional electrons,
+    //! \f[
+    //!        P = \sum_{k \neq k_e} n_k R T.
+    //! \f]
+    virtual double pressure() const {
+        double sum = 0.0;
+        for (size_t k = 0; k < m_kk; k++) {
+            if (k != m_electronSpeciesIndex) {
+                sum += GasConstant * concentration(k) * temperature();
+            }
+        }
+        return sum;
+    }
+
+    /**
+     * Electron pressure. Units: Pa.
+     * \f[P = n_{k_e} R T_e\f]
+     */
+    virtual double electronPressure() const {
+        return GasConstant * concentration(m_electronSpeciesIndex) *
+               electronTemperature();
+    }
+
     //! Number of electron levels
     size_t nElectronEnergyLevels() const {
         return m_nPoints;
     }
+
+    //! Electron Species Index
+    size_t electronSpeciesIndex() const {
+        return m_electronSpeciesIndex;
+    }
+
+    //! Return the Molar enthalpy. Units: J/kmol.
+    /*!
+     * For an ideal gas mixture with additional electron,
+     * \f[
+     * \hat h(T) = \sum_{k \neq k_e} X_k \hat h^0_k(T) + X_{k_e} \hat h^0_{k_e}(T_e),
+     * \f]
+     * and is a function only of temperature. The standard-state pure-species
+     * enthalpies \f$ \hat h^0_k(T) \f$ are computed by the species
+     * thermodynamic property manager.
+     *
+     * \see MultiSpeciesThermo
+     */
+    virtual double enthalpy_mole() const;
+
+    virtual double entropy_mole() const;
+
+    virtual double gibbs_mole() const;
+
+    virtual void getGibbs_ref(double* g) const;
+
+    virtual void getStandardVolumes_ref(double* vol) const;
+
+    virtual void getStandardChemPotentials(double* mu) const;
+
+    virtual void getChemPotentials(double* mu) const;
+
+    virtual void getPartialMolarEnthalpies(double* hbar) const;
+
+    virtual void getPartialMolarIntEnergies(double* ubar) const;
 
     virtual void getParameters(AnyMap& phaseNode) const;
 

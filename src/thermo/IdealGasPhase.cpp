@@ -54,8 +54,7 @@ void IdealGasPhase::getActivityCoefficients(doublereal* ac) const
 
 void IdealGasPhase::getStandardChemPotentials(doublereal* muStar) const
 {
-    const vector_fp& gibbsrt = gibbs_RT_ref();
-    scale(gibbsrt.begin(), gibbsrt.end(), muStar, RT());
+    getGibbs_ref(muStar);
     double tmp = log(pressure() / refPressure()) * RT();
     for (size_t k = 0; k < m_kk; k++) {
         muStar[k] += tmp; // add RT*ln(P/P_0)
@@ -152,10 +151,7 @@ void IdealGasPhase::getPureGibbs(doublereal* gpure) const
 
 void IdealGasPhase::getIntEnergy_RT(doublereal* urt) const
 {
-    const vector_fp& _h = enthalpy_RT_ref();
-    for (size_t k = 0; k < m_kk; k++) {
-        urt[k] = _h[k] - 1.0;
-    }
+    getIntEnergy_RT_ref(urt);
 }
 
 void IdealGasPhase::getCp_R(doublereal* cpr) const
