@@ -18,7 +18,6 @@
 #include <iomanip>
 #include <numeric>
 #include "cantera/core.h"
-#include "cantera/numerics/eigen_sparse.h"
 
 using namespace Cantera;
 
