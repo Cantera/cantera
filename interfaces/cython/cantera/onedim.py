@@ -106,14 +106,10 @@ class FlameBase(Sim1D):
         :param data:
             Restart data, which are typically based on an earlier simulation
             result. Restart data may be specified using a `SolutionArray`,
-            `pandas.DataFrame`, or previously saved CSV or HDF container files.
+            `pandas.DataFrame`, or the path to a previously saved CSV file.
             Note that restart data do not overwrite boundary conditions.
-            DataFrame input requires a working installation of *pandas*, whereas
-            HDF input requires an installation of *h5py*. These packages can be
-            installed using pip or conda (``pandas`` and ``h5py``, respectively).
-        :param key:
-            Group identifier within a HDF container file (only used in
-            combination with HDF restart data).
+            DataFrame input requires a working installation of *pandas*, which
+            can be installed using pip or conda.
         """
         super().set_initial_guess(*args, data=data, group=group, **kwargs)
         if data is None:
@@ -125,22 +121,16 @@ class FlameBase(Sim1D):
             arr = data
 
         elif isinstance(data, str):
-            if data.endswith('.hdf5') or data.endswith('.h5'):
-                # data source identifies a HDF file
-                arr = SolutionArray(self.gas, extra=self.other_components())
-                arr.read_hdf(data, group=group)
-
-            elif data.endswith('.csv'):
+            if data.endswith('.csv'):
                 # data source identifies a CSV file
                 arr = SolutionArray(self.gas, extra=self.other_components())
                 arr.read_csv(data)
-
             else:
                 raise ValueError(
-                    "'{}' does not identify CSV or HDF file.".format(data)
+                    f"'{data}' does not identify CSV file ending with '.csv'."
                 )
         else:
-            # data source is a pandas DataFrame
+            # data source is presumably a pandas DataFrame
             arr = SolutionArray(self.gas, extra=self.other_components())
             arr.from_pandas(data)
 
