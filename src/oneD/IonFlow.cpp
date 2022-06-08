@@ -6,7 +6,7 @@
 #include "cantera/oneD/IonFlow.h"
 #include "cantera/oneD/StFlow.h"
 #include "cantera/oneD/refine.h"
-#include "cantera/transport/TransportBase.h"
+#include "cantera/transport/Transport.h"
 #include "cantera/numerics/funcs.h"
 #include "cantera/numerics/polyfit.h"
 #include "cantera/base/utilities.h"

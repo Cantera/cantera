@@ -5,7 +5,7 @@
 
 #include "cantera/oneD/StFlow.h"
 #include "cantera/oneD/refine.h"
-#include "cantera/transport/TransportBase.h"
+#include "cantera/transport/Transport.h"
 #include "cantera/numerics/funcs.h"
 #include "cantera/base/global.h"
 

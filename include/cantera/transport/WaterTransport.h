@@ -9,7 +9,7 @@
 #define CT_WATERTRAN_H
 
 #include "cantera/thermo/WaterPropsIAPWS.h"
-#include "cantera/transport/TransportBase.h"
+#include "cantera/transport/Transport.h"
 
 namespace Cantera
 {

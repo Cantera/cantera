@@ -4,7 +4,7 @@
 #include "cantera/base/logger.h"
 #include "cantera/numerics/eigen_sparse.h"
 #include "cantera/thermo/ThermoPhase.h"
-#include "cantera/transport/TransportBase.h"
+#include "cantera/transport/Transport.h"
 #include "cantera/kinetics/Kinetics.h"
 
 #include "Python.h"

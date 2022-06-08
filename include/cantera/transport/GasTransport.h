@@ -8,7 +8,7 @@
 #ifndef CT_GAS_TRANSPORT_H
 #define CT_GAS_TRANSPORT_H
 
-#include "TransportBase.h"
+#include "Transport.h"
 #include "cantera/numerics/DenseMatrix.h"
 
 namespace Cantera
@@ -129,9 +129,9 @@ public:
 
     //! Return the polynomial fits to the collision integral of species pair (i, j)
     //! @see fitCollisionIntegrals()
-    virtual void getCollisionIntegralPolynomial(size_t i, size_t j, 
-                                                double* astar_coeffs, 
-                                                double* bstar_coeffs, 
+    virtual void getCollisionIntegralPolynomial(size_t i, size_t j,
+                                                double* astar_coeffs,
+                                                double* bstar_coeffs,
                                                 double* cstar_coeffs) const;
 
     //! Modify the polynomial fits to the viscosity of species i
@@ -148,13 +148,13 @@ public:
 
     //! Modify the polynomial fits to the collision integral of species pair (i, j)
     //! @see fitCollisionIntegrals()
-    virtual void setCollisionIntegralPolynomial(size_t i, size_t j, 
-                                                double* astar_coeffs, 
-                                                double* bstar_coeffs, 
+    virtual void setCollisionIntegralPolynomial(size_t i, size_t j,
+                                                double* astar_coeffs,
+                                                double* bstar_coeffs,
                                                 double* cstar_coeffs, bool actualT);
 
     virtual void init(ThermoPhase* thermo, int mode=0, int log_level=0);
-    
+
     //! Boolean indicating the form of the transport properties polynomial fits.
     //! Returns true if the Chemkin form is used.
     bool CKMode() const {
@@ -418,8 +418,8 @@ protected:
      * (i,j).
      */
     std::vector<vector_fp> m_omega22_poly;
-    
-    //! Flag to indicate for which (i,j) interaction pairs the 
+
+    //! Flag to indicate for which (i,j) interaction pairs the
     //! actual temperature is used instead of the reduced temperature
     std::vector<vector_int> m_star_poly_uses_actualT;
 

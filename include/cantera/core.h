@@ -12,6 +12,6 @@
 #include "cantera/base/Solution.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/kinetics/Kinetics.h"
-#include "cantera/transport/TransportBase.h"
+#include "cantera/transport/Transport.h"
 
 #endif
