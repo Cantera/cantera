@@ -11,7 +11,7 @@
 #define CT_TRANSPORTFACTORY_H
 
 // Cantera includes
-#include "TransportBase.h"
+#include "Transport.h"
 #include "cantera/base/FactoryBase.h"
 
 namespace Cantera

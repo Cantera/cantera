@@ -12,7 +12,7 @@
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/kinetics/KineticsFactory.h"
-#include "cantera/transport/TransportBase.h"
+#include "cantera/transport/Transport.h"
 #include "cantera/transport/TransportFactory.h"
 #include "cantera/base/stringUtils.h"
 

@@ -12,7 +12,7 @@
 // Cantera includes
 #include "cantera/oneD/Sim1D.h"
 #include "cantera/oneD/Boundary1D.h"
-#include "cantera/transport/TransportBase.h"
+#include "cantera/transport/Transport.h"
 #include "Cabinet.h"
 #include "cantera/base/stringUtils.h"
 

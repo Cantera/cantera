@@ -6,7 +6,7 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-#include "cantera/transport/TransportBase.h"
+#include "cantera/transport/Transport.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/transport/TransportFactory.h"
 

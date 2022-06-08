@@ -12,7 +12,7 @@
 #define CT_DUSTYGASTRAN_H
 
 // Cantera includes
-#include "TransportBase.h"
+#include "Transport.h"
 #include "cantera/numerics/DenseMatrix.h"
 
 namespace Cantera

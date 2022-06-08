@@ -9,7 +9,7 @@
 #include "cantera/thermo/Species.h"
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/kinetics/Reaction.h"
-#include "cantera/transport/TransportBase.h"
+#include "cantera/transport/Transport.h"
 
 #include <set>
 #include <fstream>

@@ -690,7 +690,7 @@ cdef extern from "cantera/kinetics/InterfaceKinetics.h":
         void solvePseudoSteadyStateProblem() except +translate_exception
 
 
-cdef extern from "cantera/transport/TransportBase.h" namespace "Cantera":
+cdef extern from "cantera/transport/Transport.h" namespace "Cantera":
     cdef cppclass CxxTransport "Cantera::Transport":
         CxxTransport(CxxThermoPhase*)
         string transportType()
