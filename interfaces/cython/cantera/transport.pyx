@@ -170,17 +170,6 @@ cdef class Transport(_SolutionBase):
     Not all transport properties are implemented in all transport models.
     """
     def __init__(self, *args, **kwargs):
-        if self.transport == NULL and kwargs.get("init", True):
-            # @todo ... after removal of CTI/XML, this should be handled by base.pyx
-            if 'transport_model' not in kwargs:
-                self.base.setTransport(newTransport(self.thermo, stringify("default")))
-            else:
-                model = kwargs['transport_model']
-                if not model:
-                    model = 'None'
-                self.base.setTransport(newTransport(self.thermo, stringify(model)))
-            self.transport = self.base.transport().get()
-
         super().__init__(*args, **kwargs)
         if self._references is None:
             raise ValueError(
@@ -264,7 +253,7 @@ cdef class Transport(_SolutionBase):
 
     property multi_diff_coeffs:
         """Multicomponent diffusion coefficients, D[i,j], the diffusion
-        coefficient for species i due to concentration gradients in 
+        coefficient for species i due to concentration gradients in
         species j [m**2/s]."""
         def __get__(self):
             return get_transport_2d(self, tran_getMultiDiffCoeffs)
