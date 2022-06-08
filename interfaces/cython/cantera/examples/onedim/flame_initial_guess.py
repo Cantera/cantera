@@ -105,22 +105,6 @@ f2 = ct.FreeFlame(gas, width=width)
 f2.set_initial_guess(data=csv_filepath)
 compare_flames(f, f2)
 
-print("Save HDF and load initial guess directly")
-# This one fails
-hdf_filepath = os.path.join(data_directory, "flame.h5")
-f.write_hdf(hdf_filepath, group="flame", mode="w", quiet=False,
-            description=("Initial methane flame"))
-gas.TPX = Tin, p, reactants # must set the gas T back to the inlet before making new flame
-f2 = ct.FreeFlame(gas, width=width)
-try:
-    f2.set_initial_guess(data=hdf_filepath)
-except KeyError:
-    print("As expected, this doesn't work, though the documentation suggests it should")
-else:
-    print("If this now works, something has been fixed and the example file should be updated")
-    compare_flames(f, f2)
-
-
 print("Save CSV then load initial guess via Pandas, with modifications")
 csv_filepath = os.path.join(data_directory, "flame.csv")
 f.write_csv(csv_filepath)
