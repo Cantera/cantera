@@ -82,7 +82,7 @@ cdef class _SolutionBase:
         cxx_soln.get().setSource(stringify("none"))
         cxx_soln.get().setThermo(newThermo(stringify("none")))
         cxx_soln.get().setKinetics(newKinetics(stringify("none")))
-        cxx_soln.get().setTransport(newTransport(NULL, stringify("none")))
+        cxx_soln.get().setTransport(stringify("none"))
         _assign_Solution(self, cxx_soln, True)
         self._selected_species = np.ndarray(0, dtype=np.uint64)
 
@@ -119,19 +119,18 @@ cdef class _SolutionBase:
         if isinstance(infile, PurePath):
             infile = str(infile)
 
+        # Transport model: "" is a sentinel value to use the default model
+        transport = kwargs.get("transport_model", "")
+
         # Parse YAML input
         if infile or yaml:
-            # Transport model: "" is a sentinel value to use the default model
-            transport_model = kwargs.get("transport_model", "")
-            self._init_yaml(infile, name, adjacent, yaml, transport_model)
+            self._init_yaml(infile, name, adjacent, yaml, transport)
             self._selected_species = np.ndarray(0, dtype=np.uint64)
             return
 
-        else:
-            # Assign base and set managers to NULL
-            _assign_Solution(self, CxxNewSolution(), True)
-            self._init_parts(thermo, species, kinetics, adjacent, reactions)
-
+        # Assign base and set managers
+        _assign_Solution(self, CxxNewSolution(), True)
+        self._init_parts(thermo, species, kinetics, transport, adjacent, reactions)
         self._selected_species = np.ndarray(0, dtype=np.uint64)
 
     def __init__(self, *args, **kwargs):
@@ -239,9 +238,13 @@ cdef class _SolutionBase:
         if not isinstance(self, Kinetics):
             soln.get().setKinetics(newKinetics(stringify("none")))
 
+        # Transport
+        if not isinstance(self, Transport):
+            soln.get().setTransport(stringify("none"))
+
         _assign_Solution(self, soln, reset_adjacent)
 
-    def _init_parts(self, thermo, species, kinetics, adjacent, reactions):
+    def _init_parts(self, thermo, species, kinetics, transport, adjacent, reactions):
         """
         Instantiate a set of new Cantera C++ objects based on a string defining
         the model type and a list of Species objects.
@@ -273,6 +276,13 @@ cdef class _SolutionBase:
             for reaction in reactions:
                 self.kinetics.addReaction(reaction._reaction, False)
             self.kinetics.resizeReactions()
+
+        if not transport:
+            transport = "none"
+
+        if isinstance(self, Transport):
+            self.base.setTransport(stringify(transport))
+            self.transport = self.base.transport().get()
 
     property input_data:
         """
