@@ -7,8 +7,12 @@ Requires: cantera >= 3.0
 Keywords: combustion, 1D flow, flame speed, premixed flame, saving output
 """
 import os
+import sys
 import cantera as ct
-import pandas as pd
+try:
+    import pandas as pd
+except ImportError:
+    pd = None
 
 data_directory = "flame_initial_guess_data"
 os.makedirs(data_directory, exist_ok=True)
@@ -89,7 +93,6 @@ if hdf_filepath:
 # Restore the flame via initial guess
 
 print("Load initial guess from CSV file directly")
-# f.write_csv(csv_filepath)
 gas.TPX = Tin, p, reactants  # set the gas T back to the inlet before making new flame
 f2 = ct.FreeFlame(gas, width=width)
 f2.set_initial_guess(data=csv_filepath)
@@ -110,6 +113,11 @@ if hdf_filepath:
     f2 = ct.FreeFlame(gas, width=width)
     f2.set_initial_guess(data=arr2)
     describe(f2)
+
+if pd is None:
+    # skip remaining examples, as optional dependency 'pandas' is not installed
+    print("All done")
+    sys.exit()
 
 print("Load initial guess from CSV file via Pandas")
 df = pd.read_csv(csv_filepath)
