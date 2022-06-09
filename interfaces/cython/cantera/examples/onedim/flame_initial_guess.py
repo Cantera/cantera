@@ -9,11 +9,9 @@ Keywords: combustion, 1D flow, flame speed, premixed flame, saving output
 import os
 import cantera as ct
 import pandas as pd
-import numpy as np
 
 data_directory = "flame_initial_guess_data"
 os.makedirs(data_directory, exist_ok=True)
-
 
 # Simulation parameters
 p = ct.one_atm  # pressure [Pa]
@@ -35,20 +33,21 @@ f.set_refine_criteria(**refine_criteria)
 f.solve(loglevel=1, auto=True)
 
 def describe(flame):
-    "Print a short description of the flame, with a few properties."
-    print(f"Flame speed                    = {flame.velocity[0] * 100 :.2f} cm/s")
+    """Print a short description of the flame, with a few properties."""
+    print(f"\nFlame speed                    = {flame.velocity[0] * 100 :.2f} cm/s")
     print(f"Maximum temperature            = {flame.T.max() :.0f} K")
     # Find the location of the peak OH mole fraction
     oh_index = flame.gas.species_index("OH")
     grid_index = flame.X[oh_index].argmax()
     oh_peak = flame.grid[grid_index]
     print(f"Peak OH mole fraction location = {oh_peak * 100 :.2f} cm")
-    print(f"Solved with {flame.grid.size} grid points")
+    print(f"Solved with {flame.grid.size} grid points\n")
 
 
 describe(f)
 
 # Save the flame in a few different formats
+
 print("Save YAML")
 yaml_filepath = os.path.join(data_directory, "flame.yaml")
 f.save(yaml_filepath, name="solution", description="Initial methane flame")
@@ -57,64 +56,82 @@ print("Save CSV")
 csv_filepath = os.path.join(data_directory, "flame.csv")
 f.write_csv(csv_filepath)
 
-print("Save HDF")
-hdf_filepath = os.path.join(data_directory, "flame.h5")
-f.write_hdf(
-    hdf_filepath,
-    group="flame",
-    mode="w",
-    quiet=False,
-    description=("Initial methane flame"),
-)
+try:
+    # HDF is not a required dependency
+    hdf_filepath = os.path.join(data_directory, "flame.h5")
+    f.write_hdf(
+        hdf_filepath,
+        group="freeflame",
+        mode="w",
+        quiet=False,
+        description=("Initial methane flame"),
+    )
+    print("Save HDF\n")
+except ImportError as err:
+    print(f"Skipping HDF: {err}\n")
+    hdf_filepath = None
 
+# Restore the flame from different formats
 
-print("\nRestore solution from YAML")
+print("Restore solution from YAML")
 gas.TPX = Tin, p, reactants
 f2 = ct.FreeFlame(gas, width=width)
 f2.restore(yaml_filepath, name="solution", loglevel=0)
 describe(f2)
 
-print("\nRestore solution from HDF")
-gas.TPX = Tin, p, reactants
-f2 = ct.FreeFlame(gas, width=width)
-f2.read_hdf(hdf_filepath, group="flame")
-describe(f2)
+if hdf_filepath:
+    print("Restore solution from HDF")
+    gas.TPX = Tin, p, reactants
+    f2 = ct.FreeFlame(gas, width=width)
+    f2.read_hdf(hdf_filepath, group="freeflame")
+    describe(f2)
 
-print("\nLoad initial guess from CSV file directly")
-csv_filepath = os.path.join(data_directory, "flame.csv")
-f.write_csv(csv_filepath)
+# Restore the flame via initial guess
+
+print("Load initial guess from CSV file directly")
+# f.write_csv(csv_filepath)
 gas.TPX = Tin, p, reactants  # set the gas T back to the inlet before making new flame
 f2 = ct.FreeFlame(gas, width=width)
 f2.set_initial_guess(data=csv_filepath)
 describe(f2)
 
-print("\nLoad initial guess from CSV file via Pandas")
-csv_filepath = os.path.join(data_directory, "flame.csv")
-f.write_csv(csv_filepath)
+if hdf_filepath:
+    print("Load initial guess from HDF file directly")
+    gas.TPX = Tin, p, reactants  # set the gas T back to the inlet before making new flame
+    f2 = ct.FreeFlame(gas, width=width)
+    f2.set_initial_guess(data=hdf_filepath, group="freeflame")
+    describe(f2)
+
+    print("Load initial guess from HDF file via SolutionArray")
+    arr2 = ct.SolutionArray(gas)
+    # the flame domain needs to be specified as subgroup
+    arr2.read_hdf(hdf_filepath, group="freeflame", subgroup="flame")
+    gas.TPX = Tin, p, reactants  # set the gas T back to the inlet before making new flame
+    f2 = ct.FreeFlame(gas, width=width)
+    f2.set_initial_guess(data=arr2)
+    describe(f2)
+
+print("Load initial guess from CSV file via Pandas")
 df = pd.read_csv(csv_filepath)
 gas.TPX = Tin, p, reactants  # set the gas T back to the inlet before making new flame
 f2 = ct.FreeFlame(gas, width=width)
 f2.set_initial_guess(data=df)
 describe(f2)
 
-
-print("\nLoad initial guess from CSV file via Pandas and SolutionArray")
-# In Cantera v2.6.0 passing set_initial_guess a Pandas DataFrame crashed so you
-# must use this work-around to create a SolutionArray from your DataFrame
-# and then pass the SolutionArray to the set_initial_guess method.
+print("Load initial guess from CSV file via Pandas and SolutionArray")
 df = pd.read_csv(csv_filepath)
 arr2 = ct.SolutionArray(gas)
 arr2.from_pandas(df)
-gas.TPX = Tin, p, reactants
-# set the gas T back to the inlet before making new flame
+gas.TPX = Tin, p, reactants  # set the gas T back to the inlet before making new flame
 f2 = ct.FreeFlame(gas, width=width)
 f2.set_initial_guess(data=arr2)
 describe(f2)
 
+# Restart flame simulations with modified initial guesses
 
-print("\nLoad initial guess from CSV file via Pandas, with modifications.")
+print("Load initial guess from CSV file via Pandas, with modifications.\n")
 df = pd.read_csv(csv_filepath)
-print("\nModify the Pandas dataframe, removing half the grid points")
+print("Modify the Pandas dataframe, removing half the grid points")
 df_pruned = df[::2]  # remove half of the grid points
 gas.TPX = Tin, p, reactants  # set the gas T back to the inlet before making new flame
 f2 = ct.FreeFlame(gas, width=width)
@@ -125,7 +142,7 @@ f2.solve()
 describe(f2)
 
 print(
-    "\nModify the Pandas dataframe, removing half the grid points "
+    "Modify the Pandas dataframe, removing half the grid points "
     "and all but the first 20 species"
 )
 df_pruned = df.iloc[::2, :24]
@@ -138,7 +155,7 @@ f2.solve()
 describe(f2)
 
 print(
-    "\nModify the Pandas dataframe, removing half the grid points, "
+    "Modify the Pandas dataframe, removing half the grid points, "
     "and raise the T by 50 K"
 )
 df_pruned = df.iloc[::2]
@@ -148,7 +165,7 @@ f2 = ct.FreeFlame(gas, width=width)
 f2.set_refine_criteria(**refine_criteria)
 f2.set_initial_guess(data=df_pruned)
 f2.solve()
-# We expect thees flames to be different because we raised the temperature.
+# We expect these flames to be different because we raised the temperature.
 describe(f2)
 
-print("\nAll done")
+print("All done")
