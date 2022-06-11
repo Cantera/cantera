@@ -12,8 +12,8 @@ public static class CanteraInfo
             const char sep = ';';
 
             return InteropUtil
-                .GetString(500, (length, buffer) =>
-                    LibCantera.ct_getDataDirectories(length, buffer, sep.ToString()))
+                .GetString(500, (size, buffer) =>
+                    LibCantera.ct_getDataDirectories(size, buffer, sep.ToString()))
                 .Split(sep)
                 .Select(d => new DirectoryInfo(d));
         }
@@ -48,13 +48,13 @@ public static class CanteraInfo
     }
 
     unsafe static readonly Lazy<string> _version =
-        new Lazy<string>(() => InteropUtil.GetString(10, LibCantera.ct_getCanteraVersion));
+        new(() => InteropUtil.GetString(10, LibCantera.ct_getCanteraVersion));
 
     unsafe static readonly Lazy<string> _gitCommit =
-        new Lazy<string>(() => InteropUtil.GetString(10, LibCantera.ct_getGitCommit));
+        new(() => InteropUtil.GetString(10, LibCantera.ct_getGitCommit));
 
     unsafe static readonly Lazy<DataDirectoryCollection> _dataDirectories =
-        new Lazy<DataDirectoryCollection>(() => new DataDirectoryCollection());
+        new(() => new DataDirectoryCollection());
 
     public static string Version =>
         _version.Value;

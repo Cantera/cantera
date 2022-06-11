@@ -37,14 +37,14 @@
   <Target Name="GenerateInterop" BeforeTargets="CoreCompile">
     <PropertyGroup>
       <Script>$([MSBuild]::NormalizePath(../../../interfaces/sourcegen/run.py))</Script>
-      <GeneratedPath>$([MSBuild]::NormalizePath($(IntermediateOutputPath)))</GeneratedPath>
+      <GeneratedPath>$([MSBuild]::NormalizePath($(IntermediateOutputPath)/sourcegen/))</GeneratedPath>
     </PropertyGroup>
 
     <Exec Command="python3 $(Script) csharp $(GeneratedPath)"/>
 
     <ItemGroup>
-			<Compile Remove="$(GeneratedPath)Interop.*.cs" />
-			<Compile Include="$(GeneratedPath)Interop.*.cs" />
+			<Compile Remove="$(GeneratedPath)*.cs" />
+			<Compile Include="$(GeneratedPath)*.cs" />
     </ItemGroup>
   </Target>
 </Project>

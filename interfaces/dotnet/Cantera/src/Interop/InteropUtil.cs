@@ -32,8 +32,6 @@ static class InteropUtil
     /// </remarks>
     public unsafe delegate int FillStringBufferFunc(int size, byte* buffer);
 
-    static ArrayPool<byte> Pool = ArrayPool<byte>.Shared;
-
     public static double CheckReturn(double code)
     {
         // Cantera returns this value when the function resulted in error
@@ -72,17 +70,34 @@ static class InteropUtil
         return Math.Abs(code);
     }
 
-    public unsafe static double[] GetDoubles<T>(T handle, GetSizeFunc<T> getSizefunc, FillDoubleBufferFunc<T> fillBufferfunc)
+    public static double[] GetDoubles<T>(T handle, GetSizeFunc<T> getSizefunc, FillDoubleBufferFunc<T> fillBufferfunc)
         where T : CanteraHandle
     {
         var size = getSizefunc(handle);
-
         var array = new double[size];
-        fixed(double* buffer = array)
-        {
-            CheckReturn(fillBufferfunc(handle, size, buffer));
-        }
+
+        GetDoubles(handle, array, fillBufferfunc);
+
         return array;
+    }
+
+    public static double[] GetDoubles<T>(T handle, int count, FillDoubleBufferFunc<T> fillBufferfunc)
+        where T : CanteraHandle
+    {
+        var array = new double[count];
+
+        GetDoubles(handle, array, fillBufferfunc);
+
+        return array;
+    }
+
+    public static unsafe void GetDoubles<T>(T handle, Span<Double> span, FillDoubleBufferFunc<T> fillBufferfunc)
+        where T : CanteraHandle
+    {
+        fixed(double* buffer = span)
+        {
+            CheckReturn(fillBufferfunc(handle, (nuint) span.Length, buffer));
+        }
     }
 
     [SuppressMessage("Reliability", "CA2014:NoStackallocInLoops", Justification = "Loop is executed at most twice.")]
@@ -105,17 +120,12 @@ static class InteropUtil
                 if (TryGetString(span, func, out var value, out neededSize))
                     return value;
             }
-            else
+            else 
             {
-                var array = Pool.Rent(initialSize);
-                try
+                using (MemoryPool<byte>.Shared.Rent(initialSize, out var span))
                 {
-                    if (TryGetString(array, func, out var value, out neededSize))
+                    if (TryGetString(span, func, out var value, out neededSize))
                         return value;
-                }
-                finally
-                {
-                    Pool.Return(array);
                 }
             }
 
