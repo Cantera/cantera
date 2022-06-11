@@ -29,10 +29,15 @@ class SourceGenerator(SourceGeneratorBase):
 
     _type_map = {
         'const char*': 'string',
+        'const double*': 'double[]',
         'size_t': 'nuint',
         'char*': 'byte*'
     }
 
+    _prop_type_map = {
+        'byte*': 'string',
+        'double*': 'double[]'
+    }
 
     @staticmethod
     def _join_params(params):
@@ -57,7 +62,7 @@ class SourceGenerator(SourceGeneratorBase):
             class {del_clazz} : CanteraHandle
             {{
                 protected override bool ReleaseHandle() =>
-                    Convert.ToBoolean(LibCantera.{name}(Value));
+                    LibCantera.{name}(Value) == InteropConsts.Success;
             }}
         ''')
 
@@ -76,6 +81,10 @@ class SourceGenerator(SourceGeneratorBase):
     def __init__(self, out_dir: str, config: dict):
         self._out_dir = out_dir
         self._config = config
+        # as different clib files are passed in, the known funcs are added to this dict
+        self._known_funcs = {}
+
+        os.makedirs(out_dir, exist_ok=True)
 
 
     def _convert_func(self, parsed: Func):
@@ -106,6 +115,8 @@ class SourceGenerator(SourceGeneratorBase):
                 ret_type = cs_type
                 break
 
+        setter_double_arrays_count = 0
+
         for i in range(0, len(params)):
             param_type, param_name = params[i]
             
@@ -114,12 +125,72 @@ class SourceGenerator(SourceGeneratorBase):
                     param_type = cs_type
                     break
             
-            if param_type.startswith('const '):
-                param_type = param_type.rsplit(' ', 1)[-1]
+            if param_type == 'double*' and method.startswith('set'):
+                setter_double_arrays_count += 1
+                if setter_double_arrays_count > 1:
+                    # We assume a double* can reliably become a double[] if this function is a "setter"
+                    # However, this logic is too simplistic if there is more than one array.
+                    raise ValueError(f'Cannot scaffold {name} with more than one array of doubles!')
+
+                param_type = 'double[]'
                 
             params[i] = Param(param_type, param_name)
             
-        return _CsFunc(ret_type, name, params, del_clazz)
+        func = _CsFunc(ret_type, name, params, del_clazz)
+        self._known_funcs[name] = func
+
+        return func
+
+
+    def _get_property_text(self, clazz: str, c_name: str, cs_name: str):
+        getter = self._known_funcs.get(clazz + "_" + c_name)
+        
+        if (getter):
+            # here we have found a simple scalar property
+            prop_type = getter.ret_type
+        else:
+            # here we have found an array-like property (string, double[])
+            getter = self._known_funcs[clazz + "_get" + c_name.capitalize()]
+            # this assumes the last param in the function is a pointer type,
+            # from which we determine the appropriate C# type
+            prop_type = self._prop_type_map[getter.params[-1].p_type]
+        
+        setter = self._known_funcs.get(clazz + "_set" + c_name.capitalize())
+
+        if (prop_type in ['int', 'double']):
+            text = f'''
+                public {prop_type} {cs_name}
+                {{
+                    get => InteropUtil.CheckReturn(LibCantera.{getter.name}(_handle));'''
+
+            if(setter):
+                text += f'''        
+                    set => InteropUtil.CheckReturn(LibCantera.{setter.name}(_handle, value));'''
+
+            text += '''
+                }
+            '''
+        elif (prop_type == 'string'):
+            # for get-string type functions we need to look up the type of the second (index 1) param for a cast
+            # because sometimes it's an int and other times its a nuint (size_t)
+            text = f'''
+                public unsafe string {cs_name}
+                {{
+                    get => InteropUtil.GetString(40, (length, buffer) =>
+                        LibCantera.{getter.name}(_handle, ({getter.params[1].p_type}) length, buffer));
+            '''
+
+            if(setter):
+                text += f'''        
+                    set => InteropUtil.CheckReturn(LibCantera.{setter.name}(_handle, value));'''
+
+            text += '''
+                }
+            '''
+        else:
+            raise ValueError(f'Unable to scafold properties of type {prop_type}!')
+
+        return(normalize(text))
 
 
     def generate_source(self, incl_file: os.DirEntry, funcs: list[Func]):
@@ -148,11 +219,11 @@ class SourceGenerator(SourceGeneratorBase):
 
         handles_text = '\n\n'.join((self._get_base_handle_text(h) for h in handles))
 
-        handles_text = normalize(f"""
+        handles_text = normalize(f'''
             namespace Cantera.Interop;
             
             {normalize(handles_text, 12, True)}
-        """)
+        ''')
 
         with open(self._out_dir + 'Interop.Handles.' + incl_file.name + '.g.cs', 'w') as f:
             f.write(handles_text)
@@ -169,3 +240,27 @@ class SourceGenerator(SourceGeneratorBase):
 
         with open(self._out_dir + 'Interop.Handles.g.cs', 'w') as f:
             f.write(derived_handles_text)
+
+        for (clazz, props) in self._config['classes'].items():
+            name = self._config['handle_crosswalk'][clazz]
+
+            props_text = '\n\n'.join((self._get_property_text(clazz, c_name, cs_name) for (c_name, cs_name) in props.items()))
+
+            clazz_text = normalize(f'''
+                using Cantera.Interop;
+
+                namespace Cantera;
+
+                public partial class {name} : IDisposable
+                {{
+                    readonly {name}Handle _handle;
+
+                    {normalize(props_text, 20, True)}
+
+                    public void Dispose() =>
+                        _handle.Dispose();
+                }}
+            ''')
+
+            with open(self._out_dir + name + '.g.cs', 'w') as f:
+                f.write(clazz_text)
