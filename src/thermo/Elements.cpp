@@ -234,59 +234,37 @@ const vector<string>& elementNames() {
     return values;
 }
 
-template<typename T>
-map<string, double> mapAtomicWeights(vector<T> data, bool symbol, bool name) {
+map<string, double> mapAtomicWeights() {
     map<string, double> symMap;
 
-    for (auto const& atom : data) {
-        if (symbol) {
-            symMap.emplace(atom.symbol, atom.atomicWeight);
-        } else if (name) {
-            symMap.emplace(atom.fullName, atom.atomicWeight);
-        }
+    for (auto const& atom : atomicWeightTable) {
+        symMap.emplace(atom.symbol, atom.atomicWeight);
+        symMap.emplace(atom.fullName, atom.atomicWeight);
+    }
+    for (auto const& isotope: isotopeWeightTable) {
+        symMap.emplace(isotope.symbol, isotope.atomicWeight);
+        symMap.emplace(isotope.fullName, isotope.atomicWeight);
     }
     return symMap;
 }
 
-const map<string, double>& elementSymbolToWeight() {
-    const static map<string, double> symMap = mapAtomicWeights(atomicWeightTable,
-                                                               true, false);
-    return symMap;
-}
-
-const map<string, double>& elementNameToWeight() {
-    const static map<string, double> symMap = mapAtomicWeights(atomicWeightTable,
-                                                               false, true);
-    return symMap;
-}
-
-const map<string, double>& isotopeSymbolToWeight() {
-    const static map<string, double> symMap = mapAtomicWeights(isotopeWeightTable,
-                                                               true, false);
-    return symMap;
-}
-
-const map<string, double>& isotopeNameToWeight() {
-    const static map<string, double> symMap = mapAtomicWeights(isotopeWeightTable,
-                                                               false, true);
+const map<string, double>& elementWeights() {
+    const static map<string, double> symMap = mapAtomicWeights();
     return symMap;
 }
 
 double getElementWeight(const std::string& ename)
 {
-    const auto& elementSymbolMap = elementSymbolToWeight();
-    const auto& elementNameMap = elementNameToWeight();
-    const auto& isotopeSymbolMap = isotopeSymbolToWeight();
-    const auto& isotopeNameMap = isotopeNameToWeight();
+    const auto& elementMap = elementWeights();
     double elementWeight = 0.0;
     string symbol = trimCopy(ename);
-    string name = toLowerCopy(symbol);
-    auto search = elementSymbolMap.find(symbol);
-    if (search != elementSymbolMap.end()) {
+    auto search = elementMap.find(symbol);
+    if (search != elementMap.end()) {
         elementWeight = search->second;
     } else {
-        search = elementNameMap.find(name);
-        if (search != elementNameMap.end()) {
+        string name = toLowerCopy(symbol);
+        search = elementMap.find(name);
+        if (search != elementMap.end()) {
             elementWeight = search->second;
         }
     }
@@ -295,18 +273,6 @@ double getElementWeight(const std::string& ename)
     } else if (elementWeight < 0.0) {
         throw CanteraError("getElementWeight",
             "element '{}' has no stable isotopes", ename);
-    }
-    search = isotopeSymbolMap.find(symbol);
-    if (search != isotopeSymbolMap.end()) {
-        elementWeight = search->second;
-    } else {
-        search = isotopeNameMap.find(name);
-        if (search != isotopeNameMap.end()) {
-            elementWeight = search->second;
-        }
-    }
-    if (elementWeight > 0.0) {
-        return elementWeight;
     }
     throw CanteraError("getElementWeight", "element not found: " + ename);
 }

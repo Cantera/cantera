@@ -1250,7 +1250,7 @@ class TestSpecies(utilities.CanteraTest):
     def test_custom_element_weight_is_set_on_species(self):
         gas = ct.Solution("ideal-gas.yaml", "element-override")
         # Check that the molecular weight stored in the phase definition is the same
-        # as the one on the element
+        # as the one on the Species instance
         self.assertNear(
             gas["AR"].molecular_weights[0], gas.species("AR").molecular_weight
         )
@@ -1265,15 +1265,15 @@ class TestSpecies(utilities.CanteraTest):
         })
         # Access the molecular weight to make sure it's been computed by the Species
         self.assertNear(s.molecular_weight, 39.95 * 2)
-        # This should not cause an error because the existing Ar definition is the
-        # default molecular weight
+        # This should not cause a warning because the Ar element definition in
+        # self.gas is the same as the default
         self.gas.add_species(s)
         self.assertNear(
             self.gas["AR2"].molecular_weights[0],
             self.gas.species("AR2").molecular_weight
         )
 
-    def test_species_cannot_be_added_to_phase_custom_element(self):
+    def test_species_warns_when_changing_molecular_weight(self):
         s = ct.Species.from_dict({
             "name": "AR2",
             "composition": {"Ar": 2},
@@ -1282,10 +1282,11 @@ class TestSpecies(utilities.CanteraTest):
         # Access the molecular weight to make sure it's been computed by the Species
         self.assertNear(s.molecular_weight, 39.95 * 2)
         gas = ct.Solution("ideal-gas.yaml", "element-override")
-        # The error here is because the weight of the Argon element has been changed in
+        # The warning here is because the weight of the Argon element has been changed in
         # the phase definition, but the molecular weight of the species has already been
-        # computed
-        with pytest.raises(ct.CanteraError, match="Molecular weight.*changed"):
+        # computed, so loading the phase definition changes the molecular weight on the
+        # species.
+        with pytest.warns(UserWarning, match="Molecular weight.*changing"):
             gas.add_species(s)
 
     def test_species_can_be_added_to_phase_custom_element(self):
@@ -1294,8 +1295,8 @@ class TestSpecies(utilities.CanteraTest):
             "composition": {"Ar": 2},
             "thermo": {"model": "constant-cp", "h0": 100}
         })
-        # DO NOT access the molecular weight to make sure it's not been computed by the
-        # Species
+        # DO NOT access the molecular weight on the Species instance before adding it
+        # to the phase to make sure the weight has not been computed by the Species
         gas = ct.Solution("ideal-gas.yaml", "element-override")
         gas.add_species(s)
         self.assertNear(
@@ -1736,6 +1737,7 @@ class TestElement(utilities.CanteraTest):
         cls.ar_num = ct.Element(18)
 
     def test_element_multiple_possibilities(self):
+        # Carbon starts with Ca, the symbol for calcium.
         carbon = ct.Element('Carbon')
         self.assertEqual(carbon.name, 'carbon')
         self.assertEqual(carbon.symbol, 'C')

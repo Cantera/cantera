@@ -92,41 +92,15 @@ const std::vector<std::string>& elementSymbols();
 //! @since New in version 3.0
 const std::vector<std::string>& elementNames();
 
-//! Get a map with the element symbols as keys and weights as values.
+//! Get a map with the element and isotope symbols and names as keys and weights as
+//! values.
 /*!
  * This is a constant in the application so it is only generated once
  * when it is first needed.
  *
  * @since New in version 3.0
  */
-const std::map<std::string, double>& elementSymbolToWeight();
-
-//! Get a map with the element names as keys and weights as values.
-/*!
- * This is a constant in the application so it is only generated once
- * when it is first needed.
- *
- * @since New in version 3.0
- */
-const std::map<std::string, double>& elementNameToWeight();
-
-//! Get a map with the isotope symbols as keys and weights as values.
-/*!
- * This is a constant in the application so it is only generated once
- * when it is first needed.
- *
- * @since New in version 3.0
- */
-const std::map<std::string, double>& isotopeSymbolToWeight();
-
-//! Get a map with the isotope names as keys and weights as values.
-/*!
- * This is a constant in the application so it is only generated once
- * when it is first needed.
- *
- * @since New in version 3.0
- */
-const std::map<std::string, double>& isotopeNameToWeight();
+const std::map<std::string, double>& elementWeights();
 
 //! Get the atomic weight of an element.
 /*!
