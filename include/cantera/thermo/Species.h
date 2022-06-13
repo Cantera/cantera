@@ -68,11 +68,7 @@ public:
      * method the first time the molecularWeight() method is called if the species has
      * not been added to a phase.
      *
-     * @param weight: The weight of this species to assign, unless `compute` is `true`
-     * @param compute: If `true`, the weight will be computed from standard element
-     * weights from Elements.cpp, and the value of `weight` is ignored.
-     * @exception CanteraError If the molecular weight has already been set and the updated value
-     * is not close to the existing value.
+     * @param weight: The weight of this species to assign
      *
      * @since New in version 3.0
      */
@@ -98,6 +94,7 @@ unique_ptr<Species> newSpecies(const AnyMap& node);
 
 //! Generate Species objects for each item (an AnyMap) in `items`.
 std::vector<shared_ptr<Species>> getSpecies(const AnyValue& items);
+
 }
 
 #endif

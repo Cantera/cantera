@@ -40,8 +40,7 @@ Species::~Species()
 double Species::molecularWeight() {
     if (m_molecularWeight == Undef) {
         double weight = 0.0;
-        const auto& elements = elementSymbolToWeight();
-        const auto& isotopes = isotopeSymbolToWeight();
+        const auto& elements = elementWeights();
         for (const auto& comp : composition) {
             auto search = elements.find(comp.first);
             if (search != elements.end()) {
@@ -50,11 +49,6 @@ double Species::molecularWeight() {
                         "element '{}' has no stable isotopes", comp.first);
                 }
                 weight += search->second * comp.second;
-            } else {
-                search = isotopes.find(comp.first);
-                if (search != isotopes.end() && search->second > 0) {
-                    weight += search->second * comp.second;
-                }
             }
         }
         setMolecularWeight(weight);
@@ -67,9 +61,12 @@ void Species::setMolecularWeight(double weight) {
         double maxWeight = max(weight, m_molecularWeight);
         double weight_cmp = fabs(weight - m_molecularWeight) / maxWeight;
         if (weight_cmp > 1.0e-9) {
-            throw CanteraError(
+            warn_user(
                 "Species::setMolecularWeight",
-                "Molecular weight of a species cannot be changed."
+                "Molecular weight of species '{}' is changing from {} to {}.",
+                this->name,
+                m_molecularWeight,
+                weight
             );
         }
     }

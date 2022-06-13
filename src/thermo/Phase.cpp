@@ -834,8 +834,6 @@ bool Phase::addSpecies(shared_ptr<Species> spec) {
     // weight to avoid dividing by zero.
     wt = std::max(wt, Tiny);
 
-    // Since this method can throw, all the modifications of the member variables
-    // should be done after this method call to avoid inconsistent state.
     spec->setMolecularWeight(wt);
 
     m_molwts.push_back(wt);
