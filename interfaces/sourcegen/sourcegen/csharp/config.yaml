@@ -54,5 +54,9 @@ classes:
         enthalpy_mole: MoleEnthalpy
         entropy_mass: MassEntropy
         entropy_mole: MoleEntropy
+        cp_mole: MoleCp
+        cv_mole: MoleCv
+        cp_mass: MassCp
+        cv_mass: MassCv
     # strings
         name : Name

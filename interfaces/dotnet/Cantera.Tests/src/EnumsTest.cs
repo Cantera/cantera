@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using Xunit;
 
@@ -5,6 +6,38 @@ namespace Cantera.Tests;
 
 public class EnumsTests
 {
+    [Fact]
+    public void ThermoPair_ToStringsCorrently()
+    {
+        var fields = typeof(ThermoPair)
+            .GetFields(BindingFlags.Public | BindingFlags.Static)
+            .Select(f =>
+            (
+                name: f.Name,
+                interopString: ((ThermoPair) f.GetValue(null)!).ToInteropString()
+            ));
+
+        var withShortNames = fields
+            .Where(f => f.name.Length == 2);
+
+        var withLongNames = fields
+            .Except(withShortNames);
+
+        // Ensure we have both long and short versions
+        Assert.Equal(withShortNames.Count(), withLongNames.Count());
+
+        foreach (var field in withShortNames)
+        {
+            Assert.Equal(field.name, field.interopString);
+
+            Assert.Single(withLongNames.Where(f => f.interopString == field.name));
+        }
+    }
+
+    [Fact]
+    public void EquilibriumSolver_MapsCorrectly() =>
+        TestInteropEnumInvariants<EquilibriumSolver>(true, -1, 2);
+
     [Fact]
     public void LogLevel_MapsCorrectly() =>
         TestInteropEnumInvariants<LogLevel>(true, 0, 2);
