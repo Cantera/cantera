@@ -521,6 +521,16 @@ extern "C" {
         }
     }
 
+    int thermo_set_TP(int n, double* vals)
+    {
+        try{
+            ThermoCabinet::item(n).setState_TP(vals[0], vals[1]);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     int thermo_set_RP(int n, double* vals)
     {
         try{

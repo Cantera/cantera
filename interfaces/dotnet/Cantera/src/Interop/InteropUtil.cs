@@ -154,4 +154,7 @@ static class InteropUtil
             return false;
         }
     }
+
+    public static int GetInteropBool(bool value) =>
+        value ? InteropConsts.True : InteropConsts.False;
 }
