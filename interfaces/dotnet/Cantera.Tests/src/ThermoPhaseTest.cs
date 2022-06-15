@@ -13,5 +13,7 @@ public class ThermoPhaseTest
 
         Assert.NotEmpty(thermo.Species);
         Assert.NotEmpty(thermo.Species[0].Name);
+        Assert.Equal(thermo.Species.Count, thermo.Species.MoleFractions.Length);
+        Assert.Equal(thermo.Species.Count, thermo.Species.MassFractions.Length);
     }
 } 
