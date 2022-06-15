@@ -208,7 +208,7 @@ static vector<isotopeWeightData> isotopeWeightTable {
 // allows elementSymbols() to return a const reference to the data.
 vector<string> elementVectorsFromSymbols() {
 	vector<string> values;
-    for (const auto& atom: atomicWeightTable) {
+    for (const auto& atom : atomicWeightTable) {
         values.push_back(atom.symbol);
     }
     return values;
@@ -223,7 +223,7 @@ const vector<string>& elementSymbols() {
 // allows elementNames() to return a const reference to the data.
 vector<string> elementVectorsFromNames() {
     vector<string> values;
-    for (const auto& atom: atomicWeightTable) {
+    for (const auto& atom : atomicWeightTable) {
         values.push_back(atom.fullName);
     }
     return values;
@@ -241,7 +241,7 @@ map<string, double> mapAtomicWeights() {
         symMap.emplace(atom.symbol, atom.atomicWeight);
         symMap.emplace(atom.fullName, atom.atomicWeight);
     }
-    for (auto const& isotope: isotopeWeightTable) {
+    for (auto const& isotope : isotopeWeightTable) {
         symMap.emplace(isotope.symbol, isotope.atomicWeight);
         symMap.emplace(isotope.fullName, isotope.atomicWeight);
     }
