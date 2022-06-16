@@ -1008,7 +1008,7 @@ cdef class Reaction:
         R = ct.Reaction({"O": 1, "H2": 1}, {"H": 1, "OH": 1},
                         ct.ArrheniusRate(38.7, 2.7, 26191840.0))
         R = ct.Reaction(equation="O + H2 <=> H + OH",
-                        rate={"A": 38.7, "b", 2.7, "Ea": 26191840.0})
+                        rate={"A": 38.7, "b": 2.7, "Ea": 26191840.0})
         R = ct.Reaction(equation="HO2 <=> OH + O", rate=ChebyshevRate(...))
 
     The static method `list_from_file` can be used to create a list of `Reaction`
