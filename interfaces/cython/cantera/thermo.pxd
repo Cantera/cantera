@@ -205,6 +205,7 @@ cdef extern from "cantera/thermo/PlasmaPhase.h":
         double isotropicShapeFactor()
         double meanElectronEnergy()
         size_t nElectronEnergyLevels() except +translate_exception
+        double electronPressure() except +translate_exception
 
 
 cdef extern from "cantera/cython/thermo_utils.h":
