@@ -195,21 +195,6 @@ public:
         return electronTemperature() * GasConstant;
     }
 
-    //! Pressure
-    //! Units: Pa. For an ideal gas mixture with additional electrons,
-    //! \f[
-    //!        P = \sum_{k \neq k_e} n_k R T.
-    //! \f]
-    virtual double pressure() const {
-        double sum = 0.0;
-        for (size_t k = 0; k < m_kk; k++) {
-            if (k != m_electronSpeciesIndex) {
-                sum += GasConstant * concentration(k) * temperature();
-            }
-        }
-        return sum;
-    }
-
     /**
      * Electron pressure. Units: Pa.
      * \f[P = n_{k_e} R T_e\f]
