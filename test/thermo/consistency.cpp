@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 #include "cantera/thermo/ThermoPhase.h"
+#include "cantera/thermo/PlasmaPhase.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/MolalityVPSSTP.h"
 #include "cantera/base/Solution.h"
@@ -80,7 +81,14 @@ public:
         nsp = phase->nSpecies();
         p = phase->pressure();
         T = phase->temperature();
+        Te = phase->electronTemperature();
+        RTe = Te * GasConstant;
         RT = T * GasConstant;
+        if (phase->type() == "plasma") {
+            ke = dynamic_cast<PlasmaPhase&>(*phase).electronSpeciesIndex();
+        } else {
+            ke = npos;
+        }
     }
 
     void SetUp() {
@@ -101,7 +109,8 @@ public:
     AnyMap setup;
     shared_ptr<ThermoPhase> phase;
     size_t nsp;
-    double T, p, RT;
+    double T, p, RT, RTe, Te;
+    size_t ke;
     double atol; // absolute tolerance for molar energy comparisons
     double atol_v; // absolute tolerance for molar volume comparisons
     double rtol_fd; // relative tolerance for finite difference comparisons
@@ -136,7 +145,11 @@ TEST_P(TestConsistency, hk_eq_uk_plus_P_vk)
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
     }
     for (size_t k = 0; k < nsp; k++) {
-        EXPECT_NEAR(hk[k], uk[k] + p * vk[k], atol) << "k = " << k;
+        if (k == ke) {
+            EXPECT_NEAR(hk[k], uk[k] + RTe, atol) << "k = " << k;
+        } else {
+            EXPECT_NEAR(hk[k], uk[k] + p * vk[k], atol) << "k = " << k;
+        }
     }
 }
 
