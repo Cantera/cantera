@@ -12,7 +12,7 @@ import re
 
 from SCons.Script import *
 import SCons.Errors
-
+from pathlib import Path
 
 # Helper/core functions
 ##############################################################################
@@ -20,12 +20,7 @@ import SCons.Errors
 # Do the substitution
 def _subst_file(target, source, env, pattern, replace):
     # Read file
-    #print 'CALLING SUBST_FILE'
-    f = open(source, "rU")
-    try:
-        contents = f.read()
-    finally:
-        f.close()
+    contents = Path(source).read_text()
 
     # Substitute, make sure result is a string
     def subfn(mo):
@@ -46,11 +41,7 @@ def _subst_file(target, source, env, pattern, replace):
 # Determine which keys are used
 def _subst_keys(source, pattern):
     # Read file
-    f = open(source, "rU")
-    try:
-        contents = f.read()
-    finally:
-        f.close()
+    contents = Path(source).read_text()
 
     # Determine keys
     keys = []
