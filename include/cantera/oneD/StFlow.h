@@ -10,6 +10,8 @@
 #include "cantera/base/Array.h"
 #include "cantera/base/Solution.h"
 #include "cantera/thermo/IdealGasPhase.h"
+#include "cantera/thermo/RedlichKwongMFTP.h"
+#include "cantera/thermo/PengRobinson.h"
 #include "cantera/kinetics/Kinetics.h"
 
 namespace Cantera
@@ -86,7 +88,9 @@ public:
      *
      * @deprecated  To be removed after Cantera 3.0 (unused)
      */
-    void setThermo(IdealGasPhase& th);
+    void setThermo(ThermoPhase& th) {
+        m_thermo = &th;
+    }
 
     virtual void setKinetics(shared_ptr<Kinetics> kin);
 
@@ -425,6 +429,10 @@ protected:
     //! Update the diffusive mass fluxes.
     virtual void updateDiffFluxes(const doublereal* x, size_t j0, size_t j1);
 
+    //Get the gradient of speies specific molar enthalpies 
+    virtual vector_fp grad_hk(const doublereal* x, size_t j);
+    virtual void updateMolarEnthalpies(const doublereal* x, size_t j);
+
     //---------------------------------------------------------
     //             member data
     //---------------------------------------------------------
@@ -455,7 +463,7 @@ protected:
 
     size_t m_nsp;
 
-    IdealGasPhase* m_thermo = nullptr;
+    ThermoPhase* m_thermo = nullptr;
     Kinetics* m_kin = nullptr;
     Transport* m_trans = nullptr;
 
@@ -504,6 +512,11 @@ public:
 
     //! Temperature at the point used to fix the flame location
     double m_tfixed = -1.0;
+
+    //Pointers to save molar enthalpies
+    vector_fp m_hk_current;
+    vector_fp m_hk_right;
+    vector_fp m_hk_left;
 
 private:
     vector_fp m_ybar;

@@ -474,6 +474,7 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
         }
     }
 
+    vector_fp h_molar(m_nsp);
     for (size_t j = jmin; j <= jmax; j++) {
         //----------------------------------------------
         //         left boundary
@@ -561,22 +562,22 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
             //      - sum_k(J_k c_p_k / M_k) dT/dz
             //-----------------------------------------------
             if (m_do_energy[j]) {
+                // Update vectors m_hk_current, m_hk_left and m_hk_right
+                updateMolarEnthalpies(x, j);
                 setGas(x,j);
 
                 // heat release term
-                const vector_fp& h_RT = m_thermo->enthalpy_RT_ref();
-                const vector_fp& cp_R = m_thermo->cp_R_ref();
+                vector_fp dHk_dz = grad_hk(x, j);
+                m_thermo->getPartialMolarEnthalpies(&h_molar[0]);
+                
                 double sum = 0.0;
                 double sum2 = 0.0;
                 for (size_t k = 0; k < m_nsp; k++) {
                     double flxk = 0.5*(m_flux(k,j-1) + m_flux(k,j));
-                    sum += wdot(k,j)*h_RT[k];
-                    sum2 += flxk*cp_R[k]/m_wt[k];
+                    sum += wdot(k,j)*h_molar[k];
+                    sum2 += flxk * dHk_dz[k] / m_wt[k];
                 }
-                sum *= GasConstant * T(x,j);
                 double dtdzj = dTdz(x,j);
-                sum2 *= GasConstant * dtdzj;
-
                 rsd[index(c_offset_T, j)] = - m_cp[j]*rho_u(x,j)*dtdzj
                                             - divHeatFlux(x,j) - sum - sum2;
                 rsd[index(c_offset_T, j)] /= (m_rho[j]*m_cp[j]);
@@ -1050,6 +1051,43 @@ void StFlow::evalContinuity(size_t j, double* x, double* rsd, int* diag, double 
                 - (density(j+1)*V(x,j+1) + density(j)*V(x,j));
         }
     }
+}
+
+vector_fp StFlow::grad_hk(const doublereal* x, size_t j) 
+{
+    vector_fp dhk_dz(m_nsp, 0.0);
+
+    for(size_t k = 0; k < m_nsp; k++)
+    {
+        if (u(x, j) > 0.0)
+        {
+            dhk_dz[k] = (m_hk_current[k] - m_hk_left[k]) / m_dz[j - 1];
+        }
+        else
+        {
+            dhk_dz[k] = (m_hk_right[k] - m_hk_current[k]) / m_dz[j];
+        }
+    }
+    return dhk_dz;
+}
+
+void StFlow::updateMolarEnthalpies(const doublereal* x, size_t j)
+{
+    m_hk_left.resize(m_nsp,0.0);
+    m_hk_current.resize(m_nsp,0.0);
+    m_hk_right.resize(m_nsp,0.0);
+
+    // Node (j-1)
+    setGas(x, j-1);
+    m_thermo->getPartialMolarEnthalpies(&m_hk_left[0]);
+    
+    // Current Node j
+    setGas(x, j);
+    m_thermo->getPartialMolarEnthalpies(&m_hk_current[0]);
+
+    // Node (j+1)
+    setGas(x, j + 1);
+    m_thermo->getPartialMolarEnthalpies(&m_hk_right[0]);
 }
 
 } // namespace
