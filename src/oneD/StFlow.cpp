@@ -22,9 +22,13 @@ StFlow::StFlow(ThermoPhase* ph, size_t nsp, size_t points) :
 {
     if (ph->type() == "ideal-gas") {
         m_thermo = static_cast<IdealGasPhase*>(ph);
+    } else if(ph->type() == "Redlich-Kwong" && ph->type() == "RedlichKwongMFTP") {
+        m_thermo = static_cast<RedlichKwongMFTP*>(ph);
+    } else if(ph->type() == "Peng-Robinson") {
+        m_thermo = static_cast<PengRobinson*>(ph);
     } else {
         throw CanteraError("StFlow::StFlow",
-                           "Unsupported phase type: need 'IdealGasPhase'");
+                           "Unsupported phase type");
     }
     m_type = cFlowType;
     m_points = points;
@@ -562,22 +566,39 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
             //      - sum_k(J_k c_p_k / M_k) dT/dz
             //-----------------------------------------------
             if (m_do_energy[j]) {
-                // Update vectors m_hk_current, m_hk_left and m_hk_right
-                updateMolarEnthalpies(x, j);
-                setGas(x,j);
 
-                // heat release term
-                vector_fp dHk_dz = grad_hk(x, j);
-                m_thermo->getPartialMolarEnthalpies(&h_molar[0]);
-                
+                setGas(x,j);
+                double dtdzj = dTdz(x,j);
                 double sum = 0.0;
                 double sum2 = 0.0;
-                for (size_t k = 0; k < m_nsp; k++) {
-                    double flxk = 0.5*(m_flux(k,j-1) + m_flux(k,j));
-                    sum += wdot(k,j)*h_molar[k];
-                    sum2 += flxk * dHk_dz[k] / m_wt[k];
+                
+                if(m_thermo->type() == "IdealGas")
+                {
+                    vector_fp cp_R(m_nsp, 0.0), h_RT(m_nsp, 0.0);
+                    m_thermo->getCp_R(&cp_R[0]);
+                    m_thermo->getEnthalpy_RT_ref(&h_RT[0]);
+                    for (size_t k = 0; k < m_nsp; k++) {
+                        double flxk = 0.5*(m_flux(k,j-1) + m_flux(k,j));
+                        sum += wdot(k,j)*h_RT[k];
+                        sum2 += flxk*cp_R[k]/m_wt[k];
+                   }
+                   sum *= GasConstant * T(x,j);
+                   sum2 *= GasConstant * dtdzj;
+                } else if((m_thermo->type() == "RedlichKwong") || (m_thermo->type() == "PengRobinson")) 
+                {
+                    // Update vectors m_hk_current, m_hk_left and m_hk_right
+                    updateMolarEnthalpies(x, j);
+
+                    vector_fp dHk_dz = grad_hk(x, j);
+                    m_thermo->getPartialMolarEnthalpies(&h_molar[0]);
+
+                    for (size_t k = 0; k < m_nsp; k++) {
+                        double flxk = 0.5*(m_flux(k,j-1) + m_flux(k,j));
+                        sum += wdot(k,j)*h_molar[k];
+                        sum2 += flxk * dHk_dz[k] / m_wt[k];
+                    }
                 }
-                double dtdzj = dTdz(x,j);
+                
                 rsd[index(c_offset_T, j)] = - m_cp[j]*rho_u(x,j)*dtdzj
                                             - divHeatFlux(x,j) - sum - sum2;
                 rsd[index(c_offset_T, j)] /= (m_rho[j]*m_cp[j]);
