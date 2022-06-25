@@ -22,6 +22,7 @@
 #include "Cabinet.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/thermo/PureFluidPhase.h"
+#include "cantera/base/ExternalLogger.h"
 
 using namespace std;
 using namespace Cantera;
@@ -1384,7 +1385,8 @@ extern "C" {
     {
         try {
             bool stherm = (show_thermo != 0);
-            writelog(ThermoCabinet::item(nth).report(stherm, threshold)+"\n");
+            writelog(ThermoCabinet::item(nth).report(stherm, threshold));
+            writelogendl();
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -1459,11 +1461,12 @@ extern "C" {
         }
     }
 
-    int ct_setLogWriter(void* logger)
+    int ct_setLogWriter(Writer writer)
     {
+        static unique_ptr<Logger> logwriter;
         try {
-            Logger* logwriter = (Logger*)logger;
-            setLogger(logwriter);
+            logwriter.reset(new ExternalLogger(writer));
+            setLogger(logwriter.get());
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

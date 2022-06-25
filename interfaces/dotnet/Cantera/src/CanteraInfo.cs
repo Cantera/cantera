@@ -45,6 +45,9 @@ public static class CanteraInfo
 
         IEnumerator IEnumerable.GetEnumerator() =>
             _dirs.GetEnumerator();
+
+        public void AddAssemblyDirectory() =>
+            Add(Path.GetDirectoryName(GetType().Assembly.Location)!);
     }
 
     unsafe static readonly Lazy<string> _version =
