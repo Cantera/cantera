@@ -48,9 +48,11 @@ void CoverageDependentSurfPhase::setPiecewiseDependency(const PiecewiseDependenc
     double hcov_change = plin_deps.enthalpy_params[2];
     double scov_change = plin_deps.entropy_params[2];
 
-    if (hcov_change <= 0.0 || hcov_change > 1.0 || scov_change <= 0.0 || scov_change > 1.0) {
+    if (hcov_change <= 0.0 || hcov_change > 1.0 || scov_change <= 0.0
+        || scov_change > 1.0) {
         throw CanteraError("CoverageDependentSurfPhase::setPiecewiseDependency",
-            "Coverage where slope changes must be greater than 0.0 and less than or equal to 1.0.");
+            "Coverage where slope changes must be greater than 0.0 and less"
+            + " than or equal to 1.0.");
     }
 
     m_PiecewiseDependency.push_back(plin_deps);
@@ -61,10 +63,11 @@ void CoverageDependentSurfPhase::setInterpolativeDependency(const
                                                             int_deps)
 {
     double hcov_last = 0.0;
-    for (auto iter=int_deps.enthalpy_map.begin();iter!=int_deps.enthalpy_map.end();++iter){
+    for (auto iter=int_deps.enthalpy_map.begin();iter!=int_deps.enthalpy_map.end();
+        ++iter){
         if (iter->first < hcov_last) {
-            throw CanteraError("CoverageDependentSurfPhase::setInterpolativeDependency",
-            "Coverages are not in ascending order.");
+            throw CanteraError("CoverageDependentSurfPhase::setInterpolativeDependency"
+            , "Coverages are not in ascending order.");
         }
         hcov_last = iter->first;
     }
@@ -78,10 +81,11 @@ void CoverageDependentSurfPhase::setInterpolativeDependency(const
     }
 
     double scov_last = 0.0;
-    for (auto iter=int_deps.entropy_map.begin();iter!=int_deps.entropy_map.end();++iter){
+    for (auto iter=int_deps.entropy_map.begin();iter!=int_deps.entropy_map.end();
+        ++iter){
         if (iter->first < scov_last) {
-            throw CanteraError("CoverageDependentSurfPhase::setInterpolativeDependency",
-            "Coverages are not in ascending order.");
+            throw CanteraError("CoverageDependentSurfPhase::setInterpolativeDependency"
+            , "Coverages are not in ascending order.");
         }
         scov_last = iter->first;
     }
@@ -97,7 +101,8 @@ void CoverageDependentSurfPhase::setInterpolativeDependency(const
     m_InterpolativeDependency.push_back(int_deps);
 }
 
-void CoverageDependentSurfPhase::setHeatCapacityDependency(const HeatCapacityDependency&
+void CoverageDependentSurfPhase::setHeatCapacityDependency(const
+                                                           HeatCapacityDependency&
                                                            cpcov_deps)
 {
     m_HeatCapacityDependency.push_back(cpcov_deps);
@@ -114,7 +119,8 @@ void CoverageDependentSurfPhase::initThermo()
         m_theta_ref = m_input["reference-state-coverage"].as<double>();
         if (m_theta_ref <= 0.0 || m_theta_ref > 1.0) {
             throw CanteraError("CoverageDependentSurfPhase::initThermo",
-               "Reference state coverage must be greater than 0.0 and less than or equal to 1.0.");
+               "Reference state coverage must be greater than 0.0 and less"
+               + " than or equal to 1.0.");
         }
     }
     for (auto& item : m_species) {
@@ -155,11 +161,13 @@ void CoverageDependentSurfPhase::initThermo()
                     vector_fp h_coeffs (5, 0.0);
                     vector_fp s_coeffs (5, 0.0);
                     if (cov_map2.hasKey("enthalpy-coefficients")) {
-                        h_coeffs = cov_map2.convertVector("enthalpy-coefficients", "J/kmol");
+                        h_coeffs = cov_map2.convertVector("enthalpy-coefficients",
+                                                          "J/kmol");
                         h_coeffs.insert(h_coeffs.begin(), 0.0);
                     }
                     if (cov_map2.hasKey("entropy-coefficients")) {
-                        s_coeffs = cov_map2.convertVector("entropy-coefficients", "J/kmol/K");
+                        s_coeffs = cov_map2.convertVector("entropy-coefficients",
+                                                          "J/kmol/K");
                         s_coeffs.insert(s_coeffs.begin(), 0.0);
                     }
 
@@ -185,12 +193,15 @@ void CoverageDependentSurfPhase::initThermo()
                 // For interpolative model
                 } else if (cov_map2["model"] == "interpolative") {
                     std::map<double, double> hmap, smap;
-                    if (cov_map2.hasKey("enthalpy-coverages") && cov_map2.hasKey("enthalpies")) {
+                    if (cov_map2.hasKey("enthalpy-coverages") &&
+                        cov_map2.hasKey("enthalpies")) {
                         auto hcovs = cov_map2["enthalpy-coverages"].as<vector_fp>();
-                        vector_fp enthalpies = cov_map2.convertVector("enthalpies", "J/kmol");
+                        vector_fp enthalpies = cov_map2.convertVector("enthalpies",
+                                                                      "J/kmol");
                         if (hcovs.size() != enthalpies.size()) {
-                            throw CanteraError("CoverageDependentSurfPhase::setInterpolativeDependency",
-                            "Sizes of coverages array and enthalpies array are not equal.");
+                            throw CanteraError("CoverageDependentSurfPhase::"
+                            + "setInterpolativeDependency", "Sizes of coverages array"
+                            + " and enthalpies array are not equal.");
                         }
                         for (size_t i = 0; i < hcovs.size(); i++) {
                             hmap.insert({hcovs[i], enthalpies[i]});
@@ -199,12 +210,15 @@ void CoverageDependentSurfPhase::initThermo()
                         hmap.insert({0.0, 0.0});
                         hmap.insert({1.0, 0.0});
                     }
-                    if (cov_map2.hasKey("entropy-coverages") && cov_map2.hasKey("entropies")) {
+                    if (cov_map2.hasKey("entropy-coverages") &&
+                        cov_map2.hasKey("entropies")) {
                         auto scovs = cov_map2["entropy-coverages"].as<vector_fp>();
-                        vector_fp entropies = cov_map2.convertVector("entropies", "J/kmol/K");
+                        vector_fp entropies = cov_map2.convertVector("entropies",
+                                                                     "J/kmol/K");
                         if (scovs.size() != entropies.size()) {
-                            throw CanteraError("CoverageDependentSurfPhase::setInterpolativeDependency",
-                            "Sizes of coverages array and entropies array are not equal.");
+                            throw CanteraError("CoverageDependentSurfPhase::"
+                            + "setInterpolativeDependency", "Sizes of coverages array"
+                            + "and entropies array are not equal.");
                         }
                         for (size_t i = 0; i < scovs.size(); i++) {
                             smap.insert({scovs[i], entropies[i]});
@@ -218,8 +232,8 @@ void CoverageDependentSurfPhase::initThermo()
                     setInterpolativeDependency(int_deps);
                 } else {
                     throw CanteraError("CoverageDependentSurfPhase::initThermo",
-                        "Unrecognized coverage-dependencies model between '{}' and '{}'.",
-                        item.first, item2.first);
+                        "Unrecognized coverage-dependency model between '{}' and '{}'."
+                        , item.first, item2.first);
                 }
                 // For coverage-dependent heat capacity parameters, if present
                 if (cov_map2.hasKey("heat-capacity-a")) {
@@ -476,10 +490,12 @@ void CoverageDependentSurfPhase::_updateCovDepThermo(bool force) const
             m_cp_cov[item.k] += (a * log(tnow) + b) * m_cov[item.j] * m_cov[item.j];
             double int_cp_tnow = tnow * (a * log(tnow) - a + b);
             double int_cp_298 = 298.15 * (a * log(298.15) - a + b);
-            m_h_cov[item.k] += (int_cp_tnow - int_cp_298) * m_cov[item.j] * m_cov[item.j];
+            m_h_cov[item.k] += (int_cp_tnow - int_cp_298) * m_cov[item.j]
+                               * m_cov[item.j];
             double int_cp_T_tnow = log(tnow) * (a * log(tnow) + 2 * b);
             double int_cp_T_298 = log(298.15) * (a * log(298.15) + 2 * b);
-            m_s_cov[item.k] += 0.5 * (int_cp_T_tnow - int_cp_T_298) * m_cov[item.j] * m_cov[item.j];
+            m_s_cov[item.k] += 0.5 * (int_cp_T_tnow - int_cp_T_298) * m_cov[item.j]
+                               * m_cov[item.j];
         }
 
         for (size_t k = 0; k < m_kk; k++) {
