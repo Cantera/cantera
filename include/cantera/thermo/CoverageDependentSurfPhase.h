@@ -55,44 +55,6 @@ struct PolynomialDependency
 };
 
 //! Set of parameters modifying SurfPhase enthalpy and entropy based on
-//! surface coverages using a piecewise linear model.
-struct PiecewiseDependency
-{
-    //! Constructor
-    //! @param k_  index of a target species whose thermodynamics are calculated
-    //! @param j_  index of a species whose coverage affects thermodynamics of
-    //!            a target species
-    //! @param enthalpy_params_  array of three parameters to calculate
-    //!                          coverage-dependent enthalpy [J/kmol]: slope of
-    //!                          enthalpy change in the first region, slope of enthalpy
-    //!                          change in the second region, and coverage
-    //!                          dividing first and second region
-    //! @param entropy_params_  array of three parameters to calculate
-    //!                         coverage-dependent entropy [J/kmol/K]: slope of
-    //!                         entropy change in the first region, slope of entropy
-    //!                         change in the second region, and coverage dividing
-    //!                         first and second region
-    PiecewiseDependency(size_t k_, size_t j_,
-                        vector_fp enthalpy_params_, vector_fp entropy_params_):
-                        k(k_), j(j_),
-                        enthalpy_params(enthalpy_params_),
-                        entropy_params(entropy_params_) {}
-    PiecewiseDependency() {}
-    //! index of a target species whose thermodynamics are calculated
-    size_t k;
-    //! index of a species whose coverage affects thermodynamics of a target species
-    size_t j;
-    //! array of three parameters to calculate coverage-dependent enthalpy [J/kmol]:
-    //! slope of enthalpy change in the first region, slope of enthalpy change in the
-    //! second region, and coverage dividing first and second region
-    vector_fp enthalpy_params;
-    //! array of three parameters to calculate coverage-dependent entropy [J/kmol/K]:
-    //! slope of entropy change in the first region, slope of entropy change in the
-    //! second region, and coverage dividing first and second region
-    vector_fp entropy_params;
-};
-
-//! Set of parameters modifying SurfPhase enthalpy and entropy based on
 //! surface coverages using a interpolative model.
 //! Piecewise model is a subset of interpolative with three data points.
 struct InterpolativeDependency
@@ -181,33 +143,6 @@ public:
      *  @param poly_deps  list of parameters as a PolynomialDependency object
      */
     void setPolynomialDependency(const PolynomialDependency& poly_deps);
-
-    //! Set the piecewise linear coverage dependece for species
-    /*!
-     *  enthalpy and entropy are sum of ideal surface species enthalpy and entropy
-     *  and coverage-dependent enthalpy and entropy which are calculated with
-     *  a piecewise linear function of coverages:
-     *
-     *  \f[ h^{cov}_k(\theta) = \sum_j h^{low}_{k,j} \theta_j
-     *      \text{, for } \theta_j \leq \theta^{change}_{k,j}
-     *  \f]
-     *  \f[ h^{cov}_k(\theta) = \sum_j h^{high}_{k,j}
-     *      (\theta_j - \theta^{change}_{k,j}) +
-     *      (h^{low}_{k,j} \theta^{change}_{k,j}) \text{, for }
-     *      \theta_j > \theta^{change}_{k,j}
-     *  \f]
-     *
-     *  \f[ s^{cov}_k(\theta) = \sum_j s^{low}_{k,j} \theta_j
-     *      \text{, for } \theta_j \leq \theta^\text{change}_{k,j}
-     *  \f]
-     *  \f[ s^{cov}_k(\theta) = \sum_j s^{high}_{k,j}
-     *      (\theta_j - \theta^{change}_{k,j}) +
-     *      (s^{low}_{k,j} \theta^{change}_{k,j}) \text{, for }
-     *      \theta_j > \theta^{change}_{k,j}
-     *  \f]
-     *  @param plin_deps  list of parameters as a PiecewiseDependency object
-     */
-    void setPiecewiseDependency(const PiecewiseDependency& plin_deps);
 
     //! Set the interpolative coverage dependece for species
     /*!
@@ -448,10 +383,6 @@ protected:
     //! Array of enthalpy and entropy coverage dependency parameters used in
     //! the linear and polynomial models.
     std::vector<PolynomialDependency> m_PolynomialDependency;
-
-    //! Array of enthalpy and entropy coverage dependency parameters used in
-    //! the piecewise linear model.
-    std::vector<PiecewiseDependency> m_PiecewiseDependency;
 
     //! Array of enthalpy and entropy coverage dependency parameters used in
     //! the interpolative model.
