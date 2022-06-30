@@ -14,7 +14,6 @@
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/utilities.h"
-#include "cantera/base/ctml.h"
 #include "cantera/thermo/Species.h"
 
 using namespace std;
@@ -40,22 +39,6 @@ void CoverageDependentSurfPhase::setPolynomialDependency(const PolynomialDepende
                                                          poly_deps)
 {
     m_PolynomialDependency.push_back(poly_deps);
-}
-
-void CoverageDependentSurfPhase::setPiecewiseDependency(const PiecewiseDependency&
-                                                        plin_deps)
-{
-    double hcov_change = plin_deps.enthalpy_params[2];
-    double scov_change = plin_deps.entropy_params[2];
-
-    if (hcov_change <= 0.0 || hcov_change > 1.0 || scov_change <= 0.0
-        || scov_change > 1.0) {
-        throw CanteraError("CoverageDependentSurfPhase::setPiecewiseDependency",
-            "Coverage where slope changes must be greater than 0.0 and less"
-            + " than or equal to 1.0.");
-    }
-
-    m_PiecewiseDependency.push_back(plin_deps);
 }
 
 void CoverageDependentSurfPhase::setInterpolativeDependency(const
@@ -119,8 +102,8 @@ void CoverageDependentSurfPhase::initThermo()
         m_theta_ref = m_input["reference-state-coverage"].as<double>();
         if (m_theta_ref <= 0.0 || m_theta_ref > 1.0) {
             throw CanteraError("CoverageDependentSurfPhase::initThermo",
-               "Reference state coverage must be greater than 0.0 and less"
-               + " than or equal to 1.0.");
+               "Reference state coverage must be greater than 0.0 and less\
+                than or equal to 1.0.");
         }
     }
     for (auto& item : m_species) {
@@ -175,21 +158,43 @@ void CoverageDependentSurfPhase::initThermo()
                     setPolynomialDependency(poly_deps);
                 // For piecewise linear model
                 } else if (cov_map2["model"] == "piecewise-linear") {
-                    vector_fp h_piecewise = {0.0, 0.0, 0.5};
-                    vector_fp s_piecewise = {0.0, 0.0, 0.5};
+                    std::map<double, double> hmap, smap;
+                    vector_fp hcovs = {0.0, 0.5, 1.0};
+                    vector_fp enthalpies = {0.0, 0.0, 0.0};
+                    vector_fp scovs = {0.0, 0.5, 1.0};
+                    vector_fp entropies = {0.0, 0.0, 0.0};
                     if (cov_map2.hasKey("enthalpy-low")) {
-                        h_piecewise[0] = cov_map2.convert("enthalpy-low", "J/kmol");
-                        h_piecewise[1] = cov_map2.convert("enthalpy-high", "J/kmol");
-                        h_piecewise[2] = cov_map2["enthalpy-change"].as<double>();
-                    }
-                    if (cov_map2.hasKey("entropy-low")) {
-                        s_piecewise[0] = cov_map2.convert("entropy-low", "J/kmol/K");
-                        s_piecewise[1] = cov_map2.convert("entropy-high", "J/kmol/K");
-                        s_piecewise[2] = cov_map2["entropy-change"].as<double>();
+                        hcovs[1] = cov_map2["enthalpy-change"].as<double>();
+                        enthalpies[1] = cov_map2.convert("enthalpy-low", "J/kmol")
+                                        * hcovs[1];
+                        enthalpies[2] = (1.0 - hcovs[1]) *
+                                        cov_map2.convert("enthalpy-high", "J/kmol")
+                                        + enthalpies[1];
+                        for (size_t i = 0; i < hcovs.size(); i++) {
+                            hmap.insert({hcovs[i], enthalpies[i]});
+                        }
+                    } else {
+                        hmap.insert({0.0, 0.0});
+                        hmap.insert({1.0, 0.0});
                     }
 
-                    PiecewiseDependency plin_deps(k, j, h_piecewise, s_piecewise);
-                    setPiecewiseDependency(plin_deps);
+                    if (cov_map2.hasKey("entropy-low")) {
+                        scovs[1] = cov_map2["entropy-change"].as<double>();
+                        entropies[1] = cov_map2.convert("entropy-low", "J/kmol/K")
+                                       * scovs[1];
+                        entropies[2] = (1.0 - scovs[1]) *
+                                        cov_map2.convert("entropy-high", "J/kmol/K")
+                                        + entropies[1];
+                        for (size_t i = 0; i < scovs.size(); i++) {
+                            smap.insert({scovs[i], entropies[i]});
+                        }
+                    } else {
+                        smap.insert({0.0, 0.0});
+                        smap.insert({1.0, 0.0});
+                    }
+
+                    InterpolativeDependency int_deps(k, j, hmap, smap);
+                    setInterpolativeDependency(int_deps);
                 // For interpolative model
                 } else if (cov_map2["model"] == "interpolative") {
                     std::map<double, double> hmap, smap;
@@ -199,9 +204,9 @@ void CoverageDependentSurfPhase::initThermo()
                         vector_fp enthalpies = cov_map2.convertVector("enthalpies",
                                                                       "J/kmol");
                         if (hcovs.size() != enthalpies.size()) {
-                            throw CanteraError("CoverageDependentSurfPhase::"
-                            + "setInterpolativeDependency", "Sizes of coverages array"
-                            + " and enthalpies array are not equal.");
+                            throw CanteraError("CoverageDependentSurfPhase::\
+                            setInterpolativeDependency", "Sizes of coverages array\
+                             and enthalpies array are not equal.");
                         }
                         for (size_t i = 0; i < hcovs.size(); i++) {
                             hmap.insert({hcovs[i], enthalpies[i]});
@@ -216,9 +221,9 @@ void CoverageDependentSurfPhase::initThermo()
                         vector_fp entropies = cov_map2.convertVector("entropies",
                                                                      "J/kmol/K");
                         if (scovs.size() != entropies.size()) {
-                            throw CanteraError("CoverageDependentSurfPhase::"
-                            + "setInterpolativeDependency", "Sizes of coverages array"
-                            + "and entropies array are not equal.");
+                            throw CanteraError("CoverageDependentSurfPhase::\
+                            setInterpolativeDependency", "Sizes of coverages array\
+                             and entropies array are not equal.");
                         }
                         for (size_t i = 0; i < scovs.size(); i++) {
                             smap.insert({scovs[i], entropies[i]});
@@ -426,30 +431,7 @@ void CoverageDependentSurfPhase::_updateCovDepThermo(bool force) const
             m_s_cov[item.k] += poly4(m_cov[item.j], item.entropy_coeffs.data());
         }
 
-        // For piecewise linear model
-        for (auto& item : m_PiecewiseDependency) {
-            double h_slope_low = item.enthalpy_params[0];
-            double h_slope_high = item.enthalpy_params[1];
-            double h_cov_change = item.enthalpy_params[2];
-            if (m_cov[item.j] <= h_cov_change) {
-                m_h_cov[item.k] += h_slope_low * m_cov[item.j];
-            } else {
-                m_h_cov[item.k] += h_slope_low * h_cov_change;
-                m_h_cov[item.k] += h_slope_high * (m_cov[item.j] - h_cov_change);
-            }
-
-            double s_slope_low = item.entropy_params[0];
-            double s_slope_high = item.entropy_params[1];
-            double s_cov_change = item.entropy_params[2];
-            if (m_cov[item.j] <= s_cov_change) {
-                m_s_cov[item.k] += s_slope_low * m_cov[item.j];
-            } else {
-                m_s_cov[item.k] += s_slope_low * s_cov_change;
-                m_s_cov[item.k] += s_slope_high * (m_cov[item.j] - s_cov_change);
-            }
-        }
-
-        // For interpolative model
+        // For piecewise linear and interpolative model
         for (auto& item : m_InterpolativeDependency) {
             auto h_iter = item.enthalpy_map.upper_bound(m_cov[item.j]);
             auto s_iter = item.entropy_map.upper_bound(m_cov[item.j]);
