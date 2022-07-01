@@ -1,21 +1,16 @@
 function LoadCantera
-    addpath('Class', 'Utility', 'PresetFlowDevices', 'PresetFunctors', ...
-            'PresetMixtures', 'PresetReactors', '1D');
     if ispc
         ctname = 'cantera_shared.dll';
     elseif ismac
         ctname = 'libcantera_shared.dylib';
     elseif isunix
         ctname = 'libcantera_shared.so';
-
     else
         error('Operating System Not Supported!');
         return;
     end
     if ~libisloaded(ct)
-        load('Utility/cantera_root.mat');
-        addpath([cantera_root, '/samples/matlab_new']);
-        [~,warnings] = loadlibrary([cantera_root '/lib/' ctname], ...
+        [~,warnings] = loadlibrary([cantera_root '/Lib/' ctname], ...
                                    [cantera_root '/include/cantera/clib/ctmatlab.h'], ...
                                    'includepath', [cantera_root '/include'], ...
                                    'addheader','ct','addheader','ctfunc', ...
@@ -23,8 +18,6 @@ function LoadCantera
                                    'ctonedim','addheader','ctreactor', ...
                                    'addheader','ctrpath','addheader','ctsurf', ...
                                    'addheader','ctxml');
-        example_dir = [cantera_root, '/samples/matlab_new'];
-        addpath(example_dir);
     end
     disp('Cantera is ready for use');
 end
