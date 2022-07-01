@@ -13,6 +13,7 @@ classdef Mixture < handle
         function m = Mixture(phases)
             % MIXTURE  Multiphase mixture class constructor.
             % m = Mixture(phases)
+            %
             % Class :mat:func:`Mixture` represents mixtures of one or more phases of matter.
             % To construct a mixture, supply a cell array of phases and
             % mole numbers::
@@ -80,6 +81,7 @@ classdef Mixture < handle
         function display(m)
             % DISPLAY  Display the state of the mixture on the terminal.
             % m.display
+            %
             % :param self:
             %     Instance of class :mat:func:`Mixture`
             %
@@ -97,6 +99,7 @@ classdef Mixture < handle
         function clear(m)
             % CLEAR  Delete the C++ MultiPhase object.
             % m.clear
+            %
             % :param m:
             %     Instance of class :mat:func:`Mixture`
             %
@@ -106,6 +109,7 @@ classdef Mixture < handle
         function addPhase(m, phase, moles)
             % ADDPHASE  Add a phase to a mixture.
             % addPhase(self, phase, moles)
+            %
             % :param self:
             %     Instance of class :mat:func:`Mixture` to which phases should be
             %     added
@@ -137,6 +141,7 @@ classdef Mixture < handle
         function temperature = get.T(m)
             % GET.T  Get the temperature of a mixture.
             % temperature = m.T
+            %
             % :param m:
             %     Instance of class :mat:func:`Mixture`
             % :return:
@@ -148,6 +153,7 @@ classdef Mixture < handle
         function pressure = get.P(m)
             % GET.P  Get the pressure of the mixture.
             % pressure = m.P
+            %
             % :param m:
             %     Instance of class :mat:func:`Mixture`
             % :return:
@@ -159,6 +165,7 @@ classdef Mixture < handle
         function n = nAtoms(m, e)
             % NATOMS  Get the number of atoms of an element in a mixture.
             % n = m.nAtoms(e)
+            %
             % :param m:
             %     Instance of class :mat:func:`Mixture`
             % :param e:
@@ -177,6 +184,7 @@ classdef Mixture < handle
         function n = nElements(m)
             % NELEMENTS  Get the number of elements in a mixture.
             % n = m.nElements
+            %
             % :param m:
             %     Instance of class :mat:func:`Mixture`
             % :return:
@@ -188,6 +196,7 @@ classdef Mixture < handle
         function n = nPhases(m)
             % NPHASES  Get the number of phases in a mixture.
             % n = m.nPhases
+            %
             % :param m:
             %     Instance of class :mat:func:`Mixture`
             % :return:
@@ -199,6 +208,7 @@ classdef Mixture < handle
         function n = nSpecies(m)
             % NSPECIES  Get the number of species in a mixture.
             % n = m.nSpecies
+            %
             % :param m:
             %     Instance of class :mat:func:`Mixture`
             % :return:
@@ -210,6 +220,7 @@ classdef Mixture < handle
         function n = elementIndex(m, name)
             % ELEMENTINDEX  Get the index of an element.
             % n = m.elementIndex(name)
+            %
             % :param m:
             %     Instance of class :mat:func:`Mixture`
             % :param name:
@@ -227,6 +238,7 @@ classdef Mixture < handle
         function n = speciesIndex(m, k, p)
             % SPECIESINDEX  Get the index of a species in a mixture.
             % n = m.speciesIndex(k, p)
+            %
             % :param m:
             %     Instance of class :mat:func:`Mixture`
             % :param name:
@@ -244,6 +256,7 @@ classdef Mixture < handle
         function moles = elementMoles(m, e)
             % ELEMENTMOLES  Get the number of moles of an element in a mixture.
             % moles = m.elementMoles(e)
+            %
             % :param m:
             %     Instance of class :mat:func:`Mixture`
             % :param e:
@@ -267,6 +280,7 @@ classdef Mixture < handle
         function moles = phaseMoles(m, n)
             % PHASEMOLES  Get the number of moles of a phase in a mixture.
             % moles = m.phaseMoles(n)
+            %
             % :param m:
             %     Instance of class :mat:func:`Mixture`
             % :param n:
@@ -291,6 +305,7 @@ classdef Mixture < handle
         function moles = speciesMoles(m, k)
             % SPECIESMOLES  Get the number of moles of a species in a mixture.
             % moles = m.speciesMoles(n)
+            %
             % :param m:
             %     Instance of class :mat:func:`Mixture`
             % :param k:
@@ -315,6 +330,7 @@ classdef Mixture < handle
         function mu = chemPotentials(m)
             % CHEMPOTENTIALS  Get the chemical potentials of species in a mixture.
             % mu = m.chemPotentials
+            %
             % :param m:
             %     Instance of class :mat:func:`Mixture`
             % :return:
@@ -354,6 +370,7 @@ classdef Mixture < handle
         function setPhaseMoles(m, n, moles)
             % SETPHASEMOLES  Set the number of moles of a phase in a mixture.
             % m.setPhaseMoles(n, moles)
+            %
             % :param m:
             %     Instance of class :mat:func:`Mixture`
             % :param n:

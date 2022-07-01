@@ -108,6 +108,7 @@ classdef ReactorSurface < handle
 
         function setKinetics(s, kin)
             % Setthe surface reaction mechanism on a reactor surface.
+            %
             % :parameter kin:
             %    Instance of class 'Kinetics' (or another object derived
             %    from kin) to be used as the kinetic mechanism for this
@@ -120,6 +121,6 @@ classdef ReactorSurface < handle
 
             calllib(ct, 'reactorsurface_setkinetics', s.surfID, ikin);
         end
-
     end
 end
+

@@ -49,6 +49,7 @@ classdef FlowDevice < handle
         function clear(f)
             % CLEAR  Clear the specified flow device from memory.
             % f.clear
+            %
             % :param f:
             %     Instance of :mat:func:`FlowDevice` to be cleared.
             %
@@ -60,6 +61,7 @@ classdef FlowDevice < handle
         function install(f, upstream, downstream)
             % INSTALL  Install a flow device between reactors or reservoirs.
             % f.install(upstream, downstream)
+            %
             % :param f:
             %     Instance of class :mat:func:`FlowDevice` to install
             % :param upstream:
@@ -84,6 +86,7 @@ classdef FlowDevice < handle
         function mdot = massFlowRate(f)
             % MASSFLOWRATE  Get the mass flow rate.
             % mdot = f.massFlowRate
+            %
             % :param f:
             %     Instance of class :mat:func:`MassFlowController`
             % :return:
@@ -133,6 +136,7 @@ classdef FlowDevice < handle
             % SETMASTER  Set the Master flow device used to compute this device's mass
             % flow rate.
             % f.setMaster(d)
+            %
             % :param f:
             %     Instance of class :mat:func:`MassFlowController`
             % :param mf:
