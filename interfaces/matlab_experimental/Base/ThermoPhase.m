@@ -66,6 +66,7 @@ classdef ThermoPhase < handle
         function tp = ThermoPhase(src, id)
             % THERMOPHASE  ThermoPhase class constructor.
             % t = ThermoPhase(src, id)
+            %
             % :param src:
             %     Input string of YAML, CTI, or XML file name.
             % :param id:
@@ -98,6 +99,7 @@ classdef ThermoPhase < handle
         function tpClear(tp)
             % CLEAR  Delete the kernel object.
             % tp.tpClear
+            %
             % :param tp:
             %     Instance of class :mat:func:`ThermoPhase` (or another
             %     object that derives from ThermoPhase)
@@ -114,8 +116,9 @@ classdef ThermoPhase < handle
             % tp.Basis
             % :param tp:
             %     Instance of class :mat:func:`ThermoPhase`.
+            %
             % :param b:
-            %     String. Can be 'mole'/'molar'/'Molar'/Mole' or 'mass'/'Mass'.
+            %     String. Can be 'mole'/'molar'/'Molar'/'Mole' or 'mass'/'Mass'.
 
             if strcmp(b, 'mole') || strcmp(b, 'molar') ...
                || strcmp(b, 'Mole') || strcmp(b, 'Molar')
@@ -130,6 +133,7 @@ classdef ThermoPhase < handle
                                   maxiter, loglevel)
             % EQUILIBRATE  Set the phase to a state of chemical equilibrium.
             % tp.equilibrate(xy, solver, rtol, maxsteps, maxiter, loglevel)
+            %
             % :param XY:
             %     A two-letter string, which must be one of the set
             %     ``['TP','TV','HP','SP','SV','UV','UP']``,
@@ -181,6 +185,7 @@ classdef ThermoPhase < handle
         function amu = atomicMasses(tp)
             % ATOMICMASSES  Get the atomic masses of the elements.
             % x = tp.atomicMasses
+            %
             % :param tp:
             %     Instance of class :mat:func:`ThermoPhase` (or another
             %     object that derives from ThermoPhase).
@@ -270,6 +275,7 @@ classdef ThermoPhase < handle
         function elMassFrac = elementalMassFraction(tp, element)
             % ELEMENTALMASSFRACTION  Determine the elemental mass fraction in gas object.
             % elMassFrac = tp.elementalMassFraction(element)
+            %
             % :param tp:
             %     Object representing the gas, instance of class :mat:func:`Solution`,
             %     and an ideal gas. The state of this object should be set to an
@@ -357,6 +363,7 @@ classdef ThermoPhase < handle
         function n = nAtoms(tp, species, element)
             % NATOMS  Get the number of atoms of an element in a species.
             % n = tp.nAtoms(k,m)
+            %
             % :param tp:
             %     Instance of class :mat:func:`ThermoPhase` (or another
             %     object that derives from ThermoPhase)
@@ -393,6 +400,7 @@ classdef ThermoPhase < handle
         function nel = nElements(tp)
             % NELEMENTS  Get the number of elements.
             % n = tp.nElements
+            %
             % :param tp:
             %     Instance of class :mat:func:`ThermoPhase` (or another
             %     object that derives from ThermoPhase)
@@ -405,6 +413,7 @@ classdef ThermoPhase < handle
         function nsp = nSpecies(tp)
             % NSPECIES  Get the number of species.
             % n = tp.nSpecies
+            %
             % :param tp:
             %     Instance of class :mat:func:`ThermoPhase` (or another
             %     object that derives from ThermoPhase)
@@ -470,6 +479,7 @@ classdef ThermoPhase < handle
         function nm = speciesName(tp, k)
             % SPECIESNAME  Get the name of a species given the index.
             % nm = tp.speciesName(k)
+            %
             % :param tp:
             %     Instance of class :mat:func:`ThermoPhase` (or another
             %     class derived from ThermoPhase)
@@ -498,6 +508,7 @@ classdef ThermoPhase < handle
         function n = speciesNames(tp)
             % SPECIESNAMES  Get the species names.
             % n = tp.speciesNames
+            %
             % :param tp:
             %     Instance of class :mat:func:`ThermoPhase` (or another
             %     class derived from ThermoPhase)
@@ -510,6 +521,7 @@ classdef ThermoPhase < handle
         function temperature = get.T(tp)
             % GET.T  Get the temperature.
             % temperature = tp.T
+            %
             % :param tp:
             %     Instance of class :mat:func:`ThermoPhase` (or another
             %     class derived from ThermoPhase)
@@ -522,6 +534,7 @@ classdef ThermoPhase < handle
         function pressure = get.P(tp)
             % GET.P  Get the pressure.
             % pressure = tp.P
+            %
             % :param tp:
             %     Instance of class :mat:func:`ThermoPhase` (or another
             %     object that derives from ThermoPhase)
@@ -534,6 +547,7 @@ classdef ThermoPhase < handle
         function density = get.D(tp)
             % GET.D  Get the density.
             % density = tp.D
+            %
             % :param tp:
             %     Instance of class :mat:func:`ThermoPhase` (or another
             %     object that derives from ThermoPhase)
@@ -546,6 +560,7 @@ classdef ThermoPhase < handle
         function volume = get.V(tp)
             % GET.V  Get the specific volume.
             % volume = tp.V
+            %
             % :param tp:
             %     Instance of class :mat:func:`ThermoPhase` (or another
             %     object that derives from ThermoPhase)
@@ -558,6 +573,7 @@ classdef ThermoPhase < handle
         function moleFractions = get.X(tp)
             % GET.X  Get the mole fractions of all species.
             % moleFractions = tp.X
+            %
             % :param tp:
             %     Instance of class :mat:func:`ThermoPhase` (or another
             %     object that derives from ThermoPhase)
@@ -586,6 +602,7 @@ classdef ThermoPhase < handle
         function x = moleFraction(tp, species)
             % MOLEFRACTION  Get the mole fraction of one or a list of species.
             % x = tp.moleFraction(species)
+            %
             % :param tp:
             %     Instance of class :mat:func:`ThermoPhase` (or another
             %     object that derives from ThermoPhase)
@@ -618,6 +635,7 @@ classdef ThermoPhase < handle
         function massFractions = get.Y(tp)
             % GET.Y  Get the mass fractions of all species.
             % massFractions = tp.Y
+            %
             % :param tp:
             %     Instance of class :mat:func:`ThermoPhase` (or another
             %     object that derives from ThermoPhase)
@@ -646,6 +664,7 @@ classdef ThermoPhase < handle
         function y = massFraction(tp, species)
             % MASSFRACTION  Get the mass fraction of one or a list of species.
             % y = tp.massFraction(species)
+            %
             % :param tp:
             %     Instance of class :mat:func:`ThermoPhase` (or another
             %     object that derives from ThermoPhase)
@@ -706,6 +725,7 @@ classdef ThermoPhase < handle
         function c = cv(tp)
             % CV  Get the basis-dependent specific heat at constant volume.
             % c = tp.cv
+            %
             % :param tp:
             %     Instance of class :mat:func:`ThermoPhase` (or another
             %     object that derives from ThermoPhase)
@@ -724,6 +744,7 @@ classdef ThermoPhase < handle
         function c = cp(tp)
             % CP  Get the basis-dependent specific heat at constant pressure.
             % v = tp.cp
+            %
             % :param tp:
             %     Instance of class :mat:func:`ThermoPhase` (or another
             %     object that derives from ThermoPhase)
@@ -742,6 +763,7 @@ classdef ThermoPhase < handle
         function d = critDensity(tp)
             % CRITDENSITY  Get the critical density.
             % v = tp.critDensity
+            %
             % :param tp:
             %     Instance of class :mat:func:`ThermoPhase` (or another
             %     object that derives from ThermoPhase)
@@ -754,6 +776,7 @@ classdef ThermoPhase < handle
         function p = critPressure(tp)
             % CRITPRESSURE  Get the critical pressure.
             % v = tp.critPressure
+            %
             % :param tp:
             %     Instance of class :mat:func:`ThermoPhase` (or another
             %     object that derives from ThermoPhase)
@@ -766,6 +789,7 @@ classdef ThermoPhase < handle
         function t = critTemperature(tp)
             % CRITTEMPERATURE  Get the critical temperature.
             % v = tp.critTemperature
+            %
             % :param tp:
             %     Instance of class :mat:func:`ThermoPhase` (or another
             %     object that derives from ThermoPhase)
@@ -778,6 +802,7 @@ classdef ThermoPhase < handle
         function v = electricPotential(tp)
             % ELECTRICPOTENTIAL  Get the electric potential.
             % v = tp.electricPotential
+            %
             % :param tp:
             %     Instance of class :mat:func:`ThermoPhase` (or another
             %     object that derives from ThermoPhase)
@@ -790,6 +815,7 @@ classdef ThermoPhase < handle
         function e = eosType(tp)
             % EOSTYPE  Get the type of the equation of state.
             % e = tp.eosType
+            %
             % :param tp:
             %     Instance of class :mat:func:`ThermoPhase` (or another
             %     object that derives from ThermoPhase)
@@ -808,6 +834,7 @@ classdef ThermoPhase < handle
         function v = isIdealGas(tp)
             % ISIDEALGAS  Get a flag indicating whether the phase is an ideal gas.
             % v = tp.isIdealGas
+            %
             % :param tp:
             %     Instance of class :mat:func:`ThermoPhase` (or another
             %     object that derives from ThermoPhase)
@@ -826,6 +853,7 @@ classdef ThermoPhase < handle
         function b = isothermalCompressibility(tp)
             % ISOTHERMALCOMPRESSIBILITY  Get the isothermal compressibility.
             % b = tp.isothermalCompressibility
+            %
             % :param tp:
             %     Instance of class :mat:func:`ThermoPhase` (or another
             %     object that derives from ThermoPhase)
@@ -876,6 +904,7 @@ classdef ThermoPhase < handle
         function p = refPressure(tp)
             % REFPRESSURE  Get the reference pressure.
             % v = tp.refPressure
+            %
             % :param tp:
             %     Instance of class :mat:func:`ThermoPhase` (or another
             %     object that derives from ThermoPhase)
@@ -889,6 +918,7 @@ classdef ThermoPhase < handle
         function p = satPressure(tp, t)
             % SATPRESSURE  Get the saturation pressure for a given temperature.
             % v = tp.satPressure(T)
+            %
             % :param tp:
             %     Instance of class :mat:func:`ThermoPhase` (or another
             %     object that derives from ThermoPhase)
@@ -903,6 +933,7 @@ classdef ThermoPhase < handle
         function t = satTemperature(tp, p)
             % SATTEMPERATURE  Get the saturation temperature for a given pressure.
             % v = tp.satTemperature(p)
+            %
             % :param tp:
             %     Instance of class :mat:func:`ThermoPhase` (or another
             %     object that derives from ThermoPhase)
@@ -962,6 +993,7 @@ classdef ThermoPhase < handle
         function a = thermalExpansionCoeff(tp)
             % THERMALEXPANSIONCOEFF  Get the thermal expansion coefficient.
             % a = tp.thermalExpansionCoeff
+            %
             % :param tp:
             %     Instance of class :mat:func:`ThermoPhase` (or another
             %     class derived from ThermoPhase)
@@ -974,6 +1006,7 @@ classdef ThermoPhase < handle
         function v = vaporFraction(tp)
             % VAPORFRACTION  Get the vapor fraction.
             % v = tp.vaporFraction
+            %
             % :param tp:
             %     Instance of class :mat:func:`ThermoPhase` (or another
             %     class derived from ThermoPhase)
@@ -986,6 +1019,7 @@ classdef ThermoPhase < handle
         function enthalpy = get.H(tp)
             % GET.H  Get the mass specific enthalpy.
             % enthalpy = tp.H
+            %
             % :param tp:
             %     Instance of class :mat:func:`ThermoPhase` (or another
             %     object that derives from ThermoPhase)
@@ -1004,6 +1038,7 @@ classdef ThermoPhase < handle
         function enthalpy = enthalpies_RT(tp)
             % ENTHALPIES_RT  Get the non-dimensional enthalpies.
             % v = tp.enthalpies_RT
+            %
             % :param tp:
             %     Instance of class :mat:func:`ThermoPhase` (or another
             %     object that derives from ThermoPhase)
@@ -1023,6 +1058,7 @@ classdef ThermoPhase < handle
         function entropy = get.S(tp)
             % GET.S  Get the mass specific entropy.
             % entropy = tp.S
+            %
             % :param tp:
             %     Instance of class :mat:func:`ThermoPhase` (or another
             %     object that derives from ThermoPhase)
@@ -1041,6 +1077,7 @@ classdef ThermoPhase < handle
         function intEnergy = get.U(tp)
             % GET.U  Get the mass specific internal energy.
             % intEnergy = tp.U
+            %
             % :param tp:
             %     Instance of class :mat:func:`ThermoPhase` (or another
             %     object that derives from ThermoPhase)
@@ -1059,6 +1096,7 @@ classdef ThermoPhase < handle
         function gibbs = get.G(tp)
             % GET.G  Get the mass specific Gibbs function.
             % gibbs = tp.G
+            %
             % :param tp:
             %     Instance of class :mat:func:`ThermoPhase` (or another
             %     object that derives from ThermoPhase)
@@ -1249,6 +1287,7 @@ classdef ThermoPhase < handle
         function tp = setElectricPotential(tp, phi)
             % SETELECTRICPOTENTIAL  Set the electric potential.
             % tp.setElectricPotential(phi)
+            %
             % :param tp:
             %     Instance of class :mat:func:`ThermoPhase` (or another
             %     class derived from ThermoPhase)
@@ -1297,6 +1336,7 @@ classdef ThermoPhase < handle
         function set.T(tp, temperature)
             % SET.T  Set the temperature.
             % tp.T = temperature
+            %
             % :param tp:
             %     Instance of class :mat:func:`ThermoPhase` (or another
             %     class derived from ThermoPhase)
@@ -1330,6 +1370,7 @@ classdef ThermoPhase < handle
         function set.D(tp, density)
             % SET.D  Set the density.
             % tp.D = density
+            %
             % :param tp:
             %     Instance of class :mat:func:`ThermoPhase` (or another
             %     class derived from ThermoPhase)
