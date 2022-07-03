@@ -219,7 +219,7 @@ public:
         return pr * m_rc_high;
     }
 
-    void check(const std::string& equation, const AnyMap& node);
+    virtual void check(const std::string& equation) override;
     virtual void validate(const std::string& equation, const Kinetics& kin);
 
     //! Get flag indicating whether negative A values are permitted

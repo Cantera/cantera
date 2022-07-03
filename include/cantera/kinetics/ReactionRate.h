@@ -100,7 +100,16 @@ public:
     }
 
     //! Check basic syntax and settings of reaction rate expression
-    virtual void check(const std::string& equation, const AnyMap& node) {}
+    virtual void check(const std::string& equation) {}
+
+    //! Check basic syntax and settings of reaction rate expression
+    //! @deprecated  To be removed after Cantera 3.0.
+    //!              Superseded by single-parameter version
+    void check(const std::string& equation, const AnyMap& node) {
+        warn_deprecated("ReactionRate::check",
+            "To be removed after Cantera 3.0; superseded by single-parameter version.");
+        check(equation);
+    }
 
     //! Validate the reaction rate expression
     virtual void validate(const std::string& equation, const Kinetics& kin) {}
