@@ -27,6 +27,7 @@ interfaces/matlab/Contents.m
 stage/
 .sconsign.dblite
 .sconf_temp
+.vs
 .vscode
 .ipynb_checkpoints/
 cantera.conf*
