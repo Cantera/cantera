@@ -4,6 +4,12 @@
 import warnings
 from collections import defaultdict as _defaultdict
 import numbers as _numbers
+from cython.operator cimport dereference as deref
+
+from .thermo cimport *
+from ._utils cimport *
+from ._utils import *
+from .delegator cimport *
 
 _reactor_counts = _defaultdict(int)
 
@@ -272,7 +278,7 @@ cdef class Reactor(ReactorBase):
         ``'int_energy'`` or ``'temperature'``, depending on the reactor's equations.
         """
         k = self.reactor.componentIndex(stringify(name))
-        if k == CxxNpos:
+        if k == -1:
             raise IndexError('No such component: {!r}'.format(name))
         return k
 

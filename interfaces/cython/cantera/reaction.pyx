@@ -1,6 +1,12 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
+cimport numpy as np
+from cython.operator cimport dereference as deref
+
+from .kinetics cimport *
+from ._utils cimport *
+from .units cimport *
 
 # dictionary to store reaction classes
 cdef dict _reaction_class_registry = {}

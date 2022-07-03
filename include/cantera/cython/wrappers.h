@@ -6,12 +6,13 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/transport/Transport.h"
 #include "cantera/kinetics/Kinetics.h"
+#include "cantera/base/Array.h"
 
 #include "Python.h"
 
 // Warning types supported by the Python C-API.
 // See https://docs.python.org/3/c-api/exceptions.html#issuing-warnings
-std::map<std::string, PyObject*> mapped_PyWarnings = {
+static std::map<std::string, PyObject*> mapped_PyWarnings = {
     {"", PyExc_Warning},
     {"Bytes", PyExc_BytesWarning},
     {"Cantera", PyExc_UserWarning}, // pre-existing warning
@@ -27,12 +28,12 @@ std::map<std::string, PyObject*> mapped_PyWarnings = {
 };
 
 // Wrappers for preprocessor defines
-std::string get_cantera_version()
+inline std::string get_cantera_version()
 {
     return std::string(CANTERA_VERSION);
 }
 
-int get_sundials_version()
+inline int get_sundials_version()
 {
     return CT_SUNDIALS_VERSION;
 }
@@ -70,13 +71,13 @@ public:
 
 // Function for assigning elements of Array2D, since Cython has trouble
 // with assigning to the reference returned by operator()
-void CxxArray2D_set(Cantera::Array2D& array, size_t i, size_t j, double value)
+inline void CxxArray2D_set(Cantera::Array2D& array, size_t i, size_t j, double value)
 {
     array(i,j) = value;
 }
 
 // Service function to pass index/value triplets describing sparse matrix
-size_t sparseTriplets(const Eigen::SparseMatrix<double>& mat,
+inline size_t sparseTriplets(const Eigen::SparseMatrix<double>& mat,
     int* rows, int* cols, double* data, size_t length)
 {
     size_t count = 0;
@@ -99,7 +100,7 @@ size_t sparseTriplets(const Eigen::SparseMatrix<double>& mat,
 }
 
 // Service function to pass CSC data describing sparse matrix
-void sparseCscData(const Eigen::SparseMatrix<double>& mat,
+inline void sparseCscData(const Eigen::SparseMatrix<double>& mat,
     double* value, int* inner, int* outer)
 {
     if (!mat.isCompressed()) {
@@ -122,26 +123,26 @@ void sparseCscData(const Eigen::SparseMatrix<double>& mat,
 
 // Function which passes sparse matrix
 #define SPARSE_MATRIX(PREFIX, CLASS_NAME, FUNC_NAME) \
-    Eigen::SparseMatrix<double> PREFIX ## _ ## FUNC_NAME(Cantera::CLASS_NAME* object) \
+    inline Eigen::SparseMatrix<double> PREFIX ## _ ## FUNC_NAME(Cantera::CLASS_NAME* object) \
     { return object->FUNC_NAME(); }
 
 // Function which populates a 1D array
 #define ARRAY_FUNC(PREFIX, CLASS_NAME, FUNC_NAME) \
-    void PREFIX ## _ ## FUNC_NAME(Cantera::CLASS_NAME* object, double* data) \
+    inline void PREFIX ## _ ## FUNC_NAME(Cantera::CLASS_NAME* object, double* data) \
     { object->FUNC_NAME(data); }
 
 // function which takes a stride as the first argument and populates a 2D array
 #define ARRAY_FUNC2(PREFIX, CLASS_NAME, FUNC_NAME) \
-    void PREFIX ## _ ## FUNC_NAME(Cantera::CLASS_NAME* object, size_t dim, double* data) \
+    inline void PREFIX ## _ ## FUNC_NAME(Cantera::CLASS_NAME* object, size_t dim, double* data) \
     { object->FUNC_NAME(dim, data); }
 
 // Function which populates a 1D array, extra arguments
 #define ARRAY_POLY(PREFIX, CLASS_NAME, FUNC_NAME) \
-    void PREFIX ## _ ## FUNC_NAME(Cantera::CLASS_NAME* object, size_t i, double* data) \
+    inline void PREFIX ## _ ## FUNC_NAME(Cantera::CLASS_NAME* object, size_t i, double* data) \
     { object->FUNC_NAME(i, data); }
 
 #define ARRAY_POLY_BINARY(PREFIX, CLASS_NAME, FUNC_NAME) \
-    void PREFIX ## _ ## FUNC_NAME(Cantera::CLASS_NAME* object, size_t i, size_t j, double* data) \
+    inline void PREFIX ## _ ## FUNC_NAME(Cantera::CLASS_NAME* object, size_t i, size_t j, double* data) \
     { object->FUNC_NAME(i, j, data); }
 
 #define THERMO_1D(FUNC_NAME) ARRAY_FUNC(thermo, ThermoPhase, FUNC_NAME)

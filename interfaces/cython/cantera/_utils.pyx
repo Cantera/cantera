@@ -7,6 +7,7 @@ import warnings
 from cpython.ref cimport PyObject
 import numbers
 import pkg_resources
+import numpy as np
 
 # avoid explicit dependence of cantera on scipy
 try:

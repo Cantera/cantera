@@ -2,6 +2,9 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 from pathlib import Path
+from cython.operator cimport dereference as deref
+
+from ._utils cimport *
 
 cdef class ReactionPathDiagram:
     def __cinit__(self, *args, **kwargs):

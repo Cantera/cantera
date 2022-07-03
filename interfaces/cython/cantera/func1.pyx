@@ -2,6 +2,10 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 import sys
+cimport numpy as np
+import numpy as np
+
+from ._utils import *
 
 cdef double func_callback(double t, void* obj, void** err):
     """

@@ -3,6 +3,10 @@
 
 import warnings
 
+from .base cimport *
+from .thermo cimport *
+from ._utils cimport *
+
 # Need a pure-python class to store weakrefs to
 class _WeakrefProxy:
     pass
