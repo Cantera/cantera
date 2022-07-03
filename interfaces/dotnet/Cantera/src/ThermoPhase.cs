@@ -36,7 +36,7 @@ public partial class ThermoPhase
 
     public SpeciesCollection Species => _species.Value;
 
-    public ThermoPhase(string filename, string? phasename = null)
+    internal ThermoPhase(string filename, string? phasename)
     {
         _handle = LibCantera.thermo_newFromFile(filename, phasename ?? "");
         _handle.EnsureValid();
