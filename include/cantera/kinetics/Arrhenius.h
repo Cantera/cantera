@@ -52,7 +52,7 @@ class ArrheniusBase : public ReactionRate
 {
 public:
     //! Default constructor.
-    ArrheniusBase();
+    ArrheniusBase() {}
 
     //! Constructor.
     /*!
@@ -71,7 +71,6 @@ public:
     }
 
     explicit ArrheniusBase(const AnyMap& node, const UnitStack& rate_units={})
-        : ArrheniusBase()
     {
         setParameters(node, rate_units);
     }
@@ -160,18 +159,18 @@ public:
     }
 
 protected:
-    bool m_negativeA_ok; //!< Flag indicating whether negative A values are permitted
-    double m_A; //!< Pre-exponential factor
-    double m_b; //!< Temperature exponent
-    double m_Ea_R; //!< Activation energy (in temperature units)
-    double m_E4_R; //!< Optional 4th energy parameter (in temperature units)
-    double m_logA; //!< Logarithm of pre-exponential factor
-    double m_order; //!< Reaction order
+    bool m_negativeA_ok = false; //!< Permissible negative A values
+    double m_A = NAN; //!< Pre-exponential factor
+    double m_b = NAN; //!< Temperature exponent
+    double m_Ea_R = 0.; //!< Activation energy (in temperature units)
+    double m_E4_R = 0.; //!< Optional 4th energy parameter (in temperature units)
+    double m_logA = NAN; //!< Logarithm of pre-exponential factor
+    double m_order = NAN; //!< Reaction order
     std::string m_A_str = "A"; //!< The string for temperature exponent
     std::string m_b_str = "b"; //!< The string for temperature exponent
     std::string m_Ea_str = "Ea"; //!< The string for activation energy
     std::string m_E4_str = ""; //!< The string for an optional 4th parameter
-    Units m_rate_units; //!< Reaction rate units
+    Units m_rate_units = Units(0.); //!< Reaction rate units
 };
 
 //! Arrhenius reaction rate type depends only on temperature
