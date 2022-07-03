@@ -46,7 +46,6 @@ void TwoTempPlasmaData::updateTe(double Te)
 }
 
 TwoTempPlasmaRate::TwoTempPlasmaRate()
-    : ArrheniusBase()
 {
     m_Ea_str = "Ea-gas";
     m_E4_str = "Ea-electron";
