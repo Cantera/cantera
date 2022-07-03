@@ -3,7 +3,7 @@ import numpy as np
 import cantera as ct
 from . import utilities
 
-from cantera._cantera import _py_to_any_to_py
+from cantera._utils import _py_to_any_to_py
 
 
 class TestUnitSystem(utilities.CanteraTest):

@@ -2,6 +2,8 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 from ._utils cimport *
+cimport numpy as np
+import numpy as np
 
 # NOTE: These cdef functions cannot be members of Transport because they would
 # cause "layout conflicts" when creating derived classes with multiple bases,

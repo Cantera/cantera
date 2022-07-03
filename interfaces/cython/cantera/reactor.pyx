@@ -7,7 +7,7 @@ import numbers as _numbers
 from cython.operator cimport dereference as deref
 
 from .thermo cimport *
-from ._utils cimport *
+from ._utils cimport pystr, stringify, comp_map
 from ._utils import *
 from .delegator cimport *
 
