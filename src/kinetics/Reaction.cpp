@@ -104,7 +104,7 @@ void Reaction::check()
 
     // Check reaction rate evaluator to ensure changes introduced after object
     // instantiation are considered.
-    m_rate->check(equation(), input);
+    m_rate->check(equation());
 }
 
 AnyMap Reaction::parameters(bool withInput) const

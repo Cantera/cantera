@@ -120,7 +120,7 @@ void ArrheniusBase::getParameters(AnyMap& node) const {
     }
 }
 
-void ArrheniusBase::check(const std::string& equation, const AnyMap& node)
+void ArrheniusBase::check(const std::string& equation)
 {
     if (!m_negativeA_ok && m_A < 0) {
         if (equation == "") {
@@ -129,7 +129,7 @@ void ArrheniusBase::check(const std::string& equation, const AnyMap& node)
                 "Enable 'allowNegativePreExponentialFactor' to suppress "
                 "this message.", m_A);
         }
-        throw InputFileError("ArrheniusBase::check", node,
+        throw InputFileError("ArrheniusBase::check", m_input,
             "Undeclared negative pre-exponential factor found in reaction '{}'",
             equation);
     }

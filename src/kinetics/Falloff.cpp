@@ -93,7 +93,7 @@ void FalloffRate::setLowRate(const ArrheniusRate& low)
 {
     ArrheniusRate _low = low;
     _low.setAllowNegativePreExponentialFactor(m_negativeA_ok);
-    _low.check("", AnyMap());
+    _low.check(m_input.getString("equation", ""));
     if (_low.preExponentialFactor() * m_highRate.preExponentialFactor() < 0.) {
         throw CanteraError("FalloffRate::setLowRate",
             "Detected inconsistent rate definitions;\nhigh and low "
@@ -106,7 +106,7 @@ void FalloffRate::setHighRate(const ArrheniusRate& high)
 {
     ArrheniusRate _high = high;
     _high.setAllowNegativePreExponentialFactor(m_negativeA_ok);
-    _high.check("", AnyMap());
+    _high.check(m_input.getString("equation", ""));
     if (m_lowRate.preExponentialFactor() * _high.preExponentialFactor() < 0.) {
         throw CanteraError("FalloffRate::setHighRate",
             "Detected inconsistent rate definitions;\nhigh and low "
@@ -185,10 +185,10 @@ void FalloffRate::getParameters(AnyMap& node) const
     }
 }
 
-void FalloffRate::check(const std::string& equation, const AnyMap& node)
+void FalloffRate::check(const std::string& equation)
 {
-    m_lowRate.check(equation, node);
-    m_highRate.check(equation, node);
+    m_lowRate.check(equation);
+    m_highRate.check(equation);
 
     double lowA = m_lowRate.preExponentialFactor();
     double highA = m_highRate.preExponentialFactor();
@@ -197,7 +197,7 @@ void FalloffRate::check(const std::string& equation, const AnyMap& node)
         return;
     }
     if (lowA * highA < 0) {
-        throw InputFileError("FalloffRate::check", node,
+        throw InputFileError("FalloffRate::check", m_input,
             "Inconsistent rate definitions found in reaction '{}';\nhigh and low "
             "rate pre-exponential factors must have the same sign.", equation);
     }

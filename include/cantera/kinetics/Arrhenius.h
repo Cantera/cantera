@@ -94,7 +94,7 @@ public:
     virtual void getParameters(AnyMap& node) const override;
 
     //! Check rate expression
-    virtual void check(const std::string& equation, const AnyMap& node) override;
+    virtual void check(const std::string& equation) override;
 
     virtual void validate(const std::string& equation, const Kinetics& kin) override;
 
