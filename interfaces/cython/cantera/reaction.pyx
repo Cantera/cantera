@@ -2,6 +2,7 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 cimport numpy as np
+import numpy as np
 from cython.operator cimport dereference as deref
 
 from .kinetics cimport *

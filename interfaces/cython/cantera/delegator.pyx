@@ -4,7 +4,8 @@
 import inspect
 import sys
 
-from ._utils import *
+from ._utils import CanteraError
+from ._utils cimport stringify, pystr
 
 # ## Implementation for each delegated function type
 #

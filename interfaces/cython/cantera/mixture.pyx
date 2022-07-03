@@ -2,6 +2,7 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 import warnings
+import numpy as np
 
 from .base cimport *
 from .thermo cimport *

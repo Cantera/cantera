@@ -5,7 +5,7 @@ import sys
 cimport numpy as np
 import numpy as np
 
-from ._utils import *
+from ._utils cimport *
 
 cdef double func_callback(double t, void* obj, void** err):
     """

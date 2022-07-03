@@ -9,22 +9,6 @@ Import('env', 'build', 'install')
 
 localenv = env.Clone()
 
-cythonized = localenv.Command(
-    'cantera/_cantera.cpp',
-    'cantera/_cantera.pyx',
-    '''${python_cmd} -c "import Cython.Build; Cython.Build.cythonize('${SOURCE}')"''')
-
-for f in multi_glob(localenv, 'cantera', 'pyx', 'pxd'):
-    localenv.Depends(cythonized, f)
-
-# This must be the path to the real pxd file, not a file node pointing at the
-# possibly non-existent file in the build directory
-pxd_file = File("#interfaces/cython/cantera/_cantera.pxd").abspath
-for line in Path(pxd_file).read_text().splitlines():
-    m = re.search(r'from "(cantera.*?)"', line)
-    if m:
-        localenv.Depends('cantera/_cantera.cpp', '#include/' + m.group(1))
-
 dataFiles = localenv.RecursiveInstall("cantera/data", "#build/data")
 build(dataFiles)
 
@@ -102,9 +86,21 @@ license = localenv.Command("LICENSE.txt", "#build/ext/LICENSE.txt",
 localenv.Depends(license, localenv["license_target"])
 
 # Build the Python module
-obj = localenv.SharedObject('#build/temp-py/_cantera', 'cantera/_cantera.cpp')
+cython_obj = []
+for pyxfile in multi_glob(localenv, "cantera", "pyx"):
+    cythonized = localenv.Command(
+         f"cantera/{pyxfile.name.replace('.pyx', '.cpp')}", pyxfile,
+         '''${python_cmd} -c "import Cython.Build; Cython.Build.cythonize(r'${SOURCE}')"'''
+    )
+    for pxd in multi_glob(localenv, "cantera", "pxd"):
+        localenv.Depends(cythonized, pxd)
+
+    obj = localenv.SharedObject(
+        f"#build/temp-py/{pyxfile.name.split('.')[0]}", cythonized)
+    cython_obj.append(obj)
+
 ext = localenv.LoadableModule(f"cantera/_cantera{module_ext}",
-                              obj, LIBPREFIX="", SHLIBSUFFIX=module_ext,
+                              cython_obj, LIBPREFIX="", SHLIBSUFFIX=module_ext,
                               SHLIBPREFIX="", LIBSUFFIXES=[module_ext])
 
 build_cmd = ("$python_cmd_esc -m pip wheel -v --no-build-isolation --no-deps "
