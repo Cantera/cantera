@@ -8,6 +8,7 @@ import numpy as np
 cimport numpy as np
 
 from .speciesthermo cimport *
+from .kinetics cimport CxxKinetics
 from .transport cimport *
 from ._utils cimport *
 from ._utils import CanteraError
