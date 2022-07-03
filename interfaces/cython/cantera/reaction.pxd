@@ -24,7 +24,6 @@ cdef extern from "<map>" namespace "std":
 
 
 cdef extern from "cantera/kinetics/ReactionRateFactory.h" namespace "Cantera":
-    cdef shared_ptr[CxxReactionRate] CxxNewReactionRate "newReactionRate" (string) except +translate_exception
     cdef shared_ptr[CxxReactionRate] CxxNewReactionRate "newReactionRate" (CxxAnyMap&) except +translate_exception
 
 
