@@ -21,17 +21,6 @@
     </PackageReference>
 
     <ProjectReference Include="../Cantera/Cantera.csproj" />
-
-    <None Include="../../../data/gri30.yaml" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
-
-  <Target Name="CopyLibraries" AfterTargets="AfterBuild">
-
-    <ItemGroup>
-      <Libraries Include="$([MSBuild]::NormalizePath(../lib/))*" />
-    </ItemGroup>
-
-    <Copy SourceFiles="@(Libraries)" DestinationFolder="$(OutDir)" />
-  </Target>
 
 </Project>
