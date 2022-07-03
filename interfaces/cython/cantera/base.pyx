@@ -277,9 +277,6 @@ cdef class _SolutionBase:
                 self.kinetics.addReaction(reaction._reaction, False)
             self.kinetics.resizeReactions()
 
-        if not transport:
-            transport = "none"
-
         if isinstance(self, Transport):
             self.base.setTransport(stringify(transport))
             self.transport = self.base.transport().get()

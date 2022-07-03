@@ -1,5 +1,5 @@
 /**
- *  @file TransportBase.cpp
+ *  @file Transport.cpp
  *  Mixture-averaged transport properties for ideal gas mixtures.
  */
 
