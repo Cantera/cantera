@@ -1,55 +1,21 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
+cimport numpy as np
+import numpy as np
 from collections import defaultdict as _defaultdict
+from cython.operator cimport dereference as deref, preincrement as inc
 from pathlib import PurePath
+import warnings
+
+from .thermo cimport *
+from .kinetics cimport *
+from .transport cimport *
+from .reaction cimport *
+from ._utils cimport *
+from .yamlwriter cimport *
 
 ctypedef CxxSurfPhase* CxxSurfPhasePtr
-
-# These cdef functions are declared as free functions to avoid creating layout
-# conflicts with types derived from _SolutionBase
-cdef _assign_Solution(_SolutionBase soln, shared_ptr[CxxSolution] cxx_soln,
-                      pybool reset_adjacent):
-    soln._base = cxx_soln
-    soln.base = cxx_soln.get()
-    soln.thermo = soln.base.thermo().get()
-    soln.kinetics = soln.base.kinetics().get()
-    soln.transport = soln.base.transport().get()
-
-    cdef shared_ptr[CxxSolution] adj_soln
-    if reset_adjacent:
-        soln._adjacent = {}
-        for i in range(soln.base.nAdjacent()):
-            adj_soln = soln.base.adjacent(i)
-            name = pystr(adj_soln.get().name())
-            soln._adjacent[name] = _wrap_Solution(adj_soln)
-
-
-cdef object _wrap_Solution(shared_ptr[CxxSolution] cxx_soln):
-    """
-    Wrap an existing Solution object with a Python object of the correct
-    derived type.
-    """
-    # Need to explicitly import these classes from the non-compiled Python module to
-    # make them available inside Cython
-    from cantera import Solution, Interface
-
-    if dynamic_cast[CxxSurfPhasePtr](cxx_soln.get().thermo().get()):
-        cls = Interface
-    else:
-        cls = Solution
-
-    cdef _SolutionBase soln = cls(init=False)
-    _assign_Solution(soln, cxx_soln, True)
-    soln._selected_species = np.ndarray(0, dtype=np.uint64)
-
-    cdef InterfacePhase iface
-    if isinstance(soln, Interface):
-        iface = soln
-        iface.surf = <CxxSurfPhase*>(soln.thermo)
-        <InterfaceKinetics>(iface)._setup_phase_indices()
-    return soln
-
 
 cdef class _SolutionBase:
     """
@@ -432,3 +398,48 @@ cdef class _SolutionBase:
 
     def __copy__(self):
         raise NotImplementedError('Solution object is not copyable')
+
+# These cdef functions are declared as free functions to avoid creating layout
+# conflicts with types derived from _SolutionBase
+cdef _assign_Solution(_SolutionBase soln, shared_ptr[CxxSolution] cxx_soln,
+                      pybool reset_adjacent):
+    soln._base = cxx_soln
+    soln.base = cxx_soln.get()
+    soln.thermo = soln.base.thermo().get()
+    soln.kinetics = soln.base.kinetics().get()
+    soln.transport = soln.base.transport().get()
+
+    cdef shared_ptr[CxxSolution] adj_soln
+    if reset_adjacent:
+        soln._adjacent = {}
+        for i in range(soln.base.nAdjacent()):
+            adj_soln = soln.base.adjacent(i)
+            name = pystr(adj_soln.get().name())
+            soln._adjacent[name] = _wrap_Solution(adj_soln)
+
+
+cdef object _wrap_Solution(shared_ptr[CxxSolution] cxx_soln):
+    """
+    Wrap an existing Solution object with a Python object of the correct
+    derived type.
+    """
+    # Need to explicitly import these classes from the non-compiled Python module to
+    # make them available inside Cython
+    from cantera import Solution, Interface
+
+    if dynamic_cast[CxxSurfPhasePtr](cxx_soln.get().thermo().get()):
+        cls = Interface
+    else:
+        cls = Solution
+
+    cdef _SolutionBase soln = cls(init=False)
+    _assign_Solution(soln, cxx_soln, True)
+    soln._selected_species = np.ndarray(0, dtype=np.uint64)
+
+    cdef InterfacePhase iface
+    if isinstance(soln, Interface):
+        iface = soln
+        iface.surf = <CxxSurfPhase*>(soln.thermo)
+#        <InterfaceKinetics>(iface)._setup_phase_indices()
+        iface._setup_phase_indices()
+    return soln

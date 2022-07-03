@@ -4,6 +4,14 @@
 import warnings
 import weakref
 import numbers as _numbers
+import numpy as np
+cimport numpy as np
+
+from .speciesthermo cimport *
+from .transport cimport *
+from ._utils cimport *
+from ._utils import CanteraError
+from .units cimport *
 
 cdef enum ThermoBasisType:
     mass_basis = 0

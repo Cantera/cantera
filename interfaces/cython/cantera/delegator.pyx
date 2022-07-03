@@ -2,6 +2,9 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 import inspect
+import sys
+
+from ._utils import *
 
 # ## Implementation for each delegated function type
 #

@@ -2,6 +2,12 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 from ctypes import c_int
+import warnings
+
+from .reaction cimport *
+from ._utils cimport *
+from ._utils import _USE_SPARSE, _scipy_sparse
+
 
 # NOTE: These cdef functions cannot be members of Kinetics because they would
 # cause "layout conflicts" when creating derived classes with multiple bases,

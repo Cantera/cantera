@@ -2,6 +2,8 @@
 # at https://cantera.org/license.txt for license and copyright information.
 from typing import Dict
 
+from ._utils cimport *
+
 cdef class Units:
     """
     A representation of the units associated with a dimensional quantity.

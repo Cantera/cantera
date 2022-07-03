@@ -4,6 +4,11 @@
 from .interrupts import no_op
 import warnings
 from collections import OrderedDict
+import numpy as np
+
+from ._utils cimport stringify, pystr
+from ._utils import CanteraError
+from cython.operator import dereference as deref
 
 # Need a pure-python class to store weakrefs to
 class _WeakrefProxy:
