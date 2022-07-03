@@ -22,7 +22,7 @@ void CustomFunc1Rate::setRateFunction(shared_ptr<Func1> f)
 void CustomFunc1Rate::validate(const std::string& equation, const Kinetics& kin)
 {
     if (!m_ratefunc) {
-        throw CanteraError("CustomFunc1Rate::validate",
+        throw InputFileError("CustomFunc1Rate::validate", m_input,
             "Rate object for reaction '{}' is not configured.", equation);
     }
 }

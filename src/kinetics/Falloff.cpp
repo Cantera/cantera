@@ -131,6 +131,7 @@ void FalloffRate::getFalloffCoeffs(vector_fp& c) const
 
 void FalloffRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
 {
+    ReactionRate::setParameters(node, rate_units);
     if (node.empty()) {
         return;
     }

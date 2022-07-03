@@ -54,9 +54,10 @@ ChebyshevRate::ChebyshevRate(double Tmin, double Tmax, double Pmin, double Pmax,
     setData(coeffs);
 }
 
-void ChebyshevRate::setParameters(const AnyMap& node, const UnitStack& units)
+void ChebyshevRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
 {
-    m_rate_units = units.product();
+    ReactionRate::setParameters(node, rate_units);
+    m_rate_units = rate_units.product();
     const UnitSystem& unit_system = node.units();
     Array2D coeffs;
     if (node.hasKey("data")) {
@@ -154,7 +155,7 @@ void ChebyshevRate::getParameters(AnyMap& rateNode) const
 void ChebyshevRate::validate(const std::string& equation, const Kinetics& kin)
 {
     if (m_coeffs.data().empty() || isnan(m_coeffs(0, 0))) {
-        throw CanteraError("ChebyshevRate::validate",
+        throw InputFileError("ChebyshevRate::validate", m_input,
             "Rate object for reaction '{}' is not configured.", equation);
     }
 }

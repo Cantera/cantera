@@ -41,7 +41,7 @@ void ArrheniusBase::setRateParameters(
             // A zero rate units factor is used as a sentinel to detect
             // stand-alone reaction rate objects
             if (rate_map[m_A_str].is<std::string>()) {
-                throw InputFileError("Arrhenius::setRateParameters", rate_map,
+                throw InputFileError("ArrheniusBase::setRateParameters", rate_map,
                     "Specification of units is not supported for pre-exponential "
                     "factor when\ncreating a standalone 'ReactionRate' object.");
             }
@@ -138,7 +138,7 @@ void ArrheniusBase::check(const std::string& equation, const AnyMap& node)
 void ArrheniusBase::validate(const std::string& equation, const Kinetics& kin)
 {
     if (isnan(m_A) || isnan(m_b)) {
-        throw CanteraError("ArrheniusBase::validate",
+        throw InputFileError("ArrheniusBase::validate", m_input,
             "Rate object for reaction '{}' is not configured.", equation);
     }
 }
