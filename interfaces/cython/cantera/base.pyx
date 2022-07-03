@@ -13,7 +13,7 @@ from .kinetics cimport *
 from .transport cimport *
 from .reaction cimport *
 from ._utils cimport *
-from .yamlwriter cimport *
+from .yamlwriter cimport YamlWriter
 
 ctypedef CxxSurfPhase* CxxSurfPhasePtr
 

@@ -5,7 +5,7 @@ cimport numpy as np
 import numpy as np
 from cython.operator cimport dereference as deref
 
-from .kinetics cimport *
+from .kinetics cimport Kinetics
 from ._utils cimport *
 from .units cimport *
 

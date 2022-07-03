@@ -1,9 +1,11 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
-from ._utils cimport *
 cimport numpy as np
 import numpy as np
+
+from ._utils cimport *
+from .thermo cimport ThermoPhase
 
 # NOTE: These cdef functions cannot be members of Transport because they would
 # cause "layout conflicts" when creating derived classes with multiple bases,

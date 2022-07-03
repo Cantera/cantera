@@ -1,8 +1,55 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
 #cython: language_level=3
 #distutils: language = c++
 
 from .ctcxx cimport *
 from .base cimport *
+
+cdef extern from "cantera/transport/Transport.h" namespace "Cantera":
+    cdef cppclass CxxTransport "Cantera::Transport":
+        CxxTransport(CxxThermoPhase*)
+        string transportType()
+        cbool CKMode() except +translate_exception
+        double viscosity() except +translate_exception
+        double thermalConductivity() except +translate_exception
+        double electricalConductivity() except +translate_exception
+        void getSpeciesViscosities(double*) except +translate_exception
+        void getCollisionIntegralPolynomial(size_t i, size_t j, double* dataA, double* dataB, double* dataC) except +translate_exception
+        void setCollisionIntegralPolynomial(size_t i, size_t j, double* dataA, double* dataB, double* dataC, cbool flag) except +translate_exception
+
+
+cdef extern from "cantera/transport/DustyGasTransport.h" namespace "Cantera":
+    cdef cppclass CxxDustyGasTransport "Cantera::DustyGasTransport":
+        void setPorosity(double) except +translate_exception
+        void setTortuosity(double) except +translate_exception
+        void setMeanPoreRadius(double) except +translate_exception
+        void setMeanParticleDiameter(double) except +translate_exception
+        void setPermeability(double) except +translate_exception
+        void getMolarFluxes(double*, double*, double, double*) except +translate_exception
+        CxxTransport& gasTransport() except +translate_exception
+
+cdef extern from "cantera/transport/TransportData.h" namespace "Cantera":
+    cdef cppclass CxxTransportData "Cantera::TransportData":
+        CxxTransportData()
+        CxxAnyMap parameters(cbool) except +translate_exception
+        CxxAnyMap input
+
+    cdef cppclass CxxGasTransportData "Cantera::GasTransportData" (CxxTransportData):
+        CxxGasTransportData()
+        CxxGasTransportData(string, double, double, double, double, double, double, double, double)
+        void setCustomaryUnits(string, double, double, double, double, double, double, double, double)
+
+        string geometry
+        double diameter
+        double well_depth
+        double dipole
+        double polarizability
+        double rotational_relaxation
+        double acentric_factor
+        double dispersion_coefficient
+        double quadrupole_polarizability
 
 cdef class GasTransportData:
     cdef shared_ptr[CxxTransportData] _data
