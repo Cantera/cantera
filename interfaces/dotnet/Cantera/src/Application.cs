@@ -16,13 +16,29 @@ public class LogMessageEventArgs
     }
 }
 
-public static class CanteraLogger
+/// <summary>
+/// The primary API for accessing the Cantera library.
+/// </summary>
+/// </remarks>
+/// All access to Cantera should funnel through this class.
+/// This ensures that any necessary initialization can be run in
+/// the static constructor.
+/// <remarks>
+public static class Application
 {
+    static Application()
+    {
+        _invokeMessageLoggedDelegate = (level, category, message) =>
+            MessageLogged?.Invoke(null, new LogMessageEventArgs(level, category, message));
+
+        InteropUtil.CheckReturn(LibCantera.ct_setLogWriter(_invokeMessageLoggedDelegate));
+    }
+
     /// <summary>
     /// Represents the delegate that is marshalled to LibCantera as a function pointer.
     /// </summary>
     /// <remarks>
-    /// ct_setLogWriter() needs a delagate which is marshalled as a function pointer to
+    /// ct_setLogWriter() needs a delegate which is marshalled as a function pointer to
     /// the C++ Cantera library. We could create one implicitly when calling
     /// <c>LibCantera.ct_setLogWriter(LogMessage)</c>, but the garbage collector would not know
     /// the native method is using it and could reclaim it. By explicitly storing it as
@@ -30,39 +46,27 @@ public static class CanteraLogger
     /// </remarks>
     static LibCantera.Writer? _invokeMessageLoggedDelegate;
 
-    // 0 => not hooked up to Cantera via CLIB
-    // 1 => hooked up to Cantera
-    static int _state;
+    unsafe static readonly Lazy<string> _version =
+        new(() => InteropUtil.GetString(10, LibCantera.ct_getCanteraVersion));
 
-    static event EventHandler<LogMessageEventArgs>? _messageLogged;
+    unsafe static readonly Lazy<string> _gitCommit =
+        new(() => InteropUtil.GetString(10, LibCantera.ct_getGitCommit));
 
-    public static event EventHandler<LogMessageEventArgs> MessageLogged
-    {
-        add
-        {
-            if (Interlocked.CompareExchange(ref _state, 1, 0) == 0) try
-            {
-                _invokeMessageLoggedDelegate = (level, category, message) =>
-                    _messageLogged?.Invoke(null, new LogMessageEventArgs(level, category, message));
+    unsafe static readonly Lazy<DataDirectoryCollection> _dataDirectories =
+        new(() => new DataDirectoryCollection());
 
-                InteropUtil.CheckReturn(LibCantera.ct_setLogWriter(_invokeMessageLoggedDelegate));
-            }
-            catch
-            {
-                _state = 0;
-                throw;
-            }
+    public static event EventHandler<LogMessageEventArgs>? MessageLogged;
 
-            _messageLogged += value;
-        }
+    public static string Version =>
+        _version.Value;
 
-        remove
-        {
-            _messageLogged -= value;
-        }
-    }
+    public static string GitCommit =>
+        _gitCommit.Value;
 
-     /// <summary>
+    unsafe public static DataDirectoryCollection DataDirectories =>
+        _dataDirectories.Value;
+
+    /// <summary>
     /// Convenience method to add logging to the console.
     /// </summary>
     public static void AddConsoleLogging() =>
@@ -87,4 +91,7 @@ public static class CanteraLogger
         else
             Console.WriteLine(message);
     }
+
+    public static ThermoPhase CreateThermoPhase(string filename, string? phasename = null) =>
+        new ThermoPhase(filename, phasename);
 }

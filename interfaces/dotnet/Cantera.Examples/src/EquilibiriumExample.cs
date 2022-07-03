@@ -4,11 +4,11 @@ class EquilibriumExample : IExample
 {
     public void Run()
     {
-        CanteraInfo.DataDirectories.AddAssemblyDirectory();
+        Application.DataDirectories.AddAssemblyDirectory();
 
-        CanteraLogger.AddConsoleLogging();
+        Application.AddConsoleLogging();
 
-        var phase = new ThermoPhase("gri30.yaml");
+        var phase = Application.CreateThermoPhase("gri30.yaml");
         var species = phase.Species;
 
         species.SetMoleFractions(("CH4", 1.00), ("O2", 2.20), ("N2", 7.52));
