@@ -8,22 +8,28 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <AssemblyName>CanteraDotNet</AssemblyName>
+    <IsPackable>false</IsPackable>
+
+    <LibDir>$([MSBuild]::NormalizePath($(MSBuildProjectDirectory)/../lib))</LibDir>
+    <ContentDir>$([MSBuild]::NormalizePath($(MSBuildProjectDirectory)/../content))</ContentDir>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'true'">
     <DefineConstants>IS_WINDOWS</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' == 'true'">
-    <DefineConstants>IS_MACOS</DefineConstants> 
+    <DefineConstants>IS_MACOS</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' == 'true'">
     <DefineConstants>IS_LINUX</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
-    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
-      <_Parameter1>Cantera.Tests</_Parameter1>
-    </AssemblyAttribute>
+    <InternalsVisibleTo Include="Cantera.Tests" />
+
+    <None Include="$(LibDir)/*" CopyToOutputDirectory="PreserveNewest"/>
+
+    <None Include="$(ContentDir)/**" CopyToOutputDirectory="PreserveNewest"/>
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
@@ -40,11 +46,11 @@
       <GeneratedPath>$([MSBuild]::NormalizePath($(IntermediateOutputPath)/sourcegen/))</GeneratedPath>
     </PropertyGroup>
 
-    <Exec Command="python3 $(Script) csharp $(GeneratedPath)"/>
+    <Exec Command="python3 $(Script) csharp $(GeneratedPath)" Condition="'$(GenerateInterop)' == 'true' Or !Exists('$(GeneratedPath)')"/>
 
     <ItemGroup>
-			<Compile Remove="$(GeneratedPath)*.cs" />
-			<Compile Include="$(GeneratedPath)*.cs" />
+      <Compile Remove="$(GeneratedPath)*.cs" />
+      <Compile Include="$(GeneratedPath)*.cs" />
     </ItemGroup>
   </Target>
 </Project>
