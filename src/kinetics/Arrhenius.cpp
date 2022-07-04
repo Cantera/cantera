@@ -13,6 +13,7 @@ ArrheniusBase::ArrheniusBase(double A, double b, double Ea)
     : m_A(A)
     , m_b(b)
     , m_Ea_R(Ea / GasConstant)
+    , m_ready(true)
 {
     if (m_A > 0.0) {
         m_logA = std::log(m_A);
@@ -70,11 +71,12 @@ void ArrheniusBase::setRateParameters(
     if (m_A > 0.0) {
         m_logA = std::log(m_A);
     }
+    m_ready = true;
 }
 
 void ArrheniusBase::getRateParameters(AnyMap& node) const
 {
-    if (std::isnan(m_A)) {
+    if (!ready()) {
         // Return empty/unmodified AnyMap
         return;
     } else if (m_rate_units.factor() != 0.0) {
@@ -137,7 +139,7 @@ void ArrheniusBase::check(const std::string& equation)
 
 void ArrheniusBase::validate(const std::string& equation, const Kinetics& kin)
 {
-    if (isnan(m_A) || isnan(m_b)) {
+    if (!ready()) {
         throw InputFileError("ArrheniusBase::validate", m_input,
             "Rate object for reaction '{}' is not configured.", equation);
     }

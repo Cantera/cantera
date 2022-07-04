@@ -189,14 +189,11 @@ void FalloffRate::check(const std::string& equation)
 {
     m_lowRate.check(equation);
     m_highRate.check(equation);
-
-    double lowA = m_lowRate.preExponentialFactor();
-    double highA = m_highRate.preExponentialFactor();
-    if (std::isnan(lowA) || std::isnan(highA)) {
+    if (!m_lowRate.ready() || !m_highRate.ready()) {
         // arrhenius rates are not initialized
         return;
     }
-    if (lowA * highA < 0) {
+    if (m_lowRate.preExponentialFactor() * m_highRate.preExponentialFactor() < 0) {
         throw InputFileError("FalloffRate::check", m_input,
             "Inconsistent rate definitions found in reaction '{}';\nhigh and low "
             "rate pre-exponential factors must have the same sign.", equation);

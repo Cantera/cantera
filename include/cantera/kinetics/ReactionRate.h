@@ -45,7 +45,7 @@ class Reaction;
 class ReactionRate
 {
 public:
-    ReactionRate() : m_rate_index(npos) {}
+    ReactionRate() {}
 
     // Copy constructor and assignment operator need to be defined because of the
     // #m_evaluator member that can't (and shouldn't) be copied.
@@ -178,6 +178,11 @@ public:
         return _evaluator().evalSingle(*this);
     }
 
+    //! Get flag indicating whether object is initialized and ready to use
+    virtual bool ready() const {
+        return true;
+    }
+
 protected:
     //! Get parameters
     //! @param node  AnyMap containing rate information
@@ -192,7 +197,7 @@ protected:
     AnyMap m_input;
 
     //! Index of reaction rate within kinetics evaluator
-    size_t m_rate_index;
+    size_t m_rate_index = npos;
 
 private:
     //! Return an object that be used to evaluate the rate by converting general input
