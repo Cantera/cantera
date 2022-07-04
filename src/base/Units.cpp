@@ -624,18 +624,26 @@ static std::pair<double, std::string> split_unit(const AnyValue& v) {
 
 double UnitSystem::convert(const AnyValue& v, const std::string& dest) const
 {
-    return convert(v, Units(dest));
+    try {
+        return convert(v, Units(dest));
+    } catch (CanteraError& err) {
+        throw InputFileError("UnitSystem::convert", v, err.getMessage());
+    }
 }
 
 double UnitSystem::convert(const AnyValue& v, const Units& dest) const
 {
-    auto val_units = split_unit(v);
-    if (val_units.second.empty()) {
-        // Just a value, so convert using default units
-        return convertTo(val_units.first, dest);
-    } else {
-        // Both source and destination units are explicit
-        return convert(val_units.first, Units(val_units.second), dest);
+    try {
+        auto val_units = split_unit(v);
+        if (val_units.second.empty()) {
+            // Just a value, so convert using default units
+            return convertTo(val_units.first, dest);
+        } else {
+            // Both source and destination units are explicit
+            return convert(val_units.first, Units(val_units.second), dest);
+        }
+    } catch (CanteraError& err) {
+        throw InputFileError("UnitSystem::convert", v, err.getMessage());
     }
 }
 
@@ -727,13 +735,18 @@ double UnitSystem::convertActivationEnergyFrom(double value,
 double UnitSystem::convertActivationEnergy(const AnyValue& v,
                                            const std::string& dest) const
 {
-    auto val_units = split_unit(v);
-    if (val_units.second.empty()) {
-        // Just a value, so convert using default units
-        return convertActivationEnergyTo(val_units.first, dest);
-    } else {
-        // Both source and destination units are explicit
-        return convertActivationEnergy(val_units.first, val_units.second, dest);
+    try {
+        auto val_units = split_unit(v);
+        if (val_units.second.empty()) {
+            // Just a value, so convert using default units
+            return convertActivationEnergyTo(val_units.first, dest);
+        } else {
+            // Both source and destination units are explicit
+            return convertActivationEnergy(val_units.first, val_units.second, dest);
+        }
+    } catch (CanteraError& err) {
+        throw InputFileError(
+            "UnitSystem::convertActivationEnergy", v, err.getMessage());
     }
 }
 
