@@ -258,6 +258,10 @@ public:
     //! Set reaction rate in the high-pressure limit
     void setHighRate(const ArrheniusRate& high);
 
+    virtual bool ready() const override {
+        return m_ready;
+    }
+
 protected:
     ArrheniusRate m_lowRate; //!< The reaction rate in the low-pressure limit
     ArrheniusRate m_highRate; //!< The reaction rate in the high-pressure limit
@@ -268,6 +272,7 @@ protected:
     double m_rc_low; //!< Evaluated reaction rate in the low-pressure limit
     double m_rc_high; //!< Evaluated reaction rate in the high-pressure limit
     vector_fp m_work; //!< Work vector
+    bool m_ready = false; //!< Flag indicating object status
 };
 
 
