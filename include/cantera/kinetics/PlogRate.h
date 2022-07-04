@@ -181,6 +181,10 @@ public:
     //! reaction.
     std::multimap<double, ArrheniusRate> getRates() const;
 
+    virtual bool ready() const override {
+        return rates_.size() && !(rates_.size() > 1 && !rates_[1].ready());
+    }
+
 protected:
     //! log(p) to (index range) in the rates_ vector
     std::map<double, std::pair<size_t, size_t>> pressures_;
