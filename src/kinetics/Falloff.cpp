@@ -118,10 +118,11 @@ void FalloffRate::setHighRate(const ArrheniusRate& high)
 void FalloffRate::setFalloffCoeffs(const vector_fp& c)
 {
     if (c.size() != 0) {
-        throw CanteraError("FalloffRate::setFalloffCoeffs",
+        throw InputFileError("FalloffRate::setFalloffCoeffs", m_input,
             "Incorrect number of parameters. 0 required. Received {}.",
             c.size());
     }
+    m_ready = true;
 }
 
 void FalloffRate::getFalloffCoeffs(vector_fp& c) const
@@ -209,7 +210,7 @@ void FalloffRate::validate(const std::string& equation, const Kinetics& kin)
 void TroeRate::setFalloffCoeffs(const vector_fp& c)
 {
     if (c.size() != 3 && c.size() != 4) {
-        throw CanteraError("TroeRate::setFalloffCoeffs",
+        throw InputFileError("TroeRate::setFalloffCoeffs", m_input,
             "Incorrect number of coefficients. 3 or 4 required. Received {}.",
             c.size());
     }
@@ -240,6 +241,7 @@ void TroeRate::setFalloffCoeffs(const vector_fp& c)
     } else {
         m_t2 = 0.;
     }
+    m_ready = true;
 }
 
 void TroeRate::getFalloffCoeffs(vector_fp& c) const
@@ -310,7 +312,7 @@ void TroeRate::getParameters(AnyMap& node) const
     FalloffRate::getParameters(node);
 
     AnyMap params;
-    if (std::isnan(m_a)) {
+    if (!ready()) {
         // pass
     } else if (m_lowRate.rateUnits().factor() != 0.0) {
         params["A"] = m_a;
@@ -334,14 +336,14 @@ void TroeRate::getParameters(AnyMap& node) const
 void SriRate::setFalloffCoeffs(const vector_fp& c)
 {
     if (c.size() != 3 && c.size() != 5) {
-        throw CanteraError("SriRate::setFalloffCoeffs",
+        throw InputFileError("SriRate::setFalloffCoeffs", m_input,
             "Incorrect number of coefficients. 3 or 5 required. Received {}.",
             c.size());
     }
 
     if (c[2] < 0.0) {
-        throw CanteraError("SriRate::setFalloffCoeffs()",
-                           "m_c parameter is less than zero: {}", c[2]);
+        throw InputFileError("SriRate::setFalloffCoeffs()", m_input,
+                             "m_c parameter is less than zero: {}", c[2]);
     }
     m_a = c[0];
     m_b = c[1];
@@ -349,8 +351,8 @@ void SriRate::setFalloffCoeffs(const vector_fp& c)
 
     if (c.size() == 5) {
         if (c[3] < 0.0) {
-            throw CanteraError("SriRate::setFalloffCoeffs()",
-                               "m_d parameter is less than zero: {}", c[3]);
+            throw InputFileError("SriRate::setFalloffCoeffs()", m_input,
+                                 "m_d parameter is less than zero: {}", c[3]);
         }
         m_d = c[3];
         m_e = c[4];
@@ -358,6 +360,7 @@ void SriRate::setFalloffCoeffs(const vector_fp& c)
         m_d = 1.0;
         m_e = 0.0;
     }
+    m_ready = true;
 }
 
 void SriRate::getFalloffCoeffs(vector_fp& c) const
@@ -431,7 +434,7 @@ void SriRate::getParameters(AnyMap& node) const
     FalloffRate::getParameters(node);
 
     AnyMap params;
-    if (std::isnan(m_a)) {
+    if (!ready()) {
         // pass
     } else if (m_lowRate.rateUnits().factor() != 0.0) {
         params["A"] = m_a;
@@ -457,7 +460,7 @@ void SriRate::getParameters(AnyMap& node) const
 void TsangRate::setFalloffCoeffs(const vector_fp& c)
 {
     if (c.size() != 1 && c.size() != 2) {
-        throw CanteraError("TsangRate::init",
+        throw InputFileError("TsangRate::init", m_input,
             "Incorrect number of coefficients. 1 or 2 required. Received {}.",
             c.size());
     }
@@ -469,6 +472,7 @@ void TsangRate::setFalloffCoeffs(const vector_fp& c)
     else {
         m_b = 0.0;
     }
+    m_ready = true;
 }
 
 void TsangRate::getFalloffCoeffs(vector_fp& c) const
@@ -528,7 +532,7 @@ void TsangRate::getParameters(AnyMap& node) const
     FalloffRate::getParameters(node);
 
     AnyMap params;
-    if (std::isnan(m_a)) {
+    if (!ready()) {
         // pass
     } else {
         // Parameters do not have unit system (yet)
