@@ -83,14 +83,15 @@ void ChebyshevRate::setParameters(const AnyMap& node, const UnitStack& rate_unit
             unit_system.convert(P_range[0], "Pa"),
             unit_system.convert(P_range[1], "Pa")
         );
+        setData(coeffs);
     } else {
         // ensure that reaction rate can be evaluated (but returns NaN)
         coeffs = Array2D(1, 1);
         coeffs(0, 0) = NAN;
         setLimits(290., 3000., 1.e-7, 1.e14);
+        setData(coeffs);
+        m_ready = false;
     }
-
-    setData(coeffs);
 }
 
 void ChebyshevRate::setLimits(double Tmin, double Tmax, double Pmin, double Pmax)
@@ -115,12 +116,13 @@ void ChebyshevRate::setData(const Array2D& coeffs)
 {
     m_coeffs = coeffs;
     dotProd_.resize(coeffs.nRows());
+    m_ready = m_coeffs.data().size();
 }
 
 void ChebyshevRate::getParameters(AnyMap& rateNode) const
 {
     rateNode["type"] = type();
-    if (!m_coeffs.data().size() || std::isnan(m_coeffs(0, 0))) {
+    if (!ready()) {
         // object not fully set up
         return;
     }
@@ -154,7 +156,7 @@ void ChebyshevRate::getParameters(AnyMap& rateNode) const
 
 void ChebyshevRate::validate(const std::string& equation, const Kinetics& kin)
 {
-    if (m_coeffs.data().empty() || isnan(m_coeffs(0, 0))) {
+    if (!ready()) {
         throw InputFileError("ChebyshevRate::validate", m_input,
             "Rate object for reaction '{}' is not configured.", equation);
     }
