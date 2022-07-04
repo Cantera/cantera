@@ -86,9 +86,7 @@ void PlogRate::getParameters(AnyMap& rateNode, const Units& rate_units) const
 {
     std::vector<AnyMap> rateList;
     rateNode["type"] = type();
-    if (!rates_.size()
-        || (rates_.size() > 1 && std::isnan(rates_[1].preExponentialFactor())))
-    {
+    if (!ready()) {
         // object not fully set up
         return;
     }
