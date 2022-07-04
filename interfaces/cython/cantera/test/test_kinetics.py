@@ -440,7 +440,7 @@ class KineticsRepeatability(utilities.CanteraTest):
                 self.assertAlmostEqual(w2[i] / w1[i], 1.0)
 
     def test_pdep_err(self):
-        err_msg = ("CanteraError thrown by PlogRate::validate:",
+        err_msg = ("InputFileError thrown by PlogRate::validate:",
                    "Invalid rate coefficient for reaction 'CH2CHOO <=> CH3O + CO'",
                    "at P = 32019, T = 500.0",
                    "at P = 32019, T = 1000.0",
@@ -480,6 +480,16 @@ class KineticsRepeatability(utilities.CanteraTest):
                 ct.Interface("sticking_coeff_check.yaml", "Pt_surf", [gas])
 
 
+def check_raises(yaml, err_msg, line):
+    """Helper function for InputFileErrors"""
+    err_msg = [err_msg]
+    err_msg.append("InputFileError thrown by ")
+    err_msg.append(f"Error on line {line} of ")
+    for err in err_msg:
+        with pytest.raises(ct.CanteraError, match=err):
+            ct.Solution(yaml=yaml)
+
+
 class TestUndeclared(utilities.CanteraTest):
 
     _gas_def = """
@@ -498,9 +508,7 @@ class TestUndeclared(utilities.CanteraTest):
             - equation: O + H2 <=> H + OH  # Reaction 3
               rate-constant: {A: 3.87e+04, b: 2.7, Ea: 6260.0}
             """
-
-        with self.assertRaisesRegex(ct.CanteraError, "contains undeclared species"):
-            ct.Solution(yaml=gas_def)
+        check_raises(gas_def, "contains undeclared species", line=10)
 
     def test_raise_undeclared_third_bodies(self):
 
@@ -509,9 +517,7 @@ class TestUndeclared(utilities.CanteraTest):
             - equation: H + O2 + AR <=> HO2 + AR  # Reaction 10
               rate-constant: {A: 7.0e+17, b: -0.8, Ea: 0.0}
             """
-
-        with self.assertRaisesRegex(ct.CanteraError, "three-body reaction with undeclared"):
-            ct.Solution(yaml=gas_def)
+        check_raises(gas_def, "three-body reaction with undeclared", line=10)
 
     def test_skip_undeclared_third_bodies1(self):
 
@@ -569,9 +575,7 @@ class TestUndeclared(utilities.CanteraTest):
               orders:
                 H2O: 0.2
             """
-
-        with self.assertRaisesRegex(ct.CanteraError, "Reaction order specified"):
-            ct.Solution(yaml=gas_def)
+        check_raises(gas_def, "Reaction order specified", line=10)
 
     def test_raise_undeclared_orders(self):
 
@@ -583,9 +587,7 @@ class TestUndeclared(utilities.CanteraTest):
                 N2: 0.2
               nonreactant-orders: true
             """
-
-        with self.assertRaisesRegex(ct.CanteraError, "reaction orders for undeclared"):
-            ct.Solution(yaml=gas_def)
+        check_raises(gas_def, "reaction orders for undeclared", line=13)
 
     def test_skip_undeclared_surf_species(self):
         phase_defs = """
@@ -606,6 +608,63 @@ class TestUndeclared(utilities.CanteraTest):
         gas = ct.Solution(yaml=phase_defs, name="gas")
         surf = ct.Interface(yaml=phase_defs, name="Pt_surf", adjacent=[gas])
         self.assertEqual(surf.n_reactions, 14)
+
+
+class TestInvalidInput(utilities.CanteraTest):
+
+    _gas_def = """
+            phases:
+            - name: gas
+              thermo: ideal-gas
+              species: [{h2o2.yaml/species: all}]
+              kinetics: gas
+              reactions: all
+              state: {T: 300.0, P: 1 atm, X: {O2: 0.21, N2: 0.79}}
+        """
+
+    def test_failing_convert1(self):
+        # invalid preexponential factor units
+        gas_def = self._gas_def + """
+            reactions:
+            - equation: O + H2 <=> H + OH  # Reaction 3
+              rate-constant: {A: 3.87e+04 cm^6/mol^2/s, b: 2.7, Ea: 6260.0}
+            """
+        check_raises(gas_def, "UnitSystem::convert:", line=12)
+
+    def test_failing_convert2(self):
+        # invalid activation energy units
+        gas_def = self._gas_def + """
+            reactions:
+            - equation: O + H2 <=> H + OH  # Reaction 3
+              rate-constant: {A: 3.87e+04, b: 2.7, Ea: 6260.0 m}
+            """
+        check_raises(gas_def, "UnitSystem::convertActivationEnergy:", line=12)
+
+    def test_failing_unconfigured1(self):
+        # missing reaction rate definition
+        gas_def = self._gas_def + """
+            reactions:
+            - equation: O + H2 <=> H + OH
+            """
+        check_raises(gas_def, "is not configured", line=11)
+
+    def test_failing_unconfigured2(self):
+        # missing reaction rate definition
+        gas_def = self._gas_def + """
+            reactions:
+            - equation: 2 OH (+M) <=> H2O2 (+M)
+              type: falloff
+            """
+        check_raises(gas_def, "is not configured", line=11)
+
+    def test_failing_unconfigured3(self):
+        # missing reaction rate definition
+        gas_def = self._gas_def + """
+            reactions:
+            - equation: O + H2 <=> H + OH
+              type: pressure-dependent-Arrhenius
+            """
+        check_raises(gas_def, "is not configured", line=11)
 
 
 class TestEmptyKinetics(utilities.CanteraTest):
