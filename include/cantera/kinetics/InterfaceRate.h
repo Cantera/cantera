@@ -523,13 +523,13 @@ public:
         for (size_t i=0; i < 6; i++) {
             double k = RateType::evalRate(log(T[i]), 1 / T[i]);
             if (k > 1) {
-                fmt_append(err_reactions,
-                    "\n Sticking coefficient is greater than 1 for reaction '{}'\n"
-                    " at T = {:.1f}\n", equation, T[i]);
+                fmt_append(err_reactions, "at T = {:.1f}\n", T[i]);
             }
         }
         if (err_reactions.size()) {
-            warn_user("StickingRate::validate", to_string(err_reactions));
+            warn_user("StickingRate::validate",
+                "\nSticking coefficient is greater than 1 for reaction '{}'\n{}",
+                equation, to_string(err_reactions));
         }
     }
 

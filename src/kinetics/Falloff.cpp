@@ -203,8 +203,12 @@ void FalloffRate::check(const std::string& equation)
 
 void FalloffRate::validate(const std::string& equation, const Kinetics& kin)
 {
-    m_lowRate.validate(equation, kin);
-    m_highRate.validate(equation, kin);
+    try {
+        m_lowRate.validate(equation, kin);
+        m_highRate.validate(equation, kin);
+    } catch (CanteraError& err) {
+        throw InputFileError("FalloffRate::validate", m_input, err.getMessage());
+    }
 }
 
 void TroeRate::setFalloffCoeffs(const vector_fp& c)

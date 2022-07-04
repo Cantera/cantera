@@ -69,9 +69,9 @@ void PlogRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
     ReactionRate::setParameters(node, rate_units);
     std::multimap<double, ArrheniusRate> multi_rates;
     if (!node.hasKey("rate-constants")) {
-         // ensure that reaction rate can be evaluated (but returns NaN)
-        multi_rates.insert({1.e-7, ArrheniusRate(NAN, NAN, NAN)});
-        multi_rates.insert({1.e14, ArrheniusRate(NAN, NAN, NAN)});
+        // ensure that reaction rate can be evaluated (but returns NaN)
+        multi_rates.insert({1.e-7, ArrheniusRate()});
+        multi_rates.insert({1.e14, ArrheniusRate()});
     } else {
         auto& rates = node["rate-constants"].asVector<AnyMap>();
         for (const auto& rate : rates) {
@@ -127,6 +127,11 @@ void PlogRate::setRates(const std::multimap<double, ArrheniusRate>& rates)
 
 void PlogRate::validate(const std::string& equation, const Kinetics& kin)
 {
+    if (!ready()) {
+        throw InputFileError("PlogRate::validate", m_input,
+            "Rate object for reaction '{}' is not configured.", equation);
+    }
+
     fmt::memory_buffer err_reactions;
     double T[] = {200.0, 500.0, 1000.0, 2000.0, 5000.0, 10000.0};
     PlogData data;
@@ -141,14 +146,14 @@ void PlogRate::validate(const std::string& equation, const Kinetics& kin)
             }
             if (!(k > 0)) {
                 fmt_append(err_reactions,
-                           "\nInvalid rate coefficient for reaction '{}'\n"
-                           "at P = {:.5g}, T = {:.1f}\n",
-                           equation, std::exp(iter->first), T[i]);
+                    "at P = {:.5g}, T = {:.1f}\n", std::exp(iter->first), T[i]);
             }
         }
     }
     if (err_reactions.size()) {
-        throw CanteraError("PlogRate::validate", to_string(err_reactions));
+        throw InputFileError("PlogRate::validate", m_input,
+            "\nInvalid rate coefficient for reaction '{}'\n{}",
+            equation, to_string(err_reactions));
     }
 }
 
