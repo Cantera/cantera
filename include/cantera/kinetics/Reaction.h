@@ -287,27 +287,6 @@ public:
 };
 
 
-//! A reaction which follows mass-action kinetics with a custom reaction rate
-//! defined in Python.
-/**
- * @warning This class is an experimental part of the %Cantera API and
- *    may be changed or removed without notice.
- */
-class CustomFunc1Reaction : public Reaction
-{
-public:
-    CustomFunc1Reaction();
-    CustomFunc1Reaction(const Composition& reactants, const Composition& products,
-                        const CustomFunc1Rate& rate);
-
-    CustomFunc1Reaction(const AnyMap& node, const Kinetics& kin);
-
-    virtual std::string type() const {
-        return "custom-rate-function";
-    }
-};
-
-
 //! Create a new empty Reaction object
 /*!
  * @param type string identifying type of reaction.

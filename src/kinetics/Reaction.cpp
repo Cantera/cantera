@@ -795,29 +795,6 @@ void FalloffReaction::getParameters(AnyMap& reactionNode) const
     }
 }
 
-CustomFunc1Reaction::CustomFunc1Reaction()
-{
-    setRate(newReactionRate(type()));
-}
-
-CustomFunc1Reaction::CustomFunc1Reaction(const Composition& reactants,
-                                         const Composition& products,
-                                         const CustomFunc1Rate& rate)
-    : Reaction(reactants, products)
-{
-    m_rate.reset(new CustomFunc1Rate(rate));
-}
-
-CustomFunc1Reaction::CustomFunc1Reaction(const AnyMap& node, const Kinetics& kin)
-{
-    if (!node.empty()) {
-        setParameters(node, kin);
-        setRate(newReactionRate(node, calculateRateCoeffUnits(kin)));
-    } else {
-        setRate(newReactionRate(type()));
-    }
-}
-
 bool isThreeBody(const Reaction& R)
 {
     // detect explicitly specified collision partner

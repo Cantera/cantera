@@ -68,7 +68,7 @@ public:
     void setRateFunction(shared_ptr<Func1> f);
 
 protected:
-    shared_ptr<Func1> m_ratefunc;
+    shared_ptr<Func1> m_ratefunc = 0;
 };
 
 
