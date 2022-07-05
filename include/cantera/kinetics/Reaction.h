@@ -42,10 +42,10 @@ public:
     virtual ~Reaction() {}
 
     //! The reactant side of the chemical equation for this reaction
-    virtual std::string reactantString() const;
+    std::string reactantString() const;
 
     //! The product side of the chemical equation for this reaction
-    virtual std::string productString() const;
+    std::string productString() const;
 
     //! The chemical equation for this reaction
     std::string equation() const;
@@ -200,8 +200,8 @@ protected:
     //! Reaction rate used by generic reactions
     shared_ptr<ReactionRate> m_rate;
 
-    //! Relative efficiencies of third-body species in enhancing the reaction
-    //! rate (if applicable)
+    //! Relative efficiencies of third-body species in enhancing the reaction rate
+    //! (if applicable)
     shared_ptr<ThirdBody> m_third_body;
 };
 
@@ -220,19 +220,21 @@ public:
     //! Get the third-body efficiency for species *k*
     double efficiency(const std::string& k) const;
 
+    //! Name or placeholder of third body collider, for example `+ M`
+    std::string collider() const;
+
     //! Map of species to third body efficiency
     Composition efficiencies;
 
-    //! The default third body efficiency for species not listed in
-    //! #efficiencies.
+    //! The default third body efficiency for species not listed in #efficiencies.
     double default_efficiency;
 
     //! Input explicitly specifies collision partner
-    bool specified_collision_partner;
+    bool specified_collision_partner = false;
 
     //! Third body is used by law of mass action
     //! (`true` for three-body reactions, `false` for falloff reactions)
-    bool mass_action;
+    bool mass_action = true;
 };
 
 
@@ -255,9 +257,6 @@ public:
     bool detectEfficiencies();
     virtual void setParameters(const AnyMap& node, const Kinetics& kin);
     virtual void getParameters(AnyMap& reactionNode) const;
-
-    virtual std::string reactantString() const;
-    virtual std::string productString() const;
 };
 
 
@@ -281,9 +280,6 @@ public:
     virtual void setEquation(const std::string& equation, const Kinetics* kin);
     virtual void setParameters(const AnyMap& node, const Kinetics& kin);
     virtual void getParameters(AnyMap& reactionNode) const;
-
-    virtual std::string reactantString() const;
-    virtual std::string productString() const;
 };
 
 

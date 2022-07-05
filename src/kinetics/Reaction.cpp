@@ -51,11 +51,11 @@ Reaction::Reaction(const AnyMap& node, const Kinetics& kin)
             }
             std::string type = rateNode["type"].asString();
             if (rateNode.hasKey("rate-constant")) {
-                if (!boost::algorithm::starts_with(type, "interface-")) {
+                if (!ba::starts_with(type, "interface-")) {
                     rateNode["type"] = "interface-" + type;
                 }
             } else if (node.hasKey("sticking-coefficient")) {
-                if (!boost::algorithm::starts_with(type, "sticking-")) {
+                if (!ba::starts_with(type, "sticking-")) {
                     rateNode["type"] = "sticking-" + type;
                 }
             } else {
@@ -152,9 +152,9 @@ void Reaction::getParameters(AnyMap& reactionNode) const
         // strip information not needed for reconstruction
         if (reactionNode.hasKey("type")) {
             std::string type = reactionNode["type"].asString();
-            if (boost::algorithm::starts_with(type, "Arrhenius")) {
+            if (ba::starts_with(type, "Arrhenius")) {
                 reactionNode.erase("type");
-            } else if (boost::algorithm::starts_with(type, "Blowers-Masel")) {
+            } else if (ba::starts_with(type, "Blowers-Masel")) {
                 reactionNode["type"] = "Blowers-Masel";
             }
         }
@@ -223,7 +223,10 @@ std::string Reaction::reactantString() const
         }
         result << iter->first;
     }
-  return result.str();
+    if (m_third_body) {
+        result << m_third_body->collider();
+    }
+    return result.str();
 }
 
 std::string Reaction::productString() const
@@ -238,7 +241,10 @@ std::string Reaction::productString() const
         }
         result << iter->first;
     }
-  return result.str();
+    if (m_third_body) {
+        result << m_third_body->collider();
+    }
+    return result.str();
 }
 
 std::string Reaction::equation() const
@@ -406,7 +412,7 @@ bool Reaction::checkSpecies(const Kinetics& kin) const
         } else {
             throw InputFileError("Reaction::checkSpecies", input, "Reaction '{}'\n"
                 "contains undeclared species: '{}'",
-                equation(), boost::algorithm::join(undeclared, "', '"));
+                equation(), ba::join(undeclared, "', '"));
         }
     }
 
@@ -420,12 +426,12 @@ bool Reaction::checkSpecies(const Kinetics& kin) const
                 throw InputFileError("Reaction::checkSpecies", input["orders"],
                     "Reaction '{}'\n"
                     "defines reaction orders for undeclared species: '{}'",
-                    equation(), boost::algorithm::join(undeclared, "', '"));
+                    equation(), ba::join(undeclared, "', '"));
             }
             // Error for empty input AnyMap (that is, XML)
             throw InputFileError("Reaction::checkSpecies", input, "Reaction '{}'\n"
                 "defines reaction orders for undeclared species: '{}'",
-                equation(), boost::algorithm::join(undeclared, "', '"));
+                equation(), ba::join(undeclared, "', '"));
         }
     }
 
@@ -439,12 +445,12 @@ bool Reaction::checkSpecies(const Kinetics& kin) const
                 throw InputFileError("Reaction::checkSpecies", input["efficiencies"],
                     "Reaction '{}'\n"
                     "defines third-body efficiencies for undeclared species: '{}'",
-                    equation(), boost::algorithm::join(undeclared, "', '"));
+                    equation(), ba::join(undeclared, "', '"));
             }
             // Error for specified ThirdBody or empty input AnyMap
             throw InputFileError("Reaction::checkSpecies", input, "Reaction '{}'\n"
                 "is a three-body reaction with undeclared species: '{}'",
-                equation(), boost::algorithm::join(undeclared, "', '"));
+                equation(), ba::join(undeclared, "', '"));
         } else if (kin.skipUndeclaredSpecies() && specified_collision_partner_) {
             return false;
         }
@@ -488,14 +494,10 @@ bool Reaction::usesElectrochemistry(const Kinetics& kin) const
 
 ThirdBody::ThirdBody(double default_eff)
     : default_efficiency(default_eff)
-    , specified_collision_partner(false)
-    , mass_action(true)
 {
 }
 
 ThirdBody::ThirdBody(const AnyMap& node)
-    : specified_collision_partner(false)
-    , mass_action(true)
 {
     setEfficiencies(node);
 }
@@ -511,6 +513,18 @@ void ThirdBody::setEfficiencies(const AnyMap& node)
 double ThirdBody::efficiency(const std::string& k) const
 {
     return getValue(efficiencies, k, default_efficiency);
+}
+
+std::string ThirdBody::collider() const
+{
+    std::string name = "M";
+    if (specified_collision_partner && efficiencies.size()) {
+        name = efficiencies.begin()->first;
+    }
+    if (mass_action) {
+        return " + " + name;
+    }
+    return " (+" + name + ")";
 }
 
 ThreeBodyReaction::ThreeBodyReaction()
@@ -620,26 +634,6 @@ void ThreeBodyReaction::getParameters(AnyMap& reactionNode) const
     }
 }
 
-std::string ThreeBodyReaction::reactantString() const
-{
-    if (m_third_body->specified_collision_partner) {
-        return Reaction::reactantString() + " + "
-            + m_third_body->efficiencies.begin()->first;
-    } else {
-        return Reaction::reactantString() + " + M";
-    }
-}
-
-std::string ThreeBodyReaction::productString() const
-{
-    if (m_third_body->specified_collision_partner) {
-        return Reaction::productString() + " + "
-            + m_third_body->efficiencies.begin()->first;
-    } else {
-        return Reaction::productString() + " + M";
-    }
-}
-
 FalloffReaction::FalloffReaction()
 {
     m_third_body.reset(new ThirdBody);
@@ -686,26 +680,6 @@ std::string FalloffReaction::type() const
         return "chemically-activated";
     }
     return "falloff";
-}
-
-std::string FalloffReaction::reactantString() const
-{
-    if (m_third_body->specified_collision_partner) {
-        return Reaction::reactantString() + " (+" +
-            m_third_body->efficiencies.begin()->first + ")";
-    } else {
-        return Reaction::reactantString() + " (+M)";
-    }
-}
-
-std::string FalloffReaction::productString() const
-{
-    if (m_third_body->specified_collision_partner) {
-        return Reaction::productString() + " (+" +
-            m_third_body->efficiencies.begin()->first + ")";
-    } else {
-        return Reaction::productString() + " (+M)";
-    }
 }
 
 void FalloffReaction::setParameters(const AnyMap& node, const Kinetics& kin)
