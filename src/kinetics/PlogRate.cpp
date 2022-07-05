@@ -68,11 +68,7 @@ void PlogRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
 {
     ReactionRate::setParameters(node, rate_units);
     std::multimap<double, ArrheniusRate> multi_rates;
-    if (!node.hasKey("rate-constants")) {
-        // ensure that reaction rate can be evaluated (but returns NaN)
-        multi_rates.insert({1.e-7, ArrheniusRate()});
-        multi_rates.insert({1.e14, ArrheniusRate()});
-    } else {
+    if (node.hasKey("rate-constants")) {
         auto& rates = node["rate-constants"].asVector<AnyMap>();
         for (const auto& rate : rates) {
             multi_rates.insert({rate.convert("P", "Pa"),
@@ -86,7 +82,7 @@ void PlogRate::getParameters(AnyMap& rateNode, const Units& rate_units) const
 {
     std::vector<AnyMap> rateList;
     rateNode["type"] = type();
-    if (!ready()) {
+    if (!valid()) {
         // object not fully set up
         return;
     }
@@ -104,6 +100,7 @@ void PlogRate::setRates(const std::multimap<double, ArrheniusRate>& rates)
     size_t j = 0;
     rates_.clear();
     pressures_.clear();
+    m_valid = rates.size();
     rates_.reserve(rates.size());
     // Insert intermediate pressures
     for (const auto& rate : rates) {
@@ -119,6 +116,14 @@ void PlogRate::setRates(const std::multimap<double, ArrheniusRate>& rates)
         j++;
         rates_.push_back(rate.second);
     }
+    if (!m_valid) {
+        // ensure that reaction rate can be evaluated (but returns NaN)
+        rates_.reserve(2);
+        pressures_[std::log(1.e-7)] = {0, 1};
+        rates_.push_back(ArrheniusRate());
+        pressures_[std::log(1.e14)] = {1, 2};
+        rates_.push_back(ArrheniusRate());
+    }
 
     // Duplicate the first and last groups to handle P < P_0 and P > P_N
     pressures_.insert({-1000.0, pressures_.begin()->second});
@@ -127,7 +132,7 @@ void PlogRate::setRates(const std::multimap<double, ArrheniusRate>& rates)
 
 void PlogRate::validate(const std::string& equation, const Kinetics& kin)
 {
-    if (!ready()) {
+    if (!valid()) {
         throw InputFileError("PlogRate::validate", m_input,
             "Rate object for reaction '{}' is not configured.", equation);
     }

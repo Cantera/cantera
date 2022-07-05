@@ -17,6 +17,7 @@ CustomFunc1Rate::CustomFunc1Rate()
 void CustomFunc1Rate::setRateFunction(shared_ptr<Func1> f)
 {
     m_ratefunc = f;
+    m_valid = true;
 }
 
 void CustomFunc1Rate::validate(const std::string& equation, const Kinetics& kin)
