@@ -1447,11 +1447,12 @@ class TestCustom(ReactionTests, utilities.CanteraTest):
     # test Custom reaction
 
     # probe O + H2 <=> H + OH
-    _cls = ct.CustomReaction
+    _cls = ct.Reaction
+    _rate_cls = ct.CustomRate
     _equation = "H2 + O <=> H + OH"
     _rate_obj = ct.CustomRate(lambda T: 38.7 * T**2.7 * exp(-3150.15428/T))
     _index = 0
-    _rxn_type = "custom-rate-function"
+    _rxn_type = "reaction"
     _rate_type = "custom-rate-function"
     _yaml = None
 
@@ -1461,10 +1462,10 @@ class TestCustom(ReactionTests, utilities.CanteraTest):
         self._rate = lambda T: 38.7 * T**2.7 * exp(-3150.15428/T)
 
     def from_yaml(self):
-        pytest.skip("CustomReaction does not support YAML")
+        pytest.skip("Reactions with CustomRate do not support YAML")
 
     def test_roundtrip(self):
-        pytest.skip("CustomReaction does not support roundtrip conversion")
+        pytest.skip("Reactions with CustomRate do not support roundtrip conversion")
 
     def test_raises_invalid_rate(self):
         # check exception for instantiation from keywords / invalid rate
@@ -1489,6 +1490,21 @@ class TestCustom(ReactionTests, utilities.CanteraTest):
         # check instantiation from keywords / rate provided as lambda function
         rxn = self.from_rate(lambda T: 38.7 * T**2.7 * exp(-3150.15428/T))
         self.check_rxn(rxn)
+
+    def test_persistent(self):
+        # ensure that temporary Python objects are buffered
+        gas = ct.Solution(thermo=self.soln.thermo_model,
+                         kinetics=self.soln.kinetics_model,
+                         species=self.species, reactions=[])
+        for i in range(5):
+            gas.add_reaction(
+                ct.Reaction(equation='H + OH <=> H2O', rate=ct.CustomRate(lambda T: T))
+            )
+            gas.add_reaction(ct.Reaction(equation='H + OH <=> H2O', rate=lambda T: T))
+            def func(T):
+                return T
+            gas.add_reaction(ct.Reaction(equation='H + OH <=> H2O', rate=func))
+        assert (gas.forward_rate_constants == gas.T).all()
 
 
 class InterfaceReactionTests(ReactionTests):
