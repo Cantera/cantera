@@ -54,9 +54,7 @@ ReactionFactory::ReactionFactory()
     addAlias("reaction", "chebyshev");
 
     // register custom reactions specified by Func1 objects
-    reg("custom-rate-function", [](const AnyMap& node, const Kinetics& kin) {
-        return new CustomFunc1Reaction(node, kin);
-    });
+    addAlias("reaction", "custom-rate-function");
 
     addAlias("reaction", "interface-Arrhenius");
     addAlias("reaction", "sticking-Arrhenius");
