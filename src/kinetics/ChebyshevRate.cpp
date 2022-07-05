@@ -59,7 +59,7 @@ void ChebyshevRate::setParameters(const AnyMap& node, const UnitStack& rate_unit
     ReactionRate::setParameters(node, rate_units);
     m_rate_units = rate_units.product();
     const UnitSystem& unit_system = node.units();
-    Array2D coeffs;
+    Array2D coeffs(0, 0);
     if (node.hasKey("data")) {
         const auto& T_range = node["temperature-range"].asVector<AnyValue>(2);
         const auto& P_range = node["pressure-range"].asVector<AnyValue>(2);
@@ -83,15 +83,10 @@ void ChebyshevRate::setParameters(const AnyMap& node, const UnitStack& rate_unit
             unit_system.convert(P_range[0], "Pa"),
             unit_system.convert(P_range[1], "Pa")
         );
-        setData(coeffs);
     } else {
-        // ensure that reaction rate can be evaluated (but returns NaN)
-        coeffs = Array2D(1, 1);
-        coeffs(0, 0) = NAN;
         setLimits(290., 3000., 1.e-7, 1.e14);
-        setData(coeffs);
-        m_ready = false;
     }
+    setData(coeffs);
 }
 
 void ChebyshevRate::setLimits(double Tmin, double Tmax, double Pmin, double Pmax)
@@ -114,15 +109,20 @@ void ChebyshevRate::setLimits(double Tmin, double Tmax, double Pmin, double Pmax
 
 void ChebyshevRate::setData(const Array2D& coeffs)
 {
-    m_coeffs = coeffs;
-    dotProd_.resize(coeffs.nRows());
-    m_ready = m_coeffs.data().size();
+    m_valid = coeffs.data().size();
+    if (m_valid) {
+        m_coeffs = coeffs;
+    } else {
+        // ensure that reaction rate can be evaluated (but returns NaN)
+        m_coeffs = Array2D(1, 1, NAN);
+    }
+    dotProd_.resize(m_coeffs.nRows());
 }
 
 void ChebyshevRate::getParameters(AnyMap& rateNode) const
 {
     rateNode["type"] = type();
-    if (!ready()) {
+    if (!valid()) {
         // object not fully set up
         return;
     }
@@ -156,7 +156,7 @@ void ChebyshevRate::getParameters(AnyMap& rateNode) const
 
 void ChebyshevRate::validate(const std::string& equation, const Kinetics& kin)
 {
-    if (!ready()) {
+    if (!valid()) {
         throw InputFileError("ChebyshevRate::validate", m_input,
             "Rate object for reaction '{}' is not configured.", equation);
     }

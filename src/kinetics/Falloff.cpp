@@ -122,7 +122,7 @@ void FalloffRate::setFalloffCoeffs(const vector_fp& c)
             "Incorrect number of parameters. 0 required. Received {}.",
             c.size());
     }
-    m_ready = true;
+    m_valid = true;
 }
 
 void FalloffRate::getFalloffCoeffs(vector_fp& c) const
@@ -190,7 +190,7 @@ void FalloffRate::check(const std::string& equation)
 {
     m_lowRate.check(equation);
     m_highRate.check(equation);
-    if (!m_lowRate.ready() || !m_highRate.ready()) {
+    if (!m_lowRate.valid() || !m_highRate.valid()) {
         // arrhenius rates are not initialized
         return;
     }
@@ -245,7 +245,7 @@ void TroeRate::setFalloffCoeffs(const vector_fp& c)
     } else {
         m_t2 = 0.;
     }
-    m_ready = true;
+    m_valid = true;
 }
 
 void TroeRate::getFalloffCoeffs(vector_fp& c) const
@@ -316,7 +316,7 @@ void TroeRate::getParameters(AnyMap& node) const
     FalloffRate::getParameters(node);
 
     AnyMap params;
-    if (!ready()) {
+    if (!valid()) {
         // pass
     } else if (m_lowRate.rateUnits().factor() != 0.0) {
         params["A"] = m_a;
@@ -364,7 +364,7 @@ void SriRate::setFalloffCoeffs(const vector_fp& c)
         m_d = 1.0;
         m_e = 0.0;
     }
-    m_ready = true;
+    m_valid = true;
 }
 
 void SriRate::getFalloffCoeffs(vector_fp& c) const
@@ -438,7 +438,7 @@ void SriRate::getParameters(AnyMap& node) const
     FalloffRate::getParameters(node);
 
     AnyMap params;
-    if (!ready()) {
+    if (!valid()) {
         // pass
     } else if (m_lowRate.rateUnits().factor() != 0.0) {
         params["A"] = m_a;
@@ -476,7 +476,7 @@ void TsangRate::setFalloffCoeffs(const vector_fp& c)
     else {
         m_b = 0.0;
     }
-    m_ready = true;
+    m_valid = true;
 }
 
 void TsangRate::getFalloffCoeffs(vector_fp& c) const
@@ -536,7 +536,7 @@ void TsangRate::getParameters(AnyMap& node) const
     FalloffRate::getParameters(node);
 
     AnyMap params;
-    if (!ready()) {
+    if (!valid()) {
         // pass
     } else {
         // Parameters do not have unit system (yet)

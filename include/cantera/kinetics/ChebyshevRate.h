@@ -228,10 +228,6 @@ public:
     //! Set the Chebyshev coefficients as 2-dimensional array.
     void setData(const Array2D& coeffs);
 
-    virtual bool ready() const override {
-        return m_ready;
-    }
-
 protected:
     double m_log10P; //!< value detecting updates
     double Tmin_, Tmax_; //!< valid temperature range
@@ -243,7 +239,6 @@ protected:
     vector_fp dotProd_; //!< dot product of coeffs with the reduced pressure polynomial
 
     Units m_rate_units; //!< Reaction rate units
-    bool m_ready = false; //!< Flag indicating object status
 };
 
 }

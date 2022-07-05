@@ -158,10 +158,6 @@ public:
         m_negativeA_ok = value;
     }
 
-    virtual bool ready() const override {
-        return m_ready;
-    }
-
 protected:
     bool m_negativeA_ok = false; //!< Permissible negative A values
     double m_A = NAN; //!< Pre-exponential factor
@@ -170,12 +166,11 @@ protected:
     double m_E4_R = 0.; //!< Optional 4th energy parameter (in temperature units)
     double m_logA = NAN; //!< Logarithm of pre-exponential factor
     double m_order = NAN; //!< Reaction order
-    std::string m_A_str = "A"; //!< The string for temperature exponent
+    std::string m_A_str = "A"; //!< The string for the pre-exponential factor
     std::string m_b_str = "b"; //!< The string for temperature exponent
     std::string m_Ea_str = "Ea"; //!< The string for activation energy
     std::string m_E4_str = ""; //!< The string for an optional 4th parameter
-    Units m_rate_units = Units(0.); //!< Reaction rate units
-    bool m_ready = false; //!< Flag indicating object status
+    Units m_rate_units {0.}; //!< Reaction rate units
 };
 
 //! Arrhenius reaction rate type depends only on temperature

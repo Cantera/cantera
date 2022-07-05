@@ -52,6 +52,7 @@ public:
     ReactionRate(const ReactionRate& other)
         : m_input(other.m_input)
         , m_rate_index(other.m_rate_index)
+        , m_valid(other.m_valid)
     {}
 
     ReactionRate& operator=(const ReactionRate& other) {
@@ -60,6 +61,7 @@ public:
         }
         m_input = other.m_input;
         m_rate_index = other.m_rate_index;
+        m_valid = other.m_valid;
         return *this;
     }
 
@@ -178,9 +180,9 @@ public:
         return _evaluator().evalSingle(*this);
     }
 
-    //! Get flag indicating whether object is initialized and ready to use
-    virtual bool ready() const {
-        return true;
+    //! Get flag indicating whether reaction rate is set up correctly
+    bool valid() const {
+        return m_valid;
     }
 
 protected:
@@ -198,6 +200,9 @@ protected:
 
     //! Index of reaction rate within kinetics evaluator
     size_t m_rate_index = npos;
+
+    //! Flag indicating whether reaction rate is set up correctly
+    bool m_valid = false;
 
 private:
     //! Return an object that be used to evaluate the rate by converting general input
