@@ -238,9 +238,6 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
     cdef cppclass CxxFalloffReaction "Cantera::FalloffReaction" (CxxReaction):
         CxxFalloffReaction()
 
-    cdef cppclass CxxCustomFunc1Reaction "Cantera::CustomFunc1Reaction" (CxxReaction):
-        CxxCustomFunc1Reaction()
-
 
 cdef class ReactionRate:
     cdef shared_ptr[CxxReactionRate] _rate
@@ -258,7 +255,7 @@ cdef class FalloffRate(ReactionRate):
 
 cdef class CustomRate(ReactionRate):
     cdef CxxCustomFunc1Rate* cxx_object(self)
-    cdef Func1 _rate_func
+    cdef Func1 _rate_func  # prevent premature garbage collection
 
 cdef class InterfaceRateBase(ArrheniusRateBase):
     cdef CxxInterfaceRateBase* interface
@@ -271,9 +268,7 @@ cdef class Reaction:
     cdef CxxReaction* reaction
     @staticmethod
     cdef wrap(shared_ptr[CxxReaction])
-
-cdef class CustomReaction(Reaction):
-    cdef CustomRate _rate
+    cdef ReactionRate _rate
 
 cdef class Arrhenius:
     cdef CxxArrheniusRate* base

@@ -1072,11 +1072,14 @@ cdef class Reaction:
         if isinstance(rate, dict):
             if set(rate) == {"A", "b", "Ea"}:
                 # Allow simple syntax for Arrhenius rates
-                rate = ReactionRate.from_dict({"rate-constant": rate})
+                self.rate = ReactionRate.from_dict({"rate-constant": rate})
             else:
-                rate = ReactionRate.from_dict(rate)
+                self.rate = ReactionRate.from_dict(rate)
+        elif rate is not None:
+            self.rate = rate
 
-        self.reaction.setRate((<ReactionRate?>rate)._rate)
+        if isinstance(self.rate, ReactionRate):
+            self.reaction.setRate(self._rate._rate)
 
     @staticmethod
     cdef wrap(shared_ptr[CxxReaction] reaction):
@@ -1103,6 +1106,7 @@ cdef class Reaction:
         R = cls(init=False)
         R._reaction = reaction
         R.reaction = R._reaction.get()
+        R._rate = ReactionRate.wrap(R.reaction.rate())
         return R
 
     @classmethod
@@ -1272,17 +1276,18 @@ cdef class Reaction:
             return pystr(self.reaction.type())
 
     property rate:
-        """ Get/Set the `ArrheniusRate` rate coefficient for this reaction. """
+        """ Get/Set the reaction rate evaluator for this reaction. """
         def __get__(self):
-            return ReactionRate.wrap(self.reaction.rate())
+            return self._rate
 
         def __set__(self, rate):
-            cdef ReactionRate rate3
             if isinstance(rate, ReactionRate):
-                rate3 = rate
+                self._rate = rate
+            elif callable(rate):
+                self._rate = CustomRate(rate)
             else:
-                raise TypeError("Invalid rate definition")
-            self.reaction.setRate(rate3._rate)
+                raise TypeError(f"Invalid rate definition with type '{type(rate)}'")
+            self.reaction.setRate(self._rate._rate)
 
     property reversible:
         """
@@ -1478,9 +1483,9 @@ cdef class ThreeBodyReaction(Reaction):
                 self.products = products
             else:
                 self.reaction.setEquation(stringify(equation))
-            self.reaction.setRate((<ReactionRate>rate)._rate)
             if efficiencies:
                 self.efficiencies = efficiencies
+            self.rate = rate
             return
 
         if init and equation and kinetics:
@@ -1504,7 +1509,8 @@ cdef class ThreeBodyReaction(Reaction):
                                             deref(kinetics.kinetics))
             self.reaction = self._reaction.get()
 
-            if isinstance(rate, (Arrhenius, ArrheniusRate)):
+            self._rate = ReactionRate.wrap(self.reaction.rate())
+            if isinstance(rate, Arrhenius):
                 self.rate = rate
 
     property efficiencies:
@@ -1582,9 +1588,9 @@ cdef class FalloffReaction(Reaction):
                 self.products = products
             else:
                 self.reaction.setEquation(stringify(equation))
-            self.reaction.setRate((<ReactionRate>rate)._rate)
             if efficiencies:
                 self.efficiencies = efficiencies
+            self.rate = rate
             return
 
         if init and equation and kinetics:
@@ -1606,9 +1612,7 @@ cdef class FalloffReaction(Reaction):
             self._reaction = CxxNewReaction(dict_to_anymap(spec),
                                             deref(kinetics.kinetics))
             self.reaction = self._reaction.get()
-
-            if isinstance(rate, FalloffRate):
-                self.rate = rate
+            self._rate = ReactionRate.wrap(self.reaction.rate())
 
     property efficiencies:
         """
@@ -1660,35 +1664,12 @@ cdef class CustomReaction(Reaction):
             rate=lambda T: 38.7 * T**2.7 * exp(-3150.15428/T),
             kinetics=gas)
 
-    **Warning:** this class is an experimental part of the Cantera API and
-    may be changed or removed without notice.
+    .. deprecated:: 3.0
+
+        Class to be removed after Cantera 3.0. Absorbed by `Reaction`.
     """
-    _reaction_type = "custom-rate-function"
 
-    def __init__(self, reactants=None, products=None, rate=None, *, equation=None,
-                 Kinetics kinetics=None, init=True, **kwargs):
-
-        if reactants and products and not equation:
-            equation = self.equation
-
-        if init and equation and kinetics:
-
-            spec = {"equation": equation, "type": self._reaction_type}
-
-            self._reaction = CxxNewReaction(dict_to_anymap(spec),
-                                            deref(kinetics.kinetics))
-            self.reaction = self._reaction.get()
-            if not isinstance(rate, CustomRate):
-                rate = CustomRate(rate)
-
-        if rate is not None:
-            self.rate = rate
-
-    property rate:
-        """ Get/Set the `CustomRate` object for this reaction. """
-        def __get__(self):
-            return self._rate
-        def __set__(self, CustomRate rate):
-            self._rate = rate
-            cdef CxxCustomFunc1Reaction* r = <CxxCustomFunc1Reaction*>self.reaction
-            r.setRate(self._rate._rate)
+    def __init__(self, *args, **kwargs):
+        warnings.warn("Class to be removed after Cantera 3.0; no specialization "
+                      "necessary.", DeprecationWarning)
+        super().__init__(*args, **kwargs)
