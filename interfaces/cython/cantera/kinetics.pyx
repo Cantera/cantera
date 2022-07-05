@@ -70,6 +70,9 @@ cdef class Kinetics(_SolutionBase):
     of progress, species production rates, and other quantities pertaining to
     a reaction mechanism.
     """
+    #: List holding references to CustomRate objects (prevents garbage collection)
+    _custom_rates = []
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self._references is None:
@@ -181,6 +184,9 @@ cdef class Kinetics(_SolutionBase):
     def add_reaction(self, Reaction rxn):
         """ Add a new reaction to this phase. """
         self.kinetics.addReaction(rxn._reaction)
+        if isinstance(rxn.rate, CustomRate):
+            # prevent garbage collection
+            self._custom_rates.append(rxn.rate)
 
     def multiplier(self, int i_reaction):
         """

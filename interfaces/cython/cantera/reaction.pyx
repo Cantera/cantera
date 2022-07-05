@@ -671,7 +671,8 @@ cdef class CustomRate(ReactionRate):
             try:
                 self.set_rate_function(k)
             except Exception:
-                raise TypeError(f"Cannot convert input with type '{type(k)}' to rate expression.")
+                raise TypeError(
+                    f"Cannot convert input with type '{type(k)}' to rate expression.")
 
     cdef CxxCustomFunc1Rate* cxx_object(self):
         return <CxxCustomFunc1Rate*>self.rate
