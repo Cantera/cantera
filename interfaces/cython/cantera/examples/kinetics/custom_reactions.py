@@ -23,7 +23,7 @@ reactions = gas0.reactions()
 
 # construct custom reactions: replace 2nd reaction with equivalent custom reaction
 custom_reactions = [r for r in reactions]
-custom_reactions[2] = ct.CustomReaction(
+custom_reactions[2] = ct.Reaction(
     equation='H2 + O <=> H + OH',
     rate=lambda T: 38.7 * T**2.7 * exp(-3150.15428/T),
     kinetics=gas0)
