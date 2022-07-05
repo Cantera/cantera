@@ -26,27 +26,11 @@ namespace ba = boost::algorithm;
 namespace Cantera
 {
 
-Reaction::Reaction()
-    : reversible(true)
-    , duplicate(false)
-    , allow_nonreactant_orders(false)
-    , allow_negative_orders(false)
-    , rate_units(0.0)
-    , m_valid(true)
-{
-}
-
 Reaction::Reaction(const Composition& reactants_,
                    const Composition& products_,
                    shared_ptr<ReactionRate> rate_)
     : reactants(reactants_)
     , products(products_)
-    , reversible(true)
-    , duplicate(false)
-    , allow_nonreactant_orders(false)
-    , allow_negative_orders(false)
-    , rate_units(0.0)
-    , m_valid(true)
     , m_rate(rate_)
 {
 }
@@ -657,7 +641,6 @@ std::string ThreeBodyReaction::productString() const
 }
 
 FalloffReaction::FalloffReaction()
-    : Reaction()
 {
     m_third_body.reset(new ThirdBody);
     m_third_body->mass_action = false;

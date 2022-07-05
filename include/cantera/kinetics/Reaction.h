@@ -31,7 +31,7 @@ class ThirdBody;
 class Reaction
 {
 public:
-    Reaction();
+    Reaction() {}
     Reaction(const Composition& reactants, const Composition& products,
              shared_ptr<ReactionRate> rate={});
 
@@ -147,17 +147,17 @@ public:
     std::string id;
 
     //! True if the current reaction is reversible. False otherwise
-    bool reversible;
+    bool reversible = true;
 
     //! True if the current reaction is marked as duplicate
-    bool duplicate;
+    bool duplicate = false;
 
     //! True if reaction orders can be specified for non-reactant species.
     //! Default is `false`.
-    bool allow_nonreactant_orders;
+    bool allow_nonreactant_orders = false;
 
     //! True if negative reaction orders are allowed. Default is `false`.
-    bool allow_negative_orders;
+    bool allow_negative_orders = false;
 
     //! Input data used for specific models
     AnyMap input;
@@ -165,7 +165,7 @@ public:
     //! The units of the rate constant. These are determined by the units of the
     //! standard concentration of the reactant species' phases of the phase
     //! where the reaction occurs.
-    Units rate_units;
+    Units rate_units{0.0};
 
     //! Get reaction rate pointer
     shared_ptr<ReactionRate> rate() {
@@ -187,7 +187,7 @@ protected:
     virtual void getParameters(AnyMap& reactionNode) const;
 
     //! Flag indicating whether reaction is set up correctly
-    bool m_valid;
+    bool m_valid = true;
 
     //! Helper function returning vector of undeclared third body species
     //! and a boolean expression indicating whether the third body is specified.
