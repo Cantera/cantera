@@ -650,6 +650,7 @@ def main():
             "phase listed in the input file will be loaded."
         ),
         metavar="PHASE",
+        default="",
     )
 
     parser.add_argument(
