@@ -221,6 +221,8 @@ void Reaction::setRate(shared_ptr<ReactionRate> rate)
             throw InputFileError("Reaction::setRate", input,
                 "Found superfluous '{}' in pressure-dependent-Arrhenius reaction.",
                 m_third_body->name);
+        } else if (std::dynamic_pointer_cast<FalloffRate>(m_rate)) {
+            m_third_body->mass_action = false;
         }
     } else {
         if (std::dynamic_pointer_cast<FalloffRate>(m_rate)) {
@@ -367,7 +369,18 @@ void Reaction::setEquation(const std::string& equation, const Kinetics* kin)
 
 std::string Reaction::type() const
 {
-    return "reaction";
+    if (!m_third_body) {
+        return "reaction";
+    }
+
+    auto falloff = std::dynamic_pointer_cast<FalloffRate>(m_rate);
+    if (falloff) {
+        if (falloff->chemicallyActivated()) {
+            return "chemically-activated";
+        }
+        return "falloff";
+    }
+    return "three-body";
 }
 
 UnitStack Reaction::calculateRateCoeffUnits(const Kinetics& kin)
@@ -697,7 +710,6 @@ ThreeBodyReaction::ThreeBodyReaction(const AnyMap& node, const Kinetics& kin)
 FalloffReaction::FalloffReaction()
 {
     m_third_body.reset(new ThirdBody);
-    m_third_body->mass_action = false;
     setRate(newReactionRate(type()));
 }
 
@@ -708,7 +720,6 @@ FalloffReaction::FalloffReaction(const Composition& reactants,
     : Reaction(reactants, products)
 {
     m_third_body = std::make_shared<ThirdBody>(tbody);
-    m_third_body->mass_action = false;
     AnyMap node = rate.parameters();
     node.applyUnits();
     std::string rate_type = node["type"].asString();
@@ -723,23 +734,12 @@ FalloffReaction::FalloffReaction(const Composition& reactants,
 FalloffReaction::FalloffReaction(const AnyMap& node, const Kinetics& kin)
 {
     m_third_body.reset(new ThirdBody);
-    m_third_body->mass_action = false;
     if (!node.empty()) {
         setParameters(node, kin);
         setRate(newReactionRate(node, calculateRateCoeffUnits(kin)));
     } else {
         setRate(newReactionRate(type()));
     }
-}
-
-std::string FalloffReaction::type() const
-{
-    if (m_rate &&
-        std::dynamic_pointer_cast<FalloffRate>(m_rate)->chemicallyActivated())
-    {
-        return "chemically-activated";
-    }
-    return "falloff";
 }
 
 bool isThreeBody(const Reaction& R)
