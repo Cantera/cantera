@@ -17,16 +17,18 @@ from cython.operator cimport dereference as deref, preincrement as inc
 
 ctypedef stdmap[string,double] Composition
 
+import numpy as np
+cimport numpy as np
+
 cdef extern from "cantera/cython/funcWrapper.h":
     cdef int translate_exception()
+
+    cdef cppclass CxxAnyMap "Cantera::AnyMap"
+    cdef cppclass CxxAnyValue "Cantera::AnyValue"
+    cdef cppclass CxxUnits "Cantera::Units"
+    cdef cppclass CxxUnitSystem "Cantera::UnitSystem"
 
 cdef extern from "<memory>":
     cppclass shared_ptr "std::shared_ptr" [T]:
         T* get()
         void reset(T*)
-
-cdef extern from "cantera/cython/wrappers.h":
-    cdef cppclass CxxAnyMap "Cantera::AnyMap"
-    cdef cppclass CxxAnyValue "Cantera::AnyValue"
-    cdef cppclass CxxUnits "Cantera::Units"
-    cdef cppclass CxxUnitSystem "Cantera::UnitSystem"

@@ -12,10 +12,6 @@ cdef extern from "cantera/numerics/eigen_sparse.h" namespace "Eigen":
         size_t cols()
         size_t outerSize()
 
-cdef extern from "cantera/cython/wrappers.h":
-    cdef size_t CxxSparseTriplets "sparseTriplets" (CxxSparseMatrix, int*, int*, double*, size_t) except +translate_exception
-    cdef void CxxSparseCscData "sparseCscData" (CxxSparseMatrix, double*, int*, int*) except +translate_exception
-
 cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
     cdef cppclass CxxReaction "Cantera::Reaction"
     cdef cppclass CxxKinetics "Cantera::Kinetics":
@@ -51,13 +47,15 @@ cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
         void getDerivativeSettings(CxxAnyMap&) except +translate_exception
         void setDerivativeSettings(CxxAnyMap&) except +translate_exception
 
-
 cdef extern from "cantera/kinetics/InterfaceKinetics.h":
     cdef cppclass CxxInterfaceKinetics "Cantera::InterfaceKinetics":
         void advanceCoverages(double, double, double, double, size_t, size_t) except +translate_exception
         void solvePseudoSteadyStateProblem() except +translate_exception
 
-cdef extern from "cantera/cython/wrappers.h":
+cdef extern from "cantera/cython/kinetics_utils.h":
+    cdef size_t CxxSparseTriplets "sparseTriplets" (CxxSparseMatrix, int*, int*, double*, size_t) except +translate_exception
+    cdef void CxxSparseCscData "sparseCscData" (CxxSparseMatrix, double*, int*, int*) except +translate_exception
+
     # Kinetics per-reaction properties
     cdef void kin_getFwdRatesOfProgress(CxxKinetics*, double*) except +translate_exception
     cdef void kin_getRevRatesOfProgress(CxxKinetics*, double*) except +translate_exception

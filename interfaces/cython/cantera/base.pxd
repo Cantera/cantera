@@ -50,25 +50,6 @@ cdef extern from "cantera/base/Solution.h" namespace "Cantera":
     cdef shared_ptr[CxxSolution] newSolution (
         CxxAnyMap&, CxxAnyMap&, string, vector[shared_ptr[CxxSolution]]) except +translate_exception
 
-cdef extern from "cantera/cython/wrappers.h":
-    cdef void tran_getMixDiffCoeffs(CxxTransport*, double*) except +translate_exception
-    cdef void tran_getMixDiffCoeffsMass(CxxTransport*, double*) except +translate_exception
-    cdef void tran_getMixDiffCoeffsMole(CxxTransport*, double*) except +translate_exception
-    cdef void tran_getThermalDiffCoeffs(CxxTransport*, double*) except +translate_exception
-    cdef void tran_getSpeciesViscosities(CxxTransport*, double*) except +translate_exception
-    cdef void tran_getMobilities(CxxTransport*, double*) except +translate_exception
-
-    cdef void tran_getMultiDiffCoeffs(CxxTransport*, size_t, double*) except +translate_exception
-    cdef void tran_getBinaryDiffCoeffs(CxxTransport*, size_t, double*) except +translate_exception
-
-    cdef void tran_getViscosityPolynomial(CxxTransport*, size_t, double*) except +translate_exception
-    cdef void tran_getConductivityPolynomial(CxxTransport*, size_t, double*) except +translate_exception
-    cdef void tran_getBinDiffusivityPolynomial(CxxTransport*, size_t, size_t, double*) except +translate_exception
-
-    cdef void tran_setViscosityPolynomial(CxxTransport*, size_t, double*) except +translate_exception
-    cdef void tran_setConductivityPolynomial(CxxTransport*, size_t, double*) except +translate_exception
-    cdef void tran_setBinDiffusivityPolynomial(CxxTransport*, size_t, size_t, double*) except +translate_exception
-
 ctypedef void (*transportMethod1d)(CxxTransport*, double*) except +translate_exception
 ctypedef void (*transportMethod2d)(CxxTransport*, size_t, double*) except +translate_exception
 ctypedef void (*transportPolyMethod1i)(CxxTransport*, size_t, double*) except +translate_exception

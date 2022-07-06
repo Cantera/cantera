@@ -10,10 +10,6 @@ from .kinetics cimport *
 from .func1 cimport *
 from .thermo cimport *
 
-import numpy as np
-cimport numpy as np
-
-
 cdef extern from "cantera/oneD/Domain1D.h":
     cdef cppclass CxxDomain1D "Cantera::Domain1D":
         size_t domainIndex()
