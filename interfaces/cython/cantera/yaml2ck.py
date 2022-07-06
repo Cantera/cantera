@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# encoding: utf-8
 
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
@@ -46,7 +45,6 @@ Unsupported Reaction models (not comprehensive):
 """
 from __future__ import annotations
 
-import os
 import sys
 import math
 import argparse
@@ -55,13 +53,14 @@ from textwrap import fill, dedent, TextWrapper
 import cantera as ct
 from email.utils import formatdate
 from typing import Optional, Iterable
+
 try:
     from typing import Literal
 except ImportError:
     # Needed for Python 3.7 support
     from typing_extensions import Literal
 
-_SORTING_TYPE = Optional[Literal["alphabetical", "molecular-weight"]]
+_SORTING_TYPE = Optional[Literal["alphabetical", "molar-mass"]]
 
 # number of calories in 1000 Joules
 CALORIES_CONSTANT = 4184.0
@@ -76,6 +75,7 @@ class HeaderTextWrapper(TextWrapper):
     :param input_files:
         Iterable of string input file names to include in the header
     """
+
     def __init__(self, input_files: Iterable[str], *args, **kwargs):
         self.input_files = input_files
         super().__init__(*args, **kwargs)
@@ -292,17 +292,17 @@ def build_reactions_text(reactions: Iterable[ct.Reaction]):
             rate = reac.rate
             temperature_range = rate.temperature_range
             pressure_range = tuple(p / ct.one_atm for p in rate.pressure_range)
-            reaction_lines.extend((
-                f"TCHEB /{temperature_range[0]} {temperature_range[1]}/ ",
-                f"PCHEB /{pressure_range[0]} {pressure_range[1]}/ ",
-                f"CHEB /{rate.n_temperature} {rate.n_pressure}/",
-            ))
+            reaction_lines.extend(
+                (
+                    f"TCHEB /{temperature_range[0]} {temperature_range[1]}/ ",
+                    f"PCHEB /{pressure_range[0]} {pressure_range[1]}/ ",
+                    f"CHEB /{rate.n_temperature} {rate.n_pressure}/",
+                )
+            )
             coeffs = rate.data.copy()
             coeffs[0, 0] += math.log10(unit_conversion_factor)
             for row in coeffs:
-                reaction_lines.append(
-                    f"CHEB /{' '.join(map(str, row))}/"
-                )
+                reaction_lines.append(f"CHEB /{' '.join(map(str, row))}/")
         elif reac.reaction_type in ("reaction", "three-body"):
             if reac.reaction_type == "three-body":
                 unit_conversion_factor *= 1_000.0
@@ -350,15 +350,15 @@ def build_reactions_text(reactions: Iterable[ct.Reaction]):
             )
             if rate.type == "Troe":
                 reaction_lines.append(
-                    "TROE /" +
-                    " ".join(map(lambda s: format(s, ".7G"), rate.falloff_coeffs)) +
-                    "/"
+                    "TROE /"
+                    + " ".join(map(lambda s: format(s, ".7G"), rate.falloff_coeffs))
+                    + "/"
                 )
             elif rate.type == "SRI":
                 reaction_lines.append(
-                    "SRI /" +
-                    " ".join(map(lambda s: format(s, ".7G"), rate.falloff_coeffs)) +
-                    "/"
+                    "SRI /"
+                    + " ".join(map(lambda s: format(s, ".7G"), rate.falloff_coeffs))
+                    + "/"
                 )
         elif reac.reaction_type == "falloff":
             rate = reac.rate
@@ -381,31 +381,31 @@ def build_reactions_text(reactions: Iterable[ct.Reaction]):
             )
             if rate.type == "Troe":
                 reaction_lines.append(
-                    "TROE /" +
-                    " ".join(map(lambda s: format(s, ".7G"), rate.falloff_coeffs)) +
-                    "/"
+                    "TROE /"
+                    + " ".join(map(lambda s: format(s, ".7G"), rate.falloff_coeffs))
+                    + "/"
                 )
             elif rate.type == "SRI":
                 reaction_lines.append(
-                    "SRI /" +
-                    " ".join(map(lambda s: format(s, ".7G"), rate.falloff_coeffs)) +
-                    "/"
+                    "SRI /"
+                    + " ".join(map(lambda s: format(s, ".7G"), rate.falloff_coeffs))
+                    + "/"
                 )
         else:
             raise ValueError(f"Unknown reaction type: '{reac.reaction_type}'")
 
         if getattr(reac, "efficiencies", None) is not None:
-            reaction_lines.append(" ".join(
-                f"{spec}/{value:.3E}/" for spec, value in reac.efficiencies.items()
-            ))
+            reaction_lines.append(
+                " ".join(
+                    f"{spec}/{value:.3E}/" for spec, value in reac.efficiencies.items()
+                )
+            )
 
         if reac.duplicate:
             reaction_lines.append("DUPLICATE")
 
         for spec, value in reac.orders.items():
-            reaction_lines.append(
-                f"FORD /{spec} {value:.3F}/"
-            )
+            reaction_lines.append(f"FORD /{spec} {value:.3F}/")
 
     return "REACTIONS CAL/MOLE MOLE\n" + "\n".join(reaction_lines) + "\nEND\n"
 
@@ -487,12 +487,12 @@ def convert(
         The path to the output transport database file. Optional. If not provided, the
         transport data will be included in the ``mechanism_path`` file.
     :param sort_elements:
-        Optional. One of ``'alphabetical'``, ``'molecular-weight'``, or ``None``. The
+        Optional. One of ``'alphabetical'``, ``'molar-mass'``, or ``None``. The
         former two options will sort the elements in the ``mechanism_path`` file
         alphabetically or by atomic mass, respectively. The default is to output
         elements in the same order defined in the input `cantera.Solution`.
     :param sort_species:
-        Optional. One of ``'alphabetical'``, ``'molecular-weight'``, or ``None``. The
+        Optional. One of ``'alphabetical'``, ``'molar-mass'``, or ``None``. The
         former two options will sort the species definitions and their thermodynamic
         data alphabetically or by molecular weight, respectively. The default is to
         output the species in the same order defined in the input `cantera.Solution`.
@@ -500,9 +500,7 @@ def convert(
         Boolean flag to overwrite existing files.
     """
     if isinstance(solution, ct.Interface):
-        raise NotImplementedError(
-            "Interface phases are not supported yet."
-        )
+        raise NotImplementedError("Interface phases are not supported yet.")
     elif isinstance(solution, ct.Solution):
         # The input solution is a Solution instance, so get its name for the output
         # file.
@@ -552,13 +550,13 @@ def convert(
 
     if sort_species == "alphabetical":
         all_species = sorted(solution.species(), key=lambda s: s.name)
-    elif sort_species == "molecular-weight":
+    elif sort_species == "molar-mass":
         all_species = sorted(solution.species(), key=lambda s: s.molecular_weight)
     elif sort_species is None:
         all_species = solution.species()
     else:
         raise ValueError(
-            "sort_species must be None, 'alphabetical', or 'molecular-weight'. "
+            "sort_species must be None, 'alphabetical', or 'molar-mass'. "
             f"Got '{sort_species}'"
         )
 
@@ -569,7 +567,7 @@ def convert(
         all_elements = sorted(all_elements, key=lambda e: e.weight)
     elif sort_elements is not None:
         raise ValueError(
-            "sort_elements must be None, 'alphabetical', or 'molecular-weight'. "
+            "sort_elements must be None, 'alphabetical', or 'molar-mass'. "
             f"Got '{sort_elements}'"
         )
 
@@ -583,9 +581,12 @@ def convert(
         break_on_hyphens=False,
     )
     if "description" in solution.input_header:
-        header_text = header_wrapper.fill(
-            solution.input_header["description"],
-        ) + "\n"
+        header_text = (
+            header_wrapper.fill(
+                solution.input_header["description"],
+            )
+            + "\n"
+        )
     else:
         header_text = header_wrapper.fill("") + "\n"
     mechanism_text = [
@@ -616,14 +617,10 @@ def convert(
 
     # TODO: Handle phases without reactions
     all_reactions = solution.reactions()
-    mechanism_text.append(
-        build_reactions_text(all_reactions)
-    )
+    mechanism_text.append(build_reactions_text(all_reactions))
 
     if transport_path is None and transport_exists:
-        mechanism_text.append(
-            build_transport_text(all_species, separate_file=False)
-        )
+        mechanism_text.append(build_transport_text(all_species, separate_file=False))
     elif transport_path is not None and transport_exists:
         transport_text = [
             header_text,
@@ -647,32 +644,57 @@ def main():
 
     parser.add_argument("input", help="The input YAML filename. Required.")
     parser.add_argument(
-        "--phase-name", 
-        help=("Name of the phase to load from the input. Optional argument if input "
-              "file contains more than one phase definition. Cantera's default "
-              "behavior will load the first definition from the file."),
-        metavar="PHASE"
+        "--phase-name",
+        help=(
+            "Name of the phase to load from the input. If unspecified, the first "
+            "phase listed in the input file will be loaded."
+        ),
+        metavar="PHASE",
+    )
+
+    parser.add_argument(
+        "--mechanism",
+        metavar="MECH",
+        help=(
+            "The path to the output mechanism file. Optional. If not provided, the "
+            "name of the input file will be used, with the extension replaced by '.ck'."
+            "If the path specified here is an existing directory, the output file(s) "
+            "will be placed in that directory."
+        ),
     )
     parser.add_argument(
-        "--mechanism", help="The output mechanism filename.", metavar="MECH"
+        "--thermo",
+        metavar="THERM",
+        help=(
+            "The path to the output thermodynamics database file. Optional. If not "
+            "provided, the thermodynamic data will be included in the mechanism file."
+        ),
     )
-    parser.add_argument("--thermo", help="The output thermodynamics filename.")
     parser.add_argument(
-        "--transport", help="The output transport filename.", metavar="TRAN"
+        "--transport",
+        metavar="TRAN",
+        help=(
+            "The path to the output transport database file. Optional. If not "
+            "provided, transport data will be included in the mechanism file."
+        ),
     )
     parser.add_argument(
         "--sort-elements",
-        choices=[None, "alphabetical", "molecular-weight"],
+        choices=[None, "alphabetical", "molar-mass"],
         default=None,
-        help=("Sort elements in source order (None), alphabetically, or from lowest to "
-              "highest atomic mass."),
+        help=(
+            "Sort elements in source order (None), alphabetically, or from lowest to "
+            "highest atomic mass."
+        ),
     )
     parser.add_argument(
         "--sort-species",
-        choices=[None, "alphabetical", "molecular-weight"],
+        choices=[None, "alphabetical", "molar-mass"],
         default=None,
-        help=("Sort species in source order (None), alphabetically, or from lowest to "
-              "highest molecular weight."),
+        help=(
+            "Sort species in source order (None), alphabetically, or from lowest to "
+            "highest molecular weight."
+        ),
     )
     parser.add_argument(
         "--overwrite",
@@ -682,9 +704,8 @@ def main():
     )
     parser.add_argument(
         "--validate",
-        choices=[True, False],
-        default=False,
-        type=bool,
+        action="store_true",
+        default=True,
         help="Check that the mechanism can be loaded back into Cantera.",
     )
 
@@ -722,6 +743,12 @@ def main():
                 ct.Solution(out_name)
 
             print("PASSED.")
+        except ImportError:
+            print(
+                "Could not load cantera.ck2yaml, so the converted file could not be "
+                "validated."
+            )
+            sys.exit(0)
         except RuntimeError as e:
             print("FAILED.")
             print(e)
