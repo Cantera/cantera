@@ -491,7 +491,7 @@ void ThirdBody::setEfficiencies(const AnyMap& node)
 
 void ThirdBody::setParameters(const AnyMap& node)
 {
-    if (specified_collision_partner) {
+    if (name != "M") {
         return;
     }
     default_efficiency = node.getDouble("default-efficiency", 1.0);
@@ -502,7 +502,7 @@ void ThirdBody::setParameters(const AnyMap& node)
 
 void ThirdBody::getParameters(AnyMap& node) const
 {
-    if (!specified_collision_partner) {
+    if (name == "M") {
         if (mass_action) {
             // @todo  remove once specialization is removed
             node["type"] = "three-body";
@@ -522,10 +522,6 @@ double ThirdBody::efficiency(const std::string& k) const
 
 std::string ThirdBody::collider() const
 {
-    std::string name = "M";
-    if (specified_collision_partner && efficiencies.size()) {
-        name = efficiencies.begin()->first;
-    }
     if (mass_action) {
         return " + " + name;
     }
@@ -549,7 +545,7 @@ bool ThirdBody::checkSpecies(const Reaction& rxn, const Kinetics& kin) const
             throw InputFileError("ThirdBody::checkSpecies", rxn.input, "Reaction '{}'\n"
                 "is a three-body reaction with undeclared species: '{}'",
                 rxn.equation(), ba::join(undeclared, "', '"));
-        } else if (kin.skipUndeclaredSpecies() && specified_collision_partner) {
+        } else if (kin.skipUndeclaredSpecies() && name != "M") {
             return false;
         }
     }
@@ -584,27 +580,30 @@ ThreeBodyReaction::ThreeBodyReaction(const AnyMap& node, const Kinetics& kin)
 
 bool ThreeBodyReaction::detectEfficiencies()
 {
+    std::string third_body;
+    size_t count = 0;
     for (const auto& reac : reactants) {
         // detect explicitly specified collision partner
         if (products.count(reac.first)) {
-            m_third_body->efficiencies[reac.first] = 1.;
+            third_body = reac.first;
+            count++;
         }
     }
 
-    if (m_third_body->efficiencies.size() == 0) {
+    if (count == 0) {
         return false;
-    } else if (m_third_body->efficiencies.size() > 1) {
+    } else if (count > 1) {
         throw CanteraError("ThreeBodyReaction::detectEfficiencies",
             "Found more than one explicitly specified collision partner\n"
             "in reaction '{}'.", equation());
     }
 
+    m_third_body->name = third_body;
     m_third_body->default_efficiency = 0.;
-    m_third_body->specified_collision_partner = true;
-    auto sp = m_third_body->efficiencies.begin();
+    m_third_body->efficiencies[third_body] = 1.;
 
     // adjust reactant coefficients
-    auto reac = reactants.find(sp->first);
+    auto reac = reactants.find(third_body);
     if (trunc(reac->second) != 1) {
         reac->second -= 1.;
     } else {
@@ -612,7 +611,7 @@ bool ThreeBodyReaction::detectEfficiencies()
     }
 
     // adjust product coefficients
-    auto prod = products.find(sp->first);
+    auto prod = products.find(third_body);
     if (trunc(prod->second) != 1) {
         prod->second -= 1.;
     } else {
@@ -719,13 +718,11 @@ void FalloffReaction::setEquation(const std::string& equation, const Kinetics* k
     reactants.erase(third_body_str);
     products.erase(third_body_str);
 
-    if (third_body == "M") {
-        m_third_body->specified_collision_partner = false;
-    } else {
+    m_third_body->name = third_body;
+    if (third_body != "M") {
         // Specific species is listed as the third body
         m_third_body->default_efficiency = 0;
         m_third_body->efficiencies.emplace(third_body, 1.0);
-        m_third_body->specified_collision_partner = true;
     }
 }
 
