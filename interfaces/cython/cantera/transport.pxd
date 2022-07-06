@@ -30,6 +30,7 @@ cdef extern from "cantera/transport/DustyGasTransport.h" namespace "Cantera":
         void getMolarFluxes(double*, double*, double, double*) except +translate_exception
         CxxTransport& gasTransport() except +translate_exception
 
+
 cdef extern from "cantera/transport/TransportData.h" namespace "Cantera":
     cdef cppclass CxxTransportData "Cantera::TransportData":
         CxxTransportData()
@@ -51,6 +52,7 @@ cdef extern from "cantera/transport/TransportData.h" namespace "Cantera":
         double dispersion_coefficient
         double quadrupole_polarizability
 
+
 cdef extern from "cantera/cython/transport_utils.h":
     cdef void tran_getMixDiffCoeffs(CxxTransport*, double*) except +translate_exception
     cdef void tran_getMixDiffCoeffsMass(CxxTransport*, double*) except +translate_exception
@@ -69,6 +71,7 @@ cdef extern from "cantera/cython/transport_utils.h":
     cdef void tran_setViscosityPolynomial(CxxTransport*, size_t, double*) except +translate_exception
     cdef void tran_setConductivityPolynomial(CxxTransport*, size_t, double*) except +translate_exception
     cdef void tran_setBinDiffusivityPolynomial(CxxTransport*, size_t, size_t, double*) except +translate_exception
+
 
 cdef class GasTransportData:
     cdef shared_ptr[CxxTransportData] _data

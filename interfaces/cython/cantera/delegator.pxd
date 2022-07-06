@@ -20,6 +20,7 @@ cdef extern from "<array>" namespace "std" nogil:
         size_array3() except+
         size_t& operator[](size_t)
 
+
 cdef extern from "cantera/base/Delegator.h" namespace "Cantera":
     cdef cppclass CxxDelegator "Cantera::Delegator":
         Delegator()
@@ -33,6 +34,7 @@ cdef extern from "cantera/base/Delegator.h" namespace "Cantera":
         void setDelegate(string&, function[void(size_array3, double*, double*, double*)], string&) except +translate_exception
         void setDelegate(string&, function[int(string&, size_t)], string&) except +translate_exception
         void setDelegate(string&, function[int(size_t&, string&)], string&) except +translate_exception
+
 
 cdef extern from "cantera/cython/funcWrapper.h":
     # pyOverride is actually a templated function, but we have to specify the individual

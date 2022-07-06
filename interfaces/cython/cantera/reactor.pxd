@@ -155,6 +155,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         size_t nparams()
         string sensitivityParameterName(size_t) except +translate_exception
 
+
 cdef extern from "cantera/zeroD/ReactorDelegator.h" namespace "Cantera":
     cdef cppclass CxxReactorAccessor "Cantera::ReactorAccessor":
         CxxReactorAccessor()
@@ -165,6 +166,7 @@ cdef extern from "cantera/zeroD/ReactorDelegator.h" namespace "Cantera":
         void setQdot(double)
         void restoreThermoState() except +translate_exception
         void restoreSurfaceState(size_t) except +translate_exception
+
 
 ctypedef CxxReactorAccessor* CxxReactorAccessorPtr
 

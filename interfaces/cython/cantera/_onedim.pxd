@@ -155,6 +155,7 @@ cdef extern from "cantera/oneD/Sim1D.h":
         void setTimeStepCallback(CxxFunc1*)
         void setSteadyCallback(CxxFunc1*)
 
+
 cdef extern from "cantera/thermo/IdealGasPhase.h":
     cdef cppclass CxxIdealGasPhase "Cantera::IdealGasPhase"
 

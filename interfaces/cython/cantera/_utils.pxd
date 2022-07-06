@@ -58,8 +58,10 @@ cdef extern from "cantera/base/AnyMap.h" namespace "Cantera":
     CxxAnyMap AnyMapFromYamlFile "Cantera::AnyMap::fromYamlFile" (string) except +translate_exception
     CxxAnyMap AnyMapFromYamlString "Cantera::AnyMap::fromYamlString" (string) except +translate_exception
 
+
 cdef extern from "cantera/base/stringUtils.h" namespace "Cantera":
     cdef Composition parseCompString(string) except +translate_exception
+
 
 cdef extern from "cantera/base/global.h" namespace "Cantera":
     cdef void CxxAddDirectory "Cantera::addDirectory" (string)
@@ -72,6 +74,7 @@ cdef extern from "cantera/base/global.h" namespace "Cantera":
     cdef string CxxGitCommit "Cantera::gitCommit" ()
     cdef cbool CxxDebugModeEnabled "Cantera::debugModeEnabled" ()
 
+
 cdef extern from "cantera/cython/utils_utils.h":
     cdef string get_cantera_version()
     cdef int get_sundials_version()
@@ -79,6 +82,7 @@ cdef extern from "cantera/cython/utils_utils.h":
         pass
 
     cdef void CxxSetLogger "setLogger" (CxxPythonLogger*)
+
 
 cdef string stringify(x) except *
 cdef pystr(string x)

@@ -45,6 +45,7 @@ cdef extern from "cantera/equil/MultiPhase.h" namespace "Cantera":
         double cp() except +translate_exception
         double volume() except +translate_exception
 
+
 cdef class Mixture:
     cdef CxxMultiPhase* mix
     cdef list _phases

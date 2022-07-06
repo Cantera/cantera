@@ -20,10 +20,12 @@ cdef extern from "cantera/cython/funcWrapper.h":
         PyObject* exceptionValue()
         void setExceptionValue(PyObject*)
 
+
 cdef extern from "cantera/numerics/Func1.h":
     cdef cppclass CxxTabulated1 "Cantera::Tabulated1":
         CxxTabulated1(int, double*, double*, string) except +translate_exception
         double eval(double) except +translate_exception
+
 
 cdef class Func1:
     cdef shared_ptr[CxxFunc1] _func

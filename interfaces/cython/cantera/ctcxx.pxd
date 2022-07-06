@@ -28,6 +28,7 @@ cdef extern from "cantera/cython/funcWrapper.h":
     cdef cppclass CxxUnits "Cantera::Units"
     cdef cppclass CxxUnitSystem "Cantera::UnitSystem"
 
+
 cdef extern from "<memory>":
     cppclass shared_ptr "std::shared_ptr" [T]:
         T* get()
