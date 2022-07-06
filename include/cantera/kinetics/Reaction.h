@@ -74,11 +74,11 @@ public:
 
     //! Ensure that the rate constant and other parameters for this reaction are valid.
     //! @since  New in Cantera 3.0.
-    virtual void check();
+    void check();
 
     //! Ensure that the rate constant and other parameters for this reaction are valid.
     //! @deprecated  To be removed after Cantera 3.0. Replaceable by check.
-    virtual void validate() {
+    void validate() {
         warn_deprecated("Reaction::validate",
             "Deprecated in Cantera 3.0 and to be removed thereafter; replaceable "
             "by Reaction::check.");
@@ -87,7 +87,7 @@ public:
 
     //! Perform validation checks that need access to a complete Kinetics objects, for
     // example to retrieve information about reactant / product species.
-    virtual void validate(Kinetics& kin) {
+    void validate(Kinetics& kin) {
         if (m_rate) {
             m_rate->validate(equation(), kin);
         }
@@ -102,7 +102,7 @@ public:
     AnyMap parameters(bool withInput=true) const;
 
     //! Set up reaction based on AnyMap *node*
-    virtual void setParameters(const AnyMap& node, const Kinetics& kin);
+    void setParameters(const AnyMap& node, const Kinetics& kin);
 
     //! Get validity flag of reaction
     bool valid() const {
@@ -184,7 +184,7 @@ protected:
     //! Store the parameters of a Reaction needed to reconstruct an identical
     //! object using the newReaction(AnyMap&, Kinetics&) function. Does not
     //! include user-defined fields available in the #input map.
-    virtual void getParameters(AnyMap& reactionNode) const;
+    void getParameters(AnyMap& reactionNode) const;
 
     //! Flag indicating whether reaction is set up correctly
     bool m_valid = true;
@@ -212,10 +212,20 @@ class ThirdBody
 public:
     explicit ThirdBody(double default_efficiency=1.0);
 
+    //! @todo  Remove default kinetics after removal of setEfficiencies
     ThirdBody(const AnyMap& node);
 
     //! Set third-body efficiencies from AnyMap *node*
+    //! @deprecated  To be removed after Cantera 3.0; renamed to setParameters
     void setEfficiencies(const AnyMap& node);
+
+    //! Set third-body efficiencies from AnyMap *node*
+    //! @since  New in Cantera 3.0
+    void setParameters(const AnyMap& node);
+
+    //! Get third-body efficiencies from AnyMap *node*
+    //! @since  New in Cantera 3.0
+    void getParameters(AnyMap& node) const;
 
     //! Get the third-body efficiency for species *k*
     double efficiency(const std::string& k) const;
@@ -255,8 +265,6 @@ public:
 
     virtual void setEquation(const std::string& equation, const Kinetics* kin=0);
     bool detectEfficiencies();
-    virtual void setParameters(const AnyMap& node, const Kinetics& kin);
-    virtual void getParameters(AnyMap& reactionNode) const;
 };
 
 
@@ -278,8 +286,6 @@ public:
     virtual std::string type() const;
 
     virtual void setEquation(const std::string& equation, const Kinetics* kin);
-    virtual void setParameters(const AnyMap& node, const Kinetics& kin);
-    virtual void getParameters(AnyMap& reactionNode) const;
 };
 
 

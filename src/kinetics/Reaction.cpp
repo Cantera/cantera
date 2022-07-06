@@ -159,6 +159,10 @@ void Reaction::getParameters(AnyMap& reactionNode) const
             }
         }
     }
+
+    if (m_third_body) {
+        m_third_body->getParameters(reactionNode);
+    }
 }
 
 void Reaction::setParameters(const AnyMap& node, const Kinetics& kin)
@@ -186,6 +190,10 @@ void Reaction::setParameters(const AnyMap& node, const Kinetics& kin)
     duplicate = node.getBool("duplicate", false);
     allow_negative_orders = node.getBool("negative-orders", false);
     allow_nonreactant_orders = node.getBool("nonreactant-orders", false);
+
+    if (m_third_body) {
+        m_third_body->setParameters(node);
+    }
 }
 
 void Reaction::setRate(shared_ptr<ReactionRate> rate)
@@ -499,14 +507,39 @@ ThirdBody::ThirdBody(double default_eff)
 
 ThirdBody::ThirdBody(const AnyMap& node)
 {
-    setEfficiencies(node);
+    setParameters(node);
 }
 
 void ThirdBody::setEfficiencies(const AnyMap& node)
 {
+    warn_deprecated("ThirdBody::setEfficiencies", node,
+        "To be removed after Cantera 3.0. Renamed to setParameters");
+    setParameters(node);
+}
+
+void ThirdBody::setParameters(const AnyMap& node)
+{
+    if (specified_collision_partner) {
+        return;
+    }
     default_efficiency = node.getDouble("default-efficiency", 1.0);
     if (node.hasKey("efficiencies")) {
         efficiencies = node["efficiencies"].asMap<double>();
+    }
+}
+
+void ThirdBody::getParameters(AnyMap& node) const
+{
+    if (!specified_collision_partner) {
+        if (mass_action) {
+            // @todo  remove once specialization is removed
+            node["type"] = "three-body";
+        }
+        node["efficiencies"] = efficiencies;
+        node["efficiencies"].setFlowStyle();
+        if (default_efficiency != 1.0) {
+            node["default-efficiency"] = default_efficiency;
+        }
     }
 }
 
@@ -609,31 +642,6 @@ void ThreeBodyReaction::setEquation(const std::string& equation, const Kinetics*
     products.erase("M");
 }
 
-void ThreeBodyReaction::setParameters(const AnyMap& node, const Kinetics& kin)
-{
-    if (node.empty()) {
-        // empty node: used by newReaction() factory loader
-        return;
-    }
-    Reaction::setParameters(node, kin);
-    if (!m_third_body->specified_collision_partner) {
-        m_third_body->setEfficiencies(node);
-    }
-}
-
-void ThreeBodyReaction::getParameters(AnyMap& reactionNode) const
-{
-    Reaction::getParameters(reactionNode);
-    if (!m_third_body->specified_collision_partner) {
-        reactionNode["type"] = "three-body";
-        reactionNode["efficiencies"] = m_third_body->efficiencies;
-        reactionNode["efficiencies"].setFlowStyle();
-        if (m_third_body->default_efficiency != 1.0) {
-            reactionNode["default-efficiency"] = m_third_body->default_efficiency;
-        }
-    }
-}
-
 FalloffReaction::FalloffReaction()
 {
     m_third_body.reset(new ThirdBody);
@@ -682,19 +690,6 @@ std::string FalloffReaction::type() const
     return "falloff";
 }
 
-void FalloffReaction::setParameters(const AnyMap& node, const Kinetics& kin)
-{
-    if (node.empty()) {
-        // empty node: used by newReaction() factory loader
-        return;
-    }
-    Reaction::setParameters(node, kin);
-
-    if (!m_third_body->specified_collision_partner) {
-        m_third_body->setEfficiencies(node);
-    }
-}
-
 void FalloffReaction::setEquation(const std::string& equation, const Kinetics* kin)
 {
     Reaction::setEquation(equation, kin);
@@ -735,20 +730,6 @@ void FalloffReaction::setEquation(const std::string& equation, const Kinetics* k
         m_third_body->default_efficiency = 0;
         m_third_body->efficiencies.emplace(third_body, 1.0);
         m_third_body->specified_collision_partner = true;
-    }
-}
-
-void FalloffReaction::getParameters(AnyMap& reactionNode) const
-{
-    Reaction::getParameters(reactionNode);
-    if (m_third_body->specified_collision_partner) {
-        // pass
-    } else if (m_third_body->efficiencies.size()) {
-        reactionNode["efficiencies"] = m_third_body->efficiencies;
-        reactionNode["efficiencies"].setFlowStyle();
-        if (m_third_body->default_efficiency != 1.0) {
-            reactionNode["default-efficiency"] = m_third_body->default_efficiency;
-        }
     }
 }
 
