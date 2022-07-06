@@ -234,14 +234,14 @@ public:
     //! @since  New in Cantera 3.0
     bool checkSpecies(const Reaction& rxn, const Kinetics& kin) const;
 
+    //! Name of the third body collider
+    std::string name = "M";
+
     //! Map of species to third body efficiency
     Composition efficiencies;
 
     //! The default third body efficiency for species not listed in #efficiencies.
     double default_efficiency;
-
-    //! Input explicitly specifies collision partner
-    bool specified_collision_partner = false;
 
     //! Third body is used by law of mass action
     //! (`true` for three-body reactions, `false` for falloff reactions)
