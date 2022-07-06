@@ -217,6 +217,7 @@ def build_thermodynamics_text(
         else:
             comment = note
             fmt_data["note"] = ""
+
         temperature_range = input_data["thermo"]["temperature-ranges"]
         if len(temperature_range) == 3:
             fmt_data["low_and_high_temp"] = low_and_high_temp.format(
@@ -646,11 +647,19 @@ def main():
 
     parser.add_argument("input", help="The input YAML filename. Required.")
     parser.add_argument(
-        "--phase-name", help="Name of the phase to load from the input."
+        "--phase-name", 
+        help=("Name of the phase to load from the input. Optional argument if input "
+              "file contains more than one phase definition. Cantera's default "
+              "behavior will load the first definition from the file."),
+        metavar="PHASE"
     )
-    parser.add_argument("--mechanism", help="The output mechanism filename.")
+    parser.add_argument(
+        "--mechanism", help="The output mechanism filename.", metavar="MECH"
+    )
     parser.add_argument("--thermo", help="The output thermodynamics filename.")
-    parser.add_argument("--transport", help="The output transport filename.")
+    parser.add_argument(
+        "--transport", help="The output transport filename.", metavar="TRAN"
+    )
     parser.add_argument(
         "--sort-elements",
         choices=[None, "alphabetical", "molecular-weight"],
@@ -667,10 +676,9 @@ def main():
     )
     parser.add_argument(
         "--overwrite",
-        choices=[True, False],
+        action="store_true",
         default=False,
-        type=bool,
-        help="Overwrite existing output files.",
+        help="If set, overwrite existing output files.",
     )
     parser.add_argument(
         "--validate",
