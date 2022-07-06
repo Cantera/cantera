@@ -56,7 +56,7 @@ public:
     void setEquation(const std::string& equation, const Kinetics* kin=0);
 
     //! The type of reaction
-    virtual std::string type() const;
+    std::string type() const;
 
     //! Calculate the units of the rate constant. These are determined by the units
     //! of the standard concentration of the reactant species' phases and the phase
@@ -261,10 +261,6 @@ public:
                       const ArrheniusRate& rate, const ThirdBody& tbody);
 
     ThreeBodyReaction(const AnyMap& node, const Kinetics& kin);
-
-    virtual std::string type() const {
-        return "three-body";
-    }
 };
 
 
@@ -282,8 +278,6 @@ public:
                     const ReactionRate& rate, const ThirdBody& tbody);
 
     FalloffReaction(const AnyMap& node, const Kinetics& kin);
-
-    virtual std::string type() const;
 };
 
 
