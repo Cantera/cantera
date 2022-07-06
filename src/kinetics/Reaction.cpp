@@ -205,17 +205,29 @@ void Reaction::setRate(shared_ptr<ReactionRate> rate)
         m_rate = rate;
     }
 
-    if (reactants.count("(+M)") && std::dynamic_pointer_cast<ChebyshevRate>(m_rate)) {
-        warn_deprecated("Chebyshev reaction equation", input, "Specifying '(+M)' "
-            "in the reaction equation for Chebyshev reactions is deprecated.");
-        // remove optional third body notation
-        reactants.erase("(+M)");
-        products.erase("(+M)");
-    }
-
-    if (reactants.count("M") && std::dynamic_pointer_cast<PlogRate>(m_rate)) {
-        throw InputFileError("Reaction::setRate", input, "Found superfluous 'M' in "
-            "pressure-dependent-Arrhenius reaction.");
+    if (m_third_body) {
+        if (m_third_body->name == "MM") {
+            throw InputFileError("Reaction::setRate", input,
+                "Reactants for reaction '{}'\n"
+                "contain multiple third body colliders.", equation());
+        } else if (std::dynamic_pointer_cast<ChebyshevRate>(m_rate)) {
+            warn_deprecated("Chebyshev reaction equation", input, "Specifying '(+M)' "
+                "in the reaction equation for Chebyshev reactions is deprecated.");
+            // remove optional third body notation
+            reactants.erase("(+M)");
+            products.erase("(+M)");
+            m_third_body.reset();
+        } else if (std::dynamic_pointer_cast<PlogRate>(m_rate)) {
+            throw InputFileError("Reaction::setRate", input,
+                "Found superfluous '{}' in pressure-dependent-Arrhenius reaction.",
+                m_third_body->name);
+        }
+    } else {
+        if (std::dynamic_pointer_cast<FalloffRate>(m_rate)) {
+            throw InputFileError("Reaction::setRate", input,
+                "Reactants for reaction '{}'\n"
+                "do not contain a valid pressure-dependent third body", equation());
+        }
     }
 }
 
@@ -267,6 +279,90 @@ std::string Reaction::equation() const
 void Reaction::setEquation(const std::string& equation, const Kinetics* kin)
 {
     parseReactionEquation(*this, equation, input, kin);
+
+    std::string rate_type = input.getString("type", "");
+    if (rate_type == "two-temperature-plasma") {
+        // two-temperature-plasma reactions do not use third bodies
+        return;
+    } else if (rate_type == "elementary") {
+        // user override
+        return;
+    } else if (kin && kin->thermo(kin->reactionPhaseIndex()).nDim() != 3) {
+        // interface reactions
+        return;
+    }
+
+    std::string third_body;
+    size_t count = 0;
+    for (const auto& reac : reactants) {
+        // detect explicitly specified collision partner
+        if (products.count(reac.first)) {
+            third_body = reac.first;
+            count++;
+        }
+    }
+
+    if (count == 0) {
+        if (rate_type == "three-body") {
+            throw InputFileError("Reaction::setEquation", input,
+                "Reactants for reaction '{}'\n"
+                "do not contain a valid third body collider", equation);
+        }
+        return;
+    } else if (count > 1) {
+        third_body = "MM";
+        // @todo  remove 'return'
+        return;
+    } else if (ba::starts_with(third_body, "(+")) {
+        // third body uses Falloff notation
+    } else if (third_body != "M") {
+        // check for implicitly defined three-body reaction with explicit third body
+        size_t nreac = 0;
+        size_t nprod = 0;
+
+        // ensure that all reactants have integer stoichiometric coefficients
+        for (const auto& reac : reactants) {
+            if (trunc(reac.second) != reac.second) {
+                return;
+            }
+            nreac += static_cast<size_t>(reac.second);
+        }
+
+        // ensure that all products have integer stoichiometric coefficients
+        for (const auto& prod : products) {
+            if (trunc(prod.second) != prod.second) {
+                return;
+            }
+            nprod += static_cast<size_t>(prod.second);
+        }
+
+        // either reactant or product side involves exactly three species
+        if (nreac != 3 && nprod != 3) {
+            return;
+        }
+    }
+
+    m_third_body.reset(new ThirdBody(third_body));
+
+    // adjust reactant coefficients
+    auto reac = reactants.find(third_body);
+    if (reac->second < 0) {
+        // pass
+    } else if (trunc(reac->second) != 1) {
+        reac->second -= 1.;
+    } else {
+        reactants.erase(reac);
+    }
+
+    // adjust product coefficients
+    auto prod = products.find(third_body);
+    if (prod->second < 0) {
+        // pass
+    } else if (trunc(prod->second) != 1) {
+        prod->second -= 1.;
+    } else {
+        products.erase(prod);
+    }
 }
 
 std::string Reaction::type() const
@@ -477,6 +573,26 @@ ThirdBody::ThirdBody(double default_eff)
 {
 }
 
+ThirdBody::ThirdBody(const std::string& third_body)
+{
+    if (ba::starts_with(third_body, "(+ ")) {
+        mass_action = false;
+        name = third_body.substr(3, third_body.size() - 4);
+    } else if (ba::starts_with(third_body, "(+")) {
+        mass_action = false;
+        name = third_body.substr(2, third_body.size() - 3);
+    } else {
+        name = third_body;
+    }
+
+    if (name == "M") {
+        default_efficiency = 1.;
+    } else {
+        default_efficiency = 0.;
+        efficiencies[name] = 1.;
+    }
+}
+
 ThirdBody::ThirdBody(const AnyMap& node)
 {
     setParameters(node);
@@ -578,65 +694,6 @@ ThreeBodyReaction::ThreeBodyReaction(const AnyMap& node, const Kinetics& kin)
     }
 }
 
-bool ThreeBodyReaction::detectEfficiencies()
-{
-    std::string third_body;
-    size_t count = 0;
-    for (const auto& reac : reactants) {
-        // detect explicitly specified collision partner
-        if (products.count(reac.first)) {
-            third_body = reac.first;
-            count++;
-        }
-    }
-
-    if (count == 0) {
-        return false;
-    } else if (count > 1) {
-        throw CanteraError("ThreeBodyReaction::detectEfficiencies",
-            "Found more than one explicitly specified collision partner\n"
-            "in reaction '{}'.", equation());
-    }
-
-    m_third_body->name = third_body;
-    m_third_body->default_efficiency = 0.;
-    m_third_body->efficiencies[third_body] = 1.;
-
-    // adjust reactant coefficients
-    auto reac = reactants.find(third_body);
-    if (trunc(reac->second) != 1) {
-        reac->second -= 1.;
-    } else {
-        reactants.erase(reac);
-    }
-
-    // adjust product coefficients
-    auto prod = products.find(third_body);
-    if (trunc(prod->second) != 1) {
-        prod->second -= 1.;
-    } else {
-        products.erase(prod);
-    }
-
-    return true;
-}
-
-void ThreeBodyReaction::setEquation(const std::string& equation, const Kinetics* kin)
-{
-    Reaction::setEquation(equation, kin);
-    if (reactants.count("M") != 1 || products.count("M") != 1) {
-        if (!detectEfficiencies()) {
-            throw InputFileError("ThreeBodyReaction::setParameters", input,
-                "Reaction equation '{}' does not contain third body 'M'",
-                equation);
-        }
-        return;
-    }
-
-    reactants.erase("M");
-    products.erase("M");
-}
-
 FalloffReaction::FalloffReaction()
 {
     m_third_body.reset(new ThirdBody);
@@ -683,47 +740,6 @@ std::string FalloffReaction::type() const
         return "chemically-activated";
     }
     return "falloff";
-}
-
-void FalloffReaction::setEquation(const std::string& equation, const Kinetics* kin)
-{
-    Reaction::setEquation(equation, kin);
-
-    // Detect falloff third body based on partial setup;
-    // parseReactionEquation (called via Reaction::setEquation) sets the
-    // stoichiometric coefficient of the falloff species to -1.
-    std::string third_body_str;
-    std::string third_body;
-    for (auto& reactant : reactants) {
-        if (reactant.second == -1 && ba::starts_with(reactant.first, "(+")) {
-            third_body_str = reactant.first;
-            third_body = third_body_str.substr(2, third_body_str.size() - 3);
-            break;
-        }
-    }
-
-    // Equation must contain a third body, and it must appear on both sides
-    if (third_body_str == "") {
-        throw InputFileError("FalloffReaction::setParameters", input,
-            "Reactants for reaction '{}' do not contain a pressure-dependent "
-            "third body", equation);
-    }
-    if (products.count(third_body_str) == 0) {
-        throw InputFileError("FalloffReaction::setParameters", input,
-            "Unable to match third body '{}' in reactants and products of "
-            "reaction '{}'", third_body, equation);
-    }
-
-    // Remove the dummy species
-    reactants.erase(third_body_str);
-    products.erase(third_body_str);
-
-    m_third_body->name = third_body;
-    if (third_body != "M") {
-        // Specific species is listed as the third body
-        m_third_body->default_efficiency = 0;
-        m_third_body->efficiencies.emplace(third_body, 1.0);
-    }
 }
 
 bool isThreeBody(const Reaction& R)
@@ -813,18 +829,21 @@ void parseReactionEquation(Reaction& R, const std::string& equation,
             tokens[i] == "<=>" || tokens[i] == "=" || tokens[i] == "=>") {
             std::string species = tokens[i-1];
 
-            double stoich;
-            if (last_used != npos && tokens[last_used] == "(+") {
+            double stoich = 1.0;
+            bool mass_action = true;
+            if (last_used != npos && tokens[last_used] == "(+"
+                    && ba::ends_with(species, ")")) {
                 // Falloff third body with space, such as "(+ M)"
+                mass_action = false;
                 species = "(+" + species;
-                stoich = -1;
-            } else if (last_used == i-1 && ba::starts_with(species, "(+")
-                       && ba::ends_with(species, ")")) {
+            } else if (last_used == i - 1 && ba::starts_with(species, "(+")
+                    && ba::ends_with(species, ")")) {
                 // Falloff 3rd body written without space, such as "(+M)"
-                stoich = -1;
-            } else if (last_used == i-2) { // Species with no stoich. coefficient
-                stoich = 1.0;
-            } else if (last_used == i-3) { // Stoich. coefficient and species
+                mass_action = false;
+            } else if (last_used == i - 2) {
+                // Species with no stoich. coefficient
+            } else if (last_used == i - 3) {
+                // Stoich. coefficient and species
                 try {
                     stoich = fpValueCheck(tokens[i-2]);
                 } catch (CanteraError& err) {
@@ -839,7 +858,7 @@ void parseReactionEquation(Reaction& R, const std::string& equation,
                     (last_used == npos) ? "n/a" : tokens[last_used]);
             }
             if (!kin || (kin->kineticsSpeciesIndex(species) == npos
-                         && stoich != -1 && species != "M"))
+                         && mass_action && species != "M"))
             {
                 R.setValid(false);
             }
