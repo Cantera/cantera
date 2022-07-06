@@ -327,17 +327,6 @@ void updateUndeclared(std::vector<std::string>& undeclared,
     }
 }
 
-std::pair<std::vector<std::string>, bool> Reaction::undeclaredThirdBodies(
-        const Kinetics& kin) const
-{
-    std::vector<std::string> undeclared;
-    if (m_third_body) {
-        updateUndeclared(undeclared, m_third_body->efficiencies, kin);
-        return std::make_pair(undeclared, m_third_body->specified_collision_partner);
-    }
-    return std::make_pair(undeclared, false);
-}
-
 void Reaction::checkBalance(const Kinetics& kin) const
 {
     Composition balr, balp;
@@ -443,25 +432,8 @@ bool Reaction::checkSpecies(const Kinetics& kin) const
         }
     }
 
-    // Use helper function while there is no uniform handling of third bodies
-    auto third = undeclaredThirdBodies(kin);
-    undeclared = third.first;
-    bool specified_collision_partner_ = third.second;
-    if (!undeclared.empty()) {
-        if (!kin.skipUndeclaredThirdBodies()) {
-            if (input.hasKey("efficiencies")) {
-                throw InputFileError("Reaction::checkSpecies", input["efficiencies"],
-                    "Reaction '{}'\n"
-                    "defines third-body efficiencies for undeclared species: '{}'",
-                    equation(), ba::join(undeclared, "', '"));
-            }
-            // Error for specified ThirdBody or empty input AnyMap
-            throw InputFileError("Reaction::checkSpecies", input, "Reaction '{}'\n"
-                "is a three-body reaction with undeclared species: '{}'",
-                equation(), ba::join(undeclared, "', '"));
-        } else if (kin.skipUndeclaredSpecies() && specified_collision_partner_) {
-            return false;
-        }
+    if (m_third_body) {
+        return m_third_body->checkSpecies(*this, kin);
     }
 
     checkBalance(kin);
@@ -558,6 +530,30 @@ std::string ThirdBody::collider() const
         return " + " + name;
     }
     return " (+" + name + ")";
+}
+
+bool ThirdBody::checkSpecies(const Reaction& rxn, const Kinetics& kin) const
+{
+    std::vector<std::string> undeclared;
+    updateUndeclared(undeclared, efficiencies, kin);
+
+    if (!undeclared.empty()) {
+        if (!kin.skipUndeclaredThirdBodies()) {
+            if (rxn.input.hasKey("efficiencies")) {
+                throw InputFileError("ThirdBody::checkSpecies",
+                    rxn.input["efficiencies"], "Reaction '{}'\n"
+                    "defines third-body efficiencies for undeclared species: '{}'",
+                    rxn.equation(), ba::join(undeclared, "', '"));
+            }
+            // Error for specified ThirdBody or empty input AnyMap
+            throw InputFileError("ThirdBody::checkSpecies", rxn.input, "Reaction '{}'\n"
+                "is a three-body reaction with undeclared species: '{}'",
+                rxn.equation(), ba::join(undeclared, "', '"));
+        } else if (kin.skipUndeclaredSpecies() && specified_collision_partner) {
+            return false;
+        }
+    }
+    return true;
 }
 
 ThreeBodyReaction::ThreeBodyReaction()
