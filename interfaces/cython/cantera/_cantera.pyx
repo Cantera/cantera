@@ -31,7 +31,7 @@ bootstrap_cython_submodules()
 # Import the contents of the individual .pyx files
 from ._onedim import *
 from ._utils import *
-from .base import *
+from .solutionbase import *
 from .delegator import *
 from .func1 import *
 from .kinetics import *

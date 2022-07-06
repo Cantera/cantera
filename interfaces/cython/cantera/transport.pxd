@@ -5,7 +5,7 @@
 #distutils: language = c++
 
 from .ctcxx cimport *
-from .base cimport *
+from .solutionbase cimport *
 
 cdef extern from "cantera/transport/Transport.h" namespace "Cantera":
     cdef cppclass CxxTransport "Cantera::Transport":

@@ -2,7 +2,7 @@
 #distutils: language = c++
 
 from .ctcxx cimport *
-from .base cimport *
+from .solutionbase cimport *
 
 cdef extern from "cantera/thermo/Species.h" namespace "Cantera":
     cdef cppclass CxxSpeciesThermo "Cantera::SpeciesThermoInterpType"

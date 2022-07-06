@@ -5,7 +5,7 @@
 #distutils: language=c++
 
 from .ctcxx cimport *
-from .base cimport *
+from .solutionbase cimport *
 from .kinetics cimport *
 from .func1 cimport *
 from .thermo cimport *
