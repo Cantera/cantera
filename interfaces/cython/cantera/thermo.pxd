@@ -201,7 +201,7 @@ cdef extern from "cantera/thermo/PlasmaPhase.h":
         double meanElectronEnergy()
         size_t nElectronEnergyLevels() except +translate_exception
 
-cdef extern from "cantera/cython/wrappers.h":
+cdef extern from "cantera/cython/thermo_utils.h":
     # ThermoPhase composition
     cdef void thermo_getMassFractions(CxxThermoPhase*, double*) except +translate_exception
     cdef void thermo_setMassFractions(CxxThermoPhase*, double*) except +translate_exception

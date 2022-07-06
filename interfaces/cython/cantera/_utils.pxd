@@ -4,7 +4,6 @@
 #cython: language_level=3
 #distutils: language=c++
 
-from cython.operator cimport dereference as deref, preincrement as inc
 from libcpp.unordered_map cimport unordered_map
 
 from .ctcxx cimport *
@@ -73,7 +72,7 @@ cdef extern from "cantera/base/global.h" namespace "Cantera":
     cdef string CxxGitCommit "Cantera::gitCommit" ()
     cdef cbool CxxDebugModeEnabled "Cantera::debugModeEnabled" ()
 
-cdef extern from "cantera/cython/wrappers.h":
+cdef extern from "cantera/cython/utils_utils.h":
     cdef string get_cantera_version()
     cdef int get_sundials_version()
     cdef cppclass CxxPythonLogger "PythonLogger":
