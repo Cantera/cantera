@@ -19,6 +19,7 @@ cdef extern from "cantera/base/YamlWriter.h" namespace "Cantera":
         void skipUserDefined(cbool)
         void setUnitSystem(CxxUnitSystem&) except +translate_exception
 
+
 cdef class YamlWriter:
     cdef shared_ptr[CxxYamlWriter] _writer
     cdef CxxYamlWriter* writer

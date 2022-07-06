@@ -19,9 +19,11 @@ cdef extern from "<map>" namespace "std":
         pair[iterator, bint] insert(pair[T, U]) nogil
         iterator find(T&) nogil
 
+
 cdef extern from "cantera/kinetics/ReactionRateFactory.h" namespace "Cantera":
     cdef shared_ptr[CxxReactionRate] CxxNewReactionRate "newReactionRate" (string) except +translate_exception
     cdef shared_ptr[CxxReactionRate] CxxNewReactionRate "newReactionRate" (CxxAnyMap&) except +translate_exception
+
 
 cdef extern from "cantera/kinetics/ReactionRate.h" namespace "Cantera":
     cdef cppclass CxxReactionRate "Cantera::ReactionRate":
@@ -31,6 +33,7 @@ cdef extern from "cantera/kinetics/ReactionRate.h" namespace "Cantera":
         double eval(double, double) except +translate_exception
         double eval(double, vector[double]&) except +translate_exception
         CxxAnyMap parameters() except +translate_exception
+
 
 cdef extern from "cantera/kinetics/Arrhenius.h" namespace "Cantera":
     cdef cppclass CxxArrheniusBase "Cantera::ArrheniusBase" (CxxReactionRate):
@@ -57,11 +60,13 @@ cdef extern from "cantera/kinetics/Arrhenius.h" namespace "Cantera":
         CxxBlowersMaselRate(CxxAnyMap) except +translate_exception
         CxxBlowersMaselRate(double, double, double, double)
 
+
 cdef extern from "cantera/kinetics/TwoTempPlasmaRate.h" namespace "Cantera":
     cdef cppclass CxxTwoTempPlasmaRate "Cantera::TwoTempPlasmaRate" (CxxArrheniusBase):
         CxxTwoTempPlasmaRate(CxxAnyMap) except +translate_exception
         CxxTwoTempPlasmaRate(double, double, double, double)
         double activationElectronEnergy()
+
 
 cdef extern from "cantera/base/Array.h" namespace "Cantera":
     cdef cppclass CxxArray2D "Cantera::Array2D":
@@ -73,9 +78,11 @@ cdef extern from "cantera/base/Array.h" namespace "Cantera":
         size_t nRows()
         size_t nColumns()
 
+
 cdef extern from "cantera/cython/wrappers.h":
     # workaround for Cython assignment limitations
     cdef void CxxArray2D_set(CxxArray2D, size_t, size_t, double)
+
 
 cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
     cdef cppclass CxxKinetics "Cantera::Kinetics"

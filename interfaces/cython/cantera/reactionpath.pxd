@@ -8,6 +8,7 @@ cdef extern from "<sstream>":
     cdef cppclass CxxStringStream "std::stringstream":
         string str()
 
+
 cdef extern from "cantera/kinetics/ReactionPath.h":
     cdef enum CxxFlow_t "flow_t":
         CxxNetFlow "Cantera::NetFlow"
@@ -37,6 +38,7 @@ cdef extern from "cantera/kinetics/ReactionPath.h":
     cdef cppclass CxxReactionPathBuilder "Cantera::ReactionPathBuilder":
         void init(CxxStringStream&, CxxKinetics&) except +translate_exception
         void build(CxxKinetics&, string&, CxxStringStream&, CxxReactionPathDiagram&, cbool)
+
 
 cdef class ReactionPathDiagram:
     cdef CxxReactionPathDiagram diagram

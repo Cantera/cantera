@@ -25,6 +25,7 @@ cdef extern from "cantera/thermo/Species.h" namespace "Cantera":
     cdef shared_ptr[CxxSpecies] CxxNewSpecies "newSpecies" (CxxAnyMap&) except +translate_exception
     cdef vector[shared_ptr[CxxSpecies]] CxxGetSpecies "getSpecies" (CxxAnyValue&) except +translate_exception
 
+
 cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
     ctypedef enum ThermoBasis:
         mass "Cantera::ThermoBasis::mass",
@@ -180,6 +181,7 @@ cdef extern from "cantera/thermo/SurfPhase.h":
         void setCoveragesNoNorm(double*) except +translate_exception
         void getCoverages(double*) except +translate_exception
 
+
 cdef extern from "cantera/thermo/PlasmaPhase.h":
     cdef cppclass CxxPlasmaPhase "Cantera::PlasmaPhase":
         CxxPlasmaPhase()
@@ -200,6 +202,7 @@ cdef extern from "cantera/thermo/PlasmaPhase.h":
         double isotropicShapeFactor()
         double meanElectronEnergy()
         size_t nElectronEnergyLevels() except +translate_exception
+
 
 cdef extern from "cantera/cython/thermo_utils.h":
     # ThermoPhase composition
@@ -232,6 +235,7 @@ cdef extern from "cantera/cython/thermo_utils.h":
     cdef void thermo_getMolecularWeights(CxxThermoPhase*, double*) except +translate_exception
     cdef void thermo_getCharges(CxxThermoPhase*, double*) except +translate_exception
 
+
 ctypedef void (*thermoMethod1d)(CxxThermoPhase*, double*) except +translate_exception
 
 cdef extern from "cantera/thermo/Elements.h" namespace "Cantera":
@@ -245,6 +249,7 @@ cdef extern from "cantera/thermo/Elements.h" namespace "Cantera":
     string getElementSymbol(int atomicNumber) except +translate_exception
     string getElementName(string ename) except +translate_exception
     string getElementName(int atomicNumber) except +translate_exception
+
 
 cdef class Species:
     cdef shared_ptr[CxxSpecies] _species

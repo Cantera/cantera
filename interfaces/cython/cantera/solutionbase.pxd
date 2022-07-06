@@ -10,17 +10,21 @@ cdef extern from "cantera/thermo/ThermoFactory.h" namespace "Cantera":
     cdef cppclass CxxThermoPhase "Cantera::ThermoPhase"
     cdef shared_ptr[CxxThermoPhase] newThermo(string) except +translate_exception
 
+
 cdef extern from "cantera/kinetics/KineticsFactory.h" namespace "Cantera":
     cdef cppclass CxxKinetics "Cantera::Kinetics"
     cdef shared_ptr[CxxKinetics] newKinetics (string) except +translate_exception
+
 
 cdef extern from "cantera/transport/TransportFactory.h" namespace "Cantera":
     cdef cppclass CxxTransport "Cantera::Transport"
     cdef shared_ptr[CxxTransport] newTransport(CxxThermoPhase*, string) except +translate_exception
 
+
 cdef extern from "cantera/base/Interface.h" namespace "Cantera":
     cdef shared_ptr[CxxSolution] newInterface(
         string, string, vector[string]) except +translate_exception
+
 
 cdef extern from "cantera/base/Solution.h" namespace "Cantera":
     cdef cppclass CxxKinetics "Cantera::Kinetics"
@@ -49,6 +53,7 @@ cdef extern from "cantera/base/Solution.h" namespace "Cantera":
         string, string, string, vector[shared_ptr[CxxSolution]]) except +translate_exception
     cdef shared_ptr[CxxSolution] newSolution (
         CxxAnyMap&, CxxAnyMap&, string, vector[shared_ptr[CxxSolution]]) except +translate_exception
+
 
 ctypedef void (*transportMethod1d)(CxxTransport*, double*) except +translate_exception
 ctypedef void (*transportMethod2d)(CxxTransport*, size_t, double*) except +translate_exception
