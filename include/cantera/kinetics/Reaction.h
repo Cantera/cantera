@@ -16,6 +16,7 @@
 #include "Falloff.h"
 #include "InterfaceRate.h"
 #include "PlogRate.h"
+#include "TwoTempPlasmaRate.h"
 
 namespace Cantera
 {
@@ -52,7 +53,7 @@ public:
 
     //! Set the reactants and products based on the reaction equation. If a Kinetics
     //! object is provided, it is used to check that all reactants and products exist.
-    virtual void setEquation(const std::string& equation, const Kinetics* kin=0);
+    void setEquation(const std::string& equation, const Kinetics* kin=0);
 
     //! The type of reaction
     virtual std::string type() const;
@@ -204,6 +205,7 @@ class ThirdBody
 public:
     explicit ThirdBody(double default_efficiency=1.0);
 
+    ThirdBody(const std::string& third_body);
     ThirdBody(const AnyMap& node);
 
     //! Set third-body efficiencies from AnyMap *node*
@@ -263,9 +265,6 @@ public:
     virtual std::string type() const {
         return "three-body";
     }
-
-    virtual void setEquation(const std::string& equation, const Kinetics* kin=0);
-    bool detectEfficiencies();
 };
 
 
@@ -285,8 +284,6 @@ public:
     FalloffReaction(const AnyMap& node, const Kinetics& kin);
 
     virtual std::string type() const;
-
-    virtual void setEquation(const std::string& equation, const Kinetics* kin);
 };
 
 
