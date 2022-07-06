@@ -189,14 +189,6 @@ protected:
     //! Flag indicating whether reaction is set up correctly
     bool m_valid = true;
 
-    //! Helper function returning vector of undeclared third body species
-    //! and a boolean expression indicating whether the third body is specified.
-    //! @note The function is used by the checkSpecies method and only needed as long as
-    //! there is no unified approach to handle third body collision partners.
-    //! @param kin  Kinetics object
-    virtual std::pair<std::vector<std::string>, bool>
-        undeclaredThirdBodies(const Kinetics& kin) const;
-
     //! Reaction rate used by generic reactions
     shared_ptr<ReactionRate> m_rate;
 
@@ -212,7 +204,6 @@ class ThirdBody
 public:
     explicit ThirdBody(double default_efficiency=1.0);
 
-    //! @todo  Remove default kinetics after removal of setEfficiencies
     ThirdBody(const AnyMap& node);
 
     //! Set third-body efficiencies from AnyMap *node*
@@ -231,7 +222,17 @@ public:
     double efficiency(const std::string& k) const;
 
     //! Name or placeholder of third body collider, for example `+ M`
+    //! @since  New in Cantera 3.0
     std::string collider() const;
+
+    //! Verify that all species involved in collision efficiences are defined in the
+    //! Kinetics object. The function returns true if all species are found, and raises
+    //! an exception unless the Kinetics object is configured to skip undeclared
+    //! species, in which case false is returned.
+    //! @param rxn  Reaction object
+    //! @param kin  Kinetics object
+    //! @since  New in Cantera 3.0
+    bool checkSpecies(const Reaction& rxn, const Kinetics& kin) const;
 
     //! Map of species to third body efficiency
     Composition efficiencies;
