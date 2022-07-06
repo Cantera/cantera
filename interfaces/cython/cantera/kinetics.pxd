@@ -2,7 +2,7 @@
 #distutils: language = c++
 
 from .ctcxx cimport *
-from .base cimport *
+from .solutionbase cimport *
 
 cdef extern from "cantera/numerics/eigen_sparse.h" namespace "Eigen":
     cdef cppclass CxxSparseMatrix "Eigen::SparseMatrix<double>":

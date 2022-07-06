@@ -14,7 +14,7 @@ thermodynamic, chemical kinetic, and (optionally) transport properties.
 
 .. autoclass:: Solution(infile='', name='', *, origin=None, source=None, yaml=None, thermo=None, species=(), kinetics=None, reactions=())
 
-.. autoclass:: cantera._base._SolutionBase()
+.. autoclass:: cantera.solutionbase._SolutionBase()
 
 .. autoclass:: Interface(infile='', name='', adjacent=(), *, origin=None, source=None, yaml=None, thermo=None, species=(), kinetics=None, reactions=())
 

@@ -4,7 +4,7 @@
 import warnings
 import numpy as np
 
-from .base cimport *
+from .solutionbase cimport *
 from .thermo cimport *
 from ._utils cimport *
 
