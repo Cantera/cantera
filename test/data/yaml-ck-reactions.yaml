@@ -16,7 +16,7 @@ phases:
   state:
     T: 300.0
     P: 1.01325e+05
-    
+
 species:
 - name: AR
   composition: {Ar: 1}
@@ -77,7 +77,7 @@ species:
     model: gas
     geometry: atom
     well-depth: 145.0
-    diameter: 2.05  
+    diameter: 2.05
 - name: H2
   composition: {H: 2}
   thermo:
@@ -95,7 +95,7 @@ species:
     well-depth: 38.0
     diameter: 2.92
     polarizability: 0.79
-    rotational-relaxation: 280.0  
+    rotational-relaxation: 280.0
 - name: H2O
   composition: {H: 2, O: 1}
   thermo:
@@ -225,7 +225,7 @@ reactions:
   - {P: 10.0 atm, A: 1.2866e+47, b: -9.0246, Ea: 3.97965e+04}
   - {P: 100.0 atm, A: 5.9632e+56, b: -11.529, Ea: 5.25996e+04}
   note: PLOG
-- equation: O + H => O + H  # Reaction 11
+- equation: H2 + O => H2O  # Reaction 11
   type: pressure-dependent-Arrhenius
   rate-constants:
   - {P: 0.001316 atm, A: 1.23e+08, b: 1.53, Ea: 4737.0}

@@ -63,17 +63,17 @@ class TestKinetics(utilities.CanteraTest):
         fwd_rates_legacy = self.phase.forward_rate_constants
         ct.use_legacy_rate_constants(False)
         fwd_rates = self.phase.forward_rate_constants
-        ix_3b = np.array([r.reaction_type == "three-body" for r in self.phase.reactions()])
+        ix_3b = np.array([r.reaction_type == "three-body-Arrhenius" for r in self.phase.reactions()])
         ix_other = ix_3b == False
 
         self.assertArrayNear(fwd_rates_legacy[ix_other], fwd_rates[ix_other])
         self.assertFalse((fwd_rates_legacy[ix_3b] == fwd_rates[ix_3b]).any())
 
     def test_reaction_type(self):
-        self.assertIn(self.phase.reaction(0).reaction_type, "three-body")
-        self.assertIn(self.phase.reaction(2).reaction_type, "reaction")
+        self.assertIn(self.phase.reaction(0).reaction_type, "three-body-Arrhenius")
+        self.assertIn(self.phase.reaction(2).reaction_type, "Arrhenius")
         self.assertIn(self.phase.reaction(2).rate.type, "Arrhenius")
-        self.assertEqual(self.phase.reaction(21).reaction_type, "falloff")
+        self.assertEqual(self.phase.reaction(21).reaction_type, "falloff-Troe")
 
         with self.assertRaisesRegex(ct.CanteraError, "outside valid range"):
             self.phase.reaction(33).reaction_type
@@ -1115,10 +1115,10 @@ class TestReaction(utilities.CanteraTest):
                 " efficiencies: {H2: 2.4, H2O: 15.4, AR: 0.83}}",
                 self.gas)
 
-        self.assertTrue(isinstance(r, ct.ThreeBodyReaction))
+        assert r.third_body is not None
         self.assertEqual(r.reactants['O'], 2)
         self.assertEqual(r.products['O2'], 1)
-        self.assertEqual(r.efficiencies['H2O'], 15.4)
+        self.assertEqual(r.third_body.efficiencies['H2O'], 15.4)
         self.assertEqual(r.rate.temperature_exponent, -1.0)
         self.assertIn('O', r)
         self.assertIn('O2', r)
@@ -1197,7 +1197,6 @@ class TestReaction(utilities.CanteraTest):
 
     def test_negative_A_falloff(self):
         species = ct.Species.list_from_file("gri30.yaml")
-        r = ct.FalloffReaction('NH:1, NO:1', 'N2O:1, H:1')
         low_rate = ct.Arrhenius(2.16e13, -0.23, 0)
         high_rate = ct.Arrhenius(-8.16e12, -0.5, 0)
 
@@ -1213,15 +1212,15 @@ class TestReaction(utilities.CanteraTest):
             rate.low_rate = low_rate
 
         rate.low_rate = ct.Arrhenius(-2.16e13, -0.23, 0)
-        r.rate = rate
+        rxn = ct.Reaction("NH:1, NO:1", "N2O:1, H:1", rate, third_body=ct.ThirdBody())
         gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
-                          species=species, reactions=[r])
+                          species=species, reactions=[rxn])
         self.assertLess(gas.forward_rate_constants, 0)
 
     def test_threebody(self):
-        r = ct.ThreeBodyReaction({"O":1, "H":1}, {"OH":1},
-                                 ct.ArrheniusRate(5e11, -1.0, 0.0))
-        r.efficiencies = {"AR":0.7, "H2":2.0, "H2O":6.0}
+        tb = ct.ThirdBody(efficiencies={"AR":0.7, "H2":2.0, "H2O":6.0})
+        r = ct.Reaction({"O":1, "H":1}, {"OH":1},
+                        ct.ArrheniusRate(5e11, -1.0, 0.0), third_body=tb)
 
         gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
                            species=self.species, reactions=[r])
@@ -1235,9 +1234,10 @@ class TestReaction(utilities.CanteraTest):
     def test_falloff(self):
         high_rate = ct.Arrhenius(7.4e10, -0.37, 0.0)
         low_rate = ct.Arrhenius(2.3e12, -0.9, -1700 * 1000 * 4.184)
-        r = ct.FalloffReaction("OH:2", "H2O2:1",
-                ct.TroeRate(low_rate, high_rate, [0.7346, 94, 1756, 5182]))
-        r.efficiencies = {"AR":0.7, "H2":2.0, "H2O":6.0}
+        tb = ct.ThirdBody(efficiencies={"AR":0.7, "H2":2.0, "H2O":6.0})
+        r = ct.Reaction("OH:2", "H2O2:1",
+                        ct.TroeRate(low_rate, high_rate, [0.7346, 94, 1756, 5182]),
+                        third_body=tb)
         self.assertEqual(r.rate.type, "Troe")
 
         gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
@@ -1566,7 +1566,7 @@ class TestReaction(utilities.CanteraTest):
         r1 = gas.reaction(49)
         r2 = gas.reaction(53)
         self.assertEqual(r2.rate.type, "Troe")
-        self.assertEqual(r1.efficiencies, r2.efficiencies)
+        self.assertEqual(r1.third_body.efficiencies, r2.third_body.efficiencies)
         r2.rate = r1.rate
 
         gas.modify_reaction(53, r2)
