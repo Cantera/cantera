@@ -40,34 +40,39 @@ Reaction::Reaction(const Composition& reactants_,
 Reaction::Reaction(const AnyMap& node, const Kinetics& kin)
     : Reaction()
 {
-    setParameters(node, kin);
+    std::string rate_type = node.getString("type", "Arrhenius");
+    if (rate_type == "falloff" || rate_type == "chemically-activated") {
+        m_third_body.reset(new ThirdBody);
+    } else if (rate_type == "three-body") {
+        // @todo make this optional
+        m_third_body.reset(new ThirdBody);
+    }
+
     if (kin.nPhases()) {
         size_t nDim = kin.thermo(kin.reactionPhaseIndex()).nDim();
         if (nDim == 3) {
+            setParameters(node, kin);
             setRate(newReactionRate(node, calculateRateCoeffUnits(kin)));
         } else {
             AnyMap rateNode = node;
-            if (!rateNode.hasKey("type")) {
-                // Reaction type is not specified
-                rateNode["type"] = "Arrhenius";
-            }
-            std::string type = rateNode["type"].asString();
             if (rateNode.hasKey("rate-constant")) {
-                if (!ba::starts_with(type, "interface-")) {
-                    rateNode["type"] = "interface-" + type;
+                if (!ba::starts_with(rate_type, "interface-")) {
+                    rateNode["type"] = "interface-" + rate_type;
                 }
             } else if (node.hasKey("sticking-coefficient")) {
-                if (!ba::starts_with(type, "sticking-")) {
-                    rateNode["type"] = "sticking-" + type;
+                if (!ba::starts_with(rate_type, "sticking-")) {
+                    rateNode["type"] = "sticking-" + rate_type;
                 }
             } else {
                 throw InputFileError("Reaction::Reaction", input,
                     "Unable to infer interface reaction type.");
             }
+            setParameters(node, kin);
             setRate(newReactionRate(rateNode, calculateRateCoeffUnits(kin)));
         }
     } else {
         // This route is used by the Python API.
+        setParameters(node, kin);
         setRate(newReactionRate(node));
     }
     check();
@@ -229,6 +234,16 @@ void Reaction::setRate(shared_ptr<ReactionRate> rate)
                 "Reactants for reaction '{}'\n"
                 "do not contain a valid pressure-dependent third body", equation());
         }
+    }
+}
+
+void Reaction::setThirdBody(shared_ptr<ThirdBody> tbody)
+{
+    if (!tbody) {
+        // null pointer
+        m_third_body.reset();
+    } else {
+        m_third_body = tbody;
     }
 }
 
@@ -692,6 +707,8 @@ bool ThirdBody::checkSpecies(const Reaction& rxn, const Kinetics& kin) const
 
 ThreeBodyReaction::ThreeBodyReaction()
 {
+    // warn_deprecated("ThreeBodyReaction",
+    //     "To be removed after Cantera 3.0. Replaceable with Reaction.");
     m_third_body.reset(new ThirdBody);
     setRate(newReactionRate(type()));
 }
@@ -705,11 +722,15 @@ ThreeBodyReaction::ThreeBodyReaction(const Composition& reactants,
                make_shared<ArrheniusRate>(rate),
                make_shared<ThirdBody>(tbody))
 {
+    // warn_deprecated("ThreeBodyReaction",
+    //     "To be removed after Cantera 3.0. Replaceable with Reaction.");
 }
 
 ThreeBodyReaction::ThreeBodyReaction(const AnyMap& node, const Kinetics& kin)
     : Reaction(node, kin)
 {
+    // warn_deprecated("ThreeBodyReaction",
+    //     "To be removed after Cantera 3.0. Replaceable with Reaction.");
 }
 
 FalloffReaction::FalloffReaction()

@@ -128,12 +128,6 @@ public:
     //! @param kin  Kinetics object
     bool checkSpecies(const Kinetics& kin) const;
 
-    //! Check whether reaction involves third body collider
-    //! @since  New in Cantera 3.0.
-    bool usesThirdBody() const {
-        return bool(m_third_body);
-    }
-
     //! Check whether reaction uses electrochemistry
     //! @param kin  Kinetics object
     bool usesElectrochemistry(const Kinetics& kin) const;
@@ -182,9 +176,19 @@ public:
     //! Set reaction rate pointer
     void setRate(shared_ptr<ReactionRate> rate);
 
-    //! Get pointer to third-body
+    //! Get pointer to third-body handler
     shared_ptr<ThirdBody> thirdBody() {
         return m_third_body;
+    }
+
+    //! Set pointer to third-body handler
+    //! @since  New in Cantera 3.0.
+    void setThirdBody(shared_ptr<ThirdBody> tbody);
+
+    //! Check whether reaction involves third body collider
+    //! @since  New in Cantera 3.0.
+    bool usesThirdBody() const {
+        return bool(m_third_body);
     }
 
 protected:
@@ -270,6 +274,7 @@ protected:
 
 //! A reaction with a non-reacting third body "M" that acts to add or remove
 //! energy from the reacting species
+//! @deprecated  To be removed after Cantera 3.0. Merged with Reaction
 class ThreeBodyReaction : public Reaction
 {
 public:
