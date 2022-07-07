@@ -196,6 +196,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         void setEquation(const string&) except +translate_exception
         string type()
         CxxAnyMap parameters(cbool) except +translate_exception
+        cbool usesThirdBody()
         CxxAnyMap input
         Composition reactants
         Composition products
@@ -206,6 +207,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         cbool allow_nonreactant_orders
         cbool allow_negative_orders
         shared_ptr[CxxThirdBody] thirdBody()
+        void setThirdBody(shared_ptr[CxxThirdBody])
         CxxUnits rate_units
 
         shared_ptr[CxxReactionRate] rate()
@@ -265,6 +267,7 @@ cdef class StickRateBase(InterfaceRateBase):
 cdef class Reaction:
     cdef shared_ptr[CxxReaction] _reaction
     cdef CxxReaction* reaction
+    cdef CxxThirdBody* thirdbody(self, cbool)
     @staticmethod
     cdef wrap(shared_ptr[CxxReaction])
     cdef ReactionRate _rate

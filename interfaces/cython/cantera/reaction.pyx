@@ -1368,6 +1368,65 @@ cdef class Reaction:
             cdef CxxUnits rate_units = self.reaction.rate_units
             return Units.copy(rate_units)
 
+    cdef CxxThirdBody* thirdbody(self, cbool force):
+        cdef shared_ptr[CxxThirdBody] third_body
+        if self.reaction.usesThirdBody():
+            pass
+        elif force:
+            third_body.reset(new CxxThirdBody())
+            self.reaction.setThirdBody(third_body)
+        else:
+            raise ValueError("Reaction does not involve third body collider")
+
+        return <CxxThirdBody*>(self.reaction.thirdBody().get())
+
+    property uses_third_body:
+        """
+        Returns a flag indicating whether the reaction uses a third body collider
+
+        .. versionadded:: 3.0
+        """
+        def __get__(self):
+            return self.reaction.usesThirdBody()
+
+    property efficiencies:
+        """
+        Get/Set a `dict` defining non-default third-body efficiencies for this reaction,
+        where the keys are the species names and the values are the efficiencies.
+        """
+        def __get__(self):
+            if self.uses_third_body:
+                return comp_map_to_dict(self.thirdbody(False).efficiencies)
+            return comp_map_to_dict(self.thirdbody(True).efficiencies)
+        def __set__(self, eff):
+            if self.uses_third_body:
+                self.thirdbody(False).efficiencies = comp_map(eff)
+            self.thirdbody(True).efficiencies = comp_map(eff)
+
+    property default_efficiency:
+        """
+        Get/Set the default third-body efficiency for this reaction, used for species
+        not in `efficiencies`.
+        """
+        def __get__(self):
+            if self.uses_third_body:
+                return self.thirdbody(False).default_efficiency
+            return self.thirdbody(True).default_efficiency
+        def __set__(self, default_eff):
+            if self.uses_third_body:
+                self.thirdbody(False).default_efficiency = default_eff
+            self.thirdbody(True).default_efficiency = default_eff
+
+    def efficiency(self, species):
+        """
+        Get the efficiency of the third body named ``species`` considering both
+        the default efficiency and species-specific efficiencies.
+        """
+        if self.uses_third_body:
+            return self.thirdbody(False).efficiency(stringify(species))
+        return self.thirdbody(True).efficiency(stringify(species))
+        # raise ValueError("Reaction does not involve third body collider")
+
 
 cdef class Arrhenius:
     r"""
@@ -1465,12 +1524,6 @@ cdef class ThreeBodyReaction(Reaction):
     """
     _reaction_type = "three-body"
 
-    cdef CxxThreeBodyReaction* cxx_threebody(self):
-        return <CxxThreeBodyReaction*>self.reaction
-
-    cdef CxxThirdBody* thirdbody(self):
-        return <CxxThirdBody*>(self.cxx_threebody().thirdBody().get())
-
     def __init__(self, reactants=None, products=None, rate=None, *, equation=None,
                  efficiencies=None, Kinetics kinetics=None, init=True, **kwargs):
 
@@ -1497,11 +1550,7 @@ cdef class ThreeBodyReaction(Reaction):
                 spec["rate-constant"] = rate
             elif isinstance(rate, Arrhenius) or rate is None:
                 spec["rate-constant"] = dict.fromkeys(["A", "b", "Ea"], 0.)
-            elif rate is None:
-                pass
-            elif isinstance(rate, ArrheniusRate):
-                pass
-            else:
+            elif rate is not None:
                 raise TypeError("Invalid rate definition")
 
             if isinstance(efficiencies, dict):
@@ -1514,34 +1563,6 @@ cdef class ThreeBodyReaction(Reaction):
             self._rate = ReactionRate.wrap(self.reaction.rate())
             if isinstance(rate, Arrhenius):
                 self.rate = rate
-
-    property efficiencies:
-        """
-        Get/Set a `dict` defining non-default third-body efficiencies for this
-        reaction, where the keys are the species names and the values are the
-        efficiencies.
-        """
-        def __get__(self):
-            return comp_map_to_dict(self.thirdbody().efficiencies)
-        def __set__(self, eff):
-            self.thirdbody().efficiencies = comp_map(eff)
-
-    property default_efficiency:
-        """
-        Get/Set the default third-body efficiency for this reaction, used for
-        species used for species not in `efficiencies`.
-        """
-        def __get__(self):
-            return self.thirdbody().default_efficiency
-        def __set__(self, default_eff):
-            self.thirdbody().default_efficiency = default_eff
-
-    def efficiency(self, species):
-        """
-        Get the efficiency of the third body named ``species`` considering both
-        the default efficiency and species-specific efficiencies.
-        """
-        return self.thirdbody().efficiency(stringify(species))
 
 
 cdef class FalloffReaction(Reaction):
@@ -1570,12 +1591,6 @@ cdef class FalloffReaction(Reaction):
     """
     _reaction_type = "falloff"
 
-    cdef CxxFalloffReaction* cxx_object(self):
-        return <CxxFalloffReaction*>self.reaction
-
-    cdef CxxThirdBody* thirdbody(self):
-        return <CxxThirdBody*>(self.cxx_object().thirdBody().get())
-
     def __init__(self, reactants=None, products=None, rate=None, *, equation=None,
                  efficiencies=None, Kinetics kinetics=None, init=True, **kwargs):
 
@@ -1602,9 +1617,7 @@ cdef class FalloffReaction(Reaction):
             if isinstance(rate, dict):
                 for key, value in rate.items():
                     spec[key.replace("_", "-")] = value
-            elif isinstance(rate, FalloffRate) or rate is None:
-                pass
-            else:
+            elif rate is not None:
                 raise TypeError(
                     f"Invalid rate definition; type is '{type(rate).__name__}'")
 
@@ -1615,34 +1628,6 @@ cdef class FalloffReaction(Reaction):
                                             deref(kinetics.kinetics))
             self.reaction = self._reaction.get()
             self._rate = ReactionRate.wrap(self.reaction.rate())
-
-    property efficiencies:
-        """
-        Get/Set a `dict` defining non-default third-body efficiencies for this
-        reaction, where the keys are the species names and the values are the
-        efficiencies.
-        """
-        def __get__(self):
-            return comp_map_to_dict(self.thirdbody().efficiencies)
-        def __set__(self, eff):
-            self.thirdbody().efficiencies = comp_map(eff)
-
-    property default_efficiency:
-        """
-        Get/Set the default third-body efficiency for this reaction, used for
-        species used for species not in `efficiencies`.
-        """
-        def __get__(self):
-            return self.thirdbody().default_efficiency
-        def __set__(self, default_eff):
-            self.thirdbody().default_efficiency = default_eff
-
-    def efficiency(self, species):
-        """
-        Get the efficiency of the third body named ``species`` considering both
-        the default efficiency and species-specific efficiencies.
-        """
-        return self.thirdbody().efficiency(stringify(species))
 
 
 cdef class ChemicallyActivatedReaction(FalloffReaction):
