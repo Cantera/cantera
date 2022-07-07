@@ -37,8 +37,16 @@ Reaction::Reaction(const Composition& reactants_,
 {
 }
 
+Reaction::Reaction(const std::string& equation,
+                   shared_ptr<ReactionRate> rate_,
+                   shared_ptr<ThirdBody> tbody_)
+    : m_third_body(tbody_)
+{
+    setEquation(equation);
+    setRate(rate_);
+}
+
 Reaction::Reaction(const AnyMap& node, const Kinetics& kin)
-    : Reaction()
 {
     std::string rate_type = node.getString("type", "Arrhenius");
     if (rate_type == "falloff" || rate_type == "chemically-activated") {
@@ -200,6 +208,10 @@ void Reaction::setParameters(const AnyMap& node, const Kinetics& kin)
 
     if (m_third_body) {
         m_third_body->setParameters(node);
+    } else if (node.hasKey("default-efficiency") || node.hasKey("efficiencies")) {
+        throw InputFileError("Reaction::setParameters", input,
+            "Reaction '{}' specifies efficiency parameters\n"
+            "but does not involve third body colliders.", equation());
     }
 }
 

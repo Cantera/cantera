@@ -35,6 +35,8 @@ public:
     Reaction() {}
     Reaction(const Composition& reactants, const Composition& products,
              shared_ptr<ReactionRate> rate={}, shared_ptr<ThirdBody> tbody=0);
+    Reaction(const std::string& equation,
+             shared_ptr<ReactionRate> rate={}, shared_ptr<ThirdBody> tbody=0);
 
     //! Construct a Reaction and it's corresponding ReactionRate based on AnyMap (YAML)
     //! input.
