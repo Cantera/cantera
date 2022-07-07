@@ -72,10 +72,10 @@ TEST_F(KineticsFromScratch, add_three_body_reaction)
     //     efficiencies: {AR: 0.83, H2: 2.4, H2O: 15.4}
     Composition reac = parseCompString("O:2");
     Composition prod = parseCompString("O2:1");
-    ArrheniusRate rate(1.2e11, -1.0, 0.0);
-    ThirdBody tbody;
-    tbody.efficiencies = parseCompString("AR:0.83 H2:2.4 H2O:15.4");
-    auto R = make_shared<ThreeBodyReaction>(reac, prod, rate, tbody);
+    auto rate = make_shared<ArrheniusRate>(1.2e11, -1.0, 0.0);
+    auto tbody = make_shared<ThirdBody>();
+    tbody->efficiencies = parseCompString("AR:0.83 H2:2.4 H2O:15.4");
+    auto R = make_shared<Reaction>(reac, prod, rate, tbody);
 
     kin.addReaction(R);
     check_rates(1);
@@ -85,10 +85,10 @@ TEST_F(KineticsFromScratch, undefined_third_body)
 {
     Composition reac = parseCompString("O:2");
     Composition prod = parseCompString("O2:1");
-    ArrheniusRate rate(1.2e11, -1.0, 0.0);
-    ThirdBody tbody;
-    tbody.efficiencies = parseCompString("H2:0.1 CO2:0.83");
-    auto R = make_shared<ThreeBodyReaction>(reac, prod, rate, tbody);
+    auto rate = make_shared<ArrheniusRate>(1.2e11, -1.0, 0.0);
+    auto tbody = make_shared<ThirdBody>();
+    tbody->efficiencies = parseCompString("H2:0.1 CO2:0.83");
+    auto R = make_shared<Reaction>(reac, prod, rate, tbody);
 
     ASSERT_THROW(kin.addReaction(R), CanteraError);
 }
@@ -97,10 +97,10 @@ TEST_F(KineticsFromScratch, skip_undefined_third_body)
 {
     Composition reac = parseCompString("O:2");
     Composition prod = parseCompString("O2:1");
-    ArrheniusRate rate(1.2e11, -1.0, 0.0);
-    ThirdBody tbody;
-    tbody.efficiencies = parseCompString("H2:0.1 CO2:0.83");
-    auto R = make_shared<ThreeBodyReaction>(reac, prod, rate, tbody);
+    auto rate = make_shared<ArrheniusRate>(1.2e11, -1.0, 0.0);
+    auto tbody = make_shared<ThirdBody>();
+    tbody->efficiencies = parseCompString("H2:0.1 CO2:0.83");
+    auto R = make_shared<Reaction>(reac, prod, rate, tbody);
 
     kin.skipUndeclaredThirdBodies(true);
     kin.addReaction(R);
@@ -122,10 +122,10 @@ TEST_F(KineticsFromScratch, add_falloff_reaction)
     ArrheniusRate high_rate(7.4e10, -0.37, 0.0);
     ArrheniusRate low_rate(2.3e12, -0.9, -7112800.0);
     vector_fp falloff_params { 0.7346, 94.0, 1756.0, 5182.0 };
-    TroeRate rate(low_rate, high_rate, falloff_params);
-    ThirdBody tbody;
-    tbody.efficiencies = parseCompString("AR:0.7 H2:2.0 H2O:6.0");
-    auto R = make_shared<FalloffReaction>(reac, prod, rate, tbody);
+    auto rate = make_shared<TroeRate>(low_rate, high_rate, falloff_params);
+    auto tbody = make_shared<ThirdBody>();
+    tbody->efficiencies = parseCompString("AR:0.7 H2:2.0 H2O:6.0");
+    auto R = make_shared<Reaction>(reac, prod, rate, tbody);
     kin.addReaction(R);
     check_rates(2);
 }
