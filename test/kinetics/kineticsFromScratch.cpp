@@ -49,7 +49,7 @@ public:
     }
 };
 
-TEST_F(KineticsFromScratch, add_elementary_reaction)
+TEST_F(KineticsFromScratch, add_elementary_reaction1)
 {
     // reaction 0:
     //     equation: O + H2 <=> H + OH  # Reaction 1
@@ -63,7 +63,20 @@ TEST_F(KineticsFromScratch, add_elementary_reaction)
     check_rates(0);
 }
 
-TEST_F(KineticsFromScratch, add_three_body_reaction)
+TEST_F(KineticsFromScratch, add_elementary_reaction2)
+{
+    // reaction 0:
+    //     equation: O + H2 <=> H + OH  # Reaction 1
+    //     rate-constant: {A: 38.7, b: 2.7, Ea: 6260.0}
+    std::string equation = "O + H2 <=> H + OH";
+    auto rate = make_shared<ArrheniusRate>(3.87e1, 2.7, 2.619184e+07);
+    auto R = make_shared<Reaction>(equation, rate);
+
+    kin.addReaction(R);
+    check_rates(0);
+}
+
+TEST_F(KineticsFromScratch, add_three_body_reaction1)
 {
     // reaction 1:
     //     equation: 2 O + M <=> O2 + M  # Reaction 2
@@ -79,6 +92,60 @@ TEST_F(KineticsFromScratch, add_three_body_reaction)
 
     kin.addReaction(R);
     check_rates(1);
+}
+
+TEST_F(KineticsFromScratch, add_three_body_reaction2)
+{
+    // reaction 1:
+    //     equation: 2 O + M <=> O2 + M  # Reaction 2
+    //     type: three-body
+    //     rate-constant: {A: 1.2e+11, b: -1.0, Ea: 0.0}
+    //     efficiencies: {AR: 0.83, H2: 2.4, H2O: 15.4}
+    std::string equation = "2 O + M <=> O2 + M";
+    auto rate = make_shared<ArrheniusRate>(1.2e11, -1.0, 0.0);
+    auto tbody = make_shared<ThirdBody>();
+    tbody->efficiencies = parseCompString("AR:0.83 H2:2.4 H2O:15.4");
+    auto R = make_shared<Reaction>(equation, rate, tbody);
+
+    kin.addReaction(R);
+    check_rates(1);
+}
+
+TEST_F(KineticsFromScratch, add_three_body_reaction3)
+{
+    std::string equation = "2 O + M <=> O2 + M";
+    auto rate = make_shared<ArrheniusRate>(1.2e11, -1.0, 0.0);
+    auto R = make_shared<Reaction>(equation, rate);
+    EXPECT_TRUE(R->usesThirdBody());
+}
+
+TEST_F(KineticsFromScratch, multiple_third_bodies1)
+{
+    std::string equation = "2 H + 2 O2 <=> H2 + 2 O2";
+    auto rate = make_shared<ArrheniusRate>(1.2e11, -1.0, 0.0);
+    ASSERT_THROW(Reaction(equation, rate), CanteraError);
+}
+
+TEST_F(KineticsFromScratch, multiple_third_bodies2)
+{
+    std::string equation = "2 H + 2 M <=> H2 + 2 M";
+    auto rate = make_shared<ArrheniusRate>(1.2e11, -1.0, 0.0);
+    ASSERT_THROW(Reaction(equation, rate), CanteraError);
+}
+
+TEST_F(KineticsFromScratch, multiple_third_bodies3)
+{
+    std::string equation = "2 H + O2 + M <=> H2 + O2 + M";
+    auto rate = make_shared<ArrheniusRate>(1.2e11, -1.0, 0.0);
+    ASSERT_THROW(Reaction(equation, rate), CanteraError);
+}
+
+TEST_F(KineticsFromScratch, add_two_temperature_plasma)
+{
+    std::string equation = "O + H => O + H";
+    auto rate = make_shared<TwoTempPlasmaRate>(17283, -3.1, -5820000, 1081000);
+    auto R = make_shared<Reaction>(equation, rate);
+    EXPECT_FALSE(R->usesThirdBody());
 }
 
 TEST_F(KineticsFromScratch, undefined_third_body)
@@ -107,7 +174,7 @@ TEST_F(KineticsFromScratch, skip_undefined_third_body)
     ASSERT_EQ((size_t) 1, kin.nReactions());
 }
 
-TEST_F(KineticsFromScratch, add_falloff_reaction)
+TEST_F(KineticsFromScratch, add_falloff_reaction1)
 {
     // reaction 2:
     //     equation: 2 OH (+ M) <=> H2O2 (+ M)  # Reaction 3
@@ -126,8 +193,42 @@ TEST_F(KineticsFromScratch, add_falloff_reaction)
     auto tbody = make_shared<ThirdBody>();
     tbody->efficiencies = parseCompString("AR:0.7 H2:2.0 H2O:6.0");
     auto R = make_shared<Reaction>(reac, prod, rate, tbody);
+
     kin.addReaction(R);
     check_rates(2);
+}
+
+TEST_F(KineticsFromScratch, add_falloff_reaction2)
+{
+    // reaction 2:
+    //     equation: 2 OH (+ M) <=> H2O2 (+ M)  # Reaction 3
+    //     duplicate: true
+    //     type: falloff
+    //     low-P-rate-constant: {A: 2.3e+12, b: -0.9, Ea: -1700.0}
+    //     high-P-rate-constant: {A: 7.4e+10, b: -0.37, Ea: 0.0}
+    //     Troe: {A: 0.7346, T3: 94.0, T1: 1756.0, T2: 5182.0}
+    //     efficiencies: {AR: 0.7, H2: 2.0, H2O: 6.0}
+    std::string equation = "2 OH (+ M) <=> H2O2 (+ M)";
+    ArrheniusRate high_rate(7.4e10, -0.37, 0.0);
+    ArrheniusRate low_rate(2.3e12, -0.9, -7112800.0);
+    vector_fp falloff_params { 0.7346, 94.0, 1756.0, 5182.0 };
+    auto rate = make_shared<TroeRate>(low_rate, high_rate, falloff_params);
+    auto tbody = make_shared<ThirdBody>();
+    tbody->efficiencies = parseCompString("AR:0.7 H2:2.0 H2O:6.0");
+    auto R = make_shared<Reaction>(equation, rate, tbody);
+
+    kin.addReaction(R);
+    check_rates(2);
+}
+
+TEST_F(KineticsFromScratch, missing_third_body)
+{
+    std::string equation = "2 OH <=> H2O2";
+    ArrheniusRate high_rate(7.4e10, -0.37, 0.0);
+    ArrheniusRate low_rate(2.3e12, -0.9, -7112800.0);
+    vector_fp falloff_params { 0.7346, 94.0, 1756.0, 5182.0 };
+    auto rate = make_shared<TroeRate>(low_rate, high_rate, falloff_params);
+    ASSERT_THROW(Reaction(equation, rate), CanteraError);
 }
 
 TEST_F(KineticsFromScratch, add_plog_reaction)
