@@ -170,8 +170,11 @@ cdef anymap_to_dict(CxxAnyMap& m):
     return {pystr(item.first): anyvalue_to_python(item.first, item.second)
             for item in m.ordered()}
 
-cdef CxxAnyMap dict_to_anymap(data) except *:
+cdef CxxAnyMap dict_to_anymap(dict data, hyphenize=False) except *:
     cdef CxxAnyMap m
+    if hyphenize:
+        data = {key.replace("_", "-"): value for key, value in data.items()}
+
     for k, v in data.items():
         m[stringify(k)] = python_to_anyvalue(v, k)
     return m
