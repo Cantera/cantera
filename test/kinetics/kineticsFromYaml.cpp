@@ -34,6 +34,7 @@ TEST(Reaction, ElementaryFromYaml)
         " negative-A: true}");
 
     auto R = newReaction(rxn, *(sol->kinetics()));
+    EXPECT_FALSE(R->usesThirdBody());
     EXPECT_EQ(R->reactants.at("NO"), 1);
     EXPECT_EQ(R->products.at("N2"), 1);
     EXPECT_EQ(R->type(), "reaction");
@@ -56,6 +57,7 @@ TEST(Reaction, ThreeBodyFromYaml)
         " efficiencies: {AR: 0.83, H2O: 5}}");
 
     auto R = newReaction(rxn, *(sol->kinetics()));
+    EXPECT_TRUE(R->usesThirdBody());
     EXPECT_EQ(R->reactants.count("M"), (size_t) 0);
     EXPECT_EQ(R->type(), "three-body");
     EXPECT_DOUBLE_EQ(R->thirdBody()->efficiencies["H2O"], 5.0);
@@ -88,9 +90,9 @@ TEST(Reaction, FalloffFromYaml1)
         " efficiencies: {AR: 0.625}}");
 
     auto R = newReaction(rxn, *(sol->kinetics()));
-    auto& FR = dynamic_cast<FalloffReaction&>(*R);
-    EXPECT_DOUBLE_EQ(FR.thirdBody()->efficiency("AR"), 0.625);
-    EXPECT_DOUBLE_EQ(FR.thirdBody()->efficiency("N2"), 1.0);
+    EXPECT_TRUE(R->usesThirdBody());
+    EXPECT_DOUBLE_EQ(R->thirdBody()->efficiency("AR"), 0.625);
+    EXPECT_DOUBLE_EQ(R->thirdBody()->efficiency("N2"), 1.0);
     const auto rate = std::dynamic_pointer_cast<SriRate>(R->rate());
     EXPECT_DOUBLE_EQ(rate->highRate().preExponentialFactor(), 7.91E+10);
     EXPECT_DOUBLE_EQ(rate->lowRate().preExponentialFactor(), 6.37E+14);
@@ -109,9 +111,9 @@ TEST(Reaction, FalloffFromYaml2)
         " source: somewhere}");
 
     auto R = newReaction(rxn, *(sol->kinetics()));
-    auto& FR = dynamic_cast<FalloffReaction&>(*R);
-    EXPECT_DOUBLE_EQ(FR.thirdBody()->efficiency("N2"), 1.0);
-    EXPECT_DOUBLE_EQ(FR.thirdBody()->efficiency("H2O"), 0.0);
+    EXPECT_TRUE(R->usesThirdBody());
+    EXPECT_DOUBLE_EQ(R->thirdBody()->efficiency("N2"), 1.0);
+    EXPECT_DOUBLE_EQ(R->thirdBody()->efficiency("H2O"), 0.0);
     const auto rate = std::dynamic_pointer_cast<TroeRate>(R->rate());
     EXPECT_DOUBLE_EQ(rate->highRate().preExponentialFactor(), 6e11);
     EXPECT_DOUBLE_EQ(rate->lowRate().preExponentialFactor(), 1.04e20);
@@ -137,9 +139,9 @@ TEST(Reaction, FalloffFromYaml3)
         " source: ARL-TR-5088}");
 
     auto R = newReaction(rxn, *(sol->kinetics()));
-    auto& FR = dynamic_cast<FalloffReaction&>(*R);
-    EXPECT_DOUBLE_EQ(FR.thirdBody()->efficiency("N2"), 1.0);
-    EXPECT_DOUBLE_EQ(FR.thirdBody()->efficiency("H2O"), 5.0);
+    EXPECT_TRUE(R->usesThirdBody());
+    EXPECT_DOUBLE_EQ(R->thirdBody()->efficiency("N2"), 1.0);
+    EXPECT_DOUBLE_EQ(R->thirdBody()->efficiency("H2O"), 5.0);
     const auto rate = std::dynamic_pointer_cast<TsangRate>(R->rate());
     EXPECT_DOUBLE_EQ(rate->highRate().preExponentialFactor(), 8.3e17);
     EXPECT_DOUBLE_EQ(rate->lowRate().preExponentialFactor(), 3.57e26);
@@ -183,6 +185,7 @@ TEST(Reaction, PlogFromYaml)
         "- {P: 1.01325 MPa, A: 1.680000e+16, b: -0.6, Ea: 14754.0}");
 
     auto R = newReaction(rxn, *(sol->kinetics()));
+    EXPECT_FALSE(R->usesThirdBody());
     const auto& rateMap = std::dynamic_pointer_cast<PlogRate>(R->rate())->getRates();
     std::vector<std::pair<double, ArrheniusRate>> rates(rateMap.begin(), rateMap.end());
     EXPECT_EQ(rates.size(), (size_t) 4);
@@ -210,6 +213,7 @@ TEST(Reaction, ChebyshevFromYaml)
         "       [-1.43220e-01,  7.71110e-02,  1.27080e-02, -6.41540e-04]]\n");
 
     auto R = newReaction(rxn, *(sol->kinetics()));
+    EXPECT_FALSE(R->usesThirdBody());
     EXPECT_EQ(R->reactants.size(), (size_t) 1);
     const auto& rate = std::dynamic_pointer_cast<ChebyshevRate>(R->rate());
     double T = 1800;
@@ -231,6 +235,7 @@ TEST(Reaction, BlowersMaselFromYaml)
         " negative-A: true}");
 
     auto R = newReaction(rxn, *(sol->kinetics()));
+    EXPECT_FALSE(R->usesThirdBody());
     EXPECT_EQ(R->reactants.at("H2"), 1);
     EXPECT_EQ(R->products.at("OH"), 1);
 
@@ -264,6 +269,7 @@ TEST(Reaction, TwoTempPlasmaFromYaml)
         " rate-constant: [1.523e+27 cm^6/mol^2/s, -1.0, -100 K, 700 K]}");
 
     auto R = newReaction(rxn, *(sol->kinetics()));
+    EXPECT_FALSE(R->usesThirdBody());
     EXPECT_EQ(R->reactants.at("O2"), 2);
     EXPECT_EQ(R->reactants.at("E"), 1);
     EXPECT_EQ(R->products.at("O2^-"), 1);
@@ -514,7 +520,7 @@ TEST_F(ReactionToYaml, threeBody)
     soln = newSolution("h2o2.yaml", "", "None");
     soln->thermo()->setState_TPY(1000, 2e5, "H2:1.0, O2:0.5, O:1e-8, OH:3e-8, H:2e-7");
     duplicateReaction(1);
-    EXPECT_TRUE(std::dynamic_pointer_cast<ThreeBodyReaction>(duplicate));
+    EXPECT_TRUE(std::dynamic_pointer_cast<ArrheniusRate>(duplicate->rate()));
     compareReactions();
 }
 
@@ -523,7 +529,9 @@ TEST_F(ReactionToYaml, TroeFalloff)
     soln = newSolution("h2o2.yaml", "", "None");
     soln->thermo()->setState_TPY(1000, 2e5, "H2:1.0, O2:0.5, H2O2:1e-8, OH:3e-8");
     duplicateReaction(21);
-    EXPECT_TRUE(std::dynamic_pointer_cast<FalloffReaction>(duplicate));
+    auto rate = std::dynamic_pointer_cast<TroeRate>(duplicate->rate());
+    EXPECT_TRUE(rate);
+    EXPECT_FALSE(rate->chemicallyActivated());
     compareReactions();
 }
 
@@ -532,7 +540,7 @@ TEST_F(ReactionToYaml, SriFalloff)
     soln = newSolution("sri-falloff.yaml");
     soln->thermo()->setState_TPY(1000, 2e5, "R1A: 0.1, R1B:0.2, H: 0.2, R2:0.5");
     duplicateReaction(0);
-    EXPECT_TRUE(std::dynamic_pointer_cast<FalloffReaction>(duplicate));
+    EXPECT_TRUE(std::dynamic_pointer_cast<SriRate>(duplicate->rate()));
     compareReactions();
     duplicateReaction(1);
     compareReactions();
@@ -543,7 +551,7 @@ TEST_F(ReactionToYaml, TsangFalloff)
     soln = newSolution("tsang-falloff.yaml");
     soln->thermo()->setState_TPY(1000, 2e5, "NO:1.0, OH:1.0, H:1.0, CN:1.0");
     duplicateReaction(0);
-    EXPECT_TRUE(std::dynamic_pointer_cast<FalloffReaction>(duplicate));
+    EXPECT_TRUE(std::dynamic_pointer_cast<TsangRate>(duplicate->rate()));
     compareReactions();
     duplicateReaction(1);
     compareReactions();
@@ -554,7 +562,9 @@ TEST_F(ReactionToYaml, chemicallyActivated)
     soln = newSolution("chemically-activated-reaction.yaml");
     soln->thermo()->setState_TPY(1000, 2e5, "H2:1.0, ch2o:0.1, ch3:1e-8, oh:3e-6");
     duplicateReaction(0);
-    EXPECT_TRUE(std::dynamic_pointer_cast<FalloffReaction>(duplicate));
+    auto rate = std::dynamic_pointer_cast<TroeRate>(duplicate->rate());
+    EXPECT_TRUE(rate);
+    EXPECT_TRUE(rate->chemicallyActivated());
     compareReactions();
 }
 
