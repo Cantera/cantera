@@ -37,7 +37,7 @@ TEST(Reaction, ElementaryFromYaml)
     EXPECT_FALSE(R->usesThirdBody());
     EXPECT_EQ(R->reactants.at("NO"), 1);
     EXPECT_EQ(R->products.at("N2"), 1);
-    EXPECT_EQ(R->type(), "reaction");
+    EXPECT_EQ(R->type(), "Arrhenius");
     EXPECT_EQ(R->rate()->type(), "Arrhenius");
     EXPECT_FALSE(R->allow_negative_orders);
 
@@ -47,7 +47,7 @@ TEST(Reaction, ElementaryFromYaml)
     EXPECT_DOUBLE_EQ(rate->activationEnergy(), 355 * 4184.0);
 }
 
-TEST(Reaction, ThreeBodyFromYaml)
+TEST(Reaction, ThreeBodyFromYaml1)
 {
     auto sol = newSolution("gri30.yaml", "", "None");
     AnyMap rxn = AnyMap::fromYamlString(
@@ -59,7 +59,26 @@ TEST(Reaction, ThreeBodyFromYaml)
     auto R = newReaction(rxn, *(sol->kinetics()));
     EXPECT_TRUE(R->usesThirdBody());
     EXPECT_EQ(R->reactants.count("M"), (size_t) 0);
-    EXPECT_EQ(R->type(), "three-body");
+    EXPECT_EQ(R->type(), "three-body-Arrhenius");
+    EXPECT_DOUBLE_EQ(R->thirdBody()->efficiencies["H2O"], 5.0);
+    EXPECT_DOUBLE_EQ(R->thirdBody()->default_efficiency, 1.0);
+
+    const auto& rate = std::dynamic_pointer_cast<ArrheniusRate>(R->rate());
+    EXPECT_DOUBLE_EQ(rate->preExponentialFactor(), 1.2e11);
+}
+
+TEST(Reaction, ThreeBodyFromYaml2)
+{
+    auto sol = newSolution("gri30.yaml", "", "None");
+    AnyMap rxn = AnyMap::fromYamlString(
+        "{equation: 2 O + M = O2 + M,"
+        " rate-constant: [1.20000E+17 cm^6/mol^2/s, -1, 0],"
+        " efficiencies: {AR: 0.83, H2O: 5}}");
+
+    auto R = newReaction(rxn, *(sol->kinetics()));
+    EXPECT_TRUE(R->usesThirdBody());
+    EXPECT_EQ(R->reactants.count("M"), (size_t) 0);
+    EXPECT_EQ(R->type(), "three-body-Arrhenius");
     EXPECT_DOUBLE_EQ(R->thirdBody()->efficiencies["H2O"], 5.0);
     EXPECT_DOUBLE_EQ(R->thirdBody()->default_efficiency, 1.0);
 
@@ -91,6 +110,7 @@ TEST(Reaction, FalloffFromYaml1)
 
     auto R = newReaction(rxn, *(sol->kinetics()));
     EXPECT_TRUE(R->usesThirdBody());
+    EXPECT_EQ(R->type(), "falloff-SRI");
     EXPECT_DOUBLE_EQ(R->thirdBody()->efficiency("AR"), 0.625);
     EXPECT_DOUBLE_EQ(R->thirdBody()->efficiency("N2"), 1.0);
     const auto rate = std::dynamic_pointer_cast<SriRate>(R->rate());
@@ -112,6 +132,7 @@ TEST(Reaction, FalloffFromYaml2)
 
     auto R = newReaction(rxn, *(sol->kinetics()));
     EXPECT_TRUE(R->usesThirdBody());
+    EXPECT_EQ(R->type(), "falloff-Troe");
     EXPECT_DOUBLE_EQ(R->thirdBody()->efficiency("N2"), 1.0);
     EXPECT_DOUBLE_EQ(R->thirdBody()->efficiency("H2O"), 0.0);
     const auto rate = std::dynamic_pointer_cast<TroeRate>(R->rate());
@@ -140,6 +161,7 @@ TEST(Reaction, FalloffFromYaml3)
 
     auto R = newReaction(rxn, *(sol->kinetics()));
     EXPECT_TRUE(R->usesThirdBody());
+    EXPECT_EQ(R->type(), "falloff-Tsang");
     EXPECT_DOUBLE_EQ(R->thirdBody()->efficiency("N2"), 1.0);
     EXPECT_DOUBLE_EQ(R->thirdBody()->efficiency("H2O"), 5.0);
     const auto rate = std::dynamic_pointer_cast<TsangRate>(R->rate());
@@ -165,6 +187,7 @@ TEST(Reaction, ChemicallyActivatedFromYaml)
         " low-P-rate-constant: [282320.078, 1.46878, -3270.56495]}");
 
     auto R = newReaction(rxn, *(sol->kinetics()));
+    EXPECT_EQ(R->type(), "chemically-activated-Lindemann");
     const auto& rate = std::dynamic_pointer_cast<LindemannRate>(R->rate());
     EXPECT_DOUBLE_EQ(rate->highRate().preExponentialFactor(), 5.88e-14);
     EXPECT_DOUBLE_EQ(rate->lowRate().preExponentialFactor(), 2.82320078e2);
@@ -510,7 +533,7 @@ TEST_F(ReactionToYaml, elementary)
     soln = newSolution("h2o2.yaml", "", "None");
     soln->thermo()->setState_TPY(1000, 2e5, "H2:1.0, O2:0.5, O:1e-8, OH:3e-8");
     duplicateReaction(2);
-    EXPECT_EQ(duplicate->type(), "reaction");
+    EXPECT_EQ(duplicate->type(), "Arrhenius");
     EXPECT_EQ(duplicate->rate()->type(), "Arrhenius");
     compareReactions();
 }
@@ -644,12 +667,12 @@ TEST_F(ReactionToYaml, unconvertible2)
 
 TEST_F(ReactionToYaml, unconvertible3)
 {
-    FalloffReaction R(
+    Reaction R(
         {{"H2", 1}, {"OH", 1}}, {{"H2O", 1}, {"H", 1}},
-        TroeRate(
+        shared_ptr<ReactionRate>(new TroeRate(
             ArrheniusRate(1e5, -1.0, 12.5), ArrheniusRate(1e5, -1.0, 12.5),
-            {0.562, 91.0, 5836.0, 8552.0}),
-        ThirdBody());
+            {0.562, 91.0, 5836.0, 8552.0})),
+        shared_ptr<ThirdBody>(new ThirdBody()));
     AnyMap params = R.parameters();
     UnitSystem U{"g", "cm", "mol"};
     params.setUnits(U);
