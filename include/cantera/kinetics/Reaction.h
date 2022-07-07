@@ -38,7 +38,7 @@ public:
     Reaction(const std::string& equation,
              shared_ptr<ReactionRate> rate={}, shared_ptr<ThirdBody> tbody=0);
 
-    //! Construct a Reaction and it's corresponding ReactionRate based on AnyMap (YAML)
+    //! Construct a Reaction and corresponding ReactionRate based on AnyMap (YAML)
     //! input.
     Reaction(const AnyMap& node, const Kinetics& kin);
 
@@ -294,6 +294,7 @@ public:
 //! decreases as pressure increases due to collisional stabilization of a reaction
 //! intermediate; in this case, the forward rate constant is written as being
 //! proportional to the low-pressure rate constant.
+//! @deprecated  To be removed after Cantera 3.0. Merged with Reaction
 class FalloffReaction : public Reaction
 {
 public:
@@ -308,6 +309,7 @@ public:
 //! Create a new empty Reaction object
 /*!
  * @param type string identifying type of reaction.
+ * @deprecated  To be removed after Cantera 3.0. Use explicit constructor instead
  */
 unique_ptr<Reaction> newReaction(const std::string& type);
 
@@ -315,6 +317,7 @@ unique_ptr<Reaction> newReaction(const std::string& type);
 /*!
  * @param rxn_node AnyMap node describing reaction.
  * @param kin kinetics manager
+ * @deprecated  To be removed after Cantera 3.0. Use explicit constructor instead
  */
 unique_ptr<Reaction> newReaction(const AnyMap& rxn_node,
                                  const Kinetics& kin);
