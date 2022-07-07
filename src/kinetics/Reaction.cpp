@@ -746,44 +746,6 @@ FalloffReaction::FalloffReaction(const AnyMap& node, const Kinetics& kin)
     }
 }
 
-bool isThreeBody(const Reaction& R)
-{
-    // detect explicitly specified collision partner
-    size_t found = 0;
-    for (const auto& reac : R.reactants) {
-        auto prod = R.products.find(reac.first);
-        if (prod != R.products.end() &&
-            trunc(reac.second) == reac.second && trunc(prod->second) == prod->second) {
-            // candidate species with integer stoichiometric coefficients on both sides
-            found += 1;
-        }
-    }
-    if (found != 1) {
-        return false;
-    }
-
-    // ensure that all reactants have integer stoichiometric coefficients
-    size_t nreac = 0;
-    for (const auto& reac : R.reactants) {
-       if (trunc(reac.second) != reac.second) {
-           return false;
-       }
-       nreac += static_cast<size_t>(reac.second);
-    }
-
-    // ensure that all products have integer stoichiometric coefficients
-    size_t nprod = 0;
-    for (const auto& prod : R.products) {
-       if (trunc(prod.second) != prod.second) {
-           return false;
-       }
-       nprod += static_cast<size_t>(prod.second);
-    }
-
-    // either reactant or product side involves exactly three species
-    return (nreac == 3) || (nprod == 3);
-}
-
 unique_ptr<Reaction> newReaction(const std::string& type)
 {
     AnyMap rxn_node;
@@ -794,21 +756,7 @@ unique_ptr<Reaction> newReaction(const std::string& type)
 
 unique_ptr<Reaction> newReaction(const AnyMap& rxn_node, const Kinetics& kin)
 {
-    std::string type = "elementary";
-    size_t nDim = kin.thermo(kin.reactionPhaseIndex()).nDim();
-    if (rxn_node.hasKey("type")) {
-        type = rxn_node["type"].asString();
-    } else if (nDim == 3) {
-        // Reaction type is not specified
-        // See if this is a three-body reaction with a specified collision partner
-        Reaction testReaction;
-        parseReactionEquation(testReaction, rxn_node["equation"].asString(),
-                              rxn_node, &kin);
-        if (isThreeBody(testReaction)) {
-            type = "three-body";
-        }
-    }
-
+    std::string type = rxn_node.getString("type", "elementary");
     if (!(ReactionFactory::factory()->exists(type))) {
         throw InputFileError("ReactionFactory::newReaction", rxn_node["type"],
             "Unknown reaction type '{}'", type);
