@@ -34,7 +34,7 @@ class Reaction
 public:
     Reaction() {}
     Reaction(const Composition& reactants, const Composition& products,
-             shared_ptr<ReactionRate> rate={});
+             shared_ptr<ReactionRate> rate={}, shared_ptr<ThirdBody> tbody=0);
 
     //! Construct a Reaction and it's corresponding ReactionRate based on AnyMap (YAML)
     //! input.
@@ -127,6 +127,12 @@ public:
     //! in which case false is returned.
     //! @param kin  Kinetics object
     bool checkSpecies(const Kinetics& kin) const;
+
+    //! Check whether reaction involves third body collider
+    //! @since  New in Cantera 3.0.
+    bool usesThirdBody() const {
+        return bool(m_third_body);
+    }
 
     //! Check whether reaction uses electrochemistry
     //! @param kin  Kinetics object

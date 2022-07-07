@@ -28,10 +28,12 @@ namespace Cantera
 
 Reaction::Reaction(const Composition& reactants_,
                    const Composition& products_,
-                   shared_ptr<ReactionRate> rate_)
+                   shared_ptr<ReactionRate> rate_,
+                   shared_ptr<ThirdBody> tbody_)
     : reactants(reactants_)
     , products(products_)
     , m_rate(rate_)
+    , m_third_body(tbody_)
 {
 }
 
@@ -698,20 +700,16 @@ ThreeBodyReaction::ThreeBodyReaction(const Composition& reactants,
                                      const Composition& products,
                                      const ArrheniusRate& rate,
                                      const ThirdBody& tbody)
-    : Reaction(reactants, products, make_shared<ArrheniusRate>(rate))
+    : Reaction(reactants,
+               products,
+               make_shared<ArrheniusRate>(rate),
+               make_shared<ThirdBody>(tbody))
 {
-    m_third_body = std::make_shared<ThirdBody>(tbody);
 }
 
 ThreeBodyReaction::ThreeBodyReaction(const AnyMap& node, const Kinetics& kin)
+    : Reaction(node, kin)
 {
-    m_third_body.reset(new ThirdBody);
-    if (!node.empty()) {
-        setParameters(node, kin);
-        setRate(newReactionRate(node, calculateRateCoeffUnits(kin)));
-    } else {
-        setRate(newReactionRate(type()));
-    }
 }
 
 FalloffReaction::FalloffReaction()
@@ -726,6 +724,7 @@ FalloffReaction::FalloffReaction(const Composition& reactants,
                                  const ThirdBody& tbody)
     : Reaction(reactants, products)
 {
+    // cannot be delegated as std::make_shared does not work for FalloffRate
     m_third_body = std::make_shared<ThirdBody>(tbody);
     AnyMap node = rate.parameters();
     node.applyUnits();
@@ -739,12 +738,10 @@ FalloffReaction::FalloffReaction(const Composition& reactants,
 }
 
 FalloffReaction::FalloffReaction(const AnyMap& node, const Kinetics& kin)
+    : Reaction(node, kin)
 {
-    m_third_body.reset(new ThirdBody);
-    if (!node.empty()) {
-        setParameters(node, kin);
-        setRate(newReactionRate(node, calculateRateCoeffUnits(kin)));
-    } else {
+    if (node.empty()) {
+        m_third_body.reset(new ThirdBody);
         setRate(newReactionRate(type()));
     }
 }
