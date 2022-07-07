@@ -206,21 +206,18 @@ void Reaction::setRate(shared_ptr<ReactionRate> rate)
     }
 
     if (m_third_body) {
-        if (m_third_body->name == "MM") {
+        if (m_third_body->name() == "MM") {
             throw InputFileError("Reaction::setRate", input,
                 "Reactants for reaction '{}'\n"
                 "contain multiple third body colliders.", equation());
         } else if (std::dynamic_pointer_cast<ChebyshevRate>(m_rate)) {
             warn_deprecated("Chebyshev reaction equation", input, "Specifying '(+M)' "
                 "in the reaction equation for Chebyshev reactions is deprecated.");
-            // remove optional third body notation
-            reactants.erase("(+M)");
-            products.erase("(+M)");
             m_third_body.reset();
         } else if (std::dynamic_pointer_cast<PlogRate>(m_rate)) {
             throw InputFileError("Reaction::setRate", input,
                 "Found superfluous '{}' in pressure-dependent-Arrhenius reaction.",
-                m_third_body->name);
+                m_third_body->name());
         } else if (std::dynamic_pointer_cast<FalloffRate>(m_rate)) {
             m_third_body->mass_action = false;
         }
@@ -344,13 +341,15 @@ void Reaction::setEquation(const std::string& equation, const Kinetics* kin)
         }
     }
 
-    m_third_body.reset(new ThirdBody(third_body));
+    if (m_third_body) {
+        m_third_body->setName(third_body);
+    } else {
+        m_third_body.reset(new ThirdBody(third_body));
+    }
 
     // adjust reactant coefficients
     auto reac = reactants.find(third_body);
-    if (reac->second < 0) {
-        // pass
-    } else if (trunc(reac->second) != 1) {
+    if (trunc(reac->second) != 1) {
         reac->second -= 1.;
     } else {
         reactants.erase(reac);
@@ -358,9 +357,7 @@ void Reaction::setEquation(const std::string& equation, const Kinetics* kin)
 
     // adjust product coefficients
     auto prod = products.find(third_body);
-    if (prod->second < 0) {
-        // pass
-    } else if (trunc(prod->second) != 1) {
+    if (trunc(prod->second) != 1) {
         prod->second -= 1.;
     } else {
         products.erase(prod);
@@ -588,21 +585,31 @@ ThirdBody::ThirdBody(double default_eff)
 
 ThirdBody::ThirdBody(const std::string& third_body)
 {
+    setName(third_body);
+}
+
+void ThirdBody::setName(const std::string& third_body)
+{
     if (ba::starts_with(third_body, "(+ ")) {
         mass_action = false;
-        name = third_body.substr(3, third_body.size() - 4);
+        m_name = third_body.substr(3, third_body.size() - 4);
     } else if (ba::starts_with(third_body, "(+")) {
         mass_action = false;
-        name = third_body.substr(2, third_body.size() - 3);
+        m_name = third_body.substr(2, third_body.size() - 3);
     } else {
-        name = third_body;
+        m_name = third_body;
     }
 
-    if (name == "M") {
+    if (m_name == "M") {
         default_efficiency = 1.;
     } else {
+        if (efficiencies.size()) {
+            throw CanteraError("ThirdBody::setName",
+                "Conflicting efficiency definition for explicit third body '{}'",
+                m_name);
+        }
         default_efficiency = 0.;
-        efficiencies[name] = 1.;
+        efficiencies[m_name] = 1.;
     }
 }
 
@@ -620,7 +627,7 @@ void ThirdBody::setEfficiencies(const AnyMap& node)
 
 void ThirdBody::setParameters(const AnyMap& node)
 {
-    if (name != "M") {
+    if (m_name != "M") {
         return;
     }
     default_efficiency = node.getDouble("default-efficiency", 1.0);
@@ -631,7 +638,7 @@ void ThirdBody::setParameters(const AnyMap& node)
 
 void ThirdBody::getParameters(AnyMap& node) const
 {
-    if (name == "M") {
+    if (m_name == "M") {
         if (mass_action) {
             // @todo  remove once specialization is removed
             node["type"] = "three-body";
@@ -652,9 +659,9 @@ double ThirdBody::efficiency(const std::string& k) const
 std::string ThirdBody::collider() const
 {
     if (mass_action) {
-        return " + " + name;
+        return " + " + m_name;
     }
-    return " (+" + name + ")";
+    return " (+" + m_name + ")";
 }
 
 bool ThirdBody::checkSpecies(const Reaction& rxn, const Kinetics& kin) const
@@ -674,7 +681,7 @@ bool ThirdBody::checkSpecies(const Reaction& rxn, const Kinetics& kin) const
             throw InputFileError("ThirdBody::checkSpecies", rxn.input, "Reaction '{}'\n"
                 "is a three-body reaction with undeclared species: '{}'",
                 rxn.equation(), ba::join(undeclared, "', '"));
-        } else if (kin.skipUndeclaredSpecies() && name != "M") {
+        } else if (kin.skipUndeclaredSpecies() && m_name != "M") {
             return false;
         }
     }
