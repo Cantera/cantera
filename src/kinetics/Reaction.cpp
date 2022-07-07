@@ -6,7 +6,6 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/kinetics/Reaction.h"
-#include "ReactionFactory.h"
 #include "cantera/kinetics/ReactionRateFactory.h"
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/thermo/ThermoPhase.h"
@@ -32,9 +31,9 @@ Reaction::Reaction(const Composition& reactants_,
                    shared_ptr<ThirdBody> tbody_)
     : reactants(reactants_)
     , products(products_)
-    , m_rate(rate_)
     , m_third_body(tbody_)
 {
+    setRate(rate_);
 }
 
 Reaction::Reaction(const std::string& equation,
@@ -50,10 +49,10 @@ Reaction::Reaction(const AnyMap& node, const Kinetics& kin)
 {
     std::string rate_type = node.getString("type", "Arrhenius");
     if (rate_type == "falloff" || rate_type == "chemically-activated") {
-        m_third_body.reset(new ThirdBody);
+        m_third_body.reset(new ThirdBody("(+M)"));
     } else if (rate_type == "three-body") {
         // @todo make this optional
-        m_third_body.reset(new ThirdBody);
+        m_third_body.reset(new ThirdBody("M"));
     }
 
     if (kin.nPhases()) {
@@ -242,9 +241,7 @@ void Reaction::setRate(shared_ptr<ReactionRate> rate)
         }
     } else {
         if (std::dynamic_pointer_cast<FalloffRate>(m_rate)) {
-            throw InputFileError("Reaction::setRate", input,
-                "Reactants for reaction '{}'\n"
-                "do not contain a valid pressure-dependent third body", equation());
+            m_third_body.reset(new ThirdBody("(+M)"));
         }
     }
 }
@@ -335,6 +332,10 @@ void Reaction::setEquation(const std::string& equation, const Kinetics* kin)
             throw InputFileError("Reaction::setEquation", input,
                 "Reactants for reaction '{}'\n"
                 "do not contain a valid third body collider", equation);
+        } else if (rate_type == "falloff" || rate_type == "chemically-activated") {
+            throw InputFileError("Reaction::setRate", input,
+                "Reactants for reaction '{}'\n"
+                "do not contain a valid pressure-dependent third body", equation);
         }
         return;
     } else if (count > 1) {
@@ -719,8 +720,8 @@ bool ThirdBody::checkSpecies(const Reaction& rxn, const Kinetics& kin) const
 
 ThreeBodyReaction::ThreeBodyReaction()
 {
-    // warn_deprecated("ThreeBodyReaction",
-    //     "To be removed after Cantera 3.0. Replaceable with Reaction.");
+    warn_deprecated("ThreeBodyReaction",
+        "To be removed after Cantera 3.0. Replaceable with Reaction.");
     m_third_body.reset(new ThirdBody);
     setRate(newReactionRate(type()));
 }
@@ -734,19 +735,21 @@ ThreeBodyReaction::ThreeBodyReaction(const Composition& reactants,
                make_shared<ArrheniusRate>(rate),
                make_shared<ThirdBody>(tbody))
 {
-    // warn_deprecated("ThreeBodyReaction",
-    //     "To be removed after Cantera 3.0. Replaceable with Reaction.");
+    warn_deprecated("ThreeBodyReaction",
+        "To be removed after Cantera 3.0. Replaceable with Reaction.");
 }
 
 ThreeBodyReaction::ThreeBodyReaction(const AnyMap& node, const Kinetics& kin)
     : Reaction(node, kin)
 {
-    // warn_deprecated("ThreeBodyReaction",
-    //     "To be removed after Cantera 3.0. Replaceable with Reaction.");
+    warn_deprecated("ThreeBodyReaction",
+        "To be removed after Cantera 3.0. Replaceable with Reaction.");
 }
 
 FalloffReaction::FalloffReaction()
 {
+    warn_deprecated("FalloffReaction",
+        "To be removed after Cantera 3.0. Replaceable with Reaction.");
     m_third_body.reset(new ThirdBody);
     setRate(newReactionRate(type()));
 }
@@ -757,6 +760,8 @@ FalloffReaction::FalloffReaction(const Composition& reactants,
                                  const ThirdBody& tbody)
     : Reaction(reactants, products)
 {
+    warn_deprecated("FalloffReaction",
+        "To be removed after Cantera 3.0. Replaceable with Reaction.");
     // cannot be delegated as std::make_shared does not work for FalloffRate
     m_third_body = std::make_shared<ThirdBody>(tbody);
     AnyMap node = rate.parameters();
@@ -773,6 +778,8 @@ FalloffReaction::FalloffReaction(const Composition& reactants,
 FalloffReaction::FalloffReaction(const AnyMap& node, const Kinetics& kin)
     : Reaction(node, kin)
 {
+    warn_deprecated("FalloffReaction",
+        "To be removed after Cantera 3.0. Replaceable with Reaction.");
     if (node.empty()) {
         m_third_body.reset(new ThirdBody);
         setRate(newReactionRate(type()));
@@ -781,21 +788,16 @@ FalloffReaction::FalloffReaction(const AnyMap& node, const Kinetics& kin)
 
 unique_ptr<Reaction> newReaction(const std::string& type)
 {
-    AnyMap rxn_node;
-    Kinetics kin;
-    unique_ptr<Reaction> R(ReactionFactory::factory()->create(type, rxn_node, kin));
-    return R;
+    warn_deprecated("newReaction",
+        "To be removed after Cantera 3.0. Use explicit constructor instead.");
+    return unique_ptr<Reaction>(new Reaction());
 }
 
 unique_ptr<Reaction> newReaction(const AnyMap& rxn_node, const Kinetics& kin)
 {
-    std::string type = rxn_node.getString("type", "elementary");
-    if (!(ReactionFactory::factory()->exists(type))) {
-        throw InputFileError("ReactionFactory::newReaction", rxn_node["type"],
-            "Unknown reaction type '{}'", type);
-    }
-    Reaction* R = ReactionFactory::factory()->create(type, rxn_node, kin);
-    return unique_ptr<Reaction>(R);
+    warn_deprecated("newReaction",
+        "To be removed after Cantera 3.0. Use explicit constructor instead.");
+    return unique_ptr<Reaction>(new Reaction(rxn_node, kin));
 }
 
 void parseReactionEquation(Reaction& R, const std::string& equation,
@@ -873,7 +875,7 @@ std::vector<shared_ptr<Reaction>> getReactions(const AnyValue& items,
 {
     std::vector<shared_ptr<Reaction>> all_reactions;
     for (const auto& node : items.asVector<AnyMap>()) {
-        shared_ptr<Reaction> R(newReaction(node, kinetics));
+        shared_ptr<Reaction> R(new Reaction(node, kinetics));
         R->check();
         R->validate(kinetics);
         if (R->valid() && R->checkSpecies(kinetics)) {

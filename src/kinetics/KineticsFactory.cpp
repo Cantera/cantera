@@ -154,7 +154,7 @@ void addReactions(Kinetics& kin, const AnyMap& phaseNode, const AnyMap& rootNode
                 rootNode.getString("__file__", ""));
             for (const auto& R : reactions[node].asVector<AnyMap>()) {
                 try {
-                    kin.addReaction(newReaction(R, kin), false);
+                    kin.addReaction(shared_ptr<Reaction>(new Reaction(R, kin)), false);
                 } catch (CanteraError& err) {
                     fmt_append(add_rxn_err, "{}", err.what());
                 }
@@ -164,12 +164,13 @@ void addReactions(Kinetics& kin, const AnyMap& phaseNode, const AnyMap& rootNode
             for (const auto& R : rootNode.at(sections[i]).asVector<AnyMap>()) {
                 #ifdef NDEBUG
                     try {
-                        kin.addReaction(newReaction(R, kin), false);
+                        kin.addReaction(
+                            shared_ptr<Reaction>(new Reaction(R, kin)), false);
                     } catch (CanteraError& err) {
                         fmt_append(add_rxn_err, "{}", err.what());
                     }
                 #else
-                    kin.addReaction(newReaction(R, kin), false);
+                    kin.addReaction(shared_ptr<Reaction>(new Reaction(R, kin)), false);
                 #endif
             }
         }
