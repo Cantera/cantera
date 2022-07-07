@@ -25,8 +25,7 @@ reactions = gas0.reactions()
 custom_reactions = [r for r in reactions]
 custom_reactions[2] = ct.Reaction(
     equation='H2 + O <=> H + OH',
-    rate=lambda T: 38.7 * T**2.7 * exp(-3150.15428/T),
-    kinetics=gas0)
+    rate=lambda T: 38.7 * T**2.7 * exp(-3150.15428/T))
 
 gas1 = ct.Solution(thermo='ideal-gas', kinetics='gas',
                    species=species, reactions=custom_reactions)
