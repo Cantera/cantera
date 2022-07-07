@@ -88,8 +88,6 @@ cdef extern from "cantera/cython/wrappers.h":
 
 cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
     cdef cppclass CxxKinetics "Cantera::Kinetics"
-    cdef shared_ptr[CxxReaction] CxxNewReaction "Cantera::newReaction" (string) except +translate_exception
-    cdef shared_ptr[CxxReaction] CxxNewReaction "newReaction" (CxxAnyMap&, CxxKinetics&) except +translate_exception
     cdef vector[shared_ptr[CxxReaction]] CxxGetReactions "getReactions" (CxxAnyValue&, CxxKinetics&) except +translate_exception
 
     cdef cppclass CxxFalloffRate "Cantera::FalloffRate" (CxxReactionRate):
@@ -188,7 +186,11 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         double default_efficiency
 
     cdef cppclass CxxReaction "Cantera::Reaction":
-        CxxReaction()
+        CxxReaction()        CxxReaction(Composition&, Composition&, shared_ptr[CxxReactionRate]) except +translate_exception
+        CxxReaction(Composition&, Composition&, shared_ptr[CxxReactionRate], shared_ptr[CxxThirdBody]) except +translate_exception
+        CxxReaction(string&, shared_ptr[CxxReactionRate]) except +translate_exception
+        CxxReaction(string&, shared_ptr[CxxReactionRate], shared_ptr[CxxThirdBody]) except +translate_exception
+        CxxReaction(CxxAnyMap&, CxxKinetics&) except +translate_exception
 
         string reactantString()
         string productString()

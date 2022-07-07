@@ -10,10 +10,6 @@ from .kinetics cimport Kinetics
 from ._utils cimport *
 from .units cimport *
 
-# dictionary to store reaction classes
-cdef dict _reaction_class_registry = {}
-
-
 # dictionary to store reaction rate classes
 cdef dict _reaction_rate_class_registry = {}
 
@@ -72,10 +68,10 @@ cdef class ReactionRate:
         self.rate = self._rate.get()
 
     @classmethod
-    def from_dict(cls, data):
+    def from_dict(cls, data, hyphenize=True):
         """
         Create a `ReactionRate` object from a dictionary corresponding to its YAML
-        representation.
+        representation. By default, underscores in keys are replaced by hyphens.
 
         An example for the creation of a `ReactionRate` from a dictionary is::
 
@@ -90,7 +86,7 @@ cdef class ReactionRate:
                 f"Class method 'from_dict' was invoked from '{cls.__name__}' but "
                 "should be called from base class 'ReactionRate'")
 
-        cdef CxxAnyMap any_map = dict_to_anymap(data)
+        cdef CxxAnyMap any_map = dict_to_anymap(data, hyphenize=hyphenize)
         cxx_rate = CxxNewReactionRate(any_map)
         return ReactionRate.wrap(cxx_rate)
 
@@ -1049,73 +1045,78 @@ cdef class Reaction:
                 rate-constant: {A: 3.87e+04 cm^3/mol/s, b: 2.7, Ea: 6260 cal/mol}}''',
                 gas)
     """
-    _reaction_type = ""
 
     def __cinit__(self, reactants=None, products=None, rate=None, *,
-                  init=True, **kwargs):
-        if init:
-            rxn_type = self._reaction_type
-            self._reaction = CxxNewReaction(stringify((rxn_type)))
-            self.reaction = self._reaction.get()
-            if reactants:
-                self.reactants = reactants
-            if products:
-                self.products = products
-
-    def __init__(self, reactants=None, products=None, rate=None, *, equation=None,
-                 init=True, **kwargs):
+                  equation=None, init=True, efficiencies=None,
+                  Kinetics kinetics=None, **kwargs):
+        if kinetics:
+            warnings.warn(
+                "Parameter 'kinetics' is no longer used and will be removed after "
+                "Cantera 3.0.", DeprecationWarning)
 
         if not init:
             return
 
-        if equation:
-            self.reaction.setEquation(stringify(equation))
-
-        if isinstance(rate, dict):
+        cdef ReactionRate _rate
+        if isinstance(rate, ReactionRate):
+            _rate = rate
+        elif rate is None:
+            # default to Arrhenius expression
+            raise ValueError("Missing reaction rate information.")
+        elif isinstance(rate, dict):
             if set(rate) == {"A", "b", "Ea"}:
                 # Allow simple syntax for Arrhenius rates
-                self.rate = ReactionRate.from_dict({"rate-constant": rate})
+                _rate = ReactionRate.from_dict({"rate-constant": rate})
             else:
-                self.rate = ReactionRate.from_dict(rate)
-        elif rate is not None:
-            self.rate = rate
+                _rate = ReactionRate.from_dict(rate)
+        elif isinstance(rate, Arrhenius):
+            _rate = ArrheniusRate(
+                A=rate.pre_exponential_factor,
+                b=rate.temperature_exponent,
+                Ea=rate.activation_energy
+            )
+        elif callable(rate):
+            _rate = CustomRate(rate)
+        else:
+            raise TypeError(f"Invalid rate definition with type '{type(rate)}'")
 
-        if isinstance(self.rate, ReactionRate):
-            self.reaction.setRate(self._rate._rate)
+        if reactants and products:
+            # create from reactant and product compositions
+            self._reaction.reset(
+                new CxxReaction(comp_map(reactants), comp_map(products), _rate._rate)
+            )
+        elif equation:
+            # create from reaction equation
+            self._reaction.reset(new CxxReaction(stringify(equation), _rate._rate))
+        else:
+            # create default object
+            raise ValueError("Missing reactant and/or product information.")
+
+        self.reaction = self._reaction.get()
+        self._rate = _rate
+
+        if efficiencies:
+            # todo ... deprecate / update with ThirdBody assignment
+            self.efficiencies = efficiencies
 
     @staticmethod
     cdef wrap(shared_ptr[CxxReaction] reaction):
         """
         Wrap a C++ Reaction object with a Python object of the correct derived type.
         """
-        # ensure all reaction types are registered
-        if not _reaction_class_registry:
-            def register_subclasses(cls):
-                for c in cls.__subclasses__():
-                    rxn_type = getattr(c, "_reaction_type")
-                    _reaction_class_registry[rxn_type] = c
-                    register_subclasses(c)
-
-            # update global reaction class registry
-            register_subclasses(Reaction)
-
-        # identify class
-        rxn_type = pystr(reaction.get().type())
-        cls = _reaction_class_registry.get(rxn_type, Reaction)
-
         # wrap C++ reaction
         cdef Reaction R
-        R = cls(init=False)
+        R = Reaction(init=False)
         R._reaction = reaction
         R.reaction = R._reaction.get()
         R._rate = ReactionRate.wrap(R.reaction.rate())
         return R
 
     @classmethod
-    def from_dict(cls, data, Kinetics kinetics):
+    def from_dict(cls, data, Kinetics kinetics, hyphenize=True):
         """
         Create a `Reaction` object from a dictionary corresponding to its YAML
-        representation.
+        representation. By default, underscores in keys are replaced by hyphens.
 
         An example for the creation of a Reaction from a dictionary is::
 
@@ -1132,13 +1133,9 @@ cdef class Reaction:
             A `Kinetics` object whose associated phase(s) contain the species
             involved in the reaction.
         """
-        if cls._reaction_type != "":
-            raise TypeError(
-                f"Class method 'from_dict' was invoked from '{cls.__name__}' but "
-                "should be called from base class 'Reaction'")
-
-        cdef CxxAnyMap any_map = dict_to_anymap(data)
-        cxx_reaction = CxxNewReaction(any_map, deref(kinetics.kinetics))
+        cdef CxxAnyMap any_map = dict_to_anymap(data, hyphenize=hyphenize)
+        cdef shared_ptr[CxxReaction] cxx_reaction
+        cxx_reaction.reset(new CxxReaction(any_map, deref(kinetics.kinetics)))
         return Reaction.wrap(cxx_reaction)
 
     @classmethod
@@ -1161,14 +1158,9 @@ cdef class Reaction:
             A `Kinetics` object whose associated phase(s) contain the species
             involved in the reaction.
         """
-        if cls._reaction_type != "":
-            raise TypeError(
-                f"Class method 'from_yaml' was invoked from '{cls.__name__}' but "
-                "should be called from base class 'Reaction'")
-
-        cdef CxxAnyMap any_map
-        any_map = AnyMapFromYamlString(stringify(text))
-        cxx_reaction = CxxNewReaction(any_map, deref(kinetics.kinetics))
+        cdef CxxAnyMap any_map = AnyMapFromYamlString(stringify(text))
+        cdef shared_ptr[CxxReaction] cxx_reaction
+        cxx_reaction.reset(new CxxReaction(any_map, deref(kinetics.kinetics)))
         return Reaction.wrap(cxx_reaction)
 
     @staticmethod
@@ -1357,7 +1349,7 @@ cdef class Reaction:
         self.reaction.input.clear()
 
     def __repr__(self):
-        return f"{self.equation}    <{self.__class__.__name__}({self.rate.type})>"
+        return f"{self.equation}    <{self.reaction_type}>"
 
     def __str__(self):
         return self.equation
@@ -1521,48 +1513,15 @@ cdef class ThreeBodyReaction(Reaction):
         type: three-body
         rate-constant: {A: 1.2e+17 cm^6/mol^2/s, b: -1.0, Ea: 0.0 cal/mol}
         efficiencies: {H2: 2.4, H2O: 15.4, AR: 0.83}
+
+    .. deprecated:: 3.0
+
+        Class to be removed after Cantera 3.0. Absorbed by `Reaction`.
     """
-    _reaction_type = "three-body"
 
-    def __init__(self, reactants=None, products=None, rate=None, *, equation=None,
-                 efficiencies=None, Kinetics kinetics=None, init=True, **kwargs):
-
-        if reactants and products and not equation:
-            equation = self.equation
-
-        if isinstance(rate, ArrheniusRate):
-            self._reaction.reset(new CxxThreeBodyReaction())
-            self.reaction = self._reaction.get()
-            if reactants and products:
-                self.reactants = reactants
-                self.products = products
-            else:
-                self.reaction.setEquation(stringify(equation))
-            if efficiencies:
-                self.efficiencies = efficiencies
-            self.rate = rate
-            return
-
-        if init and equation and kinetics:
-            rxn_type = self._reaction_type
-            spec = {"equation": equation, "type": rxn_type}
-            if isinstance(rate, dict):
-                spec["rate-constant"] = rate
-            elif isinstance(rate, Arrhenius) or rate is None:
-                spec["rate-constant"] = dict.fromkeys(["A", "b", "Ea"], 0.)
-            elif rate is not None:
-                raise TypeError("Invalid rate definition")
-
-            if isinstance(efficiencies, dict):
-                spec["efficiencies"] = efficiencies
-
-            self._reaction = CxxNewReaction(dict_to_anymap(spec),
-                                            deref(kinetics.kinetics))
-            self.reaction = self._reaction.get()
-
-            self._rate = ReactionRate.wrap(self.reaction.rate())
-            if isinstance(rate, Arrhenius):
-                self.rate = rate
+    def __init__(self, *args, **kwargs):
+        warnings.warn("Class to be removed after Cantera 3.0; no specialization "
+                      "necessary.", DeprecationWarning)
 
 
 cdef class FalloffReaction(Reaction):
@@ -1588,47 +1547,15 @@ cdef class FalloffReaction(Reaction):
         high-P-rate-constant: {A: 7.4e+10, b: -0.37, Ea: 0.0 cal/mol}
         Troe: {A: 0.7346, T3: 94.0, T1: 1756.0, T2: 5182.0}
         efficiencies: {AR: 0.7, H2: 2.0, H2O: 6.0}
+
+    .. deprecated:: 3.0
+
+        Class to be removed after Cantera 3.0. Absorbed by `Reaction`.
     """
-    _reaction_type = "falloff"
 
-    def __init__(self, reactants=None, products=None, rate=None, *, equation=None,
-                 efficiencies=None, Kinetics kinetics=None, init=True, **kwargs):
-
-        if reactants and products and not equation:
-            equation = self.equation
-
-        if isinstance(rate, FalloffRate):
-            self._reaction.reset(new CxxFalloffReaction())
-            self.reaction = self._reaction.get()
-            if reactants and products:
-                self.reactants = reactants
-                self.products = products
-            else:
-                self.reaction.setEquation(stringify(equation))
-            if efficiencies:
-                self.efficiencies = efficiencies
-            self.rate = rate
-            return
-
-        if init and equation and kinetics:
-
-            rxn_type = self._reaction_type
-            spec = {"equation": equation, "type": rxn_type}
-            if isinstance(rate, dict):
-                for key, value in rate.items():
-                    spec[key.replace("_", "-")] = value
-            elif rate is not None:
-                raise TypeError(
-                    f"Invalid rate definition; type is '{type(rate).__name__}'")
-
-            if isinstance(efficiencies, dict):
-                spec["efficiencies"] = efficiencies
-
-            self._reaction = CxxNewReaction(dict_to_anymap(spec),
-                                            deref(kinetics.kinetics))
-            self.reaction = self._reaction.get()
-            self._rate = ReactionRate.wrap(self.reaction.rate())
-
+    def __init__(self, *args, **kwargs):
+        warnings.warn("Class to be removed after Cantera 3.0; no specialization "
+                      "necessary.", DeprecationWarning)
 
 cdef class ChemicallyActivatedReaction(FalloffReaction):
     """
@@ -1637,8 +1564,10 @@ cdef class ChemicallyActivatedReaction(FalloffReaction):
     that the forward rate constant is written as being proportional to the low-
     pressure rate constant.
     """
-    _reaction_type = "chemically-activated"
 
+    def __init__(self, *args, **kwargs):
+        warnings.warn("Class to be removed after Cantera 3.0; no specialization "
+                      "necessary.", DeprecationWarning)
 
 cdef class CustomReaction(Reaction):
     """
@@ -1659,4 +1588,3 @@ cdef class CustomReaction(Reaction):
     def __init__(self, *args, **kwargs):
         warnings.warn("Class to be removed after Cantera 3.0; no specialization "
                       "necessary.", DeprecationWarning)
-        super().__init__(*args, **kwargs)
