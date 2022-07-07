@@ -208,6 +208,16 @@ public:
     ThirdBody(const std::string& third_body);
     ThirdBody(const AnyMap& node);
 
+    //! Name of the third body collider
+    //! @since  New in Cantera 3.0
+    std::string name() const {
+        return m_name;
+    }
+
+    //! Set name of the third body collider
+    //! @since  New in Cantera 3.0
+    void setName(const std::string& third_body);
+
     //! Set third-body efficiencies from AnyMap *node*
     //! @deprecated  To be removed after Cantera 3.0; renamed to setParameters
     void setEfficiencies(const AnyMap& node);
@@ -236,9 +246,6 @@ public:
     //! @since  New in Cantera 3.0
     bool checkSpecies(const Reaction& rxn, const Kinetics& kin) const;
 
-    //! Name of the third body collider
-    std::string name = "M";
-
     //! Map of species to third body efficiency
     Composition efficiencies;
 
@@ -248,6 +255,10 @@ public:
     //! Third body is used by law of mass action
     //! (`true` for three-body reactions, `false` for falloff reactions)
     bool mass_action = true;
+
+protected:
+    //! Name of the third body collider
+    std::string m_name = "M";
 };
 
 
