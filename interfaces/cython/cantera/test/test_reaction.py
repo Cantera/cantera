@@ -24,20 +24,19 @@ class TestImplicitThirdBody(utilities.CanteraTest):
             rate-constant: {A: 2.08e+19, b: -1.24, Ea: 0.0}
             """
         rxn1 = ct.Reaction.from_yaml(yaml1, self.gas)
-        self.assertEqual(rxn1.reaction_type, "three-body")
-        self.assertEqual(rxn1.default_efficiency, 0.)
-        self.assertEqual(rxn1.efficiencies, {"O2": 1})
+        self.assertEqual(rxn1.reaction_type, "three-body-Arrhenius")
+        self.assertEqual(rxn1.third_body.default_efficiency, 0.)
+        self.assertEqual(rxn1.third_body.efficiencies, {"O2": 1})
 
         yaml2 = """
             equation: H + O2 + M <=> HO2 + M
             rate-constant: {A: 2.08e+19, b: -1.24, Ea: 0.0}
-            type: three-body
             default-efficiency: 0
             efficiencies: {O2: 1.0}
             """
         rxn2 = ct.Reaction.from_yaml(yaml2, self.gas)
-        self.assertEqual(rxn1.efficiencies, rxn2.efficiencies)
-        self.assertEqual(rxn1.default_efficiency, rxn2.default_efficiency)
+        self.assertEqual(rxn1.third_body.efficiencies, rxn2.third_body.efficiencies)
+        self.assertEqual(rxn1.third_body.default_efficiency, rxn2.third_body.default_efficiency)
 
     def test_duplicate(self):
         # @todo simplify this test
@@ -54,7 +53,6 @@ class TestImplicitThirdBody(utilities.CanteraTest):
         yaml2 = """
             equation: H + O2 + M <=> HO2 + M
             rate-constant: {A: 1.126e+19, b: -0.76, Ea: 0.0}
-            type: three-body
             default-efficiency: 0
             efficiencies: {H2O: 1}
             """
@@ -63,8 +61,8 @@ class TestImplicitThirdBody(utilities.CanteraTest):
         self.assertEqual(rxn1.reaction_type, rxn2.reaction_type)
         self.assertEqual(rxn1.reactants, rxn2.reactants)
         self.assertEqual(rxn1.products, rxn2.products)
-        self.assertEqual(rxn1.efficiencies, rxn2.efficiencies)
-        self.assertEqual(rxn1.default_efficiency, rxn2.default_efficiency)
+        self.assertEqual(rxn1.third_body.efficiencies, rxn2.third_body.efficiencies)
+        self.assertEqual(rxn1.third_body.default_efficiency, rxn2.third_body.default_efficiency)
 
         gas1.add_reaction(rxn1)
         gas1.add_reaction(rxn2)
@@ -97,7 +95,7 @@ class TestImplicitThirdBody(utilities.CanteraTest):
             rate-constant: {A: 2.08e+19, b: -1.24, Ea: 0.0}
             """
         rxn = ct.Reaction.from_yaml(yaml, self.gas)
-        self.assertEqual(rxn.reaction_type, "reaction")
+        self.assertEqual(rxn.reaction_type, "Arrhenius")
 
     def test_not_three_body(self):
         # check that insufficient reactants prevent automatic conversion
@@ -106,7 +104,7 @@ class TestImplicitThirdBody(utilities.CanteraTest):
             rate-constant: {A: 2.1e+15, b: -0.69, Ea: 2850.0}
             """
         rxn = ct.Reaction.from_yaml(yaml, self.gas)
-        self.assertEqual(rxn.reaction_type, "reaction")
+        self.assertEqual(rxn.reaction_type, "Arrhenius")
 
     def test_user_override(self):
         # check that type specification prevents automatic conversion
@@ -116,7 +114,9 @@ class TestImplicitThirdBody(utilities.CanteraTest):
             type: elementary
             """
         rxn = ct.Reaction.from_yaml(yaml, self.gas)
-        self.assertEqual(rxn.reaction_type, "reaction")
+        self.assertEqual(rxn.reaction_type, "Arrhenius")
+        assert "type" in rxn.input_data
+        assert rxn.input_data["type"] == "elementary"
 
 
 class ReactionRateTests:
@@ -935,10 +935,10 @@ class ReactionTests:
     _rate_cls = None # corresponding reaction rate type
     _equation = None # reaction equation string
     _rate = None # parameters for reaction rate object constructor
+    _3rd_body = None # object representing third-body collider
     _rate_obj = None # reaction rate object
     _kwargs = {} # additional parameters required by constructor
     _index = None # index of reaction in "kineticsfromscratch.yaml"
-    _rxn_type = "reaction" # name of reaction type
     _rate_type = None # name of reaction rate type
     _yaml = None # YAML parameterization
 
@@ -973,29 +973,19 @@ class ReactionTests:
         return self.finalize(rxn)
 
     def from_empty(self):
-        # create reaction object with uninitialized rate
-        if self._rate_cls is None:
-            rate = None
-        else:
-            # Create an "empty" rate of the correct type for merged reaction types where
-            # the only way they are distinguished is by the rate type
-            rate = self._rate_cls()
-        rxn = self._cls(equation=self._equation, rate=rate, kinetics=self.soln,
-                        **self._kwargs)
+        # create reaction object with an "empty" rate of the correct type
+        rxn = ct.Reaction(equation=self._equation, rate=self._rate_cls(), third_body=self._3rd_body)
         return self.finalize(rxn)
 
     def from_rate(self, rate):
-        if rate is None and self._rate is None:
-            # this does not work when no specialized reaction class exists
-            pytest.skip("Creation from dictionary is not supported")
-        rxn = self._cls(equation=self._equation, rate=rate, kinetics=self.soln,
-                        **self._kwargs)
+        # create reaction object from dictionary
+        rxn = ct.Reaction(equation=self._equation, rate=rate, third_body=self._3rd_body)
         return self.finalize(rxn)
 
     def from_parts(self):
         # create reaction rate object from parts
         orig = self.soln.reaction(self._index)
-        rxn = self._cls(orig.reactants, orig.products, rate=self._rate_obj)
+        rxn = ct.Reaction(orig.reactants, orig.products, rate=self._rate_obj, third_body=self._3rd_body)
         rxn.reversible = "<=>" in self._equation
         return self.finalize(rxn)
 
@@ -1086,8 +1076,6 @@ class ReactionTests:
 
     def test_no_rate(self):
         # check behavior for instantiation from keywords / no rate
-        if self._rate_obj is None:
-            return
         rxn = self.from_empty()
         self.assertIsNaN(self.eval_rate(rxn.rate))
 
@@ -1128,12 +1116,10 @@ class ReactionTests:
 class TestElementary(ReactionTests, utilities.CanteraTest):
     # test elementary reaction
 
-    _cls = ct.Reaction
     _rate_cls = ct.ArrheniusRate
     _equation = "H2 + O <=> H + OH"
     _rate = {"A": 38.7, "b": 2.7, "Ea": 2.619184e+07}
     _index = 0
-    _rxn_type = "reaction"
     _rate_type = "Arrhenius"
     _yaml = """
         equation: O + H2 <=> H + OH
@@ -1150,30 +1136,29 @@ class TestElementary(ReactionTests, utilities.CanteraTest):
 class TestThreeBody(TestElementary):
     # test three-body reaction
 
-    _cls = ct.ThreeBodyReaction
     _equation = "2 O + M <=> O2 + M"
     _rate = {"A": 1.2e11, "b": -1.0, "Ea": 0.0}
-    _kwargs = {"efficiencies": {"H2": 2.4, "H2O": 15.4, "AR": 0.83}}
+    _3rd_body = ct.ThirdBody(efficiencies={"H2": 2.4, "H2O": 15.4, "AR": 0.83})
     _index = 1
-    _rxn_type = "three-body"
     _yaml = """
         equation: 2 O + M <=> O2 + M
-        type: three-body
+        # type: three-body # optional
         rate-constant: {A: 1.2e+11, b: -1.0, Ea: 0.0 cal/mol}
         efficiencies: {H2: 2.4, H2O: 15.4, AR: 0.83}
         """
 
-    def from_parts(self):
-        rxn = ReactionTests.from_parts(self)
-        rxn.efficiencies = self._kwargs["efficiencies"]
-        return rxn
-
     def test_efficiencies(self):
         # check efficiencies
-        rxn = self._cls(equation=self._equation, rate=self._rate_obj, kinetics=self.soln,
-                        **self._kwargs)
+        rxn = self.from_rate(self._rate_obj)
+        self.assertEqual(rxn.third_body.efficiencies, self._3rd_body.efficiencies)
 
-        self.assertEqual(rxn.efficiencies, self._kwargs["efficiencies"])
+    def test_serialization_type(self):
+        # test serialization output
+        rxn = self.from_yaml()
+        assert "type" not in rxn.input_data
+        orig = self.soln.reaction(self._index)
+        assert "type" in orig.input_data
+        assert orig.input_data["type"] == "three-body"
 
 
 class TestImplicitThreeBody(TestThreeBody):
@@ -1181,24 +1166,27 @@ class TestImplicitThreeBody(TestThreeBody):
 
     _equation = "H + 2 O2 <=> HO2 + O2"
     _rate = {"A": 2.08e+19, "b": -1.24, "Ea": 0.0}
-    _kwargs = {}
+    _3rd_body = ct.ThirdBody("O2")
     _index = 5
     _yaml = """
         equation: H + 2 O2 <=> HO2 + O2
         rate-constant: {A: 2.08e+19, b: -1.24, Ea: 0.0}
         """
 
-    def from_parts(self):
-        rxn = ReactionTests.from_parts(self)
-        rxn.efficiencies = {"O2": 1.}
-        rxn.default_efficiency = 0
-        return rxn
-
     def test_efficiencies(self):
         # overload of default tester
         rxn = self.from_rate(self._rate_obj)
-        self.assertEqual(rxn.efficiencies, {"O2": 1.})
-        self.assertEqual(rxn.default_efficiency, 0.)
+        self.assertEqual(rxn.third_body.efficiencies, {"O2": 1.})
+        self.assertEqual(rxn.third_body.default_efficiency, 0.)
+
+    def test_serialization_type(self):
+        # test serialization output
+        rxn = self.from_yaml()
+        assert "type" not in rxn.input_data
+        assert "efficiencies" not in rxn.input_data
+        orig = self.soln.reaction(self._index)
+        assert "type" not in orig.input_data
+        assert "efficiencies" not in orig.input_data
 
 
 class TestTwoTempPlasma(ReactionTests, utilities.CanteraTest):
@@ -1207,6 +1195,7 @@ class TestTwoTempPlasma(ReactionTests, utilities.CanteraTest):
     _rate_cls = ct.TwoTempPlasmaRate
     _rate_type = "two-temperature-plasma"
     _equation = "O + H => O + H"
+    _rate = {"A": 17283, "b": -3.1, "Ea_gas": -5820000, "Ea_electron": 1081000}
     _rate_obj = ct.TwoTempPlasmaRate(A=17283, b=-3.1, Ea_gas=-5820000, Ea_electron=1081000)
     _index = 11
     _yaml = """
@@ -1226,11 +1215,12 @@ class TestTwoTempPlasma(ReactionTests, utilities.CanteraTest):
 
 
 class TestBlowersMasel(ReactionTests, utilities.CanteraTest):
-    # test updated version of Blowers-Masel reaction
+    # test elementary version of Blowers-Masel reaction
 
     _rate_cls = ct.BlowersMaselRate
     _rate_type = "Blowers-Masel"
     _equation = "O + H2 <=> H + OH"
+    _rate = {"A": 38700, "b": 2.7, "Ea0": 1.0958665856e8, "w": 1.7505856e13}
     _rate_obj = ct.BlowersMaselRate(A=38700, b=2.7, Ea0=1.0958665856e8, w=1.7505856e13)
     _index = 6
     _yaml = """
@@ -1245,10 +1235,23 @@ class TestBlowersMasel(ReactionTests, utilities.CanteraTest):
             return rate(self.soln.T)
 
 
+class TestThreeBodyBlowersMasel(TestBlowersMasel):
+    # test three-body version of Blowers-Masel reaction
+
+    _equation = "O + H2 + M <=> H2O + M"
+    _3rd_body = ct.ThirdBody()
+    _index = 13
+    _yaml = """
+        equation: O + H2 + M <=> H2O + M
+        type: Blowers-Masel
+        rate-constant: {A: 38700, b: 2.7, Ea0: 2.619184e4 cal/mol, w: 4.184e9 cal/mol}
+        """
+
+
 class TestTroe(ReactionTests, utilities.CanteraTest):
     # test Troe falloff reaction
 
-    _cls = ct.FalloffReaction
+    _rate_cls = ct.TroeRate
     _equation = "2 OH (+ M) <=> H2O2 (+ M)"
     _rate = {
         "type": "falloff",
@@ -1256,9 +1259,8 @@ class TestTroe(ReactionTests, utilities.CanteraTest):
         "high_P_rate_constant": {"A": 7.4e+10, "b": -0.37, "Ea": 0.0},
         "Troe": {"A": 0.7346, "T3": 94.0, "T1": 1756.0, "T2": 5182.0}
         }
-    _kwargs = {"efficiencies": {"AR": 0.7, "H2": 2.0, "H2O": 6.0}}
+    _3rd_body = ct.ThirdBody("(+M)", efficiencies={"AR": 0.7, "H2": 2.0, "H2O": 6.0})
     _index = 2
-    _rxn_type = "falloff"
     _rate_type = "Troe"
     _yaml = """
         equation: 2 OH (+ M) <=> H2O2 (+ M)  # Reaction 3
@@ -1284,25 +1286,19 @@ class TestTroe(ReactionTests, utilities.CanteraTest):
         concm = self.soln.third_body_concentrations[self._index]
         return rate(self.soln.T, concm)
 
-    def from_parts(self):
-        rxn = ReactionTests.from_parts(self)
-        rxn.efficiencies = self._kwargs["efficiencies"]
-        return rxn
-
 
 class TestLindemann(ReactionTests, utilities.CanteraTest):
     # test Lindemann falloff reaction
 
-    _cls = ct.FalloffReaction
+    _rate_cls = ct.LindemannRate
     _equation = "2 OH (+ M) <=> H2O2 (+ M)"
     _rate = {
         "type": "falloff",
         "low_P_rate_constant": {"A": 2.3e+12, "b": -0.9, "Ea": -7112800.0},
         "high_P_rate_constant": {"A": 7.4e+10, "b": -0.37, "Ea": 0.0}
         }
-    _kwargs = {"efficiencies": {"AR": 0.7, "H2": 2.0, "H2O": 6.0}}
+    _3rd_body = ct.ThirdBody("(+M)", efficiencies={"AR": 0.7, "H2": 2.0, "H2O": 6.0})
     _index = 7
-    _rxn_type = "falloff"
     _rate_type = "Lindemann"
     _yaml = """
         equation: 2 OH (+ M) <=> H2O2 (+ M)  # Reaction 8
@@ -1326,24 +1322,19 @@ class TestLindemann(ReactionTests, utilities.CanteraTest):
         concm = self.soln.third_body_concentrations[self._index]
         return rate(self.soln.T, concm)
 
-    def from_parts(self):
-        rxn = ReactionTests.from_parts(self)
-        rxn.efficiencies = self._kwargs["efficiencies"]
-        return rxn
-
 
 class TestChemicallyActivated(ReactionTests, utilities.CanteraTest):
     # test Chemically Activated falloff reaction
 
-    _cls = ct.FalloffReaction
+    _rate_cls = ct.LindemannRate
     _equation = "H2O + OH (+M) <=> HO2 + H2 (+M)"
     _rate = {
         "type": "chemically-activated",
         "low_P_rate_constant": {"A": 282.320078, "b": 1.46878, "Ea": -13684043.7508},
         "high_P_rate_constant": {"A": 5.88E-14, "b": 6.721, "Ea": -12644997.768}
         }
+    _3rd_body = ct.ThirdBody("(+M)")
     _index = 10
-    _rxn_type = "chemically-activated"
     _rate_type = "Lindemann"
     _yaml = """
         equation: H2O + OH (+M) <=> HO2 + H2 (+M)  # Reaction 11
@@ -1371,9 +1362,7 @@ class TestChemicallyActivated(ReactionTests, utilities.CanteraTest):
 class TestPlog(ReactionTests, utilities.CanteraTest):
     # test Plog reaction
 
-    _cls = ct.Reaction
     _rate_cls = ct.PlogRate
-    _rxn_type = "reaction"
     _rate_type = "pressure-dependent-Arrhenius"
     _equation = "H2 + O2 <=> 2 OH"
     _rate = {
@@ -1416,12 +1405,17 @@ class TestPlog(ReactionTests, utilities.CanteraTest):
 class TestChebyshev(ReactionTests, utilities.CanteraTest):
     # test Chebyshev reaction
 
-    _cls = ct.Reaction
     _rate_cls = ct.ChebyshevRate
-    _rxn_type = "reaction"
     _rate_type = "Chebyshev"
     _equation = "HO2 <=> OH + O"
-    _rate = None
+    _rate = {
+        "type": "Chebyshev",
+        "temperature-range": [290., 3000.],
+        "pressure-range": [1000., 10000000.0],
+        "data":
+            [[8.2883, -1.1397, -0.12059, 0.016034],
+             [1.9764, 1.0037, 7.2865e-03, -0.030432],
+             [0.3177, 0.26889, 0.094806, -7.6385e-03]]}
     _rate_obj = ct.ChebyshevRate(
         temperature_range=(290., 3000.), pressure_range=(1000., 10000000.0),
         data=[[ 8.2883e+00, -1.1397e+00, -1.2059e-01,  1.6034e-02],
@@ -1447,12 +1441,10 @@ class TestCustom(ReactionTests, utilities.CanteraTest):
     # test Custom reaction
 
     # probe O + H2 <=> H + OH
-    _cls = ct.Reaction
     _rate_cls = ct.CustomRate
     _equation = "H2 + O <=> H + OH"
     _rate_obj = ct.CustomRate(lambda T: 38.7 * T**2.7 * exp(-3150.15428/T))
     _index = 0
-    _rxn_type = "reaction"
     _rate_type = "custom-rate-function"
     _yaml = None
 
