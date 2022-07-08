@@ -48,13 +48,6 @@ Reaction::Reaction(const std::string& equation,
 Reaction::Reaction(const AnyMap& node, const Kinetics& kin)
 {
     std::string rate_type = node.getString("type", "Arrhenius");
-    if (rate_type == "falloff" || rate_type == "chemically-activated") {
-        m_third_body.reset(new ThirdBody("(+M)"));
-    } else if (rate_type == "three-body") {
-        // @todo make this optional
-        m_third_body.reset(new ThirdBody("M"));
-    }
-
     if (kin.nPhases()) {
         size_t nDim = kin.thermo(kin.reactionPhaseIndex()).nDim();
         if (nDim == 3) {
@@ -145,6 +138,11 @@ AnyMap Reaction::parameters(bool withInput) const
 
 void Reaction::getParameters(AnyMap& reactionNode) const
 {
+    if (!m_rate) {
+        throw CanteraError("Reaction::getParameters",
+            "Serialization of empty Reaction object is not supported.");
+    }
+
     reactionNode["equation"] = equation();
 
     if (duplicate) {
@@ -160,17 +158,14 @@ void Reaction::getParameters(AnyMap& reactionNode) const
         reactionNode["nonreactant-orders"] = true;
     }
 
-    if (m_rate) {
-        reactionNode.update(m_rate->parameters());
-
+    reactionNode.update(m_rate->parameters());
+    if (reactionNode.hasKey("type")) {
         // strip information not needed for reconstruction
-        if (reactionNode.hasKey("type")) {
-            std::string type = reactionNode["type"].asString();
-            if (ba::starts_with(type, "Arrhenius")) {
-                reactionNode.erase("type");
-            } else if (ba::starts_with(type, "Blowers-Masel")) {
-                reactionNode["type"] = "Blowers-Masel";
-            }
+        std::string type = reactionNode["type"].asString();
+        if (ba::starts_with(type, "Arrhenius")) {
+            reactionNode.erase("type");
+        } else if (ba::starts_with(type, "Blowers-Masel")) {
+            reactionNode["type"] = "Blowers-Masel";
         }
     }
 
@@ -182,8 +177,8 @@ void Reaction::getParameters(AnyMap& reactionNode) const
 void Reaction::setParameters(const AnyMap& node, const Kinetics& kin)
 {
     if (node.empty()) {
-        // empty node: used by newReaction() factory loader
-        return;
+        throw InputFileError("Reaction::setParameters", input,
+            "Cannot set reaction parameters from empty node.");
     }
 
     input = node;
@@ -217,11 +212,10 @@ void Reaction::setParameters(const AnyMap& node, const Kinetics& kin)
 void Reaction::setRate(shared_ptr<ReactionRate> rate)
 {
     if (!rate) {
-        // null pointer
-        m_rate.reset();
-    } else {
-        m_rate = rate;
+        throw InputFileError("Reaction::setRate", input,
+            "Reaction rate for reaction '{}' must not be empty.", equation());
     }
+    m_rate = rate;
 
     if (m_third_body) {
         if (m_third_body->name() == "MM") {
@@ -754,23 +748,24 @@ FalloffReaction::FalloffReaction()
     setRate(newReactionRate(type()));
 }
 
-FalloffReaction::FalloffReaction(const Composition& reactants,
-                                 const Composition& products,
-                                 const ReactionRate& rate,
-                                 const ThirdBody& tbody)
-    : Reaction(reactants, products)
+FalloffReaction::FalloffReaction(const Composition& reactants_,
+                                 const Composition& products_,
+                                 const ReactionRate& rate_,
+                                 const ThirdBody& tbody_)
 {
     warn_deprecated("FalloffReaction",
         "To be removed after Cantera 3.0. Replaceable with Reaction.");
     // cannot be delegated as std::make_shared does not work for FalloffRate
-    m_third_body = std::make_shared<ThirdBody>(tbody);
-    AnyMap node = rate.parameters();
+    reactants = reactants_;
+    products = products_;
+    m_third_body = std::make_shared<ThirdBody>(tbody_);
+    AnyMap node = rate_.parameters();
     node.applyUnits();
     std::string rate_type = node["type"].asString();
     if (rate_type != "falloff" && rate_type != "chemically-activated") {
         // use node information to determine whether rate is a falloff rate
         throw CanteraError("FalloffReaction::FalloffReaction",
-            "Incompatible types: '{}' is not a falloff rate object.", rate.type());
+            "Incompatible types: '{}' is not a falloff rate object.", rate_.type());
     }
     setRate(newReactionRate(node));
 }
