@@ -314,7 +314,9 @@ cdef class TwoTempPlasmaRate(ArrheniusRateBase):
         return self.rate.eval(temperature, elec_temp)
 
     def _from_dict(self, dict input_data):
-        self._rate.reset(new CxxTwoTempPlasmaRate(dict_to_anymap(input_data)))
+        self._rate.reset(
+            new CxxTwoTempPlasmaRate(dict_to_anymap(input_data, hyphenize=True))
+        )
 
     def _from_parameters(self, A, b, Ea_gas, Ea_electron):
         self._rate.reset(new CxxTwoTempPlasmaRate(A, b, Ea_gas, Ea_electron))
@@ -439,7 +441,9 @@ cdef class LindemannRate(FalloffRate):
     _reaction_rate_type = "Lindemann"
 
     def _from_dict(self, dict input_data):
-        self._rate.reset(new CxxLindemannRate(dict_to_anymap(input_data)))
+        self._rate.reset(
+            new CxxLindemannRate(dict_to_anymap(input_data, hyphenize=True))
+        )
 
     cdef set_cxx_object(self):
         self.rate = self._rate.get()
@@ -457,7 +461,9 @@ cdef class TroeRate(FalloffRate):
     _reaction_rate_type = "Troe"
 
     def _from_dict(self, dict input_data):
-        self._rate.reset(new CxxTroeRate(dict_to_anymap(input_data)))
+        self._rate.reset(
+            new CxxTroeRate(dict_to_anymap(input_data, hyphenize=True))
+        )
 
     cdef set_cxx_object(self):
         self.rate = self._rate.get()
@@ -475,7 +481,9 @@ cdef class SriRate(FalloffRate):
     _reaction_rate_type = "SRI"
 
     def _from_dict(self, dict input_data):
-        self._rate.reset(new CxxSriRate(dict_to_anymap(input_data)))
+        self._rate.reset(
+            new CxxSriRate(dict_to_anymap(input_data, hyphenize=True))
+        )
 
     cdef set_cxx_object(self):
         self.rate = self._rate.get()
@@ -489,7 +497,9 @@ cdef class TsangRate(FalloffRate):
     _reaction_rate_type = "Tsang"
 
     def _from_dict(self, dict input_data):
-        self._rate.reset(new CxxTsangRate(dict_to_anymap(input_data)))
+        self._rate.reset(
+            new CxxTsangRate(dict_to_anymap(input_data, hyphenize=True))
+        )
 
     cdef set_cxx_object(self):
         self.rate = self._rate.get()
@@ -988,6 +998,87 @@ cdef class StickingBlowersMaselRate(StickRateBase):
             self.cxx_object().setDeltaH(delta_H)
 
 
+cdef class ThirdBody:
+    r"""
+    Class representing third-body collision partners in three-body or falloff reactions.
+
+    :param collider:
+        Name of the third-body collider. If ``M`` (default), the `default_efficiency`
+        is set to 1 and the ollider is assumed to participate in a three-body reaction.
+        If the collider includes parentheses, - for example ``(+M)``, - a falloff form
+        is assumed, where the collider is not considered for the law of mass action.
+        For species other than ``M``, the third-body collider represents a named species
+        with collision efficiency 1, and the `default_efficiency` is set to zero.
+    :param efficiencies:
+        Non-default third-body efficiencies
+    :param default_efficinecy:
+        Default third-body efficiency
+
+    .. versionadded:: 3.0
+    """
+    def __cinit__(self, collider="M", *,
+                  efficiencies=None, default_efficiency=None, init=True):
+        if not init:
+            return
+        self._third_body.reset(new CxxThirdBody(stringify(collider)))
+        self.third_body = self._third_body.get()
+
+        if efficiencies is not None:
+            self.efficiencies = efficiencies
+
+        if default_efficiency is not None:
+            self.default_efficiency = default_efficiency
+
+    @staticmethod
+    cdef wrap(shared_ptr[CxxThirdBody] third_body):
+        tb = ThirdBody(init=False)
+        tb._third_body = third_body
+        tb.third_body = tb._third_body.get()
+        return tb
+
+    property name:
+        """
+        Get the name of the third-body collider used in the reaction equation.
+        """
+        def __get__(self):
+            return pystr(self.third_body.name())
+
+    property mass_action:
+        """
+        Retrieve flag indicating whether third-body collider participates
+        in the law of mass action.
+        """
+        def __get__(self):
+            return self.third_body.mass_action
+
+    property efficiencies:
+        """
+        Get/Set a `dict` defining non-default third-body efficiencies for this reaction,
+        where the keys are the species names and the values are the efficiencies.
+        """
+        def __get__(self):
+            return comp_map_to_dict(self.third_body.efficiencies)
+        def __set__(self, eff):
+            self.third_body.efficiencies = comp_map(eff)
+
+    property default_efficiency:
+        """
+        Get/Set the default third-body efficiency for this reaction, used for species
+        not in `efficiencies`.
+        """
+        def __get__(self):
+            return self.third_body.default_efficiency
+        def __set__(self, default_eff):
+            self.third_body.default_efficiency = default_eff
+
+    def efficiency(self, species):
+        """
+        Get the efficiency of the third body named ``species`` considering both
+        the default efficiency and species-specific efficiencies.
+        """
+        return self.third_body.efficiency(stringify(species))
+
+
 cdef class Reaction:
     """
     A class which stores data about a reaction and its rate parameterization so
@@ -1048,7 +1139,7 @@ cdef class Reaction:
 
     def __cinit__(self, reactants=None, products=None, rate=None, *,
                   equation=None, init=True, efficiencies=None,
-                  Kinetics kinetics=None, **kwargs):
+                  Kinetics kinetics=None, third_body=None, **kwargs):
         if kinetics:
             warnings.warn(
                 "Parameter 'kinetics' is no longer used and will be removed after "
@@ -1064,9 +1155,14 @@ cdef class Reaction:
             # default to Arrhenius expression
             raise ValueError("Missing reaction rate information.")
         elif isinstance(rate, dict):
-            if set(rate) == {"A", "b", "Ea"}:
-                # Allow simple syntax for Arrhenius rates
-                _rate = ReactionRate.from_dict({"rate-constant": rate})
+            if {"A", "b"} - set(rate) == set():
+                # Allow simple syntax for Arrhenius-type rates
+                args = {"rate-constant": rate}
+                if "Ea0" in rate:
+                    args.update({"type": "Blowers-Masel"})
+                elif "Ea_gas" in rate:
+                    args.update({"type": "two-temperature-plasma"})
+                _rate = ReactionRate.from_dict(args)
             else:
                 _rate = ReactionRate.from_dict(rate)
         elif isinstance(rate, Arrhenius):
@@ -1080,24 +1176,49 @@ cdef class Reaction:
         else:
             raise TypeError(f"Invalid rate definition with type '{type(rate)}'")
 
+        cdef ThirdBody _third_body
+        if isinstance(third_body, ThirdBody):
+            _third_body = third_body
+        elif isinstance(third_body, str):
+            _third_body = ThirdBody(third_body)
+        elif efficiencies:
+            warnings.warn(
+                "Argument 'efficiencies' is deprecated and will be removed after "
+                "Cantera 3.0. Use ThirdBody instead.", DeprecationWarning)
+            third_body = "M"
+            _third_body = ThirdBody(third_body)
+            _third_body.efficiencies = efficiencies
+
         if reactants and products:
             # create from reactant and product compositions
-            self._reaction.reset(
-                new CxxReaction(comp_map(reactants), comp_map(products), _rate._rate)
-            )
+            if third_body:
+                self._reaction.reset(
+                    new CxxReaction(comp_map(reactants), comp_map(products),
+                    _rate._rate, _third_body._third_body)
+                )
+            else:
+                self._reaction.reset(
+                    new CxxReaction(comp_map(reactants), comp_map(products),
+                    _rate._rate)
+                )
         elif equation:
             # create from reaction equation
-            self._reaction.reset(new CxxReaction(stringify(equation), _rate._rate))
+            if third_body:
+                self._reaction.reset(
+                    new CxxReaction(stringify(equation),
+                    _rate._rate, _third_body._third_body)
+                )
+            else:
+                self._reaction.reset(
+                    new CxxReaction(stringify(equation),
+                    _rate._rate)
+                )
         else:
             # create default object
             raise ValueError("Missing reactant and/or product information.")
 
         self.reaction = self._reaction.get()
         self._rate = _rate
-
-        if efficiencies:
-            # todo ... deprecate / update with ThirdBody assignment
-            self.efficiencies = efficiencies
 
     @staticmethod
     cdef wrap(shared_ptr[CxxReaction] reaction):
@@ -1134,8 +1255,7 @@ cdef class Reaction:
             involved in the reaction.
         """
         cdef CxxAnyMap any_map = dict_to_anymap(data, hyphenize=hyphenize)
-        cdef shared_ptr[CxxReaction] cxx_reaction
-        cxx_reaction.reset(new CxxReaction(any_map, deref(kinetics.kinetics)))
+        cxx_reaction = CxxNewReaction(any_map, deref(kinetics.kinetics))
         return Reaction.wrap(cxx_reaction)
 
     @classmethod
@@ -1159,8 +1279,7 @@ cdef class Reaction:
             involved in the reaction.
         """
         cdef CxxAnyMap any_map = AnyMapFromYamlString(stringify(text))
-        cdef shared_ptr[CxxReaction] cxx_reaction
-        cxx_reaction.reset(new CxxReaction(any_map, deref(kinetics.kinetics)))
+        cxx_reaction = CxxNewReaction(any_map, deref(kinetics.kinetics))
         return Reaction.wrap(cxx_reaction)
 
     @staticmethod
@@ -1360,64 +1479,84 @@ cdef class Reaction:
             cdef CxxUnits rate_units = self.reaction.rate_units
             return Units.copy(rate_units)
 
-    cdef CxxThirdBody* thirdbody(self, cbool force):
-        cdef shared_ptr[CxxThirdBody] third_body
-        if self.reaction.usesThirdBody():
-            pass
-        elif force:
-            third_body.reset(new CxxThirdBody())
-            self.reaction.setThirdBody(third_body)
-        else:
-            raise ValueError("Reaction does not involve third body collider")
-
-        return <CxxThirdBody*>(self.reaction.thirdBody().get())
-
-    property uses_third_body:
+    property third_body:
         """
-        Returns a flag indicating whether the reaction uses a third body collider
+        Returns an `ThirdBody` object if `Reaction` uses a third body collider, and
+        ``None`` otherwise.
 
         .. versionadded:: 3.0
         """
         def __get__(self):
-            return self.reaction.usesThirdBody()
+            if not self.reaction.usesThirdBody():
+                return
+            return ThirdBody.wrap(self.reaction.thirdBody())
 
     property efficiencies:
         """
         Get/Set a `dict` defining non-default third-body efficiencies for this reaction,
         where the keys are the species names and the values are the efficiencies.
+
+        .. deprecated:: 3.0
+
+            To be removed after Cantera 3.0. Access via `third_body` property and
+            `ThirdBody` object instead.
         """
         def __get__(self):
-            if self.uses_third_body:
-                return comp_map_to_dict(self.thirdbody(False).efficiencies)
-            return comp_map_to_dict(self.thirdbody(True).efficiencies)
+            warnings.warn(
+                "Property 'efficiencies' is deprecated and will be removed after "
+                "Cantera 3.0. Use ThirdBody instead.", DeprecationWarning)
+            if self.third_body is None:
+                raise ValueError("Reaction does not involve third body collider")
+            return self.third_body.efficiencies
         def __set__(self, eff):
-            if self.uses_third_body:
-                self.thirdbody(False).efficiencies = comp_map(eff)
-            self.thirdbody(True).efficiencies = comp_map(eff)
+            warnings.warn(
+                "Property 'efficiencies' is deprecated and will be removed after "
+                "Cantera 3.0. Use ThirdBody instead.", DeprecationWarning)
+            if self.third_body is None:
+                raise ValueError("Reaction does not involve third body collider")
+            self.third_body.efficiencies = comp_map(eff)
 
     property default_efficiency:
         """
         Get/Set the default third-body efficiency for this reaction, used for species
         not in `efficiencies`.
+
+        .. deprecated:: 3.0
+
+            To be removed after Cantera 3.0. Access via `third_body` property and
+            `ThirdBody` object instead.
         """
         def __get__(self):
-            if self.uses_third_body:
-                return self.thirdbody(False).default_efficiency
-            return self.thirdbody(True).default_efficiency
+            warnings.warn(
+                "Property 'default_efficiency' is deprecated and will be removed after "
+                "Cantera 3.0. Use ThirdBody instead.", DeprecationWarning)
+            if self.third_body is None:
+                raise ValueError("Reaction does not involve third body collider")
+            return self.third_body.default_efficiency
         def __set__(self, default_eff):
-            if self.uses_third_body:
-                self.thirdbody(False).default_efficiency = default_eff
-            self.thirdbody(True).default_efficiency = default_eff
+            warnings.warn(
+                "Property 'default_efficiency' is deprecated and will be removed after "
+                "Cantera 3.0. Use ThirdBody instead.", DeprecationWarning)
+            if self.third_body is None:
+                raise ValueError("Reaction does not involve third body collider")
+            self.third_body.default_efficiency = default_eff
 
     def efficiency(self, species):
         """
         Get the efficiency of the third body named ``species`` considering both
         the default efficiency and species-specific efficiencies.
+
+        .. deprecated:: 3.0
+
+            To be removed after Cantera 3.0. Access via `third_body` property and
+            `ThirdBody` object instead.
         """
-        if self.uses_third_body:
-            return self.thirdbody(False).efficiency(stringify(species))
-        return self.thirdbody(True).efficiency(stringify(species))
-        # raise ValueError("Reaction does not involve third body collider")
+        warnings.warn(
+            "Method 'efficiency' is deprecated and will be removed after "
+            "Cantera 3.0. Use ThirdBody instead.", DeprecationWarning)
+        if self.third_body is None:
+            raise ValueError("Reaction does not involve third body collider")
+        return self.third_body.efficiency(stringify(species))
 
 
 cdef class Arrhenius:

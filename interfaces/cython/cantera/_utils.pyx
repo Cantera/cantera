@@ -170,10 +170,17 @@ cdef anymap_to_dict(CxxAnyMap& m):
     return {pystr(item.first): anyvalue_to_python(item.first, item.second)
             for item in m.ordered()}
 
-cdef CxxAnyMap dict_to_anymap(dict data, hyphenize=False) except *:
+cdef CxxAnyMap dict_to_anymap(dict data, cbool hyphenize=False) except *:
     cdef CxxAnyMap m
     if hyphenize:
-        data = {key.replace("_", "-"): value for key, value in data.items()}
+        # replace "_" by "-": while Python dictionaries typically use "_" in key names,
+        # the YAML convention uses "-" in field names
+        def _hyphenize(data):
+            if isinstance(data, dict):
+                return {k.replace("_", "-"): _hyphenize(v) for k, v in data.items()}
+            return data
+
+        data = _hyphenize(data)
 
     for k, v in data.items():
         m[stringify(k)] = python_to_anyvalue(v, k)
