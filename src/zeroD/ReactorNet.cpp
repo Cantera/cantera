@@ -9,6 +9,7 @@
 #include "cantera/base/utilities.h"
 #include "cantera/base/Array.h"
 #include "cantera/numerics/Integrator.h"
+#include "cantera/numerics/Newton.h"
 
 using namespace std;
 
@@ -396,6 +397,49 @@ size_t ReactorNet::registerSensitivityParameter(
     m_sens_params.push_back(value);
     m_paramScales.push_back(scale);
     return m_sens_params.size() - 1;
+}
+
+// ----------- 0DSS -----------
+double ReactorNet::solveSteady()
+{
+    if (m_reactors.empty()) {
+        throw CanteraError("ReactorNet::solveSteady",
+                           "no reactors in network!");
+    }
+
+    //initialize
+    m_nv = 0;
+    m_start.assign(1, 0);
+    for (size_t n = 0; n < m_reactors.size(); n++) {
+        Reactor& r = *m_reactors[n];
+        if (r.nWalls()) {
+            throw CanteraError("ReactorNet::solveSteady",
+                           "Wall detected in network - cannot solve for"
+                           "steady state with transient components.");
+        }
+        //TODO: add check for constant mass flow rate
+        r.initialize(m_time);
+        m_nv += r.neq();
+        m_start.push_back(m_nv);
+    }
+
+    //TODO: better initialization/configuration for this solver
+    //solve
+    std::unique_ptr<Cantera::Newton> m_newt;
+    m_newt.reset(new Cantera::Newton(*this));
+
+    for (int i = 0; i < m_nv; i++)
+    {
+        m_newt->setBounds(i, -1.0e-3, 1.01);
+    }
+    m_newt->setBounds(0, 1.0e-3, 100);
+    m_newt->setBounds(1, 0, 5);
+    m_newt->setBounds(2, -10000000, 10000000);
+
+    m_newt->setConstants({1});
+    // m_newt->setConstants({0,1,2,11,12});
+
+    return m_newt->hybridSolve();
 }
 
 }

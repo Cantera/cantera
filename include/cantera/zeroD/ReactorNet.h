@@ -253,6 +253,9 @@ public:
     //! Retrieve absolute step size limits during advance
     bool getAdvanceLimits(double* limits);
 
+    //! Advance the reactor network to steady state.
+    double solveSteady();
+
 protected:
 
     //! Estimate a future state based on current derivatives.
