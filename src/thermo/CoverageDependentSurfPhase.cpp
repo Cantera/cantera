@@ -1,7 +1,8 @@
 /**
  *  @file CoverageDependentSurfPhase.cpp
- *  Definitions for a simple thermodynamic model of a coverage-dependent
- *  surface phase derived from SurfPhase, assuming an ideal solution model
+ *  Definitions for a thermodynamics model of a coverage-dependent surface
+ *  phase derived from SurfPhase, applying adsorbate lateral interaction
+ *  correction factors to the SurfPhase thermodynamic properties.
  *  (see \ref thermoprops and class
  *  \link Cantera::CoverageDependentSurfPhase CoverageDependentSurfPhase\endlink).
  */
