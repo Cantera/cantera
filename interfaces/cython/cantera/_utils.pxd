@@ -90,5 +90,5 @@ cdef pystr(string x)
 cdef comp_map_to_dict(Composition m)
 cdef Composition comp_map(X) except *
 
-cdef CxxAnyMap dict_to_anymap(data) except *
+cdef CxxAnyMap dict_to_anymap(dict data, cbool hyphenize=*) except *
 cdef anymap_to_dict(CxxAnyMap& m)

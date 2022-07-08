@@ -257,16 +257,6 @@ void Reaction::setRate(shared_ptr<ReactionRate> rate)
     }
 }
 
-void Reaction::setThirdBody(shared_ptr<ThirdBody> tbody)
-{
-    if (!tbody) {
-        // null pointer
-        m_third_body.reset();
-    } else {
-        m_third_body = tbody;
-    }
-}
-
 std::string Reaction::reactantString() const
 {
     std::ostringstream result;

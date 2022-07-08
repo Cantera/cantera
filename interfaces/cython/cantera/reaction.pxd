@@ -88,6 +88,7 @@ cdef extern from "cantera/cython/wrappers.h":
 
 cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
     cdef cppclass CxxKinetics "Cantera::Kinetics"
+    cdef shared_ptr[CxxReaction] CxxNewReaction "newReaction" (CxxAnyMap&, CxxKinetics&) except +translate_exception
     cdef vector[shared_ptr[CxxReaction]] CxxGetReactions "getReactions" (CxxAnyValue&, CxxKinetics&) except +translate_exception
 
     cdef cppclass CxxFalloffRate "Cantera::FalloffRate" (CxxReactionRate):
@@ -180,17 +181,19 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
 
     cdef cppclass CxxThirdBody "Cantera::ThirdBody":
         CxxThirdBody()
-        CxxThirdBody(double)
+        CxxThirdBody(string)
         double efficiency(string)
+        string name()
         Composition efficiencies
         double default_efficiency
+        cbool mass_action
 
     cdef cppclass CxxReaction "Cantera::Reaction":
-        CxxReaction()        CxxReaction(Composition&, Composition&, shared_ptr[CxxReactionRate]) except +translate_exception
+        CxxReaction()
+        CxxReaction(Composition&, Composition&, shared_ptr[CxxReactionRate]) except +translate_exception
         CxxReaction(Composition&, Composition&, shared_ptr[CxxReactionRate], shared_ptr[CxxThirdBody]) except +translate_exception
         CxxReaction(string&, shared_ptr[CxxReactionRate]) except +translate_exception
         CxxReaction(string&, shared_ptr[CxxReactionRate], shared_ptr[CxxThirdBody]) except +translate_exception
-        CxxReaction(CxxAnyMap&, CxxKinetics&) except +translate_exception
 
         string reactantString()
         string productString()
@@ -209,7 +212,6 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         cbool allow_nonreactant_orders
         cbool allow_negative_orders
         shared_ptr[CxxThirdBody] thirdBody()
-        void setThirdBody(shared_ptr[CxxThirdBody])
         CxxUnits rate_units
 
         shared_ptr[CxxReactionRate] rate()
@@ -266,10 +268,15 @@ cdef class InterfaceRateBase(ArrheniusRateBase):
 cdef class StickRateBase(InterfaceRateBase):
     cdef CxxStickingCoverage* stick
 
+cdef class ThirdBody:
+    cdef shared_ptr[CxxThirdBody] _third_body
+    cdef CxxThirdBody* third_body
+    @staticmethod
+    cdef wrap(shared_ptr[CxxThirdBody])
+
 cdef class Reaction:
     cdef shared_ptr[CxxReaction] _reaction
     cdef CxxReaction* reaction
-    cdef CxxThirdBody* thirdbody(self, cbool)
     @staticmethod
     cdef wrap(shared_ptr[CxxReaction])
     cdef ReactionRate _rate

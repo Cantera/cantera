@@ -183,10 +183,6 @@ public:
         return m_third_body;
     }
 
-    //! Set pointer to third-body handler
-    //! @since  New in Cantera 3.0.
-    void setThirdBody(shared_ptr<ThirdBody> tbody);
-
     //! Check whether reaction involves third body collider
     //! @since  New in Cantera 3.0.
     bool usesThirdBody() const {
