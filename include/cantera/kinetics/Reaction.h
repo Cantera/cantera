@@ -57,7 +57,7 @@ public:
     //! object is provided, it is used to check that all reactants and products exist.
     void setEquation(const std::string& equation, const Kinetics* kin=0);
 
-    //! The type of reaction
+    //! The type of reaction, including reaction rate information
     std::string type() const;
 
     //! Calculate the units of the rate constant. These are determined by the units
