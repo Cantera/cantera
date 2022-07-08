@@ -1,7 +1,8 @@
 /**
  *  @file CoverageDependentSurfPhase.h
- *  Header for a simple thermodynamics model of a coverage-dependent surface
- *  phase derived from SurfPhase, assuming an ideal solution model
+ *  Header for a thermodynamics model of a coverage-dependent surface
+ *  phase derived from SurfPhase, applying adsorbate lateral interaction
+ *  correction factors to the SurfPhase thermodynamic properties.
  *  (see \ref thermoprops and class
  *  \link Cantera::CoverageDependentSurfPhase CoverageDependentSurfPhase\endlink).
  */
@@ -107,6 +108,36 @@ struct HeatCapacityDependency
     double cpcov_b; //! log model coefficient b [J/kmol/K]
 };
 
+//! A thermodynamic model for a coverage-dependent surface phase, applying adsorbate
+//! lateral interaction correction factors to the ideal surface phase properties.
+/*!
+ *  The ideal surface phase assumes no lateral interaction among adsorbates.
+ *  This coverage-dependent surface phase allows adding lateral interaction
+ *  correction terms to the ideal surface phase thermodynamic properties so that
+ *  more accurate adsorbate thermochemistry can be achieved.
+ *
+ *  ## Coverage-dependent Thermodynamic Properties Formulations
+ *
+ *  Naturally, at a coverage limit an adsorbate thermochemistry is same as the
+ *  that of ideal species since there are no near adsorbates to render lateral
+ *  interactions. Therefore, it is logical to set ideal species properties
+ *  as the low coverage quantities and apply lateral interaction terms as excess
+ *  quantities. For example, a species coverage-dependent enthalpy of formation
+ *  can be formulated as follows.
+ *  \f[
+ *       \Delta_f h_k^{\circ,298} = \underbrace{ \Delta_f h_k^{\circ,298,
+ *           \text{ideal species}}}_{\text{low-coverage limit}}
+ *           + \underbrace{{\Delta_f h_k^{\circ,298}}^E
+ *           \left( \theta \right)}_{\text{excess enthalpy of formation}} \nonumber
+ *  \f]
+ *
+ *  ## Mathematical Models for Coverage-dependent Correction Terms
+ *
+ *  The coverage-dependent correction terms can be given as one of the four
+ *  functional models: linear dependecy model, piecewise-linear dependency model,
+ *  polynomial dependency model, and interpolative dependency model.
+ *
+ */
 class CoverageDependentSurfPhase : public SurfPhase
 {
 public:
@@ -183,30 +214,30 @@ public:
 
     // Functions calculating reference state thermodynamic properties--------------
 
-    //! Return the nondimensionalized reference state enthalpy.
+    //! Get the nondimensionalized reference state enthalpy.
     /*!
-     * Nondimensionalized reference state enthalpy is evaluated at T, $P_{ref}$ and
-     * $\theta_{ref}$:
+     * Nondimensionalized reference state enthalpy is evaluated at \f$ T, P_{ref} \f$
+     * and \f$ \theta_{ref} \f$:
      *
      * \f[
      *      h^{ref}_k / RT = h_k(T, P_{ref}, \theta_{ref}) / RT
      * \f]
      */
     virtual void getEnthalpy_RT_ref(double* hrt) const;
-    //! Return the nondimensionalized reference state entropy.
+    //! Get the nondimensionalized reference state entropy.
     /*!
-     * Nondimensionalized reference state entropy is evaluated at T, P_{ref} and
-     * $\theta_{ref}$:
+     * Nondimensionalized reference state entropy is evaluated at \f$ T, P_{ref} \f$
+     * and \f$ \theta_{ref} \f$:
      *
      * \f[
      *      s^{ref}_k / R = s_k(T, P_{ref}, \theta_\text{ref}) / R
      * \f]
      */
     virtual void getEntropy_R_ref(double* sr) const;
-    //! Return the nondimensionalized reference state cp.
+    //! Get the nondimensionalized reference state cp.
     /*!
-     * Nondimensionalized reference state cp is evaluated at T, P_{ref} and
-     * $\theta_{ref}$:
+     * Nondimensionalized reference state cp is evaluated at \f$ T, P_{ref} \f$
+     * and \f$ \theta_{ref} \f$:
      *
      * \f[
      *      cp^{ref}_k / R = cp_k(T, P_{ref}, \theta_\text{ref}) / R
@@ -215,6 +246,9 @@ public:
     virtual void getCp_R_ref(double* cpr) const;
     //! Return the nondimensionalized reference state Gibbs free energy.
     /*!
+     * Nondimensionalized reference state Gibbs free energy is evaluated
+     * at \f$ T, P_{ref} \f$ and \f$ \theta_{ref} \f$:
+     *
      * \f[
      *      g^{ref}_k / RT = h^{ref}_k /RT - s^{ref}_k /R
      * \f]
@@ -223,9 +257,10 @@ public:
 
     // Functions calculating standard state thermodynamic properties---------------
 
-    //! Return the nondimensionalized standard state enthalpy.
+    //! Get the nondimensionalized standard state enthalpy.
     /*!
-     * Nondimensionalized standard state enthalpy is evaluated at T, P and $\theta$:
+     * Nondimensionalized standard state enthalpy is evaluated at \f$ T, P_{ref} \f$
+     * and \f$ \theta_{ref} \f$:
      *
      * \f[
      *      h^o_k / RT = (h^{ref}_k + h^{cov}_k(T, P, \theta)) / RT
@@ -233,9 +268,10 @@ public:
      * \f]
      */
     virtual void getEnthalpy_RT(double* hrt) const;
-    //! Return the nondimensionalized standard state entropy.
+    //! Get the nondimensionalized standard state entropy.
     /*!
-     * Nondimensionalized standard state entropy is evaluated at T, P and $\theta$:
+     * Nondimensionalized standard state entropy is evaluated at \f$ T, P_{ref} \f$
+     * and \f$ \theta_{ref} \f$:
      *
      * \f[
      *      s^o_k / R = (s^{ref}_k + s^{cov}_k(T, P, \theta))
@@ -244,31 +280,41 @@ public:
      * \f]
      */
     virtual void getEntropy_R(double* sr) const;
-    //! Return the nondimensionalized standard state cp.
+    //! Get the nondimensionalized standard state cp.
     /*!
-     * Nondimensionalized standard state cp is evaluated at T, P and $\theta$:
+     * Nondimensionalized standard state cp is evaluated at \f$ T, P_{ref} \f$
+     * and \f$ \theta_{ref} \f$:
      *
      * \f[
      *      cp^o_k / RT = (cp^{ref}_k + cp^{cov}_k(T, P, \theta)) / RT
      * \f]
      */
     virtual void getCp_R(double* cpr) const;
-    //! Return the nondimensionalized standard state Gibbs free energy.
+    //! Get the nondimensionalized standard state Gibbs free energy.
     /*!
+     * Nondimensionalized standard state Gibbs free energy evaluated
+     * at \f$ T, P_{ref} \f$ and \f$ \theta_{ref} \f$:
+     *
      * \f[
      *      g^o_k / RT = h^o_k / RT - s^o_k / R
      * \f]
      */
     virtual void getGibbs_RT(double* grt) const;
-    //! Return the standard state Gibbs free energy. Units: J/kmol
+    //! Get the standard state Gibbs free energy. Units: J/kmol
     /*!
+     * Standard state Gibbs free energy evaluated at \f$ T, P_{ref} \f$
+     * and \f$ \theta_{ref} \f$:
+     *
      * \f[
      *      g^o_k = h^o_k - T s^o_k
      * \f]
      */
     virtual void getPureGibbs(double* g) const;
-    //! Return the standard state chemical potential. Units: J/kmol
+    //! Get the standard state chemical potential. Units: J/kmol
     /*!
+     * Standard state chemical potential evaluated at \f$ T, P_{ref} \f$
+     * and \f$ \theta_{ref} \f$:
+     *
      * \f[
      *      \mu^o_k = h^o_k - T s^o_k
      * \f]
@@ -277,27 +323,30 @@ public:
 
     // Functions calculating partial molar thermodynamic properties----------------
 
-    //! Return the partial molar enthalpy. Units: J/kmol
+    //! Get the partial molar enthalpy. Units: J/kmol
     /*!
-     * Partial molar enthalpy is evaluated at T, P and $\theta$:
+     * Partial molar enthalpy is evaluated at \f$ T, P_{ref} \f$
+     * and \f$ \theta_{ref} \f$:
      *
      * \f[
      *      \overline{h}_k = h^o_k(T, P, \theta)
      * \f]
      */
     virtual void getPartialMolarEnthalpies(double* hbar) const;
-    //! Return the partial molar entropy. Units: J/kmol/K
+    //! Get the partial molar entropy. Units: J/kmol/K
     /*!
-     * Partial molar entropy is evaluated at T, P and $\theta$:
+     * Partial molar entropy is evaluated at \f$ T, P_{ref} \f$
+     * and \f$ \theta_{ref} \f$:
      *
      * \f[
      *      \overline{s}_k = s^o_k(T, P, \theta) - R ln(\theta)
      * \f]
      */
     virtual void getPartialMolarEntropies(double* sbar) const;
-    //! Return the partial molar cp. Units: J/kmol/K
+    //! Get the partial molar cp. Units: J/kmol/K
     /*!
-     * Partial molar cp is evaluated at T, P and $\theta$:
+     * Partial molar cp is evaluated at \f$ T, P_{ref} \f$
+     * and \f$ \theta_{ref} \f$:
      *
      * \f[
      *      \overline{cp}_k = cp^o_k(T, P, \theta)
@@ -305,8 +354,11 @@ public:
      */
     virtual void getPartialMolarCp(double* cpbar) const;
 
-    //! Return the chemical potential. Units: J/kmol
+    //! Get the chemical potential. Units: J/kmol
     /*!
+     * Chemical potential is evaluated at \f$ T, P_{ref} \f$
+     * and \f$ \theta_{ref} \f$:
+     *
      * \f[
      *      \mu_k = mu^o_k(T, P, \theta) + RT ln(\theta)
      * \f]
@@ -317,7 +369,7 @@ public:
 
     //! Return the solution's molar enthalpy. Units: J/kmol
     /*!
-     * Assuming an ideal solution,
+     * Assuming an ideal mixing,
      * \f[
      * \hat h(T, P, \theta) = \sum_k \theta_k \overline{h}_k(T, \theta)
      *                      = \sum_k \theta_k h^o_k(T, \theta)
@@ -338,7 +390,7 @@ public:
 
     //! Return the solution's molar cp. Units: J/kmol/K
     /*!
-     * Assuming an ideal solution,
+     * Assuming an ideal mixing,
      * \f[
      * \hat{cp} (T, P, \theta) = \sum_k \theta_k \overline{cp}_k(T, \theta)
      *                         = \sum_k \theta_k cp^o_k(T, \theta)
