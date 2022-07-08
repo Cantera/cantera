@@ -159,14 +159,15 @@ void Reaction::getParameters(AnyMap& reactionNode) const
     }
 
     reactionNode.update(m_rate->parameters());
-    if (reactionNode.hasKey("type")) {
-        // strip information not needed for reconstruction
-        std::string type = reactionNode["type"].asString();
-        if (ba::starts_with(type, "Arrhenius")) {
-            reactionNode.erase("type");
-        } else if (ba::starts_with(type, "Blowers-Masel")) {
-            reactionNode["type"] = "Blowers-Masel";
-        }
+
+    // strip information not needed for reconstruction
+    std::string type = reactionNode["type"].asString();
+    if (type == "pressure-dependent-Arrhenius") {
+        // skip
+    } else if (ba::ends_with(type, "Arrhenius")) {
+        reactionNode.erase("type");
+    } else if (ba::ends_with(type, "Blowers-Masel")) {
+        reactionNode["type"] = "Blowers-Masel";
     }
 
     if (m_third_body) {
@@ -390,18 +391,24 @@ void Reaction::setEquation(const std::string& equation, const Kinetics* kin)
 
 std::string Reaction::type() const
 {
-    if (!m_third_body) {
-        return "reaction";
+    if (!m_rate) {
+        throw CanteraError("Reaction::type", "Empty Reaction does not have a type");
     }
 
+    std::string rate_type = m_rate->type();
     auto falloff = std::dynamic_pointer_cast<FalloffRate>(m_rate);
     if (falloff) {
         if (falloff->chemicallyActivated()) {
-            return "chemically-activated";
+            return "chemically-activated-" + rate_type;
         }
-        return "falloff";
+        return "falloff-" + rate_type;
     }
-    return "three-body";
+
+    if (m_third_body) {
+        return "three-body-" + rate_type;
+    }
+
+    return rate_type;
 }
 
 UnitStack Reaction::calculateRateCoeffUnits(const Kinetics& kin)

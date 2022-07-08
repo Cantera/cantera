@@ -79,7 +79,9 @@ void ArrheniusBase::getRateParameters(AnyMap& node) const
     if (!valid()) {
         // Return empty/unmodified AnyMap
         return;
-    } else if (m_rate_units.factor() != 0.0) {
+    }
+
+    if (m_rate_units.factor() != 0.0) {
         node[m_A_str].setQuantity(m_A, m_rate_units);
     } else {
         node[m_A_str] = m_A;
@@ -117,9 +119,7 @@ void ArrheniusBase::getParameters(AnyMap& node) const {
         // RateType object is configured
         node["rate-constant"] = std::move(rateNode);
     }
-    if (type() != "Arrhenius") {
-        node["type"] = type();
-    }
+    node["type"] = type();
 }
 
 void ArrheniusBase::check(const std::string& equation)
