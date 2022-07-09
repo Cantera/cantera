@@ -215,10 +215,12 @@ protected:
 class ThirdBody
 {
 public:
-    explicit ThirdBody(double default_efficiency=1.0);
-
+    explicit ThirdBody() {};
     ThirdBody(const std::string& third_body);
     ThirdBody(const AnyMap& node);
+
+    //! @deprecated  To be removed after Cantera 3.0; instantiate using string instead
+    ThirdBody(double default_efficiency);
 
     //! Name of the third body collider
     //! @since  New in Cantera 3.0
@@ -262,7 +264,7 @@ public:
     Composition efficiencies;
 
     //! The default third body efficiency for species not listed in #efficiencies.
-    double default_efficiency;
+    double default_efficiency = 1.;
 
     //! Third body is used by law of mass action
     //! (`true` for three-body reactions, `false` for falloff reactions)
