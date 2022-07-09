@@ -48,32 +48,30 @@ Reaction::Reaction(const std::string& equation,
 Reaction::Reaction(const AnyMap& node, const Kinetics& kin)
 {
     std::string rate_type = node.getString("type", "Arrhenius");
-    if (kin.nPhases()) {
-        size_t nDim = kin.thermo(kin.reactionPhaseIndex()).nDim();
-        if (nDim == 3) {
-            setParameters(node, kin);
-            setRate(newReactionRate(node, calculateRateCoeffUnits(kin)));
-        } else {
-            AnyMap rateNode = node;
-            if (rateNode.hasKey("rate-constant")) {
-                if (!ba::starts_with(rate_type, "interface-")) {
-                    rateNode["type"] = "interface-" + rate_type;
-                }
-            } else if (node.hasKey("sticking-coefficient")) {
-                if (!ba::starts_with(rate_type, "sticking-")) {
-                    rateNode["type"] = "sticking-" + rate_type;
-                }
-            } else {
-                throw InputFileError("Reaction::Reaction", input,
-                    "Unable to infer interface reaction type.");
-            }
-            setParameters(node, kin);
-            setRate(newReactionRate(rateNode, calculateRateCoeffUnits(kin)));
-        }
+    if (!kin.nPhases()) {
+        throw InputFileError("Reaction", node,
+            "Cannot instantiate Reaction with empty Kinetics object.");
+    }
+
+    setParameters(node, kin);
+    size_t nDim = kin.thermo(kin.reactionPhaseIndex()).nDim();
+    if (nDim == 3) {
+        setRate(newReactionRate(node, calculateRateCoeffUnits(kin)));
     } else {
-        // This route is used by the Python API.
-        setParameters(node, kin);
-        setRate(newReactionRate(node));
+        AnyMap rateNode = node;
+        if (rateNode.hasKey("rate-constant")) {
+            if (!ba::starts_with(rate_type, "interface-")) {
+                rateNode["type"] = "interface-" + rate_type;
+            }
+        } else if (node.hasKey("sticking-coefficient")) {
+            if (!ba::starts_with(rate_type, "sticking-")) {
+                rateNode["type"] = "sticking-" + rate_type;
+            }
+        } else {
+            throw InputFileError("Reaction::Reaction", input,
+                "Unable to infer interface reaction type.");
+        }
+        setRate(newReactionRate(rateNode, calculateRateCoeffUnits(kin)));
     }
     check();
 }
@@ -218,12 +216,9 @@ void Reaction::setRate(shared_ptr<ReactionRate> rate)
     }
     m_rate = rate;
 
+    std::string rate_type = input.getString("type", "");
     if (m_third_body) {
-        if (m_third_body->name() == "MM") {
-            throw InputFileError("Reaction::setRate", input,
-                "Reactants for reaction '{}'\n"
-                "contain multiple third body colliders.", equation());
-        } else if (std::dynamic_pointer_cast<ChebyshevRate>(m_rate)) {
+        if (std::dynamic_pointer_cast<ChebyshevRate>(m_rate)) {
             warn_deprecated("Chebyshev reaction equation", input, "Specifying '(+M)' "
                 "in the reaction equation for Chebyshev reactions is deprecated.");
             m_third_body.reset();
@@ -233,10 +228,24 @@ void Reaction::setRate(shared_ptr<ReactionRate> rate)
                 m_third_body->name());
         } else if (std::dynamic_pointer_cast<FalloffRate>(m_rate)) {
             m_third_body->mass_action = false;
+        } else if (std::dynamic_pointer_cast<TwoTempPlasmaRate>(m_rate)) {
+            // two-temperature-plasma rates do not support third-body colliders
+            for (const auto& spc : m_third_body->efficiencies) {
+                reactants[spc.first] += 1.;
+                products[spc.first] += 1.;
+            }
+            m_third_body.reset();
+        } else if (m_third_body->name() == "<multiple>") {
+            m_third_body.reset();
+            throw InputFileError("Reaction::setRate", input,
+                "Reactants for reaction '{}'\n"
+                "contain multiple third body colliders.", equation());
         }
     } else {
         if (std::dynamic_pointer_cast<FalloffRate>(m_rate)) {
-            m_third_body.reset(new ThirdBody("(+M)"));
+            throw InputFileError("Reaction::setRate", input,
+                "Reactants for falloff reaction '{}'\n"
+                "do not contain a valid pressure-dependent third body", equation());
         }
     }
 }
@@ -319,6 +328,9 @@ void Reaction::setEquation(const std::string& equation, const Kinetics* kin)
         if (products.count(reac.first)) {
             third_body = reac.first;
             count++;
+            if (reac.second > 1 && products[third_body] > 1) {
+                count++;
+            }
         }
     }
 
@@ -327,16 +339,11 @@ void Reaction::setEquation(const std::string& equation, const Kinetics* kin)
             throw InputFileError("Reaction::setEquation", input,
                 "Reactants for reaction '{}'\n"
                 "do not contain a valid third body collider", equation);
-        } else if (rate_type == "falloff" || rate_type == "chemically-activated") {
-            throw InputFileError("Reaction::setRate", input,
-                "Reactants for reaction '{}'\n"
-                "do not contain a valid pressure-dependent third body", equation);
         }
         return;
     } else if (count > 1) {
-        third_body = "MM";
-        // @todo  remove 'return'
-        return;
+        // assign sentinel value '<multiple>'
+        third_body = "<multiple>";
     } else if (ba::starts_with(third_body, "(+")) {
         // third body uses Falloff notation
     } else if (third_body != "M") {
@@ -370,6 +377,10 @@ void Reaction::setEquation(const std::string& equation, const Kinetics* kin)
         m_third_body->setName(third_body);
     } else {
         m_third_body.reset(new ThirdBody(third_body));
+    }
+
+    if (m_third_body->name() == "<multiple>") {
+        return;
     }
 
     // adjust reactant coefficients
@@ -612,6 +623,9 @@ bool Reaction::usesElectrochemistry(const Kinetics& kin) const
 ThirdBody::ThirdBody(double default_eff)
     : default_efficiency(default_eff)
 {
+    warn_deprecated("ThirdBody",
+        "Instantiation with default efficiency is deprecated and will be removed "
+        "after Cantera 3.0. Instantiate with collider name instead.");
 }
 
 ThirdBody::ThirdBody(const std::string& third_body)
@@ -621,27 +635,33 @@ ThirdBody::ThirdBody(const std::string& third_body)
 
 void ThirdBody::setName(const std::string& third_body)
 {
+    std::string name = third_body;
     if (ba::starts_with(third_body, "(+ ")) {
         mass_action = false;
-        m_name = third_body.substr(3, third_body.size() - 4);
+        name = third_body.substr(3, third_body.size() - 4);
     } else if (ba::starts_with(third_body, "(+")) {
         mass_action = false;
-        m_name = third_body.substr(2, third_body.size() - 3);
-    } else {
-        m_name = third_body;
+        name = third_body.substr(2, third_body.size() - 3);
     }
 
-    if (m_name == "M") {
-        default_efficiency = 1.;
-    } else {
-        if (efficiencies.size()) {
-            throw CanteraError("ThirdBody::setName",
-                "Conflicting efficiency definition for explicit third body '{}'",
-                m_name);
-        }
-        default_efficiency = 0.;
-        efficiencies[m_name] = 1.;
+    if (name == m_name) {
+        return;
     }
+    if (name == "M") {
+        throw CanteraError("ThirdBody::setName",
+            "Unable to revert explicit third body '{}' to 'M'", m_name);
+    }
+    if (efficiencies.size()) {
+        throw CanteraError("ThirdBody::setName",
+            "Conflicting efficiency definition for explicit third body '{}'", name);
+    }
+    m_name = name;
+    if (name == "<multiple>") {
+        // sentinel value for multiple third body colliders
+        return;
+    }
+    default_efficiency = 0.;
+    efficiencies[m_name] = 1.;
 }
 
 ThirdBody::ThirdBody(const AnyMap& node)
@@ -671,7 +691,7 @@ void ThirdBody::getParameters(AnyMap& node) const
 {
     if (m_name == "M") {
         if (mass_action) {
-            // @todo  remove once specialization is removed
+            // this can be removed
             node["type"] = "three-body";
         }
         node["efficiencies"] = efficiencies;
