@@ -31,6 +31,11 @@
 #     or substantial portions of the Software.
 
 """
+Convert YAML input files or `~cantera.Solution` instances to CHEMKIN input format. The
+supported CHEMKIN syntax follows the documentation in [Kee1989]_.
+
+.. versionadded:: 3.0
+
 Supported Thermodynamics:
     NASA7
 
@@ -42,6 +47,10 @@ Unsupported Thermodynamic Property Models:
 
 Unsupported Reaction models (not comprehensive):
     Chemically-activated, Blowers-Masel, Surface Reactions
+
+.. [Kee1989] Kee, RJ; Rupley, FM; Miller, JA. *Chemkin-II: A Fortran chemical kinetics
+   package for the analysis of gas-phase chemical kinetics,* `Sandia Report
+   SAND-89-8009 <https://www.osti.gov/biblio/5681118>`__, September 1989.
 """
 from __future__ import annotations
 
@@ -60,6 +69,30 @@ except ImportError:
     # Needed for Python 3.7 support
     from typing_extensions import Literal
 
+if sys.version_info < (3, 9):
+    class BooleanOptionalAction(argparse.Action):
+        def __init__(self, option_strings, dest, *,
+                     help=None, default=None, **kwargs):
+            _option_strings = []
+            for option_string in option_strings:
+                _option_strings.append(option_string)
+                _option_strings.append(f"--no-{option_string[2:]}")
+
+            if help is not None and default is not None:
+                help += " (default: %(default)s)"
+
+            super().__init__(option_strings=_option_strings, dest=dest, nargs=0,
+                             default=default, help=help, **kwargs)
+
+        def __call__(self, parser, namespace, values, option_string=None):
+            if option_string in self.option_strings:
+                setattr(namespace, self.dest, not option_string.startswith('--no-'))
+
+        def format_usage(self):
+            return ' | '.join(self.option_strings)
+else:
+    BooleanOptionalAction = argparse.BooleanOptionalAction
+
 _SORTING_TYPE = Optional[Literal["alphabetical", "molar-mass"]]
 
 # number of calories in 1000 Joules
@@ -74,6 +107,8 @@ class HeaderTextWrapper(TextWrapper):
 
     :param input_files:
         Iterable of string input file names to include in the header
+
+    .. versionadded:: 3.0
     """
 
     def __init__(self, input_files: Iterable[str], *args, **kwargs):
@@ -119,6 +154,8 @@ def build_elements_text(elements: Iterable[ct.Element], max_width=80) -> str:
         List of `cantera.Element` instances for the elements in this file.
     :param max_width:
         The maximum width of a line in this section.
+
+    .. versionadded:: 3.0
     """
     elements_text = fill(
         " ".join(e.symbol for e in elements),
@@ -136,6 +173,8 @@ def build_species_text(species: Iterable[ct.Species], max_width=80) -> str:
         List of `cantera.Species` instances of the species in this file.
     :param max_width:
         The maximum width of a line in this section.
+
+    .. versionadded:: 3.0
     """
     species_names = {s.name: s.input_data.get("note", "") for s in species}
 
@@ -173,6 +212,8 @@ def build_thermodynamics_text(
     :param separate_file:
         A Boolean flag to indicate if the file will be written separately or
         in the mechanism file
+
+    .. versionadded:: 3.0
     """
     fmt = dedent(
         """\
@@ -263,10 +304,12 @@ def build_reactions_text(reactions: Iterable[ct.Reaction]):
     :param reactions:
         An iterable of `cantera.Reaction` instances to be included.
 
-    Note: Cantera converts explicit reverse rate coefficients given by the ``REV``
-    keyword into two independent irreversible reactions. Therefore, there's no need to
-    handle the ``REV`` keyword in this function.
+    .. versionadded:: 3.0
     """
+
+    # Note: Cantera converts explicit reverse rate coefficients given by the ``REV``
+    # keyword into two independent irreversible reactions. Therefore, there's no need to
+    # handle the ``REV`` keyword in this function.
     arrhenius_line = "{equation:<{max_reaction_length}} {A} {b} {E_a}"
     low_line = "LOW /{A} {b} {E_a}/"
     high_line = "HIGH /{A} {b} {E_a}/"
@@ -419,6 +462,8 @@ def build_transport_text(species: Iterable[ct.Species], separate_file: bool = Fa
     :param separate_file:
         A Boolean flag to indicate if the file will be written separately or
         in the mechanism file
+
+    .. versionadded:: 3.0
     """
     if separate_file:
         text = []
@@ -498,6 +543,8 @@ def convert(
         output the species in the same order defined in the input `cantera.Solution`.
     :param overwrite:
         Boolean flag to overwrite existing files.
+
+    .. versionadded:: 3.0
     """
     if isinstance(solution, ct.Interface):
         raise NotImplementedError("Interface phases are not supported yet.")
@@ -545,7 +592,7 @@ def convert(
                 fil.unlink()
             else:
                 raise RuntimeError(
-                    f"Output file '{fil}' exists. Remove it or specify 'overwrite=True'"
+                    f"Output file '{fil}' exists. Remove it or specify '--overwrite'"
                 )
 
     if sort_species == "alphabetical":
@@ -636,6 +683,8 @@ def convert(
 def main():
     """
     Parse command line arguments and pass them to `convert`
+
+    .. versionadded:: 3.0
     """
 
     parser = argparse.ArgumentParser(
@@ -699,13 +748,13 @@ def main():
     )
     parser.add_argument(
         "--overwrite",
-        action="store_true",
+        action=BooleanOptionalAction,
         default=False,
         help="If set, overwrite existing output files.",
     )
     parser.add_argument(
         "--validate",
-        action="store_true",
+        action=BooleanOptionalAction,
         default=True,
         help="Check that the mechanism can be loaded back into Cantera.",
     )
@@ -755,7 +804,7 @@ def main():
             print(e)
             sys.exit(1)
 
-    output = "\n".join(ck_paths)
+    output = "\n".join(map(str, ck_paths))
 
     print(f"Files written to: \n{output}")
 
