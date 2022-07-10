@@ -202,6 +202,9 @@ protected:
     //! Flag indicating whether reaction is set up correctly
     bool m_valid = true;
 
+    //! Flag indicating that serialization uses explicit type
+    bool m_explicit_rate = false;
+
     //! Reaction rate used by generic reactions
     shared_ptr<ReactionRate> m_rate;
 
@@ -311,7 +314,6 @@ public:
 //! Create a new empty Reaction object
 /*!
  * @param type string identifying type of reaction.
- * @deprecated  To be removed after Cantera 3.0. Use explicit constructor instead
  */
 unique_ptr<Reaction> newReaction(const std::string& type);
 
@@ -319,7 +321,6 @@ unique_ptr<Reaction> newReaction(const std::string& type);
 /*!
  * @param rxn_node AnyMap node describing reaction.
  * @param kin kinetics manager
- * @deprecated  To be removed after Cantera 3.0. Use explicit constructor instead
  */
 unique_ptr<Reaction> newReaction(const AnyMap& rxn_node,
                                  const Kinetics& kin);

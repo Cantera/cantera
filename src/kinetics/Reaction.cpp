@@ -162,6 +162,13 @@ void Reaction::getParameters(AnyMap& reactionNode) const
     std::string type = reactionNode["type"].asString();
     if (type == "pressure-dependent-Arrhenius") {
         // skip
+    } else if (m_explicit_rate && ba::ends_with(type, "Arrhenius")) {
+        // retain type information
+        if (m_third_body) {
+            reactionNode["type"] = "three-body";
+        } else {
+            reactionNode["type"] = "elementary";
+        }
     } else if (ba::ends_with(type, "Arrhenius")) {
         reactionNode.erase("type");
     } else if (ba::ends_with(type, "Blowers-Masel")) {
@@ -218,15 +225,7 @@ void Reaction::setRate(shared_ptr<ReactionRate> rate)
 
     std::string rate_type = input.getString("type", "");
     if (m_third_body) {
-        if (std::dynamic_pointer_cast<ChebyshevRate>(m_rate)) {
-            warn_deprecated("Chebyshev reaction equation", input, "Specifying '(+M)' "
-                "in the reaction equation for Chebyshev reactions is deprecated.");
-            m_third_body.reset();
-        } else if (std::dynamic_pointer_cast<PlogRate>(m_rate)) {
-            throw InputFileError("Reaction::setRate", input,
-                "Found superfluous '{}' in pressure-dependent-Arrhenius reaction.",
-                m_third_body->name());
-        } else if (std::dynamic_pointer_cast<FalloffRate>(m_rate)) {
+        if (std::dynamic_pointer_cast<FalloffRate>(m_rate)) {
             m_third_body->mass_action = false;
         } else if (std::dynamic_pointer_cast<TwoTempPlasmaRate>(m_rate)) {
             // two-temperature-plasma rates do not support third-body colliders
@@ -240,6 +239,14 @@ void Reaction::setRate(shared_ptr<ReactionRate> rate)
             throw InputFileError("Reaction::setRate", input,
                 "Reactants for reaction '{}'\n"
                 "contain multiple third body colliders.", equation());
+        } else if (std::dynamic_pointer_cast<ChebyshevRate>(m_rate)) {
+            warn_deprecated("Chebyshev reaction equation", input, "Specifying '(+M)' "
+                "in the reaction equation for Chebyshev reactions is deprecated.");
+            m_third_body.reset();
+        } else if (std::dynamic_pointer_cast<PlogRate>(m_rate)) {
+            throw InputFileError("Reaction::setRate", input,
+                "Found superfluous '{}' in pressure-dependent-Arrhenius reaction.",
+                m_third_body->name());
         }
     } else {
         if (std::dynamic_pointer_cast<FalloffRate>(m_rate)) {
@@ -310,11 +317,15 @@ void Reaction::setEquation(const std::string& equation, const Kinetics* kin)
     parseReactionEquation(*this, equation, input, kin);
 
     std::string rate_type = input.getString("type", "");
-    if (rate_type == "two-temperature-plasma") {
-        // two-temperature-plasma reactions do not use third bodies
-        return;
+    if (rate_type == "three-body") {
+        // state type when serializing
+        m_explicit_rate = true;
     } else if (rate_type == "elementary") {
         // user override
+        m_explicit_rate = true;
+        return;
+    } else if (rate_type == "two-temperature-plasma") {
+        // two-temperature-plasma reactions do not use third bodies
         return;
     } else if (kin && kin->thermo(kin->reactionPhaseIndex()).nDim() != 3) {
         // interface reactions
@@ -690,12 +701,10 @@ void ThirdBody::setParameters(const AnyMap& node)
 void ThirdBody::getParameters(AnyMap& node) const
 {
     if (m_name == "M") {
-        if (mass_action) {
-            // this can be removed
-            node["type"] = "three-body";
+        if (efficiencies.size()) {
+            node["efficiencies"] = efficiencies;
+            node["efficiencies"].setFlowStyle();
         }
-        node["efficiencies"] = efficiencies;
-        node["efficiencies"].setFlowStyle();
         if (default_efficiency != 1.0) {
             node["default-efficiency"] = default_efficiency;
         }
@@ -810,15 +819,11 @@ FalloffReaction::FalloffReaction(const AnyMap& node, const Kinetics& kin)
 
 unique_ptr<Reaction> newReaction(const std::string& type)
 {
-    warn_deprecated("newReaction",
-        "To be removed after Cantera 3.0. Use explicit constructor instead.");
     return unique_ptr<Reaction>(new Reaction());
 }
 
 unique_ptr<Reaction> newReaction(const AnyMap& rxn_node, const Kinetics& kin)
 {
-    warn_deprecated("newReaction",
-        "To be removed after Cantera 3.0. Use explicit constructor instead.");
     return unique_ptr<Reaction>(new Reaction(rxn_node, kin));
 }
 
