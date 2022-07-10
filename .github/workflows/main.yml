@@ -374,7 +374,7 @@ jobs:
           test -f h2o2-test.yaml
           cti2yaml test/data/ch4_ion.cti ch4_ion-test.yaml
           test -f ch4_ion-test.yaml
-          yaml2ck --input=data/h2o2.yaml --mechanism=h2o2-test.ck
+          yaml2ck data/h2o2.yaml --mechanism=h2o2-test.ck
           test -f h2o2-test.ck
 
   windows-2022:
@@ -438,7 +438,7 @@ jobs:
         test -f h2o2-test.yaml
         cti2yaml test/data/ch4_ion.cti ch4_ion-test.yaml
         test -f ch4_ion-test.yaml
-        yaml2ck --input=data/h2o2.yaml --mechanism=h2o2-test.ck
+        yaml2ck data/h2o2.yaml --mechanism=h2o2-test.ck
         test -f h2o2-test.ck
 
   windows:
