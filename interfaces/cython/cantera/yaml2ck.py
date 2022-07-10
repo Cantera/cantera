@@ -213,6 +213,27 @@ def build_thermodynamics_text(
         A Boolean flag to indicate if the file will be written separately or
         in the mechanism file
 
+    The global/default temperature limits of the NASA polynomials are chosen as follows:
+
+    * **Lower temperature limit:** Minimum of the lower temperature limits among all
+      the species in the phase.
+    * **Midpoint temperature:** 1000 K
+    * **Upper temperature limit:** Maximum of the upper temperature limits among all
+      the species in the phase.
+
+    These values are included in the CHEMKIN thermodynamic input format
+    documentation in the heading information for the thermodynamic section/file,
+    that is::
+
+       THERMO [ALL]
+       LOW_TEMP MID_TEMP HIGH_TEMP
+
+    Despite appearing in the documentation, these values do not appear to be used by
+    CHEMKIN because CHEMKIN seems to require each species to contain the polynomial
+    temperature limits for that species. However, this requirement is not
+    documented and since modern CHEMKIN is closed-source (including the
+    documentation), we cannot verify this.
+
     .. versionadded:: 3.0
     """
     fmt = dedent(
@@ -226,6 +247,27 @@ def build_thermodynamics_text(
     four_coeff_line = "{0: #015.8E}{1: #015.8E}{2: #015.8E}{3: #015.8E}"
     low_and_high_temp = "{0:<#10.3F}{1:<#10.3F}"
     thermo_data: dict[str, str] = {}
+
+    # We need to set the global/default temperature limits of the NASA polynomials.
+    # These values are included in the CHEMKIN thermodynamic input format
+    # documentation in the heading information for the thermodynamic section/file,
+    # that is:
+    #
+    # THERMO [ALL]
+    # LOW_TEMP MID_TEMP HIGH_TEMP
+    #
+    # Despite appearing in the documentation, these values do not appear to be used by
+    # CHEMKIN because CHEMKIN seems to require each species to contain the polynomial
+    # temperature limits for that species. However, this requirement is not
+    # documented and since modern CHEMKIN is closed-source (including the
+    # documentation), we cannot verify this.
+    #
+    # min_temp is the minimum lower temperature limit among all the species in this
+    # phase. This is used to set the global lower temperature limit. Similarly,
+    # max_temp is the maximum upper temperature limit among all the species in this
+    # phase. min_temp and max_temp are initialized such that at least one species in
+    # the phase will have a lower temperature limit less than min_temp and an upper
+    # temperature limit greater than max_temp.
     min_temp = 1.0e30
     max_temp = 0.0
     for spec in species:
@@ -290,6 +332,9 @@ def build_thermodynamics_text(
     else:
         leader = "THERMO ALL"
 
+    # Set the global midpoint temperature to 1000 K. See the long comment above
+    # regarding upper and lower temperature limits. As the value is arbitrary, 1000 K
+    # is commonly used in CHEMKIN files and we also use that convention here.
     return (
         f"{leader}\n{min_temp:.3F}   1000.000  {max_temp:.3F}\n\n"
         + "\n".join(thermo_data.values())
@@ -806,7 +851,7 @@ def main():
 
     output = "\n".join(map(str, ck_paths))
 
-    print(f"Files written to: \n{output}")
+    print(f"Output written to: \n{output}")
 
 
 if __name__ == "__main__":
