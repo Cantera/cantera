@@ -367,6 +367,7 @@ def build_reactions_text(reactions: Iterable[ct.Reaction]):
         )
         reaction_order += sum(reac.orders.values())
         unit_conversion_factor = 1_000.0 ** (reaction_order - 1)
+
         if reac.rate.type == "Chebyshev":
             reaction_lines.append(
                 arrhenius_line.format(
@@ -391,13 +392,11 @@ def build_reactions_text(reactions: Iterable[ct.Reaction]):
             coeffs[0, 0] += math.log10(unit_conversion_factor)
             for row in coeffs:
                 reaction_lines.append(f"CHEB /{' '.join(map(str, row))}/")
-        elif reac.reaction_type in ("reaction", "three-body"):
-            if reac.reaction_type == "three-body":
+
+        elif reac.rate.type == "Arrhenius":
+            if reac.reaction_type.startswith("three-body"):
                 unit_conversion_factor *= 1_000.0
-            if reac.rate.type == "pressure-dependent-Arrhenius":
-                rate = reac.rate.rates[-1][1]
-            else:
-                rate = reac.rate
+            rate = reac.rate
             reaction_lines.append(
                 arrhenius_line.format(
                     equation=reac.equation,
@@ -407,17 +406,29 @@ def build_reactions_text(reactions: Iterable[ct.Reaction]):
                     E_a=rate.activation_energy / CALORIES_CONSTANT,
                 )
             )
-            if reac.rate.type == "pressure-dependent-Arrhenius":
-                for pressure, rate in reac.rate.rates:
-                    reaction_lines.append(
-                        PLOG_line.format(
-                            pressure=pressure / ct.one_atm,
-                            A=rate.pre_exponential_factor * unit_conversion_factor,
-                            b=rate.temperature_exponent,
-                            E_a=rate.activation_energy / CALORIES_CONSTANT,
-                        )
+
+        elif reac.rate.type == "pressure-dependent-Arrhenius":
+            rate = reac.rate.rates[-1][1]
+            reaction_lines.append(
+                arrhenius_line.format(
+                    equation=reac.equation,
+                    max_reaction_length=max_reaction_length,
+                    A=rate.pre_exponential_factor * unit_conversion_factor,
+                    b=rate.temperature_exponent,
+                    E_a=rate.activation_energy / CALORIES_CONSTANT,
+                )
+            )
+            for pressure, rate in reac.rate.rates:
+                reaction_lines.append(
+                    PLOG_line.format(
+                        pressure=pressure / ct.one_atm,
+                        A=rate.pre_exponential_factor * unit_conversion_factor,
+                        b=rate.temperature_exponent,
+                        E_a=rate.activation_energy / CALORIES_CONSTANT,
                     )
-        elif reac.reaction_type == "chemically-activated":
+                )
+
+        elif reac.reaction_type.startswith("chemically-activated"):
             rate = reac.rate
             reaction_lines.append(
                 arrhenius_line.format(
@@ -448,7 +459,8 @@ def build_reactions_text(reactions: Iterable[ct.Reaction]):
                     + " ".join(map(lambda s: format(s, ".7G"), rate.falloff_coeffs))
                     + "/"
                 )
-        elif reac.reaction_type == "falloff":
+
+        elif reac.reaction_type.startswith("falloff"):
             rate = reac.rate
             reaction_lines.append(
                 arrhenius_line.format(
@@ -479,13 +491,15 @@ def build_reactions_text(reactions: Iterable[ct.Reaction]):
                     + " ".join(map(lambda s: format(s, ".7G"), rate.falloff_coeffs))
                     + "/"
                 )
+
         else:
             raise ValueError(f"Unknown reaction type: '{reac.reaction_type}'")
 
-        if getattr(reac, "efficiencies", None) is not None:
+        if reac.third_body is not None:
             reaction_lines.append(
                 " ".join(
-                    f"{spec}/{value:.3E}/" for spec, value in reac.efficiencies.items()
+                    f"{spec}/{value:.3E}/"
+                    for spec, value in reac.third_body.efficiencies.items()
                 )
             )
 
