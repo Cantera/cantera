@@ -102,9 +102,9 @@ void CoverageDependentSurfPhase::initThermo()
     if (m_input.hasKey("reference-state-coverage")) {
         m_theta_ref = m_input["reference-state-coverage"].as<double>();
         if (m_theta_ref <= 0.0 || m_theta_ref > 1.0) {
-            throw CanteraError("CoverageDependentSurfPhase::initThermo",
-               "Reference state coverage must be greater than 0.0 and less\
-                than or equal to 1.0.");
+            throw InputFileError("CoverageDependentSurfPhase::initThermo",
+                m_input, "Reference state coverage must be greater than 0.0 and \
+                less than or equal to 1.0.");
         }
     }
     for (auto& item : m_species) {
@@ -117,12 +117,12 @@ void CoverageDependentSurfPhase::initThermo()
                 size_t k = speciesIndex(item.first);
                 size_t j = speciesIndex(item2.first);
                 if (k == npos) {
-                   throw CanteraError("CoverageDependentSurfPhase::initThermo",
-                        "Unknown species '{}'.", item.first);
+                   throw InputFileError("CoverageDependentSurfPhase::initThermo",
+                        item.second->input, "Unknown species '{}'.", item.first);
                 }
                 if (j == npos) {
-                    throw CanteraError("CoverageDependentSurfPhase::initThermo",
-                        "Unknown species '{}'.", item2.first);
+                    throw InputFileError("CoverageDependentSurfPhase::initThermo",
+                        item.second->input, "Unknown species '{}'.", item2.first);
                 }
                 auto& cov_map2 = item2.second.as<AnyMap>();
                 // For linear model
@@ -205,9 +205,10 @@ void CoverageDependentSurfPhase::initThermo()
                         vector_fp enthalpies = cov_map2.convertVector("enthalpies",
                                                                       "J/kmol");
                         if (hcovs.size() != enthalpies.size()) {
-                            throw CanteraError("CoverageDependentSurfPhase::\
-                            setInterpolativeDependency", "Sizes of coverages array\
-                             and enthalpies array are not equal.");
+                            throw InputFileError("CoverageDependentSurfPhase::\
+                            setInterpolativeDependency", item.second->input,
+                            "Sizes of coverages array and enthalpies array are \
+                            not equal.");
                         }
                         for (size_t i = 0; i < hcovs.size(); i++) {
                             hmap.insert({hcovs[i], enthalpies[i]});
@@ -222,9 +223,10 @@ void CoverageDependentSurfPhase::initThermo()
                         vector_fp entropies = cov_map2.convertVector("entropies",
                                                                      "J/kmol/K");
                         if (scovs.size() != entropies.size()) {
-                            throw CanteraError("CoverageDependentSurfPhase::\
-                            setInterpolativeDependency", "Sizes of coverages array\
-                             and entropies array are not equal.");
+                            throw InputFileError("CoverageDependentSurfPhase::\
+                            setInterpolativeDependency", item.second->input,
+                            "Sizes of coverages array and entropies array are \
+                            not equal.");
                         }
                         for (size_t i = 0; i < scovs.size(); i++) {
                             smap.insert({scovs[i], entropies[i]});
@@ -237,9 +239,10 @@ void CoverageDependentSurfPhase::initThermo()
                     InterpolativeDependency int_deps(k, j, hmap, smap);
                     setInterpolativeDependency(int_deps);
                 } else {
-                    throw CanteraError("CoverageDependentSurfPhase::initThermo",
-                        "Unrecognized coverage-dependency model between '{}' and '{}'."
-                        , item.first, item2.first);
+                    throw InputFileError("CoverageDependentSurfPhase::initThermo",
+                        item.second->input, "Unrecognized coverage dependency model. \
+                        Model must be 'linear', 'piecewise-linear', 'polynomial', \
+                        or 'interpolative'.");
                 }
                 // For coverage-dependent heat capacity parameters, if present
                 if (cov_map2.hasKey("heat-capacity-a")) {
@@ -271,8 +274,6 @@ bool CoverageDependentSurfPhase::addSpecies(shared_ptr<Species> spec)
     return added;
 }
 
-// Functions calculating reference state thermodynamic properties--------------
-
 void CoverageDependentSurfPhase::getGibbs_RT_ref(double* grt) const
 {
     SurfPhase::_updateThermo();
@@ -296,8 +297,6 @@ void CoverageDependentSurfPhase::getCp_R_ref(double* cpr) const
     SurfPhase::_updateThermo();
     scale(m_cp0.begin(), m_cp0.end(), cpr, 1.0/GasConstant);
 }
-
-// Functions calculating standard state thermodynamic properties---------------
 
 void CoverageDependentSurfPhase::getEnthalpy_RT(double* hrt) const
 {
@@ -355,8 +354,6 @@ void CoverageDependentSurfPhase::getStandardChemPotentials(double* mu0) const
     }
 }
 
-// Functions calling partial molar thermodynamic properties----------------
-
 void CoverageDependentSurfPhase::getPartialMolarEnthalpies(double* hbar) const
 {
     _updateTotalThermo();
@@ -379,7 +376,6 @@ void CoverageDependentSurfPhase::getPartialMolarCp(double* cpbar) const
     copy(m_heatcapacity.begin(), m_heatcapacity.end(), cpbar);
 }
 
-
 void CoverageDependentSurfPhase::getChemPotentials(double* mu) const
 {
     _updateTotalThermo();
@@ -388,8 +384,6 @@ void CoverageDependentSurfPhase::getChemPotentials(double* mu) const
         mu[k] += RT() * log(std::max(m_cov[k], SmallNumber) / m_theta_ref);
     }
 }
-
-// Functions calculating mixture thermodynamic properties--------------------------
 
 double CoverageDependentSurfPhase::enthalpy_mole() const
 {
