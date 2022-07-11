@@ -3,6 +3,7 @@
 
 cimport numpy as np
 import numpy as np
+import warnings
 from cython.operator cimport dereference as deref
 
 from .kinetics cimport Kinetics
