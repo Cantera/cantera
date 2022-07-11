@@ -18,95 +18,6 @@
 
 namespace Cantera
 {
-//! Set of parameters modifying SurfPhase enthalpy and entropy based on
-//! surface coverages using a polynomial model.
-//! Linear model is a subset of the polynomial model.
-struct PolynomialDependency
-{
-    //! Constructor
-    //! @param k_  index of a target species whose thermodynamics are calculated
-    //! @param j_  index of a species whose coverage affects thermodynamics of
-    //!            a target species
-    //! @param enthalpy_coeffs_  array of polynomial coefficients describing enthalpy
-    //!                          change [J/kmol] containing 1st-order, 2nd-order,
-    //!                          3rd-order, and 4th-order coefficients as a function
-    //!                          of coverage
-    //! @param entropy_coeffs_  array of polynomial coefficients describing entropy
-    //!                         change [J/kmol/K] containing 1st-order, 2nd-order,
-    //!                         3rd-order, and 4th-order coefficients as a function
-    //!                         of coverage
-    PolynomialDependency(size_t k_, size_t j_,
-                         vector_fp enthalpy_coeffs_, vector_fp entropy_coeffs_):
-                         k(k_), j(j_),
-                         enthalpy_coeffs(enthalpy_coeffs_),
-                         entropy_coeffs(entropy_coeffs_) {}
-    PolynomialDependency() {}
-    //! index of a target species whose thermodynamics are calculated
-    size_t k;
-    //! index of a species whose coverage affects thermodynamics of a target species
-    size_t j;
-    //! array of polynomial coefficients describing enthalpy change [J/kmol] containing
-    //! 1st-order, 2nd-order, 3rd-order, and 4th-order coefficients as a function
-    //! of coverage
-    vector_fp enthalpy_coeffs;
-    //! array of polynomial coefficients describing entropy change [J/kmol/K]
-    //! containing 1st-order, 2nd-order, 3rd-order, and 4th-order coefficients as
-    //! a function of coverage
-    vector_fp entropy_coeffs;
-};
-
-//! Set of parameters modifying SurfPhase enthalpy and entropy based on
-//! surface coverages using a interpolative model.
-//! Piecewise model is a subset of interpolative with three data points.
-struct InterpolativeDependency
-{
-    //! Constructor
-    //! @param k_  index of a target species whose thermodynamics are calculated
-    //! @param j_  index of a species whose coverage affects thermodynamics of
-    //!            a target species
-    //! @param enthalpy_map_  map of <coverage, enthalpy> as a key-value pair of
-    //!                       coverage [dimensionless] and enthalpy [J/kmol]
-    //! @param entropy_map_  map of <coverage, entropy> as a key-value pair of
-    //!                      coverage [dimensionless] and entropy [J/kmol/K]
-    InterpolativeDependency(size_t k_, size_t j_,
-                            std::map<double, double> enthalpy_map_,
-                            std::map<double, double> entropy_map_):
-                            k(k_), j(j_),
-                            enthalpy_map(enthalpy_map_),
-                            entropy_map(entropy_map_){}
-    InterpolativeDependency() {}
-    //! index of a target species whose thermodynamics are calculated
-    size_t k;
-    //! index of a species whose coverage affects thermodynamics of a target species
-    size_t j;
-    //! map of coverage-enthalpy pairs for coverage-dependent enthalpy interpolation
-    std::map<double, double> enthalpy_map;
-    //! map of coverage-entropy pairs for coverage-dependent entropy interpolation
-    std::map<double, double> entropy_map;
-};
-
-//! Set of parameters modifying SurfPhase heat capacity based on surface coverages
-//! using a quadratic model.
-struct HeatCapacityDependency
-{
-    //! Constructor
-    //! @param k_  index of a target species whose thermodynamics are calculated
-    //! @param j_  index of a species whose coverage affects thermodynamics of
-    //!            a target species
-    //! @param cpcov_a_  log model coefficient a [J/kmol/K]
-    //! @param cpcov_b_  log model coefficient b [J/kmol/K]
-    HeatCapacityDependency(size_t k_, size_t j_,
-                           double cpcov_a_, double cpcov_b_):
-                           k(k_), j(j_),
-                           cpcov_a(cpcov_a_), cpcov_b(cpcov_b_) {}
-    HeatCapacityDependency() {}
-    //! index of a target species whose thermodynamics are calculated
-    size_t k;
-    //! index of a species whose coverage affects thermodynamics of a target species
-    size_t j;
-    double cpcov_a; //! log model coefficient a [J/kmol/K]
-    double cpcov_b; //! log model coefficient b [J/kmol/K]
-};
 
 //! A thermodynamic model for a coverage-dependent surface phase, applying adsorbate
 //! lateral interaction correction factors to the ideal surface phase properties.
@@ -151,6 +62,97 @@ public:
     //!               phase in the file is used
     explicit CoverageDependentSurfPhase(const std::string& infile,
                                         const std::string& id="");
+
+    //! Set of parameters modifying SurfPhase enthalpy and entropy based on
+    //! surface coverages using a polynomial model.
+    //! Linear model is a subset of the polynomial model.
+    struct PolynomialDependency
+    {
+        //! Constructor
+        //! @param k_  index of a target species whose thermodynamics are calculated
+        //! @param j_  index of a species whose coverage affects thermodynamics of
+        //!            a target species
+        //! @param enthalpy_coeffs_  array of polynomial coefficients describing
+        //!                          enthalpy change [J/kmol] containing 1st-order,
+        //!                          2nd-order, 3rd-order, and 4th-order coefficients
+        //!                          as a function of coverage
+        //! @param entropy_coeffs_  array of polynomial coefficients describing entropy
+        //!                         change [J/kmol/K] containing 1st-order, 2nd-order,
+        //!                         3rd-order, and 4th-order coefficients as a function
+        //!                         of coverage
+        PolynomialDependency(size_t k_, size_t j_,
+                            vector_fp enthalpy_coeffs_, vector_fp entropy_coeffs_):
+                            k(k_), j(j_),
+                            enthalpy_coeffs(enthalpy_coeffs_),
+                            entropy_coeffs(entropy_coeffs_) {}
+        PolynomialDependency() {}
+        //! index of a target species whose thermodynamics are calculated
+        size_t k;
+        //! index of a species whose coverage affects thermodynamics of a target species
+        size_t j;
+        //! array of polynomial coefficients describing enthalpy change [J/kmol] containing
+        //! 1st-order, 2nd-order, 3rd-order, and 4th-order coefficients as a function
+        //! of coverage
+        vector_fp enthalpy_coeffs;
+        //! array of polynomial coefficients describing entropy change [J/kmol/K]
+        //! containing 1st-order, 2nd-order, 3rd-order, and 4th-order coefficients as
+        //! a function of coverage
+        vector_fp entropy_coeffs;
+    };
+
+    //! Set of parameters modifying SurfPhase enthalpy and entropy based on
+    //! surface coverages using a interpolative model.
+    //! Piecewise model is a subset of interpolative with three data points.
+    struct InterpolativeDependency
+    {
+        //! Constructor
+        //! @param k_  index of a target species whose thermodynamics are calculated
+        //! @param j_  index of a species whose coverage affects thermodynamics of
+        //!            a target species
+        //! @param enthalpy_map_  map of <coverage, enthalpy> as a key-value pair of
+        //!                       coverage [dimensionless] and enthalpy [J/kmol]
+        //! @param entropy_map_  map of <coverage, entropy> as a key-value pair of
+        //!                      coverage [dimensionless] and entropy [J/kmol/K]
+        InterpolativeDependency(size_t k_, size_t j_,
+                                std::map<double, double> enthalpy_map_,
+                                std::map<double, double> entropy_map_):
+                                k(k_), j(j_),
+                                enthalpy_map(enthalpy_map_),
+                                entropy_map(entropy_map_){}
+        InterpolativeDependency() {}
+        //! index of a target species whose thermodynamics are calculated
+        size_t k;
+        //! index of a species whose coverage affects thermodynamics of a target species
+        size_t j;
+        //! map of coverage-enthalpy pairs for coverage-dependent enthalpy interpolation
+        std::map<double, double> enthalpy_map;
+        //! map of coverage-entropy pairs for coverage-dependent entropy interpolation
+        std::map<double, double> entropy_map;
+    };
+
+    //! Set of parameters modifying SurfPhase heat capacity based on surface coverages
+    //! using a quadratic model.
+    struct HeatCapacityDependency
+    {
+        //! Constructor
+        //! @param k_  index of a target species whose thermodynamics are calculated
+        //! @param j_  index of a species whose coverage affects thermodynamics of
+        //!            a target species
+        //! @param cpcov_a_  log model coefficient a [J/kmol/K]
+        //! @param cpcov_b_  log model coefficient b [J/kmol/K]
+        HeatCapacityDependency(size_t k_, size_t j_,
+                            double cpcov_a_, double cpcov_b_):
+                            k(k_), j(j_),
+                            cpcov_a(cpcov_a_), cpcov_b(cpcov_b_) {}
+        HeatCapacityDependency() {}
+        //! index of a target species whose thermodynamics are calculated
+        size_t k;
+        //! index of a species whose coverage affects thermodynamics of a target
+        //! species
+        size_t j;
+        double cpcov_a; //! log model coefficient a [J/kmol/K]
+        double cpcov_b; //! log model coefficient b [J/kmol/K]
+    };
 
     //! Set the polynomial coverage dependece for species
     /*!
@@ -212,8 +214,8 @@ public:
     virtual void initThermo();
     virtual bool addSpecies(shared_ptr<Species> spec);
 
-    // Functions calculating reference state thermodynamic properties--------------
-
+    //! @name Functions calculating reference state thermodynamic properties
+    //! @{
     //! Get the nondimensionalized reference state enthalpy.
     /*!
      * Nondimensionalized reference state enthalpy is evaluated at \f$ T, P_{ref} \f$
@@ -224,6 +226,7 @@ public:
      * \f]
      */
     virtual void getEnthalpy_RT_ref(double* hrt) const;
+
     //! Get the nondimensionalized reference state entropy.
     /*!
      * Nondimensionalized reference state entropy is evaluated at \f$ T, P_{ref} \f$
@@ -234,6 +237,7 @@ public:
      * \f]
      */
     virtual void getEntropy_R_ref(double* sr) const;
+
     //! Get the nondimensionalized reference state cp.
     /*!
      * Nondimensionalized reference state cp is evaluated at \f$ T, P_{ref} \f$
@@ -244,6 +248,7 @@ public:
      * \f]
      */
     virtual void getCp_R_ref(double* cpr) const;
+
     //! Return the nondimensionalized reference state Gibbs free energy.
     /*!
      * Nondimensionalized reference state Gibbs free energy is evaluated
@@ -254,9 +259,10 @@ public:
      * \f]
      */
     virtual void getGibbs_RT_ref(double* grt) const;
+    //! @}
 
-    // Functions calculating standard state thermodynamic properties---------------
-
+    //! @name Functions calculating standard state thermodynamic properties
+    //! @{
     //! Get the nondimensionalized standard state enthalpy.
     /*!
      * Nondimensionalized standard state enthalpy is evaluated at \f$ T, P_{ref} \f$
@@ -268,6 +274,7 @@ public:
      * \f]
      */
     virtual void getEnthalpy_RT(double* hrt) const;
+
     //! Get the nondimensionalized standard state entropy.
     /*!
      * Nondimensionalized standard state entropy is evaluated at \f$ T, P_{ref} \f$
@@ -280,6 +287,7 @@ public:
      * \f]
      */
     virtual void getEntropy_R(double* sr) const;
+
     //! Get the nondimensionalized standard state cp.
     /*!
      * Nondimensionalized standard state cp is evaluated at \f$ T, P_{ref} \f$
@@ -290,6 +298,7 @@ public:
      * \f]
      */
     virtual void getCp_R(double* cpr) const;
+
     //! Get the nondimensionalized standard state Gibbs free energy.
     /*!
      * Nondimensionalized standard state Gibbs free energy evaluated
@@ -300,6 +309,7 @@ public:
      * \f]
      */
     virtual void getGibbs_RT(double* grt) const;
+
     //! Get the standard state Gibbs free energy. Units: J/kmol
     /*!
      * Standard state Gibbs free energy evaluated at \f$ T, P_{ref} \f$
@@ -310,6 +320,7 @@ public:
      * \f]
      */
     virtual void getPureGibbs(double* g) const;
+
     //! Get the standard state chemical potential. Units: J/kmol
     /*!
      * Standard state chemical potential evaluated at \f$ T, P_{ref} \f$
@@ -320,9 +331,10 @@ public:
      * \f]
      */
     virtual void getStandardChemPotentials(double* mu0) const;
+    //! @}
 
-    // Functions calculating partial molar thermodynamic properties----------------
-
+    //! @name Functions calculating partial molar thermodynamic properties
+    //! @{
     //! Get the partial molar enthalpy. Units: J/kmol
     /*!
      * Partial molar enthalpy is evaluated at \f$ T, P_{ref} \f$
@@ -343,6 +355,7 @@ public:
      * \f]
      */
     virtual void getPartialMolarEntropies(double* sbar) const;
+
     //! Get the partial molar cp. Units: J/kmol/K
     /*!
      * Partial molar cp is evaluated at \f$ T, P_{ref} \f$
@@ -364,9 +377,10 @@ public:
      * \f]
      */
     virtual void getChemPotentials(double* mu) const;
+    //! @}
 
-    // Functions calculating mixture thermodynamic properties----------------------
-
+    //! @name Functions calculating mixture thermodynamic properties
+    //! @{
     //! Return the solution's molar enthalpy. Units: J/kmol
     /*!
      * Assuming an ideal mixing,
@@ -399,6 +413,7 @@ public:
      * \see MultiSpeciesThermo
      */
     virtual double cp_mole() const;
+    //! @}
 
 protected:
     //! Temporary storage for the coverages.
