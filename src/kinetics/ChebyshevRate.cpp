@@ -84,7 +84,7 @@ void ChebyshevRate::setParameters(const AnyMap& node, const UnitStack& rate_unit
             unit_system.convert(P_range[1], "Pa")
         );
     } else {
-        setLimits(290., 3000., 1.e-7, 1.e14);
+        setLimits(290., 3000., Tiny, 1. / Tiny);
     }
     setData(coeffs);
 }
@@ -109,7 +109,7 @@ void ChebyshevRate::setLimits(double Tmin, double Tmax, double Pmin, double Pmax
 
 void ChebyshevRate::setData(const Array2D& coeffs)
 {
-    m_valid = coeffs.data().size();
+    m_valid = !coeffs.data().empty();
     if (m_valid) {
         m_coeffs = coeffs;
     } else {
