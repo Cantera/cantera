@@ -485,9 +485,11 @@ def check_raises(yaml, err_msg, line):
     err_msg = [err_msg]
     err_msg.append("InputFileError thrown by ")
     err_msg.append(f"Error on line {line} of ")
+    with pytest.raises(ct.CanteraError) as ex:
+        ct.Solution(yaml=yaml)
+    msg = str(ex.value)
     for err in err_msg:
-        with pytest.raises(ct.CanteraError, match=err):
-            ct.Solution(yaml=yaml)
+        assert err in msg
 
 
 class TestUndeclared(utilities.CanteraTest):

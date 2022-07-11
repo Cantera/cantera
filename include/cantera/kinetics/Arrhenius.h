@@ -170,7 +170,7 @@ protected:
     std::string m_b_str = "b"; //!< The string for temperature exponent
     std::string m_Ea_str = "Ea"; //!< The string for activation energy
     std::string m_E4_str = ""; //!< The string for an optional 4th parameter
-    Units m_rate_units {0.}; //!< Reaction rate units
+    Units m_rate_units{0.}; //!< Reaction rate units
 };
 
 //! Arrhenius reaction rate type depends only on temperature

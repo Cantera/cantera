@@ -100,7 +100,7 @@ void PlogRate::setRates(const std::multimap<double, ArrheniusRate>& rates)
     size_t j = 0;
     rates_.clear();
     pressures_.clear();
-    m_valid = rates.size();
+    m_valid = !rates.empty();
     rates_.reserve(rates.size());
     // Insert intermediate pressures
     for (const auto& rate : rates) {
@@ -118,10 +118,8 @@ void PlogRate::setRates(const std::multimap<double, ArrheniusRate>& rates)
     }
     if (!m_valid) {
         // ensure that reaction rate can be evaluated (but returns NaN)
-        rates_.reserve(2);
-        pressures_[std::log(1.e-7)] = {0, 1};
-        rates_.push_back(ArrheniusRate());
-        pressures_[std::log(1.e14)] = {1, 2};
+        rates_.reserve(1);
+        pressures_[std::log(OneBar)] = {0, 0};
         rates_.push_back(ArrheniusRate());
     }
 
