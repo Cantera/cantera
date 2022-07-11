@@ -1008,7 +1008,7 @@ class TestConstPressureReactor(utilities.CanteraTest):
             self.net2.advance(t)
             self.assertArrayNear(self.r1.thermo.Y, self.r2.thermo.Y,
                                  rtol=5e-4, atol=1e-6)
-            self.assertNear(self.r1.T, self.r2.T, rtol=1e-5)
+            self.assertNear(self.r1.T, self.r2.T, rtol=5e-5)
             self.assertNear(self.r1.thermo.P, self.r2.thermo.P, rtol=1e-6)
             if surf:
                 self.assertArrayNear(self.surf1.coverages, self.surf2.coverages,
