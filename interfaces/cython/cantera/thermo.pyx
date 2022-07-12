@@ -1870,10 +1870,7 @@ cdef class ThermoPhase(_SolutionBase):
 
 
 cdef class InterfacePhase(ThermoPhase):
-    """
-    A class representing a surface, edge phase,
-    or coverage-dependent surface
-    """
+    """ A class representing a surface, edge phase """
     def __cinit__(self, *args, **kwargs):
         if not kwargs.get("init", True):
             return
@@ -1934,6 +1931,7 @@ cdef class InterfacePhase(ThermoPhase):
             raise ValueError("Array has incorrect length."
                  " Got {}, expected {}.".format(len(cov), self.n_species))
         self.surf.setCoveragesNoNorm(&data[0])
+
 
 cdef class PureFluid(ThermoPhase):
     """
