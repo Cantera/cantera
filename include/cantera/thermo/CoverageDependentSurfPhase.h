@@ -475,7 +475,7 @@ private:
      * @param force  Boolean, which if true, forces a reevaluation of the
      *               coverage-dependent functions. default = false.
      */
-    void _updateCovDepThermo(bool force=false) const;
+    void _updateCovDepThermo() const;
 
     //! Update the total (reference state + coverage-dependent) thermodynamic functions
     /*!
@@ -486,7 +486,7 @@ private:
      *               reference state as well as coverage-dependent functions.
      *               default = false.
      */
-    void _updateTotalThermo(bool force=false) const;
+    void _updateTotalThermo() const;
 
 };
 

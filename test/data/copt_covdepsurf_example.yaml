@@ -5,7 +5,7 @@ phases:
   thermo: coverage-dependent-surface
   species: [Pt, OC_Pt, CO2_Pt, C_Pt, O_Pt]
   kinetics: surface
-  reactions: [reactions]
+  reactions: none
   state:
     T: 500.0
     P: 1.01325e+05
@@ -16,7 +16,7 @@ phases:
   thermo: ideal-surface
   species: [Pt, OC_Pt, CO2_Pt, C_Pt, O_Pt]
   kinetics: surface
-  reactions: [reactions]
+  reactions: none
   state:
     T: 500.0
     P: 1.01325e+05
@@ -124,20 +124,3 @@ species:
            units: {energy: eV, quantity: molec},
            enthalpy-coefficients: [0.14, -1.74, 0.0, 2.11],
            entropy-coefficients: [0.07, 0.0, -0.0145, 0.023]}
-
-reactions:
-- equation: Pt + Pt + O2 <=> O_Pt + O_Pt  # Reaction 202
-  id: surface1-1
-  rate-constant: {A: 1.89e+21, b: -0.5, Ea: 0.0}
-- equation: C_Pt + O_Pt <=> OC_Pt + Pt  # Reaction 216
-  id: surface1-15
-  rate-constant: {A: 3.7e+19, b: 0.0, Ea: 0.0}
-- equation: CO + Pt <=> OC_Pt  # Reaction 217
-  sticking-coefficient: {A: 0.84, b: 0.0, Ea: 0.0}
-  id: surface1-16
-- equation: OC_Pt + O_Pt <=> CO2_Pt + Pt  # Reaction 223
-  id: surface1-22
-  rate-constant: {A: 3.7e+21, b: 0.0, Ea: 28.107}
-- equation: CO2 + Pt <=> CO2_Pt  # Reaction 225
-  sticking-coefficient: {A: 5.0e-03, b: 0.0, Ea: 0.0}
-  id: surface1-24

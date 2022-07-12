@@ -408,11 +408,11 @@ double CoverageDependentSurfPhase::cp_mole() const
     return mean_X(m_heatcapacity);
 }
 
-void CoverageDependentSurfPhase::_updateCovDepThermo(bool force) const
+void CoverageDependentSurfPhase::_updateCovDepThermo() const
 {
     int stateNumnow = stateMFNumber();
     double tnow = temperature();
-    if (m_stateNumlast != stateNumnow || m_tlast != tnow || force) {
+    if (m_stateNumlast != stateNumnow || m_tlast != tnow) {
         for (size_t k = 0; k < m_kk; k++) {
             m_h_cov[k] = 0.0;
             m_s_cov[k] = 0.0;
@@ -430,18 +430,18 @@ void CoverageDependentSurfPhase::_updateCovDepThermo(bool force) const
         for (auto& item : m_InterpolativeDependency) {
             auto h_iter = item.enthalpy_map.upper_bound(m_cov[item.j]);
             auto s_iter = item.entropy_map.upper_bound(m_cov[item.j]);
-            AssertThrowMsg(h_iter != m_cov.end(),
+            AssertThrowMsg(h_iter != item.enthalpy_map.end(),
                            "CoverageDependentSurfPhase::_updateCovDepThermo",
-                           "Coverage out of range: {}", m_cov[iterm.j]);
-            AssertThrowMsg(h_iter != m_cov.begin(),
+                           "Coverage out of range: {}", m_cov[item.j]);
+            AssertThrowMsg(h_iter != item.enthalpy_map.begin(),
                            "CoverageDependentSurfPhase::_updateCovDepThermo",
-                           "Coverage out of range: {}", m_cov[iterm.j]);
-            AssertThrowMsg(s_iter != m_cov.end(),
+                           "Coverage out of range: {}", m_cov[item.j]);
+            AssertThrowMsg(s_iter != item.entropy_map.end(),
                            "CoverageDependentSurfPhase::_updateCovDepThermo",
-                           "Coverage out of range: {}", m_cov[iterm.j]);
-            AssertThrowMsg(s_iter != m_cov.begin(),
+                           "Coverage out of range: {}", m_cov[item.j]);
+            AssertThrowMsg(s_iter != item.entropy_map.begin(),
                            "CoverageDependentSurfPhase::_updateCovDepThermo",
-                           "Coverage out of range: {}", m_cov[iterm.j]);
+                           "Coverage out of range: {}", m_cov[item.j]);
 
             double highHcov = h_iter->first;
             double highH = h_iter->second;
@@ -482,10 +482,10 @@ void CoverageDependentSurfPhase::_updateCovDepThermo(bool force) const
     }
 }
 
-void CoverageDependentSurfPhase::_updateTotalThermo(bool force) const
+void CoverageDependentSurfPhase::_updateTotalThermo() const
 {
-    _updateCovDepThermo(force);
-    SurfPhase::_updateThermo(force);
+    _updateCovDepThermo();
+    SurfPhase::_updateThermo();
 
     for (size_t k = 0; k < m_kk; k++) {
         m_enthalpy[k] = m_h0[k] + m_h_cov[k];
