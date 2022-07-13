@@ -913,7 +913,7 @@ cdef class ThermoPhase(_SolutionBase):
 
         .. math:: \phi = \frac{Z_{\mathrm{mole},C} + Z_{\mathrm{mole},S} + \frac{1}{4}Z_{\mathrm{mole},H}} {\frac{1}{2}Z_{\mathrm{mole},O}}
 
-        where :math:`Z_e` is the elemental mole fraction of element :math:`e`.
+        where :math:`Z_{\mathrm{mole},e}` is the elemental mole fraction of element :math:`e`.
         If the fuel and oxidizer compositions are specified, :math:`\phi` is
         computed from:
         
