@@ -748,23 +748,23 @@ cdef class ThermoPhase(_SolutionBase):
             Oxidizer species name or mole/mass fractions as a string, array, or dict.
         :param basis:
             Determines if ``fuel`` and ``oxidizer`` are given in mole
-            fractions (``basis='mole'``) or mass fractions (``basis='mass'``)
+            fractions (``basis='mole'``) or mass fractions (``basis='mass'``).
         :param diluent:
             Optional parameter. Required if dilution is used. Specifies the composition
-            of the diluent in mole/mass fractions as a string, array or dict
+            of the diluent in mole/mass fractions as a string, array or dict.
         :param fraction:
             Optional parameter. Dilutes the fuel/oxidizer mixture with the diluent
             according to ``fraction``. Fraction can refer to the fraction of diluent in
-            the  mixture (for example ``fraction="diluent:0.7`` will create a mixture
+            the  mixture (for example ``fraction="diluent:0.7"`` will create a mixture
             with 30 % fuel/oxidizer and 70 % diluent), the fraction of fuel in the
-            mixture (for example ``fraction="fuel:0.1" means that the mixture contains
+            mixture (for example ``fraction="fuel:0.1"`` means that the mixture contains
             10 % fuel. The amount of oxidizer is determined from the equivalence ratio
             and the remaining mixture is the diluent) or fraction of oxidizer in the
-            mixture (for example ``fraction="oxidizer:0.1")``. The fraction itself is
+            mixture (for example ``fraction="oxidizer:0.1"``). The fraction itself is
             interpreted as mole or mass fraction based on ``basis``. The diluent is not
             considered in the computation of the equivalence ratio. Default is no
             dilution or ``fraction=None``. May be given as string or dictionary (for
-            example ``fraction={"fuel":0.7})``
+            example ``fraction={"fuel":0.7}``).
         """
         cdef np.ndarray[np.double_t, ndim=1] fuel_comp = np.ascontiguousarray(
                 self.__composition_to_array(fuel, basis), dtype=np.double)
@@ -873,7 +873,9 @@ cdef class ThermoPhase(_SolutionBase):
         H to H2O and S to SO2. Other elements are assumed not to participate in
         oxidation (that is, N ends up as N2). The ``basis`` determines the composition
         of fuel and oxidizer: ``basis='mole'`` (default) means mole fractions,
-        ``basis='mass'`` means mass fractions::
+        ``basis='mass'`` means mass fractions. For more information, see `Python
+        example
+        <https://cantera.org/examples/python/thermo/equivalenceRatio.py.html>`_::
 
             >>> gas.set_mixture_fraction(0.5, 'CH4', 'O2:1.0, N2:3.76')
             >>> gas.mass_fraction_dict()
@@ -902,14 +904,27 @@ cdef class ThermoPhase(_SolutionBase):
     def equivalence_ratio(self, fuel=None, oxidizer=None, basis="mole",
                           include_species=None):
         """
-        Get the equivalence ratio of the current mixture, which is a
+        Get the equivalence ratio :math:`\phi` of the current mixture, which is a
         conserved quantity. Considers the oxidation of C to CO2, H to H2O
         and S to SO2. Other elements are assumed not to participate in oxidation
         (that is, N ends up as N2). If fuel and oxidizer are not specified, the
         equivalence ratio is computed from the available oxygen and the
-        required oxygen for complete oxidation. The ``basis`` determines the
-        composition of fuel and oxidizer: ``basis='mole'`` (default) means mole
-        fractions, ``basis='mass'`` means mass fractions. Additionally, a
+        required oxygen for complete oxidation:
+
+        .. math:: \phi = \frac{Z_{\mathrm{mole},C} + Z_{\mathrm{mole},S} + \frac{1}{4}Z_{\mathrm{mole},H}} {\frac{1}{2}Z_{\mathrm{mole},O}}
+
+        where :math:`Z_e` is the elemental mole fraction of element :math:`e`.
+        If the fuel and oxidizer compositions are specified, :math:`\phi` is
+        computed from:
+        
+        .. math:: \phi = \frac{Z}{1-Z}\frac{1-Z_{\mathrm{st}}}{Z_{\mathrm{st}}}
+        
+        where :math:`Z` is the Bilger mixture fraction and :math:`Z_{\mathrm{st}}`
+        the Bilger mixture fraction at stoichiometric conditions.
+        The ``basis`` determines the composition of fuel and oxidizer:
+        ``basis='mole'`` (default) means mole fractions, ``basis='mass'`` means
+        mass fractions. Note that this definition takes all species into account.
+        In case certain species like inert diluents should be ignored, a
         list of species can be provided with ``include_species``. This means that
         only these species are considered for the computation of the equivalence
         ratio. For more information, see `Python example
@@ -959,15 +974,31 @@ cdef class ThermoPhase(_SolutionBase):
 
     def mixture_fraction(self, fuel, oxidizer, basis='mole', element="Bilger"):
         """
-        Get the mixture fraction of the current mixture (kg fuel / (kg oxidizer + kg fuel))
-        This is a quantity that is conserved after oxidation. Considers the
-        oxidation of C to CO2, H to H2O and S to SO2. Other elements are assumed
-        not to participate in oxidation (that is, N ends up as N2).
+        Get the mixture fraction of the current mixture in
+        (kg fuel / (kg oxidizer + kg fuel)). This is a quantity that is conserved after
+        oxidation. Considers the oxidation of C to CO2, H to H2O and S to SO2. Other
+        elements are assumed not to participate in oxidation (that is, N ends up as N2).
         The ``basis`` determines the composition of fuel and oxidizer:
         ``basis="mole"`` (default) means mole fractions, ``basis="mass"`` means mass fractions.
         The mixture fraction can be computed from a single element (for example, carbon
-        with ``element="C"``) or from all elements, which is the Bilger mixture
-        fraction (``element="Bilger"``). The Bilger mixture fraction is computed by default::
+        with ``element="C"``)
+
+        .. math:: Z_m = \frac{Z_{\mathrm{mass},m}-Z_{\mathrm{mass},m,\mathrm{ox}}}{Z_{\mathrm{mass},\mathrm{fuel}}-Z_{\mathrm{mass},m,\mathrm{ox}}}
+
+        where :math:`Z_{\mathrm{mass},m}` is the elemental mass fraction of
+        element :math:`m` in the mixture, and :math:`Z_{\mathrm{mass},m,\mathrm{ox}}}`
+        and :math:`Z_{\mathrm{mass},\mathrm{fuel}}` are the elemental mass fractions of
+        the oxidizer and fuel, or from the Bilger mixture fraction (``element="Bilger"``),
+        which considers the elements C, S, H and O (R. W. Bilger, "Turbulent jet diffusion
+        flames," Prog. Energy Combust. Sci., 109-131 (1979)):
+        
+        .. math:: Z_m = Z_{\mathrm{Bilger}} = \frac{\beta-\beta_{\mathrm{ox}}} {\beta_{\mathrm{fuel}}-\beta_{\mathrm{ox}}}
+
+        with :math:`\beta = 2\frac{Z_C}{M_C}+2\frac{Z_S}{M_S}+\frac{1}{2}\frac{Z_H}{M_H} - \frac{Z_O}{M_O}`
+        and :math:`M_m` the atomic weight of element :math:`m`. For more information,
+        see `Python example
+        <https://cantera.org/examples/python/thermo/equivalenceRatio.py.html>`_.
+        The Bilger mixture fraction is computed by default::
 
             >>> gas.set_mixture_fraction(0.5, 'CH3:0.5, CH3OH:.5, N2:0.125', 'O2:0.21, N2:0.79, NO:0.01')
             >>> gas.mixture_fraction('CH3:0.5, CH3OH:.5, N2:0.125', 'O2:0.21, N2:0.79, NO:0.01')
