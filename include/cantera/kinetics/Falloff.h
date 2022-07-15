@@ -169,7 +169,7 @@ public:
         return 0;
     }
 
-    virtual const std::string type() const {
+    virtual const std::string type() const override {
         if (m_chemicallyActivated) {
             return "chemically-activated";
         }
@@ -182,7 +182,8 @@ public:
         return 0;
     }
 
-    virtual void setParameters(const AnyMap& node, const UnitStack& rate_units);
+    virtual void setParameters(
+        const AnyMap& node, const UnitStack& rate_units) override;
 
     //! Get the values of the parameters for this object. *params* must be an
     //! array of at least nParameters() elements.
@@ -223,7 +224,7 @@ public:
     }
 
     virtual void check(const std::string& equation) override;
-    virtual void validate(const std::string& equation, const Kinetics& kin);
+    virtual void validate(const std::string& equation, const Kinetics& kin) override;
 
     //! Get flag indicating whether negative A values are permitted
     bool allowNegativePreExponentialFactor() const {
@@ -300,7 +301,7 @@ public:
         setFalloffCoeffs(c);
     }
 
-    unique_ptr<MultiRateBase> newMultiRate() const {
+    unique_ptr<MultiRateBase> newMultiRate() const override{
         return unique_ptr<MultiRateBase>(
             new MultiRate<LindemannRate, FalloffData>);
     }
@@ -361,7 +362,7 @@ public:
         setFalloffCoeffs(c);
     }
 
-    unique_ptr<MultiRateBase> newMultiRate() const {
+    unique_ptr<MultiRateBase> newMultiRate() const override {
         return unique_ptr<MultiRateBase>(new MultiRate<TroeRate, FalloffData>);
     }
 
@@ -370,9 +371,9 @@ public:
      * @param c Vector of three or four doubles: The doubles are the parameters,
      *          a, T_3, T_1, and (optionally) T_2 of the Troe parameterization
      */
-    virtual void setFalloffCoeffs(const vector_fp& c);
+    virtual void setFalloffCoeffs(const vector_fp& c) override;
 
-    virtual void getFalloffCoeffs(vector_fp& c) const;
+    virtual void getFalloffCoeffs(vector_fp& c) const override;
 
     //! Update the temperature parameters in the representation
     /*!
@@ -380,11 +381,11 @@ public:
      *   @param work      Vector of working space, length 1, representing the
      *                    temperature-dependent part of the parameterization.
      */
-    virtual void updateTemp(double T, double* work) const;
+    virtual void updateTemp(double T, double* work) const override;
 
-    virtual double F(double pr, const double* work) const;
+    virtual double F(double pr, const double* work) const override;
 
-    virtual size_t workSize() const {
+    virtual size_t workSize() const override {
         return 1;
     }
 
@@ -392,19 +393,20 @@ public:
         return "Troe";
     }
 
-    virtual size_t nParameters() const {
+    virtual size_t nParameters() const override {
         return 4;
     }
 
-    virtual void setParameters(const AnyMap& node, const UnitStack& rate_units);
+    virtual void setParameters(
+        const AnyMap& node, const UnitStack& rate_units) override;
 
     //! Sets params to contain, in order, \f[ (A, T_3, T_1, T_2) \f]
     /**
      * @deprecated  To be removed after Cantera 3.0; superseded by getFalloffCoeffs()
      */
-    virtual void getParameters(double* params) const;
+    virtual void getParameters(double* params) const override;
 
-    virtual void getParameters(AnyMap& node) const;
+    virtual void getParameters(AnyMap& node) const override;
 
 protected:
     //! parameter a in the 4-parameter Troe falloff function. Dimensionless
@@ -463,7 +465,7 @@ public:
         setFalloffCoeffs(c);
     }
 
-    unique_ptr<MultiRateBase> newMultiRate() const {
+    unique_ptr<MultiRateBase> newMultiRate() const override {
         return unique_ptr<MultiRateBase>(new MultiRate<SriRate, FalloffData>);
     }
 
@@ -473,9 +475,9 @@ public:
      *          a, b, c, d (optional; default 1.0), and e (optional; default
      *          0.0) of the SRI parameterization
      */
-    virtual void setFalloffCoeffs(const vector_fp& c);
+    virtual void setFalloffCoeffs(const vector_fp& c) override;
 
-    virtual void getFalloffCoeffs(vector_fp& c) const;
+    virtual void getFalloffCoeffs(vector_fp& c) const override;
 
     //! Update the temperature parameters in the representation
     /*!
@@ -483,11 +485,11 @@ public:
      *   @param work      Vector of working space, length 2, representing the
      *                    temperature-dependent part of the parameterization.
      */
-    virtual void updateTemp(double T, double* work) const;
+    virtual void updateTemp(double T, double* work) const override;
 
-    virtual double F(double pr, const double* work) const;
+    virtual double F(double pr, const double* work) const override;
 
-    virtual size_t workSize() const {
+    virtual size_t workSize() const override {
         return 2;
     }
 
@@ -495,19 +497,20 @@ public:
         return "SRI";
     }
 
-    virtual size_t nParameters() const {
+    virtual size_t nParameters() const override {
         return 5;
     }
 
-    virtual void setParameters(const AnyMap& node, const UnitStack& rate_units);
+    virtual void setParameters(
+        const AnyMap& node, const UnitStack& rate_units) override;
 
     //! Sets params to contain, in order, \f[ (a, b, c, d, e) \f]
     /**
      * @deprecated  To be removed after Cantera 3.0; superseded by getFalloffCoeffs()
      */
-    virtual void getParameters(double* params) const;
+    virtual void getParameters(double* params) const override;
 
-    virtual void getParameters(AnyMap& node) const;
+    virtual void getParameters(AnyMap& node) const override;
 
 protected:
     //! parameter a in the 5-parameter SRI falloff function. Dimensionless.
@@ -573,7 +576,7 @@ public:
         setFalloffCoeffs(c);
     }
 
-    unique_ptr<MultiRateBase> newMultiRate() const {
+    unique_ptr<MultiRateBase> newMultiRate() const override {
         return unique_ptr<MultiRateBase>(new MultiRate<TsangRate, FalloffData>);
     }
 
@@ -582,9 +585,9 @@ public:
      * @param c Vector of one or two doubles: The doubles are the parameters,
      *          a and (optionally) b of the Tsang F_cent parameterization
      */
-    virtual void setFalloffCoeffs(const vector_fp& c);
+    virtual void setFalloffCoeffs(const vector_fp& c) override;
 
-    virtual void getFalloffCoeffs(vector_fp& c) const;
+    virtual void getFalloffCoeffs(vector_fp& c) const override;
 
     //! Update the temperature parameters in the representation
     /*!
@@ -592,11 +595,11 @@ public:
      *   @param work      Vector of working space, length 1, representing the
      *                    temperature-dependent part of the parameterization.
      */
-    virtual void updateTemp(double T, double* work) const;
+    virtual void updateTemp(double T, double* work) const override;
 
-    virtual double F(double pr, const double* work) const;
+    virtual double F(double pr, const double* work) const override;
 
-    virtual size_t workSize() const {
+    virtual size_t workSize() const override {
         return 1;
     }
 
@@ -604,19 +607,20 @@ public:
         return "Tsang";
     }
 
-    virtual size_t nParameters() const {
+    virtual size_t nParameters() const override {
         return 2;
     }
 
-    virtual void setParameters(const AnyMap& node, const UnitStack& rate_units);
+    virtual void setParameters(
+        const AnyMap& node, const UnitStack& rate_units) override;
 
     //! Sets params to contain, in order, \f[ (A, B) \f]
     /**
      * @deprecated  To be removed after Cantera 3.0; superseded by getFalloffCoeffs()
      */
-    virtual void getParameters(double* params) const;
+    virtual void getParameters(double* params) const override;
 
-    virtual void getParameters(AnyMap& node) const;
+    virtual void getParameters(AnyMap& node) const override;
 
 protected:
     //! parameter a in the Tsang F_cent formulation. Dimensionless
