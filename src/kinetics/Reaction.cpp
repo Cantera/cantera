@@ -33,6 +33,7 @@ Reaction::Reaction(const Composition& reactants_,
                    shared_ptr<ThirdBody> tbody_)
     : reactants(reactants_)
     , products(products_)
+    , m_from_composition(true)
     , m_third_body(tbody_)
 {
     setRate(rate_);
@@ -228,11 +229,12 @@ void Reaction::setRate(shared_ptr<ReactionRate> rate)
     std::string rate_type = input.getString("type", "");
     if (m_third_body) {
         if (std::dynamic_pointer_cast<FalloffRate>(m_rate)) {
-            if (m_third_body->mass_action) {
+            if (m_third_body->mass_action && !m_from_composition) {
                 throw InputFileError("Reaction::setRate", input,
                     "Third-body collider does not use '(+{})' notation.",
                     m_third_body->name());
             }
+            m_third_body->mass_action = false;
         } else if (m_rate->type() == "Chebyshev") {
             if (m_third_body->name() == "M") {
                 warn_deprecated("Chebyshev reaction equation", input, "Specifying 'M' "
@@ -248,9 +250,12 @@ void Reaction::setRate(shared_ptr<ReactionRate> rate)
         }
     } else {
         if (std::dynamic_pointer_cast<FalloffRate>(m_rate)) {
-            throw InputFileError("Reaction::setRate", input,
-                "Reactants for falloff reaction '{}'\n"
-                "do not contain a valid pressure-dependent third body", equation());
+            if (!m_from_composition) {
+                throw InputFileError("Reaction::setRate", input,
+                    "Reaction eqution for falloff reaction '{}'\n does not "
+                    "contain valid pressure-dependent third body", equation());
+            }
+            m_third_body.reset(new ThirdBody("(+M)"));
         }
     }
 }
