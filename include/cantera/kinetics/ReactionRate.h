@@ -85,6 +85,11 @@ public:
     //! String identifying reaction rate specialization
     virtual const std::string type() const = 0;
 
+    //! String identifying sub-type of reaction rate specialization
+    virtual const std::string subType() const {
+        return "";
+    }
+
     //! Set parameters
     //! @param node  AnyMap object containing reaction rate specification
     //! @param units  unit definitions specific to rate information

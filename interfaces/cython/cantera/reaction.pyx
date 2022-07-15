@@ -37,6 +37,11 @@ cdef class ReactionRate:
         def __get__(self):
             return pystr(self.rate.type())
 
+    property sub_type:
+        """ Get the C++ ReactionRate sub-type """
+        def __get__(self):
+            return pystr(self.rate.subType())
+
     @staticmethod
     cdef wrap(shared_ptr[CxxReactionRate] rate):
         """
@@ -53,8 +58,10 @@ cdef class ReactionRate:
             # update global reaction class registry
             register_subclasses(ReactionRate)
 
-        # identify class
-        rate_type = pystr(rate.get().type())
+        # identify class (either subType or type)
+        rate_type = pystr(rate.get().subType())
+        if rate_type == "":
+            rate_type = pystr(rate.get().type())
         cls = _reaction_rate_class_registry.get(rate_type, ReactionRate)
 
         # wrap C++ reaction rate

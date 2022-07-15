@@ -226,22 +226,22 @@ void Reaction::setRate(shared_ptr<ReactionRate> rate)
     }
     m_rate = rate;
 
-    std::string rate_type = input.getString("type", "");
+    std::string rate_type = m_rate->type();
     if (m_third_body) {
-        if (std::dynamic_pointer_cast<FalloffRate>(m_rate)) {
+        if (rate_type == "falloff" || rate_type == "chemically-activated") {
             if (m_third_body->mass_action && !m_from_composition) {
                 throw InputFileError("Reaction::setRate", input,
                     "Third-body collider does not use '(+{})' notation.",
                     m_third_body->name());
             }
             m_third_body->mass_action = false;
-        } else if (m_rate->type() == "Chebyshev") {
+        } else if (rate_type == "Chebyshev") {
             if (m_third_body->name() == "M") {
                 warn_deprecated("Chebyshev reaction equation", input, "Specifying 'M' "
                     "in the reaction equation for Chebyshev reactions is deprecated.");
                 m_third_body.reset();
             }
-        } else if (m_rate->type() == "pressure-dependent-Arrhenius") {
+        } else if (rate_type == "pressure-dependent-Arrhenius") {
             if (m_third_body->name() == "M") {
                 throw InputFileError("Reaction::setRate", input,
                     "Found superfluous '{}' in pressure-dependent-Arrhenius reaction.",
@@ -249,7 +249,7 @@ void Reaction::setRate(shared_ptr<ReactionRate> rate)
             }
         }
     } else {
-        if (std::dynamic_pointer_cast<FalloffRate>(m_rate)) {
+        if (rate_type == "falloff" || rate_type == "chemically-activated") {
             if (!m_from_composition) {
                 throw InputFileError("Reaction::setRate", input,
                     "Reaction eqution for falloff reaction '{}'\n does not "
@@ -421,12 +421,9 @@ std::string Reaction::type() const
     }
 
     std::string rate_type = m_rate->type();
-    auto falloff = std::dynamic_pointer_cast<FalloffRate>(m_rate);
-    if (falloff) {
-        if (falloff->chemicallyActivated()) {
-            return "chemically-activated-" + rate_type;
-        }
-        return "falloff-" + rate_type;
+    std::string sub_type = m_rate->subType();
+    if (sub_type != "") {
+        return rate_type + "-" + sub_type;
     }
 
     if (m_third_body) {

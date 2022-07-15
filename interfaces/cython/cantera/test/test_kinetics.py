@@ -1238,7 +1238,7 @@ class TestReaction(utilities.CanteraTest):
         r = ct.Reaction("OH:2", "H2O2:1",
                         ct.TroeRate(low_rate, high_rate, [0.7346, 94, 1756, 5182]),
                         third_body=tb)
-        self.assertEqual(r.rate.type, "Troe")
+        self.assertEqual(r.rate.type, "falloff")
 
         gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
                            species=self.species, reactions=[r])
@@ -1561,11 +1561,11 @@ class TestReaction(utilities.CanteraTest):
         gas = ct.Solution('gri30.yaml', transport_model=None)
         gas.TPX = 1100, 3 * ct.one_atm, 'CH4:1.0, O2:0.4, CO2:0.1, H2O:0.05'
         r0 = gas.reaction(11)
-        self.assertEqual(r0.rate.type, "Lindemann")
+        self.assertEqual(r0.rate.type, "falloff")
         # these two reactions happen to have the same third-body efficiencies
         r1 = gas.reaction(49)
         r2 = gas.reaction(53)
-        self.assertEqual(r2.rate.type, "Troe")
+        self.assertEqual(r2.rate.type, "falloff")
         self.assertEqual(r1.third_body.efficiencies, r2.third_body.efficiencies)
         r2.rate = r1.rate
 

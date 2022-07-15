@@ -428,68 +428,51 @@ def build_reactions_text(reactions: Iterable[ct.Reaction]):
                     )
                 )
 
-        elif reac.reaction_type.startswith("chemically-activated"):
+        elif reac.rate.type in ["falloff", "chemically-activated"]:
             rate = reac.rate
-            reaction_lines.append(
-                arrhenius_line.format(
-                    equation=reac.equation,
-                    max_reaction_length=max_reaction_length,
-                    A=rate.low_rate.pre_exponential_factor * unit_conversion_factor,
-                    b=rate.low_rate.temperature_exponent,
-                    E_a=rate.low_rate.activation_energy / CALORIES_CONSTANT,
-                )
-            )
-            unit_conversion_factor /= 1_000.0
-            reaction_lines.append(
-                high_line.format(
-                    A=rate.high_rate.pre_exponential_factor * unit_conversion_factor,
-                    b=rate.high_rate.temperature_exponent,
-                    E_a=rate.high_rate.activation_energy / CALORIES_CONSTANT,
-                )
-            )
-            if rate.type == "Troe":
-                reaction_lines.append(
-                    "TROE /"
-                    + " ".join(map(lambda s: format(s, ".7G"), rate.falloff_coeffs))
-                    + "/"
-                )
-            elif rate.type == "SRI":
-                reaction_lines.append(
-                    "SRI /"
-                    + " ".join(map(lambda s: format(s, ".7G"), rate.falloff_coeffs))
-                    + "/"
-                )
+            if reac.rate.type == "falloff":
+                rate1 = rate.high_rate
+                rate2 = rate.low_rate
+                unit_conversion_factor2 = unit_conversion_factor * 1_000.0
+                other_line = low_line
+            else:
+                rate1 = rate.low_rate
+                rate2 = rate.high_rate
+                unit_conversion_factor2 = unit_conversion_factor / 1_000.0
+                other_line = high_line
 
-        elif reac.reaction_type.startswith("falloff"):
-            rate = reac.rate
             reaction_lines.append(
                 arrhenius_line.format(
                     equation=reac.equation,
                     max_reaction_length=max_reaction_length,
-                    A=rate.high_rate.pre_exponential_factor * unit_conversion_factor,
-                    b=rate.high_rate.temperature_exponent,
-                    E_a=rate.high_rate.activation_energy / CALORIES_CONSTANT,
+                    A=rate1.pre_exponential_factor * unit_conversion_factor,
+                    b=rate1.temperature_exponent,
+                    E_a=rate1.activation_energy / CALORIES_CONSTANT,
                 )
             )
-            unit_conversion_factor *= 1_000.0
             reaction_lines.append(
-                low_line.format(
-                    A=rate.low_rate.pre_exponential_factor * unit_conversion_factor,
-                    b=rate.low_rate.temperature_exponent,
-                    E_a=rate.low_rate.activation_energy / CALORIES_CONSTANT,
+                other_line.format(
+                    A=rate2.pre_exponential_factor * unit_conversion_factor2,
+                    b=rate2.temperature_exponent,
+                    E_a=rate2.activation_energy / CALORIES_CONSTANT,
                 )
             )
-            if rate.type == "Troe":
+
+            if reac.rate.sub_type == "Troe":
                 reaction_lines.append(
                     "TROE /"
                     + " ".join(map(lambda s: format(s, ".7G"), rate.falloff_coeffs))
                     + "/"
                 )
-            elif rate.type == "SRI":
+            elif reac.rate.sub_type == "SRI":
                 reaction_lines.append(
                     "SRI /"
                     + " ".join(map(lambda s: format(s, ".7G"), rate.falloff_coeffs))
                     + "/"
+                )
+            elif reac.rate.sub_type != "Lindemann":
+                raise ValueError(
+                    f"Unable to convert reaction type: '{reac.reaction_type}'"
                 )
 
         else:

@@ -409,6 +409,7 @@ class TestTwoTempPlasmaRateShort(TestTwoTempPlasmaRate, utilities.CanteraTest):
 
 class FalloffRateTests(ReactionRateTests):
     # test Falloff rate expressions
+    _type = "falloff"
     _n_data = [0] # list of valid falloff coefficient array lengths
 
     @classmethod
@@ -469,7 +470,6 @@ class TestLindemannRate(FalloffRateTests, utilities.CanteraTest):
     # test Lindemann rate expressions
 
     _cls = ct.LindemannRate
-    _type = "Lindemann"
     _index = 7
     _parts = {
         "falloff_coeffs": [],
@@ -495,7 +495,6 @@ class TestTroeRate(FalloffRateTests, utilities.CanteraTest):
     # test Troe rate expressions
 
     _cls = ct.TroeRate
-    _type = "Troe"
     _index = 2
     _parts = {"falloff_coeffs": [0.7346, 94.0, 1756.0, 5182.0]}
     _input = {
@@ -528,7 +527,6 @@ class TestSriRate(FalloffRateTests, utilities.CanteraTest):
     # test SRI rate expressions
 
     _cls = ct.SriRate
-    _type = "SRI"
     _index = 8
     _parts = {"falloff_coeffs": [1.1, 700.0, 1234.0, 56.0, 0.7]}
     _input = {
@@ -550,7 +548,6 @@ class TestTsangRate(FalloffRateTests, utilities.CanteraTest):
     # test Tsang rate expressions
 
     _cls = ct.TsangRate
-    _type = "Tsang"
     _index = 9
     _parts = {"falloff_coeffs": [0.95, -1.0e-04]}
     _input = {
@@ -1264,7 +1261,7 @@ class TestTroe(ReactionTests, utilities.CanteraTest):
         }
     _3rd_body = ct.ThirdBody("(+M)", efficiencies={"AR": 0.7, "H2": 2.0, "H2O": 6.0})
     _index = 2
-    _rate_type = "Troe"
+    _rate_type = "falloff"
     _yaml = """
         equation: 2 OH (+ M) <=> H2O2 (+ M)  # Reaction 3
         type: falloff
@@ -1302,7 +1299,7 @@ class TestLindemann(ReactionTests, utilities.CanteraTest):
         }
     _3rd_body = ct.ThirdBody("(+M)", efficiencies={"AR": 0.7, "H2": 2.0, "H2O": 6.0})
     _index = 7
-    _rate_type = "Lindemann"
+    _rate_type = "falloff"
     _yaml = """
         equation: 2 OH (+ M) <=> H2O2 (+ M)  # Reaction 8
         duplicate: true
@@ -1337,7 +1334,7 @@ class TestChemicallyActivated(ReactionTests, utilities.CanteraTest):
         "high_P_rate_constant": {"A": 5.88E-14, "b": 6.721, "Ea": -12644997.768}
         }
     _index = 10
-    _rate_type = "Lindemann"
+    _rate_type = "chemically-activated"
     _yaml = """
         equation: H2O + OH (+M) <=> HO2 + H2 (+M)  # Reaction 11
         units: {length: cm, quantity: mol, activation-energy: cal/mol}

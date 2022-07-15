@@ -428,15 +428,20 @@ bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base, bool resize)
     rate->setRateIndex(nReactions() - 1);
     rate->setContext(*r_base, *this);
 
+    std::string rtype = rate->subType();
+    if (rtype == "") {
+        rtype = rate->type();
+    }
+
     // If necessary, add new interface MultiRate evaluator
-    if (m_interfaceTypes.find(rate->type()) == m_interfaceTypes.end()) {
-        m_interfaceTypes[rate->type()] = m_interfaceRates.size();
+    if (m_interfaceTypes.find(rtype) == m_interfaceTypes.end()) {
+        m_interfaceTypes[rtype] = m_interfaceRates.size();
         m_interfaceRates.push_back(rate->newMultiRate());
         m_interfaceRates.back()->resize(m_kk, nReactions(), nPhases());
     }
 
     // Add reaction rate to evaluator
-    size_t index = m_interfaceTypes[rate->type()];
+    size_t index = m_interfaceTypes[rtype];
     m_interfaceRates[index]->add(nReactions() - 1, *rate);
 
     return true;
@@ -450,7 +455,11 @@ void InterfaceKinetics::modifyReaction(size_t i, shared_ptr<Reaction> r_base)
     rate->setRateIndex(i);
     rate->setContext(*r_base, *this);
 
-    const auto& rtype = rate->type();
+    std::string rtype = rate->subType();
+    if (rtype == "") {
+        rtype = rate->type();
+    }
+
     // Ensure that interface MultiRate evaluator is available
     if (!m_interfaceTypes.count(rtype)) {
         throw CanteraError("InterfaceKinetics::modifyReaction",
