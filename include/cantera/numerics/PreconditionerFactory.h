@@ -39,9 +39,9 @@ private:
 };
 
 //! Create a Preconditioner object of the specified type
-inline PreconditionerBase* newPreconditioner(const std::string& precon)
+inline std::shared_ptr<PreconditionerBase> newPreconditioner(const std::string& precon)
 {
-    return PreconditionerFactory::factory()->create(precon);
+    return std::shared_ptr<PreconditionerBase>(PreconditionerFactory::factory()->create(precon));
 };
 
 }

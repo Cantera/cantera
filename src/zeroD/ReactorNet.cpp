@@ -115,6 +115,9 @@ void ReactorNet::initialize()
         writelog("Maximum time step:   {:14.6g}\n", m_maxstep);
     }
     m_integ->initialize(m_time, *this);
+    if (m_integ->preconditionerType() != PreconditionerType::NO_PRECONDITION) {
+        checkPreconditionerSupported();
+    }
     m_integrator_init = true;
     m_init = true;
 }
@@ -124,21 +127,24 @@ void ReactorNet::reinitialize()
     if (m_init) {
         debuglog("Re-initializing reactor network.\n", m_verbose);
         m_integ->reinitialize(m_time, *this);
+        if (m_integ->preconditionerType() != PreconditionerType::NO_PRECONDITION) {
+            checkPreconditionerSupported();
+        }
         m_integrator_init = true;
     } else {
         initialize();
     }
 }
 
-void ReactorNet::setLinearSolverType(std::string linSolverType)
+void ReactorNet::setLinearSolverType(const std::string& linSolverType)
 {
     m_integ->setLinearSolverType(linSolverType);
     m_integrator_init = false;
 }
 
-void ReactorNet::setPreconditioner(PreconditionerBase& preconditioner)
+void ReactorNet::setPreconditioner(shared_ptr<PreconditionerBase> preconditioner)
 {
-    m_integ->setPreconditioner(std::shared_ptr<PreconditionerBase>(&preconditioner));
+    m_integ->setPreconditioner(preconditioner);
     m_integrator_init = false;
 }
 
@@ -428,7 +434,7 @@ AnyMap ReactorNet::linearSolverStats() const
     return m_integ->linearSolverStats();
 }
 
-std::string ReactorNet::linearSolverType()
+std::string ReactorNet::linearSolverType() const
 {
     return m_integ->linearSolverType();
 }
@@ -440,6 +446,9 @@ void ReactorNet::preconditionerSolve(double* rhs, double* output)
 
 void ReactorNet::preconditionerSetup(double t, double* y, double gamma)
 {
+    // ensure state is up to date.
+    updateState(y);
+    // get the preconditioner
     auto precon = m_integ->preconditioner();
     // Reset preconditioner
     precon->reset();
@@ -449,21 +458,40 @@ void ReactorNet::preconditionerSetup(double t, double* y, double gamma)
     vector_fp yCopy(m_nv);
     // Get state of reactor
     getState(yCopy.data());
-    // adjust state by preconditioner
+    // transform state based on preconditioner rules
     precon->stateAdjustment(yCopy);
     // update network with adjusted state
     updateState(yCopy.data());
     // Get jacobians and give elements to preconditioners
     for (size_t i = 0; i < m_reactors.size(); i++) {
-        Eigen::SparseMatrix<double> reactorJac = m_reactors[i]->jacobian(t, y + m_start[i]);
-        for (int k=0; k<reactorJac.outerSize(); ++k) {
-            for (Eigen::SparseMatrix<double>::InnerIterator it(reactorJac, k); it; ++it) {
-                precon->setValue(it.row() + m_start[i], it.col() + m_start[i], it.value());
+        Eigen::SparseMatrix<double> rJac = m_reactors[i]->jacobian(t, y + m_start[i]);
+        for (int k=0; k<rJac.outerSize(); ++k) {
+            for (Eigen::SparseMatrix<double>::InnerIterator it(rJac, k); it; ++it) {
+                precon->setValue(it.row() + m_start[i], it.col() + m_start[i],
+                    it.value());
             }
         }
     }
     // post reactor setup operations
     precon->setup();
+}
+
+void ReactorNet::checkPreconditionerSupported()
+{
+    // preconditioner currently not supported for surfaces
+    for (size_t i = 0; i < m_reactors.size(); i++) {
+        if (m_reactors[i]->nSurfs() > 0) {
+            throw CanteraError("ReactorNet::checkPreconditionerSupported",
+                "Preconditioning is not supported for networks with surfaces.");
+        }
+    }
+}
+
+void ReactorNet::updatePreconditioner(double gamma)
+{
+    auto precon = m_integ->preconditioner();
+    precon->setGamma(gamma);
+    precon->updatePreconditioner();
 }
 
 }

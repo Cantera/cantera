@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-Ideal gas, constant-pressure, adiabatic kinetics simulation that compares preconditioned and non-preconditioned integration of nDodecane.
+Ideal gas, constant-pressure, adiabatic kinetics simulation that compares preconditioned
+and non-preconditioned integration of nDodecane.
 
-Requires: cantera >= 2.6.0
+Requires: cantera >= 3.0.0, matplotlib >= 2.0
 Keywords: combustion, reactor network, preconditioner
 """
 import cantera as ct
@@ -21,7 +22,7 @@ def integrate_reactor(n_reactors=15, preconditioner=True):
     gas = ct.Solution('nDodecane_Reitz.yaml', 'nDodecane_IG')
     # Create multiple reactors and set initial contents
     gas.TP = 1000, ct.one_atm
-    gas.set_equivalence_ratio(0.75, 'c12h26', 'n2:3.76, o2:1.0')
+    gas.set_equivalence_ratio(1, 'c12h26', 'n2:3.76, o2:1.0')
     reactors = [ct.IdealGasConstPressureMoleReactor(gas) for n in range(n_reactors)]
     # set volume for reactors
     for r in reactors:
@@ -35,28 +36,18 @@ def integrate_reactor(n_reactors=15, preconditioner=True):
     sim.initialize()
     # Advance to steady state
     integ_time = default_timer()
-    # indexs to keep
-    tidx = reactors[0].component_index("temperature")
-    cidx = reactors[0].component_index("c12h26")
-    coidx = reactors[0].component_index("co2")
-    time = []
-    T = []
-    CO2 = []
-    C12H26 = []
+    # solution array for state data
+    states = ct.SolutionArray(reactors[0].thermo, extra=['time'])
     # advance to steady state manually
     while (sim.time < 0.1):
-        previous_state = sim.get_state()
-        T.append(previous_state[tidx])
-        CO2.append(previous_state[coidx])
-        C12H26.append(previous_state[cidx])
-        time.append(sim.time)
+        states.append(reactors[0].thermo.state, time=sim.time)
         sim.step()
     integ_time = default_timer() - integ_time
     # Return time to integrate
     if preconditioner:
-        print("Preconditioned Integration Time: {:f}".format(integ_time))
+        print(f"Preconditioned Integration Time: {integ_time:f}")
     else:
-        print("Non-preconditioned Integration Time: {:f}".format(integ_time))
+        print(f"Non-preconditioned Integration Time: {integ_time:f}")
     # Get and output solver stats
     lin_stats = sim.linear_solver_stats
     nonlin_stats = sim.nonlinear_solver_stats
@@ -65,7 +56,8 @@ def integrate_reactor(n_reactors=15, preconditioner=True):
     for key in nonlin_stats:
         print(key, nonlin_stats[key])
     print("\n")
-    return time, T, CO2, C12H26
+    # return some variables for plotting
+    return states.time, states.T, states('CO2').Y, states('C12H26').Y
 
 if __name__ == "__main__":
     # integrate both to steady state

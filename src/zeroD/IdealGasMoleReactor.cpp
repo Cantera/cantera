@@ -99,7 +99,7 @@ void IdealGasMoleReactor::updateState(double* y)
 void IdealGasMoleReactor::eval(double time, double* LHS, double* RHS)
 {
     double& mcvdTdt = RHS[0]; // m * c_v * dT/dt
-    double* dydt = RHS + m_sidx; // kmol per s
+    double* dndt = RHS + m_sidx; // kmol per s
 
     evalWalls(time);
 
@@ -123,14 +123,14 @@ void IdealGasMoleReactor::eval(double time, double* LHS, double* RHS)
         mcvdTdt -= m_wdot[n] * m_uk[n] * m_vol;
         mcvdTdt -= m_sdot[n] * m_uk[n];
         // production in gas phase and from surfaces
-        dydt[n] = (m_wdot[n] * m_vol + m_sdot[n]);
+        dndt[n] = (m_wdot[n] * m_vol + m_sdot[n]);
     }
 
     // add terms for outlets
     for (auto outlet : m_outlet) {
         for (size_t n = 0; n < m_nsp; n++) {
             // flow of species into system and dilution by other species
-            dydt[n] -= outlet->outletSpeciesMassFlowRate(n) * imw[n];
+            dndt[n] -= outlet->outletSpeciesMassFlowRate(n) * imw[n];
         }
         double mdot = outlet->massFlowRate();
         mcvdTdt -= mdot * m_pressure * m_vol / m_mass; // flow work
@@ -143,7 +143,7 @@ void IdealGasMoleReactor::eval(double time, double* LHS, double* RHS)
         for (size_t n = 0; n < m_nsp; n++) {
             double mdot_spec = inlet->outletSpeciesMassFlowRate(n);
             // flow of species into system and dilution by other species
-            dydt[n] += inlet->outletSpeciesMassFlowRate(n) * imw[n];
+            dndt[n] += inlet->outletSpeciesMassFlowRate(n) * imw[n];
             mcvdTdt -= m_uk[n] * imw[n] * mdot_spec;
         }
     }
@@ -163,7 +163,8 @@ Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian(double t, double* y)
     // Determine Species Derivatives
     // get ROP derivatives
     double scalingFactor = m_vol/accumulate(y + m_sidx, y + m_nv, 0.0);
-    Eigen::SparseMatrix<double> speciesDervs = scalingFactor * m_kin->netProductionRates_ddX();
+    Eigen::SparseMatrix<double> speciesDervs = scalingFactor *
+        m_kin->netProductionRates_ddX();
     // add to preconditioner
     for (int k=0; k<speciesDervs.outerSize(); ++k) {
         for (Eigen::SparseMatrix<double>::InnerIterator it(speciesDervs, k); it; ++it) {
@@ -205,7 +206,8 @@ Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian(double t, double* y)
         m_thermo->getPartialMolarIntEnergies(internal_energy.data());
         m_kin->getNetProductionRates(netProductionRates.data());
         // scale net production rates by  volume to get molar rate
-        scale(netProductionRates.begin(), netProductionRates.end(), netProductionRates.begin(), m_vol);
+        scale(netProductionRates.begin(), netProductionRates.end(),
+              netProductionRates.begin(), m_vol);
         // convert Cp to Cv for ideal gas as Cp - Cv = R
         for (size_t i = 0; i < specificHeat.size(); i++) {
             specificHeat[i] -= GasConstant;
@@ -226,10 +228,10 @@ Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian(double t, double* y)
             }
             // set appropriate column of preconditioner
             m_jac_trips.emplace_back(0, j + m_sidx, (-ukdnkdnjSum * NtotalCv +
-            specificHeat[j] *  uknkSum) / (NtotalCv * NtotalCv));
+                specificHeat[j] *  uknkSum) / (NtotalCv * NtotalCv));
         }
     }
-    Eigen::SparseMatrix<double> jac (m_nv, m_nv);
+    Eigen::SparseMatrix<double> jac(m_nv, m_nv);
     jac.setFromTriplets(m_jac_trips.begin(), m_jac_trips.end());
     return jac;
 }

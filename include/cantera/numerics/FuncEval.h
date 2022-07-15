@@ -71,6 +71,11 @@ public:
         throw NotImplementedError("FuncEval::preconditionerSolve");
     }
 
+    //! Update the preconditioner based on already computed jacobian values
+    virtual void updatePreconditioner(double gamma) {
+        throw NotImplementedError("FuncEval::updatePreconditioner");
+    }
+
     /*! Preconditioner setup that doesn't throw an error but returns a
      * CVODES flag. It also helps as a first level of polymorphism
      * which identifies the specific FuncEval, e.g., ReactorNet.

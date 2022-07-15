@@ -64,9 +64,8 @@ void IdealGasConstPressureMoleReactor::updateState(double* y)
     // species on each wall.
     m_thermo->setMolesNoTruncate(y + m_sidx);
     m_thermo->setState_TP(y[0], m_pressure);
-    // get mass
-    const vector_fp& mw = m_thermo->molecularWeights();
     // calculate mass from moles
+    const vector_fp& mw = m_thermo->molecularWeights();
     m_mass = 0;
     for (size_t i = 0; i < m_nsp; i++) {
         m_mass += y[i + m_sidx] * mw[i];
@@ -79,7 +78,7 @@ void IdealGasConstPressureMoleReactor::updateState(double* y)
 void IdealGasConstPressureMoleReactor::eval(double time, double* LHS, double* RHS)
 {
     double& mcpdTdt = RHS[0]; // m * c_p * dT/dt
-    double* dydt = RHS + m_sidx; // kmol per s
+    double* dndt = RHS + m_sidx; // kmol per s
 
     evalWalls(time);
 
@@ -92,7 +91,7 @@ void IdealGasConstPressureMoleReactor::eval(double time, double* LHS, double* RH
         m_kin->getNetProductionRates(&m_wdot[0]); // "omega dot"
     }
 
-    //! evaluate reactor surfaces
+    // evaluate reactor surfaces
     evalSurfaces(LHS + m_nsp + m_sidx, RHS + m_nsp + m_sidx, m_sdot.data());
 
     // external heat transfer
@@ -103,14 +102,14 @@ void IdealGasConstPressureMoleReactor::eval(double time, double* LHS, double* RH
         mcpdTdt -= m_wdot[n] * m_hk[n] * m_vol;
         mcpdTdt -= m_sdot[n] * m_hk[n];
         // production in gas phase and from surfaces
-        dydt[n] = m_wdot[n] * m_vol + m_sdot[n];
+        dndt[n] = m_wdot[n] * m_vol + m_sdot[n];
     }
 
     // add terms for outlets
     for (auto outlet : m_outlet) {
         for (size_t n = 0; n < m_nsp; n++) {
             // flow of species into system and dilution by other species
-            dydt[n] -= outlet->outletSpeciesMassFlowRate(n) * imw[n];
+            dndt[n] -= outlet->outletSpeciesMassFlowRate(n) * imw[n];
         }
     }
 
@@ -121,7 +120,7 @@ void IdealGasConstPressureMoleReactor::eval(double time, double* LHS, double* RH
         for (size_t n = 0; n < m_nsp; n++) {
             double mdot_spec = inlet->outletSpeciesMassFlowRate(n);
             // flow of species into system and dilution by other species
-            dydt[n] += inlet->outletSpeciesMassFlowRate(n) * imw[n];
+            dndt[n] += inlet->outletSpeciesMassFlowRate(n) * imw[n];
             mcpdTdt -= m_hk[n] * imw[n] * mdot_spec;
         }
     }
@@ -133,15 +132,11 @@ void IdealGasConstPressureMoleReactor::eval(double time, double* LHS, double* RH
     }
 }
 
-//! Method to calculate the reactor specific jacobian
-Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian(double t, double* y) {
+Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian(double t,
+    double* y)
+{
     // clear former jacobian elements
     m_jac_trips.clear();
-    // reserve space for jacobian elements in triplet vector
-    if (m_jac_trips.capacity() < m_nv * m_nv)
-    {
-        m_jac_trips.reserve(m_nv * m_nv);
-    }
     // Determine Species Derivatives
     // volume / moles * rates portion of equation
     size_t nspecies = m_thermo->nSpecies();
@@ -203,7 +198,8 @@ Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian(double t,
         double hkndotksum = 0;
         double NtotalCp = accumulate(y + m_sidx, y + m_nv, 0.0) * m_thermo->cp_mole();
         // scale net production rates by  volume to get molar rate
-        scale(netProductionRates.begin(), netProductionRates.end(), netProductionRates.begin(), m_vol);
+        scale(netProductionRates.begin(), netProductionRates.end(),
+            netProductionRates.begin(), m_vol);
         // determine a sum in derivative
         for (size_t i = 0; i < m_nsp; i++) {
             hkndotksum += enthalpy[i] * netProductionRates[i];
@@ -257,7 +253,8 @@ std::string IdealGasConstPressureMoleReactor::componentName(size_t k) {
             }
         }
     }
-    throw CanteraError("IdealGasConstPressureMoleReactor::componentName", "Index is out of bounds.");
+    throw CanteraError("IdealGasConstPressureMoleReactor::componentName",
+                       "Index is out of bounds.");
 }
 
 }

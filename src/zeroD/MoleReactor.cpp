@@ -5,14 +5,9 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/zeroD/MoleReactor.h"
-#include "cantera/zeroD/FlowDevice.h"
-#include "cantera/zeroD/Wall.h"
 #include "cantera/thermo/SurfPhase.h"
-#include "cantera/zeroD/ReactorNet.h"
 #include "cantera/zeroD/ReactorSurface.h"
 #include "cantera/kinetics/Kinetics.h"
-#include "cantera/base/Solution.h"
-#include "cantera/base/utilities.h"
 
 using namespace std;
 
@@ -23,12 +18,10 @@ void MoleReactor::getSurfaceInitialConditions(double* y)
 {
     size_t loc = 0;
     for (auto& S : m_surfaces) {
-        S->getCoverages(y + loc);
         double area = S->area();
         auto currPhase = S->thermo();
         double tempLoc = currPhase->nSpecies();
         double surfDensity = currPhase->siteDensity();
-        // get coverages
         S->getCoverages(y + loc);
         // convert coverages to moles
         for (size_t i = 0; i < tempLoc; i++) {
