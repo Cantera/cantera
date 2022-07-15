@@ -39,11 +39,11 @@ public:
     //! Set the type of linear solver used in the integration.
     //! @param linSolverType type of linear solver. Default type: "DENSE"
     //! Other options include: "DIAG", "DENSE", "GMRES", "BAND"
-    void setLinearSolverType(std::string linSolverType = "DENSE");
+    void setLinearSolverType(const std::string& linSolverType="DENSE");
 
     //! Set preconditioner used by the linear solver
     //! @param preconditioner preconditioner object used for the linear solver
-    void setPreconditioner(PreconditionerBase& preconditioner);
+    void setPreconditioner(shared_ptr<PreconditionerBase> preconditioner);
 
     //! Set initial time. Default = 0.0 s. Restarts integration from this time
     //! using the current mixture state as the initial condition.
@@ -96,7 +96,7 @@ public:
     }
 
     //! Problem type of integrator
-    std::string linearSolverType();
+    std::string linearSolverType() const;
 
     /**
      * Advance the state of all reactors in time. Take as many internal
@@ -272,21 +272,8 @@ public:
     //! Retrieve absolute step size limits during advance
     bool getAdvanceLimits(double* limits);
 
-    /*! Evaluate the setup processes for the Jacobian preconditioner.
-     * @param[in] t time.
-     * @param[in] y solution vector, length neq()
-     * @param gamma the gamma in M=I-gamma*J
-     * @warning This function is an experimental part of the %Cantera API and may be
-     * changed or removed without notice.
-     */
     virtual void preconditionerSetup(double t, double* y, double gamma);
 
-    /*! Evaluate the linear system Ax=b where A is the preconditioner.
-     * @param[in] rhs right hand side vector used in linear system
-     * @param[out] output output vector for solution
-     * @warning This function is an experimental part of the %Cantera API and may be
-     * changed or removed without notice.
-     */
     virtual void preconditionerSolve(double* rhs, double* output);
 
     //! Use this to get nonlinear solver stats from Integrator
@@ -300,6 +287,13 @@ public:
     virtual void setDerivativeSettings(AnyMap& settings);
 
 protected:
+    //! Check if surfaces and preconditioning are included, if so throw an error because
+    //! they are currently not supported.
+    virtual void checkPreconditionerSupported();
+
+    //! Update the preconditioner based on the already computed jacobian values
+    virtual void updatePreconditioner(double gamma);
+
     //! Estimate a future state based on current derivatives.
     //! The function is intended for internal use by ReactorNet::advance
     //! and deliberately not exposed in external interfaces.
@@ -340,9 +334,6 @@ protected:
     //! "left hand side" of each governing equation
     vector_fp m_LHS;
     vector_fp m_RHS;
-
-    bool m_checked_eval_deprecation; //!< @todo Remove after Cantera 2.6
-    std::vector<bool> m_have_deprecated_eval; //!< @todo Remove after Cantera 2.6
 };
 }
 

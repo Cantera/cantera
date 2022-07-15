@@ -46,6 +46,10 @@ IdealGasReactor
 ^^^^^^^^^^^^^^^
 .. autoclass:: IdealGasReactor(contents=None, *, name=None, energy='on')
 
+IdealGasMoleReactor
+^^^^^^^^^^^^^^^^^^^
+.. autoclass:: IdealGasMoleReactor(contents=None, *, name=None, energy='on')
+
 ConstPressureReactor
 ^^^^^^^^^^^^^^^^^^^^
 .. autoclass:: ConstPressureReactor(contents=None, *, name=None, energy='on')
@@ -53,6 +57,10 @@ ConstPressureReactor
 IdealGasConstPressureReactor
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. autoclass:: IdealGasConstPressureReactor(contents=None, *, name=None, energy='on')
+
+IdealGasConstPressureMoleReactor
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: IdealGasConstPressureMoleReactor(contents=None, *, name=None, energy='on')
 
 FlowReactor
 ^^^^^^^^^^^
@@ -106,3 +114,10 @@ PressureController
 ^^^^^^^^^^^^^^^^^^
 .. autoclass:: PressureController
    :inherited-members:
+
+Preconditioners
+---------------
+
+AdaptivePreconditioner
+^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: AdaptivePreconditioner

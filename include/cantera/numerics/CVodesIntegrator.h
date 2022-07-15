@@ -58,10 +58,10 @@ public:
     virtual void setMaxErrTestFails(int n);
     virtual AnyMap nonlinearSolverStats() const;
     virtual AnyMap linearSolverStats() const;
-    void setLinearSolverType(std::string linSolverType) {
+    void setLinearSolverType(const std::string& linSolverType) {
         m_type = linSolverType;
     }
-    virtual std::string linearSolverType() {
+    virtual std::string linearSolverType() const {
         return m_type;
     }
     virtual void setBandwidth(int N_Upper, int N_Lower) {
@@ -72,23 +72,7 @@ public:
         return static_cast<int>(m_np);
     }
     virtual double sensitivity(size_t k, size_t p);
-    virtual void setProblemType(int probtype)
-    {
-        warn_deprecated("CVodesIntegrator::setProblemType()",
-            "To be removed. Set linear solver type with setLinearSolverType");
-        if (probtype == DIAG)
-        {
-            setLinearSolverType("DIAG");
-        } else if (probtype == DENSE + NOJAC) {
-            setLinearSolverType("DENSE");
-        } else if (probtype == BAND + NOJAC) {
-            setLinearSolverType("BAND");
-        } else if (probtype == GMRES) {
-            setLinearSolverType("GMRES");
-        } else {
-            setLinearSolverType("Invalid Option");
-        }
-    }
+    virtual void setProblemType(int probtype);
 
     //! Returns a string listing the weighted error estimates associated
     //! with each solution component.

@@ -52,7 +52,7 @@ void AdaptivePreconditioner::initialize(size_t networkSize)
 void AdaptivePreconditioner::setup()
 {
     // make into preconditioner as P = (I - gamma * J_bar)
-    transformJacobianToPreconditioner();
+    updatePreconditioner();
     // compressing sparse matrix structure
     m_precon_matrix.makeCompressed();
     // analyze and factorize
@@ -64,7 +64,7 @@ void AdaptivePreconditioner::setup()
     }
 }
 
-void AdaptivePreconditioner::transformJacobianToPreconditioner()
+void AdaptivePreconditioner::updatePreconditioner()
 {
     // set precon to jacobian
     m_precon_matrix.setFromTriplets(m_jac_trips.begin(), m_jac_trips.end());
@@ -79,15 +79,17 @@ void AdaptivePreconditioner::transformJacobianToPreconditioner()
 void AdaptivePreconditioner::prunePreconditioner()
 {
     for (int k=0; k<m_precon_matrix.outerSize(); ++k) {
-        for (Eigen::SparseMatrix<double>::InnerIterator it(m_precon_matrix, k); it; ++it) {
+        for (Eigen::SparseMatrix<double>::InnerIterator it(m_precon_matrix, k); it;
+            ++it) {
             if (std::abs(it.value()) < m_threshold && it.row() != it.col()) {
-                m_precon_matrix.coeffRef(it.row(), it.col()) = 0;
+                it.valueRef() = 0;
             }
         }
     }
 }
 
-void AdaptivePreconditioner::solve(const size_t stateSize, double *rhs_vector, double* output)
+void AdaptivePreconditioner::solve(const size_t stateSize, double* rhs_vector, double*
+    output)
 {
     // creating vectors in the form of Ax=b
     Eigen::Map<Eigen::VectorXd> bVector(rhs_vector, stateSize);
@@ -98,6 +100,21 @@ void AdaptivePreconditioner::solve(const size_t stateSize, double *rhs_vector, d
         throw CanteraError("AdaptivePreconditioner::solve",
                            "error code: {}", m_solver.info());
     }
+}
+
+void AdaptivePreconditioner::printPreconditioner() {
+    std::stringstream ss;
+    Eigen::IOFormat HeavyFmt(Eigen::FullPrecision, 0, ", ", ";\n", "[", "]", "[", "]");
+    ss << Eigen::MatrixXd(m_precon_matrix).format(HeavyFmt);
+    writelog(ss.str());
+}
+
+void AdaptivePreconditioner::printJacobian() {
+    std::stringstream ss;
+    Eigen::SparseMatrix<double> jacobian(m_dim, m_dim);
+    jacobian.setFromTriplets(m_jac_trips.begin(), m_jac_trips.end());
+    ss << Eigen::MatrixXd(jacobian);
+    writelog(ss.str());
 }
 
 }

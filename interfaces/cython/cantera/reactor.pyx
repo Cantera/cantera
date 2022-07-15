@@ -1480,7 +1480,7 @@ cdef class ReactorNet:
         """Preconditioner associated with integrator"""
         def __set__(self, PreconditionerBase precon):
             # set preconditioner
-            self.net.setPreconditioner(deref(precon.pbase))
+            self.net.setPreconditioner(precon.pbase)
             # set problem type as default of preconditioner
             self.linear_solver_type = precon.precon_linear_solver_type
 
@@ -1489,10 +1489,12 @@ cdef class ReactorNet:
             The type of linear solver used in integration.
 
             Options for this property include:
-            "DENSE"
-            "GMRES"
-            "BAND"
-            "DIAG"
+
+              - `"DENSE"`
+              - `"GMRES"`
+              - `"BAND"`
+              - `"DIAG"`
+
         """
         def __set__(self, linear_solver_type):
             self.net.setLinearSolverType(stringify(linear_solver_type))
@@ -1517,8 +1519,8 @@ cdef class ReactorNet:
 
     property derivative_settings:
         """
-        Apply derivative settings to all reactors in the network. See also Kinetics.
-        derivative_settings.
+        Apply derivative settings to all reactors in the network.
+        See also `Kinetics.derivative_settings`.
         """
         def __set__(self, settings):
             self.net.setDerivativeSettings(dict_to_anymap(settings))

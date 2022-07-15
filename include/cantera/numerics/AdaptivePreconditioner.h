@@ -37,26 +37,32 @@ public:
 
     void setup();
 
-    void solve(const size_t stateSize, double *rhs_vector, double* output);
+    void solve(const size_t stateSize, double* rhs_vector, double* output);
 
-    PreconditionerType preconditionerType() { return PreconditionerType::LEFT_PRECONDITION; }
+    PreconditionerType preconditionerType() {
+        return PreconditionerType::LEFT_PRECONDITION;
+    }
 
     void setValue(size_t row, size_t col, double value);
 
     virtual void stateAdjustment(vector_fp& state);
 
-    //! Transform Jacobian vector and write into
-    //! preconditioner
-    void transformJacobianToPreconditioner();
+    virtual void updatePreconditioner();
 
     //! Prune preconditioner elements
     void prunePreconditioner();
 
     //! Function used to return semi-analytical jacobian matrix
-    Eigen::SparseMatrix<double> getJacobian() {
-        Eigen::SparseMatrix<double> jacobian(m_dim, m_dim);
-        jacobian.setFromTriplets(m_jac_trips.begin(), m_jac_trips.end());
-        return jacobian;
+    Eigen::SparseMatrix<double> jacobian() {
+        Eigen::SparseMatrix<double> jacobian_mat(m_dim, m_dim);
+        jacobian_mat.setFromTriplets(m_jac_trips.begin(), m_jac_trips.end());
+        return jacobian_mat;
+    }
+
+    //! Return the internal preconditioner matrix
+    Eigen::SparseMatrix<double> matrix() {
+        updatePreconditioner();
+        return m_precon_matrix;
     }
 
     //! Get the threshold value for setting elements
@@ -90,21 +96,10 @@ public:
     }
 
     //! Print preconditioner contents
-    void printPreconditioner() {
-        std::stringstream ss;
-        Eigen::IOFormat HeavyFmt(Eigen::FullPrecision, 0, ", ", ";\n", "[", "]", "[", "]");
-        ss << Eigen::MatrixXd(m_precon_matrix).format(HeavyFmt);
-        writelog(ss.str());
-    }
+    void printPreconditioner();
 
     //! Print jacobian contents
-    void printJacobian() {
-        std::stringstream ss;
-        Eigen::SparseMatrix<double> jacobian(m_dim, m_dim);
-        jacobian.setFromTriplets(m_jac_trips.begin(), m_jac_trips.end());
-        ss << Eigen::MatrixXd(jacobian);
-        writelog(ss.str());
-    }
+    void printJacobian();
 
 protected:
     //! ilut fill factor

@@ -94,7 +94,7 @@ public:
     /*!
      * @param probtype    Type of the problem
      *
-     * @deprecated This funciton is to be removed along with the integer constants used
+     * @deprecated This function is to be removed along with the integer constants used
      * in conditionals to set the problem type currently. This includes DENSE, JAC,
      * NOJAC, BAND, and DIAG
      */
@@ -108,7 +108,7 @@ public:
     /*!
      * @param linSolverType    Type of the linear solver
      */
-    virtual void setLinearSolverType(std::string linSolverType) {
+    virtual void setLinearSolverType(const std::string& linSolverType) {
         warn("setLinearSolverType");
     }
 
@@ -150,7 +150,7 @@ public:
     }
 
     //! Return the integrator problem type
-    virtual std::string linearSolverType() {
+    virtual std::string linearSolverType() const {
         warn("linearSolverType");
         return "";
     }

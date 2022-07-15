@@ -144,6 +144,11 @@ public:
     //! reactor
     ReactorSurface* surface(size_t n);
 
+    //! Return the number of surfaces in a reactor
+    virtual size_t nSurfs() {
+        return m_surfaces.size();
+    }
+
     /**
      * Initialize the reactor. Called automatically by ReactorNet::initialize.
      */

@@ -40,20 +40,24 @@ public:
         throw NotImplementedError("PreconditionerBase::setValue");
     }
 
-    //! Adjust the state vector based on the preconditioner
+    //! Adjust the state vector based on the preconditioner, e.g., Adaptive
+    //! preconditioning uses a strictly positive composition when preconditioning which
+    //! is handled by this function
     //! @param state a vector containing the state to be updated
     virtual void stateAdjustment(vector_fp& state) {
         throw NotImplementedError("PreconditionerBase::stateAdjustment");
     }
 
     //! Get preconditioner type for CVODES
-    virtual PreconditionerType preconditionerType() { return PreconditionerType::NO_PRECONDITION; };
+    virtual PreconditionerType preconditionerType() {
+        return PreconditionerType::NO_PRECONDITION;
+    };
 
     //! Solve a linear system Ax=b where A is the preconditioner
     //! @param[in] stateSize length of the rhs and output vectors
     //! @param[in] rhs_vector right hand side vector used in linear system
     //! @param[out] output output vector for solution
-    virtual void solve(const size_t stateSize, double *rhs_vector, double* output) {
+    virtual void solve(const size_t stateSize, double* rhs_vector, double* output) {
         throw NotImplementedError("PreconditionerBase::solve");
     };
 
@@ -79,6 +83,11 @@ public:
         throw NotImplementedError("PreconditionerBase::printPreconditioner");
     };
 
+    //! Transform Jacobian vector and write into
+    //! preconditioner, P = (I - gamma * J)
+    virtual void updatePreconditioner() {
+        throw NotImplementedError("PreconditionerBase::updatePreconditioner");
+    }
 
     //! Set gamma used in preconditioning
     //! @param gamma used in M = I - gamma*J

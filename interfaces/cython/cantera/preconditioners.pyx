@@ -18,11 +18,17 @@ cdef class AdaptivePreconditioner(PreconditionerBase):
     precon_linear_solver_type = "GMRES"
 
     def __cinit__(self, *args, **kwargs):
-        self.preconditioner = <CxxAdaptivePreconditioner*>(self.pbase)
+        self.preconditioner = <CxxAdaptivePreconditioner*>(self.pbase.get())
 
     property threshold:
         """
-        Property for setting behavior of preconditioner pruning
+        The threshold of the preconditioner is used to remove or prune any off diagonal
+        elements below the given value inside of the preconditioner. In other words,
+        after the preconditioner is formed by P = (I - gamma * Jac), the off diagonal
+        values within P are compared with the threshold and removed if below it.
+
+        The goal of thresholding is to improve matrix sparsity while still providing a
+        good preconditioner for the system.
 
         Update the threshold to a desired value as:
             >>> precon.threshold = 1e-8
@@ -39,7 +45,10 @@ cdef class AdaptivePreconditioner(PreconditionerBase):
         """
         Property setting the linear solvers fill factor.
 
-        During factorization, after row elimination, only some of the largest elements in the L and U in addition to the diagonal element are kept. The number of elements kept is computed from the fill factor (a ratio) relative to the initial number of nonzero elements.
+        During factorization, after row elimination, only some of the largest elements
+        in the L and U in addition to the diagonal element are kept. The number of
+        elements kept is computed from the fill factor (a ratio) relative to the initial
+        number of nonzero elements.
 
         Update the ILUT fill factor to a desired value as:
             >>> precon.ilut_fill_factor = 2
@@ -56,7 +65,8 @@ cdef class AdaptivePreconditioner(PreconditionerBase):
         """
         Property setting the linear solvers drop tolerance.
 
-        During factorization any element below the product of the drop tolerance and average magnitude is dropped.
+        During factorization any element below the product of the drop tolerance and
+        average magnitude is dropped.
 
         Update the ILUT drop tolerance to a desired value as:
             >>> precon.ilut_drop_tol = 1e-10
