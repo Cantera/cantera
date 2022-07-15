@@ -149,6 +149,11 @@ StickingBlowersMaselRate
 Auxiliary Reaction Data
 -----------------------
 
+ThirdBody
+^^^^^^^^^
+.. autoclass:: ThirdBody
+   :no-undoc-members:
+
 Arrhenius
 ^^^^^^^^^
 .. autoclass:: Arrhenius(A, b, E)
