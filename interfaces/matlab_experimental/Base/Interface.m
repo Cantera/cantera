@@ -11,14 +11,13 @@ classdef Interface < handle & ThermoPhase & Kinetics
         function s = Interface(src, id, p1, p2, p3, p4)
             % INTERFACE  Interface class constructor.
             % s = Interface(src, id, p1, p2, p3, p4)
-            % See `Interfaces <https://cantera.org/tutorials/cti/phases.html#interfaces>`__.
             %
             % See also: :mat:func:`importEdge`, :mat:func:`importInterface`
             %
             % :param src:
-            %     CTI or CTML file containing the interface or edge phase.
+            %     YAML file containing the interface or edge phase.
             % :param id:
-            %     Name of the interface or edge phase in the CTI or CTML file.
+            %     Name of the interface or edge phase in the YAML file.
             % :param p1:
             %     Adjoining phase to the interface.
             % :param p2:

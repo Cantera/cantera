@@ -289,20 +289,6 @@ classdef Kinetics < handle
             q = pt.Value;
         end
 
-        function q = rop(kin)
-            % Get the forward and reverse rates of progress.
-            %
-            % :return:
-            %    An I x 2 array of reaction rates of progress, where I is
-            %    the number of reactions. The first column contains the
-            %    forward rates of progress, and the second column the
-            %    reverse rates.
-
-            f = rop_f(kin);
-            r = rop_r(kin);
-            q = [f, r];
-        end
-
         function q = ropNet(kin)
             % Get the net rates of progress for all reactions.
             %

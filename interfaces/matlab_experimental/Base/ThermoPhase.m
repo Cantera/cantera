@@ -456,7 +456,7 @@ classdef ThermoPhase < handle
                     for j = 1:n
                         k(i, j) = calllib(ct, 'thermo_speciesIndex', ...
                                           tp.tpID, name{i, j}) + 1;
-                        if k(i, j) > 1e3
+                        if k(i, j) > 1e6
                             warning(['Species ', name{i, j}, ...
                                    ' does not exist in the phase']);
                             k(i, j) = -1;
@@ -466,7 +466,7 @@ classdef ThermoPhase < handle
             elseif ischar(name)
                 k = calllib(ct, 'thermo_speciesIndex', ...
                             tp.tpID, name) + 1;
-                if k > 1e3
+                if k > 1e6
                     warning(['Species ', name, ...
                            ' does not exist in the phase.']);
                     k = -1;
