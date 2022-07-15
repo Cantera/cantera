@@ -23,7 +23,6 @@ classdef Domain1D < handle
             %    `Symm1D`
             %    `Outlet1D`
             %    `ReactingSurface`
-            %    `Sim1D`
             %    `OutletRes`
             %
             % :param b:

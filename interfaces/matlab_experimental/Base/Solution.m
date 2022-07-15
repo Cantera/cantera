@@ -31,7 +31,7 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
             % in the input file. To specify the transport modeling, set the input
             % argument ``trans`` to one of ``'default'``, ``'None'``, ``'Mix'``, or ``'Multi'``.
             % In this case, the phase name must be specified as well. Alternatively,
-            % change the ``transport`` node in the CTML file, or ``transport``
+            % change the ``transport`` node in the YAML file, or ``transport``
             % property in the CTI file before loading the phase. The transport
             % modeling cannot be changed once the phase is loaded.
             %
@@ -45,10 +45,10 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
             % See also: :mat:func:`ThermoPhase`, :mat:func:`Kinetics`, :mat:func:`Transport`
             %
             % :param src:
-            %     Input string of CTI or CTML file name.
+            %     Input string of YAML file name.
             % :param id:
             %     Optional unless ``trans`` is specified. ID of the phase to
-            %     import as specified in the CTML or CTI file.
+            %     import as specified in the YAML file.
             % :param trans:
             %     String, transport modeling. Possible values are ``'default'``, ``'None'``,
             %     ``'Mix'``, or ``'Multi'``. If not specified, ``'default'`` is used.
