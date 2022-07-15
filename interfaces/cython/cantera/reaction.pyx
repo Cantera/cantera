@@ -1488,7 +1488,7 @@ cdef class Reaction:
 
     property third_body:
         """
-        Returns an `ThirdBody` object if `Reaction` uses a third body collider, and
+        Returns a `ThirdBody` object if `Reaction` uses a third body collider, and
         ``None`` otherwise.
 
         .. versionadded:: 3.0

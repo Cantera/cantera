@@ -299,11 +299,11 @@ TEST(Reaction, TwoTempPlasmaFromYaml)
         " rate-constant: [1.523e+27 cm^6/mol^2/s, -1.0, -100 K, 700 K]}");
 
     auto R = newReaction(rxn, *(sol->kinetics()));
-    EXPECT_FALSE(R->usesThirdBody());
-    EXPECT_EQ(R->reactants.at("O2"), 2);
+    EXPECT_TRUE(R->usesThirdBody());
+    EXPECT_EQ(R->thirdBody()->name(), "O2");
+    EXPECT_EQ(R->reactants.at("O2"), 1);
     EXPECT_EQ(R->reactants.at("E"), 1);
     EXPECT_EQ(R->products.at("O2^-"), 1);
-    EXPECT_EQ(R->products.at("O2"), 1);
 
     const auto rate = std::dynamic_pointer_cast<TwoTempPlasmaRate>(R->rate());
     EXPECT_DOUBLE_EQ(rate->preExponentialFactor(), 1.523e21);

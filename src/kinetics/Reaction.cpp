@@ -252,7 +252,7 @@ void Reaction::setRate(shared_ptr<ReactionRate> rate)
         if (rate_type == "falloff" || rate_type == "chemically-activated") {
             if (!m_from_composition) {
                 throw InputFileError("Reaction::setRate", input,
-                    "Reaction eqution for falloff reaction '{}'\n does not "
+                    "Reaction equation for falloff reaction '{}'\n does not "
                     "contain valid pressure-dependent third body", equation());
             }
             m_third_body.reset(new ThirdBody("(+M)"));
@@ -317,9 +317,6 @@ void Reaction::setEquation(const std::string& equation, const Kinetics* kin)
         // user override
         m_explicit_rate = true;
         return;
-    } else if (rate_type == "two-temperature-plasma") {
-        // two-temperature-plasma reactions do not use third bodies
-        return;
     } else if (kin && kin->thermo(kin->reactionPhaseIndex()).nDim() != 3) {
         // interface reactions
         return;
@@ -332,7 +329,8 @@ void Reaction::setEquation(const std::string& equation, const Kinetics* kin)
         // detect explicitly specified collision partner
         if (products.count(reac.first)) {
             third_body = reac.first;
-            size_t generic = third_body == "M" || ba::ends_with(third_body, "M)");
+            size_t generic = third_body == "M"
+                || third_body == "(+M)"  || third_body == "(+ M)";
             count++;
             countM += generic;
             if (reac.second > 1 && products[third_body] > 1) {
@@ -667,10 +665,6 @@ void ThirdBody::setName(const std::string& third_body)
             "Conflicting efficiency definition for explicit third body '{}'", name);
     }
     m_name = name;
-    if (name == "<multiple>") {
-        // sentinel value for multiple third body colliders
-        return;
-    }
     default_efficiency = 0.;
     efficiencies[m_name] = 1.;
 }
