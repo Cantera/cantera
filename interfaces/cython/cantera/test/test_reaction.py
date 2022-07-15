@@ -1336,7 +1336,6 @@ class TestChemicallyActivated(ReactionTests, utilities.CanteraTest):
         "low_P_rate_constant": {"A": 282.320078, "b": 1.46878, "Ea": -13684043.7508},
         "high_P_rate_constant": {"A": 5.88E-14, "b": 6.721, "Ea": -12644997.768}
         }
-    _3rd_body = ct.ThirdBody("(+M)")
     _index = 10
     _rate_type = "Lindemann"
     _yaml = """

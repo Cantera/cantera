@@ -197,6 +197,9 @@ protected:
     //! Flag indicating that serialization uses explicit type
     bool m_explicit_rate = false;
 
+    //! Flag indicating that object was instantiated from reactant/product compositions
+    bool m_from_composition = false;
+
     //! Reaction rate used by generic reactions
     shared_ptr<ReactionRate> m_rate;
 
