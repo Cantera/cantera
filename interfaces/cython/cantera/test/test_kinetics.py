@@ -1212,7 +1212,8 @@ class TestReaction(utilities.CanteraTest):
             rate.low_rate = low_rate
 
         rate.low_rate = ct.Arrhenius(-2.16e13, -0.23, 0)
-        rxn = ct.Reaction("NH:1, NO:1", "N2O:1, H:1", rate, third_body=ct.ThirdBody())
+        tb = ct.ThirdBody("(+M)")
+        rxn = ct.Reaction("NH:1, NO:1", "N2O:1, H:1", rate, third_body=tb)
         gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
                           species=species, reactions=[rxn])
         self.assertLess(gas.forward_rate_constants, 0)
@@ -1234,7 +1235,7 @@ class TestReaction(utilities.CanteraTest):
     def test_falloff(self):
         high_rate = ct.Arrhenius(7.4e10, -0.37, 0.0)
         low_rate = ct.Arrhenius(2.3e12, -0.9, -1700 * 1000 * 4.184)
-        tb = ct.ThirdBody(efficiencies={"AR":0.7, "H2":2.0, "H2O":6.0})
+        tb = ct.ThirdBody("(+M)", efficiencies={"AR":0.7, "H2":2.0, "H2O":6.0})
         r = ct.Reaction("OH:2", "H2O2:1",
                         ct.TroeRate(low_rate, high_rate, [0.7346, 94, 1756, 5182]),
                         third_body=tb)

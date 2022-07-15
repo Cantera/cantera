@@ -91,94 +91,6 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
     cdef shared_ptr[CxxReaction] CxxNewReaction "newReaction" (CxxAnyMap&, CxxKinetics&) except +translate_exception
     cdef vector[shared_ptr[CxxReaction]] CxxGetReactions "getReactions" (CxxAnyValue&, CxxKinetics&) except +translate_exception
 
-    cdef cppclass CxxFalloffRate "Cantera::FalloffRate" (CxxReactionRate):
-        CxxFalloffRate()
-        CxxFalloffRate(CxxAnyMap) except +translate_exception
-        cbool allowNegativePreExponentialFactor()
-        void setAllowNegativePreExponentialFactor(bool)
-        cbool chemicallyActivated()
-        void setChemicallyActivated(bool)
-        CxxArrheniusRate& lowRate()
-        void setLowRate(CxxArrheniusRate&) except +translate_exception
-        CxxArrheniusRate& highRate()
-        void setHighRate(CxxArrheniusRate&) except +translate_exception
-        void getFalloffCoeffs(vector[double]&)
-        void setFalloffCoeffs(vector[double]&) except +translate_exception
-        double evalF(double, double) except +translate_exception
-
-    cdef cppclass CxxLindemannRate "Cantera::LindemannRate" (CxxFalloffRate):
-        CxxLindemannRate(CxxAnyMap) except +translate_exception
-
-    cdef cppclass CxxTroeRate "Cantera::TroeRate" (CxxFalloffRate):
-        CxxTroeRate(CxxAnyMap) except +translate_exception
-
-    cdef cppclass CxxSriRate "Cantera::SriRate" (CxxFalloffRate):
-        CxxSriRate(CxxAnyMap) except +translate_exception
-
-    cdef cppclass CxxTsangRate "Cantera::TsangRate" (CxxFalloffRate):
-        CxxTsangRate(CxxAnyMap) except +translate_exception
-
-    cdef cppclass CxxPlogRate "Cantera::PlogRate" (CxxReactionRate):
-        CxxPlogRate()
-        CxxPlogRate(CxxAnyMap) except +translate_exception
-        CxxPlogRate(multimap[double, CxxArrheniusRate])
-        multimap[double, CxxArrheniusRate] getRates()
-
-    cdef cppclass CxxChebyshevRate "Cantera::ChebyshevRate" (CxxReactionRate):
-        CxxChebyshevRate()
-        CxxChebyshevRate(CxxAnyMap) except +translate_exception
-        CxxChebyshevRate(double, double, double, double, CxxArray2D)
-        double Tmin()
-        double Tmax()
-        double Pmin()
-        double Pmax()
-        size_t nTemperature()
-        size_t nPressure()
-        CxxArray2D& data()
-
-    cdef cppclass CxxCustomFunc1Rate "Cantera::CustomFunc1Rate" (CxxReactionRate):
-        CxxCustomFunc1Rate()
-        void setRateFunction(shared_ptr[CxxFunc1]) except +translate_exception
-
-    cdef cppclass CxxInterfaceRateBase "Cantera::InterfaceRateBase":
-        void getCoverageDependencies(CxxAnyMap)
-        void setCoverageDependencies(CxxAnyMap) except +translate_exception
-        void setSpecies(vector[string]&) except +translate_exception
-        double siteDensity()
-        void setSiteDensity(double)
-        cbool usesElectrochemistry()
-        double beta()
-
-    cdef cppclass CxxStickingCoverage "Cantera::StickingCoverage" (CxxInterfaceRateBase):
-        cbool motzWiseCorrection()
-        void setMotzWiseCorrection(cbool)
-        string stickingSpecies()
-        void setStickingSpecies(string)
-        double stickingOrder()
-        void setStickingOrder(double)
-        double stickingWeight()
-        void setStickingWeight(double)
-
-    cdef cppclass CxxInterfaceArrheniusRate "Cantera::InterfaceArrheniusRate" (CxxReactionRate, CxxArrheniusRate, CxxInterfaceRateBase):
-        CxxInterfaceArrheniusRate()
-        CxxInterfaceArrheniusRate(CxxAnyMap) except +translate_exception
-        CxxInterfaceArrheniusRate(double, double, double)
-
-    cdef cppclass CxxStickingArrheniusRate "Cantera::StickingArrheniusRate" (CxxReactionRate, CxxArrheniusRate, CxxStickingCoverage):
-        CxxStickingArrheniusRate()
-        CxxStickingArrheniusRate(CxxAnyMap) except +translate_exception
-        CxxStickingArrheniusRate(double, double, double)
-
-    cdef cppclass CxxInterfaceBlowersMaselRate "Cantera::InterfaceBlowersMaselRate" (CxxReactionRate, CxxBlowersMasel, CxxInterfaceRateBase):
-        CxxInterfaceBlowersMaselRate()
-        CxxInterfaceBlowersMaselRate(CxxAnyMap) except +translate_exception
-        CxxInterfaceBlowersMaselRate(double, double, double, double)
-
-    cdef cppclass CxxStickingBlowersMaselRate "Cantera::StickingBlowersMaselRate" (CxxReactionRate, CxxBlowersMasel, CxxStickingCoverage):
-        CxxStickingBlowersMaselRate()
-        CxxStickingBlowersMaselRate(CxxAnyMap) except +translate_exception
-        CxxStickingBlowersMaselRate(double, double, double, double)
-
     cdef cppclass CxxThirdBody "Cantera::ThirdBody":
         CxxThirdBody()
         CxxThirdBody(string)
@@ -217,18 +129,49 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         shared_ptr[CxxReactionRate] rate()
         void setRate(shared_ptr[CxxReactionRate])
 
-    cdef cppclass CxxFalloff "Cantera::FalloffRate":
-        CxxFalloff()
-        void updateTemp(double, double*)
-        double F(double, double*)
-        size_t workSize()
 
-        size_t nParameters()
-        string type()
-        void getParameters(double*)
+cdef extern from "cantera/kinetics/Falloff.h" namespace "Cantera":
+    cdef cppclass CxxFalloffRate "Cantera::FalloffRate" (CxxReactionRate):
+        CxxFalloffRate()
+        CxxFalloffRate(CxxAnyMap) except +translate_exception
+        cbool allowNegativePreExponentialFactor()
+        void setAllowNegativePreExponentialFactor(bool)
+        cbool chemicallyActivated()
+        void setChemicallyActivated(bool)
+        CxxArrheniusRate& lowRate()
+        void setLowRate(CxxArrheniusRate&) except +translate_exception
+        CxxArrheniusRate& highRate()
+        void setHighRate(CxxArrheniusRate&) except +translate_exception
+        void getFalloffCoeffs(vector[double]&)
+        void setFalloffCoeffs(vector[double]&) except +translate_exception
+        double evalF(double, double) except +translate_exception
 
-    cdef cppclass CxxChebyshev "Cantera::ChebyshevRate":
-        CxxChebyshev(double, double, double, double, CxxArray2D)
+    cdef cppclass CxxLindemannRate "Cantera::LindemannRate" (CxxFalloffRate):
+        CxxLindemannRate(CxxAnyMap) except +translate_exception
+
+    cdef cppclass CxxTroeRate "Cantera::TroeRate" (CxxFalloffRate):
+        CxxTroeRate(CxxAnyMap) except +translate_exception
+
+    cdef cppclass CxxSriRate "Cantera::SriRate" (CxxFalloffRate):
+        CxxSriRate(CxxAnyMap) except +translate_exception
+
+    cdef cppclass CxxTsangRate "Cantera::TsangRate" (CxxFalloffRate):
+        CxxTsangRate(CxxAnyMap) except +translate_exception
+
+
+cdef extern from "cantera/kinetics/PlogRate.h" namespace "Cantera":
+    cdef cppclass CxxPlogRate "Cantera::PlogRate" (CxxReactionRate):
+        CxxPlogRate()
+        CxxPlogRate(CxxAnyMap) except +translate_exception
+        CxxPlogRate(multimap[double, CxxArrheniusRate])
+        multimap[double, CxxArrheniusRate] getRates()
+
+
+cdef extern from "cantera/kinetics/ChebyshevRate.h" namespace "Cantera":
+    cdef cppclass CxxChebyshevRate "Cantera::ChebyshevRate" (CxxReactionRate):
+        CxxChebyshevRate()
+        CxxChebyshevRate(CxxAnyMap) except +translate_exception
+        CxxChebyshevRate(double, double, double, double, CxxArray2D)
         double Tmin()
         double Tmax()
         double Pmin()
@@ -237,11 +180,52 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         size_t nPressure()
         CxxArray2D& data()
 
-    cdef cppclass CxxThreeBodyReaction "Cantera::ThreeBodyReaction" (CxxReaction):
-        CxxThreeBodyReaction()
 
-    cdef cppclass CxxFalloffReaction "Cantera::FalloffReaction" (CxxReaction):
-        CxxFalloffReaction()
+cdef extern from "cantera/kinetics/Custom.h" namespace "Cantera":
+    cdef cppclass CxxCustomFunc1Rate "Cantera::CustomFunc1Rate" (CxxReactionRate):
+        CxxCustomFunc1Rate()
+        void setRateFunction(shared_ptr[CxxFunc1]) except +translate_exception
+
+
+cdef extern from "cantera/kinetics/InterfaceRate.h" namespace "Cantera":
+    cdef cppclass CxxInterfaceRateBase "Cantera::InterfaceRateBase":
+        void getCoverageDependencies(CxxAnyMap)
+        void setCoverageDependencies(CxxAnyMap) except +translate_exception
+        void setSpecies(vector[string]&) except +translate_exception
+        double siteDensity()
+        void setSiteDensity(double)
+        cbool usesElectrochemistry()
+        double beta()
+
+    cdef cppclass CxxStickingCoverage "Cantera::StickingCoverage" (CxxInterfaceRateBase):
+        cbool motzWiseCorrection()
+        void setMotzWiseCorrection(cbool)
+        string stickingSpecies()
+        void setStickingSpecies(string)
+        double stickingOrder()
+        void setStickingOrder(double)
+        double stickingWeight()
+        void setStickingWeight(double)
+
+    cdef cppclass CxxInterfaceArrheniusRate "Cantera::InterfaceArrheniusRate" (CxxReactionRate, CxxArrheniusRate, CxxInterfaceRateBase):
+        CxxInterfaceArrheniusRate()
+        CxxInterfaceArrheniusRate(CxxAnyMap) except +translate_exception
+        CxxInterfaceArrheniusRate(double, double, double)
+
+    cdef cppclass CxxStickingArrheniusRate "Cantera::StickingArrheniusRate" (CxxReactionRate, CxxArrheniusRate, CxxStickingCoverage):
+        CxxStickingArrheniusRate()
+        CxxStickingArrheniusRate(CxxAnyMap) except +translate_exception
+        CxxStickingArrheniusRate(double, double, double)
+
+    cdef cppclass CxxInterfaceBlowersMaselRate "Cantera::InterfaceBlowersMaselRate" (CxxReactionRate, CxxBlowersMasel, CxxInterfaceRateBase):
+        CxxInterfaceBlowersMaselRate()
+        CxxInterfaceBlowersMaselRate(CxxAnyMap) except +translate_exception
+        CxxInterfaceBlowersMaselRate(double, double, double, double)
+
+    cdef cppclass CxxStickingBlowersMaselRate "Cantera::StickingBlowersMaselRate" (CxxReactionRate, CxxBlowersMasel, CxxStickingCoverage):
+        CxxStickingBlowersMaselRate()
+        CxxStickingBlowersMaselRate(CxxAnyMap) except +translate_exception
+        CxxStickingBlowersMaselRate(double, double, double, double)
 
 
 cdef class ReactionRate:
@@ -287,7 +271,3 @@ cdef class Arrhenius:
     cdef Reaction reaction # parent reaction, to prevent garbage collection
     @staticmethod
     cdef wrap(CxxArrheniusRate*)
-
-cdef class Falloff:
-    cdef shared_ptr[CxxFalloff] _falloff
-    cdef CxxFalloff* falloff

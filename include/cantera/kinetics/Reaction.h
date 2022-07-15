@@ -10,19 +10,15 @@
 
 #include "cantera/base/AnyMap.h"
 #include "cantera/base/Units.h"
-#include "Arrhenius.h"
-#include "ChebyshevRate.h"
-#include "Custom.h"
-#include "Falloff.h"
-#include "InterfaceRate.h"
-#include "PlogRate.h"
-#include "TwoTempPlasmaRate.h"
+#include "ReactionRate.h"
 
 namespace Cantera
 {
 
 class Kinetics;
 class ThirdBody;
+class ArrheniusRate; // @todo  Remove after Cantera 3.0
+class FalloffRate; // @todo  Remove after Cantera 3.0
 
 //! @defgroup reactionGroup Reactions and reaction rates
 
@@ -34,9 +30,9 @@ class Reaction
 public:
     Reaction() {}
     Reaction(const Composition& reactants, const Composition& products,
-             shared_ptr<ReactionRate> rate, shared_ptr<ThirdBody> tbody=0);
+             shared_ptr<ReactionRate> rate, shared_ptr<ThirdBody> tbody=nullptr);
     Reaction(const std::string& equation,
-             shared_ptr<ReactionRate> rate, shared_ptr<ThirdBody> tbody=0);
+             shared_ptr<ReactionRate> rate, shared_ptr<ThirdBody> tbody=nullptr);
 
     //! Construct a Reaction and corresponding ReactionRate based on AnyMap (YAML)
     //! input.
@@ -246,11 +242,12 @@ public:
     //! Get the third-body efficiency for species *k*
     double efficiency(const std::string& k) const;
 
-    //! Name or placeholder of third body collider, for example `+ M`
+    //! Suffix representing the third body collider in reaction equation, for example
+    //! `+ M` or `(+M)`
     //! @since  New in Cantera 3.0
     std::string collider() const;
 
-    //! Verify that all species involved in collision efficiences are defined in the
+    //! Verify that all species involved in collision efficiencies are defined in the
     //! Kinetics object. The function returns true if all species are found, and raises
     //! an exception unless the Kinetics object is configured to skip undeclared
     //! species, in which case false is returned.
@@ -301,7 +298,7 @@ class FalloffReaction : public Reaction
 public:
     FalloffReaction();
     FalloffReaction(const Composition& reactants, const Composition& products,
-                    const ReactionRate& rate, const ThirdBody& tbody);
+                    const FalloffRate& rate, const ThirdBody& tbody);
 
     FalloffReaction(const AnyMap& node, const Kinetics& kin);
 };

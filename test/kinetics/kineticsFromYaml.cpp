@@ -2,9 +2,16 @@
 #include "cantera/base/Units.h"
 #include "cantera/base/Solution.h"
 #include "cantera/base/Interface.h"
-#include "cantera/kinetics/GasKinetics.h"
-#include "cantera/thermo/SurfPhase.h"
 #include "cantera/kinetics/KineticsFactory.h"
+#include "cantera/kinetics/GasKinetics.h"
+#include "cantera/kinetics/Arrhenius.h"
+#include "cantera/kinetics/ChebyshevRate.h"
+#include "cantera/kinetics/Custom.h"
+#include "cantera/kinetics/Falloff.h"
+#include "cantera/kinetics/InterfaceRate.h"
+#include "cantera/kinetics/PlogRate.h"
+#include "cantera/kinetics/TwoTempPlasmaRate.h"
+#include "cantera/thermo/SurfPhase.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/base/Array.h"
 
@@ -672,7 +679,7 @@ TEST_F(ReactionToYaml, unconvertible3)
         shared_ptr<ReactionRate>(new TroeRate(
             ArrheniusRate(1e5, -1.0, 12.5), ArrheniusRate(1e5, -1.0, 12.5),
             {0.562, 91.0, 5836.0, 8552.0})),
-        shared_ptr<ThirdBody>(new ThirdBody()));
+        shared_ptr<ThirdBody>(new ThirdBody("(+M)")));
     AnyMap params = R.parameters();
     UnitSystem U{"g", "cm", "mol"};
     params.setUnits(U);
