@@ -170,7 +170,10 @@ public:
     }
 
     virtual const std::string type() const {
-        return "Falloff";
+        if (m_chemicallyActivated) {
+            return "chemically-activated";
+        }
+        return "falloff";
     }
 
     //! Returns the number of parameters used by this parameterization. The
@@ -302,7 +305,7 @@ public:
             new MultiRate<LindemannRate, FalloffData>);
     }
 
-    virtual const std::string type() const {
+    virtual const std::string subType() const override {
         return "Lindemann";
     }
 };
@@ -385,7 +388,7 @@ public:
         return 1;
     }
 
-    virtual const std::string type() const {
+    virtual const std::string subType() const override {
         return "Troe";
     }
 
@@ -488,7 +491,7 @@ public:
         return 2;
     }
 
-    virtual const std::string type() const {
+    virtual const std::string subType() const override {
         return "SRI";
     }
 
@@ -597,7 +600,7 @@ public:
         return 1;
     }
 
-    virtual const std::string type() const {
+    virtual const std::string subType() const override {
         return "Tsang";
     }
 

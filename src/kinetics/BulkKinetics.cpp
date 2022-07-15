@@ -136,9 +136,14 @@ bool BulkKinetics::addReaction(shared_ptr<Reaction> r, bool resize)
     }
 
     shared_ptr<ReactionRate> rate = r->rate();
+    std::string rtype = rate->subType();
+    if (rtype == "") {
+        rtype = rate->type();
+    }
+
     // If necessary, add new MultiRate evaluator
-    if (m_bulk_types.find(rate->type()) == m_bulk_types.end()) {
-        m_bulk_types[rate->type()] = m_bulk_rates.size();
+    if (m_bulk_types.find(rtype) == m_bulk_types.end()) {
+        m_bulk_types[rtype] = m_bulk_rates.size();
         m_bulk_rates.push_back(rate->newMultiRate());
         m_bulk_rates.back()->resize(m_kk, nReactions(), nPhases());
     }
@@ -148,7 +153,7 @@ bool BulkKinetics::addReaction(shared_ptr<Reaction> r, bool resize)
     rate->setContext(*r, *this);
 
     // Add reaction rate to evaluator
-    size_t index = m_bulk_types[rate->type()];
+    size_t index = m_bulk_types[rtype];
     m_bulk_rates[index]->add(nReactions() - 1, *rate);
 
     // Add reaction to third-body evaluator
@@ -186,14 +191,19 @@ void BulkKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
     Kinetics::modifyReaction(i, rNew);
 
     shared_ptr<ReactionRate> rate = rNew->rate();
+    std::string rtype = rate->subType();
+    if (rtype == "") {
+        rtype = rate->type();
+    }
+
     // Ensure that MultiRate evaluator is available
-    if (m_bulk_types.find(rate->type()) == m_bulk_types.end()) {
+    if (m_bulk_types.find(rtype) == m_bulk_types.end()) {
         throw CanteraError("BulkKinetics::modifyReaction",
-                "Evaluator not available for type '{}'.", rate->type());
+                "Evaluator not available for type '{}'.", rtype);
     }
 
     // Replace reaction rate to evaluator
-    size_t index = m_bulk_types[rate->type()];
+    size_t index = m_bulk_types[rtype];
     rate->setRateIndex(i);
     rate->setContext(*rNew, *this);
 

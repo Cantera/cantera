@@ -386,7 +386,7 @@ class TestFalloff(HydrogenOxygen, utilities.CanteraTest):
     # Fall-off reaction
     rxn_idx = 21
     equation = "2 OH (+M) <=> H2O2 (+M)"
-    rate_type = "Troe"
+    rate_type = "falloff"
     rtol = 1e-4
 
 

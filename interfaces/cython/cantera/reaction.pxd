@@ -31,6 +31,7 @@ cdef extern from "cantera/kinetics/ReactionRate.h" namespace "Cantera":
     cdef cppclass CxxReactionRate "Cantera::ReactionRate":
         CxxReactionRate()
         string type()
+        string subType()
         double eval(double) except +translate_exception
         double eval(double, double) except +translate_exception
         double eval(double, vector[double]&) except +translate_exception
