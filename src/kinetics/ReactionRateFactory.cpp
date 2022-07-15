@@ -14,8 +14,8 @@
 #include "cantera/kinetics/Custom.h"
 #include "cantera/kinetics/Falloff.h"
 #include "cantera/kinetics/InterfaceRate.h"
-#include "cantera/kinetics/TwoTempPlasmaRate.h"
 #include "cantera/kinetics/PlogRate.h"
+#include "cantera/kinetics/TwoTempPlasmaRate.h"
 
 namespace Cantera
 {

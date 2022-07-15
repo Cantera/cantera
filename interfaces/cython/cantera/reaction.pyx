@@ -1004,14 +1004,14 @@ cdef class ThirdBody:
 
     :param collider:
         Name of the third-body collider. If ``M`` (default), the `default_efficiency`
-        is set to 1 and the ollider is assumed to participate in a three-body reaction.
+        is set to 1 and the collider is assumed to participate in a three-body reaction.
         If the collider includes parentheses, - for example ``(+M)``, - a falloff form
         is assumed, where the collider is not considered for the law of mass action.
         For species other than ``M``, the third-body collider represents a named species
         with collision efficiency 1, and the `default_efficiency` is set to zero.
     :param efficiencies:
         Non-default third-body efficiencies
-    :param default_efficinecy:
+    :param default_efficiency:
         Default third-body efficiency
 
     .. versionadded:: 3.0
@@ -1487,9 +1487,8 @@ cdef class Reaction:
         .. versionadded:: 3.0
         """
         def __get__(self):
-            if not self.reaction.usesThirdBody():
-                return
-            return ThirdBody.wrap(self.reaction.thirdBody())
+            if self.reaction.usesThirdBody():
+                return ThirdBody.wrap(self.reaction.thirdBody())
 
     property efficiencies:
         """

@@ -5,6 +5,13 @@
 #include "cantera/thermo/Species.h"
 #include "cantera/kinetics/GasKinetics.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
+#include "cantera/kinetics/Arrhenius.h"
+#include "cantera/kinetics/ChebyshevRate.h"
+#include "cantera/kinetics/Custom.h"
+#include "cantera/kinetics/Falloff.h"
+#include "cantera/kinetics/InterfaceRate.h"
+#include "cantera/kinetics/PlogRate.h"
+#include "cantera/kinetics/TwoTempPlasmaRate.h"
 #include "cantera/base/Array.h"
 #include "cantera/base/stringUtils.h"
 
@@ -123,7 +130,8 @@ TEST_F(KineticsFromScratch, multiple_third_bodies1)
 {
     std::string equation = "2 H + 2 O2 <=> H2 + 2 O2";
     auto rate = make_shared<ArrheniusRate>(1.2e11, -1.0, 0.0);
-    ASSERT_THROW(Reaction(equation, rate), CanteraError);
+    auto R = make_shared<Reaction>(equation, rate);
+    EXPECT_FALSE(R->usesThirdBody());
 }
 
 TEST_F(KineticsFromScratch, multiple_third_bodies2)
@@ -137,7 +145,8 @@ TEST_F(KineticsFromScratch, multiple_third_bodies3)
 {
     std::string equation = "2 H + O2 + M <=> H2 + O2 + M";
     auto rate = make_shared<ArrheniusRate>(1.2e11, -1.0, 0.0);
-    ASSERT_THROW(Reaction(equation, rate), CanteraError);
+    auto R = make_shared<Reaction>(equation, rate);
+    EXPECT_TRUE(R->usesThirdBody());
 }
 
 TEST_F(KineticsFromScratch, add_two_temperature_plasma)
@@ -190,7 +199,7 @@ TEST_F(KineticsFromScratch, add_falloff_reaction1)
     ArrheniusRate low_rate(2.3e12, -0.9, -7112800.0);
     vector_fp falloff_params { 0.7346, 94.0, 1756.0, 5182.0 };
     auto rate = make_shared<TroeRate>(low_rate, high_rate, falloff_params);
-    auto tbody = make_shared<ThirdBody>();
+    auto tbody = make_shared<ThirdBody>("(+M)");
     tbody->efficiencies = parseCompString("AR:0.7 H2:2.0 H2O:6.0");
     auto R = make_shared<Reaction>(reac, prod, rate, tbody);
 

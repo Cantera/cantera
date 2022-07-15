@@ -974,18 +974,21 @@ class ReactionTests:
 
     def from_empty(self):
         # create reaction object with an "empty" rate of the correct type
-        rxn = ct.Reaction(equation=self._equation, rate=self._rate_cls(), third_body=self._3rd_body)
+        rxn = ct.Reaction(equation=self._equation,
+                          rate=self._rate_cls(), third_body=self._3rd_body)
         return self.finalize(rxn)
 
     def from_rate(self, rate):
         # create reaction object from dictionary
-        rxn = ct.Reaction(equation=self._equation, rate=rate, third_body=self._3rd_body)
+        rxn = ct.Reaction(equation=self._equation,
+                          rate=rate, third_body=self._3rd_body)
         return self.finalize(rxn)
 
     def from_parts(self):
         # create reaction rate object from parts
         orig = self.soln.reaction(self._index)
-        rxn = ct.Reaction(orig.reactants, orig.products, rate=self._rate_obj, third_body=self._3rd_body)
+        rxn = ct.Reaction(orig.reactants, orig.products,
+                          rate=self._rate_obj, third_body=self._3rd_body)
         rxn.reversible = "<=>" in self._equation
         return self.finalize(rxn)
 

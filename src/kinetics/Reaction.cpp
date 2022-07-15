@@ -8,6 +8,8 @@
 #include "cantera/kinetics/Reaction.h"
 #include "cantera/kinetics/ReactionRateFactory.h"
 #include "cantera/kinetics/Kinetics.h"
+#include "cantera/kinetics/Arrhenius.h" // @todo: remove after Cantera 3.0
+#include "cantera/kinetics/Falloff.h" // @todo: remove after Cantera 3.0
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/base/Array.h"
@@ -226,27 +228,23 @@ void Reaction::setRate(shared_ptr<ReactionRate> rate)
     std::string rate_type = input.getString("type", "");
     if (m_third_body) {
         if (std::dynamic_pointer_cast<FalloffRate>(m_rate)) {
-            m_third_body->mass_action = false;
-        } else if (std::dynamic_pointer_cast<TwoTempPlasmaRate>(m_rate)) {
-            // two-temperature-plasma rates do not support third-body colliders
-            for (const auto& spc : m_third_body->efficiencies) {
-                reactants[spc.first] += 1.;
-                products[spc.first] += 1.;
+            if (m_third_body->mass_action) {
+                throw InputFileError("Reaction::setRate", input,
+                    "Third-body collider does not use '(+{})' notation.",
+                    m_third_body->name());
             }
-            m_third_body.reset();
-        } else if (m_third_body->name() == "<multiple>") {
-            m_third_body.reset();
-            throw InputFileError("Reaction::setRate", input,
-                "Reactants for reaction '{}'\n"
-                "contain multiple third body colliders.", equation());
-        } else if (std::dynamic_pointer_cast<ChebyshevRate>(m_rate)) {
-            warn_deprecated("Chebyshev reaction equation", input, "Specifying '(+M)' "
-                "in the reaction equation for Chebyshev reactions is deprecated.");
-            m_third_body.reset();
-        } else if (std::dynamic_pointer_cast<PlogRate>(m_rate)) {
-            throw InputFileError("Reaction::setRate", input,
-                "Found superfluous '{}' in pressure-dependent-Arrhenius reaction.",
-                m_third_body->name());
+        } else if (m_rate->type() == "Chebyshev") {
+            if (m_third_body->name() == "M") {
+                warn_deprecated("Chebyshev reaction equation", input, "Specifying 'M' "
+                    "in the reaction equation for Chebyshev reactions is deprecated.");
+                m_third_body.reset();
+            }
+        } else if (m_rate->type() == "pressure-dependent-Arrhenius") {
+            if (m_third_body->name() == "M") {
+                throw InputFileError("Reaction::setRate", input,
+                    "Found superfluous '{}' in pressure-dependent-Arrhenius reaction.",
+                    m_third_body->name());
+            }
         }
     } else {
         if (std::dynamic_pointer_cast<FalloffRate>(m_rate)) {
@@ -324,13 +322,17 @@ void Reaction::setEquation(const std::string& equation, const Kinetics* kin)
 
     std::string third_body;
     size_t count = 0;
+    size_t countM = 0;
     for (const auto& reac : reactants) {
         // detect explicitly specified collision partner
         if (products.count(reac.first)) {
             third_body = reac.first;
+            size_t generic = third_body == "M" || ba::ends_with(third_body, "M)");
             count++;
+            countM += generic;
             if (reac.second > 1 && products[third_body] > 1) {
                 count++;
+                countM += generic;
             }
         }
     }
@@ -342,13 +344,23 @@ void Reaction::setEquation(const std::string& equation, const Kinetics* kin)
                 "do not contain a valid third body collider", equation);
         }
         return;
+
+    } else if (countM > 1) {
+        throw InputFileError("Reaction::setEquation", input,
+            "Multiple generic third body colliders 'M' are not supported", equation);
+
     } else if (count > 1) {
-        // assign sentinel value '<multiple>'
-        third_body = "<multiple>";
-    } else if (ba::starts_with(third_body, "(+")) {
-        // third body uses Falloff notation
-    } else if (third_body != "M") {
-        // check for implicitly defined three-body reaction with explicit third body
+        // equations with more than one explicit third-body collider are handled as a
+        // regular elementary reaction unless the equation contains a generic third body
+        if (!countM) {
+            return;
+        }
+        third_body = "M";
+
+    } else if (!ba::starts_with(third_body, "(+")) {
+        // check for conditions of three-body reactions:
+        // - integer stoichiometric conditions
+        // - either reactant or product side involves exactly three species
         size_t nreac = 0;
         size_t nprod = 0;
 
@@ -378,10 +390,6 @@ void Reaction::setEquation(const std::string& equation, const Kinetics* kin)
         m_third_body->setName(third_body);
     } else {
         m_third_body.reset(new ThirdBody(third_body));
-    }
-
-    if (m_third_body->name() == "<multiple>") {
-        return;
     }
 
     // adjust reactant coefficients
@@ -679,10 +687,9 @@ void ThirdBody::setEfficiencies(const AnyMap& node)
 
 void ThirdBody::setParameters(const AnyMap& node)
 {
-    if (m_name != "M") {
-        return;
+    if (node.hasKey("default-efficiency")) {
+       default_efficiency = node["default-efficiency"].asDouble();
     }
-    default_efficiency = node.getDouble("default-efficiency", 1.0);
     if (node.hasKey("efficiencies")) {
         efficiencies = node["efficiencies"].asMap<double>();
     }
@@ -776,7 +783,7 @@ FalloffReaction::FalloffReaction()
 
 FalloffReaction::FalloffReaction(const Composition& reactants_,
                                  const Composition& products_,
-                                 const ReactionRate& rate_,
+                                 const FalloffRate& rate_,
                                  const ThirdBody& tbody_)
 {
     warn_deprecated("FalloffReaction",
@@ -788,11 +795,6 @@ FalloffReaction::FalloffReaction(const Composition& reactants_,
     AnyMap node = rate_.parameters();
     node.applyUnits();
     std::string rate_type = node["type"].asString();
-    if (rate_type != "falloff" && rate_type != "chemically-activated") {
-        // use node information to determine whether rate is a falloff rate
-        throw CanteraError("FalloffReaction::FalloffReaction",
-            "Incompatible types: '{}' is not a falloff rate object.", rate_.type());
-    }
     setRate(newReactionRate(node));
 }
 
