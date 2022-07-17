@@ -14,11 +14,11 @@ public class Species : IEquatable<Species>
     }
 
     public bool Equals(Species? other) =>
-        Name == other?.Name;
+        StringComparer.OrdinalIgnoreCase.Equals(Name, other?.Name);
 
     public override bool Equals(object? obj) =>
         obj is Species other && Equals(other);
 
     public override int GetHashCode() =>
-        Name.GetHashCode();
+        StringComparer.OrdinalIgnoreCase.GetHashCode(Name);
 }
