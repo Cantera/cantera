@@ -13,11 +13,11 @@ public class SpeciesCollection : IReadOnlyList<Species>
 
     // this collection can be lazy-initialzied because it relies only on other elements
     // from the above list
-    readonly Lazy<Dictionary<string, Species>> _speciesByName;
+    readonly Lazy<Dictionary<string, int>> _speciesIndexByName;
 
     public Species this[int index] => _species[index];
 
-    public Species this[string name] => _speciesByName.Value[name];
+    public Species this[string name] => _species[_speciesIndexByName.Value[name]];
 
     public int Count => _species.Count;
 
@@ -25,14 +25,14 @@ public class SpeciesCollection : IReadOnlyList<Species>
     {
         get => InteropUtil.GetDoubles(_handle, _species.Count, LibCantera.thermo_getMassFractions);
         set => InteropUtil.CheckReturn(
-            LibCantera.thermo_setMassFractions(_handle, (nuint) _species.Count, value, InteropConsts.True));
+            LibCantera.thermo_setMassFractions(_handle, (nuint) value.Length, value, InteropConsts.True));
     }
 
     public unsafe double[] MoleFractions
     {
         get => InteropUtil.GetDoubles(_handle, _species.Count, LibCantera.thermo_getMoleFractions);
         set => InteropUtil.CheckReturn(
-            LibCantera.thermo_setMoleFractions(_handle, (nuint) _species.Count, value, InteropConsts.True));
+            LibCantera.thermo_setMoleFractions(_handle, (nuint) value.Length, value, InteropConsts.True));
     }
 
     internal unsafe SpeciesCollection(ThermoPhaseHandle handle)
@@ -65,7 +65,9 @@ public class SpeciesCollection : IReadOnlyList<Species>
             }
         }
 
-        _speciesByName = new(() => _species.ToDictionary(s => s.Name, s => s));
+        _speciesIndexByName = new(() => _species
+            .Select((s, i) => (species: s, index: i))
+            .ToDictionary(s => s.species.Name, s => s.index, StringComparer.OrdinalIgnoreCase));
     }
 
     public IEnumerator<Species> GetEnumerator() =>
@@ -74,17 +76,22 @@ public class SpeciesCollection : IReadOnlyList<Species>
     IEnumerator IEnumerable.GetEnumerator() =>
         _species.GetEnumerator();
 
-    public int IndexOf(string name) =>
-        _species.FindIndex(s => s.Name == name);
-
     public int IndexOf(Species species) =>
-        _species.IndexOf(species);
+        IndexOf(species.Name);
 
-    public bool Contains(string name) =>
-        _speciesByName.Value.ContainsKey(name);
+    public int IndexOf(string name)
+    {
+        if (_speciesIndexByName.Value.TryGetValue(name, out var index))
+            return index;
+
+        return -1;
+    }
 
     public bool Contains(Species species) =>
-        _species.Contains(species);
+        Contains(species.Name);
+
+    public bool Contains(string name) =>
+        _speciesIndexByName.Value.ContainsKey(name);
 
     public void SetMassFractions(params (string speciesName, double fraction)[] tuples) =>
         SetMassFractions((IEnumerable<(string, double)>) tuples);
@@ -138,35 +145,23 @@ public class SpeciesCollection : IReadOnlyList<Species>
         MoleFractions = fractions;
     }
 
-    int EnsureIndexOf(Species species)
-    {
-        var index = IndexOf(species);
-
-        if (index == -1)
-        {
-            throw new InvalidOperationException(
-                $"Unknown species! {species.Name} is not present in this collection.");
-        }
-
-        return index;
-    }
+    int EnsureIndexOf(Species species) =>
+        EnsureIndexOf(species.Name);
 
     int EnsureIndexOf(string name)
     {
-        var index = IndexOf(name);
+        if (_speciesIndexByName.Value.TryGetValue(name, out var index))
+            return index;
 
-        if (index == -1)
-        {
-            throw new InvalidOperationException(
-                $"Unknown species! {name} is not present in this collection.");
-        }
-
-        return index;
+        throw new InvalidOperationException(
+            $"Unknown species! {name} is not present in this collection.");
     }
 
     public void SetUnormalizedMassFractions(double[] fractions) =>
-        LibCantera.thermo_setMassFractions(_handle, (nuint) _species.Count, fractions, InteropConsts.False);
+        InteropUtil.CheckReturn(
+            LibCantera.thermo_setMassFractions(_handle, (nuint) fractions.Length, fractions, InteropConsts.False));
 
     public void SetUnormalizedMoleFractions(double[] fractions) =>
-        LibCantera.thermo_setMoleFractions(_handle, (nuint) _species.Count, fractions, InteropConsts.False);
+        InteropUtil.CheckReturn(
+            LibCantera.thermo_setMoleFractions(_handle, (nuint) fractions.Length, fractions, InteropConsts.False));
 }
