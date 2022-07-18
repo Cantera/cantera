@@ -360,7 +360,9 @@ void Reaction::setEquation(const std::string& equation, const Kinetics* kin)
         }
         third_body = "M";
 
-    } else if (!ba::starts_with(third_body, "(+")) {
+    } else if (third_body != "M" && !ba::starts_with(rate_type, "three-body")
+            && !ba::starts_with(third_body, "(+"))
+    {
         // check for conditions of three-body reactions:
         // - integer stoichiometric conditions
         // - either reactant or product side involves exactly three species
