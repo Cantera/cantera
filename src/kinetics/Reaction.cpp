@@ -37,18 +37,19 @@ Reaction::Reaction(const Composition& reactants_,
     , m_third_body(tbody_)
 {
     setRate(rate_);
-    if (tbody_ && tbody_->name() != "M") {
-        // ensure safe serialization
-        size_t count = 0;
-        for (const auto& reac : reactants) {
-            if (products.count(reac.first)) {
-                count++;
-            }
+
+    // ensure safe serialization
+    size_t count = 0;
+    for (const auto& reac : reactants) {
+        if (products.count(reac.first)) {
+            count++;
         }
-        if (count) {
-            throw CanteraError("Reaction::Reaction",
-                "Not implemented: reaction '{}'\n"
-                "contains multiple explicit third body colliders", equation());
+    }
+    if (count) {
+        if (tbody_ && tbody_->name() != "M") {
+            m_explicit_3rd = true;
+        } else if (!tbody_) {
+            m_explicit_type = true;
         }
     }
 }
@@ -185,7 +186,7 @@ void Reaction::getParameters(AnyMap& reactionNode) const
     std::string rtype = reactionNode["type"].asString();
     if (rtype == "pressure-dependent-Arrhenius") {
         // skip
-    } else if (m_explicit_rate && ba::ends_with(rtype, "Arrhenius")) {
+    } else if (m_explicit_type && ba::ends_with(rtype, "Arrhenius")) {
         // retain type information
         if (m_third_body) {
             reactionNode["type"] = "three-body";
@@ -194,14 +195,14 @@ void Reaction::getParameters(AnyMap& reactionNode) const
         }
     } else if (ba::ends_with(rtype, "Arrhenius")) {
         reactionNode.erase("type");
-    } else if (m_explicit_rate) {
+    } else if (m_explicit_type) {
         reactionNode["type"] = type();
     } else if (ba::ends_with(rtype, "Blowers-Masel")) {
         reactionNode["type"] = "Blowers-Masel";
     }
 
     if (m_third_body) {
-        m_third_body->getParameters(reactionNode);
+        m_third_body->getParameters(reactionNode, m_explicit_3rd);
     }
 }
 
@@ -232,7 +233,11 @@ void Reaction::setParameters(const AnyMap& node, const Kinetics& kin)
     allow_nonreactant_orders = node.getBool("nonreactant-orders", false);
 
     if (m_third_body) {
-        m_third_body->setParameters(node);
+        try {
+            m_third_body->setParameters(node);
+        } catch (CanteraError& err) {
+            throw InputFileError("Reaction::setParameters", input, err.getMessage());
+        }
     } else if (node.hasKey("default-efficiency") || node.hasKey("efficiencies")) {
         throw InputFileError("Reaction::setParameters", input,
             "Reaction '{}' specifies efficiency parameters\n"
@@ -334,10 +339,10 @@ void Reaction::setEquation(const std::string& equation, const Kinetics* kin)
     std::string rate_type = input.getString("type", "");
     if (ba::starts_with(rate_type, "three-body")) {
         // state type when serializing
-        m_explicit_rate = true;
+        m_explicit_type = true;
     } else if (rate_type == "elementary") {
         // user override
-        m_explicit_rate = true;
+        m_explicit_type = true;
         return;
     } else if (kin && kin->thermo(kin->reactionPhaseIndex()).nDim() != 3) {
         // interface reactions
@@ -378,15 +383,44 @@ void Reaction::setEquation(const std::string& equation, const Kinetics* kin)
         // equations with more than one explicit third-body collider are handled as a
         // regular elementary reaction unless the equation contains a generic third body
         if (countM) {
-            // skip
+            third_body = "M";
+        } else if (m_third_body) {
+            // third body is defined as explicit object
+            auto& effs = m_third_body->efficiencies;
+            if (effs.size() != 1
+                || reactants.find(effs.begin()->first) == reactants.end())
+            {
+                throw InputFileError("Reaction::setEquation", input,
+                    "Detected ambiguous third body colliders in reaction '{}'\n"
+                    "ThirdBody definition is not valid", equation);
+            }
+            third_body = effs.begin()->first;
+            m_explicit_3rd = true;
+        } else if (input.hasKey("efficiencies") && input.hasKey("default-efficiency")) {
+            // third body is implicity defined by efficiency
+            auto effs = input["efficiencies"].asMap<double>();
+            if (effs.size() != 1
+                || reactants.find(effs.begin()->first) == reactants.end())
+            {
+                throw InputFileError("Reaction::setEquation", input,
+                    "Detected ambigous third body colliders in reaction '{}'\n"
+                    "Invalid ThirdBody definition", equation);
+            }
+            third_body = effs.begin()->first;
+            m_explicit_3rd = true;
         } else if (ba::starts_with(rate_type, "three-body")) {
+            // no disambiguation of third bodies
             throw InputFileError("Reaction::setEquation", input,
-                "Not implemented: reaction '{}'\n"
-                "contains multiple explicit third body colliders", equation);
+                "Detected ambigous third body colliders in reaction '{}'\n"
+                "A valid ThirdBody definition is required", equation);
+        } else if (input.hasKey("efficiencies") || input.hasKey("default-efficiency")) {
+            // insufficient disambiguation of third bodies
+            throw InputFileError("Reaction::setEquation", input,
+                "Detected ambigous third body colliders in reaction '{}'\n"
+                "A complete ThirdBody definition is required", equation);
         } else {
             return;
         }
-        third_body = "M";
 
     } else if (third_body != "M" && !ba::starts_with(rate_type, "three-body")
             && !ba::starts_with(third_body, "(+"))
@@ -420,7 +454,14 @@ void Reaction::setEquation(const std::string& equation, const Kinetics* kin)
     }
 
     if (m_third_body) {
-        m_third_body->setName(third_body);
+        std::string tName = m_third_body->name();
+        if (tName == "M") {
+            m_third_body->setName(third_body);
+        } else if (tName != third_body) {
+            throw InputFileError("Reaction::setEquation", input,
+                "Detected incompatible third body colliders in reaction '{}'\n"
+                "ThirdBody definition does not match equation", equation);
+        }
     } else {
         m_third_body.reset(new ThirdBody(third_body));
     }
@@ -719,11 +760,17 @@ void ThirdBody::setParameters(const AnyMap& node)
     if (node.hasKey("efficiencies")) {
         efficiencies = node["efficiencies"].asMap<double>();
     }
+    if (m_name != "M"
+        && (efficiencies.size() != 1 || efficiencies.begin()->first != m_name))
+    {
+        throw CanteraError("Reaction::setEquation",
+            "Detected incompatible third body colliders definitions");
+    }
 }
 
-void ThirdBody::getParameters(AnyMap& node) const
+void ThirdBody::getParameters(AnyMap& node, bool explicit_3rd) const
 {
-    if (m_name == "M") {
+    if (m_name == "M" || explicit_3rd) {
         if (efficiencies.size()) {
             node["efficiencies"] = efficiencies;
             node["efficiencies"].setFlowStyle();
