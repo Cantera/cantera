@@ -37,6 +37,20 @@ Reaction::Reaction(const Composition& reactants_,
     , m_third_body(tbody_)
 {
     setRate(rate_);
+    if (tbody_ && tbody_->name() != "M") {
+        // ensure safe serialization
+        size_t count = 0;
+        for (const auto& reac : reactants) {
+            if (products.count(reac.first)) {
+                count++;
+            }
+        }
+        if (count) {
+            throw CanteraError("Reaction::Reaction",
+                "Not implemented: reaction '{}'\n"
+                "contains multiple explicit third body colliders", equation());
+        }
+    }
 }
 
 Reaction::Reaction(const std::string& equation,
@@ -59,7 +73,13 @@ Reaction::Reaction(const AnyMap& node, const Kinetics& kin)
     setParameters(node, kin);
     size_t nDim = kin.thermo(kin.reactionPhaseIndex()).nDim();
     if (nDim == 3) {
-        setRate(newReactionRate(node, calculateRateCoeffUnits(kin)));
+        if (ba::starts_with(rate_type, "three-body-")) {
+            AnyMap rateNode = node;
+            rateNode["type"] = rate_type.substr(11, rate_type.size() - 11);
+            setRate(newReactionRate(rateNode, calculateRateCoeffUnits(kin)));
+        } else {
+            setRate(newReactionRate(node, calculateRateCoeffUnits(kin)));
+        }
     } else {
         AnyMap rateNode = node;
         if (rateNode.hasKey("rate-constant")) {
@@ -162,19 +182,21 @@ void Reaction::getParameters(AnyMap& reactionNode) const
     reactionNode.update(m_rate->parameters());
 
     // strip information not needed for reconstruction
-    std::string type = reactionNode["type"].asString();
-    if (type == "pressure-dependent-Arrhenius") {
+    std::string rtype = reactionNode["type"].asString();
+    if (rtype == "pressure-dependent-Arrhenius") {
         // skip
-    } else if (m_explicit_rate && ba::ends_with(type, "Arrhenius")) {
+    } else if (m_explicit_rate && ba::ends_with(rtype, "Arrhenius")) {
         // retain type information
         if (m_third_body) {
             reactionNode["type"] = "three-body";
         } else {
             reactionNode["type"] = "elementary";
         }
-    } else if (ba::ends_with(type, "Arrhenius")) {
+    } else if (ba::ends_with(rtype, "Arrhenius")) {
         reactionNode.erase("type");
-    } else if (ba::ends_with(type, "Blowers-Masel")) {
+    } else if (m_explicit_rate) {
+        reactionNode["type"] = type();
+    } else if (ba::ends_with(rtype, "Blowers-Masel")) {
         reactionNode["type"] = "Blowers-Masel";
     }
 
@@ -310,7 +332,7 @@ void Reaction::setEquation(const std::string& equation, const Kinetics* kin)
     parseReactionEquation(*this, equation, input, kin);
 
     std::string rate_type = input.getString("type", "");
-    if (rate_type == "three-body") {
+    if (ba::starts_with(rate_type, "three-body")) {
         // state type when serializing
         m_explicit_rate = true;
     } else if (rate_type == "elementary") {
@@ -341,7 +363,7 @@ void Reaction::setEquation(const std::string& equation, const Kinetics* kin)
     }
 
     if (count == 0) {
-        if (rate_type == "three-body") {
+        if (ba::starts_with(rate_type, "three-body")) {
             throw InputFileError("Reaction::setEquation", input,
                 "Reactants for reaction '{}'\n"
                 "do not contain a valid third body collider", equation);
@@ -355,7 +377,13 @@ void Reaction::setEquation(const std::string& equation, const Kinetics* kin)
     } else if (count > 1) {
         // equations with more than one explicit third-body collider are handled as a
         // regular elementary reaction unless the equation contains a generic third body
-        if (!countM) {
+        if (countM) {
+            // skip
+        } else if (ba::starts_with(rate_type, "three-body")) {
+            throw InputFileError("Reaction::setEquation", input,
+                "Not implemented: reaction '{}'\n"
+                "contains multiple explicit third body colliders", equation);
+        } else {
             return;
         }
         third_body = "M";
