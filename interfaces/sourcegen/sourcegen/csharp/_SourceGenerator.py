@@ -1,9 +1,12 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
 from dataclasses import dataclass
 import os
 import typing
 
 from .._helpers import normalize
-from .._types import * 
+from .._types import *
 from .._types import _unpack
 
 
@@ -16,7 +19,7 @@ class _CsFunc:
     params: list[Param]
     del_clazz: typing.Optional[str]
 
-    
+
     def __iter__(self):
         return _unpack(self)
 
@@ -48,10 +51,11 @@ class SourceGenerator(SourceGeneratorBase):
     def _get_function_text(cls, function):
         ref_type, name, params, _ = function
         is_unsafe = any((p.p_type.endswith('*') for p in params))
+        params_text = cls._join_params(params)
         if is_unsafe:
-            return f'{cls._prolog} unsafe {ref_type} {name}({cls._join_params(params)});'
+            return f'{cls._prolog} unsafe {ref_type} {name}({params_text});'
         else:
-            return f'{cls._prolog} {ref_type} {name}({cls._join_params(params)});'
+            return f'{cls._prolog} {ref_type} {name}({params_text});'
 
 
     @staticmethod
@@ -93,15 +97,15 @@ class SourceGenerator(SourceGeneratorBase):
 
         #copy the params list
         params = list(params)
-        
+
         del_clazz = None
 
         if clazz != 'ct':
             handle_clazz = self._config['handle_crosswalk'][clazz] + 'Handle'
-            
+
             # It’s not a “global” function, therefore:
             #   * It wraps a constructor and returns a handle, or
-            #   * It wraps an instance method and takes the handle as the first parameter.
+            #   * It wraps an instance method and takes the handle as the first param.
             if method.startswith('del'):
                 del_clazz = handle_clazz
             elif method.startswith('new'):
@@ -109,7 +113,7 @@ class SourceGenerator(SourceGeneratorBase):
             else:
                 _, param_name = params[0]
                 params[0] = handle_clazz, param_name
-                
+
         for c_type, cs_type in self._type_map.items():
             if ret_type == c_type:
                 ret_type = cs_type
@@ -119,23 +123,25 @@ class SourceGenerator(SourceGeneratorBase):
 
         for i in range(0, len(params)):
             param_type, param_name = params[i]
-            
+
             for c_type, cs_type in self._type_map.items():
                 if param_type == c_type:
                     param_type = cs_type
                     break
-            
+
             if param_type == 'double*' and method.startswith('set'):
                 setter_double_arrays_count += 1
                 if setter_double_arrays_count > 1:
-                    # We assume a double* can reliably become a double[] if this function is a "setter"
-                    # However, this logic is too simplistic if there is more than one array.
-                    raise ValueError(f'Cannot scaffold {name} with more than one array of doubles!')
+                    # We assume a double* can reliably become a double[] if
+                    # this function is a "setter". However, this logic is too simplistic
+                    # if there is more than one array.
+                    raise ValueError(f'Cannot scaffold {name} with '
+                        + 'more than one array of doubles!')
 
                 param_type = 'double[]'
-                
+
             params[i] = Param(param_type, param_name)
-            
+
         func = _CsFunc(ret_type, name, params, del_clazz)
         self._known_funcs[name] = func
 
@@ -144,7 +150,7 @@ class SourceGenerator(SourceGeneratorBase):
 
     def _get_property_text(self, clazz: str, c_name: str, cs_name: str):
         getter = self._known_funcs.get(clazz + "_" + c_name)
-        
+
         if (getter):
             # here we have found a simple scalar property
             prop_type = getter.ret_type
@@ -154,41 +160,47 @@ class SourceGenerator(SourceGeneratorBase):
             # this assumes the last param in the function is a pointer type,
             # from which we determine the appropriate C# type
             prop_type = self._prop_type_map[getter.params[-1].p_type]
-        
+
         setter = self._known_funcs.get(clazz + "_set" + c_name.capitalize())
 
-        if (prop_type in ['int', 'double']):
+        if prop_type in ['int', 'double']:
             text = f'''
                 public {prop_type} {cs_name}
                 {{
-                    get => InteropUtil.CheckReturn(LibCantera.{getter.name}(_handle));'''
+                    get => InteropUtil.CheckReturn(
+                        LibCantera.{getter.name}(_handle));'''
 
             if(setter):
-                text += f'''        
-                    set => InteropUtil.CheckReturn(LibCantera.{setter.name}(_handle, value));'''
+                text += f'''
+                    set => InteropUtil.CheckReturn(
+                        LibCantera.{setter.name}(_handle, value));'''
 
             text += '''
                 }
             '''
         elif (prop_type == 'string'):
-            # for get-string type functions we need to look up the type of the second (index 1) param for a cast
-            # because sometimes it's an int and other times its a nuint (size_t)
+            p_type = getter.params[1].p_type
+
+            # for get-string type functions we need to look up the type of the second
+            # (index 1) param for a cast because sometimes it's an int and other times
+            # its a nuint (size_t)
             text = f'''
                 public unsafe string {cs_name}
                 {{
                     get => InteropUtil.GetString(40, (length, buffer) =>
-                        LibCantera.{getter.name}(_handle, ({getter.params[1].p_type}) length, buffer));
+                        LibCantera.{getter.name}(_handle, ({p_type}) length, buffer));
             '''
 
             if(setter):
-                text += f'''        
-                    set => InteropUtil.CheckReturn(LibCantera.{setter.name}(_handle, value));'''
+                text += f'''
+                    set => InteropUtil.CheckReturn(
+                        LibCantera.{setter.name}(_handle, value));'''
 
             text += '''
                 }
             '''
         else:
-            raise ValueError(f'Unable to scafold properties of type {prop_type}!')
+            raise ValueError(f'Unable to scaffold properties of type {prop_type}!')
 
         return(normalize(text))
 
@@ -209,7 +221,8 @@ class SourceGenerator(SourceGeneratorBase):
             }}
         ''')
 
-        with open(self._out_dir + 'Interop.LibCantera.' + incl_file.name + '.g.cs', 'w') as f:
+        with open(self._out_dir + 'Interop.LibCantera.'
+                + incl_file.name + '.g.cs', 'w') as f:
             f.write(interop_text)
 
         handles = [(name, del_clazz) for _, name, _, del_clazz in cs_funcs if del_clazz]
@@ -221,16 +234,18 @@ class SourceGenerator(SourceGeneratorBase):
 
         handles_text = normalize(f'''
             namespace Cantera.Interop;
-            
+
             {normalize(handles_text, 12, True)}
         ''')
 
-        with open(self._out_dir + 'Interop.Handles.' + incl_file.name + '.g.cs', 'w') as f:
+        with open(self._out_dir + 'Interop.Handles.'
+                + incl_file.name + '.g.cs', 'w') as f:
             f.write(handles_text)
 
 
     def finalize(self):
-        derived_handles = '\n\n'.join((self._get_derived_handle_text(d) for d in self._config['derived_handles'].items()))
+        derived_handles = '\n\n'.join((self._get_derived_handle_text(d)
+            for d in self._config['derived_handles'].items()))
 
         derived_handles_text = normalize(f'''
             namespace Cantera.Interop;
@@ -244,7 +259,8 @@ class SourceGenerator(SourceGeneratorBase):
         for (clazz, props) in self._config['classes'].items():
             name = self._config['handle_crosswalk'][clazz]
 
-            props_text = '\n\n'.join((self._get_property_text(clazz, c_name, cs_name) for (c_name, cs_name) in props.items()))
+            props_text = '\n\n'.join((self._get_property_text(clazz, c_name, cs_name)
+                for (c_name, cs_name) in props.items()))
 
             clazz_text = normalize(f'''
                 using Cantera.Interop;

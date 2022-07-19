@@ -1,10 +1,13 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
 from abc import ABCMeta, abstractmethod
 from dataclasses import dataclass, fields
 import os
 
 
 def _unpack(obj):
-    return (getattr(obj, field.name) for field in fields(obj))   
+    return (getattr(obj, field.name) for field in fields(obj))
 
 
 @dataclass
@@ -40,10 +43,10 @@ class Func:
         lparen = c_func.index('(')
         rparen = c_func.index(')')
         front = c_func[0:lparen].split()
-        
+
         params = (Param.parse(p) for p in c_func[lparen+1:rparen].split(','))
         params = [p for p in params if p]
-        
+
         ret_type = front[-2]
         name = front[-1]
         return Func(ret_type, name, params)

@@ -1,3 +1,6 @@
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at https://cantera.org/license.txt for license and copyright information.
+
 using System.Reflection;
 using System.Text.RegularExpressions;
 
@@ -6,7 +9,7 @@ namespace Cantera;
 public enum ThermoPair
 {
     RP, DensityPressure = RP,
-    
+
     TV, TemperatureVolume = TV,
 
     HP, EnthalpyPressure = HP,
@@ -34,16 +37,21 @@ public enum ThermoPair
 
 static class ThermoPairExtensions
 {
-    readonly static Lazy<IReadOnlyDictionary<ThermoPair, String>> InteropStringMap =
-        new(() => typeof(ThermoPair)
+    internal static IEnumerable<FieldInfo> GetThermoPairEnumFieldWithTwoCharNames() =>
+        typeof(ThermoPair)
             .GetFields(BindingFlags.Static | BindingFlags.Public)
-            .Where(f => Regex.IsMatch(f.Name, "^[A-Z]{2}$")) // match exactly two uppercase
+            .Where(f => Regex.IsMatch(f.Name, "^[A-Z]{2}$")); // exactly two uppercase
+
+    readonly static Lazy<IReadOnlyDictionary<ThermoPair, string>> InteropStringMap =
+        new(() => GetThermoPairEnumFieldWithTwoCharNames()
             .ToDictionary(f => (ThermoPair) f.GetValue(null)!, f => f.Name));
-    
+
     public static string ToInteropString(this ThermoPair thermoPair)
     {
-        if(InteropStringMap.Value.TryGetValue(thermoPair, out var interopString))
+        if (InteropStringMap.Value.TryGetValue(thermoPair, out var interopString))
+        {
             return interopString;
+        }
 
         throw new ArgumentOutOfRangeException(nameof(thermoPair));
     }

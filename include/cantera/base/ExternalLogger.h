@@ -12,8 +12,9 @@ class ExternalLogger : public Logger
 {
 public:
     explicit ExternalLogger(Writer writer) {
-        if (writer == nullptr){
-            throw CanteraError("ExternalLogger::ExternalLogger", "Argument “writer” must not be null!");
+        if (writer == nullptr) {
+            throw CanteraError("ExternalLogger::ExternalLogger",
+                "Argument “writer” must not be null!");
         }
 
         m_writer = writer;
