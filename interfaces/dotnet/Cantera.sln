@@ -7,7 +7,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cantera", "Cantera\Cantera.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cantera.Tests", "Cantera.Tests\Cantera.Tests.csproj", "{55B543FD-7CDF-4147-8B52-15894B92B6EE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cantera.Examples", "Cantera.Examples\Cantera.Examples.csproj", "{E6D4DB30-BE09-455C-85A4-38D124395134}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{94A48235-04A4-4B09-844C-9A07120430B1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundSpeed", "examples\SoundSpeed\SoundSpeed.csproj", "{FC37B09C-F14F-4B23-BC6B-AA8A3DC3463D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "examples\Application\Application.csproj", "{B78E1156-3E56-4C29-A33F-3E6810DBD9A9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,9 +30,17 @@ Global
 		{55B543FD-7CDF-4147-8B52-15894B92B6EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{55B543FD-7CDF-4147-8B52-15894B92B6EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{55B543FD-7CDF-4147-8B52-15894B92B6EE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E6D4DB30-BE09-455C-85A4-38D124395134}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E6D4DB30-BE09-455C-85A4-38D124395134}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E6D4DB30-BE09-455C-85A4-38D124395134}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E6D4DB30-BE09-455C-85A4-38D124395134}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FC37B09C-F14F-4B23-BC6B-AA8A3DC3463D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FC37B09C-F14F-4B23-BC6B-AA8A3DC3463D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FC37B09C-F14F-4B23-BC6B-AA8A3DC3463D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FC37B09C-F14F-4B23-BC6B-AA8A3DC3463D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B78E1156-3E56-4C29-A33F-3E6810DBD9A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B78E1156-3E56-4C29-A33F-3E6810DBD9A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B78E1156-3E56-4C29-A33F-3E6810DBD9A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B78E1156-3E56-4C29-A33F-3E6810DBD9A9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{FC37B09C-F14F-4B23-BC6B-AA8A3DC3463D} = {94A48235-04A4-4B09-844C-9A07120430B1}
+		{B78E1156-3E56-4C29-A33F-3E6810DBD9A9} = {94A48235-04A4-4B09-844C-9A07120430B1}
 	EndGlobalSection
 EndGlobal
