@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../Cantera/Cantera.csproj" />
+    <ProjectReference Include="../../Cantera/Cantera.csproj" />
   </ItemGroup>
 
 </Project>
