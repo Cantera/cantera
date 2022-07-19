@@ -1,3 +1,6 @@
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at https://cantera.org/license.txt for license and copyright information.
+
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Cantera.Interop;
@@ -67,7 +70,7 @@ public class ApplicationTest
             Console.SetOut(consoleOut);
             Application.AddConsoleLogging();
             ProduceLogOutput();
-            
+
             var output = consoleOut.ToString();
 
             const string prefix = "INFO (Info) ";
@@ -76,9 +79,11 @@ public class ApplicationTest
 
             Assert.Matches('^' + Regex.Escape(prefix), output);
 
-            var nowString = output.Substring(prefix.Length, lengthOfIso8601FormattedString);
+            var nowString = output.Substring(
+                prefix.Length, lengthOfIso8601FormattedString);
 
-            Assert.True(DateTimeOffset.TryParseExact(nowString, iso8601FormatString, null, default, out _));
+            Assert.True(DateTimeOffset.TryParseExact(
+                nowString, iso8601FormatString, null, default, out _));
         }
         finally
         {

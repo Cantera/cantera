@@ -1,5 +1,6 @@
-using System.Reflection;
-using System.Text.RegularExpressions;
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at https://cantera.org/license.txt for license and copyright information.
+
 using Cantera.Interop;
 
 namespace Cantera;
@@ -7,10 +8,11 @@ namespace Cantera;
 public partial class ThermoPhase
 {
     /// <summary>
-    /// Using reflection and the fact the CLIB follows a naming convention for the functions that
-    /// set the pairs of thermodynamic variables simultaneously
+    /// Using reflection and the fact the CLIB follows a naming convention for
+    /// the functions that set the pairs of thermodynamic variables simultaneously
     /// </summary>
-    static readonly Lazy<Dictionary<ThermoPair, Func<ThermoPhaseHandle, double[], int>>> PairSetters;
+    static readonly Lazy<Dictionary<ThermoPair, Func<ThermoPhaseHandle, double[], int>>>
+        PairSetters;
 
     static ThermoPhase()
     {
@@ -18,15 +20,19 @@ public partial class ThermoPhase
         {
             var methods = typeof(LibCantera).GetMethods();
 
-            var pairs = typeof(ThermoPair)
-                .GetFields(BindingFlags.Static | BindingFlags.Public)
-                .Where(f => Regex.IsMatch(f.Name, "^[A-Z]{2}$")) // match exactly two uppercase
-                .Select(f => (pair: f, method: methods.SingleOrDefault(m => m.Name == "thermo_set_" + f.Name)))
+            var pairs = ThermoPairExtensions.GetThermoPairEnumFieldWithTwoCharNames()
+                .Select(f =>
+                (
+                    pair: f,
+                    method: methods
+                        .SingleOrDefault(m => m.Name == "thermo_set_" + f.Name)
+                ))
                 .Where(t => t.method is not null)
                 .ToDictionary(
                     t => (ThermoPair) t.pair.GetValue(null)!,
                     t => (Func<ThermoPhaseHandle, double[], int>)
-                        t.method!.CreateDelegate(typeof(Func<ThermoPhaseHandle, double[], int>)));
+                        t.method!.CreateDelegate(
+                            typeof(Func<ThermoPhaseHandle, double[], int>)));
 
             return pairs;
         });

@@ -1,3 +1,6 @@
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at https://cantera.org/license.txt for license and copyright information.
+
 using System.Collections;
 using Cantera.Interop;
 
@@ -32,7 +35,8 @@ public class DataDirectoryCollection : IReadOnlyList<DirectoryInfo>
 
     public void Add(DirectoryInfo dir)
     {
-        InteropUtil.CheckReturn(LibCantera.ct_addCanteraDirectory((nuint)dir.FullName.Length, dir.FullName));
+        InteropUtil.CheckReturn(LibCantera.ct_addCanteraDirectory(
+            (nuint) dir.FullName.Length, dir.FullName));
 
         _dirs.Clear();
         _dirs.AddRange(GetDirs());

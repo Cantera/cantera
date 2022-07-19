@@ -38,6 +38,7 @@
 
 // Used by external logger
 enum LogLevel { INFO, WARN , ERROR };
-typedef void (*Writer)(enum LogLevel logLevel, const char* category, const char* message);
+typedef void
+    (*Writer)(enum LogLevel logLevel, const char* category, const char* message);
 
 #endif

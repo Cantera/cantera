@@ -1,3 +1,6 @@
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at https://cantera.org/license.txt for license and copyright information.
+
 using Cantera.Interop;
 
 namespace Cantera;
@@ -29,9 +32,11 @@ public static class Application
     static Application()
     {
         _invokeMessageLoggedDelegate = (level, category, message) =>
-            MessageLogged?.Invoke(null, new LogMessageEventArgs(level, category, message));
+            MessageLogged
+                ?.Invoke(null, new LogMessageEventArgs(level, category, message));
 
-        InteropUtil.CheckReturn(LibCantera.ct_setLogWriter(_invokeMessageLoggedDelegate));
+        InteropUtil.CheckReturn(
+            LibCantera.ct_setLogWriter(_invokeMessageLoggedDelegate));
     }
 
     /// <summary>
@@ -40,8 +45,9 @@ public static class Application
     /// <remarks>
     /// ct_setLogWriter() needs a delegate which is marshalled as a function pointer to
     /// the C++ Cantera library. We could create one implicitly when calling
-    /// <c>LibCantera.ct_setLogWriter(LogMessage)</c>, but the garbage collector would not know
-    /// the native method is using it and could reclaim it. By explicitly storing it as
+    /// <c>LibCantera.ct_setLogWriter(LogMessage)</c>, but the garbage collector would
+    /// not know the native method is using it and could reclaim it. By explicitly
+    /// storing it as
     /// a class member, we ensure it is not collected until the class is.
     /// </remarks>
     static LibCantera.Writer? _invokeMessageLoggedDelegate;
@@ -87,11 +93,16 @@ public static class Application
         var message = $"{logLevel} ({e.Category}) {nowString}: {e.Message}";
 
         if (e.LogLevel == LogLevel.Error)
+        {
             Console.Error.WriteLine(message);
+        }
         else
+        {
             Console.WriteLine(message);
+        }
     }
 
-    public static ThermoPhase CreateThermoPhase(string filename, string? phasename = null) =>
+    public static ThermoPhase CreateThermoPhase(string filename,
+                                                string? phasename = null) =>
         new ThermoPhase(filename, phasename);
 }

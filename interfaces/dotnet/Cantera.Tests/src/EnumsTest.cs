@@ -1,3 +1,6 @@
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at https://cantera.org/license.txt for license and copyright information.
+
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Xunit;
@@ -42,7 +45,8 @@ public class EnumsTests
     public void LogLevel_MapsCorrectly() =>
         TestInteropEnumInvariants<LogLevel>(true, 0, 2);
 
-    static void TestInteropEnumInvariants<TEnum>(bool contiguous = false, int? min = null, int? max = null)
+    static void TestInteropEnumInvariants<TEnum>(bool contiguous = false,
+                                                 int? min = null, int? max = null)
         where TEnum : struct, Enum
     {
         Assert.Equal(typeof(int), Enum.GetUnderlyingType(typeof(TEnum)));
@@ -53,15 +57,22 @@ public class EnumsTests
             .OrderBy(v => v)
             .ToList();
 
-        if (contiguous) for (var i = 1; i < values.Count; i++)
+        if (contiguous)
         {
-            Assert.Equal(1, values[i] - values[i - 1]);
+            for (var i = 1; i < values.Count; i++)
+            {
+                Assert.Equal(1, values[i] - values[i - 1]);
+            }
         }
 
         if (min is not null)
+        {
             Assert.Equal(min, values.Min());
+        }
 
         if (max is not null)
+        {
             Assert.Equal(max, values.Max());
+        }
     }
 }
