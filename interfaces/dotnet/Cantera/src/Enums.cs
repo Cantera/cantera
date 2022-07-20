@@ -37,13 +37,13 @@ public enum ThermoPair
 
 static class ThermoPairExtensions
 {
-    internal static IEnumerable<FieldInfo> GetThermoPairEnumFieldWithTwoCharNames() =>
+    internal static IEnumerable<FieldInfo> GetThermoPairEnumFieldsWithTwoCharName() =>
         typeof(ThermoPair)
             .GetFields(BindingFlags.Static | BindingFlags.Public)
             .Where(f => Regex.IsMatch(f.Name, "^[A-Z]{2}$")); // exactly two uppercase
 
     readonly static Lazy<IReadOnlyDictionary<ThermoPair, string>> InteropStringMap =
-        new(() => GetThermoPairEnumFieldWithTwoCharNames()
+        new(() => GetThermoPairEnumFieldsWithTwoCharName()
             .ToDictionary(f => (ThermoPair) f.GetValue(null)!, f => f.Name));
 
     public static string ToInteropString(this ThermoPair thermoPair)

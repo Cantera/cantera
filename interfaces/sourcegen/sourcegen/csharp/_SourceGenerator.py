@@ -3,6 +3,7 @@
 
 from dataclasses import dataclass
 import os
+import re
 import typing
 
 from .._helpers import normalize, get_preamble
@@ -131,16 +132,24 @@ class SourceGenerator(SourceGeneratorBase):
                     param_type = cs_type
                     break
 
+            # Most "setter" functions for arrays in CLib use a const double*,
+            # but we also need to handle the cases for a plain double*
             if param_type == 'double*' and method.startswith('set'):
                 setter_double_arrays_count += 1
                 if setter_double_arrays_count > 1:
-                    # We assume a double* can reliably become a double[] if
-                    # this function is a "setter". However, this logic is too simplistic
-                    # if there is more than one array.
+                    # We assume a double* can reliably become a double[].
+                    # However, this logic is too simplistic if there is
+                    # more than one array.
                     raise ValueError(f'Cannot scaffold {name} with '
                         + 'more than one array of doubles!')
 
-                param_type = 'double[]'
+                if clazz == 'thermo' and re.match('^set_[A-Z]{2}$', method):
+                    # Special case for the functions that set thermo pairs
+                    # This allows the C# side to pass a pointer to the stack
+                    # Rather than allocating an array on the heap (which requires GC)
+                    param_type = '(double, double)*'
+                else:
+                    param_type = 'double[]'
 
             params[i] = Param(param_type, param_name)
 

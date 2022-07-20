@@ -8,11 +8,16 @@ namespace Cantera;
 public partial class ThermoPhase
 {
     /// <summary>
+    /// Represents a func the sets a pair of thermo variables using a pointer
+    /// to a pair of doubles to stand in for a stack-allocated array with two elements.
+    /// </summary>
+    unsafe delegate int SetPairFunc(ThermoPhaseHandle n, (double, double)* vals);
+
+    /// <summary>
     /// Using reflection and the fact the CLIB follows a naming convention for
     /// the functions that set the pairs of thermodynamic variables simultaneously
     /// </summary>
-    static readonly Lazy<Dictionary<ThermoPair, Func<ThermoPhaseHandle, double[], int>>>
-        PairSetters;
+    static readonly Lazy<Dictionary<ThermoPair, SetPairFunc>> PairSetters;
 
     static ThermoPhase()
     {
@@ -20,7 +25,7 @@ public partial class ThermoPhase
         {
             var methods = typeof(LibCantera).GetMethods();
 
-            var pairs = ThermoPairExtensions.GetThermoPairEnumFieldWithTwoCharNames()
+            var pairs = ThermoPairExtensions.GetThermoPairEnumFieldsWithTwoCharName()
                 .Select(f =>
                 (
                     pair: f,
@@ -30,9 +35,7 @@ public partial class ThermoPhase
                 .Where(t => t.method is not null)
                 .ToDictionary(
                     t => (ThermoPair) t.pair.GetValue(null)!,
-                    t => (Func<ThermoPhaseHandle, double[], int>)
-                        t.method!.CreateDelegate(
-                            typeof(Func<ThermoPhaseHandle, double[], int>)));
+                    t => (SetPairFunc) t.method!.CreateDelegate(typeof(SetPairFunc)));
 
             return pairs;
         });
@@ -64,13 +67,15 @@ public partial class ThermoPhase
         InteropUtil.CheckReturn(retVal);
     }
 
-    public void SetPair(ThermoPair pair, double first, double second)
+    public unsafe void SetPair(ThermoPair pair, double first, double second)
     {
         if (!PairSetters.Value.TryGetValue(pair, out var setter))
         {
             throw new InvalidOperationException($"Cannot set thermo pair {pair}!");
         }
 
-        InteropUtil.CheckReturn(setter(_handle, new[] { first, second }));
+        var tuple = (first, second);
+
+        InteropUtil.CheckReturn(setter(_handle, &tuple));
     }
 }
