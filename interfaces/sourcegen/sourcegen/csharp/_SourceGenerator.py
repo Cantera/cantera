@@ -5,7 +5,7 @@ from dataclasses import dataclass
 import os
 import typing
 
-from .._helpers import normalize
+from .._helpers import normalize, get_preamble
 from .._types import *
 from .._types import _unpack
 
@@ -41,6 +41,8 @@ class SourceGenerator(SourceGeneratorBase):
         'byte*': 'string',
         'double*': 'double[]'
     }
+
+    _preamble = '/*\n' + get_preamble() + '*/'
 
     @staticmethod
     def _join_params(params):
@@ -211,6 +213,8 @@ class SourceGenerator(SourceGeneratorBase):
         functions_text = '\n\n'.join((self._get_function_text(f) for f in cs_funcs))
 
         interop_text = normalize(f'''
+            {normalize(self._preamble, 12)}
+
             using System.Runtime.InteropServices;
 
             namespace Cantera.Interop;
@@ -233,6 +237,8 @@ class SourceGenerator(SourceGeneratorBase):
         handles_text = '\n\n'.join((self._get_base_handle_text(h) for h in handles))
 
         handles_text = normalize(f'''
+            {normalize(self._preamble, 12)}
+
             namespace Cantera.Interop;
 
             {normalize(handles_text, 12, True)}
@@ -248,6 +254,8 @@ class SourceGenerator(SourceGeneratorBase):
             for d in self._config['derived_handles'].items()))
 
         derived_handles_text = normalize(f'''
+            {normalize(self._preamble, 12)}
+
             namespace Cantera.Interop;
 
             {derived_handles}
@@ -263,6 +271,8 @@ class SourceGenerator(SourceGeneratorBase):
                 for (c_name, cs_name) in props.items()))
 
             clazz_text = normalize(f'''
+                {normalize(self._preamble, 16)}
+
                 using Cantera.Interop;
 
                 namespace Cantera;
