@@ -62,6 +62,9 @@ Reaction::Reaction(const std::string& equation,
 {
     setEquation(equation);
     setRate(rate_);
+    if (tbody_ && tbody_->name() != "M") {
+        m_explicit_3rd = true;
+    }
 }
 
 Reaction::Reaction(const AnyMap& node, const Kinetics& kin)
@@ -236,6 +239,9 @@ void Reaction::setParameters(const AnyMap& node, const Kinetics& kin)
     if (m_third_body) {
         try {
             m_third_body->setParameters(node);
+            if (m_third_body->name() == "M" && m_third_body->efficiencies.size() == 1) {
+                m_explicit_3rd = true;
+            }
         } catch (CanteraError& err) {
             throw InputFileError("Reaction::setParameters", input, err.getMessage());
         }
@@ -455,13 +461,12 @@ void Reaction::setEquation(const std::string& equation, const Kinetics* kin)
 
     if (m_third_body) {
         std::string tName = m_third_body->name();
-        if (tName == "M") {
-            m_third_body->setName(third_body);
-        } else if (tName != third_body) {
+        if (tName != third_body && third_body != "M" && tName != "M") {
             throw InputFileError("Reaction::setEquation", input,
                 "Detected incompatible third body colliders in reaction '{}'\n"
                 "ThirdBody definition does not match equation", equation);
         }
+        m_third_body->setName(third_body);
     } else {
         m_third_body.reset(new ThirdBody(third_body));
     }
@@ -727,9 +732,10 @@ void ThirdBody::setName(const std::string& third_body)
     if (name == m_name) {
         return;
     }
-    if (name == "M") {
-        throw CanteraError("ThirdBody::setName",
-            "Unable to revert explicit third body '{}' to 'M'", m_name);
+    if (name == "M" && efficiencies.size() == 1) {
+        // revert from explicit name to generic collider
+        m_name = name;
+        return;
     }
     if (efficiencies.size()) {
         throw CanteraError("ThirdBody::setName",
