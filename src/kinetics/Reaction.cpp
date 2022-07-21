@@ -39,10 +39,11 @@ Reaction::Reaction(const Composition& reactants_,
     setRate(rate_);
 
     // ensure safe serialization
-    size_t count = 0;
+    bool count = 0;
     for (const auto& reac : reactants) {
         if (products.count(reac.first)) {
-            count++;
+            count = true;
+            break;
         }
     }
     if (count) {
@@ -383,41 +384,40 @@ void Reaction::setEquation(const std::string& equation, const Kinetics* kin)
         // equations with more than one explicit third-body collider are handled as a
         // regular elementary reaction unless the equation contains a generic third body
         if (countM) {
+            // generic collider 'M' is selected as third body
             third_body = "M";
         } else if (m_third_body) {
             // third body is defined as explicit object
             auto& effs = m_third_body->efficiencies;
-            if (effs.size() != 1
-                || reactants.find(effs.begin()->first) == reactants.end())
-            {
+            if (effs.size() != 1 || !reactants.count(effs.begin()->first)) {
                 throw InputFileError("Reaction::setEquation", input,
                     "Detected ambiguous third body colliders in reaction '{}'\n"
-                    "ThirdBody definition is not valid", equation);
+                    "ThirdBody object needs to specify a single species", equation);
             }
             third_body = effs.begin()->first;
             m_explicit_3rd = true;
         } else if (input.hasKey("efficiencies") && input.hasKey("default-efficiency")) {
-            // third body is implicity defined by efficiency
+            // third body is implicitly defined by efficiency
             auto effs = input["efficiencies"].asMap<double>();
-            if (effs.size() != 1
-                || reactants.find(effs.begin()->first) == reactants.end())
-            {
+            if (effs.size() != 1 || !reactants.count(effs.begin()->first)) {
                 throw InputFileError("Reaction::setEquation", input,
-                    "Detected ambigous third body colliders in reaction '{}'\n"
-                    "Invalid ThirdBody definition", equation);
+                    "Detected ambiguous third body colliders in reaction '{}'\n"
+                    "Collision efficiencies need to specify single species", equation);
             }
             third_body = effs.begin()->first;
             m_explicit_3rd = true;
-        } else if (ba::starts_with(rate_type, "three-body")) {
-            // no disambiguation of third bodies
-            throw InputFileError("Reaction::setEquation", input,
-                "Detected ambigous third body colliders in reaction '{}'\n"
-                "A valid ThirdBody definition is required", equation);
         } else if (input.hasKey("efficiencies") || input.hasKey("default-efficiency")) {
             // insufficient disambiguation of third bodies
             throw InputFileError("Reaction::setEquation", input,
-                "Detected ambigous third body colliders in reaction '{}'\n"
-                "A complete ThirdBody definition is required", equation);
+                "Detected ambiguous third body colliders in reaction '{}'\n"
+                "Third-body definition requires specification of efficiencies "
+                "as well as default efficiency", equation);
+        } else if (ba::starts_with(rate_type, "three-body")) {
+            // no disambiguation of third bodies
+            throw InputFileError("Reaction::setEquation", input,
+                "Detected ambiguous third body colliders in reaction '{}'\n"
+                "A valid ThirdBody or collision efficiency definition is required",
+                equation);
         } else {
             return;
         }
