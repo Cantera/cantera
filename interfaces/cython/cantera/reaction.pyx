@@ -1146,7 +1146,7 @@ cdef class Reaction:
 
     def __cinit__(self, reactants=None, products=None, rate=None, *,
                   equation=None, init=True, efficiencies=None,
-                  Kinetics kinetics=None, third_body=None, **kwargs):
+                  Kinetics kinetics=None, third_body=None):
         if kinetics:
             warnings.warn(
                 "Parameter 'kinetics' is no longer used and will be removed after "
