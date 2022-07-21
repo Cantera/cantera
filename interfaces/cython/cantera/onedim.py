@@ -1279,7 +1279,7 @@ class CounterflowDiffusionFlame(FlameBase):
         # Do some checks if loglevel is set
         if loglevel > 0:
             if self.extinct():
-                print('WARNING: Flame is extinct.')
+                warnings.warn("Flame is extinct.")
             else:
                 # Check if the flame is very thick
                 # crude width estimate based on temperature
@@ -1287,21 +1287,21 @@ class CounterflowDiffusionFlame(FlameBase):
                 flame_width = z_flame[-1] - z_flame[0]
                 domain_width = self.grid[-1] - self.grid[0]
                 if flame_width / domain_width > 0.4:
-                    print('WARNING: The flame is thick compared to the domain '
-                          'size. The flame might be affected by the plug-flow '
-                          'boundary conditions. Consider increasing the inlet mass '
-                          'fluxes or using a larger domain.')
+                    warnings.warn("The flame is thick compared to the domain "
+                        "size. The flame might be affected by the plug-flow "
+                        "boundary conditions. Consider increasing the inlet mass "
+                        "fluxes or using a larger domain.")
 
                 # Check if the temperature peak is close to a boundary
                 z_center = (self.grid[np.argmax(self.T)] - self.grid[0]) / domain_width
                 if z_center < 0.25:
-                    print('WARNING: The flame temperature peak is close to the '
-                          'fuel inlet. Consider increasing the ratio of the '
-                          'fuel inlet mass flux to the oxidizer inlet mass flux.')
+                    warnings.warn("The flame temperature peak is close to the "
+                        "fuel inlet. Consider increasing the ratio of the "
+                        "fuel inlet mass flux to the oxidizer inlet mass flux.")
                 if z_center > 0.75:
-                    print('WARNING: The flame temperature peak is close to the '
-                          'oxidizer inlet. Consider increasing the ratio of the '
-                          'oxidizer inlet mass flux to the fuel inlet mass flux.')
+                    warnings.warn("The flame temperature peak is close to the "
+                        "oxidizer inlet. Consider increasing the ratio of the "
+                        "oxidizer inlet mass flux to the fuel inlet mass flux.")
 
     def strain_rate(self, definition, fuel=None, oxidizer='O2', stoich=None):
         r"""
@@ -1435,6 +1435,7 @@ class CounterflowDiffusionFlame(FlameBase):
             self.set_gas_state(i)
             vals[i] = self.gas.mixture_fraction(Yf, Yo, 'mass', m)
         return vals
+
 
 class ImpingingJet(FlameBase):
     """An axisymmetric flow impinging on a surface at normal incidence."""
