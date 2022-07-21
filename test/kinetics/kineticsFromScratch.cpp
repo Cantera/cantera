@@ -155,6 +155,7 @@ TEST_F(KineticsFromScratch, multiple_third_bodies4)
     auto rate = make_shared<ArrheniusRate>(1.2e11, -1.0, 0.0);
     auto tbody = make_shared<ThirdBody>("O2");
     auto R = make_shared<Reaction>(equation, rate, tbody);
+    EXPECT_EQ(R->thirdBody()->name(), "O2");
 
     AnyMap input = R->parameters();
     EXPECT_FALSE(input.hasKey("type"));
@@ -181,6 +182,45 @@ TEST_F(KineticsFromScratch, multiple_third_bodies6)
     auto rate = make_shared<ArrheniusRate>(1.2e11, -1.0, 0.0);
     auto tbody = make_shared<ThirdBody>("O2");
     auto R = make_shared<Reaction>(reac, prod, rate, tbody);
+    EXPECT_EQ(R->thirdBody()->name(), "O2");
+
+    AnyMap input = R->parameters();
+    EXPECT_FALSE(input.hasKey("type"));
+    EXPECT_TRUE(input.hasKey("efficiencies"));
+    auto efficiencies = input["efficiencies"].asMap<double>();
+    EXPECT_EQ(efficiencies.size(), 1);
+    EXPECT_EQ(efficiencies.begin()->first, "O2");
+    EXPECT_TRUE(input.hasKey("default-efficiency"));
+    EXPECT_EQ(input["default-efficiency"].asDouble(), 0.);
+}
+
+TEST_F(KineticsFromScratch, multiple_third_bodies7)
+{
+    std::string equation = "CH2OCH + M <=> CH2CHO + M";
+    auto rate = make_shared<ArrheniusRate>(1.2e11, -1.0, 0.0);
+    auto tbody = make_shared<ThirdBody>("O2");
+    auto R = make_shared<Reaction>(equation, rate, tbody);
+    EXPECT_EQ(R->thirdBody()->name(), "M");
+
+    AnyMap input = R->parameters();
+    EXPECT_FALSE(input.hasKey("type"));
+    EXPECT_TRUE(input.hasKey("efficiencies"));
+    auto efficiencies = input["efficiencies"].asMap<double>();
+    EXPECT_EQ(efficiencies.size(), 1);
+    EXPECT_EQ(efficiencies.begin()->first, "O2");
+    EXPECT_TRUE(input.hasKey("default-efficiency"));
+    EXPECT_EQ(input["default-efficiency"].asDouble(), 0.);
+}
+
+TEST_F(KineticsFromScratch, multiple_third_bodies8)
+{
+    std::string equation = "CH2OCH + M <=> CH2CHO + M";
+    auto rate = make_shared<ArrheniusRate>(1.2e11, -1.0, 0.0);
+    auto tbody = make_shared<ThirdBody>();
+    tbody->efficiencies = parseCompString("O2:1");
+    tbody->default_efficiency = 0.;
+    auto R = make_shared<Reaction>(equation, rate, tbody);
+    EXPECT_EQ(R->thirdBody()->name(), "M");
 
     AnyMap input = R->parameters();
     EXPECT_FALSE(input.hasKey("type"));
