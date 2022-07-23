@@ -94,7 +94,7 @@ jobs:
     strategy:
       matrix:
         python-version: [ '3.7', '3.9', '3.10' ]
-        os: ['macos-10.15']
+        os: ['macos-11', 'macos-12']
       fail-fast: false
     steps:
     # Attempt to fix intermittent cloning errors. The error message says something like
