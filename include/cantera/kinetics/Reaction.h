@@ -197,9 +197,6 @@ protected:
     //! Flag indicating that serialization uses explicit type
     bool m_explicit_type = false;
 
-    //! Flag indicating that third body requires explicit serialization
-    bool m_explicit_3rd = false;
-
     //! Flag indicating that object was instantiated from reactant/product compositions
     bool m_from_composition = false;
 
@@ -243,9 +240,8 @@ public:
 
     //! Get third-body efficiencies from AnyMap *node*
     //! @param node  AnyMap receiving serialized parameters
-    //! @param explicit_3rd  Flag triggering explicit third body efficiency output
     //! @since  New in Cantera 3.0
-    void getParameters(AnyMap& node, bool explicit_3rd) const;
+    void getParameters(AnyMap& node) const;
 
     //! Get the third-body efficiency for species *k*
     double efficiency(const std::string& k) const;
@@ -273,6 +269,9 @@ public:
     //! Third body is used by law of mass action
     //! (`true` for three-body reactions, `false` for falloff reactions)
     bool mass_action = true;
+
+    //! Flag indicating whether third body requires explicit serialization
+    bool explicit_3rd = false;
 
 protected:
     //! Name of the third body collider

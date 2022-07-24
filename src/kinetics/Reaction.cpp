@@ -48,7 +48,7 @@ Reaction::Reaction(const Composition& reactants_,
     }
     if (count) {
         if (tbody_ && tbody_->name() != "M") {
-            m_explicit_3rd = true;
+            m_third_body->explicit_3rd = true;
         } else if (!tbody_) {
             m_explicit_type = true;
         }
@@ -63,7 +63,7 @@ Reaction::Reaction(const std::string& equation,
     setEquation(equation);
     setRate(rate_);
     if (tbody_ && tbody_->name() != "M") {
-        m_explicit_3rd = true;
+        m_third_body->explicit_3rd = true;
     }
 }
 
@@ -206,7 +206,7 @@ void Reaction::getParameters(AnyMap& reactionNode) const
     }
 
     if (m_third_body) {
-        m_third_body->getParameters(reactionNode, m_explicit_3rd);
+        m_third_body->getParameters(reactionNode);
     }
 }
 
@@ -237,13 +237,9 @@ void Reaction::setParameters(const AnyMap& node, const Kinetics& kin)
     allow_nonreactant_orders = node.getBool("nonreactant-orders", false);
 
     if (m_third_body) {
-        try {
-            m_third_body->setParameters(node);
-            if (m_third_body->name() == "M" && m_third_body->efficiencies.size() == 1) {
-                m_explicit_3rd = true;
-            }
-        } catch (CanteraError& err) {
-            throw InputFileError("Reaction::setParameters", input, err.getMessage());
+        m_third_body->setParameters(node);
+        if (m_third_body->name() == "M" && m_third_body->efficiencies.size() == 1) {
+            m_third_body->explicit_3rd = true;
         }
     } else if (node.hasKey("default-efficiency") || node.hasKey("efficiencies")) {
         throw InputFileError("Reaction::setParameters", input,
@@ -401,8 +397,8 @@ void Reaction::setEquation(const std::string& equation, const Kinetics* kin)
                     "ThirdBody object needs to specify a single species", equation);
             }
             third_body = effs.begin()->first;
-            m_explicit_3rd = true;
-        } else if (input.hasKey("efficiencies") && input.hasKey("default-efficiency")) {
+            m_third_body->explicit_3rd = true;
+        } else if (input.hasKey("efficiencies")) {
             // third body is implicitly defined by efficiency
             auto effs = input["efficiencies"].asMap<double>();
             if (effs.size() != 1 || !reactants.count(effs.begin()->first)) {
@@ -411,13 +407,14 @@ void Reaction::setEquation(const std::string& equation, const Kinetics* kin)
                     "Collision efficiencies need to specify single species", equation);
             }
             third_body = effs.begin()->first;
-            m_explicit_3rd = true;
-        } else if (input.hasKey("efficiencies") || input.hasKey("default-efficiency")) {
+            m_third_body.reset(new ThirdBody(third_body));
+            m_third_body->explicit_3rd = true;
+        } else if (input.hasKey("default-efficiency")) {
             // insufficient disambiguation of third bodies
             throw InputFileError("Reaction::setEquation", input,
                 "Detected ambiguous third body colliders in reaction '{}'\n"
-                "Third-body definition requires specification of efficiencies "
-                "as well as default efficiency", equation);
+                "Third-body definition requires specification of efficiencies",
+                equation);
         } else if (ba::starts_with(rate_type, "three-body")) {
             // no disambiguation of third bodies
             throw InputFileError("Reaction::setEquation", input,
@@ -761,7 +758,13 @@ void ThirdBody::setEfficiencies(const AnyMap& node)
 void ThirdBody::setParameters(const AnyMap& node)
 {
     if (node.hasKey("default-efficiency")) {
-       default_efficiency = node["default-efficiency"].asDouble();
+        double value = node["default-efficiency"].asDouble();
+        if (m_name != "M" && value != 0.) {
+            throw InputFileError("ThirdBody::setParameters", node["default-efficiency"],
+                "Invalid default efficiency for explicit collider {};\n"
+                "value is optional and/or needs to be zero", m_name);
+        }
+        default_efficiency = value;
     }
     if (node.hasKey("efficiencies")) {
         efficiencies = node["efficiencies"].asMap<double>();
@@ -769,19 +772,19 @@ void ThirdBody::setParameters(const AnyMap& node)
     if (m_name != "M"
         && (efficiencies.size() != 1 || efficiencies.begin()->first != m_name))
     {
-        throw CanteraError("Reaction::setEquation",
+        throw InputFileError("ThirdBody::setParameters", node,
             "Detected incompatible third body colliders definitions");
     }
 }
 
-void ThirdBody::getParameters(AnyMap& node, bool explicit_3rd) const
+void ThirdBody::getParameters(AnyMap& node) const
 {
     if (m_name == "M" || explicit_3rd) {
         if (efficiencies.size()) {
             node["efficiencies"] = efficiencies;
             node["efficiencies"].setFlowStyle();
         }
-        if (default_efficiency != 1.0) {
+        if (default_efficiency != 1.0 && !explicit_3rd) {
             node["default-efficiency"] = default_efficiency;
         }
     }
