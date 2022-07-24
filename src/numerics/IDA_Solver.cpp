@@ -9,31 +9,23 @@
 #include "sundials/sundials_types.h"
 #include "sundials/sundials_math.h"
 #include "ida/ida.h"
-#if CT_SUNDIALS_VERSION >= 30
-    #if CT_SUNDIALS_USE_LAPACK
-        #include "sunlinsol/sunlinsol_lapackdense.h"
-        #include "sunlinsol/sunlinsol_lapackband.h"
-    #else
-        #include "sunlinsol/sunlinsol_dense.h"
-        #include "sunlinsol/sunlinsol_band.h"
-    #endif
-    #include "sunlinsol/sunlinsol_spgmr.h"
-    #include "ida/ida_direct.h"
-    #include "ida/ida_spils.h"
+
+#if CT_SUNDIALS_USE_LAPACK
+    #include "sunlinsol/sunlinsol_lapackdense.h"
+    #include "sunlinsol/sunlinsol_lapackband.h"
 #else
-    #include "ida/ida_dense.h"
-    #include "ida/ida_spgmr.h"
-    #include "ida/ida_band.h"
+    #include "sunlinsol/sunlinsol_dense.h"
+    #include "sunlinsol/sunlinsol_band.h"
 #endif
+
+#include "sunlinsol/sunlinsol_spgmr.h"
+#include "ida/ida_direct.h"
+#include "ida/ida_spils.h"
 #include "nvector/nvector_serial.h"
 
 using namespace std;
 
-#if CT_SUNDIALS_VERSION < 25
-typedef int sd_size_t;
-#else
 typedef long int sd_size_t;
-#endif
 
 namespace Cantera
 {
@@ -107,7 +99,6 @@ extern "C" {
      * In the case of a recoverable error return, the integrator will attempt to
      * recover by reducing the stepsize (which changes cj).
      */
-#if CT_SUNDIALS_VERSION >= 30
     static int ida_jacobian(realtype t, realtype c_j, N_Vector y, N_Vector yp,
                             N_Vector r, SUNMatrix Jac, void *f_data,
                             N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
@@ -128,20 +119,6 @@ extern "C" {
                           cols, NV_DATA_S(r));
         return 0;
     }
-#else
-    static int ida_jacobian(sd_size_t nrows, realtype t, realtype c_j, N_Vector y, N_Vector ydot, N_Vector r,
-                            DlsMat Jac, void* f_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
-    {
-        Cantera::ResidData* d = (Cantera::ResidData*) f_data;
-        Cantera::ResidJacEval* f = d->m_func;
-        Cantera::IDA_Solver* s = d->m_solver;
-        double delta_t = s->getCurrentStepFromIDA();
-        f->evalJacobianDP(t, delta_t, c_j, NV_DATA_S(y), NV_DATA_S(ydot),
-                          Jac->cols, NV_DATA_S(r));
-        return 0;
-    }
-#endif
-
 }
 
 namespace Cantera
@@ -308,10 +285,8 @@ void IDA_Solver::setJacobianType(int formJac)
     if (m_ida_mem && m_formJac == 1) {
         #if CT_SUNDIALS_VERSION >= 60
             int flag = IDASetJacFn(m_ida_mem, ida_jacobian);
-        #elif CT_SUNDIALS_VERSION >= 30
-            int flag = IDADlsSetJacFn(m_ida_mem, ida_jacobian);
         #else
-            int flag = IDADlsSetDenseJacFn(m_ida_mem, ida_jacobian);
+            int flag = IDADlsSetJacFn(m_ida_mem, ida_jacobian);
         #endif
         if (flag != IDA_SUCCESS) {
             throw CanteraError("IDA_Solver::setJacobianType",
@@ -434,40 +409,37 @@ void IDA_Solver::init(doublereal t0)
     if (m_type == 1 || m_type == 0) {
         long int N = m_neq;
         int flag;
-        #if CT_SUNDIALS_VERSION >= 30
-            SUNLinSolFree((SUNLinearSolver) m_linsol);
-            SUNMatDestroy((SUNMatrix) m_linsol_matrix);
-            #if CT_SUNDIALS_VERSION >= 60
-                m_linsol_matrix = SUNDenseMatrix(N, N, m_sundials_ctx.get());
-            #else
-                m_linsol_matrix = SUNDenseMatrix(N, N);
-            #endif
-            if (m_linsol_matrix == nullptr) {
-                throw CanteraError("IDA_Solver::init",
-                    "Unable to create SUNDenseMatrix of size {0} x {0}", N);
-            }
-            #if CT_SUNDIALS_VERSION >= 60
-                #if CT_SUNDIALS_USE_LAPACK
-                    m_linsol = SUNLinSol_LapackDense(m_y, (SUNMatrix) m_linsol_matrix,
-                                                     m_sundials_ctx.get());
-                #else
-                    m_linsol = SUNLinSol_Dense(m_y, (SUNMatrix) m_linsol_matrix,
-                                               m_sundials_ctx.get());
-                #endif
-                flag = IDASetLinearSolver(m_ida_mem, (SUNLinearSolver) m_linsol,
-                                          (SUNMatrix) m_linsol_matrix);
-            #else
-                #if CT_SUNDIALS_USE_LAPACK
-                    m_linsol = SUNLapackDense(m_y, (SUNMatrix) m_linsol_matrix);
-                #else
-                    m_linsol = SUNDenseLinearSolver(m_y, (SUNMatrix) m_linsol_matrix);
-                #endif
-                flag = IDADlsSetLinearSolver(m_ida_mem, (SUNLinearSolver) m_linsol,
-                                             (SUNMatrix) m_linsol_matrix);
-            #endif
+        SUNLinSolFree((SUNLinearSolver) m_linsol);
+        SUNMatDestroy((SUNMatrix) m_linsol_matrix);
+        #if CT_SUNDIALS_VERSION >= 60
+            m_linsol_matrix = SUNDenseMatrix(N, N, m_sundials_ctx.get());
         #else
-            flag = IDADense(m_ida_mem, N);
+            m_linsol_matrix = SUNDenseMatrix(N, N);
         #endif
+        if (m_linsol_matrix == nullptr) {
+            throw CanteraError("IDA_Solver::init",
+                "Unable to create SUNDenseMatrix of size {0} x {0}", N);
+        }
+        #if CT_SUNDIALS_VERSION >= 60
+            #if CT_SUNDIALS_USE_LAPACK
+                m_linsol = SUNLinSol_LapackDense(m_y, (SUNMatrix) m_linsol_matrix,
+                                                    m_sundials_ctx.get());
+            #else
+                m_linsol = SUNLinSol_Dense(m_y, (SUNMatrix) m_linsol_matrix,
+                                            m_sundials_ctx.get());
+            #endif
+            flag = IDASetLinearSolver(m_ida_mem, (SUNLinearSolver) m_linsol,
+                                        (SUNMatrix) m_linsol_matrix);
+        #else
+            #if CT_SUNDIALS_USE_LAPACK
+                m_linsol = SUNLapackDense(m_y, (SUNMatrix) m_linsol_matrix);
+            #else
+                m_linsol = SUNDenseLinearSolver(m_y, (SUNMatrix) m_linsol_matrix);
+            #endif
+            flag = IDADlsSetLinearSolver(m_ida_mem, (SUNLinearSolver) m_linsol,
+                                            (SUNMatrix) m_linsol_matrix);
+        #endif
+
         if (flag) {
             throw CanteraError("IDA_Solver::init", "IDADense failed");
         }
@@ -475,42 +447,38 @@ void IDA_Solver::init(doublereal t0)
         long int N = m_neq;
         long int nu = m_mupper;
         long int nl = m_mlower;
-        #if CT_SUNDIALS_VERSION >= 30
-            SUNLinSolFree((SUNLinearSolver) m_linsol);
-            SUNMatDestroy((SUNMatrix) m_linsol_matrix);
-            #if CT_SUNDIALS_VERSION >= 60
-                m_linsol_matrix = SUNBandMatrix(N, nu, nl, m_sundials_ctx.get());
-            #elif CT_SUNDIALS_VERSION >= 40
-                m_linsol_matrix = SUNBandMatrix(N, nu, nl);
-            #else
-                m_linsol_matrix = SUNBandMatrix(N, nu, nl, nu+nl);
-            #endif
-            if (m_linsol_matrix == nullptr) {
-                throw CanteraError("IDA_Solver::init",
-                    "Unable to create SUNBandMatrix of size {} with bandwidths "
-                    "{} and {}", N, nu, nl);
-            }
-            #if CT_SUNDIALS_VERSION >= 60
-                #if CT_SUNDIALS_USE_LAPACK
-                    m_linsol = SUNLinSol_LapackBand(m_y, (SUNMatrix) m_linsol_matrix,
-                                                    m_sundials_ctx.get());
-                #else
-                    m_linsol = SUNLinSol_Band(m_y, (SUNMatrix) m_linsol_matrix,
-                                              m_sundials_ctx.get());
-                #endif
-                IDASetLinearSolver(m_ida_mem, (SUNLinearSolver) m_linsol,
-                                   (SUNMatrix) m_linsol_matrix);
-            #else
-                #if CT_SUNDIALS_USE_LAPACK
-                    m_linsol = SUNLapackBand(m_y, (SUNMatrix) m_linsol_matrix);
-                #else
-                    m_linsol = SUNBandLinearSolver(m_y, (SUNMatrix) m_linsol_matrix);
-                #endif
-                IDADlsSetLinearSolver(m_ida_mem, (SUNLinearSolver) m_linsol,
-                                      (SUNMatrix) m_linsol_matrix);
-            #endif
+        SUNLinSolFree((SUNLinearSolver) m_linsol);
+        SUNMatDestroy((SUNMatrix) m_linsol_matrix);
+        #if CT_SUNDIALS_VERSION >= 60
+            m_linsol_matrix = SUNBandMatrix(N, nu, nl, m_sundials_ctx.get());
+        #elif CT_SUNDIALS_VERSION >= 40
+            m_linsol_matrix = SUNBandMatrix(N, nu, nl);
         #else
-            IDABand(m_ida_mem, N, nu, nl);
+            m_linsol_matrix = SUNBandMatrix(N, nu, nl, nu+nl);
+        #endif
+        if (m_linsol_matrix == nullptr) {
+            throw CanteraError("IDA_Solver::init",
+                "Unable to create SUNBandMatrix of size {} with bandwidths "
+                "{} and {}", N, nu, nl);
+        }
+        #if CT_SUNDIALS_VERSION >= 60
+            #if CT_SUNDIALS_USE_LAPACK
+                m_linsol = SUNLinSol_LapackBand(m_y, (SUNMatrix) m_linsol_matrix,
+                                                m_sundials_ctx.get());
+            #else
+                m_linsol = SUNLinSol_Band(m_y, (SUNMatrix) m_linsol_matrix,
+                                            m_sundials_ctx.get());
+            #endif
+            IDASetLinearSolver(m_ida_mem, (SUNLinearSolver) m_linsol,
+                                (SUNMatrix) m_linsol_matrix);
+        #else
+            #if CT_SUNDIALS_USE_LAPACK
+                m_linsol = SUNLapackBand(m_y, (SUNMatrix) m_linsol_matrix);
+            #else
+                m_linsol = SUNBandLinearSolver(m_y, (SUNMatrix) m_linsol_matrix);
+            #endif
+            IDADlsSetLinearSolver(m_ida_mem, (SUNLinearSolver) m_linsol,
+                                    (SUNMatrix) m_linsol_matrix);
         #endif
     } else {
         throw CanteraError("IDA_Solver::init",
@@ -520,10 +488,8 @@ void IDA_Solver::init(doublereal t0)
     if (m_formJac == 1) {
         #if CT_SUNDIALS_VERSION >= 60
             flag = IDASetJacFn(m_ida_mem, ida_jacobian);
-        #elif CT_SUNDIALS_VERSION >= 30
-            flag = IDADlsSetJacFn(m_ida_mem, ida_jacobian);
         #else
-            flag = IDADlsSetDenseJacFn(m_ida_mem, ida_jacobian);
+            flag = IDADlsSetJacFn(m_ida_mem, ida_jacobian);
         #endif
         if (flag != IDA_SUCCESS) {
             throw CanteraError("IDA_Solver::init",

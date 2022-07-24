@@ -10,12 +10,7 @@
 #if CT_USE_LAPACK
     #include "cantera/numerics/ctlapack.h"
 #else
-    #if CT_SUNDIALS_VERSION >= 30
-        #include "sunlinsol/sunlinsol_band.h"
-    #else
-        #include "cvodes/cvodes_dense.h"
-        #include "cvodes/cvodes_band.h"
-    #endif
+    #include "sunlinsol/sunlinsol_band.h"
 #endif
 
 #include <cstring>
@@ -31,12 +26,8 @@ namespace Cantera
 struct BandMatrix::PivData {
 #if CT_USE_LAPACK
     vector_int data;
-#elif CT_SUNDIALS_VERSION >= 30
-    std::vector<sunindextype> data;
-#elif CT_SUNDIALS_VERSION >= 25
-    std::vector<long int> data;
 #else
-    std::vector<int> data;
+    std::vector<sunindextype> data;
 #endif
 };
 

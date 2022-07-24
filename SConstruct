@@ -1067,9 +1067,6 @@ def get_expression_value(includes, expression, defines=()):
     s.extend(('#define Q(x) #x',
               '#define QUOTE(x) Q(x)',
               '#include <iostream>',
-              '#ifndef SUNDIALS_PACKAGE_VERSION', # name change in Sundials >= 3.0
-              '#define SUNDIALS_PACKAGE_VERSION SUNDIALS_VERSION',
-              '#endif',
               'int main(int argc, char** argv) {',
               '    std::cout << %s << std::endl;' % expression,
               '    return 0;',
@@ -1326,7 +1323,7 @@ if env['system_sundials'] == 'y':
 
     # Determine Sundials version
     sundials_version_source = get_expression_value(['"sundials/sundials_config.h"'],
-                                                   'QUOTE(SUNDIALS_PACKAGE_VERSION)')
+                                                   'QUOTE(SUNDIALS_VERSION)')
     retcode, sundials_version = conf.TryRun(sundials_version_source, '.cpp')
     if retcode == 0:
         config_error("Failed to determine Sundials version.")
@@ -1335,7 +1332,7 @@ if env['system_sundials'] == 'y':
     # Ignore the minor version, for example 2.4.x -> 2.4
     env['sundials_version'] = '.'.join(sundials_version.split('.')[:2])
     sundials_ver = parse_version(env['sundials_version'])
-    if sundials_ver < parse_version("2.4") or sundials_ver >= parse_version("7.0"):
+    if sundials_ver < parse_version("3.0") or sundials_ver >= parse_version("7.0"):
         logger.error(f"Sundials version {env['sundials_version']!r} is not supported.")
         sys.exit(1)
     elif sundials_ver > parse_version("6.0"):
@@ -1344,15 +1341,7 @@ if env['system_sundials'] == 'y':
     logger.info(f"Using system installation of Sundials version {sundials_version!r}.")
 
     # Determine whether or not Sundials was built with BLAS/LAPACK
-    if sundials_ver < parse_version('2.6'):
-        # In Sundials 2.4 / 2.5, SUNDIALS_BLAS_LAPACK is either 0 or 1
-        sundials_blas_lapack = get_expression_value(['"sundials/sundials_config.h"'],
-                                                       'SUNDIALS_BLAS_LAPACK')
-        retcode, has_sundials_lapack = conf.TryRun(sundials_blas_lapack, '.cpp')
-        if retcode == 0:
-            config_error("Failed to determine Sundials BLAS/LAPACK.")
-        env['has_sundials_lapack'] = int(has_sundials_lapack.strip())
-    elif sundials_ver < parse_version('5.5'):
+    if sundials_ver < parse_version('5.5'):
         # In Sundials 2.6-5.5, SUNDIALS_BLAS_LAPACK is either defined or undefined
         env['has_sundials_lapack'] = conf.CheckDeclaration('SUNDIALS_BLAS_LAPACK',
                 '#include "sundials/sundials_config.h"', 'C++')
@@ -1947,7 +1936,7 @@ if addInstallActions:
 
 if env['system_sundials'] == 'y':
     env['sundials_libs'] = ['sundials_cvodes', 'sundials_ida', 'sundials_nvecserial']
-    if env['use_lapack'] and sundials_ver >= parse_version('3.0'):
+    if env['use_lapack']:
         if env.get('has_sundials_lapack'):
             env['sundials_libs'].extend(('sundials_sunlinsollapackdense',
                                          'sundials_sunlinsollapackband'))

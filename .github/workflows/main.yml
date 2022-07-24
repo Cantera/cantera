@@ -329,7 +329,7 @@ jobs:
         shell: bash -l {0}
     strategy:
       matrix:
-        sundials-ver: [ 2, 3, 4, 5.8, 6.0 ]
+        sundials-ver: [ 3, 4, 5.8, 6.0 ]
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
