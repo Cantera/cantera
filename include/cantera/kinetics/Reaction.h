@@ -197,7 +197,7 @@ protected:
     //! Flag indicating that serialization uses explicit type
     bool m_explicit_type = false;
 
-    //! Flag indicating that third body collider is ambiguous
+    //! Flag indicating that third body requires explicit serialization
     bool m_explicit_3rd = false;
 
     //! Flag indicating that object was instantiated from reactant/product compositions
@@ -245,7 +245,7 @@ public:
     //! @param node  AnyMap receiving serialized parameters
     //! @param explicit_3rd  Flag triggering explicit third body efficiency output
     //! @since  New in Cantera 3.0
-    void getParameters(AnyMap& node, bool explicit_3rd=false) const;
+    void getParameters(AnyMap& node, bool explicit_3rd) const;
 
     //! Get the third-body efficiency for species *k*
     double efficiency(const std::string& k) const;

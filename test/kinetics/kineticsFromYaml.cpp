@@ -92,7 +92,7 @@ TEST(Reaction, ThreeBodyFromYaml2)
     const auto& rate = std::dynamic_pointer_cast<ArrheniusRate>(R->rate());
     EXPECT_DOUBLE_EQ(rate->preExponentialFactor(), 1.2e11);
 
-    AnyMap input = R->parameters();
+    AnyMap input = R->parameters(false);
     EXPECT_FALSE(input.hasKey("type"));
     EXPECT_TRUE(input.hasKey("efficiencies"));
 
@@ -134,7 +134,7 @@ TEST(Reaction, ThreeBodyFromYaml4)
     const auto& rate = std::dynamic_pointer_cast<ArrheniusRate>(R->rate());
     EXPECT_DOUBLE_EQ(rate->preExponentialFactor(), 5.0e+9);
 
-    AnyMap input = R->parameters();
+    AnyMap input = R->parameters(false);
     EXPECT_EQ(input.getString("type", ""), "three-body");
     EXPECT_FALSE(input.hasKey("efficiencies"));
     EXPECT_FALSE(input.hasKey("default-efficiency"));
@@ -168,7 +168,7 @@ TEST(Reaction, ThreeBodyFromYaml6)
     const auto& rate = std::dynamic_pointer_cast<ArrheniusRate>(R->rate());
     EXPECT_DOUBLE_EQ(rate->preExponentialFactor(), 5.0e+9);
 
-    AnyMap input = R->parameters();
+    AnyMap input = R->parameters(false);
     EXPECT_FALSE(input.hasKey("type"));
     EXPECT_TRUE(input.hasKey("efficiencies"));
     auto efficiencies = input["efficiencies"].asMap<double>();
@@ -196,7 +196,7 @@ TEST(Reaction, ThreeBodyFromYaml7)
     const auto& rate = std::dynamic_pointer_cast<ArrheniusRate>(R->rate());
     EXPECT_DOUBLE_EQ(rate->preExponentialFactor(), 5.0e+9);
 
-    AnyMap input = R->parameters();
+    AnyMap input = R->parameters(false);
     EXPECT_EQ(input.getString("type", ""), "three-body");
     EXPECT_TRUE(input.hasKey("efficiencies"));
     auto efficiencies = input["efficiencies"].asMap<double>();
@@ -454,7 +454,7 @@ TEST(Reaction, ThreeBodyBlowersMaselFromYaml)
     const auto& rate = std::dynamic_pointer_cast<BlowersMaselRate>(R->rate());
     EXPECT_DOUBLE_EQ(rate->preExponentialFactor(), 38.7);
 
-    AnyMap input = R->parameters();
+    AnyMap input = R->parameters(false);
     EXPECT_EQ(input.getString("type", ""), "three-body-Blowers-Masel");
 }
 
