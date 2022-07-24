@@ -32,8 +32,17 @@ public static class Application
     static Application()
     {
         _invokeMessageLoggedDelegate = (level, category, message) =>
-            MessageLogged
-                ?.Invoke(null, new LogMessageEventArgs(level, category, message));
+        {
+            try
+            {
+                MessageLogged
+                    ?.Invoke(null, new LogMessageEventArgs(level, category, message));
+            }
+            catch (Exception ex)
+            {
+                CallbackException.Register(ex);
+            }
+        };
 
         InteropUtil.CheckReturn(
             LibCantera.ct_setLogWriter(_invokeMessageLoggedDelegate));
@@ -50,7 +59,7 @@ public static class Application
     /// storing it as
     /// a class member, we ensure it is not collected until the class is.
     /// </remarks>
-    static LibCantera.Writer? _invokeMessageLoggedDelegate;
+    static readonly LibCantera.Writer? _invokeMessageLoggedDelegate;
 
     unsafe static readonly Lazy<string> _version =
         new(() => InteropUtil.GetString(10, LibCantera.ct_getCanteraVersion));

@@ -18,9 +18,9 @@ namespace Cantera.Interop;
 /// <remarks>
 abstract class CanteraHandle : SafeHandle
 {
-    static IntPtr Invalid = IntPtr.Size == 4
-        ? new IntPtr(-1)                           // 32-bit IntPtr: 0xFFFFFFFF
-        : new IntPtr((long) unchecked((uint) -1)); // 64-bit IntPtr: 0x00000000FFFFFFFF
+    static readonly IntPtr Invalid = IntPtr.Size == 4
+        ? new IntPtr(-1)                    // 32-bit IntPtr: 0xFFFFFFFF
+        : new IntPtr(unchecked((uint) -1)); // 64-bit IntPtr: 0x00000000FFFFFFFF
 
     public CanteraHandle() : base(Invalid, true) { }
 

@@ -42,6 +42,8 @@ static class InteropUtil
         // Cantera returns this value when the function resulted in error
         const double Error = -999.999;
 
+        CallbackException.ThrowIfAny();
+
         if (code == Error)
         {
             CanteraException.ThrowLatest();
@@ -53,6 +55,8 @@ static class InteropUtil
     public static nuint CheckReturn(nuint code)
     {
         var error = unchecked((nuint) (-1));
+
+        CallbackException.ThrowIfAny();
 
         if (code == error)
         {
@@ -72,6 +76,8 @@ static class InteropUtil
         // to fill a buffer with a string. There is no way to account for the ambiguity
         // that arises when such a function returns -999!
         const int Error999 = -999;
+
+        CallbackException.ThrowIfAny();
 
         if (code == Error1 || code == Error999)
         {
