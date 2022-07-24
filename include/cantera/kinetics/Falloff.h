@@ -195,7 +195,7 @@ public:
             "To be removed after Cantera 3.0; superseded by getFalloffCoeffs.");
     }
 
-    virtual void getParameters(AnyMap& node) const;
+    virtual void getParameters(AnyMap& node) const override;
 
     //! Evaluate reaction rate
     //! @param shared_data  data shared by all reactions of a given type
