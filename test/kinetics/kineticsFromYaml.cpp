@@ -145,25 +145,14 @@ TEST(Reaction, ThreeBodyFromYaml5)
     auto sol = newSolution("gri30.yaml", "", "None");
     AnyMap rxn = AnyMap::fromYamlString(
         "{equation: CH2 + O2 <=> CH2 + O2,"
-        " type: three-body,"
-        " rate-constant: {A: 5.0e+9, b: 0.0, Ea: 0.0}}");
-
-    EXPECT_THROW(newReaction(rxn, *(sol->kinetics())), CanteraError);
-}
-
-TEST(Reaction, ThreeBodyFromYaml6)
-{
-    auto sol = newSolution("gri30.yaml", "", "None");
-    AnyMap rxn = AnyMap::fromYamlString(
-        "{equation: CH2 + O2 <=> CH2 + O2,"
         " rate-constant: {A: 5.0e+9, b: 0.0, Ea: 0.0},"
-        " default-efficiency: 0.,"
         " efficiencies: {O2: 1.}}");
 
     auto R = newReaction(rxn, *(sol->kinetics()));
     EXPECT_EQ(R->type(), "three-body-Arrhenius");
     EXPECT_TRUE(R->usesThirdBody());
     EXPECT_EQ(R->thirdBody()->name(), "O2");
+    EXPECT_EQ(R->thirdBody()->default_efficiency, 0.);
 
     const auto& rate = std::dynamic_pointer_cast<ArrheniusRate>(R->rate());
     EXPECT_DOUBLE_EQ(rate->preExponentialFactor(), 5.0e+9);
@@ -174,11 +163,10 @@ TEST(Reaction, ThreeBodyFromYaml6)
     auto efficiencies = input["efficiencies"].asMap<double>();
     EXPECT_EQ(efficiencies.size(), 1);
     EXPECT_EQ(efficiencies.begin()->first, "O2");
-    EXPECT_TRUE(input.hasKey("default-efficiency"));
-    EXPECT_EQ(input["default-efficiency"].asDouble(), 0.);
+    EXPECT_FALSE(input.hasKey("default-efficiency"));
 }
 
-TEST(Reaction, ThreeBodyFromYaml7)
+TEST(Reaction, ThreeBodyFromYaml6)
 {
     auto sol = newSolution("gri30.yaml", "", "None");
     AnyMap rxn = AnyMap::fromYamlString(
@@ -192,6 +180,7 @@ TEST(Reaction, ThreeBodyFromYaml7)
     EXPECT_EQ(R->type(), "three-body-Arrhenius");
     EXPECT_TRUE(R->usesThirdBody());
     EXPECT_EQ(R->thirdBody()->name(), "O2");
+    EXPECT_EQ(R->thirdBody()->default_efficiency, 0.);
 
     const auto& rate = std::dynamic_pointer_cast<ArrheniusRate>(R->rate());
     EXPECT_DOUBLE_EQ(rate->preExponentialFactor(), 5.0e+9);
@@ -202,8 +191,7 @@ TEST(Reaction, ThreeBodyFromYaml7)
     auto efficiencies = input["efficiencies"].asMap<double>();
     EXPECT_EQ(efficiencies.size(), 1);
     EXPECT_EQ(efficiencies.begin()->first, "O2");
-    EXPECT_TRUE(input.hasKey("default-efficiency"));
-    EXPECT_EQ(input["default-efficiency"].asDouble(), 0.);
+    EXPECT_FALSE(input.hasKey("default-efficiency"));
 }
 
 TEST(Reaction, ThreeBodyFromYamlMissingM)
@@ -248,6 +236,40 @@ TEST(Reaction, ThreeBodyFromYamlIncompatible2)
         " rate-constant: {A: 5.0e+9, b: 0.0, Ea: 0.0},"
         " default-efficiency: 0.,"
         " efficiencies: {AR: 1.}}"); // incompatible single third body
+
+    EXPECT_THROW(newReaction(rxn, *(sol->kinetics())), CanteraError);
+}
+
+TEST(Reaction, ThreeBodyFromYamlIncompatible3)
+{
+    auto sol = newSolution("gri30.yaml", "", "None");
+    AnyMap rxn = AnyMap::fromYamlString(
+        "{equation: CH2 + O2 <=> CH2 + O2,"
+        " rate-constant: {A: 5.0e+9, b: 0.0, Ea: 0.0},"
+        " default-efficiency: 1.," // Needs to be zero
+        " efficiencies: {O2: 1.}}");
+
+    EXPECT_THROW(newReaction(rxn, *(sol->kinetics())), CanteraError);
+}
+
+TEST(Reaction, ThreeBodyFromYamlIncompatible4)
+{
+    auto sol = newSolution("gri30.yaml", "", "None");
+    AnyMap rxn = AnyMap::fromYamlString(
+        "{equation: CH2 + O2 <=> CH2 + O2,"
+        " rate-constant: {A: 5.0e+9, b: 0.0, Ea: 0.0},"
+        " default-efficiency: 0.}"); // missing efficiencies field
+
+    EXPECT_THROW(newReaction(rxn, *(sol->kinetics())), CanteraError);
+}
+
+TEST(Reaction, ThreeBodyFromYamlIncompatible5)
+{
+    auto sol = newSolution("gri30.yaml", "", "None");
+    AnyMap rxn = AnyMap::fromYamlString(
+        "{equation: CH2 + O2 <=> CH2 + O2,"
+        " type: three-body,"
+        " rate-constant: {A: 5.0e+9, b: 0.0, Ea: 0.0}}"); // third body ambiguous
 
     EXPECT_THROW(newReaction(rxn, *(sol->kinetics())), CanteraError);
 }
