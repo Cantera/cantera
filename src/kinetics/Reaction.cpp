@@ -38,7 +38,7 @@ Reaction::Reaction(const Composition& reactants_,
 {
     setRate(rate_);
 
-    // ensure safe serialization
+    // set flags ensuring correct serialization output
     bool count = 0;
     for (const auto& reac : reactants) {
         if (products.count(reac.first)) {

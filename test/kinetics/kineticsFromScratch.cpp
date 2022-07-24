@@ -157,7 +157,7 @@ TEST_F(KineticsFromScratch, multiple_third_bodies4)
     auto R = make_shared<Reaction>(equation, rate, tbody);
     EXPECT_EQ(R->thirdBody()->name(), "O2");
 
-    AnyMap input = R->parameters();
+    AnyMap input = R->parameters(false);
     EXPECT_FALSE(input.hasKey("type"));
     EXPECT_TRUE(input.hasKey("efficiencies"));
     auto efficiencies = input["efficiencies"].asMap<double>();
@@ -184,7 +184,7 @@ TEST_F(KineticsFromScratch, multiple_third_bodies6)
     auto R = make_shared<Reaction>(reac, prod, rate, tbody);
     EXPECT_EQ(R->thirdBody()->name(), "O2");
 
-    AnyMap input = R->parameters();
+    AnyMap input = R->parameters(false);
     EXPECT_FALSE(input.hasKey("type"));
     EXPECT_TRUE(input.hasKey("efficiencies"));
     auto efficiencies = input["efficiencies"].asMap<double>();
@@ -202,7 +202,7 @@ TEST_F(KineticsFromScratch, multiple_third_bodies7)
     auto R = make_shared<Reaction>(equation, rate, tbody);
     EXPECT_EQ(R->thirdBody()->name(), "M");
 
-    AnyMap input = R->parameters();
+    AnyMap input = R->parameters(false);
     EXPECT_FALSE(input.hasKey("type"));
     EXPECT_TRUE(input.hasKey("efficiencies"));
     auto efficiencies = input["efficiencies"].asMap<double>();
@@ -222,7 +222,7 @@ TEST_F(KineticsFromScratch, multiple_third_bodies8)
     auto R = make_shared<Reaction>(equation, rate, tbody);
     EXPECT_EQ(R->thirdBody()->name(), "M");
 
-    AnyMap input = R->parameters();
+    AnyMap input = R->parameters(false);
     EXPECT_FALSE(input.hasKey("type"));
     EXPECT_TRUE(input.hasKey("efficiencies"));
     auto efficiencies = input["efficiencies"].asMap<double>();
