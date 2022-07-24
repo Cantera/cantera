@@ -11,6 +11,8 @@ namespace Cantera.Tests;
 [Collection("Application")]
 public class ApplicationTest
 {
+    class FooException : Exception { }
+
     [Fact]
     public void CanteraInfo_VersionRetrieved()
     {
@@ -44,19 +46,28 @@ public class ApplicationTest
         LogLevel? logLevel = null;
         string? report = null;
 
-        Application.MessageLogged += (sender, e) =>
+        void LogMessage(object? sender, LogMessageEventArgs e)
         {
             logLevel = e.LogLevel;
             report = e.Message;
-        };
+        }
 
-        ProduceLogOutput();
+        try
+        {
+            Application.MessageLogged += LogMessage;
 
-        Assert.NotNull(logLevel);
-        Assert.NotNull(report);
+            ProduceLogOutput();
 
-        Assert.Equal(LogLevel.Info, logLevel);
-        Assert.NotEmpty(report);
+            Assert.NotNull(logLevel);
+            Assert.NotNull(report);
+
+            Assert.Equal(LogLevel.Info, logLevel);
+            Assert.NotEmpty(report);
+        }
+        finally
+        {
+            Application.MessageLogged -= LogMessage;
+        }
     }
 
     [Fact]
@@ -89,6 +100,28 @@ public class ApplicationTest
         {
             Application.RemoveConsoleLogging();
             Console.SetOut(stdOut);
+        }
+    }
+
+    [Fact]
+    public void LogWriter_ExceptionRegistered()
+    {
+        static void LogMessage(object? sender, LogMessageEventArgs e) =>
+            throw new FooException();
+
+        try
+        {
+            Application.MessageLogged += LogMessage;
+
+            var thrown =
+                Assert.Throws<CallbackException>(() => ProduceLogOutput());
+
+            Assert.NotNull(thrown.InnerException);
+            Assert.IsType<FooException>(thrown.InnerException);
+        }
+        finally
+        {
+            Application.MessageLogged -= LogMessage;
         }
     }
 
