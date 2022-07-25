@@ -6,7 +6,7 @@ import os
 import re
 import typing
 
-from .._helpers import normalize, get_preamble
+from .._helpers import normalize_indent, get_preamble
 from .._types import *
 from .._types import _unpack
 
@@ -26,7 +26,7 @@ class _CsFunc:
 
 
 class SourceGenerator(SourceGeneratorBase):
-    _prolog = normalize("""
+    _prolog = normalize_indent("""
         [DllImport(LibFile)]
         public static extern
     """)
@@ -65,7 +65,7 @@ class SourceGenerator(SourceGeneratorBase):
     def _get_base_handle_text(handle):
         name, del_clazz = handle
 
-        handle = normalize(f'''
+        handle = normalize_indent(f'''
             class {del_clazz} : CanteraHandle
             {{
                 protected override bool ReleaseHandle() =>
@@ -213,7 +213,7 @@ class SourceGenerator(SourceGeneratorBase):
         else:
             raise ValueError(f'Unable to scaffold properties of type {prop_type}!')
 
-        return(normalize(text))
+        return(normalize_indent(text))
 
 
     def generate_source(self, incl_file: os.DirEntry, funcs: list[Func]):
@@ -221,8 +221,8 @@ class SourceGenerator(SourceGeneratorBase):
 
         functions_text = '\n\n'.join((self._get_function_text(f) for f in cs_funcs))
 
-        interop_text = normalize(f'''
-            {normalize(self._preamble, 12)}
+        interop_text = normalize_indent(f'''
+            {normalize_indent(self._preamble)}
 
             using System.Runtime.InteropServices;
 
@@ -230,7 +230,7 @@ class SourceGenerator(SourceGeneratorBase):
 
             static partial class LibCantera
             {{
-                {normalize(functions_text, 16, True)}
+                {normalize_indent(functions_text)}
             }}
         ''')
 
@@ -245,12 +245,12 @@ class SourceGenerator(SourceGeneratorBase):
 
         handles_text = '\n\n'.join((self._get_base_handle_text(h) for h in handles))
 
-        handles_text = normalize(f'''
-            {normalize(self._preamble, 12)}
+        handles_text = normalize_indent(f'''
+            {normalize_indent(self._preamble)}
 
             namespace Cantera.Interop;
 
-            {normalize(handles_text, 12, True)}
+            {normalize_indent(handles_text)}
         ''')
 
         with open(self._out_dir + 'Interop.Handles.'
@@ -262,8 +262,8 @@ class SourceGenerator(SourceGeneratorBase):
         derived_handles = '\n\n'.join((self._get_derived_handle_text(d)
             for d in self._config['derived_handles'].items()))
 
-        derived_handles_text = normalize(f'''
-            {normalize(self._preamble, 12)}
+        derived_handles_text = normalize_indent(f'''
+            {normalize_indent(self._preamble)}
 
             namespace Cantera.Interop;
 
@@ -279,8 +279,8 @@ class SourceGenerator(SourceGeneratorBase):
             props_text = '\n\n'.join((self._get_property_text(clazz, c_name, cs_name)
                 for (c_name, cs_name) in props.items()))
 
-            clazz_text = normalize(f'''
-                {normalize(self._preamble, 16)}
+            clazz_text = normalize_indent(f'''
+                {normalize_indent(self._preamble)}
 
                 using Cantera.Interop;
 
@@ -290,7 +290,7 @@ class SourceGenerator(SourceGeneratorBase):
                 {{
                     readonly {name}Handle _handle;
 
-                    {normalize(props_text, 20, True)}
+                    {normalize_indent(props_text)}
 
                     public void Dispose() =>
                         _handle.Dispose();
