@@ -580,15 +580,35 @@ class TestFreeFlame(utilities.CanteraTest):
 
     def test_array_properties(self):
         self.create_sim(ct.one_atm, 300, 'H2:1.1, O2:1, AR:5')
+        grid_shape = self.sim.grid.shape
 
-        for attr in ct.FlameBase.__dict__:
-            if isinstance(ct.FlameBase.__dict__[attr], property):
-                if attr in ['u', 'V']:
-                    msg = "Replaced by property"
-                    with self.assertWarnsRegex(DeprecationWarning, msg):
-                        getattr(self.sim, attr)
-                else:
-                    getattr(self.sim, attr)
+        skip = {
+            # Skipped because they are constant, irrelevant, or otherwise not desired
+            "P", "Te", "atomic_weights", "charges", "electric_potential", "max_temp",
+            "min_temp", "molecular_weights", "product_stoich_coeffs",
+            "product_stoich_coeffs3", "product_stoich_coeffs_reversible",
+            "reactant_stoich_coeffs", "reactant_stoich_coeffs3", "reference_pressure",
+            "state", "u", "v",
+            # Skipped because they are 2D (conversion not implemented)
+            "binary_diff_coeffs", "creation_rates_ddX", "destruction_rates_ddX",
+            "forward_rates_of_progress_ddX", "net_production_rates_ddX",
+            "net_rates_of_progress_ddX", "reverse_rates_of_progress_ddX"
+        }
+
+        for attr in dir(self.gas):
+            if attr.startswith("_") or attr in skip:
+                continue
+
+            try:
+                soln_value = getattr(self.gas, attr)
+            except (ct.CanteraError, ct.ThermoModelMethodError):
+                continue
+
+            if not isinstance(soln_value, (float, np.ndarray)):
+                continue
+
+            flame_value = getattr(self.sim, attr)
+            assert flame_value.shape == np.asarray(soln_value).shape + grid_shape
 
     @utilities.slow_test
     def test_save_restore_add_species_yaml(self):
