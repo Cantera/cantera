@@ -711,7 +711,8 @@ for _attr in ['density', 'density_mass', 'density_mole', 'volume_mass',
               'entropy_mass', 'g', 'gibbs_mole', 'gibbs_mass', 'cv',
               'cv_mole', 'cv_mass', 'cp', 'cp_mole', 'cp_mass',
               'isothermal_compressibility', 'thermal_expansion_coeff',
-              'viscosity', 'thermal_conductivity', 'heat_release_rate']:
+              'viscosity', 'thermal_conductivity', 'heat_release_rate',
+              'mean_molecular_weight']:
     setattr(FlameBase, _attr, _array_property(_attr))
 FlameBase.volume = _array_property('v') # avoid confusion with velocity gradient 'V'
 FlameBase.int_energy = _array_property('u') # avoid collision with velocity 'u'
@@ -723,8 +724,13 @@ for _attr in ['X', 'Y', 'concentrations', 'partial_molar_enthalpies',
               'partial_molar_volumes', 'standard_enthalpies_RT',
               'standard_entropies_R', 'standard_int_energies_RT',
               'standard_gibbs_RT', 'standard_cp_R', 'creation_rates',
-              'destruction_rates', 'net_production_rates', 'mix_diff_coeffs',
-              'mix_diff_coeffs_mass', 'mix_diff_coeffs_mole', 'thermal_diff_coeffs']:
+              'destruction_rates', 'net_production_rates', 'creation_rates_ddC',
+              'creation_rates_ddP', 'creation_rates_ddT', 'destruction_rates_ddC',
+              'destruction_rates_ddP', 'destruction_rates_ddT',
+              'net_production_rates_ddC', 'net_production_rates_ddP',
+              'net_production_rates_ddT', 'mix_diff_coeffs', 'mix_diff_coeffs_mass',
+              'mix_diff_coeffs_mole', 'thermal_diff_coeffs', 'activities',
+              'activity_coefficients', 'mobilities', 'species_viscosities']:
     setattr(FlameBase, _attr, _array_property(_attr, 'n_species'))
 
 # Remove misleading examples and references to setters that don't exist
@@ -738,7 +744,14 @@ for _attr in ['forward_rates_of_progress', 'reverse_rates_of_progress', 'net_rat
               'equilibrium_constants', 'forward_rate_constants', 'reverse_rate_constants',
               'delta_enthalpy', 'delta_gibbs', 'delta_entropy',
               'delta_standard_enthalpy', 'delta_standard_gibbs',
-              'delta_standard_entropy', 'heat_production_rates']:
+              'delta_standard_entropy', 'heat_production_rates',
+              'third_body_concentrations', 'forward_rate_constants_ddC',
+              'forward_rate_constants_ddP', 'forward_rate_constants_ddT',
+              'forward_rates_of_progress_ddC', 'forward_rates_of_progress_ddP',
+              'forward_rates_of_progress_ddT', 'net_rates_of_progress_ddC',
+              'net_rates_of_progress_ddP', 'net_rates_of_progress_ddT',
+              'reverse_rates_of_progress_ddC', 'reverse_rates_of_progress_ddP',
+              'reverse_rates_of_progress_ddT']:
     setattr(FlameBase, _attr, _array_property(_attr, 'n_reactions'))
 
 
