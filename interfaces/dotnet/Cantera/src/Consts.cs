@@ -3,38 +3,63 @@
 
 namespace Cantera;
 
+/// <summary>
+/// Contains well known thermodynamic constants.
+/// </summary>
 public static class Consts
 {
-    //! Avogadro's Number \f$ N_{\mathrm{A}} \f$ [number/kmol]
+    /// <summary>
+    /// Avogadro's Number \f$ N_{\mathrm{A}} \f$ [number/kmol]
+    /// </summary>
     public const double Avogadro = 6.02214076e26;
 
-    //! Boltzmann constant \f$ k \f$ [J/K]
+    /// <summary>
+    /// Boltzmann constant \f$ k \f$ [J/K]
+    /// </summary>
     public const double Boltzmann = 1.380649e-23;
 
-    //! Planck constant \f$ h \f$ [J-s]
+    /// <summary>
+    /// Planck constant \f$ h \f$ [J-s]
+    /// </summary>
     public const double Planck = 6.62607015e-34;
 
-    //! Elementary charge \f$ e \f$ [C]
+    /// <summary>
+    /// Elementary charge \f$ e \f$ [C]
+    /// </summary>
     public const double ElectronCharge = 1.602176634e-19;
 
-    //! Speed of Light in a vacuum \f$ c \f$ [m/s]
+    /// <summary>
+    /// Speed of Light in a vacuum \f$ c \f$ [m/s]
+    /// </summary>
     public const double LightSpeed = 299792458.0;
 
-    //! Electron Mass \f$ m_e \f$ [kg]
+    /// <summary>
+    /// Electron Mass \f$ m_e \f$ [kg]
+    /// </summary>
     public const double ElectronMass = 9.1093837015e-31;
 
-    //! Universal Gas Constant \f$ R_u \f$ [J/kmol/K]
+    /// <summary>
+    /// Universal Gas Constant \f$ R_u \f$ [J/kmol/K]
+    /// </summary>
     public const double GasConstant = Avogadro * Boltzmann;
 
-    //! Faraday constant \f$ F \f$ [C/kmol]
+    /// <summary>
+    /// Faraday constant \f$ F \f$ [C/kmol]
+    /// </summary>
     public const double Faraday = ElectronCharge * Avogadro;
 
-    //! Stefan-Boltzmann constant \f$ \sigma \f$ [W/m2/K4]
+    /// <summary>
+    /// Stefan-Boltzmann constant \f$ \sigma \f$ [W/m2/K4]
+    /// </summary>
     public const double StefanBoltz = 5.670374419e-8;
 
-    //! One atmosphere [Pa]
+    /// <summary>
+    /// One atmosphere [Pa]
+    /// </summary>
     public const double OneAtm = 1.01325e5;
 
-    //! One bar [Pa]
+    /// <summary>
+    /// One bar [Pa]
+    /// </summary>
     public const double OneBar = 1.0E5;
 }

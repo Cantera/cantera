@@ -32,4 +32,10 @@ public class ExceptionTest
         Assert.NotNull(thrown.InnerException);
         Assert.IsType<FooException>(thrown.InnerException);
     }
+
+    [Fact]
+    public void CallbackException_NotThrown()
+    {
+        CallbackException.ThrowIfAny();
+    }
 }

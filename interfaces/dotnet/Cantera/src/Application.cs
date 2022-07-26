@@ -5,11 +5,16 @@ using Cantera.Interop;
 
 namespace Cantera;
 
+/// <summary>
+/// Contains infomration about a log message.
+/// </summary>
 public class LogMessageEventArgs
 {
+#pragma warning disable CS1591
     public LogLevel LogLevel { get; }
     public string Category { get; }
     public string Message { get; }
+#pragma warning restore CS1591
 
     internal LogMessageEventArgs(LogLevel logLevel, string category, string message)
     {
@@ -22,16 +27,16 @@ public class LogMessageEventArgs
 /// <summary>
 /// The primary API for accessing the Cantera library.
 /// </summary>
-/// </remarks>
+/// <remarks>
 /// All access to Cantera should funnel through this class.
 /// This ensures that any necessary initialization can be run in
 /// the static constructor.
-/// <remarks>
+/// </remarks>
 public static class Application
 {
     static Application()
     {
-        _invokeMessageLoggedDelegate = (level, category, message) =>
+        s_invokeMessageLoggedDelegate = (level, category, message) =>
         {
             try
             {
@@ -45,7 +50,7 @@ public static class Application
         };
 
         InteropUtil.CheckReturn(
-            LibCantera.ct_setLogWriter(_invokeMessageLoggedDelegate));
+            LibCantera.ct_setLogWriter(s_invokeMessageLoggedDelegate));
     }
 
     /// <summary>
@@ -59,27 +64,32 @@ public static class Application
     /// storing it as
     /// a class member, we ensure it is not collected until the class is.
     /// </remarks>
-    static readonly LibCantera.Writer? _invokeMessageLoggedDelegate;
+    static readonly LibCantera.Writer? s_invokeMessageLoggedDelegate;
 
-    unsafe static readonly Lazy<string> _version =
+    unsafe static readonly Lazy<string> s_version =
         new(() => InteropUtil.GetString(10, LibCantera.ct_getCanteraVersion));
 
-    unsafe static readonly Lazy<string> _gitCommit =
+    unsafe static readonly Lazy<string> s_gitCommit =
         new(() => InteropUtil.GetString(10, LibCantera.ct_getGitCommit));
 
-    unsafe static readonly Lazy<DataDirectoryCollection> _dataDirectories =
+    static readonly Lazy<DataDirectoryCollection> s_dataDirectories =
         new(() => new DataDirectoryCollection());
 
+    /// <summary>
+    /// Occurs when the Cantera native library attempts to log a message.
+    /// </summary>
     public static event EventHandler<LogMessageEventArgs>? MessageLogged;
 
+#pragma warning disable CS1591
     public static string Version =>
-        _version.Value;
+        s_version.Value;
 
     public static string GitCommit =>
-        _gitCommit.Value;
+        s_gitCommit.Value;
 
-    unsafe public static DataDirectoryCollection DataDirectories =>
-        _dataDirectories.Value;
+    public static DataDirectoryCollection DataDirectories =>
+        s_dataDirectories.Value;
+#pragma warning restore CS1591
 
     /// <summary>
     /// Convenience method to add logging to the console.
@@ -111,7 +121,12 @@ public static class Application
         }
     }
 
+    /// <summary>
+    /// Returns a new <see cref="ThermoPhase" /> object by loading and parsing the
+    /// given configuration file. Optionally chooses the phase to load by
+    /// looking up the given name.
+    /// </summary>
     public static ThermoPhase CreateThermoPhase(string filename,
-                                                string? phasename = null) =>
-        new ThermoPhase(filename, phasename);
+                                                string? phaseName = null) =>
+        new ThermoPhase(filename, phaseName);
 }
