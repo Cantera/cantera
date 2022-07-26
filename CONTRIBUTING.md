@@ -107,8 +107,8 @@
 * C# coding conventions should follow https://docs.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/coding-conventions
 * All identifiers should follow the naming conventions in the above document including
   * Prefixing with `_` for private instance fields (`_foo`, unlike C++)
-  * Prefixing with `s_` for private static fields (`s_bar`) and `t_` for private
-    thread-local fields (`t_baz`).
+  * Prefixing with `s_` for private static fields (`s_bar`), `t_` for private
+    `[ThreadStatic]` fields (`t_baz`).
   * Intial caps names for class methods (`DoSomething()`, unlike C++)
 * Give the opening brace of a statement block its own line (unlike C++), except empty
   blocks, which may be written as an `{ }` (for example, a constructor which calls
@@ -118,7 +118,10 @@
   either a statement block or a single statement (`if`, `for`, etc.)
 * Use file-scoped namespaces in each new file.
 * Do not take any extra Nuget dependencies in the `Cantera.csproj` project.
-* Use C# XML Doc-Comments on public members, including at least the `<summary>` tag.
+* Use C# XML Doc-Comments on types and members, including at least the `<summary>` tag.
+  Always include a doc comment for types, but for members with self-explanatory names,
+  you may omit the doc comment and suppress the build error that would be thrown with
+  `#pragma warning disable/restore CS1591`.
 * Do not expose any code requiring the `unsafe` keyword via a public API
   (pointers, the `fixed` statement, etc). Pointers are used for the high-preformance
   interop layer with the native Cantera library, but such access should have a

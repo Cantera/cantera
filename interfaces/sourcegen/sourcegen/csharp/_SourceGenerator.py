@@ -290,8 +290,16 @@ class SourceGenerator(SourceGeneratorBase):
                 {{
                     readonly {name}Handle _handle;
 
+                    #pragma warning disable CS1591
+
                     {normalize_indent(props_text)}
 
+                    #pragma warning restore CS1591
+
+                    /// <summary>
+                    /// Frees the underlying resources used by the
+                    /// native Cantera library for this instance.
+                    /// </summary>
                     public void Dispose() =>
                         _handle.Dispose();
                 }}

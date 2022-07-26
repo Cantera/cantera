@@ -5,6 +5,9 @@ using Cantera.Interop;
 
 namespace Cantera;
 
+/// <summary>
+/// Represents a thermodynamic phase.
+/// </summary>
 public partial class ThermoPhase
 {
     /// <summary>
@@ -17,11 +20,11 @@ public partial class ThermoPhase
     /// Using reflection and the fact the CLIB follows a naming convention for
     /// the functions that set the pairs of thermodynamic variables simultaneously
     /// </summary>
-    static readonly Lazy<Dictionary<ThermoPair, SetPairFunc>> PairSetters;
+    static readonly Lazy<Dictionary<ThermoPair, SetPairFunc>> s_pairSetters;
 
     static ThermoPhase()
     {
-        PairSetters = new(() =>
+        s_pairSetters = new(() =>
         {
             var methods = typeof(LibCantera).GetMethods();
 
@@ -43,6 +46,9 @@ public partial class ThermoPhase
 
     readonly Lazy<SpeciesCollection> _species;
 
+    /// <summary>
+    /// The collection of species that make up this phase.
+    /// </summary>
     public SpeciesCollection Species => _species.Value;
 
     internal ThermoPhase(string filename, string? phasename)
@@ -53,6 +59,11 @@ public partial class ThermoPhase
         _species = new(() => new SpeciesCollection(_handle));
     }
 
+    /// <summary>
+    /// Simulates bringing the phase to thermodynamic equilibrium by holding the
+    /// specified <see cref="ThermoPair" /> constant and using the algorithm
+    /// identified by the given <see cref="EquilibriumSolver" />.
+    /// </summary>
     public void Equilibrate(ThermoPair thermoPair,
                             EquilibriumSolver solver = EquilibriumSolver.Auto,
                             double tolerance = 1e-9, int maxSteps = 1000,
@@ -67,9 +78,12 @@ public partial class ThermoPhase
         InteropUtil.CheckReturn(retVal);
     }
 
+    /// <summary>
+    /// Sets the given pair of thermodynamic properties for this phase together.
+    /// </summary>
     public unsafe void SetPair(ThermoPair pair, double first, double second)
     {
-        if (!PairSetters.Value.TryGetValue(pair, out var setter))
+        if (!s_pairSetters.Value.TryGetValue(pair, out var setter))
         {
             throw new InvalidOperationException($"Cannot set thermo pair {pair}!");
         }

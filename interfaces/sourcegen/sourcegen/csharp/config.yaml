@@ -35,7 +35,7 @@ handle_crosswalk:
 derived_handles:
     SurfaceHandle: ThermoPhaseHandle
 
-# Provides info for scafolding higher-level idiomatic C# classes
+# Provides info for scaffolding higher-level idiomatic C# classes
 # At this stage, we can scaffold simple properties that follow the
 # naming conventions _prop, _setProp for scalars and
 # _getProp, _setProp for array-likes (string, double[]).
@@ -51,11 +51,11 @@ classes:
         pressure: Pressure
         temperature: Temperature
         enthalpy_mass: MassEnthalpy
-        enthalpy_mole: MoleEnthalpy
+        enthalpy_mole: MolarEnthalpy
         entropy_mass: MassEntropy
-        entropy_mole: MoleEntropy
-        cp_mole: MoleCp
-        cv_mole: MoleCv
+        entropy_mole: MolarEntropy
+        cp_mole: MolarCp
+        cv_mole: MolarCv
         cp_mass: MassCp
         cv_mass: MassCv
     # strings

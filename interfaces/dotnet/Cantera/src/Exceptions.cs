@@ -20,28 +20,43 @@ public class CanteraException : ExternalException
     }
 }
 
+/// <summary>
+/// Wraps one or more exceptions that are thrown when a callback written in
+/// managed code is invoked by the native Cantera library.
+/// </summary>
 public class CallbackException : AggregateException
 {
-    static readonly ThreadLocal<Stack<Exception>> _exceptions =
-        new(() => new Stack<Exception>());
+    // Cannot use an initializer because it only fires on the first thread.
+    [ThreadStatic]
+    static Stack<Exception>? t_exceptions;
 
     private CallbackException(string message, Exception[] innerExceptions)
         : base(message, innerExceptions) { }
 
-    internal static void Register(Exception ex) =>
-        _exceptions.Value!.Push(ex);
+    internal static void Register(Exception ex)
+    {
+        if (t_exceptions == null)
+        {
+            t_exceptions = new();
+        }
+
+        t_exceptions.Push(ex);
+    }
 
     internal static void ThrowIfAny()
     {
-        var exceptions = _exceptions.Value!;
-
-        if (!exceptions.Any())
+        if (t_exceptions == null)
         {
             return;
         }
 
-        var exceptionsToThrow = exceptions.ToArray();
-        exceptions.Clear();
+        var exceptionsToThrow = t_exceptions.ToArray();
+
+        // Typically I would prefer mark a field as readonly and not reset it,
+        // but in this case it’s ThreadStatic, and thus cannot be reliably
+        // eager-initialized. Plus, we’re in a hot path, so setting and comparing to
+        // null is the fastest thing to do.
+        t_exceptions = null;
 
         throw new CallbackException("An exception occurred while executing a callback",
             exceptionsToThrow);

@@ -9,6 +9,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <AssemblyName>CanteraDotNet</AssemblyName>
     <IsPackable>false</IsPackable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
     <LibDir>$([MSBuild]::NormalizePath($(MSBuildProjectDirectory)/../lib))</LibDir>
     <ContentDir>$([MSBuild]::NormalizePath($(MSBuildProjectDirectory)/../content))</ContentDir>
