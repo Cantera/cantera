@@ -1891,6 +1891,33 @@ class TestSolutionArray(utilities.CanteraTest):
             self.assertArrayNear(self.gas.reverse_rates_of_progress, ropr[i,j,k])
             self.assertArrayNear(self.gas.mix_diff_coeffs, Dkm[i,j,k])
 
+    def test_array_properties_exist(self):
+        grid_shape = (7, 3)
+        states = ct.SolutionArray(self.gas, grid_shape)
+
+        skip = {
+            # Skipped because they are complicated (conversion not implemented)
+            "forward_rates_of_progress_ddX", "net_rates_of_progress_ddX",
+            "reverse_rates_of_progress_ddX", "state"
+        }
+        skip.update(ct.SolutionArray._passthrough)
+
+        for attr in dir(self.gas):
+            if attr.startswith("_") or attr in skip:
+                continue
+
+            try:
+                soln_value = getattr(self.gas, attr)
+            except (ct.CanteraError, ct.ThermoModelMethodError):
+                continue
+
+            if not isinstance(soln_value, (float, np.ndarray)):
+                continue
+
+            assert hasattr(states, attr), attr
+            array_value = getattr(states, attr)
+            assert array_value.shape == grid_shape + np.asarray(soln_value).shape, attr
+
     def test_slicing_onedim(self):
         states = ct.SolutionArray(self.gas, 5)
         states.TPX = np.linspace(500, 1000, 5), 2e5, 'H2:0.5, O2:0.4'

@@ -463,7 +463,7 @@ class SolutionArray:
 
     _scalar = [
         # From ThermoPhase
-        'mean_molecular_weight', 'P', 'T', 'density', 'density_mass',
+        'mean_molecular_weight', 'P', 'T', 'Te', 'density', 'density_mass',
         'density_mole', 'v', 'volume_mass', 'volume_mole', 'u',
         'int_energy_mole', 'int_energy_mass', 'h', 'enthalpy_mole',
         'enthalpy_mass', 's', 'entropy_mole', 'entropy_mass', 'g', 'gibbs_mole',
@@ -484,18 +484,25 @@ class SolutionArray:
         'chemical_potentials', 'electrochemical_potentials', 'partial_molar_cp',
         'partial_molar_volumes', 'standard_enthalpies_RT',
         'standard_entropies_R', 'standard_int_energies_RT', 'standard_gibbs_RT',
-        'standard_cp_R',
+        'standard_cp_R', 'activities', 'activity_coefficients',
         # From Transport
         'mix_diff_coeffs', 'mix_diff_coeffs_mass', 'mix_diff_coeffs_mole',
-        'thermal_diff_coeffs'
+        'thermal_diff_coeffs', 'mobilities', 'species_viscosities',
     ]
 
     # From Kinetics (differs from Solution.n_species for Interface phases)
     _n_total_species = [
         'creation_rates', 'destruction_rates', 'net_production_rates',
+        'creation_rates_ddC', 'creation_rates_ddP', 'creation_rates_ddT',
+        'destruction_rates_ddC', 'destruction_rates_ddP', 'destruction_rates_ddT',
+        'net_production_rates_ddC', 'net_production_rates_ddP',
+        'net_production_rates_ddT'
     ]
 
-    _n_species2 = ['multi_diff_coeffs', 'binary_diff_coeffs']
+    _n_species2 = [
+        'multi_diff_coeffs', 'binary_diff_coeffs', 'creation_rates_ddX',
+        'destruction_rates_ddX', 'net_production_rates_ddX'
+    ]
 
     _n_reactions = [
         'forward_rates_of_progress', 'reverse_rates_of_progress',
@@ -504,6 +511,13 @@ class SolutionArray:
         'delta_enthalpy', 'delta_gibbs', 'delta_entropy',
         'delta_standard_enthalpy', 'delta_standard_gibbs',
         'delta_standard_entropy', 'heat_production_rates',
+        'forward_rate_constants_ddC', 'forward_rate_constants_ddP',
+        'forward_rate_constants_ddT', 'forward_rates_of_progress_ddC',
+        'forward_rates_of_progress_ddP', 'forward_rates_of_progress_ddT',
+        'net_rates_of_progress_ddC', 'net_rates_of_progress_ddP',
+        'net_rates_of_progress_ddT', 'reverse_rates_of_progress_ddC',
+        'reverse_rates_of_progress_ddP', 'reverse_rates_of_progress_ddP',
+        'reverse_rates_of_progress_ddT', 'third_body_concentrations',
     ]
     _call_scalar = ['elemental_mass_fraction', 'elemental_mole_fraction']
 
@@ -519,7 +533,8 @@ class SolutionArray:
         'kinetics_species_index', 'reaction', 'reactions', 'modify_reaction',
         'multiplier', 'set_multiplier', 'reaction_equations',
         'reactant_stoich_coeff', 'product_stoich_coeff',
-        'reactant_stoich_coeffs', 'product_stoich_coeffs',
+        'reactant_stoich_coeffs', 'product_stoich_coeffs', 'product_stoich_coeffs3',
+        'reactant_stoich_coeffs3', 'product_stoich_coeffs_reversible',
         # from Transport
         'transport_model',
     ]
