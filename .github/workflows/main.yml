@@ -89,12 +89,11 @@ jobs:
 
   macos-multiple-pythons:
     name: macOS with Python ${{ matrix.python-version }}
-    runs-on: ${{ matrix.os }}
+    runs-on: macos-11
     timeout-minutes: 90
     strategy:
       matrix:
         python-version: [ '3.7', '3.9', '3.10' ]
-        os: ['macos-11', 'macos-12']
       fail-fast: false
     steps:
     # Attempt to fix intermittent cloning errors. The error message says something like
