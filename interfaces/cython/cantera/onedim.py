@@ -1449,6 +1449,18 @@ class CounterflowDiffusionFlame(FlameBase):
             vals[i] = self.gas.mixture_fraction(Yf, Yo, 'mass', m)
         return vals
 
+    @property
+    def equivalence_ratio(self):
+        Yf = [self.solution(k, 0) for k in self.gas.species_names]
+        Yo = [self.solution(k, self.flame.n_points-1) for k in self.gas.species_names]
+
+        vals = np.empty(self.flame.n_points)
+        for i in range(self.flame.n_points):
+            self.set_gas_state(i)
+            vals[i] = self.gas.equivalence_ratio(Yf, Yo, "mass")
+        return vals
+
+
 class ImpingingJet(FlameBase):
     """An axisymmetric flow impinging on a surface at normal incidence."""
     __slots__ = ('inlet', 'flame', 'surface')
