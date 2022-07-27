@@ -105,6 +105,9 @@ std::string gitCommit();
 //! preprocessor macro is defined.
 bool debugModeEnabled();
 
+//! Returns true if Cantera was compiled with C++ HighFive HDF support.
+bool usesHighFive();
+
 /*!
  * @defgroup logs Diagnostic Output
  *

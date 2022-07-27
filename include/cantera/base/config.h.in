@@ -62,8 +62,11 @@ typedef int ftnlen;       // Fortran hidden string length type
 
 //-------------- Optional Cantera Capabilities ----------------------
 
-//    Enable Sundials to use an external BLAS/LAPACK library if it was
-//    built to use this option
+// Enable Sundials to use an external BLAS/LAPACK library if it was
+// built to use this option
 {CT_SUNDIALS_USE_LAPACK!s}
+
+// Enable export/import of HDF data via C++ HighFive
+{CT_USE_HIGHFIVE_HDF!s}
 
 #endif
