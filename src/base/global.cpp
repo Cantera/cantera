@@ -170,6 +170,15 @@ bool debugModeEnabled()
 #endif
 }
 
+bool usesHighFive()
+{
+#if CT_USE_HIGHFIVE_HDF
+    return true;
+#else
+    return false;
+#endif
+}
+
 std::vector<FactoryBase*> FactoryBase::s_vFactoryRegistry;
 
 std::string demangle(const std::type_info& type)

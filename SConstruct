@@ -1497,6 +1497,9 @@ else: # env['system_sundials'] == 'n'
     env['sundials_version'] = '5.3'
     env['has_sundials_lapack'] = int(env['use_lapack'])
 
+env["has_highfive"] = conf.CheckLibWithHeader(
+    "hdf5", "highfive/H5File.hpp", language="C++", autoadd=False)
+
 def set_fortran(pattern, value):
     # Set compiler / flags for all Fortran versions to be the same
     for version in ("FORTRAN", "F77", "F90", "F95", "F03", "F08"):
@@ -2029,6 +2032,7 @@ cdefine('CT_USE_SYSTEM_FMT', 'system_fmt')
 cdefine('CT_USE_SYSTEM_YAMLCPP', 'system_yamlcpp')
 cdefine('CT_USE_DEMANGLE', 'has_demangle')
 cdefine('CT_HAS_PYTHON', 'python_package', 'full')
+cdefine("CT_USE_HIGHFIVE_HDF", "has_highfive")
 
 config_h_build = env.Command('build/src/config.h.build',
                              'include/cantera/base/config.h.in',
@@ -2111,6 +2115,9 @@ else:
 # External libraries to link to
 env["external_libs"] = []
 env["external_libs"].extend(env["sundials_libs"])
+
+if env["has_highfive"]:
+    env["external_libs"].append("hdf5")
 
 if env["system_fmt"]:
     env["external_libs"].append("fmt")

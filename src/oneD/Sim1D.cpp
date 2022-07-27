@@ -159,6 +159,14 @@ void Sim1D::restore(const std::string& fname, const std::string& id,
     if (extension == "xml") {
         throw CanteraError("Sim1D::restore",
                            "Restoring from XML is no longer supported.");
+    } else if (extension == "h5" || extension == "hdf") {
+#if CT_USE_HIGHFIVE_HDF
+        throw CanteraError("Sim1D::restore",
+                           "Not yet implemented.");
+#else
+        throw CanteraError("Sim1D::restore",
+                           "Restoring from HDF requires HighFive installation.");
+#endif
     }
     AnyMap root = AnyMap::fromYamlFile(fname);
     if (!root.hasKey(id)) {
