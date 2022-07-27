@@ -1019,6 +1019,12 @@ class TestDiffusionFlame(utilities.CanteraTest):
         self.assertTrue(all(Z >= 0))
         self.assertTrue(all(Z <= 1.0))
 
+    def test_equivalence_ratio(self):
+        self.create_sim(p=ct.one_atm)
+        phi = self.sim.equivalence_ratio
+        assert phi[0] == np.inf
+        assert np.isclose(phi[-1], 0.0)
+
 class TestCounterflowPremixedFlame(utilities.CanteraTest):
     # Note: to re-create the reference file:
     # (1) set PYTHONPATH to build/python.
