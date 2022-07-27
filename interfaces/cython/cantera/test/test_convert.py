@@ -31,7 +31,7 @@ class ck2yamlTest(utilities.CanteraTest):
             output.unlink()
         ck2yaml.convert_mech(inputFile, thermo_file=thermo,
             transport_file=transport, surface_file=surface, out_name=output,
-            extra_file=extra, **kwargs)
+            extra_file=extra, quiet=True, **kwargs)
         return output
 
     def checkConversion(self, refFile, testFile):
