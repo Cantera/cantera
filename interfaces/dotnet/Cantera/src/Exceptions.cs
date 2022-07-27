@@ -1,6 +1,7 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Cantera.Interop;
 
@@ -43,6 +44,7 @@ public class CallbackException : AggregateException
         t_exceptions.Push(ex);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void ThrowIfAny()
     {
         if (t_exceptions == null)
@@ -50,15 +52,21 @@ public class CallbackException : AggregateException
             return;
         }
 
-        var exceptionsToThrow = t_exceptions.ToArray();
+        DoThrow();
 
-        // Typically I would prefer mark a field as readonly and not reset it,
-        // but in this case it’s ThreadStatic, and thus cannot be reliably
-        // eager-initialized. Plus, we’re in a hot path, so setting and comparing to
-        // null is the fastest thing to do.
-        t_exceptions = null;
+        // Seperate this bit out so the most likely case can be inlined.
+        static void DoThrow()
+        {
+            var exceptionsToThrow = t_exceptions!.ToArray();
 
-        throw new CallbackException("An exception occurred while executing a callback",
-            exceptionsToThrow);
+            // Typically I would prefer mark a field as readonly and not reset it,
+            // but in this case it’s ThreadStatic, and thus cannot be reliably
+            // eager-initialized. Plus, we’re in a hot path, so setting and comparing to
+            // null is the fastest thing to do.
+            t_exceptions = null;
+
+            throw new CallbackException("An exception occurred while executing a callback",
+                exceptionsToThrow);
+        }
     }
 }
