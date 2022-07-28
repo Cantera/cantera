@@ -33,7 +33,7 @@ cdef class AdaptivePreconditioner(PreconditionerBase):
         Update the threshold to a desired value as:
             >>> precon.threshold = 1e-8
 
-        Default is 1e-8.
+        Default is 0.0.
         """
         def __get__(self):
             return self.preconditioner.threshold()
