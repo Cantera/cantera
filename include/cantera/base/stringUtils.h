@@ -102,6 +102,20 @@ doublereal fpValueCheck(const std::string& val);
 void tokenizeString(const std::string& oval,
                     std::vector<std::string>& v);
 
+//! This function separates a string up into tokens according to the location of
+//! path separators.
+/*!
+ * White space includes the new line character. tokens are stripped of leading
+ * and trailing white space.
+ *
+ * The separate tokens are returned in a string vector, v.
+ *
+ * @param oval   String to be broken up
+ * @param v     Output vector of tokens.
+ */
+void tokenizePath(const std::string& oval,
+                  std::vector<std::string>& v);
+
 //! Copy the contents of a std::string into a char array of a given length
 /*!
  *  If *length* is less than the size of *source*, the string will be truncated
