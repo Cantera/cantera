@@ -401,7 +401,8 @@ jobs:
         # use boost-cpp rather than boost from conda-forge
         run: |
           conda install -q sundials=${{ matrix.sundials-ver }} scons numpy ruamel.yaml \
-          cython boost-cpp fmt eigen yaml-cpp h5py pandas libgomp openblas pytest
+          cython boost-cpp fmt eigen yaml-cpp h5py pandas libgomp openblas pytest \
+          highfive
       - name: Build Cantera
         run: |
           scons build system_fmt=y system_eigen=y system_yamlcpp=y system_sundials=y \
@@ -463,7 +464,7 @@ jobs:
       # use boost-cpp rather than boost from conda-forge
       # Install SCons >=4.4.0 to make sure that MSVC_TOOLSET_VERSION variable is present
       run: |
-        mamba install -q '"scons>=4.4.0"' numpy cython ruamel.yaml boost-cpp eigen yaml-cpp h5py pandas pytest
+        mamba install -q '"scons>=4.4.0"' numpy cython ruamel.yaml boost-cpp eigen yaml-cpp h5py pandas pytest highfive
       shell: pwsh
     - name: Build Cantera
       run: scons build system_eigen=y system_yamlcpp=y logging=debug
