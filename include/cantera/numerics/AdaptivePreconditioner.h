@@ -122,7 +122,7 @@ protected:
 
     //! Minimum value a non-diagonal element must be to be included in
     //! the preconditioner
-    double m_threshold = 1e-8;
+    double m_threshold = 0.0;
 
     //! Bool set whether to prune the matrix or not
     double m_prune_precon = true;
