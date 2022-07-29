@@ -23,7 +23,7 @@ using fmt::print;
 int flamespeed(double phi, bool refine_grid, int loglevel)
 {
     try {
-        auto sol = newSolution("gri30.yaml", "gri30", "None");
+        auto sol = newSolution("gri30.yaml", "gri30", "mixture-averaged");
         auto gas = sol->thermo();
         double temp = 300.0; // K
         double pressure = 1.0*OneAtm; //atm
@@ -50,10 +50,9 @@ int flamespeed(double phi, bool refine_grid, int loglevel)
 
         //=============  build each domain ========================
 
-
         //-------- step 1: create the flow -------------
 
-        StFlow flow(gas);
+        StFlow flow(sol);
         flow.setFreeFlow();
 
         // create an initial grid
@@ -67,14 +66,6 @@ int flamespeed(double phi, bool refine_grid, int loglevel)
 
         flow.setupGrid(nz, &z[0]);
 
-        // specify the objects to use to compute kinetic rates and
-        // transport properties
-
-        sol->setTransport("mixture-averaged");
-        flow.setTransport(*sol->transport());
-        flow.setKinetics(*sol->kinetics());
-        flow.setPressure(pressure);
-
         //------- step 2: create the inlet  -----------------------
 
         Inlet1D inlet;
@@ -83,7 +74,6 @@ int flamespeed(double phi, bool refine_grid, int loglevel)
         double mdot=uin*rho_in;
         inlet.setMdot(mdot);
         inlet.setTemperature(temp);
-
 
         //------- step 3: create the outlet  ---------------------
 
@@ -138,8 +128,7 @@ int flamespeed(double phi, bool refine_grid, int loglevel)
               flameSpeed_mix);
 
         // now switch to multicomponent transport
-        sol->setTransport("multicomponent");
-        flow.setTransport(*sol->transport());
+        flow.setTransportModel("multicomponent");
         flame.solve(loglevel, refine_grid);
         double flameSpeed_multi = flame.value(flowdomain,
                                               flow.componentIndex("velocity"),0);
