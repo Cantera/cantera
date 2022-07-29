@@ -207,7 +207,7 @@ static vector<isotopeWeightData> isotopeWeightTable {
 // This is implemented as a separate function from elementSymbols() because this pattern
 // allows elementSymbols() to return a const reference to the data.
 vector<string> elementVectorsFromSymbols() {
-	vector<string> values;
+    vector<string> values;
     for (const auto& atom : atomicWeightTable) {
         values.push_back(atom.symbol);
     }
@@ -279,7 +279,7 @@ double getElementWeight(const std::string& ename)
 
 double getElementWeight(int atomicNumber)
 {
-    size_t num = numElementsDefined();
+    int num = numElementsDefined();
     if (atomicNumber > num || atomicNumber < 1) {
         throw IndexError("getElementWeight", "atomicWeightTable", atomicNumber, num);
     }
@@ -309,10 +309,9 @@ string getElementSymbol(const std::string& ename)
 
 string getElementSymbol(int atomicNumber)
 {
-    size_t num = numElementsDefined();
+    int num = numElementsDefined();
     if (atomicNumber > num || atomicNumber < 1) {
-        throw IndexError("getElementSymbol", "atomicWeightTable", atomicNumber,
-                         num);
+        throw IndexError("getElementSymbol", "atomicWeightTable", atomicNumber, num);
     }
     return atomicWeightTable[atomicNumber - 1].symbol;
 }
@@ -335,10 +334,9 @@ string getElementName(const std::string& ename)
 
 string getElementName(int atomicNumber)
 {
-    size_t num = numElementsDefined();
+    int num = numElementsDefined();
     if (atomicNumber > num || atomicNumber < 1) {
-        throw IndexError("getElementName", "atomicWeightTable", atomicNumber,
-                         num);
+        throw IndexError("getElementName", "atomicWeightTable", atomicNumber, num);
     }
     return atomicWeightTable[atomicNumber - 1].fullName;
 }
@@ -349,14 +347,14 @@ int getAtomicNumber(const std::string& ename)
     size_t numIsotopes = numIsotopesDefined();
     string symbol = trimCopy(ename);
     string name = toLowerCopy(symbol);
-    for (int i = 0; i < numElements; i++) {
+    for (size_t i = 0; i < numElements; i++) {
         if (symbol == atomicWeightTable[i].symbol) {
-            return i+1;
+            return i + 1;
         } else if (name == atomicWeightTable[i].fullName) {
-            return i+1;
+            return i + 1;
         }
     }
-    for (int i = 0; i < numIsotopes; i++) {
+    for (size_t i = 0; i < numIsotopes; i++) {
         if (symbol == isotopeWeightTable[i].symbol) {
             return isotopeWeightTable[i].atomicNumber;
         } else if (name == isotopeWeightTable[i].fullName) {
