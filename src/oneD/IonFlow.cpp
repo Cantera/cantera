@@ -10,13 +10,14 @@
 #include "cantera/numerics/funcs.h"
 #include "cantera/numerics/polyfit.h"
 #include "cantera/base/utilities.h"
+#include "cantera/base/global.h"
 
 using namespace std;
 
 namespace Cantera
 {
 
-IonFlow::IonFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
+IonFlow::IonFlow(ThermoPhase* ph, size_t nsp, size_t points) :
     StFlow(ph, nsp, points),
     m_import_electron_transport(false),
     m_stage(1),
@@ -55,6 +56,23 @@ IonFlow::IonFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     m_refiner->setActive(c_offset_E, false);
     m_mobility.resize(m_nsp*m_points);
     m_do_electric_field.resize(m_points,false);
+}
+
+IonFlow::IonFlow(shared_ptr<Solution> sol, size_t nsp, size_t points) :
+    IonFlow(sol->thermo().get(), nsp, points)
+{
+    m_sol = sol;
+    m_kin = m_sol->kinetics().get();
+    m_trans_shared = m_sol->transport();
+    m_trans = m_trans_shared.get();
+    if (m_trans->transportType() == "None") {
+        // @deprecated
+        warn_deprecated("IonFlow",
+            "An appropriate transport model\nshould be set when instantiating the "
+            "Solution ('gas') object.\nImplicit setting of the transport model "
+            "is deprecated and\nwill be removed after Cantera 3.0.");
+        setTransportModel("Ion");
+    }
 }
 
 void IonFlow::resize(size_t components, size_t points){

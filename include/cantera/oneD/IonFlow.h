@@ -31,7 +31,10 @@ namespace Cantera
 class IonFlow : public StFlow
 {
 public:
-    IonFlow(IdealGasPhase* ph = 0, size_t nsp = 1, size_t points = 1);
+    IonFlow(ThermoPhase* ph = 0, size_t nsp = 1, size_t points = 1);
+
+    IonFlow(shared_ptr<Solution> sol, size_t nsp = 1, size_t points = 1);
+
     //! set the solving stage
     virtual void setSolvingStage(const size_t phase);
 

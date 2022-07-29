@@ -8,6 +8,7 @@
 
 #include "Domain1D.h"
 #include "cantera/base/Array.h"
+#include "cantera/base/Solution.h"
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/kinetics/Kinetics.h"
 
@@ -52,6 +53,8 @@ public:
         StFlow(th.get(), nsp, points) {
     }
 
+    StFlow(shared_ptr<Solution> sol, size_t nsp = 1, size_t points = 1);
+
     //! @name Problem Specification
     //! @{
 
@@ -80,8 +83,16 @@ public:
         m_kin = &kin;
     }
 
-    //! set the transport manager
+    //! Set the transport manager directly
     void setTransport(Transport& trans);
+
+    //! Set the transport model
+    //! @since  New in Cantera 3.0.
+    void setTransportModel(const std::string& trans);
+
+    //! Retrieve transport model
+    //! @since  New in Cantera 3.0.
+    std::string transportModel() const;
 
     //! Enable thermal diffusion, also known as Soret diffusion.
     //! Requires that multicomponent transport properties be
@@ -426,6 +437,9 @@ protected:
     IdealGasPhase* m_thermo;
     Kinetics* m_kin;
     Transport* m_trans;
+
+    // keep smart pointer to prevent garbage collection when transport model changes
+    std::shared_ptr<Transport> m_trans_shared;
 
     // boundary emissivities for the radiation calculations
     doublereal m_epsilon_left;
