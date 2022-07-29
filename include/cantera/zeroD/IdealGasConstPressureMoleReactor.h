@@ -43,7 +43,7 @@ public:
 protected:
     vector_fp m_hk; //!< Species molar enthalpies
 
-    const int m_sidx = 1;
+    const size_t m_sidx = 1;
 };
 
 }
