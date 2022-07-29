@@ -1113,6 +1113,10 @@ class TestInterfacePhase(utilities.CanteraTest):
         self.assertNear(C[4], 0.25)
         self.assertNear(sum(C), 1.0)
 
+    def test_mole_fractions(self):
+        self.interface.X = 'c6HM:0.3, c6H*:0.7'
+        self.assertNear(sum(self.interface.concentrations), self.interface.site_density)
+
     def test_coverages_string(self):
         self.interface.coverages = 'c6HM:0.2, c6H*:0.8'
         C = self.interface.coverages

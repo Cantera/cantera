@@ -357,8 +357,12 @@ public:
             duplicate->setState_TPX(T, P, X);
         }
 
-        EXPECT_NEAR(original->density(), duplicate->density(),
-                    rtol * original->density());
+        double rhoOrig = original->density();
+        double rhoDup = duplicate->density();
+        if (rhoOrig != rhoDup) {
+            EXPECT_NEAR(original->density(), duplicate->density(),
+                        rtol * original->density());
+        }
         if (!skip_cp) {
             EXPECT_NEAR(original->cp_mass(), duplicate->cp_mass(),
                         rtol * original->cp_mass());

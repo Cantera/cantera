@@ -311,7 +311,7 @@ public:
         throw NotImplementedError("LatticeSolidPhase::getConcentrations");
     }
 
-    virtual doublereal concentration(int k) const {
+    virtual doublereal concentration(size_t k) const {
         throw NotImplementedError("LatticeSolidPhase::concentration");
     }
 

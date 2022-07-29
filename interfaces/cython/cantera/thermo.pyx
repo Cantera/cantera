@@ -691,7 +691,10 @@ cdef class ThermoPhase(_SolutionBase):
                 self._setArray1(thermo_setMoleFractions, X)
 
     property concentrations:
-        """Get/Set the species concentrations [kmol/m^3]."""
+        """
+        Get/Set the species concentrations. Units are kmol/m^3 for bulk phases, kmol/m^2
+        for surface phases, and kmol/m for edge phases.
+        """
         def __get__(self):
             return self._getArray1(thermo_getConcentrations)
         def __set__(self, C):
