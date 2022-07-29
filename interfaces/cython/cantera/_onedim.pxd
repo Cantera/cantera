@@ -73,10 +73,10 @@ cdef extern from "cantera/oneD/Boundary1D.h":
 
 cdef extern from "cantera/oneD/StFlow.h":
     cdef cppclass CxxStFlow "Cantera::StFlow":
-        CxxStFlow(CxxIdealGasPhase*, int, int)
-        void setKinetics(CxxKinetics&) except +translate_exception
-        void setTransport(CxxTransport&, cbool) except +translate_exception
+        CxxStFlow(shared_ptr[CxxSolution], int, int) except +translate_exception
+        void setTransportModel(const string&) except +translate_exception
         void setTransport(CxxTransport&) except +translate_exception
+        string transportModel()
         void setPressure(double)
         void enableRadiation(cbool)
         cbool radiationEnabled()
@@ -98,7 +98,7 @@ cdef extern from "cantera/oneD/StFlow.h":
 
 cdef extern from "cantera/oneD/IonFlow.h":
     cdef cppclass CxxIonFlow "Cantera::IonFlow":
-        CxxIonFlow(CxxIdealGasPhase*, int, int)
+        CxxIonFlow(shared_ptr[CxxSolution], int, int) except +translate_exception
         void setSolvingStage(int)
         void solveElectricField()
         void fixElectricField()
@@ -212,5 +212,3 @@ cdef class Sim1D:
     cdef public Func1 _interrupt
     cdef public Func1 _time_step_callback
     cdef public Func1 _steady_callback
-
-cdef CxxIdealGasPhase* getIdealGasPhase(ThermoPhase phase) except *

@@ -450,14 +450,6 @@ cdef class _FlowBase(Domain1D):
     def __init__(self, *args, **kwargs):
         self.domain = <CxxDomain1D*>(self.flow)
         super().__init__(*args, **kwargs)
-        if self.gas.transport_model == "None":
-            warnings.warn(
-                "An appropriate transport model\nshould be set when instantiating the "
-                "Solution ('gas') object.\nImplicit setting of the transport model "
-                "may be deprecated in the future.", FutureWarning)
-            self.gas.transport_model = "Mix"
-        self.flow.setKinetics(deref(self.gas.kinetics))
-        self.flow.setTransport(deref(self.gas.transport))
         self.P = self.gas.P
         self.flow.solveEnergyEqn()
 
@@ -468,10 +460,29 @@ cdef class _FlowBase(Domain1D):
         def __set__(self, P):
             self.flow.setPressure(P)
 
+    property transport_model:
+        """
+        Get/set the transport model used for calculating transport properties.
+
+        .. versionadded:: 3.0
+        """
+        def __get__(self):
+            return pystr(self.flow.transportModel())
+        def __set__(self, model):
+            self.flow.setTransportModel(stringify(model))
+            # ensure that transport remains accessible
+            self.gas.transport = self.gas.base.transport().get()
+
     def set_transport(self, _SolutionBase phase):
         """
         Set the `Solution` object used for calculating transport properties.
+
+        .. deprecated:: 3.0
+
+            Method to be removed after Cantera 3.0. Replaceable by `transport_model`
         """
+        warnings.warn("Method to be removed after Cantera 3.0; use property "
+                    "'transport_model' instead.", DeprecationWarning)
         self._weakref_proxy = _WeakrefProxy()
         self.gas._references[self._weakref_proxy] = True
         self.gas = phase
@@ -629,12 +640,6 @@ cdef class _FlowBase(Domain1D):
             return pystr(self.flow.flowType())
 
 
-cdef CxxIdealGasPhase* getIdealGasPhase(ThermoPhase phase) except *:
-    if pystr(phase.thermo.type()) != "IdealGas":
-        raise TypeError('ThermoPhase object is not an IdealGasPhase')
-    return <CxxIdealGasPhase*>(phase.thermo)
-
-
 cdef class IdealGasFlow(_FlowBase):
     """
     An ideal gas flow domain. Functions `set_free_flow` and
@@ -665,9 +670,8 @@ cdef class IdealGasFlow(_FlowBase):
     equations assume an ideal gas mixture.  Arbitrary chemistry is allowed, as
     well as arbitrary variation of the transport properties.
     """
-    def __cinit__(self, _SolutionBase thermo, *args, **kwargs):
-        gas = getIdealGasPhase(thermo)
-        self.flow = new CxxStFlow(gas, thermo.n_species, 2)
+    def __cinit__(self, _SolutionBase phase, *args, **kwargs):
+        self.flow = new CxxStFlow(phase._base, phase.n_species, 2)
 
 
 cdef class IonFlow(_FlowBase):
@@ -677,8 +681,7 @@ cdef class IonFlow(_FlowBase):
     In an ion flow domain, the electric drift is added to the diffusion flux
     """
     def __cinit__(self, _SolutionBase thermo, *args, **kwargs):
-        gas = getIdealGasPhase(thermo)
-        self.flow = <CxxStFlow*>(new CxxIonFlow(gas, thermo.n_species, 2))
+        self.flow = <CxxStFlow*>(new CxxIonFlow(thermo._base, thermo.n_species, 2))
 
     def set_solving_stage(self, stage):
         """
@@ -1152,10 +1155,9 @@ cdef class Sim1D:
             return
 
         def set_transport(multi):
-            self.gas.transport_model = multi
             for dom in self.domains:
                 if isinstance(dom, _FlowBase):
-                    dom.set_transport(self.gas)
+                    dom.transport_model = multi
 
         # Do initial solution steps with default tolerances
         have_user_tolerances = any(dom.have_user_tolerances for dom in self.domains)
@@ -1187,8 +1189,8 @@ cdef class Sim1D:
         set_soret(False)
 
         # Do initial solution steps without multicomponent transport
-        transport = self.gas.transport_model
-        solve_multi = self.gas.transport_model == 'Multi'
+        transport = self.transport_model
+        solve_multi = self.transport_model == 'Multi'
         if solve_multi:
             set_transport('Mix')
 
