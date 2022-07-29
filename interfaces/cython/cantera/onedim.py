@@ -212,12 +212,11 @@ class FlameBase(Sim1D):
         Get/Set the transport model used by the `Solution` object used for this
         simulation.
         """
-        return self.gas.transport_model
+        return self.flame.transport_model
 
     @transport_model.setter
     def transport_model(self, model):
-        self.gas.transport_model = model
-        self.flame.set_transport(self.gas)
+        self.flame.transport_model = model
 
     @property
     def energy_enabled(self):
