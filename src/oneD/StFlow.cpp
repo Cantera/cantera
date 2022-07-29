@@ -103,6 +103,11 @@ StFlow::StFlow(ThermoPhase* ph, size_t nsp, size_t points) :
     m_kRadiating[1] = m_thermo->speciesIndex("H2O");
 }
 
+void StFlow::setThermo(IdealGasPhase& th) {
+    warn_deprecated("StFlow::setThermo", "To be removed after Cantera 3.0.");
+    m_thermo = &th;
+}
+
 void StFlow::resize(size_t ncomponents, size_t points)
 {
     Domain1D::resize(ncomponents, points);

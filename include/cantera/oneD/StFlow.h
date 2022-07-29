@@ -59,10 +59,10 @@ public:
 
     virtual void resetBadValues(double* xg);
 
-
     ThermoPhase& phase() {
         return *m_thermo;
     }
+
     Kinetics& kinetics() {
         return *m_kin;
     }
@@ -70,10 +70,10 @@ public:
     /**
      * Set the thermo manager. Note that the flow equations assume
      * the ideal gas equation.
+     *
+     * @deprecated  To be removed after Cantera 3.0 (unused)
      */
-    void setThermo(IdealGasPhase& th) {
-        m_thermo = &th;
-    }
+    void setThermo(IdealGasPhase& th);
 
     //! Set the kinetics manager. The kinetics manager must
     void setKinetics(Kinetics& kin) {
