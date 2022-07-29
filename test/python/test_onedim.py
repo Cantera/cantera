@@ -15,8 +15,8 @@ class TestOnedim(utilities.CanteraTest):
 
     def test_badInstantiate(self):
         solid = ct.Solution("diamond.yaml", "diamond")
-        with self.assertRaises(TypeError):
-            flame = ct.IdealGasFlow(solid)
+        with pytest.raises(ct.CanteraError, match="Unsupported phase type"):
+            ct.IdealGasFlow(solid)
 
     def test_instantiateSurface(self):
         gas = ct.Solution("diamond.yaml", "gas")
