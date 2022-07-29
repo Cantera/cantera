@@ -189,8 +189,8 @@ public:
      *
      * @param k Optional parameter indicating the species. The default
      *          is to assume this refers to species 0.
-     * @return
-     *   Returns the standard Concentration in units of m3 kmol-1.
+     * @return the standard concentration in units of kmol/m^2 for surface phases or
+     *     kmol/m for edge phases.
      */
     virtual doublereal standardConcentration(size_t k = 0) const;
     virtual doublereal logStandardConc(size_t k=0) const;
@@ -199,6 +199,20 @@ public:
     virtual void getParameters(AnyMap& phaseNode) const;
 
     virtual bool addSpecies(shared_ptr<Species> spec);
+
+    //! Since interface phases have no volume, this returns 0.0.
+    virtual double molarVolume() const {
+        return 0.0;
+    }
+
+    //! Since interface phases have no volume, setting this to a value other than 0.0
+    //! raises an exception.
+    virtual void setMolarDensity(const double vm) {
+        if (vm != 0.0) {
+            throw CanteraError("SurfPhase::setMolarDensity",
+                               "The volume of an interface is zero");
+        }
+    }
 
     //! Returns the site density
     /*!
@@ -296,6 +310,8 @@ public:
     virtual void setState(const AnyMap& state);
 
 protected:
+    virtual void compositionChanged();
+
     //! Surface site density (kmol m-2)
     doublereal m_n0;
 

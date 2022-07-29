@@ -271,7 +271,6 @@ ideal-surface:
     phase: Pt-surf
     atol_v: 1e-7
     known-failures:
-      h_eq_u_plus_Pv: "Definition of volume is unclear. See GitHub Issue #1312"
       gk_eq_hk_minus_T_sk:
         "Implementation of s_k is incorrect. See GitHub Issue #1313"
       s_eq_sum_sk_Xk:
@@ -292,7 +291,6 @@ ideal-edge:
     phase: TPB
     atol_v: 1e3  # site density of 5e-18 kmol/m = linear molar volume of 2e17 m/kmol
     known-failures:
-      h_eq_u_plus_Pv: "Definition of volume is unclear. See GitHub Issue #1312"
       dSdv_const_T_eq_dPdT_const_V:
         "Compressibility of phase leads to inconsistent results. See GitHub Issue #1312"
   states:

@@ -65,6 +65,12 @@ class Species;
  * An example of this is the function
  * Phase::setState_TRY(double t, double dens, const double* y).
  *
+ * For bulk (3-dimensional) phases, the mass density has units of kg/m^3, and the molar
+ * density and concentrations have units of kmol/m^3, and the units listed in the
+ * methods of the Phase class assume a bulk phase. However, for surface (2-dimensional)
+ * phases have units of kg/m^2 and kmol/m^2, respectively. And for edge (1-dimensional)
+ * phases, these units kg/m and kmol/m.
+ *
  * Class Phase contains methods for saving and restoring the full internal state
  * of a given phase. These are saveState() and restoreState(). These functions
  * operate on a state vector, which by default uses the first two entries for
@@ -532,7 +538,7 @@ public:
      *                  kmol/m^3. The length of the vector must be greater than
      *                  or equal to the number of species within the phase.
      */
-    void getConcentrations(double* const c) const;
+    virtual void getConcentrations(double* const c) const;
 
     //! Concentration of species k.
     //! If k is outside the valid range, an exception will be thrown.
@@ -541,7 +547,7 @@ public:
      *
      *    @returns the concentration of species k (kmol m-3).
      */
-    double concentration(const size_t k) const;
+    virtual double concentration(const size_t k) const;
 
     //! Set the concentrations to the specified values within the phase.
     //! We set the concentrations here and therefore we set the overall density
@@ -664,11 +670,11 @@ public:
 
     //! Molar density (kmol/m^3).
     //!     @return The molar density of the phase
-    double molarDensity() const;
+    virtual double molarDensity() const;
 
     //! Molar volume (m^3/kmol).
     //!     @return The molar volume of the phase
-    double molarVolume() const;
+    virtual double molarVolume() const;
 
     //! Set the internally stored density (kg/m^3) of the phase.
     //! Note the density of a phase is an independent variable.

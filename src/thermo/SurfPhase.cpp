@@ -159,9 +159,8 @@ void SurfPhase::getCp_R(doublereal* cpr) const
 
 void SurfPhase::getStandardVolumes(doublereal* vol) const
 {
-    _updateThermo();
     for (size_t k = 0; k < m_kk; k++) {
-        vol[k] = 1.0/standardConcentration(k);
+        vol[k] = 0.0;
     }
 }
 
@@ -211,6 +210,7 @@ void SurfPhase::setSiteDensity(doublereal n0)
                            "Site density must be positive. Got {}", n0);
     }
     m_n0 = n0;
+    assignDensity(n0 * meanMolecularWeight());
     m_logn0 = log(m_n0);
 }
 
@@ -279,6 +279,12 @@ void SurfPhase::setState(const AnyMap& state) {
         }
     }
     ThermoPhase::setState(state);
+}
+
+void SurfPhase::compositionChanged()
+{
+    ThermoPhase::compositionChanged();
+    assignDensity(m_n0 * meanMolecularWeight());
 }
 
 void SurfPhase::_updateThermo(bool force) const

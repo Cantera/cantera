@@ -94,6 +94,8 @@ class CanteraTest(unittest.TestCase):
             self.fail(f"Value '{value}' is a number")
 
     def assertNear(self, a, b, rtol=1e-8, atol=1e-12, msg=None):
+        if a == b:
+            return  # handles case where a == b == inf
         cmp = 2 * abs(a - b)/(abs(a) + abs(b) + 2 * atol / rtol)
         if not cmp < rtol:
             message = ('AssertNear: %.14g - %.14g = %.14g\n' % (a, b, a-b) +

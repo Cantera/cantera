@@ -10,15 +10,6 @@
 using namespace std;
 using namespace Cantera;
 
-void printDbl(double val)
-{
-    if (fabs(val) < 5.0E-17) {
-        cout << " nil";
-    } else {
-        cout << val;
-    }
-}
-
 int main(int argc, char** argv)
 {
 #if defined(_MSC_VER) && _MSC_VER < 1900
@@ -96,15 +87,11 @@ int main(int argc, char** argv)
                 int itp = k - 5;
                 naH = diamond100->nAtoms(itp, 0);
             }
-            cout << k << "  " << naH << "  " ;
-            printDbl(src[k]);
-            cout << endl;
+            writelog("{} {} {}\n", k, naH, src[k]);
             sum += naH * src[k];
         }
 
-        cout << "sum = ";
-        printDbl(sum);
-        cout << endl;
+        writelog("sum = {}\n", sum);
         double mwd = diamond->molecularWeight(0);
         double dens = diamond->density();
         double gr = src[4] * mwd / dens;
