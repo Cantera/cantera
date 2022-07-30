@@ -55,6 +55,9 @@ StFlow::StFlow(ThermoPhase* ph, size_t nsp, size_t points) :
     // make a local copy of the species molecular weight vector
     m_wt = m_thermo->molecularWeights();
 
+    // set pressure based on associated thermo object
+    setPressure(m_thermo->pressure());
+
     // the species mass fractions are the last components in the solution
     // vector, so the total number of components is the number of species
     // plus the offset of the first mass fraction.
