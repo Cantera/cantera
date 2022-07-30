@@ -180,11 +180,11 @@ void StFlow::resetBadValues(double* xg)
 void StFlow::setTransportModel(const std::string& trans)
 {
     if (!m_sol) {
-        throw CanteraError("StFlow::setTransport",
+        throw CanteraError("StFlow::setTransportModel",
             "Unable to set Transport manager by name as object was not initialized\n"
             "from a Solution manager: set Transport object directly instead.");
     }
-    m_sol->setTransport(trans);
+    m_sol->setTransportModel(trans);
     m_trans_shared = m_sol->transport();
     m_trans = m_trans_shared.get();
     setTransport(*m_trans);

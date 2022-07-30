@@ -48,7 +48,7 @@ cdef class _SolutionBase:
         cxx_soln.get().setSource(stringify("none"))
         cxx_soln.get().setThermo(newThermo(stringify("none")))
         cxx_soln.get().setKinetics(newKinetics(stringify("none")))
-        cxx_soln.get().setTransport(stringify("none"))
+        cxx_soln.get().setTransportModel(stringify("none"))
         _assign_Solution(self, cxx_soln, True)
         self._selected_species = np.ndarray(0, dtype=np.uint64)
 
@@ -206,7 +206,7 @@ cdef class _SolutionBase:
 
         # Transport
         if not isinstance(self, Transport):
-            soln.get().setTransport(stringify("none"))
+            soln.get().setTransportModel(stringify("none"))
 
         _assign_Solution(self, soln, reset_adjacent)
 
@@ -244,7 +244,7 @@ cdef class _SolutionBase:
             self.kinetics.resizeReactions()
 
         if isinstance(self, Transport):
-            self.base.setTransport(stringify(transport))
+            self.base.setTransportModel(stringify(transport))
             self.transport = self.base.transport().get()
 
     property input_data:
