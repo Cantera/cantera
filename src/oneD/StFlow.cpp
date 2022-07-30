@@ -113,7 +113,7 @@ StFlow::StFlow(std::shared_ptr<Solution> sol, size_t nsp, size_t points) :
     m_kin = m_sol->kinetics().get();
     m_trans_shared = m_sol->transport();
     m_trans = m_trans_shared.get();
-    if (m_trans->transportType() == "None") {
+    if (m_trans->transportModel() == "None") {
         // @deprecated
         warn_deprecated("StFlow",
             "An appropriate transport model\nshould be set when instantiating the "
@@ -191,17 +191,17 @@ void StFlow::setTransportModel(const std::string& trans)
 }
 
 std::string StFlow::transportModel() const {
-    return m_trans->transportType();
+    return m_trans->transportModel();
 }
 
 void StFlow::setTransport(Transport& trans)
 {
     m_trans = &trans;
-    if (m_trans->transportType() == "None") {
+    if (m_trans->transportModel() == "None") {
         throw CanteraError("StFlow::setTransport",
             "Invalid Transport model 'None'.");
     }
-    m_do_multicomponent = (m_trans->transportType() == "Multi" || m_trans->transportType() == "CK_Multi");
+    m_do_multicomponent = (m_trans->transportModel() == "Multi" || m_trans->transportModel() == "CK_Multi");
 
     m_diff.resize(m_nsp*m_points);
     if (m_do_multicomponent) {
@@ -684,7 +684,7 @@ AnyMap StFlow::serialize(const double* soln) const
     AnyMap state = Domain1D::serialize(soln);
     state["type"] = flowType();
     state["pressure"] = m_press;
-    state["transport-model"] = m_trans->transportType();
+    state["transport-model"] = m_trans->transportModel();
 
     state["phase"]["name"] = m_thermo->name();
     AnyValue source = m_thermo->input().getMetadata("filename");

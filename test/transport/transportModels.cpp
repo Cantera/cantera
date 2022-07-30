@@ -74,7 +74,7 @@ shared_ptr<Solution> NoTransportTest::soln_;
 TEST_F(NoTransportTest, check_type)
 {
     auto tr = soln_->transport();
-    ASSERT_EQ(tr->transportType(), "None");
+    ASSERT_EQ(tr->transportModel(), "None");
 }
 
 TEST_F(NoTransportTest, check_exceptions_scalar)
@@ -128,7 +128,7 @@ shared_ptr<Solution> DefaultTransportTest::soln_;
 TEST_F(DefaultTransportTest, check_type)
 {
     auto tr = soln_->transport();
-    ASSERT_EQ(tr->transportType(), "Mix");
+    ASSERT_EQ(tr->transportModel(), "Mix");
 }
 
 TEST_F(DefaultTransportTest, check_scalar)

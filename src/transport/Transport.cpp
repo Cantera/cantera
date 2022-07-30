@@ -50,7 +50,7 @@ void Transport::checkSpeciesArraySize(size_t kk) const
 AnyMap Transport::parameters() const
 {
     AnyMap out;
-    string name = TransportFactory::factory()->canonicalize(transportType());
+    string name = TransportFactory::factory()->canonicalize(transportModel());
     if (name != "") {
         out["transport"] = name;
     }

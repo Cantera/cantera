@@ -191,7 +191,7 @@ cdef class Transport(_SolutionBase):
         object and replaces it with a new one implementing the specified model.
         """
         def __get__(self):
-            return pystr(self.transport.transportType())
+            return pystr(self.transport.transportModel())
 
         def __set__(self, model):
             self.base.setTransport(newTransport(self.thermo, stringify(model)))

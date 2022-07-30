@@ -51,7 +51,7 @@ class IonGasTransport : public MixTransport
 public:
     IonGasTransport();
 
-    virtual std::string transportType() const {
+    virtual std::string transportModel() const {
         return "Ion";
     }
 
