@@ -1396,7 +1396,6 @@ extern "C" {
         try {
             bool stherm = (show_thermo != 0);
             writelog(ThermoCabinet::item(nth).report(stherm, threshold));
-            writelogendl();
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

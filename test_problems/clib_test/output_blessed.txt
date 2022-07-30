@@ -7,7 +7,7 @@
   mean mol. weight   27.26 kg/kmol
    phase of matter   gas
 
-                          1 kg             1 kmol     
+                          1 kg             1 kmol
                      ---------------   ---------------
           enthalpy            -33317       -9.0821e+05  J
    internal energy       -7.3136e+05       -1.9937e+07  J
@@ -66,12 +66,11 @@
               HNCO        5.0825e-10        3.2202e-10           -66.524
                NCO        3.6051e-11        2.3389e-11           -53.532
                 N2            0.7232           0.70373           -28.755
-                AR                 0                 0  
+                AR                 0                 0
               C3H7         3.073e-47        1.9441e-47            -155.8
               C3H8        1.2754e-48         7.884e-49           -168.79
             CH2CHO        4.7473e-25        3.0064e-25           -99.749
             CH3CHO         5.804e-26        3.5915e-26           -112.74
-
 
                    Reaction           Forward ROP
                  2 O + M <=> O2 + M   7.654093e-07

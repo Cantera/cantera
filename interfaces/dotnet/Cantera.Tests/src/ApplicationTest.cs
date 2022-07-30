@@ -13,6 +13,9 @@ public class ApplicationTest
 {
     class FooException : Exception { }
 
+    readonly static LogMessageEventArgs s_mockLog =
+        new(LogLevel.Warning, "Testing", "This is a test message.");
+
     [Fact]
     public void CanteraInfo_VersionRetrieved()
     {
@@ -56,7 +59,7 @@ public class ApplicationTest
         {
             Application.MessageLogged += LogMessage;
 
-            ProduceLogOutput();
+            ProduceRealLogOutput();
 
             Assert.NotNull(logLevel);
             Assert.NotNull(report);
@@ -80,13 +83,15 @@ public class ApplicationTest
         {
             Console.SetOut(consoleOut);
             Application.AddConsoleLogging();
-            ProduceLogOutput();
+            ProduceMockLogOutput();
 
             var output = consoleOut.ToString();
 
-            const string prefix = "INFO (Info) ";
-            var iso8601FormatString = "yyyy-MM-ddThh:mm:ss.fffzzz";
-            var lengthOfIso8601FormattedString = 29;
+            var logLevel = s_mockLog.LogLevel.ToString().ToUpperInvariant();
+
+            var prefix = $"{logLevel} ({s_mockLog.Category}) ";
+            const string iso8601FormatString = "yyyy-MM-ddThh:mm:ss.fffzzz";
+            const int lengthOfIso8601FormattedString = 29;
 
             Assert.Matches('^' + Regex.Escape(prefix), output);
 
@@ -114,7 +119,7 @@ public class ApplicationTest
             Application.MessageLogged += LogMessage;
 
             var thrown =
-                Assert.Throws<CallbackException>(() => ProduceLogOutput());
+                Assert.Throws<CallbackException>(() => ProduceMockLogOutput());
 
             Assert.NotNull(thrown.InnerException);
             Assert.IsType<FooException>(thrown.InnerException);
@@ -125,7 +130,11 @@ public class ApplicationTest
         }
     }
 
-    static void ProduceLogOutput()
+    /// <summary>
+    /// Produces log output by calling into the native Cantera library to invoke
+    /// the logging callback.
+    /// </summary>
+    static void ProduceRealLogOutput()
     {
         using var thermo = Application.CreateThermoPhase("gri30.yaml");
 
@@ -134,5 +143,24 @@ public class ApplicationTest
             .GetValue(thermo)!;
 
         InteropUtil.CheckReturn(LibCantera.thermo_print(handle, InteropConsts.True, 0));
+    }
+
+    /// <summary>
+    /// Produces log output without calling into the native Cantera library.
+    /// </summary>
+    static void ProduceMockLogOutput()
+    {
+        var eventField = typeof(Application).GetField("s_invokeMessageLoggedDelegate",
+            BindingFlags.Static | BindingFlags.NonPublic);
+
+        Assert.NotNull(eventField);
+
+        var del = (LibCantera.Writer) eventField!.GetValue(null)!;
+
+        Assert.NotNull(del);
+
+        del(s_mockLog.LogLevel, s_mockLog.Category, s_mockLog.Message);
+
+        CallbackException.ThrowIfAny();
     }
 }
