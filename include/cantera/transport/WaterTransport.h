@@ -28,7 +28,7 @@ public:
      */
     WaterTransport(ThermoPhase* thermo = 0, int ndim = 1);
 
-    virtual std::string transportType() const {
+    virtual std::string transportModel() const {
         return "Water";
     }
 

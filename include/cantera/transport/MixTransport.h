@@ -59,7 +59,7 @@ public:
     //! Default constructor.
     MixTransport();
 
-    virtual std::string transportType() const {
+    virtual std::string transportModel() const {
         return (m_mode == CK_Mode) ? "CK_Mix" : "Mix";
     }
 

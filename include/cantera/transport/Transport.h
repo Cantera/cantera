@@ -21,6 +21,7 @@
 
 #include "cantera/base/ct_defs.h"
 #include "cantera/base/ctexceptions.h"
+#include "cantera/base/global.h"
 
 namespace Cantera
 {
@@ -157,8 +158,18 @@ public:
 
     //! Identifies the Transport object type. Each derived class should override
     //! this method to return a meaningful identifier.
-    virtual std::string transportType() const {
+    //! @since  New in Cantera 3.0.
+    virtual std::string transportModel() const {
         return "None";
+    }
+
+    //! Identifies the Transport object type. Each derived class should override
+    //! this method to return a meaningful identifier.
+    //! @deprecated  To be removed after Cantera 3.0. Replaced by transportModel
+    std::string transportType() const {
+        warn_deprecated("Transport::transportType",
+            "To be removed after Cantera 3.0. Replaced by transportModel().");
+            return transportModel();
     }
 
     /*!
@@ -204,7 +215,7 @@ public:
      */
     virtual double viscosity() {
         throw NotImplementedError("Transport::viscosity",
-            "Not implemented for transport model '{}'.", transportType());
+            "Not implemented for transport model '{}'.", transportModel());
     }
 
     //! Returns the pure species viscosities
@@ -215,7 +226,7 @@ public:
      */
     virtual void getSpeciesViscosities(double* const visc) {
         throw NotImplementedError("Transport::getSpeciesViscosities",
-            "Not implemented for transport model '{}'.", transportType());
+            "Not implemented for transport model '{}'.", transportModel());
     }
 
     //! The bulk viscosity in Pa-s.
@@ -226,13 +237,13 @@ public:
      */
     virtual double bulkViscosity() {
         throw NotImplementedError("Transport::bulkViscosity",
-            "Not implemented for transport model '{}'.", transportType());
+            "Not implemented for transport model '{}'.", transportModel());
     }
 
     //! The ionic conductivity in 1/ohm/m.
     virtual double ionConductivity() {
         throw NotImplementedError("Transport::ionConductivity",
-            "Not implemented for transport model '{}'.", transportType());
+            "Not implemented for transport model '{}'.", transportModel());
     }
 
     //! Returns the pure species ionic conductivity
@@ -243,7 +254,7 @@ public:
      */
     virtual void getSpeciesIonConductivity(double* const ionCond) {
         throw NotImplementedError("Transport::getSpeciesIonConductivity",
-            "Not implemented for transport model '{}'.", transportType());
+            "Not implemented for transport model '{}'.", transportModel());
     }
 
     //! Returns the pointer to the mobility ratios of the species in the phase
@@ -263,7 +274,7 @@ public:
      */
     virtual void mobilityRatio(double* mobRat) {
         throw NotImplementedError("Transport::mobilityRatio",
-            "Not implemented for transport model '{}'.", transportType());
+            "Not implemented for transport model '{}'.", transportModel());
     }
 
     //! Returns the pure species limit of the mobility ratios
@@ -274,7 +285,7 @@ public:
      */
     virtual void getSpeciesMobilityRatio(double** mobRat) {
         throw NotImplementedError("Transport::getSpeciesMobilityRatio",
-            "Not implemented for transport model '{}'.", transportType());
+            "Not implemented for transport model '{}'.", transportModel());
     }
 
     //! Returns the mixture thermal conductivity in W/m/K.
@@ -285,13 +296,13 @@ public:
      */
     virtual double thermalConductivity() {
         throw NotImplementedError("Transport::thermalConductivity",
-            "Not implemented for transport model '{}'.", transportType());
+            "Not implemented for transport model '{}'.", transportModel());
     }
 
     //! The electrical conductivity (Siemens/m).
     virtual double electricalConductivity() {
         throw NotImplementedError("Transport::electricalConductivity",
-            "Not implemented for transport model '{}'.", transportType());
+            "Not implemented for transport model '{}'.", transportModel());
     }
 
     //! Get the Electrical mobilities (m^2/V/s).
@@ -312,7 +323,7 @@ public:
      */
     virtual void getMobilities(double* const mobil_e) {
         throw NotImplementedError("Transport::getMobilities",
-            "Not implemented for transport model '{}'.", transportType());
+            "Not implemented for transport model '{}'.", transportModel());
     }
 
     //! Get the fluid mobilities (s kmol/kg).
@@ -334,7 +345,7 @@ public:
      */
     virtual void getFluidMobilities(double* const mobil_f) {
         throw NotImplementedError("Transport::getFluidMobilities",
-            "Not implemented for transport model '{}'.", transportType());
+            "Not implemented for transport model '{}'.", transportModel());
     }
 
     //! @}
@@ -358,7 +369,7 @@ public:
      */
     virtual double getElectricConduct() {
         throw NotImplementedError("Transport::getElectricConduct",
-            "Not implemented for transport model '{}'.", transportType());
+            "Not implemented for transport model '{}'.", transportModel());
     }
 
     //! Compute the electric current density in A/m^2
@@ -382,7 +393,7 @@ public:
                                     const double* grad_V,
                                     double* current) {
         throw NotImplementedError("Transport::getElectricCurrent",
-            "Not implemented for transport model '{}'.", transportType());
+            "Not implemented for transport model '{}'.", transportModel());
     }
 
     //! Get the species diffusive mass fluxes wrt to the specified solution
@@ -408,7 +419,7 @@ public:
                                   size_t ldx, const double* const grad_X,
                                   size_t ldf, double* const fluxes) {
         throw NotImplementedError("Transport::getSpeciesFluxes",
-            "Not implemented for transport model '{}'.", transportType());
+            "Not implemented for transport model '{}'.", transportModel());
     }
 
     //! Get the species diffusive mass fluxes wrt to the mass averaged velocity,
@@ -461,7 +472,7 @@ public:
                                  int ldf,
                                  double* Vdiff) {
         throw NotImplementedError("Transport::getSpeciesVdiff",
-            "Not implemented for transport model '{}'.", transportType());
+            "Not implemented for transport model '{}'.", transportModel());
     }
 
     //! Get the species diffusive velocities wrt to the mass averaged velocity,
@@ -509,7 +520,7 @@ public:
                                 const double* const state2, const double delta,
                                 double* const cfluxes) {
         throw NotImplementedError("Transport::getMolarFluxes",
-            "Not implemented for transport model '{}'.", transportType());
+            "Not implemented for transport model '{}'.", transportModel());
     }
 
     //! Get the mass fluxes [kg/m^2/s], given the thermodynamic state at two
@@ -529,7 +540,7 @@ public:
                                const double* state2, double delta,
                                double* mfluxes) {
         throw NotImplementedError("Transport::getMassFluxes",
-            "Not implemented for transport model '{}'.", transportType());
+            "Not implemented for transport model '{}'.", transportModel());
     }
 
     //! Return a vector of Thermal diffusion coefficients [kg/m/sec].
@@ -550,7 +561,7 @@ public:
      */
     virtual void getThermalDiffCoeffs(double* const dt) {
         throw NotImplementedError("Transport::getThermalDiffCoeffs",
-            "Not implemented for transport model '{}'.", transportType());
+            "Not implemented for transport model '{}'.", transportModel());
     }
 
     //! Returns the matrix of binary diffusion coefficients [m^2/s].
@@ -562,7 +573,7 @@ public:
      */
     virtual void getBinaryDiffCoeffs(const size_t ld, double* const d) {
         throw NotImplementedError("Transport::getBinaryDiffCoeffs",
-            "Not implemented for transport model '{}'.", transportType());
+            "Not implemented for transport model '{}'.", transportModel());
     }
 
     //! Return the Multicomponent diffusion coefficients. Units: [m^2/s].
@@ -579,7 +590,7 @@ public:
      */
     virtual void getMultiDiffCoeffs(const size_t ld, double* const d) {
         throw NotImplementedError("Transport::getMultiDiffCoeffs",
-            "Not implemented for transport model '{}'.", transportType());
+            "Not implemented for transport model '{}'.", transportModel());
     }
 
     //! Returns a vector of mixture averaged diffusion coefficients
@@ -594,37 +605,37 @@ public:
      */
     virtual void getMixDiffCoeffs(double* const d) {
         throw NotImplementedError("Transport::getMixDiffCoeffs",
-            "Not implemented for transport model '{}'.", transportType());
+            "Not implemented for transport model '{}'.", transportModel());
     }
 
     //! Returns a vector of mixture averaged diffusion coefficients
     virtual void getMixDiffCoeffsMole(double* const d) {
         throw NotImplementedError("Transport::getMixDiffCoeffsMole",
-            "Not implemented for transport model '{}'.", transportType());
+            "Not implemented for transport model '{}'.", transportModel());
     }
 
     //! Returns a vector of mixture averaged diffusion coefficients
     virtual void getMixDiffCoeffsMass(double* const d) {
         throw NotImplementedError("Transport::getMixDiffCoeffsMass",
-            "Not implemented for transport model '{}'.", transportType());
+            "Not implemented for transport model '{}'.", transportModel());
     }
 
     //! Return the polynomial fits to the viscosity of species i
     virtual void getViscosityPolynomial(size_t i, double* coeffs) const{
         throw NotImplementedError("Transport::getViscosityPolynomial",
-            "Not implemented for transport model '{}'.", transportType());
+            "Not implemented for transport model '{}'.", transportModel());
     }
 
     //! Return the temperature fits of the heat conductivity of species i
     virtual void getConductivityPolynomial(size_t i, double* coeffs) const{
         throw NotImplementedError("Transport::getConductivityPolynomial",
-            "Not implemented for transport model '{}'.", transportType());
+            "Not implemented for transport model '{}'.", transportModel());
     }
 
     //! Return the polynomial fits to the binary diffusivity of species pair (i, j)
     virtual void getBinDiffusivityPolynomial(size_t i, size_t j, double* coeffs) const{
         throw NotImplementedError("Transport::getBinDiffusivityPolynomial",
-            "Not implemented for transport model '{}'.", transportType());
+            "Not implemented for transport model '{}'.", transportModel());
     }
 
     //! Return the polynomial fits to the collision integral of species pair (i, j)
@@ -633,25 +644,25 @@ public:
                                                 double* bstar_coeffs,
                                                 double* cstar_coeffs) const{
         throw NotImplementedError("Transport::getCollisionIntegralPolynomial",
-            "Not implemented for transport model '{}'.", transportType());
+            "Not implemented for transport model '{}'.", transportModel());
     }
 
     //! Modify the polynomial fits to the viscosity of species i
     virtual void setViscosityPolynomial(size_t i, double* coeffs){
         throw NotImplementedError("Transport::setViscosityPolynomial",
-            "Not implemented for transport model '{}'.", transportType());
+            "Not implemented for transport model '{}'.", transportModel());
     }
 
     //! Modify the temperature fits of the heat conductivity of species i
     virtual void setConductivityPolynomial(size_t i, double* coeffs){
         throw NotImplementedError("Transport::setConductivityPolynomial",
-            "Not implemented for transport model '{}'.", transportType());
+            "Not implemented for transport model '{}'.", transportModel());
     }
 
     //! Modify the polynomial fits to the binary diffusivity of species pair (i, j)
     virtual void setBinDiffusivityPolynomial(size_t i, size_t j, double* coeffs){
         throw NotImplementedError("Transport::setBinDiffusivityPolynomial",
-            "Not implemented for transport model '{}'.", transportType());
+            "Not implemented for transport model '{}'.", transportModel());
     }
 
     //! Modify the polynomial fits to the collision integral of species pair (i, j)
@@ -660,7 +671,7 @@ public:
                                                 double* bstar_coeffs,
                                                 double* cstar_coeffs, bool flag){
         throw NotImplementedError("Transport::setCollisionIntegralPolynomial",
-            "Not implemented for transport model '{}'.", transportType());
+            "Not implemented for transport model '{}'.", transportModel());
     }
 
     //! Set model parameters for derived classes
@@ -680,7 +691,7 @@ public:
      */
     virtual void setParameters(const int type, const int k, const double* const p) {
         throw NotImplementedError("Transport::setParameters",
-            "Not implemented for transport model '{}'.", transportType());
+            "Not implemented for transport model '{}'.", transportModel());
     }
 
     //! Return the parameters for a phase definition which are needed to
@@ -752,7 +763,7 @@ public:
     //! Returns true if the Chemkin form is used.
     virtual bool CKMode() const {
         throw NotImplementedError("Transport::CK_Mode",
-            "Not implemented for transport model '{}'.", transportType());
+            "Not implemented for transport model '{}'.", transportModel());
     }
 
 protected:

@@ -93,7 +93,7 @@ AnyMap Solution::parameters(bool withInput) const
     }
     if (!m_transport) {
         out["transport"] = empty;
-    } else if (m_transport->transportType() == "None") {
+    } else if (m_transport->transportModel() == "None") {
         out["transport"] = empty;
     } else {
         out.update(m_transport->parameters());

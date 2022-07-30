@@ -27,7 +27,7 @@ class UnityLewisTransport : public MixTransport
 public:
 //    UnityLewisTransport() {}
 
-    virtual std::string transportType() const {
+    virtual std::string transportModel() const {
         return "UnityLewis";
     }
 

@@ -10,7 +10,7 @@ from .solutionbase cimport *
 cdef extern from "cantera/transport/Transport.h" namespace "Cantera":
     cdef cppclass CxxTransport "Cantera::Transport":
         CxxTransport(CxxThermoPhase*)
-        string transportType()
+        string transportModel()
         cbool CKMode() except +translate_exception
         double viscosity() except +translate_exception
         double thermalConductivity() except +translate_exception

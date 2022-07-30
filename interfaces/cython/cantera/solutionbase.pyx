@@ -136,7 +136,7 @@ cdef class _SolutionBase:
             kinetics = None if self.kinetics == NULL \
                 else pystr(self.kinetics.kineticsType())
             transport = None if self.transport == NULL \
-                else pystr(self.transport.transportType())
+                else pystr(self.transport.transportModel())
 
             return thermo, kinetics, transport
 
