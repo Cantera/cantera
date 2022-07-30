@@ -626,6 +626,8 @@ double UnitSystem::convert(const AnyValue& v, const std::string& dest) const
 {
     try {
         return convert(v, Units(dest));
+    } catch (InputFileError&) {
+        throw; // already have input file context from convert(AnyValue, Units)
     } catch (CanteraError& err) {
         throw InputFileError("UnitSystem::convert", v, err.getMessage());
     }

@@ -1,8 +1,10 @@
 #include "gtest/gtest.h"
+#include "gmock/gmock.h"
 #include "cantera/base/Units.h"
 #include "cantera/base/AnyMap.h"
 
 using namespace Cantera;
+using namespace ::testing;
 
 TEST(Units, from_string) {
     EXPECT_EQ(Units("").str(), "1");
@@ -203,6 +205,28 @@ TEST(Units, from_anymap_default) {
     EXPECT_DOUBLE_EQ(m.convert("p1", "Pa", 999), 999);
     EXPECT_DOUBLE_EQ(m.convert("h0", "J/kmol", 999), 41.84);
     EXPECT_DOUBLE_EQ(m.convert("h1", "J/kmol", 999), 999);
+}
+
+TEST(Units, from_anymap_bad) {
+    AnyMap m = AnyMap::fromYamlString(
+        "{p: 12 bar, v: 10, A: 1 cm^2, V: 1,"
+        " k1: [5e2, 2, 29000], k2: [1e14, -1, 1300 cal/kmol]}");
+    UnitSystem U({"mm", "min", "atm"});
+    m.setUnits(U);
+    m.applyUnits();
+
+    try {
+        m.convert("p", "kg");
+        FAIL() << "did not throw";
+    } catch (InputFileError& err) {
+        EXPECT_THAT(err.what(), HasSubstr("Error on line"));
+        #ifdef GTEST_USES_POSIX_RE
+            EXPECT_THAT(err.what(),
+                        Not(ContainsRegex("Error on line.*\\\nError on line")));
+        #endif
+    } catch (...) {
+        FAIL() << "threw wrong exception type";
+    }
 }
 
 TEST(Units, to_anymap) {
