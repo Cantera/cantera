@@ -709,8 +709,9 @@ public:
                    const std::string& message, const Args&... args)
         : CanteraError(
             procedure,
-            formatError(fmt::format(message, args...),
-                        node.m_line, node.m_column, node.m_metadata))
+            formatError(
+                (sizeof...(args) == 0) ? message : fmt::format(message, args...),
+                node.m_line, node.m_column, node.m_metadata))
         {
         }
 
@@ -723,12 +724,12 @@ public:
                    const Args&... args)
         : CanteraError(
             procedure,
-            formatError2(fmt::format(message, args...),
-                         node1.m_line, node1.m_column, node1.m_metadata,
-                         node2.m_line, node2.m_column, node2.m_metadata))
+            formatError2(
+                (sizeof...(args) == 0) ? message : fmt::format(message, args...),
+                node1.m_line, node1.m_column, node1.m_metadata,
+                node2.m_line, node2.m_column, node2.m_metadata))
         {
         }
-
 
     virtual std::string getClass() const {
         return "InputFileError";
