@@ -96,7 +96,7 @@ void demoprog()
 
     // create a transport manager for the gas that computes
     // mixture-averaged properties
-    sol->setTransport("mixture-averaged");
+    sol->setTransportModel("mixture-averaged");
     auto tr = sol->transport();
 
     // print the viscosity, thermal conductivity, and diffusion

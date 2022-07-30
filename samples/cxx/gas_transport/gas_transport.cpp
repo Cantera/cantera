@@ -84,7 +84,7 @@ void transport_example()
     write_csv("transport_mix.csv", labels, output);
 
     // Switch transport manager to multicomponent properties
-    sol->setTransport("multicomponent");
+    sol->setTransportModel("multicomponent");
 
     // Get multicomponent properties at several temperatures
     for (int i = 0; i < ntemps; i++) {
