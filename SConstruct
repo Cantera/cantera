@@ -1604,6 +1604,10 @@ if env['python_package'] != 'none':
                 f"Cython is an incompatible version: Found {cython_version} but "
                 f"{cython_min_version} or newer is required.")
             warn_no_full_package = True
+        elif cython_version < parse_version("3.0.0"):
+            logger.info(
+                f"Using Cython version {cython_version} (uses legacy NumPy API)")
+            env["numpy_1_7_API"] = True
         else:
             logger.info(f"Using Cython version {cython_version}")
 

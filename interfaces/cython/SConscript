@@ -78,6 +78,9 @@ elif localenv['OS'] == 'Cygwin':
     # extract 'pythonX.Y' from 'libpythonX.Y.dll.a'
     localenv.Append(LIBS=pylib[3:-6])
 
+if "numpy_1_7_API" in localenv:
+    localenv.Append(CPPDEFINES="NPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION")
+
 localenv["module_ext"] = module_ext
 setup_cfg = localenv.SubstFile("setup.cfg", "setup.cfg.in")
 readme = localenv.Command("README.rst", "#README.rst", Copy("$TARGET", "$SOURCE"))
