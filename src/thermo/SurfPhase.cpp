@@ -218,25 +218,34 @@ void SurfPhase::setCoverages(const doublereal* theta)
 {
     double sum = 0.0;
     for (size_t k = 0; k < m_kk; k++) {
-        sum += theta[k];
+        sum += theta[k] / size(k);
     }
     if (sum <= 0.0) {
         throw CanteraError("SurfPhase::setCoverages",
                            "Sum of Coverage fractions is zero or negative");
     }
     for (size_t k = 0; k < m_kk; k++) {
-        m_work[k] = m_n0*theta[k]/(sum*size(k));
+        m_work[k] = theta[k] / (sum * size(k));
     }
-    // Call the Phase:: class function setConcentrations.
-    setConcentrations(m_work.data());
+    setMoleFractions(m_work.data());
 }
 
 void SurfPhase::setCoveragesNoNorm(const doublereal* theta)
 {
+    double sum = 0.0;
+    double sum2 = 0.0;
     for (size_t k = 0; k < m_kk; k++) {
-        m_work[k] = m_n0*theta[k]/size(k);
+        sum += theta[k] / size(k);
+        sum2 += theta[k];
     }
-    setConcentrationsNoNorm(m_work.data());
+    if (sum <= 0.0) {
+        throw CanteraError("SurfPhase::setCoverages",
+                           "Sum of Coverage fractions is zero or negative");
+    }
+    for (size_t k = 0; k < m_kk; k++) {
+        m_work[k] = theta[k] * sum2 / (sum * size(k));
+    }
+    setMoleFractions_NoNorm(m_work.data());
 }
 
 void SurfPhase::getCoverages(doublereal* theta) const

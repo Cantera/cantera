@@ -295,9 +295,14 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
 
 void solveSP::updateState(const doublereal* CSolnSP)
 {
+    vector_fp X;
     size_t loc = 0;
     for (size_t n = 0; n < m_numSurfPhases; n++) {
-        m_ptrsSurfPhase[n]->setConcentrations(CSolnSP + loc);
+        X.resize(m_nSpeciesSurfPhase[n]);
+        for (size_t k = 0; k < X.size(); k++) {
+            X[k] = CSolnSP[loc + k] / m_ptrsSurfPhase[n]->siteDensity();
+        }
+        m_ptrsSurfPhase[n]->setMoleFractions_NoNorm(X.data());
         loc += m_nSpeciesSurfPhase[n];
     }
 }

@@ -277,8 +277,6 @@ ideal-surface:
         "Implementation of s_k is incorrect. See GitHub Issue #1313"
       g_eq_sum_gk_Xk:
         "chemPotentials does not protect against inf. See GitHub Issue #1314"
-      dSdv_const_T_eq_dPdT_const_V:
-        "Compressibility of phase leads to inconsistent results. See GitHub Issue #1312"
   states:
   - {T: 800, P: 1 atm, coverages: {Pt(s): 0.5, H(s): 0.4, O(s): 0.1}}
   - {T: 800, P: 5 atm, coverages: {H(s): 1.0}}
@@ -290,9 +288,6 @@ ideal-edge:
     file: surface-phases.yaml
     phase: TPB
     atol_v: 1e3  # site density of 5e-18 kmol/m = linear molar volume of 2e17 m/kmol
-    known-failures:
-      dSdv_const_T_eq_dPdT_const_V:
-        "Compressibility of phase leads to inconsistent results. See GitHub Issue #1312"
   states:
   - {T: 300, P: 1 atm}
   - {T: 900, P: 20 atm}
