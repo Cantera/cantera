@@ -563,7 +563,7 @@ class FlameBase(Sim1D):
         `SolutionArray.write_hdf` via `to_solution_array` and requires a working
         installation of *h5py* (``h5py`` can be installed using pip or conda).
         """
-        cols = ('extra', 'T', 'D', species)
+        cols = ('extra', 'T', 'P', species)
         meta = self.settings
         meta['date'] = formatdate(localtime=True)
         meta['cantera_version'] = __version__

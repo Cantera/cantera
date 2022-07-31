@@ -110,6 +110,10 @@ public:
         return "Surf";
     }
 
+    virtual bool isCompressible() const {
+        return false;
+    }
+
     //! Return the Molar Enthalpy. Units: J/kmol.
     /*!
      * For an ideal solution,

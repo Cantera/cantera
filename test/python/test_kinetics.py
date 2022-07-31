@@ -228,7 +228,7 @@ class KineticsFromReactions(utilities.CanteraTest):
                              adjacent=[gas])
         surf1.site_density = surf2.site_density = 5e-9
         gas.TP = surf2.TP = surf1.TP = 900, 2*ct.one_atm
-        surf2.concentrations = surf1.concentrations
+        surf2.coverages = surf1.coverages
 
         self.assertEqual(surf1.n_reactions, surf2.n_reactions)
 
