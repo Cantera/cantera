@@ -32,6 +32,8 @@ class PreconditionerBase
 public:
     PreconditionerBase() {}
 
+    virtual ~PreconditionerBase() {}
+
     //! Set a value at the specified row and column of the jacobian triplet vector
     //! @param row row in the jacobian matrix
     //! @param col column in the jacobian matrix
