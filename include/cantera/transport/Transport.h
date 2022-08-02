@@ -156,8 +156,8 @@ public:
     Transport(const Transport&) = delete;
     Transport& operator=(const Transport&) = delete;
 
-    //! Identifies the Transport object type. Each derived class should override
-    //! this method to return a meaningful identifier.
+    //! Identifies the model represented by this Transport object. Each derived class
+    //! should override this method to return a meaningful identifier.
     //! @since  New in Cantera 3.0.
     virtual std::string transportModel() const {
         return "None";
