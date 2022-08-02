@@ -13,6 +13,18 @@ phases:
   site-density: 2.7063e-9 mol/cm^2
   state: {T: 900 K, P: 1 atm, coverages: {Pt(s): 0.5, H(s): 0.4, O(s): 0.1}}
 
+- name: Pt-multi-sites
+  thermo: ideal-surface
+  adjacent-phases: [gas]
+  kinetics: surface
+  reactions: [Pt-reactions, Pt-multisite-reactions]
+  species: [{Pt-surf-species: all}, {multi-site-species: all}]
+  site-density: 2.7063e-9 mol/cm^2
+  state:
+    T: 900 K
+    P: 1 atm
+    coverages: {Pt(s): 0.35, H(s): 0.4, O(s): 0.1, O2(s): 0.15}
+
 - name: TPB
   thermo: edge
   species: [{tpb-species: [(tpb)]}]
@@ -102,6 +114,19 @@ Pt-surf-species:
     - [1.9454180E+00, 9.1761647E-04, -1.1226719E-07, -9.9099624E-11,
        2.4307699E-14, -1.4005187E+04, -1.1531663E+01]
 
+multi-site-species:
+- name: O2(s)
+  composition: {O: 2, Pt: 2}
+  sites: 2
+  thermo:
+    model: NASA7
+    temperature-ranges: [300, 1000, 3000]
+    data:
+    - [-9.4986904E-01, 7.4042305E-03, -1.0451424E-06, -6.1120420E-09,
+       3.3787992E-12, -1.3209912E+04, 3.6137905E+00]
+    - [1.9454180E+00, 9.1761647E-04, -1.1226719E-07, -9.9099624E-11,
+       2.4307699E-14, -1.4005187E+04, -1.1531663E+01]
+
 
 tpb-species:
 - name: (tpb)
@@ -120,6 +145,9 @@ Pt-reactions:
 - equation: H + Pt(s) => H(s)
   sticking-coefficient: [1.0, 0.0, 0.0]
 
+Pt-multisite-reactions:
+- equation: 2 O(s) <=> O2(s)
+  rate-constant: {A: 3.1e9 cm^2/mol/s, b: 0.0, Ea: 0.0}
 
 graphite-anode-species:
 - name: EC(e)

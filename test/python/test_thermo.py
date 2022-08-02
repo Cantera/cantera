@@ -1130,6 +1130,32 @@ class TestInterfacePhase(utilities.CanteraTest):
         self.assertNear(C[self.interface.species_index('c6*M')], 0.75)
 
 
+class TestInterfacePhase2(utilities.CanteraTest):
+    """ Test special cases of interface phases """
+    def test_multi_site_species(self):
+        surf = ct.Interface("surface-phases.yaml", "Pt-multi-sites")
+        # O2(s) consumes two surface sites
+        surf.coverages = {"Pt(s)": 0.5, "H(s)": 0.1, "O2(s)": 0.4}
+        X = surf.mole_fraction_dict()
+        moles = 0.5 + 0.1 + 0.4 / 2
+        assert np.isclose(X["Pt(s)"], 0.5 / moles)
+        assert np.isclose(X["H(s)"], 0.1 / moles)
+        assert np.isclose(X["O2(s)"], 0.2 / moles)
+
+    def test_multi_site_unnormalized(self):
+        surf = ct.Interface("surface-phases.yaml", "Pt-multi-sites")
+        theta = [0.5, 0.1, 0.1, 0.32]
+        surf.set_unnormalized_coverages(theta)
+        self.assertArrayNear(surf.coverages, theta)
+
+        X_unnormalized = surf.X
+        assert np.isclose(sum(theta), sum(surf.X))
+
+        surf.coverages = theta
+        X_normalized = surf.X
+        self.assertArrayNear(X_normalized * sum(theta), X_unnormalized)
+
+
 class TestPlasmaPhase(utilities.CanteraTest):
     def setUp(self):
         self.phase = ct.Solution('oxygen-plasma.yaml',
