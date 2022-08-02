@@ -109,9 +109,9 @@ StFlow::StFlow(ThermoPhase* ph, size_t nsp, size_t points) :
 StFlow::StFlow(std::shared_ptr<Solution> sol, size_t nsp, size_t points) :
     StFlow(sol->thermo().get(), nsp, points)
 {
-    m_sol = sol;
-    m_kin = m_sol->kinetics().get();
-    m_trans_shared = m_sol->transport();
+    m_solution = sol;
+    m_kin = m_solution->kinetics().get();
+    m_trans_shared = m_solution->transport();
     m_trans = m_trans_shared.get();
     if (m_trans->transportModel() == "None") {
         // @deprecated
@@ -179,13 +179,13 @@ void StFlow::resetBadValues(double* xg)
 
 void StFlow::setTransportModel(const std::string& trans)
 {
-    if (!m_sol) {
+    if (!m_solution) {
         throw CanteraError("StFlow::setTransportModel",
             "Unable to set Transport manager by name as object was not initialized\n"
             "from a Solution manager: set Transport object directly instead.");
     }
-    m_sol->setTransportModel(trans);
-    m_trans_shared = m_sol->transport();
+    m_solution->setTransportModel(trans);
+    m_trans_shared = m_solution->transport();
     m_trans = m_trans_shared.get();
     setTransport(*m_trans);
 }

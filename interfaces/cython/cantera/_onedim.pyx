@@ -482,7 +482,7 @@ cdef class _FlowBase(Domain1D):
             Method to be removed after Cantera 3.0. Replaceable by `transport_model`
         """
         warnings.warn("Method to be removed after Cantera 3.0; use property "
-                    "'transport_model' instead.", DeprecationWarning)
+                      "'transport_model' instead.", DeprecationWarning)
         self._weakref_proxy = _WeakrefProxy()
         self.gas._references[self._weakref_proxy] = True
         self.gas = phase

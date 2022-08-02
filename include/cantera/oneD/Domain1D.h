@@ -324,10 +324,10 @@ public:
      */
     virtual void restore(const AnyMap& state, double* soln, int loglevel);
 
-    //! Return reference to thermo/kinetics/transport manager
+    //! Return thermo/kinetics/transport manager used in the domain
     //! @since  New in Cantera 3.0.
-    shared_ptr<Solution> sol() const {
-        return m_sol;
+    shared_ptr<Solution> solution() const {
+        return m_solution;
     }
 
     size_t size() const {
@@ -507,7 +507,7 @@ protected:
     bool m_force_full_update;
 
     //! Composite thermo/kinetics/transport handler
-    std::shared_ptr<Solution> m_sol;
+    std::shared_ptr<Solution> m_solution;
 };
 }
 

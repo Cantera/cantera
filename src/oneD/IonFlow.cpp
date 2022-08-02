@@ -61,9 +61,9 @@ IonFlow::IonFlow(ThermoPhase* ph, size_t nsp, size_t points) :
 IonFlow::IonFlow(shared_ptr<Solution> sol, size_t nsp, size_t points) :
     IonFlow(sol->thermo().get(), nsp, points)
 {
-    m_sol = sol;
-    m_kin = m_sol->kinetics().get();
-    m_trans_shared = m_sol->transport();
+    m_solution = sol;
+    m_kin = m_solution->kinetics().get();
+    m_trans_shared = m_solution->transport();
     m_trans = m_trans_shared.get();
     if (m_trans->transportModel() == "None") {
         // @deprecated

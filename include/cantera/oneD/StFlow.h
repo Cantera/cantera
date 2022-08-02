@@ -83,7 +83,7 @@ public:
         m_kin = &kin;
     }
 
-    //! Set the transport manager directly
+    //! Set transport model to existing instance
     void setTransport(Transport& trans);
 
     //! Set the transport model
