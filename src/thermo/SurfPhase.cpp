@@ -250,9 +250,15 @@ void SurfPhase::setCoveragesNoNorm(const doublereal* theta)
 
 void SurfPhase::getCoverages(doublereal* theta) const
 {
-    getConcentrations(theta);
+    double sum_X = 0.0;
+    double sum_X_s = 0.0;
+    getMoleFractions(theta);
     for (size_t k = 0; k < m_kk; k++) {
-        theta[k] *= size(k)/m_n0;
+        sum_X += theta[k];
+        sum_X_s += theta[k] * size(k);
+    }
+    for (size_t k = 0; k < m_kk; k++) {
+        theta[k] *= size(k) * sum_X / sum_X_s;
     }
 }
 
