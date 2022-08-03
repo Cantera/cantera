@@ -1041,9 +1041,9 @@ def config_error(message):
     if env["logging"].lower() == "debug":
         logger.error(message)
         debug_message = [
-            f"\n{' Contents of config.log: ':*^88}\n",
+            f"\n{' Contents of config.log: ':*^80}\n",
             open("config.log").read().strip(),
-            f"\n{' End of config.log ':*^88}",
+            f"\n{' End of config.log ':*^80}",
         ]
         logger.debug("\n".join(debug_message), print_level=False)
     else:
@@ -1439,9 +1439,9 @@ env['FORTRANMODDIR'] = '${TARGET.dir}'
 env = conf.Finish()
 
 debug_message = [
-    f"\n{' begin config.log ':-^88}\n",
+    f"\n{' begin config.log ':-^80}\n",
     open("config.log").read().strip(),
-    f"\n{' end config.log ':-^88}\n",
+    f"\n{' end config.log ':-^80}\n",
 ]
 logger.debug("\n".join(debug_message), print_level=False)
 
@@ -2032,7 +2032,7 @@ build_samples = Alias('samples', sampleTargets)
 
 def postBuildMessage(target, source, env):
     build_message = [
-        f"\n{' Compilation completed successfully ':*^88}\n",
+        f"\n{' Compilation completed successfully ':*^80}\n",
         "- To run the test suite, type 'scons test'.",
         "- To list available tests, type 'scons test-help'.",
     ]
@@ -2042,7 +2042,7 @@ def postBuildMessage(target, source, env):
     build_message.append("- To install, type 'scons install'.")
     if os.name == 'nt':
         build_message.append("- To create a Windows MSI installer, type 'scons msi'.")
-    build_message.append(f"\n{'*' * 88}\n")
+    build_message.append(f"\n{'*' * 80}\n")
 
     logger.status("\n".join(build_message), print_level=False)
 
@@ -2099,9 +2099,9 @@ def postInstallMessage(target, source, env):
         """.format(**env_dict)))
 
     install_message = [
-        f"\n{' Cantera has been successfully installed ':*^88}\n",
+        f"\n{' Cantera has been successfully installed ':*^80}\n",
         "\n".join(install_message),
-        f"\n{'*' * 88}\n",
+        f"\n{'*' * 80}\n",
     ]
     logger.status("\n".join(install_message), print_level=False)
 
