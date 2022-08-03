@@ -2098,8 +2098,9 @@ def postInstallMessage(target, source, env):
               {matlab_ctpath_loc!s}
         """.format(**env_dict)))
 
+    status = f" Cantera {env['cantera_version']} has been successfully installed "
     install_message = [
-        f"\n{' Cantera has been successfully installed ':*^80}\n",
+        f"\n{status:*^80}\n",
         "\n".join(install_message),
         f"\n{'*' * 80}\n",
     ]
