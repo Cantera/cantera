@@ -1565,7 +1565,7 @@ class CombustorTestImplementation:
     """
     These tests are based on the sample:
 
-        interfaces/cython/cantera/examples/reactors/combustor.py
+        samples/python/reactors/combustor.py
 
     with some simplifications so that they run faster and produce more
     consistent output.
@@ -1671,7 +1671,7 @@ class WallTestImplementation:
     """
     These tests are based on the sample:
 
-        interfaces/cython/cantera/examples/reactors/reactor2.py
+        samples/python/reactors/reactor2.py
 
     with some simplifications so that they run faster and produce more
     consistent output.

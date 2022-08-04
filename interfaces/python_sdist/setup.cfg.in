@@ -53,7 +53,7 @@ packages =
 # included in the wheel.
 [options.package_data]
 cantera.data = *.*, */*.*
-cantera = *.pxd
+cantera = *.pxd, test/*.txt, examples/*.txt
 
 # These options exclude data from the wheel file but not from the sdist
 [options.exclude_package_data]
