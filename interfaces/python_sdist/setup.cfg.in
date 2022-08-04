@@ -47,14 +47,12 @@ python_requires = >=@py_min_ver_str@
 packages =
     cantera
     cantera.data
-    cantera.examples
 
 # These options include data in the sdist and wheel if the files are also listed in
 # MANIFEST.in. Note that only files that are inside the "cantera" packages will be
 # included in the wheel.
 [options.package_data]
 cantera.data = *.*, */*.*
-cantera.examples = */*.*
 cantera = *.pxd
 
 # These options exclude data from the wheel file but not from the sdist

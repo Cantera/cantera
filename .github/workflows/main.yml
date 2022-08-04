@@ -301,7 +301,7 @@ jobs:
       - name: Run the examples
         # See https://unix.stackexchange.com/a/392973 for an explanation of the -exec part
         run: |
-          find interfaces/cython/cantera/examples -type f -iname "*.py" \
+          find samples/python -type f -iname "*.py" \
           -exec sh -c 'for n; do echo "$n" | tee -a results.txt && python3 "$n" >> results.txt || exit 1; done' sh {} +
         env:
           PYTHONPATH: build/python
@@ -364,6 +364,7 @@ jobs:
           test -f ${CONDA_PREFIX}/bin/ck2yaml
           test -f ${CONDA_PREFIX}/share/cantera/data/gri30.yaml
           test -d ${CONDA_PREFIX}/share/cantera/samples
+          test -d ${CONDA_PREFIX}/share/cantera/samples/python
           test -d ${CONDA_PREFIX}/lib/python${{ env.PYTHON_VERSION }}/site-packages/cantera
       - name: Test Essentials
         # ensure that Python package loads and converter scripts work
@@ -428,6 +429,7 @@ jobs:
         test -f ${CONDA_PREFIX}/Scripts/ck2yaml
         test -f ${CONDA_PREFIX}/share/cantera/data/gri30.yaml
         test -d ${CONDA_PREFIX}/share/cantera/samples
+        test -d ${CONDA_PREFIX}/share/cantera/samples/python
         test -d ${CONDA_PREFIX}/Lib/site-packages/cantera
     - name: Test Essentials
       # ensure that Python package loads and converter scripts work
