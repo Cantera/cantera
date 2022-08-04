@@ -2075,7 +2075,7 @@ def postInstallMessage(target, source, env):
         ))
 
     if env["python_package"] == "full":
-        env["python_example_loc"] = pjoin(env["python_module_loc"], "cantera", "examples")
+        env["python_example_loc"] = pjoin(env["ct_sampledir"], "python")
         install_message.append(locations_message.format(
             name="Python package", location=env_dict["python_module_loc"]
         ))

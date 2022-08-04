@@ -128,7 +128,7 @@ def get_all_keywords():
     skip = set(text.splitlines())
 
     all_keywords = Counter()
-    for d in (cantera_root / "interfaces/cython/cantera/examples").glob("**"):
+    for d in (cantera_root / "samples" / "python").glob("**"):
         if d.is_dir():
             for f in d.glob("*.py"):
                 if f.name.startswith("_") or f.name in skip:

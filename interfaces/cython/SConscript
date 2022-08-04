@@ -12,6 +12,9 @@ localenv = env.Clone()
 dataFiles = localenv.RecursiveInstall("cantera/data", "#build/data")
 build(dataFiles)
 
+# Install Python samples
+install(localenv.RecursiveInstall, "$inst_sampledir/python", "#samples/python")
+
 # Get information needed to build the Python module
 script = """\
 from sysconfig import *
