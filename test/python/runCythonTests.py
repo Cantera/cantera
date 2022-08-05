@@ -35,7 +35,6 @@ except ImportError:
         sys.exit(21)  # test/SConscript has special handling for this error code
 
 import cantera
-import cantera.test
 
 if __name__ == "__main__":
     print("\n* INFO: using Cantera module found at this location:")
@@ -58,7 +57,7 @@ if __name__ == "__main__":
         verbose = True
         subset_start += 1
 
-    base = Path(cantera.__file__).parent.joinpath("test")
+    base = CANTERA_ROOT / "test" / "python"
     subsets = []
     for name in sys.argv[subset_start:]:
         subsets.append(str(base.joinpath(f"test_{name}.py")))

@@ -47,8 +47,6 @@ python_requires = >=@py_min_ver_str@
 packages =
     cantera
     cantera.data
-    cantera.test
-    cantera.test.data
     cantera.examples
 
 # These options include data in the sdist and wheel if the files are also listed in
@@ -56,7 +54,6 @@ packages =
 # included in the wheel.
 [options.package_data]
 cantera.data = *.*, */*.*
-cantera.test.data = *.*, */*.*
 cantera.examples = */*.*
 cantera = *.pxd
 
