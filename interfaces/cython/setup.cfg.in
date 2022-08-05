@@ -55,7 +55,7 @@ cantera.examples = */*.*
 # The module extension needs to be here since we don't want setuptools to
 # compile the extension, so there are no `source` files in
 # the setup.py extension.
-cantera = *.pxd, *@module_ext@
+cantera = *.pxd, *@module_ext@, test/*.txt
 
 [options.extras_require]
 hdf5 = h5py
