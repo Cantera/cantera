@@ -1,21 +1,36 @@
 """
 Unit tests for Cantera's Cython-based Python module.
 
-This script gathers all the tests defined 'cantera.test' module, runs them,
-and prints a report. Extra command line arguments can be used to run subsets
-of the test suite, for example:
+This script is used by SCons to run the Python test suite, where ``pytest`` is used
+as the test runner. All arguments are handled by SCons configurations.
 
-all tests from 'test_thermo.py' and 'test_kinetics.py':
+This script gathers all Python tests, runs them, and prints a report::
+
+    python runCythonTests.py
+
+Extra command line arguments can be used to run subsets of the test suite, for example
+all tests from ``test_thermo.py`` and ``test_kinetics.py``::
 
     python runCythonTests.py thermo kinetics
 
-all tests from the 'test_reactor.TesTIdealGasReactor' class:
+As an alternative, tests can be run using ``pytest`` directly, as illustrated for the
+following examples (run from Cantera's root folder):
 
-    python runCythonTests.py reactor.TestIdealGasReactor
+all tests::
 
-a single test:
+    pytest test/python
 
-    python runCythonTests.py onedim.TestDiffusionFlame.test_mixture_averaged
+all tests from ``test_transport.py``::
+
+    pytest test/python/test_transport.py
+
+all tests from the ``test_reactor.TestIdealGasReactor`` class::
+
+    pytest test/python/test_reactor.py::TestIdealGasReactor
+
+a single test::
+
+    pytest test/python/test_onedim.py::TestDiffusionFlame::test_mixture_averaged
 """
 
 import sys
