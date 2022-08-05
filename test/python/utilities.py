@@ -15,9 +15,11 @@ import cantera
 
 slow_test = unittest.skipIf(environ.get("CT_SKIP_SLOW", "0") == "1", "slow test")
 
-TEST_DATA_PATH = Path(__file__).parent / "data"
-CANTERA_DATA_PATH = Path(__file__).parents[1] / "data"
+TEST_DATA_PATH = Path(__file__).parents[1] / "data"
+CANTERA_DATA_PATH = Path(__file__).parents[2] / "data"
 
+cantera.add_directory(TEST_DATA_PATH)
+cantera.add_directory(CANTERA_DATA_PATH)
 
 @pytest.fixture
 def allow_deprecated():

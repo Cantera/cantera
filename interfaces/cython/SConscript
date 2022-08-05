@@ -12,9 +12,6 @@ localenv = env.Clone()
 dataFiles = localenv.RecursiveInstall("cantera/data", "#build/data")
 build(dataFiles)
 
-testFiles = localenv.RecursiveInstall("cantera/test/data", "#test/data")
-build(testFiles)
-
 # Get information needed to build the Python module
 script = """\
 from sysconfig import *
@@ -116,13 +113,12 @@ mod = build(localenv.Command(f"#build/python/dist/{wheel_name}", "setup.cfg",
 env['python_module'] = mod
 env['python_extension'] = ext
 
-localenv.Depends(mod, [ext, dataFiles, testFiles, setup_cfg, readme, license,
+localenv.Depends(mod, [ext, dataFiles, setup_cfg, readme, license,
                        "setup.py", "pyproject.toml"])
 localenv.Depends(ext, localenv['cantera_staticlib'])
 
 for f in (multi_glob(localenv, 'cantera', 'py') +
-          multi_glob(localenv, 'cantera/*', 'py') +
-          multi_glob(localenv, 'cantera/*/*', 'py')):
+          multi_glob(localenv, 'cantera/*', 'py')):
     localenv.Depends(mod, f)
 
 # Determine installation path and install the Python module

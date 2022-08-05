@@ -292,7 +292,7 @@ addTestProgram('transport', 'transport')
 addTestProgram('zeroD', 'zeroD')
 
 python_subtests = ['']
-test_root = '#interfaces/cython/cantera/test'
+test_root = '#test/python'
 for f in multi_glob(localenv, test_root, '^test_*.py'):
     python_subtests.append(f.name[5:-3])
 
