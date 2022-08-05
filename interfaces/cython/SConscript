@@ -114,7 +114,7 @@ env['python_module'] = mod
 env['python_extension'] = ext
 
 localenv.Depends(mod, [ext, dataFiles, setup_cfg, readme, license,
-                       "setup.py", "pyproject.toml"])
+                       "setup.py", "pyproject.toml", "cantera/test/README.txt"])
 localenv.Depends(ext, localenv['cantera_staticlib'])
 
 for f in (multi_glob(localenv, 'cantera', 'py') +
