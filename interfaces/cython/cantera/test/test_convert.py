@@ -517,7 +517,7 @@ class ck2yamlTest(utilities.CanteraTest):
 
 class yaml2ckTest(utilities.CanteraTest):
     """Test yaml2ck by converting to CK then back to YAML to read with Cantera."""
-    ext: str = ".yaml2ck.yaml"
+    ext: str = "-from-yaml2ck.yaml"
 
     def _convert_to_ck(
         self,
@@ -527,7 +527,8 @@ class yaml2ckTest(utilities.CanteraTest):
     ) -> tuple[Path | None, Path | None, Path | None]:
         mechanism_path: Path | str
         if not output:
-            mechanism_path = input_file.with_suffix(".ck")
+            stem = Path(input_file).stem  # strip '.inp'
+            mechanism_path = self.test_work_path / (stem + "-from-yaml.ck")
             thermo_path = transport_path = None
         else:
             if len(output) != 3:
@@ -559,12 +560,16 @@ class yaml2ckTest(utilities.CanteraTest):
         transport: str | Path | None = None,
         permissive: bool = False,
     ) -> None:
-        mech, thermo, transport = self._convert_to_ck(
-            input_file,
-            phase_name,
-            (mech, thermo, transport),
-        )
-        output = input_file.with_suffix(self.ext)
+        if mech is not None:
+            mech, thermo, transport = self._convert_to_ck(
+                input_file,
+                phase_name,
+                (mech, thermo, transport),
+            )
+        else:
+            mech, thermo, transport = self._convert_to_ck(input_file, phase_name)
+
+        output = self.test_work_path / (Path(input_file).stem + self.ext)
         ck2yaml.convert_mech(
             mech,
             thermo_file=thermo,
@@ -581,7 +586,8 @@ class yaml2ckTest(utilities.CanteraTest):
             phase_name = kwargs.pop("name")
         else:
             phase_name = ""
-        ck_phase = cls(basename.with_suffix(self.ext), **kwargs)
+        ckname = self.test_work_path / (basename.stem + self.ext)
+        ck_phase = cls(ckname, **kwargs)
         yaml_phase = cls(basename, phase_name, **kwargs)
 
         self.assertEqual(set(ck_phase.element_names), set(yaml_phase.element_names))
