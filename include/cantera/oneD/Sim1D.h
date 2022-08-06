@@ -141,7 +141,10 @@ public:
 
     //! @}
 
+    // @deprecated  To be removed after Cantera 3.0 (unused)
     const doublereal* solution() {
+        warn_deprecated("Sim1D::solution",
+            "This method is unused and will be removed after Cantera 3.0.");
         return m_x.data();
     }
 
@@ -220,11 +223,17 @@ public:
 
     void getInitialSoln();
 
+    // @deprecated  To be removed after Cantera 3.0 (unused)
     void setSolution(const doublereal* soln) {
+        warn_deprecated("Sim1D::setSolution",
+            "This method is unused and will be removed after Cantera 3.0.");
         std::copy(soln, soln + m_x.size(), m_x.data());
     }
 
+    // @deprecated  To be removed after Cantera 3.0 (unused)
     const doublereal* solution() const {
+        warn_deprecated("Sim1D::solution",
+            "This method is unused and will be removed after Cantera 3.0.");
         return m_x.data();
     }
 
