@@ -81,7 +81,7 @@ Thermal conductivity:     0.16396      W/m/K
 
  ********   Interface Kinetics Test   ********
 
- Equation                                     k_fwd        Net rate
+ Equation                                    Fwd rate      Net rate
  H2 + 2 PT(S) => 2 H(S)                     0.33954E-01   0.33954E-01
  2 H(S) => H2 + 2 PT(S)                     0.00000E+00   0.00000E+00
  H + PT(S) => H(S)                          0.00000E+00   0.00000E+00
