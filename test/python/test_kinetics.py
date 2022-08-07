@@ -668,6 +668,20 @@ class TestInvalidInput(utilities.CanteraTest):
             """
         check_raises(gas_def, "is not configured", line=11)
 
+    def test_failing_invalid_duplicate(self):
+        # Make sure that the error we get is for the invalid reaction, not for the
+        # missing duplicate
+        gas_def = self._gas_def + """
+            reactions:
+            - equation: O + H2 <=> H + OH
+              rate-constant: {A: 3.87e+04, b: 2.7, Ea: 6260.0}
+              duplicate: true
+            - equation: O + H2 <=> H + OH
+              rate-constant: {A: -3.87e+04, b: 2.7, Ea: 6260.0}
+              duplicate: true
+            """
+        check_raises(gas_def, "negative pre-exponential factor", line=14)
+
 
 class TestEmptyKinetics(utilities.CanteraTest):
     def test_empty(self):
