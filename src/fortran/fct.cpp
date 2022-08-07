@@ -30,6 +30,10 @@ typedef Cabinet<Transport> TransportCabinet;
 
 typedef integer status_t;
 
+template<> ThermoCabinet* ThermoCabinet::s_storage; // defined in ct.cpp
+template<> KineticsCabinet* KineticsCabinet::s_storage; // defined in ct.cpp
+template<> TransportCabinet* TransportCabinet::s_storage; // defined in ct.cpp
+
 namespace {
 
 ThermoPhase* _fph(const integer* n)
