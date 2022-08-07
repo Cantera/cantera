@@ -114,13 +114,13 @@ module cantera_kinetics
       ctkin_productstoichcoeff = kin_productstoichcoeff(self%kin_id, k, i)
     end function ctkin_productstoichcoeff
 
-    integer function ctkin_getReactionType(self, i, buf)
+    subroutine ctkin_getReactionType(self, i, buf)
       implicit none
       type(phase_t), intent(inout) :: self
       integer, intent(in) :: i
       character*(*), intent(out) :: buf
       self%err = kin_getreactiontype(self%kin_id, i, buf)
-    end function ctkin_getReactionType
+    end subroutine ctkin_getReactionType
 
     subroutine ctkin_getFwdRatesOfProgress(self, fwdROP)
       implicit none
