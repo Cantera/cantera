@@ -155,19 +155,19 @@ subroutine demo_surf(surf, nsp, nrxn)
   type(phase_t) surf
   integer :: nsp, nrxn, i
   character*40 equation
-  double precision :: kf(nrxn), ropnet(nrxn)
+  double precision :: ropf(nrxn), ropnet(nrxn)
 
   write(*,*)
   write(*,*) '********   Interface Kinetics Test   ********'
   write(*,*)
 
-  call getFwdRatesOfProgress(surf, kf)
+  call getFwdRatesOfProgress(surf, ropf)
   call getNetRatesOfProgress(surf, ropnet)
 
-  write(*,*) 'Equation                                     k_fwd        Net rate'
+  write(*,*) 'Equation                                    Fwd rate      Net rate'
   do i = 1, nrxn
     call getReactionString(surf, i, equation)
-    write(*,60) equation, kf(i), ropnet(i)
+    write(*,60) equation, ropf(i), ropnet(i)
 60  format(' ',a40, e14.5, e14.5)
   end do
 end subroutine demo_surf
