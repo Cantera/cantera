@@ -45,11 +45,5 @@ environment.y*
 *.gch
 coverage/
 coverage.info
-doc/sphinx/matlab/data.rst
-doc/sphinx/matlab/importing.rst
-doc/sphinx/matlab/kinetics.rst
-doc/sphinx/matlab/one-dim.rst
-doc/sphinx/matlab/thermodynamics.rst
-doc/sphinx/matlab/transport.rst
-doc/sphinx/matlab/utilities.rst
-doc/sphinx/matlab/zero-dim.rst
+doc/sphinx/matlab/*.rst
+!doc/sphinx/matlab/index.rst
