@@ -153,11 +153,15 @@ void addReactions(Kinetics& kin, const AnyMap& phaseNode, const AnyMap& rootNode
             AnyMap reactions = AnyMap::fromYamlFile(fileName,
                 rootNode.getString("__file__", ""));
             for (const auto& R : reactions[node].asVector<AnyMap>()) {
-                try {
+                #ifdef NDEBUG
+                    try {
+                        kin.addReaction(newReaction(R, kin), false);
+                    } catch (CanteraError& err) {
+                        fmt_append(add_rxn_err, "{}", err.what());
+                    }
+                #else
                     kin.addReaction(newReaction(R, kin), false);
-                } catch (CanteraError& err) {
-                    fmt_append(add_rxn_err, "{}", err.what());
-                }
+                #endif
             }
         } else {
             // specified section is in the current file
