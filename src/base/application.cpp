@@ -257,7 +257,7 @@ void Application::setDefaultDirectories()
         string s = string(getenv("CANTERA_DATA"));
         size_t start = 0;
         size_t end = s.find(pathsep);
-        while(end != npos) {
+        while (end != npos) {
             inputDirs.push_back(s.substr(start, end-start));
             start = end + 1;
             end = s.find(pathsep, start);
@@ -297,7 +297,7 @@ void Application::setDefaultDirectories()
     // build process (unix), and points to the directory specified by the
     // 'prefix' option to 'configure', or else to /usr/local/cantera.
 #ifdef CANTERA_DATA
-    string datadir = string(CANTERA_DATA);
+    string datadir = stripnonprint(string(CANTERA_DATA));
     inputDirs.push_back(datadir);
 #endif
 }
