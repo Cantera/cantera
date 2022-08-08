@@ -1498,6 +1498,41 @@ class TestCustom(ReactionTests, utilities.CanteraTest):
         assert (gas.forward_rate_constants == gas.T).all()
 
 
+class TestExtensible(ReactionTests, utilities.CanteraTest):
+    # test Extensible reaction rate
+    class UserRate(ct.ExtensibleRate):
+        def __init__(self, soln):
+            super().__init__()
+            self.soln = soln
+
+        def replace_eval(self):
+            T = self.soln.T
+            return 38.7 * T**2.7 * exp(-3150.15428/T)
+
+    # probe O + H2 <=> H + OH
+    _rate_cls = UserRate
+    _equation = "H2 + O <=> H + OH"
+    _index = 0
+    _rate_type = "extensible"
+    _yaml = None
+
+    def setUp(self):
+        super().setUp()
+        self._rate_obj = self.UserRate(self.soln)
+
+    def test_no_rate(self):
+        pytest.skip("ExtensibleRate does not support 'empty' rates")
+
+    def from_yaml(self):
+        pytest.skip("ExtensibleRate does not support YAML")
+
+    def from_rate(self, rate):
+        pytest.skip("ExtensibleRate does not support dict-based instantiation")
+
+    def test_roundtrip(self):
+        pytest.skip("ExtensibleRate does not support roundtrip conversion")
+
+
 class InterfaceReactionTests(ReactionTests):
     # test suite for surface reaction expressions
 

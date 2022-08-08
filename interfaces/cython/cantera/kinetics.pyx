@@ -188,8 +188,8 @@ cdef class Kinetics(_SolutionBase):
     def add_reaction(self, Reaction rxn):
         """ Add a new reaction to this phase. """
         self.kinetics.addReaction(rxn._reaction)
-        if isinstance(rxn.rate, CustomRate):
-            # prevent garbage collection
+        if isinstance(rxn.rate, (CustomRate, ExtensibleRate)):
+            # prevent premature garbage collection
             self._custom_rates.append(rxn.rate)
 
     def multiplier(self, int i_reaction):

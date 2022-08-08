@@ -188,6 +188,11 @@ cdef extern from "cantera/kinetics/Custom.h" namespace "Cantera":
         void setRateFunction(shared_ptr[CxxFunc1]) except +translate_exception
 
 
+cdef extern from "cantera/kinetics/ReactionRateDelegator.h" namespace "Cantera":
+    cdef cppclass CxxReactionRateDelegator "Cantera::ReactionRateDelegator" (CxxReactionRate):
+        CxxReactionRateDelegator()
+
+
 cdef extern from "cantera/kinetics/InterfaceRate.h" namespace "Cantera":
     cdef cppclass CxxInterfaceRateBase "Cantera::InterfaceRateBase":
         void getCoverageDependencies(CxxAnyMap)
@@ -246,6 +251,9 @@ cdef class FalloffRate(ReactionRate):
 cdef class CustomRate(ReactionRate):
     cdef CxxCustomFunc1Rate* cxx_object(self)
     cdef Func1 _rate_func  # prevent premature garbage collection
+
+cdef class ExtensibleRate(ReactionRate):
+    pass
 
 cdef class InterfaceRateBase(ArrheniusRateBase):
     cdef CxxInterfaceRateBase* interface
