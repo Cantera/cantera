@@ -138,6 +138,21 @@ cdef void callback_v_dp_dp_dp(PyFuncInfo& funcInfo,
         funcInfo.setExceptionType(<PyObject*>exc_type)
         funcInfo.setExceptionValue(<PyObject*>exc_value)
 
+# Wrapper for functions of type double()
+cdef int callback_d(PyFuncInfo& funcInfo, double& out):
+    try:
+        ret = (<object>funcInfo.func())()
+        if ret is None:
+            return 0
+        else:
+            (&out)[0] = ret
+            return 1
+    except BaseException as e:
+        exc_type, exc_value = sys.exc_info()[:2]
+        funcInfo.setExceptionType(<PyObject*>exc_type)
+        funcInfo.setExceptionValue(<PyObject*>exc_value)
+    return -1
+
 # Wrapper for functions of type string(size_t)
 cdef int callback_s_sz(PyFuncInfo& funcInfo, string& out, size_t arg):
     try:
@@ -271,6 +286,9 @@ cdef int assign_delegates(obj, CxxDelegator* delegator) except -1:
         elif callback == 'void(double*,double*,double*)':
             delegator.setDelegate(cxx_name,
                 pyOverride(<PyObject*>method, callback_v_dp_dp_dp), cxx_when)
+        elif callback == 'double()':
+            delegator.setDelegate(cxx_name,
+                pyOverride(<PyObject*>method, callback_d), cxx_when)
         elif callback == 'string(size_t)':
             delegator.setDelegate(cxx_name,
                 pyOverride(<PyObject*>method, callback_s_sz), cxx_when)

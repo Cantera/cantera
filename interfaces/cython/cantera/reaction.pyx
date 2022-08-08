@@ -9,6 +9,7 @@ from cython.operator cimport dereference as deref
 from .kinetics cimport Kinetics
 from ._utils cimport *
 from .units cimport *
+from .delegator cimport *
 
 # dictionary to store reaction rate classes
 cdef dict _reaction_rate_class_registry = {}
@@ -709,6 +710,20 @@ cdef class CustomRate(ReactionRate):
 
         self.cxx_object().setRateFunction(self._rate_func._func)
 
+cdef class ExtensibleRate(ReactionRate):
+    _reaction_rate_type = "extensible"
+
+    delegatable_methods = {
+        "eval": ("evalFromStruct", "double()")
+    }
+    def __cinit__(self, *args, init=True, **kwargs):
+        if init:
+            self._rate.reset(new CxxReactionRateDelegator())
+            self.set_cxx_object()
+
+    def __init__(self, *args, **kwargs):
+        assign_delegates(self, dynamic_cast[CxxDelegatorPtr](self.rate))
+        super().__init__(*args, **kwargs)
 
 cdef class InterfaceRateBase(ArrheniusRateBase):
     """
