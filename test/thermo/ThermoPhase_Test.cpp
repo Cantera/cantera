@@ -92,6 +92,31 @@ TEST_F(TestThermoMethods, setState_AnyMap)
     EXPECT_NEAR(thermo->temperature(), 298.15, 1e-6);
 }
 
+TEST_F(TestThermoMethods, setConcentrations)
+{
+    vector_fp C0(thermo->nSpecies());
+    double ctot = 0.0;
+    for (size_t k = 0; k < thermo->nSpecies(); k++) {
+        if (k == 2) {
+            C0[k] = -1e-8;
+        } else {
+            C0[k] = 0.25 * k + 0.1;
+        }
+        ctot += C0[k];
+    }
+
+    thermo->setConcentrations(C0.data());
+    EXPECT_NEAR(thermo->molarDensity(), ctot, 1e-7 * ctot);
+    EXPECT_DOUBLE_EQ(thermo->moleFraction(2), 0.0);
+
+    for (size_t k = 0; k < thermo->nSpecies(); k++) {
+        C0[k] *= 1.5;
+    }
+    thermo->setConcentrationsNoNorm(C0.data());
+    EXPECT_NEAR(thermo->molarDensity(), 1.5 * ctot, 1e-7 * ctot);
+    EXPECT_NEAR(thermo->moleFraction(2), -1e-8 / ctot, 1e-16);
+}
+
 class EquilRatio_MixFrac_Test : public testing::Test
 {
 public:
