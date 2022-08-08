@@ -46,14 +46,12 @@ install_requires =
 python_requires = >=@py_min_ver_str@
 packages =
     cantera
-    cantera.data
 
 [options.package_data]
-cantera.data = *.*, */*.*
 # The module extension needs to be here since we don't want setuptools to compile
 # the extension, so there are no ``source`` files in the setup.py ``extension`` and
 # we have to treat the module as package data.
-cantera = *.pxd, *@module_ext@, test/*.txt, examples/*.txt
+cantera = *.pxd, *@module_ext@, test/*.txt, examples/*.txt, data/*.*
 
 [options.extras_require]
 hdf5 = h5py
