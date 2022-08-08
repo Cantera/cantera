@@ -2,18 +2,17 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 import inspect
-import os
+from pathlib import Path
 import textwrap
 
-def normalize_indent(code: str):
+def normalize_indent(code: str) -> str:
     code = textwrap.dedent(code).strip()
 
     indent = 0
 
     call_line = inspect.stack()[1].code_context[0]
 
-    while call_line[indent] == ' ':
-        indent += 1
+    indent = len(call_line) - len(call_line.lstrip())
 
     # If called inside a string interpolation, indent to the rest of the block.
     # Look for the opening brace for the interpolation, which isn't perfect, but works.
@@ -25,6 +24,5 @@ def normalize_indent(code: str):
 
     return code
 
-def get_preamble():
-    with open(os.path.dirname(__file__) + '/preamble.txt', 'r') as preamble_file:
-        return preamble_file.read()
+def get_preamble() -> str:
+    return Path(__file__).parent.joinpath("preamble.txt").read_text()
