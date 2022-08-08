@@ -3,7 +3,7 @@
 
 from abc import ABCMeta, abstractmethod
 from dataclasses import dataclass, fields
-import os
+from pathlib import Path
 
 
 def _unpack(obj):
@@ -44,8 +44,7 @@ class Func:
         rparen = c_func.index(')')
         front = c_func[0:lparen].split()
 
-        params = (Param.parse(p) for p in c_func[lparen+1:rparen].split(','))
-        params = [p for p in params if p]
+        params = [Param.parse(p) for p in c_func[lparen+1:rparen].split(',') if p]
 
         ret_type = front[-2]
         name = front[-1]
@@ -60,11 +59,11 @@ class SourceGeneratorBase(metaclass=ABCMeta):
     """ Specifies the interface of a language-specific SourceGenerator  """
 
     @abstractmethod
-    def __init__(self, out_dir: str, config: dict):
+    def __init__(self, out_dir: Path, config: dict):
         pass
 
     @abstractmethod
-    def generate_source(self, incl_file: os.DirEntry, funcs: list[Func]):
+    def generate_source(self, incl_file: Path, funcs: list[Func]):
         pass
 
     @abstractmethod

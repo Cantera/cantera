@@ -2,13 +2,12 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 from dataclasses import dataclass
-import os
+from pathlib import Path
 import re
 import typing
 
 from .._helpers import normalize_indent, get_preamble
-from .._types import *
-from .._types import _unpack
+from .._types import Func, Param, SourceGeneratorBase, _unpack
 
 
 @dataclass
@@ -47,13 +46,13 @@ class SourceGenerator(SourceGeneratorBase):
 
     @staticmethod
     def _join_params(params):
-        return ', '.join((p.p_type + ' ' + p.name for p in params))
+        return ', '.join(p.p_type + ' ' + p.name for p in params)
 
 
     @classmethod
     def _get_function_text(cls, function):
         ref_type, name, params, _ = function
-        is_unsafe = any((p.p_type.endswith('*') for p in params))
+        is_unsafe = any(p.p_type.endswith('*') for p in params)
         params_text = cls._join_params(params)
         if is_unsafe:
             return f'{cls._prolog} unsafe {ref_type} {name}({params_text});'
@@ -77,21 +76,21 @@ class SourceGenerator(SourceGeneratorBase):
 
 
     @staticmethod
-    def _get_derived_handle_text(derived):
-        derived, base = derived
+    def _get_derived_handle_text(derived_and_base):
+        derived, base = derived_and_base
 
-        derived = f'''class {derived} : {base} {{ }}'''
+        derived_text = f'''class {derived} : {base} {{ }}'''
 
-        return derived
+        return derived_text
 
 
-    def __init__(self, out_dir: str, config: dict):
+    def __init__(self, out_dir: Path, config: dict):
         self._out_dir = out_dir
         self._config = config
         # as different clib files are passed in, the known funcs are added to this dict
         self._known_funcs = {}
 
-        os.makedirs(out_dir, exist_ok=True)
+        out_dir.mkdir(parents=True, exist_ok=True)
 
 
     def _convert_func(self, parsed: Func):
@@ -216,10 +215,10 @@ class SourceGenerator(SourceGeneratorBase):
         return(normalize_indent(text))
 
 
-    def generate_source(self, incl_file: os.DirEntry, funcs: list[Func]):
-        cs_funcs = [self._convert_func(f) for f in funcs]
+    def generate_source(self, incl_file: Path, funcs: list[Func]):
+        cs_funcs = map(self._convert_func, funcs)
 
-        functions_text = '\n\n'.join((self._get_function_text(f) for f in cs_funcs))
+        functions_text = '\n\n'.join(map(self._get_function_text, cs_funcs))
 
         interop_text = normalize_indent(f'''
             {normalize_indent(self._preamble)}
@@ -234,16 +233,15 @@ class SourceGenerator(SourceGeneratorBase):
             }}
         ''')
 
-        with open(self._out_dir + 'Interop.LibCantera.'
-                + incl_file.name + '.g.cs', 'w') as f:
-            f.write(interop_text)
+        self._out_dir.joinpath('Interop.LibCantera.' + incl_file.name + '.g.cs') \
+            .write_text(interop_text)
 
         handles = [(name, del_clazz) for _, name, _, del_clazz in cs_funcs if del_clazz]
 
         if not handles:
             return
 
-        handles_text = '\n\n'.join((self._get_base_handle_text(h) for h in handles))
+        handles_text = '\n\n'.join(map(self._get_base_handle_text, handles))
 
         handles_text = normalize_indent(f'''
             {normalize_indent(self._preamble)}
@@ -253,14 +251,13 @@ class SourceGenerator(SourceGeneratorBase):
             {normalize_indent(handles_text)}
         ''')
 
-        with open(self._out_dir + 'Interop.Handles.'
-                + incl_file.name + '.g.cs', 'w') as f:
-            f.write(handles_text)
+        self._out_dir.joinpath('Interop.Handles.' + incl_file.name + '.g.cs') \
+            .write_text(handles_text)
 
 
     def finalize(self):
-        derived_handles = '\n\n'.join((self._get_derived_handle_text(d)
-            for d in self._config['derived_handles'].items()))
+        derived_handles = '\n\n'.join(map(self._get_derived_handle_text,
+            self._config['derived_handles'].items()))
 
         derived_handles_text = normalize_indent(f'''
             {normalize_indent(self._preamble)}
@@ -270,14 +267,14 @@ class SourceGenerator(SourceGeneratorBase):
             {derived_handles}
         ''')
 
-        with open(self._out_dir + 'Interop.Handles.g.cs', 'w') as f:
-            f.write(derived_handles_text)
+        self._out_dir.joinpath('Interop.Handles.g.cs') \
+            .write_text(derived_handles_text)
 
         for (clazz, props) in self._config['classes'].items():
             name = self._config['handle_crosswalk'][clazz]
 
-            props_text = '\n\n'.join((self._get_property_text(clazz, c_name, cs_name)
-                for (c_name, cs_name) in props.items()))
+            props_text = '\n\n'.join(self._get_property_text(clazz, c_name, cs_name)
+                for (c_name, cs_name) in props.items())
 
             clazz_text = normalize_indent(f'''
                 {normalize_indent(self._preamble)}
@@ -305,5 +302,5 @@ class SourceGenerator(SourceGeneratorBase):
                 }}
             ''')
 
-            with open(self._out_dir + name + '.g.cs', 'w') as f:
-                f.write(clazz_text)
+            self._out_dir.joinpath(name + '.g.cs') \
+                .write_text(clazz_text)
