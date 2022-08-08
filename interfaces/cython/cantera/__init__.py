@@ -7,6 +7,7 @@ from .composite import *
 from .liquidvapor import *
 from .onedim import *
 from .utils import *
+from .data import *
 import cantera.interrupts  # Helps with standalone packaging (PyInstaller etc.)
 
 import os
