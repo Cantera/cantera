@@ -2,32 +2,11 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 import importlib
+import inspect
 from pathlib import Path
-import re
 import ruamel.yaml
 
-from ._types import Func
-
-
-def _call_generate_source(generator, incl_file, ignore):
-    print('  ' + incl_file.name)
-
-    ct = incl_file.read_text()
-
-    matches = re.finditer(r'CANTERA_CAPI.*?;', ct, re.DOTALL)
-    c_functions = [re.sub(r'\s+', ' ', m.group()) for m in matches]
-
-    if not c_functions:
-        return
-
-    parsed = map(Func.parse, c_functions)
-
-    if ignore:
-        print(f'    ignoring ' + str(ignore))
-
-    parsed = [f for f in parsed if f.name not in ignore]
-
-    generator.generate_source(incl_file, parsed)
+from ._dataclasses import HeaderFile, SourceGenerator
 
 
 def generate_source(lang: str, out_dir: str):
@@ -40,13 +19,18 @@ def generate_source(lang: str, out_dir: str):
     with config_path.open() as config_file:
         config = ruamel.yaml.safe_load(config_file)
 
+    # find and instantiate the language-specific SourceGenerator
     module = importlib.import_module(__package__  + '.' + lang)
-    generator = module.SourceGenerator(Path(out_dir), config)
+    _, scaffolder_type = inspect.getmembers(module,
+        lambda m: inspect.isclass(m) and issubclass(m, SourceGenerator))[0]
+    scaffolder: SourceGenerator = scaffolder_type(Path(out_dir), config)
 
-    ignore = config['ignore']
+    ignore_files: list[str] = config.get('ignore_files', [])
+    ignore_functions: dict[str, list[str]] = config.get('ignore_functions', {})
 
-    for incl_file in clib_path.glob('*.h'):
-        if incl_file.name not in ignore or ignore[incl_file.name]:
-            _call_generate_source(generator, incl_file, ignore.get(incl_file.name, []))
+    files = (HeaderFile.parse(f, ignore_functions.get(f.name, []))
+            for f in clib_path.glob('*.h') if f.name not in ignore_files)
+    # removes instances where HeaderFile.parse() returned None
+    files = list(filter(None, files))
 
-    generator.finalize()
+    scaffolder.generate_source(files)

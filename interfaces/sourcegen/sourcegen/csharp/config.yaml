@@ -1,31 +1,31 @@
-# How ignore works:
-# Put the name of a C header file with
-#   - an empty list to ignore the entire file
-#   - a list of function names to include the file but ignore those functions
-ignore:
-    clib_defs.h: []
-    ct.h:
-        - ct_setLogWriter
-    ctfunc.h: []
-    ctmatlab.h: []
-    ctonedim.h: []
-    ctreactor.h:
-        - flowReactor_setMassFlowRate
-    ctrpath.h: []
+# ignore these files entirely:
+ignore_files:
+  - clib_defs.h
+  - ctfunc.h
+  - ctmatlab.h
+  - ctonedim.h
+  - ctrpath.h
+
+#ignore these specific functions:
+ignore_functions:
+  ct.h:
+    - ct_setLogWriter
+  ctreactor.h:
+    - flowReactor_setMassFlowRate
 
 # replaces the name as determined by the C function prefix
 # with the name of the class that function is designed to expose
 handle_crosswalk:
-    flowdev: FlowDevice
-    kin: Kinetics
-    mix: Mixture
-    reactor: Reactor
-    reactornet: ReactorNet
-    reactorsurface: ReactorSurface
-    surf: Surface
-    thermo: ThermoPhase
-    trans: Transport
-    wall: Wall
+  flowdev: FlowDevice
+  kin: Kinetics
+  mix: Mixture
+  reactor: Reactor
+  reactornet: ReactorNet
+  reactorsurface: ReactorSurface
+  surf: Surface
+  thermo: ThermoPhase
+  trans: Transport
+  wall: Wall
 
 # Handles for which there is no special delete function,
 # so we need to generate them manually because we can't
@@ -33,7 +33,7 @@ handle_crosswalk:
 # Declare these as
 #  Derived: Base
 derived_handles:
-    SurfaceHandle: ThermoPhaseHandle
+  SurfaceHandle: ThermoPhaseHandle
 
 # Provides info for scaffolding higher-level idiomatic C# classes
 # At this stage, we can scaffold simple properties that follow the
@@ -42,21 +42,21 @@ derived_handles:
 # The C# class name will be determine by the handle crosswalk above.
 # The C# property names are the values for the CLib "property" keys.
 classes:
-    thermo:
-    # scalars
-        density: Density
-        electricPotential: ElectricPotential
-        meanMolecularWeight: MeanMolecularWeight
-        molarDensity: MolarDensity
-        pressure: Pressure
-        temperature: Temperature
-        enthalpy_mass: MassEnthalpy
-        enthalpy_mole: MolarEnthalpy
-        entropy_mass: MassEntropy
-        entropy_mole: MolarEntropy
-        cp_mole: MolarCp
-        cv_mole: MolarCv
-        cp_mass: MassCp
-        cv_mass: MassCv
-    # strings
-        name : Name
+  thermo:
+  # scalars
+    density: Density
+    electricPotential: ElectricPotential
+    meanMolecularWeight: MeanMolecularWeight
+    molarDensity: MolarDensity
+    pressure: Pressure
+    temperature: Temperature
+    enthalpy_mass: MassEnthalpy
+    enthalpy_mole: MolarEnthalpy
+    entropy_mass: MassEntropy
+    entropy_mole: MolarEntropy
+    cp_mole: MolarCp
+    cv_mole: MolarCv
+    cp_mass: MassCp
+    cv_mass: MassCv
+  # strings
+    name : Name
