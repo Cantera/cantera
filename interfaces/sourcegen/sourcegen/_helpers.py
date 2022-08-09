@@ -1,9 +1,17 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
+from dataclasses import fields
 import inspect
 from pathlib import Path
 import textwrap
+
+
+def with_unpack_iter(cls: type) -> type:
+    cls.__iter__ = lambda self: (getattr(self, f.name) for f in fields(self))
+
+    return cls
+
 
 def normalize_indent(code: str) -> str:
     code = textwrap.dedent(code).strip()
@@ -23,6 +31,7 @@ def normalize_indent(code: str) -> str:
         code = code[indent:]
 
     return code
+
 
 def get_preamble() -> str:
     return Path(__file__).parent.joinpath("preamble.txt").read_text()
