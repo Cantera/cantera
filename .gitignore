@@ -45,5 +45,6 @@ environment.y*
 *.gch
 coverage/
 coverage.info
+.coverage
 doc/sphinx/matlab/*.rst
 !doc/sphinx/matlab/index.rst

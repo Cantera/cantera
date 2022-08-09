@@ -145,6 +145,8 @@ def addPythonTest(testname, subdir, script, interpreter,
             cmdargs.insert(0, "show_long")
         if env["verbose_tests"]:
             cmdargs.insert(0, "verbose")
+        if env["coverage"]:
+            cmdargs.insert(0, "coverage")
         if env["skip_slow_tests"]:
             environ["CT_SKIP_SLOW"] = "1"
 

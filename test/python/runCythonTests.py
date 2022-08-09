@@ -38,7 +38,6 @@ import os
 from pathlib import Path
 
 CANTERA_ROOT = Path(__file__).parents[2]
-os.chdir(str(CANTERA_ROOT / "test" / "work"))
 
 try:
     import pytest
@@ -62,6 +61,7 @@ if __name__ == "__main__":
     fast_fail = False
     show_long = False
     verbose = False
+    coverage = False
     if "fast_fail" in sys.argv:
         fast_fail = True
         subset_start += 1
@@ -70,6 +70,9 @@ if __name__ == "__main__":
         subset_start += 1
     if "verbose" in sys.argv:
         verbose = True
+        subset_start += 1
+    if "coverage" in sys.argv:
+        coverage = True
         subset_start += 1
 
     base = CANTERA_ROOT / "test" / "python"
@@ -85,6 +88,8 @@ if __name__ == "__main__":
         pytest_args += ["--durations=50"]
     if fast_fail:
         pytest_args.insert(0, "-x")
+    if coverage:
+        pytest_args.extend(["--cov=cantera", "--cov-config=test/python/coverage.ini"])
     if verbose:
         pytest_args.insert(0, "-v")
     else:

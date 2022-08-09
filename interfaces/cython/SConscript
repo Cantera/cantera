@@ -88,12 +88,17 @@ license = localenv.Command("LICENSE.txt", "#build/ext/LICENSE.txt",
                            Copy("$TARGET", "$SOURCE"))
 localenv.Depends(license, localenv["license_target"])
 
+directives = {}
+if env["coverage"]:
+    directives["linetrace"] = True
+    localenv.Append(CPPDEFINES={"CYTHON_TRACE": 1})
+
 # Build the Python module
 cython_obj = []
 for pyxfile in multi_glob(localenv, "cantera", "pyx"):
     cythonized = localenv.Command(
          f"cantera/{pyxfile.name.replace('.pyx', '.cpp')}", pyxfile,
-         '''${python_cmd} -c "import Cython.Build; Cython.Build.cythonize(r'${SOURCE}')"'''
+         f'''${{python_cmd}} -c "import Cython.Build; Cython.Build.cythonize(r'${{SOURCE}}', compiler_directives={directives!r})"'''
     )
     for pxd in multi_glob(localenv, "cantera", "pxd"):
         localenv.Depends(cythonized, pxd)
