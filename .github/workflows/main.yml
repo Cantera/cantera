@@ -155,7 +155,7 @@ jobs:
       run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
       run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas scipy pytest
-        pytest-github-actions-annotate-failures gcovr
+        pytest-github-actions-annotate-failures pytest-cov gcovr
     - name: Build Cantera
       run: |
         python3 `which scons` build blas_lapack_libs=lapack,blas coverage=y \
@@ -177,10 +177,10 @@ jobs:
         path: htmlcoverage*
         retention-days: 5
     - name: Upload Coverage to Codecov
-      uses: codecov/codecov-action@v2
+      uses: codecov/codecov-action@v3
       with:
         verbose: true
-        files: ./coverage.xml
+        files: ./coverage.xml,./build/pycov.xml
         fail_ci_if_error: true
 
   example-keywords:
