@@ -55,7 +55,7 @@ class CanteraTest(unittest.TestCase):
         # an in-source test, create the directory in the root
         # test/work directory. Otherwise, create a system level
         # temporary directory
-        root_dir = Path(__file__).parents[4].resolve()
+        root_dir = Path(__file__).parents[2].resolve()
         if (root_dir / "SConstruct").is_file():
             cls.test_work_path = root_dir / "test" / "work" / "python"
             cls.using_tempfile = False
