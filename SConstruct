@@ -76,6 +76,7 @@ import os
 import platform
 import subprocess
 import re
+import json
 import textwrap
 from os.path import join as pjoin
 from pkg_resources import parse_version
@@ -1462,12 +1463,20 @@ numpy_min_version = parse_version('1.12.0')
 # that they are missing the RoundTripRepresenter
 ruamel_min_version = parse_version('0.15.34')
 
+# Minimum pytest version assumed based on Ubuntu 20.04
+pytest_min_version = parse_version("4.6.9")
+
 # Check for the minimum ruamel.yaml version, 0.15.34, at install and test
 # time. The check happens at install and test time because ruamel.yaml is
 # only required to run the Python interface, not to build it.
 check_for_ruamel_yaml = any(
     target in COMMAND_LINE_TARGETS
-    for target in ["install", "test", "test-python-convert"]
+    for target in ["install", "test", "test-python-convert", "test-python"]
+)
+
+# Pytest is required only to test the Python module
+check_for_pytest = check_for_ruamel_yaml or any(
+    target.startswith("test-python") for target in COMMAND_LINE_TARGETS
 )
 
 if env['python_package'] == 'y':
@@ -1479,46 +1488,48 @@ env['install_python_action'] = ''
 env['python_module_loc'] = ''
 env["ct_pyscriptdir"] = "<not installed>"
 
+def check_module(name):
+    return textwrap.dedent(f"""\
+        try:
+            import {name}
+            versions["{name}"] = {name}.__version__
+        except ImportError as {name}_err:
+            err += str({name}_err) + "\\n"
+    """)
+
 if env['python_package'] != 'none':
     # Test to see if we can import numpy and Cython
     script = textwrap.dedent("""\
         import sys
-        print('{v.major}.{v.minor}'.format(v=sys.version_info))
-        err = ''
-        try:
-            import numpy
-            print(numpy.__version__)
-        except ImportError as np_err:
-            print('0.0.0')
-            err += str(np_err) + '\\n'
-        try:
-            import Cython
-            print(Cython.__version__)
-        except ImportError as cython_err:
-            print('0.0.0')
-            err += str(cython_err) + '\\n'
-        if err:
-            print(err)
+        import json
+        versions = {}
+        versions["python"] = "{v.major}.{v.minor}".format(v=sys.version_info)
+        err = ""
     """)
-    expected_output_lines = 3
+    script += check_module("numpy")
+    script += check_module("Cython")
+
     if check_for_ruamel_yaml:
-        ru_script = textwrap.dedent("""\
+        script += textwrap.dedent("""\
             try:
                 from ruamel import yaml
-                print(yaml.__version__)
+                versions["ruamel.yaml"] = yaml.__version__
             except ImportError as ru_err:
                 try:
                     import ruamel_yaml as yaml
-                    print(yaml.__version__)
+                    versions["ruamel.yaml"] = yaml.__version__
                 except ImportError as ru_err_2:
-                    print('0.0.0')
-                    err += str(ru_err) + '\\n'
-                    err += str(ru_err_2) + '\\n'
-        """).splitlines()
-        s = script.splitlines()
-        s[-2:-2] = ru_script
-        script = "\n".join(s)
-        expected_output_lines = 4
+                    err += str(ru_err) + "\\n"
+                    err += str(ru_err_2) + "\\n"
+        """)
+    if check_for_pytest:
+        script += check_module("pytest")
+
+    script += textwrap.dedent("""\
+        print("versions:", json.dumps(versions))
+        if err:
+            print(err)
+    """)
 
     try:
         info = get_command_output(env["python_cmd"], "-c", script).splitlines()
@@ -1530,12 +1541,17 @@ if env['python_package'] != 'none':
         warn_no_python = True
     else:
         warn_no_python = False
-        python_version = parse_version(info[0])
-        numpy_version = parse_version(info[1])
-        cython_version = parse_version(info[2])
+        for line in info:
+            if line.startswith("versions:"):
+                versions = {
+                    k: parse_version(v)
+                    for k, v in json.loads(line.split(maxsplit=1)[1]).items()
+                }
+                break
+
         if check_for_ruamel_yaml:
-            ruamel_yaml_version = parse_version(info[3])
-            if ruamel_yaml_version == parse_version("0.0.0"):
+            ruamel_yaml_version = versions.get("ruamel.yaml")
+            if not ruamel_yaml_version:
                 logger.error(
                     f"ruamel.yaml was not found. {ruamel_min_version} or newer "
                     "is required.")
@@ -1547,6 +1563,22 @@ if env['python_package'] != 'none':
                     "is required.")
                 sys.exit(1)
 
+        pytest_version = versions.get("pytest")
+        if not check_for_pytest:
+            pass
+        elif not pytest_version:
+            logger.error(
+                f"pytest was not found. {pytest_min_version} or newer "
+                "is required.")
+            sys.exit(1)
+        elif pytest_version < pytest_min_version:
+            logger.error(
+                "pytest is an incompatible version: Found "
+                f"{pytest_version}, but {pytest_min_version} or newer "
+                "is required.")
+            sys.exit(1)
+
+    python_version = versions["python"]
     if warn_no_python:
         if env["python_package"] == "default":
             logger.warning(
@@ -1569,9 +1601,9 @@ if env['python_package'] != 'none':
         logger.info(f"Building the minimal Python package for Python {python_version}")
     else:
 
-        if len(info) > expected_output_lines:
+        if len(info) > 1:
             msg = ["Unexpected output while checking Python dependency versions:"]
-            msg.extend(info[expected_output_lines:])
+            msg.extend(line for line in info if not line.startswith("versions:"))
             logger.warning("\n| ".join(msg))
 
         warn_no_full_package = False
@@ -1585,7 +1617,8 @@ if env['python_package'] != 'none':
             # Cython < 0.29.12.
             cython_min_version = parse_version("0.29.12")
 
-        if numpy_version == parse_version("0.0.0"):
+        numpy_version = versions.get("numpy")
+        if not numpy_version:
             logger.info("NumPy not found.")
             warn_no_full_package = True
         elif numpy_version < numpy_min_version:
@@ -1596,7 +1629,8 @@ if env['python_package'] != 'none':
         else:
             logger.info(f"Using NumPy version {numpy_version}")
 
-        if cython_version == parse_version("0.0.0"):
+        cython_version = versions.get("Cython")
+        if not cython_version:
             logger.info("Cython not found.")
             warn_no_full_package = True
         elif cython_version < cython_min_version:

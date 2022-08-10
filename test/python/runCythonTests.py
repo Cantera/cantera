@@ -39,15 +39,7 @@ from pathlib import Path
 
 CANTERA_ROOT = Path(__file__).parents[2]
 
-try:
-    import pytest
-except ImportError:
-        print("\n* ERROR: The Cantera Python test suite requires "
-            "the Python package 'pytest'.")
-        print("* ERROR: Use pip or conda to install 'pytest', "
-            "which will enable this feature.")
-        sys.exit(21)  # test/SConscript has special handling for this error code
-
+import pytest
 import cantera
 
 if __name__ == "__main__":
