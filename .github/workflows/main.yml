@@ -170,11 +170,17 @@ jobs:
         --exclude-directories '\.sconf_temp' --exclude-directories 'build/ext$' \
         --exclude '.*ext.*' --exclude '(.+/)?_cantera\.cpp$' --exclude '^test.*' \
         --xml coverage.xml --html-details htmlcoverage.html --txt
-    - name: Archive code coverage results
+    - name: Archive C++ coverage results
       uses: actions/upload-artifact@v2
       with:
-        name: code-coverage-report
+        name: cxx-coverage-report
         path: htmlcoverage*
+        retention-days: 5
+    - name: Archive Python coverage results
+      uses: actions/upload-artifact@v2
+      with:
+        name: python-coverage-report
+        path: build/python-coverage*
         retention-days: 5
     - name: Upload Coverage to Codecov
       uses: codecov/codecov-action@v3
