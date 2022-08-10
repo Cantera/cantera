@@ -92,7 +92,8 @@ if __name__ == "__main__":
         pytest_args.extend([
             "--cov=cantera",
             "--cov-config=test/python/coverage.ini",
-            "--cov-report=xml:build/pycov.xml"
+            "--cov-report=xml:build/pycov.xml",
+            "--cov-report=html:build/python-coverage"
         ])
     if verbose:
         pytest_args.insert(0, "-v")
