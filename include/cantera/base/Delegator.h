@@ -189,15 +189,16 @@ public:
         *m_funcs_v_dp_dp_dp[name] = makeDelegate(func, when, *m_funcs_v_dp_dp_dp[name]);
     }
 
-    //! set delegates for member functions with the signature `double()`
-    void setDelegate(const std::string& name, const std::function<int(double&)>& func,
+    //! set delegates for member functions with the signature `double(void*)`
+    void setDelegate(const std::string& name,
+                     const std::function<int(double&, void*)>& func,
                      const std::string& when)
     {
-        if (!m_funcs_d.count(name)) {
+        if (!m_funcs_d_vp.count(name)) {
             throw NotImplementedError("Delegator::setDelegate",
-                "for function named '{}' with signature 'double()'.", name);
+                "for function named '{}' with signature 'double(void*)'.", name);
         }
-        *m_funcs_d[name] = makeDelegate(func, when, m_base_d[name]);
+        *m_funcs_d_vp[name] = makeDelegate(func, when, m_base_d_vp[name]);
     }
 
     //! Set delegates for member functions with the signature `string(size_t)`
@@ -289,12 +290,12 @@ protected:
         m_funcs_v_dp_dp_dp[name] = &target;
     }
 
-    //! Install a function with the signature `void()` as being delegatable
-    void install(const std::string& name, std::function<double()>& target,
-                 const std::function<double()>& func)
+    //! Install a function with the signature `double(void*)` as being delegatable
+    void install(const std::string& name, std::function<double(void*)>& target,
+                 const std::function<double(void*)>& func)
     {
         target = func;
-        m_funcs_d[name] = &target;
+        m_funcs_d_vp[name] = &target;
     }
 
     //! Install a function with the signature `string(size_t)` as being delegatable
@@ -432,8 +433,8 @@ protected:
         std::function<void(std::array<size_t, 3>, double*, double*, double*)>*> m_funcs_v_dp_dp_dp;
 
     // Delegates with a return value
-    std::map<std::string, std::function<double()>> m_base_d;
-    std::map<std::string, std::function<double()>*> m_funcs_d;
+    std::map<std::string, std::function<double(void*)>> m_base_d_vp;
+    std::map<std::string, std::function<double(void*)>*> m_funcs_d_vp;
 
     std::map<std::string,
         std::function<std::string(size_t)>> m_base_s_sz;

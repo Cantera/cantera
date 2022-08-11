@@ -6,6 +6,7 @@ import sys
 
 from ._utils import CanteraError
 from ._utils cimport stringify, pystr
+from cython.operator import dereference as deref
 
 # ## Implementation for each delegated function type
 #
@@ -138,10 +139,10 @@ cdef void callback_v_dp_dp_dp(PyFuncInfo& funcInfo,
         funcInfo.setExceptionType(<PyObject*>exc_type)
         funcInfo.setExceptionValue(<PyObject*>exc_value)
 
-# Wrapper for functions of type double()
-cdef int callback_d(PyFuncInfo& funcInfo, double& out):
+# Wrapper for functions of type double(void*)
+cdef int callback_d_vp(PyFuncInfo& funcInfo, double& out, void* obj):
     try:
-        ret = (<object>funcInfo.func())()
+        ret = (<object>funcInfo.func())(deref(<double*>obj))
         if ret is None:
             return 0
         else:
@@ -286,9 +287,9 @@ cdef int assign_delegates(obj, CxxDelegator* delegator) except -1:
         elif callback == 'void(double*,double*,double*)':
             delegator.setDelegate(cxx_name,
                 pyOverride(<PyObject*>method, callback_v_dp_dp_dp), cxx_when)
-        elif callback == 'double()':
+        elif callback == 'double(void*)':
             delegator.setDelegate(cxx_name,
-                pyOverride(<PyObject*>method, callback_d), cxx_when)
+                pyOverride(<PyObject*>method, callback_d_vp), cxx_when)
         elif callback == 'string(size_t)':
             delegator.setDelegate(cxx_name,
                 pyOverride(<PyObject*>method, callback_s_sz), cxx_when)
