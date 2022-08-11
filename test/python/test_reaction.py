@@ -1501,12 +1501,7 @@ class TestCustom(ReactionTests, utilities.CanteraTest):
 class TestExtensible(ReactionTests, utilities.CanteraTest):
     # test Extensible reaction rate
     class UserRate(ct.ExtensibleRate):
-        def __init__(self, soln):
-            super().__init__()
-            self.soln = soln
-
-        def replace_eval(self):
-            T = self.soln.T
+        def replace_eval(self, T):
             return 38.7 * T**2.7 * exp(-3150.15428/T)
 
     # probe O + H2 <=> H + OH
@@ -1518,7 +1513,7 @@ class TestExtensible(ReactionTests, utilities.CanteraTest):
 
     def setUp(self):
         super().setUp()
-        self._rate_obj = self.UserRate(self.soln)
+        self._rate_obj = self.UserRate()
 
     def test_no_rate(self):
         pytest.skip("ExtensibleRate does not support 'empty' rates")

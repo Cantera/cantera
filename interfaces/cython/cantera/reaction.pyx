@@ -714,7 +714,7 @@ cdef class ExtensibleRate(ReactionRate):
     _reaction_rate_type = "extensible"
 
     delegatable_methods = {
-        "eval": ("evalFromStruct", "double()")
+        "eval": ("evalFromStruct", "double(void*)")
     }
     def __cinit__(self, *args, init=True, **kwargs):
         if init:

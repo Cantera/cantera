@@ -18,7 +18,7 @@ class ReactionRateDelegator : public Delegator, public ReactionRate
 public:
     ReactionRateDelegator() {
         install("evalFromStruct", m_evalFromStruct,
-            [this]() {
+            [](void*) {
                 throw NotImplementedError("ReactionRateDelegator::evalFromStruct");
                 return 0.0; // necessary to set lambda's function signature
             }
@@ -41,11 +41,14 @@ public:
     // Delegatable methods
 
     double evalFromStruct(const ArrheniusData& shared_data) {
-        return m_evalFromStruct();
+        // @TODO: replace passing pointer to temperature with a language-specific
+        //     wrapper of the ReactionData object
+        double T = shared_data.temperature;
+        return m_evalFromStruct(&T);
     }
 
 private:
-    std::function<double()> m_evalFromStruct;
+    std::function<double(void*)> m_evalFromStruct;
 };
 
 }
