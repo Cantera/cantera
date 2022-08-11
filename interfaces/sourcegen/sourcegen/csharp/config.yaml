@@ -15,7 +15,7 @@ ignore_functions:
 
 # replaces the name as determined by the C function prefix
 # with the name of the class that function is designed to expose
-handle_crosswalk:
+class_crosswalk:
   flowdev: FlowDevice
   kin: Kinetics
   mix: Mixture
@@ -39,9 +39,9 @@ derived_handles:
 # At this stage, we can scaffold simple properties that follow the
 # naming conventions _prop, _setProp for scalars and
 # _getProp, _setProp for array-likes (string, double[]).
-# The C# class name will be determine by the handle crosswalk above.
+# The C# class name will be determine by the class crosswalk above.
 # The C# property names are the values for the CLib "property" keys.
-classes:
+wrapper_classes:
   thermo:
   # scalars
     density: Density
@@ -59,4 +59,4 @@ classes:
     cp_mass: MassCp
     cv_mass: MassCv
   # strings
-    name : Name
+    name: Name

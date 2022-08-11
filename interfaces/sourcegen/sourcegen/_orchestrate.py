@@ -6,7 +6,8 @@ import inspect
 from pathlib import Path
 import ruamel.yaml
 
-from ._dataclasses import HeaderFile, SourceGenerator
+from ._dataclasses import HeaderFile
+from ._SourceGenerator import SourceGenerator
 
 
 def generate_source(lang: str, out_dir: str):
@@ -29,7 +30,7 @@ def generate_source(lang: str, out_dir: str):
     ignore_functions: dict[str, list[str]] = config.get('ignore_functions', {})
 
     files = (HeaderFile.parse(f, ignore_functions.get(f.name, []))
-            for f in clib_path.glob('*.h') if f.name not in ignore_files)
+        for f in clib_path.glob('*.h') if f.name not in ignore_files)
     # removes instances where HeaderFile.parse() returned None
     files = list(filter(None, files))
 

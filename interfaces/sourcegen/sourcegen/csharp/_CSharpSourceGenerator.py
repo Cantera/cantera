@@ -6,31 +6,14 @@ from pathlib import Path
 import re
 
 from ._dataclasses import CsFunc
-from .._helpers import normalize_indent, get_preamble
-from .._dataclasses import Func, Param, HeaderFile, SourceGenerator
+from ._Config import Config
+from .._helpers import normalize_indent
+from .._dataclasses import Func, Param, HeaderFile
+from .._SourceGenerator import SourceGenerator
 
 
 class CSharpSourceGenerator(SourceGenerator):
-    """The SourceGenerator for scaffolding C# files for the .NET interface"""
-
-    _func_prolog = normalize_indent("""
-        [DllImport(LibFile)]
-        public static extern
-    """)
-
-    _type_map = {
-        'const char*': 'string',
-        'const double*': 'double[]',
-        'size_t': 'nuint',
-        'char*': 'byte*'
-    }
-
-    _prop_type_map = {
-        'byte*': 'string',
-        'double*': 'double[]'
-    }
-
-    _preamble = '/*\n' + get_preamble() + '*/'
+    """ The SourceGenerator for scaffolding C# files for the .NET interface """
 
 
     @staticmethod
@@ -38,15 +21,15 @@ class CSharpSourceGenerator(SourceGenerator):
         return ', '.join(p.p_type + ' ' + p.name for p in params)
 
 
-    @classmethod
-    def _get_interop_func_text(cls, func: CsFunc) -> str:
+    def _get_interop_func_text(self, func: CsFunc) -> str:
         ret_type, name, params, _, _ = func
-        is_unsafe = any(p.p_type.endswith('*') for p in params)
-        params_text = cls._join_params(params)
-        if is_unsafe:
-            return f'{cls._func_prolog} unsafe {ret_type} {name}({params_text});'
+        requires_unsafe_keyword = any(p.p_type.endswith('*') for p in params)
+        params_text = self._join_params(params)
+
+        if requires_unsafe_keyword:
+            return f'{self._config.func_prolog} unsafe {ret_type} {name}({params_text});'
         else:
-            return f'{cls._func_prolog} {ret_type} {name}({params_text});'
+            return f'{self._config.func_prolog} {ret_type} {name}({params_text});'
 
 
     @staticmethod
@@ -69,8 +52,7 @@ class CSharpSourceGenerator(SourceGenerator):
         return derived_text
 
 
-    @classmethod
-    def _get_property_text(cls, clib_area: str, c_name: str, cs_name: str,
+    def _get_property_text(self, clib_area: str, c_name: str, cs_name: str,
                            known_funcs: dict[str, CsFunc]) -> str:
         getter = known_funcs.get(clib_area + "_" + c_name)
 
@@ -82,7 +64,7 @@ class CSharpSourceGenerator(SourceGenerator):
             getter = known_funcs[clib_area + "_get" + c_name.capitalize()]
             # this assumes the last param in the function is a pointer type,
             # from which we determine the appropriate C# type
-            prop_type = cls._prop_type_map[getter.params[-1].p_type]
+            prop_type = self._config.prop_type_crosswalk[getter.params[-1].p_type]
 
         setter = known_funcs.get(clib_area + "_set" + c_name.capitalize())
 
@@ -129,11 +111,14 @@ class CSharpSourceGenerator(SourceGenerator):
 
 
     def __init__(self, out_dir: Path, config: dict):
-        super().__init__(out_dir, config)
+        self._out_dir = out_dir
+
+        # use the typed config
+        self._config = Config.from_parsed(config)
 
 
     def _get_wrapper_class_name(self, clib_area: str) -> str:
-        return self._config['handle_crosswalk'][clib_area]
+        return self._config.class_crosswalk[clib_area]
 
 
     def _get_handle_class_name(self, clib_area: str) -> str:
@@ -162,7 +147,7 @@ class CSharpSourceGenerator(SourceGenerator):
             else:
                 params[0] = Param(handle_class_name, params[0].name)
 
-        for c_type, cs_type in self._type_map.items():
+        for c_type, cs_type in self._config.ret_type_crosswalk.items():
             if ret_type == c_type:
                 ret_type = cs_type
                 break
@@ -172,7 +157,7 @@ class CSharpSourceGenerator(SourceGenerator):
         for i in range(0, len(params)):
             param_type, param_name = params[i]
 
-            for c_type, cs_type in self._type_map.items():
+            for c_type, cs_type in self._config.ret_type_crosswalk.items():
                 if param_type == c_type:
                     param_type = cs_type
                     break
@@ -214,7 +199,7 @@ class CSharpSourceGenerator(SourceGenerator):
         functions_text = '\n\n'.join(map(self._get_interop_func_text, cs_funcs))
 
         interop_text = normalize_indent(f'''
-            {normalize_indent(self._preamble)}
+            {normalize_indent(self._config.preamble)}
 
             using System.Runtime.InteropServices;
 
@@ -234,7 +219,7 @@ class CSharpSourceGenerator(SourceGenerator):
         handles_text = '\n\n'.join(starmap(self._get_base_handle_text, handles.items()))
 
         handles_text = normalize_indent(f'''
-            {normalize_indent(self._preamble)}
+            {normalize_indent(self._config.preamble)}
 
             namespace Cantera.Interop;
 
@@ -247,10 +232,10 @@ class CSharpSourceGenerator(SourceGenerator):
 
     def _scaffold_derived_handles(self):
         derived_handles = '\n\n'.join(starmap(self._get_derived_handle_text,
-            self._config['derived_handles'].items()))
+            self._config.derived_handles.items()))
 
         derived_handles_text = normalize_indent(f'''
-            {normalize_indent(self._preamble)}
+            {normalize_indent(self._config.preamble)}
 
             namespace Cantera.Interop;
 
@@ -270,7 +255,7 @@ class CSharpSourceGenerator(SourceGenerator):
                 for (c_name, cs_name) in props.items())
 
         wrapper_class_text = normalize_indent(f'''
-            {normalize_indent(self._preamble)}
+            {normalize_indent(self._config.preamble)}
 
             using Cantera.Interop;
 
@@ -315,9 +300,10 @@ class CSharpSourceGenerator(SourceGenerator):
             if not handles:
                 continue
 
+
             self._scaffold_handles(header_file.path, handles)
 
         self._scaffold_derived_handles()
 
-        for (clib_area, props) in self._config['classes'].items():
+        for (clib_area, props) in self._config.wrapper_classes.items():
             self._scaffold_wrapper_class(clib_area, props, known_funcs)

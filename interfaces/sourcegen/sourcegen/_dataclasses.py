@@ -1,7 +1,6 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
-from abc import ABCMeta, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
 import re
@@ -78,17 +77,3 @@ class HeaderFile:
             return
 
         return HeaderFile(file, parsed)
-
-
-class SourceGenerator(metaclass=ABCMeta):
-    """ Specifies the interface of a language-specific SourceGenerator """
-
-
-    def __init__(self, out_dir: Path, config: dict):
-        self._out_dir = out_dir
-        self._config = config
-
-
-    @abstractmethod
-    def generate_source(self, headers_files: list[HeaderFile]):
-        pass
