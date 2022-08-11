@@ -1563,21 +1563,6 @@ if env['python_package'] != 'none':
                     "is required.")
                 sys.exit(1)
 
-        pytest_version = versions.get("pytest")
-        if not check_for_pytest:
-            pass
-        elif not pytest_version:
-            logger.error(
-                f"pytest was not found. {pytest_min_version} or newer "
-                "is required.")
-            sys.exit(1)
-        elif pytest_version < pytest_min_version:
-            logger.error(
-                "pytest is an incompatible version: Found "
-                f"{pytest_version}, but {pytest_min_version} or newer "
-                "is required.")
-            sys.exit(1)
-
     python_version = versions["python"]
     if warn_no_python:
         if env["python_package"] == "default":
@@ -1644,6 +1629,21 @@ if env['python_package'] != 'none':
             env["numpy_1_7_API"] = True
         else:
             logger.info(f"Using Cython version {cython_version}")
+
+        pytest_version = versions.get("pytest")
+        if not check_for_pytest:
+            pass
+        elif not pytest_version:
+            logger.error(
+                f"pytest was not found. {pytest_min_version} or newer "
+                "is required.")
+            sys.exit(1)
+        elif pytest_version < pytest_min_version:
+            logger.error(
+                "pytest is an incompatible version: Found "
+                f"{pytest_version}, but {pytest_min_version} or newer "
+                "is required.")
+            sys.exit(1)
 
         if warn_no_full_package:
             msg = ("Unable to build the full Python package because compatible "
