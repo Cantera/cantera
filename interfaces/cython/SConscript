@@ -14,6 +14,10 @@ build(dataFiles)
 install(localenv.RecursiveInstall, "$inst_sampledir/python", "#samples/python")
 
 setup_python_env(localenv)
+# Python module shouldn't explicitly link to Python library (added in other cases to
+# support Python-based extensions), except when using MinGW
+if localenv["toolchain"] != "mingw":
+    localenv["LIBS"] = [lib for lib in localenv["LIBS"] if not lib.startswith("python")]
 
 setup_cfg = localenv.SubstFile("setup.cfg", "setup.cfg.in")
 readme = localenv.Command("README.rst", "#README.rst", Copy("$TARGET", "$SOURCE"))

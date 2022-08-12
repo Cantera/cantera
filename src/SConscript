@@ -1,4 +1,5 @@
 from buildutils import *
+from pathlib import Path
 
 Import('env', 'build', 'install', 'libraryTargets')
 
@@ -69,6 +70,29 @@ for subdir, extensions, setup in libs:
     if pch:
         env2.Requires(objects, pch)
     libraryTargets.extend(objects)
+
+# Handling of extensions written in Python
+if env["python_package"] == "full":
+    pyenv = setup_python_env(localenv.Clone())
+    pyenv.PrependENVPath('PYTHONPATH', Dir('#interfaces/cython').abspath)
+    build_dir = Path(Dir('#build').abspath).as_posix()
+    cythonized = pyenv.Command(
+         ["extensions/pythonExtensions.cpp", "extensions/pythonExtensions.h"],
+         "extensions/pythonExtensions.pyx",
+         ('''${python_cmd} -c "import Cython.Build; '''
+          f'''Cython.Build.cythonize(r'${{SOURCE}}', build_dir='{build_dir}')"''')
+    )
+    for pxd in multi_glob(localenv, "#interfaces/cython/cantera", "pxd"):
+        localenv.Depends(cythonized, pxd)
+
+    obj = pyenv.SharedObject(cythonized[0])
+    env.Command('#src/extensions/pythonExtensions.h', '#build/src/extensions/pythonExtensions.h',
+                Copy('$TARGET', '$SOURCE'))
+    libraryTargets.append(obj)
+    libraryTargets.append(pyenv.SharedObject("extensions/PythonExtensionManager.cpp"))
+    libpython = pyenv.subst("python${py_version_short}")
+    localenv.Append(LIBS=libpython)
+    env["cantera_libs"].append(libpython)
 
 
 # build the Cantera static library
