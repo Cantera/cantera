@@ -1,8 +1,6 @@
 """Cython-based Python Module"""
 import re
 from pathlib import Path
-from pkg_resources import parse_version
-import json
 from buildutils import *
 
 Import('env', 'build', 'install')
@@ -15,70 +13,8 @@ build(dataFiles)
 # Install Python samples
 install(localenv.RecursiveInstall, "$inst_sampledir/python", "#samples/python")
 
-# Get information needed to build the Python module
-script = """\
-from sysconfig import *
-import numpy
-import json
-import site
-vars = get_config_vars()
-vars["plat"] = get_platform()
-vars["numpy_include"] = numpy.get_include()
-vars["site_packages"] = [d for d in site.getsitepackages() if d.endswith("-packages")]
-vars["user_site_packages"] = site.getusersitepackages()
-print(json.dumps(vars))
-"""
-info = json.loads(get_command_output(localenv["python_cmd"], "-c", script))
-module_ext = info["EXT_SUFFIX"]
-inc = info["INCLUDEPY"]
-pylib = info.get("LDLIBRARY")
-prefix = info["prefix"]
-py_version_short = parse_version(info["py_version_short"])
-py_version_full = parse_version(info["py_version"])
-py_version_nodot = info["py_version_nodot"]
-numpy_include = info["numpy_include"]
-site_packages = info["site_packages"]
-user_site_packages = info["user_site_packages"]
-localenv.Prepend(CPPPATH=[Dir('#include'), inc, numpy_include])
-localenv.Prepend(LIBS=localenv['cantera_libs'])
+setup_python_env(localenv)
 
-# Fix the module extension for Windows from the sysconfig library.
-# See https://github.com/python/cpython/pull/22088 and
-# https://bugs.python.org/issue39825
-if (
-    py_version_full < parse_version("3.8.7")
-    and localenv["OS"] == "Windows"
-    and module_ext == ".pyd"
-):
-    module_ext = f".cp{py_version_nodot}-{info['plat'].replace('-', '_')}.pyd"
-
-# Don't print deprecation warnings for internal Python changes.
-# Only applies to Python 3.8. The field that is deprecated in Python 3.8
-# and causes the warnings to appear will be removed in Python 3.9 so no
-# further warnings should be issued.
-if localenv["HAS_CLANG"] and py_version_short == parse_version("3.8"):
-    localenv.Append(CXXFLAGS='-Wno-deprecated-declarations')
-
-if "icc" in localenv["CC"]:
-    localenv.Append(CPPDEFINES={"CYTHON_FALLTHROUGH": " __attribute__((fallthrough))"})
-
-if localenv['OS'] == 'Darwin':
-    localenv.Append(LINKFLAGS='-undefined dynamic_lookup')
-elif localenv['OS'] == 'Windows':
-    localenv.Append(LIBPATH=prefix + '/libs')
-    if localenv['toolchain'] == 'mingw':
-        localenv.Append(LIBS=f"python{py_version_nodot}")
-        if localenv['OS_BITS'] == 64:
-            localenv.Append(CPPDEFINES='MS_WIN64')
-        # Fix for https://bugs.python.org/issue11566. Fixed in 3.7.3 and higher.
-        # See https://github.com/python/cpython/pull/11283
-        if py_version_full < parse_version("3.7.3"):
-            localenv.Append(CPPDEFINES={"_hypot": "hypot"})
-
-if "numpy_1_7_API" in localenv:
-    localenv.Append(CPPDEFINES="NPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION")
-
-localenv["module_ext"] = module_ext
 setup_cfg = localenv.SubstFile("setup.cfg", "setup.cfg.in")
 readme = localenv.Command("README.rst", "#README.rst", Copy("$TARGET", "$SOURCE"))
 license = localenv.Command("LICENSE.txt", "#build/ext/LICENSE.txt",
@@ -104,15 +40,15 @@ for pyxfile in multi_glob(localenv, "cantera", "pyx"):
         f"#build/temp-py/{pyxfile.name.split('.')[0]}", cythonized)
     cython_obj.append(obj)
 
+module_ext = localenv["py_module_ext"]
 ext = localenv.LoadableModule(f"cantera/_cantera{module_ext}",
                               cython_obj, LIBPREFIX="", SHLIBSUFFIX=module_ext,
                               SHLIBPREFIX="", LIBSUFFIXES=[module_ext])
 
 build_cmd = ("$python_cmd_esc -m pip wheel -v --no-build-isolation --no-deps "
              "--wheel-dir=build/python/dist build/python")
-plat = info['plat'].replace('-', '_').replace('.', '_')
-wheel_name = (f"Cantera-{env['cantera_version']}-cp{py_version_nodot}"
-              f"-cp{py_version_nodot}-{plat}.whl")
+wheel_name = ("Cantera-${cantera_version}-cp${py_version_nodot}"
+              "-cp${py_version_nodot}-${plat}.whl")
 mod = build(localenv.Command(f"#build/python/dist/{wheel_name}", "setup.cfg",
                              build_cmd))
 env['python_module'] = mod
@@ -153,9 +89,9 @@ else:
                               ignore_errors=True)
 
     if user_install:
-        test_prefix = Path(user_site_packages).parents[2]
+        test_prefix = Path(localenv["user_site_packages"]).parents[2]
     elif python_prefix is None:
-        test_prefix = Path(site_packages[0]).parents[2]
+        test_prefix = Path(localenv["site_packages"][0]).parents[2]
     else:
         test_prefix = Path(python_prefix)
 
