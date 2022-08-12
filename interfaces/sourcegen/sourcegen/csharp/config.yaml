@@ -1,13 +1,12 @@
 # ignore these files entirely:
 ignore_files:
-  - clib_defs.h
   - ctfunc.h
   - ctmatlab.h
   - ctonedim.h
   - ctrpath.h
 
 #ignore these specific functions:
-ignore_functions:
+ignore_funcs:
   ct.h:
     - ct_setLogWriter
   ctreactor.h:
