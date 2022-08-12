@@ -109,11 +109,11 @@
   * Prefixing with `_` for private instance fields (`_foo`, unlike C++)
   * Prefixing with `s_` for private static fields (`s_bar`), `t_` for private
     `[ThreadStatic]` fields (`t_baz`).
-  * Intial caps names for class methods (`DoSomething()`, unlike C++)
+  * Initial caps names for class methods (`DoSomething()`, unlike C++)
 * Give the opening brace of a statement block its own line (unlike C++), except empty
   blocks, which may be written as an `{ }` (for example, a constructor which calls
   a base-class constructor only).
-* Use only one statement per line
+* Use only one statement per line.
 * Always use statement blocks (`{ ... }`) for the bodies of statements that can take
   either a statement block or a single statement (`if`, `for`, etc.)
 * Use file-scoped namespaces in each new file.
@@ -122,8 +122,9 @@
   Always include a doc comment for types, but for members with self-explanatory names,
   you may omit the doc comment and suppress the build error that would be thrown with
   `#pragma warning disable/restore CS1591`.
+  * C# doc-comments use `///`, unlike Cantera's preferred use of `//!` for C++
 * Do not expose any code requiring the `unsafe` keyword via a public API
-  (pointers, the `fixed` statement, etc). Pointers are used for the high-preformance
+  (pointers, the `fixed` statement, etc). Pointers are used for the high-performance
   interop layer with the native Cantera library, but such access should have a
   “safe” wrapper, such as a `Span<T>` or a managed array.
 * Do not allow exceptions to pass uncaught out of a callback invoked from native code,
@@ -133,5 +134,5 @@
 * The primary API for accessing Cantera is the `Application` class, which handles
   required static initialization of the library. When exposing a new wrapper for CLib
   functionality, do not expose a public constructor. Rather, mark the constructor
-  `internal` and wrap it in an appopriate factory method in the `Application` class
+  `internal` and wrap it in an appropriate factory method in the `Application` class
   (`public static CreateFoo(string filename) { ... }`).

@@ -6,7 +6,7 @@ using Cantera.Interop;
 namespace Cantera;
 
 /// <summary>
-/// Contains infomration about a log message.
+/// Contains information about a log message.
 /// </summary>
 public class LogMessageEventArgs
 {

@@ -11,13 +11,13 @@ namespace Cantera;
 public partial class ThermoPhase
 {
     /// <summary>
-    /// Represents a func the sets a pair of thermo variables using a pointer
+    /// Represents a func that sets a pair of thermo variables using a pointer
     /// to a pair of doubles to stand in for a stack-allocated array with two elements.
     /// </summary>
-    unsafe delegate int SetPairFunc(ThermoPhaseHandle n, (double, double)* vals);
+    unsafe delegate int SetPairFunc(ThermoPhaseHandle n, (double, double)* values);
 
     /// <summary>
-    /// Using reflection and the fact the CLIB follows a naming convention for
+    /// Using reflection and the fact that CLIB follows a naming convention for
     /// the functions that set the pairs of thermodynamic variables simultaneously
     /// </summary>
     static readonly Lazy<Dictionary<ThermoPair, SetPairFunc>> s_pairSetters;
@@ -51,9 +51,9 @@ public partial class ThermoPhase
     /// </summary>
     public SpeciesCollection Species => _species.Value;
 
-    internal ThermoPhase(string filename, string? phasename)
+    internal ThermoPhase(string filename, string? phaseName)
     {
-        _handle = LibCantera.thermo_newFromFile(filename, phasename ?? "");
+        _handle = LibCantera.thermo_newFromFile(filename, phaseName ?? "");
         _handle.EnsureValid();
 
         _species = new(() => new SpeciesCollection(_handle));
@@ -67,13 +67,12 @@ public partial class ThermoPhase
     public void Equilibrate(ThermoPair thermoPair,
                             EquilibriumSolver solver = EquilibriumSolver.Auto,
                             double tolerance = 1e-9, int maxSteps = 1000,
-                            int maxIterations = 100, bool logProgress = false)
+                            int maxIterations = 100, int logVerbosity = 0)
     {
         var interopString = thermoPair.ToInteropString();
-        var interopLogProgress = InteropUtil.GetInteropBool(logProgress);
 
         var retVal = LibCantera.thermo_equilibrate(_handle, interopString, (int) solver,
-            tolerance, maxSteps, maxIterations, interopLogProgress);
+            tolerance, maxSteps, maxIterations, logVerbosity);
 
         InteropUtil.CheckReturn(retVal);
     }

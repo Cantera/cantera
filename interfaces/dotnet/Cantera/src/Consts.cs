@@ -51,7 +51,7 @@ public static class Consts
     /// <summary>
     /// Stefan-Boltzmann constant \f$ \sigma \f$ [W/m2/K4]
     /// </summary>
-    public const double StefanBoltz = 5.670374419e-8;
+    public const double StefanBoltzmann = 5.670374419e-8;
 
     /// <summary>
     /// One atmosphere [Pa]
