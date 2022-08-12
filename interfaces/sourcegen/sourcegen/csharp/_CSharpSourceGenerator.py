@@ -13,41 +13,37 @@ from .._SourceGenerator import SourceGenerator
 
 
 class CSharpSourceGenerator(SourceGenerator):
-    """ The SourceGenerator for scaffolding C# files for the .NET interface """
-
+    """The SourceGenerator for scaffolding C# files for the .NET interface"""
 
     @staticmethod
     def _join_params(params: list[Param]) -> str:
-        return ', '.join(p.p_type + ' ' + p.name for p in params)
-
+        return ", ".join(p.p_type + " " + p.name for p in params)
 
     def _get_interop_func_text(self, func: CsFunc) -> str:
         ret_type, name, params, _, _ = func
-        requires_unsafe_keyword = any(p.p_type.endswith('*') for p in params)
+        requires_unsafe_keyword = any(p.p_type.endswith("*") for p in params)
         params_text = self._join_params(params)
 
         if requires_unsafe_keyword:
-            return f'{self._config.func_prolog} unsafe {ret_type} {name}({params_text});'
+            return f"{self._config.func_prolog} unsafe {ret_type} {name}({params_text});"
         else:
-            return f'{self._config.func_prolog} {ret_type} {name}({params_text});'
-
+            return f"{self._config.func_prolog} {ret_type} {name}({params_text});"
 
     @staticmethod
     def _get_base_handle_text(class_name: str, release_func_name: str) -> str:
-        handle = normalize_indent(f'''
+        handle = normalize_indent(f"""
             class {class_name} : CanteraHandle
             {{
                 protected override bool ReleaseHandle() =>
                     LibCantera.{release_func_name}(Value) == InteropConsts.Success;
             }}
-        ''')
+        """)
 
         return handle
 
-
     @staticmethod
     def _get_derived_handle_text(derived_class_name: str, base_class_name: str) -> str:
-        derived_text = f'''class {derived_class_name} : {base_class_name} {{ }}'''
+        derived_text = f"""class {derived_class_name} : {base_class_name} {{ }}"""
 
         return derived_text
 
@@ -56,7 +52,7 @@ class CSharpSourceGenerator(SourceGenerator):
                            known_funcs: dict[str, CsFunc]) -> str:
         getter = known_funcs.get(clib_area + "_" + c_name)
 
-        if (getter):
+        if getter:
             # here we have found a simple scalar property
             prop_type = getter.ret_type
         else:
@@ -68,47 +64,46 @@ class CSharpSourceGenerator(SourceGenerator):
 
         setter = known_funcs.get(clib_area + "_set" + c_name.capitalize())
 
-        if prop_type in ['int', 'double']:
-            text = f'''
+        if prop_type in ["int", "double"]:
+            text = f"""
                 public {prop_type} {cs_name}
                 {{
                     get => InteropUtil.CheckReturn(
-                        LibCantera.{getter.name}(_handle));'''
+                        LibCantera.{getter.name}(_handle));"""
 
-            if(setter):
-                text += f'''
+            if setter:
+                text += f"""
                     set => InteropUtil.CheckReturn(
-                        LibCantera.{setter.name}(_handle, value));'''
+                        LibCantera.{setter.name}(_handle, value));"""
 
-            text += '''
+            text += """
                 }
-            '''
-        elif (prop_type == 'string'):
+            """
+        elif prop_type == "string":
             p_type = getter.params[1].p_type
 
             # for get-string type functions we need to look up the type of the second
-            # (index 1) param for a cast because sometimes it's an int and other times
+            # (index 1) param for a cast because sometimes it"s an int and other times
             # its a nuint (size_t)
-            text = f'''
+            text = f"""
                 public unsafe string {cs_name}
                 {{
                     get => InteropUtil.GetString(40, (length, buffer) =>
                         LibCantera.{getter.name}(_handle, ({p_type}) length, buffer));
-            '''
+            """
 
-            if(setter):
-                text += f'''
+            if setter:
+                text += f"""
                     set => InteropUtil.CheckReturn(
-                        LibCantera.{setter.name}(_handle, value));'''
+                        LibCantera.{setter.name}(_handle, value));"""
 
-            text += '''
+            text += """
                 }
-            '''
+            """
         else:
-            raise ValueError(f'Unable to scaffold properties of type {prop_type}!')
+            raise ValueError(f"Unable to scaffold properties of type {prop_type}!")
 
-        return(normalize_indent(text))
-
+        return normalize_indent(text)
 
     def __init__(self, out_dir: Path, config: dict):
         self._out_dir = out_dir
@@ -116,33 +111,30 @@ class CSharpSourceGenerator(SourceGenerator):
         # use the typed config
         self._config = Config.from_parsed(config)
 
-
     def _get_wrapper_class_name(self, clib_area: str) -> str:
         return self._config.class_crosswalk[clib_area]
 
-
     def _get_handle_class_name(self, clib_area: str) -> str:
-        return self._get_wrapper_class_name(clib_area) + 'Handle'
-
+        return self._get_wrapper_class_name(clib_area) + "Handle"
 
     def _convert_func(self, parsed: Func) -> CsFunc:
         ret_type, name, params = parsed
-        clib_area, method = name.split('_', 1)
+        clib_area, method = name.split("_", 1)
 
         # shallow copy the params list
         params = params[:]
 
         release_func_handle_class_name = None
 
-        if clib_area != 'ct':
+        if clib_area != "ct":
             handle_class_name = self._get_handle_class_name(clib_area)
 
             # It’s not a “global” function, therefore:
             #   * It wraps a constructor and returns a handle, or
             #   * It wraps an instance method and takes the handle as the first param.
-            if method.startswith('del'):
+            if method.startswith("del"):
                 release_func_handle_class_name = handle_class_name
-            elif method.startswith('new'):
+            elif method.startswith("new"):
                 ret_type = handle_class_name
             else:
                 params[0] = Param(handle_class_name, params[0].name)
@@ -164,41 +156,42 @@ class CSharpSourceGenerator(SourceGenerator):
 
             # Most "setter" functions for arrays in CLib use a const double*,
             # but we also need to handle the cases for a plain double*
-            if param_type == 'double*' and method.startswith('set'):
+            if param_type == "double*" and method.startswith("set"):
                 setter_double_arrays_count += 1
                 if setter_double_arrays_count > 1:
                     # We assume a double* can reliably become a double[].
                     # However, this logic is too simplistic if there is
                     # more than one array.
-                    raise ValueError(f'Cannot scaffold {name} with '
-                        + 'more than one array of doubles!')
+                    raise ValueError(f"Cannot scaffold {name} with "
+                        + "more than one array of doubles!")
 
-                if clib_area == 'thermo' and re.match('^set_[A-Z]{2}$', method):
+                if clib_area == "thermo" and re.match("^set_[A-Z]{2}$", method):
                     # Special case for the functions that set thermo pairs
                     # This allows the C# side to pass a pointer to the stack
                     # Rather than allocating an array on the heap (which requires GC)
-                    param_type = '(double, double)*'
+                    param_type = "(double, double)*"
                 else:
-                    param_type = 'double[]'
+                    param_type = "double[]"
 
             params[i] = Param(param_type, param_name)
 
-        func = CsFunc(ret_type, name, params,
-            release_func_handle_class_name is not None, release_func_handle_class_name)
+        func = CsFunc(ret_type,
+                      name,
+                      params,
+                      release_func_handle_class_name is not None,
+                      release_func_handle_class_name)
 
         return func
-
 
     def _write_file(self, filename: str, contents: str):
         print("  writing " + filename)
 
         self._out_dir.joinpath(filename).write_text(contents)
 
-
     def _scaffold_interop(self, header_file_path: Path, cs_funcs: list[CsFunc]):
-        functions_text = '\n\n'.join(map(self._get_interop_func_text, cs_funcs))
+        functions_text = "\n\n".join(map(self._get_interop_func_text, cs_funcs))
 
-        interop_text = normalize_indent(f'''
+        interop_text = normalize_indent(f"""
             {normalize_indent(self._config.preamble)}
 
             using System.Runtime.InteropServices;
@@ -209,52 +202,49 @@ class CSharpSourceGenerator(SourceGenerator):
             {{
                 {normalize_indent(functions_text)}
             }}
-        ''')
+        """)
 
-        self._write_file('Interop.LibCantera.' + header_file_path.name + '.g.cs',
+        self._write_file("Interop.LibCantera." + header_file_path.name + ".g.cs",
             interop_text)
 
-
     def _scaffold_handles(self, header_file_path: Path, handles: dict[str, str]):
-        handles_text = '\n\n'.join(starmap(self._get_base_handle_text, handles.items()))
+        handles_text = "\n\n".join(starmap(self._get_base_handle_text, handles.items()))
 
-        handles_text = normalize_indent(f'''
+        handles_text = normalize_indent(f"""
             {normalize_indent(self._config.preamble)}
 
             namespace Cantera.Interop;
 
             {normalize_indent(handles_text)}
-        ''')
+        """)
 
-        self._write_file('Interop.Handles.' + header_file_path.name + '.g.cs',
+        self._write_file("Interop.Handles." + header_file_path.name + ".g.cs",
             handles_text)
 
-
     def _scaffold_derived_handles(self):
-        derived_handles = '\n\n'.join(starmap(self._get_derived_handle_text,
+        derived_handles = "\n\n".join(starmap(self._get_derived_handle_text,
             self._config.derived_handles.items()))
 
-        derived_handles_text = normalize_indent(f'''
+        derived_handles_text = normalize_indent(f"""
             {normalize_indent(self._config.preamble)}
 
             namespace Cantera.Interop;
 
             {derived_handles}
-        ''')
+        """)
 
-        self._write_file('Interop.Handles.g.cs', derived_handles_text)
-
+        self._write_file("Interop.Handles.g.cs", derived_handles_text)
 
     def _scaffold_wrapper_class(self, clib_area: str, props: dict[str, str],
                                 known_funcs: dict[str, CsFunc]):
         wrapper_class_name = self._get_wrapper_class_name(clib_area)
         handle_class_name = self._get_handle_class_name(clib_area)
 
-        properties_text = '\n\n'.join(
+        properties_text = "\n\n".join(
             self._get_property_text(clib_area, c_name, cs_name, known_funcs)
                 for (c_name, cs_name) in props.items())
 
-        wrapper_class_text = normalize_indent(f'''
+        wrapper_class_text = normalize_indent(f"""
             {normalize_indent(self._config.preamble)}
 
             using Cantera.Interop;
@@ -278,10 +268,9 @@ class CSharpSourceGenerator(SourceGenerator):
                 public void Dispose() =>
                     _handle.Dispose();
             }}
-        ''')
+        """)
 
-        self._write_file(wrapper_class_name + '.g.cs', wrapper_class_text)
-
+        self._write_file(wrapper_class_name + ".g.cs", wrapper_class_text)
 
     def generate_source(self, headers_files: list[HeaderFile]):
         self._out_dir.mkdir(parents=True, exist_ok=True)
@@ -299,7 +288,6 @@ class CSharpSourceGenerator(SourceGenerator):
 
             if not handles:
                 continue
-
 
             self._scaffold_handles(header_file.path, handles)
 
