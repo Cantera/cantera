@@ -38,7 +38,9 @@
 
 // Used by external logger
 enum LogLevel { INFO, WARN , ERROR };
+
+//! Represents a callback that is invoked to produce log output.
 typedef void
-    (*Writer)(enum LogLevel logLevel, const char* category, const char* message);
+    (*LogCallback)(enum LogLevel logLevel, const char* category, const char* message);
 
 #endif
