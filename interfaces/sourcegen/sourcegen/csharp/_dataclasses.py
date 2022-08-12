@@ -10,7 +10,7 @@ from .._dataclasses import Func
 @dataclass(frozen=True)
 @with_unpack_iter
 class CsFunc(Func):
-    """ Represents a C# interop method """
+    """Represents a C# interop method"""
 
     is_handle_release_func: bool
     handle_class_name: str | None

@@ -23,10 +23,10 @@ def normalize_indent(code: str) -> str:
     indent = len(call_line) - len(call_line.lstrip())
 
     # If called inside a string interpolation, indent to the rest of the block.
-    # Look for the opening brace for the interpolation, which isn't perfect, but works.
+    # Look for the opening brace for the interpolation, which isn"t perfect, but works.
     # This will fire for lines such as “        {normalize(my_str)}”
-    if call_line[indent] == '{':
-        code = textwrap.indent(code, ' ' * indent)
+    if call_line[indent] == "{":
+        code = textwrap.indent(code, " " * indent)
 
         code = code[indent:]
 
