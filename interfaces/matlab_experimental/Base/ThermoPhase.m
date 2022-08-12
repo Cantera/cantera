@@ -93,7 +93,11 @@ classdef ThermoPhase < handle
             if nargin < 2 || ~isnumeric(threshold)
                 threshold = 1e-14;
             end
-            calllib(ct, 'thermo_print', tp.tpID, 1, threshold);
+            buflen = 0 - calllib(ct, 'thermo_report', tp.tpID, 0, '', 1);
+            aa = char([zeros(1, buflen, 'int8')]);
+            ptr = libpointer('cstring', aa);
+            [iok, bb] = calllib(ct, 'thermo_report', tp.tpID, buflen, ptr, 1);
+            disp(bb);
         end
 
         function tpClear(tp)
