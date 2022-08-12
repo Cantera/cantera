@@ -10,7 +10,7 @@ namespace Cantera.Tests;
 public class EnumsTests
 {
     [Fact]
-    public void ThermoPair_ToStringsCorrently()
+    public void ThermoPair_ToStringsCorrectly()
     {
         var fields = typeof(ThermoPair)
             .GetFields(BindingFlags.Public | BindingFlags.Static)
@@ -29,11 +29,11 @@ public class EnumsTests
         // Ensure we have both long and short versions
         Assert.Equal(withShortNames.Count(), withLongNames.Count());
 
-        foreach (var field in withShortNames)
+        foreach (var (name, interopString) in withShortNames)
         {
-            Assert.Equal(field.name, field.interopString);
+            Assert.Equal(name, interopString);
 
-            Assert.Single(withLongNames.Where(f => f.interopString == field.name));
+            Assert.Single(withLongNames.Where(f => f.interopString == name));
         }
     }
 

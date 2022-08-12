@@ -32,14 +32,14 @@ for (var n = 0; n < 27; n++)
 /// is otherwise undefined.
 /// </summary>
 static (double equil, double frozen, double frozen2)
-    EquilSoundSpeeds(ThermoPhase gas, double T, double rtol = 1.0e-6,
+    EquilSoundSpeeds(ThermoPhase gas, double T, double rTol = 1.0e-6,
                      int maxIter = 5000)
 {
     gas.SetPair(ThermoPair.TemperaturePressure, T, Consts.OneAtm);
 
     // Set the gas to equilibrium at its current T and P.
     gas.Equilibrate(
-        ThermoPair.TemperaturePressure, tolerance: rtol, maxIterations: maxIter);
+        ThermoPair.TemperaturePressure, tolerance: rTol, maxIterations: maxIter);
 
     // Save properties.
     var s0 = gas.MassEntropy;
@@ -58,7 +58,7 @@ static (double equil, double frozen, double frozen2)
 
     // Now equilibrate the gas holding S and P constant.
     gas.Equilibrate(
-        ThermoPair.EntropyPressure, tolerance: rtol, maxIterations: maxIter);
+        ThermoPair.EntropyPressure, tolerance: rTol, maxIterations: maxIter);
 
     // equilibrium sound speed
     var aEquil = Math.Sqrt((p1 - p0)/(gas.Density - r0));

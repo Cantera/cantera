@@ -14,21 +14,21 @@ public class SpeciesCollection : IReadOnlyList<Species>
 {
     readonly ThermoPhaseHandle _handle;
 
-    // this collection should be eargerly-initialized because it depends on interop
+    // this collection should be eagerly-initialized because it depends on interop
     readonly List<Species> _species;
 
-    // this collection can be lazy-initialzied because it relies only on other elements
+    // this collection can be lazy-initialized because it relies only on other elements
     // from the above list
     readonly Lazy<Dictionary<string, int>> _speciesIndexByName;
 
     /// <summary>
-    /// Gets a particular <see cref="Species" /> contained in this colleciton
+    /// Gets a particular <see cref="Species" /> contained in this collection
     /// by it’s index.
     /// </summary>
     public Species this[int index] => _species[index];
 
     /// <summary>
-    /// Gets a particular <see cref="Species" /> contained in this colleciton
+    /// Gets a particular <see cref="Species" /> contained in this collection
     /// by it’s name.
     /// </summary>
     public Species this[string name] => _species[_speciesIndexByName.Value[name]];
@@ -123,7 +123,7 @@ public class SpeciesCollection : IReadOnlyList<Species>
         _species.GetEnumerator();
 
     /// <summary>
-    /// Determines the index of the given <see cref="Species" /> in thie collection,
+    /// Determines the index of the given <see cref="Species" /> in this collection,
     /// returning -1 if the species is not found.
     /// </summary>
     public int IndexOf(Species species) =>
@@ -256,7 +256,7 @@ public class SpeciesCollection : IReadOnlyList<Species>
     /// in the order in which they appear in this collection,
     /// but does not normalize them.
     /// </summary>
-    public void SetUnormalizedMassFractions(double[] fractions)
+    public void SetUnnormalizedMassFractions(double[] fractions)
     {
         var retval = LibCantera.thermo_setMassFractions(_handle,
             (nuint) fractions.Length, fractions, InteropConsts.False);
@@ -269,7 +269,7 @@ public class SpeciesCollection : IReadOnlyList<Species>
     /// in the order in which they appear in this collection,
     /// but does not normalize them.
     /// </summary>
-    public void SetUnormalizedMoleFractions(double[] fractions)
+    public void SetUnnormalizedMoleFractions(double[] fractions)
     {
         var retval = LibCantera.thermo_setMoleFractions(_handle,
             (nuint) fractions.Length, fractions, InteropConsts.False);

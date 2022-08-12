@@ -19,21 +19,22 @@ a NuGet package.
 Cantera.Tests.csproj contains the unit tests for the Cantera .NET library and targets
 .Net 6.
 
-The examples directory contains seperate projects for each Cantera example. These will
+The examples directory contains separate projects for each Cantera example. These will
 be packaged as a template for use with the .NET CLI, allowing developers to create a
 solution with all the examples using `dotnet new`.
 
 ### Contributing
 
-Like all of Cantera, we welcome cotributions to the .NET interface. Contributors should
-read the code of coduct and check out our general and C#-specific coding standards in
-[CONTRIBUTING.md](/CONTRIBUTING.md). Please note that contributing to the .NET interface
-requires a relatively advanced understanding of C#. This includes comfortability with
-`unsafe` blocks and interop concepts such as raw pointers, understanding of how to use
-`Span<T>` and similar memory APIs, and a solid grip on object-oriented library design.
+Like all of Cantera, we welcome contributions to the .NET interface. Contributors should
+read the [code of conduct](/CODE_OF_CONDUCT.md) and check out our general and
+C#-specific coding standards in [CONTRIBUTING.md](/CONTRIBUTING.md). Please note that
+contributing to the .NET interface requires a relatively advanced understanding of C#.
+This includes being comfortable with `unsafe` blocks and interop concepts such as
+raw pointers, understanding how to use `Span<T>` and similar memory APIs, and having
+a solid grip on object-oriented library design.
 
 ### Status
 
 The .NET Interface is in preview and still missing many features
 needed for parity with the C++ and Python interfaces. Interested contributors can see
-the status of the project at [Enhacement #156](https://github.com/Cantera/enhancements/issues/156).
+the status of the project at [Enhancement #156](https://github.com/Cantera/enhancements/issues/156).

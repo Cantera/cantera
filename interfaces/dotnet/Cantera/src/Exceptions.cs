@@ -54,7 +54,7 @@ public class CallbackException : AggregateException
 
         DoThrow();
 
-        // Seperate this bit out so the most likely case can be inlined.
+        // Separate this bit out so the most likely case can be inlined.
         static void DoThrow()
         {
             var exceptionsToThrow = t_exceptions!.ToArray();
