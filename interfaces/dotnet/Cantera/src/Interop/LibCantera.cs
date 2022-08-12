@@ -1,8 +1,6 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-using System.Runtime.InteropServices;
-
 namespace Cantera.Interop;
 
 static partial class LibCantera
@@ -15,8 +13,5 @@ static partial class LibCantera
     const string LibFile = "cantera.3.0.0.so";
 #endif
 
-    public delegate void Writer(LogLevel logLevel, string category, string message);
-
-    [DllImport(LibFile)]
-    public static extern int ct_setLogWriter(Writer writer);
+    public delegate void LogCallback(LogLevel logLevel, string category, string message);
 }

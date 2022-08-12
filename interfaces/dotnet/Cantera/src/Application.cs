@@ -50,7 +50,7 @@ public static class Application
         };
 
         InteropUtil.CheckReturn(
-            LibCantera.ct_setLogWriter(s_invokeMessageLoggedDelegate));
+            LibCantera.ct_setLogCallback(s_invokeMessageLoggedDelegate));
     }
 
     /// <summary>
@@ -64,7 +64,7 @@ public static class Application
     /// storing it as
     /// a class member, we ensure it is not collected until the class is.
     /// </remarks>
-    static readonly LibCantera.Writer? s_invokeMessageLoggedDelegate;
+    static readonly LibCantera.LogCallback s_invokeMessageLoggedDelegate;
 
     unsafe static readonly Lazy<string> s_version =
         new(() => InteropUtil.GetString(10, LibCantera.ct_getCanteraVersion));

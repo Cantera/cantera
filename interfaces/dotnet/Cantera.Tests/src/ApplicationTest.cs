@@ -155,7 +155,7 @@ public class ApplicationTest
 
         Assert.NotNull(eventField);
 
-        var del = (LibCantera.Writer) eventField!.GetValue(null)!;
+        var del = (LibCantera.LogCallback) eventField!.GetValue(null)!;
 
         Assert.NotNull(del);
 

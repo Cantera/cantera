@@ -1470,7 +1470,18 @@ extern "C" {
         }
     }
 
-    int ct_setLogWriter(Writer writer)
+    int ct_setLogWriter(void* logger)
+    {
+        try {
+            Logger* logwriter = (Logger*)logger;
+            setLogger(logwriter);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int ct_setLogCallback(LogCallback writer)
     {
         static unique_ptr<Logger> logwriter;
         try {

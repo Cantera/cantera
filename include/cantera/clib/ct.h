@@ -155,7 +155,8 @@ extern "C" {
                                          const double* state2, double delta, double* fluxes);
 
     CANTERA_CAPI int ct_getCanteraError(int buflen, char* buf);
-    CANTERA_CAPI int ct_setLogWriter(Writer writer);
+    CANTERA_CAPI int ct_setLogWriter(void* logger);
+    CANTERA_CAPI int ct_setLogCallback(LogCallback writer);
     CANTERA_CAPI int ct_addCanteraDirectory(size_t buflen, const char* buf);
     CANTERA_CAPI int ct_getDataDirectories(int buflen, char* buf, const char* sep);
     CANTERA_CAPI int ct_getCanteraVersion(int buflen, char* buf);

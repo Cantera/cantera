@@ -13,7 +13,7 @@ namespace Cantera {
 class ExternalLogger : public Logger
 {
 public:
-    explicit ExternalLogger(Writer writer) {
+    explicit ExternalLogger(LogCallback writer) {
         if (writer == nullptr) {
             throw CanteraError("ExternalLogger::ExternalLogger",
                 "Argument “writer” must not be null!");
@@ -55,7 +55,7 @@ public:
 private:
     std::string m_writeBuffer;
 
-    Writer m_writer = nullptr;
+    LogCallback m_writer = nullptr;
 };
 
 }
