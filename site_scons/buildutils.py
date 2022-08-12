@@ -1293,6 +1293,7 @@ def setup_python_env(env):
 
     env["py_module_ext"] = module_ext
     env["py_version_nodot"] = py_version_nodot
+    env["py_version_short"] = info["py_version_short"]
     env["py_plat"] = plat
     env["site_packages"] = info["site_packages"]
     env["user_site_packages"] = info["user_site_packages"]

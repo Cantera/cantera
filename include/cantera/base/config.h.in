@@ -47,6 +47,7 @@ typedef int ftnlen;       // Fortran hidden string length type
 {CT_USE_SYSTEM_FMT!s}
 {CT_USE_SYSTEM_YAMLCPP!s}
 {CT_USE_DEMANGLE!s}
+{CT_HAS_PYTHON!s}
 
 //--------- operating system --------------------------------------
 

@@ -16,6 +16,7 @@ include/cantera/base/system.h.gch
 include/cantera/ext/
 interfaces/matlab/ctpath.m
 interfaces/matlab/Contents.m
+src/extensions/pythonExtensions.h
 stage/
 .sconsign.dblite
 .sconf_temp

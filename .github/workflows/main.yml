@@ -41,7 +41,7 @@ jobs:
     - name: Install Apt dependencies
       run: |
         sudo apt update
-        sudo apt install libboost-dev gfortran libopenmpi-dev
+        sudo apt install libboost-dev gfortran libopenmpi-dev libpython3-dev
     - name: Upgrade pip
       run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
