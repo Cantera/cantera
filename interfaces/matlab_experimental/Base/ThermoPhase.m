@@ -824,11 +824,13 @@ classdef ThermoPhase < handle
             %
             buflen = calllib(ct, 'thermo_getEosType', tp.tpID, 0, '');
             if buflen > 0
-                aa = char(zeros(1, buflen));
-                [~, aa] = calllib(ct, 'thermo_getEosType', ...
-                                        tp.tpID, buflen, aa);
+                aa = char([zeros(1, buflen, 'int8')]);
+                ptr = libpointer('cstring', aa);
+                [~, bb] = calllib(ct, 'thermo_getEosType', ...
+                                  tp.tpID, buflen, ptr);
+                e = bb;
+                clear aa bb ptr;
             end
-            e = aa;
         end
 
         function v = isIdealGas(tp)
@@ -1343,9 +1345,6 @@ classdef ThermoPhase < handle
             % :param temperature:
             %     Temperature. Units: K
             %
-            if temperature <= 0
-                error('The temperature must be positive');
-            end
             calllib(ct, 'thermo_setTemperature', tp.tpID, temperature);
         end
 
