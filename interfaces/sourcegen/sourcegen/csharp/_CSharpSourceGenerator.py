@@ -118,11 +118,16 @@ class CSharpSourceGenerator(SourceGenerator):
         return self._get_wrapper_class_name(clib_area) + "Handle"
 
     def _convert_func(self, parsed: Func) -> CsFunc:
-        ret_type, name, params = parsed
+        ret_type, name, _ = parsed
         clib_area, method = name.split("_", 1)
 
-        # shallow copy the params list
-        params = params[:]
+        # Shallow copy the params list
+        # Some of the C# params will have the same syntax as the C params.
+        # Others will be represented differently on the C# side, and we will
+        # replace their entry in the list.
+        # Therefore, copy the list so that we don’t accidentally modify
+        # the params list which is attached to the C func.
+        params = parsed.params[:]
 
         release_func_handle_class_name = None
 
