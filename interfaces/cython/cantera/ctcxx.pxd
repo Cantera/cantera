@@ -33,3 +33,4 @@ cdef extern from "<memory>":
     cppclass shared_ptr "std::shared_ptr" [T]:
         T* get()
         void reset(T*)
+        void reset()

@@ -253,7 +253,7 @@ cdef class CustomRate(ReactionRate):
     cdef Func1 _rate_func  # prevent premature garbage collection
 
 cdef class ExtensibleRate(ReactionRate):
-    pass
+    cdef set_cxx_object(self, CxxReactionRate* rate=*)
 
 cdef class InterfaceRateBase(ArrheniusRateBase):
     cdef CxxInterfaceRateBase* interface
