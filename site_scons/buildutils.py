@@ -11,10 +11,12 @@ import time
 import shutil
 import enum
 from pathlib import Path
+from pkg_resources import parse_version
 import logging
 from typing import TYPE_CHECKING
 from collections.abc import Mapping as MappingABC
 from SCons.Variables import PathVariable, EnumVariable, BoolVariable
+from SCons.Script import Dir
 
 try:
     import numpy as np
@@ -25,7 +27,7 @@ __all__ = ("Option", "PathOption", "BoolOption", "EnumOption", "Configuration",
            "logger", "remove_directory", "remove_file", "test_results",
            "add_RegressionTest", "get_command_output", "listify", "which",
            "ConfigBuilder", "multi_glob", "get_spawn", "quoted",
-           "get_pip_install_location", "compiler_flag_list")
+           "get_pip_install_location", "compiler_flag_list", "setup_python_env")
 
 if TYPE_CHECKING:
     from typing import Iterable, TypeVar, Union, List, Dict, Tuple, Optional, \
@@ -1246,6 +1248,83 @@ def get_command_output(cmd: str, *args: str, ignore_errors=False):
     )
     return data.stdout.strip()
 
+_python_info = None
+def setup_python_env(env):
+    """Set up an environment for compiling Python extension modules"""
+
+    global _python_info
+    if _python_info is None:
+        # Get information needed to build the Python module
+        script = textwrap.dedent("""\
+        from sysconfig import *
+        import numpy
+        import json
+        import site
+        vars = get_config_vars()
+        vars["plat"] = get_platform()
+        vars["numpy_include"] = numpy.get_include()
+        vars["site_packages"] = [d for d in site.getsitepackages() if d.endswith("-packages")]
+        vars["user_site_packages"] = site.getusersitepackages()
+        print(json.dumps(vars))
+        """)
+        _python_info = json.loads(get_command_output(env["python_cmd"], "-c", script))
+
+    info = _python_info
+    module_ext = info["EXT_SUFFIX"]
+    inc = info["INCLUDEPY"]
+    pylib = info.get("LDLIBRARY")
+    prefix = info["prefix"]
+    py_version_short = parse_version(info["py_version_short"])
+    py_version_full = parse_version(info["py_version"])
+    py_version_nodot = info["py_version_nodot"]
+    plat = info['plat'].replace('-', '_').replace('.', '_')
+    numpy_include = info["numpy_include"]
+    env.Prepend(CPPPATH=[Dir('#include'), inc, numpy_include])
+    env.Prepend(LIBS=env['cantera_libs'])
+
+    # Fix the module extension for Windows from the sysconfig library.
+    # See https://github.com/python/cpython/pull/22088 and
+    # https://bugs.python.org/issue39825
+    if (py_version_full < parse_version("3.8.7")
+        and env["OS"] == "Windows"
+        and module_ext == ".pyd"
+    ):
+        module_ext = f".cp{py_version_nodot}-{info['plat'].replace('-', '_')}.pyd"
+
+    env["py_module_ext"] = module_ext
+    env["py_version_nodot"] = py_version_nodot
+    env["py_plat"] = plat
+    env["site_packages"] = info["site_packages"]
+    env["user_site_packages"] = info["user_site_packages"]
+
+    # Don't print deprecation warnings for internal Python changes.
+    # Only applies to Python 3.8. The field that is deprecated in Python 3.8
+    # and causes the warnings to appear will be removed in Python 3.9 so no
+    # further warnings should be issued.
+    if env["HAS_CLANG"] and py_version_short == parse_version("3.8"):
+        env.Append(CXXFLAGS='-Wno-deprecated-declarations')
+
+    if "icc" in env["CC"]:
+        env.Append(CPPDEFINES={"CYTHON_FALLTHROUGH": " __attribute__((fallthrough))"})
+
+    if env['OS'] == 'Darwin':
+        env.Append(LINKFLAGS='-undefined dynamic_lookup')
+    elif env['OS'] == 'Windows':
+        env.Append(LIBPATH=prefix + '/libs')
+        if env['toolchain'] == 'mingw':
+            env.Append(LIBS=f"python{py_version_nodot}")
+            if env['OS_BITS'] == 64:
+                env.Append(CPPDEFINES='MS_WIN64')
+            # Fix for https://bugs.python.org/issue11566. Fixed in 3.7.3 and higher.
+            # See https://github.com/python/cpython/pull/11283
+            if py_version_full < parse_version("3.7.3"):
+                env.Append(CPPDEFINES={"_hypot": "hypot"})
+
+    if "numpy_1_7_API" in env:
+        env.Append(CPPDEFINES="NPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION")
+
+
+    return env
 
 def get_pip_install_location(
     python_cmd: str,
