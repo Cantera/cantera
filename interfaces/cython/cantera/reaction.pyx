@@ -722,8 +722,17 @@ cdef class ExtensibleRate(ReactionRate):
             self.set_cxx_object()
 
     def __init__(self, *args, **kwargs):
-        assign_delegates(self, dynamic_cast[CxxDelegatorPtr](self.rate))
-        super().__init__(*args, **kwargs)
+        if self._rate.get() is not NULL:
+            assign_delegates(self, dynamic_cast[CxxDelegatorPtr](self.rate))
+        # ReactionRate does not define __init__, so it does not need to be called
+
+    cdef set_cxx_object(self, CxxReactionRate* rate=NULL):
+        if rate is NULL:
+            self.rate = self._rate.get()
+        else:
+            self._rate.reset()
+            self.rate = rate
+            assign_delegates(self, dynamic_cast[CxxDelegatorPtr](self.rate))
 
 cdef class InterfaceRateBase(ArrheniusRateBase):
     """
