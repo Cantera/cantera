@@ -1,31 +1,37 @@
-## sourcegen – Python based source generator for creating Cantera interfaces for other languages
+# sourcegen – Python based source generator for creating Cantera interfaces for other languages
 
-A common script “parses” the CLib header files and generates intermediate objects which represent the functions:
-* return type (string)
-* name (string)
-* params: list of
-    * return type
-    * name
+The `sourcegen.generate_source` function crudely parses the CLib header files and generates intermediate objects which represent the functions:
+* header file path
+* funcs: list of
+    * return type (string)
+    * name (string)
+    * params: list of
+        * return type
+        * name
 
-The script delegates the source generation to a language-specific module. The module creates the source files in a location appropriate to the build for that languages build process.
+`sourcegen.generate_source` then delegates the source generation to a language-specific sub-package. The sub-package creates the source files in a location appropriate to the build for that language’s build process.
 
-The common script takes two mandatory arguments:
+`sourcegen.generate_source` takes two mandatory arguments:
 1. The name of the language-specific module.
 1. The full path of the directory where generated files shall be placed.
 
-The language-specific modules export a class named “SourceGenerator”:
-1. A constructor which takes the output directory and the parsed config object\
-    The constructor stores these for later use.
-1. A “generate_source” function which will takes the included file and its list of parsed functions\
-    The generate_source function generates source files for each file it receives as it is called
-    and/or builds up data structures containing source symbols to be generated later.
-1. A “finalize” function which takes no arguments
-    The finalize function performs any final code generation tasks and necessary clean up.
+The language-specific sub-packages export a class that derives from `SourceGenerator`:
+1. An initializer which takes the output directory and the parsed config object\
+    The initializer stores these for later use.
+1. A `generate_source` function which takes the a list of header files with their parsed functions\
+    The generate_source function uses this information to generate syntactically correct source code in the destination language
 
-The implementation details for the SourceGenerator classes is of course highly dependent on the build process of the destination language.
+The implementation details for the source generator class is of course highly dependent on the build process of the destination language.
 
-In addition, each module can contain a yaml-based config file named “config.yaml”. The core script recoginizes a key called “ignore”, which is a map. Each key in the “ignore” map is the name of a clib header file. The value is an array which is either empty or contains strings representing function names defined in the header file. The core script interprets the ignore map as follows:
-* for each key followed by an empty array, the entire file is excluded from code generation
-* for each key followed-by a non-empty array, only the functions referenced in the array are excluded from code generation.
+## The config file
 
-The config file may contain additional values for use by the language-specific module.
+Each sub-package can contain a yaml-based config file named `config.yaml`. The core script recognizes two special keys:
+1. `ignore_files`: a list of header file names\
+    These files will be ignored entirely from source generation, for example because they cannot be parsed directly or contain functionality that is not planned for implementation in the destination language.
+1. `ignore_funcs`: a mapping of header file names to lists of function names\
+    The listed functions contained within those files will not be scaffolded, for example because they cannot be translated automatically and need to be written by hand in the destination language.
+
+The config file may contain additional values for use by the language-specific sub-package.
+
+## running from the command line
+
