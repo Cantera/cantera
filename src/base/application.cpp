@@ -6,6 +6,7 @@
 #include "application.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/ExtensionManagerFactory.h"
 
 #include <fstream>
 #include <sstream>
@@ -394,6 +395,16 @@ std::string Application::findInputFile(const std::string& name)
     msg += "    b) define environment variable CANTERA_DATA to\n";
     msg += "         point to the directory containing the file.";
     throw CanteraError("Application::findInputFile", msg);
+}
+
+void Application::loadExtension(const string& extType, const string& name)
+{
+    if (m_loaded_extensions.count({extType, name})) {
+        return;
+    }
+    auto manager = ExtensionManagerFactory::build(extType);
+    manager->registerRateBuilders(name);
+    m_loaded_extensions.insert({extType, name});
 }
 
 Application* Application::s_app = 0;

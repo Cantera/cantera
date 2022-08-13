@@ -283,6 +283,15 @@ public:
         return boost::algorithm::join(inputDirs, sep);
     }
 
+    //! Load an extension implementing user-defined models
+    //! @param extType Specifies the interface / language of the extension, for example
+    //!     "python"
+    //! @param extName Specifies the name of the extension. The meaning of this
+    //!     parameter depends on the specific extension interface. For example, for
+    //!     Python extensions, this is the name of the Python module containing the
+    //!     models.
+    void loadExtension(const std::string& extType, const std::string& name);
+
 #ifdef _WIN32
     long int readStringRegistryKey(const std::string& keyName, const std::string& valueName,
                                    std::string& value, const std::string& defaultValue);
@@ -432,6 +441,8 @@ protected:
     bool m_suppress_warnings;
     bool m_fatal_warnings;
     bool m_use_legacy_rate_constants;
+
+    std::set<std::pair<std::string, std::string>> m_loaded_extensions;
 
     ThreadMessages pMessenger;
 

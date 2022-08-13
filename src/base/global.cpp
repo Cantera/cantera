@@ -146,6 +146,21 @@ std::string findInputFile(const std::string& name)
     return app()->findInputFile(name);
 }
 
+void loadExtension(const std::string& extType, const std::string& name)
+{
+    app()->loadExtension(extType, name);
+}
+
+void loadExtensions(const AnyMap& node)
+{
+    if (!node.hasKey("extensions")) {
+        return;
+    }
+    for (auto& extension : node["extensions"].asVector<AnyMap>()) {
+        loadExtension(extension["type"].asString(), extension["name"].asString());
+    }
+}
+
 bool debugModeEnabled()
 {
 #ifdef NDEBUG
