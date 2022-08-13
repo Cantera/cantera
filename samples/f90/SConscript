@@ -18,10 +18,15 @@ for programName, sources in samples:
                 LINK='$FORTRAN_LINK')
 
     # Generate SConstruct files to be installed
-    incdirs = [pjoin(localenv['ct_incroot'], 'cantera')] + localenv['extra_inc_dirs']
+    incdirs = [pjoin(localenv["ct_incroot"], "cantera")] # path to fortran .mod
+    libdirs = [localenv["ct_libdir"]]
+    if not localenv["package_build"]:
+        incdirs.extend([localenv["sundials_include"], localenv["boost_inc_dir"]])
+        incdirs.extend(localenv["extra_inc_dirs"])
+        libdirs.extend([localenv["sundials_libdir"], localenv["blas_lapack_dir"]])
+        libdirs.extend(localenv["extra_lib_dirs"])
+
     libs = ['cantera_fortran'] + localenv['cantera_libs'] + env['cxx_stdlib']
-    libdirs = ((localenv['ct_libdir'], localenv['sundials_libdir'],
-                localenv['blas_lapack_dir']) + tuple(localenv['extra_lib_dirs']))
     linkflags = ('-g', localenv['thread_flags'])
 
     mak_path = pjoin(localenv['ct_incroot'], 'cantera', 'Cantera.mak')

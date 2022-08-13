@@ -52,22 +52,41 @@ set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS})
     # Note: These Makefiles and SConstruct files are automatically installed
     # by the "RecursiveInstall" that grabs everything in the cxx directory.
 
-    incdirs = (localenv['ct_incroot'], localenv['sundials_include'],
-               localenv['boost_inc_dir']) + tuple(localenv['extra_inc_dirs'])
-    libdirs = ((localenv['ct_libdir'], localenv['sundials_libdir'],
-               localenv['blas_lapack_dir']) + tuple(localenv['extra_lib_dirs']))
-    # Remove sysroot and macOS min version flags in templated output files
-    # Users should compile against their local SDKs, which should be backwards
-    # compatible with the SDK used for building. This only applies to the
-    # conda package for now.
-    if env['OS'] == 'Darwin' and os.environ.get('CONDA_BUILD', False):
-        ccFlags = []
-        for flag in localenv['CCFLAGS'] + localenv['CXXFLAGS']:
-            if not flag.startswith(('-isysroot', '-mmacosx', '/App')):
-                ccFlags.append(flag)
+    incdirs = [localenv["ct_incroot"]]
+    libdirs = [localenv["ct_libdir"]]
+    if localenv["package_build"]:
+        # Remove sysroot flags in templated output files. This only applies to the
+        # conda package for now.
+        # Users should compile against their local SDKs, which should be backwards
+        # compatible with the SDK used for building.
+        def split_compiler_flags(flags, excludes=[]):
+            """
+            Separate concatenated compiler flags in flag list.
+            Entries listed in 'exclude' are omitted.
+            """
+            flags = " ".join(flags)
+            flags = f" {flags}".split(" -")[1:]
+            # split concatenated entries
+            flags = [f"-{flag}" for flag in flags]
+            cc_flags = []
+            for flag in flags:
+                if not flag.startswith(excludes) and flag not in cc_flags:
+                    cc_flags.append(flag)
+            return cc_flags
+
+        excludes = (
+            "-isysroot", "-mmacosx", "-march", "-mtune", "-fdebug-prefix-map")
+        cc_flags = split_compiler_flags(localenv["CCFLAGS"] + localenv["CXXFLAGS"],
+            excludes)
     else:
-        ccFlags = localenv['CCFLAGS'] + localenv['CXXFLAGS']
-    localenv['tmpl_compiler_flags'] = repr(ccFlags)
+        incdirs.extend([localenv["sundials_include"], localenv["boost_inc_dir"]])
+        incdirs.extend(localenv["extra_inc_dirs"])
+        libdirs.extend([localenv["sundials_libdir"], localenv["blas_lapack_dir"]])
+        libdirs.extend(localenv["extra_lib_dirs"])
+
+        cc_flags = localenv["CCFLAGS"] + localenv["CXXFLAGS"]
+
+    localenv["tmpl_compiler_flags"] = repr(cc_flags)
     localenv['tmpl_cantera_frameworks'] = repr(localenv['FRAMEWORKS'])
     localenv['tmpl_cantera_incdirs'] = repr([x for x in incdirs if x])
     localenv['cmake_cantera_incdirs'] = ' '.join(quoted(x) for x in incdirs if x)
@@ -90,12 +109,19 @@ set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS})
         env_args.append('MSVC_VERSION={0!r}'.format(localenv['MSVC_VERSION']))
     localenv['tmpl_env_args'] = ', '.join(env_args)
 
-    # If this is a conda build on macOS, we do not want to specify the conda
-    # compilers from the build environment, because those won't be installed
-    # on the user's system.
-    if env['OS'] == 'Darwin' and os.environ.get('CONDA_BUILD', False):
-        localenv['CXX'] = 'clang++'
-        localenv['CC'] = 'clang'
+    if localenv["package_build"]:
+        # We do not want to specify the conda compilers from the build environment,
+        # because those won't be installed on the user's system.
+        if localenv["OS"] == "Darwin":
+            localenv["CXX"] = "clang++"
+            localenv["CC"] = "clang"
+        elif localenv["OS"] == "Windows":
+            # compilation needs the Visual Studio Command Prompt
+            localenv["CXX"] = "cl"
+            localenv["CC"] = "cl"
+        else:
+            localenv["CXX"] = "g++"
+            localenv["CC"] = "gcc"
 
     sconstruct = localenv.SubstFile(pjoin(subdir, 'SConstruct'), 'SConstruct.in')
     install(pjoin('$inst_sampledir', 'cxx', subdir), sconstruct)
@@ -106,7 +132,7 @@ set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS})
 
     ## Generate Makefiles to be installed
     mak_path = pjoin(localenv['ct_incroot'], 'cantera', 'Cantera.mak')
-    localenv['mak_compiler_flags'] = ' '.join(ccFlags)
+    localenv["mak_compiler_flags"] = " ".join(cc_flags)
     if ' ' in mak_path:
         # There is no reasonable way to handle spaces in Makefile 'include'
         # statement, so we fall back to using the relative path instead
