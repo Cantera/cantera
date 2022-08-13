@@ -17,4 +17,4 @@ clean:
 	$(RM) $(OBJS) @tmpl_progname@
 
 dist-clean: clean
-	$(RM) *~ 
+	$(RM) *~
