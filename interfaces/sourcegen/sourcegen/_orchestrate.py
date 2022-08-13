@@ -1,13 +1,12 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
-from distutils.command.config import LANG_EXT
 import importlib
 import inspect
 from pathlib import Path
 import ruamel.yaml
 
-from ._dataclasses import HeaderFile
+from ._HeaderFileParser import HeaderFileParser
 from ._SourceGenerator import SourceGenerator
 
 
@@ -26,12 +25,13 @@ def generate_source(lang: str, out_dir: str):
             config = ruamel.yaml.safe_load(config_file)
 
     ignore_files: list[str] = config.get("ignore_files", [])
-    ignore_functions: dict[str, list[str]] = config.get("ignore_funcs", {})
+    ignore_funcs: dict[str, list[str]] = config.get("ignore_funcs", {})
 
-    files = (HeaderFile.parse(f, ignore_functions.get(f.name, []))
-        for f in _clib_path.glob("*.h") if f.name not in ignore_files)
+    files = (HeaderFileParser(f, ignore_funcs.get(f.name, [])).parse()
+        for f in _clib_path.glob("*.h")
+        if f != _clib_defs_path and f.name not in ignore_files)
     # removes instances where HeaderFile.parse() returned None
-    files = list(filter(lambda p: p is not None and p.path != _clib_defs_path, files))
+    files = list(filter(None, files))
 
     # find and instantiate the language-specific SourceGenerator
     _, scaffolder_type = inspect.getmembers(module,
