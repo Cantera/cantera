@@ -1,4 +1,4 @@
-import sys
+import os
 
 from buildutils import *
 
@@ -19,45 +19,50 @@ pc_libdirs = []
 pc_incdirs = []
 pc_cflags = list(localenv['CXXFLAGS'])
 
-localenv['mak_corelibs'] = ' '.join('-l' + lib for lib in localenv['cantera_libs'])
+localenv["mak_corelibs"] = " ".join(f"-l{lib}" for lib in localenv["cantera_libs"])
 
-localenv["mak_extra_includes"] = " ".join(
-    f"-I{dir}" for dir in localenv["extra_inc_dirs"])
-pc_incdirs.extend(localenv["extra_inc_dirs"])
+if localenv["package_build"]:
+    # folders outside of conda environment are not transferable
+    localenv["mak_extra_includes"] = ""
+    localenv["mak_extra_libdirs"] = ""
+else:
+    localenv["mak_extra_includes"] = " ".join(
+        f"-I{dir}" for dir in localenv["extra_inc_dirs"])
+    pc_incdirs.extend(localenv["extra_inc_dirs"])
 
-localenv["mak_extra_libdirs"] = " ".join(
-    f"-L{dir} -Wl,-rpath,{dir}" for dir in localenv["extra_lib_dirs"])
-pc_libdirs.extend(localenv["extra_lib_dirs"])
+    localenv["mak_extra_libdirs"] = " ".join(
+        f"-L{dir} -Wl,-rpath,{dir}" for dir in localenv["extra_lib_dirs"])
+    pc_libdirs.extend(localenv["extra_lib_dirs"])
 
-localenv['mak_stdlib'] = ''.join('-l' + lib for lib in env['cxx_stdlib'])
+localenv["mak_stdlib"] = " ".join(f"-l{lib}" for lib in env["cxx_stdlib"])
 
 if localenv['system_sundials']:
     # Add links to the sundials environment
     localenv["mak_sundials_libs"] = " ".join(
         f"-l{lib}" for lib in localenv["sundials_libs"])
-    if localenv['sundials_libdir']:
-        localenv['mak_sundials_libdir'] = '-L' + localenv['sundials_libdir']
+    if localenv["sundials_libdir"] and not localenv["package_build"]:
+        localenv["mak_sundials_libdir"] = f"-L{localenv['sundials_libdir']}"
         pc_libdirs.append(localenv['sundials_libdir'])
     else:
         localenv['mak_sundials_libdir'] = ''
 
-    if localenv['sundials_include']:
-        localenv['mak_sundials_include'] = '-I' + localenv['sundials_include']
+    if localenv["sundials_include"] and not localenv["package_build"]:
+        localenv["mak_sundials_include"] = f"-I{localenv['sundials_include']}"
         pc_incdirs.append(localenv['sundials_include'])
     else:
         localenv['mak_sundials_include'] = ''
 
-if localenv['boost_inc_dir']:
-    localenv['mak_boost_include'] = '-I' + localenv['boost_inc_dir']
+if localenv["boost_inc_dir"] and not localenv["package_build"]:
+    localenv["mak_boost_include"] = f"-I{localenv['boost_inc_dir']}"
     pc_incdirs.append(localenv['boost_inc_dir'])
 else:
     localenv['mak_boost_include'] = ''
 
 # Handle BLAS/LAPACK linkage
 blas_lapack_libs = " ".join(f"-l{lib}" for lib in localenv["blas_lapack_libs"])
-if localenv['blas_lapack_dir']:
-    localenv['mak_blas_lapack_libs'] = '-L{} {}'.format(localenv['blas_lapack_dir'],
-                                                        blas_lapack_libs)
+if localenv["blas_lapack_dir"] and not localenv["package_build"]:
+    localenv["mak_blas_lapack_libs"] = (
+        f"-L{localenv['blas_lapack_dir']} {blas_lapack_libs}")
 else:
     localenv['mak_blas_lapack_libs'] = blas_lapack_libs
 
@@ -73,15 +78,31 @@ if '-pthread' in localenv['thread_flags']:
 else:
     localenv['mak_fort_threadflags'] = ''
 
+if localenv["package_build"]:
+    # Remove sysroot flags in templated output files. This only applies to the
+    # conda package for now.
+    # Users should compile against their local SDKs, which should be backwards
+    # compatible with the SDK used for building.
+    cc_flags = []
+    for flag in localenv["CCFLAGS"]:
+        if not flag.startswith(("-isysroot", "-mmacosx", "/App")):
+            cc_flags.append(flag)
+    localenv["CCFLAGS"] = cc_flags
+    cc_flags = []
+    for flag in localenv["CXXFLAGS"]:
+        if not flag.startswith(("-isysroot", "-mmacosx", "/App")):
+            cc_flags.append(flag)
+    localenv["CXXFLAGS"] = cc_flags
+
 mak = build(localenv.SubstFile('Cantera.mak', 'Cantera.mak.in'))
 install('$inst_incdir', mak)
 
 # Generate cantera.pc for use with pkg-config
-localenv['pc_prefix'] = localenv['prefix']
-localenv['pc_libdirs'] = ' '.join('-L' + d for d in pc_libdirs)
-localenv['pc_libs'] = ' '.join('-l' + lib for lib in pc_libs)
-localenv['pc_incdirs'] = ' '.join('-I' + d for d in pc_incdirs)
-localenv['pc_cflags'] = ' '.join(pc_cflags)
+localenv["pc_prefix"] = localenv["prefix"]
+localenv["pc_libdirs"] = " ".join(f"-L{dir}" for dir in pc_libdirs)
+localenv["pc_libs"] = " ".join(f"-l{lib}" for lib in pc_libs)
+localenv["pc_incdirs"] = " ".join(f"-I{dir}" for dir in pc_incdirs)
+localenv["pc_cflags"] = " ".join(pc_cflags)
 
-pc = build(localenv.SubstFile('cantera.pc', 'cantera.pc.in'))
-install('$inst_libdir/pkgconfig', pc)
+pc = build(localenv.SubstFile("cantera.pc", "cantera.pc.in"))
+install("$inst_libdir/pkgconfig", pc)

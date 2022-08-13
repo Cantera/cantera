@@ -1,35 +1,36 @@
 ###############################################################################
 # Include Snippet for Makefiles
 #
-#    To create Cantera C++ applications from the install environment
-#    include this file into your Makefile environment by putting
-#    the line "include Cantera.mak" in your Makefile.
+#   To create Cantera C++ applications from the install environment
+#   include this file into your Makefile environment by putting
+#   the line "include Cantera.mak" in your Makefile.
 #
-#  Main Variables:
+# Main Variables:
 #
-#      CANTERA_INCLUDES = Variable containing the include path
-#      CANTERA_LIBS = List of libraries to include on the link line
+#   CANTERA_INCLUDES = Variable containing the include path
+#   CANTERA_LIBS = List of libraries to include on the link line
 #
-#      CANTERA_FORTRAN_LIBS = list of libraries to link for Fortran programs
-#      CANTERA_FORTRAN_MODS = Directory containing the F90 .mod files
+#   CANTERA_FORTRAN_LIBS = list of libraries to link for Fortran programs
+#   CANTERA_FORTRAN_MODS = Directory containing the F90 .mod files
 #
 
 CANTERA_VERSION=@cantera_version@
 
 ###############################################################################
-#        CANTERA CORE
+#   CANTERA CORE
 ###############################################################################
 
 # The directory where Cantera include files may be found.
-#  Include files in application programs should start with:
-#     #include "cantera/thermo.h"
-#     #include "cantera/kernel/HMWSoln.h"
+#
+# Include files in application programs should start with:
+#   #include "cantera/core.h"
+#   #include "cantera/onedim.h"
 
 CANTERA_INSTALL_ROOT=@ct_installroot@
 
 CANTERA_CORE_INCLUDES=-I$(CANTERA_INSTALL_ROOT)/include
 
-CANTERA_EXTRA_INCLUDES=@mak_extra_includes@ 
+CANTERA_EXTRA_INCLUDES=@mak_extra_includes@
 
 # Required Cantera libraries
 CANTERA_CORE_LIBS=@mak_threadflags@ -L@ct_libdir@ @mak_corelibs@ -Wl,-rpath,@ct_libdir@
@@ -45,26 +46,26 @@ CANTERA_FORTRAN_MODS=$(CANTERA_INSTALL_ROOT)/include/cantera
 CANTERA_FORTRAN_SYSLIBS=@mak_fort_threadflags@ @mak_stdlib@
 
 ###############################################################################
-#            BOOST
+#   BOOST
 ###############################################################################
 
 CANTERA_BOOST_INCLUDES=@mak_boost_include@
 
 ###############################################################################
-#         CVODE/SUNDIALS LINKAGE
+#   CVODE/SUNDIALS LINKAGE
 ###############################################################################
 
 CANTERA_SUNDIALS_INCLUDE=@mak_sundials_include@
 CANTERA_SUNDIALS_LIBS=@mak_sundials_libdir@ @mak_sundials_libs@
 
 ###############################################################################
-#         BLAS LAPACK LINKAGE
+#   BLAS LAPACK LINKAGE
 ###############################################################################
 
 CANTERA_BLAS_LAPACK_LIBS=@mak_blas_lapack_libs@
 
 ###############################################################################
-#      COMBINATIONS OF INCLUDES AND LIBS
+#   COMBINATIONS OF INCLUDES AND LIBS
 ###############################################################################
 
 CANTERA_INCLUDES=$(CANTERA_CORE_INCLUDES) $(CANTERA_SUNDIALS_INCLUDE) \
@@ -89,5 +90,5 @@ CANTERA_FORTRAN_LIBS=$(CANTERA_CORE_FTN) \
                      $(CANTERA_BLAS_LAPACK_LIBS) $(CANTERA_FORTRAN_SYSLIBS)
 
 ###############################################################################
-#  END
+#   END
 ###############################################################################
