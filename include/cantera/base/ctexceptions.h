@@ -11,6 +11,7 @@
 #ifndef CT_CTEXCEPTIONS_H
 #define CT_CTEXCEPTIONS_H
 
+#include "ct_defs.h"
 #include "cantera/base/fmt.h"
 #include <exception>
 

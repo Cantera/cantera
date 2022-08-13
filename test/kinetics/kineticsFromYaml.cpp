@@ -697,6 +697,18 @@ TEST(KineticsFromYaml, ReactionsFieldWithoutKineticsModel2)
                  InputFileError);
 }
 
+TEST(KineticsFromYaml, InvalidExtension)
+{
+    AnyMap input = AnyMap::fromYamlFile("h2o2.yaml");
+    newSolution(input["phases"].asVector<AnyMap>()[0], input);
+    std::vector<AnyMap> extensions(1);
+    extensions[0]["type"] = "nonexistent";
+    extensions[0]["name"] = "fake";
+    input["extensions"] = extensions;
+    EXPECT_THROW(newSolution(input["phases"].asVector<AnyMap>()[0], input),
+                 CanteraError);
+}
+
 class ReactionToYaml : public testing::Test
 {
 public:

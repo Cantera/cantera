@@ -26,6 +26,7 @@ namespace Cantera
 {
 
 class Logger;
+class AnyMap;
 
 /*!
  * @defgroup inputfiles Input File Handling
@@ -76,6 +77,13 @@ void addDirectory(const std::string& dir);
 //! @copydoc Application::getDataDirectories
 std::string getDataDirectories(const std::string& sep);
 //! @}
+
+//! @copydoc Application::loadExtension
+void loadExtension(const std::string& extType, const std::string& name);
+
+//! Load extensions providing user-defined models from the `extensions` section of the
+//! given node. @see Application::loadExtension
+void loadExtensions(const AnyMap& node);
 
 //! Delete and free all memory associated with the application
 /*!

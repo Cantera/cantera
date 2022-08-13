@@ -83,6 +83,8 @@ void addReactions(Kinetics& kin, const AnyMap& phaseNode, const AnyMap& rootNode
     kin.skipUndeclaredThirdBodies(
         phaseNode.getBool("skip-undeclared-third-bodies", false));
 
+    loadExtensions(rootNode);
+
     // Find sections containing reactions to add
     vector<string> sections, rules;
 
@@ -152,6 +154,7 @@ void addReactions(Kinetics& kin, const AnyMap& phaseNode, const AnyMap& rootNode
             string node(slash.end(), sections[i].end());
             AnyMap reactions = AnyMap::fromYamlFile(fileName,
                 rootNode.getString("__file__", ""));
+            loadExtensions(reactions);
             for (const auto& R : reactions[node].asVector<AnyMap>()) {
                 #ifdef NDEBUG
                     try {
