@@ -83,16 +83,10 @@ if localenv["package_build"]:
     # conda package for now.
     # Users should compile against their local SDKs, which should be backwards
     # compatible with the SDK used for building.
-    cc_flags = []
-    for flag in localenv["CCFLAGS"]:
-        if not flag.startswith(("-isysroot", "-mmacosx", "/App")):
-            cc_flags.append(flag)
-    localenv["CCFLAGS"] = cc_flags
-    cc_flags = []
-    for flag in localenv["CXXFLAGS"]:
-        if not flag.startswith(("-isysroot", "-mmacosx", "/App")):
-            cc_flags.append(flag)
-    localenv["CXXFLAGS"] = cc_flags
+    excludes = (
+        "-isysroot", "-mmacosx", "-march", "-mtune", "-fdebug-prefix-map")
+    localenv["CCFLAGS"] = compiler_flag_list(localenv["CCFLAGS"], excludes)
+    localenv["CXXFLAGS"] = compiler_flag_list(localenv["CXXFLAGS"], excludes)
 
 mak = build(localenv.SubstFile('Cantera.mak', 'Cantera.mak.in'))
 install('$inst_incdir', mak)

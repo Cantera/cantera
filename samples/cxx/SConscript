@@ -59,24 +59,9 @@ set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS})
         # conda package for now.
         # Users should compile against their local SDKs, which should be backwards
         # compatible with the SDK used for building.
-        def split_compiler_flags(flags, excludes=[]):
-            """
-            Separate concatenated compiler flags in flag list.
-            Entries listed in 'exclude' are omitted.
-            """
-            flags = " ".join(flags)
-            flags = f" {flags}".split(" -")[1:]
-            # split concatenated entries
-            flags = [f"-{flag}" for flag in flags]
-            cc_flags = []
-            for flag in flags:
-                if not flag.startswith(excludes) and flag not in cc_flags:
-                    cc_flags.append(flag)
-            return cc_flags
-
         excludes = (
             "-isysroot", "-mmacosx", "-march", "-mtune", "-fdebug-prefix-map")
-        cc_flags = split_compiler_flags(localenv["CCFLAGS"] + localenv["CXXFLAGS"],
+        cc_flags = compiler_flag_list(localenv["CCFLAGS"] + localenv["CXXFLAGS"],
             excludes)
     else:
         incdirs.extend([localenv["sundials_include"], localenv["boost_inc_dir"]])
