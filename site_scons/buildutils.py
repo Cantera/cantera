@@ -25,7 +25,7 @@ __all__ = ("Option", "PathOption", "BoolOption", "EnumOption", "Configuration",
            "logger", "remove_directory", "remove_file", "test_results",
            "add_RegressionTest", "get_command_output", "listify", "which",
            "ConfigBuilder", "multi_glob", "get_spawn", "quoted",
-           "get_pip_install_location")
+           "get_pip_install_location", "compiler_flag_list")
 
 if TYPE_CHECKING:
     from typing import Iterable, TypeVar, Union, List, Dict, Tuple, Optional, \
@@ -1090,6 +1090,27 @@ def add_RegressionTest(env: "SCEnvironment") -> None:
     env["BUILDERS"]["RegressionTest"] = env.Builder(
         action=env.Action(regression_test, regression_test_message)
     )
+
+
+def compiler_flag_list(
+        flags: "Union[str, Iterable]",
+        excludes: "Optional[Iterable]" = []
+    ) -> "List[str]":
+    """
+    Separate concatenated compiler flags in ``flags``.
+    Entries listed in ``excludes`` are omitted.
+    """
+    if not isinstance(flags, str):
+        flags = " ".join(flags)
+    # split concatenated entries
+    flags = f" {flags}".split(" -")[1:]
+    flags = [f"-{flag}" for flag in flags]
+    cc_flags = []
+    excludes = tuple(excludes)
+    for flag in flags:
+        if not flag.startswith(excludes) and flag not in cc_flags:
+            cc_flags.append(flag)
+    return cc_flags
 
 
 def quoted(s: str) -> str:
