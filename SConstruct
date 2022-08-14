@@ -580,6 +580,15 @@ config_options = [
         {"Windows": "compact", "default": "standard"},
         ("standard", "compact", "debian", "conda")),
     BoolOption(
+        "package_build",
+        """Used in combination with packaging tools (example: 'conda-build'). If
+           enabled, the installed package will be independent from host and build
+           environments, with all external library and include paths removed. Packaged
+           C++ and Fortran samples assume that users will compile with local SDKs, which
+           should be backwards compatible with the tools used for the build process.
+        """,
+        False),
+    BoolOption(
         "fast_fail_tests",
         "If enabled, tests will exit at the first failure.",
         False),
