@@ -28,26 +28,26 @@ class AdaptivePreconditioner : public PreconditionerBase
 public:
     AdaptivePreconditioner() {}
 
-    void initialize(size_t networkSize);
+    void initialize(size_t networkSize) override;
 
-    void reset() {
+    void reset() override {
         m_precon_matrix.setZero();
         m_jac_trips.clear();
     };
 
-    void setup();
+    void setup() override;
 
-    void solve(const size_t stateSize, double* rhs_vector, double* output);
+    void solve(const size_t stateSize, double* rhs_vector, double* output) override;
 
-    PreconditionerType preconditionerType() {
+    PreconditionerType preconditionerType() override {
         return PreconditionerType::LEFT_PRECONDITION;
     }
 
-    void setValue(size_t row, size_t col, double value);
+    void setValue(size_t row, size_t col, double value) override;
 
-    virtual void stateAdjustment(vector_fp& state);
+    virtual void stateAdjustment(vector_fp& state) override;
 
-    virtual void updatePreconditioner();
+    virtual void updatePreconditioner() override;
 
     //! Prune preconditioner elements
     void prunePreconditioner();
@@ -96,7 +96,7 @@ public:
     }
 
     //! Print preconditioner contents
-    void printPreconditioner();
+    void printPreconditioner() override;
 
     //! Print jacobian contents
     void printJacobian();
