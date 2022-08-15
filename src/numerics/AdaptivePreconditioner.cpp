@@ -9,6 +9,11 @@
 namespace Cantera
 {
 
+AdaptivePreconditioner::AdaptivePreconditioner()
+{
+    setPreconditionerSide("left");
+}
+
 void AdaptivePreconditioner::setValue(size_t row, size_t col, double value)
 {
     m_jac_trips.emplace_back(row, col, value);

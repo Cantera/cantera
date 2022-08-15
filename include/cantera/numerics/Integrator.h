@@ -112,21 +112,13 @@ public:
         warn("setLinearSolverType");
     }
 
-    //! Set the preconditioner type.
-    /*!
-     * @param prectype    Type of the problem
-     */
-    virtual void setPreconditionerType(PreconditionerType prectype) {
-        warn("setPreconditionerType");
-    }
-
     //! Set preconditioner used by the linear solver
     /*!
      * @param preconditioner preconditioner object used for the linear solver
      */
     virtual void setPreconditioner(shared_ptr<PreconditionerBase> preconditioner) {
         m_preconditioner = preconditioner;
-        m_prec_type = m_preconditioner->preconditionerType();
+        m_prec_side = m_preconditioner->preconditionerSide();
     }
 
     //! Solve a linear system Ax=b where A is the preconditioner
@@ -139,9 +131,9 @@ public:
         m_preconditioner->solve(stateSize, rhs, output);
     }
 
-    //! Return the preconditioner type
-    virtual PreconditionerType preconditionerType() {
-        return m_prec_type;
+    //! Return the side of the system on which the preconditioner is applied
+    virtual PreconditionerSide preconditionerSide() {
+        return m_prec_side;
     }
 
     //! Return preconditioner reference to object
@@ -291,7 +283,7 @@ protected:
     //! ReactorNet::initialize()
     shared_ptr<PreconditionerBase> m_preconditioner;
     //! Type of preconditioning used in applyOptions
-    PreconditionerType m_prec_type = PreconditionerType::NO_PRECONDITION;
+    PreconditionerSide m_prec_side = PreconditionerSide::NO_PRECONDITION;
 
 private:
     doublereal m_dummy;

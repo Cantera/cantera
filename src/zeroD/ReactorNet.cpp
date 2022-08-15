@@ -115,7 +115,7 @@ void ReactorNet::initialize()
         writelog("Maximum time step:   {:14.6g}\n", m_maxstep);
     }
     m_integ->initialize(m_time, *this);
-    if (m_integ->preconditionerType() != PreconditionerType::NO_PRECONDITION) {
+    if (m_integ->preconditionerSide() != PreconditionerSide::NO_PRECONDITION) {
         checkPreconditionerSupported();
     }
     m_integrator_init = true;
@@ -127,7 +127,7 @@ void ReactorNet::reinitialize()
     if (m_init) {
         debuglog("Re-initializing reactor network.\n", m_verbose);
         m_integ->reinitialize(m_time, *this);
-        if (m_integ->preconditionerType() != PreconditionerType::NO_PRECONDITION) {
+        if (m_integ->preconditionerSide() != PreconditionerSide::NO_PRECONDITION) {
             checkPreconditionerSupported();
         }
         m_integrator_init = true;
