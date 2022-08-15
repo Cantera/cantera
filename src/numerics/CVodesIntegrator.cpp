@@ -621,34 +621,15 @@ int CVodesIntegrator::nEvals() const
     return ne;
 }
 
-AnyMap CVodesIntegrator::nonlinearSolverStats() const
-{
-    long int iters = 0, conv_fails = 0;
-    // AnyMap to return stats
-    AnyMap stats;
-    #if CT_SUNDIALS_VERSION >= 40
-        CVodeGetNonlinSolvStats(m_cvode_mem, &iters, &conv_fails);
-    #else
-        warn_user("CVodesIntegrator::nonlinearSolverStats", "Function not"
-                  "supported with sundials versions less than 4.");
-    #endif
-    // Add values to AnyMap
-    stats["nonlinear_iters"] = iters;
-    stats["nonlinear_conv_fails"] = conv_fails;
-    return stats;
-}
-
-AnyMap CVodesIntegrator::linearSolverStats() const
+AnyMap CVodesIntegrator::solverStats() const
 {
     // long int linear solver stats provided by CVodes
     long int jacEvals = 0, linRhsEvals = 0, linIters = 0, linConvFails = 0,
-             precEvals = 0, precSolves = 0, jtSetupEvals = 0, jTimesEvals = 0;
-    // AnyMap to return stats
-    AnyMap stats;
-    #if CT_SUNDIALS_VERSION >= 60
-        CVodeGetLinSolveStats(m_cvode_mem, &jacEvals, &linRhsEvals, &linIters,
-            &linConvFails, &precEvals, &precSolves, &jtSetupEvals, &jTimesEvals);
-    #elif CT_SUNDIALS_VERSION >= 40
+             precEvals = 0, precSolves = 0, jtSetupEvals = 0, jTimesEvals = 0,
+             nonlin_iters = 0, nonlin_conv_fails = 0;
+;
+    #if CT_SUNDIALS_VERSION >= 40
+        CVodeGetNonlinSolvStats(m_cvode_mem, &nonlin_iters, &nonlin_conv_fails);
         CVodeGetNumJacEvals(m_cvode_mem, &jacEvals);
         CVodeGetNumLinRhsEvals(m_cvode_mem, &linRhsEvals);
         CVodeGetNumLinIters(m_cvode_mem, &linIters);
@@ -658,10 +639,12 @@ AnyMap CVodesIntegrator::linearSolverStats() const
         CVodeGetNumJTSetupEvals(m_cvode_mem, &jtSetupEvals);
         CVodeGetNumJtimesEvals(m_cvode_mem, &jTimesEvals);
     #else
-        warn_user("CVodesIntegrator::linearSolverStats", "Function not"
+        warn_user("CVodesIntegrator::solverStats", "Function not"
                   "supported with sundials versions less than 4.");
     #endif
-    // Add data to AnyMap
+
+    // AnyMap to return stats
+    AnyMap stats;
     stats["jac_evals"] = jacEvals;
     stats["lin_rhs_evals"] = linRhsEvals;
     stats["lin_iters"] = linIters;
@@ -670,6 +653,8 @@ AnyMap CVodesIntegrator::linearSolverStats() const
     stats["prec_solves"] = precSolves;
     stats["jt_vec_setup_evals"] = jtSetupEvals;
     stats["jt_vec_prod_evals"] = jTimesEvals;
+    stats["nonlinear_iters"] = nonlin_iters;
+    stats["nonlinear_conv_fails"] = nonlin_conv_fails;
     return stats;
 }
 

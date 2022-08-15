@@ -49,12 +49,8 @@ def integrate_reactor(n_reactors=15, preconditioner=True):
     else:
         print(f"Non-preconditioned Integration Time: {integ_time:f}")
     # Get and output solver stats
-    lin_stats = sim.linear_solver_stats
-    nonlin_stats = sim.nonlinear_solver_stats
-    for key in lin_stats:
-        print(key, lin_stats[key])
-    for key in nonlin_stats:
-        print(key, nonlin_stats[key])
+    for key, value in sim.solver_stats.items():
+        print(key, value)
     print("\n")
     # return some variables for plotting
     return states.time, states.T, states('CO2').Y, states('C12H26').Y

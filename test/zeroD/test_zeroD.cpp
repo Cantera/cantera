@@ -150,21 +150,19 @@ TEST(AdaptivePreconditionerTests, test_precon_solver_stats)
     EXPECT_THROW(network.step(), CanteraError);
     // take a step
     network.setLinearSolverType("GMRES");
-    // get linear solver stats
+    // get solver stats
     network.step();
-    AnyMap linearStats = network.linearSolverStats();
-    EXPECT_GE(linearStats["jac_evals"].asInt(), 0);
-    EXPECT_GE(linearStats["lin_rhs_evals"].asInt(), 0);
-    EXPECT_GE(linearStats["lin_iters"].asInt(), 0);
-    EXPECT_GE(linearStats["lin_conv_fails"].asInt(), 0);
-    EXPECT_GE(linearStats["prec_evals"].asInt(), 0);
-    EXPECT_GE(linearStats["prec_solves"].asInt(), 0);
-    EXPECT_GE(linearStats["jt_vec_setup_evals"].asInt(), 0);
-    EXPECT_GE(linearStats["jt_vec_prod_evals"].asInt(), 0);
-    // nonlinear solver stats
-    AnyMap nonlinearStats = network.nonlinearSolverStats();
-    EXPECT_GE(nonlinearStats["nonlinear_iters"].asInt(), 0);
-    EXPECT_GE(nonlinearStats["nonlinear_conv_fails"].asInt(), 0);
+    AnyMap stats = network.solverStats();
+    EXPECT_GE(stats["jac_evals"].asInt(), 0);
+    EXPECT_GE(stats["lin_rhs_evals"].asInt(), 0);
+    EXPECT_GE(stats["lin_iters"].asInt(), 0);
+    EXPECT_GE(stats["lin_conv_fails"].asInt(), 0);
+    EXPECT_GE(stats["prec_evals"].asInt(), 0);
+    EXPECT_GE(stats["prec_solves"].asInt(), 0);
+    EXPECT_GE(stats["jt_vec_setup_evals"].asInt(), 0);
+    EXPECT_GE(stats["jt_vec_prod_evals"].asInt(), 0);
+    EXPECT_GE(stats["nonlinear_iters"].asInt(), 0);
+    EXPECT_GE(stats["nonlinear_conv_fails"].asInt(), 0);
 }
 
 int main(int argc, char** argv)

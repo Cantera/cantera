@@ -56,8 +56,7 @@ public:
     virtual void setMaxSteps(int nmax);
     virtual int maxSteps();
     virtual void setMaxErrTestFails(int n);
-    virtual AnyMap nonlinearSolverStats() const;
-    virtual AnyMap linearSolverStats() const;
+    virtual AnyMap solverStats() const;
     void setLinearSolverType(const std::string& linSolverType) {
         m_type = linSolverType;
     }
