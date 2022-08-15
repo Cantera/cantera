@@ -1503,18 +1503,11 @@ cdef class ReactorNet:
             return pystr(self.net.linearSolverType())
 
 
-    property linear_solver_stats:
-        """Linear solver stats from integrator"""
+    property solver_stats:
+        """ODE solver stats from integrator"""
         def __get__(self):
             cdef CxxAnyMap stats
-            stats = self.net.linearSolverStats()
-            return anymap_to_dict(stats)
-
-    property nonlinear_solver_stats:
-        """Nonlinear solver stats from integrator"""
-        def __get__(self):
-            cdef CxxAnyMap stats
-            stats = self.net.nonlinearSolverStats()
+            stats = self.net.solverStats()
             return anymap_to_dict(stats)
 
     property derivative_settings:

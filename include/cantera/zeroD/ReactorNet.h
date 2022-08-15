@@ -276,11 +276,8 @@ public:
 
     virtual void preconditionerSolve(double* rhs, double* output);
 
-    //! Use this to get nonlinear solver stats from Integrator
-    AnyMap nonlinearSolverStats() const;
-
-    //! Get linear solver stats from integrator
-    AnyMap linearSolverStats() const;
+    //! Get solver stats from integrator
+    AnyMap solverStats() const;
 
     //! Set derivative settings of all reactors
     //! @param settings the settings map propagated to all reactors and kinetics objects

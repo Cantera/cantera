@@ -278,17 +278,10 @@ public:
         return 0.0;
     }
 
-    //! Get nonlinear solver stats from integrator
-    virtual AnyMap nonlinearSolverStats() const {
+    //! Get solver stats from integrator
+    virtual AnyMap solverStats() const {
         AnyMap stats;
-        warn("nonlinearSolverStats");
-        return stats;
-    }
-
-    //! Get linear solver stats from integrator
-    virtual AnyMap linearSolverStats() const {
-        AnyMap stats;
-        warn("linearSolverStats");
+        warn("solverStats");
         return stats;
     }
 

@@ -424,14 +424,9 @@ void ReactorNet::setDerivativeSettings(AnyMap& settings)
     }
 }
 
-AnyMap ReactorNet::nonlinearSolverStats() const
+AnyMap ReactorNet::solverStats() const
 {
-    return m_integ->nonlinearSolverStats();
-}
-
-AnyMap ReactorNet::linearSolverStats() const
-{
-    return m_integ->linearSolverStats();
+    return m_integ->solverStats();
 }
 
 std::string ReactorNet::linearSolverType() const
