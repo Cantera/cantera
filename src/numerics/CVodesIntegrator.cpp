@@ -301,7 +301,7 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
     m_func = &func;
     func.clearErrors();
     // Initialize preconditioner if applied
-    if (m_prec_type != PreconditionerType::NO_PRECONDITION) {
+    if (m_prec_side != PreconditionerSide::NO_PRECONDITION) {
         m_preconditioner->initialize(m_neq);
     }
     if (m_y) {
@@ -399,7 +399,7 @@ void CVodesIntegrator::reinitialize(double t0, FuncEval& func)
     m_func = &func;
     func.clearErrors();
     // reinitialize preconditioner if applied
-    if (m_prec_type != PreconditionerType::NO_PRECONDITION) {
+    if (m_prec_side != PreconditionerSide::NO_PRECONDITION) {
         m_preconditioner->initialize(m_neq);
     }
     int result = CVodeReInit(m_cvode_mem, m_t0, m_y);
@@ -455,14 +455,14 @@ void CVodesIntegrator::applyOptions()
         }
 
         // throw preconditioner error for DENSE + NOJAC
-        if (m_prec_type != PreconditionerType::NO_PRECONDITION) {
+        if (m_prec_side != PreconditionerSide::NO_PRECONDITION) {
             throw CanteraError("CVodesIntegrator::applyOptions",
                 "Preconditioning is not available with the specified problem type.");
         }
     } else if (m_type == "DIAG") {
         CVDiag(m_cvode_mem);
         // throw preconditioner error for DIAG
-        if (m_prec_type != PreconditionerType::NO_PRECONDITION) {
+        if (m_prec_side != PreconditionerSide::NO_PRECONDITION) {
             throw CanteraError("CVodesIntegrator::applyOptions",
                 "Preconditioning is not available with the specified problem type.");
         }
@@ -479,16 +479,16 @@ void CVodesIntegrator::applyOptions()
         #endif
         // set preconditioner if used
         #if CT_SUNDIALS_VERSION >= 40
-            if (m_prec_type != PreconditionerType::NO_PRECONDITION) {
+            if (m_prec_side != PreconditionerSide::NO_PRECONDITION) {
                 SUNLinSol_SPGMRSetPrecType((SUNLinearSolver) m_linsol,
-                    static_cast<int>(m_prec_type));
+                    static_cast<int>(m_prec_side));
                 CVodeSetPreconditioner(m_cvode_mem, cvodes_prec_setup,
                     cvodes_prec_solve);
             }
         #else
-            if (m_prec_type != PreconditionerType::NO_PRECONDITION) {
+            if (m_prec_side != PreconditionerSide::NO_PRECONDITION) {
                 SUNSPGMRSetPrecType((SUNLinearSolver) m_linsol,
-                    static_cast<int>(m_prec_type));
+                    static_cast<int>(m_prec_side));
                 CVSpilsSetPreconditioner(m_cvode_mem, cvodes_prec_setup,
                     cvodes_prec_solve);
             }

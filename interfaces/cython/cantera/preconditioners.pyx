@@ -13,6 +13,26 @@ cdef class PreconditionerBase:
     def __cinit__(self, *args, **kwargs):
         self.pbase = newPreconditioner(stringify(self.precon_type))
 
+    property side:
+        """
+        Get/Set the side of the system matrix where the preconditioner is applied.
+        Options are "none", "left", "right", or "both". Not all options are supported
+        by all solver types.
+        """
+        def __get__(self):
+            cdef int side = <int>self.pbase.get().preconditionerSide()
+            if side == 0:
+                return "none"
+            elif side == 1:
+                return "left"
+            elif side == 2:
+                return "right"
+            elif side == 3:
+                return "both"
+
+        def __set__(self, side):
+            self.pbase.get().setPreconditionerSide(stringify(side))
+
 cdef class AdaptivePreconditioner(PreconditionerBase):
     precon_type = "Adaptive"
     precon_linear_solver_type = "GMRES"

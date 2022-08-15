@@ -26,7 +26,7 @@ namespace Cantera
 class AdaptivePreconditioner : public PreconditionerBase
 {
 public:
-    AdaptivePreconditioner() {}
+    AdaptivePreconditioner();
 
     void initialize(size_t networkSize) override;
 
@@ -38,10 +38,6 @@ public:
     void setup() override;
 
     void solve(const size_t stateSize, double* rhs_vector, double* output) override;
-
-    PreconditionerType preconditionerType() override {
-        return PreconditionerType::LEFT_PRECONDITION;
-    }
 
     void setValue(size_t row, size_t col, double value) override;
 

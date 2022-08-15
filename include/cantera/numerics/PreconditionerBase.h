@@ -16,10 +16,10 @@ namespace Cantera
 {
 
 /**
- * Specifies the preconditioner type used in the integration if any. Not all methods are
- * supported by all integrators.
+ * Specifies the side of the system on which the preconditioner is applied. Not all
+ * methods are supported by all integrators.
  */
-enum class PreconditionerType {
+enum class PreconditionerSide {
     NO_PRECONDITION, //! No preconditioning
     LEFT_PRECONDITION, //! Left side preconditioning
     RIGHT_PRECONDITION, //! Right side preconditioning
@@ -50,10 +50,25 @@ public:
         throw NotImplementedError("PreconditionerBase::stateAdjustment");
     }
 
-    //! Get preconditioner type for CVODES
-    virtual PreconditionerType preconditionerType() {
-        return PreconditionerType::NO_PRECONDITION;
+    //! Get preconditioner application side for CVODES
+    PreconditionerSide preconditionerSide() {
+        return m_precon_side;
     };
+
+    virtual void setPreconditionerSide(const std::string& preconSide) {
+        if (preconSide == "none") {
+            m_precon_side = PreconditionerSide::NO_PRECONDITION;
+        } else if (preconSide == "left") {
+            m_precon_side = PreconditionerSide::LEFT_PRECONDITION;
+        } else if (preconSide == "right") {
+            m_precon_side = PreconditionerSide::RIGHT_PRECONDITION;
+        } else if (preconSide == "both") {
+            m_precon_side = PreconditionerSide::BOTH_PRECONDITION;
+        } else {
+            throw CanteraError("PreconditionerBase::setPreconditionerSide",
+                               "Invalid option '{}'", preconSide);
+        }
+    }
 
     //! Solve a linear system Ax=b where A is the preconditioner
     //! @param[in] stateSize length of the rhs and output vectors
@@ -121,6 +136,7 @@ protected:
     //! Absolute tolerance of the ODE solver
     double m_atol = 0;
 
+    PreconditionerSide m_precon_side = PreconditionerSide::NO_PRECONDITION;
 };
 
 }
