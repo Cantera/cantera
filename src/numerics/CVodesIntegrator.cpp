@@ -623,15 +623,26 @@ int CVodesIntegrator::nEvals() const
 
 AnyMap CVodesIntegrator::solverStats() const
 {
+    // AnyMap to return stats
+    AnyMap stats;
+
     // long int linear solver stats provided by CVodes
-    long int jacEvals = 0, linRhsEvals = 0, linIters = 0, linConvFails = 0,
-             precEvals = 0, precSolves = 0, jtSetupEvals = 0, jTimesEvals = 0,
-             nonlin_iters = 0, nonlin_conv_fails = 0;
+    long int steps = 0, rhsEvals = 0, errTestFails = 0, jacEvals = 0, linSetup = 0,
+             linRhsEvals = 0, linIters = 0, linConvFails = 0, precEvals = 0,
+             precSolves = 0, jtSetupEvals = 0, jTimesEvals = 0, nonlinIters = 0,
+             nonlinConvFails = 0, orderReductions = 0;
+    int lastOrder = 0;
 ;
     #if CT_SUNDIALS_VERSION >= 40
-        CVodeGetNonlinSolvStats(m_cvode_mem, &nonlin_iters, &nonlin_conv_fails);
+        CVodeGetNumSteps(m_cvode_mem, &steps);
+        CVodeGetNumRhsEvals(m_cvode_mem, &rhsEvals);
+        CVodeGetNonlinSolvStats(m_cvode_mem, &nonlinIters, &nonlinConvFails);
+        CVodeGetNumErrTestFails(m_cvode_mem, &errTestFails);
+        CVodeGetLastOrder(m_cvode_mem, &lastOrder);
+        CVodeGetNumStabLimOrderReds(m_cvode_mem, &orderReductions);
         CVodeGetNumJacEvals(m_cvode_mem, &jacEvals);
         CVodeGetNumLinRhsEvals(m_cvode_mem, &linRhsEvals);
+        CVodeGetNumLinSolvSetups(m_cvode_mem, &linSetup);
         CVodeGetNumLinIters(m_cvode_mem, &linIters);
         CVodeGetNumLinConvFails(m_cvode_mem, &linConvFails);
         CVodeGetNumPrecEvals(m_cvode_mem, &precEvals);
@@ -643,9 +654,22 @@ AnyMap CVodesIntegrator::solverStats() const
                   "supported with sundials versions less than 4.");
     #endif
 
-    // AnyMap to return stats
-    AnyMap stats;
+    #if CT_SUNDIALS_VERION >= 60
+        long int stepSolveFails = 0;
+        CVodeGetNumStepSolveFails(m_cvode_mem, &stepSolveFails);
+        stats["step_solve_fails"] = stepSolveFails;
+    #endif
+
+    stats["steps"] = steps;
+    stats["rhs_evals"] = rhsEvals;
+    stats["nonlinear_iters"] = nonlinIters;
+    stats["nonlinear_conv_fails"] = nonlinConvFails;
+    stats["err_test_fails"] = errTestFails;
+    stats["last_order"] = lastOrder;
+    stats["stab_order_reductions"] = orderReductions;
+
     stats["jac_evals"] = jacEvals;
+    stats["lin_solve_setups"] = linSetup;
     stats["lin_rhs_evals"] = linRhsEvals;
     stats["lin_iters"] = linIters;
     stats["lin_conv_fails"] = linConvFails;
@@ -653,8 +677,6 @@ AnyMap CVodesIntegrator::solverStats() const
     stats["prec_solves"] = precSolves;
     stats["jt_vec_setup_evals"] = jtSetupEvals;
     stats["jt_vec_prod_evals"] = jTimesEvals;
-    stats["nonlinear_iters"] = nonlin_iters;
-    stats["nonlinear_conv_fails"] = nonlin_conv_fails;
     return stats;
 }
 
