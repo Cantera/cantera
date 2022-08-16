@@ -333,6 +333,10 @@ cdef class Reactor(ReactorBase):
         self.reactor.getState(&y[0])
         return y
 
+    property jacobian:
+        def __get__(self):
+            return get_from_sparse(self.reactor.jacobian(), self.n_vars, self.n_vars)
+
     def set_advance_limit(self, name, limit):
         """
         Limit absolute change of component ``name`` during `ReactorNet.advance`.
