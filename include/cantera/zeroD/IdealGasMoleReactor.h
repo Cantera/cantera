@@ -36,7 +36,7 @@ public:
 
     virtual void updateState(double* y);
 
-    virtual Eigen::SparseMatrix<double> jacobian(double t, double* y);
+    virtual Eigen::SparseMatrix<double> jacobian();
 
 protected:
     vector_fp m_uk; //!< Species molar internal energies

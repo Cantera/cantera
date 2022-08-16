@@ -132,8 +132,7 @@ void IdealGasConstPressureMoleReactor::eval(double time, double* LHS, double* RH
     }
 }
 
-Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian(double t,
-    double* y)
+Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian()
 {
     // clear former jacobian elements
     m_jac_trips.clear();
@@ -150,7 +149,7 @@ Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian(double t,
     m_kin->getNetProductionRates(rates.valuePtr()); // "omega dot"
     std::fill(volumes.valuePtr(), volumes.valuePtr() + nspecies, m_vol);
     // get ROP derivatives
-    double scalingFactor = m_vol/accumulate(y + m_sidx, y + m_nv, 0.0);
+    double scalingFactor = m_thermo->molarVolume();
     Eigen::SparseMatrix<double> speciesDervs = m_kin->netProductionRates_ddX();
     // sum parts
     speciesDervs = scalingFactor * speciesDervs + rates * volumes;
@@ -163,23 +162,22 @@ Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian(double t,
     // Temperature Derivatives
     if (m_energy) {
         // getting perturbed state for finite difference
-        double deltaTemp = y[0] * std::numeric_limits<double>::epsilon();
+        double deltaTemp = m_thermo->temperature()
+            * std::numeric_limits<double>::epsilon();
         // finite difference temperature derivatives
-        vector_fp yNext(m_nv);
         vector_fp ydotNext(m_nv);
         vector_fp yCurrent(m_nv);
         vector_fp ydotCurrent(m_nv);
-        // copy LHS to current and next
-        copy(y, y + m_nv, yCurrent.begin());
-        copy(y, y + m_nv, yNext.begin());
+        getState(yCurrent.data());
+        vector_fp yNext = yCurrent;
         // perturb temperature
         yNext[0] += deltaTemp;
         // getting perturbed state
         updateState(yNext.data());
-        eval(t, yNext.data(), ydotNext.data());
+        eval(m_net->time(), yNext.data(), ydotNext.data());
         // reset and get original state
         updateState(yCurrent.data());
-        eval(t, yCurrent.data(), ydotCurrent.data());
+        eval(m_net->time(), yCurrent.data(), ydotCurrent.data());
         // d T_dot/dT
         m_jac_trips.emplace_back(0, 0, (ydotNext[0] - ydotCurrent[0]) / deltaTemp);
         // d omega_dot_j/dT
@@ -196,7 +194,7 @@ Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian(double t,
         m_kin->getNetProductionRates(netProductionRates.data());
         // getting perturbed changes w.r.t temperature
         double hkndotksum = 0;
-        double NtotalCp = accumulate(y + m_sidx, y + m_nv, 0.0) * m_thermo->cp_mole();
+        double totalCp = m_mass * m_thermo->cp_mass();
         // scale net production rates by  volume to get molar rate
         scale(netProductionRates.begin(), netProductionRates.end(),
             netProductionRates.begin(), m_vol);
@@ -213,8 +211,8 @@ Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian(double t,
                 hkdnkdnjSum += enthalpy[k] * speciesDervs.coeff(k, j);
             }
             // add elements to jacobian triplets
-            m_jac_trips.emplace_back(0, j + m_sidx, (-hkdnkdnjSum * NtotalCp +
-            specificHeat[j] * hkndotksum) / (NtotalCp * NtotalCp));
+            m_jac_trips.emplace_back(0, j + m_sidx,
+                (-hkdnkdnjSum + specificHeat[j] * hkndotksum / totalCp) / totalCp);
         }
     }
     Eigen::SparseMatrix<double> jac (m_nv, m_nv);
