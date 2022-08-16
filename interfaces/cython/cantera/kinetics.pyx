@@ -31,11 +31,10 @@ cdef np.ndarray get_reaction_array(Kinetics kin, kineticsMethod1d method):
     method(kin.kinetics, &data[0])
     return data
 
-cdef np.ndarray get_dense(Kinetics kin, kineticsMethodSparse method):
-    cdef CxxSparseMatrix smat = method(kin.kinetics)
+cdef np.ndarray get_dense(CxxSparseMatrix& smat):
     cdef size_t length = smat.nonZeros()
     if length == 0:
-        return np.zeros((kin.n_reactions, 0))
+        return np.zeros((smat.rows(), 0))
 
     # index/value triplets
     cdef np.ndarray[int, ndim=1, mode="c"] rows = np.empty(length, dtype=c_int)
@@ -48,10 +47,7 @@ cdef np.ndarray get_dense(Kinetics kin, kineticsMethodSparse method):
         out[rows[i], cols[i]] = data[i]
     return out
 
-cdef tuple get_sparse(Kinetics kin, kineticsMethodSparse method):
-    # retrieve sparse matrix
-    cdef CxxSparseMatrix smat = method(kin.kinetics)
-
+cdef get_sparse(CxxSparseMatrix& smat):
     # pointers to values and inner indices of CSC storage
     cdef size_t length = smat.nonZeros()
     cdef np.ndarray[np.double_t, ndim=1] value = np.empty(length)
@@ -63,6 +59,14 @@ cdef tuple get_sparse(Kinetics kin, kineticsMethodSparse method):
 
     CxxSparseCscData(smat, &value[0], &inner[0], &outer[0])
     return value, inner, outer
+
+cdef get_from_sparse(CxxSparseMatrix& smat, int rows, int cols):
+    if _utils._USE_SPARSE:
+        tup = get_sparse(smat)
+        return _utils._scipy_sparse.csc_matrix(tup, shape=(rows, cols))
+    else:
+        return get_dense(smat)
+
 
 cdef class Kinetics(_SolutionBase):
     """
@@ -271,11 +275,8 @@ cdef class Kinetics(_SolutionBase):
             Method was changed to a property in Cantera 3.0.
         """
         def __get__(self):
-            if _utils._USE_SPARSE:
-                tup = get_sparse(self, kin_reactantStoichCoeffs)
-                shape = self.n_total_species, self.n_reactions
-                return _utils._scipy_sparse.csc_matrix(tup, shape=shape)
-            return get_dense(self, kin_reactantStoichCoeffs)
+            return get_from_sparse(self.kinetics.reactantStoichCoeffs(),
+                                   self.n_total_species, self.n_reactions)
 
     property reactant_stoich_coeffs3:
         """
@@ -308,11 +309,8 @@ cdef class Kinetics(_SolutionBase):
             Method was changed to a property in Cantera 3.0.
         """
         def __get__(self):
-            if _utils._USE_SPARSE:
-                tup = get_sparse(self, kin_productStoichCoeffs)
-                shape = self.n_total_species, self.n_reactions
-                return _utils._scipy_sparse.csc_matrix(tup, shape=shape)
-            return get_dense(self, kin_productStoichCoeffs)
+            return get_from_sparse(self.kinetics.productStoichCoeffs(),
+                                   self.n_total_species, self.n_reactions)
 
     property product_stoich_coeffs3:
         """
@@ -341,11 +339,8 @@ cdef class Kinetics(_SolutionBase):
         For sparse output, set ``ct.use_sparse(True)``.
         """
         def __get__(self):
-            if _utils._USE_SPARSE:
-                tup = get_sparse(self, kin_revProductStoichCoeffs)
-                shape = self.n_total_species, self.n_reactions
-                return _utils._scipy_sparse.csc_matrix(tup, shape=shape)
-            return get_dense(self, kin_revProductStoichCoeffs)
+            return get_from_sparse(self.kinetics.revProductStoichCoeffs(),
+                                   self.n_total_species, self.n_reactions)
 
     property forward_rates_of_progress:
         """
@@ -519,11 +514,8 @@ cdef class Kinetics(_SolutionBase):
         may be changed or removed without notice.
         """
         def __get__(self):
-            if _utils._USE_SPARSE:
-                tup = get_sparse(self, kin_fwdRatesOfProgress_ddX)
-                shape = self.n_reactions, self.n_total_species
-                return _utils._scipy_sparse.csc_matrix(tup, shape=shape)
-            return get_dense(self, kin_fwdRatesOfProgress_ddX)
+            return get_from_sparse(self.kinetics.fwdRatesOfProgress_ddX(),
+                                   self.n_reactions, self.n_total_species)
 
     property reverse_rates_of_progress_ddT:
         """
@@ -565,11 +557,8 @@ cdef class Kinetics(_SolutionBase):
         may be changed or removed without notice.
         """
         def __get__(self):
-            if _utils._USE_SPARSE:
-                tup = get_sparse(self, kin_revRatesOfProgress_ddX)
-                shape = self.n_reactions, self.n_total_species
-                return _utils._scipy_sparse.csc_matrix(tup, shape=shape)
-            return get_dense(self, kin_revRatesOfProgress_ddX)
+            return get_from_sparse(self.kinetics.revRatesOfProgress_ddX(),
+                                   self.n_reactions, self.n_total_species)
 
     property net_rates_of_progress_ddT:
         """
@@ -611,11 +600,8 @@ cdef class Kinetics(_SolutionBase):
         may be changed or removed without notice.
         """
         def __get__(self):
-            if _utils._USE_SPARSE:
-                tup = get_sparse(self, kin_netRatesOfProgress_ddX)
-                shape = self.n_reactions, self.n_total_species
-                return _utils._scipy_sparse.csc_matrix(tup, shape=shape)
-            return get_dense(self, kin_netRatesOfProgress_ddX)
+            return get_from_sparse(self.kinetics.netRatesOfProgress_ddX(),
+                                   self.n_reactions, self.n_total_species)
 
     property creation_rates_ddT:
         """
@@ -657,11 +643,8 @@ cdef class Kinetics(_SolutionBase):
         may be changed or removed without notice.
         """
         def __get__(self):
-            if _utils._USE_SPARSE:
-                tup = get_sparse(self, kin_creationRates_ddX)
-                shape = self.n_total_species, self.n_total_species
-                return _utils._scipy_sparse.csc_matrix(tup, shape=shape)
-            return get_dense(self, kin_creationRates_ddX)
+            return get_from_sparse(self.kinetics.creationRates_ddX(),
+                                   self.n_total_species, self.n_total_species)
 
     property destruction_rates_ddT:
         """
@@ -703,11 +686,8 @@ cdef class Kinetics(_SolutionBase):
         may be changed or removed without notice.
         """
         def __get__(self):
-            if _utils._USE_SPARSE:
-                tup = get_sparse(self, kin_destructionRates_ddX)
-                shape = self.n_total_species, self.n_total_species
-                return _utils._scipy_sparse.csc_matrix(tup, shape=shape)
-            return get_dense(self, kin_destructionRates_ddX)
+            return get_from_sparse(self.kinetics.destructionRates_ddX(),
+                                   self.n_total_species, self.n_total_species)
 
     property net_production_rates_ddT:
         """
@@ -749,11 +729,8 @@ cdef class Kinetics(_SolutionBase):
         may be changed or removed without notice.
         """
         def __get__(self):
-            if _utils._USE_SPARSE:
-                tup = get_sparse(self, kin_netProductionRates_ddX)
-                shape = self.n_total_species, self.n_total_species
-                return _utils._scipy_sparse.csc_matrix(tup, shape=shape)
-            return get_dense(self, kin_netProductionRates_ddX)
+            return get_from_sparse(self.kinetics.netProductionRates_ddX(),
+                                   self.n_total_species, self.n_total_species)
 
     property delta_enthalpy:
         """Change in enthalpy for each reaction [J/kmol]."""

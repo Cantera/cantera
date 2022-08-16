@@ -53,25 +53,11 @@ inline void sparseCscData(const Eigen::SparseMatrix<double>& mat,
     }
 }
 
-// Function which passes sparse matrix
-#define SPARSE_MATRIX(PREFIX, CLASS_NAME, FUNC_NAME) \
-    inline Eigen::SparseMatrix<double> PREFIX ## _ ## FUNC_NAME(Cantera::CLASS_NAME* object) \
-    { return object->FUNC_NAME(); }
-
-#define KIN_SPARSE_MATRIX(FUNC_NAME) SPARSE_MATRIX(kin, Kinetics, FUNC_NAME)
 #define KIN_1D(FUNC_NAME) ARRAY_FUNC(kin, Kinetics, FUNC_NAME)
-
-KIN_SPARSE_MATRIX(reactantStoichCoeffs)
-KIN_SPARSE_MATRIX(productStoichCoeffs)
-KIN_SPARSE_MATRIX(revProductStoichCoeffs)
 
 KIN_1D(getFwdRatesOfProgress)
 KIN_1D(getRevRatesOfProgress)
 KIN_1D(getNetRatesOfProgress)
-
-KIN_SPARSE_MATRIX(fwdRatesOfProgress_ddX)
-KIN_SPARSE_MATRIX(revRatesOfProgress_ddX)
-KIN_SPARSE_MATRIX(netRatesOfProgress_ddX)
 
 KIN_1D(getFwdRateConstants_ddT)
 KIN_1D(getFwdRateConstants_ddP)
@@ -105,10 +91,6 @@ KIN_1D(getThirdBodyConcentrations)
 KIN_1D(getCreationRates)
 KIN_1D(getDestructionRates)
 KIN_1D(getNetProductionRates)
-
-KIN_SPARSE_MATRIX(creationRates_ddX)
-KIN_SPARSE_MATRIX(destructionRates_ddX)
-KIN_SPARSE_MATRIX(netProductionRates_ddX)
 
 KIN_1D(getCreationRates_ddT)
 KIN_1D(getDestructionRates_ddT)
