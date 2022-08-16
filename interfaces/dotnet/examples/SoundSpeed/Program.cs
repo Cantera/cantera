@@ -14,7 +14,7 @@ Application.AddConsoleLogging();
 var phase = Application.CreateThermoPhase("gri30.yaml");
 var species = phase.Species;
 
-species.SetMoleFractions(("CH4", 1.00), ("O2", 2.20), ("N2", 7.52));
+species.SetMoleFractions(("CH4", 1.00), ("O2", 2.00), ("N2", 7.52));
 
 for (var n = 0; n < 27; n++)
 {
