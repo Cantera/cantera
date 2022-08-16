@@ -459,7 +459,7 @@ void ReactorNet::preconditionerSetup(double t, double* y, double gamma)
     updateState(yCopy.data());
     // Get jacobians and give elements to preconditioners
     for (size_t i = 0; i < m_reactors.size(); i++) {
-        Eigen::SparseMatrix<double> rJac = m_reactors[i]->jacobian(t, y + m_start[i]);
+        Eigen::SparseMatrix<double> rJac = m_reactors[i]->jacobian();
         for (int k=0; k<rJac.outerSize(); ++k) {
             for (Eigen::SparseMatrix<double>::InnerIterator it(rJac, k); it; ++it) {
                 precon->setValue(it.row() + m_start[i], it.col() + m_start[i],

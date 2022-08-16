@@ -157,11 +157,9 @@ public:
     void setAdvanceLimit(const std::string& nm, const double limit);
 
     //! Method to calculate the reactor specific jacobian
-    //! @param t current time of the simulation
-    //! @param y pointer to state vector
     //! @warning  This method is an experimental part of the %Cantera
     //! API and may be changed or removed without notice.
-    virtual Eigen::SparseMatrix<double> jacobian(double t, double* y) {
+    virtual Eigen::SparseMatrix<double> jacobian() {
         throw NotImplementedError("Reactor::jacobian");
     }
 

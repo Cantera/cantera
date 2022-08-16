@@ -156,13 +156,13 @@ void IdealGasMoleReactor::eval(double time, double* LHS, double* RHS)
     }
 }
 
-Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian(double t, double* y)
+Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian()
 {
     // clear former jacobian elements
     m_jac_trips.clear();
     // Determine Species Derivatives
     // get ROP derivatives
-    double scalingFactor = m_vol/accumulate(y + m_sidx, y + m_nv, 0.0);
+    double scalingFactor = m_thermo->molarVolume();
     Eigen::SparseMatrix<double> speciesDervs = scalingFactor *
         m_kin->netProductionRates_ddX();
     // add to preconditioner
@@ -174,23 +174,22 @@ Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian(double t, double* y)
     // Temperature Derivatives
     if (m_energy) {
         // getting perturbed state for finite difference
-        double deltaTemp = y[0] * std::sqrt(std::numeric_limits<double>::epsilon());
+        double deltaTemp = m_thermo->temperature()
+            * std::sqrt(std::numeric_limits<double>::epsilon());
         // finite difference temperature derivatives
-        vector_fp yNext(m_nv);
         vector_fp ydotNext(m_nv);
         vector_fp yCurrent(m_nv);
         vector_fp ydotCurrent(m_nv);
-        // copy y to current and next
-        copy(y, y + m_nv, yCurrent.begin());
-        copy(y, y + m_nv, yNext.begin());
+        getState(yCurrent.data());
+        vector_fp yNext = yCurrent;
         // perturb temperature
         yNext[0] += deltaTemp;
         // getting perturbed state
         updateState(yNext.data());
-        eval(t, yNext.data(), ydotNext.data());
+        eval(m_net->time(), yNext.data(), ydotNext.data());
         // reset and get original state
         updateState(yCurrent.data());
-        eval(t, yCurrent.data(), ydotCurrent.data());
+        eval(m_net->time(), yCurrent.data(), ydotCurrent.data());
         // d T_dot/dT
         m_jac_trips.emplace_back(0, 0, (ydotNext[0] - ydotCurrent[0]) / deltaTemp);
         // d omega_dot_j/dT
@@ -214,7 +213,7 @@ Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian(double t, double* y)
         }
         // finding a sum inside the derivative
         double uknkSum = 0;
-        double NtotalCv = accumulate(y + m_sidx, y + m_nv, 0.0) * m_thermo->cv_mole();
+        double totalCv = m_mass * m_thermo->cv_mass();
         for (size_t i = 0; i < m_nsp; i++) {
             uknkSum += internal_energy[i] * netProductionRates[i];
         }
@@ -227,8 +226,8 @@ Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian(double t, double* y)
                 ukdnkdnjSum += internal_energy[k] * speciesDervs.coeff(k, j);
             }
             // set appropriate column of preconditioner
-            m_jac_trips.emplace_back(0, j + m_sidx, (-ukdnkdnjSum * NtotalCv +
-                specificHeat[j] *  uknkSum) / (NtotalCv * NtotalCv));
+            m_jac_trips.emplace_back(0, j + m_sidx,
+                (-ukdnkdnjSum + specificHeat[j] * uknkSum / totalCv) / totalCv);
         }
     }
     Eigen::SparseMatrix<double> jac(m_nv, m_nv);
