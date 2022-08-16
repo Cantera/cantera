@@ -42,6 +42,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         string componentName(size_t) except +translate_exception
         size_t neq()
         void getState(double*) except +translate_exception
+        CxxSparseMatrix jacobian() except +translate_exception
         void addSurface(CxxReactorSurface*)
         void setAdvanceLimit(string&, double) except +translate_exception
         void addSensitivityReaction(size_t) except +translate_exception

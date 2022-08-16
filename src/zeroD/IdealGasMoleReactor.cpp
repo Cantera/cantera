@@ -158,6 +158,10 @@ void IdealGasMoleReactor::eval(double time, double* LHS, double* RHS)
 
 Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian()
 {
+    if (m_nv == 0) {
+        throw CanteraError("IdealGasMoleReactor::jacobian",
+                           "Reactor must be initialized first.");
+    }
     // clear former jacobian elements
     m_jac_trips.clear();
     // Determine Species Derivatives
@@ -186,10 +190,11 @@ Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian()
         yNext[0] += deltaTemp;
         // getting perturbed state
         updateState(yNext.data());
-        eval(m_net->time(), yNext.data(), ydotNext.data());
+        double time = (m_net != nullptr) ? m_net->time() : 0.0;
+        eval(time, yNext.data(), ydotNext.data());
         // reset and get original state
         updateState(yCurrent.data());
-        eval(m_net->time(), yCurrent.data(), ydotCurrent.data());
+        eval(time, yCurrent.data(), ydotCurrent.data());
         // d T_dot/dT
         m_jac_trips.emplace_back(0, 0, (ydotNext[0] - ydotCurrent[0]) / deltaTemp);
         // d omega_dot_j/dT
