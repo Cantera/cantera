@@ -74,7 +74,7 @@ classdef Wall < handle
             typ = 'Wall';
 
             x.type = char(typ);
-            x.id = calllib(ct, 'wall_new', x.type);
+            x.id = callct('wall_new', x.type);
 %             if x.index < 0
 %                 error(geterr);
 %             end
@@ -138,7 +138,7 @@ classdef Wall < handle
         function clear(w)
             % Clear the Wall object from the memory.
 
-            calllib(ct, 'wall_del', w.id);
+            callct('wall_del', w.id);
         end
 
         function install(w, l, r)
@@ -146,13 +146,13 @@ classdef Wall < handle
 
             w.left = l;
             w.right = r;
-            calllib(ct, 'wall_install', w.id, l.id, r.id);
+            callct('wall_install', w.id, l.id, r.id);
         end
 
         function ok = ready(w)
             % Check whether a wall is ready.
 
-            ok = calllib(ct, 'wall_ready', w.id);
+            ok = callct('wall_ready', w.id);
         end
 
         %% ReactorNet set methods
@@ -160,7 +160,7 @@ classdef Wall < handle
         function set.area(w, a)
             % Set the area of a wall.
 
-            calllib(ct, 'wall_setArea', w.id, a);
+            callct('wall_setArea', w.id, a);
         end
 
         function setThermalResistance(w, r)
@@ -169,7 +169,7 @@ classdef Wall < handle
             % :parameter r:
             %    Thermal resistance. Unit: K*m^2/W.
 
-            calllib(ct, 'wall_setThermalResistance', w.id, r);
+            callct('wall_setThermalResistance', w.id, r);
         end
 
         function setHeatTransferCoeff(w, u)
@@ -178,7 +178,7 @@ classdef Wall < handle
             % :parameter u:
             %    Heat transfer coefficient. Unit: W/(m^2-K).
 
-            calllib(ct, 'wall_setHeatTransferCoeff', w.id, u);
+            callct('wall_setHeatTransferCoeff', w.id, u);
         end
 
         function setEmissivity(w, epsilon)
@@ -187,7 +187,7 @@ classdef Wall < handle
             % :param epsilon:
             %    Nondimensional emissivity.
 
-            calllib(ct, 'wall_setEmissivity', w.id, epsilon);
+            callct('wall_setEmissivity', w.id, epsilon);
         end
 
         function setExpansionRateCoeff(w, k)
@@ -196,7 +196,7 @@ classdef Wall < handle
             % :parameter k:
             %    Expanstion rate coefficient. Unit: m/(s-Pa).
 
-            calllib(ct, 'wall_setExpansionRateCoeff', w.id, k);
+            callct('wall_setExpansionRateCoeff', w.id, k);
         end
 
         function setHeatFlux(w, f)
@@ -210,7 +210,7 @@ classdef Wall < handle
             % :parameter f:
             %    Instance of class 'Func'. Unit: W/m^2.
 
-            calllib(ct, 'wall_setHeatFlux', w.id, f.id);
+            callct('wall_setHeatFlux', w.id, f.id);
         end
 
         function setVelocity(w, f)
@@ -224,7 +224,7 @@ classdef Wall < handle
             % :parameter f:
             %    Instance of class 'Func'. Unit: m/s.
 
-            calllib(ct, 'wall_setVelocity', w.id, f.id);
+            callct('wall_setVelocity', w.id, f.id);
         end
 
         %% ReactorNet get methods
@@ -232,19 +232,19 @@ classdef Wall < handle
         function a = get.area(w)
             % Get the area of the wall in m^2.
 
-            a = calllib(ct, 'wall_area', w.id);
+            a = callct('wall_area', w.id);
         end
 
         function q = qdot(w, t)
             % Get the total heat transfer through a wall at given time.
 
-            q = calllib(ct, 'wall_Q', w.id, t);
+            q = callct('wall_Q', w.id, t);
         end
 
         function v = vdot(w, t)
             % Get the rate of volumetric change at a given time.
 
-            v = calllib(ct, 'wall_vdot', w.id, t);
+            v = callct('wall_vdot', w.id, t);
         end
 
     end

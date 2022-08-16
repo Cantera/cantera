@@ -6,8 +6,8 @@ function v = canteraGitCommit()
     %     A string containing the Git commit hash for the current version of Cantera
     %
     checklib;
-    buflen = calllib(ct, 'ct_getGitCommit', 0, '');
+    buflen = callct('ct_getGitCommit', 0, '');
     aa = char(zeros(1, buflen));
-    [~, aa] = calllib(ct, 'ct_getGitCommit', buflen, aa);
+    [~, aa] = callct('ct_getGitCommit', buflen, aa);
     v = aa;
 end

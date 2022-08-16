@@ -36,7 +36,7 @@ classdef ReactorSurface < handle
 
             checklib;
 
-            s.surfID = calllib(ct, 'reactorsurface_new', 0);
+            s.surfID = callct('reactorsurface_new', 0);
             s.reactor = -1;
 %             if r.id < 0
 %                 error(geterr);
@@ -69,14 +69,14 @@ classdef ReactorSurface < handle
         function clear(s)
             % Clear the ReactorSurface object from the memory.
 
-            calllib(ct, 'reactorsurface_del', s.surfID);
+            callct('reactorsurface_del', s.surfID);
         end
 
         function install(s, r)
             % Install a ReactorSurface in a Reactor.
 
             s.reactor = r;
-            calllib(ct, 'reactorsurface_install', s.surfID, r.id);
+            callct('reactorsurface_install', s.surfID, r.id);
         end
 
         function addSensitivityReaction(s, r)
@@ -87,7 +87,7 @@ classdef ReactorSurface < handle
             % :parameter m:
             %    Index number of reaction.
 
-            calllib(ct, 'reactorsurface_addSensitivityReaction', s.surfID, r);
+            callct('reactorsurface_addSensitivityReaction', s.surfID, r);
         end
 
         %% ReactorSurface get methods
@@ -95,7 +95,7 @@ classdef ReactorSurface < handle
         function a = get.area(s)
             % Get the areaof the reactor surface in m^2.
 
-            a = calllib(ct, 'reactorsurface_area', s.surfID);
+            a = callct('reactorsurface_area', s.surfID);
         end
 
         %% ReactorSurface set methods
@@ -103,7 +103,7 @@ classdef ReactorSurface < handle
         function set.area(s, a)
             % Set the area of a reactor surface
 
-            calllib(ct, 'reactorsurface_setArea', s.surfID, a);
+            callct('reactorsurface_setArea', s.surfID, a);
         end
 
         function setKinetics(s, kin)
@@ -119,7 +119,7 @@ classdef ReactorSurface < handle
                 ikin = kin.kinID;
             end
 
-            calllib(ct, 'reactorsurface_setkinetics', s.surfID, ikin);
+            callct('reactorsurface_setkinetics', s.surfID, ikin);
         end
     end
 end
