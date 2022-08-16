@@ -39,7 +39,7 @@ classdef FlowDevice < handle
             end
 
             x.type = typ;
-            x.id = calllib(ct, 'flowdev_new', typ);
+            x.id = callct('flowdev_new', typ);
             x.upstream = -1;
             x.downstream = -1;
         end
@@ -53,7 +53,7 @@ classdef FlowDevice < handle
             % :param f:
             %     Instance of :mat:func:`FlowDevice` to be cleared.
             %
-            calllib(ct, 'flowdev_del', f.id);
+            callct('flowdev_del', f.id);
         end
 
         %% FlowDevice methods
@@ -78,7 +78,7 @@ classdef FlowDevice < handle
                 end
                 i = upstream.id;
                 j = downstream.id;
-                calllib(ct, 'flowdev_install', f.id, i, j);
+                callct('flowdev_install', f.id, i, j);
             else error('install requires 3 arguments');
             end
         end
@@ -92,7 +92,7 @@ classdef FlowDevice < handle
             % :return:
             %     The mass flow rate through the :mat:func:`FlowDevice` at the current time
             %
-            mdot = calllib(ct, 'flowdev_massFlowRate2', f.id);
+            mdot = callct('flowdev_massFlowRate2', f.id);
         end
 
         function setFunction(f, mf)
@@ -107,7 +107,7 @@ classdef FlowDevice < handle
             %     Instance of class :mat:func:`Func`
             %
             if strcmp(f.type, 'MassFlowController')
-                k = calllib(ct, 'flowdev_setTimeFunction', f.id, ...
+                k = callct('flowdev_setTimeFunction', f.id, ...
                             mf.id);
             else
                 error('Time function can only be set for mass flow controllers.');
@@ -126,7 +126,7 @@ classdef FlowDevice < handle
             %     Mass flow rate
             %
             if strcmp(f.type, 'MassFlowController')
-                k = calllib(ct, 'flowdev_setMassFlowCoeff', f.id, mdot);
+                k = callct('flowdev_setMassFlowCoeff', f.id, mdot);
             else
                 error('Mass flow rate can only be set for mass flow controllers.');
             end
@@ -143,7 +143,7 @@ classdef FlowDevice < handle
             %     Instance of class :mat:func:`Func`
             %
             if strcmp(f.type, 'PressureController')
-                k = calllib(ct, 'flowdev_setMaster', f.id, d);
+                k = callct('flowdev_setMaster', f.id, d);
             else
                 error('Master flow device can only be set for pressure controllers.');
             end
@@ -169,7 +169,7 @@ classdef FlowDevice < handle
             if ~strcmp(f.type, 'Valve')
                 error('Valve coefficient can only be set for valves.');
             end
-            ok = calllib(ct, 'flowdev_setValveCoeff', f.id, k);
+            ok = callct('flowdev_setValveCoeff', f.id, k);
         end
 
     end

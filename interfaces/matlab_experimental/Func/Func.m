@@ -81,12 +81,12 @@ classdef Func < handle
                 if itype < 20
                     [m, n] = size(p);
                     lenp = m * n;
-                    nn = calllib(ct, 'func_new', itype, n, lenp, p);
+                    nn = callct('func_new', itype, n, lenp, p);
                 elseif itype < 45
                     m = n;
-                    nn = calllib(ct, 'func_new', itype, n, m, 0);
+                    nn = callct('func_new', itype, n, m, 0);
                 else
-                    nn = calllib(ct, 'func_new', itype, n, 0, p);
+                    nn = callct('func_new', itype, n, 0, p);
                 end
             end
 
@@ -138,7 +138,7 @@ classdef Func < handle
             % :param f:
             %     Instance of class :mat:func:`Func`
             %
-            calllib(ct, 'func_del', f.id);
+            callct('func_del', f.id);
         end
 
         function display(f)
@@ -172,7 +172,7 @@ classdef Func < handle
                 ind= s.subs{:};
                  b = zeros(1, length(ind));
                  for k = 1:length(ind)
-                     b(k) = calllib(ct, 'func_value', a.id, ind(k));
+                     b(k) = callct('func_value', a.id, ind(k));
                  end
             else error('Specify value for x as p(x)');
             end

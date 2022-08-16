@@ -25,10 +25,10 @@ classdef Transport < handle
             else
                 tr.th = tp;
                 if strcmp(model, 'default')
-                    tr.trID = calllib(ct, 'trans_newDefault', ...
+                    tr.trID = callct('trans_newDefault', ...
                                        tp.tpID, loglevel);
                 else
-                    tr.trID = calllib(ct, 'trans_new', model, ...
+                    tr.trID = callct('trans_new', model, ...
                                        tp.tpID, loglevel);
                 end
             end
@@ -40,7 +40,7 @@ classdef Transport < handle
         function trClear(tr)
             % Delete the kernel object.
 
-            calllib(ct, 'trans_del', tr.trID);
+            callct('trans_del', tr.trID);
         end
 
         %% Transport Methods
@@ -51,7 +51,7 @@ classdef Transport < handle
             % :return:
             %    Double dynamic viscosity. Unit: Pa*s.
 
-            v = calllib(ct, 'trans_viscosity', tr.trID);
+            v = callct('trans_viscosity', tr.trID);
             if v == -1.0
                 error(geterr);
             elseif v < 0.0
@@ -65,7 +65,7 @@ classdef Transport < handle
             % :return:
             %    Double thermal conductivity. Unit: W/m-K.
 
-            v = calllib(ct, 'trans_thermalConductivity', tr.trID);
+            v = callct('trans_thermalConductivity', tr.trID);
             if v == -1.0
                 error(geterr);
             elseif v < 0.0
@@ -79,7 +79,7 @@ classdef Transport < handle
             % :return:
             %    Double electrical conductivity. Unit: S/m.
 
-            v = calllib(ct, 'trans_electricalConductivity', tr.trID);
+            v = callct('trans_electricalConductivity', tr.trID);
             if v == -1.0
                 error(geterr);
             elseif v < 0.0
@@ -97,7 +97,7 @@ classdef Transport < handle
             nsp = tr.th.nSpecies;
             xx = zeros(1, nsp);
             pt = libpointer('doublePtr', xx);
-            calllib(ct, 'trans_getMixDiffCoeffs', tr.trID, nsp, pt);
+            callct('trans_getMixDiffCoeffs', tr.trID, nsp, pt);
             v = pt.Value;
         end
 
@@ -111,7 +111,7 @@ classdef Transport < handle
             nsp = tr.th.nSpecies;
             xx = zeros(1, nsp);
             pt = libpointer('doublePtr', xx);
-            calllib(ct, 'trans_getThermalDiffCoeffs', tr.trID, nsp, pt);
+            callct('trans_getThermalDiffCoeffs', tr.trID, nsp, pt);
             v = pt.Value;
         end
 
@@ -125,7 +125,7 @@ classdef Transport < handle
             nsp = tr.th.nSpecies;
             xx = zeros(1, nsp);
             pt = libpointer('doublePtr', xx);
-            calllib(ct, 'trans_getBinDiffCoeffs', tr.trID, nsp, pt);
+            callct('trans_getBinDiffCoeffs', tr.trID, nsp, pt);
             v = pt.Value;
         end
 
@@ -139,7 +139,7 @@ classdef Transport < handle
             nsp = tr.th.nSpecies;
             xx = zeros(1, nsp);
             pt = libpointer('doublePtr', xx);
-            calllib(ct, 'trans_getMultiDiffCoeffs', tr.trID, nsp, pt);
+            callct('trans_getMultiDiffCoeffs', tr.trID, nsp, pt);
             v = pt.Value;
         end
 
@@ -150,7 +150,7 @@ classdef Transport < handle
             % :parameter k:
             % :parameter p:
 
-            calllib(ct, 'trans_setParameters', tr.trID, type, k, p);
+            callct('trans_setParameters', tr.trID, type, k, p);
         end
 
         function setThermalConductivity(tr, lam)

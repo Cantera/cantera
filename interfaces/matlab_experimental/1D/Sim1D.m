@@ -34,7 +34,7 @@ classdef Stack < handle
                 for n=1:nd
                     ids(n) = domains(n).domainID;
                 end
-                s.stID = calllib(ct, 'sim1D_new', nd, ids);
+                s.stID = callct('sim1D_new', nd, ids);
             else
                 help(Stack);
                 error('Wrong number of :parameters.');
@@ -54,7 +54,7 @@ classdef Stack < handle
             % :param s:
             %     Instance of class :mat:func:`Stack`
             %
-            calllib(ct, 'sim1D_del', s.stID);
+            callct('sim1D_del', s.stID);
         end
 
         function display(s, fname)
@@ -70,7 +70,7 @@ classdef Stack < handle
             if nargin == 1
                 fname = '-';
             end
-            calllib(ct, 'sim1D_showSolution', s.stID, fname);
+            callct('sim1D_showSolution', s.stID, fname);
         end
 
         %% Stack Methods
@@ -91,7 +91,7 @@ classdef Stack < handle
             if isa(name, 'double')
                 n = name;
             else
-                n = calllib(ct, 'sim1D_domainIndex', s.stID, name);
+                n = callct('sim1D_domainIndex', s.stID, name);
                 if n >= 0
                     n = n+1;
                 else
@@ -103,7 +103,7 @@ classdef Stack < handle
         function getInitialSoln(s)
             % Get the initial solution.
 
-            calllib(ct, 'sim1D_getInitialSoln', s.stID);
+            callct('sim1D_getInitialSoln', s.stID);
         end
 
         function z = grid(s, name)
@@ -173,10 +173,10 @@ classdef Stack < handle
             np = d.nPoints;
 
             r = zeros(nc, np);
-            calllib(ct, 'sim1D_eval', s.stID, rdt, count);
+            callct('sim1D_eval', s.stID, rdt, count);
             for m = 1:nc
                 for n = 1:np
-                    r(m, n) = calllib(ct, 'sim1D_workValue', ...
+                    r(m, n) = callct('sim1D_workValue', ...
                                       s.stID, idom - 1, m - 1, n - 1);
                 end
             end
@@ -198,7 +198,7 @@ classdef Stack < handle
             % :param id:
             %     ID of the element that should be restored
             %
-            calllib(ct, 'sim1D_restore', s.stID, fname, id)
+            callct('sim1D_restore', s.stID, fname, id)
         end
 
         function saveSoln(s, fname, id, desc)
@@ -229,7 +229,7 @@ classdef Stack < handle
             elseif nargin == 3
                 desc = '--';
             end
-            calllib(ct, 'sim1D_save', s.stID, fname, id, desc);
+            callct('sim1D_save', s.stID, fname, id, desc);
         end
 
         function setFixedTemperature(s, T)
@@ -245,7 +245,7 @@ classdef Stack < handle
             if T <= 0
                 error('temperature must be positive');
             end
-            calllib(ct, 'sim1D_setFixedTemperature', s.stID, T);
+            callct('sim1D_setFixedTemperature', s.stID, T);
         end
 
         function setFlatProfile(s, domain, comp, v)
@@ -263,7 +263,7 @@ classdef Stack < handle
             %    Double value to be set.
             %
 
-            calllib(ct, 'sim1D_setFlatProfile', s.stID, ...
+            callct('sim1D_setFlatProfile', s.stID, ...
                     domain - 1, comp - 1, v);
         end
 
@@ -278,7 +278,7 @@ classdef Stack < handle
             %    Double minimum grid spacing.
             %
 
-            calllib(ct, 'sim1D_setGridMin', s.stID, domain-1, gridmin);
+            callct('sim1D_setGridMin', s.stID, domain-1, gridmin);
         end
 
         function setMaxJacAge(s, ss_age, ts_age)
@@ -299,7 +299,7 @@ classdef Stack < handle
             if nargin == 2
                 ts_age = ss_age;
             end
-            calllib(ct, 'sim1D_setMaxJacAge', s.stID, ss_age, ts_age);
+            callct('sim1D_setMaxJacAge', s.stID, ss_age, ts_age);
         end
 
         function setProfile(s, name, comp, p)
@@ -354,12 +354,12 @@ classdef Stack < handle
             if sz(1) == np + 1;
                 for j = 1:np
                     ic = d.componentIndex(c{j});
-                    calllib(ct, 'sim1D_setProfile', s.stID, ...
+                    callct('sim1D_setProfile', s.stID, ...
                             n - 1, ic - 1, sz(1), p(1, :), sz(1), p(j+1, :));
                 end
             elseif sz(2) == np + 1;
                 ic = d.componentIndex(c{j});
-                calllib(ct, 'sim1D_setProfile', s.stID, ...
+                callct('sim1D_setProfile', s.stID, ...
                         n - 1, ic - 1, sz(2), p(:, 1), sz(2), p(:, j+1));
             else
                 error('Wrong profile shape.');
@@ -400,7 +400,7 @@ classdef Stack < handle
             if nargin < 6
                 prune = -0.1;
             end
-            calllib(ct, 'sim1D_setRefineCriteria', s.stID, ...
+            callct('sim1D_setRefineCriteria', s.stID, ...
                     n - 1, ratio, slope, curve, prune);
         end
 
@@ -419,7 +419,7 @@ classdef Stack < handle
             %    attempted. If this failed, two time steps would be taken.
             %
 
-            calllib(ct, 'sim1D_TimeStep', s.stID, ...
+            callct('sim1D_TimeStep', s.stID, ...
                     stepsize, length(steps), steps);
         end
 
@@ -450,7 +450,7 @@ classdef Stack < handle
             %    Value to be set.
             %
 
-            calllib(ct, 'sim1D_setValue', s.stID, ...
+            callct('sim1D_setValue', s.stID, ...
                     n - 1, comp -  1, localPoints - 1, v);
         end
 
@@ -480,7 +480,7 @@ classdef Stack < handle
                 icomp = d.componentIndex(component);
                 x = zeros(1, np);
                 for n = 1:np
-                    x(n) = calllib(ct, 'sim1D_value', s.stID, ...
+                    x(n) = callct('sim1D_value', s.stID, ...
                                    idom - 1, icomp - 1, n - 1);
                 end
             else
@@ -488,7 +488,7 @@ classdef Stack < handle
                 x = zeros(nc, np);
                 for m = 1:nc
                     for n = 1:np
-                        x(m, n) = calllib(ct, 'sim1D_value', s.stID, ...
+                        x(m, n) = callct('sim1D_value', s.stID, ...
                                           idom - 1, m - 1, n - 1);
                     end
                 end
@@ -510,7 +510,7 @@ classdef Stack < handle
             %    Integer, 1 to allow grid refinement, 0 to disallow.
             %
 
-            calllib(ct, 'sim1D_solve', s.stID, loglevel, refineGrid);
+            callct('sim1D_solve', s.stID, loglevel, refineGrid);
         end
 
         function writeStats(s)
@@ -526,7 +526,7 @@ classdef Stack < handle
             %     Instance of class :mat:func:`Stack`
             %
 
-            calllib(ct, 'sim1D_writeStats', s.stID, 1);
+            callct('sim1D_writeStats', s.stID, 1);
         end
 
     end

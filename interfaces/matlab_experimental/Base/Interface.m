@@ -63,7 +63,7 @@ classdef Interface < handle & ThermoPhase & Kinetics
             nsp = s.nSpecies;
             xx = zeros(1, nsp);
             pt = libpointer('doublePtr', xx);
-            calllib(ct, 'surf_getCoverages', surfID, xx);
+            callct('surf_getCoverages', surfID, xx);
             c = pt.Value;
         end
 
@@ -90,7 +90,7 @@ classdef Interface < handle & ThermoPhase & Kinetics
             nsp = s.nSpecies;
             xx = zeros(1, nsp);
             pt = libpointer('doublePtr', xx);
-            calllib(ct, 'surf_getConcentrations', surfID, xx);
+            callct('surf_getConcentrations', surfID, xx);
             c = pt.Value;
         end
 
@@ -125,14 +125,14 @@ classdef Interface < handle & ThermoPhase & Kinetics
                 sz = length(cov);
                 if sz == nsp
                     if ((m == nsp && n == 1) || (m == 1 & n == nsp))
-                        calllib(ct, 'surf_setCoverages', surfID, cov, norm_flag);
+                        callct('surf_setCoverages', surfID, cov, norm_flag);
                     else error('wrong size for coverage array');
                     end
                 else
                     error('wrong size for coverage array');
                 end
             elseif isa(cov, 'char')
-                calllib(ct, 'surf_setCoveragesByName', surfID, cov);
+                callct('surf_setCoveragesByName', surfID, cov);
             end
         end
 
@@ -146,7 +146,7 @@ classdef Interface < handle & ThermoPhase & Kinetics
             %    kmol/m for edge phases.
 
             surfID = s.tpID;
-            calllib(ct, 'surf_setSiteDensity', surfID, d);
+            callct('surf_setSiteDensity', surfID, d);
         end
 
     end

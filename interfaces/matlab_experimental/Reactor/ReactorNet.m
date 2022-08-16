@@ -33,7 +33,7 @@ classdef ReactorNet < handle
                 reactors = {reactor};
             end
 
-            r.id = calllib(ct, 'reactornet_new');
+            r.id = callct('reactornet_new');
 
             % add reactors
             nr = length(reactors);
@@ -47,7 +47,7 @@ classdef ReactorNet < handle
         function clear(r)
             % Clear the ReactorNet object from the memory.
 
-            calllib(ct, 'reactornet_del', r.id);
+            callct('reactornet_del', r.id);
         end
 
         function addReactor(net, reactor)
@@ -58,7 +58,7 @@ classdef ReactorNet < handle
             % :parameter reactor:
             %    Instance of class 'Solution'.
 
-            calllib(ct, 'reactornet_addreactor', net.id, reactor.id);
+            callct('reactornet_addreactor', net.id, reactor.id);
         end
 
         function advance(r, tout)
@@ -74,7 +74,7 @@ classdef ReactorNet < handle
             % :parameter tout:
             %    End time of the integration. Unit: s.
 
-            calllib(ct, 'reactornet_advance', r.id, tout);
+            callct('reactornet_advance', r.id, tout);
         end
 
         %% ReactorNet set methods
@@ -86,7 +86,7 @@ classdef ReactorNet < handle
             %    Time at which integration should be restarted, using the
             %    current state as the initial condition. Unit: s.
 
-            calllib(ct, 'reactornet_setInitialTime', r.id, t);
+            callct('reactornet_setInitialTime', r.id, t);
         end
 
         function setMaxTimeStep(r, maxstep)
@@ -100,7 +100,7 @@ classdef ReactorNet < handle
             % leads to numerical problems later. Use thismethod to set an
             % upper bound on the timestep.
 
-            calllib(ct, 'reactornet_setMaxTimeStep', r.id, maxstep);
+            callct('reactornet_setMaxTimeStep', r.id, maxstep);
         end
 
         function setSensitivityTolerances(r, rerr, aerr)
@@ -111,7 +111,7 @@ classdef ReactorNet < handle
             % :parameter aerr:
             %    Scalar absolute error tolerance.
 
-            calllib(ct, 'reactornet_setSensitivityTolerances', r.id, rerr, aerr);
+            callct('reactornet_setSensitivityTolerances', r.id, rerr, aerr);
         end
 
         function setTolerances(r, rerr, aerr)
@@ -122,7 +122,7 @@ classdef ReactorNet < handle
             % :parameter aerr:
             %    Scalar absolute error tolerance.
 
-            calllib(ct, 'reactornet_setTolerances', r.id, rerr, aerr);
+            callct('reactornet_setTolerances', r.id, rerr, aerr);
         end
 
         %% ReactorNet get methods
@@ -136,25 +136,25 @@ classdef ReactorNet < handle
             % rapidly changing, the time step becomes smaller to resolve
             % the solution.
 
-            t = calllib(ct, 'reactor_step', r.id);
+            t = callct('reactor_step', r.id);
         end
 
         function t = get.time(r)
             % Get the current time in s.
 
-            t = calllib(ct, 'reactornet_time', r.id);
+            t = callct('reactornet_time', r.id);
         end
 
         function t = atol(r)
             % Get the absolute error tolerance.
 
-            t = calllib(ct, 'reactornet_atol', r.id);
+            t = callct('reactornet_atol', r.id);
         end
 
         function t = rtol(r)
             % Get the relative error tolerance.
 
-            t = calllib(ct, 'reactornet_rtol', r.id);
+            t = callct('reactornet_rtol', r.id);
         end
 
         function s = sensitivity(r, component, p, rxtr)
@@ -169,7 +169,7 @@ classdef ReactorNet < handle
             %    Instance of class 'reactor'.
 
             if isa(component, 'string')
-                calllib(ct, 'reactornet_sensitivity', r.id, component, ...
+                callct('reactornet_sensitivity', r.id, component, ...
                         p, rxtr.id);
             end
             % Check back on this one to add cases for component type integer.

@@ -43,7 +43,7 @@ classdef Kinetics < handle
                     end
                 end
             end
-            kin.kinID = calllib(ct, 'kin_newFromFile', src, id, ...
+            kin.kinID = callct('kin_newFromFile', src, id, ...
                                  iph, inb1, inb2, inb3, inb4);
         end
 
@@ -52,7 +52,7 @@ classdef Kinetics < handle
         function kinClear(kin)
             % Delete the kernel object
 
-            calllib(ct, 'kin_del', kin.kinID);
+            callct('kin_del', kin.kinID);
         end
 
         %% Get scalar attributes
@@ -66,7 +66,7 @@ classdef Kinetics < handle
             % :return:
             %    Multiplier of the rate of progress of reaction irxn.
 
-            n = calllib(ct, 'kin_multiplier', kin.kinID, irxn-1);
+            n = callct('kin_multiplier', kin.kinID, irxn-1);
         end
 
         function n = nReactions(kin)
@@ -75,7 +75,7 @@ classdef Kinetics < handle
             % :return:
             %    Integer number of reactions
 
-            n = calllib(ct, 'kin_nReactions', kin.kinID);
+            n = callct('kin_nReactions', kin.kinID);
         end
 
         function n = nTotalSpecies(kin)
@@ -84,7 +84,7 @@ classdef Kinetics < handle
             % :return:
             %    Integer total number of species.
 
-            n = calllib(ct, 'kin_nSpecies', kin.kinID);
+            n = callct('kin_nSpecies', kin.kinID);
         end
 
         function n = stoichReactant(kin, species, rxns)
@@ -122,7 +122,7 @@ classdef Kinetics < handle
 
             for k = krange
                 for i = irange
-                    t = calllib(ct, 'kin_reactantStoichCoeff', ...
+                    t = callct('kin_reactantStoichCoeff', ...
                                 kin.kinID, k-1, i-1);
                     if t ~= 0.0
                         temp(k, i) = t;
@@ -168,7 +168,7 @@ classdef Kinetics < handle
 
             for k = krange
                 for i = irange
-                    t = calllib(ct, 'kin_productStoichCoeff', ...
+                    t = callct('kin_productStoichCoeff', ...
                                 kin.kinID, k-1, i-1);
                     if t ~= 0.0
                         temp(k, i) = t;
@@ -219,7 +219,7 @@ classdef Kinetics < handle
             nsp = kin.nTotalSpecies;
             xx = zeros(1, nsp);
             pt = libpointer('doublePtr', xx);
-            calllib(ct, 'kin_getCreationRates', kin.kinID, nsp, pt);
+            callct('kin_getCreationRates', kin.kinID, nsp, pt);
             cdot = pt.Value;
         end
 
@@ -232,7 +232,7 @@ classdef Kinetics < handle
             nsp = kin.nTotalSpecies;
             xx = zeros(1, nsp);
             pt = libpointer('doublePtr', xx);
-            calllib(ct, 'kin_getDestructionRates', kin.kinID, nsp, pt);
+            callct('kin_getDestructionRates', kin.kinID, nsp, pt);
             ddot = pt.Value;
         end
 
@@ -244,7 +244,7 @@ classdef Kinetics < handle
             % :return:
             %    1 if reaction number i is reversible. 0 if irreversible.
 
-            n = calllib(ct, 'kin_isReversible', kin.kinID, i);
+            n = callct('kin_isReversible', kin.kinID, i);
         end
 
         function wdot = netProdRates(kin)
@@ -257,7 +257,7 @@ classdef Kinetics < handle
             nsp = kin.nTotalSpecies;
             xx = zeros(1, nsp);
             pt = libpointer('doublePtr', xx);
-            calllib(ct, 'kin_getNetProductionRates', kin.kinID, nsp, pt);
+            callct('kin_getNetProductionRates', kin.kinID, nsp, pt);
             wdot = pt.Value;
         end
 
@@ -271,7 +271,7 @@ classdef Kinetics < handle
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
-            calllib(ct, 'kin_getFwdRateOfProgress', kin.kinID, nr, pt);
+            callct('kin_getFwdRateOfProgress', kin.kinID, nr, pt);
             q = pt.Value;
         end
 
@@ -285,7 +285,7 @@ classdef Kinetics < handle
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
-            calllib(ct, 'kin_getRevRateOfProgress', kin.kinID, nr, pt);
+            callct('kin_getRevRateOfProgress', kin.kinID, nr, pt);
             q = pt.Value;
         end
 
@@ -299,7 +299,7 @@ classdef Kinetics < handle
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
-            calllib(ct, 'kin_getNetRatesOfProgress', kin.kinID, nr, pt);
+            callct('kin_getNetRatesOfProgress', kin.kinID, nr, pt);
             q = pt.Value;
         end
 
@@ -327,11 +327,11 @@ classdef Kinetics < handle
             rxn = cell(m, n);
             for i = 1:m
                 for j = 1:n
-                    buflen = calllib(ct, 'kin_getReactionString', kin.kinID, ...
+                    buflen = callct('kin_getReactionString', kin.kinID, ...
                                      irxn - 1, 0, '');
                     if buflen > 0
                             aa = char(zeros(1, buflen));
-                            [~, aa] = calllib(ct, 'kin_getReactionString', ...
+                            [~, aa] = callct('kin_getReactionString', ...
                                               kin.kinID, irxn - 1, buflen, aa);
                             rxn{i, j} = aa;
                     end
@@ -349,7 +349,7 @@ classdef Kinetics < handle
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
-            calllib(ct, 'kin_getDelta', kin.kinID, 0, nr, pt);
+            callct('kin_getDelta', kin.kinID, 0, nr, pt);
             enthalpy = pt.Value;
         end
 
@@ -363,7 +363,7 @@ classdef Kinetics < handle
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
-            calllib(ct, 'kin_getDelta', kin.kinID, 3, nr, pt);
+            callct('kin_getDelta', kin.kinID, 3, nr, pt);
             enthalpy = pt.Value;
         end
 
@@ -377,7 +377,7 @@ classdef Kinetics < handle
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
-            calllib(ct, 'kin_getDelta', kin.kinID, 2, nr, pt);
+            callct('kin_getDelta', kin.kinID, 2, nr, pt);
             entropy = pt.Value;
         end
 
@@ -391,7 +391,7 @@ classdef Kinetics < handle
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
-            calllib(ct, 'kin_getDelta', kin.kinID, 5, nr, pt);
+            callct('kin_getDelta', kin.kinID, 5, nr, pt);
             entropy = pt.Value;
         end
 
@@ -405,7 +405,7 @@ classdef Kinetics < handle
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
-            calllib(ct, 'kin_getDelta', kin.kinID, 1, nr, pt);
+            callct('kin_getDelta', kin.kinID, 1, nr, pt);
             gibbs = pt.Value;
         end
 
@@ -419,7 +419,7 @@ classdef Kinetics < handle
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
-            calllib(ct, 'kin_getDelta', kin.kinID, 4, nr, pt);
+            callct('kin_getDelta', kin.kinID, 4, nr, pt);
             gibbs = pt.Value;
         end
 
@@ -435,7 +435,7 @@ classdef Kinetics < handle
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
-            calllib(ct, 'kin_getEquilibriumConstants', kin.kinID, nr, pt);
+            callct('kin_getEquilibriumConstants', kin.kinID, nr, pt);
             k = pt.Value;
         end
 
@@ -449,7 +449,7 @@ classdef Kinetics < handle
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
-            calllib(ct, 'kin_getFwdRateConstants', kin.kinID, nr, pt);
+            callct('kin_getFwdRateConstants', kin.kinID, nr, pt);
             k = pt.Value;
         end
 
@@ -463,7 +463,7 @@ classdef Kinetics < handle
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
-            calllib(ct, 'kin_getRevRateConstants', kin.kinID, 1, nr, pt);
+            callct('kin_getRevRateConstants', kin.kinID, 1, nr, pt);
             k = pt.Value;
         end
 
@@ -476,7 +476,7 @@ classdef Kinetics < handle
             nsp = kin.nTotalSpecies;
             xx = zeros(1, nsp);
             pt = libpointer('doublePtr', xx);
-            calllib(ct, 'kin_getSourceTerms', kin.kinID, nsp, pt);
+            callct('kin_getSourceTerms', kin.kinID, nsp, pt);
             massProdRate = pt.Value;
         end
 
@@ -505,7 +505,7 @@ classdef Kinetics < handle
 
             for i = 1:nr
                 for j = 1:n
-                    calllib(ct, 'kin_setMultiplier', kin.kinID, ...
+                    callct('kin_setMultiplier', kin.kinID, ...
                             irxn(i, j)-1, v);
                 end
             end
@@ -517,7 +517,7 @@ classdef Kinetics < handle
             % :parameter dt:
             %    Time interval by which the coverages should be advanced.
 
-            calllib(ct, 'kin_advanceCoverages', kin.kinID, dt);
+            callct('kin_advanceCoverages', kin.kinID, dt);
         end
 
     end

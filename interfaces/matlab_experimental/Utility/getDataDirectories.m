@@ -7,8 +7,8 @@ function d = getDataDirectories()
     %     Cell array with strings representing the data file search directories
     %
     checklib;
-    buflen = calllib(ct, 'ct_getDataDirectories', 0, '', ';');
+    buflen = callct('ct_getDataDirectories', 0, '', ';');
     aa = char(zeros(1, buflen));
-    [~, aa, ~] = calllib(ct, 'ct_getDataDirectories', buflen, aa, ';');
+    [~, aa, ~] = callct('ct_getDataDirectories', buflen, aa, ';');
     d = aa;
 end
