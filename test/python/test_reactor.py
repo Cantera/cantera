@@ -1042,11 +1042,13 @@ class TestIdealGasConstPressureMoleReactor(TestIdealGasConstPressureReactor):
 
     def create_reactors(self, **kwargs):
         super().create_reactors(**kwargs)
-        self.net2.preconditioner = ct.AdaptivePreconditioner()
+        self.precon = ct.AdaptivePreconditioner()
+        self.net2.preconditioner = self.precon
         self.net2.derivative_settings = {"skip-third-bodies":True, "skip-falloff":True}
 
     def test_get_solver_type(self):
         self.create_reactors()
+        assert self.precon.side == "right"
         self.assertEqual(self.net2.linear_solver_type, "GMRES")
 
     def test_with_surface_reactions(self):

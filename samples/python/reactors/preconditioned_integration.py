@@ -11,7 +11,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from timeit import default_timer
 
-def integrate_reactor(n_reactors=15, preconditioner=True):
+def integrate_reactor(n_reactors=1, preconditioner=True):
     """
         Compare the integrations of a preconditioned reactor network and a
         non-preconditioned reactor network. Increase the number of reactors in the

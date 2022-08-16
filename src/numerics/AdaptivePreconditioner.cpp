@@ -11,7 +11,7 @@ namespace Cantera
 
 AdaptivePreconditioner::AdaptivePreconditioner()
 {
-    setPreconditionerSide("left");
+    setPreconditionerSide("right");
 }
 
 void AdaptivePreconditioner::setValue(size_t row, size_t col, double value)
