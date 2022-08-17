@@ -14,6 +14,7 @@ Console.WriteLine("Git Commit: " + Application.GitCommit);
 // modify and read the Cantera data directories
 var homeDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 Application.DataDirectories.Add(homeDir);
+Application.DataDirectories.AddAssemblyDirectory();
 
 Console.WriteLine("Data Directories:");
 

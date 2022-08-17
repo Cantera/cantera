@@ -1,6 +1,6 @@
 {
     "$schema": "http://json.schemastore.org/template",
-    "author": "Sammo Gabay",
+    "author": "Cantera Developers",
     "classifications": [ "Console" ],
     "name": "Cantera Examples",
     "identity": "Cantera.Examples.CSharp",
