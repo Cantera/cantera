@@ -16,8 +16,6 @@ def with_unpack_iter(cls: type) -> type:
 def normalize_indent(code: str) -> str:
     code = textwrap.dedent(code).strip()
 
-    indent = 0
-
     call_line = inspect.stack()[1].code_context[0]
 
     indent = len(call_line) - len(call_line.lstrip())
