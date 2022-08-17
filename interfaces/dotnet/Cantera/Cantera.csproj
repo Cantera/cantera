@@ -11,26 +11,24 @@
     <IsPackable>false</IsPackable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
-    <LibDir>$([MSBuild]::NormalizePath($(MSBuildProjectDirectory)/../lib))</LibDir>
-    <ContentDir>$([MSBuild]::NormalizePath($(MSBuildProjectDirectory)/../content))</ContentDir>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'true'">
-    <DefineConstants>IS_WINDOWS</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' == 'true'">
-    <DefineConstants>IS_MACOS</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' == 'true'">
-    <DefineConstants>IS_LINUX</DefineConstants>
+    <LibDir>$([MSBuild]::NormalizePath($(MSBuildProjectDirectory)/../../../build/lib))</LibDir>
+    <DataDir>$([MSBuild]::NormalizePath($(MSBuildProjectDirectory)/../../../data))</DataDir>
   </PropertyGroup>
 
   <ItemGroup>
     <InternalsVisibleTo Include="Cantera.Tests" />
 
-    <None Include="$(LibDir)/*" CopyToOutputDirectory="PreserveNewest"/>
+    <None Include="$(DataDir)/*" CopyToOutputDirectory="PreserveNewest" LinkBase="data/" />
+  </ItemGroup>
 
-    <None Include="$(ContentDir)/**" CopyToOutputDirectory="PreserveNewest"/>
+  <ItemGroup Condition="$([MSBuild]::IsOsPlatform(Windows))">
+    <None Include="$(LibDir)/cantera_shared.dll" CopyToOutputDirectory="PreserveNewest"/>
+  </ItemGroup>
+  <ItemGroup Condition="$([MSBuild]::IsOsPlatform(OSX))">
+    <None Include="$(LibDir)/libcantera_shared.dylib" CopyToOutputDirectory="PreserveNewest"/>
+  </ItemGroup>
+  <ItemGroup Condition="$([MSBuild]::IsOsPlatform(Linux))">
+    <None Include="$(LibDir)/libcantera_shared.so" CopyToOutputDirectory="PreserveNewest"/>
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
@@ -47,7 +45,8 @@
       <GeneratedPath>$([MSBuild]::NormalizePath($(IntermediateOutputPath)/sourcegen/))</GeneratedPath>
     </PropertyGroup>
 
-    <Exec Command="python3 $(Script) csharp $(GeneratedPath)" Condition="'$(GenerateInterop)' == 'true' Or !Exists('$(GeneratedPath)')"/>
+    <Exec Command="python3 $(Script) csharp $(GeneratedPath)"
+      Condition="'$(GenerateInterop)' == 'true' Or !Exists('$(GeneratedPath)')"/>
 
     <ItemGroup>
       <Compile Remove="$(GeneratedPath)*.cs" />
