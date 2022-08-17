@@ -1,0 +1,28 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30114.105
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "Application\Application.csproj", "{69FC0268-1676-49B1-8D52-3507D3357B5E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundSpeed", "SoundSpeed\SoundSpeed.csproj", "{B8368B83-B6F6-4094-90B5-891DD60392D8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{69FC0268-1676-49B1-8D52-3507D3357B5E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69FC0268-1676-49B1-8D52-3507D3357B5E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69FC0268-1676-49B1-8D52-3507D3357B5E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69FC0268-1676-49B1-8D52-3507D3357B5E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B8368B83-B6F6-4094-90B5-891DD60392D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B8368B83-B6F6-4094-90B5-891DD60392D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B8368B83-B6F6-4094-90B5-891DD60392D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B8368B83-B6F6-4094-90B5-891DD60392D8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
