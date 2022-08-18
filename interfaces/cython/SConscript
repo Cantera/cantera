@@ -74,9 +74,6 @@ elif localenv['OS'] == 'Windows':
         # See https://github.com/python/cpython/pull/11283
         if py_version_full < parse_version("3.7.3"):
             localenv.Append(CPPDEFINES={"_hypot": "hypot"})
-elif localenv['OS'] == 'Cygwin':
-    # extract 'pythonX.Y' from 'libpythonX.Y.dll.a'
-    localenv.Append(LIBS=pylib[3:-6])
 
 if "numpy_1_7_API" in localenv:
     localenv.Append(CPPDEFINES="NPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION")

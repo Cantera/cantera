@@ -200,7 +200,6 @@ config_options = [
            """,
         {
             "cl": "/EHsc",
-            "Cygwin": "-std=gnu++11", # See http://stackoverflow.com/questions/18784112
             "default": "-std=c++11"
         }),
     Option(
@@ -760,7 +759,8 @@ env = Environment(tools=toolchain+["textfile", "subst", "recursiveInstall", "wix
 env["OS"] = platform.system()
 env["OS_BITS"] = int(platform.architecture()[0][:2])
 if "cygwin" in env["OS"].lower():
-    env["OS"] = "Cygwin" # remove Windows version suffix
+    logger.error(f"Error: Operating system {os.name!r} is no longer supported.")
+    sys.exit(1)
 
 if "FRAMEWORKS" not in env:
     env["FRAMEWORKS"] = []
@@ -800,8 +800,6 @@ if env["OS"] == "Darwin":
         config.select("apple-clang")
 
 if "gcc" in env.subst("$CC") or "gnu-cc" in env.subst("$CC"):
-    if env["OS"] == "Cygwin":
-        config.select("Cygwin")
     config.select("gcc")
 
 elif env["CC"] == "cl": # Visual Studio

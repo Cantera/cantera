@@ -1284,10 +1284,3 @@ def get_pip_install_location(
         print(json.dumps(scheme))
     """)
     return json.loads(get_command_output(python_cmd, "-c", install_script))
-
-
-# Monkey patch for SCons Cygwin bug
-# See https://github.com/SCons/scons/issues/2664
-if "cygwin" in platform.system().lower():
-    import SCons.Node.FS
-    SCons.Node.FS._my_normcase = lambda x: x
