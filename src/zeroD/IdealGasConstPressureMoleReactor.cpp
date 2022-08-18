@@ -167,7 +167,7 @@ Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian()
     if (m_energy) {
         // getting perturbed state for finite difference
         double deltaTemp = m_thermo->temperature()
-            * std::numeric_limits<double>::epsilon();
+            * std::sqrt(std::numeric_limits<double>::epsilon());
         // finite difference temperature derivatives
         vector_fp ydotNext(m_nv);
         vector_fp yCurrent(m_nv);
