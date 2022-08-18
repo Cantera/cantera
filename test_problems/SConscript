@@ -26,7 +26,7 @@ localenv['ENV']['CANTERA_DATA'] = (Dir('#build/data').abspath + os.pathsep +
                                    Dir('#test/data').abspath)
 
 # Add build/lib in order to find Cantera shared library
-if env['OS'] == 'Windows' or env['OS'] == 'Cygwin':
+if env["OS"] == "Windows":
     localenv.PrependENVPath('PATH', Dir('#build/lib').abspath)
 elif env['OS'] == 'Darwin':
     localenv.PrependENVPath('DYLD_LIBRARY_PATH', Dir('#build/lib').abspath)
