@@ -196,11 +196,11 @@ config_options = [
     Option(
         "cxx_flags",
         """Compiler flags passed to the C++ compiler only. Separate multiple
-           options with spaces, for example, "cxx_flags='-g -Wextra -O3 --std=c++11'"
+           options with spaces, for example, "cxx_flags='-g -Wextra -O3 --std=c++14'"
            """,
         {
             "cl": "/EHsc",
-            "default": "-std=c++11"
+            "default": "-std=c++14"
         }),
     Option(
         "CC",

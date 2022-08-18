@@ -146,7 +146,7 @@ def configure_build():
         create_config("SOLARIS", 0)
 
     if sys.platform != "win32":
-        extra_compile_flags = ["-std=c++11", "-g0"]
+        extra_compile_flags = ["-std=c++14", "-g0"]
         sundials_configh = {
             "SUNDIALS_USE_GENERIC_MATH": "#define SUNDIALS_USE_GENERIC_MATH 1",
             "SUNDIALS_BLAS_LAPACK": "/* #undef SUNDIALS_BLAS_LAPACK */"
