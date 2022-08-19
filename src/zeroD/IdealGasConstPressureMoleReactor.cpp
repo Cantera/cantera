@@ -169,25 +169,25 @@ Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian()
         double deltaTemp = m_thermo->temperature()
             * std::sqrt(std::numeric_limits<double>::epsilon());
         // finite difference temperature derivatives
-        vector_fp ydotNext(m_nv);
+        vector_fp lhsPerturbed(m_nv, 1.0), lhsCurrent(m_nv, 1.0);
+        vector_fp rhsPerturbed(m_nv, 0.0), rhsCurrent(m_nv, 0.0);
         vector_fp yCurrent(m_nv);
-        vector_fp ydotCurrent(m_nv);
         getState(yCurrent.data());
-        vector_fp yNext = yCurrent;
+        vector_fp yPerturbed = yCurrent;
         // perturb temperature
-        yNext[0] += deltaTemp;
+        yPerturbed[0] += deltaTemp;
         // getting perturbed state
-        updateState(yNext.data());
+        updateState(yPerturbed.data());
         double time = (m_net != nullptr) ? m_net->time() : 0.0;
-        eval(time, yNext.data(), ydotNext.data());
+        eval(time, lhsPerturbed.data(), rhsPerturbed.data());
         // reset and get original state
         updateState(yCurrent.data());
-        eval(time, yCurrent.data(), ydotCurrent.data());
-        // d T_dot/dT
-        m_jac_trips.emplace_back(0, 0, (ydotNext[0] - ydotCurrent[0]) / deltaTemp);
-        // d omega_dot_j/dT
-        for (size_t j = m_sidx; j < m_nv; j++) {
-            m_jac_trips.emplace_back(j, 0, (ydotNext[j] - ydotCurrent[j]) / deltaTemp);
+        eval(time, lhsCurrent.data(), rhsCurrent.data());
+        // d ydot_j/dT
+        for (size_t j = 0; j < m_nv; j++) {
+            double ydotPerturbed = rhsPerturbed[j] / lhsPerturbed[j];
+            double ydotCurrent = rhsCurrent[j] / lhsCurrent[j];
+            m_jac_trips.emplace_back(j, 0, (ydotPerturbed - ydotCurrent) / deltaTemp);
         }
         // d T_dot/dnj
         vector_fp specificHeat(m_nsp);
