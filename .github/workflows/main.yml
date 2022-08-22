@@ -26,7 +26,7 @@ jobs:
     strategy:
       matrix:
         python-version: [ '3.7', '3.9', '3.10' ]
-        os: ['ubuntu-18.04', 'ubuntu-20.04']
+        os: ['ubuntu-20.04', 'ubuntu-22.04']
       fail-fast: false
     steps:
     - uses: actions/checkout@v2
@@ -58,7 +58,7 @@ jobs:
 
   clang-compiler:
     name: LLVM/Clang with Python 3.8
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     timeout-minutes: 60
     steps:
     - uses: actions/checkout@v2
@@ -274,7 +274,7 @@ jobs:
 
   run-examples:
     name: Run the Python examples using bash
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     timeout-minutes: 60
     strategy:
       matrix:
@@ -293,7 +293,7 @@ jobs:
       - name: Install Apt dependencies
         run: |
           sudo apt update
-          sudo apt install libboost-dev gfortran graphviz liblapack-dev libblas-dev gcc-5 g++-5
+          sudo apt install libboost-dev gfortran graphviz liblapack-dev libblas-dev gcc-9 g++-9
       - name: Upgrade pip
         run: python3 -m pip install -U pip setuptools wheel
       - name: Install Python dependencies
@@ -302,8 +302,9 @@ jobs:
         if: matrix.python-version == '3.7'
         run: python3 -m pip install typing_extensions
       - name: Build Cantera
-        # compile with GCC 5.5.0 on ubuntu-18.04
-        run: python3 `which scons` build -j2 debug=n CC=gcc-5 CXX=g++-5
+        # compile with GCC 9.4.0 on ubuntu-20.04 as an alternative to the default
+        # (GCC 7.5.0 is both default and oldest supported version)
+        run: python3 `which scons` build -j2 debug=n CC=gcc-9 CXX=g++-9
       - name: Run the examples
         # See https://unix.stackexchange.com/a/392973 for an explanation of the -exec part
         run: |
