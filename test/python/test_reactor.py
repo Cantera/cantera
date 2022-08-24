@@ -139,6 +139,44 @@ class TestReactor(utilities.CanteraTest):
         for i in range(self.net.n_vars):
             self.assertNear(dydt[i], dy[i]/dt)
 
+    def test_finite_difference_jacobian(self):
+        self.make_reactors(n_reactors=1, T1=900, P1=101325, X1="H2:0.4, O2:0.4, N2:0.2")
+        kH2 = self.gas1.species_index("H2")
+        while self.r1.thermo.X[kH2] > 0.3:
+            self.net.step()
+
+        J = self.r1.finite_difference_jacobian
+        assert J.shape == (self.r1.n_vars, self.r1.n_vars)
+
+        # state variables that should be constant, depending on reactor type
+        constant = {"mass", "volume", "int_energy", "enthalpy", "pressure"}
+        variable = {"temperature"}
+        for i in range(3):
+            name = self.r1.component_name(i)
+            if name in constant:
+                assert all(J[i,:] == 0), (i, name)
+            elif name in variable:
+                assert any(J[i,:] != 0)
+
+        # Disabling energy equation should zero these terms
+        self.r1.energy_enabled = False
+        J = self.r1.finite_difference_jacobian
+        for i in range(3):
+            name = self.r1.component_name(i)
+            if name == "temperature":
+                assert all(J[i,:] == 0)
+
+        # Disabling species equations should zero these terms
+        self.r1.energy_enabled = True
+        self.r1.chemistry_enabled = False
+        J = self.r1.finite_difference_jacobian
+        constant = set(self.gas1.species_names)
+        species_start = self.r1.component_index(self.gas1.species_name(0))
+        for i in range(self.r1.n_vars):
+            name = self.r1.component_name(i)
+            if name in constant:
+                assert all(J[i, species_start:] == 0), (i, name)
+
     def test_timestepping(self):
         self.make_reactors()
 

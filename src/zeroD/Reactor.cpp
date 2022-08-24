@@ -312,6 +312,57 @@ void Reactor::evalSurfaces(double* LHS, double* RHS, double* sdot)
     }
 }
 
+Eigen::SparseMatrix<double> Reactor::finiteDifferenceJacobian()
+{
+    if (m_nv == 0) {
+        throw CanteraError("Reactor::finiteDifferenceJacobian",
+                           "Reactor must be initialized first.");
+    }
+    // clear former jacobian elements
+    m_jac_trips.clear();
+
+    Eigen::ArrayXd yCurrent(m_nv);
+    getState(yCurrent.data());
+    double time = (m_net != nullptr) ? m_net->time() : 0.0;
+
+    Eigen::ArrayXd yPerturbed = yCurrent;
+    Eigen::ArrayXd lhsPerturbed(m_nv), lhsCurrent(m_nv);
+    Eigen::ArrayXd rhsPerturbed(m_nv), rhsCurrent(m_nv);
+    lhsCurrent = 1.0;
+    rhsCurrent = 0.0;
+    updateState(yCurrent.data());
+    eval(time, lhsCurrent.data(), rhsCurrent.data());
+
+    double rel_perturb = std::sqrt(std::numeric_limits<double>::epsilon());
+    double atol = (m_net != nullptr) ? m_net->atol() : 1e-15;
+
+    for (size_t j = 0; j < m_nv; j++) {
+        yPerturbed = yCurrent;
+        double delta_y = std::max(std::abs(yCurrent[j]), 1000 * atol) * rel_perturb;
+        yPerturbed[j] += delta_y;
+
+        updateState(yPerturbed.data());
+        lhsPerturbed = 1.0;
+        rhsPerturbed = 0.0;
+        eval(time, lhsPerturbed.data(), rhsPerturbed.data());
+
+        // d ydot_i/dy_j
+        for (size_t i = 0; i < m_nv; i++) {
+            double ydotPerturbed = rhsPerturbed[i] / lhsPerturbed[i];
+            double ydotCurrent = rhsCurrent[i] / lhsCurrent[i];
+            if (ydotCurrent != ydotPerturbed) {
+                m_jac_trips.emplace_back(i, j, (ydotPerturbed - ydotCurrent) / delta_y);
+            }
+        }
+    }
+    updateState(yCurrent.data());
+
+    Eigen::SparseMatrix<double> jac(m_nv, m_nv);
+    jac.setFromTriplets(m_jac_trips.begin(), m_jac_trips.end());
+    return jac;
+}
+
+
 void Reactor::addSensitivityReaction(size_t rxn)
 {
     if (!m_chem || rxn >= m_kin->nReactions()) {

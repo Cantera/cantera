@@ -337,6 +337,17 @@ cdef class Reactor(ReactorBase):
         def __get__(self):
             return get_from_sparse(self.reactor.jacobian(), self.n_vars, self.n_vars)
 
+    property finite_difference_jacobian:
+        """
+        Get the reactor-specific Jacobian, calculated using a finite difference method.
+
+        **Warning:** this property is an experimental part of the Cantera API and
+        may be changed or removed without notice.
+        """
+        def __get__(self):
+            return get_from_sparse(self.reactor.finiteDifferenceJacobian(),
+                                   self.n_vars, self.n_vars)
+
     def set_advance_limit(self, name, limit):
         """
         Limit absolute change of component ``name`` during `ReactorNet.advance`.
