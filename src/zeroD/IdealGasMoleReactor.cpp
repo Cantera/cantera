@@ -71,6 +71,31 @@ size_t IdealGasMoleReactor::componentIndex(const string& nm) const
     }
 }
 
+std::string IdealGasMoleReactor::componentName(size_t k)
+{
+    if (k == 0) {
+        return "temperature";
+    } else if (k == 1) {
+        return "volume";
+    } else if (k >= m_sidx && k < neq()) {
+        k -= m_sidx;
+        if (k < m_thermo->nSpecies()) {
+            return m_thermo->speciesName(k);
+        } else {
+            k -= m_thermo->nSpecies();
+        }
+        for (auto& S : m_surfaces) {
+            ThermoPhase* th = S->thermo();
+            if (k < th->nSpecies()) {
+                return th->speciesName(k);
+            } else {
+                k -= th->nSpecies();
+            }
+        }
+    }
+    throw IndexError("IdealGasMoleReactor::componentName", "components", k, neq() - 1);
+}
+
 void IdealGasMoleReactor::initialize(double t0)
 {
     MoleReactor::initialize(t0);
