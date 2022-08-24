@@ -26,6 +26,8 @@ public:
 
     virtual size_t componentIndex(const std::string& nm) const;
 
+    virtual std::string componentName(size_t k);
+
     virtual void setThermoMgr(ThermoPhase& thermo);
 
     virtual void getState(double* y);
