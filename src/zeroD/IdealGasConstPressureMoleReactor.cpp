@@ -138,31 +138,28 @@ Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian()
         throw CanteraError("IdealGasConstPressureMoleReactor::jacobian",
                            "Reactor must be initialized first.");
     }
+
+    vector_fp yCurrent(m_nv);
+    getState(yCurrent.data());
+
     // clear former jacobian elements
     m_jac_trips.clear();
     // Determine Species Derivatives
     // volume / moles * rates portion of equation
-    size_t nspecies = m_thermo->nSpecies();
-    // create sparse structures for rates and volumes
-    Eigen::SparseMatrix<double> rates(nspecies, 1);
-    Eigen::SparseMatrix<double> volumes(1, nspecies);
-    // reserve space for data
-    rates.reserve(nspecies);
-    volumes.reserve(nspecies);
-    // fill sparse structures
-    m_kin->getNetProductionRates(rates.valuePtr()); // "omega dot"
-    std::fill(volumes.valuePtr(), volumes.valuePtr() + nspecies, m_vol);
-    // get ROP derivatives
-    double scalingFactor = m_thermo->molarVolume();
-    Eigen::SparseMatrix<double> speciesDervs = m_kin->netProductionRates_ddX();
-    // sum parts
-    speciesDervs = scalingFactor * speciesDervs + rates * volumes;
-    // add elements to jacobian triplets
-    for (int k=0; k<speciesDervs.outerSize(); ++k) {
-        for (Eigen::SparseMatrix<double>::InnerIterator it(speciesDervs, k); it; ++it) {
-            m_jac_trips.emplace_back(it.row() + m_sidx, it.col() + m_sidx, it.value());
+    Eigen::VectorXd netProductionRates(m_nsp);
+    m_kin->getNetProductionRates(netProductionRates.data()); // "omega dot"
+    Eigen::SparseMatrix<double> dwdX = m_kin->netProductionRates_ddX();
+    double molarVolume = m_thermo->molarVolume();
+    // Calculate ROP derivatives, excluding the term
+    // molarVolume * (wdot(j) - sum_k(X_k * dwdot_j/dX_k))
+    // which is small and would completely destroy the sparsity of the Jacobian
+    for (int k = 0; k < dwdX.outerSize(); k++) {
+        for (Eigen::SparseMatrix<double>::InnerIterator it(dwdX, k); it; ++it) {
+            m_jac_trips.emplace_back(it.row() + m_sidx, it.col() + m_sidx,
+                                     it.value() * molarVolume);
         }
     }
+
     // Temperature Derivatives
     if (m_energy) {
         // getting perturbed state for finite difference
@@ -171,8 +168,6 @@ Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian()
         // finite difference temperature derivatives
         vector_fp lhsPerturbed(m_nv, 1.0), lhsCurrent(m_nv, 1.0);
         vector_fp rhsPerturbed(m_nv, 0.0), rhsCurrent(m_nv, 0.0);
-        vector_fp yCurrent(m_nv);
-        getState(yCurrent.data());
         vector_fp yPerturbed = yCurrent;
         // perturb temperature
         yPerturbed[0] += deltaTemp;
@@ -190,37 +185,29 @@ Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian()
             m_jac_trips.emplace_back(j, 0, (ydotPerturbed - ydotCurrent) / deltaTemp);
         }
         // d T_dot/dnj
-        vector_fp specificHeat(m_nsp);
-        vector_fp netProductionRates(m_nsp);
-        vector_fp enthalpy(m_nsp);
-        // getting physical quantities
+        Eigen::VectorXd specificHeat(m_nsp);
+        Eigen::VectorXd enthalpy(m_nsp);
+        Eigen::VectorXd dwdot_dC(m_nsp);
         m_thermo->getPartialMolarCp(specificHeat.data());
         m_thermo->getPartialMolarEnthalpies(enthalpy.data());
-        m_kin->getNetProductionRates(netProductionRates.data());
-        // getting perturbed changes w.r.t temperature
-        double hkndotksum = 0;
+        m_kin->getNetProductionRates_ddC(dwdot_dC.data());
+        double qdot = enthalpy.dot(netProductionRates);
+        double hk_dwdot_dC_sum = enthalpy.dot(dwdot_dC);
         double totalCp = m_mass * m_thermo->cp_mass();
-        // scale net production rates by  volume to get molar rate
-        scale(netProductionRates.begin(), netProductionRates.end(),
-            netProductionRates.begin(), m_vol);
-        // determine a sum in derivative
-        for (size_t i = 0; i < m_nsp; i++) {
-            hkndotksum += enthalpy[i] * netProductionRates[i];
-        }
+        double cp_mole = m_thermo->cp_mole();
+
         // determine derivatives
         // spans columns
-        for (size_t j = 0; j < m_nsp; j++) {
-            double hkdnkdnjSum = 0;
-            // spans rows
-            for (size_t k = 0; k < m_nsp; k++) {
-                hkdnkdnjSum += enthalpy[k] * speciesDervs.coeff(k, j);
-            }
-            // add elements to jacobian triplets
+        Eigen::VectorXd hkdwkdnjSum = enthalpy.transpose() * dwdX;
+        for (int j = 0; j < m_nsp; j++) {
             m_jac_trips.emplace_back(0, j + m_sidx,
-                (-hkdnkdnjSum + specificHeat[j] * hkndotksum / totalCp) / totalCp);
+                ((specificHeat[j] - cp_mole) * m_vol * qdot
+                 - m_vol * cp_mole * hkdwkdnjSum[j]
+                 + totalCp * hk_dwdot_dC_sum) / (totalCp * totalCp));
         }
     }
-    Eigen::SparseMatrix<double> jac (m_nv, m_nv);
+
+    Eigen::SparseMatrix<double> jac(m_nv, m_nv);
     jac.setFromTriplets(m_jac_trips.begin(), m_jac_trips.end());
     return jac;
 }
