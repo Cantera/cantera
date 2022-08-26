@@ -190,7 +190,8 @@ Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian()
     // clear former jacobian elements
     m_jac_trips.clear();
     // Determine Species Derivatives
-    // get ROP derivatives
+    // get ROP derivatives, excluding the term molarVolume * sum_k(X_k * dwdot_j/dX_j)
+    // which is small and would completely destroy the sparsity of the Jacobian
     double scalingFactor = m_thermo->molarVolume();
     Eigen::SparseMatrix<double> speciesDervs = scalingFactor *
         m_kin->netProductionRates_ddX();
@@ -241,12 +242,17 @@ Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian()
         for (size_t i = 0; i < specificHeat.size(); i++) {
             specificHeat[i] -= GasConstant;
         }
+        Eigen::VectorXd dwdot_dC(m_nsp);
+        m_kin->getNetProductionRates_ddC(dwdot_dC.data());
         // finding a sum inside the derivative
         double uknkSum = 0;
         double totalCv = m_mass * m_thermo->cv_mass();
+        double ukdwdCtotSum = 0;
         for (size_t i = 0; i < m_nsp; i++) {
             uknkSum += internal_energy[i] * netProductionRates[i];
+            ukdwdCtotSum += internal_energy[i] * dwdot_dC[i];
         }
+
         // finding derivatives
         // spans columns
         for (size_t j = 0; j < m_nsp; j++) {
@@ -257,7 +263,7 @@ Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian()
             }
             // set appropriate column of preconditioner
             m_jac_trips.emplace_back(0, j + m_sidx,
-                (-ukdnkdnjSum + specificHeat[j] * uknkSum / totalCv) / totalCv);
+                (ukdwdCtotSum - ukdnkdnjSum + specificHeat[j] * uknkSum / totalCv) / totalCv);
         }
     }
     Eigen::SparseMatrix<double> jac(m_nv, m_nv);
