@@ -5,11 +5,12 @@ function output = callct2(varargin)
 
     err1 = -1;
 
-    buflen = calllib(ct, varargin, 0, '');
+    funcName = varargin{1};
+    buflen = calllib(ct, funcName, varargin{2:end}, 0, '');
     if buflen > 0
         aa = char(ones(1, buflen));
         ptr = libpointer('cstring', aa);
-        [iok, bb] = calllib(ct, varargin, buflen, ptr);
+        [iok, bb] = calllib(ct, funcName, varargin{2:end}, buflen, ptr);
         output = bb;
         clear aa bb ptr;
     else

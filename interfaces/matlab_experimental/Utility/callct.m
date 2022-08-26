@@ -7,7 +7,8 @@ function output = callct(varargin)
     err2 = -999.999;
     err3 = double(intmax('uint64'));
 
-    output = calllib(ct, varargin);
+    funcName = varargin{1};
+    output = calllib(ct, funcName, varargin{2:end});
     if output == err2 || output == err3
         output = err1;
     end
