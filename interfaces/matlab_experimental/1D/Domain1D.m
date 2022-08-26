@@ -222,14 +222,8 @@ classdef Domain1D < handle
             s = cell(m);
             for i = 1:n
                 id = index(i)-1;
-                buflen = callct('domain_componentName', ...
-                                 d.domainID, id, 0, 0);
-                if buflen > 0
-                    aa = char(zeros(1, buflen));
-                    [out_buf, aa] = callct('domain_componentName', ...
-                                            d.domainID, id, buflen, aa);
-                s{i} = aa;
-            end
+                output = callct2('domain_componentName', d.domainID, id);
+                s{i} = output;
             end
         end
 
