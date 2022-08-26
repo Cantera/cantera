@@ -327,14 +327,9 @@ classdef Kinetics < handle
             rxn = cell(m, n);
             for i = 1:m
                 for j = 1:n
-                    buflen = callct('kin_getReactionString', kin.kinID, ...
-                                     irxn - 1, 0, '');
-                    if buflen > 0
-                            aa = char(zeros(1, buflen));
-                            [~, aa] = callct('kin_getReactionString', ...
-                                              kin.kinID, irxn - 1, buflen, aa);
-                            rxn{i, j} = aa;
-                    end
+                    output = callct2('kin_getReactionString', kin.kinID, ...
+                                     irxn - 1);
+                    rxn{i, j} = output;
                 end
             end
         end

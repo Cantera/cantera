@@ -1,16 +1,17 @@
 function output = callct(varargin)
     % CALLCT
-    % This is a simplified single output variant
+    % Calls Cantera library functions with single outputs and returns
+    % errors if necessary.
+
     err1 = -1;
     err2 = -999.999;
     err3 = double(intmax('uint64'));
 
-    methodname = varargin{1};
-    output = calllib(ct, methodname, varargin{2:end});
+    output = calllib(ct, varargin);
     if output == err2 || output == err3
-        output = -1;
+        output = err1;
     end
-    if output == -1
-        geterr;
+    if output == err1
+        error(geterr);
     end
 end

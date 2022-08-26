@@ -94,10 +94,15 @@ classdef ThermoPhase < handle
                 threshold = 1e-14;
             end
             buflen = 0 - callct('thermo_report', tp.tpID, 0, '', 1);
-            aa = char([zeros(1, buflen, 'int8')]);
+            aa = char(ones(1, buflen));
             ptr = libpointer('cstring', aa);
             [iok, bb] = callct('thermo_report', tp.tpID, buflen, ptr, 1);
-            disp(bb);
+            if iok < 0
+                error(geterr);
+            else
+                disp(bb);
+            end
+            clear aa bb ptr
         end
 
         function tpClear(tp)
@@ -497,14 +502,8 @@ classdef ThermoPhase < handle
             for i = 1:m
                 for j = 1:n
                     ksp = k(i, j) - 1;
-                    buflen = callct('thermo_getSpeciesName', ...
-                                     tp.tpID, ksp, 0, '');
-                    if buflen > 0
-                        aa = char(zeros(1, buflen));
-                        [~, aa] = callct('thermo_getSpeciesName', ...
-                                          tp.tpID, ksp, buflen, aa);
-                        nm{i, j} = aa;
-                    end
+                    output = callct2('thermo_getSpeciesName', tp.tpID, ksp);
+                    nm{i, j} = aa;
                 end
             end
         end
@@ -826,15 +825,7 @@ classdef ThermoPhase < handle
             % :return:
             %     An string identifying the equation of state.
             %
-            buflen = callct('thermo_getEosType', tp.tpID, 0, '');
-            if buflen > 0
-                aa = char([zeros(1, buflen, 'int8')]);
-                ptr = libpointer('cstring', aa);
-                [~, bb] = callct('thermo_getEosType', ...
-                                  tp.tpID, buflen, ptr);
-                e = bb;
-                clear aa bb ptr;
-            end
+            e = callct2('thermo_getEosType', tp.tpID);
         end
 
         function v = isIdealGas(tp)
