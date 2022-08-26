@@ -93,10 +93,10 @@ classdef ThermoPhase < handle
             if nargin < 2 || ~isnumeric(threshold)
                 threshold = 1e-14;
             end
-            buflen = 0 - callct('thermo_report', tp.tpID, 0, '', 1);
+            buflen = 0 - calllib(ct, 'thermo_report', tp.tpID, 0, '', 1);
             aa = char(ones(1, buflen));
             ptr = libpointer('cstring', aa);
-            [iok, bb] = callct('thermo_report', tp.tpID, buflen, ptr, 1);
+            [iok, bb] = calllib(ct, 'thermo_report', tp.tpID, buflen, ptr, 1);
             if iok < 0
                 error(geterr);
             else
@@ -503,7 +503,7 @@ classdef ThermoPhase < handle
                 for j = 1:n
                     ksp = k(i, j) - 1;
                     output = callct2('thermo_getSpeciesName', tp.tpID, ksp);
-                    nm{i, j} = aa;
+                    nm{i, j} = output;
                 end
             end
         end
@@ -1355,9 +1355,6 @@ classdef ThermoPhase < handle
             % :param pressure:
             %     Pressure. Units: Pa
             %
-            if pressure <= 0
-                error('The pressure must be positive');
-            end
             callct('thermo_setPressure', tp.tpID, pressure);
         end
 
@@ -1371,9 +1368,6 @@ classdef ThermoPhase < handle
             % :param density:
             %     Density. Units: kg/m**3
             %
-            if density <= 0
-                error('The density must be positive');
-            end
             callct('thermo_setDensity', tp.tpID, density);
         end
 
@@ -1449,12 +1443,6 @@ classdef ThermoPhase < handle
         function set.DP(tp, input)
             d = input{1};
             p = input{2};
-            if d <= 0
-                error('The density must be positive');
-            end
-            if p <= 0
-                error('The pressure must be positive');
-            end
             callct('thermo_set_RP', tp.tpID, [d, p]);
         end
 
@@ -1471,9 +1459,6 @@ classdef ThermoPhase < handle
         function set.HP(tp, input)
             h = input{1};
             p = input{2};
-            if p <= 0
-                error('The pressure must be positive');
-            end
             callct('thermo_set_HP', tp.tpID, [h, p]);
         end
 
@@ -1490,12 +1475,6 @@ classdef ThermoPhase < handle
         function set.PV(tp, input)
             p = input{1};
             v = input{2};
-            if p <= 0
-                error('The pressure must be positive');
-            end
-            if v <= 0
-                error('The specific volume must be positive');
-            end
             callct('thermo_set_PV', tp.tpID, [p, v]);
         end
 
@@ -1528,9 +1507,6 @@ classdef ThermoPhase < handle
         function set.SP(tp, input)
             s = input{1};
             p = input{2};
-            if p <= 0
-                error('The pressure must be positive');
-            end
             callct('thermo_set_SP', tp.tpID, [s, p]);
         end
 
@@ -1547,9 +1523,6 @@ classdef ThermoPhase < handle
         function set.ST(tp, input)
             s = input{1};
             t = input{2};
-            if t <= 0
-                error('The temperature must be positive');
-            end
             callct('thermo_set_ST', tp.tpID, [s, t]);
         end
 
@@ -1566,9 +1539,6 @@ classdef ThermoPhase < handle
         function set.SV(tp, input)
             s = input{1};
             v = input{2};
-            if v <= 0
-                error('The specific volume must be positive');
-            end
             callct('thermo_set_SV', tp.tpID, [s, v]);
         end
 
@@ -1585,12 +1555,6 @@ classdef ThermoPhase < handle
         function set.TD(tp, input)
             t = input{1};
             d = input{2};
-            if t <= 0
-                error('The temperature must be positive');
-            end
-            if d <= 0
-                error('The density must be positive');
-            end
             tp.T = t;
             tp.D = d;
         end
@@ -1607,9 +1571,6 @@ classdef ThermoPhase < handle
 
         function set.TH(tp, input)
             t = input{1};
-            if t <= 0
-                error('The temperature must be positive');
-            end
             h = input{2};
             callct('thermo_set_TH', tp.tpID, [t, h]);
         end
@@ -1627,12 +1588,6 @@ classdef ThermoPhase < handle
         function set.TP(tp, input)
             t = input{1};
             p = input{2};
-            if t <= 0
-                error('The temperature must be positive');
-            end
-            if p <= 0
-                error('The pressure must be positive');
-            end
             tp.T = t;
             tp.P = p;
         end
@@ -1650,12 +1605,6 @@ classdef ThermoPhase < handle
         function set.TV(tp, input)
             t = input{1};
             v = input{2};
-            if t <= 0
-                error('The temperature must be positive');
-            end
-            if v <= 0
-                error('The specific volume must be positive');
-            end
             callct('thermo_set_TV', tp.tpID, [t, v]);
         end
 
@@ -1672,9 +1621,6 @@ classdef ThermoPhase < handle
         function set.UP(tp, input)
             u = input{1};
             p = input{2};
-            if p <= 0
-                error('The pressure must be positive');
-            end
             callct('thermo_set_UP', tp.tpID, [u, p]);
         end
 
@@ -1691,9 +1637,6 @@ classdef ThermoPhase < handle
         function set.UV(tp, input)
             u = input{1};
             v = input{2};
-            if v <= 0
-                error('The specific volume must be positive');
-            end
             callct('thermo_set_UV', tp.tpID, [u, v]);
         end
 
@@ -1710,9 +1653,6 @@ classdef ThermoPhase < handle
         function set.VH(tp, input)
             v = input{1};
             h = input{2};
-            if v <= 0
-                error('The specific volume must be positive');
-            end
             callct('thermo_set_VH', tp.tpID, [v, h]);
         end
 
