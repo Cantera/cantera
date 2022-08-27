@@ -702,7 +702,7 @@ if os.name == "nt":
     config.add(windows_options)
     config.add(config_options)
 
-    config["prefix"].default = pjoin(os.environ["ProgramFiles"], "Cantera")
+    config["prefix"].default = (Path(os.environ["ProgramFiles"]) / "Cantera").as_posix()
     config.select("Windows")
 
     # On Windows, target the same architecture as the current copy of Python,
@@ -931,18 +931,19 @@ elif env['env_vars']:
             logger.warning(f"Failed to propagate environment variable {name!r}\n"
                            "Edit cantera.conf or the build command line to fix this.")
 
-env['extra_inc_dirs'] = [d for d in env['extra_inc_dirs'].split(os.pathsep) if d]
-env['extra_lib_dirs'] = [d for d in env['extra_lib_dirs'].split(os.pathsep) if d]
+env["extra_inc_dirs"] = [Path(d).as_posix() for d in env["extra_inc_dirs"].split(os.pathsep) if d]
+env["extra_lib_dirs"] = [Path(d).as_posix() for d in env["extra_lib_dirs"].split(os.pathsep) if d]
 
 # Add conda library/include paths (if applicable) to extra
 conda_prefix = os.environ.get("CONDA_PREFIX")
 if conda_prefix is not None:
+    conda_prefix = Path(conda_prefix)
     if os.name == "nt":
-        conda_inc_dir = pjoin(conda_prefix, "Library", "include")
-        conda_lib_dir = pjoin(conda_prefix, "Library", env["libdirname"])
+        conda_inc_dir = (conda_prefix / "Library" / "include").as_posix()
+        conda_lib_dir = (conda_prefix / "Library" / env["libdirname"]).as_posix()
     else:
-        conda_inc_dir = pjoin(conda_prefix, "include")
-        conda_lib_dir = pjoin(conda_prefix, env["libdirname"])
+        conda_inc_dir = (conda_prefix / "include").as_posix()
+        conda_lib_dir = (conda_prefix / env["libdirname"]).as_posix()
     env["extra_inc_dirs"].append(conda_inc_dir)
     env["extra_lib_dirs"].append(conda_lib_dir)
     logger.info(f"Adding conda include and library paths: {conda_prefix}")
@@ -964,18 +965,22 @@ else:
     env['FORTRAN_LINK'] = '$FORTRAN'
 
 if env['boost_inc_dir']:
+    env["boost_inc_dir"] = Path(env["boost_inc_dir"]).as_posix()
     env.Append(CPPPATH=env['boost_inc_dir'])
 
 if env['blas_lapack_dir']:
+    env["blas_lapack_dir"] = Path(env["blas_lapack_dir"]).as_posix()
     env.Append(LIBPATH=[env['blas_lapack_dir']])
     if env['use_rpath_linkage']:
         env.Append(RPATH=env['blas_lapack_dir'])
 
 if env['system_sundials'] in ('y','default'):
     if env['sundials_include']:
+        env["sundials_include"] = Path(env["sundials_include"]).as_posix()
         env.Append(CPPPATH=[env['sundials_include']])
         env['system_sundials'] = 'y'
     if env['sundials_libdir']:
+        env["sundials_libdir"] = Path(env["sundials_libdir"]).as_posix()
         env.Append(LIBPATH=[env['sundials_libdir']])
         env['system_sundials'] = 'y'
         if env['use_rpath_linkage']:
@@ -1711,8 +1716,9 @@ if env["matlab_toolbox"] == "y":
             "SUNDIALS libraries and skip building the Matlab toolbox.")
         sys.exit(1)
 
-    if not (os.path.isdir(matlab_path) and
-            os.path.isdir(pjoin(matlab_path, "extern"))):
+    matlab_path = Path(matlab_path)
+    env["matlab_path"] = matlab_path.as_posix()
+    if not matlab_path.is_dir() and (matlab_path / "extern").is_dir():
         logger.error(
             f"Path set for 'matlab_path' is not correct. Path was {matlab_path!r}")
         sys.exit(1)
@@ -1750,8 +1756,11 @@ env["default_prefix"] = True
 if "prefix" in selected_options:
     env["default_prefix"] = False
 
+# Use posix-style paths on all platforms
+env["prefix"] = Path(env["prefix"]).as_posix()
+
 # Check whether Cantera should be installed into a conda environment
-if conda_prefix is not None and sys.executable.startswith(conda_prefix):
+if conda_prefix is not None and sys.executable.startswith(str(conda_prefix)):
     # use conda layout unless any 'blocking' options were specified
     blocking_options = {"layout", "prefix", "python_prefix", "python_cmd"}
     if not selected_options & blocking_options:
@@ -1761,54 +1770,52 @@ if conda_prefix is not None and sys.executable.startswith(conda_prefix):
         # etc.
         conda_prefix = Path(conda_prefix)
         if "stage_dir" in selected_options:
-            env["prefix"] = str(conda_prefix.relative_to(conda_prefix.parents[2]))
+            env["prefix"] = (conda_prefix.relative_to(conda_prefix.parents[2])).as_posix()
         else:
-            env["prefix"] = str(conda_prefix.resolve())
+            env["prefix"] = conda_prefix.resolve().as_posix()
         logger.info(
             f"Using conda environment as default 'prefix': {env['prefix']}")
 elif env["layout"] == "conda":
     logger.error("Layout option 'conda' requires a conda environment.")
     sys.exit(1)
 
+prefix = Path(env["prefix"])
+
 if env["layout"] == "conda" and os.name == "nt":
-    env["ct_libdir"] = pjoin(env["prefix"], "Library", env["libdirname"])
-    env["ct_bindir"] = pjoin(env["prefix"], "Scripts")
-    env["ct_python_bindir"] = pjoin(env["prefix"], "Scripts")
-    env["ct_incdir"] = pjoin(env["prefix"], "Library", "include", "cantera")
-    env["ct_incroot"] = pjoin(env["prefix"], "Library", "include")
+    env["ct_libdir"] = (prefix / "Library" / env["libdirname"]).as_posix()
+    env["ct_bindir"] = (prefix / "Scripts").as_posix()
+    env["ct_python_bindir"] = (prefix / "Scripts").as_posix()
+    env["ct_incdir"] = (prefix / "Library" / "include" / "cantera").as_posix()
+    env["ct_incroot"] = (prefix / "Library" / "include").as_posix()
 else:
     if "stage_dir" not in selected_options:
-        env["prefix"] = str(Path(env["prefix"]).resolve())
-    env["ct_libdir"] = pjoin(env["prefix"], env["libdirname"])
-    env["ct_bindir"] = pjoin(env["prefix"], "bin")
-    env["ct_python_bindir"] = pjoin(env["prefix"], "bin")
-    env["ct_incdir"] = pjoin(env["prefix"], "include", "cantera")
-    env["ct_incroot"] = pjoin(env["prefix"], "include")
+        prefix = prefix.resolve()
+        env["prefix"] = prefix.as_posix()
+    env["ct_libdir"] = (prefix / env["libdirname"]).as_posix()
+    env["ct_bindir"] = (prefix / "bin").as_posix()
+    env["ct_python_bindir"] = (prefix / "bin").as_posix()
+    env["ct_incdir"] = (prefix / "include" / "cantera").as_posix()
+    env["ct_incroot"] = (prefix / "include").as_posix()
 
 env["ct_installroot"] = env["prefix"]
 
-# Remove back slashes from paths. For example, C:\Users results in a Unicode error
-# because \U is the prefix for a Unicode sequence. This kind of thing can happen
-# on other platforms too, so this replacement isn't conditional.
-env["prefix"] = env["prefix"].replace("\\", "/")
-
-if env['layout'] == 'compact':
-    env['ct_datadir'] = pjoin(env['prefix'], 'data')
-    env['ct_sampledir'] = pjoin(env['prefix'], 'samples')
-    env["ct_docdir"] = pjoin(env["prefix"], "doc")
-    env['ct_mandir'] = pjoin(env['prefix'], 'man1')
-    env['ct_matlab_dir'] = pjoin(env['prefix'], 'matlab', 'toolbox')
+if env["layout"] == "compact":
+    env["ct_datadir"] = (prefix / "data").as_posix()
+    env["ct_sampledir"] = (prefix / "samples").as_posix()
+    env["ct_docdir"] = (prefix / "doc").as_posix()
+    env["ct_mandir"] = (prefix / "man1").as_posix()
+    env["ct_matlab_dir"] = (prefix / "matlab" / "toolbox").as_posix()
 else:
-    env['ct_datadir'] = pjoin(env['prefix'], 'share', 'cantera', 'data')
-    env['ct_sampledir'] = pjoin(env['prefix'], 'share', 'cantera', 'samples')
-    env["ct_docdir"] = pjoin(env["prefix"], "share", "cantera", "doc")
-    env['ct_mandir'] = pjoin(env['prefix'], 'share', 'man', 'man1')
+    env["ct_datadir"] = (prefix / "share" / "cantera" / "data").as_posix()
+    env["ct_sampledir"] = (prefix  / "share" / "cantera" / "samples").as_posix()
+    env["ct_docdir"] = (prefix / "share" / "cantera" / "doc").as_posix()
+    env["ct_mandir"] = (prefix / "share" / "man" / "man1").as_posix()
     if env["layout"] == "conda":
-        env["ct_matlab_dir"] = pjoin(
-            env["prefix"], "share", "cantera", "matlab", "toolbox")
+        env["ct_matlab_dir"] = (
+            prefix / "share" / "cantera" / "matlab" / "toolbox").as_posix()
     else:
-        env["ct_matlab_dir"] = pjoin(
-            env["prefix"], env["libdirname"], "cantera", "matlab", "toolbox")
+        env["ct_matlab_dir"] = (
+            prefix / env["libdirname"] / "cantera" / "matlab" / "toolbox").as_posix()
 
 
 addInstallActions = ('install' in COMMAND_LINE_TARGETS or
@@ -1822,7 +1829,7 @@ if env["stage_dir"]:
     if stage_prefix.is_absolute():
         stage_prefix = Path(*stage_prefix.parts[1:])
 
-    instRoot = str(Path.cwd().joinpath(env["stage_dir"], stage_prefix))
+    instRoot = (Path.cwd().joinpath(env["stage_dir"], stage_prefix)).as_posix()
 else:
     instRoot = env["prefix"]
 
@@ -1831,25 +1838,26 @@ if os.path.abspath(instRoot) == Dir('.').abspath:
     logger.error("cannot install Cantera into source directory.")
     sys.exit(1)
 
-if env['layout'] == 'debian':
-    base = pjoin(os.getcwd(), 'debian')
-    env["inst_root"] = base
+if env["layout"] == "debian":
+    base = Path(os.getcwd()) / "debian"
+    env["inst_root"] = base.as_posix()
 
-    env['inst_libdir'] = pjoin(base, 'cantera-dev', 'usr', env['libdirname'])
-    env['inst_incdir'] = pjoin(base, 'cantera-dev', 'usr', 'include', 'cantera')
-    env['inst_incroot'] = pjoin(base, 'cantera-dev', 'usr' 'include')
+    env["inst_libdir"] = (base / "cantera-dev" / "usr" / env["libdirname"]).as_posix()
+    env["inst_incdir"] = (base / "cantera-dev" / "usr" / "include" / "cantera").as_posix()
+    env["inst_incroot"] = (base / "cantera-dev" / "usr" / "include").as_posix()
 
-    env['inst_bindir'] = pjoin(base, 'cantera-common', 'usr', 'bin')
-    env['inst_datadir'] = pjoin(base, 'cantera-common', 'usr', 'share', 'cantera', 'data')
-    env['inst_docdir'] = pjoin(base, 'cantera-common', 'usr', 'share', 'cantera', 'doc')
-    env['inst_sampledir'] = pjoin(base, 'cantera-common', 'usr', 'share', 'cantera', 'samples')
-    env['inst_mandir'] = pjoin(base, 'cantera-common', 'usr', 'share', 'man', 'man1')
+    env["inst_bindir"] = (base / "cantera-common" / "usr" / "bin").as_posix()
+    env["inst_datadir"] = (base / "cantera-common" / "usr" / "share" / "cantera" / "data").as_posix()
+    env["inst_docdir"] = (base / "cantera-common" / "usr" / "share" / "cantera" / "doc").as_posix()
+    env["inst_sampledir"] = (base / "cantera-common" / "usr" / "share" / "cantera" / "samples").as_posix()
+    env["inst_mandir"] = (base / "cantera-common" / "usr" / "share" / "man" / "man1").as_posix()
 
-    env['inst_matlab_dir'] = pjoin(base, 'cantera-matlab', 'usr',
-                                   env['libdirname'], 'cantera', 'matlab', 'toolbox')
+    env["inst_matlab_dir"] = (
+        base / "cantera-matlab" / "usr" /
+        env["libdirname"] / "cantera" / "matlab" / "toolbox").as_posix()
 
-    env['inst_python_bindir'] = pjoin(base, 'cantera-python', 'usr', 'bin')
-    env['python_prefix'] = pjoin(base, 'cantera-python3')
+    env["inst_python_bindir"] = (base / "cantera-python" / "usr" / "bin").as_posix()
+    env["python_prefix"] = (base / "cantera-python3").as_posix()
 else:
     env["inst_root"] = instRoot
     locations = ["libdir", "bindir", "python_bindir", "incdir", "incroot",
@@ -2116,7 +2124,7 @@ def postInstallMessage(target, source, env):
         ))
 
     if env["python_package"] == "full":
-        env["python_example_loc"] = pjoin(env["ct_sampledir"], "python")
+        env["python_example_loc"] = (Path(env["ct_sampledir"]) / "python").as_posix()
         install_message.append(locations_message.format(
             name="Python package", location=env_dict["python_module_loc"]
         ))
@@ -2125,8 +2133,8 @@ def postInstallMessage(target, source, env):
         ))
 
     if env["matlab_toolbox"] == "y":
-        env["matlab_sample_loc"] = pjoin(env["ct_sampledir"], "matlab")
-        env["matlab_ctpath_loc"] = pjoin(env["ct_matlab_dir"], "ctpath.m")
+        env["matlab_sample_loc"] = (Path(env["ct_sampledir"]) / "matlab").as_posix()
+        env["matlab_ctpath_loc"] = (Path(env["ct_matlab_dir"]) / "ctpath.m").as_posix()
         install_message.append(locations_message.format(
             name="Matlab toolbox", location=env_dict["ct_matlab_dir"]
         ))
