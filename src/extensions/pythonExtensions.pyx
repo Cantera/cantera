@@ -7,14 +7,22 @@
 from libcpp.string cimport string
 from libc.stdlib cimport malloc
 from libc.string cimport strcpy
+from cpython.ref cimport Py_INCREF
 
 import importlib
 import inspect
 
 import cantera as ct
-from cantera.reaction cimport ExtensibleRate
+from cantera.reaction cimport ExtensibleRate, CxxReactionRate
+from cantera.delegator cimport CxxDelegator, assign_delegates
 
-cdef public char* ct_getPythonExtensibleRateTypes(const string& module_name):
+
+cdef extern from "cantera/kinetics/ReactionRateDelegator.h" namespace "Cantera":
+    cdef cppclass CxxReactionRateDelegator "Cantera::ReactionRateDelegator" (CxxDelegator, CxxReactionRate):
+        CxxReactionRateDelegator()
+
+
+cdef public char* ct_getPythonExtensibleRateTypes(const string& module_name) except NULL:
     """
     Load the named module and find classes derived from ExtensibleRate.
 
@@ -23,10 +31,22 @@ cdef public char* ct_getPythonExtensibleRateTypes(const string& module_name):
     """
     mod = importlib.import_module(module_name.decode())
     names = "\n".join(
-        f"{name} {cls._reaction_rate_type}"
+        f"{name}\t{cls._reaction_rate_type}"
         for name, cls in inspect.getmembers(mod)
         if inspect.isclass(cls) and issubclass(cls, ct.ExtensibleRate))
     tmp = bytes(names.encode())
     cdef char* c_string = <char*> malloc((len(tmp) + 1) * sizeof(char))
     strcpy(c_string, tmp)
     return c_string
+
+
+cdef public int ct_addPythonExtensibleRate(CxxReactionRateDelegator* delegator,
+                                            const string& module_name,
+                                            const string& class_name) except -1:
+
+    mod = importlib.import_module(module_name.decode())
+    cdef ExtensibleRate rate = getattr(mod, class_name.decode())(init=False)
+    Py_INCREF(rate)
+    rate.set_cxx_object(delegator)
+    assign_delegates(rate, delegator)
+    return 0

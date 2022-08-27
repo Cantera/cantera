@@ -7,6 +7,7 @@
 import sys
 import importlib
 import importlib.abc
+import importlib.util
 
 # Chooses the right init function
 # See https://stackoverflow.com/a/52714500
