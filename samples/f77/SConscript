@@ -25,15 +25,27 @@ for program_name, fortran_sources in samples:
 # Generate SConstruct file to be installed
 incdirs = [localenv["ct_incroot"]]
 libdirs = [localenv["ct_libdir"]]
-if not localenv["package_build"]:
+if localenv["package_build"]:
+    # Remove sysroot flags in templated output files. This only applies to the
+    # conda package for now.
+    # Users should compile against their local SDKs, which should be backwards
+    # compatible with the SDK used for building.
+    excludes = (
+        "-isysroot", "-mmacosx", "-march", "-mtune", "-fdebug-prefix-map")
+    cc_flags = compiler_flag_list(localenv["CCFLAGS"] + localenv["CXXFLAGS"],
+        excludes)
+else:
     incdirs.extend([localenv["sundials_include"], localenv["boost_inc_dir"]])
     incdirs.extend(localenv["extra_inc_dirs"])
     libdirs.extend([localenv["sundials_libdir"], localenv["blas_lapack_dir"]])
     libdirs.extend(localenv["extra_lib_dirs"])
 
+    cc_flags = localenv["CCFLAGS"] + localenv["CXXFLAGS"]
+
 libs = ['cantera_fortran'] + localenv['cantera_libs'] + env['cxx_stdlib']
 linkflags = ('-g', localenv['thread_flags'])
 
+localenv["tmpl_compiler_flags"] = repr(cc_flags)
 localenv['tmpl_cantera_incdirs'] = repr([x for x in incdirs if x])
 localenv['tmpl_cantera_libs'] = repr(libs)
 localenv['tmpl_cantera_libdirs'] = repr([x for x in libdirs if x])
@@ -53,6 +65,8 @@ if localenv["package_build"]:
     else:
         localenv["F77"] = "gfortran"
         localenv["CC"] = "gcc"
+
+localenv["mak_compiler_flags"] = " ".join(cc_flags)
 
 sconstruct = localenv.SubstFile('SConstruct', 'SConstruct.in')
 install("$inst_sampledir/f77", sconstruct)
