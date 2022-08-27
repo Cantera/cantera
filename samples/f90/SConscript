@@ -23,8 +23,10 @@ for programName, sources in samples:
     if not localenv["package_build"]:
         incdirs.extend([localenv["sundials_include"], localenv["boost_inc_dir"]])
         incdirs.extend(localenv["extra_inc_dirs"])
+        incdirs = list(set(incdirs))
         libdirs.extend([localenv["sundials_libdir"], localenv["blas_lapack_dir"]])
         libdirs.extend(localenv["extra_lib_dirs"])
+        libdirs = list(set(libdirs))
 
     libs = ['cantera_fortran'] + localenv['cantera_libs'] + env['cxx_stdlib']
     linkflags = ('-g', localenv['thread_flags'])
