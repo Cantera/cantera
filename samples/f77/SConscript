@@ -7,8 +7,9 @@ localenv = env.Clone()
 localenv['mak_stdlib'] = ['-l' + lib for lib in env['cxx_stdlib']]
 
 # (program name, [source files])
-samples = [('ctlib', ['ctlib.f']),
-           ('isentropic', ['isentropic.f'])]
+samples = [("ctlib", ["ctlib.f"]),
+           ("demo", ["demo.f"]),
+           ("isentropic", ["isentropic.f"])]
 
 ftn_demo = localenv.SharedObject('demo_ftnlib.cpp',
                                  CPPPATH=['#include', localenv['boost_inc_dir'],
@@ -42,7 +43,7 @@ else:
 
     cc_flags = localenv["CCFLAGS"] + localenv["CXXFLAGS"]
 
-libs = ['cantera_fortran'] + localenv['cantera_libs'] + env['cxx_stdlib']
+libs = ["cantera_fortran"] + localenv["cantera_libs"] + localenv["cxx_stdlib"]
 linkflags = ('-g', localenv['thread_flags'])
 
 localenv["tmpl_compiler_flags"] = repr(cc_flags)
