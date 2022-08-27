@@ -34,13 +34,6 @@ if not localenv["package_build"]:
 libs = ['cantera_fortran'] + localenv['cantera_libs'] + env['cxx_stdlib']
 linkflags = ('-g', localenv['thread_flags'])
 
-mak_path = pjoin(localenv['ct_incroot'], 'cantera', 'Cantera.mak')
-if ' ' in mak_path:
-    # There is no reasonable way to handle spaces in Makefile 'include'
-    # statement, so we fall back to using the relative path instead
-    mak_path = relpath(mak_path, pjoin(localenv["ct_sampledir"], "f77"))
-localenv['tmpl_Cantera_dot_mak'] = mak_path
-
 localenv['tmpl_cantera_incdirs'] = repr([x for x in incdirs if x])
 localenv['tmpl_cantera_libs'] = repr(libs)
 localenv['tmpl_cantera_libdirs'] = repr([x for x in libdirs if x])
@@ -62,9 +55,16 @@ if localenv["package_build"]:
         localenv["CC"] = "gcc"
 
 sconstruct = localenv.SubstFile('SConstruct', 'SConstruct.in')
+install("$inst_sampledir/f77", sconstruct)
 
-# Generate Makefile to be installed
-makefile = localenv.SubstFile('Makefile', 'Makefile.in')
+if localenv["OS"] != "Windows":
+    # Generate Makefile to be installed
+    mak_path = pjoin(localenv["ct_incroot"], "cantera", "Cantera.mak")
+    if " " in mak_path:
+        # There is no reasonable way to handle spaces in Makefile 'include'
+        # statement, so we fall back to using the relative path instead
+        mak_path = relpath(mak_path, pjoin(localenv["ct_sampledir"], "f77"))
+    localenv["make_Cantera_dot_mak"] = mak_path
 
-install('$inst_sampledir/f77', makefile)
-install('$inst_sampledir/f77', sconstruct)
+    makefile = localenv.SubstFile("Makefile", "Makefile.in")
+    install("$inst_sampledir/f77", makefile)
