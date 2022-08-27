@@ -46,7 +46,7 @@ else:
     cc_flags = localenv["CCFLAGS"] + localenv["CXXFLAGS"]
 
 libs = ["cantera_fortran"] + localenv["cantera_libs"] + localenv["cxx_stdlib"]
-linkflags = ('-g', localenv['thread_flags'])
+linkflags = ("-g", localenv["thread_flags"], f"-Wl,-rpath,{localenv['ct_libdir']}")
 
 localenv["tmpl_compiler_flags"] = repr(cc_flags)
 localenv['tmpl_cantera_incdirs'] = repr([x for x in incdirs if x])

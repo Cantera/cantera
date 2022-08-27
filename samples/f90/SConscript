@@ -29,7 +29,7 @@ for programName, sources in samples:
         libdirs = list(set(libdirs))
 
     libs = ['cantera_fortran'] + localenv['cantera_libs'] + env['cxx_stdlib']
-    linkflags = ('-g', localenv['thread_flags'])
+    linkflags = ("-g", localenv["thread_flags"], f"-Wl,-rpath,{localenv['ct_libdir']}")
 
     localenv['tmpl_cantera_incdirs'] = repr([x for x in incdirs if x])
     localenv['tmpl_cantera_libs'] = repr(libs)
