@@ -38,8 +38,10 @@ if localenv["package_build"]:
 else:
     incdirs.extend([localenv["sundials_include"], localenv["boost_inc_dir"]])
     incdirs.extend(localenv["extra_inc_dirs"])
+    incdirs = list(set(incdirs))
     libdirs.extend([localenv["sundials_libdir"], localenv["blas_lapack_dir"]])
     libdirs.extend(localenv["extra_lib_dirs"])
+    libdirs = list(set(libdirs))
 
     cc_flags = localenv["CCFLAGS"] + localenv["CXXFLAGS"]
 
