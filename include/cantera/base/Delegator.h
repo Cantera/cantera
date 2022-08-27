@@ -9,6 +9,7 @@
 #include "cantera/base/global.h"
 #include "cantera/base/ctexceptions.h"
 #include <array>
+#include <list>
 
 namespace Cantera
 {
@@ -100,6 +101,12 @@ namespace Cantera
 class Delegator
 {
 public:
+    ~Delegator() {
+        for (auto& func : m_cleanup_funcs) {
+            func();
+        }
+    }
+
     //! Set delegates for member functions with the signature `void()`.
     void setDelegate(const std::string& name, const std::function<void()>& func,
                      const std::string& when)
@@ -225,6 +232,10 @@ public:
                 "'size_t(const string&)'.", name);
         }
         *m_funcs_sz_csr[name] = makeDelegate(func, when, m_base_sz_csr[name]);
+    }
+
+    void addCleanupFunc(const std::function<void()>& func) {
+        m_cleanup_funcs.push_back(func);
     }
 
 protected:
@@ -446,6 +457,9 @@ protected:
     std::map<std::string,
         std::function<size_t(const std::string&)>*> m_funcs_sz_csr;
     //! @}
+
+    //! Cleanup functions to be called from the destructor
+    std::list<std::function<void()>> m_cleanup_funcs;
 };
 
 }

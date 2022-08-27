@@ -40,13 +40,12 @@ cdef public char* ct_getPythonExtensibleRateTypes(const string& module_name) exc
     return c_string
 
 
-cdef public int ct_addPythonExtensibleRate(CxxReactionRateDelegator* delegator,
-                                            const string& module_name,
-                                            const string& class_name) except -1:
+cdef public object ct_newPythonExtensibleRate(CxxReactionRateDelegator* delegator,
+                                              const string& module_name,
+                                              const string& class_name):
 
     mod = importlib.import_module(module_name.decode())
     cdef ExtensibleRate rate = getattr(mod, class_name.decode())(init=False)
-    Py_INCREF(rate)
     rate.set_cxx_object(delegator)
     assign_delegates(rate, delegator)
-    return 0
+    return rate

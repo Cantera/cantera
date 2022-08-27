@@ -72,6 +72,7 @@ void PythonExtensionManager::registerRateBuilders(const string& extensionName)
                          "Got unparsable input from ct_getPythonExtensibleRateTypes:"
                          "\n'''{}\n'''", rateTypes);
         }
+
         string rateName = tokens[0];
 
         // Create a function that constructs and links a C++ ReactionRateDelegator
@@ -79,7 +80,17 @@ void PythonExtensionManager::registerRateBuilders(const string& extensionName)
         // this as the builder for reactions of this type
         auto builder = [rateName, extensionName](const AnyMap& params, const UnitStack& units) {
             auto delegator = make_unique<ReactionRateDelegator>();
-            ct_addPythonExtensibleRate(delegator.get(), extensionName, rateName);
+            PyObject* extRate = ct_newPythonExtensibleRate(delegator.get(),
+                    extensionName, rateName);
+            if (extRate == nullptr) {
+                throw CanteraError("PythonExtensionManager::registerRateBuilders",
+                                   "ct_newPythonExtensibleRate failed");
+            }
+
+            // Make the delegator responsible for eventually deleting the Python object
+            Py_IncRef(extRate);
+            delegator->addCleanupFunc([extRate]() { Py_DecRef(extRate); });
+
             return delegator.release();
         };
         ReactionRateFactory::factory()->reg(tokens[1], builder);
