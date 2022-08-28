@@ -14,6 +14,38 @@
 namespace ba = boost::algorithm;
 using namespace std;
 
+namespace {
+
+std::string getPythonExceptionInfo()
+{
+    if (!PyErr_Occurred()) {
+        return "no Python exception raised";
+    }
+
+    PyObject* ex_type;
+    PyObject* ex_value;
+    PyObject* traceback;
+    PyErr_Fetch(&ex_type, &ex_value, &traceback);
+    PyErr_NormalizeException(&ex_type, &ex_value, &traceback);
+    if (traceback == nullptr) {
+        traceback = Py_None;
+    }
+    char* c_exstr = ct_getExceptionString(ex_type, ex_value, traceback);
+    string message;
+    if (c_exstr != nullptr) {
+        message = c_exstr;
+        free(c_exstr);
+    } else {
+        message = "Couldn't get exception message";
+    }
+    Py_XDECREF(ex_type);
+    Py_XDECREF(ex_value);
+    Py_XDECREF(traceback);
+    return message;
+}
+
+} // end anonymous namespace
+
 namespace Cantera
 {
 
@@ -27,7 +59,7 @@ PythonExtensionManager::PythonExtensionManager()
     PyModuleDef* modDef = (PyModuleDef*) PyInit_pythonExtensions();
     if (!modDef->m_slots || !PyModuleDef_Init(modDef)) {
         throw CanteraError("PythonExtensionManager::PythonExtensionManager",
-                            "Failed to import 'pythonExtensions' module");
+                           "Failed to import 'pythonExtensions' module");
     }
 
     // Following example creation of minimal ModuleSpec from Python's import.c
@@ -40,7 +72,7 @@ PythonExtensionManager::PythonExtensionManager()
     Py_DECREF(attrs);
     if (spec == NULL) {
         throw CanteraError("PythonExtensionManager::PythonExtensionManager",
-                            "_PyNamespace_New failed");
+                           "_PyNamespace_New failed");
     }
     PyObject* pyModule = PyModule_FromDefAndSpec(modDef, spec);
     if (!pyModule) {
@@ -58,6 +90,10 @@ PythonExtensionManager::PythonExtensionManager()
 void PythonExtensionManager::registerRateBuilders(const string& extensionName)
 {
     char* c_rateTypes = ct_getPythonExtensibleRateTypes(extensionName);
+    if (c_rateTypes == nullptr) {
+        throw CanteraError("PythonExtensionManager::registerRateBuilders",
+                           "Problem loading module:\n{}", getPythonExceptionInfo());
+    }
     string rateTypes(c_rateTypes);
     free(c_rateTypes);
 
@@ -84,7 +120,8 @@ void PythonExtensionManager::registerRateBuilders(const string& extensionName)
                     extensionName, rateName);
             if (extRate == nullptr) {
                 throw CanteraError("PythonExtensionManager::registerRateBuilders",
-                                   "ct_newPythonExtensibleRate failed");
+                                   "Problem in ct_newPythonExtensibleRate:\n{}",
+                                   getPythonExceptionInfo());
             }
 
             // Make the delegator responsible for eventually deleting the Python object

@@ -22,6 +22,16 @@ cdef extern from "cantera/kinetics/ReactionRateDelegator.h" namespace "Cantera":
         CxxReactionRateDelegator()
 
 
+cdef public char* ct_getExceptionString(object exType, object exValue, object exTraceback):
+    import traceback
+    result = str(exValue) + "\n\n"
+    result += "".join(traceback.format_exception(exType, exValue, exTraceback))
+    tmp = bytes(result.encode())
+    cdef char* c_string = <char*> malloc((len(tmp) + 1) * sizeof(char))
+    strcpy(c_string, tmp)
+    return c_string
+
+
 cdef public char* ct_getPythonExtensibleRateTypes(const string& module_name) except NULL:
     """
     Load the named module and find classes derived from ExtensibleRate.
