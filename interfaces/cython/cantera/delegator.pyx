@@ -6,6 +6,7 @@ import sys
 
 from ._utils import CanteraError
 from ._utils cimport stringify, pystr
+from .reaction import ExtensibleRate
 from cython.operator import dereference as deref
 
 # ## Implementation for each delegated function type
@@ -309,3 +310,19 @@ cdef int assign_delegates(obj, CxxDelegator* delegator) except -1:
         obj._delegates.append(method)
 
     return 0
+
+def extension(*, name):
+    """
+    A decorator for declaring Cantera extensions that should be registered with
+    the corresponding factory classes to create objects with the specified *name*.
+    """
+    def decorator(cls):
+        if issubclass(cls, ExtensibleRate):
+            cls._reaction_rate_type = name
+            CxxPythonExtensionManager.registerPythonRateBuilder(
+                stringify(cls.__module__), stringify(cls.__name__), stringify(name))
+        else:
+            raise TypeError(f"{cls} is not extensible")
+        return cls
+
+    return decorator
