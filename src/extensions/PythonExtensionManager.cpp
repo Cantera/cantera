@@ -56,6 +56,9 @@ PythonExtensionManager::PythonExtensionManager()
     }
 
     // PEP 489 Multi-phase initialization
+
+    // The 'pythonExtensions' Cython module defines some functions that are used
+    // to instantiate ExtensibleSomething objects.
     PyModuleDef* modDef = (PyModuleDef*) PyInit_pythonExtensions();
     if (!modDef->m_slots || !PyModuleDef_Init(modDef)) {
         throw CanteraError("PythonExtensionManager::PythonExtensionManager",
@@ -89,49 +92,45 @@ PythonExtensionManager::PythonExtensionManager()
 
 void PythonExtensionManager::registerRateBuilders(const string& extensionName)
 {
-    char* c_rateTypes = ct_getPythonExtensibleRateTypes(extensionName);
-    if (c_rateTypes == nullptr) {
+    // Each rate builder class is decorated with @extension, which calls the
+    // registerPythonRateBuilder method to register that class. So all we have
+    // to do here is load the module.
+    PyObject* module_name = PyUnicode_FromString(extensionName.c_str());
+    PyObject* py_module = PyImport_Import(module_name);
+    Py_DECREF(module_name);
+    if (py_module == nullptr) {
         throw CanteraError("PythonExtensionManager::registerRateBuilders",
                            "Problem loading module:\n{}", getPythonExceptionInfo());
     }
-    string rateTypes(c_rateTypes);
-    free(c_rateTypes);
+}
 
-    // Each line in rateTypes is a (class name, rate name) pair, separated by a tab
-    vector<string> lines;
-    ba::split(lines, rateTypes, boost::is_any_of("\n"));
-    for (auto& line : lines) {
-        vector<string> tokens;
-        ba::split(tokens, line, boost::is_any_of("\t"));
-        if (tokens.size() != 2) {
-            CanteraError("PythonExtensionManager::registerRateBuilders",
-                         "Got unparsable input from ct_getPythonExtensibleRateTypes:"
-                         "\n'''{}\n'''", rateTypes);
+void PythonExtensionManager::registerPythonRateBuilder(
+    const std::string& moduleName, const std::string& className,
+    const std::string& rateName)
+{
+    // Make sure the helper module has been loaded
+    PythonExtensionManager mgr;
+
+    // Create a function that constructs and links a C++ ReactionRateDelegator
+    // object and a Python ExtensibleRate object of a particular type, and register
+    // this as the builder for reactions of this type
+    auto builder = [moduleName, className](const AnyMap& params, const UnitStack& units) {
+        auto delegator = make_unique<ReactionRateDelegator>();
+        PyObject* extRate = ct_newPythonExtensibleRate(delegator.get(),
+                moduleName, className);
+        if (extRate == nullptr) {
+            throw CanteraError("PythonExtensionManager::registerRateBuilders",
+                                "Problem in ct_newPythonExtensibleRate:\n{}",
+                                getPythonExceptionInfo());
         }
 
-        string rateName = tokens[0];
+        // Make the delegator responsible for eventually deleting the Python object
+        Py_IncRef(extRate);
+        delegator->addCleanupFunc([extRate]() { Py_DecRef(extRate); });
 
-        // Create a function that constructs and links a C++ ReactionRateDelegator
-        // object and a Python ExtensibleRate object of a particular type, and register
-        // this as the builder for reactions of this type
-        auto builder = [rateName, extensionName](const AnyMap& params, const UnitStack& units) {
-            auto delegator = make_unique<ReactionRateDelegator>();
-            PyObject* extRate = ct_newPythonExtensibleRate(delegator.get(),
-                    extensionName, rateName);
-            if (extRate == nullptr) {
-                throw CanteraError("PythonExtensionManager::registerRateBuilders",
-                                   "Problem in ct_newPythonExtensibleRate:\n{}",
-                                   getPythonExceptionInfo());
-            }
-
-            // Make the delegator responsible for eventually deleting the Python object
-            Py_IncRef(extRate);
-            delegator->addCleanupFunc([extRate]() { Py_DecRef(extRate); });
-
-            return delegator.release();
-        };
-        ReactionRateFactory::factory()->reg(tokens[1], builder);
-    }
+        return delegator.release();
+    };
+    ReactionRateFactory::factory()->reg(rateName, builder);
 }
 
 };

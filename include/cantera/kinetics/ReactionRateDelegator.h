@@ -25,10 +25,6 @@ public:
         );
     }
 
-    ReactionRateDelegator(const AnyMap& node, const UnitStack& rate_units)
-        : ReactionRateDelegator()
-    {}
-
     virtual unique_ptr<MultiRateBase> newMultiRate() const override {
         return unique_ptr<MultiRateBase>(
             new MultiRate<ReactionRateDelegator, ArrheniusData>);

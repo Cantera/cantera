@@ -14,11 +14,21 @@ namespace Cantera
 //! Class for managing user-defined Cantera extensions written in Python
 //!
 //! Handles Python initialization if the main application is not the Python interpreter.
+//!
+//! Imports a user-specified module, which must be on the Python path and registers
+//! user-defined classes that are marked with the `@extension` decorator. See the
+//! documentation for
+//! <a href="../../sphinx/html/cython/utilities.html#cantera.extension">`@extension`</a>
+//! in the Python documentation for more information.
 class PythonExtensionManager : public ExtensionManager
 {
 public:
     PythonExtensionManager();
     virtual void registerRateBuilders(const std::string& extensionName) override;
+
+    //! Function called from Cython to register an ExtensibleRate implementation
+    static void registerPythonRateBuilder(const std::string& moduleName,
+        const std::string& className, const std::string& rateName);
 };
 
 }

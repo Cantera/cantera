@@ -32,24 +32,6 @@ cdef public char* ct_getExceptionString(object exType, object exValue, object ex
     return c_string
 
 
-cdef public char* ct_getPythonExtensibleRateTypes(const string& module_name) except NULL:
-    """
-    Load the named module and find classes derived from ExtensibleRate.
-
-    Returns a string where each line contains the class name and the corresponding
-    rate name, separated by a space
-    """
-    mod = importlib.import_module(module_name.decode())
-    names = "\n".join(
-        f"{name}\t{cls._reaction_rate_type}"
-        for name, cls in inspect.getmembers(mod)
-        if inspect.isclass(cls) and issubclass(cls, ct.ExtensibleRate))
-    tmp = bytes(names.encode())
-    cdef char* c_string = <char*> malloc((len(tmp) + 1) * sizeof(char))
-    strcpy(c_string, tmp)
-    return c_string
-
-
 cdef public object ct_newPythonExtensibleRate(CxxReactionRateDelegator* delegator,
                                               const string& module_name,
                                               const string& class_name):

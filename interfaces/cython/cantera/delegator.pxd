@@ -57,6 +57,11 @@ cdef extern from "cantera/cython/funcWrapper.h":
         PyObject*, int(PyFuncInfo&, size_t&, const string&))
 
 
+cdef extern from "cantera/extensions/PythonExtensionManager.h" namespace "Cantera":
+    cdef cppclass CxxPythonExtensionManager "Cantera::PythonExtensionManager":
+        @staticmethod
+        void registerPythonRateBuilder(string&, string&, string&) except +translate_exception
+
 ctypedef CxxDelegator* CxxDelegatorPtr
 
 cdef int assign_delegates(object, CxxDelegator*) except -1

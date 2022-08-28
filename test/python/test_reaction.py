@@ -1,5 +1,6 @@
 from math import exp
 from pathlib import Path
+import sys
 import textwrap
 
 import cantera as ct
@@ -1498,34 +1499,56 @@ class TestCustom(ReactionTests, utilities.CanteraTest):
         assert (gas.forward_rate_constants == gas.T).all()
 
 
+@ct.extension(name="user-rate-1")
+class UserRate1(ct.ExtensibleRate):
+    def replace_eval(self, T):
+        return 38.7 * T**2.7 * exp(-3150.15428/T)
+
+
 class TestExtensible(ReactionTests, utilities.CanteraTest):
     # test Extensible reaction rate
-    class UserRate(ct.ExtensibleRate):
-        def replace_eval(self, T):
-            return 38.7 * T**2.7 * exp(-3150.15428/T)
 
     # probe O + H2 <=> H + OH
-    _rate_cls = UserRate
+    _rate_cls = UserRate1
     _equation = "H2 + O <=> H + OH"
     _index = 0
-    _rate_type = "extensible"
-    _yaml = None
+    _rate_type = "user-rate-1"
+    _rate = {
+        "type": "user-rate-1",
+    }
+    _yaml = """
+        equation: H2 + O <=> H + OH
+        type: user-rate-1
+    """
 
     def setUp(self):
         super().setUp()
-        self._rate_obj = self.UserRate()
+        self._rate_obj = UserRate1()
 
     def test_no_rate(self):
         pytest.skip("ExtensibleRate does not support 'empty' rates")
 
-    def from_yaml(self):
-        pytest.skip("ExtensibleRate does not support YAML")
+    def test_from_dict(self):
+        pytest.skip("ExtensibleRate does not support serialization")
 
     def from_rate(self, rate):
         pytest.skip("ExtensibleRate does not support dict-based instantiation")
 
     def test_roundtrip(self):
         pytest.skip("ExtensibleRate does not support roundtrip conversion")
+
+
+class TestExtensible2(utilities.CanteraTest):
+    def test_load_module(self):
+        here = str(Path(__file__).parent)
+        if here not in sys.path:
+            sys.path.append(here)
+
+        gas = ct.Solution("extensible-reactions.yaml", transport_model=None)
+
+        for T in np.linspace(300, 3000, 10):
+            gas.TP = T, None
+            assert gas.forward_rate_constants[0] == pytest.approx(T**2)
 
 
 class InterfaceReactionTests(ReactionTests):
