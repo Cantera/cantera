@@ -78,7 +78,6 @@ import subprocess
 import re
 import json
 import textwrap
-from os.path import join as pjoin
 from pkg_resources import parse_version
 import SCons
 
@@ -1967,20 +1966,11 @@ env.Prepend(CPPPATH=[],
            LIBPATH=[Dir('build/lib')])
 
 for yaml in multi_glob(env, "data", "yaml"):
-    dest = pjoin("build", "data", yaml.name)
-    build(env.Command(dest, yaml.path, Copy("$TARGET", "$SOURCE")))
-for subdir in os.listdir('data'):
-    if os.path.isdir(pjoin('data', subdir)):
-        for yaml in multi_glob(env, pjoin("data", subdir), "yaml"):
-            dest = pjoin("build", "data", subdir, yaml.name)
-            if not os.path.exists(pjoin("build", "data", subdir)):
-                os.makedirs(pjoin("build", "data", subdir))
-            build(env.Command(dest, yaml.path, Copy("$TARGET", "$SOURCE")))
-
+    dest = Path() / "build" / "data" / yaml.name
+    build(env.Command(str(dest), yaml.path, Copy("$TARGET", "$SOURCE")))
 
 if addInstallActions:
     # Put headers in place
-    headerBase = 'include/cantera'
     install(env.RecursiveInstall, '$inst_incdir', 'include/cantera')
 
     # Data files
