@@ -117,7 +117,7 @@ classdef Kinetics < handle
             elseif nargin == 3
                 krange = species;
                 irange = rxns;
-            else error('stoich_r requires 1 or 3 arguments.')
+            else error('stoichReactant requires 1 or 3 arguments.')
             end
 
             for k = krange
@@ -163,7 +163,7 @@ classdef Kinetics < handle
             elseif nargin == 3
                 krange = species;
                 irange = rxns;
-            else error('stoich_p requires 1 or 3 arguments.')
+            else error('stoichProduct requires 1 or 3 arguments.')
             end
 
             for k = krange
@@ -201,10 +201,10 @@ classdef Kinetics < handle
             %    specis 3 in reactions 1, 3, 5, and 7.
 
             if nargin == 1
-                n = stoich_p(kin)-stoich_r(kin);
+                n = kin.stoichProduct - kin.stoichReactant;
             elseif nargin == 3
-                n = stoich_p(a, species, rxns) - stoich_r (a, species, rxns);
-            else error('stoich_net requires 1 or 3 arguments.');
+                n = kin.stoichProduct(species, rxns) - kin.stoichReactant(species, rxns);
+            else error('stoichNet requires 1 or 3 arguments.');
             end
         end
 
@@ -271,7 +271,7 @@ classdef Kinetics < handle
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
-            callct('kin_getFwdRateOfProgress', kin.kinID, nr, pt);
+            callct('kin_getFwdRatesOfProgress', kin.kinID, nr, pt);
             q = pt.Value;
         end
 
@@ -285,7 +285,7 @@ classdef Kinetics < handle
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
-            callct('kin_getRevRateOfProgress', kin.kinID, nr, pt);
+            callct('kin_getRevRatesOfProgress', kin.kinID, nr, pt);
             q = pt.Value;
         end
 
@@ -314,22 +314,22 @@ classdef Kinetics < handle
 
             if nargin == 1
                 m = kin.nReactions;
-                n = 1
-                irxn = (n:m)';
+                n = 1;
+                irxn = (n:m);
             elseif nargin == 2
                 if isa(irxn, 'double')
-                    [m, n] = size(irxn);
+                    [n, m] = size(irxn);
                 else
                     error('reaction numbers must be numeric');
                 end
             end
 
             rxn = cell(m, n);
-            for i = 1:m
-                for j = 1:n
+            for i = 1:n
+                for j = 1:m
                     output = callct2('kin_getReactionString', kin.kinID, ...
-                                     irxn - 1);
-                    rxn{i, j} = output;
+                                     irxn(i, j) - 1);
+                    rxn{j, i} = output;
                 end
             end
         end
