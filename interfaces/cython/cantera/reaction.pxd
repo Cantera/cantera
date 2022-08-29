@@ -191,6 +191,7 @@ cdef extern from "cantera/kinetics/Custom.h" namespace "Cantera":
 cdef extern from "cantera/kinetics/ReactionRateDelegator.h" namespace "Cantera":
     cdef cppclass CxxReactionRateDelegator "Cantera::ReactionRateDelegator" (CxxReactionRate):
         CxxReactionRateDelegator()
+        void setType(string&)
 
 
 cdef extern from "cantera/kinetics/InterfaceRate.h" namespace "Cantera":

@@ -33,8 +33,12 @@ public:
             new MultiRate<ReactionRateDelegator, ArrheniusData>);
     }
 
+    void setType(const std::string& type) {
+        m_rateType = type;
+    }
+
     virtual const std::string type() const override {
-        return "ReactionRateDelegator";
+        return m_rateType;
     }
 
     // Delegatable methods
@@ -51,6 +55,7 @@ public:
     }
 
 private:
+    std::string m_rateType;
     std::function<double(void*)> m_evalFromStruct;
     std::function<void(const AnyMap&, const UnitStack&)> m_setParameters;
 };
