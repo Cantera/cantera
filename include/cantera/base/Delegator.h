@@ -140,6 +140,21 @@ public:
         *m_funcs_v_d[name] = makeDelegate(func, when, *m_funcs_v_d[name]);
     }
 
+    //! set delegates for member functions with the signature
+    //! `void(AnyMap&, UnitStack&)`
+    void setDelegate(const std::string& name,
+                     const std::function<void(const AnyMap&, const UnitStack&)>& func,
+                     const std::string& when)
+    {
+        if (!m_funcs_v_cAMr_cUSr.count(name)) {
+            throw NotImplementedError("Delegator::setDelegate",
+                "for function named '{}' with signature "
+                "'void(const AnyMap&, const UnitStack&)'.",
+                name);
+        }
+        *m_funcs_v_cAMr_cUSr[name] = makeDelegate(func, when, *m_funcs_v_cAMr_cUSr[name]);
+    }
+
     //! Set delegates for member functions with the signature `void(double*)`
     void setDelegate(const std::string& name,
                      const std::function<void(std::array<size_t, 1>, double*)>& func,
@@ -262,6 +277,18 @@ protected:
         target = func;
         m_funcs_v_d[name] = &target;
     }
+
+    //! Install a function with the signature `void(const AnyMap&, const UnitStack&)`
+    //! as being delegatable
+    void install(const std::string& name,
+                 std::function<void(const AnyMap&, const UnitStack&)>& target,
+                 const std::function<void(const AnyMap&, const UnitStack&)>& func)
+    {
+        target = func;
+        m_funcs_v_cAMr_cUSr[name] = &target;
+    }
+
+
 
     //! Install a function with the signature `void(double*)` as being delegatable
     void install(const std::string& name,
@@ -425,6 +452,8 @@ protected:
     //! - `d` for `double`
     //! - `s` for `std::string`
     //! - `sz` for `size_t`
+    //! - `AM` for `AnyMap`
+    //! - `US` for `UnitStack`
     //! - prefix `c` for `const` arguments
     //! - suffix `r` for reference arguments
     //! - suffix `p` for pointer arguments
@@ -434,6 +463,8 @@ protected:
     std::map<std::string, std::function<void()>*> m_funcs_v;
     std::map<std::string, std::function<void(bool)>*> m_funcs_v_b;
     std::map<std::string, std::function<void(double)>*> m_funcs_v_d;
+    std::map<std::string,
+        std::function<void(const AnyMap&, const UnitStack&)>*> m_funcs_v_cAMr_cUSr;
     std::map<std::string,
         std::function<void(std::array<size_t, 1>, double*)>*> m_funcs_v_dp;
     std::map<std::string,

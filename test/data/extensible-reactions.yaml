@@ -12,3 +12,4 @@ phases:
 reactions:
 - equation: H + O2 = HO2
   type: square-rate
+  A: 3.14

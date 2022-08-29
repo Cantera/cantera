@@ -39,5 +39,4 @@ cdef public object ct_newPythonExtensibleRate(CxxReactionRateDelegator* delegato
     mod = importlib.import_module(module_name.decode())
     cdef ExtensibleRate rate = getattr(mod, class_name.decode())(init=False)
     rate.set_cxx_object(delegator)
-    assign_delegates(rate, delegator)
     return rate
