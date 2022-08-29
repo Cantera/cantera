@@ -39,6 +39,9 @@ localenv['ENV']['CANTERA_DATA'] = (Dir('#build/data').abspath + os.pathsep +
                                    Dir('#samples/data').abspath + os.pathsep +
                                    Dir('#test/data').abspath)
 
+# For Python model extensions
+localenv.PrependENVPath('PYTHONPATH', Dir('#test/python').abspath)
+
 PASSED_FILES = {}
 
 # Add build/lib in order to find Cantera shared library
