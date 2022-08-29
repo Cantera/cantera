@@ -513,6 +513,19 @@ TEST(Reaction, TwoTempPlasmaFromYaml)
     EXPECT_DOUBLE_EQ(rate->activationElectronEnergy(), 700 * GasConstant);
 }
 
+TEST(Reaction, PythonExtensibleRate)
+{
+    #ifndef CT_HAS_PYTHON
+    GTEST_SKIP();
+    #endif
+    auto sol = newSolution("extensible-reactions.yaml");
+    auto R = sol->kinetics()->reaction(0);
+    EXPECT_EQ(R->type(), "square-rate");
+    auto rate = R->rate();
+    EXPECT_EQ(rate->type(), "square-rate");
+    EXPECT_DOUBLE_EQ(rate->eval(300), 3.14 * 300 * 300);
+}
+
 TEST(Kinetics, GasKineticsFromYaml1)
 {
     AnyMap infile = AnyMap::fromYamlFile("ideal-gas.yaml");
