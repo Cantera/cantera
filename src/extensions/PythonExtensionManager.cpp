@@ -16,6 +16,20 @@ using namespace std;
 
 namespace {
 
+class PythonHandle : public Cantera::ExternalHandle
+{
+public:
+    explicit PythonHandle(PyObject* obj) : m_obj(obj) {}
+
+    ~PythonHandle() {
+        Py_XDECREF(m_obj);
+    }
+
+private:
+    PyObject* m_obj;
+};
+
+
 std::string getPythonExceptionInfo()
 {
     if (!PyErr_Occurred()) {
@@ -126,10 +140,8 @@ void PythonExtensionManager::registerPythonRateBuilder(
         //! Call setParameters after the delegated functions have been connected
         delegator->setParameters(params, units);
 
-        // Make the delegator responsible for eventually deleting the Python object
-        Py_IncRef(extRate);
-        delegator->addCleanupFunc([extRate]() { Py_DecRef(extRate); });
-
+        // The delegator is responsible for eventually deleting the Python object
+        delegator->holdExternalHandle(make_shared<PythonHandle>(extRate));
         return delegator.release();
     };
     ReactionRateFactory::factory()->reg(rateName, builder);

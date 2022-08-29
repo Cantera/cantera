@@ -8,6 +8,7 @@
 
 #include "cantera/base/global.h"
 #include "cantera/base/ctexceptions.h"
+#include "cantera/base/ExtensionManager.h"
 #include <array>
 #include <list>
 
@@ -101,12 +102,6 @@ namespace Cantera
 class Delegator
 {
 public:
-    ~Delegator() {
-        for (auto& func : m_cleanup_funcs) {
-            func();
-        }
-    }
-
     //! Set delegates for member functions with the signature `void()`.
     void setDelegate(const std::string& name, const std::function<void()>& func,
                      const std::string& when)
@@ -249,8 +244,8 @@ public:
         *m_funcs_sz_csr[name] = makeDelegate(func, when, m_base_sz_csr[name]);
     }
 
-    void addCleanupFunc(const std::function<void()>& func) {
-        m_cleanup_funcs.push_back(func);
+    void holdExternalHandle(const shared_ptr<ExternalHandle>& handle) {
+        m_handles.push_back(handle);
     }
 
 protected:
@@ -490,7 +485,7 @@ protected:
     //! @}
 
     //! Cleanup functions to be called from the destructor
-    std::list<std::function<void()>> m_cleanup_funcs;
+    std::list<shared_ptr<ExternalHandle>> m_handles;
 };
 
 }

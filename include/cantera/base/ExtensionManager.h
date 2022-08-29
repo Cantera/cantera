@@ -24,6 +24,14 @@ public:
     };
 };
 
+//! A base class for managing the lifetime of an external object, such as a Python
+//! object used by a Delegator
+class ExternalHandle
+{
+public:
+    virtual ~ExternalHandle() = default;
+};
+
 }
 
 #endif
