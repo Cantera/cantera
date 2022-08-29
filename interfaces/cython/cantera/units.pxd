@@ -23,6 +23,10 @@ cdef extern from "cantera/base/Units.h" namespace "Cantera":
         stdmap[string, string] defaults()
         void setDefaults(stdmap[string, string]&) except +translate_exception
 
+    cdef cppclass CxxUnitStack "Cantera::UnitStack":
+        CxxUnitStack()
+        CxxUnits product()
+
 
 cdef class Units:
     cdef CxxUnits units

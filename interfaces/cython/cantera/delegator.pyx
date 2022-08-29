@@ -5,7 +5,8 @@ import inspect
 import sys
 
 from ._utils import CanteraError
-from ._utils cimport stringify, pystr
+from ._utils cimport stringify, pystr, anymap_to_dict
+from .units cimport Units
 from .reaction import ExtensibleRate
 from cython.operator import dereference as deref
 
@@ -98,6 +99,19 @@ cdef void callback_v_d(PyFuncInfo& funcInfo, double arg):
 cdef void callback_v_b(PyFuncInfo& funcInfo, cbool arg):
     try:
         (<object>funcInfo.func())(arg)
+    except BaseException as e:
+        exc_type, exc_value = sys.exc_info()[:2]
+        funcInfo.setExceptionType(<PyObject*>exc_type)
+        funcInfo.setExceptionValue(<PyObject*>exc_value)
+
+# Wrapper for functions of type void(const AnyMap&, const UnitStack&)
+cdef void callback_v_cAMr_cUSr(PyFuncInfo& funcInfo, const CxxAnyMap& arg1,
+                               const CxxUnitStack& arg2):
+
+    pyArg1 = anymap_to_dict(<CxxAnyMap&>arg1)  # cast away constness
+    pyArg2 = Units.copy(arg2.product())
+    try:
+        (<object>funcInfo.func())(pyArg1, pyArg2)
     except BaseException as e:
         exc_type, exc_value = sys.exc_info()[:2]
         funcInfo.setExceptionType(<PyObject*>exc_type)
@@ -276,6 +290,9 @@ cdef int assign_delegates(obj, CxxDelegator* delegator) except -1:
         elif callback == 'void(double)':
             delegator.setDelegate(cxx_name,
                 pyOverride(<PyObject*>method, callback_v_d), cxx_when)
+        elif callback == 'void(AnyMap&,UnitStack&)':
+            delegator.setDelegate(cxx_name,
+                pyOverride(<PyObject*>method, callback_v_cAMr_cUSr), cxx_when)
         elif callback == 'void(double*)':
             delegator.setDelegate(cxx_name,
                 pyOverride(<PyObject*>method, callback_v_dp), cxx_when)

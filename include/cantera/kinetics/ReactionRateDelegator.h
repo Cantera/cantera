@@ -23,6 +23,9 @@ public:
                 return 0.0; // necessary to set lambda's function signature
             }
         );
+        install("setParameters", m_setParameters,
+            [this](const AnyMap& node, const UnitStack& units) {
+                ReactionRate::setParameters(node, units); });
     }
 
     virtual unique_ptr<MultiRateBase> newMultiRate() const override {
@@ -43,8 +46,13 @@ public:
         return m_evalFromStruct(&T);
     }
 
+    void setParameters(const AnyMap& node, const UnitStack& units) override {
+        m_setParameters(node, units);
+    }
+
 private:
     std::function<double(void*)> m_evalFromStruct;
+    std::function<void(const AnyMap&, const UnitStack&)> m_setParameters;
 };
 
 }

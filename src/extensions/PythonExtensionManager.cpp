@@ -123,6 +123,8 @@ void PythonExtensionManager::registerPythonRateBuilder(
                                 "Problem in ct_newPythonExtensibleRate:\n{}",
                                 getPythonExceptionInfo());
         }
+        //! Call setParameters after the delegated functions have been connected
+        delegator->setParameters(params, units);
 
         // Make the delegator responsible for eventually deleting the Python object
         Py_IncRef(extRate);

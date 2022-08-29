@@ -710,11 +710,13 @@ cdef class CustomRate(ReactionRate):
 
         self.cxx_object().setRateFunction(self._rate_func._func)
 
+
 cdef class ExtensibleRate(ReactionRate):
     _reaction_rate_type = "extensible"
 
     delegatable_methods = {
-        "eval": ("evalFromStruct", "double(void*)")
+        "eval": ("evalFromStruct", "double(void*)"),
+        "set_parameters": ("setParameters", "void(AnyMap&, UnitStack&)")
     }
     def __cinit__(self, *args, init=True, **kwargs):
         if init:
@@ -733,6 +735,7 @@ cdef class ExtensibleRate(ReactionRate):
             self._rate.reset()
             self.rate = rate
             assign_delegates(self, dynamic_cast[CxxDelegatorPtr](self.rate))
+
 
 cdef class InterfaceRateBase(ArrheniusRateBase):
     """
