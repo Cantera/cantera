@@ -30,6 +30,31 @@ custom_reactions[2] = ct.Reaction(
 gas1 = ct.Solution(thermo='ideal-gas', kinetics='gas',
                    species=species, reactions=custom_reactions)
 
+# construct reactions based on ExtensibleRate: replace 2nd reaction with equivalent
+# ExtensibleRate
+@ct.extension(name="extensible-Arrhenius")
+class ExtensibleArrhenius(ct.ExtensibleRate):
+    def after_set_parameters(self, params, units):
+        self.A = params["A"]
+        self.b = params["b"]
+        self.Ea_R = params["Ea_R"]
+
+    def replace_eval(self, T):
+        return self.A * T**self.b * exp(-self.Ea_R/T)
+
+extensible_yaml = """
+    equation: H2 + O <=> H + OH
+    type: extensible-Arrhenius
+    A: 38.7
+    b: 2.7
+    Ea_R: 3150.15428
+    """
+
+extensible_reactions = gas0.reactions()
+extensible_reactions[2] = ct.Reaction.from_yaml(extensible_yaml, gas0)
+gas2 = ct.Solution(thermo="ideal-gas", kinetics="gas",
+                   species=species, reactions=extensible_reactions)
+
 # construct test case - simulate ignition
 
 def ignition(gas):
@@ -64,6 +89,14 @@ sim1 = 0
 for i in range(repeat):
     sim1 += ignition(gas1)
 sim1 /= repeat
-print('- One Python reaction: '
+print('- One Custom reaction: '
       '{0:.2f} ms (T_final={1:.2f}) ... '
       '{2:+.2f}%'.format(sim1, gas1.T, 100 * sim1 / sim0 - 100))
+
+sim2 = 0
+for i in range(repeat):
+    sim2 += ignition(gas2)
+sim2 /= repeat
+print('- One Extensible reaction: '
+      '{0:.2f} ms (T_final={1:.2f}) ... '
+      '{2:+.2f}%'.format(sim2, gas2.T, 100 * sim2 / sim0 - 100))
