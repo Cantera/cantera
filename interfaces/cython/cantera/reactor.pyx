@@ -468,7 +468,7 @@ cdef class ExtensibleReactor(Reactor):
     The following methods of the C++ :ct:`Reactor` class can be modified by a
     Python class which inherits from this class. For each method, the name below
     should be prefixed with ``before_``, ``after_``, or ``replace_``, indicating
-    whether the this method should be called before, after, or instead of the
+    whether this method should be called before, after, or instead of the
     corresponding method from the base class.
 
     For methods that return a value and have a ``before`` method specified, if

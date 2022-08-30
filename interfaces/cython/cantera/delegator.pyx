@@ -332,6 +332,41 @@ def extension(*, name):
     """
     A decorator for declaring Cantera extensions that should be registered with
     the corresponding factory classes to create objects with the specified *name*.
+
+    This decorator can be used in combination with an ``extensions`` section in a YAML
+    input file to trigger registration of extensions marked with this decorator,
+    For example, consider an input file containing top level ``extensions`` and
+    ``reactions`` sections such as:
+
+    .. code:: yaml
+
+        extensions:
+        - type: python
+          name: my_cool_module
+
+        ...  # phases and species sections
+
+        reactions:
+        - equation: O + H2 <=> H + OH  # Reaction 3
+          type: cool-rate
+          A: 3.87e+04
+          b: 2.7
+          Ea: 6260.0
+
+    and a Python module ``my_cool_module.py``::
+
+        import cantera as ct
+
+        @ct.extension(name="cool-rate")
+        class CoolRate(ct.ExtensibleRate):
+            def after_set_parameters(self, params, units):
+                ...
+            def replace_eval(self, T):
+                ...
+
+    Loading this input file from any Cantera user interface would cause Cantera to load
+    the ``my_cool_module.py`` module and register the ``CoolRate`` class to handle
+    reactions whose ``type`` in the YAML file is set to ``cool-rate``.
     """
     def decorator(cls):
         if issubclass(cls, ExtensibleRate):

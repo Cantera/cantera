@@ -712,6 +712,40 @@ cdef class CustomRate(ReactionRate):
 
 
 cdef class ExtensibleRate(ReactionRate):
+    """
+    A base class for a reaction rate with delegated methods. Classes derived from this
+    class should be decorated with the `extension` decorator to specify the name
+    of the rate parameterization and to make these rates constructible through factory
+    functions and input files.
+
+    The following methods of the C++ :ct:`ReactionRate` class can be modified by a
+    Python class that inherits from this class. For each method, the name below should
+    be prefixed with ``before_``, ``after_``, or ``replace_``, indicating whether this
+    method should be called before, after, or instead of the corresponding method from
+    the base class.
+
+    For methods that return a value and have a ``before`` method specified, if that
+    method returns a value other than ``None`` that value will be returned without
+    calling the base class method; otherwise, the value from the base class method will
+    be returned. For methods that return a value and have an ``after`` method specified,
+    the returned value wil be the sum of the values from the supplied method and the
+    base class method.
+
+    ``set_parameters(self, params: dict, units: Units) -> None``
+        Responsible for setting rate parameters based on the input data. For example,
+        for reactions created from YAML, ``params`` is the YAML reaction entry converted
+        to a ``dict``. ``units`` specifies the units of the rate coefficient.
+
+    ``eval(self, T: float) -> float``
+        Responsible for calculating the forward rate constant based on the current state
+        of the phase.  This method must *replace* the base class method, as there is no
+        base class implementation. Currently, the state information provided is the
+        temperature, ``T`` [K].
+
+    **Warning:** The delegatable methods defined here are an experimental part of the
+    Cantera API and may change without notice.
+    """
+
     _reaction_rate_type = "extensible"
 
     delegatable_methods = {
