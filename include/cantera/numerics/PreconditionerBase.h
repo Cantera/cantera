@@ -51,23 +51,12 @@ public:
     }
 
     //! Get preconditioner application side for CVODES
-    PreconditionerSide preconditionerSide() {
+    std::string preconditionerSide() const {
         return m_precon_side;
-    };
+    }
 
     virtual void setPreconditionerSide(const std::string& preconSide) {
-        if (preconSide == "none") {
-            m_precon_side = PreconditionerSide::NO_PRECONDITION;
-        } else if (preconSide == "left") {
-            m_precon_side = PreconditionerSide::LEFT_PRECONDITION;
-        } else if (preconSide == "right") {
-            m_precon_side = PreconditionerSide::RIGHT_PRECONDITION;
-        } else if (preconSide == "both") {
-            m_precon_side = PreconditionerSide::BOTH_PRECONDITION;
-        } else {
-            throw CanteraError("PreconditionerBase::setPreconditionerSide",
-                               "Invalid option '{}'", preconSide);
-        }
+        m_precon_side = preconSide;
     }
 
     //! Solve a linear system Ax=b where A is the preconditioner
@@ -136,7 +125,7 @@ protected:
     //! Absolute tolerance of the ODE solver
     double m_atol = 0;
 
-    PreconditionerSide m_precon_side = PreconditionerSide::NO_PRECONDITION;
+    std::string m_precon_side = "none";
 };
 
 }

@@ -20,15 +20,7 @@ cdef class PreconditionerBase:
         by all solver types.
         """
         def __get__(self):
-            cdef int side = <int>self.pbase.get().preconditionerSide()
-            if side == 0:
-                return "none"
-            elif side == 1:
-                return "left"
-            elif side == 2:
-                return "right"
-            elif side == 3:
-                return "both"
+            return pystr(self.pbase.get().preconditionerSide())
 
         def __set__(self, side):
             self.pbase.get().setPreconditionerSide(stringify(side))

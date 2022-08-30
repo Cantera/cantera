@@ -118,7 +118,18 @@ public:
      */
     virtual void setPreconditioner(shared_ptr<PreconditionerBase> preconditioner) {
         m_preconditioner = preconditioner;
-        m_prec_side = m_preconditioner->preconditionerSide();
+        if (preconditioner->preconditionerSide() == "none") {
+            m_prec_side = PreconditionerSide::NO_PRECONDITION;
+        } else if (preconditioner->preconditionerSide() == "left") {
+            m_prec_side = PreconditionerSide::LEFT_PRECONDITION;
+        } else if (preconditioner->preconditionerSide() == "right") {
+            m_prec_side = PreconditionerSide::RIGHT_PRECONDITION;
+        } else if (preconditioner->preconditionerSide() == "both") {
+            m_prec_side = PreconditionerSide::BOTH_PRECONDITION;
+        } else {
+            throw CanteraError("Integrator::setPreconditioner",
+                "Invalid option '{}'", preconditioner->preconditionerSide());
+        }
     }
 
     //! Solve a linear system Ax=b where A is the preconditioner
