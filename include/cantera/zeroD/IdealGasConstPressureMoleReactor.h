@@ -38,6 +38,11 @@ public:
 
     virtual void updateState(double* y);
 
+    //! Calculate an approximate Jacobian to accelerate preconditioned solvers
+
+    //! Neglects derivatives with respect to mole fractions that would generate a
+    //! fully-dense Jacobian. Currently also neglects terms related to interactions
+    //! between reactors, for example via inlets and outlets.
     virtual Eigen::SparseMatrix<double> jacobian();
 
 protected:

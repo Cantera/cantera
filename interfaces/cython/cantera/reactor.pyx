@@ -334,6 +334,16 @@ cdef class Reactor(ReactorBase):
         return y
 
     property jacobian:
+        """
+        Get the local, reactor-specific Jacobian or an approximation thereof
+
+        **Warning**: Depending on the particular implementation, this may return an
+        approximate Jacobian intended only for use in forming a preconditioner for
+        iterative solvers, excluding terms that would generate a fully-dense Jacobian.
+
+        **Warning**: This method is an experimental part of the Cantera API and may be
+        changed or removed without notice.
+        """
         def __get__(self):
             return get_from_sparse(self.reactor.jacobian(), self.n_vars, self.n_vars)
 
