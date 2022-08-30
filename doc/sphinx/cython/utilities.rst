@@ -43,6 +43,8 @@ Global Functions
 .. autofunction:: debug_mode_enabled
 .. autofunction:: add_module_directory
 
+.. autofunction:: extension(name: str)
+
 Exceptions
 ----------
 

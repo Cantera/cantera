@@ -13,6 +13,7 @@
 namespace Cantera
 {
 
+//! Delegate methods of the ReactionRate class to external functions
 class ReactionRateDelegator : public Delegator, public ReactionRate
 {
 public:
@@ -33,6 +34,7 @@ public:
             new MultiRate<ReactionRateDelegator, ArrheniusData>);
     }
 
+    //! Set the reaction type based on the user-provided reaction rate parameterization
     void setType(const std::string& type) {
         m_rateType = type;
     }
@@ -43,6 +45,9 @@ public:
 
     // Delegatable methods
 
+    //! Evaluate reaction rate
+    //!
+    //! @param shared_data  data shared by all reactions of a given type
     double evalFromStruct(const ArrheniusData& shared_data) {
         // @TODO: replace passing pointer to temperature with a language-specific
         //     wrapper of the ReactionData object

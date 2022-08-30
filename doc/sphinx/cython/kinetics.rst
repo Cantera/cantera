@@ -116,6 +116,11 @@ CustomRate
 .. autoclass:: CustomRate(k)
    :no-undoc-members:
 
+ExtensibleRate
+^^^^^^^^^^^^^^
+.. autoclass:: ExtensibleRate()
+   :no-undoc-members:
+
 InterfaceRateBase
 ^^^^^^^^^^^^^^^^^
 .. autoclass:: InterfaceRateBase
