@@ -9,7 +9,7 @@ from .ctcxx cimport *
 cdef extern from "cantera/numerics/PreconditionerBase.h" namespace "Cantera":
     cdef cppclass CxxPreconditionerBase "Cantera::PreconditionerBase":
         CxxPreconditionerBase()
-        int preconditionerSide()
+        string preconditionerSide()
         void setPreconditionerSide(string) except +translate_exception
 
 cdef extern from "cantera/numerics/AdaptivePreconditioner.h" namespace "Cantera":
