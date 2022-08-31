@@ -1297,6 +1297,11 @@ def setup_python_env(env):
     env["py_plat"] = plat
     env["site_packages"] = info["site_packages"]
     env["user_site_packages"] = info["user_site_packages"]
+    if env["OS"] != "Windows":
+        env["py_libpl"] = info["LIBPL"]
+    else:
+        env["py_libpl"] = info["installed_base"] + "\\libs"
+    env["py_libs"] = info.get("LIBS", "")
 
     # Don't print deprecation warnings for internal Python changes.
     # Only applies to Python 3.8. The field that is deprecated in Python 3.8

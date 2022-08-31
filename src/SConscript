@@ -91,7 +91,7 @@ if env["python_package"] == "full":
     libraryTargets.append(obj)
     libraryTargets.append(pyenv.SharedObject("extensions/PythonExtensionManager.cpp"))
     libpython = pyenv.subst("python${py_version_short}")
-    localenv.Append(LIBS=libpython)
+    localenv.Append(LIBS=libpython, LIBPATH=pyenv["py_libpl"], LDFLAGS=pyenv["py_libs"])
     env["cantera_libs"].append(libpython)
 
 
