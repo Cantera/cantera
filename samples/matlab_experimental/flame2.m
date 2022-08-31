@@ -1,6 +1,7 @@
-% FLAME2 - An axisymmetric stagnation-point non-premixed flame
+%% FLAME2 - An axisymmetric stagnation-point non-premixed flame
 %
-%    This script simulates a stagnation-point ethane-air flame.
+% This script simulates a stagnation-point ethane-air flame.
+%
 
 %% Initialization
 

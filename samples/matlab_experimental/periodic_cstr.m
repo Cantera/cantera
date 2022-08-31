@@ -1,22 +1,21 @@
 function periodic_cstr
+%%  PERIODIC_CSTR - A CSTR with steady inputs but periodic interior state.
 %
-%  PERIODIC_CSTR - A CSTR with steady inputs but periodic interior state.
-%
-%  A stoichiometric hydrogen/oxygen mixture is introduced and reacts to produce
-%  water. But since water has a large efficiency as a third body in the chain
-%  termination reaction
+% A stoichiometric hydrogen/oxygen mixture is introduced and reacts to
+% produce water. But since water has a large efficiency as a third body
+% in the chain termination reaction
 %
 %         H + O2 + M = HO2 + M
 %
-%  as soon as a significant amount of water is produced the reaction
-%  stops. After enough time has passed that the water is exhausted from
-%  the reactor, the mixture explodes again and the process
-%  repeats. This explanation can be verified by decreasing the rate for
-%  reaction 7 in file 'h2o2.yaml' and re-running the example.
+% as soon as a significant amount of water is produced the reaction stops.
+% After enough time has passed that the water is exhausted from the reactor,
+% the mixture explodes again and the process repeats. This explanation can be
+% verified by decreasing the rate for reaction 7 in file 'h2o2.yaml' and
+% re-running the example.
 %
-%  Acknowledgments: The idea for this example and an estimate of the
-%  conditions needed to see the oscillations came from Bob Kee,
-%  Colorado School of Mines
+% Acknowledgments: The idea for this example and an estimate of the
+% conditions needed to see the oscillations came from Bob Kee,
+% Colorado School of Mines
 %
 
     clear all

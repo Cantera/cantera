@@ -1,5 +1,5 @@
 function plotdata = ignite(g)
-% IGNITE Zero-dimensional kinetics: adiabatic, constant pressure.
+%% IGNITE Zero-dimensional kinetics: adiabatic, constant pressure.
 %
 %    This example solves the same problem as 'reactor1,' but does
 %    it using one of MATLAB's ODE integrators, rather than using the

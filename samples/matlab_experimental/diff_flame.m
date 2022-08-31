@@ -1,7 +1,9 @@
-% DIFF_FLAME - An opposed-flow diffusion flame.
+%% DIFF_FLAME - An opposed-flow diffusion flame.
+%
 % This example uses the CounterFlowDiffusionFlame function to solve an
 % opposed-flow diffusion flame for Ethane in Air. This example is the same
 % as the diffusion_flame.py example without radiation.
+%
 
 %% Initialization
 

@@ -1,4 +1,4 @@
-% Catalytic combustion of a stagnation flow on a platinum surface
+%% CATCOMB - Catalytic combustion of a stagnation flow on a platinum surface
 %
 % This script solves a catalytic combustion problem. A stagnation flow
 % is set up, with a gas inlet 10 cm from a platinum surface at 900
@@ -9,6 +9,7 @@
 %
 % The catalytic combustion mechanism is from Deutschman et al., 26th
 % Symp. (Intl.) on Combustion,1996 pp. 1747-1754
+%
 
 %% Initialization
 
@@ -57,13 +58,13 @@ refine_grid = 1;                    % 1 to enable refinement, 0 to
 % and transport properties
 %
 % The gas phase will be taken from the definition of phase 'gas' in
-% input file 'ptcombust.yaml,' which is a stripped-down version of
+% input file 'ptcombust.yaml', which is a stripped-down version of
 % GRI-Mech 3.0.
 
 gas = Solution('ptcombust.yaml', 'gas', transport);
 gas.TPX = {tinlet, p, comp1};
 
-%% create the interface object
+%% Create the interface object
 %
 % This object will be used to evaluate all surface chemical production
 % rates. It will be created from the interface definition 'Pt_surf'
@@ -86,7 +87,7 @@ surf_phase.advanceCoverages(1.0);
 % for 1-D simulations. These will be 'stacked' together to create
 % the complete simulation.
 
-%% create the flow object
+%% Create the flow object
 %
 % The flow object is responsible for evaluating the 1D governing
 % equations for the flow. We will initialize it with the gas

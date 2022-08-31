@@ -1,8 +1,9 @@
 function equil(g)
-% EQUIL A chemical equilibrium example.
+%% EQUIL - A chemical equilibrium example.
 %
 % This example computes the adiabatic flame temperature and equilibrium
 % composition for a methane/air mixture as a function of equivalence ratio.
+%
 
     clear all
     close all

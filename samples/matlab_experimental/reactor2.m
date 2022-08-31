@@ -1,9 +1,10 @@
 function reactor2(g)
-% REACTOR2 Zero-dimensional kinetics: adiabatic, constant volume.
+%% REACTOR2 - Zero-dimensional kinetics: adiabatic, constant volume.
 %
-%    This example illustrates how to use class 'Reactor' for
-%    zero-dimensional kinetics simulations. Here the parameters are
-%    set so that the reactor is adiabatic and constant volume.
+% This example illustrates how to use class 'Reactor' for zero-dimensional
+% kinetics simulations. Here the parameters are set so that the reactor is
+% adiabatic and constant volume.
+%
 
     clear all
     close all

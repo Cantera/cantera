@@ -75,9 +75,9 @@ classdef Wall < handle
 
             x.type = char(typ);
             x.id = callct('wall_new', x.type);
-%             if x.index < 0
-%                 error(geterr);
-%             end
+            if x.index < 0
+                error(geterr);
+            end
             x.left = -1;
             x.right = -1;
 

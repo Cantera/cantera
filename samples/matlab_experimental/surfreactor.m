@@ -1,8 +1,8 @@
-% SURFREACTOR Zero-dimensional reactor with surface chemistry
+%% SURFREACTOR - Zero-dimensional reactor with surface chemistry
 %
-%    This example illustrates how to use class 'Reactor' for
-%    zero-dimensional simulations including both homogeneous and
-%    heterogeneous chemistry.
+% This example illustrates how to use class 'Reactor' for zero-dimensional
+% simulations including both homogeneous and heterogeneous chemistry.
+%
 
 %% Initialization
 

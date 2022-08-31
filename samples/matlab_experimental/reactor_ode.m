@@ -1,9 +1,9 @@
 function dydt = reactor_ode(t, y, gas, vdot, area, heatflux)
-% REACTOR ODE system for a generic zero-dimensional reactor.
+%% REACTOR ODE - system for a generic zero-dimensional reactor.
 %
-%    Function REACTOR evaluates the system of ordinary differential
-%    equations for a zero-dimensional reactor with arbitrary heat
-%    transfer and  volume change.
+% Function REACTOR evaluates the system of ordinary differential equations
+% for a zero-dimensional reactor with arbitrary heat transfer and
+% volume change.
 %
 % Solution vector components:
 %    y(1)   Total internal energy U
