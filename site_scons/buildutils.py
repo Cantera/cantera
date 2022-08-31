@@ -1260,11 +1260,13 @@ def setup_python_env(env):
         import numpy
         import json
         import site
+        import sys
         vars = get_config_vars()
         vars["plat"] = get_platform()
         vars["numpy_include"] = numpy.get_include()
         vars["site_packages"] = [d for d in site.getsitepackages() if d.endswith("-packages")]
         vars["user_site_packages"] = site.getusersitepackages()
+        vars["abiflags"] = getattr(sys, "abiflags", "")
         print(json.dumps(vars))
         """)
         _python_info = json.loads(get_command_output(env["python_cmd"], "-c", script))
@@ -1298,10 +1300,13 @@ def setup_python_env(env):
     env["site_packages"] = info["site_packages"]
     env["user_site_packages"] = info["user_site_packages"]
     if env["OS"] != "Windows":
-        env["py_libpl"] = info["LIBPL"]
+        env["py_libpath"] = info["LIBPL"]
+        py_lib = "python" + info["py_version_short"] + info["abiflags"]
     else:
-        env["py_libpl"] = info["installed_base"] + "\\libs"
-    env["py_libs"] = info.get("LIBS", "")
+        env["py_libpath"] = info["installed_base"] + "\\libs"
+        py_lib = "python" + py_version_nodot
+    env["py_libs"] = [py_lib] + [lib[2:] for lib in info.get("LIBS", "").split()
+                                 if lib.startswith("-l")]
 
     # Don't print deprecation warnings for internal Python changes.
     # Only applies to Python 3.8. The field that is deprecated in Python 3.8
