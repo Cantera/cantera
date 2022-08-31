@@ -75,6 +75,7 @@ for subdir, extensions, setup in libs:
 if env["python_package"] == "full":
     pyenv = setup_python_env(localenv.Clone())
     pyenv.PrependENVPath('PYTHONPATH', Dir('#interfaces/cython').abspath)
+    pyenv['PCH'] = ''  # ignore precompiled header here
     build_dir = Path(Dir('#build').abspath).as_posix()
     cythonized = pyenv.Command(
          ["extensions/pythonExtensions.cpp", "extensions/pythonExtensions.h"],
@@ -90,10 +91,10 @@ if env["python_package"] == "full":
                 Copy('$TARGET', '$SOURCE'))
     libraryTargets.append(obj)
     libraryTargets.append(pyenv.SharedObject("extensions/PythonExtensionManager.cpp"))
-    libpython = pyenv.subst("python${py_version_short}")
-    localenv.Append(LIBS=libpython, LIBPATH=pyenv["py_libpl"], LDFLAGS=pyenv["py_libs"])
-    env["cantera_libs"].append(libpython)
-
+    localenv.Append(LIBS=pyenv["py_libs"], LIBPATH=pyenv["py_libpath"])
+    env["cantera_libs"].extend(pyenv["py_libs"])
+    env.Append(LIBPATH=pyenv["py_libpath"])
+    env["extra_lib_dirs"].append(pyenv["py_libpath"])
 
 # build the Cantera static library
 lib = build(localenv.StaticLibrary('../lib/cantera', libraryTargets,
