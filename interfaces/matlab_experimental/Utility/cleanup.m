@@ -1,4 +1,5 @@
 function cleanup()
+    % CLEANUP
     % Delete all stored Cantera objects and reclaim memory.
     %
     checklib;
