@@ -1,8 +1,8 @@
 function isentropic(g)
-% ISENTROPIC  isentropic, adiabatic flow example
+%% ISENTROPIC - isentropic, adiabatic flow example
 %
-%    In this example, the area ratio vs. Mach number curve is
-%    computed for a hydrogen/nitrogen gas mixture.
+% In this example, the area ratio vs. Mach number curve is computed for a
+% hydrogen/nitrogen gas mixture.
 %
     clear all
     close all

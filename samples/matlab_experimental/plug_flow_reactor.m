@@ -1,24 +1,25 @@
-% General_Plug_Flow_Reactor (PFR) - to solve PFR equations for reactors
+%% Plug_Flow_Reactor (PFR) - to solve PFR equations for reactors
 %
-%    This code snippet is to model a constant area and varying area
-%    (converging and diverging) nozzle as Plug Flow Reactor with given
-%    dimensions and an incoming gas. The pressure is not assumed to be
-%    constant here, as opposed to the Python Version of the
-%    Plug Flow Reactor model.
+% This code snippet is to model a constant area and varying area
+% (converging and diverging) nozzle as Plug Flow Reactor with given
+% dimensions and an incoming gas. The pressure is not assumed to be
+% constant here, as opposed to the Python Version of the
+% Plug Flow Reactor model.
 %
-%    The reactor assumes that the flow follows the Ideal Gas Law.
+% The reactor assumes that the flow follows the Ideal Gas Law.
 %
-%    The governing equations used in this code can be referenced at:
-%    *S.R Turns, An Introduction to Combustion - Concepts and Applications,
-%    McGraw Hill Education, India, 2012, 206-210.*
+% The governing equations used in this code can be referenced at:
+% *S.R Turns, An Introduction to Combustion - Concepts and Applications,
+% McGraw Hill Education, India, 2012, 206-210.*
 %
-%    The current example is written for methane combustion, but can be readily
-%    adapted for other chemistries.
+% The current example is written for methane combustion, but can be readily
+% adapted for other chemistries.
 %
-%    Developed by Ashwin Kumar/Dr.Joseph Meadows (mgak@vt.edu/jwm84@vt.edu) on 3-June-2020
-%    Research Assistant/Assistant Professor
-%    Advanced Propulsion and Power Laboratory
-%    Virginia Tech
+% Developed by Ashwin Kumar/Dr.Joseph Meadows (mgak@vt.edu/jwm84@vt.edu) on 3-June-2020
+% Research Assistant/Assistant Professor
+% Advanced Propulsion and Power Laboratory
+% Virginia Tech
+%
 
 %% Clear all variables, close all figures, clear the command line:
 

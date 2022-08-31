@@ -1,13 +1,13 @@
-% LITHIUM_ION_BATTERY
+%% LITHIUM_ION_BATTERY
 %
 % This example file calculates the cell voltage of a lithium-ion battery
 % at given temperature, pressure, current, and range of state of charge (SOC).
 %
 % The thermodynamics are based on a graphite anode and a LiCoO2 cathode,
 % modeled using the 'BinarySolutionTabulatedThermo' class.
-% Further required cell parameters are the electrolyte ionic resistance, the
-% stoichiometry ranges of the active materials (electrode balancing), and the
-% surface area of the active materials.
+% Further required cell parameters are the electrolyte ionic resistance,
+% the stoichiometry ranges of the active materials (electrode balancing),
+% and the surface area of the active materials.
 %
 % The functionality of this example is presented in greater detail in the
 % reference (which also describes the derivation of the
@@ -18,6 +18,7 @@
 % of the thermodynamics of lithium-ion battery intercalation materials in the
 % open-source software Cantera,” Electrochim. Acta 323, 134797 (2019),
 % https://doi.org/10.1016/j.electacta.2019.134797
+%
 
 %% Initialization
 

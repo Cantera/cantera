@@ -1,7 +1,8 @@
-% FLAME1 - A burner-stabilized flat flame
+%% FLAME1 - A burner-stabilized flat flame
 %
-%    This script simulates a burner-stablized lean hydrogen-oxygen flame
-%    at low pressure.
+% This script simulates a burner-stablized lean hydrogen-oxygen flame
+% at low pressure.
+%
 
 %% Initialization
 

@@ -1,8 +1,8 @@
 function prandtl2(g)
-    % PRANDTL2  Prandtl number for an equilibrium H/O gas mixture.
+    %% PRANDTL2 - Prandtl number for an equilibrium H/O gas mixture.
     %
-    %    This example does the same thing as prandtl1, but using
-    %    the multicomponent expression for the thermal conductivity.
+    % This example does the same thing as prandtl1, but using the
+    % multicomponent expression for the thermal conductivity.
     %
 
     clear all
