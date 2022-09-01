@@ -13,8 +13,7 @@ namespace Cantera
 
 /*!
  * MoleReactor is meant to serve the same purpose as the reactor class but with a state
- * vector composed of moles. It is currently not functional and only serves as a base
- * class for other reactors.
+ * vector composed of moles. It also serves as the base class for other mole reactors.
  */
 class MoleReactor : public Reactor
 {
@@ -27,19 +26,25 @@ public:
 
     virtual void initialize(double t0 = 0.0);
 
-    virtual void eval(double t, double* LHS, double* RHS) {
-        throw NotImplementedError("MoleReactor::eval()");
-    }
+    virtual void getState(double* y);
 
-    size_t componentIndex(const std::string& nm) const {
-        throw NotImplementedError("MoleReactor::componentIndex");
-    }
+    virtual void updateState(double* y);
 
-    std::string componentName(size_t k) {
-        throw NotImplementedError("MoleReactor::componentName");
-    }
+    virtual void eval(double t, double* LHS, double* RHS);
+
+    size_t componentIndex(const std::string& nm) const;
+
+    std::string componentName(size_t k);
 
 protected:
+    //! Get moles of the system from mass fractions stored by thermo object
+    //! @param y vector for moles to be put into
+    virtual void getMoles(double* y);
+
+    //! Set internal mass variable based on moles given
+    //! @param y vector of moles of the system
+    virtual void setMassFromMoles(double* y);
+
     virtual void evalSurfaces(double* LHS, double* RHS, double* sdot);
 
     virtual void updateSurfaceState(double* y);

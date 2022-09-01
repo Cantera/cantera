@@ -89,6 +89,7 @@ class TestReactor(utilities.CanteraTest):
 
     def test_component_names(self):
         self.make_reactors(n_reactors=2)
+        self.net.initialize()
         N = self.net.n_vars // 2
         for i in range(N):
             self.assertEqual(self.r1.component_index(self.r1.component_name(i)), i)
@@ -258,10 +259,9 @@ class TestReactor(utilities.CanteraTest):
 
         n_baseline = integrate(1e-10, 1e-20)
         n_rtol = integrate(5e-7, 1e-20)
-        n_atol = integrate(1e-10, 1e-6)
-
-        self.assertTrue(n_baseline > n_rtol)
-        self.assertTrue(n_baseline > n_atol)
+        n_atol = integrate(1e-10, 1e-5)
+        assert n_baseline > n_rtol
+        assert n_baseline > n_atol
 
     def test_advance_limits(self):
         P0 = 10 * ct.one_atm
@@ -823,6 +823,56 @@ class TestReactor(utilities.CanteraTest):
         with self.assertRaises(TypeError):
             r1 = self.reactorClass(foobar=3.14)
 
+class TestMoleReactor(TestReactor):
+    reactorClass = ct.MoleReactor
+
+    def test_mole_reactor_surface_chem(self):
+        model = "ptcombust.yaml"
+        # initial conditions
+        T0 = 1500
+        P0 = ct.one_atm
+        equiv_ratio = 1
+        surf_area = 0.527
+        fuel = "CH4"
+        air = "O2:1.0, N2:3.773"
+        # reactor 1
+        gas1 = ct.Solution(model, transport_model=None)
+        gas1.TP = T0, P0
+        gas1.set_equivalence_ratio(equiv_ratio, fuel, air)
+        r1 = self.reactorClass(gas1)
+        # comparison reactor
+        gas2 = ct.Solution(model, transport_model=None)
+        gas2.TP = T0, P0
+        gas2.set_equivalence_ratio(equiv_ratio, fuel, air)
+        if "ConstPressure" in r1.type:
+            r2 = ct.ConstPressureReactor(gas2)
+        else:
+            r2 = ct.Reactor(gas2)
+        # surf 1
+        surf1 = ct.Interface(model, "Pt_surf", [gas1])
+        surf1.TP = T0, P0
+        surf1.coverages = {"PT(S)":1}
+        rsurf1 = ct.ReactorSurface(surf1, r1, A=surf_area)
+        # surf 2
+        surf2 = ct.Interface(model, "Pt_surf", [gas2])
+        surf2.TP = T0, P0
+        surf2.coverages = {"PT(S)":1}
+        rsurf2 = ct.ReactorSurface(surf2, r2, A=surf_area)
+        # reactor network setup
+        net1 = ct.ReactorNet([r1,])
+        net2 = ct.ReactorNet([r2,])
+        net1.rtol = net2.rtol = 1e-9
+        net1.atol = net2.atol = 1e-18
+        # steady state occurs at ~0.002 seconds
+        for i in np.linspace(0, 0.0025, 50)[1:]:
+            net1.advance(i)
+            net2.advance(i)
+            self.assertArrayNear(r1.thermo.Y, r2.thermo.Y, rtol=5e-4, atol=1e-6)
+            self.assertNear(r1.T, r2.T, rtol=5e-5)
+            self.assertNear(r1.thermo.P, r2.thermo.P, rtol=1e-6)
+            self.assertArrayNear(rsurf1.coverages, rsurf2.coverages, rtol=1e-4,
+                atol=1e-8)
+
 
 class TestIdealGasReactor(TestReactor):
     reactorClass = ct.IdealGasReactor
@@ -1070,12 +1120,21 @@ class TestConstPressureReactor(utilities.CanteraTest):
         self.net1.rtol = self.net2.rtol = 1e-9
         self.integrate(surf=True)
 
+class TestConstPressureMoleReactor(TestConstPressureReactor):
+    """
+    The constant pressure reactor should give the same results as
+    as a regular "Reactor" with a wall with a very high expansion rate
+    coefficient.
+    """
+    reactorClass = ct.ConstPressureMoleReactor
+    test_mole_reactor_surface_chem = TestMoleReactor.test_mole_reactor_surface_chem
+
 
 class TestIdealGasConstPressureReactor(TestConstPressureReactor):
     reactorClass = ct.IdealGasConstPressureReactor
 
 
-class TestIdealGasConstPressureMoleReactor(TestIdealGasConstPressureReactor):
+class TestIdealGasConstPressureMoleReactor(TestConstPressureMoleReactor):
     reactorClass = ct.IdealGasConstPressureMoleReactor
 
     def create_reactors(self, **kwargs):
@@ -1097,7 +1156,7 @@ class TestIdealGasConstPressureMoleReactor(TestIdealGasConstPressureReactor):
         with pytest.raises(ct.CanteraError):
             super().test_component_index()
 
-class TestIdealGasMoleReactor(TestReactor):
+class TestIdealGasMoleReactor(TestMoleReactor):
     reactorClass = ct.IdealGasMoleReactor
 
     def test_adaptive_precon_integration(self):
