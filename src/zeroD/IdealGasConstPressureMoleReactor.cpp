@@ -25,7 +25,7 @@ void IdealGasConstPressureMoleReactor::setThermoMgr(ThermoPhase& thermo)
         throw CanteraError("IdealGasConstPressureMoleReactor::setThermoMgr",
                            "Incompatible phase type provided");
     }
-    MoleReactor::setThermoMgr(thermo);
+    ConstPressureMoleReactor::setThermoMgr(thermo);
 }
 
 void IdealGasConstPressureMoleReactor::getState(double* y)
@@ -39,21 +39,15 @@ void IdealGasConstPressureMoleReactor::getState(double* y)
     m_mass = m_thermo->density() * m_vol;
     // set the first component to the temperature
     y[0] = m_thermo->temperature();
-    // Use inverse molecular weights
-    const double* Y = m_thermo->massFractions();
-    const vector_fp& imw = m_thermo->inverseMolecularWeights();
-    double *ys = y + m_sidx;
-    for (size_t i = 0; i < m_nsp; i++) {
-        ys[i] = m_mass * imw[i] * Y[i];
-    }
+    // get moles of species in remaining state
+    getMoles(y + m_sidx);
     // set the remaining components to the surface species moles on the walls
     getSurfaceInitialConditions(y + m_nsp + m_sidx);
 }
 
 void IdealGasConstPressureMoleReactor::initialize(double t0)
 {
-    MoleReactor::initialize(t0);
-    m_nv -= 1; // const pressure system loses 1 more variable from MoleReactor
+    ConstPressureMoleReactor::initialize(t0);
     m_hk.resize(m_nsp, 0.0);
 }
 
@@ -62,14 +56,9 @@ void IdealGasConstPressureMoleReactor::updateState(double* y)
     // the components of y are: [0] the temperature, [1...K+1) are the
     // moles of each species, and [K+1...] are the moles of surface
     // species on each wall.
+    setMassFromMoles(y + m_sidx);
     m_thermo->setMolesNoTruncate(y + m_sidx);
     m_thermo->setState_TP(y[0], m_pressure);
-    // calculate mass from moles
-    const vector_fp& mw = m_thermo->molecularWeights();
-    m_mass = 0;
-    for (size_t i = 0; i < m_nsp; i++) {
-        m_mass += y[i + m_sidx] * mw[i];
-    }
     m_vol = m_mass / m_thermo->density();
     updateConnected(false);
     updateSurfaceState(y + m_nsp + m_sidx);

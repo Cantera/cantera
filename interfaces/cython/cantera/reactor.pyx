@@ -369,6 +369,14 @@ cdef class Reactor(ReactorBase):
             limit = -1.
         self.reactor.setAdvanceLimit(stringify(name), limit)
 
+cdef class MoleReactor(Reactor):
+    """
+    A homogeneous zero-dimensional reactor with a mole based state vector. By default,
+    they are closed (no inlets or outlets), have fixed volume, and have adiabatic,
+    chemically-inert walls. These properties may all be changed by adding
+    appropriate components such as `Wall`, `MassFlowController` and `Valve`.
+    """
+    reactor_type = "MoleReactor"
 
 cdef class Reservoir(ReactorBase):
     """
@@ -385,6 +393,13 @@ cdef class ConstPressureReactor(Reactor):
     pressure constant.
     """
     reactor_type = "ConstPressureReactor"
+
+cdef class ConstPressureMoleReactor(Reactor):
+    """A homogeneous, constant pressure, zero-dimensional reactor with a mole based
+    state vector. The volume of the reactor changes as a function of time in order to
+    keep the pressure constant.
+    """
+    reactor_type = "ConstPressureMoleReactor"
 
 
 cdef class IdealGasReactor(Reactor):
@@ -611,6 +626,38 @@ cdef class ExtensibleIdealGasConstPressureReactor(ExtensibleReactor):
     `IdealGasConstPressureReactor` class.
     """
     reactor_type = "ExtensibleIdealGasConstPressureReactor"
+
+
+cdef class ExtensibleMoleReactor(ExtensibleReactor):
+    """
+    A variant of `ExtensibleReactor` where the base behavior corresponds to the
+    `MoleReactor` class.
+    """
+    reactor_type = "ExtensibleMoleReactor"
+
+
+cdef class ExtensibleIdealGasMoleReactor(ExtensibleReactor):
+    """
+    A variant of `ExtensibleReactor` where the base behavior corresponds to the
+    `IdealGasMoleReactor` class.
+    """
+    reactor_type = "ExtensibleIdealGasMoleReactor"
+
+
+cdef class ExtensibleConstPressureMoleReactor(ExtensibleReactor):
+    """
+    A variant of `ExtensibleReactor` where the base behavior corresponds to the
+    `ConstPressureMoleReactor` class.
+    """
+    reactor_type = "ExtensibleConstPressureMoleReactor"
+
+
+cdef class ExtensibleIdealGasConstPressureMoleReactor(ExtensibleReactor):
+    """
+    A variant of `ExtensibleReactor` where the base behavior corresponds to the
+    `IdealGasConstPressureMoleReactor` class.
+    """
+    reactor_type = "ExtensibleIdealGasConstPressureMoleReactor"
 
 
 cdef class ReactorSurface:

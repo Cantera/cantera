@@ -42,6 +42,10 @@ Reactor
 ^^^^^^^
 .. autoclass:: Reactor
 
+MoleReactor
+^^^^^^^^^^^
+.. autoclass:: MoleReactor(contents=None, *, name=None, energy='on')
+
 IdealGasReactor
 ^^^^^^^^^^^^^^^
 .. autoclass:: IdealGasReactor(contents=None, *, name=None, energy='on')
@@ -53,6 +57,10 @@ IdealGasMoleReactor
 ConstPressureReactor
 ^^^^^^^^^^^^^^^^^^^^
 .. autoclass:: ConstPressureReactor(contents=None, *, name=None, energy='on')
+
+ConstPressureMoleReactor
+^^^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: ConstPressureMoleReactor(contents=None, *, name=None, energy='on')
 
 IdealGasConstPressureReactor
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -81,6 +89,22 @@ ExtensibleConstPressureReactor
 ExtensibleIdealGasConstPressureReactor
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. autoclass:: ExtensibleIdealGasConstPressureReactor(contents=None, *, name=None, energy='on')
+
+ExtensibleMoleReactor
+^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: ExtensibleMoleReactor(contents=None, *, name=None, energy='on')
+
+ExtensibleIdealGasMoleReactor
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: ExtensibleIdealGasMoleReactor(contents=None, *, name=None, energy='on')
+
+ExtensibleConstPressureMoleReactor
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: ExtensibleConstPressureMoleReactor(contents=None, *, name=None, energy='on')
+
+ExtensibleIdealGasConstPressureMoleReactor
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: ExtensibleIdealGasConstPressureMoleReactor(contents=None, *, name=None, energy='on')
 
 Walls
 -----

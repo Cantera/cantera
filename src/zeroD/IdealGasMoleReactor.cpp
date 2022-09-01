@@ -45,13 +45,8 @@ void IdealGasMoleReactor::getState(double* y)
     // set the second component to the volume
     y[1] = m_vol;
 
-    // use inverse molecular weights
-    const double* Y = m_thermo->massFractions();
-    const vector_fp& imw = m_thermo->inverseMolecularWeights();
-    double* ys = y + m_sidx;
-    for (size_t i = 0; i < m_nsp; i++) {
-        ys[i] = m_mass * imw[i] * Y[i];
-    }
+    // get moles of species in remaining state
+    getMoles(y + m_sidx);
     // set the remaining components to the surface species moles on
     // the walls
     getSurfaceInitialConditions(y + m_nsp + m_sidx);
@@ -75,25 +70,9 @@ std::string IdealGasMoleReactor::componentName(size_t k)
 {
     if (k == 0) {
         return "temperature";
-    } else if (k == 1) {
-        return "volume";
-    } else if (k >= m_sidx && k < neq()) {
-        k -= m_sidx;
-        if (k < m_thermo->nSpecies()) {
-            return m_thermo->speciesName(k);
-        } else {
-            k -= m_thermo->nSpecies();
-        }
-        for (auto& S : m_surfaces) {
-            ThermoPhase* th = S->thermo();
-            if (k < th->nSpecies()) {
-                return th->speciesName(k);
-            } else {
-                k -= th->nSpecies();
-            }
-        }
+    } else {
+        return MoleReactor::componentName(k);
     }
-    throw IndexError("IdealGasMoleReactor::componentName", "components", k, neq() - 1);
 }
 
 void IdealGasMoleReactor::initialize(double t0)
@@ -107,12 +86,7 @@ void IdealGasMoleReactor::updateState(double* y)
     // the components of y are: [0] the temperature, [1] the volume, [2...K+1) are the
     // moles of each species, and [K+1...] are the moles of surface
     // species on each wall.
-    const vector_fp& mw = m_thermo->molecularWeights();
-    // calculate mass from moles
-    m_mass = 0;
-    for (size_t i = 0; i < m_nv - m_sidx; i++) {
-        m_mass += y[i + m_sidx] * mw[i];
-    }
+    setMassFromMoles(y + m_sidx);
     m_vol = y[1];
     // set state
     m_thermo->setMolesNoTruncate(y + m_sidx);

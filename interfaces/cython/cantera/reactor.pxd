@@ -193,10 +193,16 @@ cdef class Reactor(ReactorBase):
     cdef CxxReactor* reactor
     cdef object _kinetics
 
+cdef class MoleReactor(Reactor):
+    pass
+
 cdef class Reservoir(ReactorBase):
     pass
 
 cdef class ConstPressureReactor(Reactor):
+    pass
+
+cdef class ConstPressureMoleReactor(Reactor):
     pass
 
 cdef class IdealGasReactor(Reactor):

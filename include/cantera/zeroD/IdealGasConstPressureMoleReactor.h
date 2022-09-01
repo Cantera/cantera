@@ -6,7 +6,7 @@
 #ifndef CT_IDEALGASCONSTPRESSMOLE_REACTOR_H
 #define CT_IDEALGASCONSTPRESSMOLE_REACTOR_H
 
-#include "cantera/zeroD/MoleReactor.h"
+#include "cantera/zeroD/ConstPressureMoleReactor.h"
 
 namespace Cantera
 {
@@ -15,7 +15,7 @@ namespace Cantera
  * IdealGasConstPressureMoleReactor is a class for ideal gas constant-pressure reactors
  * which use a state of moles.
  */
-class IdealGasConstPressureMoleReactor : public MoleReactor
+class IdealGasConstPressureMoleReactor : public ConstPressureMoleReactor
 {
 public:
     IdealGasConstPressureMoleReactor() {}
@@ -47,8 +47,6 @@ public:
 
 protected:
     vector_fp m_hk; //!< Species molar enthalpies
-
-    const size_t m_sidx = 1;
 };
 
 }

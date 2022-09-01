@@ -6,8 +6,10 @@
 #include "cantera/zeroD/ReactorFactory.h"
 #include "cantera/zeroD/Reservoir.h"
 #include "cantera/zeroD/Reactor.h"
+#include "cantera/zeroD/MoleReactor.h"
 #include "cantera/zeroD/FlowReactor.h"
 #include "cantera/zeroD/ConstPressureReactor.h"
+#include "cantera/zeroD/ConstPressureMoleReactor.h"
 #include "cantera/zeroD/IdealGasReactor.h"
 #include "cantera/zeroD/IdealGasMoleReactor.h"
 #include "cantera/zeroD/IdealGasConstPressureReactor.h"
@@ -38,8 +40,19 @@ ReactorFactory::ReactorFactory()
         []() { return new ReactorDelegator<ConstPressureReactor>(); });
     reg("ExtensibleIdealGasConstPressureReactor",
         []() { return new ReactorDelegator<IdealGasConstPressureReactor>(); });
-    reg("IdealGasConstPressureMoleReactor", []() { return new IdealGasConstPressureMoleReactor(); });
+    reg("ExtensibleMoleReactor",
+        []() { return new ReactorDelegator<MoleReactor>(); });
+    reg("ExtensibleConstPressureMoleReactor",
+        []() { return new ReactorDelegator<ConstPressureMoleReactor>(); });
+    reg("ExtensibleIdealGasMoleReactor",
+        []() { return new ReactorDelegator<IdealGasMoleReactor>(); });
+    reg("ExtensibleIdealGasConstPressureMoleReactor",
+        []() { return new ReactorDelegator<IdealGasConstPressureMoleReactor>(); });
+    reg("IdealGasConstPressureMoleReactor", []() { return new
+        IdealGasConstPressureMoleReactor(); });
     reg("IdealGasMoleReactor", []() { return new IdealGasMoleReactor(); });
+    reg("ConstPressureMoleReactor", []() { return new ConstPressureMoleReactor(); });
+    reg("MoleReactor", []() { return new MoleReactor(); });
 }
 
 ReactorBase* ReactorFactory::newReactor(const std::string& reactorType)
