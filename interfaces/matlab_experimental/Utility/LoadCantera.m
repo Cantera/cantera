@@ -21,3 +21,4 @@ if ~libisloaded(ct)
                                 'addheader','ctrpath','addheader','ctsurf');
 end
 disp('Cantera is ready for use');
+clear all
