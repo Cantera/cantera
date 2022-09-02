@@ -57,6 +57,22 @@ classdef Kinetics < handle
 
         %% Get scalar attributes
 
+        function n = kineticsSpeciesIndex(kin, name, phase)
+            % KINETICSSPECIESINDEX
+            %
+            % Get the species index in the Kinetics class.
+            %
+            % :param name:
+            %    String name of the species.
+            % :param phase:
+            %    String name of the phase.
+            % :return:
+            %    Index of the species.
+            %
+
+            n = callct('kin_speciesIndex', kin.kinID, name, phase);
+        end
+
         function n = multiplier(kin, irxn)
             % Get the multiplier for reaction rate of progress.
             %
@@ -69,11 +85,20 @@ classdef Kinetics < handle
             n = callct('kin_multiplier', kin.kinID, irxn-1);
         end
 
+        function n = nPhases(kin)
+            % Get the number of phases.
+            %
+            % :return:
+            %    Integer number of phases.
+
+            n = callct('kin_nPhases', kin.kinID);
+        end
+
         function n = nReactions(kin)
             % Get the number of reactions.
             %
             % :return:
-            %    Integer number of reactions
+            %    Integer number of reactions.
 
             n = callct('kin_nReactions', kin.kinID);
         end
@@ -85,6 +110,19 @@ classdef Kinetics < handle
             %    Integer total number of species.
 
             n = callct('kin_nSpecies', kin.kinID);
+        end
+
+        function n = phaseIndex(kin, phase)
+            % PHASEINDEX
+            %
+            % Get the index of a phase.
+            %
+            % :param phase:
+            %    String name of the phase.
+            % :return:
+            %    Index of the phase.
+
+            n = callct('kin_phaseIndex', kin.kinID, phase);
         end
 
         function n = stoichReactant(kin, species, rxns)

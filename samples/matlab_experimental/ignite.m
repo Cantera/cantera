@@ -6,6 +6,12 @@ function plotdata = ignite(g)
 %    Cantera Reactor class.
 %
 
+    clear all
+    close all
+    cleanup
+    clc
+
+    tic
     help ignite
 
     if nargin == 1
@@ -101,4 +107,6 @@ function plotdata = ignite(g)
         ylabel('Mass Fraction');
         title('OH Mass Fraction');
     end
+
+    toc
 end

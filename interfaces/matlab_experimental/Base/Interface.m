@@ -63,7 +63,7 @@ classdef Interface < handle & ThermoPhase & Kinetics
             nsp = s.nSpecies;
             xx = zeros(1, nsp);
             pt = libpointer('doublePtr', xx);
-            callct('surf_getCoverages', surfID, xx);
+            callct('surf_getCoverages', surfID, pt);
             c = pt.Value;
         end
 
