@@ -87,6 +87,9 @@ if env["python_package"] == "full":
         localenv.Depends(cythonized, pxd)
 
     obj = pyenv.SharedObject(cythonized[0])
+    if env["OS"] == "Windows":
+        escaped_home = '\\"' + pyenv["py_base"].replace("\\", "\\\\") + '\\"'
+        pyenv.Append(CPPDEFINES={"CT_PYTHONHOME": escaped_home})
     env.Command('#src/extensions/pythonExtensions.h', '#build/src/extensions/pythonExtensions.h',
                 Copy('$TARGET', '$SOURCE'))
     libraryTargets.append(obj)
