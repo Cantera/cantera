@@ -75,28 +75,44 @@ PythonExtensionManager::PythonExtensionManager()
     // to instantiate ExtensibleSomething objects.
     PyModuleDef* modDef = (PyModuleDef*) PyInit_pythonExtensions();
     if (!modDef->m_slots || !PyModuleDef_Init(modDef)) {
+        if (PyErr_Occurred()) {
+            PyErr_PrintEx(0);
+        }
         throw CanteraError("PythonExtensionManager::PythonExtensionManager",
                            "Failed to import 'pythonExtensions' module");
     }
 
     // Following example creation of minimal ModuleSpec from Python's import.c
     PyObject *attrs = Py_BuildValue("{ss}", "name", "pythonExtensions");
-    if (attrs == NULL) {
+    if (attrs == nullptr) {
+        if (PyErr_Occurred()) {
+            PyErr_PrintEx(0);
+        }
         throw CanteraError("PythonExtensionManager::PythonExtensionManager",
                            "Py_BuildValue failed");
     }
     PyObject *spec = _PyNamespace_New(attrs);
     Py_DECREF(attrs);
-    if (spec == NULL) {
+    if (spec == nullptr) {
+        if (PyErr_Occurred()) {
+            PyErr_PrintEx(0);
+        }
         throw CanteraError("PythonExtensionManager::PythonExtensionManager",
                            "_PyNamespace_New failed");
     }
     PyObject* pyModule = PyModule_FromDefAndSpec(modDef, spec);
-    if (!pyModule) {
+    if (pyModule == nullptr) {
+        if (PyErr_Occurred()) {
+            PyErr_PrintEx(0);
+        }
         CanteraError("PythonExtensionManager::PythonExtensionManager",
                      "PyModule_FromDefAndSpec failed");
     }
-    if (!PyModule_ExecDef(pyModule, modDef)) {
+    int code = PyModule_ExecDef(pyModule, modDef);
+    if (code) {
+        if (PyErr_Occurred()) {
+            PyErr_PrintEx(0);
+        }
         CanteraError("PythonExtensionManager::PythonExtensionManager",
                      "PyModule_ExecDef failed");
     }
