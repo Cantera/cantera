@@ -3,6 +3,7 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
+#include "cantera/base/SolutionArray.h"
 #include "cantera/oneD/StFlow.h"
 #include "cantera/oneD/refine.h"
 #include "cantera/transport/Transport.h"
@@ -763,7 +764,40 @@ void StFlow::restore(const AnyMap& state, double* soln, int loglevel)
                 "component '{}' in domain '{}'.", name, id());
         }
     }
+    setMeta(state);
+}
 
+void StFlow::restore(SolutionArray& arr, double* soln, int loglevel)
+{
+    Domain1D::restore(arr.meta(), soln, loglevel);
+    arr.setIndex(0);
+    auto phase = arr.thermo();
+    m_press = phase->pressure();
+
+    const auto grid = arr.getComponent("grid");
+    setupGrid(nPoints(), &grid[0]);
+
+    for (size_t i = 0; i < nComponents(); i++) {
+        if (!componentActive(i)) {
+            continue;
+        }
+        std::string name = componentName(i);
+        if (arr.hasComponent(name)) {
+            const vector_fp data = arr.getComponent(name);
+            for (size_t j = 0; j < nPoints(); j++) {
+                soln[index(i,j)] = data[j];
+            }
+        } else if (loglevel) {
+            warn_user("StFlow::restore", "Saved state does not contain values for "
+                "component '{}' in domain '{}'.", name, id());
+        }
+    }
+
+    setMeta(arr.meta());
+}
+
+void StFlow::setMeta(const AnyMap& state)
+{
     if (state.hasKey("energy-enabled")) {
         const AnyValue& ee = state["energy-enabled"];
         if (ee.isScalar()) {

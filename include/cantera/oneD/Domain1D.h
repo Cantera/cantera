@@ -29,6 +29,7 @@ class OneDim;
 class Refiner;
 class AnyMap;
 class Solution;
+class SolutionArray;
 
 /**
  * Base class for one-dimensional domains.
@@ -323,6 +324,15 @@ public:
      *      verbose output
      */
     virtual void restore(const AnyMap& state, double* soln, int loglevel);
+
+    //! Restore the solution for this domain from a SolutionArray
+    /*!
+     * @param[in]  arr SolutionArray defining the state of this domain
+     * @param[out] soln Value of the solution vector, local to this domain
+     * @param[in]  loglevel 0 to suppress all output; 1 to show warnings; 2 for
+     *      verbose output
+     */
+    virtual void restore(SolutionArray& arr, double* soln, int loglevel);
 
     //! Return thermo/kinetics/transport manager used in the domain
     //! @since  New in Cantera 3.0.
