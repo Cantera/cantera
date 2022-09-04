@@ -1297,6 +1297,7 @@ def setup_python_env(env):
     env["py_version_nodot"] = py_version_nodot
     env["py_version_short"] = info["py_version_short"]
     env["py_plat"] = plat
+    env["py_base"] = info["installed_base"]
     env["site_packages"] = info["site_packages"]
     env["user_site_packages"] = info["user_site_packages"]
     if env["OS"] != "Windows":

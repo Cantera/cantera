@@ -11,6 +11,10 @@
 
 #include <boost/algorithm/string.hpp>
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 namespace ba = boost::algorithm;
 using namespace std;
 
@@ -66,6 +70,14 @@ namespace Cantera
 PythonExtensionManager::PythonExtensionManager()
 {
     if (!Py_IsInitialized()) {
+        #if defined(CT_PYTHONHOME) && defined(_WIN32)
+            const char* old_pythonhome = getenv("PYTHONHOME");
+            if (old_pythonhome == nullptr || old_pythonhome[0] == '\0') {
+                std::string pythonhome = "PYTHONHOME=";
+                pythonhome += CT_PYTHONHOME;
+                _putenv(pythonhome.c_str());
+            }
+        #endif
         Py_Initialize();
     }
 
