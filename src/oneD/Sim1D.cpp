@@ -12,6 +12,7 @@
 #include "cantera/oneD/refine.h"
 #include "cantera/numerics/funcs.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/SolutionArray.h"
 #include "cantera/numerics/Func1.h"
 #include <limits>
 #include <fstream>
@@ -170,55 +171,63 @@ void Sim1D::restore(const std::string& fname, const std::string& id,
     } else if (extension == "h5" || extension == "hdf") {
 #if CT_USE_HIGHFIVE_HDF
         h5::File file(fname, h5::File::ReadOnly);
-        if (!file.exist(id) || file.getObjectType(id) != h5::ObjectType::Group) {
-            throw CanteraError("Sim1D::restore",
-                               "No solution with id '{}'", id);
-        }
-        h5::Group grp = file.getGroup(id);
+        std::map<std::string, std::shared_ptr<SolutionArray>> arrs;
         for (auto dom : m_dom) {
-            std::string dn = dom->id();
-            if (!grp.exist(dn)|| grp.getObjectType(dn) != h5::ObjectType::Group) {
-                throw CanteraError("Sim1D::restore",
-                    "Saved state '{}' does not contain a domain named '{}'.", id, dn);
-            }
-            size_t points;
-            try {
-                // determine size based on stored temperature
-                points = grp.getGroup(dn).getDataSet("T").getElementCount();
-            } catch (exception& err) {
-                throw CanteraError("Sim1D::restore",
-                    "Unable to determine domain size:\n{}", err.what());
-            }
-            dom->resize(dom->nComponents(), points);
+            auto arr = SolutionArray::create(dom->solution());
+            arr->restore(fname, id + "/" + dom->id());
+            dom->resize(dom->nComponents(), arr->size());
+            arrs[dom->id()] = arr;
         }
         resize();
         m_xlast_ts.clear();
-
-        throw CanteraError("Sim1D::restore", "Work in progress.");
+        for (auto dom : m_dom) {
+            auto arr = arrs[dom->id()];
+            std::cout << dom->id() << ": size=" << arr->size() << std::endl;
+            if (arr->size()) {
+                arr->setIndex(arr->size() - 1);
+                auto state = arr->getState();
+                std::cout << state[0] << " / " << state[1] << std::endl;
+                for (const auto& item : arr->getAuxiliary()) {
+                    std::cout << "- " << item.first << "=" << item.second << std::endl;
+                }
+            }
+        }
+        for (auto dom : m_dom) {
+            dom->restore(*arrs[dom->id()], m_x.data() + dom->loc(), loglevel);
+        }
+        finalize();
 #else
         throw CanteraError("Sim1D::restore",
                            "Restoring from HDF requires HighFive installation.");
 #endif
     } else if (extension == "yaml" || extension == "yml") {
         AnyMap root = AnyMap::fromYamlFile(fname);
-        if (!root.hasKey(id)) {
-            throw InputFileError("Sim1D::restore", root,
-                                 "No solution with id '{}'", id);
-        }
-        const auto& state = root[id];
+        std::map<std::string, std::shared_ptr<SolutionArray>> arrs;
+        // const auto& state = root[id];
         for (auto dom : m_dom) {
-            if (!state.hasKey(dom->id())) {
-                throw InputFileError("Sim1D::restore", state,
-                    "Saved state '{}' does not contain a domain named '{}'.",
-                    id, dom->id());
-            }
-            dom->resize(dom->nComponents(), state[dom->id()]["points"].asInt());
+            auto arr = SolutionArray::create(dom->solution());
+            arr->restore(fname, id + "/" + dom->id());
+            dom->resize(dom->nComponents(), arr->size());
+            arrs[dom->id()] = arr;
         }
         resize();
         m_xlast_ts.clear();
+        // for (auto dom : m_dom) {
+        //     auto arr = arrs[dom->id()];
+        //     std::cout << dom->id() << ": size=" << arr->size() << std::endl;
+        //     if (arr->size()) {
+        //         arr->setIndex(arr->size() - 1);
+        //         auto state = arr->getState();
+        //         std::cout << state[0] << " / " << state[1] << std::endl;
+        //         for (const auto& item : arr->getAuxiliary()) {
+        //             std::cout << "- " << item.first << "=" << item.second << std::endl;
+        //         }
+        //     }
+        // }
         for (auto dom : m_dom) {
-            dom->restore(state[dom->id()].as<AnyMap>(), m_x.data() + dom->loc(),
-                         loglevel);
+            dom->restore(*arrs[dom->id()], m_x.data() + dom->loc(), loglevel);
+            // dom->restore(state[dom->id()].as<AnyMap>(), m_x.data() + dom->loc(),
+            //              loglevel);
         }
         finalize();
     } else {

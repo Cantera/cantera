@@ -3,6 +3,7 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
+#include "cantera/base/SolutionArray.h"
 #include "cantera/oneD/Boundary1D.h"
 #include "cantera/oneD/OneDim.h"
 #include "cantera/oneD/StFlow.h"
@@ -255,6 +256,18 @@ void Inlet1D::restore(const AnyMap& state, double* soln, int loglevel)
             }
         }
     }
+}
+
+void Inlet1D::restore(SolutionArray& arr, double* soln, int loglevel)
+{
+    Boundary1D::restore(arr.meta(), soln, loglevel);
+    arr.setIndex(0);
+    auto phase = arr.thermo();
+    auto aux = arr.getAuxiliary(0);
+    m_temp = phase->temperature();
+    m_mdot = phase->density() * aux["velocity"];
+    auto Y = phase->massFractions();
+    std::copy(Y, Y + m_nsp, &m_yin[0]);
 }
 
 // ------------- Empty1D -------------
@@ -543,6 +556,16 @@ void OutletRes1D::restore(const AnyMap& state, double* soln, int loglevel)
     }
 }
 
+void OutletRes1D::restore(SolutionArray& arr, double* soln, int loglevel)
+{
+    Boundary1D::restore(arr.meta(), soln, loglevel);
+    arr.setIndex(0);
+    auto phase = arr.thermo();
+    m_temp = phase->temperature();
+    auto Y = phase->massFractions();
+    std::copy(Y, Y + m_nsp, &m_yres[0]);
+}
+
 // -------- Surf1D --------
 
 void Surf1D::init()
@@ -587,6 +610,13 @@ void Surf1D::restore(const AnyMap& state, double* soln, int loglevel)
 {
     Boundary1D::restore(state, soln, loglevel);
     m_temp = state["temperature"].asDouble();
+}
+
+void Surf1D::restore(SolutionArray& arr, double* soln, int loglevel)
+{
+    Boundary1D::restore(arr.meta(), soln, loglevel);
+    arr.setIndex(0);
+    m_temp = arr.thermo()->temperature();
 }
 
 void Surf1D::showSolution_s(std::ostream& s, const double* x)
@@ -790,6 +820,19 @@ void ReactingSurf1D::restore(const AnyMap& state, double* soln, int loglevel)
             }
         }
     }
+}
+
+void ReactingSurf1D::restore(SolutionArray& arr, double* soln, int loglevel)
+{
+    Boundary1D::restore(arr.meta(), soln, loglevel);
+    arr.setIndex(0);
+    auto surf = std::dynamic_pointer_cast<SurfPhase>(arr.thermo());
+    if (!surf) {
+        throw CanteraError("ReactingSurf1D::restore",
+            "Restoring of coverages requires surface phase");
+    }
+    m_temp = surf->temperature();
+    surf->getCoverages(soln);
 }
 
 void ReactingSurf1D::showSolution(const double* x)

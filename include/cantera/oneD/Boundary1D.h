@@ -137,6 +137,7 @@ public:
                       integer* diagg, double rdt);
     virtual AnyMap serialize(const double* soln) const;
     virtual void restore(const AnyMap& state, double* soln, int loglevel);
+    virtual void restore(SolutionArray& arr, double* soln, int loglevel);
 
 protected:
     int m_ilr;
@@ -170,6 +171,7 @@ public:
                       integer* diagg, double rdt);
 
     virtual AnyMap serialize(const double* soln) const;
+    virtual void restore(SolutionArray& arr, double* soln, int loglevel) {}
 };
 
 /**
@@ -194,6 +196,7 @@ public:
                       integer* diagg, double rdt);
 
     virtual AnyMap serialize(const double* soln) const;
+    virtual void restore(SolutionArray& arr, double* soln, int loglevel) {}
 };
 
 
@@ -218,6 +221,7 @@ public:
                       integer* diagg, double rdt);
 
     virtual AnyMap serialize(const double* soln) const;
+    virtual void restore(SolutionArray& arr, double* soln, int loglevel) {}
 };
 
 
@@ -250,6 +254,7 @@ public:
                       integer* diagg, double rdt);
     virtual AnyMap serialize(const double* soln) const;
     virtual void restore(const AnyMap& state, double* soln, int loglevel);
+    virtual void restore(SolutionArray& arr, double* soln, int loglevel);
 
 protected:
     size_t m_nsp;
@@ -282,6 +287,7 @@ public:
 
     virtual AnyMap serialize(const double* soln) const;
     virtual void restore(const AnyMap& state, double* soln, int loglevel);
+    virtual void restore(SolutionArray& arr, double* soln, int loglevel);
 
     virtual void showSolution_s(std::ostream& s, const double* x);
 
@@ -318,6 +324,7 @@ public:
 
     virtual AnyMap serialize(const double* soln) const;
     virtual void restore(const AnyMap& state, double* soln, int loglevel);
+    virtual void restore(SolutionArray& arr, double* soln, int loglevel);
 
     virtual void _getInitialSoln(double* x) {
         m_sphase->getCoverages(x);

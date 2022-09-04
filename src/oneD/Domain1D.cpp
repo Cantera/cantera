@@ -173,6 +173,11 @@ void Domain1D::restore(const AnyMap& state, double* soln, int loglevel)
     }
 }
 
+void Domain1D::restore(SolutionArray& arr, double* soln, int loglevel)
+{
+    throw CanteraError("Domain1D::restore", "Needs to be overloaded.");
+}
+
 void Domain1D::locate()
 {
     if (m_left) {
