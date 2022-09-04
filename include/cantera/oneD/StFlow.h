@@ -438,7 +438,9 @@ protected:
     Kinetics* m_kin;
     Transport* m_trans;
 
-    // keep smart pointer to prevent garbage collection when transport model changes
+    // Smart pointer preventing garbage collection when the transport model of an
+    // associated Solution object changes: the transport model of the StFlow object
+    // will remain unaffected by an external change.
     std::shared_ptr<Transport> m_trans_shared;
 
     // boundary emissivities for the radiation calculations
