@@ -144,6 +144,7 @@ void PythonExtensionManager::registerRateBuilders(const string& extensionName)
         throw CanteraError("PythonExtensionManager::registerRateBuilders",
                            "Problem loading module:\n{}", getPythonExceptionInfo());
     }
+    ct_registerReactionDelegators();
 }
 
 void PythonExtensionManager::registerPythonRateBuilder(

@@ -13,6 +13,7 @@ import importlib
 import inspect
 
 import cantera as ct
+from cantera._utils cimport stringify
 from cantera.reaction cimport ExtensibleRate, CxxReactionRate
 from cantera.delegator cimport CxxDelegator, assign_delegates
 
@@ -20,6 +21,12 @@ from cantera.delegator cimport CxxDelegator, assign_delegates
 cdef extern from "cantera/kinetics/ReactionRateDelegator.h" namespace "Cantera":
     cdef cppclass CxxReactionRateDelegator "Cantera::ReactionRateDelegator" (CxxDelegator, CxxReactionRate):
         CxxReactionRateDelegator()
+
+
+cdef extern from "cantera/extensions/PythonExtensionManager.h" namespace "Cantera":
+    cdef cppclass CxxPythonExtensionManager "Cantera::PythonExtensionManager":
+        @staticmethod
+        void registerPythonRateBuilder(string&, string&, string&)
 
 
 cdef public char* ct_getExceptionString(object exType, object exValue, object exTraceback):
@@ -40,3 +47,11 @@ cdef public object ct_newPythonExtensibleRate(CxxReactionRateDelegator* delegato
     cdef ExtensibleRate rate = getattr(mod, class_name.decode())(init=False)
     rate.set_cxx_object(delegator)
     return rate
+
+
+cdef public ct_registerReactionDelegators():
+    for module, cls, name in ct.delegator._rate_delegators:
+        CxxPythonExtensionManager.registerPythonRateBuilder(
+            stringify(module), stringify(cls), stringify(name))
+
+    ct.delegator._rate_delegators.clear()
