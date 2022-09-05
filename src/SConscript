@@ -97,7 +97,7 @@ if env["python_package"] == "full":
     localenv.Append(LIBS=pyenv["py_libs"], LIBPATH=pyenv["py_libpath"])
     env["cantera_libs"].extend(pyenv["py_libs"])
     env.Append(LIBPATH=pyenv["py_libpath"])
-    env["extra_lib_dirs"].append(pyenv["py_libpath"])
+    env["extra_lib_dirs"].extend(pyenv["py_libpath"])
 
 # build the Cantera static library
 lib = build(localenv.StaticLibrary('../lib/cantera', libraryTargets,
