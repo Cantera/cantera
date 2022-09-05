@@ -106,6 +106,10 @@ class Inlet1D : public Boundary1D
 public:
     Inlet1D();
 
+    Inlet1D(shared_ptr<Solution> solution) : Inlet1D() {
+        m_solution = solution;
+    }
+
     //! set spreading rate
     virtual void setSpreadRate(double V0) {
         m_V0 = V0;
@@ -154,6 +158,10 @@ public:
         m_type = cEmptyType;
     }
 
+    Empty1D(shared_ptr<Solution> solution) : Empty1D() {
+        m_solution = solution;
+    }
+
     virtual void showSolution(const double* x) {}
 
     virtual void init();
@@ -176,6 +184,10 @@ public:
         m_type = cSymmType;
     }
 
+    Symm1D(shared_ptr<Solution> solution) : Symm1D() {
+        m_solution = solution;
+    }
+
     virtual void init();
 
     virtual void eval(size_t jg, double* xg, double* rg,
@@ -196,6 +208,10 @@ public:
         m_type = cOutletType;
     }
 
+    Outlet1D(shared_ptr<Solution> solution) : Outlet1D() {
+        m_solution = solution;
+    }
+
     virtual void init();
 
     virtual void eval(size_t jg, double* xg, double* rg,
@@ -213,6 +229,10 @@ class OutletRes1D : public Boundary1D
 {
 public:
     OutletRes1D();
+
+    OutletRes1D(shared_ptr<Solution> solution) : OutletRes1D() {
+        m_solution = solution;
+    }
 
     virtual void showSolution(const double* x) {}
 
@@ -249,6 +269,10 @@ class Surf1D : public Boundary1D
 public:
     Surf1D() : Boundary1D() {
         m_type = cSurfType;
+    }
+
+    Surf1D(shared_ptr<Solution> solution) : Surf1D() {
+        m_solution = solution;
     }
 
     virtual void init();

@@ -10,15 +10,16 @@ from ._utils cimport stringify, pystr
 from ._utils import CanteraError
 from cython.operator import dereference as deref
 
+
 # Need a pure-python class to store weakrefs to
 class _WeakrefProxy:
     pass
 
 cdef class Domain1D:
-    def __cinit__(self, *args, **kwargs):
+    def __cinit__(self, _SolutionBase phase not None, *args, **kwargs):
         self.domain = NULL
 
-    def __init__(self, _SolutionBase phase, *args, name=None, **kwargs):
+    def __init__(self, phase, *args, name=None, **kwargs):
         self._weakref_proxy = _WeakrefProxy()
         if self.domain is NULL:
             raise TypeError("Can't instantiate abstract class Domain1D.")
@@ -26,8 +27,6 @@ cdef class Domain1D:
         if name is not None:
             self.name = name
 
-        if not isinstance(phase, _SolutionBase):
-            raise TypeError(f"Received phase with invalid type '{type(phase)}'.")
         self.gas = phase
         self.gas._references[self._weakref_proxy] = True
         self.set_default_tolerances()
@@ -286,14 +285,11 @@ cdef class Boundary1D(Domain1D):
     def __cinit__(self, *args, **kwargs):
         self.boundary = NULL
 
-    def __init__(self, *args, phase=None, **kwargs):
+    def __init__(self, phase, name=None):
         if self.boundary is NULL:
             raise TypeError("Can't instantiate abstract class Boundary1D.")
         self.domain = <CxxDomain1D*>(self.boundary)
-        if phase is not None:
-            Domain1D.__init__(self, phase, *args, **kwargs)
-        else:
-            Domain1D.__init__(self, *args, **kwargs)
+        Domain1D.__init__(self, phase, name=name)
 
     property T:
         """ The temperature [K] at this boundary. """
@@ -347,8 +343,8 @@ cdef class Inlet1D(Boundary1D):
     domain - it must be either the leftmost or rightmost domain in a
     stack.
     """
-    def __cinit__(self, *args, **kwargs):
-        self.inlet = new CxxInlet1D()
+    def __cinit__(self, _SolutionBase phase, *args, **kwargs):
+        self.inlet = new CxxInlet1D(phase._base)
         self.boundary = <CxxBoundary1D*>(self.inlet)
 
     def __dealloc__(self):
@@ -369,8 +365,8 @@ cdef class Outlet1D(Boundary1D):
     A one-dimensional outlet. An outlet imposes a zero-gradient boundary
     condition on the flow.
     """
-    def __cinit__(self, *args, **kwargs):
-        self.outlet = new CxxOutlet1D()
+    def __cinit__(self, _SolutionBase phase, *args, **kwargs):
+        self.outlet = new CxxOutlet1D(phase._base)
         self.boundary = <CxxBoundary1D*>(self.outlet)
 
     def __dealloc__(self):
@@ -381,8 +377,8 @@ cdef class OutletReservoir1D(Boundary1D):
     """
     A one-dimensional outlet into a reservoir.
     """
-    def __cinit__(self, *args, **kwargs):
-        self.outlet = new CxxOutletRes1D()
+    def __cinit__(self, _SolutionBase phase, *args, **kwargs):
+        self.outlet = new CxxOutletRes1D(phase._base)
         self.boundary = <CxxBoundary1D*>(self.outlet)
 
     def __dealloc__(self):
@@ -391,8 +387,8 @@ cdef class OutletReservoir1D(Boundary1D):
 
 cdef class SymmetryPlane1D(Boundary1D):
     """A symmetry plane."""
-    def __cinit__(self, *args, **kwargs):
-        self.symm = new CxxSymm1D()
+    def __cinit__(self, _SolutionBase phase, *args, **kwargs):
+        self.symm = new CxxSymm1D(phase._base)
         self.boundary = <CxxBoundary1D*>(self.symm)
 
     def __dealloc__(self):
@@ -401,8 +397,8 @@ cdef class SymmetryPlane1D(Boundary1D):
 
 cdef class Surface1D(Boundary1D):
     """A solid surface."""
-    def __cinit__(self, *args, **kwargs):
-        self.surf = new CxxSurf1D()
+    def __cinit__(self, _SolutionBase phase, *args, **kwargs):
+        self.surf = new CxxSurf1D(phase._base)
         self.boundary = <CxxBoundary1D*>(self.surf)
 
     def __dealloc__(self):
@@ -420,39 +416,31 @@ cdef class ReactingSurface1D(Boundary1D):
         Starting in Cantera 3.0, parameter `phase` should reference surface instead of
         gas phase.
     """
-    def __cinit__(self, *args, phase=None, **kwargs):
-        cdef _SolutionBase sol
-        if isinstance(phase, _SolutionBase) and phase.phase_of_matter != "gas":
-            sol = phase
-            self.surf = new CxxReactingSurf1D(sol._base)
+    def __cinit__(self, _SolutionBase phase, *args, **kwargs):
+        if phase.phase_of_matter != "gas":
+            self.surf = new CxxReactingSurf1D(phase._base)
         else:
             # legacy pathway - deprecation is handled in __init__
             self.surf = new CxxReactingSurf1D()
         self.boundary = <CxxBoundary1D*>(self.surf)
 
-    def __init__(self, *args, phase=None, **kwargs):
+    def __init__(self, _SolutionBase phase, name=None):
         self._weakref_proxy = _WeakrefProxy()
-        if phase is None and isinstance(args[0], _SolutionBase):
-            phase = args[0]
-            args = args[1:]
-        cdef _SolutionBase sol
-        if isinstance(phase, _SolutionBase):
-            if phase.phase_of_matter == "gas":
-                warnings.warn("Starting in Cantera 3.0, parameter 'phase' should "
-                    "reference surface instead of gas phase.", DeprecationWarning)
-                super().__init__(*args, phase=phase, **kwargs)
-            else:
-                sol = phase
-                gas = None
-                for val in sol._adjacent.values():
-                    if val.phase_of_matter == "gas":
-                        gas = val
-                        break
-                if gas is None:
-                    raise CanteraError("ReactingSurface1D needs an adjacent gas phase")
-                super().__init__(*args, phase=gas, **kwargs)
+        if phase.phase_of_matter == "gas":
+            warnings.warn("Starting in Cantera 3.0, parameter 'phase' should "
+                "reference surface instead of gas phase.", DeprecationWarning)
+            super().__init__(phase, name=name)
         else:
-            super().__init__(*args, phase=phase, **kwargs)
+            sol = phase
+            gas = None
+            for val in sol._adjacent.values():
+                if val.phase_of_matter == "gas":
+                    gas = val
+                    break
+            if gas is None:
+                raise CanteraError("ReactingSurface1D needs an adjacent gas phase")
+            super().__init__(gas, name=name)
+
         self.surface = phase
         self.surface._references[self._weakref_proxy] = True
 
