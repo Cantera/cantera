@@ -108,26 +108,22 @@ jobs:
       name: Checkout the repository
       with:
         submodules: recursive
-    - name: Setup Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-        architecture: x64
     - name: Install Brew dependencies
-      run: brew install boost libomp
+      run: |
+        brew install boost libomp scons python@${{ matrix.python-version }}
     - name: Upgrade pip
       run: python3 -m pip install -U pip 'setuptools>=47.0.0,<48' wheel
     - name: Install Python dependencies
-      run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas pytest
+      run: python3 -m pip install ruamel.yaml numpy cython h5py pandas pytest
         pytest-github-actions-annotate-failures
     - name: Install typing_extensions for Python 3.7
       if: matrix.python-version == '3.7'
       run: python3 -m pip install typing_extensions
     - name: Build Cantera
-      run: python3 `which scons` build env_vars=all -j3 debug=n --debug=time
+      run: scons build env_vars=all -j3 debug=n --debug=time
     - name: Test Cantera
       run:
-        python3 `which scons` test show_long_tests=yes verbose_tests=yes --debug=time
+        scons test show_long_tests=yes verbose_tests=yes --debug=time
 
   # Coverage is its own job because macOS builds of the samples
   # use Homebrew gfortran which is not compatible for coverage

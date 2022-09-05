@@ -1301,10 +1301,10 @@ def setup_python_env(env):
     env["site_packages"] = info["site_packages"]
     env["user_site_packages"] = info["user_site_packages"]
     if env["OS"] != "Windows":
-        env["py_libpath"] = info["LIBPL"]
+        env["py_libpath"] = [info["LIBPL"], info["LIBDIR"]]
         py_lib = "python" + info["py_version_short"] + info["abiflags"]
     else:
-        env["py_libpath"] = info["installed_base"] + "\\libs"
+        env["py_libpath"] = [info["installed_base"] + "\\libs"]
         py_lib = "python" + py_version_nodot
     env["py_libs"] = [py_lib] + [lib[2:] for lib in info.get("LIBS", "").split()
                                  if lib.startswith("-l")]
