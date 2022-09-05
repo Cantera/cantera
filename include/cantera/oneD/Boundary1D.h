@@ -272,6 +272,7 @@ class ReactingSurf1D : public Boundary1D
 {
 public:
     ReactingSurf1D();
+    ReactingSurf1D(shared_ptr<Solution> solution);
 
     void setKineticsMgr(InterfaceKinetics* kin);
 
