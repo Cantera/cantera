@@ -26,6 +26,8 @@ cdef class Domain1D:
         if name is not None:
             self.name = name
 
+        if not isinstance(phase, _SolutionBase):
+            raise TypeError(f"Received phase with invalid type '{type(phase)}'.")
         self.gas = phase
         self.gas._references[self._weakref_proxy] = True
         self.set_default_tolerances()
@@ -284,11 +286,14 @@ cdef class Boundary1D(Domain1D):
     def __cinit__(self, *args, **kwargs):
         self.boundary = NULL
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, phase=None, **kwargs):
         if self.boundary is NULL:
             raise TypeError("Can't instantiate abstract class Boundary1D.")
         self.domain = <CxxDomain1D*>(self.boundary)
-        Domain1D.__init__(self, *args, **kwargs)
+        if phase is not None:
+            Domain1D.__init__(self, phase, *args, **kwargs)
+        else:
+            Domain1D.__init__(self, *args, **kwargs)
 
     property T:
         """ The temperature [K] at this boundary. """
@@ -405,15 +410,51 @@ cdef class Surface1D(Boundary1D):
 
 
 cdef class ReactingSurface1D(Boundary1D):
-    """A reacting solid surface."""
-    def __cinit__(self, *args, **kwargs):
-        self.surf = new CxxReactingSurf1D()
+    """A reacting solid surface.
+
+    :param phase:
+        The (surface) phase corresponding to the boundary
+
+    .. versionchanged:: 3.0
+
+        Starting in Cantera 3.0, parameter `phase` should reference surface instead of
+        gas phase.
+    """
+    def __cinit__(self, *args, phase=None, **kwargs):
+        cdef _SolutionBase sol
+        if isinstance(phase, _SolutionBase) and phase.phase_of_matter != "gas":
+            sol = phase
+            self.surf = new CxxReactingSurf1D(sol._base)
+        else:
+            # legacy pathway - deprecation is handled in __init__
+            self.surf = new CxxReactingSurf1D()
         self.boundary = <CxxBoundary1D*>(self.surf)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, phase=None, **kwargs):
         self._weakref_proxy = _WeakrefProxy()
-        super().__init__(*args, **kwargs)
-        self.surface = None
+        if phase is None and isinstance(args[0], _SolutionBase):
+            phase = args[0]
+            args = args[1:]
+        cdef _SolutionBase sol
+        if isinstance(phase, _SolutionBase):
+            if phase.phase_of_matter == "gas":
+                warnings.warn("Starting in Cantera 3.0, parameter 'phase' should "
+                    "reference surface instead of gas phase.", DeprecationWarning)
+                super().__init__(*args, phase=phase, **kwargs)
+            else:
+                sol = phase
+                gas = None
+                for val in sol._adjacent.values():
+                    if val.phase_of_matter == "gas":
+                        gas = val
+                        break
+                if gas is None:
+                    raise CanteraError("ReactingSurface1D needs an adjacent gas phase")
+                super().__init__(*args, phase=gas, **kwargs)
+        else:
+            super().__init__(*args, phase=phase, **kwargs)
+        self.surface = phase
+        self.surface._references[self._weakref_proxy] = True
 
     def __dealloc__(self):
         del self.surf
@@ -426,7 +467,15 @@ cdef class ReactingSurface1D(Boundary1D):
             return self.surface
 
     def set_kinetics(self, Kinetics kin):
-        """Set the kinetics manager (surface reaction mechanism object)."""
+        """Set the kinetics manager (surface reaction mechanism object).
+
+        .. deprecated:: 3.0
+
+            Method to be removed after Cantera 3.0; set `Kinetics` when instantiating
+            `ReactingSurface1D` instead.
+        """
+        warnings.warn("Method to be removed after Cantera 3.0; set 'Kinetics' when "
+            "instantiating 'ReactingSurface1D' instead.", DeprecationWarning)
         if pystr(kin.kinetics.kineticsType()) not in ("Surf", "Edge"):
             raise TypeError('Kinetics object must be derived from '
                             'InterfaceKinetics.')

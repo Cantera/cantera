@@ -610,6 +610,30 @@ ReactingSurf1D::ReactingSurf1D()
     m_type = cSurfType;
 }
 
+ReactingSurf1D::ReactingSurf1D(shared_ptr<Solution> solution)
+{
+    if (!std::dynamic_pointer_cast<SurfPhase>(solution->thermo())) {
+        throw CanteraError("ReactingSurf1D::ReactingSurf1D",
+            "Detected incompatible ThermoPhase type '{}'", solution->thermo()->type());
+    }
+    if (!std::dynamic_pointer_cast<InterfaceKinetics>(solution->kinetics())) {
+        throw CanteraError("ReactingSurf1D::ReactingSurf1D",
+            "Detected incompatible kinetics type '{}'",
+            solution->kinetics()->kineticsType());
+    }
+    m_solution = solution;
+    m_kin = (InterfaceKinetics*)solution->kinetics().get();
+    m_surfindex = m_kin->surfacePhaseIndex();
+    m_sphase = (SurfPhase*)&m_kin->thermo(m_surfindex);
+    if (m_sphase->name() != m_solution->thermo()->name()) {
+        throw CanteraError("ReactingSurf1D::ReactingSurf1D",
+            "Detected inconsistent ThermoPhase objects: mismatch of '{}' and '{}'.",
+            m_sphase->name(), m_solution->thermo()->name());
+    }
+    m_nsp = m_sphase->nSpecies();
+    m_enabled = true;
+}
+
 void ReactingSurf1D::setKineticsMgr(InterfaceKinetics* kin)
 {
     m_kin = kin;

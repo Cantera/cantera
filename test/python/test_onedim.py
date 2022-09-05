@@ -23,8 +23,7 @@ class TestOnedim(utilities.CanteraTest):
         solid = ct.Solution("diamond.yaml", "diamond")
         interface = ct.Solution("diamond.yaml", "diamond_100", (gas, solid))
 
-        surface = ct.ReactingSurface1D(phase=gas)
-        surface.set_kinetics(interface)
+        surface = ct.ReactingSurface1D(phase=interface)
 
     def test_boundaryProperties(self):
         gas1 = ct.Solution("h2o2.yaml")
