@@ -48,24 +48,24 @@ cdef extern from "cantera/oneD/Boundary1D.h":
         double massFraction(size_t)
 
     cdef cppclass CxxInlet1D "Cantera::Inlet1D":
-        CxxInlet1D()
+        CxxInlet1D(shared_ptr[CxxSolution])
         double spreadRate()
         void setSpreadRate(double)
 
     cdef cppclass CxxOutlet1D "Cantera::Outlet1D":
-        CxxOutlet1D()
+        CxxOutlet1D(shared_ptr[CxxSolution])
 
     cdef cppclass CxxOutletRes1D "Cantera::OutletRes1D":
-        CxxOutletRes1D()
+        CxxOutletRes1D(shared_ptr[CxxSolution])
 
     cdef cppclass CxxSymm1D "Cantera::Symm1D":
-        CxxSymm1D()
+        CxxSymm1D(shared_ptr[CxxSolution])
 
     cdef cppclass CxxSurf1D "Cantera::Surf1D":
-        CxxSurf1D()
+        CxxSurf1D(shared_ptr[CxxSolution])
 
     cdef cppclass CxxReactingSurf1D "Cantera::ReactingSurf1D":
-        CxxReactingSurf1D()
+        CxxReactingSurf1D() # deprecated in Python API (Cantera 3.0)
         CxxReactingSurf1D(shared_ptr[CxxSolution]) except +translate_exception
         void setKineticsMgr(CxxInterfaceKinetics*) except +translate_exception
         void enableCoverageEquations(cbool) except +translate_exception
