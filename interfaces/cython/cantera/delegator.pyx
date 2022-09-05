@@ -328,6 +328,11 @@ cdef int assign_delegates(obj, CxxDelegator* delegator) except -1:
 
     return 0
 
+# Specifications for ReactionRate delegators that have not yet been registered with
+# ReactionRateFactory. This list is read by PythonExtensionManager::registerRateBuilders
+# and then cleared.
+_rate_delegators = []
+
 def extension(*, name):
     """
     A decorator for declaring Cantera extensions that should be registered with
@@ -371,8 +376,14 @@ def extension(*, name):
     def decorator(cls):
         if issubclass(cls, ExtensibleRate):
             cls._reaction_rate_type = name
+            # Registering immediately supports the case where the main
+            # application is Python
             CxxPythonExtensionManager.registerPythonRateBuilder(
                 stringify(cls.__module__), stringify(cls.__name__), stringify(name))
+
+            # Deferred registration supports the case where the main application
+            # is not Python
+            _rate_delegators.append((cls.__module__, cls.__name__, name))
         else:
             raise TypeError(f"{cls} is not extensible")
         return cls
