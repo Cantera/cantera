@@ -45,7 +45,12 @@ localenv.PrependENVPath('PYTHONPATH', Dir('#test/python').abspath)
 PASSED_FILES = {}
 
 # Add build/lib in order to find Cantera shared library
-localenv.PrependENVPath('LD_LIBRARY_PATH', Dir('#build/lib').abspath)
+if env["OS"] == "Windows":
+    localenv.PrependENVPath('PATH', Dir('#build/lib').abspath)
+elif env['OS'] == 'Darwin':
+    localenv.PrependENVPath('DYLD_LIBRARY_PATH', Dir('#build/lib').abspath)
+else:
+    localenv.PrependENVPath('LD_LIBRARY_PATH', Dir('#build/lib').abspath)
 
 def addTestProgram(subdir, progName, env_vars={}):
     """
