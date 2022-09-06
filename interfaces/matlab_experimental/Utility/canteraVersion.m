@@ -6,8 +6,5 @@ function v = canteraVersion()
     %     A string containing the Cantera version
     %
     checklib;
-    buflen = callct('ct_getCanteraVersion', 0, '');
-    aa = char(zeros(1, buflen));
-    [~, aa] = callct('ct_getCanteraVersion', buflen, aa);
-    v = aa;
+    v = callct2('ct_getCanteraVersion');
 end
