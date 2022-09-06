@@ -21,7 +21,7 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
             % of each species, which may be given as mole fractions or mass
             % fractions. ::
             %
-            %     >> s = Solution('input.yaml'[, phase_name[, transport_model]])
+            %     >> s = Solution('input.yaml', phase_name, transport_model)
             %
             % constructs a :mat:func:`Solution` object from a specification contained in
             % file ``input.yaml`` with the name of the phase to be imported specified with
