@@ -14,10 +14,12 @@
 #include <set>
 
 #if CT_USE_HIGHFIVE_HDF
-#include <highfive/H5File.hpp>
-#include <highfive/H5Group.hpp>
+#include <highfive/H5Attribute.hpp>
 #include <highfive/H5DataSet.hpp>
 #include <highfive/H5DataSpace.hpp>
+#include <highfive/H5DataType.hpp>
+#include <highfive/H5File.hpp>
+#include <highfive/H5Group.hpp>
 
 namespace h5 = HighFive;
 #endif
@@ -132,6 +134,48 @@ void SolutionArray::restore(const std::string& fname, const std::string& id)
 }
 
 #if CT_USE_HIGHFIVE_HDF
+vector_fp readH5FloatVector(h5::DataSet data, std::string id, size_t size)
+{
+    if (data.getDataType().getClass() != h5::DataTypeClass::Float) {
+        throw CanteraError("readH5FloatVector",
+            "Type of DataSet '{}' is inconsistent; expected HDF float.", id);
+    }
+    if (data.getElementCount() != size) {
+        throw CanteraError("readH5FloatVector",
+            "Size of DataSet '{}' is inconsistent; expected {} elements but "
+            "received {} elements.", id, size, data.getElementCount());
+    }
+    vector_fp out;
+    data.read(out);
+    return out;
+}
+
+std::vector<vector_fp> readH5FloatMatrix(h5::DataSet data, std::string id,
+                                         size_t rows, size_t cols)
+{
+    if (data.getDataType().getClass() != h5::DataTypeClass::Float) {
+        throw CanteraError("readH5FloatMatrix",
+            "Type of DataSet '{}' is inconsistent; expected HDF float.", id);
+    }
+    h5::DataSpace space = data.getSpace();
+    if (space.getNumberDimensions() != 2) {
+        throw CanteraError("readH5FloatMatrix",
+            "Shape of DataSet '{}' is inconsistent; expected two dimensions.", id);
+    }
+    const auto& shape = space.getDimensions();
+    if (shape[0] != rows) {
+        throw CanteraError("readH5FloatMatrix",
+            "Shape of DataSet '{}' is inconsistent; expected {} rows.", id, rows);
+    }
+    if (shape[1] != cols) {
+        throw CanteraError("readH5FloatMatrix",
+            "Shape of DataSet '{}' is inconsistent; expected {} columns.", id, cols);
+    }
+    std::vector<vector_fp> out;
+    data.read(out);
+    return out;
+}
+
 void SolutionArray::restore(const h5::File& file, const std::string& id)
 {
     std::vector<std::string> tokens;
@@ -139,7 +183,7 @@ void SolutionArray::restore(const h5::File& file, const std::string& id)
     std::string grp = tokens[0];
     if (!file.exist(grp) || file.getObjectType(grp) != h5::ObjectType::Group) {
         throw CanteraError("SolutionArray::restore",
-                           "No group or solution with id '{}'", grp);
+            "No group or solution with id '{}'", grp);
     }
 
     std::string path = grp;
@@ -149,25 +193,128 @@ void SolutionArray::restore(const h5::File& file, const std::string& id)
         path += "/" + grp;
         if (!sub.exist(grp) || sub.getObjectType(grp) != h5::ObjectType::Group) {
             throw CanteraError("SolutionArray::restore",
-                               "No group or solution with id '{}'", path);
+                "No group or solution with id '{}'", path);
         }
         sub = sub.getGroup(grp);
     }
 
-    std::vector<std::string> names;
+    std::set<std::string> names;
     size_t nDims = npos;
     for (auto& name : sub.listObjectNames()) {
         if (sub.getObjectType(name) == h5::ObjectType::Dataset) {
             h5::DataSpace space = sub.getDataSet(name).getSpace();
-            names.push_back(name);
+            names.insert(name);
             if (space.getNumberDimensions() < nDims) {
                 nDims = space.getNumberDimensions();
                 m_size = space.getElementCount();
             }
         }
     }
+    if (nDims != 1) {
+        throw NotImplementedError("SolutionArray::restore",
+            "Unable to restore SolutionArray with {} dimensions.", nDims);
+    }
 
-    // @todo: restore data
+    initialize({});
+
+    // restore meta data from attributes
+    for (auto& name : sub.listAttributeNames()) {
+        h5::Attribute attr = sub.getAttribute(name);
+        h5::DataType dtype = attr.getDataType();
+        h5::DataTypeClass dclass = dtype.getClass();
+        if (dclass == h5::DataTypeClass::Float) {
+            double value;
+            attr.read(value);
+            m_meta[name] = value;
+        } else if (dclass == h5::DataTypeClass::Integer) {
+            int value;
+            attr.read(value);
+            m_meta[name] = value;
+        } else if (dclass == h5::DataTypeClass::String) {
+            std::string value;
+            attr.read(value);
+            m_meta[name] = value;
+        } else {
+            throw NotImplementedError("SolutionArray::restore",
+                "Unable to read attribute '{}' with type '{}'", name, dtype.string());
+        }
+    }
+
+    // identify storage mode of state data
+    std::string mode = "";
+    const auto& nativeState = m_sol->thermo()->nativeState();
+    bool usesNativeState;
+    std::set<std::string> state;
+    for (const auto& item : m_sol->thermo()->fullStates()) {
+        bool found = true;
+        usesNativeState = true;
+        state.clear();
+        for (size_t i = 0; i < item.size(); i++) {
+            std::string name(1, item[i]);
+            if (names.count(name)) {
+                state.insert(name);
+                usesNativeState &= nativeState.count(name);
+            } else {
+                found = false;
+                break;
+            }
+        }
+        if (found) {
+            mode = item;
+            break;
+        }
+    }
+    if (mode == "") {
+        throw CanteraError("SolutionArray::restore",
+            "Data are not consistent with full state modes.");
+    }
+
+    // restore state data
+    size_t nSpecies = m_sol->thermo()->nSpecies();
+    size_t nState = m_sol->thermo()->stateSize();
+    if (usesNativeState) {
+        // native state can be written directly into data storage
+        for (const auto& name : state) {
+            h5::DataSet data = sub.getDataSet(name);
+            size_t offset = nativeState.find(name)->second;
+            if (name == "X" || name == "Y") {
+                std::vector<vector_fp> prop;
+                prop = readH5FloatMatrix(data, name, m_size, nSpecies);
+                for (size_t i = 0; i < m_size; i++) {
+                    std::copy(prop[i].begin(), prop[i].end(),
+                              &m_data[offset + i * m_stride]);
+                }
+            } else {
+                vector_fp prop = readH5FloatVector(data, name, m_size);
+                for (size_t i = 0; i < m_size; i++) {
+                    m_data[offset + i * m_stride] = prop[i];
+                }
+            }
+        }
+    } else if (mode == "TPX") {
+        // data format used by Python h5py export (Cantera 2.5)
+        vector_fp T = readH5FloatVector(sub.getDataSet("T"), "T", m_size);
+        vector_fp P = readH5FloatVector(sub.getDataSet("P"), "P", m_size);
+        std::vector<vector_fp> X;
+        X = readH5FloatMatrix(sub.getDataSet("X"), "X", m_size, nSpecies);
+        for (size_t i = 0; i < m_size; i++) {
+            m_sol->thermo()->setState_TPX(T[i], P[i], X[i].data());
+            m_sol->thermo()->saveState(nState, &m_data[i * m_stride]);
+        }
+    } else {
+        throw NotImplementedError("SolutionArray::restore",
+            "Import of '{}' data is not supported.", mode);
+    }
+
+    // restore other data
+    for (const auto& name : names) {
+        if (!state.count(name)) {
+            vector_fp data = readH5FloatVector(sub.getDataSet(name), name, m_size);
+            m_other.emplace(name, std::make_shared<vector_fp>(m_size));
+            auto& extra = m_other[name];
+            std::copy(data.begin(), data.end(), extra->begin());
+        }
+    }
 }
 #endif
 
