@@ -43,70 +43,135 @@ SolutionArray::SolutionArray(
 
 void SolutionArray::initialize(const std::vector<std::string>& extra)
 {
-    size_t count = 0;
-    for (auto& key : extra) {
-        m_extra.emplace(key, count);
-        count++;
-    }
-
-    m_offsets = m_sol->thermo()->nativeState();
     m_stride = m_sol->thermo()->stateSize();
     m_work.reset(new vector_fp(m_size * m_stride, 0.));
     m_data = m_work->data();
-    m_managed = false;
     for (auto& key : extra) {
         m_other.emplace(key, std::make_shared<vector_fp>(m_size));
     }
 }
 
-void SolutionArray::initialize(
-    double* data,
-    size_t size,
-    size_t stride,
-    const std::vector<std::pair<std::string, size_t>>& offsets)
+std::shared_ptr<ThermoPhase> SolutionArray::thermo()
 {
-    // check that offsets match order of native thermodynamic state properties
-    std::map<size_t, std::string> flipped;
-    for (const auto& item : m_sol->thermo()->nativeState()) {
-        // flipped map will be sorted by native property offset within state
-        flipped.emplace(item.second, item.first);
+    return m_sol->thermo();
+}
+
+bool SolutionArray::hasComponent(const std::string& name) const
+{
+    if (m_other.count(name)) {
+        // auxiliary data
+        return true;
     }
-    std::map<std::string, int> mapped; // searchable offset map
-    for (const auto& item : offsets) {
-        mapped.emplace(item.first, (int)(item.second));
+    if (m_sol->thermo()->speciesIndex(name) != npos) {
+        // species
+        return true;
     }
-    std::string key0 = flipped.at(0);
-    for (auto& prop : flipped) {
-        if (!mapped.count(prop.second)) {
-            throw CanteraError("SolutionArray::initialize",
-                "Native property '{}' not found in offset mapping.", prop.second);
-        }
-        int diffOffset = mapped.at(prop.second) - mapped.at(key0);
-        if (diffOffset != (int)(prop.first)) {
-            throw CanteraError("SolutionArray::initialize",
-                "Offset for property '{}' is incompatible with order of native state "
-                "properties", prop.second);
-        }
+    if (name == "X" || name == "Y") {
+        // reserved names
+        return false;
+    }
+    // native state
+    return (m_sol->thermo()->nativeState().count(name));
+}
+
+vector_fp SolutionArray::getComponent(const std::string& name) const
+{
+    if (!hasComponent(name)) {
+        throw CanteraError("SolutionArray::getComponent", "no component named " + name);
     }
 
-    // assign managed memory
-    m_work.reset();
-    m_data = data;
-    m_managed = true;
-    m_size = size;
-    m_stride = stride;
-
-    size_t count = 0;
-    for (auto& item : offsets) {
-        auto& key = item.first;
-        if (item.second != npos) {
-            m_offsets[key] = item.second;
-        } else {
-            m_other.emplace(key, std::make_shared<vector_fp>(m_size));
-            m_extra.emplace(key, count);
-            count++;
-        }
+    vector_fp out(m_size);
+    if (m_other.count(name)) {
+        // auxiliary data
+        auto other = m_other.at(name);
+        std::copy(other->begin(), other->end(), out.begin());
+        return out;
     }
+
+    size_t ix = m_sol->thermo()->speciesIndex(name);
+    if (ix == npos) {
+        ix = m_sol->thermo()->nativeState()[name];
+    } else {
+        ix += m_stride - m_sol->thermo()->nSpecies();
+    }
+    for (size_t k = 0; k < m_size; ++k) {
+        out[k] = m_data[k * m_stride + ix];
+    }
+    return out;
+}
+
+void SolutionArray::setComponent(
+    const std::string& name, const vector_fp& data, bool force)
+{
+    if (!hasComponent(name)) {
+        if (force) {
+            m_other.emplace(name, std::make_shared<vector_fp>(m_size));
+            auto& extra = m_other[name];
+            std::copy(data.begin(), data.end(), extra->begin());
+            return;
+        }
+        throw CanteraError("SolutionArray::setComponent", "no component named " + name);
+    }
+    if (data.size() != m_size) {
+        throw CanteraError("SolutionArray::setComponent", "incompatible sizes");
+    }
+
+    if (m_other.count(name)) {
+        // auxiliary data
+        auto other = m_other[name];
+        std::copy(data.begin(), data.end(), other->begin());
+    }
+
+    size_t ix = m_sol->thermo()->speciesIndex(name);
+    if (ix == npos) {
+        ix = m_sol->thermo()->nativeState()[name];
+    } else {
+        ix += m_stride - m_sol->thermo()->nSpecies();
+    }
+    for (size_t k = 0; k < m_size; ++k) {
+        m_data[k * m_stride + ix] = data[k];
+    }
+}
+
+void SolutionArray::setIndex(size_t index)
+{
+    if (m_size == 0) {
+        throw CanteraError("SolutionArray::setIndex",
+            "Unable to set index in empty SolutionArray.");
+    } else if (index == npos) {
+        if (m_index == npos) {
+            throw CanteraError("SolutionArray::setIndex",
+                "Both current and buffered indices are invalid.");
+        }
+        return;
+    } else if (index == m_index) {
+        return;
+    } else if (index >= m_size) {
+        throw IndexError("SolutionArray::setIndex", "entries", index, m_size - 1);
+    }
+    m_index = index;
+    size_t nState = m_sol->thermo()->stateSize();
+    m_sol->thermo()->restoreState(nState, &m_data[m_index * m_stride]);
+}
+
+vector_fp SolutionArray::getState(size_t index)
+{
+    setIndex(index);
+    size_t nState = m_sol->thermo()->stateSize();
+    vector_fp out(nState);
+    m_sol->thermo()->saveState(out); // thermo contains current state
+    return out;
+}
+
+std::map<std::string, double> SolutionArray::getAuxiliary(size_t index)
+{
+    setIndex(index);
+    std::map<std::string, double> out;
+    for (auto& item : m_other) {
+        auto& extra = *item.second;
+        out[item.first] = extra[m_index];
+    }
+    return out;
 }
 
 void SolutionArray::save(const std::string& fname, const std::string& id)
@@ -240,6 +305,10 @@ void SolutionArray::restore(const h5::File& file, const std::string& id)
         }
     }
 
+    if (m_size == 0) {
+        return;
+    }
+
     // identify storage mode of state data
     std::string mode = "";
     const auto& nativeState = m_sol->thermo()->nativeState();
@@ -276,27 +345,22 @@ void SolutionArray::restore(const h5::File& file, const std::string& id)
         // native state can be written directly into data storage
         for (const auto& name : state) {
             h5::DataSet data = sub.getDataSet(name);
-            size_t offset = nativeState.find(name)->second;
             if (name == "X" || name == "Y") {
-                std::vector<vector_fp> prop;
-                prop = readH5FloatMatrix(data, name, m_size, nSpecies);
+                size_t offset = nativeState.find(name)->second;
+                auto prop = readH5FloatMatrix(data, name, m_size, nSpecies);
                 for (size_t i = 0; i < m_size; i++) {
                     std::copy(prop[i].begin(), prop[i].end(),
                               &m_data[offset + i * m_stride]);
                 }
             } else {
-                vector_fp prop = readH5FloatVector(data, name, m_size);
-                for (size_t i = 0; i < m_size; i++) {
-                    m_data[offset + i * m_stride] = prop[i];
-                }
+                setComponent(name, readH5FloatVector(data, name, m_size));
             }
         }
     } else if (mode == "TPX") {
         // data format used by Python h5py export (Cantera 2.5)
         vector_fp T = readH5FloatVector(sub.getDataSet("T"), "T", m_size);
         vector_fp P = readH5FloatVector(sub.getDataSet("P"), "P", m_size);
-        std::vector<vector_fp> X;
-        X = readH5FloatMatrix(sub.getDataSet("X"), "X", m_size, nSpecies);
+        auto X = readH5FloatMatrix(sub.getDataSet("X"), "X", m_size, nSpecies);
         for (size_t i = 0; i < m_size; i++) {
             m_sol->thermo()->setState_TPX(T[i], P[i], X[i].data());
             m_sol->thermo()->saveState(nState, &m_data[i * m_stride]);
@@ -394,36 +458,12 @@ void SolutionArray::restore(const AnyMap& root, const std::string& id)
         for (const auto& item : sub) {
             const std::string& name = item.first;
             const AnyValue& value = item.second;
-            size_t offset = npos;
             if (value.is<std::vector<double>>()) {
                 const vector_fp& data = value.as<std::vector<double>>();
-                size_t species = m_sol->thermo()->speciesIndex(name);
-                if (data.size() != m_size) {
-                    // meta data
-                    continue;
-                } else if (species != npos) {
-                    // species
-                    if (nativeState.count("X")) {
-                        offset = nativeState.find("X")->second + species;
-                    } else if (nativeState.count("Y")) {
-                        offset = nativeState.find("Y")->second + species;
-                    }
-                } else if (nativeState.count(name)) {
-                    // property
-                    offset = nativeState.find(name)->second;
-                } else {
-                    // extra
-                    m_other.emplace(name, std::make_shared<vector_fp>(m_size));
-                    auto& extra = m_other[name];
-                    std::copy(data.begin(), data.end(), extra->begin());
+                if (data.size() == m_size) {
+                    setComponent(name, data, true);
+                    exclude.insert(item.first);
                 }
-
-                if (offset != npos) {
-                    for (size_t i = 0; i < m_size; i++) {
-                        m_data[offset + i * m_stride] = data[i];
-                    }
-                }
-                exclude.insert(item.first);
             }
         }
 
