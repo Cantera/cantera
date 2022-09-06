@@ -20,12 +20,13 @@ namespace Cantera
 {
 
 class Solution;
+class ThermoPhase;
 
-/**
- * A container class providing a convenient interface for representing many
- * thermodynamic states using the same Solution object. C++ SolutionArray objects are
- * one-dimensional by design; extensions to multi-dimensional arrays need to be
- * implemented in high-level API's.
+/*!
+ *  A container class providing a convenient interface for representing many
+ *  thermodynamic states using the same Solution object. C++ SolutionArray objects are
+ *  one-dimensional by design; extensions to multi-dimensional arrays need to be
+ *  implemented in high-level API's.
  */
 class SolutionArray
 {
@@ -45,46 +46,81 @@ public:
             new SolutionArray(sol, size, meta));
     }
 
-    /**
-     * Initialize SolutionArray with independent memory management
+    /*!
+     *  Initialize SolutionArray with independent memory management
      *
-     * @param extra Names of auxiliary data
+     *  @param extra Names of auxiliary data
      */
     void initialize(const std::vector<std::string>& extra={});
 
-    /**
-     * Initialize SolutionArray object with mapped memory
-     *
-     * @param data Pointer to mapped memory address
-     * @param size Number of entries in SolutionArray
-     * @param stride An integer indicating the stride between entries
-     * @param offsets A vector of pairs containing offsets within the mapped memory
-     */
-    void initialize(double* data,
-                    size_t size,
-                    size_t stride,
-                    const std::vector<std::pair<std::string, size_t>>& offsets);
-
-    /**
-     * Size of SolutionArray (number of entries)
+    /*!
+     *  Size of SolutionArray (number of entries)
      */
     int size() const {
         return m_size;
     }
 
-    /**
-     * Save the current SolutionArray to a container file.
+    /*!
+     *  SolutionArray meta data.
+     */
+    AnyMap& meta() {
+        return m_meta;
+    }
+
+    /*!
+     *  Retrieve associated ThermoPhase object
+     */
+    std::shared_ptr<ThermoPhase> thermo();
+
+    /*!
+     *  Check whether SolutionArray contains a component.
+     */
+    bool hasComponent(const std::string& name) const;
+
+    /*!
+     *  Retrieve a component of the SolutionArray by name.
+     */
+    vector_fp getComponent(const std::string& name) const;
+
+    /*!
+     *  Set a component of the SolutionArray by name.
      *
-     * @param fname Name of output container file
-     * @param id Identifier of SolutionArray within the container file
+     *  @param name  Component name
+     *  @param data  Component data
+     *  @param force  If true, add new component to SolutionArray
+     */
+    void setComponent(const std::string& name, const vector_fp& data, bool force=false);
+
+    /*!
+     *  Update the buffered index used to access entries.
+     */
+    void setIndex(size_t index);
+
+    /*!
+     *  Retrieve the state vector for a single entry. If index is valid, it is updated;
+     *  otherwise, the last previously used index is referenced.
+     */
+    vector_fp getState(size_t index=npos);
+
+    /*!
+     *  Retrieve auxiliary data for a single entry. If index is valid, it is updated;
+     *  otherwise, the last previously used index is referenced.
+     */
+    std::map<std::string, double> getAuxiliary(size_t index=npos);
+
+    /*!
+     *  Save the current SolutionArray to a container file.
+     *
+     *  @param fname Name of output container file
+     *  @param id Identifier of SolutionArray within the container file
      */
     void save(const std::string& fname, const std::string& id);
 
-    /**
-     * Restore SolutionArray from a container file.
+    /*!
+     *  Restore SolutionArray from a container file.
      *
-     * @param fname Name of container file
-     * @param id Identifier of SolutionArray within the container file
+     *  @param fname Name of container file
+     *  @param id Identifier of SolutionArray within the container file
      */
     void restore(const std::string& fname, const std::string& id);
 
@@ -99,35 +135,12 @@ protected:
     size_t m_size; //!< Number of entries in SolutionArray
     size_t m_stride; //!< Stride between SolutionArray entries
     AnyMap m_meta; //!< Metadata
-    bool m_managed = false; //!< Flag indicating whether memory is externally managed
+    size_t m_index = npos; //!< Buffered index
 
-    shared_ptr<vector_fp> m_work; //!< Work vector holding states (if not managed)
-    double* m_data; //!< Memory location holding state information (may be augmented)
+    shared_ptr<vector_fp> m_work; //!< Work vector holding states
+    double* m_data; //!< Memory location holding state information
     std::map<std::string, shared_ptr<vector_fp>> m_other; //!< Auxiliary data
-    std::map<std::string, size_t> m_offsets; //!< Map of offsets in state vector
-    std::map<std::string, size_t> m_extra; //!< Map of offsets in auxiliary data
 };
-
-
-// /**
-//  * Create a SolutionArray object with independent memory management
-//  *
-//  * @param sol The Solution object associated with state information
-//  * @param max_size Expected maximum number of entries in SolutionArray
-//  * @param extra A vector of additional entries
-//  * @param meta Metadata
-//  * @return shared_ptr<SolutionArray>
-//  */
-// shared_ptr<SolutionArray> newSolutionArray(
-//     const shared_ptr<Solution>& sol,
-//     size_t max_size,
-//     const std::vector<std::string>& extra={},
-//     const AnyMap& meta={})
-// {
-//     shared_ptr<SolutionArray> arr = SolutionArray::create(sol, max_size, meta);
-//     arr->initialize(extra);
-//     return arr;
-// }
 
 }
 
