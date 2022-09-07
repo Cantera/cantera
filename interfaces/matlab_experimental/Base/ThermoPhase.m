@@ -291,7 +291,7 @@ classdef ThermoPhase < handle
             if nargin ~= 2
                 error('elementalMassFraction expects two input arguments.');
             end
-            if ~isIdealGas(tp)
+            if ~tp.isIdealGas
                 error('Gas object must represent an ideal gas mixture.');
             end
             if ~ischar(element)
@@ -584,16 +584,6 @@ classdef ThermoPhase < handle
             callct('thermo_getMoleFractions', ...
                     tp.tpID, nsp, pt);
             moleFractions = pt.Value;
-
-            % if no output argument is specified, a bar plot is produced.
-            if nargout == 0
-                figure
-                set(gcf, 'Name', 'Mole Fractions')
-                bar(moleFractions)
-                xlabel('Species Number')
-                ylabel('Mole Fraction')
-                title('Species Mole Fractions')
-            end
         end
 
         function x = moleFraction(tp, species)
@@ -646,16 +636,6 @@ classdef ThermoPhase < handle
             callct('thermo_getMassFractions', ...
                     tp.tpID, nsp, pt);
             massFractions = pt.Value;
-
-            % If no output argument is specified, a bar plot is produced.
-            if nargout == 0
-                figure
-                set(gcf, 'Name', 'Mole Fractions')
-                bar(massFractions)
-                xlabel('Species Number')
-                ylabel('Mole Fraction')
-                title('Species Mole Fractions')
-            end
         end
 
         function y = massFraction(tp, species)
@@ -838,7 +818,6 @@ classdef ThermoPhase < handle
             else
                 v = 0;
             end
-            v = 1;
         end
 
         function b = isothermalCompressibility(tp)

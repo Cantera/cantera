@@ -52,11 +52,6 @@ classdef Transport < handle
             %    Double dynamic viscosity. Unit: Pa*s.
 
             v = callct('trans_viscosity', tr.trID);
-            if v == -1.0
-                error(geterr);
-            elseif v < 0.0
-                error('exception raised');
-            end
         end
 
         function v = thermalConductivity(tr)
@@ -66,11 +61,6 @@ classdef Transport < handle
             %    Double thermal conductivity. Unit: W/m-K.
 
             v = callct('trans_thermalConductivity', tr.trID);
-            if v == -1.0
-                error(geterr);
-            elseif v < 0.0
-                error('exception raised');
-            end
         end
 
         function v = electricalConductivity(tr)
@@ -80,11 +70,6 @@ classdef Transport < handle
             %    Double electrical conductivity. Unit: S/m.
 
             v = callct('trans_electricalConductivity', tr.trID);
-            if v == -1.0
-                error(geterr);
-            elseif v < 0.0
-                error('exception raised');
-            end
         end
 
         function v = mixDiffCoeffs(tr)

@@ -39,9 +39,6 @@ classdef Stack < handle
                 help(Stack);
                 error('Wrong number of :parameters.');
             end
-%             if s.stID < 0
-%                 error(geterr);
-%             end
         end
 
         %% Utility Methods

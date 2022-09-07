@@ -87,9 +87,6 @@ classdef Domain1D < handle
                     error('Unknown domain type.');
                 end
             end
-%             if d.domainID < 0
-%                 error(geterr);
-%             end
             d.type = a;
         end
 
