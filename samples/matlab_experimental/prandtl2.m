@@ -16,7 +16,7 @@ function prandtl2(g)
     if nargin == 1
        gas = g;
     else
-       gas = GRI30('Multi');
+       gas = Solution('gri30.yaml', 'gri30', 'Multi');
     end
 
     pr = zeros(31,31);

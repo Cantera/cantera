@@ -40,8 +40,8 @@ refine_grid = 1;                  % 1 to enable refinement, 0 to disable
 % These objects will be used to evaluate all thermodynamic, kinetic, and
 % transport properties.
 
-fuel = GRI30(transport);
-ox = GRI30(transport);
+fuel = Solution('gri30.yaml', 'gri30', transport);
+ox = Solution('gri30.yaml', 'gri30', transport);
 oxcomp     =  'O2:0.21, N2:0.78';   % Air composition
 fuelcomp   =  'C2H6:1';             % Fuel composition
 % Set each gas mixture state with the corresponding composition.

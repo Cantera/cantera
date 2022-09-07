@@ -38,9 +38,6 @@ classdef ReactorSurface < handle
 
             s.surfID = callct('reactorsurface_new', 0);
             s.reactor = -1;
-            if s.surfID < 0
-                error(geterr);
-            end
 
             if nargin >= 1
                 s.setKinetics(kleft);

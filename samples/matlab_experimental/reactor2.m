@@ -17,7 +17,7 @@ function reactor2(g)
     if nargin == 1
        gas = g;
     else
-       gas = GRI30('None');
+       gas = Solution('gri30.yaml', 'gri30', 'None');
     end
 
     % set the initial conditions

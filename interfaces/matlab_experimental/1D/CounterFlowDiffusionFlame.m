@@ -29,22 +29,22 @@ function flame = CounterFlowDiffusionFlame(left, flow, right, tp_f, tp_o, oxidiz
     if nargin ~= 6
         error('CounterFlowDiffusionFlame expects six input arguments.');
     end
-    if ~isIdealGas(tp_f)
+    if ~tp_f.isIdealGas
         error('Fuel gas object must represent an ideal gas mixture.');
     end
-    if ~isIdealGas(tp_o)
+    if ~tp_o.isIdealGas
         error('Oxidizer gas object must represent an ideal gas mixture.');
     end
-    if ~isInlet(left)
+    if ~left.isInlet
         error('Left inlet object of wrong type.');
     end
-    if ~isFlow(flow)
+    if ~flow.isFlow
         error('Flow object of wrong type.');
     end
-    if ~isInlet(right)
+    if ~right.isInlet
         error('Right inlet object of wrong type.');
     end
-    if ~ischar(oxidizer)
+    if ~oxidizer.ischar
         error('Oxidizer name must be of format character.');
     end
 
@@ -74,8 +74,8 @@ function flame = CounterFlowDiffusionFlame(left, flow, right, tp_f, tp_o, oxidiz
     % conditions. The stoichiometric mixture fraction, Zst, is then
     % calculated.
 
-    sFuel = elMoles(tp_f, 'O')- 2*elMoles(tp_f, 'C')- 0.5*elMoles(tp_f, 'H');
-    sOx = elMoles(tp_o, 'O')- 2*elMoles(tp_o, 'C')- 0.5*elMoles(tp_o, 'H');
+    sFuel = tp_f.elMoles('O')- 2*tp_f.elMoles('C')- 0.5*tp_f.elMoles('H');
+    sOx = tp_o.elMoles('O')- 2*tp_o.elMoles('C')- 0.5*tp_o.elMoles('H');
     phi = sFuel/sOx;
     zst = 1.0/(1.0 - phi);
 
