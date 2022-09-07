@@ -1543,18 +1543,52 @@ class TestExtensible(ReactionTests, utilities.CanteraTest):
     def test_roundtrip(self):
         pytest.skip("ExtensibleRate does not yet support roundtrip conversion")
 
+    def test_set_parameters_error(self):
+        with pytest.raises(KeyError):
+            # Instantiate with no A factor
+            ct.ReactionRate.from_dict({"type": "user-rate-1"})
+
+    def test_eval_error(self):
+        # Instantiate with non-numeric A factor to cause an exception during evaluation
+        R = ct.ReactionRate.from_dict({"type": "user-rate-1", "A": "xyz"})
+        with pytest.raises(TypeError):
+            R(500)
+
 
 class TestExtensible2(utilities.CanteraTest):
-    def test_load_module(self):
+    _input_template = """
+    extensions:
+    - type: python
+      name: {module}
+
+    phases:
+    - name: gas
+      thermo: ideal-gas
+      species: [{{h2o2.yaml/species: all}}]
+      kinetics: gas
+      state: {{T: 300.0, P: 1 atm}}
+    """
+
+    @classmethod
+    def setUpClass(cls):
         here = str(Path(__file__).parent)
         if here not in sys.path:
             sys.path.append(here)
 
+    def test_load_module(self):
         gas = ct.Solution("extensible-reactions.yaml", transport_model=None)
 
         for T in np.linspace(300, 3000, 10):
             gas.TP = T, None
             assert gas.forward_rate_constants[0] == pytest.approx(3.14 * T**2)
+
+    def test_missing_module(self):
+        with pytest.raises(ct.CanteraError, match="No module named 'fake_ext'"):
+            ct.Solution(yaml=self._input_template.format(module="fake_ext"))
+
+    def test_invalid_module(self):
+        with pytest.raises(ct.CanteraError, match="SyntaxError"):
+            ct.Solution(yaml=self._input_template.format(module="user_ext_invalid"))
 
 
 class InterfaceReactionTests(ReactionTests):
