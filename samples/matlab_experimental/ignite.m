@@ -5,6 +5,7 @@ function plotdata = ignite(g)
 %    it using one of MATLAB's ODE integrators, rather than using the
 %    Cantera Reactor class.
 %
+% Keywords: combustion, reactor network, ignition delay, plotting
 
     clear all
     close all

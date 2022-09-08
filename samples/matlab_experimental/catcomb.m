@@ -10,6 +10,7 @@
 % The catalytic combustion mechanism is from Deutschman et al., 26th
 % Symp. (Intl.) on Combustion,1996 pp. 1747-1754
 %
+% Keywords: combustion, catalysis, 1D flow, surface chemistry
 
 %% Initialization
 

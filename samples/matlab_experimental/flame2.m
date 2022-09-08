@@ -2,6 +2,7 @@
 %
 % This script simulates a stagnation-point ethane-air flame.
 %
+% Keywords: combustion, 1D flow, strained flame, diffusion flame, plotting
 
 %% Initialization
 

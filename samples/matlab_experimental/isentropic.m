@@ -4,6 +4,8 @@ function isentropic(g)
 % In this example, the area ratio vs. Mach number curve is computed for a
 % hydrogen/nitrogen gas mixture.
 %
+% Keywords: thermodynamics, compressible flow, plotting
+
     clear all
     close all
     cleanup

@@ -2,6 +2,8 @@ function ignite_uv(gas)
     %  IGNITE_UV  Solves the same ignition problem as 'ignite2', except
     %  function conuv is used instead of reactor.
     %
+    % Keywords: combustion, user-defined model, ignition delay, plotting
+
     clear all
     close all
     cleanup

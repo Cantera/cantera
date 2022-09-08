@@ -54,10 +54,6 @@ classdef Reactor < handle
             r.type = char(typ);
             r.id = callct('reactor_new', typ);
 
-            if r.id < 0
-                error(geterr);
-            end
-
             if isa(content, 'Solution')
                 r.insert(content);
             elseif ~(isa(contents, 'double') && contents == 0)

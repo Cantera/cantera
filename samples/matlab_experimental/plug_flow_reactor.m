@@ -20,8 +20,9 @@
 % Advanced Propulsion and Power Laboratory
 % Virginia Tech
 %
+% Keywords: combustion, user-defined model, compressible flow, plotting
 
-%% Clear all variables, close all figures, clear the command line:
+%% Initialization
 
 clear all
 close all

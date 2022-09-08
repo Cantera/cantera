@@ -11,7 +11,6 @@
 %
 % Requires: cantera >= 2.6.0, pandas >= 0.25.0, matplotlib >= 2.0
 % Keywords: surface chemistry, kinetics
-%
 
 %% Initialization
 

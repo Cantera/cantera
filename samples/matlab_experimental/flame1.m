@@ -3,6 +3,7 @@
 % This script simulates a burner-stablized lean hydrogen-oxygen flame
 % at low pressure.
 %
+% Keywords: combustion, 1D flow, burner-stabilized flame, plotting
 
 %% Initialization
 
