@@ -4,6 +4,7 @@
 % opposed-flow diffusion flame for Ethane in Air. This example is the same
 % as the diffusion_flame.py example without radiation.
 %
+% Keywords: combustion, 1D flow, diffusion flame, plotting
 
 %% Initialization
 

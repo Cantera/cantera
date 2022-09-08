@@ -1,6 +1,8 @@
 function ignite_hp(gas)
     %  IGNITE_HP  Solves the same ignition problem as 'ignite', but uses
     %  function conhp instead of reactor.
+    %
+    % Keywords: combustion, user-defined model, ignition delay, plotting
 
     clear all
     close all

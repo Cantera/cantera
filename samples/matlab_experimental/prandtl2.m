@@ -4,6 +4,7 @@ function prandtl2(g)
     % This example does the same thing as prandtl1, but using the
     % multicomponent expression for the thermal conductivity.
     %
+    % Keywords: transport, equilibrium, multicomponent transport, plotting
 
     clear all
     close all

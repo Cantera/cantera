@@ -4,6 +4,7 @@ function equil(g)
 % This example computes the adiabatic flame temperature and equilibrium
 % composition for a methane/air mixture as a function of equivalence ratio.
 %
+% Keywords: combustion, equilibrium, plotting
 
     clear all
     close all
