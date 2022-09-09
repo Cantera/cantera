@@ -375,8 +375,8 @@ cdef class MoleReactor(Reactor):
     they are closed (no inlets or outlets), have fixed volume, and have adiabatic,
     chemically-inert walls. These properties may all be changed by adding
     appropriate components such as `Wall`, `MassFlowController` and `Valve`.
-    
-    .. versionadded:: 3.0    
+
+    .. versionadded:: 3.0
     """
     reactor_type = "MoleReactor"
 
@@ -400,6 +400,8 @@ cdef class ConstPressureMoleReactor(Reactor):
     """A homogeneous, constant pressure, zero-dimensional reactor with a mole based
     state vector. The volume of the reactor changes as a function of time in order to
     keep the pressure constant.
+
+    .. versionadded:: 3.0
     """
     reactor_type = "ConstPressureMoleReactor"
 
@@ -634,6 +636,8 @@ cdef class ExtensibleMoleReactor(ExtensibleReactor):
     """
     A variant of `ExtensibleReactor` where the base behavior corresponds to the
     `MoleReactor` class.
+
+    .. versionadded:: 3.0
     """
     reactor_type = "ExtensibleMoleReactor"
 
@@ -642,6 +646,8 @@ cdef class ExtensibleIdealGasMoleReactor(ExtensibleReactor):
     """
     A variant of `ExtensibleReactor` where the base behavior corresponds to the
     `IdealGasMoleReactor` class.
+
+    .. versionadded:: 3.0
     """
     reactor_type = "ExtensibleIdealGasMoleReactor"
 
@@ -650,6 +656,8 @@ cdef class ExtensibleConstPressureMoleReactor(ExtensibleReactor):
     """
     A variant of `ExtensibleReactor` where the base behavior corresponds to the
     `ConstPressureMoleReactor` class.
+
+    .. versionadded:: 3.0
     """
     reactor_type = "ExtensibleConstPressureMoleReactor"
 
@@ -658,6 +666,8 @@ cdef class ExtensibleIdealGasConstPressureMoleReactor(ExtensibleReactor):
     """
     A variant of `ExtensibleReactor` where the base behavior corresponds to the
     `IdealGasConstPressureMoleReactor` class.
+
+    .. versionadded:: 3.0
     """
     reactor_type = "ExtensibleIdealGasConstPressureMoleReactor"
 
