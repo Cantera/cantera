@@ -20,5 +20,6 @@ if ~libisloaded(ct)
                                 'ctonedim','addheader','ctreactor', ...
                                 'addheader','ctrpath','addheader','ctsurf');
 end
-disp('Cantera is ready for use');
+ct_ver = canteraVersion;
+sprintf('%s is ready for use.', ct_ver);
 clear all

@@ -1,36 +1,47 @@
-function [work, efficiency] = rankine(t1, p2, eta_pump, eta_turbine)
-    % This example computes the efficiency of a simple vapor power cycle.
-    %
-    % Keywords: thermodynamics, thermodynamic cycle, non-ideal fluid
+% RANKINE - This example computes the efficiency of a simple vapor power cycle.
+%
+% Keywords: thermodynamics, thermodynamic cycle, non-ideal fluid
 
-    help rankine
+clear all
+close all
+cleanup
 
-    % create an object representing water
-    w = Water;
+help rankine
 
-    % start with saturated liquid water at t1
-    w.setState_Tsat(t1, 1.0);
-    p1 = w.P;
+% Initialize parameters
+eta_pump = 0.6;
+eta_turbine = 0.8;
+p_max = 8.0 * oneatm;
 
-    % pump it to p2
-    basis = 'mass';
-    pump_work = pump(w, p2, eta_pump);
-    h2 = w.H;
-    p2 = w.P;
+% create an object representing water
+w = Water;
 
-    % heat to saturated vapor
-    w.setState_Psat(p2, 1.0);
-    h3 = w.H;
+% start with saturated liquid water at t1
+basis = 'mass';
+w.setState_Tsat(t1, 1.0);
+h1 = w.H;
+p1 = w.P;
+w
 
-    heat_added = h3 - h2;
+% pump it to p2
+pump_work = pump(w, p_max, eta_pump);
+h2 = w.H;
+w
 
-    % expand adiabatically back to the initial pressure
-    work = expand(w, p1, eta_turbine);
+% heat to saturated vapor
+w.setState_Psat(p_max, 1.0);
+h3 = w.H;
+w
 
-    % compute the efficiency
-    efficiency = (work - pump_work)/heat_added;
-end
+heat_added = h3 - h2;
 
+% expand adiabatically back to the initial pressure
+turbine_work = w.expand(p1, eta_turbine);
+w
+
+% compute the efficiency
+efficiency = (turbine_work - pump_work)/heat_added;
+disp('efficiency = ', eff);
 
 function w = pump(fluid, pfinal, eta)
     % PUMP - Adiabatically pump a fluid to pressure pfinal, using a pump
