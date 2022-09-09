@@ -66,6 +66,25 @@ public:
     //! Set of parameters modifying SurfPhase enthalpy and entropy based on
     //! surface coverages using a polynomial model.
     //! Linear model is a subset of the polynomial model.
+    /*!
+     *  enthalpy and entropy are sum of ideal surface species enthalpy and entropy
+     *  and coverage-dependent enthalpy and entropy which are calculated with
+     *  a polynomial function of coverages:
+     *
+     *  For the linear dependence,
+     *  \f[ h^{cov}_k(\theta) = \sum_j h^{slope}_{k,j} \theta_j \f]
+     *  \f[ s^{cov}_k(\theta) = \sum_j s^{slope}_{k,j} \theta_j \f]
+     *
+     *  For the polynomial dependence,
+     *  \f[ h^{cov}_k(\theta) =
+     *      \sum_j (h^{1st-order}_{k,j} \theta_j + h^{2nd-order}_{k,j} \theta_j^2
+     *              + h^{3rd-order}_{k,j} \theta_j^3 + h^{4th-order}_{k,j} \theta_j^4)
+     *  \f]
+     *  \f[ s^{cov}_k(\theta) =
+     *      \sum_j (s^{1st-order}_{k,j} \theta_j + s^{2nd-order}_{k,j} \theta_j^2
+     *              + s^{3rd-order}_{k,j} \theta_j^3 + s^{4th-order}_{k,j} \theta_j^4)
+     *  \f]
+     */
     struct PolynomialDependency
     {
         //! Constructor
@@ -81,10 +100,11 @@ public:
         //!                         3rd-order, and 4th-order coefficients as a function
         //!                         of coverage
         PolynomialDependency(size_t k_, size_t j_,
-                            vector_fp enthalpy_coeffs_, vector_fp entropy_coeffs_):
-                            k(k_), j(j_),
-                            enthalpy_coeffs(enthalpy_coeffs_),
-                            entropy_coeffs(entropy_coeffs_) {}
+                             vector_fp enthalpy_coeffs_ = {0.0, 0.0, 0.0, 0.0, 0.0},
+                             vector_fp entropy_coeffs_ = {0.0, 0.0, 0.0, 0.0, 0.0}):
+                             k(k_), j(j_),
+                             enthalpy_coeffs(enthalpy_coeffs_),
+                             entropy_coeffs(entropy_coeffs_) {}
         PolynomialDependency() {}
         //! index of a target species whose thermodynamics are calculated
         size_t k;
@@ -132,6 +152,14 @@ public:
 
     //! Set of parameters modifying SurfPhase heat capacity based on surface coverages
     //! using a quadratic model.
+    /*!
+     *  heat capacity is sum of ideal surface species heat capacity and
+     *  coverage-dependent heat capacity which is calculated using a function with
+     *  quadratic dependence on coverages and a logarithmic dependence on temperature:
+     *
+     *  \f[ cp^{cov}_k(\theta) = \sum_j (a_{k,j} ln(T) + b_{k,j}) \theta_j^2 \f]
+     *
+     */
     struct HeatCapacityDependency
     {
         //! Constructor
@@ -154,29 +182,6 @@ public:
         double cpcov_b; //! log model coefficient b [J/kmol/K]
     };
 
-    //! Set the polynomial coverage dependece for species
-    /*!
-     *  enthalpy and entropy are sum of ideal surface species enthalpy and entropy
-     *  and coverage-dependent enthalpy and entropy which are calculated with
-     *  a polynomial function of coverages:
-     *
-     *  For the linear dependence,
-     *  \f[ h^{cov}_k(\theta) = \sum_j h^{slope}_{k,j} \theta_j \f]
-     *  \f[ s^{cov}_k(\theta) = \sum_j s^{slope}_{k,j} \theta_j \f]
-     *
-     *  For the polynomial dependence,
-     *  \f[ h^{cov}_k(\theta) =
-     *      \sum_j (h^{1st-order}_{k,j} \theta_j + h^{2nd-order}_{k,j} \theta_j^2
-     *              + h^{3rd-order}_{k,j} \theta_j^3 + h^{4th-order}_{k,j} \theta_j^4)
-     *  \f]
-     *  \f[ s^{cov}_k(\theta) =
-     *      \sum_j (s^{1st-order}_{k,j} \theta_j + s^{2nd-order}_{k,j} \theta_j^2
-     *              + s^{3rd-order}_{k,j} \theta_j^3 + s^{4th-order}_{k,j} \theta_j^4)
-     *  \f]
-     *  @param poly_deps  list of parameters as a PolynomialDependency object
-     */
-    void setPolynomialDependency(const PolynomialDependency& poly_deps);
-
     //! Set the interpolative coverage dependece for species
     /*!
      *  enthalpy and entropy are sum of ideal surface species enthalpy and entropy
@@ -198,18 +203,6 @@ public:
      *  @param int_deps  list of parameters as an InterpolativeDependency object
      */
     void setInterpolativeDependency(const InterpolativeDependency& int_deps);
-
-    //! Set the heat capacity coverage dependece for species
-    /*!
-     *  heat capacity is sum of ideal surface species heat capacity and
-     *  coverage-dependent heat capacity which is calculated using a function with
-     *  quadratic dependence on coverages and a logarithmic dependence on temperature:
-
-     *  \f[ cp^{cov}_k(\theta) = \sum_j (a_{k,j} ln(T) + b_{k,j}) \theta_j^2 \f]
-     *
-     *  @param cpcov_deps  list of parameters as a HeatCapacityDependency object
-     */
-    void setHeatCapacityDependency(const HeatCapacityDependency& cpcov_deps);
 
     virtual void initThermo();
     virtual bool addSpecies(shared_ptr<Species> spec);

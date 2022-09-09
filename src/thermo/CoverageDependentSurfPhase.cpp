@@ -36,12 +36,6 @@ CoverageDependentSurfPhase::CoverageDependentSurfPhase(const std::string& infile
     initThermoFile(infile, id_);
 }
 
-void CoverageDependentSurfPhase::setPolynomialDependency(const PolynomialDependency&
-                                                         poly_deps)
-{
-    m_PolynomialDependency.push_back(poly_deps);
-}
-
 void CoverageDependentSurfPhase::setInterpolativeDependency(const
                                                             InterpolativeDependency&
                                                             int_deps)
@@ -85,13 +79,6 @@ void CoverageDependentSurfPhase::setInterpolativeDependency(const
     m_InterpolativeDependency.push_back(int_deps);
 }
 
-void CoverageDependentSurfPhase::setHeatCapacityDependency(const
-                                                           HeatCapacityDependency&
-                                                           cpcov_deps)
-{
-    m_HeatCapacityDependency.push_back(cpcov_deps);
-}
-
 void CoverageDependentSurfPhase::initThermo()
 {
     if (m_input.hasKey("site-density")) {
@@ -127,36 +114,34 @@ void CoverageDependentSurfPhase::initThermo()
                 auto& cov_map2 = item2.second.as<AnyMap>();
                 // For linear model
                 if (cov_map2["model"] == "linear") {
-                    vector_fp h_coeffs (5, 0.0);
-                    vector_fp s_coeffs (5, 0.0);
+                    PolynomialDependency poly_deps(k, j);
                     if (cov_map2.hasKey("enthalpy")) {
-                        double h_slope = cov_map2.convert("enthalpy", "J/kmol");
-                        h_coeffs[1] = h_slope;
+                        poly_deps.enthalpy_coeffs[1] = cov_map2.convert("enthalpy",
+                                                                        "J/kmol");
                     }
                     if (cov_map2.hasKey("entropy")) {
-                        double s_slope = cov_map2.convert("entropy", "J/kmol/K");
-                        s_coeffs[1] = s_slope;
+                        poly_deps.entropy_coeffs[1] = cov_map2.convert("entropy",
+                                                                       "J/kmol/K");
                     }
 
-                    PolynomialDependency poly_deps(k, j, h_coeffs, s_coeffs);
-                    setPolynomialDependency(poly_deps);
+                    m_PolynomialDependency.push_back(poly_deps);
                 // For polynomial(4th) model
                 } else if (cov_map2["model"] == "polynomial") {
-                    vector_fp h_coeffs (5, 0.0);
-                    vector_fp s_coeffs (5, 0.0);
+                    PolynomialDependency poly_deps(k, j);
                     if (cov_map2.hasKey("enthalpy-coefficients")) {
-                        h_coeffs = cov_map2.convertVector("enthalpy-coefficients",
-                                                          "J/kmol");
-                        h_coeffs.insert(h_coeffs.begin(), 0.0);
+                        poly_deps.enthalpy_coeffs = cov_map2.convertVector(
+                            "enthalpy-coefficients", "J/kmol");
+                        poly_deps.enthalpy_coeffs.insert(
+                            poly_deps.enthalpy_coeffs.begin(), 0.0);
                     }
                     if (cov_map2.hasKey("entropy-coefficients")) {
-                        s_coeffs = cov_map2.convertVector("entropy-coefficients",
-                                                          "J/kmol/K");
-                        s_coeffs.insert(s_coeffs.begin(), 0.0);
+                        poly_deps.entropy_coeffs = cov_map2.convertVector(
+                            "entropy-coefficients", "J/kmol/K");
+                        poly_deps.entropy_coeffs.insert(
+                            poly_deps.entropy_coeffs.begin(), 0.0);
                     }
 
-                    PolynomialDependency poly_deps(k, j, h_coeffs, s_coeffs);
-                    setPolynomialDependency(poly_deps);
+                    m_PolynomialDependency.push_back(poly_deps);
                 // For piecewise linear model
                 } else if (cov_map2["model"] == "piecewise-linear") {
                     std::map<double, double> hmap, smap;
@@ -250,7 +235,7 @@ void CoverageDependentSurfPhase::initThermo()
                     double cpcov_b = cov_map2.convert("heat-capacity-b", "J/kmol/K");
 
                     HeatCapacityDependency cpcov_deps(k, j, cpcov_a, cpcov_b);
-                    setHeatCapacityDependency(cpcov_deps);
+                    m_HeatCapacityDependency.push_back(cpcov_deps);
                 }
             }
         }
