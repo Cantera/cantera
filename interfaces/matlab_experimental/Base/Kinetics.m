@@ -2,15 +2,12 @@ classdef Kinetics < handle
 
     properties
         kinID
-        Kc % equilibrium constant
-        Kf % forward reaction rate
-        Kr % reverse reaction rate
         dH % enthalpy of reaction
-        dHss % standard state enthalpy of reaction
+        dH_standard % standard state enthalpy of reaction
         dS % entropy of reaction
-        dSss % standard state entropy of reaction
+        dS_standard % standard state entropy of reaction
         dG % gibbs free energy of reaction
-        dGss % standard state gibbs free energy of reaction
+        dG_standard % standard state gibbs free energy of reaction
     end
 
     methods
@@ -345,30 +342,24 @@ classdef Kinetics < handle
             % Get the reaction equation of a reaction
             %
             % :parameter irxn:
-            %    Optional. Integer or vector of reaction numbers.
+            %    Integer index of the reaction.
             % :return:
-            %    String or cell arrray of strings of the reaction
-            %    equations.
+            %    String reaction equation.
 
-            if nargin == 1
-                m = kin.nReactions;
-                n = 1;
-                irxn = (n:m);
-            elseif nargin == 2
-                if isa(irxn, 'double')
-                    [n, m] = size(irxn);
-                else
-                    error('reaction numbers must be numeric');
-                end
-            end
+            output = callct2('kin_getReactionString', kin.kinID, irxn-1);
+        end
 
-            rxn = cell(m, n);
-            for i = 1:n
-                for j = 1:m
-                    output = callct2('kin_getReactionString', kin.kinID, ...
-                                     irxn(i, j) - 1);
-                    rxn{j, i} = output;
-                end
+        function rxn = reactionEqns(kin)
+            % Get all reaction equations within the Kinetics class
+            %
+            % :return:
+            %    Cell arrray of strings of the reaction equations.
+
+            m = kin.nReactions;
+            irxn = (1:m);
+            rxns = cell(1, m);
+            for i = 1:m
+                rxns{i} = kin.reactionEqn(irxn(i)-1);
             end
         end
 
@@ -386,7 +377,7 @@ classdef Kinetics < handle
             enthalpy = pt.Value;
         end
 
-        function enthalpy = get.dHss(kin)
+        function enthalpy = get.dH_standard(kin)
             % Get the standard state enthalpy of reaction for each reaction.
             %
             % :return:
@@ -414,7 +405,7 @@ classdef Kinetics < handle
             entropy = pt.Value;
         end
 
-        function entropy = get.dSss(kin)
+        function entropy = get.dS_standard(kin)
             % Get the standard state entropy of reaction for each reaction.
             %
             % :return:
@@ -442,7 +433,7 @@ classdef Kinetics < handle
             gibbs = pt.Value;
         end
 
-        function gibbs = get.dGss(kin)
+        function gibbs = get.dG_standard(kin)
             % Get the standard state Gibbs free energy of reaction for each reaction.
             %
             % :return:
@@ -456,7 +447,7 @@ classdef Kinetics < handle
             gibbs = pt.Value;
         end
 
-        function k = get.Kc(kin)
+        function k = equilibriumConstants(kin)
             % Get the equilibrium constants for all reactions.
             %
             % :return:
@@ -472,7 +463,7 @@ classdef Kinetics < handle
             k = pt.Value;
         end
 
-        function k = get.Kf(kin)
+        function k = forwardRateConstants(kin)
             % Get the forward reaction rate constants for all reactions.
             %
             % :return:
@@ -486,7 +477,7 @@ classdef Kinetics < handle
             k = pt.Value;
         end
 
-        function k = get.Kr(kin)
+        function k = reverseRateConstants(kin)
             % Get the reverse reaction rate constants for all reactions.
             %
             % :return:
@@ -519,28 +510,24 @@ classdef Kinetics < handle
             % Set the multiplier for the reaction rate of progress.
             %
             % :parameter irxn:
-            %    Integer of vector reaction numbers for which the
-            %    multiplier should be set. Optional.
+            %    Integer vector reaction numbers for which the multiplier
+            %    should be set. Optional.
             % :parameter v:
             %    Value by which the reaction rate of progress should be
             %    multiplied.
 
             if nargin == 2
                 v = irxn;
-                nr = kin.nReactions;
-                irxn = (1:nr)';
-                n = 1;
+                n = kin.nReactions;
+                irxn = (1:n);
             elseif nargin == 3
-                [nr, n] = size(irxn);
+                n = length(irxn);
             else
                 error('setMultiplier requires 2 or 3 arguments.')
             end
 
-            for i = 1:nr
-                for j = 1:n
-                    callct('kin_setMultiplier', kin.kinID, ...
-                            irxn(i, j)-1, v);
-                end
+            for i = 1:n
+                calct('kin_setMultiplier', kin.kinID, irxn(i)-1, v);
             end
         end
 

@@ -10,14 +10,15 @@ classdef Domain1D < handle
     methods
         %% Domain1D class constructor.
 
-        function d = Domain1D(a, b, c)
+        function d = Domain1D(a, b)
             % Domain1D class constructor.
             %
-            % d = Domain1D(a, b, c)
+            % d = Domain1D(a, b)
             %
             % :param a:
             %    String type of domain. Possible values are:
             %    `StagnationFlow`
+            %    `AxisymmetricFlow`
             %    `Inlet1D`
             %    `Surf1D`
             %    `Symm1D`
@@ -29,13 +30,8 @@ classdef Domain1D < handle
             %     Instance of class :mat:func:`Solution` (for ``a == 1``)
             %     or :mat:func:`Interface` (for ``a == 6``). Not used for
             %     all other valid values of ``a``.
-            % :param c:
-            %     Integer, either 1 or 2, indicating whether an axisymmetric
-            %     stagnation flow or a free flame should be created. If not
-            %     specified, defaults to 1. Ignored if ``a != 1``.
             %
             checklib;
-            d.domainID = -1;
 
             if nargin == 1
                 if strcmp(a, 'Inlet1D')
@@ -60,6 +56,13 @@ classdef Domain1D < handle
                     else
                         error('Wrong argument type. Expecting instance of class Solution.');
                     end
+                elseif strcmp(a, 'AxisymmetricFlow')
+                    if isa(b, 'Solution')
+                        d.domainID = callct('stflow_new', ...
+                                            b.tpID, b.kinID, b.trID, 2);
+                    else
+                        error('Wrong argument type. Expecting instance of class Solution.');
+                    end
                 elseif strcmp(a, 'ReactingSurface')
                     if isa(b, 'Interface')
                         d.domainID = callct('reactingsurf_new');
@@ -70,21 +73,6 @@ classdef Domain1D < handle
                     end
                 else
                     error('Wrong object type.');
-                end
-            elseif nargin == 3
-                if strcmp(a, 'StagnationFlow')
-                    if isa(b, 'Solution')
-                        if strcmp(c, 'AxisymmetricFlow')
-                            flowtype = 1;
-                        else flowtype = 2;
-                        end
-                        d.domainID = callct('stflow_new', ...
-                                           b.tpID, b.kinID, b.trID, flowtype);
-                    else
-                        error('Wrong argument type. Expecting instance of class Solution.');
-                    end
-                else
-                    error('Unknown domain type.');
                 end
             end
             d.type = a;
