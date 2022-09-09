@@ -375,6 +375,8 @@ cdef class MoleReactor(Reactor):
     they are closed (no inlets or outlets), have fixed volume, and have adiabatic,
     chemically-inert walls. These properties may all be changed by adding
     appropriate components such as `Wall`, `MassFlowController` and `Valve`.
+    
+    .. versionadded:: 3.0    
     """
     reactor_type = "MoleReactor"
 

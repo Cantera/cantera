@@ -14,6 +14,7 @@ namespace Cantera
 /*!
  * ConstPressureMoleReactor is a class for constant-pressure reactors
  * which use a state of moles.
+ * @SInCE New in Cantera 3.0
  */
 class ConstPressureMoleReactor : public MoleReactor
 {
