@@ -12,6 +12,8 @@ namespace Cantera
 {
 
 //! Base class for managing user-defined Cantera extensions written in other languages
+//!
+//! @since New in Cantera 3.0
 class ExtensionManager
 {
 public:

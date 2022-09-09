@@ -14,6 +14,8 @@ namespace Cantera
 {
 
 //! Delegate methods of the ReactionRate class to external functions
+//!
+//! @since New in Cantera 3.0
 class ReactionRateDelegator : public Delegator, public ReactionRate
 {
 public:

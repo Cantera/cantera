@@ -290,6 +290,7 @@ public:
     //!     parameter depends on the specific extension interface. For example, for
     //!     Python extensions, this is the name of the Python module containing the
     //!     models.
+    //! @since New in Cantera 3.0
     void loadExtension(const std::string& extType, const std::string& name);
 
 #ifdef _WIN32

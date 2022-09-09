@@ -69,6 +69,9 @@
   (for example, comment lines starting with `//!` or comment blocks starting with
   `/*!`; do not use `///` or `/**` in new code)
 * Doxygen-style groupings should bracket code using `//! @{` and `//! @}`
+* Indicate the version added for new functions and classes with an annotation like
+  `@since New in Cantera X.Y` where `X.Y` is the next Cantera version. This notation
+  should also be used indicate significant changes in behavior.
 * Avoid defining non-trivial functions in header files
 * Header files should include an 'include guard'
 * Protected and private member variable names are generally prefixed with
@@ -99,7 +102,11 @@
 
 * Style generally follows PEP8 (https://www.python.org/dev/peps/pep-0008/)
 * Code in `.py` and `.pyx` files needs to be written to work with Python 3
-* The minimum Python version that Cantera supports is Python 3.6, so code should only use features added in Python 3.6 or earlier
+* The minimum Python version that Cantera supports is Python 3.7, so code should only
+  use features added in Python 3.7 or earlier
+* Indicate the version added for new functions and classes with an annotation like
+  `.. versionadded:: X.Y` where `X.Y` is the next Cantera version. Significant changes
+  in behavior should be indicated with `.. versionchanged:: X.Y`.
 * Please use double quotes in all new Python code
 
 ## C#
