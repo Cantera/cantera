@@ -372,6 +372,8 @@ def extension(*, name):
     Loading this input file from any Cantera user interface would cause Cantera to load
     the ``my_cool_module.py`` module and register the ``CoolRate`` class to handle
     reactions whose ``type`` in the YAML file is set to ``cool-rate``.
+
+    .. versionadded:: 3.0
     """
     def decorator(cls):
         if issubclass(cls, ExtensibleRate):

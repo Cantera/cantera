@@ -744,6 +744,8 @@ cdef class ExtensibleRate(ReactionRate):
 
     **Warning:** The delegatable methods defined here are an experimental part of the
     Cantera API and may change without notice.
+
+    .. versionadded:: 3.0
     """
 
     _reaction_rate_type = "extensible"

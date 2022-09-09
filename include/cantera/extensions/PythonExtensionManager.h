@@ -20,6 +20,8 @@ namespace Cantera
 //! documentation for
 //! <a href="../../sphinx/html/cython/utilities.html#cantera.extension">`@extension`</a>
 //! in the Python documentation for more information.
+//!
+//! @since New in Cantera 3.0
 class PythonExtensionManager : public ExtensionManager
 {
 public:

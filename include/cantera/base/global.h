@@ -83,6 +83,8 @@ void loadExtension(const std::string& extType, const std::string& name);
 
 //! Load extensions providing user-defined models from the `extensions` section of the
 //! given node. @see Application::loadExtension
+//!
+//! @since New in Cantera 3.0
 void loadExtensions(const AnyMap& node);
 
 //! Delete and free all memory associated with the application

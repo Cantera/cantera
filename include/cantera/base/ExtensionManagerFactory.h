@@ -13,6 +13,8 @@ namespace Cantera
 {
 
 //! A factory class for creating ExtensionManager objects
+//!
+//! @since New in Cantera 3.0
 class ExtensionManagerFactory : public Factory<ExtensionManager>
 {
 public:
