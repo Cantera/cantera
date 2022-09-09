@@ -12,8 +12,6 @@ classdef Interface < handle & ThermoPhase & Kinetics
             % INTERFACE  Interface class constructor.
             % s = Interface(src, id, p1, p2, p3, p4)
             %
-            % See also: :mat:func:`importEdge`, :mat:func:`importInterface`
-            %
             % :param src:
             %     YAML file containing the interface or edge phase.
             % :param id:

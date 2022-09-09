@@ -53,7 +53,7 @@ mw = dbulk.MolecularWeights;
 % rates. It will be created from the interface definition 'diamond_100'
 % in input file 'diamond.yaml'.
 
-surf_phase = importInterface('diamond.yaml', 'diamond_100', gas, dbulk);
+surf_phase = Interface('diamond.yaml', 'diamond_100', gas, dbulk);
 
 %% Advance Coverages
 

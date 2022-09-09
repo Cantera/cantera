@@ -73,7 +73,7 @@ gas.TPX = {tinlet, p, comp1};
 % mechanism of Deutschmann et al., 1995 for catalytic combustion on
 % platinum.
 
-surf_phase = importInterface('ptcombust.yaml', 'Pt_surf', gas);
+surf_phase = Interface('ptcombust.yaml', 'Pt_surf', gas);
 surf_phase.T = tsurf;
 
 % integrate the coverage equations in time for 1 s, holding the gas
