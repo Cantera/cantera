@@ -375,8 +375,9 @@ config_options = [
         """Controls whether Cantera automatically checks for installations of BLAS and
            LAPACK libraries. The option is disabled by default ('off'). If automatic
            detection is enabled, libraries are added to the 'blas_lapack_libs' path.
-           For the 'auto' setting, MKL is prioritized over OpenBLAS.""",
-        "off", ("auto", "mkl", "openblas", "off")),
+           For the 'auto' setting, MKL is prioritized over OpenBLAS and the 'standard'
+           option corresponding to 'lapack,blas'.""",
+        "off", ("auto", "mkl", "openblas", "standard", "off")),
     Option(
         "blas_lapack_libs",
         """Cantera can use BLAS and LAPACK libraries installed on your system if you
@@ -1300,19 +1301,25 @@ elif env["matlab_path"] != "" and env["matlab_toolbox"] in {"default", "y"}:
 elif env["locate_lapack"] != "off":
     # auto-detect versions
     if env["locate_lapack"] == "auto":
-        blas_lapack_order = ["mkl_rt", "openblas"]
+        blas_lapack_order = [["mkl_rt", "dl"], ["openblas"], ["lapack", "blas"]]
     elif env["locate_lapack"] == "mkl":
-        blas_lapack_order = ["mkl_rt"]
-    else:
-        blas_lapack_order = [env["locate_lapack"]]
+        blas_lapack_order = [["mkl_rt", "dl"]]
+    elif env["locate_lapack"] == "openblas":
+        blas_lapack_order = [["openblas"]]
+    else: # "standard"
+        blas_lapack_order = [["lapack", "blas"]]
     for lib in blas_lapack_order:
-        if conf.CheckLib(lib):
-            env["blas_lapack_libs"] = [lib]
+        if all(conf.CheckLib(l, autoadd=False) for l in lib):
+            env["blas_lapack_libs"] = lib
             env["use_lapack"] = True
             break
     if not env["blas_lapack_libs"]:
-        logger.warning(f"Failed to locate BLAS and LAPACK libraries with option "
-            f"'{env['locate_lapack']}'.")
+        msg = f"Failed to locate lapack libraries with option {env['locate_lapack']!r}."
+        if env["locate_lapack"] == "auto":
+            logger.warning(msg)
+        else:
+            logger.error(msg)
+            exit(1)
 
 if "mkl_rt" in env["blas_lapack_libs"]:
     mkl_version = textwrap.dedent("""\
