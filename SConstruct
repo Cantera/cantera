@@ -373,11 +373,16 @@ config_options = [
     EnumOption(
         "locate_lapack",
         """Controls whether Cantera automatically checks for installations of BLAS and
-           LAPACK libraries. The option is disabled by default ('off'). If automatic
-           detection is enabled, libraries are added to the 'blas_lapack_libs' path.
-           For the 'auto' setting, MKL is prioritized over OpenBLAS and the 'standard'
-           option corresponding to 'lapack,blas'.""",
-        "off", ("auto", "mkl", "openblas", "standard", "off")),
+           LAPACK libraries if the configuration is not specified by 'blas_lapack_libs'.
+           By default, 'auto' updates 'blas_lapack_libs' based on build system and
+           detected libraries. On macOS, 'auto' defaults to the Accelerate framework,
+           whereas on other operating systems the preferred options depend on the CPU
+           manufacturer. In general, OpenBLAS ('openblas') is prioritized over
+           'standard' libraries ('lapack,blas'). On Intel CPU's, MKL (Windows:
+           'mkl_rt' / Linux: 'mkl_rt,dl') has highest priority, followed by the
+           other options. Note that 'locate_lapack' is disabled if the MATLAB toolbox
+           is installed.""",
+        "auto", ("auto", "mkl", "openblas", "standard", "off")),
     Option(
         "blas_lapack_libs",
         """Cantera can use BLAS and LAPACK libraries installed on your system if you
@@ -897,6 +902,27 @@ env["cantera_version"] = "3.0.0a3"
 env['cantera_pure_version'] = re.match(r'(\d+\.\d+\.\d+)', env['cantera_version']).group(0)
 env['cantera_short_version'] = re.match(r'(\d+\.\d+)', env['cantera_version']).group(0)
 
+def get_processor_name():
+    """Check processor name"""
+    # adapted from:
+    # https://stackoverflow.com/questions/4842448/getting-processor-information-in-python
+    if platform.system() == "Windows":
+        return platform.processor().strip()
+    elif platform.system() == "Darwin":
+        os.environ['PATH'] = os.environ['PATH'] + os.pathsep + '/usr/sbin'
+        command ="sysctl -n machdep.cpu.brand_string"
+        return subprocess.check_output(command, shell=True).decode().strip()
+    elif platform.system() == "Linux":
+        command = "cat /proc/cpuinfo"
+        all_info = subprocess.check_output(command, shell=True).decode().strip()
+        for line in all_info.split("\n"):
+            if "model name" in line:
+                return re.sub(".*model name.*:", "", line, 1).strip()
+    return ""
+
+env["CPU"] = get_processor_name()
+logger.info(f"Compiling on {env['CPU']!r}")
+
 try:
     env["git_commit"] = get_command_output("git", "rev-parse", "--short", "HEAD")
     logger.info(f"Building Cantera from git commit {env['git_commit']!r}")
@@ -1301,7 +1327,18 @@ elif env["matlab_path"] != "" and env["matlab_toolbox"] in {"default", "y"}:
 elif env["locate_lapack"] != "off":
     # auto-detect versions
     if env["locate_lapack"] == "auto":
-        blas_lapack_order = [["mkl_rt", "dl"], ["openblas"], ["lapack", "blas"]]
+        if env["OS"] == "Darwin":
+            # Use macOS Accelerate framework by default
+            blas_lapack_order = []
+        elif "intel" in env["CPU"].lower():
+            if env["OS"] == "Windows":
+                blas_lapack_order = [["mkl_rt"], ["openblas"], ["lapack", "blas"]]
+            else:
+                blas_lapack_order = [["mkl_rt", "dl"], ["openblas"], ["lapack", "blas"]]
+        else:
+            # MKL is known to have deliberately sub-optimal performance on non-Intel
+            # (i.e. AMD) processors
+            blas_lapack_order = [["openblas"], ["lapack", "blas"]]
     elif env["locate_lapack"] == "mkl":
         blas_lapack_order = [["mkl_rt", "dl"]]
     elif env["locate_lapack"] == "openblas":
@@ -1313,7 +1350,7 @@ elif env["locate_lapack"] != "off":
             env["blas_lapack_libs"] = lib
             env["use_lapack"] = True
             break
-    if not env["blas_lapack_libs"]:
+    if not env["blas_lapack_libs"] and env["OS"] != "Darwin":
         msg = f"Failed to locate lapack libraries with option {env['locate_lapack']!r}."
         if env["locate_lapack"] == "auto":
             logger.warning(msg)
@@ -1765,13 +1802,13 @@ if env["matlab_toolbox"] == "y":
             "has not been set.")
         sys.exit(1)
 
-    if env['blas_lapack_libs']:
+    if env["blas_lapack_libs"] or env["locate_lapack"] not in ["auto", "off"]:
         logger.error(
-            "The Matlab toolbox is incompatible with external BLAS "
-            "and LAPACK libraries. Unset blas_lapack_libs (for example, 'scons "
-            "build blas_lapack_libs=') in order to build the Matlab "
-            "toolbox, or set 'matlab_toolbox=n' to use the specified BLAS/"
-            "LAPACK libraries and skip building the Matlab toolbox.")
+            "The Matlab toolbox is incompatible with external BLAS and LAPACK "
+            "libraries. Unset 'blas_lapack_libs' (for example, 'scons build "
+            "blas_lapack_libs=') and/or 'locate_lapack' in order to build the Matlab "
+            "toolbox, or set 'matlab_toolbox=n' to use the specified BLAS/LAPACK "
+            "libraries and skip building the Matlab toolbox.")
         sys.exit(1)
 
     if env["system_sundials"] == "y":
