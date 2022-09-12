@@ -1411,6 +1411,9 @@ end program main
 
 set_fortran("{}FLAGS", env["FORTRANFLAGS"])
 
+if env["using_apple_clang"] and env["f90_interface"] == "default":
+    env["f90_interface"] = "n"
+
 if env['f90_interface'] in ('y','default'):
     foundF90 = False
     if env['FORTRAN']:
