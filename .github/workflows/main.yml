@@ -309,7 +309,8 @@ jobs:
           -exec sh -c 'for n; do echo "$n" | tee -a results.txt && python3 "$n" >> results.txt || exit 1; done' sh {} +
         env:
           PYTHONPATH: build/python
-          PYTHONWARNINGS: error
+          # The ignore setting here is due to a new warning introduced in Matplotlib==3.6.0
+          PYTHONWARNINGS: "error,ignore:warn_name_set_on_empty_Forward::pyparsing"
           MPLBACKEND: Agg
       - name: Save the results file for inspection
         uses: actions/upload-artifact@v2
@@ -391,7 +392,7 @@ jobs:
     strategy:
       matrix:
         os: ["windows-2022"]
-        vs-toolset: ["14.3"] # 'cl' is not recognized for earlier toolsets
+        vs-toolset: ["14.1", "14.2", "14.3"] # 'cl' is not recognized for earlier toolsets
         python-version: [ "3.7", "3.9", "3.10" ]
       fail-fast: false
     steps:
@@ -411,15 +412,16 @@ jobs:
     - name: Install conda dependencies
       # See https://github.com/conda-forge/boost-cpp-feedstock/issues/41 for why we
       # use boost-cpp rather than boost from conda-forge
-      run: mamba install -q scons numpy cython ruamel.yaml boost-cpp eigen yaml-cpp
-        h5py pandas pytest mkl mkl-devel
+      # Install SCons >=4.4.0 to make sure that MSVC_TOOLSET_VERSION variable is present
+      run: |
+        mamba install -q '"scons<4.4.0"' numpy cython ruamel.yaml boost-cpp eigen yaml-cpp h5py pandas pytest
       shell: pwsh
     - name: Install typing_extensions for Python 3.7
       if: matrix.python-version == '3.7'
       run: mamba install -q typing_extensions
     - name: Build Cantera
       run: scons build system_eigen=y system_yamlcpp=y logging=debug
-        msvc_version=${{ matrix.vs-toolset }} f90_interface=n debug=n --debug=time -j2
+        msvc_toolset_version=${{ matrix.vs-toolset }} msvc_version=14.3 f90_interface=n debug=n --debug=time -j2
       shell: pwsh
     - name: Test Cantera
       run: scons test show_long_tests=yes verbose_tests=yes --debug=time
@@ -494,7 +496,7 @@ jobs:
         shell: bash
       - name: Build Cantera
         run: scons build -j2 boost_inc_dir=%BOOST_ROOT% debug=n logging=debug
-          python_package=full env_vars=PYTHONPATH,GITHUB_ACTIONS
+          python_package=full env_vars=USERPROFILE,GITHUB_ACTIONS
           msvc_version=${{ matrix.vs-toolset }} f90_interface=n --debug=time
         shell: cmd
       - name: Test Cantera
