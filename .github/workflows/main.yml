@@ -541,7 +541,8 @@ jobs:
         source /opt/intel/oneapi/setvars.sh
         printenv >> $GITHUB_ENV
     - name: Build Cantera
-      run: python3 `which scons` build env_vars=all CC=icx CXX=icpx FORTRAN=ifx -j2 debug=n --debug=time
+      run: python3 `which scons` build env_vars=all CC=icx CXX=icpx -j2 debug=n
+        --debug=time f90_interface=n # FORTRAN=ifx
     - name: Test Cantera
       run:
         python3 `which scons` test show_long_tests=yes verbose_tests=yes --debug=time
@@ -586,7 +587,8 @@ jobs:
         source /opt/intel/oneapi/setvars.sh
         printenv >> $GITHUB_ENV
     - name: Build Cantera
-      run: python3 `which scons` build env_vars=all CC=icc CXX=icpc FORTRAN=ifort -j2 debug=n --debug=time
+      run: python3 `which scons` build env_vars=all CC=icc CXX=icpc -j2 debug=n
+        --debug=time f90_interface=n # FORTRAN=ifort
     - name: Test Cantera
       run:
         python3 `which scons` test show_long_tests=yes verbose_tests=yes --debug=time
