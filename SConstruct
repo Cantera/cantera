@@ -371,28 +371,27 @@ config_options = [
            for example, '/usr/lib'.""",
         "", PathVariable.PathAccept),
     EnumOption(
-        "locate_lapack",
-        """Controls whether Cantera automatically checks for installations of BLAS and
-           LAPACK libraries if the configuration is not specified by 'blas_lapack_libs'.
-           By default, 'auto' updates 'blas_lapack_libs' based on build system and
-           detected libraries. On macOS, 'auto' defaults to the Accelerate framework,
-           whereas on other operating systems the preferred options depend on the CPU
-           manufacturer. In general, OpenBLAS ('openblas') is prioritized over
-           'standard' libraries ('lapack,blas'). On Intel CPU's, MKL (Windows:
-           'mkl_rt' / Linux: 'mkl_rt,dl') has highest priority, followed by the
-           other options. Note that 'locate_lapack' is disabled if the MATLAB toolbox
-           is installed.""",
-        "auto", ("auto", "mkl", "openblas", "standard", "off")),
+        "system_blas_lapack",
+        """Select whether to use BLAS/LAPACK from a system installation ('y'), use
+           Eigen linear algebra support ('n'), or to decide automatically based on
+           libraries detected on the system ('default'). Specifying 'blas_lapack_libs'
+           or 'blas_lapack_dir' changes the default to 'y', whereas installing the
+           Matlab toolbox changes the default to 'n'. On macOS, the 'default' option
+           uses the Accelerate framework, whereas on other operating systems the
+           preferred option depends on the CPU manufacturer. In general, OpenBLAS
+           ('openblas') is prioritized over standard libraries ('lapack,blas'), with
+           Eigen being used if no suitable BLAS/LAPACK libraries are detected. On Intel
+           CPU's, MKL (Windows: 'mkl_rt' / Linux: 'mkl_rt,dl') has the highest priority,
+           followed by the other options. Note that Eigen is required whether or not
+           BLAS/LAPACK libraries are used.""",
+        "default", ("default", "y", "n")),
     Option(
         "blas_lapack_libs",
         """Cantera can use BLAS and LAPACK libraries installed on your system if you
-           have optimized versions available. Cantera automatically checks for
-           installations of BLAS and LAPACK if the 'locate_lapack' option is enabled.
-           Otherwise, Cantera will use Eigen for linear algebra support. To use specific
-           versions of BLAS and LAPACK, set 'blas_lapack_libs' to the the list of
-           libraries that should be passed to the linker, separated by commas, for
-           example, "lapack,blas" or "lapack,f77blas,cblas,atlas". Eigen is required
-           whether or not BLAS/LAPACK are used.""",
+           have optimized versions available (see option 'system_blas_lapack'). To use
+           specific versions of BLAS and LAPACK, set 'blas_lapack_libs' to the the list
+           of libraries that should be passed to the linker, separated by commas, for
+           example, "lapack,blas" or "lapack,f77blas,cblas,atlas".""",
         ""),
     PathOption(
         "blas_lapack_dir",
@@ -1024,10 +1023,6 @@ if env['system_sundials'] in ('y','default'):
 if env['blas_lapack_libs'] != '':
     env['blas_lapack_libs'] = env['blas_lapack_libs'].split(',')
     env['use_lapack'] = True
-elif env['OS'] == 'Darwin':
-    env['blas_lapack_libs'] = []
-    env['use_lapack'] = True
-    env.Append(FRAMEWORKS=['Accelerate'])
 else:
     env['blas_lapack_libs'] = []
     env['use_lapack'] = False
@@ -1314,49 +1309,44 @@ env['has_demangle'] = conf.CheckDeclaration("boost::core::demangle",
                                 '#include <boost/core/demangle.hpp>', 'C++')
 
 # check BLAS/LAPACK installations
-if env["blas_lapack_libs"]:
+if env["system_blas_lapack"] == "n":
+    env["blas_lapack_libs"] = []
+
+elif env["blas_lapack_libs"] or env["blas_lapack_dir"]:
+    if env["system_blas_lapack"] == "default":
+        env["system_blas_lapack"] = "y"
     for lib in env["blas_lapack_libs"]:
         if not conf.CheckLib(lib, autoadd=False):
             config_error(f"Library {lib!r} could not be found.")
 
 elif env["matlab_path"] != "" and env["matlab_toolbox"] in {"default", "y"}:
     # MATLAB provides the mwlapack and mwblas libraries in matlabroot/extern/lib.
-    logger.info("Skip auto-detection of Intel MKL / OpenBLAS as they are not "
-                "compatible with the MATLAB toolbox.")
+    if env["system_blas_lapack"] == "default":
+        env["system_blas_lapack"] = "n"
 
-elif env["locate_lapack"] != "off":
+elif env["system_blas_lapack"] == "default":
     # auto-detect versions
-    if env["locate_lapack"] == "auto":
-        if env["OS"] == "Darwin":
-            # Use macOS Accelerate framework by default
-            blas_lapack_order = []
-        elif "intel" in env["CPU"].lower():
-            if env["OS"] == "Windows":
-                blas_lapack_order = [["mkl_rt"], ["openblas"], ["lapack", "blas"]]
-            else:
-                blas_lapack_order = [["mkl_rt", "dl"], ["openblas"], ["lapack", "blas"]]
+    if env["OS"] == "Darwin":
+        # Use macOS Accelerate framework by default
+        blas_lapack_order = []
+        env["use_lapack"] = True
+        env.Append(FRAMEWORKS=["Accelerate"])
+    elif "intel" in env["CPU"].lower():
+        if env["OS"] == "Windows":
+            blas_lapack_order = [["mkl_rt"], ["openblas"], ["lapack", "blas"]]
         else:
-            # MKL is known to have deliberately sub-optimal performance on non-Intel
-            # (i.e. AMD) processors
-            blas_lapack_order = [["openblas"], ["lapack", "blas"]]
-    elif env["locate_lapack"] == "mkl":
-        blas_lapack_order = [["mkl_rt", "dl"]]
-    elif env["locate_lapack"] == "openblas":
-        blas_lapack_order = [["openblas"]]
-    else: # "standard"
-        blas_lapack_order = [["lapack", "blas"]]
+            blas_lapack_order = [["mkl_rt", "dl"], ["openblas"], ["lapack", "blas"]]
+    else:
+        # MKL is known to have deliberately sub-optimal performance on non-Intel
+        # (i.e. AMD) processors
+        blas_lapack_order = [["openblas"], ["lapack", "blas"]]
     for lib in blas_lapack_order:
         if all(conf.CheckLib(l, autoadd=False) for l in lib):
             env["blas_lapack_libs"] = lib
             env["use_lapack"] = True
             break
     if not env["blas_lapack_libs"] and env["OS"] != "Darwin":
-        msg = f"Failed to locate lapack libraries with option {env['locate_lapack']!r}."
-        if env["locate_lapack"] == "auto":
-            logger.warning(msg)
-        else:
-            logger.error(msg)
-            exit(1)
+        logger.info("No system BLAS/LAPACK libraries detected.")
 
 if "mkl_rt" in env["blas_lapack_libs"]:
     mkl_version = textwrap.dedent("""\
@@ -1802,13 +1792,13 @@ if env["matlab_toolbox"] == "y":
             "has not been set.")
         sys.exit(1)
 
-    if env["blas_lapack_libs"] or env["locate_lapack"] not in ["auto", "off"]:
+    if env["blas_lapack_libs"] or env["system_blas_lapack"] == "y":
         logger.error(
             "The Matlab toolbox is incompatible with external BLAS and LAPACK "
             "libraries. Unset 'blas_lapack_libs' (for example, 'scons build "
-            "blas_lapack_libs=') and/or 'locate_lapack' in order to build the Matlab "
-            "toolbox, or set 'matlab_toolbox=n' to use the specified BLAS/LAPACK "
-            "libraries and skip building the Matlab toolbox.")
+            "blas_lapack_libs=') and/or 'system_blas_lapack' in order to build the "
+            "Matlab toolbox, or set 'matlab_toolbox=n' to use the specified BLAS/"
+            "LAPACK libraries and skip building the Matlab toolbox.")
         sys.exit(1)
 
     if env["system_sundials"] == "y":
