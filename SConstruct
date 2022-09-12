@@ -167,11 +167,25 @@ logger.info(
 windows_options = [
     Option(
         "msvc_version",
-        """Version of Visual Studio to use. The default is the newest
-           installed version. Specify '14.1' ('14.1x') Visual Studio 2017, '14.2'
-           ('14.2x') for Visual Studio 2019, or '14.3' ('14.3x') for
-           Visual Studio 2022. For version numbers in parentheses,
-           'x' is a placeholder for a minor version number. Windows MSVC only.""",
+        """Version of Visual Studio to use. The default is the newest installed version.
+        Note that since multiple MSVC toolsets can be installed for a single version of
+        Visual Studio, you probably want to use ``msvc_toolset_version`` unless you
+        specifically installed multiple versions of Visual Studio. Windows MSVC only.
+        """,
+        ""),
+    Option(
+        "msvc_toolset_version",
+        """Version of the MSVC toolset to use. The default is the default version for
+        the given ``msvc_version``. Note that the toolset selected here must be
+        installed in the MSVC version selected by ``msvc_version``. The default
+        toolsets associated with various Visual Studio versions are:
+
+        * '14.1' ('14.1x'): Visual Studio 2017
+        * '14.2' ('14.2x'): Visual Studio 2019
+        * '14.3' ('14.3x'): Visual Studio 2022.
+
+        For version numbers in parentheses, 'x' is a placeholder for a minor version
+        number. Windows MSVC only.""",
         ""),
     EnumOption(
         "target_arch",
@@ -722,7 +736,7 @@ if os.name == "nt":
     if "64 bit" not in sys.version:
         config["target_arch"].default = "x86"
 
-    opts.AddVariables(*config.to_scons(("msvc_version", "target_arch")))
+    opts.AddVariables(*config.to_scons(("msvc_version", "msvc_toolset_version", "target_arch")))
 
     windows_compiler_env = Environment()
     opts.Update(windows_compiler_env)
@@ -731,7 +745,7 @@ if os.name == "nt":
     if which("g++") and not which("cl.exe"):
         config["toolchain"].default = "mingw"
 
-    if windows_compiler_env["msvc_version"]:
+    if windows_compiler_env["msvc_version"] or windows_compiler_env["msvc_toolset_version"]:
         config["toolchain"].default = "msvc"
 
     opts.AddVariables(*config.to_scons("toolchain"))
@@ -741,9 +755,14 @@ if os.name == "nt":
         toolchain = ["default"]
         if windows_compiler_env["msvc_version"]:
             extraEnvArgs["MSVC_VERSION"] = windows_compiler_env["msvc_version"]
+        if windows_compiler_env["msvc_toolset_version"]:
+            extraEnvArgs["MSVC_TOOLSET_VERSION"] = windows_compiler_env["msvc_toolset_version"]
         msvc_version = (windows_compiler_env["msvc_version"] or
                         windows_compiler_env["MSVC_VERSION"])
-        logger.info(f"Compiling with MSVC {msvc_version}", print_level=False)
+        logger.info(f"Compiling with MSVC version {msvc_version}", print_level=False)
+        msvc_toolset = (windows_compiler_env["msvc_toolset_version"] or
+                        windows_compiler_env["MSVC_TOOLSET_VERSION"])
+        logger.info(f"Compiling with MSVC Toolset {msvc_toolset}", print_level=False)
 
     elif windows_compiler_env["toolchain"] == "mingw":
         toolchain = ["mingw", "f90"]
