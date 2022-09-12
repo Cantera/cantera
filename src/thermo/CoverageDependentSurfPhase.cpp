@@ -144,47 +144,33 @@ void CoverageDependentSurfPhase::initThermo()
                     m_PolynomialDependency.push_back(poly_deps);
                 // For piecewise linear model
                 } else if (cov_map2["model"] == "piecewise-linear") {
-                    std::map<double, double> hmap, smap;
-                    vector_fp hcovs = {0.0, 0.5, 1.0};
-                    vector_fp enthalpies = {0.0, 0.0, 0.0};
-                    vector_fp scovs = {0.0, 0.5, 1.0};
-                    vector_fp entropies = {0.0, 0.0, 0.0};
-                    if (cov_map2.hasKey("enthalpy-low")) {
-                        hcovs[1] = cov_map2["enthalpy-change"].as<double>();
-                        enthalpies[1] = cov_map2.convert("enthalpy-low", "J/kmol")
-                                        * hcovs[1];
-                        enthalpies[2] = (1.0 - hcovs[1]) *
-                                        cov_map2.convert("enthalpy-high", "J/kmol")
-                                        + enthalpies[1];
-                        for (size_t i = 0; i < hcovs.size(); i++) {
-                            hmap.insert({hcovs[i], enthalpies[i]});
-                        }
-                    } else {
-                        hmap.insert({0.0, 0.0});
-                        hmap.insert({1.0, 0.0});
+                    InterpolativeDependency int_deps(k, j);
+                    if (cov_map2.hasKey("enthalpy-low") ||
+                        cov_map2.hasKey("enthalpy-change") ||
+                        cov_map2.hasKey("enthalpy-high")) {
+                        auto cov_change = cov_map2["enthalpy-change"].as<double>();
+                        int_deps.enthalpy_map[cov_change] =
+                            cov_map2.convert("enthalpy-low", "J/kmol") * cov_change;
+                        int_deps.enthalpy_map[1.0] = (1.0 - cov_change) *
+                            cov_map2.convert("enthalpy-high", "J/kmol")
+                            + int_deps.enthalpy_map[cov_change];
+                    }
+                    if (cov_map2.hasKey("entropy-low") ||
+                        cov_map2.hasKey("entropy-change") ||
+                        cov_map2.hasKey("entropy-high")) {
+                        auto cov_change = cov_map2["entropy-change"].as<double>();
+                        int_deps.entropy_map[cov_change] =
+                            cov_map2.convert("entropy-low", "J/kmol/K") * cov_change;
+                        int_deps.entropy_map[1.0] = (1.0 - cov_change) *
+                            cov_map2.convert("entropy-high", "J/kmol/K")
+                            + int_deps.entropy_map[cov_change];
                     }
 
-                    if (cov_map2.hasKey("entropy-low")) {
-                        scovs[1] = cov_map2["entropy-change"].as<double>();
-                        entropies[1] = cov_map2.convert("entropy-low", "J/kmol/K")
-                                       * scovs[1];
-                        entropies[2] = (1.0 - scovs[1]) *
-                                        cov_map2.convert("entropy-high", "J/kmol/K")
-                                        + entropies[1];
-                        for (size_t i = 0; i < scovs.size(); i++) {
-                            smap.insert({scovs[i], entropies[i]});
-                        }
-                    } else {
-                        smap.insert({0.0, 0.0});
-                        smap.insert({1.0, 0.0});
-                    }
-
-                    InterpolativeDependency int_deps(k, j, hmap, smap);
                     setInterpolativeDependency(int_deps);
                 // For interpolative model
                 } else if (cov_map2["model"] == "interpolative") {
-                    std::map<double, double> hmap, smap;
-                    if (cov_map2.hasKey("enthalpy-coverages") &&
+                    InterpolativeDependency int_deps(k, j);
+                    if (cov_map2.hasKey("enthalpy-coverages") ||
                         cov_map2.hasKey("enthalpies")) {
                         auto hcovs = cov_map2["enthalpy-coverages"].as<vector_fp>();
                         vector_fp enthalpies = cov_map2.convertVector("enthalpies",
@@ -196,13 +182,10 @@ void CoverageDependentSurfPhase::initThermo()
                             not equal.");
                         }
                         for (size_t i = 0; i < hcovs.size(); i++) {
-                            hmap.insert({hcovs[i], enthalpies[i]});
+                            int_deps.enthalpy_map[hcovs[i]] = enthalpies[i];
                         }
-                    } else {
-                        hmap.insert({0.0, 0.0});
-                        hmap.insert({1.0, 0.0});
                     }
-                    if (cov_map2.hasKey("entropy-coverages") &&
+                    if (cov_map2.hasKey("entropy-coverages") ||
                         cov_map2.hasKey("entropies")) {
                         auto scovs = cov_map2["entropy-coverages"].as<vector_fp>();
                         vector_fp entropies = cov_map2.convertVector("entropies",
@@ -214,14 +197,10 @@ void CoverageDependentSurfPhase::initThermo()
                             not equal.");
                         }
                         for (size_t i = 0; i < scovs.size(); i++) {
-                            smap.insert({scovs[i], entropies[i]});
+                            int_deps.entropy_map[scovs[i]] = entropies[i];
                         }
-                    } else {
-                        smap.insert({0.0, 0.0});
-                        smap.insert({1.0, 0.0});
                     }
 
-                    InterpolativeDependency int_deps(k, j, hmap, smap);
                     setInterpolativeDependency(int_deps);
                 } else {
                     throw InputFileError("CoverageDependentSurfPhase::initThermo",
@@ -231,10 +210,10 @@ void CoverageDependentSurfPhase::initThermo()
                 }
                 // For coverage-dependent heat capacity parameters, if present
                 if (cov_map2.hasKey("heat-capacity-a")) {
-                    double cpcov_a = cov_map2.convert("heat-capacity-a", "J/kmol/K");
-                    double cpcov_b = cov_map2.convert("heat-capacity-b", "J/kmol/K");
+                    HeatCapacityDependency cpcov_deps(k, j);
+                    cpcov_deps.cpcov_a = cov_map2.convert("heat-capacity-a", "J/kmol/K");
+                    cpcov_deps.cpcov_b = cov_map2.convert("heat-capacity-b", "J/kmol/K");
 
-                    HeatCapacityDependency cpcov_deps(k, j, cpcov_a, cpcov_b);
                     m_HeatCapacityDependency.push_back(cpcov_deps);
                 }
             }

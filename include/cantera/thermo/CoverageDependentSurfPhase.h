@@ -134,8 +134,10 @@ public:
         //! @param entropy_map_  map of <coverage, entropy> as a key-value pair of
         //!                      coverage [dimensionless] and entropy [J/kmol/K]
         InterpolativeDependency(size_t k_, size_t j_,
-                                std::map<double, double> enthalpy_map_,
-                                std::map<double, double> entropy_map_):
+                                std::map<double, double> enthalpy_map_ = {{0.0, 0.0},
+                                                                          {1.0, 0.0}},
+                                std::map<double, double> entropy_map_ = {{0.0, 0.0},
+                                                                         {1.0, 0.0}}):
                                 k(k_), j(j_),
                                 enthalpy_map(enthalpy_map_),
                                 entropy_map(entropy_map_){}
@@ -169,7 +171,7 @@ public:
         //! @param cpcov_a_  log model coefficient a [J/kmol/K]
         //! @param cpcov_b_  log model coefficient b [J/kmol/K]
         HeatCapacityDependency(size_t k_, size_t j_,
-                            double cpcov_a_, double cpcov_b_):
+                            double cpcov_a_ = 0.0, double cpcov_b_ = 0.0):
                             k(k_), j(j_),
                             cpcov_a(cpcov_a_), cpcov_b(cpcov_b_) {}
         HeatCapacityDependency() {}
