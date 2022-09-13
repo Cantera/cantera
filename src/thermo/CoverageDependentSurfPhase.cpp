@@ -21,18 +21,13 @@ using namespace std;
 
 namespace Cantera
 {
-CoverageDependentSurfPhase::CoverageDependentSurfPhase():
+
+CoverageDependentSurfPhase::CoverageDependentSurfPhase(const std::string& infile,
+                                                       const std::string& id_):
     m_stateNumlast(-2),
     m_theta_ref(1.0)
 {
-    setSiteDensity(1.0);
     setNDim(2);
-}
-
-CoverageDependentSurfPhase::CoverageDependentSurfPhase(const std::string& infile,
-                                                       const std::string& id_)
-{
-    CoverageDependentSurfPhase();
     initThermoFile(infile, id_);
 }
 
