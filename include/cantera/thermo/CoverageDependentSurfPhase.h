@@ -52,15 +52,14 @@ namespace Cantera
 class CoverageDependentSurfPhase : public SurfPhase
 {
 public:
-    //! Default constructor
-    CoverageDependentSurfPhase();
-
     //! Construct and initialize a CoverageDependentSurfPhase ThermoPhase object
-    //! directly from an input file
-    //! @param infile name of the input file
-    //! @param id     name of the phase id in the file. If this is blank, the first
-    //!               phase in the file is used
-    explicit CoverageDependentSurfPhase(const std::string& infile,
+    //! directly from an ASCII input file
+    /*!
+     * @param infile name of the input file. If blank, an empty phase will be created.
+     * @param id     name of the phase id in the file.
+     *               If this is blank, the first phase in the file is used.
+     */
+    explicit CoverageDependentSurfPhase(const std::string& infile="",
                                         const std::string& id="");
 
     //! Set of parameters modifying SurfPhase enthalpy and entropy based on
