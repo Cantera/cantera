@@ -22,392 +22,350 @@ namespace Cantera
 //! A thermodynamic model for a coverage-dependent surface phase, applying adsorbate
 //! lateral interaction correction factors to the ideal surface phase properties.
 /*!
- *  The ideal surface phase assumes no lateral interaction among adsorbates.
- *  This coverage-dependent surface phase allows adding lateral interaction
- *  correction terms to the ideal surface phase thermodynamic properties so that
- *  more accurate adsorbate thermochemistry can be achieved.
+ * The ideal surface phase assumes no lateral interaction among adsorbates.
+ * This coverage-dependent surface phase allows adding lateral interaction
+ * correction terms to the ideal surface phase (SurfPhase) thermodynamic properties
+ * so that more accurate adsorbate thermochemistry can be achieved.
  *
- *  ## Coverage-dependent Thermodynamic Properties Formulations
+ * ## Coverage-dependent Thermodynamic Properties Formulations
  *
- *  Naturally, at a coverage limit an adsorbate thermochemistry is same as the
- *  that of ideal species since there are no near adsorbates to render lateral
- *  interactions. Therefore, it is logical to set ideal species properties
- *  as the low coverage quantities and apply lateral interaction terms as excess
- *  quantities. For example, a species coverage-dependent enthalpy of formation
- *  can be formulated as follows.
- *  \f[
- *       \Delta_f h_k^{\circ,298} = \underbrace{ \Delta_f h_k^{\circ,298,
- *           \text{ideal species}}}_{\text{low-coverage limit}}
- *           + \underbrace{{\Delta_f h_k^{\circ,298}}^E
- *           \left( \theta \right)}_{\text{excess enthalpy of formation}} \nonumber
- *  \f]
+ * At a low-coverage limit, an adsorbate thermochemistry is the same as
+ * that of ideal species since there are no adsorbates in the vicinity to cause
+ * lateral interaction. Therefore, it is logical to set ideal species properties
+ * as the low-coverage limit properties and add lateral interaction terms, i.e.
+ * lateral interaction correction terms, to them as excess properties.
+ * Accordingly, standard state coverage-dependent enthalpy, entropy,
+ * and heat capacity of a species \f$ k \f$ can be formulated as follows.
  *
- *  ## Mathematical Models for Coverage-dependent Correction Terms
+ * \f[
+ *  h_k^o(T,\theta)
+ *      = \underbrace{h_k^{o,ideal}(T)
+ *        + \int_{298}^{T}cp_k^{o,ideal}(T)dT}_{\text{low-coverage limit}}
+ *        + \underbrace{h_k^{o,cov}(T,\theta)
+ *        + \int_{298}^{T}cp_k^{o,cov}(T,\theta)dT}_{\text{coverage dependence}}
  *
- *  The coverage-dependent correction terms can be given as one of the four
- *  functional models: linear dependecy model, piecewise-linear dependency model,
- *  polynomial dependency model, and interpolative dependency model.
+ * \f]
  *
+ * \f[
+ *  s_k^o(T,\theta)
+ *     = \underbrace{s_k^{o,ideal}(T)
+ *       + \int_{298}^{T}\frac{cp_k^{o,ideal}(T)}{T}dT}_{\text{low-coverage limit}}
+ *       + \underbrace{s_k^{o,cov}(T,\theta)
+ *       + \int_{298}^{T}\frac{cp_k^{o,cov}(T,\theta)}{T}dT}_{\text{coverage
+ *         dependence}}
+ * \f]
+ *
+ * \f[
+ *  cp_k^o(T,\theta)
+ *      = cp_k^{o,ideal}(T) + cp_k^{o,cov}(T,\theta)
+ * \f]
+ *
+ * ## Mathematical Models for Coverage-dependent Correction Terms
+ *
+ * Coverage-dependent correction terms for enthalpy and entropy can be calculated
+ * with one of the four algebraic models: linear dependecy model, piecewise-linear
+ * dependency model, polynomial dependency model, and interpolative dependency model.
+ * In the dependency model equations, a coverage-dependent correction term is denoted
+ * by \f$ f^{cov} \f$ where \f$ f \f$ can be either enthalpy or entropy. Because
+ * lateral interaction can compose of both self- and cross- interactions, the total
+ * correction term of species \f$ k \f$ is a sum of all interacting species \f$ j \f$
+ * which can include itself. Coefficients \f$ c1_{k,j}-c7_{k,j} \f$ are user-provided
+ * parameters that can be given in input mechanism.
+ *
+ * Linear dependency model:
+ * \f[
+ *  f^{cov}_k(\theta) = \sum_j c1_{k,j} \theta_j
+ * \f]
+ *
+ * Piecewise-linear dependency model:
+ * \f[
+ * f^{cov}_k(\theta) = \sum_j \left\{
+ *  \begin{array}{ll}
+ *  c2_{k,j}\theta_j & \text{, } \theta_j \leq \theta^\text{change}_{k,j} \\
+ *  \left[c3_{k,j}(\theta_j - \theta^\text{change}_{k,j})
+ *  + (c2_{k,j}\theta^\text{change}_{k,j})\right]
+ *  & \text{, } \theta_j > \theta^\text{change}_{k,j} \\
+ *  \end{array}
+ *  \right.
+ * \f]
+ *
+ * Polynomial dependency model:
+ * \f[
+ *  f^{cov}_k(\theta) =
+ *   \sum_j \left[c4_{k,j}\theta_j + c5_{k,j}\theta_j^2
+ *           + c6_{k,j}\theta_j^3 + c7_{k,j}\theta_j^4\right]
+ * \f]
+ *
+ * Interpolative dependency model:
+ * \f[
+ *  f^{cov}_k(\theta) =
+ *   \sum_j \left[\frac{f^{cov}_k(\theta^{higher}_j) - f^{cov}_k(\theta^{lower}_j)}
+ *   {\theta^{higher}_j - \theta^{lower}_j}(\theta_j - \theta^{lower}_j)
+ *   + f^{cov}_k (\theta^{lower}_j)\right] \text{, }
+ *   \theta^{lower}_j \leq \theta_j < \theta^{higher}_j
+ * \f]
+ *
+ * Coverage-dependent heat capacity is calculated using an equation with a
+ * quadratic dependence on coverages and a logarithmic dependence on temperature.
+ * Temperature is nondimesionalized with a reference temperature of 1 K.
+ * The coverage-dependent heat capacity of species \f$ k \f$ is a sum of
+ * all quantities dependent on coverage of species \f$ j \f$. Coefficients
+ * \f$ c8_{k,j} \text{ and } c9_{k,j} \f$ are user-provided parameters that can be
+ * given in input mechanism.
+ *
+ * \f[
+ *  cp^{cov}_k(\theta) =
+ *   \sum_j \left(c8_{k,j} ln\left(\frac{T}{1\text{ K}}\right)
+ *   + c9_{k,j}\right) \theta_j^2
+ * \f]
  */
 class CoverageDependentSurfPhase : public SurfPhase
 {
 public:
+    //! A struct to store sets of parameters used in coverage-dependent enthalpy
+    //! and entropy calculations by a polynomial equation or a linear equation
+    //! in CoverageDependentSurfPhase.
+    struct PolynomialDependency
+    {
+        /*!
+         * @param k index of a target species whose enthalpy and entropy are calculated
+         * @param j index of a species whose coverage affects enthalpy and entropy of
+         *          a target species
+         * @param enthalpy_coeffs array of polynomial coefficients describing
+         *                        coverage-depdendent enthalpy [J/kmol] in order of
+         *                        1st-order, 2nd-order, 3rd-order, and 4th-order
+         *                        coefficients
+         * @param entropy_coeffs array of polynomial coefficients describing
+         *                       coverage-dependent entropy [J/kmol/K] in order of
+         *                       1st-order, 2nd-order, 3rd-order, and 4th-order
+         *                       coefficients
+         */
+        PolynomialDependency(size_t k, size_t j,
+                             vector_fp enthalpy_coeffs={0.0, 0.0, 0.0, 0.0, 0.0},
+                             vector_fp entropy_coeffs={0.0, 0.0, 0.0, 0.0, 0.0}):
+                             k(k), j(j), enthalpy_coeffs(enthalpy_coeffs),
+                             entropy_coeffs(entropy_coeffs) {}
+        //! index of a target species whose enthalpy and entropy is calculated
+        size_t k;
+        //! index of a species whose coverage affects enthalpy and entropy of
+        //! a target species
+        size_t j;
+        //! array of polynomial coefficients describing coverage-depdendent enthalpy
+        //! [J/kmol] in order of 1st-order, 2nd-order, 3rd-order, and 4th-order
+        //! coefficients
+        vector_fp enthalpy_coeffs;
+        //! array of polynomial coefficients describing coverage-depdendent entropy
+        //! [J/kmol/K] in order of 1st-order, 2nd-order, 3rd-order, and 4th-order
+        //! coefficients
+        vector_fp entropy_coeffs;
+    };
+
+    //! A struct to store sets of parameters used in coverage-dependent enthalpy
+    //! and entropy calculations by a interpolative equation or a piecewise-linear
+    //! equation in CoverageDependentSurfPhase.
+    struct InterpolativeDependency
+    {
+        /*!
+         * @param k index of a target species whose enthalpy and entropy are calculated
+         * @param j index of a species whose coverage affects enthalpy and entropy of
+         *          a target species
+         * @param enthalpy_map map of <coverage[dimensionless], enthalpy[J/kmol]> pairs
+         * @param entropy_map map of <coverage[dimensionless], entropy[J/kmol/K]> pairs
+         */
+        InterpolativeDependency(size_t k, size_t j,
+                                std::map<double, double> enthalpy_map={{0.0, 0.0},
+                                                                       {1.0, 0.0}},
+                                std::map<double, double> entropy_map={{0.0, 0.0},
+                                                                      {1.0, 0.0}}):
+                                k(k), j(j), enthalpy_map(enthalpy_map),
+                                entropy_map(entropy_map) {}
+        //! index of a target species whose enthalpy and entropy are calculated
+        size_t k;
+        //! index of a species whose coverage affects enthalpy and entropy of
+        //! a target species
+        size_t j;
+        //! map of <coverage[dimensionless], enthalpy[J/kmol]> pairs
+        std::map<double, double> enthalpy_map;
+        //! map of <coverage[dimensionless], entropy[J/kmol/K]> pairs
+        std::map<double, double> entropy_map;
+    };
+
+    //! A struct to store sets of parameters used in coverage-dependent heat capacity
+    //! calculations by a log-quadratic equation in CoverageDependentSurfPhase.
+    struct HeatCapacityDependency
+    {
+        /*!
+         * @param k index of a target species whose heat capacity is calculated
+         * @param j index of a species whose coverage affects heat capacity of
+         *          a target species
+         * @param coeff_a coefficient a [J/kmol/K]
+         * @param coeff_b coefficient b [J/kmol/K]
+         */
+        HeatCapacityDependency(size_t k, size_t j,
+                               double coeff_a=0.0, double coeff_b=0.0):
+                               k(k), j(j), coeff_a(coeff_a), coeff_b(coeff_b) {}
+        //! index of a target species whose heat capacity is calculated
+        size_t k;
+        //! index of a species whose coverage affects heat capacity of
+        //! a target species
+        size_t j;
+        //! coefficient a [J/kmol/K]
+        double coeff_a;
+        //! coefficient b [J/kmol/K]
+        double coeff_b;
+    };
+
     //! Construct and initialize a CoverageDependentSurfPhase ThermoPhase object
-    //! directly from an ASCII input file
+    //! directly from an ASCII input file.
     /*!
      * @param infile name of the input file. If blank, an empty phase will be created.
-     * @param id     name of the phase id in the file.
-     *               If this is blank, the first phase in the file is used.
+     * @param id     name of the phase id in the file. If blank, the first phase
+     *               in the file is used.
      */
     explicit CoverageDependentSurfPhase(const std::string& infile="",
                                         const std::string& id="");
 
-    //! Set of parameters modifying SurfPhase enthalpy and entropy based on
-    //! surface coverages using a polynomial model.
-    //! Linear model is a subset of the polynomial model.
+    //! Add interpolative coverage dependece parameters for a species
     /*!
-     *  enthalpy and entropy are sum of ideal surface species enthalpy and entropy
-     *  and coverage-dependent enthalpy and entropy which are calculated with
-     *  a polynomial function of coverages:
-     *
-     *  For the linear dependence,
-     *  \f[ h^{cov}_k(\theta) = \sum_j h^{slope}_{k,j} \theta_j \f]
-     *  \f[ s^{cov}_k(\theta) = \sum_j s^{slope}_{k,j} \theta_j \f]
-     *
-     *  For the polynomial dependence,
-     *  \f[ h^{cov}_k(\theta) =
-     *      \sum_j (h^{1st-order}_{k,j} \theta_j + h^{2nd-order}_{k,j} \theta_j^2
-     *              + h^{3rd-order}_{k,j} \theta_j^3 + h^{4th-order}_{k,j} \theta_j^4)
-     *  \f]
-     *  \f[ s^{cov}_k(\theta) =
-     *      \sum_j (s^{1st-order}_{k,j} \theta_j + s^{2nd-order}_{k,j} \theta_j^2
-     *              + s^{3rd-order}_{k,j} \theta_j^3 + s^{4th-order}_{k,j} \theta_j^4)
-     *  \f]
-     */
-    struct PolynomialDependency
-    {
-        //! Constructor
-        //! @param k_  index of a target species whose thermodynamics are calculated
-        //! @param j_  index of a species whose coverage affects thermodynamics of
-        //!            a target species
-        //! @param enthalpy_coeffs_  array of polynomial coefficients describing
-        //!                          enthalpy change [J/kmol] containing 1st-order,
-        //!                          2nd-order, 3rd-order, and 4th-order coefficients
-        //!                          as a function of coverage
-        //! @param entropy_coeffs_  array of polynomial coefficients describing entropy
-        //!                         change [J/kmol/K] containing 1st-order, 2nd-order,
-        //!                         3rd-order, and 4th-order coefficients as a function
-        //!                         of coverage
-        PolynomialDependency(size_t k_, size_t j_,
-                             vector_fp enthalpy_coeffs_ = {0.0, 0.0, 0.0, 0.0, 0.0},
-                             vector_fp entropy_coeffs_ = {0.0, 0.0, 0.0, 0.0, 0.0}):
-                             k(k_), j(j_),
-                             enthalpy_coeffs(enthalpy_coeffs_),
-                             entropy_coeffs(entropy_coeffs_) {}
-        PolynomialDependency() {}
-        //! index of a target species whose thermodynamics are calculated
-        size_t k;
-        //! index of a species whose coverage affects thermodynamics of a target species
-        size_t j;
-        //! array of polynomial coefficients describing enthalpy change [J/kmol] containing
-        //! 1st-order, 2nd-order, 3rd-order, and 4th-order coefficients as a function
-        //! of coverage
-        vector_fp enthalpy_coeffs;
-        //! array of polynomial coefficients describing entropy change [J/kmol/K]
-        //! containing 1st-order, 2nd-order, 3rd-order, and 4th-order coefficients as
-        //! a function of coverage
-        vector_fp entropy_coeffs;
-    };
-
-    //! Set of parameters modifying SurfPhase enthalpy and entropy based on
-    //! surface coverages using a interpolative model.
-    //! Piecewise model is a subset of interpolative with three data points.
-    struct InterpolativeDependency
-    {
-        //! Constructor
-        //! @param k_  index of a target species whose thermodynamics are calculated
-        //! @param j_  index of a species whose coverage affects thermodynamics of
-        //!            a target species
-        //! @param enthalpy_map_  map of <coverage, enthalpy> as a key-value pair of
-        //!                       coverage [dimensionless] and enthalpy [J/kmol]
-        //! @param entropy_map_  map of <coverage, entropy> as a key-value pair of
-        //!                      coverage [dimensionless] and entropy [J/kmol/K]
-        InterpolativeDependency(size_t k_, size_t j_,
-                                std::map<double, double> enthalpy_map_ = {{0.0, 0.0},
-                                                                          {1.0, 0.0}},
-                                std::map<double, double> entropy_map_ = {{0.0, 0.0},
-                                                                         {1.0, 0.0}}):
-                                k(k_), j(j_),
-                                enthalpy_map(enthalpy_map_),
-                                entropy_map(entropy_map_){}
-        InterpolativeDependency() {}
-        //! index of a target species whose thermodynamics are calculated
-        size_t k;
-        //! index of a species whose coverage affects thermodynamics of a target species
-        size_t j;
-        //! map of coverage-enthalpy pairs for coverage-dependent enthalpy interpolation
-        std::map<double, double> enthalpy_map;
-        //! map of coverage-entropy pairs for coverage-dependent entropy interpolation
-        std::map<double, double> entropy_map;
-    };
-
-    //! Set of parameters modifying SurfPhase heat capacity based on surface coverages
-    //! using a quadratic model.
-    /*!
-     *  heat capacity is sum of ideal surface species heat capacity and
-     *  coverage-dependent heat capacity which is calculated using a function with
-     *  quadratic dependence on coverages and a logarithmic dependence on temperature:
-     *
-     *  \f[ cp^{cov}_k(\theta) = \sum_j (a_{k,j} ln(T) + b_{k,j}) \theta_j^2 \f]
-     *
-     */
-    struct HeatCapacityDependency
-    {
-        //! Constructor
-        //! @param k_  index of a target species whose thermodynamics are calculated
-        //! @param j_  index of a species whose coverage affects thermodynamics of
-        //!            a target species
-        //! @param cpcov_a_  log model coefficient a [J/kmol/K]
-        //! @param cpcov_b_  log model coefficient b [J/kmol/K]
-        HeatCapacityDependency(size_t k_, size_t j_,
-                            double cpcov_a_ = 0.0, double cpcov_b_ = 0.0):
-                            k(k_), j(j_),
-                            cpcov_a(cpcov_a_), cpcov_b(cpcov_b_) {}
-        HeatCapacityDependency() {}
-        //! index of a target species whose thermodynamics are calculated
-        size_t k;
-        //! index of a species whose coverage affects thermodynamics of a target
-        //! species
-        size_t j;
-        double cpcov_a; //! log model coefficient a [J/kmol/K]
-        double cpcov_b; //! log model coefficient b [J/kmol/K]
-    };
-
-    //! Set the interpolative coverage dependece for species
-    /*!
-     *  enthalpy and entropy are sum of ideal surface species enthalpy and entropy
-     *  and coverage-dependent enthalpy and entropy which are calculated with
-     *  a linearly interpolated function of coverages:
-     *
-     *  \f[ h^{cov}_k(\theta) = \sum_j \frac{h^{right}_{k,j}
-     *      - h^{left}_{k,j}}{\theta^{right}_{k,j} - \theta^{left}_{k,j}}
-     *      (\theta_j - \theta^{left}_{k,j}) + h^{left}_{k,j}
-     *      \text{, where } \theta^{left}_{k,j} \leq \theta_j < \theta^{right}_{k,j}
-     *  \f]
-     *
-     *  \f[ s^{cov}_k(\theta) = \sum_j \frac{s^{right}_{k,j}
-     *      - s^{left}_{k,j}}{\theta^{right}_{k,j} - \theta^{left}_{k,j}}
-     *      (\theta_j - \theta^{left}_{k,j}) + s^{left}_{k,j}
-     *      \text{, where } \theta^{left}_{k,j} \leq \theta_j < \theta^{right}_{k,j}
-     *  \f]
-     *
      *  @param int_deps  list of parameters as an InterpolativeDependency object
      */
-    void setInterpolativeDependency(const InterpolativeDependency& int_deps);
+    void addInterpolativeDependency(const InterpolativeDependency& int_deps);
 
     virtual void initThermo();
     virtual bool addSpecies(shared_ptr<Species> spec);
 
-    //! @name Functions calculating reference state thermodynamic properties
-    //! @{
-    //! Get the nondimensionalized reference state enthalpy.
-    /*!
-     * Nondimensionalized reference state enthalpy is evaluated at \f$ T, P_{ref} \f$
-     * and \f$ \theta_{ref} \f$:
-     *
-     * \f[
-     *      h^{ref}_k / RT = h_k(T, P_{ref}, \theta_{ref}) / RT
-     * \f]
-     */
+    //! @name Methods calculating reference state thermodynamic properties
+    //! Reference state properties are evaluated at \f$ T \text{ and }
+    //! \theta^{ref} \f$. With coverage fixed at a reference value,
+    //! reference state properties are effectively only dependent on temperature.
+
     virtual void getEnthalpy_RT_ref(double* hrt) const;
-
-    //! Get the nondimensionalized reference state entropy.
-    /*!
-     * Nondimensionalized reference state entropy is evaluated at \f$ T, P_{ref} \f$
-     * and \f$ \theta_{ref} \f$:
-     *
-     * \f[
-     *      s^{ref}_k / R = s_k(T, P_{ref}, \theta_\text{ref}) / R
-     * \f]
-     */
     virtual void getEntropy_R_ref(double* sr) const;
-
-    //! Get the nondimensionalized reference state cp.
-    /*!
-     * Nondimensionalized reference state cp is evaluated at \f$ T, P_{ref} \f$
-     * and \f$ \theta_{ref} \f$:
-     *
-     * \f[
-     *      cp^{ref}_k / R = cp_k(T, P_{ref}, \theta_\text{ref}) / R
-     * \f]
-     */
     virtual void getCp_R_ref(double* cpr) const;
-
-    //! Return the nondimensionalized reference state Gibbs free energy.
-    /*!
-     * Nondimensionalized reference state Gibbs free energy is evaluated
-     * at \f$ T, P_{ref} \f$ and \f$ \theta_{ref} \f$:
-     *
-     * \f[
-     *      g^{ref}_k / RT = h^{ref}_k /RT - s^{ref}_k /R
-     * \f]
-     */
     virtual void getGibbs_RT_ref(double* grt) const;
-    //! @}
 
-    //! @name Functions calculating standard state thermodynamic properties
-    //! @{
-    //! Get the nondimensionalized standard state enthalpy.
+    //! @name Methods calculating standard state thermodynamic properties
+    //! Standard state properties are evaluated at \f$ T \text{ and } \theta \f$,
+    //! and thus are dependent both on temperature and coverage.
+
+    //! Get the nondimensionalized standard state enthalpy vector.
     /*!
-     * Nondimensionalized standard state enthalpy is evaluated at \f$ T, P_{ref} \f$
-     * and \f$ \theta_{ref} \f$:
-     *
      * \f[
-     *      h^o_k / RT = (h^{ref}_k + h^{cov}_k(T, P, \theta)) / RT
-     *                   + \int_{T_{ref}}^{T} cp^{cov}_k(T, P, \theta) dT / RT
+     *      \frac{h^o_k(T,\theta)}{RT}
+     *          = \frac{h^{ref}_k(T) + h^{cov}_k(T,\theta)
+     *            + \int_{298}^{T} cp^{cov}_k(T,\theta)dT}{RT}
      * \f]
      */
     virtual void getEnthalpy_RT(double* hrt) const;
 
-    //! Get the nondimensionalized standard state entropy.
+    //! Get the nondimensionalized standard state entropy vector.
     /*!
-     * Nondimensionalized standard state entropy is evaluated at \f$ T, P_{ref} \f$
-     * and \f$ \theta_{ref} \f$:
-     *
      * \f[
-     *      s^o_k / R = (s^{ref}_k + s^{cov}_k(T, P, \theta))
-     *                  / R - ln(1 / \theta_{ref})
-     *                  + \int_{T_{ref}}^{T} cp^{cov}_k(T, P, \theta) / T dT / R
+     *      \frac{s^o_k(T,\theta)}{R}
+     *          = \frac{s^{ref}_k(T) + s^{cov}_k(T,\theta)
+     *            + \int_{298}^{T}\frac{cp^{cov}_k(T,\theta)}{T}dT}{R}
+     *            - ln\left(\frac{1}{\theta_{ref}}\right)
      * \f]
      */
     virtual void getEntropy_R(double* sr) const;
 
-    //! Get the nondimensionalized standard state cp.
+    //! Get the nondimensionalized standard state heat capacity vector.
     /*!
-     * Nondimensionalized standard state cp is evaluated at \f$ T, P_{ref} \f$
-     * and \f$ \theta_{ref} \f$:
-     *
      * \f[
-     *      cp^o_k / RT = (cp^{ref}_k + cp^{cov}_k(T, P, \theta)) / RT
+     *      \frac{cp^o_k(T,\theta)}{RT}
+     *          = \frac{cp^{ref}_k(T) + cp^{cov}_k(T,\theta)}{RT}
      * \f]
      */
     virtual void getCp_R(double* cpr) const;
 
-    //! Get the nondimensionalized standard state Gibbs free energy.
+    //! Get the nondimensionalized standard state gibbs free energy vector.
     /*!
-     * Nondimensionalized standard state Gibbs free energy evaluated
-     * at \f$ T, P_{ref} \f$ and \f$ \theta_{ref} \f$:
-     *
      * \f[
-     *      g^o_k / RT = h^o_k / RT - s^o_k / R
+     *      \frac{g^o_k(T,\theta)}{RT}
+     *          = \frac{h^o_k(T,\theta)}{RT} + \frac{s^o_k(T,\theta)}{R}
      * \f]
      */
     virtual void getGibbs_RT(double* grt) const;
 
-    //! Get the standard state Gibbs free energy. Units: J/kmol
+    //! Get the standard state gibbs free energy vector. Units: J/kmol.
     /*!
-     * Standard state Gibbs free energy evaluated at \f$ T, P_{ref} \f$
-     * and \f$ \theta_{ref} \f$:
-     *
      * \f[
-     *      g^o_k = h^o_k - T s^o_k
+     *      g^o_k(T,\theta) = h^o_k(T,\theta) + Ts^o_k(T,\theta)
      * \f]
      */
     virtual void getPureGibbs(double* g) const;
 
-    //! Get the standard state chemical potential. Units: J/kmol
+    //! Get the standard state chemical potential vector. Units: J/kmol.
     /*!
-     * Standard state chemical potential evaluated at \f$ T, P_{ref} \f$
-     * and \f$ \theta_{ref} \f$:
-     *
      * \f[
-     *      \mu^o_k = h^o_k - T s^o_k
+     *      \mu^o_k(T,\theta) = h^o_k(T,\theta) + Ts^o_k(T,\theta)
      * \f]
      */
     virtual void getStandardChemPotentials(double* mu0) const;
-    //! @}
 
-    //! @name Functions calculating partial molar thermodynamic properties
-    //! @{
-    //! Get the partial molar enthalpy. Units: J/kmol
+    //! @name Methods calculating partial molar thermodynamic properties
+    //! Partial molar properties are evaluated at \f$ T \text{ and } \theta \f$,
+    //! and thus are dependent both on temperature and coverage.
+
+    //! Get the partial molar enthalpy vector. Units: J/kmol.
     /*!
-     * Partial molar enthalpy is evaluated at \f$ T, P_{ref} \f$
-     * and \f$ \theta_{ref} \f$:
-     *
      * \f[
-     *      \overline{h}_k = h^o_k(T, P, \theta)
+     *      \overline{h}_k(T,\theta) = h^o_k(T,\theta)
      * \f]
      */
     virtual void getPartialMolarEnthalpies(double* hbar) const;
-    //! Get the partial molar entropy. Units: J/kmol/K
+
+    //! Get the partial molar entropy vector. Units: J/kmol/K.
     /*!
-     * Partial molar entropy is evaluated at \f$ T, P_{ref} \f$
-     * and \f$ \theta_{ref} \f$:
-     *
      * \f[
-     *      \overline{s}_k = s^o_k(T, P, \theta) - R ln(\theta)
+     *      \overline{s}_k(T,\theta) = s^o_k(T,\theta) - Rln(\theta_k)
      * \f]
      */
     virtual void getPartialMolarEntropies(double* sbar) const;
 
-    //! Get the partial molar cp. Units: J/kmol/K
+    //! Get the partial molar heat capacity vector. Units: J/kmol/K.
     /*!
-     * Partial molar cp is evaluated at \f$ T, P_{ref} \f$
-     * and \f$ \theta_{ref} \f$:
-     *
      * \f[
-     *      \overline{cp}_k = cp^o_k(T, P, \theta)
+     *      \overline{cp}_k(T,\theta) = cp^o_k(T,\theta)
      * \f]
      */
     virtual void getPartialMolarCp(double* cpbar) const;
 
-    //! Get the chemical potential. Units: J/kmol
+    //! Get the chemical potential vector. Units: J/kmol.
     /*!
-     * Chemical potential is evaluated at \f$ T, P_{ref} \f$
-     * and \f$ \theta_{ref} \f$:
-     *
      * \f[
-     *      \mu_k = mu^o_k(T, P, \theta) + RT ln(\theta)
+     *      \mu_k(T,\theta) = \mu^o_k(T,\theta) + RTln(\theta_k)
      * \f]
      */
     virtual void getChemPotentials(double* mu) const;
-    //! @}
 
-    //! @name Functions calculating mixture thermodynamic properties
-    //! @{
+    //! @name Methods calculating Phase thermodynamic properties
+    //! Phase properties are evaluated at \f$ T \text{ and } \theta \f$,
+    //! and thus are dependent both on temperature and coverage.
+
     //! Return the solution's molar enthalpy. Units: J/kmol
     /*!
-     * Assuming an ideal mixing,
      * \f[
-     * \hat h(T, P, \theta) = \sum_k \theta_k \overline{h}_k(T, \theta)
-     *                      = \sum_k \theta_k h^o_k(T, \theta)
+     *      \hat h(T,\theta) = \sum_k \theta_k \overline{h}_k(T,\theta)
      * \f]
-     *
-     * \see MultiSpeciesThermo
      */
     virtual double enthalpy_mole() const;
 
     //! Return the solution's molar entropy. Units: J/kmol/K
     /*!
      * \f[
-     * \hat s(T, P, \theta) = \sum_k \theta_k \overline{s}_k(T, \theta)
-     *                      = \sum_k \theta_k s^o_k(T, \theta) - R ln(\theta)
+     *      \hat s(T,\theta) = \sum_k \theta_k \overline{s}_k(T,\theta)
      * \f]
      */
     virtual double entropy_mole() const;
 
     //! Return the solution's molar cp. Units: J/kmol/K
     /*!
-     * Assuming an ideal mixing,
      * \f[
-     * \hat{cp} (T, P, \theta) = \sum_k \theta_k \overline{cp}_k(T, \theta)
-     *                         = \sum_k \theta_k cp^o_k(T, \theta)
+     *      \hat{cp}(T,\theta) = \sum_k \theta_k \overline{cp}_k(T,\theta)
      * \f]
-     *
-     * \see MultiSpeciesThermo
      */
     virtual double cp_mole() const;
-    //! @}
 
 protected:
     //! Temporary storage for the coverages.
@@ -442,11 +400,11 @@ protected:
     mutable vector_fp m_chempot;
 
     //! Array of enthalpy and entropy coverage dependency parameters used in
-    //! the linear and polynomial models.
+    //! the linear and polynomial dependency equations.
     std::vector<PolynomialDependency> m_PolynomialDependency;
 
     //! Array of enthalpy and entropy coverage dependency parameters used in
-    //! the interpolative model.
+    //! the piecewise-linear and interpolative dependency equations.
     std::vector<InterpolativeDependency> m_InterpolativeDependency;
 
     //! Array of heat capacity coverage dependency parameters.
@@ -460,25 +418,19 @@ private:
     //! greater than 0.0 and less than or equal to 1.0. default = 1.0.
     mutable double m_theta_ref;
 
-    //! Update the species coverage-dependent thermodynamic functions
+    //! Update the species coverage-dependent thermodynamic functions.
     /*!
-     * The coverage-dependent enthalpy and entropy are only reevaluated
+     * The coverage-dependent enthalpy and entropy are only re-evaluated
      * if the coverage has changed. The coverage-dependent heat capacity
-     * is only reevaluated if the coverage or temperature has changed.
-     *
-     * @param force  Boolean, which if true, forces a reevaluation of the
-     *               coverage-dependent functions. default = false.
+     * is only re-evaluated if the coverage or temperature has changed.
      */
     void _updateCovDepThermo() const;
 
-    //! Update the total (reference state + coverage-dependent) thermodynamic functions
+    //! Update the total (reference state + coverage-dependent)
+    //! thermodynamic functions.
     /*!
-     * Calls subroutines for ideal species thermodynamic update as well as
-     * coverage-dependent species thermodynamic update
-     *
-     * @param force  Boolean, which if true, forces a reevaluation of the
-     *               reference state as well as coverage-dependent functions.
-     *               default = false.
+     * Calls subroutines for both ideal species thermodynamic update and
+     * coverage-dependent species thermodynamic update.
      */
     void _updateTotalThermo() const;
 
