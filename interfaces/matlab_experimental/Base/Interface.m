@@ -1,33 +1,41 @@
 classdef Interface < handle & ThermoPhase & Kinetics
-
+    % Interface Class
+    %
+    % s = Interface(src, id, p1, p2, p3, p4)
+    %
+    % See `ideal-surface <https://cantera.org/documentation/docs-2.6/sphinx/html/yaml/phases.html#sec-yaml-ideal-surface>`__
+    % and `Declaring adjacent phases <https://cantera.org/tutorials/yaml/phases.html#declaring-adjacent-phases>`__.
+    %
+    % :param src:
+    %     YAML file containing the interface or edge phase.
+    % :param id:
+    %     Name of the interface or edge phase in the YAML file.
+    % :param p1:
+    %     Adjoining phase to the interface.
+    % :param p2:
+    %     Adjoining phase to the interface.
+    % :param p3:
+    %     Adjoining phase to the interface.
+    % :param p4:
+    %     Adjoining phase to the interface.
+    % :return:
+    %     Instance of class :mat:func:`Interface`
+    %
     properties
-        coverages
+        coverages % Surface coverages of the species on an interface.
         siteDensity
+            % Surface coverages of the species on an interface.
+            % Unit: kmol/m^2 for surface phases, kmol/m for edge phases.
+            %
+        concentrations % Concentrations of the species on an interface.
     end
 
     methods
-        %% Interface class constructor
+        %% Interface Class Constructor
 
         function s = Interface(src, id, p1, p2, p3, p4)
-            % INTERFACE  Interface class constructor.
-            % s = Interface(src, id, p1, p2, p3, p4)
-            %
-            % :param src:
-            %     YAML file containing the interface or edge phase.
-            % :param id:
-            %     Name of the interface or edge phase in the YAML file.
-            % :param p1:
-            %     Adjoining phase to the interface.
-            % :param p2:
-            %     Adjoining phase to the interface.
-            % :param p3:
-            %     Adjoining phase to the interface.
-            % :param p4:
-            %     Adjoining phase to the interface.
-            % :return:
-            %     Instance of class :mat:func:`Interface`
-            %
             checklib;
+
             t = ThermoPhase(src, id);
             s@ThermoPhase(src, id);
             if nargin == 2
@@ -45,7 +53,7 @@ classdef Interface < handle & ThermoPhase & Kinetics
             s.tpID = t.tpID;
         end
 
-        %% Interface methods
+        %% Interface Get Methods
 
         function c = get.coverages(s)
             % GET.COVERAGES  Get the surface coverages of the species on an interface.
@@ -78,7 +86,7 @@ classdef Interface < handle & ThermoPhase & Kinetics
             d = calllibt(ct, 'surf_siteDensity', surfID);
         end
 
-        function c = concentrations(s)
+        function c = get.concentrations(s)
             % Get the concentrations of the species on an interface.
             %
             % :return:

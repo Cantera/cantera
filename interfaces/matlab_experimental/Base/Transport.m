@@ -1,12 +1,41 @@
 classdef Transport < handle
+    % Transport Class
+    %
+    % tr = Transport(r, th, model, loglevel)
+    %
+    % Create a new instance of class :mat:func:`Transport`. One to three arguments
+    % may be supplied. The first must be an instance of class
+    % :mat:func:`ThermoPhase`. The second (optional) argument is the type of
+    % model desired, specified by the string ``'default'``, ``'Mix'`` or
+    % ``'Multi'``. ``'default'`` uses the default transport specified in the
+    % phase definition. The third argument is the logging level desired.
+    %
+    % :param th:
+    %     Instance of class :mat:func:`ThermoPhase`
+    % :param model:
+    %     String indicating the transport model to use. Possible values
+    %     are ``'default'``, ``'None'``, ``'Mix'``, and ``'Multi'``.
+    %     Optional.
+    % :param loglevel:
+    %     Level of diagnostic logging. Default if not specified is 4.
+    % :return:
+    %     Instance of class :mat:func:`Transport`
+    %
 
     properties
         th
         trID
+        viscosity % Dynamic viscosity. Unit: Pa*s.
+        thermoConductivity % Thermal conductivity. Unit: W/m-K.
+        electricalConductivity % Electrical conductivity. Unit: S/m.
+        mixDiffCoeffs % Mixture-averaged diffusion coefficients. Unit: m^2/s.
+        thermalDiffCoeffs % Thermal diffusion coefficients.
+        binDiffCoeffs % Binary diffusion coefficients. Unit: m^2/s.
+        multiDiffCoeffs % Multicomponent diffusion coefficients. Unit: m^2/s.
     end
 
     methods
-        %% Transport class constructor
+        %% Transport Class Constructor
 
         function tr = Transport(tp, model, loglevel)
             checklib;
@@ -35,17 +64,17 @@ classdef Transport < handle
             tr.tpID = tp.tpID;
         end
 
-        %% Utility methods
+        %% Transport Class Destructor
 
-        function trClear(tr)
+        function delete(tr)
             % Delete the kernel object.
 
             callct('trans_del', tr.trID);
         end
 
-        %% Transport Methods
+        %% Transport Get Methods
 
-        function v = viscosity(tr)
+        function v = get.viscosity(tr)
             % Get the dynamic viscosity.
             %
             % :return:
@@ -54,7 +83,7 @@ classdef Transport < handle
             v = callct('trans_viscosity', tr.trID);
         end
 
-        function v = thermalConductivity(tr)
+        function v = get.thermalConductivity(tr)
             % Get the thermal conductivity.
             %
             % :return:
@@ -63,7 +92,7 @@ classdef Transport < handle
             v = callct('trans_thermalConductivity', tr.trID);
         end
 
-        function v = electricalConductivity(tr)
+        function v = get.electricalConductivity(tr)
             % Get the electrical conductivity.
             %
             % :return:
@@ -72,7 +101,7 @@ classdef Transport < handle
             v = callct('trans_electricalConductivity', tr.trID);
         end
 
-        function v = mixDiffCoeffs(tr)
+        function v = get.mixDiffCoeffs(tr)
             % Get the mixture-averaged diffusion coefficients.
             %
             % :return:
@@ -86,7 +115,7 @@ classdef Transport < handle
             v = pt.Value;
         end
 
-        function v = thermalDiffCoeffs(tr)
+        function v = get.thermalDiffCoeffs(tr)
             % Get the thermal diffusion coefficients.
             %
             % :return:
@@ -100,7 +129,7 @@ classdef Transport < handle
             v = pt.Value;
         end
 
-        function v = binDiffCoeffs(tr)
+        function v = get.binDiffCoeffs(tr)
             % Get the binary diffusion coefficients.
             %
             % :return:
@@ -114,7 +143,7 @@ classdef Transport < handle
             v = pt.Value;
         end
 
-        function v = multiDiffCoeffs(tr)
+        function v = get.multiDiffCoeffs(tr)
             % Get the multicomponent diffusion coefficients.
             %
             % :return:
@@ -128,8 +157,12 @@ classdef Transport < handle
             v = pt.Value;
         end
 
+        %% Transport Set Methods
+
         function setParameters(tr, type, k, p)
             % Set the parameters.
+            %
+            % tr.setParameters(type, k, p)
             %
             % :parameter type:
             % :parameter k:
@@ -141,8 +174,11 @@ classdef Transport < handle
         function setThermalConductivity(tr, lam)
             % Set the thermal conductivity.
             %
+            % tr.setThermalConductivity(lam)
+            %
             % :parameter lam:
             %    Thermal conductivity in W/(m-K).
+            %
 
             tr.setParameters(1, 0, lam);
         end

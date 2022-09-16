@@ -1,36 +1,194 @@
 classdef Domain1D < handle
+    % Domain1D Class
+    %
+    % d = Domain1D(a, b)
+    %
+    % :param a:
+    %    String type of domain. Possible values are:
+    %    `StagnationFlow`
+    %    `AxisymmetricFlow`
+    %    `Inlet1D`
+    %    `Surf1D`
+    %    `Symm1D`
+    %    `Outlet1D`
+    %    `ReactingSurface`
+    %    `OutletRes`
+    %
+    % :param b:
+    %     Instance of class :mat:func:`Solution` (for ``a == 1``)
+    %     or :mat:func:`Interface` (for ``a == 6``). Not used for
+    %     all other valid values of ``a``.
+    %
 
     properties
         domainID % ID of the domain
         type % Type of the domain
-        T % Temperature
-        P % Pressure
+        T % Boundary Temperature. Units: K.
+        P % Boundary Pressure. Units: Pa.
+        bounds
+        % Get the (lower, upper) bounds for a solution component.
+        %
+        % b = d.bounds(componoent)
+        %
+        % :param component:
+        %    String name of the component for which the bounds are
+        %    returned.
+        % :return:
+        %    1x2 Vector of the lower and upper bounds.
+        %
+        componentIndex
+        % Index of a component given its name.
+        %
+        % n = d.componentIndex(name)
+        %
+        % :param d:
+        %     Instance of class :mat:func:`Domain1D`
+        % :param name:
+        %     String name of the component to look up. If a numeric value
+        %     is passed, it will be returned.
+        % :return:
+        %     Index of the component, or input numeric value.
+        %
+        componentName
+        % Name of a component given its index.
+        %
+        % n = d.componentName(index)
+        %
+        % :param d:
+        %     Instance of class :mat:func:`Domain1D`
+        % :param index:
+        %     Integer or vector of integers of component names
+        %     to get.
+        % :return:
+        %     Cell array of component names.
+        %
+        domainIndex
+        % Domain index.
+        %
+        % i = d.domainIndex
+        %
+        % :param d:
+        %     Instance of class :mat:func:`Domain1D`
+        % :return:
+        %     Integer flag denoting the location of the domain,
+        %     beginning with 1 at the left.
+        %
+        domainType
+        % Type of the domain.
+        %
+        % i = d.domainType
+        %
+        % :param d:
+        %     Instance of class :mat:func:`Domain1D`
+        % :return:
+        %     Integer flag denoting the domain type.
+        %
+        gridPoints
+        % Grid points from a domain.
+        %
+        % zz = d.gridPoints(n)
+        %
+        % :param d:
+        %    Instance of class 'Domain1D'.
+        % :param n:
+        %    Optional, vector of grid points to be retrieved.
+        % :return:
+        %    Vector of grid points.
+        %
+        isFlow
+        % Determines whether a domain is a flow.
+        %
+        % a = d.isFlow
+        %
+        % :param d:
+        %     Instance of class :mat:func:`Domain1D`
+        % :return:
+        %     1 if the domain is a flow domain, and 0 otherwise.
+        %
+        isInlet
+        % Determines whether a domain is an inlet.
+        %
+        % a = d.isInlet
+        %
+        % :param d:
+        %     Instance of class :mat:func:`Domain1D`
+        % :return:
+        %     1 if the domain is an inlet, and 0 otherwise.
+        %
+        isSurface
+        % Determines if a domain is a surface.
+        %
+        % a = d.isSurface
+        %
+        % :param d:
+        %     Instance of class :mat:func:`Domain1D`
+        % :return:
+        %     1 if the domain is a surface, and 0 otherwise.
+        %
+        massFlux
+        % Mass flux.
+        %
+        % mdot = d.massFlux
+        %
+        % :param d:
+        %     Instance of class :mat:func:`Domain1D`
+        % :return:
+        %     The mass flux in the domain.
+        %
+        massFraction
+        % Get the mass fraction of a species given its integer index.
+        %
+        % y = d.massFraction(k)
+        %
+        % This method returns the mass fraction of species ``k``, where
+        % k is the integer index of the species in the flow domain
+        % to which the boundary domain is attached.
+        %
+        % :param d:
+        %     Instance of class :mat:func:`Domain1D`
+        % :param k:
+        %     Integer species index
+        % :return:
+        %     Mass fraction of species
+        %
+        nComponents
+        % Number of components.
+        %
+        % n = d.nComponents
+        %
+        % :param d:
+        %     Instance of class :mat:func:`Domain1D`
+        % :return:
+        %     Number of variables at each grid point
+        %
+        nPoints
+        % Get the number of grid points.
+        %
+        % n = d.nPoints
+        %
+        % :param d:
+        %     Instance of class :mat:func:`Domain1D`
+        % :return:
+        %     Integer number of grid points.
+        %
+        tolerances
+        % Return the (relative, absolute) error tolerances for a
+        % solution component.
+        %
+        % tol = d.tolerances(component)
+        %
+        % :param component:
+        %    String name of the component for which the bounds are
+        %    returned.
+        % :return:
+        %    1x2 Vector of the relative and absolute error tolerances.
+        %
     end
 
     methods
-        %% Domain1D class constructor.
+        %% Domain1D Class Constructor.
 
         function d = Domain1D(a, b)
-            % Domain1D class constructor.
-            %
-            % d = Domain1D(a, b)
-            %
-            % :param a:
-            %    String type of domain. Possible values are:
-            %    `StagnationFlow`
-            %    `AxisymmetricFlow`
-            %    `Inlet1D`
-            %    `Surf1D`
-            %    `Symm1D`
-            %    `Outlet1D`
-            %    `ReactingSurface`
-            %    `OutletRes`
-            %
-            % :param b:
-            %     Instance of class :mat:func:`Solution` (for ``a == 1``)
-            %     or :mat:func:`Interface` (for ``a == 6``). Not used for
-            %     all other valid values of ``a``.
-            %
             checklib;
 
             if nargin == 1
@@ -78,19 +236,15 @@ classdef Domain1D < handle
             d.type = a;
         end
 
-        %% Utility Methods
+        %% Domain1D Class Destructor
 
-        function clear(d)
+        function delete(d)
             % Delete the C++ Domain1D object.
-            %
-            % d.clear
-            %
-            % :param d:
-            %     Instance of class :mat:func:`Domain1D` (or another
-            %     object that derives from Domain1D)
-            %
+
             callct('domain_del', d.domainID);
         end
+
+        %% Domain1D Utility Methods
 
         function d = disableEnergy(d)
             % Disable the energy equation.
@@ -146,7 +300,7 @@ classdef Domain1D < handle
 
         %% Domain Get Methods
 
-        function b = bounds(d, component)
+        function b = get.bounds(d, component)
             % Return the (lower, upper) bounds for a solution component.
             %
             % b = d.bounds(componoent)
@@ -163,7 +317,7 @@ classdef Domain1D < handle
             b = [lower, upper];
         end
 
-        function n = componentIndex(d, name)
+        function n = get.componentIndex(d, name)
             % Get the index of a component given its name.
             %
             % n = d.componentIndex(name)
@@ -190,7 +344,7 @@ classdef Domain1D < handle
             end
         end
 
-        function s = componentName(d, index)
+        function s = get.componentName(d, index)
             % Get the name of a component given its index.
             %
             % n = d.componentName(index)
@@ -212,7 +366,7 @@ classdef Domain1D < handle
             end
         end
 
-        function i = domainIndex(d)
+        function i = get.domainIndex(d)
             % Get the domain index.
             %
             % i = d.domainIndex
@@ -232,7 +386,7 @@ classdef Domain1D < handle
             end
         end
 
-        function i = domainType(d)
+        function i = get.domainType(d)
             % Get the type of domain.
             %
             % i = d.domainType
@@ -246,7 +400,7 @@ classdef Domain1D < handle
             i = callct('domain_type', d.domainID);
         end
 
-        function zz = gridPoints(d, n)
+        function zz = get.gridPoints(d, n)
             % Get grid points from a domain.
             %
             % zz = d.gridPoints(n)
@@ -273,7 +427,7 @@ classdef Domain1D < handle
             end
         end
 
-        function a = isFlow(d)
+        function a = get.isFlow(d)
             % Determine whether a domain is a flow.
             %
             % a = d.isFlow
@@ -291,7 +445,7 @@ classdef Domain1D < handle
             end
         end
 
-        function a = isInlet(d)
+        function a = get.isInlet(d)
             % Determine whether a domain is an inlet.
             %
             % a = d.isInlet
@@ -309,7 +463,7 @@ classdef Domain1D < handle
             end
         end
 
-        function a = isSurface(d)
+        function a = get.isSurface(d)
             % Determine if a domain is a surface.
             %
             % a = d.isSurface
@@ -327,7 +481,7 @@ classdef Domain1D < handle
             end
         end
 
-        function mdot = massFlux(d)
+        function mdot = get.massFlux(d)
             % Get the mass flux.
             %
             % mdot = d.massFlux
@@ -340,7 +494,7 @@ classdef Domain1D < handle
             mdot = callct('bdry_mdot', d.domainID);
         end
 
-        function y = massFraction(d, k)
+        function y = get.massFraction(d, k)
             % Get the mass fraction of a species given its integer index.
             %
             % y = d.massFraction(k)
@@ -366,7 +520,7 @@ classdef Domain1D < handle
             end
         end
 
-        function n = nComponents(d)
+        function n = get.nComponents(d)
             % Get the number of components.
             %
             % n = d.nComponents
@@ -379,7 +533,7 @@ classdef Domain1D < handle
             n = callct('domain_nComponents', d.domainID);
         end
 
-        function n = nPoints(d)
+        function n = get.nPoints(d)
             % Get the number of grid points.
             %
             % n = d.nPoints
@@ -437,38 +591,6 @@ classdef Domain1D < handle
         end
 
         %% Domain Set Methods
-
-        function set.T(d, t)
-            % SET.T  Set the temperature.
-            %
-            % d.T = t
-            %
-            % :param d:
-            %     Instance of class :mat:func:`Domain1D`
-            % :param t:
-            %     Temperature to be set. Units: K
-            %
-            if t <= 0
-                error('The temperature must be positive');
-            end
-            callct('bdry_setTemperature', d.domainID, t);
-        end
-
-        function set.P(d, p)
-            % SET.P  Set the pressure.
-            %
-            % d.P = p
-            %
-            % :param d:
-            %     Instance of class :mat:func:`Domain1D`
-            % :param p:
-            %     Pressure to be set. Units: Pa
-            %
-            if p <= 0
-                error('The pressure must be positive');
-            end
-            callct('stflow_setPressure', d.domainID, p);
-        end
 
         function setBounds(d, component, lower, upper)
             % Set bounds on the solution components.
@@ -564,7 +686,7 @@ classdef Domain1D < handle
             callct('domain_setID', d.domainID, id);
         end
 
-        function setMdot(d, mdot)
+        function setMassFlowRate(d, mdot)
             % Set the mass flow rate.
             %
             % d.setMdot(mdot)
@@ -709,6 +831,38 @@ classdef Domain1D < handle
             % :param grid:
             %
             callct('domain_setupGrid', d.domainID, numel(grid), grid);
+        end
+
+        function set.T(d, t)
+            % SET.T  Set the temperature.
+            %
+            % d.T = t
+            %
+            % :param d:
+            %     Instance of class :mat:func:`Domain1D`
+            % :param t:
+            %     Temperature to be set. Units: K
+            %
+            if t <= 0
+                error('The temperature must be positive');
+            end
+            callct('bdry_setTemperature', d.domainID, t);
+        end
+
+        function set.P(d, p)
+            % SET.P  Set the pressure.
+            %
+            % d.P = p
+            %
+            % :param d:
+            %     Instance of class :mat:func:`Domain1D`
+            % :param p:
+            %     Pressure to be set. Units: Pa
+            %
+            if p <= 0
+                error('The pressure must be positive');
+            end
+            callct('stflow_setPressure', d.domainID, p);
         end
 
     end
