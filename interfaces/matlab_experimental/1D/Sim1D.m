@@ -1,29 +1,68 @@
 classdef Stack < handle
+    % Stack Class
+    %
+    % s = Stack(domains)
+    %
+    % A stack object is a container for one-dimensional domains,
+    % which are instances of class Domain1D. The domains are of two
+    % types - extended domains, and connector domains.
+    %
+    % See also: :mat:func:`Domain1D`
+    %
+    % :param domains:
+    %     Vector of domain instances
+    % :return:
+    %     Instance of class :mat:func:`Stack`
+    %
 
     properties
-        stID
-        domains
+        stID % ID of the stack.
+        domains % Domain instances contained within the Stack object.
+        stackIndex
+        % The index of a domain in a stack given its name.
+        %
+        % n = s.stackIndex(name)
+        %
+        % :param s:
+        %    Instance of class 'Stack'.
+        % :param name:
+        %    If double, the value is :returned. Otherwise, the name is
+        %    looked up and its index is :returned.
+        % :return:
+        %    Index of domain.
+        %
+        grid
+        % Get the grid in one domain.
+        %
+        % z = s.grid(name)
+        %
+        % :param s:
+        %     Instance of class :mat:func:`Stack`
+        % :param name:
+        %     Name of the domain for which the grid
+        %     should be retrieved.
+        % :return:
+        %     The grid in domain name
+        %
+        resid
+        % Get the residuals.
+        %
+        % r = s.resid(domain, rdt, count)
+        %
+        % :param s:
+        %    Instance of class 'Stack'.
+        % :param domain:
+        %    Name of the domain.
+        % :param rdt:
+        % :param count:
+        % :return:
+        %
     end
 
     methods
         %% Stack class constructor
 
         function s = Stack(domains)
-            % Stack class constructor.
-            %
-            % s = Stack(domains)
-            %
-            % A stack object is a container for one-dimensional domains,
-            % which are instances of class Domain1D. The domains are of two
-            % types - extended domains, and connector domains.
-            %
-            % See also: :mat:func:`Domain1D`
-            %
-            % :param domains:
-            %     Vector of domain instances
-            % :return:
-            %     Instance of class :mat:func:`Stack`
-            %
             checklib;
 
             s.stID = -1;
@@ -41,18 +80,15 @@ classdef Stack < handle
             end
         end
 
-        %% Utility Methods
+        %% Stack Class Destructor
 
-        function clear(s)
+        function delete(s)
             % Delete the C++ Sim1D object.
-            %
-            % s.clear
-            %
-            % :param s:
-            %     Instance of class :mat:func:`Stack`
-            %
+
             callct('sim1D_del', s.stID);
         end
+
+        %% Stack Utility Methods
 
         function display(s, fname)
             % Show all domains.
@@ -68,57 +104,6 @@ classdef Stack < handle
                 fname = '-';
             end
             callct('sim1D_showSolution', s.stID, fname);
-        end
-
-        %% Stack Methods
-
-        function n = stackIndex(s, name)
-            % Get the index of a domain in a stack given its name.
-            %
-            % n = s.stackIndex(name)
-            %
-            % :param s:
-            %    Instance of class 'Stack'.
-            % :param name:
-            %    If double, the value is :returned. Otherwise, the name is
-            %    looked up and its index is :returned.
-            % :return:
-            %    Index of domain.
-
-            if isa(name, 'double')
-                n = name;
-            else
-                n = callct('sim1D_domainIndex', s.stID, name);
-                if n >= 0
-                    n = n+1;
-                else
-                    error('Domain not found');
-                end
-            end
-        end
-
-        function getInitialSoln(s)
-            % Get the initial solution.
-
-            callct('sim1D_getInitialSoln', s.stID);
-        end
-
-        function z = grid(s, name)
-            % Get the grid in one domain.
-            %
-            % z = s.grid(name)
-            %
-            % :param s:
-            %     Instance of class :mat:func:`Stack`
-            % :param name:
-            %     Name of the domain for which the grid
-            %     should be retrieved.
-            % :return:
-            %     The grid in domain name
-            %
-            n = s.stackIndex(name);
-            d = s.domains(n);
-            z = d.gridPoints;
         end
 
         function plotSolution(s, domain, component)
@@ -142,41 +127,6 @@ classdef Stack < handle
             plot(z, x);
             xlabel('z (m)');
             ylabel(component);
-        end
-
-        function r = resid(s, domain, rdt, count)
-            % Get the residuals.
-            %
-            % r = s.resid(domain, rdt, count)
-            %
-            % :param s:
-            %    Instance of class 'Stack'.
-            % :param domain:
-            %    Name of the domain.
-            % :param rdt:
-            % :param count:
-            % :return:
-            %
-
-            if nargin == 2
-                rdt = 0.0;
-                count = 0;
-            end
-
-            idom = s.stackIndex(domain);
-            d = s.domains(idom);
-
-            nc = d.nComponents;
-            np = d.nPoints;
-
-            r = zeros(nc, np);
-            callct('sim1D_eval', s.stID, rdt, count);
-            for m = 1:nc
-                for n = 1:np
-                    r(m, n) = callct('sim1D_workValue', ...
-                                      s.stID, idom - 1, m - 1, n - 1);
-                end
-            end
         end
 
         function restore(s, fname, id)
@@ -228,6 +178,169 @@ classdef Stack < handle
             end
             callct('sim1D_save', s.stID, fname, id, desc);
         end
+
+        function x = solution(s, domain, component)
+            % Get a solution component in one domain.
+            %
+            % s.solution(domain, component)
+            %
+            % :param s:
+            %    Instance of class 'Stack'.
+            % :param domain:
+            %    String name of the domain from which the solution is
+            %    desired.
+            % :param component:
+            %    String component for which the solution is desired. If
+            %    omitted, solution for all of the components will be
+            %    :returned in an 'nPoints' x 'nComponnts' array.
+            % :return:
+            %    Either an 'nPoints' x 1 vector, or 'nPoints' x
+            %    'nCOmponents' array.
+            %
+
+            idom = s.stackIndex(domain);
+            d = s.domains(idom);
+            np = d.nPoints;
+            if nargin == 3
+                icomp = d.componentIndex(component);
+                x = zeros(1, np);
+                for n = 1:np
+                    x(n) = callct('sim1D_value', s.stID, ...
+                                   idom - 1, icomp - 1, n - 1);
+                end
+            else
+                nc = d.nComponents;
+                x = zeros(nc, np);
+                for m = 1:nc
+                    for n = 1:np
+                        x(m, n) = callct('sim1D_value', s.stID, ...
+                                          idom - 1, m - 1, n - 1);
+                    end
+                end
+            end
+        end
+
+        function solve(s, loglevel, refineGrid)
+            % Solve the problem.
+            %
+            % s.solve(loglevel, refineGrid)
+            %
+            % :param s:
+            %    Instance of class 'Stack'.
+            % :param loglevel:
+            %    Integer flag controlling the amount of diagnostic output.
+            %    Zero supresses all output, and 5 produces very verbose
+            %    output.
+            % :param refineGrid:
+            %    Integer, 1 to allow grid refinement, 0 to disallow.
+            %
+
+            callct('sim1D_solve', s.stID, loglevel, refineGrid);
+        end
+
+        function writeStats(s)
+            % Print statistics for the current solution.
+            %
+            % writeStats(s)
+            %
+            % Prints a summary of the number of function and
+            % Jacobian evaluations for each grid, and the CPU time spent on
+            % each one.
+            %
+            % :param s:
+            %     Instance of class :mat:func:`Stack`
+            %
+
+            callct('sim1D_writeStats', s.stID, 1);
+        end
+
+        %% Stack Get Methods
+
+        function getInitialSoln(s)
+            % Get the initial solution.
+
+            callct('sim1D_getInitialSoln', s.stID);
+        end
+
+        function n = get.stackIndex(s, name)
+            % Get the index of a domain in a stack given its name.
+            %
+            % n = s.stackIndex(name)
+            %
+            % :param s:
+            %    Instance of class 'Stack'.
+            % :param name:
+            %    If double, the value is :returned. Otherwise, the name is
+            %    looked up and its index is :returned.
+            % :return:
+            %    Index of domain.
+
+            if isa(name, 'double')
+                n = name;
+            else
+                n = callct('sim1D_domainIndex', s.stID, name);
+                if n >= 0
+                    n = n+1;
+                else
+                    error('Domain not found');
+                end
+            end
+        end
+
+        function z = get.grid(s, name)
+            % Get the grid in one domain.
+            %
+            % z = s.grid(name)
+            %
+            % :param s:
+            %     Instance of class :mat:func:`Stack`
+            % :param name:
+            %     Name of the domain for which the grid
+            %     should be retrieved.
+            % :return:
+            %     The grid in domain name
+            %
+            n = s.stackIndex(name);
+            d = s.domains(n);
+            z = d.gridPoints;
+        end
+
+        function r = get.resid(s, domain, rdt, count)
+            % Get the residuals.
+            %
+            % r = s.resid(domain, rdt, count)
+            %
+            % :param s:
+            %    Instance of class 'Stack'.
+            % :param domain:
+            %    Name of the domain.
+            % :param rdt:
+            % :param count:
+            % :return:
+            %
+
+            if nargin == 2
+                rdt = 0.0;
+                count = 0;
+            end
+
+            idom = s.stackIndex(domain);
+            d = s.domains(idom);
+
+            nc = d.nComponents;
+            np = d.nPoints;
+
+            r = zeros(nc, np);
+            callct('sim1D_eval', s.stID, rdt, count);
+            for m = 1:nc
+                for n = 1:np
+                    r(m, n) = callct('sim1D_workValue', ...
+                                      s.stID, idom - 1, m - 1, n - 1);
+                end
+            end
+        end
+
+        %% Stack Set Methods
 
         function setFixedTemperature(s, T)
             % Set the temperature used to fix the spatial location of a
@@ -451,80 +564,6 @@ classdef Stack < handle
                     n - 1, comp -  1, localPoints - 1, v);
         end
 
-        function x = solution(s, domain, component)
-            % Get a solution component in one domain.
-            %
-            % s.solution(domain, component)
-            %
-            % :param s:
-            %    Instance of class 'Stack'.
-            % :param domain:
-            %    String name of the domain from which the solution is
-            %    desired.
-            % :param component:
-            %    String component for which the solution is desired. If
-            %    omitted, solution for all of the components will be
-            %    :returned in an 'nPoints' x 'nComponnts' array.
-            % :return:
-            %    Either an 'nPoints' x 1 vector, or 'nPoints' x
-            %    'nCOmponents' array.
-            %
-
-            idom = s.stackIndex(domain);
-            d = s.domains(idom);
-            np = d.nPoints;
-            if nargin == 3
-                icomp = d.componentIndex(component);
-                x = zeros(1, np);
-                for n = 1:np
-                    x(n) = callct('sim1D_value', s.stID, ...
-                                   idom - 1, icomp - 1, n - 1);
-                end
-            else
-                nc = d.nComponents;
-                x = zeros(nc, np);
-                for m = 1:nc
-                    for n = 1:np
-                        x(m, n) = callct('sim1D_value', s.stID, ...
-                                          idom - 1, m - 1, n - 1);
-                    end
-                end
-            end
-        end
-
-        function solve(s, loglevel, refineGrid)
-            % Solve the problem.
-            %
-            % s.solve(loglevel, refineGrid)
-            %
-            % :param s:
-            %    Instance of class 'Stack'.
-            % :param loglevel:
-            %    Integer flag controlling the amount of diagnostic output.
-            %    Zero supresses all output, and 5 produces very verbose
-            %    output.
-            % :param refineGrid:
-            %    Integer, 1 to allow grid refinement, 0 to disallow.
-            %
-
-            callct('sim1D_solve', s.stID, loglevel, refineGrid);
-        end
-
-        function writeStats(s)
-            % Print statistics for the current solution.
-            %
-            % writeStats(s)
-            %
-            % Prints a summary of the number of function and
-            % Jacobian evaluations for each grid, and the CPU time spent on
-            % each one.
-            %
-            % :param s:
-            %     Instance of class :mat:func:`Stack`
-            %
-
-            callct('sim1D_writeStats', s.stID, 1);
-        end
-
     end
 end
+

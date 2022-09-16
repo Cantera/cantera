@@ -1,17 +1,300 @@
 classdef ThermoPhase < handle
-
+    % ThermoPhase Class
+    %
+    % t = ThermoPhase(src, id)
+    %
+    % :param src:
+    %     Input string of YAML file name.
+    % :param id:
+    %     ID of the phase to import as specified in the input file.
+    % :return:
+    %     Instance of class :mat:func:`ThermoPhase`
+    %
     properties
         tpID
-        T % temperature
-        P % pressure
-        D % density
-        X % mole fractions
-        Y % mass fractions
-        H % enthalpy
-        S % entropy
-        U % internal energy
-        G % Gibbs free energye
+
+        %% Phase Properties
+
+        T % Temperature. Units: K.
+        P % Pressure. Units: Pa.
+        D % Density. Units: kg/m^3.
+        X % Mole fractions
+        Y % Mass fractions
+        atomicMasses % Atomic masses of the elements. Unit: kg/kmol.
         basis
+            % Determines whether intensive thermodynamic properties are
+            % treated on a mass (per kg) or molar (per kmol) basis. This
+            % affects the values returned by the properties H, U, S, G, V,
+            % Density, Cv, and Cp, as well as the values used with the
+            % state-setting properties such as HPX and UV.
+            %
+            % tp.basis = b
+            %
+            % :param tp:
+            %     Instance of class :mat:func:`ThermoPhase`.
+            % :param b:
+            %     String. Can be 'mole'/'molar'/'Molar'/'Mole' or 'mass'/'Mass'.
+            %
+        charges % Species charges. Unit: elem. charge.
+        elementIndex
+            % Index of an element given its name.
+            %
+            % k = tp.elementIndex(name)
+            %
+            % The index is an integer assigned to each element in sequence as it
+            % is read in from the input file.
+            %
+            % If ``name`` is a single string, the return value will be a integer
+            % containing the corresponding index. If it is an cell array of
+            % strings, the output will be an array of the same shape
+            % containing the indices.
+            %
+            % NOTE: In keeping with the conventions used by Matlab, this method
+            % returns 1 for the first element. In contrast, the corresponding
+            % method elementIndex in the Cantera C++ and Python interfaces
+            % returns 0 for the first element, 1 for the second one, etc. ::
+            %
+            %     >> ic = gas.elementIndex('C');
+            %     >> ih = gas.elementIndex('H');
+            %
+            % :param name:
+            %     String or cell array of strings of elements to look up
+            % :return:
+            %     Integer or vector of integers of element indices
+            %
+        elementalMassFraction
+            % Elemental mass fraction in gas object.
+            %
+            % elMassFrac = tp.elementalMassFraction(element)
+            %
+            % :param tp:
+            %     Object representing the gas, instance of class :mat:func:`Solution`,
+            %     and an ideal gas. The state of this object should be set to an
+            %     estimate of the gas state before calling elementalMassFraction.
+            %
+            % :param element:
+            %     String representing the element name.
+            % :return:
+            %     Elemental mass fraction within a gas object.
+            %
+        meanMolecularWeight
+            % Mean molecular weight.
+            %
+            % mmw = tp.meanMolecularWeight
+            %
+            % The mean molecular weight is the mole-fraction-weighted sum of the
+            % molar masses of the individual species in the phase.
+            %
+            % :param tp:
+            %     Instance of class :mat:func:`ThermoPhase` (or another
+            %     object that derives from ThermoPhase)
+            % :return:
+            %     Scalar double mean molecular weight. Units: kg/kmol
+            %
+        molarDensity % Molar basis density. Units: kmol/m^3.
+        molecularWeights % Molecular weights of the species. Units: kg/kmol.
+        nAtoms
+            % Number of atoms of an element in a species.
+            %
+            % n = tp.nAtoms(k,m)
+            %
+            % :param tp:
+            %     Instance of class :mat:func:`ThermoPhase` (or another
+            %     object that derives from ThermoPhase)
+            % :param k:
+            %     String species name or integer species number
+            % :param m:
+            %     String element name or integer element number
+            % :return:
+            %     Number of atoms of element ``m`` in species ``k``.
+            %
+        nElements % Number of elements in the phase.
+        nSpecies % Number of species in the phase.
+        speciesIndex
+            % Index of a species given the name.
+            %
+            % k = tp.speciesIndex(name)
+            %
+            % The index is an integer assigned to each species in sequence as it
+            % is read in from the input file.
+            %
+            % NOTE: In keeping with the conventions used by Matlab, this method
+            % returns 1 for the first species, 2 for the second, etc. In
+            % contrast, the corresponding method speciesIndex in the Cantera C++
+            % and Python interfaces returns 0 for the first species, 1 for the
+            % second one, etc. ::
+            %
+            %     >> ich4 = gas.speciesIndex('CH4');
+            %     >> iho2 = gas.speciesIndex('HO2');
+            %
+            % :param tp:
+            %     Instance of class :mat:func:`ThermoPhase` (or another
+            %     class derived from ThermoPhase)
+            % :param name:
+            %     If name is a single string, the return value will be a integer
+            %     containing the corresponding index. If it is an cell array of
+            %     strings, the output will be an array of the same shape
+            %     containing the indices.
+            % :return:
+            %     Scalar or array of integers
+            %
+        speciesName
+            % Name of a species given the index.
+            %
+            % nm = tp.speciesName(k)
+            %
+            % :param tp:
+            %     Instance of class :mat:func:`ThermoPhase` (or another
+            %     class derived from ThermoPhase)
+            % :param k:
+            %     Scalar or array of integer species numbers
+            % :return:
+            %     Cell array of strings
+            %
+
+        %% Thermal Properties
+
+        H % Enthalpy depending on the basis. Units: J/kmol (molar) J/kg (mass).
+        enthalpies_RT
+            % Non-dimensional enthalpies.
+            %
+            % v = tp.enthalpies_RT
+            %
+            % :param tp:
+            %     Instance of class :mat:func:`ThermoPhase` (or another
+            %     object that derives from ThermoPhase)
+            % :return:
+            %     Vector of standard-state species enthalpies
+            %     divided by RT, where R is the universal gas
+            %     constant and T is the temperature. For gaseous species, these
+            %     values are ideal gas enthalpies.
+            %
+        S % Entropy depending on the basis. Units: J/kmol-K (molar) J/kg-K (mass)
+        U % Internal energy depending on the basis. Units: J/kmol (molar) J/kg (mass).
+        G % Gibbs free energy depending on the basis. Units: J/kmol (molar) J/kg (mass).
+        chemicalPotentials
+            % Chemical potentials of the species.
+            %
+            % mu = tp.chemPotentials
+            %
+            % The expressions used to compute the chemical potential
+            % depend on the model implemented by the underlying kernel
+            % thermo manager.
+            %
+            % :param tp:
+            %     Instance of class :mat:func:`ThermoPhase` (or another
+            %     object that derives from ThermoPhase).
+            % :return:
+            %     Vector of species chemical potentials. Units: J/kmol
+            %
+        cv
+            % Basis-dependent specific heat at constant volume.
+            % Units: J/kg-K (mass basis) or J/kmol-K (molar basis).
+            %
+        cp
+            % Basis-dependent specific heat at constant pressure.
+            % Units: J/kg-K (mass basis) or J/kmol-K (molar basis).
+            %
+        critDensity % Critical density. Units: kg/m^3.
+        critPressure % Critical pressure. Units: Pa.
+        critTemperature % Critical temperature. Units: K.
+        electricPotential % Electric potential. Units: V.
+        eosType % Type of equation of state.
+        isIdealGas % A flag indicating whether the phase is an ideal gas.
+        isothermalCompressibility % Isothermal compressibility. Units: 1/Pa.
+        maxTemp
+            % Maximum temperature of the parameter fits.
+            %
+            % v = tp.maxTemp
+            %
+            % The parameterizations used to represent the temperature-dependent
+            % species thermodynamic properties are generally only valid in some
+            % finite temperature range, which may be different for each species
+            % in the phase.
+            %
+            % See also: :mat:func:`minTemp`
+            %
+            % :param tp:
+            %     Instance of class :mat:func:`ThermoPhase` (or another
+            %     object that derives from ThermoPhase)
+            % :return:
+            %     Vector of maximum temperatures of all species
+            %
+        minTemp
+            % Minimum temperature of the parameter fits.
+            %
+            % v = tp.minTemp
+            %
+            % The parameterizations used to represent the temperature-dependent
+            % species thermodynamic properties are generally only valid in some
+            % finite temperature range, which may be different for each species
+            % in the phase.
+            %
+            % See also: :mat:func:`maxTemp`
+            %
+            % :param tp:
+            %     Instance of class :mat:func:`ThermoPhase` (or another
+            %     object that derives from ThermoPhase)
+            % :return:
+            %     Vector of minimum temperatures of all species
+            %
+        refPressure % Reference pressure for standard-state. Units: Pa.
+        satPressure
+            % Saturation pressure for a given temperature.
+            %
+            % p = tp.satPressure(t)
+            %
+            % :param tp:
+            %     Instance of class :mat:func:`ThermoPhase` (or another
+            %     object that derives from ThermoPhase)
+            % :param t:
+            %     Temperature Units: K
+            % :return:
+            %     Saturation pressure for temperature T. Units: Pa
+            %
+        satTemperature
+            % Saturation temperature for a given pressure.
+            %
+            % t = tp.satTemperature(p)
+            %
+            % :param tp:
+            %     Instance of class :mat:func:`ThermoPhase` (or another
+            %     object that derives from ThermoPhase)
+            % :param p:
+            %     Pressure. Units: Pa
+            % :return:
+            %     Saturation temperature for pressure p. Units: K
+            %
+        soundSpeed
+            % Speed of sound.
+            %
+            % c = tp.soundspeed
+            %
+            % If the phase is an ideal gas, the speed of sound is calculated by:
+            %
+            % .. math:: c = \sqrt{\gamma * R * T}
+            %
+            % where :math:`\gamma` is the ratio of specific heats, :math:`R` is
+            % the specific gas constant, and :math:`T` is the temperature. If the
+            % phase is not an ideal gas, the speed of sound is calculated by
+            %
+            % .. math:: c = \sqrt{\left(\frac{\partial p}{\partial \rho}\right)_s}
+            %
+            % where :math:`p` is the pressure and :math:`\rho` is the density,
+            % and the subscript :math:`s` indicates constant entropy. This is
+            % approximated by slightly increasing the density at constant entropy
+            % and computing the change in pressure.
+            %
+            % .. math:: c = \sqrt{\frac{p_1 - p_0}{\rho_1-\rho_0}}
+            %
+            % :param tp:
+            %     Instance of class :mat:func:`ThermoPhase` (or another
+            %     class derived from ThermoPhase)
+            % :return:
+            %     The speed of sound. Units: m/s
+            %
+        thermalExpansionCoeff % Thermal expansion coefficient. Units: 1/K.
+        vaporFraciton % Vapor fraction of the phase.
     end
 
     properties (Dependent)
@@ -61,20 +344,11 @@ classdef ThermoPhase < handle
     end
 
     methods
-        %% ThermoPhase class constructor
+        %% ThermoPhase Class Constructor
 
         function tp = ThermoPhase(src, id)
-            % THERMOPHASE  ThermoPhase class constructor.
-            % t = ThermoPhase(src, id)
-            %
-            % :param src:
-            %     Input string of YAML file name.
-            % :param id:
-            %     ID of the phase to import as specified in the input file.
-            % :return:
-            %     Instance of class :mat:func:`ThermoPhase`
-            %
             checklib;
+
             if nargin ~= 2
                 error('ThermoPhase expects 2 input arguments.');
             end
@@ -82,7 +356,15 @@ classdef ThermoPhase < handle
             tp.basis = 'molar';
         end
 
-        %% Utility methods
+        %% ThermoPhase Class Destructor
+
+        function tpClear(tp)
+            % Delete the ThermoPhase object.
+
+            callct('thermo_del', tp.tpID);
+        end
+
+        %% ThermoPhase Utility Methods
 
         function display(tp)
             % Display thermo properties
@@ -97,39 +379,6 @@ classdef ThermoPhase < handle
                 disp(bb);
             end
             clear aa bb ptr
-        end
-
-        function tpClear(tp)
-            % CLEAR  Delete the kernel object.
-            % tp.tpClear
-            %
-            % :param tp:
-            %     Instance of class :mat:func:`ThermoPhase` (or another
-            %     object that derives from ThermoPhase)
-            %
-            callct('thermo_del', tp.tpID);
-        end
-
-        function tp = set.basis(tp, b)
-            % BASIS    Determines whether intensive thermodynamic properties are
-            % treated on a mass (per kg) or molar (per kmol) basis. This
-            % affects the values returned by the properties H, U, S, G, V,
-            % Density, Cv, and Cp, as well as the values used with the
-            % state-setting properties such as HPX and UV.
-            % tp.Basis
-            % :param tp:
-            %     Instance of class :mat:func:`ThermoPhase`.
-            %
-            % :param b:
-            %     String. Can be 'mole'/'molar'/'Molar'/'Mole' or 'mass'/'Mass'.
-
-            if strcmp(b, 'mole') || strcmp(b, 'molar') ...
-               || strcmp(b, 'Mole') || strcmp(b, 'Molar')
-                tp.basis = 'molar';
-            elseif strcmp(b, 'mass') || strcmp(b, 'Mass')
-                tp.basis = 'mass';
-            else error("Basis must be mass or molar")
-            end
         end
 
         function tp = equilibrate(tp, xy, solver, rtol, maxsteps, ...
@@ -183,9 +432,9 @@ classdef ThermoPhase < handle
                     rtol, maxsteps, maxiter, loglevel);
         end
 
-        %% PhaseGet single methods
+        %% PhaseGet Single Property Methods
 
-        function amu = atomicMasses(tp)
+        function amu = get.atomicMasses(tp)
             % ATOMICMASSES  Get the atomic masses of the elements.
             % x = tp.atomicMasses
             %
@@ -203,7 +452,7 @@ classdef ThermoPhase < handle
             amu = pt.Value;
         end
 
-        function e = charges(tp)
+        function e = get.charges(tp)
             % CHARGES  Get the array of species charges
             % x = tp.charges
             %
@@ -221,7 +470,7 @@ classdef ThermoPhase < handle
             e = pt.Value;
         end
 
-        function k = elementIndex(tp, name)
+        function k = get.elementIndex(tp, name)
             % ELEMENTINDEX  Get the index of an element given its name.
             % k = tp.elementIndex(name)
             % The index is an integer assigned to each element in sequence as it
@@ -276,13 +525,15 @@ classdef ThermoPhase < handle
         end
 
         function elMassFrac = elementalMassFraction(tp, element)
-            % ELEMENTALMASSFRACTION  Determine the elemental mass fraction in gas object.
+            % Determine the elemental mass fraction in gas object.
+            %
             % elMassFrac = tp.elementalMassFraction(element)
             %
             % :param tp:
             %     Object representing the gas, instance of class :mat:func:`Solution`,
             %     and an ideal gas. The state of this object should be set to an
             %     estimate of the gas state before calling elementalMassFraction.
+            %
             % :param element:
             %     String representing the element name.
             % :return:
@@ -324,7 +575,7 @@ classdef ThermoPhase < handle
             end
         end
 
-        function mmw = meanMolecularWeight(tp)
+        function mmw = get.meanMolecularWeight(tp)
             % MEANMOLECULARWEIGHT  Get the mean molecular weight.
             % mmw = tp.meanMolecularWeight
             % The mean molecular weight is the mole-fraction-weighted sum of the
@@ -339,13 +590,13 @@ classdef ThermoPhase < handle
             mmw = callct('thermo_meanMolecularWeight', tp.tpID);
         end
 
-        function density = molarDensity(tp)
+        function density = get.molarDensity(tp)
             % Get the molar basis density in kmol/m^3.
 
             density = callct('thermo_molarDensity', tp.tpID);
         end
 
-        function mw = MolecularWeights(tp)
+        function mw = get.MolecularWeights(tp)
             % MOLECULARWEIGHTS  Get the molecular weights of the species.
             % mw = tp.molecularWeights
             %
@@ -363,8 +614,9 @@ classdef ThermoPhase < handle
             mw = pt.Value;
         end
 
-        function n = nAtoms(tp, species, element)
+        function n = get.nAtoms(tp, species, element)
             % NATOMS  Get the number of atoms of an element in a species.
+            %
             % n = tp.nAtoms(k,m)
             %
             % :param tp:
@@ -400,7 +652,7 @@ classdef ThermoPhase < handle
             end
         end
 
-        function nel = nElements(tp)
+        function nel = get.nElements(tp)
             % NELEMENTS  Get the number of elements.
             % n = tp.nElements
             %
@@ -413,7 +665,7 @@ classdef ThermoPhase < handle
             nel = callct('thermo_nElements', tp.tpID);
         end
 
-        function nsp = nSpecies(tp)
+        function nsp = get.nSpecies(tp)
             % NSPECIES  Get the number of species.
             % n = tp.nSpecies
             %
@@ -426,7 +678,7 @@ classdef ThermoPhase < handle
             nsp = callct('thermo_nSpecies', tp.tpID);
         end
 
-        function k = speciesIndex(tp, name)
+        function k = get.speciesIndex(tp, name)
             % SPECIESINDEX  Get the index of a species given the name.
             % k = tp.speciesIndex(name)
             % The index is an integer assigned to each species in sequence as it
@@ -479,7 +731,7 @@ classdef ThermoPhase < handle
             end
         end
 
-        function nm = speciesName(tp, k)
+        function nm = get.speciesName(tp, k)
             % SPECIESNAME  Get the name of a species given the index.
             % nm = tp.speciesName(k)
             %
@@ -673,7 +925,7 @@ classdef ThermoPhase < handle
 
         %% ThermoGet single methods
 
-        function mu = chemicalPotentials(tp)
+        function mu = get.chemicalPotentials(tp)
             % CHEMPOTENTIALS  Get the chemical potentials of the species.
             % mu = tp.chemPotentials
             % The expressions used to compute the chemical potential
@@ -699,7 +951,7 @@ classdef ThermoPhase < handle
             mu = pt.Value;
         end
 
-        function c = cv(tp)
+        function c = get.cv(tp)
             % CV  Get the basis-dependent specific heat at constant volume.
             % c = tp.cv
             %
@@ -718,7 +970,7 @@ classdef ThermoPhase < handle
             end
         end
 
-        function c = cp(tp)
+        function c = get.cp(tp)
             % CP  Get the basis-dependent specific heat at constant pressure.
             % v = tp.cp
             %
@@ -737,7 +989,7 @@ classdef ThermoPhase < handle
             end
         end
 
-        function d = critDensity(tp)
+        function d = get.critDensity(tp)
             % CRITDENSITY  Get the critical density.
             % v = tp.critDensity
             %
@@ -750,7 +1002,7 @@ classdef ThermoPhase < handle
             d = callct('thermo_critDensity', tp.tpID);
         end
 
-        function p = critPressure(tp)
+        function p = get.critPressure(tp)
             % CRITPRESSURE  Get the critical pressure.
             % v = tp.critPressure
             %
@@ -763,7 +1015,7 @@ classdef ThermoPhase < handle
             p = callct('thermo_critPressure', tp.tpID);
         end
 
-        function t = critTemperature(tp)
+        function t = get.critTemperature(tp)
             % CRITTEMPERATURE  Get the critical temperature.
             % v = tp.critTemperature
             %
@@ -776,7 +1028,7 @@ classdef ThermoPhase < handle
             t = callct('thermo_critTemperature', tp.tpID);
         end
 
-        function v = electricPotential(tp)
+        function v = get.electricPotential(tp)
             % ELECTRICPOTENTIAL  Get the electric potential.
             % v = tp.electricPotential
             %
@@ -789,7 +1041,7 @@ classdef ThermoPhase < handle
             v = callct('thermo_electricPotential', tp.tpID);
         end
 
-        function e = eosType(tp)
+        function e = get.eosType(tp)
             % EOSTYPE  Get the type of the equation of state.
             % e = tp.eosType
             %
@@ -802,7 +1054,7 @@ classdef ThermoPhase < handle
             e = callct2('thermo_getEosType', tp.tpID);
         end
 
-        function v = isIdealGas(tp)
+        function v = get.isIdealGas(tp)
             % ISIDEALGAS  Get a flag indicating whether the phase is an ideal gas.
             % v = tp.isIdealGas
             %
@@ -820,7 +1072,7 @@ classdef ThermoPhase < handle
             end
         end
 
-        function b = isothermalCompressibility(tp)
+        function b = get.isothermalCompressibility(tp)
             % ISOTHERMALCOMPRESSIBILITY  Get the isothermal compressibility.
             % b = tp.isothermalCompressibility
             %
@@ -833,7 +1085,7 @@ classdef ThermoPhase < handle
             b = callct('thermo_isothermalCompressibility', tp.tpID);
         end
 
-        function t = maxTemp(tp)
+        function t = get.maxTemp(tp)
             % MAXTEMP  Get the maximum temperature of the parameter fits.
             % v = tp.maxTemp
             % The parameterizations used to represent the temperature-dependent
@@ -852,7 +1104,7 @@ classdef ThermoPhase < handle
             t = callct('thermo_maxTemp', tp.tpID, -1);
         end
 
-        function t = minTemp(tp)
+        function t = get.minTemp(tp)
             % MINTEMP  Get the minimum temperature of the parameter fits.
             % v = tp.minTemp
             % The parameterizations used to represent the temperature-dependent
@@ -871,7 +1123,7 @@ classdef ThermoPhase < handle
             t = callct('thermo_minTemp', tp.tpID, -1);
         end
 
-        function p = refPressure(tp)
+        function p = get.refPressure(tp)
             % REFPRESSURE  Get the reference pressure.
             % v = tp.refPressure
             %
@@ -885,7 +1137,7 @@ classdef ThermoPhase < handle
             p = callct('thermo_refPressure', tp.tpID, -1);
         end
 
-        function p = satPressure(tp, t)
+        function p = get.satPressure(tp, t)
             % SATPRESSURE  Get the saturation pressure for a given temperature.
             % v = tp.satPressure(T)
             %
@@ -900,7 +1152,7 @@ classdef ThermoPhase < handle
             p = callct('thermo_satPressure', tp.tpID, t);
         end
 
-        function t = satTemperature(tp, p)
+        function t = get.satTemperature(tp, p)
             % SATTEMPERATURE  Get the saturation temperature for a given pressure.
             % v = tp.satTemperature(p)
             %
@@ -915,7 +1167,7 @@ classdef ThermoPhase < handle
             t = callct('thermo_satTemperature', tp.tpID, p);
         end
 
-        function c = soundspeed(tp)
+        function c = get.soundSpeed(tp)
             % SOUNDSPEED  Get the speed of sound.
             % c = tp.soundspeed
             % If the phase is an ideal gas, the speed of sound
@@ -960,7 +1212,7 @@ classdef ThermoPhase < handle
             end
         end
 
-        function a = thermalExpansionCoeff(tp)
+        function a = get.thermalExpansionCoeff(tp)
             % THERMALEXPANSIONCOEFF  Get the thermal expansion coefficient.
             % a = tp.thermalExpansionCoeff
             %
@@ -973,7 +1225,7 @@ classdef ThermoPhase < handle
             a = callct('thermo_thermalExpansionCoeff', tp.tpID);
         end
 
-        function v = vaporFraction(tp)
+        function v = get.vaporFraction(tp)
             % VAPORFRACTION  Get the vapor fraction.
             % v = tp.vaporFraction
             %
@@ -1005,7 +1257,7 @@ classdef ThermoPhase < handle
             end
         end
 
-        function enthalpy = enthalpies_RT(tp)
+        function enthalpy = get.enthalpies_RT(tp)
             % ENTHALPIES_RT  Get the non-dimensional enthalpies.
             % v = tp.enthalpies_RT
             %
@@ -1301,6 +1553,28 @@ classdef ThermoPhase < handle
             %     Vapor fraction
             %
             callct('thermo_setState_Tsat', tp.tpID, t, 1 - q);
+        end
+
+        function tp = set.basis(tp, b)
+            % BASIS    Determines whether intensive thermodynamic properties are
+            % treated on a mass (per kg) or molar (per kmol) basis. This
+            % affects the values returned by the properties H, U, S, G, V,
+            % Density, Cv, and Cp, as well as the values used with the
+            % state-setting properties such as HPX and UV.
+            % tp.Basis
+            % :param tp:
+            %     Instance of class :mat:func:`ThermoPhase`.
+            %
+            % :param b:
+            %     String. Can be 'mole'/'molar'/'Molar'/'Mole' or 'mass'/'Mass'.
+
+            if strcmp(b, 'mole') || strcmp(b, 'molar') ...
+               || strcmp(b, 'Mole') || strcmp(b, 'Molar')
+                tp.basis = 'molar';
+            elseif strcmp(b, 'mass') || strcmp(b, 'Mass')
+                tp.basis = 'mass';
+            else error("Basis must be mass or molar")
+            end
         end
 
         function set.T(tp, temperature)

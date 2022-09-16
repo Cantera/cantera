@@ -51,7 +51,7 @@ function isentropic(g)
        if a(i) < amin
           amin = a(i);
        end
-       mach(i) = v/gas.soundspeed;
+       mach(i) = v/gas.soundSpeed;
        i = i + 1;
     end
 
