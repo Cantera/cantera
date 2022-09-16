@@ -1,4 +1,3 @@
-% LoadCantera
 % Load the Cantera C Library into the Memory
 %
 if ispc

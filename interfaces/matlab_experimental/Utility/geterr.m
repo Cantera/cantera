@@ -1,5 +1,4 @@
 function e = geterr()
-    % GETERR
     % Get the error message from a Cantera error.
     %
     checklib;

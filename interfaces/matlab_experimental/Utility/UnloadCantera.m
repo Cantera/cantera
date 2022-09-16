@@ -1,4 +1,3 @@
-% UnloadCantera
 % Unload the Cantear C Library from the Memory
 %
 if libisloaded(ct)

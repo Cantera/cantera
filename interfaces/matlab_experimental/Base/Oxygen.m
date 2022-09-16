@@ -1,6 +1,8 @@
 function o = Oxygen()
     % Return an object representing oxygen.
+    %
     % o = Oxygen()
+    %
     % The object returned by this method implements an accurate equation of
     % state for oxygen that can be used in the liquid, vapor, saturated
     % liquid/vapor, and supercritical regions of the phase diagram.  The

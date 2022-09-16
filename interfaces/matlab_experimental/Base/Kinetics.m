@@ -1,179 +1,198 @@
 classdef Kinetics < handle
-    % Kinetics Class.
-    %
-    % k = Kinetics(ph, neighbor1, neighbor2, neighbor3, neighbor4)
-    %
-    % Class Kinetics represents kinetics managers, which are classes that manage
-    % reaction mechanisms.  The reaction mechanism attributes are specified in a YAML file.
-    %
-    % Instances of class :mat:func:`Kinetics` are responsible for evaluating reaction rates
-    % of progress, species production rates, and other quantities pertaining to
-    % a reaction mechanism.
-    %
-    % :param ph:
-    %     An instance of class :mat:func:`ThermoPhase` representing the phase
-    %     in which reactions occur
-    % :param src:
-    %     Input string of YAML file name.
-    % :param id:
-    %     ID of the phase to import as specified in the input file. (optional)
-    % :param neighbor1:
-    %     Instance of class :mat:func:`ThermoPhase` or :mat:func:`Solution` representing a
-    %     neighboring phase.
-    % :param neighbor2:
-    %     Instance of class :mat:func:`ThermoPhase` or :mat:func:`Solution` representing a
-    %     neighboring phase.
-    % :param neighbor3:
-    %     Instance of class :mat:func:`ThermoPhase` or :mat:func:`Solution` representing a
-    %     neighboring phase.
-    % :param neighbor4:
-    %     Instance of class :mat:func:`ThermoPhase` or :mat:func:`Solution` representing a
-    %     neighboring phase.
-    % :return:
-    %      Instance of class :mat:func:`Kinetics`
-    %
 
-    properties
-        %% Scalar Attributes
-
+    properties (SetAccess = immutable)
         kinID % ID of the Kinetics object.
-        kineticsSpeciesIndex
-            % Get the species index of a species of a phase in the Kinetics class.
-            %
-            % :param name:
-            %    String name of the species.
-            % :param phase:
-            %    String name of the phase.
-            % :return:
-            %    Index of the species.
-            %
-        multiplier
-            % Get the multiplier for reaction rate of progress.
-            %
-            % :parameter irxn:
-            %    Integer reaction number for which the multiplier is
-            %    desired.
-            % :return:
-            %    Multiplier of the rate of progress of reaction irxn.
-            %
-        nPhases % Number of phases.
-        nReactions % Number of reactions.
-        nTotalSpecies % The total number of species.
-        phaseIndex
-            % The index of a specific phase.
-            %
-            % :param phase:
-            %    String name of the phase.
-            % :return:
-            %    Index of the phase.
-            %
-        stoichReactant
-            % Reactant stoichiometric coefficients.
-            %
-            % :parameter species:
-            %    Species indices for which reactant stoichiometric
-            %    coefficients should be retrieved. Optional argument; if
-            %    specified, "rxns" must be specified as well.
-            % :parameter rxns:
-            %    Reaction indicies for which reactant stoichiometric
-            %    coefficients should be retrieved. Optional argument; if
-            %    specified, "species" must be specified as well.
-            % :return:
-            %    Returns a sparse matrix of all reactant stoichiometric
-            %    coefficients. The matrix elements "nu(k, i)" is the
-            %    stoichiometric coefficient of species k as a reactant in
-            %    reaction i. If "species" and "rxns" are specified, the
-            %    matrix will contain only entries for the specified species
-            %    and reactions. For example, "stoich_p(a, 3, [1, 3, 5,
-            %    7])" :returns a sparse matrix containing only the
-            %    coefficients for specis 3 in reactions 1, 3, 5, and 7.
-            %
-        stoichProduct
-            % Product stoichiometric coefficients.
-            %
-            % :parameter species:
-            %    Species indices for which product stoichiometric
-            %    coefficients should be retrieved. Optional argument; if
-            %    specified, "rxns" must be specified as well.
-            % :parameter rxns:
-            %    Reaction indicies for which product stoichiometric
-            %    coefficients should be retrieved. Optional argument; if
-            %    specified, "species" must be specified as well.
-            % :return:
-            %    Returns a sparse matrix of all product stoichiometric
-            %    coefficients.
-            %
-        stoichNet
-            % Net stoichiometric coefficients.
-            %
-            % :parameter species:
-            %    Species indices for which net stoichiometric coefficients
-            %    should be retrieved. Optional argument; if specified,
-            %    "rxns" must be specified as well.
-            % :parameter rxns:
-            %    Reaction indicies for which net stoichiometric
-            %    coefficients should be retrieved. Optional argument; if
-            %    specified, "species" must be specified as well.
-            % :return:
-            %    A sparse matrix of all net stoichiometric coefficients.
-            %
+    end
 
-        %% Array Attributes
+    properties (SetAccess = protected)
+
+        % Get the species index of a species of a phase in the Kinetics class.
+        %
+        % :param name:
+        %    String name of the species.
+        % :param phase:
+        %    String name of the phase.
+        % :return:
+        %    Index of the species.
+        kineticsSpeciesIndex
+        %
+        % Get the multiplier for reaction rate of progress.
+        %
+        % :param irxn:
+        %    Integer reaction number for which the multiplier is
+        %    desired.
+        % :return:
+        %    Multiplier of the rate of progress of reaction irxn.
+        multiplier
+
+        nPhases % Number of phases.
+
+        nReactions % Number of reactions.
+
+        nTotalSpecies % The total number of species.
+
+        % The index of a specific phase.
+        %
+        % :param phase:
+        %    String name of the phase.
+        % :return:
+        %    Index of the phase.
+        phaseIndex
+        %
+        % Reactant stoichiometric coefficients.
+        %
+        % :param species:
+        %    Species indices for which reactant stoichiometric
+        %    coefficients should be retrieved. Optional argument; if
+        %    specified, ``rxns`` must be specified as well.
+        % :param rxns:
+        %    Reaction indicies for which reactant stoichiometric
+        %    coefficients should be retrieved. Optional argument; if
+        %    specified, ``species`` must be specified as well.
+        % :return:
+        %    Returns a sparse matrix of all reactant stoichiometric
+        %    coefficients. The matrix elements ``nu(k, i)`` is the
+        %    stoichiometric coefficient of species k as a reactant in
+        %    reaction i. If ``species`` and ``rxns`` are specified, the
+        %    matrix will contain only entries for the specified species
+        %    and reactions. For example, ``stoich_p(a, 3, [1, 3, 5,
+        %    7])`` returns a sparse matrix containing only the
+        %    coefficients for specis 3 in reactions 1, 3, 5, and 7.
+        stoichReactant
+        %
+        % Product stoichiometric coefficients.
+        %
+        % :param species:
+        %    Species indices for which product stoichiometric
+        %    coefficients should be retrieved. Optional argument; if
+        %    specified, ``rxns`` must be specified as well.
+        % :param rxns:
+        %    Reaction indicies for which product stoichiometric
+        %    coefficients should be retrieved. Optional argument; if
+        %    specified, ``species`` must be specified as well.
+        % :return:
+        %    Returns a sparse matrix of all product stoichiometric
+        %    coefficients.
+        stoichProduct
+        %
+        % Net stoichiometric coefficients.
+        %
+        % :param species:
+        %    Species indices for which net stoichiometric coefficients
+        %    should be retrieved. Optional argument; if specified,
+        %    "rxns" must be specified as well.
+        % :param rxns:
+        %    Reaction indicies for which net stoichiometric
+        %    coefficients should be retrieved. Optional argument; if
+        %    specified, "species" must be specified as well.
+        % :return:
+        %    A sparse matrix of all net stoichiometric coefficients.
+        stoichNet
+
         creationRates % Chemical reaction rates. Unit: kmol/m^3-s.
+
         destructionRates % Chemical destruction rates. Unit: kmol/m^3-s.
+
         dH % enthalpy of reaction. Unit: J/kmol.
+
         dH_standard % standard state enthalpy of reaction. Unit: J/kmol.
-        dS % entropy of reaction. Unit: J/kmol-K
+
+        dS % entropy of reaction. Unit: J/kmol-K.
+
         dS_standard % standard state entropy of reaction. Unit: J/kmol-K.
+
         dG % gibbs free energy of reaction. Unit: J/kmol-K.
+
         dG_standard % standard state gibbs free energy of reaction. Unit: J/kmol-K.
+
+        % Equilibrium constants for all reactions.
+        %
+        % k = kin.equilibriumConstants
+        %
+        % :return:
+        %    A column vector of the equilibrium constants for all
+        %    reactions. The vector has an entry for every reaction,
+        %    whether reversible or not, but non-zero values occur only
+        %    for the reversible reactions.
         equilibriumConstants
-            % Equilibrium constants for all reactions.
-            %
-            % k = kin.equilibriumConstants
-            %
-            % :return:
-            %    A column vector of the equilibrium constants for all
-            %    reactions. The vector has an entry for every reaction,
-            %    whether reversible or not, but non-zero values occur only
-            %    for the reversible reactions.
-            %
+
         forwardRateConstants % Forward reaction rate constants for all reactions.
+
         reverseRateConstants % Rever reaction rate constants for all reactions.
+
+        % An array of flags indicating reversibility of a reaction.
+        %
+        % n = kin.isReversible(i)
+        %
+        % :param i:
+        %    Integer reaction number.
+        % :return:
+        %    1 if reaction number i is reversible. 0 if irreversible.
         isReversible
-            % An array of flags indicating reversibility of a reaction.
-            %
-            % n = kin.isReversible(i)
-            %
-            % :parameter i:
-            %    Integer reaction number.
-            % :return:
-            %    1 if reaction number i is reversible. 0 if irreversible.
-            %
+
         massProdRate % Mass production rate of all species. Unit: kg/s.
+
         netProdRates % Net chemical production rates for all species. Unit: kmol/m^3-s.
+
         ropForward % Forward rates of progress for all reactions. Unit: kmol/m^3-s.
+
         ropReverse % Reverse rates of progress for all reactions. Unit: kmol/m^3-s.
+
         ropNet % Net rates of progress for all reactions. Unit: kmol/m^3-s.
+
+        % Reaction equation of a reaction
+        %
+        % rxn = kin.reactionEqn(irxn)
+        %
+        % :param irxn:
+        %    Integer index of the reaction.
+        % :return:
+        %    String reaction equation.
         reactionEqn
-            % Reaction equation of a reaction
-            %
-            % rxn = kin.reactionEqn(irxn)
-            %
-            % :parameter irxn:
-            %    Integer index of the reaction.
-            % :return:
-            %    String reaction equation.
-            %
+
         reactionEqns % All reaction equations within the Kinetics object.
+
     end
 
     methods
         %% Kinetics Class Constructor
 
         function kin = Kinetics(ph, src, id, n1, n2, n3, n4)
-
+            % Kinetics Class
+            %
+            % k = Kinetics(ph, neighbor1, neighbor2, neighbor3, neighbor4)
+            %
+            % Class Kinetics represents kinetics managers, which are classes that manage
+            % reaction mechanisms.  The reaction mechanism attributes are specified in a YAML file.
+            %
+            % Instances of class :mat:func:`Kinetics` are responsible for evaluating reaction rates
+            % of progress, species production rates, and other quantities pertaining to
+            % a reaction mechanism.
+            %
+            % :param ph:
+            %     An instance of class :mat:func:`ThermoPhase` representing the phase
+            %     in which reactions occur
+            % :param src:
+            %     Input string of YAML file name.
+            % :param id:
+            %     ID of the phase to import as specified in the input file. (optional)
+            % :param neighbor1:
+            %     Instance of class :mat:func:`ThermoPhase` or :mat:func:`Solution` representing a
+            %     neighboring phase.
+            % :param neighbor2:
+            %     Instance of class :mat:func:`ThermoPhase` or :mat:func:`Solution` representing a
+            %     neighboring phase.
+            % :param neighbor3:
+            %     Instance of class :mat:func:`ThermoPhase` or :mat:func:`Solution` representing a
+            %     neighboring phase.
+            % :param neighbor4:
+            %     Instance of class :mat:func:`ThermoPhase` or :mat:func:`Solution` representing a
+            %     neighboring phase.
+            % :return:
+            %      Instance of class :mat:func:`Kinetics`
+            %
             checklib;
+
             % indices for bulk phases in a heterogeneous mechanism
             inb1 = -1;
             inb2 = -1;
@@ -199,7 +218,7 @@ classdef Kinetics < handle
                 end
             end
             kin.kinID = callct('kin_newFromFile', src, id, ...
-                                 iph, inb1, inb2, inb3, inb4);
+                                iph, inb1, inb2, inb3, inb4);
         end
 
         %% Kinetics Class Destructor
@@ -213,94 +232,30 @@ classdef Kinetics < handle
         %% Get scalar attributes
 
         function n = get.kineticsSpeciesIndex(kin, name, phase)
-            % KINETICSSPECIESINDEX
-            %
-            % Get the species index in the Kinetics class.
-            %
-            % :param name:
-            %    String name of the species.
-            % :param phase:
-            %    String name of the phase.
-            % :return:
-            %    Index of the species.
-            %
-
             n = callct('kin_speciesIndex', kin.kinID, name, phase);
         end
 
         function n = get.multiplier(kin, irxn)
-            % Get the multiplier for reaction rate of progress.
-            %
-            % :parameter irxn:
-            %    Integer reaction number for which the multiplier is
-            %    desired.
-            % :return:
-            %    Multiplier of the rate of progress of reaction irxn.
-
             n = callct('kin_multiplier', kin.kinID, irxn-1);
         end
 
         function n = get.nPhases(kin)
-            % Get the number of phases.
-            %
-            % :return:
-            %    Integer number of phases.
-
             n = callct('kin_nPhases', kin.kinID);
         end
 
         function n = get.nReactions(kin)
-            % Get the number of reactions.
-            %
-            % :return:
-            %    Integer number of reactions.
-
             n = callct('kin_nReactions', kin.kinID);
         end
 
         function n = get.nTotalSpecies(kin)
-            % Get the total number of species.
-            %
-            % :return:
-            %    Integer total number of species.
-
             n = callct('kin_nSpecies', kin.kinID);
         end
 
         function n = get.phaseIndex(kin, phase)
-            % PHASEINDEX
-            %
-            % Get the index of a phase.
-            %
-            % :param phase:
-            %    String name of the phase.
-            % :return:
-            %    Index of the phase.
-
             n = callct('kin_phaseIndex', kin.kinID, phase);
         end
 
         function n = get.stoichReactant(kin, species, rxns)
-            % Get the reactant stoichiometric coefficients.
-            %
-            % :parameter species:
-            %    Species indices for which reactant stoichiometric
-            %    coefficients should be retrieved. Optional argument; if
-            %    specified, "rxns" must be specified as well.
-            % :parameter rxns:
-            %    Reaction indicies for which reactant stoichiometric
-            %    coefficients should be retrieved. Optional argument; if
-            %    specified, "species" must be specified as well.
-            % :return:
-            %    Returns a sparse matrix of all reactant stoichiometric
-            %    coefficients. The matrix elements "nu(k, i)" is the
-            %    stoichiometric coefficient of species k as a reactant in
-            %    reaction i. If "species" and "rxns" are specified, the
-            %    matrix will contain only entries for the specified species
-            %    and reactions. For example, "stoich_p(a, 3, [1, 3, 5,
-            %    7])" :returns a sparse matrix containing only the
-            %    coefficients for specis 3 in reactions 1, 3, 5, and 7.
-
             nsp = kin.nTotalSpecies;
             nr = kin.nReactions;
             temp = sparse(nsp, nr);
@@ -327,26 +282,6 @@ classdef Kinetics < handle
         end
 
         function n = get.stoichProduct(kin, species, rxns)
-            % Get the product stoichiometric coefficients.
-            %
-            % :parameter species:
-            %    Species indices for which product stoichiometric
-            %    coefficients should be retrieved. Optional argument; if
-            %    specified, "rxns" must be specified as well.
-            % :parameter rxns:
-            %    Reaction indicies for which product stoichiometric
-            %    coefficients should be retrieved. Optional argument; if
-            %    specified, "species" must be specified as well.
-            % :return:
-            %    Returns a sparse matrix of all product stoichiometric
-            %    coefficients. The matrix elements "nu(k, i)" is the
-            %    stoichiometric coefficient of species k as a product in
-            %    reaction i. If "species" and "rxns" are specified, the
-            %    matrix will contain only entries for the specified species
-            %    and reactions. For example, "stoich_p(a, 3, [1, 3, 5,
-            %    7])" :returns a sparse matrix containing only the
-            %    coefficients for specis 3 in reactions 1, 3, 5, and 7.
-
             nsp = kin.nTotalSpecies;
             nr = kin.nReactions;
             temp = sparse(nsp, nr);
@@ -373,26 +308,6 @@ classdef Kinetics < handle
         end
 
         function n = get.stoichNet(kin, species, rxns)
-            % Get the net stoichiometric coefficients.
-            %
-            % :parameter species:
-            %    Species indices for which net stoichiometric coefficients
-            %    should be retrieved. Optional argument; if specified,
-            %    "rxns" must be specified as well.
-            % :parameter rxns:
-            %    Reaction indicies for which net stoichiometric
-            %    coefficients should be retrieved. Optional argument; if
-            %    specified, "species" must be specified as well.
-            % :return:
-            %    A sparse matrix of all net stoichiometric coefficients.
-            %    The matrix elements "nu(k, i)" is the stoichiometric
-            %    coefficient of species k as a net in reaction.
-            %    If "species" and "rxns" are specified, the matrix will
-            %    contain only entries for the specified species and reactions.
-            %    For example, "stoich_net(a, 3, [1, 3, 5, 7])" returns a
-            %    sparse matrix containing only the coefficients for
-            %    specis 3 in reactions 1, 3, 5, and 7.
-
             if nargin == 1
                 n = kin.stoichProduct - kin.stoichReactant;
             elseif nargin == 3
@@ -404,11 +319,6 @@ classdef Kinetics < handle
         %% Get reaction array attributes
 
         function cdot = get.creationRates(kin)
-            % Get the chemical reaction rates.
-            %
-            % :return:
-            %    A vector of the creation rates of all species. Unit: kmol/m^3-s.
-
             nsp = kin.nTotalSpecies;
             xx = zeros(1, nsp);
             pt = libpointer('doublePtr', xx);
@@ -417,11 +327,6 @@ classdef Kinetics < handle
         end
 
         function ddot = get.destructionRates(kin)
-            % Get the chemical destruction rates.
-            %
-            % :return:
-            %    A vector of the destruction rates of all species. Unit: kmol/m^3-s.
-
             nsp = kin.nTotalSpecies;
             xx = zeros(1, nsp);
             pt = libpointer('doublePtr', xx);
@@ -430,23 +335,10 @@ classdef Kinetics < handle
         end
 
         function n = get.isReversible(kin, i)
-            % Get an array of flags indicating reversibility of a reaction.
-            %
-            % :parameter i:
-            %    Integer reaction number.
-            % :return:
-            %    1 if reaction number i is reversible. 0 if irreversible.
-
             n = callct('kin_isReversible', kin.kinID, i);
         end
 
         function wdot = get.netProdRates(kin)
-            % Get the net chemical production rates for all species.
-            %
-            % :return:
-            %    A vector of the net production (creation-destruction)
-            %    rates of all species. Unit: kmol/m^3-s.
-
             nsp = kin.nTotalSpecies;
             xx = zeros(1, nsp);
             pt = libpointer('doublePtr', xx);
@@ -455,12 +347,6 @@ classdef Kinetics < handle
         end
 
         function q = get.ropForward(kin)
-            % Get the forward rates of progress for all reactions.
-            %
-            % :return:
-            %    A column vector of the forward rates of progress for all
-            %    reactions.
-
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
@@ -469,12 +355,6 @@ classdef Kinetics < handle
         end
 
         function q = get.ropReverse(kin)
-            % Get the reverse rates of progress for all reactions.
-            %
-            % :return:
-            %    A column vector of the reverse rates of progress for all
-            %    reactions.
-
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
@@ -483,12 +363,6 @@ classdef Kinetics < handle
         end
 
         function q = get.ropNet(kin)
-            % Get the net rates of progress for all reactions.
-            %
-            % :return:
-            %    A column vector of the net rates of progress for all
-            %    reactions.
-
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
@@ -497,22 +371,10 @@ classdef Kinetics < handle
         end
 
         function rxn = get.reactionEqn(kin, irxn)
-            % Get the reaction equation of a reaction
-            %
-            % :parameter irxn:
-            %    Integer index of the reaction.
-            % :return:
-            %    String reaction equation.
-
             output = callct2('kin_getReactionString', kin.kinID, irxn-1);
         end
 
         function rxn = get.reactionEqns(kin)
-            % Get all reaction equations within the Kinetics class
-            %
-            % :return:
-            %    Cell arrray of strings of the reaction equations.
-
             m = kin.nReactions;
             irxn = (1:m);
             rxns = cell(1, m);
@@ -522,12 +384,6 @@ classdef Kinetics < handle
         end
 
         function enthalpy = get.dH(kin)
-            % Get the enthalpy of reaction for each reaction.
-            %
-            % :return:
-            %    A vector of the enthalpy of reaction for each reaction.
-            %    Unit: J/kmol.
-
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
@@ -536,12 +392,6 @@ classdef Kinetics < handle
         end
 
         function enthalpy = get.dH_standard(kin)
-            % Get the standard state enthalpy of reaction for each reaction.
-            %
-            % :return:
-            %    A vector of the standard state enthalpy of reaction for each reaction.
-            %    Unit: J/kmol.
-
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
@@ -550,12 +400,6 @@ classdef Kinetics < handle
         end
 
         function entropy = get.dS(kin)
-            % Get the entropy of reaction for each reaction.
-            %
-            % :return:
-            %    A vector of the entropy of reaction for each reaction.
-            %    Unit: J/kmol-K.
-
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
@@ -564,12 +408,6 @@ classdef Kinetics < handle
         end
 
         function entropy = get.dS_standard(kin)
-            % Get the standard state entropy of reaction for each reaction.
-            %
-            % :return:
-            %    A vector of the standard state entropy of reaction for each reaction.
-            %    Unit: J/kmol-K.
-
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
@@ -578,12 +416,6 @@ classdef Kinetics < handle
         end
 
         function gibbs = get.dG(kin)
-            % Get the Gibbs free energy of reaction for each reaction.
-            %
-            % :return:
-            %    A vector of the Gibbs free energy of reaction for each
-            %    reaction. Unit: J/kmol.
-
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
@@ -592,12 +424,6 @@ classdef Kinetics < handle
         end
 
         function gibbs = get.dG_standard(kin)
-            % Get the standard state Gibbs free energy of reaction for each reaction.
-            %
-            % :return:
-            %    A vector of the standard state Gibbs free energy of reaction for each
-            %    reaction. Unit: J/kmol.
-
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
@@ -606,14 +432,6 @@ classdef Kinetics < handle
         end
 
         function k = get.equilibriumConstants(kin)
-            % Get the equilibrium constants for all reactions.
-            %
-            % :return:
-            %    A column vector of the equilibrium constants for all
-            %    reactions. The vector has an entry for every reaction,
-            %    whether reversible or not, but non-zero values occur only
-            %    for the reversible reactions.
-
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
@@ -622,12 +440,6 @@ classdef Kinetics < handle
         end
 
         function k = get.forwardRateConstants(kin)
-            % Get the forward reaction rate constants for all reactions.
-            %
-            % :return:
-            %    A column vector of the forward rates constants of all
-            %    reactions.
-
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
@@ -636,12 +448,6 @@ classdef Kinetics < handle
         end
 
         function k = get.reverseRateConstants(kin)
-            % Get the reverse reaction rate constants for all reactions.
-            %
-            % :return:
-            %    A column vector of the reverse rates constants of all
-            %    reactions.
-
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
@@ -650,11 +456,6 @@ classdef Kinetics < handle
         end
 
         function ydot = get.massProdRate(kin)
-            % Get the mass production rates of the species.
-            %
-            % :return:
-            %    A vector of the mass production rates.
-
             nsp = kin.nTotalSpecies;
             xx = zeros(1, nsp);
             pt = libpointer('doublePtr', xx);
@@ -669,10 +470,10 @@ classdef Kinetics < handle
             %
             % kin.setMultiplier(irxn, v)
             %
-            % :parameter irxn:
+            % :param irxn:
             %    Integer vector reaction numbers for which the multiplier
             %    should be set. Optional.
-            % :parameter v:
+            % :param v:
             %    Value by which the reaction rate of progress should be
             %    multiplied.
             %
@@ -697,7 +498,7 @@ classdef Kinetics < handle
             %
             % kin.advanceCoverages(dt)
             %
-            % :parameter dt:
+            % :param dt:
             %    Time interval by which the coverages should be advanced.
             %
 

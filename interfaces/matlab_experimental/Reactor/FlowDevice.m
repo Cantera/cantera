@@ -1,37 +1,54 @@
 classdef FlowDevice < handle
+    % FlowDevice Class.
+    %
+    % x = FlowDevice(typ)
+    %
+    % Base class for devices that allow flow between reactors.
+    % :mat:func:`FlowDevice` objects are assumed to be adiabatic,
+    % non-reactive, and have negligible internal volume, so that they are
+    % internally always in steady-state even if the upstream and downstream
+    % reactors are not. The fluid enthalpy, chemical composition, and mass
+    % flow rate are constant across a :mat:func:`FlowDevice`, and the
+    % pressure difference equals the difference in pressure between the
+    % upstream and downstream reactors.
+    %
+    % See also: :mat:func:`MassFlowController`, :mat:func:`Valve`
+    %
+    % :param typ:
+    %     Type of :mat:func:`FlowDevice` to be created. ``typ='MassFlowController'``
+    %     for :mat:func:`MassFlowController`,  ``typ='PressureController'`` for
+    %     :mat:func:`PressureController` and ``typ='Valve'`` for
+    %     :mat:func:`Valve`
+    % :return:
+    %     Instance of class :mat:func:`FlowDevice`
+    %
 
-    properties
-        type
-        id
-        upstream
-        downstream
+    properties (SetAccess = immutable)
+        type % Type of flow device.
+        id % ID of Flowdevice object.
+    end
+
+    properties (SetAccess = protected)
+        upstream % Upstream object of type :mat:func:`Reactor` or :mat:func:`Reservoir`.
+
+        downstream % Downstream object of type :mat:func:`Reactor` or :mat:func:`Reservoir`.
+
+        % Get the mass flow rate.
+        %
+        % mdot = f.massFlowRate
+        %
+        % :param f:
+        %     Instance of class :mat:func:`MassFlowController`
+        % :return:
+        %     The mass flow rate through the :mat:func:`FlowDevice` at the current time
+        massFlowRate
+
     end
 
     methods
-        %% FlowDevice class constructor
+        %% FlowDevice Class Constructor
 
         function x = FlowDevice(typ)
-            % FLOWDEVICE  FlowDevice class constructor.
-            % x = FlowDevice(typ)
-            % Base class for devices that allow flow between reactors.
-            % :mat:func:`FlowDevice` objects are assumed to be adiabatic,
-            % non-reactive, and have negligible internal volume, so that they are
-            % internally always in steady-state even if the upstream and downstream
-            % reactors are not. The fluid enthalpy, chemical composition, and mass
-            % flow rate are constant across a :mat:func:`FlowDevice`, and the
-            % pressure difference equals the difference in pressure between the
-            % upstream and downstream reactors.
-            %
-            % See also: :mat:func:`MassFlowController`, :mat:func:`Valve`
-            %
-            % :param typ:
-            %     Type of :mat:func:`FlowDevice` to be created. ``typ='MassFlowController'``
-            %     for :mat:func:`MassFlowController`,  ``typ='PressureController'`` for
-            %     :mat:func:`PressureController` and ``typ='Valve'`` for
-            %     :mat:func:`Valve`
-            % :return:
-            %     Instance of class :mat:func:`FlowDevice`
-            %
             checklib;
 
             if nargin == 0
@@ -44,22 +61,19 @@ classdef FlowDevice < handle
             x.downstream = -1;
         end
 
-        %% Utility methods
+        %% FlowDevice Class Destructor
 
-        function clear(f)
-            % CLEAR  Clear the specified flow device from memory.
-            % f.clear
-            %
-            % :param f:
-            %     Instance of :mat:func:`FlowDevice` to be cleared.
-            %
+        function delete(f)
+            % Delete the specified flow device from memory.
+
             callct('flowdev_del', f.id);
         end
 
-        %% FlowDevice methods
+        %% Utility Methods
 
         function install(f, upstream, downstream)
-            % INSTALL  Install a flow device between reactors or reservoirs.
+            % Install a flow device between reactors or reservoirs.
+            %
             % f.install(upstream, downstream)
             %
             % :param f:
@@ -83,8 +97,11 @@ classdef FlowDevice < handle
             end
         end
 
-        function mdot = massFlowRate(f)
-            % MASSFLOWRATE  Get the mass flow rate.
+        %% Flowdevice Get Methods
+
+        function mdot = get.massFlowRate(f)
+            % Get the mass flow rate.
+            %
             % mdot = f.massFlowRate
             %
             % :param f:
@@ -95,8 +112,11 @@ classdef FlowDevice < handle
             mdot = callct('flowdev_massFlowRate2', f.id);
         end
 
+        %% Flowdevice Set Methods
+
         function setFunction(f, mf)
-            % SETFUNCTION  Set the mass flow rate with class :mat:func:`Func`.
+            % Set the mass flow rate with class :mat:func:`Func`.
+            %
             % f.setFunction(mf)
             %
             % See also: :mat:func:`MassFlowController`, :mat:func:`Func`
@@ -115,7 +135,8 @@ classdef FlowDevice < handle
         end
 
         function setMassFlowRate(f, mdot)
-            % SETMASSFLOWRATE  Set the mass flow rate to a constant value.
+            % Set the mass flow rate to a constant value.
+            %
             % f.setMassFlowRate(mdot)
             %
             % See also: :mat:func:`MassFlowController`
@@ -133,8 +154,9 @@ classdef FlowDevice < handle
         end
 
         function setMaster(f, d)
-            % SETMASTER  Set the Master flow device used to compute this device's mass
+            % Set the Master flow device used to compute this device's mass
             % flow rate.
+            %
             % f.setMaster(d)
             %
             % :param f:
@@ -150,8 +172,10 @@ classdef FlowDevice < handle
         end
 
         function setValveCoeff(f, k)
-            % SETVALVECOEFF  Set the valve coefficient :math:`K`.
+            % Set the valve coefficient :math:`K`.
+            %
             % f.setValveCoeff(k)
+            %
             % The mass flow rate [kg/s] is computed from the expression
             %
             % .. math:: \dot{m} = K(P_{upstream} - P_{downstream})

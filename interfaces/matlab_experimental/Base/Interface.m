@@ -21,12 +21,17 @@ classdef Interface < handle & ThermoPhase & Kinetics
     % :return:
     %     Instance of class :mat:func:`Interface`
     %
-    properties
+
+    properties (SetAccess = public)
         coverages % Surface coverages of the species on an interface.
+
+        % Surface coverages of the species on an interface.
+        % Unit: kmol/m^2 for surface phases, kmol/m for edge phases.
         siteDensity
-            % Surface coverages of the species on an interface.
-            % Unit: kmol/m^2 for surface phases, kmol/m for edge phases.
-            %
+
+    end
+
+    properties (SetAccess = protected)
         concentrations % Concentrations of the species on an interface.
     end
 
@@ -34,6 +39,7 @@ classdef Interface < handle & ThermoPhase & Kinetics
         %% Interface Class Constructor
 
         function s = Interface(src, id, p1, p2, p3, p4)
+            % Interface class constructor
             checklib;
 
             t = ThermoPhase(src, id);
@@ -56,15 +62,6 @@ classdef Interface < handle & ThermoPhase & Kinetics
         %% Interface Get Methods
 
         function c = get.coverages(s)
-            % GET.COVERAGES  Get the surface coverages of the species on an interface.
-            % c = s.coverages
-            % :param s:
-            %     Instance of class :mat:func:`Interface` with surface species
-            % :return:
-            %     If no output value is assigned, a bar graph will be plotted.
-            %     Otherwise, a vector of length ``n_surf_species`` will be
-            %     returned.
-            %
             surfID = s.tpID;
             nsp = s.nSpecies;
             xx = zeros(1, nsp);
@@ -74,24 +71,11 @@ classdef Interface < handle & ThermoPhase & Kinetics
         end
 
         function d = get.siteDensity(s)
-            % GET.SITEDENSITY  Get the surface coverages of the species on an interface.
-            % c = s.siteDensity
-            % :param s:
-            %     Instance of class :mat:func:`Interface` with surface species
-            % :return:
-            %    Double site density. Unit: kmol/m^2 for surface phases,
-            %    kmol/m for edge phases.
-            %
             surfID = s.tpID;
             d = calllibt(ct, 'surf_siteDensity', surfID);
         end
 
         function c = get.concentrations(s)
-            % Get the concentrations of the species on an interface.
-            %
-            % :return:
-            %    Vector of length "n_surf_species" for concentration.
-
             surfID = s.tr_id;
             nsp = s.nSpecies;
             xx = zeros(1, nsp);
@@ -101,8 +85,10 @@ classdef Interface < handle & ThermoPhase & Kinetics
         end
 
         function set.coverages(s, cov, norm)
-            % SET.COVERAGES  Set surface coverages of the species on an interface.
+            % Set surface coverages of the species on an interface.
+            %
             % s.coverages = (cov, norm)
+            %
             % :param s:
             %      Instance of class :mat:func:`Interface`
             % :param cov:
@@ -143,13 +129,16 @@ classdef Interface < handle & ThermoPhase & Kinetics
         end
 
         function set.siteDensity(s, d)
-            % SET.SITEDENSITY  Set the site density of a phase on an interface.
+            % Set the site density of a phase on an interface.
+            %
             % s.siteDensity = d
+            %
             % :param s:
             %      Instance of class :mat:func:`Interface`
-            % :parameter d
+            % :param d
             %    Double site density. Unit: kmol/m^2 for surface phases,
             %    kmol/m for edge phases.
+            %
 
             surfID = s.tpID;
             callct('surf_setSiteDensity', surfID, d);

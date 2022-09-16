@@ -1,6 +1,8 @@
 function h = Heptane
     % Return an object representing n-heptane.
+    %
     % h = Heptane()
+    %
     % The object returned by this method implements an accurate equation of
     % state for n-heptane that can be used in the liquid, vapor, saturated
     % liquid/vapor, and supercritical regions of the phase diagram. The

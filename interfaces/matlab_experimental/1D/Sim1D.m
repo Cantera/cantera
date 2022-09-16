@@ -15,10 +15,15 @@ classdef Stack < handle
     %     Instance of class :mat:func:`Stack`
     %
 
-    properties
+    properties (SetAccess = immutable)
+
         stID % ID of the stack.
+
         domains % Domain instances contained within the Stack object.
-        stackIndex
+    end
+
+    properties (SetAccess = protected)
+
         % The index of a domain in a stack given its name.
         %
         % n = s.stackIndex(name)
@@ -30,8 +35,8 @@ classdef Stack < handle
         %    looked up and its index is :returned.
         % :return:
         %    Index of domain.
+        stackIndex
         %
-        grid
         % Get the grid in one domain.
         %
         % z = s.grid(name)
@@ -43,8 +48,8 @@ classdef Stack < handle
         %     should be retrieved.
         % :return:
         %     The grid in domain name
+        grid
         %
-        resid
         % Get the residuals.
         %
         % r = s.resid(domain, rdt, count)
@@ -56,11 +61,12 @@ classdef Stack < handle
         % :param rdt:
         % :param count:
         % :return:
-        %
+        resid
+
     end
 
     methods
-        %% Stack class constructor
+        %% Stack Class Constructor
 
         function s = Stack(domains)
             checklib;
@@ -76,7 +82,7 @@ classdef Stack < handle
                 s.stID = callct('sim1D_new', nd, ids);
             else
                 help(Stack);
-                error('Wrong number of :parameters.');
+                error('Wrong number of parameters.');
             end
         end
 
@@ -92,14 +98,7 @@ classdef Stack < handle
 
         function display(s, fname)
             % Show all domains.
-            %
-            % s.display(fname)
-            %
-            % :param s:
-            %     Instance of class :mat:func:`Stack`
-            % :param fname:
-            %     File to write summary to. If omitted, output is to the screen.
-            %
+
             if nargin == 1
                 fname = '-';
             end
@@ -241,7 +240,7 @@ classdef Stack < handle
         function writeStats(s)
             % Print statistics for the current solution.
             %
-            % writeStats(s)
+            % s.writeStats
             %
             % Prints a summary of the number of function and
             % Jacobian evaluations for each grid, and the CPU time spent on
@@ -263,18 +262,6 @@ classdef Stack < handle
         end
 
         function n = get.stackIndex(s, name)
-            % Get the index of a domain in a stack given its name.
-            %
-            % n = s.stackIndex(name)
-            %
-            % :param s:
-            %    Instance of class 'Stack'.
-            % :param name:
-            %    If double, the value is :returned. Otherwise, the name is
-            %    looked up and its index is :returned.
-            % :return:
-            %    Index of domain.
-
             if isa(name, 'double')
                 n = name;
             else
@@ -288,37 +275,12 @@ classdef Stack < handle
         end
 
         function z = get.grid(s, name)
-            % Get the grid in one domain.
-            %
-            % z = s.grid(name)
-            %
-            % :param s:
-            %     Instance of class :mat:func:`Stack`
-            % :param name:
-            %     Name of the domain for which the grid
-            %     should be retrieved.
-            % :return:
-            %     The grid in domain name
-            %
             n = s.stackIndex(name);
             d = s.domains(n);
             z = d.gridPoints;
         end
 
         function r = get.resid(s, domain, rdt, count)
-            % Get the residuals.
-            %
-            % r = s.resid(domain, rdt, count)
-            %
-            % :param s:
-            %    Instance of class 'Stack'.
-            % :param domain:
-            %    Name of the domain.
-            % :param rdt:
-            % :param count:
-            % :return:
-            %
-
             if nargin == 2
                 rdt = 0.0;
                 count = 0;

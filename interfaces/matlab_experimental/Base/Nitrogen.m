@@ -1,6 +1,8 @@
 function n = Nitrogen()
     % Return an object representing nitrogen.
+    %
     % n = Nitrogen()
+    %
     % The object returned by this method implements an accurate equation of
     % state for nitrogen that can be used in the liquid, vapor, saturated
     % liquid/vapor, and supercritical regions of the phase diagram. The

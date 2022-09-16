@@ -53,7 +53,7 @@ classdef Func < handle
     %     Instance of class :mat:func:`Func`
     %
 
-    properties
+    properties (SetAccess = immutable)
         f1
         f2
         coeffs
@@ -133,12 +133,7 @@ classdef Func < handle
 
         function delete(f)
             % Delete the C++ Func1 object.
-            %
-            % f.clear
-            %
-            % :param f:
-            %     Instance of class :mat:func:`Func`
-            %
+
             callct('func_del', f.id);
         end
 
@@ -146,12 +141,7 @@ classdef Func < handle
 
         function display(f)
             % Display the equation of the input function on the terminal.
-            %
-            % f.display
-            %
-            % :param f:
-            %     Instance of class :mat:func:`Func`
-            %
+
             disp(' ');
             disp([inputname(1),' = '])
             disp(' ');

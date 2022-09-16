@@ -1,5 +1,4 @@
 function output = callct(varargin)
-    % CALLCT
     % Calls Cantera library functions with single outputs and returns
     % errors if necessary.
 
