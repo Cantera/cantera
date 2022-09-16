@@ -8,42 +8,49 @@ classdef ReactorNet < handle
     % to simultaneously advance the state of one or more coupled
     % reactors.
     %
-    % :parameter reactors:
+    % :param reactors:
     %    Instance of class 'Reactor' or a cell array of instance of
     %    'Reactor'.
     % :return:
     %    Instance of class 'ReactorNet'.
     %
 
-    properties
+    properties (SetAccess = immutable)
         id
+    end
+
+    properties (SetAccess = protected)
+
+        % Internal time step in s.
+        %
+        % t = r.dt
+        %
+        % The integrator used to integrate the ODEs (CVODE) takes
+        % variable-size steps, chosen so that a specified error
+        % tolerance is maintained. At times when the solution is
+        % rapidly changing, the time step becomes smaller to resolve
+        % the solution.
         dt
-            % Internal time step in s.
-            %
-            % t = r.dt
-            %
-            % The integrator used to integrate the ODEs (CVODE) takes
-            % variable-size steps, chosen so that a specified error
-            % tolerance is maintained. At times when the solution is
-            % rapidly changing, the time step becomes smaller to resolve
-            % the solution.
-            %
+
         time % Current time in s.
+
         atol % Absolute error tolerance.
+
         rtol % Relative error tolerance.
+
+        % Sensitivity of the solution variable c in reactor
+        % rxtr with respect to the parameter p.
+        %
+        % s = r.sensitivity(component, p, rxtr)
+        %
+        % :param component:
+        %    String name of variable.
+        % :param p:
+        %    Integer sensitivity parameter.
+        % :param rxtr:
+        %    Instance of class 'reactor'.
         sensitivity
-            % Sensitivity of the solution variable c in reactor
-            % rxtr with respect to the parameter p.
-            %
-            % s = r.sensitivity(component, p, rxtr)
-            %
-            % :param component:
-            %    String name of variable.
-            % :param p:
-            %    Integer sensitivity parameter.
-            % :param rxtr:
-            %    Instance of class 'reactor'.
-            %
+
     end
 
     methods
@@ -86,9 +93,9 @@ classdef ReactorNet < handle
             %
             % net.addReactor(reactor)
             %
-            % :parameter net:
+            % :param net:
             %    Instance of class 'ReactorNet'.
-            % :parameter reactor:
+            % :param reactor:
             %    Instance of class 'Solution'.
             %
 
@@ -107,7 +114,7 @@ classdef ReactorNet < handle
             % an absolute time, not a time interval.) The integrator may
             % take many internal timesteps before reaching tout.
             %
-            % :parameter tout:
+            % :param tout:
             %    End time of the integration. Unit: s.
             %
 
@@ -167,9 +174,9 @@ classdef ReactorNet < handle
             %
             % r.setTolerances(rerr, aerr)
             %
-            % :parameter rerr:
+            % :param rerr:
             %    Scalar relative error tolerance.
-            % :parameter aerr:
+            % :param aerr:
             %    Scalar absolute error tolerance.
             %
 
@@ -179,15 +186,6 @@ classdef ReactorNet < handle
         %% ReactorNet get methods
 
         function t = get.dt(r)
-            % Get the internal time step in s.
-            %
-            % The integrator used to integrate the ODEs (CVODE) takes
-            % variable-size steps, chosen so that a specified error
-            % tolerance is maintained. At times when the solution is
-            % rapidly changing, the time step becomes smaller to resolve
-            % the solution.
-            %
-
             t = callct('reactor_step', r.id);
         end
 
@@ -210,16 +208,6 @@ classdef ReactorNet < handle
         end
 
         function s = get.sensitivity(r, component, p, rxtr)
-            % Get the sensitivity of the solution variable c in reactor
-            % rxtr with respect to the parameter p.
-            %
-            % :param component:
-            %    String name of variable.
-            % :param p:
-            %    Integer sensitivity parameter.
-            % :param rxtr:
-            %    Instance of class 'reactor'.
-
             if isa(component, 'string')
                 callct('reactornet_sensitivity', r.id, component, ...
                         p, rxtr.id);

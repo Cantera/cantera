@@ -1,6 +1,8 @@
 function c = CarbonDioxide()
     % Return an object representing carbon dioxide.
+    %
     % c = CarbonDioxide
+    %
     % The object returned by this method implements an accurate equation of
     % state for carbon dioxide that can be used in the liquid, vapor, saturated
     % liquid/vapor, and supercritical regions of the phase diagram. The

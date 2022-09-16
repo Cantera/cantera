@@ -23,46 +23,52 @@ classdef Reactor < handle
     %    Instance of class 'Reactor'.
     %
 
-    properties
-        type
-        id
+    properties (SetAccess = immutable)
+        type % Type of Reactor.
+
+        id % ID of Reactor.
+
+    end
+
+    properties (SetAccess = protected)
         contents
-        D
+        %
         % Density of the reactor contents at the end of the last call to
         % 'advance' or 'step'. Unit: kg/m^3.
+        D
         %
-        P
         % Pressure of the reactor contents at the end of the last call to
         % 'advance' or 'step'. Unit: K.
+        P
         %
-        M
         % Mass of the reactor contents at the end of the last call to
         % 'advance' or 'step'. Unit: kg.
+        M
         %
-        H
         % Mass specific enthalpy of the reactor contents at the end of the last call to
         % 'advance' or 'step'. Unit: J/kg.
+        H
         %
-        U
         % Mass specific internal energy of the reactor contents at the end of the last call to
         % 'advance' or 'step'. Unit: J/kg.
+        U
         %
-        T
         % Temperature of the reactor contents at the end of the last call to
         % 'advance' or 'step'. Unit: K.
+        T
         %
-        V
-        % VOlume of the reactor contents at the end of the last call to
+        % Volume of the reactor contents at the end of the last call to
         % 'advance' or 'step'. Unit: m^3.
+        V
         %
-        Y
         % Mass fractions of the reactor contents at the end of the last call to
         % 'advance' or 'step'.
-        %
+        Y
+
     end
 
     methods
-        %% Reactor class constructor
+        %% Reactor Class Constructor
 
         function r = Reactor(content, typ)
             checklib;
@@ -102,8 +108,11 @@ classdef Reactor < handle
             % respect to reaction m should be computed. The reactor must be
             % part of a network first.
             %
-            % :parameter m:
+            % r.addSensitivityReaction(m)
+            %
+            % :param m:
             %    Index number of reaction.
+            %
 
             callct('reactor_addSensitivityReaction', r.id, m);
         end
@@ -111,10 +120,13 @@ classdef Reactor < handle
         function insert(r, gas)
             % Insert a solution or mixture into a reactor.
             %
-            % :parameter r:
+            % r.insert(gas)
+            %
+            % :param r:
             %    Instance of class 'Reactor'.
-            % :parameter gas:
+            % :param gas:
             %    Instance of class 'Solution'.
+            %
 
             r.contents = gas;
             setThermoMgr(r, gas);
@@ -126,82 +138,37 @@ classdef Reactor < handle
         %% Reactor Get Methods
 
         function temperature = get.T(r)
-            % Get the temperature of the reactor.
-            %
-            % :return:
-            %    The temperature of the reactor contents at the end of the
-            %    last call to 'advance' or 'step'. Unit: K.
-
             temperature = callct('reactor_temperature', r.id);
         end
 
         function pressure = get.P(r)
-            % Get the pressure of the reactor.
-            %
-            % :return:
-            %    The pressure of the reactor contents at the end of the
-            %    last call to 'advance' or 'step'. Unit: Pa.
-
             pressure = callct('reactor_pressure', r.id);
         end
 
         function rho = get.D(r)
-            % Get the density of the reactor.
-            %
-            % :return:
-            %    Density of the phase in the input. Unit: kg/m^3.
-
             rho = callct('reactor_density', r.id);
         end
 
         function mass = get.M(r)
-            % Get the mass of the reactor.
-            %
-            % :return:
-            %    The mass of the reactor contents at the end of the
-            %    last call to 'advance' or 'step'. The mass is retrieved
-            %    from the solution vector. Unit: kg.
-
             mass = callct('reactor_mass', r.id);
         end
 
         function volume = get.V(r)
-            % Get the volume of the reactor.
-            %
-            % :return:
-            %    The volume of the reactor contents at the end of the
-            %    last call to 'advance' or 'step'. Unit: m^3.
-
             volume = callct('reactor_volume', r.id);
         end
 
         function enthalpy_mass = get.H(r)
-            % Get the mass specific enthalpy of the reactor.
-            %
-            % :return:
-            %    The mass specific enthalpy of the reactor contents at the
-            %    end of the last call to 'advance' or 'step'. The enthalpy
-            %    is retrieved from the solution vector. Unit: J/kg.
-
             enthalpy_mass = callct('reactor_enthalpy_mass', r.id);
         end
 
         function intEnergy_mass = get.U(r)
-            % Get the mass specific internal energy of the reactor.
-            %
-            % :return:
-            %    The mass specific internal energy of the reactor contents
-            %    at the end of the last call to 'advance' or 'step'. The
-            %    internal energy is retrieved from the solution vector.
-            %    Unit: J/kg.
-
             intEnergy_mass = callct('reactor_intEnergy_mass', r.id);
         end
 
         function yi = massFraction(r, species)
             % Get the mass fraction of a species.
             %
-            % :parameter species:
+            % :param species:
             %    String or one-based integer id of the species.
 
             if ischar(species)
@@ -213,12 +180,6 @@ classdef Reactor < handle
         end
 
         function massFractions = get.Y(r)
-            % Get the mass fractions of the reactor.
-            %
-            % :return:
-            %    The mass fractions of the reactor contents at the end of
-            %    the last call to 'advance' or 'step'.
-
             nsp = r.contents.nSpecies;
             massFractions = zeros(1, nsp);
             for i = 1:nsp
@@ -233,7 +194,7 @@ classdef Reactor < handle
             %
             % r.setInitialVolume(v0)
             %
-            % :parameter v0:
+            % :param v0:
             %    Initial volume in m^3.
 
             callct('reactor_setInitialVolume', r.id, v0);
@@ -244,7 +205,7 @@ classdef Reactor < handle
             %
             % r.setMdot(MFR)
             %
-            % :parameter MFR:
+            % :param MFR:
             %    Mass flow rate in kg/s.
             %
 
@@ -258,16 +219,16 @@ classdef Reactor < handle
             % r.setChemistryFlag(flag)
             %
             % If the chemistry is disabled, then the reactor composition is
-            % constant. The :parameter should be the string "on" to enable
+            % constant. The parameter should be the string "on" to enable
             % the species equaionts, or "off" to disable it.
             %
             % By default, Reactor objects are created with the species
             % equations enabled if there are reactions present in the
             % mechanism file, and disabled otherwise.
             %
-            % :parameter r:
+            % :param r:
             %    Instance of class 'Reactor'.
-            % :parameter flag:
+            % :param flag:
             %    String, either "on" or "off" to enable or disable chemical
             %    reactions, respectively.
             %
@@ -288,15 +249,15 @@ classdef Reactor < handle
             % r.setEnergyFlag(flag)
             %
             % If the energy equation is disabled, then the reactor
-            % temperature is constant. The :parameter should be the string
+            % temperature is constant. The parameter should be the string
             % "on" to enable the energy equation, or "off" to disable it.
             %
             % By default, Reactor objects are created with the energy
             % equation enabled, so usually this method
             %
-            % :parameter r:
+            % :param r:
             %    Instance of class 'Reactor'.
-            % :parameter flag:
+            % :param flag:
             %    String, either "on" or "off" to enable or disable chemical
             %    reactions, respectively.
             %
@@ -322,9 +283,9 @@ classdef Reactor < handle
             % This method is used internally during Reactor initialization,
             % but is usually not called by users.
             %
-            % :parameter r:
+            % :param r:
             %    Instance of class 'Reactor'.
-            % :parameter t:
+            % :param t:
             %    Instance of class 'ThermoPhase' or another object
             %    containing an instance of that class.
 
@@ -343,9 +304,9 @@ classdef Reactor < handle
             % This method is used internally during Reactor initialization,
             % but is usually not called by users.
             %
-            % :parameter r:
+            % :param r:
             %    Instance of class 'Reactor'.
-            % :parameter t:
+            % :param t:
             %    Instance of class 'Kinetics' or another object
             %    containing an instance of that class.
 

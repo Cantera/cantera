@@ -14,23 +14,29 @@ classdef ReactorSurface < handle
     % after initial construction by using the various methods of
     % the 'ReactorSurface' class.
     %
-    % :parameter kleft:
+    % :param kleft:
     %    Surface reaction mechanisms for the left-facing surface.
     %    This must bean instance of class 'Kinetics', or of a class
     %    derived from 'Kinetics', such as 'Interface'.
-    % :parameter reactor:
+    % :param reactor:
     %    Instance of class 'Reactor' to be used as the adjacent
     %    bulk phase.
-    % :parameter area:
+    % :param area:
     %    The area of the surface in m^2. Defaults to 1.0 m^2 if not
     %    specified.
     % :return:
     %    Instance of class 'ReactorSurface'.
     %
 
-    properties
+    properties (SetAccess = immutable)
         surfID
+    end
+
+    properties (SetAccess = protected)
         reactor
+    end
+
+    properties (SetAccess = public)
         area % Area of the reactor surface in m^2.
     end
 
@@ -95,7 +101,7 @@ classdef ReactorSurface < handle
             %
             % s.addSensitivityReaction(m)
             %
-            % :parameter m:
+            % :param m:
             %    Index number of reaction.
 
             callct('reactorsurface_addSensitivityReaction', s.surfID, m);
@@ -104,16 +110,12 @@ classdef ReactorSurface < handle
         %% ReactorSurface Get Methods
 
         function a = get.area(s)
-            % Get the areaof the reactor surface in m^2.
-
             a = callct('reactorsurface_area', s.surfID);
         end
 
         %% ReactorSurface Set Methods
 
         function set.area(s, a)
-            % Set the area of a reactor surface
-
             callct('reactorsurface_setArea', s.surfID, a);
         end
 
@@ -122,7 +124,7 @@ classdef ReactorSurface < handle
             %
             % s.setKinetics(kin)
             %
-            % :parameter kin:
+            % :param kin:
             %    Instance of class 'Kinetics' (or another object derived
             %    from kin) to be used as the kinetic mechanism for this
             %    surface. Typically an instance of class 'Interface'.

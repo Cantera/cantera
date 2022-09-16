@@ -1,7 +1,7 @@
 classdef Wall < handle
     % Wall Class
     %
-    % x = Wall(left, right, area, k, u, q, v)
+    % x = Wall()
     %
     % A Wall separates two reactors, or a reactor and a reservoir.
     % A Wall has a finite area, may conduct heat between the two
@@ -29,51 +29,35 @@ classdef Wall < handle
     % time. The heat flux is positive when heat flows from the
     % reactor on the left to the reactor on the right.
     %
-    % Note: all of the arguments are optional and can be activated
+    % Note: the Wall class constructor only assign default values
+    % to various properties. The user could specify those properties
     % after initial construction by using the various methods of
-    % the 'Wall' class. Any improperly specified arguments will
-    % generate warnings; these can be ignored if the intention was
-    % to not use a particular argument. Thus, the velocity of the
-    % wall can be set by using empty strings or 0.0 for each of the
-    % arguments before the velocity with no harm.
-    %
-    % :parameter left:
-    %    Instance of class 'Reactor' to be used as the bulk phase
-    %    on the left side of the wall.
-    % :parameter right:
-    %    Instance of class 'Reactor' to be used as the bulk phase
-    %    on the right side of the wall.
-    % :parameter area:
-    %    The area of the wall in m^2. Defaults to 1.0 m^2 if not
-    %    specified.
-    % :parameter k:
-    %    Expansion rate coefficient in m/(s-Pa). Defaults to 0.0 if
-    %    not specified.
-    % :parameter u:
-    %    Heat transfer coefficient in W/(m^2-K). Defaults to 0.0 if
-    %    not specified.
-    % :parameter q:
-    %    Heat flux in W/m^2. Defaults to 0.0 if not specified. Must
-    %    be an instance of 'Func'.
-    % :parameter v:
-    %    Velocity of the wall in m/s. Defaults to 0.0 if not
-    %    specified. Must be an instance of 'Func'.
+    % the 'Wall' class.
     %
 
-    properties
+    properties (SetAccess = immutable)
         id
         type
+    end
+
+    properties (SetAccess = protected)
         left
         right
-        area % Area of the wall in m^2.
+
         qdot % Total heat transfer through a wall at given time.
+
         vdot % Rate of volumetric change at given time.
+
+    end
+
+    properties (SetAccess = public)
+        area % Area of the wall in m^2.
     end
 
     methods
         %% Wall Class Constructor
 
-        function x = Wall(left, right, area, k, u, q, v)
+        function x = Wall()
             checklib;
 
             % At the moment, only one wall type is implemented
@@ -81,59 +65,14 @@ classdef Wall < handle
 
             x.type = char(typ);
             x.id = callct('wall_new', x.type);
+
+            % Set default values.
             x.left = -1;
             x.right = -1;
+            x.area = 1.0;
+            x.setExpansionRateCoeff(0.0);
+            x.setHeatTransferCoeff(0.0);
 
-            if nargin >= 2
-                if isa(left, 'Reactor') && isa(right, 'Reactor')
-                    x.install(left, right);
-                else
-                    warning(['left and/or right were not instances of Reactor, ' ...
-                             'and were not installed.'])
-                end
-            end
-
-            if nargin >= 3
-                if isnumeric(area)
-                    x.setArea(area);
-                else
-                    warning('area was not a number and the area was not set')
-                end
-            end
-
-            if nargin >= 4
-                if isnumeric(k)
-                    x.setExpansionRateCoeff(k);
-                else
-                    warning(['k was not a number and the expansion rate ',...
-                             'coefficient was not set'])
-                end
-            end
-
-            if nargin >= 5
-                if isnumeric(u)
-                    x.setHeatTransferCoeff(u);
-                else
-                    warning(['u was not a number and the expansion rate ',...
-                             'coefficient was not set'])
-                end
-            end
-
-            if nargin >= 6
-                if isa(q, 'Func')
-                    x.setHeatFlux(q);
-                else
-                    warning('q was not an instance of Func and was not set')
-                end
-            end
-
-            if nargin >= 7
-                if isa(v, 'Func')
-                    x.setVelocity(v)
-                else
-                    warning('v was not an instance of Func and was not set')
-                end
-            end
         end
 
         %% Wall Class Destructor
@@ -151,6 +90,12 @@ classdef Wall < handle
             %
             % w.install(l, r)
             %
+            % :param l:
+            %    Instance of class 'Reactor' to be used as the bulk phase
+            %    on the left side of the wall.
+            % :param r:
+            %    Instance of class 'Reactor' to be used as the bulk phase
+            %    on the right side of the wall.
 
             w.left = l;
             w.right = r;
@@ -169,28 +114,20 @@ classdef Wall < handle
         %% ReactorNet get methods
 
         function a = get.area(w)
-            % Get the area of the wall in m^2.
-
             a = callct('wall_area', w.id);
         end
 
         function q = get.qdot(w, t)
-            % Get the total heat transfer through a wall at given time.
-
-            q = callct('wall_Q', w.id, t);
+             q = callct('wall_Q', w.id, t);
         end
 
         function v = get.vdot(w, t)
-            % Get the rate of volumetric change at a given time.
-
             v = callct('wall_vdot', w.id, t);
         end
 
         %% ReactorNet set methods
 
         function set.area(w, a)
-            % Set the area of a wall.
-
             callct('wall_setArea', w.id, a);
         end
 
@@ -199,7 +136,7 @@ classdef Wall < handle
             %
             % w.setTHermalResistance(w)
             %
-            % :parameter r:
+            % :param r:
             %    Thermal resistance. Unit: K*m^2/W.
             %
 
@@ -211,7 +148,7 @@ classdef Wall < handle
             %
             % w.setHeatTransferCoeff(u)
             %
-            % :parameter u:
+            % :param u:
             %    Heat transfer coefficient. Unit: W/(m^2-K).
             %
 
@@ -235,7 +172,7 @@ classdef Wall < handle
             %
             % w.setExpansionRateCoeff(k)
             %
-            % :parameter k:
+            % :param k:
             %    Expanstion rate coefficient. Unit: m/(s-Pa).
             %
 
@@ -252,7 +189,7 @@ classdef Wall < handle
             % to specify a constant heat flux by using the polynomial
             % functor with only the first term specified.
             %
-            % :parameter f:
+            % :param f:
             %    Instance of class 'Func'. Unit: W/m^2.
             %
 
@@ -269,7 +206,7 @@ classdef Wall < handle
             % to specify a constant velocity by using the polynomial
             % functor with only the first term specified.
             %
-            % :parameter f:
+            % :param f:
             %    Instance of class 'Func'. Unit: m/s.
             %
 

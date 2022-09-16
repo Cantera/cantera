@@ -1,10 +1,13 @@
 function h = HFC134a()
     % Return an object representing refrigerant HFC134a.
+    %
     % h = HFC134a()
+    %
     % The object returned by this method implements an accurate equation of
     % state for refrigerant HFC134a (R134a) that can be used in the liquid,
     % vapor, saturated liquid/vapor, and supercritical regions of the phase
     % diagram. Implements the equation of state given in:
+    %
     % R. Tillner-Roth and H. D. Baehr. "An International Standard Formulation for
     % The Thermodynamic Properties of 1,1,1,2-Tetrafluoroethane (HFC-134a) for
     % Temperatures From 170 K to 455 K and Pressures up to 70 MPa". J. Phys.
