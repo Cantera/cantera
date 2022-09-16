@@ -31,7 +31,7 @@ CoverageDependentSurfPhase::CoverageDependentSurfPhase(const std::string& infile
     initThermoFile(infile, id_);
 }
 
-void CoverageDependentSurfPhase::setInterpolativeDependency(const
+void CoverageDependentSurfPhase::addInterpolativeDependency(const
                                                             InterpolativeDependency&
                                                             int_deps)
 {
@@ -39,17 +39,17 @@ void CoverageDependentSurfPhase::setInterpolativeDependency(const
     for (auto iter=int_deps.enthalpy_map.begin();iter!=int_deps.enthalpy_map.end();
         ++iter){
         if (iter->first < hcov_last) {
-            throw CanteraError("CoverageDependentSurfPhase::setInterpolativeDependency"
+            throw CanteraError("CoverageDependentSurfPhase::addInterpolativeDependency"
             , "Coverages are not in ascending order.");
         }
         hcov_last = iter->first;
     }
     if (int_deps.enthalpy_map.count(0.0) == 0) {
-        throw CanteraError("CoverageDependentSurfPhase::setInterpolativeDependency",
+        throw CanteraError("CoverageDependentSurfPhase::addInterpolativeDependency",
             "The first element of enthalpy-coverages array must be 0.0.");
     }
     if (int_deps.enthalpy_map.count(1.0) == 0) {
-        throw CanteraError("CoverageDependentSurfPhase::setInterpolativeDependency",
+        throw CanteraError("CoverageDependentSurfPhase::addInterpolativeDependency",
             "The last element of enthalpy-coverages array must be 1.0.");
     }
 
@@ -57,17 +57,17 @@ void CoverageDependentSurfPhase::setInterpolativeDependency(const
     for (auto iter=int_deps.entropy_map.begin();iter!=int_deps.entropy_map.end();
         ++iter){
         if (iter->first < scov_last) {
-            throw CanteraError("CoverageDependentSurfPhase::setInterpolativeDependency"
+            throw CanteraError("CoverageDependentSurfPhase::addInterpolativeDependency"
             , "Coverages are not in ascending order.");
         }
         scov_last = iter->first;
     }
     if (int_deps.entropy_map.count(0.0) == 0) {
-        throw CanteraError("CoverageDependentSurfPhase::setInterpolativeDependency",
+        throw CanteraError("CoverageDependentSurfPhase::addInterpolativeDependency",
             "The first element of entropy-coverages array must be 0.0.");
     }
     if (int_deps.entropy_map.count(1.0) == 0) {
-        throw CanteraError("CoverageDependentSurfPhase::setInterpolativeDependency",
+        throw CanteraError("CoverageDependentSurfPhase::addInterpolativeDependency",
             "The last element of entropy-coverages array must be 1.0.");
     }
 
@@ -77,7 +77,7 @@ void CoverageDependentSurfPhase::setInterpolativeDependency(const
 void CoverageDependentSurfPhase::initThermo()
 {
     if (m_input.hasKey("site-density")) {
-        // Units are kmol/m^2 for surface phases or kmol/m for edge phases
+        // Units are kmol/m^2
         setSiteDensity(m_input.convert("site-density",
             Units(1.0, 0, -static_cast<double>(m_ndim), 0, 0, 0, 1)));
     }
@@ -161,7 +161,7 @@ void CoverageDependentSurfPhase::initThermo()
                             + int_deps.entropy_map[cov_change];
                     }
 
-                    setInterpolativeDependency(int_deps);
+                    addInterpolativeDependency(int_deps);
                 // For interpolative model
                 } else if (cov_map2["model"] == "interpolative") {
                     InterpolativeDependency int_deps(k, j);
@@ -172,7 +172,7 @@ void CoverageDependentSurfPhase::initThermo()
                                                                       "J/kmol");
                         if (hcovs.size() != enthalpies.size()) {
                             throw InputFileError("CoverageDependentSurfPhase::\
-                            setInterpolativeDependency", item.second->input,
+                            addInterpolativeDependency", item.second->input,
                             "Sizes of coverages array and enthalpies array are \
                             not equal.");
                         }
@@ -187,7 +187,7 @@ void CoverageDependentSurfPhase::initThermo()
                                                                      "J/kmol/K");
                         if (scovs.size() != entropies.size()) {
                             throw InputFileError("CoverageDependentSurfPhase::\
-                            setInterpolativeDependency", item.second->input,
+                            addInterpolativeDependency", item.second->input,
                             "Sizes of coverages array and entropies array are \
                             not equal.");
                         }
@@ -196,7 +196,7 @@ void CoverageDependentSurfPhase::initThermo()
                         }
                     }
 
-                    setInterpolativeDependency(int_deps);
+                    addInterpolativeDependency(int_deps);
                 } else {
                     throw InputFileError("CoverageDependentSurfPhase::initThermo",
                         item.second->input, "Unrecognized coverage dependency model. \
@@ -206,8 +206,8 @@ void CoverageDependentSurfPhase::initThermo()
                 // For coverage-dependent heat capacity parameters, if present
                 if (cov_map2.hasKey("heat-capacity-a")) {
                     HeatCapacityDependency cpcov_deps(k, j);
-                    cpcov_deps.cpcov_a = cov_map2.convert("heat-capacity-a", "J/kmol/K");
-                    cpcov_deps.cpcov_b = cov_map2.convert("heat-capacity-b", "J/kmol/K");
+                    cpcov_deps.coeff_a = cov_map2.convert("heat-capacity-a", "J/kmol/K");
+                    cpcov_deps.coeff_b = cov_map2.convert("heat-capacity-b", "J/kmol/K");
 
                     m_HeatCapacityDependency.push_back(cpcov_deps);
                 }
@@ -385,7 +385,7 @@ void CoverageDependentSurfPhase::_updateCovDepThermo() const
             m_s_cov[item.k] += poly4(m_cov[item.j], item.entropy_coeffs.data());
         }
 
-        // For piecewise linear and interpolative model
+        // For piecewise-linear and interpolative model
         for (auto& item : m_InterpolativeDependency) {
             auto h_iter = item.enthalpy_map.upper_bound(m_cov[item.j]);
             auto s_iter = item.entropy_map.upper_bound(m_cov[item.j]);
@@ -421,8 +421,8 @@ void CoverageDependentSurfPhase::_updateCovDepThermo() const
 
         // For coverage-dependent heat capacity
         for (auto& item : m_HeatCapacityDependency) {
-            double a = item.cpcov_a;
-            double b = item.cpcov_b;
+            double a = item.coeff_a;
+            double b = item.coeff_b;
             m_cp_cov[item.k] += (a * log(tnow) + b) * m_cov[item.j] * m_cov[item.j];
             double int_cp_tnow = tnow * (a * log(tnow) - a + b);
             double int_cp_298 = 298.15 * (a * log(298.15) - a + b);
