@@ -174,7 +174,7 @@ windows_options = [
            'x' is a placeholder for a minor version number. Windows MSVC only.""",
         ""),
     Option(
-        "msvc_toolset",
+        "msvc_toolset_version",
         """TODO""",
         ""),
     EnumOption(
@@ -726,7 +726,7 @@ if os.name == "nt":
     if "64 bit" not in sys.version:
         config["target_arch"].default = "x86"
 
-    opts.AddVariables(*config.to_scons(("msvc_version", "msvc_toolset", "target_arch")))
+    opts.AddVariables(*config.to_scons(("msvc_toolset_version", "target_arch")))
 
     windows_compiler_env = Environment()
     opts.Update(windows_compiler_env)
@@ -735,7 +735,7 @@ if os.name == "nt":
     if which("g++") and not which("cl.exe"):
         config["toolchain"].default = "mingw"
 
-    if windows_compiler_env["msvc_version"] or windows_compiler_env["msvc_toolset"]:
+    if windows_compiler_env["msvc_toolset_version"]:
         config["toolchain"].default = "msvc"
 
     opts.AddVariables(*config.to_scons("toolchain"))
@@ -743,14 +743,9 @@ if os.name == "nt":
 
     if windows_compiler_env["toolchain"] == "msvc":
         toolchain = ["default"]
-        if windows_compiler_env["msvc_version"]:
-            extraEnvArgs["MSVC_VERSION"] = windows_compiler_env["msvc_version"]
-        if windows_compiler_env["msvc_toolset"]:
-            extraEnvArgs["MSVC_TOOLSET_VERSION"] = windows_compiler_env["msvc_toolset"]
-        msvc_version = (windows_compiler_env["msvc_version"] or
-                        windows_compiler_env["MSVC_VERSION"])
-        logger.info(f"Compiling with MSVC {msvc_version}", print_level=False)
-        msvc_toolset = (windows_compiler_env["msvc_toolset"] or
+        if windows_compiler_env["msvc_toolset_version"]:
+            extraEnvArgs["MSVC_TOOLSET_VERSION"] = windows_compiler_env["msvc_toolset_version"]
+        msvc_toolset = (windows_compiler_env["msvc_toolset_version"] or
                         windows_compiler_env["MSVC_TOOLSET_VERSION"])
         logger.info(f"Compiling with MSVC {msvc_toolset}", print_level=False)
 
