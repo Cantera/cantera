@@ -728,7 +728,7 @@ if os.name == "nt":
 
     opts.AddVariables(*config.to_scons(("msvc_toolset_version", "target_arch")))
 
-    windows_compiler_env = Environment()
+    windows_compiler_env = Environment(MSVC_VERSION="14.3")
     opts.Update(windows_compiler_env)
 
     # Make an educated guess about the right default compiler
@@ -747,6 +747,7 @@ if os.name == "nt":
             extraEnvArgs["MSVC_TOOLSET_VERSION"] = windows_compiler_env["msvc_toolset_version"]
         msvc_toolset = (windows_compiler_env["msvc_toolset_version"] or
                         windows_compiler_env["MSVC_TOOLSET_VERSION"])
+        extraEnvArgs["MSVC_VERSION"] = "14.3"
         logger.info(f"Compiling with MSVC {msvc_toolset}", print_level=False)
 
     elif windows_compiler_env["toolchain"] == "mingw":
