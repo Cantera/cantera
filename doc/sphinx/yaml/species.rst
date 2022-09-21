@@ -483,6 +483,113 @@ Additional fields:
     coefficients for binary interactions between the two species.
 
 
+.. _sec-yaml-coverage-dependent-surface-species:
+
+Coverage-dependent Surface
+--------------------------
+
+A model where species thermodynamic properties are calculated as a function
+coverage as
+`described here <https://cantera.org/documentation/dev/doxygen/html/db/d25/classCantera_1_1CoverageDependentSurfPhase.html#details>`__.
+
+Additional fields:
+
+``coverage-dependencies``
+    Mapping where keys are the name of species whose coverage affects
+    thermodynamic properties of the node owner species. The map values are the
+    dependency parameters including ``model``, ``units``, and model-specific
+    parameters.
+
+``model``
+    Dependency model that is one of the four: linear, piecewise-linear,
+    polynomial, or interpolative.
+
+``units``
+    Dictionary mapping of the units of dependency parameters.
+
+``enthalpy``
+    Slope of the coverage-dependent enthalpy used in the linear model.
+
+``entropy``
+    Slope of the coverage-dependent entropy used in the linear model.
+
+``enthalpy-low``
+    Slope of the coverage-dependent enthalpy for the lower coverage region
+    used in the piecewise-linear model.
+
+``enthalpy-high``
+    Slope of the coverage-dependent enthalpy for the higher coverage region
+    used in the piecewise-linear model.
+
+``enthalpy-change``
+    Coverage that separates the lower and higher coverage regions of the
+    coverage-dependent enthalpy.
+
+``entropy-low``
+    Slope of the coverage-dependent entropy for the lower coverage region
+    used in the piecewise-linear model.
+
+``entropy-high``
+    Slope of the coverage-dependent entropy for the higher coverage region
+    used in the piecewise-linear model.
+
+``entropy-change``
+    Coverage that separates the lower and higher coverage regions of the
+    coverage-dependent entropy.
+
+``enthalpy-coefficients``
+    Array of polynomial coefficients in order of 1st, 2nd, 3rd, and 4th-order
+    used in coverage-dependent enthalpy calculation with the polynomial model.
+
+``entropy-coefficients``
+    Array of polynomial coefficients in order of 1st, 2nd, 3rd, and 4th-order
+    used in coverage-dependent entropy calculation with the polynomial model.
+
+``enthalpy-coverages``
+    Array of discrete coverage values used in coverage-dependent enthalpy
+    calculation with the interpolative model.
+
+``enthalpies``
+    Array of discrete enthalpy values corresponding to the coverages in
+    ``enthalpy-coverages``.
+
+``entropy-coverages``
+    Array of discrete coverage values used in coverage-dependent entropy
+    calculation with the interpolative model.
+
+``entropies``
+    Array of discrete entropy values corresponding to the coverages in
+    ``entropy-coverages``.
+
+``heat-capacity-a``
+    Coefficient "a" used in the coverage-dependent heat capacity model.
+
+``heat-capacity-b``
+    Coefficient "b" used in the coverage-dependent heat capacity model.
+
+Example::
+
+    coverage-dependencies:
+      OC_Pt: {model: linear,
+              units: {energy: eV, quantity: molec},
+              enthalpy: 0.48, entropy: -0.031}
+      CO2_Pt: {model: piecewise-linear,
+               units: {energy: kJ, quantity: mol},
+               enthalpy-low: 0.5e2, enthalpy-high: 1.0e2, enthalpy-change: 0.4,
+               entropy-low: 0.1e2, entropy-high: -0.2e2, entropy-change: 0.4,
+               heat-capacity-a: 0.02e-1, heat-capacity-b: -0.156e-1}
+      C_Pt: {model: polynomial,
+             units: {energy: J, quantity: mol},
+             enthalpy-coefficients: [0.0, -3.86e4, 0.0, 4.2e5],
+             entropy-coefficients: [0.8e3, 0.0, -1.26e4, 0.0]}
+      O_Pt: {model: interpolative,
+             units: {energy: kcal, quantity: mol},
+             enthalpy-coverages: [0.0, 0.2, 0.4, 0.7, 0.9, 1.0],
+             enthalpies: [0.0, 0.5, 1.0, 2.7, 3.5, 4.0],
+             entropy-coverages: [0.0, 0.5, 1.0],
+             entropies: [0.0, -0.7, -2.0]}
+
+
 .. _sec-yaml-species-transport:
 
 Species transport models
