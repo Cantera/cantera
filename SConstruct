@@ -726,16 +726,16 @@ if os.name == "nt":
     if "64 bit" not in sys.version:
         config["target_arch"].default = "x86"
 
-    opts.AddVariables(*config.to_scons(("msvc_toolset_version", "target_arch")))
+    opts.AddVariables(*config.to_scons(("msvc_version", "msvc_toolset_version", "target_arch")))
 
-    windows_compiler_env = Environment(MSVC_VERSION="14.3")
+    windows_compiler_env = Environment()
     opts.Update(windows_compiler_env)
 
     # Make an educated guess about the right default compiler
     if which("g++") and not which("cl.exe"):
         config["toolchain"].default = "mingw"
 
-    if windows_compiler_env["msvc_toolset_version"]:
+    if windows_compiler_env["msvc_version"] or windows_compiler_env["msvc_toolset_version"]:
         config["toolchain"].default = "msvc"
 
     opts.AddVariables(*config.to_scons("toolchain"))
@@ -743,12 +743,16 @@ if os.name == "nt":
 
     if windows_compiler_env["toolchain"] == "msvc":
         toolchain = ["default"]
+        if windows_compiler_env["msvc_version"]:
+            extraEnvArgs["MSVC_VERSION"] = windows_compiler_env["msvc_version"]
         if windows_compiler_env["msvc_toolset_version"]:
             extraEnvArgs["MSVC_TOOLSET_VERSION"] = windows_compiler_env["msvc_toolset_version"]
+        msvc_version = (windows_compiler_env["msvc_version"] or
+                        windows_compiler_env["MSVC_VERSION"])
+        logger.info(f"Compiling with MSVC version {msvc_version}", print_level=False)
         msvc_toolset = (windows_compiler_env["msvc_toolset_version"] or
                         windows_compiler_env["MSVC_TOOLSET_VERSION"])
-        extraEnvArgs["MSVC_VERSION"] = "14.3"
-        logger.info(f"Compiling with MSVC {msvc_toolset}", print_level=False)
+        logger.info(f"Compiling with MSVC Toolset {msvc_toolset}", print_level=False)
 
     elif windows_compiler_env["toolchain"] == "mingw":
         toolchain = ["mingw", "f90"]
