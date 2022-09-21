@@ -70,7 +70,7 @@ jobs:
       - name: Test Cantera
         run: scons test show_long_tests=yes verbose_tests=yes --debug=time
 
-  windows:
+  windows-2022:
     name: "Windows 2022, MSVC ${{ matrix.vs-toolset }}, Python ${{ matrix.python-version }}"
     runs-on: windows-2022
     timeout-minutes: 60
