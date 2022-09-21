@@ -86,6 +86,7 @@ and optionally reactions that can take place in that phase. The fields of a
     - :ref:`ideal-condensed <sec-yaml-ideal-condensed>`
     - :ref:`ideal-solution-VPSS <sec-yaml-ideal-solution-VPSS>`
     - :ref:`ideal-surface <sec-yaml-ideal-surface>`
+    - :ref:`coverage-dependent-surface <sec-yaml-coverage-dependent-surface>`
     - :ref:`ions-from-neutral-molecule <sec-yaml-ions-from-neutral-molecule>`
     - :ref:`lattice <sec-yaml-lattice>`
     - :ref:`liquid-water-IAPWS95 <sec-yaml-liquid-water-IAPWS95>`
@@ -654,6 +655,38 @@ Example::
         T: 900.0
         coverages: {O(S): 0.0, PT(S): 0.5, H(S): 0.5}
       site-density: 2.7063e-09
+
+
+.. _sec-yaml-coverage-dependent-surface:
+
+``coverage-dependent-surface``
+------------------------------
+
+A coverage-dependent surface phase, as
+`described here <https://cantera.org/documentation/dev/doxygen/html/db/d25/classCantera_1_1CoverageDependentSurfPhase.html#details>`__.
+
+Additional fields:
+
+``site-density``
+    The molar density of surface sites.
+
+``reference-state-coverage``
+    The reference state coverage denoting the low-coverage limit (i.e.
+    ideal-surface) thermodynamic properties.
+
+Example::
+
+    - name: covdep
+      thermo: coverage-dependent-surface
+      species: [Pt, OC_Pt, CO2_Pt, C_Pt, O_Pt]
+      kinetics: surface
+      reactions: none
+      state:
+        T: 500.0
+        P: 1.01325e+05
+        coverages: {Pt: 0.5, OC_Pt: 0.5, CO2_Pt: 0.0, C_Pt: 0.0, O_Pt: 0.0}
+      site-density: 2.72e-09
+      reference-state-coverage: 0.22
 
 
 .. _sec-yaml-ions-from-neutral-molecule:
