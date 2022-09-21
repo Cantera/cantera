@@ -141,6 +141,37 @@ TEST_F(ThermoToYaml, Edge)
     EXPECT_DOUBLE_EQ(data["site-density"].asDouble(), 5e-18);
 }
 
+TEST_F(ThermoToYaml, CoverageDependentSurface)
+{
+    setup("copt_covdepsurf_example.yaml", "covdep");
+    EXPECT_EQ(data["thermo"], "ideal-surface");
+    EXPECT_DOUBLE_EQ(data["site-density"].asDouble(), 2.72e-8);
+    EXPECT_DOUBLE_EQ(data["reference-state-coverage"].asDouble(), 0.22);
+    UnitSystem us;
+    EXPECT_EQ(speciesData[1]["coverage-dependencies"]["OC_Pt"]["model"], "linear");
+    EXPECT_DOUBLE_EQ(
+        speciesData[1]["coverage-dependencies"]["OC_Pt"]["enthalpy"]
+        .asDouble(), us.convertFrom(0.48, "eV/molec"));
+    EXPECT_EQ(
+        speciesData[2]["coverage-dependencies"]["OC_Pt"]["model"], "piecewise-linear");
+    EXPECT_DOUBLE_EQ(
+        speciesData[2]["coverage-dependencies"]["OC_Pt"]["entropy-high"]
+        .asDouble(), us.convertFrom(-0.1, "eV/molec"));
+    EXPECT_EQ(
+        speciesData[1]["coverage-dependencies"]["O_Pt"]["model"], "interpolative");
+    EXPECT_DOUBLE_EQ(
+        speciesData[1]["coverage-dependencies"]["O_Pt"]["enthalpies"]
+        .asVector<double>()[3], us.convertFrom(2.7, "kcal/mol"));
+    EXPECT_EQ(
+        speciesData[4]["coverage-dependencies"]["O_Pt"]["model"], "polynomial");
+    EXPECT_DOUBLE_EQ(
+        speciesData[4]["coverage-dependencies"]["O_Pt"]["enthalpy-coefficients"]
+        .asVector<double>()[3], us.convertFrom(2.11, "eV/molec"));
+    EXPECT_DOUBLE_EQ(
+        speciesData[3]["coverage-dependencies"]["C_Pt"]["heat-capacity-a"]
+        .asDouble(), us.convertFrom(0.07e-3, "eV/molec"));
+}
+
 TEST_F(ThermoToYaml, IonsFromNeutral)
 {
     suppress_deprecation_warnings();

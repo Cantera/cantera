@@ -233,20 +233,25 @@ public:
 
     virtual void initThermo();
     virtual bool addSpecies(shared_ptr<Species> spec);
+    virtual void getParameters(AnyMap& phaseNode) const;
+    virtual void getSpeciesParameters(const std::string& name,
+                                      AnyMap& speciesNode) const;
 
     //! @name Methods calculating reference state thermodynamic properties
     //! Reference state properties are evaluated at \f$ T \text{ and }
     //! \theta^{ref} \f$. With coverage fixed at a reference value,
     //! reference state properties are effectively only dependent on temperature.
-
+    //! @{
     virtual void getEnthalpy_RT_ref(double* hrt) const;
     virtual void getEntropy_R_ref(double* sr) const;
     virtual void getCp_R_ref(double* cpr) const;
     virtual void getGibbs_RT_ref(double* grt) const;
+    //! @}
 
     //! @name Methods calculating standard state thermodynamic properties
     //! Standard state properties are evaluated at \f$ T \text{ and } \theta \f$,
     //! and thus are dependent both on temperature and coverage.
+    //! @{
 
     //! Get the nondimensionalized standard state enthalpy vector.
     /*!
@@ -302,10 +307,12 @@ public:
      * \f]
      */
     virtual void getStandardChemPotentials(double* mu0) const;
+    //! @}
 
     //! @name Methods calculating partial molar thermodynamic properties
     //! Partial molar properties are evaluated at \f$ T \text{ and } \theta \f$,
     //! and thus are dependent both on temperature and coverage.
+    //! @{
 
     //! Get the partial molar enthalpy vector. Units: J/kmol.
     /*!
@@ -338,10 +345,13 @@ public:
      * \f]
      */
     virtual void getChemPotentials(double* mu) const;
+    //! @}
 
     //! @name Methods calculating Phase thermodynamic properties
     //! Phase properties are evaluated at \f$ T \text{ and } \theta \f$,
     //! and thus are dependent both on temperature and coverage.
+
+    //! @{
 
     //! Return the solution's molar enthalpy. Units: J/kmol
     /*!
@@ -366,6 +376,7 @@ public:
      * \f]
      */
     virtual double cp_mole() const;
+    //! @}
 
 protected:
     //! Temporary storage for the coverages.
@@ -410,13 +421,33 @@ protected:
     //! Array of heat capacity coverage dependency parameters.
     std::vector<HeatCapacityDependency> m_HeatCapacityDependency;
 
-private:
-    //! Last value of the state number processed.
-    mutable int m_stateNumlast;
+    //! Explicitly-specified k-j interaction parameters, to enable serialization.
+    //! For linear model. <name_k>: <name_j: PolynomialDependency_index>>.
+    std::map<std::string, std::map<std::string, size_t>> m_indexmap_lin;
 
+    //! Explicitly-specified k-j interaction parameters, to enable serialization.
+    //! For polynomial model. <name_k>: <name_j: PolynomialDependency_index>>.
+    std::map<std::string, std::map<std::string, size_t>> m_indexmap_poly;
+
+    //! Explicitly-specified k-j interaction parameters, to enable serialization.
+    //! For piecewise-linear model. <name_k>: <name_j: InterpolativeDependency_index>>.
+    std::map<std::string, std::map<std::string, size_t>> m_indexmap_pwlin;
+
+    //! Explicitly-specified k-j interaction parameters, to enable serialization.
+    //! For interpolative model. <name_k>: <name_j: InterpolativeDependency_index>>.
+    std::map<std::string, std::map<std::string, size_t>> m_indexmap_int;
+
+    //! Explicitly-specified k-j interaction parameters, to enable serialization.
+    //! <name_k>: <name_j: HeatCapacityDependency_index>>.
+    std::map<std::string, std::map<std::string, size_t>> m_indexmap_cp;
+
+private:
     //! Storage for the user-defined reference state coverage which has to be
     //! greater than 0.0 and less than or equal to 1.0. default = 1.0.
-    mutable double m_theta_ref;
+    double m_theta_ref;
+
+    //! Last value of the state number processed.
+    mutable int m_stateNumlast;
 
     //! Update the species coverage-dependent thermodynamic functions.
     /*!
