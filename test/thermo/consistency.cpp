@@ -734,6 +734,12 @@ INSTANTIATE_TEST_SUITE_P(IdealEdge, TestConsistency,
         testing::ValuesIn(getStates("ideal-edge")))
 );
 
+INSTANTIATE_TEST_SUITE_P(CoverageDependentSurface, TestConsistency,
+    testing::Combine(
+        testing::Values(getSetup("coverage-dependent-surface")),
+        testing::ValuesIn(getStates("coverage-dependent-surface")))
+);
+
 INSTANTIATE_TEST_SUITE_P(LiquidWaterIapws95, TestConsistency,
     testing::Combine(
         testing::Values(getSetup("liquid-water-IAPWS95")),
