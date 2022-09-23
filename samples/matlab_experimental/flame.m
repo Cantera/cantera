@@ -24,7 +24,7 @@ function f = flame(gas, left, flow, right)
     end
 
     % create the container object
-    f = Stack([left flow right]);
+    f = Sim1D([left flow right]);
 
     % set default initial profiles.
     rho0 = gas.D;
