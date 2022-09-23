@@ -20,7 +20,7 @@ function flame = CounterFlowDiffusionFlame(left, flow, right, tp_f, tp_o, oxidiz
     % :param oxidizer:
     %     String representing the oxidizer species. Most commonly O2.
     % :return:
-    %     Instance of :mat:func:`Stack` object representing the left
+    %     Instance of :mat:func:`Sim1D` object representing the left
     %     inlet, flow, and right inlet.
     %
 
@@ -166,7 +166,7 @@ function flame = CounterFlowDiffusionFlame(left, flow, right, tp_f, tp_o, oxidiz
     %% Create the flame stack.
     % Set the profile of the flame with the estimated axial velocities,
     % radial velocities, temperature, and mass fractions calculated above.
-    flame = Stack([left flow right]);
+    flame = Sim1D([left flow right]);
     flame.setProfile(2, {'velocity', 'spread_rate'}, [zrel; u; v]);
     flame.setProfile(2, 'T', [zrel; t] );
     for n = 1:nsp

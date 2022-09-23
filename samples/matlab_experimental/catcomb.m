@@ -131,10 +131,10 @@ surf.T = tsurf;
 % Once the component parts have been created, they can be assembled
 % to create the 1D simulation.
 
-sim1D = Stack([inlt, flow, surf]);
+stack = Sim1D([inlt, flow, surf]);
 
 % set the initial profiles.
-sim1D.setProfile(2, {'velocity', 'spread_rate', 'T'}, [0.0,    1.0       % z/zmax
+stack.setProfile(2, {'velocity', 'spread_rate', 'T'}, [0.0,    1.0       % z/zmax
                                                        0.06,   0.0       % u
                                                        0.0,    0.0       % V
                                                        tinlet, tsurf]);  % T
@@ -142,10 +142,10 @@ names = gas.speciesNames;
 
 for k = 1:gas.nSpecies
   y = inlt.massFraction(k);
-  sim1D.setProfile(2, names{k}, [0, 1; y, y]);
+  stack.setProfile(2, names{k}, [0, 1; y, y]);
 end
 
-sim1D
+stack
 
 %setTimeStep(fl, 1.0e-5, [1, 3, 6, 12]);
 %setMaxJacAge(fl, 4, 5);
@@ -163,7 +163,7 @@ surf_phase.setMultiplier(0.0);
 gas.setMultiplier(0.0);
 
 % solve the problem, refining the grid if needed
-sim1D.solve(1, refine_grid);
+stack.solve(1, refine_grid);
 
 % now turn on the surface coverage equations, and turn the
 % chemistry on slowly
@@ -174,7 +174,7 @@ for iter=1:6
   mult = 10.0^(iter - 6);
   surf_phase.setMultiplier(mult);
   gas.setMultiplier(mult);
-  sim1D.solve(1, refine_grid);
+  stack.solve(1, refine_grid);
 end
 
 % At this point, we should have the solution for the hydrogen/air
@@ -182,20 +182,20 @@ end
 inlt.setMoleFractions(comp2);
 
 % set more stringent grid refinement criteria
-sim1D.setRefineCriteria(2, 100.0, 0.15, 0.2);
+stack.setRefineCriteria(2, 100.0, 0.15, 0.2);
 
 % solve the problem for the final time
-sim1D.solve(loglevel, refine_grid);
+stack.solve(loglevel, refine_grid);
 
 % show the solution
-sim1D
+stack
 
 % save the solution
-sim1D.saveSoln('catcomb.xml', 'energy', ['solution with energy equation']);
+stack.saveSoln('catcomb.xml', 'energy', ['solution with energy equation']);
 
 %% Show statistics
 
-sim1D.writeStats;
+stack.writeStats;
 elapsed = cputime - t0;
 e = sprintf('Elapsed CPU time: %10.4g',elapsed);
 disp(e);
@@ -205,37 +205,37 @@ disp(e);
 clf;
 
 subplot(3, 3, 1);
-sim1D.plotSolution('flow', 'T');
+stack.plotSolution('flow', 'T');
 title('Temperature [K]');
 
 subplot(3, 3, 2);
-sim1D.plotSolution('flow', 'velocity');
+stack.plotSolution('flow', 'velocity');
 title('Axial Velocity [m/s]');
 
 subplot(3, 3, 3);
-sim1D.plotSolution('flow', 'spread_rate');
+stack.plotSolution('flow', 'spread_rate');
 title('Radial Velocity / Radius [1/s]');
 
 subplot(3, 3, 4);
-sim1D.plotSolution('flow', 'CH4');
+stack.plotSolution('flow', 'CH4');
 title('CH4 Mass Fraction');
 
 subplot(3, 3, 5);
-sim1D.plotSolution('flow', 'O2');
+stack.plotSolution('flow', 'O2');
 title('O2 Mass Fraction');
 
 subplot(3, 3, 6);
-sim1D.plotSolution('flow', 'CO');
+stack.plotSolution('flow', 'CO');
 title('CO Mass Fraction');
 
 subplot(3, 3, 7);
-sim1D.plotSolution('flow', 'CO2');
+stack.plotSolution('flow', 'CO2');
 title('CO2 Mass Fraction');
 
 subplot(3, 3, 8);
-sim1D.plotSolution('flow', 'H2O');
+stack.plotSolution('flow', 'H2O');
 title('H2O Mass Fraction');
 
 subplot(3, 3, 9);
-sim1D.plotSolution('flow', 'H2');
+stack.plotSolution('flow', 'H2');
 title('H2 Mass Fraction');

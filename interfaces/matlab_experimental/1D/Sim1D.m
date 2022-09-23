@@ -1,9 +1,9 @@
-classdef Stack < handle
-    % Stack Class
+classdef Sim1D < handle
+    % Sim1D Class
     %
-    % s = Stack(domains)
+    % s = Sim1D(domains)
     %
-    % A stack object is a container for one-dimensional domains,
+    % A Sim1D object is a container for one-dimensional domains,
     % which are instances of class Domain1D. The domains are of two
     % types - extended domains, and connector domains.
     %
@@ -12,24 +12,24 @@ classdef Stack < handle
     % :param domains:
     %     Vector of domain instances
     % :return:
-    %     Instance of class :mat:func:`Stack`
+    %     Instance of class :mat:func:`Sim1D`
     %
 
     properties (SetAccess = immutable)
 
-        stID % ID of the stack.
+        stID % ID of the Sim1D object.
 
-        domains % Domain instances contained within the Stack object.
+        domains % Domain instances contained within the Sim1D object.
     end
 
     properties (SetAccess = protected)
 
-        % The index of a domain in a stack given its name.
+        % The index of a domain in a Sim1D given its name.
         %
         % n = s.stackIndex(name)
         %
         % :param s:
-        %    Instance of class 'Stack'.
+        %    Instance of class 'Sim1D'.
         % :param name:
         %    If double, the value is :returned. Otherwise, the name is
         %    looked up and its index is :returned.
@@ -42,7 +42,7 @@ classdef Stack < handle
         % z = s.grid(name)
         %
         % :param s:
-        %     Instance of class :mat:func:`Stack`
+        %     Instance of class :mat:func:`Sim1D`
         % :param name:
         %     Name of the domain for which the grid
         %     should be retrieved.
@@ -55,7 +55,7 @@ classdef Stack < handle
         % r = s.resid(domain, rdt, count)
         %
         % :param s:
-        %    Instance of class 'Stack'.
+        %    Instance of class 'Sim1D'.
         % :param domain:
         %    Name of the domain.
         % :param rdt:
@@ -66,9 +66,9 @@ classdef Stack < handle
     end
 
     methods
-        %% Stack Class Constructor
+        %% Sim1D Class Constructor
 
-        function s = Stack(domains)
+        function s = Sim1D(domains)
             checklib;
 
             s.stID = -1;
@@ -81,12 +81,12 @@ classdef Stack < handle
                 end
                 s.stID = callct('sim1D_new', nd, ids);
             else
-                help(Stack);
+                help(Sim1D);
                 error('Wrong number of parameters.');
             end
         end
 
-        %% Stack Class Destructor
+        %% Sim1D Class Destructor
 
         function delete(s)
             % Delete the C++ Sim1D object.
@@ -94,7 +94,7 @@ classdef Stack < handle
             callct('sim1D_del', s.stID);
         end
 
-        %% Stack Utility Methods
+        %% Sim1D Utility Methods
 
         function display(s, fname)
             % Show all domains.
@@ -111,7 +111,7 @@ classdef Stack < handle
             % s.plotSolution(domain, component)
             %
             % :param s:
-            %    Instance of class 'Stack'.
+            %    Instance of class 'Sim1D'.
             % :param domain:
             %    Name of domain from which the component should be
             %    retrieved.
@@ -138,7 +138,7 @@ classdef Stack < handle
             % See also: :mat:func:`save`
             %
             % :param s:
-            %     Instance of class :mat:func:`Stack`
+            %     Instance of class :mat:func:`Sim1D`
             % :param fname:
             %     File name of an XML file containing solution information
             % :param id:
@@ -156,7 +156,7 @@ classdef Stack < handle
             % can be used by :mat:func:`restore`
             %
             % :param s:
-            %     Instance of class :mat:func:`Stack`
+            %     Instance of class :mat:func:`Sim1D`
             % :param fname:
             %     File name where XML file should be written
             % :param id:
@@ -184,7 +184,7 @@ classdef Stack < handle
             % s.solution(domain, component)
             %
             % :param s:
-            %    Instance of class 'Stack'.
+            %    Instance of class 'Sim1D'.
             % :param domain:
             %    String name of the domain from which the solution is
             %    desired.
@@ -225,7 +225,7 @@ classdef Stack < handle
             % s.solve(loglevel, refineGrid)
             %
             % :param s:
-            %    Instance of class 'Stack'.
+            %    Instance of class 'Sim1D'.
             % :param loglevel:
             %    Integer flag controlling the amount of diagnostic output.
             %    Zero supresses all output, and 5 produces very verbose
@@ -247,13 +247,13 @@ classdef Stack < handle
             % each one.
             %
             % :param s:
-            %     Instance of class :mat:func:`Stack`
+            %     Instance of class :mat:func:`Sim1D`
             %
 
             callct('sim1D_writeStats', s.stID, 1);
         end
 
-        %% Stack Get Methods
+        %% Sim1D Get Methods
 
         function getInitialSoln(s)
             % Get the initial solution.
@@ -302,7 +302,7 @@ classdef Stack < handle
             end
         end
 
-        %% Stack Set Methods
+        %% Sim1D Set Methods
 
         function setFixedTemperature(s, T)
             % Set the temperature used to fix the spatial location of a
@@ -326,7 +326,7 @@ classdef Stack < handle
             % s.setFlatProfile(domain, comp, v)
             %
             % :param s:
-            %    Instance of class 'Stack'.
+            %    Instance of class 'Sim1D'.
             % :param domain:
             %    Integer ID of the domain.
             % :param comp:
@@ -360,7 +360,7 @@ classdef Stack < handle
             % s.setMaxJacAge(ss_age, ts_age)
             %
             % :param s:
-            %    Instance of class 'Stack'.
+            %    Instance of class 'Sim1D'.
             % :param ss_age:
             %    Maximum age of the Jacobian for steady state analysis.
             % :param ts_age:
@@ -388,13 +388,13 @@ classdef Stack < handle
             % called at any time, but is usually used to set the initial
             % guess for the solution.
             %
-            % Example (assuming 's' is an instance of class 'Stack'):
+            % Example (assuming 's' is an instance of class 'Sim1D'):
             %    >> zr = [0.0, 0.1, 0.2, 0.4, 0.8, 1.0];
             %    >> v = [500, 650, 700, 730, 800, 900];
             %    >> s.setProfile(1, 2, [zr, v]);
             %
             % :param s:
-            %    Instance of class 'Stack'.
+            %    Instance of class 'Sim1D'.
             % :param name:
             %    Domain name.
             % :param comp:
@@ -444,7 +444,7 @@ classdef Stack < handle
             % s.setRefineCriteria(n, ratio, slope, curve, prune)
             %
             % :param s:
-            %    Instance of class 'Stack'.
+            %    Instance of class 'Sim1D'.
             % :param ratio:
             %    Maximum size ratio between adjacent cells.
             % :param slope:
@@ -500,7 +500,7 @@ classdef Stack < handle
             %
             % s.setValue(n, comp, localPoints, v)
             %
-            % Example (assuming 's' is an instance of class 'Stack'):
+            % Example (assuming 's' is an instance of class 'Sim1D'):
             %
             %    setValue(s, 3, 5, 1, 5.6);
             %
@@ -508,10 +508,10 @@ classdef Stack < handle
             % in domain 3 to the value 5.6. Note that the local index
             % always begins at 1 at the left of each domain, independent of
             % the global index of the point, wchih depends on the location
-            % of this domain in the stack.
+            % of this domain in the Sim1D object.
             %
             % :param s:
-            %    Instance of class 'Stack'.
+            %    Instance of class 'Sim1D'.
             % :param n:
             %    Domain number.
             % :param comp:
