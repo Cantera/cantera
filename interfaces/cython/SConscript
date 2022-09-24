@@ -106,7 +106,7 @@ else:
     localenv.Depends(ext, localenv['cantera_shlib'])
 
 for f in (multi_glob(localenv, 'cantera', 'py') +
-          multi_glob(localenv, 'cantera/*', 'py')):
+          multi_glob(localenv, 'cantera/*', 'py', 'in')):
     localenv.Depends(mod, f)
 
 UNITS = {

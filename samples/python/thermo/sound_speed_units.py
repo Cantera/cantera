@@ -2,14 +2,15 @@
 Compute the "equilibrium" and "frozen" sound speeds for a gas
 
 Requires: cantera >= 2.6.0
+Keywords: thermodynamics, equilibrium
 """
 
-import cantera.units as ct
+import cantera.with_units as ct
 import numpy as np
 
 ct.units.default_format = ".2F~P"
 
-def equilSoundSpeeds(gas, rtol=1.0e-6, max_iter=5000):
+def equilibrium_sound_speeds(gas, rtol=1.0e-6, max_iter=5000):
     """
     Returns a tuple containing the equilibrium and frozen sound speeds for a
     gas with an equilibrium composition.  The gas is first set to an
@@ -43,6 +44,7 @@ def equilSoundSpeeds(gas, rtol=1.0e-6, max_iter=5000):
 
     # compute the frozen sound speed using the ideal gas expression as a check
     gamma = gas.cp/gas.cv
+    gamma * ct.units.molar_gas_constant
     afrozen2 = np.sqrt(gamma * ct.units.molar_gas_constant * gas.T /
                          gas.mean_molecular_weight).to("ft/s")
 
@@ -56,4 +58,4 @@ if __name__ == "__main__":
     print("Temperature      Equilibrium Sound Speed     Frozen Sound Speed      Frozen Sound Speed Check")
     for T in T_range:
         gas.TP = T, 1.0 * ct.units.atm
-        print(T, *equilSoundSpeeds(gas), sep = "               ")
+        print(T, *equilibrium_sound_speeds(gas), sep = "               ")

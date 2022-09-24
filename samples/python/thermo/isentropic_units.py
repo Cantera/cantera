@@ -1,10 +1,11 @@
 """
 Isentropic, adiabatic flow example - calculate area ratio vs. Mach number curve
 
-Requires: cantera >= 2.6.0
+Requires: cantera >= 3.0.0
+Keywords: thermodynamics, compressible flow, units
 """
 
-import cantera.units as ct
+import cantera.with_units as ct
 import numpy as np
 ct.units.default_format = ".2F~P"
 label_string = "area ratio\tMach number\ttemperature\tpressure ratio"
