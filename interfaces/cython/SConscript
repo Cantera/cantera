@@ -321,7 +321,10 @@ common_properties = """
 localenv["common_properties"] = common_properties.strip()
 localenv["thermophase_properties"] = thermophase_properties.strip()
 localenv["purefluid_properties"] = purefluid_properties.strip()
-units = localenv.SubstFile("cantera/units/solution.py", "cantera/units/solution.py.in")
+units = localenv.SubstFile(
+    "cantera/with_units/solution.py",
+    "cantera/with_units/solution.py.in",
+)
 localenv.Depends(mod, units)
 
 # Determine installation path and install the Python module
