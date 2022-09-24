@@ -1,15 +1,17 @@
 """
-A Rankine vapor power cycle
+Calculate the efficiency of a Rankine vapor power cycle using a pure fluid model
+for water. Includes the units of quantities in the calculations.
 
 Requires: Cantera >= 2.6.0
+Keywords: thermodynamics, thermodynamic cycle, non-ideal fluid, units
 """
 
-import cantera.units as ct
+import cantera.with_units as ct
 
 # parameters
-eta_pump = 0.6 * ct.units.dimensionless     # pump isentropic efficiency
+eta_pump = 0.6 * ct.units.dimensionless  # pump isentropic efficiency
 eta_turbine = 0.8 * ct.units.dimensionless # turbine isentropic efficiency
-p_max = 116.03 * ct.units.psi       # maximum pressure
+p_max = 116.03 * ct.units.psi  # maximum pressure
 
 
 def pump(fluid, p_final, eta):
@@ -40,7 +42,7 @@ def expand(fluid, p_final, eta):
     return actual_work
 
 
-def printState(n, fluid):
+def print_state(n, fluid):
     print('\n***************** State {0} ******************'.format(n))
     print(fluid.report())
 
@@ -53,23 +55,23 @@ if __name__ == '__main__':
     w.TQ = 540 * ct.units.degR, 0.0 * ct.units.dimensionless
     h1 = w.h
     p1 = w.P
-    printState(1, w)
+    print_state(1, w)
 
     # pump it adiabatically to p_max
     pump_work = pump(w, p_max, eta_pump)
     h2 = w.h
-    printState(2, w)
+    print_state(2, w)
 
     # heat it at constant pressure until it reaches the saturated vapor state
     # at this pressure
     w.PQ = p_max, 1.0 * ct.units.dimensionless
     h3 = w.h
     heat_added = h3 - h2
-    printState(3, w)
+    print_state(3, w)
 
     # expand back to p1
     turbine_work = expand(w, p1, eta_turbine)
-    printState(4, w)
+    print_state(4, w)
 
     # efficiency
     eff = (turbine_work - pump_work)/heat_added

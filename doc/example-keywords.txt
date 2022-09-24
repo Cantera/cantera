@@ -41,5 +41,6 @@ thermodynamic cycle
 thermodynamics
 transport
 tutorial
+units
 user-defined model
 well-stirred reactor
