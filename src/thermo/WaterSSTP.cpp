@@ -99,7 +99,7 @@ void WaterSSTP::getEnthalpy_RT(doublereal* hrt) const
 
 void WaterSSTP::getIntEnergy_RT(doublereal* ubar) const
 {
-    *ubar = (m_sub.intEnergy() + EW_Offset)/GasConstant;
+    *ubar = (m_sub.intEnergy() + EW_Offset)/ RT();
 }
 
 void WaterSSTP::getEntropy_R(doublereal* sr) const
