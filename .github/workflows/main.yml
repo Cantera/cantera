@@ -19,104 +19,69 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  windows:
-    name: "Windows 2019, MSVC ${{ matrix.vs-toolset }}, Python ${{ matrix.python-version }}"
-    runs-on: windows-2019
-    timeout-minutes: 60
-    env:
-      BOOST_ROOT: ${{github.workspace}}/3rdparty/boost
-      BOOST_URL: https://boostorg.jfrog.io/artifactory/main/release/1.78.0/source/boost_1_78_0.7z
-    strategy:
-      matrix:
-        vs-toolset: ['14.1', "14.2"]
-        python-version: [ "3.10" ]
-      fail-fast: false
-    steps:
-      - uses: actions/checkout@v2
-        name: Checkout the repository
-        with:
-          submodules: recursive
-      - name: Set Up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-          architecture: x64
-      - name: Install Python dependencies
-        run: |
-          python -m pip install -U pip setuptools wheel
-          python -m pip install scons==4.4.0 pypiwin32 numpy ruamel.yaml cython h5py pandas pytest pytest-github-actions-annotate-failures
-      - name: Restore Boost cache
-        uses: actions/cache@v2
-        id: cache-boost
-        with:
-          path: ${{env.BOOST_ROOT}}
-          key: boost
-
-      - name: Install Boost Headers
-        if: steps.cache-boost.outputs.cache-hit != 'true'
-        run: |
-          BOOST_ROOT=$(echo $BOOST_ROOT | sed 's/\\/\//g')
-          mkdir -p $BOOST_ROOT
-          curl --progress-bar --location --output $BOOST_ROOT/download.7z $BOOST_URL
-          7z -o$BOOST_ROOT x $BOOST_ROOT/download.7z -y -bd boost_1_78_0/boost
-          mv $BOOST_ROOT/boost_1_78_0/boost $BOOST_ROOT/boost
-          rm $BOOST_ROOT/download.7z
-        shell: bash
-      - name: Build Cantera
-        run: scons build -j2 boost_inc_dir=%BOOST_ROOT% debug=n logging=debug
-          python_package=full env_vars=PYTHONPATH,GITHUB_ACTIONS
-          msvc_toolset_version=${{ matrix.vs-toolset }} msvc_version=14.2 f90_interface=n --debug=time
-        shell: cmd
-      - name: Test Cantera
-        run: scons test show_long_tests=yes verbose_tests=yes --debug=time
 
   windows-2022:
-    name: "Windows 2022, MSVC ${{ matrix.vs-toolset }}, Python ${{ matrix.python-version }}"
-    runs-on: windows-2022
+    name: ${{ matrix.os }}, MSVC ${{ matrix.vs-toolset }}, Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 60
-    env:
-      BOOST_ROOT: ${{github.workspace}}/3rdparty/boost
-      BOOST_URL: https://boostorg.jfrog.io/artifactory/main/release/1.78.0/source/boost_1_78_0.7z
+    defaults:
+      run:
+        shell: bash -l {0}
     strategy:
       matrix:
-        vs-toolset: ['14.1', "14.2", "14.3"]
-        python-version: [ "3.10" ]
+        os: ["windows-2022"]
+        vs-toolset: ["14.1", "14.2", "14.3"] # 'cl' is not recognized for earlier toolsets
+        python-version: [ "3.7", "3.9", "3.10" ]
       fail-fast: false
     steps:
-      - uses: actions/checkout@v2
-        name: Checkout the repository
-        with:
-          submodules: recursive
-      - name: Set Up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-          architecture: x64
-      - name: Install Python dependencies
-        run: |
-          python -m pip install -U pip setuptools wheel
-          python -m pip install scons==4.4.0 pypiwin32 numpy ruamel.yaml cython h5py pandas pytest pytest-github-actions-annotate-failures
-      - name: Restore Boost cache
-        uses: actions/cache@v2
-        id: cache-boost
-        with:
-          path: ${{env.BOOST_ROOT}}
-          key: boost
-
-      - name: Install Boost Headers
-        if: steps.cache-boost.outputs.cache-hit != 'true'
-        run: |
-          BOOST_ROOT=$(echo $BOOST_ROOT | sed 's/\\/\//g')
-          mkdir -p $BOOST_ROOT
-          curl --progress-bar --location --output $BOOST_ROOT/download.7z $BOOST_URL
-          7z -o$BOOST_ROOT x $BOOST_ROOT/download.7z -y -bd boost_1_78_0/boost
-          mv $BOOST_ROOT/boost_1_78_0/boost $BOOST_ROOT/boost
-          rm $BOOST_ROOT/download.7z
-        shell: bash
-      - name: Build Cantera
-        run: scons build -j2 boost_inc_dir=%BOOST_ROOT% debug=n logging=debug
-          python_package=full env_vars=PYTHONPATH,GITHUB_ACTIONS
-          msvc_toolset_version=${{ matrix.vs-toolset }} msvc_version=14.3 f90_interface=n --debug=time
-        shell: cmd
-      - name: Test Cantera
-        run: scons test show_long_tests=yes verbose_tests=yes --debug=time
+    - uses: actions/checkout@v2
+      name: Checkout the repository
+      with:
+        submodules: recursive
+    - name: Set up conda
+      uses: conda-incubator/setup-miniconda@v2
+      with:
+        auto-update-conda: true
+        python-version: ${{ matrix.python-version }}
+        mamba-version: "*"
+        activate-environment: test
+        channels: conda-forge,defaults
+        channel-priority: true
+    - name: Install conda dependencies
+      # See https://github.com/conda-forge/boost-cpp-feedstock/issues/41 for why we
+      # use boost-cpp rather than boost from conda-forge
+      # Install SCons >=4.4.0 to make sure that MSVC_TOOLSET_VERSION variable is present
+      run: |
+        mamba install -q 'scons<4.4.0' numpy cython ruamel.yaml boost-cpp eigen yaml-cpp h5py pandas pytest
+      shell: pwsh
+    - name: Install typing_extensions for Python 3.7
+      if: matrix.python-version == '3.7'
+      run: mamba install -q typing_extensions
+    - name: Build Cantera
+      run: scons build system_eigen=y system_yamlcpp=y logging=debug
+        msvc_toolset_version=${{ matrix.vs-toolset }} msvc_version=14.3 f90_interface=n debug=n --debug=time -j2
+      shell: pwsh
+    - name: Test Cantera
+      run: scons test show_long_tests=yes verbose_tests=yes --debug=time
+      shell: pwsh
+    - name: Test Install
+      # spot-check installation locations
+      run: |
+        scons install
+        test -f ${CONDA_PREFIX}/Library/lib/cantera_shared.dll
+        test -f ${CONDA_PREFIX}/Library/include/cantera/base/Solution.h
+        test -f ${CONDA_PREFIX}/Scripts/ck2yaml
+        test -f ${CONDA_PREFIX}/share/cantera/data/gri30.yaml
+        test -d ${CONDA_PREFIX}/share/cantera/samples
+        test -d ${CONDA_PREFIX}/share/cantera/samples/python
+        test -d ${CONDA_PREFIX}/Lib/site-packages/cantera
+    - name: Test Essentials
+      # ensure that Python package loads and converter scripts work
+      run: |
+        python -c 'import cantera as ct; import sys; sys.exit(0) if ct.__version__.startswith("3.0.0") else sys.exit(1)'
+        ck2yaml --input=test/data/h2o2.inp --output=h2o2-test.yaml
+        test -f h2o2-test.yaml
+        cti2yaml test/data/ch4_ion.cti ch4_ion-test.yaml
+        test -f ch4_ion-test.yaml
+        yaml2ck data/h2o2.yaml --mechanism=h2o2-test.ck
+        test -f h2o2-test.ck
