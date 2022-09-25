@@ -126,7 +126,7 @@ TEST(ThermoFromYaml, WaterSSTP)
     thermo->setState_TP(350, 2*OneAtm);
     // Regression tests based on XML
     EXPECT_NEAR(thermo->density(), 973.7736331, 1e-6);
-    EXPECT_NEAR(thermo->enthalpy_mass(), -15649685.52296013, 1e-6);
+    EXPECT_NEAR(thermo->enthalpy_mass(), -15649652.50272877, 1e-6);
 }
 
 TEST(ThermoFromYaml, Margules)
@@ -158,7 +158,7 @@ TEST(ThermoFromYaml, DebyeHuckel_bdot_ak)
     EXPECT_EQ(thermo->type(), "DebyeHuckel");
     EXPECT_NEAR(thermo->density(), 60.296, 1e-2);
     EXPECT_NEAR(thermo->cp_mass(), 1.58216e5, 1e0);
-    EXPECT_NEAR(thermo->entropy_mass(), 4.04233e3, 1e-2);
+    EXPECT_NEAR(thermo->entropy_mass(), 4.042462e3, 1e-2);
 
     vector_fp actcoeff(thermo->nSpecies());
     vector_fp mu_ss(thermo->nSpecies());
@@ -182,7 +182,7 @@ TEST(ThermoFromYaml, DebyeHuckel_beta_ij)
     EXPECT_EQ(thermo->type(), "DebyeHuckel");
     EXPECT_NEAR(thermo->density(), 122.262, 1e-3);
     EXPECT_NEAR(thermo->cp_mass(), 81263.5, 1e-1);
-    EXPECT_NEAR(thermo->entropy_mass(), 4022.35, 1e-2);
+    EXPECT_NEAR(thermo->entropy_mass(), 4022.519, 1e-2);
 
     vector_fp actcoeff(thermo->nSpecies());
     vector_fp mu_ss(thermo->nSpecies());
@@ -293,7 +293,7 @@ TEST(ThermoFromYaml, HMWSoln)
     double mfRef[] = {0.8198, 0.0901, 0.0000, 0.0901, 0.0000};
     double activitiesRef[] = {0.7658, 6.2164, 0.0000, 6.2164, 0.0000};
     double mollRef[] = {55.5093, 6.0997, 0.0000, 6.0997, 0.0000};
-    double mu0Ref[] = {-317.175792, -186.014569, 0.0017225, -441.615456, -322.000432}; // kJ/gmol
+    double mu0Ref[] = {-317.1767, -186.014569, 0.0017225, -441.615456, -322.000432}; // kJ/gmol
 
     for (size_t k = 0 ; k < N; k++) {
         EXPECT_NEAR(acMol[k], acMolRef[k], 2e-4);
@@ -308,8 +308,8 @@ TEST(ThermoFromYaml, HMWSoln)
 TEST(ThermoFromYaml, HMWSoln_HKFT)
 {
     auto thermo = newThermo("thermo-models.yaml", "HMW-NaCl-HKFT");
-    double mvRef[] = {0.01815224, 0.00157182, 0.01954605, 0.00173137, -0.0020266};
-    double hRef[] = {-2.84097587e+08, -2.38159643e+08, -1.68846908e+08,
+    double mvRef[] = {0.01815197, 0.00157182, 0.01954605, 0.00173137, -0.0020266};
+    double hRef[] = {-2.84096961e+08, -2.38159643e+08, -1.68846908e+08,
                      3.59728865e+06, -2.29291570e+08};
     double acoeffRef[] = {0.922403480, 1.21859875, 1.21859855, 5.08171133,
                           0.5983205};

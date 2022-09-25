@@ -298,12 +298,6 @@ liquid-water-IAPWS95:
     phase: liquid-water-IAPWS95
     rtol_fd: 5e-3  # Limited agreement for Maxwell relations
     known-failures:
-      h_eq_u_plus_Pv: "Error in internal energy calculation. See GitHub Issue #1315"
-      hk_eq_uk_plus_P_vk:
-        "Error in internal energy calculation. See GitHub Issue #1315"
-      cv_eq_dudT: "Error in internal energy calculation. See GitHub Issue #1315"
-      hk0_eq_uk0_plus_p_vk0:
-        "Error in internal energy calculation. See GitHub Issue #1315"
       log_standard_concentrations: Not implemented
   states:
   - {T: 300, P: 1 atm}

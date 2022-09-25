@@ -65,19 +65,18 @@ public:
     WaterPropsIAPWS water;
 };
 
-// See values on p. 395 of Wagner & Pruss.
+// See values on p. 395 and Table 13.1 (p. 486) of Wagner & Pruss
 TEST_F(WaterPropsIAPWS_Test, triple_point_liquid)
 {
     double T = 273.16;
     double pres = water.psat(T);
-    EXPECT_NEAR(pres, 611.655, 2e-3);
+    EXPECT_NEAR(pres, 611.654771, 5e-6);
     EXPECT_NEAR(water.density(T, pres, WATER_LIQUID), 999.793, 2e-3);
-    EXPECT_NEAR(water.intEnergy(), 0.0, 5e-7);
-    EXPECT_NEAR(water.entropy(), 0.0, 5e-9);
-    EXPECT_NEAR(water.enthalpy(), 11.0214, 2e-4);
-    EXPECT_NEAR(water.Gibbs(), 11.0214, 2e-4);
-    EXPECT_NEAR(water.cv(), 75978.2, 2e-1);
-    EXPECT_NEAR(water.cp(), 76022.8, 2e-1);
+    EXPECT_NEAR(water.intEnergy_mass(), 0.0, 5e-8);
+    EXPECT_NEAR(water.entropy_mass(), 0.0, 5e-10);
+    EXPECT_NEAR(water.enthalpy_mass(), 0.611782, 2e-5);
+    EXPECT_NEAR(water.cv_mass(), 4217.4, 1e-1);
+    EXPECT_NEAR(water.cp_mass(), 4219.9, 1e-1);
 }
 
 TEST_F(WaterPropsIAPWS_Test, triple_point_gas)
@@ -85,12 +84,10 @@ TEST_F(WaterPropsIAPWS_Test, triple_point_gas)
     double T = 273.16;
     double pres = water.psat(T);
     EXPECT_NEAR(water.density(T, pres, WATER_GAS), 4.85458e-3, 2e-8);
-    EXPECT_NEAR(water.intEnergy(), 4.27848e7, 2e2);
-    EXPECT_NEAR(water.entropy(), 164939., 2e0);
-    EXPECT_NEAR(water.enthalpy(), 4.50547e7, 2e2);
-    EXPECT_NEAR(water.Gibbs(), 11.0214, 2e-4);
-    EXPECT_NEAR(water.cv(), 25552.6, 2e-1);
-    EXPECT_NEAR(water.cp(), 33947.1, 2e-1);
+    EXPECT_NEAR(water.entropy_mass(), 9155.5, 2e0);
+    EXPECT_NEAR(water.enthalpy_mass(), 2500920., 2e+1);
+    EXPECT_NEAR(water.cv_mass(), 1418.4, 2e-1);
+    EXPECT_NEAR(water.cp_mass(), 1884.4, 2e-1);
 }
 
 TEST_F(WaterPropsIAPWS_Test, normal_boiling_point)
@@ -100,18 +97,18 @@ TEST_F(WaterPropsIAPWS_Test, normal_boiling_point)
     EXPECT_NEAR(P, 101324., 1e0);
     double rho = water.density(T, P, WATER_LIQUID);
     EXPECT_NEAR(rho, 958.368, 2e-3);
-    EXPECT_NEAR(water.isothermalCompressibility(), 4.901779037782e-10, 2e-21);
+    EXPECT_NEAR(water.isothermalCompressibility(), 4.901778826964e-10, 2e-21);
 
     water.density(T, 1.001 * P, WATER_LIQUID);
-    EXPECT_NEAR(water.isothermalCompressibility(), 4.901777340771e-10, 2e-21);
+    EXPECT_NEAR(water.isothermalCompressibility(), 4.901777129953e-10, 2e-21);
 
     rho = water.density(T, P, WATER_GAS);
     EXPECT_NEAR(rho, 0.597651, 2e-6);
-    EXPECT_NEAR(water.isothermalCompressibility(), 1.003322591472e-05, 2e-17);
+    EXPECT_NEAR(water.isothermalCompressibility(), 1.003322548320e-05, 2e-17);
 
     rho = water.density(T, P * 0.999, WATER_GAS);
     EXPECT_NEAR(rho, 0.597043, 2e-6);
-    EXPECT_NEAR(water.isothermalCompressibility(), 1.004308000545e-05, 2e-17);
+    EXPECT_NEAR(water.isothermalCompressibility(), 1.004307957351e-05, 2e-17);
 }
 
 TEST_F(WaterPropsIAPWS_Test, saturation_pressure_estimate)
@@ -129,15 +126,15 @@ TEST_F(WaterPropsIAPWS_Test, expansion_coeffs)
 {
     vector_fp TT{300.0, 300.0, 700.0};
     vector_fp PP{10.0, 10.0e6, 10.0e6};
-    vector_fp alpha{0.003333433139236, -0.02277763412159, 0.002346416555069};
-    vector_fp beta{1.000020308917, 1265.572840683, 1.240519813089};
-    vector_fp beta_num{1.0000203087, 1265.46651311, 1.240519294};
+    vector_fp alpha{0.003333433139236, -0.02277763412159, 0.002346416497423};
+    vector_fp beta{1.000020308917, 1265.572840683, 1.240519801360};
+    vector_fp beta_num{1.0000203087, 1265.46651311, 1.2405192825};
     for (size_t i = 0; i < TT.size(); i++) {
         double rho = water.density(TT[i], PP[i], WATER_GAS);
         water.setState_TR(TT[i], rho);
         EXPECT_NEAR(water.coeffThermExp(), alpha[i], 2e-14);
         EXPECT_NEAR(water.coeffPresExp(), beta[i], beta[i] * 2e-12);
-        EXPECT_NEAR(dPdT(TT[i], PP[i]) * 18.015268 / (8.314371E3 * rho),
+        EXPECT_NEAR(dPdT(TT[i], PP[i]) / (461.51805 * rho),
                     beta_num[i], 4e-10 * beta_num[i]);
     }
 }

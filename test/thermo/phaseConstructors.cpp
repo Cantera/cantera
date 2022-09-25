@@ -345,7 +345,7 @@ TEST(DebyeHuckel, fromScratch)
     // Regression test based on XML input file
     EXPECT_NEAR(p.density(), 60.296, 1e-2);
     EXPECT_NEAR(p.cp_mass(), 1.58216e5, 2e0);
-    EXPECT_NEAR(p.entropy_mass(), 4.01279e3, 2e-2);
+    EXPECT_NEAR(p.entropy_mass(), 4.01292e3, 2e-2);
     vector_fp actcoeff(p.nSpecies());
     vector_fp mu_ss(p.nSpecies());
     p.getMolalityActivityCoefficients(actcoeff.data());
@@ -528,7 +528,7 @@ TEST(HMWSoln, fromScratch)
     double mfRef[] = {0.8198, 0.0901, 0.0000, 0.0901, 0.0000};
     double activitiesRef[] = {0.7658, 6.2164, 0.0000, 6.2164, 0.0000};
     double mollRef[] = {55.5093, 6.0997, 0.0000, 6.0997, 0.0000};
-    double mu0Ref[] = {-317.175791, -186.014570, 0.0017225, -441.615456, -322.000432}; // kJ/gmol
+    double mu0Ref[] = {-317.1767, -186.014570, 0.0017225, -441.615456, -322.000432}; // kJ/gmol
 
     for (size_t k = 0 ; k < N; k++) {
         EXPECT_NEAR(acMol[k], acMolRef[k], 2e-4);
@@ -608,7 +608,7 @@ TEST(HMWSoln, fromScratch_HKFT)
     p.getActivities(ac.data());
     p.getActivityCoefficients(acoeff.data());
 
-    double mvRef[] = {0.01815224, 0.00157182, 0.01954605, 0.00173137, -0.0020266};
+    double mvRef[] = {0.01815196, 0.00157182, 0.01954605, 0.00173137, -0.0020266};
 
     for (size_t k = 0; k < N; k++) {
         EXPECT_NEAR(mv[k], mvRef[k], 2e-8);

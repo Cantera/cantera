@@ -11,6 +11,7 @@
 #include "cantera/thermo/WaterPropsIAPWS.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/global.h"
 
 namespace Cantera
 {
@@ -24,6 +25,8 @@ static const doublereal P_c = 22.064E6;
 const doublereal Rho_c = 322.;
 //! Molecular Weight of water that is consistent with the paper (kg kmol-1)
 static const doublereal M_water = 18.015268;
+
+static const double R_water = 461.51805; // J/kg/K (Eq. 6.3)
 
 //! Gas constant that is quoted in the paper
 /*
@@ -61,6 +64,8 @@ void WaterPropsIAPWS::calcDim(doublereal temperature, doublereal rho)
 
 doublereal WaterPropsIAPWS::helmholtzFE() const
 {
+    warn_deprecated("WaterPropsIAPWS::helmholtzFE", "To be removed after Cantera 3.0. "
+                    "This class provides mass-based values only.");
     doublereal retn = m_phi.phi(tau, delta);
     doublereal temperature = T_c/tau;
     doublereal RT = Rgas * temperature;
@@ -72,7 +77,7 @@ doublereal WaterPropsIAPWS::pressure() const
     doublereal retn = m_phi.pressureM_rhoRT(tau, delta);
     doublereal rho = delta * Rho_c;
     doublereal temperature = T_c / tau;
-    return retn * rho * Rgas * temperature/M_water;
+    return retn * rho * R_water * temperature;
 }
 
 doublereal WaterPropsIAPWS::density(doublereal temperature, doublereal pressure,
@@ -88,10 +93,10 @@ doublereal WaterPropsIAPWS::density(doublereal temperature, doublereal pressure,
     if (rhoguess == -1.0) {
         if (phase != -1) {
             if (temperature > T_c) {
-                rhoguess = pressure * M_water / (Rgas * temperature);
+                rhoguess = pressure / (R_water * temperature);
             } else {
                 if (phase == WATER_GAS || phase == WATER_SUPERCRIT) {
-                    rhoguess = pressure * M_water / (Rgas * temperature);
+                    rhoguess = pressure / (R_water * temperature);
                 } else if (phase == WATER_LIQUID) {
                     // Provide a guess about the liquid density that is
                     // relatively high -> convergence from above seems robust.
@@ -107,10 +112,10 @@ doublereal WaterPropsIAPWS::density(doublereal temperature, doublereal pressure,
         } else {
             // Assume the Gas phase initial guess, if nothing is specified to
             // the routine
-            rhoguess = pressure * M_water / (Rgas * temperature);
+            rhoguess = pressure / (R_water * temperature);
         }
     }
-    doublereal p_red = pressure * M_water / (Rgas * temperature * Rho_c);
+    double p_red = pressure / (R_water * temperature * Rho_c);
     deltaGuess = rhoguess / Rho_c;
     setState_TR(temperature, rhoguess);
     doublereal delta_retn = m_phi.dfind(p_red, tau, deltaGuess);
@@ -144,10 +149,10 @@ doublereal WaterPropsIAPWS::density_const(doublereal pressure,
     if (rhoguess == -1.0) {
         if (phase != -1) {
             if (temperature > T_c) {
-                rhoguess = pressure * M_water / (Rgas * temperature);
+                rhoguess = pressure / (R_water * temperature);
             } else {
                 if (phase == WATER_GAS || phase == WATER_SUPERCRIT) {
-                    rhoguess = pressure * M_water / (Rgas * temperature);
+                    rhoguess = pressure / (R_water * temperature);
                 } else if (phase == WATER_LIQUID) {
                     // Provide a guess about the liquid density that is
                     // relatively high -> convergence from above seems robust.
@@ -163,17 +168,17 @@ doublereal WaterPropsIAPWS::density_const(doublereal pressure,
         } else {
             // Assume the Gas phase initial guess, if nothing is specified to
             // the routine
-            rhoguess = pressure * M_water / (Rgas * temperature);
+            rhoguess = pressure / (R_water * temperature);
         }
     }
-    doublereal p_red = pressure * M_water / (Rgas * temperature * Rho_c);
+    double p_red = pressure / (R_water * temperature * Rho_c);
     deltaGuess = rhoguess / Rho_c;
 
     delta = deltaGuess;
     m_phi.tdpolycalc(tau, delta);
 
-    doublereal delta_retn = m_phi.dfind(p_red, tau, deltaGuess);
-    doublereal density_retn;
+    double delta_retn = m_phi.dfind(p_red, tau, deltaGuess);
+    double density_retn;
     if (delta_retn > 0.0) {
         delta = delta_retn;
 
@@ -248,7 +253,7 @@ doublereal WaterPropsIAPWS::dpdrho() const
 {
     doublereal retn = m_phi.dimdpdrho(tau, delta);
     doublereal temperature = T_c/tau;
-    return retn * Rgas * temperature / M_water;
+    return retn * R_water * temperature;
 }
 
 doublereal WaterPropsIAPWS::coeffPresExp() const
@@ -261,11 +266,13 @@ doublereal WaterPropsIAPWS::coeffThermExp() const
     doublereal kappa = isothermalCompressibility();
     doublereal beta = coeffPresExp();
     doublereal dens = delta * Rho_c;
-    return kappa * dens * Rgas * beta / M_water;
+    return kappa * dens * R_water * beta;
 }
 
 doublereal WaterPropsIAPWS::Gibbs() const
 {
+    warn_deprecated("WaterPropsIAPWS::Gibbs", "To be removed after Cantera 3.0. "
+                    "This class provides mass-based values only.");
     doublereal gRT = m_phi.gibbs_RT();
     doublereal temperature = T_c/tau;
     return gRT * Rgas * temperature;
@@ -317,25 +324,25 @@ void WaterPropsIAPWS::corr1(doublereal temperature, doublereal pressure,
     doublereal prG = m_phi.phiR();
     doublereal rhs = (prL - prG) + log(densLiq/densGas);
     rhs /= (1.0/densGas - 1.0/densLiq);
-    pcorr = rhs * Rgas * temperature / M_water;
+    pcorr = rhs * R_water * temperature;
 }
 
 doublereal WaterPropsIAPWS::psat(doublereal temperature, int waterState)
 {
     static int method = 1;
-    doublereal densLiq = -1.0, densGas = -1.0, delGRT = 0.0;
-    doublereal dp, pcorr;
+    double densLiq = -1.0, densGas = -1.0, delGRT = 0.0;
+    double dp, pcorr;
     if (temperature >= T_c) {
         densGas = density(temperature, P_c, WATER_SUPERCRIT);
         setState_TR(temperature, densGas);
         return P_c;
     }
-    doublereal p = psat_est(temperature);
+    double p = psat_est(temperature);
     for (int i = 0; i < 30; i++) {
         if (method == 1) {
             corr(temperature, p, densLiq, densGas, delGRT);
-            doublereal delV = M_water * (1.0/densLiq - 1.0/densGas);
-            dp = - delGRT * Rgas * temperature / delV;
+            double delV = 1.0/densLiq - 1.0/densGas;
+            dp = - delGRT * R_water * temperature / delV;
         } else {
             corr1(temperature, p, densLiq, densGas, pcorr);
             dp = pcorr - p;
@@ -368,10 +375,10 @@ int WaterPropsIAPWS::phaseState(bool checkState) const
         if (tau <= 1.0) {
             iState = WATER_SUPERCRIT;
         } else {
-            doublereal T = T_c / tau;
-            doublereal rho = delta * Rho_c;
-            doublereal rhoMidAtm = 0.5 * (OneAtm * M_water / (Rgas * 373.15) + 1.0E3);
-            doublereal rhoMid = Rho_c + (T - T_c) * (Rho_c - rhoMidAtm) / (T_c - 373.15);
+            double T = T_c / tau;
+            double rho = delta * Rho_c;
+            double rhoMidAtm = 0.5 * (OneAtm / (R_water * 373.15) + 1.0E3);
+            double rhoMid = Rho_c + (T - T_c) * (Rho_c - rhoMidAtm) / (T_c - 373.15);
             int iStateGuess = WATER_LIQUID;
             if (rho < rhoMid) {
                 iStateGuess = WATER_GAS;
@@ -583,8 +590,40 @@ void WaterPropsIAPWS::setState_TR(doublereal temperature, doublereal rho)
     m_phi.tdpolycalc(tau, delta);
 }
 
+double WaterPropsIAPWS::gibbs_mass() const
+{
+    return m_phi.gibbs_RT() * R_water * T_c / tau;
+}
+
+double WaterPropsIAPWS::enthalpy_mass() const
+{
+    return m_phi.enthalpy_RT() * R_water * T_c / tau;
+}
+
+double WaterPropsIAPWS::intEnergy_mass() const
+{
+    return m_phi.intEnergy_RT() * R_water * T_c / tau;
+}
+
+double WaterPropsIAPWS::entropy_mass() const
+{
+    return m_phi.entropy_R() * R_water;
+}
+
+double WaterPropsIAPWS::cv_mass() const
+{
+    return m_phi.cv_R() * R_water;
+}
+
+double WaterPropsIAPWS::cp_mass() const
+{
+    return m_phi.cp_R() * R_water;
+}
+
 doublereal WaterPropsIAPWS::enthalpy() const
 {
+    warn_deprecated("WaterPropsIAPWS::enthalpy", "To be removed after Cantera 3.0. "
+                    "This class provides mass-based values only.");
     doublereal temperature = T_c/tau;
     doublereal hRT = m_phi.enthalpy_RT();
     return hRT * Rgas * temperature;
@@ -592,6 +631,8 @@ doublereal WaterPropsIAPWS::enthalpy() const
 
 doublereal WaterPropsIAPWS::intEnergy() const
 {
+    warn_deprecated("WaterPropsIAPWS::intEnergy", "To be removed after Cantera 3.0. "
+                    "This class provides mass-based values only.");
     doublereal temperature = T_c / tau;
     doublereal uRT = m_phi.intEnergy_RT();
     return uRT * Rgas * temperature;
@@ -599,24 +640,32 @@ doublereal WaterPropsIAPWS::intEnergy() const
 
 doublereal WaterPropsIAPWS::entropy() const
 {
+    warn_deprecated("WaterPropsIAPWS::entropy", "To be removed after Cantera 3.0. "
+                    "This class provides mass-based values only.");
     doublereal sR = m_phi.entropy_R();
     return sR * Rgas;
 }
 
 doublereal WaterPropsIAPWS::cv() const
 {
+    warn_deprecated("WaterPropsIAPWS::cv", "To be removed after Cantera 3.0. "
+                    "This class provides mass-based values only.");
     doublereal cvR = m_phi.cv_R();
     return cvR * Rgas;
 }
 
 doublereal WaterPropsIAPWS::cp() const
 {
+    warn_deprecated("WaterPropsIAPWS::cp", "To be removed after Cantera 3.0. "
+                    "This class provides mass-based values only.");
     doublereal cpR = m_phi.cp_R();
     return cpR * Rgas;
 }
 
 doublereal WaterPropsIAPWS::molarVolume() const
 {
+    warn_deprecated("WaterPropsIAPWS::molarVolume", "To be removed after Cantera 3.0. "
+                    "This class provides mass-based values only.");
     doublereal rho = delta * Rho_c;
     return M_water / rho;
 }
