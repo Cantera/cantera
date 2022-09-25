@@ -167,15 +167,25 @@ logger.info(
 windows_options = [
     Option(
         "msvc_version",
-        """Version of Visual Studio to use. The default is the newest
-           installed version. Specify '14.1' ('14.1x') Visual Studio 2017, '14.2'
-           ('14.2x') for Visual Studio 2019, or '14.3' ('14.3x') for
-           Visual Studio 2022. For version numbers in parentheses,
-           'x' is a placeholder for a minor version number. Windows MSVC only.""",
+        """Version of Visual Studio to use. The default is the newest installed version.
+        Note that since multiple MSVC toolsets can be installed for a single version of
+        Visual Studio, you probably want to use ``msvc_toolset_version`` unless you
+        specifically installed multiple versions of Visual Studio. Windows MSVC only.
+        """,
         ""),
     Option(
         "msvc_toolset_version",
-        """TODO""",
+        """Version of the MSVC toolset to use. The default is the default version for
+        the given ``msvc_version``. Note that the toolset selected here must be
+        installed in the MSVC version selected by ``msvc_version``. The default
+        toolsets associated with various Visual Studio versions are:
+
+        * '14.1' ('14.1x'): Visual Studio 2017
+        * '14.2' ('14.2x'): Visual Studio 2019
+        * '14.3' ('14.3x'): Visual Studio 2022.
+
+        For version numbers in parentheses, 'x' is a placeholder for a minor version
+        number. Windows MSVC only.""",
         ""),
     EnumOption(
         "target_arch",
