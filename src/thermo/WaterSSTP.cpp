@@ -94,22 +94,23 @@ void WaterSSTP::initThermo()
 
 void WaterSSTP::getEnthalpy_RT(doublereal* hrt) const
 {
-    *hrt = (m_sub.enthalpy() + EW_Offset) / RT();
+    *hrt = (m_sub.enthalpy_mass() * m_mw + EW_Offset) / RT();
 }
 
 void WaterSSTP::getIntEnergy_RT(doublereal* ubar) const
 {
-    *ubar = (m_sub.intEnergy() + EW_Offset)/ RT();
+    *ubar = (m_sub.intEnergy_mass() * m_mw + EW_Offset)/ RT();
 }
 
 void WaterSSTP::getEntropy_R(doublereal* sr) const
 {
-    sr[0] = (m_sub.entropy() + SW_Offset) / GasConstant;
+    sr[0] = (m_sub.entropy_mass() * m_mw + SW_Offset) / GasConstant;
 }
 
 void WaterSSTP::getGibbs_RT(doublereal* grt) const
 {
-    *grt = (m_sub.Gibbs() + EW_Offset) / RT() - SW_Offset / GasConstant;
+    *grt = (m_sub.gibbs_mass() * m_mw + EW_Offset) / RT()
+           - SW_Offset / GasConstant;
     if (!m_ready) {
         throw CanteraError("waterSSTP::getGibbs_RT", "Phase not ready");
     }
@@ -117,7 +118,7 @@ void WaterSSTP::getGibbs_RT(doublereal* grt) const
 
 void WaterSSTP::getStandardChemPotentials(doublereal* gss) const
 {
-    *gss = (m_sub.Gibbs() + EW_Offset - SW_Offset*temperature());
+    *gss = (m_sub.gibbs_mass() * m_mw + EW_Offset - SW_Offset*temperature());
     if (!m_ready) {
         throw CanteraError("waterSSTP::getStandardChemPotentials",
                            "Phase not ready");
@@ -126,12 +127,12 @@ void WaterSSTP::getStandardChemPotentials(doublereal* gss) const
 
 void WaterSSTP::getCp_R(doublereal* cpr) const
 {
-    cpr[0] = m_sub.cp() / GasConstant;
+    cpr[0] = m_sub.cp_mass() * m_mw / GasConstant;
 }
 
 doublereal WaterSSTP::cv_mole() const
 {
-    return m_sub.cv();
+    return m_sub.cv_mass() * m_mw;
 }
 
 void WaterSSTP::getEnthalpy_RT_ref(doublereal* hrt) const
@@ -148,7 +149,7 @@ void WaterSSTP::getEnthalpy_RT_ref(doublereal* hrt) const
     if (dd <= 0.0) {
         throw CanteraError("WaterSSTP::getEnthalpy_RT_ref", "error");
     }
-    doublereal h = m_sub.enthalpy();
+    double h = m_sub.enthalpy_mass() * m_mw;
     *hrt = (h + EW_Offset) / RT();
     dd = m_sub.density(T, p, waterState, dens);
 }
@@ -168,7 +169,7 @@ void WaterSSTP::getGibbs_RT_ref(doublereal* grt) const
         throw CanteraError("WaterSSTP::getGibbs_RT_ref", "error");
     }
     m_sub.setState_TR(T, dd);
-    doublereal g = m_sub.Gibbs();
+    double g = m_sub.gibbs_mass() * m_mw;
     *grt = (g + EW_Offset - SW_Offset*T)/ RT();
     dd = m_sub.density(T, p, waterState, dens);
 }
@@ -198,7 +199,7 @@ void WaterSSTP::getEntropy_R_ref(doublereal* sr) const
     }
     m_sub.setState_TR(T, dd);
 
-    doublereal s = m_sub.entropy();
+    double s = m_sub.entropy_mass() * m_mw;
     *sr = (s + SW_Offset)/ GasConstant;
     dd = m_sub.density(T, p, waterState, dens);
 }
@@ -218,7 +219,7 @@ void WaterSSTP::getCp_R_ref(doublereal* cpr) const
     if (dd <= 0.0) {
         throw CanteraError("WaterSSTP::getCp_R_ref", "error");
     }
-    doublereal cp = m_sub.cp();
+    double cp = m_sub.cp_mass() * m_mw;
     *cpr = cp / GasConstant;
     dd = m_sub.density(T, p, waterState, dens);
 }

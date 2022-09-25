@@ -26,6 +26,9 @@ import matplotlib.pyplot as plt
 import cantera as ct
 
 
+import warnings
+warnings.filterwarnings("error", module=".*")
+
 class FlameExtinguished(Exception):
     pass
 
@@ -49,6 +52,7 @@ else:
 
 reaction_mechanism = 'h2o2.yaml'
 gas = ct.Solution(reaction_mechanism)
+gas.reactant_stoich_coeffs3
 width = 18e-3  # 18mm wide
 f = ct.CounterflowDiffusionFlame(gas, width=width)
 
