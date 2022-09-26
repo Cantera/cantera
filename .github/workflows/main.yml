@@ -70,6 +70,13 @@ jobs:
     - name: Test Cantera
       run:
         python3 `which scons` test show_long_tests=yes verbose_tests=yes --debug=time
+    - name: Save the wheel file to install Cantera
+      uses: actions/upload-artifact@v3
+      with:
+        path: build/python/dist/Cantera*.whl
+        retention-days: 2
+        name: cantera-wheel-${{ matrix.python-version }}-${{ matrix.os }}
+        if-no-files-found: error
 
   clang-compiler:
     name: LLVM/Clang with Python 3.8
@@ -339,8 +346,9 @@ jobs:
 
   run-examples:
     name: Run the Python examples using bash
-    runs-on: ubuntu-20.04
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 60
+    needs: ["ubuntu-multiple-pythons"]
     strategy:
       matrix:
         python-version: ['3.8', '3.10', '3.11']
@@ -349,39 +357,24 @@ jobs:
       HDF5_LIBDIR: /usr/lib/x86_64-linux-gnu/hdf5/serial
       HDF5_INCLUDEDIR: /usr/include/hdf5/serial
     steps:
+      # We're not building Cantera here, we only need the checkout for the samples
+      # folder, so no need to do a recursive checkout
       - uses: actions/checkout@v3
         name: Checkout the repository
-        with:
-          submodules: recursive
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
-      - name: Install Apt dependencies
-        run: |
-          sudo apt update
-          sudo apt install libboost-dev gfortran graphviz liblapack-dev libblas-dev \
-          gcc-9 g++-9 libhdf5-dev
+      - name: Download the wheel artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: cantera-wheel-${{ matrix.python-version }}-${{ matrix.os }}
+          path: dist
       - name: Upgrade pip
         run: python3 -m pip install -U pip setuptools wheel
       - name: Install Python dependencies
-        run: |
-          python3 -m pip install ruamel.yaml scons numpy cython pandas matplotlib scipy pint h5py
-      - name: Build Cantera
-        # compile with GCC 9.4.0 on ubuntu-20.04 as an alternative to the default
-        # (GCC 7.5.0 is both default and oldest supported version)
-        # compile without native HDF5 support
-        run: python3 `which scons` build -j2 debug=n CC=gcc-9 CXX=g++-9
-        if: matrix.python-version != '3.10'
-      - name: Build Cantera (Python 3.10 with HDF)
-        # compile with GCC 9.4.0 on ubuntu-20.04 as an alternative to the default
-        # (GCC 7.5.0 is both default and oldest supported version)
-        # compile with native HDF5 support
-        run: |
-          python3 `which scons` build -j2 debug=n CC=gcc-9 CXX=g++-9 \
-          hdf_libdir=$HDF5_LIBDIR hdf_include=$HDF5_INCLUDEDIR
-        if: matrix.python-version == '3.10'
+        run: python3 -m pip install --find-links dist cantera h5py pandas matplotlib scipy pint
       - name: Run the examples
         # See https://unix.stackexchange.com/a/392973 for an explanation of the -exec part
         run: |
