@@ -332,16 +332,35 @@ class ck2yamlTest(utilities.CanteraTest):
             output='h2o2_transport_duplicate_species', permissive=True)
 
     def test_transport_bad_geometry(self):
-        with self.assertRaisesRegex(ck2yaml.InputError, 'geometry flag'):
+        with self.assertRaisesRegex(ck2yaml.InputError, 'Invalid geometry flag value'):
             self.convert('h2o2.inp',
                 transport='h2o2-bad-geometry-tran.dat',
                 output='h2o2_transport_bad_geometry')
 
+        with self.assertRaisesRegex(ck2yaml.InputError, 'Invalid geometry flag \''):
+            self.convert('h2o2.inp',
+                transport='h2o2-character-geometry-tran.dat',
+                output='h2o2_transport_character_geometry')
+
     def test_transport_float_geometry(self):
-        with self.assertRaisesRegex(ck2yaml.InputError, 'geometry flag'):
+        with self.assertRaisesRegex(ck2yaml.InputError, 'Incorrect geometry flag syntax'):
             self.convert('h2o2.inp',
                 transport='h2o2-float-geometry-tran.dat',
                 output='h2o2_transport_float_geometry')
+
+        output = self.convert('h2o2.inp',
+            transport='h2o2-float-geometry-tran.dat',
+            output='h2o2_transport_float_geometry', permissive=True)
+
+        gas = ct.Solution(output)
+        self.assertTrue(gas.species("H").transport.geometry == 'atom')
+        self.assertTrue(gas.species("H2").transport.geometry == 'linear')
+        self.assertTrue(gas.species("H2O").transport.geometry == 'nonlinear')
+
+        with self.assertRaisesRegex(ck2yaml.InputError, 'Invalid float geometry flag'):
+            self.convert('h2o2.inp',
+                transport='h2o2-float-arithmetic-error-geometry-tran.dat',
+                output='h2o2_transport_float_geometry', permissive=True)
 
     def test_empty_reaction_section(self):
         output = self.convert('h2o2_emptyReactions.inp')
