@@ -679,8 +679,6 @@ Example::
     - name: covdep
       thermo: coverage-dependent-surface
       species: [Pt, OC_Pt, CO2_Pt, C_Pt, O_Pt]
-      kinetics: surface
-      reactions: none
       state:
         T: 500.0
         P: 1.01325e+05

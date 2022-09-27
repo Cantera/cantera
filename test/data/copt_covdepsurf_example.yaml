@@ -1,22 +1,19 @@
-units: {length: cm, quantity: mol, activation-energy: kcal/mol}
+units: {length: cm, quantity: mol}
 
 phases:
 - name: covdep
   thermo: coverage-dependent-surface
   species: [Pt, OC_Pt, CO2_Pt, C_Pt, O_Pt]
-  kinetics: surface
-  reactions: none
   state:
     T: 500.0
     P: 1.01325e+05
     coverages: {Pt: 0.5, OC_Pt: 0.5, CO2_Pt: 0.0, C_Pt: 0.0, O_Pt: 0.0}
   site-density: 2.72e-09
   reference-state-coverage: 0.22
+
 - name: ideal
   thermo: ideal-surface
   species: [Pt, OC_Pt, CO2_Pt, C_Pt, O_Pt]
-  kinetics: surface
-  reactions: none
   state:
     T: 500.0
     P: 1.01325e+05
