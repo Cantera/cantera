@@ -1065,6 +1065,29 @@ class TestLithiumIonBatteryKinetics(utilities.CanteraTest):
         ref = np.genfromtxt(self.test_data_path / "lithium-ion-battery-test.csv")
         assert np.allclose(data, ref, rtol=1e-7)
 
+    def test_interface_current(self):
+        file = "lithium_ion_battery.yaml"
+
+        # The 'elde' electrode phase is needed as a source/sink for electrons:
+        anode = ct.Solution(file,"anode")
+        elect = ct.Solution(file,"electron")
+        elyte = ct.Solution(file,"electrolyte")
+        anode_int = ct.Interface(file,"edge_anode_electrolyte",[anode,elect,elyte])
+
+        anode.X = [0.9, 0.1]
+        elyte.X = [0.4, 0.3, 0.15, 0.15]
+
+        anode.electric_potential = 0.
+        elyte.electric_potential = 3.
+
+        species_productions = anode_int.get_net_production_rates(elyte)
+        species_charges = elyte.charges
+
+        method = anode_int.interface_current(elyte)
+        manual = sum(species_productions*species_charges)*ct.faraday
+
+        self.assertEqual(method,manual)
+
 
 class TestDuplicateReactions(utilities.CanteraTest):
     infile = 'duplicate-reactions.yaml'
