@@ -6,6 +6,7 @@ import warnings
 cimport numpy as np
 import numpy as np
 
+from .constants import *
 from .reaction cimport *
 from ._utils cimport *
 from . import _utils
@@ -879,6 +880,14 @@ cdef class InterfaceKinetics(Kinetics):
         species in all phases.
         """
         return self.net_production_rates[self._phase_slice(phase)]
+
+    def interface_current(self, phase):
+        """
+        The interface current is useful when charge transfer reactions occur at
+        an interface. It is defined here as the net positive charge entering the
+        phase ``phase`` (Units: A/m^2).
+        """
+        return sum(self.get_net_production_rates(phase)*phase.charges)*faraday
 
     def write_yaml(self, filename, phases=None, units=None, precision=None,
                    skip_user_defined=None):
