@@ -557,6 +557,14 @@ TEST_F(ThermoYamlRoundTrip, Surface)
     EXPECT_DOUBLE_EQ(origSurf->siteDensity(), duplSurf->siteDensity());
 }
 
+TEST_F(ThermoYamlRoundTrip, CoverageDependentSurface)
+{
+    roundtrip("copt_covdepsurf_example.yaml", "covdep");
+    skip_activities = true;
+    compareThermo(800, 2*OneAtm,
+        "Pt: 0.2, OC_Pt: 0.2, CO2_Pt: 0.2, C_Pt: 0.2, O_Pt: 0.2");
+}
+
 TEST_F(ThermoYamlRoundTrip, IsotropicElectronEnergyPlasma)
 {
     roundtrip("oxygen-plasma.yaml", "isotropic-electron-energy-plasma");
