@@ -823,14 +823,14 @@ void GasTransport::getBinDiffCorrection(double t, MMCollisionInt& integrals,
 
 void GasTransport::getViscosityPolynomial(size_t i, double* coeffs) const
 {
-    for (size_t k = 0; k < (m_mode == CK_Mode ? 4 : 5); k++) {
+    for (int k = 0; k < (m_mode == CK_Mode ? 4 : 5); k++) {
         coeffs[k] = m_visccoeffs[i][k];
     }
 }
 
 void GasTransport::getConductivityPolynomial(size_t i, double* coeffs) const
 {
-    for (size_t k = 0; k < (m_mode == CK_Mode ? 4 : 5); k++) {
+    for (int k = 0; k < (m_mode == CK_Mode ? 4 : 5); k++) {
         coeffs[k] = m_condcoeffs[i][k];
     }
 }
@@ -845,7 +845,7 @@ void GasTransport::getBinDiffusivityPolynomial(size_t i, size_t j, double* coeff
     }
     ic += mj - mi;
 
-    for (size_t k = 0; k < (m_mode == CK_Mode ? 4 : 5); k++) {
+    for (int k = 0; k < (m_mode == CK_Mode ? 4 : 5); k++) {
         coeffs[k] = m_diffcoeffs[ic][k];
     }
 }
@@ -855,7 +855,7 @@ void GasTransport::getCollisionIntegralPolynomial(size_t i, size_t j,
                                                  double* bstar_coeffs,
                                                  double* cstar_coeffs) const
 {
-    for (size_t k = 0; k < (m_mode == CK_Mode ? 6 : COLL_INT_POLY_DEGREE) + 1; k++) {
+    for (int k = 0; k < (m_mode == CK_Mode ? 6 : COLL_INT_POLY_DEGREE) + 1; k++) {
         astar_coeffs[k] = m_astar_poly[m_poly[i][j]][k];
         bstar_coeffs[k] = m_bstar_poly[m_poly[i][j]][k];
         cstar_coeffs[k] = m_cstar_poly[m_poly[i][j]][k];
@@ -864,7 +864,7 @@ void GasTransport::getCollisionIntegralPolynomial(size_t i, size_t j,
 
 void GasTransport::setViscosityPolynomial(size_t i, double* coeffs)
 {
-    for (size_t k = 0; k < (m_mode == CK_Mode ? 4 : 5); k++) {
+    for (int k = 0; k < (m_mode == CK_Mode ? 4 : 5); k++) {
         m_visccoeffs[i][k] = coeffs[k];
     }
 
@@ -877,7 +877,7 @@ void GasTransport::setViscosityPolynomial(size_t i, double* coeffs)
 
 void GasTransport::setConductivityPolynomial(size_t i, double* coeffs)
 {
-    for (size_t k = 0; k < (m_mode == CK_Mode ? 4 : 5); k++) {
+    for (int k = 0; k < (m_mode == CK_Mode ? 4 : 5); k++) {
         m_condcoeffs[i][k] = coeffs[k];
     }
 
@@ -898,7 +898,7 @@ void GasTransport::setBinDiffusivityPolynomial(size_t i, size_t j, double* coeff
     }
     ic += mj - mi;
 
-    for (size_t k = 0; k < (m_mode == CK_Mode ? 4 : 5); k++) {
+    for (int k = 0; k < (m_mode == CK_Mode ? 4 : 5); k++) {
         m_diffcoeffs[ic][k] = coeffs[k];
     }
 

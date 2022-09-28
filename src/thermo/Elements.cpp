@@ -279,7 +279,7 @@ double getElementWeight(const std::string& ename)
 
 double getElementWeight(int atomicNumber)
 {
-    int num = numElementsDefined();
+    int num = static_cast<int>(numElementsDefined());
     if (atomicNumber > num || atomicNumber < 1) {
         throw IndexError("getElementWeight", "atomicWeightTable", atomicNumber, num);
     }
@@ -309,7 +309,7 @@ string getElementSymbol(const std::string& ename)
 
 string getElementSymbol(int atomicNumber)
 {
-    int num = numElementsDefined();
+    int num = static_cast<int>(numElementsDefined());
     if (atomicNumber > num || atomicNumber < 1) {
         throw IndexError("getElementSymbol", "atomicWeightTable", atomicNumber, num);
     }
@@ -334,7 +334,7 @@ string getElementName(const std::string& ename)
 
 string getElementName(int atomicNumber)
 {
-    int num = numElementsDefined();
+    int num = static_cast<int>(numElementsDefined());
     if (atomicNumber > num || atomicNumber < 1) {
         throw IndexError("getElementName", "atomicWeightTable", atomicNumber, num);
     }
@@ -349,9 +349,9 @@ int getAtomicNumber(const std::string& ename)
     string name = toLowerCopy(symbol);
     for (size_t i = 0; i < numElements; i++) {
         if (symbol == atomicWeightTable[i].symbol) {
-            return i + 1;
+            return static_cast<int>(i) + 1;
         } else if (name == atomicWeightTable[i].fullName) {
-            return i + 1;
+            return static_cast<int>(i) + 1;
         }
     }
     for (size_t i = 0; i < numIsotopes; i++) {

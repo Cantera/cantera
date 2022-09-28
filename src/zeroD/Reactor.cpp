@@ -351,7 +351,9 @@ Eigen::SparseMatrix<double> Reactor::finiteDifferenceJacobian()
             double ydotPerturbed = rhsPerturbed[i] / lhsPerturbed[i];
             double ydotCurrent = rhsCurrent[i] / lhsCurrent[i];
             if (ydotCurrent != ydotPerturbed) {
-                m_jac_trips.emplace_back(i, j, (ydotPerturbed - ydotCurrent) / delta_y);
+                m_jac_trips.emplace_back(
+                    static_cast<int>(i), static_cast<int>(j),
+                    (ydotPerturbed - ydotCurrent) / delta_y);
             }
         }
     }

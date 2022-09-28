@@ -24,7 +24,7 @@ void MoleReactor::getSurfaceInitialConditions(double* y)
     for (auto& S : m_surfaces) {
         double area = S->area();
         auto currPhase = S->thermo();
-        double tempLoc = currPhase->nSpecies();
+        size_t tempLoc = currPhase->nSpecies();
         double surfDensity = currPhase->siteDensity();
         S->getCoverages(y + loc);
         // convert coverages to moles
@@ -49,7 +49,7 @@ void MoleReactor::updateSurfaceState(double* y)
         auto surf = S->thermo();
         double invArea = 1/S->area();
         double invSurfDensity = 1/surf->siteDensity();
-        double tempLoc = surf->nSpecies();
+        size_t tempLoc = surf->nSpecies();
         for (size_t i = 0; i < tempLoc; i++) {
             coverages[i + loc] = y[i + loc] * invArea * surf->size(i) * invSurfDensity;
         }
