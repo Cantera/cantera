@@ -428,7 +428,7 @@ config_options = [
         """Environment variables to propagate through to SCons. Either the
            string 'all' or a comma separated list of variable names, for example,
            'LD_LIBRARY_PATH,HOME'.""",
-        "PATH,LD_LIBRARY_PATH,DYLD_LIBRARY_PATH,PYTHONPATH"),
+        "PATH,LD_LIBRARY_PATH,DYLD_LIBRARY_PATH,PYTHONPATH,USERPROFILE"),
     BoolOption(
         "use_pch",
         "Use a precompiled-header to speed up compilation",
