@@ -172,7 +172,10 @@ Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian()
     // add to preconditioner
     for (int k=0; k<speciesDervs.outerSize(); ++k) {
         for (Eigen::SparseMatrix<double>::InnerIterator it(speciesDervs, k); it; ++it) {
-            m_jac_trips.emplace_back(it.row() + m_sidx, it.col() + m_sidx, it.value());
+            m_jac_trips.emplace_back(
+                static_cast<int>(it.row() + m_sidx),
+                static_cast<int>(it.col() + m_sidx),
+                it.value());
         }
     }
     // Temperature Derivatives
@@ -199,7 +202,8 @@ Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian()
         for (size_t j = 0; j < m_nv; j++) {
             double ydotPerturbed = rhsPerturbed[j] / lhsPerturbed[j];
             double ydotCurrent = rhsCurrent[j] / lhsCurrent[j];
-            m_jac_trips.emplace_back(j, 0, (ydotPerturbed - ydotCurrent) / deltaTemp);
+            m_jac_trips.emplace_back(static_cast<int>(j), 0,
+                                     (ydotPerturbed - ydotCurrent) / deltaTemp);
         }
         // find derivatives d T_dot/dNj
         vector_fp specificHeat(m_nsp);
@@ -236,7 +240,7 @@ Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian()
                 ukdnkdnjSum += internal_energy[k] * speciesDervs.coeff(k, j);
             }
             // set appropriate column of preconditioner
-            m_jac_trips.emplace_back(0, j + m_sidx,
+            m_jac_trips.emplace_back(0, static_cast<int>(j + m_sidx),
                 (ukdwdCtotSum - ukdnkdnjSum + specificHeat[j] * uknkSum / totalCv) / totalCv);
         }
     }

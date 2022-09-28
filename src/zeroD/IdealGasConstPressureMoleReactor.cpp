@@ -144,7 +144,8 @@ Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian()
     // which is small and would completely destroy the sparsity of the Jacobian
     for (int k = 0; k < dwdX.outerSize(); k++) {
         for (Eigen::SparseMatrix<double>::InnerIterator it(dwdX, k); it; ++it) {
-            m_jac_trips.emplace_back(it.row() + m_sidx, it.col() + m_sidx,
+            m_jac_trips.emplace_back(static_cast<int>(it.row() + m_sidx),
+                                     static_cast<int>(it.col() + m_sidx),
                                      it.value() * molarVolume);
         }
     }
@@ -171,7 +172,8 @@ Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian()
         for (size_t j = 0; j < m_nv; j++) {
             double ydotPerturbed = rhsPerturbed[j] / lhsPerturbed[j];
             double ydotCurrent = rhsCurrent[j] / lhsCurrent[j];
-            m_jac_trips.emplace_back(j, 0, (ydotPerturbed - ydotCurrent) / deltaTemp);
+            m_jac_trips.emplace_back(static_cast<int>(j), 0,
+                                     (ydotPerturbed - ydotCurrent) / deltaTemp);
         }
         // d T_dot/dnj
         Eigen::VectorXd specificHeat(m_nsp);
@@ -188,8 +190,8 @@ Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian()
         // determine derivatives
         // spans columns
         Eigen::VectorXd hkdwkdnjSum = enthalpy.transpose() * dwdX;
-        for (int j = 0; j < m_nsp; j++) {
-            m_jac_trips.emplace_back(0, j + m_sidx,
+        for (size_t j = 0; j < m_nsp; j++) {
+            m_jac_trips.emplace_back(0, static_cast<int>(j + m_sidx),
                 ((specificHeat[j] - cp_mole) * m_vol * qdot
                  - m_vol * cp_mole * hkdwkdnjSum[j]
                  + totalCp * hk_dwdot_dC_sum) / (totalCp * totalCp));
