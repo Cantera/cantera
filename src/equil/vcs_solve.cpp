@@ -1326,10 +1326,8 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
             }
 
             // Now possibly dampen the estimate.
-            double sumADel = 0.0;
             for (size_t k = 0; k < nsp; k++) {
                 delFrac[k] = fracDelta_raw[k] - fracDelta_old[k];
-                sumADel += fabs(delFrac[k]);
             }
             normUpdate = vcs_l2norm(delFrac);
 

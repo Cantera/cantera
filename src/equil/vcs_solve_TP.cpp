@@ -2962,7 +2962,6 @@ double VCS_SOLVE::vcs_tmoles()
 
 void VCS_SOLVE::check_tmoles() const
 {
-    double sum = 0.0;
     for (size_t i = 0; i < m_numPhases; i++) {
         double m_tPhaseMoles_old_a = TPhInertMoles[i];
 
@@ -2971,7 +2970,6 @@ void VCS_SOLVE::check_tmoles() const
                 m_tPhaseMoles_old_a += m_molNumSpecies_old[k];
             }
         }
-        sum += m_tPhaseMoles_old_a;
 
         double denom = m_tPhaseMoles_old[i]+ m_tPhaseMoles_old_a + 1.0E-19;
         if (!vcs_doubleEqual(m_tPhaseMoles_old[i]/denom, m_tPhaseMoles_old_a/denom)) {

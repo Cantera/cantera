@@ -151,11 +151,9 @@ void IonFlow::electricFieldMethod(const double* x, size_t j0, size_t j1)
         double dz = z(j+1) - z(j);
 
         // mixture-average diffusion
-        double sum = 0.0;
         for (size_t k = 0; k < m_nsp; k++) {
             m_flux(k,j) = m_wt[k]*(rho*m_diff[k+m_nsp*j]/wtm);
             m_flux(k,j) *= (X(x,k,j) - X(x,k,j+1))/dz;
-            sum -= m_flux(k,j);
         }
 
         // ambipolar diffusion
