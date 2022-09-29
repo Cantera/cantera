@@ -3,6 +3,7 @@
 
 from dataclasses import dataclass
 from pathlib import Path
+from typing import List
 import re
 from ._helpers import with_unpack_iter
 
@@ -23,7 +24,7 @@ class Func:
 
     ret_type: str
     name: str
-    params: list[Param]
+    params: List[Param]
 
 
 @dataclass(frozen=True)
@@ -32,4 +33,4 @@ class HeaderFile:
     """Represents information about a parsed C header file"""
 
     path: Path
-    funcs: list[Func]
+    funcs: List[Func]

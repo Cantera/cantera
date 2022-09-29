@@ -3,6 +3,7 @@
 
 from pathlib import Path
 import re
+from typing import List
 
 from ._dataclasses import HeaderFile, Func, Param
 
@@ -28,7 +29,7 @@ class HeaderFileParser:
         name = front[-1]
         return Func(ret_type, name, params)
 
-    def __init__(self, path: Path, ignore_funcs: list[str] = None):
+    def __init__(self, path: Path, ignore_funcs: List[str] = None):
         self._path = path
         self._ignore_funcs = ignore_funcs
 
