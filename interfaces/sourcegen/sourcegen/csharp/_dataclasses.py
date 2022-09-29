@@ -2,6 +2,7 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 from dataclasses import dataclass
+from typing import Union
 
 from .._helpers import with_unpack_iter
 from .._dataclasses import Func
@@ -13,4 +14,4 @@ class CsFunc(Func):
     """Represents a C# interop method"""
 
     is_handle_release_func: bool
-    handle_class_name: str | None
+    handle_class_name: Union[str, None]

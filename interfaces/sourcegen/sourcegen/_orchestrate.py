@@ -4,6 +4,7 @@
 import importlib
 import inspect
 from pathlib import Path
+from typing import List, Dict
 import ruamel.yaml
 
 from ._HeaderFileParser import HeaderFileParser
@@ -24,8 +25,8 @@ def generate_source(lang: str, out_dir: str):
         with config_path.open() as config_file:
             config = ruamel.yaml.safe_load(config_file)
 
-    ignore_files: list[str] = config.get("ignore_files", [])
-    ignore_funcs: dict[str, list[str]] = config.get("ignore_funcs", {})
+    ignore_files: List[str] = config.get("ignore_files", [])
+    ignore_funcs: Dict[str, List[str]] = config.get("ignore_funcs", {})
 
     files = (HeaderFileParser(f, ignore_funcs.get(f.name, [])).parse()
         for f in _clib_path.glob("*.h")

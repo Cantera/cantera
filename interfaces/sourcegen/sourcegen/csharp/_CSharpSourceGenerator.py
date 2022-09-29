@@ -3,6 +3,7 @@
 
 from itertools import starmap
 from pathlib import Path
+from typing import List, Dict
 import re
 
 from ._dataclasses import CsFunc
@@ -16,7 +17,7 @@ class CSharpSourceGenerator(SourceGenerator):
     """The SourceGenerator for scaffolding C# files for the .NET interface"""
 
     @staticmethod
-    def _join_params(params: list[Param]) -> str:
+    def _join_params(params: List[Param]) -> str:
         return ", ".join(p.p_type + " " + p.name for p in params)
 
     def _get_interop_func_text(self, func: CsFunc) -> str:
@@ -49,7 +50,7 @@ class CSharpSourceGenerator(SourceGenerator):
 
 
     def _get_property_text(self, clib_area: str, c_name: str, cs_name: str,
-                           known_funcs: dict[str, CsFunc]) -> str:
+                           known_funcs: Dict[str, CsFunc]) -> str:
         getter = known_funcs.get(clib_area + "_" + c_name)
 
         if getter:
@@ -193,7 +194,7 @@ class CSharpSourceGenerator(SourceGenerator):
 
         self._out_dir.joinpath(filename).write_text(contents)
 
-    def _scaffold_interop(self, header_file_path: Path, cs_funcs: list[CsFunc]):
+    def _scaffold_interop(self, header_file_path: Path, cs_funcs: List[CsFunc]):
         functions_text = "\n\n".join(map(self._get_interop_func_text, cs_funcs))
 
         interop_text = normalize_indent(f"""
@@ -212,7 +213,7 @@ class CSharpSourceGenerator(SourceGenerator):
         self._write_file("Interop.LibCantera." + header_file_path.name + ".g.cs",
             interop_text)
 
-    def _scaffold_handles(self, header_file_path: Path, handles: dict[str, str]):
+    def _scaffold_handles(self, header_file_path: Path, handles: Dict[str, str]):
         handles_text = "\n\n".join(starmap(self._get_base_handle_text, handles.items()))
 
         handles_text = normalize_indent(f"""
@@ -240,8 +241,8 @@ class CSharpSourceGenerator(SourceGenerator):
 
         self._write_file("Interop.Handles.g.cs", derived_handles_text)
 
-    def _scaffold_wrapper_class(self, clib_area: str, props: dict[str, str],
-                                known_funcs: dict[str, CsFunc]):
+    def _scaffold_wrapper_class(self, clib_area: str, props: Dict[str, str],
+                                known_funcs: Dict[str, CsFunc]):
         wrapper_class_name = self._get_wrapper_class_name(clib_area)
         handle_class_name = self._get_handle_class_name(clib_area)
 
@@ -277,10 +278,10 @@ class CSharpSourceGenerator(SourceGenerator):
 
         self._write_file(wrapper_class_name + ".g.cs", wrapper_class_text)
 
-    def generate_source(self, headers_files: list[HeaderFile]):
+    def generate_source(self, headers_files: List[HeaderFile]):
         self._out_dir.mkdir(parents=True, exist_ok=True)
 
-        known_funcs: dict[str, list[CsFunc]] = {}
+        known_funcs: Dict[str, List[CsFunc]] = {}
 
         for header_file in headers_files:
             cs_funcs = list(map(self._convert_func, header_file.funcs))
