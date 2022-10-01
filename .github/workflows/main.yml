@@ -53,6 +53,13 @@ jobs:
       run: python3 -m pip install typing_extensions
     - name: Build Cantera
       run: python3 `which scons` build env_vars=all -j2 debug=n --debug=time
+    - name: Upload shared library
+      uses: actions/upload-artifact@v3
+      if: matrix.python-version == '3.10' && matrix.os == 'ubuntu-22.04'
+      with:
+        path: build/lib/libcantera_shared.so
+        name: libcantera_shared.so
+        retention-days: 2
     - name: Test Cantera
       run:
         python3 `which scons` test show_long_tests=yes verbose_tests=yes --debug=time
@@ -122,6 +129,13 @@ jobs:
       run: python3 -m pip install typing_extensions
     - name: Build Cantera
       run: scons build env_vars=all -j3 debug=n --debug=time
+    - name: Upload shared library
+      uses: actions/upload-artifact@v3
+      if: matrix.python-version == '3.10'
+      with:
+        path: build/lib/libcantera_shared.dylib
+        name: libcantera_shared.dylib
+        retention-days: 2
     - name: Test Cantera
       run:
         scons test show_long_tests=yes verbose_tests=yes --debug=time
@@ -153,6 +167,10 @@ jobs:
     - name: Install Python dependencies
       run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas scipy pytest
         pytest-github-actions-annotate-failures pytest-cov gcovr
+    - name: Setup .NET Core SDK
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '6.x'
     - name: Build Cantera
       run: |
         python3 `which scons` build blas_lapack_libs=lapack,blas coverage=y \
@@ -161,6 +179,12 @@ jobs:
     - name: Test Cantera
       run:
         python3 `which scons` test show_long_tests=yes verbose_tests=yes --debug=time
+    - name: Build the .NET interface
+      run: dotnet build
+      working-directory: interfaces/dotnet
+    - name: Test the .NET interface
+      run: dotnet test
+      working-directory: interfaces/dotnet
     - name: Process coverage files
       run: |
         gcovr --root . --exclude-unreachable-branches --exclude-throw-branches \
@@ -422,6 +446,13 @@ jobs:
       run: scons build system_eigen=y system_yamlcpp=y logging=debug
         msvc_version=${{ matrix.vs-toolset }} f90_interface=n debug=n --debug=time -j2
       shell: pwsh
+    - name: Upload shared library
+      uses: actions/upload-artifact@v3
+      if: matrix.python-version == '3.10'
+      with:
+        path: build/lib/cantera_shared.dll
+        name: cantera_shared.dll
+        retention-days: 2
     - name: Test Cantera
       run: scons test show_long_tests=yes verbose_tests=yes --debug=time
       shell: pwsh
@@ -642,3 +673,61 @@ jobs:
       shell: cmd
     - name: Test Cantera
       run: scons test show_long_tests=yes verbose_tests=yes --debug=time
+
+  dotnet:
+    name: .NET on ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-22.04, windows-2022, macos-11]
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+    needs: [ubuntu-multiple-pythons, macos-multiple-pythons, windows-2022]
+    timeout-minutes: 60
+    steps:
+    - uses: actions/checkout@v2
+      name: Checkout the repository
+    - name: Set up conda
+      uses: conda-incubator/setup-miniconda@v2
+      with:
+        auto-update-conda: true
+        python-version: "3.10"
+        mamba-version: "*"
+        activate-environment: test
+        channels: conda-forge,defaults
+        channel-priority: true
+    - name: Install Python dependencies
+      run: python3 -m pip install ruamel.yaml
+    - name: Install library dependencies with Conda (Windows)
+      run: mamba install -q yaml-cpp mkl
+      shell: pwsh
+      if: matrix.os == 'windows-2022'
+    - name: Setup .NET Core SDK
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '6.x'
+    - name: Download the Cantera shared library (.so)
+      uses: actions/download-artifact@v3
+      with:
+        name: libcantera_shared.so
+        path: build/lib
+    - name: Download the Cantera shared library (.dylib)
+      uses: actions/download-artifact@v3
+      with:
+        name: libcantera_shared.dylib
+        path: build/lib
+    - name: Download the Cantera shared library (.dll)
+      uses: actions/download-artifact@v3
+      with:
+        name: cantera_shared.dll
+        path: build/lib
+    - name: Build the .NET interface
+      run: dotnet build
+      working-directory: interfaces/dotnet
+    - name: Test the .NET interface
+      run: dotnet test
+      working-directory: interfaces/dotnet
+    - name: Run the .NET samples
+      run: |
+        dotnet run --project examples/Application
+        dotnet run --project examples/SoundSpeed
+      working-directory: interfaces/dotnet
