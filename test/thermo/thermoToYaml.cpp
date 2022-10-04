@@ -144,7 +144,7 @@ TEST_F(ThermoToYaml, Edge)
 TEST_F(ThermoToYaml, CoverageDependentSurface)
 {
     setup("copt_covdepsurf_example.yaml", "covdep");
-    EXPECT_EQ(data["thermo"], "ideal-surface");
+    EXPECT_EQ(data["thermo"], "coverage-dependent-surface");
     EXPECT_DOUBLE_EQ(data["site-density"].asDouble(), 2.72e-8);
     EXPECT_DOUBLE_EQ(data["reference-state-coverage"].asDouble(), 0.22);
     UnitSystem us;

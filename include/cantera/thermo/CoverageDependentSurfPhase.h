@@ -225,6 +225,10 @@ public:
     explicit CoverageDependentSurfPhase(const std::string& infile="",
                                         const std::string& id="");
 
+    virtual std::string type() const {
+        return "coverage-dependent-surface";
+    }
+
     //! Add interpolative coverage dependece parameters for a species
     /*!
      *  @param int_deps  list of parameters as an InterpolativeDependency object
