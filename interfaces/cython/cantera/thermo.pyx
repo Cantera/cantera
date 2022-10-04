@@ -19,6 +19,7 @@ cdef enum ThermoBasisType:
     molar_basis = 1
 
 ctypedef CxxPlasmaPhase* CxxPlasmaPhasePtr
+ctypedef CxxSurfPhase* CxxSurfPhasePtr
 
 class ThermoModelMethodError(Exception):
     """Exception raised for an invalid method used by a thermo model
@@ -1874,7 +1875,7 @@ cdef class InterfacePhase(ThermoPhase):
     def __cinit__(self, *args, **kwargs):
         if not kwargs.get("init", True):
             return
-        if pystr(self.thermo.type()) not in ("ideal-surface", "edge"):
+        if not dynamic_cast[CxxSurfPhasePtr](self.thermo):
             raise TypeError('Underlying ThermoPhase object is of the wrong type.')
         self.surf = <CxxSurfPhase*>(self.thermo)
 
