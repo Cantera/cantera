@@ -287,7 +287,16 @@ public:
      */
     int phaseStability(const size_t iphase) const;
 
-    double InterfaceCurrent(int iPhase);
+    //! Gets the interface current for the ith phaseExistence
+    /*!
+    * @param iphase Phase Id
+    * @return The double specifying the interface current. The interface Current
+    *         is useful when charge transfer reactions occur at an interface. It
+    *         is defined here as the net positive charge entering the phase
+    *         specified by the Phase Id. (Units: A/m^2 for a surface reaction,
+    *         A/m for an edge reaction).
+    */
+    double InterfaceCurrent(const size_t iphase);
 
 protected:
     //! Temporary work vector of length m_kk

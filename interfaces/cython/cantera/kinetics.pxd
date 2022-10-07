@@ -69,7 +69,7 @@ cdef extern from "cantera/kinetics/InterfaceKinetics.h":
     cdef cppclass CxxInterfaceKinetics "Cantera::InterfaceKinetics":
         void advanceCoverages(double, double, double, double, size_t, size_t) except +translate_exception
         void solvePseudoSteadyStateProblem() except +translate_exception
-        double InterfaceCurrent(int) except +translate_exception
+        double InterfaceCurrent(size_t) except +translate_exception
 
 
 cdef extern from "cantera/cython/kinetics_utils.h":
