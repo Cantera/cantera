@@ -886,8 +886,8 @@ cdef class InterfaceKinetics(Kinetics):
         an interface. It is defined here as the net positive charge entering the
         phase ``phase`` (Units: A/m^2 for a surface, A/m for an edge reaction).
         """
-        iPhase = self.phase_index(phase)
-        return (<CxxInterfaceKinetics*>self.kinetics).InterfaceCurrent(iPhase)
+        i_phase = self.phase_index(phase)
+        return (<CxxInterfaceKinetics*>self.kinetics).InterfaceCurrent(i_phase)
 
     def write_yaml(self, filename, phases=None, units=None, precision=None,
                    skip_user_defined=None):
