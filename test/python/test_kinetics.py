@@ -1080,13 +1080,16 @@ class TestLithiumIonBatteryKinetics(utilities.CanteraTest):
         anode.electric_potential = 0.
         elyte.electric_potential = 3.
 
-        species_productions = anode_int.get_net_production_rates(elyte)
-        species_charges = elyte.charges
+        phases = [anode_int, anode, elect, elyte]
 
-        method = anode_int.interface_current(elyte)
-        manual = sum(species_productions*species_charges)*ct.faraday
+        for p in phases:
+            productions = anode_int.get_net_production_rates(p)
+            charges = p.charges
 
-        self.assertEqual(method,manual)
+            method = anode_int.interface_current(p)
+            manual = sum(productions*charges)*ct.faraday
+
+            self.assertEqual(method,manual)
 
 
 class TestDuplicateReactions(utilities.CanteraTest):

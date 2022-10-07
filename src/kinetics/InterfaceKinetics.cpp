@@ -595,4 +595,30 @@ void InterfaceKinetics::setPhaseStability(const size_t iphase, const int isStabl
     }
 }
 
+double InterfaceKinetics::InterfaceCurrent(int iPhase)
+{
+    int sp = thermo(iPhase).nSpecies();
+    double charge_k[sp];
+    double net_k[sp];
+    doublereal netprods[m_kk];
+
+    thermo(iPhase).getCharges(charge_k);
+
+    getNetProductionRates(netprods);
+
+    for(int k=0; k<sp; k++)
+    {
+        net_k[k] = netprods[m_start[iPhase]+k];
+    }
+
+    double out = 0.0;
+
+    for(int k=0; k<sp; k++)
+    {
+        out += charge_k[k]*net_k[k];
+    }
+
+    return out*Faraday;
+}
+
 }

@@ -885,9 +885,10 @@ cdef class InterfaceKinetics(Kinetics):
         """
         The interface current is useful when charge transfer reactions occur at
         an interface. It is defined here as the net positive charge entering the
-        phase ``phase`` (Units: A/m^2).
+        phase ``phase`` (Units: A/m^2 for a surface, A/m for an edge reaction).
         """
-        return sum(self.get_net_production_rates(phase)*phase.charges)*faraday
+        iPhase = self.phase_index(phase)
+        return (<CxxInterfaceKinetics*>self.kinetics).InterfaceCurrent(iPhase)
 
     def write_yaml(self, filename, phases=None, units=None, precision=None,
                    skip_user_defined=None):
