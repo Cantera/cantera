@@ -287,6 +287,8 @@ public:
      */
     int phaseStability(const size_t iphase) const;
 
+    double InterfaceCurrent(int iPhase);
+
 protected:
     //! Temporary work vector of length m_kk
     vector_fp m_grt;
