@@ -6,7 +6,6 @@ import warnings
 cimport numpy as np
 import numpy as np
 
-from .constants import *
 from .reaction cimport *
 from ._utils cimport *
 from . import _utils
