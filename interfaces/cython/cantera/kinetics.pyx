@@ -887,7 +887,7 @@ cdef class InterfaceKinetics(Kinetics):
         phase ``phase`` (Units: A/m^2 for a surface, A/m for an edge reaction).
         """
         i_phase = self.phase_index(phase)
-        return (<CxxInterfaceKinetics*>self.kinetics).InterfaceCurrent(i_phase)
+        return (<CxxInterfaceKinetics*>self.kinetics).interfaceCurrent(i_phase)
 
     def write_yaml(self, filename, phases=None, units=None, precision=None,
                    skip_user_defined=None):
