@@ -287,7 +287,7 @@ public:
      */
     int phaseStability(const size_t iphase) const;
 
-    //! Gets the interface current for the ith phaseExistence
+    //! Gets the interface current for the ith phase
     /*!
     * @param iphase Phase Id
     * @return The double specifying the interface current. The interface Current
@@ -296,7 +296,7 @@ public:
     *         specified by the Phase Id. (Units: A/m^2 for a surface reaction,
     *         A/m for an edge reaction).
     */
-    double InterfaceCurrent(const size_t iphase);
+    double interfaceCurrent(const size_t iphase);
 
 protected:
     //! Temporary work vector of length m_kk

@@ -595,30 +595,21 @@ void InterfaceKinetics::setPhaseStability(const size_t iphase, const int isStabl
     }
 }
 
-double InterfaceKinetics::InterfaceCurrent(const size_t iphase)
+double InterfaceKinetics::interfaceCurrent(const size_t iphase)
 {
-    int nSp = thermo(iphase).nSpecies();
-    double charge_k[nSp];
-    double sdot_k[nSp];
-    doublereal netProdRates[m_kk];
-
-    thermo(iphase).getCharges(charge_k);
-
-    getNetProductionRates(netProdRates);
-
-    for(int k=0; k<nSp; k++)
-    {
-        sdot_k[k] = netProdRates[m_start[iphase]+k];
-    }
-
+    vector_fp charges(m_kk, 0.0);
+    vector_fp netProdRates(m_kk, 0.0);
     double dotProduct = 0.0;
 
-    for(int k=0; k<nSp; k++)
+    thermo(iphase).getCharges(charges.data());
+    getNetProductionRates(netProdRates.data());
+
+    for(size_t k=0; k < thermo(iphase).nSpecies(); k++)
     {
-        dotProduct += charge_k[k]*sdot_k[k];
+        dotProduct += charges[k] * netProdRates[m_start[iphase] + k];
     }
 
-    return dotProduct*Faraday;
+    return dotProduct * Faraday;
 }
 
 }
