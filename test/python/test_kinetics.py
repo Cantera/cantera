@@ -1087,9 +1087,9 @@ class TestLithiumIonBatteryKinetics(utilities.CanteraTest):
             charges = p.charges
 
             method = anode_int.interface_current(p)
-            manual = sum(net_prod_rates*charges)*ct.faraday
+            manual = sum(net_prod_rates * charges) * ct.faraday
 
-            self.assertEqual(method,manual)
+            self.assertEqual(method, manual)
 
 
 class TestDuplicateReactions(utilities.CanteraTest):
