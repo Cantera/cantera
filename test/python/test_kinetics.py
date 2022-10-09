@@ -1069,10 +1069,10 @@ class TestLithiumIonBatteryKinetics(utilities.CanteraTest):
         file = "lithium_ion_battery.yaml"
 
         # The 'elde' electrode phase is needed as a source/sink for electrons:
-        anode = ct.Solution(file,"anode")
-        elect = ct.Solution(file,"electron")
-        elyte = ct.Solution(file,"electrolyte")
-        anode_int = ct.Interface(file,"edge_anode_electrolyte",[anode,elect,elyte])
+        anode = ct.Solution(file, "anode")
+        elect = ct.Solution(file, "electron")
+        elyte = ct.Solution(file, "electrolyte")
+        anode_int = ct.Interface(file, "edge_anode_electrolyte", [anode, elect, elyte])
 
         anode.X = [0.9, 0.1]
         elyte.X = [0.4, 0.3, 0.15, 0.15]
