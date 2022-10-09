@@ -604,7 +604,7 @@ double InterfaceKinetics::interfaceCurrent(const size_t iphase)
     thermo(iphase).getCharges(charges.data());
     getNetProductionRates(netProdRates.data());
 
-    for(size_t k=0; k < thermo(iphase).nSpecies(); k++)
+    for (size_t k = 0; k < thermo(iphase).nSpecies(); k++)
     {
         dotProduct += charges[k] * netProdRates[m_start[iphase] + k];
     }
