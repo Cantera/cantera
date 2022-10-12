@@ -276,20 +276,6 @@ double PlasmaPhase::enthalpy_mole() const {
     return value;
 }
 
-double PlasmaPhase::entropy_mole() const {
-    warn_user("PlasmaPhase::entropy_mole",
-              "Use the same equation of IdealGasPhase::entropy_mole "
-              "which is not correct for plasma.");
-    return IdealGasPhase::entropy_mole();
-}
-
-double PlasmaPhase::gibbs_mole() const {
-    warn_user("PlasmaPhase::gibbs_mole",
-              "Use the same equation of IdealGasPhase::gibbs_mole "
-              "which is not correct for plasma.");
-    return IdealGasPhase::gibbs_mole();
-}
-
 void PlasmaPhase::getGibbs_ref(double* g) const
 {
     IdealGasPhase::getGibbs_ref(g);
@@ -302,26 +288,18 @@ void PlasmaPhase::getStandardVolumes_ref(double* vol) const
     vol[m_electronSpeciesIndex] *= electronTemperature() / temperature();
 }
 
-void PlasmaPhase::getStandardChemPotentials(double* muStar) const
-{
-    warn_user("PlasmaPhase::getStandardChemPotentials",
-              "Use the same equation of IdealGasPhase::getStandardChemPotentials "
-              "which is not correct for plasma.");
-    IdealGasPhase::getStandardChemPotentials(muStar);
-}
-
-void PlasmaPhase::getChemPotentials(double* mu) const
-{
-    warn_user("PlasmaPhase::getChemPotentials",
-              "Use the same equation of IdealGasPhase::getChemPotentials "
-              "which is not correct for plasma.");
-    IdealGasPhase::getChemPotentials(mu);
-}
-
 void PlasmaPhase::getPartialMolarEnthalpies(double* hbar) const
 {
     IdealGasPhase::getPartialMolarEnthalpies(hbar);
     hbar[m_electronSpeciesIndex] *= electronTemperature() / temperature();
+}
+
+void PlasmaPhase::getPartialMolarEntropies(double* sbar) const
+{
+    IdealGasPhase::getPartialMolarEntropies(sbar);
+    double logp = log(pressure());
+    double logpe = log(electronPressure());
+    sbar[m_electronSpeciesIndex] += GasConstant * (logp - logpe);
 }
 
 void PlasmaPhase::getPartialMolarIntEnergies(double* ubar) const
@@ -332,6 +310,50 @@ void PlasmaPhase::getPartialMolarIntEnergies(double* ubar) const
     }
     size_t k = m_electronSpeciesIndex;
     ubar[k] = RTe() * (_h[k] - 1.0);
+}
+
+void PlasmaPhase::getChemPotentials(double* mu) const
+{
+    IdealGasPhase::getChemPotentials(mu);
+    size_t k = m_electronSpeciesIndex;
+    double xx = std::max(SmallNumber, moleFraction(k));
+    mu[k] += (RTe() - RT()) * log(xx);
+}
+
+void PlasmaPhase::getStandardChemPotentials(double* muStar) const
+{
+    IdealGasPhase::getStandardChemPotentials(muStar);
+    size_t k = m_electronSpeciesIndex;
+    muStar[k] -= log(pressure() / refPressure()) * RT();
+    muStar[k] += log(electronPressure() / refPressure()) * RTe();
+}
+
+void PlasmaPhase::getEntropy_R(double* sr) const
+{
+    const vector_fp& _s = entropy_R_ref();
+    copy(_s.begin(), _s.end(), sr);
+    double tmp = log(pressure() / refPressure());
+    for (size_t k = 0; k < m_kk; k++) {
+        if (k != m_electronSpeciesIndex) {
+            sr[k] -= tmp;
+        } else {
+            sr[k] -= log(electronPressure() / refPressure());
+        }
+    }
+}
+
+void PlasmaPhase::getGibbs_RT(double* grt) const
+{
+    const vector_fp& gibbsrt = gibbs_RT_ref();
+    copy(gibbsrt.begin(), gibbsrt.end(), grt);
+    double tmp = log(pressure() / refPressure());
+    for (size_t k = 0; k < m_kk; k++) {
+        if (k != m_electronSpeciesIndex) {
+            grt[k] += tmp;
+        } else {
+            grt[k] += log(electronPressure() / refPressure());
+        }
+    }
 }
 
 }
