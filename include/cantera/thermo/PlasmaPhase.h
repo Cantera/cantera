@@ -228,19 +228,37 @@ public:
      */
     virtual double enthalpy_mole() const;
 
-    virtual double entropy_mole() const;
+    virtual double cp_mole() const {
+        throw NotImplementedError("PlasmaPhase::cp_mole");
+    }
 
-    virtual double gibbs_mole() const;
+    virtual double entropy_mole() const {
+        throw NotImplementedError("PlasmaPhase::entropy_mole");
+    }
+
+    virtual double gibbs_mole() const {
+        throw NotImplementedError("PlasmaPhase::gibbs_mole");
+    }
+
+    virtual double intEnergy_mole() const {
+        throw NotImplementedError("PlasmaPhase::intEnergy_mole");
+    }
+
+    virtual void getEntropy_R(double* sr) const;
+
+    virtual void getGibbs_RT(double* grt) const;
 
     virtual void getGibbs_ref(double* g) const;
 
     virtual void getStandardVolumes_ref(double* vol) const;
 
-    virtual void getStandardChemPotentials(double* mu) const;
-
     virtual void getChemPotentials(double* mu) const;
 
+    virtual void getStandardChemPotentials(double* muStar) const;
+
     virtual void getPartialMolarEnthalpies(double* hbar) const;
+
+    virtual void getPartialMolarEntropies(double* sbar) const;
 
     virtual void getPartialMolarIntEnergies(double* ubar) const;
 

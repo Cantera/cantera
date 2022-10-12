@@ -121,16 +121,26 @@ map<pair<string, string>, shared_ptr<ThermoPhase>> TestConsistency::cache = {};
 // --------------- Definitions for individual consistency tests ---------------
 
 TEST_P(TestConsistency, h_eq_u_plus_Pv) {
-    double h = phase->enthalpy_mole();
-    double u = phase->intEnergy_mole();
-    double v = phase->molarVolume();
+    double h, u, v;
+    try {
+        h = phase->enthalpy_mole();
+        u = phase->intEnergy_mole();
+        v = phase->molarVolume();
+    } catch (NotImplementedError& err) {
+        GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
+    }
     EXPECT_NEAR(h, u + p * v, atol);
 }
 
 TEST_P(TestConsistency, g_eq_h_minus_Ts) {
-    double g = phase->gibbs_mole();
-    double h = phase->enthalpy_mole();
-    double s = phase->entropy_mole();
+    double g, h, s;
+    try {
+        g = phase->gibbs_mole();
+        h = phase->enthalpy_mole();
+        s = phase->entropy_mole();
+    } catch (NotImplementedError& err) {
+        GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
+    }
     EXPECT_NEAR(g, h - T * s, atol);
 }
 
@@ -145,11 +155,9 @@ TEST_P(TestConsistency, hk_eq_uk_plus_P_vk)
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
     }
     for (size_t k = 0; k < nsp; k++) {
-        if (k == ke) {
-            EXPECT_NEAR(hk[k], uk[k] + RTe, atol) << "k = " << k;
-        } else {
+        if (k != ke) {
             EXPECT_NEAR(hk[k], uk[k] + p * vk[k], atol) << "k = " << k;
-        }
+        } // not applicable for electron
     }
 }
 
@@ -164,7 +172,9 @@ TEST_P(TestConsistency, gk_eq_hk_minus_T_sk)
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
     }
     for (size_t k = 0; k < nsp; k++) {
-        EXPECT_NEAR(gk[k], hk[k] - T * sk[k], atol) << "k = " << k;
+        if (k != ke) {
+            EXPECT_NEAR(gk[k], hk[k] - T * sk[k], atol) << "k = " << k;
+        } // not applicable for electron
     }
 }
 
@@ -182,34 +192,40 @@ TEST_P(TestConsistency, h_eq_sum_hk_Xk)
 TEST_P(TestConsistency, u_eq_sum_uk_Xk)
 {
     vector_fp uk(nsp);
+    double u;
     try {
         phase->getPartialMolarIntEnergies(uk.data());
+        u = phase->intEnergy_mole();
     } catch (NotImplementedError& err) {
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
     }
-    EXPECT_NEAR(phase->intEnergy_mole(), phase->mean_X(uk), atol);
+    EXPECT_NEAR(u, phase->mean_X(uk), atol);
 }
 
 TEST_P(TestConsistency, g_eq_sum_gk_Xk)
 {
     vector_fp gk(nsp);
+    double g;
     try {
         phase->getChemPotentials(gk.data());
+        g = phase->gibbs_mole();
     } catch (NotImplementedError& err) {
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
     }
-    EXPECT_NEAR(phase->gibbs_mole(), phase->mean_X(gk), atol);
+    EXPECT_NEAR(g, phase->mean_X(gk), atol);
 }
 
 TEST_P(TestConsistency, s_eq_sum_sk_Xk)
 {
     vector_fp sk(nsp);
+    double s;
     try {
         phase->getPartialMolarEntropies(sk.data());
+        s = phase->entropy_mole();
     } catch (NotImplementedError& err) {
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
     }
-    EXPECT_NEAR(phase->entropy_mole(), phase->mean_X(sk), atol);
+    EXPECT_NEAR(s, phase->mean_X(sk), atol);
 }
 
 TEST_P(TestConsistency, v_eq_sum_vk_Xk)
@@ -226,12 +242,14 @@ TEST_P(TestConsistency, v_eq_sum_vk_Xk)
 TEST_P(TestConsistency, cp_eq_sum_cpk_Xk)
 {
     vector_fp cpk(nsp);
+    double cp;
     try {
         phase->getPartialMolarCp(cpk.data());
+        cp = phase->cp_mole();
     } catch (NotImplementedError& err) {
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
     }
-    EXPECT_NEAR(phase->cp_mole(), phase->mean_X(cpk), atol);
+    EXPECT_NEAR(cp, phase->mean_X(cpk), atol);
 }
 
 TEST_P(TestConsistency, cp_eq_dhdT)
@@ -320,10 +338,15 @@ TEST_P(TestConsistency, cv_eq_dsdT_const_v_times_T)
 
 TEST_P(TestConsistency, dsdP_const_T_eq_minus_dV_dT_const_P)
 {
-    double s1 = phase->entropy_mole();
-    double P1 = phase->pressure();
-    double T1 = phase->temperature();
-    double v1 = phase->molarVolume();
+    double s1, P1, T1, v1;
+    try {
+        s1 = phase->entropy_mole();
+        P1 = phase->pressure();
+        T1 = phase->temperature();
+        v1 = phase->molarVolume();
+    } catch (NotImplementedError& err) {
+        GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
+    }
     double P2 = P1 * (1 + 1e-6);
     phase->setState_TP(T1, P2);
     double s2 = phase->entropy_mole();
@@ -339,7 +362,12 @@ TEST_P(TestConsistency, dsdP_const_T_eq_minus_dV_dT_const_P)
 
 TEST_P(TestConsistency, dSdv_const_T_eq_dPdT_const_V) {
     if (phase->isCompressible()) {
-        double s1 = phase->entropy_mass();
+        double s1;
+        try {
+            s1 = phase->entropy_mass();
+        } catch (NotImplementedError& err) {
+            GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
+        }
         double v1 = 1 / phase->density();
         double P1 = phase->pressure();
         double v2 = v1 * (1 + 1e-7);
@@ -423,7 +451,11 @@ TEST_P(TestConsistency, standard_gibbs_nondim)
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
     }
     for (size_t k = 0; k < nsp; k++) {
-        EXPECT_NEAR(g0_RT[k] * RT , mu0[k], atol) << "k = " << k;
+        if (k != ke) {
+            EXPECT_NEAR(g0_RT[k] * RT , mu0[k], atol) << "k = " << k;
+        } else {
+            EXPECT_NEAR(g0_RT[k] * RTe , mu0[k], atol) << "k = " << k;
+        }
     }
 }
 
@@ -437,9 +469,15 @@ TEST_P(TestConsistency, chem_potentials_to_activities) {
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
     }
     for (size_t k = 0; k < nsp; k++) {
-        double a_from_mu = exp((mu[k] - mu0[k]) / RT);
-        double scale = std::max(std::abs(a[k]), std::abs(a_from_mu));
-        EXPECT_NEAR(a_from_mu, a[k], 1e-9 * scale + 1e-14) << "k = " << k;
+        if (k != ke) {
+            double a_from_mu = exp((mu[k] - mu0[k]) / RT);
+            double scale = std::max(std::abs(a[k]), std::abs(a_from_mu));
+            EXPECT_NEAR(a_from_mu, a[k], 1e-9 * scale + 1e-14) << "k = " << k;
+        } else {
+            double a_from_mu = exp((mu[k] - mu0[k]) / RTe);
+            double scale = std::max(std::abs(a[k]), std::abs(a_from_mu));
+            EXPECT_NEAR(a_from_mu, a[k], 1e-9 * scale + 1e-14) << "k = " << k;
+        }
     }
 }
 
@@ -505,7 +543,11 @@ TEST_P(TestConsistency, hRef_eq_uRef_plus_P_vRef)
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
     }
     for (size_t k = 0; k < nsp; k++) {
-        EXPECT_NEAR(hRef[k] * RT, uRef[k] * RT + OneAtm * vRef[k], atol) << "k = " << k;
+        if (k != ke) {
+            EXPECT_NEAR(hRef[k] * RT, uRef[k] * RT + OneAtm * vRef[k], atol) << "k = " << k;
+        } else {
+            EXPECT_NEAR(hRef[k] * RTe, uRef[k] * RTe + OneAtm * vRef[k], atol) << "k = " << k;
+        }
     }
 }
 
@@ -521,9 +563,15 @@ TEST_P(TestConsistency, gRef_eq_hRef_minus_T_sRef)
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
     }
     for (size_t k = 0; k < nsp; k++) {
-        EXPECT_NEAR(gRef[k], gRef_RT[k] * RT, atol) << "k = " << k;
-        EXPECT_NEAR(gRef[k], hRef[k] * RT - T * sRef[k] * GasConstant,
-                    atol) << "k = " << k;
+        if (k != ke) {
+            EXPECT_NEAR(gRef[k], gRef_RT[k] * RT, atol) << "k = " << k;
+            EXPECT_NEAR(gRef[k], hRef[k] * RT - T * sRef[k] * GasConstant,
+                        atol) << "k = " << k;
+        } else {
+            EXPECT_NEAR(gRef[k], gRef_RT[k] * RTe, atol) << "k = " << k;
+            EXPECT_NEAR(gRef[k], hRef[k] * RTe - Te * sRef[k] * GasConstant,
+                        atol) << "k = " << k;
+        }
     }
 }
 
