@@ -1,523 +1,535 @@
-import numpy as np
+from contextlib import nullcontext
+import pytest
+from dataclasses import dataclass
+from typing import Optional, Tuple, Dict
 
-import cantera.with_units as ct
-from . import utilities
+import cantera.with_units as ctu
+from pint.testing import assert_allclose
 
 
-class CanteraUnitsTest(utilities.CanteraTest):
-    def assertQuantityNear(self, a, b, atol=1.0E-12, rtol=1.0E-8, msg=None):
-        if not np.isclose(a, b, atol=atol, rtol=rtol):
-            message = (
-                f"AssertNear: {a:.14g} - {b:.14g} = {a-b:.14g}\n" +
-                f"rtol = {rtol:10e}; atol = {atol:10e}")
-            if msg is not None:
-                message = msg + "\n" + message
-            self.fail(message)
+@pytest.fixture(scope="function")
+def ideal_gas():
+    return ctu.Solution("h2o2.yaml")
 
-    def assertArrayQuantityNear(self, A, B, rtol=1e-8, atol=1e-12, msg=None):
-        if A.shape != B.shape:
-            self.fail(f"Arrays are of different lengths ({A.shape}, {B.shape})")
-        isclose = np.isclose(A, B, atol=atol, rtol=rtol)
-        if not isclose.all():
-            bad_A = A[~isclose]
-            bad_B = B[~isclose]
-            message = (
-                f"AssertNear: {bad_A:.14g} - {bad_B:.14g} = {bad_A - bad_B:.14g}\n" +
-                f"Error for {(~isclose).sum()} element(s) exceeds rtol = {rtol:10e}," +
-                f"atol = {atol:10e}."
+
+@pytest.fixture(
+    scope="function",
+    params=(
+        pytest.param(("Water-Reynolds", None), id="Water-Reynolds"),
+        pytest.param(("Water-IAPWS95", None), id="Water-IAPWS95"),
+        pytest.param(("CarbonDioxide", None), id="CarbonDioxide"),
+        pytest.param(("Nitrogen", ctu.Q_(-160, "degC")), id="Nitrogen"),
+        pytest.param(("Methane", ctu.Q_(175, "K")), id="Methane"),
+        pytest.param(("Hydrogen", ctu.Q_(-250, "degC")), id="Hydrogen"),
+        pytest.param(("Oxygen", ctu.Q_(-150, "degC")), id="Oxygen"),
+        pytest.param(("Hfc134a", ctu.Q_(90, "degC")), id="Hfc134a"),
+        pytest.param(("Heptane", None), id="Heptane"),
+    ),
+)
+def pure_fluid(request):
+    if "Water" in request.param[0]:
+        _, backend = request.param[0].split("-")
+        fluid = ctu.Water(backend=backend)
+    else:
+        fluid = getattr(ctu, request.param[0])()
+    fluid.TQ = request.param[1], 0.5 * ctu.units.dimensionless
+    return fluid
+
+
+@pytest.fixture(params=["ideal_gas", "pure_fluid"])
+def generic_phase(request):
+    if request.param == "ideal_gas":
+        return request.getfixturevalue(request.param)
+    elif request.param == "pure_fluid":
+        return ctu.Water()
+
+
+def test_setting_basis_units_fails(generic_phase):
+    with pytest.raises(AttributeError, match="basis_units"):
+        generic_phase.basis_units = "some random string"
+
+
+def test_mass_basis(generic_phase):
+    """Check that mass basis units have kg and the generic getter returns the same
+    value as the mass-specific getter."""
+    generic_phase.basis = "mass"
+    assert generic_phase.basis_units == "kg"
+    assert_allclose(generic_phase.density_mass, generic_phase.density)
+    assert_allclose(generic_phase.enthalpy_mass, generic_phase.h)
+    assert_allclose(generic_phase.entropy_mass, generic_phase.s)
+    assert_allclose(generic_phase.int_energy_mass, generic_phase.u)
+    assert_allclose(generic_phase.volume_mass, generic_phase.v)
+    assert_allclose(generic_phase.gibbs_mass, generic_phase.g)
+    assert_allclose(generic_phase.cp_mass, generic_phase.cp)
+    assert_allclose(generic_phase.cv_mass, generic_phase.cv)
+
+
+def test_molar_basis(generic_phase):
+    """Check that molar basis units have kmol and the generic getter returns the
+    same value as the molar-specific getter."""
+    generic_phase.basis = "molar"
+    assert generic_phase.basis_units == "kmol"
+    assert_allclose(generic_phase.density_mole, generic_phase.density)
+    assert_allclose(generic_phase.enthalpy_mole, generic_phase.h)
+    assert_allclose(generic_phase.entropy_mole, generic_phase.s)
+    assert_allclose(generic_phase.int_energy_mole, generic_phase.u)
+    assert_allclose(generic_phase.volume_mole, generic_phase.v)
+    assert_allclose(generic_phase.gibbs_mole, generic_phase.g)
+    assert_allclose(generic_phase.cp_mole, generic_phase.cp)
+    assert_allclose(generic_phase.cv_mole, generic_phase.cv)
+
+
+@dataclass(frozen=True)
+class Dimensions:
+    mass: Optional[float] = None
+    length: Optional[float] = None
+    time: Optional[float] = None
+    substance: Optional[float] = None
+    temperature: Optional[float] = None
+    current: Optional[float] = None
+    dimensions: Tuple[str, ...] = ("mass", "length", "time", "substance", "temperature", "current")
+
+    def get_dict(self) -> Dict[str, float]:
+        """Add the square brackets around the dimension for comparison with pint"""
+        dimensionality = {}
+        for dimension in self.dimensions:
+            value = getattr(self, dimension)
+            if value is not None:
+                dimensionality[f"[{dimension}]"] = value
+        return dimensionality
+
+
+def check_dimensions(phase, property, dimensions):
+    """Check that the dimensionality of the given property is correct"""
+    assert dict(getattr(phase, property).dimensionality) == dimensions.get_dict()
+
+
+def test_base_independent_dimensions(generic_phase):
+    """Test that the dimensions of base-independent quantities match expectations."""
+    temperature = Dimensions(temperature=1)
+    check_dimensions(generic_phase, "T", temperature)
+    check_dimensions(generic_phase, "max_temp", temperature)
+    check_dimensions(generic_phase, "min_temp", temperature)
+
+    check_dimensions(generic_phase, "thermal_expansion_coeff", Dimensions(temperature=-1))
+
+    pressure = Dimensions(mass=1, length=-1, time=-2)
+    check_dimensions(generic_phase, "P", pressure)
+    check_dimensions(generic_phase, "reference_pressure", pressure)
+
+    atomic_molecular_weights = Dimensions(mass=1, substance=-1)
+    check_dimensions(generic_phase, "atomic_weight", atomic_molecular_weights)
+    check_dimensions(generic_phase, "molecular_weights", atomic_molecular_weights)
+    check_dimensions(generic_phase, "mean_molecular_weight", atomic_molecular_weights)
+    assert not generic_phase.X.dimensionality
+    assert not generic_phase.Y.dimensionality
+
+
+def test_dimensions(generic_phase):
+    chemical_potential = Dimensions(mass=1, length=2, time=-2, substance=-1)
+    check_dimensions(generic_phase, "chemical_potentials", chemical_potential)
+    check_dimensions(generic_phase, "electrochemical_potentials", chemical_potential)
+
+    electric_potential = Dimensions(mass=1, length=2, time=-3, current=-1)
+    check_dimensions(generic_phase, "electric_potential", electric_potential)
+
+    concentrations_like = Dimensions(substance=1, length=-3)
+    check_dimensions(generic_phase, "concentrations", concentrations_like)
+    check_dimensions(generic_phase, "density_mole", concentrations_like)
+
+    check_dimensions(generic_phase, "volume_mole", Dimensions(substance=-1, length=3))
+
+    check_dimensions(generic_phase, "density_mass", Dimensions(mass=1, length=-3))
+    check_dimensions(generic_phase, "volume_mass", Dimensions(length=3, mass=-1))
+
+    isothermal_compressibility = Dimensions(mass=-1, length=1, time=2)
+    check_dimensions(
+        generic_phase, "isothermal_compressibility", isothermal_compressibility
+    )
+
+    partial_molar_inv_T = Dimensions(mass=1, length=2, time=-2, substance=-1,
+                                     temperature=-1)
+    check_dimensions(generic_phase, "partial_molar_cp", partial_molar_inv_T)
+    check_dimensions(generic_phase, "partial_molar_entropies", partial_molar_inv_T)
+
+    partial_molar_energy_like = Dimensions(mass=1, length=2, time=-2, substance=-1)
+    check_dimensions(generic_phase, "partial_molar_enthalpies", partial_molar_energy_like)
+    check_dimensions(generic_phase, "partial_molar_int_energies", partial_molar_energy_like)
+
+    partial_molar_volume = Dimensions(length=3, substance=-1)
+    check_dimensions(generic_phase, "partial_molar_volumes", partial_molar_volume)
+
+    mass_basis_energy_like = Dimensions(length=2, time=-2)
+    check_dimensions(generic_phase, "enthalpy_mass", mass_basis_energy_like)
+    check_dimensions(generic_phase, "int_energy_mass", mass_basis_energy_like)
+    check_dimensions(generic_phase, "gibbs_mass", mass_basis_energy_like)
+
+    mass_basis_entropy_like = Dimensions(length=2, time=-2, temperature=-1)
+    check_dimensions(generic_phase, "entropy_mass", mass_basis_entropy_like)
+    check_dimensions(generic_phase, "cp_mass", mass_basis_entropy_like)
+    check_dimensions(generic_phase, "cv_mass", mass_basis_entropy_like)
+
+    molar_basis_energy_like = Dimensions(mass=1, length=2, time=-2, substance=-1)
+    check_dimensions(generic_phase, "enthalpy_mole", molar_basis_energy_like)
+    check_dimensions(generic_phase, "int_energy_mole", molar_basis_energy_like)
+    check_dimensions(generic_phase, "gibbs_mole", molar_basis_energy_like)
+
+    molar_basis_entropy_like = Dimensions(mass=1, length=2, time=-2, substance=-1,
+                                          temperature=-1)
+    check_dimensions(generic_phase, "entropy_mole", molar_basis_entropy_like)
+    check_dimensions(generic_phase, "cp_mole", molar_basis_entropy_like)
+    check_dimensions(generic_phase, "cv_mole", molar_basis_entropy_like)
+
+
+def test_purefluid_dimensions():
+    # Test some dimensions that weren't tested as part of the Solution tests
+    # Create and test a liquidvapor phase in a Solution object, since an ideal gas phase
+    # doesn't implement saturation or critical properties.
+    heptane_solution = ctu.Solution("liquidvapor.yaml", "heptane")
+    water_purefluid = ctu.Water()
+    temperature = Dimensions(temperature=1)
+    check_dimensions(water_purefluid, "T_sat", temperature)
+    check_dimensions(water_purefluid, "critical_temperature", temperature)
+    check_dimensions(heptane_solution, "T_sat", temperature)
+    check_dimensions(heptane_solution, "critical_temperature", temperature)
+
+    pressure = Dimensions(mass=1, length=-1, time=-2)
+    check_dimensions(water_purefluid, "P_sat", pressure)
+    check_dimensions(water_purefluid, "critical_pressure", pressure)
+    check_dimensions(heptane_solution, "P_sat", pressure)
+    check_dimensions(heptane_solution, "critical_pressure", pressure)
+
+    density = Dimensions(mass=1, length=-3)
+    check_dimensions(water_purefluid, "critical_density", density)
+    check_dimensions(heptane_solution, "critical_density", density)
+
+
+def yield_prop_pairs():
+    pairs = [
+        pytest.param(("TP", "T", "P"), id="TP"),
+        pytest.param(("SP", "s", "P"), id="SP"),
+        pytest.param(("UV", "u", "v"), id="UV"),
+        pytest.param(("DP", "density", "P"), id="DP"),
+        pytest.param(("HP", "h", "P"), id="HP"),
+        pytest.param(("SV", "s", "v"), id="SV"),
+        pytest.param(("TD", "T", "density"), id="TD"),
+    ]
+    yield from pairs
+
+
+def yield_prop_triples():
+    for pair in yield_prop_pairs():
+        values = pair.values[0]
+        yield pytest.param(
+            (values[0] + "X", *values[1:], "X"),
+            id=pair.id + "X",
+        )
+        yield pytest.param(
+            (values[0] + "Y", *values[1:], "Y"),
+            id=pair.id + "Y",
+        )
+
+
+def yield_prop_pairs_and_triples():
+    yield from yield_prop_pairs()
+    yield from yield_prop_triples()
+
+
+@pytest.fixture
+def test_properties(request):
+    if request.param == "mass":
+        T = ctu.Q_(500, "K")
+        rho = ctu.Q_(1.5, "kg/m**3")
+    elif request.param == "molar":
+        T = ctu.Q_(750, "K")
+        rho = ctu.Q_(0.02, "kmol/m**3")
+    return (T, rho)
+
+
+@pytest.fixture
+def initial_TDY(request, generic_phase):
+    generic_phase.basis = request.param
+    return generic_phase.TDY
+
+
+@pytest.fixture
+def some_setters_arent_implemented_for_purefluid(request):
+    pair_or_triple = request.getfixturevalue("props")[0]
+    is_pure_fluid = isinstance(request.getfixturevalue("generic_phase"), ctu.PureFluid)
+    if is_pure_fluid and pair_or_triple.startswith("DP"):
+        request.applymarker(
+            pytest.mark.xfail(
+                raises=ctu.CanteraError,
+                reason=f"The {pair_or_triple} method isn't implemented"
             )
-            if msg is not None:
-                message = msg + "\n" + message
-            self.fail(message)
-
-
-class TestSolutionUnits(CanteraUnitsTest):
-    def setUp(self):
-        self.phase = ct.Solution("h2o2.yaml")
-
-    def test_mass_basis(self):
-        self.assertEqual(self.phase.basis_units, "kg")
-        self.assertQuantityNear(self.phase.density_mass, self.phase.density)
-        self.assertQuantityNear(self.phase.enthalpy_mass, self.phase.h)
-        self.assertQuantityNear(self.phase.entropy_mass, self.phase.s)
-        self.assertQuantityNear(self.phase.int_energy_mass, self.phase.u)
-        self.assertQuantityNear(self.phase.volume_mass, self.phase.v)
-        self.assertQuantityNear(self.phase.gibbs_mass, self.phase.g)
-        self.assertQuantityNear(self.phase.cp_mass, self.phase.cp)
-        self.assertQuantityNear(self.phase.cv_mass, self.phase.cv)
-
-    def test_molar_basis(self):
-        self.phase.basis = "molar"
-        self.assertEqual(self.phase.basis_units, "kmol")
-        self.assertQuantityNear(self.phase.density_mole, self.phase.density)
-        self.assertQuantityNear(self.phase.enthalpy_mole, self.phase.h)
-        self.assertQuantityNear(self.phase.entropy_mole, self.phase.s)
-        self.assertQuantityNear(self.phase.int_energy_mole, self.phase.u)
-        self.assertQuantityNear(self.phase.volume_mole, self.phase.v)
-        self.assertQuantityNear(self.phase.gibbs_mole, self.phase.g)
-        self.assertQuantityNear(self.phase.cp_mole, self.phase.cp)
-        self.assertQuantityNear(self.phase.cv_mole, self.phase.cv)
-
-    def test_dimensions_solution(self):
-        # basis-independent
-        dims_T = self.phase.T.dimensionality
-        self.assertEqual(dims_T["[temperature]"], 1.0)
-        dims_P = self.phase.P.dimensionality
-        self.assertEqual(dims_P["[mass]"], 1.0)
-        self.assertEqual(dims_P["[length]"], -1.0)
-        self.assertEqual(dims_P["[time]"], -2.0)
-        dims_X = self.phase.X.dimensionality
-        # units container for dimensionless is empty
-        self.assertEqual(len(dims_X), 0)
-        dims_Y = self.phase.Y.dimensionality
-        self.assertEqual(len(dims_Y), 0)
-        dims_atomic_weight = self.phase.atomic_weight.dimensionality
-        self.assertEqual(dims_atomic_weight["[mass]"], 1.0)
-        self.assertEqual(dims_atomic_weight["[substance]"], -1.0)
-        dims_chemical_potentials = self.phase.chemical_potentials.dimensionality
-        self.assertEqual(dims_chemical_potentials["[mass]"], 1.0)
-        self.assertEqual(dims_chemical_potentials["[length]"], 2.0)
-        self.assertEqual(dims_chemical_potentials["[time]"], -2.0)
-        self.assertEqual(dims_chemical_potentials["[substance]"], -1.0)
-        dims_concentrations = self.phase.concentrations.dimensionality
-        self.assertEqual(dims_concentrations["[substance]"], 1.0)
-        self.assertEqual(dims_concentrations["[length]"], -3.0)
-        dims_electric_potential = self.phase.electric_potential.dimensionality
-        self.assertEqual(dims_electric_potential["[mass]"], 1.0)
-        self.assertEqual(dims_electric_potential["[length]"], 2.0)
-        self.assertEqual(dims_electric_potential["[time]"], -3.0)
-        self.assertEqual(dims_electric_potential["[current]"], -1.0)
-        dims_echem_potential = self.phase.electrochemical_potentials.dimensionality
-        self.assertEqual(dims_echem_potential["[mass]"], 1.0)
-        self.assertEqual(dims_echem_potential["[length]"], 2.0)
-        self.assertEqual(dims_echem_potential["[time]"], -2.0)
-        self.assertEqual(dims_echem_potential["[substance]"], -1.0)
-        dims_isothermal_comp = self.phase.isothermal_compressibility.dimensionality
-        self.assertEqual(dims_isothermal_comp["[mass]"], -1.0)
-        self.assertEqual(dims_isothermal_comp["[length]"], 1.0)
-        self.assertEqual(dims_isothermal_comp["[time]"], 2.0)
-        dims_max_temp = self.phase.max_temp.dimensionality
-        self.assertEqual(dims_max_temp["[temperature]"], 1.0)
-        dims_mean_molecular_weight = self.phase.mean_molecular_weight.dimensionality
-        self.assertEqual(dims_mean_molecular_weight["[mass]"], 1.0)
-        self.assertEqual(dims_mean_molecular_weight["[substance]"], -1.0)
-        dims_min_temp = self.phase.min_temp.dimensionality
-        self.assertEqual(dims_min_temp["[temperature]"], 1.0)
-        dims_molecular_weights = self.phase.molecular_weights.dimensionality
-        self.assertEqual(dims_molecular_weights["[mass]"], 1.0)
-        self.assertEqual(dims_molecular_weights["[substance]"], -1.0)
-        dims_partial_molar_cp = self.phase.partial_molar_cp.dimensionality
-        self.assertEqual(dims_partial_molar_cp["[mass]"], 1.0)
-        self.assertEqual(dims_partial_molar_cp["[length]"], 2.0)
-        self.assertEqual(dims_partial_molar_cp["[time]"], -2.0)
-        self.assertEqual(dims_partial_molar_cp["[substance]"], -1.0)
-        self.assertEqual(dims_partial_molar_cp["[temperature]"], -1.0)
-        dims_partial_mol_enth = self.phase.partial_molar_enthalpies.dimensionality
-        self.assertEqual(dims_partial_mol_enth["[mass]"], 1.0)
-        self.assertEqual(dims_partial_mol_enth["[length]"], 2.0)
-        self.assertEqual(dims_partial_mol_enth["[time]"], -2.0)
-        self.assertEqual(dims_partial_mol_enth["[substance]"], -1.0)
-        dims_partial_molar_entropies = self.phase.partial_molar_entropies.dimensionality
-        self.assertEqual(dims_partial_molar_entropies["[mass]"], 1.0)
-        self.assertEqual(dims_partial_molar_entropies["[length]"], 2.0)
-        self.assertEqual(dims_partial_molar_entropies["[time]"], -2.0)
-        self.assertEqual(dims_partial_molar_entropies["[substance]"], -1.0)
-        self.assertEqual(dims_partial_molar_entropies["[temperature]"], -1.0)
-        dims_partial_mol_int_eng = self.phase.partial_molar_int_energies.dimensionality
-        self.assertEqual(dims_partial_mol_int_eng["[mass]"], 1.0)
-        self.assertEqual(dims_partial_mol_int_eng["[length]"], 2.0)
-        self.assertEqual(dims_partial_mol_int_eng["[time]"], -2.0)
-        self.assertEqual(dims_partial_mol_int_eng["[substance]"], -1.0)
-        dims_partial_molar_volumes = self.phase.partial_molar_volumes.dimensionality
-        self.assertEqual(dims_partial_molar_volumes["[length]"], 3.0)
-        self.assertEqual(dims_partial_molar_volumes["[substance]"], -1.0)
-        dims_reference_pressure = self.phase.reference_pressure.dimensionality
-        self.assertEqual(dims_reference_pressure["[mass]"], 1.0)
-        self.assertEqual(dims_reference_pressure["[length]"], -1.0)
-        self.assertEqual(dims_reference_pressure["[time]"], -2.0)
-        dims_thermal_expansion_coeff = self.phase.thermal_expansion_coeff.dimensionality
-        self.assertEqual(dims_thermal_expansion_coeff["[temperature]"], -1.0)
-        # basis-dependent (mass)
-        dims_density_mass = self.phase.density_mass.dimensionality
-        self.assertEqual(dims_density_mass["[mass]"], 1.0)
-        self.assertEqual(dims_density_mass["[length]"], -3.0)
-        dims_enthalpy_mass = self.phase.enthalpy_mass.dimensionality
-        self.assertEqual(dims_enthalpy_mass["[length]"], 2.0)
-        self.assertEqual(dims_enthalpy_mass["[time]"], -2.0)
-        dims_entropy_mass = self.phase.entropy_mass.dimensionality
-        self.assertEqual(dims_entropy_mass["[length]"], 2.0)
-        self.assertEqual(dims_entropy_mass["[time]"], -2.0)
-        self.assertEqual(dims_entropy_mass["[temperature]"], -1.0)
-        dims_int_energy_mass = self.phase.int_energy_mass.dimensionality
-        self.assertEqual(dims_int_energy_mass["[length]"], 2.0)
-        self.assertEqual(dims_int_energy_mass["[time]"], -2.0)
-        dims_volume_mass = self.phase.volume_mass.dimensionality
-        self.assertEqual(dims_volume_mass["[length]"], 3.0)
-        self.assertEqual(dims_volume_mass["[mass]"], -1.0)
-        dims_gibbs_mass = self.phase.gibbs_mass.dimensionality
-        self.assertEqual(dims_gibbs_mass["[length]"], 2.0)
-        self.assertEqual(dims_gibbs_mass["[time]"], -2.0)
-        dims_cp_mass = self.phase.cp_mass.dimensionality
-        self.assertEqual(dims_cp_mass["[length]"], 2.0)
-        self.assertEqual(dims_cp_mass["[time]"], -2.0)
-        self.assertEqual(dims_cp_mass["[temperature]"], -1.0)
-        dims_cv_mass = self.phase.cv.dimensionality
-        self.assertEqual(dims_cv_mass["[length]"], 2.0)
-        self.assertEqual(dims_cv_mass["[time]"], -2.0)
-        self.assertEqual(dims_cv_mass["[temperature]"], -1.0)
-        # basis-dependent (molar)
-        dims_density_mole = self.phase.density_mole.dimensionality
-        self.assertEqual(dims_density_mole["[substance]"], 1.0)
-        self.assertEqual(dims_density_mole["[length]"], -3.0)
-        dims_enthalpy_mole = self.phase.enthalpy_mole.dimensionality
-        self.assertEqual(dims_enthalpy_mole["[mass]"], 1.0)
-        self.assertEqual(dims_enthalpy_mole["[length]"], 2.0)
-        self.assertEqual(dims_enthalpy_mole["[time]"], -2.0)
-        self.assertEqual(dims_enthalpy_mole["[substance]"], -1.0)
-        dims_entropy_mole = self.phase.entropy_mole.dimensionality
-        self.assertEqual(dims_entropy_mole["[mass]"], 1.0)
-        self.assertEqual(dims_entropy_mole["[length]"], 2.0)
-        self.assertEqual(dims_entropy_mole["[time]"], -2.0)
-        self.assertEqual(dims_entropy_mole["[substance]"], -1.0)
-        self.assertEqual(dims_entropy_mole["[temperature]"], -1.0)
-        dims_int_energy_mole = self.phase.int_energy_mole.dimensionality
-        self.assertEqual(dims_int_energy_mole["[mass]"], 1.0)
-        self.assertEqual(dims_int_energy_mole["[length]"], 2.0)
-        self.assertEqual(dims_int_energy_mole["[time]"], -2.0)
-        self.assertEqual(dims_int_energy_mole["[substance]"], -1.0)
-        dims_volume_mole = self.phase.volume_mole.dimensionality
-        self.assertEqual(dims_volume_mole["[length]"], 3.0)
-        self.assertEqual(dims_volume_mole["[substance]"], -1.0)
-        dims_gibbs_mole = self.phase.gibbs_mole.dimensionality
-        self.assertEqual(dims_gibbs_mole["[mass]"], 1.0)
-        self.assertEqual(dims_gibbs_mole["[length]"], 2.0)
-        self.assertEqual(dims_gibbs_mole["[time]"], -2.0)
-        self.assertEqual(dims_gibbs_mole["[substance]"], -1.0)
-        dims_cp_mole = self.phase.cp_mole.dimensionality
-        self.assertEqual(dims_cp_mole["[mass]"], 1.0)
-        self.assertEqual(dims_cp_mole["[length]"], 2.0)
-        self.assertEqual(dims_cp_mole["[time]"], -2.0)
-        self.assertEqual(dims_cp_mole["[substance]"], -1.0)
-        self.assertEqual(dims_cp_mole["[temperature]"], -1.0)
-        dims_cv_mole = self.phase.cv_mole.dimensionality
-        self.assertEqual(dims_cv_mole["[mass]"], 1.0)
-        self.assertEqual(dims_cv_mole["[length]"], 2.0)
-        self.assertEqual(dims_cv_mole["[time]"], -2.0)
-        self.assertEqual(dims_cv_mole["[substance]"], -1.0)
-        self.assertEqual(dims_cv_mole["[temperature]"], -1.0)
-
-    def check_setters(self, T1, rho1, Y1):
-        T0, rho0, Y0 = self.phase.TDY
-        self.phase.TDY = T1, rho1, Y1
-        X1 = self.phase.X
-        P1 = self.phase.P
-        h1 = self.phase.h
-        s1 = self.phase.s
-        u1 = self.phase.u
-        v1 = self.phase.v
-
-        def check_state(T, rho, Y):
-            self.assertQuantityNear(self.phase.T, T)
-            self.assertQuantityNear(self.phase.density, rho)
-            self.assertArrayQuantityNear(self.phase.Y, Y)
-
-        self.phase.TDY = T0, rho0, Y0
-        self.phase.TPY = T1, P1, Y1
-        check_state(T1, rho1, Y1)
-
-        self.phase.TDY = T0, rho0, Y0
-        self.phase.UVY = u1, v1, Y1
-        check_state(T1, rho1, Y1)
-
-        self.phase.TDY = T0, rho0, Y0
-        self.phase.HPY = h1, P1, Y1
-        check_state(T1, rho1, Y1)
-
-        self.phase.TDY = T0, rho0, Y0
-        self.phase.SPY = s1, P1, Y1
-        check_state(T1, rho1, Y1)
-
-        self.phase.TDY = T0, rho0, Y0
-        self.phase.TPX = T1, P1, X1
-        check_state(T1, rho1, Y1)
-
-        self.phase.TDY = T0, rho0, Y0
-        self.phase.UVX = u1, v1, X1
-        check_state(T1, rho1, Y1)
-
-        self.phase.TDY = T0, rho0, Y0
-        self.phase.HPX = h1, P1, X1
-        check_state(T1, rho1, Y1)
-
-        self.phase.TDY = T0, rho0, Y0
-        self.phase.SPX = s1, P1, X1
-        check_state(T1, rho1, Y1)
-
-        self.phase.TDY = T0, rho0, Y0
-        self.phase.SVX = s1, v1, X1
-        check_state(T1, rho1, Y1)
-
-        self.phase.TDY = T0, rho0, Y0
-        self.phase.SVY = s1, v1, Y1
-        check_state(T1, rho1, Y1)
-
-        self.phase.TDY = T0, rho0, Y0
-        self.phase.DPX = rho1, P1, X1
-        check_state(T1, rho1, Y1)
-
-        self.phase.TDY = T0, rho0, Y0
-        self.phase.DPY = rho1, P1, Y1
-        check_state(T1, rho1, Y1)
-
-    def test_setState_mass(self):
-        Y1 = ct.Q_([0.1, 0.0, 0.0, 0.1, 0.4, 0.2, 0.0, 0.0, 0.2, 0.0], "dimensionless")
-        self.check_setters(
-            T1=ct.Q_(500.0, "K"),
-            rho1=ct.Q_(1.5, "kg/m**3"),
-            Y1=Y1,
         )
 
-    def test_setState_mole(self):
-        self.phase.basis = "molar"
-        Y1 = ct.Q_([0.1, 0.0, 0.0, 0.1, 0.4, 0.2, 0.0, 0.0, 0.2, 0.0], "dimensionless")
-        self.check_setters(
-            T1=ct.Q_(750.0, "K"),
-            rho1=ct.Q_(0.02, "kmol/m**3"),
-            Y1=Y1,
-        )
 
-    def test_setters_hold_constant(self):
-        props = ("T", "P", "s", "h", "u", "v", "X", "Y")
-        pairs = [("TP", "T", "P"), ("SP", "s", "P"),
-                 ("UV", "u", "v")]
-        self.phase.X = "H2O:0.1, O2:0.95, AR:3.0"
-        self.phase.TD = ct.Q_(1000, "K"), ct.Q_(1.5, "kg/m**3")
-        values = {}
-        for p in props:
-            values[p] = getattr(self.phase, p)
+# The parameterization is done here with the indirect kwarg to make sure that the same
+# basis is passed to both fixtures. The alternative is to use the params kwarg to the
+# fixture decorator, which would give us (mass, molar) basis pairs, and that doesn't
+# make sense.
+@pytest.mark.parametrize(
+    "test_properties,initial_TDY",
+    [
+        pytest.param("mass", "mass", id="mass"),
+        pytest.param("molar", "molar", id="molar"),
+    ],
+    indirect=True,
+)
+@pytest.mark.parametrize("props", yield_prop_pairs_and_triples())
+@pytest.mark.usefixtures("some_setters_arent_implemented_for_purefluid")
+def test_setters(generic_phase, test_properties, initial_TDY, props):
+    pair_or_triple = props[0]
+    if isinstance(generic_phase, ctu.PureFluid):
+        Y_1 = ctu.Q_([1.0], "dimensionless")
+        generic_phase.TD = test_properties
+    else:
+        Y_1 = ctu.Q_([0.1, 0.0, 0.0, 0.1, 0.4, 0.2, 0.0, 0.0, 0.2, 0.0],
+                     "dimensionless")
+        generic_phase.TDY = *test_properties, Y_1
+        print(generic_phase.Y)
 
+    # Use TDY setting to get the properties at the modified state
+    new_props = getattr(generic_phase, pair_or_triple)
+
+    # Reset to the initial state so that the next state setting actually has to do
+    # something.
+    generic_phase.TDY = initial_TDY
+
+    # If we're only setting a pair of properties, reset the mass fractions to the
+    # expected state before using the pair to set.
+    if len(pair_or_triple) == 2:
+        generic_phase.Y = Y_1
+
+    # Use the test pair or triple to set the state and assert that the
+    # natural properties are equal to the modified state
+    setattr(generic_phase, pair_or_triple, new_props)
+    T_1, rho_1 = test_properties
+    assert_allclose(generic_phase.T, T_1)
+    assert_allclose(generic_phase.density, rho_1)
+    assert_allclose(generic_phase.Y, Y_1)
+
+
+@pytest.mark.parametrize("props", yield_prop_triples())
+@pytest.mark.usefixtures("some_setters_arent_implemented_for_purefluid")
+def test_setters_hold_constant(generic_phase, props):
+    triple, first, second, third = props
+
+    # Set an arbitrary initial state
+    if generic_phase.n_species == 1:
+        generic_phase.X = ctu.Q_([1.0], "dimensionless")
+        composition = ctu.Q_([1.0], "dimensionless")
+    else:
+        generic_phase.X = "H2O:0.1, O2:0.95, AR:3.0"
         composition = "H2:0.1, O2:1.0, AR:3.0"
-        for pair, first, second in pairs:
-            self.phase.TDX = ct.Q_(500, "K"), ct.Q_(2.5, "kg/m**3"), composition
-            first_val = getattr(self.phase, first)
-            second_val = getattr(self.phase, second)
+    generic_phase.TD = ctu.Q_(1000, "K"), ctu.Q_(1.5, "kg/m**3")
+    property_3 = getattr(generic_phase, third)
 
-            setattr(self.phase, pair, (values[first], None))
-            self.assertQuantityNear(getattr(self.phase, first), values[first])
-            self.assertQuantityNear(getattr(self.phase, second), second_val)
+    # Change to another arbitrary state and store values to compare when that spot
+    # isn't changed
+    reset_state = (ctu.Q_(500, "K"), ctu.Q_(2.5, "kg/m**3"), composition)
+    generic_phase.TDX = reset_state
+    first_val, second_val, third_val = getattr(generic_phase, triple)
 
-            self.phase.TDX = ct.Q_(500, "K"), ct.Q_(2.5, "kg/m**3"), composition
-            setattr(self.phase, pair, (None, values[second]))
-            self.assertQuantityNear(getattr(self.phase, first), first_val)
-            self.assertQuantityNear(getattr(self.phase, second), values[second])
+    setattr(generic_phase, triple, (None, None, property_3))
+    assert_allclose(getattr(generic_phase, first), first_val)
+    assert_allclose(getattr(generic_phase, second), second_val)
+    assert_allclose(getattr(generic_phase, third), property_3)
 
-            self.phase.TDX = ct.Q_(500, "K"), ct.Q_(2.5, "kg/m**3"), composition
-            setattr(self.phase, pair + "X", (None, None, values["X"]))
-            self.assertQuantityNear(getattr(self.phase, first), first_val)
-            self.assertQuantityNear(getattr(self.phase, second), second_val)
-
-            self.phase.TDX = ct.Q_(500, "K"), ct.Q_(2.5, "kg/m**3"), composition
-            setattr(self.phase, pair + "Y", (None, None, values["Y"]))
-            self.assertQuantityNear(getattr(self.phase, first), first_val)
-            self.assertQuantityNear(getattr(self.phase, second), second_val)
-
-    def check_getters(self):
-        T, D, X = self.phase.TDX
-        self.assertQuantityNear(T, self.phase.T)
-        self.assertQuantityNear(D, self.phase.density)
-        self.assertArrayQuantityNear(X, self.phase.X)
-
-        T, D, Y = self.phase.TDY
-        self.assertQuantityNear(T, self.phase.T)
-        self.assertQuantityNear(D, self.phase.density)
-        self.assertArrayQuantityNear(Y, self.phase.Y)
-
-        T, D = self.phase.TD
-        self.assertQuantityNear(T, self.phase.T)
-        self.assertQuantityNear(D, self.phase.density)
-
-        T, P, X = self.phase.TPX
-        self.assertQuantityNear(T, self.phase.T)
-        self.assertQuantityNear(P, self.phase.P)
-        self.assertArrayQuantityNear(X, self.phase.X)
-
-        T, P, Y = self.phase.TPY
-        self.assertQuantityNear(T, self.phase.T)
-        self.assertQuantityNear(P, self.phase.P)
-        self.assertArrayQuantityNear(Y, self.phase.Y)
-
-        T, P = self.phase.TP
-        self.assertQuantityNear(T, self.phase.T)
-        self.assertQuantityNear(P, self.phase.P)
-
-        H, P, X = self.phase.HPX
-        self.assertQuantityNear(H, self.phase.h)
-        self.assertQuantityNear(P, self.phase.P)
-        self.assertArrayQuantityNear(X, self.phase.X)
-
-        H, P, Y = self.phase.HPY
-        self.assertQuantityNear(H, self.phase.h)
-        self.assertQuantityNear(P, self.phase.P)
-        self.assertArrayQuantityNear(Y, self.phase.Y)
-
-        H, P = self.phase.HP
-        self.assertQuantityNear(H, self.phase.h)
-        self.assertQuantityNear(P, self.phase.P)
-
-        U, V, X = self.phase.UVX
-        self.assertQuantityNear(U, self.phase.u)
-        self.assertQuantityNear(V, self.phase.v)
-        self.assertArrayQuantityNear(X, self.phase.X)
-
-        U, V, Y = self.phase.UVY
-        self.assertQuantityNear(U, self.phase.u)
-        self.assertQuantityNear(V, self.phase.v)
-        self.assertArrayQuantityNear(Y, self.phase.Y)
-
-        U, V = self.phase.UV
-        self.assertQuantityNear(U, self.phase.u)
-        self.assertQuantityNear(V, self.phase.v)
-
-        S, P, X = self.phase.SPX
-        self.assertQuantityNear(S, self.phase.s)
-        self.assertQuantityNear(P, self.phase.P)
-        self.assertArrayQuantityNear(X, self.phase.X)
-
-        S, P, Y = self.phase.SPY
-        self.assertQuantityNear(S, self.phase.s)
-        self.assertQuantityNear(P, self.phase.P)
-        self.assertArrayQuantityNear(Y, self.phase.Y)
-
-        S, P = self.phase.SP
-        self.assertQuantityNear(S, self.phase.s)
-        self.assertQuantityNear(P, self.phase.P)
-
-        S, V, X = self.phase.SVX
-        self.assertQuantityNear(S, self.phase.s)
-        self.assertQuantityNear(V, self.phase.v)
-        self.assertArrayQuantityNear(X, self.phase.X)
-
-        S, V, Y = self.phase.SVY
-        self.assertQuantityNear(S, self.phase.s)
-        self.assertQuantityNear(V, self.phase.v)
-        self.assertArrayQuantityNear(Y, self.phase.Y)
-
-        S, V = self.phase.SV
-        self.assertQuantityNear(S, self.phase.s)
-        self.assertQuantityNear(V, self.phase.v)
-
-        D, P, X = self.phase.DPX
-        self.assertQuantityNear(D, self.phase.density)
-        self.assertQuantityNear(P, self.phase.P)
-        self.assertArrayQuantityNear(X, self.phase.X)
-
-        D, P, Y = self.phase.DPY
-        self.assertQuantityNear(D, self.phase.density)
-        self.assertQuantityNear(P, self.phase.P)
-        self.assertArrayQuantityNear(Y, self.phase.Y)
-
-        D, P = self.phase.DP
-        self.assertQuantityNear(D, self.phase.density)
-        self.assertQuantityNear(P, self.phase.P)
-
-    def test_getState_mass(self):
-        self.phase.Y = "H2:0.1, H2O2:0.1, AR:0.8"
-        self.phase.TD = ct.Q_(350.0, "K"), ct.Q_(0.7, "kg/m**3")
-        self.check_getters()
-
-    def test_getState_mole(self):
-        self.phase.basis = "molar"
-        self.phase.X = "H2:0.1, O2:0.3, AR:0.6"
-        self.phase.TD = ct.Q_(350.0, "K"), ct.Q_(0.01, "kmol/m**3")
-        self.check_getters()
-
-    def test_isothermal_compressibility(self):
-        self.assertQuantityNear(self.phase.isothermal_compressibility, 1.0/self.phase.P)
+    generic_phase.TDX = reset_state
+    setattr(generic_phase, triple, (None, None, None))
+    assert_allclose(getattr(generic_phase, first), first_val)
+    assert_allclose(getattr(generic_phase, second), second_val)
+    assert_allclose(getattr(generic_phase, third), third_val)
 
 
-class TestPureFluidUnits(CanteraUnitsTest):
-    def setUp(self):
-        self.water = ct.Water()
+@pytest.mark.parametrize("props", yield_prop_pairs_and_triples())
+@pytest.mark.parametrize(
+    "basis,rho_0",
+    [
+        pytest.param("mass", ctu.Q_(0.7, "kg/m**3"), id="mass"),
+        pytest.param("molar", ctu.Q_(0.01, "kmol/m**3"), id="molar"),
+    ],
+)
+def test_multi_prop_getters_are_equal_to_single(generic_phase, props, basis, rho_0):
+    pair_or_triple, first, second, *third = props
+    generic_phase.basis = basis
+    if generic_phase.n_species != 1:
+        generic_phase.Y = "H2:0.1, H2O2:0.1, AR:0.8"
+    generic_phase.TD = ctu.Q_(350.0, "K"), rho_0
+    first_value, second_value, *third_value = getattr(generic_phase, pair_or_triple)
+    assert_allclose(getattr(generic_phase, first), first_value)
+    assert_allclose(getattr(generic_phase, second), second_value)
+    if third:
+        assert_allclose(getattr(generic_phase, third[0]), third_value[0])
 
-    def test_dimensions_purefluid(self):
-        """These properties are not defined on the IdealGas phase class,
-        so they can"t be tested in the Solution for the h2o2.yaml input file.
-        """
-        dims_T_sat = self.water.T_sat.dimensionality
-        self.assertEqual(dims_T_sat["[temperature]"], 1.0)
-        dims_P_sat = self.water.P_sat.dimensionality
-        self.assertEqual(dims_P_sat["[mass]"], 1.0)
-        self.assertEqual(dims_P_sat["[length]"], -1.0)
-        self.assertEqual(dims_P_sat["[time]"], -2.0)
-        dims_critical_temperature = self.water.critical_temperature.dimensionality
-        self.assertEqual(dims_critical_temperature["[temperature]"], 1.0)
-        dims_critical_pressure = self.water.critical_pressure.dimensionality
-        self.assertEqual(dims_critical_pressure["[mass]"], 1.0)
-        self.assertEqual(dims_critical_pressure["[length]"], -1.0)
-        self.assertEqual(dims_critical_pressure["[time]"], -2.0)
 
-    def test_critical_properties(self):
-        self.assertQuantityNear(self.water.critical_pressure, 22.089e6 * ct.units.Pa)
-        self.assertQuantityNear(self.water.critical_temperature, 647.286 * ct.units.K)
-        self.assertQuantityNear(self.water.critical_density, ct.Q_(317.0, "kg/m**3"))
+@pytest.mark.parametrize("pair", yield_prop_pairs())
+def test_set_pair_without_units_is_an_error(generic_phase, pair):
+    value_1 = [300, None]
+    with pytest.raises(ctu.CanteraError, match="an instance of a pint"):
+        setattr(generic_phase, pair[0], value_1)
 
-    def test_temperature_limits(self):
-        co2 = ct.CarbonDioxide()
-        self.assertQuantityNear(co2.min_temp, 216.54 * ct.units.K)
-        self.assertQuantityNear(co2.max_temp, 1500.0 * ct.units.K)
 
-    def test_set_state(self):
-        self.water.PQ = ct.Q_(101325, "Pa"), ct.Q_(0.5, "dimensionless")
-        self.assertQuantityNear(self.water.P, 101325 * ct.units.Pa)
-        self.assertQuantityNear(self.water.Q, 0.5 * ct.units.dimensionless)
+@pytest.fixture
+def third_prop_sometimes_fails(request):
+    # Setting these property triples with None, None, [all equal fractions] results in
+    # a convergence error in setting the state. We don't care that it fails because
+    # this is just testing what happens to the value that gets passed in to the
+    # with_units setters in terms of conversion to/from values that don't have units
+    # already attached to them.
+    prop_triple = request.getfixturevalue("triple")[0]
+    is_purefluid = isinstance(request.getfixturevalue("generic_phase"), ctu.PureFluid)
+    if prop_triple in ("SPX", "UVX", "UVY", "HPX", "HPY", "SVX") and not is_purefluid:
+        return pytest.raises(ctu.CanteraError, match="ThermoPhase::setState")
+    elif prop_triple in ("DPX", "DPY") and is_purefluid:
+        return pytest.raises(ctu.CanteraError, match="setState_RP")
+    else:
+        return nullcontext()
 
-        self.water.TQ = ct.Q_(500, "K"), ct.Q_(0.8, "dimensionless")
-        self.assertQuantityNear(self.water.T, 500 * ct.units.K)
-        self.assertQuantityNear(self.water.Q, 0.8 * ct.units.dimensionless)
+@pytest.mark.parametrize("triple", yield_prop_triples())
+def test_set_triple_without_units_is_an_error(
+    generic_phase,
+    triple,
+    third_prop_sometimes_fails,
+):
+    value_1 = [300, None, [1]*generic_phase.n_species]
+    with pytest.raises(ctu.CanteraError, match="an instance of a pint"):
+        setattr(generic_phase, triple[0], value_1)
 
-    def test_substance_set(self):
-        self.water.TV = ct.Q_(400, "K"), ct.Q_(1.45, "m**3/kg")
-        self.assertQuantityNear(self.water.T, 400 * ct.units.K)
-        self.assertQuantityNear(self.water.v, 1.45 * ct.units.m**3 / ct.units.kg)
-        with self.assertRaisesRegex(ct.CanteraError, "Negative specific volume"):
-            self.water.TV = ct.Q_(300, "K"), ct.Q_(-1, "m**3/kg")
+    value_3 = [None, None, [1]*generic_phase.n_species]
+    with third_prop_sometimes_fails:
+        setattr(generic_phase, triple[0], value_3)
 
-        self.water.PV = ct.Q_(101325, "Pa"), ct.Q_(1.45, "m**3/kg")
-        self.assertQuantityNear(self.water.P, 101325 * ct.units.Pa)
-        self.assertQuantityNear(self.water.v, 1.45 * ct.units.m**3 / ct.units.kg)
 
-        self.water.UP = ct.Q_(-1.45e7, "J/kg"), ct.Q_(101325, "Pa")
-        self.assertQuantityNear(self.water.u, -1.45e7 * ct.units.J / ct.units.kg)
-        self.assertQuantityNear(self.water.P, 101325 * ct.units.Pa)
+@pytest.fixture
+def xfail_heptane(request):
+    if request.getfixturevalue("pure_fluid").name == "heptane":
+        request.applymarker(
+            pytest.mark.xfail(
+                raises=ctu.CanteraError,
+                reason="Convergence failure for P_sat/Q solver used by Q-only setter",
+                strict=True,
+            )
+        )
 
-        self.water.VH = ct.Q_(1.45, "m**3/kg"), ct.Q_(-1.45e7, "J/kg")
-        self.assertQuantityNear(self.water.v, 1.45 * ct.units.m**3 / ct.units.kg)
-        self.assertQuantityNear(self.water.h, -1.45e7 * ct.units.J / ct.units.kg)
 
-        self.water.TH = ct.Q_(400, "K"), ct.Q_(-1.45e7, "J/kg")
-        self.assertQuantityNear(self.water.T, 400 * ct.units.K)
-        self.assertQuantityNear(self.water.h, -1.45e7 * ct.units.J / ct.units.kg)
+@pytest.mark.usefixtures("xfail_heptane")
+def test_set_Q(pure_fluid):
+    p = pure_fluid.P
+    T = pure_fluid.T
+    pure_fluid.Q = ctu.Q_(0.6, "dimensionless")
+    assert_allclose(pure_fluid.Q, 0.6 * ctu.units.dimensionless)
+    assert_allclose(pure_fluid.T, T)
+    assert_allclose(pure_fluid.P, p)
 
-        self.water.SH = ct.Q_(5000, "J/kg/K"), ct.Q_(-1.45e7, "J/kg")
-        self.assertQuantityNear(self.water.s, 5000 * ct.units("J/kg/K"))
-        self.assertQuantityNear(self.water.h, -1.45e7 * ct.units.J / ct.units.kg)
+    pure_fluid.Q = None
+    assert_allclose(pure_fluid.Q, 0.6 * ctu.units.dimensionless)
+    assert_allclose(pure_fluid.T, T)
+    assert_allclose(pure_fluid.P, p)
 
-        self.water.ST = ct.Q_(5000, "J/kg/K"), ct.Q_(400, "K")
-        self.assertQuantityNear(self.water.s, 5000 * ct.units("J/kg/K"))
-        self.assertQuantityNear(self.water.T, 400 * ct.units.K)
+    with pytest.raises(ctu.CanteraError, match="an instance of a pint"):
+        pure_fluid.Q = 0.5
 
-    def test_set_Q(self):
-        self.water.TQ = ct.Q_(500, "K"), ct.Q_(0.0, "dimensionless")
-        p = self.water.P
-        self.water.Q = ct.Q_(0.8, "dimensionless")
-        self.assertQuantityNear(self.water.P, p)
-        self.assertQuantityNear(self.water.T, 500 * ct.units.K)
-        self.assertQuantityNear(self.water.Q, 0.8 * ct.units.dimensionless)
 
-        self.water.TP = ct.Q_(650, "K"), ct.Q_(101325, "Pa")
-        with self.assertRaises(ct.CanteraError):
-            self.water.Q = ct.Q_(0.1, "dimensionless")
+def yield_purefluid_only_setters():
+    props = [
+        pytest.param(("TPQ", "T", "P", "Q"), id="TPQ"),
+        pytest.param(("TQ", "T", "Q"), id="TQ"),
+        pytest.param(("PQ", "P", "Q"), id="PQ"),
+        pytest.param(("PV", "P", "v"), id="PV"),
+        pytest.param(("SH", "s", "h"), id="SH"),
+        pytest.param(("ST", "s", "T"), id="ST"),
+        pytest.param(("TH", "T", "h"), id="TH"),
+        pytest.param(("TV", "T", "v"), id="TV"),
+        pytest.param(("VH", "v", "h"), id="VH"),
+        pytest.param(("UP", "u", "P"), id="UP"),
+    ]
+    yield from props
 
-        self.water.TP = ct.Q_(300, "K"), ct.Q_(101325, "Pa")
-        with self.assertRaises(ValueError):
-            self.water.Q = ct.Q_(0.3, "dimensionless")
+
+def yield_purefluid_only_getters():
+    props = [
+        pytest.param(("DPQ", "density", "P", "Q"), id="DPQ"),
+        pytest.param(("HPQ", "h", "P", "Q"), id="HPQ"),
+        pytest.param(("SPQ", "s", "P", "Q"), id="SPQ"),
+        pytest.param(("SVQ", "s", "v", "Q"), id="SVQ"),
+        pytest.param(("TDQ", "T", "density", "Q"), id="TDQ"),
+        pytest.param(("UVQ", "u", "v", "Q"), id="UVQ"),
+    ]
+    yield from props
+
+
+def yield_all_purefluid_only_props():
+    yield from yield_purefluid_only_setters()
+    yield from yield_purefluid_only_getters()
+
+
+@pytest.mark.parametrize("prop", yield_purefluid_only_setters())
+def test_set_without_units_is_error_purefluid(prop):
+    # We only need to run this test for one PureFluid, not all of them
+    water = ctu.Water()
+    value = [None] * (len(prop[0]) - 1) + [0.5]
+    with pytest.raises(ctu.CanteraError, match="an instance of a pint"):
+        # Don't use append here, because append returns None which would be
+        # passed to setattr
+        setattr(water, prop[0], value)
+
+
+@pytest.mark.parametrize("props", yield_all_purefluid_only_props())
+def test_multi_prop_getters_purefluid(pure_fluid, props):
+    pair_or_triple, first, second, *third = props
+    first_value, second_value, *third_value = getattr(pure_fluid, pair_or_triple)
+    assert_allclose(getattr(pure_fluid, first), first_value)
+    assert_allclose(getattr(pure_fluid, second), second_value)
+    if third:
+        assert_allclose(getattr(pure_fluid, third[0]), third_value[0])
+
+
+@pytest.mark.parametrize("props", yield_purefluid_only_setters())
+def test_setters_purefluid(props):
+    # Only need to run this for a single pure fluid
+    pure_fluid = ctu.Water()
+    initial_TD = pure_fluid.TD
+    pair_or_triple = props[0]
+
+    T_1 = ctu.Q_(500, "K")
+    if pair_or_triple in ("SH", "TH"):
+        # This state is able to converge for these setters, whereas the state below
+        # does not converge
+        rho_1 = ctu.Q_(1000, "kg/m**3")
+    else:
+        # This state is located inside the vapor dome to be able to test the
+        # TQ and PQ setters
+        rho_1 = ctu.Q_(25.93245092697775, "kg/m**3")
+
+    # Use TD setting to get the properties at the modified state
+    pure_fluid.TD = T_1, rho_1
+    new_props = getattr(pure_fluid, pair_or_triple)
+    print(new_props)
+
+    # Reset to the initial state so that the next state setting actually has to do
+    # something.
+    pure_fluid.TD = initial_TD
+
+    # Use the test pair or triple to set the state and assert that the
+    # natural properties are equal to the modified state
+    setattr(pure_fluid, pair_or_triple, new_props)
+    assert_allclose(pure_fluid.T, T_1)
+    assert_allclose(pure_fluid.density, rho_1)
+
+
+@pytest.mark.parametrize("prop", ("X", "Y"))
+def test_X_Y_setters_with_none(generic_phase, prop):
+    comparison = getattr(generic_phase, prop)
+    setattr(generic_phase, prop, None)
+    # Assert that the value hasn't changed
+    assert_allclose(comparison, getattr(generic_phase, prop))
+
+
+@pytest.mark.parametrize("prop", ("X", "Y"))
+def test_X_Y_setters_without_units_works(generic_phase, prop):
+    composition = f"{generic_phase.species_names[0]}:1"
+    setattr(generic_phase, prop, composition)
+    assert_allclose(getattr(generic_phase, prop)[0], ctu.Q_([1], "dimensionless"))
