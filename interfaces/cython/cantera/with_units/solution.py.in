@@ -38,10 +38,13 @@ class PureFluid:
         if value is not None:
             try:
                 Q = value.to("dimensionless").magnitude
-            except AttributeError:
-                raise CanteraError(
-                    "Values must be instances of pint.Quantity classes"
-                ) from None
+            except AttributeError as e:
+                if "'to'" in str(e):
+                    raise CanteraError(
+                        f"Value {value!r} must be an instance of a pint.Quantity class"
+                    ) from None
+                else:
+                    raise  # pragma: no cover
         else:
             Q = self.Q.magnitude
         self._phase.Q = Q
@@ -55,17 +58,18 @@ class PureFluid:
 
     @TPQ.setter
     def TPQ(self, value):
+        msg = "Value {value!r} must be an instance of a pint.Quantity class"
         T = value[0] if value[0] is not None else self.T
         P = value[1] if value[1] is not None else self.P
         Q = value[2] if value[2] is not None else self.Q
-        try:
-            T = T.to("K")
-            P = P.to("Pa")
-            Q = Q.to("dimensionless")
-        except AttributeError:
-            raise CanteraError(
-                "Values must be instances of pint.Quantity classes"
-            ) from None
+        for val, unit in ((T, "K"), (P, "Pa"), (Q, "dimensionless")):
+            try:
+                val.ito(unit)
+            except AttributeError as e:
+                if "'ito'" in str(e):
+                    raise CanteraError(msg.format(value=val)) from None
+                else:
+                    raise  # pragma: no cover
         self._phase.TPQ = T.magnitude, P.magnitude, Q.magnitude
 
     @purefluid_properties@
