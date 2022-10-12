@@ -1960,7 +1960,7 @@ cdef class PureFluid(ThermoPhase):
         def __set__(self, Q):
             if (self.P >= self.critical_pressure or
                 abs(self.P-self.P_sat)/self.P > 1e-4):
-                raise ValueError('Cannot set vapor quality outside the'
+                raise ValueError('Cannot set vapor quality outside the '
                                  'two-phase region')
             self.thermo.setState_Psat(self.P, Q)
 
