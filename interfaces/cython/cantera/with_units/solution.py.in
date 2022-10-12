@@ -23,8 +23,8 @@ class Solution:
 
 
 class PureFluid:
-    def __init__(self, infile, name=""):
-        self.__dict__["_phase"] = _PureFluid(infile, name)
+    def __init__(self, infile, name="", **kwargs):
+        self.__dict__["_phase"] = _PureFluid(infile, name, **kwargs)
 
     @common_properties@
 
@@ -80,7 +80,7 @@ def CarbonDioxide():
 
 
 def Hfc134a():
-    return PureFluid("liquidvapor.yaml", "hfc134a")
+    return PureFluid("liquidvapor.yaml", "HFC-134a")
 
 
 def Hydrogen():
@@ -99,5 +99,5 @@ def Oxygen():
     return PureFluid("liquidvapor.yaml", "oxygen")
 
 
-def Water():
-    return PureFluid("liquidvapor.yaml", "water")
+def Water(backend="Reynolds"):
+    return PureFluid("liquidvapor.yaml", "water", backend=backend)
