@@ -172,17 +172,18 @@ setter_2_template = Template("""
 
     @${name}.setter
     def ${name}(self, value):
-        try:
-            ${n0} = value[0].to(${u0}) if value[0] is not None else self.${n0}
-            ${n1} = value[1].to(${u1}) if value[1] is not None else self.${n1}
-        except AttributeError as e:
-            # The 'to' attribute missing means this isn't a pint Quantity
-            if "'to'" in str(e):
-                raise CanteraError(
-                    f"Values ({value}) must be instances of pint.Quantity classes"
-                ) from None
-            else:
-                raise
+        ${n0} = value[0] if value[0] is not None else self.${n0}
+        ${n1} = value[1] if value[1] is not None else self.${n1}
+        for val, unit in ((${n0}, ${u0}), (${n1}, ${u1})):
+            try:
+                val.ito(unit)
+            except AttributeError as e:
+                if "'ito'" in str(e):
+                    raise CanteraError(
+                        f"Value {val!r} must be an instance of a pint.Quantity class"
+                    ) from None
+                else:
+                    raise  # pragma: no cover
         self._phase.${name} = ${n0}.magnitude, ${n1}.magnitude
 """)
 
@@ -209,17 +210,18 @@ setter_3_template = Template("""
 
     @${name}.setter
     def ${name}(self, value):
-        try:
-            ${n0} = value[0].to(${u0}) if value[0] is not None else self.${n0}
-            ${n1} = value[1].to(${u1}) if value[1] is not None else self.${n1}
-        except AttributeError as e:
-            # The 'to' attribute missing means this isn't a pint Quantity
-            if "'to'" in str(e):
-                raise CanteraError(
-                    f"Values ({value}) must be instances of pint.Quantity classes"
-                ) from None
-            else:
-                raise
+        ${n0} = value[0] if value[0] is not None else self.${n0}
+        ${n1} = value[1] if value[1] is not None else self.${n1}
+        for val, unit in ((${n0}, ${u0}), (${n1}, ${u1})):
+            try:
+                val.ito(unit)
+            except AttributeError as e:
+                if "'ito'" in str(e):
+                    raise CanteraError(
+                        f"Value {val!r} must be an instance of a pint.Quantity class"
+                    ) from None
+                else:
+                    raise  # pragma: no cover
         if value[2] is not None:
             try:
                 ${n2} = value[2].to(${u2}).magnitude
