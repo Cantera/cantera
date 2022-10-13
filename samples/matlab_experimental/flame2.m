@@ -8,7 +8,6 @@
 
 clear all
 close all
-cleanup
 clc
 
 tic
@@ -64,14 +63,14 @@ f.setTransientTolerances('default', tol_ts{:});
 
 inlet_o = Inlet('air_inlet');
 inlet_o.T = tin;
-inlet_o.setMdot(mdot_o);
+inlet_o.setMassFlowRate(mdot_o);
 inlet_o.setMoleFractions(comp1);
 
 %% Create the fuel inlet
 %
 inlet_f = Inlet('fuel_inlet');
 inlet_f.T = tin;
-inlet_f.setMdot(mdot_f);
+inlet_f.setMassFlowRate(mdot_f);
 inlet_f.setMoleFractions(comp2);
 
 %% Create the flame object

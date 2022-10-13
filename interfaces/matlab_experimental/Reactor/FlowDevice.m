@@ -24,11 +24,14 @@ classdef FlowDevice < handle
     %
 
     properties (SetAccess = immutable)
+
         type % Type of flow device.
         id % ID of Flowdevice object.
+
     end
 
     properties (SetAccess = protected)
+
         upstream % Upstream object of type :mat:func:`Reactor` or :mat:func:`Reservoir`.
 
         downstream % Downstream object of type :mat:func:`Reactor` or :mat:func:`Reservoir`.

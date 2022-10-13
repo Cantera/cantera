@@ -1,6 +1,8 @@
 function r = IdealGasReactor(contents)
     % Create a reactor with an ideal gas.
+    %
     % r = IdealGasReactor(contents)
+    %
     % An IdealGasReactor is an instance of class Reactor where the governing
     % equations are specialized for the ideal gas equation of state (and do not
     % work correctly with other thermodynamic models). Examples:
@@ -17,7 +19,6 @@ function r = IdealGasReactor(contents)
     %     reactor
     % :return:
     %     Instance of class :mat:func:`Reactor`
-    %
 
     if nargin == 0
         contents = 0;

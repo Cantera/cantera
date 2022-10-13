@@ -1,6 +1,8 @@
 function poly = polynom(coeffs)
     % Create a polynomial :mat:func:`Func` instance.
+    %
     % poly = polynom(coeffs)
+    %
     % The polynomial coefficients are specified by a vector
     % ``[a0 a1 .... aN]``. Examples:
     %
@@ -13,7 +15,6 @@ function poly = polynom(coeffs)
     %     Vector of polynomial coefficients
     % :return:
     %     Instance of class :mat:func:`Func`
-    %
 
     [n m] = size(coeffs);
     if n == 1

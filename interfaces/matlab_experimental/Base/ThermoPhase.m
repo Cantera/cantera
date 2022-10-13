@@ -11,11 +11,9 @@ classdef ThermoPhase < handle
     %     Instance of class :mat:func:`ThermoPhase`
     %
 
-    properties (SetAccess = immutable)
-        tpID % ID of the ThermoPhase object.
-    end
-
     properties (SetAccess = public)
+
+        tpID % ID of the ThermoPhase object.
 
         T % Temperature. Units: K.
 
@@ -41,7 +39,6 @@ classdef ThermoPhase < handle
         %     String. Can be 'mole'/'molar'/'Molar'/'Mole' or 'mass'/'Mass'.
         basis
 
-
     end
 
     properties (SetAccess = protected)
@@ -50,47 +47,6 @@ classdef ThermoPhase < handle
 
         charges % Species charges. Unit: elem. charge.
 
-        % Index of an element given its name.
-        %
-        % k = tp.elementIndex(name)
-        %
-        % The index is an integer assigned to each element in sequence as it
-        % is read in from the input file.
-        %
-        % If ``name`` is a single string, the return value will be a integer
-        % containing the corresponding index. If it is an cell array of
-        % strings, the output will be an array of the same shape
-        % containing the indices.
-        %
-        % NOTE: In keeping with the conventions used by Matlab, this method
-        % returns 1 for the first element. In contrast, the corresponding
-        % method elementIndex in the Cantera C++ and Python interfaces
-        % returns 0 for the first element, 1 for the second one, etc. ::
-        %
-        %     >> ic = gas.elementIndex('C');
-        %     >> ih = gas.elementIndex('H');
-        %
-        % :param name:
-        %     String or cell array of strings of elements to look up
-        % :return:
-        %     Integer or vector of integers of element indices
-        elementIndex
-        %
-        % Elemental mass fraction in gas object.
-        %
-        % elMassFrac = tp.elementalMassFraction(element)
-        %
-        % :param tp:
-        %     Object representing the gas, instance of class :mat:func:`Solution`,
-        %     and an ideal gas. The state of this object should be set to an
-        %     estimate of the gas state before calling elementalMassFraction.
-        %
-        % :param element:
-        %     String representing the element name.
-        % :return:
-        %     Elemental mass fraction within a gas object.
-        elementalMassFraction
-        %
         % Mean molecular weight.
         %
         % mmw = tp.meanMolecularWeight
@@ -109,65 +65,9 @@ classdef ThermoPhase < handle
 
         molecularWeights % Molecular weights of the species. Units: kg/kmol.
 
-        % Number of atoms of an element in a species.
-        %
-        % n = tp.nAtoms(k,m)
-        %
-        % :param tp:
-        %     Instance of class :mat:func:`ThermoPhase` (or another
-        %     object that derives from ThermoPhase)
-        % :param k:
-        %     String species name or integer species number
-        % :param m:
-        %     String element name or integer element number
-        % :return:
-        %     Number of atoms of element ``m`` in species ``k``.
-        nAtoms
-
         nElements % Number of elements in the phase.
 
         nSpecies % Number of species in the phase.
-
-        % Index of a species given the name.
-        %
-        % k = tp.speciesIndex(name)
-        %
-        % The index is an integer assigned to each species in sequence as it
-        % is read in from the input file.
-        %
-        % NOTE: In keeping with the conventions used by Matlab, this method
-        % returns 1 for the first species, 2 for the second, etc. In
-        % contrast, the corresponding method speciesIndex in the Cantera C++
-        % and Python interfaces returns 0 for the first species, 1 for the
-        % second one, etc. ::
-        %
-        %     >> ich4 = gas.speciesIndex('CH4');
-        %     >> iho2 = gas.speciesIndex('HO2');
-        %
-        % :param tp:
-        %     Instance of class :mat:func:`ThermoPhase` (or another
-        %     class derived from ThermoPhase)
-        % :param name:
-        %     If name is a single string, the return value will be a integer
-        %     containing the corresponding index. If it is an cell array of
-        %     strings, the output will be an array of the same shape
-        %     containing the indices.
-        % :return:
-        %     Scalar or array of integers
-        speciesIndex
-        %
-        % Name of a species given the index.
-        %
-        % nm = tp.speciesName(k)
-        %
-        % :param tp:
-        %     Instance of class :mat:func:`ThermoPhase` (or another
-        %     class derived from ThermoPhase)
-        % :param k:
-        %     Scalar or array of integer species numbers
-        % :return:
-        %     Cell array of strings
-        speciesName
 
         H % Enthalpy depending on the basis. Units: J/kmol (molar) J/kg (mass).
 
@@ -267,32 +167,6 @@ classdef ThermoPhase < handle
 
         refPressure % Reference pressure for standard-state. Units: Pa.
 
-        % Saturation pressure for a given temperature.
-        %
-        % p = tp.satPressure(t)
-        %
-        % :param tp:
-        %     Instance of class :mat:func:`ThermoPhase` (or another
-        %     object that derives from ThermoPhase)
-        % :param t:
-        %     Temperature Units: K
-        % :return:
-        %     Saturation pressure for temperature T. Units: Pa
-        satPressure
-        %
-        % Saturation temperature for a given pressure.
-        %
-        % t = tp.satTemperature(p)
-        %
-        % :param tp:
-        %     Instance of class :mat:func:`ThermoPhase` (or another
-        %     object that derives from ThermoPhase)
-        % :param p:
-        %     Pressure. Units: Pa
-        % :return:
-        %     Saturation temperature for pressure p. Units: K
-        satTemperature
-        %
         % Speed of sound.
         %
         % c = tp.soundspeed
@@ -323,7 +197,7 @@ classdef ThermoPhase < handle
 
         thermalExpansionCoeff % Thermal expansion coefficient. Units: 1/K.
 
-        vaporFraciton % Vapor fraction of the phase.
+        vaporFraction % Vapor fraction of the phase.
 
     end
 
@@ -483,7 +357,32 @@ classdef ThermoPhase < handle
             e = pt.Value;
         end
 
-        function k = get.elementIndex(tp, name)
+        function k = elementIndex(tp, name)
+            % Index of an element given its name.
+            %
+            % k = tp.elementIndex(name)
+            %
+            % The index is an integer assigned to each element in sequence as it
+            % is read in from the input file.
+            %
+            % If ``name`` is a single string, the return value will be a integer
+            % containing the corresponding index. If it is an cell array of
+            % strings, the output will be an array of the same shape
+            % containing the indices.
+            %
+            % NOTE: In keeping with the conventions used by Matlab, this method
+            % returns 1 for the first element. In contrast, the corresponding
+            % method elementIndex in the Cantera C++ and Python interfaces
+            % returns 0 for the first element, 1 for the second one, etc. ::
+            %
+            %     >> ic = gas.elementIndex('C');
+            %     >> ih = gas.elementIndex('H');
+            %
+            % :param name:
+            %     String or cell array of strings of elements to look up
+            % :return:
+            %     Integer or vector of integers of element indices
+
             if iscell(name)
                 [m, n] = size(name);
                 k = zeros(m, n);
@@ -512,6 +411,20 @@ classdef ThermoPhase < handle
         end
 
         function elMassFrac = elementalMassFraction(tp, element)
+            % Elemental mass fraction in gas object.
+            %
+            % elMassFrac = tp.elementalMassFraction(element)
+            %
+            % :param tp:
+            %     Object representing the gas, instance of class :mat:func:`Solution`,
+            %     and an ideal gas. The state of this object should be set to an
+            %     estimate of the gas state before calling elementalMassFraction.
+            %
+            % :param element:
+            %     String representing the element name.
+            % :return:
+            %     Elemental mass fraction within a gas object.
+
             if nargin ~= 2
                 error('elementalMassFraction expects two input arguments.');
             end
@@ -537,7 +450,7 @@ classdef ThermoPhase < handle
             eli = tp.elementIndex(element);
             M = tp.atomicMasses;
             Mel = M(eli);
-            MW = tp.MolecularWeights;
+            MW = tp.molecularWeights;
             % Initialize the element mass fraction as zero.
             elMassFrac = 0.0;
             % Use loop to perform summation of elemental mass fraction over all species.
@@ -556,7 +469,7 @@ classdef ThermoPhase < handle
             density = callct('thermo_molarDensity', tp.tpID);
         end
 
-        function mw = get.MolecularWeights(tp)
+        function mw = get.molecularWeights(tp)
             nsp = tp.nSpecies;
             yy = zeros(1, nsp);
             pt = libpointer('doublePtr', yy);
@@ -565,7 +478,21 @@ classdef ThermoPhase < handle
             mw = pt.Value;
         end
 
-        function n = get.nAtoms(tp, species, element)
+        function n = nAtoms(tp, species, element)
+            % Number of atoms of an element in a species.
+            %
+            % n = tp.nAtoms(k,m)
+            %
+            % :param tp:
+            %     Instance of class :mat:func:`ThermoPhase` (or another
+            %     object that derives from ThermoPhase)
+            % :param k:
+            %     String species name or integer species number
+            % :param m:
+            %     String element name or integer element number
+            % :return:
+            %     Number of atoms of element ``m`` in species ``k``.
+
             if nargin == 3
                 if ischar(species)
                     k = tp.speciesIndex(species);
@@ -597,7 +524,34 @@ classdef ThermoPhase < handle
             nsp = callct('thermo_nSpecies', tp.tpID);
         end
 
-        function k = get.speciesIndex(tp, name)
+        function k = speciesIndex(tp, name)
+            % Index of a species given the name.
+            %
+            % k = tp.speciesIndex(name)
+            %
+            % The index is an integer assigned to each species in sequence as it
+            % is read in from the input file.
+            %
+            % NOTE: In keeping with the conventions used by Matlab, this method
+            % returns 1 for the first species, 2 for the second, etc. In
+            % contrast, the corresponding method speciesIndex in the Cantera C++
+            % and Python interfaces returns 0 for the first species, 1 for the
+            % second one, etc. ::
+            %
+            %     >> ich4 = gas.speciesIndex('CH4');
+            %     >> iho2 = gas.speciesIndex('HO2');
+            %
+            % :param tp:
+            %     Instance of class :mat:func:`ThermoPhase` (or another
+            %     class derived from ThermoPhase)
+            % :param name:
+            %     If name is a single string, the return value will be a integer
+            %     containing the corresponding index. If it is an cell array of
+            %     strings, the output will be an array of the same shape
+            %     containing the indices.
+            % :return:
+            %     Scalar or array of integers
+
             if iscell(name)
                 [m, n] = size(name);
                 k = zeros(m, n);
@@ -625,7 +579,7 @@ classdef ThermoPhase < handle
             end
         end
 
-        function nm = get.speciesName(tp, k)
+        function nm = speciesName(tp, k)
             [m, n] = size(k);
             nm = cell(m, n);
             for i = 1:m
@@ -826,11 +780,35 @@ classdef ThermoPhase < handle
             p = callct('thermo_refPressure', tp.tpID, -1);
         end
 
-        function p = get.satPressure(tp, t)
+        function p = satPressure(tp, t)
+            % Saturation pressure for a given temperature.
+            %
+            % p = tp.satPressure(t)
+            %
+            % :param tp:
+            %     Instance of class :mat:func:`ThermoPhase` (or another
+            %     object that derives from ThermoPhase)
+            % :param t:
+            %     Temperature Units: K
+            % :return:
+            %     Saturation pressure for temperature T. Units: Pa.
+
             p = callct('thermo_satPressure', tp.tpID, t);
         end
 
-        function t = get.satTemperature(tp, p)
+        function t = satTemperature(tp, p)
+            % Saturation temperature for a given pressure.
+            %
+            % t = tp.satTemperature(p)
+            %
+            % :param tp:
+            %     Instance of class :mat:func:`ThermoPhase` (or another
+            %     object that derives from ThermoPhase)
+            % :param p:
+            %     Pressure. Units: Pa
+            % :return:
+            %     Saturation temperature for pressure p. Units: K.
+
             t = callct('thermo_satTemperature', tp.tpID, p);
         end
 

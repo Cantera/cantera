@@ -8,7 +8,6 @@ function isentropic(g)
 
     clear all
     close all
-    cleanup
     clc
 
     tic

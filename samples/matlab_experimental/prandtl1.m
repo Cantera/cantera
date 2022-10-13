@@ -9,7 +9,6 @@ function prandtl1(g)
 
     clear all
     close all
-    cleanup
     clc
 
     tic

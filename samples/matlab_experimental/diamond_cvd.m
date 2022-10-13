@@ -18,7 +18,6 @@ help diamond_cvd
 
 clear all
 close all
-cleanup
 clc
 
 t0 = cputime; % record the starting time
@@ -45,7 +44,7 @@ xh0 = x(ih);
 % input file 'diamond.yaml'.
 
 dbulk = Solution('diamond.yaml', 'diamond');
-mw = dbulk.MolecularWeights;
+mw = dbulk.molecularWeights;
 
 %% Create the interface object
 %

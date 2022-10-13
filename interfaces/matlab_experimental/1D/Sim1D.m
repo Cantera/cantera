@@ -22,49 +22,6 @@ classdef Sim1D < handle
         domains % Domain instances contained within the Sim1D object.
     end
 
-    properties (SetAccess = protected)
-
-        % The index of a domain in a Sim1D given its name.
-        %
-        % n = s.stackIndex(name)
-        %
-        % :param s:
-        %    Instance of class 'Sim1D'.
-        % :param name:
-        %    If double, the value is :returned. Otherwise, the name is
-        %    looked up and its index is :returned.
-        % :return:
-        %    Index of domain.
-        stackIndex
-        %
-        % Get the grid in one domain.
-        %
-        % z = s.grid(name)
-        %
-        % :param s:
-        %     Instance of class :mat:func:`Sim1D`
-        % :param name:
-        %     Name of the domain for which the grid
-        %     should be retrieved.
-        % :return:
-        %     The grid in domain name
-        grid
-        %
-        % Get the residuals.
-        %
-        % r = s.resid(domain, rdt, count)
-        %
-        % :param s:
-        %    Instance of class 'Sim1D'.
-        % :param domain:
-        %    Name of the domain.
-        % :param rdt:
-        % :param count:
-        % :return:
-        resid
-
-    end
-
     methods
         %% Sim1D Class Constructor
 
@@ -261,7 +218,19 @@ classdef Sim1D < handle
             callct('sim1D_getInitialSoln', s.stID);
         end
 
-        function n = get.stackIndex(s, name)
+        function n = stackIndex(s, name)
+            % The index of a domain in a Sim1D given its name.
+            %
+            % n = s.stackIndex(name)
+            %
+            % :param s:
+            %    Instance of class 'Sim1D'.
+            % :param name:
+            %    If double, the value is :returned. Otherwise, the name is
+            %    looked up and its index is :returned.
+            % :return:
+            %    Index of domain.
+
             if isa(name, 'double')
                 n = name;
             else
@@ -274,13 +243,37 @@ classdef Sim1D < handle
             end
         end
 
-        function z = get.grid(s, name)
+        function z = grid(s, name)
+            % Get the grid in one domain.
+            %
+            % z = s.grid(name)
+            %
+            % :param s:
+            %     Instance of class :mat:func:`Sim1D`
+            % :param name:
+            %     Name of the domain for which the grid
+            %     should be retrieved.
+            % :return:
+            %     The grid in domain name
+
             n = s.stackIndex(name);
             d = s.domains(n);
             z = d.gridPoints;
         end
 
-        function r = get.resid(s, domain, rdt, count)
+        function r = resid(s, domain, rdt, count)
+            % Get the residuals.
+            %
+            % r = s.resid(domain, rdt, count)
+            %
+            % :param s:
+            %    Instance of class 'Sim1D'.
+            % :param domain:
+            %    Name of the domain.
+            % :param rdt:
+            % :param count:
+            % :return:
+
             if nargin == 2
                 rdt = 0.0;
                 count = 0;

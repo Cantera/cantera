@@ -4,7 +4,6 @@
 
 clear all
 close all
-cleanup
 
 help rankine
 
@@ -12,6 +11,7 @@ help rankine
 eta_pump = 0.6;
 eta_turbine = 0.8;
 p_max = 8.0 * oneatm;
+t1 = 300.0;
 
 % create an object representing water
 w = Water;
@@ -36,12 +36,12 @@ w
 heat_added = h3 - h2;
 
 % expand adiabatically back to the initial pressure
-turbine_work = w.expand(p1, eta_turbine);
+turbine_work = expand(w, p1, eta_turbine);
 w
 
 % compute the efficiency
 efficiency = (turbine_work - pump_work)/heat_added;
-disp('efficiency = ', eff);
+disp(sprintf('efficiency = %d', efficiency));
 
 function w = pump(fluid, pfinal, eta)
     % PUMP - Adiabatically pump a fluid to pressure pfinal, using a pump

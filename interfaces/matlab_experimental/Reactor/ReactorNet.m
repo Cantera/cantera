@@ -38,19 +38,6 @@ classdef ReactorNet < handle
 
         rtol % Relative error tolerance.
 
-        % Sensitivity of the solution variable c in reactor
-        % rxtr with respect to the parameter p.
-        %
-        % s = r.sensitivity(component, p, rxtr)
-        %
-        % :param component:
-        %    String name of variable.
-        % :param p:
-        %    Integer sensitivity parameter.
-        % :param rxtr:
-        %    Instance of class 'reactor'.
-        sensitivity
-
     end
 
     methods
@@ -190,24 +177,30 @@ classdef ReactorNet < handle
         end
 
         function t = get.time(r)
-            % Get the current time in s.
-
             t = callct('reactornet_time', r.id);
         end
 
         function t = get.atol(r)
-            % Get the absolute error tolerance.
-
             t = callct('reactornet_atol', r.id);
         end
 
         function t = get.rtol(r)
-            % Get the relative error tolerance.
-
             t = callct('reactornet_rtol', r.id);
         end
 
-        function s = get.sensitivity(r, component, p, rxtr)
+        function s = sensitivity(r, component, p, rxtr)
+            % Sensitivity of the solution variable c in reactor
+            % rxtr with respect to the parameter p.
+            %
+            % s = r.sensitivity(component, p, rxtr)
+            %
+            % :param component:
+            %    String name of variable.
+            % :param p:
+            %    Integer sensitivity parameter.
+            % :param rxtr:
+            %    Instance of class 'reactor'.
+
             if isa(component, 'string')
                 callct('reactornet_sensitivity', r.id, component, ...
                         p, rxtr.id);

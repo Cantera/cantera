@@ -41,13 +41,8 @@ classdef Wall < handle
     end
 
     properties (SetAccess = protected)
-        left
-        right
-
-        qdot % Total heat transfer through a wall at given time.
-
-        vdot % Rate of volumetric change at given time.
-
+        left % Reactor on the left.
+        right % Reactor on the right.
     end
 
     properties (SetAccess = public)
@@ -117,11 +112,14 @@ classdef Wall < handle
             a = callct('wall_area', w.id);
         end
 
-        function q = get.qdot(w, t)
-             q = callct('wall_Q', w.id, t);
+        function q = qdot(w, t)
+            % Total heat transfer through a wall at a given time t.
+
+            q = callct('wall_Q', w.id, t);
         end
 
-        function v = get.vdot(w, t)
+        function v = vdot(w, t)
+            % Rate of volumetric change at a given time t.
             v = callct('wall_vdot', w.id, t);
         end
 

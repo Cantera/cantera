@@ -21,7 +21,6 @@ function periodic_cstr
 
     clear all
     close all
-    cleanup
     clc
 
     tic

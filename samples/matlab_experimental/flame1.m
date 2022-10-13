@@ -9,7 +9,6 @@
 
 clear all
 close all
-cleanup
 clc
 
 tic
@@ -64,7 +63,7 @@ f.setTransientTolerances('default', tol_ts{:});
 %  and composition (relative molar) may be specified.
 burner = Inlet('burner');
 burner.T = tburner;
-burner.setMdot(mdot);
+burner.setMassFlowRate(mdot);
 burner.setMoleFractions(comp);
 
 %% Create the outlet

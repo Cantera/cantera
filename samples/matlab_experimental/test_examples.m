@@ -3,7 +3,6 @@
 LoadCantera
 clear all
 close all
-cleanup
 
 equil();
 isentropic();

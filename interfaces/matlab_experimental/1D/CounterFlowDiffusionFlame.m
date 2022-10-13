@@ -44,7 +44,7 @@ function flame = CounterFlowDiffusionFlame(left, flow, right, tp_f, tp_o, oxidiz
     if ~right.isInlet
         error('Right inlet object of wrong type.');
     end
-    if ~oxidizer.ischar
+    if ~ischar(oxidizer)
         error('Oxidizer name must be of format character.');
     end
 
@@ -74,10 +74,10 @@ function flame = CounterFlowDiffusionFlame(left, flow, right, tp_f, tp_o, oxidiz
     % conditions. The stoichiometric mixture fraction, Zst, is then
     % calculated.
 
-    sFuel = tp_f.elMoles('O')- 2*tp_f.elMoles('C')- 0.5*tp_f.elMoles('H');
-    sOx = tp_o.elMoles('O')- 2*tp_o.elMoles('C')- 0.5*tp_o.elMoles('H');
-    phi = sFuel/sOx;
-    zst = 1.0/(1.0 - phi);
+    sFuel = elMoles(tp_f, 'O')- 2 * elMoles(tp_f, 'C') - 0.5 * elMoles(tp_f, 'H');
+    sOx = elMoles(tp_o, 'O') - 2 * elMoles(tp_o, 'C') - 0.5 * elMoles(tp_o, 'H');
+    phi = sFuel / sOx;
+    zst = 1.0 / (1.0 - phi);
 
     %% Compute the stoichiometric mass fractions of each species.
     % Use this to set the fuel gas object and calculate adiabatic flame
@@ -92,7 +92,7 @@ function flame = CounterFlowDiffusionFlame(left, flow, right, tp_f, tp_o, oxidiz
 
     for n = 1:nsp
         % Calculate stoichiometric mass fractions.
-        ystoich_double(n) = zst*yf(n) + (1.0 - zst)*yox(n);
+        ystoich_double(n) = zst * yf(n) + (1.0 - zst) * yox(n);
         % Convert mass fraction vector to string vector.
         ystoich_str{n} = num2str(ystoich_double(n));
         % Convert string vector to cell with SPECIES:MASS FRACTION format.
@@ -122,13 +122,13 @@ function flame = CounterFlowDiffusionFlame(left, flow, right, tp_f, tp_o, oxidiz
     dz = zz(end) - zz(1);
     mdotl = left.massFlux;
     mdotr = right.massFlux;
-    uleft = mdotl/rhof;
-    uright = mdotr/rho0;
-    a = (abs(uleft) + abs(uright))/dz;
+    uleft = mdotl / rhof;
+    uright = mdotr / rho0;
+    a = (abs(uleft) + abs(uright)) / dz;
     diff = tp_f.mixDiffCoeffs;
-    f = sqrt(a/(2.0*diff(ioxidizer)));
-    x0num = sqrt(uleft*mdotl)*dz;
-    x0den = sqrt(uleft*mdotr) + sqrt(uright*mdotr);
+    f = sqrt(a / (2.0 * diff(ioxidizer)));
+    x0num = sqrt(uleft * mdotl) * dz;
+    x0den = sqrt(uleft * mdotr) + sqrt(uright * mdotr);
     x0 = x0num/x0den;
 
     %% Calculate initial values of temperature and mass fractions.
@@ -144,24 +144,24 @@ function flame = CounterFlowDiffusionFlame(left, flow, right, tp_f, tp_o, oxidiz
 
     for j = 1:nz
         x = zz(j);
-        zeta = f*(x - x0);
-        zmix = 0.5*(1.0 - erf(zeta)); % Mixture fraction in flame.
+        zeta = f * (x - x0);
+        zmix = 0.5 * (1.0 - erf(zeta)); % Mixture fraction in flame.
         zm(j) = zmix;
-        u(j) = a*(x0 - zz(j)); % Axial velocity.
+        u(j) = a * (x0 - zz(j)); % Axial velocity.
         v(j) = a; % Radial velocity.
         if zmix > zst
             for n = 1:nsp
-                y(j,n) = yeq(n) + (zmix - zst)*(yf(n) - yeq(n))/(1.0 - zst);
+                y(j,n) = yeq(n) + (zmix - zst) * (yf(n) - yeq(n)) / (1.0 - zst);
             end
-            t(j) = teq + (tf - teq)*(zmix - zst)/(1.0 - zst);
+            t(j) = teq + (tf - teq) * (zmix - zst) / (1.0 - zst);
         else
             for n = 1:nsp
-                y(j,n) = yox(n) + zmix*(yeq(n) - yox(n))/zst;
+                y(j,n) = yox(n) + zmix * (yeq(n) - yox(n)) / zst;
             end
-            t(j) = tox + zmix*(teq - tox)/zst;
+            t(j) = tox + zmix * (teq - tox) / zst;
         end
     end
-    zrel = zz/dz;
+    zrel = zz / dz;
 
     %% Create the flame stack.
     % Set the profile of the flame with the estimated axial velocities,
@@ -184,7 +184,7 @@ function moles = elMoles(tp, element)
     if nargin ~= 2
         error('elMoles expects two input arguments.');
     end
-    if ~isIdealGas(tp)
+    if ~tp.isIdealGas
         error('Gas object must represent an ideal gas mixture.');
     end
     if ~ischar(element)
@@ -204,5 +204,5 @@ function moles = elMoles(tp, element)
     eli = tp.elementIndex(element);
     M = tp.atomicMasses;
     Mel = M(eli);
-    moles = elMassFrac/Mel;
+    moles = elMassFrac / Mel;
 end

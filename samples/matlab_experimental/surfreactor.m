@@ -9,7 +9,6 @@
 
 clear all
 close all
-cleanup
 clc
 
 tic
@@ -106,6 +105,5 @@ xlabel('Time (s)');
 ylabel('Mole Fractions');
 legend(names);
 clear all
-cleanup
 
 toc

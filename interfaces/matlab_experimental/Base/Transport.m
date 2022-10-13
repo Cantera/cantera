@@ -12,7 +12,7 @@ classdef Transport < handle
 
         viscosity % Dynamic viscosity. Unit: Pa*s.
 
-        thermoConductivity % Thermal conductivity. Unit: W/m-K.
+        thermalConductivity % Thermal conductivity. Unit: W/m-K.
 
         electricalConductivity % Electrical conductivity. Unit: S/m.
 

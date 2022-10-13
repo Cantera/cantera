@@ -1,5 +1,6 @@
 function r = frdivide(a, b)
     % Get a functor that is the ratio of the input functors.
+    %
     % r = frdivide(a,b)
     %
     % :param a:
