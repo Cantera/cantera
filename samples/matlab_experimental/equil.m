@@ -8,7 +8,6 @@ function equil(g)
 
     clear all
     close all
-    cleanup
     clc
 
     tic

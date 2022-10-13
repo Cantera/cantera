@@ -10,7 +10,6 @@
 
 clear all
 close all
-cleanup
 clc
 
 tic % total running time of the script
@@ -69,13 +68,13 @@ f.setTransientTolerances('default', tol_ts{:});
 % Set the oxidizer inlet.
 inlet_o = Inlet('air_inlet');
 inlet_o.T = tin;
-inlet_o.setMdot(mdot_o);
+inlet_o.setMassFlowRate(mdot_o);
 inlet_o.setMoleFractions(oxcomp);
 
 % Set the fuel inlet.
 inlet_f = Inlet('fuel_inlet');
 inlet_f.T = tin;
-inlet_f.setMdot(mdot_f);
+inlet_f.setMassFlowRate(mdot_f);
 inlet_f.setMoleFractions(fuelcomp);
 
 %% Create the flame object.

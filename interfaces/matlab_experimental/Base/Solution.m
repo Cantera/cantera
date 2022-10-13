@@ -79,7 +79,7 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
         function delete(s)
             % Delete the kernel objects associated with a Solution.
 
-            disp('Solution class object has been deleted').
+            disp('Solution class object has been deleted');
         end
 
     end

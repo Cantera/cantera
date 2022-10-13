@@ -30,7 +30,7 @@ function F = PFR_Solver(x, soln_vector, gas, mdot, A_in, dAdx, k)
     P = rho * R * T;
 
     gas.basis = 'mass';
-    MW = gas.MolecularWeights;
+    MW = gas.molecularWeights;
     h = gas.enthalpies_RT.*R.*T;
     w = gas.netProdRates;
     Cp = gas.cp;

@@ -9,7 +9,6 @@ function reactor1(g)
 
     clear all
     close all
-    cleanup
     clc
 
     tic
@@ -88,8 +87,6 @@ function reactor1(g)
     plot(tim,x(:,3));
     xlabel('Time (s)');
     ylabel('H2 Mole Fraction (K)');
-    clear all
-    cleanup
 
     toc
 end

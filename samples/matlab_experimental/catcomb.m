@@ -18,7 +18,6 @@ help catcomb;
 
 clear all
 close all
-cleanup
 clc
 
 t0 = cputime;  % record the starting time
@@ -112,7 +111,7 @@ inlt = Inlet('inlet');
 
 % set the inlet parameters. Start with comp1 (hydrogen/air)
 inlt.T = tinlet;
-inlt.setMdot(mdot);
+inlt.setMassFlowRate(mdot);
 inlt.setMoleFractions(comp1);
 
 %% create the surface

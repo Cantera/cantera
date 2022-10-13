@@ -1,6 +1,8 @@
 function r = ConstPressureReactor(contents)
     % Create a constant pressure reactor object.
+    %
     % r = ConstPressureReactor(contents)
+    %
     % A :mat:func:`ConstPressureReactor` is an instance of class
     % :mat:func:`Reactor` where the pressure is held constant. The volume
     % is not a state variable, but instead takes on whatever value is
@@ -18,7 +20,6 @@ function r = ConstPressureReactor(contents)
     %     reactor
     % :return:
     %     Instance of class :mat:func:`Reactor`
-    %
 
     if nargin == 0
         contents = 0;

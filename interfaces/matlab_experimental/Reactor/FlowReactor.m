@@ -1,6 +1,8 @@
 function r = FlowReactor(contents)
     % Create a flow reactor object.
+    %
     % r = FlowReactor(contents)
+    %
     % A reactor representing adiabatic plug flow in a constant-area
     % duct. Examples:
     %
@@ -16,7 +18,6 @@ function r = FlowReactor(contents)
     %     reactor
     % :return:
     %     Instance of class :mat:func:`Reactor`
-    %
 
     if nargin == 0
         contents = 0;

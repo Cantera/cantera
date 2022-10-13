@@ -1,5 +1,6 @@
 function r = ftimes(a, b)
      % Create a functor that multiplies two other functors.
+     %
      % r = ftimes(a, b)
      %
      % :param a:

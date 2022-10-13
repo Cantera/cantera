@@ -36,43 +36,6 @@ classdef Domain1D < handle
 
     properties (SetAccess = protected)
 
-        % Get the (lower, upper) bounds for a solution component.
-        %
-        % b = d.bounds(componoent)
-        %
-        % :param component:
-        %    String name of the component for which the bounds are
-        %    returned.
-        % :return:
-        %    1x2 Vector of the lower and upper bounds.
-        bounds
-        %
-        % Index of a component given its name.
-        %
-        % n = d.componentIndex(name)
-        %
-        % :param d:
-        %     Instance of class :mat:func:`Domain1D`
-        % :param name:
-        %     String name of the component to look up. If a numeric value
-        %     is passed, it will be returned.
-        % :return:
-        %     Index of the component, or input numeric value.
-        componentIndex
-        %
-        % Name of a component given its index.
-        %
-        % n = d.componentName(index)
-        %
-        % :param d:
-        %     Instance of class :mat:func:`Domain1D`
-        % :param index:
-        %     Integer or vector of integers of component names
-        %     to get.
-        % :return:
-        %     Cell array of component names.
-        componentName
-        %
         % Domain index.
         %
         % i = d.domainIndex
@@ -93,18 +56,6 @@ classdef Domain1D < handle
         % :return:
         %     Integer flag denoting the domain type.
         domainType
-        %
-        % Grid points from a domain.
-        %
-        % zz = d.gridPoints(n)
-        %
-        % :param d:
-        %    Instance of class 'Domain1D'.
-        % :param n:
-        %    Optional, vector of grid points to be retrieved.
-        % :return:
-        %    Vector of grid points.
-        gridPoints
         %
         % Determines whether a domain is a flow.
         %
@@ -146,22 +97,6 @@ classdef Domain1D < handle
         %     The mass flux in the domain.
         massFlux
         %
-        % Get the mass fraction of a species given its integer index.
-        %
-        % y = d.massFraction(k)
-        %
-        % This method returns the mass fraction of species ``k``, where
-        % k is the integer index of the species in the flow domain
-        % to which the boundary domain is attached.
-        %
-        % :param d:
-        %     Instance of class :mat:func:`Domain1D`
-        % :param k:
-        %     Integer species index
-        % :return:
-        %     Mass fraction of species
-        massFraction
-        %
         % Number of components.
         %
         % n = d.nComponents
@@ -181,18 +116,6 @@ classdef Domain1D < handle
         % :return:
         %     Integer number of grid points.
         nPoints
-        %
-        % Return the (relative, absolute) error tolerances for a
-        % solution component.
-        %
-        % tol = d.tolerances(component)
-        %
-        % :param component:
-        %    String name of the component for which the bounds are
-        %    returned.
-        % :return:
-        %    1x2 Vector of the relative and absolute error tolerances.
-        tolerances
 
     end
 
@@ -311,14 +234,37 @@ classdef Domain1D < handle
 
         %% Domain Get Methods
 
-        function b = get.bounds(d, component)
+        function b = bounds(d, component)
+            % Get the (lower, upper) bounds for a solution component.
+            %
+            % b = d.bounds(componoent)
+            %
+            % :param component:
+            %    String name of the component for which the bounds are
+            %    returned.
+            % :return:
+            %    1x2 Vector of the lower and upper bounds.
+
             n = d.componentIndex(component);
             lower = callct('domain_lowerBound', d.domainID, n);
             upper = callct('domain_upperBound', d.domainID, n);
             b = [lower, upper];
         end
 
-        function n = get.componentIndex(d, name)
+        function n = componentIndex(d, name)
+            %
+            % Index of a component given its name.
+            %
+            % n = d.componentIndex(name)
+            %
+            % :param d:
+            %     Instance of class :mat:func:`Domain1D`
+            % :param name:
+            %     String name of the component to look up. If a numeric value
+            %     is passed, it will be returned.
+            % :return:
+            %     Index of the component, or input numeric value.
+
             if isa(name, 'double')
                 n = name;
             else
@@ -333,7 +279,20 @@ classdef Domain1D < handle
             end
         end
 
-        function s = get.componentName(d, index)
+        function s = componentName(d, index)
+            %
+            % Name of a component given its index.
+            %
+            % n = d.componentName(index)
+            %
+            % :param d:
+            %     Instance of class :mat:func:`Domain1D`
+            % :param index:
+            %     Integer or vector of integers of component names
+            %     to get.
+            % :return:
+            %     Cell array of component names.
+
             n = length(index);
             s = cell(1, n);
             for i = 1:n
@@ -357,7 +316,19 @@ classdef Domain1D < handle
             i = callct('domain_type', d.domainID);
         end
 
-        function zz = get.gridPoints(d, n)
+        function zz = gridPoints(d, n)
+            %
+            % Grid points from a domain.
+            %
+            % zz = d.gridPoints(n)
+            %
+            % :param d:
+            %    Instance of class 'Domain1D'.
+            % :param n:
+            %    Optional, vector of grid points to be retrieved.
+            % :return:
+            %    Vector of grid points.
+
             if nargin == 1
                 np = d.nPoints;
                 zz = zeros(1, np);
@@ -404,7 +375,23 @@ classdef Domain1D < handle
             mdot = callct('bdry_mdot', d.domainID);
         end
 
-        function y = get.massFraction(d, k)
+        function y = massFraction(d, k)
+            %
+            % Get the mass fraction of a species given its integer index.
+            %
+            % y = d.massFraction(k)
+            %
+            % This method returns the mass fraction of species ``k``, where
+            % k is the integer index of the species in the flow domain
+            % to which the boundary domain is attached.
+            %
+            % :param d:
+            %     Instance of class :mat:func:`Domain1D`
+            % :param k:
+            %     Integer species index
+            % :return:
+            %     Mass fraction of species
+
             if d.domainIndex == 0
                 error('No flow domain attached!')
             end
@@ -424,6 +411,18 @@ classdef Domain1D < handle
         end
 
         function tol = tolerances(d, component)
+            %
+            % Return the (relative, absolute) error tolerances for a
+            % solution component.
+            %
+            % tol = d.tolerances(component)
+            %
+            % :param component:
+            %    String name of the component for which the bounds are
+            %    returned.
+            % :return:
+            %    1x2 Vector of the relative and absolute error tolerances.
+
             n = d.componentIndex(component);
             rerr = callct('domain_rtol', d.domainID, n);
             aerr = callct('domain_atol', d.domainID, n);
@@ -537,7 +536,7 @@ classdef Domain1D < handle
         function setMassFlowRate(d, mdot)
             % Set the mass flow rate.
             %
-            % d.setMdot(mdot)
+            % d.setMassFlowRate(mdot)
             %
             % :param d:
             %     Instance of class :mat:func:`Domain1D`

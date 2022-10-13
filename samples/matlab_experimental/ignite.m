@@ -1,7 +1,7 @@
 function plotdata = ignite(g)
 %% IGNITE Zero-dimensional kinetics: adiabatic, constant pressure.
 %
-%    This example solves the same problem as 'reactor1,' but does
+%    This example solves the same problem as 'reactor1', but does
 %    it using one of MATLAB's ODE integrators, rather than using the
 %    Cantera Reactor class.
 %
@@ -9,7 +9,6 @@ function plotdata = ignite(g)
 
     clear all
     close all
-    cleanup
     clc
 
     tic
@@ -52,16 +51,16 @@ function plotdata = ignite(g)
 
     function v = vdot(t, vol, gas)
     %v = 0.0;                                 %uncomment for constant volume
-    v = 1.e11 * (gas.P - 101325.0);   % holds pressure very
+        v = 1.e11 * (gas.P - 101325.0);       % holds pressure very
                                               % close to 1 atm
     end
     % heat flux (W/m^2).
     function q = heatflux(t, gas)
-    q = 0.0;                                  % adiabatic
+        q = 0.0;                              % adiabatic
     end
     % surface area (m^2). Used only to compute heat transfer.
-    function a = area(t,vol)
-    a = 1.0;
+    function a = area(t, vol)
+        a = 1.0;
     end
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

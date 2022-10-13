@@ -6,7 +6,6 @@ function ignite_hp(gas)
 
     clear all
     close all
-    cleanup
     clc
 
     tic
@@ -16,7 +15,7 @@ function ignite_hp(gas)
        gas = Solution('gri30.yaml', 'gri30');
     end
 
-    mw = gas.MolecularWeights;
+    mw = gas.molecularWeights;
     gas.TPX = {1001.0, oneatm, 'H2:2,O2:1,N2:4'};
 
     y0 = [gas.T

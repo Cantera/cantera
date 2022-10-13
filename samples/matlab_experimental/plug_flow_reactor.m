@@ -26,7 +26,6 @@
 
 clear all
 close all
-cleanup
 clc
 
 tic
@@ -122,7 +121,7 @@ for i = 2:length(x_calc)
 %--------------------------------------------------------------------------
 %--------------------------------------------------------------------------
     % These values are passed onto the ode15s solver
-    [~,y] = ode15s(@PFR_Solver, limits, inlet_soln, options, ...
+    [~,y] = ode15s(@PFR_solver, limits, inlet_soln, options, ...
                     gas_calc, mdot_calc, A_in, dAdx, k);
 
     T_calc(i) = y(end, 2);
@@ -143,7 +142,7 @@ for i=1:length(x_calc)
     % Specific Gas Constant
     R_calc(i) = gasconstant() / gas_calc.meanMolecularWeight;
     % Mach No. is calculated from local velocity and local speed of sound
-    M_calc(i) = vx_calc(i) / gas_calc.soundspeed;
+    M_calc(i) = vx_calc(i) / gas_calc.soundSpeed;
     % Pressure is calculated from density, temperature and gas constant
     P_calc(i) = rho_calc(i) * R_calc(i) * T_calc(i);
 end

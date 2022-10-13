@@ -1,5 +1,6 @@
 function r = fplus(a, b)
     % Get a functor representing the sum of two input functors.
+    %
     % r = fplus(a, b)
     %
     % :param a:

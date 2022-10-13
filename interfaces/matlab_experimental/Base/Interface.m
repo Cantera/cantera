@@ -23,7 +23,6 @@ classdef Interface < handle & ThermoPhase & Kinetics
     %
 
     properties (SetAccess = public)
-        coverages % Surface coverages of the species on an interface.
 
         % Surface coverages of the species on an interface.
         % Unit: kmol/m^2 for surface phases, kmol/m for edge phases.
@@ -61,7 +60,9 @@ classdef Interface < handle & ThermoPhase & Kinetics
 
         %% Interface Get Methods
 
-        function c = get.coverages(s)
+        function c = coverages(s)
+            % Surface coverages of the species on an interface.
+
             surfID = s.tpID;
             nsp = s.nSpecies;
             xx = zeros(1, nsp);
@@ -84,10 +85,10 @@ classdef Interface < handle & ThermoPhase & Kinetics
             c = pt.Value;
         end
 
-        function set.coverages(s, cov, norm)
+        function setCoverages(s, cov, norm)
             % Set surface coverages of the species on an interface.
             %
-            % s.coverages = (cov, norm)
+            % s.setCoverages(cov, norm)
             %
             % :param s:
             %      Instance of class :mat:func:`Interface`
@@ -102,7 +103,7 @@ classdef Interface < handle & ThermoPhase & Kinetics
             %      ``s`` is a vector, not a string. Since unnormalized coverages can lead to
             %      unphysical results, ``'nonorm'`` should be used only in rare cases, such
             %      as computing partial derivatives with respect to a species coverage.
-            %
+
             if nargin == 3 && strcmp(norm, 'nonorm')
                 norm_flag = 0;
             else
@@ -138,7 +139,6 @@ classdef Interface < handle & ThermoPhase & Kinetics
             % :param d
             %    Double site density. Unit: kmol/m^2 for surface phases,
             %    kmol/m for edge phases.
-            %
 
             surfID = s.tpID;
             callct('surf_setSiteDensity', surfID, d);
