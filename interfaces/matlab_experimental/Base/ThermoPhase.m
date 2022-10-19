@@ -1135,7 +1135,7 @@ classdef ThermoPhase < handle
             tol = 1e-9;
             if isa(xx, 'double')
                 nsp = tp.nSpecies;
-                if sum(xx) - 1 <= tol
+                if abs(sum(xx) - 1) <= tol
                     norm = 0;
                 else norm = 1;
                 end
@@ -1149,7 +1149,7 @@ classdef ThermoPhase < handle
         function set.Y(tp, yy)
             if isa(yy, 'double')
                 nsp = tp.nSpecies;
-                if sum(yy) -1 <= 1e-9
+                if abs(sum(yy) -1) <= 1e-9
                     norm = 0;
                 else norm = 1;
                 end
