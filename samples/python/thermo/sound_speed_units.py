@@ -1,14 +1,17 @@
 """
 Compute the "equilibrium" and "frozen" sound speeds for a gas
 
-Requires: cantera >= 2.6.0
-Keywords: thermodynamics, equilibrium
+Requires: Cantera >= 3.0.0, pint
+Keywords: thermodynamics, equilibrium, units
 """
 
-import cantera.with_units as ct
+import cantera.with_units as ctu
 import numpy as np
 
-ct.units.default_format = ".2F~P"
+# This sets the default output format of the units to have 2 significant digits
+# and the units are printed with a Unicode font. See:
+# https://pint.readthedocs.io/en/stable/formatting.html#unit-format-types
+ctu.units.default_format = ".2F~P"
 
 def equilibrium_sound_speeds(gas, rtol=1.0e-6, max_iter=5000):
     """
@@ -44,18 +47,18 @@ def equilibrium_sound_speeds(gas, rtol=1.0e-6, max_iter=5000):
 
     # compute the frozen sound speed using the ideal gas expression as a check
     gamma = gas.cp/gas.cv
-    gamma * ct.units.molar_gas_constant
-    afrozen2 = np.sqrt(gamma * ct.units.molar_gas_constant * gas.T /
+    gamma * ctu.units.molar_gas_constant
+    afrozen2 = np.sqrt(gamma * ctu.units.molar_gas_constant * gas.T /
                          gas.mean_molecular_weight).to("ft/s")
 
     return aequil, afrozen, afrozen2
 
 # test program
 if __name__ == "__main__":
-    gas = ct.Solution('gri30.yaml')
+    gas = ctu.Solution('gri30.yaml')
     gas.X = 'CH4:1.00, O2:2.0, N2:7.52'
-    T_range = np.linspace(80.33, 4760.33, 50) * ct.units.degF
+    T_range = np.linspace(80.33, 4760.33, 50) * ctu.units.degF
     print("Temperature      Equilibrium Sound Speed     Frozen Sound Speed      Frozen Sound Speed Check")
     for T in T_range:
-        gas.TP = T, 1.0 * ct.units.atm
-        print(T, *equilibrium_sound_speeds(gas), sep = "               ")
+        gas.TP = T, 1.0 * ctu.units.atm
+        print(T.to("degF"), *equilibrium_sound_speeds(gas), sep = "               ")

@@ -52,4 +52,3 @@ coverage.info
 .coverage
 doc/sphinx/matlab/*.rst
 !doc/sphinx/matlab/index.rst
-interfaces/cython/cantera/units/solution.py
