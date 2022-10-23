@@ -2,16 +2,16 @@
 Calculate the efficiency of a Rankine vapor power cycle using a pure fluid model
 for water. Includes the units of quantities in the calculations.
 
-Requires: Cantera >= 2.6.0
+Requires: Cantera >= 3.0.0, pint
 Keywords: thermodynamics, thermodynamic cycle, non-ideal fluid, units
 """
 
-import cantera.with_units as ct
+import cantera.with_units as ctu
 
 # parameters
-eta_pump = 0.6 * ct.units.dimensionless  # pump isentropic efficiency
-eta_turbine = 0.8 * ct.units.dimensionless # turbine isentropic efficiency
-p_max = 116.03 * ct.units.psi  # maximum pressure
+eta_pump = 0.6 * ctu.units.dimensionless  # pump isentropic efficiency
+eta_turbine = 0.8 * ctu.units.dimensionless # turbine isentropic efficiency
+p_max = 116.03 * ctu.units.psi  # maximum pressure
 
 
 def pump(fluid, p_final, eta):
@@ -49,10 +49,10 @@ def print_state(n, fluid):
 
 if __name__ == '__main__':
     # create an object representing water
-    w = ct.Water()
+    w = ctu.Water()
 
-    # start with saturated liquid water at 80.33 degrees Rankine
-    w.TQ = 540 * ct.units.degR, 0.0 * ct.units.dimensionless
+    # start with saturated liquid water at 80.33 degrees Fahrenheit
+    w.TQ = ctu.Q_(80.33, "degF"), 0.0 * ctu.units.dimensionless
     h1 = w.h
     p1 = w.P
     print_state(1, w)
@@ -64,7 +64,7 @@ if __name__ == '__main__':
 
     # heat it at constant pressure until it reaches the saturated vapor state
     # at this pressure
-    w.PQ = p_max, 1.0 * ct.units.dimensionless
+    w.PQ = p_max, 1.0 * ctu.units.dimensionless
     h3 = w.h
     heat_added = h3 - h2
     print_state(3, w)

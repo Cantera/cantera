@@ -54,7 +54,7 @@ def equilSoundSpeeds(gas, rtol=1.0e-6, max_iter=5000):
 if __name__ == "__main__":
     gas = ct.Solution('gri30.yaml')
     gas.X = 'CH4:1.00, O2:2.0, N2:7.52'
-    T_range = np.linspace(300, 2900, 27)
+    T_range = np.arange(300, 2901, 100)
     for T in T_range:
         gas.TP = T, ct.one_atm
         print(T, equilSoundSpeeds(gas))
