@@ -187,6 +187,9 @@ jobs:
       run: |
         dotnet test --collect:"XPlat Code Coverage"
         mv Cantera.Tests/TestResults/*/coverage.cobertura.xml .
+        dotnet new tool-manifest
+        dotnet tool install --local dotnet-reportgenerator-globaltool
+        dotnet reportgenerator -reports:"coverage.cobertura.xml" -targetdir:"coveragereport" -reporttypes:Html
       working-directory: interfaces/dotnet
     - name: Process coverage files
       run: |
@@ -205,6 +208,12 @@ jobs:
       with:
         name: python-coverage-report
         path: build/python-coverage*
+        retention-days: 5
+    - name: Archive .NET coverage results
+      uses: actions/upload-artifact@v2
+      with:
+        name: dotnet-coverage-report
+        path: interfaces/dotnet/coveragereport*
         retention-days: 5
     - name: Upload Coverage to Codecov
       uses: codecov/codecov-action@v3
