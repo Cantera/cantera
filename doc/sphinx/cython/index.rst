@@ -15,4 +15,5 @@ Contents:
    zerodim
    onedim
    constants
+   units
    utilities

@@ -84,6 +84,36 @@ def setup(app):
                     lines[i] = l.replace("*", r"\*")
     app.connect('autodoc-process-docstring', escape_splats)
 
+    # NAMES = []
+    # DIRECTIVES = {}
+
+    # def get_rst(app, what, name, obj, options, signature,
+    #             return_annotation):
+    #     if "with_units" not in name:
+    #         return
+    #     doc_indent = '    '
+    #     directive_indent = ''
+    #     if what in ['method', 'attribute']:
+    #         doc_indent += '    '
+    #         directive_indent += '    '
+    #     directive = '%s.. py:%s:: %s' % (directive_indent, what, name)
+    #     if signature:  # modules, attributes, ... don't have a signature
+    #         directive += signature
+    #     NAMES.append(name)
+    #     rst = directive + '\n\n' + doc_indent + obj.__doc__ + '\n'
+    #     DIRECTIVES[name] = rst
+
+    # def write_new_docs(app, exception):
+    #     txt = ['My module documentation']
+    #     txt.append('-----------------------\n')
+    #     for name in NAMES:
+    #         txt.append(DIRECTIVES[name])
+    #     # print('\n'.join(txt))
+    #     with open('../doc_new/generated.rst', 'w') as outfile:
+    #         outfile.write('\n'.join(txt))
+
+    # app.connect('autodoc-process-signature', get_rst)
+    # app.connect('build-finished', write_new_docs)
 
 autoclass_content = 'both'
 

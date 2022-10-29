@@ -156,6 +156,7 @@ getter_properties = [
 
 getter_template = Template("""
     @property
+    @copy_doc
     def ${name}(self):
         return Q_(self._phase.${name}, ${units})
 """)
@@ -166,6 +167,7 @@ for name in getter_properties:
 
 setter_2_template = Template("""
     @property
+    @copy_doc
     def ${name}(self):
         ${n0}, ${n1} = self._phase.${name}
         return Q_(${n0}, ${u0}), Q_(${n1}, ${u1})
@@ -204,6 +206,7 @@ for name in pf_setter_2_properties:
 
 setter_3_template = Template("""
     @property
+    @copy_doc
     def ${name}(self):
         ${n0}, ${n1}, ${n2} = self._phase.${name}
         return Q_(${n0}, ${u0}), Q_(${n1}, ${u1}), Q_(${n2}, ${u2})
@@ -245,6 +248,7 @@ for name in tp_setter_3_properties:
 
 getter_3_template = Template("""
     @property
+    @copy_doc
     def ${name}(self):
         ${n0}, ${n1}, ${n2} = self._phase.${name}
         return Q_(${n0}, ${u0}), Q_(${n1}, ${u1}), Q_(${n2}, ${u2})
@@ -282,13 +286,16 @@ common_properties = """
 
     @property
     def basis_units(self):
+        \"\"\"The units associated with the mass/molar basis of this phase.\"\"\"
         if self._phase.basis == "mass":
             return "kg"
         else:
             return "kmol"
 
     @property
+    @copy_doc
     def X(self):
+        \"\"\"If an array is used for setting, the units must be dimensionless.\"\"\"
         X = self._phase.X
         return Q_(X, "dimensionless")
 
@@ -304,7 +311,9 @@ common_properties = """
         self._phase.X = X
 
     @property
+    @copy_doc
     def Y(self):
+        \"\"\"If an array is used for setting, the units must be dimensionless.\"\"\"
         Y = self._phase.Y
         return Q_(Y, "dimensionless")
 
