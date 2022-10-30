@@ -1,12 +1,16 @@
 from contextlib import nullcontext
-import pytest
 from dataclasses import dataclass
 from typing import Optional, Tuple, Dict
+import sys
 
+import pytest
 import cantera.with_units as ctu
 import cantera as ct
-import numpy as np
-from pint.testing import assert_allclose
+try:
+    from pint.testing import assert_allclose
+except ModuleNotFoundError:
+    # pint.testing was introduced in pint 0.20
+    from pint.testsuite.helpers import assert_quantity_almost_equal as assert_allclose
 
 
 @pytest.fixture(scope="function")
@@ -25,7 +29,13 @@ def generic_phase(request):
 
 
 def test_setting_basis_units_fails(generic_phase):
-    with pytest.raises(AttributeError, match="basis_units"):
+    # Python 3.10 includes the name of the attribute which was improperly used as a
+    # setter. Earlier versions have just a generic error message.
+    if sys.version_info.minor < 10:
+        match = "set attribute"
+    else:
+        match = "basis_units"
+    with pytest.raises(AttributeError, match=match):
         generic_phase.basis_units = "some random string"
 
 
