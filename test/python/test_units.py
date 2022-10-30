@@ -4,6 +4,8 @@ from dataclasses import dataclass
 from typing import Optional, Tuple, Dict
 
 import cantera.with_units as ctu
+import cantera as ct
+import numpy as np
 from pint.testing import assert_allclose
 
 
@@ -514,3 +516,36 @@ def test_X_Y_setters_without_units_works(generic_phase, prop):
     composition = f"{generic_phase.species_names[0]}:1"
     setattr(generic_phase, prop, composition)
     assert_allclose(getattr(generic_phase, prop)[0], ctu.Q_([1], "dimensionless"))
+
+
+def test_thermophase_properties_exist(ideal_gas):
+    # Since the Solution class in the with_units subpackage only implements
+    # the ThermoPhase interface for now, instantiate a regular ThermoPhase
+    # to compare the attributes and make sure all of them exist on the with_units
+    # object
+    tp = ct.ThermoPhase("h2o2.yaml")
+
+    for attr in dir(tp):
+        if attr.startswith("_"):  # or attr in skip:
+            continue
+
+        try:
+            getattr(tp, attr)
+        except (ct.CanteraError, ct.ThermoModelMethodError):
+            continue
+
+        assert hasattr(ideal_gas, attr)
+
+
+def test_purefluid_properties_exist(pure_fluid):
+    pf = ct.PureFluid("liquidvapor.yaml", "water")
+    for attr in dir(pf):
+        if attr.startswith("_"):
+            continue
+
+        try:
+            getattr(pf, attr)
+        except (ct.CanteraError, ct.ThermoModelMethodError):
+            continue
+
+        assert hasattr(pure_fluid, attr)
