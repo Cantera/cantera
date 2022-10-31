@@ -366,6 +366,10 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
+      - name: Install Apt dependencies
+        run: |
+          sudo apt update
+          sudo apt install graphviz
       - name: Download the wheel artifact
         uses: actions/download-artifact@v3
         with:
@@ -374,7 +378,8 @@ jobs:
       - name: Upgrade pip
         run: python3 -m pip install -U pip setuptools wheel
       - name: Install Python dependencies
-        run: python3 -m pip install --find-links dist cantera h5py pandas matplotlib scipy pint
+        run: python3 -m pip install --pre --find-links dist cantera h5py pandas \
+             matplotlib scipy pint
       - name: Run the examples
         # See https://unix.stackexchange.com/a/392973 for an explanation of the -exec part
         run: |
@@ -382,7 +387,6 @@ jobs:
           find samples/python -type f -iname "*.py" \
           -exec sh -c 'for n; do echo "$n" | tee -a results.txt && python3 "$n" >> results.txt || exit 1; done' sh {} +
         env:
-          PYTHONPATH: build/python
           # The ignore setting here is due to a new warning introduced in Matplotlib==3.6.0
           PYTHONWARNINGS: "error,ignore:warn_name_set_on_empty_Forward::pyparsing"
           MPLBACKEND: Agg
