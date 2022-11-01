@@ -378,8 +378,9 @@ jobs:
       - name: Upgrade pip
         run: python3 -m pip install -U pip setuptools wheel
       - name: Install Python dependencies
-        run: python3 -m pip install --pre --find-links dist cantera h5py pandas \
-             matplotlib scipy pint
+        run: |
+            python3 -m pip install --pre --no-index --find-links dist cantera
+            python3 -m pip install numpy ruamel.yaml h5py pandas matplotlib scipy pint
       - name: Run the examples
         # See https://unix.stackexchange.com/a/392973 for an explanation of the -exec part
         run: |
