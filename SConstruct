@@ -758,11 +758,12 @@ if os.name == "nt":
         if windows_compiler_env["msvc_toolset_version"]:
             extraEnvArgs["MSVC_TOOLSET_VERSION"] = windows_compiler_env["msvc_toolset_version"]
         msvc_version = (windows_compiler_env["msvc_version"] or
-                        windows_compiler_env["MSVC_VERSION"])
+                        windows_compiler_env.get("MSVC_VERSION"))
         logger.info(f"Compiling with MSVC version {msvc_version}", print_level=False)
         msvc_toolset = (windows_compiler_env["msvc_toolset_version"] or
-                        windows_compiler_env["MSVC_TOOLSET_VERSION"])
-        logger.info(f"Compiling with MSVC Toolset {msvc_toolset}", print_level=False)
+                        windows_compiler_env.get("MSVC_TOOLSET_VERSION") or
+                        f"{msvc_version} (default)")
+        logger.info(f"Compiling with MSVC toolset {msvc_toolset}", print_level=False)
 
     elif windows_compiler_env["toolchain"] == "mingw":
         toolchain = ["mingw", "f90"]
