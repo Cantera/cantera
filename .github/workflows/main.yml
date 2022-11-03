@@ -428,7 +428,7 @@ jobs:
     strategy:
       matrix:
         os: ["windows-2022"]
-        vs-toolset: ["14.1", "14.2", "14.3"] # 'cl' is not recognized for earlier toolsets
+        vs-toolset: ["14.1", "14.3"]
         python-version: [ "3.7", "3.9", "3.10" ]
       fail-fast: false
     steps:
@@ -450,14 +450,14 @@ jobs:
       # use boost-cpp rather than boost from conda-forge
       # Install SCons >=4.4.0 to make sure that MSVC_TOOLSET_VERSION variable is present
       run: |
-        mamba install -q '"scons<4.4.0"' numpy cython ruamel.yaml boost-cpp eigen yaml-cpp h5py pandas pytest
+        mamba install -q '"scons>=4.4.0"' numpy cython ruamel.yaml boost-cpp eigen yaml-cpp h5py pandas pytest
       shell: pwsh
     - name: Install typing_extensions for Python 3.7
       if: matrix.python-version == '3.7'
       run: mamba install -q typing_extensions
     - name: Build Cantera
       run: scons build system_eigen=y system_yamlcpp=y logging=debug
-        msvc_toolset_version=${{ matrix.vs-toolset }} msvc_version=14.3 f90_interface=n debug=n --debug=time -j2
+        msvc_toolset_version=${{ matrix.vs-toolset }} f90_interface=n debug=n --debug=time -j2
       shell: pwsh
     - name: Upload shared library
       uses: actions/upload-artifact@v3
@@ -516,7 +516,7 @@ jobs:
       - name: Install Python dependencies
         run: |
           python -m pip install -U pip setuptools wheel
-          python -m pip install scons pypiwin32 numpy ruamel.yaml cython h5py pandas pytest pytest-github-actions-annotate-failures
+          python -m pip install '"scons<4.4.0"' pypiwin32 numpy ruamel.yaml cython h5py pandas pytest pytest-github-actions-annotate-failures
       - name: Install typing_extensions for Python 3.7
         if: matrix.python-version == '3.7'
         run: python -m pip install typing_extensions
