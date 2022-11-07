@@ -377,10 +377,13 @@ jobs:
           path: dist
       - name: Upgrade pip
         run: python3 -m pip install -U pip setuptools wheel
+      - name: Install typing_extensions for Python 3.7
+        if: matrix.python-version == '3.7'
+        run: python3 -m pip install typing-extensions
       - name: Install Python dependencies
         run: |
-            python3 -m pip install --pre --no-index --find-links dist cantera
             python3 -m pip install numpy ruamel.yaml h5py pandas matplotlib scipy pint
+            python3 -m pip install --pre --no-index --find-links dist cantera
       - name: Run the examples
         # See https://unix.stackexchange.com/a/392973 for an explanation of the -exec part
         run: |
