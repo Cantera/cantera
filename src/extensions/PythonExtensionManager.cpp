@@ -63,6 +63,18 @@ std::string getPythonExceptionInfo()
     return message;
 }
 
+void checkPythonError(bool condition, const std::string& message) {
+    if (condition) {
+        if (PyErr_Occurred()) {
+            PyErr_PrintEx(0);
+        }
+        throw Cantera::CanteraError(
+            "PythonExtensionManager::PythonExtensionManager",
+            message
+        );
+    }
+}
+
 } // end anonymous namespace
 
 namespace Cantera
@@ -115,40 +127,31 @@ PythonExtensionManager::PythonExtensionManager()
                            "Failed to import 'pythonExtensions' module");
     }
 
-    // Following example creation of minimal ModuleSpec from Python's import.c
-    PyObject *attrs = Py_BuildValue("{ss}", "name", "pythonExtensions");
-    if (attrs == nullptr) {
-        if (PyErr_Occurred()) {
-            PyErr_PrintEx(0);
-        }
-        throw CanteraError("PythonExtensionManager::PythonExtensionManager",
-                           "Py_BuildValue failed");
-    }
-    PyObject *spec = _PyNamespace_New(attrs);
-    Py_DECREF(attrs);
-    if (spec == nullptr) {
-        if (PyErr_Occurred()) {
-            PyErr_PrintEx(0);
-        }
-        throw CanteraError("PythonExtensionManager::PythonExtensionManager",
-                           "_PyNamespace_New failed");
-    }
+    // Create a minimal ModuleSpec
+    PyObject* typesModule = PyImport_ImportModule("types");
+    checkPythonError(typesModule == nullptr, "'import types' failed");
+    PyObject* simpleNamespaceType = PyObject_GetAttrString(typesModule,
+                                                           "SimpleNamespace");
+    checkPythonError(simpleNamespaceType == nullptr,
+                     "'Get SimpleNamespace type failed");
+    Py_DecRef(simpleNamespaceType);
+    Py_DecRef(typesModule);
+    PyObject* empty_tuple = PyTuple_New(0);
+    PyObject* kwargs = PyDict_New();
+    PyObject* strArg = PyUnicode_FromString("pythonExtensions");
+    PyDict_SetItemString(kwargs, "name", strArg);
+    PyObject* spec = PyObject_Call(simpleNamespaceType, empty_tuple, kwargs);
+    checkPythonError(spec == nullptr, "Creating SimpleNamespace failed");
+    Py_DecRef(empty_tuple);
+    Py_DecRef(kwargs);
+    Py_DecRef(empty_tuple);
+    Py_DecRef(strArg);
+
+    // Build the module definition and execute it
     PyObject* pyModule = PyModule_FromDefAndSpec(modDef, spec);
-    if (pyModule == nullptr) {
-        if (PyErr_Occurred()) {
-            PyErr_PrintEx(0);
-        }
-        CanteraError("PythonExtensionManager::PythonExtensionManager",
-                     "PyModule_FromDefAndSpec failed");
-    }
+    checkPythonError(pyModule == nullptr, "PyModule_FromDefAndSpec failed");
     int code = PyModule_ExecDef(pyModule, modDef);
-    if (code) {
-        if (PyErr_Occurred()) {
-            PyErr_PrintEx(0);
-        }
-        CanteraError("PythonExtensionManager::PythonExtensionManager",
-                     "PyModule_ExecDef failed");
-    }
+    checkPythonError(code, "PyModule_ExecDef failed");
     Py_DECREF(spec);
     Py_DECREF(pyModule);
     s_imported = true;
