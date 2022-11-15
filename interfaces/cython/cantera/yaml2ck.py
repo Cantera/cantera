@@ -61,13 +61,7 @@ from pathlib import Path
 from textwrap import fill, dedent, TextWrapper
 import cantera as ct
 from email.utils import formatdate
-from typing import Optional, Iterable
-
-try:
-    from typing import Literal
-except ImportError:
-    # Needed for Python 3.7 support
-    from typing_extensions import Literal
+from typing import Optional, Iterable, Literal
 
 if sys.version_info < (3, 9):
     class BooleanOptionalAction(argparse.Action):

@@ -23,10 +23,10 @@ classifiers =
     Programming Language :: Cython
     Programming Language :: Fortran
     Programming Language :: Python :: 3 :: Only
-    Programming Language :: Python :: 3.6
-    Programming Language :: Python :: 3.7
     Programming Language :: Python :: 3.8
     Programming Language :: Python :: 3.9
+    Programming Language :: Python :: 3.10
+    Programming Language :: Python :: 3.11
     Programming Language :: Python :: Implementation :: CPython
     Topic :: Scientific/Engineering :: Chemistry
     Topic :: Scientific/Engineering :: Physics
@@ -42,7 +42,6 @@ include_package_data = True
 install_requires =
     numpy >= 1.12.0
     ruamel.yaml >= 0.15.34
-    typing_extensions >=4.2.0,<4.3.0;python_version<'3.8'
 python_requires = >=@py_min_ver_str@
 packages =
     cantera
