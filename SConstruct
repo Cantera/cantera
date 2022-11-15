@@ -65,7 +65,7 @@ Additional command options:
 # and simplest option that will reliably trigger an error in Python 2
 # and provide actionable feedback for users.
 f"""
-Cantera must be built using Python 3.7 or higher. You can invoke SCons by executing
+Cantera must be built using Python 3.8 or higher. You can invoke SCons by executing
     python3 `which scons`
 followed by any desired options.
 """
@@ -1578,7 +1578,7 @@ logger.debug("\n".join(debug_message), print_level=False)
 env['python_cmd_esc'] = quoted(env['python_cmd'])
 
 # Python Package Settings
-python_min_version = parse_version("3.7")
+python_min_version = parse_version("3.8")
 # The string is used to set python_requires in setup.cfg.in
 env['py_min_ver_str'] = str(python_min_version)
 # Note: cython_min_version is redefined below if the Python version is 3.8 or higher

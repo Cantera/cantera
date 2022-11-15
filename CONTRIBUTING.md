@@ -102,8 +102,8 @@
 
 * Style generally follows PEP8 (https://www.python.org/dev/peps/pep-0008/)
 * Code in `.py` and `.pyx` files needs to be written to work with Python 3
-* The minimum Python version that Cantera supports is Python 3.7, so code should only
-  use features added in Python 3.7 or earlier
+* The minimum Python version that Cantera supports is Python 3.8, so code should only
+  use features added in Python 3.8 or earlier
 * Indicate the version added for new functions and classes with an annotation like
   `.. versionadded:: X.Y` where `X.Y` is the next Cantera version. Significant changes
   in behavior should be indicated with `.. versionchanged:: X.Y`.

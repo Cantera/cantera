@@ -1327,10 +1327,6 @@ def setup_python_env(env):
             env.Append(LIBS=f"python{py_version_nodot}")
             if env['OS_BITS'] == 64:
                 env.Append(CPPDEFINES='MS_WIN64')
-            # Fix for https://bugs.python.org/issue11566. Fixed in 3.7.3 and higher.
-            # See https://github.com/python/cpython/pull/11283
-            if py_version_full < parse_version("3.7.3"):
-                env.Append(CPPDEFINES={"_hypot": "hypot"})
 
     if "numpy_1_7_API" in env:
         env.Append(CPPDEFINES="NPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION")
