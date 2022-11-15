@@ -88,6 +88,9 @@ PythonExtensionManager::PythonExtensionManager()
         // Update the path to include the virtual environment, if one is active
         const char* venv_path = getenv("VIRTUAL_ENV");
         if (venv_path != nullptr) {
+            PyConfig pyconf;
+            PyConfig_InitPythonConfig(&pyconf);
+
             #ifdef _WIN32
                 string suffix = "\\Scripts\\python.exe";
             #else
@@ -96,7 +99,10 @@ PythonExtensionManager::PythonExtensionManager()
             string path(venv_path);
             path += suffix;
             wstring wpath = wstring_convert<codecvt_utf8<wchar_t>>().from_bytes(path);
-            Py_SetProgramName(wpath.c_str());
+            PyStatus status = PyConfig_SetString(&pyconf, &pyconf.program_name,
+                                                 wpath.c_str());
+            checkPythonError(PyStatus_Exception(status), "PyConfig_SetString failed");
+            Py_InitializeFromConfig(&pyconf);
         } else {
             #if defined(CT_PYTHONHOME) && defined(_WIN32)
                 const char* old_pythonhome = getenv("PYTHONHOME");
@@ -106,8 +112,8 @@ PythonExtensionManager::PythonExtensionManager()
                     _putenv(pythonhome.c_str());
                 }
             #endif
+            Py_Initialize();
         }
-        Py_Initialize();
     }
 
     if (s_imported) {
