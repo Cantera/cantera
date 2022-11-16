@@ -244,8 +244,14 @@ int BandMatrix::factor()
     long int nu = static_cast<long int>(nSuperDiagonals());
     long int nl = static_cast<long int>(nSubDiagonals());
     long int smu = nu + nl;
-    m_info = bandGBTRF(m_lu_col_ptrs.data(), static_cast<long int>(nColumns()),
-                       nu, nl, smu, m_ipiv->data.data());
+    #if CT_SUNDIALS_VERSION >= 60
+        m_info = SUNDlsMat_bandGBTRF(m_lu_col_ptrs.data(),
+                                     static_cast<long int>(nColumns()),
+                                     nu, nl, smu, m_ipiv->data.data());
+    #else
+        m_info = bandGBTRF(m_lu_col_ptrs.data(), static_cast<long int>(nColumns()),
+                        nu, nl, smu, m_ipiv->data.data());
+    #endif
 #endif
     if (m_info != 0) {
         throw Cantera::CanteraError("BandMatrix::factor",
@@ -278,7 +284,13 @@ int BandMatrix::solve(doublereal* b, size_t nrhs, size_t ldb)
     long int nl = static_cast<long int>(nSubDiagonals());
     long int smu = nu + nl;
     double** a = m_lu_col_ptrs.data();
-    bandGBTRS(a, static_cast<long int>(nColumns()), smu, nl, m_ipiv->data.data(), b);
+    #if CT_SUNDIALS_VERSION >= 60
+        SUNDlsMat_bandGBTRS(a, static_cast<long int>(nColumns()), smu, nl,
+                            m_ipiv->data.data(), b);
+    #else
+        bandGBTRS(a, static_cast<long int>(nColumns()), smu, nl,
+                  m_ipiv->data.data(), b);
+    #endif
     m_info = 0;
 #endif
 
