@@ -100,6 +100,8 @@ jobs:
       matrix:
         python-version: ['3.8', '3.10', '3.11']
       fail-fast: false
+    env:
+      PYTHON_CMD: "python${{ matrix.python-version }}"
     steps:
     # Attempt to fix intermittent cloning errors. The error message says something like
     # error: RPC failed; curl 18 transfer closed with outstanding read data remaining
@@ -113,16 +115,30 @@ jobs:
       name: Checkout the repository
       with:
         submodules: recursive
+    - name: Setup GH Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.11
+      if: matrix.python-version == '3.11'
     - name: Install Brew dependencies
+      run: brew install boost libomp
+    - name: Setup Homebrew Python
+      # This path should work for future Python versions as well
+      if: matrix.python-version != '3.11'
       run: |
-        brew install boost libomp scons python@${{ matrix.python-version }}
+        brew install python@${{ matrix.python-version }}
+        brew link --force --overwrite python@${{ matrix.python-version }}
+        brew install scons
     - name: Upgrade pip
-      run: python3 -m pip install -U pip 'setuptools>=47.0.0,<48' wheel
+      run: $PYTHON_CMD -m pip install -U pip 'setuptools>=47.0.0,<48' wheel
     - name: Install Python dependencies
-      run: python3 -m pip install ruamel.yaml numpy cython h5py pandas pytest
-        pytest-github-actions-annotate-failures
+      run: $PYTHON_CMD -m pip install ruamel.yaml numpy cython h5py pandas pytest pytest-github-actions-annotate-failures
+    - name: Install Python dependencies for GH Python
+      if: matrix.python-version == '3.11'
+      run:
+        $PYTHON_CMD -m pip install scons
     - name: Build Cantera
-      run: scons build env_vars=all -j3 debug=n --debug=time
+      run: scons build env_vars=all -j3 python_cmd=$PYTHON_CMD debug=n --debug=time
     - name: Upload shared library
       uses: actions/upload-artifact@v3
       if: matrix.python-version == '3.10'
