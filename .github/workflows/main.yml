@@ -46,8 +46,9 @@ jobs:
     - name: Upgrade pip
       run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
-      run: python3 -m pip install ruamel.yaml scons==3.1.2 numpy cython h5py pandas
-        pytest pytest-github-actions-annotate-failures
+      run: |
+        python3 -m pip install ruamel.yaml scons==3.1.2 numpy cython pandas pytest pytest-github-actions-annotate-failures
+        python3 -m pip install h5py || true
     - name: Build Cantera
       run: python3 `which scons` build env_vars=all -j2 debug=n --debug=time
     - name: Upload shared library
@@ -132,7 +133,10 @@ jobs:
     - name: Upgrade pip
       run: $PYTHON_CMD -m pip install -U pip 'setuptools>=47.0.0,<48' wheel
     - name: Install Python dependencies
-      run: $PYTHON_CMD -m pip install ruamel.yaml numpy cython h5py pandas pytest pytest-github-actions-annotate-failures
+      # h5py is optional; may fail if no wheel is present for a given OS/Python version
+      run: |
+        $PYTHON_CMD -m pip install ruamel.yaml numpy cython pandas pytest pytest-github-actions-annotate-failures
+        $PYTHON_CMD -m pip install h5py || true
     - name: Install Python dependencies for GH Python
       if: matrix.python-version == '3.11'
       run:
@@ -340,7 +344,9 @@ jobs:
       - name: Upgrade pip
         run: python3 -m pip install -U pip setuptools wheel
       - name: Install Python dependencies
-        run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas matplotlib scipy
+        run: |
+          python3 -m pip install ruamel.yaml scons numpy cython pandas matplotlib scipy
+          python3 -m pip install h5py || true
       - name: Build Cantera
         # compile with GCC 9.4.0 on ubuntu-20.04 as an alternative to the default
         # (GCC 7.5.0 is both default and oldest supported version)
