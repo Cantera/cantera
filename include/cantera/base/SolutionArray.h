@@ -111,21 +111,31 @@ public:
     /*!
      *  Save the current SolutionArray to a container file.
      *
-     *  @param fname Name of output container file
-     *  @param id Identifier of SolutionArray within the container file
+     *  @param fname  Name of output container file
+     *  @param id  Identifier of SolutionArray within the container file
      */
     void save(const std::string& fname, const std::string& id);
 
     /*!
+     *  Read header data from container file.
+     *
+     *  @param fname  Name of container file
+     *  @param id  Identifier of SolutionArray root within the container file
+     */
+    static AnyMap readHeader(const std::string& fname, const std::string& id);
+    static AnyMap readHeader(const AnyMap& root, const std::string& id);
+#if CT_USE_HIGHFIVE_HDF
+    static AnyMap readHeader(const HighFive::File& file, const std::string& id);
+#endif
+
+    /*!
      *  Restore SolutionArray from a container file.
      *
-     *  @param fname Name of container file
-     *  @param id Identifier of SolutionArray within the container file
+     *  @param fname  Name of container file
+     *  @param id  Identifier of SolutionArray within the container file
      */
     void restore(const std::string& fname, const std::string& id);
-
     void restore(const AnyMap& root, const std::string& id);
-
 #if CT_USE_HIGHFIVE_HDF
     void restore(const HighFive::File& file, const std::string& id);
 #endif
