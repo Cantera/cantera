@@ -22,6 +22,18 @@
 #include <highfive/H5Group.hpp>
 
 namespace h5 = HighFive;
+
+enum class H5Boolean {
+    FALSE = 0,
+    TRUE = 1,
+};
+
+h5::EnumType<H5Boolean> create_enum_boolean() {
+    return {{"FALSE", H5Boolean::FALSE},
+            {"TRUE", H5Boolean::TRUE}};
+}
+
+HIGHFIVE_REGISTER_TYPE(H5Boolean, create_enum_boolean)
 #endif
 
 namespace Cantera
@@ -179,6 +191,103 @@ void SolutionArray::save(const std::string& fname, const std::string& id)
     throw CanteraError("SolutionArray::save", "Not implemented.");
 }
 
+AnyMap SolutionArray::readHeader(const std::string& fname, const std::string& id)
+{
+    size_t dot = fname.find_last_of(".");
+    std::string extension = (dot != npos) ? toLowerCopy(fname.substr(dot + 1)) : "";
+    if (extension == "h5" || extension == "hdf") {
+#if CT_USE_HIGHFIVE_HDF
+        return readHeader(h5::File(fname, h5::File::ReadOnly), id);
+#else
+        throw CanteraError("SolutionArray::readHeader",
+                           "Restoring from HDF requires HighFive installation.");
+#endif
+    }
+    if (extension == "yaml" || extension == "yml") {
+        return readHeader(AnyMap::fromYamlFile(fname), id);
+    }
+    throw CanteraError("SolutionArray::readHeader",
+                       "Unknown file extension '{}'", extension);
+}
+
+#if CT_USE_HIGHFIVE_HDF
+h5::Group locateH5Group(const h5::File& file, const std::string& id)
+{
+    std::vector<std::string> tokens;
+    tokenizePath(id, tokens);
+    std::string grp = tokens[0];
+    if (!file.exist(grp) || file.getObjectType(grp) != h5::ObjectType::Group) {
+        throw CanteraError("locateH5Group",
+            "No group or solution with id '{}'", grp);
+    }
+
+    std::string path = grp;
+    h5::Group sub = file.getGroup(grp);
+    tokens.erase(tokens.begin());
+    for (auto& grp : tokens) {
+        path += "/" + grp;
+        if (!sub.exist(grp) || sub.getObjectType(grp) != h5::ObjectType::Group) {
+            throw CanteraError("locateH5Group",
+                "No group or solution with id '{}'", path);
+        }
+        sub = sub.getGroup(grp);
+    }
+    return sub;
+}
+
+AnyMap readH5Attributes(const h5::Group& sub, bool recursive)
+{
+    // restore meta data from attributes
+    AnyMap out;
+    for (auto& name : sub.listAttributeNames()) {
+        h5::Attribute attr = sub.getAttribute(name);
+        h5::DataType dtype = attr.getDataType();
+        h5::DataTypeClass dclass = dtype.getClass();
+        if (dclass == h5::DataTypeClass::Float) {
+            double value;
+            attr.read(value);
+            out[name] = value;
+        } else if (dclass == h5::DataTypeClass::Integer) {
+            int value;
+            attr.read(value);
+            out[name] = value;
+        } else if (dclass == h5::DataTypeClass::String) {
+            std::string value;
+            attr.read(value);
+            out[name] = value;
+        } else if (dclass == h5::DataTypeClass::Enum) {
+            // only booleans are supported
+            H5Boolean value;
+            attr.read(value);
+            out[name] = bool(value);
+        } else {
+            throw NotImplementedError("readH5Attributes",
+                "Unable to read attribute '{}' with type '{}'", name, dtype.string());
+        }
+    }
+
+    if (recursive) {
+        for (auto& name : sub.listObjectNames()) {
+            if (sub.getObjectType(name) == h5::ObjectType::Group) {
+                out[name] = readH5Attributes(sub.getGroup(name), recursive);
+            }
+        }
+    }
+
+    return out;
+}
+
+AnyMap SolutionArray::readHeader(const h5::File& file, const std::string& id)
+{
+    return readH5Attributes(locateH5Group(file, id), false);
+}
+#endif
+
+AnyMap SolutionArray::readHeader(const AnyMap& root, const std::string& id)
+{
+    throw CanteraError("SolutionArray::readHeader", "Not implemented.");
+}
+
 void SolutionArray::restore(const std::string& fname, const std::string& id)
 {
     size_t dot = fname.find_last_of(".");
@@ -243,25 +352,7 @@ std::vector<vector_fp> readH5FloatMatrix(h5::DataSet data, std::string id,
 
 void SolutionArray::restore(const h5::File& file, const std::string& id)
 {
-    std::vector<std::string> tokens;
-    tokenizePath(id, tokens);
-    std::string grp = tokens[0];
-    if (!file.exist(grp) || file.getObjectType(grp) != h5::ObjectType::Group) {
-        throw CanteraError("SolutionArray::restore",
-            "No group or solution with id '{}'", grp);
-    }
-
-    std::string path = grp;
-    h5::Group sub = file.getGroup(grp);
-    tokens.erase(tokens.begin());
-    for (auto& grp : tokens) {
-        path += "/" + grp;
-        if (!sub.exist(grp) || sub.getObjectType(grp) != h5::ObjectType::Group) {
-            throw CanteraError("SolutionArray::restore",
-                "No group or solution with id '{}'", path);
-        }
-        sub = sub.getGroup(grp);
-    }
+    auto sub = locateH5Group(file, id);
 
     std::set<std::string> names;
     size_t nDims = npos;
@@ -282,28 +373,7 @@ void SolutionArray::restore(const h5::File& file, const std::string& id)
 
     initialize({});
 
-    // restore meta data from attributes
-    for (auto& name : sub.listAttributeNames()) {
-        h5::Attribute attr = sub.getAttribute(name);
-        h5::DataType dtype = attr.getDataType();
-        h5::DataTypeClass dclass = dtype.getClass();
-        if (dclass == h5::DataTypeClass::Float) {
-            double value;
-            attr.read(value);
-            m_meta[name] = value;
-        } else if (dclass == h5::DataTypeClass::Integer) {
-            int value;
-            attr.read(value);
-            m_meta[name] = value;
-        } else if (dclass == h5::DataTypeClass::String) {
-            std::string value;
-            attr.read(value);
-            m_meta[name] = value;
-        } else {
-            throw NotImplementedError("SolutionArray::restore",
-                "Unable to read attribute '{}' with type '{}'", name, dtype.string());
-        }
-    }
+    m_meta = readH5Attributes(sub, true);
 
     if (m_size == 0) {
         return;
