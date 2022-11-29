@@ -93,6 +93,23 @@ def use_legacy_rate_constants(pybool legacy):
     """
     Cxx_use_legacy_rate_constants(legacy)
 
+def hdf_support():
+    """
+    Returns list of libraries that include HDF support:
+    - 'h5py': HDF support by Python package 'h5py'.
+    - 'HighFive': if Cantera was compiled with C++ HighFive HDF support.
+    """
+    out = []
+    try:
+        pkg_resources.get_distribution("h5py")
+    except pkg_resources.DistributionNotFound:
+        pass
+    else:
+        out.append("h5py")
+    if CxxUsesHighFive():
+        out.append("HighFive")
+    return set(out)
+
 cdef Composition comp_map(X) except *:
     if isinstance(X, (str, bytes)):
         return parseCompString(stringify(X))
