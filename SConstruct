@@ -2117,6 +2117,9 @@ env["external_libs"] = []
 env["external_libs"].extend(env["sundials_libs"])
 
 if env["has_highfive"]:
+    if env["OS"] == "Windows":
+        # see https://github.com/microsoft/vcpkg/issues/24293
+        env.Append(CPPDEFINES=["H5_BUILT_AS_DYNAMIC_LIB"])
     env["external_libs"].append("hdf5")
 
 if env["system_fmt"]:
