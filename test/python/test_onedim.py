@@ -517,7 +517,20 @@ class TestFreeFlame(utilities.CanteraTest):
         # TODO: check that the solution is actually correct (that is, that the
         # residual satisfies the error tolerances) on the new grid.
 
-    def test_save_restore_yaml(self):
+    def test_save_restore_yaml_legacy(self):
+        self.run_save_restore("legacy")
+
+    def test_save_restore_yaml_transition(self):
+        self.run_save_restore("transition")
+
+    def test_save_restore_yaml_array(self):
+        self.run_save_restore("array")
+
+    @utilities.unittest.skipIf("HighFive" not in ct.hdf_support(), "HighFive not installed")
+    def test_save_restore_hdf_array(self):
+        self.run_save_restore("hdf")
+
+    def run_save_restore(self, mode):
         reactants = "H2:1.1, O2:1, AR:5"
         p = 2 * ct.one_atm
         Tin = 400
@@ -528,10 +541,11 @@ class TestFreeFlame(utilities.CanteraTest):
         self.sim.flame.set_steady_tolerances(T=(T_rtol, T_atol))
 
         self.solve_fixed_T()
-        filename = self.test_work_path / "onedim-fixed-T.yaml"
-        # In Python >= 3.8, this can be replaced by the missing_ok argument
-        if filename.is_file():
-            filename.unlink()
+        if mode == "hdf":
+            filename = self.test_work_path / f"onedim-fixed-T.h5"
+        else:
+            filename = self.test_work_path / f"onedim-fixed-T-{mode}.yaml"
+        filename.unlink(missing_ok=True)
 
         Y1 = self.sim.Y
         u1 = self.sim.velocity
@@ -539,16 +553,25 @@ class TestFreeFlame(utilities.CanteraTest):
         P1 = self.sim.P
         T1 = self.sim.T
 
-        self.sim.save(filename, "test", loglevel=0)
+        if mode in {"array", "hdf"}:
+            self.sim.save(filename, "test", loglevel=0)
+        else:
+            self.sim.write_yaml(filename, "test", quiet=True)
 
         # Save a second solution to the same file
         self.sim.radiation_enabled = True
         self.sim.boundary_emissivities = 0.3, 0.8
-        self.sim.save(filename, "test2", loglevel=0)
+        if mode in {"array", "hdf"}:
+            self.sim.save(filename, "test2", loglevel=0)
+        else:
+            self.sim.write_yaml(filename, "test2", quiet=True)
 
         # Create flame object with dummy initial grid
         self.sim = ct.FreeFlame(self.gas)
-        self.sim.restore(filename, "test", loglevel=0)
+        if mode == "legacy":
+            self.sim.read_yaml(filename, "test", quiet=True)
+        else:
+            self.sim.restore(filename, "test", loglevel=0)
 
         # Sim is initially in "steady-state" mode, so this returns the
         # steady-state tolerances
@@ -586,9 +609,14 @@ class TestFreeFlame(utilities.CanteraTest):
         self.assertFalse(self.sim.radiation_enabled)
         self.assertFalse(self.sim.soret_enabled)
 
-        self.sim.restore(filename, "test2", loglevel=0)
+        if mode == "legacy":
+            self.sim.read_yaml(filename, "test2", quiet=True)
+        else:
+            self.sim.restore(filename, "test2", loglevel=0)
         self.assertTrue(self.sim.radiation_enabled)
         self.assertEqual(self.sim.boundary_emissivities, (0.3, 0.8))
+
+        self.sim.solve(loglevel=0)
 
     def test_array_properties(self):
         self.create_sim(ct.one_atm, 300, 'H2:1.1, O2:1, AR:5')
@@ -702,27 +730,43 @@ class TestFreeFlame(utilities.CanteraTest):
         k = self.gas.species_index('H2')
         self.assertArrayNear(data.X[:, k], self.sim.X[k, :])
 
-    @utilities.unittest.skipIf(isinstance(_h5py, ImportError), "h5py is not installed")
-    def test_write_hdf(self):
-        filename = self.test_work_path / "onedim-write_hdf.h5"
-        # In Python >= 3.8, this can be replaced by the missing_ok argument
-        if filename.is_file():
-            filename.unlink()
+    @utilities.unittest.skipIf("h5py" not in ct.hdf_support(), "h5py not installed")
+    def test_write_hdf_legacy(self):
+        self.run_freeflame_write_hdf("legacy")
+
+    @utilities.unittest.skipIf(ct.hdf_support() != {'h5py', 'HighFive'}, "h5py and/or HighFive not installed")
+    def test_write_hdf_transition(self):
+        self.run_freeflame_write_hdf("transition")
+
+    @utilities.unittest.skipIf("HighFive" not in ct.hdf_support(), "HighFive not installed")
+    def test_write_hdf_native(self):
+        self.run_freeflame_write_hdf("native")
+
+    def run_freeflame_write_hdf(self, mode):
+        filename = self.test_work_path / f"onedim-write_hdf_{mode}.h5"
+        filename.unlink(missing_ok=True)
 
         self.run_mix(phi=1.1, T=350, width=2.0, p=2.0, refine=False)
         desc = 'mixture-averaged simulation'
-        self.sim.write_hdf(filename, description=desc)
+        if mode == "native":
+            self.sim.save(filename, "test", description=desc, loglevel=0)
+        else:
+            self.sim.write_hdf(filename, group="test", description=desc)
 
         f = ct.FreeFlame(self.gas)
-        meta = f.read_hdf(filename, normalize=False)
+        if mode == "legacy":
+            meta = f.read_hdf(filename, group="test", normalize=False)
+            self.assertEqual(meta['description'], desc)
+            self.assertEqual(meta['cantera_version'], ct.__version__)
+            self.assertEqual(meta['git_commit'], ct.__git_commit__)
+        else:
+            f.restore(filename, "test", loglevel=0)
+
         self.assertArrayNear(f.grid, self.sim.grid)
         self.assertArrayNear(f.T, self.sim.T)
-        self.assertEqual(meta['description'], desc)
         k = self.gas.species_index('H2')
         self.assertArrayNear(f.X[k, :], self.sim.X[k, :])
         self.assertArrayNear(f.inlet.X, self.sim.inlet.X)
-        self.assertEqual(meta['cantera_version'], ct.__version__)
-        self.assertEqual(meta['git_commit'], ct.__git_commit__)
 
         settings = self.sim.settings
         for k, v in f.settings.items():
@@ -733,6 +777,8 @@ class TestFreeFlame(utilities.CanteraTest):
         for k, v in f.flame.settings.items():
             self.assertIn(k, settings)
             self.assertEqual(settings[k], v)
+
+        f.solve(loglevel=0)
 
     def test_refine_criteria_boundscheck(self):
         self.create_sim(ct.one_atm, 300.0, 'H2:1.1, O2:1, AR:5')
@@ -1267,26 +1313,46 @@ class TestImpingingJet(utilities.CanteraTest):
     def test_reacting_surface_case3(self):
         self.run_reacting_surface(xch4=0.2, tsurf=800.0, mdot=0.1, width=0.2)
 
-    @utilities.unittest.skipIf(isinstance(_h5py, ImportError), "h5py is not installed")
-    def test_write_hdf(self):
-        filename = self.test_work_path / "impingingjet-write_hdf.h5"
-        # In Python >= 3.8, this can be replaced by the missing_ok argument
-        if filename.is_file():
-            filename.unlink()
+    @utilities.unittest.skipIf("h5py" not in ct.hdf_support(), "h5py not installed")
+    def test_write_hdf_legacy(self):
+        self.run_impingingjet_write("legacy")
+
+    @utilities.unittest.skipIf(ct.hdf_support() != {'h5py', 'HighFive'}, "h5py and/or HighFive not installed")
+    def test_write_hdf_transition(self):
+        self.run_impingingjet_write("transition")
+
+    @utilities.unittest.skipIf("HighFive" not in ct.hdf_support(), "HighFive not installed")
+    def test_write_hdf_native(self):
+        self.run_impingingjet_write("native")
+
+    def test_write_yaml_native(self):
+        self.run_impingingjet_write("yaml")
+
+    def run_impingingjet_write(self, mode):
+        if mode == "yaml":
+            filename = self.test_work_path / f"impingingjet-write_yaml.yaml"
+        else:
+            filename = self.test_work_path / f"impingingjet-write_hdf_{mode}.h5"
+        filename.unlink(missing_ok=True)
 
         self.run_reacting_surface(xch4=0.095, tsurf=900.0, mdot=0.06, width=0.1)
-        self.sim.write_hdf(filename)
+        if mode in {"native", "yaml"}:
+            self.sim.save(filename, "test", loglevel=0)
+        else:
+            self.sim.write_hdf(filename, group="test")
 
         tinlet = 300.0  # inlet temperature
         comp = {'CH4': .1, 'O2':0.21, 'N2':0.79}
         jet = self.create_reacting_surface(comp, 700.0, 500., width=0.2)
 
-        jet.read_hdf(filename)
+        if mode == "legacy":
+            jet.read_hdf(filename, group="test")
+        else:
+            jet.restore(filename, "test", loglevel=0)
         self.assertArrayNear(jet.grid, self.sim.grid)
         self.assertArrayNear(jet.T, self.sim.T)
         k = self.sim.gas.species_index('H2')
         self.assertArrayNear(jet.X[k, :], self.sim.X[k, :])
-        self.assertArrayNear(jet.surface.surface.X, self.sim.surface.surface.X)
 
         settings = self.sim.settings
         for k, v in jet.settings.items():
@@ -1294,7 +1360,28 @@ class TestImpingingJet(utilities.CanteraTest):
             if k != 'fixed_temperature':
                 self.assertEqual(settings[k], v)
 
-    def test_save_restore(self):
+        if mode == "legacy":
+            # legacy HDF restore does not set state
+            return
+        self.assertArrayNear(jet.surface.surface.X, self.sim.surface.surface.X)
+        for i in range(self.sim.surface.n_components):
+            self.assertNear(
+                self.sim.value("surface", i, 0),
+                jet.value("surface", i, 0)
+            )
+
+        jet.solve(loglevel=0)
+
+    def test_save_restore_yaml_legacy(self):
+        self.run_save_restore_yaml("legacy")
+
+    def test_save_restore_yaml_transition(self):
+        self.run_save_restore_yaml("transition")
+
+    def test_save_restore_yaml_array(self):
+        self.run_save_restore_yaml("array")
+
+    def run_save_restore_yaml(self, mode):
         comp = {'CH4': 0.095, 'O2': 0.21, 'N2': 0.79}
         self.sim = self.create_reacting_surface(comp, tsurf=900, tinlet=300, width=0.1)
 
@@ -1305,20 +1392,31 @@ class TestImpingingJet(utilities.CanteraTest):
 
         self.sim.solve(loglevel=0, auto=False)
 
-        filename = self.test_work_path / "impingingjet1.yaml"
-        self.sim.save(filename)
+        filename = self.test_work_path / f"impingingjet-{mode}.yaml"
+        filename.unlink(missing_ok=True)
+
+        if mode == "array":
+            self.sim.save(filename, "test", loglevel=0)
+        else:
+            self.sim.write_yaml(filename, "test", quiet=True)
 
         self.surf_phase.TPX = 300, ct.one_atm, "PT(S):1"
         sim2 = ct.ImpingingJet(gas=self.gas, width=0.12, surface=self.surf_phase)
-        sim2.restore(filename)
+        if mode == "legacy":
+            sim2.read_yaml(filename, "test", quiet=True)
+        else:
+            sim2.restore(filename, "test", loglevel=0)
 
         self.assertArrayNear(self.sim.grid, sim2.grid)
         self.assertArrayNear(self.sim.Y, sim2.Y)
+        self.assertArrayNear(self.sim.surface.surface.X, sim2.surface.surface.X)
         for i in range(self.sim.surface.n_components):
             self.assertNear(
                 self.sim.value("surface", i, 0),
                 sim2.value("surface", i, 0)
             )
+
+        sim2.solve(loglevel=0)
 
 
 class TestTwinFlame(utilities.CanteraTest):
@@ -1348,6 +1446,28 @@ class TestTwinFlame(utilities.CanteraTest):
         mdot = sim.density * sim.velocity
         self.assertNear(mdot[0], sim.reactants.mdot, 1e-4)
         self.assertNear(sim.T[0], sim.reactants.T, 1e-4)
+
+    def test_save_restore_yaml(self):
+        self.run_save_restore("yaml")
+
+    def test_save_restore_hdf(self):
+        self.run_save_restore("hdf")
+
+    def run_save_restore(self, mode):
+        filename = self.test_work_path / f"twinflame.{mode}"
+        filename.unlink(missing_ok=True)
+
+        sim = self.solve(phi=0.4, T=300, width=0.05, P=0.1)
+        sim.save(filename, loglevel=0)
+
+        gas = ct.Solution("h2o2.yaml")
+        sim2 = ct.CounterflowTwinPremixedFlame(gas=gas)
+        sim2.restore(filename)
+
+        self.assertArrayNear(sim.grid, sim2.grid)
+        self.assertArrayNear(sim.Y, sim2.Y)
+
+        sim2.solve(loglevel=0)
 
 
 class TestIonFreeFlame(utilities.CanteraTest):
