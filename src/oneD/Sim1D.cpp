@@ -160,6 +160,86 @@ void Sim1D::saveResidual(const std::string& fname, const std::string& id,
     std::swap(res, m_x);
 }
 
+AnyMap legacyH5(shared_ptr<SolutionArray> arr, const AnyMap& header={})
+{
+    // convert data format used by Python h5py export (Cantera < 3.0)
+    auto meta = arr->meta();
+    AnyMap out;
+
+    std::map<std::string, std::string> meta_pairs = {
+        {"type", "Domain1D_type"},
+        {"name", "name"},
+        {"emissivity-left", "emissivity_left"},
+        {"emissivity-right", "emissivity_right"},
+    };
+    for (const auto& item : meta_pairs) {
+        if (meta.hasKey(item.second)) {
+            out[item.first] = meta[item.second];
+        }
+    }
+
+    std::map<std::string, std::string> tol_pairs = {
+        {"transient-abstol", "transient_abstol"},
+        {"steady-abstol", "steady_abstol"},
+        {"transient-reltol", "transient_reltol"},
+        {"steady-reltol", "steady_reltol"},
+    };
+    for (const auto& item : tol_pairs) {
+        if (meta.hasKey(item.second)) {
+            out["tolerances"][item.first] = meta[item.second];
+        }
+    }
+
+    if (meta.hasKey("phase")) {
+        out["phase"]["name"] = meta["phase"]["name"];
+        out["phase"]["source"] = meta["phase"]["source"];
+    }
+
+    if (arr->size() <= 1) {
+        return out;
+    }
+
+    std::map<std::string, std::string> header_pairs = {
+        {"transport-model", "transport_model"},
+        {"radiation-enabled", "radiation_enabled"},
+        {"energy-enabled", "energy_enabled"},
+        {"Soret-enabled", "soret_enabled"},
+        {"species-enabled", "species_enabled"},
+    };
+    for (const auto& item : header_pairs) {
+        if (header.hasKey(item.second)) {
+            out[item.first] = header[item.second];
+        }
+    }
+
+    std::map<std::string, std::string> refiner_pairs = {
+        {"ratio", "ratio"},
+        {"slope", "slope"},
+        {"curve", "curve"},
+        {"prune", "prune"},
+        // {"grid-min", "???"}, // missing
+        {"max-points", "max_grid_points"},
+    };
+    for (const auto& item : header_pairs) {
+        if (header.hasKey(item.second)) {
+            out["refine-criteria"][item.first] = header[item.second];
+        }
+    }
+
+    if (header.hasKey("fixed_temperature")) {
+        double temp = header.getDouble("fixed_temperature", -1.);
+        auto profile = arr->getComponent("T");
+        size_t ix = 0;
+        while (profile[ix] <= temp && ix < arr->size()) {
+            ix++;
+        }
+        out["fixed-point"]["location"] = arr->getComponent("grid")[ix - 1];
+        out["fixed-point"]["temperature"] = temp;
+    }
+
+    return out;
+}
+
 void Sim1D::restore(const std::string& fname, const std::string& id,
                     int loglevel)
 {
@@ -172,26 +252,18 @@ void Sim1D::restore(const std::string& fname, const std::string& id,
 #if CT_USE_HIGHFIVE_HDF
         h5::File file(fname, h5::File::ReadOnly);
         std::map<std::string, std::shared_ptr<SolutionArray>> arrs;
+        auto header = SolutionArray::readHeader(fname, id);
         for (auto dom : m_dom) {
             auto arr = SolutionArray::create(dom->solution());
             arr->restore(fname, id + "/" + dom->id());
             dom->resize(dom->nComponents(), arr->size());
+            if (!header.hasKey("generator")) {
+                arr->meta() = legacyH5(arr, header);
+            }
             arrs[dom->id()] = arr;
         }
         resize();
         m_xlast_ts.clear();
-        for (auto dom : m_dom) {
-            auto arr = arrs[dom->id()];
-            std::cout << dom->id() << ": size=" << arr->size() << std::endl;
-            if (arr->size()) {
-                arr->setIndex(arr->size() - 1);
-                auto state = arr->getState();
-                std::cout << state[0] << " / " << state[1] << std::endl;
-                for (const auto& item : arr->getAuxiliary()) {
-                    std::cout << "- " << item.first << "=" << item.second << std::endl;
-                }
-            }
-        }
         for (auto dom : m_dom) {
             dom->restore(*arrs[dom->id()], m_x.data() + dom->loc(), loglevel);
         }
@@ -212,18 +284,6 @@ void Sim1D::restore(const std::string& fname, const std::string& id,
         }
         resize();
         m_xlast_ts.clear();
-        // for (auto dom : m_dom) {
-        //     auto arr = arrs[dom->id()];
-        //     std::cout << dom->id() << ": size=" << arr->size() << std::endl;
-        //     if (arr->size()) {
-        //         arr->setIndex(arr->size() - 1);
-        //         auto state = arr->getState();
-        //         std::cout << state[0] << " / " << state[1] << std::endl;
-        //         for (const auto& item : arr->getAuxiliary()) {
-        //             std::cout << "- " << item.first << "=" << item.second << std::endl;
-        //         }
-        //     }
-        // }
         for (auto dom : m_dom) {
             dom->restore(*arrs[dom->id()], m_x.data() + dom->loc(), loglevel);
             // dom->restore(state[dom->id()].as<AnyMap>(), m_x.data() + dom->loc(),
