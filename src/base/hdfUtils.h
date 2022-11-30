@@ -85,7 +85,7 @@ AnyMap readH5Attributes(const h5::Group& sub, bool recursive)
             out[name] = value;
         } else if (dclass == h5::DataTypeClass::Enum) {
             // only booleans are supported
-            if (attr.getStorageSize() > 1) {
+            if (attr.getSpace().getElementCount() > 1) {
                 std::vector<H5Boolean> values;
                 attr.read(values);
                 std::vector<bool> bValues;
@@ -161,30 +161,47 @@ void writeH5Attributes(h5::Group& sub, const AnyMap& meta)
     }
 }
 
-vector_fp readH5FloatVector(h5::DataSet data, std::string id, size_t size)
+void writeH5FloatVector(h5::Group& sub, std::string id, vector_fp data)
 {
-    if (data.getDataType().getClass() != h5::DataTypeClass::Float) {
+    std::vector<size_t> dims{data.size()};
+    h5::DataSet dataset = sub.createDataSet<double>(id, h5::DataSpace(dims));
+    dataset.write(data);
+}
+
+vector_fp readH5FloatVector(h5::Group& sub, std::string id, size_t size)
+{
+    h5::DataSet dataset = sub.getDataSet(id);
+    if (dataset.getDataType().getClass() != h5::DataTypeClass::Float) {
         throw CanteraError("readH5FloatVector",
             "Type of DataSet '{}' is inconsistent; expected HDF float.", id);
     }
-    if (data.getElementCount() != size) {
+    if (dataset.getElementCount() != size) {
         throw CanteraError("readH5FloatVector",
             "Size of DataSet '{}' is inconsistent; expected {} elements but "
-            "received {} elements.", id, size, data.getElementCount());
+            "received {} elements.", id, size, dataset.getElementCount());
     }
     vector_fp out;
-    data.read(out);
+    dataset.read(out);
     return out;
 }
 
-std::vector<vector_fp> readH5FloatMatrix(h5::DataSet data, std::string id,
+void writeH5FloatMatrix(h5::Group& sub, std::string id, std::vector<vector_fp> data)
+{
+    std::vector<size_t> dims{data.size()};
+    dims.push_back(data.size() ? data[0].size() : 0);
+    h5::DataSet dataset = sub.createDataSet<double>(id, h5::DataSpace(dims));
+    dataset.write(data);
+}
+
+std::vector<vector_fp> readH5FloatMatrix(h5::Group& sub, std::string id,
                                          size_t rows, size_t cols)
 {
-    if (data.getDataType().getClass() != h5::DataTypeClass::Float) {
+    h5::DataSet dataset = sub.getDataSet(id);
+    if (dataset.getDataType().getClass() != h5::DataTypeClass::Float) {
         throw CanteraError("readH5FloatMatrix",
             "Type of DataSet '{}' is inconsistent; expected HDF float.", id);
     }
-    h5::DataSpace space = data.getSpace();
+    h5::DataSpace space = dataset.getSpace();
     if (space.getNumberDimensions() != 2) {
         throw CanteraError("readH5FloatMatrix",
             "Shape of DataSet '{}' is inconsistent; expected two dimensions.", id);
@@ -199,7 +216,7 @@ std::vector<vector_fp> readH5FloatMatrix(h5::DataSet data, std::string id,
             "Shape of DataSet '{}' is inconsistent; expected {} columns.", id, cols);
     }
     std::vector<vector_fp> out;
-    data.read(out);
+    dataset.read(out);
     return out;
 }
 
