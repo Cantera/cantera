@@ -692,7 +692,6 @@ AnyMap StFlow::getMeta() const
 
     state["radiation-enabled"] = m_do_radiation;
     if (m_do_radiation) {
-        state["radiative-heat-loss"] = m_qdotRadiation;
         state["emissivity-left"] = m_epsilon_left;
         state["emissivity-right"] = m_epsilon_right;
     }
@@ -749,6 +748,10 @@ AnyMap StFlow::serialize(const double* soln) const
         }
     }
 
+    if (m_do_radiation) {
+        state["radiative-heat-loss"] = m_qdotRadiation;
+    }
+
     return state;
 }
 
@@ -766,6 +769,11 @@ std::shared_ptr<SolutionArray> StFlow::asArray(const double* soln) const
         }
     }
     arr->setComponent("D", m_rho); // use density rather than pressure
+
+    if (m_do_radiation) {
+        arr->setComponent("radiative-heat-loss", m_qdotRadiation, true);
+    }
+
     return arr;
 }
 
@@ -790,6 +798,8 @@ void StFlow::restore(const AnyMap& state, double* soln, int loglevel)
                 "component '{}' in domain '{}'.", name, id());
         }
     }
+
+    updateProperties(npos, soln + loc(), 0, m_points - 1);
     setMeta(state);
 }
 
@@ -819,6 +829,7 @@ void StFlow::restore(SolutionArray& arr, double* soln, int loglevel)
         }
     }
 
+    updateProperties(npos, soln + loc(), 0, m_points - 1);
     setMeta(arr.meta());
 }
 
