@@ -15,26 +15,7 @@
 #include <fstream>
 
 #if CT_USE_HIGHFIVE_HDF
-#include <highfive/H5Attribute.hpp>
-#include <highfive/H5DataSet.hpp>
-#include <highfive/H5DataSpace.hpp>
-#include <highfive/H5DataType.hpp>
-#include <highfive/H5File.hpp>
-#include <highfive/H5Group.hpp>
-
-namespace h5 = HighFive;
-
-enum class H5Boolean {
-    FALSE = 0,
-    TRUE = 1,
-};
-
-h5::EnumType<H5Boolean> create_enum_boolean() {
-    return {{"FALSE", H5Boolean::FALSE},
-            {"TRUE", H5Boolean::TRUE}};
-}
-
-HIGHFIVE_REGISTER_TYPE(H5Boolean, create_enum_boolean)
+#include "hdfUtils.h"
 #endif
 
 namespace Cantera
@@ -208,71 +189,10 @@ AnyMap preamble(const std::string& desc)
     data["git-commit"].setLoc(-3, 0);
     data["date"].setLoc(-2, 0);
 
-
     return data;
 }
 
-void SolutionArray::writeHeader(
-    const std::string& fname, const std::string& id, const std::string& desc)
-{
-    size_t dot = fname.find_last_of(".");
-    std::string extension = (dot != npos) ? toLowerCopy(fname.substr(dot + 1)) : "";
-    if (extension == "h5" || extension == "hdf") {
 #if CT_USE_HIGHFIVE_HDF
-        h5::File out(fname, h5::File::OpenOrCreate);
-        writeHeader(out, id, desc);
-        return;
-#else
-        throw CanteraError("SolutionArray::writeHeader",
-                           "Saving to HDF requires HighFive installation.");
-#endif
-    }
-    if (extension == "yaml" || extension == "yml") {
-        // Check for an existing file and load it if present
-        AnyMap data;
-        if (std::ifstream(fname).good()) {
-            data = AnyMap::fromYamlFile(fname);
-        }
-        writeHeader(data, id, desc);
-
-        // Write the output file and remove the now-outdated cached file
-        std::ofstream out(fname);
-        out << data.toYamlString();
-        AnyMap::clearCachedFile(fname);
-        return;
-    }
-    throw CanteraError("SolutionArray::writeHeader",
-                       "Unknown file extension '{}'", extension);
-}
-
-#if CT_USE_HIGHFIVE_HDF
-h5::Group openH5Group(h5::File& file, const std::string& id)
-{
-    if (!file.exist(id)) {
-        return file.createGroup(id);
-    }
-    if (file.getObjectType(id) != h5::ObjectType::Group) {
-        throw CanteraError("openH5Group", "Invalid object with id '{}' exists", id);
-    }
-    return file.getGroup(id);
-}
-
-void writeH5Attributes(h5::Group& sub, const AnyMap& meta)
-{
-    for (auto& item : meta) {
-        if (item.second.is<std::string>()) {
-            std::string value = item.second.asString();
-            h5::Attribute attr = sub.createAttribute<std::string>(
-                item.first, h5::DataSpace::From(value));
-            attr.write(value);
-        } else {
-            throw NotImplementedError("writeH5Attributes",
-                "Unable to write attribute '{}' with type '{}'",
-                item.first, item.second.type_str());
-        }
-    }
-}
-
 void SolutionArray::writeHeader(h5::File& file, const std::string& id,
                                 const std::string& desc)
 {
@@ -287,9 +207,59 @@ void SolutionArray::writeHeader(AnyMap& root, const std::string& id,
     root[id] = preamble(desc);
 }
 
-void SolutionArray::save(const std::string& fname, const std::string& id)
+#if CT_USE_HIGHFIVE_HDF
+void SolutionArray::writeEntry(h5::File& file, const std::string& id)
+{
+    auto sub = openH5Group(file, id);
+    writeH5Attributes(sub, m_meta);
+    // throw CanteraError("SolutionArray::save", "Not implemented.");
+}
+#endif
+
+void SolutionArray::writeEntry(AnyMap& root, const std::string& id)
 {
     throw CanteraError("SolutionArray::save", "Not implemented.");
+
+    // bool preexisting = data.hasKey(id);
+
+    // // If this is not replacing an existing solution, put it at the end
+    // if (!preexisting) {
+    //     data[id].setLoc(INT_MAX, 0);
+    // }
+}
+
+void SolutionArray::save(
+    const std::string& fname, const std::string& id, const std::string& desc)
+{
+    size_t dot = fname.find_last_of(".");
+    std::string extension = (dot != npos) ? toLowerCopy(fname.substr(dot + 1)) : "";
+    if (extension == "h5" || extension == "hdf") {
+#if CT_USE_HIGHFIVE_HDF
+        h5::File file(fname, h5::File::OpenOrCreate);
+        writeHeader(file, id, desc);
+        writeEntry(file, id);
+        return;
+#else
+        throw CanteraError("SolutionArray::writeHeader",
+                           "Saving to HDF requires HighFive installation.");
+#endif
+    }
+    if (extension == "yaml" || extension == "yml") {
+        // Check for an existing file and load it if present
+        AnyMap data;
+        if (std::ifstream(fname).good()) {
+            data = AnyMap::fromYamlFile(fname);
+        }
+        writeEntry(data, id);
+
+        // Write the output file and remove the now-outdated cached file
+        std::ofstream out(fname);
+        out << data.toYamlString();
+        AnyMap::clearCachedFile(fname);
+        return;
+    }
+    throw CanteraError("SolutionArray::writeHeader",
+                       "Unknown file extension '{}'", extension);
 }
 
 AnyMap SolutionArray::readHeader(const std::string& fname, const std::string& id)
@@ -312,70 +282,6 @@ AnyMap SolutionArray::readHeader(const std::string& fname, const std::string& id
 }
 
 #if CT_USE_HIGHFIVE_HDF
-h5::Group locateH5Group(const h5::File& file, const std::string& id)
-{
-    std::vector<std::string> tokens;
-    tokenizePath(id, tokens);
-    std::string grp = tokens[0];
-    if (!file.exist(grp) || file.getObjectType(grp) != h5::ObjectType::Group) {
-        throw CanteraError("locateH5Group", "No group with id '{}' found", grp);
-    }
-
-    std::string path = grp;
-    h5::Group sub = file.getGroup(grp);
-    tokens.erase(tokens.begin());
-    for (auto& grp : tokens) {
-        path += "/" + grp;
-        if (!sub.exist(grp) || sub.getObjectType(grp) != h5::ObjectType::Group) {
-            throw CanteraError("locateH5Group", "No group with id '{}' found", path);
-        }
-        sub = sub.getGroup(grp);
-    }
-    return sub;
-}
-
-AnyMap readH5Attributes(const h5::Group& sub, bool recursive)
-{
-    // restore meta data from attributes
-    AnyMap out;
-    for (auto& name : sub.listAttributeNames()) {
-        h5::Attribute attr = sub.getAttribute(name);
-        h5::DataType dtype = attr.getDataType();
-        h5::DataTypeClass dclass = dtype.getClass();
-        if (dclass == h5::DataTypeClass::Float) {
-            double value;
-            attr.read(value);
-            out[name] = value;
-        } else if (dclass == h5::DataTypeClass::Integer) {
-            int value;
-            attr.read(value);
-            out[name] = value;
-        } else if (dclass == h5::DataTypeClass::String) {
-            std::string value;
-            attr.read(value);
-            out[name] = value;
-        } else if (dclass == h5::DataTypeClass::Enum) {
-            // only booleans are supported
-            H5Boolean value;
-            attr.read(value);
-            out[name] = bool(value);
-        } else {
-            throw NotImplementedError("readH5Attributes",
-                "Unable to read attribute '{}' with type '{}'", name, dtype.string());
-        }
-    }
-
-    if (recursive) {
-        for (auto& name : sub.listObjectNames()) {
-            if (sub.getObjectType(name) == h5::ObjectType::Group) {
-                out[name] = readH5Attributes(sub.getGroup(name), recursive);
-            }
-        }
-    }
-
-    return out;
-}
-
 AnyMap SolutionArray::readHeader(const h5::File& file, const std::string& id)
 {
     return readH5Attributes(locateH5Group(file, id), false);
@@ -407,48 +313,6 @@ void SolutionArray::restore(const std::string& fname, const std::string& id)
 }
 
 #if CT_USE_HIGHFIVE_HDF
-vector_fp readH5FloatVector(h5::DataSet data, std::string id, size_t size)
-{
-    if (data.getDataType().getClass() != h5::DataTypeClass::Float) {
-        throw CanteraError("readH5FloatVector",
-            "Type of DataSet '{}' is inconsistent; expected HDF float.", id);
-    }
-    if (data.getElementCount() != size) {
-        throw CanteraError("readH5FloatVector",
-            "Size of DataSet '{}' is inconsistent; expected {} elements but "
-            "received {} elements.", id, size, data.getElementCount());
-    }
-    vector_fp out;
-    data.read(out);
-    return out;
-}
-
-std::vector<vector_fp> readH5FloatMatrix(h5::DataSet data, std::string id,
-                                         size_t rows, size_t cols)
-{
-    if (data.getDataType().getClass() != h5::DataTypeClass::Float) {
-        throw CanteraError("readH5FloatMatrix",
-            "Type of DataSet '{}' is inconsistent; expected HDF float.", id);
-    }
-    h5::DataSpace space = data.getSpace();
-    if (space.getNumberDimensions() != 2) {
-        throw CanteraError("readH5FloatMatrix",
-            "Shape of DataSet '{}' is inconsistent; expected two dimensions.", id);
-    }
-    const auto& shape = space.getDimensions();
-    if (shape[0] != rows) {
-        throw CanteraError("readH5FloatMatrix",
-            "Shape of DataSet '{}' is inconsistent; expected {} rows.", id, rows);
-    }
-    if (shape[1] != cols) {
-        throw CanteraError("readH5FloatMatrix",
-            "Shape of DataSet '{}' is inconsistent; expected {} columns.", id, cols);
-    }
-    std::vector<vector_fp> out;
-    data.read(out);
-    return out;
-}
-
 void SolutionArray::restore(const h5::File& file, const std::string& id)
 {
     auto sub = locateH5Group(file, id);
