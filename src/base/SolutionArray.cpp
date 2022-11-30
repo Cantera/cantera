@@ -12,6 +12,7 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/thermo/SurfPhase.h"
 #include <set>
+#include <fstream>
 
 #if CT_USE_HIGHFIVE_HDF
 #include <highfive/H5Attribute.hpp>
@@ -186,6 +187,106 @@ std::map<std::string, double> SolutionArray::getAuxiliary(size_t index)
     return out;
 }
 
+AnyMap preamble(const std::string& desc)
+{
+    AnyMap data;
+    data["description"] = desc;
+    data["generator"] = "Cantera SolutionArray";
+    data["cantera-version"] = CANTERA_VERSION;
+    data["git-commit"] = gitCommit();
+
+    // Add a timestamp indicating the current time
+    time_t aclock;
+    ::time(&aclock); // Get time in seconds
+    struct tm* newtime = localtime(&aclock); // Convert time to struct tm form
+    data["date"] = stripnonprint(asctime(newtime));
+
+    // Force metadata fields to the top of the file
+    data["description"].setLoc(-6, 0);
+    data["generator"].setLoc(-5, 0);
+    data["cantera-version"].setLoc(-4, 0);
+    data["git-commit"].setLoc(-3, 0);
+    data["date"].setLoc(-2, 0);
+
+
+    return data;
+}
+
+void SolutionArray::writeHeader(
+    const std::string& fname, const std::string& id, const std::string& desc)
+{
+    size_t dot = fname.find_last_of(".");
+    std::string extension = (dot != npos) ? toLowerCopy(fname.substr(dot + 1)) : "";
+    if (extension == "h5" || extension == "hdf") {
+#if CT_USE_HIGHFIVE_HDF
+        h5::File out(fname, h5::File::OpenOrCreate);
+        writeHeader(out, id, desc);
+        return;
+#else
+        throw CanteraError("SolutionArray::writeHeader",
+                           "Saving to HDF requires HighFive installation.");
+#endif
+    }
+    if (extension == "yaml" || extension == "yml") {
+        // Check for an existing file and load it if present
+        AnyMap data;
+        if (std::ifstream(fname).good()) {
+            data = AnyMap::fromYamlFile(fname);
+        }
+        writeHeader(data, id, desc);
+
+        // Write the output file and remove the now-outdated cached file
+        std::ofstream out(fname);
+        out << data.toYamlString();
+        AnyMap::clearCachedFile(fname);
+        return;
+    }
+    throw CanteraError("SolutionArray::writeHeader",
+                       "Unknown file extension '{}'", extension);
+}
+
+#if CT_USE_HIGHFIVE_HDF
+h5::Group openH5Group(h5::File& file, const std::string& id)
+{
+    if (!file.exist(id)) {
+        return file.createGroup(id);
+    }
+    if (file.getObjectType(id) != h5::ObjectType::Group) {
+        throw CanteraError("openH5Group", "Invalid object with id '{}' exists", id);
+    }
+    return file.getGroup(id);
+}
+
+void writeH5Attributes(h5::Group& sub, const AnyMap& meta)
+{
+    for (auto& item : meta) {
+        if (item.second.is<std::string>()) {
+            std::string value = item.second.asString();
+            h5::Attribute attr = sub.createAttribute<std::string>(
+                item.first, h5::DataSpace::From(value));
+            attr.write(value);
+        } else {
+            throw NotImplementedError("writeH5Attributes",
+                "Unable to write attribute '{}' with type '{}'",
+                item.first, item.second.type_str());
+        }
+    }
+}
+
+void SolutionArray::writeHeader(h5::File& file, const std::string& id,
+                                const std::string& desc)
+{
+    auto sub = openH5Group(file, id);
+    writeH5Attributes(sub, preamble(desc));
+}
+#endif
+
+void SolutionArray::writeHeader(AnyMap& root, const std::string& id,
+                                const std::string& desc)
+{
+    root[id] = preamble(desc);
+}
+
 void SolutionArray::save(const std::string& fname, const std::string& id)
 {
     throw CanteraError("SolutionArray::save", "Not implemented.");
@@ -217,8 +318,7 @@ h5::Group locateH5Group(const h5::File& file, const std::string& id)
     tokenizePath(id, tokens);
     std::string grp = tokens[0];
     if (!file.exist(grp) || file.getObjectType(grp) != h5::ObjectType::Group) {
-        throw CanteraError("locateH5Group",
-            "No group or solution with id '{}'", grp);
+        throw CanteraError("locateH5Group", "No group with id '{}' found", grp);
     }
 
     std::string path = grp;
@@ -227,8 +327,7 @@ h5::Group locateH5Group(const h5::File& file, const std::string& id)
     for (auto& grp : tokens) {
         path += "/" + grp;
         if (!sub.exist(grp) || sub.getObjectType(grp) != h5::ObjectType::Group) {
-            throw CanteraError("locateH5Group",
-                "No group or solution with id '{}'", path);
+            throw CanteraError("locateH5Group", "No group with id '{}' found", path);
         }
         sub = sub.getGroup(grp);
     }
