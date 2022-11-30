@@ -97,6 +97,10 @@ vector_fp SolutionArray::getComponent(const std::string& name) const
 void SolutionArray::setComponent(
     const std::string& name, const vector_fp& data, bool force)
 {
+    if (!m_work) {
+        initialize();
+    }
+
     if (!hasComponent(name)) {
         if (force) {
             m_other.emplace(name, std::make_shared<vector_fp>(m_size));
@@ -127,8 +131,11 @@ void SolutionArray::setComponent(
     }
 }
 
-void SolutionArray::setIndex(size_t index)
+void SolutionArray::setIndex(size_t index, bool restore)
 {
+    if (!m_work) {
+        initialize();
+    }
     if (m_size == 0) {
         throw CanteraError("SolutionArray::setIndex",
             "Unable to set index in empty SolutionArray.");
@@ -144,8 +151,10 @@ void SolutionArray::setIndex(size_t index)
         throw IndexError("SolutionArray::setIndex", "entries", index, m_size - 1);
     }
     m_index = index;
-    size_t nState = m_sol->thermo()->stateSize();
-    m_sol->thermo()->restoreState(nState, &m_data[m_index * m_stride]);
+    if (restore) {
+        size_t nState = m_sol->thermo()->stateSize();
+        m_sol->thermo()->restoreState(nState, &m_data[m_index * m_stride]);
+    }
 }
 
 vector_fp SolutionArray::getState(size_t index)
@@ -155,6 +164,14 @@ vector_fp SolutionArray::getState(size_t index)
     vector_fp out(nState);
     m_sol->thermo()->saveState(out); // thermo contains current state
     return out;
+}
+
+void SolutionArray::setState(const vector_fp& data, size_t index)
+{
+    setIndex(index, false);
+    m_sol->thermo()->restoreState(data);
+    size_t nState = m_sol->thermo()->stateSize();
+    m_sol->thermo()->saveState(nState, &m_data[m_index * m_stride]);
 }
 
 std::map<std::string, double> SolutionArray::getAuxiliary(size_t index)
