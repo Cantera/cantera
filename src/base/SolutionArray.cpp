@@ -229,7 +229,31 @@ void SolutionArray::writeEntry(h5::File& file, const std::string& id)
 {
     auto sub = openH5Group(file, id);
     writeH5Attributes(sub, m_meta);
-    // throw CanteraError("SolutionArray::save", "Not implemented.");
+
+    if (!m_size) {
+        return;
+    }
+
+    const auto& nativeState = m_sol->thermo()->nativeState();
+    size_t nSpecies = m_sol->thermo()->nSpecies();
+    for (auto& state : nativeState) {
+        std::string name = state.first;
+        if (name == "X" || name == "Y") {
+            size_t offset = state.second;
+            std::vector<vector_fp> prop;
+            for (size_t i = 0; i < m_size; i++) {
+                size_t first = offset + i * m_stride;
+                prop.push_back(vector_fp(&m_data[first], &m_data[first + nSpecies]));
+            }
+            writeH5FloatMatrix(sub, name, prop);
+        } else {
+            writeH5FloatVector(sub, name, getComponent(name));
+        }
+    }
+
+    for (auto& other : m_other) {
+        writeH5FloatVector(sub, other.first, *(other.second));
+    }
 }
 #endif
 
@@ -346,7 +370,7 @@ void SolutionArray::restore(const h5::File& file, const std::string& id)
             }
         }
     }
-    if (nDims != 1) {
+    if (nDims != 1 && nDims != npos) {
         throw NotImplementedError("SolutionArray::restore",
             "Unable to restore SolutionArray with {} dimensions.", nDims);
     }
@@ -394,23 +418,23 @@ void SolutionArray::restore(const h5::File& file, const std::string& id)
     if (usesNativeState) {
         // native state can be written directly into data storage
         for (const auto& name : state) {
-            h5::DataSet data = sub.getDataSet(name);
+            // h5::DataSet data = sub.getDataSet(name);
             if (name == "X" || name == "Y") {
                 size_t offset = nativeState.find(name)->second;
-                auto prop = readH5FloatMatrix(data, name, m_size, nSpecies);
+                auto prop = readH5FloatMatrix(sub, name, m_size, nSpecies);
                 for (size_t i = 0; i < m_size; i++) {
                     std::copy(prop[i].begin(), prop[i].end(),
                               &m_data[offset + i * m_stride]);
                 }
             } else {
-                setComponent(name, readH5FloatVector(data, name, m_size));
+                setComponent(name, readH5FloatVector(sub, name, m_size));
             }
         }
     } else if (mode == "TPX") {
         // data format used by Python h5py export (Cantera 2.5)
-        vector_fp T = readH5FloatVector(sub.getDataSet("T"), "T", m_size);
-        vector_fp P = readH5FloatVector(sub.getDataSet("P"), "P", m_size);
-        auto X = readH5FloatMatrix(sub.getDataSet("X"), "X", m_size, nSpecies);
+        vector_fp T = readH5FloatVector(sub, "T", m_size);
+        vector_fp P = readH5FloatVector(sub, "P", m_size);
+        auto X = readH5FloatMatrix(sub, "X", m_size, nSpecies);
         for (size_t i = 0; i < m_size; i++) {
             m_sol->thermo()->setState_TPX(T[i], P[i], X[i].data());
             m_sol->thermo()->saveState(nState, &m_data[i * m_stride]);
@@ -423,7 +447,7 @@ void SolutionArray::restore(const h5::File& file, const std::string& id)
     // restore other data
     for (const auto& name : names) {
         if (!state.count(name)) {
-            vector_fp data = readH5FloatVector(sub.getDataSet(name), name, m_size);
+            vector_fp data = readH5FloatVector(sub, name, m_size);
             m_other.emplace(name, std::make_shared<vector_fp>(m_size));
             auto& extra = m_other[name];
             std::copy(data.begin(), data.end(), extra->begin());
