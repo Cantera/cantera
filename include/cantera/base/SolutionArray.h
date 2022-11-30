@@ -109,6 +109,22 @@ public:
     std::map<std::string, double> getAuxiliary(size_t index=npos);
 
     /*!
+     *  Read header data from container file.
+     *
+     *  @param fname  Name of container file
+     *  @param id  Identifier of SolutionArray root within the container file
+     *  @param desc  Description
+     */
+    static void writeHeader(const std::string& fname, const std::string& id,
+                            const std::string& desc);
+    static void writeHeader(AnyMap& root, const std::string& id,
+                            const std::string& desc);
+#if CT_USE_HIGHFIVE_HDF
+    static void writeHeader(HighFive::File& file, const std::string& id,
+                            const std::string& desc);
+#endif
+
+    /*!
      *  Save the current SolutionArray to a container file.
      *
      *  @param fname  Name of output container file
