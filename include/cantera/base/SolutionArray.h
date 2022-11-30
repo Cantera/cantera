@@ -94,13 +94,19 @@ public:
     /*!
      *  Update the buffered index used to access entries.
      */
-    void setIndex(size_t index);
+    void setIndex(size_t index, bool restore=true);
 
     /*!
      *  Retrieve the state vector for a single entry. If index is valid, it is updated;
      *  otherwise, the last previously used index is referenced.
      */
     vector_fp getState(size_t index=npos);
+
+    /*!
+     *  Set the state vector for a single entry. If index is valid, it is updated;
+     *  otherwise, the last previously used index is referenced.
+     */
+    void setState(const vector_fp& data, size_t index=npos);
 
     /*!
      *  Retrieve auxiliary data for a single entry. If index is valid, it is updated;
