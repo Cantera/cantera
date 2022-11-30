@@ -316,6 +316,12 @@ public:
      */
     virtual AnyMap serialize(const double* soln) const;
 
+    //! Save the state of this domain as a SolutionArray
+    /*!
+     * @param soln local solution vector for this domain
+     */
+    virtual std::shared_ptr<SolutionArray> asArray(const double* soln) const;
+
     //! Restore the solution for this domain from an AnyMap
     /*!
      * @param[in]  state AnyMap defining the state of this domain
@@ -485,6 +491,9 @@ public:
     }
 
 protected:
+    //! Retrieve meta data
+    virtual AnyMap getMeta() const;
+
     doublereal m_rdt;
     size_t m_nv;
     size_t m_points;

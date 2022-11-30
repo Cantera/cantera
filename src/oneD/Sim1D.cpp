@@ -109,7 +109,13 @@ void Sim1D::save(const std::string& fname, const std::string& id,
     string extension = (dot != npos) ? toLowerCopy(fname.substr(dot+1)) : "";
     if (extension == "h5" || extension == "hdf") {
 #if CT_USE_HIGHFIVE_HDF
-        SolutionArray::writeHeader(fname, id, desc);
+        h5::File file(fname, h5::File::OpenOrCreate);
+        SolutionArray::writeHeader(file, id, desc);
+
+        for (auto dom : m_dom) {
+            auto arr = dom->asArray(m_x.data());
+            arr->writeEntry(file, id + "/" + dom->id());
+        }
         return;
 #else
         throw CanteraError("Sim1D::save",

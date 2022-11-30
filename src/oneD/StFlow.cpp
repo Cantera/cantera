@@ -680,11 +680,10 @@ bool StFlow::componentActive(size_t n) const
     }
 }
 
-AnyMap StFlow::serialize(const double* soln) const
+AnyMap StFlow::getMeta() const
 {
-    AnyMap state = Domain1D::serialize(soln);
+    AnyMap state = Domain1D::getMeta();
     state["type"] = flowType();
-    state["pressure"] = m_press;
     state["transport-model"] = m_trans->transportModel();
 
     state["phase"]["name"] = m_thermo->name();
@@ -729,6 +728,16 @@ AnyMap StFlow::serialize(const double* soln) const
         state["fixed-point"]["temperature"] = m_tfixed;
     }
 
+    return state;
+}
+
+AnyMap StFlow::serialize(const double* soln) const
+{
+    auto state = getMeta();
+
+    // m_rho
+
+    state["pressure"] = m_press;
     state["grid"] = m_z;
     vector_fp data(nPoints());
     for (size_t i = 0; i < nComponents(); i++) {
@@ -741,6 +750,23 @@ AnyMap StFlow::serialize(const double* soln) const
     }
 
     return state;
+}
+
+std::shared_ptr<SolutionArray> StFlow::asArray(const double* soln) const
+{
+    auto arr = SolutionArray::create(m_solution, nPoints(), getMeta());
+    arr->setComponent("grid", m_z, true);
+    vector_fp data(nPoints());
+    for (size_t i = 0; i < nComponents(); i++) {
+        if (componentActive(i)) {
+            for (size_t j = 0; j < nPoints(); j++) {
+                data[j] = soln[index(i, j)];
+            }
+            arr->setComponent(componentName(i), data, true);
+        }
+    }
+    arr->setComponent("D", m_rho); // use density rather than pressure
+    return arr;
 }
 
 void StFlow::restore(const AnyMap& state, double* soln, int loglevel)

@@ -114,7 +114,7 @@ void Domain1D::needJacUpdate()
     }
 }
 
-AnyMap Domain1D::serialize(const double* soln) const
+AnyMap Domain1D::getMeta() const
 {
     auto wrap_tols = [this](const vector_fp& tols) {
         // If all tolerances are the same, just store the scalar value.
@@ -139,6 +139,16 @@ AnyMap Domain1D::serialize(const double* soln) const
         state["tolerances"]["steady-reltol"] = wrap_tols(m_rtol_ss);
     }
     return state;
+}
+
+AnyMap Domain1D::serialize(const double* soln) const
+{
+    return getMeta();
+}
+
+std::shared_ptr<SolutionArray> Domain1D::asArray(const double* soln) const
+{
+    throw CanteraError("Domain1D::asArray", "Needs to be overloaded.");
 }
 
 void Domain1D::restore(const AnyMap& state, double* soln, int loglevel)

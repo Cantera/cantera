@@ -158,6 +158,7 @@ public:
     virtual void showSolution(const doublereal* x);
 
     virtual AnyMap serialize(const double* soln) const;
+    virtual std::shared_ptr<SolutionArray> asArray(const double* soln) const;
     virtual void restore(const AnyMap& state, double* soln, int loglevel);
     virtual void restore(SolutionArray& arr, double* soln, int loglevel);
 
@@ -284,6 +285,7 @@ public:
 
 protected:
     void setMeta(const AnyMap& state);
+    virtual AnyMap getMeta() const;
 
     doublereal wdot(size_t k, size_t j) const {
         return m_wdot(k,j);

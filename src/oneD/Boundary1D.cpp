@@ -235,6 +235,25 @@ AnyMap Inlet1D::serialize(const double* soln) const
     return state;
 }
 
+std::shared_ptr<SolutionArray> Inlet1D::asArray(const double* soln) const
+{
+    AnyMap meta = Boundary1D::getMeta();
+    meta["type"] = "inlet";
+    meta["mass-flux"] = m_mdot;
+
+    // set gas state (using pressure from adjacent domain)
+    m_flow->setGas(soln, 0);
+    double pressure = m_flow->phase().pressure();
+    auto phase = m_solution->thermo();
+    phase->setState_TPY(m_temp, pressure, &m_yin[0]);
+    vector_fp data(phase->stateSize());
+    phase->saveState(data);
+
+    auto arr = SolutionArray::create(m_solution, 1, meta);
+    arr->setState(data, 0);
+    return arr;
+}
+
 void Inlet1D::restore(const AnyMap& state, double* soln, int loglevel)
 {
     Boundary1D::restore(state, soln, loglevel);
@@ -418,6 +437,14 @@ AnyMap Outlet1D::serialize(const double* soln) const
     AnyMap state = Boundary1D::serialize(soln);
     state["type"] = "outlet";
     return state;
+}
+
+std::shared_ptr<SolutionArray> Outlet1D::asArray(const double* soln) const
+{
+    AnyMap meta = Boundary1D::getMeta();
+    meta["type"] = "outlet";
+    auto arr = SolutionArray::create(m_solution, 0, meta);
+    return arr;
 }
 
 // -------- OutletRes1D --------
