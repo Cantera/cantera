@@ -105,6 +105,20 @@ void Sim1D::setProfile(size_t dom, size_t comp,
 void Sim1D::save(const std::string& fname, const std::string& id,
                  const std::string& desc, int loglevel)
 {
+    size_t dot = fname.find_last_of(".");
+    string extension = (dot != npos) ? toLowerCopy(fname.substr(dot+1)) : "";
+    if (extension == "h5" || extension == "hdf") {
+#if CT_USE_HIGHFIVE_HDF
+        SolutionArray::writeHeader(fname, id, desc);
+        return;
+#else
+        throw CanteraError("Sim1D::save",
+                           "Saving to HDF requires HighFive installation.");
+#endif
+    } else if (extension != "yaml" && extension != "yml") {
+        throw CanteraError("Sim1D::save",
+                           "Unsupported file format '{}'", extension);
+    }
     // Check for an existing file and load it if present
     AnyMap data;
     if (ifstream(fname).good()) {
