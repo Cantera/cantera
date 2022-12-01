@@ -20,9 +20,11 @@
 using namespace std;
 
 #if CT_USE_HIGHFIVE_HDF
-#include <highfive/H5File.hpp>
-#include <highfive/H5Group.hpp>
-#include <highfive/H5DataSet.hpp>
+#if CT_USE_SYSTEM_HIGHFIVE
+  #include <highfive/H5File.hpp>
+#else
+  #include "cantera/ext/HighFive/H5File.hpp"
+#endif
 
 namespace h5 = HighFive;
 #endif

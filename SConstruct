@@ -357,6 +357,15 @@ config_options = [
            'libfmt.so'.""",
         "default", ("default", "y", "n")),
     EnumOption(
+        "system_highfive",
+        """Select whether to use HighFive from a system installation ('y'), from a
+           Git submodule ('n'), or to decide automatically ('default'). If HighFive
+           is not installed directly into a system include directory, for example, it
+           is installed in '/opt/include/HighFive', then you will need to add
+           '/opt/include/HighFive' to 'extra_inc_dirs'.
+           """,
+        "default", ("default", "y", "n")),
+    EnumOption(
         "system_yamlcpp",
         """Select whether to use the yaml-cpp library from a system installation
            ('y'), from a Git submodule ('n'), or to decide automatically
@@ -1497,8 +1506,42 @@ else: # env['system_sundials'] == 'n'
     env['sundials_version'] = '5.3'
     env['has_sundials_lapack'] = int(env['use_lapack'])
 
-env["has_highfive"] = conf.CheckLibWithHeader(
-    "hdf5", "highfive/H5File.hpp", language="C++", autoadd=False)
+if not conf.CheckLib("hdf5", autoadd=False):
+    env["uses_highfive"] = False
+
+elif env["system_highfive"] in ("n", "default"):
+    env["system_highfive"] = False
+    if not os.path.exists("ext/eigen/HighFive/include"):
+        if not os.path.exists(".git"):
+            config_error("HighFive is missing. Install HighFive in ext/HighFive.")
+
+        try:
+            code = subprocess.call(["git", "submodule", "update", "--init",
+                                    "--recursive", "ext/HighFive"])
+        except Exception:
+            code = -1
+        if code:
+            config_error("HighFive not found and submodule checkout failed.\n"
+                        "Try manually checking out the submodule with:\n\n"
+                        "    git submodule update --init --recursive ext/HighFive\n")
+
+    env["uses_highfive"] = conf.CheckLibWithHeader(
+        "hdf5", "../ext/HighFive/include/highfive/H5File.hpp",
+        language="C++", autoadd=False)
+
+    if env["uses_highfive"]:
+        logger.info("Using private installation of HighFive.")
+    else:
+        logger.error("HighFive is not configured correctly.")
+
+elif env["system_highfive"] in ("y", "default"):
+    env["system_highfive"] = True
+    env["uses_highfive"] = conf.CheckLibWithHeader(
+        "hdf5", "highfive/H5File.hpp", language="C++", autoadd=False)
+    if env["uses_highfive"]:
+        logger.info("Using system installation of HighFive.")
+    else:
+        logger.warning("Unable to locate HighFive installation.")
 
 def set_fortran(pattern, value):
     # Set compiler / flags for all Fortran versions to be the same
@@ -2026,13 +2069,14 @@ cdefine('LAPACK_FTN_TRAILING_UNDERSCORE', 'lapack_ftn_trailing_underscore')
 cdefine('FTN_TRAILING_UNDERSCORE', 'lapack_ftn_trailing_underscore')
 cdefine('LAPACK_NAMES_LOWERCASE', 'lapack_names', 'lower')
 cdefine('CT_USE_LAPACK', 'use_lapack')
+cdefine("CT_USE_HIGHFIVE_HDF", "uses_highfive")
+cdefine('CT_USE_SYSTEM_HIGHFIVE', 'system_highfive')
 cdefine("CT_USE_SYSTEM_EIGEN", "system_eigen")
 cdefine("CT_USE_SYSTEM_EIGEN_PREFIXED", "system_eigen_prefixed")
 cdefine('CT_USE_SYSTEM_FMT', 'system_fmt')
 cdefine('CT_USE_SYSTEM_YAMLCPP', 'system_yamlcpp')
 cdefine('CT_USE_DEMANGLE', 'has_demangle')
 cdefine('CT_HAS_PYTHON', 'python_package', 'full')
-cdefine("CT_USE_HIGHFIVE_HDF", "has_highfive")
 
 config_h_build = env.Command('build/src/config.h.build',
                              'include/cantera/base/config.h.in',
@@ -2116,7 +2160,7 @@ else:
 env["external_libs"] = []
 env["external_libs"].extend(env["sundials_libs"])
 
-if env["has_highfive"]:
+if env["uses_highfive"]:
     if env["OS"] == "Windows":
         # see https://github.com/microsoft/vcpkg/issues/24293
         env.Append(CPPDEFINES=["H5_BUILT_AS_DYNAMIC_LIB"])

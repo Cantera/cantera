@@ -6,12 +6,21 @@
 #ifndef CT_HDF_UTILS_H
 #define CT_HDF_UTILS_H
 
-#include <highfive/H5Attribute.hpp>
-#include <highfive/H5DataSet.hpp>
-#include <highfive/H5DataSpace.hpp>
-#include <highfive/H5DataType.hpp>
-#include <highfive/H5File.hpp>
-#include <highfive/H5Group.hpp>
+#if CT_USE_SYSTEM_HIGHFIVE
+  #include <highfive/H5Attribute.hpp>
+  #include <highfive/H5DataSet.hpp>
+  #include <highfive/H5DataSpace.hpp>
+  #include <highfive/H5DataType.hpp>
+  #include <highfive/H5File.hpp>
+  #include <highfive/H5Group.hpp>
+#else
+  #include "cantera/ext/HighFive/H5Attribute.hpp"
+  #include "cantera/ext/HighFive/H5DataSet.hpp"
+  #include "cantera/ext/HighFive/H5DataSpace.hpp"
+  #include "cantera/ext/HighFive/H5DataType.hpp"
+  #include "cantera/ext/HighFive/H5File.hpp"
+  #include "cantera/ext/HighFive/H5Group.hpp"
+#endif
 
 namespace h5 = HighFive;
 
