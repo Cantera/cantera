@@ -110,21 +110,43 @@ void Sim1D::save(const std::string& fname, const std::string& id,
     if (extension == "h5" || extension == "hdf") {
 #if CT_USE_HIGHFIVE_HDF
         h5::File file(fname, h5::File::OpenOrCreate);
-        SolutionArray::writeHeader(file, id, desc);
-
         for (auto dom : m_dom) {
             auto arr = dom->asArray(m_x.data());
             arr->writeEntry(file, id + "/" + dom->id());
         }
+        SolutionArray::writeHeader(file, id, desc);
         return;
 #else
         throw CanteraError("Sim1D::save",
                            "Saving to HDF requires HighFive installation.");
 #endif
-    } else if (extension != "yaml" && extension != "yml") {
-        throw CanteraError("Sim1D::save",
-                           "Unsupported file format '{}'", extension);
     }
+    if (extension == "yaml" || extension == "yml") {
+        // Check for an existing file and load it if present
+        AnyMap data;
+        if (std::ifstream(fname).good()) {
+            data = AnyMap::fromYamlFile(fname);
+        }
+        SolutionArray::writeHeader(data, id, desc);
+
+        for (auto dom : m_dom) {
+            auto arr = dom->asArray(m_x.data());
+            arr->writeEntry(data, id + "/" + dom->id());
+        }
+
+        // Write the output file and remove the now-outdated cached file
+        std::ofstream out(fname);
+        out << data.toYamlString();
+        AnyMap::clearCachedFile(fname);
+        return;
+    }
+    throw CanteraError("Sim1D::save",
+                        "Unsupported file format '{}'", extension);
+}
+
+void Sim1D::write_yaml(const std::string& fname, const std::string& id,
+                       const std::string& desc, int loglevel)
+{
     // Check for an existing file and load it if present
     AnyMap data;
     if (ifstream(fname).good()) {
@@ -240,7 +262,7 @@ AnyMap legacyH5(shared_ptr<SolutionArray> arr, const AnyMap& header={})
         // {"grid-min", "???"}, // missing
         {"max-points", "max_grid_points"},
     };
-    for (const auto& item : header_pairs) {
+    for (const auto& item : refiner_pairs) {
         if (header.hasKey(item.second)) {
             out["refine-criteria"][item.first] = header[item.second];
         }
@@ -272,10 +294,10 @@ void Sim1D::restore(const std::string& fname, const std::string& id,
 #if CT_USE_HIGHFIVE_HDF
         h5::File file(fname, h5::File::ReadOnly);
         std::map<std::string, std::shared_ptr<SolutionArray>> arrs;
-        auto header = SolutionArray::readHeader(fname, id);
+        auto header = SolutionArray::readHeader(file, id);
         for (auto dom : m_dom) {
             auto arr = SolutionArray::create(dom->solution());
-            arr->restore(fname, id + "/" + dom->id());
+            arr->readEntry(file, id + "/" + dom->id());
             dom->resize(dom->nComponents(), arr->size());
             if (!header.hasKey("generator")) {
                 arr->meta() = legacyH5(arr, header);
@@ -295,10 +317,9 @@ void Sim1D::restore(const std::string& fname, const std::string& id,
     } else if (extension == "yaml" || extension == "yml") {
         AnyMap root = AnyMap::fromYamlFile(fname);
         std::map<std::string, std::shared_ptr<SolutionArray>> arrs;
-        // const auto& state = root[id];
         for (auto dom : m_dom) {
             auto arr = SolutionArray::create(dom->solution());
-            arr->restore(fname, id + "/" + dom->id());
+            arr->readEntry(root, id + "/" + dom->id());
             dom->resize(dom->nComponents(), arr->size());
             arrs[dom->id()] = arr;
         }
@@ -306,14 +327,44 @@ void Sim1D::restore(const std::string& fname, const std::string& id,
         m_xlast_ts.clear();
         for (auto dom : m_dom) {
             dom->restore(*arrs[dom->id()], m_x.data() + dom->loc(), loglevel);
-            // dom->restore(state[dom->id()].as<AnyMap>(), m_x.data() + dom->loc(),
-            //              loglevel);
         }
         finalize();
     } else {
         throw CanteraError("Sim1D::restore",
                            "Unknown file extension '{}'", extension);
     }
+}
+
+void Sim1D::read_yaml(const std::string& fname, const std::string& id,
+                     int loglevel)
+{
+    size_t dot = fname.find_last_of(".");
+    string extension = (dot != npos) ? toLowerCopy(fname.substr(dot+1)) : "";
+    if (extension == "xml") {
+        throw CanteraError("Sim1D::restore",
+                           "Restoring from XML is no longer supported.");
+    }
+    AnyMap root = AnyMap::fromYamlFile(fname);
+    if (!root.hasKey(id)) {
+        throw InputFileError("Sim1D::restore", root,
+                                "No solution with id '{}'", id);
+    }
+    const auto& state = root[id];
+    for (auto dom : m_dom) {
+        if (!state.hasKey(dom->id())) {
+            throw InputFileError("Sim1D::restore", state,
+                "Saved state '{}' does not contain a domain named '{}'.",
+                id, dom->id());
+        }
+        dom->resize(dom->nComponents(), state[dom->id()]["points"].asInt());
+    }
+    resize();
+    m_xlast_ts.clear();
+    for (auto dom : m_dom) {
+        dom->restore(state[dom->id()].as<AnyMap>(), m_x.data() + dom->loc(),
+                        loglevel);
+    }
+    finalize();
 }
 
 void Sim1D::setFlatProfile(size_t dom, size_t comp, doublereal v)

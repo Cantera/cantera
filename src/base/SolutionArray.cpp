@@ -21,6 +21,20 @@
 namespace Cantera
 {
 
+const std::map<std::string, std::string> aliasMap = {
+    {"T", "temperature"},
+    {"P", "pressure"},
+    {"D", "density"},
+    {"Y", "mass-fractions"},
+    {"X", "mole-fractions"},
+    {"C", "coverages"},
+    {"U", "specific-internal-energy"},
+    {"V", "specific-volume"},
+    {"H", "specific-enthalpy"},
+    {"S", "specific-entropy"},
+    {"Q", "vapor-fraction"},
+};
+
 SolutionArray::SolutionArray(
     const shared_ptr<Solution>& sol,
     size_t size,
@@ -257,16 +271,82 @@ void SolutionArray::writeEntry(h5::File& file, const std::string& id)
 }
 #endif
 
+AnyMap& openField(AnyMap& root, const std::string& id)
+{
+    // locate field based on 'id'
+    std::vector<std::string> tokens;
+    tokenizePath(id, tokens);
+    AnyMap* ptr = &root; // use raw pointer to avoid copying
+    std::string path = "";
+    for (auto& field : tokens) {
+        path += "/" + field;
+        AnyMap& sub = *ptr;
+        if (sub.hasKey(field) && !sub[field].is<AnyMap>()) {
+            throw CanteraError("openField",
+                "Encountered invalid existing field '{}'", path);
+        } else if (!sub.hasKey(field)) {
+            sub[field] = AnyMap();
+        }
+        ptr = &sub[field].as<AnyMap>(); // AnyMap lacks 'operator=' for const AnyMap
+    }
+    return *ptr;
+}
+
 void SolutionArray::writeEntry(AnyMap& root, const std::string& id)
 {
-    throw CanteraError("SolutionArray::save", "Not implemented.");
+    AnyMap& data = openField(root, id);
+    bool preexisting = !data.empty();
+    data["points"] = int(m_size);
+    data.update(m_meta);
 
-    // bool preexisting = data.hasKey(id);
+    for (auto& other : m_other) {
+        data[other.first] = *(other.second);
+    }
 
-    // // If this is not replacing an existing solution, put it at the end
-    // if (!preexisting) {
-    //     data[id].setLoc(INT_MAX, 0);
-    // }
+    auto phase = m_sol->thermo();
+    if (m_size == 1) {
+        setIndex(0);
+        data["temperature"] = phase->temperature();
+        data["pressure"] = phase->pressure();
+        auto surf = std::dynamic_pointer_cast<SurfPhase>(phase);
+        auto nSpecies = phase->nSpecies();
+        vector_fp values(nSpecies);
+        if (surf) {
+            surf->invalidateCache();
+            surf->getCoverages(&values[0]);
+        } else {
+            phase->getMassFractions(&values[0]);
+        }
+        AnyMap items;
+        for (size_t k = 0; k < nSpecies; k++) {
+            if (values[k] != 0.0) {
+                items[phase->speciesName(k)] = values[k];
+            }
+        }
+        if (surf) {
+            data["coverages"] = std::move(items);
+        } else {
+            data["mass-fractions"] = std::move(items);
+        }
+    } else if (m_size > 1) {
+        const auto& nativeState = phase->nativeState();
+        for (auto& state : nativeState) {
+            std::string name = state.first;
+            if (name == "X" || name == "Y") {
+                data["basis"] = name == "X" ? "mole" : "mass";
+                for (auto& name : phase->speciesNames()) {
+                    data[name] = getComponent(name);
+                }
+            } else {
+                data[name] = getComponent(name);
+            }
+        }
+    }
+
+    // If this is not replacing an existing solution, put it at the end
+    if (!preexisting) {
+        data.setLoc(INT_MAX, 0);
+    }
 }
 
 void SolutionArray::save(
@@ -292,6 +372,7 @@ void SolutionArray::save(
             data = AnyMap::fromYamlFile(fname);
         }
         writeEntry(data, id);
+        writeHeader(data, id, desc);
 
         // Write the output file and remove the now-outdated cached file
         std::ofstream out(fname);
@@ -300,25 +381,6 @@ void SolutionArray::save(
         return;
     }
     throw CanteraError("SolutionArray::writeHeader",
-                       "Unknown file extension '{}'", extension);
-}
-
-AnyMap SolutionArray::readHeader(const std::string& fname, const std::string& id)
-{
-    size_t dot = fname.find_last_of(".");
-    std::string extension = (dot != npos) ? toLowerCopy(fname.substr(dot + 1)) : "";
-    if (extension == "h5" || extension == "hdf") {
-#if CT_USE_HIGHFIVE_HDF
-        return readHeader(h5::File(fname, h5::File::ReadOnly), id);
-#else
-        throw CanteraError("SolutionArray::readHeader",
-                           "Restoring from HDF requires HighFive installation.");
-#endif
-    }
-    if (extension == "yaml" || extension == "yml") {
-        return readHeader(AnyMap::fromYamlFile(fname), id);
-    }
-    throw CanteraError("SolutionArray::readHeader",
                        "Unknown file extension '{}'", extension);
 }
 
@@ -334,29 +396,90 @@ AnyMap SolutionArray::readHeader(const AnyMap& root, const std::string& id)
     throw CanteraError("SolutionArray::readHeader", "Not implemented.");
 }
 
-void SolutionArray::restore(const std::string& fname, const std::string& id)
+AnyMap SolutionArray::restore(const std::string& fname, const std::string& id)
 {
     size_t dot = fname.find_last_of(".");
     std::string extension = (dot != npos) ? toLowerCopy(fname.substr(dot + 1)) : "";
     if (extension == "h5" || extension == "hdf") {
 #if CT_USE_HIGHFIVE_HDF
-        restore(h5::File(fname, h5::File::ReadOnly), id);
+        h5::File file(fname, h5::File::ReadOnly);
+        readEntry(file, id);
+        return readHeader(file, id);
 #else
         throw CanteraError("SolutionArray::restore",
                            "Restoring from HDF requires HighFive installation.");
 #endif
-    } else if (extension == "yaml" || extension == "yml") {
-        restore(AnyMap::fromYamlFile(fname), id);
-    } else {
-        throw CanteraError("SolutionArray::restore",
-                           "Unknown file extension '{}'", extension);
     }
+    if (extension == "yaml" || extension == "yml") {
+        const AnyMap& root = AnyMap::fromYamlFile(fname);
+        readEntry(root, id);
+        return readHeader(root, id);
+    }
+    throw CanteraError("SolutionArray::restore",
+                        "Unknown file extension '{}'", extension);
+}
+
+std::string SolutionArray::detectMode(std::set<std::string> names, bool native)
+{
+    // identify storage mode of state data
+    std::string mode = "";
+    const auto& nativeState = m_sol->thermo()->nativeState();
+    bool usesNativeState;
+    auto surf = std::dynamic_pointer_cast<SurfPhase>(m_sol->thermo());
+    for (const auto& item : m_sol->thermo()->fullStates()) {
+        bool found = true;
+        std::string name;
+        usesNativeState = true;
+        for (size_t i = 0; i < item.size(); i++) {
+            name = std::string(1, item[i]);
+            if (surf && (name == "X" || name == "Y")) {
+                // override native state
+                name = "C";
+                usesNativeState = false;
+                break;
+            }
+            if (names.count(name)) {
+                usesNativeState &= nativeState.count(name);
+            } else if (aliasMap.count(name) && names.count(aliasMap.at(name))) {
+                usesNativeState &= nativeState.count(name);
+            } else {
+                found = false;
+                break;
+            }
+        }
+        if (found) {
+            mode = (name == "C") ? item.substr(0, 2) + "C" : item;
+            break;
+        }
+    }
+    if (usesNativeState && native) {
+        return "native";
+    }
+    return mode;
+}
+
+std::set<std::string> SolutionArray::stateProperties(std::string mode, bool alias)
+{
+    std::set<std::string> states;
+    if (mode == "native") {
+        for (const auto& item : m_sol->thermo()->nativeState()) {
+            states.insert(alias ? aliasMap.at(item.first) : item.first);
+        }
+    } else {
+        for (const auto& m : mode) {
+            const std::string name = std::string(1, m);
+            states.insert(alias ? aliasMap.at(name) : name);
+        }
+    }
+
+    return states;
 }
 
 #if CT_USE_HIGHFIVE_HDF
-void SolutionArray::restore(const h5::File& file, const std::string& id)
+void SolutionArray::readEntry(const h5::File& file, const std::string& id)
 {
     auto sub = locateH5Group(file, id);
+    m_meta = readH5Attributes(sub, true);
 
     std::set<std::string> names;
     size_t nDims = npos;
@@ -377,50 +500,28 @@ void SolutionArray::restore(const h5::File& file, const std::string& id)
 
     initialize({});
 
-    m_meta = readH5Attributes(sub, true);
-
     if (m_size == 0) {
         return;
     }
 
-    // identify storage mode of state data
-    std::string mode = "";
-    const auto& nativeState = m_sol->thermo()->nativeState();
-    bool usesNativeState;
-    std::set<std::string> state;
-    for (const auto& item : m_sol->thermo()->fullStates()) {
-        bool found = true;
-        usesNativeState = true;
-        state.clear();
-        for (size_t i = 0; i < item.size(); i++) {
-            std::string name(1, item[i]);
-            if (names.count(name)) {
-                state.insert(name);
-                usesNativeState &= nativeState.count(name);
-            } else {
-                found = false;
-                break;
-            }
-        }
-        if (found) {
-            mode = item;
-            break;
-        }
-    }
-    if (mode == "") {
-        throw CanteraError("SolutionArray::restore",
-            "Data are not consistent with full state modes.");
+    // determine storage mode of state data
+    std::string mode = detectMode(names);
+    std::set<std::string> states = stateProperties(mode);
+    if (states.count("C")) {
+        states.erase("C");
+        states.insert("X");
     }
 
     // restore state data
     size_t nSpecies = m_sol->thermo()->nSpecies();
     size_t nState = m_sol->thermo()->stateSize();
-    if (usesNativeState) {
+    const auto& nativeStates = m_sol->thermo()->nativeState();
+    if (mode == "native") {
         // native state can be written directly into data storage
-        for (const auto& name : state) {
-            // h5::DataSet data = sub.getDataSet(name);
+        for (const auto& item : nativeStates) {
+            std::string name = item.first;
             if (name == "X" || name == "Y") {
-                size_t offset = nativeState.find(name)->second;
+                size_t offset = item.second;
                 auto prop = readH5FloatMatrix(sub, name, m_size, nSpecies);
                 for (size_t i = 0; i < m_size; i++) {
                     std::copy(prop[i].begin(), prop[i].end(),
@@ -430,7 +531,7 @@ void SolutionArray::restore(const h5::File& file, const std::string& id)
                 setComponent(name, readH5FloatVector(sub, name, m_size));
             }
         }
-    } else if (mode == "TPX") {
+    } else if (mode == "TPX" || mode == "TPC") {
         // data format used by Python h5py export (Cantera 2.5)
         vector_fp T = readH5FloatVector(sub, "T", m_size);
         vector_fp P = readH5FloatVector(sub, "P", m_size);
@@ -439,6 +540,9 @@ void SolutionArray::restore(const h5::File& file, const std::string& id)
             m_sol->thermo()->setState_TPX(T[i], P[i], X[i].data());
             m_sol->thermo()->saveState(nState, &m_data[i * m_stride]);
         }
+    } else if (mode == "") {
+        throw CanteraError("SolutionArray::restore",
+            "Data are not consistent with full state modes.");
     } else {
         throw NotImplementedError("SolutionArray::restore",
             "Import of '{}' data is not supported.", mode);
@@ -446,7 +550,7 @@ void SolutionArray::restore(const h5::File& file, const std::string& id)
 
     // restore other data
     for (const auto& name : names) {
-        if (!state.count(name)) {
+        if (!states.count(name)) {
             vector_fp data = readH5FloatVector(sub, name, m_size);
             m_other.emplace(name, std::make_shared<vector_fp>(m_size));
             auto& extra = m_other[name];
@@ -456,9 +560,9 @@ void SolutionArray::restore(const h5::File& file, const std::string& id)
 }
 #endif
 
-void SolutionArray::restore(const AnyMap& root, const std::string& id)
+const AnyMap& locateField(const AnyMap& root, const std::string& id)
 {
-    // locate SolutionArray based on 'id'
+    // locate field based on 'id'
     std::vector<std::string> tokens;
     tokenizePath(id, tokens);
     const AnyMap* ptr = &root; // use raw pointer to avoid copying
@@ -472,7 +576,12 @@ void SolutionArray::restore(const AnyMap& root, const std::string& id)
         }
         ptr = &sub[field].as<AnyMap>(); // AnyMap lacks 'operator=' for const AnyMap
     }
-    const AnyMap& sub = *ptr;
+    return *ptr;
+}
+
+void SolutionArray::readEntry(const AnyMap& root, const std::string& id)
+{
+    auto sub = locateField(root, id);
 
     // set size and initialize
     m_size = sub.getInt("points", 0);
@@ -484,48 +593,45 @@ void SolutionArray::restore(const AnyMap& root, const std::string& id)
 
     // restore data
     std::set<std::string> exclude = {"points", "X", "Y"};
+    std::set<std::string> names = sub.keys();
+    size_t nState = m_sol->thermo()->stateSize();
     if (m_size == 0) {
         // no data points
     } else if (m_size == 1) {
         // single data point
-        double T = sub["temperature"].asDouble();
-        double P = sub.getDouble("pressure", OneAtm); // missing - Sim1D (Cantera 2.6)
-        std::set<std::string> props = {"temperature", "pressure"};
-        exclude.insert(props.begin(), props.end());
-        if (sub.hasKey("mass-fractions")) {
+        std::string mode = detectMode(names, false);
+        if (mode == "") {
+            // missing property - Sim1D (Cantera 2.6)
+            names.insert("pressure");
+            mode = detectMode(names, false);
+        }
+        if (mode == "TPY") {
+            // single data point uses long names
+            double T = sub["temperature"].asDouble();
+            double P = sub.getDouble("pressure", OneAtm); // missing - Sim1D (Cantera 2.6)
             auto Y = sub["mass-fractions"].asMap<double>();
             m_sol->thermo()->setState_TPY(T, P, Y);
-            exclude.insert("mass-fractions");
-        } else if (sub.hasKey("coverages")) {
-            m_sol->thermo()->setState_TP(T, P);
-            auto cov = sub["coverages"].asMap<double>();
-            exclude.insert("coverages");
+        } else if (mode == "TPC") {
             auto surf = std::dynamic_pointer_cast<SurfPhase>(m_sol->thermo());
             if (!surf) {
                 throw CanteraError("SolutionArray::restore",
                     "Restoring of coverages requires surface phase");
             }
+            double T = sub["temperature"].asDouble();
+            double P = sub.getDouble("pressure", OneAtm); // missing - Sim1D (Cantera 2.6)
+            m_sol->thermo()->setState_TP(T, P);
+            auto cov = sub["coverages"].asMap<double>();
             surf->setCoveragesByName(cov);
+        } else if (mode == "") {
+            throw CanteraError("SolutionArray::restore",
+                "Data are not consistent with full state modes.");
         } else {
             throw NotImplementedError("SolutionArray::restore",
-                "Unknown YAML serialization format.");
+                "Import of '{}' data is not supported.", mode);
         }
-        for (const auto& prop : m_sol->thermo()->nativeState()) {
-            if (prop.first == "T") {
-                m_data[prop.second] = m_sol->thermo()->temperature();
-            } else if (prop.first == "D") {
-                m_data[prop.second] = m_sol->thermo()->density();
-            } else if (prop.first == "P") {
-                m_data[prop.second] = m_sol->thermo()->pressure();
-            } else if (prop.first == "Y") {
-                m_sol->thermo()->getMassFractions(&m_data[prop.second]);
-            } else if (prop.first == "X") {
-                m_sol->thermo()->getMoleFractions(&m_data[prop.second]);
-            } else {
-                throw NotImplementedError("SolutionArray::restore",
-                    "Unable to restore property '{}'.", prop.first);
-            }
-        }
+        m_sol->thermo()->saveState(nState, m_data);
+        auto props = stateProperties(mode, true);
+        exclude.insert(props.begin(), props.end());
     } else {
         // multiple data points
         const auto& nativeState = m_sol->thermo()->nativeState();
@@ -576,6 +682,7 @@ void SolutionArray::restore(const AnyMap& root, const std::string& id)
             m_meta[item.first] = item.second;
         }
     }
+    m_meta.erase("points");
 }
 
 }

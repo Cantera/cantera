@@ -122,6 +122,12 @@ public:
               const std::string& desc, int loglevel=1);
 
     /**
+     * Save the current solution to YAML (legacy implementation). @see save
+     */
+    void write_yaml(const std::string& fname, const std::string& id,
+                    const std::string& desc, int loglevel=1);
+
+    /**
      * Save the residual of the current solution to a container file.
      * @param fname  Name of output container file
      * @param id  Identifier of solution within the container file
@@ -138,6 +144,12 @@ public:
      * @param loglevel  Level of diagnostic output
      */
     void restore(const std::string& fname, const std::string& id, int loglevel=2);
+
+    /**
+     * Initialize the solution with a previously-saved solution (legacy implementation).
+     * @see restore
+     */
+    void read_yaml(const std::string& fname, const std::string& id, int loglevel=2);
 
     //! @}
 
