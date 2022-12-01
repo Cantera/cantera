@@ -125,6 +125,14 @@ if not env['system_eigen']:
     copyenv.Depends(copyenv['config_h_target'], h)
     ext_copies.extend(h)
 
+if not env["system_highfive"]:
+    localenv = prep_default(env)
+    license_files["HighFive"] = File("#ext/HighFive/LICENSE")
+    h = build(copyenv.Command('#include/cantera/ext/HighFive', '#ext/HighFive/include/highfive',
+                              Copy('$TARGET', '$SOURCE')))
+    copyenv.Depends(copyenv['config_h_target'], h)
+    ext_copies.extend(h)
+
 # Google Test: Used internally for Cantera unit tests.
 if env['googletest'] == 'submodule':
     localenv = prep_gtest(env)
