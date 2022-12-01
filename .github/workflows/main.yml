@@ -28,6 +28,9 @@ jobs:
         python-version: ['3.8', '3.10', '3.11']
         os: ['ubuntu-20.04', 'ubuntu-22.04']
       fail-fast: false
+    env:
+      HDF5_LIBDIR: /usr/lib/x86_64-linux-gnu/hdf5/serial
+      HDF5_INCLUDEDIR: /usr/include/hdf5/serial
     steps:
     - uses: actions/checkout@v2
       name: Checkout the repository
@@ -42,15 +45,19 @@ jobs:
       run: |
         sudo apt update
         sudo apt install libboost-dev gfortran libopenmpi-dev libpython3-dev \
-        libblas-dev liblapack-dev
+        libblas-dev liblapack-dev libhdf5-dev
     - name: Upgrade pip
       run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
+      # h5py is optional; some versions don't have binaries (yet)
       run: |
-        python3 -m pip install ruamel.yaml scons==3.1.2 numpy cython pandas pytest pytest-github-actions-annotate-failures
-        python3 -m pip install h5py || true
+        python3 -m pip install ruamel.yaml scons==3.1.2 numpy cython pandas pytest \
+        pytest-github-actions-annotate-failures
+        python3 -m pip install h5py || python3 -m pip install --no-binary=h5py h5py
     - name: Build Cantera
-      run: python3 `which scons` build env_vars=all -j2 debug=n --debug=time
+      run: |
+        python3 `which scons` build env_vars=all -j2 debug=n --debug=time \
+        hdf_libdir=$HDF5_LIBDIR hdf_include=$HDF5_INCLUDEDIR
     - name: Upload shared library
       uses: actions/upload-artifact@v3
       if: matrix.python-version == '3.10' && matrix.os == 'ubuntu-22.04'
@@ -66,6 +73,9 @@ jobs:
     name: LLVM/Clang with Python 3.8
     runs-on: ubuntu-22.04
     timeout-minutes: 60
+    env:
+      HDF5_LIBDIR: /usr/lib/x86_64-linux-gnu/hdf5/serial
+      HDF5_INCLUDEDIR: /usr/include/hdf5/serial
     steps:
     - uses: actions/checkout@v2
       name: Checkout the repository
@@ -79,16 +89,17 @@ jobs:
     - name: Install Apt dependencies
       run: |
         sudo apt update
-        sudo apt install libboost-dev gfortran libomp-dev libomp5 libopenblas-dev
+        sudo apt install libboost-dev gfortran libomp-dev libomp5 libopenblas-dev libhdf5-dev
     - name: Upgrade pip
       run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
-      run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas pytest
-        pytest-github-actions-annotate-failures
+      run: |
+        python3 -m pip install ruamel.yaml scons numpy cython pandas pytest pytest-github-actions-annotate-failures
+        python3 -m pip install --no-binary=h5py h5py
     - name: Build Cantera
       run: python3 `which scons` build env_vars=all
         CXX=clang++-12 CC=clang-12 f90_interface=n extra_lib_dirs=/usr/lib/llvm/lib
-        -j2 debug=n --debug=time
+        -j2 debug=n --debug=time hdf_libdir=$HDF5_LIBDIR hdf_include=$HDF5_INCLUDEDIR
     - name: Test Cantera
       run:
         python3 `which scons` test show_long_tests=yes verbose_tests=yes --debug=time
@@ -122,7 +133,7 @@ jobs:
         python-version: 3.11
       if: matrix.python-version == '3.11'
     - name: Install Brew dependencies
-      run: brew install boost libomp
+      run: brew install boost libomp hdf5
     - name: Setup Homebrew Python
       # This path should work for future Python versions as well
       if: matrix.python-version != '3.11'
@@ -162,6 +173,9 @@ jobs:
     name: Coverage
     runs-on: ubuntu-latest
     timeout-minutes: 90
+    env:
+      HDF5_LIBDIR: /usr/lib/x86_64-linux-gnu/hdf5/serial
+      HDF5_INCLUDEDIR: /usr/include/hdf5/serial
     steps:
     - uses: actions/checkout@v2
       name: Checkout the repository
@@ -175,12 +189,14 @@ jobs:
     - name: Install Apt dependencies
       run: |
         sudo apt update
-        sudo apt install libboost-dev gfortran liblapack-dev libblas-dev libsundials-dev
+        sudo apt install libboost-dev gfortran liblapack-dev libblas-dev libsundials-dev libhdf5-dev
     - name: Upgrade pip
       run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
-      run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas scipy pytest
+      run: |
+        python3 -m pip install ruamel.yaml scons numpy cython pandas scipy pytest \
         pytest-github-actions-annotate-failures pytest-cov gcovr
+        python3 -m pip install --no-binary=h5py h5py
     - name: Setup .NET Core SDK
       uses: actions/setup-dotnet@v2
       with:
@@ -189,7 +205,8 @@ jobs:
       run: |
         python3 `which scons` build blas_lapack_libs=lapack,blas coverage=y \
         optimize=n skip_slow_tests=y no_optimize_flags='-DNDEBUG -O0' \
-        FORTRANFLAGS='-O0' env_vars=all -j2 --debug=time
+        FORTRANFLAGS='-O0' env_vars=all -j2 --debug=time \
+        hdf_libdir=$HDF5_LIBDIR hdf_include=$HDF5_INCLUDEDIR
     - name: Test Cantera
       run:
         python3 `which scons` test show_long_tests=yes verbose_tests=yes --debug=time
@@ -327,6 +344,9 @@ jobs:
       matrix:
         python-version: ['3.8', '3.10', '3.11']
       fail-fast: false
+    env:
+      HDF5_LIBDIR: /usr/lib/x86_64-linux-gnu/hdf5/serial
+      HDF5_INCLUDEDIR: /usr/include/hdf5/serial
     steps:
       - uses: actions/checkout@v2
         name: Checkout the repository
@@ -340,17 +360,26 @@ jobs:
       - name: Install Apt dependencies
         run: |
           sudo apt update
-          sudo apt install libboost-dev gfortran graphviz liblapack-dev libblas-dev gcc-9 g++-9
+          sudo apt install libboost-dev gfortran graphviz liblapack-dev libblas-dev \
+          gcc-9 g++-9 libhdf5-dev
       - name: Upgrade pip
         run: python3 -m pip install -U pip setuptools wheel
       - name: Install Python dependencies
         run: |
           python3 -m pip install ruamel.yaml scons numpy cython pandas matplotlib scipy
-          python3 -m pip install h5py || true
+          python3 -m pip install --no-binary=h5py h5py
       - name: Build Cantera
         # compile with GCC 9.4.0 on ubuntu-20.04 as an alternative to the default
         # (GCC 7.5.0 is both default and oldest supported version)
         run: python3 `which scons` build -j2 debug=n CC=gcc-9 CXX=g++-9
+        if: matrix.python-version != '3.10'
+      - name: Build Cantera (Python 3.10 with HDF)
+        # compile with GCC 9.4.0 on ubuntu-20.04 as an alternative to the default
+        # (GCC 7.5.0 is both default and oldest supported version)
+        run: |
+          python3 `which scons` build -j2 debug=n CC=gcc-9 CXX=g++-9 \
+          hdf_libdir=$HDF5_LIBDIR hdf_include=$HDF5_INCLUDEDIR
+        if: matrix.python-version == '3.10'
       - name: Run the examples
         # See https://unix.stackexchange.com/a/392973 for an explanation of the -exec part
         run: |
@@ -406,7 +435,7 @@ jobs:
       - name: Build Cantera
         run: |
           scons build system_fmt=y system_eigen=y system_yamlcpp=y system_sundials=y \
-          blas_lapack_libs='lapack,blas' -j2 logging=debug debug=n \
+          system_highfive=y blas_lapack_libs='lapack,blas' -j2 logging=debug debug=n \
           optimize_flags='-O3 -ffast-math -fno-finite-math-only'
       - name: Test Cantera
         run: scons test show_long_tests=yes verbose_tests=yes
@@ -561,6 +590,8 @@ jobs:
     env:
       INTEL_REPO: https://apt.repos.intel.com
       INTEL_KEY: GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
+      HDF5_LIBDIR: /usr/lib/x86_64-linux-gnu/hdf5/serial
+      HDF5_INCLUDEDIR: /usr/include/hdf5/serial
     steps:
     - name: Intel Apt repository
       timeout-minutes: 1
@@ -574,7 +605,7 @@ jobs:
       timeout-minutes: 5
       run: |
         sudo apt-get install intel-oneapi-compiler-fortran intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic \
-        intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-mkl ninja-build libboost-dev
+        intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-mkl ninja-build libboost-dev libhdf5-dev
     - uses: actions/checkout@v2
       name: Checkout the repository
       with:
@@ -587,17 +618,20 @@ jobs:
     - name: Upgrade pip
       run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
-      run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas pytest
+      run: |
+        python3 -m pip install ruamel.yaml scons numpy cython pandas pytest \
         pytest-github-actions-annotate-failures
+        python3 -m pip install --no-binary=h5py h5py
     - name: Setup Intel oneAPI environment
       run: |
         source /opt/intel/oneapi/setvars.sh
         printenv >> $GITHUB_ENV
     - name: Build Cantera
       run: python3 `which scons` build env_vars=all CC=icx CXX=icpx -j2 debug=n
+        hdf_libdir=$HDF5_LIBDIR hdf_include=$HDF5_INCLUDEDIR
         --debug=time f90_interface=n # FORTRAN=ifx
     - name: Test Cantera
-      run:
+      run: |
         python3 `which scons` test show_long_tests=yes verbose_tests=yes --debug=time
 
   linux-intel-oneapi-classic:
@@ -719,9 +753,15 @@ jobs:
     - name: Install Python dependencies
       run: python3 -m pip install ruamel.yaml
     - name: Install library dependencies with Conda (Windows)
-      run: mamba install -q yaml-cpp mkl
+      run: mamba install -q yaml-cpp mkl highfive
       shell: pwsh
       if: matrix.os == 'windows-2022'
+    - name: Install Brew dependencies (macOS)
+      run: brew install hdf5
+      if: matrix.os == 'macos-11'
+    - name: Install Apt dependencies (Ubuntu)
+      run: sudo apt install libhdf5-dev
+      if: matrix.os == 'ubuntu-22.04'
     - name: Setup .NET Core SDK
       uses: actions/setup-dotnet@v2
       with:
