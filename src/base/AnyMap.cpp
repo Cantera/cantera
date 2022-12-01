@@ -1442,6 +1442,17 @@ std::string AnyMap::keys_str() const
     return to_string(b);
 }
 
+std::set<std::string> AnyMap::keys() const
+{
+    std::set<std::string> out;
+    auto iter = this->begin();
+    while (iter != this->end()) {
+        out.insert(iter->first);
+        ++iter;
+    }
+    return out;
+}
+
 void AnyMap::propagateMetadata(shared_ptr<AnyMap>& metadata)
 {
     m_metadata = metadata;

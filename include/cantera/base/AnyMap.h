@@ -12,6 +12,7 @@
 
 #include <unordered_map>
 #include <functional>
+#include <set>
 
 namespace boost
 {
@@ -446,6 +447,9 @@ public:
     //! Return a string listing the keys in this AnyMap, for use in error
     //! messages, for example
     std::string keys_str() const;
+
+    //! Return an unordered set of keys
+    std::set<std::string> keys() const;
 
     //! Set a metadata value that applies to this AnyMap and its children.
     //! Mainly for internal use in reading or writing from files.
