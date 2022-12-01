@@ -150,10 +150,9 @@ public:
     /*!
      *  Read header data from container file.
      *
-     *  @param fname  Name of container file
-     *  @param id  Identifier of SolutionArray root within the container file
+     *  @param root  Root location
+     *  @param id  Identifier of SolutionArray within the file structure
      */
-    static AnyMap readHeader(const std::string& fname, const std::string& id);
     static AnyMap readHeader(const AnyMap& root, const std::string& id);
 #if CT_USE_HIGHFIVE_HDF
     static AnyMap readHeader(const HighFive::File& file, const std::string& id);
@@ -162,16 +161,29 @@ public:
     /*!
      *  Restore SolutionArray from a container file.
      *
+     *  @param root  Root location
+     *  @param id  Identifier of SolutionArray within the file structure
+     */
+    void readEntry(const AnyMap& root, const std::string& id);
+#if CT_USE_HIGHFIVE_HDF
+    void readEntry(const HighFive::File& file, const std::string& id);
+#endif
+
+    /*!
+     *  Restore SolutionArray from a container file.
+     *
      *  @param fname  Name of container file
      *  @param id  Identifier of SolutionArray within the container file
      */
-    void restore(const std::string& fname, const std::string& id);
-    void restore(const AnyMap& root, const std::string& id);
-#if CT_USE_HIGHFIVE_HDF
-    void restore(const HighFive::File& file, const std::string& id);
-#endif
+    AnyMap restore(const std::string& fname, const std::string& id);
 
 protected:
+    //! Detect storage mode of state data
+    std::string detectMode(std::set<std::string> names, bool native=true);
+
+    //! Retrieve set containing list of properties defining state
+    std::set<std::string> stateProperties(std::string mode, bool alias=false);
+
     shared_ptr<Solution> m_sol; //!< Solution object associated with state data
     size_t m_size; //!< Number of entries in SolutionArray
     size_t m_stride; //!< Stride between SolutionArray entries
