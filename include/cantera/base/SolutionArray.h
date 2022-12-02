@@ -9,13 +9,6 @@
 #include "cantera/base/global.h"
 #include "cantera/base/AnyMap.h"
 
-#if CT_USE_HIGHFIVE_HDF
-namespace HighFive
-{
-    class File;
-}
-#endif
-
 namespace Cantera
 {
 
@@ -117,32 +110,28 @@ public:
     /*!
      *  Write header data to container file.
      *
-     *  @param root  Root location
+     *  @param fname  Name of HDF container file
      *  @param id  Identifier of SolutionArray root within the container file
      *  @param desc  Description
      */
+    static void writeHeader(const std::string& fname, const std::string& id,
+                            const std::string& desc);
     static void writeHeader(AnyMap& root, const std::string& id,
                             const std::string& desc);
-#if CT_USE_HIGHFIVE_HDF
-    static void writeHeader(HighFive::File& file, const std::string& id,
-                            const std::string& desc);
-#endif
 
     /*!
      *  Write SolutionArray data to container file.
      *
-     *  @param root  Root location
+     *  @param fname  Name of HDF container file
      *  @param id  Identifier of SolutionArray within the container file
      */
+    void writeEntry(const std::string& fname, const std::string& id);
     void writeEntry(AnyMap& root, const std::string& id);
-#if CT_USE_HIGHFIVE_HDF
-    void writeEntry(HighFive::File& file, const std::string& id);
-#endif
 
     /*!
-     *  Save the current SolutionArray to a container file.
+     *  Save current SolutionArray and header to a container file.
      *
-     *  @param fname  Name of output container file
+     *  @param fname  Name of output container file (YAML or HDF)
      *  @param id  Identifier of SolutionArray within the container file
      */
     void save(const std::string& fname, const std::string& id, const std::string& desc);
@@ -150,29 +139,25 @@ public:
     /*!
      *  Read header data from container file.
      *
-     *  @param root  Root location
+     *  @param fname  Name of HDF container file
      *  @param id  Identifier of SolutionArray within the file structure
      */
+    static AnyMap readHeader(const std::string& fname, const std::string& id);
     static AnyMap readHeader(const AnyMap& root, const std::string& id);
-#if CT_USE_HIGHFIVE_HDF
-    static AnyMap readHeader(const HighFive::File& file, const std::string& id);
-#endif
 
     /*!
-     *  Restore SolutionArray from a container file.
+     *  Restore SolutionArray entry from a container file.
      *
-     *  @param root  Root location
+     *  @param fname  Name of HDF container file
      *  @param id  Identifier of SolutionArray within the file structure
      */
+    void readEntry(const std::string& fname, const std::string& id);
     void readEntry(const AnyMap& root, const std::string& id);
-#if CT_USE_HIGHFIVE_HDF
-    void readEntry(const HighFive::File& file, const std::string& id);
-#endif
 
     /*!
-     *  Restore SolutionArray from a container file.
+     *  Restore SolutionArray entry and header from a container file.
      *
-     *  @param fname  Name of container file
+     *  @param fname  Name of container file (YAML or HDF)
      *  @param id  Identifier of SolutionArray within the container file
      */
     AnyMap restore(const std::string& fname, const std::string& id);
