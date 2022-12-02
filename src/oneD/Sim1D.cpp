@@ -109,19 +109,13 @@ void Sim1D::save(const std::string& fname, const std::string& id,
 {
     size_t dot = fname.find_last_of(".");
     string extension = (dot != npos) ? toLowerCopy(fname.substr(dot+1)) : "";
-    if (extension == "h5" || extension == "hdf") {
-#if CT_USE_HIGHFIVE_HDF
-        h5::File file(fname, h5::File::OpenOrCreate);
+    if (extension == "h5" || extension == "hdf"  || extension == "hdf5") {
         for (auto dom : m_dom) {
             auto arr = dom->asArray(m_x.data());
-            arr->writeEntry(file, id + "/" + dom->id());
+            arr->writeEntry(fname, id + "/" + dom->id());
         }
-        SolutionArray::writeHeader(file, id, desc);
+        SolutionArray::writeHeader(fname, id, desc);
         return;
-#else
-        throw CanteraError("Sim1D::save",
-                           "Saving to HDF requires HighFive installation.");
-#endif
     }
     if (extension == "yaml" || extension == "yml") {
         // Check for an existing file and load it if present
@@ -292,14 +286,14 @@ void Sim1D::restore(const std::string& fname, const std::string& id,
     if (extension == "xml") {
         throw CanteraError("Sim1D::restore",
                            "Restoring from XML is no longer supported.");
-    } else if (extension == "h5" || extension == "hdf") {
-#if CT_USE_HIGHFIVE_HDF
-        h5::File file(fname, h5::File::ReadOnly);
+    }
+    if (extension == "h5" || extension == "hdf"  || extension == "hdf5") {
         std::map<std::string, std::shared_ptr<SolutionArray>> arrs;
-        auto header = SolutionArray::readHeader(file, id);
+        auto header = SolutionArray::readHeader(fname, id);
+
         for (auto dom : m_dom) {
             auto arr = SolutionArray::create(dom->solution());
-            arr->readEntry(file, id + "/" + dom->id());
+            arr->readEntry(fname, id + "/" + dom->id());
             dom->resize(dom->nComponents(), arr->size());
             if (!header.hasKey("generator")) {
                 arr->meta() = legacyH5(arr, header);
@@ -312,10 +306,6 @@ void Sim1D::restore(const std::string& fname, const std::string& id,
             dom->restore(*arrs[dom->id()], m_x.data() + dom->loc(), loglevel);
         }
         finalize();
-#else
-        throw CanteraError("Sim1D::restore",
-                           "Restoring from HDF requires HighFive installation.");
-#endif
     } else if (extension == "yaml" || extension == "yml") {
         AnyMap root = AnyMap::fromYamlFile(fname);
         std::map<std::string, std::shared_ptr<SolutionArray>> arrs;

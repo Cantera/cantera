@@ -8,15 +8,13 @@
 
 #include "cantera/base/SolutionArray.h"
 #include "cantera/base/Solution.h"
+#include "cantera/base/Storage.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/thermo/SurfPhase.h"
 #include <set>
 #include <fstream>
 
-#if CT_USE_HIGHFIVE_HDF
-#include "hdfUtils.h"
-#endif
 
 namespace Cantera
 {
@@ -223,14 +221,21 @@ AnyMap preamble(const std::string& desc)
     return data;
 }
 
-#if CT_USE_HIGHFIVE_HDF
-void SolutionArray::writeHeader(h5::File& file, const std::string& id,
+void SolutionArray::writeHeader(const std::string& fname, const std::string& id,
                                 const std::string& desc)
 {
-    auto sub = openH5Group(file, id);
-    writeH5Attributes(sub, preamble(desc));
-}
+#if CT_USE_HIGHFIVE_HDF
+    h5::File hdf(fname, h5::File::OpenOrCreate);
+    Storage file(hdf, true);
+#else
+    throw CanteraError("SolutionArray::writeHeader",
+                       "Saving to HDF requires HighFive installation.");
+    Storage file;
 #endif
+    file.checkGroup(id);
+    file.writeAttributes(id, preamble(desc));
+    file.flush();
+}
 
 void SolutionArray::writeHeader(AnyMap& root, const std::string& id,
                                 const std::string& desc)
@@ -238,13 +243,20 @@ void SolutionArray::writeHeader(AnyMap& root, const std::string& id,
     root[id] = preamble(desc);
 }
 
-#if CT_USE_HIGHFIVE_HDF
-void SolutionArray::writeEntry(h5::File& file, const std::string& id)
+void SolutionArray::writeEntry(const std::string& fname, const std::string& id)
 {
-    auto sub = openH5Group(file, id);
-    writeH5Attributes(sub, m_meta);
-
+#if CT_USE_HIGHFIVE_HDF
+    h5::File hdf(fname, h5::File::OpenOrCreate);
+    Storage file(hdf, true);
+#else
+    throw CanteraError("SolutionArray::writeEntry",
+                       "Saving to HDF requires HighFive installation.");
+    Storage file;
+#endif
+    file.checkGroup(id);
+    file.writeAttributes(id, m_meta);
     if (!m_size) {
+        file.flush();
         return;
     }
 
@@ -259,17 +271,18 @@ void SolutionArray::writeEntry(h5::File& file, const std::string& id)
                 size_t first = offset + i * m_stride;
                 prop.push_back(vector_fp(&m_data[first], &m_data[first + nSpecies]));
             }
-            writeH5FloatMatrix(sub, name, prop);
+            file.writeMatrix(id, name, prop);
         } else {
-            writeH5FloatVector(sub, name, getComponent(name));
+            auto data = getComponent(name);
+            file.writeVector(id, name, data);
         }
     }
 
     for (auto& other : m_other) {
-        writeH5FloatVector(sub, other.first, *(other.second));
+        file.writeVector(id, other.first, *(other.second));
     }
+    file.flush();
 }
-#endif
 
 AnyMap& openField(AnyMap& root, const std::string& id)
 {
@@ -354,16 +367,10 @@ void SolutionArray::save(
 {
     size_t dot = fname.find_last_of(".");
     std::string extension = (dot != npos) ? toLowerCopy(fname.substr(dot + 1)) : "";
-    if (extension == "h5" || extension == "hdf") {
-#if CT_USE_HIGHFIVE_HDF
-        h5::File file(fname, h5::File::OpenOrCreate);
-        writeHeader(file, id, desc);
-        writeEntry(file, id);
+    if (extension == "h5" || extension == "hdf"  || extension == "hdf5") {
+        writeHeader(fname, id, desc);
+        writeEntry(fname, id);
         return;
-#else
-        throw CanteraError("SolutionArray::writeHeader",
-                           "Saving to HDF requires HighFive installation.");
-#endif
     }
     if (extension == "yaml" || extension == "yml") {
         // Check for an existing file and load it if present
@@ -384,12 +391,19 @@ void SolutionArray::save(
                        "Unknown file extension '{}'", extension);
 }
 
-#if CT_USE_HIGHFIVE_HDF
-AnyMap SolutionArray::readHeader(const h5::File& file, const std::string& id)
+AnyMap SolutionArray::readHeader(const std::string& fname, const std::string& id)
 {
-    return readH5Attributes(locateH5Group(file, id), false);
-}
+#if CT_USE_HIGHFIVE_HDF
+    h5::File hdf(fname, h5::File::ReadOnly);
+    Storage file(hdf, false);
+#else
+    throw CanteraError("SolutionArray::readHeader",
+                       "Saving to HDF requires HighFive installation.");
+    Storage file;
 #endif
+    file.checkGroup(id);
+    return file.readAttributes(id, false);
+}
 
 AnyMap SolutionArray::readHeader(const AnyMap& root, const std::string& id)
 {
@@ -400,15 +414,9 @@ AnyMap SolutionArray::restore(const std::string& fname, const std::string& id)
 {
     size_t dot = fname.find_last_of(".");
     std::string extension = (dot != npos) ? toLowerCopy(fname.substr(dot + 1)) : "";
-    if (extension == "h5" || extension == "hdf") {
-#if CT_USE_HIGHFIVE_HDF
-        h5::File file(fname, h5::File::ReadOnly);
-        readEntry(file, id);
-        return readHeader(file, id);
-#else
-        throw CanteraError("SolutionArray::restore",
-                           "Restoring from HDF requires HighFive installation.");
-#endif
+    if (extension == "h5" || extension == "hdf"  || extension == "hdf5") {
+        readEntry(fname, id);
+        return readHeader(fname, id);
     }
     if (extension == "yaml" || extension == "yml") {
         const AnyMap& root = AnyMap::fromYamlFile(fname);
@@ -439,9 +447,9 @@ std::string SolutionArray::detectMode(std::set<std::string> names, bool native)
                 break;
             }
             if (names.count(name)) {
-                usesNativeState &= nativeState.count(name);
+                usesNativeState &= nativeState.count(name) > 0;
             } else if (aliasMap.count(name) && names.count(aliasMap.at(name))) {
-                usesNativeState &= nativeState.count(name);
+                usesNativeState &= nativeState.count(name) > 0;
             } else {
                 found = false;
                 break;
@@ -475,28 +483,22 @@ std::set<std::string> SolutionArray::stateProperties(std::string mode, bool alia
     return states;
 }
 
-#if CT_USE_HIGHFIVE_HDF
-void SolutionArray::readEntry(const h5::File& file, const std::string& id)
+void SolutionArray::readEntry(const std::string& fname, const std::string& id)
 {
-    auto sub = locateH5Group(file, id);
-    m_meta = readH5Attributes(sub, true);
+#if CT_USE_HIGHFIVE_HDF
+    h5::File hdf(fname, h5::File::ReadOnly);
+    Storage file(hdf, false);
+#else
+    throw CanteraError("SolutionArray::readEntry",
+                       "Saving to HDF requires HighFive installation.");
+    Storage file;
+#endif
+    file.checkGroup(id);
+    m_meta = file.readAttributes(id, true);
 
-    std::set<std::string> names;
-    size_t nDims = npos;
-    for (auto& name : sub.listObjectNames()) {
-        if (sub.getObjectType(name) == h5::ObjectType::Dataset) {
-            h5::DataSpace space = sub.getDataSet(name).getSpace();
-            names.insert(name);
-            if (space.getNumberDimensions() < nDims) {
-                nDims = space.getNumberDimensions();
-                m_size = space.getElementCount();
-            }
-        }
-    }
-    if (nDims != 1 && nDims != npos) {
-        throw NotImplementedError("SolutionArray::restore",
-            "Unable to restore SolutionArray with {} dimensions.", nDims);
-    }
+    auto contents = file.contents(id);
+    m_size = contents.first;
+    std::set<std::string> names = contents.second;
 
     initialize({});
 
@@ -522,20 +524,20 @@ void SolutionArray::readEntry(const h5::File& file, const std::string& id)
             std::string name = item.first;
             if (name == "X" || name == "Y") {
                 size_t offset = item.second;
-                auto prop = readH5FloatMatrix(sub, name, m_size, nSpecies);
+                auto prop = file.readMatrix(id, name, m_size, nSpecies);
                 for (size_t i = 0; i < m_size; i++) {
                     std::copy(prop[i].begin(), prop[i].end(),
                               &m_data[offset + i * m_stride]);
                 }
             } else {
-                setComponent(name, readH5FloatVector(sub, name, m_size));
+                setComponent(name, file.readVector(id, name, m_size));
             }
         }
     } else if (mode == "TPX" || mode == "TPC") {
         // data format used by Python h5py export (Cantera 2.5)
-        vector_fp T = readH5FloatVector(sub, "T", m_size);
-        vector_fp P = readH5FloatVector(sub, "P", m_size);
-        auto X = readH5FloatMatrix(sub, "X", m_size, nSpecies);
+        vector_fp T = file.readVector(id, "T", m_size);
+        vector_fp P = file.readVector(id, "P", m_size);
+        auto X = file.readMatrix(id, "X", m_size, nSpecies);
         for (size_t i = 0; i < m_size; i++) {
             m_sol->thermo()->setState_TPX(T[i], P[i], X[i].data());
             m_sol->thermo()->saveState(nState, &m_data[i * m_stride]);
@@ -551,14 +553,13 @@ void SolutionArray::readEntry(const h5::File& file, const std::string& id)
     // restore other data
     for (const auto& name : names) {
         if (!states.count(name)) {
-            vector_fp data = readH5FloatVector(sub, name, m_size);
+            vector_fp data = file.readVector(id, name, m_size);
             m_other.emplace(name, std::make_shared<vector_fp>(m_size));
             auto& extra = m_other[name];
             std::copy(data.begin(), data.end(), extra->begin());
         }
     }
 }
-#endif
 
 const AnyMap& locateField(const AnyMap& root, const std::string& id)
 {
