@@ -242,7 +242,6 @@ std::shared_ptr<SolutionArray> Inlet1D::asArray(const double* soln) const
     meta["mass-flux"] = m_mdot;
 
     // set gas state (using pressure from adjacent domain)
-    m_flow->setGas(soln, 0);
     double pressure = m_flow->phase().pressure();
     auto phase = m_solution->thermo();
     phase->setState_TPY(m_temp, pressure, &m_yin[0]);
@@ -282,9 +281,15 @@ void Inlet1D::restore(SolutionArray& arr, double* soln, int loglevel)
     Boundary1D::restore(arr.meta(), soln, loglevel);
     arr.setIndex(0);
     auto phase = arr.thermo();
-    auto aux = arr.getAuxiliary(0);
+    auto meta = arr.meta();
     m_temp = phase->temperature();
-    m_mdot = phase->density() * aux["velocity"];
+    if (meta.hasKey("mass-flux")) {
+        m_mdot = meta.at("mass-flux").asDouble();
+    } else {
+        // convert data format used by Python h5py export (Cantera < 3.0)
+        auto aux = arr.getAuxiliary(0);
+        m_mdot = phase->density() * aux["velocity"];
+    }
     auto Y = phase->massFractions();
     std::copy(Y, Y + m_nsp, &m_yin[0]);
 }
@@ -583,7 +588,6 @@ std::shared_ptr<SolutionArray> OutletRes1D::asArray(const double* soln) const
     meta["temperature"] = m_temp;
 
     // set gas state (using pressure from adjacent domain)
-    m_flow->setGas(soln, 0);
     double pressure = m_flow->phase().pressure();
     auto phase = m_solution->thermo();
     phase->setState_TPY(m_temp, pressure, &m_yres[0]);

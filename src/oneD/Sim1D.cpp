@@ -111,10 +111,13 @@ void Sim1D::save(const std::string& fname, const std::string& id,
     string extension = (dot != npos) ? toLowerCopy(fname.substr(dot+1)) : "";
     if (extension == "h5" || extension == "hdf"  || extension == "hdf5") {
         for (auto dom : m_dom) {
-            auto arr = dom->asArray(m_x.data());
+            auto arr = dom->asArray(m_x.data() + dom->loc());
             arr->writeEntry(fname, id + "/" + dom->id());
         }
         SolutionArray::writeHeader(fname, id, desc);
+        if (loglevel > 0) {
+            writelog("Solution saved to file {} as group '{}'.\n", fname, id);
+        }
         return;
     }
     if (extension == "yaml" || extension == "yml") {
@@ -126,7 +129,7 @@ void Sim1D::save(const std::string& fname, const std::string& id,
         SolutionArray::writeHeader(data, id, desc);
 
         for (auto dom : m_dom) {
-            auto arr = dom->asArray(m_x.data());
+            auto arr = dom->asArray(m_x.data() + dom->loc());
             arr->writeEntry(data, id + "/" + dom->id());
         }
 
@@ -134,6 +137,9 @@ void Sim1D::save(const std::string& fname, const std::string& id,
         std::ofstream out(fname);
         out << data.toYamlString();
         AnyMap::clearCachedFile(fname);
+        if (loglevel > 0) {
+            writelog("Solution saved to file {} as entry '{}'.\n", fname, id);
+        }
         return;
     }
     throw CanteraError("Sim1D::save",
