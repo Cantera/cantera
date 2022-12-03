@@ -13,13 +13,12 @@ explanation. Also, please don't forget to cite it if you make use of it.
 This example can, for example, be used to iterate to a counterflow diffusion flame to an
 awkward pressure and strain rate, or to create the basis for a flamelet table.
 
-Requires: cantera >= 2.5.0, matplotlib >= 2.0
+Requires: cantera >= 3.0, matplotlib >= 2.0
 Keywords: combustion, 1D flow, extinction, diffusion flame, strained flame,
           saving output, plotting
 """
 
-import os
-import importlib
+from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -30,17 +29,20 @@ class FlameExtinguished(Exception):
     pass
 
 
-hdf_output = importlib.util.find_spec('h5py') is not None
+hdf_output = "HighFive" in ct.hdf_support()
 
-if not hdf_output:
-    # Create directory for output data files
-    data_directory = 'diffusion_flame_batch_data'
-    if not os.path.exists(data_directory):
-        os.makedirs(data_directory)
-    fig_name = os.path.join(data_directory, 'figure_{0}.png')
-else:
-    fig_name = 'diffusion_flame_batch_{0}.png'
+output_path = Path() / "diffusion_flame_batch_data"
+output_path.mkdir(parents=True, exist_ok=True)
 
+
+def names(test):
+    if hdf_output:
+        # use internal container structure for HDF
+        file_name = output_path / "flame_data.h5"
+        return file_name, test
+    # use separate files for YAML
+    file_name = output_path / f"{test}.yaml".replace("-", "_").replace("/", "_")
+    return file_name, "solution"
 
 # PART 1: INITIALIZATION
 
@@ -83,17 +85,9 @@ print('Creating the initial solution')
 f.solve(loglevel=0, auto=True)
 
 # Save to data directory
-if hdf_output:
-    # save to HDF container file if h5py is installed
-    file_name = 'diffusion_flame_batch.h5'
-    f.write_hdf(file_name, group='initial_solution', mode='w', quiet=False,
-                description=('Initial hydrogen-oxygen counterflow flame '
-                             'at 1 bar and low strain rate'))
-else:
-    file_name = 'initial_solution.yaml'
-    f.save(os.path.join(data_directory, file_name), name='solution',
-           description='Initial hydrogen-oxygen counterflow flame '
-                       'at 1 bar and low strain rate')
+file_name, entry = names("initial-solution")
+desc = "Initial hydrogen-oxygen counterflow flame at 1 bar and low strain rate"
+f.save(file_name, name=entry, description=desc)
 
 
 # PART 2: BATCH PRESSURE LOOP
@@ -139,23 +133,13 @@ for p in p_range:
     try:
         # Try solving the flame
         f.solve(loglevel=0)
-        if hdf_output:
-            group = 'pressure_loop/{:05.1f}'.format(p)
-            f.write_hdf(file_name, group=group, quiet=False,
-                        description='pressure = {0} bar'.format(p))
-        else:
-            file_name = 'pressure_loop_' + format(p, '05.1f') + '.yaml'
-            f.save(os.path.join(data_directory, file_name), name='solution', loglevel=1,
-                   description='pressure = {0} bar'.format(p))
+        file_name, entry = names(f"pressure-loop/{p:05.1f}")
+        f.save(file_name, name=entry, loglevel=1, description=f"pressure = {p} bar")
         p_previous = p
     except ct.CanteraError as e:
         print('Error occurred while solving:', e, 'Try next pressure level')
         # If solution failed: Restore the last successful solution and continue
-        if hdf_output:
-            f.read_hdf(file_name, group=group)
-        else:
-            f.restore(filename=os.path.join(data_directory, file_name), name='solution',
-                      loglevel=0)
+        f.restore(file_name, name=entry, loglevel=0)
 
 
 # PART 3: STRAIN RATE LOOP
@@ -174,11 +158,8 @@ exp_lam_a = 2.
 exp_mdot_a = 1. / 2.
 
 # Restore initial solution
-if hdf_output:
-    f.read_hdf(file_name, group='initial_solution')
-else:
-    file_name = 'initial_solution.yaml'
-    f.restore(filename=os.path.join(data_directory, file_name), name='solution', loglevel=0)
+file_name, entry = names("initial-solution")
+f.restore(file_name, name=entry, loglevel=0)
 
 # Counter to identify the loop
 n = 0
@@ -203,14 +184,9 @@ while np.max(f.T) > temperature_limit_extinction:
     try:
         # Try solving the flame
         f.solve(loglevel=0)
-        if hdf_output:
-            group = 'strain_loop/{:02d}'.format(n)
-            f.write_hdf(file_name, group=group, quiet=False,
-                        description='strain rate iteration {}'.format(n))
-        else:
-            file_name = 'strain_loop_' + format(n, '02d') + '.yaml'
-            f.save(os.path.join(data_directory, file_name), name='solution', loglevel=1,
-                   description='strain rate iteration {}'.format(n))
+        file_name, entry = names(f"strain-loop/{n:02d}")
+        f.save(file_name, name=entry, loglevel=1,
+               description=f"strain rate iteration {n}")
     except FlameExtinguished:
         print('Flame extinguished')
         break
@@ -228,30 +204,25 @@ ax2 = fig2.add_subplot(1, 1, 1)
 p_selected = p_range[::7]
 
 for p in p_selected:
-    if hdf_output:
-        group = 'pressure_loop/{0:05.1f}'.format(p)
-        f.read_hdf(file_name, group=group)
-    else:
-        file_name = 'pressure_loop_{0:05.1f}.yaml'.format(p)
-        f.restore(filename=os.path.join(data_directory, file_name), name='solution', loglevel=0)
+    file_name, entry = names(f"pressure-loop/{p:05.1f}")
+    f.restore(file_name, name=entry)
 
     # Plot the temperature profiles for selected pressures
-    ax1.plot(f.grid / f.grid[-1], f.T, label='{0:05.1f} bar'.format(p))
+    ax1.plot(f.grid / f.grid[-1], f.T, label=f"{p:05.1f} bar")
 
     # Plot the axial velocity profiles (normalized by the fuel inlet velocity)
     # for selected pressures
-    ax2.plot(f.grid / f.grid[-1], f.velocity / f.velocity[0],
-             label='{0:05.1f} bar'.format(p))
+    ax2.plot(f.grid / f.grid[-1], f.velocity / f.velocity[0], label=f"{p:05.1f} bar")
 
 ax1.legend(loc=0)
 ax1.set_xlabel(r'$z/z_{max}$')
 ax1.set_ylabel(r'$T$ [K]')
-fig1.savefig(fig_name.format('T_p'))
+fig1.savefig(output_path / "figure_T_p.png")
 
 ax2.legend(loc=0)
 ax2.set_xlabel(r'$z/z_{max}$')
 ax2.set_ylabel(r'$u/u_f$')
-fig2.savefig(fig_name.format('u_p'))
+fig1.savefig(output_path / "figure_u_p.png")
 
 fig3 = plt.figure()
 fig4 = plt.figure()
@@ -259,29 +230,23 @@ ax3 = fig3.add_subplot(1, 1, 1)
 ax4 = fig4.add_subplot(1, 1, 1)
 n_selected = range(1, n, 5)
 for n in n_selected:
-    if hdf_output:
-        group = 'strain_loop/{0:02d}'.format(n)
-        f.read_hdf(file_name, group=group)
-    else:
-        file_name = 'strain_loop_{0:02d}.yaml'.format(n)
-        f.restore(filename=os.path.join(data_directory, file_name),
-                  name='solution', loglevel=0)
+    file_name, entry = names(f"strain-loop/{n:02d}")
+    f.restore(file_name, name=entry, loglevel=0)
     a_max = f.strain_rate('max')  # the maximum axial strain rate
 
     # Plot the temperature profiles for the strain rate loop (selected)
-    ax3.plot(f.grid / f.grid[-1], f.T, label='{0:.2e} 1/s'.format(a_max))
+    ax3.plot(f.grid / f.grid[-1], f.T, label=f"{a_max:.2e} 1/s")
 
     # Plot the axial velocity profiles (normalized by the fuel inlet velocity)
     # for the strain rate loop (selected)
-    ax4.plot(f.grid / f.grid[-1], f.velocity / f.velocity[0],
-             label=format(a_max, '.2e') + ' 1/s')
+    ax4.plot(f.grid / f.grid[-1], f.velocity / f.velocity[0], label=f"{a_max:.2e} 1/s")
 
 ax3.legend(loc=0)
 ax3.set_xlabel(r'$z/z_{max}$')
 ax3.set_ylabel(r'$T$ [K]')
-fig3.savefig(fig_name.format('T_a'))
+fig1.savefig(output_path / "figure_T_a.png")
 
 ax4.legend(loc=0)
 ax4.set_xlabel(r'$z/z_{max}$')
 ax4.set_ylabel(r'$u/u_f$')
-fig4.savefig(fig_name.format('u_a'))
+fig1.savefig(output_path / "figure_u_a.png")
