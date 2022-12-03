@@ -98,6 +98,8 @@ def hdf_support():
     Returns list of libraries that include HDF support:
     - 'h5py': HDF support by Python package 'h5py'.
     - 'HighFive': if Cantera was compiled with C++ HighFive HDF support.
+
+    .. versionadded:: 3.0
     """
     out = []
     try:

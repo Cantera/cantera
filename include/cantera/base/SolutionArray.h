@@ -20,6 +20,10 @@ class ThermoPhase;
  *  thermodynamic states using the same Solution object. C++ SolutionArray objects are
  *  one-dimensional by design; extensions to multi-dimensional arrays need to be
  *  implemented in high-level API's.
+ *
+ *  @since  New in Cantera 3.0.
+ *  @warning This function is an experimental part of the %Cantera API and may be
+ *      changed or removed without notice.
  */
 class SolutionArray
 {
