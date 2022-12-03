@@ -1450,6 +1450,7 @@ class TestTwinFlame(utilities.CanteraTest):
     def test_save_restore_yaml(self):
         self.run_save_restore("yaml")
 
+    @utilities.unittest.skipIf("HighFive" not in ct.hdf_support(), "HighFive not installed")
     def test_save_restore_hdf(self):
         self.run_save_restore("hdf")
 
