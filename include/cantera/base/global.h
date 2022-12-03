@@ -106,6 +106,7 @@ std::string gitCommit();
 bool debugModeEnabled();
 
 //! Returns true if Cantera was compiled with C++ HighFive HDF support.
+//! @since  New in Cantera 3.0.
 bool usesHighFive();
 
 /*!

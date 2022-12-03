@@ -449,6 +449,7 @@ public:
     std::string keys_str() const;
 
     //! Return an unordered set of keys
+    //! @since  New in Cantera 3.0.
     std::set<std::string> keys() const;
 
     //! Set a metadata value that applies to this AnyMap and its children.

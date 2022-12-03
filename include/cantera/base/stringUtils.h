@@ -112,6 +112,8 @@ void tokenizeString(const std::string& oval,
  *
  * @param oval   String to be broken up
  * @param v     Output vector of tokens.
+ *
+ * @since  New in Cantera 3.0.
  */
 void tokenizePath(const std::string& oval,
                   std::vector<std::string>& v);

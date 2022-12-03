@@ -319,6 +319,8 @@ public:
     //! Save the state of this domain as a SolutionArray
     /*!
      * @param soln local solution vector for this domain
+     *
+     * @since  New in Cantera 3.0.
      */
     virtual std::shared_ptr<SolutionArray> asArray(const double* soln) const;
 
@@ -337,6 +339,8 @@ public:
      * @param[out] soln Value of the solution vector, local to this domain
      * @param[in]  loglevel 0 to suppress all output; 1 to show warnings; 2 for
      *      verbose output
+     *
+     * @since  New in Cantera 3.0.
      */
     virtual void restore(SolutionArray& arr, double* soln, int loglevel);
 

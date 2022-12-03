@@ -48,6 +48,10 @@ namespace Cantera
 
 /*!
  *  A wrapper class handling storage to HDF; acts as a thin wrapper for HighFive
+ *
+ *  @since  New in Cantera 3.0.
+ *  @warning This function is an experimental part of the %Cantera API and may be
+ *      changed or removed without notice.
  */
 class Storage
 {

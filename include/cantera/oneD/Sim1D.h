@@ -123,6 +123,7 @@ public:
 
     /**
      * Save the current solution to YAML (legacy implementation). @see save
+     * @since  New in Cantera 3.0.
      */
     void write_yaml(const std::string& fname, const std::string& id,
                     const std::string& desc, int loglevel=1);
@@ -148,6 +149,7 @@ public:
     /**
      * Initialize the solution with a previously-saved solution (legacy implementation).
      * @see restore
+     * @since  New in Cantera 3.0.
      */
     void read_yaml(const std::string& fname, const std::string& id, int loglevel=2);
 
