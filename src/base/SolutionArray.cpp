@@ -510,8 +510,15 @@ void SolutionArray::readEntry(const std::string& fname, const std::string& id)
     std::string mode = detectMode(names);
     std::set<std::string> states = stateProperties(mode);
     if (states.count("C")) {
-        states.erase("C");
-        states.insert("X");
+        if (names.count("X")) {
+            states.erase("C");
+            states.insert("X");
+            mode = "TPX";
+        } else if (names.count("Y")) {
+            states.erase("C");
+            states.insert("Y");
+            mode = "TPY";
+        }
     }
 
     // restore state data
@@ -533,13 +540,21 @@ void SolutionArray::readEntry(const std::string& fname, const std::string& id)
                 setComponent(name, file.readVector(id, name, m_size));
             }
         }
-    } else if (mode == "TPX" || mode == "TPC") {
+    } else if (mode == "TPX") {
         // data format used by Python h5py export (Cantera 2.5)
         vector_fp T = file.readVector(id, "T", m_size);
         vector_fp P = file.readVector(id, "P", m_size);
         auto X = file.readMatrix(id, "X", m_size, nSpecies);
         for (size_t i = 0; i < m_size; i++) {
             m_sol->thermo()->setState_TPX(T[i], P[i], X[i].data());
+            m_sol->thermo()->saveState(nState, &m_data[i * m_stride]);
+        }
+    } else if (mode == "TPY") {
+        vector_fp T = file.readVector(id, "T", m_size);
+        vector_fp P = file.readVector(id, "P", m_size);
+        auto Y = file.readMatrix(id, "Y", m_size, nSpecies);
+        for (size_t i = 0; i < m_size; i++) {
+            m_sol->thermo()->setState_TPY(T[i], P[i], Y[i].data());
             m_sol->thermo()->saveState(nState, &m_data[i * m_stride]);
         }
     } else if (mode == "") {
