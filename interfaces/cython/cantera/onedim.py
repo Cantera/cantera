@@ -2,6 +2,7 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 from math import erf
+from pathlib import Path
 from email.utils import formatdate
 import warnings
 import numpy as np
@@ -124,7 +125,8 @@ class FlameBase(Sim1D):
             # already a solution array
             arr = data
 
-        elif isinstance(data, str):
+        elif isinstance(data, (str, Path)):
+            data = str(data)
             if data.endswith('.hdf5') or data.endswith('.h5'):
                 # data source identifies a HDF file
                 arr = SolutionArray(self.gas, extra=self.other_components())

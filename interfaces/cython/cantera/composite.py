@@ -953,12 +953,14 @@ class SolutionArray:
 
         # determine suitable thermo properties for reconstruction
         basis = 'mass' if self.basis == 'mass' else 'mole'
-        prop = {'T': ('T'), 'P': ('P'), 'Q': ('Q'),
-                'D': ('density', 'density_{}'.format(basis)),
-                'U': ('u', 'int_energy_{}'.format(basis)),
-                'V': ('v', 'volume_{}'.format(basis)),
-                'H': ('h', 'enthalpy_{}'.format(basis)),
-                'S': ('s', 'entropy_{}'.format(basis))}
+        prop = {"T": ("T", "temperature"),
+                "P": ("P", "pressure"),
+                "Q": ("Q", "quality"),
+                "D": ("D", "density", f"density_{basis}"),
+                "U": ("u", f"int_energy_{basis}"),
+                "V": ("v", f"volume_{basis}"),
+                "H": ("h", f"enthalpy_{basis}"),
+                "S": ("s", f"entropy_{basis}")}
         for st in states:
             # identify property specifiers
             state = [{st[i]: p for p in prop[st[i]] if p in labels}
@@ -1413,13 +1415,13 @@ class SolutionArray:
             root = hdf[group]
 
             # identify subgroup
-            sub_names = [key for key, value in root.items()
-                         if isinstance(value, _h5py.Group)]
-            if not len(sub_names):
-                msg = "HDF group '{}' does not contain valid data"
-                raise IOError(msg.format(group))
-
             if subgroup is not None:
+                sub_names = [key for key, value in root.items()
+                             if isinstance(value, _h5py.Group)]
+                if not len(sub_names):
+                    msg = "HDF group '{}' does not contain valid data"
+                    raise IOError(msg.format(group))
+
                 if subgroup not in sub_names:
                     msg = ("HDF file does not contain data set '{}' within "
                            "group '{}'; available data sets are: {}")
@@ -1440,20 +1442,25 @@ class SolutionArray:
                 return out
 
             # ensure that mechanisms are matching
-            sol_source = strip_ext(dgroup['phase'].attrs['source'])
-            source = strip_ext(self.source)
-            if sol_source != source and not force:
-                msg = ("Sources of thermodynamic phases do not match: '{}' vs "
-                       "'{}'; use option 'force' to override this error.")
-                raise IOError(msg.format(sol_source, source))
+            if "phase" in dgroup:
+                sol_source = strip_ext(dgroup['phase'].attrs['source']).split("/")[-1]
+                source = strip_ext(self.source)
+                if sol_source != source and not force:
+                    msg = ("Sources of thermodynamic phases do not match: '{}' vs "
+                        "'{}'; use option 'force' to override this error.")
+                    raise IOError(msg.format(sol_source, source))
 
             # load metadata
             self._meta = dict(dgroup.attrs.items())
+            for name, value in dgroup.items():
+                # support one level of recursion
+                if isinstance(value, _h5py.Group):
+                    self._meta[name] = dict(value.attrs.items())
 
             # load data
             data = OrderedDict()
             for name, value in dgroup.items():
-                if name == 'phase':
+                if isinstance(value, _h5py.Group):
                     continue
                 elif value.dtype.type == np.bytes_:
                     data[name] = np.array(value).astype('U')

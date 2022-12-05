@@ -1470,6 +1470,20 @@ class TestTwinFlame(utilities.CanteraTest):
 
         sim2.solve(loglevel=0)
 
+    @utilities.unittest.skipIf(ct.hdf_support() != {"h5py", "native"}, "h5py and/or HighFive not installed")
+    def test_backwards_compatibility(self):
+        filename = self.test_work_path / f"twinflame.h5"
+        filename.unlink(missing_ok=True)
+
+        sim = self.solve(phi=0.4, T=300, width=0.05, P=0.1)
+        sim.save(filename, loglevel=0, compression=7)
+
+        # load parts using h5py
+        for sub, points in {"flame": len(sim.grid), "reactants": 1}.items():
+            arr = ct.SolutionArray(ct.Solution("h2o2.yaml"))
+            arr.read_hdf(filename, "solution", sub)
+            assert arr.size == points
+
 
 class TestIonFreeFlame(utilities.CanteraTest):
     @utilities.slow_test
