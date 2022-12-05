@@ -357,13 +357,32 @@ config_options = [
            'libfmt.so'.""",
         "default", ("default", "y", "n")),
     EnumOption(
+        "hdf_support",
+        """Select whether to support HDF5 container files natively ('y'), disable HDF5
+           support ('n'), or to decide automatically based on the system configuration
+           ('default'). Native HDF5 support uses the headers-only HDF5 wrapper HighFive
+           (see option 'system_highfive'). Specifying 'hdf_include' or 'hdf_libdir'
+           changes the default to 'y'.""",
+        "default", ("default", "y", "n")),
+    PathOption(
+        "hdf_include",
+        """The directory where the HDF5 header files are installed. This should be the
+           directory that contains files 'H5Version.h' and 'H5Public.h', amongst others.
+           Not needed if the headers are installed in a standard location, for example,
+           '/usr/include'.""",
+        "", PathVariable.PathAccept),
+    PathOption(
+        "hdf_libdir",
+        """The directory where the HDF5 libraries are installed. Not needed if the
+           libraries are installed in a standard location, for example, '/usr/lib'.""",
+        "", PathVariable.PathAccept),
+    EnumOption(
         "system_highfive",
         """Select whether to use HighFive from a system installation ('y'), from a
            Git submodule ('n'), or to decide automatically ('default'). If HighFive
            is not installed directly into a system include directory, for example, it
            is installed in '/opt/include/HighFive', then you will need to add
-           '/opt/include/HighFive' to 'extra_inc_dirs'.
-           """,
+           '/opt/include/HighFive' to 'extra_inc_dirs'.""",
         "default", ("default", "y", "n")),
     EnumOption(
         "system_yamlcpp",
@@ -1506,10 +1525,27 @@ else: # env['system_sundials'] == 'n'
     env['sundials_version'] = '5.3'
     env['has_sundials_lapack'] = int(env['use_lapack'])
 
-if not conf.CheckLib("hdf5", autoadd=False):
-    env["uses_highfive"] = False
+if env["hdf_include"]:
+    env["hdf_include"] = Path(env["hdf_include"]).as_posix()
+    env.Append(CPPPATH=[env["hdf_include"]])
+    env["hdf_support"] = "y"
+    env["extra_inc_dirs"].append(env["hdf_include"])
+if env["hdf_libdir"]:
+    env["hdf_libdir"] = Path(env["hdf_libdir"]).as_posix()
+    env.Append(LIBPATH=[env["hdf_libdir"]])
+    env["hdf_support"] = "y"
+    if env["use_rpath_linkage"]:
+        env.Append(RPATH=env["hdf_libdir"])
+    env["extra_lib_dirs"].append(env["hdf_libdir"])
 
-elif env["system_highfive"] in ("n", "default"):
+if env["hdf_support"] == "n":
+    env["use_hdf5"] = False
+else:
+    env["use_hdf5"] = conf.CheckLib("hdf5", autoadd=False)
+    if not env["use_hdf5"] and env["hdf_support"] == "y":
+        config_error("HDF5 support has been specified but libraries were not found.")
+
+if env["use_hdf5"] and env["system_highfive"] in ("n", "default"):
     env["system_highfive"] = False
     if not os.path.exists("ext/eigen/HighFive/include"):
         if not os.path.exists(".git"):
@@ -1525,23 +1561,41 @@ elif env["system_highfive"] in ("n", "default"):
                         "Try manually checking out the submodule with:\n\n"
                         "    git submodule update --init --recursive ext/HighFive\n")
 
-    env["uses_highfive"] = conf.CheckLibWithHeader(
+    env["use_hdf5"] = conf.CheckLibWithHeader(
         "hdf5", "../ext/HighFive/include/highfive/H5File.hpp",
         language="C++", autoadd=False)
 
-    if env["uses_highfive"]:
+    if env["use_hdf5"]:
         logger.info("Using private installation of HighFive.")
+    elif env["hdf_support"] == "y":
+        config_error("HDF5 support has been specified but HighFive configuration failed.")
     else:
-        logger.error("HighFive is not configured correctly.")
+        logger.warning("HighFive is not configured correctly; skipping.")
+        env["use_hdf5"] = False
 
-elif env["system_highfive"] in ("y", "default"):
+elif env["use_hdf5"]:
     env["system_highfive"] = True
-    env["uses_highfive"] = conf.CheckLibWithHeader(
+    env["use_hdf5"] = conf.CheckLibWithHeader(
         "hdf5", "highfive/H5File.hpp", language="C++", autoadd=False)
-    if env["uses_highfive"]:
+    if env["use_hdf5"]:
         logger.info("Using system installation of HighFive.")
     else:
-        logger.warning("Unable to locate HighFive installation.")
+        config_error("Unable to locate system HighFive installation.")
+
+if env["use_hdf5"]:
+    hdf_version = textwrap.dedent("""\
+        #include <iostream>
+        #include "H5public.h"
+        int main(int argc, char** argv) {
+            std::cout << H5_VERS_MAJOR << "." << H5_VERS_MINOR << "." << H5_VERS_RELEASE;
+            return 0;
+        }
+    """)
+    retcode, hdf_version = conf.TryRun(hdf_version, ".cpp")
+    if retcode:
+        logger.info(f"Compiling against HDF5 version {hdf_version}")
+    else:
+        logger.warning("Failed to determine HDF5 version.")
 
 def set_fortran(pattern, value):
     # Set compiler / flags for all Fortran versions to be the same
@@ -2069,8 +2123,8 @@ cdefine('LAPACK_FTN_TRAILING_UNDERSCORE', 'lapack_ftn_trailing_underscore')
 cdefine('FTN_TRAILING_UNDERSCORE', 'lapack_ftn_trailing_underscore')
 cdefine('LAPACK_NAMES_LOWERCASE', 'lapack_names', 'lower')
 cdefine('CT_USE_LAPACK', 'use_lapack')
-cdefine("CT_USE_HIGHFIVE_HDF", "uses_highfive")
-cdefine('CT_USE_SYSTEM_HIGHFIVE', 'system_highfive')
+cdefine("CT_USE_HDF5", "use_hdf5")
+cdefine("CT_USE_SYSTEM_HIGHFIVE", "system_highfive")
 cdefine("CT_USE_SYSTEM_EIGEN", "system_eigen")
 cdefine("CT_USE_SYSTEM_EIGEN_PREFIXED", "system_eigen_prefixed")
 cdefine('CT_USE_SYSTEM_FMT', 'system_fmt')
@@ -2160,10 +2214,7 @@ else:
 env["external_libs"] = []
 env["external_libs"].extend(env["sundials_libs"])
 
-if env["uses_highfive"]:
-    if env["OS"] == "Windows":
-        # see https://github.com/microsoft/vcpkg/issues/24293
-        env.Append(CPPDEFINES=["H5_BUILT_AS_DYNAMIC_LIB"])
+if env["use_hdf5"]:
     env["external_libs"].append("hdf5")
 
 if env["system_fmt"]:

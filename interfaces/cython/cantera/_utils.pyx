@@ -97,7 +97,7 @@ def hdf_support():
     """
     Returns list of libraries that include HDF support:
     - 'h5py': HDF support by Python package 'h5py'.
-    - 'HighFive': if Cantera was compiled with C++ HighFive HDF support.
+    - 'native': if Cantera was compiled with C++ HighFive HDF5 support.
 
     .. versionadded:: 3.0
     """
@@ -108,8 +108,8 @@ def hdf_support():
         pass
     else:
         out.append("h5py")
-    if CxxUsesHighFive():
-        out.append("HighFive")
+    if CxxUsesHDF5():
+        out.append("native")
     return set(out)
 
 cdef Composition comp_map(X) except *:

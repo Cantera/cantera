@@ -72,7 +72,7 @@ cdef extern from "cantera/base/global.h" namespace "Cantera":
     cdef void Cxx_suppress_thermo_warnings "Cantera::suppress_thermo_warnings" (cbool)
     cdef void Cxx_use_legacy_rate_constants "Cantera::use_legacy_rate_constants" (cbool)
     cdef string CxxGitCommit "Cantera::gitCommit" ()
-    cdef cbool CxxUsesHighFive "Cantera::usesHighFive" ()
+    cdef cbool CxxUsesHDF5 "Cantera::usesHDF5" ()
     cdef cbool CxxDebugModeEnabled "Cantera::debugModeEnabled" ()
 
 

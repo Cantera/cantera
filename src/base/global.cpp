@@ -170,9 +170,9 @@ bool debugModeEnabled()
 #endif
 }
 
-bool usesHighFive()
+bool usesHDF5()
 {
-#if CT_USE_HIGHFIVE_HDF
+#if CT_USE_HDF5
     return true;
 #else
     return false;

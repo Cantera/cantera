@@ -67,7 +67,7 @@ typedef int ftnlen;       // Fortran hidden string length type
 {CT_SUNDIALS_USE_LAPACK!s}
 
 // Enable export/import of HDF data via C++ HighFive
-{CT_USE_HIGHFIVE_HDF!s}
+{CT_USE_HDF5!s}
 {CT_USE_SYSTEM_HIGHFIVE!s}
 
 #endif
