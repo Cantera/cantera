@@ -563,7 +563,14 @@ class FlameBase(Sim1D):
         `SolutionArray.collect_data`. The method exports data using
         `SolutionArray.write_hdf` via `to_solution_array` and requires a working
         installation of *h5py* (``h5py`` can be installed using pip or conda).
+
+        .. deprecated:: 3.0
+
+            Method to be removed after Cantera 3.0; replaceable by 'Sim1D.save'.
         """
+        warnings.warn(
+            "Method to be removed after Cantera 3.0; use 'Sim1D.save' instead.",
+            DeprecationWarning)
         cols = ('extra', 'T', 'P', species)
         meta = self.settings
         meta['date'] = formatdate(localtime=True)
