@@ -19,16 +19,6 @@
 
 using namespace std;
 
-#if CT_USE_HIGHFIVE_HDF
-#if CT_USE_SYSTEM_HIGHFIVE
-  #include <highfive/H5File.hpp>
-#else
-  #include "cantera/ext/HighFive/H5File.hpp"
-#endif
-
-namespace h5 = HighFive;
-#endif
-
 namespace Cantera
 {
 

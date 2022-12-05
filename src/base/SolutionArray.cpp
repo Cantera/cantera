@@ -224,14 +224,7 @@ AnyMap preamble(const std::string& desc)
 void SolutionArray::writeHeader(const std::string& fname, const std::string& id,
                                 const std::string& desc)
 {
-#if CT_USE_HIGHFIVE_HDF
-    h5::File hdf(fname, h5::File::OpenOrCreate);
-    Storage file(hdf, true);
-#else
-    throw CanteraError("SolutionArray::writeHeader",
-                       "Saving to HDF requires HighFive installation.");
-    Storage file;
-#endif
+    Storage file(fname, true);
     file.checkGroup(id);
     file.writeAttributes(id, preamble(desc));
     file.flush();
@@ -245,14 +238,7 @@ void SolutionArray::writeHeader(AnyMap& root, const std::string& id,
 
 void SolutionArray::writeEntry(const std::string& fname, const std::string& id)
 {
-#if CT_USE_HIGHFIVE_HDF
-    h5::File hdf(fname, h5::File::OpenOrCreate);
-    Storage file(hdf, true);
-#else
-    throw CanteraError("SolutionArray::writeEntry",
-                       "Saving to HDF requires HighFive installation.");
-    Storage file;
-#endif
+    Storage file(fname, true);
     file.checkGroup(id);
     file.writeAttributes(id, m_meta);
     if (!m_size) {
@@ -393,14 +379,7 @@ void SolutionArray::save(
 
 AnyMap SolutionArray::readHeader(const std::string& fname, const std::string& id)
 {
-#if CT_USE_HIGHFIVE_HDF
-    h5::File hdf(fname, h5::File::ReadOnly);
-    Storage file(hdf, false);
-#else
-    throw CanteraError("SolutionArray::readHeader",
-                       "Saving to HDF requires HighFive installation.");
-    Storage file;
-#endif
+    Storage file(fname, false);
     file.checkGroup(id);
     return file.readAttributes(id, false);
 }
@@ -485,14 +464,7 @@ std::set<std::string> SolutionArray::stateProperties(std::string mode, bool alia
 
 void SolutionArray::readEntry(const std::string& fname, const std::string& id)
 {
-#if CT_USE_HIGHFIVE_HDF
-    h5::File hdf(fname, h5::File::ReadOnly);
-    Storage file(hdf, false);
-#else
-    throw CanteraError("SolutionArray::readEntry",
-                       "Saving to HDF requires HighFive installation.");
-    Storage file;
-#endif
+    Storage file(fname, false);
     file.checkGroup(id);
     m_meta = file.readAttributes(id, true);
 
