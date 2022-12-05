@@ -56,14 +56,7 @@ namespace Cantera
 class Storage
 {
 public:
-#if CT_USE_HIGHFIVE_HDF
-    Storage(h5::File file, bool write) : m_file(file), m_write(write) {}
-#else
-    Storage() {
-        throw CanteraError("Storage::Storage",
-                           "Instantiation of Storage requires HighFive::File object.");
-    }
-#endif
+    Storage(std::string fname, bool write);
 
     //! Flush file contents
     void flush();
@@ -103,7 +96,7 @@ private:
     bool checkGroupRead(const std::string& id) const;
     bool checkGroupWrite(const std::string& id);
 
-    h5::File m_file;
+    std::unique_ptr<h5::File> m_file;
 #endif
 
     bool m_write;
@@ -111,9 +104,18 @@ private:
 
 #if CT_USE_HIGHFIVE_HDF
 
+Storage::Storage(std::string fname, bool write) : m_write(write)
+{
+    if (m_write) {
+        m_file.reset(new h5::File(fname, h5::File::OpenOrCreate));
+    } else {
+        m_file.reset(new h5::File(fname, h5::File::ReadOnly));
+    }
+}
+
 void Storage::flush()
 {
-    m_file.flush();
+    m_file->flush();
 }
 
 bool Storage::checkGroupRead(const std::string& id) const
@@ -121,13 +123,13 @@ bool Storage::checkGroupRead(const std::string& id) const
     std::vector<std::string> tokens;
     tokenizePath(id, tokens);
     std::string grp = tokens[0];
-    if (!m_file.exist(grp) || m_file.getObjectType(grp) != h5::ObjectType::Group) {
+    if (!m_file->exist(grp) || m_file->getObjectType(grp) != h5::ObjectType::Group) {
         throw CanteraError("Storage::checkGroup",
                            "No group with id '{}' found", grp);
     }
 
     std::string path = grp;
-    h5::Group sub = m_file.getGroup(grp);
+    h5::Group sub = m_file->getGroup(grp);
     tokens.erase(tokens.begin());
     for (auto& grp : tokens) {
         path += "/" + grp;
@@ -142,11 +144,11 @@ bool Storage::checkGroupRead(const std::string& id) const
 
 bool Storage::checkGroupWrite(const std::string& id)
 {
-    if (!m_file.exist(id)) {
-        m_file.createGroup(id);
+    if (!m_file->exist(id)) {
+        m_file->createGroup(id);
         return true;
     }
-    if (m_file.getObjectType(id) != h5::ObjectType::Group) {
+    if (m_file->getObjectType(id) != h5::ObjectType::Group) {
         throw CanteraError("Storage::checkGroup",
                            "Invalid object with id '{}' exists", id);
     }
@@ -162,7 +164,7 @@ bool Storage::checkGroup(const std::string& id) {
 
 std::pair<size_t, std::set<std::string>> Storage::contents(const std::string& id) const
 {
-    h5::Group sub = m_file.getGroup(id);
+    h5::Group sub = m_file->getGroup(id);
     std::set<std::string> names;
     size_t nDims = npos;
     size_t nElements = 0;
@@ -255,7 +257,7 @@ AnyMap readH5Attributes(const h5::Group& sub, bool recursive)
 
 AnyMap Storage::readAttributes(const std::string& id, bool recursive) const
 {
-    h5::Group sub = m_file.getGroup(id);
+    h5::Group sub = m_file->getGroup(id);
     return readH5Attributes(sub, recursive);
 }
 
@@ -322,14 +324,14 @@ void writeH5Attributes(h5::Group sub, const AnyMap& meta)
 
 void Storage::writeAttributes(const std::string& id, const AnyMap& meta)
 {
-    h5::Group sub = m_file.getGroup(id);
+    h5::Group sub = m_file->getGroup(id);
     writeH5Attributes(sub, meta);
 }
 
 vector_fp Storage::readVector(const std::string& id,
                               const std::string& name, size_t size) const
 {
-    h5::Group sub = m_file.getGroup(id);
+    h5::Group sub = m_file->getGroup(id);
     if (!sub.exist(name)) {
         throw CanteraError("Storage::readVector",
             "DataSet '{}' not found in path '{}'.", name, id);
@@ -352,7 +354,7 @@ vector_fp Storage::readVector(const std::string& id,
 void Storage::writeVector(const std::string& id,
                           const std::string& name, const vector_fp& data)
 {
-    h5::Group sub = m_file.getGroup(id);
+    h5::Group sub = m_file->getGroup(id);
     std::vector<size_t> dims{data.size()};
     h5::DataSet dataset = sub.createDataSet<double>(name, h5::DataSpace(dims));
     dataset.write(data);
@@ -362,7 +364,7 @@ std::vector<vector_fp> Storage::readMatrix(const std::string& id,
                                            const std::string& name,
                                            size_t rows, size_t cols) const
 {
-    h5::Group sub = m_file.getGroup(id);
+    h5::Group sub = m_file->getGroup(id);
     if (!sub.exist(name)) {
         throw CanteraError("Storage::readVector",
             "DataSet '{}' not found in path '{}'.", name, id);
@@ -394,7 +396,7 @@ std::vector<vector_fp> Storage::readMatrix(const std::string& id,
 void Storage::writeMatrix(const std::string& id,
                           const std::string& name, const std::vector<vector_fp>& data)
 {
-    h5::Group sub = m_file.getGroup(id);
+    h5::Group sub = m_file->getGroup(id);
     std::vector<size_t> dims{data.size()};
     dims.push_back(data.size() ? data[0].size() : 0);
     h5::DataSet dataset = sub.createDataSet<double>(name, h5::DataSpace(dims));
@@ -403,48 +405,54 @@ void Storage::writeMatrix(const std::string& id,
 
 #else
 
+Storage::Storage(std::string fname, bool write)
+{
+    throw CanteraError("Storage::Storage",
+                       "Saving to HDF requires HighFive installation.");
+}
+
 void Storage::flush()
 {
     throw CanteraError("Storage::flush",
-                        "Saving to HDF requires HighFive installation.");
+                       "Saving to HDF requires HighFive installation.");
 }
 
 bool Storage::checkGroup(const std::string& id)
 {
     throw CanteraError("Storage::checkGroup",
-                        "Saving to HDF requires HighFive installation.");
+                       "Saving to HDF requires HighFive installation.");
 }
 
 std::pair<size_t, std::set<std::string>> Storage::contents(const std::string& id) const
 {
     throw CanteraError("Storage::contents",
-                        "Saving to HDF requires HighFive installation.");
+                       "Saving to HDF requires HighFive installation.");
 }
 
 AnyMap Storage::readAttributes(const std::string& id, bool recursive) const
 {
     throw CanteraError("Storage::readAttributes",
-                        "Saving to HDF requires HighFive installation.");
+                       "Saving to HDF requires HighFive installation.");
 }
 
 void Storage::writeAttributes(const std::string& id, const AnyMap& meta)
 {
     throw CanteraError("Storage::writeAttributes",
-                        "Saving to HDF requires HighFive installation.");
+                       "Saving to HDF requires HighFive installation.");
 }
 
 vector_fp Storage::readVector(const std::string& id,
                               const std::string& name, size_t size) const
 {
     throw CanteraError("Storage::readVector",
-                        "Saving to HDF requires HighFive installation.");
+                       "Saving to HDF requires HighFive installation.");
 }
 
 void Storage::writeVector(const std::string& id,
                           const std::string& name, const vector_fp& data)
 {
     throw CanteraError("Storage::writeVector",
-                        "Saving to HDF requires HighFive installation.");
+                       "Saving to HDF requires HighFive installation.");
 }
 
 std::vector<vector_fp> Storage::readMatrix(const std::string& id,
@@ -452,14 +460,14 @@ std::vector<vector_fp> Storage::readMatrix(const std::string& id,
                                            size_t rows, size_t cols) const
 {
     throw CanteraError("Storage::readMatrix",
-                        "Saving to HDF requires HighFive installation.");
+                       "Saving to HDF requires HighFive installation.");
 }
 
 void Storage::writeMatrix(const std::string& id,
                           const std::string& name, const std::vector<vector_fp>& data)
 {
     throw CanteraError("Storage::writeMatrix",
-                        "Saving to HDF requires HighFive installation.");
+                       "Saving to HDF requires HighFive installation.");
 }
 
 #endif
