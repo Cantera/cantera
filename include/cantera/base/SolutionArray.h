@@ -128,8 +128,10 @@ public:
      *
      *  @param fname  Name of HDF container file
      *  @param id  Identifier of SolutionArray within the container file
+     *  @param compression  Compression level; optional (default=0; HDF only)
      */
-    void writeEntry(const std::string& fname, const std::string& id);
+    void writeEntry(const std::string& fname, const std::string& id,
+                    int compression=0);
     void writeEntry(AnyMap& root, const std::string& id);
 
     /*!
@@ -137,8 +139,11 @@ public:
      *
      *  @param fname  Name of output container file (YAML or HDF)
      *  @param id  Identifier of SolutionArray within the container file
+     *  @param desc  Description
+     *  @param compression  Compression level; optional (default=0; HDF only)
      */
-    void save(const std::string& fname, const std::string& id, const std::string& desc);
+    void save(const std::string& fname, const std::string& id,
+              const std::string& desc, int compression=0);
 
     /*!
      *  Read header data from container file.

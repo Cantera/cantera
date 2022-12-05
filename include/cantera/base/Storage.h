@@ -65,6 +65,14 @@ class Storage
 public:
     Storage(std::string fname, bool write);
 
+    //! Set compression level (0..9)
+    /*!
+     *  Compression is only applied to species data; note that compression may increase
+     *  file size for small data sets (compression requires setting of chunk sizes,
+     *  which involves considerable overhead for metadata).
+     */
+    void setCompressionLevel(int level);
+
     //! Flush file contents
     void flush();
 
@@ -104,9 +112,9 @@ private:
     bool checkGroupWrite(const std::string& id);
 
     std::unique_ptr<h5::File> m_file;
-#endif
-
     bool m_write;
+    int m_compressionLevel=0;
+#endif
 };
 
 #if CT_USE_HDF5
@@ -118,6 +126,15 @@ Storage::Storage(std::string fname, bool write) : m_write(write)
     } else {
         m_file.reset(new h5::File(fname, h5::File::ReadOnly));
     }
+}
+
+void Storage::setCompressionLevel(int level)
+{
+    if (level < 0 || level > 9) {
+        throw CanteraError("Storage::setCompressionLevel",
+                           "Invalid compression level '{}' (needs to be 0..9).", level);
+    }
+    m_compressionLevel = level;
 }
 
 void Storage::flush()
@@ -406,8 +423,20 @@ void Storage::writeMatrix(const std::string& id,
     h5::Group sub = m_file->getGroup(id);
     std::vector<size_t> dims{data.size()};
     dims.push_back(data.size() ? data[0].size() : 0);
-    h5::DataSet dataset = sub.createDataSet<double>(name, h5::DataSpace(dims));
-    dataset.write(data);
+    if (m_compressionLevel) {
+        // Set chunk size to single chunk and apply compression level; for caveats, see
+        // https://stackoverflow.com/questions/32994766/compressed-files-bigger-in-h5py
+        h5::DataSpace space(dims, dims); //{h5::DataSpace::UNLIMITED, dims[1]});
+        h5::DataSetCreateProps props;
+        props.add(h5::Chunking(std::vector<hsize_t>{dims[0], dims[1]}));
+        props.add(h5::Deflate(m_compressionLevel));
+        h5::DataSet dataset = sub.createDataSet<double>(name, space, props);
+        dataset.write(data);
+    } else {
+        h5::DataSpace space(dims);
+        h5::DataSet dataset = sub.createDataSet<double>(name, space);
+        dataset.write(data);
+    }
 }
 
 #else
@@ -415,6 +444,12 @@ void Storage::writeMatrix(const std::string& id,
 Storage::Storage(std::string fname, bool write)
 {
     throw CanteraError("Storage::Storage",
+                       "Saving to HDF requires HighFive installation.");
+}
+
+void Storage::setCompressionLevel(int level)
+{
+    throw CanteraError("Storage::setCompressionLevel",
                        "Saving to HDF requires HighFive installation.");
 }
 

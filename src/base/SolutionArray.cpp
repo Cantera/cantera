@@ -236,9 +236,13 @@ void SolutionArray::writeHeader(AnyMap& root, const std::string& id,
     root[id] = preamble(desc);
 }
 
-void SolutionArray::writeEntry(const std::string& fname, const std::string& id)
+void SolutionArray::writeEntry(const std::string& fname, const std::string& id,
+                               int compression)
 {
     Storage file(fname, true);
+    if (compression) {
+        file.setCompressionLevel(compression);
+    }
     file.checkGroup(id);
     file.writeAttributes(id, m_meta);
     if (!m_size) {
@@ -348,14 +352,14 @@ void SolutionArray::writeEntry(AnyMap& root, const std::string& id)
     }
 }
 
-void SolutionArray::save(
-    const std::string& fname, const std::string& id, const std::string& desc)
+void SolutionArray::save(const std::string& fname, const std::string& id,
+                         const std::string& desc, int compression)
 {
     size_t dot = fname.find_last_of(".");
     std::string extension = (dot != npos) ? toLowerCopy(fname.substr(dot + 1)) : "";
     if (extension == "h5" || extension == "hdf"  || extension == "hdf5") {
         writeHeader(fname, id, desc);
-        writeEntry(fname, id);
+        writeEntry(fname, id, compression);
         return;
     }
     if (extension == "yaml" || extension == "yml") {
