@@ -14,17 +14,22 @@ the mass flowrate is increased. Without using 'prune', a large number of grid
 points would be concentrated upsteam of the flame, where the flamefront had
 been previously. (To see this, try setting prune to zero.)
 
-Requires: cantera >= 2.5.0
+Requires: cantera >= 3.0
 Keywords: combustion, 1D flow, premixed flame, strained flame
 """
 
-import os
-import importlib
-
+from pathlib import Path
 import cantera as ct
 
 
-hdf_output = importlib.util.find_spec('h5py') is not None
+output_path = Path() / "stagnation_flame_data"
+output_path.mkdir(parents=True, exist_ok=True)
+
+if "native" in ct.hdf_support():
+    output = output_path / "stagnation_flame.h5"
+else:
+    output = output_path / "stagnation_flame.yaml"
+output.unlink(missing_ok=True)
 
 # parameter values
 p = 0.05 * ct.one_atm  # pressure
@@ -74,24 +79,12 @@ sim.show_solution()
 
 sim.solve(loglevel, auto=True)
 
-if hdf_output:
-    outfile = 'stagnation_flame.h5'
-else:
-    outfile = 'stagnation_flame.yaml'
-if os.path.exists(outfile):
-    os.remove(outfile)
-
 for m, md in enumerate(mdot):
     sim.inlet.mdot = md
     sim.solve(loglevel)
-    if hdf_output:
-        sim.write_hdf(outfile, group='mdot{0}'.format(m),
-                      description='mdot = {0} kg/m2/s'.format(md))
-    else:
-        sim.save(outfile, 'mdot{0}'.format(m),
-                 'mdot = {0} kg/m2/s'.format(md))
+    sim.save(output, name=f"mdot-{m}", description=f"mdot = {md} kg/m2/s")
 
     # write the velocity, temperature, and mole fractions to a CSV file
-    sim.write_csv('stagnation_flame_{0}.csv'.format(m), quiet=False)
+    sim.write_csv(output_path / f"stagnation_flame_{m}.csv", quiet=False)
 
 sim.show_stats()

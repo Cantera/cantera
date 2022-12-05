@@ -6,16 +6,16 @@ with different initial guesses.
 Requires: cantera >= 3.0
 Keywords: combustion, 1D flow, flame speed, premixed flame, saving output
 """
-import os
 import sys
+from pathlib import Path
 import cantera as ct
 try:
     import pandas as pd
 except ImportError:
     pd = None
 
-data_directory = "flame_initial_guess_data"
-os.makedirs(data_directory, exist_ok=True)
+output_path = Path() / "flame_initial_guess_data"
+output_path.mkdir(parents=True, exist_ok=True)
 
 # Simulation parameters
 p = ct.one_atm  # pressure [Pa]
@@ -53,25 +53,20 @@ describe(f)
 # Save the flame in a few different formats
 
 print("Save YAML")
-yaml_filepath = os.path.join(data_directory, "flame.yaml")
+yaml_filepath = output_path / "flame.yaml"
 f.save(yaml_filepath, name="solution", description="Initial methane flame")
 
 print("Save CSV")
-csv_filepath = os.path.join(data_directory, "flame.csv")
+csv_filepath = output_path / "flame.csv"
 f.write_csv(csv_filepath)
 
 try:
     # HDF is not a required dependency
-    hdf_filepath = os.path.join(data_directory, "flame.h5")
-    f.write_hdf(
-        hdf_filepath,
-        group="freeflame",
-        mode="w",
-        quiet=False,
-        description=("Initial methane flame"),
-    )
+    hdf_filepath = output_path / "flame.h5"
+    hdf_filepath.unlink(missing_ok=True)
+    f.save(hdf_filepath, name="freeflame", description=("Initial methane flame"))
     print("Save HDF\n")
-except ImportError as err:
+except ct.CanteraError as err:
     print(f"Skipping HDF: {err}\n")
     hdf_filepath = None
 
@@ -87,7 +82,7 @@ if hdf_filepath:
     print("Restore solution from HDF")
     gas.TPX = Tin, p, reactants
     f2 = ct.FreeFlame(gas, width=width)
-    f2.read_hdf(hdf_filepath, group="freeflame")
+    f2.restore(hdf_filepath, name="freeflame", loglevel=0)
     describe(f2)
 
 # Restore the flame via initial guess

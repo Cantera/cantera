@@ -9,26 +9,34 @@ The tutorial makes use of the scaling rules derived by Fiala and Sattelmayer
 (doi:10.1155/2014/484372). Please refer to this publication for a detailed
 explanation. Also, please don't forget to cite it if you make use of it.
 
-Requires: cantera >= 2.5.0, matplotlib >= 2.0
+Requires: cantera >= 3.0, matplotlib >= 2.0
 Keywords: combustion, 1D flow, diffusion flame, strained flame, extinction,
           saving output, plotting
 """
 
-import os
-import importlib
+from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 
 import cantera as ct
 
 
-hdf_output = importlib.util.find_spec('h5py') is not None
+output_path = Path() / "diffusion_flame_extinction_data"
+output_path.mkdir(parents=True, exist_ok=True)
 
-if not hdf_output:
-    # Create directory for output data files
-    data_directory = 'diffusion_flame_extinction_data'
-    if not os.path.exists(data_directory):
-        os.makedirs(data_directory)
+hdf_output = "native" in ct.hdf_support()
+if hdf_output:
+    file_name = output_path / "flame_data.h5"
+    file_name.unlink(missing_ok=True)
+
+def names(test):
+    if hdf_output:
+        # use internal container structure for HDF
+        file_name = output_path / "flame_data.h5"
+        return file_name, test
+    # use separate files for YAML
+    file_name = output_path / f"{test}.yaml".replace("-", "_").replace("/", "_")
+    return file_name, "solution"
 
 
 # PART 1: INITIALIZATION
@@ -61,15 +69,8 @@ temperature_limit_extinction = max(f.oxidizer_inlet.T, f.fuel_inlet.T)
 print('Creating the initial solution')
 f.solve(loglevel=0, auto=True)
 
-if hdf_output:
-    file_name = 'diffusion_flame_extinction.h5'
-    f.write_hdf(file_name, group='initial_solution', mode='w', quiet=False,
-                description=('Initial solution'))
-else:
-    # Save to data directory
-    file_name = 'initial_solution.yaml'
-    f.save(os.path.join(data_directory, file_name), name='solution',
-           description="Initial solution")
+file_name, entry = names("initial-solution")
+f.save(file_name, name=entry, description="Initial solution")
 
 
 # PART 2: COMPUTE EXTINCTION STRAIN
@@ -132,33 +133,24 @@ while True:
         f.solve(loglevel=0)
     except ct.CanteraError as e:
         print('Error: Did not converge at n =', n, e)
+
+    T_max.append(np.max(f.T))
+    a_max.append(np.max(np.abs(np.gradient(f.velocity) / np.gradient(f.grid))))
     if not np.isclose(np.max(f.T), temperature_limit_extinction):
         # Flame is still burning, so proceed to next strain rate
         n_last_burning = n
-        if hdf_output:
-            group = 'extinction/{0:04d}'.format(n)
-            f.write_hdf(file_name, group=group, quiet=True)
-        else:
-            file_name = 'extinction_{0:04d}.yaml'.format(n)
-            f.save(os.path.join(data_directory, file_name),
-                   name='solution', loglevel=0,
-                   description=f"Solution at alpha = {alpha[-1]}")
-        T_max.append(np.max(f.T))
-        a_max.append(np.max(np.abs(np.gradient(f.velocity) / np.gradient(f.grid))))
+        file_name, entry = names(f"extinction/{n:04d}")
+        f.save(file_name, name=entry, description=f"Solution at alpha = {alpha[-1]}")
+
         print('Flame burning at alpha = {:8.4F}. Proceeding to the next iteration, '
               'with delta_alpha = {}'.format(alpha[-1], delta_alpha))
     elif ((T_max[-2] - T_max[-1] < delta_T_min) and (delta_alpha < delta_alpha_min)):
         # If the temperature difference is too small and the minimum relative
         # strain rate increase is reached, save the last, non-burning, solution
         # to the output file and break the loop
-        T_max.append(np.max(f.T))
-        a_max.append(np.max(np.abs(np.gradient(f.velocity) / np.gradient(f.grid))))
-        if hdf_output:
-            group = 'extinction/{0:04d}'.format(n)
-            f.write_hdf(file_name, group=group, quiet=True)
-        else:
-            file_name = 'extinction_{0:04d}.yaml'.format(n)
-            f.save(os.path.join(data_directory, file_name), name='solution', loglevel=0)
+        file_name, entry = names(f"extinction/{n:04d}")
+        f.save(file_name, name=entry, description=f"Flame extinguished at alpha={alpha[-1]}")
+
         print('Flame extinguished at alpha = {0:8.4F}.'.format(alpha[-1]),
               'Abortion criterion satisfied.')
         break
@@ -172,24 +164,15 @@ while True:
                   alpha[-1], alpha[n_last_burning], delta_alpha))
 
         # Restore last burning solution
-        if hdf_output:
-            group = 'extinction/{0:04d}'.format(n_last_burning)
-            f.read_hdf(file_name, group=group)
-        else:
-            file_name = 'extinction_{0:04d}.yaml'.format(n_last_burning)
-            f.restore(os.path.join(data_directory, file_name),
-                      name='solution', loglevel=0)
+        file_name, entry = names(f"extinction/{n_last_burning:04d}")
+        f.restore(file_name, entry, loglevel=0)
 
 
 # Print some parameters at the extinction point, after restoring the last burning
 # solution
-if hdf_output:
-    group = 'extinction/{0:04d}'.format(n_last_burning)
-    f.read_hdf(file_name, group=group)
-else:
-    file_name = 'extinction_{0:04d}.yaml'.format(n_last_burning)
-    f.restore(os.path.join(data_directory, file_name),
-              name='solution', loglevel=0)
+file_name, entry = names(f"extinction/{n_last_burning:04d}")
+f.restore(file_name, entry, loglevel=0)
+
 print('----------------------------------------------------------------------')
 print('Parameters at the extinction point:')
 print('Pressure p={0} bar'.format(f.P / 1e5))
@@ -208,7 +191,4 @@ plt.figure()
 plt.semilogx(a_max, T_max)
 plt.xlabel(r'$a_{max}$ [1/s]')
 plt.ylabel(r'$T_{max}$ [K]')
-if hdf_output:
-    plt.savefig('diffusion_flame_extinction_T_max_a_max.png')
-else:
-    plt.savefig(os.path.join(data_directory, 'figure_T_max_a_max.png'))
+plt.savefig(output_path / "figure_T_max_a_max.png")

@@ -1,17 +1,16 @@
-# coding: utf-8
-
 """
 Simulate two counter-flow jets of reactants shooting into each other. This
 simulation differs from the similar premixed_counterflow_flame.py example as the
 latter simulates a jet of reactants shooting into products.
 
-Requires: cantera >= 2.5.0
+Requires: cantera >= 3.0
 Keywords: combustion, 1D flow, premixed flame, strained flame, plotting
 """
 
-import cantera as ct
-import numpy as np
 import sys
+from pathlib import Path
+import numpy as np
+import cantera as ct
 
 
 # Differentiation function for data that has variable grid spacing Used here to
@@ -81,6 +80,12 @@ def solveOpposedFlame(oppFlame, massFlux=0.12, loglevel=1,
     return np.max(oppFlame.T), K, strainRatePoint
 
 
+if "native" in ct.hdf_support():
+    output = Path() / "premixed_counterflow_twin_flame.h5"
+else:
+    output = Path() / "premixed_counterflow_twin_flame.yaml"
+output.unlink(missing_ok=True)
+
 # Select the reaction mechanism
 gas = ct.Solution('gri30.yaml')
 
@@ -116,11 +121,12 @@ oppFlame = ct.CounterflowTwinPremixedFlame(gas, width=width)
 # Thus to plot temperature vs distance, use oppFlame.grid and oppFlame.T
 
 Sc = computeConsumptionSpeed(oppFlame)
+oppFlame.save(output, name="mix")
 
-print("Peak temperature: {0:.1f} K".format(T))
-print("Strain Rate: {0:.1f} 1/s".format(K))
-print("Consumption Speed: {0:.2f} cm/s".format(Sc*100))
-oppFlame.write_csv("premixed_twin_flame.csv", quiet=False)
+print(f"Peak temperature: {T:.1f} K")
+print(f"Strain Rate: {K:.1f} 1/s")
+print(f"Consumption Speed: {Sc * 100:.2f} cm/s")
+oppFlame.write_csv("premixed_counterflow_twin_flame.csv", quiet=False)
 
 # Generate plots to see results, if user desires
 if '--plot' in sys.argv:
