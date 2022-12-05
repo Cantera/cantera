@@ -1459,7 +1459,7 @@ class TestTwinFlame(utilities.CanteraTest):
         filename.unlink(missing_ok=True)
 
         sim = self.solve(phi=0.4, T=300, width=0.05, P=0.1)
-        sim.save(filename, loglevel=0)
+        sim.save(filename, loglevel=0, compression=7)
 
         gas = ct.Solution("h2o2.yaml")
         sim2 = ct.CounterflowTwinPremixedFlame(gas=gas)

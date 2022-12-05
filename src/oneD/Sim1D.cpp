@@ -95,18 +95,18 @@ void Sim1D::setProfile(size_t dom, size_t comp,
 }
 
 void Sim1D::save(const std::string& fname, const std::string& id,
-                 const std::string& desc, int loglevel)
+                 const std::string& desc, int loglevel, int compression)
 {
     size_t dot = fname.find_last_of(".");
     string extension = (dot != npos) ? toLowerCopy(fname.substr(dot+1)) : "";
     if (extension == "h5" || extension == "hdf"  || extension == "hdf5") {
         for (auto dom : m_dom) {
             auto arr = dom->asArray(m_x.data() + dom->loc());
-            arr->writeEntry(fname, id + "/" + dom->id());
+            arr->writeEntry(fname, id + "/" + dom->id(), compression);
         }
         SolutionArray::writeHeader(fname, id, desc);
         if (loglevel > 0) {
-            writelog("Solution saved to file {} as group '{}'.\n", fname, id);
+            writelog("Solution saved to file '{}' as group '{}'.\n", fname, id);
         }
         return;
     }
@@ -128,7 +128,7 @@ void Sim1D::save(const std::string& fname, const std::string& id,
         out << data.toYamlString();
         AnyMap::clearCachedFile(fname);
         if (loglevel > 0) {
-            writelog("Solution saved to file {} as entry '{}'.\n", fname, id);
+            writelog("Solution saved to file '{}' as entry '{}'.\n", fname, id);
         }
         return;
     }

@@ -117,9 +117,10 @@ public:
      * @param id  Identifier of solution within the container file
      * @param desc  Description of the solution
      * @param loglevel  Level of diagnostic output
+     * @param compression  Compression level (optional; HDF only)
      */
     void save(const std::string& fname, const std::string& id,
-              const std::string& desc, int loglevel=1);
+              const std::string& desc, int loglevel=1, int compression=0);
 
     /**
      * Save the current solution to YAML (legacy implementation). @see save

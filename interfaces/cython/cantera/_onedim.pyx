@@ -1464,9 +1464,9 @@ cdef class Sim1D:
             return self.sim.fixedTemperatureLocation()
 
     def save(self, filename='soln.yaml', name='solution', description='none',
-             loglevel=1):
+             loglevel=1, compression=0):
         """
-        Save the solution in YAML format.
+        Save the solution in YAML or HDF format.
 
         :param filename:
             solution file
@@ -1474,13 +1474,15 @@ cdef class Sim1D:
             solution name within the file
         :param description:
             custom description text
+        :param compression:
+            compression level 0..9; optional (HDF only)
 
         >>> s.save(filename='save.yaml', name='energy_off',
         ...        description='solution with energy eqn. disabled')
 
         """
         self.sim.save(stringify(str(filename)), stringify(name),
-                      stringify(description), loglevel)
+                      stringify(description), loglevel, compression)
 
     def write_yaml(self, filename, name='solution', description='none',
                    quiet=True):
