@@ -10,7 +10,14 @@
 #include "cantera/base/stringUtils.h"
 #include <set>
 
-#if CT_USE_HIGHFIVE_HDF
+#if CT_USE_HDF5
+#ifdef _WIN32
+  // see https://github.com/microsoft/vcpkg/issues/24293
+  #define H5_BUILT_AS_DYNAMIC_LIB
+#else
+  #define H5_BUILT_AS_STATIC_LIB
+#endif
+
 #if CT_USE_SYSTEM_HIGHFIVE
   #include <highfive/H5Attribute.hpp>
   #include <highfive/H5DataSet.hpp>
@@ -92,7 +99,7 @@ public:
                      const std::string& name, const std::vector<vector_fp>& data);
 
 private:
-#if CT_USE_HIGHFIVE_HDF
+#if CT_USE_HDF5
     bool checkGroupRead(const std::string& id) const;
     bool checkGroupWrite(const std::string& id);
 
@@ -102,7 +109,7 @@ private:
     bool m_write;
 };
 
-#if CT_USE_HIGHFIVE_HDF
+#if CT_USE_HDF5
 
 Storage::Storage(std::string fname, bool write) : m_write(write)
 {

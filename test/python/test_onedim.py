@@ -526,7 +526,7 @@ class TestFreeFlame(utilities.CanteraTest):
     def test_save_restore_yaml_array(self):
         self.run_save_restore("array")
 
-    @utilities.unittest.skipIf("HighFive" not in ct.hdf_support(), "HighFive not installed")
+    @utilities.unittest.skipIf("native" not in ct.hdf_support(), "HighFive not installed")
     def test_save_restore_hdf_array(self):
         self.run_save_restore("hdf")
 
@@ -734,11 +734,11 @@ class TestFreeFlame(utilities.CanteraTest):
     def test_write_hdf_legacy(self):
         self.run_freeflame_write_hdf("legacy")
 
-    @utilities.unittest.skipIf(ct.hdf_support() != {'h5py', 'HighFive'}, "h5py and/or HighFive not installed")
+    @utilities.unittest.skipIf(ct.hdf_support() != {"h5py", "native"}, "h5py and/or HighFive not installed")
     def test_write_hdf_transition(self):
         self.run_freeflame_write_hdf("transition")
 
-    @utilities.unittest.skipIf("HighFive" not in ct.hdf_support(), "HighFive not installed")
+    @utilities.unittest.skipIf("native" not in ct.hdf_support(), "HighFive not installed")
     def test_write_hdf_native(self):
         self.run_freeflame_write_hdf("native")
 
@@ -1317,11 +1317,11 @@ class TestImpingingJet(utilities.CanteraTest):
     def test_write_hdf_legacy(self):
         self.run_impingingjet_write("legacy")
 
-    @utilities.unittest.skipIf(ct.hdf_support() != {'h5py', 'HighFive'}, "h5py and/or HighFive not installed")
+    @utilities.unittest.skipIf(ct.hdf_support() != {"h5py", "native"}, "h5py and/or HighFive not installed")
     def test_write_hdf_transition(self):
         self.run_impingingjet_write("transition")
 
-    @utilities.unittest.skipIf("HighFive" not in ct.hdf_support(), "HighFive not installed")
+    @utilities.unittest.skipIf("native" not in ct.hdf_support(), "HighFive not installed")
     def test_write_hdf_native(self):
         self.run_impingingjet_write("native")
 
@@ -1450,7 +1450,7 @@ class TestTwinFlame(utilities.CanteraTest):
     def test_save_restore_yaml(self):
         self.run_save_restore("yaml")
 
-    @utilities.unittest.skipIf("HighFive" not in ct.hdf_support(), "HighFive not installed")
+    @utilities.unittest.skipIf("native" not in ct.hdf_support(), "HighFive not installed")
     def test_save_restore_hdf(self):
         self.run_save_restore("hdf")
 
