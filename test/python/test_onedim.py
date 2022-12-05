@@ -730,10 +730,12 @@ class TestFreeFlame(utilities.CanteraTest):
         k = self.gas.species_index('H2')
         self.assertArrayNear(data.X[:, k], self.sim.X[k, :])
 
+    @pytest.mark.usefixtures("allow_deprecated")
     @utilities.unittest.skipIf("h5py" not in ct.hdf_support(), "h5py not installed")
     def test_write_hdf_legacy(self):
         self.run_freeflame_write_hdf("legacy")
 
+    @pytest.mark.usefixtures("allow_deprecated")
     @utilities.unittest.skipIf(ct.hdf_support() != {"h5py", "native"}, "h5py and/or HighFive not installed")
     def test_write_hdf_transition(self):
         self.run_freeflame_write_hdf("transition")
@@ -1313,10 +1315,12 @@ class TestImpingingJet(utilities.CanteraTest):
     def test_reacting_surface_case3(self):
         self.run_reacting_surface(xch4=0.2, tsurf=800.0, mdot=0.1, width=0.2)
 
+    @pytest.mark.usefixtures("allow_deprecated")
     @utilities.unittest.skipIf("h5py" not in ct.hdf_support(), "h5py not installed")
     def test_write_hdf_legacy(self):
         self.run_impingingjet_write("legacy")
 
+    @pytest.mark.usefixtures("allow_deprecated")
     @utilities.unittest.skipIf(ct.hdf_support() != {"h5py", "native"}, "h5py and/or HighFive not installed")
     def test_write_hdf_transition(self):
         self.run_impingingjet_write("transition")
