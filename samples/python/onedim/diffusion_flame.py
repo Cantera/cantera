@@ -1,13 +1,21 @@
 """
 An opposed-flow ethane/air diffusion flame
 
-Requires: cantera >= 2.5.0, matplotlib >= 2.0
+Requires: cantera >= 3.0, matplotlib >= 2.0
 Keywords: combustion, 1D flow, diffusion flame, strained flame, plotting,
           saving output
 """
 
+from pathlib import Path
 import cantera as ct
 import matplotlib.pyplot as plt
+
+
+if "native" in ct.hdf_support():
+    output = Path() / "diffusion_flame.h5"
+else:
+    output = Path() / "diffusion_flame.yaml"
+output.unlink(missing_ok=True)
 
 # Input parameters
 p = ct.one_atm  # pressure
@@ -52,11 +60,7 @@ f.set_refine_criteria(ratio=4, slope=0.2, curve=0.3, prune=0.04)
 # Solve the problem
 f.solve(loglevel, auto=True)
 f.show_solution()
-try:
-    # save to HDF container file if h5py is installed
-    f.write_hdf('diffusion_flame.h5', mode='w')
-except ImportError:
-    f.save('diffusion_flame.yaml')
+f.save(output)
 
 # write the velocity, temperature, and mole fractions to a CSV file
 f.write_csv('diffusion_flame.csv', quiet=False)

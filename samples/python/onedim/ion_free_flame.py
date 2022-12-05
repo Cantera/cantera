@@ -1,11 +1,19 @@
 """
 A freely-propagating, premixed methane-air flat flame with charged species.
 
-Requires: cantera >= 2.5.0
+Requires: cantera >= 3.0
 Keywords: combustion, 1D flow, burner-stabilized flame, plasma, premixed flame
 """
 
+from pathlib import Path
 import cantera as ct
+
+
+if "native" in ct.hdf_support():
+    output = Path() / "ion_free_flame.h5"
+else:
+    output = Path() / "ion_free_flame.yaml"
+output.unlink(missing_ok=True)
 
 # Simulation parameters
 p = ct.one_atm  # pressure [Pa]
@@ -29,16 +37,10 @@ f.solve(loglevel=loglevel, auto=True)
 
 # stage two
 f.solve(loglevel=loglevel, stage=2, enable_energy=True)
-
-try:
-    # save to HDF container file if h5py is installed
-    f.write_hdf('ion_free_flame.h5', group='ion', mode='w',
-                description='solution with ionized gas transport')
-except ImportError:
-    f.save('ion_free_flame.yaml', 'ion', 'solution with ionized gas transport')
+f.save(output, name="ion", description="solution with ionized gas transport")
 
 f.show_solution()
-print('mixture-averaged flamespeed = {0:7f} m/s'.format(f.velocity[0]))
+print(f"mixture-averaged flamespeed = {f.velocity[0]:7f} m/s")
 
 # write the velocity, temperature, density, and mole fractions to a CSV file
 f.write_csv('ion_free_flame.csv', quiet=False)

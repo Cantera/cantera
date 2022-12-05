@@ -1,11 +1,19 @@
 """
 A burner-stabilized premixed methane-air flame with charged species.
 
-Requires: cantera >= 2.5.0
+Requires: cantera >= 3.0
 Keywords: combustion, 1D flow, burner-stabilized flame, plasma, premixed flame
 """
 
+from pathlib import Path
 import cantera as ct
+
+
+if "native" in ct.hdf_support():
+    output = Path() / "ion_burner_flame.h5"
+else:
+    output = Path() / "ion_burner_flame.yaml"
+output.unlink(missing_ok=True)
 
 p = ct.one_atm
 tburner = 600.0
@@ -25,11 +33,6 @@ f.show_solution()
 f.transport_model = 'Ion'
 f.solve(loglevel, auto=True)
 f.solve(loglevel=loglevel, stage=2, enable_energy=True)
-try:
-    # save to HDF container file if h5py is installed
-    f.write_hdf('ion_burner_flame.h5', group='ion', mode='w',
-                description='solution with ionized gas transport')
-except ImportError:
-    f.save('ion_burner_flame.yaml', 'mix', 'solution with mixture-averaged transport')
+f.save(output, name="mix", description="solution with mixture-averaged transport")
 
 f.write_csv('ion_burner_flame.csv', quiet=False)

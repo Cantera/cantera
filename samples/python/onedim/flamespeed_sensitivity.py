@@ -25,7 +25,7 @@ f = ct.FreeFlame(gas, width=width)
 f.set_refine_criteria(ratio=3, slope=0.07, curve=0.14)
 
 f.solve(loglevel=1, auto=True)
-print('\nmixture-averaged flamespeed = {:7f} m/s\n'.format(f.velocity[0]))
+print(f"\nmixture-averaged flamespeed = {f.velocity[0]:7f} m/s\n")
 
 # Use the adjoint method to calculate sensitivities
 sens = f.get_flame_speed_reaction_sensitivities()
@@ -34,5 +34,4 @@ print()
 print('Rxn #   k/S*dS/dk    Reaction Equation')
 print('-----   ----------   ----------------------------------')
 for m in range(gas.n_reactions):
-    print('{: 5d}   {: 10.3e}   {}'.format(
-          m, sens[m], gas.reaction(m).equation))
+    print(f"{m: 5d}   {sens[m]: 10.3e}   {gas.reaction(m).equation}")

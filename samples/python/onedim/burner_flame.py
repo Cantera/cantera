@@ -1,12 +1,19 @@
 """
 A burner-stabilized lean premixed hydrogen-oxygen flame at low pressure.
 
-Requires: cantera >= 2.5.0
+Requires: cantera >= 3.0
 Keywords: combustion, 1D flow, premixed flame, saving output,
           multicomponent transport
 """
 
+from pathlib import Path
 import cantera as ct
+
+if "native" in ct.hdf_support():
+    output = Path() / "burner_flame.h5"
+else:
+    output = Path() / "burner_flame.yaml"
+output.unlink(missing_ok=True)
 
 p = 0.05 * ct.one_atm
 tburner = 373.0
@@ -25,20 +32,11 @@ f.show_solution()
 
 f.transport_model = 'Mix'
 f.solve(loglevel, auto=True)
-try:
-    # save to HDF container file if h5py is installed
-    f.write_hdf('burner_flame.h5', group='mix', mode='w',
-                description='solution with mixture-averaged transport')
-except ImportError:
-    f.save('burner_flame.yaml', 'mix', 'solution with mixture-averaged transport')
+f.save(output, name="mix", description="solution with mixture-averaged transport")
 
 f.transport_model = 'Multi'
 f.solve(loglevel)  # don't use 'auto' on subsequent solves
 f.show_solution()
-try:
-    f.write_hdf('burner_flame.h5', group='multi',
-                description='solution with multicomponent transport')
-except ImportError:
-    f.save('burner_flame.yaml', 'multi', 'solution with multicomponent transport')
+f.save(output, name="multi", description="solution with multicomponent transport")
 
 f.write_csv('burner_flame.csv', quiet=False)

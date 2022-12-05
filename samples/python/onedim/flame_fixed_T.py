@@ -2,14 +2,21 @@
 A burner-stabilized, premixed methane/air flat flame with multicomponent
 transport properties and a specified temperature profile.
 
-Requires: cantera >= 2.5.0
+Requires: cantera >= 3.0
 Keywords: combustion, 1D flow, burner-stabilized flame, premixed flame, plotting,
           saving output
 """
 
-import cantera as ct
-import numpy as np
 from pathlib import Path
+import numpy as np
+import cantera as ct
+
+
+if "native" in ct.hdf_support():
+    output = Path() / "flame_fixed_T.h5"
+else:
+    output = Path() / "flame_fixed_T.yaml"
+output.unlink(missing_ok=True)
 
 ################################################################
 # parameter values
@@ -60,25 +67,14 @@ f.transport_model = 'Mix'
 f.set_refine_criteria(ratio=3.0, slope=0.3, curve=1)
 
 f.solve(loglevel, refine_grid)
-try:
-    # save to HDF container file if h5py is installed
-    f.write_hdf('flame_fixed_T.h5', group='mix', mode='w',
-                description='solution with mixture-averaged transport')
-except ImportError:
-    f.save('flame_fixed_T.yaml','mixav',
-           'solution with mixture-averaged transport')
+f.save(output, name="mix", description="solution with mixture-averaged transport")
 
 print('\n\n switching to multicomponent transport...\n\n')
 f.transport_model = 'Multi'
 
 f.set_refine_criteria(ratio=3.0, slope=0.1, curve=0.2)
 f.solve(loglevel, refine_grid)
-try:
-    f.write_hdf('flame_fixed_T.h5', group='multi',
-                description='solution with multicomponent transport')
-except ImportError:
-    f.save('flame_fixed_T.yaml','multi',
-           'solution with  multicomponent transport')
+f.save(output, name="multi", description="solution with multicomponent transport")
 
 # write the velocity, temperature, density, and mole fractions to a CSV file
 f.write_csv('flame_fixed_T.csv', quiet=False)

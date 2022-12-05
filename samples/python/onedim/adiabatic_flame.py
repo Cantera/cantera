@@ -2,12 +2,20 @@
 A freely-propagating, premixed hydrogen flat flame with multicomponent
 transport properties.
 
-Requires: cantera >= 2.5.0
+Requires: cantera >= 3.0
 Keywords: combustion, 1D flow, premixed flame, multicomponent transport,
           saving output
 """
 
+from pathlib import Path
 import cantera as ct
+
+
+if "native" in ct.hdf_support():
+    output = Path() / "adiabatic_flame.h5"
+else:
+    output = Path() / "adiabatic_flame.yaml"
+output.unlink(missing_ok=True)
 
 # Simulation parameters
 p = ct.one_atm  # pressure [Pa]
@@ -31,28 +39,17 @@ f.transport_model = 'Mix'
 f.solve(loglevel=loglevel, auto=True)
 
 # Solve with the energy equation enabled
-try:
-    # save to HDF container file if h5py is installed
-    f.write_hdf('adiabatic_flame.h5', group='mix', mode='w',
-                description='solution with mixture-averaged transport')
-except ImportError:
-    f.save('adiabatic_flame.yaml', 'mix',
-           'solution with mixture-averaged transport')
+f.save(output, name="mix", description="solution with mixture-averaged transport")
 
 f.show_solution()
-print('mixture-averaged flamespeed = {0:7f} m/s'.format(f.velocity[0]))
+print(f"mixture-averaged flamespeed = {f.velocity[0]:7f} m/s")
 
 # Solve with multi-component transport properties
 f.transport_model = 'Multi'
 f.solve(loglevel)  # don't use 'auto' on subsequent solves
 f.show_solution()
-print('multicomponent flamespeed = {0:7f} m/s'.format(f.velocity[0]))
-try:
-    f.write_hdf('adiabatic_flame.h5', group='multi',
-                description='solution with multicomponent transport')
-except ImportError:
-    f.save('adiabatic_flame.yaml', 'multi',
-           'solution with multicomponent transport')
+print(f"multicomponent flamespeed = {f.velocity[0]:7f} m/s")
+f.save(output, name="multi", description="solution with multicomponent transport")
 
 # write the velocity, temperature, density, and mole fractions to a CSV file
 f.write_csv('adiabatic_flame.csv', quiet=False)

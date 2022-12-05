@@ -29,11 +29,13 @@ class FlameExtinguished(Exception):
     pass
 
 
-hdf_output = "HighFive" in ct.hdf_support()
-
 output_path = Path() / "diffusion_flame_batch_data"
 output_path.mkdir(parents=True, exist_ok=True)
 
+hdf_output = "native" in ct.hdf_support()
+if hdf_output:
+    file_name = output_path / "flame_data.h5"
+    file_name.unlink(missing_ok=True)
 
 def names(test):
     if hdf_output:
@@ -43,6 +45,7 @@ def names(test):
     # use separate files for YAML
     file_name = output_path / f"{test}.yaml".replace("-", "_").replace("/", "_")
     return file_name, "solution"
+
 
 # PART 1: INITIALIZATION
 
