@@ -369,7 +369,7 @@ class TestSolutionArrayIO(utilities.CanteraTest):
             hdf.create_group('spam')
 
         c = ct.SolutionArray(self.gas)
-        with self.assertRaisesRegex(IOError, 'does not contain valid data'):
+        with self.assertRaisesRegex(ValueError, 'requires a non-empty data dictionary'):
             c.read_hdf(outfile, group='spam')
         with self.assertRaisesRegex(IOError, 'does not contain group'):
             c.read_hdf(outfile, group='eggs')
