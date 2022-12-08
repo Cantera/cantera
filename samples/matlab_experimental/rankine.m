@@ -43,7 +43,7 @@ w
 efficiency = (turbine_work - pump_work)/heat_added;
 disp(sprintf('efficiency = %d', efficiency));
 
-function w = pump(fluid, pfinal, eta)
+function work = pump(fluid, pfinal, eta)
     % PUMP - Adiabatically pump a fluid to pressure pfinal, using a pump
     % with isentropic efficiency eta.
 
@@ -56,11 +56,11 @@ function w = pump(fluid, pfinal, eta)
     actual_work = isentropic_work / eta;
     h1 = h0 + actual_work;
     fluid.HP = {h1, pfinal};
-    w = actual_work;
+    work = actual_work;
 end
 
 
-function w = expand(fluid, pfinal, eta)
+function work = expand(fluid, pfinal, eta)
     % EXPAND - Adiabatically expand a fluid to pressure pfinal, using a
     % turbine with isentropic efficiency eta.
 
@@ -73,5 +73,5 @@ function w = expand(fluid, pfinal, eta)
     actual_work = isentropic_work * eta;
     h1 = h0 - actual_work;
     fluid.HP = {h1, pfinal};
-    w = actual_work;
+    work = actual_work;
 end
