@@ -24,5 +24,6 @@ function r = ConstPressureReactor(contents)
     if nargin == 0
         contents = 0;
     end
+
     r = Reactor(contents, 'ConstPressureReactor');
 end

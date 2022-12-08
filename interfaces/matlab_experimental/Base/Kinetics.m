@@ -113,6 +113,7 @@ classdef Kinetics < handle
             inb2 = -1;
             inb3 = -1;
             inb4 = -1;
+
             if nargin == 2
                 id = '-';
             end
@@ -120,18 +121,23 @@ classdef Kinetics < handle
             % get the integer indices used to find the stored objects
             % representing the phases participating in the mechanism
             iph = ph.tpID;
+
+            if nargin > 6
+                inb4 = n4.tpID;
+            end
+
+            if nargin > 5
+                inb3 = n3.tpID;
+            end
+
+            if nargin > 4
+                inb2 = n2.tpID;
+            end
+
             if nargin > 3
                 inb1 = n1.tpID;
-                if nargin > 4
-                    inb2 = n2.tpID;
-                    if nargin > 5
-                        inb3 = n3.tpID;
-                        if nargin > 6
-                            inb4 = n4.tpID;
-                        end
-                    end
-                end
             end
+
             kin.kinID = callct('kin_newFromFile', src, id, ...
                                 iph, inb1, inb2, inb3, inb4);
         end
@@ -168,7 +174,7 @@ classdef Kinetics < handle
             % :return:
             %    Multiplier of the rate of progress of reaction irxn.
 
-            n = callct('kin_multiplier', kin.kinID, irxn-1);
+            n = callct('kin_multiplier', kin.kinID, irxn - 1);
         end
 
         function n = get.nPhases(kin)
@@ -218,6 +224,7 @@ classdef Kinetics < handle
             nsp = kin.nTotalSpecies;
             nr = kin.nReactions;
             temp = sparse(nsp, nr);
+
             if nargin == 1
                 krange = 1:nsp;
                 irange = 1:nr;
@@ -228,13 +235,17 @@ classdef Kinetics < handle
             end
 
             for k = krange
+
                 for i = irange
                     t = callct('kin_reactantStoichCoeff', ...
-                                kin.kinID, k-1, i-1);
+                                kin.kinID, k - 1, i - 1);
+
                     if t ~= 0.0
                         temp(k, i) = t;
                     end
+
                 end
+
             end
 
             n = temp;
@@ -258,6 +269,7 @@ classdef Kinetics < handle
             nsp = kin.nTotalSpecies;
             nr = kin.nReactions;
             temp = sparse(nsp, nr);
+
             if nargin == 1
                 krange = 1:nsp;
                 irange = 1:nr;
@@ -268,13 +280,17 @@ classdef Kinetics < handle
             end
 
             for k = krange
+
                 for i = irange
                     t = callct('kin_productStoichCoeff', ...
-                                kin.kinID, k-1, i-1);
+                                kin.kinID, k - 1, i - 1);
+
                     if t ~= 0.0
                         temp(k, i) = t;
                     end
+
                 end
+
             end
 
             n = temp;
@@ -297,9 +313,11 @@ classdef Kinetics < handle
             if nargin == 1
                 n = kin.stoichProduct - kin.stoichReactant;
             elseif nargin == 3
-                n = kin.stoichProduct(species, rxns) - kin.stoichReactant(species, rxns);
+                n = kin.stoichProduct(species, rxns) - ...
+                    kin.stoichReactant(species, rxns);
             else error('stoichNet requires 1 or 3 arguments.');
             end
+
         end
 
         %% Get reaction array attributes
@@ -375,15 +393,17 @@ classdef Kinetics < handle
             % :return:
             %    String reaction equation.
 
-            rxn = callct2('kin_getReactionString', kin.kinID, irxn-1);
+            rxn = callct2('kin_getReactionString', kin.kinID, irxn - 1);
         end
 
         function rxn = get.reactionEqns(kin)
             m = kin.nReactions;
             rxns = cell(1, m);
+
             for i = 1:m
                 rxn{i} = kin.reactionEqn(i);
             end
+
         end
 
         function enthalpy = get.dH(kin)
@@ -492,8 +512,9 @@ classdef Kinetics < handle
             end
 
             for i = 1:n
-                callct('kin_setMultiplier', kin.kinID, irxn(i)-1, v);
+                callct('kin_setMultiplier', kin.kinID, irxn(i) - 1, v);
             end
+
         end
 
         function advanceCoverages(kin, dt)
@@ -509,4 +530,5 @@ classdef Kinetics < handle
         end
 
     end
+
 end

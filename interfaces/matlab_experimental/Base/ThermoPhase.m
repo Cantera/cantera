@@ -256,6 +256,7 @@ classdef ThermoPhase < handle
             if nargin ~= 2
                 error('ThermoPhase expects 2 input arguments.');
             end
+
             tp.tpID = callct('thermo_newFromFile', src, id);
             tp.basis = 'molar';
         end
@@ -277,16 +278,18 @@ classdef ThermoPhase < handle
             aa = char(ones(1, buflen));
             ptr = libpointer('cstring', aa);
             [iok, bb] = calllib(ct, 'thermo_report', tp.tpID, buflen, ptr, 1);
+
             if iok < 0
                 error(geterr);
             else
                 disp(bb);
             end
+
             clear aa bb ptr
         end
 
         function tp = equilibrate(tp, xy, solver, rtol, maxsteps, ...
-                                  maxiter, loglevel)
+                maxiter, loglevel)
             % Set the phase to a state of chemical equilibrium.
             %
             % tp.equilibrate(xy, solver, rtol, maxsteps, maxiter, loglevel)
@@ -321,18 +324,23 @@ classdef ThermoPhase < handle
             if nargin < 3
                 solver = -1;
             end
+
             if nargin < 4
                 rtol = 1.0e-9;
             end
+
             if nargin < 5
                 maxsteps = 1000;
             end
+
             if nargin < 6
                 maxiter = 100;
             end
+
             if nargin < 7
                 loglevel = 0;
             end
+
             callct('thermo_equilibrate', tp.tpID, xy, solver, ...
                     rtol, maxsteps, maxiter, loglevel);
         end
@@ -343,8 +351,7 @@ classdef ThermoPhase < handle
             nel = tp.nElements;
             aa = zeros(1, nel);
             pt = libpointer('doublePtr', aa);
-            callct('thermo_getAtomicWeights', ...
-                    tp.tpID, nel, pt);
+            callct('thermo_getAtomicWeights', tp.tpID, nel, pt);
             amu = pt.Value;
         end
 
@@ -352,8 +359,7 @@ classdef ThermoPhase < handle
             nsp = tp.nSpecies;
             yy = zeros(1, nsp);
             pt = libpointer('doublePtr', yy);
-            callct('thermo_getCharges', ...
-                    tp.tpID, nsp, pt);
+            callct('thermo_getCharges', tp.tpID, nsp, pt);
             e = pt.Value;
         end
 
@@ -386,28 +392,35 @@ classdef ThermoPhase < handle
             if iscell(name)
                 [m, n] = size(name);
                 k = zeros(m, n);
+
                 for i = 1:m
+
                     for j = 1:n
                         k(i, j) = callct('thermo_elementIndex', ...
-                                          tp.tpID, name{i, j}) + 1;
+                                        tp.tpID, name{i, j}) + 1;
+
                         if k(i, j) > 1e3
                             warning(['Element ', name{i, j}, ...
-                                   ' does not exist in the phase']);
+                                     ' does not exist in the phase']);
                             k(i, j) = -1;
                         end
+
                     end
+
                 end
+
             elseif ischar(name)
-                k = callct('thermo_elementIndex', ...
-                            tp.tpID, name) + 1;
+                k = callct('thermo_elementIndex', tp.tpID, name) + 1;
+
                 if k > 1e3
-                    warning(['Element ', name, ...
-                             ' does not exist in the phase']);
+                    warning(['Element ', name, ' does not exist in the phase']);
                     k = -1;
                 end
+
             else
                 error('name must be either a string or cell array of strings')
             end
+
         end
 
         function elMassFrac = elementalMassFraction(tp, element)
@@ -428,9 +441,11 @@ classdef ThermoPhase < handle
             if nargin ~= 2
                 error('elementalMassFraction expects two input arguments.');
             end
+
             if ~tp.isIdealGas
                 error('Gas object must represent an ideal gas mixture.');
             end
+
             if ~ischar(element)
                 error('Element name must be of format character.');
             end
@@ -453,12 +468,13 @@ classdef ThermoPhase < handle
             MW = tp.molecularWeights;
             % Initialize the element mass fraction as zero.
             elMassFrac = 0.0;
-            % Use loop to perform summation of elemental mass fraction over all species.
+            % Perform summation of elemental mass fraction over all species.
             for i = 1:n
                 natoms(i) = tp.nAtoms(spec{i}, element);
                 yy(i) = tp.massFraction(spec{i});
-                elMassFrac = elMassFrac + (natoms(i)*Mel*yy(i))/MW(i);
+                elMassFrac = elMassFrac + (natoms(i) * Mel * yy(i)) / MW(i);
             end
+
         end
 
         function mmw = get.meanMolecularWeight(tp)
@@ -473,8 +489,7 @@ classdef ThermoPhase < handle
             nsp = tp.nSpecies;
             yy = zeros(1, nsp);
             pt = libpointer('doublePtr', yy);
-            callct('thermo_getMolecularWeights', ...
-                    tp.tpID, nsp, pt);
+            callct('thermo_getMolecularWeights', tp.tpID, nsp, pt);
             mw = pt.Value;
         end
 
@@ -493,27 +508,27 @@ classdef ThermoPhase < handle
             % :return:
             %     Number of atoms of element ``m`` in species ``k``.
 
-            if nargin == 3
-                if ischar(species)
-                    k = tp.speciesIndex(species);
-                else k = species;
-                end
-                if k < 0
-                    n = -1;
-                    return
-                end
-                if ischar(element)
-                    m = tp.elementIndex(element);
-                else m = element;
-                end
-                if m < 0
-                    n = -1;
-                    return
-                end
-                n = callct('thermo_nAtoms', tp.tpID, k-1, m-1);
-            else
+            if nargin ~= 3
                 error('Two input arguments required.')
             end
+
+            if ischar(species)
+                k = tp.speciesIndex(species);
+            else k = species;
+            end
+
+            if ischar(element)
+                m = tp.elementIndex(element);
+            else m = element;
+            end
+
+            if k < 0 | m < 0
+                n = -1;
+                return
+            end
+
+            n = callct('thermo_nAtoms', tp.tpID, k - 1, m - 1)
+
         end
 
         function nel = get.nElements(tp)
@@ -555,40 +570,53 @@ classdef ThermoPhase < handle
             if iscell(name)
                 [m, n] = size(name);
                 k = zeros(m, n);
+
                 for i = 1:m
+
                     for j = 1:n
                         k(i, j) = callct('thermo_speciesIndex', ...
-                                          tp.tpID, name{i, j}) + 1;
+                                        tp.tpID, name{i, j}) + 1;
+
                         if k(i, j) > 1e6
                             warning(['Species ', name{i, j}, ...
-                                   ' does not exist in the phase']);
+                                     ' does not exist in the phase']);
                             k(i, j) = -1;
                         end
+
                     end
+
                 end
+
             elseif ischar(name)
                 k = callct('thermo_speciesIndex', ...
                             tp.tpID, name) + 1;
+
                 if k > 1e6
                     warning(['Species ', name, ...
-                           ' does not exist in the phase.']);
+                             ' does not exist in the phase.']);
                     k = -1;
                 end
+
             else
                 error('Name must be either a string or cell array of strings.')
             end
+
         end
 
         function nm = speciesName(tp, k)
             [m, n] = size(k);
             nm = cell(m, n);
+
             for i = 1:m
+
                 for j = 1:n
                     ksp = k(i, j) - 1;
                     output = callct2('thermo_getSpeciesName', tp.tpID, ksp);
                     nm{i, j} = output;
                 end
+
             end
+
         end
 
         function n = speciesNames(tp)
@@ -618,15 +646,14 @@ classdef ThermoPhase < handle
         end
 
         function volume = get.V(tp)
-            volume = 1/tp.D;
+            volume = 1 / tp.D;
         end
 
         function moleFractions = get.X(tp)
             nsp = tp.nSpecies;
             xx = zeros(1, nsp);
             pt = libpointer('doublePtr', xx);
-            callct('thermo_getMoleFractions', ...
-                    tp.tpID, nsp, pt);
+            callct('thermo_getMoleFractions', tp.tpID, nsp, pt);
             moleFractions = pt.Value;
         end
 
@@ -645,31 +672,38 @@ classdef ThermoPhase < handle
             %     Scalar or vector double mole fractions
             %
             xarray = tp.X;
+
             if isa(species, 'char')
                 k = tp.speciesIndex(species);
-                if  k > 0
+
+                if k > 0
                     x = xarray(k);
                 else error("species not found.");
                 end
+
             elseif isa(species, 'cell')
                 n = length(species);
                 x = zeros(1, n);
+
                 for j = 1:n
                     k = tp.speciesIndex(species{j});
+
                     if k > 0
                         x(j) = xarray(k);
                     else error("species not found.");
                     end
+
                 end
+
             end
+
         end
 
         function massFractions = get.Y(tp)
             nsp = tp.nSpecies;
             yy = zeros(1, nsp);
             pt = libpointer('doublePtr', yy);
-            callct('thermo_getMassFractions', ...
-                    tp.tpID, nsp, pt);
+            callct('thermo_getMassFractions', tp.tpID, nsp, pt);
             massFractions = pt.Value;
         end
 
@@ -688,23 +722,31 @@ classdef ThermoPhase < handle
             %     Scalar or vector double mass fractions
             %
             yy = tp.Y;
+
             if isa(species, 'char')
                 k = tp.speciesIndex(species);
-                if  k > 0
+
+                if k > 0
                     y = yy(k);
                 else error("Error: species not found.")
                 end
+
             elseif isa(species, 'cell')
                 n = length(species);
                 y = zeros(1, n);
+
                 for j = 1:n
                     k = tp.speciesIndex(species{j});
+
                     if k > 0
                         y(j) = yy(k);
                     else error("Error: species not found.")
                     end
+
                 end
+
             end
+
         end
 
         %% ThermoGet single methods
@@ -713,27 +755,30 @@ classdef ThermoPhase < handle
             nsp = tp.nSpecies;
             xx = zeros(1, nsp);
             pt = libpointer('doublePtr', xx);
-            callct('thermo_chemPotentials', ...
-                    tp.tpID, nsp, pt);
+            callct('thermo_chemPotentials', tp.tpID, nsp, pt);
             mu = pt.Value;
         end
 
         function c = get.cv(tp)
+
             if strcmp(tp.basis, 'molar')
                 c = callct('thermo_cv_mole', tp.tpID);
             elseif strcmp(tp.basis, 'mass')
                 c = callct('thermo_cv_mass', tp.tpID);
             else error("basis not specified");
             end
+
         end
 
         function c = get.cp(tp)
+
             if strcmp(tp.basis, 'molar')
                 c = callct('thermo_cp_mole', tp.tpID);
             elseif strcmp(tp.basis, 'mass')
                 c = callct('thermo_cp_mass', tp.tpID);
             else error("basis not specified");
             end
+
         end
 
         function d = get.critDensity(tp)
@@ -757,11 +802,13 @@ classdef ThermoPhase < handle
         end
 
         function v = get.isIdealGas(tp)
+
             if strcmp(tp.eosType, 'IdealGas')
                 v = 1;
             else
                 v = 0;
             end
+
         end
 
         function b = get.isothermalCompressibility(tp)
@@ -813,12 +860,13 @@ classdef ThermoPhase < handle
         end
 
         function c = get.soundSpeed(tp)
+
             if tp.isIdealGas
                 tp.basis = 'mass';
-                gamma = tp.cp/tp.cv;
+                gamma = tp.cp / tp.cv;
                 wtm = tp.meanMolecularWeight;
-                r = 8314.4621/wtm;
-                c = sqrt(gamma * r *tp.T);
+                r = 8314.4621 / wtm;
+                c = sqrt(gamma * r * tp.T);
             else
                 rho0 = tp.D;
                 p0 = tp.P;
@@ -829,6 +877,7 @@ classdef ThermoPhase < handle
                 dpdrho_s = (p1 - p0) / (rho1 - rho0);
                 c = sqrt(dpdrho_s);
             end
+
         end
 
         function a = get.thermalExpansionCoeff(tp)
@@ -840,12 +889,14 @@ classdef ThermoPhase < handle
         end
 
         function enthalpy = get.H(tp)
+
             if strcmp(tp.basis, 'molar')
                 enthalpy = callct('thermo_enthalpy_mole', tp.tpID);
             elseif strcmp(tp.basis, 'mass')
                 enthalpy = callct('thermo_enthalpy_mass', tp.tpID);
             else error("basis not specified");
             end
+
         end
 
         function enthalpy = get.enthalpies_RT(tp)
@@ -857,30 +908,36 @@ classdef ThermoPhase < handle
         end
 
         function entropy = get.S(tp)
+
             if strcmp(tp.basis, 'molar')
                 entropy = callct('thermo_entropy_mole', tp.tpID);
             elseif strcmp(tp.basis, 'mass')
                 entropy = callct('thermo_entropy_mass', tp.tpID);
             else error("basis not specified");
             end
+
         end
 
         function intEnergy = get.U(tp)
+
             if strcmp(tp.basis, 'molar')
                 intEnergy = callct('thermo_intEnergy_mole', tp.tpID);
             elseif strcmp(tp.basis, 'mass')
                 intEnergy = callct('thermo_intEnergy_mass', tp.tpID);
             else error("basis not specified");
             end
+
         end
 
         function gibbs = get.G(tp)
+
             if strcmp(tp.basis, 'molar')
                 gibbs = callct('thermo_gibbs_mole', tp.tpID);
             elseif strcmp(tp.basis, 'mass')
                 gibbs = callct('thermo_gibbs_mass', tp.tpID);
             else error("basis not specified");
             end
+
         end
 
         %% ThermoGet multi methods
@@ -998,7 +1055,7 @@ classdef ThermoPhase < handle
         end
 
         function output = get.TPX(tp)
-            output ={tp.T, tp.P, tp.X};
+            output = {tp.T, tp.P, tp.X};
         end
 
         function output = get.TPY(tp)
@@ -1010,7 +1067,7 @@ classdef ThermoPhase < handle
         end
 
         function output = get.TVX(tp)
-            output ={tp.T, tp.V, tp.X};
+            output = {tp.T, tp.V, tp.X};
         end
 
         function output = get.TVY(tp)
@@ -1110,13 +1167,15 @@ classdef ThermoPhase < handle
         end
 
         function tp = set.basis(tp, b)
+
             if strcmp(b, 'mole') || strcmp(b, 'molar') ...
-               || strcmp(b, 'Mole') || strcmp(b, 'Molar')
+                || strcmp(b, 'Mole') || strcmp(b, 'Molar')
                 tp.basis = 'molar';
             elseif strcmp(b, 'mass') || strcmp(b, 'Mass')
                 tp.basis = 'mass';
             else error("Basis must be mass or molar")
             end
+
         end
 
         function set.T(tp, temperature)
@@ -1133,31 +1192,37 @@ classdef ThermoPhase < handle
 
         function set.X(tp, xx)
             tol = 1e-9;
+
             if isa(xx, 'double')
                 nsp = tp.nSpecies;
+
                 if abs(sum(xx) - 1) <= tol
                     norm = 0;
                 else norm = 1;
                 end
-                callct('thermo_setMoleFractions', tp.tpID, ...
-                        nsp, xx, norm);
+
+                callct('thermo_setMoleFractions', tp.tpID, nsp, xx, norm);
             elseif isa(xx, 'char')
                 callct('thermo_setMoleFractionsByName', tp.tpID, xx);
             end
+
         end
 
         function set.Y(tp, yy)
+
             if isa(yy, 'double')
                 nsp = tp.nSpecies;
+
                 if abs(sum(yy) -1) <= 1e-9
                     norm = 0;
                 else norm = 1;
                 end
-                callct('thermo_setMassFractions', tp.tpID, ...
-                        nsp, yy, norm);
+
+                callct('thermo_setMassFractions', tp.tpID, nsp, yy, norm);
             elseif isa(yy, 'char')
                 callct('thermo_setMassFractionsByName', tp.tpID, yy);
             end
+
         end
 
         %% PhaseSet multi methods
@@ -1389,4 +1454,5 @@ classdef ThermoPhase < handle
         end
 
     end
+
 end

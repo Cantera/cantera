@@ -54,19 +54,23 @@ classdef ReactorSurface < handle
             end
 
             if nargin >= 2
+
                 if isa(reactor, 'Reactor')
                     s.install(reactor);
                 else
                     warning('Reactor was not installed due to incorrect type');
                 end
+
             end
 
             if nargin >= 3
+
                 if isnumeric(area)
                     s.area = area;
                 else
                     warning('Area was not a number and was not set');
                 end
+
             end
 
         end
@@ -131,12 +135,14 @@ classdef ReactorSurface < handle
             %
 
             ikin = 0;
+
             if isa(kin, 'Kinetics')
                 ikin = kin.kinID;
             end
 
             callct('reactorsurface_setkinetics', s.surfID, ikin);
         end
-    end
-end
 
+    end
+
+end

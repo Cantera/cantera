@@ -40,7 +40,7 @@ turbine_work = expand(w, p1, eta_turbine);
 w
 
 % compute the efficiency
-efficiency = (turbine_work - pump_work)/heat_added;
+efficiency = (turbine_work - pump_work) / heat_added;
 disp(sprintf('efficiency = %d', efficiency));
 
 function work = pump(fluid, pfinal, eta)
@@ -58,7 +58,6 @@ function work = pump(fluid, pfinal, eta)
     fluid.HP = {h1, pfinal};
     work = actual_work;
 end
-
 
 function work = expand(fluid, pfinal, eta)
     % EXPAND - Adiabatically expand a fluid to pressure pfinal, using a

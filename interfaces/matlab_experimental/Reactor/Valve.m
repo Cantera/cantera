@@ -26,7 +26,9 @@ function v = Valve(upstream, downstream)
     %    Instance of class 'FlowDevice'.
 
     v = FlowDevice('Valve');
+
     if nargin == 2
         v.install(upstream, downstream)
     end
+
 end

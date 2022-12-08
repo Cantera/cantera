@@ -17,14 +17,14 @@ help surfreactor
 %% Set the initial conditions
 
 t = 870.0;
-gas = Solution('ptcombust.yaml','gas');
+gas = Solution('ptcombust.yaml', 'gas');
 
 gas.TPX = {t, oneatm, 'CH4:0.01, O2:0.21, N2:0.78'};
 
 % The surface reaction mechanism describes catalytic combustion of
 % methane on platinum, and is from Deutschman et al., 26th
 % Symp. (Intl.) on Combustion,1996, pp. 1747-1754
-surf = Interface('ptcombust.yaml','Pt_surf', gas);
+surf = Interface('ptcombust.yaml', 'Pt_surf', gas);
 surf.T = t;
 
 nsp = gas.nSpecies;
@@ -35,7 +35,7 @@ r = IdealGasReactor(gas);
 r.setInitialVolume(1.0e-6)
 
 % create a reservoir to represent the environment
-a = Solution('air.yaml','air','None');
+a = Solution('air.yaml', 'air', 'None');
 a.TP = {t, oneatm};
 env = Reservoir(a);
 
@@ -52,7 +52,7 @@ rsurf = ReactorSurface(surf, r, A);
 
 % set the wall area and heat transfer coefficient.
 w.area = A;
-w.setHeatTransferCoeff(1.0e1);  % W/m2/K
+w.setHeatTransferCoeff(1.0e1); % W/m2/K
 
 % set expansion rate parameter. dV/dt = KA(P_1 - P_2)
 w.setExpansionRateCoeff(1.0);
@@ -62,7 +62,7 @@ network = ReactorNet({r});
 
 nSteps = 100;
 p0 = r.P;
-names = {'CH4','CO','CO2','H2O'};
+names = {'CH4', 'CO', 'CO2', 'H2O'};
 x = zeros([nSteps 4]);
 tim = zeros(nSteps, 1);
 temp = zeros(nSteps, 1);
@@ -71,36 +71,38 @@ cov = zeros([nSteps nSurfSp]);
 t = 0;
 dt = 0.1;
 t0 = cputime;
+
 for n = 1:nSteps
-  t = t + dt;
-  network.advance(t);
-  tim(n) = t;
-  temp(n) = r.T;
-  pres(n) = r.P - p0;
-  cov(n,:) = surf.X';
-  x(n,:) = gas.moleFraction(names);
+    t = t + dt;
+    network.advance(t);
+    tim(n) = t;
+    temp(n) = r.T;
+    pres(n) = r.P - p0;
+    cov(n, :) = surf.X';
+    x(n, :) = gas.moleFraction(names);
 end
+
 disp(['CPU time = ' num2str(cputime - t0)]);
 
 %% Plotting
 
 clf;
-subplot(2,2,1);
-plot(tim,temp);
+subplot(2, 2, 1);
+plot(tim, temp);
 xlabel('Time (s)');
 ylabel('Temperature (K)');
-subplot(2,2,2);
-plot(tim,pres);
+subplot(2, 2, 2);
+plot(tim, pres);
 axis([0 5 -0.1 0.1]);
 xlabel('Time (s)');
 ylabel('Delta Pressure (Pa)');
-subplot(2,2,3);
-semilogy(tim,cov);
+subplot(2, 2, 3);
+semilogy(tim, cov);
 xlabel('Time (s)');
 ylabel('Coverages');
 legend(speciesNames(surf));
-subplot(2,2,4);
-plot(tim,x);
+subplot(2, 2, 4);
+plot(tim, x);
 xlabel('Time (s)');
 ylabel('Mole Fractions');
 legend(names);

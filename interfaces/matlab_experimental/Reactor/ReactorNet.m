@@ -60,9 +60,11 @@ classdef ReactorNet < handle
 
             % add reactors
             nr = length(reactors);
+
             for i = 1:nr
                 r.addReactor(reactors{i});
             end
+
         end
 
         %% ReactorNet Class Destructor
@@ -202,11 +204,12 @@ classdef ReactorNet < handle
             %    Instance of class 'reactor'.
 
             if isa(component, 'string')
-                callct('reactornet_sensitivity', r.id, component, ...
-                        p, rxtr.id);
+                callct('reactornet_sensitivity', r.id, component, p, rxtr.id);
             end
+
             % Check back on this one to add cases for component type integer.
         end
 
     end
+
 end

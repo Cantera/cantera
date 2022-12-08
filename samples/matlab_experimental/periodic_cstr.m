@@ -1,23 +1,23 @@
 function periodic_cstr
-%%  PERIODIC_CSTR - A CSTR with steady inputs but periodic interior state.
-%
-% A stoichiometric hydrogen/oxygen mixture is introduced and reacts to
-% produce water. But since water has a large efficiency as a third body
-% in the chain termination reaction
-%
-%         H + O2 + M = HO2 + M
-%
-% as soon as a significant amount of water is produced the reaction stops.
-% After enough time has passed that the water is exhausted from the reactor,
-% the mixture explodes again and the process repeats. This explanation can be
-% verified by decreasing the rate for reaction 7 in file 'h2o2.yaml' and
-% re-running the example.
-%
-% Acknowledgments: The idea for this example and an estimate of the
-% conditions needed to see the oscillations came from Bob Kee,
-% Colorado School of Mines
-%
-% Keywords: combustion, reactor network, well-stirred reactor, plotting
+    %%  PERIODIC_CSTR - A CSTR with steady inputs but periodic interior state.
+    %
+    % A stoichiometric hydrogen/oxygen mixture is introduced and reacts to
+    % produce water. But since water has a large efficiency as a third body
+    % in the chain termination reaction
+    %
+    %         H + O2 + M = HO2 + M
+    %
+    % as soon as a significant amount of water is produced the reaction stops.
+    % After enough time has passed that the water is exhausted from the reactor,
+    % the mixture explodes again and the process repeats. This explanation can be
+    % verified by decreasing the rate for reaction 7 in file 'h2o2.yaml' and
+    % re-running the example.
+    %
+    % Acknowledgments: The idea for this example and an estimate of the
+    % conditions needed to see the oscillations came from Bob Kee,
+    % Colorado School of Mines
+    %
+    % Keywords: combustion, reactor network, well-stirred reactor, plotting
 
     clear all
     close all
@@ -27,7 +27,7 @@ function periodic_cstr
     help periodic_cstr
 
     % create the gas mixture
-    gas = Solution('h2o2.yaml','ohmech');
+    gas = Solution('h2o2.yaml', 'ohmech');
 
     % pressure = 60 Torr, T = 770 K
     p = 60.0 * 133.3;
@@ -48,7 +48,7 @@ function periodic_cstr
 
     % Set its volume to 10 cm^3. In this problem, the reactor volume is
     % fixed, so the initial volume is the volume at all later times.
-    cstr.setInitialVolume(10.0*1.0e-6);
+    cstr.setInitialVolume(10.0 * 1.0e-6);
 
     % We need to have heat loss to see the oscillations. Create a
     % reservoir to represent the environment, and initialize its
@@ -68,8 +68,8 @@ function periodic_cstr
     % Connect the upstream reservoir to the reactor with a mass flow
     % controller (constant mdot). Set the mass flow rate to 1.25 sccm.
     sccm = 1.25;
-    vdot = sccm * 1.0e-6/60.0 * ((oneatm / gas.P) * ( gas.T / 273.15));  % m^3/s
-    mdot = gas.D * vdot;   % kg/s
+    vdot = sccm * 1.0e-6/60.0 * ((oneatm / gas.P) * (gas.T / 273.15)); % m^3/s
+    mdot = gas.D * vdot; % kg/s
     mfc = MassFlowController;
     mfc.install(upstream, cstr);
     mfc.setMassFlowRate(mdot);
@@ -89,22 +89,24 @@ function periodic_cstr
 
     % now integrate in time
     tme = 0.0;
-    dt   = 0.1;
+    dt = 0.1;
 
     n = 0;
+
     while tme < 300.0
         n = n + 1;
         tme = tme + dt;
         network.advance(tme);
         tm(n) = tme;
-        y(1,n) = cstr.massFraction('H2');
-        y(2,n) = cstr.massFraction('O2');
-        y(3,n) = cstr.massFraction('H2O');
+        y(1, n) = cstr.massFraction('H2');
+        y(2, n) = cstr.massFraction('O2');
+        y(3, n) = cstr.massFraction('H2O');
     end
+
     clf
     figure(1)
-    plot(tm,y)
-    legend('H2','O2','H2O')
+    plot(tm, y)
+    legend('H2', 'O2', 'H2O')
     title('Mass Fractions')
 
     toc

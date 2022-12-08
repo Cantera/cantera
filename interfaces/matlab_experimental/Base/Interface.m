@@ -43,6 +43,7 @@ classdef Interface < handle & ThermoPhase & Kinetics
 
             t = ThermoPhase(src, id);
             s@ThermoPhase(src, id);
+
             if nargin == 2
                 args = {};
             elseif nargin == 3
@@ -54,6 +55,7 @@ classdef Interface < handle & ThermoPhase & Kinetics
             elseif nargin == 6
                 args = {p1, p2, p3, p4};
             end
+
             s@Kinetics(t, src, id, args{:});
             s.tpID = t.tpID;
         end
@@ -116,17 +118,20 @@ classdef Interface < handle & ThermoPhase & Kinetics
 
             if isa(cov, 'double')
                 sz = length(cov);
-                if sz == nsp
-                    if ((m == nsp && n == 1) || (m == 1 & n == nsp))
-                        callct('surf_setCoverages', surfID, cov, norm_flag);
-                    else error('wrong size for coverage array');
-                    end
-                else
+
+                if sz ~= nsp
                     error('wrong size for coverage array');
                 end
+
+                if ((m == nsp && n == 1) || (m == 1 & n == nsp))
+                    callct('surf_setCoverages', surfID, cov, norm_flag);
+                else error('wrong size for coverage array');
+                end
+
             elseif isa(cov, 'char')
                 callct('surf_setCoveragesByName', surfID, cov);
             end
+
         end
 
         function set.siteDensity(s, d)
@@ -145,5 +150,5 @@ classdef Interface < handle & ThermoPhase & Kinetics
         end
 
     end
-end
 
+end

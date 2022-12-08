@@ -8,11 +8,11 @@ function F = PFR_Solver(x, soln_vector, gas, mdot, A_in, dAdx, k)
 
     rho = soln_vector(1);
     T = soln_vector(2);
-    Y = soln_vector(3: end);
+    Y = soln_vector(3:end);
 
-    if k==1
-        A = A_in+k * dAdx * x;
-    elseif k==-1
+    if k == 1
+        A = A_in + k * dAdx * x;
+    elseif k == -1
         A = A_in + k * dAdx * x;
         dAdx = -dAdx;
     else
@@ -31,7 +31,7 @@ function F = PFR_Solver(x, soln_vector, gas, mdot, A_in, dAdx, k)
 
     gas.basis = 'mass';
     MW = gas.molecularWeights;
-    h = gas.enthalpies_RT.*R.*T;
+    h = gas.enthalpies_RT .* R .* T;
     w = gas.netProdRates;
     Cp = gas.cp;
     %--------------------------------------------------------------------------
@@ -39,14 +39,14 @@ function F = PFR_Solver(x, soln_vector, gas, mdot, A_in, dAdx, k)
     %---density, temperature and mass fractions variations along a plug flow---
     %-------------------------reactor------------------------------------------
     %--------------------------------------------------------------------------
-    F(1) = ((1 - R / Cp) * ((rho * vx)^2) * (1/A) * (dAdx)...
-            + rho * R * sum(MW.*w.*(h - MW_mix * Cp * T./MW)) / (vx * Cp) )...
+    F(1) = ((1 - R / Cp) * ((rho * vx)^2) * (1 / A) * (dAdx) ...
+            + rho * R * sum(MW .* w .* (h - MW_mix * Cp * T ./ MW)) / (vx * Cp)) ...
             / (P * (1 + vx^2 / (Cp * T)) - rho * vx^2);
 
-    F(2) = (vx * vx / (rho * Cp)) * F(1) + vx * vx * (1 / A) * (dAdx) / Cp...
-            - (1 / (vx * rho * Cp)) * sum(h.*w.*MW);
+    F(2) = (vx * vx / (rho * Cp)) * F(1) + vx * vx * (1 / A) * (dAdx) / Cp ...
+            - (1 / (vx * rho * Cp)) * sum(h .* w .* MW);
 
-    F(3:nsp + 2) = w(1:nsp).*MW(1:nsp)./(rho * vx);
+    F(3:nsp + 2) = w(1:nsp) .* MW(1:nsp) ./ (rho * vx);
 
     F = F';
 

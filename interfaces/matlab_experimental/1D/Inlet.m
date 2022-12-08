@@ -10,9 +10,11 @@ function m = Inlet(id)
     %     Instance of class :mat:func:`Domain1D` representing an inlet.
     %
     m = Domain1D('Inlet1D');
+
     if nargin == 0
         m.setID('inlet');
     else
         m.setID(id);
     end
+
 end

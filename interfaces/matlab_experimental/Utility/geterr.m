@@ -2,6 +2,7 @@ function e = geterr()
     % Get the error message from a Cantera error.
     %
     checklib;
+
     try
         buflen = calllib(ct, 'ct_getCanteraError', 0, '');
         aa = char(ones(1, buflen));
@@ -12,4 +13,5 @@ function e = geterr()
     catch ME
         e = getReport(ME);
     end
+
 end

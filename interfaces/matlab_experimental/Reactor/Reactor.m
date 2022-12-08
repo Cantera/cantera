@@ -130,9 +130,11 @@ classdef Reactor < handle
 
             r.contents = gas;
             setThermoMgr(r, gas);
+
             if ~strcmp(r.type, 'Reservoir')
                 setKineticsMgr(r, gas);
             end
+
         end
 
         %% Reactor Get Methods
@@ -182,9 +184,11 @@ classdef Reactor < handle
         function massFractions = get.Y(r)
             nsp = r.contents.nSpecies;
             massFractions = zeros(1, nsp);
+
             for i = 1:nsp
                 massFractions(i) = r.massFraction(i);
             end
+
         end
 
         %% Reactor set methods
@@ -263,6 +267,7 @@ classdef Reactor < handle
             %
 
             iflag = -1;
+
             if strcmp(flag, 'on')
                 iflag = 1;
             elseif strcmp(flag, 'off')
@@ -273,6 +278,7 @@ classdef Reactor < handle
                 callct('reactor_setEnergy', r.id, iflag);
             else error('Input must be "on" or "off".');
             end
+
         end
 
         function setThermoMgr(r, t)
@@ -318,4 +324,5 @@ classdef Reactor < handle
         end
 
     end
+
 end

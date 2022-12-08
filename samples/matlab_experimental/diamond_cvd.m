@@ -24,8 +24,8 @@ t0 = cputime; % record the starting time
 
 %% Operation Parameters
 
-t = 1200.0;                     % surface temperature
-p = 20.0 * oneatm / 760.0;              % pressure
+t = 1200.0; % surface temperature
+p = 20.0 * oneatm / 760.0; % pressure
 
 %% Create the gas object
 %

@@ -12,7 +12,7 @@ function ignite_hp(gas)
     help ignite_hp
 
     if nargin == 0
-       gas = Solution('gri30.yaml', 'gri30');
+        gas = Solution('gri30.yaml', 'gri30');
     end
 
     mw = gas.molecularWeights;
@@ -27,19 +27,19 @@ function ignite_hp(gas)
     disp(['CPU time = ' num2str(cputime - t0)]);
 
     if nargout == 0
-       % plot the temperature and OH mole fractions.
-       figure(1);
-       plot(out.x, out.y(1,:));
-       xlabel('time');
-       ylabel('Temperature');
-       title(['Final T = ' num2str(out.y(1, end)), ' K']);
+        % plot the temperature and OH mole fractions.
+        figure(1);
+        plot(out.x, out.y(1, :));
+        xlabel('time');
+        ylabel('Temperature');
+        title(['Final T = ' num2str(out.y(1, end)), ' K']);
 
-       figure(2);
-       ioh = gas.speciesIndex('OH');
-       plot(out.x, out.y(1+ioh, :));
-       xlabel('time');
-       ylabel('Mass Fraction');
-       title('OH Mass Fraction');
+        figure(2);
+        ioh = gas.speciesIndex('OH');
+        plot(out.x, out.y(1 + ioh, :));
+        xlabel('time');
+        ylabel('Mass Fraction');
+        title('OH Mass Fraction');
     end
 
     toc

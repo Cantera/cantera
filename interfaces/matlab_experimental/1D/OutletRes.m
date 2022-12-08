@@ -7,9 +7,11 @@ function m = OutletRes(id)
     %     reservoir.
     %
     m = Domain1D('OutletRes');
+
     if nargin == 0
         m.setID('outletres');
     else
         m.setID(id);
     end
+
 end

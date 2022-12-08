@@ -54,6 +54,7 @@ classdef Transport < handle
             %
             checklib;
             tr.trID = 0;
+
             if nargin == 2
                 model = 'default'
             end
@@ -64,17 +65,17 @@ classdef Transport < handle
 
             if ~isa(tp, 'ThermoPhase')
                 error(['The first argument must be an ', ...
-                      'instance of class ThermoPhase']);
-            else
-                tr.th = tp;
-                if strcmp(model, 'default')
-                    tr.trID = callct('trans_newDefault', ...
-                                       tp.tpID, loglevel);
-                else
-                    tr.trID = callct('trans_new', model, ...
-                                       tp.tpID, loglevel);
-                end
+                       'instance of class ThermoPhase']);
             end
+
+            tr.th = tp;
+
+            if strcmp(model, 'default')
+                tr.trID = callct('trans_newDefault', tp.tpID, loglevel);
+            else
+                tr.trID = callct('trans_new', model, tp.tpID, loglevel);
+            end
+
             tr.tpID = tp.tpID;
         end
 
@@ -159,4 +160,5 @@ classdef Transport < handle
         end
 
     end
+
 end

@@ -14,29 +14,28 @@ clc
 tic
 help flame1
 
-t0 = cputime;  % record the starting time
+t0 = cputime; % record the starting time
 
 %% Set parameter values
 
-p          =   0.05*oneatm;         % pressure
-tburner    =   373.0;               % burner temperature
-mdot       =   0.06;                % kg/m^2/s
+p = 0.05 * oneatm; % pressure
+tburner = 373.0; % burner temperature
+mdot = 0.06; % kg/m^2/s
 
-rxnmech    =  'h2o2.yaml';           % reaction mechanism file
-comp       =  'H2:1.8, O2:1, AR:7'; % premixed gas composition
+rxnmech = 'h2o2.yaml'; % reaction mechanism file
+comp = 'H2:1.8, O2:1, AR:7'; % premixed gas composition
 
-initial_grid = [0.0, 0.02, 0.04, 0.06, 0.08, 0.1, 0.15, 0.2, 0.4,...
-                0.49, 0.5];  % m
+initial_grid = [0.0, 0.02, 0.04, 0.06, 0.08, 0.1, 0.15, 0.2, 0.4, ...
+                0.49, 0.5]; % m
 
-tol_ss    = {1.0e-5, 1.0e-13};       % {rtol atol} for steady-state
-                                    % problem
-tol_ts    = {1.0e-4, 1.0e-9};        % {rtol atol} for time stepping
+tol_ss = {1.0e-5, 1.0e-13}; % {rtol atol} for steady-state problem
+tol_ts = {1.0e-4, 1.0e-9}; % {rtol atol} for time stepping
 
-loglevel  = 1;                      % amount of diagnostic output (0
-                                    % to 5)
+loglevel = 1; % amount of diagnostic output (0
+% to 5)
 
-refine_grid = 1;                    % 1 to enable refinement, 0 to
-                                    % disable
+refine_grid = 1; % 1 to enable refinement, 0 to
+% disable
 max_jacobian_age = [5, 10];
 
 %% Create the gas object
@@ -81,7 +80,7 @@ s = Outlet('out');
 % to create the flame object.
 %
 fl = flame(gas, burner, f, s);
-fl.setMaxJacAge(max_jacobian_age(1),  max_jacobian_age(2));
+fl.setMaxJacAge(max_jacobian_age(1), max_jacobian_age(2));
 
 % if the starting solution is to be read from a previously-saved
 % solution, uncomment this line and edit the file name and solution id.
@@ -104,7 +103,7 @@ fl.saveSoln('h2fl.xml', 'energy', ['solution with energy equation']);
 
 fl.writeStats;
 elapsed = cputime - t0;
-e = sprintf('Elapsed CPU time: %10.4g',elapsed);
+e = sprintf('Elapsed CPU time: %10.4g', elapsed);
 disp(e);
 
 %% Make plots
