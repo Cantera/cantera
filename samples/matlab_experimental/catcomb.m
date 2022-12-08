@@ -20,37 +20,37 @@ clear all
 close all
 clc
 
-t0 = cputime;  % record the starting time
+t0 = cputime; % record the starting time
 
 %% Set parameter values
 
-p          =   oneatm;              % pressure
-tinlet     =   300.0;               % inlet temperature
-tsurf      =   900.0;               % surface temperature
-mdot       =   0.06;                % kg/m^2/s
-transport  =  'mixture-averaged';   % transport model
+p = oneatm; % pressure
+tinlet = 300.0; % inlet temperature
+tsurf = 900.0; % surface temperature
+mdot = 0.06; % kg/m^2/s
+transport = 'Mix'; % transport model
 
 % Solve first for a hydrogen/air case for use as the initial estimate for
 % the methane/air case.
 
 % composition of the inlet premixed gas for the hydrogen/air case
-comp1       =  'H2:0.05, O2:0.21, N2:0.78, AR:0.01';
+comp1 = 'H2:0.05, O2:0.21, N2:0.78, AR:0.01';
 
 % composition of the inlet premixed gas for the methane/air case
-comp2       =  'CH4:0.095, O2:0.21, N2:0.78, AR:0.01';
+comp2 = 'CH4:0.095, O2:0.21, N2:0.78, AR:0.01';
 
 % the initial grid, in meters. The inlet/surface separation is 10 cm.
-initial_grid = [0.0, 0.02, 0.04, 0.06, 0.08, 0.1];  % m
+initial_grid = [0.0, 0.02, 0.04, 0.06, 0.08, 0.1]; % m
 
 % numerical parameters
-tol_ss    = {1.0e-8 1.0e-14};       % {rtol atol} for steady-state problem
-tol_ts    = {1.0e-4 1.0e-9};        % {rtol atol} for time stepping
+tol_ss = {1.0e-8 1.0e-14}; % {rtol atol} for steady-state problem
+tol_ts = {1.0e-4 1.0e-9}; % {rtol atol} for time stepping
 
-loglevel  = 1;                      % amount of diagnostic output
-                                    % (0 to 5)
+loglevel = 1; % amount of diagnostic output
+% (0 to 5)
 
-refine_grid = 1;                    % 1 to enable refinement, 0 to
-                                    % disable
+refine_grid = 1; % 1 to enable refinement, 0 to
+% disable
 
 %% Create the gas object
 %
@@ -133,15 +133,16 @@ surf.T = tsurf;
 stack = Sim1D([inlt, flow, surf]);
 
 % set the initial profiles.
-stack.setProfile(2, {'velocity', 'spread_rate', 'T'}, [0.0,    1.0       % z/zmax
-                                                       0.06,   0.0       % u
-                                                       0.0,    0.0       % V
-                                                       tinlet, tsurf]);  % T
+stack.setProfile(2, {'velocity', 'spread_rate', 'T'}, ...
+                [0.0, 1.0 % z/zmax
+                 0.06, 0.0 % u
+                 0.0, 0.0 % V
+                 tinlet, tsurf]); % T
 names = gas.speciesNames;
 
 for k = 1:gas.nSpecies
-  y = inlt.massFraction(k);
-  stack.setProfile(2, names{k}, [0, 1; y, y]);
+    y = inlt.massFraction(k);
+    stack.setProfile(2, names{k}, [0, 1; y, y]);
 end
 
 stack
@@ -169,11 +170,11 @@ stack.solve(1, refine_grid);
 
 surf.setCoverageEqs('on');
 
-for iter=1:6
-  mult = 10.0^(iter - 6);
-  surf_phase.setMultiplier(mult);
-  gas.setMultiplier(mult);
-  stack.solve(1, refine_grid);
+for iter = 1:6
+    mult = 10.0^(iter - 6);
+    surf_phase.setMultiplier(mult);
+    gas.setMultiplier(mult);
+    stack.solve(1, refine_grid);
 end
 
 % At this point, we should have the solution for the hydrogen/air
@@ -196,7 +197,7 @@ stack.saveSoln('catcomb.xml', 'energy', ['solution with energy equation']);
 
 stack.writeStats;
 elapsed = cputime - t0;
-e = sprintf('Elapsed CPU time: %10.4g',elapsed);
+e = sprintf('Elapsed CPU time: %10.4g', elapsed);
 disp(e);
 
 %% Make plots

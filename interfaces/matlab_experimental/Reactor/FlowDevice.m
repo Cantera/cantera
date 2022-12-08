@@ -89,15 +89,18 @@ classdef FlowDevice < handle
             %     Instance of class :mat:func:`FlowDevice`
             %
             if nargin == 3
+
                 if ~isa(upstream, 'Reactor') || ~isa(downstream, 'Reactor')
-                    error(['Flow devices can only be installed between',...
+                    error(['Flow devices can only be installed between', ...
                            'reactors or reservoirs']);
                 end
+
                 i = upstream.id;
                 j = downstream.id;
                 callct('flowdev_install', f.id, i, j);
             else error('install requires 3 arguments');
             end
+
         end
 
         %% Flowdevice Get Methods
@@ -135,6 +138,7 @@ classdef FlowDevice < handle
             else
                 error('Time function can only be set for mass flow controllers.');
             end
+
         end
 
         function setMassFlowRate(f, mdot)
@@ -154,6 +158,7 @@ classdef FlowDevice < handle
             else
                 error('Mass flow rate can only be set for mass flow controllers.');
             end
+
         end
 
         function setMaster(f, d)
@@ -172,6 +177,7 @@ classdef FlowDevice < handle
             else
                 error('Master flow device can only be set for pressure controllers.');
             end
+
         end
 
         function setValveCoeff(f, k)
@@ -196,8 +202,10 @@ classdef FlowDevice < handle
             if ~strcmp(f.type, 'Valve')
                 error('Valve coefficient can only be set for valves.');
             end
+
             ok = callct('flowdev_setValveCoeff', f.id, k);
         end
 
     end
+
 end

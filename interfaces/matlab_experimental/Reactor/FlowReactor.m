@@ -22,5 +22,6 @@ function r = FlowReactor(contents)
     if nargin == 0
         contents = 0;
     end
+
     r = Reactor(contents, 'FlowReactor');
 end

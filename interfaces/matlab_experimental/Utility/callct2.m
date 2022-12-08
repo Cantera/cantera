@@ -6,6 +6,7 @@ function output = callct2(varargin)
 
     funcName = varargin{1};
     buflen = calllib(ct, funcName, varargin{2:end}, 0, '');
+
     if buflen > 0
         aa = char(ones(1, buflen));
         ptr = libpointer('cstring', aa);
@@ -15,7 +16,9 @@ function output = callct2(varargin)
     else
         error(geterr);
     end
+
     if iok == -err1
         error(geterr);
     end
+
 end

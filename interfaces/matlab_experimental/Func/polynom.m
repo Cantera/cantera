@@ -17,6 +17,7 @@ function poly = polynom(coeffs)
     %     Instance of class :mat:func:`Func`
 
     [n m] = size(coeffs);
+
     if n == 1
         poly = Func('polynomial', m - 1, coeffs);
     elseif m == 1
@@ -24,4 +25,5 @@ function poly = polynom(coeffs)
     else
         error('wrong shape for coefficient array');
     end
+
 end

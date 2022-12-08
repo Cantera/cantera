@@ -18,7 +18,9 @@ function m = MassFlowController(upstream, downstream)
     %    Instance of class 'FlowDevice'.
 
     m = FlowDevice('MassFlowController');
+
     if nargin == 2
         m.install(upstream, downstream)
     end
+
 end

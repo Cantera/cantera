@@ -12,7 +12,7 @@ surfreactor;
 periodic_cstr;
 plug_flow_reactor;
 lithium_ion_battery
-rankine(300.0, 2.0*oneatm, 0.8, 0.7);
+rankine;
 prandtl1();
 prandtl2();
 flame1;
@@ -24,5 +24,4 @@ ignite_uv;
 
 clear all
 close all
-cleanup
 UnloadCantera

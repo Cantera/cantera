@@ -30,17 +30,21 @@ classdef Sim1D < handle
 
             s.stID = -1;
             s.domains = domains;
-            if nargin == 1
-                nd = length(domains);
-                ids = zeros(1, nd);
-                for n=1:nd
-                    ids(n) = domains(n).domainID;
-                end
-                s.stID = callct('sim1D_new', nd, ids);
-            else
+
+            if nargin ~= 1
                 help(Sim1D);
                 error('Wrong number of parameters.');
             end
+
+            nd = length(domains);
+            ids = zeros(1, nd);
+
+            for n = 1:nd
+                ids(n) = domains(n).domainID;
+            end
+
+            s.stID = callct('sim1D_new', nd, ids);
+
         end
 
         %% Sim1D Class Destructor
@@ -59,6 +63,7 @@ classdef Sim1D < handle
             if nargin == 1
                 fname = '-';
             end
+
             callct('sim1D_showSolution', s.stID, fname);
         end
 
@@ -132,6 +137,7 @@ classdef Sim1D < handle
             elseif nargin == 3
                 desc = '--';
             end
+
             callct('sim1D_save', s.stID, fname, id, desc);
         end
 
@@ -157,23 +163,31 @@ classdef Sim1D < handle
             idom = s.stackIndex(domain);
             d = s.domains(idom);
             np = d.nPoints;
+
             if nargin == 3
                 icomp = d.componentIndex(component);
                 x = zeros(1, np);
+
                 for n = 1:np
                     x(n) = callct('sim1D_value', s.stID, ...
                                    idom - 1, icomp - 1, n - 1);
                 end
+
             else
                 nc = d.nComponents;
                 x = zeros(nc, np);
+
                 for m = 1:nc
+
                     for n = 1:np
                         x(m, n) = callct('sim1D_value', s.stID, ...
-                                          idom - 1, m - 1, n - 1);
+                                        idom - 1, m - 1, n - 1);
                     end
+
                 end
+
             end
+
         end
 
         function solve(s, loglevel, refineGrid)
@@ -235,12 +249,15 @@ classdef Sim1D < handle
                 n = name;
             else
                 n = callct('sim1D_domainIndex', s.stID, name);
+
                 if n >= 0
-                    n = n+1;
+                    n = n + 1;
                 else
                     error('Domain not found');
                 end
+
             end
+
         end
 
         function z = grid(s, name)
@@ -287,12 +304,16 @@ classdef Sim1D < handle
 
             r = zeros(nc, np);
             callct('sim1D_eval', s.stID, rdt, count);
+
             for m = 1:nc
+
                 for n = 1:np
                     r(m, n) = callct('sim1D_workValue', ...
-                                      s.stID, idom - 1, m - 1, n - 1);
+                                    s.stID, idom - 1, m - 1, n - 1);
                 end
+
             end
+
         end
 
         %% Sim1D Set Methods
@@ -310,6 +331,7 @@ classdef Sim1D < handle
             if T <= 0
                 error('temperature must be positive');
             end
+
             callct('sim1D_setFixedTemperature', s.stID, T);
         end
 
@@ -343,7 +365,7 @@ classdef Sim1D < handle
             %    Double minimum grid spacing.
             %
 
-            callct('sim1D_setGridMin', s.stID, domain-1, gridmin);
+            callct('sim1D_setGridMin', s.stID, domain - 1, gridmin);
         end
 
         function setMaxJacAge(s, ss_age, ts_age)
@@ -364,6 +386,7 @@ classdef Sim1D < handle
             if nargin == 2
                 ts_age = ss_age;
             end
+
             callct('sim1D_setMaxJacAge', s.stID, ss_age, ts_age);
         end
 
@@ -416,19 +439,23 @@ classdef Sim1D < handle
 
             np = length(c);
             sz = size(p);
+
             if sz(1) == np + 1;
+
                 for j = 1:np
                     ic = d.componentIndex(c{j});
                     callct('sim1D_setProfile', s.stID, ...
-                            n - 1, ic - 1, sz(2), p(1, :), sz(2), p(j+1, :));
+                            n - 1, ic - 1, sz(2), p(1, :), sz(2), p(j + 1, :));
                 end
+
             elseif sz(2) == np + 1;
                 ic = d.componentIndex(c{j});
                 callct('sim1D_setProfile', s.stID, ...
-                        n - 1, ic - 1, sz(1), p(:, 1), sz(1), p(:, j+1));
+                        n - 1, ic - 1, sz(1), p(:, 1), sz(1), p(:, j + 1));
             else
                 error('Wrong profile shape.');
             end
+
         end
 
         function setRefineCriteria(s, n, ratio, slope, curve, prune)
@@ -456,15 +483,19 @@ classdef Sim1D < handle
             if nargin < 3
                 ratio = 10.0;
             end
+
             if nargin < 4
                 slope = 0.8;
             end
+
             if nargin < 5
                 curve = 0.8;
             end
+
             if nargin < 6
                 prune = -0.1;
             end
+
             callct('sim1D_setRefineCriteria', s.stID, ...
                     n - 1, ratio, slope, curve, prune);
         end
@@ -516,9 +547,9 @@ classdef Sim1D < handle
             %
 
             callct('sim1D_setValue', s.stID, ...
-                    n - 1, comp -  1, localPoints - 1, v);
+                    n - 1, comp - 1, localPoints - 1, v);
         end
 
     end
-end
 
+end

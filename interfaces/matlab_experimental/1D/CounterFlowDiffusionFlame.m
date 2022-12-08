@@ -29,21 +29,27 @@ function flame = CounterFlowDiffusionFlame(left, flow, right, tp_f, tp_o, oxidiz
     if nargin ~= 6
         error('CounterFlowDiffusionFlame expects six input arguments.');
     end
+
     if ~tp_f.isIdealGas
         error('Fuel gas object must represent an ideal gas mixture.');
     end
+
     if ~tp_o.isIdealGas
         error('Oxidizer gas object must represent an ideal gas mixture.');
     end
+
     if ~left.isInlet
         error('Left inlet object of wrong type.');
     end
+
     if ~flow.isFlow
         error('Flow object of wrong type.');
     end
+
     if ~right.isInlet
         error('Right inlet object of wrong type.');
     end
+
     if ~ischar(oxidizer)
         error('Oxidizer name must be of format character.');
     end
@@ -74,7 +80,7 @@ function flame = CounterFlowDiffusionFlame(left, flow, right, tp_f, tp_o, oxidiz
     % conditions. The stoichiometric mixture fraction, Zst, is then
     % calculated.
 
-    sFuel = elMoles(tp_f, 'O')- 2 * elMoles(tp_f, 'C') - 0.5 * elMoles(tp_f, 'H');
+    sFuel = elMoles(tp_f, 'O') - 2 * elMoles(tp_f, 'C') - 0.5 * elMoles(tp_f, 'H');
     sOx = elMoles(tp_o, 'O') - 2 * elMoles(tp_o, 'C') - 0.5 * elMoles(tp_o, 'H');
     phi = sFuel / sOx;
     zst = 1.0 / (1.0 - phi);
@@ -101,6 +107,7 @@ function flame = CounterFlowDiffusionFlame(left, flow, right, tp_f, tp_o, oxidiz
 
     % Initialize stoichiometric mass fraction cell with first SP:Y value.
     ystoich = [y_stoich{1}];
+
     for i = 2:nsp
         % Update cell to have format similar to N2:Yst,O2:Yst,...
         ystoich = [ystoich ',', y_stoich{i}];
@@ -129,7 +136,7 @@ function flame = CounterFlowDiffusionFlame(left, flow, right, tp_f, tp_o, oxidiz
     f = sqrt(a / (2.0 * diff(ioxidizer)));
     x0num = sqrt(uleft * mdotl) * dz;
     x0den = sqrt(uleft * mdotr) + sqrt(uright * mdotr);
-    x0 = x0num/x0den;
+    x0 = x0num / x0den;
 
     %% Calculate initial values of temperature and mass fractions.
     % These values to be used for energy equation solution. Method is based
@@ -149,18 +156,25 @@ function flame = CounterFlowDiffusionFlame(left, flow, right, tp_f, tp_o, oxidiz
         zm(j) = zmix;
         u(j) = a * (x0 - zz(j)); % Axial velocity.
         v(j) = a; % Radial velocity.
+
         if zmix > zst
+
             for n = 1:nsp
-                y(j,n) = yeq(n) + (zmix - zst) * (yf(n) - yeq(n)) / (1.0 - zst);
+                y(j, n) = yeq(n) + (zmix - zst) * (yf(n) - yeq(n)) / (1.0 - zst);
             end
+
             t(j) = teq + (tf - teq) * (zmix - zst) / (1.0 - zst);
         else
+
             for n = 1:nsp
-                y(j,n) = yox(n) + zmix * (yeq(n) - yox(n)) / zst;
+                y(j, n) = yox(n) + zmix * (yeq(n) - yox(n)) / zst;
             end
+
             t(j) = tox + zmix * (teq - tox) / zst;
         end
+
     end
+
     zrel = zz / dz;
 
     %% Create the flame stack.
@@ -168,11 +182,13 @@ function flame = CounterFlowDiffusionFlame(left, flow, right, tp_f, tp_o, oxidiz
     % radial velocities, temperature, and mass fractions calculated above.
     flame = Sim1D([left flow right]);
     flame.setProfile(2, {'velocity', 'spread_rate'}, [zrel; u; v]);
-    flame.setProfile(2, 'T', [zrel; t] );
+    flame.setProfile(2, 'T', [zrel; t]);
+
     for n = 1:nsp
         nm = tp_f.speciesName(n);
-        flame.setProfile(2, nm, [zrel; transpose(y(:,n))])
+        flame.setProfile(2, nm, [zrel; transpose(y(:, n))])
     end
+
 end
 
 %% Define elMoles function
@@ -184,9 +200,11 @@ function moles = elMoles(tp, element)
     if nargin ~= 2
         error('elMoles expects two input arguments.');
     end
+
     if ~tp.isIdealGas
         error('Gas object must represent an ideal gas mixture.');
     end
+
     if ~ischar(element)
         error('Element name must be of format character.');
     end

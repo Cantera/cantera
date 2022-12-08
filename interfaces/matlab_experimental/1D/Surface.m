@@ -11,15 +11,19 @@ function m = Surface(id, surface_mech)
     %     Instance of class :mat:func:`Domain1D` representing a
     %     non-reacting or reacting surface.
     %
-    if nargin < 2
-        m = Domain1D('Surf1D');
-        if nargin == 0
-            m.setID('surface');
-        elseif nargin == 1
-            m.setID(id);
-        end
-    else
+
+    if nargin > 1
         m = Domain1D('ReactingSurface', surface_mech);
         m.setID(id);
+        return
     end
+
+    m = Domain1D('Surf1D');
+
+    if nargin == 0
+        m.setID('surface');
+    elseif nargin == 1
+        m.setID(id);
+    end
+
 end

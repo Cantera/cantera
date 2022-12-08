@@ -89,6 +89,7 @@ classdef Func < handle
                 else
                     nn = callct('func_new', itype, n, 0, p);
                 end
+
             end
 
             if strcmp(typ, 'polynomial')
@@ -110,6 +111,7 @@ classdef Func < handle
                 x.coeffs = p;
                 x.id = newFunc(itype, n.id, p);
             else
+
                 if strcmp(typ, 'sum')
                     itype = 20;
                 elseif strcmp(typ, 'diff')
@@ -121,6 +123,7 @@ classdef Func < handle
                 elseif strcmp(typ, 'composite')
                     itype = 60;
                 end
+
                 x.f1 = n;
                 x.f2 = p;
                 x.id = newFunc(itype, n.id, p.id);
@@ -143,7 +146,7 @@ classdef Func < handle
             % Display the equation of the input function on the terminal.
 
             disp(' ');
-            disp([inputname(1),' = '])
+            disp([inputname(1), ' = '])
             disp(' ');
             disp(['   ' f.char])
             disp(' ');
@@ -162,13 +165,16 @@ classdef Func < handle
             %     Returns the value of the function evaluated at ``s``
             %
             if strcmp(s.type, '()')
-                ind= s.subs{:};
-                 b = zeros(1, length(ind));
-                 for k = 1:length(ind)
-                     b(k) = callct('func_value', a.id, ind(k));
-                 end
+                ind = s.subs{:};
+                b = zeros(1, length(ind));
+
+                for k = 1:length(ind)
+                    b(k) = callct('func_value', a.id, ind(k));
+                end
+
             else error('Specify value for x as p(x)');
             end
+
         end
 
         function s = get.char(f)
@@ -181,94 +187,114 @@ classdef Func < handle
             % :return:
             %     Formatted string displaying the function
             %
-           if strcmp(f.typ,'sum')
-               s = ['(' char(f.f1) ') + (' char(f.f2) ')'];
-           elseif strcmp(f.typ,'diff')
-               s = ['(' char(f.f1) ') - (' char(f.f2) ')'];
-           elseif strcmp(f.typ,'prod')
-               s = ['(' char(f.f1) ') * (' char(f.f2) ')'];
-           elseif strcmp(f.typ,'ratio')
-               s = ['(' char(f.f1) ') / (' char(f.f2) ')'];
-           elseif all(p.coeffs == 0)
-               s = '0';
-           else
-               if strcmp(f.typ,'polynomial')
-                   d = length(p.coeffs) - 1;
-                   s = [];
-                   nn = 0;
-                   for b = f.coeffs;
-                       cc(d + 1 - nn) = b;
-                       nn = nn + 1;
-                   end
-                   for a = cc;
-                       if a ~= 0;
-                           if ~isempty(s)
-                               if a > 0
-                                   s = [s ' + '];
-                               else
-                                   s = [s ' - '];
-                                   a = -a;
-                               end
-                           end
-                           if a ~= 1 || d == 0
-                               s = [s num2str(a)];
-                               if d > 0
-                                   s = [s '*'];
-                               end
-                           end
-                           if d >= 2
-                               s = [s 'x^' int2str(d)];
-                           elseif d == 1
-                               s = [s 'x'];
-                           end
-                       end
-                       d = d - 1;
-                   end
-               elseif strcmp(f.typ, 'gaussian')
-                   s = ['Gaussian(' num2str(f.coeffs(1)) ',' ...
-                       num2str(f.coeffs(2)) ',' ...
-                       num2str(f.coeffs(3)) ')'];
-               elseif strcmp(f.typ, 'fourier')
-                   c = reshape(f.coeffs, [], 2);
-                   Ao = c(1, 1);
-                   w = c(1, 2);
-                   A = c(2:end, 1);
-                   B = c(2:end, 2);
-                   N = size(c, 1) - 1;
-                   if Ao ~= 0
-                       s = num2str(Ao/2);
-                   else
-                       s = '';
-                   end
-                   for n=1:N
-                       if A(n) ~= 0
-                           if A(n) < 0
-                               prefix = ' - ';
-                           elseif s
-                               prefix = ' + ';
-                           else
-                               prefix = '';
-                           end
-                       s = [s prefix num2str(abs(A(n))), ...
-                            '*cos(' num2str(n*w) '*x)'];
-                       end
-                       if B(n) ~= 0
-                           if B(n) < 0
-                               prefix = ' - ';
-                           elseif s
-                               prefix = ' + ';
-                           else
-                               prefix = '';
-                           end
-                       s = [s prefix num2str(abs(B(n))),...
-                            '*sin(' num2str(n*w) '*x)'];
-                       end
-                   end
-               else
-                   s = ['*** char not yet implemented for' f.typ ' ***'];
-               end
-           end
+            if strcmp(f.typ, 'sum')
+                s = ['(' char(f.f1) ') + (' char(f.f2) ')'];
+            elseif strcmp(f.typ, 'diff')
+                s = ['(' char(f.f1) ') - (' char(f.f2) ')'];
+            elseif strcmp(f.typ, 'prod')
+                s = ['(' char(f.f1) ') * (' char(f.f2) ')'];
+            elseif strcmp(f.typ, 'ratio')
+                s = ['(' char(f.f1) ') / (' char(f.f2) ')'];
+            elseif all(p.coeffs == 0)
+                s = '0';
+            elseif strcmp(f.typ, 'polynomial')
+                d = length(p.coeffs) - 1;
+                s = [];
+                nn = 0;
+
+                for b = f.coeffs;
+                    cc(d + 1 - nn) = b;
+                    nn = nn + 1;
+                end
+
+                for a = cc;
+
+                    if a ~= 0;
+
+                        if ~isempty(s)
+
+                            if a > 0
+                                s = [s ' + '];
+                            else
+                                s = [s ' - '];
+                                a = -a;
+                            end
+
+                        end
+
+                        if a ~= 1 || d == 0
+                            s = [s num2str(a)];
+
+                            if d > 0
+                                s = [s '*'];
+                            end
+
+                        end
+
+                        if d >= 2
+                            s = [s 'x^' int2str(d)];
+                        elseif d == 1
+                            s = [s 'x'];
+                        end
+
+                    end
+
+                    d = d - 1;
+                end
+            elseif strcmp(f.typ, 'gaussian')
+                s = ['Gaussian(' num2str(f.coeffs(1)) ',' ...
+                    num2str(f.coeffs(2)) ',' num2str(f.coeffs(3)) ')'];
+            elseif strcmp(f.typ, 'fourier')
+                c = reshape(f.coeffs, [], 2);
+                Ao = c(1, 1);
+                w = c(1, 2);
+                A = c(2:end, 1);
+                B = c(2:end, 2);
+                N = size(c, 1) - 1;
+
+                if Ao ~= 0
+                    s = num2str(Ao / 2);
+                else
+                    s = '';
+                end
+
+                for n = 1:N
+
+                    if A(n) ~= 0
+
+                        if A(n) < 0
+                            prefix = ' - ';
+                        elseif s
+                            prefix = ' + ';
+                        else
+                            prefix = '';
+                        end
+
+                        s = [s prefix num2str(abs(A(n))), ...
+                            '*cos(' num2str(n * w) '*x)'];
+                    end
+
+                    if B(n) ~= 0
+
+                        if B(n) < 0
+                            prefix = ' - ';
+                        elseif s
+                            prefix = ' + ';
+                        else
+                            prefix = '';
+                        end
+
+                        s = [s prefix num2str(abs(B(n))), ...
+                            '*sin(' num2str(n * w) '*x)'];
+                    end
+
+                end
+            else
+                s = ['*** char not yet implemented for' f.typ ' ***'];
+            end
+
         end
 
     end
+
 end

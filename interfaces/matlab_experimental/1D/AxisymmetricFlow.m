@@ -10,9 +10,11 @@ function m = AxisymmetricFlow(gas, id)
     %     Domain1D instance representing an axisymmetric flow.
     %
     m = Domain1D('StagnationFlow', gas);
+
     if nargin == 1
         m.setID('flow');
     else
         m.setID(id);
     end
+
 end

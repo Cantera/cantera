@@ -1,11 +1,11 @@
 function plotdata = ignite(g)
-%% IGNITE Zero-dimensional kinetics: adiabatic, constant pressure.
-%
-%    This example solves the same problem as 'reactor1', but does
-%    it using one of MATLAB's ODE integrators, rather than using the
-%    Cantera Reactor class.
-%
-% Keywords: combustion, reactor network, ignition delay, plotting
+    %% IGNITE Zero-dimensional kinetics: adiabatic, constant pressure.
+    %
+    %    This example solves the same problem as 'reactor1', but does
+    %    it using one of MATLAB's ODE integrators, rather than using the
+    %    Cantera Reactor class.
+    %
+    % Keywords: combustion, reactor network, ignition delay, plotting
 
     clear all
     close all
@@ -15,9 +15,9 @@ function plotdata = ignite(g)
     help ignite
 
     if nargin == 1
-       gas = g;
+        gas = g;
     else
-       gas = Solution('gri30.yaml', 'gri30');
+        gas = Solution('gri30.yaml', 'gri30');
     end
 
     % set the initial conditions
@@ -25,7 +25,7 @@ function plotdata = ignite(g)
     gas.TPX = {1001.0, oneatm, 'H2:2,O2:1,N2:4'};
     gas.basis = 'mass';
     y0 = [gas.U
-          1.0/gas.D
+          1.0 / gas.D
           gas.Y'];
 
     time_interval = [0 0.001];
@@ -33,7 +33,7 @@ function plotdata = ignite(g)
 
     t0 = cputime;
     out = ode15s(@reactor_ode, time_interval, y0, options, gas, ...
-                 @vdot, @area, @heatflux);
+                @vdot, @area, @heatflux);
     disp(['CPU time = ' num2str(cputime - t0)]);
 
     plotdata = output(out, gas);
@@ -50,18 +50,21 @@ function plotdata = ignite(g)
     %   gas    ideal gas object
 
     function v = vdot(t, vol, gas)
-    %v = 0.0;                                 %uncomment for constant volume
-        v = 1.e11 * (gas.P - 101325.0);       % holds pressure very
-                                              % close to 1 atm
+        %v = 0.0;                                 %uncomment for constant volume
+        v = 1.e11 * (gas.P - 101325.0); % holds pressure very
+        % close to 1 atm
     end
+
     % heat flux (W/m^2).
     function q = heatflux(t, gas)
-        q = 0.0;                              % adiabatic
+        q = 0.0; % adiabatic
     end
+
     % surface area (m^2). Used only to compute heat transfer.
     function a = area(t, vol)
         a = 1.0;
     end
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     % Since the solution variables used by the 'reactor' function are
@@ -72,25 +75,25 @@ function plotdata = ignite(g)
     function pv = output(s, gas)
         times = s.x;
         soln = s.y;
-        [~,n] = size(times);
+        [~, n] = size(times);
         pv = zeros(gas.nSpecies + 4, n);
 
         gas.TP = {1001.0, oneatm};
 
         for j = 1:n
-          ss = soln(:, j);
-          y = ss(3:end);
-          mass = sum(y);
-          u_mass = ss(1)/mass;
-          v_mass = ss(2)/mass;
-          gas.Y = y;
-          gas.UV = {u_mass, v_mass};
+            ss = soln(:, j);
+            y = ss(3:end);
+            mass = sum(y);
+            u_mass = ss(1) / mass;
+            v_mass = ss(2) / mass;
+            gas.Y = y;
+            gas.UV = {u_mass, v_mass};
 
-          pv(1, j) = times(j);
-          pv(2, j) = gas.T;
-          pv(3, j) = gas.D;
-          pv(4, j) = gas.P;
-          pv(5:end, j) = y;
+            pv(1, j) = times(j);
+            pv(2, j) = gas.T;
+            pv(3, j) = gas.D;
+            pv(4, j) = gas.P;
+            pv(5:end, j) = y;
         end
 
         % plot the temperature and OH mass fractions.
@@ -102,7 +105,7 @@ function plotdata = ignite(g)
 
         figure(2);
         ioh = gas.speciesIndex('OH');
-        plot(pv(1, :), pv(4+ioh, :));
+        plot(pv(1, :), pv(4 + ioh, :));
         xlabel('time');
         ylabel('Mass Fraction');
         title('OH Mass Fraction');

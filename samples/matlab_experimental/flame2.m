@@ -13,30 +13,28 @@ clc
 tic
 help flame2
 
-t0 = cputime;  % record the starting time
+t0 = cputime; % record the starting time
 
 %% Set parameter values
 
-p          =   oneatm;              % pressure
-tin        =   300.0;               % inlet temperature
-mdot_o     =   0.72;                % air, kg/m^2/s
-mdot_f     =   0.24;                % fuel, kg/m^2/s
+p = oneatm; % pressure
+tin = 300.0; % inlet temperature
+mdot_o = 0.72; % air, kg/m^2/s
+mdot_f = 0.24; % fuel, kg/m^2/s
 
-rxnmech    =  'gri30.yaml';          % reaction mechanism file
-comp1      =  'O2:0.21, N2:0.78, AR:0.01';  % air composition
-comp2      =  'C2H6:1';            % fuel composition
+rxnmech = 'gri30.yaml'; % reaction mechanism file
+comp1 = 'O2:0.21, N2:0.78, AR:0.01'; % air composition
+comp2 = 'C2H6:1'; % fuel composition
 
-initial_grid = 0.02*[0.0, 0.2, 0.4, 0.6, 0.8, 1.0];  % m
+initial_grid = 0.02 * [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]; % m
 
-tol_ss    = {1.0e-5, 1.0e-13};       % {rtol atol} for steady-state
-                                    % problem
-tol_ts    = {1.0e-4, 1.0e-13};       % {rtol atol} for time stepping
+tol_ss = {1.0e-5, 1.0e-13}; % {rtol atol} for steady-state
+% problem
+tol_ts = {1.0e-4, 1.0e-13}; % {rtol atol} for time stepping
 
-loglevel  = 1;                      % amount of diagnostic output (0
-                                    % to 5)
+loglevel = 1; % amount of diagnostic output (0 to 5)
 
-refine_grid = 1;                    % 1 to enable refinement, 0 to
-                                    % disable
+refine_grid = 1; % 1 to enable refinement, 0 to disable
 
 %% Create the gas object
 %
@@ -50,7 +48,7 @@ gas.TPX = {tin, p, comp2};
 
 %% Create the flow object
 %
-f = AxisymmetricFlow(gas,'flow');
+f = AxisymmetricFlow(gas, 'flow');
 f.P = p;
 f.setupGrid(initial_grid);
 f.setSteadyTolerances('default', tol_ss{:});
@@ -102,7 +100,7 @@ fl.saveSoln('c2h6.xml', 'energy', ['solution with energy equation']);
 
 fl.writeStats;
 elapsed = cputime - t0;
-e = sprintf('Elapsed CPU time: %10.4g',elapsed);
+e = sprintf('Elapsed CPU time: %10.4g', elapsed);
 disp(e);
 
 %% Make plots

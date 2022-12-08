@@ -126,6 +126,7 @@ classdef Domain1D < handle
             checklib;
 
             if nargin == 1
+
                 if strcmp(a, 'Inlet1D')
                     d.domainID = callct('inlet_new');
                 elseif strcmp(a, 'Surf1D')
@@ -139,23 +140,29 @@ classdef Domain1D < handle
                 else
                     error('Not enough arguments for that job number');
                 end
+
             elseif nargin == 2
                 % a stagnation flow
                 if strcmp(a, 'StagnationFlow')
+
                     if isa(b, 'Solution')
                         d.domainID = callct('stflow_new', ...
-                                           b.tpID, b.kinID, b.trID, 1);
+                                            b.tpID, b.kinID, b.trID, 1);
                     else
                         error('Wrong argument type. Expecting instance of class Solution.');
                     end
+
                 elseif strcmp(a, 'AxisymmetricFlow')
+
                     if isa(b, 'Solution')
                         d.domainID = callct('stflow_new', ...
                                             b.tpID, b.kinID, b.trID, 2);
                     else
                         error('Wrong argument type. Expecting instance of class Solution.');
                     end
+
                 elseif strcmp(a, 'ReactingSurface')
+
                     if isa(b, 'Interface')
                         d.domainID = callct('reactingsurf_new');
                         callct('reactingsurf_setkineticsmgr', ...
@@ -163,10 +170,13 @@ classdef Domain1D < handle
                     else
                         error('Wrong argument type. Expecting instance of class Interface.');
                     end
+
                 else
                     error('Wrong object type.');
                 end
+
             end
+
             d.type = a;
         end
 
@@ -269,14 +279,18 @@ classdef Domain1D < handle
                 n = name;
             else
                 n = callct('domain_componentIndex', ...
-                            d.domainID, name);
+                    d.domainID, name);
+
                 if n >= 0
-                    n = n+1;
+                    n = n + 1;
                 end
+
             end
+
             if n <= 0
                 error('Component not found');
             end
+
         end
 
         function s = componentName(d, index)
@@ -295,21 +309,26 @@ classdef Domain1D < handle
 
             n = length(index);
             s = cell(1, n);
+
             for i = 1:n
-                id = index(i)-1;
+                id = index(i) - 1;
                 output = callct2('domain_componentName', d.domainID, id);
                 s{i} = output;
             end
+
         end
 
         function i = get.domainIndex(d)
             i = callct('domain_index', d.domainID);
+
             if i >= 0
                 i = i + 1;
             end
+
             if i <= 0
                 error('Domain not found');
             end
+
         end
 
         function i = get.domainType(d)
@@ -332,16 +351,21 @@ classdef Domain1D < handle
             if nargin == 1
                 np = d.nPoints;
                 zz = zeros(1, np);
+
                 for i = 1:np
-                    zz(i) = callct('domain_grid', d.domainID, i-1);
+                    zz(i) = callct('domain_grid', d.domainID, i - 1);
                 end
+
             else
                 m = length(n);
                 zz = zeros(1, m);
+
                 for i = 1:m
-                    zz(i) = callct('domain_grid', d.domainID, n(i)-1);
+                    zz(i) = callct('domain_grid', d.domainID, n(i) - 1);
                 end
+
             end
+
         end
 
         function a = get.isFlow(d)
@@ -351,6 +375,7 @@ classdef Domain1D < handle
                 a = 1;
             else a = 0;
             end
+
         end
 
         function a = get.isInlet(d)
@@ -360,6 +385,7 @@ classdef Domain1D < handle
                 a = 1;
             else a = 0;
             end
+
         end
 
         function a = get.isSurface(d)
@@ -369,6 +395,7 @@ classdef Domain1D < handle
                 a = 1;
             else a = 0;
             end
+
         end
 
         function mdot = get.massFlux(d)
@@ -397,9 +424,10 @@ classdef Domain1D < handle
             end
 
             if d.isInlet
-                y = callct('bdry_massFraction', d.domainID, k-1);
+                y = callct('bdry_massFraction', d.domainID, k - 1);
             else error('Input domain must be an inlet');
             end
+
         end
 
         function n = get.nComponents(d)
@@ -455,7 +483,7 @@ classdef Domain1D < handle
             %
 
             n = d.componentIndex(component);
-            callct('domain_setBounds', d.domainID, n-1, lower, upper);
+            callct('domain_setBounds', d.domainID, n - 1, lower, upper);
         end
 
         function setCoverageEqs(d, onoff)
@@ -477,7 +505,9 @@ classdef Domain1D < handle
             end
 
             ion = -1;
-            if isa(onoff,'char')
+
+            if isa(onoff, 'char')
+
                 if strcmp(onoff, 'on') || strcmp(onoff, 'yes')
                     ion = 1;
                 elseif strcmp(onoff, 'off') || strcmp(onoff, 'no')
@@ -485,9 +515,11 @@ classdef Domain1D < handle
                 else
                     error(strcat('unknown option: ', onoff))
                 end
+
             elseif isa(onoff, 'numeric')
                 ion = onoff;
             end
+
             callct('reactingsurf_enableCoverageEqs', d.domainID, ion);
         end
 
@@ -508,6 +540,7 @@ classdef Domain1D < handle
             %     is specified.
             %
             sz = size(profile);
+
             if sz(1) == 2
                 l = length(profile(1, :));
                 callct('stflow_setFixedTempProfile', d.domainID, ...
@@ -518,6 +551,7 @@ classdef Domain1D < handle
                         l, profile(:, 1), l, profile(:, 2));
             else error('Wrong temperature profile array shape.');
             end
+
         end
 
         function setID(d, id)
@@ -578,22 +612,27 @@ classdef Domain1D < handle
             %
             if strcmp(component, 'default')
                 nc = d.nComponents;
+
                 for ii = 1:nc
                     callct('domain_setSteadyTolerances', ...
-                            d.domainID, ii-1, rtol, atol);
+                            d.domainID, ii - 1, rtol, atol);
                 end
+
             elseif iscell(component)
                 nc = length(component);
+
                 for ii = 1:nc
                     n = d.componentIndex(component{ii});
                     callct('domain_setSteadyTolerances', ...
                             d.domainID, n, rtol, atol);
                 end
+
             else
                 n = d.componentIndex(component);
                 callct('domain_setSteadyTolerances', ...
                         d.domainID, n, rtol, atol);
             end
+
         end
 
         function setTransientTolerances(d, component, rtol, atol)
@@ -614,22 +653,27 @@ classdef Domain1D < handle
             %
             if strcmp(component, 'default')
                 nc = d.nComponents;
+
                 for ii = 1:nc
                     callct('domain_setTransientTolerances', ...
-                            d.domainID, ii-1, rtol, atol);
+                            d.domainID, ii - 1, rtol, atol);
                 end
+
             elseif iscell(component)
                 nc = length(component);
+
                 for ii = 1:nc
                     n = d.componentIndex(component{ii});
                     callct('domain_setTransientTolerances', ...
                             d.domainID, n, rtol, atol);
                 end
+
             else
                 n = d.componentIndex(component);
                 callct('domain_setTransientTolerances', ...
                         d.domainID, n, rtol, atol);
             end
+
         end
 
         function setTransport(d, itr)
@@ -657,18 +701,23 @@ classdef Domain1D < handle
         end
 
         function set.T(d, t)
+
             if t <= 0
                 error('The temperature must be positive');
             end
+
             callct('bdry_setTemperature', d.domainID, t);
         end
 
         function set.P(d, p)
+
             if p <= 0
                 error('The pressure must be positive');
             end
+
             callct('stflow_setPressure', d.domainID, p);
         end
 
     end
+
 end
