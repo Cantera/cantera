@@ -1,4 +1,4 @@
-function dydt = conhp(t, y, gas, mw) %#ok<INUSL>
+function dydt = conhp(t, y, gas, mw)
     % CONHP - ODE system for a constant-pressure, adiabatic reactor.
     %
     % Function CONHP evaluates the system of ordinary differential equations
