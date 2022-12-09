@@ -123,6 +123,10 @@ public:
         return m_exchangeCurrentDensityFormulation;
     }
 
+    std::string eChemForm() {
+        return m_eChemForm;
+    }
+
     //! Build rate-specific parameters based on Reaction and Kinetics context
     //! @param rxn  Reaction associated with rate parameterization
     //! @param kin  Kinetics object associated with rate parameterization
@@ -161,21 +165,32 @@ public:
         // Calculate reaction rate correction. Only modify those with a non-zero
         // activation energy.
         double correction = 1.;
+        printf("beta = %f\n", m_beta);
+        double beta_tmp = m_beta;
+        if (m_eChemForm == "Marcus") {
+            printf("lambda =%f\n beta_tmp =%f\n", m_lambdaMarcus, beta_tmp);
+            beta_tmp += 1 / 4 / m_lambdaMarcus; //m_etaF / 4 / m_lambdaMarcus;
+            printf("beta_tmp = %f\n", beta_tmp);
+        }
         if (m_deltaPotential_RT != 0.) {
             // Comments preserved from previous implementation:
             // Below we decrease the activation energy below zero.
             // NOTE, there is some discussion about this point. Should we decrease the
             // activation energy below zero? I don't think this has been decided in any
             // definitive way. The treatment below is numerically more stable, however.
-            correction = exp(-m_beta * m_deltaPotential_RT);
+            correction = exp(-beta_tmp * m_deltaPotential_RT);
         }
 
         // Update correction if exchange current density formulation format is used.
-        if (m_exchangeCurrentDensityFormulation) {
+        if (m_eChemForm == "Butler-Volmer" || m_exchangeCurrentDensityFormulation) {
             // Comment preserved from previous implementation:
             // We need to have the straight chemical reaction rate constant to
             // come out of this calculation.
             double tmp = exp(-m_beta * m_deltaGibbs0_RT);
+            tmp /= m_prodStandardConcentrations * Faraday;
+            correction *= tmp;
+        } else if (m_eChemForm == "Marcus") {
+            double tmp = exp(-beta_tmp * m_deltaGibbs0_RT);
             tmp /= m_prodStandardConcentrations * Faraday;
             correction *= tmp;
         }
@@ -200,6 +215,22 @@ public:
     double beta() const {
         if (m_chargeTransfer) {
             return m_beta;
+        }
+        return NAN;
+    }
+
+    //! Return the charge transfer beta parameter
+    double lambdaMarcus() const {
+        if (m_chargeTransfer) {
+            return m_lambdaMarcus;
+        }
+        return NAN;
+    }
+
+    //! Return the charge transfer beta parameter
+    double etaF() {
+        if (m_chargeTransfer) {
+            return m_etaF;
         }
         return NAN;
     }
@@ -233,6 +264,9 @@ protected:
     double m_mcov; //!< Coverage term in reaction rate
     bool m_chargeTransfer; //!< Boolean indicating use of electrochemistry
     bool m_exchangeCurrentDensityFormulation; //! Electrochemistry only
+    std::string m_eChemForm;
+    double m_lambdaMarcus; 
+    double m_etaF;
     double m_beta; //!< Forward value of apparent electrochemical transfer coefficient
     double m_deltaPotential_RT; //!< Normalized electric potential energy change
     double m_deltaGibbs0_RT; //!< Normalized standard state Gibbs free energy change

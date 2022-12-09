@@ -102,6 +102,8 @@ InterfaceRateBase::InterfaceRateBase()
     , m_chargeTransfer(false)
     , m_exchangeCurrentDensityFormulation(false)
     , m_beta(0.5)
+    , m_lambdaMarcus(0.)
+    , m_etaF(NAN)
     , m_deltaPotential_RT(NAN)
     , m_deltaGibbs0_RT(NAN)
     , m_prodStandardConcentrations(NAN)
@@ -117,6 +119,12 @@ void InterfaceRateBase::setParameters(const AnyMap& node)
     if (node.hasKey("beta")) {
         m_beta = node["beta"].asDouble();
     }
+    if (node.hasKey("echem-kinetics-form")) {
+        m_eChemForm = node["echem-kinetics-form"].asString();
+        if (m_eChemForm == "Marcus" && node.hasKey("lambda")) {
+            m_lambdaMarcus = node["lambda"].asDouble();
+        }
+    }
     m_exchangeCurrentDensityFormulation = node.getBool(
         "exchange-current-density-formulation", false);
 }
@@ -131,6 +139,12 @@ void InterfaceRateBase::getParameters(AnyMap& node) const
     if (m_chargeTransfer) {
         if (m_beta != 0.5) {
             node["beta"] = m_beta;
+        }
+        if (m_eChemForm != "") {
+            node["echem-kinetics-form"] = m_eChemForm;
+            if (m_eChemForm == "Marcus") {
+                node["lambda"] = m_lambdaMarcus;
+            }
         }
         if (m_exchangeCurrentDensityFormulation) {
             node["exchange-current-density-formulation"] = true;
@@ -246,7 +260,7 @@ void InterfaceRateBase::updateFromStruct(const InterfaceData& shared_data) {
     }
 
     // Update quantities used for exchange current density formulation
-    if (m_exchangeCurrentDensityFormulation) {
+    if (m_eChemForm == "Butler-Volmer" || m_exchangeCurrentDensityFormulation) {
         m_deltaGibbs0_RT = 0.;
         m_prodStandardConcentrations = 1.;
         for (const auto& item : m_stoichCoeffs) {
@@ -258,6 +272,24 @@ void InterfaceRateBase::updateFromStruct(const InterfaceData& shared_data) {
             }
         }
         m_deltaGibbs0_RT /= GasConstant * shared_data.temperature;
+    }
+
+    // Update quantities used for Marcus kinetics formulation
+    if (m_eChemForm == "Marcus") {
+        m_deltaGibbs0_RT = 0.;
+        m_etaF = 0;
+        m_prodStandardConcentrations = 1.;
+        for (const auto& item : m_stoichCoeffs) {
+            m_deltaGibbs0_RT +=
+                shared_data.standardChemPotentials[item.first] * item.second;
+            if (item.second > 0.) {
+                m_prodStandardConcentrations *=
+                    shared_data.standardConcentrations[item.first];
+            }
+        }
+        m_deltaGibbs0_RT /= GasConstant * shared_data.temperature;
+        m_etaF = m_deltaGibbs0_RT + m_deltaPotential_RT;
+        m_etaF *= GasConstant * shared_data.temperature;
     }
 }
 
