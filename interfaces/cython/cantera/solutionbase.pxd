@@ -29,6 +29,14 @@ cdef extern from "cantera/base/Interface.h" namespace "Cantera":
         string, string, vector[string]) except +translate_exception
 
 
+cdef extern from "cantera/extensions/PythonHandle.h" namespace "Cantera":
+    cdef cppclass CxxExternalHandle "Cantera::ExternalHandle":
+        pass
+
+    cdef cppclass CxxPythonHandle "Cantera::PythonHandle" (CxxExternalHandle):
+        CxxPythonHandle(PyObject*, cbool)
+
+
 cdef extern from "cantera/base/Solution.h" namespace "Cantera":
     cdef cppclass CxxKinetics "Cantera::Kinetics"
     cdef cppclass CxxTransport "Cantera::Transport"
@@ -50,6 +58,7 @@ cdef extern from "cantera/base/Solution.h" namespace "Cantera":
         CxxAnyMap parameters(cbool) except +translate_exception
         size_t nAdjacent()
         shared_ptr[CxxSolution] adjacent(size_t)
+        void holdExternalHandle(string&, shared_ptr[CxxExternalHandle])
 
     cdef shared_ptr[CxxSolution] CxxNewSolution "Cantera::Solution::create" ()
     cdef shared_ptr[CxxSolution] newSolution (

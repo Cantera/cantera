@@ -8,6 +8,7 @@
 
 #include "cantera/base/Solution.h"
 #include "cantera/base/Interface.h"
+#include "cantera/base/ExtensionManager.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/kinetics/Kinetics.h"
@@ -45,6 +46,9 @@ void Solution::setThermo(shared_ptr<ThermoPhase> thermo) {
 
 void Solution::setKinetics(shared_ptr<Kinetics> kinetics) {
     m_kinetics = kinetics;
+    if (m_kinetics) {
+        m_kinetics->setRoot(shared_from_this());
+    }
 }
 
 void Solution::setTransport(shared_ptr<Transport> transport) {
@@ -131,6 +135,21 @@ const std::string Solution::source() const {
 void Solution::setSource(const std::string& source) {
     AnyValue filename(source);
     m_header.setMetadata("filename", filename);
+}
+
+void Solution::holdExternalHandle(const std::string& name,
+                                  shared_ptr<ExternalHandle> handle)
+{
+    m_externalHandles[name] = handle;
+}
+
+shared_ptr<ExternalHandle> Solution::getExternalHandle(const std::string& name) const
+{
+    if (m_externalHandles.count(name)) {
+        return m_externalHandles.at(name);
+    } else {
+        return shared_ptr<ExternalHandle>();
+    }
 }
 
 shared_ptr<Solution> newSolution(const std::string& infile,

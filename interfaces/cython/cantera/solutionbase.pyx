@@ -88,16 +88,19 @@ cdef class _SolutionBase:
         # Transport model: "" is a sentinel value to use the default model
         transport = kwargs.get("transport_model", "")
 
-        # Parse YAML input
         if infile or yaml:
+            # Parse YAML input
             self._init_yaml(infile, name, adjacent, yaml, transport)
-            self._selected_species = np.ndarray(0, dtype=np.uint64)
-            return
+        else:
+            # Assign base and set managers
+            _assign_Solution(self, CxxNewSolution(), True)
+            self._init_parts(thermo, species, kinetics, transport, adjacent, reactions)
 
-        # Assign base and set managers
-        _assign_Solution(self, CxxNewSolution(), True)
-        self._init_parts(thermo, species, kinetics, transport, adjacent, reactions)
         self._selected_species = np.ndarray(0, dtype=np.uint64)
+
+        cdef shared_ptr[CxxExternalHandle] handle
+        handle.reset(new CxxPythonHandle(<PyObject*>self, True))
+        self.base.holdExternalHandle(stringify("python-Solution"), handle)
 
     def __init__(self, *args, **kwargs):
         if isinstance(self, Transport) and kwargs.get("init", True):

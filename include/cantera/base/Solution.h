@@ -15,9 +15,10 @@ namespace Cantera
 class ThermoPhase;
 class Kinetics;
 class Transport;
+class ExternalHandle;
 
 //! A container class holding managers for all pieces defining a phase
-class Solution
+class Solution : public std::enable_shared_from_this<Solution>
 {
 protected:
     Solution();
@@ -98,6 +99,15 @@ public:
     //! Overwrite source (only required if object is not created using newSolution)
     void setSource(const std::string& source);
 
+    //! Store a handle to a wrapper for this Solution object from an external
+    //! language interface (for example, a Python Solution object)
+    void holdExternalHandle(const std::string& name, shared_ptr<ExternalHandle> handle);
+
+    //! Get the handle for a wrapper for this Solution object from an external
+    //! language interface.
+    //! Returns a null pointer if the requested handle does not exist.
+    shared_ptr<ExternalHandle> getExternalHandle(const std::string& name) const;
+
 protected:
     shared_ptr<ThermoPhase> m_thermo;  //!< ThermoPhase manager
     shared_ptr<Kinetics> m_kinetics;  //!< Kinetics manager
@@ -110,6 +120,10 @@ protected:
     std::map<std::string, shared_ptr<Solution>> m_adjacentByName;
 
     AnyMap m_header;  //!< Additional input fields; usually from a YAML input file
+
+    //! Wrappers for this Kinetics object in extension languages, for evaluation
+    //! of user-defined reaction rates
+    std::map<std::string, shared_ptr<ExternalHandle>> m_externalHandles;
 };
 
 //! Create and initialize a new Solution from an input file
