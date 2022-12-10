@@ -123,7 +123,7 @@ classdef Transport < handle
             %    symmetric: d(i, j) = d(j, i). Unit: m^2/s.
 
             nsp = tr.th.nSpecies;
-            xx = zeros(1, nsp);
+            xx = zeros(nsp, nsp);
             pt = libpointer('doublePtr', xx);
             callct('trans_getBinDiffCoeffs', tr.trID, nsp, pt);
             v = pt.Value;
@@ -137,7 +137,7 @@ classdef Transport < handle
             %    diffusion coefficients. Unit: m^2/s.
 
             nsp = tr.th.nSpecies;
-            xx = zeros(1, nsp);
+            xx = zeros(nsp, nsp);
             pt = libpointer('doublePtr', xx);
             callct('trans_getMultiDiffCoeffs', tr.trID, nsp, pt);
             v = pt.Value;

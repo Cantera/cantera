@@ -355,12 +355,12 @@ classdef Stack < handle
                 for j = 1:np
                     ic = d.componentIndex(c{j});
                     callct('sim1D_setProfile', s.stID, ...
-                            n - 1, ic - 1, sz(1), p(1, :), sz(1), p(j+1, :));
+                            n - 1, ic - 1, sz(2), p(1, :), sz(2), p(j+1, :));
                 end
             elseif sz(2) == np + 1;
                 ic = d.componentIndex(c{j});
                 callct('sim1D_setProfile', s.stID, ...
-                        n - 1, ic - 1, sz(2), p(:, 1), sz(2), p(:, j+1));
+                        n - 1, ic - 1, sz(1), p(:, 1), sz(1), p(:, j+1));
             else
                 error('Wrong profile shape.');
             end

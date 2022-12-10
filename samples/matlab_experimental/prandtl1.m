@@ -5,12 +5,13 @@ function prandtl1(g)
 %    hydrogen / oxygen mixture in chemical equilibrium for P = 1
 %    atm and a range of temperatures and elemental O/(O+H) ratios.
 
-    help prandtl1
-
     clear all
     close all
     cleanup
     clc
+
+    tic
+    help prandtl1
 
     if nargin == 1
        gas = g;
@@ -78,4 +79,7 @@ function prandtl1(g)
     xlabel('Elemental O/(O+H)');
     ylabel('Temperature (K)');
     zlabel('Thermal Conductivity');
+
+    toc
+
 end

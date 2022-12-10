@@ -2,6 +2,12 @@ function ignite_uv(gas)
     %  IGNITE_UV  Solves the same ignition problem as 'ignite2', except
     %  function conuv is used instead of reactor.
     %
+    clear all
+    close all
+    cleanup
+    clc
+
+    tic
     help ignite_uv
 
     if nargin == 0
@@ -35,4 +41,5 @@ function ignite_uv(gas)
        title('OH Mass Fraction');
     end
 
+    toc
 end

@@ -21,12 +21,16 @@
 %    Virginia Tech
 
 %% Clear all variables, close all figures, clear the command line:
+
 clear all
 close all
 cleanup
 clc
 
+tic
 help PFR
+
+%% Operation Parameters
 
 % Temperature of gas, in K
 T0 = 1473;
@@ -54,6 +58,7 @@ gas_calc.TPX = {T0, P0, x};
 gas_calc.equilibrate('HP');
 
 %% Calculation of properties along the reactor length
+
 % The Dimensions and conditions of the reactor are given below
 
 % Inlet Area, in m^2
@@ -166,3 +171,5 @@ plot(x_calc, P_calc)
 xlabel('X-Position (m)')
 ylabel('Pressure (Pa)')
 title('Pressure Variation')
+
+toc

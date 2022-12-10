@@ -4,17 +4,21 @@
 %    zero-dimensional simulations including both homogeneous and
 %    heterogeneous chemistry.
 
-help surfreactor
+%% Initialization
 
 clear all
 close all
 cleanup
 clc
 
+tic
+help surfreactor
+
+%% Set the initial conditions
+
 t = 870.0;
 gas = Solution('ptcombust.yaml','gas');
 
-% set the initial conditions
 gas.TPX = {t, oneatm, 'CH4:0.01, O2:0.21, N2:0.78'};
 
 % The surface reaction mechanism describes catalytic combustion of
@@ -78,6 +82,8 @@ for n = 1:nSteps
 end
 disp(['CPU time = ' num2str(cputime - t0)]);
 
+%% Plotting
+
 clf;
 subplot(2,2,1);
 plot(tim,temp);
@@ -100,3 +106,5 @@ ylabel('Mole Fractions');
 legend(names);
 clear all
 cleanup
+
+toc

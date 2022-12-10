@@ -4,6 +4,13 @@ function reactor1(g)
 % This example illustrates how to use class 'Reactor' for zero-dimensional
 % kinetics simulations. Here the parameters are set so that the reactor is
 % adiabatic and very close to constant pressure.
+
+    clear all
+    close all
+    cleanup
+    clc
+
+    tic
     help reactor1
 
     if nargin == 1
@@ -82,4 +89,5 @@ function reactor1(g)
     clear all
     cleanup
 
+    toc
 end

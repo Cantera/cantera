@@ -205,7 +205,7 @@ classdef Domain1D < handle
             end
         end
 
-        function n = componentName(d, index)
+        function s = componentName(d, index)
             % Get the name of a component given its index.
             %
             % n = d.componentName(index)
@@ -219,7 +219,7 @@ classdef Domain1D < handle
             %     Cell array of component names.
             %
             n = length(index);
-            s = cell(m);
+            s = cell(1, n);
             for i = 1:n
                 id = index(i)-1;
                 output = callct2('domain_componentName', d.domainID, id);
@@ -650,7 +650,7 @@ classdef Domain1D < handle
                 nc = d.nComponents;
                 for ii = 1:nc
                     callct('domain_setSteadyTolerances', ...
-                            d.domainID, ii, rtol, atol);
+                            d.domainID, ii-1, rtol, atol);
                 end
             elseif iscell(component)
                 nc = length(component);
@@ -662,7 +662,7 @@ classdef Domain1D < handle
             else
                 n = d.componentIndex(component);
                 callct('domain_setSteadyTolerances', ...
-                        d.domainID, ii, rtol, atol);
+                        d.domainID, n, rtol, atol);
             end
         end
 
@@ -686,7 +686,7 @@ classdef Domain1D < handle
                 nc = d.nComponents;
                 for ii = 1:nc
                     callct('domain_setTransientTolerances', ...
-                            d.domainID, ii, rtol, atol);
+                            d.domainID, ii-1, rtol, atol);
                 end
             elseif iscell(component)
                 nc = length(component);
@@ -698,7 +698,7 @@ classdef Domain1D < handle
             else
                 n = d.componentIndex(component);
                 callct('domain_setTransientTolerances', ...
-                        d.domainID, ii, rtol, atol);
+                        d.domainID, n, rtol, atol);
             end
         end
 

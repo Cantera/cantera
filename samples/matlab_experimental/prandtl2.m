@@ -4,12 +4,14 @@ function prandtl2(g)
     %    This example does the same thing as prandtl1, but using
     %    the multicomponent expression for the thermal conductivity.
     %
-    help prandtl2
 
     clear all
     close all
     cleanup
     clc
+
+    tic
+    help prandtl2
 
     if nargin == 1
        gas = g;
@@ -76,4 +78,6 @@ function prandtl2(g)
     xlabel('Elemental O/(O+H)');
     ylabel('Temperature (K)');
     zlabel('Thermal Conductivity');
+
+    toc
 end

@@ -5,12 +5,13 @@
 
 %% Initialization
 
-help diff_flame
-
 clear all
 close all
 cleanup
 clc
+
+tic % total running time of the script
+help diff_flame
 
 runtime = cputime;  % Record the starting time
 
@@ -139,3 +140,5 @@ yyaxis right
 plot(z, y(j, :), 'r', z, y(k, :), 'g', z, y(l, :), 'm', z, y(m, :), 'b');
 ylabel('Mass Fraction');
 legend('T', 'O2', 'H2O', 'C2H6', 'CO2');
+
+toc

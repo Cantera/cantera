@@ -24,12 +24,11 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
             %     >> s = Solution('input.yaml'[, phase_name[, transport_model]])
             %
             % constructs a :mat:func:`Solution` object from a specification contained in
-            % file ``input.yaml``. Optionally, the name of the phase to be imported
-            % can be specified with ``phase_name``. If a :mat:func:`Transport` model is
-            % included in ``input.yaml``, it will be included in the :mat:func:`Solution`
-            % instance with the default transport modeling as set
-            % in the input file. To specify the transport modeling, set the input
-            % argument ``trans`` to one of ``'default'``, ``'None'``, ``'Mix'``, or ``'Multi'``.
+            % file ``input.yaml`` with the name of the phase to be imported specified with
+            % ``phase_name``. If a :mat:func:`Transport` model is included in ``input.yaml``,
+            % it will be included in the :mat:func:`Solution` instance with the default transport modeling as set
+            % in the input file. To specify the transport modeling, set the input argument
+            % ``trans`` to one of ``'default'``, ``'None'``, ``'Mix'``, or ``'Multi'``.
             % In this case, the phase name must be specified as well. Alternatively,
             % change the ``transport`` node in the YAML file, or ``transport``
             % property in the CTI file before loading the phase. The transport
@@ -47,16 +46,15 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
             % :param src:
             %     Input string of YAML file name.
             % :param id:
-            %     Optional unless ``trans`` is specified. ID of the phase to
-            %     import as specified in the YAML file.
+            %     ID of the phase to import as specified in the YAML file.
             % :param trans:
             %     String, transport modeling. Possible values are ``'default'``, ``'None'``,
             %     ``'Mix'``, or ``'Multi'``. If not specified, ``'default'`` is used.
             % :return:
             %     Instance of class :mat:func:`Solution`
 
-            if nargin == 1
-                id = '-';
+            if nargin < 2 || nargin > 3
+                error('Solution class constructor expects 2 or 3 input arguments.');
             end
             tp = ThermoPhase(src, id);
             s@ThermoPhase(src, id);

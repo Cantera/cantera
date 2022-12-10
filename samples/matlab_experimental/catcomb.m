@@ -132,10 +132,10 @@ surf.T = tsurf;
 sim1D = Stack([inlt, flow, surf]);
 
 % set the initial profiles.
-sim1D.setProfile(2, {'u', 'V', 'T'}, [0.0,    1.0       % z/zmax
-                                      0.06,   0.0       % u
-                                      0.0,    0.0       % V
-                                      tinlet, tsurf]);  % T
+sim1D.setProfile(2, {'velocity', 'spread_rate', 'T'}, [0.0,    1.0       % z/zmax
+                                                       0.06,   0.0       % u
+                                                       0.0,    0.0       % V
+                                                       tinlet, tsurf]);  % T
 names = gas.speciesNames;
 
 for k = 1:gas.nSpecies
@@ -207,11 +207,11 @@ sim1D.plotSolution('flow', 'T');
 title('Temperature [K]');
 
 subplot(3, 3, 2);
-sim1D.plotSolution('flow', 'u');
+sim1D.plotSolution('flow', 'velocity');
 title('Axial Velocity [m/s]');
 
 subplot(3, 3, 3);
-sim1D.plotSolution('flow', 'V');
+sim1D.plotSolution('flow', 'spread_rate');
 title('Radial Velocity / Radius [1/s]');
 
 subplot(3, 3, 4);

@@ -4,12 +4,13 @@
 
 %% Initialization
 
-help flame2
-
 clear all
 close all
 cleanup
 clc
+
+tic
+help flame2
 
 t0 = cputime;  % record the starting time
 
@@ -119,8 +120,10 @@ subplot(2, 3, 4);
 plotSolution(fl, 'flow', 'CH');
 title('CH Mass Fraction');
 subplot(2, 3, 5);
-plotSolution(fl, 'flow', 'V');
+plotSolution(fl, 'flow', 'spread_rate');
 title('Radial Velocity / Radius [s^-1]');
 subplot(2, 3, 6);
-plotSolution(fl, 'flow', 'u');
+plotSolution(fl, 'flow', 'velocity');
 title('Axial Velocity [m/s]');
+
+toc

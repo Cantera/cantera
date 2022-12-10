@@ -45,9 +45,9 @@ function f = flame(gas, left, flow, right)
     else
       t1 = right.T;
     end
-    f.setProfile(2, {'u', 'V'}, [0.0            1.0
-                                 mdot0/rho0     -mdot1/rho0
-                                 0.0            0.0]);
+    f.setProfile(2, {'velocity', 'spread_rate'}, [0.0            1.0
+                                                  mdot0/rho0     -mdot1/rho0
+                                                  0.0            0.0]);
     f.setProfile(2, 'T', [0.0, 1.0
                           t0, t1]);
 
