@@ -4,6 +4,7 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/extensions/PythonExtensionManager.h"
+#include "cantera/extensions/PythonHandle.h"
 
 #include "cantera/kinetics/ReactionRateFactory.h"
 #include "cantera/kinetics/ReactionRateDelegator.h"
@@ -20,19 +21,6 @@ namespace ba = boost::algorithm;
 using namespace std;
 
 namespace {
-
-class PythonHandle : public Cantera::ExternalHandle
-{
-public:
-    explicit PythonHandle(PyObject* obj) : m_obj(obj) {}
-
-    ~PythonHandle() {
-        Py_XDECREF(m_obj);
-    }
-
-private:
-    PyObject* m_obj;
-};
 
 
 std::string getPythonExceptionInfo()
@@ -79,6 +67,7 @@ void checkPythonError(bool condition, const std::string& message) {
 
 namespace Cantera
 {
+
 
 bool PythonExtensionManager::s_imported = false;
 
@@ -201,7 +190,7 @@ void PythonExtensionManager::registerPythonRateBuilder(
         delegator->setParameters(params, units);
 
         // The delegator is responsible for eventually deleting the Python object
-        delegator->holdExternalHandle(make_shared<PythonHandle>(extRate));
+        delegator->holdExternalHandle(make_shared<PythonHandle>(extRate, false));
         return delegator.release();
     };
     ReactionRateFactory::factory()->reg(rateName, builder);

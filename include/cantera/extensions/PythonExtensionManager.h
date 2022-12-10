@@ -11,6 +11,7 @@
 namespace Cantera
 {
 
+
 //! Class for managing user-defined Cantera extensions written in Python
 //!
 //! Handles Python initialization if the main application is not the Python interpreter.

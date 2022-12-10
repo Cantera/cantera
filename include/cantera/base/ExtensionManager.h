@@ -31,6 +31,8 @@ public:
 class ExternalHandle
 {
 public:
+    ExternalHandle() {}
+    ExternalHandle(const ExternalHandle&) = delete;
     virtual ~ExternalHandle() = default;
 };
 
