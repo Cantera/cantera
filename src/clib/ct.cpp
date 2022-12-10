@@ -100,9 +100,6 @@ extern "C" {
 
     int thermo_setDensity(int n, double rho)
     {
-        if (rho < 0.0) {
-            return -1;
-        }
         try {
             ThermoCabinet::item(n).setDensity(rho);
         } catch (...) {
@@ -122,9 +119,6 @@ extern "C" {
 
     int thermo_setMolarDensity(int n, double ndens)
     {
-        if (ndens < 0.0) {
-            return -1;
-        }
         try {
             ThermoCabinet::item(n).setMolarDensity(ndens);
         } catch (...) {
