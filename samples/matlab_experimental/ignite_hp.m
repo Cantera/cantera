@@ -2,6 +2,12 @@ function ignite_hp(gas)
     %  IGNITE_HP  Solves the same ignition problem as 'ignite', but uses
     %  function conhp instead of reactor.
 
+    clear all
+    close all
+    cleanup
+    clc
+
+    tic
     help ignite_hp
 
     if nargin == 0
@@ -35,4 +41,5 @@ function ignite_hp(gas)
        title('OH Mass Fraction');
     end
 
+    toc
 end

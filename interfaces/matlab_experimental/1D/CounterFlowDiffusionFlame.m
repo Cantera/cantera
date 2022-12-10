@@ -167,7 +167,7 @@ function flame = CounterFlowDiffusionFlame(left, flow, right, tp_f, tp_o, oxidiz
     % Set the profile of the flame with the estimated axial velocities,
     % radial velocities, temperature, and mass fractions calculated above.
     flame = Stack([left flow right]);
-    flame.setProfile(2, {'u', 'V'}, [zrel; u; v]);
+    flame.setProfile(2, {'velocity', 'spread_rate'}, [zrel; u; v]);
     flame.setProfile(2, 'T', [zrel; t] );
     for n = 1:nsp
         nm = tp_f.speciesName(n);

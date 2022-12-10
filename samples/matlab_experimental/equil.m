@@ -3,12 +3,19 @@ function equil(g)
 %
 % This example computes the adiabatic flame temperature and equilibrium
 % composition for a methane/air mixture as a function of equivalence ratio.
+
+    clear all
+    close all
+    cleanup
+    clc
+
+    tic
     help equil
 
     if nargin == 1
        gas = g;
     else
-       gas = Solution('gri30.yaml');
+       gas = GRI30;
     end
 
     nsp = gas.nSpecies;
@@ -60,4 +67,5 @@ function equil(g)
     ylabel('Mole Fraction');
     title('Equilibrium Composition');
 
+    toc
 end

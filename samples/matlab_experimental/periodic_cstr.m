@@ -1,6 +1,6 @@
 function periodic_cstr
 %
-%  A CSTR with steady inputs but periodic interior state.
+%  PERIODIC_CSTR - A CSTR with steady inputs but periodic interior state.
 %
 %  A stoichiometric hydrogen/oxygen mixture is introduced and reacts to produce
 %  water. But since water has a large efficiency as a third body in the chain
@@ -18,8 +18,13 @@ function periodic_cstr
 %  conditions needed to see the oscillations came from Bob Kee,
 %  Colorado School of Mines
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+    clear all
+    close all
+    cleanup
+    clc
+
+    tic
     help periodic_cstr
 
     % create the gas mixture
@@ -102,4 +107,6 @@ function periodic_cstr
     plot(tm,y)
     legend('H2','O2','H2O')
     title('Mass Fractions')
+
+    toc
 end

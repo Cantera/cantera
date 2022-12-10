@@ -68,18 +68,15 @@ classdef ThermoPhase < handle
             % t = ThermoPhase(src, id)
             %
             % :param src:
-            %     Input string of YAML, CTI, or XML file name.
+            %     Input string of YAML file name.
             % :param id:
-            %     ID of the phase to import as specified in the input file. (optional)
+            %     ID of the phase to import as specified in the input file.
             % :return:
             %     Instance of class :mat:func:`ThermoPhase`
             %
             checklib;
-            if nargin > 2
-                error('ThermoPhase expects 1 or 2 input arguments.');
-            end
-            if nargin == 1
-                id = '-';
+            if nargin ~= 2
+                error('ThermoPhase expects 2 input arguments.');
             end
             tp.tpID = callct('thermo_newFromFile', src, id);
             tp.basis = 'molar';
@@ -87,12 +84,9 @@ classdef ThermoPhase < handle
 
         %% Utility methods
 
-        function display(tp, threshold)
+        function display(tp)
             % Display thermo properties
 
-            if nargin < 2 || ~isnumeric(threshold)
-                threshold = 1e-14;
-            end
             buflen = 0 - calllib(ct, 'thermo_report', tp.tpID, 0, '', 1);
             aa = char(ones(1, buflen));
             ptr = libpointer('cstring', aa);

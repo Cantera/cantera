@@ -5,12 +5,13 @@
 
 %% Initialization
 
-help flame1
-
 clear all
 close all
 cleanup
 clc
+
+tic
+help flame1
 
 t0 = cputime;  % record the starting time
 
@@ -112,7 +113,7 @@ subplot(2, 2, 1);
 plotSolution(fl, 'flow', 'T');
 title('Temperature [K]');
 subplot(2, 2, 2);
-plotSolution(fl, 'flow', 'u');
+plotSolution(fl, 'flow', 'velocity');
 title('Axial Velocity [m/s]');
 subplot(2, 2, 3);
 plotSolution(fl, 'flow', 'H2O');
@@ -120,3 +121,5 @@ title('H2O Mass Fraction');
 subplot(2, 2, 4);
 plotSolution(fl, 'flow', 'O2');
 title('O2 Mass Fraction');
+
+toc

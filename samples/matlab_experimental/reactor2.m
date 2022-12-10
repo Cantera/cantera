@@ -5,6 +5,12 @@ function reactor2(g)
 %    zero-dimensional kinetics simulations. Here the parameters are
 %    set so that the reactor is adiabatic and constant volume.
 
+    clear all
+    close all
+    cleanup
+    clc
+
+    tic
     help reactor2
 
     if nargin == 1
@@ -57,4 +63,6 @@ function reactor2(g)
     ylabel('H2 Mole Fraction (K)');
     clear all
     cleanup
+
+    toc
 end

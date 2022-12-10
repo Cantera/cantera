@@ -4,6 +4,12 @@ function isentropic(g)
 %    In this example, the area ratio vs. Mach number curve is
 %    computed for a hydrogen/nitrogen gas mixture.
 %
+    clear all
+    close all
+    cleanup
+    clc
+
+    tic
     help isentropic
 
     if nargin == 1
@@ -56,4 +62,6 @@ function isentropic(g)
     ylabel('Area Ratio');
     xlabel('Mach Number');
     title('Isentropic Flow: Area Ratio vs. Mach Number');
+
+    toc
 end
