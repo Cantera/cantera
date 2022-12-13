@@ -13,28 +13,57 @@
 namespace Cantera
 {
 
+//! Delegate methods of the ReactionData class to external functions
+//!
+//! @since New in Cantera 3.0
+class ReactionDataDelegator : public Delegator, public ReactionData
+{
+public:
+    ReactionDataDelegator();
+
+    bool update(const ThermoPhase& phase, const Kinetics& kin) override;
+
+    void update(double T) override {
+        throw NotImplementedError("ReactionDataDelegator",
+            "Not implemented for delegated reaction rates");
+    }
+
+    using ReactionData::update;
+
+    void setType(const std::string& name) {
+        m_rateType = name;
+    }
+
+    shared_ptr<ExternalHandle> getWrapper() const {
+        return m_wrappedData;
+    }
+
+    void setWrapper(shared_ptr<ExternalHandle> wrapper) {
+        m_wrappedData = wrapper;
+    }
+
+    void setSolutionWrapperType(const std::string& type) {
+        m_solutionWrapperType = type;
+    }
+
+protected:
+    std::string m_rateType;
+    std::string m_solutionWrapperType;
+    shared_ptr<ExternalHandle> m_wrappedSolution;
+    shared_ptr<ExternalHandle> m_wrappedData;
+
+    std::function<double(void*)> m_update;
+};
+
 //! Delegate methods of the ReactionRate class to external functions
 //!
 //! @since New in Cantera 3.0
 class ReactionRateDelegator : public Delegator, public ReactionRate
 {
 public:
-    ReactionRateDelegator() {
-        install("evalFromStruct", m_evalFromStruct,
-            [](void*) {
-                throw NotImplementedError("ReactionRateDelegator::evalFromStruct");
-                return 0.0; // necessary to set lambda's function signature
-            }
-        );
-        install("setParameters", m_setParameters,
-            [this](const AnyMap& node, const UnitStack& units) {
-                ReactionRate::setParameters(node, units); });
-    }
+    ReactionRateDelegator();
 
-    virtual unique_ptr<MultiRateBase> newMultiRate() const override {
-        return unique_ptr<MultiRateBase>(
-            new MultiRate<ReactionRateDelegator, ArrheniusData>);
-    }
+    virtual unique_ptr<MultiRateBase> newMultiRate() const override;
 
     //! Set the reaction type based on the user-provided reaction rate parameterization
     void setType(const std::string& type) {
@@ -50,11 +79,8 @@ public:
     //! Evaluate reaction rate
     //!
     //! @param shared_data  data shared by all reactions of a given type
-    double evalFromStruct(const ArrheniusData& shared_data) {
-        // @TODO: replace passing pointer to temperature with a language-specific
-        //     wrapper of the ReactionData object
-        double T = shared_data.temperature;
-        return m_evalFromStruct(&T);
+    double evalFromStruct(const ReactionDataDelegator& shared_data) {
+        return m_evalFromStruct(shared_data.getWrapper()->get());
     }
 
     void setParameters(const AnyMap& node, const UnitStack& units) override {

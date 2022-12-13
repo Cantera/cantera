@@ -32,15 +32,27 @@ gas1 = ct.Solution(thermo='ideal-gas', kinetics='gas',
 
 # construct reactions based on ExtensibleRate: replace 2nd reaction with equivalent
 # ExtensibleRate
-@ct.extension(name="extensible-Arrhenius")
+class ExtensibleArrheniusData(ct.ExtensibleRateData):
+    def __init__(self):
+        self.T = None
+
+    def replace_update(self, gas):
+        T = gas.T
+        if self.T != T:
+            self.T = T
+            return True
+        else:
+            return False
+
+@ct.extension(name="extensible-Arrhenius", data=ExtensibleArrheniusData)
 class ExtensibleArrhenius(ct.ExtensibleRate):
     def after_set_parameters(self, params, units):
         self.A = params["A"]
         self.b = params["b"]
         self.Ea_R = params["Ea_R"]
 
-    def replace_eval(self, T):
-        return self.A * T**self.b * exp(-self.Ea_R/T)
+    def replace_eval(self, data):
+        return self.A * data.T**self.b * exp(-self.Ea_R/data.T)
 
 extensible_yaml = """
     equation: H2 + O <=> H + OH

@@ -7,7 +7,7 @@ import sys
 from ._utils import CanteraError
 from ._utils cimport stringify, pystr, anymap_to_dict
 from .units cimport Units
-from .reaction import ExtensibleRate
+from .reaction import ExtensibleRate, ExtensibleRateData
 from cython.operator import dereference as deref
 
 # ## Implementation for each delegated function type
@@ -157,7 +157,7 @@ cdef void callback_v_dp_dp_dp(PyFuncInfo& funcInfo,
 # Wrapper for functions of type double(void*)
 cdef int callback_d_vp(PyFuncInfo& funcInfo, double& out, void* obj):
     try:
-        ret = (<object>funcInfo.func())(deref(<double*>obj))
+        ret = (<object>funcInfo.func())(<object>obj)
         if ret is None:
             return 0
         else:
@@ -332,8 +332,9 @@ cdef int assign_delegates(obj, CxxDelegator* delegator) except -1:
 # ReactionRateFactory. This list is read by PythonExtensionManager::registerRateBuilders
 # and then cleared.
 _rate_delegators = []
+_rate_data_delegators = []
 
-def extension(*, name):
+def extension(*, name, data=None):
     """
     A decorator for declaring Cantera extensions that should be registered with
     the corresponding factory classes to create objects with the specified *name*.
@@ -386,6 +387,13 @@ def extension(*, name):
             # Deferred registration supports the case where the main application
             # is not Python
             _rate_delegators.append((cls.__module__, cls.__name__, name))
+
+            # Register the ReactionData delegator
+            if not issubclass(data, ExtensibleRateData):
+                raise ValueError("'data' must inherit from 'ExtensibleRateData'")
+            CxxPythonExtensionManager.registerPythonRateDataBuilder(
+                stringify(data.__module__), stringify(data.__name__), stringify(name))
+            _rate_data_delegators.append((data.__module__, data.__name__, name))
         else:
             raise TypeError(f"{cls} is not extensible")
         return cls

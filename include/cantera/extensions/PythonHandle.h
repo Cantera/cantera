@@ -24,6 +24,10 @@ public:
         }
     }
 
+    void* get() {
+        return m_obj;
+    }
+
 private:
     PyObject* m_obj;
     bool m_weak;

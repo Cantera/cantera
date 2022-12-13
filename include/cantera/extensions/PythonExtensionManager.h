@@ -33,6 +33,10 @@ public:
     static void registerPythonRateBuilder(const std::string& moduleName,
         const std::string& className, const std::string& rateName);
 
+    //! Function called from Cython to register an ExtensibleRateData implementation
+    static void registerPythonRateDataBuilder(const std::string& moduleName,
+        const std::string& className, const std::string& rateName);
+
 private:
     static bool s_imported;
 };

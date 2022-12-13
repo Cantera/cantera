@@ -774,6 +774,14 @@ cdef class ExtensibleRate(ReactionRate):
         (<CxxReactionRateDelegator*>self.rate).setType(
             stringify(self._reaction_rate_type))
 
+cdef class ExtensibleRateData:
+    delegatable_methods = {
+        "update": ("update", "double(void*)")
+    }
+
+    cdef set_cxx_object(self, CxxReactionDataDelegator* data):
+        assign_delegates(self, dynamic_cast[CxxDelegatorPtr](data))
+
 
 cdef class InterfaceRateBase(ArrheniusRateBase):
     """

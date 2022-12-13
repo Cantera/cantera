@@ -100,7 +100,7 @@ cdef class _SolutionBase:
 
         cdef shared_ptr[CxxExternalHandle] handle
         handle.reset(new CxxPythonHandle(<PyObject*>self, True))
-        self.base.holdExternalHandle(stringify("python-Solution"), handle)
+        self.base.holdExternalHandle(stringify("python"), handle)
 
     def __init__(self, *args, **kwargs):
         if isinstance(self, Transport) and kwargs.get("init", True):
@@ -425,8 +425,11 @@ cdef class _SolutionBase:
 # These cdef functions are declared as free functions to avoid creating layout
 # conflicts with types derived from _SolutionBase
 cdef _assign_Solution(_SolutionBase soln, shared_ptr[CxxSolution] cxx_soln,
-                      pybool reset_adjacent):
-    soln._base = cxx_soln
+                      pybool reset_adjacent, pybool weak=False):
+    if not weak:
+        # When the main application isn't Python, we should only hold a weak reference
+        # here, since the C++ Solution object owns this Python Solution.
+        soln._base = cxx_soln
     soln.base = cxx_soln.get()
     soln.thermo = soln.base.thermo().get()
     soln.kinetics = soln.base.kinetics().get()

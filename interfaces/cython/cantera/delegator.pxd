@@ -60,11 +60,12 @@ cdef extern from "cantera/cython/funcWrapper.h":
     cdef function[int(size_t&, const string&)] pyOverride(
         PyObject*, int(PyFuncInfo&, size_t&, const string&))
 
-
 cdef extern from "cantera/extensions/PythonExtensionManager.h" namespace "Cantera":
     cdef cppclass CxxPythonExtensionManager "Cantera::PythonExtensionManager":
         @staticmethod
         void registerPythonRateBuilder(string&, string&, string&) except +translate_exception
+        @staticmethod
+        void registerPythonRateDataBuilder(string&, string&, string&) except +translate_exception
 
 ctypedef CxxDelegator* CxxDelegatorPtr
 
