@@ -33,6 +33,7 @@ gas1 = ct.Solution(thermo='ideal-gas', kinetics='gas',
 # construct reactions based on ExtensibleRate: replace 2nd reaction with equivalent
 # ExtensibleRate
 class ExtensibleArrheniusData(ct.ExtensibleRateData):
+    __slots__ = ("T",)
     def __init__(self):
         self.T = None
 
@@ -46,6 +47,7 @@ class ExtensibleArrheniusData(ct.ExtensibleRateData):
 
 @ct.extension(name="extensible-Arrhenius", data=ExtensibleArrheniusData)
 class ExtensibleArrhenius(ct.ExtensibleRate):
+    __slots__ = ("A", "b", "Ea_R")
     def after_set_parameters(self, params, units):
         self.A = params["A"]
         self.b = params["b"]
