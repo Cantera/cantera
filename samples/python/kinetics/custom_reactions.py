@@ -25,7 +25,10 @@ reactions = gas0.reactions()
 custom_reactions = [r for r in reactions]
 custom_reactions[2] = ct.Reaction(
     equation='H2 + O <=> H + OH',
-    rate=lambda T: 38.7 * T**2.7 * exp(-3150.15428/T))
+    rate=lambda T: 38.7 * T**2.7 * exp(-3150.1542797022735/T))
+custom_reactions[4] = ct.Reaction(
+    equation='H2O2 + O <=> HO2 + OH',
+    rate=lambda T: 9630.0 * T**2.0 * exp(-2012.8781339950629/T))
 
 gas1 = ct.Solution(thermo='ideal-gas', kinetics='gas',
                    species=species, reactions=custom_reactions)
@@ -56,24 +59,33 @@ class ExtensibleArrhenius(ct.ExtensibleRate):
     def replace_eval(self, data):
         return self.A * data.T**self.b * exp(-self.Ea_R/data.T)
 
-extensible_yaml = """
+extensible_yaml2 = """
     equation: H2 + O <=> H + OH
     type: extensible-Arrhenius
     A: 38.7
     b: 2.7
-    Ea_R: 3150.15428
+    Ea_R: 3150.1542797022735
+    """
+
+extensible_yaml4 = """
+    equation: H2O2 + O <=> HO2 + OH
+    type: extensible-Arrhenius
+    A: 9630.0
+    b: 2
+    Ea_R: 2012.8781339950629
     """
 
 extensible_reactions = gas0.reactions()
-extensible_reactions[2] = ct.Reaction.from_yaml(extensible_yaml, gas0)
+extensible_reactions[2] = ct.Reaction.from_yaml(extensible_yaml2, gas0)
+extensible_reactions[4] = ct.Reaction.from_yaml(extensible_yaml4, gas0)
 gas2 = ct.Solution(thermo="ideal-gas", kinetics="gas",
                    species=species, reactions=extensible_reactions)
 
 # construct test case - simulate ignition
 
-def ignition(gas):
+def ignition(gas, dT=0):
     # set up reactor
-    gas.TP = 1000., 5 * ct.one_atm
+    gas.TP = 1000 + dT, 5 * ct.one_atm
     gas.set_equivalence_ratio(0.8, fuel, 'O2:1.0, N2:3.773')
     r = ct.IdealGasReactor(gas)
     net = ct.ReactorNet([r])
@@ -84,7 +96,7 @@ def ignition(gas):
     net.advance(.5)
     t2 = default_timer()
 
-    return 1000 * (t2 - t1)
+    return t2 - t1, net.solver_stats['steps']
 
 # output results
 
@@ -93,24 +105,33 @@ print("Average time of {} simulation runs for '{}' "
       "({})".format(repeat, mech, fuel))
 
 sim0 = 0
+sim0_steps = 0
 for i in range(repeat):
-    sim0 += ignition(gas0)
-sim0 /= repeat
+    elapsed, steps = ignition(gas0, dT=i)
+    sim0 += elapsed
+    sim0_steps += steps
+sim0 *= 1e6 / sim0_steps
 print('- New framework (YAML): '
-      '{0:.2f} ms (T_final={1:.2f})'.format(sim0, gas0.T))
+      '{0:.2f} μs/step (T_final={1:.2f})'.format(sim0, gas0.T))
 
 sim1 = 0
+sim1_steps = 0
 for i in range(repeat):
-    sim1 += ignition(gas1)
-sim1 /= repeat
-print('- One Custom reaction: '
-      '{0:.2f} ms (T_final={1:.2f}) ... '
+    elapsed, steps = ignition(gas1, dT=i)
+    sim1 += elapsed
+    sim1_steps += steps
+sim1 *= 1e6 / sim1_steps
+print('- Two Custom reactions: '
+      '{0:.2f} μs/step (T_final={1:.2f}) ...'
       '{2:+.2f}%'.format(sim1, gas1.T, 100 * sim1 / sim0 - 100))
 
 sim2 = 0
+sim2_steps = 0
 for i in range(repeat):
-    sim2 += ignition(gas2)
-sim2 /= repeat
-print('- One Extensible reaction: '
-      '{0:.2f} ms (T_final={1:.2f}) ... '
-      '{2:+.2f}%'.format(sim2, gas2.T, 100 * sim2 / sim0 - 100))
+    elapsed, steps = ignition(gas2, dT=i)
+    sim2 += elapsed
+    sim2_steps += steps
+sim2 *= 1e6 / sim2_steps
+print('- Two Extensible reactions: '
+      '{0:.2f} μs/step (T_final={1:.2f}) ...'
+      '{2:+.2f}%'.format(sim2, gas1.T, 100 * sim2 / sim0 - 100))
