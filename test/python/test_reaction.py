@@ -1503,7 +1503,7 @@ class UserRate1Data(ct.ExtensibleRateData):
     def __init__(self):
         self.T = None
 
-    def replace_update(self, gas):
+    def update(self, gas):
         T = gas.T
         if T != self.T:
             self.T = T
@@ -1518,10 +1518,10 @@ class UserRate1(ct.ExtensibleRate):
         super().__init__(*args, **kwargs)
         self.A = np.nan
 
-    def after_set_parameters(self, params, units):
+    def set_parameters(self, params, units):
         self.A = params["A"]
 
-    def replace_eval(self, data):
+    def eval(self, data):
         return self.A * data.T**2.7 * exp(-3150.15428/data.T)
 
 

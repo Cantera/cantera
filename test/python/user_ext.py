@@ -3,7 +3,7 @@ import cantera as ct
 class SquareRateData(ct.ExtensibleRateData):
     __slots__ = ("Tsquared",)
 
-    def replace_update(self, gas):
+    def update(self, gas):
         self.Tsquared = gas.T**2
         return True
 
@@ -11,8 +11,8 @@ class SquareRateData(ct.ExtensibleRateData):
 class SquareRate(ct.ExtensibleRate):
     __slots__ = ("A",)
 
-    def after_set_parameters(self, node, units):
+    def set_parameters(self, node, units):
         self.A = node["A"]
 
-    def replace_eval(self, data):
+    def eval(self, data):
         return self.A * data.Tsquared
