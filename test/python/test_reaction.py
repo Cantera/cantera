@@ -1499,7 +1499,20 @@ class TestCustom(ReactionTests, utilities.CanteraTest):
         assert (gas.forward_rate_constants == gas.T).all()
 
 
-@ct.extension(name="user-rate-1")
+class UserRate1Data(ct.ExtensibleRateData):
+    def __init__(self):
+        self.T = None
+
+    def replace_update(self, gas):
+        T = gas.T
+        if T != self.T:
+            self.T = T
+            return True
+        else:
+            return False
+
+
+@ct.extension(name="user-rate-1", data=UserRate1Data)
 class UserRate1(ct.ExtensibleRate):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -1508,12 +1521,21 @@ class UserRate1(ct.ExtensibleRate):
     def after_set_parameters(self, params, units):
         self.A = params["A"]
 
-    def replace_eval(self, T):
-        return self.A * T**2.7 * exp(-3150.15428/T)
+    def replace_eval(self, data):
+        return self.A * data.T**2.7 * exp(-3150.15428/data.T)
 
 
 class TestExtensible(ReactionTests, utilities.CanteraTest):
     # test Extensible reaction rate
+    _phase_def = """
+    phases:
+    - name: gas
+      thermo: ideal-gas
+      species: [{h2o2.yaml/species: [AR, O, H2, H, OH, O2, H2O, H2O2, HO2]}]
+      kinetics: gas
+      reactions: none
+      state: {T: 300.0, P: 1 atm}
+    """
 
     # probe O + H2 <=> H + OH
     _rate_cls = UserRate1
@@ -1534,6 +1556,12 @@ class TestExtensible(ReactionTests, utilities.CanteraTest):
         super().setUp()
         self._rate_obj = ct.ReactionRate.from_dict(self._rate)
 
+    def eval_rate(self, rate):
+        gas = ct.Solution(yaml=self._phase_def)
+        gas.TDY = self.soln.TDY
+        gas.add_reaction(ct.Reaction(equation=self._equation, rate=rate))
+        return gas.forward_rate_constants[0]
+
     def test_no_rate(self):
         pytest.skip("ExtensibleRate does not yet support validation")
 
@@ -1552,7 +1580,7 @@ class TestExtensible(ReactionTests, utilities.CanteraTest):
         # Instantiate with non-numeric A factor to cause an exception during evaluation
         R = ct.ReactionRate.from_dict({"type": "user-rate-1", "A": "xyz"})
         with pytest.raises(TypeError):
-            R(500)
+            self.eval_rate(R)
 
 
 class TestExtensible2(utilities.CanteraTest):
@@ -1566,6 +1594,7 @@ class TestExtensible2(utilities.CanteraTest):
       thermo: ideal-gas
       species: [{{h2o2.yaml/species: all}}]
       kinetics: gas
+      reactions: none
       state: {{T: 300.0, P: 1 atm}}
     """
 

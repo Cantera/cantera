@@ -523,7 +523,9 @@ TEST(Reaction, PythonExtensibleRate)
     EXPECT_EQ(R->type(), "square-rate");
     auto rate = R->rate();
     EXPECT_EQ(rate->type(), "square-rate");
-    EXPECT_DOUBLE_EQ(rate->eval(300), 3.14 * 300 * 300);
+    vector_fp kf(sol->kinetics()->nReactions());
+    sol->kinetics()->getFwdRateConstants(kf.data());
+    EXPECT_DOUBLE_EQ(kf[0], 3.14 * 300 * 300);
 }
 
 TEST(Kinetics, GasKineticsFromYaml1)

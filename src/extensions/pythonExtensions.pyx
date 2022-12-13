@@ -14,11 +14,16 @@ import inspect
 
 import cantera as ct
 from cantera._utils cimport stringify
-from cantera.reaction cimport ExtensibleRate, CxxReactionRate
+from cantera.ctcxx cimport shared_ptr
+from cantera.solutionbase cimport CxxSolution, _assign_Solution
+from cantera.reaction cimport ExtensibleRate, CxxReactionRate, ExtensibleRateData
 from cantera.delegator cimport CxxDelegator, assign_delegates
 
 
 cdef extern from "cantera/kinetics/ReactionRateDelegator.h" namespace "Cantera":
+    cdef cppclass CxxReactionDataDelegator "Cantera::ReactionDataDelegator" (CxxDelegator):
+        CxxReactionDataDelegator()
+
     cdef cppclass CxxReactionRateDelegator "Cantera::ReactionRateDelegator" (CxxDelegator, CxxReactionRate):
         CxxReactionRateDelegator()
 
@@ -27,6 +32,8 @@ cdef extern from "cantera/extensions/PythonExtensionManager.h" namespace "Canter
     cdef cppclass CxxPythonExtensionManager "Cantera::PythonExtensionManager":
         @staticmethod
         void registerPythonRateBuilder(string&, string&, string&)
+        @staticmethod
+        void registerPythonRateDataBuilder(string&, string&, string&)
 
 
 cdef public char* ct_getExceptionString(object exType, object exValue, object exTraceback):
@@ -49,9 +56,31 @@ cdef public object ct_newPythonExtensibleRate(CxxReactionRateDelegator* delegato
     return rate
 
 
+cdef public object ct_newPythonExtensibleRateData(CxxReactionDataDelegator* delegator,
+                                                  const string& module_name,
+                                                  const string& class_name):
+
+    mod = importlib.import_module(module_name.decode())
+    cdef ExtensibleRateData data = getattr(mod, class_name.decode())()
+    data.set_cxx_object(delegator)
+    return data
+
+
 cdef public ct_registerReactionDelegators():
     for module, cls, name in ct.delegator._rate_delegators:
         CxxPythonExtensionManager.registerPythonRateBuilder(
             stringify(module), stringify(cls), stringify(name))
 
     ct.delegator._rate_delegators.clear()
+
+    for module, cls, name in ct.delegator._rate_data_delegators:
+        CxxPythonExtensionManager.registerPythonRateDataBuilder(
+            stringify(module), stringify(cls), stringify(name))
+
+    ct.delegator._rate_data_delegators.clear()
+
+
+cdef public object ct_wrapSolution(shared_ptr[CxxSolution] soln):
+    pySoln = ct.Solution(init=False)
+    _assign_Solution(pySoln, soln, False, weak=True)
+    return pySoln

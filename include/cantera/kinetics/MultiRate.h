@@ -129,6 +129,10 @@ public:
         return R.evalFromStruct(m_shared);
     }
 
+    DataType& sharedData() {
+        return m_shared;
+    }
+
 protected:
     //! Helper function to process updates for rate types that implement the
     //! `updateFromStruct` method.

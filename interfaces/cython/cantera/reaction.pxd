@@ -189,6 +189,9 @@ cdef extern from "cantera/kinetics/Custom.h" namespace "Cantera":
 
 
 cdef extern from "cantera/kinetics/ReactionRateDelegator.h" namespace "Cantera":
+    cdef cppclass CxxReactionDataDelegator "Cantera::ReactionDataDelegator":
+        CxxReactionDataDelegator()
+
     cdef cppclass CxxReactionRateDelegator "Cantera::ReactionRateDelegator" (CxxReactionRate):
         CxxReactionRateDelegator()
         void setType(string&)
@@ -255,6 +258,9 @@ cdef class CustomRate(ReactionRate):
 
 cdef class ExtensibleRate(ReactionRate):
     cdef set_cxx_object(self, CxxReactionRate* rate=*)
+
+cdef class ExtensibleRateData:
+    cdef set_cxx_object(self, CxxReactionDataDelegator* rate)
 
 cdef class InterfaceRateBase(ArrheniusRateBase):
     cdef CxxInterfaceRateBase* interface

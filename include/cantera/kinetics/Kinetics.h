@@ -1233,6 +1233,10 @@ public:
         m_root = root;
     }
 
+    shared_ptr<Solution> root() const {
+        return m_root.lock();
+    }
+
     //! Calculate the reaction enthalpy of a reaction which
     //! has not necessarily been added into the Kinetics object
     virtual double reactionEnthalpy(const Composition& reactants,
