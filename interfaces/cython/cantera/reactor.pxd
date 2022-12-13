@@ -215,6 +215,7 @@ cdef class FlowReactor(Reactor):
     pass
 
 cdef class ExtensibleReactor(Reactor):
+    cdef public _delegates
     cdef CxxReactorAccessor* accessor
 
 cdef class ReactorSurface:
