@@ -751,8 +751,8 @@ cdef class ExtensibleRate(ReactionRate):
     _reaction_rate_type = "extensible"
 
     delegatable_methods = {
-        "eval": ("evalFromStruct", "double(void*)"),
-        "set_parameters": ("setParameters", "void(AnyMap&, UnitStack&)")
+        "eval": ("evalFromStruct", "double(void*)", "replace"),
+        "set_parameters": ("setParameters", "void(AnyMap&, UnitStack&)", "after")
     }
     def __cinit__(self, *args, init=True, **kwargs):
         if init:
@@ -776,7 +776,7 @@ cdef class ExtensibleRate(ReactionRate):
 
 cdef class ExtensibleRateData:
     delegatable_methods = {
-        "update": ("update", "double(void*)")
+        "update": ("update", "double(void*)", "replace")
     }
 
     cdef set_cxx_object(self, CxxReactionDataDelegator* data):

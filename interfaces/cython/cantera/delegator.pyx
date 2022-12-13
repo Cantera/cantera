@@ -237,8 +237,14 @@ cdef int assign_delegates(obj, CxxDelegator* delegator) except -1:
     cdef string cxx_name
     cdef string cxx_when
     obj._delegates = []
-    for name in obj.delegatable_methods:
-        when = None
+    for name, options in obj.delegatable_methods.items():
+        if len(options) == 3:
+            # Delegate with pre-selected mode, without using prefix on method name
+            when = options[2]
+            method = getattr(obj, name)
+        else:
+            when = None
+
         replace = 'replace_{}'.format(name)
         if hasattr(obj, replace):
             when = 'replace'
@@ -263,8 +269,8 @@ cdef int assign_delegates(obj, CxxDelegator* delegator) except -1:
         if when is None:
             continue
 
-        cxx_name = stringify(obj.delegatable_methods[name][0])
-        callback = obj.delegatable_methods[name][1].replace(' ', '')
+        cxx_name = stringify(options[0])
+        callback = options[1].replace(' ', '')
 
         # Make sure that the number of arguments needed by the C++ function
         # corresponds to the number of arguments accepted by the Python delegate

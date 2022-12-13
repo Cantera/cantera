@@ -40,7 +40,7 @@ class ExtensibleArrheniusData(ct.ExtensibleRateData):
     def __init__(self):
         self.T = None
 
-    def replace_update(self, gas):
+    def update(self, gas):
         T = gas.T
         if self.T != T:
             self.T = T
@@ -51,12 +51,12 @@ class ExtensibleArrheniusData(ct.ExtensibleRateData):
 @ct.extension(name="extensible-Arrhenius", data=ExtensibleArrheniusData)
 class ExtensibleArrhenius(ct.ExtensibleRate):
     __slots__ = ("A", "b", "Ea_R")
-    def after_set_parameters(self, params, units):
+    def set_parameters(self, params, units):
         self.A = params["A"]
         self.b = params["b"]
         self.Ea_R = params["Ea_R"]
 
-    def replace_eval(self, data):
+    def eval(self, data):
         return self.A * data.T**self.b * exp(-self.Ea_R/data.T)
 
 extensible_yaml2 = """
