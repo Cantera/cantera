@@ -2,6 +2,7 @@ from math import exp
 from pathlib import Path
 import sys
 import textwrap
+import gc
 
 import cantera as ct
 import numpy as np
@@ -1619,6 +1620,29 @@ class TestExtensible2(utilities.CanteraTest):
         with pytest.raises(ct.CanteraError, match="SyntaxError"):
             ct.Solution(yaml=self._input_template.format(module="user_ext_invalid"))
 
+    def test_memory_management(self):
+        # Make sure objects are being correctly cleaned up and not stuck in
+        # mixed Python/C++ ownership cycles
+        import user_ext
+
+        gc.collect()
+        initialRate = user_ext.SquareRate.use_count[0]
+        initialData = user_ext.SquareRateData.use_count[0]
+
+        def run():
+            gas = ct.Solution("extensible-reactions.yaml", transport_model=None)
+            assert gas.forward_rate_constants[0] > 0
+            assert user_ext.SquareRate.use_count[0] == initialRate + 1
+            assert user_ext.SquareRateData.use_count[0] == initialData + 1
+
+        run()
+
+        # The number of instances for both classes should go back to its previous value
+        # after deleting the Solution (may not be zero due to other Solution instances)
+        # held by other test classes
+        gc.collect()
+        assert user_ext.SquareRate.use_count[0] == initialRate
+        assert user_ext.SquareRateData.use_count[0] == initialData
 
 class InterfaceReactionTests(ReactionTests):
     # test suite for surface reaction expressions
