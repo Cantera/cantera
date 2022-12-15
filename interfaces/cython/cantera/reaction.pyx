@@ -750,7 +750,7 @@ cdef class ExtensibleRate(ReactionRate):
         for reactions created from YAML, ``params`` is the YAML reaction entry converted
         to a ``dict``. ``units`` specifies the units of the rate coefficient.
         """
-        raise NotImplementedError(f"{self.__class__}.set_parameters")
+        raise NotImplementedError(f"{self.__class__.__name__}.set_parameters")
 
     def eval(self, data: ExtensibleRateData) -> float:
         """
@@ -758,7 +758,7 @@ cdef class ExtensibleRate(ReactionRate):
         of the phase, stored in an instance of a class derived from
         `ExtensibleRateData`.
         """
-        raise NotImplementedError(f"{self.__class__}.eval")
+        raise NotImplementedError(f"{self.__class__.__name__}.eval")
 
     cdef set_cxx_object(self, CxxReactionRate* rate=NULL):
         if rate is NULL:
@@ -797,7 +797,7 @@ cdef class ExtensibleRateData:
         reaction rates need to be updated, this method should return `True`. Otherwise,
         it should return `False`.
         """
-        raise NotImplementedError(f"{self.__class__}.update")
+        raise NotImplementedError(f"{self.__class__.__name__}.update")
 
     cdef set_cxx_object(self, CxxReactionDataDelegator* data):
         assign_delegates(self, dynamic_cast[CxxDelegatorPtr](data))
