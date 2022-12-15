@@ -713,34 +713,14 @@ cdef class CustomRate(ReactionRate):
 
 cdef class ExtensibleRate(ReactionRate):
     """
-    A base class for a reaction rate with delegated methods. Classes derived from this
-    class should be decorated with the `extension` decorator to specify the name
-    of the rate parameterization and to make these rates constructible through factory
-    functions and input files.
+    A base class for a user-defined reaction rate parameterization. Classes derived from
+    this class should be decorated with the `extension` decorator to specify the name
+    of the rate parameterization and its corresponding data class, and to make these
+    rates constructible through factory functions and input files.
 
-    The following methods of the C++ :ct:`ReactionRate` class can be modified by a
-    Python class that inherits from this class. For each method, the name below should
-    be prefixed with ``before_``, ``after_``, or ``replace_``, indicating whether this
-    method should be called before, after, or instead of the corresponding method from
-    the base class.
-
-    For methods that return a value and have a ``before`` method specified, if that
-    method returns a value other than ``None`` that value will be returned without
-    calling the base class method; otherwise, the value from the base class method will
-    be returned. For methods that return a value and have an ``after`` method specified,
-    the returned value wil be the sum of the values from the supplied method and the
-    base class method.
-
-    ``set_parameters(self, params: dict, units: Units) -> None``
-        Responsible for setting rate parameters based on the input data. For example,
-        for reactions created from YAML, ``params`` is the YAML reaction entry converted
-        to a ``dict``. ``units`` specifies the units of the rate coefficient.
-
-    ``eval(self, T: float) -> float``
-        Responsible for calculating the forward rate constant based on the current state
-        of the phase.  This method must *replace* the base class method, as there is no
-        base class implementation. Currently, the state information provided is the
-        temperature, ``T`` [K].
+    Classes derived from `ExtensibleRate` should implement the `set_parameters` and
+    `eval` methods, which will be called as delegates from the C++ :ct:`ReactionRate`
+    class.
 
     **Warning:** The delegatable methods defined here are an experimental part of the
     Cantera API and may change without notice.
@@ -764,6 +744,22 @@ cdef class ExtensibleRate(ReactionRate):
             assign_delegates(self, dynamic_cast[CxxDelegatorPtr](self.rate))
         # ReactionRate does not define __init__, so it does not need to be called
 
+    def set_parameters(self, params: dict, units: Units) -> None:
+        """
+        Responsible for setting rate parameters based on the input data. For example,
+        for reactions created from YAML, ``params`` is the YAML reaction entry converted
+        to a ``dict``. ``units`` specifies the units of the rate coefficient.
+        """
+        raise NotImplementedError(f"{self.__class__}.set_parameters")
+
+    def eval(self, data: ExtensibleRateData) -> float:
+        """
+        Responsible for calculating the forward rate constant based on the current state
+        of the phase, stored in an instance of a class derived from
+        `ExtensibleRateData`.
+        """
+        raise NotImplementedError(f"{self.__class__}.eval")
+
     cdef set_cxx_object(self, CxxReactionRate* rate=NULL):
         if rate is NULL:
             self.rate = self._rate.get()
@@ -774,10 +770,34 @@ cdef class ExtensibleRate(ReactionRate):
         (<CxxReactionRateDelegator*>self.rate).setType(
             stringify(self._reaction_rate_type))
 
+
 cdef class ExtensibleRateData:
+    """
+    A base class for data used when evaluating instances of `ExtensibleRate`. Classes
+    derived from `ExtensibleRateData` are used to store common data needed to evaluate
+    all reactions of a particular type.
+
+    Classes derived from `ExtensibleRateData` must implement the `update` method. After
+    the `update` method has been called, instances of `ExtensibleRateData` are passed as
+    the argument to `ExtensibleRate.eval`.
+
+    .. versionadded:: 3.0
+    """
     delegatable_methods = {
         "update": ("update", "double(void*)", "replace")
     }
+
+    def update(self, soln):
+        """
+        This method takes a `Solution` object and stores any thermodynamic data (for
+        example, temperature and pressure) needed to evaluate all reactions of the
+        corresponding ReactionRate type.
+
+        If this state data has changed since the last time `update` was called and the
+        reaction rates need to be updated, this method should return `True`. Otherwise,
+        it should return `False`.
+        """
+        raise NotImplementedError(f"{self.__class__}.update")
 
     cdef set_cxx_object(self, CxxReactionDataDelegator* data):
         assign_delegates(self, dynamic_cast[CxxDelegatorPtr](data))

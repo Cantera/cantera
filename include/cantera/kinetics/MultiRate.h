@@ -129,6 +129,8 @@ public:
         return R.evalFromStruct(m_shared);
     }
 
+    //! Access the underlying shared data object. Used for setting up
+    //! ReactionDataDelegator instances.
     DataType& sharedData() {
         return m_shared;
     }
