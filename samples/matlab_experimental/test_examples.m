@@ -8,7 +8,7 @@ equil();
 isentropic();
 reactor1();
 reactor2();
-surfreactor;
+surf_reactor;
 periodic_cstr;
 plug_flow_reactor;
 lithium_ion_battery

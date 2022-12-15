@@ -80,11 +80,11 @@ classdef Func < handle
                 % helper function to pass the correct parameters to the C
                 % library
                 if itype < 20
-                    [m, n] = size(p);
-                    lenp = m * n;
+                    [msize, nsize] = size(p);
+                    lenp = msize * nsize;
                     nn = callct('func_new', itype, n, lenp, p);
                 elseif itype < 45
-                    m = n;
+                    m = p;
                     nn = callct('func_new', itype, n, m, 0);
                 else
                     nn = callct('func_new', itype, n, 0, p);
@@ -164,6 +164,12 @@ classdef Func < handle
             % :return:
             %     Returns the value of the function evaluated at ``s``
             %
+
+            if length(s) > 1
+                aa = eval(['a.', s(1).subs]);
+                b = subsref(aa, s(2:end));
+                return
+            end
             if strcmp(s.type, '()')
                 ind = s.subs{:};
                 b = zeros(1, length(ind));
@@ -172,12 +178,14 @@ classdef Func < handle
                     b(k) = callct('func_value', a.id, ind(k));
                 end
 
+            elseif strcmp(s.type, '.')
+                b = eval(['a.', s.subs]);
             else error('Specify value for x as p(x)');
             end
 
         end
 
-        function s = get.char(f)
+        function s = char(f)
             % Get the formatted string to display the function.
             %
             % s = f.char
@@ -188,17 +196,17 @@ classdef Func < handle
             %     Formatted string displaying the function
             %
             if strcmp(f.typ, 'sum')
-                s = ['(' char(f.f1) ') + (' char(f.f2) ')'];
+                s = ['(' (f.f1.char) ') + (' f.f2.char ')'];
             elseif strcmp(f.typ, 'diff')
-                s = ['(' char(f.f1) ') - (' char(f.f2) ')'];
+                s = ['(' f.f1.char ') - (' f.f2.char ')'];
             elseif strcmp(f.typ, 'prod')
-                s = ['(' char(f.f1) ') * (' char(f.f2) ')'];
+                s = ['(' f.f1.char ') * (' f.f2.char ')'];
             elseif strcmp(f.typ, 'ratio')
-                s = ['(' char(f.f1) ') / (' char(f.f2) ')'];
-            elseif all(p.coeffs == 0)
+                s = ['(' f.f1.char ') / (' f.f2.char ')'];
+            elseif all(f.coeffs == 0)
                 s = '0';
             elseif strcmp(f.typ, 'polynomial')
-                d = length(p.coeffs) - 1;
+                d = length(f.coeffs) - 1;
                 s = [];
                 nn = 0;
 
