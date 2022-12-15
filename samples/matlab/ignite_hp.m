@@ -7,7 +7,7 @@ function ignite_hp(gas)
 help ignite_hp
 
 if nargin == 0
-   gas = Solution('h2o2.yaml', 'gas', 'None');
+   gas = Solution('h2o2.yaml', 'ohmech', 'None');
 end
 
 mw = molecularWeights(gas);

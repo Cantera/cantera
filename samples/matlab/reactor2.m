@@ -12,7 +12,7 @@ help reactor2
 if nargin == 1
    gas = g;
 else
-   gas = Solution('h2o2.yaml', 'gas', 'None');
+   gas = Solution('h2o2.yaml', 'ohmech', 'None');
 end
 
 % set the initial conditions

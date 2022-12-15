@@ -11,7 +11,7 @@ help prandtl2
 if nargin == 1
    gas = g;
 else
-   gas = Solution('h2o2.yaml', 'gas', 'Multi');
+   gas = Solution('h2o2.yaml', 'ohmech', 'Multi');
 end
 
 pr = zeros(31,31);
