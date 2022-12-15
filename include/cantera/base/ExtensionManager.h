@@ -44,22 +44,40 @@ public:
         throw NotImplementedError("ExtensionManager::registerRateBuilders");
     };
 
+    //! Create an object in an external language that wraps the specified ReactionData
+    //! object
+    //!
+    //! @param rateName  The name of the reaction rate type, which corresponds to the
+    //!     name used to register the wrapper generator using registerReactionDataLinker
+    //! @param data  The ReactionData object to be wrapped
     static void wrapReactionData(const std::string& rateName,
                                  ReactionDataDelegator& data);
 
-    static shared_ptr<ExternalHandle> wrapSolution(const std::string& rateName,
+    //! Create an object in an external language that wraps the specified Solution
+    //! object.
+    //!
+    //! @param wrapperType  A name specifying the wrapper type, which corresponds to
+    //!     the name used to register the wrapper generator using registerSolutionLinker
+    //! @param soln  The Solution object to be wrapped
+    static shared_ptr<ExternalHandle> wrapSolution(const std::string& wrapperType,
                                                    shared_ptr<Solution> soln);
 
+    //! Register a function that can be used to create wrappers for ReactionData objects
+    //! in an external language and link them to the corresponding C++ object
     static void registerReactionDataLinker(const std::string& rateName,
         std::function<void(ReactionDataDelegator&)> link);
 
-    static void registerSolutionLinker(const std::string& rateName,
+    //! Register a function that can be used to create wrappers for Solution objects in
+    //! an external language and link it to the corresponding C++ objects
+    static void registerSolutionLinker(const std::string& wrapperName,
         std::function<shared_ptr<ExternalHandle>(shared_ptr<Solution>)> link);
 
 protected:
+    //! Functions for wrapping and linking ReactionData objects
     static std::map<std::string,
         std::function<void(ReactionDataDelegator&)>> s_ReactionData_linkers;
 
+    //! Functions for wrapping and linking Solution objects
     static std::map<std::string,
         std::function<shared_ptr<ExternalHandle>(shared_ptr<Solution>)>> s_Solution_linkers;
 

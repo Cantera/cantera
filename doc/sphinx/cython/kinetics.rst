@@ -154,6 +154,11 @@ StickingBlowersMaselRate
 Auxiliary Reaction Data
 -----------------------
 
+ExtensibleRateData
+^^^^^^^^^^^^^^^^^^
+.. autoclass:: ExtensibleRateData
+   :no-undoc-members:
+
 ThirdBody
 ^^^^^^^^^
 .. autoclass:: ThirdBody

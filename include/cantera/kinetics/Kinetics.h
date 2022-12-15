@@ -1233,6 +1233,8 @@ public:
         m_root = root;
     }
 
+    //! Get the Solution object containing this Kinetics object and associated
+    //! ThermoPhase objects
     shared_ptr<Solution> root() const {
         return m_root.lock();
     }

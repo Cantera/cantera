@@ -222,15 +222,18 @@ cdef int assign_delegates(obj, CxxDelegator* delegator) except -1:
     Methods that can be delegated are described by the ``delegatable_methods``
     dict of ``obj``.
 
-    * The keys are the base names of the Python delegate methods,
-      which may be prefixed with ``before_``, ``after_``, or ``replace_`` in
-      a specific implementation of a delegated class. For example, for the base
-      name ``eval``, the delegate class can define one of these methods:
-      ``before_eval``, ``after_eval``, or ``replace_eval``.
+    * The keys are the base names of the Python delegate methods. For methods where
+      delegation is _optional_, the name is prefixed with ``before_``, ``after_``, or
+      ``replace_`` in a specific implementation of a delegated class. For example, for
+      the base name ``eval``, the delegate class can define one of these methods:
+      ``before_eval``, ``after_eval``, or ``replace_eval``. For methods where delegation
+      is _required_, no prefix is used.
 
-    * The values are tuples of two elements, where the first element is the name
-      of the corresponding C++ method, and the second element indicates the
-      signature of the delegate function, such as ``void(double*)``.
+    * The values are tuples of two or three elements, where the first element is the
+      name of the corresponding C++ method, and the second element indicates the
+      signature of the delegate function, such as ``void(double*)``. The third element,
+      if present, indicates that the delegate is required, how it is executed with
+      respect to the base class method (that is, ``before``, ``after``, or ``replace``).
     """
     # Find all delegate methods, and make sure there aren't multiple
     # conflicting implementations
@@ -369,16 +372,20 @@ def extension(*, name, data=None):
 
         import cantera as ct
 
-        @ct.extension(name="cool-rate")
-        class CoolRate(ct.ExtensibleRate):
-            def after_set_parameters(self, params, units):
+        class CoolRateData(ct.ExtensibleRateData):
+            def update(self, soln):
                 ...
-            def replace_eval(self, T):
+
+        @ct.extension(name="cool-rate", data=CoolRateData)
+        class CoolRate(ct.ExtensibleRate):
+            def set_parameters(self, params, units):
+                ...
+            def eval(self, data):
                 ...
 
     Loading this input file from any Cantera user interface would cause Cantera to load
-    the ``my_cool_module.py`` module and register the ``CoolRate`` class to handle
-    reactions whose ``type`` in the YAML file is set to ``cool-rate``.
+    the ``my_cool_module.py`` module and register the ``CoolRate`` and ``CoolRateData``
+    classes to handle reactions whose ``type`` in the YAML file is set to ``cool-rate``.
 
     .. versionadded:: 3.0
     """

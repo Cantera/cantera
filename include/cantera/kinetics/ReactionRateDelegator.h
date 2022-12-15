@@ -30,28 +30,44 @@ public:
 
     using ReactionData::update;
 
+    //! Set the type of the ReactionData class. This should match the corresponding
+    //! ReactionRate class's type
     void setType(const std::string& name) {
         m_rateType = name;
     }
 
+    //! Get the external language wrapper for this ReactionData object
     shared_ptr<ExternalHandle> getWrapper() const {
         return m_wrappedData;
     }
 
+    //! Set the external language wrapper for this ReactionData object
     void setWrapper(shared_ptr<ExternalHandle> wrapper) {
         m_wrappedData = wrapper;
     }
 
+    //! Set the type of the Solution wrapper needed for this delegated reaction type.
+    //! This should correspond to the name registered for the external language with
+    //! ExtensionManager::registerSolutionLinker().
     void setSolutionWrapperType(const std::string& type) {
         m_solutionWrapperType = type;
     }
 
 protected:
+    //! The reaction rate type
     std::string m_rateType;
+
+    //! The name registered for creating Solution wrappers for this delegated reaction
     std::string m_solutionWrapperType;
+
+    //! An external language's wrapper for the Solution object where this ReactionData
+    //! object is being used
     shared_ptr<ExternalHandle> m_wrappedSolution;
+
+    //! An external language's wrapper for this ReactionData object
     shared_ptr<ExternalHandle> m_wrappedData;
 
+    //! Delegated `update` method taking the Solution wrapper as its argument
     std::function<double(void*)> m_update;
 };
 
@@ -88,8 +104,13 @@ public:
     }
 
 private:
+    //! The name of the reaction rate type
     std::string m_rateType;
+
+    //! Delegated `evalFromStruct` method taking a pointer to the corresponding
+    //! ReactionData wrapper object
     std::function<double(void*)> m_evalFromStruct;
+
     std::function<void(const AnyMap&, const UnitStack&)> m_setParameters;
 };
 

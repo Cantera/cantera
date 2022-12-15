@@ -16,6 +16,11 @@ namespace Cantera
 class PythonHandle : public ExternalHandle
 {
 public:
+    //! Create a handle to hold a Python object
+    //! @param obj  The Python object to be held
+    //! @param weak  `true` if this is a weak reference to the Python object and this
+    //!    handle is not responsible for deleting the Python object, or `false` if this
+    //!    handle "owns" the Python object
     PythonHandle(PyObject* obj, bool weak) : m_obj(obj), m_weak(weak) {}
 
     ~PythonHandle() {
@@ -24,7 +29,7 @@ public:
         }
     }
 
-    void* get() {
+    void* get() override {
         return m_obj;
     }
 
