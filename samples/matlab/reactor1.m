@@ -16,7 +16,7 @@ help reactor1
 if nargin == 1
    gas = g;
 else
-   gas = Solution('h2o2.yaml', 'gas', 'None');
+   gas = Solution('h2o2.yaml', 'ohmech', 'None');
 end
 
 P = oneatm;
