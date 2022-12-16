@@ -9,6 +9,7 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/base/AnyMap.h"
+#include "cantera/kinetics/InterfaceKinetics.h"
 
 namespace Cantera
 {
@@ -75,8 +76,10 @@ bool InterfaceData::update(const ThermoPhase& phase, const Kinetics& kin)
             size_t start = kin.kineticsSpeciesIndex(0, n);
             const auto& ph = kin.thermo(n);
             electricPotentials[n] = ph.electricPotential();
+            //chemPotentials[n] = ph.getChemPotentials()
             ph.getPartialMolarEnthalpies(partialMolarEnthalpies.data() + start);
             ph.getStandardChemPotentials(standardChemPotentials.data() + start);
+            ph.getChemPotentials(chemPotentials.data() + start);
             size_t nsp = ph.nSpecies();
             for (size_t k = 0; k < nsp; k++) {
                 // only used for exchange current density formulation
@@ -104,6 +107,8 @@ InterfaceRateBase::InterfaceRateBase()
     , m_beta(0.5)
     , m_lambdaMarcus(0.)
     , m_etaF(NAN)
+    , m_lambda_RT(NAN)
+    , m_deltaGibbs_RT(NAN)
     , m_deltaPotential_RT(NAN)
     , m_deltaGibbs0_RT(NAN)
     , m_prodStandardConcentrations(NAN)
@@ -252,6 +257,7 @@ void InterfaceRateBase::updateFromStruct(const InterfaceData& shared_data) {
     // Update change in electrical potential energy
     if (m_chargeTransfer) {
         m_deltaPotential_RT = 0.;
+        double deltaPotential = 0.;
         for (const auto& ch : m_netCharges) {
             m_deltaPotential_RT +=
                 shared_data.electricPotentials[ch.first] * ch.second;
@@ -277,19 +283,30 @@ void InterfaceRateBase::updateFromStruct(const InterfaceData& shared_data) {
     // Update quantities used for Marcus kinetics formulation
     if (m_eChemForm == "Marcus") {
         m_deltaGibbs0_RT = 0.;
-        m_etaF = 0;
+        m_deltaGibbs_RT = 0.;
+        m_etaF = 0.;
+        m_lambda_RT = 0.;
         m_prodStandardConcentrations = 1.;
         for (const auto& item : m_stoichCoeffs) {
             m_deltaGibbs0_RT +=
                 shared_data.standardChemPotentials[item.first] * item.second;
+            m_etaF +=
+                shared_data.chemPotentials[item.first] * item.second;
+            m_deltaGibbs_RT +=
+                shared_data.chemPotentials[item.first] * item.second;
             if (item.second > 0.) {
                 m_prodStandardConcentrations *=
                     shared_data.standardConcentrations[item.first];
             }
         }
+        for (const auto& ch : m_netCharges) {
+            m_etaF += shared_data.electricPotentials[ch.first] * ch.second;
+        }
         m_deltaGibbs0_RT /= GasConstant * shared_data.temperature;
-        m_etaF = m_deltaGibbs0_RT + m_deltaPotential_RT;
-        m_etaF *= GasConstant * shared_data.temperature;
+        m_deltaGibbs_RT /= GasConstant * shared_data.temperature;
+        m_lambda_RT = m_lambdaMarcus / GasConstant / shared_data.temperature;
+        //m_etaF = m_deltaGibbs0_RT + m_deltaPotential_RT;
+        //m_etaF *= GasConstant * shared_data.temperature;
     }
 }
 

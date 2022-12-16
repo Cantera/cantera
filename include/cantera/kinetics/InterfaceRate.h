@@ -12,6 +12,7 @@
 #include "cantera/base/global.h"
 #include "cantera/kinetics/BlowersMaselRate.h"
 #include "MultiRate.h"
+#include "InterfaceKinetics.h"
 
 namespace Cantera
 {
@@ -57,6 +58,7 @@ struct InterfaceData : public BlowersMaselData
         electricPotentials.resize(nPhases, 0.);
         standardChemPotentials.resize(nSpecies, 0.);
         standardConcentrations.resize(nSpecies, 0.);
+        chemPotentials.resize(nSpecies, 0.);
         ready = true;
     }
 
@@ -67,6 +69,7 @@ struct InterfaceData : public BlowersMaselData
     vector_fp electricPotentials; //!< electric potentials of phases
     vector_fp standardChemPotentials; //!< standard state chemical potentials
     vector_fp standardConcentrations; //!< standard state concentrations
+    vector_fp chemPotentials;
 };
 
 
@@ -165,12 +168,11 @@ public:
         // Calculate reaction rate correction. Only modify those with a non-zero
         // activation energy.
         double correction = 1.;
-        printf("beta = %f\n", m_beta);
         double beta_tmp = m_beta;
         if (m_eChemForm == "Marcus") {
-            printf("lambda =%f\n beta_tmp =%f\n", m_lambdaMarcus, beta_tmp);
-            beta_tmp += 1 / 4 / m_lambdaMarcus; //m_etaF / 4 / m_lambdaMarcus;
-            printf("beta_tmp = %f\n", beta_tmp);
+            printf("cantera etaF =%f\n", m_etaF);
+            beta_tmp += (m_etaF / 4. / m_lambdaMarcus); //m_etaF / 4 / m_lambdaMarcus;
+            printf("Marcus correction = %f\n", m_etaF / 4. / m_lambdaMarcus);
         }
         if (m_deltaPotential_RT != 0.) {
             // Comments preserved from previous implementation:
@@ -190,7 +192,7 @@ public:
             tmp /= m_prodStandardConcentrations * Faraday;
             correction *= tmp;
         } else if (m_eChemForm == "Marcus") {
-            double tmp = exp(-beta_tmp * m_deltaGibbs0_RT);
+            double tmp = exp(-m_lambda_RT / 4.) * exp(-beta_tmp * m_deltaGibbs_RT);
             tmp /= m_prodStandardConcentrations * Faraday;
             correction *= tmp;
         }
@@ -235,6 +237,14 @@ public:
         return NAN;
     }
 
+    //! Return the charge transfer beta parameter
+    double lambda_RT() {
+        if (m_chargeTransfer) {
+            return m_lambda_RT;
+        }
+        return NAN;
+    }
+
     //! Return site density [kmol/m^2]
     /*!
      *  @warning  This method is an experimental part of the %Cantera API and
@@ -267,6 +277,8 @@ protected:
     std::string m_eChemForm;
     double m_lambdaMarcus; 
     double m_etaF;
+    double m_lambda_RT;
+    double m_deltaGibbs_RT;
     double m_beta; //!< Forward value of apparent electrochemical transfer coefficient
     double m_deltaPotential_RT; //!< Normalized electric potential energy change
     double m_deltaGibbs0_RT; //!< Normalized standard state Gibbs free energy change
