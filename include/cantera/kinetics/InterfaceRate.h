@@ -12,7 +12,6 @@
 #include "cantera/base/global.h"
 #include "cantera/kinetics/BlowersMaselRate.h"
 #include "MultiRate.h"
-#include "InterfaceKinetics.h"
 
 namespace Cantera
 {
@@ -126,6 +125,7 @@ public:
         return m_exchangeCurrentDensityFormulation;
     }
 
+    // String storing the input electrochemical kinetics form used if non-standard
     std::string eChemForm() {
         return m_eChemForm;
     }
@@ -176,6 +176,8 @@ public:
             // activation energy below zero? I don't think this has been decided in any
             // definitive way. The treatment below is numerically more stable, however.
             if (m_eChemForm == "Marcus") {
+                // If Marcus kinetics is being used, adjust beta by the reorganization 
+                // energy m_lambdaMarcus
                 beta_tmp += (m_etaF / 4. / m_lambdaMarcus); //m_etaF / 4 / m_lambdaMarcus;
             }
             correction = exp(-beta_tmp * m_deltaPotential_RT);
@@ -190,6 +192,7 @@ public:
             tmp /= m_prodStandardConcentrations * Faraday;
             correction *= tmp;
         } else if (m_eChemForm == "Marcus") {
+            // If Marcus kinetics is being used, adjust the correction value.
             double tmp = exp(-m_lambda_RT / 4.) * exp(-beta_tmp * m_deltaGibbs_RT);
             tmp /= m_prodStandardConcentrations * Faraday;
             correction *= tmp;
@@ -219,7 +222,7 @@ public:
         return NAN;
     }
 
-    //! Return the charge transfer beta parameter
+    //! Return the Marcus theory reorganization energy parameter
     double lambdaMarcus() const {
         if (m_chargeTransfer) {
             return m_lambdaMarcus;
@@ -227,7 +230,7 @@ public:
         return NAN;
     }
 
-    //! Return the charge transfer beta parameter
+    //! Return the overpotential times Faraday's constant parameter
     double etaF() {
         if (m_chargeTransfer) {
             return m_etaF;
@@ -235,7 +238,8 @@ public:
         return NAN;
     }
 
-    //! Return the charge transfer beta parameter
+    //! Return Marcus theory reorganization energy parameter
+    //! Divided by the Gas Constant and temperature
     double lambda_RT() {
         if (m_chargeTransfer) {
             return m_lambda_RT;
@@ -272,11 +276,11 @@ protected:
     double m_mcov; //!< Coverage term in reaction rate
     bool m_chargeTransfer; //!< Boolean indicating use of electrochemistry
     bool m_exchangeCurrentDensityFormulation; //! Electrochemistry only
-    std::string m_eChemForm;
-    double m_lambdaMarcus; 
-    double m_etaF;
-    double m_lambda_RT;
-    double m_deltaGibbs_RT;
+    std::string m_eChemForm; //! String storing echem kinetics form
+    double m_lambdaMarcus; //! Marcus theory reorganization energy
+    double m_etaF; //! Overpotential times Faraday
+    double m_lambda_RT; //! Marcus theory reorganization energy over RT
+    double m_deltaGibbs_RT; //! Normalized Gibbs free energy change 
     double m_beta; //!< Forward value of apparent electrochemical transfer coefficient
     double m_deltaPotential_RT; //!< Normalized electric potential energy change
     double m_deltaGibbs0_RT; //!< Normalized standard state Gibbs free energy change
