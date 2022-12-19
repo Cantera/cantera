@@ -169,17 +169,15 @@ public:
         // activation energy.
         double correction = 1.;
         double beta_tmp = m_beta;
-        if (m_eChemForm == "Marcus") {
-            printf("cantera etaF =%f\n", m_etaF);
-            beta_tmp += (m_etaF / 4. / m_lambdaMarcus); //m_etaF / 4 / m_lambdaMarcus;
-            printf("Marcus correction = %f\n", m_etaF / 4. / m_lambdaMarcus);
-        }
         if (m_deltaPotential_RT != 0.) {
             // Comments preserved from previous implementation:
             // Below we decrease the activation energy below zero.
             // NOTE, there is some discussion about this point. Should we decrease the
             // activation energy below zero? I don't think this has been decided in any
             // definitive way. The treatment below is numerically more stable, however.
+            if (m_eChemForm == "Marcus") {
+                beta_tmp += (m_etaF / 4. / m_lambdaMarcus); //m_etaF / 4 / m_lambdaMarcus;
+            }
             correction = exp(-beta_tmp * m_deltaPotential_RT);
         }
 

@@ -76,7 +76,6 @@ bool InterfaceData::update(const ThermoPhase& phase, const Kinetics& kin)
             size_t start = kin.kineticsSpeciesIndex(0, n);
             const auto& ph = kin.thermo(n);
             electricPotentials[n] = ph.electricPotential();
-            //chemPotentials[n] = ph.getChemPotentials()
             ph.getPartialMolarEnthalpies(partialMolarEnthalpies.data() + start);
             ph.getStandardChemPotentials(standardChemPotentials.data() + start);
             ph.getChemPotentials(chemPotentials.data() + start);
@@ -305,8 +304,6 @@ void InterfaceRateBase::updateFromStruct(const InterfaceData& shared_data) {
         m_deltaGibbs0_RT /= GasConstant * shared_data.temperature;
         m_deltaGibbs_RT /= GasConstant * shared_data.temperature;
         m_lambda_RT = m_lambdaMarcus / GasConstant / shared_data.temperature;
-        //m_etaF = m_deltaGibbs0_RT + m_deltaPotential_RT;
-        //m_etaF *= GasConstant * shared_data.temperature;
     }
 }
 
