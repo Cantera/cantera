@@ -4,8 +4,6 @@ import numpy as np
 from .utilities import allow_deprecated
 import pytest
 
-from cantera.composite import _h5py
-
 
 class TestOnedim(utilities.CanteraTest):
     def test_instantiate(self):

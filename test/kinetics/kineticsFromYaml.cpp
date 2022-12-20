@@ -518,10 +518,6 @@ TEST(Reaction, PythonExtensibleRate)
     #ifndef CT_HAS_PYTHON
     GTEST_SKIP();
     #endif
-    #ifdef CT_USE_HDF5
-    // potential mismatch of HDF libraries between h5py and HighFive
-    GTEST_SKIP();
-    #endif
     auto sol = newSolution("extensible-reactions.yaml");
     auto R = sol->kinetics()->reaction(0);
     EXPECT_EQ(R->type(), "square-rate");

@@ -53,7 +53,7 @@ jobs:
       run: |
         python3 -m pip install ruamel.yaml scons==3.1.2 numpy cython pandas pytest \
         pytest-github-actions-annotate-failures
-        python3 -m pip install h5py || python3 -m pip install --no-binary=h5py h5py
+        python3 -m pip install h5py
     - name: Build Cantera
       run: |
         python3 `which scons` build env_vars=all -j2 debug=n --debug=time \
@@ -94,8 +94,7 @@ jobs:
       run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
       run: |
-        python3 -m pip install ruamel.yaml scons numpy cython pandas pytest pytest-github-actions-annotate-failures
-        python3 -m pip install --no-binary=h5py h5py
+        python3 -m pip install ruamel.yaml scons numpy cython pandas h5py pytest pytest-github-actions-annotate-failures
     - name: Build Cantera
       run: python3 `which scons` build env_vars=all
         CXX=clang++-12 CC=clang-12 f90_interface=n extra_lib_dirs=/usr/lib/llvm/lib
@@ -194,9 +193,8 @@ jobs:
       run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
       run: |
-        python3 -m pip install ruamel.yaml scons numpy cython pandas scipy pytest \
+        python3 -m pip install ruamel.yaml scons numpy cython pandas scipy pytest h5py \
         pytest-github-actions-annotate-failures pytest-cov gcovr
-        python3 -m pip install --no-binary=h5py h5py
     - name: Setup .NET Core SDK
       uses: actions/setup-dotnet@v2
       with:
@@ -366,8 +364,7 @@ jobs:
         run: python3 -m pip install -U pip setuptools wheel
       - name: Install Python dependencies
         run: |
-          python3 -m pip install ruamel.yaml scons numpy cython pandas matplotlib scipy
-          python3 -m pip install --no-binary=h5py h5py
+          python3 -m pip install ruamel.yaml scons numpy cython pandas matplotlib scipy h5py
       - name: Build Cantera
         # compile with GCC 9.4.0 on ubuntu-20.04 as an alternative to the default
         # (GCC 7.5.0 is both default and oldest supported version)
@@ -619,9 +616,8 @@ jobs:
       run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
       run: |
-        python3 -m pip install ruamel.yaml scons numpy cython pandas pytest \
+        python3 -m pip install ruamel.yaml scons numpy cython pandas h5py pytest \
         pytest-github-actions-annotate-failures
-        python3 -m pip install --no-binary=h5py h5py
     - name: Setup Intel oneAPI environment
       run: |
         source /opt/intel/oneapi/setvars.sh
