@@ -7,17 +7,20 @@ import numpy as np
 from collections import OrderedDict
 import csv as _csv
 
-import pkg_resources
-
-# avoid explicit dependence of cantera on h5py
-try:
-    pkg_resources.get_distribution('h5py')
-except pkg_resources.DistributionNotFound:
-    _h5py = ImportError('Method requires a working h5py installation.')
-else:
-    import h5py as _h5py
+def _import_h5py():
+    # avoid explicit dependence of cantera on h5py
+    import pkg_resources  # local import to reduce overall import time
+    try:
+        pkg_resources.get_distribution('h5py')
+    except pkg_resources.DistributionNotFound:
+        raise ImportError('Method requires a working h5py installation.')
+    else:
+        import h5py
+        return h5py
 
 # avoid explicit dependence of cantera on pandas
+import pkg_resources
+
 try:
     pkg_resources.get_distribution('pandas')
 except pkg_resources.DistributionNotFound:
@@ -1311,8 +1314,7 @@ class SolutionArray:
         requires a working installation of *h5py* (``h5py`` can be installed using
         pip or conda).
         """
-        if isinstance(_h5py, ImportError):
-            raise _h5py
+        h5py = _import_h5py()
 
         # collect data
         data = self.collect_data(*args, cols=cols, **kwargs)
@@ -1322,7 +1324,7 @@ class SolutionArray:
         hdf_kwargs = {k: v for k, v in hdf_kwargs.items() if v is not None}
 
         # save to container file
-        with _h5py.File(filename, mode) as hdf:
+        with h5py.File(filename, mode) as hdf:
 
             # check existence of tagged item
             if not group:
@@ -1395,10 +1397,9 @@ class SolutionArray:
         The method imports data using `restore_data` and requires a working
         installation of *h5py* (``h5py`` can be installed using pip or conda).
         """
-        if isinstance(_h5py, ImportError):
-            raise _h5py
+        h5py = _import_h5py()
 
-        with _h5py.File(filename, 'r') as hdf:
+        with h5py.File(filename, 'r') as hdf:
 
             groups = list(hdf.keys())
             if not len(groups):
@@ -1417,7 +1418,7 @@ class SolutionArray:
             # identify subgroup
             if subgroup is not None:
                 sub_names = [key for key, value in root.items()
-                             if isinstance(value, _h5py.Group)]
+                             if isinstance(value, h5py.Group)]
                 if not len(sub_names):
                     msg = "HDF group '{}' does not contain valid data"
                     raise IOError(msg.format(group))
@@ -1454,13 +1455,13 @@ class SolutionArray:
             self._meta = dict(dgroup.attrs.items())
             for name, value in dgroup.items():
                 # support one level of recursion
-                if isinstance(value, _h5py.Group):
+                if isinstance(value, h5py.Group):
                     self._meta[name] = dict(value.attrs.items())
 
             # load data
             data = OrderedDict()
             for name, value in dgroup.items():
-                if isinstance(value, _h5py.Group):
+                if isinstance(value, h5py.Group):
                     continue
                 elif value.dtype.type == np.bytes_:
                     data[name] = np.array(value).astype('U')
