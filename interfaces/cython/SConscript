@@ -52,7 +52,7 @@ ext = localenv.LoadableModule(f"cantera/_cantera{module_ext}",
 build_cmd = ("$python_cmd_esc -m pip wheel -v --no-build-isolation --no-deps "
              "--wheel-dir=build/python/dist build/python")
 wheel_name = ("Cantera-${cantera_version}-cp${py_version_nodot}"
-              "-cp${py_version_nodot}-${plat}.whl")
+              "-cp${py_version_nodot}-${py_plat}.whl")
 mod = build(localenv.Command(f"#build/python/dist/{wheel_name}", "setup.cfg",
                              build_cmd))
 env['python_module'] = mod
