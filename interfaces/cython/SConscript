@@ -25,7 +25,7 @@ license = localenv.Command("LICENSE.txt", "#build/ext/LICENSE.txt",
                            Copy("$TARGET", "$SOURCE"))
 localenv.Depends(license, localenv["license_target"])
 
-directives = {}
+directives = {"binding": True}
 if env["coverage"]:
     directives["linetrace"] = True
     localenv.Append(CPPDEFINES={"CYTHON_TRACE": 1})
