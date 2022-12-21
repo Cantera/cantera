@@ -1,7 +1,9 @@
-function r = Reservoir(contents)
+classdef Reservoir < Reactor
     % Create a Reservoir object.
+    %
     % r = Reservoir(contents)
-    % A :mat:func:`Reservoir` is an instance of class :mat:func:`Reactor`
+    %
+    % A :mat:class:`Reservoir` is an instance of class :mat:class:`Reactor`
     % configured so that its intensive state is constant in time. A
     % reservoir may be thought of as infinite in extent, perfectly mixed,
     % and non-reacting, so that fluid may be extracted or added without
@@ -15,18 +17,25 @@ function r = Reservoir(contents)
     %     r1 = Reservoir         % an empty reservoir
     %     r2 = Reservoir(gas)    % a reservoir containing a gas
     %
-    % See also: :mat:func:`Reactor`
+    % See also: :mat:class:`Reactor`
     %
     % :param contents:
-    %     Cantera :mat:func:`Solution` to be set as the contents of the
+    %     Cantera :mat:class:`Solution` to be set as the contents of the
     %     reactor
     % :return:
-    %     Instance of class :mat:func:`Reactor`
+    %     Instance of class :mat:class:`Reactor`
     %
 
-    if nargin == 0
-        contents = 0;
-    end
+    methods
 
-    r = Reactor(contents, 'Reservoir');
+        % Constructor
+        function r = Reservoir(contents)
+            if nargin == 0
+                contents = 0;
+            end
+
+            r = r@Reactor(contents, 'Reservoir');
+        end
+
+    end
 end

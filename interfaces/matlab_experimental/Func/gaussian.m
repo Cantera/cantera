@@ -1,5 +1,5 @@
 classdef gaussian < Func
-    % Gaussian - Create a Gaussian :mat:func:`Func` instance.
+    % Gaussian - Create a Gaussian :mat:class:`Func` instance.
     %
     % f = gaussian(peak, center, width)
     %
@@ -10,10 +10,13 @@ classdef gaussian < Func
     % :param width:
     %     Full width at half-maximum. The value of the
     %     function at center +/- (width)/2 is one-half
-    %     the peak value.
+    %     the peak value
+    % :return:
+    %     Instance of class :mat:class:`gaussian`
     %
     methods
 
+        % Constructor
         function f = gaussian(peak, center, width)
             f = f@Func('gaussian', 0, [peak, center, width]);
         end

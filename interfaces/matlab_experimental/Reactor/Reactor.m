@@ -24,13 +24,14 @@ classdef Reactor < handle
     %
 
     properties (SetAccess = immutable)
-        type % Type of Reactor.
 
+        type % Type of Reactor.
         id % ID of Reactor.
 
     end
 
     properties (SetAccess = protected)
+
         contents
         %
         % Density of the reactor contents at the end of the last call to
@@ -64,6 +65,45 @@ classdef Reactor < handle
         % Mass fractions of the reactor contents at the end of the last call to
         % 'advance' or 'step'.
         Y
+        %
+        % Enable or disable changing reactor composition by reactions.
+        %
+        % r.chemistry = flag
+        %
+        % If the chemistry is disabled, then the reactor composition is
+        % constant. The parameter should be the string "on" to enable
+        % the species equaionts, or "off" to disable it.
+        %
+        % By default, Reactor objects are created with the species
+        % equations enabled if there are reactions present in the
+        % mechanism file, and disabled otherwise.
+        %
+        % :param r:
+        %    Instance of class 'Reactor'.
+        % :param flag:
+        %    String, either "on" or "off" to enable or disable chemical
+        %    reactions, respectively.
+        chemistry
+        %
+        % Enable or disable solving the energy equation.
+        %
+        % r.energy = flag
+        %
+        % If the energy equation is disabled, then the reactor
+        % temperature is constant. The parameter should be the string
+        % "on" to enable the energy equation, or "off" to disable it.
+        %
+        % By default, Reactor objects are created with the energy
+        % equation enabled, so usually this method
+        %
+        % :param r:
+        %    Instance of class 'Reactor'.
+        % :param flag:
+        %    String, either "on" or "off" to enable or disable chemical
+        %    reactions, respectively.
+        energy
+
+        massFlowRate % Mass flow rate in kg/s.
 
     end
 
@@ -182,6 +222,7 @@ classdef Reactor < handle
         end
 
         function massFractions = get.Y(r)
+
             nsp = r.contents.nSpecies;
             massFractions = zeros(1, nsp);
 
@@ -193,91 +234,41 @@ classdef Reactor < handle
 
         %% Reactor set methods
 
-        function setInitialVolume(r, v0)
-            % Set the initial reactor volume.
-            %
-            % r.setInitialVolume(v0)
-            %
-            % :param v0:
-            %    Initial volume in m^3.
+        function set.V(r, v0)
 
             callct('reactor_setInitialVolume', r.id, v0);
+
         end
 
-        function setMdot(r, MFR)
-            % Set the mass flow rate.
-            %
-            % r.setMdot(MFR)
-            %
-            % :param MFR:
-            %    Mass flow rate in kg/s.
-            %
+        function set.massFlowRate(r, MFR)
 
             callct('reactor_setMassFlowRate', r.id, MFR);
-            r.Mdot = MFR;
+            r.massFlowRate = MFR;
+
         end
 
-        function setChemistryFlag(r, flag)
-            % Enable or disable changing reactor composition by reactions.
-            %
-            % r.setChemistryFlag(flag)
-            %
-            % If the chemistry is disabled, then the reactor composition is
-            % constant. The parameter should be the string "on" to enable
-            % the species equaionts, or "off" to disable it.
-            %
-            % By default, Reactor objects are created with the species
-            % equations enabled if there are reactions present in the
-            % mechanism file, and disabled otherwise.
-            %
-            % :param r:
-            %    Instance of class 'Reactor'.
-            % :param flag:
-            %    String, either "on" or "off" to enable or disable chemical
-            %    reactions, respectively.
-            %
+        function set.chemistry(r, flag)
 
             if strcmp(flag, 'on')
-                iflag = true;
+                cflag = true;
             elseif strcmp(flag, 'off')
-                iflag = false;
+                cflag = false;
             else error('Input must be "on" or "off"');
             end
 
-            callct('reactor_setChemistry', r.id, iflag);
+            callct('reactor_setChemistry', r.id, cflag);
         end
 
-        function setEnergyFlag(r, flag)
-            % Enable or disable solving the energy equation.
-            %
-            % r.setEnergyFlag(flag)
-            %
-            % If the energy equation is disabled, then the reactor
-            % temperature is constant. The parameter should be the string
-            % "on" to enable the energy equation, or "off" to disable it.
-            %
-            % By default, Reactor objects are created with the energy
-            % equation enabled, so usually this method
-            %
-            % :param r:
-            %    Instance of class 'Reactor'.
-            % :param flag:
-            %    String, either "on" or "off" to enable or disable chemical
-            %    reactions, respectively.
-            %
-
-            iflag = -1;
+        function set.energy(r, flag)
 
             if strcmp(flag, 'on')
-                iflag = 1;
+                eflag = 1;
             elseif strcmp(flag, 'off')
-                iflag = 0;
-            end
-
-            if iflag >= 0
-                callct('reactor_setEnergy', r.id, iflag);
+                eflag = 0;
             else error('Input must be "on" or "off".');
             end
+
+            callct('reactor_setEnergy', r.id, eflag);
 
         end
 

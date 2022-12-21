@@ -13,7 +13,7 @@ function o = Oxygen()
     % University, 1979. Print.
     %
     % :return:
-    %     Instance of class :mat:func:`Solution`
+    %     Instance of class :mat:class:`Solution`
     %
     h = Solution('liquidvapor.yaml', 'oxygen');
 end

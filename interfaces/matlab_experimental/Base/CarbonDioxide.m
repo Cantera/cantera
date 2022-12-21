@@ -16,7 +16,7 @@ function c = CarbonDioxide()
     % Cantera C++ source code documentation.
     %
     % :return:
-    %     Instance of class :mat:func:`Solution`
+    %     Instance of class :mat:class:`Solution`
     %
     h = Solution('liquidvapor.yaml', 'carbon-dioxide');
 end

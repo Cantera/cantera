@@ -31,8 +31,23 @@ classdef ReactorNet < handle
         % rapidly changing, the time step becomes smaller to resolve
         % the solution.
         dt
-
-        time % Current time in s.
+        %
+        % Current time in s.
+        % The setter method sets the time at which integration should be
+        % restarted, using the current state as the initial condition.
+        time
+        %
+        % Max time step in s.
+        %
+        % The integrator chooses a step size based on the desired error
+        % tolerance and the rate at which the solution is changing.
+        % In some cases, the solution changes very slowly at first,
+        % then very rapidly (ifnition problems). In such cases, the
+        % integrator may choose a timestep that is too large, which
+        % leads to numerical problems later. Use thismethod to set an
+        % upper bound on the timestep.
+        %
+        maxTimeStep
 
         atol % Absolute error tolerance.
 
@@ -112,20 +127,11 @@ classdef ReactorNet < handle
 
         %% ReactorNet set methods
 
-        function setInitialTime(r, t)
-            % Set the initial time of the integration.
-            %
-            % r.setInitialTime(t)
-            %
-            % :param t:
-            %    Time at which integration should be restarted, using the
-            %    current state as the initial condition. Unit: s.
-            %
-
+        function set.time(r, t)
             callct('reactornet_setInitialTime', r.id, t);
         end
 
-        function setMaxTimeStep(r, maxstep)
+        function set.maxTimeStep(r, maxstep)
             % Set the maximum time step.
             %
             % r.setMaxTimeStep(maxstep)
@@ -158,17 +164,13 @@ classdef ReactorNet < handle
             callct('reactornet_setSensitivityTolerances', r.id, rerr, aerr);
         end
 
-        function setTolerances(r, rerr, aerr)
-            % Set the error tolerance.
-            %
-            % r.setTolerances(rerr, aerr)
-            %
-            % :param rerr:
-            %    Scalar relative error tolerance.
-            % :param aerr:
-            %    Scalar absolute error tolerance.
-            %
+        function set.atol(r, aeer)
+            rerr = r.rtol;
+            callct('reactornet_setTolerances', r.id, rerr, aerr);
+        end
 
+        function set.rtol(r, reer)
+            aerr = r.atol;
             callct('reactornet_setTolerances', r.id, rerr, aerr);
         end
 
@@ -207,7 +209,6 @@ classdef ReactorNet < handle
                 callct('reactornet_sensitivity', r.id, component, p, rxtr.id);
             end
 
-            % Check back on this one to add cases for component type integer.
         end
 
     end

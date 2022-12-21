@@ -1,4 +1,4 @@
-function r = IdealGasConstPressureReactor(contents)
+classdef IdealGasConstPressureReactor < Reactor
     % Create a constant pressure reactor with an ideal gas.
     %
     % r = IdealGasConstPressureReactor(contents)
@@ -15,17 +15,24 @@ function r = IdealGasConstPressureReactor(contents)
     %     r1 = IdealGasConstPressureReactor      % an empty reactor
     %     r2 = IdealGasConstPressureReactor(gas) % a reactor containing a gas
     %
-    %   See also: :mat:func:`Reactor`
+    %   See also: :mat:class:`Reactor`
     %
     % :param contents:
-    %     Cantera :mat:func:`Solution` to be set as the contents of the
+    %     Cantera :mat:class:`Solution` to be set as the contents of the
     %     reactor
     % :return:
-    %     Instance of class :mat:func:`Reactor`
+    %     Instance of class :mat:class:`IdealGasConstPressureReactor`
 
-    if nargin == 0
-        contents = 0;
+    methods
+
+        % Constructor
+        function r = IdealGasConstPressureReactor(contents)
+            if nargin == 0
+                contents = 0;
+            end
+
+            r = r@Reactor(contents, 'IdealGasConstPressureReactor');
+        end
+
     end
-
-    r = Reactor(contents, 'IdealGasConstPressureReactor');
 end

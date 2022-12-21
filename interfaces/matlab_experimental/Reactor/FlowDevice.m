@@ -4,23 +4,23 @@ classdef FlowDevice < handle
     % x = FlowDevice(typ)
     %
     % Base class for devices that allow flow between reactors.
-    % :mat:func:`FlowDevice` objects are assumed to be adiabatic,
+    % :mat:class:`FlowDevice` objects are assumed to be adiabatic,
     % non-reactive, and have negligible internal volume, so that they are
     % internally always in steady-state even if the upstream and downstream
     % reactors are not. The fluid enthalpy, chemical composition, and mass
-    % flow rate are constant across a :mat:func:`FlowDevice`, and the
+    % flow rate are constant across a :mat:class:`FlowDevice`, and the
     % pressure difference equals the difference in pressure between the
     % upstream and downstream reactors.
     %
-    % See also: :mat:func:`MassFlowController`, :mat:func:`Valve`
+    % See also: :mat:class:`MassFlowController`, :mat:class:`Valve`
     %
     % :param typ:
-    %     Type of :mat:func:`FlowDevice` to be created. ``typ='MassFlowController'``
-    %     for :mat:func:`MassFlowController`,  ``typ='PressureController'`` for
-    %     :mat:func:`PressureController` and ``typ='Valve'`` for
-    %     :mat:func:`Valve`
+    %     Type of :mat:class:`FlowDevice` to be created. ``typ='MassFlowController'``
+    %     for :mat:class:`MassFlowController`,  ``typ='PressureController'`` for
+    %     :mat:class:`PressureController` and ``typ='Valve'`` for
+    %     :mat:class:`Valve`
     % :return:
-    %     Instance of class :mat:func:`FlowDevice`
+    %     Instance of class :mat:class:`FlowDevice`
     %
 
     properties (SetAccess = immutable)
@@ -31,21 +31,28 @@ classdef FlowDevice < handle
     end
 
     properties (SetAccess = protected)
-
-        upstream % Upstream object of type :mat:func:`Reactor` or :mat:func:`Reservoir`.
-
-        downstream % Downstream object of type :mat:func:`Reactor` or :mat:func:`Reservoir`.
-
-        % Get the mass flow rate.
         %
-        % mdot = f.massFlowRate
+        % Upstream object of type :mat:class:`Reactor` or :mat:class:`Reservoir`.
+        upstream
         %
-        % :param f:
-        %     Instance of class :mat:func:`MassFlowController`
-        % :return:
-        %     The mass flow rate through the :mat:func:`FlowDevice` at the current time
+        % Downstream object of type :mat:class:`Reactor` or :mat:class:`Reservoir`.
+        downstream
+        %
+        % The mass flow rate through the :mat:class:`FlowDevice` at the current time.
+        %
+        % The setter method can either take a double value or a function represented by
+        % an instance of :mat:class:`Func`.
         massFlowRate
-
+        %
+        % Valve coefficient in kg/Pa-s.
+        %
+        % The mass flow rate [kg/s] is computed from the expression
+        %
+        % .. math:: \dot{m} = K(P_{upstream} - P_{downstream})
+        %
+        % as long as this produces a positive value.  If this expression is
+        % negative, zero is returned.
+        valveCoeff
     end
 
     methods
@@ -80,13 +87,13 @@ classdef FlowDevice < handle
             % f.install(upstream, downstream)
             %
             % :param f:
-            %     Instance of class :mat:func:`FlowDevice` to install
+            %     Instance of class :mat:class:`FlowDevice` to install
             % :param upstream:
-            %     Upstream :mat:func:`Reactor` or :mat:func:`Reservoir`
+            %     Upstream :mat:class:`Reactor` or :mat:class:`Reservoir`
             % :param downstream:
-            %     Downstream :mat:func:`Reactor` or :mat:func:`Reservoir`
+            %     Downstream :mat:class:`Reactor` or :mat:class:`Reservoir`
             % :return:
-            %     Instance of class :mat:func:`FlowDevice`
+            %     Instance of class :mat:class:`FlowDevice`
             %
             if nargin == 3
 
@@ -106,55 +113,21 @@ classdef FlowDevice < handle
         %% Flowdevice Get Methods
 
         function mdot = get.massFlowRate(f)
-            % Get the mass flow rate.
-            %
-            % mdot = f.massFlowRate
-            %
-            % :param f:
-            %     Instance of class :mat:func:`MassFlowController`
-            % :return:
-            %     The mass flow rate through the :mat:func:`FlowDevice` at the current time
-            %
             mdot = callct('flowdev_massFlowRate2', f.id);
         end
 
         %% Flowdevice Set Methods
 
-        function setFunction(f, mf)
-            % Set the mass flow rate with class :mat:func:`Func`.
-            %
-            % f.setFunction(mf)
-            %
-            % See also: :mat:func:`MassFlowController`, :mat:func:`Func`
-            %
-            % :param f:
-            %     Instance of class :mat:func:`MassFlowController`
-            % :param mf:
-            %     Instance of class :mat:func:`Func`
-            %
-            if strcmp(f.type, 'MassFlowController')
-                k = callct('flowdev_setTimeFunction', f.id, ...
-                            mf.id);
-            else
-                error('Time function can only be set for mass flow controllers.');
-            end
+        function set.massFlowRate(f, mdot)
 
-        end
-
-        function setMassFlowRate(f, mdot)
-            % Set the mass flow rate to a constant value.
-            %
-            % f.setMassFlowRate(mdot)
-            %
-            % See also: :mat:func:`MassFlowController`
-            %
-            % :param f:
-            %     Instance of class :mat:func:`MassFlowController`
-            % :param mdot:
-            %     Mass flow rate
-            %
             if strcmp(f.type, 'MassFlowController')
-                k = callct('flowdev_setMassFlowCoeff', f.id, mdot);
+                if isa(mdot, 'double')
+                    k = callct('flowdev_setMassFlowCoeff', f.id, mdot);
+                elseif isa(mdot, 'Func')
+                    k = callct('flowdev_setTimeFunction', f.id, mdot.id);
+                else
+                    error('Mass flow rate must either be a value or function.');
+                end
             else
                 error('Mass flow rate can only be set for mass flow controllers.');
             end
@@ -168,9 +141,9 @@ classdef FlowDevice < handle
             % f.setMaster(d)
             %
             % :param f:
-            %     Instance of class :mat:func:`MassFlowController`
+            %     Instance of class :mat:class:`MassFlowController`
             % :param mf:
-            %     Instance of class :mat:func:`Func`
+            %     Instance of class :mat:class:`Func`
             %
             if strcmp(f.type, 'PressureController')
                 k = callct('flowdev_setMaster', f.id, d);
@@ -180,25 +153,8 @@ classdef FlowDevice < handle
 
         end
 
-        function setValveCoeff(f, k)
-            % Set the valve coefficient :math:`K`.
-            %
-            % f.setValveCoeff(k)
-            %
-            % The mass flow rate [kg/s] is computed from the expression
-            %
-            % .. math:: \dot{m} = K(P_{upstream} - P_{downstream})
-            %
-            % as long as this produces a positive value.  If this expression is
-            % negative, zero is returned.
-            %
-            % See also: :mat:func:`Valve`
-            %
-            % :param f:
-            %     Instance of class :mat:func:`Valve`
-            % :param k:
-            %     Value of the valve coefficient. Units: kg/Pa-s
-            %
+        function set.valveCoeff(f, k)
+
             if ~strcmp(f.type, 'Valve')
                 error('Valve coefficient can only be set for valves.');
             end

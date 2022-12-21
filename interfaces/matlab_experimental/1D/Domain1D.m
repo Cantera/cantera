@@ -15,8 +15,8 @@ classdef Domain1D < handle
     %    `OutletRes`
     %
     % :param b:
-    %     Instance of class :mat:func:`Solution` (for ``a == 1``)
-    %     or :mat:func:`Interface` (for ``a == 6``). Not used for
+    %     Instance of class :mat:class:`Solution` (for ``a == 1``)
+    %     or :mat:class:`Interface` (for ``a == 6``). Not used for
     %     all other valid values of ``a``.
     %
 
@@ -41,7 +41,7 @@ classdef Domain1D < handle
         % i = d.domainIndex
         %
         % :param d:
-        %     Instance of class :mat:func:`Domain1D`
+        %     Instance of class :mat:class:`Domain1D`
         % :return:
         %     Integer flag denoting the location of the domain,
         %     beginning with 1 at the left.
@@ -52,7 +52,7 @@ classdef Domain1D < handle
         % i = d.domainType
         %
         % :param d:
-        %     Instance of class :mat:func:`Domain1D`
+        %     Instance of class :mat:class:`Domain1D`
         % :return:
         %     Integer flag denoting the domain type.
         domainType
@@ -62,7 +62,7 @@ classdef Domain1D < handle
         % a = d.isFlow
         %
         % :param d:
-        %     Instance of class :mat:func:`Domain1D`
+        %     Instance of class :mat:class:`Domain1D`
         % :return:
         %     1 if the domain is a flow domain, and 0 otherwise.
         isFlow
@@ -72,7 +72,7 @@ classdef Domain1D < handle
         % a = d.isInlet
         %
         % :param d:
-        %     Instance of class :mat:func:`Domain1D`
+        %     Instance of class :mat:class:`Domain1D`
         % :return:
         %     1 if the domain is an inlet, and 0 otherwise.
         isInlet
@@ -82,7 +82,7 @@ classdef Domain1D < handle
         % a = d.isSurface
         %
         % :param d:
-        %     Instance of class :mat:func:`Domain1D`
+        %     Instance of class :mat:class:`Domain1D`
         % :return:
         %     1 if the domain is a surface, and 0 otherwise.
         isSurface
@@ -92,7 +92,7 @@ classdef Domain1D < handle
         % mdot = d.massFlux
         %
         % :param d:
-        %     Instance of class :mat:func:`Domain1D`
+        %     Instance of class :mat:class:`Domain1D`
         % :return:
         %     The mass flux in the domain.
         massFlux
@@ -102,7 +102,7 @@ classdef Domain1D < handle
         % n = d.nComponents
         %
         % :param d:
-        %     Instance of class :mat:func:`Domain1D`
+        %     Instance of class :mat:class:`Domain1D`
         % :return:
         %     Number of variables at each grid point
         nComponents
@@ -112,7 +112,7 @@ classdef Domain1D < handle
         % n = d.nPoints
         %
         % :param d:
-        %     Instance of class :mat:func:`Domain1D`
+        %     Instance of class :mat:class:`Domain1D`
         % :return:
         %     Integer number of grid points.
         nPoints
@@ -196,7 +196,7 @@ classdef Domain1D < handle
             % d.disableEnergy
             %
             % :param d:
-            %     Instance of class :mat:func:`Domain1D`
+            %     Instance of class :mat:class:`Domain1D`
             %
             disp(' ');
             disp('Disabling the energy equation...');
@@ -209,7 +209,7 @@ classdef Domain1D < handle
             % d.enableEnergy
             %
             % :param d:
-            %     Instance of class :mat:func:`Domain1D`
+            %     Instance of class :mat:class:`Domain1D`
             %
             disp(' ');
             disp('Enabling the energy equation...');
@@ -222,7 +222,7 @@ classdef Domain1D < handle
             % d.disableSoret
             %
             % :param d:
-            %     Instance of class :mat:func:`Domain1D`
+            %     Instance of class :mat:class:`Domain1D`
             %
             disp(' ');
             disp('Disabling the Soret effect...');
@@ -235,7 +235,7 @@ classdef Domain1D < handle
             % d.enableSoret
             %
             % :param d:
-            %     Instance of class :mat:func:`Domain1D`
+            %     Instance of class :mat:class:`Domain1D`
             %
             disp(' ');
             disp('Disabling the Soret effect...');
@@ -268,7 +268,7 @@ classdef Domain1D < handle
             % n = d.componentIndex(name)
             %
             % :param d:
-            %     Instance of class :mat:func:`Domain1D`
+            %     Instance of class :mat:class:`Domain1D`
             % :param name:
             %     String name of the component to look up. If a numeric value
             %     is passed, it will be returned.
@@ -300,7 +300,7 @@ classdef Domain1D < handle
             % n = d.componentName(index)
             %
             % :param d:
-            %     Instance of class :mat:func:`Domain1D`
+            %     Instance of class :mat:class:`Domain1D`
             % :param index:
             %     Integer or vector of integers of component names
             %     to get.
@@ -413,7 +413,7 @@ classdef Domain1D < handle
             % to which the boundary domain is attached.
             %
             % :param d:
-            %     Instance of class :mat:func:`Domain1D`
+            %     Instance of class :mat:class:`Domain1D`
             % :param k:
             %     Integer species index
             % :return:
@@ -492,7 +492,7 @@ classdef Domain1D < handle
             % d.setBounds(component, lower, upper)
             %
             % :param d:
-            %     Instance of class :mat:func:`Domain1D`
+            %     Instance of class :mat:class:`Domain1D`
             % :param component:
             %     String, component to set the bounds on
             % :param lower:
@@ -534,7 +534,7 @@ classdef Domain1D < handle
             % columns.
             %
             % :param d:
-            %     Instance of class :mat:func:`Domain1D`
+            %     Instance of class :mat:class:`Domain1D`
             % :param profile:
             %     n x 2 or 2 x n array of ``n`` points at which the temperature
             %     is specified.
@@ -560,7 +560,7 @@ classdef Domain1D < handle
             % d.setID(id)
             %
             % :param d:
-            %     Instance of class :mat:func:`Domain1D`
+            %     Instance of class :mat:class:`Domain1D`
             % :param id:
             %     String ID to assign
             %
@@ -573,7 +573,7 @@ classdef Domain1D < handle
             % d.setMassFlowRate(mdot)
             %
             % :param d:
-            %     Instance of class :mat:func:`Domain1D`
+            %     Instance of class :mat:class:`Domain1D`
             % :param mdot:
             %     Mass flow rate
             %
@@ -586,7 +586,7 @@ classdef Domain1D < handle
             % d.setMoleFractions(x)
             %
             % :param d:
-            %     Instance of class :mat:func:`Domain1D`
+            %     Instance of class :mat:class:`Domain1D`
             % :param x:
             %     String specifying the species and mole fractions in
             %     the format ``'SPEC:X,SPEC2:X2'``.
@@ -600,7 +600,7 @@ classdef Domain1D < handle
             % d.setSteadyTolerances(component, rtol, atol)
             %
             % :param d:
-            %     Instance of class :mat:func:`Domain1D`
+            %     Instance of class :mat:class:`Domain1D`
             % :param component:
             %     String or cell array of strings of component values
             %     whose tolerances should be set. If ``'default'`` is
@@ -641,7 +641,7 @@ classdef Domain1D < handle
             % d.setTransientTolerances(component, rtol, atol)
             %
             % :param d:
-            %     Instance of class :mat:func:`Domain1D`
+            %     Instance of class :mat:class:`Domain1D`
             % :param component:
             %     String or cell array of strings of component values
             %     whose tolerances should be set. If ``'default'`` is
@@ -694,7 +694,7 @@ classdef Domain1D < handle
             % d.setupGrid(grid)
             %
             % :param d:
-            %     Instance of class :mat:func:`Domain1D`
+            %     Instance of class :mat:class:`Domain1D`
             % :param grid:
             %
             callct('domain_setupGrid', d.domainID, numel(grid), grid);

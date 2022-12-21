@@ -1,22 +1,25 @@
-function v = Valve(upstream, downstream)
+classdef Valve < FlowDevice
     % Create a valve.
-    % Creates an instance of class 'FlowDevice' configured to simulate a
-    % valve that produces a flow rate proportional to the pressure
-    % difference between the upstream or downstream reactors.
+    % v = Valve(upstream, downstream)
+    % Create an instance of class :mat:class:`FlowDevice` configured to
+    % simulate a valve that produces a flow rate proportional to the
+    % pressure difference between the upstream and downstream reactors.
     %
-    % The mass flow rate [kg/s] is computed from the expression:
+    % The mass flow rate [kg/s] is computed from the expression
     %
-    % mdot = K(P_upstream - P_downstream)
+    % .. math:: \dot{m} = K(P_{upstream} - P_{downstream})
     %
-    % as long as this produces a positive value. If this expression is
-    % negative, zero is returned. Therefore, the 'Valve' object acts as a
-    % check valve - flow is always from upstream to downstream.
+    % as long as this produces a positive value.  If this expression is
+    % negative, zero is returned. Therefore, the :mat:class:`Valve` object
+    % acts as a check valve - flow is always from the upstream reactor to
+    % the downstream one.  Note: as currently implemented, the Valve object
+    % does not model real valve characteristics - in particular, it
+    % does not model choked flow. The mass flow rate is always assumed
+    % to be linearly proportional to the pressure difference, no matter how
+    % large the pressure difference. THIS MAY CHANGE IN A F`UTURE
+    % RELEASE.
     %
-    % Note: as currently implemented, the valve object does not model real
-    % valve characteristics - inparticular, it does not model choked flow.
-    % The mass flow rate is always assumed to be linearly proportional to
-    % the pressure difference, no matter how large. This MAY change in a
-    % future release.
+    % see also: :mat:class:`FlowDevice`, :mat:class:`MassFlowController`
     %
     % :param upstream:
     %    Upstream 'Reactor' or 'Reservoir'.
@@ -25,10 +28,19 @@ function v = Valve(upstream, downstream)
     % :return:
     %    Instance of class 'FlowDevice'.
 
-    v = FlowDevice('Valve');
+    methods
 
-    if nargin == 2
-        v.install(upstream, downstream)
+        % Constructor
+        function v = Valve(upstream, downstream)
+
+            v = v@FlowDevice('Valve');
+
+            if nargin == 2
+                v.install(upstream, downstream)
+            end
+
+        end
+
     end
 
 end

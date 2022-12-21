@@ -8,7 +8,7 @@ classdef ThermoPhase < handle
     % :param id:
     %     ID of the phase to import as specified in the input file.
     % :return:
-    %     Instance of class :mat:func:`ThermoPhase`
+    %     Instance of class :mat:class:`ThermoPhase`
     %
 
     properties (SetAccess = public)
@@ -34,7 +34,7 @@ classdef ThermoPhase < handle
         % tp.basis = b
         %
         % :param tp:
-        %     Instance of class :mat:func:`ThermoPhase`.
+        %     Instance of class :mat:class:`ThermoPhase`.
         % :param b:
         %     String. Can be 'mole'/'molar'/'Molar'/'Mole' or 'mass'/'Mass'.
         basis
@@ -55,7 +55,7 @@ classdef ThermoPhase < handle
         % molar masses of the individual species in the phase.
         %
         % :param tp:
-        %     Instance of class :mat:func:`ThermoPhase` (or another
+        %     Instance of class :mat:class:`ThermoPhase` (or another
         %     object that derives from ThermoPhase)
         % :return:
         %     Scalar double mean molecular weight. Units: kg/kmol
@@ -86,7 +86,7 @@ classdef ThermoPhase < handle
         % thermo manager.
         %
         % :param tp:
-        %     Instance of class :mat:func:`ThermoPhase` (or another
+        %     Instance of class :mat:class:`ThermoPhase` (or another
         %     object that derives from ThermoPhase).
         % :return:
         %     Vector of species chemical potentials. Units: J/kmol
@@ -114,7 +114,7 @@ classdef ThermoPhase < handle
         % v = tp.enthalpies_RT
         %
         % :param tp:
-        %     Instance of class :mat:func:`ThermoPhase` (or another
+        %     Instance of class :mat:class:`ThermoPhase` (or another
         %     object that derives from ThermoPhase)
         % :return:
         %     Vector of standard-state species enthalpies
@@ -138,10 +138,10 @@ classdef ThermoPhase < handle
         % finite temperature range, which may be different for each species
         % in the phase.
         %
-        % See also: :mat:func:`minTemp`
+        % See also: :mat:class:`minTemp`
         %
         % :param tp:
-        %     Instance of class :mat:func:`ThermoPhase` (or another
+        %     Instance of class :mat:class:`ThermoPhase` (or another
         %     object that derives from ThermoPhase)
         % :return:
         %     Vector of maximum temperatures of all species
@@ -156,10 +156,10 @@ classdef ThermoPhase < handle
         % finite temperature range, which may be different for each species
         % in the phase.
         %
-        % See also: :mat:func:`maxTemp`
+        % See also: :mat:class:`maxTemp`
         %
         % :param tp:
-        %     Instance of class :mat:func:`ThermoPhase` (or another
+        %     Instance of class :mat:class:`ThermoPhase` (or another
         %     object that derives from ThermoPhase)
         % :return:
         %     Vector of minimum temperatures of all species
@@ -189,7 +189,7 @@ classdef ThermoPhase < handle
         % .. math:: c = \sqrt{\frac{p_1 - p_0}{\rho_1-\rho_0}}
         %
         % :param tp:
-        %     Instance of class :mat:func:`ThermoPhase` (or another
+        %     Instance of class :mat:class:`ThermoPhase` (or another
         %     class derived from ThermoPhase)
         % :return:
         %     The speed of sound. Units: m/s
@@ -429,7 +429,7 @@ classdef ThermoPhase < handle
             % elMassFrac = tp.elementalMassFraction(element)
             %
             % :param tp:
-            %     Object representing the gas, instance of class :mat:func:`Solution`,
+            %     Object representing the gas, instance of class :mat:class:`Solution`,
             %     and an ideal gas. The state of this object should be set to an
             %     estimate of the gas state before calling elementalMassFraction.
             %
@@ -499,7 +499,7 @@ classdef ThermoPhase < handle
             % n = tp.nAtoms(k,m)
             %
             % :param tp:
-            %     Instance of class :mat:func:`ThermoPhase` (or another
+            %     Instance of class :mat:class:`ThermoPhase` (or another
             %     object that derives from ThermoPhase)
             % :param k:
             %     String species name or integer species number
@@ -557,7 +557,7 @@ classdef ThermoPhase < handle
             %     >> iho2 = gas.speciesIndex('HO2');
             %
             % :param tp:
-            %     Instance of class :mat:func:`ThermoPhase` (or another
+            %     Instance of class :mat:class:`ThermoPhase` (or another
             %     class derived from ThermoPhase)
             % :param name:
             %     If name is a single string, the return value will be a integer
@@ -625,7 +625,7 @@ classdef ThermoPhase < handle
             % n = tp.speciesNames
             %
             % :param tp:
-            %     Instance of class :mat:func:`ThermoPhase` (or another
+            %     Instance of class :mat:class:`ThermoPhase` (or another
             %     class derived from ThermoPhase)
             % :return:
             %     Cell array of strings of all of the species names
@@ -663,7 +663,7 @@ classdef ThermoPhase < handle
             % x = tp.moleFraction(species)
             %
             % :param tp:
-            %     Instance of class :mat:func:`ThermoPhase` (or another
+            %     Instance of class :mat:class:`ThermoPhase` (or another
             %     object that derives from ThermoPhase)
             % :param species:
             %     String or cell array of strings of species whose mole
@@ -713,7 +713,7 @@ classdef ThermoPhase < handle
             % y = tp.massFraction(species)
             %
             % :param tp:
-            %     Instance of class :mat:func:`ThermoPhase` (or another
+            %     Instance of class :mat:class:`ThermoPhase` (or another
             %     object that derives from ThermoPhase)
             % :param species:
             %     String or cell array of strings of species whose mass
@@ -833,7 +833,7 @@ classdef ThermoPhase < handle
             % p = tp.satPressure(t)
             %
             % :param tp:
-            %     Instance of class :mat:func:`ThermoPhase` (or another
+            %     Instance of class :mat:class:`ThermoPhase` (or another
             %     object that derives from ThermoPhase)
             % :param t:
             %     Temperature Units: K
@@ -849,7 +849,7 @@ classdef ThermoPhase < handle
             % t = tp.satTemperature(p)
             %
             % :param tp:
-            %     Instance of class :mat:func:`ThermoPhase` (or another
+            %     Instance of class :mat:class:`ThermoPhase` (or another
             %     object that derives from ThermoPhase)
             % :param p:
             %     Pressure. Units: Pa
@@ -1118,7 +1118,7 @@ classdef ThermoPhase < handle
             % tp.setElectricPotential(phi)
             %
             % :param tp:
-            %     Instance of class :mat:func:`ThermoPhase` (or another
+            %     Instance of class :mat:class:`ThermoPhase` (or another
             %     class derived from ThermoPhase)
             % :param phi:
             %     Electric potential. Units: V
@@ -1136,7 +1136,7 @@ classdef ThermoPhase < handle
             % intensive variables.
             %
             % :param tp:
-            %     Instance of class :mat:func:`ThermoPhase` (or another
+            %     Instance of class :mat:class:`ThermoPhase` (or another
             %     class derived from ThermoPhase)
             % :param p:
             %     Pressure (Pa)
@@ -1156,7 +1156,7 @@ classdef ThermoPhase < handle
             % intensive variables.
             %
             % :param tp:
-            %     Instance of class :mat:func:`ThermoPhase` (or another
+            %     Instance of class :mat:class:`ThermoPhase` (or another
             %     class derived from ThermoPhase)
             % :param t:
             %     Temperature (K)

@@ -34,15 +34,15 @@ classdef Transport < handle
             %
             % tr = Transport(r, th, model, loglevel)
             %
-            % Create a new instance of class :mat:func:`Transport`. One to three arguments
+            % Create a new instance of class :mat:class:`Transport`. One to three arguments
             % may be supplied. The first must be an instance of class
-            % :mat:func:`ThermoPhase`. The second (optional) argument is the type of
+            % :mat:class:`ThermoPhase`. The second (optional) argument is the type of
             % model desired, specified by the string ``'default'``, ``'Mix'`` or
             % ``'Multi'``. ``'default'`` uses the default transport specified in the
             % phase definition. The third argument is the logging level desired.
             %
             % :param th:
-            %     Instance of class :mat:func:`ThermoPhase`
+            %     Instance of class :mat:class:`ThermoPhase`
             % :param model:
             %     String indicating the transport model to use. Possible values
             %     are ``'default'``, ``'None'``, ``'Mix'``, and ``'Multi'``.
@@ -50,7 +50,7 @@ classdef Transport < handle
             % :param loglevel:
             %     Level of diagnostic logging. Default if not specified is 4.
             % :return:
-            %     Instance of class :mat:func:`Transport`
+            %     Instance of class :mat:class:`Transport`
             %
             checklib;
             tr.trID = 0;

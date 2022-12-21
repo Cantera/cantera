@@ -4,11 +4,19 @@ function r = frdivide(a, b)
     % r = frdivide(a,b)
     %
     % :param a:
-    %     Instance of class :mat:func:`Func`
+    %     Instance of class :mat:class:`Func`
     % :param b:
-    %     Instance of class :mat:func:`Func`
+    %     Instance of class :mat:class:`Func`
     % :return:
-    %     Instance of class :mat:func:`Func`
+    %     Instance of class :mat:class:`frdivide`
     %
-    r = Func('ratio', a, b);
+    methods
+
+        % Constructor
+        function f = frdivide(a, b)
+            f = f@Func('ratio', a, b);
+        end
+
+    end
+
 end
