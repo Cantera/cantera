@@ -30,8 +30,8 @@ classdef Func < handle
     % Note: this MATLAB class shadows the underlying C++ Cantera class
     % "Func1". See the Cantera C++ documentation for more details.
     %
-    % See also: :mat:func:`polynom`, :mat:func:`gaussian`, :mat:func:`plus`,
-    % :mat:func:`rdivide`, :mat:func:`times`
+    % See also: :mat:class:`polynom`, :mat:class:`gaussian`, :mat:class:`fplus`,
+    % :mat:class:`frdivide`, :mat:class:`ftimes`
     %
     % :param typ:
     %     String indicating type of functor to create. Possible values are:
@@ -50,7 +50,7 @@ classdef Func < handle
     % :param p:
     %     Vector of parameters
     % :return:
-    %     Instance of class :mat:func:`Func`
+    %     Instance of class :mat:class:`Func`
     %
 
     properties (SetAccess = immutable)
@@ -158,7 +158,7 @@ classdef Func < handle
             % b = a.subsref(s)
             %
             % :param a:
-            %     Instance of class :mat:func:`Func`
+            %     Instance of class :mat:class:`Func`
             % :param s:
             %     Value at which the function should be evaluated.
             % :return:
@@ -191,7 +191,7 @@ classdef Func < handle
             % s = f.char
             %
             % :param f:
-            %     Instance of class :mat:func:`Func`
+            %     Instance of class :mat:class:`Func`
             % :return:
             %     Formatted string displaying the function
             %

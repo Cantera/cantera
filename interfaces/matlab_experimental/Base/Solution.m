@@ -3,7 +3,7 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
     %
     % s = Solution(src, id, trans)
     %
-    % Class :mat:func:`Solution` represents solutions of multiple species. A
+    % Class :mat:class:`Solution` represents solutions of multiple species. A
     % solution is defined as a mixture of two or more constituents
     % (species) that are completely mixed on molecular length
     % scales. The macroscopic intensive thermodynamic state of a
@@ -14,10 +14,10 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
     %
     %     >> s = Solution('input.yaml', phase_name, transport_model)
     %
-    % constructs a :mat:func:`Solution` object from a specification contained in
+    % constructs a :mat:class:`Solution` object from a specification contained in
     % file ``input.yaml`` with the name of the phase to be imported specified with
-    % ``phase_name``. If a :mat:func:`Transport` model is included in ``input.yaml``,
-    % it will be included in the :mat:func:`Solution` instance with the default transport modeling as set
+    % ``phase_name``. If a :mat:class:`Transport` model is included in ``input.yaml``,
+    % it will be included in the :mat:class:`Solution` instance with the default transport modeling as set
     % in the input file. To specify the transport modeling, set the input argument
     % ``trans`` to one of ``'default'``, ``'None'``, ``'Mix'``, or ``'Multi'``.
     % In this case, the phase name must be specified as well. Alternatively,
@@ -25,14 +25,14 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
     % property in the CTI file before loading the phase. The transport
     % modeling cannot be changed once the phase is loaded.
     %
-    % Class :mat:func:`Solution` derives from three more basic classes, and most of
+    % Class :mat:class:`Solution` derives from three more basic classes, and most of
     % its methods are inherited from these classes. These are:
     %
-    %     * class :mat:func:`ThermoPhase`  -  composition information and thermodynamic properties
-    %     * class :mat:func:`Kinetics`     -  homogeneous kinetics
-    %     * class :mat:func:`Transport`    -  transport properties
+    %     * class :mat:class:`ThermoPhase`  -  composition information and thermodynamic properties
+    %     * class :mat:class:`Kinetics`     -  homogeneous kinetics
+    %     * class :mat:class:`Transport`    -  transport properties
     %
-    % See also: :mat:func:`ThermoPhase`, :mat:func:`Kinetics`, :mat:func:`Transport`
+    % See also: :mat:class:`ThermoPhase`, :mat:class:`Kinetics`, :mat:class:`Transport`
     %
     % :param src:
     %     Input string of YAML file name.
@@ -42,7 +42,7 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
     %     String, transport modeling. Possible values are ``'default'``, ``'None'``,
     %     ``'Mix'``, or ``'Multi'``. If not specified, ``'default'`` is used.
     % :return:
-    %     Instance of class :mat:func:`Solution`
+    %     Instance of class :mat:class:`Solution`
     %
 
     properties (Access = private)

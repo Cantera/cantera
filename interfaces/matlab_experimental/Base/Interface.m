@@ -19,7 +19,7 @@ classdef Interface < handle & ThermoPhase & Kinetics
     % :param p4:
     %     Adjoining phase to the interface.
     % :return:
-    %     Instance of class :mat:func:`Interface`
+    %     Instance of class :mat:class:`Interface`
     %
 
     properties (SetAccess = public)
@@ -93,7 +93,7 @@ classdef Interface < handle & ThermoPhase & Kinetics
             % s.setCoverages(cov, norm)
             %
             % :param s:
-            %      Instance of class :mat:func:`Interface`
+            %      Instance of class :mat:class:`Interface`
             % :param cov:
             %      Coverage of the species. ``cov`` can be either a vector of
             %      length ``n_surf_species``, or a string in the format
@@ -140,7 +140,7 @@ classdef Interface < handle & ThermoPhase & Kinetics
             % s.siteDensity = d
             %
             % :param s:
-            %      Instance of class :mat:func:`Interface`
+            %      Instance of class :mat:class:`Interface`
             % :param d
             %    Double site density. Unit: kmol/m^2 for surface phases,
             %    kmol/m for edge phases.

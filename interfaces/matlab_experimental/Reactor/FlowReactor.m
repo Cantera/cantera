@@ -1,4 +1,4 @@
-function r = FlowReactor(contents)
+classdef FlowReactor < Reactor
     % Create a flow reactor object.
     %
     % r = FlowReactor(contents)
@@ -11,17 +11,24 @@ function r = FlowReactor(contents)
     %     r1 = FlowReactor         % an empty reactor
     %     r2 = FlowReactor(gas)    % a reactor containing a gas
     %
-    % See also: :mat:func:`Reactor`
+    % See also: :mat:class:`Reactor`
     %
     % :param contents:
-    %     Cantera :mat:func:`Solution` to be set as the contents of the
+    %     Cantera :mat:class:`Solution` to be set as the contents of the
     %     reactor
     % :return:
-    %     Instance of class :mat:func:`Reactor`
+    %     Instance of class :mat:class:`FlowReactor`
 
-    if nargin == 0
-        contents = 0;
+    methods
+
+        % Constructor
+        function r = FlowReactor(contents)
+            if nargin == 0
+                contents = 0;
+            end
+
+            r = r@Reactor(contents, 'FlowReactor');
+        end
+
     end
-
-    r = Reactor(contents, 'FlowReactor');
 end

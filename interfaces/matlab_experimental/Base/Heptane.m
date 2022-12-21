@@ -16,7 +16,7 @@ function h = Heptane
     % Cantera C++ source code documentation.
     %
     % :return:
-    %     Instance of class :mat:func:`Solution`
+    %     Instance of class :mat:class:`Solution`
     %
     h = Solution('liquidvapor.yaml', 'heptane');
 end

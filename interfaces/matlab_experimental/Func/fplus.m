@@ -4,11 +4,19 @@ function r = fplus(a, b)
     % r = fplus(a, b)
     %
     % :param a:
-    %     Instance of class :mat:func:`Func`
+    %     Instance of class :mat:class:`Func`
     % :param b:
-    %     Instance of class :mat:func:`Func`
+    %     Instance of class :mat:class:`Func`
     % :return:
-    %     Instance of class :mat:func:`Func`
+    %     Instance of class :mat:class:`fplus`
     %
-    r = Func('sum', a, b);
+    methods
+
+        % Constructor
+        function f = fplus(a, b)
+            f = f@Func('sum', a, b);
+        end
+
+    end
+
 end

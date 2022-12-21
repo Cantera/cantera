@@ -36,17 +36,42 @@ classdef Wall < handle
     %
 
     properties (SetAccess = immutable)
+
         id
         type
+
     end
 
     properties (SetAccess = protected)
+
         left % Reactor on the left.
         right % Reactor on the right.
+
     end
 
     properties (SetAccess = public)
+
         area % Area of the wall in m^2.
+        thermalResistance % Thermal resistance in K*m^2/W.
+        heatTransferCoeff % Heat transfer coefficient in W/(m^2-K).
+        emissivity % Non-dimensional emissivity.
+        expansionRateCoeff % Expansion rate coefficient in m/(s-Pa).
+        %
+        % Heat flux in W/m^2.
+        %
+        % Must be set by an instance of class 'Func', which allows the
+        % heat flux to be an arbitrary function of time. It is possible
+        % to specify a constant heat flux by using the polynomial
+        % functor with only the first term specified.
+        heatFlux
+        %
+        % Velocity in m/s.
+        %
+        % Must be set by an instance of class 'Func', which allows the
+        % velocity to be an arbitrary function of time. It is possible
+        % to specify a constant velocity by using the polynomial
+        % functor with only the first term specified.
+        velocity
     end
 
     methods
@@ -129,85 +154,27 @@ classdef Wall < handle
             callct('wall_setArea', w.id, a);
         end
 
-        function setThermalResistance(w, r)
-            % Set the thermal resistance.
-            %
-            % w.setTHermalResistance(w)
-            %
-            % :param r:
-            %    Thermal resistance. Unit: K*m^2/W.
-            %
-
+        function set.thermalResistance(w, r)
             callct('wall_setThermalResistance', w.id, r);
         end
 
-        function setHeatTransferCoeff(w, u)
-            % Set the thermal transfer coefficient.
-            %
-            % w.setHeatTransferCoeff(u)
-            %
-            % :param u:
-            %    Heat transfer coefficient. Unit: W/(m^2-K).
-            %
-
+        function set.heatTransferCoeff(w, u)
             callct('wall_setHeatTransferCoeff', w.id, u);
         end
 
-        function setEmissivity(w, epsilon)
-            % Set the emissivity.
-            %
-            % w.setEmissitivity(epsilon)
-            %
-            % :param epsilon:
-            %    Nondimensional emissivity.
-            %
-
+        function set.emissivity(w, epsilon)
             callct('wall_setEmissivity', w.id, epsilon);
         end
 
-        function setExpansionRateCoeff(w, k)
-            % Set the expansion rate coefficient.
-            %
-            % w.setExpansionRateCoeff(k)
-            %
-            % :param k:
-            %    Expanstion rate coefficient. Unit: m/(s-Pa).
-            %
-
+        function set.expansionRateCoeff(w, k)
             callct('wall_setExpansionRateCoeff', w.id, k);
         end
 
-        function setHeatFlux(w, f)
-            % Set the heat flux.
-            %
-            % w.setHeatFlux(f)
-            %
-            % Must be set by an instance of class 'Func', which allows the
-            % heat flux to be an arbitrary function of time. It is possible
-            % to specify a constant heat flux by using the polynomial
-            % functor with only the first term specified.
-            %
-            % :param f:
-            %    Instance of class 'Func'. Unit: W/m^2.
-            %
-
+        function set.heatFlux(w, f)
             callct('wall_setHeatFlux', w.id, f.id);
         end
 
-        function setVelocity(w, f)
-            % Set the velocity of the wall.
-            %
-            % w.setVelocity(f)
-            %
-            % Must be set by an instance of class 'Func', which allows the
-            % velocity to be an arbitrary function of time. It is possible
-            % to specify a constant velocity by using the polynomial
-            % functor with only the first term specified.
-            %
-            % :param f:
-            %    Instance of class 'Func'. Unit: m/s.
-            %
-
+        function set.velocity(w, f)
             callct('wall_setVelocity', w.id, f.id);
         end
 

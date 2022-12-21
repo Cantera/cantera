@@ -1,17 +1,29 @@
-function m = OutletRes(id)
+classdef OutletRes < Domain1D
     % Create an outlet reservoir domain.
+    %
     % m = OutletRes(id)
     %
+    % :param id:
+    %     String ID of the outlet reservoir.
     % :return:
-    %     Instance of :mat:func:`Domain1D` representing an outlet
-    %     reservoir.
+    %     Instance of :mat:class:`OutletRes`.
     %
-    m = Domain1D('OutletRes');
 
-    if nargin == 0
-        m.setID('outletres');
-    else
-        m.setID(id);
+    methods
+
+        % Constructor
+        function m = OutletRes(id)
+
+            m = m@Domain1D('OutletRes');
+
+            if nargin == 0
+                m.setID('outletres');
+            else
+                m.setID(id);
+            end
+
+        end
+
     end
 
 end

@@ -4,23 +4,23 @@ function flame = CounterFlowDiffusionFlame(left, flow, right, tp_f, tp_o, oxidiz
     %
     % :param left:
     %     Object representing the left inlet, which must be
-    %     created using function :mat:func:`Inlet`.
+    %     created using function :mat:class:`Inlet`.
     % :param flow:
     %     Object representing the flow, created with
-    %     function :mat:func:`AxisymmetricFlow`.
+    %     function :mat:class:`AxisymmetricFlow`.
     % :param right:
     %     Object representing the right inlet, which must be
-    %     created using function :mat:func:`Inlet`.
+    %     created using function :mat:class:`Inlet`.
     % :param tp_f:
     %     Object representing the fuel inlet gas, instance of class
-    %     :mat:func:`Solution`, and an ideal gas.
+    %     :mat:class:`Solution`, and an ideal gas.
     % :param tp_o:
     %     Object representing the oxidizer inlet gas, instance of class
-    %     :mat:func:`Solution`, and an ideal gas.
+    %     :mat:class:`Solution`, and an ideal gas.
     % :param oxidizer:
     %     String representing the oxidizer species. Most commonly O2.
     % :return:
-    %     Instance of :mat:func:`Sim1D` object representing the left
+    %     Instance of :mat:class:`Sim1D` object representing the left
     %     inlet, flow, and right inlet.
     %
 

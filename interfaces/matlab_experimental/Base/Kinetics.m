@@ -50,7 +50,7 @@ classdef Kinetics < handle
         % Evaluates the source term :math:`\dot{\omega}_k M_k /\rho`
         %
         % :param a:
-        %     Instance of class :mat:func:`Kinetics` (or another
+        %     Instance of class :mat:class:`Kinetics` (or another
         %     object deriving from Kinetics)
         %     for which the ydots are desired.
         % :return:
@@ -80,31 +80,31 @@ classdef Kinetics < handle
             % Class Kinetics represents kinetics managers, which are classes that manage
             % reaction mechanisms.  The reaction mechanism attributes are specified in a YAML file.
             %
-            % Instances of class :mat:func:`Kinetics` are responsible for evaluating reaction rates
+            % Instances of class :mat:class:`Kinetics` are responsible for evaluating reaction rates
             % of progress, species production rates, and other quantities pertaining to
             % a reaction mechanism.
             %
             % :param ph:
-            %     An instance of class :mat:func:`ThermoPhase` representing the phase
+            %     An instance of class :mat:class:`ThermoPhase` representing the phase
             %     in which reactions occur
             % :param src:
             %     Input string of YAML file name.
             % :param id:
             %     ID of the phase to import as specified in the input file. (optional)
             % :param neighbor1:
-            %     Instance of class :mat:func:`ThermoPhase` or :mat:func:`Solution` representing a
+            %     Instance of class :mat:class:`ThermoPhase` or :mat:class:`Solution` representing a
             %     neighboring phase.
             % :param neighbor2:
-            %     Instance of class :mat:func:`ThermoPhase` or :mat:func:`Solution` representing a
+            %     Instance of class :mat:class:`ThermoPhase` or :mat:class:`Solution` representing a
             %     neighboring phase.
             % :param neighbor3:
-            %     Instance of class :mat:func:`ThermoPhase` or :mat:func:`Solution` representing a
+            %     Instance of class :mat:class:`ThermoPhase` or :mat:class:`Solution` representing a
             %     neighboring phase.
             % :param neighbor4:
-            %     Instance of class :mat:func:`ThermoPhase` or :mat:func:`Solution` representing a
+            %     Instance of class :mat:class:`ThermoPhase` or :mat:class:`Solution` representing a
             %     neighboring phase.
             % :return:
-            %      Instance of class :mat:func:`Kinetics`
+            %      Instance of class :mat:class:`Kinetics`
             %
             checklib;
 

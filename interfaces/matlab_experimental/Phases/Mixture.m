@@ -3,7 +3,7 @@ classdef Mixture < handle
     %
     % m = Mixture(phases)
     %
-    % Class :mat:func:`Mixture` represents mixtures of one or more phases of matter.
+    % Class :mat:class:`Mixture` represents mixtures of one or more phases of matter.
     % To construct a mixture, supply a cell array of phases and
     % mole numbers::
     %
@@ -32,7 +32,7 @@ classdef Mixture < handle
     % :param phases:
     %     Cell array of phases and mole numbers
     % :return:
-    %     Instance of class :mat:func:`Mixture`
+    %     Instance of class :mat:class:`Mixture`
     %
 
     properties (SetAccess = immutable)
@@ -53,7 +53,7 @@ classdef Mixture < handle
         % n = m.nAtoms(e)
         %
         % :param m:
-        %     Instance of class :mat:func:`Mixture`
+        %     Instance of class :mat:class:`Mixture`
         % :param e:
         %     Index of element
         % :return:
@@ -75,7 +75,7 @@ classdef Mixture < handle
         % n = m.elementIndex(name)
         %
         % :param m:
-        %     Instance of class :mat:func:`Mixture`
+        %     Instance of class :mat:class:`Mixture`
         % :param name:
         %     Name of the element whose index is desired
         % :return:
@@ -91,7 +91,7 @@ classdef Mixture < handle
         % moles = m.elementMoles(e)
         %
         % :param m:
-        %     Instance of class :mat:func:`Mixture`
+        %     Instance of class :mat:class:`Mixture`
         % :param e:
         %    Integer element number.
         % :return:
@@ -104,7 +104,7 @@ classdef Mixture < handle
         % n = m.speciesIndex(k, p)
         %
         % :param m:
-        %     Instance of class :mat:func:`Mixture`
+        %     Instance of class :mat:class:`Mixture`
         % :param name:
         %     Name of the speces whose index is desired
         % :return:
@@ -120,7 +120,7 @@ classdef Mixture < handle
         % moles = m.speciesMoles(k)
         %
         % :param m:
-        %     Instance of class :mat:func:`Mixture`
+        %     Instance of class :mat:class:`Mixture`
         % :param k:
         %    Integer species number.
         % :return:
@@ -134,7 +134,7 @@ classdef Mixture < handle
         % moles = m.phaseMoles(n)
         %
         % :param m:
-        %     Instance of class :mat:func:`Mixture`
+        %     Instance of class :mat:class:`Mixture`
         % :param n:
         %    Integer phase number.
         % :return:
@@ -218,10 +218,10 @@ classdef Mixture < handle
             % addPhase(self, phase, moles)
             %
             % :param self:
-            %     Instance of class :mat:func:`Mixture` to which phases should be
+            %     Instance of class :mat:class:`Mixture` to which phases should be
             %     added
             % :param phase:
-            %     Instance of class :mat:func:`ThermoPhase` which should be added
+            %     Instance of class :mat:class:`ThermoPhase` which should be added
             % :param moles:
             %     Number of moles of the ``phase`` to be added to this mixture.
             %     Units: kmol
@@ -351,7 +351,7 @@ classdef Mixture < handle
             % m.setPhaseMoles(n, moles)
             %
             % :param m:
-            %     Instance of class :mat:func:`Mixture`
+            %     Instance of class :mat:class:`Mixture`
             % :param n:
             %     Phase number in the input
             % :param moles:
@@ -374,7 +374,7 @@ classdef Mixture < handle
             %     >> mix.setSpeciesMoles('C(s):1.0, CH4:2.0, O2:0.2');
             %
             % :param m:
-            %     Instance of class :mat:func:`Mixture`
+            %     Instance of class :mat:class:`Mixture`
             % :param moles:
             %     Vector or string specifying the moles of species
             %
@@ -411,7 +411,7 @@ classdef Mixture < handle
             %     >> mix.equilibrate('TP', 1.0e-6, 500)
             %
             % :param m:
-            %     Instance of class :mat:func:`Mixture`
+            %     Instance of class :mat:class:`Mixture`
             % :param XY:
             %     Two-letter string specifying the two properties to hold
             %     fixed.  Currently, ``'TP'``, ``'HP'``, ``'TV'``, and ``'SP'`` are

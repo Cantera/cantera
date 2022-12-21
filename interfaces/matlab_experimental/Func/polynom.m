@@ -1,5 +1,5 @@
-function poly = polynom(coeffs)
-    % Create a polynomial :mat:func:`Func` instance.
+classdef polynom < Func
+    % Polynom - Create a polynomial :mat:class:`Func` instance.
     %
     % poly = polynom(coeffs)
     %
@@ -14,7 +14,13 @@ function poly = polynom(coeffs)
     % :param coeffs:
     %     Vector of polynomial coefficients
     % :return:
-    %     Instance of class :mat:func:`Func`
+    %     Instance of class :mat:class:`polynom`
+    %
+    methods
+
+        % Constructor
+        function f = polynom(coeffs)
+            [n m] = size(coeffs);
 
     [n m] = size(coeffs);
 

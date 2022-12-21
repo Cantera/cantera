@@ -1,20 +1,31 @@
-function m = AxisymmetricFlow(gas, id)
+classdef AxisymmetricFlow < Domain1D
     % Create an axisymmetric flow domain.
+    %
     % m = AxisymmetricFlow(gas, id)
     %
     % :param gas:
-    %     Instance of class :mat:func:`Solution`
+    %     Instance of class :mat:class:`Solution`
     % :param id:
     %     String, ID of the flow
     % :return:
-    %     Domain1D instance representing an axisymmetric flow.
+    %     Instance of class :mat:class:`AxisymmetricFlow`.
     %
-    m = Domain1D('StagnationFlow', gas);
 
-    if nargin == 1
-        m.setID('flow');
-    else
-        m.setID(id);
+    methods
+
+        % Constructor
+        function m = AxisymmetricFlow(gas, id)
+
+            m = m@Domain1D('StagnationFlow', gas);
+
+            if nargin == 1
+                m.setID('flow');
+            else
+                m.setID(id);
+            end
+
+        end
+
     end
 
 end
