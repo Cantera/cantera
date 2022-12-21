@@ -258,7 +258,7 @@ class TestReactor(utilities.CanteraTest):
             return nSteps
 
         n_baseline = integrate(1e-10, 1e-20)
-        n_rtol = integrate(5e-7, 1e-20)
+        n_rtol = integrate(1e-7, 1e-20)
         n_atol = integrate(1e-10, 1e-5)
         assert n_baseline > n_rtol
         assert n_baseline > n_atol
