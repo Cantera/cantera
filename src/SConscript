@@ -90,6 +90,9 @@ if env["python_package"] == "full":
     if env["OS"] == "Windows":
         escaped_home = '\\"' + pyenv["py_base"].replace("\\", "\\\\") + '\\"'
         pyenv.Append(CPPDEFINES={"CT_PYTHONHOME": escaped_home})
+        # Workaround for a problem with Boost, Python 3.8 and MSVC
+        pyenv.Append(CPPDEFINES={"HAVE_SNPRINTF": None})
+
     env.Command('#src/extensions/pythonExtensions.h', '#build/src/extensions/pythonExtensions.h',
                 Copy('$TARGET', '$SOURCE'))
     libraryTargets.append(obj)
