@@ -11,12 +11,6 @@ from pathlib import Path
 import cantera as ct
 
 
-if "native" in ct.hdf_support():
-    output = Path() / "adiabatic_flame.h5"
-else:
-    output = Path() / "adiabatic_flame.yaml"
-output.unlink(missing_ok=True)
-
 # Simulation parameters
 p = ct.one_atm  # pressure [Pa]
 Tin = 300.0  # unburned gas temperature [K]
@@ -37,6 +31,12 @@ f.show_solution()
 # Solve with mixture-averaged transport model
 f.transport_model = 'Mix'
 f.solve(loglevel=loglevel, auto=True)
+
+if "native" in ct.hdf_support():
+    output = Path() / "adiabatic_flame.h5"
+else:
+    output = Path() / "adiabatic_flame.yaml"
+output.unlink(missing_ok=True)
 
 # Solve with the energy equation enabled
 f.save(output, name="mix", description="solution with mixture-averaged transport")

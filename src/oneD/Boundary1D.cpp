@@ -235,7 +235,7 @@ AnyMap Inlet1D::serialize(const double* soln) const
     return state;
 }
 
-std::shared_ptr<SolutionArray> Inlet1D::asArray(const double* soln) const
+shared_ptr<SolutionArray> Inlet1D::asArray(const double* soln) const
 {
     AnyMap meta = Boundary1D::getMeta();
     meta["type"] = "inlet";
@@ -244,7 +244,7 @@ std::shared_ptr<SolutionArray> Inlet1D::asArray(const double* soln) const
     // set gas state (using pressure from adjacent domain)
     double pressure = m_flow->phase().pressure();
     auto phase = m_solution->thermo();
-    phase->setState_TPY(m_temp, pressure, &m_yin[0]);
+    phase->setState_TPY(m_temp, pressure, m_yin.data());
     vector_fp data(phase->stateSize());
     phase->saveState(data);
 
@@ -290,8 +290,7 @@ void Inlet1D::restore(SolutionArray& arr, double* soln, int loglevel)
         auto aux = arr.getAuxiliary(0);
         m_mdot = phase->density() * aux["velocity"];
     }
-    auto Y = phase->massFractions();
-    std::copy(Y, Y + m_nsp, &m_yin[0]);
+    phase->getMassFractions(m_yin.data());
 }
 
 // ------------- Empty1D -------------
@@ -313,12 +312,11 @@ AnyMap Empty1D::serialize(const double* soln) const
     return state;
 }
 
-std::shared_ptr<SolutionArray> Empty1D::asArray(const double* soln) const
+shared_ptr<SolutionArray> Empty1D::asArray(const double* soln) const
 {
     AnyMap meta = Boundary1D::getMeta();
     meta["type"] = "empty";
-    auto arr = SolutionArray::create(m_solution, 0, meta);
-    return arr;
+    return SolutionArray::create(m_solution, 0, meta);
 }
 
 // -------------- Symm1D --------------
@@ -374,12 +372,11 @@ AnyMap Symm1D::serialize(const double* soln) const
     return state;
 }
 
-std::shared_ptr<SolutionArray> Symm1D::asArray(const double* soln) const
+shared_ptr<SolutionArray> Symm1D::asArray(const double* soln) const
 {
     AnyMap meta = Boundary1D::getMeta();
     meta["type"] = "symmetry";
-    auto arr = SolutionArray::create(m_solution, 0, meta);
-    return arr;
+    return SolutionArray::create(m_solution, 0, meta);
 }
 
 // -------- Outlet1D --------
@@ -460,12 +457,11 @@ AnyMap Outlet1D::serialize(const double* soln) const
     return state;
 }
 
-std::shared_ptr<SolutionArray> Outlet1D::asArray(const double* soln) const
+shared_ptr<SolutionArray> Outlet1D::asArray(const double* soln) const
 {
     AnyMap meta = Boundary1D::getMeta();
     meta["type"] = "outlet";
-    auto arr = SolutionArray::create(m_solution, 0, meta);
-    return arr;
+    return SolutionArray::create(m_solution, 0, meta);
 }
 
 // -------- OutletRes1D --------
@@ -581,7 +577,7 @@ AnyMap OutletRes1D::serialize(const double* soln) const
     return state;
 }
 
-std::shared_ptr<SolutionArray> OutletRes1D::asArray(const double* soln) const
+shared_ptr<SolutionArray> OutletRes1D::asArray(const double* soln) const
 {
     AnyMap meta = Boundary1D::getMeta();
     meta["type"] = "outlet-reservoir";
@@ -672,13 +668,12 @@ AnyMap Surf1D::serialize(const double* soln) const
     return state;
 }
 
-std::shared_ptr<SolutionArray> Surf1D::asArray(const double* soln) const
+shared_ptr<SolutionArray> Surf1D::asArray(const double* soln) const
 {
     AnyMap meta = Boundary1D::getMeta();
     meta["type"] = "surface";
     meta["temperature"] = m_temp;
-    auto arr = SolutionArray::create(m_solution, 0, meta);
-    return arr;
+    return SolutionArray::create(m_solution, 0, meta);
 }
 
 void Surf1D::restore(const AnyMap& state, double* soln, int loglevel)
@@ -875,7 +870,7 @@ AnyMap ReactingSurf1D::serialize(const double* soln) const
     return state;
 }
 
-std::shared_ptr<SolutionArray> ReactingSurf1D::asArray(const double* soln) const
+shared_ptr<SolutionArray> ReactingSurf1D::asArray(const double* soln) const
 {
     AnyMap meta = Boundary1D::getMeta();
     meta["type"] = "reacting-surface";

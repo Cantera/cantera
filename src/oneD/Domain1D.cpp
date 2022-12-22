@@ -146,11 +146,6 @@ AnyMap Domain1D::serialize(const double* soln) const
     return getMeta();
 }
 
-std::shared_ptr<SolutionArray> Domain1D::asArray(const double* soln) const
-{
-    throw CanteraError("Domain1D::asArray", "Needs to be overloaded.");
-}
-
 void Domain1D::restore(const AnyMap& state, double* soln, int loglevel)
 {
     auto set_tols = [&](const AnyValue& tols, const string& which, vector_fp& out)
@@ -181,11 +176,6 @@ void Domain1D::restore(const AnyMap& state, double* soln, int loglevel)
         set_tols(tols, "steady-abstol", m_atol_ss);
         set_tols(tols, "steady-reltol", m_rtol_ss);
     }
-}
-
-void Domain1D::restore(SolutionArray& arr, double* soln, int loglevel)
-{
-    throw CanteraError("Domain1D::restore", "Needs to be overloaded.");
 }
 
 void Domain1D::locate()

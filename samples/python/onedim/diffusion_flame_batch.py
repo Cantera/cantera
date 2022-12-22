@@ -29,24 +29,6 @@ class FlameExtinguished(Exception):
     pass
 
 
-output_path = Path() / "diffusion_flame_batch_data"
-output_path.mkdir(parents=True, exist_ok=True)
-
-hdf_output = "native" in ct.hdf_support()
-if hdf_output:
-    file_name = output_path / "flame_data.h5"
-    file_name.unlink(missing_ok=True)
-
-def names(test):
-    if hdf_output:
-        # use internal container structure for HDF
-        file_name = output_path / "flame_data.h5"
-        return file_name, test
-    # use separate files for YAML
-    file_name = output_path / f"{test}.yaml".replace("-", "_").replace("/", "_")
-    return file_name, "solution"
-
-
 # PART 1: INITIALIZATION
 
 # Set up an initial hydrogen-oxygen counterflow flame at 1 bar and low strain
@@ -86,6 +68,24 @@ f.set_interrupt(interrupt_extinction)
 # Initialize and solve
 print('Creating the initial solution')
 f.solve(loglevel=0, auto=True)
+
+# Define output locations
+output_path = Path() / "diffusion_flame_batch_data"
+output_path.mkdir(parents=True, exist_ok=True)
+
+hdf_output = "native" in ct.hdf_support()
+if hdf_output:
+    file_name = output_path / "flame_data.h5"
+    file_name.unlink(missing_ok=True)
+
+def names(test):
+    if hdf_output:
+        # use internal container structure for HDF
+        file_name = output_path / "flame_data.h5"
+        return file_name, test
+    # use separate files for YAML
+    file_name = output_path / f"{test}.yaml".replace("-", "_").replace("/", "_")
+    return file_name, "solution"
 
 # Save to data directory
 file_name, entry = names("initial-solution")

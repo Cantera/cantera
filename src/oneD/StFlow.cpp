@@ -107,7 +107,7 @@ StFlow::StFlow(ThermoPhase* ph, size_t nsp, size_t points) :
     m_kRadiating[1] = m_thermo->speciesIndex("H2O");
 }
 
-StFlow::StFlow(std::shared_ptr<Solution> sol, size_t nsp, size_t points) :
+StFlow::StFlow(shared_ptr<Solution> sol, size_t nsp, size_t points) :
     StFlow(sol->thermo().get(), nsp, points)
 {
     m_solution = sol;
@@ -757,7 +757,7 @@ AnyMap StFlow::serialize(const double* soln) const
     return state;
 }
 
-std::shared_ptr<SolutionArray> StFlow::asArray(const double* soln) const
+shared_ptr<SolutionArray> StFlow::asArray(const double* soln) const
 {
     auto arr = SolutionArray::create(m_solution, nPoints(), getMeta());
     arr->setComponent("grid", m_z, true);

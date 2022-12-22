@@ -12,9 +12,12 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/thermo/SurfPhase.h"
+#include <boost/algorithm/string/predicate.hpp>
 #include <set>
 #include <fstream>
 
+
+namespace ba = boost::algorithm;
 
 namespace Cantera
 {
@@ -53,18 +56,18 @@ void SolutionArray::initialize(const std::vector<std::string>& extra)
     m_work.reset(new vector_fp(m_size * m_stride, 0.));
     m_data = m_work->data();
     for (auto& key : extra) {
-        m_other.emplace(key, std::make_shared<vector_fp>(m_size));
+        m_extra.emplace(key, std::make_shared<vector_fp>(m_size));
     }
 }
 
-std::shared_ptr<ThermoPhase> SolutionArray::thermo()
+shared_ptr<ThermoPhase> SolutionArray::thermo()
 {
     return m_sol->thermo();
 }
 
 bool SolutionArray::hasComponent(const std::string& name) const
 {
-    if (m_other.count(name)) {
+    if (m_extra.count(name)) {
         // auxiliary data
         return true;
     }
@@ -87,10 +90,9 @@ vector_fp SolutionArray::getComponent(const std::string& name) const
     }
 
     vector_fp out(m_size);
-    if (m_other.count(name)) {
+    if (m_extra.count(name)) {
         // auxiliary data
-        auto other = m_other.at(name);
-        std::copy(other->begin(), other->end(), out.begin());
+        out = *m_extra.at(name);
         return out;
     }
 
@@ -115,8 +117,8 @@ void SolutionArray::setComponent(
 
     if (!hasComponent(name)) {
         if (force) {
-            m_other.emplace(name, std::make_shared<vector_fp>(m_size));
-            auto& extra = m_other[name];
+            m_extra.emplace(name, std::make_shared<vector_fp>(m_size));
+            auto& extra = m_extra[name];
             std::copy(data.begin(), data.end(), extra->begin());
             return;
         }
@@ -126,10 +128,10 @@ void SolutionArray::setComponent(
         throw CanteraError("SolutionArray::setComponent", "incompatible sizes");
     }
 
-    if (m_other.count(name)) {
+    if (m_extra.count(name)) {
         // auxiliary data
-        auto other = m_other[name];
-        std::copy(data.begin(), data.end(), other->begin());
+        auto extra = m_extra[name];
+        std::copy(data.begin(), data.end(), extra->begin());
     }
 
     size_t ix = m_sol->thermo()->speciesIndex(name);
@@ -190,7 +192,7 @@ std::map<std::string, double> SolutionArray::getAuxiliary(size_t index)
 {
     setIndex(index);
     std::map<std::string, double> out;
-    for (auto& item : m_other) {
+    for (auto& item : m_extra) {
         auto& extra = *item.second;
         out[item.first] = extra[m_index];
     }
@@ -268,8 +270,8 @@ void SolutionArray::writeEntry(const std::string& fname, const std::string& id,
         }
     }
 
-    for (auto& other : m_other) {
-        file.writeVector(id, other.first, *(other.second));
+    for (auto& extra : m_extra) {
+        file.writeVector(id, extra.first, *(extra.second));
     }
     file.flush();
 }
@@ -290,7 +292,7 @@ AnyMap& openField(AnyMap& root, const std::string& id)
         } else if (!sub.hasKey(field)) {
             sub[field] = AnyMap();
         }
-        ptr = &sub[field].as<AnyMap>(); // AnyMap lacks 'operator=' for const AnyMap
+        ptr = &sub[field].as<AnyMap>();
     }
     return *ptr;
 }
@@ -302,8 +304,8 @@ void SolutionArray::writeEntry(AnyMap& root, const std::string& id)
     data["points"] = int(m_size);
     data.update(m_meta);
 
-    for (auto& other : m_other) {
-        data[other.first] = *(other.second);
+    for (auto& extra : m_extra) {
+        data[extra.first] = *(extra.second);
     }
 
     auto phase = m_sol->thermo();
@@ -315,7 +317,6 @@ void SolutionArray::writeEntry(AnyMap& root, const std::string& id)
         auto nSpecies = phase->nSpecies();
         vector_fp values(nSpecies);
         if (surf) {
-            surf->invalidateCache();
             surf->getCoverages(&values[0]);
         } else {
             phase->getMassFractions(&values[0]);
@@ -390,7 +391,8 @@ AnyMap SolutionArray::readHeader(const std::string& fname, const std::string& id
 
 AnyMap SolutionArray::readHeader(const AnyMap& root, const std::string& id)
 {
-    throw CanteraError("SolutionArray::readHeader", "Not implemented.");
+    // todo: implement
+    throw NotImplementedError("SolutionArray::readHeader", "Not implemented.");
 }
 
 AnyMap SolutionArray::restore(const std::string& fname, const std::string& id)
@@ -410,9 +412,9 @@ AnyMap SolutionArray::restore(const std::string& fname, const std::string& id)
                         "Unknown file extension '{}'", extension);
 }
 
-std::string SolutionArray::detectMode(std::set<std::string> names, bool native)
+std::string SolutionArray::detectMode(const std::set<std::string>& names, bool native)
 {
-    // identify storage mode of state data
+    // check set of available names against state acronyms defined by Phase::fullStates
     std::string mode = "";
     const auto& nativeState = m_sol->thermo()->nativeState();
     bool usesNativeState;
@@ -422,16 +424,19 @@ std::string SolutionArray::detectMode(std::set<std::string> names, bool native)
         std::string name;
         usesNativeState = true;
         for (size_t i = 0; i < item.size(); i++) {
+            // pick i-th letter from "full" state acronym
             name = std::string(1, item[i]);
             if (surf && (name == "X" || name == "Y")) {
-                // override native state
+                // override native state to enable detection of surface phases
                 name = "C";
                 usesNativeState = false;
                 break;
             }
             if (names.count(name)) {
+                // property is stored using letter acronym
                 usesNativeState &= nativeState.count(name) > 0;
             } else if (aliasMap.count(name) && names.count(aliasMap.at(name))) {
+                // property is stored using property name
                 usesNativeState &= nativeState.count(name) > 0;
             } else {
                 found = false;
@@ -449,7 +454,8 @@ std::string SolutionArray::detectMode(std::set<std::string> names, bool native)
     return mode;
 }
 
-std::set<std::string> SolutionArray::stateProperties(std::string mode, bool alias)
+std::set<std::string> SolutionArray::stateProperties(
+    const std::string& mode, bool alias)
 {
     std::set<std::string> states;
     if (mode == "native") {
@@ -541,12 +547,12 @@ void SolutionArray::readEntry(const std::string& fname, const std::string& id)
             "Import of '{}' data is not supported.", mode);
     }
 
-    // restore other data
+    // restore remaining data
     for (const auto& name : names) {
         if (!states.count(name)) {
             vector_fp data = file.readVector(id, name, m_size);
-            m_other.emplace(name, std::make_shared<vector_fp>(m_size));
-            auto& extra = m_other[name];
+            m_extra.emplace(name, std::make_shared<vector_fp>(m_size));
+            auto& extra = m_extra[name];
             std::copy(data.begin(), data.end(), extra->begin());
         }
     }
@@ -664,7 +670,8 @@ void SolutionArray::readEntry(const AnyMap& root, const std::string& id)
             }
         } else if (missingProps.size()) {
             throw CanteraError("SolutionArray::restore",
-                "Incomplete state information.");
+                "Incomplete state information: missing '{}'",
+                ba::join(missingProps, "', '"));
         }
     }
 

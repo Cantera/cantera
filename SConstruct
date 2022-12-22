@@ -360,9 +360,9 @@ config_options = [
         "hdf_support",
         """Select whether to support HDF5 container files natively ('y'), disable HDF5
            support ('n'), or to decide automatically based on the system configuration
-           ('default'). Native HDF5 support uses the headers-only HDF5 wrapper HighFive
-           (see option 'system_highfive'). Specifying 'hdf_include' or 'hdf_libdir'
-           changes the default to 'y'.""",
+           ('default'). Native HDF5 support uses the HDF5 library as well as the
+           header-only HighFive C++ wrapper (see option 'system_highfive'). Specifying
+           'hdf_include' or 'hdf_libdir' changes the default to 'y'.""",
         "default", ("default", "y", "n")),
     PathOption(
         "hdf_include",
@@ -1529,14 +1529,12 @@ if env["hdf_include"]:
     env["hdf_include"] = Path(env["hdf_include"]).as_posix()
     env.Append(CPPPATH=[env["hdf_include"]])
     env["hdf_support"] = "y"
-    env["extra_inc_dirs"].append(env["hdf_include"])
 if env["hdf_libdir"]:
     env["hdf_libdir"] = Path(env["hdf_libdir"]).as_posix()
     env.Append(LIBPATH=[env["hdf_libdir"]])
     env["hdf_support"] = "y"
     if env["use_rpath_linkage"]:
         env.Append(RPATH=env["hdf_libdir"])
-    env["extra_lib_dirs"].append(env["hdf_libdir"])
 
 if env["hdf_support"] == "n":
     env["use_hdf5"] = False

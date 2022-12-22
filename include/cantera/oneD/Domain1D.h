@@ -322,7 +322,9 @@ public:
      *
      * @since  New in Cantera 3.0.
      */
-    virtual std::shared_ptr<SolutionArray> asArray(const double* soln) const;
+    virtual shared_ptr<SolutionArray> asArray(const double* soln) const {
+        throw CanteraError("Domain1D::asArray", "Needs to be overloaded.");
+    }
 
     //! Restore the solution for this domain from an AnyMap
     /*!
@@ -342,7 +344,9 @@ public:
      *
      * @since  New in Cantera 3.0.
      */
-    virtual void restore(SolutionArray& arr, double* soln, int loglevel);
+    virtual void restore(SolutionArray& arr, double* soln, int loglevel) {
+        throw NotImplementedError("Domain1D::restore", "Needs to be overloaded.");
+    }
 
     //! Return thermo/kinetics/transport manager used in the domain
     //! @since  New in Cantera 3.0.
@@ -530,7 +534,7 @@ protected:
     bool m_force_full_update;
 
     //! Composite thermo/kinetics/transport handler
-    std::shared_ptr<Solution> m_solution;
+    shared_ptr<Solution> m_solution;
 };
 }
 

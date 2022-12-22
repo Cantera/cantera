@@ -12,12 +12,6 @@ import numpy as np
 import cantera as ct
 
 
-if "native" in ct.hdf_support():
-    output = Path() / "flame_fixed_T.h5"
-else:
-    output = Path() / "flame_fixed_T.yaml"
-output.unlink(missing_ok=True)
-
 ################################################################
 # parameter values
 p = ct.one_atm  # pressure
@@ -67,6 +61,13 @@ f.transport_model = 'Mix'
 f.set_refine_criteria(ratio=3.0, slope=0.3, curve=1)
 
 f.solve(loglevel, refine_grid)
+
+if "native" in ct.hdf_support():
+    output = Path() / "flame_fixed_T.h5"
+else:
+    output = Path() / "flame_fixed_T.yaml"
+output.unlink(missing_ok=True)
+
 f.save(output, name="mix", description="solution with mixture-averaged transport")
 
 print('\n\n switching to multicomponent transport...\n\n')

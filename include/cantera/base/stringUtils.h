@@ -105,9 +105,6 @@ void tokenizeString(const std::string& oval,
 //! This function separates a string up into tokens according to the location of
 //! path separators.
 /*!
- * White space includes the new line character. tokens are stripped of leading
- * and trailing white space.
- *
  * The separate tokens are returned in a string vector, v.
  *
  * @param oval   String to be broken up

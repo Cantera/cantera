@@ -199,7 +199,7 @@ void tokenizePath(const std::string& in_val, std::vector<std::string>& v)
 {
     std::string val = ba::trim_copy(in_val);
     v.clear();
-    ba::split(v, val, ba::is_any_of("/\\:"), ba::token_compress_on);
+    ba::split(v, val, ba::is_any_of("/\\"), ba::token_compress_on);
 }
 
 size_t copyString(const std::string& source, char* dest, size_t length)

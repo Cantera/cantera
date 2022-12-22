@@ -11,12 +11,6 @@ import cantera as ct
 import matplotlib.pyplot as plt
 
 
-if "native" in ct.hdf_support():
-    output = Path() / "diffusion_flame.h5"
-else:
-    output = Path() / "diffusion_flame.yaml"
-output.unlink(missing_ok=True)
-
 # Input parameters
 p = ct.one_atm  # pressure
 tin_f = 300.0  # fuel inlet temperature
@@ -60,6 +54,13 @@ f.set_refine_criteria(ratio=4, slope=0.2, curve=0.3, prune=0.04)
 # Solve the problem
 f.solve(loglevel, auto=True)
 f.show_solution()
+
+if "native" in ct.hdf_support():
+    output = Path() / "diffusion_flame.h5"
+else:
+    output = Path() / "diffusion_flame.yaml"
+output.unlink(missing_ok=True)
+
 f.save(output)
 
 # write the velocity, temperature, and mole fractions to a CSV file
