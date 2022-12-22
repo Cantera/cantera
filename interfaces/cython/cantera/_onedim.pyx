@@ -1484,17 +1484,6 @@ cdef class Sim1D:
         self.sim.save(stringify(str(filename)), stringify(name),
                       stringify(description), loglevel, compression)
 
-    def write_yaml(self, filename, name='solution', description='none',
-                   quiet=True):
-        """
-        Save the solution in YAML format (legacy implementation)
-
-        .. versionadded:: 3.0
-        """
-        loglevel = 1 - quiet
-        self.sim.write_yaml(stringify(str(filename)), stringify(name),
-                            stringify(description), loglevel)
-
     def restore(self, filename='soln.yaml', name='solution', loglevel=2):
         """Set the solution vector to a previously-saved solution.
 
@@ -1517,16 +1506,6 @@ cdef class Sim1D:
         header = self.sim.restore(stringify(str(filename)), stringify(name), loglevel)
         self._initialized = True
         return anymap_to_dict(header)
-
-    def read_yaml(self, filename, name='solution', description='none', quiet=True):
-        """
-        Set the solution vector to a previously-saved solution (legacy implementation)
-
-        .. versionadded:: 3.0
-        """
-        loglevel = 2 * (1 - quiet)
-        self.sim.read_yaml(stringify(str(filename)), stringify(name), loglevel)
-        self._initialized = True
 
     def restore_time_stepping_solution(self):
         """

@@ -732,31 +732,6 @@ AnyMap StFlow::getMeta() const
     return state;
 }
 
-AnyMap StFlow::serialize(const double* soln) const
-{
-    auto state = getMeta();
-
-    // m_rho
-
-    state["pressure"] = m_press;
-    state["grid"] = m_z;
-    vector_fp data(nPoints());
-    for (size_t i = 0; i < nComponents(); i++) {
-        if (componentActive(i)) {
-            for (size_t j = 0; j < nPoints(); j++) {
-                data[j] = soln[index(i,j)];
-            }
-            state[componentName(i)] = data;
-        }
-    }
-
-    if (m_do_radiation) {
-        state["radiative-heat-loss"] = m_qdotRadiation;
-    }
-
-    return state;
-}
-
 shared_ptr<SolutionArray> StFlow::asArray(const double* soln) const
 {
     auto arr = SolutionArray::create(m_solution, nPoints(), getMeta());
@@ -779,35 +754,9 @@ shared_ptr<SolutionArray> StFlow::asArray(const double* soln) const
     return arr;
 }
 
-void StFlow::restore(const AnyMap& state, double* soln, int loglevel)
-{
-    Domain1D::restore(state, soln, loglevel);
-    m_press = state["pressure"].asDouble();
-    setupGrid(nPoints(), state["grid"].asVector<double>(nPoints()).data());
-
-    for (size_t i = 0; i < nComponents(); i++) {
-        if (!componentActive(i)) {
-            continue;
-        }
-        std::string name = componentName(i);
-        if (state.hasKey(name)) {
-            const vector_fp& data = state[name].asVector<double>(nPoints());
-            for (size_t j = 0; j < nPoints(); j++) {
-                soln[index(i,j)] = data[j];
-            }
-        } else if (loglevel) {
-            warn_user("StFlow::restore", "Saved state does not contain values for "
-                "component '{}' in domain '{}'.", name, id());
-        }
-    }
-
-    updateProperties(npos, soln + loc(), 0, m_points - 1);
-    setMeta(state);
-}
-
 void StFlow::restore(SolutionArray& arr, double* soln, int loglevel)
 {
-    Domain1D::restore(arr.meta(), soln, loglevel);
+    Domain1D::setMeta(arr.meta(), loglevel);
     arr.setIndex(0);
     auto phase = arr.thermo();
     m_press = phase->pressure();
@@ -832,10 +781,10 @@ void StFlow::restore(SolutionArray& arr, double* soln, int loglevel)
     }
 
     updateProperties(npos, soln + loc(), 0, m_points - 1);
-    setMeta(arr.meta());
+    setMeta(arr.meta(), loglevel);
 }
 
-void StFlow::setMeta(const AnyMap& state)
+void StFlow::setMeta(const AnyMap& state, int loglevel)
 {
     if (state.hasKey("energy-enabled")) {
         const AnyValue& ee = state["energy-enabled"];

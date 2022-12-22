@@ -135,9 +135,7 @@ public:
     virtual void init();
     virtual void eval(size_t jg, double* xg, double* rg,
                       integer* diagg, double rdt);
-    virtual AnyMap serialize(const double* soln) const;
     virtual shared_ptr<SolutionArray> asArray(const double* soln) const;
-    virtual void restore(const AnyMap& state, double* soln, int loglevel);
     virtual void restore(SolutionArray& arr, double* soln, int loglevel);
 
 protected:
@@ -171,7 +169,6 @@ public:
     virtual void eval(size_t jg, double* xg, double* rg,
                       integer* diagg, double rdt);
 
-    virtual AnyMap serialize(const double* soln) const;
     virtual shared_ptr<SolutionArray> asArray(const double* soln) const;
     virtual void restore(SolutionArray& arr, double* soln, int loglevel) {}
 };
@@ -197,7 +194,6 @@ public:
     virtual void eval(size_t jg, double* xg, double* rg,
                       integer* diagg, double rdt);
 
-    virtual AnyMap serialize(const double* soln) const;
     virtual shared_ptr<SolutionArray> asArray(const double* soln) const;
     virtual void restore(SolutionArray& arr, double* soln, int loglevel) {}
 };
@@ -223,7 +219,6 @@ public:
     virtual void eval(size_t jg, double* xg, double* rg,
                       integer* diagg, double rdt);
 
-    virtual AnyMap serialize(const double* soln) const;
     virtual shared_ptr<SolutionArray> asArray(const double* soln) const;
     virtual void restore(SolutionArray& arr, double* soln, int loglevel) {}
 };
@@ -256,9 +251,7 @@ public:
     virtual void init();
     virtual void eval(size_t jg, double* xg, double* rg,
                       integer* diagg, double rdt);
-    virtual AnyMap serialize(const double* soln) const;
     virtual shared_ptr<SolutionArray> asArray(const double* soln) const;
-    virtual void restore(const AnyMap& state, double* soln, int loglevel);
     virtual void restore(SolutionArray& arr, double* soln, int loglevel);
 
 protected:
@@ -290,9 +283,7 @@ public:
     virtual void eval(size_t jg, double* xg, double* rg,
                       integer* diagg, double rdt);
 
-    virtual AnyMap serialize(const double* soln) const;
     virtual shared_ptr<SolutionArray> asArray(const double* soln) const;
-    virtual void restore(const AnyMap& state, double* soln, int loglevel);
     virtual void restore(SolutionArray& arr, double* soln, int loglevel);
 
     virtual void showSolution_s(std::ostream& s, const double* x);
@@ -328,9 +319,7 @@ public:
     virtual void eval(size_t jg, double* xg, double* rg,
                       integer* diagg, double rdt);
 
-    virtual AnyMap serialize(const double* soln) const;
     virtual shared_ptr<SolutionArray> asArray(const double* soln) const;
-    virtual void restore(const AnyMap& state, double* soln, int loglevel);
     virtual void restore(SolutionArray& arr, double* soln, int loglevel);
 
     virtual void _getInitialSoln(double* x) {

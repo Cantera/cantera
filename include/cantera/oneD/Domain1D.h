@@ -313,8 +313,10 @@ public:
     //! Save the state of this domain as an AnyMap
     /*!
      * @param soln local solution vector for this domain
+     *
+     * @deprecated  To be removed after Cantera 3.0; superseded by asArray.
      */
-    virtual AnyMap serialize(const double* soln) const;
+    AnyMap serialize(const double* soln) const;
 
     //! Save the state of this domain as a SolutionArray
     /*!
@@ -323,7 +325,7 @@ public:
      * @since  New in Cantera 3.0.
      */
     virtual shared_ptr<SolutionArray> asArray(const double* soln) const {
-        throw CanteraError("Domain1D::asArray", "Needs to be overloaded.");
+        throw NotImplementedError("Domain1D::asArray", "Needs to be overloaded.");
     }
 
     //! Restore the solution for this domain from an AnyMap
@@ -332,8 +334,10 @@ public:
      * @param[out] soln Value of the solution vector, local to this domain
      * @param[in]  loglevel 0 to suppress all output; 1 to show warnings; 2 for
      *      verbose output
+     *
+     * @deprecated  To be removed after Cantera 3.0; restore from SolutionArray instead.
      */
-    virtual void restore(const AnyMap& state, double* soln, int loglevel);
+    void restore(const AnyMap& state, double* soln, int loglevel);
 
     //! Restore the solution for this domain from a SolutionArray
     /*!
@@ -501,6 +505,9 @@ public:
 protected:
     //! Retrieve meta data
     virtual AnyMap getMeta() const;
+
+    //! Retrieve meta data
+    virtual void setMeta(const AnyMap& meta, int loglevel);
 
     doublereal m_rdt;
     size_t m_nv;
