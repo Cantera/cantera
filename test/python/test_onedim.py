@@ -515,17 +515,25 @@ class TestFreeFlame(utilities.CanteraTest):
         # TODO: check that the solution is actually correct (that is, that the
         # residual satisfies the error tolerances) on the new grid.
 
-    def test_save_restore_yaml_legacy(self):
-        self.run_save_restore("legacy")
-
-    def test_save_restore_yaml_transition(self):
-        self.run_save_restore("transition")
+    def test_restore_legacy_yaml(self):
+        reactants = 'H2:1.1, O2:1, AR:5'
+        p = 5 * ct.one_atm
+        Tin = 600
+        self.create_sim(p, Tin, reactants)
+        meta = self.sim.restore("adiabatic_flame_legacy.yaml", "setup")
+        assert meta["generator"] == "Cantera Sim1D"
+        assert meta["cantera-version"] == "2.6.0"
+        assert self.sim.inlet.T == 300
+        assert self.sim.P == pytest.approx(ct.one_atm)
+        assert len(self.sim.grid) == 9
 
     def test_save_restore_yaml_array(self):
+        # save and restore using YAML format
         self.run_save_restore("array")
 
     @utilities.unittest.skipIf("native" not in ct.hdf_support(), "HighFive not installed")
     def test_save_restore_hdf_array(self):
+        # save and restore using HDF format
         self.run_save_restore("hdf")
 
     def run_save_restore(self, mode):
@@ -550,26 +558,16 @@ class TestFreeFlame(utilities.CanteraTest):
         V1 = self.sim.spread_rate
         P1 = self.sim.P
         T1 = self.sim.T
-
-        if mode in {"array", "hdf"}:
-            self.sim.save(filename, "test", loglevel=0)
-        else:
-            self.sim.write_yaml(filename, "test", quiet=True)
+        self.sim.save(filename, "test", loglevel=0)
 
         # Save a second solution to the same file
         self.sim.radiation_enabled = True
         self.sim.boundary_emissivities = 0.3, 0.8
-        if mode in {"array", "hdf"}:
-            self.sim.save(filename, "test2", loglevel=0)
-        else:
-            self.sim.write_yaml(filename, "test2", quiet=True)
+        self.sim.save(filename, "test2", loglevel=0)
 
         # Create flame object with dummy initial grid
         self.sim = ct.FreeFlame(self.gas)
-        if mode == "legacy":
-            self.sim.read_yaml(filename, "test", quiet=True)
-        else:
-            self.sim.restore(filename, "test", loglevel=0)
+        self.sim.restore(filename, "test", loglevel=0)
 
         # Sim is initially in "steady-state" mode, so this returns the
         # steady-state tolerances
@@ -607,10 +605,7 @@ class TestFreeFlame(utilities.CanteraTest):
         self.assertFalse(self.sim.radiation_enabled)
         self.assertFalse(self.sim.soret_enabled)
 
-        if mode == "legacy":
-            self.sim.read_yaml(filename, "test2", quiet=True)
-        else:
-            self.sim.restore(filename, "test2", loglevel=0)
+        self.sim.restore(filename, "test2", loglevel=0)
         self.assertTrue(self.sim.radiation_enabled)
         self.assertEqual(self.sim.boundary_emissivities, (0.3, 0.8))
 
@@ -731,15 +726,18 @@ class TestFreeFlame(utilities.CanteraTest):
     @pytest.mark.usefixtures("allow_deprecated")
     @utilities.unittest.skipIf("h5py" not in ct.hdf_support(), "h5py not installed")
     def test_write_hdf_legacy(self):
+        # save and restore legacy h5py format
         self.run_freeflame_write_hdf("legacy")
 
     @pytest.mark.usefixtures("allow_deprecated")
     @utilities.unittest.skipIf(ct.hdf_support() != {"h5py", "native"}, "h5py and/or HighFive not installed")
     def test_write_hdf_transition(self):
+        # save legacy h5py format / restore with HighFive
         self.run_freeflame_write_hdf("transition")
 
     @utilities.unittest.skipIf("native" not in ct.hdf_support(), "HighFive not installed")
     def test_write_hdf_native(self):
+        # save and restore with updated format (HighFive only)
         self.run_freeflame_write_hdf("native")
 
     def run_freeflame_write_hdf(self, mode):
@@ -1316,15 +1314,18 @@ class TestImpingingJet(utilities.CanteraTest):
     @pytest.mark.usefixtures("allow_deprecated")
     @utilities.unittest.skipIf("h5py" not in ct.hdf_support(), "h5py not installed")
     def test_write_hdf_legacy(self):
+        # save and restore legacy h5py format
         self.run_impingingjet_write("legacy")
 
     @pytest.mark.usefixtures("allow_deprecated")
     @utilities.unittest.skipIf(ct.hdf_support() != {"h5py", "native"}, "h5py and/or HighFive not installed")
     def test_write_hdf_transition(self):
+        # save legacy h5py format and restore using HighFive
         self.run_impingingjet_write("transition")
 
     @utilities.unittest.skipIf("native" not in ct.hdf_support(), "HighFive not installed")
     def test_write_hdf_native(self):
+        # save and restore updated HDF format
         self.run_impingingjet_write("native")
 
     def test_write_yaml_native(self):
@@ -1374,16 +1375,7 @@ class TestImpingingJet(utilities.CanteraTest):
 
         jet.solve(loglevel=0)
 
-    def test_save_restore_yaml_legacy(self):
-        self.run_save_restore_yaml("legacy")
-
-    def test_save_restore_yaml_transition(self):
-        self.run_save_restore_yaml("transition")
-
     def test_save_restore_yaml_array(self):
-        self.run_save_restore_yaml("array")
-
-    def run_save_restore_yaml(self, mode):
         comp = {'CH4': 0.095, 'O2': 0.21, 'N2': 0.79}
         self.sim = self.create_reacting_surface(comp, tsurf=900, tinlet=300, width=0.1)
 
@@ -1394,20 +1386,13 @@ class TestImpingingJet(utilities.CanteraTest):
 
         self.sim.solve(loglevel=0, auto=False)
 
-        filename = self.test_work_path / f"impingingjet-{mode}.yaml"
+        filename = self.test_work_path / f"impingingjet.yaml"
         filename.unlink(missing_ok=True)
-
-        if mode == "array":
-            self.sim.save(filename, "test", loglevel=0)
-        else:
-            self.sim.write_yaml(filename, "test", quiet=True)
+        self.sim.save(filename, "test", loglevel=0)
 
         self.surf_phase.TPX = 300, ct.one_atm, "PT(S):1"
         sim2 = ct.ImpingingJet(gas=self.gas, width=0.12, surface=self.surf_phase)
-        if mode == "legacy":
-            sim2.read_yaml(filename, "test", quiet=True)
-        else:
-            sim2.restore(filename, "test", loglevel=0)
+        sim2.restore(filename, "test", loglevel=0)
 
         self.assertArrayNear(self.sim.grid, sim2.grid)
         self.assertArrayNear(self.sim.Y, sim2.Y)
@@ -1450,10 +1435,12 @@ class TestTwinFlame(utilities.CanteraTest):
         self.assertNear(sim.T[0], sim.reactants.T, 1e-4)
 
     def test_save_restore_yaml(self):
+        # save and restore using YAML format
         self.run_save_restore("yaml")
 
     @utilities.unittest.skipIf("native" not in ct.hdf_support(), "HighFive not installed")
     def test_save_restore_hdf(self):
+        # save and restore using HDF format
         self.run_save_restore("hdf")
 
     def run_save_restore(self, mode):
