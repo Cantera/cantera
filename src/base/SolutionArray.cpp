@@ -210,7 +210,6 @@ void SolutionArray::writeHeader(const std::string& fname, const std::string& id,
     Storage file(fname, true);
     file.checkGroup(id);
     file.writeAttributes(id, preamble(desc));
-    file.flush();
 }
 
 void SolutionArray::writeHeader(AnyMap& root, const std::string& id,
@@ -229,7 +228,6 @@ void SolutionArray::writeEntry(const std::string& fname, const std::string& id,
     file.checkGroup(id);
     file.writeAttributes(id, m_meta);
     if (!m_size) {
-        file.flush();
         return;
     }
 
@@ -254,7 +252,6 @@ void SolutionArray::writeEntry(const std::string& fname, const std::string& id,
     for (auto& extra : m_extra) {
         file.writeVector(id, extra.first, extra.second);
     }
-    file.flush();
 }
 
 AnyMap& openField(AnyMap& root, const std::string& id)
