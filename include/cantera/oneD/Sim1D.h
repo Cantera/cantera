@@ -123,13 +123,6 @@ public:
               const std::string& desc, int loglevel=1, int compression=0);
 
     /**
-     * Save the current solution to YAML (legacy implementation). @see save
-     * @since  New in Cantera 3.0.
-     */
-    void write_yaml(const std::string& fname, const std::string& id,
-                    const std::string& desc, int loglevel=1);
-
-    /**
      * Save the residual of the current solution to a container file.
      * @param fname  Name of output container file
      * @param id  Identifier of solution within the container file
@@ -147,13 +140,6 @@ public:
      * @return  AnyMap containing header information
      */
     AnyMap restore(const std::string& fname, const std::string& id, int loglevel=2);
-
-    /**
-     * Initialize the solution with a previously-saved solution (legacy implementation).
-     * @see restore
-     * @since  New in Cantera 3.0.
-     */
-    void read_yaml(const std::string& fname, const std::string& id, int loglevel=2);
 
     //! @}
 

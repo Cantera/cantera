@@ -136,52 +136,6 @@ void Sim1D::save(const std::string& fname, const std::string& id,
                         "Unsupported file format '{}'", extension);
 }
 
-void Sim1D::write_yaml(const std::string& fname, const std::string& id,
-                       const std::string& desc, int loglevel)
-{
-    // Check for an existing file and load it if present
-    AnyMap data;
-    if (ifstream(fname).good()) {
-        data = AnyMap::fromYamlFile(fname);
-    }
-    bool preexisting = data.hasKey(id);
-
-    // Add this simulation to the YAML
-    data[id] = serialize(m_x.data());
-
-    // Add metadata
-    data[id]["description"] = desc;
-    data[id]["generator"] = "Cantera Sim1D";
-    data[id]["cantera-version"] = CANTERA_VERSION;
-    data[id]["git-commit"] = gitCommit();
-
-    // Add a timestamp indicating the current time
-    time_t aclock;
-    ::time(&aclock); // Get time in seconds
-    struct tm* newtime = localtime(&aclock); // Convert time to struct tm form
-    data[id]["date"] = stripnonprint(asctime(newtime));
-
-    // Force metadata fields to the top of the file
-    data[id]["description"].setLoc(-6, 0);
-    data[id]["generator"].setLoc(-5, 0);
-    data[id]["cantera-version"].setLoc(-4, 0);
-    data[id]["git-commit"].setLoc(-3, 0);
-    data[id]["date"].setLoc(-2, 0);
-
-    // If this is not replacing an existing solution, put it at the end
-    if (!preexisting) {
-        data[id].setLoc(INT_MAX, 0);
-    }
-
-    // Write the output file and remove the now-outdated cached file
-    std::ofstream out(fname);
-    out << data.toYamlString();
-    AnyMap::clearCachedFile(fname);
-    if (loglevel > 0) {
-        writelog("Solution saved to file {} as solution '{}'.\n", fname, id);
-    }
-}
-
 void Sim1D::saveResidual(const std::string& fname, const std::string& id,
                          const std::string& desc, int loglevel)
 {
@@ -326,38 +280,6 @@ AnyMap Sim1D::restore(const std::string& fname, const std::string& id,
                            "'h5'/'hdf'/'hdf5' and 'yml'/'yaml'.", extension);
     }
     return header;
-}
-
-void Sim1D::read_yaml(const std::string& fname, const std::string& id,
-                     int loglevel)
-{
-    size_t dot = fname.find_last_of(".");
-    string extension = (dot != npos) ? toLowerCopy(fname.substr(dot+1)) : "";
-    if (extension == "xml") {
-        throw CanteraError("Sim1D::restore",
-                           "Restoring from XML is no longer supported.");
-    }
-    AnyMap root = AnyMap::fromYamlFile(fname);
-    if (!root.hasKey(id)) {
-        throw InputFileError("Sim1D::restore", root,
-                                "No solution with id '{}'", id);
-    }
-    const auto& state = root[id];
-    for (auto dom : m_dom) {
-        if (!state.hasKey(dom->id())) {
-            throw InputFileError("Sim1D::restore", state,
-                "Saved state '{}' does not contain a domain named '{}'.",
-                id, dom->id());
-        }
-        dom->resize(dom->nComponents(), state[dom->id()]["points"].asInt());
-    }
-    resize();
-    m_xlast_ts.clear();
-    for (auto dom : m_dom) {
-        dom->restore(state[dom->id()].as<AnyMap>(), m_x.data() + dom->loc(),
-                        loglevel);
-    }
-    finalize();
 }
 
 void Sim1D::setFlatProfile(size_t dom, size_t comp, doublereal v)

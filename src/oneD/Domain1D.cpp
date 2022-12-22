@@ -9,6 +9,7 @@
 #include "cantera/oneD/MultiJac.h"
 #include "cantera/oneD/refine.h"
 #include "cantera/base/AnyMap.h"
+#include "cantera/base/SolutionArray.h"
 
 #include <set>
 
@@ -143,10 +144,15 @@ AnyMap Domain1D::getMeta() const
 
 AnyMap Domain1D::serialize(const double* soln) const
 {
-    return getMeta();
+    warn_deprecated("Domain1D::serialize",
+        "To be removed after Cantera 3.0; superseded by asArray.");
+    AnyMap out;
+    auto arr = asArray(soln);
+    arr->writeEntry(out, "");
+    return out;
 }
 
-void Domain1D::restore(const AnyMap& state, double* soln, int loglevel)
+void Domain1D::setMeta(const AnyMap& meta, int loglevel)
 {
     auto set_tols = [&](const AnyValue& tols, const string& which, vector_fp& out)
     {
@@ -162,20 +168,29 @@ void Domain1D::restore(const AnyMap& state, double* soln, int loglevel)
                 if (tol.hasKey(name)) {
                     out[i] = tol[name].asDouble();
                 } else if (loglevel) {
-                    warn_user("Domain1D::restore", "No {} found for component '{}'",
+                    warn_user("Domain1D::setMeta", "No {} found for component '{}'",
                               which, name);
                 }
             }
         }
     };
 
-    if (state.hasKey("tolerances")) {
-        const auto& tols = state["tolerances"];
+    if (meta.hasKey("tolerances")) {
+        const auto& tols = meta["tolerances"];
         set_tols(tols, "transient-abstol", m_atol_ts);
         set_tols(tols, "transient-reltol", m_rtol_ts);
         set_tols(tols, "steady-abstol", m_atol_ss);
         set_tols(tols, "steady-reltol", m_rtol_ss);
     }
+}
+
+void Domain1D::restore(const AnyMap& state, double* soln, int loglevel)
+{
+    warn_deprecated("Domain1D::restore",
+        "To be removed after Cantera 3.0; restore from SolutionArray instead.");
+    auto arr = SolutionArray::create(solution());
+    arr->readEntry(state, "");
+    restore(*arr, soln, loglevel);
 }
 
 void Domain1D::locate()
