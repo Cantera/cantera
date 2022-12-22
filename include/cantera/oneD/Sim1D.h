@@ -144,8 +144,9 @@ public:
      * @param fname  Name of container file
      * @param id  Identifier of solution within the container file
      * @param loglevel  Level of diagnostic output
+     * @return  AnyMap containing header information
      */
-    void restore(const std::string& fname, const std::string& id, int loglevel=2);
+    AnyMap restore(const std::string& fname, const std::string& id, int loglevel=2);
 
     /**
      * Initialize the solution with a previously-saved solution (legacy implementation).
