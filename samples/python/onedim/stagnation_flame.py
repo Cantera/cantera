@@ -22,15 +22,6 @@ from pathlib import Path
 import cantera as ct
 
 
-output_path = Path() / "stagnation_flame_data"
-output_path.mkdir(parents=True, exist_ok=True)
-
-if "native" in ct.hdf_support():
-    output = output_path / "stagnation_flame.h5"
-else:
-    output = output_path / "stagnation_flame.yaml"
-output.unlink(missing_ok=True)
-
 # parameter values
 p = 0.05 * ct.one_atm  # pressure
 tburner = 373.0  # burner temperature
@@ -78,6 +69,15 @@ sim.set_initial_guess(products='equil')  # assume adiabatic equilibrium products
 sim.show_solution()
 
 sim.solve(loglevel, auto=True)
+
+output_path = Path() / "stagnation_flame_data"
+output_path.mkdir(parents=True, exist_ok=True)
+
+if "native" in ct.hdf_support():
+    output = output_path / "stagnation_flame.h5"
+else:
+    output = output_path / "stagnation_flame.yaml"
+output.unlink(missing_ok=True)
 
 for m, md in enumerate(mdot):
     sim.inlet.mdot = md

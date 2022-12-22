@@ -9,12 +9,6 @@ Keywords: combustion, 1D flow, premixed flame, saving output,
 from pathlib import Path
 import cantera as ct
 
-if "native" in ct.hdf_support():
-    output = Path() / "burner_flame.h5"
-else:
-    output = Path() / "burner_flame.yaml"
-output.unlink(missing_ok=True)
-
 p = 0.05 * ct.one_atm
 tburner = 373.0
 mdot = 0.06
@@ -32,6 +26,13 @@ f.show_solution()
 
 f.transport_model = 'Mix'
 f.solve(loglevel, auto=True)
+
+if "native" in ct.hdf_support():
+    output = Path() / "burner_flame.h5"
+else:
+    output = Path() / "burner_flame.yaml"
+output.unlink(missing_ok=True)
+
 f.save(output, name="mix", description="solution with mixture-averaged transport")
 
 f.transport_model = 'Multi'

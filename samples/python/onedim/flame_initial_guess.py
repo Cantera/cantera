@@ -14,8 +14,6 @@ try:
 except ImportError:
     pd = None
 
-output_path = Path() / "flame_initial_guess_data"
-output_path.mkdir(parents=True, exist_ok=True)
 
 # Simulation parameters
 p = ct.one_atm  # pressure [Pa]
@@ -52,6 +50,9 @@ describe(f)
 
 # Save the flame in a few different formats
 
+output_path = Path() / "flame_initial_guess_data"
+output_path.mkdir(parents=True, exist_ok=True)
+
 print("Save YAML")
 yaml_filepath = output_path / "flame.yaml"
 f.save(yaml_filepath, name="solution", description="Initial methane flame")
@@ -64,7 +65,7 @@ try:
     # HDF is not a required dependency
     hdf_filepath = output_path / "flame.h5"
     hdf_filepath.unlink(missing_ok=True)
-    f.save(hdf_filepath, name="freeflame", description=("Initial methane flame"))
+    f.save(hdf_filepath, name="freeflame", description="Initial methane flame")
     print("Save HDF\n")
 except ct.CanteraError as err:
     print(f"Skipping HDF: {err}\n")

@@ -12,12 +12,6 @@ from pathlib import Path
 import cantera as ct
 
 
-if "native" in ct.hdf_support():
-    output = Path() / "premixed_counterflow_flame.h5"
-else:
-    output = Path() / "premixed_counterflow_flame.yaml"
-output.unlink(missing_ok=True)
-
 # parameter values
 p = 0.05 * ct.one_atm  # pressure
 T_in = 373.0  # inlet temperature
@@ -49,6 +43,13 @@ sim.set_initial_guess()  # assume adiabatic equilibrium products
 sim.show_solution()
 
 sim.solve(loglevel, auto=True)
+
+if "native" in ct.hdf_support():
+    output = Path() / "premixed_counterflow_flame.h5"
+else:
+    output = Path() / "premixed_counterflow_flame.yaml"
+output.unlink(missing_ok=True)
+
 sim.save(output, name="mix", description="solution with mixture-averaged transport")
 
 # write the velocity, temperature, and mole fractions to a CSV file

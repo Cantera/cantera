@@ -80,12 +80,6 @@ def solveOpposedFlame(oppFlame, massFlux=0.12, loglevel=1,
     return np.max(oppFlame.T), K, strainRatePoint
 
 
-if "native" in ct.hdf_support():
-    output = Path() / "premixed_counterflow_twin_flame.h5"
-else:
-    output = Path() / "premixed_counterflow_twin_flame.yaml"
-output.unlink(missing_ok=True)
-
 # Select the reaction mechanism
 gas = ct.Solution('gri30.yaml')
 
@@ -121,6 +115,13 @@ oppFlame = ct.CounterflowTwinPremixedFlame(gas, width=width)
 # Thus to plot temperature vs distance, use oppFlame.grid and oppFlame.T
 
 Sc = computeConsumptionSpeed(oppFlame)
+
+if "native" in ct.hdf_support():
+    output = Path() / "premixed_counterflow_twin_flame.h5"
+else:
+    output = Path() / "premixed_counterflow_twin_flame.yaml"
+output.unlink(missing_ok=True)
+
 oppFlame.save(output, name="mix")
 
 print(f"Peak temperature: {T:.1f} K")

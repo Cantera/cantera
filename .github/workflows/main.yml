@@ -368,11 +368,13 @@ jobs:
       - name: Build Cantera
         # compile with GCC 9.4.0 on ubuntu-20.04 as an alternative to the default
         # (GCC 7.5.0 is both default and oldest supported version)
+        # compile without native HDF5 support
         run: python3 `which scons` build -j2 debug=n CC=gcc-9 CXX=g++-9
         if: matrix.python-version != '3.10'
       - name: Build Cantera (Python 3.10 with HDF)
         # compile with GCC 9.4.0 on ubuntu-20.04 as an alternative to the default
         # (GCC 7.5.0 is both default and oldest supported version)
+        # compile with native HDF5 support
         run: |
           python3 `which scons` build -j2 debug=n CC=gcc-9 CXX=g++-9 \
           hdf_libdir=$HDF5_LIBDIR hdf_include=$HDF5_INCLUDEDIR

@@ -35,54 +35,53 @@ private:
 public:
     virtual ~SolutionArray() {}
 
+    /*!
+     *  Instantiate a new SolutionArray reference
+     *
+     *  @param sol  Solution object defining phase definitions
+     *  @param size  Number of SolutionArray entries
+     *  @param meta  AnyMap holding SolutionArray meta data
+     */
     static shared_ptr<SolutionArray> create(const shared_ptr<Solution>& sol,
                                             size_t size=0,
                                             const AnyMap& meta={})
     {
-        return shared_ptr<SolutionArray>(
-            new SolutionArray(sol, size, meta));
+        return shared_ptr<SolutionArray>(new SolutionArray(sol, size, meta));
     }
 
     /*!
-     *  Initialize SolutionArray with independent memory management
+     *  Initialize SolutionArray
      *
      *  @param extra Names of auxiliary data
      */
     void initialize(const std::vector<std::string>& extra={});
 
-    /*!
-     *  Size of SolutionArray (number of entries)
-     */
+    //! Size of SolutionArray (number of entries)
     int size() const {
         return m_size;
     }
 
-    /*!
-     *  SolutionArray meta data.
-     */
+    //! SolutionArray meta data.
     AnyMap& meta() {
         return m_meta;
     }
 
-    /*!
-     *  Retrieve associated ThermoPhase object
-     */
-    std::shared_ptr<ThermoPhase> thermo();
+    //! Retrieve associated ThermoPhase object
+    shared_ptr<ThermoPhase> thermo();
 
     /*!
-     *  Check whether SolutionArray contains a component.
+     *  Check whether SolutionArray contains a component (property defining state or
+     *  auxiliary variable)
      */
     bool hasComponent(const std::string& name) const;
 
-    /*!
-     *  Retrieve a component of the SolutionArray by name.
-     */
+    //! Retrieve a component of the SolutionArray by name
     vector_fp getComponent(const std::string& name) const;
 
     /*!
      *  Set a component of the SolutionArray by name.
      *
-     *  @param name  Component name
+     *  @param name  Name of component (property defining state or auxiliary variable)
      *  @param data  Component data
      *  @param force  If true, add new component to SolutionArray
      */
@@ -115,11 +114,19 @@ public:
      *  Write header data to container file.
      *
      *  @param fname  Name of HDF container file
-     *  @param id  Identifier of SolutionArray root within the container file
+     *  @param id  Identifier of SolutionArray within the container file
      *  @param desc  Description
      */
     static void writeHeader(const std::string& fname, const std::string& id,
                             const std::string& desc);
+
+    /*!
+     *  Write header data to AnyMap.
+     *
+     *  @param root  Root node of AnyMap structure
+     *  @param id  Identifier of SolutionArray node within AnyMap structure
+     *  @param desc  Description
+     */
     static void writeHeader(AnyMap& root, const std::string& id,
                             const std::string& desc);
 
@@ -132,6 +139,13 @@ public:
      */
     void writeEntry(const std::string& fname, const std::string& id,
                     int compression=0);
+
+    /*!
+     *  Write SolutionArray data to AnyMap.
+     *
+     *  @param root  Root node of AnyMap structure
+     *  @param id  Identifier of SolutionArray node within AnyMap structure
+     */
     void writeEntry(AnyMap& root, const std::string& id);
 
     /*!
@@ -152,6 +166,13 @@ public:
      *  @param id  Identifier of SolutionArray within the file structure
      */
     static AnyMap readHeader(const std::string& fname, const std::string& id);
+
+    /*!
+     *  Read header data from AnyMap.
+     *
+     *  @param root  Root node of AnyMap structure
+     *  @param id  Identifier of SolutionArray node within AnyMap structure
+     */
     static AnyMap readHeader(const AnyMap& root, const std::string& id);
 
     /*!
@@ -161,6 +182,13 @@ public:
      *  @param id  Identifier of SolutionArray within the file structure
      */
     void readEntry(const std::string& fname, const std::string& id);
+
+    /*!
+     *  Restore SolutionArray entry from AnyMap.
+     *
+     *  @param root  Root node of AnyMap structure
+     *  @param id  Identifier of SolutionArray node within AnyMap structure
+     */
     void readEntry(const AnyMap& root, const std::string& id);
 
     /*!
@@ -172,11 +200,15 @@ public:
     AnyMap restore(const std::string& fname, const std::string& id);
 
 protected:
-    //! Detect storage mode of state data
-    std::string detectMode(std::set<std::string> names, bool native=true);
+    /*!
+     *  Identify storage mode of state data (combination of properties defining state);
+     *  valid modes include Phase::nativeState ("native") or other property combinations
+     *  defined by Phase::fullStates (three-letter acronyms, for example "TDY", "TPX").
+     */
+    std::string detectMode(const std::set<std::string>& names, bool native=true);
 
     //! Retrieve set containing list of properties defining state
-    std::set<std::string> stateProperties(std::string mode, bool alias=false);
+    std::set<std::string> stateProperties(const std::string& mode, bool alias=false);
 
     shared_ptr<Solution> m_sol; //!< Solution object associated with state data
     size_t m_size; //!< Number of entries in SolutionArray
@@ -186,7 +218,7 @@ protected:
 
     shared_ptr<vector_fp> m_work; //!< Work vector holding states
     double* m_data; //!< Memory location holding state information
-    std::map<std::string, shared_ptr<vector_fp>> m_other; //!< Auxiliary data
+    std::map<std::string, shared_ptr<vector_fp>> m_extra; //!< Auxiliary data
 };
 
 }

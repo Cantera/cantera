@@ -9,12 +9,6 @@ from pathlib import Path
 import cantera as ct
 
 
-if "native" in ct.hdf_support():
-    output = Path() / "ion_free_flame.h5"
-else:
-    output = Path() / "ion_free_flame.yaml"
-output.unlink(missing_ok=True)
-
 # Simulation parameters
 p = ct.one_atm  # pressure [Pa]
 Tin = 300.0  # unburned gas temperature [K]
@@ -37,6 +31,13 @@ f.solve(loglevel=loglevel, auto=True)
 
 # stage two
 f.solve(loglevel=loglevel, stage=2, enable_energy=True)
+
+if "native" in ct.hdf_support():
+    output = Path() / "ion_free_flame.h5"
+else:
+    output = Path() / "ion_free_flame.yaml"
+output.unlink(missing_ok=True)
+
 f.save(output, name="ion", description="solution with ionized gas transport")
 
 f.show_solution()

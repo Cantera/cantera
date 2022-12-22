@@ -158,7 +158,7 @@ public:
     virtual void showSolution(const doublereal* x);
 
     virtual AnyMap serialize(const double* soln) const;
-    virtual std::shared_ptr<SolutionArray> asArray(const double* soln) const;
+    virtual shared_ptr<SolutionArray> asArray(const double* soln) const;
     virtual void restore(const AnyMap& state, double* soln, int loglevel);
     virtual void restore(SolutionArray& arr, double* soln, int loglevel);
 
@@ -449,7 +449,7 @@ protected:
     // Smart pointer preventing garbage collection when the transport model of an
     // associated Solution object changes: the transport model of the StFlow object
     // will remain unaffected by an external change.
-    std::shared_ptr<Transport> m_trans_shared;
+    shared_ptr<Transport> m_trans_shared;
 
     // boundary emissivities for the radiation calculations
     doublereal m_epsilon_left;
