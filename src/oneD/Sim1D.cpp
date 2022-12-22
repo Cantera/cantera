@@ -274,7 +274,7 @@ AnyMap legacyH5(shared_ptr<SolutionArray> arr, const AnyMap& header={})
     return out;
 }
 
-void Sim1D::restore(const std::string& fname, const std::string& id,
+AnyMap Sim1D::restore(const std::string& fname, const std::string& id,
                     int loglevel)
 {
     size_t dot = fname.find_last_of(".");
@@ -283,9 +283,10 @@ void Sim1D::restore(const std::string& fname, const std::string& id,
         throw CanteraError("Sim1D::restore",
                            "Restoring from XML is no longer supported.");
     }
+    AnyMap header;
     if (extension == "h5" || extension == "hdf"  || extension == "hdf5") {
         std::map<std::string, shared_ptr<SolutionArray>> arrs;
-        auto header = SolutionArray::readHeader(fname, id);
+        header = SolutionArray::readHeader(fname, id);
 
         for (auto dom : m_dom) {
             auto arr = SolutionArray::create(dom->solution());
@@ -305,6 +306,8 @@ void Sim1D::restore(const std::string& fname, const std::string& id,
     } else if (extension == "yaml" || extension == "yml") {
         AnyMap root = AnyMap::fromYamlFile(fname);
         std::map<std::string, shared_ptr<SolutionArray>> arrs;
+        header = SolutionArray::readHeader(root, id);
+
         for (auto dom : m_dom) {
             auto arr = SolutionArray::create(dom->solution());
             arr->readEntry(root, id + "/" + dom->id());
@@ -322,6 +325,7 @@ void Sim1D::restore(const std::string& fname, const std::string& id,
                            "Unknown file extension '{}'; supported extensions include "
                            "'h5'/'hdf'/'hdf5' and 'yml'/'yaml'.", extension);
     }
+    return header;
 }
 
 void Sim1D::read_yaml(const std::string& fname, const std::string& id,

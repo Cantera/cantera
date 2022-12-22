@@ -367,10 +367,35 @@ AnyMap SolutionArray::readHeader(const std::string& fname, const std::string& id
     return file.readAttributes(id, false);
 }
 
+const AnyMap& locateField(const AnyMap& root, const std::string& id)
+{
+    // locate field based on 'id'
+    std::vector<std::string> tokens;
+    tokenizePath(id, tokens);
+    const AnyMap* ptr = &root; // use raw pointer to avoid copying
+    std::string path = "";
+    for (auto& field : tokens) {
+        path += "/" + field;
+        const AnyMap& sub = *ptr;
+        if (!sub.hasKey(field) || !sub[field].is<AnyMap>()) {
+            throw CanteraError("SolutionArray::restore",
+                "No field or solution with id '{}'", path);
+        }
+        ptr = &sub[field].as<AnyMap>(); // AnyMap lacks 'operator=' for const AnyMap
+    }
+    return *ptr;
+}
+
 AnyMap SolutionArray::readHeader(const AnyMap& root, const std::string& id)
 {
-    // todo: implement
-    throw NotImplementedError("SolutionArray::readHeader", "Not implemented.");
+    auto sub = locateField(root, id);
+    AnyMap header;
+    for (const auto& item : sub) {
+        if (!sub[item.first].is<AnyMap>()) {
+            header[item.first] = item.second;
+        }
+    }
+    return header;
 }
 
 AnyMap SolutionArray::restore(const std::string& fname, const std::string& id)
@@ -531,25 +556,6 @@ void SolutionArray::readEntry(const std::string& fname, const std::string& id)
             m_extra.emplace(name, data);
         }
     }
-}
-
-const AnyMap& locateField(const AnyMap& root, const std::string& id)
-{
-    // locate field based on 'id'
-    std::vector<std::string> tokens;
-    tokenizePath(id, tokens);
-    const AnyMap* ptr = &root; // use raw pointer to avoid copying
-    std::string path = "";
-    for (auto& field : tokens) {
-        path += "/" + field;
-        const AnyMap& sub = *ptr;
-        if (!sub.hasKey(field) || !sub[field].is<AnyMap>()) {
-            throw CanteraError("SolutionArray::restore",
-                "No field or solution with id '{}'", path);
-        }
-        ptr = &sub[field].as<AnyMap>(); // AnyMap lacks 'operator=' for const AnyMap
-    }
-    return *ptr;
 }
 
 void SolutionArray::readEntry(const AnyMap& root, const std::string& id)

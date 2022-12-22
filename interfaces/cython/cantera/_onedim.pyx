@@ -6,7 +6,7 @@ import warnings
 from collections import OrderedDict
 import numpy as np
 
-from ._utils cimport stringify, pystr
+from ._utils cimport stringify, pystr, anymap_to_dict
 from ._utils import CanteraError
 from cython.operator import dereference as deref
 
@@ -1505,11 +1505,18 @@ cdef class Sim1D:
         :param loglevel:
             Amount of logging information to display while restoring,
             from 0 (disabled) to 2 (most verbose).
+        :return:
+            dictionary containing meta data
 
         >>> s.restore(filename='save.yaml', name='energy_off')
+
+        .. versionchanged:: 3.0
+            Implemented return value for meta data
         """
-        self.sim.restore(stringify(str(filename)), stringify(name), loglevel)
+        cdef CxxAnyMap header
+        header = self.sim.restore(stringify(str(filename)), stringify(name), loglevel)
         self._initialized = True
+        return anymap_to_dict(header)
 
     def read_yaml(self, filename, name='solution', description='none', quiet=True):
         """
