@@ -48,16 +48,8 @@ SolutionArray::SolutionArray(
         throw CanteraError("SolutionArray::SolutionArray",
             "Unable to create SolutionArray from invalid Solution object.");
     }
-}
-
-void SolutionArray::initialize(const std::vector<std::string>& extra)
-{
     m_stride = m_sol->thermo()->stateSize();
-    m_work.reset(new vector_fp(m_size * m_stride, 0.));
-    m_data = m_work->data();
-    for (auto& key : extra) {
-        m_extra.emplace(key, std::make_shared<vector_fp>(m_size));
-    }
+    m_data.resize(m_size * m_stride, 0.);
 }
 
 shared_ptr<ThermoPhase> SolutionArray::thermo()
@@ -92,7 +84,7 @@ vector_fp SolutionArray::getComponent(const std::string& name) const
     vector_fp out(m_size);
     if (m_extra.count(name)) {
         // auxiliary data
-        out = *m_extra.at(name);
+        out = m_extra.at(name);
         return out;
     }
 
@@ -111,15 +103,9 @@ vector_fp SolutionArray::getComponent(const std::string& name) const
 void SolutionArray::setComponent(
     const std::string& name, const vector_fp& data, bool force)
 {
-    if (!m_work) {
-        initialize();
-    }
-
     if (!hasComponent(name)) {
         if (force) {
-            m_extra.emplace(name, std::make_shared<vector_fp>(m_size));
-            auto& extra = m_extra[name];
-            std::copy(data.begin(), data.end(), extra->begin());
+            m_extra.emplace(name, data);
             return;
         }
         throw CanteraError("SolutionArray::setComponent", "no component named " + name);
@@ -130,8 +116,7 @@ void SolutionArray::setComponent(
 
     if (m_extra.count(name)) {
         // auxiliary data
-        auto extra = m_extra[name];
-        std::copy(data.begin(), data.end(), extra->begin());
+        m_extra[name] = data;
     }
 
     size_t ix = m_sol->thermo()->speciesIndex(name);
@@ -147,9 +132,6 @@ void SolutionArray::setComponent(
 
 void SolutionArray::setIndex(size_t index, bool restore)
 {
-    if (!m_work) {
-        initialize();
-    }
     if (m_size == 0) {
         throw CanteraError("SolutionArray::setIndex",
             "Unable to set index in empty SolutionArray.");
@@ -193,8 +175,7 @@ std::map<std::string, double> SolutionArray::getAuxiliary(size_t index)
     setIndex(index);
     std::map<std::string, double> out;
     for (auto& item : m_extra) {
-        auto& extra = *item.second;
-        out[item.first] = extra[m_index];
+        out[item.first] = item.second[m_index];
     }
     return out;
 }
@@ -271,7 +252,7 @@ void SolutionArray::writeEntry(const std::string& fname, const std::string& id,
     }
 
     for (auto& extra : m_extra) {
-        file.writeVector(id, extra.first, *(extra.second));
+        file.writeVector(id, extra.first, extra.second);
     }
     file.flush();
 }
@@ -305,7 +286,7 @@ void SolutionArray::writeEntry(AnyMap& root, const std::string& id)
     data.update(m_meta);
 
     for (auto& extra : m_extra) {
-        data[extra.first] = *(extra.second);
+        data[extra.first] = extra.second;
     }
 
     auto phase = m_sol->thermo();
@@ -480,9 +461,8 @@ void SolutionArray::readEntry(const std::string& fname, const std::string& id)
 
     auto contents = file.contents(id);
     m_size = contents.first;
+    m_data.resize(m_size * m_stride, 0.);
     std::set<std::string> names = contents.second;
-
-    initialize({});
 
     if (m_size == 0) {
         return;
@@ -551,9 +531,7 @@ void SolutionArray::readEntry(const std::string& fname, const std::string& id)
     for (const auto& name : names) {
         if (!states.count(name)) {
             vector_fp data = file.readVector(id, name, m_size);
-            m_extra.emplace(name, std::make_shared<vector_fp>(m_size));
-            auto& extra = m_extra[name];
-            std::copy(data.begin(), data.end(), extra->begin());
+            m_extra.emplace(name, data);
         }
     }
 }
@@ -587,7 +565,7 @@ void SolutionArray::readEntry(const AnyMap& root, const std::string& id)
         // overwrite size - Sim1D erroneously assigns '1' (Cantera 2.6)
         m_size = 0;
     }
-    initialize({});
+    m_data.resize(m_size * m_stride, 0.);
 
     // restore data
     std::set<std::string> exclude = {"points", "X", "Y"};
@@ -627,7 +605,7 @@ void SolutionArray::readEntry(const AnyMap& root, const std::string& id)
             throw NotImplementedError("SolutionArray::restore",
                 "Import of '{}' data is not supported.", mode);
         }
-        m_sol->thermo()->saveState(nState, m_data);
+        m_sol->thermo()->saveState(nState, m_data.data());
         auto props = stateProperties(mode, true);
         exclude.insert(props.begin(), props.end());
     } else {

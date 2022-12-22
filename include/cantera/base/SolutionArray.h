@@ -49,13 +49,6 @@ public:
         return shared_ptr<SolutionArray>(new SolutionArray(sol, size, meta));
     }
 
-    /*!
-     *  Initialize SolutionArray
-     *
-     *  @param extra Names of auxiliary data
-     */
-    void initialize(const std::vector<std::string>& extra={});
-
     //! Size of SolutionArray (number of entries)
     int size() const {
         return m_size;
@@ -216,9 +209,8 @@ protected:
     AnyMap m_meta; //!< Metadata
     size_t m_index = npos; //!< Buffered index
 
-    shared_ptr<vector_fp> m_work; //!< Work vector holding states
-    double* m_data; //!< Memory location holding state information
-    std::map<std::string, shared_ptr<vector_fp>> m_extra; //!< Auxiliary data
+    vector_fp m_data; //!< Work vector holding states
+    std::map<std::string, vector_fp> m_extra; //!< Auxiliary data
 };
 
 }
