@@ -311,18 +311,26 @@ void SolutionArray::writeEntry(AnyMap& root, const std::string& id)
             data["mass-fractions"] = std::move(items);
         }
     } else if (m_size > 1) {
+        std::vector<std::string> components;
+        for (auto& extra : m_extra) {
+            components.push_back(extra.first);
+        }
+
         const auto& nativeState = phase->nativeState();
         for (auto& state : nativeState) {
             std::string name = state.first;
             if (name == "X" || name == "Y") {
-                data["basis"] = name == "X" ? "mole" : "mass";
-                for (auto& name : phase->speciesNames()) {
-                    data[name] = getComponent(name);
+                for (auto& spc : phase->speciesNames()) {
+                    data[spc] = getComponent(spc);
+                    components.push_back(spc);
                 }
+                data["basis"] = name == "X" ? "mole" : "mass";
             } else {
                 data[name] = getComponent(name);
+                components.push_back(name);
             }
         }
+        data["components"] = components;
     }
 
     // If this is not replacing an existing solution, put it at the end
@@ -613,20 +621,30 @@ void SolutionArray::readEntry(const AnyMap& root, const std::string& id)
         exclude.insert(props.begin(), props.end());
     } else {
         // multiple data points
-        const auto& nativeState = m_sol->thermo()->nativeState();
-        for (const auto& item : sub) {
-            const std::string& name = item.first;
-            const AnyValue& value = item.second;
-            if (value.is<std::vector<double>>()) {
-                const vector_fp& data = value.as<std::vector<double>>();
-                if (data.size() == m_size) {
-                    setComponent(name, data, true);
-                    exclude.insert(item.first);
+        if (sub.hasKey("components")) {
+            const auto& components = sub["components"].as<std::vector<std::string>>();
+            for (const auto& name : components) {
+                auto data = sub[name].asVector<double>(m_size);
+                setComponent(name, data, true);
+                exclude.insert(name);
+            }
+        } else {
+            // legacy YAML format does not provide for list of components
+            for (const auto& item : sub) {
+                const std::string& name = item.first;
+                const AnyValue& value = item.second;
+                if (value.is<std::vector<double>>()) {
+                    const vector_fp& data = value.as<std::vector<double>>();
+                    if (data.size() == m_size) {
+                        setComponent(name, data, true);
+                        exclude.insert(item.first);
+                    }
                 }
             }
         }
 
         // check that state data are complete
+        const auto& nativeState = m_sol->thermo()->nativeState();
         std::set<std::string> props = {};
         std::set<std::string> missingProps = {};
         for (const auto& item : nativeState) {

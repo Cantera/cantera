@@ -727,8 +727,6 @@ AnyMap StFlow::getMeta() const
         state["fixed-point"]["temperature"] = m_tfixed;
     }
 
-    state["species-names"] = m_thermo->speciesNames();
-
     return state;
 }
 
