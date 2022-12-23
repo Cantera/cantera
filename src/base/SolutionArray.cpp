@@ -162,7 +162,7 @@ vector_fp SolutionArray::getState(size_t index)
     return out;
 }
 
-void SolutionArray::setState(const vector_fp& data, size_t index)
+void SolutionArray::setState(size_t index, const vector_fp& data)
 {
     setIndex(index, false);
     m_sol->thermo()->restoreState(data);
