@@ -233,7 +233,7 @@ shared_ptr<SolutionArray> Inlet1D::asArray(const double* soln) const
     phase->saveState(data);
 
     auto arr = SolutionArray::create(m_solution, 1, meta);
-    arr->setState(data, 0);
+    arr->setState(0, data);
     return arr;
 }
 
@@ -516,7 +516,7 @@ shared_ptr<SolutionArray> OutletRes1D::asArray(const double* soln) const
     phase->saveState(data);
 
     auto arr = SolutionArray::create(m_solution, 1, meta);
-    arr->setState(data, 0);
+    arr->setState(0, data);
     return arr;
 }
 
@@ -757,7 +757,7 @@ shared_ptr<SolutionArray> ReactingSurf1D::asArray(const double* soln) const
     m_sphase->saveState(data.size(), &data[0]);
 
     auto arr = SolutionArray::create(m_solution, 1, meta);
-    arr->setState(data, 0);
+    arr->setState(0, data);
     return arr;
 }
 

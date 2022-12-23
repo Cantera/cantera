@@ -85,23 +85,14 @@ public:
      */
     void setIndex(size_t index, bool restore=true);
 
-    /*!
-     *  Retrieve the state vector for a single entry. If index is valid, it is updated;
-     *  otherwise, the last previously used index is referenced.
-     */
-    vector_fp getState(size_t index=npos);
+    //! Retrieve the state vector for a single entry.
+    vector_fp getState(size_t index);
 
-    /*!
-     *  Set the state vector for a single entry. If index is valid, it is updated;
-     *  otherwise, the last previously used index is referenced.
-     */
-    void setState(const vector_fp& data, size_t index=npos);
+    //! Set the state vector for a single entry
+    void setState(size_t index, const vector_fp& data);
 
-    /*!
-     *  Retrieve auxiliary data for a single entry. If index is valid, it is updated;
-     *  otherwise, the last previously used index is referenced.
-     */
-    std::map<std::string, double> getAuxiliary(size_t index=npos);
+    //! Retrieve auxiliary data for a single entry.
+    std::map<std::string, double> getAuxiliary(size_t index);
 
     /*!
      *  Write header data to container file.
