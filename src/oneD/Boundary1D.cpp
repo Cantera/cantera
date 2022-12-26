@@ -224,6 +224,7 @@ shared_ptr<SolutionArray> Inlet1D::asArray(const double* soln) const
     AnyMap meta = Boundary1D::getMeta();
     meta["type"] = "inlet";
     meta["mass-flux"] = m_mdot;
+    auto arr = SolutionArray::create(m_solution, 1, meta);
 
     // set gas state (using pressure from adjacent domain)
     double pressure = m_flow->phase().pressure();
@@ -232,7 +233,6 @@ shared_ptr<SolutionArray> Inlet1D::asArray(const double* soln) const
     vector_fp data(phase->stateSize());
     phase->saveState(data);
 
-    auto arr = SolutionArray::create(m_solution, 1, meta);
     arr->setState(0, data);
     return arr;
 }
@@ -507,6 +507,7 @@ shared_ptr<SolutionArray> OutletRes1D::asArray(const double* soln) const
     AnyMap meta = Boundary1D::getMeta();
     meta["type"] = "outlet-reservoir";
     meta["temperature"] = m_temp;
+    auto arr = SolutionArray::create(m_solution, 1, meta);
 
     // set gas state (using pressure from adjacent domain)
     double pressure = m_flow->phase().pressure();
@@ -515,7 +516,6 @@ shared_ptr<SolutionArray> OutletRes1D::asArray(const double* soln) const
     vector_fp data(phase->stateSize());
     phase->saveState(data);
 
-    auto arr = SolutionArray::create(m_solution, 1, meta);
     arr->setState(0, data);
     return arr;
 }
