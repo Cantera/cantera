@@ -19,9 +19,6 @@
 
 namespace ba = boost::algorithm;
 
-namespace Cantera
-{
-
 const std::map<std::string, std::string> aliasMap = {
     {"T", "temperature"},
     {"P", "pressure"},
@@ -35,6 +32,9 @@ const std::map<std::string, std::string> aliasMap = {
     {"S", "specific-entropy"},
     {"Q", "vapor-fraction"},
 };
+
+namespace Cantera
+{
 
 SolutionArray::SolutionArray(
     const shared_ptr<Solution>& sol,
@@ -364,7 +364,7 @@ void SolutionArray::save(const std::string& fname, const std::string& id,
         AnyMap::clearCachedFile(fname);
         return;
     }
-    throw CanteraError("SolutionArray::writeHeader",
+    throw CanteraError("SolutionArray::save",
                        "Unknown file extension '{}'", extension);
 }
 
@@ -386,7 +386,7 @@ const AnyMap& locateField(const AnyMap& root, const std::string& id)
         path += "/" + field;
         const AnyMap& sub = *ptr;
         if (!sub.hasKey(field) || !sub[field].is<AnyMap>()) {
-            throw CanteraError("SolutionArray::restore",
+            throw CanteraError("SolutionArray::locateField",
                 "No field or solution with id '{}'", path);
         }
         ptr = &sub[field].as<AnyMap>(); // AnyMap lacks 'operator=' for const AnyMap
@@ -550,10 +550,10 @@ void SolutionArray::readEntry(const std::string& fname, const std::string& id)
             m_sol->thermo()->saveState(nState, &m_data[i * m_stride]);
         }
     } else if (mode == "") {
-        throw CanteraError("SolutionArray::restore",
+        throw CanteraError("SolutionArray::readEntry",
             "Data are not consistent with full state modes.");
     } else {
-        throw NotImplementedError("SolutionArray::restore",
+        throw NotImplementedError("SolutionArray::readEntry",
             "Import of '{}' data is not supported.", mode);
     }
 
@@ -601,7 +601,7 @@ void SolutionArray::readEntry(const AnyMap& root, const std::string& id)
         } else if (mode == "TPC") {
             auto surf = std::dynamic_pointer_cast<SurfPhase>(m_sol->thermo());
             if (!surf) {
-                throw CanteraError("SolutionArray::restore",
+                throw CanteraError("SolutionArray::readEntry",
                     "Restoring of coverages requires surface phase");
             }
             double T = sub["temperature"].asDouble();
@@ -610,10 +610,10 @@ void SolutionArray::readEntry(const AnyMap& root, const std::string& id)
             auto cov = sub["coverages"].asMap<double>();
             surf->setCoveragesByName(cov);
         } else if (mode == "") {
-            throw CanteraError("SolutionArray::restore",
+            throw CanteraError("SolutionArray::readEntry",
                 "Data are not consistent with full state modes.");
         } else {
-            throw NotImplementedError("SolutionArray::restore",
+            throw NotImplementedError("SolutionArray::readEntry",
                 "Import of '{}' data is not supported.", mode);
         }
         m_sol->thermo()->saveState(nState, m_data.data());
@@ -668,7 +668,7 @@ void SolutionArray::readEntry(const AnyMap& root, const std::string& id)
                 m_data[offset_D + i * m_stride] = m_sol->thermo()->density();
             }
         } else if (missingProps.size()) {
-            throw CanteraError("SolutionArray::restore",
+            throw CanteraError("SolutionArray::readEntry",
                 "Incomplete state information: missing '{}'",
                 ba::join(missingProps, "', '"));
         }
