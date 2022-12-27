@@ -33,7 +33,12 @@ class IonFlow : public StFlow
 public:
     IonFlow(ThermoPhase* ph = 0, size_t nsp = 1, size_t points = 1);
 
-    IonFlow(shared_ptr<Solution> sol, size_t nsp = 1, size_t points = 1);
+    //! Create a new flow domain.
+    //! @param sol  Solution object used to evaluate all thermodynamic, kinetic, and
+    //!     transport properties
+    //! @param id  name of flow domain
+    //! @param points  initial number of grid points
+    IonFlow(shared_ptr<Solution> sol, const std::string& id="", size_t points = 1);
 
     //! set the solving stage
     virtual void setSolvingStage(const size_t phase);

@@ -56,7 +56,12 @@ public:
         StFlow(th.get(), nsp, points) {
     }
 
-    StFlow(shared_ptr<Solution> sol, size_t nsp = 1, size_t points = 1);
+    //! Create a new flow domain.
+    //! @param sol  Solution object used to evaluate all thermodynamic, kinetic, and
+    //!     transport properties
+    //! @param id  name of flow domain
+    //! @param points  initial number of grid points
+    StFlow(shared_ptr<Solution> sol, const std::string& id="", size_t points=1);
 
     //! @name Problem Specification
     //! @{

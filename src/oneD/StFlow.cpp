@@ -107,10 +107,11 @@ StFlow::StFlow(ThermoPhase* ph, size_t nsp, size_t points) :
     m_kRadiating[1] = m_thermo->speciesIndex("H2O");
 }
 
-StFlow::StFlow(shared_ptr<Solution> sol, size_t nsp, size_t points) :
-    StFlow(sol->thermo().get(), nsp, points)
+StFlow::StFlow(shared_ptr<Solution> sol, const std::string& id, size_t points)
+    : StFlow(sol->thermo().get(), sol->thermo()->nSpecies(), points)
 {
     m_solution = sol;
+    m_id = id;
     m_kin = m_solution->kinetics().get();
     m_trans_shared = m_solution->transport();
     m_trans = m_trans_shared.get();

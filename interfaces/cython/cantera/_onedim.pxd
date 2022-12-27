@@ -48,25 +48,25 @@ cdef extern from "cantera/oneD/Boundary1D.h":
         double massFraction(size_t)
 
     cdef cppclass CxxInlet1D "Cantera::Inlet1D":
-        CxxInlet1D(shared_ptr[CxxSolution])
+        CxxInlet1D(shared_ptr[CxxSolution], const string&)
         double spreadRate()
         void setSpreadRate(double)
 
     cdef cppclass CxxOutlet1D "Cantera::Outlet1D":
-        CxxOutlet1D(shared_ptr[CxxSolution])
+        CxxOutlet1D(shared_ptr[CxxSolution], const string&)
 
     cdef cppclass CxxOutletRes1D "Cantera::OutletRes1D":
-        CxxOutletRes1D(shared_ptr[CxxSolution])
+        CxxOutletRes1D(shared_ptr[CxxSolution], const string&)
 
     cdef cppclass CxxSymm1D "Cantera::Symm1D":
-        CxxSymm1D(shared_ptr[CxxSolution])
+        CxxSymm1D(shared_ptr[CxxSolution], const string&)
 
     cdef cppclass CxxSurf1D "Cantera::Surf1D":
-        CxxSurf1D(shared_ptr[CxxSolution])
+        CxxSurf1D(shared_ptr[CxxSolution], const string&)
 
     cdef cppclass CxxReactingSurf1D "Cantera::ReactingSurf1D":
         CxxReactingSurf1D() # deprecated in Python API (Cantera 3.0)
-        CxxReactingSurf1D(shared_ptr[CxxSolution]) except +translate_exception
+        CxxReactingSurf1D(shared_ptr[CxxSolution], const string&) except +translate_exception
         void setKineticsMgr(CxxInterfaceKinetics*) except +translate_exception
         void enableCoverageEquations(cbool) except +translate_exception
         cbool coverageEnabled()
@@ -74,7 +74,7 @@ cdef extern from "cantera/oneD/Boundary1D.h":
 
 cdef extern from "cantera/oneD/StFlow.h":
     cdef cppclass CxxStFlow "Cantera::StFlow":
-        CxxStFlow(shared_ptr[CxxSolution], int, int) except +translate_exception
+        CxxStFlow(shared_ptr[CxxSolution], const string&, int) except +translate_exception
         void setTransportModel(const string&) except +translate_exception
         void setTransport(CxxTransport&) except +translate_exception
         string transportModel()
@@ -99,7 +99,7 @@ cdef extern from "cantera/oneD/StFlow.h":
 
 cdef extern from "cantera/oneD/IonFlow.h":
     cdef cppclass CxxIonFlow "Cantera::IonFlow":
-        CxxIonFlow(shared_ptr[CxxSolution], int, int) except +translate_exception
+        CxxIonFlow(shared_ptr[CxxSolution], const string&, int) except +translate_exception
         void setSolvingStage(int)
         void solveElectricField()
         void fixElectricField()

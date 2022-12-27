@@ -106,8 +106,9 @@ class Inlet1D : public Boundary1D
 public:
     Inlet1D();
 
-    Inlet1D(shared_ptr<Solution> solution) : Inlet1D() {
+    Inlet1D(shared_ptr<Solution> solution, const std::string& id="") : Inlet1D() {
         m_solution = solution;
+        m_id = id;
     }
 
     //! set spreading rate
@@ -158,8 +159,9 @@ public:
         m_type = cEmptyType;
     }
 
-    Empty1D(shared_ptr<Solution> solution) : Empty1D() {
+    Empty1D(shared_ptr<Solution> solution, const std::string& id="") : Empty1D() {
         m_solution = solution;
+        m_id = id;
     }
 
     virtual void showSolution(const double* x) {}
@@ -185,8 +187,9 @@ public:
         m_type = cSymmType;
     }
 
-    Symm1D(shared_ptr<Solution> solution) : Symm1D() {
+    Symm1D(shared_ptr<Solution> solution, const std::string& id="") : Symm1D() {
         m_solution = solution;
+        m_id = id;
     }
 
     virtual void init();
@@ -210,8 +213,9 @@ public:
         m_type = cOutletType;
     }
 
-    Outlet1D(shared_ptr<Solution> solution) : Outlet1D() {
+    Outlet1D(shared_ptr<Solution> solution, const std::string& id="") : Outlet1D() {
         m_solution = solution;
+        m_id = id;
     }
 
     virtual void init();
@@ -233,8 +237,11 @@ class OutletRes1D : public Boundary1D
 public:
     OutletRes1D();
 
-    OutletRes1D(shared_ptr<Solution> solution) : OutletRes1D() {
+    OutletRes1D(shared_ptr<Solution> solution, const std::string& id="")
+        : OutletRes1D()
+    {
         m_solution = solution;
+        m_id = id;
     }
 
     virtual void showSolution(const double* x) {}
@@ -274,8 +281,9 @@ public:
         m_type = cSurfType;
     }
 
-    Surf1D(shared_ptr<Solution> solution) : Surf1D() {
+    Surf1D(shared_ptr<Solution> solution, const std::string& id="") : Surf1D() {
         m_solution = solution;
+        m_id = id;
     }
 
     virtual void init();
@@ -299,7 +307,7 @@ class ReactingSurf1D : public Boundary1D
 {
 public:
     ReactingSurf1D();
-    ReactingSurf1D(shared_ptr<Solution> solution);
+    ReactingSurf1D(shared_ptr<Solution> solution, const std::string& id="");
 
     void setKineticsMgr(InterfaceKinetics* kin);
 

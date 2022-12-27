@@ -598,7 +598,7 @@ ReactingSurf1D::ReactingSurf1D()
     m_type = cSurfType;
 }
 
-ReactingSurf1D::ReactingSurf1D(shared_ptr<Solution> solution)
+ReactingSurf1D::ReactingSurf1D(shared_ptr<Solution> solution, const std::string& id)
 {
     auto phase = std::dynamic_pointer_cast<SurfPhase>(solution->thermo());
     if (!phase) {
@@ -612,6 +612,7 @@ ReactingSurf1D::ReactingSurf1D(shared_ptr<Solution> solution)
             solution->kinetics()->kineticsType());
     }
     m_solution = solution;
+    m_id = id;
     m_kin = kin.get();
     m_sphase = phase.get();
 
