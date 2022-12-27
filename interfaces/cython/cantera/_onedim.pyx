@@ -19,13 +19,10 @@ cdef class Domain1D:
     def __cinit__(self, _SolutionBase phase not None, *args, **kwargs):
         self.domain = NULL
 
-    def __init__(self, phase, *args, name=None, **kwargs):
+    def __init__(self, phase, *args, **kwargs):
         self._weakref_proxy = _WeakrefProxy()
         if self.domain is NULL:
             raise TypeError("Can't instantiate abstract class Domain1D.")
-
-        if name is not None:
-            self.name = name
 
         self.gas = phase
         self.gas._references[self._weakref_proxy] = True
@@ -343,8 +340,8 @@ cdef class Inlet1D(Boundary1D):
     domain - it must be either the leftmost or rightmost domain in a
     stack.
     """
-    def __cinit__(self, _SolutionBase phase, *args, **kwargs):
-        self.inlet = new CxxInlet1D(phase._base)
+    def __cinit__(self, _SolutionBase phase, *args, name="", **kwargs):
+        self.inlet = new CxxInlet1D(phase._base, stringify(name))
         self.boundary = <CxxBoundary1D*>(self.inlet)
 
     def __dealloc__(self):
@@ -365,8 +362,8 @@ cdef class Outlet1D(Boundary1D):
     A one-dimensional outlet. An outlet imposes a zero-gradient boundary
     condition on the flow.
     """
-    def __cinit__(self, _SolutionBase phase, *args, **kwargs):
-        self.outlet = new CxxOutlet1D(phase._base)
+    def __cinit__(self, _SolutionBase phase, *args, name="", **kwargs):
+        self.outlet = new CxxOutlet1D(phase._base, stringify(name))
         self.boundary = <CxxBoundary1D*>(self.outlet)
 
     def __dealloc__(self):
@@ -377,8 +374,8 @@ cdef class OutletReservoir1D(Boundary1D):
     """
     A one-dimensional outlet into a reservoir.
     """
-    def __cinit__(self, _SolutionBase phase, *args, **kwargs):
-        self.outlet = new CxxOutletRes1D(phase._base)
+    def __cinit__(self, _SolutionBase phase, *args, name="", **kwargs):
+        self.outlet = new CxxOutletRes1D(phase._base, stringify(name))
         self.boundary = <CxxBoundary1D*>(self.outlet)
 
     def __dealloc__(self):
@@ -387,8 +384,8 @@ cdef class OutletReservoir1D(Boundary1D):
 
 cdef class SymmetryPlane1D(Boundary1D):
     """A symmetry plane."""
-    def __cinit__(self, _SolutionBase phase, *args, **kwargs):
-        self.symm = new CxxSymm1D(phase._base)
+    def __cinit__(self, _SolutionBase phase, *args, name="", **kwargs):
+        self.symm = new CxxSymm1D(phase._base, stringify(name))
         self.boundary = <CxxBoundary1D*>(self.symm)
 
     def __dealloc__(self):
@@ -397,8 +394,8 @@ cdef class SymmetryPlane1D(Boundary1D):
 
 cdef class Surface1D(Boundary1D):
     """A solid surface."""
-    def __cinit__(self, _SolutionBase phase, *args, **kwargs):
-        self.surf = new CxxSurf1D(phase._base)
+    def __cinit__(self, _SolutionBase phase, *args, name="", **kwargs):
+        self.surf = new CxxSurf1D(phase._base, stringify(name))
         self.boundary = <CxxBoundary1D*>(self.surf)
 
     def __dealloc__(self):
@@ -416,9 +413,9 @@ cdef class ReactingSurface1D(Boundary1D):
         Starting in Cantera 3.0, parameter `phase` should reference surface instead of
         gas phase.
     """
-    def __cinit__(self, _SolutionBase phase, *args, **kwargs):
+    def __cinit__(self, _SolutionBase phase, *args, name="", **kwargs):
         if phase.phase_of_matter != "gas":
-            self.surf = new CxxReactingSurf1D(phase._base)
+            self.surf = new CxxReactingSurf1D(phase._base, stringify(name))
         else:
             # legacy pathway - deprecation is handled in __init__
             self.surf = new CxxReactingSurf1D()
@@ -429,7 +426,9 @@ cdef class ReactingSurface1D(Boundary1D):
         if phase.phase_of_matter == "gas":
             warnings.warn("Starting in Cantera 3.0, parameter 'phase' should "
                 "reference surface instead of gas phase.", DeprecationWarning)
-            super().__init__(phase, name=name)
+            super().__init__(phase)
+            if name is not None:
+                self.name = name
         else:
             sol = phase
             gas = None
@@ -707,8 +706,8 @@ cdef class IdealGasFlow(_FlowBase):
     equations assume an ideal gas mixture.  Arbitrary chemistry is allowed, as
     well as arbitrary variation of the transport properties.
     """
-    def __cinit__(self, _SolutionBase phase, *args, **kwargs):
-        self.flow = new CxxStFlow(phase._base, phase.n_species, 2)
+    def __cinit__(self, _SolutionBase phase, *args, name="", **kwargs):
+        self.flow = new CxxStFlow(phase._base, stringify(name), 2)
 
 
 cdef class IonFlow(_FlowBase):
@@ -717,8 +716,9 @@ cdef class IonFlow(_FlowBase):
 
     In an ion flow domain, the electric drift is added to the diffusion flux
     """
-    def __cinit__(self, _SolutionBase thermo, *args, **kwargs):
-        self.flow = <CxxStFlow*>(new CxxIonFlow(thermo._base, thermo.n_species, 2))
+    def __cinit__(self, _SolutionBase thermo, *args, name="", **kwargs):
+        self.flow = <CxxStFlow*>(
+            new CxxIonFlow(thermo._base, stringify(name), 2))
 
     def set_solving_stage(self, stage):
         """
