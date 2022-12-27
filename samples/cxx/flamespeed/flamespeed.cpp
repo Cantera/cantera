@@ -7,7 +7,8 @@
  *
  * Usage: flamespeed [equivalence_ratio] [refine_grid] [loglevel]
  *
- * Keywords: combustion, 1D flow, premixed flame, flame speed
+ * Requires: cantera >= 3.0
+ * Keywords: combustion, 1D flow, premixed flame, flame speed, saving output
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -52,7 +53,7 @@ int flamespeed(double phi, bool refine_grid, int loglevel)
 
         //-------- step 1: create the flow -------------
 
-        StFlow flow(sol);
+        StFlow flow(sol, "flow");
         flow.setFreeFlow();
 
         // create an initial grid
@@ -68,7 +69,7 @@ int flamespeed(double phi, bool refine_grid, int loglevel)
 
         //------- step 2: create the inlet  -----------------------
 
-        Inlet1D inlet;
+        Inlet1D inlet(sol, "inlet");
 
         inlet.setMoleFractions(x.data());
         double mdot=uin*rho_in;
@@ -77,7 +78,7 @@ int flamespeed(double phi, bool refine_grid, int loglevel)
 
         //------- step 3: create the outlet  ---------------------
 
-        Outlet1D outlet;
+        Outlet1D outlet(sol, "outlet");
 
         //=================== create the container and insert the domains =====
 
@@ -113,6 +114,21 @@ int flamespeed(double phi, bool refine_grid, int loglevel)
 
         flame.setRefineCriteria(flowdomain,ratio,slope,curve);
 
+        // Save initial guess to container file
+
+        // Solution is saved in HDF5 or YAML file format
+        std::string fileName;
+        if (usesHDF5()) {
+            // Cantera is compiled with native HDF5 support
+            fileName = "flamespeed.h5";
+        } else {
+            fileName = "flamespeed.yaml";
+        }
+        if (std::ifstream(fileName).good()) {
+            std::remove(fileName.c_str());
+        }
+        flame.save(fileName, "initial-guess", "Initial guess", 0);
+
         // Solve freely propagating flame
 
         // Linearly interpolate to find location where this temperature would
@@ -126,6 +142,7 @@ int flamespeed(double phi, bool refine_grid, int loglevel)
                                             flow.componentIndex("velocity"),0);
         print("Flame speed with mixture-averaged transport: {} m/s\n",
               flameSpeed_mix);
+        flame.save(fileName, "mix", "Solution with mixture-averaged transport", 0);
 
         // now switch to multicomponent transport
         flow.setTransportModel("multicomponent");
@@ -134,6 +151,7 @@ int flamespeed(double phi, bool refine_grid, int loglevel)
                                               flow.componentIndex("velocity"),0);
         print("Flame speed with multicomponent transport: {} m/s\n",
               flameSpeed_multi);
+        flame.save(fileName, "multi", "Solution with multicomponent transport", 0);
 
         // now enable Soret diffusion
         flow.enableSoret(true);
@@ -142,6 +160,8 @@ int flamespeed(double phi, bool refine_grid, int loglevel)
                                              flow.componentIndex("velocity"),0);
         print("Flame speed with multicomponent transport + Soret: {} m/s\n",
               flameSpeed_full);
+        flame.save(fileName, "soret",
+            "Solution with mixture-averaged transport and Soret", 0);
 
         vector_fp zvec,Tvec,COvec,CO2vec,Uvec;
 
