@@ -559,7 +559,7 @@ class yaml2ckTest(utilities.CanteraTest):
         thermo: str | Path | None = None,
         transport: str | Path | None = None,
         permissive: bool = False,
-    ) -> None:
+    ) -> str:
         if mech is not None:
             mech, thermo, transport = self._convert_to_ck(
                 input_file,
@@ -578,6 +578,7 @@ class yaml2ckTest(utilities.CanteraTest):
             quiet=True,
             permissive=permissive,
         )
+        return mech
 
     def check_conversion(self, basename, cls=ct.Solution, **kwargs):
         # The round-trip YAML->CK->YAML will always have the single phase name 'gas'
@@ -689,7 +690,13 @@ class yaml2ckTest(utilities.CanteraTest):
 
     def test_third_body_reactions(self):
         input_file = self.test_data_path / "explicit-third-bodies.yaml"
-        self.convert(input_file)
+        mech = self.convert(input_file)
+        with open(mech) as fid:
+            lines = fid.readlines()
+        for i, line in enumerate(lines):
+            if line.startswith("R1A + R1B"):
+                next = lines[i + 1]
+                assert next.startswith("LOW") or next.strip() == "DUPLICATE"
         ck_phase, yaml_phase = self.check_conversion(input_file)
         self.check_kinetics(
             ck_phase, yaml_phase, [300, 800, 1450, 2800], [5e3, 1e5, 2e6]
