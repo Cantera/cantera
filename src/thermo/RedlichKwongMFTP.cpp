@@ -707,6 +707,18 @@ doublereal RedlichKwongMFTP::dpdVCalc(doublereal TKelvin, doublereal molarVol, d
     return dpdv;
 }
 
+double RedlichKwongMFTP::isothermalCompressibility() const
+{
+    pressureDerivatives();
+    return -1 / (molarVolume() * dpdV_);
+}
+
+double RedlichKwongMFTP::thermalExpansionCoeff() const
+{
+    pressureDerivatives();
+    return -dpdT_ / (molarVolume() * dpdV_);
+}
+
 void RedlichKwongMFTP::pressureDerivatives() const
 {
     doublereal TKelvin = temperature();
