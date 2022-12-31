@@ -472,7 +472,8 @@ def build_reactions_text(reactions: Iterable[ct.Reaction]):
         else:
             raise ValueError(f"Unknown reaction type: '{reac.reaction_type}'")
 
-        if reac.third_body is not None:
+        third = reac.third_body
+        if third is not None and third.name == "M" and len(third.efficiencies):
             reaction_lines.append(
                 " ".join(
                     f"{spec}/{value:.3E}/"

@@ -79,6 +79,9 @@ reactions:
   type: three-body
   rate-constant: {A: 3.0e+13, b: -2.0, Ea: 1900.0 cal/mol}
   duplicate: true
+- equation: R1A + R1B + R2 <=> P1 + H + R2
+  rate-constant: {A: 3.0e+13, b: -2.0, Ea: 1900.0 cal/mol}
+  duplicate: true
 - equation: R1A + R1B (+ M) <=> P1 + H (+ M)
   type: falloff
   high-P-rate-constant: {A: 1.0e+15, b: -2.0, Ea: 1000.0 cal/mol}
