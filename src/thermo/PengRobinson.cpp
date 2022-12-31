@@ -624,6 +624,18 @@ double PengRobinson::dpdVCalc(double T, double molarVol, double& presCalc) const
     return -GasConstant * T / (vmb * vmb) + 2 * m_aAlpha_mix * vpb / (denom*denom);
 }
 
+double PengRobinson::isothermalCompressibility() const
+{
+    calculatePressureDerivatives();
+    return -1 / (molarVolume() * m_dpdV);
+}
+
+double PengRobinson::thermalExpansionCoeff() const
+{
+    calculatePressureDerivatives();
+    return -m_dpdT / (molarVolume() * m_dpdV);
+}
+
 void PengRobinson::calculatePressureDerivatives() const
 {
     double T = temperature();

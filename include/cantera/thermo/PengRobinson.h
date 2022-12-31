@@ -205,6 +205,9 @@ protected:
 
 public:
 
+    virtual double isothermalCompressibility() const;
+    virtual double thermalExpansionCoeff() const;
+
     //! Calculate \f$dp/dV\f$ and \f$dp/dT\f$ at the current conditions
     /*!
      *  These are stored internally.
@@ -248,7 +251,7 @@ protected:
      */
     double m_a = 0.0;
 
-    //! Value of \f$\alpha\f$ in the equation of state
+    //! Value of \f$a \alpha\f$ in the equation of state
     /*!
      *  `m_aAlpha_mix` is a function of the temperature and the mole fractions.
      */

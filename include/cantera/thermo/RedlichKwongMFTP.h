@@ -174,6 +174,9 @@ public:
     virtual doublereal densSpinodalGas() const;
     virtual doublereal dpdVCalc(doublereal TKelvin, doublereal molarVol, doublereal& presCalc) const;
 
+    virtual double isothermalCompressibility() const;
+    virtual double thermalExpansionCoeff() const;
+
     //! Calculate dpdV and dpdT at the current conditions
     /*!
      *  These are stored internally.
