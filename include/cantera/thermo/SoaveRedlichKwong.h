@@ -25,11 +25,17 @@ public:
     virtual std::string type() const {
         return "Soave-Redlich-Kwong";
     }
+
+public:
+    int SoaveRedlichKwong::solveCubic(double T, double pres, double a, double b, double aAlpha,
+                                  double Vroot[3]) const;
+
 private:
     static const double omega_a;
     static const double omega_b;
     static const double omega_vc;
-}
+
+};
 }
 
 #endif
