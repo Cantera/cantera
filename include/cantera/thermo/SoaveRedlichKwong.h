@@ -26,6 +26,31 @@ public:
         return "Soave-Redlich-Kwong";
     }
 
+
+    //! Calculate species-specific critical temperature
+    /*!
+     *  The temperature dependent parameter in SRK EoS is calculated as
+     *       \f[ T_{crit} = (0.0778 a)/(0.4572 b R) \f] TODO
+     *  Units: Kelvin
+     *
+     * @param a    species-specific coefficients used in P-R EoS
+     * @param b    species-specific coefficients used in P-R EoS
+     */
+    double speciesCritTemperature(double a, double b) const;
+
+    //! @name Initialization Methods - For Internal use
+    //!
+    //! The following methods are used in the process of constructing
+    //! the phase and setting its parameters from a specification in an
+    //! input file. They are not normally used in application programs.
+    //! To see how they are used, see importPhase().
+    //! @{
+
+    virtual bool addSpecies(shared_ptr<Species> spec);
+    virtual void initThermo();
+    virtual void getSpeciesParameters(const std::string& name,
+                                      AnyMap& speciesNode) const;
+
 protected:
 
     virtual double dpdVCalc(double T, double molarVol, double& presCalc) const;
@@ -87,6 +112,11 @@ protected:
      *  constant
      */
     mutable double m_dpdT;
+
+
+    enum class CoeffSource { EoS, CritProps, Database };
+    //! For each species, specifies the source of the a, b, and omega coefficients
+    std::vector<CoeffSource> m_coeffSource;
 
 private:
     static const double omega_a;

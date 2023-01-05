@@ -19,6 +19,161 @@ const double SoaveRedlichKwong::omega_b = 8.66403499650E-02;
 const double SoaveRedlichKwong::omega_vc = 3.33333333333333E-01;
 
 
+double SoaveRedlichKwong::speciesCritTemperature(double a, double b) const
+{
+    if (b <= 0.0) {
+        return 1000000.;
+    } else if (a <= 0.0) {
+        return 0.0;
+    } else {
+        return a * omega_b / (b * omega_a * GasConstant);
+    }
+}
+
+
+bool SoaveRedlichKwong::addSpecies(shared_ptr<Species> spec)
+{
+    bool added = MixtureFugacityTP::addSpecies(spec);
+    if (added) {
+        m_a_coeffs.resize(m_kk, m_kk, 0.0);
+        m_b_coeffs.push_back(0.0);
+        m_aAlpha_binary.resize(m_kk, m_kk, 0.0);
+        m_kappa.push_back(0.0);
+        m_acentric.push_back(0.0);
+        m_alpha.push_back(0.0);
+        m_dalphadT.push_back(0.0);
+        m_d2alphadT2.push_back(0.0);
+        m_pp.push_back(0.0);
+        m_partialMolarVolumes.push_back(0.0);
+        m_dpdni.push_back(0.0);
+        m_coeffSource.push_back(CoeffSource::EoS);
+    }
+    return added;
+}
+
+
+void SoaveRedlichKwong::initThermo()
+{
+    // Contents of 'critical-properties.yaml', loaded later if needed
+    AnyMap critPropsDb;
+    std::unordered_map<std::string, AnyMap*> dbSpecies;
+
+    for (auto& item : m_species) {
+        auto& data = item.second->input;
+        size_t k = speciesIndex(item.first);
+        if (m_a_coeffs(k, k) != 0.0) {
+            continue;
+        }
+        bool foundCoeffs = false;
+        if (data.hasKey("equation-of-state") &&
+            data["equation-of-state"].hasMapWhere("model", "Soave-Redlich-Kwong"))
+        {
+            // Read a and b coefficients and acentric factor w_ac from species input
+            // information, specified in a YAML input file.
+            auto eos = data["equation-of-state"].getMapWhere(
+                "model", "Soave-Redlich-Kwong");
+            if (eos.hasKey("a") && eos.hasKey("b") && eos.hasKey("acentric-factor")) {
+                double a0 = eos.convert("a", "Pa*m^6/kmol^2");
+                double b = eos.convert("b", "m^3/kmol");
+                // unitless acentric factor:
+                double w = eos["acentric-factor"].asDouble();
+                setSpeciesCoeffs(item.first, a0, b, w);
+                foundCoeffs = true;
+            }
+
+            if (eos.hasKey("binary-a")) {
+                AnyMap& binary_a = eos["binary-a"].as<AnyMap>();
+                const UnitSystem& units = binary_a.units();
+                for (auto& item2 : binary_a) {
+                    double a0 = units.convert(item2.second, "Pa*m^6/kmol^2");
+                    setBinaryCoeffs(item.first, item2.first, a0);
+                }
+            }
+            if (foundCoeffs) {
+                m_coeffSource[k] = CoeffSource::EoS;
+                continue;
+            }
+        }
+
+        // Coefficients have not been populated from model-specific input
+        double Tc = NAN, Pc = NAN, omega_ac = NAN;
+        if (data.hasKey("critical-parameters")) {
+            // Use critical state information stored in the species entry to
+            // calculate a, b, and the acentric factor.
+            auto& critProps = data["critical-parameters"].as<AnyMap>();
+            Tc = critProps.convert("critical-temperature", "K");
+            Pc = critProps.convert("critical-pressure", "Pa");
+            omega_ac = critProps["acentric-factor"].asDouble();
+            m_coeffSource[k] = CoeffSource::CritProps;
+        } else {
+            // Search 'crit-properties.yaml' to find Tc and Pc. Load data if needed.
+            if (critPropsDb.empty()) {
+                critPropsDb = AnyMap::fromYamlFile("critical-properties.yaml");
+                dbSpecies = critPropsDb["species"].asMap("name");
+            }
+
+            // All names in critical-properties.yaml are upper case
+            auto ucName = boost::algorithm::to_upper_copy(item.first);
+            if (dbSpecies.count(ucName)) {
+                auto& spec = *dbSpecies.at(ucName);
+                auto& critProps = spec["critical-parameters"].as<AnyMap>();
+                Tc = critProps.convert("critical-temperature", "K");
+                Pc = critProps.convert("critical-pressure", "Pa");
+                omega_ac = critProps["acentric-factor"].asDouble();
+                m_coeffSource[k] = CoeffSource::Database;
+            }
+        }
+
+        // Check if critical properties were found in either location
+        if (!isnan(Tc)) {
+            double a = omega_a * std::pow(GasConstant * Tc, 2) / Pc;
+            double b = omega_b * GasConstant * Tc / Pc;
+            setSpeciesCoeffs(item.first, a, b, omega_ac);
+        } else {
+            throw InputFileError("SoaveRedlichKwong::initThermo", data,
+            "No Soave-Redlich-Kwong model parameters or critical properties found for "
+            "species '{}'", item.first);
+        }
+    }
+}
+
+
+void SoaveRedlichKwong::getSpeciesParameters(const std::string& name,
+                                        AnyMap& speciesNode) const
+{
+    MixtureFugacityTP::getSpeciesParameters(name, speciesNode);
+    size_t k = speciesIndex(name);
+    checkSpeciesIndex(k);
+
+    // Pure species parameters
+    if (m_coeffSource[k] == CoeffSource::EoS) {
+        auto& eosNode = speciesNode["equation-of-state"].getMapWhere(
+            "model", "Soave-Redlich-Kwong", true);
+        eosNode["a"].setQuantity(m_a_coeffs(k, k), "Pa*m^6/kmol^2");
+        eosNode["b"].setQuantity(m_b_coeffs[k], "m^3/kmol");
+        eosNode["acentric-factor"] = m_acentric[k];
+    } else if (m_coeffSource[k] == CoeffSource::CritProps) {
+        auto& critProps = speciesNode["critical-parameters"];
+        double Tc = speciesCritTemperature(m_a_coeffs(k, k), m_b_coeffs[k]);
+        double Pc = omega_b * GasConstant * Tc / m_b_coeffs[k];
+        critProps["critical-temperature"].setQuantity(Tc, "K");
+        critProps["critical-pressure"].setQuantity(Pc, "Pa");
+        critProps["acentric-factor"] = m_acentric[k];
+    }
+    // Nothing to do in the case where the parameters are from the database
+
+    if (m_binaryParameters.count(name)) {
+        // Include binary parameters regardless of where the pure species parameters
+        // were found
+        auto& eosNode = speciesNode["equation-of-state"].getMapWhere(
+            "model", "Soave-Redlich-Kwong", true);
+        AnyMap bin_a;
+        for (const auto& item : m_binaryParameters.at(name)) {
+            bin_a[item.first].setQuantity(item.second, "Pa*m^6/kmol^2");
+        }
+        eosNode["binary-a"] = std::move(bin_a);
+    }
+}
 
 double SoaveRedlichKwong::dpdVCalc(double T, double molarVol, double& presCalc) const
 {
