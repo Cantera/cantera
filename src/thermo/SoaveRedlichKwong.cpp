@@ -172,6 +172,139 @@ void SoaveRedlichKwong::getSpeciesParameters(const std::string& name,
     }
 }
 
+double SoaveRedlichKwong::liquidVolEst(double T, double& presGuess) const
+{
+    double v = m_b * 1.1;
+    double atmp, btmp, aAlphatmp;
+    calculateAB(atmp, btmp, aAlphatmp);
+    double pres = std::max(psatEst(T), presGuess);
+    double Vroot[3];
+    bool foundLiq = false;
+    int m = 0;
+    while (m < 100 && !foundLiq) {
+        int nsol = solveCubic(T, pres, atmp, btmp, aAlphatmp, Vroot);
+        if (nsol == 1 || nsol == 2) {
+            double pc = critPressure();
+            if (pres > pc) {
+                foundLiq = true;
+            }
+            pres *= 1.04;
+        } else {
+            foundLiq = true;
+        }
+    }
+
+    if (foundLiq) {
+        v = Vroot[0];
+        presGuess = pres;
+    } else {
+        v = -1.0;
+    }
+    return v;
+}
+
+double SoaveRedlichKwong::densityCalc(double T, double presPa, int phaseRequested,
+                                 double rhoGuess)
+{
+    // It's necessary to set the temperature so that m_aAlpha_mix is set correctly.
+    setTemperature(T);
+    double tcrit = critTemperature();
+    double mmw = meanMolecularWeight();
+    if (rhoGuess == -1.0) {
+        if (phaseRequested >= FLUID_LIQUID_0) {
+            double lqvol = liquidVolEst(T, presPa);
+            rhoGuess = mmw / lqvol;
+        }
+    } else {
+        // Assume the Gas phase initial guess, if nothing is specified to the routine
+        rhoGuess = presPa * mmw / (GasConstant * T);
+    }
+
+    double volGuess = mmw / rhoGuess;
+    m_NSolns = solveCubic(T, presPa, m_a, m_b, m_aAlpha_mix, m_Vroot);
+
+    double molarVolLast = m_Vroot[0];
+    if (m_NSolns >= 2) {
+        if (phaseRequested >= FLUID_LIQUID_0) {
+            molarVolLast = m_Vroot[0];
+        } else if (phaseRequested == FLUID_GAS || phaseRequested == FLUID_SUPERCRIT) {
+            molarVolLast = m_Vroot[2];
+        } else {
+            if (volGuess > m_Vroot[1]) {
+                molarVolLast = m_Vroot[2];
+            } else {
+                molarVolLast = m_Vroot[0];
+            }
+        }
+    } else if (m_NSolns == 1) {
+        if (phaseRequested == FLUID_GAS || phaseRequested == FLUID_SUPERCRIT
+            || phaseRequested == FLUID_UNDEFINED)
+        {
+            molarVolLast = m_Vroot[0];
+        } else {
+            return -2.0;
+        }
+    } else if (m_NSolns == -1) {
+        if (phaseRequested >= FLUID_LIQUID_0 || phaseRequested == FLUID_UNDEFINED
+            || phaseRequested == FLUID_SUPERCRIT)
+        {
+            molarVolLast = m_Vroot[0];
+        } else if (T > tcrit) {
+            molarVolLast = m_Vroot[0];
+        } else {
+            return -2.0;
+        }
+    } else {
+        molarVolLast = m_Vroot[0];
+        return -1.0;
+    }
+    return mmw / molarVolLast;
+}
+
+double SoaveRedlichKwong::densSpinodalLiquid() const
+{
+    double Vroot[3];
+    double T = temperature();
+    int nsol = solveCubic(T, pressure(), m_a, m_b, m_aAlpha_mix, Vroot);
+    if (nsol != 3) {
+        return critDensity();
+    }
+
+    auto resid = [this, T](double v) {
+        double pp;
+        return dpdVCalc(T, v, pp);
+    };
+
+    boost::uintmax_t maxiter = 100;
+    std::pair<double, double> vv = bmt::toms748_solve(
+        resid, Vroot[0], Vroot[1], bmt::eps_tolerance<double>(48), maxiter);
+
+    double mmw = meanMolecularWeight();
+    return mmw / (0.5 * (vv.first + vv.second));
+}
+
+double SoaveRedlichKwong::densSpinodalGas() const
+{
+    double Vroot[3];
+    double T = temperature();
+    int nsol = solveCubic(T, pressure(), m_a, m_b, m_aAlpha_mix, Vroot);
+    if (nsol != 3) {
+        return critDensity();
+    }
+
+    auto resid = [this, T](double v) {
+        double pp;
+        return dpdVCalc(T, v, pp);
+    };
+
+    boost::uintmax_t maxiter = 100;
+    std::pair<double, double> vv = bmt::toms748_solve(
+        resid, Vroot[1], Vroot[2], bmt::eps_tolerance<double>(48), maxiter);
+
+    double mmw = meanMolecularWeight();
+    return mmw / (0.5 * (vv.first + vv.second));
+}
+
 double SoaveRedlichKwong::dpdVCalc(double T, double molarVol, double& presCalc) const
 {
     double denom = molarVol * (molarVol + m_b);

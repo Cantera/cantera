@@ -52,7 +52,13 @@ public:
                                       AnyMap& speciesNode) const;
 
 protected:
+    // Special functions inherited from MixtureFugacityTP
 
+    virtual double liquidVolEst(double T, double& pres) const;
+    virtual double densityCalc(double T, double pressure, int phase, double rhoguess);
+
+    virtual double densSpinodalLiquid() const;
+    virtual double densSpinodalGas() const;
     virtual double dpdVCalc(double T, double molarVol, double& presCalc) const;
 
     // Special functions not inherited from MixtureFugacityTP
@@ -117,6 +123,33 @@ protected:
      */
     double m_aAlpha_mix;
 
+    // Vectors required to store species-specific a_coeff, b_coeff, alpha, kappa
+    // and other derivatives. Length = m_kk.
+    vector_fp m_b_coeffs;
+    vector_fp m_kappa;
+    vector_fp m_acentric; //!< acentric factor for each species, length #m_kk
+    mutable vector_fp m_dalphadT;
+    mutable vector_fp m_d2alphadT2;
+    vector_fp m_alpha;
+
+    // Matrices for Binary coefficients a_{i,j} and {a*alpha}_{i.j} are saved in an
+    // array form. Size = (m_kk, m_kk).
+    Array2D m_a_coeffs;
+    Array2D m_aAlpha_binary;
+
+    //! Explicitly-specified binary interaction parameters, to enable serialization
+    std::map<std::string, std::map<std::string, double>> m_binaryParameters;
+
+    int m_NSolns;
+
+    double m_Vroot[3];
+
+    //! Temporary storage - length = m_kk.
+    mutable vector_fp m_pp;
+
+    // Partial molar volumes of the species
+    mutable vector_fp m_partialMolarVolumes;
+
     //! The derivative of the pressure with respect to the volume
     /*!
      * Calculated at the current conditions. temperature and mole number kept
@@ -131,16 +164,32 @@ protected:
      */
     mutable double m_dpdT;
 
+    //! Vector of derivatives of pressure with respect to mole number
+    /*!
+     *  Calculated at the current conditions. Total volume, temperature and
+     *  other mole number kept constant
+     */
+    mutable vector_fp m_dpdni;
 
     enum class CoeffSource { EoS, CritProps, Database };
     //! For each species, specifies the source of the a, b, and omega coefficients
     std::vector<CoeffSource> m_coeffSource;
 
 private:
+    //! Omega constant: omega_a used in Soave-Redlich-Kwong equation of state
+    /*!
+     *  This value is calculated by solving SRK cubic equation at the critical point.
+     */
     static const double omega_a;
-    static const double omega_b;
-    static const double omega_vc;
 
+    //! Omega constant: omega_b used in Soave-Redlich-Kwong equation of state
+    /*!
+     *  This value is calculated by solving SRK cubic equation at the critical point.
+     */
+    static const double omega_b;
+
+    //! Omega constant for the critical molar volume
+    static const double omega_vc;
 };
 }
 
