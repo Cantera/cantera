@@ -76,6 +76,24 @@ public:
      */
     void calculatePressureDerivatives() const;
 
+    //! Update the \f$a\f$, \f$b\f$, and \f$\alpha\f$ parameters
+    /*!
+     *  The \f$a\f$ and the \f$b\f$ parameters depend on the mole fraction and the
+     *  parameter \f$\alpha\f$ depends on the temperature. This function updates
+     *  the internal numbers based on the state of the object.
+     */
+    virtual void updateMixingExpressions();
+
+    //! Calculate the \f$a\f$, \f$b\f$, and \f$\a alpha\f$ parameters given the temperature
+    /*!
+     * This function doesn't change the internal state of the object, so it is a
+     * const function.  It does use the stored mole fractions in the object.
+     *
+     * @param aCalc (output)  Returns the a value
+     * @param bCalc (output)  Returns the b value.
+     * @param aAlpha (output) Returns the (a*alpha) value.
+     */
+    void calculateAB(double& aCalc, double& bCalc, double& aAlphaCalc) const
     //! Prepare variables and call the function to solve the cubic equation of state
     int solveCubic(double T, double pres, double a, double b, double aAlpha,
                    double Vroot[3]) const;

@@ -30,7 +30,6 @@ double SoaveRedlichKwong::speciesCritTemperature(double a, double b) const
     }
 }
 
-
 bool SoaveRedlichKwong::addSpecies(shared_ptr<Species> spec)
 {
     bool added = MixtureFugacityTP::addSpecies(spec);
@@ -50,7 +49,6 @@ bool SoaveRedlichKwong::addSpecies(shared_ptr<Species> spec)
     }
     return added;
 }
-
 
 void SoaveRedlichKwong::initThermo()
 {
@@ -137,7 +135,6 @@ void SoaveRedlichKwong::initThermo()
     }
 }
 
-
 void SoaveRedlichKwong::getSpeciesParameters(const std::string& name,
                                         AnyMap& speciesNode) const
 {
@@ -190,6 +187,42 @@ void SoaveRedlichKwong::calculatePressureDerivatives() const
 
     m_dpdV = dpdVCalc(T, mv, pres);
     m_dpdT = GasConstant / (mv - m_b) - daAlpha_dT() / (mv * (mv + m_b));
+}
+
+void SoaveRedlichKwong::updateMixingExpressions()
+{
+    // Same as PengRobinson::updateMixingExpressions()
+    double temp = temperature();
+
+    // Update individual alpha
+    for (size_t j = 0; j < m_kk; j++) {
+        double critTemp_j = speciesCritTemperature(m_a_coeffs(j,j), m_b_coeffs[j]);
+        double sqt_alpha = 1 + m_kappa[j] * (1 - sqrt(temp / critTemp_j));
+        m_alpha[j] = sqt_alpha*sqt_alpha;
+    }
+
+    // Update aAlpha_i, j
+    for (size_t i = 0; i < m_kk; i++) {
+        for (size_t j = 0; j < m_kk; j++) {
+            m_aAlpha_binary(i, j) = sqrt(m_alpha[i] * m_alpha[j]) * m_a_coeffs(i,j);
+        }
+    }
+    calculateAB(m_a,m_b,m_aAlpha_mix);
+}
+
+void SoaveRedlichKwong::calculateAB(double& aCalc, double& bCalc, double& aAlphaCalc) const
+{
+    // Same as PengRobinson::calculateAB()
+    bCalc = 0.0;
+    aCalc = 0.0;
+    aAlphaCalc = 0.0;
+    for (size_t i = 0; i < m_kk; i++) {
+        bCalc += moleFractions_[i] * m_b_coeffs[i];
+        for (size_t j = 0; j < m_kk; j++) {
+            aCalc += m_a_coeffs(i, j) * moleFractions_[i] * moleFractions_[j];
+            aAlphaCalc += m_aAlpha_binary(i, j) * moleFractions_[i] * moleFractions_[j];
+        }
+    }
 }
 
 double SoaveRedlichKwong::daAlpha_dT() const
