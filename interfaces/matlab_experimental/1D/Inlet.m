@@ -1,7 +1,7 @@
 classdef Inlet < Domain1D
-    % Create an inlet domain.
+    % Create an inlet domain. ::
     %
-    % m = Inlet(id)
+    %     >> m = Inlet(id)
     %
     % Note that an inlet can only be a terminal domain - it must be
     % either the leftmost or rightmost domain in a stack.
@@ -14,10 +14,10 @@ classdef Inlet < Domain1D
 
     methods
 
-        % Constructor
         function m = Inlet(id)
+            % Constructor
 
-            m = m@Domain1D('Inlet1D');
+            m@Domain1D('Inlet1D');
 
             if nargin == 0
                 m.setID('inlet');

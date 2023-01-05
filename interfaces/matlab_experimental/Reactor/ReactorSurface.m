@@ -1,7 +1,7 @@
 classdef ReactorSurface < handle
-    % ReactorSurface Class
+    % ReactorSurface Class ::
     %
-    % s = ReactorSurface(kleft, reactor, area)
+    %     >> s = ReactorSurface(surf, reactor, area)
     %
     % A surface on which heterogeneous reactions take place. The
     % mechanism object (typically an instance of class 'Interface')
@@ -14,7 +14,7 @@ classdef ReactorSurface < handle
     % after initial construction by using the various methods of
     % the 'ReactorSurface' class.
     %
-    % :param kleft:
+    % :param surf:
     %    Surface reaction mechanisms for the left-facing surface.
     %    This must bean instance of class 'Kinetics', or of a class
     %    derived from 'Kinetics', such as 'Interface'.
@@ -43,20 +43,29 @@ classdef ReactorSurface < handle
     methods
         %% ReactorSurface Class Constructor
 
-        function s = ReactorSurface(kleft, reactor, area)
+        function s = ReactorSurface(surf, reactor, area)
+            % Create a :mat:class:`ReactorSurface` object.
+
             checklib;
 
             s.surfID = callct('reactorsurface_new', 0);
             s.reactor = -1;
 
             if nargin >= 1
-                s.setKinetics(kleft);
+                ikin = 0;
+
+                if isa(surf, 'Kinetics')
+                    ikin = surf.kinID;
+                end
+
+                callct('reactorsurface_setkinetics', s.surfID, ikin);
             end
 
             if nargin >= 2
 
                 if isa(reactor, 'Reactor')
-                    s.install(reactor);
+                    s.reactor = reactor;
+                    callct('reactorsurface_install', s.surfID, reactor.id);
                 else
                     warning('Reactor was not installed due to incorrect type');
                 end
@@ -78,25 +87,12 @@ classdef ReactorSurface < handle
         %% ReactorSurface Class Destructor
 
         function delete(s)
-            % Delete the ReactorSurface object from the memory.
+            % Delete the :mat:class:`ReactorSurface` object.
 
             callct('reactorsurface_del', s.surfID);
         end
 
         %% ReactorSurface Utility Methods
-
-        function install(s, r)
-            % Install a ReactorSurface in a Reactor.
-            %
-            % s.install(r)
-            %
-            % :param r:
-            %    Instance of class 'Reactor'.
-            %
-
-            s.reactor = r;
-            callct('reactorsurface_install', s.surfID, r.id);
-        end
 
         function addSensitivityReaction(s, m)
             % Specifies that the sensitivity of the state variables with
@@ -121,26 +117,6 @@ classdef ReactorSurface < handle
 
         function set.area(s, a)
             callct('reactorsurface_setArea', s.surfID, a);
-        end
-
-        function setKinetics(s, kin)
-            % Setthe surface reaction mechanism on a reactor surface.
-            %
-            % s.setKinetics(kin)
-            %
-            % :param kin:
-            %    Instance of class 'Kinetics' (or another object derived
-            %    from kin) to be used as the kinetic mechanism for this
-            %    surface. Typically an instance of class 'Interface'.
-            %
-
-            ikin = 0;
-
-            if isa(kin, 'Kinetics')
-                ikin = kin.kinID;
-            end
-
-            callct('reactorsurface_setkinetics', s.surfID, ikin);
         end
 
     end

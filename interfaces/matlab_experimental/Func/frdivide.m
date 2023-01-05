@@ -1,7 +1,7 @@
-function r = frdivide(a, b)
-    % Get a functor that is the ratio of the input functors.
+classdef frdivide < Func
+    % Frdivide - Get a functor representing the ratio of two input functors. ::
     %
-    % r = frdivide(a,b)
+    %     >> f = frdivide(a, b)
     %
     % :param a:
     %     Instance of class :mat:class:`Func`
@@ -12,9 +12,10 @@ function r = frdivide(a, b)
     %
     methods
 
-        % Constructor
         function f = frdivide(a, b)
-            f = f@Func('ratio', a, b);
+            % Constructor
+
+            f@Func('ratio', a, b);
         end
 
     end

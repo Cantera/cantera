@@ -21,7 +21,6 @@ function periodic_cstr
 
     clear all
     close all
-    clc
 
     tic
     help periodic_cstr
@@ -48,7 +47,7 @@ function periodic_cstr
 
     % Set its volume to 10 cm^3. In this problem, the reactor volume is
     % fixed, so the initial volume is the volume at all later times.
-    cstr.setInitialVolume(10.0 * 1.0e-6);
+    cstr.V = 10.0 * 1.0e-6;
 
     % We need to have heat loss to see the oscillations. Create a
     % reservoir to represent the environment, and initialize its
@@ -60,10 +59,9 @@ function periodic_cstr
     % coefficient. Larger U causes the reactor to be closer to isothermal.
     % If U is too small, the gas ignites, and the temperature spikes and
     % stays high.
-    w = Wall;
-    w.install(cstr, env);
+    w = Wall(cstr, env);
     w.area = 1.0;
-    w.setHeatTransferCoeff(0.02);
+    w.heatTransferCoeff = 0.02;
 
     % Connect the upstream reservoir to the reactor with a mass flow
     % controller (constant mdot). Set the mass flow rate to 1.25 sccm.
@@ -72,7 +70,7 @@ function periodic_cstr
     mdot = gas.D * vdot; % kg/s
     mfc = MassFlowController;
     mfc.install(upstream, cstr);
-    mfc.setMassFlowRate(mdot);
+    mfc.massFlowRate = mdot;
 
     % now create a downstream reservoir to exhaust into.
     downstream = Reservoir(gas);
@@ -82,7 +80,7 @@ function periodic_cstr
     % close to the downstream pressure of 60 Torr.
     v = Valve;
     v.install(cstr, downstream);
-    v.setValveCoeff(1.0e-9);
+    v.valveCoeff = 1.0e-9;
 
     % create the network
     network = ReactorNet({cstr});

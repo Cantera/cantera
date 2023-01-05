@@ -1,7 +1,7 @@
 classdef Reactor < handle
-    % Reactor Class
+    % Reactor Class ::
     %
-    % r = Reactor(content, typ)
+    %     >> r = Reactor(content, typ)
     %
     % A 'Reactor' object simulates a perfectly-stirred reactor. It
     % has a time-dependent tstate, and may be coupled to other
@@ -30,7 +30,7 @@ classdef Reactor < handle
 
     end
 
-    properties (SetAccess = protected)
+    properties (SetAccess = public)
 
         contents
         %
@@ -111,6 +111,8 @@ classdef Reactor < handle
         %% Reactor Class Constructor
 
         function r = Reactor(content, typ)
+            % Create a :mat:class:`Reactor` object.
+
             checklib;
 
             if nargin == 0
@@ -126,8 +128,18 @@ classdef Reactor < handle
             r.id = callct('reactor_new', typ);
 
             if isa(content, 'Solution')
-                r.insert(content);
-            elseif ~(isa(contents, 'double') && contents == 0)
+                r.contents = content;
+                if ~isa(content, 'ThermoPhase')
+                    error('Wrong object type');
+                end
+
+                callct('reactor_setThermoMgr', r.id, content.tpID);
+
+                if ~strcmp(r.type, 'Reservoir')
+                    callct('reactor_setKineticsMgr', r.id, content.kinID);
+                end
+
+            elseif ~(isa(content, 'double') && content == 0)
                 error('Reactor contents must be an object of type "Solution"');
             end
 
@@ -136,7 +148,7 @@ classdef Reactor < handle
         %% Reactor Class Destructor
 
         function delete(r)
-            % Delete the Reactor object from memory.
+            % Delete the :mat:class:`Reactor` object.
 
             callct('reactor_del', r.id);
         end
@@ -155,26 +167,6 @@ classdef Reactor < handle
             %
 
             callct('reactor_addSensitivityReaction', r.id, m);
-        end
-
-        function insert(r, gas)
-            % Insert a solution or mixture into a reactor.
-            %
-            % r.insert(gas)
-            %
-            % :param r:
-            %    Instance of class 'Reactor'.
-            % :param gas:
-            %    Instance of class 'Solution'.
-            %
-
-            r.contents = gas;
-            setThermoMgr(r, gas);
-
-            if ~strcmp(r.type, 'Reservoir')
-                setKineticsMgr(r, gas);
-            end
-
         end
 
         %% Reactor Get Methods
@@ -270,48 +262,6 @@ classdef Reactor < handle
 
             callct('reactor_setEnergy', r.id, eflag);
 
-        end
-
-        function setThermoMgr(r, t)
-            % Set the thermodynamics manager.
-            %
-            % r.setThermoMgr(t)
-            %
-            % This method is used internally during Reactor initialization,
-            % but is usually not called by users.
-            %
-            % :param r:
-            %    Instance of class 'Reactor'.
-            % :param t:
-            %    Instance of class 'ThermoPhase' or another object
-            %    containing an instance of that class.
-
-            if ~isa(t, 'ThermoPhase')
-                error('Wrong object type');
-            end
-
-            callct('reactor_setThermoMgr', r.id, t.tpID);
-        end
-
-        function setKineticsMgr(r, k)
-            % Set the kinetics manager.
-            %
-            % r.setKineticsMgr(k)
-            %
-            % This method is used internally during Reactor initialization,
-            % but is usually not called by users.
-            %
-            % :param r:
-            %    Instance of class 'Reactor'.
-            % :param t:
-            %    Instance of class 'Kinetics' or another object
-            %    containing an instance of that class.
-
-            if ~isa(k, 'Kinetics')
-                error('Wrong object type');
-            end
-
-            callct('reactor_setKineticsMgr', r.id, k.kinID);
         end
 
     end

@@ -1,7 +1,7 @@
 classdef IdealGasReactor < Reactor
-    % Create a reactor with an ideal gas.
+    % Create a reactor with an ideal gas. ::
     %
-    % r = IdealGasReactor(contents)
+    %     >> r = IdealGasReactor(contents)
     %
     % An IdealGasReactor is an instance of class Reactor where the governing
     % equations are specialized for the ideal gas equation of state (and do not
@@ -22,13 +22,14 @@ classdef IdealGasReactor < Reactor
 
     methods
 
-        % Constructor
         function r = IdealGasReactor(contents)
+            % Constructor
+
             if nargin == 0
                 contents = 0;
             end
 
-            r = r@Reactor(contents, 'IdealGasReactor');
+            r@Reactor(contents, 'IdealGasReactor');
         end
 
     end

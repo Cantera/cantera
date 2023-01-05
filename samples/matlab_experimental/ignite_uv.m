@@ -6,7 +6,6 @@ function ignite_uv(gas)
 
     clear all
     close all
-    clc
 
     tic
     help ignite_uv

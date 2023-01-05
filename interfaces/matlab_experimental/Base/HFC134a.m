@@ -1,7 +1,7 @@
 function h = HFC134a()
-    % Return an object representing refrigerant HFC134a.
+    % Return an object representing refrigerant HFC134a. ::
     %
-    % h = HFC134a()
+    %     >> h = HFC134a()
     %
     % The object returned by this method implements an accurate equation of
     % state for refrigerant HFC134a (R134a) that can be used in the liquid,

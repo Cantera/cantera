@@ -9,7 +9,6 @@ function reactor1(g)
 
     clear all
     close all
-    clc
 
     tic
     help reactor1
@@ -42,11 +41,10 @@ function reactor1(g)
     % Define a wall between the reactor and the environment and
     % make it flexible, so that the pressure in the reactor is held
     % at the environment pressure.
-    w = Wall;
-    w.install(r, env);
+    w = Wall(r, env);
 
     % set expansion parameter. dV/dt = KA(P_1 - P_2)
-    w.setExpansionRateCoeff(1.0e6);
+    w.expansionRateCoeff = 1.0e6;
 
     % set wall area
     w.area = 1.0;

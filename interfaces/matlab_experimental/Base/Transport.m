@@ -30,12 +30,12 @@ classdef Transport < handle
         %% Transport Class Constructor
 
         function tr = Transport(tp, model, loglevel)
-            % Transport Class
+            % Transport Class ::
             %
-            % tr = Transport(r, th, model, loglevel)
+            %     >> tr = Transport(r, th, model, loglevel)
             %
-            % Create a new instance of class :mat:class:`Transport`. One to three arguments
-            % may be supplied. The first must be an instance of class
+            % Create a new instance of class :mat:class:`Transport`. One to three
+            % arguments may be supplied. The first must be an instance of class
             % :mat:class:`ThermoPhase`. The second (optional) argument is the type of
             % model desired, specified by the string ``'default'``, ``'Mix'`` or
             % ``'Multi'``. ``'default'`` uses the default transport specified in the
@@ -50,8 +50,9 @@ classdef Transport < handle
             % :param loglevel:
             %     Level of diagnostic logging. Default if not specified is 4.
             % :return:
-            %     Instance of class :mat:class:`Transport`
+            %     Instance of class :mat:class:`Transport`.
             %
+
             checklib;
             tr.trID = 0;
 
@@ -82,7 +83,7 @@ classdef Transport < handle
         %% Transport Class Destructor
 
         function delete(tr)
-            % Delete the kernel object.
+            % Delete the :mat:class:`Transport` object.
 
             callct('trans_del', tr.trID);
         end

@@ -19,9 +19,13 @@ flame1;
 flame2;
 catcomb;
 diff_flame;
+ignite;
 ignite_hp;
 ignite_uv;
+diamond_cvd;
 
 clear all
 close all
 UnloadCantera
+
+disp('Test example run successful.')

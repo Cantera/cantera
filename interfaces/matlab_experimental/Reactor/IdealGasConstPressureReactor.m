@@ -1,7 +1,7 @@
 classdef IdealGasConstPressureReactor < Reactor
-    % Create a constant pressure reactor with an ideal gas.
+    % Create a constant pressure reactor with an ideal gas. ::
     %
-    % r = IdealGasConstPressureReactor(contents)
+    %     >> r = IdealGasConstPressureReactor(contents)
     %
     % An IdealGasConstPressureReactor is an instance of class Reactor where the
     % pressure is held constant. The volume is not a state variable, but
@@ -25,13 +25,14 @@ classdef IdealGasConstPressureReactor < Reactor
 
     methods
 
-        % Constructor
         function r = IdealGasConstPressureReactor(contents)
+            % Constructor
+
             if nargin == 0
                 contents = 0;
             end
 
-            r = r@Reactor(contents, 'IdealGasConstPressureReactor');
+            r@Reactor(contents, 'IdealGasConstPressureReactor');
         end
 
     end

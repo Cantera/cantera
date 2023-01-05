@@ -1,7 +1,7 @@
 classdef FlowReactor < Reactor
-    % Create a flow reactor object.
+    % Create a flow reactor object. ::
     %
-    % r = FlowReactor(contents)
+    %     >> r = FlowReactor(contents)
     %
     % A reactor representing adiabatic plug flow in a constant-area
     % duct. Examples:
@@ -21,13 +21,14 @@ classdef FlowReactor < Reactor
 
     methods
 
-        % Constructor
         function r = FlowReactor(contents)
+            % Constructor
+
             if nargin == 0
                 contents = 0;
             end
 
-            r = r@Reactor(contents, 'FlowReactor');
+            r@Reactor(contents, 'FlowReactor');
         end
 
     end

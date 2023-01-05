@@ -1,14 +1,14 @@
 classdef ThermoPhase < handle
-    % ThermoPhase Class
+    % ThermoPhase Class ::
     %
-    % t = ThermoPhase(src, id)
+    %     >> t = ThermoPhase(src, id)
     %
     % :param src:
     %     Input string of YAML file name.
     % :param id:
     %     ID of the phase to import as specified in the input file.
     % :return:
-    %     Instance of class :mat:class:`ThermoPhase`
+    %     Instance of class :mat:class:`ThermoPhase`.
     %
 
     properties (SetAccess = public)
@@ -251,6 +251,7 @@ classdef ThermoPhase < handle
         %% ThermoPhase Class Constructor
 
         function tp = ThermoPhase(src, id)
+            % Create a :mat:class:`ThermoPhase` object.
             checklib;
 
             if nargin ~= 2
@@ -264,7 +265,7 @@ classdef ThermoPhase < handle
         %% ThermoPhase Class Destructor
 
         function tpClear(tp)
-            % Delete the ThermoPhase object.
+            % Delete the :mat:class:`ThermoPhase` object.
 
             callct('thermo_del', tp.tpID);
         end

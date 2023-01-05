@@ -18,7 +18,6 @@ help catcomb;
 
 clear all
 close all
-clc
 
 t0 = cputime; % record the starting time
 
@@ -130,7 +129,7 @@ surf.T = tsurf;
 % Once the component parts have been created, they can be assembled
 % to create the 1D simulation.
 
-stack = Sim1D([inlt, flow, surf]);
+stack = Sim1D({inlt, flow, surf});
 
 % set the initial profiles.
 stack.setProfile(2, {'velocity', 'spread_rate', 'T'}, ...

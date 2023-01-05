@@ -1,7 +1,7 @@
 function n = Nitrogen()
-    % Return an object representing nitrogen.
+    % Return an object representing nitrogen. ::
     %
-    % n = Nitrogen()
+    %     >> n = Nitrogen()
     %
     % The object returned by this method implements an accurate equation of
     % state for nitrogen that can be used in the liquid, vapor, saturated

@@ -1,7 +1,7 @@
 function m = Methane()
-    % Return an object representing methane.
+    % Return an object representing methane. ::
     %
-    % m = Methane()
+    %     >> m = Methane()
     %
     % The object returned by this method implements an accurate equation of
     % state for methane that can be used in the liquid, vapor, saturated

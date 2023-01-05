@@ -1,7 +1,7 @@
 classdef Interface < handle & ThermoPhase & Kinetics
-    % Interface Class
+    % Interface Class ::
     %
-    % s = Interface(src, id, p1, p2, p3, p4)
+    %     >> s = Interface(src, id, p1, p2, p3, p4)
     %
     % See `ideal-surface <https://cantera.org/documentation/docs-2.6/sphinx/html/yaml/phases.html#sec-yaml-ideal-surface>`__
     % and `Declaring adjacent phases <https://cantera.org/tutorials/yaml/phases.html#declaring-adjacent-phases>`__.
@@ -38,7 +38,8 @@ classdef Interface < handle & ThermoPhase & Kinetics
         %% Interface Class Constructor
 
         function s = Interface(src, id, p1, p2, p3, p4)
-            % Interface class constructor
+            % Create an :mat:class:`Interface` object.
+
             checklib;
 
             t = ThermoPhase(src, id);

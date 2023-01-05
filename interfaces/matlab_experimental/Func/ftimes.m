@@ -1,7 +1,7 @@
 classdef ftimes < Func
-    % Ftimes - Get a functor representing the product of two input functors.
+    % Ftimes - Get a functor representing the product of two input functors. ::
     %
-    % f = ftimes(a, b)
+    %     >> f = ftimes(a, b)
     %
     % :param a:
     %     Instance of class :mat:class:`Func`
@@ -12,9 +12,10 @@ classdef ftimes < Func
     %
     methods
 
-        % Constructor
         function f = ftimes(a, b)
-            f = f@Func('prod', a, b);
+            % Constructor
+
+            f@Func('prod', a, b);
         end
 
     end

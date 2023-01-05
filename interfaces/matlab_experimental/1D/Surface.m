@@ -1,7 +1,7 @@
 classdef Surface < Domain1D
-    % Create a surface domain.
+    % Create a surface domain. ::
     %
-    % m = Surface(id, surface_mech)
+    %     >> m = Surface(id, surface_mech)
     %
     % :param id:
     %     String ID of surface
@@ -15,17 +15,16 @@ classdef Surface < Domain1D
 
     methods
 
-        % Constructor
         function m = Surface(id, surface_mech)
+            % Constructor
 
-            if nargin > 1
-                m = m@Domain1D('ReactingSurface', surface_mech);
-                m.setID(id);
-                return
+            if nargin < 2
+                param = {'Surf1D'};
+            else
+                param = {'ReactingSurface', surface_mech};
             end
 
-            m = m@Domain1D('Surf1D');
-
+            m@Domain1D(param{:});
             if nargin == 0
                 m.setID('surface');
             elseif nargin == 1

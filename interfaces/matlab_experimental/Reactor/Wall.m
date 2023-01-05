@@ -1,7 +1,7 @@
 classdef Wall < handle
-    % Wall Class
+    % Wall Class ::
     %
-    % x = Wall()
+    %     >> x = Wall(l, r)
     %
     % A Wall separates two reactors, or a reactor and a reservoir.
     % A Wall has a finite area, may conduct heat between the two
@@ -33,6 +33,15 @@ classdef Wall < handle
     % to various properties. The user could specify those properties
     % after initial construction by using the various methods of
     % the 'Wall' class.
+    %
+    % :param l:
+    %    Instance of class 'Reactor' to be used as the bulk phase
+    %    on the left side of the wall.
+    % :param r:
+    %    Instance of class 'Reactor' to be used as the bulk phase
+    %    on the right side of the wall.
+    % :return:
+    %    Instance of class 'Wall'.
     %
 
     properties (SetAccess = immutable)
@@ -77,58 +86,42 @@ classdef Wall < handle
     methods
         %% Wall Class Constructor
 
-        function x = Wall()
+        function w = Wall(l, r)
+            % Create a :mat:class:`Wall` object.
             checklib;
 
             % At the moment, only one wall type is implemented
             typ = 'Wall';
 
-            x.type = char(typ);
-            x.id = callct('wall_new', x.type);
+            w.type = char(typ);
+            w.id = callct('wall_new', w.type);
+
+            % Install the wall between left and right reactors
+            w.left = l;
+            w.right = r;
+            callct('wall_install', w.id, l.id, r.id);
 
             % Set default values.
-            x.left = -1;
-            x.right = -1;
-            x.area = 1.0;
-            x.setExpansionRateCoeff(0.0);
-            x.setHeatTransferCoeff(0.0);
+            w.area = 1.0;
+            w.expansionRateCoeff = 0.0;
+            w.heatTransferCoeff = 0.0;
+
+            % Check whether the wall is ready.
+            ok = callct('wall_ready', w.id);
+            if ok
+                disp('The wall object is ready.');
+            else
+                error('The wall object is not ready.');
+            end
 
         end
 
         %% Wall Class Destructor
 
         function delete(w)
-            % Clear the Wall object from the memory.
+            % Clear the :mat:class:`Wall` object.
 
             callct('wall_del', w.id);
-        end
-
-        %% Wall Class Utility Methods
-
-        function install(w, l, r)
-            % Install a wall between two reactors.
-            %
-            % w.install(l, r)
-            %
-            % :param l:
-            %    Instance of class 'Reactor' to be used as the bulk phase
-            %    on the left side of the wall.
-            % :param r:
-            %    Instance of class 'Reactor' to be used as the bulk phase
-            %    on the right side of the wall.
-
-            w.left = l;
-            w.right = r;
-            callct('wall_install', w.id, l.id, r.id);
-        end
-
-        function ok = ready(w)
-            % Check whether a wall is ready.
-            %
-            % ok = w.ready
-            %
-
-            ok = callct('wall_ready', w.id);
         end
 
         %% ReactorNet get methods
@@ -138,7 +131,7 @@ classdef Wall < handle
         end
 
         function q = qdot(w, t)
-            % Total heat transfer through a wall at a given time t.
+            % Total heat transfer rate through a wall at a given time t.
 
             q = callct('wall_Q', w.id, t);
         end

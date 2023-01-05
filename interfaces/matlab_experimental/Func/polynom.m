@@ -1,7 +1,7 @@
 classdef polynom < Func
-    % Polynom - Create a polynomial :mat:class:`Func` instance.
+    % Polynom - Create a polynomial :mat:class:`Func` instance. ::
     %
-    % poly = polynom(coeffs)
+    %     >> f = polynom(coeffs)
     %
     % The polynomial coefficients are specified by a vector
     % ``[a0 a1 .... aN]``. Examples:
@@ -18,18 +18,22 @@ classdef polynom < Func
     %
     methods
 
-        % Constructor
         function f = polynom(coeffs)
+            % Constructor
+
             [n m] = size(coeffs);
 
-    [n m] = size(coeffs);
+            if n == 1
+                p = m - 1;
+            elseif m == 1
+                p = n - 1;
+            else
+                error('wrong shape for coefficient array');
+            end
 
-    if n == 1
-        poly = Func('polynomial', m - 1, coeffs);
-    elseif m == 1
-        poly = Func('polynomial', n - 1, coeffs);
-    else
-        error('wrong shape for coefficient array');
+            f@Func('polynomial', p, coeffs);
+        end
+
     end
 
 end
