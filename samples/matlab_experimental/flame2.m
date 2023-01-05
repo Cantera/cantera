@@ -8,7 +8,6 @@
 
 clear all
 close all
-clc
 
 tic
 help flame2

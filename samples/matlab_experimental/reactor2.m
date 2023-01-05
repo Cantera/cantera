@@ -9,7 +9,6 @@ function reactor2(g)
 
     clear all
     close all
-    clc
 
     tic
     help reactor2

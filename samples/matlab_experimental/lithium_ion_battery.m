@@ -25,7 +25,6 @@
 
 clear all
 close all
-clc
 
 tic
 help lithium_ion_battery

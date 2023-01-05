@@ -21,23 +21,19 @@ basis = 'mass';
 w.setState_Tsat(t1, 1.0);
 h1 = w.H;
 p1 = w.P;
-w
 
 % pump it to p2
 pump_work = pump(w, p_max, eta_pump);
 h2 = w.H;
-w
 
 % heat to saturated vapor
 w.setState_Psat(p_max, 1.0);
 h3 = w.H;
-w
 
 heat_added = h3 - h2;
 
 % expand adiabatically back to the initial pressure
 turbine_work = expand(w, p1, eta_turbine);
-w
 
 % compute the efficiency
 efficiency = (turbine_work - pump_work) / heat_added;

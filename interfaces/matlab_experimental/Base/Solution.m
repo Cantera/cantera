@@ -1,7 +1,7 @@
 classdef Solution < handle & ThermoPhase & Kinetics & Transport
-    % Solution Class
+    % Solution Class ::
     %
-    % s = Solution(src, id, trans)
+    %     >> s = Solution(src, id, trans)
     %
     % Class :mat:class:`Solution` represents solutions of multiple species. A
     % solution is defined as a mixture of two or more constituents
@@ -54,6 +54,8 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
         %% Solution Class Constructor
 
         function s = Solution(src, id, trans)
+            % Create a :mat:class:`Solution` object.
+
             checklib;
 
             if nargin < 2 || nargin > 3
@@ -77,7 +79,7 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
         %% Solution Class Destructor
 
         function delete(s)
-            % Delete the kernel objects associated with a Solution.
+            % Delete :mat:class:`Solution` object.
 
             disp('Solution class object has been deleted');
         end

@@ -10,7 +10,6 @@
 
 clear all
 close all
-clc
 
 tic % total running time of the script
 help diff_flame

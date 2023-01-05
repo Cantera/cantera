@@ -9,7 +9,6 @@ function plotdata = ignite(g)
 
     clear all
     close all
-    clc
 
     tic
     help ignite

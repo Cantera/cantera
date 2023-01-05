@@ -9,7 +9,6 @@
 
 clear all
 close all
-clc
 
 tic
 help surfreactor
@@ -32,7 +31,7 @@ nSurfSp = surf.nSpecies;
 
 % create a reactor, and insert the gas
 r = IdealGasReactor(gas);
-r.setInitialVolume(1.0e-6)
+r.V = 1.0e-6;
 
 % create a reservoir to represent the environment
 a = Solution('air.yaml', 'air', 'None');
@@ -42,8 +41,7 @@ env = Reservoir(a);
 % Define a wall between the reactor and the environment and
 % make it flexible, so that the pressure in the reactor is held
 % at the environment pressure.
-w = Wall;
-w.install(r, env);
+w = Wall(r, env);
 
 A = 1e-4; % Wall area
 
@@ -52,10 +50,10 @@ rsurf = ReactorSurface(surf, r, A);
 
 % set the wall area and heat transfer coefficient.
 w.area = A;
-w.setHeatTransferCoeff(1.0e1); % W/m2/K
+w.heatTransferCoeff = 1.0e1; % W/m2/K
 
 % set expansion rate parameter. dV/dt = KA(P_1 - P_2)
-w.setExpansionRateCoeff(1.0);
+w.expansionRateCoeff = 1.0;
 
 network = ReactorNet({r});
 % setTolerances(network, 1.0e-8, 1.0e-12);

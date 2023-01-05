@@ -1,7 +1,7 @@
 classdef FlowDevice < handle
-    % FlowDevice Class.
+    % FlowDevice Class ::
     %
-    % x = FlowDevice(typ)
+    %     >> x = FlowDevice(typ)
     %
     % Base class for devices that allow flow between reactors.
     % :mat:class:`FlowDevice` objects are assumed to be adiabatic,
@@ -30,7 +30,7 @@ classdef FlowDevice < handle
 
     end
 
-    properties (SetAccess = protected)
+    properties (SetAccess = public)
         %
         % Upstream object of type :mat:class:`Reactor` or :mat:class:`Reservoir`.
         upstream
@@ -59,6 +59,8 @@ classdef FlowDevice < handle
         %% FlowDevice Class Constructor
 
         function x = FlowDevice(typ)
+            % Create a :mat:class:`FlowDevice` object.
+
             checklib;
 
             if nargin == 0
@@ -74,7 +76,7 @@ classdef FlowDevice < handle
         %% FlowDevice Class Destructor
 
         function delete(f)
-            % Delete the specified flow device from memory.
+            % Delete the :mat:class:`FlowDevice` object.
 
             callct('flowdev_del', f.id);
         end

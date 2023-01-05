@@ -26,7 +26,6 @@
 
 clear all
 close all
-clc
 
 tic
 help plug_flow_reactor

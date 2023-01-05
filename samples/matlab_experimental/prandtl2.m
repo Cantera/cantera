@@ -8,7 +8,6 @@ function prandtl2(g)
 
     clear all
     close all
-    clc
 
     tic
     help prandtl2

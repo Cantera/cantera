@@ -1,7 +1,7 @@
-function r = fplus(a, b)
-    % Get a functor representing the sum of two input functors.
+classdef fplus < Func
+    % Fplus - Get a functor representing the sum of two input functors. ::
     %
-    % r = fplus(a, b)
+    %     >> f = fplus(a, b)
     %
     % :param a:
     %     Instance of class :mat:class:`Func`
@@ -12,9 +12,10 @@ function r = fplus(a, b)
     %
     methods
 
-        % Constructor
         function f = fplus(a, b)
-            f = f@Func('sum', a, b);
+            % Constructor
+
+            f@Func('sum', a, b);
         end
 
     end

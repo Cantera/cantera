@@ -6,7 +6,6 @@ function ignite_hp(gas)
 
     clear all
     close all
-    clc
 
     tic
     help ignite_hp

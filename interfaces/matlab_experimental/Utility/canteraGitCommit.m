@@ -1,7 +1,7 @@
 function v = canteraGitCommit()
-    % Get Cantera Git commit hash.
+    % Get Cantera Git commit hash. ::
     %
-    % canteraGitCommit()
+    %     >> canteraGitCommit()
     %
     % :return:
     %     A string containing the Git commit hash for the current version of Cantera.

@@ -1,7 +1,7 @@
 classdef SymmPlane < Domain1D
-    % Create a symmetry plane domain.
+    % Create a symmetry plane domain. ::
     %
-    % m = SymmPlane(id)
+    %     >> m = SymmPlane(id)
     %
     % :param id:
     %     String ID of the symmetry plane.
@@ -11,10 +11,10 @@ classdef SymmPlane < Domain1D
 
     methods
 
-        % Constructor
         function m = SymmPlane(id)
+            % Constructor
 
-            m = Domain1D(Symm1D);
+            m@Domain1D('Symm1D');
 
             if nargin == 0
                 m.setID('symmetry_plane');

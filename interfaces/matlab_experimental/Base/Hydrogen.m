@@ -1,7 +1,7 @@
 function h = Hydrogen()
-    % Return an object representing hydrogen.
+    % Return an object representing hydrogen. ::
     %
-    % h = Hydrogen()
+    %     >> h = Hydrogen()
     %
     % The object returned by this method implements an accurate equation of
     % state for hydrogen that can be used in the liquid, vapor, saturated

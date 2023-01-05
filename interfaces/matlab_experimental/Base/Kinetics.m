@@ -73,16 +73,17 @@ classdef Kinetics < handle
         %% Kinetics Class Constructor
 
         function kin = Kinetics(ph, src, id, n1, n2, n3, n4)
-            % Kinetics Class
+            % Kinetics Class ::
             %
-            % k = Kinetics(ph, neighbor1, neighbor2, neighbor3, neighbor4)
+            %     >> k = Kinetics(ph, neighbor1, neighbor2, neighbor3, neighbor4)
             %
             % Class Kinetics represents kinetics managers, which are classes that manage
-            % reaction mechanisms.  The reaction mechanism attributes are specified in a YAML file.
+            % reaction mechanisms. The reaction mechanism attributes are specified in a
+            % YAML file.
             %
-            % Instances of class :mat:class:`Kinetics` are responsible for evaluating reaction rates
-            % of progress, species production rates, and other quantities pertaining to
-            % a reaction mechanism.
+            % Instances of class :mat:class:`Kinetics` are responsible for evaluating
+            % reaction rates of progress, species production rates, and other
+            % quantities pertaining to a reaction mechanism.
             %
             % :param ph:
             %     An instance of class :mat:class:`ThermoPhase` representing the phase
@@ -92,20 +93,21 @@ classdef Kinetics < handle
             % :param id:
             %     ID of the phase to import as specified in the input file. (optional)
             % :param neighbor1:
-            %     Instance of class :mat:class:`ThermoPhase` or :mat:class:`Solution` representing a
-            %     neighboring phase.
+            %     Instance of class :mat:class:`ThermoPhase` or :mat:class:`Solution`
+            %     representing a neighboring phase.
             % :param neighbor2:
-            %     Instance of class :mat:class:`ThermoPhase` or :mat:class:`Solution` representing a
-            %     neighboring phase.
+            %     Instance of class :mat:class:`ThermoPhase` or :mat:class:`Solution`
+            %     representing a neighboring phase.
             % :param neighbor3:
-            %     Instance of class :mat:class:`ThermoPhase` or :mat:class:`Solution` representing a
-            %     neighboring phase.
+            %     Instance of class :mat:class:`ThermoPhase` or :mat:class:`Solution`
+            %     representing a neighboring phase.
             % :param neighbor4:
-            %     Instance of class :mat:class:`ThermoPhase` or :mat:class:`Solution` representing a
-            %     neighboring phase.
+            %     Instance of class :mat:class:`ThermoPhase` or :mat:class:`Solution`
+            %     representing a neighboring phase.
             % :return:
             %      Instance of class :mat:class:`Kinetics`
             %
+
             checklib;
 
             % indices for bulk phases in a heterogeneous mechanism
@@ -145,7 +147,7 @@ classdef Kinetics < handle
         %% Kinetics Class Destructor
 
         function delete(kin)
-            % Delete the kernel object
+            % Delete the :mat:class:`Kinetics` object.
 
             callct('kin_del', kin.kinID);
         end

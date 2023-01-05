@@ -1,7 +1,7 @@
 classdef Domain1D < handle
-    % Domain1D Class
+    % Domain1D Class ::
     %
-    % d = Domain1D(a, b)
+    %     >> d = Domain1D(a, b)
     %
     % :param a:
     %    String type of domain. Possible values are:
@@ -122,10 +122,13 @@ classdef Domain1D < handle
     methods
         %% Domain1D Class Constructor.
 
-        function d = Domain1D(a, b)
+        function d = Domain1D(varargin)
+            % Create a :mat:class:`Domain1D` object.
+
             checklib;
 
             if nargin == 1
+                a = varargin{1};
 
                 if strcmp(a, 'Inlet1D')
                     d.domainID = callct('inlet_new');
@@ -142,7 +145,9 @@ classdef Domain1D < handle
                 end
 
             elseif nargin == 2
-                % a stagnation flow
+                a = varargin{1};
+                b = varargin{2};
+
                 if strcmp(a, 'StagnationFlow')
 
                     if isa(b, 'Solution')
@@ -183,7 +188,7 @@ classdef Domain1D < handle
         %% Domain1D Class Destructor
 
         function delete(d)
-            % Delete the C++ Domain1D object.
+            % Delete the :mat:class:`Domain1D` object.
 
             callct('domain_del', d.domainID);
         end

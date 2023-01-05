@@ -1,7 +1,7 @@
 classdef MassFlowController < FlowDevice
-    % Create a mass flow controller.
+    % Create a mass flow controller. ::
     %
-    % m = MassFlowController(upstream, downstream)
+    %     >> m = MassFlowController(upstream, downstream)
     %
     % Creates an instance of class :mat:class:`FlowDevice` configured to
     % simulate a mass flow controller that maintains a constant mass flow
@@ -23,10 +23,10 @@ classdef MassFlowController < FlowDevice
 
     methods
 
-        % Constructor
         function m = MassFlowController(upstream, downstream)
+            % Constructor
 
-            m = m@FlowDevice('MassFlowController');
+            m@FlowDevice('MassFlowController');
 
             if nargin == 2
                 m.install(upstream, downstream)

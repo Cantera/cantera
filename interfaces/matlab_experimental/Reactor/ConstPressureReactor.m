@@ -1,7 +1,7 @@
 classdef ConstPressureReactor < Reactor
-    % Create a constant pressure reactor object.
+    % Create a constant pressure reactor object. ::
     %
-    % r = ConstPressureReactor(contents)
+    %     >> r = ConstPressureReactor(contents)
     %
     % A :mat:class:`ConstPressureReactor` is an instance of class
     % :mat:class:`Reactor` where the pressure is held constant. The volume
@@ -23,13 +23,14 @@ classdef ConstPressureReactor < Reactor
 
     methods
 
-        % Constructor
         function r = ConstPressureReactor(contents)
+            % Constructor
+
             if nargin == 0
                 contents = 0;
             end
 
-            r = r@Reactor(contents, 'ConstPressureReactor');
+            r@Reactor(contents, 'ConstPressureReactor');
         end
 
     end

@@ -9,7 +9,6 @@
 
 clear all
 close all
-clc
 
 tic
 help flame1

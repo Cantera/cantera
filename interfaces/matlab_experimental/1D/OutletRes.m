@@ -1,7 +1,7 @@
 classdef OutletRes < Domain1D
-    % Create an outlet reservoir domain.
+    % Create an outlet reservoir domain. ::
     %
-    % m = OutletRes(id)
+    %     >> m = OutletRes(id)
     %
     % :param id:
     %     String ID of the outlet reservoir.
@@ -11,10 +11,10 @@ classdef OutletRes < Domain1D
 
     methods
 
-        % Constructor
         function m = OutletRes(id)
+            % Constructor
 
-            m = m@Domain1D('OutletRes');
+            m@Domain1D('OutletRes');
 
             if nargin == 0
                 m.setID('outletres');

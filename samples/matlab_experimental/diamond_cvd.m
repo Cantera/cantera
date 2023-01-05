@@ -14,12 +14,10 @@
 
 %% Initialization
 
-help diamond_cvd
-
 clear all
 close all
-clc
 
+help diamond_cvd
 t0 = cputime; % record the starting time
 
 %% Operation Parameters

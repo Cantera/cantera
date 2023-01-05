@@ -1,57 +1,4 @@
 classdef Func < handle
-    % Func Class
-    %
-    % x = Func(typ, n, p)
-    %
-    % A class for functors.
-    % A functor is an object that behaves like a function. Cantera
-    % defines a set of functors to use to create arbitrary functions to
-    % specify things like heat fluxes, piston speeds, etc., in reactor
-    % network simulations. Of course, they can be used for other things
-    % too.
-    %
-    % The main feature of a functor class is that it overloads the ``()``
-    % operator to evaluate the function. For example, suppose object
-    % ``f`` is a functor that evaluates the polynomial :math:`2x^2 - 3x + 1`.
-    % Then writing ``f(2)`` would cause the method that evaluates the
-    % function to be invoked, and would pass it the argument ``2``. The
-    % return value would of course be 3.
-    %
-    % The types of functors you can create in Cantera are these:
-    %
-    % 1. A polynomial
-    % 2. A Fourier series
-    % 3. A sum of Arrhenius terms
-    % 4. A Gaussian.
-    %
-    % You can also create composite functors by adding, multiplying, or
-    % dividing these basic functors, or other composite functors.
-    %
-    % Note: this MATLAB class shadows the underlying C++ Cantera class
-    % "Func1". See the Cantera C++ documentation for more details.
-    %
-    % See also: :mat:class:`polynom`, :mat:class:`gaussian`, :mat:class:`fplus`,
-    % :mat:class:`frdivide`, :mat:class:`ftimes`
-    %
-    % :param typ:
-    %     String indicating type of functor to create. Possible values are:
-    %
-    %     * ``'polynomial'``
-    %     * ``'fourier'``
-    %     * ``'gaussian'``
-    %     * ``'arrhenius'``
-    %     * ``'sum'``
-    %     * ``'diff'``
-    %     * ``'ratio'``
-    %     * ``'composite'``
-    %     * ``'periodic'``
-    % :param n:
-    %     Number of parameters required for the functor
-    % :param p:
-    %     Vector of parameters
-    % :return:
-    %     Instance of class :mat:class:`Func`
-    %
 
     properties (SetAccess = immutable)
         f1
@@ -65,6 +12,59 @@ classdef Func < handle
         %% Func Class Constructor
 
         function x = Func(typ, n, p)
+            % Func Class ::
+            %
+            %     >> x = Func(typ, n, p)
+            %
+            % A functor is an object that behaves like a function. Cantera
+            % defines a set of functors to use to create arbitrary functions to
+            % specify things like heat fluxes, piston speeds, etc., in reactor
+            % network simulations. Of course, they can be used for other things
+            % too.
+            %
+            % The main feature of a functor class is that it overloads the ``()``
+            % operator to evaluate the function. For example, suppose object
+            % ``f`` is a functor that evaluates the polynomial :math:`2x^2 - 3x + 1`.
+            % Then writing ``f(2)`` would cause the method that evaluates the
+            % function to be invoked, and would pass it the argument ``2``. The
+            % return value would of course be 3.
+            %
+            % The types of functors you can create in Cantera are these:
+            %
+            % 1. A polynomial
+            % 2. A Fourier series
+            % 3. A sum of Arrhenius terms
+            % 4. A Gaussian.
+            %
+            % You can also create composite functors by adding, multiplying, or
+            % dividing these basic functors, or other composite functors.
+            %
+            % Note: this MATLAB class shadows the underlying C++ Cantera class
+            % "Func1". See the Cantera C++ documentation for more details.
+            %
+            % See also: :mat:class:`polynom`, :mat:class:`gaussian`, :mat:class:`fplus`,
+            % :mat:class:`frdivide`, :mat:class:`ftimes`
+            %
+            % :param typ:
+            %     String indicating type of functor to create. Possible values are:
+            %
+            %     * ``'polynomial'``
+            %     * ``'fourier'``
+            %     * ``'gaussian'``
+            %     * ``'arrhenius'``
+            %     * ``'sum'``
+            %     * ``'diff'``
+            %     * ``'ratio'``
+            %     * ``'composite'``
+            %     * ``'periodic'``
+            % :param n:
+            %     Number of parameters required for the functor
+            % :param p:
+            %     Vector of parameters
+            % :return:
+            %     Instance of class :mat:class:`Func`
+            %
+
             checklib;
 
             if ~isa(typ, 'char')
@@ -77,8 +77,7 @@ classdef Func < handle
             itype = -1;
 
             function nn = newFunc(itype, n, p)
-                % helper function to pass the correct parameters to the C
-                % library
+                % helper function to pass the correct parameters to the C library.
                 if itype < 20
                     [msize, nsize] = size(p);
                     lenp = msize * nsize;
@@ -135,7 +134,7 @@ classdef Func < handle
         %% Func Class Destructor
 
         function delete(f)
-            % Delete the C++ Func1 object.
+            % Delete the :mat:class:`Func` object.
 
             callct('func_del', f.id);
         end

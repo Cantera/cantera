@@ -1,7 +1,7 @@
 classdef Mixture < handle
-    % Mixture Class.
+    % Mixture Class ::
     %
-    % m = Mixture(phases)
+    %     >> m = Mixture(phases)
     %
     % Class :mat:class:`Mixture` represents mixtures of one or more phases of matter.
     % To construct a mixture, supply a cell array of phases and
@@ -150,6 +150,8 @@ classdef Mixture < handle
         %% Mixture Class Constructor
 
         function m = Mixture(phases)
+            % Create a :mat:class:`Mixture` object.
+
             checklib;
 
             if nargin > 1
@@ -189,7 +191,7 @@ classdef Mixture < handle
         %% Mixture Class Destructor
 
         function delete(m)
-            % Delete the MultiPhase object.
+            % Delete the :mat:class:`Mixture` object.
 
             calllib(ct, 'mix_del', m.mixID);
         end

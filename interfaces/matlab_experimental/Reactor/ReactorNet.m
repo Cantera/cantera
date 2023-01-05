@@ -1,7 +1,7 @@
 classdef ReactorNet < handle
-    % ReactorNet class
+    % ReactorNet class ::
     %
-    % r = ReactorNet(reacgtors)
+    %     >> r = ReactorNet(reactors)
     %
     % A 'ReactorNet' object is a container that holds one or more
     % 'Reactor' objects in a network. 'ReactorNet' objects are used
@@ -59,6 +59,8 @@ classdef ReactorNet < handle
         %% ReactorNet Class Constructor
 
         function r = ReactorNet(reactors)
+            % Create a :mat:class:`ReactorNet` object.
+
             checklib;
 
             if nargin ~= 1
@@ -77,7 +79,7 @@ classdef ReactorNet < handle
             nr = length(reactors);
 
             for i = 1:nr
-                r.addReactor(reactors{i});
+                callct('reactornet_addreactor', r.id, reactors{i}.id);
             end
 
         end
@@ -85,26 +87,12 @@ classdef ReactorNet < handle
         %% ReactorNet Class Destructor
 
         function delete(r)
-            % Delete the ReactorNet object from the memory.
+            % Delete the :mat:class:`ReactorNet` object object.
 
             callct('reactornet_del', r.id);
         end
 
         %% ReactorNet Utility Methods
-
-        function addReactor(net, reactor)
-            % Add a reactor to a network.
-            %
-            % net.addReactor(reactor)
-            %
-            % :param net:
-            %    Instance of class 'ReactorNet'.
-            % :param reactor:
-            %    Instance of class 'Solution'.
-            %
-
-            callct('reactornet_addreactor', net.id, reactor.id);
-        end
 
         function advance(r, tout)
             % Advance the state of the reactor network in time.

@@ -1,7 +1,7 @@
 function w = Water()
-    % Return an object representing water.
+    % Return an object representing water. ::
     %
-    % w = Water()
+    %     >> w = Water()
     %
     % The object returned by this method implements an accurate equation of
     % state for water that can be used in the liquid, vapor, saturated

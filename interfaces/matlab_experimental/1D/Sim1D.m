@@ -1,7 +1,7 @@
 classdef Sim1D < handle
-    % Sim1D Class
+    % Sim1D Class. ::
     %
-    % s = Sim1D(domains)
+    %     >> s = Sim1D(domains)
     %
     % A Sim1D object is a container for one-dimensional domains,
     % which are instances of class Domain1D. The domains are of two
@@ -10,9 +10,9 @@ classdef Sim1D < handle
     % See also: :mat:class:`Domain1D`
     %
     % :param domains:
-    %     Vector of domain instances
+    %     Cell array of instances of :mat:class:`Domain1D` and its subclasses.
     % :return:
-    %     Instance of class :mat:class:`Sim1D`
+    %     Instance of class :mat:class:`Sim1D`.
     %
 
     properties (SetAccess = immutable)
@@ -24,9 +24,12 @@ classdef Sim1D < handle
     end
 
     methods
+
         %% Sim1D Class Constructor
 
         function s = Sim1D(domains)
+            % Create a :mat:class:`Sim1D` object.
+
             checklib;
 
             s.stID = -1;
@@ -41,7 +44,7 @@ classdef Sim1D < handle
             ids = zeros(1, nd);
 
             for n = 1:nd
-                ids(n) = domains(n).domainID;
+                ids(n) = domains{n}.domainID;
             end
 
             s.stID = callct('sim1D_new', nd, ids);
@@ -51,7 +54,7 @@ classdef Sim1D < handle
         %% Sim1D Class Destructor
 
         function delete(s)
-            % Delete the C++ Sim1D object.
+            % Delete the :mat:class:`Sim1D` object.
 
             callct('sim1D_del', s.stID);
         end
@@ -83,7 +86,7 @@ classdef Sim1D < handle
             %
 
             n = s.stackIndex(domain);
-            d = s.domains(n);
+            d = s.domains{n};
             z = d.gridPoints;
             x = s.solution(domain, component);
             plot(z, x);
@@ -162,7 +165,7 @@ classdef Sim1D < handle
             %
 
             idom = s.stackIndex(domain);
-            d = s.domains(idom);
+            d = s.domains{idom};
             np = d.nPoints;
 
             if nargin == 3
@@ -275,7 +278,7 @@ classdef Sim1D < handle
             %     The grid in domain name
 
             n = s.stackIndex(name);
-            d = s.domains(n);
+            d = s.domains{n};
             z = d.gridPoints;
         end
 
@@ -298,7 +301,7 @@ classdef Sim1D < handle
             end
 
             idom = s.stackIndex(domain);
-            d = s.domains(idom);
+            d = s.domains{idom};
 
             nc = d.nComponents;
             np = d.nPoints;
@@ -428,7 +431,7 @@ classdef Sim1D < handle
                 n = s.domainIndex(name);
             end
 
-            d = s.domains(n);
+            d = s.domains{n};
 
             if isa(comp, 'double') || isa(comp, 'cell')
                 c = comp;

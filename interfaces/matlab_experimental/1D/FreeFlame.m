@@ -1,7 +1,7 @@
 classdef FreeFlame < Domain1D
-    % Create a freely-propagating flat flame.
+    % Create a freely-propagating flat flame. ::
     %
-    % m = FreeFlame(gas, id)
+    %     >> m = FreeFlame(gas, id)
     %
     % :param gas:
     %     Instance of class :mat:class:`Solution`
@@ -13,10 +13,10 @@ classdef FreeFlame < Domain1D
     %
     methods
 
-        % Constructor
         function m = FreeFlame(gas, id)
+            % Constructor
 
-            m = m@Domain1D('StagnationFlow', gas, 2);
+            m@Domain1D('StagnationFlow', gas, 2);
 
             if nargin == 1
                 m.setID('flame');
