@@ -65,11 +65,19 @@ CANTERA_SUNDIALS_LIBS=@mak_sundials_libdir@ @mak_sundials_libs@
 CANTERA_BLAS_LAPACK_LIBS=@mak_blas_lapack_libs@
 
 ###############################################################################
+#   HDF5 SUPPORT
+###############################################################################
+
+CANTERA_HDF5_INCLUDES=@mak_hdf_include@
+CANTERA_HDF5_LIBS=@mak_hdf_libs@
+
+###############################################################################
 #   COMBINATIONS OF INCLUDES AND LIBS
 ###############################################################################
 
 CANTERA_INCLUDES=$(CANTERA_CORE_INCLUDES) $(CANTERA_SUNDIALS_INCLUDE) \
-                 $(CANTERA_BOOST_INCLUDES) $(CANTERA_EXTRA_INCLUDES)
+                 $(CANTERA_BOOST_INCLUDES) $(CANTERA_HDF5_INCLUDES) \
+                 $(CANTERA_EXTRA_INCLUDES)
 
 CANTERA_TOTAL_INCLUDES = $(CANTERA_INCLUDES)
 
@@ -78,16 +86,16 @@ CANTERA_DEFINES = -DCANTERA_VERSION=@cantera_version@
 
 CANTERA_LIBS=$(CANTERA_CORE_LIBS) \
              $(CANTERA_EXTRA_LIBDIRS) $(CANTERA_SUNDIALS_LIBS) \
-             $(CANTERA_BLAS_LAPACK_LIBS)
+             $(CANTERA_BLAS_LAPACK_LIBS) $(CANTERA_HDF5_LIBS)
 
 CANTERA_TOTAL_LIBS=$(CANTERA_LIBS)
 
-CANTERA_TOTAL_LIBS_DEP= $(CANTERA_CORE_LIBS_DEP) \
-                        $(CANTERA_SUNDIALS_LIBS_DEP)
+CANTERA_TOTAL_LIBS_DEP= $(CANTERA_CORE_LIBS_DEP)
 
 CANTERA_FORTRAN_LIBS=$(CANTERA_CORE_FTN) \
                      $(CANTERA_EXTRA_LIBDIRS) $(CANTERA_SUNDIALS_LIBS) \
-                     $(CANTERA_BLAS_LAPACK_LIBS) $(CANTERA_FORTRAN_SYSLIBS)
+                     $(CANTERA_BLAS_LAPACK_LIBS) $(CANTERA_FORTRAN_SYSLIBS) \
+                     $(CANTERA_HDF5_LIBS)
 
 ###############################################################################
 #   END
