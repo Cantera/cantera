@@ -58,6 +58,14 @@ if localenv["boost_inc_dir"] and not localenv["package_build"]:
 else:
     localenv['mak_boost_include'] = ''
 
+if localenv["use_hdf5"] and not localenv["package_build"]:
+    localenv["mak_hdf_include"] = f"-I{localenv['hdf_include']}"
+    pc_incdirs.append(localenv["hdf_include"])
+    localenv["mak_hdf_libs"] = f"-L{localenv['hdf_libdir']} -lhdf5"
+else:
+    localenv["mak_hdf_include"] = ""
+    localenv["mak_hdf_libs"] = "-lhdf5"
+
 # Handle BLAS/LAPACK linkage
 blas_lapack_libs = " ".join(f"-l{lib}" for lib in localenv["blas_lapack_libs"])
 if localenv["blas_lapack_dir"] and not localenv["package_build"]:
