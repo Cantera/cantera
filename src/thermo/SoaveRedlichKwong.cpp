@@ -312,6 +312,42 @@ double SoaveRedlichKwong::dpdVCalc(double T, double molarVol, double& presCalc) 
     return -GasConstant * T / (vmb * vmb) + m_aAlpha_mix * (2 * molarVol + m_b) / (denom * denom);
 }
 
+double SoaveRedlichKwong::isothermalCompressibility() const 
+{
+    double P = pressure();
+    double mv = molarVolume();
+    double T = temperature();
+    double RT_ = RT();
+    double Z = P * mv / RT_;
+
+    double A = m_aAlpha_mix * P / (RT_ * RT_);
+    double B = m_b * P / RT_;
+
+    double dAdP = A / P;
+    double dBdP = B / P;
+    double dZdP = ((B - Z) * dAdP + (A + B + 2 * B * Z) * dBdP) / (3 * Z * Z - 2 * Z + A - B - B * B);
+
+    return 1 / P - dZdP / Z;
+}
+
+double SoaveRedlichKwong::thermalExpansionCoeff() const 
+{
+    double P = pressure();
+    double mv = molarVolume();
+    double T = temperature();
+    double RT_ = RT();
+    double Z = P * mv / RT_;
+
+    double A = m_aAlpha_mix * P / (RT_ * RT_);
+    double B = m_b * P / RT_;
+
+    double dAdT = P / (RT_ * RT_) * (daAlpha_dT() - 2 * m_aAlpha_mix / T);
+    double dBdT = -B / T;
+    double dZdP = ((B - Z) * dAdT + (A + B + 2 * B * Z) * dBdT) / (3 * Z * Z - 2 * Z + A - B - B * B);
+
+    return 1 / T + dZdT / Z;
+}
+
 void SoaveRedlichKwong::calculatePressureDerivatives() const
 {
     double T = temperature();

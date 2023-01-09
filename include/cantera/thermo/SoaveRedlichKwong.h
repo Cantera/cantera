@@ -76,6 +76,12 @@ protected:
     double d2aAlpha_dT2() const;
 
 public:
+    //! Returns the isothermal compressibility. Units: 1/Pa.
+    double isothermalCompressibility() const;
+
+    //! Return the volumetric thermal expansion coefficient. Units: 1/K.
+    double thermalExpansionCoeff() const;
+
     //! Calculate \f$dp/dV\f$ and \f$dp/dT\f$ at the current conditions
     /*!
      *  These are stored internally.
