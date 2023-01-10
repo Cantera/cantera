@@ -342,6 +342,7 @@ public:
                              input1);
         skip_cp = false;
         skip_activities = false;
+        skip_entropy = false;
         rtol = 1e-14;
     }
 
@@ -367,8 +368,10 @@ public:
             EXPECT_NEAR(original->cp_mass(), duplicate->cp_mass(),
                         rtol * original->cp_mass());
         }
-        EXPECT_NEAR(original->entropy_mass(), duplicate->entropy_mass(),
-                    rtol * fabs(original->entropy_mass()));
+        if (!skip_entropy) {
+            EXPECT_NEAR(original->entropy_mass(), duplicate->entropy_mass(),
+                        rtol * fabs(original->entropy_mass()));
+        }
         EXPECT_NEAR(original->enthalpy_mole(), duplicate->enthalpy_mole(),
                     rtol * fabs(original->enthalpy_mole()));
 
@@ -403,6 +406,7 @@ public:
     shared_ptr<ThermoPhase> duplicate;
     bool skip_cp;
     bool skip_activities;
+    bool skip_entropy;
     double rtol;
 };
 
@@ -517,6 +521,8 @@ TEST_F(ThermoYamlRoundTrip, Surface)
 TEST_F(ThermoYamlRoundTrip, IsotropicElectronEnergyPlasma)
 {
     roundtrip("oxygen-plasma.yaml", "isotropic-electron-energy-plasma");
+    skip_cp = true; // Not implemented for PlasmaPhase
+    skip_entropy = true; // Not implemented for PlasmaPhase
     compareThermo(800, 2*OneAtm);
     auto origPlasma = std::dynamic_pointer_cast<PlasmaPhase>(original);
     auto duplPlasma = std::dynamic_pointer_cast<PlasmaPhase>(duplicate);
@@ -530,6 +536,8 @@ TEST_F(ThermoYamlRoundTrip, IsotropicElectronEnergyPlasma)
 TEST_F(ThermoYamlRoundTrip, DiscretizedElectronEnergyPlasma)
 {
     roundtrip("oxygen-plasma.yaml", "discretized-electron-energy-plasma");
+    skip_cp = true; // Not implemented for PlasmaPhase
+    skip_entropy = true; // Not implemented for PlasmaPhase
     compareThermo(800, 2*OneAtm);
     EXPECT_DOUBLE_EQ(original->electronTemperature(), duplicate->electronTemperature());
 }
