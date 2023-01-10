@@ -14,12 +14,12 @@ namespace bmt = boost::math::tools;
 
 namespace Cantera
 {
+
 const double SoaveRedlichKwong::omega_a = 4.27480233540E-01;
 const double SoaveRedlichKwong::omega_b = 8.66403499650E-02;
 const double SoaveRedlichKwong::omega_vc = 3.33333333333333E-01;
 
-
-SoaveRedlichKwong::SoaveRedlichKwong(const std::string& infile="", const std::string& id="")  :
+SoaveRedlichKwong::SoaveRedlichKwong(const std::string& infile, const std::string& id_)  :
     m_b(0.0),
     m_a(0.0),
     m_aAlpha_mix(0.0),
@@ -42,7 +42,7 @@ void SoaveRedlichKwong::setSpeciesCoeffs(const std::string& species, double a, d
 
     // Calculate value of kappa (independent of temperature)
     // w is an acentric factor of species
-    m_kappa[k] = 0.48508 + 1.55171*w - 0.15613*w*w;
+    m_kappa[k] = 0.480 + 1.574*w - 0.176*w*w;
     m_acentric[k] = w; // store the original acentric factor to enable serialization
 
     // Calculate alpha (temperature dependent interaction parameter)
@@ -400,17 +400,15 @@ double SoaveRedlichKwong::dpdVCalc(double T, double molarVol, double& presCalc) 
 double SoaveRedlichKwong::isothermalCompressibility() const 
 {
     double P = pressure();
-    double mv = molarVolume();
-    double T = temperature();
     double RT_ = RT();
-    double Z = P * mv / RT_;
+    double Z = z();
 
     double A = m_aAlpha_mix * P / (RT_ * RT_);
     double B = m_b * P / RT_;
 
     double dAdP = A / P;
     double dBdP = B / P;
-    double dZdP = ((B - Z) * dAdP + (A + B + 2 * B * Z) * dBdP) / (3 * Z * Z - 2 * Z + A - B - B * B);
+    double dZdP = ((B - Z) * dAdP + (A + Z + 2 * B * Z) * dBdP) / (3 * Z * Z - 2 * Z + A - B - B * B);
 
     return 1 / P - dZdP / Z;
 }
@@ -418,17 +416,16 @@ double SoaveRedlichKwong::isothermalCompressibility() const
 double SoaveRedlichKwong::thermalExpansionCoeff() const 
 {
     double P = pressure();
-    double mv = molarVolume();
     double T = temperature();
     double RT_ = RT();
-    double Z = P * mv / RT_;
+    double Z = z();
 
     double A = m_aAlpha_mix * P / (RT_ * RT_);
     double B = m_b * P / RT_;
 
     double dAdT = P / (RT_ * RT_) * (daAlpha_dT() - 2 * m_aAlpha_mix / T);
     double dBdT = -B / T;
-    double dZdP = ((B - Z) * dAdT + (A + B + 2 * B * Z) * dBdT) / (3 * Z * Z - 2 * Z + A - B - B * B);
+    double dZdT = ((B - Z) * dAdT + (A + Z + 2 * B * Z) * dBdT) / (3 * Z * Z - 2 * Z + A - B - B * B);
 
     return 1 / T + dZdT / Z;
 }
@@ -560,10 +557,10 @@ int SoaveRedlichKwong::solveCubic(double T, double pres, double a, double b, dou
     double an = 1.0;
     double bn = - GasConstant * T / pres;
     double cn = (aAlpha - b * GasConstant * T) / pres - b * b;
-    double dn = aAlpha * b / pres;
+    double dn = -aAlpha * b / pres;
 
     double tc = a * omega_b / (b * omega_a * GasConstant);
-    double pc = omega_b * R * tc / b;
+    double pc = omega_b * GasConstant * tc / b;
     double vc = omega_vc * GasConstant * tc / pc;
 
     return MixtureFugacityTP::solveCubic(T, pres, a, b, aAlpha, Vroot,
