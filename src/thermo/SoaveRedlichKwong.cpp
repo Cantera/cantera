@@ -101,7 +101,7 @@ double SoaveRedlichKwong::pressure() const
     // Get a copy of the private variables stored in the State object
     double T = temperature();
     double mv = molarVolume();
-    return GasConstant * T / (mv - m_b) - m_aAlpha_mix / (mv * (mv - m_b))
+    return GasConstant * T / (mv - m_b) - m_aAlpha_mix / (mv * (mv + m_b))
 }
 
 double SoaveRedlichKwong::speciesCritTemperature(double a, double b) const
