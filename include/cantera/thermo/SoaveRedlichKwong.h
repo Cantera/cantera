@@ -19,6 +19,15 @@ namespace Cantera
 class SoaveRedlichKwong : public MixtureFugacityTP
 {
 public:
+
+    //! Construct and initialize a SoaveRedlichKwong object directly from an
+    //! input file
+    /*!
+     * @param infile    Name of the input file containing the phase YAML data.
+     *                  If blank, an empty phase will be created.
+     * @param id        ID of the phase in the input file. If empty, the
+     *                  first phase definition in the input file will be used.
+     */
     explicit SoaveRedlichKwong(const std::string& infile="",
                                const std::string& id="");
 
@@ -77,8 +86,8 @@ public:
      *       \f[ T_{crit} = (0.0778 a)/(0.4572 b R) \f] TODO
      *  Units: Kelvin
      *
-     * @param a    species-specific coefficients used in P-R EoS
-     * @param b    species-specific coefficients used in P-R EoS
+     * @param a    species-specific coefficients used in SRK EoS
+     * @param b    species-specific coefficients used in SRK EoS
      */
     double speciesCritTemperature(double a, double b) const;
 
@@ -94,6 +103,26 @@ public:
     virtual void initThermo();
     virtual void getSpeciesParameters(const std::string& name,
                                       AnyMap& speciesNode) const;
+
+    //! Set the pure fluid interaction parameters for a species
+    /*!
+     *  @param species   Name of the species
+     *  @param a         \f$a\f$ parameter in the Soave-Redlich-Kwong model [Pa-m^6/kmol^2]
+     *  @param b         \f$a\f$ parameter in the Soave-Redlich-Kwong model [m^3/kmol]
+     *  @param w         acentric factor
+     */
+    void setSpeciesCoeffs(const std::string& species, double a, double b,
+                          double w);
+
+    //! Set values for the interaction parameter between two species
+    /*!
+     *  @param species_i   Name of one species
+     *  @param species_j   Name of the other species
+     *  @param a           \f$a\f$ parameter in the Soave-Redlich-Kwong model [Pa-m^6/kmol^2]
+     */
+    void setBinaryCoeffs(const std::string& species_i,
+                         const std::string& species_j, double a);
+    //! @}
 
 protected:
     // Special functions inherited from MixtureFugacityTP
