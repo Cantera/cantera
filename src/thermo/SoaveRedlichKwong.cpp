@@ -103,6 +103,7 @@ double SoaveRedlichKwong::pressure() const
     double mv = molarVolume();
     return GasConstant * T / (mv - m_b) - m_aAlpha_mix / (mv * (mv - m_b))
 }
+
 double SoaveRedlichKwong::speciesCritTemperature(double a, double b) const
 {
     if (b <= 0.0) {
@@ -534,6 +535,24 @@ double SoaveRedlichKwong::d2aAlpha_dT2() const
     return d2aAlphadT2;
 }
 
+void SoaveRedlichKwong::calcCriticalConditions(double& pc, double& tc, double& vc) const
+{
+    if (m_b <= 0.0) {
+        tc = 1000000.;
+        pc = 1.0E13;
+        vc = omega_vc * GasConstant * tc / pc;
+        return;
+    }
+    if (m_a <= 0.0) {
+        tc = 0.0;
+        pc = 0.0;
+        vc = 2.0 * m_b;
+        return;
+    }
+    tc = m_a * omega_b / (m_b * omega_a * GasConstant);
+    pc = omega_b * GasConstant * tc / m_b;
+    vc = omega_vc * GasConstant * tc / pc;
+}
 
 int SoaveRedlichKwong::solveCubic(double T, double pres, double a, double b, double aAlpha,
                                   double Vroot[3]) const

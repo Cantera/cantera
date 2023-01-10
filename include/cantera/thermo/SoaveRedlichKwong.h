@@ -150,6 +150,9 @@ public:
      * @param aAlpha (output) Returns the (a*alpha) value.
      */
     void calculateAB(double& aCalc, double& bCalc, double& aAlphaCalc) const
+
+    void calcCriticalConditions(double& pc, double& tc, double& vc) const;
+
     //! Prepare variables and call the function to solve the cubic equation of state
     int solveCubic(double T, double pres, double a, double b, double aAlpha,
                    double Vroot[3]) const;
