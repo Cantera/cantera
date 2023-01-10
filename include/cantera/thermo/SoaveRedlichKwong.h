@@ -26,6 +26,50 @@ public:
         return "Soave-Redlich-Kwong";
     }
 
+    //! @}
+    //! @name Mechanical Properties
+    //! @{
+
+    //! Return the thermodynamic pressure (Pa).
+    /*!
+     * Since the mass density, temperature, and mass fractions are stored,
+     * this method uses these values to implement the
+     * mechanical equation of state \f$ P(T, \rho, Y_1, \dots, Y_K) \f$.
+     *
+     * \f[
+     *    P = \frac{RT}{v-b_{mix}}
+     *        - \frac{\left(a\alpha\right)_{mix}}{v\left(v + b_{mix}\right)}
+     * \f]
+     *
+     * where:
+     *
+     * \f[
+     *    \alpha = \left[ 1 + \kappa \left(1-T_r^{0.5}\right)\right]^2
+     * \f]
+     *
+     *  and
+     *
+     * \f[
+     *    \kappa = \left(0.48508 + 1.55171\omega - 0.15613\omega^2\right)
+     * \f]
+     *
+     * Coefficients \f$ a_{mix}, b_{mix} \f$ and \f$(a \alpha)_{mix}\f$ are calculated as
+     *
+     * \f[
+     *    a_{mix} = \sum_i \sum_j X_i X_j a_{i, j} = \sum_i \sum_j X_i X_j \sqrt{a_i a_j}
+     * \f]
+     *
+     * \f[
+     *    b_{mix} = \sum_i X_i b_i
+     * \f]
+     *
+     * \f[
+     *   {a \alpha}_{mix} = \sum_i \sum_j X_i X_j {a \alpha}_{i, j}
+     *       = \sum_i \sum_j X_i X_j \sqrt{a_i a_j} \sqrt{\alpha_i \alpha_j}
+     * \f]
+     */
+    virtual double pressure() const;
+
 
     //! Calculate species-specific critical temperature
     /*!
