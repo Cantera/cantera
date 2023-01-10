@@ -19,6 +19,81 @@ const double SoaveRedlichKwong::omega_b = 8.66403499650E-02;
 const double SoaveRedlichKwong::omega_vc = 3.33333333333333E-01;
 
 
+SoaveRedlichKwong::SoaveRedlichKwong(const std::string& infile="", const std::string& id="")  :
+    m_b(0.0),
+    m_a(0.0),
+    m_aAlpha_mix(0.0),
+    m_NSolns(0),
+    m_dpdV(0.0),
+    m_dpdT(0.0)
+{
+    std::fill_n(m_Vroot, 3, 0.0);
+    initThermoFile(infile, id_);
+}
+
+void SoaveRedlichKwong::setSpeciesCoeffs(const std::string& species, double a, double b,
+                                         double w)
+{
+    size_t k = speciesIndex(species);
+    if (k == npos) {
+        throw CanteraError("SoaveRedlichKwong::setSpeciesCoeffs",
+            "Unknown species '{}'.", species);
+    }
+
+    // Calculate value of kappa (independent of temperature)
+    // w is an acentric factor of species
+    m_kappa[k] = 0.48508 + 1.55171*w - 0.15613*w*w;
+    m_acentric[k] = w; // store the original acentric factor to enable serialization
+
+    // Calculate alpha (temperature dependent interaction parameter)
+    double critTemp = speciesCritTemperature(a, b);
+    double sqt_T_r = sqrt(temperature() / critTemp);
+    double sqt_alpha = 1 + m_kappa[k] * (1 - sqt_T_r);
+    m_alpha[k] = sqt_alpha*sqt_alpha;
+
+    m_a_coeffs(k,k) = a;
+    double aAlpha_k = a*m_alpha[k];
+    m_aAlpha_binary(k,k) = aAlpha_k;
+
+    // standard mixing rule for cross-species interaction term
+    for (size_t j = 0; j < m_kk; j++) {
+        if (k == j) {
+            continue;
+        }
+        double a0kj = sqrt(m_a_coeffs(j,j) * a);
+        double aAlpha_j = a*m_alpha[j];
+        double a_Alpha = sqrt(aAlpha_j*aAlpha_k);
+        if (m_a_coeffs(j, k) == 0) {
+            m_a_coeffs(j, k) = a0kj;
+            m_aAlpha_binary(j, k) = a_Alpha;
+            m_a_coeffs(k, j) = a0kj;
+            m_aAlpha_binary(k, j) = a_Alpha;
+        }
+    }
+    m_b_coeffs[k] = b;
+}
+
+void SoaveRedlichKwong::setBinaryCoeffs(const std::string& species_i,
+        const std::string& species_j, double a0)
+{
+    size_t ki = speciesIndex(species_i);
+    if (ki == npos) {
+        throw CanteraError("SoaveRedlichKwong::setBinaryCoeffs",
+            "Unknown species '{}'.", species_i);
+    }
+    size_t kj = speciesIndex(species_j);
+    if (kj == npos) {
+        throw CanteraError("SoaveRedlichKwong::setBinaryCoeffs",
+            "Unknown species '{}'.", species_j);
+    }
+
+    m_a_coeffs(ki, kj) = m_a_coeffs(kj, ki) = a0;
+    m_binaryParameters[species_i][species_j] = a0;
+    m_binaryParameters[species_j][species_i] = a0;
+    // Calculate alpha_ij
+    double alpha_ij = m_alpha[ki] * m_alpha[kj];
+    m_aAlpha_binary(ki, kj) = m_aAlpha_binary(kj, ki) = a0*alpha_ij;
+}
 
 double SoaveRedlichKwong::pressure() const
 {
