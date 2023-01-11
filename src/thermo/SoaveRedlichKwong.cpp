@@ -95,13 +95,71 @@ void SoaveRedlichKwong::setBinaryCoeffs(const std::string& species_i,
     m_aAlpha_binary(ki, kj) = m_aAlpha_binary(kj, ki) = a0*alpha_ij;
 }
 
+// ------------Molar Thermodynamic Properties -------------------------
+
+double SoaveRedlichKwong::cp_mole() const
+{
+    return 1.0;
+}
+
+double SoaveRedlichKwong::cv_mole() const
+{
+    _updateReferenceStateThermo();
+    double T = temperature();
+    calculatePressureDerivatives();
+    return (cp_mole() + T * m_dpdT * m_dpdT / m_dpdV);
+}
+
 double SoaveRedlichKwong::pressure() const
 {
     _updateReferenceStateThermo();
     // Get a copy of the private variables stored in the State object
     double T = temperature();
     double mv = molarVolume();
-    return GasConstant * T / (mv - m_b) - m_aAlpha_mix / (mv * (mv + m_b))
+    return GasConstant * T / (mv - m_b) - m_aAlpha_mix / (mv * (mv + m_b));
+}
+
+double SoaveRedlichKwong::standardConcentration(size_t k) const
+{
+    getStandardVolumes(m_tmpV.data());
+    return 1.0 / m_tmpV[k];
+}
+
+void SoaveRedlichKwong::getActivityCoefficients(double* ac) const
+{
+    
+}
+
+// ---- Partial Molar Properties of the Solution -----------------
+
+void SoaveRedlichKwong::getChemPotentials(double* mu) const
+{
+
+}
+
+void SoaveRedlichKwong::getPartialMolarEnthalpies(double* hbar) const
+{
+
+}
+
+void SoaveRedlichKwong::getPartialMolarEntropies(double* sbar) const
+{
+
+}
+
+void SoaveRedlichKwong::getPartialMolarIntEnergies(double* ubar) const
+{
+
+}
+
+void SoaveRedlichKwong::getPartialMolarCp(double* cpbar) const
+{
+
+}
+
+void SoaveRedlichKwong::getPartialMolarVolumes(double* vbar) const
+{
+
 }
 
 double SoaveRedlichKwong::speciesCritTemperature(double a, double b) const
@@ -255,6 +313,32 @@ void SoaveRedlichKwong::getSpeciesParameters(const std::string& name,
         }
         eosNode["binary-a"] = std::move(bin_a);
     }
+}
+
+double SoaveRedlichKwong::sresid() const
+{ // Replace
+    double molarV = molarVolume();
+    double hh = m_b / molarV;
+    double zz = z();
+    double alpha_1 = daAlpha_dT();
+    double vpb = molarV + (1.0 + Sqrt2) * m_b;
+    double vmb = molarV + (1.0 - Sqrt2) * m_b;
+    double fac = alpha_1 / (2.0 * Sqrt2 * m_b);
+    double sresid_mol_R = log(zz*(1.0 - hh)) + fac * log(vpb / vmb) / GasConstant;
+    return GasConstant * sresid_mol_R;
+}
+
+double SoaveRedlichKwong::hresid() const
+{ // Replace
+    double molarV = molarVolume();
+    double zz = z();
+    double aAlpha_1 = daAlpha_dT();
+    double T = temperature();
+    double vpb = molarV + (1 + Sqrt2) * m_b;
+    double vmb = molarV + (1 - Sqrt2) * m_b;
+    double fac = 1 / (2.0 * Sqrt2 * m_b);
+    return GasConstant * T * (zz - 1.0)
+        + fac * log(vpb / vmb) * (T * aAlpha_1 - m_aAlpha_mix);
 }
 
 double SoaveRedlichKwong::liquidVolEst(double T, double& presGuess) const

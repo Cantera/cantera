@@ -35,6 +35,12 @@ public:
         return "Soave-Redlich-Kwong";
     }
 
+    //! @name Molar Thermodynamic properties
+    //! @{
+
+    virtual double cp_mole() const;
+    virtual double cv_mole() const;
+
     //! @}
     //! @name Mechanical Properties
     //! @{
@@ -79,6 +85,49 @@ public:
      */
     virtual double pressure() const;
 
+    //! @}
+
+    //! Returns the standard concentration \f$ C^0_k \f$, which is used to
+    //! normalize the generalized concentration.
+    /*!
+     * This is defined as the concentration by which the generalized
+     * concentration is normalized to produce the activity.
+     * The ideal gas mixture is considered as the standard or reference state here.
+     * Since the activity for an ideal gas mixture is simply the mole fraction,
+     * for an ideal gas,  \f$ C^0_k = P/\hat R T \f$.
+     *
+     * @param k Optional parameter indicating the species. The default is to
+     *          assume this refers to species 0.
+     * @return
+     *   Returns the standard Concentration in units of m^3 / kmol.
+     */
+    virtual double standardConcentration(size_t k=0) const;
+
+    //! Get the array of non-dimensional activity coefficients at the current
+    //! solution temperature, pressure, and solution concentration.
+    /*!
+     * For all objects with the Mixture Fugacity approximation, we define the
+     * standard state as an ideal gas at the current temperature and pressure of
+     * the solution. The activities are based on this standard state.
+     *
+     * @param ac Output vector of activity coefficients. Length: m_kk.
+     */
+    virtual void getActivityCoefficients(double* ac) const;
+
+    //! @name  Partial Molar Properties of the Solution
+    //! @{
+
+    virtual void getChemPotentials(double* mu) const;
+    virtual void getPartialMolarEnthalpies(double* hbar) const;
+    virtual void getPartialMolarEntropies(double* sbar) const;
+    virtual void getPartialMolarIntEnergies(double* ubar) const;
+    //! Calculate species-specific molar specific heats
+    /*!
+     *  This function is currently not implemented for Soave-Redlich-Kwong phase.
+     */
+    virtual void getPartialMolarCp(double* cpbar) const;
+    virtual void getPartialMolarVolumes(double* vbar) const;
+    //! @}
 
     //! Calculate species-specific critical temperature
     /*!
@@ -89,7 +138,7 @@ public:
      * @param a    species-specific coefficients used in SRK EoS
      * @param b    species-specific coefficients used in SRK EoS
      */
-    double speciesCritTemperature(double a, double b) const;
+    virtual double speciesCritTemperature(double a, double b) const;
 
     //! @name Initialization Methods - For Internal use
     //!
@@ -126,6 +175,8 @@ public:
 
 protected:
     // Special functions inherited from MixtureFugacityTP
+    virtual double sresid() const;
+    virtual double hresid() const;
 
     virtual double liquidVolEst(double T, double& pres) const;
     virtual double densityCalc(double T, double pressure, int phase, double rhoguess);
@@ -169,7 +220,7 @@ public:
      */
     virtual void updateMixingExpressions();
 
-    //! Calculate the \f$a\f$, \f$b\f$, and \f$\a alpha\f$ parameters given the temperature
+    //! Calculate the \f$a\f$, \f$b\f$, and \f$a \alpha\f$ parameters given the temperature
     /*!
      * This function doesn't change the internal state of the object, so it is a
      * const function.  It does use the stored mole fractions in the object.
@@ -178,7 +229,7 @@ public:
      * @param bCalc (output)  Returns the b value.
      * @param aAlpha (output) Returns the (a*alpha) value.
      */
-    void calculateAB(double& aCalc, double& bCalc, double& aAlphaCalc) const
+    void calculateAB(double& aCalc, double& bCalc, double& aAlphaCalc) const;
 
     void calcCriticalConditions(double& pc, double& tc, double& vc) const;
 
