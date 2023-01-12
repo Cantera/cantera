@@ -80,6 +80,8 @@ public:
         atol = setup.getDouble("atol", 1e-5);
         rtol_fd = setup.getDouble("rtol_fd", 1e-6);
         atol_v = setup.getDouble("atol_v", 1e-11);
+        atol_c = setup.getDouble("atol_c", 1e-14);
+        atol_e = setup.getDouble("atol_e", 1e-18);
 
         phase = cache[key];
         phase->setState(state);
@@ -122,6 +124,8 @@ public:
     size_t ke;
     double atol; // absolute tolerance for molar energy comparisons
     double atol_v; // absolute tolerance for molar volume comparisons
+    double atol_c; // absolute tolerance for compressibility comparison
+    double atol_e; // absolute tolerance for expansion comparison
     double rtol_fd; // relative tolerance for finite difference comparisons
 };
 
@@ -393,6 +397,58 @@ TEST_P(TestConsistency, dSdv_const_T_eq_dPdT_const_V) {
     } else {
         GTEST_SKIP() << "Undefined for incompressible phase";
     }
+}
+
+TEST_P(TestConsistency, betaT_eq_minus_dmv_dP_const_T_div_mv)
+{
+    double betaT1;
+    try {
+        betaT1 = phase->isothermalCompressibility();
+    } catch (NotImplementedError& err) {
+        GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
+    }
+
+    double T = phase->temperature();
+    double P1 = phase->pressure();
+    double mv1 = phase->molarVolume();
+    
+    double P2 = P1 * (1 + 1e-6);
+    phase->setState_TP(T, P2);
+    double betaT2 = phase->isothermalCompressibility();
+    double mv2 = phase->molarVolume();
+
+    double betaT_mid = 0.5 * (betaT1 + betaT2);
+    double mv_mid = 0.5 * (mv1 + mv2);
+    double betaT_fd = -1 / mv_mid * (mv2 - mv1) / (P2 - P1);
+
+    EXPECT_NEAR(betaT_fd, betaT_mid, 
+                max({rtol_fd * betaT_mid, rtol_fd * betaT_fd, atol_c}));
+}
+
+TEST_P(TestConsistency, alphaV_eq_dmv_dT_const_P_div_mv)
+{
+    double alphaV1;
+    try {
+        alphaV1 = phase->thermalExpansionCoeff();
+    } catch (NotImplementedError& err) {
+        GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
+    }
+
+    double P = phase->pressure();
+    double T1 = phase->temperature();
+    double mv1 = phase->molarVolume();
+
+    double T2 = T1 * (1 + 1e-6);
+    phase->setState_TP(T2, P);
+    double alphaV2 = phase->thermalExpansionCoeff();
+    double mv2 = phase->molarVolume();
+
+    double alphaV_mid = 0.5 * (alphaV1 + alphaV2);
+    double mv_mid = 0.5 * (mv1 + mv2);
+    double alphaV_fd = 1 / mv_mid * (mv2 - mv1) / (T2 - T1);
+
+    EXPECT_NEAR(alphaV_fd, alphaV_mid, 
+                max({rtol_fd * alphaV_mid, rtol_fd * alphaV_fd, atol_e}));
 }
 
 // ---------- Tests for consistency of standard state properties ---------------
