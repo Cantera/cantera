@@ -606,6 +606,12 @@ INSTANTIATE_TEST_SUITE_P(PengRobinson, TestConsistency,
         testing::ValuesIn(getStates("peng-robinson")))
 );
 
+INSTANTIATE_TEST_SUITE_P(SoaveRedlichKwong, TestConsistency,
+    testing::Combine(
+        testing::Values(getSetup("soave-redlich-kwong")),
+        testing::ValuesIn(getStates("soave-redlich-kwong")))
+);
+
 INSTANTIATE_TEST_SUITE_P(IdealMolalSolution, TestConsistency,
     testing::Combine(
         testing::Values(getSetup("ideal-molal-solution")),
