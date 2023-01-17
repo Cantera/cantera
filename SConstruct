@@ -203,6 +203,10 @@ windows_options = [
 
 config_options = [
     Option(
+        "AR",
+        "The archiver to use.",
+        "${AR}"),
+    Option(
         "CXX",
         "The C++ compiler to use.",
         "${CXX}"),
@@ -848,7 +852,7 @@ else:
 
 add_RegressionTest(env)
 
-opts.AddVariables(*config.to_scons(["CC", "CXX"], env=env))
+opts.AddVariables(*config.to_scons(["AR", "CC", "CXX"], env=env))
 opts.Update(env)
 
 # Check if this is actually Apple's clang on macOS
