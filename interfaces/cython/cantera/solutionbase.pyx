@@ -485,3 +485,174 @@ cdef object _wrap_Solution(shared_ptr[CxxSolution] cxx_soln):
 #        <InterfaceKinetics>(iface)._setup_phase_indices()
         iface._setup_phase_indices()
     return soln
+
+
+cdef class SolutionArrayBase:
+    """
+    Class `SolutionArrayBase` serves as an interface between the C++ SolutionArray core
+    class and the Python API implementation. While `SolutionArrayBase` holds shape
+    information used by the derived user-facing `SolutionArray` API, it uses a flattened
+    one-dimensional data structure internally.
+
+    **Warning:** this class is an experimental part of the Cantera API and
+    may be changed or removed without notice.
+
+    .. versionadded:: 3.0
+    """
+    _phase = None
+
+    def __cinit__(self, _SolutionBase phase, shape=(0,),
+                  states=None, extra=None, meta=None, init=True):
+        size = np.prod(shape)
+        cdef CxxAnyMap cxx_meta
+        if meta is not None:
+            cxx_meta = dict_to_anymap(meta)
+        self._base = CxxNewSolutionArray(phase._base, size, cxx_meta)
+        self.base = self._base.get()
+
+    def _share(self, SolutionArrayBase dest, selected):
+        """ Share entries with new `SolutionArrayBase` object. """
+        cdef vector[int] cxx_selected
+        for loc in selected:
+            cxx_selected.push_back(loc)
+        dest._base = CxxShareSolutionArray(self._base, cxx_selected)
+        dest.base = dest._base.get()
+        return dest
+
+    @property
+    def size(self):
+        """ The number of elements in the `SolutionArrayBase`. """
+        return self.base.size()
+
+    def _api_shape(self):
+        """ Retrieve shape information avalailable in C++ core. """
+        cdef vector[long int] cxx_shape = self.base.apiShape()
+        return tuple(int(dim) for dim in cxx_shape)
+
+    def _set_api_shape(self, shape):
+        """ Pass shape used by derived `SolutionArray` to C++ core. """
+        cdef vector[long int] cxx_shape
+        for dim in shape:
+            cxx_shape.push_back(dim)
+        self.base.setApiShape(cxx_shape)
+
+    @property
+    def meta(self):
+        """
+        Dictionary holding information describing the `SolutionArrayBase`.
+        """
+        return anymap_to_dict(self.base.meta())
+
+    @meta.setter
+    def meta(self, meta):
+        if isinstance(meta, dict):
+            self.base.setMeta(dict_to_anymap(meta))
+        else:
+            raise TypeError("Metadata needs to be a dictionary.")
+
+    @property
+    def extra(self):
+        """ Retrieve ordered list of auxiliary `SolutionArrayBase` components """
+        return self._list_extra()
+
+    @property
+    def components(self):
+        """
+        Retrieve ordered list of all `SolutionArrayBase` components (defining
+        thermodynamic state or auxiliary `extra` information)
+        """
+        cdef vector[string] cxx_data = self.base.components()
+        out = []
+        for item in cxx_data:
+            out.append(pystr(item))
+        return out
+
+    def _has_component(self, name):
+        """ Check whether `SolutionArrayBase` has component """
+        return self.base.hasComponent(stringify(name))
+
+    def _get_component(self, name):
+        """ Retrieve `SolutionArrayBase` component by name """
+        out = anyvalue_to_python(stringify(""), self.base.getComponent(stringify(name)))
+        if out is None:
+            return np.empty((0,))
+        return np.array(out)
+
+    def _set_component(self, name, data):
+        """ Set `SolutionArrayBase` component by name """
+        self.base.setComponent(stringify(name), python_to_anyvalue(data))
+
+    def _set_loc(self, loc):
+        """
+        Set associated `Solution` object to state referenced by location within
+        `SolutionArrayBase`.
+        """
+        return self.base.setLoc(loc)
+
+    def _update_state(self, loc):
+        """
+        Set state at location within `SolutionArrayBase` to state of associated
+        `Solution` object.
+        """
+        return self.base.updateState(loc)
+
+    def _get_state(self, loc):
+        """ Retrieve the state vector for a given `SolutionArrayBase` location """
+        cdef vector[double] cxx_data = self.base.getState(loc)
+        return np.fromiter(cxx_data, np.double)
+
+    def _set_state(self, loc, data):
+        """ Set the state vector for a given `SolutionArrayBase` location """
+        cdef vector[double] cxx_data
+        for item in data:
+            cxx_data.push_back(item)
+        self.base.setState(loc, cxx_data)
+
+    def _list_extra(self, all=True):
+        """ Retrieve list of `SolutionArrayBase` extra components """
+        cdef vector[string] cxx_name = self.base.listExtra(all)
+        out = []
+        for item in cxx_name:
+            out.append(pystr(item))
+        return out
+
+    def _has_extra(self, name):
+        """ Check whether `SolutionArrayBase` has extra component """
+        return self.base.hasExtra(stringify(name))
+
+    def _add_extra(self, name, back=True):
+        """ Add component to `SolutionArrayBase` and initialize to default value """
+        self.base.addExtra(stringify(name), back)
+
+    def get_auxiliary(self, loc):
+        """ Retrieve auxiliary data for a `SolutionArrayBase` location """
+        return anymap_to_dict(self.base.getAuxiliary(loc))
+
+    def set_auxiliary(self, loc, data):
+        """ Set auxiliary data for a `SolutionArrayBase` location """
+        self.base.setAuxiliary(loc, dict_to_anymap(data))
+
+    def _append(self, state, extra):
+        """ Append at end of `SolutionArrayBase` """
+        cdef vector[double] cxx_state
+        for item in state:
+            cxx_state.push_back(item)
+        self.base.append(cxx_state, dict_to_anymap(extra))
+
+    def _cxx_save(self, filename, name, key, description, compression):
+        """ Interface `SolutionArray.save` with C++ core """
+        if key == "":
+            key = "data"
+        cdef string cxx_path = self.base.save(
+            stringify(str(filename)), stringify(name), stringify(key),
+            stringify(description), compression)
+        return pystr(cxx_path)
+
+    def _cxx_restore(self, filename, name, key):
+        """ Interface `SolutionArray.restore` with C++ core """
+        if key == "":
+            key = "data"
+        cdef CxxAnyMap header
+        header = self.base.restore(
+            stringify(str(filename)), stringify(name), stringify(key))
+        return anymap_to_dict(header)
