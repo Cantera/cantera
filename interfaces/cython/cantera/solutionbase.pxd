@@ -69,6 +69,40 @@ cdef extern from "cantera/base/Solution.h" namespace "Cantera":
         CxxAnyMap&, CxxAnyMap&, string, vector[shared_ptr[CxxSolution]]) except +translate_exception
 
 
+cdef extern from "cantera/base/SolutionArray.h" namespace "Cantera":
+    cdef cppclass CxxSolutionArray "Cantera::SolutionArray":
+        void reset() except +translate_exception
+        size_t size()
+        void resize(size_t) except +translate_exception
+        vector[long int] apiShape() except +translate_exception
+        void setApiShape(vector[long int]&) except +translate_exception
+        size_t apiNdim()
+        CxxAnyMap meta()
+        void setMeta(CxxAnyMap&)
+        vector[string] components() except +translate_exception
+        cbool hasComponent(string&)
+        CxxAnyValue getComponent(string&) except +translate_exception
+        void setComponent(string&, CxxAnyValue&) except +translate_exception
+        void setLoc(size_t) except +translate_exception
+        void updateState(size_t) except +translate_exception
+        vector[double] getState(size_t) except +translate_exception
+        void setState(size_t, vector[double]&) except +translate_exception
+        vector[string] listExtra(cbool all)
+        cbool hasExtra(string&)
+        void addExtra(string&, cbool) except +translate_exception
+        CxxAnyMap getAuxiliary(size_t) except +translate_exception
+        void setAuxiliary(size_t, CxxAnyMap&) except +translate_exception
+        void append(vector[double]&, CxxAnyMap&) except +translate_exception
+        void save(string&, string&, string&, int) except +translate_exception
+        CxxAnyMap restore(string&, string&) except +translate_exception
+
+    cdef shared_ptr[CxxSolutionArray] CxxNewSolutionArray "Cantera::SolutionArray::create" (
+        shared_ptr[CxxSolution], size_t, CxxAnyMap&) except +translate_exception
+
+    cdef shared_ptr[CxxSolutionArray] CxxShareSolutionArray "Cantera::SolutionArray::share" (
+        shared_ptr[CxxSolutionArray], vector[int]&) except +translate_exception
+
+
 ctypedef void (*transportMethod1d)(CxxTransport*, double*) except +translate_exception
 ctypedef void (*transportMethod2d)(CxxTransport*, size_t, double*) except +translate_exception
 ctypedef void (*transportPolyMethod1i)(CxxTransport*, size_t, double*) except +translate_exception
@@ -90,3 +124,7 @@ cdef class _SolutionBase:
     cdef object _adjacent
     cdef object _soln_changed_callback
     cdef public object _references
+
+cdef class SolutionArrayBase:
+    cdef shared_ptr[CxxSolutionArray] _base
+    cdef CxxSolutionArray* base

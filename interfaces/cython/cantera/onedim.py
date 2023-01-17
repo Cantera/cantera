@@ -107,7 +107,7 @@ class FlameBase(Sim1D):
         :param data:
             Restart data, which are typically based on an earlier simulation
             result. Restart data may be specified using a `SolutionArray`,
-            `pandas.DataFrame`, or previously saved CSV or HDF container files.
+            `pandas.DataFrame`, or previously saved CSV, YAML or HDF container files.
             Note that restart data do not overwrite boundary conditions.
             DataFrame input requires a working installation of *pandas*, whereas
             HDF input requires an installation of *h5py*. These packages can be
@@ -161,10 +161,10 @@ class FlameBase(Sim1D):
             u = arr.velocity
 
             self.gas.TPY = left.T, self.P, left.Y
-            u[:i] = u[:i] * left.mdot / self.gas.density / u[0]
+            arr[:i].velocity = u[:i] * left.mdot / self.gas.density / u[0]
 
             self.gas.TPY = right.T, self.P, right.Y
-            u[i:] = - u[i:] * right.mdot / self.gas.density / u[-1]
+            arr[i:].velocity = - u[i:] * right.mdot / self.gas.density / u[-1]
 
             arr.velocity = u
 
@@ -177,7 +177,7 @@ class FlameBase(Sim1D):
             if self.flame.flow_type != "Free Flame":
                 self.gas.TPY = left.T, self.P, left.Y
                 u0 = left.mdot / self.gas.density
-                arr.velocity *= u0 / arr.velocity[0]
+                arr.velocity = u0 * arr.velocity / arr.velocity[0]
 
         self.from_solution_array(arr)
 
@@ -426,7 +426,7 @@ class FlameBase(Sim1D):
                     for i in range(n_points):
                         arr._phase.set_unnormalized_mass_fractions(states[2][i])
                         arr._phase.TP = np.atleast_1d(states[0])[i], states[1]
-                        arr._states[i] = arr._phase.state
+                        arr._set_state(i, arr._phase.state)
                 else:
                     arr.TP = states
             return arr
@@ -447,7 +447,7 @@ class FlameBase(Sim1D):
 
         states = arr.TPY
         other_cols = {e: getattr(arr, e) for e in other
-                      if e in arr._extra}
+                      if e in arr.extra}
         meta = arr.meta
         super().restore_data(domain, states, other_cols, meta)
 
