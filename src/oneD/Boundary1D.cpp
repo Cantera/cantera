@@ -252,7 +252,7 @@ void Inlet1D::restore(SolutionArray& arr, double* soln, int loglevel)
         m_mdot = meta.at("mass-flux").asDouble();
     } else {
         // convert data format used by Python h5py export (Cantera < 3.0)
-        auto aux = arr.getAuxiliary(0);
+        auto aux = arr.getExtra(0);
         m_mdot = phase->density() * aux["velocity"];
     }
     phase->getMassFractions(m_yin.data());

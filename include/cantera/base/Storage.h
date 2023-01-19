@@ -49,7 +49,7 @@ public:
      */
     void setCompressionLevel(int level);
 
-    //! Check whether path go location exists
+    //! Check whether path location exists
     //! If the file has write access, create location if necessary
     //! @param id  storage location within file
     bool checkGroup(const std::string& id);
@@ -58,6 +58,11 @@ public:
     //! @param id  storage location within file
     //! @returns  pair containing size and list of entry names of stored data set
     std::pair<size_t, std::set<std::string>> contents(const std::string& id) const;
+
+    //! Read attributes from a specified location
+    //! @param id  storage location within file
+    //! @param attr  name of attribute to be checked
+    bool hasAttribute(const std::string& id, const std::string& attr) const;
 
     //! Read attributes from a specified location
     //! @param id  storage location within file

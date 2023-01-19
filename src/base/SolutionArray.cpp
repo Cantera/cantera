@@ -52,9 +52,61 @@ SolutionArray::SolutionArray(
     m_data.resize(m_size * m_stride, 0.);
 }
 
+void SolutionArray::reset()
+{
+    size_t nState = m_sol->thermo()->stateSize();
+    vector_fp state(nState);
+    m_sol->thermo()->saveState(state); // thermo contains current state
+    for (int i = 0; i < m_size; ++i) {
+        std::copy(state.begin(), state.end(), &m_data[i * m_stride]);
+    }
+    for (auto& [key, data] : m_extra) {
+        std::fill(data.begin(), data.end(), 0.);
+    }
+}
+
+void SolutionArray::resize(size_t size)
+{
+    m_size = size;
+    m_data.resize(m_size * m_stride, 0.);
+    for (auto [key, data] : m_extra) {
+        data.resize(m_size, 0.);
+    }
+}
+
 shared_ptr<ThermoPhase> SolutionArray::thermo()
 {
     return m_sol->thermo();
+}
+
+std::vector<std::string> SolutionArray::components() const
+{
+    std::vector<std::string> components;
+    for (auto& [key, value] : m_extra) {
+        components.push_back(key);
+    }
+
+    auto phase = m_sol->thermo();
+    const auto& nativeState = phase->nativeState();
+    for (auto& [name, value] : nativeState) {
+        if (name == "X" || name == "Y") {
+            for (auto& spc : phase->speciesNames()) {
+                components.push_back(spc);
+            }
+        } else {
+            components.push_back(name);
+        }
+    }
+    return components;
+}
+
+void SolutionArray::addComponent(const std::string& name, double value)
+{
+    if (hasComponent(name)) {
+        throw CanteraError("SolutionArray::addComponent",
+                           "Component '{}' already exists.", name);
+    }
+    m_extra.emplace(name, vector_fp(m_size, value));
 }
 
 bool SolutionArray::hasComponent(const std::string& name) const
@@ -78,7 +130,8 @@ bool SolutionArray::hasComponent(const std::string& name) const
 vector_fp SolutionArray::getComponent(const std::string& name) const
 {
     if (!hasComponent(name)) {
-        throw CanteraError("SolutionArray::getComponent", "no component named " + name);
+        throw CanteraError("SolutionArray::getComponent",
+                           "Unknown component '{}'.", name);
     }
 
     vector_fp out(m_size);
@@ -104,14 +157,21 @@ void SolutionArray::setComponent(
     const std::string& name, const vector_fp& data, bool force)
 {
     if (!hasComponent(name)) {
-        if (force) {
+        if (force && data.size() == m_size) {
             m_extra.emplace(name, data);
             return;
+        } else if (force) {
+            throw CanteraError("SolutionArray::setComponent",
+                               "Expected array to have length {}, but received "
+                               "an array of length {}.", m_size, data.size());
         }
-        throw CanteraError("SolutionArray::setComponent", "no component named " + name);
+        throw CanteraError("SolutionArray::setComponent",
+                           "Unknown component '{}'.", name);
     }
     if (data.size() != m_size) {
-        throw CanteraError("SolutionArray::setComponent", "incompatible sizes");
+        throw CanteraError("SolutionArray::setComponent",
+                           "Expected array to have length {}, but received "
+                           "an array of length {}.", m_size, data.size());
     }
 
     if (m_extra.count(name)) {
@@ -164,13 +224,18 @@ vector_fp SolutionArray::getState(size_t index)
 
 void SolutionArray::setState(size_t index, const vector_fp& data)
 {
+    size_t nState = m_sol->thermo()->stateSize();
+    if (data.size() != nState) {
+        throw CanteraError("SolutionArray::setState",
+                           "Expected array to have length {}, but received "
+                           "an array of length {}.", nState, data.size());
+    }
     setIndex(index, false);
     m_sol->thermo()->restoreState(data);
-    size_t nState = m_sol->thermo()->stateSize();
     m_sol->thermo()->saveState(nState, &m_data[m_index * m_stride]);
 }
 
-std::map<std::string, double> SolutionArray::getAuxiliary(size_t index)
+std::map<std::string, double> SolutionArray::getExtra(size_t index)
 {
     setIndex(index);
     std::map<std::string, double> out;
@@ -180,10 +245,25 @@ std::map<std::string, double> SolutionArray::getAuxiliary(size_t index)
     return out;
 }
 
+void SolutionArray::setAuxiliary(size_t index, std::map<std::string, double> data)
+{
+    setIndex(index);
+    for (auto& [key, value] : data) {
+        if (m_extra.count(key)) {
+            m_extra[key][index] = value;
+        } else {
+            throw CanteraError("SolutionArray::setAuxiliary",
+                               "Unknown auxiliary component '{}'.", key);
+        }
+    }
+}
+
 AnyMap preamble(const std::string& desc)
 {
     AnyMap data;
-    data["description"] = desc;
+    if (desc.size()) {
+        data["description"] = desc;
+    }
     data["generator"] = "Cantera SolutionArray";
     data["cantera-version"] = CANTERA_VERSION;
     data["git-commit"] = gitCommit();
@@ -195,13 +275,55 @@ AnyMap preamble(const std::string& desc)
     data["date"] = stripnonprint(asctime(newtime));
 
     // Force metadata fields to the top of the file
-    data["description"].setLoc(-6, 0);
+    if (data.hasKey("description")) {
+        data["description"].setLoc(-6, 0);
+    }
     data["generator"].setLoc(-5, 0);
     data["cantera-version"].setLoc(-4, 0);
     data["git-commit"].setLoc(-3, 0);
     data["date"].setLoc(-2, 0);
 
     return data;
+}
+
+std::string parent(const std::string& id)
+{
+    std::vector<std::string> tokens;
+    tokenizePath(id, tokens);
+    if (tokens.size() < 2) {
+        return "";
+    }
+    tokens.pop_back();
+    std::string path = "";
+    for (auto& field : tokens) {
+        path += "/" + field;
+    }
+    return path.substr(1);
+}
+
+AnyMap& openField(AnyMap& root, const std::string& id)
+{
+    if (!id.size()) {
+        return root;
+    }
+
+    // locate field based on 'id'
+    std::vector<std::string> tokens;
+    tokenizePath(id, tokens);
+    AnyMap* ptr = &root; // use raw pointer to avoid copying
+    std::string path = "";
+    for (auto& field : tokens) {
+        path += "/" + field;
+        AnyMap& sub = *ptr;
+        if (sub.hasKey(field) && !sub[field].is<AnyMap>()) {
+            throw CanteraError("openField",
+                "Encountered invalid existing field '{}'.", path);
+        } else if (!sub.hasKey(field)) {
+            sub[field] = AnyMap();
+        }
+        ptr = &sub[field].as<AnyMap>();
+    }
+    return *ptr;
 }
 
 void SolutionArray::writeHeader(const std::string& fname, const std::string& id,
@@ -215,7 +337,8 @@ void SolutionArray::writeHeader(const std::string& fname, const std::string& id,
 void SolutionArray::writeHeader(AnyMap& root, const std::string& id,
                                 const std::string& desc)
 {
-    root[id] = preamble(desc);
+    AnyMap& data = openField(root, id);
+    data.update(preamble(desc));
 }
 
 void SolutionArray::writeEntry(const std::string& fname, const std::string& id,
@@ -251,27 +374,6 @@ void SolutionArray::writeEntry(const std::string& fname, const std::string& id,
     for (auto& [name, value] : m_extra) {
         file.writeVector(id, name, value);
     }
-}
-
-AnyMap& openField(AnyMap& root, const std::string& id)
-{
-    // locate field based on 'id'
-    std::vector<std::string> tokens;
-    tokenizePath(id, tokens);
-    AnyMap* ptr = &root; // use raw pointer to avoid copying
-    std::string path = "";
-    for (auto& field : tokens) {
-        path += "/" + field;
-        AnyMap& sub = *ptr;
-        if (sub.hasKey(field) && !sub[field].is<AnyMap>()) {
-            throw CanteraError("openField",
-                "Encountered invalid existing field '{}'", path);
-        } else if (!sub.hasKey(field)) {
-            sub[field] = AnyMap();
-        }
-        ptr = &sub[field].as<AnyMap>();
-    }
-    return *ptr;
 }
 
 void SolutionArray::writeEntry(AnyMap& root, const std::string& id)
@@ -310,25 +412,18 @@ void SolutionArray::writeEntry(AnyMap& root, const std::string& id)
             data["mass-fractions"] = std::move(items);
         }
     } else if (m_size > 1) {
-        std::vector<std::string> components;
-        for (auto& [name, value] : m_extra) {
-            components.push_back(name);
-        }
-
         const auto& nativeState = phase->nativeState();
         for (auto& [name, offset] : nativeState) {
             if (name == "X" || name == "Y") {
                 for (auto& spc : phase->speciesNames()) {
                     data[spc] = getComponent(spc);
-                    components.push_back(spc);
                 }
                 data["basis"] = name == "X" ? "mole" : "mass";
             } else {
                 data[name] = getComponent(name);
-                components.push_back(name);
             }
         }
-        data["components"] = components;
+        data["components"] = components();
     }
 
     // If this is not replacing an existing solution, put it at the end
@@ -344,7 +439,7 @@ void SolutionArray::save(const std::string& fname, const std::string& id,
     std::string extension = (dot != npos) ? toLowerCopy(fname.substr(dot + 1)) : "";
     if (extension == "h5" || extension == "hdf"  || extension == "hdf5") {
         writeHeader(fname, id, desc);
-        writeEntry(fname, id, compression);
+        writeEntry(fname, id + "/data", compression);
         return;
     }
     if (extension == "yaml" || extension == "yml") {
@@ -353,8 +448,8 @@ void SolutionArray::save(const std::string& fname, const std::string& id,
         if (std::ifstream(fname).good()) {
             data = AnyMap::fromYamlFile(fname);
         }
-        writeEntry(data, id);
         writeHeader(data, id, desc);
+        writeEntry(data, id + "/data");
 
         // Write the output file and remove the now-outdated cached file
         std::ofstream out(fname);
@@ -363,18 +458,33 @@ void SolutionArray::save(const std::string& fname, const std::string& id,
         return;
     }
     throw CanteraError("SolutionArray::save",
-                       "Unknown file extension '{}'", extension);
+                       "Unknown file extension '{}'.", extension);
 }
 
 AnyMap SolutionArray::readHeader(const std::string& fname, const std::string& id)
 {
     Storage file(fname, false);
     file.checkGroup(id);
-    return file.readAttributes(id, false);
+    if (file.hasAttribute(id, "generator")) {
+        // read from current location
+        return file.readAttributes(id, false);
+    }
+    auto path = parent(id);
+    if (file.hasAttribute(path, "generator")) {
+        // read from parent location
+        return file.readAttributes(path, false);
+    }
+    // fallback: load from current location (used by legacy Sim1D HDF format, which
+    // does not use the 'generator' attribute)
+    return file.readAttributes(id, false);;
 }
 
 const AnyMap& locateField(const AnyMap& root, const std::string& id)
 {
+    if (!id.size()) {
+        return root;
+    }
+
     // locate field based on 'id'
     std::vector<std::string> tokens;
     tokenizePath(id, tokens);
@@ -385,9 +495,9 @@ const AnyMap& locateField(const AnyMap& root, const std::string& id)
         const AnyMap& sub = *ptr;
         if (!sub.hasKey(field) || !sub[field].is<AnyMap>()) {
             throw CanteraError("SolutionArray::locateField",
-                "No field or solution with id '{}'", path);
+                "No field or solution with id '{}'.", path);
         }
-        ptr = &sub[field].as<AnyMap>(); // AnyMap lacks 'operator=' for const AnyMap
+        ptr = &sub[field].as<AnyMap>();
     }
     return *ptr;
 }
@@ -395,6 +505,9 @@ const AnyMap& locateField(const AnyMap& root, const std::string& id)
 AnyMap SolutionArray::readHeader(const AnyMap& root, const std::string& id)
 {
     auto sub = locateField(root, id);
+    if (!sub.hasKey("generator")) {
+        sub = locateField(root, parent(id));
+    }
     AnyMap header;
     for (const auto& [name, value] : sub) {
         if (!sub[name].is<AnyMap>()) {
@@ -408,17 +521,20 @@ AnyMap SolutionArray::restore(const std::string& fname, const std::string& id)
 {
     size_t dot = fname.find_last_of(".");
     std::string extension = (dot != npos) ? toLowerCopy(fname.substr(dot + 1)) : "";
+    AnyMap header;
     if (extension == "h5" || extension == "hdf"  || extension == "hdf5") {
         readEntry(fname, id);
-        return readHeader(fname, id);
-    }
-    if (extension == "yaml" || extension == "yml") {
+        header = readHeader(fname, id);
+    } else if (extension == "yaml" || extension == "yml") {
         const AnyMap& root = AnyMap::fromYamlFile(fname);
         readEntry(root, id);
-        return readHeader(root, id);
+        header = readHeader(root, id);
+    } else {
+        throw CanteraError("SolutionArray::restore",
+                           "Unknown file extension '{}'; supported extensions include "
+                           "'h5'/'hdf'/'hdf5' and 'yml'/'yaml'.", extension);
     }
-    throw CanteraError("SolutionArray::restore",
-                        "Unknown file extension '{}'", extension);
+    return header;
 }
 
 std::string SolutionArray::detectMode(const std::set<std::string>& names, bool native)
@@ -484,10 +600,16 @@ std::set<std::string> SolutionArray::stateProperties(
 void SolutionArray::readEntry(const std::string& fname, const std::string& id)
 {
     Storage file(fname, false);
-    file.checkGroup(id);
-    m_meta = file.readAttributes(id, true);
+    std::string sub = id;
+    file.checkGroup(sub);
+    if (file.hasAttribute(sub, "generator")) {
+        // read entry from subfolder
+        sub += "/data";
+        file.checkGroup(sub);
+    }
+    m_meta = file.readAttributes(sub, true);
 
-    auto [size, names] = file.contents(id);
+    auto [size, names] = file.contents(sub);
     m_size = size;
     m_data.resize(m_size * m_stride, 0.);
 
@@ -518,28 +640,28 @@ void SolutionArray::readEntry(const std::string& fname, const std::string& id)
         // native state can be written directly into data storage
         for (const auto& [name, offset] : nativeStates) {
             if (name == "X" || name == "Y") {
-                auto prop = file.readMatrix(id, name, m_size, nSpecies);
+                auto prop = file.readMatrix(sub, name, m_size, nSpecies);
                 for (size_t i = 0; i < m_size; i++) {
                     std::copy(prop[i].begin(), prop[i].end(),
                               &m_data[offset + i * m_stride]);
                 }
             } else {
-                setComponent(name, file.readVector(id, name, m_size));
+                setComponent(name, file.readVector(sub, name, m_size));
             }
         }
     } else if (mode == "TPX") {
         // data format used by Python h5py export (Cantera 2.5)
-        vector_fp T = file.readVector(id, "T", m_size);
-        vector_fp P = file.readVector(id, "P", m_size);
-        auto X = file.readMatrix(id, "X", m_size, nSpecies);
+        vector_fp T = file.readVector(sub, "T", m_size);
+        vector_fp P = file.readVector(sub, "P", m_size);
+        auto X = file.readMatrix(sub, "X", m_size, nSpecies);
         for (size_t i = 0; i < m_size; i++) {
             m_sol->thermo()->setState_TPX(T[i], P[i], X[i].data());
             m_sol->thermo()->saveState(nState, &m_data[i * m_stride]);
         }
     } else if (mode == "TPY") {
-        vector_fp T = file.readVector(id, "T", m_size);
-        vector_fp P = file.readVector(id, "P", m_size);
-        auto Y = file.readMatrix(id, "Y", m_size, nSpecies);
+        vector_fp T = file.readVector(sub, "T", m_size);
+        vector_fp P = file.readVector(sub, "P", m_size);
+        auto Y = file.readMatrix(sub, "Y", m_size, nSpecies);
         for (size_t i = 0; i < m_size; i++) {
             m_sol->thermo()->setState_TPY(T[i], P[i], Y[i].data());
             m_sol->thermo()->saveState(nState, &m_data[i * m_stride]);
@@ -555,7 +677,7 @@ void SolutionArray::readEntry(const std::string& fname, const std::string& id)
     // restore remaining data
     for (const auto& name : names) {
         if (!states.count(name)) {
-            vector_fp data = file.readVector(id, name, m_size);
+            vector_fp data = file.readVector(sub, name, m_size);
             m_extra.emplace(name, data);
         }
     }
@@ -564,6 +686,9 @@ void SolutionArray::readEntry(const std::string& fname, const std::string& id)
 void SolutionArray::readEntry(const AnyMap& root, const std::string& id)
 {
     auto sub = locateField(root, id);
+    if (sub.hasKey("generator")) {
+        sub = locateField(root, id + "/data");
+    }
 
     // set size and initialize
     m_size = sub.getInt("points", 0);
@@ -597,7 +722,7 @@ void SolutionArray::readEntry(const AnyMap& root, const std::string& id)
             auto surf = std::dynamic_pointer_cast<SurfPhase>(m_sol->thermo());
             if (!surf) {
                 throw CanteraError("SolutionArray::readEntry",
-                    "Restoring of coverages requires surface phase");
+                    "Restoring of coverages requires surface phase.");
             }
             double T = sub["temperature"].asDouble();
             double P = sub.getDouble("pressure", OneAtm); // missing - Sim1D (Cantera 2.6)
@@ -662,7 +787,7 @@ void SolutionArray::readEntry(const AnyMap& root, const std::string& id)
             }
         } else if (missingProps.size()) {
             throw CanteraError("SolutionArray::readEntry",
-                "Incomplete state information: missing '{}'",
+                "Incomplete state information: missing '{}'.",
                 ba::join(missingProps, "', '"));
         }
     }
