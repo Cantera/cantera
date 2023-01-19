@@ -208,6 +208,16 @@ AnyMap readH5Attributes(const h5::Group& sub, bool recursive)
     return out;
 }
 
+bool Storage::hasAttribute(const std::string& id, const std::string& attr) const
+{
+    if (id == "") {
+        return false;
+    }
+    h5::Group sub = m_file->getGroup(id);
+    auto names = sub.listAttributeNames();
+    return std::find(names.begin(), names.end(), attr) != names.end();
+}
+
 AnyMap Storage::readAttributes(const std::string& id, bool recursive) const
 {
     h5::Group sub = m_file->getGroup(id);
@@ -417,6 +427,12 @@ bool Storage::checkGroup(const std::string& id)
 std::pair<size_t, std::set<std::string>> Storage::contents(const std::string& id) const
 {
     throw CanteraError("Storage::contents",
+                       "Saving to HDF requires HighFive installation.");
+}
+
+bool Storage::hasAttribute(const std::string& id, const std::string& attr) const
+{
+    throw CanteraError("Storage::hasAttribute",
                        "Saving to HDF requires HighFive installation.");
 }
 

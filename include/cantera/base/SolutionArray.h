@@ -22,7 +22,7 @@ class ThermoPhase;
  *  implemented in high-level API's.
  *
  *  @since  New in Cantera 3.0.
- *  @warning This function is an experimental part of the %Cantera API and may be
+ *  @warning This class is an experimental part of the %Cantera API and may be
  *      changed or removed without notice.
  */
 class SolutionArray
@@ -49,18 +49,35 @@ public:
         return shared_ptr<SolutionArray>(new SolutionArray(sol, size, meta));
     }
 
+    //! Reset SolutionArray to current Solution state
+    void reset();
+
     //! Size of SolutionArray (number of entries)
     int size() const {
         return m_size;
     }
+
+    //! Resize SolutionArray
+    void resize(size_t size);
 
     //! SolutionArray meta data.
     AnyMap& meta() {
         return m_meta;
     }
 
+    //! Set SolutionArray meta data.
+    void setMeta(const AnyMap& meta) {
+        m_meta = meta;
+    }
+
     //! Retrieve associated ThermoPhase object
     shared_ptr<ThermoPhase> thermo();
+
+    //! Retrieve list of component names
+    std::vector<std::string> components() const;
+
+    //! Add auxiliary component to SolutionArray and initialize to default value
+    void addComponent(const std::string& name, double value=0.);
 
     /*!
      *  Check whether SolutionArray contains a component (property defining state or
@@ -92,7 +109,10 @@ public:
     void setState(size_t index, const vector_fp& data);
 
     //! Retrieve auxiliary data for a single entry.
-    std::map<std::string, double> getAuxiliary(size_t index);
+    std::map<std::string, double> getExtra(size_t index);
+
+    //! Set auxiliary data for a single entry.
+    void setAuxiliary(size_t index, std::map<std::string, double> data);
 
     /*!
      *  Write header data to container file.
