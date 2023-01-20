@@ -95,3 +95,6 @@ cdef Composition comp_map(X) except *
 
 cdef CxxAnyMap dict_to_anymap(dict data, cbool hyphenize=*) except *
 cdef anymap_to_dict(CxxAnyMap& m)
+
+cdef CxxAnyValue python_to_anyvalue(item, name=*) except *
+cdef anyvalue_to_python(string name, CxxAnyValue& v)
