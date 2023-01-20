@@ -239,6 +239,8 @@ cdef get_types(item):
             itype = numbers.Integral
         elif isinstance(item.flat[0], numbers.Real):
             itype = numbers.Real
+        elif isinstance(item.flat[0], np.str_):
+            itype = str
         else:
             itype = item.dtype.type
         return itype, item.ndim
@@ -319,9 +321,9 @@ cdef CxxAnyValue python_to_anyvalue(item, name=None) except *:
             v = list_to_anyvalue(item)
     elif isinstance(item, str):
         v = stringify(item)
-    elif isinstance(item, bool):
+    elif isinstance(item, (bool, np.bool_)):
         v = <cbool>(item)
-    elif isinstance(item, int):
+    elif isinstance(item, (int, np.int32, np.int64)):
         v = <long int>(item)
     elif isinstance(item, float):
         v = <double>(item)
