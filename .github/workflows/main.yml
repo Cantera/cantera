@@ -32,12 +32,12 @@ jobs:
       HDF5_LIBDIR: /usr/lib/x86_64-linux-gnu/hdf5/serial
       HDF5_INCLUDEDIR: /usr/include/hdf5/serial
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       name: Checkout the repository
       with:
         submodules: recursive
     - name: Setup Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
         architecture: x64
@@ -78,12 +78,12 @@ jobs:
       HDF5_LIBDIR: /usr/lib/x86_64-linux-gnu/hdf5/serial
       HDF5_INCLUDEDIR: /usr/include/hdf5/serial
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       name: Checkout the repository
       with:
         submodules: recursive
     - name: Setup Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: 3.8
         architecture: x64
@@ -123,7 +123,7 @@ jobs:
     # https://stackoverflow.com/q/38618885
     - name: Configure git
       run: /usr/local/bin/git config --global http.postBuffer 1048576000
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       name: Checkout the repository
       with:
         submodules: recursive
@@ -177,12 +177,12 @@ jobs:
       HDF5_LIBDIR: /usr/lib/x86_64-linux-gnu/hdf5/serial
       HDF5_INCLUDEDIR: /usr/include/hdf5/serial
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       name: Checkout the repository
       with:
         submodules: recursive
     - name: Setup python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: '3.8'
         architecture: x64
@@ -229,19 +229,19 @@ jobs:
         --exclude '.*ext.*' --exclude '(.+/)?_cantera\.cpp$' --exclude '^test.*' \
         --xml coverage.xml --html-details htmlcoverage.html --txt
     - name: Archive C++ coverage results
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: cxx-coverage-report
         path: htmlcoverage*
         retention-days: 5
     - name: Archive Python coverage results
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: python-coverage-report
         path: build/python-coverage*
         retention-days: 5
     - name: Archive .NET coverage results
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: dotnet-coverage-report
         path: interfaces/dotnet/coveragereport*
@@ -258,10 +258,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         name: Checkout the repository
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: '3.10'
       - name: Check keywords
@@ -274,12 +274,12 @@ jobs:
     env:
       DEPLOY: ${{ github.event_name == 'push' && github.repository_owner == 'Cantera' && endsWith(github.ref, 'main') }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         name: Checkout the repository
         with:
           submodules: recursive
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: '3.8'
           architecture: x64
@@ -310,7 +310,7 @@ jobs:
           cd build
           tar -czf docs.tar.gz docs
       - name: Store archive of docs output
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           path: build/docs.tar.gz
           name: docs
@@ -348,12 +348,12 @@ jobs:
       HDF5_LIBDIR: /usr/lib/x86_64-linux-gnu/hdf5/serial
       HDF5_INCLUDEDIR: /usr/include/hdf5/serial
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         name: Checkout the repository
         with:
           submodules: recursive
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
@@ -392,7 +392,7 @@ jobs:
           PYTHONWARNINGS: "error,ignore:warn_name_set_on_empty_Forward::pyparsing"
           MPLBACKEND: Agg
       - name: Save the results file for inspection
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           path: results.txt
           retention-days: 2
@@ -415,7 +415,7 @@ jobs:
         sundials-ver: [ 3, 4, 5.8, 6.4.1 ]
       fail-fast: false
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         name: Checkout the repository
         with:
           submodules: recursive
@@ -476,7 +476,7 @@ jobs:
         python-version: ["3.8", "3.10", "3.11"]
       fail-fast: false
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       name: Checkout the repository
       with:
         submodules: recursive
@@ -544,12 +544,12 @@ jobs:
         python-version: ["3.8", "3.10", "3.11"]
       fail-fast: false
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         name: Checkout the repository
         with:
           submodules: recursive
       - name: Set Up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
@@ -558,7 +558,7 @@ jobs:
           python -m pip install -U pip setuptools wheel
           python -m pip install '"scons<4.4.0"' pypiwin32 numpy ruamel.yaml cython pandas pytest pytest-github-actions-annotate-failures
       - name: Restore Boost cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         id: cache-boost
         with:
           path: ${{env.BOOST_ROOT}}
@@ -606,12 +606,12 @@ jobs:
       run: |
         sudo apt-get install intel-oneapi-compiler-fortran intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic \
         intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-mkl ninja-build libboost-dev libhdf5-dev
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       name: Checkout the repository
       with:
         submodules: recursive
     - name: Setup Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: 3.8
         architecture: x64
@@ -654,12 +654,12 @@ jobs:
       run: |
         sudo apt-get install intel-oneapi-compiler-fortran intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic \
         intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-mkl ninja-build libboost-dev
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       name: Checkout the repository
       with:
         submodules: recursive
     - name: Setup Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: 3.8
         architecture: x64
@@ -687,12 +687,12 @@ jobs:
       BOOST_ROOT: ${{github.workspace}}/3rdparty/boost
       BOOST_URL: https://boostorg.jfrog.io/artifactory/main/release/1.78.0/source/boost_1_78_0.7z
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       name: Checkout the repository
       with:
         submodules: recursive
     - name: Set Up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: 3.8
         architecture: x64
@@ -701,7 +701,7 @@ jobs:
         python -m pip install -U pip 'setuptools>=47.0.0,<48' wheel
         python -m pip install scons pypiwin32 numpy ruamel.yaml cython h5py pandas pytest pytest-github-actions-annotate-failures
     - name: Restore Boost cache
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       id: cache-boost
       with:
         path: ${{env.BOOST_ROOT}}
@@ -738,7 +738,7 @@ jobs:
     needs: [ubuntu-multiple-pythons, macos-multiple-pythons, windows-2022]
     timeout-minutes: 60
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       name: Checkout the repository
     - name: Set up conda
       uses: conda-incubator/setup-miniconda@v2
