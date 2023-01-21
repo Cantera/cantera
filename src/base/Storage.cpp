@@ -48,7 +48,7 @@ namespace Cantera
 
 #if CT_USE_HDF5
 
-Storage::Storage(std::string fname, bool write) : m_write(write)
+Storage::Storage(string fname, bool write) : m_write(write)
 {
     if (m_write) {
         m_file = make_unique<h5::File>(fname, h5::File::OpenOrCreate);
@@ -66,59 +66,103 @@ void Storage::setCompressionLevel(int level)
 {
     if (level < 0 || level > 9) {
         throw CanteraError("Storage::setCompressionLevel",
-                           "Invalid compression level '{}' (needs to be 0..9).", level);
+            "Invalid compression level '{}' (needs to be 0..9).", level);
     }
     m_compressionLevel = level;
 }
 
-bool Storage::checkGroupRead(const std::string& id) const
+bool Storage::hasGroup(const string& id) const
 {
-    std::vector<std::string> tokens;
+    if (!m_file->exist(id)) {
+        return false;
+    }
+    if (m_file->getObjectType(id) != h5::ObjectType::Group) {
+        return false;
+    }
+    return true;
+}
+
+bool Storage::checkGroupRead(const string& id) const
+{
+    vector<string> tokens;
     tokenizePath(id, tokens);
-    std::string grp = tokens[0];
-    if (!m_file->exist(grp) || m_file->getObjectType(grp) != h5::ObjectType::Group) {
+    string grp = tokens[0];
+    if (!hasGroup(grp)) {
         throw CanteraError("Storage::checkGroupRead",
-                           "No group with id '{}' found", grp);
+             "No group with id '{}' found at root.", grp);
     }
 
-    std::string path = grp;
+    string path = grp;
     h5::Group sub = m_file->getGroup(grp);
     tokens.erase(tokens.begin());
     for (auto& grp : tokens) {
-        path += "/" + grp;
-        if (!sub.exist(grp) || sub.getObjectType(grp) != h5::ObjectType::Group) {
+        if (!hasGroup(path + "/" + grp)) {
             throw CanteraError("Storage::checkGroupRead",
-                               "No group with id '{}' found", path);
+                "No group with id '{}' found at '{}'.", grp, path);
         }
+        path += "/" + grp;
         sub = sub.getGroup(grp);
     }
     return true;
 }
 
-bool Storage::checkGroupWrite(const std::string& id)
+bool Storage::checkGroupWrite(const string& id, bool permissive)
 {
+    if (!m_write) {
+        throw CanteraError("Storage::checkGroupWrite",
+            "Cannot write to file opened in read mode.");
+    }
+    if (id == "") {
+        throw CanteraError("Storage::checkGroupWrite",
+            "Cannot write to empty group id '' (root location).");
+    }
     if (!m_file->exist(id)) {
+        if (!permissive) {
+            throw CanteraError("Storage::checkGroupWrite",
+                "Specified group with id '{}' does not exist.", id);
+        }
         m_file->createGroup(id);
         return true;
     }
     if (m_file->getObjectType(id) != h5::ObjectType::Group) {
         throw CanteraError("Storage::checkGroupWrite",
-                           "Invalid object with id '{}' exists", id);
+            "Unable to write to existing object with id '{}'.", id);
     }
     return true;
 }
 
-bool Storage::checkGroup(const std::string& id) {
-    if (m_write) {
-        return checkGroupWrite(id);
+bool Storage::checkGroup(const string& id, bool permissive)
+{
+    try {
+        if (m_write) {
+            return checkGroupWrite(id, permissive);
+        }
+        return checkGroupRead(id);
+    } catch (const CanteraError& err) {
+        if (permissive) {
+            return false;
+        }
+        throw CanteraError("Storage::checkGroup", err.getMessage());
+    } catch (const std::exception& err) {
+        if (permissive) {
+            return false;
+        }
+        // convert HighFive exception
+        throw CanteraError("Storage::checkGroup",
+            "Encountered exception for group '{}':\n{}", id, err.what());
     }
-    return checkGroupRead(id);
 }
 
-std::pair<size_t, std::set<std::string>> Storage::contents(const std::string& id) const
+std::pair<size_t, set<string>> Storage::contents(const string& id) const
 {
+    try {
+        checkGroupRead(id);
+    } catch (const CanteraError& err) {
+        throw CanteraError("Storage::contents",
+            "Caught exception for group '{}':\n", id, err.getMessage());
+    }
     h5::Group sub = m_file->getGroup(id);
-    std::set<std::string> names;
+    set<string> names;
     size_t nDims = npos;
     size_t nElements = 0;
     for (auto& name : sub.listObjectNames()) {
@@ -148,7 +192,7 @@ AnyMap readH5Attributes(const h5::Group& sub, bool recursive)
         h5::DataTypeClass dclass = dtype.getClass();
         if (dclass == h5::DataTypeClass::Float) {
             if (attr.getSpace().getElementCount() > 1) {
-                std::vector<double> values;
+                vector<double> values;
                 attr.read(values);
                 out[name] = values;
             } else {
@@ -158,30 +202,30 @@ AnyMap readH5Attributes(const h5::Group& sub, bool recursive)
             }
         } else if (dclass == h5::DataTypeClass::Integer) {
             if (attr.getSpace().getElementCount() > 1) {
-                std::vector<int> values;
+                vector<long int> values;
                 attr.read(values);
                 out[name] = values;
             } else {
-                int value;
+                long int value;
                 attr.read(value);
                 out[name] = value;
             }
         } else if (dclass == h5::DataTypeClass::String) {
             if (attr.getSpace().getElementCount() > 1) {
-                std::vector<std::string> values;
+                vector<string> values;
                 attr.read(values);
                 out[name] = values;
             } else {
-                std::string value;
+                string value;
                 attr.read(value);
                 out[name] = value;
             }
         } else if (dclass == h5::DataTypeClass::Enum) {
             // only booleans are supported
             if (attr.getSpace().getElementCount() > 1) {
-                std::vector<H5Boolean> values;
+                vector<H5Boolean> values;
                 attr.read(values);
-                std::vector<bool> bValues;
+                vector<bool> bValues;
                 for (auto v : values) {
                     bValues.push_back(bool(v));
                 }
@@ -208,24 +252,31 @@ AnyMap readH5Attributes(const h5::Group& sub, bool recursive)
     return out;
 }
 
-bool Storage::hasAttribute(const std::string& id, const std::string& attr) const
+bool Storage::hasAttribute(const string& id, const string& attr) const
 {
-    if (id == "") {
-        return false;
+    try {
+        checkGroupRead(id);
+    } catch (const CanteraError& err) {
+        throw CanteraError("Storage::hasAttribute",
+            "Caught exception for group '{}':\n", id, err.getMessage());
     }
     h5::Group sub = m_file->getGroup(id);
     auto names = sub.listAttributeNames();
     return std::find(names.begin(), names.end(), attr) != names.end();
 }
 
-AnyMap Storage::readAttributes(const std::string& id, bool recursive) const
+AnyMap Storage::readAttributes(const string& id, bool recursive) const
 {
-    h5::Group sub = m_file->getGroup(id);
     try {
+        checkGroupRead(id);
+        h5::Group sub = m_file->getGroup(id);
         return readH5Attributes(sub, recursive);
     } catch (const Cantera::NotImplementedError& err) {
         throw NotImplementedError("Storage::readAttribute",
             "{} in group '{}'.", err.getMessage(), id);
+    } catch (const CanteraError& err) {
+        throw CanteraError("Storage::readAttribute",
+            "Caught exception for group '{}':\n", id, err.getMessage());
     }
 }
 
@@ -236,14 +287,14 @@ void writeH5Attributes(h5::Group sub, const AnyMap& meta)
             throw NotImplementedError("writeH5Attributes",
                 "Unable to overwrite existing Attribute '{}'", name);
         }
-        if (item.is<double>()) {
-            double value = item.asDouble();
-            h5::Attribute attr = sub.createAttribute<double>(
+        if (item.is<long int>()) {
+            int value = item.asInt();
+            h5::Attribute attr = sub.createAttribute<long int>(
                 name, h5::DataSpace::From(value));
             attr.write(value);
-        } else if (item.is<int>() || item.is<long int>()) {
-            int value = item.asInt();
-            h5::Attribute attr = sub.createAttribute<int>(
+        } else if (item.is<double>()) {
+            double value = item.asDouble();
+            h5::Attribute attr = sub.createAttribute<double>(
                 name, h5::DataSpace::From(value));
             attr.write(value);
         } else if (item.is<string>()) {
@@ -257,14 +308,14 @@ void writeH5Attributes(h5::Group sub, const AnyMap& meta)
             h5::Attribute attr = sub.createAttribute<H5Boolean>(
                 name, h5::DataSpace::From(value));
             attr.write(value);
+        } else if (item.is<vector<long int>>()) {
+            auto values = item.as<vector<long int>>();
+            h5::Attribute attr = sub.createAttribute<long int>(
+                name, h5::DataSpace::From(values));
+            attr.write(values);
         } else if (item.is<vector<double>>()) {
             auto values = item.as<vector<double>>();
             h5::Attribute attr = sub.createAttribute<double>(
-                name, h5::DataSpace::From(values));
-            attr.write(values);
-        } else if (item.is<vector<int>>()) {
-            auto values = item.as<vector<int>>();
-            h5::Attribute attr = sub.createAttribute<int>(
                 name, h5::DataSpace::From(values));
             attr.write(values);
         } else if (item.is<vector<string>>()) {
@@ -294,115 +345,215 @@ void writeH5Attributes(h5::Group sub, const AnyMap& meta)
     }
 }
 
-void Storage::writeAttributes(const std::string& id, const AnyMap& meta)
+void Storage::writeAttributes(const string& id, const AnyMap& meta)
 {
-    h5::Group sub = m_file->getGroup(id);
     try {
+        checkGroupWrite(id, false);
+        h5::Group sub = m_file->getGroup(id);
         writeH5Attributes(sub, meta);
     } catch (const Cantera::NotImplementedError& err) {
         throw NotImplementedError("Storage::writeAttribute",
             "{} in group '{}'.", err.getMessage(), id);
+    } catch (const CanteraError& err) {
+        // rethrow with public method attribution
+        throw CanteraError("Storage::writeAttributes", "{}", err.getMessage());
+    } catch (const std::exception& err) {
+        // convert HighFive exception
+        throw CanteraError("Storage::writeAttributes",
+            "Encountered exception for group '{}':\n{}", id, err.what());
     }
 }
 
-vector_fp Storage::readVector(const std::string& id,
-                              const std::string& name, size_t size) const
+AnyValue Storage::readData(const string& id,
+                           const string& name, size_t rows, size_t cols) const
 {
+    try {
+        checkGroupRead(id);
+    } catch (const CanteraError& err) {
+        throw CanteraError("Storage::readData",
+            "Caught exception for group '{}':\n", id, err.getMessage());
+    }
     h5::Group sub = m_file->getGroup(id);
     if (!sub.exist(name)) {
-        throw CanteraError("Storage::readVector",
+        throw CanteraError("Storage::readData",
             "DataSet '{}' not found in group '{}'.", name, id);
     }
     h5::DataSet dataset = sub.getDataSet(name);
-    if (dataset.getDataType().getClass() != h5::DataTypeClass::Float) {
-        throw CanteraError("Storage::readVector",
-            "Type of DataSet '{}' is inconsistent; expected HDF float.", name);
-    }
-    if (dataset.getElementCount() != size) {
-        throw CanteraError("Storage::readVector",
-            "Size of DataSet '{}' is inconsistent; expected {} elements but "
-            "received {} elements.", name, size, dataset.getElementCount());
-    }
-    vector_fp out;
-    dataset.read(out);
-    return out;
-}
-
-void Storage::writeVector(const std::string& id,
-                          const std::string& name, const vector_fp& data)
-{
-    h5::Group sub = m_file->getGroup(id);
-    if (sub.exist(name)) {
-        throw NotImplementedError("Storage::writeVector",
-            "Unable to overwrite existing DataSet '{}' in group '{}'.", name, id);
-    }
-    std::vector<size_t> dims{data.size()};
-    h5::DataSet dataset = sub.createDataSet<double>(name, h5::DataSpace(dims));
-    dataset.write(data);
-}
-
-std::vector<vector_fp> Storage::readMatrix(const std::string& id,
-                                           const std::string& name,
-                                           size_t rows, size_t cols) const
-{
-    h5::Group sub = m_file->getGroup(id);
-    if (!sub.exist(name)) {
-        throw CanteraError("Storage::readMatrix",
-            "DataSet '{}' not found in group '{}'.", name, id);
-    }
-    h5::DataSet dataset = sub.getDataSet(name);
-    if (dataset.getDataType().getClass() != h5::DataTypeClass::Float) {
-        throw CanteraError("Storage::readMatrix",
-            "Type of DataSet '{}' is inconsistent; expected HDF float.", name);
-    }
     h5::DataSpace space = dataset.getSpace();
-    if (space.getNumberDimensions() != 2) {
-        throw CanteraError("Storage::readMatrix",
-            "Shape of DataSet '{}' is inconsistent; expected two dimensions.", name);
+    size_t ndim = space.getNumberDimensions();
+    if (cols == 0 && ndim != 1) {
+        throw CanteraError("Storage::readData",
+            "Shape of DataSet '{}' is inconsistent; expected one dimensions but "
+            "received {}.", name, ndim);
+    } else if (cols != 0 && cols != npos && ndim != 2) {
+        throw CanteraError("Storage::readData",
+            "Shape of DataSet '{}' is inconsistent; expected two dimensions but "
+            "received {}.", name, ndim);
+    }
+    if (ndim == 0 || ndim > 2) {
+        throw NotImplementedError("Storage::readData",
+            "Cannot process DataSet '{}' as data has {} dimensions.", name, ndim);
     }
     const auto& shape = space.getDimensions();
     if (shape[0] != rows) {
-        throw CanteraError("Storage::readMatrix",
-            "Shape of DataSet '{}' is inconsistent; expected {} rows.", name, rows);
+        throw CanteraError("Storage::readData",
+            "Shape of DataSet '{}' is inconsistent; expected {} rows "
+            "but received {}.", name, rows, shape[0]);
     }
-    if (shape[1] != cols) {
-        throw CanteraError("Storage::readMatrix",
-            "Shape of DataSet '{}' is inconsistent; expected {} columns.", name, cols);
+    if (cols != 0 && cols != npos && shape[1] != cols) {
+        throw CanteraError("Storage::readData",
+            "Shape of DataSet '{}' is inconsistent; expected {} columns "
+            "but received {}.", name, cols, shape[1]);
     }
-    std::vector<vector_fp> out;
-    dataset.read(out);
+    AnyValue out;
+    const auto datatype = dataset.getDataType().getClass();
+    if (datatype == h5::DataTypeClass::Float) {
+        try {
+            if (ndim == 1) {
+                vector<double> data;
+                dataset.read(data);
+                out = data;
+            } else { // ndim == 2
+                vector<vector<double>> data;
+                dataset.read(data);
+                out = data;
+            }
+        } catch (const std::exception& err) {
+            throw NotImplementedError("Storage::readData",
+                "Encountered HighFive exception for DataSet '{}' in group '{}':\n{}",
+                name, id, err.what());
+        }
+    } else if (datatype == h5::DataTypeClass::Integer) {
+        try {
+            if (ndim == 1) {
+                vector<long int> data;
+                dataset.read(data);
+                out = data;
+            } else { // ndim == 2
+                vector<vector<long int>> data;
+                dataset.read(data);
+                out = data;
+            }
+        } catch (const std::exception& err) {
+            throw NotImplementedError("Storage::readData",
+                "Encountered HighFive exception for DataSet '{}' in group '{}':\n{}",
+                name, id, err.what());
+        }
+    } else if (datatype == h5::DataTypeClass::String) {
+        try {
+            if (ndim == 1) {
+                vector<string> data;
+                dataset.read(data);
+                out = data;
+            } else { // ndim == 2
+                vector<vector<string>> data;
+                dataset.read(data);
+                out = data;
+            }
+        } catch (const std::exception& err) {
+            throw NotImplementedError("Storage::readData",
+                "Encountered HighFive exception for DataSet '{}' in group '{}':\n{}",
+                name, id, err.what());
+        }
+    } else {
+        throw NotImplementedError("Storage::readData",
+            "DataSet '{}' is not readable.", name);
+    }
     return out;
 }
 
-void Storage::writeMatrix(const std::string& id,
-                          const std::string& name, const std::vector<vector_fp>& data)
+void Storage::writeData(const string& id, const string& name, const AnyValue& data)
 {
+    try {
+        checkGroupWrite(id, false);
+    } catch (const CanteraError& err) {
+        // rethrow with public method attribution
+        throw CanteraError("Storage::writeData", "{}", err.getMessage());
+    } catch (const std::exception& err) {
+        // convert HighFive exception
+        throw CanteraError("Storage::writeData",
+            "Encountered exception for group '{}':\n{}", id, err.what());
+    }
     h5::Group sub = m_file->getGroup(id);
     if (sub.exist(name)) {
-        throw NotImplementedError("Storage::writeMatrix",
+        throw NotImplementedError("Storage::writeData",
             "Unable to overwrite existing DataSet '{}' in group '{}'.", name, id);
     }
-    std::vector<size_t> dims{data.size()};
-    dims.push_back(data.size() ? data[0].size() : 0);
+    size_t size = data.vectorSize();
+    auto [rows, cols] = data.matrixShape();
+    if (size == npos && rows == npos) {
+        throw CanteraError("Storage::writeData",
+            "Cannot write DataSet '{}' in group '{}' as input data with type\n"
+            "'{}'\nis neither a vector nor a matrix.", name, id, data.type_str());
+    }
+    vector<size_t> dims{data.vectorSize()};
+    if (data.isVector<long int>()) {
+        h5::DataSet dataset = sub.createDataSet<long int>(name, h5::DataSpace(dims));
+        dataset.write(data.asVector<long int>());
+        return;
+    }
+    if (data.isVector<double>()) {
+        h5::DataSet dataset = sub.createDataSet<double>(name, h5::DataSpace(dims));
+        dataset.write(data.asVector<double>());
+        return;
+    }
+    if (data.isVector<string>()) {
+        h5::DataSet dataset = sub.createDataSet<string>(name, h5::DataSpace(dims));
+        dataset.write(data.asVector<string>());
+        return;
+    }
+    if (cols != npos) {
+        dims.clear();
+        dims.push_back(rows);
+        dims.push_back(cols);
+    } else {
+        throw NotImplementedError("Storage::writeData",
+            "Cannot write DataSet '{}' in group '{}' as input data with type\n"
+            "'{}'\nis not supported.", name, id, data.type_str());
+    }
     if (m_compressionLevel) {
         // Set chunk size to single chunk and apply compression level; for caveats, see
         // https://stackoverflow.com/questions/32994766/compressed-files-bigger-in-h5py
         h5::DataSpace space(dims, dims); //{h5::DataSpace::UNLIMITED, dims[1]});
         h5::DataSetCreateProps props;
-        props.add(h5::Chunking(std::vector<hsize_t>{dims[0], dims[1]}));
+        props.add(h5::Chunking(vector<hsize_t>{dims[0], dims[1]}));
         props.add(h5::Deflate(m_compressionLevel));
-        h5::DataSet dataset = sub.createDataSet<double>(name, space, props);
-        dataset.write(data);
+        if (data.isVector<vector<long int>>()) {
+            h5::DataSet dataset = sub.createDataSet<long int>(name, space, props);
+            dataset.write(data.asVector<vector<long int>>());
+        } else if (data.isVector<vector<double>>()) {
+            h5::DataSet dataset = sub.createDataSet<double>(name, space, props);
+            dataset.write(data.asVector<vector<double>>());
+        } else if (data.isVector<vector<string>>()) {
+            h5::DataSet dataset = sub.createDataSet<string>(name, space, props);
+            dataset.write(data.asVector<vector<string>>());
+        } else {
+            throw NotImplementedError("Storage::writeData",
+                "Cannot write DataSet '{}' in group '{}' as input data with type\n"
+                "'{}'\nis not supported.", name, id, data.type_str());
+        }
     } else {
         h5::DataSpace space(dims);
-        h5::DataSet dataset = sub.createDataSet<double>(name, space);
-        dataset.write(data);
+        if (data.isVector<vector<long int>>()) {
+            h5::DataSet dataset = sub.createDataSet<long int>(name, space);
+            dataset.write(data.asVector<vector<long int>>());
+        } else if (data.isVector<vector<double>>()) {
+            h5::DataSet dataset = sub.createDataSet<double>(name, space);
+            dataset.write(data.asVector<vector<double>>());
+        } else if (data.isVector<vector<string>>()) {
+            h5::DataSet dataset = sub.createDataSet<string>(name, space);
+            dataset.write(data.asVector<vector<string>>());
+        } else {
+            throw NotImplementedError("Storage::writeData",
+                "Cannot write DataSet '{}' in group '{}' as input data with type\n"
+                "'{}'\nis not supported.", name, id, data.type_str());
+        }
     }
 }
 
 #else
 
-Storage::Storage(std::string fname, bool write)
+Storage::Storage(string fname, bool write)
 {
     throw CanteraError("Storage::Storage",
                        "Saving to HDF requires HighFive installation.");
@@ -418,62 +569,53 @@ void Storage::setCompressionLevel(int level)
                        "Saving to HDF requires HighFive installation.");
 }
 
-bool Storage::checkGroup(const std::string& id)
+bool Storage::hasGroup(const string& id) const
+{
+    throw CanteraError("Storage::hasGroup",
+                       "Saving to HDF requires HighFive installation.");
+}
+
+bool Storage::checkGroup(const string& id, bool permissive)
 {
     throw CanteraError("Storage::checkGroup",
                        "Saving to HDF requires HighFive installation.");
 }
 
-std::pair<size_t, std::set<std::string>> Storage::contents(const std::string& id) const
+std::pair<size_t, set<string>> Storage::contents(const string& id) const
 {
     throw CanteraError("Storage::contents",
                        "Saving to HDF requires HighFive installation.");
 }
 
-bool Storage::hasAttribute(const std::string& id, const std::string& attr) const
+bool Storage::hasAttribute(const string& id, const string& attr) const
 {
     throw CanteraError("Storage::hasAttribute",
                        "Saving to HDF requires HighFive installation.");
 }
 
-AnyMap Storage::readAttributes(const std::string& id, bool recursive) const
+AnyMap Storage::readAttributes(const string& id, bool recursive) const
 {
     throw CanteraError("Storage::readAttributes",
                        "Saving to HDF requires HighFive installation.");
 }
 
-void Storage::writeAttributes(const std::string& id, const AnyMap& meta)
+void Storage::writeAttributes(const string& id, const AnyMap& meta)
 {
     throw CanteraError("Storage::writeAttributes",
                        "Saving to HDF requires HighFive installation.");
 }
 
-vector_fp Storage::readVector(const std::string& id,
-                              const std::string& name, size_t size) const
+AnyValue Storage::readData(const string& id,
+                           const string& name, size_t rows, size_t cols) const
 {
-    throw CanteraError("Storage::readVector",
+    throw CanteraError("Storage::readData",
                        "Saving to HDF requires HighFive installation.");
 }
 
-void Storage::writeVector(const std::string& id,
-                          const std::string& name, const vector_fp& data)
+void Storage::writeData(const string& id,
+                        const string& name, const AnyValue& data)
 {
-    throw CanteraError("Storage::writeVector",
-                       "Saving to HDF requires HighFive installation.");
-}
-
-std::vector<vector_fp> Storage::readMatrix(const std::string& id,
-                                           const std::string& name,
-                                           size_t rows, size_t cols) const
-{
-    throw CanteraError("Storage::readMatrix",
-                       "Saving to HDF requires HighFive installation.");
-}
-
-void Storage::writeMatrix(const std::string& id,
-                          const std::string& name, const std::vector<vector_fp>& data)
-{
-    throw CanteraError("Storage::writeMatrix",
+    throw CanteraError("Storage::writeData",
                        "Saving to HDF requires HighFive installation.");
 }
 

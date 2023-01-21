@@ -28,7 +28,8 @@ namespace Cantera
 {
 
 /*!
- *  A wrapper class handling storage to HDF; acts as a thin wrapper for HighFive
+ *  A wrapper class handling storage to HDF; acts as a thin wrapper for HighFive.
+ *  The class implements methods that are intended to be called from SolutionArray.
  *
  *  @since  New in Cantera 3.0.
  *  @warning This class is an experimental part of the %Cantera API and may be
@@ -37,84 +38,81 @@ namespace Cantera
 class Storage
 {
 public:
-    Storage(std::string fname, bool write);
+    Storage(string fname, bool write);
 
     ~Storage();
 
     //! Set compression level (0..9)
-    /*!
-     *  Compression is only applied to species data; note that compression may increase
-     *  file size for small data sets (compression requires setting of chunk sizes,
-     *  which involves considerable overhead for metadata).
-     */
+    //!
+    //! Compression is only applied to matrix-type data; note that compression may
+    //! increase file size for small data sets (compression requires setting of chunk
+    //! sizes, which involves considerable overhead for metadata).
     void setCompressionLevel(int level);
 
-    //! Check whether path location exists
-    //! If the file has write access, create location if necessary
+    //! Check whether location `id` represents a group
+    bool hasGroup(const string& id) const;
+
+    //! Check whether path location exists.
+    //! If the file has write access, create location; otherwise exceptions are thrown.
     //! @param id  storage location within file
-    bool checkGroup(const std::string& id);
+    //! @param permissive  if true, do not raise exceptions
+    bool checkGroup(const string& id, bool permissive=false);
 
     //! Retrieve contents of file from a specified location
     //! @param id  storage location within file
     //! @returns  pair containing size and list of entry names of stored data set
-    std::pair<size_t, std::set<std::string>> contents(const std::string& id) const;
+    pair<size_t, set<string>> contents(const string& id) const;
 
     //! Read attributes from a specified location
     //! @param id  storage location within file
     //! @param attr  name of attribute to be checked
-    bool hasAttribute(const std::string& id, const std::string& attr) const;
+    bool hasAttribute(const string& id, const string& attr) const;
 
     //! Read attributes from a specified location
     //! @param id  storage location within file
     //! @param recursive  boolean indicating whether subgroups should be included
     //! @returns  AnyMap containing attributes
-    AnyMap readAttributes(const std::string& id, bool recursive) const;
+    AnyMap readAttributes(const string& id, bool recursive) const;
 
     //! Write attributes to a specified location
     //! @param id  storage location within file
     //! @param meta  AnyMap containing attributes
-    void writeAttributes(const std::string& id, const AnyMap& meta);
+    void writeAttributes(const string& id, const AnyMap& meta);
 
-    //! Read data vector from a specified location
+    //! Read dataset from a specified location
     //! @param id  storage location within file
-    //! @param name  name of data vector entry
-    //! @param size  size of data vector entry
-    //! @returns  data vector
-    vector_fp readVector(const std::string& id,
-                         const std::string& name, size_t size) const;
+    //! @param name  name of vector/matrix entry
+    //! @param rows  number of vector length or matrix rows
+    //! @param cols  number of matrix columns, if applicable; if 0, a vector is
+    //!     expected, if npos, the size is detected automatically; otherwise, an exact
+    //!     number of columns needs to be matched.
+    //! @returns  matrix or vector containing data; implemented for types
+    //!     `vector<double>`, `vector<long int>`, `vector<string>`,
+    //!     `vector<vector<double>>`, `vector<vector<long int>>` and
+    //!     `vector<vector<string>>`
+    AnyValue readData(const string& id,
+                      const string& name, size_t rows, size_t cols=npos) const;
 
-    //! Write data vector to a specified location
-    //! @param id  storage location within file
-    //! @param name  name of data vector entry
-    //! @param data  data vector
-    void writeVector(const std::string& id,
-                     const std::string& name, const vector_fp& data);
-
-    //! Read matrix from a specified location
-    //! @param id  storage location within file
-    //! @param name  name of matrix entry
-    //! @param rows  number of matrix rows
-    //! @param cols  number of matrix columns
-    //! @returns  matrix containing data (vector of vectors)
-    std::vector<vector_fp> readMatrix(const std::string& id,
-                                      const std::string& name,
-                                      size_t rows, size_t cols) const;
-
-    //! Write matrix to a specified location
+    //! Write dataset to a specified location
     //! @param id  storage location within file
     //! @param name  name of matrix entry
-    //! @param data  matrix containing data (vector of vectors)
-    void writeMatrix(const std::string& id,
-                     const std::string& name, const std::vector<vector_fp>& data);
+    //! @param data  vector or matrix containing data; implemented for types
+    //!     `vector<double>`, `vector<long int>`, `vector<string>`
+    //!     `vector<vector<double>>`, `vector<vector<long int>>` and
+    //!     `vector<vector<string>>`
+    void writeData(const string& id, const string& name, const AnyValue& data);
 
 private:
 #if CT_USE_HDF5
-    bool checkGroupRead(const std::string& id) const;
-    bool checkGroupWrite(const std::string& id);
+    //! ensure that HDF group is readable
+    bool checkGroupRead(const string& id) const;
 
-    std::unique_ptr<HighFive::File> m_file;
-    bool m_write;
-    int m_compressionLevel=0;
+    //! ensure that HDF group is writeable
+    bool checkGroupWrite(const string& id, bool permissive);
+
+    std::unique_ptr<HighFive::File> m_file; //!< HDF container file
+    bool m_write; //!< HDF access mode
+    int m_compressionLevel=0; //!< HDF compression level
 #endif
 };
 

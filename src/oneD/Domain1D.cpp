@@ -133,7 +133,7 @@ AnyMap Domain1D::serialize(const double* soln) const
         "To be removed after Cantera 3.0; superseded by asArray.");
     AnyMap out;
     auto arr = asArray(soln);
-    arr->writeEntry(out, "");
+    arr->writeEntry(out, "", "");
     return out;
 }
 
@@ -174,7 +174,7 @@ void Domain1D::restore(const AnyMap& state, double* soln, int loglevel)
     warn_deprecated("Domain1D::restore",
         "To be removed after Cantera 3.0; restore from SolutionArray instead.");
     auto arr = SolutionArray::create(solution());
-    arr->readEntry(state, "");
+    arr->readEntry(state, "", "");
     restore(*arr, soln, loglevel);
 }
 

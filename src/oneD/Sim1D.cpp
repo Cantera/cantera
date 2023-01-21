@@ -102,7 +102,7 @@ void Sim1D::save(const std::string& fname, const std::string& id,
     if (extension == "h5" || extension == "hdf"  || extension == "hdf5") {
         for (auto dom : m_dom) {
             auto arr = dom->asArray(m_x.data() + dom->loc());
-            arr->writeEntry(fname, id + "/" + dom->id(), compression);
+            arr->writeEntry(fname, id, dom->id(), compression);
         }
         SolutionArray::writeHeader(fname, id, desc);
         if (loglevel > 0) {
@@ -120,7 +120,7 @@ void Sim1D::save(const std::string& fname, const std::string& id,
 
         for (auto dom : m_dom) {
             auto arr = dom->asArray(m_x.data() + dom->loc());
-            arr->writeEntry(data, id + "/" + dom->id());
+            arr->writeEntry(data, id, dom->id());
         }
 
         // Write the output file and remove the now-outdated cached file
@@ -216,13 +216,14 @@ AnyMap legacyH5(shared_ptr<SolutionArray> arr, const AnyMap& header={})
 
     if (header.hasKey("fixed_temperature")) {
         double temp = header.getDouble("fixed_temperature", -1.);
-        auto profile = arr->getComponent("T");
+        auto profile = arr->getComponent("T").as<vector<double>>();
         int ix = 0;
         while (profile[ix] <= temp && ix < arr->size()) {
             ix++;
         }
         if (ix != 0) {
-            out["fixed-point"]["location"] = arr->getComponent("grid")[ix - 1];
+            auto grid = arr->getComponent("grid").as<vector<double>>();
+            out["fixed-point"]["location"] = grid[ix - 1];
             out["fixed-point"]["temperature"] = temp;
         }
     }
@@ -246,7 +247,7 @@ AnyMap Sim1D::restore(const std::string& fname, const std::string& id,
 
         for (auto dom : m_dom) {
             auto arr = SolutionArray::create(dom->solution());
-            arr->readEntry(fname, id + "/" + dom->id());
+            arr->readEntry(fname, id, dom->id());
             dom->resize(dom->nComponents(), arr->size());
             if (!header.hasKey("generator")) {
                 arr->meta() = legacyH5(arr, header);
@@ -266,7 +267,7 @@ AnyMap Sim1D::restore(const std::string& fname, const std::string& id,
 
         for (auto dom : m_dom) {
             auto arr = SolutionArray::create(dom->solution());
-            arr->readEntry(root, id + "/" + dom->id());
+            arr->readEntry(root, id, dom->id());
             dom->resize(dom->nComponents(), arr->size());
             arrs[dom->id()] = arr;
         }
