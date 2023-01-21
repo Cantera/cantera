@@ -29,7 +29,12 @@ using namespace std;
 #define CV_SS 1
 #define CV_SV 2
 
-typedef long int sd_size_t;
+#ifdef SUNDIALS_INDEX_TYPE
+    // For SUNDIALS >= 3.2.0
+    typedef SUNDIALS_INDEX_TYPE sd_size_t;
+#else
+    typedef long int sd_size_t;
+#endif
 
 namespace {
 
@@ -149,9 +154,9 @@ CVodesIntegrator::~CVodesIntegrator()
     }
     if (m_yS) {
         #if CT_SUNDIALS_VERSION >= 60
-            N_VDestroyVectorArray(m_yS, static_cast<sd_size_t>(m_np));
+            N_VDestroyVectorArray(m_yS, static_cast<int>(m_np));
         #else
-            N_VDestroyVectorArray_Serial(m_yS, static_cast<sd_size_t>(m_np));
+            N_VDestroyVectorArray_Serial(m_yS, static_cast<int>(m_np));
         #endif
     }
 }
@@ -269,16 +274,16 @@ void CVodesIntegrator::sensInit(double t0, FuncEval& func)
 
     N_Vector y = newNVector(func.neq(), m_sundials_ctx);
     #if CT_SUNDIALS_VERSION >= 60
-        m_yS = N_VCloneVectorArray(static_cast<sd_size_t>(m_np), y);
+        m_yS = N_VCloneVectorArray(static_cast<int>(m_np), y);
     #else
-        m_yS = N_VCloneVectorArray_Serial(static_cast<sd_size_t>(m_np), y);
+        m_yS = N_VCloneVectorArray_Serial(static_cast<int>(m_np), y);
     #endif
     for (size_t n = 0; n < m_np; n++) {
         N_VConst(0.0, m_yS[n]);
     }
     N_VDestroy_Serial(y);
 
-    int flag = CVodeSensInit(m_cvode_mem, static_cast<sd_size_t>(m_np),
+    int flag = CVodeSensInit(m_cvode_mem, static_cast<int>(m_np),
                              CV_STAGGERED, CVSensRhsFn(0), m_yS);
 
     if (flag != CV_SUCCESS) {
@@ -495,8 +500,8 @@ void CVodesIntegrator::applyOptions()
         #endif
     } else if (m_type == "BAND") {
         sd_size_t N = static_cast<sd_size_t>(m_neq);
-        long int nu = m_mupper;
-        long int nl = m_mlower;
+        sd_size_t nu = m_mupper;
+        sd_size_t nl = m_mlower;
         SUNLinSolFree((SUNLinearSolver) m_linsol);
         SUNMatDestroy((SUNMatrix) m_linsol_matrix);
         #if CT_SUNDIALS_VERSION >= 60
