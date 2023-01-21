@@ -485,10 +485,9 @@ jobs:
       with:
         auto-update-conda: true
         python-version: ${{ matrix.python-version }}
-        mamba-version: "*"
+        miniforge-variant: Mambaforge
+        miniforge-version: latest
         activate-environment: test
-        channels: conda-forge,defaults
-        channel-priority: true
     - name: Install conda dependencies
       # See https://github.com/conda-forge/boost-cpp-feedstock/issues/41 for why we
       # use boost-cpp rather than boost from conda-forge
@@ -746,10 +745,9 @@ jobs:
       with:
         auto-update-conda: true
         python-version: "3.10"
-        mamba-version: "*"
+        miniforge-variant: Mambaforge
+        miniforge-version: latest
         activate-environment: test
-        channels: conda-forge,defaults
-        channel-priority: true
     - name: Install Python dependencies
       run: python3 -m pip install ruamel.yaml
     - name: Install library dependencies with Conda (Windows)
