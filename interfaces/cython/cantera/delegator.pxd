@@ -26,6 +26,8 @@ cdef extern from "cantera/base/Delegator.h" namespace "Cantera":
     cdef cppclass CxxDelegator "Cantera::Delegator":
         Delegator()
 
+        void setDelegatorName(string&)
+
         void setDelegate(string&, function[void()], string&) except +translate_exception
         void setDelegate(string&, function[void(cbool)], string&) except +translate_exception
         void setDelegate(string&, function[void(double)], string&) except +translate_exception
