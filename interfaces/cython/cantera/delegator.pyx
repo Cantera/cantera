@@ -235,6 +235,8 @@ cdef int assign_delegates(obj, CxxDelegator* delegator) except -1:
       if present, indicates that the delegate is required, how it is executed with
       respect to the base class method (that is, ``before``, ``after``, or ``replace``).
     """
+    delegator.setDelegatorName(stringify(obj.__class__.__name__))
+
     # Find all delegate methods, and make sure there aren't multiple
     # conflicting implementations
     cdef string cxx_name
