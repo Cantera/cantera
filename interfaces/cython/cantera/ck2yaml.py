@@ -2238,7 +2238,7 @@ def main(argv):
         return
 
     try:
-        import cantera as ct
+        from cantera import Solution, Interface
     except ImportError:
         logger.warning('WARNING: Unable to import Cantera Python module. '
                         'Output mechanism has not been validated')
@@ -2246,9 +2246,9 @@ def main(argv):
 
     try:
         logger.info('Validating mechanism...')
-        gas = ct.Solution(out_name)
+        gas = Solution(out_name)
         for surf_name in surfaces:
-            phase = ct.Interface(out_name, surf_name, [gas])
+            phase = Interface(out_name, surf_name, [gas])
         logger.info('PASSED')
     except RuntimeError as e:
         logger.info('FAILED')
