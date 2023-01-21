@@ -785,20 +785,31 @@ AnyMap StFlow::getMeta() const
 shared_ptr<SolutionArray> StFlow::asArray(const double* soln) const
 {
     auto arr = SolutionArray::create(m_solution, nPoints(), getMeta());
-    arr->setComponent("grid", m_z, true);
+    arr->addExtra("grid", false); // leading entry
+    AnyValue value;
+    value = m_z;
+    arr->setComponent("grid", value);
     vector_fp data(nPoints());
     for (size_t i = 0; i < nComponents(); i++) {
         if (componentActive(i)) {
+            auto name = componentName(i);
             for (size_t j = 0; j < nPoints(); j++) {
                 data[j] = soln[index(i, j)];
             }
-            arr->setComponent(componentName(i), data, true);
+            if (!arr->hasComponent(name)) {
+                arr->addExtra(name, false); // add to front
+            }
+            value = data;
+            arr->setComponent(name, value);
         }
     }
-    arr->setComponent("D", m_rho); // use density rather than pressure
+    value = m_rho;
+    arr->setComponent("D", value); // use density rather than pressure
 
     if (m_do_radiation) {
-        arr->setComponent("radiative-heat-loss", m_qdotRadiation, true);
+        arr->addExtra("radiative-heat-loss", true); // add at end
+        value = m_qdotRadiation;
+        arr->setComponent("radiative-heat-loss", value);
     }
 
     return arr;
@@ -807,11 +818,11 @@ shared_ptr<SolutionArray> StFlow::asArray(const double* soln) const
 void StFlow::restore(SolutionArray& arr, double* soln, int loglevel)
 {
     Domain1D::setMeta(arr.meta(), loglevel);
-    arr.setIndex(0);
+    arr.setLoc(0);
     auto phase = arr.thermo();
     m_press = phase->pressure();
 
-    const auto grid = arr.getComponent("grid");
+    const auto grid = arr.getComponent("grid").as<std::vector<double>>();
     setupGrid(nPoints(), &grid[0]);
 
     for (size_t i = 0; i < nComponents(); i++) {
@@ -820,7 +831,7 @@ void StFlow::restore(SolutionArray& arr, double* soln, int loglevel)
         }
         std::string name = componentName(i);
         if (arr.hasComponent(name)) {
-            const vector_fp data = arr.getComponent(name);
+            const vector_fp data = arr.getComponent(name).as<std::vector<double>>();
             for (size_t j = 0; j < nPoints(); j++) {
                 soln[index(i,j)] = data[j];
             }

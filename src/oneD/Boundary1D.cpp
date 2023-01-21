@@ -244,7 +244,7 @@ shared_ptr<SolutionArray> Inlet1D::asArray(const double* soln) const
 void Inlet1D::restore(SolutionArray& arr, double* soln, int loglevel)
 {
     Boundary1D::setMeta(arr.meta(), loglevel);
-    arr.setIndex(0);
+    arr.setLoc(0);
     auto phase = arr.thermo();
     auto meta = arr.meta();
     m_temp = phase->temperature();
@@ -252,8 +252,8 @@ void Inlet1D::restore(SolutionArray& arr, double* soln, int loglevel)
         m_mdot = meta.at("mass-flux").asDouble();
     } else {
         // convert data format used by Python h5py export (Cantera < 3.0)
-        auto aux = arr.getExtra(0);
-        m_mdot = phase->density() * aux["velocity"];
+        auto aux = arr.getAuxiliary(0);
+        m_mdot = phase->density() * aux.at("velocity").as<double>();
     }
     phase->getMassFractions(m_yin.data());
 }
@@ -531,7 +531,7 @@ shared_ptr<SolutionArray> OutletRes1D::asArray(const double* soln) const
 void OutletRes1D::restore(SolutionArray& arr, double* soln, int loglevel)
 {
     Boundary1D::setMeta(arr.meta(), loglevel);
-    arr.setIndex(0);
+    arr.setLoc(0);
     auto phase = arr.thermo();
     m_temp = phase->temperature();
     auto Y = phase->massFractions();
@@ -581,7 +581,7 @@ shared_ptr<SolutionArray> Surf1D::asArray(const double* soln) const
 void Surf1D::restore(SolutionArray& arr, double* soln, int loglevel)
 {
     Boundary1D::setMeta(arr.meta(), loglevel);
-    arr.setIndex(0);
+    arr.setLoc(0);
     m_temp = arr.thermo()->temperature();
 }
 
@@ -788,7 +788,7 @@ shared_ptr<SolutionArray> ReactingSurf1D::asArray(const double* soln) const
 void ReactingSurf1D::restore(SolutionArray& arr, double* soln, int loglevel)
 {
     Boundary1D::setMeta(arr.meta(), loglevel);
-    arr.setIndex(0);
+    arr.setLoc(0);
     auto surf = std::dynamic_pointer_cast<SurfPhase>(arr.thermo());
     if (!surf) {
         throw CanteraError("ReactingSurf1D::restore",
