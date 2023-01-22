@@ -8,23 +8,33 @@ from collections import OrderedDict
 import csv as _csv
 import importlib.metadata
 
+_h5py = None
 def _import_h5py():
-    # avoid explicit dependence of cantera on h5py
+    # defer h5py import
+    global _h5py
+    if _h5py is not None:
+        return
+
     try:
         importlib.metadata.version('h5py')
     except importlib.metadata.PackageNotFoundError:
         raise ImportError('Method requires a working h5py installation.')
     else:
-        import h5py
-        return h5py
+        import h5py as _h5py
 
-# avoid explicit dependence of cantera on pandas
-try:
-    importlib.metadata.version('pandas')
-except importlib.metadata.PackageNotFoundError:
-    _pandas = ImportError('Method requires a working pandas installation.')
-else:
-    import pandas as _pandas
+
+_pandas = None
+def _import_pandas():
+    # defer import of pandas
+    global _pandas
+    if _pandas is not None:
+        return
+    try:
+        importlib.metadata.version('pandas')
+    except importlib.metadata.PackageNotFoundError:
+        _pandas = ImportError('Method requires a working pandas installation.')
+    else:
+        import pandas as _pandas
 
 
 class Solution(Transport, Kinetics, ThermoPhase):
@@ -1215,9 +1225,8 @@ class SolutionArray:
         only with 1D `SolutionArray` objects and requires a working *pandas*
         installation. Use pip or conda to install ``pandas`` to enable this method.
         """
-
-        if isinstance(_pandas, ImportError):
-            raise _pandas
+        if not _pandas:
+            _import_pandas()
 
         data_dict = self.collect_data(*args, cols=cols, tabular=True, **kwargs)
         data = np.hstack([d[:, np.newaxis] for d in data_dict.values()])
@@ -1312,7 +1321,8 @@ class SolutionArray:
         requires a working installation of *h5py* (``h5py`` can be installed using
         pip or conda).
         """
-        h5py = _import_h5py()
+        if _h5py is None:
+            _import_h5py()
 
         # collect data
         data = self.collect_data(*args, cols=cols, **kwargs)
@@ -1322,7 +1332,7 @@ class SolutionArray:
         hdf_kwargs = {k: v for k, v in hdf_kwargs.items() if v is not None}
 
         # save to container file
-        with h5py.File(filename, mode) as hdf:
+        with _h5py.File(filename, mode) as hdf:
 
             # check existence of tagged item
             if not group:
@@ -1395,9 +1405,10 @@ class SolutionArray:
         The method imports data using `restore_data` and requires a working
         installation of *h5py* (``h5py`` can be installed using pip or conda).
         """
-        h5py = _import_h5py()
+        if _h5py is None:
+            _import_h5py()
 
-        with h5py.File(filename, 'r') as hdf:
+        with _h5py.File(filename, 'r') as hdf:
 
             groups = list(hdf.keys())
             if not len(groups):
@@ -1416,7 +1427,7 @@ class SolutionArray:
             # identify subgroup
             if subgroup is not None:
                 sub_names = [key for key, value in root.items()
-                             if isinstance(value, h5py.Group)]
+                             if isinstance(value, _h5py.Group)]
                 if not len(sub_names):
                     msg = "HDF group '{}' does not contain valid data"
                     raise IOError(msg.format(group))
@@ -1453,13 +1464,13 @@ class SolutionArray:
             self._meta = dict(dgroup.attrs.items())
             for name, value in dgroup.items():
                 # support one level of recursion
-                if isinstance(value, h5py.Group):
+                if isinstance(value, _h5py.Group):
                     self._meta[name] = dict(value.attrs.items())
 
             # load data
             data = OrderedDict()
             for name, value in dgroup.items():
-                if isinstance(value, h5py.Group):
+                if isinstance(value, _h5py.Group):
                     continue
                 elif value.dtype.type == np.bytes_:
                     data[name] = np.array(value).astype('U')

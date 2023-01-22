@@ -7,12 +7,16 @@ import pickle
 import cantera as ct
 
 try:
-    h5py = ct.composite._import_h5py()
-    have_h5py = True
+    ct.composite._import_pandas()
 except ImportError:
-    have_h5py = False
+    pass
 
-from cantera.composite import _pandas
+try:
+    ct.composite._import_h5py()
+except ImportError:
+    pass
+
+from cantera.composite import _pandas, _h5py
 from . import utilities
 
 
@@ -262,7 +266,7 @@ class TestSolutionArrayIO(utilities.CanteraTest):
         self.assertEqual(states[0].P, gas.P)
         self.assertArrayNear(states[0].Y, gas.Y)
 
-    @utilities.unittest.skipIf(not have_h5py, "h5py is not installed")
+    @utilities.unittest.skipIf(_h5py is None, "h5py is not installed")
     def test_import_no_norm_data(self):
         outfile = self.test_work_path / "solutionarray.h5"
         # In Python >= 3.8, this can be replaced by the missing_ok argument
@@ -332,7 +336,7 @@ class TestSolutionArrayIO(utilities.CanteraTest):
         with self.assertRaisesRegex(NotImplementedError, 'not supported'):
             states.write_csv(outfile)
 
-    @utilities.unittest.skipIf(isinstance(_pandas, ImportError), "pandas is not installed")
+    @utilities.unittest.skipIf(_pandas is None, "pandas is not installed")
     def test_to_pandas(self):
         states = ct.SolutionArray(self.gas, 7, extra={"props": range(7)})
         states.TPX = np.linspace(300, 1000, 7), 2e5, 'H2:0.5, O2:0.4'
@@ -343,7 +347,7 @@ class TestSolutionArrayIO(utilities.CanteraTest):
         with self.assertRaisesRegex(NotImplementedError, 'not supported'):
             states.to_pandas()
 
-    @utilities.unittest.skipIf(not have_h5py, "h5py is not installed")
+    @utilities.unittest.skipIf(_h5py is None, "h5py is not installed")
     def test_write_hdf(self):
         outfile = self.test_work_path / "solutionarray.h5"
         # In Python >= 3.8, this can be replaced by the missing_ok argument
@@ -372,7 +376,7 @@ class TestSolutionArrayIO(utilities.CanteraTest):
         gas = ct.Solution('gri30.yaml', transport_model=None)
         ct.SolutionArray(gas, 10).write_hdf(outfile)
 
-        with h5py.File(outfile, 'a') as hdf:
+        with _h5py.File(outfile, 'a') as hdf:
             hdf.create_group('spam')
 
         c = ct.SolutionArray(self.gas)
@@ -389,7 +393,7 @@ class TestSolutionArrayIO(utilities.CanteraTest):
         c.read_hdf(outfile, group='foo/bar/baz')
         self.assertArrayNear(states.T, c.T)
 
-    @utilities.unittest.skipIf(not have_h5py, "h5py is not installed")
+    @utilities.unittest.skipIf(_h5py is None, "h5py is not installed")
     def test_write_hdf_str_column(self):
         outfile = self.test_work_path / "solutionarray.h5"
         # In Python >= 3.8, this can be replaced by the missing_ok argument
@@ -403,7 +407,7 @@ class TestSolutionArrayIO(utilities.CanteraTest):
         b.read_hdf(outfile)
         self.assertEqual(list(states.spam), list(b.spam))
 
-    @utilities.unittest.skipIf(not have_h5py, "h5py is not installed")
+    @utilities.unittest.skipIf(_h5py is None, "h5py is not installed")
     def test_write_hdf_multidim_column(self):
         outfile = self.test_work_path / "solutionarray.h5"
         # In Python >= 3.8, this can be replaced by the missing_ok argument
@@ -578,7 +582,7 @@ class TestRestorePureFluid(utilities.CanteraTest):
         b.restore_data(data)
         check(a, b)
 
-    @utilities.unittest.skipIf(not have_h5py, "h5py is not installed")
+    @utilities.unittest.skipIf(_h5py is None, "h5py is not installed")
     def test_import_no_norm_water(self):
         outfile = self.test_work_path / "solutionarray.h5"
         # In Python >= 3.8, this can be replaced by the missing_ok argument
