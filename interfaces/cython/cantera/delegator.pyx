@@ -14,7 +14,7 @@ from cython.operator import dereference as deref
 #
 # Besides the C++ functions implemented in the `Delegator` class, each delegated
 # function type requires several additional components in Cython:
-# - A delcaration for the overload of `Delegator::setDelegate` in `_cantera.pxd`.
+# - A declaration for the overload of `Delegator::setDelegate` in `_cantera.pxd`.
 # - A declaration of the `pyOverride` function in `_cantera.pxd`. Although the
 #   `pyOverride` function is templated and does not need to be modified for each type,
 #   each version of this function must be separately declared because Cython doesn't

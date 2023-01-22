@@ -495,7 +495,7 @@ public:
     /**
      * In some cases, for computational efficiency some properties (such as
      * transport coefficients) may not be updated during Jacobian evaluations.
-     * Set this to `true` to force these properties to be udpated even while
+     * Set this to `true` to force these properties to be updated even while
      * calculating Jacobian elements.
      */
     void forceFullUpdate(bool update) {

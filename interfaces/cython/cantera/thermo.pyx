@@ -832,7 +832,7 @@ cdef class ThermoPhase(_SolutionBase):
         if Z_fuel == 0.0 and fraction_type == "fuel":
             raise ValueError("No fuel in the fuel/oxidizer mixture")
 
-        if Z_fuel == 1.0 and fraction_type == "oxidzer":
+        if Z_fuel == 1.0 and fraction_type == "oxidizer":
             raise ValueError("No oxidizer in the fuel/oxidizer mixture")
 
         if basis == "mass": # for mass basis, it is straight forward

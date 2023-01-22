@@ -514,7 +514,7 @@ public:
     /**
      * Return a vector of values of effective concentrations of third-body
      * collision partners of any reaction. Entries for reactions not involving
-     * third-body collision parters are not defined and set to not-a-number.
+     * third-body collision partners are not defined and set to not-a-number.
      *
      * @param concm  Output vector of effective third-body concentrations.
      *      Length: nReactions().

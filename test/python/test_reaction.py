@@ -1164,7 +1164,7 @@ class TestThreeBody(TestElementary):
 
 
 class TestImplicitThreeBody(TestThreeBody):
-    # test three-body reactions with explicit collision parther
+    # test three-body reactions with explicit collision partner
 
     _equation = "H + 2 O2 <=> HO2 + O2"
     _rate = {"A": 2.08e+19, "b": -1.24, "Ea": 0.0}

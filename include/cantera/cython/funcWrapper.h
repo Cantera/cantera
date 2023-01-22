@@ -14,7 +14,7 @@
 
 typedef double(*callback_wrapper)(double, void*, void**);
 
-//! A class to hold information needed to call Python functions from delgated
+//! A class to hold information needed to call Python functions from delegated
 //! methods (see class Delegator).
 class PyFuncInfo {
 public:
@@ -172,7 +172,7 @@ extern "C" {
 
 
 //! Take a function which requires Python function information (as a PyFuncInfo
-//! object) and capture that object to generate a function that does not reqire
+//! object) and capture that object to generate a function that does not require
 //! any Python-specific arguments.
 //!
 //! The inner function is responsible for catching Python exceptions and

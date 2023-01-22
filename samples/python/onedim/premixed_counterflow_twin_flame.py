@@ -61,7 +61,7 @@ def computeConsumptionSpeed(oppFlame):
 def solveOpposedFlame(oppFlame, massFlux=0.12, loglevel=1,
                       ratio=2, slope=0.3, curve=0.3, prune=0.05):
     """
-    Execute this function to run the Oppposed Flow Simulation This function
+    Execute this function to run the Opposed Flow Simulation This function
     takes a CounterFlowTwinPremixedFlame object as the first argument
     """
 
@@ -73,7 +73,7 @@ def solveOpposedFlame(oppFlame, massFlux=0.12, loglevel=1,
 
     # Compute the strain rate, just before the flame. This is not necessarily
     # the maximum We use the max. strain rate just upstream of the pre-heat zone
-    # as this is the strain rate that computations comprare against, like when
+    # as this is the strain rate that computations compare against, like when
     # plotting Su vs. K
     strainRates, strainRatePoint, K = computeStrainRates(oppFlame)
 

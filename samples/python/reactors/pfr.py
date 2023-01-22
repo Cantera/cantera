@@ -79,7 +79,7 @@ for n1, t_i in enumerate(t1):
 # is no diffusion, the upstream reactors are not affected by any downstream
 # reactors, and therefore the problem may be solved by simply marching from
 # the first to last reactor, integrating each one to steady state.
-# (This approach is anologous to the one presented in 'surf_pfr.py', which
+# (This approach is analogous to the one presented in 'surf_pfr.py', which
 # additionally includes surface chemistry)
 
 

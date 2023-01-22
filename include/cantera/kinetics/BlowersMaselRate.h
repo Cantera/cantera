@@ -180,7 +180,7 @@ public:
     }
 
 protected:
-    //! Pairs of species indices and multiplers to calculate enthalpy change
+    //! Pairs of species indices and multipliers to calculate enthalpy change
     std::vector<std::pair<size_t, double>> m_stoich_coeffs;
 
     double m_deltaH_R; //!< enthalpy change of reaction (in temperature units)
