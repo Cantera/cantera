@@ -9,13 +9,21 @@ import numbers
 import importlib.metadata
 import numpy as np
 
-# avoid explicit dependence of cantera on scipy
-try:
-    importlib.metadata.version('scipy')
-except importlib.metadata.PackageNotFoundError:
-    _scipy_sparse = ImportError('Method requires a working scipy installation.')
-else:
-    from scipy import sparse as _scipy_sparse
+
+_scipy_sparse = None
+def _import_scipy_sparse():
+    # defer scipy import
+    global _scipy_sparse
+    if _scipy_sparse is not None:
+        return
+
+    try:
+        importlib.metadata.version('scipy')
+    except importlib.metadata.PackageNotFoundError:
+        raise ImportError('Method requires a working scipy installation.')
+    else:
+        from scipy import sparse as _scipy_sparse
+
 
 cdef CxxPythonLogger* _logger = new CxxPythonLogger()
 CxxSetLogger(_logger)
@@ -60,8 +68,11 @@ def use_sparse(sparse=True):
     *SciPy* installation. Use pip or conda to install ``scipy`` to enable this method.
     """
     global _USE_SPARSE
-    if sparse and isinstance(_scipy_sparse, ImportError):
-        raise _scipy_sparse
+    if sparse:
+        try:
+            _import_scipy_sparse()
+        except ImportError:
+            raise
     _USE_SPARSE = sparse
 
 def make_deprecation_warnings_fatal():
