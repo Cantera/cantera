@@ -202,10 +202,10 @@ public:
      * This returns the integer index of the phase which has ThermoPhase type
      * cSurf. For heterogeneous mechanisms, this identifies the one surface
      * phase. For homogeneous mechanisms, this returns -1.
+     *
+     * @deprecated To be removed after Cantera 3.0. Use reactionPhaseIndex instead.
      */
-    size_t surfacePhaseIndex() const {
-        return m_surfphase;
-    }
+    size_t surfacePhaseIndex() const;
 
     /**
      * Phase where the reactions occur. For heterogeneous mechanisms, one of
@@ -1088,7 +1088,9 @@ public:
      *
      *  - #m_start -> vector of integers, containing the starting position of
      *    the species for each phase in the kinetics mechanism.
-     *  - #m_surfphase -> index of the surface phase.
+     *  - #m_rxnphase -> index of the phase where reactions occur, which is the lowest-
+     *    dimensional phase in the system, for example the surface in a surface
+     *    mechanism.
      *  - #m_thermo -> vector of pointers to ThermoPhase phases that
      *    participate in the kinetics mechanism.
      *  - #m_phaseindex -> map containing the std::string id of each
@@ -1333,6 +1335,7 @@ protected:
     std::map<std::string, size_t> m_phaseindex;
 
     //! Index in the list of phases of the one surface phase.
+    //! @deprecated To be removed after Cantera 3.0.
     size_t m_surfphase;
 
     //! Phase Index where reactions are assumed to be taking place

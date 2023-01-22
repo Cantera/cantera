@@ -60,7 +60,7 @@ void InterfaceKinetics::_update_rates_T()
     _update_rates_phi();
 
     // Go find the temperature from the surface
-    doublereal T = thermo(surfacePhaseIndex()).temperature();
+    doublereal T = thermo(reactionPhaseIndex()).temperature();
     m_redo_rates = true;
     if (T != m_temp || m_redo_rates) {
         //  Calculate the forward rate constant by calling m_rates and store it in m_rfn[]
@@ -78,7 +78,7 @@ void InterfaceKinetics::_update_rates_T()
 
     // loop over interface MultiRate evaluators for each reaction type
     for (auto& rates : m_interfaceRates) {
-        bool changed = rates->update(thermo(surfacePhaseIndex()), *this);
+        bool changed = rates->update(thermo(reactionPhaseIndex()), *this);
         if (changed) {
             rates->getRateConstants(m_rfn.data());
             m_ROP_ok = false;

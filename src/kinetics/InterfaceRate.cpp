@@ -55,7 +55,7 @@ bool InterfaceData::update(const ThermoPhase& phase, const Kinetics& kin)
     double T = phase.temperature();
     bool changed = false;
     const auto& surf = dynamic_cast<const SurfPhase&>(
-        kin.thermo(kin.surfacePhaseIndex()));
+        kin.thermo(kin.reactionPhaseIndex()));
     double site_density = surf.siteDensity();
     if (density != site_density) {
         density = surf.siteDensity();
@@ -319,7 +319,7 @@ void StickingCoverage::getStickingParameters(AnyMap& node) const
 void StickingCoverage::setContext(const Reaction& rxn, const Kinetics& kin)
 {
     // Ensure that site density is initialized
-    const ThermoPhase& phase = kin.thermo(kin.surfacePhaseIndex());
+    const ThermoPhase& phase = kin.thermo(kin.reactionPhaseIndex());
     const auto& surf = dynamic_cast<const SurfPhase&>(phase);
     m_siteDensity = surf.siteDensity();
     if (!m_explicitMotzWise) {

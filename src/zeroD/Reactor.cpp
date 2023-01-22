@@ -293,7 +293,7 @@ void Reactor::evalSurfaces(double* LHS, double* RHS, double* sdot)
         double sum = 0.0;
         S->syncState();
         kin->getNetProductionRates(&m_work[0]);
-        size_t ns = kin->surfacePhaseIndex();
+        size_t ns = kin->reactionPhaseIndex();
         size_t surfloc = kin->kineticsSpeciesIndex(0,ns);
         for (size_t k = 1; k < nk; k++) {
             LHS[loc] = 1.0;

@@ -36,13 +36,12 @@ void ReactorSurface::setKinetics(Kinetics* kin) {
         return;
     }
 
-    size_t i = kin->surfacePhaseIndex();
-    if (i == npos) {
+    m_thermo = dynamic_cast<SurfPhase*>(&kin->thermo(kin->reactionPhaseIndex()));
+    if (m_thermo == nullptr) {
         throw CanteraError("ReactorSurface::setKinetics",
-            "Specified surface kinetics manager does not represent a surface "
+            "Specified kinetics manager does not represent a surface "
             "kinetics mechanism.");
     }
-    m_thermo = dynamic_cast<SurfPhase*>(&kin->thermo(i));
     m_cov.resize(m_thermo->nSpecies());
     m_thermo->getCoverages(m_cov.data());
 }

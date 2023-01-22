@@ -86,6 +86,13 @@ void Kinetics::checkPhaseArraySize(size_t mm) const
     }
 }
 
+size_t Kinetics::surfacePhaseIndex() const
+{
+    warn_deprecated("Kinetics::surfacePhaseIndex",
+                    "To be removed after Cantera 3.0. Use reactionPhaseIndex instead.");
+    return m_surfphase;
+}
+
 void Kinetics::checkSpeciesIndex(size_t k) const
 {
     if (k >= m_kk) {
@@ -566,7 +573,6 @@ void Kinetics::addPhase(ThermoPhase& thermo)
     // there should only be one surface phase
     if (thermo.type() == kineticsType()) {
         m_surfphase = nPhases();
-        m_rxnphase = nPhases();
     }
     m_thermo.push_back(&thermo);
     m_phaseindex[m_thermo.back()->name()] = nPhases();

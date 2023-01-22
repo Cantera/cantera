@@ -616,7 +616,7 @@ ReactingSurf1D::ReactingSurf1D(shared_ptr<Solution> solution, const std::string&
     m_kin = kin.get();
     m_sphase = phase.get();
 
-    m_surfindex = m_kin->surfacePhaseIndex();
+    m_surfindex = m_kin->reactionPhaseIndex();
     m_nsp = m_sphase->nSpecies();
     m_enabled = true;
 }
@@ -624,7 +624,7 @@ ReactingSurf1D::ReactingSurf1D(shared_ptr<Solution> solution, const std::string&
 void ReactingSurf1D::setKineticsMgr(InterfaceKinetics* kin)
 {
     m_kin = kin;
-    m_surfindex = kin->surfacePhaseIndex();
+    m_surfindex = kin->reactionPhaseIndex();
     m_sphase = (SurfPhase*)&kin->thermo(m_surfindex);
     m_nsp = m_sphase->nSpecies();
     m_enabled = true;
