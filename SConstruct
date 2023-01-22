@@ -78,7 +78,10 @@ import subprocess
 import re
 import json
 import textwrap
-from pkg_resources import parse_version
+try:
+    from packaging.version import parse as parse_version
+except ImportError:
+    from pkg_resources import parse_version
 import SCons
 
 # ensure that Python and SCons versions are sufficient for the build process

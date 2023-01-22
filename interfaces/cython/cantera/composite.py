@@ -6,24 +6,22 @@ from ._cantera import *
 import numpy as np
 from collections import OrderedDict
 import csv as _csv
+import importlib.metadata
 
 def _import_h5py():
     # avoid explicit dependence of cantera on h5py
-    import pkg_resources  # local import to reduce overall import time
     try:
-        pkg_resources.get_distribution('h5py')
-    except pkg_resources.DistributionNotFound:
+        importlib.metadata.version('h5py')
+    except importlib.metadata.PackageNotFoundError:
         raise ImportError('Method requires a working h5py installation.')
     else:
         import h5py
         return h5py
 
 # avoid explicit dependence of cantera on pandas
-import pkg_resources
-
 try:
-    pkg_resources.get_distribution('pandas')
-except pkg_resources.DistributionNotFound:
+    importlib.metadata.version('pandas')
+except importlib.metadata.PackageNotFoundError:
     _pandas = ImportError('Method requires a working pandas installation.')
 else:
     import pandas as _pandas

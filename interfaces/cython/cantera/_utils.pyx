@@ -6,13 +6,13 @@ import os
 import warnings
 from cpython.ref cimport PyObject
 import numbers
-import pkg_resources
+import importlib.metadata
 import numpy as np
 
 # avoid explicit dependence of cantera on scipy
 try:
-    pkg_resources.get_distribution('scipy')
-except pkg_resources.DistributionNotFound:
+    importlib.metadata.version('scipy')
+except importlib.metadata.PackageNotFoundError:
     _scipy_sparse = ImportError('Method requires a working scipy installation.')
 else:
     from scipy import sparse as _scipy_sparse
@@ -103,8 +103,8 @@ def hdf_support():
     """
     out = []
     try:
-        pkg_resources.get_distribution("h5py")
-    except pkg_resources.DistributionNotFound:
+        importlib.metadata.version("h5py")
+    except importlib.metadata.PackageNotFoundError:
         pass
     else:
         out.append("h5py")

@@ -1,7 +1,7 @@
 import numpy as np
 import re
 import itertools
-import pkg_resources
+import importlib.metadata
 import pytest
 
 import cantera as ct
@@ -10,8 +10,8 @@ from .utilities import allow_deprecated
 
 # avoid explicit dependence of cantera on scipy
 try:
-    pkg_resources.get_distribution('scipy')
-except pkg_resources.DistributionNotFound:
+    importlib.metadata.version('scipy')
+except importlib.metadata.PackageNotFoundError:
     _scipy_sparse = ImportError('Method requires a working scipy installation.')
 else:
     from scipy import sparse as _scipy_sparse
