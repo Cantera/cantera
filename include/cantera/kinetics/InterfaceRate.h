@@ -244,7 +244,7 @@ protected:
     vector_fp m_mc; //!< Vector holding coverage-specific power-law exponents
 
 private:
-    //! Pairs of species index and multiplers to calculate enthalpy change
+    //! Pairs of species index and multipliers to calculate enthalpy change
     std::vector<std::pair<size_t, double>> m_stoichCoeffs;
 
     //! Pairs of phase index and net electric charges (same order as m_stoichCoeffs)

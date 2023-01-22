@@ -304,7 +304,7 @@ class Configuration:
     Class enabling selection of options based on a dictionary of `Option` objects
     that allows for a differentiation between platform/compiler dependent options.
 
-    In addition, the class facilitiates the generation of formatted help text and
+    In addition, the class facilitates the generation of formatted help text and
     reST documentation.
     """
 

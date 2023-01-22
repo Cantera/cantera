@@ -11,7 +11,7 @@ This example illustrates use of the new 'prune' grid refinement parameter,
 which allows grid points to be removed if they are no longer required to
 resolve the solution. This is important here, since the flamefront moves as
 the mass flowrate is increased. Without using 'prune', a large number of grid
-points would be concentrated upsteam of the flame, where the flamefront had
+points would be concentrated upstream of the flame, where the flamefront had
 been previously. (To see this, try setting prune to zero.)
 
 Requires: cantera >= 3.0

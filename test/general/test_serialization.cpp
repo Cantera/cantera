@@ -19,7 +19,7 @@ TEST(YamlWriter, formatDouble)
     float delta;
 
     // check least significant digit
-    // default precision is 15 (see AnyMap.cpp::getPrecicion)
+    // default precision is 15 (see AnyMap.cpp::getPrecision)
     delta = 1.e-15;
     count = 0;
     for (int i = -9; i < 10; i += 2) {
@@ -50,7 +50,7 @@ TEST(YamlWriter, formatDoubleExp)
     float delta;
 
     // check least significant digit
-    // default precision is 15 (see AnyMap.cpp::getPrecicion)
+    // default precision is 15 (see AnyMap.cpp::getPrecision)
     delta = 1.e-5;
     count = 0;
     for (int i = -9; i < 10; i += 2) {
