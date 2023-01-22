@@ -857,7 +857,7 @@ A multi-species Redlich-Kwong phase as
 `described here <https://cantera.org/documentation/dev/doxygen/html/d6/d29/classCantera_1_1RedlichKwongMFTP.html#details>`__.
 
 The parameters for each species are contained in the corresponding species
-entries.
+entries. See :ref:`Redlich-Kwong species equation of state <sec-yaml-eos-redlich-kwong>`.
 
 .. _sec-yaml-Peng-Robinson:
 
@@ -868,7 +868,7 @@ A multi-species Peng-Robinson phase as
 `described here <https://cantera.org/documentation/dev/doxygen/html/d3/ddc/classCantera_1_1PengRobinson.html#details>`__.
 
 The parameters for each species are contained in the corresponding species
-entries.
+entries. See :ref:`Peng-Robinson species equation of state <sec-yaml-eos-peng-robinson>`.
 
 .. _sec-yaml-plasma:
 
