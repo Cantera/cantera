@@ -780,7 +780,7 @@ public:
     ~HMWSoln();
 
     //! Construct and initialize an HMWSoln ThermoPhase object
-    //! directly from an ASCII input file
+    //! directly from an input file
     /*!
      *  This constructor is a shell that calls the routine initThermo(), with
      *  a reference to the parsed input file to get the info for the phase.

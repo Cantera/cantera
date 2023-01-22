@@ -98,7 +98,7 @@ class SurfPhase : public ThermoPhase
 {
 public:
     //! Construct and initialize a SurfPhase ThermoPhase object directly from an
-    //! ASCII input file
+    //! input file
     /*!
      * @param infile name of the input file. If blank, an empty phase will be created.
      * @param id     name of the phase id in the file.

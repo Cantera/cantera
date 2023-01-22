@@ -89,7 +89,7 @@ class StoichSubstance : public SingleSpeciesTP
 {
 public:
     //! Construct and initialize a StoichSubstance ThermoPhase object directly
-    //! from an ASCII input file
+    //! from an input file
     /*!
      * @param infile name of the input file. If blank, an empty phase will be
      *               created.
