@@ -250,7 +250,7 @@ class IdealGasPhase: public ThermoPhase
 {
 public:
     //! Construct and initialize an IdealGasPhase ThermoPhase object
-    //! directly from an ASCII input file
+    //! directly from an input file
     /*!
      * @param inputFile Name of the input file containing the phase definition
      *                  to set up the object. If blank, an empty phase will be

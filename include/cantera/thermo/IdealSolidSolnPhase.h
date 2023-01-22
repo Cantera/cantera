@@ -40,7 +40,7 @@ class IdealSolidSolnPhase : public ThermoPhase
 {
 public:
     //! Construct and initialize an IdealSolidSolnPhase ThermoPhase object
-    //! directly from an ASCII input file
+    //! directly from an input file
     /*!
      * This constructor will also fully initialize the object.
      * The generalized concentrations can have three different forms
