@@ -245,6 +245,21 @@ Example::
       data: {298.15: -91.50963, 333.15: -85.0}
 
 
+.. _sec-yaml-species-crit-props:
+
+Species critical state parameters
+=================================
+
+``critical-temperature``
+    The critical temperature of the species [K]
+
+``critical-pressure``
+    The critical pressure of the species [Pa]
+
+``acentric-factor``
+    Pitzer's acentric factor :math:`omega` [-]
+
+
 .. _sec-yaml-species-eos:
 
 Species equation of state models
@@ -261,21 +276,9 @@ Species equation of state models
     - :ref:`ions-from-neutral-molecule <sec-yaml-eos-ions-from-neutral>`
     - :ref:`liquid-water-IAPWS95 <sec-yaml-eos-liquid-water-iapws95>`
     - :ref:`molar-volume-temperature-polynomial <sec-yaml-eos-molar-volume-temperature-polynomial>`
+    - :ref:`Peng-Robinson <sec-yaml-eos-peng-robinson>`
     - :ref:`Redlich-Kwong <sec-yaml-eos-redlich-kwong>`
 
-.. _sec-yaml-species-crit-props:
-
-Species critical state parameters
-=================================
-
-``critical-temperature``
-    The critical temperature of the species.
-
-``critical-pressure``
-    The critical pressure of the species.
-
-``acentric-factor``
-    Pitzer's acentric factor :math:`omega`.
 
 .. _sec-yaml-eos-constant-volume:
 
@@ -417,6 +420,41 @@ Additional fields:
 
 ``data``
     Vector of 4 coefficients for a cubic polynomial in temperature
+
+.. _sec-yaml-eos-peng-robinson:
+
+Peng-Robinson
+-------------
+
+A model where species follow the Peng-Robinson equation of state as
+`described here <https://cantera.org/documentation/dev/doxygen/html/d3/ddc/classCantera_1_1PengRobinson.html#details>`__.
+
+Additional fields:
+
+``a``
+    Pure-species ``a`` coefficient [Pa*m^6/kmol^2]
+
+``b``
+    Pure-species ``b`` coefficient [m^3/kmol]
+
+``acentric-factor``
+    Pitzer's acentric factor [-]
+
+``binary-a``
+    Optional mapping where the keys are species names and the values are the ``a``
+    coefficients for binary interactions between the two species.
+
+Example::
+
+    equation-of-state:
+      model: Peng-Robinson
+      units: {length: cm, quantity: mol}
+      a: 5.998873E+11
+      b: 18.9714
+      acentric-factor: 0.344
+      binary-a:
+        H2: 4 bar*cm^6/mol^2
+        CO2: 7.897e7 bar*cm^6/mol^2
 
 
 .. _sec-yaml-eos-redlich-kwong:
