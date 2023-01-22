@@ -38,21 +38,16 @@ solveSP::solveSP(ImplicitSurfChem* surfChemPtr, int bulkFunc) :
     m_numSurfPhases = 0;
     for (size_t n = 0; n < m_objects.size(); n++) {
         InterfaceKinetics* kin = m_objects[n];
-        size_t surfPhaseIndex = kin->surfacePhaseIndex();
-        if (surfPhaseIndex != npos) {
-            m_numSurfPhases++;
-            m_indexKinObjSurfPhase.push_back(n);
-            m_kinObjPhaseIDSurfPhase.push_back(surfPhaseIndex);
-        } else {
+        size_t surfPhaseIndex = kin->reactionPhaseIndex();
+        SurfPhase* sp = dynamic_cast<SurfPhase*>(&kin->thermo(surfPhaseIndex));
+        if (sp == nullptr) {
             throw CanteraError("solveSP::solveSP",
                                "InterfaceKinetics object has no surface phase");
         }
-        SurfPhase* sp = dynamic_cast<SurfPhase*>(&kin->thermo(surfPhaseIndex));
-        if (!sp) {
-            throw CanteraError("solveSP::solveSP",
-                               "Inconsistent ThermoPhase object within "
-                               "InterfaceKinetics object");
-        }
+
+        m_numSurfPhases++;
+        m_indexKinObjSurfPhase.push_back(n);
+        m_kinObjPhaseIDSurfPhase.push_back(surfPhaseIndex);
 
         m_ptrsSurfPhase.push_back(sp);
         size_t nsp = sp->nSpecies();
@@ -361,7 +356,7 @@ void solveSP::fun_eval(doublereal* resid, const doublereal* CSoln,
             for (size_t isp = 0; isp < m_numSurfPhases; isp++) {
                 size_t nsp = m_nSpeciesSurfPhase[isp];
                 InterfaceKinetics* kinPtr = m_objects[isp];
-                size_t surfIndex = kinPtr->surfacePhaseIndex();
+                size_t surfIndex = kinPtr->reactionPhaseIndex();
                 size_t kstart = kinPtr->kineticsSpeciesIndex(0, surfIndex);
                 size_t kins = kindexSP;
                 kinPtr->getNetProductionRates(m_netProductionRatesSave.data());
@@ -383,7 +378,7 @@ void solveSP::fun_eval(doublereal* resid, const doublereal* CSoln,
             for (size_t isp = 0; isp < m_numSurfPhases; isp++) {
                 size_t nsp = m_nSpeciesSurfPhase[isp];
                 InterfaceKinetics* kinPtr = m_objects[isp];
-                size_t surfIndex = kinPtr->surfacePhaseIndex();
+                size_t surfIndex = kinPtr->reactionPhaseIndex();
                 size_t kstart = kinPtr->kineticsSpeciesIndex(0, surfIndex);
                 size_t kins = kindexSP;
                 kinPtr->getNetProductionRates(m_netProductionRatesSave.data());
@@ -608,7 +603,7 @@ doublereal solveSP::calc_t(doublereal netProdRateSolnSP[],
 
         // Calculate the start of the species index for surfaces within
         // the InterfaceKinetics object
-        size_t surfIndex = kin->surfacePhaseIndex();
+        size_t surfIndex = kin->reactionPhaseIndex();
         size_t kstart = kin->kineticsSpeciesIndex(0, surfIndex);
         kin->getNetProductionRates(m_numEqn1.data());
         double sden = kin->thermo(surfIndex).molarDensity();

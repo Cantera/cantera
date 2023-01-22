@@ -606,7 +606,7 @@ void Reaction::checkBalance(const Kinetics& kin) const
     // Check that the number of surface sites is balanced
     double reac_sites = 0.0;
     double prod_sites = 0.0;
-    auto& surf = dynamic_cast<const SurfPhase&>(kin.thermo(kin.surfacePhaseIndex()));
+    auto& surf = dynamic_cast<const SurfPhase&>(kin.thermo(kin.reactionPhaseIndex()));
     for (const auto& reactant : reactants) {
         size_t k = surf.speciesIndex(reactant.first);
         if (k != npos) {

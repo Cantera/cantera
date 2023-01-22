@@ -69,7 +69,7 @@ void MoleReactor::evalSurfaces(double* LHS, double* RHS, double* sdot)
         size_t nk = surf->nSpecies();
         S->syncState();
         kin->getNetProductionRates(&m_work[0]);
-        size_t ns = kin->surfacePhaseIndex();
+        size_t ns = kin->reactionPhaseIndex();
         size_t surfloc = kin->kineticsSpeciesIndex(0,ns);
         for (size_t k = 0; k < nk; k++) {
             RHS[loc + k] = m_work[surfloc + k] * wallarea / surf->size(k);
