@@ -298,11 +298,6 @@ protected:
     //! phases associated with the surface problem is imposed
     bool m_commonTempPressForPhases;
 
-    //! We make the solveSS class a friend because we need to access all of
-    //! the above information directly. Adding the members into the class is
-    //! also a possibility.
-    friend class solveSS;
-
 private:
     //! Controls the amount of printing from this routine
     //! and underlying routines.

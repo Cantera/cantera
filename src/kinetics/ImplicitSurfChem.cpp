@@ -232,7 +232,7 @@ void ImplicitSurfChem::solvePseudoSteadyStateProblem(int ifuncOverride,
     doublereal reltol = 1.0E-6;
     doublereal atol = 1.0E-20;
 
-    // Install a filter for negative concentrations. One of the few ways solveSS
+    // Install a filter for negative concentrations. One of the few ways solveSP
     // can fail is if concentrations on input are below zero.
     bool rset = false;
     for (size_t k = 0; k < m_nv; k++) {
