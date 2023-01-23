@@ -120,9 +120,37 @@ public:
     template<class T>
     bool is() const;
 
+    //! Returns `true` if the held value is a vector of the specified type, such as
+    //! `vector<double>`.
+    //! @since  New in Cantera 3.0.
+    template<class T>
+    bool isVector() const;
+
+    //! Returns `true` if the held value is a matrix of the specified type and a
+    //! consistent number of columns, such as `vector<vector<double>>`. If the
+    //! number of columns is provided, a match is required.
+    //! @since  New in Cantera 3.0.
+    template<class T>
+    bool isMatrix(size_t cols=npos) const;
+
     //! Returns `true` if the held value is a scalar type (such as `double`, `long
     //! int`, `string`, or `bool`).
     bool isScalar() const;
+
+    //! Returns size of the held vector.
+    //! If not a vector or the type is not supported npos is returned.
+    //! Types considered include `vector<double>`, `vector<long int>`, `vector<string>`,
+    //! and `vector<bool`.
+    //! @since  New in Cantera 3.0.
+    size_t vectorSize() const;
+
+    //! Returns rows and columns of a matrix.
+    //! If the number of columns is not consistent, the number of columns is set to
+    //! npos; if the type is not supported, a npos pair is returned.
+    //! Types considered include `vector<vector<double>>`, `vector<vector<long int>>`,
+    //! `vector<vector<string>>` and `vector<vector<bool>>`.
+    //! @since  New in Cantera 3.0.
+    pair<size_t, size_t> matrixShape() const;
 
     explicit AnyValue(const std::string& value);
     explicit AnyValue(const char* value);

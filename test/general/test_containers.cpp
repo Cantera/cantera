@@ -190,12 +190,12 @@ TEST(AnyMap, map_conversion) {
     EXPECT_EQ(keys.size(), (size_t) 13);
     EXPECT_EQ(m["empty"].as<AnyMap>().keys_str(), "");
 
-    std::map<std::string, double> zz{{"a", 9.0}, {"b", 13.5}};
+    std::map<std::string, double> zz{{"a", 9.1}, {"b", 13.5}};
     m["foo"] = zz;
     EXPECT_TRUE(m["foo"].hasKey("a"));
     EXPECT_DOUBLE_EQ(m["foo"]["b"].asDouble(), 13.5);
 
-    EXPECT_THROW(m["foo"]["a"].asString(), CanteraError);
+    EXPECT_EQ(m["foo"]["a"].asString(), "9.1"); // Implicit conversion
     EXPECT_THROW(m["foo"]["b"].asVector<double>(), CanteraError);
 
     m["qux"]["c"] = 3;

@@ -19,10 +19,18 @@ const T &AnyValue::as() const {
             // Implicit conversion of long int to double
             const_cast<AnyValue*>(this)->m_value = static_cast<double>(as<long int>());
             m_equals = eq_comparer<double>;
-        } else if (typeid(T) == typeid(std::vector<double>)
-                   && m_value.type() == typeid(std::vector<AnyValue>)) {
+        } else if (typeid(T) == typeid(string) && m_value.type() == typeid(double)) {
+            // Implicit conversion of double to string
+            const_cast<AnyValue*>(this)->m_value = fmt::format("{}", as<double>());
+            m_equals = eq_comparer<string>;
+        } else if (typeid(T) == typeid(string) && m_value.type() == typeid(long int)) {
+            // Implicit conversion of long int to string
+            const_cast<AnyValue*>(this)->m_value = fmt::format("{}", as<long int>());
+            m_equals = eq_comparer<string>;
+        } else if (typeid(T) == typeid(vector<double>)
+                   && m_value.type() == typeid(vector<AnyValue>)) {
             // Implicit conversion of vector<AnyValue> to vector<double>
-            auto& asAny = as<std::vector<AnyValue>>();
+            auto& asAny = as<vector<AnyValue>>();
             vector_fp asDouble(asAny.size());
             for (size_t i = 0; i < asAny.size(); i++) {
                 asDouble[i] = asAny[i].as<double>();
@@ -37,6 +45,11 @@ const T &AnyValue::as() const {
             throw InputFileError("AnyValue::as", *this,
                 "Key '{}' not found or contains no value", m_key);
         } else {
+            if (m_key == "") {
+                throw InputFileError("AnyValue::as", *this,
+                    "Unable to convert '{}' to '{}'.",
+                    demangle(m_value.type()), demangle(typeid(T)));
+            }
             throw InputFileError("AnyValue::as", *this,
                 "Key '{}' contains a '{}',\nnot a '{}'",
                 m_key, demangle(m_value.type()), demangle(typeid(T)));
@@ -57,6 +70,33 @@ bool AnyValue::is() const {
 }
 
 template<> bool AnyValue::is<std::vector<double>>() const;
+
+template<class T>
+bool AnyValue::isVector() const {
+    return m_value.type() == typeid(std::vector<T>);
+}
+
+template<class T>
+bool AnyValue::isMatrix(size_t cols) const {
+    if (m_value.type() != typeid(vector<vector<T>>)) {
+        // not a matrix
+        return false;
+    }
+    auto& asMatrix = as<vector<vector<T>>>();
+    if (!asMatrix.size()) {
+        // empty matrix
+        return true;
+    }
+    if (cols == npos) {
+        cols = asMatrix[0].size();
+    }
+    for (const auto& row : asMatrix) {
+        if (row.size() != cols) {
+            return false;
+        }
+    }
+    return true;
+}
 
 template<class T>
 AnyValue &AnyValue::operator=(const std::vector<T> &value) {

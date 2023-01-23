@@ -641,6 +641,66 @@ bool AnyValue::isScalar() const {
     return is<double>() || is<long int>() || is<std::string>() || is<bool>();
 }
 
+size_t AnyValue::vectorSize() const {
+    if (isVector<double>()) {
+        return as<vector<double>>().size();
+    }
+    if (isVector<long int>()) {
+        return as<vector<long int>>().size();
+    }
+    if (isVector<string>()) {
+        return as<vector<string>>().size();
+    }
+    if (isVector<bool>()) {
+        return as<vector<bool>>().size();
+    }
+    return npos;
+}
+
+pair<size_t, size_t> AnyValue::matrixShape() const {
+    if (isVector<vector<double>>()) {
+        auto& mat = as<vector<vector<double>>>();
+        if (isMatrix<double>()) {
+            if (mat.size()) {
+                return {mat.size(), mat[0].size()};
+            }
+            return {mat.size(), 0};
+        }
+        return {mat.size(), npos};
+    }
+    if (isVector<vector<long int>>()) {
+        auto& mat = as<vector<vector<long int>>>();
+        if (isMatrix<long int>()) {
+            if (mat.size()) {
+                return {mat.size(), mat[0].size()};
+            }
+            return {mat.size(), 0};
+        }
+        return {mat.size(), npos};
+    }
+    if (isVector<vector<string>>()) {
+        auto& mat = as<vector<vector<string>>>();
+        if (isMatrix<string>()) {
+            if (mat.size()) {
+                return {mat.size(), mat[0].size()};
+            }
+            return {mat.size(), 0};
+        }
+        return {mat.size(), npos};
+    }
+    if (isVector<vector<bool>>()) {
+        auto& mat = as<vector<vector<bool>>>();
+        if (isMatrix<bool>()) {
+            if (mat.size()) {
+                return {mat.size(), mat[0].size()};
+            }
+            return {mat.size(), 0};
+        }
+        return {mat.size(), npos};
+    }
+    return {npos, npos};
+}
+
 // Specializations for "std::string" and "const char*"
 
 AnyValue::AnyValue(const string& value)
