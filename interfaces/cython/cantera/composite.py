@@ -32,7 +32,7 @@ def _import_pandas():
     try:
         importlib.metadata.version('pandas')
     except importlib.metadata.PackageNotFoundError:
-        _pandas = ImportError('Method requires a working pandas installation.')
+        raise ImportError('Method requires a working pandas installation.')
     else:
         import pandas as _pandas
 
