@@ -76,7 +76,7 @@ public:
      * @param args Arguments which will be used to interpolate the format string
      */
     template <typename... Args>
-    CT_API CanteraError(const std::string& procedure, const std::string& msg,
+    CanteraError(const std::string& procedure, const std::string& msg,
                         const Args&... args)
         : procedure_(procedure)
     {
