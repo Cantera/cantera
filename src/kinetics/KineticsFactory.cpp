@@ -35,9 +35,34 @@ KineticsFactory::KineticsFactory() {
     addAlias("edge", "Edge");
 }
 
+KineticsFactory* KineticsFactory::factory() {
+    std::unique_lock<std::mutex> lock(kinetics_mutex);
+    if (!s_factory) {
+        s_factory = new KineticsFactory;
+    }
+    return s_factory;
+}
+
+void KineticsFactory::deleteFactory() {
+    std::unique_lock<std::mutex> lock(kinetics_mutex);
+    delete s_factory;
+    s_factory = 0;
+}
+
 Kinetics* KineticsFactory::newKinetics(const string& model)
 {
     return create(toLowerCopy(model));
+}
+
+Kinetics* newKineticsMgr(const string& model)
+{
+    return KineticsFactory::factory()->newKinetics(model);
+}
+
+shared_ptr<Kinetics> newKinetics(const string& model)
+{
+    shared_ptr<Kinetics> kin(KineticsFactory::factory()->newKinetics(model));
+    return kin;
 }
 
 unique_ptr<Kinetics> newKinetics(const vector<ThermoPhase*>& phases,

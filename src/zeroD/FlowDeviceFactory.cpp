@@ -20,9 +20,29 @@ FlowDeviceFactory::FlowDeviceFactory()
     reg("Valve", []() { return new Valve(); });
 }
 
+FlowDeviceFactory* FlowDeviceFactory::factory() {
+    std::unique_lock<std::mutex> lock(flowDevice_mutex);
+    if (!s_factory) {
+        s_factory = new FlowDeviceFactory;
+    }
+    return s_factory;
+}
+
+void FlowDeviceFactory::deleteFactory() {
+    std::unique_lock<std::mutex> lock(flowDevice_mutex);
+    delete s_factory;
+    s_factory = 0;
+}
+
+
 FlowDevice* FlowDeviceFactory::newFlowDevice(const std::string& flowDeviceType)
 {
     return create(flowDeviceType);
+}
+
+FlowDevice* newFlowDevice(const string& model)
+{
+    return FlowDeviceFactory::factory()->newFlowDevice(model);
 }
 
 }

@@ -34,20 +34,10 @@ class ThermoFactory : public Factory<ThermoPhase>
 {
 public:
     //! Static function that creates a static instance of the factory.
-    static ThermoFactory* factory() {
-        std::unique_lock<std::mutex> lock(thermo_mutex);
-        if (!s_factory) {
-            s_factory = new ThermoFactory;
-        }
-        return s_factory;
-    }
+    static ThermoFactory* factory();
 
     //! delete the static instance of this factory
-    virtual void deleteFactory() {
-        std::unique_lock<std::mutex> lock(thermo_mutex);
-        delete s_factory;
-        s_factory = 0;
-    }
+    virtual void deleteFactory();
 
     //! Create a new thermodynamic property manager.
     /*!
@@ -69,21 +59,14 @@ private:
 };
 
 //! @copydoc ThermoFactory::newThermoPhase
-inline ThermoPhase* newThermoPhase(const std::string& model)
-{
-    return ThermoFactory::factory()->create(model);
-}
+ThermoPhase* newThermoPhase(const string& model);
 
 //! Create a new ThermoPhase instance.
 /*!
  * @param model   String to look up the model against
  * @returns a shared pointer to a new ThermoPhase instance matching the model string.
  */
-inline shared_ptr<ThermoPhase> newThermo(const std::string& model)
-{
-    ThermoPhase* tptr = ThermoFactory::factory()->create(model);
-    return shared_ptr<ThermoPhase> (tptr);
-}
+shared_ptr<ThermoPhase> newThermo(const string& model);
 
 //! Create a new ThermoPhase object and initialize it
 /*!

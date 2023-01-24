@@ -17,20 +17,10 @@ class PreconditionerBase;
 class PreconditionerFactory : public Factory<PreconditionerBase>
 {
 public:
-    static PreconditionerFactory* factory() {
-        std::unique_lock<std::mutex> lock(precon_mutex);
-        if (!s_factory) {
-            s_factory = new PreconditionerFactory;
-        }
-        return s_factory;
-    };
+    static PreconditionerFactory* factory();
 
     //! Delete preconditioner factory
-    virtual void deleteFactory() {
-        std::unique_lock<std::mutex> lock(precon_mutex);
-        delete s_factory;
-        s_factory = 0;
-    };
+    virtual void deleteFactory();
 
 private:
     static PreconditionerFactory* s_factory;
@@ -39,10 +29,7 @@ private:
 };
 
 //! Create a Preconditioner object of the specified type
-inline std::shared_ptr<PreconditionerBase> newPreconditioner(const std::string& precon)
-{
-    return std::shared_ptr<PreconditionerBase>(PreconditionerFactory::factory()->create(precon));
-};
+shared_ptr<PreconditionerBase> newPreconditioner(const string& precon);
 
 }
 

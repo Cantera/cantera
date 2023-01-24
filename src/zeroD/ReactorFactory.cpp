@@ -55,9 +55,28 @@ ReactorFactory::ReactorFactory()
     reg("MoleReactor", []() { return new MoleReactor(); });
 }
 
+ReactorFactory* ReactorFactory::factory() {
+    std::unique_lock<std::mutex> lock(reactor_mutex);
+    if (!s_factory) {
+        s_factory = new ReactorFactory;
+    }
+    return s_factory;
+}
+
+void ReactorFactory::deleteFactory() {
+    std::unique_lock<std::mutex> lock(reactor_mutex);
+    delete s_factory;
+    s_factory = 0;
+}
+
 ReactorBase* ReactorFactory::newReactor(const std::string& reactorType)
 {
     return create(reactorType);
+}
+
+ReactorBase* newReactor(const string& model)
+{
+    return ReactorFactory::factory()->newReactor(model);
 }
 
 }

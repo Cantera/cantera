@@ -21,19 +21,9 @@ namespace Cantera
 class KineticsFactory : public Factory<Kinetics>
 {
 public:
-    static KineticsFactory* factory() {
-        std::unique_lock<std::mutex> lock(kinetics_mutex);
-        if (!s_factory) {
-            s_factory = new KineticsFactory;
-        }
-        return s_factory;
-    }
+    static KineticsFactory* factory();
 
-    virtual void deleteFactory() {
-        std::unique_lock<std::mutex> lock(kinetics_mutex);
-        delete s_factory;
-        s_factory = 0;
-    }
+    virtual void deleteFactory();
 
     /**
      * Return a new, empty kinetics manager.
@@ -49,19 +39,12 @@ private:
 /**
  *  Create a new kinetics manager.
  */
-inline Kinetics* newKineticsMgr(const std::string& model)
-{
-    return KineticsFactory::factory()->newKinetics(model);
-}
+Kinetics* newKineticsMgr(const string& model);
 
 /**
  *  Create a new Kinetics instance.
  */
-inline shared_ptr<Kinetics> newKinetics(const std::string& model)
-{
-    shared_ptr<Kinetics> kin(KineticsFactory::factory()->newKinetics(model));
-    return kin;
-}
+shared_ptr<Kinetics> newKinetics(const string& model);
 
 /*!
  * Create a new kinetics manager, initialize it, and add reactions

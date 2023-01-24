@@ -38,19 +38,9 @@ public:
      * created. Since there is no need to instantiate more than one factory,
      * on all subsequent calls, a pointer to the existing factory is returned.
      */
-    static ReactionRateFactory* factory() {
-        std::unique_lock<std::mutex> lock(rate_mutex);
-        if (!s_factory) {
-            s_factory = new ReactionRateFactory;
-        }
-        return s_factory;
-    }
+    static ReactionRateFactory* factory();
 
-    virtual void deleteFactory() {
-        std::unique_lock<std::mutex> lock(rate_mutex);
-        delete s_factory;
-        s_factory = 0;
-    }
+    virtual void deleteFactory();
 
 private:
     //! Pointer to the single instance of the factory

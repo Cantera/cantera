@@ -42,13 +42,7 @@ public:
      * f = TransportFactory::factory();
      * @endcode
      */
-    static TransportFactory* factory() {
-        std::unique_lock<std::mutex> transportLock(transport_mutex);
-        if (!s_factory) {
-            s_factory = new TransportFactory();
-        }
-        return s_factory;
-    }
+    static TransportFactory* factory();
 
     //! Deletes the statically allocated factory instance.
     virtual void deleteFactory();
@@ -104,16 +98,7 @@ Transport* newTransportMgr(const std::string& model="", ThermoPhase* thermo=0,
  *  @returns a Transport object for the phase
  * @ingroup tranprops
  */
-inline shared_ptr<Transport> newTransport(ThermoPhase* thermo,
-                                          const std::string& model = "default") {
-    Transport* tr;
-    if (model == "default") {
-        tr = TransportFactory::factory()->newTransport(thermo, 0);
-    } else {
-        tr = TransportFactory::factory()->newTransport(model, thermo, 0);
-    }
-    return shared_ptr<Transport> (tr);
-}
+shared_ptr<Transport> newTransport(ThermoPhase* thermo, const string& model="default");
 
 //!  Create a new transport manager instance.
 /*!

@@ -52,6 +52,14 @@ TransportFactory::TransportFactory()
     m_CK_mode["CK_Multi"] = m_CK_mode["multicomponent-CK"] = true;
 }
 
+TransportFactory* TransportFactory::factory() {
+    std::unique_lock<std::mutex> transportLock(transport_mutex);
+    if (!s_factory) {
+        s_factory = new TransportFactory();
+    }
+    return s_factory;
+}
+
 void TransportFactory::deleteFactory()
 {
     std::unique_lock<std::mutex> transportLock(transport_mutex);
@@ -104,6 +112,17 @@ Transport* newTransportMgr(const std::string& model, ThermoPhase* thermo, int lo
 {
     TransportFactory* f = TransportFactory::factory();
     return f->newTransport(model, thermo, log_level);
+}
+
+shared_ptr<Transport> newTransport(ThermoPhase* thermo, const string& model)
+{
+    Transport* tr;
+    if (model == "default") {
+        tr = TransportFactory::factory()->newTransport(thermo, 0);
+    } else {
+        tr = TransportFactory::factory()->newTransport(model, thermo, 0);
+    }
+    return shared_ptr<Transport>(tr);
 }
 
 Transport* newDefaultTransportMgr(ThermoPhase* thermo, int loglevel)
