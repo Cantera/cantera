@@ -37,6 +37,20 @@ PDSSFactory::PDSSFactory()
     reg("HKFT", []() { return new PDSS_HKFT(); });
 }
 
+PDSSFactory* PDSSFactory::factory() {
+    std::unique_lock<std::mutex> lock(thermo_mutex);
+    if (!s_factory) {
+        s_factory = new PDSSFactory;
+    }
+    return s_factory;
+}
+
+void PDSSFactory::deleteFactory() {
+    std::unique_lock<std::mutex> lock(thermo_mutex);
+    delete s_factory;
+    s_factory = 0;
+}
+
 PDSS* PDSSFactory::newPDSS(const std::string& model)
 {
     return create(model);

@@ -100,6 +100,20 @@ ReactionRateFactory::ReactionRateFactory()
     });
 }
 
+ReactionRateFactory* ReactionRateFactory::factory() {
+    std::unique_lock<std::mutex> lock(rate_mutex);
+    if (!s_factory) {
+        s_factory = new ReactionRateFactory();
+    }
+    return s_factory;
+}
+
+void ReactionRateFactory::deleteFactory() {
+    std::unique_lock<std::mutex> lock(rate_mutex);
+    delete s_factory;
+    s_factory = 0;
+}
+
 shared_ptr<ReactionRate> newReactionRate(const std::string& type)
 {
     return shared_ptr<ReactionRate> (

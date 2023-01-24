@@ -24,19 +24,9 @@ namespace Cantera
 class FlowDeviceFactory : public Factory<FlowDevice>
 {
 public:
-    static FlowDeviceFactory* factory() {
-        std::unique_lock<std::mutex> lock(flowDevice_mutex);
-        if (!s_factory) {
-            s_factory = new FlowDeviceFactory;
-        }
-        return s_factory;
-    }
+    static FlowDeviceFactory* factory();
 
-    virtual void deleteFactory() {
-        std::unique_lock<std::mutex> lock(flowDevice_mutex);
-        delete s_factory;
-        s_factory = 0;
-    }
+    virtual void deleteFactory();
 
     //! Create a new flow device by type name.
     /*!
@@ -52,10 +42,7 @@ private:
 
 //! Create a FlowDevice object of the specified type
 //! @ingroup ZeroD
-inline FlowDevice* newFlowDevice(const std::string& model)
-{
-    return FlowDeviceFactory::factory()->newFlowDevice(model);
-}
+FlowDevice* newFlowDevice(const string& model);
 
 }
 

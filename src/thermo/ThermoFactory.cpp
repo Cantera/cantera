@@ -106,6 +106,33 @@ ThermoFactory::ThermoFactory()
     reg("Peng-Robinson", []() { return new PengRobinson(); });
 }
 
+ThermoFactory* ThermoFactory::factory()
+{
+    std::unique_lock<std::mutex> lock(thermo_mutex);
+    if (!s_factory) {
+        s_factory = new ThermoFactory;
+    }
+    return s_factory;
+}
+
+void ThermoFactory::deleteFactory()
+{
+    std::unique_lock<std::mutex> lock(thermo_mutex);
+    delete s_factory;
+    s_factory = 0;
+}
+
+ThermoPhase* newThermoPhase(const string& model)
+{
+    return ThermoFactory::factory()->create(model);
+}
+
+shared_ptr<ThermoPhase> newThermo(const string& model)
+{
+    shared_ptr<ThermoPhase> tptr(ThermoFactory::factory()->create(model));
+    return tptr;
+}
+
 ThermoPhase* ThermoFactory::newThermoPhase(const std::string& model)
 {
     return create(model);

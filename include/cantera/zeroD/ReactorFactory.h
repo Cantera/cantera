@@ -24,19 +24,9 @@ namespace Cantera
 class ReactorFactory : public Factory<ReactorBase>
 {
 public:
-    static ReactorFactory* factory() {
-        std::unique_lock<std::mutex> lock(reactor_mutex);
-        if (!s_factory) {
-            s_factory = new ReactorFactory;
-        }
-        return s_factory;
-    }
+    static ReactorFactory* factory();
 
-    virtual void deleteFactory() {
-        std::unique_lock<std::mutex> lock(reactor_mutex);
-        delete s_factory;
-        s_factory = 0;
-    }
+    virtual void deleteFactory();
 
     //! Create a new reactor by type name.
     /*!
@@ -52,10 +42,7 @@ private:
 
 //! Create a Reactor object of the specified type
 //! @ingroup ZeroD
-inline ReactorBase* newReactor(const std::string& model)
-{
-    return ReactorFactory::factory()->newReactor(model);
-}
+ReactorBase* newReactor(const string& model);
 
 }
 

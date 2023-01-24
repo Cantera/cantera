@@ -24,19 +24,9 @@ namespace Cantera
 class WallFactory : public Factory<WallBase>
 {
 public:
-    static WallFactory* factory() {
-        std::unique_lock<std::mutex> lock(wall_mutex);
-        if (!s_factory) {
-            s_factory = new WallFactory;
-        }
-        return s_factory;
-    }
+    static WallFactory* factory();
 
-    virtual void deleteFactory() {
-        std::unique_lock<std::mutex> lock(wall_mutex);
-        delete s_factory;
-        s_factory = 0;
-    }
+    virtual void deleteFactory();
 
     //! Create a new wall by type name.
     /*!
@@ -52,10 +42,7 @@ private:
 
 //! Create a WallBase object of the specified type
 //! @ingroup ZeroD
-inline WallBase* newWall(const std::string& model)
-{
-    return WallFactory::factory()->newWall(model);
-}
+WallBase* newWall(const string& model);
 
 }
 
