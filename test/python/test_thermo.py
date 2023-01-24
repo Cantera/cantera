@@ -1998,7 +1998,7 @@ class TestSolutionArray(utilities.CanteraTest):
         extra = OrderedDict([('grid', np.arange(10)),
                              ('velocity', np.random.rand(10))])
         states = ct.SolutionArray(self.gas, 10, extra=extra)
-        keys = list(states._extra.keys())
+        keys = states.extra
         self.assertEqual(keys[0], 'grid')
         self.assertArrayNear(states.grid, np.arange(10))
 
@@ -2018,9 +2018,9 @@ class TestSolutionArray(utilities.CanteraTest):
         """Test that a non-empty SolutionArray raises a ValueError if
            initial values for properties are not supplied.
         """
-        with self.assertRaisesRegex(ValueError, "Initial values for extra properties"):
+        with self.assertRaisesRegex(ValueError, "Initial values for extra components"):
             ct.SolutionArray(self.gas, 3, extra=["prop"])
-        with self.assertRaisesRegex(ValueError, "Initial values for extra properties"):
+        with self.assertRaisesRegex(ValueError, "Initial values for extra components"):
             ct.SolutionArray(self.gas, 3, extra=np.array(["prop", "prop2"]))
 
     def test_extra_create_multidim(self):
@@ -2045,7 +2045,7 @@ class TestSolutionArray(utilities.CanteraTest):
 
         # An integer is not an iterable, and only bare strings are
         # turned into iterables
-        with self.assertRaisesRegex(ValueError, "Extra properties"):
+        with self.assertRaisesRegex(ValueError, "Extra components"):
             ct.SolutionArray(self.gas, extra=2)
 
     def test_extra_not_string(self):
@@ -2072,27 +2072,29 @@ class TestSolutionArray(utilities.CanteraTest):
         states = ct.SolutionArray(self.gas, 7, extra={'prop': range(7)})
         states.prop = 0
         self.assertArrayNear(states.prop, np.zeros((7,)))
-        mod_array = np.linspace(0, 10, 7)
+        mod_array = np.linspace(0, 10, 7).astype(np.int64)
         states.prop = mod_array
         self.assertArrayNear(states.prop, mod_array)
         with self.assertRaisesRegex(ValueError, "Incompatible shapes"):
             states.prop = [1, 2]
 
     def test_assign_to_slice(self):
+        # assign to slices does not work after Cantera 3.0
+        # as Python and C++ representations do not reference shared memory
         states = ct.SolutionArray(self.gas, 7, extra={'prop': range(7)})
         array = np.arange(7)
         self.assertArrayNear(states.prop, array)
-        states.prop[1] = -5
-        states.prop[3:5] = [0, 1]
-        array_mod = np.array([0, -5, 2, 0, 1, 5, 6])
-        self.assertArrayNear(states.prop, array_mod)
+        states[1].prop = -5
+        assert states.prop[1] == -5
+        with pytest.raises(ValueError, match="read-only"):
+            states.prop[1] = -10
         # assign to multi-dimensional extra
         extra_val = [[1, 2, 3] for i in range(5)]
         states = ct.SolutionArray(self.gas, 5, extra={"prop": extra_val})
-        states.prop[:, 1] = -1
-        self.assertArrayNear(states.prop[:, 1], -1 * np.ones((5,)))
-        states.prop[2, :] = -2
-        self.assertArrayNear(states.prop[2, :], -2 * np.ones((3,)))
+        states[1].prop = [-1, -1, -1]
+        assert (states[1].prop == np.array([-1, -1, -1])).all()
+        with pytest.raises(ValueError, match="read-only"):
+            states.prop[:, 1] = -2
 
     def test_extra_create_by_ndarray(self):
         properties_array = np.array(["prop1", "prop2", "prop3"])
@@ -2133,7 +2135,7 @@ class TestSolutionArray(utilities.CanteraTest):
     def test_append_with_extra(self):
         states = ct.SolutionArray(self.gas, 5, extra={"prop": "value"})
         states.TPX = np.linspace(500, 1000, 5), 2e5, 'H2:0.5, O2:0.4'
-        self.assertEqual(states._shape, (5,))
+        self.assertEqual(states.shape, (5,))
         states.append(T=1100, P=3e5, X="AR:1.0", prop="value2")
         self.assertEqual(states.prop[-1], "value2")
         self.assertEqual(states.prop.shape, (6,))
@@ -2143,43 +2145,50 @@ class TestSolutionArray(utilities.CanteraTest):
         self.assertEqual(states.prop.shape, (7,))
         # two-dimensional input array
         states = ct.SolutionArray(self.gas, 1, extra={"prop": [1, 2, 3]})
-        states.append(T=1100, P=3e5, X="AR:1.0", prop=['a', 'b', 'c'])
-        self.assertEqual(states._shape, (2,))
+        states.append(T=1100, P=3e5, X="AR:1.0", prop=[4, 5, 6])
+        self.assertEqual(states.shape, (2,))
 
     def test_append_failures(self):
         states = ct.SolutionArray(self.gas, 5, extra={"prop": "value"})
         states.TPX = np.linspace(500, 1000, 5), 2e5, 'H2:0.5, O2:0.4'
-        self.assertEqual(states._shape, (5,))
+        self.assertEqual(states.shape, (5,))
 
         with self.assertRaisesRegex(TypeError, "Missing keyword arguments for extra"):
             states.append(T=1100, P=3e5, X="AR:1.0")
         # Failing to append a state shouldn't change the size
-        self.assertEqual(states._shape, (5,))
+        self.assertEqual(states.shape, (5,))
 
         with self.assertRaisesRegex(KeyError, "does not specify"):
             # I is not a valid property
             states.append(TPI=(1100, 3e5, "AR:1.0"), prop="value2")
         # Failing to append a state shouldn't change the size
-        self.assertEqual(states._shape, (5,))
+        self.assertEqual(states.shape, (5,))
 
         with self.assertRaisesRegex(KeyError, "is not a valid"):
             # I is not a valid property
             states.append(T=1100, P=3e5, I="AR:1.0", prop="value2")
         # Failing to append a state shouldn't change the size
-        self.assertEqual(states._shape, (5,))
+        self.assertEqual(states.shape, (5,))
 
-        with self.assertRaisesRegex(ValueError, "incompatible value"):
+        with self.assertRaisesRegex(ct.CanteraError, "incompatible value"):
             # prop has incompatible dimensions
             states.append(T=1100, P=3e5, X="AR:1.0", prop=[1, 2, 3])
         # Failing to append a state shouldn't change the size
-        self.assertEqual(states._shape, (5,))
+        self.assertEqual(states.shape, (5,))
 
         states = ct.SolutionArray(self.gas, 1, extra={"prop": [1, 2, 3]})
-        with self.assertRaisesRegex(ValueError, "does not match"):
-            # prop has incorrect dimensions
-            states.append(T=1100, P=3e5, X="AR:1.0", prop=['a', 'b'])
+        with self.assertRaisesRegex(ct.CanteraError, "incompatible value"):
+            # prop has incorrect type (no implicit conversion; changed from Cantera 2.6)
+            states.append(T=1100, P=3e5, X="AR:1.0", prop=['a', 'b', 'c'])
         # Failing to append a state shouldn't change the size
-        self.assertEqual(states._shape, (1,))
+        self.assertEqual(states.shape, (1,))
+
+        states = ct.SolutionArray(self.gas, 1, extra={"prop": [1, 2, 3]})
+        with self.assertRaisesRegex(ct.CanteraError, "does not match"):
+            # prop has incorrect dimensions
+            states.append(T=1100, P=3e5, X="AR:1.0", prop=[1, 2])
+        # Failing to append a state shouldn't change the size
+        self.assertEqual(states.shape, (1,))
 
     def test_purefluid(self):
         water = ct.Water()
