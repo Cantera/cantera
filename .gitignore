@@ -26,6 +26,7 @@ stage/
 .ipynb_checkpoints/
 cantera.conf*
 config.log
+*.DS_Store
 environment.y*
 *.lib
 *.exp
