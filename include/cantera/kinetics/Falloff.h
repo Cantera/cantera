@@ -199,7 +199,7 @@ public:
 
     //! Evaluate reaction rate
     //! @param shared_data  data shared by all reactions of a given type
-    virtual double evalFromStruct(const FalloffData& shared_data) {
+    double evalFromStruct(const FalloffData& shared_data) {
         updateTemp(shared_data.temperature, m_work.data());
         m_rc_low = m_lowRate.evalRate(shared_data.logT, shared_data.recipT);
         m_rc_high = m_highRate.evalRate(shared_data.logT, shared_data.recipT);
