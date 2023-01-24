@@ -22,6 +22,7 @@ stage/
 .sconf_temp
 .vs
 .vscode
+.idea/
 .ipynb_checkpoints/
 cantera.conf*
 config.log
