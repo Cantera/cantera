@@ -105,11 +105,7 @@ public:
     ChebyshevRate(double Tmin, double Tmax, double Pmin, double Pmax,
                   const Array2D& coeffs);
 
-    ChebyshevRate(const AnyMap& node, const UnitStack& rate_units={})
-        : ChebyshevRate()
-    {
-        setParameters(node, rate_units);
-    }
+    ChebyshevRate(const AnyMap& node, const UnitStack& rate_units={});
 
     unique_ptr<MultiRateBase> newMultiRate() const {
         return unique_ptr<MultiRateBase>(

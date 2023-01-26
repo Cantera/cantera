@@ -20,6 +20,17 @@ ArrheniusBase::ArrheniusBase(double A, double b, double Ea)
     m_valid = true;
 }
 
+ArrheniusBase::ArrheniusBase(const AnyValue& rate, const UnitSystem& units,
+                             const UnitStack& rate_units)
+{
+    setRateParameters(rate, units, rate_units);
+}
+
+ArrheniusBase::ArrheniusBase(const AnyMap& node, const UnitStack& rate_units)
+{
+    setParameters(node, rate_units);
+}
+
 void ArrheniusBase::setRateParameters(
     const AnyValue& rate, const UnitSystem& units, const UnitStack& rate_units)
 {

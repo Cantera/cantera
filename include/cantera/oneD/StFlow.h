@@ -183,15 +183,7 @@ public:
     //! Return the type of flow domain being represented, either "Free Flame" or
     //! "Axisymmetric Stagnation".
     //! @see setFreeFlow setAxisymmetricFlow
-    virtual std::string flowType() const {
-        if (m_type == cFreeFlow) {
-            return "Free Flame";
-        } else if (m_type == cAxisymmetricStagnationFlow) {
-            return "Axisymmetric Stagnation";
-        } else {
-            throw CanteraError("StFlow::flowType", "Unknown value for 'm_type'");
-        }
-    }
+    virtual string flowType() const;
 
     void solveEnergyEqn(size_t j=npos);
 
@@ -250,9 +242,8 @@ public:
         return m_rho[j];
     }
 
-    virtual bool fixed_mdot() {
-        return (domainType() != cFreeFlow);
-    }
+    virtual bool fixed_mdot();
+
     void setViscosityFlag(bool dovisc) {
         m_dovisc = dovisc;
     }

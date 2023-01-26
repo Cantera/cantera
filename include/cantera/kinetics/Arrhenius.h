@@ -64,16 +64,10 @@ public:
     ArrheniusBase(double A, double b, double Ea);
 
     //! Constructor based on AnyValue content
-    ArrheniusBase(const AnyValue& rate,
-                  const UnitSystem& units, const UnitStack& rate_units)
-    {
-        setRateParameters(rate, units, rate_units);
-    }
+    ArrheniusBase(const AnyValue& rate, const UnitSystem& units,
+                  const UnitStack& rate_units);
 
-    explicit ArrheniusBase(const AnyMap& node, const UnitStack& rate_units={})
-    {
-        setParameters(node, rate_units);
-    }
+    explicit ArrheniusBase(const AnyMap& node, const UnitStack& rate_units={});
 
     //! Perform object setup based on AnyValue node information
     /*!

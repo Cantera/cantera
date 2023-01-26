@@ -37,11 +37,7 @@ class CustomFunc1Rate final : public ReactionRate
 {
 public:
     CustomFunc1Rate();
-    CustomFunc1Rate(const AnyMap& node, const UnitStack& rate_units)
-        : CustomFunc1Rate()
-    {
-        setParameters(node, rate_units);
-    }
+    CustomFunc1Rate(const AnyMap& node, const UnitStack& rate_units);
 
     unique_ptr<MultiRateBase> newMultiRate() const override {
         return unique_ptr<MultiRateBase>(new MultiRate<CustomFunc1Rate, ArrheniusData>);

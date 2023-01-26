@@ -81,9 +81,7 @@ public:
     //! Constructor from Arrhenius rate expressions at a set of pressures
     explicit PlogRate(const std::multimap<double, ArrheniusRate>& rates);
 
-    PlogRate(const AnyMap& node, const UnitStack& rate_units={}) : PlogRate() {
-        setParameters(node, rate_units);
-    }
+    PlogRate(const AnyMap& node, const UnitStack& rate_units={});
 
     unique_ptr<MultiRateBase> newMultiRate() const {
         return unique_ptr<MultiRateBase>(new MultiRate<PlogRate, PlogData>);

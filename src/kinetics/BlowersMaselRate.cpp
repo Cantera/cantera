@@ -59,6 +59,12 @@ BlowersMaselRate::BlowersMaselRate(double A, double b, double Ea0, double w)
     m_E4_R = w / GasConstant;
 }
 
+BlowersMaselRate::BlowersMaselRate(const AnyMap& node, const UnitStack& rate_units)
+    : BlowersMaselRate()
+{
+    setParameters(node, rate_units);
+}
+
 double BlowersMaselRate::ddTScaledFromStruct(const BlowersMaselData& shared_data) const
 {
     warn_user("BlowersMaselRate::ddTScaledFromStruct",

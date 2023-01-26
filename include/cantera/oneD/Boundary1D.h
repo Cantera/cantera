@@ -106,16 +106,10 @@ class Inlet1D : public Boundary1D
 public:
     Inlet1D();
 
-    Inlet1D(shared_ptr<Solution> solution, const std::string& id="") : Inlet1D() {
-        m_solution = solution;
-        m_id = id;
-    }
+    Inlet1D(shared_ptr<Solution> solution, const string& id="");
 
     //! set spreading rate
-    virtual void setSpreadRate(double V0) {
-        m_V0 = V0;
-        needJacUpdate();
-    }
+    virtual void setSpreadRate(double V0);
 
     //! spreading rate
     virtual double spreadRate() {
@@ -237,12 +231,7 @@ class OutletRes1D : public Boundary1D
 public:
     OutletRes1D();
 
-    OutletRes1D(shared_ptr<Solution> solution, const std::string& id="")
-        : OutletRes1D()
-    {
-        m_solution = solution;
-        m_id = id;
-    }
+    OutletRes1D(shared_ptr<Solution> solution, const string& id="");
 
     virtual void showSolution(const double* x) {}
 

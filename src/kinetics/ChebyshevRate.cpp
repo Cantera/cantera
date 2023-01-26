@@ -54,6 +54,12 @@ ChebyshevRate::ChebyshevRate(double Tmin, double Tmax, double Pmin, double Pmax,
     setData(coeffs);
 }
 
+ChebyshevRate::ChebyshevRate(const AnyMap& node, const UnitStack& rate_units)
+    : ChebyshevRate()
+{
+    setParameters(node, rate_units);
+}
+
 void ChebyshevRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
 {
     ReactionRate::setParameters(node, rate_units);

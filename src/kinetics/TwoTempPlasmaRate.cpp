@@ -59,6 +59,12 @@ TwoTempPlasmaRate::TwoTempPlasmaRate(double A, double b, double Ea, double EE)
     m_E4_R = EE / GasConstant;
 }
 
+TwoTempPlasmaRate::TwoTempPlasmaRate(const AnyMap& node, const UnitStack& rate_units)
+    : TwoTempPlasmaRate()
+{
+    setParameters(node, rate_units);
+}
+
 double TwoTempPlasmaRate::ddTScaledFromStruct(const TwoTempPlasmaData& shared_data) const
 {
     warn_user("TwoTempPlasmaRate::ddTScaledFromStruct",

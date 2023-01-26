@@ -86,11 +86,7 @@ public:
     {
     }
 
-    FalloffRate(const AnyMap& node, const UnitStack& rate_units={})
-        : FalloffRate()
-    {
-        setParameters(node, rate_units);
-    }
+    FalloffRate(const AnyMap& node, const UnitStack& rate_units={});
 
     /**
      * Initialize. Must be called before any other method is invoked.
@@ -286,20 +282,10 @@ class LindemannRate final : public FalloffRate
 public:
     LindemannRate() = default;
 
-    LindemannRate(const AnyMap& node, const UnitStack& rate_units={})
-        : LindemannRate()
-    {
-        setParameters(node, rate_units);
-    }
+    LindemannRate(const AnyMap& node, const UnitStack& rate_units={});
 
-    LindemannRate(
-        const ArrheniusRate& low, const ArrheniusRate& high, const vector_fp& c)
-        : LindemannRate()
-    {
-        m_lowRate = low;
-        m_highRate = high;
-        setFalloffCoeffs(c);
-    }
+    LindemannRate(const ArrheniusRate& low, const ArrheniusRate& high,
+                  const vector_fp& c);
 
     unique_ptr<MultiRateBase> newMultiRate() const override{
         return unique_ptr<MultiRateBase>(
@@ -348,19 +334,9 @@ public:
         m_work.resize(1);
     }
 
-    TroeRate(const AnyMap& node, const UnitStack& rate_units={})
-        : TroeRate()
-    {
-        setParameters(node, rate_units);
-    }
-
-    TroeRate(const ArrheniusRate& low, const ArrheniusRate& high, const vector_fp& c)
-        : TroeRate()
-    {
-        m_lowRate = low;
-        m_highRate = high;
-        setFalloffCoeffs(c);
-    }
+    TroeRate(const AnyMap& node, const UnitStack& rate_units={});
+    TroeRate(const ArrheniusRate& low, const ArrheniusRate& high,
+             const vector_fp& c);
 
     unique_ptr<MultiRateBase> newMultiRate() const override {
         return unique_ptr<MultiRateBase>(new MultiRate<TroeRate, FalloffData>);
@@ -451,11 +427,7 @@ public:
         m_work.resize(2);
     }
 
-    SriRate(const AnyMap& node, const UnitStack& rate_units={})
-        : SriRate()
-    {
-        setParameters(node, rate_units);
-    }
+    SriRate(const AnyMap& node, const UnitStack& rate_units={});
 
     SriRate(const ArrheniusRate& low, const ArrheniusRate& high, const vector_fp& c)
         : SriRate()
@@ -562,11 +534,7 @@ public:
         m_work.resize(1);
     }
 
-    TsangRate(const AnyMap& node, const UnitStack& rate_units={})
-        : TsangRate()
-    {
-        setParameters(node, rate_units);
-    }
+    TsangRate(const AnyMap& node, const UnitStack& rate_units={});
 
     TsangRate(const ArrheniusRate& low, const ArrheniusRate& high, const vector_fp& c)
         : TsangRate()
