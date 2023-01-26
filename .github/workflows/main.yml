@@ -384,6 +384,7 @@ jobs:
       - name: Run the examples
         # See https://unix.stackexchange.com/a/392973 for an explanation of the -exec part
         run: |
+          export LD_LIBRARY_PATH=build/lib
           find samples/python -type f -iname "*.py" \
           -exec sh -c 'for n; do echo "$n" | tee -a results.txt && python3 "$n" >> results.txt || exit 1; done' sh {} +
         env:
