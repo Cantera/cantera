@@ -1285,7 +1285,7 @@ def setup_python_env(env):
     plat = info['plat'].replace('-', '_').replace('.', '_')
     numpy_include = info["numpy_include"]
     env.Prepend(CPPPATH=[Dir('#include'), inc, numpy_include])
-    env.Prepend(LIBS=env['cantera_libs'])
+    env.Prepend(LIBS=env['cantera_shared_libs'])
 
     # Fix the module extension for Windows from the sysconfig library.
     # See https://github.com/python/cpython/pull/22088 and

@@ -45,6 +45,11 @@ for pyxfile in multi_glob(localenv, "cantera", "pyx"):
     cython_obj.append(obj)
 cython_obj.extend(env['python_ext_objects'])
 
+if not env['system_fmt']:
+    # Workaround until we can figure out why all the necessary symbols aren't
+    # being exported from fmt
+    cython_obj.extend(localenv['fmt_targets'])
+
 module_ext = localenv["py_module_ext"]
 ext = localenv.LoadableModule(f"cantera/_cantera{module_ext}",
                               cython_obj, LIBPREFIX="", SHLIBSUFFIX=module_ext,
@@ -62,7 +67,16 @@ env['python_extension'] = ext
 localenv.Depends(mod, [ext, dataFiles, setup_cfg, readme, license,
                        "setup.py", "pyproject.toml",
                        "cantera/test/README.txt", "cantera/examples/README.txt"])
-localenv.Depends(ext, localenv['cantera_staticlib'])
+
+if env['OS'] == 'Windows':
+    # On Windows, the cantera library directory is likely not to be on the path.
+    # However, Windows does search the directory containing a library (i.e. the
+    # Python extension module) for DLL dependencies.
+    dll = [f for f in localenv['cantera_shlib'] if f.name.endswith('.dll')][0]
+    copy_dll = localenv.Command(f'cantera/{dll.name}', dll, Copy("$TARGET", "$SOURCE"))
+    localenv.Depends(ext, copy_dll)
+else:
+    localenv.Depends(ext, localenv['cantera_shlib'])
 
 for f in (multi_glob(localenv, 'cantera', 'py') +
           multi_glob(localenv, 'cantera/*', 'py')):

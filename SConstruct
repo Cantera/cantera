@@ -2087,6 +2087,9 @@ else:
     for loc in locations:
         env[f"inst_{loc}"] = env[f"ct_{loc}"].replace(env["ct_installroot"], instRoot)
 
+if env['use_rpath_linkage']:
+    env.Append(RPATH=env['ct_libdir'])
+
 # **************************************
 # *** Set options needed in config.h ***
 # **************************************
