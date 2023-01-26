@@ -9,9 +9,11 @@
 #include <cstdlib>
 #include <vector>
 #include <map>
+#include <set>
 #include <string>
 #include <algorithm>
 #include <memory>
+#include <functional>
 
 #include <boost/algorithm/string.hpp>
 

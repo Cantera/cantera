@@ -22,9 +22,11 @@
 #include <cstdlib>
 #include <vector>
 #include <map>
+#include <set>
 #include <string>
 #include <algorithm>
 #include <memory>
+#include <functional>
 
 /**
  * Namespace for the Cantera kernel.
@@ -36,6 +38,12 @@ using std::shared_ptr;
 using std::make_shared;
 using std::unique_ptr;
 using std::isnan; // workaround for bug in libstdc++ 4.8
+using std::string;
+using std::vector;
+using std::map;
+using std::set;
+using std::function;
+using std::pair;
 
 /*!
  * All physical constants are stored here.
@@ -159,20 +167,20 @@ const double Tiny = 1.e-20;
 /*!
  * This is used mostly to assign concentrations and mole fractions to species.
  */
-typedef std::map<std::string, double> compositionMap;
+typedef map<string, double> compositionMap;
 
 //! Map from string names to doubles. Used for defining species mole/mass
 //! fractions, elemental compositions, and reaction stoichiometries.
-typedef std::map<std::string, double> Composition;
+typedef map<string, double> Composition;
 
 //! Turn on the use of stl vectors for the basic array type within cantera
 //! Vector of doubles.
-typedef std::vector<double> vector_fp;
+typedef vector<double> vector_fp;
 //! Vector of ints
-typedef std::vector<int> vector_int;
+typedef vector<int> vector_int;
 
 //! A grouplist is a vector of groups of species
-typedef std::vector<std::vector<size_t> > grouplist_t;
+typedef vector<vector<size_t>> grouplist_t;
 
 //! index returned by functions to indicate "no position"
 const size_t npos = static_cast<size_t>(-1);
