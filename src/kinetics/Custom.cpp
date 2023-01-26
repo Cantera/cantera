@@ -14,6 +14,12 @@ CustomFunc1Rate::CustomFunc1Rate()
 {
 }
 
+CustomFunc1Rate::CustomFunc1Rate(const AnyMap& node, const UnitStack& rate_units)
+    : CustomFunc1Rate()
+{
+    setParameters(node, rate_units);
+}
+
 void CustomFunc1Rate::setRateFunction(shared_ptr<Func1> f)
 {
     m_ratefunc = f;

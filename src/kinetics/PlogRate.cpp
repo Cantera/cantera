@@ -64,6 +64,12 @@ PlogRate::PlogRate(const std::multimap<double, ArrheniusRate>& rates)
     setRates(rates);
 }
 
+PlogRate::PlogRate(const AnyMap& node, const UnitStack& rate_units)
+    : PlogRate()
+{
+    setParameters(node, rate_units);
+}
+
 void PlogRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
 {
     ReactionRate::setParameters(node, rate_units);

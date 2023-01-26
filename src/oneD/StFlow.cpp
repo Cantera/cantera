@@ -240,6 +240,10 @@ void StFlow::setGasAtMidpoint(const doublereal* x, size_t j)
     m_thermo->setPressure(m_press);
 }
 
+bool StFlow::fixed_mdot() {
+    return (domainType() != cFreeFlow);
+}
+
 void StFlow::_finalize(const doublereal* x)
 {
     if (!m_do_multicomponent && m_do_soret) {
@@ -781,6 +785,16 @@ void StFlow::restore(SolutionArray& arr, double* soln, int loglevel)
 
     updateProperties(npos, soln + loc(), 0, m_points - 1);
     setMeta(arr.meta(), loglevel);
+}
+
+string StFlow::flowType() const {
+    if (m_type == cFreeFlow) {
+        return "Free Flame";
+    } else if (m_type == cAxisymmetricStagnationFlow) {
+        return "Axisymmetric Stagnation";
+    } else {
+        throw CanteraError("StFlow::flowType", "Unknown value for 'm_type'");
+    }
 }
 
 void StFlow::setMeta(const AnyMap& state, int loglevel)

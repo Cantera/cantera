@@ -84,11 +84,8 @@ public:
      */
     BlowersMaselRate(double A, double b, double Ea0, double w);
 
-    explicit BlowersMaselRate(const AnyMap& node, const UnitStack& rate_units={})
-        : BlowersMaselRate()
-    {
-        setParameters(node, rate_units);
-    }
+    explicit BlowersMaselRate(const AnyMap& node,
+                              const UnitStack& rate_units={});
 
     unique_ptr<MultiRateBase> newMultiRate() const override {
         return unique_ptr<MultiRateBase>(new MultiRate<BlowersMaselRate, BlowersMaselData>);

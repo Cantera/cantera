@@ -75,9 +75,7 @@ public:
      */
     TwoTempPlasmaRate(double A, double b, double Ea=0.0, double EE=0.0);
 
-    TwoTempPlasmaRate(const AnyMap& node, const UnitStack& rate_units={}) : TwoTempPlasmaRate() {
-        setParameters(node, rate_units);
-    }
+    TwoTempPlasmaRate(const AnyMap& node, const UnitStack& rate_units={});
 
     unique_ptr<MultiRateBase> newMultiRate() const override {
         return unique_ptr<MultiRateBase>(

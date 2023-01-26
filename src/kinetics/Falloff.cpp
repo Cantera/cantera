@@ -82,6 +82,12 @@ void FalloffData::restore()
     m_perturbed = false;
 }
 
+FalloffRate::FalloffRate(const AnyMap& node, const UnitStack& rate_units)
+    : FalloffRate()
+{
+    setParameters(node, rate_units);
+}
+
 void FalloffRate::init(const vector_fp& c)
 {
     warn_deprecated("FalloffRate::init",
@@ -211,6 +217,36 @@ void FalloffRate::validate(const std::string& equation, const Kinetics& kin)
     }
 }
 
+LindemannRate::LindemannRate(const AnyMap& node, const UnitStack& rate_units)
+    : LindemannRate()
+{
+    setParameters(node, rate_units);
+}
+
+LindemannRate::LindemannRate(const ArrheniusRate& low, const ArrheniusRate& high,
+                             const vector_fp& c)
+    : LindemannRate()
+{
+    m_lowRate = low;
+    m_highRate = high;
+    setFalloffCoeffs(c);
+}
+
+TroeRate::TroeRate(const AnyMap& node, const UnitStack& rate_units)
+    : TroeRate()
+{
+    setParameters(node, rate_units);
+}
+
+TroeRate::TroeRate(const ArrheniusRate& low, const ArrheniusRate& high,
+                   const vector_fp& c)
+    : TroeRate()
+{
+    m_lowRate = low;
+    m_highRate = high;
+    setFalloffCoeffs(c);
+}
+
 void TroeRate::setFalloffCoeffs(const vector_fp& c)
 {
     if (c.size() != 3 && c.size() != 4) {
@@ -337,6 +373,12 @@ void TroeRate::getParameters(AnyMap& node) const
     node["Troe"] = std::move(params);
 }
 
+SriRate::SriRate(const AnyMap& node, const UnitStack& rate_units)
+    : SriRate()
+{
+    setParameters(node, rate_units);
+}
+
 void SriRate::setFalloffCoeffs(const vector_fp& c)
 {
     if (c.size() != 3 && c.size() != 5) {
@@ -459,6 +501,12 @@ void SriRate::getParameters(AnyMap& node) const
     }
     params.setFlowStyle();
     node["SRI"] = std::move(params);
+}
+
+TsangRate::TsangRate(const AnyMap& node, const UnitStack& rate_units)
+    : TsangRate()
+{
+    setParameters(node, rate_units);
 }
 
 void TsangRate::setFalloffCoeffs(const vector_fp& c)

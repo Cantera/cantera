@@ -96,6 +96,22 @@ Inlet1D::Inlet1D()
     m_xstr = "";
 }
 
+Inlet1D::Inlet1D(shared_ptr<Solution> solution, const string& id)
+    : Inlet1D()
+{
+    m_solution = solution;
+    m_id = id;
+}
+
+
+//! set spreading rate
+void Inlet1D::setSpreadRate(double V0)
+{
+    m_V0 = V0;
+    needJacUpdate();
+}
+
+
 void Inlet1D::showSolution(const double* x)
 {
     writelog("    Mass Flux:   {:10.4g} kg/m^2/s \n", m_mdot);
@@ -334,6 +350,13 @@ OutletRes1D::OutletRes1D()
 {
     m_type = cOutletResType;
     m_xstr = "";
+}
+
+OutletRes1D::OutletRes1D(shared_ptr<Solution> solution, const string& id)
+    : OutletRes1D()
+{
+    m_solution = solution;
+    m_id = id;
 }
 
 void Outlet1D::init()
