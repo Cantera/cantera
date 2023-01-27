@@ -35,9 +35,7 @@ public:
     void registerRateBuilder(const string& moduleName,
         const string& className, const string& rateName) override;
 
-    static ExtensionManager* create() {
-        return new PythonExtensionManager();
-    }
+    static void registerSelf();
 
     void registerRateDataBuilder(const string& moduleName,
         const string& className, const string& rateName) override;
@@ -46,7 +44,7 @@ private:
     static bool s_imported;
 };
 
-BOOST_DLL_ALIAS(Cantera::PythonExtensionManager::create, create_manager);
+BOOST_DLL_ALIAS(Cantera::PythonExtensionManager::registerSelf, registerPythonExtensionManager);
 
 }
 

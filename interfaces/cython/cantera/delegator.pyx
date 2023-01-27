@@ -345,6 +345,8 @@ cdef int assign_delegates(obj, CxxDelegator* delegator) except -1:
 _rate_delegators = []
 _rate_data_delegators = []
 
+CxxPythonExtensionManager.registerSelf()
+
 def extension(*, name, data=None):
     """
     A decorator for declaring Cantera extensions that should be registered with

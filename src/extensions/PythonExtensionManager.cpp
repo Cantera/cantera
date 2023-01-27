@@ -5,6 +5,7 @@
 
 #include "cantera/extensions/PythonExtensionManager.h"
 #include "cantera/extensions/PythonHandle.h"
+#include "cantera/base/ExtensionManagerFactory.h"
 
 #include "cantera/kinetics/ReactionRateFactory.h"
 #include "cantera/kinetics/ReactionRateDelegator.h"
@@ -152,6 +153,12 @@ PythonExtensionManager::PythonExtensionManager()
     Py_DECREF(spec);
     Py_DECREF(pyModule);
     s_imported = true;
+}
+
+void PythonExtensionManager::registerSelf()
+{
+    ExtensionManagerFactory::factory().reg("python",
+        []() { return new PythonExtensionManager(); });
 }
 
 void PythonExtensionManager::registerRateBuilders(const string& extensionName)

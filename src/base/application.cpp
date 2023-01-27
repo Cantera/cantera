@@ -406,21 +406,17 @@ void Application::loadExtension(const string& extType, const string& name)
         return;
     }
 
-    writelog("Loading cantera_python library\n");
-    typedef ExtensionManager* (creator_t)();
-    auto loader = boost::dll::import_alias<creator_t>( // type of imported symbol must be explicitly specified
-        "cantera_python",                              // path to library
-        "create_manager",                              // symbol to import
-        boost::dll::load_mode::search_system_folders | boost::dll::load_mode::append_decorations | boost::dll::load_mode::rtld_global // append extensions and prefixes, and search normal library path
-    );
-    auto manager = loader();
-    ExtensionManagerFactory::factory().reg("python", [&]() { return loader(); });
-
-    Cantera::writelog("Registered extensions with factory {}\n",
-                      (void*) &ExtensionManagerFactory::factory());
-    manager->registerRateBuilders(name);
+    if (extType == "python" && !ExtensionManagerFactory::factory().exists("python")) {
+        typedef void (creator_t)();
+        static auto loader = boost::dll::import_alias<creator_t>( // type of imported symbol must be explicitly specified
+            "cantera_python",                              // path to library
+            "registerPythonExtensionManager",                // symbol to import
+            boost::dll::load_mode::search_system_folders | boost::dll::load_mode::append_decorations | boost::dll::load_mode::rtld_global // append extensions and prefixes, and search normal library path
+        );
+        loader();
+    }
+    ExtensionManagerFactory::build(extType)->registerRateBuilders(name);
     m_loaded_extensions.insert({extType, name});
-    writelog("Done loading extension\n");
 }
 
 Application* Application::s_app = 0;
