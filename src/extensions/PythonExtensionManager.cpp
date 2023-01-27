@@ -157,7 +157,7 @@ PythonExtensionManager::PythonExtensionManager()
 void PythonExtensionManager::registerRateBuilders(const string& extensionName)
 {
     // Each rate builder class is decorated with @extension, which calls the
-    // registerPythonRateBuilder method to register that class. So all we have
+    // registerRateBuilder method to register that class. So all we have
     // to do here is load the module.
     PyObject* module_name = PyUnicode_FromString(extensionName.c_str());
     PyObject* py_module = PyImport_Import(module_name);
@@ -169,7 +169,7 @@ void PythonExtensionManager::registerRateBuilders(const string& extensionName)
     ct_registerReactionDelegators();
 }
 
-void PythonExtensionManager::registerPythonRateBuilder(
+void PythonExtensionManager::registerRateBuilder(
     const std::string& moduleName, const std::string& className,
     const std::string& rateName)
 {
@@ -198,12 +198,11 @@ void PythonExtensionManager::registerPythonRateBuilder(
     ReactionRateFactory::factory()->reg(rateName, builder);
 }
 
-void PythonExtensionManager::registerPythonRateDataBuilder(
+void PythonExtensionManager::registerRateDataBuilder(
     const string& moduleName, const string& className, const string& rateName)
 {
     // Make sure the helper module has been loaded
     PythonExtensionManager mgr;
-
     // Create a function that links a C++ ReactionDataDelegator
     // object and a Python ExtensibleRateData object of a particular type, and register
     // this function for making that link
@@ -218,7 +217,7 @@ void PythonExtensionManager::registerPythonRateDataBuilder(
         }
         delegator.setWrapper(make_shared<PythonHandle>(extData, false));
     };
-    ExtensionManager::registerReactionDataLinker(rateName, builder);
+    mgr.registerReactionDataLinker(rateName, builder);
 
     // Create a function that will link a Python Solution object to the C++ Solution
     // object that gets passed to the Reaction
@@ -231,7 +230,7 @@ void PythonExtensionManager::registerPythonRateDataBuilder(
         }
         return make_shared<PythonHandle>(pySoln, false);
     };
-    ExtensionManager::registerSolutionLinker("python", solnLinker);
+    mgr.registerSolutionLinker("python", solnLinker);
 }
 
 };

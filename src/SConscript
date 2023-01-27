@@ -83,10 +83,9 @@ if env["python_package"] == "full":
          ('''${python_cmd} -c "import Cython.Build; '''
           f'''Cython.Build.cythonize(r'${{SOURCE}}', build_dir='{build_dir}')"''')
     )
-    for pxd in multi_glob(localenv, "#interfaces/cython/cantera", "pxd"):
+    for pxd in multi_glob(pyenv, "#interfaces/cython/cantera", "pxd"):
         localenv.Depends(cythonized, pxd)
 
-    obj = pyenv.SharedObject(cythonized[0])
     if env["OS"] == "Windows":
         escaped_home = '\\"' + pyenv["py_base"].replace("\\", "\\\\") + '\\"'
         pyenv.Append(CPPDEFINES={"CT_PYTHONHOME": escaped_home})
@@ -95,12 +94,23 @@ if env["python_package"] == "full":
 
     env.Command('#src/extensions/pythonExtensions.h', '#build/src/extensions/pythonExtensions.h',
                 Copy('$TARGET', '$SOURCE'))
-    libraryTargets.append(obj)
-    libraryTargets.append(pyenv.SharedObject("extensions/PythonExtensionManager.cpp"))
-    localenv.Append(LIBS=pyenv["py_libs"], LIBPATH=pyenv["py_libpath"])
-    env["cantera_libs"].extend(pyenv["py_libs"])
-    env.Append(LIBPATH=pyenv["py_libpath"])
-    env["extra_lib_dirs"].extend(pyenv["py_libpath"])
+
+    env['python_ext_objects'] = [
+        pyenv.SharedObject(cythonized[0]),
+        pyenv.SharedObject("extensions/PythonExtensionManager.cpp")
+    ]
+    pyenv.Append(LIBS=pyenv["py_libs"], LIBPATH=pyenv["py_libpath"])
+    if pyenv["versioned_shared_library"]:
+        lib = build(pyenv.SharedLibrary("../lib/cantera_python", env['python_ext_objects'],
+                                           SPAWN=get_spawn(pyenv),
+                                           SHLIBVERSION=pyenv["cantera_pure_version"]))
+        install(pyenv.InstallVersionedLib, "$inst_libdir", lib)
+    else:
+        lib = build(pyenv.SharedLibrary("../lib/cantera_python", env['python_ext_objects'],
+                                           SPAWN=get_spawn(pyenv)))
+        install("$inst_libdir", lib)
+
+
 
 # build the Cantera static library
 lib = build(localenv.StaticLibrary('../lib/cantera', libraryTargets,

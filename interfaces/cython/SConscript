@@ -43,6 +43,7 @@ for pyxfile in multi_glob(localenv, "cantera", "pyx"):
     obj = localenv.SharedObject(
         f"#build/temp-py/{pyxfile.name.split('.')[0]}", cythonized)
     cython_obj.append(obj)
+cython_obj.extend(env['python_ext_objects'])
 
 module_ext = localenv["py_module_ext"]
 ext = localenv.LoadableModule(f"cantera/_cantera{module_ext}",

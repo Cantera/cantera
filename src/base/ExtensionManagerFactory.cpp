@@ -5,10 +5,6 @@
 
 #include "cantera/base/ExtensionManagerFactory.h"
 
-#ifdef CT_HAS_PYTHON
-#include "cantera/extensions/PythonExtensionManager.h"
-#endif
-
 using namespace std;
 
 namespace Cantera
@@ -19,9 +15,6 @@ mutex ExtensionManagerFactory::s_mutex;
 
 ExtensionManagerFactory::ExtensionManagerFactory()
 {
-    #ifdef CT_HAS_PYTHON
-    reg("python", []() { return new PythonExtensionManager(); });
-    #endif
 }
 
 ExtensionManagerFactory& ExtensionManagerFactory::factory()

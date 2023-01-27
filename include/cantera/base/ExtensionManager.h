@@ -44,6 +44,31 @@ public:
         throw NotImplementedError("ExtensionManager::registerRateBuilders");
     };
 
+    //! Register a user-defined ReactionRate implementation with ReactionRateFactory
+    //! @param extensionName The name of the library/module containing the user-defined
+    //!     rate. For example, the module name for rates implemented in Python.
+    //! @param className The name of the rate in the user's code. For example, the
+    //!     Python class name
+    //! @param rateName The name used to construct a rate of this type using
+    //!     the newReactionRate() function or from a YAML input file
+    virtual void registerRateBuilder(const string& extensionName,
+        const string& className, const string& rateName)
+    {
+        throw NotImplementedError("ExtensionManager::registerRateBuilder");
+    }
+
+    //! Register a user-defined ReactionData implementation
+    //! @param extensionName The name of the library/module containing the user-defined
+    //!     type. For example, the module name for rates implemented in Python.
+    //! @param className The name of the data object in the user's code. For example,
+    //!     the Python class name
+    //! @param rateName The name of the corresponding reaction rate type
+    virtual void registerRateDataBuilder(const string& extensionName,
+        const string& className, const string& rateName)
+    {
+        throw NotImplementedError("ExtensionManager::registerRateDataBuilder");
+    }
+
     //! Create an object in an external language that wraps the specified ReactionData
     //! object
     //!

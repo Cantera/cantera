@@ -8,6 +8,9 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ExtensionManagerFactory.h"
 
+#define BOOST_DLL_USE_STD_FS
+#include <boost/dll/import.hpp>
+
 #include <fstream>
 #include <sstream>
 #include <mutex>
@@ -402,9 +405,22 @@ void Application::loadExtension(const string& extType, const string& name)
     if (m_loaded_extensions.count({extType, name})) {
         return;
     }
-    auto manager = ExtensionManagerFactory::build(extType);
+
+    writelog("Loading cantera_python library\n");
+    typedef ExtensionManager* (creator_t)();
+    auto loader = boost::dll::import_alias<creator_t>( // type of imported symbol must be explicitly specified
+        "cantera_python",                              // path to library
+        "create_manager",                              // symbol to import
+        boost::dll::load_mode::search_system_folders | boost::dll::load_mode::append_decorations | boost::dll::load_mode::rtld_global // append extensions and prefixes, and search normal library path
+    );
+    auto manager = loader();
+    ExtensionManagerFactory::factory().reg("python", [&]() { return loader(); });
+
+    Cantera::writelog("Registered extensions with factory {}\n",
+                      (void*) &ExtensionManagerFactory::factory());
     manager->registerRateBuilders(name);
     m_loaded_extensions.insert({extType, name});
+    writelog("Done loading extension\n");
 }
 
 Application* Application::s_app = 0;

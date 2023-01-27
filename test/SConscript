@@ -12,7 +12,7 @@ localenv = env.Clone()
 
 # Where possible, link tests against the shared libraries to minimize the sizes
 # of the resulting binaries.
-if localenv['OS'] == 'Linux':
+if localenv['OS'] == 'Linux' or localenv['OS'] == 'Darwin':
     cantera_libs = localenv['cantera_shared_libs']
 else:
     cantera_libs = localenv['cantera_libs']

@@ -2219,6 +2219,9 @@ else:
 env["external_libs"] = []
 env["external_libs"].extend(env["sundials_libs"])
 
+if env["OS"] == "Linux":
+    env["external_libs"].append("dl")
+
 if env["use_hdf5"]:
     env["external_libs"].append("hdf5")
 

@@ -26,11 +26,11 @@ public:
     //! Delete the static instance of this factory
     virtual void deleteFactory();
 
-private:
     //! Static function that returns the static instance of the factory, creating it
     //! if necessary.
     static ExtensionManagerFactory& factory();
 
+private:
     //! static member of the single factory instance
     static ExtensionManagerFactory* s_factory;
 
