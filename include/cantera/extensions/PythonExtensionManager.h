@@ -8,6 +8,9 @@
 
 #include "cantera/base/ExtensionManager.h"
 
+#define BOOST_DLL_USE_STD_FS
+#include <boost/dll/alias.hpp>
+
 namespace Cantera
 {
 
@@ -29,17 +32,21 @@ public:
     PythonExtensionManager();
     virtual void registerRateBuilders(const std::string& extensionName) override;
 
-    //! Function called from Cython to register an ExtensibleRate implementation
-    static void registerPythonRateBuilder(const std::string& moduleName,
-        const std::string& className, const std::string& rateName);
+    void registerRateBuilder(const string& moduleName,
+        const string& className, const string& rateName) override;
 
-    //! Function called from Cython to register an ExtensibleRateData implementation
-    static void registerPythonRateDataBuilder(const std::string& moduleName,
-        const std::string& className, const std::string& rateName);
+    static ExtensionManager* create() {
+        return new PythonExtensionManager();
+    }
+
+    void registerRateDataBuilder(const string& moduleName,
+        const string& className, const string& rateName) override;
 
 private:
     static bool s_imported;
 };
+
+BOOST_DLL_ALIAS(Cantera::PythonExtensionManager::create, create_manager);
 
 }
 

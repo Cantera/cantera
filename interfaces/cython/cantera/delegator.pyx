@@ -392,11 +392,14 @@ def extension(*, name, data=None):
     .. versionadded:: 3.0
     """
     def decorator(cls):
+        cdef shared_ptr[CxxExtensionManager] mgr = (
+            CxxExtensionManagerFactory.build(stringify("python")))
+
         if issubclass(cls, ExtensibleRate):
             cls._reaction_rate_type = name
             # Registering immediately supports the case where the main
             # application is Python
-            CxxPythonExtensionManager.registerPythonRateBuilder(
+            mgr.get().registerRateBuilder(
                 stringify(cls.__module__), stringify(cls.__name__), stringify(name))
 
             # Deferred registration supports the case where the main application
@@ -406,7 +409,7 @@ def extension(*, name, data=None):
             # Register the ReactionData delegator
             if not issubclass(data, ExtensibleRateData):
                 raise ValueError("'data' must inherit from 'ExtensibleRateData'")
-            CxxPythonExtensionManager.registerPythonRateDataBuilder(
+            mgr.get().registerRateDataBuilder(
                 stringify(data.__module__), stringify(data.__name__), stringify(name))
             _rate_data_delegators.append((data.__module__, data.__name__, name))
         else:

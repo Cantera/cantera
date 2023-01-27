@@ -28,13 +28,15 @@ cdef extern from "cantera/kinetics/ReactionRateDelegator.h" namespace "Cantera":
         CxxReactionRateDelegator()
 
 
-cdef extern from "cantera/extensions/PythonExtensionManager.h" namespace "Cantera":
-    cdef cppclass CxxPythonExtensionManager "Cantera::PythonExtensionManager":
-        @staticmethod
-        void registerPythonRateBuilder(string&, string&, string&)
-        @staticmethod
-        void registerPythonRateDataBuilder(string&, string&, string&)
+cdef extern from "cantera/base/ExtensionManager.h" namespace "Cantera":
+    cdef cppclass CxxExtensionManager "Cantera::ExtensionManager":
+        void registerRateBuilder(string&, string&, string&)
+        void registerRateDataBuilder(string&, string&, string&)
 
+cdef extern from "cantera/base/ExtensionManagerFactory.h" namespace "Cantera":
+    cdef cppclass CxxExtensionManagerFactory "Cantera::ExtensionManagerFactory":
+        @staticmethod
+        shared_ptr[CxxExtensionManager] build(string&)
 
 cdef public char* ct_getExceptionString(object exType, object exValue, object exTraceback):
     import traceback
@@ -67,15 +69,16 @@ cdef public object ct_newPythonExtensibleRateData(CxxReactionDataDelegator* dele
 
 
 cdef public ct_registerReactionDelegators():
+    cdef shared_ptr[CxxExtensionManager] mgr = (
+        CxxExtensionManagerFactory.build(stringify("python")))
+
     for module, cls, name in ct.delegator._rate_delegators:
-        CxxPythonExtensionManager.registerPythonRateBuilder(
-            stringify(module), stringify(cls), stringify(name))
+        mgr.get().registerRateBuilder(stringify(module), stringify(cls), stringify(name))
 
     ct.delegator._rate_delegators.clear()
 
     for module, cls, name in ct.delegator._rate_data_delegators:
-        CxxPythonExtensionManager.registerPythonRateDataBuilder(
-            stringify(module), stringify(cls), stringify(name))
+        mgr.get().registerRateDataBuilder(stringify(module), stringify(cls), stringify(name))
 
     ct.delegator._rate_data_delegators.clear()
 
