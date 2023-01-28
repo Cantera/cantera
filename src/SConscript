@@ -112,12 +112,46 @@ env['cantera_staticlib'] = lib
 localenv.Append(LIBS=localenv['external_libs'],
                 LIBPATH=localenv['sundials_libdir'] + localenv['blas_lapack_dir'])
 
+def create_def_file(target, source, env):
+    # Adapted from https://stackoverflow.com/a/58958294
+    startPoint = False
+    # Exclude standard API like sprintf to avoid multiple definition link error
+    excluded_functions = {'sprintf', 'snprintf', 'sscanf', 'fprintf'}
+
+    func_count = 0
+    with open(target[0].abspath, 'w') as outfile, open(source[0].abspath, 'r') as infile:
+        outfile.write('EXPORTS\n')
+
+        for l in infile:
+            l_str = l.strip()
+            if startPoint and l_str == 'Summary': # end point
+                break
+            if not startPoint and "public symbols" in l_str:
+                startPoint = True
+                continue
+            if startPoint and l_str:
+                funcName = l_str.split(' ')[-1]
+                if funcName not in excluded_functions:
+                    func_count += 1
+                    outfile.write("    " + funcName + "\n")
+
+    logger.info(f"Exported {func_count} functions in .def file")
+
 # Build the Cantera shared library
 if localenv['layout'] != 'debian':
     if localenv['renamed_shared_libraries']:
         sharedName = '../lib/cantera_shared'
     else:
         sharedName = '../lib/cantera'
+
+    if env['CC'] == 'cl':
+        # For MSVC, use the static library to create a .def file listing all
+        # symbols to export in the shared library.
+        dump = localenv.Command('cantera.dump', lib,
+                                'dumpbin /LINKERMEMBER:1 $SOURCE /OUT:$TARGET')
+        def_file = localenv.Command('cantera_shared.def', dump, create_def_file)
+        localenv.Append(LINKFLAGS=['/DEF:build/src/cantera_shared.def',
+                                   '/IGNORE:4102'])
 
     if localenv['versioned_shared_library']:
         lib = build(localenv.SharedLibrary(sharedName, libraryTargets,
@@ -132,6 +166,8 @@ if localenv['layout'] != 'debian':
     if env["OS"] == "Darwin":
         localenv.AddPostAction(lib,
             Action(f"install_name_tool -id @rpath/{lib[0].name} {lib[0].get_abspath()}"))
+    elif env["CC"] == "cl":
+        env.Depends(lib, def_file)
 
     env['cantera_shlib'] = lib
     localenv.Depends(lib, localenv['config_h_target'])
