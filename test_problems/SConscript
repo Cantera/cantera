@@ -14,13 +14,6 @@ for optimize_flag in ('-O3', '-O2', '/O2'):
         ccflags.remove(optimize_flag)
 localenv['CCFLAGS'] = ccflags
 
-# Where possible, link tests against the shared libraries to minimize the sizes
-# of the resulting binaries.
-if localenv['OS'] == 'Linux':
-    cantera_libs = localenv['cantera_shared_libs']
-else:
-    cantera_libs = localenv['cantera_libs']
-
 localenv['ENV']['CANTERA_DATA'] = (Dir('#build/data').abspath + os.pathsep +
                                    Dir('#samples/data').abspath + os.pathsep +
                                    Dir('#test/data').abspath)
@@ -70,7 +63,7 @@ class Test(object):
         if source_files:
             self.program = localenv.Program(
                 pjoin(self.subdir, self.programName), source_files,
-                LIBS=self.libs or cantera_libs)
+                LIBS=self.libs or localenv['cantera_shared_libs'])
         else:
             if isinstance(self.programName, str):
                 self.programName += '$PROGSUFFIX'

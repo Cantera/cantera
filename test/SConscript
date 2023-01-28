@@ -10,16 +10,9 @@ from buildutils import *
 Import('env','build','install')
 localenv = env.Clone()
 
-# Where possible, link tests against the shared libraries to minimize the sizes
-# of the resulting binaries.
-if localenv['OS'] == 'Linux' or localenv['OS'] == 'Darwin':
-    cantera_libs = localenv['cantera_shared_libs']
-else:
-    cantera_libs = localenv['cantera_libs']
-
 localenv.Prepend(CPPPATH=['#include'],
                  LIBPATH='#build/lib')
-localenv.Append(LIBS=cantera_libs,
+localenv.Append(LIBS=localenv['cantera_shared_libs'],
                 CCFLAGS=env['warning_flags'])
 
 if env['googletest'] == 'submodule':
