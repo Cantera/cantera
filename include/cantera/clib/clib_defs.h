@@ -11,21 +11,10 @@
 #include "cantera/base/config.h"
 #include <stdlib.h>
 
-#ifdef _WIN32
-// Windows (MSVC or MinGW)
-# ifdef CANTERA_USE_INTERNAL
-#  define CANTERA_CAPI extern __declspec(dllexport)
-# else
-#  define CANTERA_CAPI extern __declspec(dllimport)
-# endif
-#else
-// Non-Windows platform
-# ifdef CANTERA_USE_INTERNAL
-#  define CANTERA_CAPI extern
-# else
-#  define CANTERA_CAPI
-# endif
-#endif
+// Legacy attribute applied to clib functions. Currently, used only to identify
+// functions that should be considered by the 'sourcegen' parser for inclusion in the
+// C# interface.
+#define CANTERA_CAPI
 
 // Values returned for error conditions
 #ifndef ERR
