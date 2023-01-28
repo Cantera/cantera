@@ -6,7 +6,6 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 // clib header information
-#define CANTERA_USE_INTERNAL
 #include "cantera/clib/ctsurf.h"
 
 // Cantera includes
