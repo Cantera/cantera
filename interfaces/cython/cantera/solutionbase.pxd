@@ -79,7 +79,7 @@ cdef extern from "cantera/base/SolutionArray.h" namespace "Cantera":
         size_t apiNdim()
         CxxAnyMap meta()
         void setMeta(CxxAnyMap&)
-        vector[string] components() except +translate_exception
+        vector[string] componentNames() except +translate_exception
         cbool hasComponent(string&)
         CxxAnyValue getComponent(string&) except +translate_exception
         void setComponent(string&, CxxAnyValue&) except +translate_exception
@@ -87,14 +87,14 @@ cdef extern from "cantera/base/SolutionArray.h" namespace "Cantera":
         void updateState(size_t) except +translate_exception
         vector[double] getState(size_t) except +translate_exception
         void setState(size_t, vector[double]&) except +translate_exception
-        vector[string] listExtra(cbool all)
+        vector[string] listExtra()
         cbool hasExtra(string&)
         void addExtra(string&, cbool) except +translate_exception
         CxxAnyMap getAuxiliary(size_t) except +translate_exception
         void setAuxiliary(size_t, CxxAnyMap&) except +translate_exception
         void append(vector[double]&, CxxAnyMap&) except +translate_exception
-        void save(string&, string&, string&, int) except +translate_exception
-        CxxAnyMap restore(string&, string&) except +translate_exception
+        string save(string&, string&, string&, string&, int) except +translate_exception
+        CxxAnyMap restore(string&, string&, string&) except +translate_exception
 
     cdef shared_ptr[CxxSolutionArray] CxxNewSolutionArray "Cantera::SolutionArray::create" (
         shared_ptr[CxxSolution], size_t, CxxAnyMap&) except +translate_exception

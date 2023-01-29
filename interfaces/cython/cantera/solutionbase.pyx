@@ -525,7 +525,7 @@ cdef class SolutionArrayBase:
         return self.base.size()
 
     def _api_shape(self):
-        """ Retrieve shape information avalailable in C++ core. """
+        """ Retrieve shape information available in C++ core. """
         cdef vector[long int] cxx_shape = self.base.apiShape()
         return tuple(int(dim) for dim in cxx_shape)
 
@@ -553,15 +553,19 @@ cdef class SolutionArrayBase:
     @property
     def extra(self):
         """ Retrieve ordered list of auxiliary `SolutionArrayBase` components """
-        return self._list_extra()
+        cdef vector[string] cxx_name = self.base.listExtra()
+        out = []
+        for item in cxx_name:
+            out.append(pystr(item))
+        return out
 
     @property
-    def components(self):
+    def component_names(self):
         """
         Retrieve ordered list of all `SolutionArrayBase` components (defining
         thermodynamic state or auxiliary `extra` information)
         """
-        cdef vector[string] cxx_data = self.base.components()
+        cdef vector[string] cxx_data = self.base.componentNames()
         out = []
         for item in cxx_data:
             out.append(pystr(item))
@@ -608,14 +612,6 @@ cdef class SolutionArrayBase:
             cxx_data.push_back(item)
         self.base.setState(loc, cxx_data)
 
-    def _list_extra(self, all=True):
-        """ Retrieve list of `SolutionArrayBase` extra components """
-        cdef vector[string] cxx_name = self.base.listExtra(all)
-        out = []
-        for item in cxx_name:
-            out.append(pystr(item))
-        return out
-
     def _has_extra(self, name):
         """ Check whether `SolutionArrayBase` has extra component """
         return self.base.hasExtra(stringify(name))
@@ -641,17 +637,14 @@ cdef class SolutionArrayBase:
 
     def _cxx_save(self, filename, name, key, description, compression):
         """ Interface `SolutionArray.save` with C++ core """
-        if key == "":
-            key = "data"
-        cdef string cxx_path = self.base.save(
+        cdef string cxx_path
+        cxx_path = self.base.save(
             stringify(str(filename)), stringify(name), stringify(key),
             stringify(description), compression)
         return pystr(cxx_path)
 
     def _cxx_restore(self, filename, name, key):
         """ Interface `SolutionArray.restore` with C++ core """
-        if key == "":
-            key = "data"
         cdef CxxAnyMap header
         header = self.base.restore(
             stringify(str(filename)), stringify(name), stringify(key))

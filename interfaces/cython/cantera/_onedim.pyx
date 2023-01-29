@@ -1463,7 +1463,7 @@ cdef class Sim1D:
         def __get__(self):
             return self.sim.fixedTemperatureLocation()
 
-    def save(self, filename='soln.yaml', name='solution', description='none',
+    def save(self, filename='soln.yaml', name='solution', description=None,
              loglevel=1, compression=0):
         """
         Save the solution in YAML or HDF format.
