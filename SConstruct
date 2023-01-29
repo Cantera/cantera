@@ -1900,13 +1900,20 @@ if env["python_package"] == "full" and env["OS"] == "Darwin":
     # the name of the wheel file for the Python module. If this is not specified by the
     # MACOSX_DEPLOYMENT_TARGET environment variable, get the value from the Python
     # installation and use that.
-    if not env["ENV"].get("MACOSX_DEPLOYMENT_TARGET", False):
+    mac_target = env["ENV"].get("MACOSX_DEPLOYMENT_TARGET", None)
+    if not mac_target:
         info = get_command_output(
             env["python_cmd"],
             "-c",
             "import sysconfig; print(sysconfig.get_platform())"
         )
-        env["ENV"]["MACOSX_DEPLOYMENT_TARGET"] = info.split("-")[1]
+        mac_target = info.split("-")[1]
+        if parse_version(mac_target) < parse_version('10.15'):
+            # macOS 10.15 is the minimum version with C++17 support
+            mac_target = '10.15'
+
+    env["ENV"]["MACOSX_DEPLOYMENT_TARGET"] = mac_target
+    logger.info(f"MACOSX_DEPLOYMENT_TARGET = {mac_target}")
 
 # Matlab Toolbox settings
 if env["matlab_path"] != "" and env["matlab_toolbox"] == "default":
