@@ -1139,15 +1139,15 @@ def multi_glob(env: "SCEnvironment", subdir: str, *args: str):
     return matches
 
 
-def which(program: str) -> bool:
+def which(program: str) -> "Optional[str]":
     """Replicates the functionality of the 'which' shell command."""
     for ext in ("", ".exe", ".bat"):
         fpath = Path(program + ext)
         for path in os.environ["PATH"].split(os.pathsep):
             exe_file = Path(path).joinpath(fpath)
             if exe_file.exists() and os.access(exe_file, os.X_OK):
-                return True
-    return False
+                return str(exe_file)
+    return None
 
 
 def listify(value: "Union[str, Iterable]") -> "List[str]":
