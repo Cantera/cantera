@@ -79,8 +79,8 @@
 * Class names use `InitialCapsNames`
 * Methods use `camelCaseNames`
 * Do not indent the contents of namespaces
-* Code should follow the C++14 standard, with minimum required compiler versions
-  GCC 6.1, Clang 3.4, MSVC 14.1 (2017) and Intel 17.0.
+* Code should follow the C++17 standard, with minimum required compiler versions
+  GCC 7.0, Clang 4.0, MSVC 14.14 (Visual Studio 2017 version 15.7) and Intel 19.0.
 * Avoid manual memory management (that is, `new` and `delete`), preferring to use
   standard library containers, as well as `std::unique_ptr` and
   `std::shared_ptr` when dynamic allocation is required.
