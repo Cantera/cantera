@@ -9,7 +9,7 @@ import numpy as np
 
 from ._cantera import *
 from .composite import Solution, SolutionArray
-from . import __version__, __git_commit__
+from . import __version__, __git_commit__, hdf_support
 
 
 class FlameBase(Sim1D):
@@ -127,16 +127,21 @@ class FlameBase(Sim1D):
 
         elif isinstance(data, (str, Path)):
             data = str(data)
-            if data.endswith('.hdf5') or data.endswith('.h5'):
+            arr = SolutionArray(self.gas, extra=self.other_components())
+            if any(data.endswith(suffix) for suffix in [".hdf5", ".h5", ".hdf"]):
                 # data source identifies a HDF file
-                arr = SolutionArray(self.gas, extra=self.other_components())
-                arr.read_hdf(data, group=group, subgroup=self.domains[1].name)
+                if "native" in hdf_support():
+                    arr.restore(data, name=group, key=self.domains[1].name)
+                else:
+                    arr.read_hdf(data, group=group, subgroup=self.domains[1].name)
+            elif data.endswith(".yaml") or data.endswith(".yml"):
+                # data source identifies a YAML file
+                arr.restore(data, name=group, key=self.domains[1].name)
             elif data.endswith('.csv'):
                 # data source identifies a CSV file
-                arr = SolutionArray(self.gas, extra=self.other_components())
                 arr.read_csv(data)
             else:
-                raise ValueError(f"'{data}' does not identify CSV or HDF file.")
+                raise ValueError(f"'{data}' does not identify CSV, YAML or HDF file.")
         else:
             # data source is presumably a pandas DataFrame
             arr = SolutionArray(self.gas, extra=self.other_components())
@@ -165,8 +170,6 @@ class FlameBase(Sim1D):
 
             self.gas.TPY = right.T, self.P, right.Y
             arr[i:].velocity = - u[i:] * right.mdot / self.gas.density / u[-1]
-
-            arr.velocity = u
 
         elif isinstance(left, Inlet1D):
             # adjust temperatures
@@ -489,8 +492,7 @@ class FlameBase(Sim1D):
         installed using pip or conda.
         """
         # @todo: Discuss implementation that allows for restoration of boundaries
-        raise NotImplementedError(
-            "Use 'save'/'restore' or 'write_hdf'/'read_hdf' as alternatives.")
+        raise NotImplementedError("Use 'save'/'restore' as alternatives.")
 
     def write_hdf(self, filename, *args, group=None, species='X', mode='a',
                   description=None, compression=None, compression_opts=None,
@@ -566,32 +568,16 @@ class FlameBase(Sim1D):
 
         .. deprecated:: 3.0
 
-            Method to be removed after Cantera 3.0; replaceable by 'Sim1D.save'.
+            Method to be removed after Cantera 3.0; use `save` instead. Note that
+            the call is redirected to `save` in order to prevent the creation of a file
+            with deprecated HDF format.
         """
-        warnings.warn(
-            "Method to be removed after Cantera 3.0; use 'Sim1D.save' instead.",
-            DeprecationWarning)
-        cols = ('extra', 'T', 'P', species)
-        meta = self.settings
-        meta['date'] = formatdate(localtime=True)
-        meta['cantera_version'] = __version__
-        meta['git_commit'] = __git_commit__
-        if description is not None:
-            meta['description'] = description
-        for i in range(3):
-            arr = self.to_solution_array(domain=self.domains[i], normalize=normalize)
-            group = arr.write_hdf(filename, *args, group=group, cols=cols,
-                                  subgroup=self.domains[i].name,
-                                  attrs=meta, mode=mode, append=(i > 0),
-                                  compression=compression,
-                                  compression_opts=compression_opts,
-                                  **kwargs)
-            meta = {}
-            mode = 'a'
+        warnings.warn("Method to be removed after Cantera 3.0; use 'save' instead.\n"
+            "Note that the call is redirected to 'save' in order to prevent the "
+            "creation of a file with deprecated HDF format.", DeprecationWarning)
 
-        if not quiet:
-            msg = "Solution saved to '{0}' as group '{1}'."
-            print(msg.format(filename, group))
+        self.save(filename, name=group, description=description,
+                  loglevel=int(not quiet))
 
     def read_hdf(self, filename, group=None, restore_boundaries=True, normalize=True):
         """
@@ -611,7 +597,15 @@ class FlameBase(Sim1D):
         The method imports data using `SolutionArray.read_hdf` via
         `from_solution_array` and requires a working installation of *h5py*
         (``h5py`` can be installed using pip or conda).
+
+        .. deprecated:: 3.0
+
+            Method to be removed after Cantera 3.0; superseded by `restore`.
         """
+        warnings.warn(
+            "Method to be removed after Cantera 3.0; use 'restore' instead.",
+            DeprecationWarning)
+
         if restore_boundaries:
             domains = range(3)
         else:
