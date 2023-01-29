@@ -219,8 +219,8 @@ config_options = [
            options with spaces, for example, "cxx_flags='-g -Wextra -O3 --std=c++14'"
            """,
         {
-            "cl": "/EHsc",
-            "default": "-std=c++14"
+            "cl": "/EHsc /std:c++17",
+            "default": "-std=c++17"
         }),
     Option(
         "CC",
