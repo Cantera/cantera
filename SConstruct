@@ -1131,9 +1131,6 @@ if env['coverage']:
         logger.error("Coverage testing is only available with GCC.")
         exit(0)
 
-if env['toolchain'] == 'mingw':
-    env.Append(LINKFLAGS=['-static-libgcc', '-static-libstdc++'])
-
 def config_error(message):
     if env["logging"].lower() == "debug":
         logger.error(message)

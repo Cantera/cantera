@@ -70,6 +70,19 @@ if env['OS'] == 'Windows':
     dll = [f for f in localenv['cantera_shlib'] if f.name.endswith('.dll')][0]
     copy_dll = localenv.Command(f'cantera/{dll.name}', dll, Copy("$TARGET", "$SOURCE"))
     localenv.Depends(ext, copy_dll)
+
+    # If compiling with MinGW, there are some system libraries that also seem
+    # to need to be installed alongside the Python extension -- elsewhere on the path
+    # does not appear to work.
+    if env['toolchain'] == 'mingw':
+        mingw_dir = Path(which(env.subst('$CXX'))).parent
+        prefixes = ['libgcc', 'libstdc++', 'libwinpthread']
+        for lib in mingw_dir.glob('*.dll'):
+            if any(lib.name.startswith(prefix) for prefix in prefixes):
+                copy_lib = localenv.Command(f'cantera/{lib.name}', str(lib),
+                                            Copy('$TARGET', '$SOURCE'))
+                localenv.Depends(mod, copy_lib)
+
 else:
     localenv.Depends(ext, localenv['cantera_shlib'])
 
