@@ -726,6 +726,12 @@ jobs:
         python_package=full env_vars=PYTHONPATH,GITHUB_ACTIONS
         toolchain=mingw f90_interface=n --debug=time
       shell: cmd
+    - name: Upload Wheel
+      uses: actions/upload-artifact@v3
+      with:
+        path: build\python\dist\Cantera*.whl
+        name: Cantera-win_amd64.whl
+        retention-days: 2
     - name: Test Cantera
       run: scons test show_long_tests=yes verbose_tests=yes --debug=time
 
