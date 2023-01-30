@@ -735,6 +735,15 @@ jobs:
         retention-days: 2
     - name: Test Cantera
       run: scons test show_long_tests=yes verbose_tests=yes --debug=time
+    - name: Upload Test binaries
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        path: |
+          build/test/**/*.exe
+          build/lib/*.dll
+        name: mingw-gtest-binaries
+        retention-days: 2
 
   dotnet:
     name: .NET on ${{ matrix.os }}
