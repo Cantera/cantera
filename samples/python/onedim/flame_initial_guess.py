@@ -61,14 +61,14 @@ print("Save CSV")
 csv_filepath = output_path / "flame.csv"
 f.write_csv(csv_filepath)
 
-try:
+if "native" in ct.hdf_support():
     # HDF is not a required dependency
     hdf_filepath = output_path / "flame.h5"
     hdf_filepath.unlink(missing_ok=True)
     f.save(hdf_filepath, name="freeflame", description="Initial methane flame")
     print("Save HDF\n")
-except ct.CanteraError as err:
-    print(f"Skipping HDF: {err}\n")
+else:
+    print(f"Skipping HDF: Cantera compiled without HDF support\n")
     hdf_filepath = None
 
 # Restore the flame from different formats
@@ -104,7 +104,7 @@ if hdf_filepath:
     print("Load initial guess from HDF file via SolutionArray")
     arr2 = ct.SolutionArray(gas)
     # the flame domain needs to be specified as subgroup
-    arr2.read_hdf(hdf_filepath, group="freeflame", subgroup="flame")
+    arr2.restore(hdf_filepath, name="freeflame", key="flame")
     gas.TPX = Tin, p, reactants  # set the gas T back to the inlet before making new flame
     f2 = ct.FreeFlame(gas, width=width)
     f2.set_initial_guess(data=arr2)

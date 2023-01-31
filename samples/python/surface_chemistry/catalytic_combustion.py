@@ -10,7 +10,7 @@ and has some effect very near the surface.
 The catalytic combustion mechanism is from Deutschmann et al., 26th
 Symp. (Intl.) on Combustion,1996 pp. 1747-1754
 
-Requires: cantera >= 2.6.0
+Requires: cantera >= 3.0
 Keywords: catalysis, combustion, 1D flow, surface chemistry
 """
 
@@ -108,16 +108,15 @@ sim.solve(loglevel)
 # show the solution
 sim.show_solution()
 
-# save the full solution. The 'restore' method can be used to restart
-# a simulation from a solution stored in this form.
-try:
-    sim.write_hdf('catalytic_combustion.h5', group='soln1', mode='w',
-                  description='catalytic combustion example')
-except ImportError:
-    sim.save("catalytic_combustion.yaml", "soln1")
+# save the full solution to HDF or YAML container files. The 'restore' method can be
+# used to restore or restart a simulation from a solution stored in this form.
+if "native" in ct.hdf_support():
+    filename = "catalytic_combustion.h5"
+else:
+    filename = "catalytic_combustion.yaml"
+sim.save(filename, "soln1", description="catalytic combustion example")
 
-# save selected solution components in a CSV file for plotting in
-# Excel or MATLAB.
+# save selected solution components in a CSV file for plotting in Excel or MATLAB.
 sim.write_csv('catalytic_combustion.csv', quiet=False)
 
 sim.show_stats(0)
