@@ -8,9 +8,6 @@
 
 #include "cantera/base/ExtensionManager.h"
 
-#define BOOST_DLL_USE_STD_FS
-#include <boost/dll/alias.hpp>
-
 namespace Cantera
 {
 
@@ -43,8 +40,6 @@ public:
 private:
     static bool s_imported;
 };
-
-BOOST_DLL_ALIAS(Cantera::PythonExtensionManager::registerSelf, registerPythonExtensionManager);
 
 }
 
