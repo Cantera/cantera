@@ -133,14 +133,14 @@ jobs:
         python-version: 3.11
       if: matrix.python-version == '3.11'
     - name: Install Brew dependencies
-      run: brew install boost libomp hdf5
+      run: brew install --display-times boost libomp hdf5
     - name: Setup Homebrew Python
       # This path should work for future Python versions as well
       if: matrix.python-version != '3.11'
       run: |
-        brew install python@${{ matrix.python-version }}
+        brew install --display-times python@${{ matrix.python-version }}
         brew link --force --overwrite python@${{ matrix.python-version }}
-        brew install scons
+        brew install --display-times scons
     - name: Upgrade pip
       run: $PYTHON_CMD -m pip install -U pip 'setuptools>=47.0.0,<48' wheel
     - name: Install Python dependencies
@@ -772,7 +772,7 @@ jobs:
       shell: pwsh
       if: matrix.os == 'windows-2022'
     - name: Install Brew dependencies (macOS)
-      run: brew install hdf5
+      run: brew install --display-times hdf5
       if: matrix.os == 'macos-11'
     - name: Install Apt dependencies (Ubuntu)
       run: sudo apt install libhdf5-dev
