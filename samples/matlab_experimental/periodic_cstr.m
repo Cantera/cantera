@@ -66,7 +66,7 @@ function periodic_cstr
     % Connect the upstream reservoir to the reactor with a mass flow
     % controller (constant mdot). Set the mass flow rate to 1.25 sccm.
     sccm = 1.25;
-    vdot = sccm * 1.0e-6/60.0 * ((oneatm / gas.P) * (gas.T / 273.15)); % m^3/s
+    vdot = sccm * 1.0e-6/60.0 * ((OneAtm / gas.P) * (gas.T / 273.15)); % m^3/s
     mdot = gas.D * vdot; % kg/s
     mfc = MassFlowController;
     mfc.install(upstream, cstr);

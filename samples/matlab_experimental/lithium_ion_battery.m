@@ -34,7 +34,7 @@ help lithium_ion_battery
 SOC = 0:0.02:1; % [-] Input state of charge (0...1) (can be a vector)
 I_app = -1; % [A] Externally-applied current, negative for discharge
 T = 293; % [K] Temperature
-P = oneatm; % [Pa] Pressure
+P = OneAtm; % [Pa] Pressure
 
 %% Cell properties
 
@@ -125,7 +125,7 @@ function anCurr = anode_curr(phi_s, phi_l, X_Li_an, anode, elde, elyt, ...
     r = anode_interface.ropNet; % [kmol/m2/s]
 
     % Calculate the current. Should be negative for cell discharge.
-    anCurr = r * faradayconstant * S_an; %
+    anCurr = r * FaradayConstant * S_an; %
 end
 
 % This function returns the Cantera calculated cathode current (in A)
@@ -142,5 +142,5 @@ function caCurr = cathode_curr(phi_s, phi_l, X_Li_ca, cathode, elde, elyt, catho
     r = cathode_interface.ropNet; % [kmol/m2/s]
 
     % Calculate the current. Should be negative for cell discharge.
-    caCurr = r * faradayconstant * S_ca * (-1); %
+    caCurr = r * FaradayConstant * S_ca * (-1); %
 end

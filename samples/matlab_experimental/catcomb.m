@@ -23,7 +23,7 @@ t0 = cputime; % record the starting time
 
 %% Set parameter values
 
-p = oneatm; % pressure
+p = OneAtm; % pressure
 tinlet = 300.0; % inlet temperature
 tsurf = 900.0; % surface temperature
 mdot = 0.06; % kg/m^2/s

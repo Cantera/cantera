@@ -18,7 +18,7 @@ runtime = cputime; % Record the starting time
 
 %% Parameter values of inlet streams
 
-p = oneatm; % Pressure
+p = OneAtm; % Pressure
 tin = 300.0; % Inlet temperature
 mdot_o = 0.72; % Air mass flux, kg/m^2/s
 mdot_f = 0.24; % Fuel mass flux, kg/m^2/s

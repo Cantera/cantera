@@ -16,7 +16,7 @@ t0 = cputime; % record the starting time
 
 %% Set parameter values
 
-p = oneatm; % pressure
+p = OneAtm; % pressure
 tin = 300.0; % inlet temperature
 mdot_o = 0.72; % air, kg/m^2/s
 mdot_f = 0.24; % fuel, kg/m^2/s

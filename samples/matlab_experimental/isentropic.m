@@ -19,7 +19,7 @@ function isentropic(g)
     end
 
     % set the stagnation state
-    gas.TPX = {1200.0, 10.0 * oneatm, 'H2:1,N2:0.1'};
+    gas.TPX = {1200.0, 10.0 * OneAtm, 'H2:1,N2:0.1'};
     gas.basis = 'mass';
     s0 = gas.S;
     h0 = gas.H;

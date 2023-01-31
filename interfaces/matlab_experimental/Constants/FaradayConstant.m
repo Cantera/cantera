@@ -1,7 +1,7 @@
-function r = faradayconstant
+function r = FaradayConstant
     % Get the Faraday constant in C/kmol of electron. ::
     %
-    %     >> r = faradayconstant
+    %     >> r = FaradayConstant
     %
     % :return:
     %     The Faraday constant in C/kmol-e.
