@@ -87,6 +87,11 @@ void loadExtension(const std::string& extType, const std::string& name);
 //! @since New in Cantera 3.0
 void loadExtensions(const AnyMap& node);
 
+//! Returns `true` if Cantera was loaded as a shared library in the current
+//! application. Returns `false` if it was statically linked.
+//! @since New in Cantera 3.0
+bool usingSharedLibrary();
+
 //! Delete and free all memory associated with the application
 /*!
  * Delete all global data.  It should be called at the end of the

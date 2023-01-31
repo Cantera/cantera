@@ -402,6 +402,11 @@ std::string Application::findInputFile(const std::string& name)
 
 void Application::loadExtension(const string& extType, const string& name)
 {
+    if (!usingSharedLibrary()) {
+        throw CanteraError("Application::loadExtension",
+            "Loading extensions requires linking to the Cantera shared library\n"
+            "rather than the static library");
+    }
     if (m_loaded_extensions.count({extType, name})) {
         return;
     }
