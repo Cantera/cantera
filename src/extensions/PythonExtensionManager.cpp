@@ -20,6 +20,16 @@
 #include <windows.h>
 #endif
 
+#define BOOST_DLL_USE_STD_FS
+#ifdef __MINGW32__
+#define BOOST_DLL_FORCE_ALIAS_INSTANTIATION
+#endif
+#include <boost/dll/alias.hpp>
+
+// This creates and exports the name that is imported from Application::loadExtension
+BOOST_DLL_ALIAS(Cantera::PythonExtensionManager::registerSelf,
+                registerPythonExtensionManager);
+
 namespace ba = boost::algorithm;
 using namespace std;
 
