@@ -17,7 +17,7 @@ t0 = cputime; % record the starting time
 
 %% Set parameter values
 
-p = 0.05 * oneatm; % pressure
+p = 0.05 * OneAtm; % pressure
 tburner = 373.0; % burner temperature
 mdot = 0.06; % kg/m^2/s
 

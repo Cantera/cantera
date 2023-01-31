@@ -140,7 +140,7 @@ for i = 1:length(x_calc)
     % Velocity is calculated from Mass flow rate, Area and Density
     vx_calc(i) = mdot_calc ./ (A_calc(i) * rho_calc(i));
     % Specific Gas Constant
-    R_calc(i) = gasconstant() / gas_calc.meanMolecularWeight;
+    R_calc(i) = GasConstant() / gas_calc.meanMolecularWeight;
     % Mach No. is calculated from local velocity and local speed of sound
     M_calc(i) = vx_calc(i) / gas_calc.soundSpeed;
     % Pressure is calculated from density, temperature and gas constant

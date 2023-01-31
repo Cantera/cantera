@@ -23,7 +23,7 @@ function F = PFR_Solver(x, soln_vector, gas, mdot, A_in, dAdx, k)
     gas.TDY = {T, rho, Y};
 
     MW_mix = gas.meanMolecularWeight;
-    Ru = gasconstant;
+    Ru = GasConstant;
     R = Ru / MW_mix;
     nsp = gas.nSpecies;
     vx = mdot / (rho * A);

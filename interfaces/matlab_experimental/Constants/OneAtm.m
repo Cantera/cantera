@@ -1,4 +1,4 @@
-function p = oneatm
+function p = OneAtm
     % Get one atmosphere in Pa. ::
     %
     %     >> p = oneatm

@@ -18,7 +18,7 @@ help surfreactor
 t = 870.0;
 gas = Solution('ptcombust.yaml', 'gas');
 
-gas.TPX = {t, oneatm, 'CH4:0.01, O2:0.21, N2:0.78'};
+gas.TPX = {t, OneAtm, 'CH4:0.01, O2:0.21, N2:0.78'};
 
 % The surface reaction mechanism describes catalytic combustion of
 % methane on platinum, and is from Deutschman et al., 26th
@@ -35,7 +35,7 @@ r.V = 1.0e-6;
 
 % create a reservoir to represent the environment
 a = Solution('air.yaml', 'air', 'None');
-a.TP = {t, oneatm};
+a.TP = {t, OneAtm};
 env = Reservoir(a);
 
 % Define a wall between the reactor and the environment and

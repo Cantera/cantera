@@ -10,7 +10,7 @@ help rankine
 % Initialize parameters
 eta_pump = 0.6;
 eta_turbine = 0.8;
-p_max = 8.0 * oneatm;
+p_max = 8.0 * OneAtm;
 t1 = 300.0;
 
 % create an object representing water

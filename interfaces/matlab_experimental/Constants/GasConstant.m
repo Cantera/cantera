@@ -1,7 +1,7 @@
-function r = gasconstant
+function r = GasConstant
     % Get the universal gas constant in J/kmol-K. ::
     %
-    %     >> r = gasconstant
+    %     >> r = gasConstant
     %
     % :return:
     %     The universal gas constant in J/kmol-K.

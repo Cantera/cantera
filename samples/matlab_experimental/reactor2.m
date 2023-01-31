@@ -20,7 +20,7 @@ function reactor2(g)
     end
 
     % set the initial conditions
-    gas.TPX = {1001.0, oneatm, 'H2:2,O2:1,N2:4'};
+    gas.TPX = {1001.0, OneAtm, 'H2:2,O2:1,N2:4'};
 
     % create a reactor, and insert the gas
     r = IdealGasReactor(gas);

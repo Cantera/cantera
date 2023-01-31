@@ -41,7 +41,7 @@ function prandtl2(g)
             x = zeros(gas.nSpecies, 1);
             x(io2) = xo2(j);
             x(ih2) = 1.0 - xo2(j);
-            gas.TPX = {t(i), oneatm, x};
+            gas.TPX = {t(i), OneAtm, x};
             equilibrate(gas, 'TP');
             visc(i, j) = gas.viscosity;
             lambda(i, j) = gas.thermalConductivity;

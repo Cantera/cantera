@@ -21,7 +21,7 @@ function plotdata = ignite(g)
 
     % set the initial conditions
 
-    gas.TPX = {1001.0, oneatm, 'H2:2,O2:1,N2:4'};
+    gas.TPX = {1001.0, OneAtm, 'H2:2,O2:1,N2:4'};
     gas.basis = 'mass';
     y0 = [gas.U
           1.0 / gas.D
@@ -77,7 +77,7 @@ function plotdata = ignite(g)
         [~, n] = size(times);
         pv = zeros(gas.nSpecies + 4, n);
 
-        gas.TP = {1001.0, oneatm};
+        gas.TP = {1001.0, OneAtm};
 
         for j = 1:n
             ss = soln(:, j);
