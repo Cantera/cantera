@@ -10,6 +10,7 @@ classdef fplus < Func
     % :return:
     %     Instance of class :mat:class:`fplus`
     %
+
     methods
 
         function f = fplus(a, b)
