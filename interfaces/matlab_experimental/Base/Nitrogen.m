@@ -15,5 +15,5 @@ function n = Nitrogen()
     % :return:
     %     Instance of class :mat:class:`Solution`
     %
-    h = Solution('liquidvapor.yaml', 'nitrogen');
+    n = Solution('liquidvapor.yaml', 'nitrogen');
 end

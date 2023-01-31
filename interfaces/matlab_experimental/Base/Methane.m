@@ -15,5 +15,5 @@ function m = Methane()
     % :return:
     %     Instance of class :mat:class:`Solution`
     %
-    h = Solution('liquidvapor.yaml', 'methane');
+    m = Solution('liquidvapor.yaml', 'methane');
 end
