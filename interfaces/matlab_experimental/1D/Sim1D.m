@@ -30,7 +30,7 @@ classdef Sim1D < handle
         function s = Sim1D(domains)
             % Create a :mat:class:`Sim1D` object.
 
-            checklib;
+            ctIsLoaded;
 
             s.stID = -1;
             s.domains = domains;

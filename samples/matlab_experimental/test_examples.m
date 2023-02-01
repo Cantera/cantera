@@ -1,6 +1,6 @@
 % runs selected examples without pausing
 
-LoadCantera
+ctLoad
 clear all
 close all
 
@@ -26,6 +26,6 @@ diamond_cvd;
 
 clear all
 close all
-UnloadCantera
+ctUnload
 
 disp('Test example run successful.')

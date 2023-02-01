@@ -8,7 +8,7 @@ function d = getDataDirectories()
     % :return:
     %     Cell array with strings representing the data file search directories
     %
-    checklib;
+    ctIsLoaded;
     buflen = calllib(ct, 'ct_getDataDirectories', 0, '', ';');
     aa = char(ones(1, buflen));
     ptr = libpointer('cstring', aa);

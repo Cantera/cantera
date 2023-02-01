@@ -53,7 +53,7 @@ classdef Transport < handle
             %     Instance of class :mat:class:`Transport`.
             %
 
-            checklib;
+            ctIsLoaded;
             tr.trID = 0;
 
             if nargin == 2

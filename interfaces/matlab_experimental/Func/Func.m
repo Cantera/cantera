@@ -65,7 +65,7 @@ classdef Func < handle
             %     Instance of class :mat:class:`Func`
             %
 
-            checklib;
+            ctIsLoaded;
 
             if ~isa(typ, 'char')
                 error('Function type must be a string');

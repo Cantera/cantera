@@ -61,7 +61,7 @@ classdef ReactorNet < handle
         function r = ReactorNet(reactors)
             % Create a :mat:class:`ReactorNet` object.
 
-            checklib;
+            ctIsLoaded;
 
             if nargin ~= 1
                 error('Wrong number of arguments to ReactorNet constructor.');

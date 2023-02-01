@@ -1,9 +1,9 @@
 function ctUnload()
     % Unload the Cantear C Library from the Memory
     %
-    if libisloaded(ctSharedLibrary)
+    if libisloaded(ctLib)
         ctCleanUp;
-        unloadlibrary(ctSharedLibrary);
+        unloadlibrary(ctLib);
     end
 
     disp('Cantera has been unloaded');

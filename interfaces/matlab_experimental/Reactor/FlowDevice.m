@@ -61,7 +61,7 @@ classdef FlowDevice < handle
         function x = FlowDevice(typ)
             % Create a :mat:class:`FlowDevice` object.
 
-            checklib;
+            ctIsLoaded;
 
             if nargin == 0
                 error('please specify the type of flow device to be created');

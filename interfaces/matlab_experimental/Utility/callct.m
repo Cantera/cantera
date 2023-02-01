@@ -5,10 +5,10 @@ function output = callct(varargin)
     errorcode = [-1, -999.999, double(intmax('uint64'))];
 
     funcName = varargin{1};
-    output = calllib(ct, funcName, varargin{2:end});
+    output = calllib(ctLib, funcName, varargin{2:end});
 
     if ismember(output, errorcode)
-        error(geterr);
+        error(ctGetErr);
     end
 
 end
