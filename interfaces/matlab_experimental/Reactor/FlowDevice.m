@@ -68,7 +68,7 @@ classdef FlowDevice < handle
             end
 
             x.type = typ;
-            x.id = callct('flowdev_new', typ);
+            x.id = ctFunc('flowdev_new', typ);
             x.upstream = -1;
             x.downstream = -1;
         end
@@ -78,7 +78,7 @@ classdef FlowDevice < handle
         function delete(f)
             % Delete the :mat:class:`FlowDevice` object.
 
-            callct('flowdev_del', f.id);
+            ctFunc('flowdev_del', f.id);
         end
 
         %% Utility Methods
@@ -106,7 +106,7 @@ classdef FlowDevice < handle
 
                 i = upstream.id;
                 j = downstream.id;
-                callct('flowdev_install', f.id, i, j);
+                ctFunc('flowdev_install', f.id, i, j);
             else error('install requires 3 arguments');
             end
 
@@ -115,7 +115,7 @@ classdef FlowDevice < handle
         %% Flowdevice Get Methods
 
         function mdot = get.massFlowRate(f)
-            mdot = callct('flowdev_massFlowRate2', f.id);
+            mdot = ctFunc('flowdev_massFlowRate2', f.id);
         end
 
         %% Flowdevice Set Methods
@@ -124,9 +124,9 @@ classdef FlowDevice < handle
 
             if strcmp(f.type, 'MassFlowController')
                 if isa(mdot, 'double')
-                    k = callct('flowdev_setMassFlowCoeff', f.id, mdot);
+                    k = ctFunc('flowdev_setMassFlowCoeff', f.id, mdot);
                 elseif isa(mdot, 'Func')
-                    k = callct('flowdev_setTimeFunction', f.id, mdot.id);
+                    k = ctFunc('flowdev_setTimeFunction', f.id, mdot.id);
                 else
                     error('Mass flow rate must either be a value or function.');
                 end
@@ -148,7 +148,7 @@ classdef FlowDevice < handle
             %     Instance of class :mat:class:`Func`
             %
             if strcmp(f.type, 'PressureController')
-                k = callct('flowdev_setMaster', f.id, d);
+                k = ctFunc('flowdev_setMaster', f.id, d);
             else
                 error('Master flow device can only be set for pressure controllers.');
             end
@@ -161,7 +161,7 @@ classdef FlowDevice < handle
                 error('Valve coefficient can only be set for valves.');
             end
 
-            ok = callct('flowdev_setValveCoeff', f.id, k);
+            ok = ctFunc('flowdev_setValveCoeff', f.id, k);
         end
 
     end

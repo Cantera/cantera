@@ -131,15 +131,15 @@ classdef Domain1D < handle
                 a = varargin{1};
 
                 if strcmp(a, 'Inlet1D')
-                    d.domainID = callct('inlet_new');
+                    d.domainID = ctFunc('inlet_new');
                 elseif strcmp(a, 'Surf1D')
-                    d.domainID = callct('surf_new');
+                    d.domainID = ctFunc('surf_new');
                 elseif strcmp(a, 'Symm1D')
-                    d.domainID = callct('symm_new');
+                    d.domainID = ctFunc('symm_new');
                 elseif strcmp(a, 'Outlet1D')
-                    d.domainID = callct('outlet_new');
+                    d.domainID = ctFunc('outlet_new');
                 elseif strcmp(a, 'OutletRes')
-                    d.domainID = callct('outletres_new');
+                    d.domainID = ctFunc('outletres_new');
                 else
                     error('Not enough arguments for that job number');
                 end
@@ -151,7 +151,7 @@ classdef Domain1D < handle
                 if strcmp(a, 'StagnationFlow')
 
                     if isa(b, 'Solution')
-                        d.domainID = callct('stflow_new', ...
+                        d.domainID = ctFunc('stflow_new', ...
                                             b.tpID, b.kinID, b.trID, 1);
                     else
                         error('Wrong argument type. Expecting instance of class Solution.');
@@ -160,7 +160,7 @@ classdef Domain1D < handle
                 elseif strcmp(a, 'AxisymmetricFlow')
 
                     if isa(b, 'Solution')
-                        d.domainID = callct('stflow_new', ...
+                        d.domainID = ctFunc('stflow_new', ...
                                             b.tpID, b.kinID, b.trID, 2);
                     else
                         error('Wrong argument type. Expecting instance of class Solution.');
@@ -169,8 +169,8 @@ classdef Domain1D < handle
                 elseif strcmp(a, 'ReactingSurface')
 
                     if isa(b, 'Interface')
-                        d.domainID = callct('reactingsurf_new');
-                        callct('reactingsurf_setkineticsmgr', ...
+                        d.domainID = ctFunc('reactingsurf_new');
+                        ctFunc('reactingsurf_setkineticsmgr', ...
                                 d.domainID, b.kinID);
                     else
                         error('Wrong argument type. Expecting instance of class Interface.');
@@ -190,7 +190,7 @@ classdef Domain1D < handle
         function delete(d)
             % Delete the :mat:class:`Domain1D` object.
 
-            callct('domain_del', d.domainID);
+            ctFunc('domain_del', d.domainID);
         end
 
         %% Domain1D Utility Methods
@@ -205,7 +205,7 @@ classdef Domain1D < handle
             %
             disp(' ');
             disp('Disabling the energy equation...');
-            callct('stflow_solveEnergyEqn', d.domainID, 0);
+            ctFunc('stflow_solveEnergyEqn', d.domainID, 0);
         end
 
         function d = enableEnergy(d)
@@ -218,7 +218,7 @@ classdef Domain1D < handle
             %
             disp(' ');
             disp('Enabling the energy equation...');
-            callct('stflow_solveEnergyEqn', d.domainID, 1);
+            ctFunc('stflow_solveEnergyEqn', d.domainID, 1);
         end
 
         function d = disableSoret(d)
@@ -231,7 +231,7 @@ classdef Domain1D < handle
             %
             disp(' ');
             disp('Disabling the Soret effect...');
-            callct('stflow_enableSoret', d.domainID, 0);
+            ctFunc('stflow_enableSoret', d.domainID, 0);
         end
 
         function d = enableSoret(d)
@@ -244,7 +244,7 @@ classdef Domain1D < handle
             %
             disp(' ');
             disp('Disabling the Soret effect...');
-            callct('stflow_enableSoret', d.domainID, 1);
+            ctFunc('stflow_enableSoret', d.domainID, 1);
         end
 
         %% Domain Get Methods
@@ -261,8 +261,8 @@ classdef Domain1D < handle
             %    1x2 Vector of the lower and upper bounds.
 
             n = d.componentIndex(component);
-            lower = callct('domain_lowerBound', d.domainID, n);
-            upper = callct('domain_upperBound', d.domainID, n);
+            lower = ctFunc('domain_lowerBound', d.domainID, n);
+            upper = ctFunc('domain_upperBound', d.domainID, n);
             b = [lower, upper];
         end
 
@@ -283,7 +283,7 @@ classdef Domain1D < handle
             if isa(name, 'double')
                 n = name;
             else
-                n = callct('domain_componentIndex', ...
+                n = ctFunc('domain_componentIndex', ...
                     d.domainID, name);
 
                 if n >= 0
@@ -324,7 +324,7 @@ classdef Domain1D < handle
         end
 
         function i = get.domainIndex(d)
-            i = callct('domain_index', d.domainID);
+            i = ctFunc('domain_index', d.domainID);
 
             if i >= 0
                 i = i + 1;
@@ -337,7 +337,7 @@ classdef Domain1D < handle
         end
 
         function i = get.domainType(d)
-            i = callct('domain_type', d.domainID);
+            i = ctFunc('domain_type', d.domainID);
         end
 
         function zz = gridPoints(d, n)
@@ -358,7 +358,7 @@ classdef Domain1D < handle
                 zz = zeros(1, np);
 
                 for i = 1:np
-                    zz(i) = callct('domain_grid', d.domainID, i - 1);
+                    zz(i) = ctFunc('domain_grid', d.domainID, i - 1);
                 end
 
             else
@@ -366,7 +366,7 @@ classdef Domain1D < handle
                 zz = zeros(1, m);
 
                 for i = 1:m
-                    zz(i) = callct('domain_grid', d.domainID, n(i) - 1);
+                    zz(i) = ctFunc('domain_grid', d.domainID, n(i) - 1);
                 end
 
             end
@@ -404,7 +404,7 @@ classdef Domain1D < handle
         end
 
         function mdot = get.massFlux(d)
-            mdot = callct('bdry_mdot', d.domainID);
+            mdot = ctFunc('bdry_mdot', d.domainID);
         end
 
         function y = massFraction(d, k)
@@ -429,18 +429,18 @@ classdef Domain1D < handle
             end
 
             if d.isInlet
-                y = callct('bdry_massFraction', d.domainID, k - 1);
+                y = ctFunc('bdry_massFraction', d.domainID, k - 1);
             else error('Input domain must be an inlet');
             end
 
         end
 
         function n = get.nComponents(d)
-            n = callct('domain_nComponents', d.domainID);
+            n = ctFunc('domain_nComponents', d.domainID);
         end
 
         function n = get.nPoints(d)
-            n = callct('domain_nPoints', d.domainID);
+            n = ctFunc('domain_nPoints', d.domainID);
         end
 
         function tol = tolerances(d, component)
@@ -457,13 +457,13 @@ classdef Domain1D < handle
             %    1x2 Vector of the relative and absolute error tolerances.
 
             n = d.componentIndex(component);
-            rerr = callct('domain_rtol', d.domainID, n);
-            aerr = callct('domain_atol', d.domainID, n);
+            rerr = ctFunc('domain_rtol', d.domainID, n);
+            aerr = ctFunc('domain_atol', d.domainID, n);
             tol = [rerr, aerr];
         end
 
         function temperature = get.T(d)
-            temperature = callct('bdry_temperature', d.domainID);
+            temperature = ctFunc('bdry_temperature', d.domainID);
         end
 
         function pressure = get.P(d)
@@ -488,7 +488,7 @@ classdef Domain1D < handle
             %
 
             n = d.componentIndex(component);
-            callct('domain_setBounds', d.domainID, n - 1, lower, upper);
+            ctFunc('domain_setBounds', d.domainID, n - 1, lower, upper);
         end
 
         function setCoverageEqs(d, onoff)
@@ -525,7 +525,7 @@ classdef Domain1D < handle
                 ion = onoff;
             end
 
-            callct('reactingsurf_enableCoverageEqs', d.domainID, ion);
+            ctFunc('reactingsurf_enableCoverageEqs', d.domainID, ion);
         end
 
         function setFixedTempProfile(d, profile)
@@ -548,11 +548,11 @@ classdef Domain1D < handle
 
             if sz(1) == 2
                 l = length(profile(1, :));
-                callct('stflow_setFixedTempProfile', d.domainID, ...
+                ctFunc('stflow_setFixedTempProfile', d.domainID, ...
                         l, profile(1, :), l, profile(2, :));
             elseif sz(2) == 2
                 l = length(profile(:, 1));
-                callct('stflow_setFixedTempProfile', d.domainID, ...
+                ctFunc('stflow_setFixedTempProfile', d.domainID, ...
                         l, profile(:, 1), l, profile(:, 2));
             else error('Wrong temperature profile array shape.');
             end
@@ -569,7 +569,7 @@ classdef Domain1D < handle
             % :param id:
             %     String ID to assign
             %
-            callct('domain_setID', d.domainID, id);
+            ctFunc('domain_setID', d.domainID, id);
         end
 
         function setMassFlowRate(d, mdot)
@@ -582,7 +582,7 @@ classdef Domain1D < handle
             % :param mdot:
             %     Mass flow rate
             %
-            callct('bdry_setMdot', d.domainID, mdot);
+            ctFunc('bdry_setMdot', d.domainID, mdot);
         end
 
         function setMoleFractions(d, x)
@@ -596,7 +596,7 @@ classdef Domain1D < handle
             %     String specifying the species and mole fractions in
             %     the format ``'SPEC:X,SPEC2:X2'``.
             %
-            callct('bdry_setMoleFractions', d.domainID, x);
+            ctFunc('bdry_setMoleFractions', d.domainID, x);
         end
 
         function setSteadyTolerances(d, component, rtol, atol)
@@ -619,7 +619,7 @@ classdef Domain1D < handle
                 nc = d.nComponents;
 
                 for ii = 1:nc
-                    callct('domain_setSteadyTolerances', ...
+                    ctFunc('domain_setSteadyTolerances', ...
                             d.domainID, ii - 1, rtol, atol);
                 end
 
@@ -628,13 +628,13 @@ classdef Domain1D < handle
 
                 for ii = 1:nc
                     n = d.componentIndex(component{ii});
-                    callct('domain_setSteadyTolerances', ...
+                    ctFunc('domain_setSteadyTolerances', ...
                             d.domainID, n, rtol, atol);
                 end
 
             else
                 n = d.componentIndex(component);
-                callct('domain_setSteadyTolerances', ...
+                ctFunc('domain_setSteadyTolerances', ...
                         d.domainID, n, rtol, atol);
             end
 
@@ -660,7 +660,7 @@ classdef Domain1D < handle
                 nc = d.nComponents;
 
                 for ii = 1:nc
-                    callct('domain_setTransientTolerances', ...
+                    ctFunc('domain_setTransientTolerances', ...
                             d.domainID, ii - 1, rtol, atol);
                 end
 
@@ -669,13 +669,13 @@ classdef Domain1D < handle
 
                 for ii = 1:nc
                     n = d.componentIndex(component{ii});
-                    callct('domain_setTransientTolerances', ...
+                    ctFunc('domain_setTransientTolerances', ...
                             d.domainID, n, rtol, atol);
                 end
 
             else
                 n = d.componentIndex(component);
-                callct('domain_setTransientTolerances', ...
+                ctFunc('domain_setTransientTolerances', ...
                         d.domainID, n, rtol, atol);
             end
 
@@ -690,7 +690,7 @@ classdef Domain1D < handle
             %    ID of the solution object for which transport properties
             %    are calculated.
             %
-            callct('stflow_setTransport', d.domainID, itr);
+            ctFunc('stflow_setTransport', d.domainID, itr);
         end
 
         function setupGrid(d, grid)
@@ -702,7 +702,7 @@ classdef Domain1D < handle
             %     Instance of class :mat:class:`Domain1D`
             % :param grid:
             %
-            callct('domain_setupGrid', d.domainID, numel(grid), grid);
+            ctFunc('domain_setupGrid', d.domainID, numel(grid), grid);
         end
 
         function set.T(d, t)
@@ -711,7 +711,7 @@ classdef Domain1D < handle
                 error('The temperature must be positive');
             end
 
-            callct('bdry_setTemperature', d.domainID, t);
+            ctFunc('bdry_setTemperature', d.domainID, t);
         end
 
         function set.P(d, p)
@@ -720,7 +720,7 @@ classdef Domain1D < handle
                 error('The pressure must be positive');
             end
 
-            callct('stflow_setPressure', d.domainID, p);
+            ctFunc('stflow_setPressure', d.domainID, p);
         end
 
     end

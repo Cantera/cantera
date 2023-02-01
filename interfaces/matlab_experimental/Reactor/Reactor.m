@@ -125,7 +125,7 @@ classdef Reactor < handle
             end
 
             r.type = char(typ);
-            r.id = callct('reactor_new', typ);
+            r.id = ctFunc('reactor_new', typ);
 
             if isa(content, 'Solution')
                 r.contents = content;
@@ -133,10 +133,10 @@ classdef Reactor < handle
                     error('Wrong object type');
                 end
 
-                callct('reactor_setThermoMgr', r.id, content.tpID);
+                ctFunc('reactor_setThermoMgr', r.id, content.tpID);
 
                 if ~strcmp(r.type, 'Reservoir')
-                    callct('reactor_setKineticsMgr', r.id, content.kinID);
+                    ctFunc('reactor_setKineticsMgr', r.id, content.kinID);
                 end
 
             elseif ~(isa(content, 'double') && content == 0)
@@ -150,7 +150,7 @@ classdef Reactor < handle
         function delete(r)
             % Delete the :mat:class:`Reactor` object.
 
-            callct('reactor_del', r.id);
+            ctFunc('reactor_del', r.id);
         end
 
         %% Reactor Utility Methods
@@ -166,37 +166,37 @@ classdef Reactor < handle
             %    Index number of reaction.
             %
 
-            callct('reactor_addSensitivityReaction', r.id, m);
+            ctFunc('reactor_addSensitivityReaction', r.id, m);
         end
 
         %% Reactor Get Methods
 
         function temperature = get.T(r)
-            temperature = callct('reactor_temperature', r.id);
+            temperature = ctFunc('reactor_temperature', r.id);
         end
 
         function pressure = get.P(r)
-            pressure = callct('reactor_pressure', r.id);
+            pressure = ctFunc('reactor_pressure', r.id);
         end
 
         function rho = get.D(r)
-            rho = callct('reactor_density', r.id);
+            rho = ctFunc('reactor_density', r.id);
         end
 
         function mass = get.M(r)
-            mass = callct('reactor_mass', r.id);
+            mass = ctFunc('reactor_mass', r.id);
         end
 
         function volume = get.V(r)
-            volume = callct('reactor_volume', r.id);
+            volume = ctFunc('reactor_volume', r.id);
         end
 
         function enthalpy_mass = get.H(r)
-            enthalpy_mass = callct('reactor_enthalpy_mass', r.id);
+            enthalpy_mass = ctFunc('reactor_enthalpy_mass', r.id);
         end
 
         function intEnergy_mass = get.U(r)
-            intEnergy_mass = callct('reactor_intEnergy_mass', r.id);
+            intEnergy_mass = ctFunc('reactor_intEnergy_mass', r.id);
         end
 
         function yi = massFraction(r, species)
@@ -210,7 +210,7 @@ classdef Reactor < handle
             else k = species - 1;
             end
 
-            yi = callct('reactor_massFraction', r.id, k);
+            yi = ctFunc('reactor_massFraction', r.id, k);
         end
 
         function massFractions = get.Y(r)
@@ -228,13 +228,13 @@ classdef Reactor < handle
 
         function set.V(r, v0)
 
-            callct('reactor_setInitialVolume', r.id, v0);
+            ctFunc('reactor_setInitialVolume', r.id, v0);
 
         end
 
         function set.massFlowRate(r, MFR)
 
-            callct('reactor_setMassFlowRate', r.id, MFR);
+            ctFunc('reactor_setMassFlowRate', r.id, MFR);
             r.massFlowRate = MFR;
 
         end
@@ -248,7 +248,7 @@ classdef Reactor < handle
             else error('Input must be "on" or "off"');
             end
 
-            callct('reactor_setChemistry', r.id, cflag);
+            ctFunc('reactor_setChemistry', r.id, cflag);
         end
 
         function set.energy(r, flag)
@@ -260,7 +260,7 @@ classdef Reactor < handle
             else error('Input must be "on" or "off".');
             end
 
-            callct('reactor_setEnergy', r.id, eflag);
+            ctFunc('reactor_setEnergy', r.id, eflag);
 
         end
 

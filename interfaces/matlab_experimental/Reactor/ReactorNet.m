@@ -73,13 +73,13 @@ classdef ReactorNet < handle
                 reactors = {reactor};
             end
 
-            r.id = callct('reactornet_new');
+            r.id = ctFunc('reactornet_new');
 
             % add reactors
             nr = length(reactors);
 
             for i = 1:nr
-                callct('reactornet_addreactor', r.id, reactors{i}.id);
+                ctFunc('reactornet_addreactor', r.id, reactors{i}.id);
             end
 
         end
@@ -89,7 +89,7 @@ classdef ReactorNet < handle
         function delete(r)
             % Delete the :mat:class:`ReactorNet` object object.
 
-            callct('reactornet_del', r.id);
+            ctFunc('reactornet_del', r.id);
         end
 
         %% ReactorNet Utility Methods
@@ -110,13 +110,13 @@ classdef ReactorNet < handle
             %    End time of the integration. Unit: s.
             %
 
-            callct('reactornet_advance', r.id, tout);
+            ctFunc('reactornet_advance', r.id, tout);
         end
 
         %% ReactorNet set methods
 
         function set.time(r, t)
-            callct('reactornet_setInitialTime', r.id, t);
+            ctFunc('reactornet_setInitialTime', r.id, t);
         end
 
         function set.maxTimeStep(r, maxstep)
@@ -136,7 +136,7 @@ classdef ReactorNet < handle
             %    Scalar max time step.
             %
 
-            callct('reactornet_setMaxTimeStep', r.id, maxstep);
+            ctFunc('reactornet_setMaxTimeStep', r.id, maxstep);
         end
 
         function setSensitivityTolerances(r, rerr, aerr)
@@ -149,35 +149,35 @@ classdef ReactorNet < handle
             % :param aerr:
             %    Scalar absolute error tolerance.
 
-            callct('reactornet_setSensitivityTolerances', r.id, rerr, aerr);
+            ctFunc('reactornet_setSensitivityTolerances', r.id, rerr, aerr);
         end
 
         function set.atol(r, aeer)
             rerr = r.rtol;
-            callct('reactornet_setTolerances', r.id, rerr, aerr);
+            ctFunc('reactornet_setTolerances', r.id, rerr, aerr);
         end
 
         function set.rtol(r, reer)
             aerr = r.atol;
-            callct('reactornet_setTolerances', r.id, rerr, aerr);
+            ctFunc('reactornet_setTolerances', r.id, rerr, aerr);
         end
 
         %% ReactorNet get methods
 
         function t = get.dt(r)
-            t = callct('reactor_step', r.id);
+            t = ctFunc('reactor_step', r.id);
         end
 
         function t = get.time(r)
-            t = callct('reactornet_time', r.id);
+            t = ctFunc('reactornet_time', r.id);
         end
 
         function t = get.atol(r)
-            t = callct('reactornet_atol', r.id);
+            t = ctFunc('reactornet_atol', r.id);
         end
 
         function t = get.rtol(r)
-            t = callct('reactornet_rtol', r.id);
+            t = ctFunc('reactornet_rtol', r.id);
         end
 
         function s = sensitivity(r, component, p, rxtr)
@@ -194,7 +194,7 @@ classdef ReactorNet < handle
             %    Instance of class 'reactor'.
 
             if isa(component, 'string')
-                callct('reactornet_sensitivity', r.id, component, p, rxtr.id);
+                ctFunc('reactornet_sensitivity', r.id, component, p, rxtr.id);
             end
 
         end
