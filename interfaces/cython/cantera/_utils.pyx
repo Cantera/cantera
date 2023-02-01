@@ -30,6 +30,8 @@ CxxSetLogger(_logger)
 
 cdef string stringify(x) except *:
     """ Converts Python strings to std::string. """
+    if x is None:
+        return stringify("")
     if isinstance(x, bytes):
         return string(<bytes>x)
     else:
