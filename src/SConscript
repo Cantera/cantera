@@ -101,13 +101,14 @@ if env["python_package"] == "full":
         pyenv.SharedObject("extensions/PythonExtensionManager.cpp")
     ]
     pyenv.Append(LIBS=pyenv["py_libs"], LIBPATH=pyenv["py_libpath"])
+    pylibname = f"../lib/cantera_python{pyenv['py_version_short'].replace('.', '_')}"
     if pyenv["versioned_shared_library"]:
-        lib = build(pyenv.SharedLibrary("../lib/cantera_python", env['python_ext_objects'],
+        lib = build(pyenv.SharedLibrary(pylibname, env['python_ext_objects'],
                                            SPAWN=get_spawn(pyenv),
                                            SHLIBVERSION=pyenv["cantera_pure_version"]))
         install(pyenv.InstallVersionedLib, "$inst_libdir", lib)
     else:
-        lib = build(pyenv.SharedLibrary("../lib/cantera_python", env['python_ext_objects'],
+        lib = build(pyenv.SharedLibrary(pylibname, env['python_ext_objects'],
                                            SPAWN=get_spawn(pyenv)))
         install("$inst_libdir", lib)
 

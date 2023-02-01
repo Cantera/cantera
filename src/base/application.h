@@ -286,12 +286,18 @@ public:
     //! Load an extension implementing user-defined models
     //! @param extType Specifies the interface / language of the extension, for example
     //!     "python"
-    //! @param extName Specifies the name of the extension. The meaning of this
+    //! @param name Specifies the name of the extension. The meaning of this
     //!     parameter depends on the specific extension interface. For example, for
     //!     Python extensions, this is the name of the Python module containing the
     //!     models.
     //! @since New in Cantera 3.0
     void loadExtension(const std::string& extType, const std::string& name);
+
+    //! Set the versions of Python to try when loading user-defined extensions,
+    //! in order of preference. Separate multiple versions with commas, for example
+    //! `"3.11,3.10"`.
+    //! @since New in Cantera 3.0
+    void searchPythonVersions(const string& versions);
 
 #ifdef _WIN32
     long int readStringRegistryKey(const std::string& keyName, const std::string& valueName,
@@ -431,6 +437,9 @@ protected:
 
     //! Current vector of input directories to search for input files
     std::vector<std::string> inputDirs;
+
+    //! Versions of Python to consider when attempting to load user extensions
+    vector<string> m_pythonSearchVersions = {"3.11", "3.10", "3.9", "3.8"};
 
     //! Vector of deprecation warnings that have been emitted (to suppress
     //! duplicates)

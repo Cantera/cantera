@@ -166,6 +166,10 @@ void loadExtensions(const AnyMap& node)
     }
 }
 
+void searchPythonVersions(const string& versions) {
+    app()->searchPythonVersions(versions);
+}
+
 bool debugModeEnabled()
 {
 #ifdef NDEBUG

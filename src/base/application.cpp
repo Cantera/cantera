@@ -10,6 +10,7 @@
 
 #define BOOST_DLL_USE_STD_FS
 #include <boost/dll/import.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include <fstream>
 #include <sstream>
@@ -17,6 +18,7 @@
 
 using std::string;
 using std::endl;
+namespace ba = boost::algorithm;
 
 #ifdef _WIN32
 #include <windows.h>
@@ -412,16 +414,47 @@ void Application::loadExtension(const string& extType, const string& name)
     }
 
     if (extType == "python" && !ExtensionManagerFactory::factory().exists("python")) {
-        typedef void (creator_t)();
-        static auto loader = boost::dll::import_alias<creator_t>( // type of imported symbol must be explicitly specified
-            "cantera_python",                              // path to library
-            "registerPythonExtensionManager",                // symbol to import
-            boost::dll::load_mode::search_system_folders | boost::dll::load_mode::append_decorations | boost::dll::load_mode::rtld_global // append extensions and prefixes, and search normal library path
-        );
-        loader();
+        string errors;
+
+        // type of imported symbol: void function with no arguments
+        typedef void (loader_t)();
+
+        // Only one Python module can be loaded at a time, and a handle needs to be held
+        // to prevent it from being unloaded.
+        static std::function<loader_t> loader;
+        bool loaded = false;
+
+        for (const auto& py_ver : m_pythonSearchVersions) {
+            string py_ver_underscore = ba::replace_all_copy(py_ver, ".", "_");
+            try {
+                loader = boost::dll::import_alias<loader_t>(
+                    "cantera_python" + py_ver_underscore, // library name
+                    "registerPythonExtensionManager", // symbol to import
+                    // append extensions and prefixes, search normal library path, and
+                    // expose all loaded symbols (specifically, those from libpython)
+                    boost::dll::load_mode::search_system_folders
+                    | boost::dll::load_mode::append_decorations
+                    | boost::dll::load_mode::rtld_global
+                );
+                loader();
+                loaded = true;
+                break;
+            } catch (std::exception& err) {
+                errors += fmt::format("\nPython {}: {}\n", py_ver, err.what());
+            }
+        }
+        if (!loaded) {
+            throw CanteraError("Application::loadExtension",
+                "Error loading Python extension support. Tried the following:{}",
+                errors);
+        }
     }
     ExtensionManagerFactory::build(extType)->registerRateBuilders(name);
     m_loaded_extensions.insert({extType, name});
+}
+
+void Application::searchPythonVersions(const string& versions) {
+    ba::split(m_pythonSearchVersions, versions, ba::is_any_of(","));
 }
 
 Application* Application::s_app = 0;
