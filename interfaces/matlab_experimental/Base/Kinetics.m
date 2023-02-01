@@ -140,7 +140,7 @@ classdef Kinetics < handle
                 inb1 = n1.tpID;
             end
 
-            kin.kinID = callct('kin_newFromFile', src, id, ...
+            kin.kinID = ctFunc('kin_newFromFile', src, id, ...
                                 iph, inb1, inb2, inb3, inb4);
         end
 
@@ -149,7 +149,7 @@ classdef Kinetics < handle
         function delete(kin)
             % Delete the :mat:class:`Kinetics` object.
 
-            callct('kin_del', kin.kinID);
+            ctFunc('kin_del', kin.kinID);
         end
 
         %% Get scalar attributes
@@ -164,7 +164,7 @@ classdef Kinetics < handle
             % :return:
             %    Index of the species.
 
-            n = callct('kin_speciesIndex', kin.kinID, name, phase);
+            n = ctFunc('kin_speciesIndex', kin.kinID, name, phase);
         end
 
         function n = multiplier(kin, irxn)
@@ -176,19 +176,19 @@ classdef Kinetics < handle
             % :return:
             %    Multiplier of the rate of progress of reaction irxn.
 
-            n = callct('kin_multiplier', kin.kinID, irxn - 1);
+            n = ctFunc('kin_multiplier', kin.kinID, irxn - 1);
         end
 
         function n = get.nPhases(kin)
-            n = callct('kin_nPhases', kin.kinID);
+            n = ctFunc('kin_nPhases', kin.kinID);
         end
 
         function n = get.nReactions(kin)
-            n = callct('kin_nReactions', kin.kinID);
+            n = ctFunc('kin_nReactions', kin.kinID);
         end
 
         function n = get.nTotalSpecies(kin)
-            n = callct('kin_nSpecies', kin.kinID);
+            n = ctFunc('kin_nSpecies', kin.kinID);
         end
 
         function n = phaseIndex(kin, phase)
@@ -199,7 +199,7 @@ classdef Kinetics < handle
             % :return:
             %    Index of the phase.
 
-            n = callct('kin_phaseIndex', kin.kinID, phase);
+            n = ctFunc('kin_phaseIndex', kin.kinID, phase);
         end
 
         function n = stoichReactant(kin, species, rxns)
@@ -239,7 +239,7 @@ classdef Kinetics < handle
             for k = krange
 
                 for i = irange
-                    t = callct('kin_reactantStoichCoeff', ...
+                    t = ctFunc('kin_reactantStoichCoeff', ...
                                 kin.kinID, k - 1, i - 1);
 
                     if t ~= 0.0
@@ -284,7 +284,7 @@ classdef Kinetics < handle
             for k = krange
 
                 for i = irange
-                    t = callct('kin_productStoichCoeff', ...
+                    t = ctFunc('kin_productStoichCoeff', ...
                                 kin.kinID, k - 1, i - 1);
 
                     if t ~= 0.0
@@ -328,7 +328,7 @@ classdef Kinetics < handle
             nsp = kin.nTotalSpecies;
             xx = zeros(1, nsp);
             pt = libpointer('doublePtr', xx);
-            callct('kin_getCreationRates', kin.kinID, nsp, pt);
+            ctFunc('kin_getCreationRates', kin.kinID, nsp, pt);
             cdot = pt.Value;
         end
 
@@ -336,7 +336,7 @@ classdef Kinetics < handle
             nsp = kin.nTotalSpecies;
             xx = zeros(1, nsp);
             pt = libpointer('doublePtr', xx);
-            callct('kin_getDestructionRates', kin.kinID, nsp, pt);
+            ctFunc('kin_getDestructionRates', kin.kinID, nsp, pt);
             ddot = pt.Value;
         end
 
@@ -350,14 +350,14 @@ classdef Kinetics < handle
             % :return:
             %    1 if reaction number i is reversible. 0 if irreversible.
 
-            n = callct('kin_isReversible', kin.kinID, i);
+            n = ctFunc('kin_isReversible', kin.kinID, i);
         end
 
         function wdot = get.netProdRates(kin)
             nsp = kin.nTotalSpecies;
             xx = zeros(1, nsp);
             pt = libpointer('doublePtr', xx);
-            callct('kin_getNetProductionRates', kin.kinID, nsp, pt);
+            ctFunc('kin_getNetProductionRates', kin.kinID, nsp, pt);
             wdot = pt.Value;
         end
 
@@ -365,7 +365,7 @@ classdef Kinetics < handle
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
-            callct('kin_getFwdRatesOfProgress', kin.kinID, nr, pt);
+            ctFunc('kin_getFwdRatesOfProgress', kin.kinID, nr, pt);
             q = pt.Value;
         end
 
@@ -373,7 +373,7 @@ classdef Kinetics < handle
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
-            callct('kin_getRevRatesOfProgress', kin.kinID, nr, pt);
+            ctFunc('kin_getRevRatesOfProgress', kin.kinID, nr, pt);
             q = pt.Value;
         end
 
@@ -381,7 +381,7 @@ classdef Kinetics < handle
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
-            callct('kin_getNetRatesOfProgress', kin.kinID, nr, pt);
+            ctFunc('kin_getNetRatesOfProgress', kin.kinID, nr, pt);
             q = pt.Value;
         end
 
@@ -412,7 +412,7 @@ classdef Kinetics < handle
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
-            callct('kin_getDelta', kin.kinID, 0, nr, pt);
+            ctFunc('kin_getDelta', kin.kinID, 0, nr, pt);
             enthalpy = pt.Value;
         end
 
@@ -420,7 +420,7 @@ classdef Kinetics < handle
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
-            callct('kin_getDelta', kin.kinID, 3, nr, pt);
+            ctFunc('kin_getDelta', kin.kinID, 3, nr, pt);
             enthalpy = pt.Value;
         end
 
@@ -428,7 +428,7 @@ classdef Kinetics < handle
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
-            callct('kin_getDelta', kin.kinID, 2, nr, pt);
+            ctFunc('kin_getDelta', kin.kinID, 2, nr, pt);
             entropy = pt.Value;
         end
 
@@ -436,7 +436,7 @@ classdef Kinetics < handle
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
-            callct('kin_getDelta', kin.kinID, 5, nr, pt);
+            ctFunc('kin_getDelta', kin.kinID, 5, nr, pt);
             entropy = pt.Value;
         end
 
@@ -444,7 +444,7 @@ classdef Kinetics < handle
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
-            callct('kin_getDelta', kin.kinID, 1, nr, pt);
+            ctFunc('kin_getDelta', kin.kinID, 1, nr, pt);
             gibbs = pt.Value;
         end
 
@@ -452,7 +452,7 @@ classdef Kinetics < handle
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
-            callct('kin_getDelta', kin.kinID, 4, nr, pt);
+            ctFunc('kin_getDelta', kin.kinID, 4, nr, pt);
             gibbs = pt.Value;
         end
 
@@ -460,7 +460,7 @@ classdef Kinetics < handle
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
-            callct('kin_getEquilibriumConstants', kin.kinID, nr, pt);
+            ctFunc('kin_getEquilibriumConstants', kin.kinID, nr, pt);
             k = pt.Value;
         end
 
@@ -468,7 +468,7 @@ classdef Kinetics < handle
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
-            callct('kin_getFwdRateConstants', kin.kinID, nr, pt);
+            ctFunc('kin_getFwdRateConstants', kin.kinID, nr, pt);
             k = pt.Value;
         end
 
@@ -476,7 +476,7 @@ classdef Kinetics < handle
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
-            callct('kin_getRevRateConstants', kin.kinID, 1, nr, pt);
+            ctFunc('kin_getRevRateConstants', kin.kinID, 1, nr, pt);
             k = pt.Value;
         end
 
@@ -484,7 +484,7 @@ classdef Kinetics < handle
             nsp = kin.nTotalSpecies;
             xx = zeros(1, nsp);
             pt = libpointer('doublePtr', xx);
-            callct('kin_getSourceTerms', kin.kinID, nsp, pt);
+            ctFunc('kin_getSourceTerms', kin.kinID, nsp, pt);
             ydot = pt.Value;
         end
 
@@ -514,7 +514,7 @@ classdef Kinetics < handle
             end
 
             for i = 1:n
-                callct('kin_setMultiplier', kin.kinID, irxn(i) - 1, v);
+                ctFunc('kin_setMultiplier', kin.kinID, irxn(i) - 1, v);
             end
 
         end
@@ -528,7 +528,7 @@ classdef Kinetics < handle
             %    Time interval by which the coverages should be advanced.
             %
 
-            callct('kin_advanceCoverages', kin.kinID, dt);
+            ctFunc('kin_advanceCoverages', kin.kinID, dt);
         end
 
     end

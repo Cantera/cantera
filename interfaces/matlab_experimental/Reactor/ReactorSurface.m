@@ -48,7 +48,7 @@ classdef ReactorSurface < handle
 
             ctIsLoaded;
 
-            s.surfID = callct('reactorsurface_new', 0);
+            s.surfID = ctFunc('reactorsurface_new', 0);
             s.reactor = -1;
 
             if nargin >= 1
@@ -58,14 +58,14 @@ classdef ReactorSurface < handle
                     ikin = surf.kinID;
                 end
 
-                callct('reactorsurface_setkinetics', s.surfID, ikin);
+                ctFunc('reactorsurface_setkinetics', s.surfID, ikin);
             end
 
             if nargin >= 2
 
                 if isa(reactor, 'Reactor')
                     s.reactor = reactor;
-                    callct('reactorsurface_install', s.surfID, reactor.id);
+                    ctFunc('reactorsurface_install', s.surfID, reactor.id);
                 else
                     warning('Reactor was not installed due to incorrect type');
                 end
@@ -89,7 +89,7 @@ classdef ReactorSurface < handle
         function delete(s)
             % Delete the :mat:class:`ReactorSurface` object.
 
-            callct('reactorsurface_del', s.surfID);
+            ctFunc('reactorsurface_del', s.surfID);
         end
 
         %% ReactorSurface Utility Methods
@@ -104,19 +104,19 @@ classdef ReactorSurface < handle
             % :param m:
             %    Index number of reaction.
 
-            callct('reactorsurface_addSensitivityReaction', s.surfID, m);
+            ctFunc('reactorsurface_addSensitivityReaction', s.surfID, m);
         end
 
         %% ReactorSurface Get Methods
 
         function a = get.area(s)
-            a = callct('reactorsurface_area', s.surfID);
+            a = ctFunc('reactorsurface_area', s.surfID);
         end
 
         %% ReactorSurface Set Methods
 
         function set.area(s, a)
-            callct('reactorsurface_setArea', s.surfID, a);
+            ctFunc('reactorsurface_setArea', s.surfID, a);
         end
 
     end

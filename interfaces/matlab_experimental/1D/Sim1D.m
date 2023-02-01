@@ -47,7 +47,7 @@ classdef Sim1D < handle
                 ids(n) = domains{n}.domainID;
             end
 
-            s.stID = callct('sim1D_new', nd, ids);
+            s.stID = ctFunc('sim1D_new', nd, ids);
 
         end
 
@@ -56,7 +56,7 @@ classdef Sim1D < handle
         function delete(s)
             % Delete the :mat:class:`Sim1D` object.
 
-            callct('sim1D_del', s.stID);
+            ctFunc('sim1D_del', s.stID);
         end
 
         %% Sim1D Utility Methods
@@ -68,7 +68,7 @@ classdef Sim1D < handle
                 fname = '-';
             end
 
-            callct('sim1D_showSolution', s.stID, fname);
+            ctFunc('sim1D_showSolution', s.stID, fname);
         end
 
         function plotSolution(s, domain, component)
@@ -110,7 +110,7 @@ classdef Sim1D < handle
             % :param id:
             %     ID of the element that should be restored
             %
-            callct('sim1D_restore', s.stID, fname, id)
+            ctFunc('sim1D_restore', s.stID, fname, id)
         end
 
         function saveSoln(s, fname, id, desc)
@@ -142,7 +142,7 @@ classdef Sim1D < handle
                 desc = '--';
             end
 
-            callct('sim1D_save', s.stID, fname, id, desc);
+            ctFunc('sim1D_save', s.stID, fname, id, desc);
         end
 
         function x = solution(s, domain, component)
@@ -173,7 +173,7 @@ classdef Sim1D < handle
                 x = zeros(1, np);
 
                 for n = 1:np
-                    x(n) = callct('sim1D_value', s.stID, ...
+                    x(n) = ctFunc('sim1D_value', s.stID, ...
                                    idom - 1, icomp - 1, n - 1);
                 end
 
@@ -184,7 +184,7 @@ classdef Sim1D < handle
                 for m = 1:nc
 
                     for n = 1:np
-                        x(m, n) = callct('sim1D_value', s.stID, ...
+                        x(m, n) = ctFunc('sim1D_value', s.stID, ...
                                         idom - 1, m - 1, n - 1);
                     end
 
@@ -209,7 +209,7 @@ classdef Sim1D < handle
             %    Integer, 1 to allow grid refinement, 0 to disallow.
             %
 
-            callct('sim1D_solve', s.stID, loglevel, refineGrid);
+            ctFunc('sim1D_solve', s.stID, loglevel, refineGrid);
         end
 
         function writeStats(s)
@@ -225,7 +225,7 @@ classdef Sim1D < handle
             %     Instance of class :mat:class:`Sim1D`
             %
 
-            callct('sim1D_writeStats', s.stID, 1);
+            ctFunc('sim1D_writeStats', s.stID, 1);
         end
 
         %% Sim1D Get Methods
@@ -233,7 +233,7 @@ classdef Sim1D < handle
         function getInitialSoln(s)
             % Get the initial solution.
 
-            callct('sim1D_getInitialSoln', s.stID);
+            ctFunc('sim1D_getInitialSoln', s.stID);
         end
 
         function n = stackIndex(s, name)
@@ -252,7 +252,7 @@ classdef Sim1D < handle
             if isa(name, 'double')
                 n = name;
             else
-                n = callct('sim1D_domainIndex', s.stID, name);
+                n = ctFunc('sim1D_domainIndex', s.stID, name);
 
                 if n >= 0
                     n = n + 1;
@@ -307,12 +307,12 @@ classdef Sim1D < handle
             np = d.nPoints;
 
             r = zeros(nc, np);
-            callct('sim1D_eval', s.stID, rdt, count);
+            ctFunc('sim1D_eval', s.stID, rdt, count);
 
             for m = 1:nc
 
                 for n = 1:np
-                    r(m, n) = callct('sim1D_workValue', ...
+                    r(m, n) = ctFunc('sim1D_workValue', ...
                                     s.stID, idom - 1, m - 1, n - 1);
                 end
 
@@ -336,7 +336,7 @@ classdef Sim1D < handle
                 error('temperature must be positive');
             end
 
-            callct('sim1D_setFixedTemperature', s.stID, T);
+            ctFunc('sim1D_setFixedTemperature', s.stID, T);
         end
 
         function setFlatProfile(s, domain, comp, v)
@@ -354,7 +354,7 @@ classdef Sim1D < handle
             %    Double value to be set.
             %
 
-            callct('sim1D_setFlatProfile', s.stID, ...
+            ctFunc('sim1D_setFlatProfile', s.stID, ...
                     domain - 1, comp - 1, v);
         end
 
@@ -369,7 +369,7 @@ classdef Sim1D < handle
             %    Double minimum grid spacing.
             %
 
-            callct('sim1D_setGridMin', s.stID, domain - 1, gridmin);
+            ctFunc('sim1D_setGridMin', s.stID, domain - 1, gridmin);
         end
 
         function setMaxJacAge(s, ss_age, ts_age)
@@ -391,7 +391,7 @@ classdef Sim1D < handle
                 ts_age = ss_age;
             end
 
-            callct('sim1D_setMaxJacAge', s.stID, ss_age, ts_age);
+            ctFunc('sim1D_setMaxJacAge', s.stID, ss_age, ts_age);
         end
 
         function setProfile(s, name, comp, p)
@@ -448,13 +448,13 @@ classdef Sim1D < handle
 
                 for j = 1:np
                     ic = d.componentIndex(c{j});
-                    callct('sim1D_setProfile', s.stID, ...
+                    ctFunc('sim1D_setProfile', s.stID, ...
                             n - 1, ic - 1, sz(2), p(1, :), sz(2), p(j + 1, :));
                 end
 
             elseif sz(2) == np + 1;
                 ic = d.componentIndex(c{j});
-                callct('sim1D_setProfile', s.stID, ...
+                ctFunc('sim1D_setProfile', s.stID, ...
                         n - 1, ic - 1, sz(1), p(:, 1), sz(1), p(:, j + 1));
             else
                 error('Wrong profile shape.');
@@ -500,7 +500,7 @@ classdef Sim1D < handle
                 prune = -0.1;
             end
 
-            callct('sim1D_setRefineCriteria', s.stID, ...
+            ctFunc('sim1D_setRefineCriteria', s.stID, ...
                     n - 1, ratio, slope, curve, prune);
         end
 
@@ -519,7 +519,7 @@ classdef Sim1D < handle
             %    attempted. If this failed, two time steps would be taken.
             %
 
-            callct('sim1D_TimeStep', s.stID, ...
+            ctFunc('sim1D_TimeStep', s.stID, ...
                     stepsize, length(steps), steps);
         end
 
@@ -550,7 +550,7 @@ classdef Sim1D < handle
             %    Value to be set.
             %
 
-            callct('sim1D_setValue', s.stID, ...
+            ctFunc('sim1D_setValue', s.stID, ...
                     n - 1, comp - 1, localPoints - 1, v);
         end
 

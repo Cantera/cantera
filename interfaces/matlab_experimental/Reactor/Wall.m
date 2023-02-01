@@ -94,12 +94,12 @@ classdef Wall < handle
             typ = 'Wall';
 
             w.type = char(typ);
-            w.id = callct('wall_new', w.type);
+            w.id = ctFunc('wall_new', w.type);
 
             % Install the wall between left and right reactors
             w.left = l;
             w.right = r;
-            callct('wall_install', w.id, l.id, r.id);
+            ctFunc('wall_install', w.id, l.id, r.id);
 
             % Set default values.
             w.area = 1.0;
@@ -107,7 +107,7 @@ classdef Wall < handle
             w.heatTransferCoeff = 0.0;
 
             % Check whether the wall is ready.
-            ok = callct('wall_ready', w.id);
+            ok = ctFunc('wall_ready', w.id);
             if ok
                 disp('The wall object is ready.');
             else
@@ -121,54 +121,54 @@ classdef Wall < handle
         function delete(w)
             % Clear the :mat:class:`Wall` object.
 
-            callct('wall_del', w.id);
+            ctFunc('wall_del', w.id);
         end
 
         %% ReactorNet get methods
 
         function a = get.area(w)
-            a = callct('wall_area', w.id);
+            a = ctFunc('wall_area', w.id);
         end
 
         function q = qdot(w, t)
             % Total heat transfer rate through a wall at a given time t.
 
-            q = callct('wall_Q', w.id, t);
+            q = ctFunc('wall_Q', w.id, t);
         end
 
         function v = vdot(w, t)
             % Rate of volumetric change at a given time t.
-            v = callct('wall_vdot', w.id, t);
+            v = ctFunc('wall_vdot', w.id, t);
         end
 
         %% ReactorNet set methods
 
         function set.area(w, a)
-            callct('wall_setArea', w.id, a);
+            ctFunc('wall_setArea', w.id, a);
         end
 
         function set.thermalResistance(w, r)
-            callct('wall_setThermalResistance', w.id, r);
+            ctFunc('wall_setThermalResistance', w.id, r);
         end
 
         function set.heatTransferCoeff(w, u)
-            callct('wall_setHeatTransferCoeff', w.id, u);
+            ctFunc('wall_setHeatTransferCoeff', w.id, u);
         end
 
         function set.emissivity(w, epsilon)
-            callct('wall_setEmissivity', w.id, epsilon);
+            ctFunc('wall_setEmissivity', w.id, epsilon);
         end
 
         function set.expansionRateCoeff(w, k)
-            callct('wall_setExpansionRateCoeff', w.id, k);
+            ctFunc('wall_setExpansionRateCoeff', w.id, k);
         end
 
         function set.heatFlux(w, f)
-            callct('wall_setHeatFlux', w.id, f.id);
+            ctFunc('wall_setHeatFlux', w.id, f.id);
         end
 
         function set.velocity(w, f)
-            callct('wall_setVelocity', w.id, f.id);
+            ctFunc('wall_setVelocity', w.id, f.id);
         end
 
     end

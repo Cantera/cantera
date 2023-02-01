@@ -81,12 +81,12 @@ classdef Func < handle
                 if itype < 20
                     [msize, nsize] = size(p);
                     lenp = msize * nsize;
-                    nn = callct('func_new', itype, n, lenp, p);
+                    nn = ctFunc('func_new', itype, n, lenp, p);
                 elseif itype < 45
                     m = p;
-                    nn = callct('func_new', itype, n, m, 0);
+                    nn = ctFunc('func_new', itype, n, m, 0);
                 else
-                    nn = callct('func_new', itype, n, 0, p);
+                    nn = ctFunc('func_new', itype, n, 0, p);
                 end
 
             end
@@ -136,7 +136,7 @@ classdef Func < handle
         function delete(f)
             % Delete the :mat:class:`Func` object.
 
-            callct('func_del', f.id);
+            ctFunc('func_del', f.id);
         end
 
         %% Func Class Utility Methods
@@ -174,7 +174,7 @@ classdef Func < handle
                 b = zeros(1, length(ind));
 
                 for k = 1:length(ind)
-                    b(k) = callct('func_value', a.id, ind(k));
+                    b(k) = ctFunc('func_value', a.id, ind(k));
                 end
 
             elseif strcmp(s.type, '.')
