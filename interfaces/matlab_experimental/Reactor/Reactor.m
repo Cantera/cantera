@@ -113,7 +113,7 @@ classdef Reactor < handle
         function r = Reactor(content, typ)
             % Create a :mat:class:`Reactor` object.
 
-            checklib;
+            ctIsLoaded;
 
             if nargin == 0
                 content = 0;

@@ -56,7 +56,7 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
         function s = Solution(src, id, trans)
             % Create a :mat:class:`Solution` object.
 
-            checklib;
+            ctIsLoaded;
 
             if nargin < 2 || nargin > 3
                 error('Solution class constructor expects 2 or 3 input arguments.');

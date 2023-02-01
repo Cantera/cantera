@@ -1,11 +1,11 @@
-function v = canteraVersion()
+function v = ctVersion()
     % Get Cantera version information. ::
     %
-    %     >> canteraVersion()
+    %     >> ctVersion()
     %
     % :return:
     %     A string containing the Cantera version.
     %
-    checklib;
-    v = callct2('ct_getCanteraVersion');
+    ctIsLoaded;
+    v = ctString('ct_getCanteraVersion');
 end

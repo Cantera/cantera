@@ -40,7 +40,7 @@ classdef Interface < handle & ThermoPhase & Kinetics
         function s = Interface(src, id, p1, p2, p3, p4)
             % Create an :mat:class:`Interface` object.
 
-            checklib;
+            ctIsLoaded;
 
             t = ThermoPhase(src, id);
             s@ThermoPhase(src, id);

@@ -88,7 +88,7 @@ classdef Wall < handle
 
         function w = Wall(l, r)
             % Create a :mat:class:`Wall` object.
-            checklib;
+            ctIsLoaded;
 
             % At the moment, only one wall type is implemented
             typ = 'Wall';

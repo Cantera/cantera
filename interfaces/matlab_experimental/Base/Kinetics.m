@@ -108,7 +108,7 @@ classdef Kinetics < handle
             %      Instance of class :mat:class:`Kinetics`
             %
 
-            checklib;
+            ctIsLoaded;
 
             % indices for bulk phases in a heterogeneous mechanism
             inb1 = -1;
@@ -395,7 +395,7 @@ classdef Kinetics < handle
             % :return:
             %    String reaction equation.
 
-            rxn = callct2('kin_getReactionString', kin.kinID, irxn - 1);
+            rxn = ctString('kin_getReactionString', kin.kinID, irxn - 1);
         end
 
         function rxn = get.reactionEqns(kin)

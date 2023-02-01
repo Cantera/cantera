@@ -125,7 +125,7 @@ classdef Domain1D < handle
         function d = Domain1D(varargin)
             % Create a :mat:class:`Domain1D` object.
 
-            checklib;
+            ctIsLoaded;
 
             if nargin == 1
                 a = varargin{1};
@@ -317,7 +317,7 @@ classdef Domain1D < handle
 
             for i = 1:n
                 id = index(i) - 1;
-                output = callct2('domain_componentName', d.domainID, id);
+                output = ctString('domain_componentName', d.domainID, id);
                 s{i} = output;
             end
 

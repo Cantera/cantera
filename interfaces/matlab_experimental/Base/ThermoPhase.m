@@ -252,7 +252,7 @@ classdef ThermoPhase < handle
 
         function tp = ThermoPhase(src, id)
             % Create a :mat:class:`ThermoPhase` object.
-            checklib;
+            ctIsLoaded;
 
             if nargin ~= 2
                 error('ThermoPhase expects 2 input arguments.');
@@ -275,13 +275,14 @@ classdef ThermoPhase < handle
         function display(tp)
             % Display thermo properties
 
-            buflen = 0 - calllib(ct, 'thermo_report', tp.tpID, 0, '', 1);
+            buflen = 0 - calllib(ctLib, 'thermo_report', tp.tpID, 0, '', 1);
             aa = char(ones(1, buflen));
             ptr = libpointer('cstring', aa);
-            [iok, bb] = calllib(ct, 'thermo_report', tp.tpID, buflen, ptr, 1);
+            [iok, bb] = calllib(ctLib, 'thermo_report', tp.tpID, buflen, ...
+                                ptr, 1);
 
             if iok < 0
-                error(geterr);
+                error(ctGetErr);
             else
                 disp(bb);
             end
@@ -528,7 +529,7 @@ classdef ThermoPhase < handle
                 return
             end
 
-            n = callct('thermo_nAtoms', tp.tpID, k - 1, m - 1)
+            n = callct('thermo_nAtoms', tp.tpID, k - 1, m - 1);
 
         end
 
@@ -612,7 +613,7 @@ classdef ThermoPhase < handle
 
                 for j = 1:n
                     ksp = k(i, j) - 1;
-                    output = callct2('thermo_getSpeciesName', tp.tpID, ksp);
+                    output = ctString('thermo_getSpeciesName', tp.tpID, ksp);
                     nm{i, j} = output;
                 end
 
@@ -799,7 +800,7 @@ classdef ThermoPhase < handle
         end
 
         function e = get.eosType(tp)
-            e = callct2('thermo_getEosType', tp.tpID);
+            e = ctString('thermo_getEosType', tp.tpID);
         end
 
         function v = get.isIdealGas(tp)

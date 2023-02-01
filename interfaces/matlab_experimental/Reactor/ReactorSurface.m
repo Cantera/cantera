@@ -46,7 +46,7 @@ classdef ReactorSurface < handle
         function s = ReactorSurface(surf, reactor, area)
             % Create a :mat:class:`ReactorSurface` object.
 
-            checklib;
+            ctIsLoaded;
 
             s.surfID = callct('reactorsurface_new', 0);
             s.reactor = -1;
