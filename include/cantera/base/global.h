@@ -102,6 +102,11 @@ void appdelete();
 //! @copydoc Application::thread_complete
 void thread_complete();
 
+//! Returns the Cantera version. This function when needing to access the version from a
+//! library, rather than the `CANTERA_VERSION` macro that is available at compile time.
+//! @since New in Cantera 3.0
+string version();
+
 //! Returns the hash of the git commit from which Cantera was compiled, if known
 std::string gitCommit();
 

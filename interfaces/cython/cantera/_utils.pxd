@@ -72,12 +72,14 @@ cdef extern from "cantera/base/global.h" namespace "Cantera":
     cdef void Cxx_suppress_thermo_warnings "Cantera::suppress_thermo_warnings" (cbool)
     cdef void Cxx_use_legacy_rate_constants "Cantera::use_legacy_rate_constants" (cbool)
     cdef string CxxGitCommit "Cantera::gitCommit" ()
+    cdef string CxxVersion "Cantera::version" ()
     cdef cbool CxxUsesHDF5 "Cantera::usesHDF5" ()
     cdef cbool CxxDebugModeEnabled "Cantera::debugModeEnabled" ()
 
 
 cdef extern from "cantera/cython/utils_utils.h":
-    cdef string get_cantera_version()
+    cdef string get_cantera_version_py()
+    cdef string get_cantera_git_commit_py()
     cdef int get_sundials_version()
     cdef cppclass CxxPythonLogger "PythonLogger":
         pass

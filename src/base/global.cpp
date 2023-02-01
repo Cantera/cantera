@@ -122,6 +122,11 @@ void thread_complete()
     app()->thread_complete();
 }
 
+string version()
+{
+    return CANTERA_VERSION;
+}
+
 std::string gitCommit()
 {
 #ifdef GIT_COMMIT
