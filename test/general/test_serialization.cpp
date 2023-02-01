@@ -8,6 +8,8 @@
 #include "cantera/base/Solution.h"
 #include "cantera/kinetics.h"
 #include "cantera/transport/TransportData.h"
+#include "cantera/base/Storage.h"
+#include <fstream>
 
 using namespace Cantera;
 using namespace YAML;
@@ -398,3 +400,328 @@ TEST(YamlWriter, customHeader)
               "Copy of H2O2 mechanism");
     ASSERT_EQ(soln->header()["spam"].asString(), "eggs");
 }
+
+#if CT_USE_HDF5
+
+TEST(Storage, groups)
+{
+    // testing Storage class outside of SolutionArray
+    const string fname = "groups.h5";
+    if (std::ifstream(fname).good()) {
+        std::remove(fname.c_str());
+    }
+
+    // open in write mode
+    auto file = unique_ptr<Storage>(new Storage(fname, true));
+
+    // create group implicitly if permissive flag is set
+    EXPECT_FALSE(file->hasGroup("one"));
+    EXPECT_THROW(file->checkGroup("one"), CanteraError);
+    EXPECT_TRUE(file->checkGroup("one", true));
+    EXPECT_TRUE(file->hasGroup("one"));
+
+    // nested groups
+    EXPECT_FALSE(file->hasGroup("one/two"));
+    EXPECT_TRUE(file->checkGroup("one/two", true));
+    EXPECT_TRUE(file->hasGroup("one/two"));
+    EXPECT_FALSE(file->hasGroup("two"));
+
+    // open in read mode
+    file = unique_ptr<Storage>(new Storage(fname, false));
+
+    // can check group, but not create
+    EXPECT_FALSE(file->hasGroup("three"));
+    EXPECT_THROW(file->checkGroup("three"), CanteraError);
+    EXPECT_FALSE(file->checkGroup("three", true));
+    EXPECT_FALSE(file->hasGroup("three"));
+}
+
+TEST(Storage, writeAttributes)
+{
+    // testing Storage class outside of SolutionArray
+    const string fname = "writeAttributes.h5";
+    if (std::ifstream(fname).good()) {
+        std::remove(fname.c_str());
+    }
+
+    // open in write mode
+    auto file = unique_ptr<Storage>(new Storage(fname, true));
+
+    // try to write without creating group first
+    AnyMap attr;
+    attr["description"] = "writing attributes";
+    // cannot write to root location
+    EXPECT_THROW(file->writeAttributes("", attr), CanteraError);
+    // cannot write to group that is not created
+    EXPECT_THROW(file->writeAttributes("one", attr), CanteraError);
+
+    file->checkGroup("one", true); // implicitly creates group
+    EXPECT_FALSE(file->hasAttribute("one", "description"));
+    file->writeAttributes("one", attr);
+    EXPECT_TRUE(file->hasAttribute("one", "description"));
+    // attributes cannot be overwritten
+    EXPECT_THROW(file->writeAttributes("one", attr), NotImplementedError);
+
+    attr.clear(); // reset AnyMap
+    attr["spam"] = "eggs"; // string
+    attr["foo"]["bar]"] = 1.; // float; also nested
+    file->writeAttributes("one", attr); // succeds; new attribute
+
+    file->checkGroup("two/three", true); // multi-level group
+    file->writeAttributes("two/three", attr);
+
+    attr["hello-world"] = 5; // integer
+    attr["animals"] = vector<string>({"dog", "cat"});
+    attr["floats"] = vector<double>({1.1, 2.2, 3.3});
+    attr["integers"] = vector<long int>({1, 2, 3});
+    attr["booleans"] = vector<bool>({true, false, true});
+    file->checkGroup("four", true);
+    file->writeAttributes("four", attr);
+
+    // unsupported types
+    attr.clear();
+    attr["any"] = AnyValue();
+    EXPECT_THROW(file->writeAttributes("four", attr), NotImplementedError);
+    attr.clear();
+    attr["invalid"] = vector<int>({1, 2, 3}); // not supported (needs long int)
+    EXPECT_THROW(file->writeAttributes("four", attr), NotImplementedError);
+}
+
+TEST(Storage, readAttributes)
+{
+    // testing Storage class outside of SolutionArray
+    const string fname = "readAttributes.h5";
+    if (std::ifstream(fname).good()) {
+        std::remove(fname.c_str());
+    }
+    // open in write mode
+    auto file = unique_ptr<Storage>(new Storage(fname, true));
+
+    AnyMap attr;
+    attr["description"] = "reading attributes";
+    attr["spam"] = "eggs"; // string
+    attr["foo"]["bar"] = 1.; // float
+    attr["hello-world"] = 5; // integer
+    attr["animals"] = vector<string>({"dog", "cat"});
+    attr["floats"] = vector<double>({1.1, 2.2, 3.3});
+    attr["integers"] = vector<long int>({1, 2, 3});
+    attr["booleans"] = vector<bool>({true, false, true});
+
+    file->checkGroup("test", true); // implicitly creates group
+    file->writeAttributes("test", attr);
+
+    // open in read mode
+    file = unique_ptr<Storage>(new Storage(fname, false));
+    auto data = file->readAttributes("test", false); // only one level
+    EXPECT_EQ(data["spam"].asString(), attr["spam"].asString());
+    EXPECT_FALSE(data.hasKey("foo"));
+
+    data = file->readAttributes("test", true); // recursive
+    EXPECT_EQ(data["spam"].asString(), attr["spam"].asString());
+    EXPECT_TRUE(data.hasKey("foo"));
+    EXPECT_EQ(data["foo"]["bar"].asDouble(), attr["foo"]["bar"].asDouble());
+
+    // cannot write to file in read mode
+    AnyMap any;
+    any["hello"] = "world";
+    EXPECT_TRUE(file->hasGroup("test"));
+    EXPECT_THROW(file->writeAttributes("test", any), CanteraError);
+
+    data = file->readAttributes("test", false); // recursive
+    EXPECT_FALSE(data.hasKey("hello"));
+}
+
+TEST(Storage, writeData)
+{
+    // testing Storage class outside of SolutionArray
+    const string fname = "writeData.h5";
+    if (std::ifstream(fname).good()) {
+        std::remove(fname.c_str());
+    }
+    auto file = unique_ptr<Storage>(new Storage(fname, true));
+    file->checkGroup("test", true); // implicitly creates group
+
+    AnyValue any;
+
+    // scalars don't work
+    any = 3.1415;
+    EXPECT_THROW(file->writeData("test", "double", any), CanteraError);
+    any = 42;
+    EXPECT_THROW(file->writeData("test", "integer", any), CanteraError);
+    any = "hello world!";
+    EXPECT_THROW(file->writeData("test", "string", any), CanteraError);
+
+    // vectors
+    any = vector<double>({1.1, 2.2, 3.3});
+    file->writeData("test", "double-vector", any);
+    any = vector<long int>({1, 2, 3, 4});
+    file->writeData("test", "integer-vector", any);
+    any = vector<string>({"dog", "cat"});
+    file->writeData("test", "string-vector", any);
+
+    // writing to root doesn't work
+    EXPECT_THROW(file->writeData("", "string-vector", any), CanteraError);
+    // overwriting of existing data doesn't work
+    EXPECT_THROW(file->writeData("test", "string-vector", any), CanteraError);
+
+    // not all types are implemented
+    any = vector<bool>({true, false, true});
+    EXPECT_THROW(file->writeData("test", "invalid0", any), NotImplementedError);
+    any = vector<int>({1, 2, 3});
+    EXPECT_THROW(file->writeData("test", "invalid1", any), CanteraError);
+
+    // matrices
+    any = vector<vector<double>>({{1.1, 2.2, 3.3}, {4.4, 5.5, 6.6}});
+    EXPECT_EQ(any.matrixShape().first, 2);
+    EXPECT_EQ(any.matrixShape().second, 3);
+    file->writeData("test", "double-matrix", any);
+    any = vector<vector<long int>>({{1, 2}, {3, 4}, {5, 6}});
+    file->writeData("test", "integer-matrix", any);
+    any = vector<vector<string>>({{"foo", "bar"}, {"spam", "eggs"}});
+    file->writeData("test", "string-matrix", any);
+
+    // not all types are implemented
+    any = vector<vector<int>>({{1, 2}, {3, 4}});
+    EXPECT_THROW(file->writeData("test", "invalid2", any), CanteraError);
+
+    // invalid vectors of vectors (irregular shape)
+    any = vector<vector<double>>({{1.1, 2.2}, {3.3}});
+    EXPECT_EQ(any.matrixShape().first, 2);
+    EXPECT_EQ(any.matrixShape().second, npos);
+    EXPECT_THROW(file->writeData("test", "invalid3", any), CanteraError);
+    any = vector<vector<long int>>({{1, 2}, {3, 4, 5}, {6}});
+    EXPECT_THROW(file->writeData("test", "invalid4", any), CanteraError);
+    any = vector<vector<string>>({{"foo", "bar"}, {"a", "b", "c"}});
+    EXPECT_THROW(file->writeData("test", "invalid5", any), CanteraError);
+}
+
+TEST(Storage, writeCompressed)
+{
+    // testing Storage class outside of SolutionArray
+    const string fname = "writeCompressed.h5";
+    if (std::ifstream(fname).good()) {
+        std::remove(fname.c_str());
+    }
+    auto file = unique_ptr<Storage>(new Storage(fname, true));
+    file->checkGroup("test", true); // implicitly creates group
+
+    AnyValue any;
+
+    EXPECT_THROW(file->setCompressionLevel(-1), CanteraError);
+    EXPECT_THROW(file->setCompressionLevel(10), CanteraError);
+    file->setCompressionLevel(9);
+    file->setCompressionLevel(0);
+    file->setCompressionLevel(5);
+
+    // matrices
+    any = vector<vector<double>>({{1.1, 2.2, 3.3}, {4.4, 5.5, 6.6}});
+    file->writeData("test", "double-matrix", any);
+    any = vector<vector<long int>>({{1, 2}, {3, 4}, {5, 6}});
+    file->writeData("test", "integer-matrix", any);
+    any = vector<vector<string>>({{"foo", "bar"}, {"spam", "eggs"}});
+    file->writeData("test", "string-matrix", any);
+}
+
+TEST(Storage, readData)
+{
+    // testing Storage class outside of SolutionArray
+    const string fname = "writeData.h5";
+    if (std::ifstream(fname).good()) {
+        std::remove(fname.c_str());
+    }
+    auto file = unique_ptr<Storage>(new Storage(fname, true));
+    file->checkGroup("test", true); // implicitly creates group
+
+    AnyValue any;
+
+    // vectors
+    any = vector<double>({1.1, 2.2, 3.3});
+    file->writeData("test", "double-vector", any);
+    any = vector<long int>({1, 2, 3, 4});
+    file->writeData("test", "integer-vector", any);
+    any = vector<string>({"dog", "cat"});
+    file->writeData("test", "string-vector", any);
+
+    // matrices
+    any = vector<vector<double>>({{1.1, 2.2, 3.3}, {4.4, 5.5, 6.6}});
+    file->writeData("test", "double-matrix", any);
+    any = vector<vector<long int>>({{1, 2}, {3, 4}, {5, 6}});
+    file->writeData("test", "integer-matrix", any);
+    any = vector<vector<string>>({{"foo", "bar"}, {"spam", "eggs"}});
+    file->writeData("test", "string-matrix", any);
+
+    file = unique_ptr<Storage>(new Storage(fname, false));
+
+    // cannot write to file in read mode
+    EXPECT_THROW(file->writeData("test", "string-matrix", any), CanteraError);
+
+    auto data = file->readData("test", "double-vector", 3);
+    ASSERT_TRUE(data.isVector<double>());
+    ASSERT_EQ(data.asVector<double>().size(), 3);
+    // need to know length
+    EXPECT_THROW(file->readData("test", "double-vector", 4), CanteraError);
+
+    data = file->readData("test", "integer-vector", 4, 0);
+    ASSERT_TRUE(data.isVector<long int>());
+    ASSERT_EQ(data.asVector<long int>().size(), 4);
+    // invalid number of columns
+    EXPECT_THROW(file->readData("test", "integer-vector", 4, 2), CanteraError);
+
+    data = file->readData("test", "string-vector", 2);
+    ASSERT_TRUE(data.isVector<string>());
+    ASSERT_EQ(data.asVector<string>().size(), 2);
+
+    data = file->readData("test", "double-matrix", 2);
+    ASSERT_TRUE(data.isMatrix<double>());
+    // incorrect number of rows
+    EXPECT_THROW(file->readData("test", "double-matrix", 3), CanteraError);
+
+    data = file->readData("test", "integer-matrix", 3, 2);
+    ASSERT_TRUE(data.isMatrix<long int>());
+    // invalid number of columns
+    EXPECT_THROW(file->readData("test", "integer-matrix", 3, 4), CanteraError);
+
+    data = file->readData("test", "string-matrix", 2, 2);
+    ASSERT_TRUE(data.isMatrix<string>());
+}
+
+TEST(Storage, readCompressed)
+{
+    // testing Storage class outside of SolutionArray
+    const string fname = "writeCompressed.h5";
+    if (std::ifstream(fname).good()) {
+        std::remove(fname.c_str());
+    }
+    auto file = unique_ptr<Storage>(new Storage(fname, true));
+    file->checkGroup("test", true); // implicitly creates group
+    file->setCompressionLevel(5);
+
+    // matrices
+    AnyValue any;
+    any = vector<vector<double>>({{1.1, 2.2, 3.3}, {4.4, 5.5, 6.6}});
+    file->writeData("test", "double-matrix", any);
+    any = vector<vector<long int>>({{1, 2}, {3, 4}, {5, 6}});
+    file->writeData("test", "integer-matrix", any);
+    any = vector<vector<string>>({{"foo", "bar"}, {"spam", "eggs"}});
+    file->writeData("test", "string-matrix", any);
+
+    file = unique_ptr<Storage>(new Storage(fname, false));
+
+    auto data = file->readData("test", "double-matrix", 2, 3);
+    ASSERT_TRUE(data.isMatrix<double>());
+
+    data = file->readData("test", "integer-matrix", 3, 2);
+    ASSERT_TRUE(data.isMatrix<long int>());
+
+    data = file->readData("test", "string-matrix", 2, 2);
+    ASSERT_TRUE(data.isMatrix<string>());
+}
+
+#else
+
+TEST(Storage, noSupport)
+{
+    EXPECT_THROW(unique_ptr<Storage>(new Storage("something.h5", true)), CanteraError);
+}
+
+#endif
