@@ -25,12 +25,23 @@ static std::map<std::string, PyObject*> mapped_PyWarnings = {
     {"User", PyExc_UserWarning}
 };
 
-// Wrappers for preprocessor defines
-inline std::string get_cantera_version()
+// Cantera version for Python module compilation
+inline std::string get_cantera_version_py()
 {
-    return std::string(CANTERA_VERSION);
+    return CANTERA_VERSION;
 }
 
+// Git commit for Python module compilation
+inline std::string get_cantera_git_commit_py()
+{
+#ifdef GIT_COMMIT
+    return GIT_COMMIT;
+#else
+    return "unknown";
+#endif
+}
+
+// Wrappers for preprocessor defines
 inline int get_sundials_version()
 {
     return CT_SUNDIALS_VERSION;

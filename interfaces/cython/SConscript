@@ -33,14 +33,21 @@ if env["coverage"]:
 # Build the Python module
 cython_obj = []
 for pyxfile in multi_glob(localenv, "cantera", "pyx"):
-    cythonized = localenv.Command(
+    if pyxfile.name == "_utils.pyx":
+        # Define GIT_COMMIT only in _utils.pyx to avoid unnecessary recompilations
+        cython_env = localenv.Clone()
+        cython_env.Append(CPPDEFINES={'GIT_COMMIT': '\\"{0}\\"'.format(env['git_commit'])})
+    else:
+        cython_env = localenv
+
+    cythonized = cython_env.Command(
          f"cantera/{pyxfile.name.replace('.pyx', '.cpp')}", pyxfile,
          f'''${{python_cmd}} -c "import Cython.Build; Cython.Build.cythonize(r'${{SOURCE}}', compiler_directives={directives!r})"'''
     )
-    for pxd in multi_glob(localenv, "cantera", "pxd"):
-        localenv.Depends(cythonized, pxd)
+    for pxd in multi_glob(cython_env, "cantera", "pxd"):
+        cython_env.Depends(cythonized, pxd)
 
-    obj = localenv.SharedObject(
+    obj = cython_env.SharedObject(
         f"#build/temp-py/{pyxfile.name.split('.')[0]}", cythonized)
     cython_obj.append(obj)
 cython_obj.extend(env['python_ext_objects'])
