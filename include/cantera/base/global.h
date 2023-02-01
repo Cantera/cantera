@@ -87,6 +87,9 @@ void loadExtension(const std::string& extType, const std::string& name);
 //! @since New in Cantera 3.0
 void loadExtensions(const AnyMap& node);
 
+//! @copydoc Application::searchPythonVersions
+void searchPythonVersions(const string& versions);
+
 //! Returns `true` if Cantera was loaded as a shared library in the current
 //! application. Returns `false` if it was statically linked.
 //! @since New in Cantera 3.0
