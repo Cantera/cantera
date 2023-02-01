@@ -8,12 +8,6 @@ Import('env', 'build', 'install')
 
 localenv = env.Clone()
 
-# Add build/lib in order to find Cantera shared library
-if env['OS'] == 'Darwin':
-    localenv.PrependENVPath('DYLD_LIBRARY_PATH', Dir('#build/lib').abspath)
-else:
-    localenv.PrependENVPath('LD_LIBRARY_PATH', Dir('#build/lib').abspath)
-
 Page = namedtuple('Page', ['name', 'title', 'objects'])
 
 

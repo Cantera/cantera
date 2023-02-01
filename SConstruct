@@ -2196,7 +2196,15 @@ def install(*args, **kwargs):
 env.SConsignFile()
 
 env.Prepend(CPPPATH=[],
-           LIBPATH=[Dir('build/lib')])
+            LIBPATH=[Dir('build/lib')])
+
+# Add build/lib to library search path in order to find Cantera shared library
+if env['OS'] == 'Windows':
+    env.PrependENVPath('PATH', Dir('#build/lib').abspath)
+elif env['OS'] == 'Darwin':
+    env.PrependENVPath('DYLD_LIBRARY_PATH', Dir('#build/lib').abspath)
+else:
+    env.PrependENVPath('LD_LIBRARY_PATH', Dir('#build/lib').abspath)
 
 for yaml in multi_glob(env, "data", "yaml"):
     dest = Path() / "build" / "data" / yaml.name
