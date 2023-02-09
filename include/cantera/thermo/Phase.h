@@ -60,10 +60,9 @@ class Species;
  * based on a T and P, in which case they need to overload these functions too.
  *
  * Class Phase contains a number of utility functions that will set the state
- * of the phase in its entirety, by first setting the composition, then the
- * temperature and then density (or pressure for incompressible substances)
- * An example of this is the function
- * Phase::setState_TRY(double t, double dens, const double* y).
+ * of the phase in its entirety, by first setting the composition, and then
+ * temperature and pressure. An example of this is the function
+ * Phase::setState_TPY(double t, double p, const double* y).
  *
  * For bulk (3-dimensional) phases, the mass density has units of kg/m^3, and the molar
  * density and concentrations have units of kmol/m^3, and the units listed in the
@@ -371,6 +370,8 @@ public:
     //!     @param t     Temperature in kelvin
     //!     @param dens  Density (kg/m^3)
     //!     @param x     vector of species mole fractions, length m_kk
+    //!     @deprecated To be removed after Cantera 3.0; replaceable by calls to
+    //!                 setMoleFractions() and setState_TD().
     void setState_TRX(doublereal t, doublereal dens, const doublereal* x);
 
     //! Set the internally stored temperature (K), density, and mole fractions.
@@ -379,12 +380,16 @@ public:
     //!     @param x     Composition Map containing the mole fractions.
     //!                  Species not included in the map are assumed to have
     //!                  a zero mole fraction.
+    //!     @deprecated To be removed after Cantera 3.0; replaceable by calls to
+    //!                 setMoleFractionsByName() and setState_TD().
     void setState_TRX(doublereal t, doublereal dens, const compositionMap& x);
 
     //! Set the internally stored temperature (K), density, and mass fractions.
     //!     @param t     Temperature in kelvin
     //!     @param dens  Density (kg/m^3)
     //!     @param y     vector of species mass fractions, length m_kk
+    //!     @deprecated To be removed after Cantera 3.0; replaceable by calls to
+    //!                 setMassFractions() and setState_TD().
     void setState_TRY(doublereal t, doublereal dens, const doublereal* y);
 
     //! Set the internally stored temperature (K), density, and mass fractions.
@@ -393,6 +398,8 @@ public:
     //!     @param y     Composition Map containing the mass fractions.
     //!                  Species not included in the map are assumed to have
     //!                  a zero mass fraction.
+    //!     @deprecated To be removed after Cantera 3.0; replaceable by calls to
+    //!                 setMassFractionsByName() and setState_TD().
     void setState_TRY(doublereal t, doublereal dens, const compositionMap& y);
 
     //! Set the internally stored temperature (K), molar density (kmol/m^3), and

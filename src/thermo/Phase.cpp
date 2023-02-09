@@ -393,9 +393,11 @@ void Phase::setMassFractionsByName(const std::string& y)
 
 void Phase::setState_TRX(doublereal t, doublereal dens, const doublereal* x)
 {
+    warn_deprecated("Phase::setState_TRX",
+        "To be removed after Cantera 3.0. Replaceable by calls to "
+        "setMoleFractions and setState_TD.");
     setMoleFractions(x);
-    setTemperature(t);
-    setDensity(dens);
+    setState_TD(t, dens);
 }
 
 void Phase::setState_TNX(doublereal t, doublereal n, const doublereal* x)
@@ -407,23 +409,29 @@ void Phase::setState_TNX(doublereal t, doublereal n, const doublereal* x)
 
 void Phase::setState_TRX(doublereal t, doublereal dens, const compositionMap& x)
 {
+    warn_deprecated("Phase::setState_TRX",
+        "To be removed after Cantera 3.0. Replaceable by calls to "
+        "setMoleFractionsByName and setState_TD.");
     setMoleFractionsByName(x);
-    setTemperature(t);
-    setDensity(dens);
+    setState_TD(t, dens);
 }
 
 void Phase::setState_TRY(doublereal t, doublereal dens, const doublereal* y)
 {
+    warn_deprecated("Phase::setState_TRY",
+        "To be removed after Cantera 3.0. Replaceable by calls to "
+        "setMassFractions and setState_TD.");
     setMassFractions(y);
-    setTemperature(t);
-    setDensity(dens);
+    setState_TD(t, dens);
 }
 
 void Phase::setState_TRY(doublereal t, doublereal dens, const compositionMap& y)
 {
+    warn_deprecated("Phase::setState_TRY",
+        "To be removed after Cantera 3.0. Replaceable by calls to "
+        "setMassFractionsByName and setState_TD.");
     setMassFractionsByName(y);
-    setTemperature(t);
-    setDensity(dens);
+    setState_TD(t, dens);
 }
 
 void Phase::setState_TR(doublereal t, doublereal rho)
