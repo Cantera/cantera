@@ -15,7 +15,7 @@ public enum ThermoPair
     /// <summary>
     /// Density and Pressure
     /// </summary>
-    RP, DensityPressure = RP,
+    DP, DensityPressure = DP,
 
     /// <summary>
     /// Temperature and Volume
