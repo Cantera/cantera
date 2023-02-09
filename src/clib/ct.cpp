@@ -524,10 +524,30 @@ extern "C" {
         }
     }
 
+    int thermo_set_TD(int n, double* vals)
+    {
+        try{
+            ThermoCabinet::item(n).setState_TD(vals[0], vals[1]);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     int thermo_set_RP(int n, double* vals)
     {
         try{
             ThermoCabinet::item(n).setState_RP(vals[0], vals[1]);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int thermo_set_DP(int n, double* vals)
+    {
+        try{
+            ThermoCabinet::item(n).setState_DP(vals[0], vals[1]);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
