@@ -1067,9 +1067,26 @@ public:
      *
      * @param rho Density (kg/m^3)
      * @param p   Pressure (Pa)
+     * @deprecated  To be removed after Cantera 3.0; renamed to setState_DP()
      */
-    virtual void setState_RP(doublereal rho, doublereal p) {
-        throw NotImplementedError("ThermoPhase::setState_RP");
+    void setState_RP(doublereal rho, doublereal p);
+
+    //! Set the density (kg/m**3) and pressure (Pa) at constant composition
+    /*!
+     * This method must be reimplemented in derived classes, where it may
+     * involve the solution of a nonlinear equation. Within %Cantera, the
+     * independent variable is the density. Therefore, this function solves for
+     * the temperature that will yield the desired input pressure and density.
+     * The composition is held constant during this process.
+     *
+     * This base class function will print an error, if not overridden.
+     *
+     * @param rho Density (kg/m^3)
+     * @param p   Pressure (Pa)
+     * @since  New in Cantera 3.0.
+     */
+    virtual void setState_DP(double rho, double p) {
+        throw NotImplementedError("ThermoPhase::setState_DP");
     }
 
     //! Set the density (kg/m**3), pressure (Pa) and mole fractions
@@ -1082,6 +1099,8 @@ public:
      * @param p    Pressure (Pa)
      * @param x    Vector of mole fractions.
      *             Length is equal to m_kk.
+     * @deprecated  To be removed after Cantera 3.0; replaceable by calls to
+     *              setMoleFractions() and setState_DP().
      */
     virtual void setState_RPX(doublereal rho, doublereal p, const doublereal* x);
 
@@ -1095,6 +1114,8 @@ public:
      * @param p    Pressure (Pa)
      * @param x    Composition map of mole fractions. Species not in
      *              the composition map are assumed to have zero mole fraction
+     * @deprecated  To be removed after Cantera 3.0; replaceable by calls to
+     *              setMoleFractionsByName() and setState_DP().
      */
     virtual void setState_RPX(doublereal rho, doublereal p, const compositionMap& x);
 
@@ -1109,6 +1130,8 @@ public:
      * @param x    String containing a composition map of the mole fractions.
      *              Species not in the composition map are assumed to have zero
      *              mole fraction
+     * @deprecated  To be removed after Cantera 3.0; replaceable by calls to
+     *              setMoleFractionsByName() and setState_DP().
      */
     virtual void setState_RPX(doublereal rho, doublereal p, const std::string& x);
 
@@ -1122,6 +1145,8 @@ public:
      * @param p    Pressure (Pa)
      * @param y    Vector of mole fractions.
      *              Length is equal to m_kk.
+     * @deprecated  To be removed after Cantera 3.0; replaceable by calls to
+     *              setMassFractions() and setState_DP().
      */
     virtual void setState_RPY(doublereal rho, doublereal p, const doublereal* y);
 
@@ -1135,6 +1160,8 @@ public:
      * @param p   Pressure (Pa)
      * @param y   Composition map of mole fractions. Species not in
      *             the composition map are assumed to have zero mole fraction
+     * @deprecated  To be removed after Cantera 3.0; replaceable by calls to
+     *              setMassFractionsByName() and setState_DP().
      */
     virtual void setState_RPY(doublereal rho, doublereal p, const compositionMap& y);
 
@@ -1149,6 +1176,8 @@ public:
      * @param y    String containing a composition map of the mole fractions.
      *              Species not in the composition map are assumed to have zero
      *              mole fraction
+     * @deprecated  To be removed after Cantera 3.0; replaceable by calls to
+     *              setMassFractionsByName() and setState_DP().
      */
     virtual void setState_RPY(doublereal rho, doublereal p, const std::string& y);
 

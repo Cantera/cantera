@@ -128,7 +128,7 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         void setState_UV(double, double) except +translate_exception
         void setState_SP(double, double) except +translate_exception
         void setState_SV(double, double) except +translate_exception
-        void setState_RP(double, double) except +translate_exception
+        void setState_DP(double, double) except +translate_exception
         void setState_ST(double, double) except +translate_exception
         void setState_TV(double, double) except +translate_exception
         void setState_PV(double, double) except +translate_exception
