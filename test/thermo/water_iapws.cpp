@@ -54,10 +54,10 @@ class WaterPropsIAPWS_Test : public testing::Test
 public:
     double dPdT(double T, double P) {
         double rho = water.density(T, P);
-        water.setState_TR(T, rho);
+        water.setState_TD(T, rho);
         double P1 = water.pressure();
         double T2 = T + 0.001;
-        water.setState_TR(T2, rho);
+        water.setState_TD(T2, rho);
         double P2 = water.pressure();
         return (P2 - P1) / 0.001;
     }
@@ -131,7 +131,7 @@ TEST_F(WaterPropsIAPWS_Test, expansion_coeffs)
     vector_fp beta_num{1.0000203087, 1265.46651311, 1.2405192825};
     for (size_t i = 0; i < TT.size(); i++) {
         double rho = water.density(TT[i], PP[i], WATER_GAS);
-        water.setState_TR(TT[i], rho);
+        water.setState_TD(TT[i], rho);
         EXPECT_NEAR(water.coeffThermExp(), alpha[i], 2e-14);
         EXPECT_NEAR(water.coeffPresExp(), beta[i], beta[i] * 2e-12);
         EXPECT_NEAR(dPdT(TT[i], PP[i]) / (461.51805 * rho),

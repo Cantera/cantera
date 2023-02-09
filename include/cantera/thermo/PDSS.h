@@ -360,8 +360,17 @@ public:
     /*!
      * @param  temp     Temperature (Kelvin)
      * @param  rho      Density (kg m-3)
+     * @deprecated  To be removed after Cantera 3.0; renamed to setState_TD()
      */
     virtual void setState_TR(doublereal temp, doublereal rho);
+
+    //! Set the internal temperature and density
+    /*!
+     * @param  temp     Temperature (Kelvin)
+     * @param  rho      Density (kg m-3)
+     * @since  New in Cantera 3.0.
+     */
+    virtual void setState_TD(double temp, double rho);
 
     //! critical temperature
     virtual doublereal critTemperature() const;

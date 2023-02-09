@@ -283,7 +283,7 @@ TEST_P(TestConsistency, cv_eq_dudT)
     double T1 = phase->temperature();
     double dT = 1e-5 * phase->temperature();
     if (phase->isCompressible()) {
-        phase->setState_TR(T1 + dT, phase->density());
+        phase->setState_TD(T1 + dT, phase->density());
     } else {
         phase->setTemperature(T1 + dT);
     }
@@ -325,7 +325,7 @@ TEST_P(TestConsistency, cv_eq_dsdT_const_v_times_T)
     double T1 = phase->temperature();
     double dT = 1e-4 * phase->temperature();
     if (phase->isCompressible()) {
-        phase->setState_TR(T1 + dT, phase->density());
+        phase->setState_TD(T1 + dT, phase->density());
     } else {
         phase->setTemperature(T1 + dT);
     }
@@ -371,12 +371,12 @@ TEST_P(TestConsistency, dSdv_const_T_eq_dPdT_const_V) {
         double v1 = 1 / phase->density();
         double P1 = phase->pressure();
         double v2 = v1 * (1 + 1e-7);
-        phase->setState_TR(T, 1 / v2);
+        phase->setState_TD(T, 1 / v2);
         double s2 = phase->entropy_mass();
         double dsdv = (s2 - s1) / (v2 - v1);
 
         double T2 = T * (1 + 1e-7);
-        phase->setState_TR(T2, 1 / v1);
+        phase->setState_TD(T2, 1 / v1);
         double P2 = phase->pressure();
         double dPdT = (P2 - P1) / (T2 - T);
         double tol = rtol_fd * std::max(std::abs(dPdT), std::abs(dsdv));

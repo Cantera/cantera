@@ -8,6 +8,7 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
+#include "cantera/base/global.h"
 #include "cantera/thermo/PDSS.h"
 #include "cantera/thermo/VPStandardStateTP.h"
 
@@ -184,7 +185,14 @@ void PDSS::setState_TP(doublereal temp, doublereal pres)
 
 void PDSS::setState_TR(doublereal temp, doublereal rho)
 {
-    throw NotImplementedError("PDSS::setState_TR");
+    warn_deprecated("PDSS::setState_TR",
+        "To be removed after Cantera 3.0. Renamed to setState_TD.");
+    setState_TD(temp, rho);
+}
+
+void PDSS::setState_TD(double temp, double rho)
+{
+    throw NotImplementedError("PDSS::setState_TD");
 }
 
 doublereal PDSS::satPressure(doublereal t)

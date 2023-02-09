@@ -405,7 +405,14 @@ public:
     //! Set the internally stored temperature (K) and density (kg/m^3)
     //!     @param t     Temperature in kelvin
     //!     @param rho   Density (kg/m^3)
+    //!     @deprecated  To be removed after Cantera 3.0; renamed to setState_TD()
     void setState_TR(doublereal t, doublereal rho);
+
+    //! Set the internally stored temperature (K) and density (kg/m^3)
+    //!     @param t     Temperature in kelvin
+    //!     @param rho   Density (kg/m^3)
+    //!     @since  New in Cantera 3.0.
+    void setState_TD(double t, double rho);
 
     //! Set the internally stored temperature (K) and mole fractions.
     //!     @param t   Temperature in kelvin

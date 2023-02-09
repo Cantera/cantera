@@ -139,7 +139,7 @@ TEST_F(PengRobinson_Test, getPressure)
     {
         const double temp = 296 + i * 50;
         set_r(1.0);
-        test_phase->setState_TR(temp, rho);
+        test_phase->setState_TD(temp, rho);
         const double Tcrit = test_phase->critTemperature();
         mv = 1 / rho * test_phase->meanMolecularWeight();
         //Calculate pressure using Peng-Robinson EoS

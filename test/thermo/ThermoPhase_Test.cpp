@@ -55,7 +55,7 @@ TEST_F(TestThermoMethods, setState_nan)
     EXPECT_THROW(thermo->setState_TP(555, nan), CanteraError);
     EXPECT_THROW(thermo->setState_HP(nan, 55555), CanteraError);
     EXPECT_THROW(thermo->setState_SV(1234, nan), CanteraError);
-    EXPECT_THROW(thermo->setState_TR(555, nan), CanteraError);
+    EXPECT_THROW(thermo->setState_TD(555, nan), CanteraError);
 }
 
 TEST_F(TestThermoMethods, setState_AnyMap)

@@ -140,11 +140,11 @@ namespace Cantera
  * There are only three functions which actually change the value of the
  * internal state of this object after it's been instantiated
  *
- *   - setState_TR(temperature, rho)
+ *   - setState_TD(temperature, rho)
  *   - density(temperature, pressure, phase, rhoguess)
  *   - psat(temperature, waterState);
  *
- * The setState_TR() is the main function that sets the temperature and rho
+ * The setState_TD() is the main function that sets the temperature and rho
  * value. The density() function serves as a setState_TP() function, in that
  * it sets internal state to a temperature and pressure. However, note that
  * this is potentially multivalued. Therefore, we need to supply in addition a
@@ -171,8 +171,17 @@ public:
     /*!
      * @param temperature   temperature (kelvin)
      * @param rho           density  (kg m-3)
+     * @deprecated  To be removed after Cantera 3.0; renamed to setState_TD()
      */
     void setState_TR(doublereal temperature, doublereal rho);
+
+    //! Set the internal state of the object wrt temperature and density
+    /*!
+     * @param temperature   temperature (kelvin)
+     * @param rho           density  (kg m-3)
+     * @since  New in Cantera 3.0.
+     */
+    void setState_TD(double temperature, double rho);
 
     //! Get the Gibbs free energy (J/kg) at the current temperature and density
     double gibbs_mass() const;

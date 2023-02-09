@@ -308,67 +308,67 @@ doublereal PureFluidPhase::satTemperature(doublereal p) const
 void PureFluidPhase::setState_HP(double h, double p, double tol)
 {
     Set(tpx::PropertyPair::HP, h, p);
-    setState_TR(m_sub->Temp(), 1.0/m_sub->v());
+    setState_TD(m_sub->Temp(), 1.0/m_sub->v());
 }
 
 void PureFluidPhase::setState_UV(double u, double v, double tol)
 {
     Set(tpx::PropertyPair::UV, u, v);
-    setState_TR(m_sub->Temp(), 1.0/m_sub->v());
+    setState_TD(m_sub->Temp(), 1.0/m_sub->v());
 }
 
 void PureFluidPhase::setState_SV(double s, double v, double tol)
 {
     Set(tpx::PropertyPair::SV, s, v);
-    setState_TR(m_sub->Temp(), 1.0/m_sub->v());
+    setState_TD(m_sub->Temp(), 1.0/m_sub->v());
 }
 
 void PureFluidPhase::setState_SP(double s, double p, double tol)
 {
     Set(tpx::PropertyPair::SP, s, p);
-    setState_TR(m_sub->Temp(), 1.0/m_sub->v());
+    setState_TD(m_sub->Temp(), 1.0/m_sub->v());
 }
 
 void PureFluidPhase::setState_ST(double s, double t, double tol)
 {
     Set(tpx::PropertyPair::ST, s, t);
-    setState_TR(m_sub->Temp(), 1.0/m_sub->v());
+    setState_TD(m_sub->Temp(), 1.0/m_sub->v());
 }
 
 void PureFluidPhase::setState_TV(double t, double v, double tol)
 {
     Set(tpx::PropertyPair::TV, t, v);
-    setState_TR(m_sub->Temp(), 1.0/m_sub->v());
+    setState_TD(m_sub->Temp(), 1.0/m_sub->v());
 }
 
 void PureFluidPhase::setState_PV(double p, double v, double tol)
 {
     Set(tpx::PropertyPair::PV, p, v);
-    setState_TR(m_sub->Temp(), 1.0/m_sub->v());
+    setState_TD(m_sub->Temp(), 1.0/m_sub->v());
 }
 
 void PureFluidPhase::setState_UP(double u, double p, double tol)
 {
     Set(tpx::PropertyPair::UP, u, p);
-    setState_TR(m_sub->Temp(), 1.0/m_sub->v());
+    setState_TD(m_sub->Temp(), 1.0/m_sub->v());
 }
 
 void PureFluidPhase::setState_VH(double v, double h, double tol)
 {
     Set(tpx::PropertyPair::VH, v, h);
-    setState_TR(m_sub->Temp(), 1.0/m_sub->v());
+    setState_TD(m_sub->Temp(), 1.0/m_sub->v());
 }
 
 void PureFluidPhase::setState_TH(double t, double h, double tol)
 {
     Set(tpx::PropertyPair::TH, t, h);
-    setState_TR(m_sub->Temp(), 1.0/m_sub->v());
+    setState_TD(m_sub->Temp(), 1.0/m_sub->v());
 }
 
 void PureFluidPhase::setState_SH(double s, double h, double tol)
 {
     Set(tpx::PropertyPair::SH, s, h);
-    setState_TR(m_sub->Temp(), 1.0/m_sub->v());
+    setState_TD(m_sub->Temp(), 1.0/m_sub->v());
 }
 
 doublereal PureFluidPhase::satPressure(doublereal t)

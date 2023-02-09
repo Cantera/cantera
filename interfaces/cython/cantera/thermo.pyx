@@ -1351,7 +1351,7 @@ cdef class ThermoPhase(_SolutionBase):
             assert len(values) == 2, 'incorrect number of values'
             T = values[0] if values[0] is not None else self.T
             D = values[1] if values[1] is not None else self.density
-            self.thermo.setState_TR(T, D * self._mass_factor())
+            self.thermo.setState_TD(T, D * self._mass_factor())
 
     property TDX:
         """
@@ -1365,7 +1365,7 @@ cdef class ThermoPhase(_SolutionBase):
             T = values[0] if values[0] is not None else self.T
             D = values[1] if values[1] is not None else self.density
             self.X = values[2]
-            self.thermo.setState_TR(T, D * self._mass_factor())
+            self.thermo.setState_TD(T, D * self._mass_factor())
 
     property TDY:
         """
@@ -1379,7 +1379,7 @@ cdef class ThermoPhase(_SolutionBase):
             T = values[0] if values[0] is not None else self.T
             D = values[1] if values[1] is not None else self.density
             self.Y = values[2]
-            self.thermo.setState_TR(T, D * self._mass_factor())
+            self.thermo.setState_TD(T, D * self._mass_factor())
 
     property TP:
         """Get/Set temperature [K] and pressure [Pa]."""

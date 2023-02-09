@@ -122,7 +122,7 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         double elementalMoleFraction(size_t) except +translate_exception
 
         # state setters
-        void setState_TR(double, double) except +translate_exception
+        void setState_TD(double, double) except +translate_exception
         void setState_TP(double, double) except +translate_exception
         void setState_HP(double, double) except +translate_exception
         void setState_UV(double, double) except +translate_exception

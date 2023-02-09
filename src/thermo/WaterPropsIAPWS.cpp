@@ -86,7 +86,7 @@ doublereal WaterPropsIAPWS::density(doublereal temperature, doublereal pressure,
     if (fabs(pressure - P_c) / P_c < 1.e-8 &&
         fabs(temperature - T_c) / T_c < 1.e-8) {
         // Catch critical point, as no solution is found otherwise
-        setState_TR(temperature, Rho_c);
+        setState_TD(temperature, Rho_c);
         return Rho_c;
     }
     doublereal deltaGuess = 0.0;
@@ -117,7 +117,7 @@ doublereal WaterPropsIAPWS::density(doublereal temperature, doublereal pressure,
     }
     double p_red = pressure / (R_water * temperature * Rho_c);
     deltaGuess = rhoguess / Rho_c;
-    setState_TR(temperature, rhoguess);
+    setState_TD(temperature, rhoguess);
     doublereal delta_retn = m_phi.dfind(p_red, tau, deltaGuess);
     if (delta_retn <= 0) {
         // No solution found for first initial guess; perturb initial guess once
@@ -133,7 +133,7 @@ doublereal WaterPropsIAPWS::density(doublereal temperature, doublereal pressure,
 
         // Set the internal state -> this may be a duplication. However, let's
         // just be sure.
-        setState_TR(temperature, density_retn);
+        setState_TD(temperature, density_retn);
     } else {
         density_retn = -1.0;
     }
@@ -287,7 +287,7 @@ void WaterPropsIAPWS::corr(doublereal temperature, doublereal pressure,
             "Error occurred trying to find liquid density at (T,P) = {}  {}",
             temperature, pressure);
     }
-    setState_TR(temperature, densLiq);
+    setState_TD(temperature, densLiq);
     doublereal gibbsLiqRT = m_phi.gibbs_RT();
 
     densGas = density(temperature, pressure, WATER_GAS, densGas);
@@ -296,7 +296,7 @@ void WaterPropsIAPWS::corr(doublereal temperature, doublereal pressure,
             "Error occurred trying to find gas density at (T,P) = {}  {}",
             temperature, pressure);
     }
-    setState_TR(temperature, densGas);
+    setState_TD(temperature, densGas);
     doublereal gibbsGasRT = m_phi.gibbs_RT();
 
     delGRT = gibbsLiqRT - gibbsGasRT;
@@ -311,7 +311,7 @@ void WaterPropsIAPWS::corr1(doublereal temperature, doublereal pressure,
             "Error occurred trying to find liquid density at (T,P) = {}  {}",
             temperature, pressure);
     }
-    setState_TR(temperature, densLiq);
+    setState_TD(temperature, densLiq);
     doublereal prL = m_phi.phiR();
 
     densGas = density(temperature, pressure, WATER_GAS, densGas);
@@ -320,7 +320,7 @@ void WaterPropsIAPWS::corr1(doublereal temperature, doublereal pressure,
             "Error occurred trying to find gas density at (T,P) = {}  {}",
             temperature, pressure);
     }
-    setState_TR(temperature, densGas);
+    setState_TD(temperature, densGas);
     doublereal prG = m_phi.phiR();
     doublereal rhs = (prL - prG) + log(densLiq/densGas);
     rhs /= (1.0/densGas - 1.0/densLiq);
@@ -334,7 +334,7 @@ doublereal WaterPropsIAPWS::psat(doublereal temperature, int waterState)
     double dp, pcorr;
     if (temperature >= T_c) {
         densGas = density(temperature, P_c, WATER_SUPERCRIT);
-        setState_TR(temperature, densGas);
+        setState_TD(temperature, densGas);
         return P_c;
     }
     double p = psat_est(temperature);
@@ -359,9 +359,9 @@ doublereal WaterPropsIAPWS::psat(doublereal temperature, int waterState)
     }
     // Put the fluid in the desired end condition
     if (waterState == WATER_LIQUID) {
-        setState_TR(temperature, densLiq);
+        setState_TD(temperature, densLiq);
     } else if (waterState == WATER_GAS) {
-        setState_TR(temperature, densGas);
+        setState_TD(temperature, densGas);
     } else {
         throw CanteraError("WaterPropsIAPWS::psat",
                            "unknown water state input: {}", waterState);
@@ -585,6 +585,13 @@ doublereal WaterPropsIAPWS::densSpinodalSteam() const
 }
 
 void WaterPropsIAPWS::setState_TR(doublereal temperature, doublereal rho)
+{
+    warn_deprecated("WaterPropsIAPWS::setState_TR",
+        "To be removed after Cantera 3.0. Renamed to setState_TD.");
+    setState_TD(temperature, rho);
+}
+
+void WaterPropsIAPWS::setState_TD(double temperature, double rho)
 {
     calcDim(temperature, rho);
     m_phi.tdpolycalc(tau, delta);
