@@ -74,7 +74,7 @@ void PDSS_IdealGas::setState_TP(doublereal temp, doublereal pres)
     setTemperature(temp);
 }
 
-void PDSS_IdealGas::setState_TR(doublereal temp, doublereal rho)
+void PDSS_IdealGas::setState_TD(double temp, double rho)
 {
     m_pres = GasConstant * temp * rho / m_mw;
     setTemperature(temp);

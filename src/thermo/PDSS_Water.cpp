@@ -92,7 +92,7 @@ doublereal PDSS_Water::gibbs_RT_ref() const
 {
     m_sub.density(m_temp, m_p0, m_iState);
     double h = m_sub.enthalpy_mass() * m_mw;
-    m_sub.setState_TR(m_temp, m_dens);
+    m_sub.setState_TD(m_temp, m_dens);
     return (h + EW_Offset - SW_Offset * m_temp) / (m_temp * GasConstant);
 }
 
@@ -100,7 +100,7 @@ doublereal PDSS_Water::enthalpy_RT_ref() const
 {
     m_sub.density(m_temp, m_p0, m_iState);
     double h = m_sub.enthalpy_mass() * m_mw;
-    m_sub.setState_TR(m_temp, m_dens);
+    m_sub.setState_TD(m_temp, m_dens);
     return (h + EW_Offset) / (m_temp * GasConstant);
 }
 
@@ -108,7 +108,7 @@ doublereal PDSS_Water::entropy_R_ref() const
 {
     m_sub.density(m_temp, m_p0, m_iState);
     double s = m_sub.entropy_mass() * m_mw;
-    m_sub.setState_TR(m_temp, m_dens);
+    m_sub.setState_TD(m_temp, m_dens);
     return (s + SW_Offset) / GasConstant;
 }
 
@@ -116,7 +116,7 @@ doublereal PDSS_Water::cp_R_ref() const
 {
     m_sub.density(m_temp, m_p0, m_iState);
     double cp = m_sub.cp_mass() * m_mw;
-    m_sub.setState_TR(m_temp, m_dens);
+    m_sub.setState_TD(m_temp, m_dens);
     return cp / GasConstant;
 }
 
@@ -124,7 +124,7 @@ doublereal PDSS_Water::molarVolume_ref() const
 {
     m_sub.density(m_temp, m_p0, m_iState);
     double mv = m_mw / m_sub.density();
-    m_sub.setState_TR(m_temp, m_dens);
+    m_sub.setState_TD(m_temp, m_dens);
     return mv;
 }
 
@@ -177,7 +177,7 @@ doublereal PDSS_Water::dthermalExpansionCoeffdT() const
             "unable to solve for the density at T = {}, P = {}", tt, pres);
     }
     doublereal vald = m_sub.coeffThermExp();
-    m_sub.setState_TR(m_temp, dens_save);
+    m_sub.setState_TD(m_temp, dens_save);
     doublereal val2 = m_sub.coeffThermExp();
     return (val2 - vald) / 0.04;
 }
@@ -205,7 +205,7 @@ doublereal PDSS_Water::critDensity() const
 void PDSS_Water::setDensity(doublereal dens)
 {
     m_dens = dens;
-    m_sub.setState_TR(m_temp, m_dens);
+    m_sub.setState_TD(m_temp, m_dens);
 }
 
 doublereal PDSS_Water::density() const
@@ -216,7 +216,7 @@ doublereal PDSS_Water::density() const
 void PDSS_Water::setTemperature(doublereal temp)
 {
     m_temp = temp;
-    m_sub.setState_TR(temp, m_dens);
+    m_sub.setState_TD(temp, m_dens);
 }
 
 void PDSS_Water::setState_TP(doublereal temp, doublereal pres)
@@ -225,11 +225,11 @@ void PDSS_Water::setState_TP(doublereal temp, doublereal pres)
     setPressure(pres);
 }
 
-void PDSS_Water::setState_TR(doublereal temp, doublereal dens)
+void PDSS_Water::setState_TD(double temp, double dens)
 {
     m_temp = temp;
     m_dens = dens;
-    m_sub.setState_TR(m_temp, m_dens);
+    m_sub.setState_TD(m_temp, m_dens);
 }
 
 doublereal PDSS_Water::pref_safe(doublereal temp) const

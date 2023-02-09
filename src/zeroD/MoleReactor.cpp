@@ -136,7 +136,7 @@ void MoleReactor::updateState(double* y)
         double U = y[0];
         // Residual function: error in internal energy as a function of T
         auto u_err = [this, U](double T) {
-            m_thermo->setState_TR(T, m_mass / m_vol);
+            m_thermo->setState_TD(T, m_mass / m_vol);
             return m_thermo->intEnergy_mass() * m_mass - U;
         };
         double T = m_thermo->temperature();
@@ -153,7 +153,7 @@ void MoleReactor::updateState(double* y)
                     bmt::eps_tolerance<double>(48), maxiter);
             } catch (std::exception& err2) {
                 // Set m_thermo back to a reasonable state if root finding fails
-                m_thermo->setState_TR(T, m_mass / m_vol);
+                m_thermo->setState_TD(T, m_mass / m_vol);
                 throw CanteraError("MoleReactor::updateState",
                     "{}\nat U = {}, rho = {}", err2.what(), U, m_mass / m_vol);
             }
@@ -161,7 +161,7 @@ void MoleReactor::updateState(double* y)
         if (fabs(TT.first - TT.second) > 1e-7*TT.first) {
             throw CanteraError("MoleReactor::updateState", "root finding failed");
         }
-        m_thermo->setState_TR(TT.second, m_mass / m_vol);
+        m_thermo->setState_TD(TT.second, m_mass / m_vol);
     } else {
         m_thermo->setDensity(m_mass / m_vol);
     }

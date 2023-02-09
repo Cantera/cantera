@@ -134,7 +134,7 @@ void ThermoPhase::setState_TP(doublereal t, doublereal p)
         setTemperature(t);
         setPressure(p);
     } catch (CanteraError&) {
-        setState_TR(tsave, dsave);
+        setState_TD(tsave, dsave);
         throw;
     }
 }
@@ -267,7 +267,7 @@ void ThermoPhase::setState(const AnyMap& input_state)
             setState_TP(T, P);
         }
     } else if (state.hasKey("T") && state.hasKey("D")) {
-        setState_TR(state.convert("T", "K"), state.convert("D", "kg/m^3"));
+        setState_TD(state.convert("T", "K"), state.convert("D", "kg/m^3"));
     } else if (state.hasKey("T") && state.hasKey("V")) {
         setState_TV(state.convert("T", "K"), state.convert("V", "m^3/kg"));
     } else if (state.hasKey("H") && state.hasKey("P")) {

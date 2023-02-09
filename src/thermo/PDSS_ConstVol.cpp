@@ -78,12 +78,12 @@ void PDSS_ConstVol::setState_TP(doublereal temp, doublereal pres)
     setPressure(pres);
 }
 
-void PDSS_ConstVol::setState_TR(doublereal temp, doublereal rho)
+void PDSS_ConstVol::setState_TD(double temp, double rho)
 {
-    doublereal rhoStored = m_mw / m_constMolarVolume;
+    double rhoStored = m_mw / m_constMolarVolume;
     if (fabs(rhoStored - rho) / (rhoStored + rho) > 1.0E-4) {
-        throw CanteraError("PDSS_ConstVol::setState_TR",
-                           "Inconsistent supplied rho");
+        throw CanteraError("PDSS_ConstVol::setState_TD",
+                           "Inconsistent supplied density.");
     }
     setTemperature(temp);
 }

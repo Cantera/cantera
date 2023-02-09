@@ -168,7 +168,7 @@ void WaterSSTP::getGibbs_RT_ref(doublereal* grt) const
     if (dd <= 0.0) {
         throw CanteraError("WaterSSTP::getGibbs_RT_ref", "error");
     }
-    m_sub.setState_TR(T, dd);
+    m_sub.setState_TD(T, dd);
     double g = m_sub.gibbs_mass() * m_mw;
     *grt = (g + EW_Offset - SW_Offset*T)/ RT();
     dd = m_sub.density(T, p, waterState, dens);
@@ -197,7 +197,7 @@ void WaterSSTP::getEntropy_R_ref(doublereal* sr) const
     if (dd <= 0.0) {
         throw CanteraError("WaterSSTP::getEntropy_R_ref", "error");
     }
-    m_sub.setState_TR(T, dd);
+    m_sub.setState_TD(T, dd);
 
     double s = m_sub.entropy_mass() * m_mw;
     *sr = (s + SW_Offset)/ GasConstant;
@@ -215,7 +215,7 @@ void WaterSSTP::getCp_R_ref(doublereal* cpr) const
         waterState = WATER_LIQUID;
     }
     doublereal dd = m_sub.density(T, OneAtm, waterState, dens);
-    m_sub.setState_TR(T, dd);
+    m_sub.setState_TD(T, dd);
     if (dd <= 0.0) {
         throw CanteraError("WaterSSTP::getCp_R_ref", "error");
     }
@@ -293,7 +293,7 @@ doublereal WaterSSTP::dthermalExpansionCoeffdT() const
             "Unable to solve for the density at T = {}, P = {}", tt, pres);
     }
     doublereal vald = m_sub.coeffThermExp();
-    m_sub.setState_TR(T, dens_save);
+    m_sub.setState_TD(T, dens_save);
     doublereal val2 = m_sub.coeffThermExp();
     return (val2 - vald) / 0.04;
 }
@@ -321,20 +321,20 @@ void WaterSSTP::setTemperature(const doublereal temp)
             "the triple point temperature (T_triple = 273.16).", temp);
     }
     Phase::setTemperature(temp);
-    m_sub.setState_TR(temp, density());
+    m_sub.setState_TD(temp, density());
 }
 
 void WaterSSTP::setDensity(const doublereal dens)
 {
     Phase::setDensity(dens);
-    m_sub.setState_TR(temperature(), dens);
+    m_sub.setState_TD(temperature(), dens);
 }
 
 doublereal WaterSSTP::satPressure(doublereal t) {
     doublereal tsave = temperature();
     doublereal dsave = density();
     doublereal pp = m_sub.psat(t);
-    m_sub.setState_TR(tsave, dsave);
+    m_sub.setState_TD(tsave, dsave);
     return pp;
 }
 

@@ -78,7 +78,7 @@ TEST_F(cubicSolver_Test, solve_cubic)
     // Obtain pressure using EoS and compare against the given pressure value
     set_r(1.0);
     rho = test_phase->meanMolecularWeight()/Vroot[0];
-    peng_robinson_phase->setState_TR(temp, rho);
+    peng_robinson_phase->setState_TD(temp, rho);
     p = peng_robinson_phase->pressure();
     EXPECT_NEAR(p, pres, 1);
 
@@ -95,7 +95,7 @@ TEST_F(cubicSolver_Test, solve_cubic)
     // Obtain pressure using EoS and compare against the given pressure value
     set_r(1.0);
     rho = test_phase->meanMolecularWeight()/Vroot[0];
-    peng_robinson_phase->setState_TR(temp, rho);
+    peng_robinson_phase->setState_TD(temp, rho);
     p = peng_robinson_phase->pressure();
     EXPECT_NEAR(p, pres, 1);
 
@@ -111,7 +111,7 @@ TEST_F(cubicSolver_Test, solve_cubic)
     // Obtain pressure using EoS and compare against the given pressure value
     set_r(1.0);
     rho = test_phase->meanMolecularWeight()/Vroot[0];
-    peng_robinson_phase->setState_TR(Tcrit, rho);
+    peng_robinson_phase->setState_TD(Tcrit, rho);
     p = peng_robinson_phase->pressure();
     EXPECT_NEAR(p, pCrit, 1);
 }

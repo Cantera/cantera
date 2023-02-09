@@ -462,7 +462,7 @@ int MixtureFugacityTP::corr0(doublereal TKelvin, doublereal pres, doublereal& de
         retn = -1;
     } else {
         densLiqGuess = densLiq;
-        setState_TR(TKelvin, densLiq);
+        setState_TD(TKelvin, densLiq);
         liqGRT = gibbs_mole() / RT();
     }
 
@@ -476,7 +476,7 @@ int MixtureFugacityTP::corr0(doublereal TKelvin, doublereal pres, doublereal& de
         retn = -2;
     } else {
         densGasGuess = densGas;
-        setState_TR(TKelvin, densGas);
+        setState_TD(TKelvin, densGas);
         gasGRT = gibbs_mole() / RT();
     }
     return retn;
@@ -718,14 +718,14 @@ doublereal MixtureFugacityTP::calculatePsat(doublereal TKelvin, doublereal& mola
         molarVolGas = mw / RhoGas;
         molarVolLiquid = mw / RhoLiquid;
         // Put the fluid in the desired end condition
-        setState_TR(tempSave, densSave);
+        setState_TD(tempSave, densSave);
         return pres;
     } else {
         pres = critPressure();
         setState_TP(TKelvin, pres);
         molarVolGas = mw / density();
         molarVolLiquid = molarVolGas;
-        setState_TR(tempSave, densSave);
+        setState_TD(tempSave, densSave);
     }
     return pres;
 }

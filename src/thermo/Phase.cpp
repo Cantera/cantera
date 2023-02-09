@@ -428,6 +428,13 @@ void Phase::setState_TRY(doublereal t, doublereal dens, const compositionMap& y)
 
 void Phase::setState_TR(doublereal t, doublereal rho)
 {
+    warn_deprecated("Phase::setState_TR",
+        "To be removed after Cantera 3.0. Renamed to setState_TD.");
+    setState_TD(t, rho);
+}
+
+void Phase::setState_TD(double t, double rho)
+{
     setTemperature(t);
     setDensity(rho);
 }
