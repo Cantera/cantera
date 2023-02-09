@@ -1,11 +1,11 @@
 classdef Transport < handle
 
     properties (Access = private)
-        th
+        th % ID of the ThermoPhase object used to create the Transport object.
     end
 
     properties (SetAccess = immutable)
-        trID % ID of Transport object
+        trID % ID of Transport object.
     end
 
     properties (SetAccess = protected)
@@ -69,7 +69,7 @@ classdef Transport < handle
                        'instance of class ThermoPhase']);
             end
 
-            tr.th = tp;
+            tr.th = tp.tpID;
 
             if strcmp(model, 'default')
                 tr.trID = ctFunc('trans_newDefault', tp.tpID, loglevel);
@@ -77,7 +77,6 @@ classdef Transport < handle
                 tr.trID = ctFunc('trans_new', model, tp.tpID, loglevel);
             end
 
-            tr.tpID = tp.tpID;
         end
 
         %% Transport Class Destructor
@@ -103,7 +102,7 @@ classdef Transport < handle
         end
 
         function v = get.mixDiffCoeffs(tr)
-            nsp = tr.th.nSpecies;
+            nsp = ctFunc('thermo_nSpecies', tr.th);
             xx = zeros(1, nsp);
             pt = libpointer('doublePtr', xx);
             ctFunc('trans_getMixDiffCoeffs', tr.trID, nsp, pt);
@@ -111,7 +110,7 @@ classdef Transport < handle
         end
 
         function v = get.thermalDiffCoeffs(tr)
-            nsp = tr.th.nSpecies;
+            nsp = ctFunc('thermo_nSpecies', tr.th);
             xx = zeros(1, nsp);
             pt = libpointer('doublePtr', xx);
             ctFunc('trans_getThermalDiffCoeffs', tr.trID, nsp, pt);
@@ -119,7 +118,7 @@ classdef Transport < handle
         end
 
         function v = get.binDiffCoeffs(tr)
-            nsp = tr.th.nSpecies;
+            nsp = ctFunc('thermo_nSpecies', tr.th);
             xx = zeros(nsp, nsp);
             pt = libpointer('doublePtr', xx);
             ctFunc('trans_getBinDiffCoeffs', tr.trID, nsp, pt);
@@ -127,7 +126,7 @@ classdef Transport < handle
         end
 
         function v = get.multiDiffCoeffs(tr)
-            nsp = tr.th.nSpecies;
+            nsp = ctFunc('thermo_nSpecies', tr.th);
             xx = zeros(nsp, nsp);
             pt = libpointer('doublePtr', xx);
             ctFunc('trans_getMultiDiffCoeffs', tr.trID, nsp, pt);
