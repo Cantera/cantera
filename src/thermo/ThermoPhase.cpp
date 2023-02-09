@@ -141,38 +141,63 @@ void ThermoPhase::setState_TP(doublereal t, doublereal p)
 
 void ThermoPhase::setState_RPX(doublereal rho, doublereal p, const doublereal* x)
 {
+    warn_deprecated("ThermoPhase::setState_RPX",
+        "To be removed after Cantera 3.0. Replaceable by calls to "
+        "setMoleFractions and setState_DP.");
     setMoleFractions(x);
-    setState_RP(rho, p);
+    setState_DP(rho, p);
 }
 
 void ThermoPhase::setState_RPX(doublereal rho, doublereal p, const compositionMap& x)
 {
+    warn_deprecated("ThermoPhase::setState_RPX",
+        "To be removed after Cantera 3.0. Replaceable by calls to "
+        "setMoleFractionsByName and setState_DP.");
     setMoleFractionsByName(x);
-    setState_RP(rho,p);
+    setState_DP(rho, p);
 }
 
 void ThermoPhase::setState_RPX(doublereal rho, doublereal p, const std::string& x)
 {
+    warn_deprecated("ThermoPhase::setState_RPX",
+        "To be removed after Cantera 3.0. Replaceable by calls to "
+        "setMoleFractionsByName and setState_DP.");
     setMoleFractionsByName(x);
-    setState_RP(rho,p);
+    setState_DP(rho, p);
 }
 
 void ThermoPhase::setState_RPY(doublereal rho, doublereal p, const doublereal* y)
 {
+    warn_deprecated("ThermoPhase::setState_RPY",
+        "To be removed after Cantera 3.0. Replaceable by calls to "
+        "setMassFractions and setState_DP.");
     setMassFractions(y);
-    setState_RP(rho,p);
+    setState_DP(rho, p);
 }
 
 void ThermoPhase::setState_RPY(doublereal rho, doublereal p, const compositionMap& y)
 {
+    warn_deprecated("ThermoPhase::setState_RPY",
+        "To be removed after Cantera 3.0. Replaceable by calls to "
+        "setMassFractionsByName and setState_DP.");
     setMassFractionsByName(y);
-    setState_RP(rho,p);
+    setState_DP(rho, p);
 }
 
 void ThermoPhase::setState_RPY(doublereal rho, doublereal p, const std::string& y)
 {
+    warn_deprecated("ThermoPhase::setState_RPY",
+        "To be removed after Cantera 3.0. Replaceable by calls to "
+        "setMassFractionsByName and setState_DP.");
     setMassFractionsByName(y);
-    setState_RP(rho,p);
+    setState_DP(rho, p);
+}
+
+void ThermoPhase::setState_RP(doublereal rho, doublereal p)
+{
+    warn_deprecated("ThermoPhase::setState_RP",
+        "To be removed after Cantera 3.0. Renamed to setState_DP.");
+    setState_DP(rho, p);
 }
 
 void ThermoPhase::setState_PX(doublereal p, doublereal* x)
@@ -291,7 +316,7 @@ void ThermoPhase::setState(const AnyMap& input_state)
     } else if (state.hasKey("S") && state.hasKey("H")) {
         setState_SH(state.convert("S", "J/kg/K"), state.convert("H", "J/kg"));
     } else if (state.hasKey("D") && state.hasKey("P")) {
-        setState_RP(state.convert("D", "kg/m^3"), state.convert("P", "Pa"));
+        setState_DP(state.convert("D", "kg/m^3"), state.convert("P", "Pa"));
     } else if (state.hasKey("P") && state.hasKey("Q")) {
         setState_Psat(state.convert("P", "Pa"), state["Q"].asDouble());
     } else if (state.hasKey("T") && state.hasKey("Q")) {

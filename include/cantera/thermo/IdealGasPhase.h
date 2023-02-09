@@ -365,11 +365,12 @@ public:
      *
      * @param rho Density (kg/m^3)
      * @param p Pressure (Pa)
+     * @since  New in Cantera 3.0.
      */
-    virtual void setState_RP(doublereal rho, doublereal p)
+    virtual void setState_DP(doublereal rho, doublereal p)
     {
         if (p <= 0) {
-            throw CanteraError("IdealGasPhase::setState_RP",
+            throw CanteraError("IdealGasPhase::setState_DP",
                                "pressure must be positive");
         }
         setDensity(rho);

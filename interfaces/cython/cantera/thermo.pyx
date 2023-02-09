@@ -1465,7 +1465,7 @@ cdef class ThermoPhase(_SolutionBase):
             assert len(values) == 2, 'incorrect number of values'
             D = values[0] if values[0] is not None else self.density
             P = values[1] if values[1] is not None else self.P
-            self.thermo.setState_RP(D*self._mass_factor(), P)
+            self.thermo.setState_DP(D*self._mass_factor(), P)
 
     property DPX:
         """Get/Set density [kg/m^3], pressure [Pa], and mole fractions."""
@@ -1476,7 +1476,7 @@ cdef class ThermoPhase(_SolutionBase):
             D = values[0] if values[0] is not None else self.density
             P = values[1] if values[1] is not None else self.P
             self.X = values[2]
-            self.thermo.setState_RP(D*self._mass_factor(), P)
+            self.thermo.setState_DP(D*self._mass_factor(), P)
 
     property DPY:
         """Get/Set density [kg/m^3], pressure [Pa], and mass fractions."""
@@ -1487,7 +1487,7 @@ cdef class ThermoPhase(_SolutionBase):
             D = values[0] if values[0] is not None else self.density
             P = values[1] if values[1] is not None else self.P
             self.Y = values[2]
-            self.thermo.setState_RP(D*self._mass_factor(), P)
+            self.thermo.setState_DP(D*self._mass_factor(), P)
 
     property HP:
         """Get/Set enthalpy [J/kg or J/kmol] and pressure [Pa]."""
