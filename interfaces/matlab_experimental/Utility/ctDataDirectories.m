@@ -1,7 +1,7 @@
-function d = getDataDirectories()
+function d = ctDataDirectories()
     % Get a cell array of the directories searched for data files. ::
     %
-    %     >> getdatadirectories()
+    %     >> ctDataDirectories()
     %
     % Get a cell array of the directories Cantera searches for data files
     %
