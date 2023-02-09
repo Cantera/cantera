@@ -63,7 +63,7 @@ static void thermoset(int nlhs, mxArray* plhs[],
                 ierr = thermo_setState_Tsat(th,ptr[0],ptr[1]);
                 break;
             case 26:
-                ierr = thermo_set_RP(th,ptr);
+                ierr = thermo_set_DP(th,ptr);
                 break;
             case 27:
                 ierr = thermo_set_ST(th,ptr);
