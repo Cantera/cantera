@@ -1698,9 +1698,11 @@ ruamel_min_version = parse_version('0.15.34')
 pytest_min_version = parse_version("4.6.9")
 
 # Pytest is required only to test the Python module
-check_for_pytest = any(
-    target.startswith("test-python") for target in COMMAND_LINE_TARGETS
-)
+check_for_pytest = False
+if env['python_package'] != 'none':
+    check_for_pytest = "test" in COMMAND_LINE_TARGETS or any(
+        target.startswith("test-python") for target in COMMAND_LINE_TARGETS
+    )
 
 # Check for the minimum ruamel.yaml version, 0.15.34, at install and test
 # time. The check happens at install and test time because ruamel.yaml is
