@@ -73,6 +73,7 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
                 trans = 'default';
             end
             s@Transport(tp, trans, 0);
+            s.tpClear;
             s.tpID = tp.tpID;
         end
 
@@ -80,6 +81,7 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
 
         function delete(s)
             % Delete :mat:class:`Solution` object.
+            s.tpClear;
 
             disp('Solution class object has been deleted');
         end

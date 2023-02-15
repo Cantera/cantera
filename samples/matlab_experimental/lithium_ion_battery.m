@@ -117,8 +117,8 @@ function anCurr = anode_curr(phi_s, phi_l, X_Li_an, anode, elde, elyt, ...
     anode.X = ['Li[anode]:' num2str(X_Li_an) ', V[anode]:' num2str(1 - X_Li_an)];
 
     % Set the electrode and electrolyte potential
-    elde.setElectricPotential(phi_s);
-    elyt.setElectricPotential(phi_l);
+    elde.electricPotential = phi_s;
+    elyt.electricPotential = phi_l;
 
     % Get the net reaction rate at the anode-side interface
     % Reaction according to cti file: Li+[elyt] + V[anode] + electron <=> Li[anode]
@@ -134,8 +134,8 @@ function caCurr = cathode_curr(phi_s, phi_l, X_Li_ca, cathode, elde, elyt, catho
     cathode.X = ['Li[cathode]:' num2str(X_Li_ca) ', V[cathode]:' num2str(1 - X_Li_ca)];
 
     % Set the electrode and electrolyte potential
-    elde.setElectricPotential(phi_s);
-    elyt.setElectricPotential(phi_l);
+    elde.electricPotential = phi_s;
+    elyt.electricPotential = phi_l;
 
     % Get the net reaction rate at the cathode-side interface
     % Reaction according to cti file: Li+[elyt] + V[cathode] + electron <=> Li[cathode]

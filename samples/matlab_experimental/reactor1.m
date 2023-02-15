@@ -21,8 +21,7 @@ function reactor1(g)
 
     P = 101325.0;
     % set the initial conditions
-    gas.T = 1001.0;
-    gas.P = P;
+    gas.TP = {1001.0, P};
     nsp = gas.nSpecies;
     xx = zeros(nsp, 1);
     xx(1) = 0.285;
@@ -35,7 +34,7 @@ function reactor1(g)
 
     % create a reservoir to represent the environment
     a = Solution('air.yaml', 'air', 'None');
-    a.P = P;
+    a.TP = {a.T, P};
     env = Reservoir(a);
 
     % Define a wall between the reactor and the environment and
