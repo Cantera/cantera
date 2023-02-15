@@ -35,9 +35,7 @@ function equil(g)
         x(ich4, 1) = phi(i);
         x(io2, 1) = 2.0;
         x(in2, 1) = 7.52;
-        gas.T = 300;
-        gas.P = 101325;
-        gas.X = x;
+        gas.TPX = {300, 101325, x};
         gas.equilibrate('HP');
         tad(i) = gas.T;
         xeq(:, i) = gas.X;

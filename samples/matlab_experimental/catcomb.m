@@ -72,7 +72,7 @@ gas.TPX = {tinlet, p, comp1};
 % platinum.
 
 surf_phase = Interface('ptcombust.yaml', 'Pt_surf', gas);
-surf_phase.T = tsurf;
+surf_phase.TP = {tsurf, surf_phase.P};
 
 % integrate the coverage equations in time for 1 s, holding the gas
 % composition fixed to generate a good starting estimate for the

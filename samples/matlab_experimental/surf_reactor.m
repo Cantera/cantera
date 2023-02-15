@@ -24,7 +24,7 @@ gas.TPX = {t, OneAtm, 'CH4:0.01, O2:0.21, N2:0.78'};
 % methane on platinum, and is from Deutschman et al., 26th
 % Symp. (Intl.) on Combustion,1996, pp. 1747-1754
 surf = Interface('ptcombust.yaml', 'Pt_surf', gas);
-surf.T = t;
+surf.TP = {t, surf.P};
 
 nsp = gas.nSpecies;
 nSurfSp = surf.nSpecies;
@@ -98,7 +98,7 @@ subplot(2, 2, 3);
 semilogy(tim, cov);
 xlabel('Time (s)');
 ylabel('Coverages');
-legend(speciesNames(surf));
+legend(surf.speciesNames);
 subplot(2, 2, 4);
 plot(tim, x);
 xlabel('Time (s)');
