@@ -84,6 +84,8 @@ classdef ThermoPhase < handle
 
         G % Gibbs free energy depending on the basis. Units: J/kmol (molar) J/kg (mass).
 
+        Q % Vapor fraction of the phase.
+
         % Chemical potentials of the species ::
         %
         %     >> mu = tp.chemPotentials
@@ -234,8 +236,6 @@ classdef ThermoPhase < handle
 
         thermalExpansionCoeff % Thermal expansion coefficient. Units: 1/K.
 
-        vaporFraction % Vapor fraction of the phase.
-
     end
 
     properties (Dependent = true)
@@ -251,6 +251,9 @@ classdef ThermoPhase < handle
         % Get/Set density [kg/m^3 or kmol/m^3], pressure [Pa], and mass fractions.
         DPY
 
+        % Get density [kg/m^3 or kmol/m^3], pressure [Pa], and vapor fraction.
+        DPQ
+
         % Get/Set enthalpy [J/kg or J/kmol] and pressure [Pa].
         HP
 
@@ -259,6 +262,9 @@ classdef ThermoPhase < handle
 
         % Get/Set enthalpy [J/kg or J/kmol], pressure [Pa], and mass fractions.
         HPY
+
+        % Get enthalpy [J/kg or J/kmol], pressure [Pa], and vapor fraction.
+        HPQ
 
         % Get/Set pressure [Pa] and specific volume [m^3/kg or m^3/kmol].
         PV
@@ -270,6 +276,9 @@ classdef ThermoPhase < handle
         % Get/Set pressure [Pa], specific volume [m^3/kg or m^3/kmol],
         % and mass fractions.
         PVY
+
+        % Get/Set pressure [Pa] and vapor fraction of a two-phase state.
+        PQ
 
         % Get/Set entropy [J/kg-K or J/kmol-K] and enthalpy [J/kg or J/kmol].
         SH
@@ -291,6 +300,9 @@ classdef ThermoPhase < handle
         % Get/Set entropy [J/kg-K or J/kmol-K], pressure [Pa], and mass fractions.
         SPY
 
+        % Get entropy [J/kg-K or J/kmol-K], pressure [Pa], and vapor fraction.
+        SPQ
+
         % Get/Set entropy [J/kg-K or J/kmol-K] and temperature [K].
         ST
 
@@ -311,6 +323,10 @@ classdef ThermoPhase < handle
         % and mass fractions.
         SVY
 
+        % Get/Set entropy [J/kg-K or J/kmol-K], specific volume [m^3/kg or m^3/kmol],
+        % and vapor fraction.
+        SVQ
+
         % Get/Set temperature [K] and density [kg/m^3 or kmol/m^3].
         TD
 
@@ -319,6 +335,9 @@ classdef ThermoPhase < handle
 
         % Get/Set temperature [K], density [kg/m^3 or kmol/m^3], and mass fractions.
         TDY
+
+        % Get temperature [K], density [kg/m^3 or kmol/m^3], and vapor fraction.
+        TDQ
 
         % Get/Set temperature [K] and enthalpy [J/kg or J/kmol].
         TH
@@ -337,6 +356,12 @@ classdef ThermoPhase < handle
 
         % Get/Set temperature [K], pressure [Pa], and mass fractions.
         TPY
+
+        % Get temperature [K], pressure [Pa], and vapor fraction.
+        TPQ
+
+        % Get/Set temperature [K] and vapor fraction of a two-phase state.
+        TQ
 
         % Get/Set temperature [K] and specific volume [m^3/kg or m^3/kmol].
         TV
@@ -360,6 +385,10 @@ classdef ThermoPhase < handle
         % Get/Set internal energy [J/kg or J/kmol], specific volume
         % [m^3/kg or m^3/kmol], and mass fractions.
         UVY
+
+        % Get internal energy [J/kg or J/kmol], specific volume
+        % [m^3/kg or m^3/kmol], and vapor fraction.
+        UVQ
 
         % Get/Set internal energy [J/kg or J/kmol] and pressure [Pa].
         UP
@@ -965,16 +994,16 @@ classdef ThermoPhase < handle
             a = ctFunc('thermo_thermalExpansionCoeff', tp.tpID);
         end
 
-        function v = get.vaporFraction(tp)
-            v = ctFunc('thermo_vaporFraction', tp.tpID);
-        end
-
         function temperature = get.T(tp)
             temperature = ctFunc('thermo_temperature', tp.tpID);
         end
 
         function pressure = get.P(tp)
             pressure = ctFunc('thermo_pressure', tp.tpID);
+        end
+
+        function v = get.Q(tp)
+            v = ctFunc('thermo_vaporFraction', tp.tpID);
         end
 
         function density = get.D(tp)
@@ -1055,6 +1084,10 @@ classdef ThermoPhase < handle
             output = {tp.D, tp.P, tp.Y};
         end
 
+        function output = get.DPQ(tp)
+            output = {tp.D, tp.P, tp.Q};
+        end
+
         function output = get.HP(tp)
             output = {tp.H, tp.P};
         end
@@ -1067,6 +1100,10 @@ classdef ThermoPhase < handle
             output = {tp.H, tp.P, tp.Y};
         end
 
+        function output = get.HPQ(tp)
+            output = {tp.H, tp.P, tp.Q};
+        end
+
         function output = get.PV(tp)
             output = {tp.P, tp.V};
         end
@@ -1077,6 +1114,10 @@ classdef ThermoPhase < handle
 
         function output = get.PVY(tp)
             output = {tp.P, tp.V, tp.Y};
+        end
+
+        function output = get.PQ(tp)
+            output = {tp.P, tp.Q};
         end
 
         function output = get.SH(tp)
@@ -1103,6 +1144,10 @@ classdef ThermoPhase < handle
             output = {tp.S, tp.P, tp.Y};
         end
 
+        function output = get.SPQ(tp)
+            output = {tp.S, tp.P, tp.Q};
+        end
+
         function output = get.ST(tp)
             output = {tp.S, tp.T};
         end
@@ -1127,6 +1172,10 @@ classdef ThermoPhase < handle
             output = {tp.S, tp.V, tp.Y};
         end
 
+        function output = get.SVQ(tp)
+            output = {tp.S, tp.V, tp.Q};
+        end
+
         function output = get.TD(tp)
             output = {tp.T, tp.D};
         end
@@ -1137,6 +1186,10 @@ classdef ThermoPhase < handle
 
         function output = get.TDY(tp)
             output = {tp.T, tp.D, tp.Y};
+        end
+
+        function output = get.TDQ(tp)
+            output = {tp.T, tp.D, tp.Q};
         end
 
         function output = get.TH(tp)
@@ -1163,6 +1216,14 @@ classdef ThermoPhase < handle
             output = {tp.T, tp.P, tp.Y};
         end
 
+        function output = get.TPQ(tp)
+            output = {tp.T, tp.P, tp.Q};
+        end
+
+        function output = get.TQ(tp)
+            output = {tp.T, tp.Q};
+        end
+
         function output = get.TV(tp)
             output = {tp.T, tp.V};
         end
@@ -1185,6 +1246,10 @@ classdef ThermoPhase < handle
 
         function output = get.UVY(tp)
             output = {tp.U, tp.V, tp.Y};
+        end
+
+        function output = get.UVQ(tp)
+            output = {tp.U, tp.V, tp.Q};
         end
 
         function output = get.UP(tp)
@@ -1215,46 +1280,6 @@ classdef ThermoPhase < handle
 
         function tp = set.electricPotential(tp, phi)
             ctFunc('thermo_setElectricPotential', tp.tpID, phi);
-        end
-
-        function tp = setState_Psat(tp, p, q)
-            % Set the fluid state using the given pressure and quality ::
-            %
-            %     >> tp.setState_Psat(p, q)
-            %
-            % The fluid state will be set to a saturated liquid-vapor state using the
-            % input pressure and vapor fraction (quality) as the independent,
-            % intensive variables.
-            %
-            % :param tp:
-            %     Instance of class :mat:class:`ThermoPhase` (or another
-            %     class derived from ThermoPhase)
-            % :param p:
-            %     Pressure (Pa)
-            % :param q:
-            %     Vapor fraction
-
-            ctFunc('thermo_setState_Psat', tp.tpID, p, q);
-        end
-
-        function tp = setState_Tsat(tp, t, q)
-            % Set the fluid state using the given temperature and quality ::
-            %
-            %     >> tp.setState_Tsat(t, q)
-            %
-            % The fluid state will be set to a saturated liquid-vapor state using the
-            % input temperature and vapor fraction (quality) as the independent,
-            % intensive variables.
-            %
-            % :param tp:
-            %     Instance of class :mat:class:`ThermoPhase` (or another
-            %     class derived from ThermoPhase)
-            % :param t:
-            %     Temperature (K)
-            % :param q:
-            %     Vapor fraction
-
-            ctFunc('thermo_setState_Tsat', tp.tpID, t, 1 - q);
         end
 
         function tp = set.basis(tp, b)
@@ -1317,7 +1342,7 @@ classdef ThermoPhase < handle
         function set.DP(tp, input)
             d = input{1};
             p = input{2};
-            ctFunc('thermo_set_RP', tp.tpID, [d, p]);
+            ctFunc('thermo_set_DP', tp.tpID, [d, p]);
         end
 
         function set.DPX(tp, input)
@@ -1360,6 +1385,12 @@ classdef ThermoPhase < handle
         function set.PVY(tp, input)
             tp.Y = input{3};
             tp.PV = input(1:2);
+        end
+
+        function tp = set.PQ(tp, input)
+            p = input{1};
+            q = input{2};
+            ctFunc('thermo_setState_Psat', tp.tpID, p, q);
         end
 
         function set.SH(tp, input)
@@ -1429,8 +1460,7 @@ classdef ThermoPhase < handle
         function set.TD(tp, input)
             t = input{1};
             d = input{2};
-            ctFunc('thermo_setTemperature', tp.tpID, t);
-            ctFunc('thermo_setDensity', tp.tpID, d);
+            ctFunc('thermo_set_TD', tp.tpID, [t, d]);
         end
 
         function set.TDX(tp, input)
@@ -1473,6 +1503,12 @@ classdef ThermoPhase < handle
         function set.TPY(tp, input)
             tp.Y = input{3};
             tp.TP = input(1:2);
+        end
+
+        function tp = set.TQ(tp, input)
+            t = input{1};
+            q = input{2};
+            ctFunc('thermo_setState_Tsat', tp.tpID, t, q);
         end
 
         function set.TV(tp, input)
