@@ -58,7 +58,18 @@ classdef Interface < handle & ThermoPhase & Kinetics
             end
 
             s@Kinetics(t, src, id, args{:});
+
+            s.tpClear;
             s.tpID = t.tpID;
+        end
+
+        %% Interface Class Destructor
+
+        function delete(s)
+            % Delete :mat:class:`Interface` object.
+            s.tpClear;
+
+            disp('Interface class object has been deleted');
         end
 
         %% Interface Get Methods
