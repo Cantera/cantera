@@ -18,7 +18,7 @@ w = Water;
 
 % start with saturated liquid water at t1
 basis = 'mass';
-w.setState_Tsat(t1, 1.0);
+w.TQ = {t1, 0};
 h1 = w.H;
 p1 = w.P;
 
@@ -27,7 +27,7 @@ pump_work = pump(w, p_max, eta_pump);
 h2 = w.H;
 
 % heat to saturated vapor
-w.setState_Psat(p_max, 1.0);
+w.PQ = {p_max, 1.0};
 h3 = w.H;
 
 heat_added = h3 - h2;
@@ -37,7 +37,7 @@ turbine_work = expand(w, p1, eta_turbine);
 
 % compute the efficiency
 efficiency = (turbine_work - pump_work) / heat_added;
-disp(sprintf('efficiency = %d', efficiency));
+disp(sprintf('efficiency = %.2f%%', efficiency*100));
 
 function work = pump(fluid, pfinal, eta)
     % PUMP - Adiabatically pump a fluid to pressure pfinal, using a pump
