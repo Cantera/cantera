@@ -2,7 +2,9 @@
 from collections import namedtuple
 from os.path import join as pjoin
 import os
+import subprocess
 from buildutils import *
+from SCons import Errors
 
 Import('env', 'build', 'install')
 
@@ -107,12 +109,16 @@ if localenv['doxygen_docs']:
             '#/build/docs/doxygen/html', exclude=['\\.map', '\\.md5'])
 
 if localenv['sphinx_docs']:
-    localenv['SPHINXBUILD'] = Dir('#build/docs/sphinx')
-    localenv['SPHINXSRC'] = Dir('sphinx')
+    def build_sphinx(target, source, env):
+        cmd = [env['sphinx_cmd']] + env['sphinx_options'].split()
+        cmd += ('-b', 'html', '-d', 'build/docs/sphinx/doctrees', 'doc/sphinx',
+                'build/docs/sphinx/html')
+        code = subprocess.call(cmd, env=env['ENV'])
+        if code:
+            raise Errors.BuildError(target, action=env['sphinx_cmd'])
 
-    sphinxdocs = build(localenv.Command('${SPHINXBUILD}/html/index.html',
-        'sphinx/conf.py',
-        '${sphinx_cmd} ${sphinx_options} -b html -d ${SPHINXBUILD}/doctrees ${SPHINXSRC} ${SPHINXBUILD}/html'))
+    sphinxdocs = build(localenv.Command('#build/doc/sphinx/html/index.html',
+        'sphinx/conf.py', build_sphinx))
     env.Alias('sphinx', sphinxdocs)
     env.Depends(sphinxdocs, env['python_module'])
 
