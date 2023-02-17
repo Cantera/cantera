@@ -299,7 +299,6 @@ void Reactor::evalSurfaces(double* LHS, double* RHS, double* sdot)
             RHS[loc + k] = m_work[surfloc + k] * rs0 * surf->size(k);
             sum -= RHS[loc + k];
         }
-        LHS[loc] = 1.0;
         RHS[loc] = sum;
         loc += nk;
 
