@@ -40,24 +40,24 @@ namespace Cantera
  * \f[
  *  h_k^o(T,\theta)
  *      = \underbrace{h_k^{o,ideal}(T)
- *        + \int_{298}^{T}cp_k^{o,ideal}(T)dT}_{\text{low-coverage limit}}
+ *        + \int_{298}^{T}c_{p,k}^{o,ideal}(T)dT}_{\text{low-coverage limit}}
  *        + \underbrace{h_k^{o,cov}(T,\theta)
- *        + \int_{298}^{T}cp_k^{o,cov}(T,\theta)dT}_{\text{coverage dependence}}
+ *        + \int_{298}^{T}c_{p,k}^{o,cov}(T,\theta)dT}_{\text{coverage dependence}}
  *
  * \f]
  *
  * \f[
  *  s_k^o(T,\theta)
  *     = \underbrace{s_k^{o,ideal}(T)
- *       + \int_{298}^{T}\frac{cp_k^{o,ideal}(T)}{T}dT}_{\text{low-coverage limit}}
+ *       + \int_{298}^{T}\frac{c_{p,k}^{o,ideal}(T)}{T}dT}_{\text{low-coverage limit}}
  *       + \underbrace{s_k^{o,cov}(T,\theta)
- *       + \int_{298}^{T}\frac{cp_k^{o,cov}(T,\theta)}{T}dT}_{\text{coverage
+ *       + \int_{298}^{T}\frac{c_{p,k}^{o,cov}(T,\theta)}{T}dT}_{\text{coverage
  *         dependence}}
  * \f]
  *
  * \f[
- *  cp_k^o(T,\theta)
- *      = cp_k^{o,ideal}(T) + cp_k^{o,cov}(T,\theta)
+ *  c_{p,k}^o(T,\theta)
+ *      = c_{p,k}^{o,ideal}(T) + c_{p,k}^{o,cov}(T,\theta)
  * \f]
  *
  * ## Mathematical Models for Coverage-dependent Correction Terms
@@ -114,8 +114,8 @@ namespace Cantera
  * given in input mechanism.
  *
  * \f[
- *  cp^{cov}_k(\theta) =
- *   \sum_j \left(c8_{k,j} ln\left(\frac{T}{1\text{ K}}\right)
+ *  c^{cov}_{p,k}(\theta) =
+ *   \sum_j \left(c8_{k,j} \ln\left(\frac{T}{1\text{ K}}\right)
  *   + c9_{k,j}\right) \theta_j^2
  * \f]
  */
@@ -262,7 +262,7 @@ public:
      * \f[
      *      \frac{h^o_k(T,\theta)}{RT}
      *          = \frac{h^{ref}_k(T) + h^{cov}_k(T,\theta)
-     *            + \int_{298}^{T} cp^{cov}_k(T,\theta)dT}{RT}
+     *            + \int_{298}^{T} c^{cov}_{p,k}(T,\theta)dT}{RT}
      * \f]
      */
     virtual void getEnthalpy_RT(double* hrt) const;
@@ -272,8 +272,8 @@ public:
      * \f[
      *      \frac{s^o_k(T,\theta)}{R}
      *          = \frac{s^{ref}_k(T) + s^{cov}_k(T,\theta)
-     *            + \int_{298}^{T}\frac{cp^{cov}_k(T,\theta)}{T}dT}{R}
-     *            - ln\left(\frac{1}{\theta_{ref}}\right)
+     *            + \int_{298}^{T}\frac{c^{cov}_{p,k}(T,\theta)}{T}dT}{R}
+     *            - \ln\left(\frac{1}{\theta_{ref}}\right)
      * \f]
      */
     virtual void getEntropy_R(double* sr) const;
@@ -281,8 +281,8 @@ public:
     //! Get the nondimensionalized standard state heat capacity vector.
     /*!
      * \f[
-     *      \frac{cp^o_k(T,\theta)}{RT}
-     *          = \frac{cp^{ref}_k(T) + cp^{cov}_k(T,\theta)}{RT}
+     *      \frac{c^o_{p,k}(T,\theta)}{RT}
+     *          = \frac{c^{ref}_{p,k}(T) + c^{cov}_{p,k}(T,\theta)}{RT}
      * \f]
      */
     virtual void getCp_R(double* cpr) const;
@@ -321,7 +321,7 @@ public:
     //! Get the partial molar enthalpy vector. Units: J/kmol.
     /*!
      * \f[
-     *      \overline{h}_k(T,\theta) = h^o_k(T,\theta)
+     *      \tilde{h}_k(T,\theta) = h^o_k(T,\theta)
      * \f]
      */
     virtual void getPartialMolarEnthalpies(double* hbar) const;
@@ -329,7 +329,7 @@ public:
     //! Get the partial molar entropy vector. Units: J/kmol/K.
     /*!
      * \f[
-     *      \overline{s}_k(T,\theta) = s^o_k(T,\theta) - Rln(\theta_k)
+     *      \tilde{s}_k(T,\theta) = s^o_k(T,\theta) - R\ln(\theta_k)
      * \f]
      */
     virtual void getPartialMolarEntropies(double* sbar) const;
@@ -337,7 +337,7 @@ public:
     //! Get the partial molar heat capacity vector. Units: J/kmol/K.
     /*!
      * \f[
-     *      \overline{cp}_k(T,\theta) = cp^o_k(T,\theta)
+     *      \tilde{c}_{p,k}(T,\theta) = c^o_{p,k}(T,\theta)
      * \f]
      */
     virtual void getPartialMolarCp(double* cpbar) const;
@@ -345,7 +345,7 @@ public:
     //! Get the chemical potential vector. Units: J/kmol.
     /*!
      * \f[
-     *      \mu_k(T,\theta) = \mu^o_k(T,\theta) + RTln(\theta_k)
+     *      \mu_k(T,\theta) = \mu^o_k(T,\theta) + RT\ln(\theta_k)
      * \f]
      */
     virtual void getChemPotentials(double* mu) const;
@@ -360,7 +360,7 @@ public:
     //! Return the solution's molar enthalpy. Units: J/kmol
     /*!
      * \f[
-     *      \hat h(T,\theta) = \sum_k \theta_k \overline{h}_k(T,\theta)
+     *      \hat h(T,\theta) = \sum_k \theta_k \tilde{h}_k(T,\theta)
      * \f]
      */
     virtual double enthalpy_mole() const;
@@ -368,15 +368,15 @@ public:
     //! Return the solution's molar entropy. Units: J/kmol/K
     /*!
      * \f[
-     *      \hat s(T,\theta) = \sum_k \theta_k \overline{s}_k(T,\theta)
+     *      \hat s(T,\theta) = \sum_k \theta_k \tilde{s}_k(T,\theta)
      * \f]
      */
     virtual double entropy_mole() const;
 
-    //! Return the solution's molar cp. Units: J/kmol/K
+    //! Return the solution's molar heat capacity. Units: J/kmol/K
     /*!
      * \f[
-     *      \hat{cp}(T,\theta) = \sum_k \theta_k \overline{cp}_k(T,\theta)
+     *      \hat{c_p}(T,\theta) = \sum_k \theta_k \tilde{c_p}_k(T,\theta)
      * \f]
      */
     virtual double cp_mole() const;
