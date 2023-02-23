@@ -107,7 +107,7 @@ namespace Cantera
  *
  * Coverage-dependent heat capacity is calculated using an equation with a
  * quadratic dependence on coverages and a logarithmic dependence on temperature.
- * Temperature is nondimesionalized with a reference temperature of 1 K.
+ * Temperature is nondimensionalized with a reference temperature of 1 K.
  * The coverage-dependent heat capacity of species \f$ k \f$ is a sum of
  * all quantities dependent on coverage of species \f$ j \f$. Coefficients
  * \f$ c8_{k,j} \text{ and } c9_{k,j} \f$ are user-provided parameters that can be
@@ -132,7 +132,7 @@ public:
          * @param j index of a species whose coverage affects enthalpy and entropy of
          *          a target species
          * @param enthalpy_coeffs array of polynomial coefficients describing
-         *                        coverage-depdendent enthalpy [J/kmol] in order of
+         *                        coverage-dependent enthalpy [J/kmol] in order of
          *                        1st-order, 2nd-order, 3rd-order, and 4th-order
          *                        coefficients
          * @param entropy_coeffs array of polynomial coefficients describing
@@ -229,7 +229,7 @@ public:
         return "coverage-dependent-surface";
     }
 
-    //! Add interpolative coverage dependece parameters for a species
+    //! Add interpolative coverage dependence parameters for a species
     /*!
      *  @param int_deps  list of parameters as an InterpolativeDependency object
      */

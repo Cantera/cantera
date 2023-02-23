@@ -26,7 +26,7 @@ public:
                   {0.20, 0.23, 0.57, 0.00, 0.00}
                   })
     {
-        // CoverageDenpendentSurfPhase method values will be
+        // CoverageDependentSurfPhase method values will be
         // compared against SurfPhase method values or explicitly calculated values
         covdepsurf_phase.reset(newPhase("copt_covdepsurf_example.yaml", "covdep"));
         idealsurf_phase.reset(newPhase("copt_covdepsurf_example.yaml", "ideal"));

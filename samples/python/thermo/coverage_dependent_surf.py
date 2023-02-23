@@ -55,7 +55,7 @@ for model in models_dict.keys():
     phase = ct.Interface('covdepsurf.yaml',
                          models_dict[model]['phase_name'])
     phase.TP = 300, ct.one_atm
-    # under the cuurent model, create empty lists to store enthalpy and
+    # under the current model, create empty lists to store enthalpy and
     # entropy
     models_dict[model]['hrt'] = []
     models_dict[model]['sr'] = []
@@ -88,7 +88,7 @@ for model in models_dict.keys():
 plt.xlabel(r'$\theta_\mathrm{CO*}$')
 plt.ylabel(r'$s^{\circ}_\mathrm{CO*}/\mathrm{R}$')
 plt.legend(loc='best')
-plt.title('CO* standard state enropy\n'
+plt.title('CO* standard state entropy\n'
           + 'with four dependency models at 300 K, 1 atm')
 plt.show()
 plt.clf()
