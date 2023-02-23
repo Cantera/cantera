@@ -51,7 +51,6 @@ classdef Transport < handle
             %     Level of diagnostic logging. Default if not specified is 4.
             % :return:
             %     Instance of class :mat:class:`Transport`.
-            %
 
             ctIsLoaded;
             tr.trID = 0;
@@ -140,9 +139,13 @@ classdef Transport < handle
             %
             % tr.setParameters(type, k, p)
             %
-            % :param type:
-            % :param k:
-            % :param p:
+            % :param type: Specifies the type of parameters to set
+            %              0 : Diffusion coefficient
+            %              1 : Thermal Conductivity
+            %              The rest are currently unused.
+            % :param k: Species index to set the parameters on
+            % :param p: Vector of parameters. The length of the vector varies with
+            %           the parameterization
 
             ctFunc('trans_setParameters', tr.trID, type, k, p);
         end
@@ -154,7 +157,6 @@ classdef Transport < handle
             %
             % :param lam:
             %    Thermal conductivity in W/(m-K).
-            %
 
             tr.setParameters(1, 0, lam);
         end
