@@ -31,9 +31,8 @@ CoverageDependentSurfPhase::CoverageDependentSurfPhase(const std::string& infile
     initThermoFile(infile, id_);
 }
 
-void CoverageDependentSurfPhase::addInterpolativeDependency(const
-                                                            InterpolativeDependency&
-                                                            int_deps)
+void CoverageDependentSurfPhase::addInterpolativeDependency(
+    const InterpolativeDependency& int_deps)
 {
     if (int_deps.enthalpy_map.count(0.0) == 0) {
         throw CanteraError("CoverageDependentSurfPhase::addInterpolativeDependency",
@@ -420,8 +419,7 @@ void CoverageDependentSurfPhase::getPartialMolarEntropies(double* sbar) const
     _updateTotalThermo();
     copy(m_entropy.begin(), m_entropy.end(), sbar);
     for (size_t k = 0; k < m_kk; k++) {
-        sbar[k] -= GasConstant * log(std::max(m_cov[k], SmallNumber)
-            / m_theta_ref);
+        sbar[k] -= GasConstant * log(std::max(m_cov[k], SmallNumber) / m_theta_ref);
     }
 }
 
