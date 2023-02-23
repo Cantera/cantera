@@ -35,15 +35,6 @@ void CoverageDependentSurfPhase::addInterpolativeDependency(const
                                                             InterpolativeDependency&
                                                             int_deps)
 {
-    double hcov_last = 0.0;
-    for (auto iter=int_deps.enthalpy_map.begin();iter!=int_deps.enthalpy_map.end();
-        ++iter){
-        if (iter->first < hcov_last) {
-            throw CanteraError("CoverageDependentSurfPhase::addInterpolativeDependency"
-            , "Coverages are not in ascending order.");
-        }
-        hcov_last = iter->first;
-    }
     if (int_deps.enthalpy_map.count(0.0) == 0) {
         throw CanteraError("CoverageDependentSurfPhase::addInterpolativeDependency",
             "The first element of enthalpy-coverages array must be 0.0.");
@@ -53,15 +44,6 @@ void CoverageDependentSurfPhase::addInterpolativeDependency(const
             "The last element of enthalpy-coverages array must be 1.0.");
     }
 
-    double scov_last = 0.0;
-    for (auto iter=int_deps.entropy_map.begin();iter!=int_deps.entropy_map.end();
-        ++iter){
-        if (iter->first < scov_last) {
-            throw CanteraError("CoverageDependentSurfPhase::addInterpolativeDependency"
-            , "Coverages are not in ascending order.");
-        }
-        scov_last = iter->first;
-    }
     if (int_deps.entropy_map.count(0.0) == 0) {
         throw CanteraError("CoverageDependentSurfPhase::addInterpolativeDependency",
             "The first element of entropy-coverages array must be 0.0.");

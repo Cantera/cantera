@@ -49,7 +49,7 @@ CO_covs = np.linspace(0, 1.0, 101)
 i_CO = 1
 
 # get coverage-dependent enthalpy and entropy for all four models
-for model in models_dict.keys():
+for model in models_dict:
     # dependency parameters are provided in covdepsurf.yaml
     # import a phase from covdepsurf.yaml and set temperature and pressure
     phase = ct.Interface('covdepsurf.yaml',
@@ -70,7 +70,7 @@ for model in models_dict.keys():
 # plot coverage-dependent enthalpy against DFT-derived enthalpy data
 plt.plot(dft_covs, dft_hrts, marker='o', color='k', linewidth=0,
          label='DFT data')
-for model in models_dict.keys():
+for model in models_dict:
     plt.plot(CO_covs, models_dict[model]['hrt'], label=model)
 plt.xlabel(r'$\theta_\mathrm{CO*}$')
 plt.ylabel(r'$h^{\circ}_\mathrm{CO*}/\mathrm{R}T$')
@@ -83,7 +83,7 @@ plt.clf()
 # plot coverage-dependent entropy against DFT-derived enthalpy data
 plt.plot(dft_covs, dft_srs, marker='o', color='k', linewidth=0,
          label='DFT data')
-for model in models_dict.keys():
+for model in models_dict:
     plt.plot(CO_covs, models_dict[model]['sr'], label=model)
 plt.xlabel(r'$\theta_\mathrm{CO*}$')
 plt.ylabel(r'$s^{\circ}_\mathrm{CO*}/\mathrm{R}$')
