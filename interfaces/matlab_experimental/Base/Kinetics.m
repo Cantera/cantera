@@ -16,17 +16,18 @@ classdef Kinetics < handle
 
         destructionRates % Chemical destruction rates. Unit: kmol/m^3-s.
 
-        dH % enthalpy of reaction. Unit: J/kmol.
+        deltaEnthalpy % Enthalpy of reaction. Unit: J/kmol.
 
-        dH_standard % standard state enthalpy of reaction. Unit: J/kmol.
+        deltaStandardEnthalpy % Standard state enthalpy of reaction. Unit: J/kmol.
 
-        dS % entropy of reaction. Unit: J/kmol-K.
+        deltaEntropy % Entropy of reaction. Unit: J/kmol-K.
 
-        dS_standard % standard state entropy of reaction. Unit: J/kmol-K.
+        deltaStandardEntropy % Standard state entropy of reaction. Unit: J/kmol-K.
 
-        dG % gibbs free energy of reaction. Unit: J/kmol-K.
+        deltaGibbs % Gibbs free energy of reaction. Unit: J/kmol-K.
 
-        dG_standard % standard state gibbs free energy of reaction. Unit: J/kmol-K.
+        % Standard state gibbs free energy of reaction. Unit: J/kmol-K.
+        deltaStandardGibbs
 
         % Equilibrium constants for all reactions.
         %
@@ -41,7 +42,7 @@ classdef Kinetics < handle
 
         forwardRateConstants % Forward reaction rate constants for all reactions.
 
-        reverseRateConstants % Rever reaction rate constants for all reactions.
+        reverseRateConstants % Reverse reaction rate constants for all reactions.
 
         % Get the mass production rates of the species.
         %
@@ -54,28 +55,31 @@ classdef Kinetics < handle
         %     object deriving from Kinetics)
         %     for which the ydots are desired.
         % :return:
-        %     Returns a vector of length nSpecies. Units: kg/s
-        massProdRate % Mass production rate of all species. Unit: kg/s.
+        %     A vector of length nSpecies. Units: kg/s
+        massProdRate
 
         netProdRates % Net chemical production rates for all species. Unit: kmol/m^3-s.
 
-        ropForward % Forward rates of progress for all reactions. Unit: kmol/m^3-s.
+        % Forward rates of progress for all reactions. Unit: kmol/m^3-s.
+        forwardRatesOfProgress
 
-        ropReverse % Reverse rates of progress for all reactions. Unit: kmol/m^3-s.
+        % Reverse rates of progress for all reactions. Unit: kmol/m^3-s.
+        reverseRatesOfProgress
 
-        ropNet % Net rates of progress for all reactions. Unit: kmol/m^3-s.
+        % Net rates of progress for all reactions. Unit: kmol/m^3-s.
+        netRatesOfProgress
 
-        reactionEqns % All reaction equations within the Kinetics object.
+        reactionEquations % All reaction equations within the Kinetics object.
 
     end
 
     methods
         %% Kinetics Class Constructor
 
-        function kin = Kinetics(ph, src, id, n1, n2, n3, n4)
+        function kin = Kinetics(varargin)
             % Kinetics Class ::
             %
-            %     >> k = Kinetics(ph, neighbor1, neighbor2, neighbor3, neighbor4)
+            %     >> k = Kinetics(varargin)
             %
             % Class Kinetics represents kinetics managers, which are classes that manage
             % reaction mechanisms. The reaction mechanism attributes are specified in a
@@ -85,63 +89,54 @@ classdef Kinetics < handle
             % reaction rates of progress, species production rates, and other
             % quantities pertaining to a reaction mechanism.
             %
-            % :param ph:
-            %     An instance of class :mat:class:`ThermoPhase` representing the phase
-            %     in which reactions occur
-            % :param src:
-            %     Input string of YAML file name.
-            % :param id:
-            %     ID of the phase to import as specified in the input file. (optional)
-            % :param neighbor1:
-            %     Instance of class :mat:class:`ThermoPhase` or :mat:class:`Solution`
-            %     representing a neighboring phase.
-            % :param neighbor2:
-            %     Instance of class :mat:class:`ThermoPhase` or :mat:class:`Solution`
-            %     representing a neighboring phase.
-            % :param neighbor3:
-            %     Instance of class :mat:class:`ThermoPhase` or :mat:class:`Solution`
-            %     representing a neighboring phase.
-            % :param neighbor4:
-            %     Instance of class :mat:class:`ThermoPhase` or :mat:class:`Solution`
-            %     representing a neighboring phase.
-            % :return:
-            %      Instance of class :mat:class:`Kinetics`
+            % :param varagin:
+            %     Variable number of inputs consisting of the following:
+            %       - ph:
+            %           An instance of class :mat:class:`ThermoPhase` representing the
+            %           phase in which reactions occur.
             %
+            %       - src:
+            %           Input string of YAML file name.
+            %     Optional:
+            %       - id:
+            %           ID of the phase to import as specified in the input file.
+            %
+            %       - neighbor1:
+            %           Instance of class :mat:class:`ThermoPhase` or
+            %           :mat:class:`Solution` representing the 1st neighboring phase.
+            %
+            %       - neighbor2:
+            %           Instance of class :mat:class:`ThermoPhase` or
+            %           :mat:class:`Solution` representing the 2nd neighboring phase.
+            %
+            %       - neighbor3:
+            %           Instance of class :mat:class:`ThermoPhase` or
+            %           :mat:class:`Solution` representing the 3rd neighboring phase.
+            %
+            %       - neighbor4:
+            %           Instance of class :mat:class:`ThermoPhase` or
+            %           :mat:class:`Solution` representing the 4th neighboring phase.
+            % :return:
+            %      Instance of class :mat:class:`Kinetics`.
 
             ctIsLoaded;
 
-            % indices for bulk phases in a heterogeneous mechanism
-            inb1 = -1;
-            inb2 = -1;
-            inb3 = -1;
-            inb4 = -1;
+            ph = varargin{1}.tpID;
+            src = varargin{2};
+            id = varargin{3};
 
             if nargin == 2
                 id = '-';
             end
 
-            % get the integer indices used to find the stored objects
-            % representing the phases participating in the mechanism
-            iph = ph.tpID;
+            % indices for bulk phases in a heterogeneous mechanism
+            neighbours = {-1, -1, -1, -1};
 
-            if nargin > 6
-                inb4 = n4.tpID;
+            for i = 4:length(varargin)
+                neighbours{i-3} = varargin{i}.tpID;
             end
 
-            if nargin > 5
-                inb3 = n3.tpID;
-            end
-
-            if nargin > 4
-                inb2 = n2.tpID;
-            end
-
-            if nargin > 3
-                inb1 = n1.tpID;
-            end
-
-            kin.kinID = ctFunc('kin_newFromFile', src, id, ...
-                                iph, inb1, inb2, inb3, inb4);
+            kin.kinID = ctFunc('kin_newFromFile', src, id, ph, neighbours{:});
         end
 
         %% Kinetics Class Destructor
@@ -164,7 +159,7 @@ classdef Kinetics < handle
             % :return:
             %    Index of the species.
 
-            n = ctFunc('kin_speciesIndex', kin.kinID, name, phase);
+            n = ctFunc('kin_speciesIndex', kin.kinID, name, phase) + 1;
         end
 
         function n = multiplier(kin, irxn)
@@ -199,10 +194,25 @@ classdef Kinetics < handle
             % :return:
             %    Index of the phase.
 
-            n = ctFunc('kin_phaseIndex', kin.kinID, phase);
+            n = ctFunc('kin_phaseIndex', kin.kinID, phase) + 1;
         end
 
-        function n = stoichReactant(kin, species, rxns)
+        function rxn = reactionEquation(kin, irxn)
+            % Reaction equation of a reaction
+            %
+            % rxn = kin.reactionEqn(irxn)
+            %
+            % :param irxn:
+            %    Integer index of the reaction.
+            % :return:
+            %    String reaction equation.
+
+            rxn = ctString('kin_getReactionString', kin.kinID, irxn - 1);
+        end
+
+        %% Get reaction array attributes
+
+        function n = reactantStoichCoeffs(kin, species, rxns)
             % Reactant stoichiometric coefficients.
             %
             % :param species:
@@ -233,14 +243,14 @@ classdef Kinetics < handle
             elseif nargin == 3
                 krange = species;
                 irange = rxns;
-            else error('stoichReactant requires 1 or 3 arguments.')
+            else
+                error('stoichReactant requires 1 or 3 arguments.')
             end
 
             for k = krange
 
                 for i = irange
-                    t = ctFunc('kin_reactantStoichCoeff', ...
-                                kin.kinID, k - 1, i - 1);
+                    t = ctFunc('kin_reactantStoichCoeff', kin.kinID, k - 1, i - 1);
 
                     if t ~= 0.0
                         temp(k, i) = t;
@@ -253,7 +263,7 @@ classdef Kinetics < handle
             n = temp;
         end
 
-        function n = stoichProduct(kin, species, rxns)
+        function n = productStoichCoeffs(kin, species, rxns)
             % Product stoichiometric coefficients.
             %
             % :param species:
@@ -278,14 +288,14 @@ classdef Kinetics < handle
             elseif nargin == 3
                 krange = species;
                 irange = rxns;
-            else error('stoichProduct requires 1 or 3 arguments.')
+            else
+                error('stoichProduct requires 1 or 3 arguments.')
             end
 
             for k = krange
 
                 for i = irange
-                    t = ctFunc('kin_productStoichCoeff', ...
-                                kin.kinID, k - 1, i - 1);
+                    t = ctFunc('kin_productStoichCoeff', kin.kinID, k - 1, i - 1);
 
                     if t ~= 0.0
                         temp(k, i) = t;
@@ -298,7 +308,7 @@ classdef Kinetics < handle
             n = temp;
         end
 
-        function n = stoichNet(kin, species, rxns)
+        function n = netStoichCoeffs(kin, species, rxns)
             % Net stoichiometric coefficients.
             %
             % :param species:
@@ -317,12 +327,11 @@ classdef Kinetics < handle
             elseif nargin == 3
                 n = kin.stoichProduct(species, rxns) - ...
                     kin.stoichReactant(species, rxns);
-            else error('stoichNet requires 1 or 3 arguments.');
+            else
+                error('stoichNet requires 1 or 3 arguments.');
             end
 
         end
-
-        %% Get reaction array attributes
 
         function cdot = get.creationRates(kin)
             nsp = kin.nTotalSpecies;
@@ -348,9 +357,9 @@ classdef Kinetics < handle
             % :param i:
             %    Integer reaction number.
             % :return:
-            %    1 if reaction number i is reversible. 0 if irreversible.
+            %    True if reaction number i is reversible. false if irreversible.
 
-            n = ctFunc('kin_isReversible', kin.kinID, i);
+            n = boolean(ctFunc('kin_isReversible', kin.kinID, i));
         end
 
         function wdot = get.netProdRates(kin)
@@ -361,7 +370,7 @@ classdef Kinetics < handle
             wdot = pt.Value;
         end
 
-        function q = get.ropForward(kin)
+        function q = get.forwardRatesOfProgress(kin)
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
@@ -369,7 +378,7 @@ classdef Kinetics < handle
             q = pt.Value;
         end
 
-        function q = get.ropReverse(kin)
+        function q = get.reverseRatesOfProgress(kin)
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
@@ -377,7 +386,7 @@ classdef Kinetics < handle
             q = pt.Value;
         end
 
-        function q = get.ropNet(kin)
+        function q = get.netRatesOfProgress(kin)
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
@@ -385,30 +394,17 @@ classdef Kinetics < handle
             q = pt.Value;
         end
 
-        function rxn = reactionEqn(kin, irxn)
-            % Reaction equation of a reaction
-            %
-            % rxn = kin.reactionEqn(irxn)
-            %
-            % :param irxn:
-            %    Integer index of the reaction.
-            % :return:
-            %    String reaction equation.
-
-            rxn = ctString('kin_getReactionString', kin.kinID, irxn - 1);
-        end
-
-        function rxn = get.reactionEqns(kin)
+        function rxn = get.reactionEquations(kin)
             m = kin.nReactions;
             rxns = cell(1, m);
 
             for i = 1:m
-                rxn{i} = kin.reactionEqn(i);
+                rxn{i} = kin.reactionEquation(i);
             end
 
         end
 
-        function enthalpy = get.dH(kin)
+        function enthalpy = get.deltaEnthalpy(kin)
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
@@ -416,7 +412,7 @@ classdef Kinetics < handle
             enthalpy = pt.Value;
         end
 
-        function enthalpy = get.dH_standard(kin)
+        function enthalpy = get.deltaStandardEnthalpy(kin)
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
@@ -424,7 +420,7 @@ classdef Kinetics < handle
             enthalpy = pt.Value;
         end
 
-        function entropy = get.dS(kin)
+        function entropy = get.deltaEntropy(kin)
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
@@ -432,7 +428,7 @@ classdef Kinetics < handle
             entropy = pt.Value;
         end
 
-        function entropy = get.dS_standard(kin)
+        function entropy = get.deltaStandardEntropy(kin)
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
@@ -440,7 +436,7 @@ classdef Kinetics < handle
             entropy = pt.Value;
         end
 
-        function gibbs = get.dG(kin)
+        function gibbs = get.deltaGibbs(kin)
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
@@ -448,7 +444,7 @@ classdef Kinetics < handle
             gibbs = pt.Value;
         end
 
-        function gibbs = get.dG_standard(kin)
+        function gibbs = get.deltaStandardGibbs(kin)
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
