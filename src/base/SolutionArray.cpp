@@ -429,7 +429,7 @@ std::string SolutionArray::detectMode(const std::set<std::string>& names, bool n
     // check set of available names against state acronyms defined by Phase::fullStates
     std::string mode = "";
     const auto& nativeState = m_sol->thermo()->nativeState();
-    bool usesNativeState;
+    bool usesNativeState = false;
     auto surf = std::dynamic_pointer_cast<SurfPhase>(m_sol->thermo());
     for (const auto& item : m_sol->thermo()->fullStates()) {
         bool found = true;

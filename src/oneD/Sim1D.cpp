@@ -217,7 +217,7 @@ AnyMap legacyH5(shared_ptr<SolutionArray> arr, const AnyMap& header={})
     if (header.hasKey("fixed_temperature")) {
         double temp = header.getDouble("fixed_temperature", -1.);
         auto profile = arr->getComponent("T");
-        size_t ix = 0;
+        int ix = 0;
         while (profile[ix] <= temp && ix < arr->size()) {
             ix++;
         }
