@@ -58,7 +58,8 @@ jobs:
     - name: Build Cantera
       run: |
         python3 `which scons` build env_vars=all -j2 debug=n --debug=time \
-        hdf_libdir=$HDF5_LIBDIR hdf_include=$HDF5_INCLUDEDIR
+        hdf_libdir=$HDF5_LIBDIR hdf_include=$HDF5_INCLUDEDIR \
+        cc_flags=-D_GLIBCXX_ASSERTIONS
     - name: Upload shared library
       uses: actions/upload-artifact@v3
       if: matrix.python-version == '3.10' && matrix.os == 'ubuntu-22.04'
