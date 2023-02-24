@@ -29,7 +29,7 @@ except ImportError:
 __all__ = ("Option", "PathOption", "BoolOption", "EnumOption", "Configuration",
            "logger", "remove_directory", "remove_file", "test_results",
            "add_RegressionTest", "get_command_output", "listify", "which",
-           "ConfigBuilder", "multi_glob", "get_spawn", "quoted",
+           "ConfigBuilder", "multi_glob", "get_spawn", "quoted", "add_system_include",
            "get_pip_install_location", "compiler_flag_list", "setup_python_env")
 
 if TYPE_CHECKING:
@@ -1118,6 +1118,27 @@ def compiler_flag_list(
     return cc_flags
 
 
+def add_system_include(env, include, mode='append'):
+    # Add a file to the include path as a "system" include directory, which will
+    # suppress warnings stemming from code that isn't part of Cantera, and reduces
+    # time spent scanning these files for changes.
+    if mode == 'append':
+        add = env.Append
+    elif mode == 'prepend':
+        add = env.Prepend
+    else:
+        raise ValueError("mode must be 'append' or 'prepend'")
+
+    if env['CC'] == 'cl':
+        add(CPPPATH=include)
+    else:
+        if isinstance(include, (list, tuple)):
+            for inc in include:
+                add(CXXFLAGS=('-isystem', inc))
+        else:
+            add(CXXFLAGS=('-isystem', include))
+
+
 def quoted(s: str) -> str:
     """Return the given string wrapped in double quotes."""
     return f'"{s}"'
@@ -1284,7 +1305,8 @@ def setup_python_env(env):
     py_version_nodot = info["py_version_nodot"]
     plat = info['plat'].replace('-', '_').replace('.', '_')
     numpy_include = info["numpy_include"]
-    env.Prepend(CPPPATH=[Dir('#include'), inc, numpy_include])
+    env.Prepend(CPPPATH=Dir('#include'))
+    add_system_include(env, (inc, numpy_include), 'prepend')
     env.Prepend(LIBS=env['cantera_shared_libs'])
 
     # Fix the module extension for Windows from the sysconfig library.

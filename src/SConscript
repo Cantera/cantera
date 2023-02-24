@@ -40,7 +40,8 @@ libs = [('base', ['cpp'], baseSetup),
         ]
 
 localenv = env.Clone()
-localenv.Prepend(CPPPATH=[Dir('#include'), Dir('#include/cantera/ext'), Dir('.')])
+localenv.Prepend(CPPPATH=[Dir('#include'), Dir('.')])
+add_system_include(localenv, Dir('#include/cantera/ext'), 'prepend')
 localenv.Append(CCFLAGS=env['warning_flags'])
 indicatorEnv = localenv.Clone()  # Get this before any of the PCH complications
 
