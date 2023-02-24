@@ -240,7 +240,8 @@ void SolutionArray::writeEntry(const std::string& fname, const std::string& id,
             std::vector<vector_fp> prop;
             for (size_t i = 0; i < m_size; i++) {
                 size_t first = offset + i * m_stride;
-                prop.push_back(vector_fp(&m_data[first], &m_data[first + nSpecies]));
+                prop.emplace_back(m_data.begin() + first,
+                                  m_data.begin() + first + nSpecies);
             }
             file.writeMatrix(id, name, prop);
         } else {
