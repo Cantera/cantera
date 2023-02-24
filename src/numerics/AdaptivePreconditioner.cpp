@@ -65,7 +65,7 @@ void AdaptivePreconditioner::setup()
     // check for errors
     if (m_solver.info() != Eigen::Success) {
         throw CanteraError("AdaptivePreconditioner::setup",
-                           "error code: {}", m_solver.info());
+                           "error code: {}", static_cast<int>(m_solver.info()));
     }
 }
 
@@ -103,7 +103,7 @@ void AdaptivePreconditioner::solve(const size_t stateSize, double* rhs_vector, d
     xVector = m_solver.solve(bVector);
     if (m_solver.info() != Eigen::Success) {
         throw CanteraError("AdaptivePreconditioner::solve",
-                           "error code: {}", m_solver.info());
+                           "error code: {}", static_cast<int>(m_solver.info()));
     }
 }
 
