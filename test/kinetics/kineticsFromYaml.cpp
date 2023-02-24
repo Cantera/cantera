@@ -97,7 +97,7 @@ TEST(Reaction, ThreeBodyFromYaml2)
     EXPECT_TRUE(input.hasKey("efficiencies"));
 
     auto efficiencies = input["efficiencies"].asMap<double>();
-    EXPECT_EQ(efficiencies.size(), 2);
+    EXPECT_EQ(efficiencies.size(), 2u);
     EXPECT_EQ(efficiencies["AR"], 0.83);
     EXPECT_EQ(efficiencies["H2O"], 5.);
 }
@@ -161,7 +161,7 @@ TEST(Reaction, ThreeBodyFromYaml5)
     EXPECT_FALSE(input.hasKey("type"));
     EXPECT_TRUE(input.hasKey("efficiencies"));
     auto efficiencies = input["efficiencies"].asMap<double>();
-    EXPECT_EQ(efficiencies.size(), 1);
+    EXPECT_EQ(efficiencies.size(), 1u);
     EXPECT_EQ(efficiencies.begin()->first, "O2");
     EXPECT_FALSE(input.hasKey("default-efficiency"));
 }
@@ -189,7 +189,7 @@ TEST(Reaction, ThreeBodyFromYaml6)
     EXPECT_EQ(input.getString("type", ""), "three-body");
     EXPECT_TRUE(input.hasKey("efficiencies"));
     auto efficiencies = input["efficiencies"].asMap<double>();
-    EXPECT_EQ(efficiencies.size(), 1);
+    EXPECT_EQ(efficiencies.size(), 1u);
     EXPECT_EQ(efficiencies.begin()->first, "O2");
     EXPECT_FALSE(input.hasKey("default-efficiency"));
 }

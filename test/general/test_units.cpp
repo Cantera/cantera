@@ -336,19 +336,19 @@ TEST(Units, act_energy_from_yaml) {
 TEST(UnitStack, aggregate) {
     Units stdUnits = Units("m");
     UnitStack ustack(stdUnits);
-    EXPECT_EQ(ustack.size(), 1);
+    EXPECT_EQ(ustack.size(), 1u);
     EXPECT_TRUE(ustack.standardUnits() == stdUnits);
     EXPECT_DOUBLE_EQ(ustack.standardExponent(), 0.);
     EXPECT_DOUBLE_EQ(ustack.standardExponent(), 0.);
     ustack.join(1.);
     EXPECT_DOUBLE_EQ(ustack.standardExponent(), 1.);
     ustack.update(stdUnits, 1.); // same effect as join
-    EXPECT_EQ(ustack.size(), 1);
+    EXPECT_EQ(ustack.size(), 1u);
     EXPECT_DOUBLE_EQ(ustack.standardExponent(), 2.);
     EXPECT_EQ(ustack.product().str(), "m^2");
 
     ustack.update(Units("s"), -1);
-    EXPECT_EQ(ustack.size(), 2);
+    EXPECT_EQ(ustack.size(), 2u);
     EXPECT_EQ(ustack.product().str(), "m^2 / s");
 
     Units net = ustack.product();
@@ -362,7 +362,7 @@ TEST(UnitStack, aggregate) {
 
 TEST(UnitStack, empty) {
     UnitStack ustack({});
-    EXPECT_EQ(ustack.size(), 0);
+    EXPECT_EQ(ustack.size(), 0u);
     EXPECT_TRUE(ustack.standardUnits() == Units(0));
     EXPECT_TRUE(std::isnan(ustack.standardExponent()));
 }
@@ -370,7 +370,7 @@ TEST(UnitStack, empty) {
 TEST(UnitStack, from_list) {
     Units stdUnits = Units("m");
     UnitStack ustack({std::make_pair(stdUnits, 2), std::make_pair(Units("s"), -1)});
-    EXPECT_EQ(ustack.size(), 2);
+    EXPECT_EQ(ustack.size(), 2u);
     EXPECT_TRUE(ustack.standardUnits() == stdUnits);
     EXPECT_DOUBLE_EQ(ustack.standardExponent(), 2.);
     EXPECT_EQ(ustack.product().str(), "m^2 / s");

@@ -162,7 +162,7 @@ TEST_F(KineticsFromScratch, multiple_third_bodies4)
     EXPECT_FALSE(input.hasKey("type"));
     EXPECT_TRUE(input.hasKey("efficiencies"));
     auto efficiencies = input["efficiencies"].asMap<double>();
-    EXPECT_EQ(efficiencies.size(), 1);
+    EXPECT_EQ(efficiencies.size(), 1u);
     EXPECT_EQ(efficiencies.begin()->first, "O2");
     EXPECT_FALSE(input.hasKey("default-efficiency"));
 }
@@ -189,7 +189,7 @@ TEST_F(KineticsFromScratch, multiple_third_bodies6)
     EXPECT_FALSE(input.hasKey("type"));
     EXPECT_TRUE(input.hasKey("efficiencies"));
     auto efficiencies = input["efficiencies"].asMap<double>();
-    EXPECT_EQ(efficiencies.size(), 1);
+    EXPECT_EQ(efficiencies.size(), 1u);
     EXPECT_EQ(efficiencies.begin()->first, "O2");
     EXPECT_FALSE(input.hasKey("default-efficiency"));
 }
@@ -206,7 +206,7 @@ TEST_F(KineticsFromScratch, multiple_third_bodies7)
     EXPECT_FALSE(input.hasKey("type"));
     EXPECT_TRUE(input.hasKey("efficiencies"));
     auto efficiencies = input["efficiencies"].asMap<double>();
-    EXPECT_EQ(efficiencies.size(), 1);
+    EXPECT_EQ(efficiencies.size(), 1u);
     EXPECT_EQ(efficiencies.begin()->first, "O2");
     EXPECT_TRUE(input.hasKey("default-efficiency"));
     EXPECT_EQ(input["default-efficiency"].asDouble(), 0.);
@@ -226,7 +226,7 @@ TEST_F(KineticsFromScratch, multiple_third_bodies8)
     EXPECT_FALSE(input.hasKey("type"));
     EXPECT_TRUE(input.hasKey("efficiencies"));
     auto efficiencies = input["efficiencies"].asMap<double>();
-    EXPECT_EQ(efficiencies.size(), 1);
+    EXPECT_EQ(efficiencies.size(), 1u);
     EXPECT_EQ(efficiencies.begin()->first, "O2");
     EXPECT_TRUE(input.hasKey("default-efficiency"));
     EXPECT_EQ(input["default-efficiency"].asDouble(), 0.);
