@@ -1036,8 +1036,8 @@ if conda_prefix is not None:
     env["extra_lib_dirs"].append(conda_lib_dir)
     logger.info(f"Adding conda include and library paths: {conda_prefix}")
 
-env.Append(CPPPATH=env['extra_inc_dirs'],
-           LIBPATH=env['extra_lib_dirs'])
+add_system_include(env, env['extra_inc_dirs'])
+env.Append(LIBPATH=env['extra_lib_dirs'])
 
 if env['use_rpath_linkage']:
     env.Append(RPATH=env['extra_lib_dirs'])
@@ -1054,7 +1054,7 @@ else:
 
 if env['boost_inc_dir']:
     env["boost_inc_dir"] = Path(env["boost_inc_dir"]).as_posix()
-    env.Append(CPPPATH=env['boost_inc_dir'])
+    add_system_include(env, env['boost_inc_dir'])
 
 if env['blas_lapack_dir']:
     env["blas_lapack_dir"] = Path(env["blas_lapack_dir"]).as_posix()
@@ -1065,7 +1065,7 @@ if env['blas_lapack_dir']:
 if env['system_sundials'] in ('y','default'):
     if env['sundials_include']:
         env["sundials_include"] = Path(env["sundials_include"]).as_posix()
-        env.Append(CPPPATH=[env['sundials_include']])
+        add_system_include(env, env['sundials_include'])
         env['system_sundials'] = 'y'
     if env['sundials_libdir']:
         env["sundials_libdir"] = Path(env["sundials_libdir"]).as_posix()
@@ -1100,7 +1100,7 @@ int main(int argc, char** argv) {
     return result
 
 # Set up compiler options before running configuration tests
-env['CXXFLAGS'] = listify(env['cxx_flags'])
+env.Append(CXXFLAGS=listify(env['cxx_flags']))
 env['CCFLAGS'] = listify(env['cc_flags']) + listify(env['thread_flags'])
 env['LINKFLAGS'] += listify(env['thread_flags'])
 env['CPPDEFINES'] = {}
@@ -1531,7 +1531,7 @@ else: # env['system_sundials'] == 'n'
 
 if env["hdf_include"]:
     env["hdf_include"] = Path(env["hdf_include"]).as_posix()
-    env.Append(CPPPATH=[env["hdf_include"]])
+    add_system_include(env, env["hdf_include"])
     env["hdf_support"] = "y"
 if env["hdf_libdir"]:
     env["hdf_libdir"] = Path(env["hdf_libdir"]).as_posix()
