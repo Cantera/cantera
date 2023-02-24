@@ -316,11 +316,11 @@ TEST(Reaction, FalloffFromYaml2)
     EXPECT_DOUBLE_EQ(rate->highRate().preExponentialFactor(), 6e11);
     EXPECT_DOUBLE_EQ(rate->lowRate().preExponentialFactor(), 1.04e20);
     EXPECT_DOUBLE_EQ(rate->lowRate().activationEnergy(), 1600);
-    vector_fp params(4);
+    vector_fp params;
     rate->getFalloffCoeffs(params);
+    ASSERT_EQ(params.size(), (size_t) 3);
     EXPECT_DOUBLE_EQ(params[0], 0.562);
     EXPECT_DOUBLE_EQ(params[1], 91.0);
-    EXPECT_DOUBLE_EQ(params[3], 0.0);
     EXPECT_EQ(R->input["source"].asString(), "somewhere");
 }
 

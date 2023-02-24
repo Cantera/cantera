@@ -818,7 +818,7 @@ void MultiPhase::uploadMoleFractionsFromPhases()
     size_t loc = 0;
     for (size_t ip = 0; ip < nPhases(); ip++) {
         ThermoPhase* p = m_phase[ip];
-        p->getMoleFractions(&m_moleFractions[loc]);
+        p->getMoleFractions(m_moleFractions.data() + loc);
         loc += p->nSpecies();
     }
     calcElemAbundances();
@@ -828,7 +828,7 @@ void MultiPhase::updatePhases() const
 {
     size_t loc = 0;
     for (size_t p = 0; p < nPhases(); p++) {
-        m_phase[p]->setState_TPX(m_temp, m_press, &m_moleFractions[loc]);
+        m_phase[p]->setState_TPX(m_temp, m_press, m_moleFractions.data() + loc);
         loc += m_phase[p]->nSpecies();
         m_temp_OK[p] = true;
         if (m_temp < m_phase[p]->minTemp() || m_temp > m_phase[p]->maxTemp()) {

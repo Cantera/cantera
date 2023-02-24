@@ -221,8 +221,10 @@ AnyMap legacyH5(shared_ptr<SolutionArray> arr, const AnyMap& header={})
         while (profile[ix] <= temp && ix < arr->size()) {
             ix++;
         }
-        out["fixed-point"]["location"] = arr->getComponent("grid")[ix - 1];
-        out["fixed-point"]["temperature"] = temp;
+        if (ix != 0) {
+            out["fixed-point"]["location"] = arr->getComponent("grid")[ix - 1];
+            out["fixed-point"]["temperature"] = temp;
+        }
     }
 
     return out;
@@ -558,7 +560,9 @@ int Sim1D::refine(int loglevel)
     for (size_t n = 0; n < nDomains(); n++) {
         Domain1D& d = domain(n);
         gridsize = dsize[n];
-        d.setupGrid(gridsize, &znew[gridstart]);
+        if (gridsize != 0) {
+            d.setupGrid(gridsize, &znew[gridstart]);
+        }
         gridstart += gridsize;
     }
 
