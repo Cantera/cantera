@@ -22,8 +22,6 @@ namespace Cantera
 BinarySolutionTabulatedThermo::BinarySolutionTabulatedThermo(const std::string& inputFile,
                                                              const std::string& id_)
     : m_kk_tab(npos)
-    , m_xlast(-1)
-
 {
     initThermoFile(inputFile, id_);
 }
@@ -36,22 +34,24 @@ void BinarySolutionTabulatedThermo::compositionChanged()
 
 void BinarySolutionTabulatedThermo::_updateThermo() const
 {
-    double xnow = moleFraction(m_kk_tab);
-    bool x_changed = (m_xlast != xnow);
+    static const int cacheId = m_cache.getId();
+    CachedScalar cached = m_cache.getScalar(cacheId);
+    bool x_changed = !cached.validate(stateMFNumber());
 
     if (x_changed) {
-        m_h0_tab = interpolate(xnow, m_enthalpy_tab);
-        m_s0_tab = interpolate(xnow, m_entropy_tab);
-        if (xnow == 0) {
+        double x_tab = moleFraction(m_kk_tab);
+        double x_other = moleFraction(1 - m_kk_tab);
+        m_h0_tab = interpolate(x_tab, m_enthalpy_tab);
+        m_s0_tab = interpolate(x_tab, m_entropy_tab);
+        if (x_tab == 0) {
             m_s0_tab = -BigNumber;
-        } else if (xnow == 1) {
+        } else if (x_other == 0) {
             m_s0_tab = BigNumber;
         } else {
-            m_s0_tab += GasConstant*std::log(xnow/(1.0-xnow)) +
+            m_s0_tab += GasConstant*std::log(x_tab / x_other) +
                     GasConstant/Faraday*std::log(standardConcentration(1-m_kk_tab)
                     /standardConcentration(m_kk_tab));
         }
-        m_xlast = xnow;
     }
 
     double tnow = temperature();
