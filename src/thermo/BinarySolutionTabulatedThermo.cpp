@@ -127,8 +127,6 @@ void BinarySolutionTabulatedThermo::initThermo()
         m_entropy_tab.resize(N);
         m_molar_volume_tab.resize(N);
         m_derived_molar_volume_tab.resize(N);
-        m_partial_molar_volume_1_tab.resize(N);
-        m_partial_molar_volume_2_tab.resize(N);
 
         for (size_t i = 0; i < N; i++) {
             m_molefrac_tab[i] = x_h[i].first;
@@ -138,13 +136,6 @@ void BinarySolutionTabulatedThermo::initThermo()
         }
 
         diff(m_molar_volume_tab, m_derived_molar_volume_tab);
-
-        for (size_t i = 0; i < N; i++) {
-            m_partial_molar_volume_1_tab[i] = m_molar_volume_tab[i] +
-                    (1-m_molefrac_tab[i]) * m_derived_molar_volume_tab[i];
-            m_partial_molar_volume_2_tab[i] = m_molar_volume_tab[i] -
-                    m_molefrac_tab[i] * m_derived_molar_volume_tab[i];
-        }
     }
     IdealSolidSolnPhase::initThermo();
 }
@@ -208,9 +199,11 @@ void BinarySolutionTabulatedThermo::diff(const vector_fp& inputData,
 
 void BinarySolutionTabulatedThermo::getPartialMolarVolumes(double* vbar) const
 {
-    vbar[m_kk_tab] = interpolate(moleFraction(m_kk_tab), m_partial_molar_volume_1_tab);
-    vbar[1-m_kk_tab] = interpolate(moleFraction(m_kk_tab),
-                                   m_partial_molar_volume_2_tab);
+    double Xtab = moleFraction(m_kk_tab);
+    double Vm = interpolate(Xtab, m_molar_volume_tab);
+    double dVdX_tab = interpolate(Xtab, m_derived_molar_volume_tab);
+    vbar[m_kk_tab] = Vm + (1 - Xtab) * dVdX_tab;
+    vbar[1-m_kk_tab] = Vm - Xtab * dVdX_tab;
 }
 
 void BinarySolutionTabulatedThermo::calcDensity()

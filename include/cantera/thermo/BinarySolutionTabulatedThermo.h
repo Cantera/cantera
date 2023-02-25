@@ -255,8 +255,6 @@ protected:
     vector_fp m_entropy_tab;
     vector_fp m_molar_volume_tab;
     vector_fp m_derived_molar_volume_tab;
-    vector_fp m_partial_molar_volume_1_tab;
-    vector_fp m_partial_molar_volume_2_tab;
 
 private:
     virtual void _updateThermo() const;
