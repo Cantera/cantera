@@ -162,6 +162,7 @@ void BinarySolutionTabulatedThermo::getParameters(AnyMap& phaseNode) const
     tabThermo["mole-fractions"] = m_molefrac_tab;
     tabThermo["enthalpy"].setQuantity(m_enthalpy_tab, "J/kmol");
     tabThermo["entropy"].setQuantity(m_entropy_tab, "J/kmol/K");
+    tabThermo["molar-volume"].setQuantity(m_molar_volume_tab, "m^3/kmol");
     phaseNode["tabulated-thermo"] = std::move(tabThermo);
 }
 

@@ -445,8 +445,8 @@ TEST_F(ThermoYamlRoundTrip, PengRobinson_crit_props)
 
 TEST_F(ThermoYamlRoundTrip, BinarySolutionTabulated)
 {
-    roundtrip("lithium_ion_battery.yaml", "cathode");
-    compareThermo(310, 2e5, "Li[cathode]:0.4, V[cathode]:0.6");
+    roundtrip("BinarySolutionTabulatedThermo.yaml", "anode");
+    compareThermo(310, 2e5, "Li[anode]:0.4, V[anode]:0.6");
 }
 
 TEST_F(ThermoYamlRoundTrip, Margules)
