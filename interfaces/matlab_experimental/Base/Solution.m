@@ -30,11 +30,9 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
     % its methods are inherited from these classes. These are:
     %
     %     * class :mat:class:`ThermoPhase`:
-    %       composition information and thermodynamic properties
-    %     * class :mat:class:`Kinetics`:
-    %       homogeneous kinetics
-    %     * class :mat:class:`Transport`:
-    %       transport properties
+    %       composition information and thermodynamic properties.
+    %     * class :mat:class:`Kinetics`: homogeneous kinetics.
+    %     * class :mat:class:`Transport`: transport properties.
     %
     % See also: :mat:class:`ThermoPhase`, :mat:class:`Kinetics`, :mat:class:`Transport`
     %
@@ -46,8 +44,7 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
     %     String, transport modeling. Possible values are ``'default'``, ``'None'``,
     %     ``'Mix'``, or ``'Multi'``. If not specified, ``'default'`` is used.
     % :return:
-    %     Instance of class :mat:class:`Solution`
-    %
+    %     Instance of class :mat:class:`Solution`.
 
     properties (Access = private)
         tp

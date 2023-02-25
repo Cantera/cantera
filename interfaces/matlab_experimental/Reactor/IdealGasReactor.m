@@ -3,9 +3,9 @@ classdef IdealGasReactor < Reactor
     %
     %     >> r = IdealGasReactor(contents)
     %
-    % An IdealGasReactor is an instance of class Reactor where the governing
-    % equations are specialized for the ideal gas equation of state (and do not
-    % work correctly with other thermodynamic models). Examples:
+    % An :mat:class:`IdealGasReactor` is an instance of :mat:class:`Reactor` where
+    % the governing equations are specialized for the ideal gas equation of state
+    % (and do not work correctly with other thermodynamic models). Examples:
     %
     % .. code-block:: matlab
     %
@@ -15,10 +15,9 @@ classdef IdealGasReactor < Reactor
     % See also: :mat:class:`Reactor`
     %
     % :param contents:
-    %     Cantera :mat:class:`Solution` to be set as the contents of the
-    %     reactor
+    %     Cantera :mat:class:`Solution` to be set as the contents of the reactor.
     % :return:
-    %     Instance of class :mat:class:`IdealGasReactor`
+    %     Instance of class :mat:class:`IdealGasReactor`.
 
     methods
 

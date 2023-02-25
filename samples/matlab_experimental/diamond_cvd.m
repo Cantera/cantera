@@ -65,7 +65,7 @@ for i = 1:20
     gas.TPX = {t, p, x};
     surf_phase.advanceCoverages(10.0);
     r = surf_phase.netProdRates;
-    carbon_dot = r(iC + 1);
+    carbon_dot = r(iC);
     mdot = mw * carbon_dot;
     rate = mdot / dbulk.D;
     xx = [xx; x(ih)];

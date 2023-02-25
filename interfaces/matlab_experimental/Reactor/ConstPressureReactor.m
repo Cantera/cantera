@@ -16,10 +16,9 @@ classdef ConstPressureReactor < Reactor
     % See also: :mat:class:`Reactor`
     %
     % :param contents:
-    %     Cantera :mat:class:`Solution` to be set as the contents of the
-    %     reactor
+    %     Cantera :mat:class:`Solution` to be set as the contents of the reactor.
     % :return:
-    %     Instance of class :mat:class:`ConstPressureReactor`
+    %     Instance of class :mat:class:`ConstPressureReactor`.
 
     methods
 

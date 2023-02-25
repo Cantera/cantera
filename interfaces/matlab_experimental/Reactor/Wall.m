@@ -14,7 +14,7 @@ classdef Wall < handle
     % the acceleration or displacement, that is specified. The wall
     % velocity is computed from:
     %
-    %    v = K(P_left - P_right) + v_0(t),
+    % .. math:: v = K(P_{left} - P_{right}) + v_0(t),
     %
     % where K is a non-negative constant, and v_0 is a specified
     % function of time. The velocity is positive if the wall is
@@ -22,7 +22,7 @@ classdef Wall < handle
     %
     % The heat flux through the wall is computed from:
     %
-    %    q = U(T_left - T_right) + q_0(t),
+    %  .. math:: q = U(T_{left} - T_{right}) + q_0(t),
     %
     % where U is the overall heat transfer coefficient for
     % conduction/convection, and q_0 is a specified function of
@@ -32,17 +32,16 @@ classdef Wall < handle
     % Note: the Wall class constructor only assign default values
     % to various properties. The user could specify those properties
     % after initial construction by using the various methods of
-    % the 'Wall' class.
+    % the Wall class.
     %
     % :param l:
-    %    Instance of class 'Reactor' to be used as the bulk phase
+    %    Instance of class :mat:class:`Reactor` to be used as the bulk phase
     %    on the left side of the wall.
     % :param r:
-    %    Instance of class 'Reactor' to be used as the bulk phase
+    %    Instance of class :mat:class:`Reactor` to be used as the bulk phase
     %    on the right side of the wall.
     % :return:
-    %    Instance of class 'Wall'.
-    %
+    %    Instance of class :mat:class:`Wall`.
 
     properties (SetAccess = immutable)
 
@@ -65,18 +64,18 @@ classdef Wall < handle
         heatTransferCoeff % Heat transfer coefficient in W/(m^2-K).
         emissivity % Non-dimensional emissivity.
         expansionRateCoeff % Expansion rate coefficient in m/(s-Pa).
-        %
+
         % Heat flux in W/m^2.
         %
-        % Must be set by an instance of class 'Func', which allows the
+        % Must be set by an instance of :mat:class:`Func`, which allows the
         % heat flux to be an arbitrary function of time. It is possible
         % to specify a constant heat flux by using the polynomial
         % functor with only the first term specified.
         heatFlux
-        %
+
         % Velocity in m/s.
         %
-        % Must be set by an instance of class 'Func', which allows the
+        % Must be set by an instance of :mat:class:`Func`, which allows the
         % velocity to be an arbitrary function of time. It is possible
         % to specify a constant velocity by using the polynomial
         % functor with only the first term specified.

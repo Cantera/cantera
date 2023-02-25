@@ -12,21 +12,18 @@ classdef ReactorSurface < handle
     %
     % Note: all of the arguments are optional and can be activated
     % after initial construction by using the various methods of
-    % the 'ReactorSurface' class.
+    % the :mat:class:`ReactorSurface` class.
     %
     % :param surf:
     %    Surface reaction mechanisms for the left-facing surface.
     %    This must bean instance of class 'Kinetics', or of a class
     %    derived from 'Kinetics', such as 'Interface'.
     % :param reactor:
-    %    Instance of class 'Reactor' to be used as the adjacent
-    %    bulk phase.
+    %    Instance of class 'Reactor' to be used as the adjacent bulk phase.
     % :param area:
-    %    The area of the surface in m^2. Defaults to 1.0 m^2 if not
-    %    specified.
+    %    The area of the surface in m^2. Defaults to 1.0 m^2 if not specified.
     % :return:
-    %    Instance of class 'ReactorSurface'.
-    %
+    %    Instance of class :mat:class:`ReactorSurface`.
 
     properties (SetAccess = immutable)
         surfID
@@ -97,9 +94,9 @@ classdef ReactorSurface < handle
         function addSensitivityReaction(s, m)
             % Specifies that the sensitivity of the state variables with
             % respect to reaction m should be computed. The surface must be
-            % installed on a reactor and part of a network first.
+            % installed on a reactor and part of a network first. ::
             %
-            % s.addSensitivityReaction(m)
+            %     >> s.addSensitivityReaction(m)
             %
             % :param m:
             %    Index number of reaction.

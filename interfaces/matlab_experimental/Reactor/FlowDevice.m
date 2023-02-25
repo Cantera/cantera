@@ -17,11 +17,9 @@ classdef FlowDevice < handle
     % :param typ:
     %     Type of :mat:class:`FlowDevice` to be created. ``typ='MassFlowController'``
     %     for :mat:class:`MassFlowController`,  ``typ='PressureController'`` for
-    %     :mat:class:`PressureController` and ``typ='Valve'`` for
-    %     :mat:class:`Valve`
+    %     :mat:class:`PressureController`, and ``typ='Valve'`` for :mat:class:`Valve`.
     % :return:
-    %     Instance of class :mat:class:`FlowDevice`
-    %
+    %     Instance of class :mat:class:`FlowDevice`.
 
     properties (SetAccess = immutable)
 
@@ -31,22 +29,22 @@ classdef FlowDevice < handle
     end
 
     properties (SetAccess = public)
-        %
+
         % Upstream object of type :mat:class:`Reactor` or :mat:class:`Reservoir`.
         upstream
-        %
+
         % Downstream object of type :mat:class:`Reactor` or :mat:class:`Reservoir`.
         downstream
-        %
+
         % The mass flow rate through the :mat:class:`FlowDevice` at the current time.
         %
         % The setter method can either take a double value or a function represented by
         % an instance of :mat:class:`Func`.
         massFlowRate
-        %
+
         % Valve coefficient in kg/Pa-s.
         %
-        % The mass flow rate [kg/s] is computed from the expression
+        % The mass flow rate [kg/s] is computed from the expression:
         %
         % .. math:: \dot{m} = K(P_{upstream} - P_{downstream})
         %
@@ -84,19 +82,19 @@ classdef FlowDevice < handle
         %% Utility Methods
 
         function install(f, upstream, downstream)
-            % Install a flow device between reactors or reservoirs.
+            % Install a flow device between reactors or reservoirs. ::
             %
-            % f.install(upstream, downstream)
+            %     >> f.install(upstream, downstream)
             %
             % :param f:
-            %     Instance of class :mat:class:`FlowDevice` to install
+            %     Instance of class :mat:class:`FlowDevice` to install.
             % :param upstream:
-            %     Upstream :mat:class:`Reactor` or :mat:class:`Reservoir`
+            %     Upstream :mat:class:`Reactor` or :mat:class:`Reservoir`.
             % :param downstream:
-            %     Downstream :mat:class:`Reactor` or :mat:class:`Reservoir`
+            %     Downstream :mat:class:`Reactor` or :mat:class:`Reservoir`.
             % :return:
-            %     Instance of class :mat:class:`FlowDevice`
-            %
+            %     Instance of class :mat:class:`FlowDevice`.
+
             if nargin == 3
 
                 if ~isa(upstream, 'Reactor') || ~isa(downstream, 'Reactor')
@@ -137,16 +135,16 @@ classdef FlowDevice < handle
         end
 
         function setMaster(f, d)
-            % Set the Master flow device used to compute this device's mass
-            % flow rate.
+            % Set the Master flow device used to compute this device's
+            % mass flow rate. ::
             %
-            % f.setMaster(d)
+            %     >> f.setMaster(d)
             %
             % :param f:
-            %     Instance of class :mat:class:`MassFlowController`
+            %     Instance of class :mat:class:`MassFlowController`.
             % :param mf:
-            %     Instance of class :mat:class:`Func`
-            %
+            %     Instance of class :mat:class:`Func`.
+
             if strcmp(f.type, 'PressureController')
                 k = ctFunc('flowdev_setMaster', f.id, d);
             else

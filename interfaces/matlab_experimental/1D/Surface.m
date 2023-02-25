@@ -11,7 +11,6 @@ classdef Surface < Domain1D
     % :return:
     %     Instance of class :mat:class:`Surface` representing a
     %     non-reacting or reacting surface.
-    %
 
     methods
 

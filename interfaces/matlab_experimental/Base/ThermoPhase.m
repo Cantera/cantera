@@ -57,9 +57,9 @@ classdef ThermoPhase < handle
         %
         % :param tp:
         %     Instance of class :mat:class:`ThermoPhase` (or another
-        %     object that derives from ThermoPhase)
+        %     object that derives from ThermoPhase).
         % :return:
-        %     Scalar double mean molecular weight. Units: kg/kmol
+        %     Scalar double mean molecular weight. Units: kg/kmol.
         meanMolecularWeight
 
         molarDensity % Molar basis density. Units: kmol/m^3.
@@ -98,7 +98,7 @@ classdef ThermoPhase < handle
         %     Instance of class :mat:class:`ThermoPhase` (or another
         %     object that derives from ThermoPhase).
         % :return:
-        %     Vector of species chemical potentials. Units: J/kmol
+        %     Vector of species chemical potentials. Units: J/kmol.
         chemicalPotentials
 
         % Basis-dependent specific heat at constant volume.
@@ -121,11 +121,10 @@ classdef ThermoPhase < handle
         %
         % :param tp:
         %     Instance of class :mat:class:`ThermoPhase` (or another
-        %     object that derives from ThermoPhase)
+        %     object that derives from ThermoPhase).
         % :return:
-        %     Vector of standard-state species enthalpies
-        %     divided by RT, where R is the universal gas
-        %     constant and T is the temperature. For gaseous species, these
+        %     Vector of standard-state species enthalpies constant
+        %     and T is the temperature. For gaseous species, these
         %     values are ideal gas enthalpies.
         enthalpies_RT
 
@@ -148,9 +147,9 @@ classdef ThermoPhase < handle
         %
         % :param tp:
         %     Instance of class :mat:class:`ThermoPhase` (or another
-        %     object that derives from ThermoPhase)
+        %     object that derives from ThermoPhase).
         % :return:
-        %     Vector of maximum temperatures of all species
+        %     Vector of maximum temperatures of all species.
         maxTemp
 
         % Minimum temperature of the parameter fits ::
@@ -166,9 +165,9 @@ classdef ThermoPhase < handle
         %
         % :param tp:
         %     Instance of class :mat:class:`ThermoPhase` (or another
-        %     object that derives from ThermoPhase)
+        %     object that derives from ThermoPhase).
         % :return:
-        %     Vector of minimum temperatures of all species
+        %     Vector of minimum temperatures of all species.
         minTemp
 
         refPressure % Reference pressure for standard-state. Units: Pa.
@@ -218,9 +217,9 @@ classdef ThermoPhase < handle
         %
         % :param tp:
         %     Instance of class :mat:class:`ThermoPhase` (or another
-        %     class derived from ThermoPhase)
+        %     class derived from ThermoPhase).
         % :return:
-        %     The speed of sound. Units: m/s
+        %     The speed of sound. Units: m/s.
         soundSpeed
 
         % All species names ::
@@ -229,9 +228,9 @@ classdef ThermoPhase < handle
         %
         % :param tp:
         %     Instance of class :mat:class:`ThermoPhase` (or another
-        %     class derived from ThermoPhase)
+        %     class derived from ThermoPhase).
         % :return:
-        %     Cell array of strings of all of the species names
+        %     Cell array of strings of all of the species names.
         speciesNames
 
         thermalExpansionCoeff % Thermal expansion coefficient. Units: 1/K.
@@ -581,18 +580,18 @@ classdef ThermoPhase < handle
             % The elemental mass fraction in a gas object is calculated using
             % the following equation:
             %
-            %    elMassFrac = sum of nAtoms(k, m)*Mel(m)*Y(k)/mw(k)
+            %  .. math:: elMassFrac = \sum_{1}^{nSpecies} \frac{nAtoms(k, m)*Mel(m)*Y(k)}{mw(k)}
             %
-            % where nAtoms(k, m) is the number of atoms of element 'm', in
-            % species 'k'; Mel(m) is the atomic weight of element 'm'; Y(k)
-            % is the mass fraction of species 'k'; and mw(k) is the
-            % molecular weight of species 'k'.
+            % where :math:`nAtoms(k, m)` is the number of atoms of element :math:`m` in
+            % species :math:`k`; :math:`Mel(m)` is the atomic weight of
+            % element :math:`m`; :math:`Y(k)` is the mass fraction of
+            % species :math:`k`; and :math:`mw(k)` is the molecular weight of
+            % species :math:`k`.
             %
             % :param tp:
             %     Object representing the gas, instance of class :mat:class:`Solution`,
             %     and an ideal gas. The state of this object should be set to an
-            %     estimate of the gas state before calling elementalMassFraction.
-            %
+            %     estimate of the gas state before calling `elementalMassFraction`.
             % :param element:
             %     String representing the element name.
             % :return:

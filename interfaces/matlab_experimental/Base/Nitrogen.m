@@ -13,7 +13,7 @@ function n = Nitrogen()
     % University, 1979. Print.
     %
     % :return:
-    %     Instance of class :mat:class:`Solution`
-    %
+    %     Instance of class :mat:class:`Solution`.
+
     n = Solution('liquidvapor.yaml', 'nitrogen');
 end
