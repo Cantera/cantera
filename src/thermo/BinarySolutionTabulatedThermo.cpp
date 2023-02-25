@@ -199,17 +199,18 @@ void BinarySolutionTabulatedThermo::diff(const vector_fp& inputData,
 
 void BinarySolutionTabulatedThermo::getPartialMolarVolumes(double* vbar) const
 {
-    double Xtab = moleFraction(m_kk_tab);
-    double Vm = interpolate(Xtab, m_molar_volume_tab);
-    double dVdX_tab = interpolate(Xtab, m_derived_molar_volume_tab);
-    vbar[m_kk_tab] = Vm + (1 - Xtab) * dVdX_tab;
-    vbar[1-m_kk_tab] = Vm - Xtab * dVdX_tab;
+    std::copy(m_speciesMolarVolume.begin(), m_speciesMolarVolume.end(), vbar);
 }
 
 void BinarySolutionTabulatedThermo::calcDensity()
 {
-    double vmol = interpolate(moleFraction(m_kk_tab), m_molar_volume_tab);
-    double dens = meanMolecularWeight()/vmol;
+    double Xtab = moleFraction(m_kk_tab);
+    double Vm = interpolate(Xtab, m_molar_volume_tab);
+    double dVdX_tab = interpolate(Xtab, m_derived_molar_volume_tab);
+    m_speciesMolarVolume[m_kk_tab] = Vm + (1 - Xtab) * dVdX_tab;
+    m_speciesMolarVolume[1-m_kk_tab] = Vm - Xtab * dVdX_tab;
+
+    double dens = meanMolecularWeight() / Vm;
 
     // Set the density in the parent State object directly, by calling the
     // Phase::assignDensity() function.

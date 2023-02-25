@@ -596,9 +596,10 @@ protected:
 
     //! Vector of molar volumes for each species in the solution
     /**
-     * Species molar volumes \f$ m^3 kmol^-1 \f$
+     * Species molar volumes (\f$ m^3 kmol^-1 \f$) at the current mixture state.
+     * For the IdealSolidSolnPhase class, these are constant.
      */
-    vector_fp m_speciesMolarVolume;
+    mutable vector_fp m_speciesMolarVolume;
 
     //! Vector containing the species reference enthalpies at T = m_tlast
     mutable vector_fp m_h0_RT;
