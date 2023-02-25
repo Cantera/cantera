@@ -176,15 +176,15 @@ TEST_F(BinarySolutionTabulatedThermo_Test,partialMolarVolumes)
     test_phase->setState_TP(298.15,101325.);
     // These expected results are purely a regression test
     const double expected_result[9] = {
-        0.041207972037360034,
-        0.038534004157808582,
-        0.036935982981359229,
-        0.036182506843878831,
-        0.035990796804076991,
-        0.036280986542177367,
-        0.036903215973399468,
-        0.037569211282710353,
-        0.038022737191326351
+        0.04120724363741,
+        0.03853288221791,
+        0.03693536558788,
+        0.03618236414389,
+        0.03599080437984,
+        0.03628136773515,
+        0.03690395850931,
+        0.03756972764230,
+        0.03802279519842
     };
 
     double xmin = 0.10;
@@ -196,7 +196,7 @@ TEST_F(BinarySolutionTabulatedThermo_Test,partialMolarVolumes)
     {
         set_defect_X(xmin + i*dx);
         test_phase->getPartialMolarVolumes(&partialMolarVolumes[0]);
-        EXPECT_NEAR(expected_result[i], partialMolarVolumes[0], 1.e-6);
+        EXPECT_NEAR(expected_result[i], partialMolarVolumes[0], 1.e-8);
     }
 }
 

@@ -105,7 +105,6 @@ binary-solution-tabulated:
     known-failures:
       g_eq_h_minus_Ts: "Inconsistent results when P != 1 atm. See GitHub Issue #1301"
       g_eq_sum_gk_Xk: "Inconsistent results when P != 1 atm. See GitHub Issue #1301"
-      v_eq_sum_vk_Xk: "Inconsistent results. See GitHub Issue #1302"
       h_eq_sum_hk_Xk: "Inconsistent results. See GitHub Issue #1302"
       s_eq_sum_sk_Xk: "Problems near composition limit. See GitHub Issue #1303"
       gk_eq_hk_minus_T_sk: "Problems near composition limit. See GitHub Issue #1303"
