@@ -446,7 +446,7 @@ TEST(IdealSolidSolnPhase, fromScratch)
     p.setState_TPX(500, 2e5, "sp1:0.1, sp2:0.89, sp3:0.01");
     EXPECT_NEAR(p.density(), 10.1787080, 1e-6);
     EXPECT_NEAR(p.enthalpy_mass(), -15642788.8547624, 1e-4);
-    EXPECT_NEAR(p.gibbs_mole(), -313642312.7114608, 1e-4);
+    EXPECT_NEAR(p.gibbs_mole(), -313513245.8114608, 1e-4);
 }
 
 static void set_hmw_interactions(HMWSoln& p) {

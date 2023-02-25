@@ -390,7 +390,7 @@ TEST(ThermoFromYaml, IdealSolidSolnPhase)
     // Regression test following IdealSolidSolnPhase.fromScratch
     EXPECT_NEAR(thermo->density(), 10.1787080, 1e-6);
     EXPECT_NEAR(thermo->enthalpy_mass(), -15642788.8547624, 1e-4);
-    EXPECT_NEAR(thermo->gibbs_mole(), -313642312.7114608, 1e-4);
+    EXPECT_NEAR(thermo->gibbs_mole(), -313513245.8114608, 1e-4);
 
     // Test that molar enthalpy equals sum(h_k*X_k). Test first at default
     // pressure:

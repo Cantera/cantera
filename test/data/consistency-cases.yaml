@@ -77,9 +77,6 @@ ideal-condensed-1:
   setup:
     file: thermo-models.yaml
     phase: IdealSolidSolnPhase
-    known-failures:
-      g_eq_h_minus_Ts: "Inconsistent result when P != 1 atm. See GitHub Issue #1301"
-      g_eq_sum_gk_Xk: "Inconsistent result when P != 1 atm. See GitHub Issue #1301"
   states:
   - {T: 300, P: 0.1 atm, X: {sp1: 1.0}}
   - {T: 300, P: 1 atm, X: {sp1: 0.6, sp2: 0.4}}
@@ -90,9 +87,6 @@ ideal-condensed-2:
   setup:
     file: thermo-models.yaml
     phase: IdealSolidSolnPhase2
-    known-failures:
-      g_eq_h_minus_Ts: "Inconsistent result when P != 1 atm. See GitHub Issue #1301"
-      g_eq_sum_gk_Xk: "Inconsistent result when P != 1 atm. See GitHub Issue #1301"
   states:
   - {T: 300, P: 0.1 atm, X: {sp1: 1.0}}
   - {T: 400, P: 0.1 atm, X: {sp1: 0.01, sp2: 0.03, sp3: 0.94}}
