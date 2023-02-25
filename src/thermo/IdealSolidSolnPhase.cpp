@@ -43,7 +43,8 @@ doublereal IdealSolidSolnPhase::entropy_mole() const
 
 doublereal IdealSolidSolnPhase::gibbs_mole() const
 {
-    return RT() * (mean_X(gibbs_RT_ref()) + sum_xlogx());
+    double Pv = (pressure() - m_Pref)/molarDensity();
+    return RT() * (mean_X(gibbs_RT_ref()) + sum_xlogx()) + Pv;
 }
 
 doublereal IdealSolidSolnPhase::cp_mole() const
