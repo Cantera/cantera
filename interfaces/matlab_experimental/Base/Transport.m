@@ -135,25 +135,30 @@ classdef Transport < handle
         %% Transport Set Methods
 
         function setParameters(tr, type, k, p)
-            % Set the parameters.
+            % Set the parameters. ::
             %
-            % tr.setParameters(type, k, p)
+            %     >> tr.setParameters(type, k, p)
             %
-            % :param type: Specifies the type of parameters to set
-            %              0 : Diffusion coefficient
-            %              1 : Thermal Conductivity
-            %              The rest are currently unused.
-            % :param k: Species index to set the parameters on
-            % :param p: Vector of parameters. The length of the vector varies with
-            %           the parameterization
+            % :param type:
+            %    Specifies the type of parameters to set:
+            %
+            %    - 0 : Diffusion coefficient
+            %    - 1 : Thermal Conductivity
+            %
+            %    The rest are currently unused.
+            % :param k:
+            %    Species index to set the parameters on.
+            % :param p:
+            %    Vector of parameters. The length of the vector varies with
+            %    the parameterization.
 
             ctFunc('trans_setParameters', tr.trID, type, k, p);
         end
 
         function setThermalConductivity(tr, lam)
-            % Set the thermal conductivity.
+            % Set the thermal conductivity. ::
             %
-            % tr.setThermalConductivity(lam)
+            %     >> tr.setThermalConductivity(lam)
             %
             % :param lam:
             %    Thermal conductivity in W/(m-K).

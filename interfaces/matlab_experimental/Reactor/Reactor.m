@@ -3,25 +3,24 @@ classdef Reactor < handle
     %
     %     >> r = Reactor(content, typ)
     %
-    % A 'Reactor' object simulates a perfectly-stirred reactor. It
-    % has a time-dependent tstate, and may be coupled to other
+    % A :mat:class:`Reactor` object simulates a perfectly-stirred reactor.
+    % It has a time-dependent tstate, and may be coupled to other
     % reactors through flow lines or through walls that may expand
     % or contract and/orconduct heat.
     %
     % :param contents:
-    %    Instance of class 'Solution' representing the contents of
+    %    Instance of :mat:class:`Solution` representing the contents of
     %    the reactor.
     % :param typ:
     %    Character array of reactor type. Options are:
-    %    'Reservoir'
-    %    'Reactor'
-    %    'FlowReactor'
-    %    'ConstPressureReactor'
-    %    'IdealGasReactor'
-    %    'IdealGasConstPressureReactor'
+    %      - `Reservoir`
+    %      - `Reactor`
+    %      - `FlowReactor`
+    %      - `ConstPressureReactor`
+    %      - `IdealGasReactor`
+    %      - `IdealGasConstPressureReactor`
     % :return:
-    %    Instance of class 'Reactor'.
-    %
+    %    Instance of :mat:class:`Reactor`.
 
     properties (SetAccess = immutable)
 
@@ -33,71 +32,70 @@ classdef Reactor < handle
     properties (SetAccess = public)
 
         contents
-        %
+
         % Density of the reactor contents at the end of the last call to
-        % 'advance' or 'step'. Unit: kg/m^3.
+        % "advance" or "step". Unit: kg/m^3.
         D
-        %
+
         % Pressure of the reactor contents at the end of the last call to
-        % 'advance' or 'step'. Unit: K.
+        % "advance" or "step". Unit: K.
         P
-        %
+
         % Mass of the reactor contents at the end of the last call to
-        % 'advance' or 'step'. Unit: kg.
+        % "advance" or "step". Unit: kg.
         M
-        %
+
         % Mass specific enthalpy of the reactor contents at the end of the last call to
-        % 'advance' or 'step'. Unit: J/kg.
+        % "advance" or "step". Unit: J/kg.
         H
-        %
-        % Mass specific internal energy of the reactor contents at the end of the last call to
-        % 'advance' or 'step'. Unit: J/kg.
+
+        % Mass specific internal energy of the reactor contents at the end of the last call to "advance" or "step". Unit: J/kg.
         U
-        %
+
         % Temperature of the reactor contents at the end of the last call to
-        % 'advance' or 'step'. Unit: K.
+        % "advance" or "step". Unit: K.
         T
-        %
+
         % Volume of the reactor contents at the end of the last call to
-        % 'advance' or 'step'. Unit: m^3.
+        % "advance" or "step". Unit: m^3.
         V
-        %
+
         % Mass fractions of the reactor contents at the end of the last call to
-        % 'advance' or 'step'.
+        % "advance" or "step".
         Y
+
+        % Enable or disable changing reactor composition by reactions. ::
         %
-        % Enable or disable changing reactor composition by reactions.
-        %
-        % r.chemistry = flag
+        %     >> r.chemistry = flag
         %
         % If the chemistry is disabled, then the reactor composition is
         % constant. The parameter should be the string "on" to enable
         % the species equaionts, or "off" to disable it.
         %
-        % By default, Reactor objects are created with the species
+        % By default, :mat:class:`Reactor` objects are created with the species
         % equations enabled if there are reactions present in the
         % mechanism file, and disabled otherwise.
         %
         % :param r:
-        %    Instance of class 'Reactor'.
+        %    Instance of :mat:class:`Reactor`.
         % :param flag:
         %    String, either "on" or "off" to enable or disable chemical
         %    reactions, respectively.
         chemistry
+
+        % Enable or disable solving the energy equation. ::
         %
-        % Enable or disable solving the energy equation.
-        %
-        % r.energy = flag
+        %     >> r.energy = flag
         %
         % If the energy equation is disabled, then the reactor
         % temperature is constant. The parameter should be the string
         % "on" to enable the energy equation, or "off" to disable it.
         %
-        % By default, Reactor objects are created with the energy
-        % equation enabled, so usually this method
+        % By default, :mat:class:`Reactor` objects are created with the energy
+        % equation enabled, so usually this method.
         %
         % :param r:
-        %    Instance of class 'Reactor'.
+        %    Instance of :mat:class:`Reactor`.
         % :param flag:
         %    String, either "on" or "off" to enable or disable chemical
         %    reactions, respectively.
@@ -158,13 +156,12 @@ classdef Reactor < handle
         function addSensitivityReaction(r, m)
             % Specifies that the sensitivity of the state variables with
             % respect to reaction m should be computed. The reactor must be
-            % part of a network first.
+            % part of a network first. ::
             %
-            % r.addSensitivityReaction(m)
+            %     >> r.addSensitivityReaction(m)
             %
             % :param m:
             %    Index number of reaction.
-            %
 
             ctFunc('reactor_addSensitivityReaction', r.id, m);
         end

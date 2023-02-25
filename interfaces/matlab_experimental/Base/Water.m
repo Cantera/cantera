@@ -16,7 +16,7 @@ function w = Water()
     % Cantera C++ source code documentation.
     %
     % :return:
-    %     Instance of class :mat:class:`Solution`
-    %
+    %     Instance of class :mat:class:`Solution`.
+
     w = Solution('liquidvapor.yaml', 'water');
 end

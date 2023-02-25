@@ -23,7 +23,6 @@ classdef CounterFlowDiffusionFlame < Sim1D
     % :return:
     %     Instance of :mat:class:`CounterFlowDiffusionFlame` object
     %     representing the left inlet, flow, and right inlet.
-    %
 
     methods
 

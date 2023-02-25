@@ -1,5 +1,5 @@
 classdef polynom < Func
-    % Polynom - Create a polynomial :mat:class:`Func` instance. ::
+    % Create a polynomial :mat:class:`Func` instance. ::
     %
     %     >> f = polynom(coeffs)
     %
@@ -8,14 +8,14 @@ classdef polynom < Func
     %
     % .. code-block:: matlab
     %
-    %     polynom([-2 6 3])          %3x^2 + 6.0x - 2
-    %     polynom([1.0 -2.5 0 0 2])  %2x^4 - 2.5x + 1
+    %     polynom([-2 6 3])          % 3x^2 + 6.0x - 2
+    %     polynom([1.0 -2.5 0 0 2])  % 2x^4 - 2.5x + 1
     %
     % :param coeffs:
-    %     Vector of polynomial coefficients
+    %     Vector of polynomial coefficients.
     % :return:
-    %     Instance of class :mat:class:`polynom`
-    %
+    %     Instance of class :mat:class:`polynom`.
+
     methods
 
         function f = polynom(coeffs)

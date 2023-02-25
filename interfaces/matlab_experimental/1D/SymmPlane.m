@@ -7,7 +7,6 @@ classdef SymmPlane < Domain1D
     %     String ID of the symmetry plane.
     % :return:
     %     Instance of class :mat:class:`SymmPlane`.
-    %
 
     methods
 

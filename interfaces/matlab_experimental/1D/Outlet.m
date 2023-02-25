@@ -7,7 +7,6 @@ classdef Outlet < Domain1D
     %     String ID of the outlet.
     % :return:
     %     Instance of :mat:class:`Outlet`.
-    %
 
     methods
 

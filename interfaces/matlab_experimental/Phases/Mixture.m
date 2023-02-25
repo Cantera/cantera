@@ -4,14 +4,13 @@ classdef Mixture < handle
     %     >> m = Mixture(phases)
     %
     % Class :mat:class:`Mixture` represents mixtures of one or more phases of matter.
-    % To construct a mixture, supply a cell array of phases and
-    % mole numbers::
+    % To construct a mixture, supply a cell array of phases and mole numbers ::
     %
     %     >> gas = Solution('gas.yaml');
     %     >> graphite = Solution('graphite.yaml');
     %     >> mix = Mixture({gas, 1.0; graphite, 0.1});
     %
-    % Phases may also be added later using the addPhase method::
+    % Phases may also be added later using the addPhase method ::
     %
     %     >> water = Solution('water.yaml');
     %     >> mix.addPhase(water, 3.0);
@@ -30,9 +29,9 @@ classdef Mixture < handle
     % objects whenever it requires phase properties.
     %
     % :param phases:
-    %     Cell array of phases and mole numbers
+    %     Cell array of phases and mole numbers.
     % :return:
-    %     Instance of class :mat:class:`Mixture`
+    %     Instance of class :mat:class:`Mixture`.
     %
 
     properties (SetAccess = immutable)
@@ -48,16 +47,16 @@ classdef Mixture < handle
 
         phases % Phases in the mixture
 
-        % Number of atoms of an element in a mixture.
+        % Number of atoms of an element in a mixture. ::
         %
-        % n = m.nAtoms(e)
+        %     >> n = m.nAtoms(e)
         %
         % :param m:
-        %     Instance of class :mat:class:`Mixture`
+        %     Instance of class :mat:class:`Mixture`.
         % :param e:
-        %     Index of element
+        %     Index of element.
         % :return:
-        %     Number of atoms for element e
+        %     Number of atoms for element e.
         %
         % Note: In keeping with the conventions used by Matlab, the
         % indices start from 1 instead of 0 as in Cantera C++ and
@@ -70,77 +69,75 @@ classdef Mixture < handle
 
         nSpecies % Number of species in a mixture.
 
-        % Index of an element.
+        % Index of an element. ::
         %
-        % n = m.elementIndex(name)
+        %     >> n = m.elementIndex(name)
         %
         % :param m:
-        %     Instance of class :mat:class:`Mixture`
+        %     Instance of class :mat:class:`Mixture`.
         % :param name:
-        %     Name of the element whose index is desired
+        %     Name of the element whose index is desired.
         % :return:
-        %     Index of element with name ``name``
+        %     Index of element with name ``name``.
         %
         % Note: In keeping with the conventions used by Matlab, the
         % indices start from 1 instead of 0 as in Cantera C++ and
         % Python interfaces.
         elementIndex
+
+        % Number of moles of an element in a mixture. ::
         %
-        % Number of moles of an element in a mixture.
-        %
-        % moles = m.elementMoles(e)
+        %     >> moles = m.elementMoles(e)
         %
         % :param m:
-        %     Instance of class :mat:class:`Mixture`
+        %     Instance of class :mat:class:`Mixture`.
         % :param e:
         %    Integer element number.
         % :return:
         %    Moles of element number 'e'. If input 'e' is empty, return
         %    moles of every element in the mixture. Unit: kmol.
         elementMoles
+
+        % Index of a species in a mixture. ::
         %
-        % Index of a species in a mixture.
-        %
-        % n = m.speciesIndex(k, p)
+        %     >> n = m.speciesIndex(k, p)
         %
         % :param m:
-        %     Instance of class :mat:class:`Mixture`
+        %     Instance of class :mat:class:`Mixture`.
         % :param name:
-        %     Name of the speces whose index is desired
+        %     Name of the speces whose index is desired.
         % :return:
-        %     Index of species with name ``name``
+        %     Index of species with name ``name``.
         %
         % Note: In keeping with the conventions used by Matlab, the
         % indices start from 1 instead of 0 as in Cantera C++ and
         % Python interfaces.
         speciesIndex
+
+        % Number of moles of a species in a mixture. ::
         %
-        % Number of moles of a species in a mixture.
-        %
-        % moles = m.speciesMoles(k)
+        %     >> moles = m.speciesMoles(k)
         %
         % :param m:
-        %     Instance of class :mat:class:`Mixture`
+        %     Instance of class :mat:class:`Mixture`.
         % :param k:
         %    Integer species number.
         % :return:
         %    Moles of species number 'k'. If input 'k' is empty, return
         %    moles of every species in the mixture. Unit: kmol.
-        %
         speciesMoles
+
+        % Number of moles of a phase in a mixture. ::
         %
-        % Number of moles of a phase in a mixture.
-        %
-        % moles = m.phaseMoles(n)
+        %     >> moles = m.phaseMoles(n)
         %
         % :param m:
-        %     Instance of class :mat:class:`Mixture`
+        %     Instance of class :mat:class:`Mixture`.
         % :param n:
         %    Integer phase number.
         % :return:
         %    Moles of element number 'n'. If input 'n' is empty, return
         %    moles of every element in the mixture. Unit: kmol.
-        %
         phaseMoles
 
         chemPotentials % Chemical potentials of species in the mixture. Units: J/kmol.
@@ -215,19 +212,19 @@ classdef Mixture < handle
         end
 
         function addPhase(m, phase, moles)
-            % Add a phase to a mixture.
+            % Add a phase to a mixture. ::
             %
-            % addPhase(self, phase, moles)
+            %     >> m.addPhase(phase, moles)
             %
-            % :param self:
-            %     Instance of class :mat:class:`Mixture` to which phases should be
-            %     added
+            % :param m:
+            %     Instance of class :mat:class:`Mixture` to which phases
+            %     should be added.
             % :param phase:
-            %     Instance of class :mat:class:`ThermoPhase` which should be added
+            %     Instance of class :mat:class:`ThermoPhase` which should be added.
             % :param moles:
             %     Number of moles of the ``phase`` to be added to this mixture.
-            %     Units: kmol
-            %
+            %     Units: kmol.
+
             if ~isa(phase, 'ThermoPhase')
                 error('Phase object of wrong type.');
             end
@@ -348,38 +345,38 @@ classdef Mixture < handle
         end
 
         function setPhaseMoles(m, n, moles)
-            % Set the number of moles of a phase in a mixture.
+            % Set the number of moles of a phase in a mixture. ::
             %
-            % m.setPhaseMoles(n, moles)
+            %     >> m.setPhaseMoles(n, moles)
             %
             % :param m:
-            %     Instance of class :mat:class:`Mixture`
+            %     Instance of class :mat:class:`Mixture`.
             % :param n:
-            %     Phase number in the input
+            %     Phase number in the input.
             % :param moles:
-            %     Number of moles to add. Units: kmol
-            %
+            %     Number of moles to add. Units: kmol.
+
             calllib(ct, 'mix_setPhaseMoles', m.mixID, n - 1, moles);
         end
 
         function setSpeciesMoles(m, moles)
-            % Set the moles of the species.
+            % Set the moles of the species. ::
             %
-            % m.setSpeciesMoles(moles)
+            %     >> m.setSpeciesMoles(moles)
             %
-            % Set the moles of the species in kmol. The moles may
-            % be specified either as a string, or as an vector. If a vector is
-            % used, it must be dimensioned at least as large as the total number
+            % Set the moles of the species in kmol. The moles may be specified
+            % either as a string, or as an vector. If a vector is used,
+            % it must be dimensioned at least as large as the total number
             % of species in the mixture. Note that the species may belong to any
             % phase, and unspecified species are set to zero. ::
             %
             %     >> mix.setSpeciesMoles('C(s):1.0, CH4:2.0, O2:0.2');
             %
             % :param m:
-            %     Instance of class :mat:class:`Mixture`
+            %     Instance of class :mat:class:`Mixture`.
             % :param moles:
-            %     Vector or string specifying the moles of species
-            %
+            %     Vector or string specifying the moles of species.
+
             if isa(moles, 'double')
                 l = length(moles);
                 calllib(ct, 'mix_setMoles', m.mixID, l, moles);
@@ -392,16 +389,16 @@ classdef Mixture < handle
         end
 
         function r = equilibrate(m, XY, err, maxsteps, maxiter, loglevel)
-            % Set the mixture to a state of chemical equilibrium.
+            % Set the mixture to a state of chemical equilibrium. ::
             %
-            % m.equilibrate(XY, err, maxsteps, maxiter, loglevel)
+            %     >> m.equilibrate(XY, err, maxsteps, maxiter, loglevel)
             %
             % This method uses a version of the VCS algorithm to find the
             % composition that minimizes the total Gibbs free energy of the
             % mixture, subject to element conservation constraints. For a
             % description of the theory, see Smith and Missen, "Chemical
             % Reaction Equilibrium."  The VCS algorithm is implemented in
-            % Cantera kernel class MultiPhaseEquil.
+            % Cantera kernel class `MultiPhaseEquil`.
             %
             % The VCS algorithm solves for the equilibrium composition for
             % specified temperature and pressure. If any other property pair
@@ -413,7 +410,7 @@ classdef Mixture < handle
             %     >> mix.equilibrate('TP', 1.0e-6, 500)
             %
             % :param m:
-            %     Instance of class :mat:class:`Mixture`
+            %     Instance of class :mat:class:`Mixture`.
             % :param XY:
             %     Two-letter string specifying the two properties to hold
             %     fixed.  Currently, ``'TP'``, ``'HP'``, ``'TV'``, and ``'SP'`` are
@@ -435,8 +432,8 @@ classdef Mixture < handle
             %     Set to a value > 0 to write diagnostic output.
             %     Larger values generate more detailed information.
             % :return:
-            %     The error in the solution
-            %
+            %     The error in the solution.
+
             if nargin < 6
                 loglevel = 0;
             end

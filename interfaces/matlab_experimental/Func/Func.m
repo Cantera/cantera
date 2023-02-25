@@ -58,12 +58,11 @@ classdef Func < handle
             %     * ``'composite'``
             %     * ``'periodic'``
             % :param n:
-            %     Number of parameters required for the functor
+            %     Number of parameters required for the functor.
             % :param p:
-            %     Vector of parameters
+            %     Vector of parameters.
             % :return:
-            %     Instance of class :mat:class:`Func`
-            %
+            %     Instance of class :mat:class:`Func`.
 
             ctIsLoaded;
 
@@ -152,17 +151,16 @@ classdef Func < handle
         end
 
         function b = subsref(a, s)
-            % Redefine subscripted references for functors.
+            % Redefine subscripted references for functors. ::
             %
-            % b = a.subsref(s)
+            %     >> b = a.subsref(s)
             %
             % :param a:
-            %     Instance of class :mat:class:`Func`
+            %     Instance of class :mat:class:`Func`.
             % :param s:
             %     Value at which the function should be evaluated.
             % :return:
-            %     Returns the value of the function evaluated at ``s``
-            %
+            %     Returns the value of the function evaluated at ``s``.
 
             if length(s) > 1
                 aa = eval(['a.', s(1).subs]);
@@ -185,15 +183,15 @@ classdef Func < handle
         end
 
         function s = char(f)
-            % Get the formatted string to display the function.
+            % Get the formatted string to display the function. ::
             %
-            % s = f.char
+            %     >> s = f.char
             %
             % :param f:
-            %     Instance of class :mat:class:`Func`
+            %     Instance of class :mat:class:`Func`.
             % :return:
-            %     Formatted string displaying the function
-            %
+            %     Formatted string displaying the function.
+
             if strcmp(f.typ, 'sum')
                 s = ['(' (f.f1.char) ') + (' f.f2.char ')'];
             elseif strcmp(f.typ, 'diff')

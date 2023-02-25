@@ -6,21 +6,17 @@ classdef Interface < handle & ThermoPhase & Kinetics
     % See `ideal-surface <https://cantera.org/documentation/docs-2.6/sphinx/html/yaml/phases.html#sec-yaml-ideal-surface>`__
     % and `Declaring adjacent phases <https://cantera.org/tutorials/yaml/phases.html#declaring-adjacent-phases>`__.
     %
-    % :param src:
-    %     YAML file containing the interface or edge phase.
-    % :param id:
-    %     Name of the interface or edge phase in the YAML file.
-    % :param p1:
-    %     Adjoining phase to the interface.
-    % :param p2:
-    %     Adjoining phase to the interface.
-    % :param p3:
-    %     Adjoining phase to the interface.
-    % :param p4:
-    %     Adjoining phase to the interface.
+    % :param varagin:
+    %     Variable number of inputs consisting of the following:
+    %       - src: YAML file containing the interface or edge phase.
+    %       - id: Name of the interface or edge phase in the YAML file.
+    %     Optional:
+    %       - p1: 1st Adjoining phase to the interface.
+    %       - p2: 2nd Adjoining phase to the interface.
+    %       - p3: 3rd Adjoining phase to the interface.
+    %       - p4: 4th Adjoining phase to the interface.
     % :return:
-    %     Instance of class :mat:class:`Interface`
-    %
+    %     Instance of class :mat:class:`Interface`.
 
     properties (SetAccess = public)
 
@@ -37,25 +33,18 @@ classdef Interface < handle & ThermoPhase & Kinetics
     methods
         %% Interface Class Constructor
 
-        function s = Interface(src, id, p1, p2, p3, p4)
+        function s = Interface(varargin)
             % Create an :mat:class:`Interface` object.
 
             ctIsLoaded;
 
+            src = varargin{1};
+            id = varargin{2};
+
             t = ThermoPhase(src, id);
             s@ThermoPhase(src, id);
 
-            if nargin == 2
-                args = {};
-            elseif nargin == 3
-                args = {p1};
-            elseif nargin == 4
-                args = {p1, p2};
-            elseif nargin == 5
-                args = {p1, p2, p3};
-            elseif nargin == 6
-                args = {p1, p2, p3, p4};
-            end
+            args = varargin(3:end);
 
             s@Kinetics(t, src, id, args{:});
 

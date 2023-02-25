@@ -7,7 +7,6 @@ classdef OutletRes < Domain1D
     %     String ID of the outlet reservoir.
     % :return:
     %     Instance of :mat:class:`OutletRes`.
-    %
 
     methods
 

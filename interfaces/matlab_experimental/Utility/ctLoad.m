@@ -1,6 +1,6 @@
 function ctLoad()
     % Load the Cantera C Library into Memory
-    %
+
     if ispc
         ctName = '/Lib/cantera_shared.dll';
     elseif ismac

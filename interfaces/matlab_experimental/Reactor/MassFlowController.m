@@ -14,12 +14,11 @@ classdef MassFlowController < FlowDevice
     % see also: :mat:class:`FlowDevice`, :mat:class:`Valve`
     %
     % :param upstream:
-    %     Upstream :mat:class:`Reactor` or :mat:class:`Reservoir`
+    %     Upstream :mat:class:`Reactor` or :mat:class:`Reservoir`.
     % :param downstream:
-    %     Downstream :mat:class:`Reactor` or :mat:class:`Reservoir`
+    %     Downstream :mat:class:`Reactor` or :mat:class:`Reservoir`.
     % :return:
-    %     Instance of class :mat:class:`FlowDevice`
-    %
+    %     Instance of class :mat:class:`FlowDevice`.
 
     methods
 

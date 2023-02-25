@@ -1,6 +1,6 @@
 function ctCleanUp()
     % Delete all stored Cantera objects and reclaim memory.
-    %
+
     ctIsLoaded;
 
     classList = {'Domain1D', 'Sim1D', 'Func', 'Kinetics', ...

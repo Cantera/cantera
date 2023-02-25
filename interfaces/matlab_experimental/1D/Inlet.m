@@ -10,7 +10,6 @@ classdef Inlet < Domain1D
     %     String name of the inlet.
     % :return:
     %     Instance of class :mat:class:`Inlet`.
-    %
 
     methods
 

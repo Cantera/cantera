@@ -29,9 +29,9 @@ classdef Kinetics < handle
         % Standard state gibbs free energy of reaction. Unit: J/kmol-K.
         deltaStandardGibbs
 
-        % Equilibrium constants for all reactions.
+        % Equilibrium constants for all reactions. ::
         %
-        % k = kin.equilibriumConstants
+        %     >> k = kin.equilibriumConstants
         %
         % :return:
         %    A column vector of the equilibrium constants for all
@@ -44,9 +44,9 @@ classdef Kinetics < handle
 
         reverseRateConstants % Reverse reaction rate constants for all reactions.
 
-        % Get the mass production rates of the species.
+        % Get the mass production rates of the species. ::
         %
-        % ydot = kin.massProdRate
+        %     >> ydot = kin.massProdRate
         %
         % Evaluates the source term :math:`\dot{\omega}_k M_k /\rho`
         %
@@ -94,25 +94,20 @@ classdef Kinetics < handle
             %       - ph:
             %           An instance of class :mat:class:`ThermoPhase` representing the
             %           phase in which reactions occur.
-            %
             %       - src:
             %           Input string of YAML file name.
             %     Optional:
             %       - id:
             %           ID of the phase to import as specified in the input file.
-            %
             %       - neighbor1:
             %           Instance of class :mat:class:`ThermoPhase` or
             %           :mat:class:`Solution` representing the 1st neighboring phase.
-            %
             %       - neighbor2:
             %           Instance of class :mat:class:`ThermoPhase` or
             %           :mat:class:`Solution` representing the 2nd neighboring phase.
-            %
             %       - neighbor3:
             %           Instance of class :mat:class:`ThermoPhase` or
             %           :mat:class:`Solution` representing the 3rd neighboring phase.
-            %
             %       - neighbor4:
             %           Instance of class :mat:class:`ThermoPhase` or
             %           :mat:class:`Solution` representing the 4th neighboring phase.
@@ -150,7 +145,9 @@ classdef Kinetics < handle
         %% Get scalar attributes
 
         function n = kineticsSpeciesIndex(kin, name, phase)
-            % Get the species index of a species of a phase in the Kinetics class.
+            % Get the species index of a species of a phase in the Kinetics class. ::
+            %
+            %     >> n = kin.kineticsSpeciesIndex(name, phase)
             %
             % :param name:
             %    String name of the species.
@@ -163,11 +160,12 @@ classdef Kinetics < handle
         end
 
         function n = multiplier(kin, irxn)
-            % Get the multiplier for reaction rate of progress.
+            % Get the multiplier for reaction rate of progress. ::
+            %
+            %     >> n = kin.multiplier(irxn)
             %
             % :param irxn:
-            %    Integer reaction number for which the multiplier is
-            %    desired.
+            %    Integer reaction number for which the multiplier is desired.
             % :return:
             %    Multiplier of the rate of progress of reaction irxn.
 
@@ -187,7 +185,9 @@ classdef Kinetics < handle
         end
 
         function n = phaseIndex(kin, phase)
-            % The index of a specific phase.
+            % The index of a specific phase. ::
+            %
+            %     >> n = kin.phaseIndex(phase)
             %
             % :param phase:
             %    String name of the phase.
@@ -198,9 +198,9 @@ classdef Kinetics < handle
         end
 
         function rxn = reactionEquation(kin, irxn)
-            % Reaction equation of a reaction
+            % Reaction equation of a reaction. ::
             %
-            % rxn = kin.reactionEqn(irxn)
+            %   >> rxn = kin.reactionEqn(irxn)
             %
             % :param irxn:
             %    Integer index of the reaction.
@@ -213,7 +213,9 @@ classdef Kinetics < handle
         %% Get reaction array attributes
 
         function n = reactantStoichCoeffs(kin, species, rxns)
-            % Reactant stoichiometric coefficients.
+            % Reactant stoichiometric coefficients. ::
+            %
+            %     >> n = kin.reactantStoichCoeffs(species, rxns)
             %
             % :param species:
             %    Species indices for which reactant stoichiometric
@@ -264,7 +266,9 @@ classdef Kinetics < handle
         end
 
         function n = productStoichCoeffs(kin, species, rxns)
-            % Product stoichiometric coefficients.
+            % Product stoichiometric coefficients. ::
+            %
+            %     >> n = kin.productStoichCoeffs(species, rxns)
             %
             % :param species:
             %    Species indices for which product stoichiometric
@@ -309,7 +313,9 @@ classdef Kinetics < handle
         end
 
         function n = netStoichCoeffs(kin, species, rxns)
-            % Net stoichiometric coefficients.
+            % Net stoichiometric coefficients. ::
+            %
+            %     >> n = kin.netStoichCoeffs(species, rxns)
             %
             % :param species:
             %    Species indices for which net stoichiometric coefficients
@@ -350,9 +356,9 @@ classdef Kinetics < handle
         end
 
         function n = isReversible(kin, i)
-            % An array of flags indicating reversibility of a reaction.
+            % An array of flags indicating reversibility of a reaction. ::
             %
-            % n = kin.isReversible(i)
+            %     >> n = kin.isReversible(i)
             %
             % :param i:
             %    Integer reaction number.
@@ -487,9 +493,9 @@ classdef Kinetics < handle
         %% Kinetics Set Methods
 
         function kin = setMultiplier(kin, irxn, v)
-            % Set the multiplier for the reaction rate of progress.
+            % Set the multiplier for the reaction rate of progress. ::
             %
-            % kin.setMultiplier(irxn, v)
+            %     >> kin.setMultiplier(irxn, v)
             %
             % :param irxn:
             %    Integer vector reaction numbers for which the multiplier
@@ -497,7 +503,6 @@ classdef Kinetics < handle
             % :param v:
             %    Value by which the reaction rate of progress should be
             %    multiplied.
-            %
 
             if nargin == 2
                 v = irxn;
@@ -516,13 +521,12 @@ classdef Kinetics < handle
         end
 
         function advanceCoverages(kin, dt)
-            % Advance the surface coveages forward in time
+            % Advance the surface coveages forward in time. ::
             %
-            % kin.advanceCoverages(dt)
+            %     >> kin.advanceCoverages(dt)
             %
             % :param dt:
             %    Time interval by which the coverages should be advanced.
-            %
 
             ctFunc('kin_advanceCoverages', kin.kinID, dt);
         end

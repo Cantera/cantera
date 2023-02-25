@@ -4,12 +4,11 @@ classdef AxisymmetricFlow < Domain1D
     %     >> m = AxisymmetricFlow(gas, id)
     %
     % :param gas:
-    %     Instance of class :mat:class:`Solution`
+    %     Instance of class :mat:class:`Solution`.
     % :param id:
-    %     String, ID of the flow
+    %     String, ID of the flow.
     % :return:
     %     Instance of class :mat:class:`AxisymmetricFlow`.
-    %
 
     methods
 
