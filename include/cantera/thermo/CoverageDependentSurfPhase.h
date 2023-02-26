@@ -139,12 +139,14 @@ public:
          *                       coverage-dependent entropy [J/kmol/K] in order of
          *                       1st-order, 2nd-order, 3rd-order, and 4th-order
          *                       coefficients
+         * @param isLinear boolean indicating whether the dependency is linear
          */
         PolynomialDependency(size_t k, size_t j,
                              vector_fp enthalpy_coeffs={0.0, 0.0, 0.0, 0.0, 0.0},
-                             vector_fp entropy_coeffs={0.0, 0.0, 0.0, 0.0, 0.0}):
+                             vector_fp entropy_coeffs={0.0, 0.0, 0.0, 0.0, 0.0},
+                             bool isLinear=false):
                              k(k), j(j), enthalpy_coeffs(enthalpy_coeffs),
-                             entropy_coeffs(entropy_coeffs) {}
+                             entropy_coeffs(entropy_coeffs), isLinear(isLinear) {}
         //! index of a target species whose enthalpy and entropy is calculated
         size_t k;
         //! index of a species whose coverage affects enthalpy and entropy of
@@ -158,6 +160,8 @@ public:
         //! [J/kmol/K] in order of 1st-order, 2nd-order, 3rd-order, and 4th-order
         //! coefficients
         vector_fp entropy_coeffs;
+        //! boolean indicating whether the dependency is linear
+        bool isLinear;
     };
 
     //! A struct to store sets of parameters used in coverage-dependent enthalpy
@@ -171,14 +175,17 @@ public:
          *          a target species
          * @param enthalpy_map map of <coverage[dimensionless], enthalpy[J/kmol]> pairs
          * @param entropy_map map of <coverage[dimensionless], entropy[J/kmol/K]> pairs
+         * @param isPiecewise boolean indicating whether the dependency is
+         *                    piecewise-linear
          */
         InterpolativeDependency(size_t k, size_t j,
                                 std::map<double, double> enthalpy_map={{0.0, 0.0},
                                                                        {1.0, 0.0}},
                                 std::map<double, double> entropy_map={{0.0, 0.0},
-                                                                      {1.0, 0.0}}):
+                                                                      {1.0, 0.0}},
+                                bool isPiecewise=false):
                                 k(k), j(j), enthalpy_map(enthalpy_map),
-                                entropy_map(entropy_map) {}
+                                entropy_map(entropy_map), isPiecewise(isPiecewise) {}
         //! index of a target species whose enthalpy and entropy are calculated
         size_t k;
         //! index of a species whose coverage affects enthalpy and entropy of
@@ -188,6 +195,8 @@ public:
         std::map<double, double> enthalpy_map;
         //! map of <coverage[dimensionless], entropy[J/kmol/K]> pairs
         std::map<double, double> entropy_map;
+        //! boolean indicating whether the dependency is piecewise-linear
+        bool isPiecewise;
     };
 
     //! A struct to store sets of parameters used in coverage-dependent heat capacity
@@ -424,26 +433,6 @@ protected:
 
     //! Array of heat capacity coverage dependency parameters.
     std::vector<HeatCapacityDependency> m_HeatCapacityDependency;
-
-    //! Explicitly-specified k-j interaction parameters, to enable serialization.
-    //! For linear model. <name_k>: <name_j: PolynomialDependency_index>>.
-    std::map<std::string, std::map<std::string, size_t>> m_indexmap_lin;
-
-    //! Explicitly-specified k-j interaction parameters, to enable serialization.
-    //! For polynomial model. <name_k>: <name_j: PolynomialDependency_index>>.
-    std::map<std::string, std::map<std::string, size_t>> m_indexmap_poly;
-
-    //! Explicitly-specified k-j interaction parameters, to enable serialization.
-    //! For piecewise-linear model. <name_k>: <name_j: InterpolativeDependency_index>>.
-    std::map<std::string, std::map<std::string, size_t>> m_indexmap_pwlin;
-
-    //! Explicitly-specified k-j interaction parameters, to enable serialization.
-    //! For interpolative model. <name_k>: <name_j: InterpolativeDependency_index>>.
-    std::map<std::string, std::map<std::string, size_t>> m_indexmap_int;
-
-    //! Explicitly-specified k-j interaction parameters, to enable serialization.
-    //! <name_k>: <name_j: HeatCapacityDependency_index>>.
-    std::map<std::string, std::map<std::string, size_t>> m_indexmap_cp;
 
 private:
     //! Storage for the user-defined reference state coverage which has to be
