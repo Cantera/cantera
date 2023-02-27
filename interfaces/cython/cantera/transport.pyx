@@ -195,7 +195,6 @@ cdef class Transport(_SolutionBase):
 
         def __set__(self, model):
             self.base.setTransport(newTransport(self.thermo, stringify(model)))
-            self.transport = self.base.transport().get()
 
     property CK_mode:
         """Boolean to indicate if the chemkin interpretation is used."""
