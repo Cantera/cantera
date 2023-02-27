@@ -13,6 +13,7 @@ from .kinetics cimport *
 from .transport cimport *
 from .reaction cimport *
 from ._utils cimport *
+from .delegator cimport pyOverride, callback_v
 from .yamlwriter cimport YamlWriter
 
 ctypedef CxxSurfPhase* CxxSurfPhasePtr
@@ -109,6 +110,10 @@ cdef class _SolutionBase:
         name = kwargs.get('name')
         if name is not None:
             self.name = name
+
+    def __dealloc__(self):
+        if self.base != NULL:
+            self.base.removeChangedCallback(<PyObject*>self)
 
     property name:
         """
@@ -429,11 +434,22 @@ cdef _assign_Solution(_SolutionBase soln, shared_ptr[CxxSolution] cxx_soln,
     if not weak:
         # When the main application isn't Python, we should only hold a weak reference
         # here, since the C++ Solution object owns this Python Solution.
+        if soln._base.get() != NULL:
+            soln._base.get().removeChangedCallback(<PyObject*>(soln))
         soln._base = cxx_soln
     soln.base = cxx_soln.get()
-    soln.thermo = soln.base.thermo().get()
-    soln.kinetics = soln.base.kinetics().get()
-    soln.transport = soln.base.transport().get()
+
+    def assign_pointers():
+        soln.thermo = soln.base.thermo().get()
+        soln.kinetics = soln.base.kinetics().get()
+        soln.transport = soln.base.transport().get()
+    assign_pointers()
+
+    soln.base.registerChangedCallback(<PyObject*>soln,
+        pyOverride(<PyObject*>assign_pointers, callback_v))
+    # PyOverride only holds a weak reference to the function, so this also needs to be
+    # stored on the Python Solution object to have the right lifetime
+    soln._soln_changed_callback = assign_pointers
 
     cdef shared_ptr[CxxSolution] adj_soln
     if reset_adjacent:

@@ -128,6 +128,22 @@ class TestOnedim(utilities.CanteraTest):
         self.assertEqual(rtol_ss, set((5e-3, 3e-4, 7e-7)))
         self.assertEqual(rtol_ts, set((6e-3, 4e-4, 2e-7)))
 
+    def test_switch_transport(self):
+        gas = ct.Solution('h2o2.yaml')
+        gas.set_equivalence_ratio(0.9, 'H2', 'O2:0.21, N2:0.79')
+        flame = ct.FreeFlame(gas, width=0.1)
+        flame.set_initial_guess()
+
+        assert gas.transport_model == flame.transport_model == 'Mix'
+
+        flame.transport_model = 'UnityLewis'
+        assert gas.transport_model == flame.transport_model == 'UnityLewis'
+        Dkm_flame = flame.mix_diff_coeffs
+        assert all(Dkm_flame[1,:] == Dkm_flame[2,:])
+
+        gas.transport_model = 'Multi'
+        assert flame.transport_model == 'Multi'
+
 
 class TestFreeFlame(utilities.CanteraTest):
     tol_ss = [1.0e-5, 1.0e-14]  # [rtol atol] for steady-state problem

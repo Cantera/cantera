@@ -84,3 +84,4 @@ cdef extern from "cantera/base/ExtensionManagerFactory.h" namespace "Cantera":
 ctypedef CxxDelegator* CxxDelegatorPtr
 
 cdef int assign_delegates(object, CxxDelegator*) except -1
+cdef void callback_v(PyFuncInfo& funcInfo)

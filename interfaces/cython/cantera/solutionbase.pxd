@@ -59,6 +59,8 @@ cdef extern from "cantera/base/Solution.h" namespace "Cantera":
         size_t nAdjacent()
         shared_ptr[CxxSolution] adjacent(size_t)
         void holdExternalHandle(string&, shared_ptr[CxxExternalHandle])
+        void registerChangedCallback(void*, function[void()])
+        void removeChangedCallback(void*)
 
     cdef shared_ptr[CxxSolution] CxxNewSolution "Cantera::Solution::create" ()
     cdef shared_ptr[CxxSolution] newSolution (
@@ -86,4 +88,5 @@ cdef class _SolutionBase:
     cdef np.ndarray _selected_species
     cdef object parent
     cdef object _adjacent
+    cdef object _soln_changed_callback
     cdef public object _references

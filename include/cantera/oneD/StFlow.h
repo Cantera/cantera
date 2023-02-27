@@ -63,6 +63,8 @@ public:
     //! @param points  initial number of grid points
     StFlow(shared_ptr<Solution> sol, const std::string& id="", size_t points=1);
 
+    ~StFlow();
+
     //! @name Problem Specification
     //! @{
 
@@ -439,11 +441,6 @@ protected:
     IdealGasPhase* m_thermo;
     Kinetics* m_kin;
     Transport* m_trans;
-
-    // Smart pointer preventing garbage collection when the transport model of an
-    // associated Solution object changes: the transport model of the StFlow object
-    // will remain unaffected by an external change.
-    shared_ptr<Transport> m_trans_shared;
 
     // boundary emissivities for the radiation calculations
     doublereal m_epsilon_left;

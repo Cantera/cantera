@@ -42,6 +42,9 @@ void Solution::setName(const std::string& name) {
 
 void Solution::setThermo(shared_ptr<ThermoPhase> thermo) {
     m_thermo = thermo;
+    for (const auto& [id, callback] : m_changeCallbacks) {
+        callback();
+    }
 }
 
 void Solution::setKinetics(shared_ptr<Kinetics> kinetics) {
@@ -49,10 +52,16 @@ void Solution::setKinetics(shared_ptr<Kinetics> kinetics) {
     if (m_kinetics) {
         m_kinetics->setRoot(shared_from_this());
     }
+    for (const auto& [id, callback] : m_changeCallbacks) {
+        callback();
+    }
 }
 
 void Solution::setTransport(shared_ptr<Transport> transport) {
     m_transport = transport;
+    for (const auto& [id, callback] : m_changeCallbacks) {
+        callback();
+    }
 }
 
 void Solution::setTransportModel(const std::string& model) {
@@ -152,10 +161,20 @@ shared_ptr<ExternalHandle> Solution::getExternalHandle(const std::string& name) 
     }
 }
 
-shared_ptr<Solution> newSolution(const std::string& infile,
-                                 const std::string& name,
-                                 const std::string& transport,
-                                 const std::vector<shared_ptr<Solution>>& adjacent)
+void Solution::registerChangedCallback(void *id, const function<void()>& callback)
+{
+    m_changeCallbacks[id] = callback;
+}
+
+void Solution::removeChangedCallback(void* id)
+{
+    m_changeCallbacks.erase(id);
+}
+
+shared_ptr<Solution> newSolution(const std::string &infile,
+                                 const std::string &name,
+                                 const std::string &transport,
+                                 const std::vector<shared_ptr<Solution>> &adjacent)
 {
     // get file extension
     size_t dot = infile.find_last_of(".");

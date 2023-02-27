@@ -108,6 +108,22 @@ public:
     //! Returns a null pointer if the requested handle does not exist.
     shared_ptr<ExternalHandle> getExternalHandle(const std::string& name) const;
 
+    //! Register a function to be called if any of the Solution's thermo, kinetics,
+    //! or transport objects is replaced.
+    //! @param id  A unique ID corresponding to the object affected by the callback.
+    //!   Typically, this is a pointer to an object that also holds a reference to the
+    //!   Solution object.
+    //! @param callback  The callback function to be called after any component of the
+    //!   Solution is replaced.
+    //! When the callback becomes invalid (for example, the corresponding object is
+    //! being deleted, the removeChangedCallback() method must be invoked.
+    //! @since New in Cantera 3.0
+    void registerChangedCallback(void* id, const function<void()>& callback);
+
+    //! Remove the callback function associated with the specified object.
+    //! @since New in Cantera 3.0
+    void removeChangedCallback(void* id);
+
 protected:
     shared_ptr<ThermoPhase> m_thermo;  //!< ThermoPhase manager
     shared_ptr<Kinetics> m_kinetics;  //!< Kinetics manager
@@ -124,6 +140,10 @@ protected:
     //! Wrappers for this Kinetics object in extension languages, for evaluation
     //! of user-defined reaction rates
     std::map<std::string, shared_ptr<ExternalHandle>> m_externalHandles;
+
+    //! Callback functions that are invoked when the therm, kinetics, or transport
+    //! members of the Solution are replaced.
+    map<void*, function<void()>> m_changeCallbacks;
 };
 
 //! Create and initialize a new Solution from an input file

@@ -7,6 +7,7 @@
 #include "cantera/oneD/StFlow.h"
 #include "cantera/oneD/refine.h"
 #include "cantera/transport/Transport.h"
+#include "cantera/transport/TransportFactory.h"
 #include "cantera/numerics/funcs.h"
 #include "cantera/base/global.h"
 
@@ -113,8 +114,7 @@ StFlow::StFlow(shared_ptr<Solution> sol, const std::string& id, size_t points)
     m_solution = sol;
     m_id = id;
     m_kin = m_solution->kinetics().get();
-    m_trans_shared = m_solution->transport();
-    m_trans = m_trans_shared.get();
+    m_trans = m_solution->transport().get();
     if (m_trans->transportModel() == "None") {
         // @deprecated
         warn_deprecated("StFlow",
@@ -122,6 +122,17 @@ StFlow::StFlow(shared_ptr<Solution> sol, const std::string& id, size_t points)
             "Solution ('gas') object.\nImplicit setting of the transport model "
             "is deprecated and\nwill be removed after Cantera 3.0.");
         setTransportModel("Mix");
+    }
+    m_solution->registerChangedCallback(this, [this]() {
+        setKinetics(*m_solution->kinetics());
+        setTransport(*m_solution->transport());
+    });
+}
+
+StFlow::~StFlow()
+{
+    if (m_solution) {
+        m_solution->removeChangedCallback(this);
     }
 }
 
@@ -187,9 +198,6 @@ void StFlow::setTransportModel(const std::string& trans)
             "from a Solution manager: set Transport object directly instead.");
     }
     m_solution->setTransportModel(trans);
-    m_trans_shared = m_solution->transport();
-    m_trans = m_trans_shared.get();
-    setTransport(*m_trans);
 }
 
 std::string StFlow::transportModel() const {

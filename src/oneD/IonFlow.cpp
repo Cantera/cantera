@@ -64,8 +64,7 @@ IonFlow::IonFlow(shared_ptr<Solution> sol, const std::string& id, size_t points)
     m_solution = sol;
     m_id = id;
     m_kin = m_solution->kinetics().get();
-    m_trans_shared = m_solution->transport();
-    m_trans = m_trans_shared.get();
+    m_trans = m_solution->transport().get();
     if (m_trans->transportModel() == "None") {
         // @deprecated
         warn_deprecated("IonFlow",
@@ -74,6 +73,10 @@ IonFlow::IonFlow(shared_ptr<Solution> sol, const std::string& id, size_t points)
             "is deprecated and\nwill be removed after Cantera 3.0.");
         setTransportModel("Ion");
     }
+    m_solution->registerChangedCallback(this, [this]() {
+        setKinetics(*m_solution->kinetics());
+        setTransport(*m_solution->transport());
+    });
 }
 
 void IonFlow::resize(size_t components, size_t points){
