@@ -16,6 +16,7 @@ class _WeakrefProxy:
     pass
 
 cdef class Domain1D:
+    _domain_type = "None"
     def __cinit__(self, _SolutionBase phase not None, *args, **kwargs):
         self.domain = NULL
 
@@ -42,6 +43,13 @@ cdef class Domain1D:
         """
         def __get__(self):
             return self.domain.domainIndex()
+
+    property domain_type:
+        """
+        String indicating the domain implemented.
+        """
+        def __get__(self):
+            return pystr(self.domain.domainType())
 
     property n_components:
         """Number of solution components at each grid point."""
@@ -279,13 +287,18 @@ cdef class Boundary1D(Domain1D):
     :param phase:
         The (gas) phase corresponding to the adjacent flow domain
     """
-    def __cinit__(self, *args, **kwargs):
-        self.boundary = NULL
+    def __cinit__(self, _SolutionBase phase, *args, name="", **kwargs):
+        if self._domain_type in {"None", "reacting-surface"}:
+            self.boundary = NULL
+        else:
+            self._domain = CxxNewDomain1D(
+                stringify(self._domain_type), phase._base, stringify(name))
+            self.domain = self._domain.get()
+            self.boundary = <CxxBoundary1D*>self.domain
 
     def __init__(self, phase, name=None):
         if self.boundary is NULL:
             raise TypeError("Can't instantiate abstract class Boundary1D.")
-        self.domain = <CxxDomain1D*>(self.boundary)
         Domain1D.__init__(self, phase, name=name)
 
     property T:
@@ -333,28 +346,22 @@ cdef class Boundary1D(Domain1D):
             self.gas.TPY = self.gas.T, self.gas.P, Y
             self.X = self.gas.X
 
-
-cdef class Inlet1D(Boundary1D):
-    """
-    A one-dimensional inlet. Note that an inlet can only be a terminal
-    domain - it must be either the leftmost or rightmost domain in a
-    stack.
-    """
-    def __cinit__(self, _SolutionBase phase, *args, name="", **kwargs):
-        self.inlet = new CxxInlet1D(phase._base, stringify(name))
-        self.boundary = <CxxBoundary1D*>(self.inlet)
-
-    def __dealloc__(self):
-        del self.inlet
-
     property spread_rate:
         """
         Get/set the tangential velocity gradient [1/s] at this boundary.
         """
         def __get__(self):
-            return self.inlet.spreadRate()
+            return self.boundary.spreadRate()
         def __set__(self, s):
-            self.inlet.setSpreadRate(s)
+            self.boundary.setSpreadRate(s)
+
+
+cdef class Inlet1D(Boundary1D):
+    """
+    A one-dimensional inlet. Note that an inlet can only be a terminal
+    domain - it must be either the leftmost or rightmost domain in a stack.
+    """
+    _domain_type = "inlet"
 
 
 cdef class Outlet1D(Boundary1D):
@@ -362,44 +369,24 @@ cdef class Outlet1D(Boundary1D):
     A one-dimensional outlet. An outlet imposes a zero-gradient boundary
     condition on the flow.
     """
-    def __cinit__(self, _SolutionBase phase, *args, name="", **kwargs):
-        self.outlet = new CxxOutlet1D(phase._base, stringify(name))
-        self.boundary = <CxxBoundary1D*>(self.outlet)
-
-    def __dealloc__(self):
-        del self.outlet
+    _domain_type = "outlet"
 
 
 cdef class OutletReservoir1D(Boundary1D):
     """
     A one-dimensional outlet into a reservoir.
     """
-    def __cinit__(self, _SolutionBase phase, *args, name="", **kwargs):
-        self.outlet = new CxxOutletRes1D(phase._base, stringify(name))
-        self.boundary = <CxxBoundary1D*>(self.outlet)
-
-    def __dealloc__(self):
-        del self.outlet
+    _domain_type = "outlet-reservoir"
 
 
 cdef class SymmetryPlane1D(Boundary1D):
     """A symmetry plane."""
-    def __cinit__(self, _SolutionBase phase, *args, name="", **kwargs):
-        self.symm = new CxxSymm1D(phase._base, stringify(name))
-        self.boundary = <CxxBoundary1D*>(self.symm)
-
-    def __dealloc__(self):
-        del self.symm
+    _domain_type = "symmetry-plane"
 
 
 cdef class Surface1D(Boundary1D):
     """A solid surface."""
-    def __cinit__(self, _SolutionBase phase, *args, name="", **kwargs):
-        self.surf = new CxxSurf1D(phase._base, stringify(name))
-        self.boundary = <CxxBoundary1D*>(self.surf)
-
-    def __dealloc__(self):
-        del self.surf
+    _domain_type = "surface"
 
 
 cdef class ReactingSurface1D(Boundary1D):
@@ -413,12 +400,18 @@ cdef class ReactingSurface1D(Boundary1D):
         Starting in Cantera 3.0, parameter `phase` should reference surface instead of
         gas phase.
     """
+    _domain_type = "reacting-surface"
     def __cinit__(self, _SolutionBase phase, *args, name="", **kwargs):
-        if phase.phase_of_matter != "gas":
-            self.surf = new CxxReactingSurf1D(phase._base, stringify(name))
-        else:
+        # once legacy path is removed, the parent __cinit__ is sufficient
+        self.legacy = phase.phase_of_matter == "gas"
+        if self.legacy:
             # legacy pathway - deprecation is handled in __init__
             self.surf = new CxxReactingSurf1D()
+            self.domain = <CxxDomain1D*>(self.surf)
+        else:
+            self._domain = CxxNewDomain1D(stringify(self._domain_type), phase._base, stringify(name))
+            self.domain = self._domain.get()
+            self.surf = <CxxReactingSurf1D*>self.domain
         self.boundary = <CxxBoundary1D*>(self.surf)
 
     def __init__(self, _SolutionBase phase, name=None):
@@ -444,7 +437,8 @@ cdef class ReactingSurface1D(Boundary1D):
         self.surface._references[self._weakref_proxy] = True
 
     def __dealloc__(self):
-        del self.surf
+        if self.legacy:
+            del self.surf
 
     property phase:
         """
@@ -480,11 +474,13 @@ cdef class ReactingSurface1D(Boundary1D):
 
 cdef class _FlowBase(Domain1D):
     """ Base class for 1D flow domains """
-    def __cinit__(self, *args, **kwargs):
-        self.flow = NULL
+    def __cinit__(self, _SolutionBase phase, *args, name="", **kwargs):
+        self._domain = CxxNewDomain1D(
+            stringify(self._domain_type), phase._base, stringify(name))
+        self.domain = self._domain.get()
+        self.flow = <CxxStFlow*>self.domain
 
     def __init__(self, *args, **kwargs):
-        self.domain = <CxxDomain1D*>(self.flow)
         super().__init__(*args, **kwargs)
         self.P = self.gas.P
         self.flow.solveEnergyEqn()
@@ -563,9 +559,6 @@ cdef class _FlowBase(Domain1D):
         for t in T:
             y.push_back(t)
         self.flow.setFixedTempProfile(x, y)
-
-    def __dealloc__(self):
-        del self.flow
 
     property settings:
         """
@@ -671,6 +664,10 @@ cdef class _FlowBase(Domain1D):
         """
         Return the type of flow domain being represented, either "Free Flame" or
         "Axisymmetric Stagnation".
+
+        .. deprecated:: 3.0
+
+            Method to be removed after Cantera 3.0; superseded by `domain_type`.
         """
         def __get__(self):
             return pystr(self.flow.flowType())
@@ -706,8 +703,7 @@ cdef class IdealGasFlow(_FlowBase):
     equations assume an ideal gas mixture.  Arbitrary chemistry is allowed, as
     well as arbitrary variation of the transport properties.
     """
-    def __cinit__(self, _SolutionBase phase, *args, name="", **kwargs):
-        self.flow = new CxxStFlow(phase._base, stringify(name), 2)
+    _domain_type = "gas-flow"
 
 
 cdef class IonFlow(_FlowBase):
@@ -716,9 +712,7 @@ cdef class IonFlow(_FlowBase):
 
     In an ion flow domain, the electric drift is added to the diffusion flux
     """
-    def __cinit__(self, _SolutionBase thermo, *args, name="", **kwargs):
-        self.flow = <CxxStFlow*>(
-            new CxxIonFlow(thermo._base, stringify(name), 2))
+    _domain_type = "ion-flow"
 
     def set_solving_stage(self, stage):
         """
@@ -1111,11 +1105,21 @@ cdef class Sim1D:
             msg = ("Import of '{}' is not implemented")
             raise NotImplementedError(msg.format(type(self).__name__))
 
-    def show_solution(self):
+    def show(self):
         """ print the current solution. """
         if not self._initialized:
             self.set_initial_guess()
-        self.sim.showSolution()
+        self.sim.show()
+
+    def show_solution(self):
+        """
+        print the current solution.
+
+        .. deprecated:: 3.0
+
+            Method to be removed after Cantera 3.0; replaced by `show`.
+        """
+        self.show()
 
     def set_time_step(self, stepsize, n_steps):
         """Set the sequence of time steps to try when Newton fails.
