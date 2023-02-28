@@ -66,7 +66,7 @@ sim.set_grid_min(1e-4)
 sim.set_refine_criteria(ratio=ratio, slope=slope, curve=curve, prune=prune)
 
 sim.set_initial_guess(products='equil')  # assume adiabatic equilibrium products
-sim.show_solution()
+sim.show()
 
 sim.solve(loglevel, auto=True)
 

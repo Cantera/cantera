@@ -22,7 +22,7 @@ gas.TPX = tburner, p, reactants
 f = ct.BurnerFlame(gas, width=width)
 f.burner.mdot = mdot
 f.set_refine_criteria(ratio=3.0, slope=0.05, curve=0.1)
-f.show_solution()
+f.show()
 
 f.transport_model = 'mixture-averaged'
 f.solve(loglevel, auto=True)
@@ -37,7 +37,7 @@ f.save(output, name="mix", description="solution with mixture-averaged transport
 
 f.transport_model = 'multicomponent'
 f.solve(loglevel)  # don't use 'auto' on subsequent solves
-f.show_solution()
+f.show()
 f.save(output, name="multi", description="solution with multicomponent transport")
 
 f.write_csv('burner_flame.csv', quiet=False)

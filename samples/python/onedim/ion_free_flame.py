@@ -24,7 +24,7 @@ gas.TPX = Tin, p, reactants
 # Set up flame object
 f = ct.IonFreeFlame(gas, width=width)
 f.set_refine_criteria(ratio=3, slope=0.05, curve=0.1)
-f.show_solution()
+f.show()
 
 # stage one
 f.solve(loglevel=loglevel, auto=True)
@@ -40,7 +40,7 @@ output.unlink(missing_ok=True)
 
 f.save(output, name="ion", description="solution with ionized gas transport")
 
-f.show_solution()
+f.show()
 print(f"mixture-averaged flamespeed = {f.velocity[0]:7f} m/s")
 
 # write the velocity, temperature, density, and mole fractions to a CSV file
