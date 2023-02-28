@@ -74,6 +74,13 @@ IonFlow::IonFlow(shared_ptr<Solution> sol, const std::string& id, size_t points)
     });
 }
 
+string IonFlow::type() const {
+    if (m_isFree) {
+        return "free-ion-flow";
+    }
+    return "stagnation-ion-flow";
+}
+
 void IonFlow::resize(size_t components, size_t points){
     StFlow::resize(components, points);
     m_mobility.resize(m_nsp*m_points);

@@ -63,9 +63,7 @@ public:
 
     ~StFlow();
 
-    virtual string type() const {
-        return "gas-flow";
-    }
+    virtual string type() const;
 
     //! @name Problem Specification
     //! @{
@@ -179,6 +177,7 @@ public:
     void setFreeFlow() {
         m_type = cFreeFlow;
         m_dovisc = false;
+        m_isFree = true;
     }
 
     //! Set flow configuration for axisymmetric counterflow or burner-stabilized
@@ -186,11 +185,13 @@ public:
     void setAxisymmetricFlow() {
         m_type = cAxisymmetricStagnationFlow;
         m_dovisc = true;
+        m_isFree = false;
     }
 
     //! Return the type of flow domain being represented, either "Free Flame" or
     //! "Axisymmetric Stagnation".
     //! @see setFreeFlow setAxisymmetricFlow
+    //! @deprecated  To be removed after Cantera 3.0; replaced by type.
     virtual string flowType() const;
 
     void solveEnergyEqn(size_t j=npos);
@@ -480,6 +481,7 @@ protected:
     size_t m_kExcessRight = 0;
 
     bool m_dovisc;
+    bool m_isFree;
 
     //! Update the transport properties at grid points in the range from `j0`
     //! to `j1`, based on solution `x`.
