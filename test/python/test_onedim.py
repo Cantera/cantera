@@ -190,7 +190,7 @@ class TestFreeFlame(utilities.CanteraTest):
         p = ct.one_atm
         reactants = 'H2:0.65, O2:0.5, AR:2'
         self.create_sim(p, Tin, reactants, width=0.0001)
-        self.assertEqual(self.sim.flame.flow_type, 'Free Flame')
+        assert self.sim.flame.domain_type == "free-flow"
 
     def test_fixed_temperature(self):
         # test setting of fixed temperature
