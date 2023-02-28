@@ -267,8 +267,6 @@ ideal-surface:
         "Implementation of s_k is incorrect. See GitHub Issue #1313"
       s_eq_sum_sk_Xk:
         "Implementation of s_k is incorrect. See GitHub Issue #1313"
-      g_eq_sum_gk_Xk:
-        "chemPotentials does not protect against inf. See GitHub Issue #1314"
   states:
   - {T: 800, P: 1 atm, coverages: {Pt(s): 0.5, H(s): 0.4, O(s): 0.1}}
   - {T: 800, P: 5 atm, coverages: {H(s): 1.0}}

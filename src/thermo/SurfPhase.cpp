@@ -108,7 +108,7 @@ void SurfPhase::getChemPotentials(doublereal* mu) const
     copy(m_mu0.begin(), m_mu0.end(), mu);
     getActivityConcentrations(m_work.data());
     for (size_t k = 0; k < m_kk; k++) {
-        mu[k] += RT() * (log(m_work[k]) - logStandardConc(k));
+        mu[k] += RT() * (log(std::max(m_work[k], SmallNumber)) - logStandardConc(k));
     }
 }
 
