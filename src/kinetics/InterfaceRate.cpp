@@ -77,6 +77,7 @@ bool InterfaceData::update(const ThermoPhase& phase, const Kinetics& kin)
             electricPotentials[n] = ph.electricPotential();
             ph.getPartialMolarEnthalpies(partialMolarEnthalpies.data() + start);
             ph.getStandardChemPotentials(standardChemPotentials.data() + start);
+            ph.getChemPotentials(chemPotentials.data() + start);
             size_t nsp = ph.nSpecies();
             for (size_t k = 0; k < nsp; k++) {
                 // only used for exchange current density formulation
@@ -102,6 +103,10 @@ InterfaceRateBase::InterfaceRateBase()
     , m_chargeTransfer(false)
     , m_exchangeCurrentDensityFormulation(false)
     , m_beta(0.5)
+    , m_lambdaMarcus(0.)
+    , m_etaF(NAN)
+    , m_lambda_RT(NAN)
+    , m_deltaGibbs_RT(NAN)
     , m_deltaPotential_RT(NAN)
     , m_deltaGibbs0_RT(NAN)
     , m_prodStandardConcentrations(NAN)
@@ -117,6 +122,12 @@ void InterfaceRateBase::setParameters(const AnyMap& node)
     if (node.hasKey("beta")) {
         m_beta = node["beta"].asDouble();
     }
+    if (node.hasKey("echem-kinetics-form")) {
+        m_eChemForm = node["echem-kinetics-form"].asString();
+        if (m_eChemForm == "Marcus" && node.hasKey("lambda")) {
+            m_lambdaMarcus = node["lambda"].asDouble();
+        }
+    }
     m_exchangeCurrentDensityFormulation = node.getBool(
         "exchange-current-density-formulation", false);
 }
@@ -131,6 +142,12 @@ void InterfaceRateBase::getParameters(AnyMap& node) const
     if (m_chargeTransfer) {
         if (m_beta != 0.5) {
             node["beta"] = m_beta;
+        }
+        if (m_eChemForm != "") {
+            node["echem-kinetics-form"] = m_eChemForm;
+            if (m_eChemForm == "Marcus") {
+                node["lambda"] = m_lambdaMarcus;
+            }
         }
         if (m_exchangeCurrentDensityFormulation) {
             node["exchange-current-density-formulation"] = true;
@@ -238,26 +255,45 @@ void InterfaceRateBase::updateFromStruct(const InterfaceData& shared_data) {
     // Update change in electrical potential energy
     if (m_chargeTransfer) {
         m_deltaPotential_RT = 0.;
+        m_etaF = 0.;
         for (const auto& ch : m_netCharges) {
             m_deltaPotential_RT +=
                 shared_data.electricPotentials[ch.first] * ch.second;
         }
+        m_etaF += m_deltaPotential_RT;
         m_deltaPotential_RT /= GasConstant * shared_data.temperature;
     }
 
     // Update quantities used for exchange current density formulation
-    if (m_exchangeCurrentDensityFormulation) {
-        m_deltaGibbs0_RT = 0.;
+    if (m_eChemForm != "") {
         m_prodStandardConcentrations = 1.;
-        for (const auto& item : m_stoichCoeffs) {
-            m_deltaGibbs0_RT +=
-                shared_data.standardChemPotentials[item.first] * item.second;
-            if (item.second > 0.) {
-                m_prodStandardConcentrations *=
-                    shared_data.standardConcentrations[item.first];
+        if (m_eChemForm == "Butler-Volmer" || m_exchangeCurrentDensityFormulation) {
+            m_deltaGibbs0_RT = 0.;
+            for (const auto& item : m_stoichCoeffs) {
+                m_deltaGibbs0_RT +=
+                    shared_data.standardChemPotentials[item.first] * item.second;
+                if (item.second > 0.) {
+                    m_prodStandardConcentrations *=
+                        shared_data.standardConcentrations[item.first];
+                }
             }
+            m_deltaGibbs0_RT /= GasConstant * shared_data.temperature;
         }
-        m_deltaGibbs0_RT /= GasConstant * shared_data.temperature;
+        else if (m_eChemForm == "Marcus") {
+            m_deltaGibbs_RT = 0.;
+            m_lambda_RT = 0.;
+            for (const auto& item : m_stoichCoeffs) {
+                m_deltaGibbs_RT +=
+                    shared_data.chemPotentials[item.first] * item.second;
+                if (item.second > 0.) {
+                    m_prodStandardConcentrations *=
+                        shared_data.standardConcentrations[item.first];
+                }
+            }
+            m_etaF += m_deltaGibbs_RT;
+            m_deltaGibbs_RT /= GasConstant * shared_data.temperature;
+            m_lambda_RT = m_lambdaMarcus / GasConstant / shared_data.temperature;
+        }
     }
 }
 

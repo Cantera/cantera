@@ -57,6 +57,7 @@ struct InterfaceData : public BlowersMaselData
         electricPotentials.resize(nPhases, 0.);
         standardChemPotentials.resize(nSpecies, 0.);
         standardConcentrations.resize(nSpecies, 0.);
+        chemPotentials.resize(nSpecies, 0.);
         ready = true;
     }
 
@@ -67,6 +68,7 @@ struct InterfaceData : public BlowersMaselData
     vector_fp electricPotentials; //!< electric potentials of phases
     vector_fp standardChemPotentials; //!< standard state chemical potentials
     vector_fp standardConcentrations; //!< standard state concentrations
+    vector_fp chemPotentials;
 };
 
 
@@ -123,6 +125,11 @@ public:
         return m_exchangeCurrentDensityFormulation;
     }
 
+    // String storing the input electrochemical kinetics form used if non-standard
+    std::string eChemForm() {
+        return m_eChemForm;
+    }
+
     //! Build rate-specific parameters based on Reaction and Kinetics context
     //! @param rxn  Reaction associated with rate parameterization
     //! @param kin  Kinetics object associated with rate parameterization
@@ -161,21 +168,32 @@ public:
         // Calculate reaction rate correction. Only modify those with a non-zero
         // activation energy.
         double correction = 1.;
+        double beta_tmp = m_beta;
         if (m_deltaPotential_RT != 0.) {
             // Comments preserved from previous implementation:
             // Below we decrease the activation energy below zero.
             // NOTE, there is some discussion about this point. Should we decrease the
             // activation energy below zero? I don't think this has been decided in any
             // definitive way. The treatment below is numerically more stable, however.
-            correction = exp(-m_beta * m_deltaPotential_RT);
+            if (m_eChemForm == "Marcus") {
+                // If Marcus kinetics is being used, adjust beta by the reorganization 
+                // energy m_lambdaMarcus
+                beta_tmp += (m_etaF / 4. / m_lambdaMarcus); //m_etaF / 4 / m_lambdaMarcus;
+            }
+            correction = exp(-beta_tmp * m_deltaPotential_RT);
         }
 
         // Update correction if exchange current density formulation format is used.
-        if (m_exchangeCurrentDensityFormulation) {
+        if (m_eChemForm == "Butler-Volmer" || m_exchangeCurrentDensityFormulation) {
             // Comment preserved from previous implementation:
             // We need to have the straight chemical reaction rate constant to
             // come out of this calculation.
             double tmp = exp(-m_beta * m_deltaGibbs0_RT);
+            tmp /= m_prodStandardConcentrations * Faraday;
+            correction *= tmp;
+        } else if (m_eChemForm == "Marcus") {
+            // If Marcus kinetics is being used, adjust the correction value.
+            double tmp = exp(-m_lambda_RT / 4.) * exp(-beta_tmp * m_deltaGibbs_RT);
             tmp /= m_prodStandardConcentrations * Faraday;
             correction *= tmp;
         }
@@ -200,6 +218,31 @@ public:
     double beta() const {
         if (m_chargeTransfer) {
             return m_beta;
+        }
+        return NAN;
+    }
+
+    //! Return the Marcus theory reorganization energy parameter
+    double lambdaMarcus() const {
+        if (m_chargeTransfer) {
+            return m_lambdaMarcus;
+        }
+        return NAN;
+    }
+
+    //! Return the overpotential times Faraday's constant parameter
+    double etaF() {
+        if (m_chargeTransfer) {
+            return m_etaF;
+        }
+        return NAN;
+    }
+
+    //! Return Marcus theory reorganization energy parameter
+    //! Divided by the Gas Constant and temperature
+    double lambda_RT() {
+        if (m_chargeTransfer) {
+            return m_lambda_RT;
         }
         return NAN;
     }
@@ -233,6 +276,11 @@ protected:
     double m_mcov; //!< Coverage term in reaction rate
     bool m_chargeTransfer; //!< Boolean indicating use of electrochemistry
     bool m_exchangeCurrentDensityFormulation; //! Electrochemistry only
+    std::string m_eChemForm; //! String storing echem kinetics form
+    double m_lambdaMarcus; //! Marcus theory reorganization energy
+    double m_etaF; //! Overpotential times Faraday
+    double m_lambda_RT; //! Marcus theory reorganization energy over RT
+    double m_deltaGibbs_RT; //! Normalized Gibbs free energy change 
     double m_beta; //!< Forward value of apparent electrochemical transfer coefficient
     double m_deltaPotential_RT; //!< Normalized electric potential energy change
     double m_deltaGibbs0_RT; //!< Normalized standard state Gibbs free energy change
