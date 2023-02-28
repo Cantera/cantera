@@ -22,7 +22,7 @@ mdot = 0.15 * gas.density
 f = ct.IonBurnerFlame(gas, width=width)
 f.burner.mdot = mdot
 f.set_refine_criteria(ratio=3.0, slope=0.05, curve=0.1)
-f.show_solution()
+f.show()
 
 f.transport_model = 'ionized-gas'
 f.solve(loglevel, auto=True)

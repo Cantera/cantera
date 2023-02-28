@@ -51,7 +51,7 @@ zloc /= max(zloc)
 f.flame.set_fixed_temp_profile(zloc, tvalues)
 
 # show the initial estimate for the solution
-f.show_solution()
+f.show()
 
 # don't solve the energy equation
 f.energy_enabled = False

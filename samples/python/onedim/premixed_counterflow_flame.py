@@ -40,7 +40,7 @@ sim.reactants.mdot = mdot_reactants
 sim.products.mdot = mdot_products
 
 sim.set_initial_guess()  # assume adiabatic equilibrium products
-sim.show_solution()
+sim.show()
 
 sim.solve(loglevel, auto=True)
 
@@ -55,4 +55,4 @@ sim.save(output, name="mix", description="solution with mixture-averaged transpo
 # write the velocity, temperature, and mole fractions to a CSV file
 sim.write_csv("premixed_counterflow_flame.csv", quiet=False)
 sim.show_stats()
-sim.show_solution()
+sim.show()

@@ -53,7 +53,7 @@ f.set_refine_criteria(ratio=4, slope=0.2, curve=0.3, prune=0.04)
 
 # Solve the problem
 f.solve(loglevel, auto=True)
-f.show_solution()
+f.show()
 
 if "native" in ct.hdf_support():
     output = Path() / "diffusion_flame.h5"
@@ -78,7 +78,7 @@ plt.xlim(0.000, 0.020)
 # Turn on radiation and solve again
 f.radiation_enabled = True
 f.solve(loglevel=1, refine_grid=False)
-f.show_solution()
+f.show()
 
 # Plot Temperature with radiation
 plt.plot(f.flame.grid, f.T, label='Temperature with radiation')

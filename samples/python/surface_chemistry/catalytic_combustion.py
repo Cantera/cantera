@@ -69,7 +69,7 @@ sim.inlet.X = comp1
 sim.surface.T = tsurf
 
 # Show the initial solution estimate
-sim.show_solution()
+sim.show()
 
 # Solving problems with stiff chemistry coupled to flow can require a
 # sequential approach where solutions are first obtained for simpler problems
@@ -94,7 +94,7 @@ for mult in np.logspace(-5, 0, 6):
     sim.solve(loglevel)
 
 # At this point, we should have the solution for the hydrogen/air problem.
-sim.show_solution()
+sim.show()
 
 # Now switch the inlet to the methane/air composition.
 sim.inlet.X = comp2
@@ -106,7 +106,7 @@ sim.set_refine_criteria(100.0, 0.15, 0.2, 0.0)
 sim.solve(loglevel)
 
 # show the solution
-sim.show_solution()
+sim.show()
 
 # save the full solution to HDF or YAML container files. The 'restore' method can be
 # used to restore or restart a simulation from a solution stored in this form.

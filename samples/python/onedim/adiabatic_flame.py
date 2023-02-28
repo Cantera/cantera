@@ -26,7 +26,7 @@ gas.TPX = Tin, p, reactants
 # Set up flame object
 f = ct.FreeFlame(gas, width=width)
 f.set_refine_criteria(ratio=3, slope=0.06, curve=0.12)
-f.show_solution()
+f.show()
 
 # Solve with mixture-averaged transport model
 f.transport_model = 'mixture-averaged'
@@ -41,13 +41,13 @@ output.unlink(missing_ok=True)
 # Solve with the energy equation enabled
 f.save(output, name="mix", description="solution with mixture-averaged transport")
 
-f.show_solution()
+f.show()
 print(f"mixture-averaged flamespeed = {f.velocity[0]:7f} m/s")
 
 # Solve with multi-component transport properties
 f.transport_model = 'multicomponent'
 f.solve(loglevel)  # don't use 'auto' on subsequent solves
-f.show_solution()
+f.show()
 print(f"multicomponent flamespeed = {f.velocity[0]:7f} m/s")
 f.save(output, name="multi", description="solution with multicomponent transport")
 

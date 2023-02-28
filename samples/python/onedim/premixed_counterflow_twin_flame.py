@@ -68,7 +68,7 @@ def solveOpposedFlame(oppFlame, massFlux=0.12, loglevel=1,
     oppFlame.reactants.mdot = massFlux
     oppFlame.set_refine_criteria(ratio=ratio, slope=slope, curve=curve, prune=prune)
 
-    oppFlame.show_solution()
+    oppFlame.show()
     oppFlame.solve(loglevel, auto=True)
 
     # Compute the strain rate, just before the flame. This is not necessarily
