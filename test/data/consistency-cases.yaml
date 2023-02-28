@@ -270,11 +270,6 @@ ideal-surface:
     file: surface-phases.yaml
     phase: Pt-surf
     atol_v: 1e-7
-    known-failures:
-      gk_eq_hk_minus_T_sk:
-        "Implementation of s_k is incorrect. See GitHub Issue #1313"
-      s_eq_sum_sk_Xk:
-        "Implementation of s_k is incorrect. See GitHub Issue #1313"
   states:
   - {T: 800, P: 1 atm, coverages: {Pt(s): 0.5, H(s): 0.4, O(s): 0.1}}
   - {T: 800, P: 5 atm, coverages: {H(s): 1.0}}
