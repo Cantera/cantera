@@ -7,11 +7,6 @@ function a = isFlow(d)
 %     1 if the domain is a flow domain, and 0 otherwise.
 %
 
-t = domainType(d);
-
-% See Domain1D.h for definitions of constants
-if t < 100
-    a = 1;
-else
-    a = 0;
+v = domainType(d);
+a = int8(strcmp(v, 'free-flow') || strcmp(v, 'axisymmetric-flow'));
 end
