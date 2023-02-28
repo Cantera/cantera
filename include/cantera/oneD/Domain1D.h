@@ -57,14 +57,20 @@ public:
         return m_type;
     }
 
+    //! String indicating the domain implemented.
+    //! @since New in Cantera 3.0.
+    virtual string type() const {
+        return "domain";
+    }
+
     //! The left-to-right location of this domain.
     size_t domainIndex() {
         return m_index;
     }
 
     //! True if the domain is a connector domain.
-    bool isConnector() {
-        return (m_type >= cConnectorType);
+    virtual bool isConnector() {
+        return false;
     }
 
     //! Set the solution manager.

@@ -117,6 +117,7 @@ AnyMap Domain1D::getMeta() const
         }
     };
     AnyMap state;
+    state["type"] = type();
     state["points"] = static_cast<long int>(nPoints());
     if (nComponents() && nPoints()) {
         state["tolerances"]["transient-abstol"] = wrap_tols(m_atol_ts);
