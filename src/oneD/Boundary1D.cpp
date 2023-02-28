@@ -100,7 +100,7 @@ void Inlet1D::setSpreadRate(double V0)
 }
 
 
-void Inlet1D::showSolution(const double* x)
+void Inlet1D::show(const double* x)
 {
     writelog("    Mass Flux:   {:10.4g} kg/m^2/s \n", m_mdot);
     writelog("    Temperature: {:10.4g} K \n", m_temp);
@@ -579,13 +579,13 @@ void Surf1D::restore(SolutionArray& arr, double* soln, int loglevel)
     m_temp = arr.thermo()->temperature();
 }
 
-void Surf1D::showSolution_s(std::ostream& s, const double* x)
+void Surf1D::show(std::ostream& s, const double* x)
 {
     s << "-------------------  Surface " << domainIndex() << " ------------------- " << std::endl;
     s << "  temperature: " << m_temp << " K" << std::endl;
 }
 
-void Surf1D::showSolution(const double* x)
+void Surf1D::show(const double* x)
 {
     writelog("    Temperature: {:10.4g} K \n\n", m_temp);
 }
@@ -791,7 +791,7 @@ void ReactingSurf1D::restore(SolutionArray& arr, double* soln, int loglevel)
     surf->getCoverages(soln);
 }
 
-void ReactingSurf1D::showSolution(const double* x)
+void ReactingSurf1D::show(const double* x)
 {
     writelog("    Temperature: {:10.4g} K \n", m_temp);
     writelog("    Coverages: \n");

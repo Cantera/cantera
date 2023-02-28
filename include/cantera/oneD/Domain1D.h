@@ -472,10 +472,18 @@ public:
         }
     }
 
-    virtual void showSolution_s(std::ostream& s, const doublereal* x) {}
+    //! @deprecated To be removed after Cantera 3.0; replaced by show
+    virtual void showSolution_s(std::ostream& s, const double* x);
 
     //! Print the solution.
-    virtual void showSolution(const doublereal* x);
+    //! @deprecated To be removed after Cantera 3.0; replaced by show
+    virtual void showSolution(const double* x);
+
+    //! Print the solution.
+    virtual void show(std::ostream& s, const double* x) {}
+
+    //! Print the solution.
+    virtual void show(const double* x);
 
     doublereal z(size_t jlocal) const {
         return m_z[jlocal];

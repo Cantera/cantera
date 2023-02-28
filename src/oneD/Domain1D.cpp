@@ -209,7 +209,21 @@ void Domain1D::setupGrid(size_t n, const doublereal* z)
     }
 }
 
-void Domain1D::showSolution(const doublereal* x)
+void Domain1D::showSolution_s(std::ostream& s, const double* x)
+{
+    warn_deprecated("Domain1D::showSolution_s",
+        "To be removed after Cantera 3.0; replaced by 'show'.");
+    show(s, x);
+}
+
+void Domain1D::showSolution(const double* x)
+{
+    warn_deprecated("Domain1D::showSolution",
+        "To be removed after Cantera 3.0; replaced by 'show'.");
+    show(x);
+}
+
+void Domain1D::show(const double* x)
 {
     size_t nn = m_nv/5;
     for (size_t i = 0; i < nn; i++) {

@@ -621,11 +621,11 @@ void StFlow::updateTransport(doublereal* x, size_t j0, size_t j1)
     }
 }
 
-void StFlow::showSolution(const doublereal* x)
+void StFlow::show(const doublereal* x)
 {
     writelog("    Pressure:  {:10.4g} Pa\n", m_press);
 
-    Domain1D::showSolution(x);
+    Domain1D::show(x);
 
     if (m_do_radiation) {
         writeline('-', 79, false, true);

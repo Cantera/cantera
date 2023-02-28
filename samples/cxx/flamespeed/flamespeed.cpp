@@ -105,7 +105,7 @@ int flamespeed(double phi, bool refine_grid, int loglevel)
         inlet.setMdot(mdot);
         inlet.setTemperature(temp);
 
-        flame.showSolution();
+        flame.show();
 
         int flowdomain = 1;
         double ratio = 10.0;
