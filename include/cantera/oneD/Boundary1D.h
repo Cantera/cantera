@@ -83,6 +83,16 @@ public:
         m_mdot = mdot;
     }
 
+    //! Set tangential velocity gradient [1/s] at this boundary.
+    virtual void setSpreadRate(double V0) {
+        throw NotImplementedError("Boundary1D::setSpreadRate");
+    }
+
+    //! Tangential velocity gradient [1/s] at this boundary.
+    virtual double spreadRate() {
+        throw NotImplementedError("Boundary1D::spreadRate");
+    }
+
     //! The total mass flow rate [kg/m2/s].
     virtual double mdot() {
         return m_mdot;
@@ -129,10 +139,8 @@ public:
         return "inlet";
     }
 
-    //! set spreading rate
     virtual void setSpreadRate(double V0);
 
-    //! spreading rate
     virtual double spreadRate() {
         return m_V0;
     }
