@@ -63,6 +63,15 @@ extern "C" {
         }
     }
 
+    int domain_type3(int i, size_t lennm, char* nm)
+    {
+        try {
+            return static_cast<int>(copyString(DomainCabinet::item(i).type(), nm, lennm));
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     size_t domain_index(int i)
     {
         try {
@@ -519,6 +528,22 @@ extern "C" {
             sim.checkDomainIndex(dom);
             sim.domain(dom).checkComponentIndex(comp);
             sim.setFlatProfile(dom, comp, v);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int sim1D_show(int i, const char* fname)
+    {
+        try {
+            string fn = string(fname);
+            if (fn == "-") {
+                SimCabinet::item(i).show();
+            } else {
+                ofstream fout(fname);
+                SimCabinet::item(i).show(fout);
+            }
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
