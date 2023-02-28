@@ -166,7 +166,7 @@ public:
     virtual bool componentActive(size_t n) const;
 
     //! Print the solution.
-    virtual void showSolution(const doublereal* x);
+    virtual void show(const double* x);
 
     virtual shared_ptr<SolutionArray> asArray(const double* soln) const;
     virtual void restore(SolutionArray& arr, double* soln, int loglevel);

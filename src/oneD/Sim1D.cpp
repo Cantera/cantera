@@ -295,20 +295,34 @@ void Sim1D::setFlatProfile(size_t dom, size_t comp, doublereal v)
 
 void Sim1D::showSolution(ostream& s)
 {
+    warn_deprecated("Sim1D::showSolution",
+        "To be removed after Cantera 3.0; replaced by 'show'.");
+    show(s);
+}
+
+void Sim1D::showSolution()
+{
+    warn_deprecated("Sim1D::showSolution",
+        "To be removed after Cantera 3.0; replaced by 'show'.");
+    show();
+}
+
+void Sim1D::show(ostream& s)
+{
     for (size_t n = 0; n < nDomains(); n++) {
         if (domain(n).type() != "empty") {
-            domain(n).showSolution_s(s, &m_x[start(n)]);
+            domain(n).show(s, &m_x[start(n)]);
         }
     }
 }
 
-void Sim1D::showSolution()
+void Sim1D::show()
 {
     for (size_t n = 0; n < nDomains(); n++) {
         if (domain(n).type() != "empty") {
             writelog("\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> "+domain(n).id()
                      +" <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n\n");
-            domain(n).showSolution(&m_x[start(n)]);
+            domain(n).show(&m_x[start(n)]);
         }
     }
 }
@@ -462,7 +476,7 @@ void Sim1D::solve(int loglevel, bool refine_grid)
             writeline('.', 78, true, true);
         }
         if (loglevel > 2) {
-            showSolution();
+            show();
         }
 
         if (refine_grid) {

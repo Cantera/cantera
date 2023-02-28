@@ -145,7 +145,7 @@ public:
         return m_V0;
     }
 
-    virtual void showSolution(const double* x);
+    virtual void show(const double* x);
 
     virtual size_t nSpecies() {
         return m_nsp;
@@ -191,7 +191,7 @@ public:
         return "empty";
     }
 
-    virtual void showSolution(const double* x) {}
+    virtual void show(const double* x) {}
 
     virtual void init();
 
@@ -278,7 +278,7 @@ public:
         return "outlet-reservoir";
     }
 
-    virtual void showSolution(const double* x) {}
+    virtual void show(const double* x) {}
 
     virtual size_t nSpecies() {
         return m_nsp;
@@ -332,9 +332,9 @@ public:
     virtual shared_ptr<SolutionArray> asArray(const double* soln) const;
     virtual void restore(SolutionArray& arr, double* soln, int loglevel);
 
-    virtual void showSolution_s(std::ostream& s, const double* x);
+    virtual void show(std::ostream& s, const double* x);
 
-    virtual void showSolution(const double* x);
+    virtual void show(const double* x);
 };
 
 /**
@@ -383,7 +383,7 @@ public:
         std::copy(x, x+m_nsp, m_fixed_cov.begin());
     }
 
-    virtual void showSolution(const double* x);
+    virtual void show(const double* x);
 
 protected:
     InterfaceKinetics* m_kin = nullptr;
