@@ -50,7 +50,7 @@ void Boundary1D::_init(size_t n)
         } else {
             throw CanteraError("Boundary1D::_init",
                 "Boundary domains can only be connected on the left to flow "
-                "domains, not type {} domains.", r.domainType());
+                "domains, not '{}' domains.", r.type());
         }
     }
 
@@ -72,7 +72,7 @@ void Boundary1D::_init(size_t n)
         } else {
             throw CanteraError("Boundary1D::_init",
                 "Boundary domains can only be connected on the right to flow "
-                "domains, not type {} domains.", r.domainType());
+                "domains, not '{}' domains.", r.type());
         }
     }
 }
@@ -226,7 +226,6 @@ void Inlet1D::eval(size_t jg, double* xg, double* rg,
 shared_ptr<SolutionArray> Inlet1D::asArray(const double* soln) const
 {
     AnyMap meta = Boundary1D::getMeta();
-    meta["type"] = "inlet";
     meta["mass-flux"] = m_mdot;
     auto arr = SolutionArray::create(m_solution, 1, meta);
 
@@ -273,7 +272,6 @@ void Empty1D::eval(size_t jg, double* xg, double* rg,
 shared_ptr<SolutionArray> Empty1D::asArray(const double* soln) const
 {
     AnyMap meta = Boundary1D::getMeta();
-    meta["type"] = "empty";
     return SolutionArray::create(m_solution, 0, meta);
 }
 
@@ -326,7 +324,6 @@ void Symm1D::eval(size_t jg, double* xg, double* rg, integer* diagg,
 shared_ptr<SolutionArray> Symm1D::asArray(const double* soln) const
 {
     AnyMap meta = Boundary1D::getMeta();
-    meta["type"] = "symmetry";
     return SolutionArray::create(m_solution, 0, meta);
 }
 
@@ -408,7 +405,6 @@ void Outlet1D::eval(size_t jg, double* xg, double* rg, integer* diagg,
 shared_ptr<SolutionArray> Outlet1D::asArray(const double* soln) const
 {
     AnyMap meta = Boundary1D::getMeta();
-    meta["type"] = "outlet";
     return SolutionArray::create(m_solution, 0, meta);
 }
 
@@ -513,7 +509,6 @@ void OutletRes1D::eval(size_t jg, double* xg, double* rg,
 shared_ptr<SolutionArray> OutletRes1D::asArray(const double* soln) const
 {
     AnyMap meta = Boundary1D::getMeta();
-    meta["type"] = "outlet-reservoir";
     meta["temperature"] = m_temp;
     auto arr = SolutionArray::create(m_solution, 1, meta);
 
@@ -573,7 +568,6 @@ void Surf1D::eval(size_t jg, double* xg, double* rg,
 shared_ptr<SolutionArray> Surf1D::asArray(const double* soln) const
 {
     AnyMap meta = Boundary1D::getMeta();
-    meta["type"] = "surface";
     meta["temperature"] = m_temp;
     return SolutionArray::create(m_solution, 0, meta);
 }
@@ -768,7 +762,6 @@ void ReactingSurf1D::eval(size_t jg, double* xg, double* rg,
 shared_ptr<SolutionArray> ReactingSurf1D::asArray(const double* soln) const
 {
     AnyMap meta = Boundary1D::getMeta();
-    meta["type"] = "reacting-surface";
     meta["temperature"] = m_temp;
     meta["phase"]["name"] = m_sphase->name();
     AnyValue source = m_sphase->input().getMetadata("filename");

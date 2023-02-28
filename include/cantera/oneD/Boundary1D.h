@@ -41,6 +41,14 @@ public:
         _init(1);
     }
 
+    virtual string type() const {
+        return "boundary";
+    }
+
+    virtual bool isConnector() {
+        return true;
+    }
+
     //! Set the temperature.
     virtual void setTemperature(double t) {
         m_temp = t;
@@ -117,6 +125,10 @@ public:
 
     Inlet1D(shared_ptr<Solution> solution, const string& id="");
 
+    virtual string type() const {
+        return "inlet";
+    }
+
     //! set spreading rate
     virtual void setSpreadRate(double V0);
 
@@ -167,6 +179,10 @@ public:
         m_id = id;
     }
 
+    virtual string type() const {
+        return "empty";
+    }
+
     virtual void showSolution(const double* x) {}
 
     virtual void init();
@@ -195,6 +211,10 @@ public:
         m_id = id;
     }
 
+    virtual string type() const {
+        return "symmetry-plane";
+    }
+
     virtual void init();
 
     virtual void eval(size_t jg, double* xg, double* rg,
@@ -221,6 +241,10 @@ public:
         m_id = id;
     }
 
+    virtual string type() const {
+        return "outlet";
+    }
+
     virtual void init();
 
     virtual void eval(size_t jg, double* xg, double* rg,
@@ -241,6 +265,10 @@ public:
     OutletRes1D();
 
     OutletRes1D(shared_ptr<Solution> solution, const string& id="");
+
+    virtual string type() const {
+        return "outlet-reservoir";
+    }
 
     virtual void showSolution(const double* x) {}
 
@@ -284,6 +312,10 @@ public:
         m_id = id;
     }
 
+    virtual string type() const {
+        return "surface";
+    }
+
     virtual void init();
 
     virtual void eval(size_t jg, double* xg, double* rg,
@@ -306,6 +338,10 @@ class ReactingSurf1D : public Boundary1D
 public:
     ReactingSurf1D();
     ReactingSurf1D(shared_ptr<Solution> solution, const std::string& id="");
+
+    virtual string type() const {
+        return "reacting-surface";
+    }
 
     virtual void setKinetics(shared_ptr<Kinetics> kin);
 

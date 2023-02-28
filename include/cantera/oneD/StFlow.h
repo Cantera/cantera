@@ -63,6 +63,10 @@ public:
 
     ~StFlow();
 
+    virtual string type() const {
+        return "gas-flow";
+    }
+
     //! @name Problem Specification
     //! @{
 
