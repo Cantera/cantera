@@ -53,12 +53,12 @@ public:
     Domain1D& operator=(const Domain1D&) = delete;
 
     //! Domain type flag.
-    int domainType() {
-        return m_type;
-    }
+    //! @deprecated  To be changed after Cantera 3.0; for new behavior, see type.
+    int domainType();
 
     //! String indicating the domain implemented.
     //! @since New in Cantera 3.0.
+    //! @todo Transition back to domainType after Cantera 3.0
     virtual string type() const {
         return "domain";
     }
