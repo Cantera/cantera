@@ -76,7 +76,9 @@ void SurfPhase::getPartialMolarEnthalpies(doublereal* hbar) const
 void SurfPhase::getPartialMolarEntropies(doublereal* sbar) const
 {
     getEntropy_R(sbar);
+    getActivityConcentrations(m_work.data());
     for (size_t k = 0; k < m_kk; k++) {
+        sbar[k] -= log(std::max(m_work[k], SmallNumber)) - logStandardConc(k);
         sbar[k] *= GasConstant;
     }
 }
