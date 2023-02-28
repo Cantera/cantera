@@ -128,6 +128,13 @@ StFlow::~StFlow()
     }
 }
 
+string StFlow::type() const {
+    if (m_isFree) {
+        return "free-flow";
+    }
+    return "axisymmetric-flow";
+}
+
 void StFlow::setThermo(IdealGasPhase& th) {
     warn_deprecated("StFlow::setThermo", "To be removed after Cantera 3.0.");
     m_thermo = &th;
@@ -735,7 +742,6 @@ bool StFlow::componentActive(size_t n) const
 AnyMap StFlow::getMeta() const
 {
     AnyMap state = Domain1D::getMeta();
-    state["type"] = flowType();
     state["transport-model"] = m_trans->transportModel();
 
     state["phase"]["name"] = m_thermo->name();
@@ -846,6 +852,8 @@ void StFlow::restore(SolutionArray& arr, double* soln, int loglevel)
 }
 
 string StFlow::flowType() const {
+    warn_deprecated("StFlow::flowType",
+        "To be removed after Cantera 3.0; superseded by 'type'.");
     if (m_type == cFreeFlow) {
         return "Free Flame";
     } else if (m_type == cAxisymmetricStagnationFlow) {

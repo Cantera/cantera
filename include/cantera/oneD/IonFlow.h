@@ -40,9 +40,7 @@ public:
     //! @param points  initial number of grid points
     IonFlow(shared_ptr<Solution> sol, const std::string& id="", size_t points = 1);
 
-    virtual string type() const {
-        return "ion-flow";
-    }
+    virtual string type() const;
 
     //! set the solving stage
     virtual void setSolvingStage(const size_t phase);
