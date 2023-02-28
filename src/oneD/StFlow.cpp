@@ -295,7 +295,7 @@ void StFlow::setGasAtMidpoint(const doublereal* x, size_t j)
 }
 
 bool StFlow::fixed_mdot() {
-    return (domainType() != cFreeFlow);
+    return !m_isFree;
 }
 
 void StFlow::_finalize(const doublereal* x)
@@ -321,7 +321,7 @@ void StFlow::_finalize(const doublereal* x)
         solveEnergyEqn();
     }
 
-    if (domainType() == cFreeFlow) {
+    if (m_isFree) {
         // If the domain contains the temperature fixed point, make sure that it
         // is correctly set. This may be necessary when the grid has been modified
         // externally.
@@ -729,9 +729,9 @@ bool StFlow::componentActive(size_t n) const
 {
     switch (n) {
     case c_offset_V: // spread_rate
-        return m_type != cFreeFlow;
+        return !m_isFree;
     case c_offset_L: // lambda
-        return m_type != cFreeFlow;
+        return !m_isFree;
     case c_offset_E: // eField
         return false;
     default:
@@ -999,14 +999,14 @@ void StFlow::evalRightBoundary(double* x, double* rsd, int* diag, double rdt)
     }
     rsd[index(c_offset_Y + rightExcessSpecies(), j)] = 1.0 - sum;
     diag[index(c_offset_Y + rightExcessSpecies(), j)] = 0;
-    if (domainType() == cAxisymmetricStagnationFlow) {
+    if (!m_isFree) {
         rsd[index(c_offset_U,j)] = rho_u(x,j);
         if (m_do_energy[j]) {
             rsd[index(c_offset_T,j)] = T(x,j);
         } else {
             rsd[index(c_offset_T, j)] = T(x,j) - T_fixed(j);
         }
-    } else if (domainType() == cFreeFlow) {
+    } else {
         rsd[index(c_offset_U,j)] = rho_u(x,j) - rho_u(x,j-1);
         rsd[index(c_offset_T,j)] = T(x,j) - T(x,j-1);
     }
@@ -1021,14 +1021,14 @@ void StFlow::evalContinuity(size_t j, double* x, double* rsd, int* diag, double 
     //
     //    d(\rho u)/dz + 2\rho V = 0
     //----------------------------------------------
-    if (domainType() == cAxisymmetricStagnationFlow) {
+    if (!m_isFree) {
         // Note that this propagates the mass flow rate information to the left
         // (j+1 -> j) from the value specified at the right boundary. The
         // lambda information propagates in the opposite direction.
         rsd[index(c_offset_U,j)] =
             -(rho_u(x,j+1) - rho_u(x,j))/m_dz[j]
             -(density(j+1)*V(x,j+1) + density(j)*V(x,j));
-    } else if (domainType() == cFreeFlow) {
+    } else {
         if (grid(j) > m_zfixed) {
             rsd[index(c_offset_U,j)] =
                 - (rho_u(x,j) - rho_u(x,j-1))/m_dz[j-1]

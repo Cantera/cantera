@@ -11,7 +11,7 @@
 namespace Cantera
 {
 
-// domain types
+// domain types (deprecated); to be removed after Cantera 3.0
 const int cFlowType = 50;
 const int cFreeFlow = 51;
 const int cAxisymmetricStagnationFlow = 52;
@@ -552,7 +552,7 @@ protected:
     vector_fp m_z;
     OneDim* m_container = nullptr;
     size_t m_index;
-    int m_type = 0;
+    int m_type = 0; //!< @deprecated To be removed after Cantera 3.0
 
     //! Starting location within the solution vector for unknowns that
     //! correspond to this domain

@@ -296,7 +296,7 @@ void Sim1D::setFlatProfile(size_t dom, size_t comp, doublereal v)
 void Sim1D::showSolution(ostream& s)
 {
     for (size_t n = 0; n < nDomains(); n++) {
-        if (domain(n).domainType() != cEmptyType) {
+        if (domain(n).type() != "empty") {
             domain(n).showSolution_s(s, &m_x[start(n)]);
         }
     }
@@ -305,7 +305,7 @@ void Sim1D::showSolution(ostream& s)
 void Sim1D::showSolution()
 {
     for (size_t n = 0; n < nDomains(); n++) {
-        if (domain(n).domainType() != cEmptyType) {
+        if (domain(n).type() != "empty") {
             writelog("\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> "+domain(n).id()
                      +" <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n\n");
             domain(n).showSolution(&m_x[start(n)]);
@@ -591,7 +591,7 @@ int Sim1D::setFixedTemperature(double t)
         StFlow* d_free = dynamic_cast<StFlow*>(&domain(n));
         size_t npnow = d.nPoints();
         size_t nstart = znew.size();
-        if (d_free && d_free->domainType() == cFreeFlow) {
+        if (d_free && d_free->isFree()) {
             for (size_t m = 0; m < npnow - 1; m++) {
                 bool fixedpt = false;
                 double t1 = value(n, 2, m);
@@ -669,7 +669,7 @@ double Sim1D::fixedTemperature()
     double t_fixed = std::numeric_limits<double>::quiet_NaN();
     for (size_t n = 0; n < nDomains(); n++) {
         StFlow* d = dynamic_cast<StFlow*>(&domain(n));
-        if (d && d->domainType() == cFreeFlow && d->m_tfixed > 0) {
+        if (d && d->isFree() && d->m_tfixed > 0) {
             t_fixed = d->m_tfixed;
             break;
         }
@@ -682,7 +682,7 @@ double Sim1D::fixedTemperatureLocation()
     double z_fixed = std::numeric_limits<double>::quiet_NaN();
     for (size_t n = 0; n < nDomains(); n++) {
         StFlow* d = dynamic_cast<StFlow*>(&domain(n));
-        if (d && d->domainType() == cFreeFlow && d->m_tfixed > 0) {
+        if (d && d->isFree() && d->m_tfixed > 0) {
             z_fixed = d->m_zfixed;
             break;
         }

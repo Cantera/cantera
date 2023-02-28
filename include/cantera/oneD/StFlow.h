@@ -188,6 +188,12 @@ public:
         m_isFree = false;
     }
 
+    //! Return flag indicating whether flow is free
+    //! @see setFreeFlow setAxisymmetricFlow
+    bool isFree() {
+        return m_isFree;
+    }
+
     //! Return the type of flow domain being represented, either "Free Flame" or
     //! "Axisymmetric Stagnation".
     //! @see setFreeFlow setAxisymmetricFlow
