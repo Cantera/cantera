@@ -9,10 +9,37 @@
 
 using namespace Cantera;
 
+// This test is an exact equivalent of a clib test
+// (clib::test_ctreactor.cpp::ctreactor::reactor_insert)
+TEST(zerodim, simple)
+{
+    double T = 1050;
+    double P = 5 * 101325;
+    string X = "CH4:1.0, O2:2.0, N2:7.52";
+
+    auto sol = newSolution("gri30.yaml", "gri30", "none");
+    sol->thermo()->setState_TPX(T, P, X);
+    IdealGasReactor cppReactor;
+    cppReactor.insert(sol);
+    cppReactor.initialize();
+    ReactorNet network;
+    network.addReactor(cppReactor);
+    network.initialize();
+
+    double t = 0.0;
+    int count = 0;
+    while (t < 0.1) {
+        ASSERT_GE(cppReactor.temperature(), T);
+        t = network.time() + 5e-3;
+        network.advance(t);
+        count++;
+    }
+}
+
 // This test ensures that prior reactor initialization of a reactor does
 // not affect later integration within a network. This example was
 // adapted from test_reactor.py::test_equilibrium_HP.
-TEST(ZeroDim, test_individual_reactor_initialization)
+TEST(zerodim, test_individual_reactor_initialization)
 {
     // initial conditions
     double T0 = 1100.0;
