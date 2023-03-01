@@ -96,8 +96,8 @@ TEST(YamlWriter, userDefinedFields)
     writer.addPhase(original);
 
     AnyMap input1 = AnyMap::fromYamlString(writer.toYamlString());
-    auto thermo1 = newPhase(input1["phases"].getMapWhere("name", "simple"),
-                            input1);
+    auto thermo1 = newThermo(input1["phases"].getMapWhere("name", "simple"),
+                                  input1);
 
     // user-defined fields should be in place
     EXPECT_TRUE(thermo1->input()["custom-field"]["second"].is<vector_fp>());
@@ -108,8 +108,8 @@ TEST(YamlWriter, userDefinedFields)
 
     writer.skipUserDefined();
     AnyMap input2 = AnyMap::fromYamlString(writer.toYamlString());
-    auto thermo2 = newPhase(input2["phases"].getMapWhere("name", "simple"),
-                            input2);
+    auto thermo2 = newThermo(input2["phases"].getMapWhere("name", "simple"),
+                                  input2);
     // user-defined fields should have been removed
     EXPECT_FALSE(thermo2->input().hasKey("custom-field"));
     auto spec2 = thermo2->species("NO");
@@ -276,9 +276,9 @@ TEST(YamlWriter, multipleReactionSections)
 
 TEST(YamlWriter, Interface)
 {
-    shared_ptr<ThermoPhase> gas1(newPhase("ptcombust.yaml", "gas"));
-    shared_ptr<ThermoPhase> surf1(newPhase("ptcombust.yaml", "Pt_surf"));
-    std::vector<ThermoPhase*> phases1{surf1.get(), gas1.get()};
+    shared_ptr<ThermoPhase> gas1(newThermo("ptcombust.yaml", "gas"));
+    shared_ptr<ThermoPhase> surf1(newThermo("ptcombust.yaml", "Pt_surf"));
+    vector<shared_ptr<ThermoPhase>> phases1{surf1, gas1};
     shared_ptr<Kinetics> kin1 = newKinetics(phases1, "ptcombust.yaml", "Pt_surf");
 
     double T = 900;
@@ -296,9 +296,9 @@ TEST(YamlWriter, Interface)
     });
     writer.toYamlFile("generated-ptcombust.yaml");
 
-    shared_ptr<ThermoPhase> gas2(newPhase("generated-ptcombust.yaml", "gas"));
-    shared_ptr<ThermoPhase> surf2(newPhase("generated-ptcombust.yaml", "Pt_surf"));
-    std::vector<ThermoPhase*> phases2{surf2.get(), gas2.get()};
+    shared_ptr<ThermoPhase> gas2(newThermo("generated-ptcombust.yaml", "gas"));
+    shared_ptr<ThermoPhase> surf2(newThermo("generated-ptcombust.yaml", "Pt_surf"));
+    vector<shared_ptr<ThermoPhase>> phases2{surf2, gas2};
     shared_ptr<Kinetics> kin2 = newKinetics(phases2, "generated-ptcombust.yaml", "Pt_surf");
 
     auto iface1 = std::dynamic_pointer_cast<SurfPhase>(surf1);

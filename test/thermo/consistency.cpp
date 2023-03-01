@@ -70,7 +70,7 @@ public:
         // it for every single test case.
         pair<string, string> key = {setup["file"].asString(), setup.getString("phase", "")};
         if (cache.count(key) == 0) {
-            cache[key].reset(newPhase(key.first, key.second));
+            cache[key] = newThermo(key.first, key.second);
         }
         atol = setup.getDouble("atol", 1e-5);
         rtol_fd = setup.getDouble("rtol_fd", 1e-6);

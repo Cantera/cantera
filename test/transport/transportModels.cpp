@@ -10,7 +10,7 @@ class WaterTransportTest : public testing::Test
 {
 public:
     WaterTransportTest() {
-        phase = newPhase("thermo-models.yaml", "liquid-water");
+        phase = newThermo("thermo-models.yaml", "liquid-water");
         tran = newTransport(phase, "default");
     }
 
@@ -24,7 +24,7 @@ public:
         EXPECT_NEAR(tran->thermalConductivity(), lambda_expected, 3e-4);
     }
 
-    ThermoPhase* phase;
+    shared_ptr<ThermoPhase> phase;
     shared_ptr<Transport> tran;
 };
 

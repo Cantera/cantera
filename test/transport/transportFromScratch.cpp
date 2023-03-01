@@ -43,7 +43,7 @@ public:
             "thermo: ideal-gas\n"
             "species: [{gri30.yaml/species: [H2, O2, H2O]}]");
 
-        ref = newPhase(phase_def);
+        ref = newThermo(phase_def);
         test.reset(new IdealGasPhase());
 
         test->addElement("O");
@@ -59,13 +59,13 @@ public:
 
     shared_ptr<Species> sH2, sO2, sH2O;
     shared_ptr<GasTransportData> tH2, tO2, tH2O;
-    unique_ptr<ThermoPhase> ref;
-    unique_ptr<ThermoPhase> test;
+    shared_ptr<ThermoPhase> ref;
+    shared_ptr<ThermoPhase> test;
 };
 
 TEST_F(TransportFromScratch, binaryDiffCoeffs)
 {
-    auto trRef = newTransport(ref.get(), "Mix");
+    auto trRef = newTransport(ref, "Mix");
     MixTransport trTest;
     trTest.init(test.get());
 
@@ -86,7 +86,7 @@ TEST_F(TransportFromScratch, binaryDiffCoeffs)
 
 TEST_F(TransportFromScratch, mixDiffCoeffs)
 {
-    auto trRef = newTransport(ref.get(), "Mix");
+    auto trRef = newTransport(ref, "Mix");
     MixTransport trTest;
     trTest.init(test.get());
 
@@ -105,7 +105,7 @@ TEST_F(TransportFromScratch, mixDiffCoeffs)
 
 TEST_F(TransportFromScratch, viscosity)
 {
-    auto trRef = newTransport(ref.get(), "Mix");
+    auto trRef = newTransport(ref, "Mix");
     MixTransport trTest;
     trTest.init(test.get());
 
@@ -119,7 +119,7 @@ TEST_F(TransportFromScratch, viscosity)
 
 TEST_F(TransportFromScratch, thermalConductivityMix)
 {
-    auto trRef = newTransport(ref.get(), "Mix");
+    auto trRef = newTransport(ref, "Mix");
     MixTransport trTest;
     trTest.init(test.get());
 
@@ -134,7 +134,7 @@ TEST_F(TransportFromScratch, thermalConductivityMix)
 
 TEST_F(TransportFromScratch, multiDiffCoeffs)
 {
-    auto trRef = newTransport(ref.get(), "Multi");
+    auto trRef = newTransport(ref, "Multi");
     MultiTransport trTest;
     trTest.init(test.get());
 
@@ -155,7 +155,7 @@ TEST_F(TransportFromScratch, multiDiffCoeffs)
 
 TEST_F(TransportFromScratch, thermalConductivityMulti)
 {
-    auto trRef = newTransport(ref.get(), "Multi");
+    auto trRef = newTransport(ref, "Multi");
     MultiTransport trTest;
     trTest.init(test.get());
 

@@ -27,7 +27,7 @@ public:
     RedlichKister_Test() {}
 
     void setup() {
-        test_phase.reset(newPhase("thermo-models.yaml", "Redlich-Kister-LiC6"));
+        test_phase = newThermo("thermo-models.yaml", "Redlich-Kister-LiC6");
     }
 
     void set_r(const double r) {
@@ -37,7 +37,7 @@ public:
         test_phase->setMoleFractions(&moleFracs[0]);
     }
 
-    std::unique_ptr<ThermoPhase> test_phase;
+    std::shared_ptr<ThermoPhase> test_phase;
 };
 
 TEST_F(RedlichKister_Test, chem_potentials)

@@ -19,7 +19,7 @@ class MaskellSolidSolnPhase_Test : public testing::Test
 public:
     void setup(const std::string & filename)
     {
-        test_phase.reset(newPhase(filename));
+        test_phase = newThermo(filename);
     }
 
     void set_r(const double r) {
@@ -42,7 +42,7 @@ public:
         }
     }
 
-    std::unique_ptr<ThermoPhase> test_phase;
+    std::shared_ptr<ThermoPhase> test_phase;
 };
 
 TEST_F(MaskellSolidSolnPhase_Test, construct_from_file)
