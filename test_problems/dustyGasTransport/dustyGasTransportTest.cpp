@@ -13,7 +13,7 @@ int main(int argc, char** argv)
         int log_level = 0;
 
         unique_ptr<ThermoPhase> g(newPhase("h2o2.yaml"));
-        unique_ptr<Transport> tran(newTransportMgr("DustyGas", g.get(), log_level));
+        auto trRef = newTransport(g.get(), "DustyGas");
         DustyGasTransport* tranDusty = dynamic_cast<DustyGasTransport*>(tran.get());
 
         size_t nsp = g->nSpecies();
