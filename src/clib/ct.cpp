@@ -17,6 +17,7 @@
 #include "cantera/kinetics/KineticsFactory.h"
 #include "cantera/transport/TransportFactory.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/Solution.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "clib_utils.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
@@ -29,10 +30,12 @@ using namespace Cantera;
 typedef Cabinet<ThermoPhase> ThermoCabinet;
 typedef Cabinet<Kinetics> KineticsCabinet;
 typedef Cabinet<Transport> TransportCabinet;
+typedef SharedCabinet<Solution> SolutionCabinet;
 
 template<> ThermoCabinet* ThermoCabinet::s_storage = 0;
 template<> KineticsCabinet* KineticsCabinet::s_storage = 0;
 template<> TransportCabinet* TransportCabinet::s_storage = 0;
+template<> SolutionCabinet* SolutionCabinet::s_storage = 0;
 
 /**
  * Exported functions.
@@ -44,6 +47,105 @@ extern "C" {
         try {
             appdelete();
             return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    //--------------- Solution ------------------//
+
+    int solution_newFromFile(const char* infile,
+                             const char* name,
+                             const char* transport)
+    {
+        try {
+            auto sol = newSolution(infile, name, transport);
+            // add associated objects
+            ThermoCabinet::add(sol->thermo());
+            if (sol->kinetics()) {
+                KineticsCabinet::add(sol->kinetics());
+            }
+            if (sol->transport()) {
+                TransportCabinet::add(sol->transport());
+            }
+            return SolutionCabinet::add(sol);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int solution_del(int n)
+    {
+        try {
+            if (n >= 0 && n < SolutionCabinet::size()) {
+                // remove all associated objects
+                auto sol = SolutionCabinet::at(n);
+                int index = ThermoCabinet::index(*(sol->thermo()));
+                if (index >= 0) {
+                    ThermoCabinet::del(index);
+                }
+                if (sol->kinetics()) {
+                    index = KineticsCabinet::index(*(sol->kinetics()));
+                    if (index >= 0) {
+                        KineticsCabinet::del(index);
+                    }
+                }
+                if (sol->transport()) {
+                    index = TransportCabinet::index(*(sol->transport()));
+                    if (index >= 0) {
+                        TransportCabinet::del(index);
+                    }
+                }
+            }
+            SolutionCabinet::del(n);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int solution_name(int n, int buflen, char* buf)
+    {
+        try {
+            string name = SolutionCabinet::item(n).name();
+            copyString(name, buf, buflen);
+            return int(name.size());
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int solution_thermo(int n)
+    {
+        try {
+            auto sol = SolutionCabinet::at(n);
+            return ThermoCabinet::index(*(sol->thermo()));
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int solution_kinetics(int n)
+    {
+        try {
+            auto sol = SolutionCabinet::at(n);
+            if (!sol->kinetics()) {
+                return -1;
+            }
+            return KineticsCabinet::index(*(sol->kinetics()));
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int solution_transport(int n)
+    {
+        try {
+            auto sol = SolutionCabinet::at(n);
+            if (!sol->transport()) {
+                return -1;
+            }
+            return TransportCabinet::index(*(sol->transport()));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
