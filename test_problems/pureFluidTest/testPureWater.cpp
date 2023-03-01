@@ -24,7 +24,7 @@ int main()
     double pres;
     try {
 
-        unique_ptr<ThermoPhase> w(newPhase("liquidvapor.yaml", "water"));
+        auto w = newThermo("liquidvapor.yaml", "water");
 
         /*
          * Print out the triple point conditions

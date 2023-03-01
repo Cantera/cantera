@@ -30,7 +30,7 @@ int main(int argc, char** argv)
          */
         string nacl_s = "NaCl_Solid.yaml";
         string id = "NaCl(S)";
-        Cantera::ThermoPhase* solid = Cantera::newPhase(nacl_s, id);
+        auto solid = Cantera::newThermo(nacl_s, id);
 
         size_t nsp = HMW->nSpecies();
         double acMol[100];
@@ -212,8 +212,6 @@ int main(int argc, char** argv)
 
         delete HMW;
         HMW = 0;
-        delete solid;
-        solid = 0;
         Cantera::appdelete();
 
         return retn;

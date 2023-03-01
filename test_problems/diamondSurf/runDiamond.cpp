@@ -18,20 +18,20 @@ int main(int argc, char** argv)
     int i, k;
 
     try {
-        shared_ptr<ThermoPhase> gas(newPhase("diamond.yaml", "gas"));
+        auto gas = newThermo("diamond.yaml", "gas");
         size_t nsp = gas->nSpecies();
         cout.precision(4);
         cout << "Number of species = " << nsp << endl;
 
-        shared_ptr<ThermoPhase> diamond(newPhase("diamond.yaml", "diamond"));
+        auto diamond = newThermo("diamond.yaml", "diamond");
         size_t nsp_diamond = diamond->nSpecies();
         cout << "Number of species in diamond = " << nsp_diamond << endl;
 
-        shared_ptr<ThermoPhase> diamond100(newPhase("diamond.yaml", "diamond_100"));
+        auto diamond100 = newThermo("diamond.yaml", "diamond_100");
         size_t nsp_d100 = diamond100->nSpecies();
         cout << "Number of species in diamond_100 = " << nsp_d100 << endl;
 
-        auto kin = newKinetics({gas.get(), diamond.get(), diamond100.get()},
+        auto kin = newKinetics({gas, diamond, diamond100},
                                "diamond.yaml", "diamond_100");
         InterfaceKinetics& ikin = dynamic_cast<InterfaceKinetics&>(*kin);
         size_t nr = kin->nReactions();
