@@ -9,7 +9,7 @@ class BinarySolutionTabulatedThermo_Test : public testing::Test
 {
 public:
     BinarySolutionTabulatedThermo_Test(){
-        test_phase.reset(newPhase("../data/BinarySolutionTabulatedThermo.yaml"));
+        test_phase = newThermo("../data/BinarySolutionTabulatedThermo.yaml");
     }
 
     void set_defect_X(const double x) {
@@ -19,7 +19,7 @@ public:
         test_phase->setMoleFractions(&moleFracs[0]);
     }
 
-    std::unique_ptr<ThermoPhase> test_phase;
+    std::shared_ptr<ThermoPhase> test_phase;
 };
 
 TEST_F(BinarySolutionTabulatedThermo_Test,interp_h)

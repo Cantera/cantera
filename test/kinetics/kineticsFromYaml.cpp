@@ -532,8 +532,8 @@ TEST(Kinetics, GasKineticsFromYaml1)
 {
     AnyMap infile = AnyMap::fromYamlFile("ideal-gas.yaml");
     auto& phaseNode = infile["phases"].getMapWhere("name", "simple-kinetics");
-    shared_ptr<ThermoPhase> thermo = newPhase(phaseNode, infile);
-    auto kin = newKinetics({thermo.get()}, phaseNode, infile);
+    shared_ptr<ThermoPhase> thermo = newThermo(phaseNode, infile);
+    auto kin = newKinetics({thermo}, phaseNode, infile);
     EXPECT_EQ(kin->nReactions(), (size_t) 2);
     const auto& R = kin->reaction(0);
     EXPECT_EQ(R->reactants.at("NO"), 1);
@@ -547,8 +547,8 @@ TEST(Kinetics, GasKineticsFromYaml2)
 {
     AnyMap infile = AnyMap::fromYamlFile("ideal-gas.yaml");
     auto& phaseNode = infile["phases"].getMapWhere("name", "remote-kinetics");
-    shared_ptr<ThermoPhase> thermo = newPhase(phaseNode, infile);
-    auto kin = newKinetics({thermo.get()}, phaseNode, infile);
+    shared_ptr<ThermoPhase> thermo = newThermo(phaseNode, infile);
+    auto kin = newKinetics({thermo}, phaseNode, infile);
     EXPECT_EQ(kin->nReactions(), (size_t) 3);
 }
 
@@ -556,13 +556,13 @@ TEST(Kinetics, EfficienciesFromYaml)
 {
     AnyMap infile = AnyMap::fromYamlFile("ideal-gas.yaml");
     auto& phaseNode1 = infile["phases"].getMapWhere("name", "efficiency-error");
-    shared_ptr<ThermoPhase> thermo1 = newPhase(phaseNode1, infile);
+    shared_ptr<ThermoPhase> thermo1 = newThermo(phaseNode1, infile);
     // Reaction with efficiency defined for undeclared species "AR"
-    EXPECT_THROW(newKinetics({thermo1.get()}, phaseNode1, infile), CanteraError);
+    EXPECT_THROW(newKinetics({thermo1}, phaseNode1, infile), CanteraError);
 
     auto& phaseNode2 = infile["phases"].getMapWhere("name", "efficiency-skip");
-    shared_ptr<ThermoPhase> thermo2 = newPhase(phaseNode2, infile);
-    auto kin = newKinetics({thermo2.get()}, phaseNode2, infile);
+    shared_ptr<ThermoPhase> thermo2 = newThermo(phaseNode2, infile);
+    auto kin = newKinetics({thermo2}, phaseNode2, infile);
     EXPECT_EQ(kin->nReactions(), (size_t) 1);
 }
 

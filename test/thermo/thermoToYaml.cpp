@@ -12,7 +12,7 @@ class ThermoToYaml : public testing::Test
 {
 public:
     void setup(const std::string& fileName, const std::string& phaseName="") {
-        thermo.reset(newPhase(fileName, phaseName));
+        thermo = newThermo(fileName, phaseName);
         // Because ThermoPhase::input may already contain the data we are trying
         // to check for here, clear it so that the only parameters are those
         // added by the overrides of getParameters.
@@ -332,17 +332,16 @@ class ThermoYamlRoundTrip : public testing::Test
 public:
     void roundtrip(const std::string& fileName, const std::string& phaseName="",
         const std::vector<std::string> extraPhases={}) {
-        original.reset(newPhase(fileName, phaseName));
+        original = newThermo(fileName, phaseName);
         YamlWriter writer;
         writer.addPhase(original);
         for (const auto& name : extraPhases) {
-            shared_ptr<ThermoPhase> p(newPhase(fileName, name));
+            shared_ptr<ThermoPhase> p(newThermo(fileName, name));
             writer.addPhase(p);
         }
         writer.skipUserDefined();
         AnyMap input1 = AnyMap::fromYamlString(writer.toYamlString());
-        duplicate = newPhase(input1["phases"].getMapWhere("name", phaseName),
-                             input1);
+        duplicate = newThermo(input1["phases"].getMapWhere("name", phaseName), input1);
         skip_cp = false;
         skip_activities = false;
         skip_entropy = false;

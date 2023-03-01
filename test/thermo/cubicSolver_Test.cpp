@@ -9,7 +9,7 @@ class cubicSolver_Test : public testing::Test
 {
 public:
     cubicSolver_Test() {
-        test_phase.reset(newPhase("../data/co2_PR_example.yaml"));
+        test_phase = newThermo("../data/co2_PR_example.yaml");
     }
 
     //vary the composition of a co2-h2 mixture
@@ -20,7 +20,7 @@ public:
         test_phase->setMoleFractions(&moleFracs[0]);
     }
 
-    std::unique_ptr<ThermoPhase> test_phase;
+    std::shared_ptr<ThermoPhase> test_phase;
 };
 
 #ifdef __MINGW32__

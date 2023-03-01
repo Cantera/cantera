@@ -10,16 +10,6 @@
 
 using namespace Cantera;
 
-namespace {
-
-shared_ptr<ThermoPhase> newThermo(const std::string& fileName,
-                                  const std::string& phaseName)
-{
-    return shared_ptr<ThermoPhase>(newPhase(fileName, phaseName));
-}
-
-} // namespace
-
 TEST(ThermoFromYaml, simpleIdealGas)
 {
     IdealGasPhase thermo("ideal-gas.yaml", "simple");
@@ -228,7 +218,7 @@ TEST(ThermoFromYaml, IonsFromNeutral_fromString)
     std::stringstream buffer;
     buffer << infile.rdbuf();
     AnyMap input = AnyMap::fromYamlString(buffer.str());
-    auto thermo = newPhase(
+    auto thermo = newThermo(
         input["phases"].getMapWhere("name", "ions-from-neutral-molecule"),
         input);
     ASSERT_EQ((int) thermo->nSpecies(), 2);
@@ -388,7 +378,7 @@ TEST(ThermoFromYaml, PureFluid_Unknown)
         "  pure-fluid-name: unknown-purefluid\n"
     );
     AnyMap& phase = root["phases"].getMapWhere("name", "unknown-purefluid");
-    EXPECT_THROW(newPhase(phase, root), CanteraError);
+    EXPECT_THROW(newThermo(phase, root), CanteraError);
 }
 
 TEST(ThermoFromYaml, IdealSolidSolnPhase)
@@ -450,7 +440,7 @@ TEST(ThermoFromYaml, Lattice_fromString)
     std::stringstream buffer;
     buffer << infile.rdbuf();
     AnyMap input = AnyMap::fromYamlString(buffer.str());
-    auto thermo = newPhase(
+    auto thermo = newThermo(
         input["phases"].getMapWhere("name", "Li7Si3_and_interstitials"),
         input);
 

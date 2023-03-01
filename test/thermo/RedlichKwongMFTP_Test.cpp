@@ -11,7 +11,7 @@ class RedlichKwongMFTP_Test : public testing::Test
 {
 public:
     RedlichKwongMFTP_Test() {
-        test_phase.reset(newPhase("co2_RK_example.yaml"));
+        test_phase = newThermo("co2_RK_example.yaml");
     }
 
     //vary the composition of a co2-h2 mixture:
@@ -22,7 +22,7 @@ public:
         test_phase->setMoleFractions(&moleFracs[0]);
     }
 
-    std::unique_ptr<ThermoPhase> test_phase;
+    std::shared_ptr<ThermoPhase> test_phase;
 };
 
 TEST_F(RedlichKwongMFTP_Test, chem_potentials)
@@ -114,7 +114,7 @@ TEST_F(RedlichKwongMFTP_Test, critPropLookup)
 {
     // Check to make sure that RedlichKwongMFTP is able to properly calculate a and b
     // pureFluidParameters based on tabulated critical properties
-    test_phase.reset(newPhase("co2_RK_lookup.yaml"));
+    test_phase = newThermo("co2_RK_lookup.yaml");
 
     // Check that the critical properties (temperature and pressure) are calculated
     // correctly for pure fluids, both for those with pureFluidParameters provided in
@@ -137,7 +137,7 @@ TEST_F(RedlichKwongMFTP_Test, localCritProperties)
 {
     // Test calculation based on critical properties stored in the YAML species
     // definition, in the "critical-parameters" field
-    test_phase.reset(newPhase("thermo-models.yaml", "CO2-RK-params"));
+    test_phase = newThermo("thermo-models.yaml", "CO2-RK-params");
     test_phase->setState_TPX(400, 1.2e6, "CO2: 1.0");
     EXPECT_NEAR(test_phase->critTemperature(), 304.128, 1e-5);
     EXPECT_NEAR(test_phase->critPressure(), 7.3773e6, 1e-4);
