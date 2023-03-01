@@ -21,8 +21,8 @@ int main()
 #endif
     double pres;
     try {
-        ThermoPhase* w = newPhase("liquidvapor.yaml", "liquid-water-IAPWS95");
-        (dynamic_cast<WaterSSTP*>(w))->_allowGasPhase(true);
+        auto w = newThermo("liquidvapor.yaml", "liquid-water-IAPWS95");
+        (std::dynamic_pointer_cast<WaterSSTP>(w))->_allowGasPhase(true);
 
         /*
          * Print out the triple point conditions
@@ -302,8 +302,6 @@ int main()
         printf("Critical Temp     = %10.3g K\n", w->critTemperature());
         printf("Critical Pressure = %10.3g atm\n", w->critPressure()/OneAtm);
         printf("Critical Dens     = %10.3g kg/m3\n", w->critDensity());
-
-        delete w;
     } catch (CanteraError& err) {
         std::cout << err.what() << std::endl;
         Cantera::appdelete();

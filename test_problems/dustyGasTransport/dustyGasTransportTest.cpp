@@ -10,11 +10,9 @@ using namespace Cantera;
 int main(int argc, char** argv)
 {
     try {
-        int log_level = 0;
-
-        unique_ptr<ThermoPhase> g(newPhase("h2o2.yaml"));
-        auto trRef = newTransport(g.get(), "DustyGas");
-        DustyGasTransport* tranDusty = dynamic_cast<DustyGasTransport*>(tran.get());
+        auto g = newThermo("h2o2.yaml");
+        auto tran = newTransport(g, "DustyGas");
+        auto tranDusty = std::dynamic_pointer_cast<DustyGasTransport>(tran);
 
         size_t nsp = g->nSpecies();
         vector_fp multiD(nsp*nsp);

@@ -20,7 +20,8 @@
 using namespace std;
 using namespace Cantera;
 
-void printGas(ostream& oooo, ThermoPhase* gasTP, InterfaceKinetics* iKin_ptr, double* src)
+void printGas(ostream& oooo, shared_ptr<ThermoPhase> gasTP,
+              shared_ptr<InterfaceKinetics> iKin_ptr, double* src)
 {
     double x[MSSIZE];
     double C[MSSIZE];
@@ -53,7 +54,8 @@ void printGas(ostream& oooo, ThermoPhase* gasTP, InterfaceKinetics* iKin_ptr, do
 
 }
 
-void printBulk(ostream& oooo,ThermoPhase* bulkPhaseTP, InterfaceKinetics* iKin_ptr, double* src)
+void printBulk(ostream& oooo, shared_ptr<ThermoPhase> bulkPhaseTP,
+               shared_ptr<InterfaceKinetics> iKin_ptr, double* src)
 {
     double x[MSSIZE];
     double C[MSSIZE];
@@ -96,8 +98,8 @@ void printBulk(ostream& oooo,ThermoPhase* bulkPhaseTP, InterfaceKinetics* iKin_p
     oooo << endl;
 }
 
-void printSurf(ostream& oooo, ThermoPhase* surfPhaseTP,
-               InterfaceKinetics* iKin_ptr, double* src)
+void printSurf(ostream& oooo, shared_ptr<ThermoPhase> surfPhaseTP,
+               shared_ptr<InterfaceKinetics> iKin_ptr, double* src)
 {
     double x[MSSIZE];
     oooo.precision(3);
@@ -136,23 +138,23 @@ int main(int argc, char** argv)
     int ioflag = 1;
 
     try {
-        ThermoPhase* gasTP = newPhase(infile, gasPhaseName);
+        auto gasTP = newThermo(infile, gasPhaseName);
         size_t nspGas = gasTP->nSpecies();
         cout << "Number of species = " << nspGas << endl;
 
-        ThermoPhase* bulkPhaseTP = newPhase(infile, bulkParticlePhaseName);
+        auto bulkPhaseTP = newThermo(infile, bulkParticlePhaseName);
         size_t nspBulk = bulkPhaseTP->nSpecies();
         cout << "Number of species in bulk phase named " <<
              bulkParticlePhaseName << " = " << nspBulk << endl;
 
-        ThermoPhase* surfPhaseTP = newPhase(infile, surfParticlePhaseName);
+        auto surfPhaseTP = newThermo(infile, surfParticlePhaseName);
         size_t nsp_d100 = surfPhaseTP->nSpecies();
         cout << "Number of species in surface phase, " << surfParticlePhaseName
              << " = " << nsp_d100 << endl;
 
         auto kin = newKinetics({gasTP, bulkPhaseTP, surfPhaseTP},
                                infile, surfParticlePhaseName);
-        InterfaceKinetics* iKin_ptr = dynamic_cast<InterfaceKinetics*>(kin.get());
+        auto iKin_ptr = dynamic_pointer_cast<InterfaceKinetics>(kin);
         size_t nr = iKin_ptr->nReactions();
         cout << "Number of reactions = " << nr << endl;
 
@@ -160,7 +162,7 @@ int main(int argc, char** argv)
 
         // create a second copy of the same surface phase
         // (this is a made up problem btw to check the software capability)
-        ThermoPhase* surfPhaseTP2 = newPhase(infile, surfParticlePhaseName);
+        auto surfPhaseTP2 = newThermo(infile, surfParticlePhaseName);
         size_t nsp2 = surfPhaseTP2->nSpecies();
         string pname = surfPhaseTP2->name();
         cout << "Number of species in 2nd surface phase, " << pname
@@ -170,7 +172,7 @@ int main(int argc, char** argv)
         // second surface phase.
         auto kin2 = newKinetics({gasTP, bulkPhaseTP, surfPhaseTP2},
                                 infile, surfParticlePhaseName);
-        InterfaceKinetics* iKin2_ptr = dynamic_cast<InterfaceKinetics*>(kin2.get());
+        auto iKin2_ptr = dynamic_pointer_cast<InterfaceKinetics>(kin2);
         nr = iKin_ptr->nReactions();
         cout << "Number of reactions = " << nr << endl;
 
@@ -180,7 +182,7 @@ int main(int argc, char** argv)
          *  Set-up the Surface Problem
          *    This problem will consist of 2 identical InterfaceKinetics objects
          */
-        vector<InterfaceKinetics*> vecKinPtrs { iKin_ptr, iKin2_ptr };
+        vector<InterfaceKinetics*> vecKinPtrs { iKin_ptr.get(), iKin2_ptr.get() };
 
         // Create the ImplicitSurfChem problem
         // Initialize it and call the pseudo steadystate capability.
@@ -268,14 +270,6 @@ int main(int argc, char** argv)
         surfaceProb = 0;
         iKin_ptr = 0;
         iKin2_ptr = 0;
-        delete gasTP;
-        gasTP = 0;
-        delete bulkPhaseTP;
-        bulkPhaseTP = 0;
-        delete surfPhaseTP;
-        surfPhaseTP = 0;
-        delete surfPhaseTP2;
-        surfPhaseTP2 = 0;
         appdelete();
     } catch (CanteraError& err) {
         std::cout << err.what() << std::endl;
