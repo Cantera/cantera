@@ -56,6 +56,8 @@ Kinetics* KineticsFactory::newKinetics(const string& model)
 
 Kinetics* newKineticsMgr(const string& model)
 {
+    warn_deprecated("newKineticsMgr",
+        "To be removed after Cantera 3.0; superseded by newKinetics.");
     return KineticsFactory::factory()->newKinetics(model);
 }
 
@@ -65,7 +67,7 @@ shared_ptr<Kinetics> newKinetics(const string& model)
     return kin;
 }
 
-unique_ptr<Kinetics> newKinetics(const vector<ThermoPhase*>& phases,
+shared_ptr<Kinetics> newKinetics(const vector<ThermoPhase*>& phases,
                                  const AnyMap& phaseNode,
                                  const AnyMap& rootNode)
 {
@@ -85,7 +87,7 @@ unique_ptr<Kinetics> newKinetics(const vector<ThermoPhase*>& phases,
         }
     }
 
-    unique_ptr<Kinetics> kin(KineticsFactory::factory()->newKinetics(kinType));
+    shared_ptr<Kinetics> kin(KineticsFactory::factory()->newKinetics(kinType));
     for (auto& phase : phases) {
         kin->addPhase(*phase);
     }
@@ -94,7 +96,7 @@ unique_ptr<Kinetics> newKinetics(const vector<ThermoPhase*>& phases,
     return kin;
 }
 
-unique_ptr<Kinetics> newKinetics(const std::vector<ThermoPhase*>& phases,
+shared_ptr<Kinetics> newKinetics(const std::vector<ThermoPhase*>& phases,
                                  const std::string& filename,
                                  const std::string& phase_name)
 {

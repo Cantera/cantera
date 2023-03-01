@@ -23,7 +23,7 @@ typedef Cabinet<FlowDevice> FlowDeviceCabinet;
 typedef Cabinet<WallBase> WallCabinet;
 typedef Cabinet<Func1> FuncCabinet;
 typedef Cabinet<ThermoPhase> ThermoCabinet;
-typedef Cabinet<Kinetics> KineticsCabinet;
+typedef SharedCabinet<Kinetics> KineticsCabinet;
 typedef Cabinet<ReactorSurface> ReactorSurfaceCabinet;
 
 template<> ReactorCabinet* ReactorCabinet::s_storage = 0;
