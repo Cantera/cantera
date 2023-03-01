@@ -28,7 +28,7 @@ using namespace std;
 using namespace Cantera;
 
 typedef Cabinet<ThermoPhase> ThermoCabinet;
-typedef Cabinet<Kinetics> KineticsCabinet;
+typedef SharedCabinet<Kinetics> KineticsCabinet;
 typedef SharedCabinet<Transport> TransportCabinet;
 typedef SharedCabinet<Solution> SolutionCabinet;
 
@@ -1008,8 +1008,8 @@ extern "C" {
                     }
                 }
             }
-            unique_ptr<Kinetics> kin = newKinetics(phases, filename, phasename);
-            return KineticsCabinet::add(kin.release());
+            shared_ptr<Kinetics> kin = newKinetics(phases, filename, phasename);
+            return KineticsCabinet::add(kin);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }

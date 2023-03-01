@@ -25,7 +25,7 @@ template<> SimCabinet* SimCabinet::s_storage = 0;
 template<> DomainCabinet* DomainCabinet::s_storage = 0;
 
 typedef Cabinet<ThermoPhase> ThermoCabinet;
-typedef Cabinet<Kinetics> KineticsCabinet;
+typedef SharedCabinet<Kinetics> KineticsCabinet;
 typedef SharedCabinet<Transport> TransportCabinet;
 template<> ThermoCabinet* ThermoCabinet::s_storage; // defined in ct.cpp
 template<> KineticsCabinet* KineticsCabinet::s_storage; // defined in ct.cpp
