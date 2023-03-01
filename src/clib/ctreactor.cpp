@@ -22,7 +22,7 @@ typedef Cabinet<ReactorNet> NetworkCabinet;
 typedef Cabinet<FlowDevice> FlowDeviceCabinet;
 typedef Cabinet<WallBase> WallCabinet;
 typedef Cabinet<Func1> FuncCabinet;
-typedef Cabinet<ThermoPhase> ThermoCabinet;
+typedef SharedCabinet<ThermoPhase> ThermoCabinet;
 typedef SharedCabinet<Kinetics> KineticsCabinet;
 typedef Cabinet<ReactorSurface> ReactorSurfaceCabinet;
 
