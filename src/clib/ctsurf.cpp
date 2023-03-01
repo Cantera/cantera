@@ -10,7 +10,7 @@
 
 // Cantera includes
 #include "cantera/thermo/SurfPhase.h"
-#include "Cabinet.h"
+#include "clib_utils.h"
 
 using namespace std;
 using namespace Cantera;

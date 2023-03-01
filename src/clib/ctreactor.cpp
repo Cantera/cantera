@@ -12,7 +12,7 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/zerodim.h"
-#include "Cabinet.h"
+#include "clib_utils.h"
 
 using namespace Cantera;
 using namespace std;
