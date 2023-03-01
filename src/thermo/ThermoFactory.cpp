@@ -122,8 +122,17 @@ void ThermoFactory::deleteFactory()
     s_factory = 0;
 }
 
+ThermoPhase* ThermoFactory::newThermoPhase(const std::string& model)
+{
+    warn_deprecated("newThermoPhase",
+        "To be removed after Cantera 3.0; superseded by newThermo.");
+    return create(model);
+}
+
 ThermoPhase* newThermoPhase(const string& model)
 {
+    warn_deprecated("newThermoPhase",
+        "To be removed after Cantera 3.0; superseded by newThermo.");
     return ThermoFactory::factory()->create(model);
 }
 
@@ -133,13 +142,23 @@ shared_ptr<ThermoPhase> newThermo(const string& model)
     return tptr;
 }
 
-ThermoPhase* ThermoFactory::newThermoPhase(const std::string& model)
+shared_ptr<ThermoPhase> newThermoPhase(const AnyMap& phaseNode, const AnyMap& rootNode)
 {
-    return create(model);
+    if (!phaseNode.hasKey("kinetics") && phaseNode.hasKey("reactions")) {
+        throw InputFileError("newPhase", phaseNode["reactions"],
+            "Phase entry includes a 'reactions' field but does not "
+            "specify a kinetics model.");
+    }
+    shared_ptr<ThermoPhase> t = newThermo(phaseNode["thermo"].asString());
+    setupPhase(*t, phaseNode, rootNode);
+    return t;
 }
 
 unique_ptr<ThermoPhase> newPhase(const AnyMap& phaseNode, const AnyMap& rootNode)
 {
+    warn_deprecated("newPhase",
+        "To be removed after Cantera 3.0; superseded by\n"
+        "newThermoPhase(const AnyMap&, const AnyMap&).");
     if (!phaseNode.hasKey("kinetics") && phaseNode.hasKey("reactions")) {
         throw InputFileError("newPhase", phaseNode["reactions"],
             "Phase entry includes a 'reactions' field but does not "
@@ -150,24 +169,33 @@ unique_ptr<ThermoPhase> newPhase(const AnyMap& phaseNode, const AnyMap& rootNode
     return t;
 }
 
-ThermoPhase* newPhase(const std::string& infile, std::string id)
+shared_ptr<ThermoPhase> newThermoPhase(const string& infile, const string& id)
 {
     size_t dot = infile.find_last_of(".");
     string extension;
     if (dot != npos) {
         extension = toLowerCopy(infile.substr(dot+1));
     }
+    string id_ = id;
     if (id == "-") {
-        id = "";
+        id_ = "";
     }
     if (extension == "cti" || extension == "xml") {
-        throw CanteraError("newPhase",
+        throw CanteraError("newThermo",
                            "The CTI and XML formats are no longer supported.");
     }
 
     AnyMap root = AnyMap::fromYamlFile(infile);
-    AnyMap& phase = root["phases"].getMapWhere("name", id);
-    return newPhase(phase, root).release();
+    AnyMap& phase = root["phases"].getMapWhere("name", id_);
+    return newThermoPhase(phase, root);
+}
+
+ThermoPhase* newPhase(const std::string& infile, std::string id)
+{
+    warn_deprecated("newPhase",
+        "To be removed after Cantera 3.0; superseded by\n"
+        "newThermoPhase(const std::string&, const std::string&).");
+    return newThermoPhase(infile, id).get();
 }
 
 void addDefaultElements(ThermoPhase& thermo, const vector<string>& element_names) {

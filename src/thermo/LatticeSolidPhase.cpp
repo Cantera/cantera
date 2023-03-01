@@ -306,7 +306,7 @@ void LatticeSolidPhase::initThermo()
         compositionMap composition = m_input["composition"].asMap<double>();
         for (auto& item : composition) {
             AnyMap& node = m_rootNode["phases"].getMapWhere("name", item.first);
-            addLattice(newPhase(node, m_rootNode));
+            addLattice(newThermoPhase(node, m_rootNode));
         }
         setLatticeStoichiometry(composition);
     }

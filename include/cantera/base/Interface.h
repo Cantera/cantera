@@ -52,7 +52,7 @@ protected:
 
 //! Create and initialize a new Interface from an input file
 /*!
- * This constructor wraps newPhase() and newKinetics()
+ * This constructor wraps newThermoPhase() and newKinetics()
  *
  * @param infile name of the input file
  * @param name   name of the surface phase in the file.
@@ -68,7 +68,7 @@ shared_ptr<Interface> newInterface(const std::string& infile,
 
 //! Create and initialize a new Interface from an input file
 /*!
- * This constructor wraps newPhase() and newKinetics()
+ * This constructor wraps newThermoPhase() and newKinetics()
  *
  * @param infile name of the input file
  * @param name   name of the phase in the file. If this is the empty string, the first
@@ -82,7 +82,7 @@ shared_ptr<Interface> newInterface(const std::string& infile,
 
 //! Create and initialize a new Interface from AnyMap objects
 /*!
- * This constructor wraps newPhase() and newKinetics()
+ * This constructor wraps newThermoPhase() and newKinetics()
  *
  * @param phaseNode the node containing the phase definition (that is, thermo model,
  *     list of species, and initial state)
