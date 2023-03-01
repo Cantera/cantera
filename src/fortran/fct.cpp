@@ -16,7 +16,7 @@
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/base/NoExitLogger.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/extensions/Cabinet.h"
+#include "clib/clib_utils.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
 
 #include "cantera/clib/clib_defs.h"
@@ -24,9 +24,9 @@
 
 using namespace Cantera;
 
-typedef Cabinet<ThermoPhase> ThermoCabinet;
-typedef Cabinet<Kinetics> KineticsCabinet;
-typedef Cabinet<Transport> TransportCabinet;
+typedef SharedCabinet<ThermoPhase> ThermoCabinet;
+typedef SharedCabinet<Kinetics> KineticsCabinet;
+typedef SharedCabinet<Transport> TransportCabinet;
 
 typedef integer status_t;
 
@@ -49,6 +49,11 @@ static Kinetics* _fkin(const integer* n)
 ThermoPhase* _fth(const integer* n)
 {
     return &ThermoCabinet::item(*n);
+}
+
+shared_ptr<ThermoPhase> _fthermo(const integer* n)
+{
+    return ThermoCabinet::at(*n);
 }
 
 Transport* _ftrans(const integer* n)
@@ -362,8 +367,8 @@ extern "C" {
     integer th_newfromfile_(char* filename, char* phasename, ftnlen lenf, ftnlen lenp)
     {
         try {
-            ThermoPhase* th = newPhase(f2string(filename, lenf),
-                                    f2string(phasename, lenp));
+            auto th = newThermo(f2string(filename, lenf),
+                                f2string(phasename, lenp));
             return ThermoCabinet::add(th);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -676,23 +681,23 @@ extern "C" {
                              const integer* neighbor4, ftnlen nlen, ftnlen plen)
     {
         try {
-            std::vector<ThermoPhase*> phases;
-            phases.push_back(_fth(reactingPhase));
+            vector<shared_ptr<ThermoPhase>> phases;
+            phases.push_back(_fthermo(reactingPhase));
             if (*neighbor1 >= 0) {
-                phases.push_back(_fth(neighbor1));
+                phases.push_back(_fthermo(neighbor1));
                 if (*neighbor2 >= 0) {
-                    phases.push_back(_fth(neighbor2));
+                    phases.push_back(_fthermo(neighbor2));
                     if (*neighbor3 >= 0) {
-                        phases.push_back(_fth(neighbor3));
+                        phases.push_back(_fthermo(neighbor3));
                         if (*neighbor4 >= 0) {
-                            phases.push_back(_fth(neighbor4));
+                            phases.push_back(_fthermo(neighbor4));
                         }
                     }
                 }
             }
             auto kin = newKinetics(phases, f2string(filename, nlen),
                                    f2string(phasename, plen));
-            return KineticsCabinet::add(kin.release());
+            return KineticsCabinet::add(kin);
         } catch (...) {
             return handleAllExceptions(999, ERR);
         }
@@ -943,8 +948,8 @@ extern "C" {
     {
         try {
             std::string mstr = f2string(model, lenmodel);
-            ThermoPhase* t = _fth(ith);
-            Transport* tr = newTransportMgr(mstr, t, *loglevel);
+            auto t = _fthermo(ith);
+            auto tr = newTransport(t, mstr);
             return TransportCabinet::add(tr);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -954,8 +959,8 @@ extern "C" {
     integer trans_newdefault_(integer* ith, integer* loglevel, ftnlen lenmodel)
     {
         try {
-            ThermoPhase* t = _fth(ith);
-            Transport* tr = newDefaultTransportMgr(t, *loglevel);
+            auto t = _fthermo(ith);
+            auto tr = newTransport(t, "default");
             return TransportCabinet::add(tr);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
