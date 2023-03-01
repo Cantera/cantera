@@ -478,10 +478,10 @@ void IonsFromNeutralVPSSTP::initThermo()
             AnyMap infile = AnyMap::fromYamlFile(fileName,
                         m_input.getString("__file__", ""));
             AnyMap& phaseNode = infile["phases"].getMapWhere("name", neutralName);
-            setNeutralMoleculePhase(newPhase(phaseNode, infile));
+            setNeutralMoleculePhase(newThermoPhase(phaseNode, infile));
         } else {
             AnyMap& phaseNode = m_rootNode["phases"].getMapWhere("name", neutralName);
-            setNeutralMoleculePhase(newPhase(phaseNode, m_rootNode));
+            setNeutralMoleculePhase(newThermoPhase(phaseNode, m_rootNode));
         }
     }
 

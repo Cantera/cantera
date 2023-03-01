@@ -44,6 +44,7 @@ public:
      * @param model  The name of the thermo model
      * @returns a pointer to a new ThermoPhase object of the type specified. Throws a
      *     CanteraError if the named model isn't registered with ThermoFactory.
+     * @deprecated  To be removed after Cantera 3.0; superseded by newThermo()
      */
     virtual ThermoPhase* newThermoPhase(const std::string& model);
 
@@ -58,13 +59,15 @@ private:
     static std::mutex thermo_mutex;
 };
 
-//! @copydoc ThermoFactory::newThermoPhase
+//! @copydoc ThermoFactory::newThermo(const string&)
+//! @deprecated  To be removed after Cantera 3.0; superseded by newThermo()
 ThermoPhase* newThermoPhase(const string& model);
 
 //! Create a new ThermoPhase instance.
 /*!
  * @param model   String to look up the model against
- * @returns a shared pointer to a new ThermoPhase instance matching the model string.
+ * @returns a shared pointer to a new ThermoPhase object of the type specified. Throws a
+ *     CanteraError if the named model is not registered with ThermoFactory.
  */
 shared_ptr<ThermoPhase> newThermo(const string& model);
 
@@ -76,6 +79,11 @@ shared_ptr<ThermoPhase> newThermo(const string& model);
  *     which will be used as the default location from which to read species
  *     definitions.
  */
+shared_ptr<ThermoPhase> newThermoPhase(const AnyMap& phaseNode,
+                                       const AnyMap& rootNode=AnyMap());
+
+//! @copydoc ThermoFactory::newThermoPhase(const AnyMap&, const AnyMap&)
+//! @deprecated  To be removed after Cantera 3.0; superseded by newThermoPhase()
 unique_ptr<ThermoPhase> newPhase(const AnyMap& phaseNode,
                                  const AnyMap& rootNode=AnyMap());
 
@@ -90,6 +98,10 @@ unique_ptr<ThermoPhase> newPhase(const AnyMap& phaseNode,
  *               If this is blank, the first phase in the file is used.
  * @returns an initialized ThermoPhase object.
  */
+shared_ptr<ThermoPhase> newThermoPhase(const string& infile, const string& id);
+
+//! @copydoc ThermoFactory::newThermoPhase(const string&, const string&)
+//! @deprecated  To be removed after Cantera 3.0; superseded by newThermoPhase()
 ThermoPhase* newPhase(const std::string& infile, std::string id="");
 
 //! Initialize a ThermoPhase object

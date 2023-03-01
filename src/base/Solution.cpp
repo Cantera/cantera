@@ -182,7 +182,7 @@ shared_ptr<Solution> newSolution(const std::string &infile,
     }
 
     if (extension == "cti" || extension == "xml") {
-        throw CanteraError("newPhase",
+        throw CanteraError("newSolution",
                            "The CTI and XML formats are no longer supported.");
     }
 
@@ -216,7 +216,7 @@ shared_ptr<Solution> newSolution(const AnyMap& phaseNode,
                                  const std::map<std::string, shared_ptr<Solution>>& related)
 {
     // thermo phase
-    auto thermo = shared_ptr<ThermoPhase>(newPhase(phaseNode, rootNode));
+    auto thermo = newThermoPhase(phaseNode, rootNode);
 
     // instantiate Solution object of the correct derived type
     shared_ptr<Solution> sol;
