@@ -70,11 +70,9 @@ void Solution::setTransportModel(const std::string& model) {
             "Unable to set Transport model without valid ThermoPhase object.");
     }
     if (model == "") {
-        setTransport(shared_ptr<Transport>(
-            newDefaultTransportMgr(m_thermo.get())));
+        setTransport(newTransport(m_thermo, "default"));
     } else {
-        setTransport(shared_ptr<Transport>(
-            newTransportMgr(model, m_thermo.get())));
+        setTransport(newTransport(m_thermo, model));
     }
 }
 

@@ -65,7 +65,7 @@ public:
 
 TEST_F(TransportFromScratch, binaryDiffCoeffs)
 {
-    Transport* trRef = newTransportMgr("Mix", ref.get());
+    auto trRef = newTransport(ref.get(), "Mix");
     MixTransport trTest;
     trTest.init(test.get());
 
@@ -86,7 +86,7 @@ TEST_F(TransportFromScratch, binaryDiffCoeffs)
 
 TEST_F(TransportFromScratch, mixDiffCoeffs)
 {
-    Transport* trRef = newTransportMgr("Mix", ref.get());
+    auto trRef = newTransport(ref.get(), "Mix");
     MixTransport trTest;
     trTest.init(test.get());
 
@@ -105,7 +105,7 @@ TEST_F(TransportFromScratch, mixDiffCoeffs)
 
 TEST_F(TransportFromScratch, viscosity)
 {
-    Transport* trRef = newTransportMgr("Mix", ref.get());
+    auto trRef = newTransport(ref.get(), "Mix");
     MixTransport trTest;
     trTest.init(test.get());
 
@@ -119,7 +119,7 @@ TEST_F(TransportFromScratch, viscosity)
 
 TEST_F(TransportFromScratch, thermalConductivityMix)
 {
-    Transport* trRef = newTransportMgr("Mix", ref.get());
+    auto trRef = newTransport(ref.get(), "Mix");
     MixTransport trTest;
     trTest.init(test.get());
 
@@ -134,7 +134,7 @@ TEST_F(TransportFromScratch, thermalConductivityMix)
 
 TEST_F(TransportFromScratch, multiDiffCoeffs)
 {
-    Transport* trRef = newTransportMgr("Multi", ref.get());
+    auto trRef = newTransport(ref.get(), "Multi");
     MultiTransport trTest;
     trTest.init(test.get());
 
@@ -155,7 +155,7 @@ TEST_F(TransportFromScratch, multiDiffCoeffs)
 
 TEST_F(TransportFromScratch, thermalConductivityMulti)
 {
-    Transport* trRef = newTransportMgr("Multi", ref.get());
+    auto trRef = newTransport(ref.get(), "Multi");
     MultiTransport trTest;
     trTest.init(test.get());
 

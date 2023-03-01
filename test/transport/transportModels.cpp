@@ -11,7 +11,7 @@ class WaterTransportTest : public testing::Test
 public:
     WaterTransportTest() {
         phase = newPhase("thermo-models.yaml", "liquid-water");
-        tran = newDefaultTransportMgr(phase);
+        tran = newTransport(phase, "default");
     }
 
     void check_viscosity(double T, double P, double mu_expected) {
@@ -25,7 +25,7 @@ public:
     }
 
     ThermoPhase* phase;
-    Transport* tran;
+    shared_ptr<Transport> tran;
 };
 
 // Reference values taken from tables in the Sengers and Watson paper
