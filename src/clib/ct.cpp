@@ -29,7 +29,7 @@ using namespace Cantera;
 
 typedef Cabinet<ThermoPhase> ThermoCabinet;
 typedef Cabinet<Kinetics> KineticsCabinet;
-typedef Cabinet<Transport> TransportCabinet;
+typedef SharedCabinet<Transport> TransportCabinet;
 typedef SharedCabinet<Solution> SolutionCabinet;
 
 template<> ThermoCabinet* ThermoCabinet::s_storage = 0;
@@ -1361,8 +1361,7 @@ extern "C" {
     int trans_newDefault(int ith, int loglevel)
     {
         try {
-            Transport* tr = newDefaultTransportMgr(&ThermoCabinet::item(ith),
-                                                   loglevel);
+            auto tr = newTransport(ThermoCabinet::at(ith), "default");
             return TransportCabinet::add(tr);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -1372,8 +1371,7 @@ extern "C" {
     int trans_new(const char* model, int ith, int loglevel)
     {
         try {
-            Transport* tr = newTransportMgr(model, &ThermoCabinet::item(ith),
-                                            loglevel);
+            auto tr = newTransport(ThermoCabinet::at(ith), model);
             return TransportCabinet::add(tr);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
