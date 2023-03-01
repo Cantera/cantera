@@ -27,7 +27,7 @@
 using namespace std;
 using namespace Cantera;
 
-typedef Cabinet<ThermoPhase> ThermoCabinet;
+typedef SharedCabinet<ThermoPhase> ThermoCabinet;
 typedef SharedCabinet<Kinetics> KineticsCabinet;
 typedef SharedCabinet<Transport> TransportCabinet;
 typedef SharedCabinet<Solution> SolutionCabinet;
@@ -451,7 +451,7 @@ extern "C" {
 
     int thermo_newFromFile(const char* filename, const char* phasename) {
         try {
-            return ThermoCabinet::add(newPhase(filename, phasename));
+            return ThermoCabinet::add(newThermoPhase(filename, phasename));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
