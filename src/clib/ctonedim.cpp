@@ -337,7 +337,7 @@ extern "C" {
     int reactingsurf_setkineticsmgr(int i, int j)
     {
         try {
-            InterfaceKinetics& k = Cabinet<Kinetics>::get<InterfaceKinetics>(j);
+            InterfaceKinetics& k = SharedCabinet<Kinetics>::get<InterfaceKinetics>(j);
             DomainCabinet::get<ReactingSurf1D>(i).setKineticsMgr(&k);
             return 0;
         } catch (...) {
