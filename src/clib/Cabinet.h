@@ -9,7 +9,8 @@
 #define CT_CABINET_H
 
 #include "cantera/base/ctexceptions.h"
-#include "clib_utils.h"
+
+using Cantera::CanteraError;
 
 /**
  * Template for classes to hold pointers to objects. The Cabinet<M>
@@ -93,8 +94,8 @@ public:
             M* old = data[i];
             data.push_back(new M(*old));
             return static_cast<int>(data.size()) - 1;
-        } catch (...) {
-            return Cantera::handleAllExceptions(-1, -999);
+        } catch (std::exception& err) {
+            throw Cantera::CanteraError("Cabinet::newCopy", err.what());
         }
     }
 
@@ -203,6 +204,176 @@ private:
      * Vector to hold pointers to objects.
      */
     std::vector<M*> m_table;
+};
+
+
+/**
+ * Template for classes to hold pointers to objects. The SharedCabinet<M> class
+ * maintains a list of pointers to objects of class M (or of subclasses of M). These
+ * classes are used by the 'clib' interface library functions that provide access to
+ * Cantera C++ objects from outside C++. To refer to an existing object, the library
+ * functions take an integer argument that specifies the location in the pointer list
+ * maintained by the appropriate SharedCabinet<M> instance. The pointer is retrieved
+ * from the list by the interface function, the desired method is invoked, and the
+ * result returned to the non-C++ calling procedure. By storing the pointers in a
+ * SharedCabinet, there is no need to encode them in a std::string or integer and pass
+ * them out to the non-C++ calling routine, as some other interfacing schemes do.
+ *
+ * The SharedCabinet<M> class can be used to store pointers to arbitrary objects. In
+ * most cases, class M is a base class with virtual methods, and the base class versions
+ * of the methods throw CanteraError exceptions. The subclasses overload these methods
+ * to implement the desired functionality. Class SharedCabinet<M> stores only the
+ * base-class pointers, but since the methods are virtual, the method of the appropriate
+ * subclass will be invoked.
+ *
+ * As the SharedCabinet<M> class uses smart pointers, it is set up to allow deleting
+ * objects in an inherently safe manner. Method 'del' does the following. If called
+ * with n >= 0, it dereferences the object. The original object is only destroyed if the
+ * reference is not shared by other objects. In this way, if it is deleted again
+ * inadvertently nothing happens, and if an attempt is made to reference the object by
+ * its index number, a standard exception is thrown.
+ *
+ * The SharedCabinet<M> class is implemented as a singlet. The constructor is never
+ * explicitly called; instead, static function SharedCabinet<M>::SharedCabinet() is
+ * called to obtain a pointer to the instance. This function calls the constructor on
+ * the first call and stores the pointer to this instance. Subsequent calls simply
+ * return the already-created pointer.
+ */
+template<class M>
+class SharedCabinet
+{
+public:
+    typedef std::vector<std::shared_ptr<M>>& dataRef;
+
+    /**
+     * Constructor.
+     */
+    SharedCabinet() {}
+
+    /**
+     * Add a new object. The index of the object is returned.
+     */
+    static int add(std::shared_ptr<M> obj) {
+        dataRef data = getData();
+        data.push_back(obj);
+        int index = data.size() - 1;
+        return index;
+    }
+
+    /**
+     * Return cabinet size.
+     */
+    static int size() {
+        int size = getData().size();
+        return size;
+    }
+
+    /**
+     * Delete all objects without erasing mapping.
+     */
+    static int clear() {
+        dataRef data = getData();
+        for (size_t i = 0; i < data.size(); i++) {
+            del(i);
+        }
+        return 0;
+    }
+
+    /**
+     * Delete all objects and erase mapping.
+     */
+    static int reset() {
+        getData().clear();
+        return 0;
+    }
+
+    /**
+     * Delete the nth object. After the object is deleted, the pointer to it in the list
+     * is replaced by a pointer to the first element in the list.
+     */
+    static void del(size_t n) {
+        dataRef data = getData();
+        if (n >= 0 && n < data.size()) {
+            data[n].reset();
+        } else {
+            throw CanteraError("SharedCabinet::del",
+                "Attempt made to delete a non-existing object.");
+        }
+    }
+
+    /**
+     * Return a shared pointer to object n.
+     */
+    static std::shared_ptr<M>& at(size_t n) {
+        dataRef data = getData();
+        if (n < 0 || n >= data.size()) {
+            throw CanteraError("SharedCabinet::at", "Index {} out of range.", n);
+        }
+        return data[n];
+    }
+
+    /**
+     * Return a reference to object n.
+     */
+    static M& item(size_t n) {
+        auto ptr = at(n);
+        if (!ptr) {
+            throw CanteraError("SharedCabinet::item",
+                "Object with index {} has been deleted.", n);
+        }
+        return *ptr;
+    }
+
+    /**
+     * Return a reference to object n, cast to a reference of the specified type.
+     */
+    template <class T>
+    static T& get(size_t n) {
+        auto obj = std::dynamic_pointer_cast<T>(at(n));
+        if (obj) {
+            return *obj;
+        }
+        throw CanteraError("SharedCabinet::get", "Item is not of the correct type.");
+    }
+
+    /**
+     * Return the index in the SharedCabinet to the specified object, or -1 if the
+     * object is not in the SharedCabinet.
+     */
+    static int index(const M& obj) {
+        dataRef data = getData();
+        int count = 0;
+        for (const auto& item : data) {
+            if (item.get() == &obj) {
+                return count;
+            }
+            count++;
+        }
+        return -1;
+    }
+
+private:
+    /**
+     * Static function that returns a pointer to the data member of
+     * the singleton SharedCabinet<M> instance. All member functions should
+     * access the data through this function.
+     */
+    static dataRef getData() {
+        if (s_storage == 0) {
+            s_storage = new SharedCabinet<M>();
+        }
+        return s_storage->m_table;
+    }
+
+    /**
+     * Pointer to the single instance of this class.
+     */
+    static SharedCabinet<M>* s_storage;
+
+    /**
+     * list to hold pointers to objects.
+     */
+    std::vector<std::shared_ptr<M>> m_table;
 };
 
 #endif

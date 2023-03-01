@@ -18,7 +18,7 @@
 #include "cantera/transport/TransportFactory.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/thermo/ThermoFactory.h"
-#include "Cabinet.h"
+#include "clib_utils.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/thermo/PureFluidPhase.h"
 #include "cantera/base/ExternalLogger.h"

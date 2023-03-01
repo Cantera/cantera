@@ -9,7 +9,7 @@
 
 // Cantera includes
 #include "cantera/kinetics/ReactionPath.h"
-#include "Cabinet.h"
+#include "clib_utils.h"
 
 #include <fstream>
 

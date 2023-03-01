@@ -11,7 +11,7 @@
 #include "cantera/oneD/Sim1D.h"
 #include "cantera/oneD/Boundary1D.h"
 #include "cantera/transport/Transport.h"
-#include "Cabinet.h"
+#include "clib_utils.h"
 #include "cantera/base/stringUtils.h"
 
 #include <fstream>

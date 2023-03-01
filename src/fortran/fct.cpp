@@ -16,7 +16,7 @@
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/base/NoExitLogger.h"
 #include "cantera/base/stringUtils.h"
-#include "clib/Cabinet.h"
+#include "cantera/extensions/Cabinet.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
 
 #include "cantera/clib/clib_defs.h"
