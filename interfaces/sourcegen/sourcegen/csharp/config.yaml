@@ -9,6 +9,7 @@ ignore_files:
 ignore_funcs:
   ct.h:
     - ct_setLogWriter
+    - soln_newInterface # signature causes syntax error in sourcegen
   ctreactor.h:
     - flowReactor_setMassFlowRate
 
@@ -21,6 +22,7 @@ class_crosswalk:
   reactor: Reactor
   reactornet: ReactorNet
   reactorsurface: ReactorSurface
+  soln: Solution
   surf: Surface
   thermo: ThermoPhase
   trans: Transport
