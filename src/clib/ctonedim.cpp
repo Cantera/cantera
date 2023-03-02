@@ -337,8 +337,8 @@ extern "C" {
     int reactingsurf_setkineticsmgr(int i, int j)
     {
         try {
-            InterfaceKinetics& k = SharedCabinet<Kinetics>::get<InterfaceKinetics>(j);
-            DomainCabinet::get<ReactingSurf1D>(i).setKineticsMgr(&k);
+            auto k = KineticsCabinet::at(j);
+            DomainCabinet::get<ReactingSurf1D>(i).setKinetics(k);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -370,8 +370,8 @@ extern "C" {
     int stflow_new(int iph, int ikin, int itr, int itype)
     {
         try {
-            IdealGasPhase& ph = ThermoCabinet::get<IdealGasPhase>(iph);
-            StFlow* x = new StFlow(&ph, ph.nSpecies(), 2);
+            auto ph = ThermoCabinet::at(iph);
+            StFlow* x = new StFlow(ph, ph->nSpecies(), 2);
             if (itype == 1) {
                 x->setAxisymmetricFlow();
             } else if (itype == 2) {
@@ -380,19 +380,18 @@ extern "C" {
                 delete x;
                 return -2;
             }
-            x->setKinetics(KineticsCabinet::item(ikin));
-            x->setTransport(TransportCabinet::item(itr));
+            x->setKinetics(KineticsCabinet::at(ikin));
+            x->setTransport(TransportCabinet::at(itr));
             return DomainCabinet::add(x);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
     }
 
-
     int stflow_setTransport(int i, int itr)
     {
         try {
-            DomainCabinet::get<StFlow>(i).setTransport(TransportCabinet::item(itr));
+            DomainCabinet::get<StFlow>(i).setTransport(TransportCabinet::at(itr));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
