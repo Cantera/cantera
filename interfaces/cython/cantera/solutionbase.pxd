@@ -11,7 +11,7 @@ from .ctcxx cimport *
 
 cdef extern from "cantera/thermo/ThermoFactory.h" namespace "Cantera":
     cdef cppclass CxxThermoPhase "Cantera::ThermoPhase"
-    cdef shared_ptr[CxxThermoPhase] newThermo(string) except +translate_exception
+    cdef shared_ptr[CxxThermoPhase] newThermoModel(string) except +translate_exception
 
 
 cdef extern from "cantera/kinetics/KineticsFactory.h" namespace "Cantera":
@@ -21,7 +21,7 @@ cdef extern from "cantera/kinetics/KineticsFactory.h" namespace "Cantera":
 
 cdef extern from "cantera/transport/TransportFactory.h" namespace "Cantera":
     cdef cppclass CxxTransport "Cantera::Transport"
-    cdef shared_ptr[CxxTransport] newTransport(CxxThermoPhase*, string) except +translate_exception
+    cdef shared_ptr[CxxTransport] newTransport(shared_ptr[CxxThermoPhase], string) except +translate_exception
 
 
 cdef extern from "cantera/base/Interface.h" namespace "Cantera":

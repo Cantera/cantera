@@ -79,10 +79,10 @@ cdef class GasTransportData:
     cdef _assign(self, shared_ptr[CxxTransportData] other)
 
 cdef class Transport(_SolutionBase):
-     pass
+    pass
 
 cdef class DustyGasTransport(Transport):
-     pass
+    pass
 
 cdef np.ndarray get_transport_1d(Transport tran, transportMethod1d method)
 cdef np.ndarray get_transport_2d(Transport tran, transportMethod2d method)
