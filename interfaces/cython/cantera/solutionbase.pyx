@@ -47,7 +47,7 @@ cdef class _SolutionBase:
 
         cdef shared_ptr[CxxSolution] cxx_soln = CxxNewSolution()
         cxx_soln.get().setSource(stringify("none"))
-        cxx_soln.get().setThermo(newThermo(stringify("none")))
+        cxx_soln.get().setThermo(newThermoModel(stringify("none")))
         cxx_soln.get().setKinetics(newKinetics(stringify("none")))
         cxx_soln.get().setTransportModel(stringify("none"))
         _assign_Solution(self, cxx_soln, True)
@@ -224,7 +224,7 @@ cdef class _SolutionBase:
         the model type and a list of Species objects.
         """
         self.base.setSource(stringify("custom parts"))
-        self.base.setThermo(newThermo(stringify(thermo)))
+        self.base.setThermo(newThermoModel(stringify(thermo)))
         self.thermo = self.base.thermo().get()
 
         self.thermo.addUndefinedElements()
@@ -241,10 +241,10 @@ cdef class _SolutionBase:
         if isinstance(self, Kinetics):
             self.base.setKinetics(newKinetics(stringify(kinetics)))
             self.kinetics = self.base.kinetics().get()
-            self.kinetics.addPhase(deref(self.thermo))
+            self.kinetics.addPhase(self.base.thermo())
             for phase in adjacent:
                 # adjacent bulk phases for a surface phase
-                self.kinetics.addPhase(deref(phase.thermo))
+                self.kinetics.addPhase(phase.base.thermo())
             self.kinetics.init()
             self.kinetics.skipUndeclaredThirdBodies(True)
             for reaction in reactions:

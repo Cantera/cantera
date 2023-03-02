@@ -466,7 +466,7 @@ cdef class ReactingSurface1D(Boundary1D):
         if pystr(kin.kinetics.kineticsType()) not in ("Surf", "Edge"):
             raise TypeError('Kinetics object must be derived from '
                             'InterfaceKinetics.')
-        self.surf.setKineticsMgr(<CxxInterfaceKinetics*>kin.kinetics)
+        self.surf.setKinetics(kin.base.kinetics())
         self.surface = kin
         self.surface._references[self._weakref_proxy] = True
 
