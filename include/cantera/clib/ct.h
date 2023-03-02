@@ -19,14 +19,18 @@ extern "C" {
     CANTERA_CAPI int solution_newFromFile(const char* infile,
                                           const char* name,
                                           const char* transport);
+    CANTERA_CAPI int solution_size();
     CANTERA_CAPI int solution_del(int n);
+    CANTERA_CAPI int solution_reset();
     CANTERA_CAPI int solution_name(int n, int buflen, char* buf);
     CANTERA_CAPI int solution_thermo(int n);
     CANTERA_CAPI int solution_kinetics(int n);
     CANTERA_CAPI int solution_transport(int n);
 
     CANTERA_CAPI int thermo_newFromFile(const char* filename, const char* phasename);
+    CANTERA_CAPI int thermo_size();
     CANTERA_CAPI int thermo_del(int n);
+    CANTERA_CAPI int thermo_reset();
     CANTERA_CAPI size_t thermo_nElements(int n);
     CANTERA_CAPI size_t thermo_nSpecies(int n);
     CANTERA_CAPI double thermo_temperature(int n);
@@ -117,7 +121,9 @@ extern "C" {
     CANTERA_CAPI int kin_newFromFile(const char* filename, const char* phasename,
                                      int reactingPhase, int neighbor1, int neighbor2,
                                      int neighbor3, int neighbor4);
+    CANTERA_CAPI int kin_size();
     CANTERA_CAPI int kin_del(int n);
+    CANTERA_CAPI int kin_reset();
     CANTERA_CAPI size_t kin_nSpecies(int n);
     CANTERA_CAPI size_t kin_nReactions(int n);
     CANTERA_CAPI size_t kin_nPhases(int n);
@@ -151,7 +157,9 @@ extern "C" {
 
     CANTERA_CAPI int trans_newDefault(int th, int loglevel);
     CANTERA_CAPI int trans_new(const char* model, int th, int loglevel);
+    CANTERA_CAPI int trans_size();
     CANTERA_CAPI int trans_del(int n);
+    CANTERA_CAPI int trans_reset();
     CANTERA_CAPI double trans_viscosity(int n);
     CANTERA_CAPI double trans_electricalConductivity(int n);
     CANTERA_CAPI double trans_thermalConductivity(int n);
