@@ -74,6 +74,15 @@ extern "C" {
         }
     }
 
+    int solution_size()
+    {
+        try {
+            return SolutionCabinet::size();
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     int solution_del(int n)
     {
         try {
@@ -98,6 +107,16 @@ extern "C" {
                 }
             }
             SolutionCabinet::del(n);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int solution_reset()
+    {
+        try {
+            SolutionCabinet::reset();
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -995,15 +1014,15 @@ extern "C" {
     {
         try {
             vector<ThermoPhase*> phases;
-            phases.push_back(&ThermoCabinet::item(reactingPhase));
+            phases.push_back(ThermoCabinet::at(reactingPhase).get());
             if (neighbor1 >= 0) {
-                phases.push_back(&ThermoCabinet::item(neighbor1));
+                phases.push_back(ThermoCabinet::at(neighbor1).get());
                 if (neighbor2 >= 0) {
-                    phases.push_back(&ThermoCabinet::item(neighbor2));
+                    phases.push_back(ThermoCabinet::at(neighbor2).get());
                     if (neighbor3 >= 0) {
-                        phases.push_back(&ThermoCabinet::item(neighbor3));
+                        phases.push_back(ThermoCabinet::at(neighbor3).get());
                         if (neighbor4 >= 0) {
-                            phases.push_back(&ThermoCabinet::item(neighbor4));
+                            phases.push_back(ThermoCabinet::at(neighbor4).get());
                         }
                     }
                 }
@@ -1618,6 +1637,33 @@ extern "C" {
         }
     }
 
+    int thermo_size()
+    {
+        try {
+            return ThermoCabinet::size();
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int kin_size()
+    {
+        try {
+            return KineticsCabinet::size();
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int trans_size()
+    {
+        try {
+            return TransportCabinet::size();
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     int thermo_del(int n)
     {
         try {
@@ -1642,6 +1688,36 @@ extern "C" {
     {
         try {
             TransportCabinet::del(n);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int thermo_reset()
+    {
+        try {
+            ThermoCabinet::reset();
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int kin_reset()
+    {
+        try {
+            KineticsCabinet::reset();
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int trans_reset()
+    {
+        try {
+            TransportCabinet::reset();
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

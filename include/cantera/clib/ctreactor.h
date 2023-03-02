@@ -21,6 +21,7 @@ extern "C" {
     CANTERA_CAPI int reactor_setEnergy(int i, int eflag);
     CANTERA_CAPI int reactor_setThermoMgr(int i, int n);
     CANTERA_CAPI int reactor_setKineticsMgr(int i, int n);
+    CANTERA_CAPI int reactor_insert(int i, int n);
     CANTERA_CAPI double reactor_mass(int i);
     CANTERA_CAPI double reactor_volume(int i);
     CANTERA_CAPI double reactor_density(int i);

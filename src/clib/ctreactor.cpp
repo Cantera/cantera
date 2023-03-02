@@ -24,6 +24,7 @@ typedef Cabinet<WallBase> WallCabinet;
 typedef Cabinet<Func1> FuncCabinet;
 typedef SharedCabinet<ThermoPhase> ThermoCabinet;
 typedef SharedCabinet<Kinetics> KineticsCabinet;
+typedef SharedCabinet<Solution> SolutionCabinet;
 typedef Cabinet<ReactorSurface> ReactorSurfaceCabinet;
 
 template<> ReactorCabinet* ReactorCabinet::s_storage = 0;
@@ -34,6 +35,7 @@ template<> ReactorSurfaceCabinet* ReactorSurfaceCabinet::s_storage = 0;
 template<> FuncCabinet* FuncCabinet::s_storage; // defined in ctfunc.cpp
 template<> ThermoCabinet* ThermoCabinet::s_storage; // defined in ct.cpp
 template<> KineticsCabinet* KineticsCabinet::s_storage; // defined in ct.cpp
+template<> SolutionCabinet* SolutionCabinet::s_storage; // defined in ct.cpp
 
 extern "C" {
 
@@ -83,6 +85,16 @@ extern "C" {
     {
         try {
             ReactorCabinet::item(i).setKineticsMgr(KineticsCabinet::item(n));
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int reactor_insert(int i, int n)
+    {
+        try {
+            ReactorCabinet::get<Reactor>(i).insert(SolutionCabinet::at(n));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
