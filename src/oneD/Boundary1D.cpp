@@ -644,8 +644,23 @@ ReactingSurf1D::ReactingSurf1D(shared_ptr<Solution> solution, const std::string&
     m_enabled = true;
 }
 
+void ReactingSurf1D::setKinetics(shared_ptr<Kinetics> kin)
+{
+    m_solution = Solution::create();
+    m_solution->setThermo(kin->reactionPhase());
+    m_solution->setKinetics(kin);
+    m_solution->setTransportModel("none");
+    m_kin = dynamic_pointer_cast<InterfaceKinetics>(kin).get();
+    m_surfindex = kin->reactionPhaseIndex();
+    m_sphase = dynamic_pointer_cast<SurfPhase>(kin->reactionPhase()).get();
+    m_nsp = m_sphase->nSpecies();
+    m_enabled = true;
+}
+
 void ReactingSurf1D::setKineticsMgr(InterfaceKinetics* kin)
 {
+    warn_deprecated("ReactingSurf1D::setKineticsMgr",
+        "To be removed after Cantera 3.0. Replaced by Domain1D::setKinetics.");
     m_kin = kin;
     m_surfindex = kin->reactionPhaseIndex();
     m_sphase = (SurfPhase*)&kin->thermo(m_surfindex);

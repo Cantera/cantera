@@ -28,6 +28,8 @@ class MultiJac;
 class OneDim;
 class Refiner;
 class AnyMap;
+class Kinetics;
+class Transport;
 class Solution;
 class SolutionArray;
 
@@ -63,6 +65,24 @@ public:
     //! True if the domain is a connector domain.
     bool isConnector() {
         return (m_type >= cConnectorType);
+    }
+
+    //! Set the solution manager.
+    //! @since  New in Cantera 3.0.
+    void setSolution(shared_ptr<Solution> sol) {
+        m_solution = sol;
+    }
+
+    //! Set the kinetics manager.
+    //! @since  New in Cantera 3.0.
+    virtual void setKinetics(shared_ptr<Kinetics> kin) {
+        throw NotImplementedError("Domain1D::setKinetics");
+    }
+
+    //! Set transport model to existing instance
+    //! @since  New in Cantera 3.0.
+    virtual void setTransport(shared_ptr<Transport> trans) {
+        throw NotImplementedError("Domain1D::setTransport");
     }
 
     //! The container holding this domain.
@@ -398,12 +418,18 @@ public:
      */
     void linkLeft(Domain1D* left) {
         m_left = left;
+        if (!m_solution && left && left->solution()) {
+            m_solution = left->solution();
+        }
         locate();
     }
 
     //! Set the right neighbor to domain 'right.'
     void linkRight(Domain1D* right) {
         m_right = right;
+        if (!m_solution && right && right->solution()) {
+            m_solution = right->solution();
+        }
     }
 
     //! Append domain 'right' to this one, and update all links.

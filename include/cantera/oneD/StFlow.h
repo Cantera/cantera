@@ -52,9 +52,7 @@ public:
     StFlow(ThermoPhase* ph = 0, size_t nsp = 1, size_t points = 1);
 
     //! Delegating constructor
-    StFlow(shared_ptr<ThermoPhase> th, size_t nsp = 1, size_t points = 1) :
-        StFlow(th.get(), nsp, points) {
-    }
+    StFlow(shared_ptr<ThermoPhase> th, size_t nsp = 1, size_t points = 1);
 
     //! Create a new flow domain.
     //! @param sol  Solution object used to evaluate all thermodynamic, kinetic, and
@@ -88,12 +86,16 @@ public:
      */
     void setThermo(IdealGasPhase& th);
 
-    //! Set the kinetics manager. The kinetics manager must
-    void setKinetics(Kinetics& kin) {
-        m_kin = &kin;
-    }
+    virtual void setKinetics(shared_ptr<Kinetics> kin);
+
+    //! Set the kinetics manager.
+    //! @deprecated  To be removed after Cantera 3.0; replaced by Domain1D::setKinetics
+    void setKinetics(Kinetics& kin);
+
+    virtual void setTransport(shared_ptr<Transport> trans);
 
     //! Set transport model to existing instance
+    //! @deprecated  To be removed after Cantera 3.0; replaced by Domain1D::setKinetics
     void setTransport(Transport& trans);
 
     //! Set the transport model

@@ -298,6 +298,9 @@ public:
     ReactingSurf1D();
     ReactingSurf1D(shared_ptr<Solution> solution, const std::string& id="");
 
+    virtual void setKinetics(shared_ptr<Kinetics> kin);
+
+    //! @deprecated  To be removed after Cantera 3.0; replaced by setKinetics
     void setKineticsMgr(InterfaceKinetics* kin);
 
     void enableCoverageEquations(bool docov) {
