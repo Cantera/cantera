@@ -42,7 +42,7 @@ include_package_data = True
 install_requires =
     numpy >= 1.12.0
     ruamel.yaml >= 0.15.34
-python_requires = >=@py_min_ver_str@
+python_requires = >=@py_min_ver_str@,<3.11
 packages =
     cantera
     cantera.data
