@@ -59,7 +59,14 @@ shared_ptr<Kinetics> newKinetics(const string& model);
  * @param rootNode   The root node of the file containing the phase definition,
  *     which will be treated as the default source for reactions
  */
-shared_ptr<Kinetics> newKinetics(const std::vector<ThermoPhase*>& phases,
+shared_ptr<Kinetics> newKinetics(const vector<shared_ptr<ThermoPhase>>& phases,
+                                 const AnyMap& phaseNode,
+                                 const AnyMap& rootNode=AnyMap());
+
+//! @copydoc KineticsFactory::newKinetics(const vector<shared_ptr<ThermoPhase>>&, const AnyMap&, const AnyMap&)
+//! @deprecated  To be removed after Cantera 3.0;
+//!     superseded by newKinetics() returning shared_ptr
+unique_ptr<Kinetics> newKinetics(const std::vector<ThermoPhase*>& phases,
                                  const AnyMap& phaseNode,
                                  const AnyMap& rootNode=AnyMap());
 
@@ -74,7 +81,14 @@ shared_ptr<Kinetics> newKinetics(const std::vector<ThermoPhase*>& phases,
  * @param phase_name  The name of the reacting phase in the input file (that is, the
  *     name of the first phase in the `phases` vector)
  */
-shared_ptr<Kinetics> newKinetics(const std::vector<ThermoPhase*>& phases,
+shared_ptr<Kinetics> newKinetics(const vector<shared_ptr<ThermoPhase>>& phases,
+                                 const string& filename,
+                                 const string& phase_name);
+
+//! @copydoc KineticsFactory::newKinetics(const vector<shared_ptr<ThermoPhase>>&, const string&, const string&)
+//! @deprecated  To be removed after Cantera 3.0;
+//!     superseded by newKinetics() returning shared_ptr
+unique_ptr<Kinetics> newKinetics(const std::vector<ThermoPhase*>& phases,
                                  const std::string& filename,
                                  const std::string& phase_name);
 

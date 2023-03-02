@@ -300,10 +300,10 @@ shared_ptr<Solution> newSolution(const AnyMap& phaseNode,
     }
 
     // kinetics
-    std::vector<ThermoPhase*> phases;
-    phases.push_back(sol->thermo().get());
+    vector<shared_ptr<ThermoPhase>> phases;
+    phases.push_back(sol->thermo());
     for (size_t i = 0; i < sol->nAdjacent(); i++) {
-        phases.push_back(sol->adjacent(i)->thermo().get());
+        phases.push_back(sol->adjacent(i)->thermo());
     }
     sol->setKinetics(newKinetics(phases, phaseNode, rootNode));
 
