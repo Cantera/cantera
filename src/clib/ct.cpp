@@ -1013,16 +1013,16 @@ extern "C" {
                         int neighbor3, int neighbor4)
     {
         try {
-            vector<ThermoPhase*> phases;
-            phases.push_back(ThermoCabinet::at(reactingPhase).get());
+            vector<shared_ptr<ThermoPhase>> phases;
+            phases.push_back(ThermoCabinet::at(reactingPhase));
             if (neighbor1 >= 0) {
-                phases.push_back(ThermoCabinet::at(neighbor1).get());
+                phases.push_back(ThermoCabinet::at(neighbor1));
                 if (neighbor2 >= 0) {
-                    phases.push_back(ThermoCabinet::at(neighbor2).get());
+                    phases.push_back(ThermoCabinet::at(neighbor2));
                     if (neighbor3 >= 0) {
-                        phases.push_back(ThermoCabinet::at(neighbor3).get());
+                        phases.push_back(ThermoCabinet::at(neighbor3));
                         if (neighbor4 >= 0) {
-                            phases.push_back(ThermoCabinet::at(neighbor4).get());
+                            phases.push_back(ThermoCabinet::at(neighbor4));
                         }
                     }
                 }
