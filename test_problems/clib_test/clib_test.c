@@ -34,7 +34,7 @@ int main(int argc, char** argv)
     ret = thermo_print(thermo, 1, 0);
     assert(ret == 0);
 
-    int kin = kin_newFromFile("gri30.yaml", "gri30", thermo, 0, 0, 0, 0);
+    int kin = kin_newFromFile("gri30.yaml", "gri30", thermo, -1, -1, -1, -1);
     assert(kin > 0);
 
     size_t nr = kin_nReactions(kin);
@@ -63,12 +63,14 @@ int main(int argc, char** argv)
         printf("%10s   %8.6e\n", buf, dkm[k]);
     }
 
+    ret = thermo_setMoleFractionsByName(thermo, "CH4:1.0, O2:2.0, N2:7.52");
+    assert(ret == 0);
     ret = thermo_setTemperature(thermo, 1050);
     assert(ret == 0);
     ret = thermo_setPressure(thermo, 5 * 101325);
     assert(ret == 0);
-    ret = thermo_setMoleFractionsByName(thermo, "CH4:1.0, O2:2.0, N2:7.52");
-    assert(ret == 0);
+
+    thermo_print(thermo, 1, 1e-6);
 
     printf("\ntime       Temperature\n");
     int reactor = reactor_new("IdealGasReactor");
