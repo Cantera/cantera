@@ -108,6 +108,13 @@ StFlow::StFlow(ThermoPhase* ph, size_t nsp, size_t points) :
     m_kRadiating[1] = m_thermo->speciesIndex("H2O");
 }
 
+StFlow::StFlow(shared_ptr<ThermoPhase> th, size_t nsp, size_t points)
+    : StFlow(th.get(), nsp, points)
+{
+    m_solution = Solution::create();
+    m_solution->setThermo(th);
+}
+
 StFlow::StFlow(shared_ptr<Solution> sol, const std::string& id, size_t points)
     : StFlow(sol->thermo().get(), sol->thermo()->nSpecies(), points)
 {
@@ -139,6 +146,50 @@ StFlow::~StFlow()
 void StFlow::setThermo(IdealGasPhase& th) {
     warn_deprecated("StFlow::setThermo", "To be removed after Cantera 3.0.");
     m_thermo = &th;
+}
+
+void StFlow::setKinetics(shared_ptr<Kinetics> kin)
+{
+    if (!m_solution) {
+        // @todo remove after Cantera 3.0
+        throw CanteraError("StFlow::setKinetics",
+            "Unable to update object that was not constructed from smart pointers.");
+    }
+    m_kin = kin.get();
+    m_solution->setKinetics(kin);
+}
+
+void StFlow::setKinetics(Kinetics& kin)
+{
+    // @todo: resolve crash for updated m_solution->registerChangedCallback
+    // warn_deprecated("StFlow::setKinetics",
+    //     "To be removed after Cantera 3.0. Replaced by Domain1D::setKinetics.");
+    m_kin = &kin;
+}
+
+void StFlow::setTransport(shared_ptr<Transport> trans)
+{
+    if (!m_solution) {
+        // @todo remove after Cantera 3.0
+        throw CanteraError("StFlow::setTransport",
+            "Unable to update object that was not constructed from smart pointers.");
+    }
+    if (!trans) {
+        throw CanteraError("StFlow::setTransport", "Unable to set empty transport.");
+    }
+    m_trans = trans.get();
+    if (m_trans->transportModel() == "None") {
+        throw CanteraError("StFlow::setTransport", "Invalid Transport model 'None'.");
+    }
+    m_do_multicomponent = (m_trans->transportModel() == "Multi" ||
+        m_trans->transportModel() == "CK_Multi");
+
+    m_diff.resize(m_nsp * m_points);
+    if (m_do_multicomponent) {
+        m_multidiff.resize(m_nsp * m_nsp*m_points);
+        m_dthermal.resize(m_nsp, m_points, 0.0);
+    }
+    m_solution->setTransport(trans);
 }
 
 void StFlow::resize(size_t ncomponents, size_t points)
@@ -193,6 +244,7 @@ void StFlow::resetBadValues(double* xg)
 void StFlow::setTransportModel(const std::string& trans)
 {
     if (!m_solution) {
+        // @todo remove after Cantera 3.0
         throw CanteraError("StFlow::setTransportModel",
             "Unable to set Transport manager by name as object was not initialized\n"
             "from a Solution manager: set Transport object directly instead.");
@@ -206,6 +258,9 @@ std::string StFlow::transportModel() const {
 
 void StFlow::setTransport(Transport& trans)
 {
+    // @todo: resolve crash for updated m_solution->registerChangedCallback
+    // warn_deprecated("StFlow::setTransport",
+    //     "To be removed after Cantera 3.0. Replaced by Domain1D::setTransport.");
     m_trans = &trans;
     if (m_trans->transportModel() == "None") {
         throw CanteraError("StFlow::setTransport",
