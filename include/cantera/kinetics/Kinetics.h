@@ -220,6 +220,12 @@ public:
     }
 
     /**
+     * Return pointer to phase where the reactions occur.
+     * @since New in Cantera 3.0
+     */
+    shared_ptr<ThermoPhase> reactionPhase() const;
+
+    /**
      * This method returns a reference to the nth ThermoPhase object defined
      * in this kinetics mechanism. It is typically used so that member
      * functions of the ThermoPhase object may be called. For homogeneous
@@ -1098,7 +1104,13 @@ public:
      *    kinetics manager object as the value.
      *
      * @param thermo    Reference to the ThermoPhase to be added.
+     * @since Changed in Cantera 3.0. Replaces version using reference.
      */
+    virtual void addPhase(shared_ptr<ThermoPhase> thermo);
+
+    //! @see Kinetics::addPhase(shared_ptr<ThermoPhase>)
+    //! @deprecated To be removed after Cantera 3.0. Replaced by version using shared
+    //!     pointer.
     virtual void addPhase(ThermoPhase& thermo);
 
     /**
@@ -1319,6 +1331,10 @@ protected:
      * and is not responsible for creating or deleting them.
      */
     std::vector<ThermoPhase*> m_thermo;
+
+    //! vector of shared pointers, @see m_thermo
+    //! @todo replace m_thermo with shared version after Cantera 3.0
+    vector<shared_ptr<ThermoPhase>> m_sharedThermo;
 
     /**
      * m_start is a vector of integers specifying the beginning position for the

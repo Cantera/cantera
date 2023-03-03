@@ -142,6 +142,9 @@ public:
      *
      * @param thermo    Reference to the ThermoPhase to be added.
      */
+    virtual void addPhase(shared_ptr<ThermoPhase> thermo);
+
+    //! @see InterfaceKinetics::addPhase(shared_ptr<ThermoPhase>)
     virtual void addPhase(ThermoPhase& thermo);
 
     virtual void init();

@@ -93,6 +93,16 @@ size_t Kinetics::surfacePhaseIndex() const
     return m_surfphase;
 }
 
+shared_ptr<ThermoPhase> Kinetics::reactionPhase() const
+{
+    if (!m_sharedThermo.size()) {
+        // @todo remove after Cantera 3.0
+        throw CanteraError("Kinetics::reactionPhase",
+            "Cannot access phases that were not added using smart pointers.");
+    }
+    return m_sharedThermo[m_rxnphase];
+}
+
 void Kinetics::checkSpeciesIndex(size_t k) const
 {
     if (k >= m_kk) {
@@ -561,8 +571,30 @@ Eigen::SparseMatrix<double> Kinetics::netProductionRates_ddX()
     return m_stoichMatrix * netRatesOfProgress_ddX();
 }
 
+void Kinetics::addPhase(shared_ptr<ThermoPhase> thermo)
+{
+    // the phase with lowest dimensionality is assumed to be the
+    // phase/interface at which reactions take place
+    if (thermo->nDim() <= m_mindim) {
+        m_mindim = thermo->nDim();
+        m_rxnphase = nPhases();
+    }
+
+    // there should only be one surface phase
+    if (thermo->type() == kineticsType()) {
+        m_surfphase = nPhases();
+    }
+    m_thermo.push_back(thermo.get());
+    m_sharedThermo.push_back(thermo);
+    m_phaseindex[m_thermo.back()->name()] = nPhases();
+    resizeSpecies();
+}
+
 void Kinetics::addPhase(ThermoPhase& thermo)
 {
+    warn_deprecated("Kinetics::addPhase",
+        "To be removed after Cantera 3.0. Use version with shared pointer instead.");
+
     // the phase with lowest dimensionality is assumed to be the
     // phase/interface at which reactions take place
     if (thermo.nDim() <= m_mindim) {

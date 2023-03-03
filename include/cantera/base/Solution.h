@@ -49,9 +49,9 @@ public:
     virtual void setTransport(shared_ptr<Transport> transport);
 
     //! Set the Transport object by name
-    //! @param model  name of transport model
+    //! @param model  name of transport model; if omitted, the default model is used
     //! @since New in Cantera 3.0
-    void setTransportModel(const std::string& model);
+    void setTransportModel(const std::string& model="");
 
     //! Accessor for the ThermoPhase pointer
     shared_ptr<ThermoPhase> thermo() {
