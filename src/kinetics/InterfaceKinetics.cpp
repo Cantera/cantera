@@ -16,19 +16,24 @@ using namespace std;
 namespace Cantera
 {
 
-InterfaceKinetics::InterfaceKinetics(ThermoPhase* thermo) :
-    m_redo_rates(false),
-    m_surf(0),
-    m_integrator(0),
-    m_ROP_ok(false),
-    m_temp(0.0),
-    m_phaseExistsCheck(false),
-    m_ioFlag(0),
-    m_nDim(2)
+InterfaceKinetics::InterfaceKinetics()
+    : m_redo_rates(false)
+    , m_surf(0)
+    , m_integrator(0)
+    , m_ROP_ok(false)
+    , m_temp(0.0)
+    , m_phaseExistsCheck(false)
+    , m_ioFlag(0)
+    , m_nDim(2)
 {
-    if (thermo != 0) {
-        addPhase(*thermo);
-    }
+}
+
+InterfaceKinetics::InterfaceKinetics(ThermoPhase* thermo)
+    : InterfaceKinetics()
+{
+    warn_deprecated("InterfaceKinetics::InterfaceKinetics",
+        "To be removed after Cantera 3.0. Use default constructor instead.");
+    addPhase(*thermo);
 }
 
 InterfaceKinetics::~InterfaceKinetics()

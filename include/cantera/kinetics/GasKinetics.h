@@ -28,10 +28,10 @@ public:
     //! @{
 
     //! Constructor.
-    /*!
-     *  @param thermo  Pointer to the gas ThermoPhase (optional)
-     */
-    GasKinetics(ThermoPhase* thermo = 0);
+    GasKinetics();
+
+    //! @deprecated  To be removed after Cantera 3.0; code base only uses default.
+    GasKinetics(ThermoPhase* thermo);
 
     virtual std::string kineticsType() const {
         return "Gas";

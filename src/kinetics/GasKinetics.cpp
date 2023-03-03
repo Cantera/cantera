@@ -12,12 +12,21 @@ using namespace std;
 
 namespace Cantera
 {
-GasKinetics::GasKinetics(ThermoPhase* thermo) :
-    BulkKinetics(thermo),
-    m_logStandConc(0.0),
-    m_pres(0.0)
+
+GasKinetics::GasKinetics()
+    : BulkKinetics()
+    , m_logStandConc(0.0)
+    , m_pres(0.0)
 {
     setDerivativeSettings(AnyMap()); // use default settings
+}
+
+GasKinetics::GasKinetics(ThermoPhase* thermo)
+    : GasKinetics()
+{
+    warn_deprecated("GasKinetics::GasKinetics",
+        "To be removed after Cantera 3.0. Use default constructor instead.");
+    addPhase(*thermo);
 }
 
 void GasKinetics::resizeReactions()
