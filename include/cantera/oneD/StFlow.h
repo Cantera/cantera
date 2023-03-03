@@ -9,9 +9,7 @@
 #include "Domain1D.h"
 #include "cantera/base/Array.h"
 #include "cantera/base/Solution.h"
-#include "cantera/thermo/IdealGasPhase.h"
-#include "cantera/thermo/RedlichKwongMFTP.h"
-#include "cantera/thermo/PengRobinson.h"
+#include "cantera/thermo/ThermoPhase.h"
 #include "cantera/kinetics/Kinetics.h"
 
 namespace Cantera
@@ -83,8 +81,7 @@ public:
     }
 
     /**
-     * Set the thermo manager. Note that the flow equations assume
-     * the ideal gas equation.
+     * Set the thermo manager.
      *
      * @deprecated  To be removed after Cantera 3.0 (unused)
      */

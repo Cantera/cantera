@@ -584,7 +584,7 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
                    }
                    sum *= GasConstant * T(x,j);
                    sum2 *= GasConstant * dtdzj;
-                } else if((m_thermo->type() == "RedlichKwong") || (m_thermo->type() == "PengRobinson")) 
+                } else  
                 {
                     // Update vectors m_hk_current, m_hk_left and m_hk_right
                     updateMolarEnthalpies(x, j);
