@@ -425,8 +425,8 @@ protected:
     virtual void updateDiffFluxes(const doublereal* x, size_t j0, size_t j1);
 
     //Get the gradient of speies specific molar enthalpies 
-    virtual vector_fp grad_hk(const doublereal* x, size_t j);
-    virtual void updateMolarEnthalpies(const doublereal* x, size_t j);
+    virtual vector_fp grad_hk(const double* x, size_t j);
+    virtual void updateMolarEnthalpies(const double* x, size_t j);
 
     //---------------------------------------------------------
     //             member data
