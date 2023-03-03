@@ -572,8 +572,7 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
                 double sum = 0.0;
                 double sum2 = 0.0;
                 
-                if(m_thermo->type() == "IdealGas")
-                {
+                if(m_thermo->type() == "IdealGas") {
                     vector_fp cp_R(m_nsp, 0.0), h_RT(m_nsp, 0.0);
                     m_thermo->getCp_R(&cp_R[0]);
                     m_thermo->getEnthalpy_RT_ref(&h_RT[0]);
@@ -581,11 +580,10 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
                         double flxk = 0.5*(m_flux(k,j-1) + m_flux(k,j));
                         sum += wdot(k,j)*h_RT[k];
                         sum2 += flxk*cp_R[k]/m_wt[k];
-                   }
+                    }
                    sum *= GasConstant * T(x,j);
                    sum2 *= GasConstant * dtdzj;
-                } else  
-                {
+                } else {
                     // Update vectors m_hk_current, m_hk_left and m_hk_right
                     updateMolarEnthalpies(x, j);
 
@@ -1074,25 +1072,22 @@ void StFlow::evalContinuity(size_t j, double* x, double* rsd, int* diag, double 
     }
 }
 
-vector_fp StFlow::grad_hk(const doublereal* x, size_t j) 
+vector_fp StFlow::grad_hk(const double* x, size_t j) 
 {
     vector_fp dhk_dz(m_nsp, 0.0);
 
-    for(size_t k = 0; k < m_nsp; k++)
-    {
-        if (u(x, j) > 0.0)
-        {
+    for(size_t k = 0; k < m_nsp; k++) {
+        if (u(x, j) > 0.0) {
             dhk_dz[k] = (m_hk_current[k] - m_hk_left[k]) / m_dz[j - 1];
         }
-        else
-        {
+        else {
             dhk_dz[k] = (m_hk_right[k] - m_hk_current[k]) / m_dz[j];
         }
     }
     return dhk_dz;
 }
 
-void StFlow::updateMolarEnthalpies(const doublereal* x, size_t j)
+void StFlow::updateMolarEnthalpies(const double* x, size_t j)
 {
     m_hk_left.resize(m_nsp,0.0);
     m_hk_current.resize(m_nsp,0.0);
