@@ -142,7 +142,7 @@ string StFlow::type() const {
     return "unstrained-flow";
 }
 
-void StFlow::setThermo(IdealGasPhase& th) {
+void StFlow::setThermo(ThermoPhase& th) {
     warn_deprecated("StFlow::setThermo", "To be removed after Cantera 3.0.");
     m_thermo = &th;
 }

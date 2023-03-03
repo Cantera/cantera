@@ -85,9 +85,7 @@ public:
      *
      * @deprecated  To be removed after Cantera 3.0 (unused)
      */
-    void setThermo(ThermoPhase& th) {
-        m_thermo = &th;
-    }
+    void setThermo(ThermoPhase& th);
 
     virtual void setKinetics(shared_ptr<Kinetics> kin);
 
