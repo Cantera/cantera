@@ -20,7 +20,10 @@ namespace Cantera
 class BulkKinetics : public Kinetics
 {
 public:
-    BulkKinetics(ThermoPhase* thermo = 0);
+    BulkKinetics();
+
+    //! @deprecated  To be removed after Cantera 3.0; code base only uses default.
+    BulkKinetics(ThermoPhase* thermo);
 
     virtual void resizeReactions();
 

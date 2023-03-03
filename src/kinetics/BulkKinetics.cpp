@@ -8,13 +8,17 @@
 namespace Cantera
 {
 
-BulkKinetics::BulkKinetics(ThermoPhase* thermo) :
-    m_ROP_ok(false),
-    m_temp(0.0)
+BulkKinetics::BulkKinetics()
+    : m_ROP_ok(false)
+    , m_temp(0.0)
 {
-    if (thermo) {
-        addPhase(*thermo);
-    }
+}
+
+BulkKinetics::BulkKinetics(ThermoPhase* thermo) : BulkKinetics()
+{
+    warn_deprecated("BulkKinetics::BulkKinetics",
+        "To be removed after Cantera 3.0. Use default constructor instead.");
+    addPhase(*thermo);
 }
 
 void BulkKinetics::resizeReactions()

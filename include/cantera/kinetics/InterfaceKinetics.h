@@ -57,14 +57,18 @@ class InterfaceKinetics : public Kinetics
 {
 public:
     //! Constructor
+    InterfaceKinetics();
+
+    //! Constructor
     /*!
-     * @param thermo The optional parameter may be used to initialize the object
+     * @param thermo The parameter may be used to initialize the object
      *               with one ThermoPhase object.
      *               HKM Note -> Since the interface kinetics object will
      *               probably require multiple ThermoPhase objects, this is
      *               probably not a good idea to have this parameter.
+     * @deprecated  To be removed after Cantera 3.0; code base only uses default.
      */
-    InterfaceKinetics(ThermoPhase* thermo = 0);
+    InterfaceKinetics(ThermoPhase* thermo);
 
     virtual ~InterfaceKinetics();
 
