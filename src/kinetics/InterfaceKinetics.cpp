@@ -487,6 +487,13 @@ void InterfaceKinetics::setIOFlag(int ioFlag)
     }
 }
 
+void InterfaceKinetics::addPhase(shared_ptr<ThermoPhase> thermo)
+{
+    Kinetics::addPhase(thermo);
+    m_phaseExists.push_back(true);
+    m_phaseIsStable.push_back(true);
+}
+
 void InterfaceKinetics::addPhase(ThermoPhase& thermo)
 {
     Kinetics::addPhase(thermo);
