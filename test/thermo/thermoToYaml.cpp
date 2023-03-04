@@ -301,7 +301,10 @@ TEST_F(ThermoToYaml, IdealMolalSolution)
     EXPECT_DOUBLE_EQ(cutoff["gamma_o"].asDouble(), 0.0001);
 
     EXPECT_EQ(eosData[2]["model"], "constant-volume");
-    EXPECT_DOUBLE_EQ(eosData[2]["molar-volume"].asDouble(), 0.1);
+    EXPECT_DOUBLE_EQ(eosData[2]["molar-density"].asDouble(), 10);
+
+    EXPECT_EQ(eosData[3]["model"], "constant-volume");
+    EXPECT_DOUBLE_EQ(eosData[3]["density"].asDouble(), 160.43);
 }
 
 TEST_F(ThermoToYaml, IsotropicElectronEnergyPlasma)

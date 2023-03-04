@@ -22,7 +22,11 @@ PDSS_ConstVol::PDSS_ConstVol()
 void PDSS_ConstVol::initThermo()
 {
     PDSS::initThermo();
-    if (m_input.hasKey("molar-volume")) {
+    if (m_input.hasKey("density")) {
+        setMolarVolume(m_mw / m_input.convert("density", "kg/m^3"));
+    } else if (m_input.hasKey("molar-density")) {
+        setMolarVolume(1.0 / m_input.convert("molar-density", "kmol/m^3"));
+    } else if (m_input.hasKey("molar-volume")) {
         setMolarVolume(m_input.convert("molar-volume", "m^3/kmol"));
     }
     m_minTemp = m_spthermo->minTemp();
@@ -36,7 +40,14 @@ void PDSS_ConstVol::getParameters(AnyMap &eosNode) const
 {
     PDSS::getParameters(eosNode);
     eosNode["model"] = "constant-volume";
-    eosNode["molar-volume"].setQuantity(m_constMolarVolume, "m^3/kmol");
+    // Output volume information in a form consistent with the input
+    if (m_input.hasKey("density")) {
+        eosNode["density"].setQuantity(m_mw / m_constMolarVolume, "kg/m^3");
+    } else if (m_input.hasKey("molar-density")) {
+        eosNode["molar-density"].setQuantity(1.0 / m_constMolarVolume, "kmol/m^3");
+    } else {
+        eosNode["molar-volume"].setQuantity(m_constMolarVolume, "m^3/kmol");
+    }
 }
 
 doublereal PDSS_ConstVol::intEnergy_mole() const
