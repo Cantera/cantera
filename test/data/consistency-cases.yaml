@@ -329,8 +329,6 @@ Redlich-Kister:
   setup:
     file: thermo-models.yaml
     phase: Redlich-Kister-LiC6
-    known-failures:
-      cv_eq_.+: "Implementation of cv is incorrect. See GitHub Issue #1320"
   states:
   - {T: 300, P: 1 atm, X: {Li(C6): 0.85, V(C6): 0.15}}
   - {T: 440, P: 1 atm, X: {Li(C6): 0.75, V(C6): 0.25}}
