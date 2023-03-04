@@ -51,7 +51,9 @@ namespace Cantera
  *    G^E_{i} =   n X_{Ai} X_{Bi} \sum_m \left( A^{i}_m {\left( X_{Ai} -  X_{Bi} \right)}^m \right)
  * \f]
  *
- * and where we can break down the Gibbs free energy contributions into enthalpy and entropy contributions
+ * where n is the total moles in the solution and where we can break down the Gibbs free
+ * energy contributions into enthalpy and entropy contributions by defining
+ * \f$ A^i_m = H^i_m - T S^i_m \f$ :
  *
  * \f[
  *    H^E_i = n X_{Ai} X_{Bi} \sum_m \left( H^{i}_m {\left( X_{Ai} -  X_{Bi} \right)}^m \right)
@@ -61,8 +63,8 @@ namespace Cantera
  *    S^E_i = n X_{Ai} X_{Bi} \sum_m \left( S^{i}_m {\left( X_{Ai} -  X_{Bi} \right)}^m \right)
  * \f]
  *
- * where n is the total moles in the solution. The activity of a species defined
- * in the phase is given by an excess Gibbs free energy formulation.
+ * The activity of a species defined in the phase is given by an excess Gibbs free
+ * energy formulation:
  *
  * \f[
  *      a_k = \gamma_k  X_k
@@ -78,6 +80,20 @@ namespace Cantera
  * \f[
  *      R T \ln( \gamma_k )=  \sum_i \delta_{Ai,k} (1 - X_{Ai}) X_{Bi} \sum_m \left( A^{i}_m {\left( X_{Ai} -  X_{Bi} \right)}^m \right)
  *                           + \sum_i \delta_{Ai,k} X_{Ai} X_{Bi} \sum_m \left(  A^{i}_0 +  A^{i}_m {\left( X_{Ai} -  X_{Bi} \right)}^{m-1} (1 - X_{Ai} + X_{Bi}) \right)
+ * \f]
+ *
+ * Evaluating thermodynamic properties requires the following derivatives of
+ * \f$ \ln(\gamma_k) \f$:
+ *
+ * \f[
+ *    \frac{d \ln( \gamma_k )}{dT} = - \frac{1}{RT^2} \left( \sum_i \delta_{Ai,k} (1 - X_{Ai}) X_{Bi} \sum_m \left( H^{i}_m {\left( X_{Ai} -  X_{Bi} \right)}^m \right)
+ *        + \sum_i \delta_{Ai,k} X_{Ai} X_{Bi} \sum_m \left(  H^{i}_0 +  H^{i}_m {\left( X_{Ai} -  X_{Bi} \right)}^{m-1} (1 - X_{Ai} + X_{Bi}) \right) \right)
+ * \f]
+ *
+ * and
+ *
+ * \f[
+ *    \frac{d^2 \ln( \gamma_k )}{dT^2} = -\frac{2}{T} \frac{d \ln( \gamma_k )}{dT}
  * \f]
  *
  * This object inherits from the class VPStandardStateTP. Therefore, the
