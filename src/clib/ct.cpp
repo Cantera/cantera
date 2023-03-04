@@ -18,6 +18,7 @@
 #include "cantera/transport/TransportFactory.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/Solution.h"
+#include "cantera/base/Interface.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "clib_utils.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
@@ -54,9 +55,9 @@ extern "C" {
 
     //--------------- Solution ------------------//
 
-    int solution_newFromFile(const char* infile,
-                             const char* name,
-                             const char* transport)
+    int soln_newSolution(const char* infile,
+                         const char* name,
+                         const char* transport)
     {
         try {
             auto sol = newSolution(infile, name, transport);
@@ -74,7 +75,32 @@ extern "C" {
         }
     }
 
-    int solution_size()
+    int soln_newInterface(const char* infile,
+                          const char* name,
+                          int na,
+                          const int* adjacent)
+    {
+        try {
+            std::vector<shared_ptr<Solution>> adj;
+            for (int i = 0; i < na; i++) {
+                adj.push_back(SolutionCabinet::at(adjacent[i]));
+            }
+            auto sol = newInterface(infile, name, adj);
+            // add associated objects
+            ThermoCabinet::add(sol->thermo());
+            if (sol->kinetics()) {
+                KineticsCabinet::add(sol->kinetics());
+            }
+            if (sol->transport()) {
+                TransportCabinet::add(sol->transport());
+            }
+            return SolutionCabinet::add(sol);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int soln_size()
     {
         try {
             return SolutionCabinet::size();
@@ -83,7 +109,7 @@ extern "C" {
         }
     }
 
-    int solution_del(int n)
+    int soln_del(int n)
     {
         try {
             if (n >= 0 && n < SolutionCabinet::size()) {
@@ -113,7 +139,7 @@ extern "C" {
         }
     }
 
-    int solution_reset()
+    int soln_reset()
     {
         try {
             SolutionCabinet::reset();
@@ -123,7 +149,7 @@ extern "C" {
         }
     }
 
-    int solution_name(int n, int buflen, char* buf)
+    int soln_name(int n, int buflen, char* buf)
     {
         try {
             string name = SolutionCabinet::item(n).name();
@@ -134,7 +160,7 @@ extern "C" {
         }
     }
 
-    int solution_thermo(int n)
+    int soln_thermo(int n)
     {
         try {
             auto sol = SolutionCabinet::at(n);
@@ -144,7 +170,7 @@ extern "C" {
         }
     }
 
-    int solution_kinetics(int n)
+    int soln_kinetics(int n)
     {
         try {
             auto sol = SolutionCabinet::at(n);
@@ -157,7 +183,7 @@ extern "C" {
         }
     }
 
-    int solution_transport(int n)
+    int soln_transport(int n)
     {
         try {
             auto sol = SolutionCabinet::at(n);
