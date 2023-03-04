@@ -15,6 +15,7 @@
 
 #include "cantera/thermo/GibbsExcessVPSSTP.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/global.h"
 #include <numeric>
 
 using namespace std;
@@ -32,7 +33,7 @@ void GibbsExcessVPSSTP::compositionChanged()
 
 void GibbsExcessVPSSTP::calcDensity()
 {
-    vector_fp vbar = getPartialMolarVolumesVector();
+    const vector_fp& vbar = getStandardVolumes();
     doublereal vtotal = 0.0;
     for (size_t i = 0; i < m_kk; i++) {
         vtotal += vbar[i] * moleFractions_[i];
@@ -96,11 +97,15 @@ void GibbsExcessVPSSTP::getPartialMolarVolumes(doublereal* vbar) const
 
 const vector_fp& GibbsExcessVPSSTP::getPartialMolarVolumesVector() const
 {
+    warn_deprecated("GibbsExcessVPSSTP::getPartialMolarVolumesVector",
+                    "Unused. To be removed after Cantera 3.0.");
     return getStandardVolumes();
 }
 
 double GibbsExcessVPSSTP::checkMFSum(const doublereal* const x) const
 {
+    warn_deprecated("GibbsExcessVPSSTP::checkMFSum",
+                    "Unused. To be removed after Cantera 3.0");
     doublereal norm = std::accumulate(x, x + m_kk, 0.0);
     if (fabs(norm - 1.0) > 1.0E-9) {
         throw CanteraError("GibbsExcessVPSSTP::checkMFSum",
