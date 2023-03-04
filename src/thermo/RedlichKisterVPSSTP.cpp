@@ -254,8 +254,8 @@ void RedlichKisterVPSSTP::s_update_lnActCoeff() const
 
 void RedlichKisterVPSSTP::s_update_dlnActCoeff_dT() const
 {
+    doublereal T = temperature();
     dlnActCoeffdT_Scaled_.assign(m_kk, 0.0);
-    d2lnActCoeffdT2_Scaled_.assign(m_kk, 0.0);
 
     for (size_t i = 0; i < numBinaryInteractions_; i++) {
         size_t iA = m_pSpecies_A_ij[i];
@@ -266,17 +266,17 @@ void RedlichKisterVPSSTP::s_update_dlnActCoeff_dT() const
         size_t N = m_N_ij[i];
         doublereal poly = 1.0;
         doublereal sum = 0.0;
-        vector_fp& se_vec = m_SE_m_ij[i];
+        vector_fp& he_vec = m_HE_m_ij[i];
         doublereal sumMm1 = 0.0;
         doublereal polyMm1 = 1.0;
         doublereal sum2 = 0.0;
         for (size_t m = 0; m < N; m++) {
-            doublereal A_ge = - se_vec[m];
-            sum += A_ge * poly;
-            sum2 += A_ge * (m + 1) * poly;
+            double h_e = - he_vec[m] / (GasConstant * T * T);
+            sum += h_e * poly;
+            sum2 += h_e * (m + 1) * poly;
             poly *= deltaX;
             if (m >= 1) {
-                sumMm1 += (A_ge * polyMm1 * m);
+                sumMm1 += (h_e * polyMm1 * m);
                 polyMm1 *= deltaX;
             }
         }
@@ -291,6 +291,10 @@ void RedlichKisterVPSSTP::s_update_dlnActCoeff_dT() const
                 dlnActCoeffdT_Scaled_[k] += -(XA * XB * sum2);
             }
         }
+    }
+
+    for (size_t k = 0; k < m_kk; k++) {
+        d2lnActCoeffdT2_Scaled_[k] = -2 / T * dlnActCoeffdT_Scaled_[k];
     }
 }
 
