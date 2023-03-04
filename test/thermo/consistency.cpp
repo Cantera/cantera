@@ -743,10 +743,16 @@ INSTANTIATE_TEST_SUITE_P(IdealSolnVPSS_HKFT, TestConsistency,
         testing::ValuesIn(getStates("ideal-solution-VPSS-HKFT")))
 );
 
-INSTANTIATE_TEST_SUITE_P(RedlichKister, TestConsistency,
+INSTANTIATE_TEST_SUITE_P(RedlichKister_LiC6, TestConsistency,
     testing::Combine(
-        testing::Values(getSetup("Redlich-Kister")),
-        testing::ValuesIn(getStates("Redlich-Kister")))
+        testing::Values(getSetup("Redlich-Kister-LiC6")),
+        testing::ValuesIn(getStates("Redlich-Kister-LiC6")))
+);
+
+INSTANTIATE_TEST_SUITE_P(RedlichKister_complex, TestConsistency,
+    testing::Combine(
+        testing::Values(getSetup("Redlich-Kister-complex")),
+        testing::ValuesIn(getStates("Redlich-Kister-complex")))
 );
 
 INSTANTIATE_TEST_SUITE_P(MaskellSolidSolution, TestConsistency,

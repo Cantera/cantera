@@ -317,7 +317,7 @@ ideal-solution-VPSS-HKFT:
   - {T: 330, P: 10 atm, X: {H2O(L): 0.9, Na+: 0.05, Cl-: 0.05, H+: 1e-7, OH-: 1e-7}}
   - {T: 320, P: 1 atm, X: {H2O(L): 1.0, Na+: 0.01, Cl-: 0.05, H+: 0.04}}
 
-Redlich-Kister:
+Redlich-Kister-LiC6:
   setup:
     file: thermo-models.yaml
     phase: Redlich-Kister-LiC6
@@ -326,6 +326,15 @@ Redlich-Kister:
   - {T: 440, P: 1 atm, X: {Li(C6): 0.75, V(C6): 0.25}}
   - {T: 350, P: 10 atm, X: {Li(C6): 1.0, V(C6): 0.0}}
   - {T: 350, P: 10 atm, X: {Li(C6): 0.0, V(C6): 1.0}}
+
+Redlich-Kister-complex:
+  setup:
+    file: thermo-models.yaml
+    phase: Redlich-Kister-complex
+  states:
+  - {T: 900, P: 1 atm, X: {KCl(l): 0.85, LiCl(l): 0.15}}
+  - {T: 950, P: 10 atm, X: {KCl(l): 0.3, LiCl(l): 0.2, NaCl(s): 0.5}}
+  - {T: 950, P: 0.1 atm, X: {KCl(l): 0.05, LiCl(l): 0.0, NaCl(s): 0.95}}
 
 Maskell-solid-solution:
   setup:
