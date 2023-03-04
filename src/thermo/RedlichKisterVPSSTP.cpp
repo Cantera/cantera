@@ -18,10 +18,7 @@ using namespace std;
 namespace Cantera
 {
 RedlichKisterVPSSTP::RedlichKisterVPSSTP(const std::string& inputFile,
-        const std::string& id_) :
-    numBinaryInteractions_(0),
-    formRedlichKister_(0),
-    formTempModel_(0)
+        const std::string& id_)
 {
     initThermoFile(inputFile, id_);
 }
@@ -203,13 +200,12 @@ void RedlichKisterVPSSTP::s_update_lnActCoeff() const
     // with G/RT dimensionless terms within the routine. There is a severe
     // problem with roundoff error in these calculations. The dimensionless
     // terms help.
-    for (size_t i = 0; i < numBinaryInteractions_; i++) {
+    for (size_t i = 0; i < m_HE_m_ij.size(); i++) {
         size_t iA = m_pSpecies_A_ij[i];
         size_t iB = m_pSpecies_B_ij[i];
         double XA = moleFractions_[iA];
         double XB = moleFractions_[iB];
         doublereal deltaX = XA - XB;
-        size_t N = m_N_ij[i];
         const vector_fp& he_vec = m_HE_m_ij[i];
         const vector_fp& se_vec = m_SE_m_ij[i];
         doublereal poly = 1.0;
@@ -217,7 +213,7 @@ void RedlichKisterVPSSTP::s_update_lnActCoeff() const
         doublereal sum = 0.0;
         doublereal sumMm1 = 0.0;
         doublereal sum2 = 0.0;
-        for (size_t m = 0; m < N; m++) {
+        for (size_t m = 0; m < he_vec.size(); m++) {
             doublereal A_ge = (he_vec[m] - T * se_vec[m]) / (GasConstant * T);
             sum += A_ge * poly;
             sum2 += A_ge * (m + 1) * poly;
@@ -247,20 +243,19 @@ void RedlichKisterVPSSTP::s_update_dlnActCoeff_dT() const
     doublereal T = temperature();
     dlnActCoeffdT_Scaled_.assign(m_kk, 0.0);
 
-    for (size_t i = 0; i < numBinaryInteractions_; i++) {
+    for (size_t i = 0; i < m_HE_m_ij.size(); i++) {
         size_t iA = m_pSpecies_A_ij[i];
         size_t iB = m_pSpecies_B_ij[i];
         double XA = moleFractions_[iA];
         double XB = moleFractions_[iB];
         doublereal deltaX = XA - XB;
-        size_t N = m_N_ij[i];
         doublereal poly = 1.0;
         doublereal sum = 0.0;
         const vector_fp& he_vec = m_HE_m_ij[i];
         doublereal sumMm1 = 0.0;
         doublereal polyMm1 = 1.0;
         doublereal sum2 = 0.0;
-        for (size_t m = 0; m < N; m++) {
+        for (size_t m = 0; m < he_vec.size(); m++) {
             double h_e = - he_vec[m] / (GasConstant * T * T);
             sum += h_e * poly;
             sum2 += h_e * (m + 1) * poly;
@@ -309,13 +304,12 @@ void RedlichKisterVPSSTP::s_update_dlnActCoeff_dlnX_diag() const
     double T = temperature();
     dlnActCoeffdlnX_diag_.assign(m_kk, 0.0);
 
-    for (size_t i = 0; i <  numBinaryInteractions_; i++) {
+    for (size_t i = 0; i < m_HE_m_ij.size(); i++) {
       size_t iA =  m_pSpecies_A_ij[i];
       size_t iB =  m_pSpecies_B_ij[i];
       double XA = moleFractions_[iA];
       double XB = moleFractions_[iB];
       double deltaX = XA - XB;
-      size_t N = m_N_ij[i];
       double poly = 1.0;
       double sum = 0.0;
       const vector_fp& he_vec = m_HE_m_ij[i];
@@ -324,7 +318,7 @@ void RedlichKisterVPSSTP::s_update_dlnActCoeff_dlnX_diag() const
       double polyMm1 = 1.0;
       double polyMm2 = 1.0;
       double sumMm2 = 0.0;
-      for (size_t m = 0; m < N; m++) {
+      for (size_t m = 0; m < he_vec.size(); m++) {
           double A_ge = (he_vec[m] -  T * se_vec[m]) / (GasConstant * T);;
           sum += A_ge * poly;
           poly *= deltaX;
@@ -359,13 +353,12 @@ void RedlichKisterVPSSTP::s_update_dlnActCoeff_dX_() const
     doublereal T = temperature();
     dlnActCoeff_dX_.zero();
 
-    for (size_t i = 0; i < numBinaryInteractions_; i++) {
+    for (size_t i = 0; i < m_HE_m_ij.size(); i++) {
         size_t iA = m_pSpecies_A_ij[i];
         size_t iB = m_pSpecies_B_ij[i];
         double XA = moleFractions_[iA];
         double XB = moleFractions_[iB];
         doublereal deltaX = XA - XB;
-        size_t N = m_N_ij[i];
         doublereal poly = 1.0;
         doublereal sum = 0.0;
         const vector_fp& he_vec = m_HE_m_ij[i];
@@ -376,7 +369,7 @@ void RedlichKisterVPSSTP::s_update_dlnActCoeff_dX_() const
         doublereal sum2 = 0.0;
         doublereal sum2Mm1 = 0.0;
         doublereal sumMm2 = 0.0;
-        for (size_t m = 0; m < N; m++) {
+        for (size_t m = 0; m < he_vec.size(); m++) {
             doublereal A_ge = he_vec[m] - T * se_vec[m];
             sum += A_ge * poly;
             sum2 += A_ge * (m + 1) * poly;
@@ -489,9 +482,7 @@ void RedlichKisterVPSSTP::addBinaryInteraction(
     size_t N = max(n_enthalpy, n_entropy);
     m_HE_m_ij.back().resize(N, 0.0);
     m_SE_m_ij.back().resize(N, 0.0);
-    m_N_ij.push_back(N);
     dlnActCoeff_dX_.resize(N, N, 0.0);
-    numBinaryInteractions_++;
 }
 
 }

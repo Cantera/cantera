@@ -417,9 +417,6 @@ private:
     void s_update_dlnActCoeff_dlnX_diag() const;
 
 protected:
-    //! number of binary interaction expressions
-    size_t numBinaryInteractions_;
-
     //! vector of species indices representing species A in the interaction
     /*!
      *  Each Redlich-Kister excess Gibbs free energy term involves two species,
@@ -434,9 +431,6 @@ protected:
      */
     std::vector<size_t> m_pSpecies_B_ij;
 
-    //! Vector of the length of the polynomial for the interaction.
-    std::vector<size_t> m_N_ij;
-
     //! Enthalpy term for the binary mole fraction interaction of the excess
     //! Gibbs free energy expression
     vector<vector_fp> m_HE_m_ij;
@@ -444,15 +438,6 @@ protected:
     //! Entropy term for the binary mole fraction interaction of the excess
     //! Gibbs free energy expression
     vector<vector_fp> m_SE_m_ij;
-
-    //! form of the RedlichKister interaction expression. Currently there is
-    //! only one form.
-    int formRedlichKister_;
-
-    //! form of the temperature dependence of the Redlich-Kister interaction
-    //! expression. Currently there is only one form -> constant wrt
-    //! temperature.
-    int formTempModel_;
 
     //! Two dimensional array of derivatives of activity coefficients wrt mole
     //! fractions
