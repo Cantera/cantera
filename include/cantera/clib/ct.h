@@ -16,16 +16,20 @@ extern "C" {
 
     CANTERA_CAPI int ct_appdelete();
 
-    CANTERA_CAPI int solution_newFromFile(const char* infile,
-                                          const char* name,
-                                          const char* transport);
-    CANTERA_CAPI int solution_size();
-    CANTERA_CAPI int solution_del(int n);
-    CANTERA_CAPI int solution_reset();
-    CANTERA_CAPI int solution_name(int n, int buflen, char* buf);
-    CANTERA_CAPI int solution_thermo(int n);
-    CANTERA_CAPI int solution_kinetics(int n);
-    CANTERA_CAPI int solution_transport(int n);
+    CANTERA_CAPI int soln_newSolution(const char* infile,
+                                      const char* name,
+                                      const char* transport);
+    CANTERA_CAPI int soln_newInterface(const char* infile,
+                                       const char* name,
+                                       int na,
+                                       const int* adjacent);
+    CANTERA_CAPI int soln_size();
+    CANTERA_CAPI int soln_del(int n);
+    CANTERA_CAPI int soln_reset();
+    CANTERA_CAPI int soln_name(int n, int buflen, char* buf);
+    CANTERA_CAPI int soln_thermo(int n);
+    CANTERA_CAPI int soln_kinetics(int n);
+    CANTERA_CAPI int soln_transport(int n);
 
     CANTERA_CAPI int thermo_newFromFile(const char* filename, const char* phasename);
     CANTERA_CAPI int thermo_size();
