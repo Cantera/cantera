@@ -210,8 +210,8 @@ void RedlichKisterVPSSTP::s_update_lnActCoeff() const
         double XB = moleFractions_[iB];
         doublereal deltaX = XA - XB;
         size_t N = m_N_ij[i];
-        vector_fp& he_vec = m_HE_m_ij[i];
-        vector_fp& se_vec = m_SE_m_ij[i];
+        const vector_fp& he_vec = m_HE_m_ij[i];
+        const vector_fp& se_vec = m_SE_m_ij[i];
         doublereal poly = 1.0;
         doublereal polyMm1 = 1.0;
         doublereal sum = 0.0;
@@ -256,7 +256,7 @@ void RedlichKisterVPSSTP::s_update_dlnActCoeff_dT() const
         size_t N = m_N_ij[i];
         doublereal poly = 1.0;
         doublereal sum = 0.0;
-        vector_fp& he_vec = m_HE_m_ij[i];
+        const vector_fp& he_vec = m_HE_m_ij[i];
         doublereal sumMm1 = 0.0;
         doublereal polyMm1 = 1.0;
         doublereal sum2 = 0.0;
@@ -318,8 +318,8 @@ void RedlichKisterVPSSTP::s_update_dlnActCoeff_dlnX_diag() const
       size_t N = m_N_ij[i];
       double poly = 1.0;
       double sum = 0.0;
-      vector_fp& he_vec = m_HE_m_ij[i];
-      vector_fp& se_vec = m_SE_m_ij[i];
+      const vector_fp& he_vec = m_HE_m_ij[i];
+      const vector_fp& se_vec = m_SE_m_ij[i];
       double sumMm1 = 0.0;
       double polyMm1 = 1.0;
       double polyMm2 = 1.0;
@@ -368,8 +368,8 @@ void RedlichKisterVPSSTP::s_update_dlnActCoeff_dX_() const
         size_t N = m_N_ij[i];
         doublereal poly = 1.0;
         doublereal sum = 0.0;
-        vector_fp& he_vec = m_HE_m_ij[i];
-        vector_fp& se_vec = m_SE_m_ij[i];
+        const vector_fp& he_vec = m_HE_m_ij[i];
+        const vector_fp& se_vec = m_SE_m_ij[i];
         doublereal sumMm1 = 0.0;
         doublereal polyMm1 = 1.0;
         doublereal polyMm2 = 1.0;

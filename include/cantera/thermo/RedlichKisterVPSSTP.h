@@ -439,11 +439,11 @@ protected:
 
     //! Enthalpy term for the binary mole fraction interaction of the excess
     //! Gibbs free energy expression
-    mutable std::vector< vector_fp> m_HE_m_ij;
+    vector<vector_fp> m_HE_m_ij;
 
     //! Entropy term for the binary mole fraction interaction of the excess
     //! Gibbs free energy expression
-    mutable std::vector< vector_fp> m_SE_m_ij;
+    vector<vector_fp> m_SE_m_ij;
 
     //! form of the RedlichKister interaction expression. Currently there is
     //! only one form.
