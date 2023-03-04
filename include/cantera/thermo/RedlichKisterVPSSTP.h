@@ -128,7 +128,7 @@ namespace Cantera
  *
  * \f[
  *      \tilde{C}_{p,k}(T,P) = C^o_{p,k}(T,P)   - 2 R T \frac{d \ln( \gamma_k )}{dT}
- *              - R T^2 \frac{d^2 \ln(\gamma_k) }{{dT}^2}
+ *              - R T^2 \frac{d^2 \ln(\gamma_k) }{{dT}^2} = C^o_{p,k}(T,P)
  * \f]
  *
  * ## %Application within Kinetics Managers
@@ -310,22 +310,17 @@ public:
      */
     virtual void getPartialMolarEntropies(doublereal* sbar) const;
 
-    //! Returns an array of partial molar entropies for the species in the
+    //! Returns an array of partial molar heat capacities for the species in the
     //! mixture.
     /*!
      * Units (J/kmol)
      *
-     * For this phase, the partial molar enthalpies are equal to the standard
-     * state enthalpies modified by the derivative of the activity coefficient
-     * wrt temperature
+     * For this phase, the partial molar heat capacities are equal to the standard
+     * state heat capacities:
      *
-     *  \f[
-     *   ???????????????
-     *   \bar s_k(T,P) = s^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
-     *                              - R \ln( \gamma_k X_k)
-     *                              - R T \frac{d \ln(\gamma_k) }{dT}
-     *   ???????????????
-     *  \f]
+     * \f[
+     *      \tilde{C}_{p,k}(T,P) = C^o_{p,k}(T,P)
+     * \f]
      *
      * @param cpbar  Vector of returned partial molar heat capacities
      *              (length m_kk, units = J/kmol/K)

@@ -114,16 +114,6 @@ void RedlichKisterVPSSTP::getPartialMolarEnthalpies(doublereal* hbar) const
 void RedlichKisterVPSSTP::getPartialMolarCp(doublereal* cpbar) const
 {
     getCp_R(cpbar);
-    double T = temperature();
-
-    // Update the activity coefficients, This also update the internally stored
-    // molalities.
-    s_update_lnActCoeff();
-    s_update_dlnActCoeff_dT();
-
-    for (size_t k = 0; k < m_kk; k++) {
-        cpbar[k] -= 2 * T * dlnActCoeffdT_Scaled_[k] + T * T * d2lnActCoeffdT2_Scaled_[k];
-    }
     // dimensionalize it.
     for (size_t k = 0; k < m_kk; k++) {
         cpbar[k] *= GasConstant;
