@@ -89,7 +89,7 @@ doublereal RedlichKisterVPSSTP::cp_mole() const
 
 doublereal RedlichKisterVPSSTP::cv_mole() const
 {
-    return cp_mole() - GasConstant;
+    return cp_mole();
 }
 
 void RedlichKisterVPSSTP::getPartialMolarEnthalpies(doublereal* hbar) const
