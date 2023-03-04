@@ -148,6 +148,14 @@ TEST(ThermoFromYaml, IdealMolalSoln)
     EXPECT_NEAR(thermo->enthalpy_mole(), 0.013282, 1e-6);
     EXPECT_NEAR(thermo->gibbs_mole(), -3.8986e7, 1e3);
     EXPECT_NEAR(thermo->density(), 12.058, 1e-3);
+
+    size_t N = thermo->nSpecies();
+    vector_fp mv(N);
+    double mvRef[] = {1.5, 1.3, 0.1, 0.1};
+    thermo->getPartialMolarVolumes(mv.data());
+    for (size_t k = 0; k < N; k++) {
+        EXPECT_NEAR(mv[k], mvRef[k], 1e-8) << k;
+    }
 }
 
 TEST(ThermoFromYaml, DebyeHuckel_bdot_ak)

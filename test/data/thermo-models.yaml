@@ -439,7 +439,7 @@ ideal-molal-fake-species:
       -917.935173, 0.683010238]
   equation-of-state:
     model: constant-volume
-    molar-volume: 0.1
+    molar-density: 10
 - name: CH4(aq)
   composition: {C: 1, H: 4}
   thermo:
@@ -450,7 +450,7 @@ ideal-molal-fake-species:
       -917.935173, 0.683010238]
   equation-of-state:
     model: constant-volume
-    molar-volume: 0.1
+    density: 160.43 g/L
 
 
 dh-electrolyte-species:
