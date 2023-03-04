@@ -293,15 +293,12 @@ public:
     //! Returns an array of partial molar entropies for the species in the
     //! mixture.
     /*!
-     * Units (J/kmol)
-     *
-     * For this phase, the partial molar enthalpies are equal to the standard
-     * state enthalpies modified by the derivative of the activity coefficient
-     * wrt temperature
+     * For this phase, the partial molar entropies are equal to the standard
+     * state entropies modified by the derivative of the activity coefficient
+     * with respect to temperature:
      *
      *  \f[
-     *   \bar s_k(T,P) = s^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
-     *                              - R \ln( \gamma_k X_k)
+     *   \bar s_k(T,P) = s^o_k(T,P) - R \ln( \gamma_k X_k)
      *                              - R T \frac{d \ln(\gamma_k) }{dT}
      *  \f]
      *
@@ -313,7 +310,7 @@ public:
     //! Returns an array of partial molar heat capacities for the species in the
     //! mixture.
     /*!
-     * Units (J/kmol)
+     * Units (J/kmol/K)
      *
      * For this phase, the partial molar heat capacities are equal to the standard
      * state heat capacities:
