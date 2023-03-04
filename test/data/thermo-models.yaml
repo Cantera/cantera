@@ -103,6 +103,19 @@ phases:
                       -2.129e+07, -1.722e+08, 3.956e+07, 9.302e+07, -3.280e+07]
     excess-entropy: [0.0]
 
+- name: Redlich-Kister-complex
+  thermo: Redlich-Kister
+  species: [KCl(l), LiCl(l), NaCl(s)]
+  interactions:
+  - species: [KCl(l), LiCl(l)]
+    excess-enthalpy: [-3.268e+06, 3.955e+06, -4.573e+06, 6.147e+06, -3.339e+06,
+                      ]
+    excess-entropy: [13000, -18000, 12000, -25000]
+  - species: [NaCl(s), LiCl(l)]
+    excess-enthalpy: [2.0e+06, -3.0e+06, 1.0e+06, -5.0e+06]
+    excess-entropy: [-14000, 5000, -22000, 15000]
+
+
 - name: MaskellSolidSoln
   thermo: Maskell-solid-solution
   species: [H(s), He(s)]
