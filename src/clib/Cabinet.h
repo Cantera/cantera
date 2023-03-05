@@ -9,6 +9,7 @@
 #define CT_CABINET_H
 
 #include "cantera/base/ctexceptions.h"
+#include <unordered_map>
 
 namespace Cantera {
 
@@ -216,7 +217,7 @@ private:
  * maintained by the appropriate SharedCabinet<M> instance. The pointer is retrieved
  * from the list by the interface function, the desired method is invoked, and the
  * result returned to the non-C++ calling procedure. By storing the pointers in a
- * SharedCabinet, there is no need to encode them in a std::string or integer and pass
+ * SharedCabinet, there is no need to encode them in a string or integer and pass
  * them out to the non-C++ calling routine, as some other interfacing schemes do.
  *
  * The SharedCabinet<M> class can be used to store pointers to arbitrary objects. In
@@ -243,7 +244,8 @@ template<class M>
 class SharedCabinet
 {
 public:
-    typedef std::vector<std::shared_ptr<M>>& dataRef;
+    typedef vector<shared_ptr<M>>& dataRef;
+    typedef std::unordered_map<const M*, int>& lookupRef;
 
     /**
      * Constructor.
@@ -253,10 +255,12 @@ public:
     /**
      * Add a new object. The index of the object is returned.
      */
-    static int add(std::shared_ptr<M> obj) {
+    static int add(shared_ptr<M> obj) {
         dataRef data = getData();
         data.push_back(obj);
         int index = data.size() - 1;
+        lookupRef lookup = getLookup();
+        lookup[obj.get()] = index;
         return index;
     }
 
@@ -284,6 +288,7 @@ public:
      */
     static int reset() {
         getData().clear();
+        getLookup().clear();
         return 0;
     }
 
@@ -293,6 +298,7 @@ public:
     static void del(size_t n) {
         dataRef data = getData();
         if (n >= 0 && n < data.size()) {
+            getLookup().erase(data[n].get());
             data[n].reset();
         } else {
             throw CanteraError("SharedCabinet::del",
@@ -303,7 +309,7 @@ public:
     /**
      * Return a shared pointer to object n.
      */
-    static std::shared_ptr<M>& at(size_t n) {
+    static shared_ptr<M>& at(size_t n) {
         dataRef data = getData();
         if (n < 0 || n >= data.size()) {
             throw CanteraError("SharedCabinet::at", "Index {} out of range.", n);
@@ -340,15 +346,11 @@ public:
      * object is not in the SharedCabinet.
      */
     static int index(const M& obj) {
-        dataRef data = getData();
-        int count = 0;
-        for (const auto& item : data) {
-            if (item.get() == &obj) {
-                return count;
-            }
-            count++;
+        lookupRef lookup = getLookup();
+        if (!lookup.count(&obj)) {
+            return -1;
         }
-        return -1;
+        return lookup.at(&obj);
     }
 
 private:
@@ -365,14 +367,31 @@ private:
     }
 
     /**
+     * Static function that returns a pointer to the reverse lookup table of
+     * the singleton SharedCabinet<M> instance. All member functions should
+     * access the lookup table through this function.
+     */
+    static lookupRef getLookup() {
+        if (s_storage == nullptr) {
+            s_storage = new SharedCabinet<M>();
+        }
+        return s_storage->m_lookup;
+    }
+
+    /**
      * Pointer to the single instance of this class.
      */
     static SharedCabinet<M>* s_storage;
 
     /**
+     * Reverse lookup table for the single instance of this class.
+     */
+    std::unordered_map<const M*, int> m_lookup;
+
+    /**
      * list to hold pointers to objects.
      */
-    std::vector<std::shared_ptr<M>> m_table;
+    vector<shared_ptr<M>> m_table;
 };
 
 }
