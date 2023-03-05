@@ -94,10 +94,10 @@ public:
     void SetUp() {
         // See if we should skip this test specific test case
         if (setup.hasKey("known-failures")) {
-            auto name = testing::UnitTest::GetInstance()->current_test_info()->name();
-            for (auto& item : setup["known-failures"].asMap<string>()) {
-                if (regex_search(name, regex(item.first))) {
-                    GTEST_SKIP() << item.second;
+            auto current = testing::UnitTest::GetInstance()->current_test_info()->name();
+            for (auto& [pattern, reason] : setup["known-failures"].asMap<string>()) {
+                if (regex_search(current, regex(pattern))) {
+                    GTEST_SKIP() << reason;
                     break;
                 }
             }

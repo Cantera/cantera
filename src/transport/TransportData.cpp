@@ -76,9 +76,9 @@ void GasTransportData::setCustomaryUnits(
 void GasTransportData::validate(const Species& sp)
 {
     double nAtoms = 0;
-    for (const auto& elem : sp.composition) {
-        if (!caseInsensitiveEquals(elem.first, "E")) {
-            nAtoms += elem.second;
+    for (const auto& [eName, stoich] : sp.composition) {
+        if (!caseInsensitiveEquals(eName, "E")) {
+            nAtoms += stoich;
         }
     }
 

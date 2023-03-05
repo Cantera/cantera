@@ -32,13 +32,13 @@ public:
 
         m_species.emplace_back();
         m_eff.emplace_back();
-        for (const auto& eff : efficiencies) {
-            AssertTrace(eff.first != npos);
-            m_species.back().push_back(eff.first);
-            m_eff.back().push_back(eff.second - default_efficiency);
+        for (const auto& [k, efficiency] : efficiencies) {
+            AssertTrace(k != npos);
+            m_species.back().push_back(k);
+            m_eff.back().push_back(efficiency - default_efficiency);
             m_efficiencyList.emplace_back(
                 static_cast<int>(rxnNumber),
-                static_cast<int>(eff.first), eff.second - default_efficiency);
+                static_cast<int>(k), efficiency - default_efficiency);
         }
     }
 

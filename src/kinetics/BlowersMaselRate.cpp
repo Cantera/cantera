@@ -76,11 +76,11 @@ double BlowersMaselRate::ddTScaledFromStruct(const BlowersMaselData& shared_data
 void BlowersMaselRate::setContext(const Reaction& rxn, const Kinetics& kin)
 {
     m_stoich_coeffs.clear();
-    for (const auto& sp : rxn.reactants) {
-        m_stoich_coeffs.emplace_back(kin.kineticsSpeciesIndex(sp.first), -sp.second);
+    for (const auto& [name, stoich] : rxn.reactants) {
+        m_stoich_coeffs.emplace_back(kin.kineticsSpeciesIndex(name), -stoich);
     }
-    for (const auto& sp : rxn.products) {
-        m_stoich_coeffs.emplace_back(kin.kineticsSpeciesIndex(sp.first), sp.second);
+    for (const auto& [name, stoich] : rxn.products) {
+        m_stoich_coeffs.emplace_back(kin.kineticsSpeciesIndex(name), stoich);
     }
 }
 

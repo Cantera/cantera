@@ -92,10 +92,10 @@ void PlogRate::getParameters(AnyMap& rateNode, const Units& rate_units) const
         // object not fully set up
         return;
     }
-    for (const auto& r : getRates()) {
+    for (const auto& [pressure, rate] : getRates()) {
         AnyMap rateNode_;
-        rateNode_["P"].setQuantity(r.first, "Pa");
-        r.second.getRateParameters(rateNode_);
+        rateNode_["P"].setQuantity(pressure, "Pa");
+        rate.getRateParameters(rateNode_);
         rateList.push_back(std::move(rateNode_));
     }
     rateNode["rate-constants"] = std::move(rateList);
@@ -109,8 +109,8 @@ void PlogRate::setRates(const std::multimap<double, ArrheniusRate>& rates)
     m_valid = !rates.empty();
     rates_.reserve(rates.size());
     // Insert intermediate pressures
-    for (const auto& rate : rates) {
-        double logp = std::log(rate.first);
+    for (const auto& [pressure, rate] : rates) {
+        double logp = std::log(pressure);
         if (pressures_.empty() || pressures_.rbegin()->first != logp) {
             // starting a new group
             pressures_[logp] = {j, j+1};
@@ -120,7 +120,7 @@ void PlogRate::setRates(const std::multimap<double, ArrheniusRate>& rates)
         }
 
         j++;
-        rates_.push_back(rate.second);
+        rates_.push_back(rate);
     }
     if (!m_valid) {
         // ensure that reaction rate can be evaluated (but returns NaN)

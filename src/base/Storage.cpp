@@ -221,65 +221,65 @@ AnyMap Storage::readAttributes(const std::string& id, bool recursive) const
 
 void writeH5Attributes(h5::Group sub, const AnyMap& meta)
 {
-    for (auto& item : meta) {
-        if (sub.hasAttribute(item.first)) {
+    for (auto& [name, item] : meta) {
+        if (sub.hasAttribute(name)) {
             throw NotImplementedError("writeH5Attributes",
-                "Unable to overwrite existing Attribute '{}'", item.first);
+                "Unable to overwrite existing Attribute '{}'", name);
         }
-        if (item.second.is<double>()) {
-            double value = item.second.asDouble();
+        if (item.is<double>()) {
+            double value = item.asDouble();
             h5::Attribute attr = sub.createAttribute<double>(
-                item.first, h5::DataSpace::From(value));
+                name, h5::DataSpace::From(value));
             attr.write(value);
-        } else if (item.second.is<int>() || item.second.is<long int>()) {
-            int value = item.second.asInt();
+        } else if (item.is<int>() || item.is<long int>()) {
+            int value = item.asInt();
             h5::Attribute attr = sub.createAttribute<int>(
-                item.first, h5::DataSpace::From(value));
+                name, h5::DataSpace::From(value));
             attr.write(value);
-        } else if (item.second.is<std::string>()) {
-            std::string value = item.second.asString();
-            h5::Attribute attr = sub.createAttribute<std::string>(
-                item.first, h5::DataSpace::From(value));
+        } else if (item.is<string>()) {
+            string value = item.asString();
+            h5::Attribute attr = sub.createAttribute<string>(
+                name, h5::DataSpace::From(value));
             attr.write(value);
-        } else if (item.second.is<bool>()) {
-            bool bValue = item.second.asBool();
+        } else if (item.is<bool>()) {
+            bool bValue = item.asBool();
             H5Boolean value = bValue ? H5Boolean::TRUE : H5Boolean::FALSE;
             h5::Attribute attr = sub.createAttribute<H5Boolean>(
-                item.first, h5::DataSpace::From(value));
+                name, h5::DataSpace::From(value));
             attr.write(value);
-        } else if (item.second.is<std::vector<double>>()) {
-            auto values = item.second.as<std::vector<double>>();
+        } else if (item.is<vector<double>>()) {
+            auto values = item.as<vector<double>>();
             h5::Attribute attr = sub.createAttribute<double>(
-                item.first, h5::DataSpace::From(values));
+                name, h5::DataSpace::From(values));
             attr.write(values);
-        } else if (item.second.is<std::vector<int>>()) {
-            auto values = item.second.as<std::vector<int>>();
+        } else if (item.is<vector<int>>()) {
+            auto values = item.as<vector<int>>();
             h5::Attribute attr = sub.createAttribute<int>(
-                item.first, h5::DataSpace::From(values));
+                name, h5::DataSpace::From(values));
             attr.write(values);
-        } else if (item.second.is<std::vector<std::string>>()) {
-            auto values = item.second.as<std::vector<std::string>>();
-            h5::Attribute attr = sub.createAttribute<std::string>(
-                item.first, h5::DataSpace::From(values));
+        } else if (item.is<vector<string>>()) {
+            auto values = item.as<vector<string>>();
+            h5::Attribute attr = sub.createAttribute<string>(
+                name, h5::DataSpace::From(values));
             attr.write(values);
-        } else if (item.second.is<std::vector<bool>>()) {
-            auto bValue = item.second.as<std::vector<bool>>();
-            std::vector<H5Boolean> values;
+        } else if (item.is<vector<bool>>()) {
+            auto bValue = item.as<vector<bool>>();
+            vector<H5Boolean> values;
             for (auto b : bValue) {
                 values.push_back(b ? H5Boolean::TRUE : H5Boolean::FALSE);
             }
             h5::Attribute attr = sub.createAttribute<H5Boolean>(
-                item.first, h5::DataSpace::From(values));
+                name, h5::DataSpace::From(values));
             attr.write(values);
-        } else if (item.second.is<AnyMap>()) {
+        } else if (item.is<AnyMap>()) {
             // step into recursion
-            auto value = item.second.as<AnyMap>();
-            auto grp = sub.createGroup(item.first);
+            auto value = item.as<AnyMap>();
+            auto grp = sub.createGroup(name);
             writeH5Attributes(grp, value);
         } else {
             throw NotImplementedError("writeH5Attributes",
                 "Unable to write attribute '{}' with type '{}'",
-                item.first, item.second.type_str());
+                name, item.type_str());
         }
     }
 }

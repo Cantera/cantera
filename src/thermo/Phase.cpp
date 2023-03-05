@@ -814,27 +814,27 @@ bool Phase::addSpecies(shared_ptr<Species> spec) {
     }
 
     vector_fp comp(nElements());
-    for (const auto& elem : spec->composition) {
-        size_t m = elementIndex(elem.first);
+    for (const auto& [eName, stoich] : spec->composition) {
+        size_t m = elementIndex(eName);
         if (m == npos) { // Element doesn't exist in this phase
             switch (m_undefinedElementBehavior) {
             case UndefElement::ignore:
                 return false;
 
             case UndefElement::add:
-                addElement(elem.first);
+                addElement(eName);
                 comp.resize(nElements());
-                m = elementIndex(elem.first);
+                m = elementIndex(eName);
                 break;
 
             case UndefElement::error:
             default:
                 throw CanteraError("Phase::addSpecies",
                     "Species '{}' contains an undefined element '{}'.",
-                    spec->name, elem.first);
+                    spec->name, eName);
             }
         }
-        comp[m] = elem.second;
+        comp[m] = stoich;
     }
 
     size_t ne = nElements();
@@ -947,9 +947,9 @@ vector<std::string> Phase::findIsomers(const compositionMap& compMap) const
 {
     vector<std::string> isomerNames;
 
-    for (const auto& k : m_species) {
-        if (k.second->composition == compMap) {
-            isomerNames.emplace_back(k.first);
+    for (const auto& [name, species] : m_species) {
+        if (species->composition == compMap) {
+            isomerNames.emplace_back(name);
         }
     }
 
@@ -1017,13 +1017,13 @@ void Phase::compositionChanged() {
 vector_fp Phase::getCompositionFromMap(const compositionMap& comp) const
 {
     vector_fp X(m_kk);
-    for (const auto& sp : comp) {
-        size_t loc = speciesIndex(sp.first);
+    for (const auto& [name, value] : comp) {
+        size_t loc = speciesIndex(name);
         if (loc == npos) {
             throw CanteraError("Phase::getCompositionFromMap",
-                               "Unknown species '{}'", sp.first);
+                               "Unknown species '{}'", name);
         }
-        X[loc] = sp.second;
+        X[loc] = value;
     }
     return X;
 }

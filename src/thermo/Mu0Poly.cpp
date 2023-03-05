@@ -49,13 +49,12 @@ void Mu0Poly::setParameters(double h0, const std::map<double, double>& T_mu)
     // Distribute the data into the internal arrays, and find the index of the
     // point at 298.15 K.
     size_t iT298 = npos;
-    for (const auto& row : T_mu) {
-        double T1 = row.first;
+    for (const auto& [T1, mu] : T_mu) {
         if (T1 == 298.15) {
             iT298 = m_t0_int.size();
         }
         m_t0_int.push_back(T1);
-        m_mu0_R_int.push_back(row.second / GasConstant);
+        m_mu0_R_int.push_back(mu / GasConstant);
     }
     if (iT298 == npos) {
         throw CanteraError("Mu0Poly::setParameters",

@@ -318,13 +318,12 @@ shared_ptr<Solution> newSolution(const AnyMap& phaseNode,
 
     // save root-level information (YAML header)
     AnyMap header;
-    for (const auto& item : rootNode.ordered()) {
-        std::string key = item.first;
+    for (const auto& [key, value] : rootNode.ordered()) {
         if (key == "phases") {
             // header ends with "phases" field
             break;
         } else if (key != "units") {
-            header[key] = item.second;
+            header[key] = value;
         }
     }
     sol->header() = header;

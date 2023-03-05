@@ -40,8 +40,8 @@ Reaction::Reaction(const Composition& reactants_,
 
     // set flags ensuring correct serialization output
     bool count = 0;
-    for (const auto& reac : reactants) {
-        if (products.count(reac.first)) {
+    for (const auto& [name, stoich] : reactants) {
+        if (products.count(name)) {
             count = true;
             break;
         }
@@ -107,21 +107,19 @@ Reaction::Reaction(const AnyMap& node, const Kinetics& kin)
 void Reaction::check()
 {
     if (!allow_nonreactant_orders) {
-        for (const auto& order : orders) {
-            if (reactants.find(order.first) == reactants.end()) {
+        for (const auto& [name, order] : orders) {
+            if (reactants.find(name) == reactants.end()) {
                 throw InputFileError("Reaction::validate", input,
-                    "Reaction order specified for non-reactant species '{}'",
-                    order.first);
+                    "Reaction order specified for non-reactant species '{}'", name);
            }
         }
     }
 
     if (!allow_negative_orders) {
-        for (const auto& order : orders) {
-            if (order.second < 0.0) {
+        for (const auto& [name, order] : orders) {
+            if (order < 0.0) {
                 throw InputFileError("Reaction::validate", input,
-                    "Negative reaction order specified for species '{}'",
-                    order.first);
+                    "Negative reaction order specified for species '{}'", name);
             }
         }
     }
@@ -222,9 +220,9 @@ void Reaction::setParameters(const AnyMap& node, const Kinetics& kin)
     setEquation(node["equation"].asString(), &kin);
     // Non-stoichiometric reaction orders
     if (node.hasKey("orders")) {
-        for (const auto& order : node["orders"].asMap<double>()) {
-            orders[order.first] = order.second;
-            if (kin.kineticsSpeciesIndex(order.first) == npos) {
+        for (const auto& [name, order] : node["orders"].asMap<double>()) {
+            orders[name] = order;
+            if (kin.kineticsSpeciesIndex(name) == npos) {
                 setValid(false);
             }
         }
@@ -355,15 +353,15 @@ void Reaction::setEquation(const std::string& equation, const Kinetics* kin)
     std::string third_body;
     size_t count = 0;
     size_t countM = 0;
-    for (const auto& reac : reactants) {
+    for (const auto& [name, stoich] : reactants) {
         // detect explicitly specified collision partner
-        if (products.count(reac.first)) {
-            third_body = reac.first;
+        if (products.count(name)) {
+            third_body = name;
             size_t generic = third_body == "M"
                 || third_body == "(+M)"  || third_body == "(+ M)";
             count++;
             countM += generic;
-            if (reac.second > 1 && products[third_body] > 1) {
+            if (stoich > 1 && products[third_body] > 1) {
                 count++;
                 countM += generic;
             }
@@ -435,19 +433,19 @@ void Reaction::setEquation(const std::string& equation, const Kinetics* kin)
         size_t nprod = 0;
 
         // ensure that all reactants have integer stoichiometric coefficients
-        for (const auto& reac : reactants) {
-            if (trunc(reac.second) != reac.second) {
+        for (const auto& [name, stoich] : reactants) {
+            if (trunc(stoich) != stoich) {
                 return;
             }
-            nreac += static_cast<size_t>(reac.second);
+            nreac += static_cast<size_t>(stoich);
         }
 
         // ensure that all products have integer stoichiometric coefficients
-        for (const auto& prod : products) {
-            if (trunc(prod.second) != prod.second) {
+        for (const auto& [name, stoich] : products) {
+            if (trunc(stoich) != stoich) {
                 return;
             }
-            nprod += static_cast<size_t>(prod.second);
+            nprod += static_cast<size_t>(stoich);
         }
 
         // either reactant or product side involves exactly three species
@@ -520,22 +518,22 @@ UnitStack Reaction::calculateRateCoeffUnits(const Kinetics& kin)
     rate_units.join(1.);
     rate_units.update(Units(1.0, 0, 0, -1), 1.);
 
-    for (const auto& order : orders) {
-        const auto& phase = kin.speciesPhase(order.first);
+    for (const auto& [name, order] : orders) {
+        const auto& phase = kin.speciesPhase(name);
         // Account for specified reaction orders
-        rate_units.update(phase.standardConcentrationUnits(), -order.second);
+        rate_units.update(phase.standardConcentrationUnits(), -order);
     }
-    for (const auto& stoich : reactants) {
+    for (const auto& [name, stoich] : reactants) {
         // Order for each reactant is the reactant stoichiometric coefficient,
         // unless already overridden by user-specified orders
-        if (stoich.first == "M" || ba::starts_with(stoich.first, "(+")) {
+        if (name == "M" || ba::starts_with(name, "(+")) {
             // calculateRateCoeffUnits may be called before these pseudo-species
             // have been stripped from the reactants
             continue;
-        } else if (orders.find(stoich.first) == orders.end()) {
-            const auto& phase = kin.speciesPhase(stoich.first);
+        } else if (orders.find(name) == orders.end()) {
+            const auto& phase = kin.speciesPhase(name);
             // Account for each reactant species
-            rate_units.update(phase.standardConcentrationUnits(), -stoich.second);
+            rate_units.update(phase.standardConcentrationUnits(), -stoich);
         }
     }
 
@@ -550,9 +548,9 @@ UnitStack Reaction::calculateRateCoeffUnits(const Kinetics& kin)
 void updateUndeclared(std::vector<std::string>& undeclared,
                       const Composition& comp, const Kinetics& kin)
 {
-    for (const auto& sp: comp) {
-        if (kin.kineticsSpeciesIndex(sp.first) == npos) {
-            undeclared.emplace_back(sp.first);
+    for (const auto& [name, stoich]: comp) {
+        if (kin.kineticsSpeciesIndex(name) == npos) {
+            undeclared.emplace_back(name);
         }
     }
 }
@@ -562,19 +560,17 @@ void Reaction::checkBalance(const Kinetics& kin) const
     Composition balr, balp;
 
     // iterate over products and reactants
-    for (const auto& sp : products) {
-        const ThermoPhase& ph = kin.speciesPhase(sp.first);
-        size_t k = ph.speciesIndex(sp.first);
-        double stoich = sp.second;
+    for (const auto& [name, stoich] : products) {
+        const ThermoPhase& ph = kin.speciesPhase(name);
+        size_t k = ph.speciesIndex(name);
         for (size_t m = 0; m < ph.nElements(); m++) {
             balr[ph.elementName(m)] = 0.0; // so that balr contains all species
             balp[ph.elementName(m)] += stoich * ph.nAtoms(k, m);
         }
     }
-    for (const auto& sp : reactants) {
-        const ThermoPhase& ph = kin.speciesPhase(sp.first);
-        size_t k = ph.speciesIndex(sp.first);
-        double stoich = sp.second;
+    for (const auto& [name, stoich] : reactants) {
+        const ThermoPhase& ph = kin.speciesPhase(name);
+        size_t k = ph.speciesIndex(name);
         for (size_t m = 0; m < ph.nElements(); m++) {
             balr[ph.elementName(m)] += stoich * ph.nAtoms(k, m);
         }
@@ -582,8 +578,7 @@ void Reaction::checkBalance(const Kinetics& kin) const
 
     std::string msg;
     bool ok = true;
-    for (const auto& el : balr) {
-        const std::string& elem = el.first;
+    for (const auto& [elem, balance] : balr) {
         double elemsum = balr[elem] + balp[elem];
         double elemdiff = fabs(balp[elem] - balr[elem]);
         if (elemsum > 0.0 && elemdiff / elemsum > 1e-4) {
@@ -607,16 +602,16 @@ void Reaction::checkBalance(const Kinetics& kin) const
     double reac_sites = 0.0;
     double prod_sites = 0.0;
     auto& surf = dynamic_cast<const SurfPhase&>(kin.thermo(kin.reactionPhaseIndex()));
-    for (const auto& reactant : reactants) {
-        size_t k = surf.speciesIndex(reactant.first);
+    for (const auto& [name, stoich] : reactants) {
+        size_t k = surf.speciesIndex(name);
         if (k != npos) {
-            reac_sites += reactant.second * surf.size(k);
+            reac_sites += stoich * surf.size(k);
         }
     }
-    for (const auto& product : products) {
-        size_t k = surf.speciesIndex(product.first);
+    for (const auto& [name, stoich] : products) {
+        size_t k = surf.speciesIndex(name);
         if (k != npos) {
-            prod_sites += product.second * surf.size(k);
+            prod_sites += stoich * surf.size(k);
         }
     }
     if (fabs(reac_sites - prod_sites) > 1e-5 * (reac_sites + prod_sites)) {
@@ -677,19 +672,19 @@ bool Reaction::usesElectrochemistry(const Kinetics& kin) const
     vector_fp e_counter(kin.nPhases(), 0.0);
 
     // Find the number of electrons in the products for each phase
-    for (const auto& sp : products) {
-        size_t kkin = kin.kineticsSpeciesIndex(sp.first);
+    for (const auto& [name, stoich] : products) {
+        size_t kkin = kin.kineticsSpeciesIndex(name);
         size_t i = kin.speciesPhaseIndex(kkin);
-        size_t kphase = kin.thermo(i).speciesIndex(sp.first);
-        e_counter[i] += sp.second * kin.thermo(i).charge(kphase);
+        size_t kphase = kin.thermo(i).speciesIndex(name);
+        e_counter[i] += stoich * kin.thermo(i).charge(kphase);
     }
 
     // Subtract the number of electrons in the reactants for each phase
-    for (const auto& sp : reactants) {
-        size_t kkin = kin.kineticsSpeciesIndex(sp.first);
+    for (const auto& [name, stoich] : reactants) {
+        size_t kkin = kin.kineticsSpeciesIndex(name);
         size_t i = kin.speciesPhaseIndex(kkin);
-        size_t kphase = kin.thermo(i).speciesIndex(sp.first);
-        e_counter[i] -= sp.second * kin.thermo(i).charge(kphase);
+        size_t kphase = kin.thermo(i).speciesIndex(name);
+        e_counter[i] -= stoich * kin.thermo(i).charge(kphase);
     }
 
     // If the electrons change phases then the reaction is electrochemical

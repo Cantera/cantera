@@ -393,9 +393,9 @@ void RedlichKwongMFTP::initThermo()
     AnyMap critPropsDb;
     std::unordered_map<std::string, AnyMap*> dbSpecies;
 
-    for (auto& item : m_species) {
-        auto& data = item.second->input;
-        size_t k = speciesIndex(item.first);
+    for (auto& [name, species] : m_species) {
+        auto& data = species->input;
+        size_t k = speciesIndex(name);
         if (!isnan(a_coeff_vec(0, k + m_kk * k))) {
             continue;
         }
@@ -420,23 +420,23 @@ void RedlichKwongMFTP::initThermo()
                 }
                 double b = eos.convert("b", "m^3/kmol");
                 foundCoeffs = true;
-                setSpeciesCoeffs(item.first, a0, a1, b);
+                setSpeciesCoeffs(name, a0, a1, b);
                 m_coeffSource[k] = CoeffSource::EoS;
             }
 
             if (eos.hasKey("binary-a")) {
                 AnyMap& binary_a = eos["binary-a"].as<AnyMap>();
                 const UnitSystem& units = binary_a.units();
-                for (auto& item2 : binary_a) {
+                for (auto& [name2, coeff] : binary_a) {
                     double a0 = 0, a1 = 0;
-                    if (item2.second.isScalar()) {
-                        a0 = units.convert(item2.second, "Pa*m^6/kmol^2*K^0.5");
+                    if (coeff.isScalar()) {
+                        a0 = units.convert(coeff, "Pa*m^6/kmol^2*K^0.5");
                     } else {
-                        auto avec = item2.second.asVector<AnyValue>(2);
+                        auto avec = coeff.asVector<AnyValue>(2);
                         a0 = units.convert(avec[0], "Pa*m^6/kmol^2*K^0.5");
                         a1 = units.convert(avec[1], "Pa*m^6/kmol^2/K^0.5");
                     }
-                    setBinaryCoeffs(item.first, item2.first, a0, a1);
+                    setBinaryCoeffs(name, name2, a0, a1);
                 }
             }
 
@@ -462,7 +462,7 @@ void RedlichKwongMFTP::initThermo()
             }
 
             // All names in critical-properties.yaml are upper case
-            auto ucName = boost::algorithm::to_upper_copy(item.first);
+            auto ucName = boost::algorithm::to_upper_copy(name);
             if (dbSpecies.count(ucName)) {
                 auto& spec = *dbSpecies.at(ucName);
                 auto& critProps = spec["critical-parameters"].as<AnyMap>();
@@ -477,11 +477,11 @@ void RedlichKwongMFTP::initThermo()
             // Assuming no temperature dependence (that is, a1 = 0)
             double a = omega_a * pow(GasConstant, 2) * pow(Tc, 2.5) / Pc;
             double b = omega_b * GasConstant * Tc / Pc;
-            setSpeciesCoeffs(item.first, a, 0.0, b);
+            setSpeciesCoeffs(name, a, 0.0, b);
         } else {
             throw InputFileError("RedlichKwongMFTP::initThermo", data,
                     "No critical property or Redlich-Kwong parameters found "
-                    "for species {}.", item.first);
+                    "for species {}.", name);
         }
     }
 }
@@ -521,14 +521,14 @@ void RedlichKwongMFTP::getSpeciesParameters(const std::string& name,
         auto& eosNode = speciesNode["equation-of-state"].getMapWhere(
             "model", "Redlich-Kwong", true);
         AnyMap bin_a;
-        for (const auto& item : m_binaryParameters.at(name)) {
-            if (item.second.second == 0) {
-                bin_a[item.first].setQuantity(item.second.first, "Pa*m^6/kmol^2*K^0.5");
+        for (const auto& [name2, coeffs] : m_binaryParameters.at(name)) {
+            if (coeffs.second == 0) {
+                bin_a[name2].setQuantity(coeffs.first, "Pa*m^6/kmol^2*K^0.5");
             } else {
-                vector<AnyValue> coeffs(2);
-                coeffs[0].setQuantity(item.second.first, "Pa*m^6/kmol^2*K^0.5");
-                coeffs[1].setQuantity(item.second.second, "Pa*m^6/kmol^2/K^0.5");
-                bin_a[item.first] = std::move(coeffs);
+                vector<AnyValue> C(2);
+                C[0].setQuantity(coeffs.first, "Pa*m^6/kmol^2*K^0.5");
+                C[1].setQuantity(coeffs.second, "Pa*m^6/kmol^2/K^0.5");
+                bin_a[name2] = std::move(C);
             }
         }
         eosNode["binary-a"] = std::move(bin_a);
@@ -667,11 +667,11 @@ doublereal RedlichKwongMFTP::densSpinodalLiquid() const
     };
 
     boost::uintmax_t maxiter = 100;
-    std::pair<double, double> vv = bmt::toms748_solve(
+    auto [lower, upper] = bmt::toms748_solve(
         resid, Vroot[0], Vroot[1], bmt::eps_tolerance<double>(48), maxiter);
 
     doublereal mmw = meanMolecularWeight();
-    return mmw / (0.5 * (vv.first + vv.second));
+    return mmw / (0.5 * (lower + upper));
 }
 
 doublereal RedlichKwongMFTP::densSpinodalGas() const
@@ -689,11 +689,11 @@ doublereal RedlichKwongMFTP::densSpinodalGas() const
     };
 
     boost::uintmax_t maxiter = 100;
-    std::pair<double, double> vv = bmt::toms748_solve(
+    auto [lower, upper] = bmt::toms748_solve(
         resid, Vroot[1], Vroot[2], bmt::eps_tolerance<double>(48), maxiter);
 
     doublereal mmw = meanMolecularWeight();
-    return mmw / (0.5 * (vv.first + vv.second));
+    return mmw / (0.5 * (lower + upper));
 }
 
 doublereal RedlichKwongMFTP::dpdVCalc(doublereal TKelvin, doublereal molarVol, doublereal& presCalc) const

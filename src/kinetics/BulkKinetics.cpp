@@ -124,11 +124,11 @@ bool BulkKinetics::addReaction(shared_ptr<Reaction> r, bool resize)
         return false;
     }
     double dn = 0.0;
-    for (const auto& sp : r->products) {
-        dn += sp.second;
+    for (const auto& [name, stoich] : r->products) {
+        dn += stoich;
     }
-    for (const auto& sp : r->reactants) {
-        dn -= sp.second;
+    for (const auto& [name, stoich] : r->reactants) {
+        dn -= stoich;
     }
 
     m_dn.push_back(dn);
@@ -174,14 +174,14 @@ bool BulkKinetics::addReaction(shared_ptr<Reaction> r, bool resize)
 void BulkKinetics::addThirdBody(shared_ptr<Reaction> r)
 {
     std::map<size_t, double> efficiencies;
-    for (const auto& eff : r->thirdBody()->efficiencies) {
-        size_t k = kineticsSpeciesIndex(eff.first);
+    for (const auto& [name, efficiency] : r->thirdBody()->efficiencies) {
+        size_t k = kineticsSpeciesIndex(name);
         if (k != npos) {
-            efficiencies[k] = eff.second;
+            efficiencies[k] = efficiency;
         } else if (!m_skipUndeclaredThirdBodies) {
-            throw CanteraError("BulkKinetics::addThirdBody", "Found "
-                "third-body efficiency for undefined species '" + eff.first +
-                "' while adding reaction '" + r->equation() + "'");
+            throw CanteraError("BulkKinetics::addThirdBody", "Found third-body"
+                " efficiency for undefined species '{}' while adding reaction '{}'",
+                name, r->equation());
         }
     }
     m_multi_concm.install(nReactions() - 1, efficiencies,

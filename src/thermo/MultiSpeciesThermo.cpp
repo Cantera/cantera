@@ -96,9 +96,8 @@ void MultiSpeciesThermo::update(doublereal t, doublereal* cp_R,
         const std::vector<index_STIT>& species = iter->second;
         double* tpoly = &jter->second[0];
         species[0].second->updateTemperaturePoly(t, tpoly);
-        for (size_t k = 0; k < species.size(); k++) {
-            size_t i = species[k].first;
-            species[k].second->updateProperties(tpoly, cp_R+i, h_RT+i, s_R+i);
+        for (auto& [i, spthermo] : species) {
+            spthermo->updateProperties(tpoly, cp_R+i, h_RT+i, s_R+i);
         }
     }
 }
@@ -162,8 +161,8 @@ doublereal MultiSpeciesThermo::refPressure(size_t k) const
 SpeciesThermoInterpType* MultiSpeciesThermo::provideSTIT(size_t k)
 {
     try {
-        const std::pair<int, size_t>& loc = m_speciesLoc.at(k);
-        return m_sp.at(loc.first)[loc.second].second.get();
+        auto& [iParam, jSpecies] = m_speciesLoc.at(k);
+        return m_sp.at(iParam)[jSpecies].second.get();
     } catch (std::out_of_range&) {
         return 0;
     }
@@ -172,8 +171,8 @@ SpeciesThermoInterpType* MultiSpeciesThermo::provideSTIT(size_t k)
 const SpeciesThermoInterpType* MultiSpeciesThermo::provideSTIT(size_t k) const
 {
     try {
-        const std::pair<int, size_t>& loc = m_speciesLoc.at(k);
-        return m_sp.at(loc.first)[loc.second].second.get();
+        auto& [iParam, jSpecies] = m_speciesLoc.at(k);
+        return m_sp.at(iParam)[jSpecies].second.get();
     } catch (std::out_of_range&) {
         return 0;
     }

@@ -57,8 +57,8 @@ void PDSS_IonsFromNeutral::initThermo()
         setSpecialSpecies();
     }
     if (m_input.hasKey("multipliers")) {
-        for (const auto& item : m_input["multipliers"].asMap<double>()) {
-            setNeutralSpeciesMultiplier(item.first, item.second);
+        for (const auto& [species, multiplier] : m_input["multipliers"].asMap<double>()) {
+            setNeutralSpeciesMultiplier(species, multiplier);
         }
     }
 
@@ -66,9 +66,9 @@ void PDSS_IonsFromNeutral::initThermo()
     m_minTemp = neutralMoleculePhase_->minTemp();
     m_maxTemp = neutralMoleculePhase_->maxTemp();
     tmpNM.resize(neutralMoleculePhase_->nSpecies());
-    for (auto multiplier : neutralSpeciesMultipliers_) {
-        idNeutralMoleculeVec.push_back( neutralMoleculePhase_->speciesIndex(multiplier.first));
-        factorVec.push_back(multiplier.second);
+    for (auto [species, multiplier] : neutralSpeciesMultipliers_) {
+        idNeutralMoleculeVec.push_back(neutralMoleculePhase_->speciesIndex(species));
+        factorVec.push_back(multiplier);
     }
 }
 
