@@ -1343,9 +1343,7 @@ AnyValue& AnyMap::operator[](const std::string& key)
     const auto& iter = m_data.find(key);
     if (iter == m_data.end()) {
         // Create a new key to return
-        // NOTE: 'insert' can be replaced with 'emplace' after support for
-        // G++ 4.7 is dropped.
-        AnyValue& value = m_data.insert({key, AnyValue()}).first->second;
+        AnyValue& value = m_data.emplace(key, AnyValue()).first->second;
         value.setKey(key);
         if (m_metadata) {
             value.propagateMetadata(m_metadata);
@@ -1376,9 +1374,7 @@ const AnyValue& AnyMap::operator[](const std::string& key) const
 
 AnyValue& AnyMap::createForYaml(const std::string& key, int line, int column)
 {
-    // NOTE: 'insert' can be replaced with 'emplace' after support for
-    // G++ 4.7 is dropped.
-    AnyValue& value = m_data.insert({key, AnyValue()}).first->second;
+    AnyValue& value = m_data.emplace(key, AnyValue()).first->second;
     value.setKey(key);
     if (m_metadata) {
         value.propagateMetadata(m_metadata);
