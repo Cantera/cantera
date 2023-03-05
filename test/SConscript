@@ -282,10 +282,11 @@ def addMatlabTest(script, testName, dependencies=None, env_vars=()):
 
 # Instantiate tests
 addTestProgram('clib', 'clib')
-addTestProgram('general', 'general')
-addTestProgram('thermo', 'thermo')
 addTestProgram('equil', 'equil')
+addTestProgram('general', 'general')
 addTestProgram('kinetics', 'kinetics')
+addTestProgram('oneD', 'oneD')
+addTestProgram('thermo', 'thermo')
 addTestProgram('transport', 'transport')
 addTestProgram('zeroD', 'zeroD')
 
