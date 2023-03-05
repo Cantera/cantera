@@ -128,13 +128,13 @@ vector_int ReactionPathDiagram::reactions()
         for (const auto& rxn : path(i)->reactionMap()) {
             double flxratio = rxn.second/flmax;
             if (flxratio > threshold) {
-                m_rxns[rxn.first] = 1;
+                m_rxns.insert(rxn.first);
             }
         }
     }
     vector_int r;
     for (const auto& rxn : m_rxns) {
-        r.push_back(int(rxn.first));
+        r.push_back(int(rxn));
     }
     return r;
 }
@@ -397,7 +397,7 @@ void ReactionPathDiagram::linkNodes(size_t k1, size_t k2, size_t rxn,
         m_pathlist.push_back(ff);
     }
     ff->addReaction(rxn, value, legend);
-    m_rxns[rxn] = 1;
+    m_rxns.insert(rxn);
     m_flxmax = std::max(ff->flow(), m_flxmax);
 }
 

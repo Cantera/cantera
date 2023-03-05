@@ -97,9 +97,11 @@ public:
     }
 
 protected:
-    std::map<size_t, int> m_loc;
+    //! Indices of grid points that need new grid points added after them
+    set<size_t> m_loc;
     std::map<size_t, int> m_keep;
-    std::map<std::string, int> m_c;
+    //! Names of components that require the addition of new grid points
+    set<string> m_c;
     std::vector<bool> m_active;
     doublereal m_ratio, m_slope, m_curve, m_prune;
     doublereal m_min_range;
