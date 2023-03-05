@@ -136,46 +136,36 @@ ThermoPhase* newThermoPhase(const string& model)
     return ThermoFactory::factory()->create(model);
 }
 
-shared_ptr<ThermoPhase> newThermo(const string& model)
+shared_ptr<ThermoPhase> newThermoModel(const string& model)
 {
     shared_ptr<ThermoPhase> tptr(ThermoFactory::factory()->create(model));
     return tptr;
 }
 
-shared_ptr<ThermoPhase> newThermoPhase(const AnyMap& phaseNode, const AnyMap& rootNode)
+shared_ptr<ThermoPhase> newThermo(const AnyMap& phaseNode, const AnyMap& rootNode)
 {
     if (!phaseNode.hasKey("kinetics") && phaseNode.hasKey("reactions")) {
-        throw InputFileError("newPhase", phaseNode["reactions"],
+        throw InputFileError("newThermo", phaseNode["reactions"],
             "Phase entry includes a 'reactions' field but does not "
             "specify a kinetics model.");
     }
-    shared_ptr<ThermoPhase> t = newThermo(phaseNode["thermo"].asString());
+    string model = phaseNode["thermo"].asString();
+    shared_ptr<ThermoPhase> t = newThermoModel(model);
     setupPhase(*t, phaseNode, rootNode);
     return t;
 }
 
-unique_ptr<ThermoPhase> newPhase(const AnyMap& phaseNode, const AnyMap& rootNode)
-{
-    warn_deprecated("newPhase",
-        "To be removed after Cantera 3.0; superseded by\n"
-        "newThermoPhase(const AnyMap&, const AnyMap&).");
-    if (!phaseNode.hasKey("kinetics") && phaseNode.hasKey("reactions")) {
-        throw InputFileError("newPhase", phaseNode["reactions"],
-            "Phase entry includes a 'reactions' field but does not "
-            "specify a kinetics model.");
-    }
-    unique_ptr<ThermoPhase> t(newThermoPhase(phaseNode["thermo"].asString()));
-    setupPhase(*t, phaseNode, rootNode);
-    return t;
-}
-
-shared_ptr<ThermoPhase> newThermoPhase(const string& infile, const string& id)
+shared_ptr<ThermoPhase> newThermo(const string& infile, const string& id)
 {
     size_t dot = infile.find_last_of(".");
-    string extension;
-    if (dot != npos) {
-        extension = toLowerCopy(infile.substr(dot+1));
+    if (dot == npos) {
+        // @todo Remove after Cantera 3.0
+        warn_deprecated("newThermo",
+            "Changed in Cantera 3.0. Replaced by newThermoModel.\n");
+        newThermoModel(infile);
     }
+    string extension;
+    extension = toLowerCopy(infile.substr(dot+1));
     string id_ = id;
     if (id == "-") {
         id_ = "";
@@ -187,15 +177,30 @@ shared_ptr<ThermoPhase> newThermoPhase(const string& infile, const string& id)
 
     AnyMap root = AnyMap::fromYamlFile(infile);
     AnyMap& phase = root["phases"].getMapWhere("name", id_);
-    return newThermoPhase(phase, root);
+    return newThermo(phase, root);
+}
+
+unique_ptr<ThermoPhase> newPhase(const AnyMap& phaseNode, const AnyMap& rootNode)
+{
+    warn_deprecated("newPhase",
+        "To be removed after Cantera 3.0; superseded by\n"
+        "newThermo(const AnyMap&, const AnyMap&).");
+    if (!phaseNode.hasKey("kinetics") && phaseNode.hasKey("reactions")) {
+        throw InputFileError("newPhase", phaseNode["reactions"],
+            "Phase entry includes a 'reactions' field but does not "
+            "specify a kinetics model.");
+    }
+    unique_ptr<ThermoPhase> t(newThermoPhase(phaseNode["thermo"].asString()));
+    setupPhase(*t, phaseNode, rootNode);
+    return t;
 }
 
 ThermoPhase* newPhase(const std::string& infile, std::string id)
 {
     warn_deprecated("newPhase",
         "To be removed after Cantera 3.0; superseded by\n"
-        "newThermoPhase(const std::string&, const std::string&).");
-    return newThermoPhase(infile, id).get();
+        "newThermo(const std::string&, const std::string&).");
+    return newThermo(infile, id).get();
 }
 
 void addDefaultElements(ThermoPhase& thermo, const vector<string>& element_names) {

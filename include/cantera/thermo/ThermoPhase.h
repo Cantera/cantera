@@ -1663,7 +1663,7 @@ public:
                                const AnyMap& rootNode=AnyMap());
 
     //! Returns the parameters of a ThermoPhase object such that an identical
-    //! one could be reconstructed using the newThermoPhase(AnyMap&) function.
+    //! one could be reconstructed using the newThermo(AnyMap&) function.
     //! @param withInput  If true, include additional input data fields associated
     //!   with the phase description, such as user-defined fields from a YAML input
     //!   file, as returned by the input() method.
@@ -1799,7 +1799,7 @@ public:
 
 protected:
     //! Store the parameters of a ThermoPhase object such that an identical
-    //! one could be reconstructed using the newThermoPhase(AnyMap&) function. This
+    //! one could be reconstructed using the newThermo(AnyMap&) function. This
     //! does not include user-defined fields available in input().
     virtual void getParameters(AnyMap& phaseNode) const;
 
