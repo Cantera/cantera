@@ -13,6 +13,7 @@
 #include <unordered_map>
 #include <functional>
 #include <set>
+#include <filesystem>
 
 namespace boost
 {
@@ -676,7 +677,8 @@ private:
     //! Cache for previously-parsed input (YAML) files. The key is the full path
     //! to the file, and the second element of the value is the last-modified
     //! time for the file, which is used to enable change detection.
-    static std::unordered_map<std::string, std::pair<AnyMap, int>> s_cache;
+    static std::unordered_map<string,
+                              pair<AnyMap, std::filesystem::file_time_type>> s_cache;
 
     //! Information about fields that should appear first when outputting to
     //! YAML. Keys in this map are matched to `__type__` keys in AnyMap

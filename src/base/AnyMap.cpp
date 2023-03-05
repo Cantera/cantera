@@ -554,7 +554,8 @@ struct convert<Cantera::AnyValue> {
 
 namespace Cantera {
 
-std::unordered_map<std::string, std::pair<AnyMap, int>> AnyMap::s_cache;
+std::unordered_map<string,
+                   pair<AnyMap, std::filesystem::file_time_type>> AnyMap::s_cache;
 
 std::unordered_map<std::string, std::vector<std::string>> AnyMap::s_headFields;
 std::unordered_map<std::string, std::vector<std::string>> AnyMap::s_tailFields;
@@ -1764,7 +1765,7 @@ AnyMap AnyMap::fromYamlFile(const std::string& name,
 
     // Check for an already-parsed YAML file with the same last-modified time,
     // and return that if possible
-    int mtime = get_modified_time(fullName);
+    auto mtime = std::filesystem::last_write_time(fullName);
     std::unique_lock<std::mutex> lock(yaml_cache_mutex);
     auto iter = s_cache.find(fullName);
     if (iter != s_cache.end() && iter->second.second == mtime) {
