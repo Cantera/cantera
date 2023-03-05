@@ -10,6 +10,7 @@
 #define CT_INCL_CORE_H
 
 #include "cantera/base/Solution.h"
+#include "cantera/base/Interface.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/transport/Transport.h"
