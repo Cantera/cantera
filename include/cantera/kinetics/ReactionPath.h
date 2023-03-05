@@ -283,7 +283,9 @@ protected:
     std::vector<std::string> m_include;
     std::vector<std::string> m_exclude;
     std::vector<size_t> m_speciesNumber;
-    std::map<size_t, int> m_rxns;
+
+    //! Indices of reactions that are included in the diagram
+    set<size_t> m_rxns;
     size_t m_local;
 };
 
