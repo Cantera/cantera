@@ -216,7 +216,7 @@ shared_ptr<Solution> newSolution(const AnyMap& phaseNode,
                                  const std::map<std::string, shared_ptr<Solution>>& related)
 {
     // thermo phase
-    auto thermo = newThermoPhase(phaseNode, rootNode);
+    auto thermo = newThermo(phaseNode, rootNode);
 
     // instantiate Solution object of the correct derived type
     shared_ptr<Solution> sol;

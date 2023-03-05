@@ -148,7 +148,7 @@ protected:
 
 //! Create and initialize a new Solution from an input file
 /*!
- * This constructor wraps newThermoPhase(), newKinetics() and newTransport() routines
+ * This constructor wraps newThermo(), newKinetics() and newTransport() routines
  * for initialization.
  *
  * @param infile name of the input file
@@ -166,7 +166,7 @@ shared_ptr<Solution> newSolution(const std::string& infile, const std::string& n
 
 //! Create and initialize a new Solution manager from an input file
 /*!
- * This constructor wraps newThermoPhase(), newKinetics() and newTransport() routines
+ * This constructor wraps newThermo(), newKinetics() and newTransport() routines
  * for initialization.
  *
  * @param infile name of the input file
@@ -184,7 +184,7 @@ shared_ptr<Solution> newSolution(const std::string& infile,
 
 //! Create and initialize a new Solution manager from AnyMap objects
 /*!
- * This constructor wraps newThermoPhase(), newKinetics() and newTransport() routines
+ * This constructor wraps newThermo(), newKinetics() and newTransport() routines
  * for initialization.
  *
  * @param phaseNode the node containing the phase definition (that is, thermo model,
