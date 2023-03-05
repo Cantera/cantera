@@ -53,19 +53,44 @@ public:
     //! @since New in Cantera 3.0
     void setTransportModel(const std::string& model="");
 
-    //! Accessor for the ThermoPhase pointer
-    shared_ptr<ThermoPhase> thermo() {
-        return m_thermo;
+    //! Accessor for the ThermoPhase pointer. An optional template argument will
+    //! dynamically cast ThermoPhase to the desired specialization.
+    template <class T=ThermoPhase>
+    shared_ptr<T> thermo()
+    {
+        auto ret = std::dynamic_pointer_cast<T>(m_thermo);
+        if (m_thermo && !ret) {
+            throw CanteraError("Solution::thermo",
+                "Invalid cast: unable to access 'ThermoPhase' as '{}'.",
+                demangle(typeid(T)));
+        }
+        return ret;
     }
 
-    //! Accessor for the Kinetics pointer
-    shared_ptr<Kinetics> kinetics() {
-        return m_kinetics;
+    //! Accessor for the Kinetics pointer. An optional template argument will
+    //! dynamically cast Kinetics to the desired specialization.
+    template <class T=Kinetics>
+    shared_ptr<T> kinetics() {
+        auto ret = std::dynamic_pointer_cast<T>(m_kinetics);
+        if (m_kinetics && !ret) {
+            throw CanteraError("Solution::kinetics",
+                "Invalid cast: unable to access 'Kinetics' as '{}'.",
+                demangle(typeid(T)));
+        }
+        return ret;
     }
 
-    //! Accessor for the Transport pointer
-    shared_ptr<Transport> transport() {
-        return m_transport;
+    //! Accessor for the Transport pointer. An optional template argument will
+    //! dynamically cast Transport to the desired specialization.
+    template <class T=Transport>
+    shared_ptr<T> transport() {
+        auto ret = std::dynamic_pointer_cast<T>(m_transport);
+        if (m_transport && !ret) {
+            throw CanteraError("Solution::transport",
+                "Invalid cast: unable to access 'Transport' as '{}'.",
+                demangle(typeid(T)));
+        }
+        return ret;
     }
 
     //! Add a phase adjacent to this phase. Usually this means a higher-dimensional
