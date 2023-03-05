@@ -402,7 +402,9 @@ public:
     //! Update reaction rate parameters
     //! @param shared_data  data shared by all reactions of a given type
     void updateFromStruct(const DataType& shared_data) {
-        _update(shared_data);
+        if constexpr (has_update<RateType>::value) {
+            RateType::updateFromStruct(shared_data);
+        }
         InterfaceRateBase::updateFromStruct(shared_data);
     }
 
@@ -431,22 +433,6 @@ public:
 
     virtual double activationEnergy() const override {
         return RateType::activationEnergy() + m_ecov * GasConstant;
-    }
-
-protected:
-    //! Helper function to process updates for rate types that implement the
-    //! `updateFromStruct` method.
-    template <typename T=RateType,
-        typename std::enable_if<has_update<T>::value, bool>::type = true>
-    void _update(const DataType& shared_data) {
-        T::updateFromStruct(shared_data);
-    }
-
-    //! Helper function for rate types that do not implement `updateFromStruct`.
-    //! Does nothing, but exists to allow generic implementations of update().
-    template <typename T=RateType,
-        typename std::enable_if<!has_update<T>::value, bool>::type = true>
-    void _update(const DataType& shared_data) {
     }
 };
 
@@ -539,7 +525,9 @@ public:
     //! Update reaction rate parameters
     //! @param shared_data  data shared by all reactions of a given type
     void updateFromStruct(const DataType& shared_data) {
-        _update(shared_data);
+        if constexpr (has_update<RateType>::value) {
+            RateType::updateFromStruct(shared_data);
+        }
         InterfaceRateBase::updateFromStruct(shared_data);
         m_factor = pow(m_siteDensity, -m_surfaceOrder);
     }
@@ -574,22 +562,6 @@ public:
 
     virtual double activationEnergy() const override {
         return RateType::activationEnergy() + m_ecov * GasConstant;
-    }
-
-protected:
-    //! Helper function to process updates for rate types that implement the
-    //! `updateFromStruct` method.
-    template <typename T=RateType,
-        typename std::enable_if<has_update<T>::value, bool>::type = true>
-    void _update(const DataType& shared_data) {
-        T::updateFromStruct(shared_data);
-    }
-
-    //! Helper function for rate types that do not implement `updateFromStruct`.
-    //! Does nothing, but exists to allow generic implementations of update().
-    template <typename T=RateType,
-        typename std::enable_if<!has_update<T>::value, bool>::type = true>
-    void _update(const DataType& shared_data) {
     }
 };
 
