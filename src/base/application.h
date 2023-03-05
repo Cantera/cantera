@@ -17,8 +17,6 @@
 namespace Cantera
 {
 
-int get_modified_time(const std::string& path);
-
 /*!
  * @defgroup globalData Global Data
  *

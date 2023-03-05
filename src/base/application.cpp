@@ -22,8 +22,6 @@ namespace ba = boost::algorithm;
 
 #ifdef _WIN32
 #include <windows.h>
-#else
-#include <sys/stat.h>
 #endif
 
 #ifdef _MSC_VER
@@ -38,24 +36,6 @@ static std::mutex dir_mutex;
 
 //! Mutex for creating singletons within the application object
 static std::mutex app_mutex;
-
-int get_modified_time(const std::string& path) {
-#ifdef _WIN32
-    HANDLE hFile = CreateFile(path.c_str(), 0, 0,
-                              NULL, OPEN_EXISTING, 0, NULL);
-    if (hFile == INVALID_HANDLE_VALUE) {
-        throw CanteraError("get_modified_time", "Couldn't open file:" + path);
-    }
-    FILETIME modified;
-    GetFileTime(hFile, NULL, NULL, &modified);
-    CloseHandle(hFile);
-    return static_cast<int>(modified.dwLowDateTime);
-#else
-    struct stat attrib;
-    stat(path.c_str(), &attrib);
-    return static_cast<int>(attrib.st_mtime);
-#endif
-}
 
 Application::Messages::Messages()
 {
