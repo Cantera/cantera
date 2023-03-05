@@ -417,13 +417,13 @@ bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base, bool resize)
     m_rxnPhaseIsReactant.emplace_back(nPhases(), false);
     m_rxnPhaseIsProduct.emplace_back(nPhases(), false);
 
-    for (const auto& sp : r_base->reactants) {
-        size_t k = kineticsSpeciesIndex(sp.first);
+    for (const auto& [name, stoich] : r_base->reactants) {
+        size_t k = kineticsSpeciesIndex(name);
         size_t p = speciesPhaseIndex(k);
         m_rxnPhaseIsReactant[i][p] = true;
     }
-    for (const auto& sp : r_base->products) {
-        size_t k = kineticsSpeciesIndex(sp.first);
+    for (const auto& [name, stoich] : r_base->products) {
+        size_t k = kineticsSpeciesIndex(name);
         size_t p = speciesPhaseIndex(k);
         m_rxnPhaseIsProduct[i][p] = true;
     }

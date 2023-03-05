@@ -160,9 +160,9 @@ AnyMap legacyH5(shared_ptr<SolutionArray> arr, const AnyMap& header={})
         {"emissivity-left", "emissivity_left"},
         {"emissivity-right", "emissivity_right"},
     };
-    for (const auto& item : meta_pairs) {
-        if (meta.hasKey(item.second)) {
-            out[item.first] = meta[item.second];
+    for (const auto& [newName, oldName] : meta_pairs) {
+        if (meta.hasKey(oldName)) {
+            out[newName] = meta[oldName];
         }
     }
 
@@ -172,9 +172,9 @@ AnyMap legacyH5(shared_ptr<SolutionArray> arr, const AnyMap& header={})
         {"transient-reltol", "transient_reltol"},
         {"steady-reltol", "steady_reltol"},
     };
-    for (const auto& item : tol_pairs) {
-        if (meta.hasKey(item.second)) {
-            out["tolerances"][item.first] = meta[item.second];
+    for (const auto& [newName, oldName] : tol_pairs) {
+        if (meta.hasKey(oldName)) {
+            out["tolerances"][newName] = meta[oldName];
         }
     }
 
@@ -194,9 +194,9 @@ AnyMap legacyH5(shared_ptr<SolutionArray> arr, const AnyMap& header={})
         {"Soret-enabled", "soret_enabled"},
         {"species-enabled", "species_enabled"},
     };
-    for (const auto& item : header_pairs) {
-        if (header.hasKey(item.second)) {
-            out[item.first] = header[item.second];
+    for (const auto& [newName, oldName] : header_pairs) {
+        if (header.hasKey(oldName)) {
+            out[newName] = header[oldName];
         }
     }
 
@@ -208,9 +208,9 @@ AnyMap legacyH5(shared_ptr<SolutionArray> arr, const AnyMap& header={})
         // {"grid-min", "???"}, // missing
         {"max-points", "max_grid_points"},
     };
-    for (const auto& item : refiner_pairs) {
-        if (header.hasKey(item.second)) {
-            out["refine-criteria"][item.first] = header[item.second];
+    for (const auto& [newName, oldName] : refiner_pairs) {
+        if (header.hasKey(oldName)) {
+            out["refine-criteria"][newName] = header[oldName];
         }
     }
 

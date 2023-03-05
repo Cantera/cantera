@@ -174,12 +174,12 @@ void setupMu0(Mu0Poly& thermo, const AnyMap& node)
     bool dimensionless = node.getBool("dimensionless", false);
     double h0 = node.convert("h0", "J/kmol", 0.0);
     map<double, double> T_mu;
-    for (const auto& item : node["data"]) {
-        double T = node.units().convertTo(fpValueCheck(item.first), "K");
+    for (const auto& [T_str, mu] : node["data"]) {
+        double T = node.units().convertTo(fpValueCheck(T_str), "K");
         if (dimensionless) {
-            T_mu[T] = item.second.asDouble() * GasConstant * T;
+            T_mu[T] = mu.asDouble() * GasConstant * T;
         } else {
-            T_mu[T] = node.units().convert(item.second, "J/kmol");
+            T_mu[T] = node.units().convert(mu, "J/kmol");
         }
     }
     thermo.setParameters(h0, T_mu);

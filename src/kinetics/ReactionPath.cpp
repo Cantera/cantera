@@ -62,12 +62,12 @@ void Path::writeLabel(ostream& s, doublereal threshold)
         return;
     }
     doublereal v;
-    for (const auto& label : m_label) {
-        v = label.second/m_total;
+    for (const auto& [species, value] : m_label) {
+        v = value / m_total;
         if (m_label.size() == 1) {
-            s << label.first << "\\l";
+            s << species << "\\l";
         } else if (v > threshold) {
-            s << label.first;
+            s << species;
             int percent = int(100*v + 0.5);
             if (percent < 100) {
                 s << " (" << percent << "%)\\l";
@@ -105,8 +105,8 @@ ReactionPathDiagram::ReactionPathDiagram()
 ReactionPathDiagram::~ReactionPathDiagram()
 {
     // delete the nodes
-    for (const auto& node : m_nodes) {
-        delete node.second;
+    for (const auto& [k, node] : m_nodes) {
+        delete node;
     }
 
     // delete the paths
@@ -125,10 +125,10 @@ vector_int ReactionPathDiagram::reactions()
     }
     m_rxns.clear();
     for (size_t i = 0; i < nPaths(); i++) {
-        for (const auto& rxn : path(i)->reactionMap()) {
-            double flxratio = rxn.second/flmax;
+        for (const auto& [iRxn, flux] : path(i)->reactionMap()) {
+            double flxratio = flux / flmax;
             if (flxratio > threshold) {
-                m_rxns.insert(rxn.first);
+                m_rxns.insert(iRxn);
             }
         }
     }
@@ -364,9 +364,9 @@ void ReactionPathDiagram::exportToDot(ostream& s)
         }
     }
     s.precision(2);
-    for (const auto& node : m_nodes) {
-        if (node.second->visible) {
-            s << "s" << node.first << " [ fontname=\""+m_font+"\", label=\"" << node.second->name
+    for (const auto& [kSpecies, node] : m_nodes) {
+        if (node->visible) {
+            s << "s" << kSpecies << " [ fontname=\""+m_font+"\", label=\"" << node->name
               << "\"];" << endl;
         }
     }

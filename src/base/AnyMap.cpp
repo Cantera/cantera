@@ -282,9 +282,7 @@ YAML::Emitter& operator<<(YAML::Emitter& out, const AnyMap& rhs)
         out << YAML::Flow;
         out << YAML::BeginMap;
         size_t width = 15;
-        for (const auto& item : rhs.ordered()) {
-            const auto& name = item.first;
-            const auto& value = item.second;
+        for (const auto& [name, value] : rhs.ordered()) {
             string valueStr;
             bool foundType = true;
             if (value.is<double>()) {
@@ -319,9 +317,9 @@ YAML::Emitter& operator<<(YAML::Emitter& out, const AnyMap& rhs)
         }
     } else {
         out << YAML::BeginMap;
-        for (const auto& item : rhs.ordered()) {
-            out << item.first;
-            out << item.second;
+        for (const auto& [key, value] : rhs.ordered()) {
+            out << key;
+            out << value;
         }
     }
     out << YAML::EndMap;
@@ -1121,18 +1119,18 @@ void AnyValue::applyUnits(shared_ptr<UnitSystem>& units)
                     } else {
                         // Merge with a child units declaration
                         auto& childUnits = item["units"].as<AnyMap>();
-                        for (auto& jtem : deltaUnits) {
-                            if (!childUnits.hasKey(jtem.first)) {
-                                childUnits[jtem.first] = jtem.second;
+                        for (auto& [dimension, unit] : deltaUnits) {
+                            if (!childUnits.hasKey(dimension)) {
+                                childUnits[dimension] = unit;
                             }
                         }
                     }
                 } else if (item.hasKey("__units__")) {
                     // Merge with a child units declaration
                     auto& childUnits = item["__units__"].as<AnyMap>();
-                    for (auto& jtem : deltaUnits) {
-                        if (!childUnits.hasKey(jtem.first)) {
-                            childUnits[jtem.first] = jtem.second;
+                    for (auto& [dimension, unit] : deltaUnits) {
+                        if (!childUnits.hasKey(dimension)) {
+                            childUnits[dimension] = unit;
                         }
                     }
                 } else {
@@ -1416,9 +1414,9 @@ void AnyMap::clear()
 
 void AnyMap::update(const AnyMap& other, bool keepExisting)
 {
-    for (const auto& item : other) {
-        if (!keepExisting || !hasKey(item.first)) {
-            (*this)[item.first] = item.second;
+    for (const auto& [key, value] : other) {
+        if (!keepExisting || !hasKey(key)) {
+            (*this)[key] = value;
         }
     }
 }
@@ -1452,8 +1450,8 @@ std::set<std::string> AnyMap::keys() const
 void AnyMap::propagateMetadata(shared_ptr<AnyMap>& metadata)
 {
     m_metadata = metadata;
-    for (auto& item : m_data) {
-        item.second.propagateMetadata(m_metadata);
+    for (auto& [name, value] : m_data) {
+        value.propagateMetadata(m_metadata);
     }
 }
 
@@ -1484,8 +1482,8 @@ void AnyMap::copyMetadata(const AnyMap& other)
         m_metadata = make_shared<AnyMap>();
     }
 
-    for (const auto& item : *other.m_metadata) {
-        (*m_metadata)[item.first] = item.second;
+    for (const auto& [key, value] : *other.m_metadata) {
+        (*m_metadata)[key] = value;
     }
 
     propagateMetadata(m_metadata);
@@ -1593,14 +1591,14 @@ AnyMap::OrderedProxy::OrderedProxy(const AnyMap& data)
         std::unique_lock<std::mutex> lock(yaml_field_order_mutex);
         if (AnyMap::s_headFields.count(itemType)) {
             for (const auto& key : AnyMap::s_headFields[itemType]) {
-                for (auto& item : m_ordered) {
-                    if (item.first.first >= 0) {
+                for (auto& [order, item] : m_ordered) {
+                    if (order.first >= 0) {
                         // This and following items come from an input file and
                         // should not be re-ordered
                         break;
                     }
-                    if (item.second->first == key) {
-                        item.first.second = --head;
+                    if (item->first == key) {
+                        order.second = --head;
                         order_changed = true;
                     }
                 }
@@ -1608,14 +1606,14 @@ AnyMap::OrderedProxy::OrderedProxy(const AnyMap& data)
         }
         if (AnyMap::s_tailFields.count(itemType)) {
             for (const auto& key : AnyMap::s_tailFields[itemType]) {
-                for (auto& item : m_ordered) {
-                    if (item.first.first >= 0) {
+                for (auto& [order, item] : m_ordered) {
+                    if (order.first >= 0) {
                         // This and following items come from an input file and
                         // should not be re-ordered
                         break;
                     }
-                    if (item.second->first == key) {
-                        item.first.second = ++tail;
+                    if (item->first == key) {
+                        order.second = ++tail;
                         order_changed = true;
                     }
                 }
@@ -1650,14 +1648,14 @@ bool AnyMap::operator==(const AnyMap& other) const
 {
     // First, make sure that 'other' has all of the non-hidden keys that are in
     // this map
-    for (auto& item : *this) {
-        if (!other.hasKey(item.first)) {
+    for (auto& [key, value] : *this) {
+        if (!other.hasKey(key)) {
             return false;
         }
     }
     // Then check for equality, using the non-hidden keys from 'other'
-    for (auto & item : other) {
-        if (!hasKey(item.first) || item.second != at(item.first)) {
+    for (auto & [key, value] : other) {
+        if (!hasKey(key) || value != at(key)) {
             return false;
         }
     }
@@ -1685,16 +1683,16 @@ void AnyMap::applyUnits(shared_ptr<UnitSystem>& units) {
     } else {
         m_units = units;
     }
-    for (auto& item : m_data) {
-        item.second.applyUnits(m_units);
+    for (auto& [name, item] : m_data) {
+        item.applyUnits(m_units);
     }
 }
 
 void AnyMap::setUnits(const UnitSystem& units)
 {
     if (hasKey("__units__")) {
-        for (const auto& item : units.getDelta(*m_units)) {
-            m_data["__units__"][item.first] = item.second;
+        for (const auto& [dimension, value] : units.getDelta(*m_units)) {
+            m_data["__units__"][dimension] = value;
         }
     } else {
         m_data["__units__"] = units.getDelta(*m_units);
@@ -1779,13 +1777,13 @@ AnyMap AnyMap::fromYamlFile(const std::string& name,
     }
 
     // Generate an AnyMap from the YAML file and store it in the cache
-    auto& cache_item = s_cache[fullName];
-    cache_item.second = mtime;
+    auto& [cache_item, cache_time] = s_cache[fullName];
+    cache_time = mtime;
     try {
         YAML::Node node = YAML::LoadFile(fullName);
-        cache_item.first = node.as<AnyMap>();
-        cache_item.first.setMetadata("filename", AnyValue(fullName));
-        cache_item.first.applyUnits();
+        cache_item = node.as<AnyMap>();
+        cache_item.setMetadata("filename", AnyValue(fullName));
+        cache_item.applyUnits();
     } catch (YAML::Exception& err) {
         s_cache.erase(fullName);
         AnyMap fake;
@@ -1796,14 +1794,14 @@ AnyMap AnyMap::fromYamlFile(const std::string& name,
         s_cache.erase(fullName);
         throw;
     }
-    cache_item.first["__file__"] = fullName;
+    cache_item["__file__"] = fullName;
 
-    if (cache_item.first.hasKey("deprecated")) {
-        warn_deprecated(fullName, cache_item.first["deprecated"].asString());
+    if (cache_item.hasKey("deprecated")) {
+        warn_deprecated(fullName, cache_item["deprecated"].asString());
     }
 
     // Return a copy of the AnyMap
-    return cache_item.first;
+    return cache_item;
 }
 
 std::string AnyMap::toYamlString() const

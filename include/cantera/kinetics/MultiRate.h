@@ -65,8 +65,8 @@ public:
     }
 
     virtual void getRateConstants(double* kf) override {
-        for (auto& rxn : m_rxn_rates) {
-            kf[rxn.first] = rxn.second.evalFromStruct(m_shared);
+        for (auto& [iRxn, rate] : m_rxn_rates) {
+            kf[iRxn] = rate.evalFromStruct(m_shared);
         }
     }
 
@@ -172,8 +172,8 @@ protected:
     template <typename T=RateType,
         typename std::enable_if<has_ddT<T>::value, bool>::type = true>
     void _process_ddT(double* rop, const double* kf, double deltaT) {
-        for (const auto& rxn : m_rxn_rates) {
-            rop[rxn.first] *= rxn.second.ddTScaledFromStruct(m_shared);
+        for (const auto& [iRxn, rate] : m_rxn_rates) {
+            rop[iRxn] *= rate.ddTScaledFromStruct(m_shared);
         }
     }
 
@@ -188,10 +188,10 @@ protected:
         _update();
 
         // apply numerical derivative
-        for (auto& rxn : m_rxn_rates) {
-            if (kf[rxn.first] != 0.) {
-                double k1 = rxn.second.evalFromStruct(m_shared);
-                rop[rxn.first] *= dTinv * (k1 / kf[rxn.first] - 1.);
+        for (auto& [iRxn, rate] : m_rxn_rates) {
+            if (kf[iRxn] != 0.) {
+                double k1 = rate.evalFromStruct(m_shared);
+                rop[iRxn] *= dTinv * (k1 / kf[iRxn] - 1.);
             } // else not needed: derivative is already zero
         }
 
@@ -209,13 +209,13 @@ protected:
         m_shared.perturbThirdBodies(deltaM);
         _update();
 
-        for (auto& rxn : m_rxn_rates) {
-            if (kf[rxn.first] != 0. && m_shared.conc_3b[rxn.first] > 0.) {
-                double k1 = rxn.second.evalFromStruct(m_shared);
-                rop[rxn.first] *= dMinv * (k1 / kf[rxn.first] - 1.);
-                rop[rxn.first] /= m_shared.conc_3b[rxn.first];
+        for (auto& [iRxn, rate] : m_rxn_rates) {
+            if (kf[iRxn] != 0. && m_shared.conc_3b[iRxn] > 0.) {
+                double k1 = rate.evalFromStruct(m_shared);
+                rop[iRxn] *= dMinv * (k1 / kf[iRxn] - 1.);
+                rop[iRxn] /= m_shared.conc_3b[iRxn];
             } else {
-                rop[rxn.first] = 0.;
+                rop[iRxn] = 0.;
             }
         }
 
@@ -232,8 +232,8 @@ protected:
             // do not overwrite existing entries
             return;
         }
-        for (const auto& rxn : m_rxn_rates) {
-            rop[rxn.first] = 0.;
+        for (const auto& [iRxn, rate] : m_rxn_rates) {
+            rop[iRxn] = 0.;
         }
     }
 
@@ -246,10 +246,10 @@ protected:
         m_shared.perturbPressure(deltaP);
         _update();
 
-        for (auto& rxn : m_rxn_rates) {
-            if (kf[rxn.first] != 0.) {
-                double k1 = rxn.second.evalFromStruct(m_shared);
-                rop[rxn.first] *= dPinv * (k1 / kf[rxn.first] - 1.);
+        for (auto& [iRxn, rate] : m_rxn_rates) {
+            if (kf[iRxn] != 0.) {
+                double k1 = rate.evalFromStruct(m_shared);
+                rop[iRxn] *= dPinv * (k1 / kf[iRxn] - 1.);
             } // else not needed: derivative is already zero
         }
 
@@ -262,8 +262,8 @@ protected:
     template <typename T=RateType, typename D=DataType,
         typename std::enable_if<!has_ddP<D>::value, bool>::type = true>
     void _process_ddP(double* rop, const double* kf, double deltaP) {
-        for (const auto& rxn : m_rxn_rates) {
-            rop[rxn.first] = 0.;
+        for (const auto& [iRxn, rate] : m_rxn_rates) {
+            rop[iRxn] = 0.;
         }
     }
 

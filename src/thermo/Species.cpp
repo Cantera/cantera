@@ -41,14 +41,14 @@ double Species::molecularWeight() {
     if (m_molecularWeight == Undef) {
         double weight = 0.0;
         const auto& elements = elementWeights();
-        for (const auto& comp : composition) {
-            auto search = elements.find(comp.first);
+        for (const auto& [eName, stoich] : composition) {
+            auto search = elements.find(eName);
             if (search != elements.end()) {
                 if (search->second < 0) {
                     throw CanteraError("setMolecularWeight",
-                        "element '{}' has no stable isotopes", comp.first);
+                        "element '{}' has no stable isotopes", eName);
                 }
-                weight += search->second * comp.second;
+                weight += search->second * stoich;
             }
         }
         setMolecularWeight(weight);
@@ -140,9 +140,9 @@ unique_ptr<Species> newSpecies(const AnyMap& node)
         "thermo", "transport"
     };
     s->input.setUnits(node.units());
-    for (const auto& item : node) {
-        if (known_keys.count(item.first) == 0) {
-            s->input[item.first] = item.second;
+    for (const auto& [key, child] : node) {
+        if (known_keys.count(key) == 0) {
+            s->input[key] = child;
         }
     }
     s->input.applyUnits();

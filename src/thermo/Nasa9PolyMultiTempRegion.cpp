@@ -91,14 +91,14 @@ void Nasa9PolyMultiTempRegion::setParameters(const std::map<double, vector_fp>& 
 {
     m_regionPts.clear();
     m_lowerTempBounds.clear();
-    for (const auto& region : regions) {
-        m_lowerTempBounds.push_back(region.first);
+    for (const auto& [Tmin, coeffs] : regions) {
+        m_lowerTempBounds.push_back(Tmin);
         Nasa9Poly1* poly = new Nasa9Poly1;
         poly->setRefPressure(refPressure());
-        poly->setMinTemp(region.first);
-        poly->setParameters(region.second);
+        poly->setMinTemp(Tmin);
+        poly->setParameters(coeffs);
         if (!m_regionPts.empty()) {
-            m_regionPts.back()->setMaxTemp(region.first);
+            m_regionPts.back()->setMaxTemp(Tmin);
         }
         m_regionPts.emplace_back(poly);
     }

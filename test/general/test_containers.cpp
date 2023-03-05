@@ -291,15 +291,15 @@ TEST(AnyMap, iterators)
     AnyMap m = AnyMap::fromYamlString(
         "{a: 1, b: two, c: 3.01, d: {foo: 1, bar: 2}}");
     std::vector<std::string> keys;
-    for (const auto& item : m) {
-        keys.push_back(item.first);
+    for (const auto& [key, value] : m) {
+        keys.push_back(key);
     }
     EXPECT_EQ(keys.size(), (size_t) 4);
     EXPECT_TRUE(std::find(keys.begin(), keys.end(), "c") != keys.end());
     keys.clear();
 
-    for (const auto& item : m.at("d")) {
-        keys.push_back(item.first);
+    for (const auto& [key, value] : m.at("d")) {
+        keys.push_back(key);
     }
     EXPECT_EQ(keys.size(), (size_t) 2);
     EXPECT_TRUE(std::find(keys.begin(), keys.end(), "bar") != keys.end());
@@ -378,8 +378,8 @@ TEST(AnyMap, dumpYamlString)
     AnyMap original = AnyMap::fromYamlFile("h2o2.yaml");
     std::string serialized = original.toYamlString();
     AnyMap generated = AnyMap::fromYamlString(serialized);
-    for (const auto& item : original) {
-        EXPECT_TRUE(generated.hasKey(item.first));
+    for (const auto& [key, value] : original) {
+        EXPECT_TRUE(generated.hasKey(key));
     }
     EXPECT_EQ(original["species"].getMapWhere("name", "OH")["thermo"]["data"].asVector<vector_fp>(),
         generated["species"].getMapWhere("name", "OH")["thermo"]["data"].asVector<vector_fp>());
@@ -396,8 +396,8 @@ TEST(AnyMap, YamlFlowStyle)
     // The serialized version should contain two lines, and end with a newline.
     EXPECT_EQ(std::count(serialized.begin(), serialized.end(), '\n'), 2);
     AnyMap generated = AnyMap::fromYamlString(serialized);
-    for (const auto& item : original) {
-        EXPECT_TRUE(generated.hasKey(item.first));
+    for (const auto& [key, value] : original) {
+        EXPECT_TRUE(generated.hasKey(key));
     }
 }
 
@@ -445,8 +445,8 @@ TEST(AnyMap, definedKeyOrdering)
 
     std::string result = m.toYamlString();
     std::unordered_map<std::string, size_t> loc;
-    for (auto& item : m) {
-        loc[item.first] = result.find(item.first);
+    for (auto& [key, value] : m) {
+        loc[key] = result.find(key);
     }
     EXPECT_LT(loc["three"], loc["one"]);
     EXPECT_LT(loc["three"], loc["half"]);

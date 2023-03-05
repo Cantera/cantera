@@ -278,7 +278,9 @@ public:
 protected:
     doublereal m_flxmax;
     std::map<size_t, std::map<size_t, Path*> > m_paths;
-    std::map<size_t, SpeciesNode*> m_nodes;
+
+    //! map of species index to SpeciesNode
+    map<size_t, SpeciesNode*> m_nodes;
     std::vector<Path*> m_pathlist;
     std::vector<std::string> m_include;
     std::vector<std::string> m_exclude;

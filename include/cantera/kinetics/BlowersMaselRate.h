@@ -107,8 +107,8 @@ public:
     void updateFromStruct(const BlowersMaselData& shared_data) {
         if (shared_data.ready) {
             m_deltaH_R = 0.;
-            for (const auto& item : m_stoich_coeffs) {
-                m_deltaH_R += shared_data.partialMolarEnthalpies[item.first] * item.second;
+            for (const auto& [k, multiplier] : m_stoich_coeffs) {
+                m_deltaH_R += shared_data.partialMolarEnthalpies[k] * multiplier;
             }
             m_deltaH_R /= GasConstant;
         }

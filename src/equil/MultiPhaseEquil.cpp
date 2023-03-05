@@ -602,8 +602,7 @@ void MultiPhaseEquil::computeN()
     std::vector<std::pair<double, size_t> > moleFractions(m_nsp);
     for (size_t k = 0; k < m_nsp; k++) {
         // use -Xk to generate reversed sort order
-        moleFractions[k].first = - m_mix->speciesMoles(m_species[k]);
-        moleFractions[k].second = k;
+        moleFractions[k] = {-m_mix->speciesMoles(m_species[k]), k};
     }
     std::sort(moleFractions.begin(), moleFractions.end());
     for (size_t k = 0; k < m_nsp; k++) {

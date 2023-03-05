@@ -135,15 +135,15 @@ std::pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
         Reaction& R = *m_reactions[i];
         net_stoich.emplace_back();
         std::map<int, double>& net = net_stoich.back();
-        for (const auto& sp : R.reactants) {
-            int k = static_cast<int>(kineticsSpeciesIndex(sp.first));
+        for (const auto& [name, stoich] : R.reactants) {
+            int k = static_cast<int>(kineticsSpeciesIndex(name));
             key += k*(k+1);
-            net[-1 -k] -= sp.second;
+            net[-1 -k] -= stoich;
         }
-        for (const auto& sp : R.products) {
-            int k = static_cast<int>(kineticsSpeciesIndex(sp.first));
+        for (const auto& [name, stoich] : R.products) {
+            int k = static_cast<int>(kineticsSpeciesIndex(name));
             key += k*(k+1);
-            net[1+k] += sp.second;
+            net[1+k] += stoich;
         }
 
         // Compare this reaction to others with similar participants
@@ -214,11 +214,11 @@ double Kinetics::checkDuplicateStoich(std::map<int, double>& r1,
                                       std::map<int, double>& r2) const
 {
     std::unordered_set<int> keys; // species keys (k+1 or -k-1)
-    for (auto& r : r1) {
-        keys.insert(r.first);
+    for (auto& [speciesKey, stoich] : r1) {
+        keys.insert(speciesKey);
     }
-    for (auto& r : r2) {
-        keys.insert(r.first);
+    for (auto& [speciesKey, stoich] : r2) {
+        keys.insert(speciesKey);
     }
     int k1 = r1.begin()->first;
     // check for duplicate written in the same direction
@@ -667,26 +667,26 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r, bool resize)
     // the coefficient for species rk[i]
     vector_fp rstoich, pstoich;
 
-    for (const auto& sp : r->reactants) {
-        rk.push_back(kineticsSpeciesIndex(sp.first));
-        rstoich.push_back(sp.second);
+    for (const auto& [name, stoich] : r->reactants) {
+        rk.push_back(kineticsSpeciesIndex(name));
+        rstoich.push_back(stoich);
     }
 
-    for (const auto& sp : r->products) {
-        pk.push_back(kineticsSpeciesIndex(sp.first));
-        pstoich.push_back(sp.second);
+    for (const auto& [name, stoich] : r->products) {
+        pk.push_back(kineticsSpeciesIndex(name));
+        pstoich.push_back(stoich);
     }
 
     // The default order for each reactant is its stoichiometric coefficient,
     // which can be overridden by entries in the Reaction.orders map. rorder[i]
     // is the order for species rk[i].
     vector_fp rorder = rstoich;
-    for (const auto& sp : r->orders) {
-        size_t k = kineticsSpeciesIndex(sp.first);
+    for (const auto& [name, order] : r->orders) {
+        size_t k = kineticsSpeciesIndex(name);
         // Find the index of species k within rk
         auto rloc = std::find(rk.begin(), rk.end(), k);
         if (rloc != rk.end()) {
-            rorder[rloc - rk.begin()] = sp.second;
+            rorder[rloc - rk.begin()] = order;
         } else {
             // If the reaction order involves a non-reactant species, add an
             // extra term to the reactants with zero stoichiometry so that the
@@ -694,7 +694,7 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r, bool resize)
             // reaction rate.
             rk.push_back(k);
             rstoich.push_back(0.0);
-            rorder.push_back(sp.second);
+            rorder.push_back(order);
         }
     }
 
@@ -774,14 +774,12 @@ double Kinetics::reactionEnthalpy(const Composition& reactants, const Compositio
         thermo(n).getPartialMolarEnthalpies(&hk[m_start[n]]);
     }
     double rxn_deltaH = 0;
-    for (const auto& product : products) {
-        size_t k = kineticsSpeciesIndex(product.first);
-        double stoich = product.second;
+    for (const auto& [name, stoich] : products) {
+        size_t k = kineticsSpeciesIndex(name);
         rxn_deltaH += hk[k] * stoich;
     }
-    for (const auto& reactant : reactants) {
-            size_t k = kineticsSpeciesIndex(reactant.first);
-            double stoich = reactant.second;
+    for (const auto& [name, stoich] : reactants) {
+            size_t k = kineticsSpeciesIndex(name);
             rxn_deltaH -= hk[k] * stoich;
         }
     return rxn_deltaH;

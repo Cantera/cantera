@@ -237,8 +237,11 @@ protected:
     double m_deltaPotential_RT; //!< Normalized electric potential energy change
     double m_deltaGibbs0_RT; //!< Normalized standard state Gibbs free energy change
     double m_prodStandardConcentrations; //!< Products of standard concentrations
-    std::map<size_t, size_t> m_indices; //!< Map holding indices of coverage species
-    std::vector<std::string> m_cov; //!< Vector holding names of coverage species
+
+    //! Map from coverage dependencies stored in this object to the index of the
+    //! coverage species in the Kinetics object
+    map<size_t, size_t> m_indices;
+    vector<string> m_cov; //!< Vector holding names of coverage species
     vector_fp m_ac; //!< Vector holding coverage-specific exponential dependence
     vector_fp m_ec; //!< Vector holding coverage-specific activation energy dependence
     vector_fp m_mc; //!< Vector holding coverage-specific power-law exponents

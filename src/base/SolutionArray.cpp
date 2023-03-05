@@ -174,8 +174,8 @@ std::map<std::string, double> SolutionArray::getAuxiliary(size_t index)
 {
     setIndex(index);
     std::map<std::string, double> out;
-    for (auto& item : m_extra) {
-        out[item.first] = item.second[m_index];
+    for (auto& [key, value] : m_extra) {
+        out[key] = value[m_index];
     }
     return out;
 }
@@ -233,10 +233,8 @@ void SolutionArray::writeEntry(const std::string& fname, const std::string& id,
 
     const auto& nativeState = m_sol->thermo()->nativeState();
     size_t nSpecies = m_sol->thermo()->nSpecies();
-    for (auto& state : nativeState) {
-        std::string name = state.first;
+    for (auto& [name, offset] : nativeState) {
         if (name == "X" || name == "Y") {
-            size_t offset = state.second;
             std::vector<vector_fp> prop;
             for (size_t i = 0; i < m_size; i++) {
                 size_t first = offset + i * m_stride;
@@ -250,8 +248,8 @@ void SolutionArray::writeEntry(const std::string& fname, const std::string& id,
         }
     }
 
-    for (auto& extra : m_extra) {
-        file.writeVector(id, extra.first, extra.second);
+    for (auto& [name, value] : m_extra) {
+        file.writeVector(id, name, value);
     }
 }
 
@@ -283,8 +281,8 @@ void SolutionArray::writeEntry(AnyMap& root, const std::string& id)
     data["points"] = int(m_size);
     data.update(m_meta);
 
-    for (auto& extra : m_extra) {
-        data[extra.first] = extra.second;
+    for (auto& [name, value] : m_extra) {
+        data[name] = value;
     }
 
     auto phase = m_sol->thermo();
@@ -313,13 +311,12 @@ void SolutionArray::writeEntry(AnyMap& root, const std::string& id)
         }
     } else if (m_size > 1) {
         std::vector<std::string> components;
-        for (auto& extra : m_extra) {
-            components.push_back(extra.first);
+        for (auto& [name, value] : m_extra) {
+            components.push_back(name);
         }
 
         const auto& nativeState = phase->nativeState();
-        for (auto& state : nativeState) {
-            std::string name = state.first;
+        for (auto& [name, offset] : nativeState) {
             if (name == "X" || name == "Y") {
                 for (auto& spc : phase->speciesNames()) {
                     data[spc] = getComponent(spc);
@@ -399,9 +396,9 @@ AnyMap SolutionArray::readHeader(const AnyMap& root, const std::string& id)
 {
     auto sub = locateField(root, id);
     AnyMap header;
-    for (const auto& item : sub) {
-        if (!sub[item.first].is<AnyMap>()) {
-            header[item.first] = item.second;
+    for (const auto& [name, value] : sub) {
+        if (!sub[name].is<AnyMap>()) {
+            header[name] = value;
         }
     }
     return header;
@@ -471,8 +468,8 @@ std::set<std::string> SolutionArray::stateProperties(
 {
     std::set<std::string> states;
     if (mode == "native") {
-        for (const auto& item : m_sol->thermo()->nativeState()) {
-            states.insert(alias ? aliasMap.at(item.first) : item.first);
+        for (const auto& [name, offset] : m_sol->thermo()->nativeState()) {
+            states.insert(alias ? aliasMap.at(name) : name);
         }
     } else {
         for (const auto& m : mode) {
@@ -490,10 +487,9 @@ void SolutionArray::readEntry(const std::string& fname, const std::string& id)
     file.checkGroup(id);
     m_meta = file.readAttributes(id, true);
 
-    auto contents = file.contents(id);
-    m_size = contents.first;
+    auto [size, names] = file.contents(id);
+    m_size = size;
     m_data.resize(m_size * m_stride, 0.);
-    std::set<std::string> names = contents.second;
 
     if (m_size == 0) {
         return;
@@ -520,10 +516,8 @@ void SolutionArray::readEntry(const std::string& fname, const std::string& id)
     const auto& nativeStates = m_sol->thermo()->nativeState();
     if (mode == "native") {
         // native state can be written directly into data storage
-        for (const auto& item : nativeStates) {
-            std::string name = item.first;
+        for (const auto& [name, offset] : nativeStates) {
             if (name == "X" || name == "Y") {
-                size_t offset = item.second;
                 auto prop = file.readMatrix(id, name, m_size, nSpecies);
                 for (size_t i = 0; i < m_size; i++) {
                     std::copy(prop[i].begin(), prop[i].end(),
@@ -631,14 +625,12 @@ void SolutionArray::readEntry(const AnyMap& root, const std::string& id)
             }
         } else {
             // legacy YAML format does not provide for list of components
-            for (const auto& item : sub) {
-                const std::string& name = item.first;
-                const AnyValue& value = item.second;
+            for (const auto& [name, value] : sub) {
                 if (value.is<std::vector<double>>()) {
                     const vector_fp& data = value.as<std::vector<double>>();
                     if (data.size() == m_size) {
                         setComponent(name, data, true);
-                        exclude.insert(item.first);
+                        exclude.insert(name);
                     }
                 }
             }
@@ -648,11 +640,11 @@ void SolutionArray::readEntry(const AnyMap& root, const std::string& id)
         const auto& nativeState = m_sol->thermo()->nativeState();
         std::set<std::string> props = {};
         std::set<std::string> missingProps = {};
-        for (const auto& item : nativeState) {
-            if (exclude.count(item.first)) {
-                props.insert(item.first);
+        for (const auto& [name, offset] : nativeState) {
+            if (exclude.count(name)) {
+                props.insert(name);
             } else {
-                missingProps.insert(item.first);
+                missingProps.insert(name);
             }
         }
 
@@ -676,9 +668,9 @@ void SolutionArray::readEntry(const AnyMap& root, const std::string& id)
     }
 
     // add meta data
-    for (const auto& item : sub) {
-        if (!exclude.count(item.first)) {
-            m_meta[item.first] = item.second;
+    for (const auto& [name, value] : sub) {
+        if (!exclude.count(name)) {
+            m_meta[name] = value;
         }
     }
     m_meta.erase("points");

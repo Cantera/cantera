@@ -87,8 +87,8 @@ AnyValue& AnyValue::operator=(const std::unordered_map<std::string, T> items) {
     *m_value = AnyMap();
     m_equals = eq_comparer<AnyMap>;
     AnyMap& dest = as<AnyMap>();
-    for (const auto& item : items) {
-        dest[item.first] = item.second;
+    for (const auto& [key, value] : items) {
+        dest[key] = value;
     }
     return *this;
 }
@@ -98,8 +98,8 @@ AnyValue& AnyValue::operator=(const std::map<std::string, T> items) {
     *m_value = AnyMap();
     m_equals = eq_comparer<AnyMap>;
     AnyMap& dest = as<AnyMap>();
-    for (const auto& item : items) {
-        dest[item.first] = item.second;
+    for (const auto& [key, value] : items) {
+        dest[key] = value;
     }
     return *this;
 }
