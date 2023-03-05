@@ -32,7 +32,7 @@ cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
 
         CxxThermoPhase& thermo(int)
 
-        void addPhase(shared_ptr[CxxThermoPhase]) except +translate_exception
+        void addThermo(shared_ptr[CxxThermoPhase]) except +translate_exception
         void init() except +translate_exception
         void skipUndeclaredThirdBodies(cbool)
         void addReaction(shared_ptr[CxxReaction]) except +translate_exception

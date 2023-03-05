@@ -571,7 +571,7 @@ Eigen::SparseMatrix<double> Kinetics::netProductionRates_ddX()
     return m_stoichMatrix * netRatesOfProgress_ddX();
 }
 
-void Kinetics::addPhase(shared_ptr<ThermoPhase> thermo)
+void Kinetics::addThermo(shared_ptr<ThermoPhase> thermo)
 {
     // the phase with lowest dimensionality is assumed to be the
     // phase/interface at which reactions take place
@@ -593,7 +593,7 @@ void Kinetics::addPhase(shared_ptr<ThermoPhase> thermo)
 void Kinetics::addPhase(ThermoPhase& thermo)
 {
     warn_deprecated("Kinetics::addPhase",
-        "To be removed after Cantera 3.0. Use version with shared pointer instead.");
+        "To be removed after Cantera 3.0. Replaced by addThermo.");
 
     // the phase with lowest dimensionality is assumed to be the
     // phase/interface at which reactions take place

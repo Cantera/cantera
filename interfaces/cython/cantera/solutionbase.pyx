@@ -241,10 +241,10 @@ cdef class _SolutionBase:
         if isinstance(self, Kinetics):
             self.base.setKinetics(newKinetics(stringify(kinetics)))
             self.kinetics = self.base.kinetics().get()
-            self.kinetics.addPhase(self.base.thermo())
+            self.kinetics.addThermo(self.base.thermo())
             for phase in adjacent:
                 # adjacent bulk phases for a surface phase
-                self.kinetics.addPhase(phase.base.thermo())
+                self.kinetics.addThermo(phase.base.thermo())
             self.kinetics.init()
             self.kinetics.skipUndeclaredThirdBodies(True)
             for reaction in reactions:
