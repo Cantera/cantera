@@ -130,7 +130,7 @@ public:
     //! @name Reaction Mechanism Construction
     //! @{
 
-    //!  Add a phase to the kinetics manager object.
+    //!  Add a thermo phase to the kinetics manager object.
     /*!
      * This must be done before the function init() is called or
      * before any reactions are input.
@@ -142,9 +142,9 @@ public:
      *
      * @param thermo    Reference to the ThermoPhase to be added.
      */
-    virtual void addPhase(shared_ptr<ThermoPhase> thermo);
+    virtual void addThermo(shared_ptr<ThermoPhase> thermo);
 
-    //! @see InterfaceKinetics::addPhase(shared_ptr<ThermoPhase>)
+    //! @see InterfaceKinetics::addThermo(shared_ptr<ThermoPhase>)
     virtual void addPhase(ThermoPhase& thermo);
 
     virtual void init();

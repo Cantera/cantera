@@ -29,7 +29,7 @@ public:
         th.push_back(pp_ref);
         kin_ref = newKinetics(th, "../data/kineticsfromscratch.yaml", "ohmech");
 
-        kin.addPhase(pp);
+        kin.addThermo(pp);
         kin.init();
     }
 
@@ -520,8 +520,8 @@ public:
         , surf_ref(newThermo("sofc.yaml", "metal_surface"))
     {
         kin_ref = newKinetics({surf_ref, gas_ref}, "sofc.yaml", "metal_surface");
-        kin.addPhase(surf);
-        kin.addPhase(gas);
+        kin.addThermo(surf);
+        kin.addThermo(gas);
     }
 
     shared_ptr<ThermoPhase> gas;
@@ -603,7 +603,7 @@ public:
         vector<shared_ptr<ThermoPhase>> th;
         th.push_back(pp_ref);
         kin_ref = newKinetics(th, "../data/kineticsfromscratch.yaml", "ohmech");
-        kin.addPhase(p);
+        kin.addThermo(p);
 
         std::vector<shared_ptr<Species>> S = getSpecies(
             AnyMap::fromYamlFile("h2o2.yaml")["species"]);

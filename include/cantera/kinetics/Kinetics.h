@@ -1104,12 +1104,12 @@ public:
      *    kinetics manager object as the value.
      *
      * @param thermo    Reference to the ThermoPhase to be added.
-     * @since Changed in Cantera 3.0. Replaces version using reference.
+     * @since New in Cantera 3.0. Replaces addPhase.
      */
-    virtual void addPhase(shared_ptr<ThermoPhase> thermo);
+    virtual void addThermo(shared_ptr<ThermoPhase> thermo);
 
-    //! @see Kinetics::addPhase(shared_ptr<ThermoPhase>)
-    //! @deprecated To be removed after Cantera 3.0. Replaced by version using shared
+    //! @see Kinetics::addThermo(shared_ptr<ThermoPhase>)
+    //! @deprecated To be removed after Cantera 3.0. Replaced by addThermo
     //!     pointer.
     virtual void addPhase(ThermoPhase& thermo);
 
