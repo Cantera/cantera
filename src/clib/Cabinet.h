@@ -10,7 +10,7 @@
 
 #include "cantera/base/ctexceptions.h"
 
-using Cantera::CanteraError;
+namespace Cantera {
 
 /**
  * Template for classes to hold pointers to objects. The Cabinet<M>
@@ -288,8 +288,7 @@ public:
     }
 
     /**
-     * Delete the nth object. After the object is deleted, the pointer to it in the list
-     * is replaced by a pointer to the first element in the list.
+     * Delete the nth object.
      */
     static void del(size_t n) {
         dataRef data = getData();
@@ -359,7 +358,7 @@ private:
      * access the data through this function.
      */
     static dataRef getData() {
-        if (s_storage == 0) {
+        if (s_storage == nullptr) {
             s_storage = new SharedCabinet<M>();
         }
         return s_storage->m_table;
@@ -375,5 +374,7 @@ private:
      */
     std::vector<std::shared_ptr<M>> m_table;
 };
+
+}
 
 #endif
