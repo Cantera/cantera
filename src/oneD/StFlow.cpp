@@ -131,8 +131,8 @@ StFlow::StFlow(shared_ptr<Solution> sol, const std::string& id, size_t points)
         setTransportModel("Mix");
     }
     m_solution->registerChangedCallback(this, [this]() {
-        setKinetics(*m_solution->kinetics());
-        setTransport(*m_solution->transport());
+        setKinetics(m_solution->kinetics());
+        setTransport(m_solution->transport());
     });
 }
 
@@ -161,9 +161,8 @@ void StFlow::setKinetics(shared_ptr<Kinetics> kin)
 
 void StFlow::setKinetics(Kinetics& kin)
 {
-    // @todo: resolve crash for updated m_solution->registerChangedCallback
-    // warn_deprecated("StFlow::setKinetics",
-    //     "To be removed after Cantera 3.0. Replaced by Domain1D::setKinetics.");
+    warn_deprecated("StFlow::setKinetics(Kinetics&)", "To be removed after Cantera 3.0."
+        " Replaced by setKinetics(shared_ptr<Kinetics>).");
     m_kin = &kin;
 }
 
@@ -258,9 +257,8 @@ std::string StFlow::transportModel() const {
 
 void StFlow::setTransport(Transport& trans)
 {
-    // @todo: resolve crash for updated m_solution->registerChangedCallback
-    // warn_deprecated("StFlow::setTransport",
-    //     "To be removed after Cantera 3.0. Replaced by Domain1D::setTransport.");
+    warn_deprecated("StFlow::setTransport(Transport&)", "To be removed after"
+        " Cantera 3.0. Replaced by setTransport(shared_ptr<Transport>).");
     m_trans = &trans;
     if (m_trans->transportModel() == "None") {
         throw CanteraError("StFlow::setTransport",
