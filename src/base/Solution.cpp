@@ -48,6 +48,9 @@ void Solution::setThermo(shared_ptr<ThermoPhase> thermo) {
 }
 
 void Solution::setKinetics(shared_ptr<Kinetics> kinetics) {
+    if (kinetics == m_kinetics) {
+        return;
+    }
     m_kinetics = kinetics;
     if (m_kinetics) {
         m_kinetics->setRoot(shared_from_this());
@@ -58,6 +61,9 @@ void Solution::setKinetics(shared_ptr<Kinetics> kinetics) {
 }
 
 void Solution::setTransport(shared_ptr<Transport> transport) {
+    if (transport == m_transport) {
+        return;
+    }
     m_transport = transport;
     for (const auto& [id, callback] : m_changeCallbacks) {
         callback();

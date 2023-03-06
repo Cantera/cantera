@@ -74,8 +74,8 @@ IonFlow::IonFlow(shared_ptr<Solution> sol, const std::string& id, size_t points)
         setTransportModel("Ion");
     }
     m_solution->registerChangedCallback(this, [this]() {
-        setKinetics(*m_solution->kinetics());
-        setTransport(*m_solution->transport());
+        setKinetics(m_solution->kinetics());
+        setTransport(m_solution->transport());
     });
 }
 
