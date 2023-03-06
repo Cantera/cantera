@@ -245,7 +245,7 @@ class SharedCabinet
 {
 public:
     typedef vector<shared_ptr<M>>& dataRef;
-    typedef std::unordered_map<const M*, int>& lookupRef;
+    typedef std::unordered_map<const M*, set<int>>& lookupRef;
 
     /**
      * Constructor.
@@ -258,10 +258,14 @@ public:
     static int add(shared_ptr<M> obj) {
         dataRef data = getData();
         data.push_back(obj);
-        int index = data.size() - 1;
+        int idx = data.size() - 1;
         lookupRef lookup = getLookup();
-        lookup[obj.get()] = index;
-        return index;
+        if (index(*obj) >= 0) {
+            lookup[obj.get()].insert(idx);
+        } else {
+            lookup[obj.get()] = {idx};
+        }
+        return idx;
     }
 
     /**
@@ -293,12 +297,35 @@ public:
     }
 
     /**
+     * Add a copy of the nth object to storage. The index of the new entry is returned.
+     */
+    static int copy(size_t n) {
+        dataRef data = getData();
+        try {
+            return add(*data[n]);
+        } catch (std::exception& err) {
+            throw CanteraError("SharedCabinet::newCopy", err.what());
+        }
+    }
+
+    /**
      * Delete the nth object.
      */
     static void del(size_t n) {
         dataRef data = getData();
         if (n >= 0 && n < data.size()) {
-            getLookup().erase(data[n].get());
+            lookupRef lookup = getLookup();
+            if (!lookup.count(data[n].get())) {
+                throw CanteraError("SharedCabinet::del",
+                    "Lookup table does not contain reference to object.");
+            }
+            if (lookup[data[n].get()].size() == 1) {
+                // set only contains one index
+                lookup.erase(data[n].get());
+            } else {
+                // remove index n from the reverse lookup table
+                lookup[data[n].get()].erase(n);
+            }
             data[n].reset();
         } else {
             throw CanteraError("SharedCabinet::del",
@@ -343,14 +370,16 @@ public:
 
     /**
      * Return the index in the SharedCabinet to the specified object, or -1 if the
-     * object is not in the SharedCabinet.
+     * object is not in the SharedCabinet. If multiple indices reference the same
+     * object, the index of the last one added is returned.
      */
     static int index(const M& obj) {
         lookupRef lookup = getLookup();
         if (!lookup.count(&obj)) {
             return -1;
         }
-        return lookup.at(&obj);
+        set<int>& entry = lookup.at(&obj);
+        return *entry.rbegin();
     }
 
 private:
@@ -386,7 +415,7 @@ private:
     /**
      * Reverse lookup table for the single instance of this class.
      */
-    std::unordered_map<const M*, int> m_lookup;
+    std::unordered_map<const M*, set<int>> m_lookup;
 
     /**
      * list to hold pointers to objects.
