@@ -16,7 +16,7 @@ BulkKinetics::BulkKinetics()
 
 BulkKinetics::BulkKinetics(ThermoPhase* thermo) : BulkKinetics()
 {
-    warn_deprecated("BulkKinetics::BulkKinetics",
+    warn_deprecated("BulkKinetics::BulkKinetics(ThermoPhase*)",
         "To be removed after Cantera 3.0. Use default constructor instead.");
     addPhase(*thermo);
 }

@@ -100,7 +100,7 @@ unique_ptr<Kinetics> newKinetics(const vector<ThermoPhase*>& phases,
                                  const AnyMap& phaseNode,
                                  const AnyMap& rootNode)
 {
-    warn_deprecated("newKinetics",
+    warn_deprecated("newKinetics(vector<ThermoPhase*>&, AnyMap&, AnyMap&)",
         "To be removed after Cantera 3.0; superseded by\nnewKinetics"
         "(const vector<shared_ptr<ThermoPhase>>&, const AnyMap&, const AnyMap&).");
     std::string kinType = phaseNode.getString("kinetics", "none");
@@ -141,7 +141,7 @@ unique_ptr<Kinetics> newKinetics(const std::vector<ThermoPhase*>& phases,
                                  const std::string& filename,
                                  const std::string& phase_name)
 {
-    warn_deprecated("newKinetics",
+    warn_deprecated("newKinetics(vector<ThermoPhase*>&, const string&, const string&)",
         "To be removed after Cantera 3.0; superseded by\nnewKinetics"
         "(const vector<shared_ptr<ThermoPhase>>&, const string&, const string&).");
     AnyMap root = AnyMap::fromYamlFile(filename);
