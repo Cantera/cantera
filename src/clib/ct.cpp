@@ -159,7 +159,7 @@ extern "C" {
             auto soln = SolutionCabinet::at(n);
             return ThermoCabinet::index(*soln->thermo());
         } catch (...) {
-            return handleAllExceptions(npos, npos);
+            return handleAllExceptions(-2, ERR);
         }
     }
 
@@ -172,7 +172,7 @@ extern "C" {
             }
             return KineticsCabinet::index(*(soln->kinetics()));
         } catch (...) {
-            return handleAllExceptions(npos, npos);
+            return handleAllExceptions(-2, ERR);
         }
     }
 
@@ -185,7 +185,7 @@ extern "C" {
             }
             return TransportCabinet::index(*(soln->transport()));
         } catch (...) {
-            return handleAllExceptions(npos, npos);
+            return handleAllExceptions(-2, ERR);
         }
     }
 
@@ -207,7 +207,7 @@ extern "C" {
             }
             return SolutionCabinet::index(*(soln->adjacent(a)));
         } catch (...) {
-            return handleAllExceptions(npos, npos);
+            return handleAllExceptions(-2, ERR);
         }
     }
 
