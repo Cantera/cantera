@@ -31,7 +31,7 @@ InterfaceKinetics::InterfaceKinetics()
 InterfaceKinetics::InterfaceKinetics(ThermoPhase* thermo)
     : InterfaceKinetics()
 {
-    warn_deprecated("InterfaceKinetics::InterfaceKinetics",
+    warn_deprecated("InterfaceKinetics::InterfaceKinetics(ThermoPhase*)",
         "To be removed after Cantera 3.0. Use default constructor instead.");
     addPhase(*thermo);
 }

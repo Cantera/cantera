@@ -24,7 +24,7 @@ GasKinetics::GasKinetics()
 GasKinetics::GasKinetics(ThermoPhase* thermo)
     : GasKinetics()
 {
-    warn_deprecated("GasKinetics::GasKinetics",
+    warn_deprecated("GasKinetics::GasKinetics(ThermoPhase*)",
         "To be removed after Cantera 3.0. Use default constructor instead.");
     addPhase(*thermo);
 }
