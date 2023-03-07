@@ -23,7 +23,7 @@ class EdgeKinetics : public InterfaceKinetics
 {
 public:
     //! Constructor
-    EdgeKinetics() : InterfaceKinetics() {
+    EdgeKinetics() {
         m_nDim = 1;
     }
 

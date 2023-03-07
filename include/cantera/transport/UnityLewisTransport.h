@@ -25,7 +25,7 @@ namespace Cantera
 class UnityLewisTransport : public MixTransport
 {
 public:
-//    UnityLewisTransport() {}
+    UnityLewisTransport() = default;
 
     virtual std::string transportModel() const {
         return "UnityLewis";

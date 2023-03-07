@@ -21,10 +21,10 @@ class ExternalHandle;
 class Solution : public std::enable_shared_from_this<Solution>
 {
 protected:
-    Solution();
+    Solution() = default;
 
 public:
-    virtual ~Solution() {}
+    virtual ~Solution() = default;
     Solution(const Solution&) = delete;
     Solution& operator=(const Solution&) = delete;
 

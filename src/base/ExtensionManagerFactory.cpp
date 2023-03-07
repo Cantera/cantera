@@ -13,10 +13,6 @@ namespace Cantera
 ExtensionManagerFactory* ExtensionManagerFactory::s_factory = 0;
 mutex ExtensionManagerFactory::s_mutex;
 
-ExtensionManagerFactory::ExtensionManagerFactory()
-{
-}
-
 ExtensionManagerFactory& ExtensionManagerFactory::factory()
 {
     unique_lock<mutex> lock(s_mutex);
