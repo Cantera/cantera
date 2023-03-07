@@ -106,9 +106,8 @@ class Species;
 class Phase
 {
 public:
-    Phase(); //!< Default constructor.
-
-    virtual ~Phase();
+    Phase() = default; //!< Default constructor.
+    virtual ~Phase() = default;
 
     // Phase objects are not copyable or assignable
     Phase(const Phase&) = delete;
@@ -937,11 +936,11 @@ protected:
     //! should call the parent class method as well.
     virtual void compositionChanged();
 
-    size_t m_kk; //!< Number of species in the phase.
+    size_t m_kk = 0; //!< Number of species in the phase.
 
     //! Dimensionality of the phase. Volumetric phases have dimensionality 3
     //! and surface phases have dimensionality 2.
-    size_t m_ndim;
+    size_t m_ndim = 3;
 
     //! Atomic composition of the species. The number of atoms of element i
     //! in species k is equal to m_speciesComp[k * m_mm + i]
@@ -953,10 +952,10 @@ protected:
     std::map<std::string, shared_ptr<Species> > m_species;
 
     //! Flag determining behavior when adding species with an undefined element
-    UndefElement::behavior m_undefinedElementBehavior;
+    UndefElement::behavior m_undefinedElementBehavior = UndefElement::add;
 
     //! Flag determining whether case sensitive species names are enforced
-    bool m_caseSensitiveSpecies;
+    bool m_caseSensitiveSpecies = false;
 
 private:
     //! Find lowercase species name in m_speciesIndices when case sensitive
@@ -969,15 +968,15 @@ private:
     //! to another value during the course of a calculation.
     std::string m_name;
 
-    doublereal m_temp; //!< Temperature (K). This is an independent variable
+    double m_temp = 0.001; //!< Temperature (K). This is an independent variable
 
     //! Density (kg m-3). This is an independent variable except in the case
     //! of incompressible phases, where it has to be changed using the
     //! assignDensity() method. For compressible substances, the pressure is
     //! determined from this variable rather than other way round.
-    doublereal m_dens;
+    double m_dens = 0.001;
 
-    doublereal m_mmw; //!< mean molecular weight of the mixture (kg kmol-1)
+    double m_mmw = 0.0; //!< mean molecular weight of the mixture (kg kmol-1)
 
     //! m_ym[k] = mole fraction of species k divided by the mean molecular
     //! weight of mixture.
@@ -996,7 +995,7 @@ private:
 
     //! State Change variable. Whenever the mole fraction vector changes,
     //! this int is incremented.
-    int m_stateNum;
+    int m_stateNum = -1;
 
     //! Vector of the species names
     std::vector<std::string> m_speciesNames;
@@ -1007,7 +1006,7 @@ private:
     //! Map of lower-case species names to indices
     std::map<std::string, size_t> m_speciesLower;
 
-    size_t m_mm; //!< Number of elements.
+    size_t m_mm = 0; //!< Number of elements.
     vector_fp m_atomicWeights; //!< element atomic weights (kg kmol-1)
     vector_int m_atomicNumbers; //!< element atomic numbers
     std::vector<std::string> m_elementNames; //!< element names

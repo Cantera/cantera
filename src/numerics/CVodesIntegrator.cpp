@@ -101,33 +101,9 @@ extern "C" {
     }
 }
 
-CVodesIntegrator::CVodesIntegrator() :
-    m_neq(0),
-    m_cvode_mem(0),
-    m_linsol(0),
-    m_linsol_matrix(0),
-    m_func(0),
-    m_t0(0.0),
-    m_y(0),
-    m_abstol(0),
-    m_dky(0),
-    m_type("DENSE"),
-    m_itol(CV_SS),
-    m_method(CV_BDF),
-    m_maxord(0),
-    m_reltol(1.e-9),
-    m_abstols(1.e-15),
-    m_reltolsens(1.0e-5),
-    m_abstolsens(1.0e-4),
-    m_nabs(0),
-    m_hmax(0.0),
-    m_hmin(0.0),
-    m_maxsteps(20000),
-    m_maxErrTestFails(0),
-    m_yS(nullptr),
-    m_np(0),
-    m_mupper(0), m_mlower(0),
-    m_sens_ok(false)
+CVodesIntegrator::CVodesIntegrator()
+    : m_itol(CV_SS)
+    , m_method(CV_BDF)
 {
 }
 

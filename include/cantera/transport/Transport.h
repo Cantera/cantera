@@ -781,17 +781,17 @@ protected:
     ThermoPhase* m_thermo;
 
     //! true if finalize has been called
-    bool m_ready;
+    bool m_ready = false;
 
     //! Number of species
-    size_t m_nsp;
+    size_t m_nsp = 0;
 
     //! Number of dimensions used in flux expressions
     size_t m_nDim;
 
     //! Velocity basis from which diffusion velocities are computed.
     //! Defaults to the mass averaged basis = -2
-    int m_velocityBasis;
+    int m_velocityBasis = VB_MASSAVG;
 
     //! reference to Solution
     std::weak_ptr<Solution> m_root;

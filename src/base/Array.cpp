@@ -11,12 +11,6 @@
 namespace Cantera
 {
 
-Array2D::Array2D()
-    : m_nrows(0)
-    , m_ncols(0)
-{
-}
-
 Array2D::Array2D(const size_t m, const size_t n, const double v)
     : m_nrows(m)
     , m_ncols(n)

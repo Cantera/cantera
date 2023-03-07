@@ -13,11 +13,6 @@
 namespace Cantera
 {
 
-InterfaceData::InterfaceData()
-    : sqrtT(NAN)
-{
-}
-
 void InterfaceData::update(double T)
 {
     throw CanteraError("InterfaceData::update",

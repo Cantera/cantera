@@ -15,7 +15,7 @@ namespace Cantera
 class FlowReactor : public Reactor
 {
 public:
-    FlowReactor();
+    FlowReactor() = default;
 
     virtual std::string type() const {
         return "FlowReactor";
@@ -47,9 +47,14 @@ public:
     virtual size_t componentIndex(const std::string& nm) const;
 
 protected:
-    doublereal m_speed, m_dist, m_T;
-    doublereal m_fctr;
-    doublereal m_rho0, m_speed0, m_P0, m_h0;
+    double m_speed = 0.0;
+    double m_dist = 0.0;
+    double m_T = 0.0;
+    double m_fctr = 1.0e10;
+    double m_rho0 = 0.0;
+    double m_speed0 = 0.0;
+    double m_P0 = 0.0;
+    double m_h0 = 0.0;
 };
 }
 

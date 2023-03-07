@@ -22,21 +22,7 @@ namespace Cantera
 
 GasTransport::GasTransport(ThermoPhase* thermo) :
     Transport(thermo),
-    m_viscmix(0.0),
-    m_visc_ok(false),
-    m_viscwt_ok(false),
-    m_spvisc_ok(false),
-    m_bindiff_ok(false),
-    m_mode(0),
-    m_polytempvec(5),
-    m_temp(-1.0),
-    m_kbt(0.0),
-    m_sqrt_kbt(0.0),
-    m_sqrt_t(0.0),
-    m_logt(0.0),
-    m_t14(0.0),
-    m_t32(0.0),
-    m_log_level(0)
+    m_polytempvec(5)
 {
 }
 

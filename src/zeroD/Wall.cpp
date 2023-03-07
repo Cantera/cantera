@@ -11,7 +11,7 @@
 namespace Cantera
 {
 
-WallBase::WallBase() : m_left(0), m_right(0), m_surf(2), m_area(1.0) {}
+WallBase::WallBase() : m_surf(2) {}
 
 bool WallBase::install(ReactorBase& rleft, ReactorBase& rright)
 {
@@ -33,8 +33,6 @@ void WallBase::setArea(double a) {
     m_surf[0].setArea(a);
     m_surf[1].setArea(a);
 }
-
-Wall::Wall() : WallBase(), m_k(0.0), m_rrth(0.0), m_emiss(0.0), m_vf(0), m_qf(0) {}
 
 double Wall::vdot(double t)
 {

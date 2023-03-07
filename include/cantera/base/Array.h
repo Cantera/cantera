@@ -46,7 +46,7 @@ public:
     /**
      * Default constructor. Create an empty array.
      */
-    Array2D();
+    Array2D() = default;
 
     //! Constructor.
     /*!
@@ -72,7 +72,7 @@ public:
 
     Array2D(const Array2D& y);
 
-    virtual ~Array2D() {}
+    virtual ~Array2D() = default;
 
     Array2D& operator=(const Array2D& y);
 
@@ -249,10 +249,10 @@ protected:
     vector_fp m_data;
 
     //! Number of rows
-    size_t m_nrows;
+    size_t m_nrows = 0;
 
     //! Number of columns
-    size_t m_ncols;
+    size_t m_ncols = 0;
 };
 
 //! Output the current contents of the Array2D object

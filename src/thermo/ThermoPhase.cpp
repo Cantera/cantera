@@ -25,14 +25,6 @@ using namespace std;
 namespace Cantera
 {
 
-ThermoPhase::ThermoPhase() :
-    m_phi(0.0),
-    m_chargeNeutralityNecessary(false),
-    m_ssConvention(cSS_CONVENTION_TEMPERATURE),
-    m_tlast(0.0)
-{
-}
-
 void ThermoPhase::resetHf298(size_t k) {
     if (k != npos) {
         m_spthermo.resetHf298(k);

@@ -150,12 +150,12 @@ public:
     //! @{
 
     //! Default Constructor
-    PDSS();
+    PDSS() = default;
 
     // PDSS objects are not copyable or assignable
     PDSS(const PDSS& b) = delete;
     PDSS& operator=(const PDSS& b) = delete;
-    virtual ~PDSS() {}
+    virtual ~PDSS() = default;
 
     //! @}
     //! @name Molar Thermodynamic Properties of the Species Standard State
@@ -449,22 +449,22 @@ public:
 
 protected:
     //! Current temperature used by the PDSS object
-    mutable doublereal m_temp;
+    mutable double m_temp = -1.0;
 
     //! State of the system - pressure
-    mutable doublereal m_pres;
+    mutable double m_pres = -1.0;
 
     //! Reference state pressure of the species.
-    doublereal m_p0;
+    double m_p0 = -1.0;
 
     //! Minimum temperature
-    doublereal m_minTemp;
+    double m_minTemp = -1.0;
 
     //! Maximum temperature
-    doublereal m_maxTemp;
+    double m_maxTemp = 10000.0;
 
     //! Molecular Weight of the species
-    doublereal m_mw;
+    double m_mw = 0.0;
 
     //! Input data supplied via setParameters. This may include parameters for
     //! different phase models, which will be used when initThermo() is called.

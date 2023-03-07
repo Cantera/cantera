@@ -16,8 +16,7 @@ namespace Cantera
 {
 
 PDSS_SSVol::PDSS_SSVol()
-    : volumeModel_(SSVolume_Model::tpoly)
-    , TCoeff_(4, 0.0)
+    : TCoeff_(4, 0.0)
 {
 }
 

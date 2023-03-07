@@ -32,12 +32,7 @@ struct BandMatrix::PivData {
 };
 
 BandMatrix::BandMatrix() :
-    m_n(0),
-    m_kl(0),
-    m_ku(0),
-    m_zero(0.0),
-    m_ipiv{new PivData()},
-    m_info(0)
+    m_ipiv{new PivData()}
 {
 }
 
@@ -50,9 +45,7 @@ BandMatrix::BandMatrix(size_t n, size_t kl, size_t ku, doublereal v)   :
     m_n(n),
     m_kl(kl),
     m_ku(ku),
-    m_zero(0.0),
-    m_ipiv{new PivData()},
-    m_info(0)
+    m_ipiv{new PivData()}
 {
     data.resize(n*(2*kl + ku + 1));
     ludata.resize(n*(2*kl + ku + 1));
@@ -70,18 +63,14 @@ BandMatrix::BandMatrix(size_t n, size_t kl, size_t ku, doublereal v)   :
 
 BandMatrix::BandMatrix(const BandMatrix& y) :
     GeneralMatrix(y),
-    m_n(0),
-    m_kl(0),
-    m_ku(0),
-    m_zero(0.0),
+    data(y.data),
+    ludata(y.ludata),
+    m_n(y.m_n),
+    m_kl(y.m_kl),
+    m_ku(y.m_ku),
     m_ipiv{new PivData()},
     m_info(y.m_info)
 {
-    m_n = y.m_n;
-    m_kl = y.m_kl;
-    m_ku = y.m_ku;
-    data = y.data;
-    ludata = y.ludata;
     m_ipiv->data = y.m_ipiv->data;
     m_colPtrs.resize(m_n);
     m_lu_col_ptrs.resize(m_n);

@@ -214,19 +214,19 @@ protected:
      *  - 0 = There is no temperature parameterization of a or b
      *  - 1 = The a_ij parameter is a linear function of the temperature
      */
-    int m_formTempParam;
+    int m_formTempParam = 0;
 
     //! Value of b in the equation of state
     /*!
      *  m_b is a function of the temperature and the mole fraction.
      */
-    doublereal m_b_current;
+    double m_b_current = 0.0;
 
     //! Value of a in the equation of state
     /*!
      *  a_b is a function of the temperature and the mole fraction.
      */
-    doublereal m_a_current;
+    double m_a_current = 0.0;
 
     vector_fp a_vec_Curr_;
     vector_fp b_vec_Curr_;
@@ -240,9 +240,9 @@ protected:
     //! For each species, specifies the source of the a and b coefficients
     std::vector<CoeffSource> m_coeffSource;
 
-    int NSolns_;
+    int NSolns_ = 0;
 
-    doublereal Vroot_[3];
+    double Vroot_[3] = {0.0, 0.0, 0.0};
 
     //! Temporary storage - length = m_kk.
     mutable vector_fp m_pp;
@@ -255,14 +255,14 @@ protected:
      * Calculated at the current conditions. temperature and mole number kept
      * constant
      */
-    mutable doublereal dpdV_;
+    mutable double dpdV_ = 0.0;
 
     //! The derivative of the pressure wrt the temperature
     /*!
      *  Calculated at the current conditions. Total volume and mole number kept
      *  constant
      */
-    mutable doublereal dpdT_;
+    mutable double dpdT_ = 0.0;
 
     //! Vector of derivatives of pressure wrt mole number
     /*!

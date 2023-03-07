@@ -8,11 +8,6 @@
 
 namespace Cantera {
 
-NasaPoly2::NasaPoly2()
-    : m_midT(0)
-{
-}
-
 void NasaPoly2::setParameters(double Tmid, const vector_fp& low,
                               const vector_fp& high) {
     m_midT = Tmid;

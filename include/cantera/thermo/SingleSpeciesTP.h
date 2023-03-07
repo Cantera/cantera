@@ -57,7 +57,7 @@ class SingleSpeciesTP : public ThermoPhase
 {
 public:
     //! Base empty constructor.
-    SingleSpeciesTP();
+    SingleSpeciesTP() = default;
 
     virtual std::string type() const {
         return "SingleSpecies";
@@ -245,11 +245,11 @@ public:
 
 protected:
     //! The current pressure of the solution (Pa). It gets initialized to 1 atm.
-    doublereal m_press;
+    double m_press = OneAtm;
 
     // Reference pressure (Pa). Must be the same for all species. Defaults to
     // 1 atm.
-    doublereal m_p0;
+    double m_p0 = OneAtm;
 
     //! Dimensionless enthalpy at the (mtlast, m_p0)
     mutable double m_h0_RT;

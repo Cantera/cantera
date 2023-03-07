@@ -351,10 +351,7 @@ static const doublereal Bbetai[2] = {
 };
 // \endcond
 
-WaterPropsIAPWSphi::WaterPropsIAPWSphi() :
-    TAUsave(-1.0),
-    TAUsqrt(-1.0),
-    DELTAsave(-1.0)
+WaterPropsIAPWSphi::WaterPropsIAPWSphi()
 {
     for (int i = 0; i < 52; i++) {
         TAUp[i] = 1.0;

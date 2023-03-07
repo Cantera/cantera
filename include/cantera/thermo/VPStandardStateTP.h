@@ -265,21 +265,21 @@ protected:
      *
      *  units = Pascals
      */
-    doublereal m_Pcurrent;
+    double m_Pcurrent = OneAtm;
 
     //! The minimum temperature at which data for all species is valid
-    double m_minTemp;
+    double m_minTemp = 0.0;
 
     //! The maximum temperature at which data for all species is valid
-    double m_maxTemp;
+    double m_maxTemp = BigNumber;
 
     //! The last temperature at which the standard state thermodynamic
     //! properties were calculated at.
-    mutable doublereal m_Tlast_ss;
+    mutable double m_Tlast_ss = -1.0;
 
     //! The last pressure at which the Standard State thermodynamic properties
     //! were calculated at.
-    mutable doublereal m_Plast_ss;
+    mutable double m_Plast_ss = -1.0;
 
     //! Storage for the PDSS objects for the species
     /*!

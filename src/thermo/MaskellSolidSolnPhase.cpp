@@ -17,14 +17,6 @@
 namespace Cantera
 {
 
-MaskellSolidSolnPhase::MaskellSolidSolnPhase() :
-    m_Pcurrent(OneAtm),
-    h_mixing(0.0),
-    product_species_index(-1),
-    reactant_species_index(-1)
-{
-}
-
 void MaskellSolidSolnPhase::getActivityConcentrations(doublereal* c) const
 {
     getActivityCoefficients(c);

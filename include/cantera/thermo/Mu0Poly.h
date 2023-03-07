@@ -140,11 +140,11 @@ public:
 protected:
     //! Number of intervals in the interpolating linear approximation. Number
     //! of points is one more than the number of intervals.
-    size_t m_numIntervals;
+    size_t m_numIntervals = 0;
 
     //! Value of the enthalpy at T = 298.15. This value is tied to the Heat of
     //! formation of the species at 298.15.
-    doublereal m_H298;
+    double m_H298 = 0.0;
 
     //! Points at which the standard state chemical potential are given.
     vector_fp m_t0_int;

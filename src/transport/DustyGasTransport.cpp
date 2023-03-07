@@ -16,16 +16,7 @@ using namespace std;
 namespace Cantera
 {
 DustyGasTransport::DustyGasTransport(ThermoPhase* thermo) :
-    Transport(thermo),
-    m_temp(-1.0),
-    m_gradP(0.0),
-    m_knudsen_ok(false),
-    m_bulk_ok(false),
-    m_porosity(0.0),
-    m_tortuosity(1.0),
-    m_pore_radius(0.0),
-    m_diam(0.0),
-    m_perm(-1.0)
+    Transport(thermo)
 {
 }
 

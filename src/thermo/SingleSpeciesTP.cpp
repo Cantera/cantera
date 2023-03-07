@@ -16,11 +16,6 @@ using namespace std;
 
 namespace Cantera
 {
-SingleSpeciesTP::SingleSpeciesTP() :
-    m_press(OneAtm),
-    m_p0(OneAtm)
-{
-}
 
 // ------------ Molar Thermodynamic Properties --------------------
 

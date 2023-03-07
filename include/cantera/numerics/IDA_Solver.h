@@ -223,44 +223,44 @@ public:
 
 protected:
     //! Pointer to the IDA memory for the problem
-    void* m_ida_mem;
-    void* m_linsol; //!< Sundials linear solver object
-    void* m_linsol_matrix; //!< matrix used by Sundials
+    void* m_ida_mem = nullptr;
+    void* m_linsol = nullptr; //!< Sundials linear solver object
+    void* m_linsol_matrix = nullptr; //!< matrix used by Sundials
     SundialsContext m_sundials_ctx; //!< SUNContext object for Sundials>=6.0
 
     //! Initial value of the time
-    doublereal m_t0;
+    double m_t0 = 0.0;
 
     //! Current value of the solution vector
-    N_Vector m_y;
+    N_Vector m_y = nullptr;
 
     //! Current value of the derivative of the solution vector
-    N_Vector m_ydot;
-    N_Vector m_id;
-    N_Vector m_constraints;
-    N_Vector m_abstol;
-    int m_type;
+    N_Vector m_ydot = nullptr;
+    N_Vector m_id = nullptr;
+    N_Vector m_constraints = nullptr;
+    N_Vector m_abstol = nullptr;
+    int m_type = 0;
 
-    int m_itol;
-    int m_iter;
-    doublereal m_reltol;
-    doublereal m_abstols;
-    int m_nabs;
+    int m_itol = IDA_SS;
+    int m_iter = 0;
+    double m_reltol = 1e-9;
+    double m_abstols = 1e-15;
+    int m_nabs = 0;
 
     //! Maximum value of the timestep allowed
-    doublereal m_hmax;
+    double m_hmax = 0.0;
 
     //! Minimum value of the timestep allowed
-    doublereal m_hmin;
+    double m_hmin = 0.0;
 
     //! Value of the initial time step
-    doublereal m_h0;
+    double m_h0 = 0.0;
 
     //! Maximum number of time steps allowed
-    int m_maxsteps;
+    int m_maxsteps = 20000;
 
     //!  maximum time step order of the method
-    int m_maxord;
+    int m_maxord = 0;
 
     //! Form of the Jacobian
     /*!
@@ -269,41 +269,41 @@ protected:
      *    function in the ResidJacEval class.
      *  2 numerical Jacobian formed by the ResidJacEval class (unimplemented)
      */
-    int m_formJac;
+    int m_formJac = 0;
 
     //! maximum time
-    doublereal m_tstop;
+    double m_tstop = 0.0;
 
     //! Value of the previous, previous time
-    doublereal m_told_old;
+    double m_told_old = 0.0;
 
     //! Value of the previous time
-    doublereal m_told;
+    double m_told = 0;
 
     //! Value of the current time
-    doublereal m_tcurrent;
+    double m_tcurrent = 0;
 
     //! Value of deltaT for the current step
-    doublereal m_deltat;
+    double m_deltat = 0.0;
 
     //! maximum number of error test failures
-    int m_maxErrTestFails;
+    int m_maxErrTestFails = -1;
 
     //! Maximum number of nonlinear solver iterations at one solution
     /*!
      *  If zero, this is the default of 4.
      */
-    int m_maxNonlinIters;
+    int m_maxNonlinIters = 0;
 
     //! Maximum number of nonlinear convergence failures
-    int m_maxNonlinConvFails;
+    int m_maxNonlinConvFails = -1;
 
     //! If true, the algebraic variables don't contribute to error tolerances
-    int m_setSuppressAlg;
+    int m_setSuppressAlg = 0;
 
     std::unique_ptr<ResidData> m_fdata;
-    int m_mupper;
-    int m_mlower;
+    int m_mupper = 0;
+    int m_mlower = 0;
 };
 
 }

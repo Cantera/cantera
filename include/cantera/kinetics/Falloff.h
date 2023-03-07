@@ -59,13 +59,15 @@ struct FalloffData : public ReactionData
         molar_density = NAN;
     }
 
-    bool ready; //!< boolean indicating whether vectors are accessible
-    double molar_density; //!< used to determine if updates are needed
+    bool ready = false; //!< boolean indicating whether vectors are accessible
+    double molar_density = NAN; //!< used to determine if updates are needed
     vector_fp conc_3b; //!< vector of effective third-body concentrations
 
 protected:
-    int m_state_mf_number; //!< integer that is incremented when composition changes
-    bool m_perturbed; //!< boolean indicating whether 3-rd body values are perturbed
+    //! integer that is incremented when composition changes
+    int m_state_mf_number = -1;
+    //! boolean indicating whether 3-rd body values are perturbed
+    bool m_perturbed = false;
     vector_fp m_conc_3b_buf; //!< buffered third-body concentrations
 };
 
@@ -78,13 +80,7 @@ protected:
 class FalloffRate : public ReactionRate
 {
 public:
-    FalloffRate()
-        : m_chemicallyActivated(false)
-        , m_negativeA_ok(false)
-        , m_rc_low(NAN)
-        , m_rc_high(NAN)
-    {
-    }
+    FalloffRate() = default;
 
     FalloffRate(const AnyMap& node, const UnitStack& rate_units={});
 
@@ -262,11 +258,13 @@ protected:
     ArrheniusRate m_lowRate; //!< The reaction rate in the low-pressure limit
     ArrheniusRate m_highRate; //!< The reaction rate in the high-pressure limit
 
-    bool m_chemicallyActivated; //!< Flag labeling reaction as chemically activated
-    bool m_negativeA_ok; //!< Flag indicating whether negative A values are permitted
+    //! Flag labeling reaction as chemically activated
+    bool m_chemicallyActivated = false;
+    //! Flag indicating whether negative A values are permitted
+    bool m_negativeA_ok = false;
 
-    double m_rc_low; //!< Evaluated reaction rate in the low-pressure limit
-    double m_rc_high; //!< Evaluated reaction rate in the high-pressure limit
+    double m_rc_low = NAN; //!< Evaluated reaction rate in the low-pressure limit
+    double m_rc_high = NAN; //!< Evaluated reaction rate in the high-pressure limit
     vector_fp m_work; //!< Work vector
 };
 

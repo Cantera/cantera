@@ -148,15 +148,11 @@ public:
      */
     solveSP(ImplicitSurfChem* surfChemPtr, int bulkFunc = BULK_ETCH);
 
-    //! Destructor. Deletes the integrator.
-    ~solveSP() {}
+    //! Destructor
+    ~solveSP() = default;
 
-private:
-    //! Unimplemented private copy constructor
-    solveSP(const solveSP& right);
-
-    //! Unimplemented private assignment operator
-    solveSP& operator=(const solveSP& right);
+    solveSP(const solveSP&) = delete;
+    solveSP& operator=(const solveSP&) = delete;
 
 public:
     //! Main routine that actually calculates the pseudo steady state
@@ -303,13 +299,6 @@ private:
                      const doublereal* CSolnSPOld, const bool do_time,
                      const doublereal deltaT);
 
-    //! Pointer to the manager of the implicit surface chemistry problem
-    /*!
-     *  This object actually calls the current object. Thus, we are providing a
-     *  loop-back functionality here.
-     */
-    ImplicitSurfChem* m_SurfChemPtr;
-
     //! Vector of interface kinetics objects
     /*!
      * Each of these is associated with one and only one surface phase.
@@ -320,7 +309,7 @@ private:
     /*!
      * Note, this can be zero, and frequently is
      */
-    size_t m_neq;
+    size_t m_neq = 0;
 
     //! This variable determines how the bulk phases are to be handled
     /*!
@@ -333,7 +322,7 @@ private:
      * This number is equal to the number of InterfaceKinetics objects
      * in the problem. (until further noted)
      */
-    size_t m_numSurfPhases;
+    size_t m_numSurfPhases = 0;
 
     //! Total number of surface species in all surface phases.
     /*!
@@ -341,7 +330,7 @@ private:
      * It's equal to the sum of the number of species in each of the
      * m_numSurfPhases.
      */
-    size_t m_numTotSurfSpecies;
+    size_t m_numTotSurfSpecies = 0;
 
     //! Mapping between the surface phases and the InterfaceKinetics objects
     /*!
@@ -397,7 +386,7 @@ private:
      *
      * This is equal to 0, for the time being
      */
-    size_t m_numBulkPhasesSS;
+    size_t m_numBulkPhasesSS = 0;
 
     //! Vector of number of species in the m_numBulkPhases phases.
     /*!
@@ -410,7 +399,7 @@ private:
      *  This is also the number of bulk equations to solve when bulk equation
      *  solving is turned on.
      */
-    size_t m_numTotBulkSpeciesSS;
+    size_t m_numTotBulkSpeciesSS = 0;
 
     //! Vector of bulk phase pointers, length is equal to m_numBulkPhases.
     std::vector<ThermoPhase*> m_bulkPhasePtrs;
@@ -441,18 +430,9 @@ private:
      */
     std::vector<size_t> m_spSurfLarge;
 
-    //! The absolute tolerance in real units. units are (kmol/m2)
-    doublereal m_atol;
-
-    //! The relative error tolerance.
-    doublereal m_rtol;
-
-    //! maximum value of the time step. units = seconds
-    doublereal m_maxstep;
-
     //! Maximum number of species in any single kinetics operator
     //! -> also maxed wrt the total # of solution species
-    size_t m_maxTotSpecies;
+    size_t m_maxTotSpecies = 0;
 
     //! Temporary vector with length equal to max m_maxTotSpecies
     vector_fp m_netProductionRatesSave;
@@ -504,7 +484,7 @@ private:
     DenseMatrix m_Jac;
 
 public:
-    int m_ioflag;
+    int m_ioflag = 0;
 };
 }
 #endif

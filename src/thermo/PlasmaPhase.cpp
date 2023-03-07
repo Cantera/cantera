@@ -12,12 +12,6 @@
 namespace Cantera {
 
 PlasmaPhase::PlasmaPhase(const std::string& inputFile, const std::string& id_)
-    : m_isotropicShapeFactor(2.0)
-    , m_nPoints(1001)
-    , m_electronSpeciesIndex(npos)
-    , m_distributionType("isotropic")
-    , m_quadratureMethod("simpson")
-    , m_do_normalizeElectronEnergyDist(true)
 {
     initThermoFile(inputFile, id_);
 

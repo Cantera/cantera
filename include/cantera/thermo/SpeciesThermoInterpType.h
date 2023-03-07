@@ -112,7 +112,7 @@ class PDSS;
 class SpeciesThermoInterpType
 {
 public:
-    SpeciesThermoInterpType();
+    SpeciesThermoInterpType() = default;
 
     SpeciesThermoInterpType(double tlow, double thigh, double pref);
 
@@ -120,7 +120,7 @@ public:
     SpeciesThermoInterpType(const SpeciesThermoInterpType& b) = delete;
     SpeciesThermoInterpType& operator=(const SpeciesThermoInterpType& b) = delete;
 
-    virtual ~SpeciesThermoInterpType() {}
+    virtual ~SpeciesThermoInterpType() = default;
 
     //! Returns the minimum temperature that the thermo parameterization is
     //! valid
@@ -283,11 +283,11 @@ protected:
     virtual void getParameters(AnyMap& thermo) const;
 
     //!  lowest valid temperature
-    doublereal m_lowT;
+    double m_lowT = 0.0;
     //! Highest valid temperature
-    doublereal m_highT;
+    double m_highT = 0.0;
     //! Reference state pressure
-    doublereal m_Pref;
+    double m_Pref = 0.0;
 
     AnyMap m_input;
 };

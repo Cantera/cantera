@@ -32,25 +32,17 @@ double B_Debye_default = 3.28640E9; // units = sqrt(kg/gmol) / m
 double maxIionicStrength_default = 30.0;
 }
 
-DebyeHuckel::DebyeHuckel(const std::string& inputFile,
-                         const std::string& id_) :
-    m_formDH(DHFORM_DILUTE_LIMIT),
-    m_Aionic_default(NAN),
-    m_IionicMolality(0.0),
-    m_maxIionicStrength(maxIionicStrength_default),
-    m_useHelgesonFixedForm(false),
-    m_IionicMolalityStoich(0.0),
-    m_form_A_Debye(A_DEBYE_CONST),
-    m_A_Debye(A_Debye_default),
-    m_B_Debye(B_Debye_default),
-    m_waterSS(0),
-    m_densWaterSS(1000.)
+DebyeHuckel::DebyeHuckel(const string& inputFile, const string& id_)
+    : m_maxIionicStrength(maxIionicStrength_default)
+    , m_A_Debye(A_Debye_default)
+    , m_B_Debye(B_Debye_default)
 {
     initThermoFile(inputFile, id_);
 }
 
 DebyeHuckel::~DebyeHuckel()
 {
+    // Defined in .cpp to limit dependence on WaterProps.h
 }
 
 // -------- Molar Thermodynamic Properties of the Solution ---------------

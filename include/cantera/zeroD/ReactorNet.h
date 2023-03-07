@@ -303,23 +303,25 @@ protected:
 
     std::vector<Reactor*> m_reactors;
     std::unique_ptr<Integrator> m_integ;
-    doublereal m_time;
-    bool m_init;
-    bool m_integrator_init; //!< True if integrator initialization is current
-    size_t m_nv;
+    double m_time = 0.0;
+    bool m_init = false;
+    bool m_integrator_init = false; //!< True if integrator initialization is current
+    size_t m_nv = 0;
 
     //! m_start[n] is the starting point in the state vector for reactor n
     std::vector<size_t> m_start;
 
     vector_fp m_atol;
-    doublereal m_rtol, m_rtolsens;
-    doublereal m_atols, m_atolsens;
+    double m_rtol = 1.0e-9;
+    double m_rtolsens = 1.0e-4;
+    double m_atols = 1.0e-15;
+    double m_atolsens = 1.0e-6;
 
     //! Maximum integrator internal timestep. Default of 0.0 means infinity.
-    doublereal m_maxstep;
+    double m_maxstep = 0.0;
 
-    int m_maxErrTestFails;
-    bool m_verbose;
+    int m_maxErrTestFails = 0;
+    bool m_verbose = false;
 
     //! Names corresponding to each sensitivity parameter
     std::vector<std::string> m_paramNames;

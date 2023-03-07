@@ -12,13 +12,10 @@ using namespace std;
 namespace Cantera
 {
 Refiner::Refiner(Domain1D& domain) :
-    m_ratio(10.0), m_slope(0.8), m_curve(0.8), m_prune(-0.001),
-    m_min_range(0.01), m_domain(&domain), m_npmax(1000),
-    m_gridmin(1e-10)
+    m_domain(&domain)
 {
     m_nv = m_domain->nComponents();
     m_active.resize(m_nv, true);
-    m_thresh = std::sqrt(std::numeric_limits<double>::epsilon());
 }
 
 void Refiner::setCriteria(doublereal ratio, doublereal slope,

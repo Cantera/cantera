@@ -11,14 +11,6 @@
 namespace Cantera
 {
 
-ReactorSurface::ReactorSurface()
-    : m_area(1.0)
-    , m_thermo(nullptr)
-    , m_kinetics(nullptr)
-    , m_reactor(nullptr)
-{
-}
-
 double ReactorSurface::area() const
 {
     return m_area;

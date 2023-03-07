@@ -16,12 +16,7 @@ namespace Cantera
 {
 
 ReactorNet::ReactorNet() :
-    m_integ(newIntegrator("CVODE")),
-    m_time(0.0), m_init(false), m_integrator_init(false),
-    m_nv(0), m_rtol(1.0e-9), m_rtolsens(1.0e-4),
-    m_atols(1.0e-15), m_atolsens(1.0e-6),
-    m_maxstep(0.0), m_maxErrTestFails(0),
-    m_verbose(false)
+    m_integ(newIntegrator("CVODE"))
 {
     suppressErrors(true);
 
@@ -33,6 +28,7 @@ ReactorNet::ReactorNet() :
 
 ReactorNet::~ReactorNet()
 {
+    // Defined in .cpp to limit dependence on Integrator.h
 }
 
 void ReactorNet::setInitialTime(double time)

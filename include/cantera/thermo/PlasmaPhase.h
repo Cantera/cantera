@@ -304,10 +304,10 @@ protected:
     void normalizeElectronEnergyDistribution();
 
     // Electron energy order in the exponential term
-    double m_isotropicShapeFactor;
+    double m_isotropicShapeFactor = 2.0;
 
     //! Number of points of electron energy levels
-    size_t m_nPoints;
+    size_t m_nPoints = 1001;
 
     //! electron energy levels [ev]. Length: #m_nPoints
     Eigen::ArrayXd m_electronEnergyLevels;
@@ -317,19 +317,19 @@ protected:
     Eigen::ArrayXd m_electronEnergyDist;
 
     //! Index of electron species
-    size_t m_electronSpeciesIndex;
+    size_t m_electronSpeciesIndex = npos;
 
     //! Electron temperature [K]
     double m_electronTemp;
 
     //! Electron energy distribution type
-    std::string m_distributionType;
+    string m_distributionType = "isotropic";
 
     //! Numerical quadrature method for electron energy distribution
-    std::string m_quadratureMethod;
+    string m_quadratureMethod = "simpson";
 
     //! Flag of normalizing electron energy distribution
-    bool m_do_normalizeElectronEnergyDist;
+    bool m_do_normalizeElectronEnergyDist = true;
 };
 
 }

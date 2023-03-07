@@ -16,12 +16,6 @@ namespace Cantera
 
 ConstCpPoly::ConstCpPoly()
     : SpeciesThermoInterpType(0.0, std::numeric_limits<double>::infinity(), 0.0)
-    , m_t0(0.0)
-    , m_cp0_R(0.0)
-    , m_h0_R(0.0)
-    , m_s0_R(0.0)
-    , m_logt0(0.0)
-    , m_h0_R_orig(0.0)
 {
 }
 

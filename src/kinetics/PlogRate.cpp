@@ -50,22 +50,14 @@ void PlogData::restore()
     m_pressure_buf = -1.;
 }
 
-PlogRate::PlogRate()
-    : logP_(-1000)
-    , logP1_(1000)
-    , logP2_(-1000)
-    , rDeltaP_(-1.0)
-{
-}
+// Methods of class PlogRate
 
 PlogRate::PlogRate(const std::multimap<double, ArrheniusRate>& rates)
-    : PlogRate()
 {
     setRates(rates);
 }
 
 PlogRate::PlogRate(const AnyMap& node, const UnitStack& rate_units)
-    : PlogRate()
 {
     setParameters(node, rate_units);
 }

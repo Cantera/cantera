@@ -38,7 +38,7 @@ class AnyMap;
  */
 struct InterfaceData : public BlowersMaselData
 {
-    InterfaceData();
+    InterfaceData() = default;
 
     virtual bool update(const ThermoPhase& bulk, const Kinetics& kin) override;
 
@@ -60,7 +60,7 @@ struct InterfaceData : public BlowersMaselData
         ready = true;
     }
 
-    double sqrtT; //!< square root of temperature
+    double sqrtT = NAN; //!< square root of temperature
 
     vector_fp coverages; //!< surface coverages
     vector_fp logCoverages; //!< logarithm of surface coverages

@@ -84,12 +84,12 @@ public:
     }
 
 protected:
-    ReactorBase* m_left;
-    ReactorBase* m_right;
+    ReactorBase* m_left = nullptr;
+    ReactorBase* m_right = nullptr;
 
     std::vector<ReactorSurface> m_surf;
 
-    double m_area;
+    double m_area = 1.0;
 };
 
 //! Represents a wall between between two ReactorBase objects.
@@ -100,7 +100,7 @@ protected:
 class Wall : public WallBase
 {
 public:
-    Wall();
+    Wall() = default;
 
     //! String indicating the wall model implemented. Usually
     //! corresponds to the name of the derived class.
@@ -186,19 +186,19 @@ public:
 protected:
 
     //! expansion rate coefficient
-    double m_k;
+    double m_k = 0.0;
 
     //! heat transfer coefficient
-    double m_rrth;
+    double m_rrth = 0.0;
 
     //! emissivity
-    double m_emiss;
+    double m_emiss = 0.0;
 
     //! Velocity function
-    Func1* m_vf;
+    Func1* m_vf = nullptr;
 
     //! Heat flux function
-    Func1* m_qf;
+    Func1* m_qf = nullptr;
 };
 
 }

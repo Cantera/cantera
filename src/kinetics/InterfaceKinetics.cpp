@@ -16,18 +16,6 @@ using namespace std;
 namespace Cantera
 {
 
-InterfaceKinetics::InterfaceKinetics()
-    : m_redo_rates(false)
-    , m_surf(0)
-    , m_integrator(0)
-    , m_ROP_ok(false)
-    , m_temp(0.0)
-    , m_phaseExistsCheck(false)
-    , m_ioFlag(0)
-    , m_nDim(2)
-{
-}
-
 InterfaceKinetics::InterfaceKinetics(ThermoPhase* thermo)
     : InterfaceKinetics()
 {

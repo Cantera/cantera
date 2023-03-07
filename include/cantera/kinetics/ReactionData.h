@@ -24,7 +24,7 @@ class Kinetics;
  */
 struct ReactionData
 {
-    ReactionData() : temperature(1.), logT(0.), recipT(1.), m_temperature_buf(-1.) {}
+    ReactionData() = default;
 
     //! Update data container based on temperature *T*
     /**
@@ -106,12 +106,12 @@ struct ReactionData
         temperature = NAN;
     }
 
-    double temperature; //!< temperature
-    double logT; //!< logarithm of temperature
-    double recipT; //!< inverse of temperature
+    double temperature = 1.0; //!< temperature
+    double logT = 0.0; //!< logarithm of temperature
+    double recipT = 1.0; //!< inverse of temperature
 
 protected:
-    double m_temperature_buf; //!< buffered temperature
+    double m_temperature_buf = -1.0; //!< buffered temperature
 };
 
 }

@@ -21,19 +21,11 @@ ImplicitSurfChem::ImplicitSurfChem(
         vector<InterfaceKinetics*> k, double rtol, double atol,
         double maxStepSize, size_t maxSteps,
         size_t maxErrTestFails) :
-    m_nv(0),
-    m_numTotalBulkSpecies(0),
-    m_numTotalSpecies(0),
     m_atol(atol),
     m_rtol(rtol),
     m_maxstep(maxStepSize),
     m_nmax(maxSteps),
-    m_maxErrTestFails(maxErrTestFails),
-    m_mediumSpeciesStart(-1),
-    m_bulkSpeciesStart(-1),
-    m_surfSpeciesStart(-1),
-    m_commonTempPressForPhases(true),
-    m_ioFlag(0)
+    m_maxErrTestFails(maxErrTestFails)
 {
     size_t ntmax = 0;
     size_t kinSpIndex = 0;

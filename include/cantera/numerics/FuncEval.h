@@ -27,8 +27,8 @@ namespace Cantera
 class FuncEval
 {
 public:
-    FuncEval();
-    virtual ~FuncEval() {}
+    FuncEval() = default;
+    virtual ~FuncEval() = default;
 
     /**
      * Evaluate the right-hand-side function. Called by the integrator.
@@ -138,7 +138,7 @@ public:
 
 protected:
     // If true, errors are accumulated in m_errors. Otherwise, they are printed
-    bool m_suppress_errors;
+    bool m_suppress_errors = false;
 
     //! Errors occurring during function evaluations
     std::vector<std::string> m_errors;

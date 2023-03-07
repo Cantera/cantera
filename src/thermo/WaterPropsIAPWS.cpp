@@ -37,14 +37,6 @@ static const double R_water = 461.51805; // J/kg/K (Eq. 6.3)
  */
 static const doublereal Rgas = 8.314371E3; // Joules kmol-1 K-1
 
-// Base constructor
-WaterPropsIAPWS::WaterPropsIAPWS() :
-    tau(-1.0),
-    delta(-1.0),
-    iState(-30000)
-{
-}
-
 void WaterPropsIAPWS::calcDim(doublereal temperature, doublereal rho)
 {
     tau = T_c / temperature;

@@ -24,13 +24,7 @@ using namespace std;
 namespace Cantera
 {
 
-Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion()
-    : m_currRegion(0)
-{
-}
-
-Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion(vector<Nasa9Poly1*>& regionPts) :
-    m_currRegion(0)
+Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion(vector<Nasa9Poly1*>& regionPts)
 {
     // From now on, we own these pointers
     for (Nasa9Poly1* region : regionPts) {
@@ -103,10 +97,6 @@ void Nasa9PolyMultiTempRegion::setParameters(const std::map<double, vector_fp>& 
         m_regionPts.emplace_back(poly);
     }
     m_regionPts.back()->setMaxTemp(maxTemp());
-}
-
-Nasa9PolyMultiTempRegion::~Nasa9PolyMultiTempRegion()
-{
 }
 
 int Nasa9PolyMultiTempRegion::reportType() const

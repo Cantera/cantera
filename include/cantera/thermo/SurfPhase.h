@@ -317,7 +317,7 @@ protected:
     virtual void compositionChanged();
 
     //! Surface site density (kmol m-2)
-    doublereal m_n0;
+    double m_n0 = 1.0;
 
     //! Vector of species sizes (number of sites occupied). length m_kk.
     vector_fp m_speciesSize;
@@ -326,7 +326,7 @@ protected:
     doublereal m_logn0;
 
     //! Current value of the pressure (Pa)
-    doublereal m_press;
+    double m_press = OneAtm;
 
     //! Temporary storage for the reference state enthalpies
     mutable vector_fp m_h0;

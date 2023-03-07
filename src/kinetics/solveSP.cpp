@@ -21,21 +21,9 @@ static doublereal calcWeightedNorm(const doublereal [], const doublereal dx[], s
 // solveSP Class Definitions
 
 solveSP::solveSP(ImplicitSurfChem* surfChemPtr, int bulkFunc) :
-    m_SurfChemPtr(surfChemPtr),
     m_objects(surfChemPtr->getObjects()),
-    m_neq(0),
-    m_bulkFunc(bulkFunc),
-    m_numSurfPhases(0),
-    m_numTotSurfSpecies(0),
-    m_numBulkPhasesSS(0),
-    m_numTotBulkSpeciesSS(0),
-    m_atol(1.0E-15),
-    m_rtol(1.0E-4),
-    m_maxstep(1000),
-    m_maxTotSpecies(0),
-    m_ioflag(0)
+    m_bulkFunc(bulkFunc)
 {
-    m_numSurfPhases = 0;
     for (size_t n = 0; n < m_objects.size(); n++) {
         InterfaceKinetics* kin = m_objects[n];
         size_t surfPhaseIndex = kin->reactionPhaseIndex();
@@ -54,8 +42,6 @@ solveSP::solveSP(ImplicitSurfChem* surfChemPtr, int bulkFunc) :
         m_nSpeciesSurfPhase.push_back(nsp);
         m_numTotSurfSpecies += nsp;
     }
-    // We rely on ordering to figure things out
-    m_numBulkPhasesSS = 0;
 
     if (bulkFunc == BULK_DEPOSITION) {
         m_neq = m_numTotSurfSpecies + m_numTotBulkSpeciesSS;
@@ -63,7 +49,6 @@ solveSP::solveSP(ImplicitSurfChem* surfChemPtr, int bulkFunc) :
         m_neq = m_numTotSurfSpecies;
     }
 
-    m_maxTotSpecies = 0;
     for (size_t n = 0; n < m_numSurfPhases; n++) {
         size_t tsp = m_objects[n]->nTotalSpecies();
         m_maxTotSpecies = std::max(m_maxTotSpecies, tsp);

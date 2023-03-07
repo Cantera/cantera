@@ -23,19 +23,6 @@ using namespace std;
 
 namespace Cantera
 {
-Kinetics::Kinetics() :
-    m_ready(false),
-    m_kk(0),
-    m_thermo(0),
-    m_surfphase(npos),
-    m_rxnphase(npos),
-    m_mindim(4),
-    m_skipUndeclaredSpecies(false),
-    m_skipUndeclaredThirdBodies(false)
-{
-}
-
-Kinetics::~Kinetics() {}
 
 void Kinetics::checkReactionIndex(size_t i) const
 {

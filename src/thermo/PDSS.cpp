@@ -14,15 +14,6 @@
 
 namespace Cantera
 {
-PDSS::PDSS() :
-    m_temp(-1.0),
-    m_pres(-1.0),
-    m_p0(-1.0),
-    m_minTemp(-1.0),
-    m_maxTemp(10000.0),
-    m_mw(0.0)
-{
-}
 
 doublereal PDSS::enthalpy_mole() const
 {

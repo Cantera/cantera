@@ -36,7 +36,7 @@ namespace Cantera
 class Nasa9PolyMultiTempRegion : public SpeciesThermoInterpType
 {
 public:
-    Nasa9PolyMultiTempRegion();
+    Nasa9PolyMultiTempRegion() = default;
 
     //! Constructor with all input data
     /*!
@@ -75,8 +75,6 @@ public:
      *                  coefficients for that region.
      */
     void setParameters(const std::map<double, vector_fp>& regions);
-
-    virtual ~Nasa9PolyMultiTempRegion();
 
     virtual int reportType() const;
 
@@ -128,7 +126,7 @@ protected:
     std::vector<std::unique_ptr<Nasa9Poly1>> m_regionPts;
 
     //! current region
-    mutable int m_currRegion;
+    mutable int m_currRegion = 0;
 };
 
 }

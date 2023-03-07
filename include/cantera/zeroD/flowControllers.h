@@ -19,7 +19,7 @@ namespace Cantera
 class MassFlowController : public FlowDevice
 {
 public:
-    MassFlowController();
+    MassFlowController() = default;
 
     virtual std::string type() const {
         return "MassFlowController";
@@ -63,7 +63,7 @@ public:
 class PressureController : public FlowDevice
 {
 public:
-    PressureController();
+    PressureController() = default;
 
     virtual std::string type() const {
         return "PressureController";
@@ -104,7 +104,7 @@ public:
     virtual void updateMassFlowRate(double time);
 
 protected:
-    FlowDevice* m_master;
+    FlowDevice* m_master = nullptr;
 };
 
 //! Supply a mass flow rate that is a function of the pressure drop across the
@@ -117,7 +117,7 @@ protected:
 class Valve : public FlowDevice
 {
 public:
-    Valve();
+    Valve() = default;
 
     virtual std::string type() const {
         return "Valve";

@@ -21,18 +21,6 @@ std::string propertySymbols[] = {"H", "S", "U", "V", "P", "T"};
 
 namespace tpx
 {
-Substance::Substance() :
-    T(Undef),
-    Rho(Undef),
-    Tslast(Undef),
-    Rhf(Undef),
-    Rhv(Undef),
-    Pst(Undef),
-    m_energy_offset(0.0),
-    m_entropy_offset(0.0),
-    kbr(0)
-{
-}
 
 void Substance::setStdState(double h0, double s0, double t0, double p0)
 {

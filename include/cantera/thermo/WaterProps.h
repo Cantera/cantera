@@ -243,10 +243,10 @@ public:
 
 protected:
     //! Pointer to the WaterPropsIAPWS object
-    WaterPropsIAPWS* m_waterIAPWS;
+    WaterPropsIAPWS* m_waterIAPWS = nullptr;
 
     //! true if we own the WaterPropsIAPWS object
-    bool m_own_sub;
+    bool m_own_sub = false;
 };
 
 //@}

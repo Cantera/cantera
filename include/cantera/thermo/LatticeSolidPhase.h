@@ -105,7 +105,7 @@ class LatticeSolidPhase : public ThermoPhase
 {
 public:
     //! Base empty constructor
-    LatticeSolidPhase();
+    LatticeSolidPhase() = default;
 
     virtual std::string type() const {
         return "LatticeSolid";
@@ -451,10 +451,10 @@ public:
 
 protected:
     //! Current value of the pressure
-    doublereal m_press;
+    double m_press = -1.0;
 
     //! Current value of the molar density
-    doublereal m_molar_density;
+    double m_molar_density = 0.0;
 
     //! Vector of sublattic ThermoPhase objects
     std::vector<shared_ptr<ThermoPhase>> m_lattice;

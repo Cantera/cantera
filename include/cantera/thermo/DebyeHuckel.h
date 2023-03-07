@@ -793,7 +793,7 @@ protected:
      * DHFORM_BETAIJ        = 3
      * DHFORM_PITZER_BETAIJ = 4
      */
-    int m_formDH;
+    int m_formDH = DHFORM_DILUTE_LIMIT;
 
     //! Vector containing the electrolyte species type
     /*!
@@ -812,10 +812,10 @@ protected:
     vector_fp m_Aionic;
 
     //! Default ionic radius for species where it is not specified
-    double m_Aionic_default;
+    double m_Aionic_default = NAN;
 
     //! Current value of the ionic strength on the molality scale
-    mutable double m_IionicMolality;
+    mutable double m_IionicMolality = 0.0;
 
     //! Maximum value of the ionic strength allowed in the calculation of the
     //! activity coefficients.
@@ -826,10 +826,10 @@ public:
     //! instead of the rigorous form obtained from Gibbs-Duhem relation. This
     //! should be used with caution, and is really only included as a validation
     //! exercise.
-    bool m_useHelgesonFixedForm;
+    bool m_useHelgesonFixedForm = false;
 protected:
     //! Stoichiometric ionic strength on the molality scale
-    mutable double m_IionicMolalityStoich;
+    mutable double m_IionicMolalityStoich = 0.0;
 
 public:
     /**
@@ -848,7 +848,7 @@ public:
      * strong function of T, and its variability must be
      * accounted for,
      */
-    int m_form_A_Debye;
+    int m_form_A_Debye = A_DEBYE_CONST;
 
 protected:
     //! Current value of the Debye Constant, A_Debye
@@ -902,13 +902,13 @@ protected:
     /*!
      *  derived from the equation of state for water.
      */
-    PDSS_Water* m_waterSS;
+    PDSS_Water* m_waterSS = nullptr;
 
     //! Storage for the density of water's standard state
     /*!
      * Density depends on temperature and pressure.
      */
-    double m_densWaterSS;
+    double m_densWaterSS = 1000.0;
 
     //! Pointer to the water property calculator
     std::unique_ptr<WaterProps> m_waterProps;

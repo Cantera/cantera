@@ -34,8 +34,8 @@ namespace Cantera
 //! objects.
 class AnyBase {
 public:
-    AnyBase();
-    virtual ~AnyBase() {};
+    AnyBase() = default;
+    virtual ~AnyBase() = default;
 
     //! For values which are derived from an input file, set the line and column
     //! of this value in that file. Used for providing context for some error
@@ -49,11 +49,11 @@ public:
 protected:
     //! The line where this value occurs in the input file. Set to -1 for values
     //! that weren't created from an input file.
-    int m_line;
+    int m_line = -1;
 
     //! If m_line >= 0, the column where this value occurs in the input file.
     //! If m_line == -1, a value used for determining output ordering
-    int m_column;
+    int m_column = 0;
 
     //! Metadata relevant to an entire AnyMap tree, such as information about
     // the input file used to create it

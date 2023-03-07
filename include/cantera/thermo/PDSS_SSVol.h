@@ -180,7 +180,7 @@ private:
 
     //! Enumerated data type describing the type of volume model
     //! used to calculate the standard state volume of the species
-    SSVolume_Model volumeModel_;
+    SSVolume_Model volumeModel_ = SSVolume_Model::tpoly;
 
     //! coefficients for the temperature representation
     vector_fp TCoeff_;

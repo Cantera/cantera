@@ -9,11 +9,6 @@
 namespace Cantera
 {
 
-CustomFunc1Rate::CustomFunc1Rate()
-    : m_ratefunc(0)
-{
-}
-
 CustomFunc1Rate::CustomFunc1Rate(const AnyMap& node, const UnitStack& rate_units)
     : CustomFunc1Rate()
 {

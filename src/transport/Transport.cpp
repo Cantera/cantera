@@ -16,10 +16,7 @@ namespace Cantera
 {
 Transport::Transport(ThermoPhase* thermo, size_t ndim) :
     m_thermo(thermo),
-    m_ready(false),
-    m_nsp(0),
-    m_nDim(ndim),
-    m_velocityBasis(VB_MASSAVG)
+    m_nDim(ndim)
 {
 }
 

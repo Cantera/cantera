@@ -85,15 +85,24 @@ public:
 protected:
     void _init(size_t n);
 
-    StFlow* m_flow_left, *m_flow_right;
-    size_t m_ilr, m_left_nv, m_right_nv;
-    size_t m_left_loc, m_right_loc;
-    size_t m_left_points;
-    size_t m_left_nsp, m_right_nsp;
-    size_t m_sp_left, m_sp_right;
-    size_t m_start_left, m_start_right;
-    ThermoPhase* m_phase_left, *m_phase_right;
-    double m_temp, m_mdot;
+    StFlow* m_flow_left = nullptr;
+    StFlow* m_flow_right = nullptr;
+    size_t m_ilr = 0;
+    size_t m_left_nv = 0;
+    size_t m_right_nv = 0;
+    size_t m_left_loc = 0;
+    size_t m_right_loc = 0;
+    size_t m_left_points = 0;
+    size_t m_left_nsp = 0;
+    size_t m_right_nsp = 0;
+    size_t m_sp_left = 0;
+    size_t m_sp_right = 0;
+    size_t m_start_left = 0;
+    size_t m_start_right = 0;
+    ThermoPhase* m_phase_left = nullptr;
+    ThermoPhase* m_phase_right = nullptr;
+    double m_temp = 0.0;
+    double m_mdot = 0.0;
 };
 
 
@@ -135,11 +144,11 @@ public:
 
 protected:
     int m_ilr;
-    double m_V0;
-    size_t m_nsp;
+    double m_V0 = 0.0;
+    size_t m_nsp = 0;
     vector_fp m_yin;
     std::string m_xstr;
-    StFlow* m_flow;
+    StFlow* m_flow = nullptr;
 };
 
 /**
@@ -149,7 +158,7 @@ protected:
 class Empty1D : public Boundary1D
 {
 public:
-    Empty1D() : Boundary1D() {
+    Empty1D() {
         m_type = cEmptyType;
     }
 
@@ -177,7 +186,7 @@ public:
 class Symm1D : public Boundary1D
 {
 public:
-    Symm1D() : Boundary1D() {
+    Symm1D() {
         m_type = cSymmType;
     }
 
@@ -203,7 +212,7 @@ public:
 class Outlet1D : public Boundary1D
 {
 public:
-    Outlet1D() : Boundary1D() {
+    Outlet1D() {
         m_type = cOutletType;
     }
 
@@ -251,10 +260,10 @@ public:
     virtual void restore(SolutionArray& arr, double* soln, int loglevel);
 
 protected:
-    size_t m_nsp;
+    size_t m_nsp = 0;
     vector_fp m_yres;
     std::string m_xstr;
-    StFlow* m_flow;
+    StFlow* m_flow = nullptr;
 };
 
 /**
@@ -266,7 +275,7 @@ protected:
 class Surf1D : public Boundary1D
 {
 public:
-    Surf1D() : Boundary1D() {
+    Surf1D() {
         m_type = cSurfType;
     }
 
@@ -333,10 +342,11 @@ public:
     virtual void showSolution(const double* x);
 
 protected:
-    InterfaceKinetics* m_kin;
-    SurfPhase* m_sphase;
-    size_t m_surfindex, m_nsp;
-    bool m_enabled;
+    InterfaceKinetics* m_kin = nullptr;
+    SurfPhase* m_sphase = nullptr;
+    size_t m_surfindex = 0;
+    size_t m_nsp = 0;
+    bool m_enabled = false;
     vector_fp m_work;
     vector_fp m_fixed_cov;
 };

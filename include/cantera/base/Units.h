@@ -69,15 +69,15 @@ private:
     //! Scale the unit by the factor `k`
     void scale(double k) { m_factor *= k; }
 
-    double m_factor; //!< conversion factor to Cantera base units
-    double m_mass_dim;
-    double m_length_dim;
-    double m_time_dim;
-    double m_temperature_dim;
-    double m_current_dim;
-    double m_quantity_dim;
-    double m_pressure_dim; //!< pseudo-dimension to track explicit pressure units
-    double m_energy_dim; //!< pseudo-dimension to track explicit energy units
+    double m_factor = 1.0; //!< conversion factor to Cantera base units
+    double m_mass_dim = 0.0;
+    double m_length_dim = 0.0;
+    double m_time_dim = 0.0;
+    double m_temperature_dim = 0.0;
+    double m_current_dim = 0.0;
+    double m_quantity_dim = 0.0;
+    double m_pressure_dim = 0.0; //!< pseudo-dimension to track explicit pressure units
+    double m_energy_dim = 0.0; //!< pseudo-dimension to track explicit energy units
 
     friend class UnitSystem;
 };
@@ -254,29 +254,29 @@ public:
 
 private:
     //! Factor to convert mass from this unit system to kg
-    double m_mass_factor;
+    double m_mass_factor = 1.0;
 
     //! Factor to convert length from this unit system to meters
-    double m_length_factor;
+    double m_length_factor = 1.0;
 
     //! Factor to convert time from this unit system to seconds
-    double m_time_factor;
+    double m_time_factor = 1.0;
 
     //! Factor to convert pressure from this unit system to Pa
-    double m_pressure_factor;
+    double m_pressure_factor = 1.0;
 
     //! Factor to convert energy from this unit system to J
-    double m_energy_factor;
+    double m_energy_factor = 1.0;
 
     //! Factor to convert activation energy from this unit system to J/kmol
-    double m_activation_energy_factor;
+    double m_activation_energy_factor = 1.0;
 
     //! Factor to convert quantity from this unit system to kmol
-    double m_quantity_factor;
+    double m_quantity_factor = 1.0;
 
     //! True if activation energy units are set explicitly, rather than as a
     //! combination of energy and quantity units
-    bool m_explicit_activation_energy;
+    bool m_explicit_activation_energy = false;
 
     //! Map of dimensions (mass, length, etc.) to names of specified default
     //! units

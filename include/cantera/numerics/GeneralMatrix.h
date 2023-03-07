@@ -22,9 +22,9 @@ class GeneralMatrix
 {
 public:
     //! Base Constructor
-    GeneralMatrix() : m_factored(false) {}
+    GeneralMatrix() = default;
 
-    virtual ~GeneralMatrix() {}
+    virtual ~GeneralMatrix() = default;
 
     //! Zero the matrix elements
     virtual void zero() = 0;
@@ -184,7 +184,7 @@ public:
 protected:
     //! Indicates whether the matrix is factored. 0 for unfactored; Non-zero
     //! values indicate a particular factorization (LU=1, QR=2).
-    int m_factored;
+    int m_factored = false;
 };
 
 }

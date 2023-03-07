@@ -20,15 +20,6 @@ namespace bmt = boost::math::tools;
 
 namespace Cantera
 {
-Reactor::Reactor() :
-    m_kin(0),
-    m_vdot(0.0),
-    m_Qdot(0.0),
-    m_mass(0.0),
-    m_chem(false),
-    m_energy(true),
-    m_nv(0)
-{}
 
 void Reactor::insert(shared_ptr<Solution> sol) {
     setThermoMgr(*sol->thermo());

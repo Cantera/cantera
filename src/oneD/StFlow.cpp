@@ -20,20 +20,7 @@ namespace Cantera
 
 StFlow::StFlow(ThermoPhase* ph, size_t nsp, size_t points) :
     Domain1D(nsp+c_offset_Y, points),
-    m_press(-1.0),
-    m_nsp(nsp),
-    m_thermo(0),
-    m_kin(0),
-    m_trans(0),
-    m_epsilon_left(0.0),
-    m_epsilon_right(0.0),
-    m_do_soret(false),
-    m_do_multicomponent(false),
-    m_do_radiation(false),
-    m_kExcessLeft(0),
-    m_kExcessRight(0),
-    m_zfixed(Undef),
-    m_tfixed(-1.)
+    m_nsp(nsp)
 {
     if (ph->type() == "IdealGas") {
         m_thermo = static_cast<IdealGasPhase*>(ph);

@@ -20,12 +20,7 @@ using namespace std;
 namespace Cantera
 {
 
-MolalityVPSSTP::MolalityVPSSTP() :
-    m_pHScalingType(PHSCALE_PITZER),
-    m_indexCLM(npos),
-    m_weightSolvent(18.01528),
-    m_xmolSolventMIN(0.01),
-    m_Mnaught(18.01528E-3)
+MolalityVPSSTP::MolalityVPSSTP()
 {
     // Change the default to be that charge neutrality in the phase is necessary
     // condition for the proper specification of thermodynamic functions within

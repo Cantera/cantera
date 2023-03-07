@@ -16,13 +16,6 @@ using namespace std;
 namespace Cantera
 {
 
-PDSS_IonsFromNeutral::PDSS_IonsFromNeutral()
-    : neutralMoleculePhase_(0)
-    , numMult_(0)
-    , add2RTln2_(true)
-{
-}
-
 void PDSS_IonsFromNeutral::setParent(VPStandardStateTP* phase, size_t k)
 {
     neutralMoleculePhase_ = dynamic_cast<IonsFromNeutralVPSSTP&>(*phase).getNeutralMoleculePhase();

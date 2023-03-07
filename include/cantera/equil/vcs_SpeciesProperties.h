@@ -27,10 +27,10 @@ public:
     std::string SpName;
 
     //! Pointer to the thermo structure for this species
-    VCS_SPECIES_THERMO* SpeciesThermo;
+    VCS_SPECIES_THERMO* SpeciesThermo = nullptr;
 
     //! Molecular Weight of the species (gm/mol)
-    double WtSpecies;
+    double WtSpecies = 0.0;
 
     //! Column of the formula matrix, comprising the
     //! element composition of the species
@@ -38,10 +38,10 @@ public:
 
     //! Charge state of the species -> This may be duplication of what's in the
     //! FormulaMatrixCol entries. However, it's prudent to separate it out.
-    double Charge;
+    double Charge = 0.0;
 
     //! True if this species belongs to a surface phase
-    int SurfaceSpecies;
+    int SurfaceSpecies = 0;
 
     /*
      * Various Calculated Quantities that are appropriate to keep copies of at
@@ -49,28 +49,22 @@ public:
      */
 
     //! Partial molar volume of the species
-    double VolPM;
+    double VolPM = 0.0;
 
     //! Representative value of the mole fraction of this species in a phase.
     //! This value is used for convergence issues and for calculation of
     //! numerical derivatives
-    double ReferenceMoleFraction;
+    double ReferenceMoleFraction = 1e-6;
 
     vcs_SpeciesProperties(size_t indexPhase, size_t indexSpeciesPhase,
                           vcs_VolPhase* owning)
         : IndexPhase(indexPhase)
         , IndexSpeciesPhase(indexSpeciesPhase)
         , OwningPhase(owning)
-        , SpeciesThermo(0)
-        , WtSpecies(0.0)
-        , Charge(0.0)
-        , SurfaceSpecies(0)
-        , VolPM(0.0)
-        , ReferenceMoleFraction(1.0E-6)
     {
     }
 
-    virtual ~vcs_SpeciesProperties() {}
+    virtual ~vcs_SpeciesProperties() = default;
 };
 
 }

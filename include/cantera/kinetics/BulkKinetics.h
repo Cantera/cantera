@@ -20,7 +20,7 @@ namespace Cantera
 class BulkKinetics : public Kinetics
 {
 public:
-    BulkKinetics();
+    BulkKinetics() = default;
 
     //! @deprecated  To be removed after Cantera 3.0; code base only uses default.
     BulkKinetics(ThermoPhase* thermo);
@@ -76,8 +76,8 @@ protected:
 
     vector_fp m_grt;
 
-    bool m_ROP_ok;
-    doublereal m_temp;
+    bool m_ROP_ok = false;
+    double m_temp = 0.0;
 };
 
 }

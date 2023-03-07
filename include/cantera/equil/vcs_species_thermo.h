@@ -35,69 +35,52 @@ class VCS_SPECIES_THERMO
      * All objects are public for ease of development
      */
 public:
+    VCS_SPECIES_THERMO() = default;
+
     //! Index of the phase that this species belongs to.
-    size_t IndexPhase;
+    size_t IndexPhase = 0;
 
     //! Index of this species in the current phase.
-    size_t IndexSpeciesPhase;
+    size_t IndexSpeciesPhase = 0;
 
     //! Pointer to the owning phase object.
-    vcs_VolPhase* OwningPhase;
+    vcs_VolPhase* OwningPhase = nullptr;
 
     //! Integer representing the models for the species standard state Naught
     //! temperature dependence. They are listed above and start with VCS_SS0_...
-    int SS0_Model;
+    int SS0_Model = VCS_SS0_CONSTANT;
 
     //! Internal storage of the last calculation of the reference naught Gibbs
     //! free energy at SS0_TSave. (always in units of Kelvin)
-    double SS0_feSave;
+    double SS0_feSave = 0.0;
 
     //! Internal storage of the last temperature used in the calculation of the
     //! reference naught Gibbs free energy. units = kelvin
-    double SS0_TSave;
+    double SS0_TSave = -90.0;
 
     //! Base temperature used in the VCS_SS0_CONSTANT_CP model
-    double SS0_T0;
+    double SS0_T0 = 273.15;
 
     //! Base enthalpy used in the VCS_SS0_CONSTANT_CP model
-    double SS0_H0;
+    double SS0_H0 = 0.0;
 
     //! Base entropy used in the VCS_SS0_CONSTANT_CP model
-    double SS0_S0;
+    double SS0_S0 = 0.0;
 
     //! Base heat capacity used in the VCS_SS0_CONSTANT_CP model
-    double SS0_Cp0;
+    double SS0_Cp0 = 0.0;
 
     //! Value of the pressure for the reference state.
-    //! defaults to 1.01325E5 = 1 atm
-    double SS0_Pref;
+    double SS0_Pref = OneAtm;
 
     //! Integer value representing the star state model.
-    int SSStar_Model;
+    int SSStar_Model = VCS_SSSTAR_CONSTANT;
 
     //! Models for the standard state volume of each species
-    int SSStar_Vol_Model;
+    int SSStar_Vol_Model = VCS_SSVOL_IDEALGAS;
 
     //! parameter that is used in the VCS_SSVOL_CONSTANT model.
-    double SSStar_Vol0;
-
-    VCS_SPECIES_THERMO()
-         : IndexPhase(0)
-         , IndexSpeciesPhase(0)
-         , OwningPhase(0)
-         , SS0_Model(VCS_SS0_CONSTANT)
-         , SS0_feSave(0.0)
-         , SS0_TSave(-90.0)
-         , SS0_T0(273.15)
-         , SS0_H0(0.0)
-         , SS0_S0(0.0)
-         , SS0_Cp0(0.0)
-         , SS0_Pref(1.01325E5)
-         , SSStar_Model(VCS_SSSTAR_CONSTANT)
-         , SSStar_Vol_Model(VCS_SSVOL_IDEALGAS)
-         , SSStar_Vol0(-1.0)
-    {
-    }
+    double SSStar_Vol0 = -1;
 };
 
 }

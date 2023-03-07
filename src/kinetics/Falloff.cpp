@@ -18,10 +18,6 @@ namespace Cantera
 {
 
 FalloffData::FalloffData()
-    : ready(false)
-    , molar_density(NAN)
-    , m_state_mf_number(-1)
-    , m_perturbed(false)
 {
     conc_3b.resize(1, NAN);
     m_conc_3b_buf.resize(1, NAN);

@@ -103,12 +103,16 @@ protected:
     //! Names of components that require the addition of new grid points
     set<string> m_c;
     std::vector<bool> m_active;
-    doublereal m_ratio, m_slope, m_curve, m_prune;
-    doublereal m_min_range;
+    double m_ratio = 10.0;
+    double m_slope = 0.8;
+    double m_curve = 0.8;
+    double m_prune = -0.001;
+    double m_min_range = 0.01;
     Domain1D* m_domain;
-    size_t m_nv, m_npmax;
-    doublereal m_thresh;
-    doublereal m_gridmin; //!< minimum grid spacing [m]
+    size_t m_nv;
+    size_t m_npmax = 1000;
+    double m_thresh = std::sqrt(std::numeric_limits<double>::epsilon());
+    double m_gridmin = 1e-10; //!< minimum grid spacing [m]
 };
 
 }

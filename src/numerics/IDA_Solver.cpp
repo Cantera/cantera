@@ -125,37 +125,7 @@ namespace Cantera
 {
 
 IDA_Solver::IDA_Solver(ResidJacEval& f) :
-    DAE_Solver(f),
-    m_ida_mem(0),
-    m_t0(0.0),
-    m_y(0),
-    m_ydot(0),
-    m_id(0),
-    m_constraints(0),
-    m_abstol(0),
-    m_type(0),
-    m_itol(IDA_SS),
-    m_iter(0),
-    m_reltol(1.e-9),
-    m_abstols(1.e-15),
-    m_nabs(0),
-    m_hmax(0.0),
-    m_hmin(0.0),
-    m_h0(0.0),
-    m_maxsteps(20000),
-    m_maxord(0),
-    m_formJac(0),
-    m_tstop(0.0),
-    m_told_old(0.0),
-    m_told(0.0),
-    m_tcurrent(0.0),
-    m_deltat(0.0),
-    m_maxErrTestFails(-1),
-    m_maxNonlinIters(0),
-    m_maxNonlinConvFails(-1),
-    m_setSuppressAlg(0),
-    m_mupper(0),
-    m_mlower(0)
+    DAE_Solver(f)
 {
 }
 

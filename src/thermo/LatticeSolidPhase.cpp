@@ -23,11 +23,6 @@ namespace ba = boost::algorithm;
 
 namespace Cantera
 {
-LatticeSolidPhase::LatticeSolidPhase() :
-    m_press(-1.0),
-    m_molar_density(0.0)
-{
-}
 
 doublereal LatticeSolidPhase::minTemp(size_t k) const
 {

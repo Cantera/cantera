@@ -18,7 +18,7 @@ namespace Cantera
  */
 struct PlogData : public ReactionData
 {
-    PlogData() : pressure(NAN), logP(0.), m_pressure_buf(-1.) {}
+    PlogData() = default;
 
     virtual void update(double T) override;
 
@@ -46,11 +46,11 @@ struct PlogData : public ReactionData
         pressure = NAN;
     }
 
-    double pressure; //!< pressure
-    double logP; //!< logarithm of pressure
+    double pressure = NAN; //!< pressure
+    double logP = 0.0; //!< logarithm of pressure
 
 protected:
-    double m_pressure_buf; //!< buffered pressure
+    double m_pressure_buf = -1.0; //!< buffered pressure
 };
 
 
@@ -76,7 +76,7 @@ class PlogRate final : public ReactionRate
 {
 public:
     //! Default constructor.
-    PlogRate();
+    PlogRate() = default;
 
     //! Constructor from Arrhenius rate expressions at a set of pressures
     explicit PlogRate(const std::multimap<double, ArrheniusRate>& rates);
@@ -186,8 +186,9 @@ protected:
     // Rate expressions which are referenced by the indices stored in pressures_
     std::vector<ArrheniusRate> rates_;
 
-    double logP_; //!< log(p) at the current state
-    double logP1_, logP2_; //!< log(p) at the lower / upper pressure reference
+    double logP_ = -1000; //!< log(p) at the current state
+    double logP1_ = 1000; //!< log(p) at the lower pressure reference
+    double logP2_ = -1000; //!< log(p) at the upper pressure reference
 
     //! Indices to the ranges within rates_ for the lower / upper pressure, such
     //! that rates_[ilow1_] through rates_[ilow2_] (inclusive) are the rates
@@ -195,7 +196,7 @@ protected:
     //! pressure.
     size_t ilow1_, ilow2_, ihigh1_, ihigh2_;
 
-    double rDeltaP_; //!< reciprocal of (logP2 - logP1)
+    double rDeltaP_ = -1.0; //!< reciprocal of (logP2 - logP1)
 };
 
 }

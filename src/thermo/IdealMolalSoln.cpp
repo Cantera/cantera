@@ -36,23 +36,12 @@ namespace Cantera
 
 IdealMolalSoln::IdealMolalSoln(const std::string& inputFile,
                                const std::string& id_) :
-    MolalityVPSSTP(),
-    m_formGC(2),
-    IMS_typeCutoff_(0),
     IMS_X_o_cutoff_(X_o_cutoff_default),
     IMS_gamma_o_min_(gamma_o_min_default),
     IMS_gamma_k_min_(gamma_k_min_default),
     IMS_slopefCut_(slopefCut_default),
     IMS_slopegCut_(slopegCut_default),
-    IMS_cCut_(cCut_default),
-    IMS_dfCut_(0.0),
-    IMS_efCut_(0.0),
-    IMS_afCut_(0.0),
-    IMS_bfCut_(0.0),
-    IMS_dgCut_(0.0),
-    IMS_egCut_(0.0),
-    IMS_agCut_(0.0),
-    IMS_bgCut_(0.0)
+    IMS_cCut_(cCut_default)
 {
     initThermoFile(inputFile, id_);
 }

@@ -57,7 +57,7 @@ class InterfaceKinetics : public Kinetics
 {
 public:
     //! Constructor
-    InterfaceKinetics();
+    InterfaceKinetics() = default;
 
     //! Constructor
     /*!
@@ -316,7 +316,7 @@ protected:
      */
     std::vector<size_t> m_revindex;
 
-    bool m_redo_rates;
+    bool m_redo_rates = false;
 
     //! Vector of rate handlers for interface reactions
     std::vector<unique_ptr<MultiRateBase>> m_interfaceRates;
@@ -396,7 +396,7 @@ protected:
     vector_fp m_phi;
 
     //! Pointer to the single surface phase
-    SurfPhase* m_surf;
+    SurfPhase* m_surf = nullptr;
 
     //! Pointer to the Implicit surface chemistry object
     /*!
@@ -404,12 +404,12 @@ protected:
      * be used to solve this single InterfaceKinetics object's surface problem
      * uncoupled from other surface phases.
      */
-    ImplicitSurfChem* m_integrator;
+    ImplicitSurfChem* m_integrator = nullptr;
 
-    bool m_ROP_ok;
+    bool m_ROP_ok = false;
 
     //! Current temperature of the data
-    doublereal m_temp;
+    double m_temp = 0.0;
 
     //! Int flag to indicate that some phases in the kinetics mechanism are
     //! non-existent.
@@ -418,7 +418,7 @@ protected:
      *  treated correctly in the kinetics operator. The value of this is equal
      *  to the number of phases which don't exist.
      */
-    int m_phaseExistsCheck;
+    int m_phaseExistsCheck = false;
 
     //!  Vector of booleans indicating whether phases exist or not
     /*!
@@ -459,11 +459,11 @@ protected:
      */
     std::vector<std::vector<bool> > m_rxnPhaseIsProduct;
 
-    int m_ioFlag;
+    int m_ioFlag = 0;
 
     //! Number of dimensions of reacting phase (2 for InterfaceKinetics, 1 for
     //! EdgeKinetics)
-    size_t m_nDim;
+    size_t m_nDim = 2;
 };
 
 }
