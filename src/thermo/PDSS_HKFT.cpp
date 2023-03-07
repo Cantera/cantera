@@ -271,7 +271,7 @@ void PDSS_HKFT::initThermo()
     m_Z_pr_tr = -1.0 / relepsilon;
     doublereal drelepsilondT = m_waterProps->relEpsilon(m_temp, m_pres, 1);
     m_Y_pr_tr = drelepsilondT / (relepsilon * relepsilon);
-    m_waterProps.reset(new WaterProps(m_waterSS));
+    m_waterProps = make_unique<WaterProps>(m_waterSS);
     m_presR_bar = OneAtm / 1.0E5;
     m_presR_bar = 1.0;
     convertDGFormation();

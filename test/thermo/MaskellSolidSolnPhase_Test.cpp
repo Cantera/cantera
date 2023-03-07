@@ -91,11 +91,11 @@ TEST_F(MaskellSolidSolnPhase_Test, standardConcentrations)
 TEST_F(MaskellSolidSolnPhase_Test, fromScratch) {
     auto sH = make_shared<Species>("H(s)", parseCompString("H:1 He:2"));
     double coeffs1[] = {1.0, 0.0, 0.0, 0.0};
-    sH->thermo.reset(new ConstCpPoly(250, 800, 1e5, coeffs1));
+    sH->thermo = make_shared<ConstCpPoly>(250, 800, 1e5, coeffs1);
 
     auto sHe = make_shared<Species>("He(s)", parseCompString("He:1"));
     double coeffs2[] = {1.0, 1000.0, 0.0, 0.0};
-    sHe->thermo.reset(new ConstCpPoly(250, 800, 1e5, coeffs2));
+    sHe->thermo = make_shared<ConstCpPoly>(250, 800, 1e5, coeffs2);
 
     MaskellSolidSolnPhase* p = new MaskellSolidSolnPhase();
     test_phase.reset(p);
@@ -103,11 +103,11 @@ TEST_F(MaskellSolidSolnPhase_Test, fromScratch) {
     p->addSpecies(sH);
     p->addSpecies(sHe);
 
-    std::unique_ptr<PDSS_ConstVol> ssH(new PDSS_ConstVol());
+    auto ssH = make_unique<PDSS_ConstVol>();
     ssH->setMolarVolume(0.005);
     p->installPDSS(0, std::move(ssH));
 
-    std::unique_ptr<PDSS_ConstVol> ssHe(new PDSS_ConstVol());
+    auto ssHe = make_unique<PDSS_ConstVol>();
     ssHe->setMolarVolume(0.01);
     p->installPDSS(1, std::move(ssHe));
 

@@ -396,7 +396,7 @@ void DebyeHuckel::initThermo()
         // Initialize the water property calculator. It will share the internal
         // eos water calculator.
         if (m_form_A_Debye == A_DEBYE_WATER) {
-            m_waterProps.reset(new WaterProps(m_waterSS));
+            m_waterProps = make_unique<WaterProps>(m_waterSS);
         }
     } else if (dynamic_cast<PDSS_ConstVol*>(providePDSS(0)) == 0) {
         throw CanteraError("DebyeHuckel::initThermo", "Solvent standard state"

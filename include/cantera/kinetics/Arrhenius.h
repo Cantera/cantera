@@ -183,7 +183,7 @@ public:
     using ArrheniusBase::ArrheniusBase; // inherit constructors
 
     unique_ptr<MultiRateBase> newMultiRate() const override {
-        return unique_ptr<MultiRateBase>(new MultiRate<ArrheniusRate, ArrheniusData>);
+        return make_unique<MultiRate<ArrheniusRate, ArrheniusData>>();
     }
 
     virtual const std::string type() const override {

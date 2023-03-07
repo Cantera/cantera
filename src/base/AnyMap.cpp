@@ -607,7 +607,7 @@ AnyValue& AnyValue::operator=(AnyValue const& other) {
     }
     AnyBase::operator=(other);
     m_key = other.m_key;
-    m_value.reset(new boost::any{*other.m_value});
+    m_value = make_unique<boost::any>(*other.m_value);
     m_equals = other.m_equals;
     return *this;
 }
@@ -1560,7 +1560,8 @@ AnyMap::OrderedProxy::OrderedProxy(const AnyMap& data)
 {
     // Units always come first
     if (m_data->hasKey("__units__") && m_data->at("__units__").as<AnyMap>().size()) {
-        m_units.reset(new std::pair<const string, AnyValue>{"units", m_data->at("__units__")});
+        m_units = make_unique<pair<const string, AnyValue>>(
+            "units", m_data->at("__units__"));
         m_units->second.setFlowStyle();
         m_ordered.emplace_back(std::pair<int, int>{-2, 0}, m_units.get());
     }
@@ -1672,7 +1673,7 @@ void AnyMap::applyUnits(shared_ptr<UnitSystem>& units) {
         m_data.erase("units");
     }
     if (hasKey("__units__")) {
-        m_units.reset(new UnitSystem(*units));
+        m_units = make_shared<UnitSystem>(*units);
         m_units->setDefaults(m_data["__units__"].asMap<std::string>());
     } else {
         m_units = units;
@@ -1691,7 +1692,7 @@ void AnyMap::setUnits(const UnitSystem& units)
     } else {
         m_data["__units__"] = units.getDelta(*m_units);
     }
-    m_units.reset(new UnitSystem(units));
+    m_units = make_shared<UnitSystem>(units);
 }
 
 void AnyMap::setFlowStyle(bool flow) {

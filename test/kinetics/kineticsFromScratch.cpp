@@ -599,7 +599,7 @@ public:
     KineticsAddSpecies()
         : pp_ref(newThermo("../data/kineticsfromscratch.yaml"))
     {
-        p.reset(new IdealGasPhase());
+        p = make_shared<IdealGasPhase>();
         vector<shared_ptr<ThermoPhase>> th;
         th.push_back(pp_ref);
         kin_ref = newKinetics(th, "../data/kineticsfromscratch.yaml", "ohmech");

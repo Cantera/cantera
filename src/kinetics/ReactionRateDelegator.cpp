@@ -55,8 +55,8 @@ ReactionRateDelegator::ReactionRateDelegator()
 
 unique_ptr<MultiRateBase> ReactionRateDelegator::newMultiRate() const
 {
-    auto multirate = std::make_unique<MultiRate<ReactionRateDelegator,
-                                                ReactionDataDelegator>>();
+    auto multirate = make_unique<MultiRate<ReactionRateDelegator,
+                                           ReactionDataDelegator>>();
     multirate->sharedData().setType(m_rateType);
     ExtensionManager::wrapReactionData(m_rateType, multirate->sharedData());
     return multirate;

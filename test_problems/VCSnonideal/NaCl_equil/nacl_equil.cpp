@@ -85,8 +85,7 @@ int main(int argc, char** argv)
 
         // Initialize the individual phases
 
-        shared_ptr<ThermoPhase> hmw(new HMWSoln(
-            inputFile, "NaCl_electrolyte_complex_shomate"));
+        auto hmw = make_shared<HMWSoln>(inputFile, "NaCl_electrolyte_complex_shomate");
         hmw->setName("NaCl_electrolyte");
         size_t kk = hmw->nSpecies();
         vector_fp Xmol(kk, 0.0);
@@ -106,7 +105,7 @@ int main(int argc, char** argv)
         gas->setState_TPX(T, pres, Xmol.data());
 
 
-        shared_ptr<ThermoPhase> ss(new StoichSubstance("NaCl_Solid.yaml"));
+        auto ss = make_unique<StoichSubstance>("NaCl_Solid.yaml");
         ss->setState_TP(T, pres);
 
 

@@ -26,9 +26,9 @@ public:
         , tO2(new GasTransportData())
         , tH2O(new GasTransportData())
     {
-        sH2->thermo.reset(new NasaPoly2(200, 3500, 101325, h2_nasa_coeffs));
-        sO2->thermo.reset(new NasaPoly2(200, 3500, 101325, o2_nasa_coeffs));
-        sH2O->thermo.reset(new NasaPoly2(200, 3500, 101325, h2o_nasa_coeffs));
+        sH2->thermo = make_shared<NasaPoly2>(200, 3500, 101325, h2_nasa_coeffs);
+        sO2->thermo = make_shared<NasaPoly2>(200, 3500, 101325, o2_nasa_coeffs);
+        sH2O->thermo = make_shared<NasaPoly2>(200, 3500, 101325, h2o_nasa_coeffs);
 
         tH2->setCustomaryUnits("linear", 2.92, 38.0, 0.0, 0.79, 280.0);
         tO2->setCustomaryUnits("linear", 3.458, 107.40, 0.0, 1.60, 3.80);
@@ -44,7 +44,7 @@ public:
             "species: [{gri30.yaml/species: [H2, O2, H2O]}]");
 
         ref = newThermo(phase_def);
-        test.reset(new IdealGasPhase());
+        test = make_shared<IdealGasPhase>();
 
         test->addElement("O");
         test->addElement("H");

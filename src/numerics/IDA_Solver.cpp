@@ -466,7 +466,7 @@ void IDA_Solver::init(doublereal t0)
     }
 
     // pass a pointer to func in m_data
-    m_fdata.reset(new ResidData(&m_resid, this, m_resid.nparams()));
+    m_fdata = make_unique<ResidData>(&m_resid, this, m_resid.nparams());
     flag = IDASetUserData(m_ida_mem, m_fdata.get());
     if (flag != IDA_SUCCESS) {
         throw CanteraError("IDA_Solver::init", "IDASetUserData failed.");

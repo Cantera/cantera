@@ -51,9 +51,9 @@ namespace Cantera
 Storage::Storage(std::string fname, bool write) : m_write(write)
 {
     if (m_write) {
-        m_file.reset(new h5::File(fname, h5::File::OpenOrCreate));
+        m_file = make_unique<h5::File>(fname, h5::File::OpenOrCreate);
     } else {
-        m_file.reset(new h5::File(fname, h5::File::ReadOnly));
+        m_file = make_unique<h5::File>(fname, h5::File::ReadOnly);
     }
 }
 

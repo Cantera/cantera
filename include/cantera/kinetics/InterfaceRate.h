@@ -372,8 +372,7 @@ public:
     }
 
     unique_ptr<MultiRateBase> newMultiRate() const override {
-        return unique_ptr<MultiRateBase>(
-            new MultiRate<InterfaceRate<RateType, DataType>, DataType>);
+        return make_unique<MultiRate<InterfaceRate<RateType, DataType>, DataType>>();
     }
 
     //! Identifier of reaction rate type
@@ -461,8 +460,7 @@ public:
     }
 
     unique_ptr<MultiRateBase> newMultiRate() const override {
-        return unique_ptr<MultiRateBase>(
-            new MultiRate<StickingRate<RateType, DataType>, DataType>);
+        return make_unique<MultiRate<StickingRate<RateType, DataType>, DataType>>();
     }
 
     //! Identifier of reaction rate type

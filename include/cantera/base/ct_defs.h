@@ -37,6 +37,7 @@ namespace Cantera
 using std::shared_ptr;
 using std::make_shared;
 using std::unique_ptr;
+using std::make_unique;
 using std::isnan; // workaround for bug in libstdc++ 4.8
 using std::string;
 using std::vector;

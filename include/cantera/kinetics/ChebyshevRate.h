@@ -108,8 +108,7 @@ public:
     ChebyshevRate(const AnyMap& node, const UnitStack& rate_units={});
 
     unique_ptr<MultiRateBase> newMultiRate() const {
-        return unique_ptr<MultiRateBase>(
-            new MultiRate<ChebyshevRate, ChebyshevData>);
+        return make_unique<MultiRate<ChebyshevRate, ChebyshevData>>();
     }
 
     const std::string type() const { return "Chebyshev"; }

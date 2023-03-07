@@ -189,7 +189,7 @@ void ImplicitSurfChem::solvePseudoSteadyStateProblem(int ifuncOverride,
     // time scale - time over which to integrate equations
     doublereal time_scale = timeScaleOverride;
     if (!m_surfSolver) {
-        m_surfSolver.reset(new solveSP(this, bulkFunc));
+        m_surfSolver = make_unique<solveSP>(this, bulkFunc);
         // set ifunc, which sets the algorithm.
         ifunc = SFLUX_INITIALIZE;
     } else {

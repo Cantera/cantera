@@ -37,7 +37,7 @@ shared_ptr<Species> make_species(const std::string& name,
      const std::string& composition, const double* nasa_coeffs)
 {
     auto species = make_shared<Species>(name, parseCompString(composition));
-    species->thermo.reset(new NasaPoly2(200, 3500, 101325, nasa_coeffs));
+    species->thermo = make_shared<NasaPoly2>(200, 3500, 101325, nasa_coeffs);
     return species;
 }
 
@@ -45,7 +45,7 @@ shared_ptr<Species> make_shomate_species(const std::string& name,
      const std::string& composition, const double* shomate_coeffs)
 {
     auto species = make_shared<Species>(name, parseCompString(composition));
-    species->thermo.reset(new ShomatePoly(200, 3500, 101325, shomate_coeffs));
+    species->thermo = make_shared<ShomatePoly>(200, 3500, 101325, shomate_coeffs);
     return species;
 }
 
@@ -53,7 +53,7 @@ shared_ptr<Species> make_shomate2_species(const std::string& name,
      const std::string& composition, const double* shomate_coeffs)
 {
     auto species = make_shared<Species>(name, parseCompString(composition));
-    species->thermo.reset(new ShomatePoly2(200, 3500, 101325, shomate_coeffs));
+    species->thermo = make_shared<ShomatePoly2>(200, 3500, 101325, shomate_coeffs);
     return species;
 }
 
@@ -63,7 +63,7 @@ shared_ptr<Species> make_species(const std::string& name,
 {
     auto species = make_shared<Species>(name, parseCompString(composition));
     double coeffs[] = {2, h298, T1, mu1*GasConstant*T1, T2, mu2*GasConstant*T2};
-    species->thermo.reset(new Mu0Poly(200, 3500, pref, coeffs));
+    species->thermo = make_shared<Mu0Poly>(200, 3500, pref, coeffs);
     return species;
 }
 
@@ -72,7 +72,7 @@ shared_ptr<Species> make_const_cp_species(const std::string& name,
 {
     auto species = make_shared<Species>(name, parseCompString(composition));
     double coeffs[] = {T0, h0, s0, cp};
-    species->thermo.reset(new ConstCpPoly(200, 3500, 101325, coeffs));
+    species->thermo = make_shared<ConstCpPoly>(200, 3500, 101325, coeffs);
     return species;
 }
 
@@ -82,7 +82,7 @@ TEST(IonsFromNeutralConstructor, fromScratch)
     auto neutral = make_shared<MargulesVPSSTP>();
     auto sKCl = make_shomate_species("KCl(L)", "K:1 Cl:1", kcl_shomate_coeffs);
     neutral->addSpecies(sKCl);
-    std::unique_ptr<PDSS_ConstVol> ssKCl(new PDSS_ConstVol());
+    auto ssKCl = make_unique<PDSS_ConstVol>();
     ssKCl->setMolarVolume(0.03757);
     neutral->installPDSS(0, std::move(ssKCl));
     neutral->initThermo();
@@ -96,8 +96,8 @@ TEST(IonsFromNeutralConstructor, fromScratch)
     sClm->input["equation-of-state"]["model"] = "ions-from-neutral-molecule";
     p.addSpecies(sKp);
     p.addSpecies(sClm);
-    std::unique_ptr<PDSS_IonsFromNeutral> ssKp(new PDSS_IonsFromNeutral());
-    std::unique_ptr<PDSS_IonsFromNeutral> ssClm(new PDSS_IonsFromNeutral());
+    auto ssKp = make_unique<PDSS_IonsFromNeutral>();
+    auto ssClm = make_unique<PDSS_IonsFromNeutral>();
     ssKp->setNeutralSpeciesMultiplier("KCl(L)", 1.2);
     ssClm->setNeutralSpeciesMultiplier("KCl(L)", 1.5);
     ssClm->setSpecialSpecies();
@@ -128,7 +128,7 @@ public:
         , sCO(make_species("CO", "C:1 O:1", o2_nasa_coeffs))
         , sCO2(new Species("CO2", parseCompString("C:1 O:2")))
     {
-        sCO2->thermo.reset(new ShomatePoly2(200, 3500, 101325, co2_shomate_coeffs));
+        sCO2->thermo = make_shared<ShomatePoly2>(200, 3500, 101325, co2_shomate_coeffs);
     }
 
     shared_ptr<Species> sH2O, sH2, sO2, sOH, sCO, sCO2;
@@ -251,7 +251,7 @@ TEST(PureFluidFromScratch, CarbonDioxide)
 {
     PureFluidPhase p;
     auto sCO2 = make_shared<Species>("CO2", parseCompString("C:1 O:2"));
-    sCO2->thermo.reset(new ShomatePoly2(200, 6000, 101325, co2_shomate_coeffs));
+    sCO2->thermo = make_shared<ShomatePoly2>(200, 6000, 101325, co2_shomate_coeffs);
     p.addSpecies(sCO2);
     p.setSubstance("carbon-dioxide");
     p.initThermo();
@@ -277,7 +277,7 @@ TEST(IdealMolalSoln, fromScratch)
     p.addSpecies(make_species("CH4(aq)", "C:1, H:4", h2_nasa_coeffs));
     size_t k = 0;
     for (double v : {1.5, 1.3, 0.1, 0.1}) {
-        std::unique_ptr<PDSS_ConstVol> ss(new PDSS_ConstVol());
+        auto ss = make_unique<PDSS_ConstVol>();
         ss->setMolarVolume(v);
         p.installPDSS(k++, std::move(ss));
     }
@@ -324,11 +324,11 @@ TEST(DebyeHuckel, fromScratch)
     for (auto& s : {sH2O, sNa, sCl, sH, sOH, sNaCl}) {
         p.addSpecies(s);
     }
-    std::unique_ptr<PDSS_Water> ss(new PDSS_Water());
+    auto ss = make_unique<PDSS_Water>();
     p.installPDSS(0, std::move(ss));
     size_t k = 1;
     for (double v : {1.3, 1.3, 0.0, 1.3, 1.3}) {
-        std::unique_ptr<PDSS_ConstVol> ss(new PDSS_ConstVol());
+        auto ss = make_unique<PDSS_ConstVol>();
         ss->setMolarVolume(v);
         p.installPDSS(k++, std::move(ss));
     }
@@ -368,7 +368,7 @@ TEST(MargulesVPSSTP, fromScratch)
     p.addSpecies(sLiCl);
     size_t k = 0;
     for (double v : {0.03757, 0.020304}) {
-        std::unique_ptr<PDSS_ConstVol> ss(new PDSS_ConstVol());
+        auto ss = make_unique<PDSS_ConstVol>();
         ss->setMolarVolume(v);
         p.installPDSS(k++, std::move(ss));
     }
@@ -500,11 +500,11 @@ TEST(HMWSoln, fromScratch)
     for (auto& s : {sH2O, sCl, sH, sNa, sOH}) {
         p.addSpecies(s);
     }
-    std::unique_ptr<PDSS_Water> ss(new PDSS_Water());
+    auto ss = make_unique<PDSS_Water>();
     p.installPDSS(0, std::move(ss));
     size_t k = 1;
     for (double v : {1.3, 1.3, 1.3, 1.3}) {
-        std::unique_ptr<PDSS_ConstVol> ss(new PDSS_ConstVol());
+        auto ss = make_unique<PDSS_ConstVol>();
         ss->setMolarVolume(v);
         p.installPDSS(k++, std::move(ss));
     }
@@ -567,11 +567,11 @@ TEST(HMWSoln, fromScratch_HKFT)
     double c[][2] = {{18.18, -29810}, {-4.4, -57140}, {0.0, 0.0}, {4.15, -103460}};
     double omega[] = {33060, 145600, 0.0, 172460};
 
-    std::unique_ptr<PDSS_Water> ss(new PDSS_Water());
+    auto ss = make_unique<PDSS_Water>();
     p.installPDSS(0, std::move(ss));
     UnitSystem units;
     for (size_t k = 0; k < 4; k++) {
-        std::unique_ptr<PDSS_HKFT> ss(new PDSS_HKFT());
+        auto ss = make_unique<PDSS_HKFT>();
         if (h0[k] != Undef) {
             ss->setDeltaH0(units.convertFrom(h0[k], "cal/gmol"));
         }
@@ -625,7 +625,7 @@ TEST(PDSS_SSVol, fromScratch)
     auto sLi = make_shomate2_species("Li(L)", "Li:1", coeffs);
     p.addSpecies(sLi);
     p.setStandardConcentrationModel("unity");
-    std::unique_ptr<PDSS_SSVol> ss(new PDSS_SSVol());
+    auto ss = make_unique<PDSS_SSVol>();
     double rho_coeffs[] = {536.504, -1.04279e-1, 3.84825e-6, -5.2853e-9};
     ss->setDensityPolynomial(rho_coeffs);
     p.installPDSS(0, std::move(ss));

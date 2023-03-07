@@ -72,7 +72,7 @@ public:
     //!
     //! ```.cpp
     //! unique_ptr<MultiRateBase> newMultiRate() const override {
-    //!     return unique_ptr<MultiRateBase>(new MultiRate<RateType, DataType>);
+    //!     return make_unique<MultiRate<RateType, DataType>>();
     //! ```
     //!
     //! where `RateType` is the derived class name and `DataType` is the corresponding
