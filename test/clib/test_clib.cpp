@@ -87,6 +87,15 @@ TEST(ct, soln_objects)
     ASSERT_EQ(nr, npos);
     err = reportError();
     EXPECT_THAT(err, HasSubstr("has been deleted."));
+
+    trans = soln_setTransportModel(ref, "Mix");
+    ASSERT_EQ(trans, 2);
+    int buflen = trans_transportModel(trans, 0, 0);
+    char* buf = new char[buflen];
+    trans_transportModel(trans, buflen, buf);
+    string trName = buf;
+    ASSERT_EQ(trName, "Mix");
+    delete[] buf;
 }
 
 TEST(ct, new_interface)
