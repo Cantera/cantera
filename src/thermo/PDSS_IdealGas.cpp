@@ -15,10 +15,6 @@ using namespace std;
 namespace Cantera
 {
 
-PDSS_IdealGas::PDSS_IdealGas()
-{
-}
-
 void PDSS_IdealGas::initThermo()
 {
     PDSS::initThermo();

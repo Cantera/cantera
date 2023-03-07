@@ -20,8 +20,6 @@
 namespace Cantera
 {
 
-Solution::Solution() {}
-
 std::string Solution::name() const {
     if (m_thermo) {
         return m_thermo->name();

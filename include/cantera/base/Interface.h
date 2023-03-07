@@ -17,7 +17,7 @@ namespace Cantera
 class Interface : public Solution
 {
 private:
-    Interface();
+    Interface() = default;
 
 public:
     ~Interface() {}

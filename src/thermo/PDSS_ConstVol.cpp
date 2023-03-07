@@ -15,10 +15,6 @@ using namespace std;
 namespace Cantera
 {
 
-PDSS_ConstVol::PDSS_ConstVol()
-{
-}
-
 void PDSS_ConstVol::initThermo()
 {
     PDSS::initThermo();

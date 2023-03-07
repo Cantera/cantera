@@ -35,7 +35,7 @@ private:
     static ExtensionManagerFactory* s_factory;
 
     //! Private constructor prevents direct usage
-    ExtensionManagerFactory();
+    ExtensionManagerFactory() = default;
 
     //! Decl for locking mutex for thermo factory singleton
     static std::mutex s_mutex;

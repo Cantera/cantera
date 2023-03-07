@@ -25,7 +25,7 @@ class PDSS_IdealGas : public PDSS_Nondimensional
 {
 public:
     //! Default Constructor
-    PDSS_IdealGas();
+    PDSS_IdealGas() = default;
 
     //! @name Molar Thermodynamic Properties of the Species Standard State
     //! @{

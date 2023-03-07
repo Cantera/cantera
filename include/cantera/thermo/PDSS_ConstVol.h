@@ -23,7 +23,7 @@ class PDSS_ConstVol : public PDSS_Nondimensional
 {
 public:
     //! Default Constructor
-    PDSS_ConstVol();
+    PDSS_ConstVol() = default;
 
     //! @name Molar Thermodynamic Properties of the Species Standard State
     //! @{
