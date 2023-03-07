@@ -88,7 +88,7 @@ protected:
     std::vector<bool> m_do_electric_field;
 
     //! flag for importing transport of electron
-    bool m_import_electron_transport;
+    bool m_import_electron_transport = false;
 
     //! electrical properties
     vector_fp m_speciesCharge;
@@ -107,10 +107,10 @@ protected:
     vector_fp m_mobility;
 
     //! solving stage
-    size_t m_stage;
+    size_t m_stage = 1;
 
     //! index of electron
-    size_t m_kElectron;
+    size_t m_kElectron = npos;
 
     //! electric field
     double E(const double* x, size_t j) const {

@@ -76,12 +76,12 @@ protected:
     //! Work arrays of size #m_n used in solve().
     vector_fp m_x, m_stp, m_stp1;
 
-    int m_maxAge;
+    int m_maxAge = 5;
 
     //! number of variables
     size_t m_n;
 
-    doublereal m_elapsed;
+    double m_elapsed = 0.0;
 };
 }
 

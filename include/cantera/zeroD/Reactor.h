@@ -43,7 +43,7 @@ class AnyMap;
 class Reactor : public ReactorBase
 {
 public:
-    Reactor();
+    Reactor() = default;
 
     virtual std::string type() const {
         return "Reactor";
@@ -221,13 +221,13 @@ protected:
     virtual void getSurfaceInitialConditions(double* y);
 
     //! Pointer to the homogeneous Kinetics object that handles the reactions
-    Kinetics* m_kin;
+    Kinetics* m_kin = nullptr;
 
-    doublereal m_vdot; //!< net rate of volume change from moving walls [m^3/s]
+    double m_vdot = 0.0; //!< net rate of volume change from moving walls [m^3/s]
 
-    double m_Qdot; //!< net heat transfer into the reactor, through walls [W]
+    double m_Qdot = 0.0; //!< net heat transfer into the reactor, through walls [W]
 
-    doublereal m_mass; //!< total mass
+    double m_mass = 0.0; //!< total mass
     vector_fp m_work;
 
     //! Production rates of gas phase species on surfaces [kmol/s]
@@ -235,9 +235,9 @@ protected:
 
     vector_fp m_wdot; //!< Species net molar production rates
     vector_fp m_uk; //!< Species molar internal energies
-    bool m_chem;
-    bool m_energy;
-    size_t m_nv;
+    bool m_chem = false;
+    bool m_energy = true;
+    size_t m_nv = 0;
     size_t m_nv_surf; //!!< Number of variables associated with reactor surfaces
 
     vector_fp m_advancelimits; //!< Advance step limit

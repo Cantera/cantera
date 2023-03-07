@@ -11,13 +11,6 @@
 namespace Cantera
 {
 
-BlowersMaselData::BlowersMaselData()
-    : ready(false)
-    , density(NAN)
-    , m_state_mf_number(-1)
-{
-}
-
 void BlowersMaselData::update(double T) {
     warn_user("BlowersMaselData::update",
         "This method does not update the change of reaction enthalpy.");
@@ -44,7 +37,6 @@ bool BlowersMaselData::update(const ThermoPhase& phase, const Kinetics& kin)
 }
 
 BlowersMaselRate::BlowersMaselRate()
-    : m_deltaH_R(0.)
 {
     m_Ea_str = "Ea0";
     m_E4_str = "w";
@@ -52,7 +44,6 @@ BlowersMaselRate::BlowersMaselRate()
 
 BlowersMaselRate::BlowersMaselRate(double A, double b, double Ea0, double w)
     : ArrheniusBase(A, b, Ea0)
-    , m_deltaH_R(0.)
 {
     m_Ea_str = "Ea0";
     m_E4_str = "w";

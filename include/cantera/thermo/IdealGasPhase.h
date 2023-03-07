@@ -559,7 +559,7 @@ protected:
      *  Value of the reference state pressure in Pascals.
      *  All species must have the same reference state pressure.
      */
-    doublereal m_p0;
+    double m_p0 = -1.0;
 
     //! Temporary storage for dimensionless reference state enthalpies
     mutable vector_fp m_h0_RT;

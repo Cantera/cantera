@@ -36,7 +36,7 @@ class Func1;
 class CustomFunc1Rate final : public ReactionRate
 {
 public:
-    CustomFunc1Rate();
+    CustomFunc1Rate() = default;
     CustomFunc1Rate(const AnyMap& node, const UnitStack& rate_units);
 
     unique_ptr<MultiRateBase> newMultiRate() const override {

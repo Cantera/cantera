@@ -319,17 +319,17 @@ protected:
      *
      *  Defaults to cIonSolnType_SINGLEANION, so that LiKCl can be hardwired
      */
-    IonSolnType_enumType ionSolnType_;
+    IonSolnType_enumType ionSolnType_ = cIonSolnType_SINGLEANION;
 
     //! Number of neutral molecule species
     /*!
      * This is equal to the number of species in the neutralMoleculePhase_
      * ThermoPhase.
      */
-    size_t numNeutralMoleculeSpecies_;
+    size_t numNeutralMoleculeSpecies_ = 0;
 
     //! Index of special species
-    size_t indexSpecialSpecies_;
+    size_t indexSpecialSpecies_ = npos;
 
     //! Formula Matrix for composition of neutral molecules
     //! in terms of the molecules in this ThermoPhase

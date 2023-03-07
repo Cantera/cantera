@@ -19,11 +19,7 @@ using namespace std;
 namespace Cantera
 {
 
-IdealSolidSolnPhase::IdealSolidSolnPhase(const std::string& inputFile,
-        const std::string& id_) :
-    m_formGC(0),
-    m_Pref(OneAtm),
-    m_Pcurrent(OneAtm)
+IdealSolidSolnPhase::IdealSolidSolnPhase(const string& inputFile, const string& id_)
 {
     initThermoFile(inputFile, id_);
 }

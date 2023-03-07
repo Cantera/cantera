@@ -11,14 +11,6 @@ using namespace std;
 namespace Cantera
 {
 
-Func1::Func1() :
-    m_c(0.0),
-    m_f1(0),
-    m_f2(0),
-    m_parent(0)
-{
-}
-
 Func1::Func1(const Func1& right) :
     m_c(right.m_c),
     m_f1(right.m_f1),
@@ -216,8 +208,8 @@ Func1& Pow1::derivative() const
 /******************************************************************************/
 
 Tabulated1::Tabulated1(size_t n, const double* tvals, const double* fvals,
-                       const std::string& method) :
-    Func1() {
+                       const std::string& method)
+{
     m_tvec.resize(n);
     std::copy(tvals, tvals + n, m_tvec.begin());
     for (auto it = std::begin(m_tvec) + 1; it != std::end(m_tvec); it++) {

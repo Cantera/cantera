@@ -24,7 +24,7 @@ class ThermoPhase;
 class Species
 {
 public:
-    Species();
+    Species() = default;
 
     //! Constructor
     Species(const std::string& name, const compositionMap& comp,
@@ -33,7 +33,7 @@ public:
     //! Species objects are not copyable or assignable
     Species(const Species&) = delete;
     Species& operator=(const Species& other) = delete;
-    ~Species();
+    ~Species() = default;
 
     AnyMap parameters(const ThermoPhase* phase=0, bool withInput=true) const;
 
@@ -45,11 +45,11 @@ public:
     compositionMap composition;
 
     //! The electrical charge on the species, in units of the elementary charge.
-    double charge;
+    double charge = 0.0;
 
     //! The effective size of the species. Currently used only for surface
     //! species, where it represents the number of sites occupied.
-    double size;
+    double size = 1.0;
 
     //! The molecular weight [amu] of the species.
     /*!

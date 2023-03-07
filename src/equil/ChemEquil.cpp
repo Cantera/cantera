@@ -42,24 +42,9 @@ int _equilflag(const char* xy)
     return -1;
 }
 
-ChemEquil::ChemEquil() : m_skip(npos), m_elementTotalSum(1.0),
-    m_p0(OneAtm), m_eloc(npos),
-    m_elemFracCutoff(1.0E-100),
-    m_doResPerturb(false)
-{}
-
-ChemEquil::ChemEquil(ThermoPhase& s) :
-    m_skip(npos),
-    m_elementTotalSum(1.0),
-    m_p0(OneAtm), m_eloc(npos),
-    m_elemFracCutoff(1.0E-100),
-    m_doResPerturb(false)
+ChemEquil::ChemEquil(ThermoPhase& s)
 {
     initialize(s);
-}
-
-ChemEquil::~ChemEquil()
-{
 }
 
 void ChemEquil::initialize(ThermoPhase& s)

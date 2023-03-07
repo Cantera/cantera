@@ -535,8 +535,8 @@ protected:
     //! Retrieve meta data
     virtual void setMeta(const AnyMap& meta, int loglevel);
 
-    doublereal m_rdt;
-    size_t m_nv;
+    double m_rdt = 0.0;
+    size_t m_nv = 0;
     size_t m_points;
     vector_fp m_slast;
     vector_fp m_max;
@@ -544,27 +544,28 @@ protected:
     vector_fp m_rtol_ss, m_rtol_ts;
     vector_fp m_atol_ss, m_atol_ts;
     vector_fp m_z;
-    OneDim* m_container;
+    OneDim* m_container = nullptr;
     size_t m_index;
-    int m_type;
+    int m_type = 0;
 
     //! Starting location within the solution vector for unknowns that
     //! correspond to this domain
     /*!
      * Remember there may be multiple domains associated with this problem
      */
-    size_t m_iloc;
+    size_t m_iloc = 0;
 
-    size_t m_jstart;
+    size_t m_jstart = 0;
 
-    Domain1D* m_left, *m_right;
+    Domain1D* m_left = nullptr;
+    Domain1D* m_right = nullptr;
 
     //! Identity tag for the domain
     std::string m_id;
     std::unique_ptr<Refiner> m_refiner;
     std::vector<std::string> m_name;
-    int m_bw;
-    bool m_force_full_update;
+    int m_bw = -1;
+    bool m_force_full_update = false;
 
     //! Composite thermo/kinetics/transport handler
     shared_ptr<Solution> m_solution;

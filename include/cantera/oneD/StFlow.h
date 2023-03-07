@@ -414,7 +414,7 @@ protected:
     //             member data
     //---------------------------------------------------------
 
-    doublereal m_press; // pressure
+    double m_press = -1.0; // pressure
 
     // grid parameters
     vector_fp m_dz;
@@ -440,13 +440,13 @@ protected:
 
     size_t m_nsp;
 
-    IdealGasPhase* m_thermo;
-    Kinetics* m_kin;
-    Transport* m_trans;
+    IdealGasPhase* m_thermo = nullptr;
+    Kinetics* m_kin = nullptr;
+    Transport* m_trans = nullptr;
 
     // boundary emissivities for the radiation calculations
-    doublereal m_epsilon_left;
-    doublereal m_epsilon_right;
+    double m_epsilon_left = 0.0;
+    double m_epsilon_right = 0.0;
 
     //! Indices within the ThermoPhase of the radiating species. First index is
     //! for CO2, second is for H2O.
@@ -454,12 +454,12 @@ protected:
 
     // flags
     std::vector<bool> m_do_energy;
-    bool m_do_soret;
+    bool m_do_soret = false;
     std::vector<bool> m_do_species;
-    bool m_do_multicomponent;
+    bool m_do_multicomponent = false;
 
     //! flag for the radiative heat loss
-    bool m_do_radiation;
+    bool m_do_radiation = false;
 
     //! radiative heat loss vector
     vector_fp m_qdotRadiation;
@@ -472,8 +472,8 @@ protected:
     //! Index of species with a large mass fraction at each boundary, for which
     //! the mass fraction may be calculated as 1 minus the sum of the other mass
     //! fractions
-    size_t m_kExcessLeft;
-    size_t m_kExcessRight;
+    size_t m_kExcessLeft = 0;
+    size_t m_kExcessRight = 0;
 
     bool m_dovisc;
 
@@ -483,10 +483,10 @@ protected:
 
 public:
     //! Location of the point where temperature is fixed
-    double m_zfixed;
+    double m_zfixed = Undef;
 
     //! Temperature at the point used to fix the flame location
-    double m_tfixed;
+    double m_tfixed = -1.0;
 
 private:
     vector_fp m_ybar;

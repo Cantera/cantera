@@ -20,8 +20,7 @@ using namespace std;
 namespace Cantera
 {
 
-IdealSolnGasVPSS::IdealSolnGasVPSS(const std::string& infile, std::string id_) :
-    m_formGC(0)
+IdealSolnGasVPSS::IdealSolnGasVPSS(const string& infile, string id_)
 {
     initThermoFile(infile, id_);
 }

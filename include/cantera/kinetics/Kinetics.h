@@ -117,9 +117,9 @@ public:
     //! @{
 
     //! Default constructor.
-    Kinetics();
+    Kinetics() = default;
 
-    virtual ~Kinetics();
+    virtual ~Kinetics() = default;
 
     //! Kinetics objects are not copyable or assignable
     Kinetics(const Kinetics&) = delete;
@@ -1304,11 +1304,11 @@ protected:
     //! @}
 
     //! Boolean indicating whether Kinetics object is fully configured
-    bool m_ready;
+    bool m_ready = false;
 
     //! The number of species in all of the phases
     //! that participate in this kinetics mechanism.
-    size_t m_kk;
+    size_t m_kk = 0;
 
     //! Vector of perturbation factors for each reaction's rate of
     //! progress vector. It is initialized to one.
@@ -1352,17 +1352,17 @@ protected:
 
     //! Index in the list of phases of the one surface phase.
     //! @deprecated To be removed after Cantera 3.0.
-    size_t m_surfphase;
+    size_t m_surfphase = npos;
 
     //! Phase Index where reactions are assumed to be taking place
     /*!
      * We calculate this by assuming that the phase with the lowest
      * dimensionality is the phase where reactions are taking place.
      */
-    size_t m_rxnphase;
+    size_t m_rxnphase = npos;
 
     //! number of spatial dimensions of lowest-dimensional phase.
-    size_t m_mindim;
+    size_t m_mindim = 4;
 
     //! Forward rate constant for each reaction
     vector_fp m_rfn;
@@ -1389,10 +1389,10 @@ protected:
     vector_fp m_rbuf;
 
     //! See skipUndeclaredSpecies()
-    bool m_skipUndeclaredSpecies;
+    bool m_skipUndeclaredSpecies = false;
 
     //! See skipUndeclaredThirdBodies()
-    bool m_skipUndeclaredThirdBodies;
+    bool m_skipUndeclaredThirdBodies = false;
 
     //! reference to Solution
     std::weak_ptr<Solution> m_root;

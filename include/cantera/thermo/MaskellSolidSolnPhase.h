@@ -27,7 +27,7 @@ namespace Cantera
 class MaskellSolidSolnPhase : public VPStandardStateTP
 {
 public:
-    MaskellSolidSolnPhase();
+    MaskellSolidSolnPhase() = default;
 
     virtual std::string type() const {
         return "MaskellSolidsoln";
@@ -113,15 +113,15 @@ private:
      * pressure, but only of the mole fractions, we need to independently
      * specify the pressure.
      */
-    doublereal m_Pcurrent;
+    double m_Pcurrent = OneAtm;
 
     //! Value of the enthalpy change on mixing due to protons changing from type
     //! B to type A configurations.
-    doublereal h_mixing;
+    double h_mixing = 0.0;
 
     //! Index of the species whose mole fraction defines the extent of reduction r
-    int product_species_index;
-    int reactant_species_index;
+    int product_species_index = -1;
+    int reactant_species_index = -1;
 
     // Functions to calculate some of the pieces of the mixing terms.
     doublereal s() const;

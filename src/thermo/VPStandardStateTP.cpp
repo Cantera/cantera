@@ -20,17 +20,14 @@ using namespace std;
 namespace Cantera
 {
 
-VPStandardStateTP::VPStandardStateTP() :
-    m_Pcurrent(OneAtm),
-    m_minTemp(0.0),
-    m_maxTemp(BigNumber),
-    m_Tlast_ss(-1.0),
-    m_Plast_ss(-1.0)
+VPStandardStateTP::VPStandardStateTP()
 {
+    // Defined in .cpp to limit dependence on PDSS.h via vector<unique_ptr<PDSS>>
 }
 
 VPStandardStateTP::~VPStandardStateTP()
 {
+    // Defined in .cpp to limit dependence on PDSS.h
 }
 
 int VPStandardStateTP::standardStateConvention() const

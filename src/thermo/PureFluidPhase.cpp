@@ -20,13 +20,6 @@ using std::string;
 namespace Cantera
 {
 
-PureFluidPhase::PureFluidPhase() :
-    m_subflag(-1),
-    m_mw(-1.0),
-    m_verbose(false)
-{
-}
-
 void PureFluidPhase::initThermo()
 {
     if (m_input.hasKey("pure-fluid-name")) {

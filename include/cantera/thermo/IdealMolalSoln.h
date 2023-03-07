@@ -417,10 +417,10 @@ protected:
      * 0 = 'unity', 1 = 'species-molar-volume', 2 = 'solvent-molar-volume'. See
      * setStandardConcentrationModel().
      */
-    int m_formGC;
+    int m_formGC = 2;
 
     //! Cutoff type
-    int IMS_typeCutoff_;
+    int IMS_typeCutoff_ = 0;
 
 private:
     //! vector of size m_kk, used as a temporary holding area.
@@ -452,15 +452,15 @@ public:
 
     //! @name Parameters in the polyExp cutoff having to do with rate of exp decay
     //! @{
-    doublereal IMS_cCut_;
-    doublereal IMS_dfCut_;
-    doublereal IMS_efCut_;
-    doublereal IMS_afCut_;
-    doublereal IMS_bfCut_;
-    doublereal IMS_dgCut_;
-    doublereal IMS_egCut_;
-    doublereal IMS_agCut_;
-    doublereal IMS_bgCut_;
+    double IMS_cCut_;
+    double IMS_dfCut_ = 0.0;
+    double IMS_efCut_ = 0.0;
+    double IMS_afCut_ = 0.0;
+    double IMS_bfCut_ = 0.0;
+    double IMS_dgCut_ = 0.0;
+    double IMS_egCut_ = 0.0;
+    double IMS_agCut_ = 0.0;
+    double IMS_bgCut_ = 0.0;
     //! @}
 
 private:

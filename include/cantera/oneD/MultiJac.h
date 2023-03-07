@@ -74,12 +74,13 @@ protected:
     OneDim* m_resid;
 
     vector_fp m_r1;
-    doublereal m_rtol, m_atol;
-    doublereal m_elapsed;
+    double m_rtol = 1e-5;
+    double m_atol = sqrt(std::numeric_limits<double>::epsilon());
+    double m_elapsed = 0.0;
     vector_fp m_ssdiag;
     vector_int m_mask;
-    int m_nevals;
-    int m_age;
+    int m_nevals = 0;
+    int m_age = 100000;
     size_t m_size;
     size_t m_points;
 };

@@ -16,12 +16,6 @@
 
 namespace Cantera
 {
-MultiSpeciesThermo::MultiSpeciesThermo() :
-    m_tlow_max(0.0),
-    m_thigh_min(1.0E30),
-    m_p0(OneAtm)
-{
-}
 
 void MultiSpeciesThermo::install_STIT(size_t index,
                                         shared_ptr<SpeciesThermoInterpType> stit_ptr)

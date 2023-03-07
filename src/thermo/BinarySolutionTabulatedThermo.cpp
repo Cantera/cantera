@@ -21,7 +21,6 @@ namespace Cantera
 
 BinarySolutionTabulatedThermo::BinarySolutionTabulatedThermo(const std::string& inputFile,
                                                              const std::string& id_)
-    : m_kk_tab(npos)
 {
     initThermoFile(inputFile, id_);
 }

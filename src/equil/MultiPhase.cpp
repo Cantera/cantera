@@ -20,18 +20,6 @@ using namespace std;
 namespace Cantera
 {
 
-MultiPhase::MultiPhase() :
-    m_temp(298.15),
-    m_press(OneBar),
-    m_nel(0),
-    m_nsp(0),
-    m_init(false),
-    m_eloc(npos),
-    m_Tmin(1.0),
-    m_Tmax(100000.0)
-{
-}
-
 void MultiPhase::addPhases(MultiPhase& mix)
 {
     for (size_t n = 0; n < mix.nPhases(); n++) {

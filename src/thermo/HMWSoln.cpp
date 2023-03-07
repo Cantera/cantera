@@ -37,34 +37,11 @@ double crop_ln_gamma_k_max_default = 15.0;
 
 HMWSoln::~HMWSoln()
 {
+    // Defined in .cpp to limit dependence on WaterProps.h
 }
 
 HMWSoln::HMWSoln(const std::string& inputFile, const std::string& id_) :
-    m_formPitzerTemp(PITZER_TEMP_CONSTANT),
-    m_IionicMolality(0.0),
     m_maxIionicStrength(maxIionicStrength_default),
-    m_TempPitzerRef(298.15),
-    m_form_A_Debye(A_DEBYE_CONST),
-    m_A_Debye(A_Debye_default),
-    m_waterSS(0),
-    m_molalitiesAreCropped(false),
-    IMS_X_o_cutoff_(0.2),
-    IMS_cCut_(0.05),
-    IMS_slopegCut_(0.0),
-    IMS_dfCut_(0.0),
-    IMS_efCut_(0.0),
-    IMS_afCut_(0.0),
-    IMS_bfCut_(0.0),
-    IMS_dgCut_(0.0),
-    IMS_egCut_(0.0),
-    IMS_agCut_(0.0),
-    IMS_bgCut_(0.0),
-    MC_X_o_cutoff_(0.0),
-    MC_dpCut_(0.0),
-    MC_epCut_(0.0),
-    MC_apCut_(0.0),
-    MC_bpCut_(0.0),
-    MC_cpCut_(0.0),
     CROP_ln_gamma_o_min(crop_ln_gamma_o_min_default),
     CROP_ln_gamma_o_max(crop_ln_gamma_o_max_default),
     CROP_ln_gamma_k_min(crop_ln_gamma_k_min_default),

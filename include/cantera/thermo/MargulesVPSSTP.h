@@ -415,7 +415,7 @@ private:
 
 protected:
     //! number of binary interaction expressions
-    size_t numBinaryInteractions_;
+    size_t numBinaryInteractions_ = 0;
 
     //! Enthalpy term for the binary mole fraction interaction of the
     //! excess Gibbs free energy expression
@@ -467,13 +467,13 @@ protected:
     /*!
      *  Currently there is only one form.
      */
-    int formMargules_;
+    int formMargules_ = 0;
 
     //! form of the temperature dependence of the Margules interaction expression
     /*!
      *  Currently there is only one form -> constant wrt temperature.
      */
-    int formTempModel_;
+    int formTempModel_ = 0;
 };
 
 }

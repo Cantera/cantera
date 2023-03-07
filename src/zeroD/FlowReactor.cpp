@@ -13,18 +13,6 @@ using namespace std;
 namespace Cantera
 {
 
-FlowReactor::FlowReactor() :
-    m_speed(0.0),
-    m_dist(0.0),
-    m_T(0.0),
-    m_fctr(1.0e10),
-    m_rho0(0.0),
-    m_speed0(0.0),
-    m_P0(0.0),
-    m_h0(0.0)
-{
-}
-
 void FlowReactor::getState(double* y)
 {
     if (m_thermo == 0) {

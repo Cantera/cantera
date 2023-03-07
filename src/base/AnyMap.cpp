@@ -562,11 +562,6 @@ std::unordered_map<std::string, std::vector<std::string>> AnyMap::s_tailFields;
 
 // Methods of class AnyBase
 
-AnyBase::AnyBase()
-    : m_line(-1)
-    , m_column(0)
-{}
-
 void AnyBase::setLoc(int line, int column)
 {
     m_line = line;

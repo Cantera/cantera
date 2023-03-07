@@ -243,7 +243,7 @@ private:
     vector_fp m_dk;
 
     //! temperature
-    doublereal m_temp;
+    double m_temp = -1.0;
 
     //! Multicomponent diffusion coefficients. @see eval_H_matrix()
     DenseMatrix m_multidiff;
@@ -255,28 +255,28 @@ private:
     vector_fp m_spwork2;
 
     //! Pressure Gradient
-    doublereal m_gradP;
+    double m_gradP = 0.0;
 
     //! Update-to-date variable for Knudsen diffusion coefficients
-    bool m_knudsen_ok;
+    bool m_knudsen_ok = false;
 
     //! Update-to-date variable for Binary diffusion coefficients
-    bool m_bulk_ok;
+    bool m_bulk_ok = false;
 
     //! Porosity
-    doublereal m_porosity;
+    double m_porosity = 0.0;
 
     //! Tortuosity
-    doublereal m_tortuosity;
+    double m_tortuosity = 1.0;
 
     //! Pore radius (meter)
-    doublereal m_pore_radius;
+    double m_pore_radius = 0.0;
 
     //! Particle diameter
     /*!
      * The medium is assumed to consist of particles of size m_diam. units =  m
      */
-    doublereal m_diam;
+    double m_diam = 0.0;
 
     //! Permeability of the media
     /*!
@@ -291,7 +291,7 @@ private:
      *
      * units are m2
      */
-    doublereal m_perm;
+    double m_perm = -1.0;
 
     //! Pointer to the transport object for the gas phase
     std::unique_ptr<Transport> m_gastran;

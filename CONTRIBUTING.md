@@ -97,6 +97,8 @@
 * For any new code, do *not* use the `doublereal` and `integer` typedefs for the
   basic types `double` and `int`, but also do not go out of your way to change
   uses of these in otherwise unmodified code.
+* Initialize member variables with their declarations, when possible, rather than using
+  constructor-based initialization.
 
 ## Python
 

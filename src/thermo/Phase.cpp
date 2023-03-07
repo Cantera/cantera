@@ -17,24 +17,6 @@ using namespace std;
 namespace Cantera
 {
 
-Phase::Phase() :
-    m_kk(0),
-    m_ndim(3),
-    m_undefinedElementBehavior(UndefElement::add),
-    m_caseSensitiveSpecies(false),
-    m_temp(0.001),
-    m_dens(0.001),
-    m_mmw(0.0),
-    m_stateNum(-1),
-    m_mm(0),
-    m_elem_type(0)
-{
-}
-
-Phase::~Phase()
-{
-}
-
 std::string Phase::name() const
 {
     return m_name;

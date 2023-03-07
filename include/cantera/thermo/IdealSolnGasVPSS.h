@@ -144,7 +144,7 @@ protected:
      *    - 1 1/V_k
      *    - 2 1/V_0
      */
-    int m_formGC;
+    int m_formGC = 0;
 
     //! Temporary storage - length = m_kk.
     vector_fp m_pp;

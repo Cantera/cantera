@@ -268,16 +268,16 @@ protected:
     vector_fp ludata;
 
     //! Number of rows and columns of the matrix
-    size_t m_n;
+    size_t m_n = 0;
 
     //! Number of subdiagonals of the matrix
-    size_t m_kl;
+    size_t m_kl = 0;
 
     //! Number of super diagonals of the matrix
-    size_t m_ku;
+    size_t m_ku = 0;
 
     //! value of zero
-    doublereal m_zero;
+    double m_zero = 0;
 
     struct PivData; // pImpl wrapper class
 
@@ -294,7 +294,7 @@ protected:
     //! Extra dp work array needed - size = 3n
     vector_fp work_;
 
-    int m_info;
+    int m_info = 0;
 };
 
 //! Utility routine to print out the matrix

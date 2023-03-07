@@ -115,8 +115,6 @@ Units::Units(double factor, double mass, double length, double time,
     , m_temperature_dim(temperature)
     , m_current_dim(current)
     , m_quantity_dim(quantity)
-    , m_pressure_dim(0)
-    , m_energy_dim(0)
 {
     if (mass != 0 && length == -mass && time == -2 * mass
         && temperature == 0 && current == 0 && quantity == 0) {
@@ -131,15 +129,6 @@ Units::Units(double factor, double mass, double length, double time,
 }
 
 Units::Units(const std::string& name, bool force_unity)
-    : m_factor(1.0)
-    , m_mass_dim(0)
-    , m_length_dim(0)
-    , m_time_dim(0)
-    , m_temperature_dim(0)
-    , m_current_dim(0)
-    , m_quantity_dim(0)
-    , m_pressure_dim(0)
-    , m_energy_dim(0)
 {
     size_t start = 0;
 
@@ -402,14 +391,6 @@ Units UnitStack::product() const
 }
 
 UnitSystem::UnitSystem(std::initializer_list<std::string> units)
-    : m_mass_factor(1.0)
-    , m_length_factor(1.0)
-    , m_time_factor(1.0)
-    , m_pressure_factor(1.0)
-    , m_energy_factor(1.0)
-    , m_activation_energy_factor(1.0)
-    , m_quantity_factor(1.0)
-    , m_explicit_activation_energy(false)
 {
     setDefaults(units);
 }

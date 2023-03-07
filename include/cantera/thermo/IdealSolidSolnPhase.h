@@ -575,7 +575,7 @@ protected:
      * 0 = 'unity', 1 = 'species-molar-volume', 2 = 'solvent-molar-volume'. See
      * setStandardConcentrationModel().
      */
-    int m_formGC;
+    int m_formGC = 0;
 
     /**
      * Value of the reference pressure for all species in this phase. The T
@@ -583,7 +583,7 @@ protected:
      * because this is a single value, all species are required to have the same
      * reference pressure.
      */
-    doublereal m_Pref;
+    double m_Pref = OneAtm;
 
     /**
      * m_Pcurrent = The current pressure
@@ -592,7 +592,7 @@ protected:
      * The density variable which is inherited as part of the State class,
      * m_dens, is always kept current whenever T, P, or X[] change.
      */
-    doublereal m_Pcurrent;
+    double m_Pcurrent = OneAtm;
 
     //! Vector of molar volumes for each species in the solution
     /**

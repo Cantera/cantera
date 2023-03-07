@@ -325,47 +325,48 @@ public:
 protected:
     void evalSSJacobian(doublereal* x, doublereal* xnew);
 
-    doublereal m_tmin; //!< minimum timestep size
-    doublereal m_tmax; //!< maximum timestep size
+    double m_tmin = 1e-16; //!< minimum timestep size
+    double m_tmax = 1e+08; //!< maximum timestep size
 
     //! factor time step is multiplied by  if time stepping fails ( < 1 )
-    doublereal m_tfactor;
+    double m_tfactor = 0.5;
 
     std::unique_ptr<MultiJac> m_jac; //!< Jacobian evaluator
     std::unique_ptr<MultiNewton> m_newt; //!< Newton iterator
-    doublereal m_rdt; //!< reciprocal of time step
-    bool m_jac_ok; //!< if true, Jacobian is current
+    double m_rdt = 0.0; //!< reciprocal of time step
+    bool m_jac_ok = false; //!< if true, Jacobian is current
 
-    size_t m_bw; //!< Jacobian bandwidth
-    size_t m_size; //!< solution vector size
+    size_t m_bw = 0; //!< Jacobian bandwidth
+    size_t m_size = 0; //!< solution vector size
 
     std::vector<Domain1D*> m_dom, m_connect, m_bulk;
 
-    bool m_init;
+    bool m_init = false;
     std::vector<size_t> m_nvars;
     std::vector<size_t> m_loc;
     vector_int m_mask;
-    size_t m_pts;
+    size_t m_pts = 0;
 
     // options
-    int m_ss_jac_age, m_ts_jac_age;
+    int m_ss_jac_age = 20;
+    int m_ts_jac_age = 20;
 
     //! Function called at the start of every call to #eval.
-    Func1* m_interrupt;
+    Func1* m_interrupt = nullptr;
 
     //! User-supplied function called after each successful timestep.
-    Func1* m_time_step_callback;
+    Func1* m_time_step_callback = nullptr;
 
     //! Number of time steps taken in the current call to solve()
-    int m_nsteps;
+    int m_nsteps = 0;
 
     //! Maximum number of timesteps allowed per call to solve()
-    int m_nsteps_max;
+    int m_nsteps_max = 500;
 
 private:
     // statistics
-    int m_nevals;
-    doublereal m_evaltime;
+    int m_nevals = 0;
+    double m_evaltime = 0;
     std::vector<size_t> m_gridpts;
     vector_int m_jacEvals;
     vector_fp m_jacElapsed;

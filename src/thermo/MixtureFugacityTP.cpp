@@ -16,12 +16,6 @@ using namespace std;
 namespace Cantera
 {
 
-MixtureFugacityTP::MixtureFugacityTP() :
-    iState_(FLUID_GAS),
-    forcedState_(FLUID_UNDEFINED)
-{
-}
-
 int MixtureFugacityTP::standardStateConvention() const
 {
     return cSS_CONVENTION_TEMPERATURE;

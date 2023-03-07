@@ -238,7 +238,7 @@ protected:
     void diff(const vector_fp& inputData, vector_fp& derivedData) const;
 
     //! Current tabulated species index
-    size_t m_kk_tab;
+    size_t m_kk_tab = npos;
 
     //! Tabulated contribution to h0[m_kk_tab] at the current composition
     mutable double m_h0_tab;

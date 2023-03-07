@@ -27,17 +27,16 @@ class SpeciesNode
 {
 public:
     //! Default constructor
-    SpeciesNode() : number(npos), value(0.0),
-        visible(false), m_in(0.0), m_out(0.0) {}
+    SpeciesNode() = default;
 
     //! Destructor
-    virtual ~SpeciesNode() {}
+    virtual ~SpeciesNode() = default;
 
     // public attributes
-    size_t number; //! < Species number
-    std::string name; //! < Label on graph
-    doublereal value; //! < May be used to set node appearance
-    bool visible; //! < Visible on graph;
+    size_t number = npos; //!< Species number
+    string name; //!< Label on graph
+    double value = 0.0; //!< May be used to set node appearance
+    bool visible = false; //!< Visible on graph;
 
     //! @name References
     //!
@@ -73,8 +72,8 @@ public:
     void printPaths();
 
 protected:
-    doublereal m_in;
-    doublereal m_out;
+    double m_in = 0.0;
+    double m_out = 0.0;
     std::vector<Path*> m_paths;
 };
 
@@ -151,7 +150,7 @@ protected:
     std::map<std::string, doublereal> m_label;
     SpeciesNode* m_a, *m_b;
     rxn_path_map m_rxn;
-    doublereal m_total;
+    double m_total = 0.0;
 };
 
 
@@ -161,7 +160,7 @@ protected:
 class ReactionPathDiagram
 {
 public:
-    ReactionPathDiagram();
+    ReactionPathDiagram() = default;
 
     /**
      * Destructor. Deletes all nodes and paths in the diagram.
@@ -260,23 +259,28 @@ public:
     }
     // public attributes
 
-    std::string title;
-    std::string bold_color;
-    std::string normal_color;
-    std::string dashed_color;
-    std::string element;
-    std::string m_font;
-    doublereal threshold, bold_min, dashed_max, label_min;
-    doublereal x_size, y_size;
-    std::string name, dot_options;
-    flow_t flow_type;
-    doublereal scale;
-    doublereal arrow_width;
-    bool show_details;
-    doublereal arrow_hue;
+    string title;
+    string bold_color = "blue";
+    string normal_color = "steelblue";
+    string dashed_color = "gray";
+    string element;
+    string m_font = "Helvetica";
+    double threshold = 0.005;
+    double bold_min = 0.2;
+    double dashed_max = 0.0;
+    double label_min = 0.0;
+    double x_size = -1.0;
+    double y_size = -1.0;
+    string name = "reaction_paths";
+    string dot_options = "center=1;";
+    flow_t flow_type = NetFlow;
+    double scale = -1;
+    double arrow_width = -5.0;
+    bool show_details = false;
+    double arrow_hue = 0.6666;
 
 protected:
-    doublereal m_flxmax;
+    double m_flxmax = 0.0;
     std::map<size_t, std::map<size_t, Path*> > m_paths;
 
     //! map of species index to SpeciesNode
@@ -288,15 +292,15 @@ protected:
 
     //! Indices of reactions that are included in the diagram
     set<size_t> m_rxns;
-    size_t m_local;
+    size_t m_local = npos;
 };
 
 
 class ReactionPathBuilder
 {
 public:
-    ReactionPathBuilder() {}
-    virtual ~ReactionPathBuilder() {}
+    ReactionPathBuilder() = default;
+    virtual ~ReactionPathBuilder() = default;
 
     int init(std::ostream& logfile, Kinetics& s);
 

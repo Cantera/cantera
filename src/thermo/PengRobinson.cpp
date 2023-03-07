@@ -19,15 +19,8 @@ const double PengRobinson::omega_a = 4.5723552892138218E-01;
 const double PengRobinson::omega_b = 7.77960739038885E-02;
 const double PengRobinson::omega_vc = 3.07401308698703833E-01;
 
-PengRobinson::PengRobinson(const std::string& infile, const std::string& id_) :
-    m_b(0.0),
-    m_a(0.0),
-    m_aAlpha_mix(0.0),
-    m_NSolns(0),
-    m_dpdV(0.0),
-    m_dpdT(0.0)
+PengRobinson::PengRobinson(const string& infile, const string& id_)
 {
-    std::fill_n(m_Vroot, 3, 0.0);
     initThermoFile(infile, id_);
 }
 

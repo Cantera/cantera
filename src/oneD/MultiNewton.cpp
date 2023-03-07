@@ -132,10 +132,8 @@ const size_t NDAMP = 7;
 // ---------------- MultiNewton methods ----------------
 
 MultiNewton::MultiNewton(int sz)
-    : m_maxAge(5)
+    : m_n(sz)
 {
-    m_n = sz;
-    m_elapsed = 0.0;
 }
 
 void MultiNewton::resize(size_t sz)

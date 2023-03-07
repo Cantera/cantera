@@ -25,10 +25,6 @@ MultiPhaseEquil::MultiPhaseEquil(MultiPhase* mix, bool start, int loglevel) : m_
     m_press = mix->pressure();
     m_temp = mix->temperature();
 
-    m_force = true;
-    m_nel = 0;
-    m_nsp = 0;
-    m_eloc = 1000;
     m_incl_species.resize(m_nsp_mix,1);
     m_incl_element.resize(m_nel_mix,1);
     for (size_t m = 0; m < m_nel_mix; m++) {

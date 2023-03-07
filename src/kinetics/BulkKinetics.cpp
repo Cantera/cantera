@@ -8,12 +8,6 @@
 namespace Cantera
 {
 
-BulkKinetics::BulkKinetics()
-    : m_ROP_ok(false)
-    , m_temp(0.0)
-{
-}
-
 BulkKinetics::BulkKinetics(ThermoPhase* thermo) : BulkKinetics()
 {
     warn_deprecated("BulkKinetics::BulkKinetics(ThermoPhase*)",

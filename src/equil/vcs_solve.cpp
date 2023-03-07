@@ -44,27 +44,12 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
     m_printLvl(printLvl),
     m_mix(mphase),
     m_nsp(mphase->nSpecies()),
-    m_nelem(0),
-    m_numComponents(0),
-    m_numRxnTot(0),
     m_numSpeciesRdc(mphase->nSpecies()),
-    m_numRxnRdc(0),
-    m_numRxnMinorZeroed(0),
     m_numPhases(mphase->nPhases()),
-    m_doEstimateEquil(-1),
-    m_totalMolNum(0.0),
     m_temperature(mphase->temperature()),
     m_pressurePA(mphase->pressure()),
-    m_tolmaj(1.0E-8),
-    m_tolmin(1.0E-6),
-    m_tolmaj2(1.0E-10),
-    m_tolmin2(1.0E-8),
-    m_useActCoeffJac(0),
     m_totalVol(mphase->volume()),
-    m_Faraday_dim(Faraday / (m_temperature * GasConstant)),
-    m_VCount(0),
-    m_debug_print_lvl(0),
-    m_timing_print_lvl(1)
+    m_Faraday_dim(Faraday / (m_temperature * GasConstant))
 {
     m_speciesThermoList.resize(m_nsp);
     for (size_t kspec = 0; kspec < m_nsp; kspec++) {

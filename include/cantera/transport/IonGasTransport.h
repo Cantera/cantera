@@ -49,7 +49,7 @@ namespace Cantera
 class IonGasTransport : public MixTransport
 {
 public:
-    IonGasTransport();
+    IonGasTransport() = default;
 
     virtual std::string transportModel() const {
         return "Ion";
@@ -107,7 +107,7 @@ protected:
     std::vector<size_t> m_kNeutral;
 
     //! index of electron
-    size_t m_kElectron;
+    size_t m_kElectron = npos;
 
     //! parameter of omega11 of n64
     DenseMatrix m_gamma;

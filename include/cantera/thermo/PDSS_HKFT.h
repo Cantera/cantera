@@ -258,12 +258,12 @@ private:
      *  derived from the equation of state for water.
      *  This object doesn't own the object. Just a shallow pointer.
      */
-    PDSS_Water* m_waterSS;
+    PDSS_Water* m_waterSS = nullptr;
 
     UnitSystem m_units;
 
     //! density of standard-state water. internal temporary variable
-    mutable doublereal m_densWaterSS;
+    mutable double m_densWaterSS = -1.0;
 
     //!  Pointer to the water property calculator
     std::unique_ptr<WaterProps> m_waterProps;
@@ -275,7 +275,7 @@ private:
      *  This is the delta G for the formation reaction of the
      *  ion from elements in their stable state at Tr, Pr.
      */
-    doublereal m_deltaG_formation_tr_pr;
+    double m_deltaG_formation_tr_pr = NAN;
 
     //!  Input value of deltaH of Formation at Tr and Pr    (cal gmol-1)
     /*!
@@ -284,7 +284,7 @@ private:
      *  This is the delta H for the formation reaction of the
      *  ion from elements in their stable state at Tr, Pr.
      */
-    doublereal m_deltaH_formation_tr_pr;
+    double m_deltaH_formation_tr_pr = NAN;
 
     //! Value of the Absolute Gibbs Free Energy NIST scale at T_r and P_r
     /*!
@@ -293,49 +293,49 @@ private:
      *
      *  J kmol-1
      */
-    doublereal m_Mu0_tr_pr;
+    double m_Mu0_tr_pr = 0.0;
 
     //! Input value of S_j at Tr and Pr    (cal gmol-1 K-1)
     /*!
      *  Tr = 298.15   Pr = 1 atm
      */
-    doublereal m_Entrop_tr_pr;
+    double m_Entrop_tr_pr = NAN;
 
     //! Input a1 coefficient (cal gmol-1 bar-1)
-    doublereal m_a1;
+    double m_a1 = 0.0;
 
     //!  Input a2 coefficient (cal gmol-1)
-    doublereal m_a2;
+    double m_a2 = 0.0;
 
     //!  Input a3 coefficient (cal K gmol-1 bar-1)
-    doublereal m_a3;
+    double m_a3 = 0.0;
 
     //!  Input a4 coefficient (cal K gmol-1)
-    doublereal m_a4;
+    double m_a4 = 0.0;
 
     //!  Input c1 coefficient (cal gmol-1 K-1)
-    doublereal m_c1;
+    double m_c1 = 0.0;
 
     //!  Input c2 coefficient (cal K gmol-1)
-    doublereal m_c2;
+    double m_c2 = 0.0;
 
     //! Input  omega_pr_tr coefficient(cal gmol-1)
-    doublereal m_omega_pr_tr;
+    double m_omega_pr_tr = 0.0;
 
     //! y = dZdT = 1/(esp*esp) desp/dT at 298.15 and 1 bar
-    doublereal m_Y_pr_tr;
+    double m_Y_pr_tr = 0.0;
 
     //! Z = -1 / relEpsilon at 298.15 and 1 bar
-    doublereal m_Z_pr_tr;
+    double m_Z_pr_tr = 0.0;
 
     //! Reference pressure is 1 atm in units of bar= 1.0132
-    doublereal m_presR_bar;
+    double m_presR_bar = OneAtm * 1.0E-5;
 
     //! small value that is not quite zero
-    doublereal m_domega_jdT_prtr;
+    double m_domega_jdT_prtr = 0.0;
 
     //! Charge of the ion
-    doublereal m_charge_j;
+    double m_charge_j = 0.0;
 
     //!  Static variable determining error exiting
     /*!

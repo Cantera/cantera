@@ -78,7 +78,7 @@ public:
     //! @{
 
     //! Constructor.
-    MixtureFugacityTP();
+    MixtureFugacityTP() = default;
 
     //! @}
     //! @name  Utilities
@@ -557,10 +557,10 @@ protected:
      *  - FLUID_LIQUID
      *  - FLUID_SUPERCRIT
      */
-    int iState_;
+    int iState_ = FLUID_GAS;
 
     //! Force the system to be on a particular side of the spinodal curve
-    int forcedState_;
+    int forcedState_ = FLUID_UNDEFINED;
 
     //! Temporary storage for dimensionless reference state enthalpies
     mutable vector_fp m_h0_RT;

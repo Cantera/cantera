@@ -188,13 +188,13 @@ protected:
     doublereal DELTAp[16];
 
     //! Last tau that was used to calculate polynomials
-    doublereal TAUsave;
+    double TAUsave = -1.0;
 
     //! sqrt of TAU
-    doublereal TAUsqrt;
+    double TAUsqrt = -1.0;
 
     //! Last delta that was used to calculate polynomials
-    doublereal DELTAsave;
+    double DELTAsave = -1.0;
 };
 
 } // namespace Cantera

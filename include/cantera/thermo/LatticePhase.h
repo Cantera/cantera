@@ -563,7 +563,7 @@ protected:
     virtual void compositionChanged();
 
     //! Reference state pressure
-    doublereal m_Pref;
+    double m_Pref = OneAtm;
 
     //! The current pressure
     /*!
@@ -572,7 +572,7 @@ protected:
      * variable which is inherited as part of the State class, m_dens, is always
      * kept current whenever T, P, or X[] change.
      */
-    doublereal m_Pcurrent;
+    double m_Pcurrent = OneAtm;
 
     //! Reference state enthalpies / RT
     mutable vector_fp m_h0_RT;
@@ -599,7 +599,7 @@ protected:
      *
      *  units are kmol m-3
      */
-    doublereal m_site_density;
+    double m_site_density = 0.0;
 
 private:
     //! Update the species reference state thermodynamic functions

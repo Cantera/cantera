@@ -22,7 +22,7 @@ namespace Cantera
  */
 struct ChebyshevData : public ReactionData
 {
-    ChebyshevData() : pressure(NAN), log10P(0.), m_pressure_buf(-1.) {}
+    ChebyshevData() = default;
 
     virtual void update(double T) override;
 
@@ -50,11 +50,11 @@ struct ChebyshevData : public ReactionData
         pressure = NAN;
     }
 
-    double pressure; //!< pressure
-    double log10P; //!< base 10 logarithm of pressure
+    double pressure = NAN; //!< pressure
+    double log10P = 0.0; //!< base 10 logarithm of pressure
 
 protected:
-    double m_pressure_buf; //!< buffered pressure
+    double m_pressure_buf = -1.0; //!< buffered pressure
 };
 
 //! Pressure-dependent rate expression where the rate coefficient is expressed
@@ -90,7 +90,7 @@ class ChebyshevRate final : public ReactionRate
 {
 public:
     //! Default constructor.
-    ChebyshevRate() : m_log10P(NAN), m_rate_units(Units(0.)) {}
+    ChebyshevRate() = default;
 
     //! Constructor directly from coefficient array
     /*!
@@ -225,7 +225,7 @@ public:
     void setData(const Array2D& coeffs);
 
 protected:
-    double m_log10P; //!< value detecting updates
+    double m_log10P = NAN; //!< value detecting updates
     double Tmin_, Tmax_; //!< valid temperature range
     double Pmin_, Pmax_; //!< valid pressure range
     double TrNum_, TrDen_; //!< terms appearing in the reduced temperature
@@ -234,7 +234,7 @@ protected:
     Array2D m_coeffs; //!<< coefficient array
     vector_fp dotProd_; //!< dot product of coeffs with the reduced pressure polynomial
 
-    Units m_rate_units; //!< Reaction rate units
+    Units m_rate_units = Units(0.); //!< Reaction rate units
 };
 
 }

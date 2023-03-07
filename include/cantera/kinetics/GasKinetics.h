@@ -146,9 +146,9 @@ protected:
     //! @name Reaction rate data
     //! @{
 
-    doublereal m_logStandConc;
+    double m_logStandConc = 0.0;
 
-    doublereal m_pres; //!< Last pressure at which rates were evaluated
+    double m_pres = 0.0; //!< Last pressure at which rates were evaluated
 
     //! @}
 

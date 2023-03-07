@@ -18,7 +18,7 @@ namespace Cantera
  */
 struct BlowersMaselData : public ReactionData
 {
-    BlowersMaselData();
+    BlowersMaselData() = default;
 
     virtual void update(double T) override;
     virtual bool update(const ThermoPhase& phase, const Kinetics& kin) override;
@@ -29,12 +29,12 @@ struct BlowersMaselData : public ReactionData
         ready = true;
     }
 
-    bool ready; //!< boolean indicating whether vectors are accessible
-    double density; //!< used to determine if updates are needed
+    bool ready = false; //!< boolean indicating whether vectors are accessible
+    double density = NAN; //!< used to determine if updates are needed
     vector_fp partialMolarEnthalpies; //!< partial molar enthalpies
 
 protected:
-    int m_state_mf_number; //!< integer that is incremented when composition changes
+    int m_state_mf_number = -1; //!< integer that is incremented when composition changes
 };
 
 
@@ -180,7 +180,7 @@ protected:
     //! Pairs of species indices and multipliers to calculate enthalpy change
     std::vector<std::pair<size_t, double>> m_stoich_coeffs;
 
-    double m_deltaH_R; //!< enthalpy change of reaction (in temperature units)
+    double m_deltaH_R = 0.0; //!< enthalpy change of reaction (in temperature units)
 };
 
 }

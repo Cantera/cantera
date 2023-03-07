@@ -4,11 +4,6 @@
 namespace Cantera
 {
 
-FuncEval::FuncEval()
-    : m_suppress_errors(false)
-{
-}
-
 int FuncEval::eval_nothrow(double t, double* y, double* ydot)
 {
     try {

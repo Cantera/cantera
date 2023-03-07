@@ -20,8 +20,8 @@ class SurfPhase;
 class ReactorSurface
 {
 public:
-    ReactorSurface();
-    virtual ~ReactorSurface() {}
+    ReactorSurface() = default;
+    virtual ~ReactorSurface() = default;
     ReactorSurface(const ReactorSurface&) = delete;
     ReactorSurface& operator=(const ReactorSurface&) = delete;
 
@@ -87,11 +87,11 @@ public:
     void resetSensitivityParameters();
 
 protected:
-    double m_area;
+    double m_area = 1.0;
 
-    SurfPhase* m_thermo;
-    Kinetics* m_kinetics;
-    ReactorBase* m_reactor;
+    SurfPhase* m_thermo = nullptr;
+    Kinetics* m_kinetics = nullptr;
+    ReactorBase* m_reactor = nullptr;
     vector_fp m_cov;
     std::vector<SensitivityParameter> m_params;
 };

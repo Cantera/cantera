@@ -31,7 +31,7 @@ class PureFluidPhase : public ThermoPhase
 {
 public:
     //! Empty Base Constructor
-    PureFluidPhase();
+    PureFluidPhase() = default;
 
     virtual std::string type() const {
         return "PureFluid";
@@ -211,17 +211,17 @@ private:
      * The tpx package uses an int to indicate what fluid is being sought. Used
      * only if #m_tpx_name is not set.
      */
-    int m_subflag;
+    int m_subflag = -1;
 
     //! Name for this substance used by the TPX package. If this is not set,
     //! #m_subflag is used instead.
     std::string m_tpx_name;
 
     //! Molecular weight of the substance (kg kmol-1)
-    doublereal m_mw;
+    double m_mw = -1.0;
 
     //! flag to turn on some printing.
-    bool m_verbose;
+    bool m_verbose = false;
 };
 
 }

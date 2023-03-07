@@ -201,24 +201,24 @@ private:
     std::unique_ptr<WaterProps> m_waterProps;
 
     //! Molecular weight of Water -> Cantera assumption
-    doublereal m_mw;
+    double m_mw = 0.0;
 
     //! Offset constants used to obtain consistency with the NIST database.
     /*!
      *  This is added to all internal energy and enthalpy results.
      *  units = J kmol-1.
      */
-    doublereal EW_Offset;
+    double EW_Offset = 0.0;
 
     //! Offset constant used to obtain consistency with NIST convention.
     /*!
      *  This is added to all internal entropy results.
      *  units = J kmol-1 K-1.
      */
-    doublereal SW_Offset;
+    double SW_Offset = 0.0;
 
     //! Boolean is true if object has been properly initialized for calculation
-    bool m_ready;
+    bool m_ready = false;
 
     /**
      *  Since this phase represents a liquid (or supercritical) phase, it is an
@@ -226,7 +226,7 @@ private:
      *  a gas-phase answer is allowed. This is used to check the thermodynamic
      *  consistency with ideal-gas thermo functions for example.
      */
-    bool m_allowGasPhase;
+    bool m_allowGasPhase = false;
 };
 
 }

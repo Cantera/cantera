@@ -11,13 +11,6 @@
 namespace Cantera
 {
 
-SpeciesThermoInterpType::SpeciesThermoInterpType() :
-    m_lowT(0.0),
-    m_highT(0.0),
-    m_Pref(0.0)
-{
-}
-
 SpeciesThermoInterpType::SpeciesThermoInterpType(double tlow,
                                                  double thigh,
                                                  double pref) :

@@ -13,12 +13,7 @@
 namespace Cantera
 {
 PDSS_Water::PDSS_Water() :
-    m_waterProps(&m_sub),
-    m_dens(1000.0),
-    m_iState(WATER_LIQUID),
-    EW_Offset(0.0),
-    SW_Offset(0.0),
-    m_allowGasPhase(false)
+    m_waterProps(&m_sub)
 {
     m_minTemp = 200.;
     m_maxTemp = 10000.;

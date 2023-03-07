@@ -11,10 +11,6 @@
 namespace Cantera
 {
 
-FlowDevice::FlowDevice() : m_mdot(Undef), m_pfunc(0), m_tfunc(0),
-                           m_coeff(1.0), m_nspin(0), m_nspout(0),
-                           m_in(0), m_out(0) {}
-
 bool FlowDevice::install(ReactorBase& in, ReactorBase& out)
 {
     if (m_in || m_out) {

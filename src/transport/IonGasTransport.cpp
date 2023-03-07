@@ -13,10 +13,6 @@
 
 namespace Cantera
 {
-IonGasTransport::IonGasTransport() :
-    m_kElectron(npos)
-{
-}
 
 void IonGasTransport::init(ThermoPhase* thermo, int mode, int log_level)
 {

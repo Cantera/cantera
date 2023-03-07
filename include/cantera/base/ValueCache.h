@@ -30,13 +30,7 @@ namespace Cantera
  */
 template <class T>
 struct CachedValue {
-    CachedValue() :
-        state1(std::numeric_limits<double>::quiet_NaN()),
-        state2(std::numeric_limits<double>::quiet_NaN()),
-        stateNum(std::numeric_limits<int>::min()),
-        value(T())
-    {
-    }
+    CachedValue() = default;
 
     //! Check whether the currently cached value is valid based on
     //! a single state variable. If it is not valid it updates the stored
@@ -104,18 +98,18 @@ struct CachedValue {
 
     //! Value of the first state variable for the state at which #value was
     //! evaluated, for example temperature.
-    double state1;
+    double state1 = std::numeric_limits<double>::quiet_NaN();
 
     //! Value of the second state variable for the state at which #value was
     //! evaluated, for example density or pressure.
-    double state2;
+    double state2 = std::numeric_limits<double>::quiet_NaN();
 
     //! A surrogate for the composition. For cached properties of Phase,
     //! this should be set to Phase::stateMFNumber()
-    int stateNum;
+    int stateNum = std::numeric_limits<int>::min();
 
     //! The value of the cached property
-    T value;
+    T value = T();
 };
 
 typedef CachedValue<double>& CachedScalar;

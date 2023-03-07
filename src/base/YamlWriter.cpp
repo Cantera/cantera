@@ -17,12 +17,6 @@
 
 namespace Cantera {
 
-YamlWriter::YamlWriter()
-    : m_float_precision(15)
-    , m_skip_user_defined(false)
-{
-}
-
 void YamlWriter::setHeader(const AnyMap& header) {
     m_header = header;
 }

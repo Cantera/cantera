@@ -27,18 +27,6 @@ void TransportData::getParameters(AnyMap &transportNode) const
 {
 }
 
-GasTransportData::GasTransportData()
-    : diameter(0.0)
-    , well_depth(0.0)
-    , dipole(0.0)
-    , polarizability(0.0)
-    , rotational_relaxation(0.0)
-    , acentric_factor(0.0)
-    , dispersion_coefficient(0.0)
-    , quadrupole_polarizability(0.0)
-{
-}
-
 GasTransportData::GasTransportData(
         const std::string& geometry_,
         double diameter_, double well_depth_, double dipole_,

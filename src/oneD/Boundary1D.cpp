@@ -13,15 +13,7 @@ using namespace std;
 namespace Cantera
 {
 
-Boundary1D::Boundary1D() : Domain1D(1, 1, 0.0),
-    m_flow_left(0), m_flow_right(0),
-    m_ilr(0), m_left_nv(0), m_right_nv(0),
-    m_left_loc(0), m_right_loc(0),
-    m_left_points(0),
-    m_left_nsp(0), m_right_nsp(0),
-    m_sp_left(0), m_sp_right(0),
-    m_start_left(0), m_start_right(0),
-    m_phase_left(0), m_phase_right(0), m_temp(0.0), m_mdot(0.0)
+Boundary1D::Boundary1D() : Domain1D(1, 1, 0.0)
 {
     m_type = cConnectorType;
 }
@@ -88,12 +80,8 @@ void Boundary1D::_init(size_t n)
 // ---------------- Inlet1D methods ----------------
 
 Inlet1D::Inlet1D()
-    : m_V0(0.0)
-    , m_nsp(0)
-    , m_flow(0)
 {
     m_type = cInletType;
-    m_xstr = "";
 }
 
 Inlet1D::Inlet1D(shared_ptr<Solution> solution, const string& id)
@@ -345,11 +333,8 @@ shared_ptr<SolutionArray> Symm1D::asArray(const double* soln) const
 // -------- Outlet1D --------
 
 OutletRes1D::OutletRes1D()
-    : m_nsp(0)
-    , m_flow(0)
 {
     m_type = cOutletResType;
-    m_xstr = "";
 }
 
 OutletRes1D::OutletRes1D(shared_ptr<Solution> solution, const string& id)

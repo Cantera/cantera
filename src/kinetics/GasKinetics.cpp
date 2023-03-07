@@ -14,9 +14,6 @@ namespace Cantera
 {
 
 GasKinetics::GasKinetics()
-    : BulkKinetics()
-    , m_logStandConc(0.0)
-    , m_pres(0.0)
 {
     setDerivativeSettings(AnyMap()); // use default settings
 }

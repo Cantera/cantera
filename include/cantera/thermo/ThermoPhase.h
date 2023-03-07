@@ -102,7 +102,7 @@ class ThermoPhase : public Phase
 public:
     //! Constructor. Note that ThermoPhase is meant to be used as a base class,
     //! so this constructor should not be called explicitly.
-    ThermoPhase();
+    ThermoPhase() = default;
 
     //! @name  Information Methods
     //! @{
@@ -1821,7 +1821,7 @@ protected:
     AnyMap m_input;
 
     //! Stored value of the electric potential for this phase. Units are Volts.
-    doublereal m_phi;
+    double m_phi = 0.0;
 
     //! Boolean indicating whether a charge neutrality condition is a necessity
     /*!
@@ -1831,13 +1831,13 @@ protected:
      * account. However, liquid phases usually require charge neutrality in
      * order for their derived thermodynamics to be valid.
      */
-    bool m_chargeNeutralityNecessary;
+    bool m_chargeNeutralityNecessary = false;
 
     //! Contains the standard state convention
-    int m_ssConvention;
+    int m_ssConvention = cSS_CONVENTION_TEMPERATURE;
 
     //! last value of the temperature processed by reference state
-    mutable doublereal m_tlast;
+    mutable double m_tlast = 0.0;
 };
 
 }

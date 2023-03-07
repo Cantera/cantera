@@ -18,8 +18,8 @@ namespace Cantera
 class Jacobian
 {
 public:
-    Jacobian() {}
-    virtual ~Jacobian() {}
+    Jacobian() = default;
+    virtual ~Jacobian() = default;
     virtual bool supplied() {
         return false;
     }
@@ -77,11 +77,11 @@ class DAE_Solver
 public:
     DAE_Solver(ResidJacEval& f) :
         m_resid(f),
-        m_neq(f.nEquations()),
-        m_time(0.0) {
+        m_neq(f.nEquations())
+    {
     }
 
-    virtual ~DAE_Solver() {}
+    virtual ~DAE_Solver() = default;
 
     /**
      * Set error tolerances. This version specifies a scalar
@@ -247,7 +247,7 @@ protected:
 
     //! Number of total equations in the system
     integer m_neq;
-    doublereal m_time;
+    double m_time = 0.0;
 
 private:
     void warn(const std::string& msg) const {

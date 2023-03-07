@@ -40,7 +40,7 @@ void SpeciesNode::printPaths()
 }
 
 Path::Path(SpeciesNode* begin, SpeciesNode* end)
-    : m_a(begin), m_b(end), m_total(0.0)
+    : m_a(begin), m_b(end)
 {
     begin->addPath(this);
     end->addPath(this);
@@ -76,30 +76,6 @@ void Path::writeLabel(ostream& s, doublereal threshold)
             }
         }
     }
-}
-
-ReactionPathDiagram::ReactionPathDiagram()
-{
-    name = "reaction_paths";
-    m_flxmax = 0.0;
-    bold_color = "blue";
-    normal_color = "steelblue";
-    dashed_color = "gray";
-    dot_options = "center=1;";
-    m_font = "Helvetica";
-    bold_min = 0.2;
-    dashed_max = 0.0;
-    label_min = 0.0;
-    threshold = 0.005;
-    flow_type = NetFlow;
-    scale = -1;
-    x_size = -1.0;
-    y_size = -1.0;
-    arrow_width = -5.0;
-    show_details = false;
-    arrow_hue = 0.6666;
-    title = "";
-    m_local = npos;
 }
 
 ReactionPathDiagram::~ReactionPathDiagram()

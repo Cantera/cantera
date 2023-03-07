@@ -17,8 +17,7 @@ using namespace std;
 namespace Cantera
 {
 
-IdealGasPhase::IdealGasPhase(const std::string& inputFile, const std::string& id_) :
-    m_p0(-1.0)
+IdealGasPhase::IdealGasPhase(const string& inputFile, const string& id_)
 {
     initThermoFile(inputFile, id_);
 }

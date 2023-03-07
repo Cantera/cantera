@@ -443,12 +443,12 @@ protected:
     //! duplicates)
     std::set<std::string> warnings;
 
-    bool m_suppress_deprecation_warnings;
-    bool m_fatal_deprecation_warnings;
-    bool m_suppress_thermo_warnings;
-    bool m_suppress_warnings;
-    bool m_fatal_warnings;
-    bool m_use_legacy_rate_constants;
+    bool m_suppress_deprecation_warnings = false;
+    bool m_fatal_deprecation_warnings = false;
+    bool m_suppress_thermo_warnings = false;
+    bool m_suppress_warnings = false;
+    bool m_fatal_warnings = false;
+    bool m_use_legacy_rate_constants = false;
 
     std::set<std::pair<std::string, std::string>> m_loaded_extensions;
 

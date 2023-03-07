@@ -90,33 +90,37 @@ protected:
 private:
     void sensInit(double t0, FuncEval& func);
 
-    size_t m_neq;
-    void* m_cvode_mem;
+    size_t m_neq = 0;
+    void* m_cvode_mem = nullptr;
     SundialsContext m_sundials_ctx; //!< SUNContext object for Sundials>=6.0
-    void* m_linsol; //!< Sundials linear solver object
-    void* m_linsol_matrix; //!< matrix used by Sundials
-    FuncEval* m_func;
-    double m_t0;
+    void* m_linsol = nullptr; //!< Sundials linear solver object
+    void* m_linsol_matrix = nullptr; //!< matrix used by Sundials
+    FuncEval* m_func = nullptr;
+    double m_t0 = 0.0;
     double m_time; //!< The current integrator time
-    N_Vector m_y, m_abstol;
-    N_Vector m_dky;
-    std::string m_type;
+    N_Vector m_y = nullptr;
+    N_Vector m_abstol = nullptr;
+    N_Vector m_dky = nullptr;
+    string m_type = "DENSE";
     int m_itol;
     int m_method;
-    int m_maxord;
-    double m_reltol;
-    double m_abstols;
-    double m_reltolsens, m_abstolsens;
-    size_t m_nabs;
-    double m_hmax, m_hmin;
-    int m_maxsteps;
-    int m_maxErrTestFails;
-    N_Vector* m_yS;
-    size_t m_np;
-    int m_mupper, m_mlower;
+    int m_maxord = 0;
+    double m_reltol = 1e-9;
+    double m_abstols = 1e-15;
+    double m_reltolsens = 1e-5;
+    double m_abstolsens = 1e-4;
+    size_t m_nabs = 0;
+    double m_hmax = 0.0;
+    double m_hmin = 0.0;
+    int m_maxsteps = 20000;
+    int m_maxErrTestFails = 0;
+    N_Vector* m_yS = nullptr;
+    size_t m_np = 0;
+    int m_mupper = 0;
+    int m_mlower = 0;
     //! Indicates whether the sensitivities stored in m_yS have been updated
     //! for at the current integrator time.
-    bool m_sens_ok;
+    bool m_sens_ok = false;
 };
 
 } // namespace

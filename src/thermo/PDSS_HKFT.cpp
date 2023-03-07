@@ -23,28 +23,8 @@ namespace Cantera
 int PDSS_HKFT::s_InputInconsistencyErrorExit = 1;
 
 PDSS_HKFT::PDSS_HKFT()
-    : m_waterSS(0)
-    , m_densWaterSS(-1.0)
-    , m_deltaG_formation_tr_pr(NAN)
-    , m_deltaH_formation_tr_pr(NAN)
-    , m_Mu0_tr_pr(0.0)
-    , m_Entrop_tr_pr(NAN)
-    , m_a1(0.0)
-    , m_a2(0.0)
-    , m_a3(0.0)
-    , m_a4(0.0)
-    , m_c1(0.0)
-    , m_c2(0.0)
-    , m_omega_pr_tr(0.0)
-    , m_Y_pr_tr(0.0)
-    , m_Z_pr_tr(0.0)
-    , m_presR_bar(0.0)
-    , m_domega_jdT_prtr(0.0)
-    , m_charge_j(0.0)
 {
     m_pres = OneAtm;
-    m_presR_bar = OneAtm * 1.0E-5;
-    m_presR_bar = 1.0;
     m_units.setDefaults({"cm", "gmol", "cal", "bar"});
 }
 

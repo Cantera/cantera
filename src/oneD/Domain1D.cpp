@@ -18,18 +18,7 @@ using namespace std;
 namespace Cantera
 {
 
-Domain1D::Domain1D(size_t nv, size_t points, double time) :
-    m_rdt(0.0),
-    m_nv(0),
-    m_container(0),
-    m_index(npos),
-    m_type(0),
-    m_iloc(0),
-    m_jstart(0),
-    m_left(0),
-    m_right(0),
-    m_bw(-1),
-    m_force_full_update(false)
+Domain1D::Domain1D(size_t nv, size_t points, double time)
 {
     resize(nv, points);
 }

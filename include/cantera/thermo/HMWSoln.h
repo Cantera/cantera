@@ -1387,19 +1387,19 @@ private:
      *       PITZER_TEMP_LINEAR     1
      *       PITZER_TEMP_COMPLEX1   2
      */
-    int m_formPitzerTemp;
+    int m_formPitzerTemp = PITZER_TEMP_CONSTANT;
 
     //! Current value of the ionic strength on the molality scale Associated
     //! Salts, if present in the mechanism, don't contribute to the value of the
     //! ionic strength in this version of the Ionic strength.
-    mutable double m_IionicMolality;
+    mutable double m_IionicMolality = 0.0;
 
     //! Maximum value of the ionic strength allowed in the calculation of the
     //! activity coefficients.
     double m_maxIionicStrength;
 
     //! Reference Temperature for the Pitzer formulations.
-    double m_TempPitzerRef;
+    double m_TempPitzerRef = 298.15;
 
 public:
     /**
@@ -1416,7 +1416,7 @@ public:
      * water is a relatively strong function of T, and its variability must be
      * accounted for,
      */
-    int m_form_A_Debye;
+    int m_form_A_Debye = A_DEBYE_CONST;
 
 private:
     /**
@@ -1454,7 +1454,7 @@ private:
     /*!
      *  derived from the equation of state for water.
      */
-    PDSS* m_waterSS;
+    PDSS* m_waterSS = nullptr;
 
     //! Pointer to the water property calculator
     std::unique_ptr<WaterProps> m_waterProps;
@@ -1772,7 +1772,7 @@ private:
     mutable vector_fp m_molalitiesCropped;
 
     //! Boolean indicating whether the molalities are cropped or are modified
-    mutable bool m_molalitiesAreCropped;
+    mutable bool m_molalitiesAreCropped = false;
 
     //! a counter variable for keeping track of symmetric binary
     //! interactions amongst the solute species.
@@ -1900,41 +1900,41 @@ private:
 
     //! value of the solute mole fraction that centers the cutoff polynomials
     //! for the cutoff =1 process;
-    doublereal IMS_X_o_cutoff_;
+    double IMS_X_o_cutoff_ = 0.2;
 
     //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
-    doublereal IMS_cCut_;
+    double IMS_cCut_ = 0.05;
 
     //! Parameter in the polyExp cutoff treatment
     /*!
      *  This is the slope of the g function at the zero solvent point
      *  Default value is 0.0
      */
-    doublereal IMS_slopegCut_;
+    double IMS_slopegCut_ = 0.0;
 
     //! @name Parameters in the polyExp cutoff treatment having to do with rate of exp decay
     //! @{
-    doublereal IMS_dfCut_;
-    doublereal IMS_efCut_;
-    doublereal IMS_afCut_;
-    doublereal IMS_bfCut_;
-    doublereal IMS_dgCut_;
-    doublereal IMS_egCut_;
-    doublereal IMS_agCut_;
-    doublereal IMS_bgCut_;
+    double IMS_dfCut_ = 0.0;
+    double IMS_efCut_ = 0.0;
+    double IMS_afCut_ = 0.0;
+    double IMS_bfCut_ = 0.0;
+    double IMS_dgCut_ = 0.0;
+    double IMS_egCut_ = 0.0;
+    double IMS_agCut_ = 0.0;
+    double IMS_bgCut_ = 0.0;
     //! @}
 
     //! value of the solvent mole fraction that centers the cutoff polynomials
     //! for the cutoff =1 process;
-    doublereal MC_X_o_cutoff_;
+    double MC_X_o_cutoff_ = 0.0;
 
     //! @name Parameters in the Molality Exp cutoff treatment
     //! @{
-    doublereal MC_dpCut_;
-    doublereal MC_epCut_;
-    doublereal MC_apCut_;
-    doublereal MC_bpCut_;
-    doublereal MC_cpCut_;
+    double MC_dpCut_ = 0.0;
+    double MC_epCut_ = 0.0;
+    double MC_apCut_ = 0.0;
+    double MC_bpCut_ = 0.0;
+    double MC_cpCut_ = 0.0;
     doublereal CROP_ln_gamma_o_min;
     doublereal CROP_ln_gamma_o_max;
     doublereal CROP_ln_gamma_k_min;
@@ -2060,7 +2060,7 @@ private:
      * @param is Ionic strength
      */
     void calc_lambdas(double is) const;
-    mutable doublereal m_last_is;
+    mutable double m_last_is = -1.0;
 
     /**
      * Calculate etheta and etheta_prime

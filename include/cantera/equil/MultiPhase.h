@@ -64,11 +64,11 @@ public:
      *  The constructor takes no arguments, since phases are added using
      *  method addPhase().
      */
-    MultiPhase();
+    MultiPhase() = default;
 
     //! Destructor. Does nothing. Class MultiPhase does not take "ownership"
     //! (that is, responsibility for destroying) the phase objects.
-    virtual ~MultiPhase() {}
+    virtual ~MultiPhase() = default;
 
     //! Add a vector of phases to the mixture
     /*!
@@ -618,23 +618,23 @@ private:
     std::map<std::string, size_t> m_enamemap;
 
     //! Current value of the temperature (kelvin)
-    doublereal m_temp;
+    double m_temp = 298.15;
 
     //! Current value of the pressure (Pa)
-    doublereal m_press;
+    double m_press = OneBar;
 
     //! Number of distinct elements in all of the phases
-    size_t m_nel;
+    size_t m_nel = 0;
 
     //! Number of distinct species in all of the phases
-    size_t m_nsp;
+    size_t m_nsp = 0;
 
     //! True if the init() routine has been called, and the MultiPhase frozen
-    bool m_init;
+    bool m_init = false;
 
     //! Global ID of the element corresponding to the electronic charge. If
     //! there is none, then this is equal to -1
-    size_t m_eloc;
+    size_t m_eloc = npos;
 
     //! Vector of bools indicating whether temperatures are ok for phases.
     /*!
@@ -645,11 +645,11 @@ private:
 
     //! Minimum temperature for which thermo parameterizations are valid.
     //! Stoichiometric phases are ignored in this determination. units Kelvin
-    doublereal m_Tmin;
+    double m_Tmin = 1.0;
 
     //! Minimum temperature for which thermo parameterizations are valid.
     //! Stoichiometric phases are ignored in this determination. units Kelvin
-    doublereal m_Tmax;
+    double m_Tmax = 100000.0;
 
     //! Vector of element abundances
     /*!

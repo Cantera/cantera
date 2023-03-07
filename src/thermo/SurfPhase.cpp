@@ -21,9 +21,7 @@ using namespace std;
 namespace Cantera
 {
 
-SurfPhase::SurfPhase(const std::string& infile, const std::string& id_) :
-    m_n0(1.0),
-    m_press(OneAtm)
+SurfPhase::SurfPhase(const string& infile, const string& id_)
 {
     setNDim(2);
     initThermoFile(infile, id_);

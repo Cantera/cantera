@@ -162,7 +162,7 @@ class WaterPropsIAPWS
 {
 public:
     //! Base constructor
-    WaterPropsIAPWS();
+    WaterPropsIAPWS() = default;
 
     WaterPropsIAPWS(const WaterPropsIAPWS& right) = delete;
     WaterPropsIAPWS& operator=(const WaterPropsIAPWS& right) = delete;
@@ -477,13 +477,13 @@ private:
     mutable WaterPropsIAPWSphi m_phi;
 
     //! Dimensionless temperature,  tau = T_C / T
-    doublereal tau;
+    double tau = -1.0;
 
     //! Dimensionless density, delta = rho / rho_c
-    mutable doublereal delta;
+    mutable double delta = -1.0;
 
     //! Current state of the system
-    mutable int iState;
+    mutable int iState = -30000;
 };
 
 }

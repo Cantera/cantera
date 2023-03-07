@@ -19,7 +19,7 @@ namespace Cantera
  */
 struct TwoTempPlasmaData : public ReactionData
 {
-    TwoTempPlasmaData() : electronTemp(1.), logTe(0.), recipTe(1.) {}
+    TwoTempPlasmaData() = default;
 
     virtual bool update(const ThermoPhase& phase, const Kinetics& kin) override;
     virtual void update(double T) override;
@@ -33,9 +33,9 @@ struct TwoTempPlasmaData : public ReactionData
         electronTemp = NAN;
     }
 
-    double electronTemp; //!< electron temperature
-    double logTe; //!< logarithm of electron temperature
-    double recipTe; //!< inverse of electron temperature
+    double electronTemp = 1.0; //!< electron temperature
+    double logTe = 0.0; //!< logarithm of electron temperature
+    double recipTe = 1.0; //!< inverse of electron temperature
 };
 
 
