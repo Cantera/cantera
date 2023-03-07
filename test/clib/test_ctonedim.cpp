@@ -36,8 +36,15 @@ TEST(ctonedim, freeflow)
 
 TEST(ctonedim, inlet)
 {
-    int index = inlet_new();
-    ASSERT_GE(index, 0);
+    int inlet = inlet_new();
+    ASSERT_GE(inlet, 0);
+
+    int buflen = domain_type3(inlet, 0, 0);
+    char* buf = new char[buflen];
+    domain_type3(inlet, buflen, buf);
+    string domName = buf;
+    ASSERT_EQ(domName, "inlet");
+    delete[] buf;
 }
 
 TEST(ctonedim, outlet)
