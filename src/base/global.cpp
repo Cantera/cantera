@@ -10,8 +10,6 @@
   #include <boost/core/demangle.hpp>
 #endif
 
-using namespace std;
-
 namespace Cantera
 {
 

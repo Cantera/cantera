@@ -18,8 +18,6 @@
 #include "cantera/base/global.h"
 #include <numeric>
 
-using namespace std;
-
 namespace Cantera
 {
 

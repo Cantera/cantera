@@ -15,8 +15,6 @@
 #include <unordered_set>
 
 namespace ba = boost::algorithm;
-using std::vector;
-using std::string;
 
 namespace { // helper functions
 

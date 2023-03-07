@@ -10,8 +10,6 @@
 #include "cantera/base/Array.h"
 #include "cantera/numerics/Integrator.h"
 
-using namespace std;
-
 namespace Cantera
 {
 

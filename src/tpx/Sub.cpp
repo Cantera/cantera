@@ -11,7 +11,6 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/global.h"
 
-using std::string;
 using namespace Cantera;
 
 namespace {

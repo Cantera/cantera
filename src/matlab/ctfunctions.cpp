@@ -16,8 +16,6 @@
 #include "cantera/clib/ctrpath.h"
 #include "ctmatutils.h"
 
-using namespace std;
-
 void reportError()
 {
     int buflen = 0;

@@ -8,8 +8,6 @@
 #include "ctmatutils.h"
 #include "cantera/clib/ctonedim.h"
 
-using namespace std;
-
 void onedimmethods(int nlhs, mxArray* plhs[],
                    int nrhs, const mxArray* prhs[])
 {

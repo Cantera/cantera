@@ -36,7 +36,6 @@
 #include <iostream>
 
 using namespace Cantera;
-using std::string;
 
 // store a pointer to a Solution object
 // provides access to the pointers for functions in other libraries

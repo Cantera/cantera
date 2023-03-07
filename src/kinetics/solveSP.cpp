@@ -9,7 +9,6 @@
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/kinetics/ImplicitSurfChem.h"
 
-using namespace std;
 namespace Cantera
 {
 

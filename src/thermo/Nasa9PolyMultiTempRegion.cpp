@@ -19,8 +19,6 @@
 #include "cantera/thermo/speciesThermoTypes.h"
 #include "cantera/base/AnyMap.h"
 
-using namespace std;
-
 namespace Cantera
 {
 

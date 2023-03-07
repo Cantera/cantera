@@ -10,8 +10,6 @@
 #include "cantera/base/utilities.h"
 #include "cantera/base/global.h"
 
-using namespace std;
-
 namespace Cantera
 {
 int BasisOptimize_print_lvl = 0;

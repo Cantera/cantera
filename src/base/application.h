@@ -11,7 +11,6 @@
 
 #include <boost/algorithm/string/join.hpp>
 
-#include <set>
 #include <thread>
 
 namespace Cantera

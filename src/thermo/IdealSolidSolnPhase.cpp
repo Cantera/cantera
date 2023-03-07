@@ -14,8 +14,6 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/utilities.h"
 
-using namespace std;
-
 namespace Cantera
 {
 

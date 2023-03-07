@@ -13,8 +13,6 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/AnyMap.h"
 
-using namespace std;
-
 namespace Cantera
 {
 Mu0Poly::Mu0Poly()

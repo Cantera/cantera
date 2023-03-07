@@ -23,8 +23,6 @@
 #include "ida/ida_spils.h"
 #include "nvector/nvector_serial.h"
 
-using namespace std;
-
 typedef long int sd_size_t;
 
 namespace Cantera

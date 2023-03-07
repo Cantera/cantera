@@ -10,8 +10,6 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/transport/TransportFactory.h"
 
-using namespace std;
-
 namespace Cantera
 {
 Transport::Transport(ThermoPhase* thermo, size_t ndim) :

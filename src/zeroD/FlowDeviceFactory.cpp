@@ -6,7 +6,6 @@
 #include "cantera/zeroD/FlowDeviceFactory.h"
 #include "cantera/zeroD/flowControllers.h"
 
-using namespace std;
 namespace Cantera
 {
 

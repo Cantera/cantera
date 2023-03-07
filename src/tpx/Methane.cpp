@@ -6,7 +6,6 @@
 #include "Methane.h"
 #include "cantera/base/stringUtils.h"
 
-using namespace std;
 using namespace Cantera;
 
 namespace tpx

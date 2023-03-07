@@ -15,8 +15,6 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/global.h"
 
-using namespace std;
-
 namespace Cantera
 {
 // Set the default to error exit if there is an input file inconsistency

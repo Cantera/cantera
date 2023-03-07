@@ -12,7 +12,6 @@
 #include "cantera/base/global.h"
 #include <iostream>
 #include <limits>
-#include <set>
 
 using namespace std;
 

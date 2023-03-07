@@ -11,10 +11,6 @@
 #include "cantera/base/AnyMap.h"
 #include "cantera/base/SolutionArray.h"
 
-#include <set>
-
-using namespace std;
-
 namespace Cantera
 {
 

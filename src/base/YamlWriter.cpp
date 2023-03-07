@@ -11,7 +11,6 @@
 #include "cantera/kinetics/Reaction.h"
 #include "cantera/transport/Transport.h"
 
-#include <set>
 #include <fstream>
 #include <chrono>
 

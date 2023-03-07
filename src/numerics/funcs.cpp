@@ -7,8 +7,6 @@
 #include "cantera/numerics/polyfit.h"
 #include "cantera/base/ctexceptions.h"
 
-using namespace std;
-
 namespace Cantera
 {
 

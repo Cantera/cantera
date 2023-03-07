@@ -15,7 +15,6 @@
 #include "clib_utils.h"
 
 using namespace Cantera;
-using namespace std;
 
 typedef Cabinet<ReactorBase> ReactorCabinet;
 typedef Cabinet<ReactorNet> NetworkCabinet;

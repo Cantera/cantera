@@ -18,7 +18,6 @@
 
 #include <boost/algorithm/string.hpp>
 
-using namespace std;
 namespace ba = boost::algorithm;
 
 namespace Cantera

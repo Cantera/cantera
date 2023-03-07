@@ -6,8 +6,6 @@
 #include "cantera/numerics/ResidJacEval.h"
 #include "cantera/base/global.h"
 
-using namespace std;
-
 namespace Cantera
 {
 ResidJacEval::ResidJacEval(doublereal atol) :

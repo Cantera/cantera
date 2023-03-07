@@ -11,8 +11,6 @@
 #include "cantera/base/Units.h"
 
 #include <unordered_map>
-#include <functional>
-#include <set>
 #include <filesystem>
 
 namespace boost

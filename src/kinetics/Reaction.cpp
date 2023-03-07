@@ -18,7 +18,6 @@
 #include "cantera/base/stringUtils.h"
 #include <boost/algorithm/string/predicate.hpp>
 #include <sstream>
-#include <set>
 
 #include <boost/algorithm/string.hpp>
 

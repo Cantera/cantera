@@ -11,9 +11,6 @@
 #include "cantera/thermo/WaterPropsIAPWSphi.h"
 #include "cantera/base/global.h"
 
-#include <cmath>
-#include <algorithm>
-
 namespace Cantera
 {
 

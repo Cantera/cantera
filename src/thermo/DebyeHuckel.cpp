@@ -21,8 +21,6 @@
 
 #include <cstdio>
 
-using namespace std;
-
 namespace Cantera
 {
 

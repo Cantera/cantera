@@ -13,8 +13,6 @@
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/base/stringUtils.h"
 
-using namespace std;
-
 namespace Cantera
 {
 MargulesVPSSTP::MargulesVPSSTP(const string& inputFile, const string& id_)

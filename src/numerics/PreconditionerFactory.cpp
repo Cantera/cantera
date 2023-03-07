@@ -6,8 +6,6 @@
 #include "cantera/numerics/PreconditionerFactory.h"
 #include "cantera/numerics/AdaptivePreconditioner.h"
 
-
-using namespace std;
 namespace Cantera
 {
 

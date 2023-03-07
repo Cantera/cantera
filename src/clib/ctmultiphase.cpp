@@ -12,7 +12,6 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "clib_utils.h"
 
-using namespace std;
 using namespace Cantera;
 
 typedef Cabinet<MultiPhase> mixCabinet;
