@@ -1657,7 +1657,7 @@ extern "C" {
     {
         static unique_ptr<Logger> logwriter;
         try {
-            logwriter.reset(new ExternalLogger(writer));
+            logwriter = make_unique<ExternalLogger>(writer);
             setLogger(logwriter.get());
             return 0;
         } catch (...) {

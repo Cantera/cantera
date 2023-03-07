@@ -39,7 +39,7 @@ Application::Messages::Messages()
 {
     // install a default logwriter that writes to standard
     // output / standard error
-    logwriter.reset(new Logger());
+    logwriter = make_unique<Logger>();
 }
 
 void Application::Messages::addError(const std::string& r, const std::string& msg)

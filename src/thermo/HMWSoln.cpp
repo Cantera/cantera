@@ -668,7 +668,7 @@ void HMWSoln::initThermo()
 
     // Initialize the water property calculator. It will share the internal eos
     // water calculator.
-    m_waterProps.reset(new WaterProps(dynamic_cast<PDSS_Water*>(m_waterSS)));
+    m_waterProps = make_unique<WaterProps>(dynamic_cast<PDSS_Water*>(m_waterSS));
 
     // Lastly calculate the charge balance and then add stuff until the charges
     // compensate

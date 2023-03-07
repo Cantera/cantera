@@ -88,7 +88,7 @@ public:
                               const UnitStack& rate_units={});
 
     unique_ptr<MultiRateBase> newMultiRate() const override {
-        return unique_ptr<MultiRateBase>(new MultiRate<BlowersMaselRate, BlowersMaselData>);
+        return make_unique<MultiRate<BlowersMaselRate, BlowersMaselData>>();
     }
 
     virtual const std::string type() const override {

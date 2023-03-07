@@ -179,12 +179,12 @@ void setupGasTransportData(GasTransportData& tr, const AnyMap& node)
 unique_ptr<TransportData> newTransportData(const AnyMap& node)
 {
     if (node.getString("model", "") == "gas") {
-        unique_ptr<GasTransportData> tr(new GasTransportData());
+        auto tr = make_unique<GasTransportData>();
         setupGasTransportData(*tr, node);
-        return unique_ptr<TransportData>(move(tr));
+        return tr;
     } else {
         // Transport model not handled here
-        unique_ptr<TransportData> tr(new TransportData());
+        auto tr = make_unique<TransportData>();
         tr->input = node;
         return tr;
     }

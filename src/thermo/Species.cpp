@@ -104,13 +104,13 @@ AnyMap Species::parameters(const ThermoPhase* phase, bool withInput) const
 
 unique_ptr<Species> newSpecies(const AnyMap& node)
 {
-    unique_ptr<Species> s(new Species(node["name"].asString(),
-                                      node["composition"].asMap<double>()));
+    auto s = make_unique<Species>(node["name"].asString(),
+                                  node["composition"].asMap<double>());
 
     if (node.hasKey("thermo")) {
         s->thermo = newSpeciesThermo(node["thermo"].as<AnyMap>());
     } else {
-        s->thermo.reset(new SpeciesThermoInterpType());
+        s->thermo = make_shared<SpeciesThermoInterpType>();
     }
 
     s->size = node.getDouble("sites", 1.0);

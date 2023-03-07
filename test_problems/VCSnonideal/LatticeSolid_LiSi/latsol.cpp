@@ -17,8 +17,8 @@ void testProblem(int printLvl)
     auto LiSi_solid = newThermo("Li7Si3_latsol.yaml", "Li7Si3_and_Interstitials(S)");
     auto Li_liq = newThermo("Li7Si3_latsol.yaml", "Li(L)");
     auto LiFixed = newThermo("Li7Si3_latsol.yaml", "LiFixed");
-    shared_ptr<ThermoPhase> salt(new MargulesVPSSTP(
-        "Li7Si3_latsol.yaml", "MoltenSalt_electrolyte"));
+    auto salt = make_unique<MargulesVPSSTP>(
+        "Li7Si3_latsol.yaml", "MoltenSalt_electrolyte");
 
     // set states
     vector_fp x(salt->nSpecies(), 0);

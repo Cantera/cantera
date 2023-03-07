@@ -286,8 +286,7 @@ public:
                   const vector_fp& c);
 
     unique_ptr<MultiRateBase> newMultiRate() const override{
-        return unique_ptr<MultiRateBase>(
-            new MultiRate<LindemannRate, FalloffData>);
+        return make_unique<MultiRate<LindemannRate, FalloffData>>();
     }
 
     virtual const std::string subType() const override {
@@ -337,7 +336,7 @@ public:
              const vector_fp& c);
 
     unique_ptr<MultiRateBase> newMultiRate() const override {
-        return unique_ptr<MultiRateBase>(new MultiRate<TroeRate, FalloffData>);
+        return make_unique<MultiRate<TroeRate, FalloffData>>();
     }
 
     //! Set coefficients used by parameterization
@@ -436,7 +435,7 @@ public:
     }
 
     unique_ptr<MultiRateBase> newMultiRate() const override {
-        return unique_ptr<MultiRateBase>(new MultiRate<SriRate, FalloffData>);
+        return make_unique<MultiRate<SriRate, FalloffData>>();
     }
 
     //! Set coefficients used by parameterization
@@ -543,7 +542,7 @@ public:
     }
 
     unique_ptr<MultiRateBase> newMultiRate() const override {
-        return unique_ptr<MultiRateBase>(new MultiRate<TsangRate, FalloffData>);
+        return make_unique<MultiRate<TsangRate, FalloffData>>();
     }
 
     //! Set coefficients used by parameterization

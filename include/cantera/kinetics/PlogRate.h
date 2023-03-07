@@ -84,7 +84,7 @@ public:
     PlogRate(const AnyMap& node, const UnitStack& rate_units={});
 
     unique_ptr<MultiRateBase> newMultiRate() const {
-        return unique_ptr<MultiRateBase>(new MultiRate<PlogRate, PlogData>);
+        return make_unique<MultiRate<PlogRate, PlogData>>();
     }
 
     //! Identifier of reaction rate type

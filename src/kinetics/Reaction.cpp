@@ -282,7 +282,7 @@ void Reaction::setRate(shared_ptr<ReactionRate> rate)
                     "Reaction equation for falloff reaction '{}'\n does not "
                     "contain valid pressure-dependent third body", equation());
             }
-            m_third_body.reset(new ThirdBody("(+M)"));
+            m_third_body = make_shared<ThirdBody>("(+M)");
         }
     }
 }
@@ -404,7 +404,7 @@ void Reaction::setEquation(const std::string& equation, const Kinetics* kin)
                     "Collision efficiencies need to specify single species", equation);
             }
             third_body = effs.begin()->first;
-            m_third_body.reset(new ThirdBody(third_body));
+            m_third_body = make_shared<ThirdBody>(third_body);
             m_third_body->explicit_3rd = true;
         } else if (input.hasKey("default-efficiency")) {
             // insufficient disambiguation of third bodies
@@ -462,7 +462,7 @@ void Reaction::setEquation(const std::string& equation, const Kinetics* kin)
         }
         m_third_body->setName(third_body);
     } else {
-        m_third_body.reset(new ThirdBody(third_body));
+        m_third_body = make_shared<ThirdBody>(third_body);
     }
 
     // adjust reactant coefficients
@@ -825,7 +825,7 @@ ThreeBodyReaction::ThreeBodyReaction()
 {
     warn_deprecated("ThreeBodyReaction",
         "To be removed after Cantera 3.0. Replaceable with Reaction.");
-    m_third_body.reset(new ThirdBody);
+    m_third_body = make_shared<ThirdBody>();
     setRate(newReactionRate(type()));
 }
 
@@ -853,7 +853,7 @@ FalloffReaction::FalloffReaction()
 {
     warn_deprecated("FalloffReaction",
         "To be removed after Cantera 3.0. Replaceable with Reaction.");
-    m_third_body.reset(new ThirdBody);
+    m_third_body = make_shared<ThirdBody>();
     setRate(newReactionRate(type()));
 }
 
@@ -880,19 +880,19 @@ FalloffReaction::FalloffReaction(const AnyMap& node, const Kinetics& kin)
     warn_deprecated("FalloffReaction",
         "To be removed after Cantera 3.0. Replaceable with Reaction.");
     if (node.empty()) {
-        m_third_body.reset(new ThirdBody);
+        m_third_body = make_shared<ThirdBody>();
         setRate(newReactionRate(type()));
     }
 }
 
 unique_ptr<Reaction> newReaction(const std::string& type)
 {
-    return unique_ptr<Reaction>(new Reaction());
+    return make_unique<Reaction>();
 }
 
 unique_ptr<Reaction> newReaction(const AnyMap& rxn_node, const Kinetics& kin)
 {
-    return unique_ptr<Reaction>(new Reaction(rxn_node, kin));
+    return make_unique<Reaction>(rxn_node, kin);
 }
 
 void parseReactionEquation(Reaction& R, const std::string& equation,
@@ -970,7 +970,7 @@ std::vector<shared_ptr<Reaction>> getReactions(const AnyValue& items,
 {
     std::vector<shared_ptr<Reaction>> all_reactions;
     for (const auto& node : items.asVector<AnyMap>()) {
-        shared_ptr<Reaction> R(new Reaction(node, kinetics));
+        auto R = make_shared<Reaction>(node, kinetics);
         R->check();
         R->validate(kinetics);
         if (R->valid() && R->checkSpecies(kinetics)) {

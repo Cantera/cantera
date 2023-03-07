@@ -53,7 +53,7 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
 {
     m_speciesThermoList.resize(m_nsp);
     for (size_t kspec = 0; kspec < m_nsp; kspec++) {
-        m_speciesThermoList[kspec].reset(new VCS_SPECIES_THERMO());
+        m_speciesThermoList[kspec] = make_unique<VCS_SPECIES_THERMO>();
     }
 
     string ser = "VCS_SOLVE: ERROR:\n\t";
@@ -123,7 +123,7 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
     // Phase Info
     m_VolPhaseList.resize(m_numPhases);
     for (size_t iph = 0; iph < m_numPhases; iph++) {
-        m_VolPhaseList[iph].reset(new vcs_VolPhase(this));
+        m_VolPhaseList[iph] = make_unique<vcs_VolPhase>(this);
     }
 
     // For Future expansion

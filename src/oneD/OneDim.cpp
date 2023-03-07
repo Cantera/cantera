@@ -18,13 +18,13 @@ namespace Cantera
 
 OneDim::OneDim()
 {
-    m_newt.reset(new MultiNewton(1));
+    m_newt = make_unique<MultiNewton>(1);
 }
 
 OneDim::OneDim(vector<Domain1D*> domains)
 {
     // create a Newton iterator, and add each domain.
-    m_newt.reset(new MultiNewton(1));
+    m_newt = make_unique<MultiNewton>(1);
     for (size_t i = 0; i < domains.size(); i++) {
         addDomain(domains[i]);
     }
@@ -197,7 +197,7 @@ void OneDim::resize()
     m_mask.resize(size());
 
     // delete the current Jacobian evaluator and create a new one
-    m_jac.reset(new MultiJac(*this));
+    m_jac = make_unique<MultiJac>(*this);
     m_jac_ok = false;
 
     for (size_t i = 0; i < nDomains(); i++) {

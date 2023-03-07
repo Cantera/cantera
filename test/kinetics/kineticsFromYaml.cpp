@@ -904,9 +904,9 @@ TEST_F(ReactionToYaml, unconvertible3)
 {
     Reaction R(
         {{"H2", 1}, {"OH", 1}}, {{"H2O", 1}, {"H", 1}},
-        shared_ptr<ReactionRate>(new TroeRate(
+        make_shared<TroeRate>(
             ArrheniusRate(1e5, -1.0, 12.5), ArrheniusRate(1e5, -1.0, 12.5),
-            {0.562, 91.0, 5836.0, 8552.0})));
+            vector_fp{0.562, 91.0, 5836.0, 8552.0}));
     AnyMap params = R.parameters();
     UnitSystem U{"g", "cm", "mol"};
     params.setUnits(U);

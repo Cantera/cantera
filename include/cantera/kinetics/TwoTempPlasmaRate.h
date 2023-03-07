@@ -78,8 +78,7 @@ public:
     TwoTempPlasmaRate(const AnyMap& node, const UnitStack& rate_units={});
 
     unique_ptr<MultiRateBase> newMultiRate() const override {
-        return unique_ptr<MultiRateBase>(
-            new MultiRate<TwoTempPlasmaRate, TwoTempPlasmaData>);
+        return make_unique<MultiRate<TwoTempPlasmaRate, TwoTempPlasmaData>>();
     }
 
     virtual const std::string type() const override {

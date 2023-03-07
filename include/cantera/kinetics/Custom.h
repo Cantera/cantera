@@ -40,7 +40,7 @@ public:
     CustomFunc1Rate(const AnyMap& node, const UnitStack& rate_units);
 
     unique_ptr<MultiRateBase> newMultiRate() const override {
-        return unique_ptr<MultiRateBase>(new MultiRate<CustomFunc1Rate, ArrheniusData>);
+        return make_unique<MultiRate<CustomFunc1Rate, ArrheniusData>>();
     }
 
     const std::string type() const override { return "custom-rate-function"; }

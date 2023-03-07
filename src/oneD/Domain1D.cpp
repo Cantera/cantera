@@ -29,7 +29,7 @@ void Domain1D::resize(size_t nv, size_t np)
     // new grid refiner is required.
     if (nv != m_nv || !m_refiner) {
         m_nv = nv;
-        m_refiner.reset(new Refiner(*this));
+        m_refiner = make_unique<Refiner>(*this);
     }
     m_nv = nv;
     m_name.resize(m_nv,"");

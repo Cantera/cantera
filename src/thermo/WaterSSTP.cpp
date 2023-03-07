@@ -79,7 +79,7 @@ void WaterSSTP::initThermo()
     double rho0 = m_sub.density(298.15, OneAtm, WATER_LIQUID);
     setDensity(rho0);
 
-    m_waterProps.reset(new WaterProps(&m_sub));
+    m_waterProps = make_unique<WaterProps>(&m_sub);
 
     // Set the flag to say we are ready to calculate stuff
     m_ready = true;
