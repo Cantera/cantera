@@ -189,6 +189,19 @@ extern "C" {
         }
     }
 
+    int soln_setTransportModel(int n, const char* model)
+    {
+        try {
+            auto soln = SolutionCabinet::at(n);
+            TransportCabinet::del(
+                TransportCabinet::index(*(soln->transport())));
+            soln->setTransportModel(model);
+            return TransportCabinet::add(soln->transport());
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     size_t soln_nAdjacent(int n)
     {
         try {
@@ -1433,6 +1446,16 @@ extern "C" {
         try {
             auto tr = newTransport(ThermoCabinet::at(ith), model);
             return TransportCabinet::add(tr);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int trans_transportModel(int i, int lennm, char* nm)
+    {
+        try {
+            return static_cast<int>(
+                copyString(TransportCabinet::item(i).transportModel(), nm, lennm));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
