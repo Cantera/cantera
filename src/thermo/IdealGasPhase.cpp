@@ -12,8 +12,6 @@
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/base/utilities.h"
 
-using namespace std;
-
 namespace Cantera
 {
 

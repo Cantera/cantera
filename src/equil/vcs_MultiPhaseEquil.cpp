@@ -17,8 +17,6 @@
 
 #include <cstdio>
 
-using namespace std;
-
 namespace Cantera
 {
 vcs_MultiPhaseEquil::vcs_MultiPhaseEquil(MultiPhase* mix, int printLvl) :

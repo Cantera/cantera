@@ -179,7 +179,6 @@ template<class T>
 bool AnyValue::eq_comparer(const boost::any& lhs, const boost::any& rhs)
 {
     using boost::any_cast;
-    using std::vector;
     typedef vector<double> vd;
     typedef vector<long int> vi;
     typedef vector<AnyValue> va;

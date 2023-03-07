@@ -10,8 +10,6 @@
 #include "cantera/thermo/PDSS_IdealGas.h"
 #include "cantera/thermo/VPStandardStateTP.h"
 
-using namespace std;
-
 namespace Cantera
 {
 

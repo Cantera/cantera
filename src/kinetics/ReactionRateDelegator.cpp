@@ -7,8 +7,6 @@
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/base/Solution.h"
 
-using namespace std;
-
 namespace Cantera
 {
 

@@ -10,9 +10,6 @@
 
 #include <boost/math/tools/roots.hpp>
 
-#include <algorithm>
-
-using namespace std;
 namespace bmt = boost::math::tools;
 
 namespace Cantera

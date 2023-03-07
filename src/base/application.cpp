@@ -16,8 +16,6 @@
 #include <sstream>
 #include <mutex>
 
-using std::string;
-using std::endl;
 namespace ba = boost::algorithm;
 
 #ifdef _WIN32
@@ -204,7 +202,7 @@ std::string Application::Messages::lastErrorMessage()
 void Application::Messages::getErrors(std::ostream& f)
 {
     for (size_t j = 0; j < errorMessage.size(); j++) {
-        f << errorMessage[j] << endl;
+        f << errorMessage[j] << std::endl;
     }
     errorMessage.clear();
 }

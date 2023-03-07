@@ -10,8 +10,6 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctexceptions.h"
 
-using namespace std;
-
 namespace Cantera
 {
 

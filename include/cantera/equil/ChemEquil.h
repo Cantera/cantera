@@ -9,7 +9,6 @@
 #define CT_CHEM_EQUIL_H
 
 #include "cantera/base/ct_defs.h"
-#include <functional>
 
 namespace Cantera
 {

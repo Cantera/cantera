@@ -14,8 +14,6 @@
 #include "cantera/base/utilities.h"
 #include <limits>
 
-using namespace std;
-
 namespace Cantera
 {
 

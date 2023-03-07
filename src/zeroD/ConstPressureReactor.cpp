@@ -10,8 +10,6 @@
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/base/utilities.h"
 
-using namespace std;
-
 namespace Cantera
 {
 

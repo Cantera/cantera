@@ -12,7 +12,6 @@
 #include "cantera/thermo/SurfPhase.h"
 #include "clib_utils.h"
 
-using namespace std;
 using namespace Cantera;
 
 typedef SharedCabinet<ThermoPhase> ThermoCabinet;

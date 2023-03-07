@@ -6,7 +6,6 @@
 #ifndef NOEXITLOGGER_H
 #define NOEXITLOGGER_H
 
-#include <string>
 #include "cantera/base/logger.h"
 
 namespace Cantera {

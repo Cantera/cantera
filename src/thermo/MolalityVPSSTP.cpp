@@ -15,8 +15,6 @@
 
 #include <fstream>
 
-using namespace std;
-
 namespace Cantera
 {
 

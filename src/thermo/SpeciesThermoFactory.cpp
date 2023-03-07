@@ -21,8 +21,6 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/Units.h"
 
-using namespace std;
-
 namespace Cantera
 {
 

@@ -16,11 +16,8 @@
 #include "cantera/zeroD/ReactorDelegator.h"
 #include "cantera/zeroD/IdealGasConstPressureMoleReactor.h"
 
-using namespace std;
 namespace Cantera
 {
-
-class Reservoir;
 
 ReactorFactory* ReactorFactory::s_factory = 0;
 std::mutex ReactorFactory::reactor_mutex;

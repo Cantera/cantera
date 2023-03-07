@@ -11,7 +11,6 @@
 
 #include <mutex>
 #include <unordered_map>
-#include <functional>
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/global.h"
 

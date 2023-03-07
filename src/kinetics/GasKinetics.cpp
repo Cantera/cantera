@@ -8,8 +8,6 @@
 #include "cantera/kinetics/GasKinetics.h"
 #include "cantera/thermo/ThermoPhase.h"
 
-using namespace std;
-
 namespace Cantera
 {
 

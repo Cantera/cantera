@@ -6,8 +6,6 @@
 #include "cantera/base/ExtensionManager.h"
 #include "cantera/base/global.h"
 
-using namespace std;
-
 namespace Cantera
 {
 

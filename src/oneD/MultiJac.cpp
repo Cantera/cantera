@@ -6,8 +6,6 @@
 #include "cantera/oneD/MultiJac.h"
 #include <ctime>
 
-using namespace std;
-
 namespace Cantera
 {
 

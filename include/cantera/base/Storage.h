@@ -8,7 +8,6 @@
 
 #include "cantera/base/ct_defs.h"
 #include "cantera/base/stringUtils.h"
-#include <set>
 
 #if CT_USE_HDF5
 

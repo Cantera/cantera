@@ -11,8 +11,6 @@
 #include "cantera/numerics/funcs.h"
 #include "cantera/base/global.h"
 
-#include <set>
-
 using namespace std;
 
 namespace Cantera

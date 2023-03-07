@@ -25,7 +25,6 @@
 #include "cantera/thermo/PureFluidPhase.h"
 #include "cantera/base/ExternalLogger.h"
 
-using namespace std;
 using namespace Cantera;
 
 typedef SharedCabinet<ThermoPhase> ThermoCabinet;

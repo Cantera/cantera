@@ -6,7 +6,6 @@
 #include "cantera/zeroD/WallFactory.h"
 #include "cantera/zeroD/Wall.h"
 
-using namespace std;
 namespace Cantera
 {
 

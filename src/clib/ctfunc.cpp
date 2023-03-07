@@ -14,7 +14,6 @@
 #include "clib_utils.h"
 
 using namespace Cantera;
-using namespace std;
 
 typedef Func1 func_t;
 

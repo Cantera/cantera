@@ -11,8 +11,6 @@
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/kinetics/Kinetics.h"
 
-using namespace std;
-
 namespace Cantera
 {
 

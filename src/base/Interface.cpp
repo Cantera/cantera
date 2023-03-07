@@ -10,9 +10,6 @@
 namespace Cantera
 {
 
-using std::string;
-using std::vector;
-
 void Interface::setThermo(shared_ptr<ThermoPhase> thermo) {
     Solution::setThermo(thermo);
     auto surf = std::dynamic_pointer_cast<SurfPhase>(thermo);

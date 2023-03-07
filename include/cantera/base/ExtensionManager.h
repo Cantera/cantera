@@ -7,7 +7,6 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/base/ctexceptions.h"
-#include <functional>
 
 namespace Cantera
 {

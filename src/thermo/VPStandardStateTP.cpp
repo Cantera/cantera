@@ -15,8 +15,6 @@
 #include "cantera/base/utilities.h"
 #include "cantera/base/global.h"
 
-using namespace std;
-
 namespace Cantera
 {
 
