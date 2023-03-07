@@ -28,6 +28,7 @@ extern "C" {
     CANTERA_CAPI int soln_thermo(int n);
     CANTERA_CAPI int soln_kinetics(int n);
     CANTERA_CAPI int soln_transport(int n);
+    CANTERA_CAPI int soln_setTransportModel(int n, const char* model);
     CANTERA_CAPI size_t soln_nAdjacent(int n);
     CANTERA_CAPI int soln_adjacent(int n, int a);
 
@@ -158,6 +159,7 @@ extern "C" {
     CANTERA_CAPI int trans_newDefault(int th, int loglevel);
     CANTERA_CAPI int trans_new(const char* model, int th, int loglevel);
     CANTERA_CAPI int trans_del(int n);
+    CANTERA_CAPI int trans_transportModel(int n, int lennm, char* nm);
     CANTERA_CAPI double trans_viscosity(int n);
     CANTERA_CAPI double trans_electricalConductivity(int n);
     CANTERA_CAPI double trans_thermalConductivity(int n);
