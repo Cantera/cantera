@@ -15,7 +15,7 @@ int main(int argc, char** argv)
 {
     int ret;
     int thermo = thermo_newFromFile("gri30.yaml", "gri30");
-    assert(thermo > 0);
+    assert(thermo >= 0);
     size_t nsp = thermo_nSpecies(thermo);
     assert(nsp == 53);
 
@@ -35,7 +35,7 @@ int main(int argc, char** argv)
     assert(ret == 0);
 
     int kin = kin_newFromFile("gri30.yaml", "gri30", thermo, -1, -1, -1, -1);
-    assert(kin > 0);
+    assert(kin >= 0);
 
     size_t nr = kin_nReactions(kin);
     assert(nr == 325 );
@@ -55,6 +55,7 @@ int main(int argc, char** argv)
 
     printf("\n  Species    Mix diff coeff\n");
     int tran = trans_newDefault(thermo, 0);
+    assert(tran >= 0);
     double dkm[53];
     trans_getMixDiffCoeffs(tran, 53, dkm);
     int k; // declare this here for C89 compatibility
