@@ -12,6 +12,8 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/base/stringUtils.h"
 
+#include <boost/algorithm/string.hpp>
+
 namespace Cantera
 {
 

@@ -578,59 +578,19 @@ const AnyValue& AnyBase::getMetadata(const std::string& key) const
 // Methods of class AnyValue
 
 AnyValue::AnyValue()
-  : m_key()
-  , m_value(new boost::any{})
-  , m_equals(eq_comparer<size_t>)
+  : m_equals(eq_comparer<size_t>)
 {}
 
 AnyValue::~AnyValue() = default;
 
-AnyValue::AnyValue(AnyValue const& other)
-    : AnyBase(other)
-    , m_key(other.m_key)
-    , m_value(new boost::any{*other.m_value})
-    , m_equals(other.m_equals)
-{
-}
-
-AnyValue::AnyValue(AnyValue&& other)
-    : AnyBase(std::move(other))
-    , m_key(std::move(other.m_key))
-    , m_value(std::move(other.m_value))
-    , m_equals(other.m_equals)
-{
-}
-
-AnyValue& AnyValue::operator=(AnyValue const& other) {
-    if (this == &other) {
-        return *this;
-    }
-    AnyBase::operator=(other);
-    m_key = other.m_key;
-    m_value = make_unique<boost::any>(*other.m_value);
-    m_equals = other.m_equals;
-    return *this;
-}
-
-AnyValue& AnyValue::operator=(AnyValue&& other) {
-    if (this == &other) {
-        return *this;
-    }
-    AnyBase::operator=(std::move(other));
-    m_key = std::move(other.m_key);
-    m_value = std::move(other.m_value);
-    m_equals = other.m_equals;
-    return *this;
-}
-
 bool AnyValue::operator==(const AnyValue& other) const
 {
-    return m_equals(*m_value, *other.m_value);
+    return m_equals(m_value, other.m_value);
 }
 
 bool AnyValue::operator!=(const AnyValue& other) const
 {
-    return !m_equals(*m_value, *other.m_value);
+    return !m_equals(m_value, other.m_value);
 }
 
 AnyValue& AnyValue::operator[](const std::string& key)
@@ -650,7 +610,7 @@ bool AnyValue::hasKey(const std::string& key) const {
 void AnyValue::setKey(const std::string &key) { m_key = key; }
 
 const std::type_info &AnyValue::type() const {
-    return m_value->type();
+    return m_value.type();
 }
 
 void AnyValue::propagateMetadata(shared_ptr<AnyMap>& metadata)
@@ -674,7 +634,7 @@ std::string AnyValue::type_str() const {
 }
 
 bool AnyValue::empty() const {
-    return m_value->empty();
+    return !m_value.has_value();
 }
 
 bool AnyValue::isScalar() const {
@@ -683,25 +643,25 @@ bool AnyValue::isScalar() const {
 
 // Specializations for "std::string" and "const char*"
 
-AnyValue::AnyValue(const std::string& value)
-    : m_value(new boost::any{value})
-    , m_equals(eq_comparer<std::string>)
+AnyValue::AnyValue(const string& value)
+    : m_value{value}
+    , m_equals(eq_comparer<string>)
 {}
 
 AnyValue::AnyValue(const char* value)
-    : m_value(new boost::any{std::string(value)})
-    , m_equals(eq_comparer<std::string>)
+    : m_value{string(value)}
+    , m_equals(eq_comparer<string>)
 {}
 
-AnyValue &AnyValue::operator=(const std::string &value) {
-    *m_value = value;
-    m_equals = eq_comparer<std::string>;
+AnyValue &AnyValue::operator=(const string &value) {
+    m_value = value;
+    m_equals = eq_comparer<string>;
     return *this;
 }
 
 AnyValue &AnyValue::operator=(const char *value) {
-    *m_value = std::string(value);
-    m_equals = eq_comparer<std::string>;
+    m_value = string(value);
+    m_equals = eq_comparer<string>;
     return *this;
 }
 
@@ -711,8 +671,8 @@ const std::string &AnyValue::asString() const {
 
 bool AnyValue::operator==(const std::string& other) const
 {
-    if (m_value->type() == typeid(std::string)) {
-        return boost::any_cast<std::string>(*m_value) == other;
+    if (m_value.type() == typeid(string)) {
+        return std::any_cast<string>(m_value) == other;
     } else {
         return false;
     }
@@ -736,34 +696,34 @@ bool operator!=(const std::string& lhs, const AnyValue& rhs)
 // Specialization for "Quantity"
 
 void AnyValue::setQuantity(double value, const std::string& units, bool is_act_energy) {
-    *m_value = Quantity{AnyValue(value), Units(units), is_act_energy};
+    m_value = Quantity{AnyValue(value), Units(units), is_act_energy};
     m_equals = eq_comparer<Quantity>;
 }
 
 void AnyValue::setQuantity(double value, const Units& units) {
-    *m_value = Quantity{AnyValue(value), units, false};
+    m_value = Quantity{AnyValue(value), units, false};
     m_equals = eq_comparer<Quantity>;
 }
 
 void AnyValue::setQuantity(const vector_fp& values, const std::string& units) {
     AnyValue v;
     v = values;
-    *m_value = Quantity{v, Units(units), false};
+    m_value = Quantity{v, Units(units), false};
     m_equals = eq_comparer<Quantity>;
 }
 
 void AnyValue::setQuantity(const AnyValue& value, const unitConverter& converter)
 {
-    *m_value = Quantity{value, Units(0.0), false, converter};
+    m_value = Quantity{value, Units(0.0), false, converter};
     m_equals = eq_comparer<Quantity>;
 }
 
 template<>
 bool AnyValue::is<vector<double>>() const
 {
-    if (m_value->type() == typeid(vector<double>)) {
+    if (m_value.type() == typeid(vector<double>)) {
         return true;
-    } else if (m_value->type() == typeid(vector<AnyValue>)) {
+    } else if (m_value.type() == typeid(vector<AnyValue>)) {
         for (const auto& item : as<vector<AnyValue>>()) {
             if (!(item.is<double>()
                 || (item.is<Quantity>() && item.as<Quantity>().value.is<double>())))
@@ -780,12 +740,12 @@ bool AnyValue::is<vector<double>>() const
 // Specializations for "double"
 
 AnyValue::AnyValue(double value)
-    : m_value(new boost::any{value})
+    : m_value{value}
     , m_equals(eq_comparer<double>)
 {}
 
 AnyValue &AnyValue::operator=(double value) {
-    *m_value = value;
+    m_value = value;
     m_equals = eq_comparer<double>;
     return *this;
 }
@@ -800,10 +760,10 @@ const double& AnyValue::asDouble() const {
 
 bool AnyValue::operator==(const double& other) const
 {
-    if (m_value->type() == typeid(double)) {
-        return boost::any_cast<double>(*m_value) == other;
-    } else if (m_value->type() == typeid(long int)) {
-        return boost::any_cast<long int>(*m_value) == other;
+    if (m_value.type() == typeid(double)) {
+        return std::any_cast<double>(m_value) == other;
+    } else if (m_value.type() == typeid(long int)) {
+        return std::any_cast<long int>(m_value) == other;
     } else {
         return false;
     }
@@ -827,12 +787,12 @@ bool operator!=(const double& lhs, const AnyValue& rhs)
 // Specializations for "bool"
 
 AnyValue::AnyValue(bool value)
-    : m_value(new boost::any{value})
+    : m_value{value}
     , m_equals(eq_comparer<bool>)
 {}
 
 AnyValue &AnyValue::operator=(bool value) {
-    *m_value = value;
+    m_value = value;
     m_equals = eq_comparer<bool>;
     return *this;
 }
@@ -848,23 +808,23 @@ const bool& AnyValue::asBool() const {
 // Specializations for "long int" and "int"
 
 AnyValue::AnyValue(long int value)
-    : m_value(new boost::any{value})
+    : m_value{value}
     , m_equals(eq_comparer<long int>)
 {}
 
 AnyValue::AnyValue(int value)
-    : m_value(new boost::any{static_cast<long int>(value)})
+    : m_value{static_cast<long int>(value)}
     , m_equals(eq_comparer<long int>)
 {}
 
 AnyValue &AnyValue::operator=(long int value) {
-    *m_value = value;
+    m_value = value;
     m_equals = eq_comparer<long int>;
     return *this;
 }
 
 AnyValue &AnyValue::operator=(int value) {
-    *m_value = static_cast<long int>(value);
+    m_value = static_cast<long int>(value);
     m_equals = eq_comparer<long int>;
     return *this;
 }
@@ -879,10 +839,10 @@ const long int& AnyValue::asInt() const {
 
 bool AnyValue::operator==(const long int& other) const
 {
-    if (m_value->type() == typeid(long int)) {
-        return boost::any_cast<long int>(*m_value) == other;
-    } else if (m_value->type() == typeid(double)) {
-        return boost::any_cast<double>(*m_value) == other;
+    if (m_value.type() == typeid(long int)) {
+        return std::any_cast<long int>(m_value) == other;
+    } else if (m_value.type() == typeid(double)) {
+        return std::any_cast<double>(m_value) == other;
     } else {
         return false;
     }
@@ -926,18 +886,18 @@ bool operator!=(const int& lhs, const AnyValue& rhs)
 // Specializations for "AnyMap"
 
 AnyValue::AnyValue(const AnyMap& value)
-    : m_value(new boost::any{value})
+    : m_value{value}
     , m_equals(eq_comparer<AnyMap>)
 {}
 
 AnyValue& AnyValue::operator=(const AnyMap& value) {
-    *m_value = value;
+    m_value = value;
     m_equals = eq_comparer<AnyMap>;
     return *this;
 }
 
 AnyValue& AnyValue::operator=(AnyMap&& value) {
-    *m_value = std::move(value);
+    m_value = std::move(value);
     m_equals = eq_comparer<AnyMap>;
     return *this;
 }
@@ -1156,7 +1116,7 @@ void AnyValue::applyUnits(shared_ptr<UnitSystem>& units)
             m_equals = Q.value.m_equals;
             // Replace the value last since Q is a reference to m_value and won't be
             // valid after this
-            m_value = std::move(Q.value.m_value);
+            m_value = Q.value.m_value;
         } else if (Q.value.is<double>()) {
             if (Q.isActivationEnergy) {
                 *this = Q.value.as<double>() / units->convertActivationEnergyTo(1.0, Q.units);
@@ -1193,17 +1153,17 @@ const std::vector<AnyValue>& AnyValue::asVector<AnyValue>(size_t nMin, size_t nM
             for (const auto& el : asVector<double>()) {
                 v.push_back(AnyValue(el));
             }
-            *m_value = v;
+            const_cast<AnyValue*>(this)->m_value = v;
         } else if (is<std::vector<long int>>()) {
             for (const auto& el : asVector<long int>()) {
                 v.push_back(AnyValue(el));
             }
-            *m_value = v;
+            const_cast<AnyValue*>(this)->m_value = v;
         } else if (is<std::vector<std::string>>()) {
             for (const auto& el : asVector<std::string>()) {
                 v.push_back(AnyValue(el));
             }
-            *m_value = v;
+            const_cast<AnyValue*>(this)->m_value = v;
         }
         // If none of these special cases match, the value won't be replaced,
         // and an exception will be thrown.
@@ -1231,7 +1191,7 @@ const std::vector<double>& AnyValue::asVector<double>(size_t nMin, size_t nMax) 
         for (const auto& el : asVector<long int>()) {
             v.push_back(el);
         }
-        *m_value = v;
+        const_cast<AnyValue*>(this)->m_value = v;
     }
     const auto& vv = as<std::vector<double>>();
     m_equals = eq_comparer<std::vector<double>>;
@@ -1247,7 +1207,7 @@ std::vector<double>& AnyValue::asVector<double>(size_t nMin, size_t nMax)
         for (const auto& el : asVector<long int>()) {
             v.push_back(el);
         }
-        *m_value = v;
+        m_value = v;
     }
     auto& vv = as<std::vector<double>>();
     m_equals = eq_comparer<std::vector<double>>;
@@ -1266,7 +1226,7 @@ const std::vector<vector_fp>& AnyValue::asVector<vector_fp>(size_t nMin, size_t 
                 v.back().push_back(inner);
             }
         }
-        *m_value = v;
+        const_cast<AnyValue*>(this)->m_value = v;
     }
     const auto& vv = as<std::vector<vector_fp>>();
     m_equals = eq_comparer<std::vector<vector_fp>>;
@@ -1285,7 +1245,7 @@ std::vector<vector_fp>& AnyValue::asVector<vector_fp>(size_t nMin, size_t nMax)
                 v.back().push_back(inner);
             }
         }
-        *m_value = v;
+        m_value = v;
     }
     auto& vv = as<std::vector<vector_fp>>();
     m_equals = eq_comparer<std::vector<vector_fp>>;
@@ -1297,13 +1257,13 @@ template<>
 const std::vector<AnyMap>& AnyValue::asVector<AnyMap>(size_t nMin, size_t nMax) const
 {
     if (is<AnyMap>()) {
-        std::vector<AnyMap> v;
+        vector<AnyMap> v;
         v.push_back(std::move(as<AnyMap>()));
-        *m_value = std::move(v);
-    } else if (is<std::vector<AnyValue>>() && asVector<AnyValue>().empty()) {
-        *m_value = std::vector<AnyMap>();
+        const_cast<AnyValue*>(this)->m_value = std::move(v);
+    } else if (is<vector<AnyValue>>() && asVector<AnyValue>().empty()) {
+        const_cast<AnyValue*>(this)->m_value = vector<AnyMap>();
     }
-    const auto& vv = as<std::vector<AnyMap>>();
+    const auto& vv = as<vector<AnyMap>>();
     checkSize(vv, nMin, nMax);
     return vv;
 }
@@ -1312,13 +1272,13 @@ template<>
 std::vector<AnyMap>& AnyValue::asVector<AnyMap>(size_t nMin, size_t nMax)
 {
     if (is<AnyMap>()) {
-        std::vector<AnyMap> v;
+        vector<AnyMap> v;
         v.push_back(std::move(as<AnyMap>()));
-        *m_value = std::move(v);
-    } else if (is<std::vector<AnyValue>>() && asVector<AnyValue>().empty()) {
-        *m_value = std::vector<AnyMap>();
+        m_value = std::move(v);
+    } else if (is<vector<AnyValue>>() && asVector<AnyValue>().empty()) {
+        m_value = vector<AnyMap>();
     }
-    auto& vv = as<std::vector<AnyMap>>();
+    auto& vv = as<vector<AnyMap>>();
     checkSize(vv, nMin, nMax);
     return vv;
 }

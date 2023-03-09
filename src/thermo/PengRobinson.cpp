@@ -8,6 +8,7 @@
 #include "cantera/thermo/Species.h"
 #include "cantera/base/stringUtils.h"
 
+#include <boost/algorithm/string.hpp>
 #include <boost/math/tools/roots.hpp>
 
 namespace bmt = boost::math::tools;

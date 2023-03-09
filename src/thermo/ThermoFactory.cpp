@@ -39,6 +39,8 @@
 #include "cantera/thermo/BinarySolutionTabulatedThermo.h"
 #include "cantera/base/stringUtils.h"
 
+#include <boost/algorithm/string.hpp>
+
 namespace Cantera
 {
 

@@ -5,9 +5,6 @@
 
 #include "cantera/base/AnyMap.h"
 
-#include <boost/any.hpp>
-#include <boost/algorithm/string.hpp>
-
 namespace Cantera
 {
 // re-declared to avoid needing to include global.h here
@@ -18,31 +15,31 @@ std::string demangle(const std::type_info& type);
 template<class T>
 const T &AnyValue::as() const {
     try {
-        if (typeid(T) == typeid(double) && m_value->type() == typeid(long int)) {
+        if (typeid(T) == typeid(double) && m_value.type() == typeid(long int)) {
             // Implicit conversion of long int to double
-            *m_value = static_cast<double>(as<long int>());
+            const_cast<AnyValue*>(this)->m_value = static_cast<double>(as<long int>());
             m_equals = eq_comparer<double>;
         } else if (typeid(T) == typeid(std::vector<double>)
-                   && m_value->type() == typeid(std::vector<AnyValue>)) {
+                   && m_value.type() == typeid(std::vector<AnyValue>)) {
             // Implicit conversion of vector<AnyValue> to vector<double>
             auto& asAny = as<std::vector<AnyValue>>();
             vector_fp asDouble(asAny.size());
             for (size_t i = 0; i < asAny.size(); i++) {
                 asDouble[i] = asAny[i].as<double>();
             }
-            *m_value = std::move(asDouble);
+            const_cast<AnyValue*>(this)->m_value = std::move(asDouble);
             m_equals = eq_comparer<std::vector<double>>;
         }
-        return boost::any_cast<const T&>(*m_value);
-    } catch (boost::bad_any_cast&) {
-        if (m_value->type() == typeid(void)) {
+        return std::any_cast<const T&>(m_value);
+    } catch (std::bad_any_cast&) {
+        if (m_value.type() == typeid(void)) {
             // Values that have not been set are of type 'void'
             throw InputFileError("AnyValue::as", *this,
                 "Key '{}' not found or contains no value", m_key);
         } else {
             throw InputFileError("AnyValue::as", *this,
                 "Key '{}' contains a '{}',\nnot a '{}'",
-                m_key, demangle(m_value->type()), demangle(typeid(T)));
+                m_key, demangle(m_value.type()), demangle(typeid(T)));
         }
     }
 }
@@ -56,14 +53,14 @@ T &AnyValue::as() {
 
 template<class T>
 bool AnyValue::is() const {
-    return m_value->type() == typeid(T);
+    return m_value.type() == typeid(T);
 }
 
 template<> bool AnyValue::is<std::vector<double>>() const;
 
 template<class T>
 AnyValue &AnyValue::operator=(const std::vector<T> &value) {
-    *m_value = value;
+    m_value = value;
     m_equals = eq_comparer<std::vector<T>>;
     return *this;
 }
@@ -84,7 +81,7 @@ std::vector<T> &AnyValue::asVector(size_t nMin, size_t nMax) {
 
 template<class T>
 AnyValue& AnyValue::operator=(const std::unordered_map<std::string, T> items) {
-    *m_value = AnyMap();
+    m_value = AnyMap();
     m_equals = eq_comparer<AnyMap>;
     AnyMap& dest = as<AnyMap>();
     for (const auto& [key, value] : items) {
@@ -95,7 +92,7 @@ AnyValue& AnyValue::operator=(const std::unordered_map<std::string, T> items) {
 
 template<class T>
 AnyValue& AnyValue::operator=(const std::map<std::string, T> items) {
-    *m_value = AnyMap();
+    m_value = AnyMap();
     m_equals = eq_comparer<AnyMap>;
     AnyMap& dest = as<AnyMap>();
     for (const auto& [key, value] : items) {
@@ -109,15 +106,15 @@ inline AnyMap& AnyValue::as<AnyMap>() {
     try {
         // This is where nested AnyMaps are created when the syntax
         // m[key1][key2] is used.
-        if (m_value->type() == typeid(void)) {
-            *m_value = AnyMap();
+        if (m_value.type() == typeid(void)) {
+            m_value = AnyMap();
             m_equals = eq_comparer<AnyMap>;
         }
-        return boost::any_cast<AnyMap&>(*m_value);
-    } catch (boost::bad_any_cast&) {
+        return std::any_cast<AnyMap&>(m_value);
+    } catch (std::bad_any_cast&) {
         throw InputFileError("AnyValue::as", *this,
             "value of key '{}' is a '{}',\nnot an 'AnyMap'.",
-            m_key, demangle(m_value->type()));
+            m_key, demangle(m_value.type()));
     }
 }
 
@@ -147,10 +144,10 @@ void AnyValue::checkSize(const std::vector<T>& v, size_t nMin, size_t nMax) cons
 }
 
 template<class T, class U>
-bool AnyValue::vector_eq(const boost::any& lhs, const boost::any& rhs)
+bool AnyValue::vector_eq(const std::any& lhs, const std::any& rhs)
 {
-    const auto& lvec = boost::any_cast<T>(lhs);
-    const auto& rvec = boost::any_cast<U>(rhs);
+    const auto& lvec = std::any_cast<T>(lhs);
+    const auto& rvec = std::any_cast<U>(rhs);
     if (lvec.size() != rvec.size()) {
         return false;
     } else {
@@ -159,10 +156,10 @@ bool AnyValue::vector_eq(const boost::any& lhs, const boost::any& rhs)
 }
 
 template<class T, class U>
-bool AnyValue::vector2_eq(const boost::any& lhs, const boost::any& rhs)
+bool AnyValue::vector2_eq(const std::any& lhs, const std::any& rhs)
 {
-    const auto& lvec = boost::any_cast<std::vector<T>>(lhs);
-    const auto& rvec = boost::any_cast<std::vector<U>>(rhs);
+    const auto& lvec = std::any_cast<std::vector<T>>(lhs);
+    const auto& rvec = std::any_cast<std::vector<U>>(rhs);
     if (lvec.size() != rvec.size()) {
         return false;
     } else {
@@ -176,9 +173,9 @@ bool AnyValue::vector2_eq(const boost::any& lhs, const boost::any& rhs)
 }
 
 template<class T>
-bool AnyValue::eq_comparer(const boost::any& lhs, const boost::any& rhs)
+bool AnyValue::eq_comparer(const std::any& lhs, const std::any& rhs)
 {
-    using boost::any_cast;
+    using std::any_cast;
     typedef vector<double> vd;
     typedef vector<long int> vi;
     typedef vector<AnyValue> va;

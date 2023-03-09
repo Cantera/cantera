@@ -5,6 +5,7 @@
 #include "cantera/thermo/MolalityVPSSTP.h"
 #include "cantera/base/Solution.h"
 #include "cantera/base/utilities.h"
+#include <boost/algorithm/string.hpp>
 #include <regex>
 
 // This is a set of tests that check all ThermoPhase models implemented in Cantera
