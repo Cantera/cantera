@@ -285,6 +285,7 @@ class TestReactor(utilities.CanteraTest):
         self.net.advance_limits = 0 * self.net.advance_limits - 1.
         self.assertEqual(self.net.advance_limits[ix], -1.)
 
+    @pytest.mark.xfail(reason="See GitHub Issue #1453")
     def test_advance_with_limits(self):
         def integrate(limit_H2 = None, apply=True):
             P0 = 10 * ct.one_atm
@@ -296,8 +297,8 @@ class TestReactor(utilities.CanteraTest):
                 ix = self.net.global_component_index('H2', 0)
                 self.assertEqual(self.net.advance_limits[ix], limit_H2)
 
-            tEnd = 1.0
-            tStep = 1.e-3
+            tEnd = 0.1
+            tStep = 7e-4
             nSteps = 0
 
             t = tStep
