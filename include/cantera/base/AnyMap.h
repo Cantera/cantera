@@ -12,11 +12,7 @@
 
 #include <unordered_map>
 #include <filesystem>
-
-namespace boost
-{
-class any;
-}
+#include <any>
 
 namespace YAML
 {
@@ -85,10 +81,6 @@ class AnyValue : public AnyBase
 public:
     AnyValue();
     ~AnyValue();
-    AnyValue(AnyValue const& other);
-    AnyValue(AnyValue&& other);
-    AnyValue& operator=(AnyValue const& other);
-    AnyValue& operator=(AnyValue&& other);
 
     bool operator==(const AnyValue& other) const;
     bool operator!=(const AnyValue& other) const;
@@ -275,24 +267,24 @@ private:
     std::string m_key;
 
     //! The held value
-    std::unique_ptr<boost::any> m_value;
+    std::any m_value;
 
-    typedef bool (*Comparer)(const boost::any&, const boost::any&);
+    typedef bool (*Comparer)(const std::any&, const std::any&);
 
     //! Equality comparison function used when *lhs* is of type *T*
     template <typename T>
-    static bool eq_comparer(const boost::any& lhs, const boost::any& rhs);
+    static bool eq_comparer(const std::any& lhs, const std::any& rhs);
 
     //! Helper function for comparing vectors of different (but comparable)
     //! types, for example `vector<double>` and `vector<long int>`
     template<class T, class U>
-    static bool vector_eq(const boost::any& lhs, const boost::any& rhs);
+    static bool vector_eq(const std::any& lhs, const std::any& rhs);
 
     //! Helper function for comparing nested vectors of different (but
     //! comparable) types, for example `vector<vector<double>>` and
     //! `vector<vector<long int>>`
     template<class T, class U>
-    static bool vector2_eq(const boost::any& lhs, const boost::any& rhs);
+    static bool vector2_eq(const std::any& lhs, const std::any& rhs);
 
     mutable Comparer m_equals;
 
@@ -754,8 +746,6 @@ void warn_deprecated(const std::string& source, const AnyBase& node,
 
 }
 
-#ifndef CANTERA_API_NO_BOOST
 #include "cantera/base/AnyMap.inl.h"
-#endif
 
 #endif

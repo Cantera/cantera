@@ -20,6 +20,7 @@
 #include "cantera/thermo/PDSS_IonsFromNeutral.h"
 #include "cantera/base/stringUtils.h"
 
+#include <boost/algorithm/string.hpp>
 #include <fstream>
 
 namespace Cantera
