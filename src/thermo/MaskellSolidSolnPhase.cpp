@@ -17,6 +17,11 @@
 namespace Cantera
 {
 
+MaskellSolidSolnPhase::MaskellSolidSolnPhase()
+{
+    warn_deprecated("class MaskellSolidSolnPhase", "To be removed after Cantera 3.0");
+}
+
 void MaskellSolidSolnPhase::getActivityConcentrations(doublereal* c) const
 {
     getActivityCoefficients(c);

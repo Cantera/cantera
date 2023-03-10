@@ -272,11 +272,13 @@ TEST(ThermoFromYaml, RedlichKister)
 
 TEST(ThermoFromYaml, MaskellSolidSoln)
 {
+    suppress_deprecation_warnings();
     auto thermo = newThermo("thermo-models.yaml", "MaskellSolidSoln");
     vector_fp chemPotentials(2);
     thermo->getChemPotentials(chemPotentials.data());
     EXPECT_NEAR(chemPotentials[0], -4.989677789060059e6, 1e-6);
     EXPECT_NEAR(chemPotentials[1], 4.989677789060059e6 + 1000, 1e-6);
+    make_deprecation_warnings_fatal();
 }
 
 TEST(ThermoFromYaml, HMWSoln)

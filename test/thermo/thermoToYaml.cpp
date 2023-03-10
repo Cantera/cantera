@@ -175,9 +175,11 @@ TEST_F(ThermoToYaml, RedlichKister)
 
 TEST_F(ThermoToYaml, MaskellSolidSolution)
 {
+    suppress_deprecation_warnings();
     setup("thermo-models.yaml", "MaskellSolidSoln");
     EXPECT_EQ(data["product-species"], "H(s)");
     EXPECT_DOUBLE_EQ(data["excess-enthalpy"].asDouble(), 5e3);
+    make_deprecation_warnings_fatal();
 }
 
 TEST_F(ThermoToYaml, DebyeHuckel_B_dot_ak)

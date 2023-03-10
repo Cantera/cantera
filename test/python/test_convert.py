@@ -1269,6 +1269,7 @@ class ctml2yamlTest(utilities.CanteraTest):
             ctmlPhase, yamlPhase = self.checkConversion("debye-huckel-all", name=name)
             self.checkThermo(ctmlPhase, yamlPhase, [300, 500])
 
+    @pytest.mark.usefixtures("allow_deprecated")
     def test_Maskell_solid_soln(self):
         self.convert("MaskellSolidSolnPhase_valid")
         ctmlPhase, yamlPhase = self.checkConversion("MaskellSolidSolnPhase_valid")
