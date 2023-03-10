@@ -2300,10 +2300,13 @@ if env["python_sdist"]:
 VariantDir('build/samples', 'samples', duplicate=0)
 sampledir_excludes = ['\\.o$', '^~$', '\\.in', 'SConscript']
 SConscript('build/samples/cxx/SConscript')
+SConscript('build/samples/clib/SConscript')
 
-# Install C++ samples
+# Install C++ / C samples
 install(env.RecursiveInstall, '$inst_sampledir/cxx',
         'samples/cxx', exclude=sampledir_excludes)
+install(env.RecursiveInstall, '$inst_sampledir/clib',
+        'samples/clib', exclude=sampledir_excludes)
 
 if env['f90_interface'] == 'y':
     SConscript('build/samples/f77/SConscript')
