@@ -244,6 +244,7 @@ double Kinetics::checkDuplicateStoich(std::map<int, double>& r1,
 void Kinetics::selectPhase(const double* data, const ThermoPhase* phase,
                            double* phase_data)
 {
+    warn_deprecated("Kinetics::selectPhase", "To be removed after Cantera 3.0");
     for (size_t n = 0; n < nPhases(); n++) {
         if (phase == m_thermo[n]) {
             size_t nsp = phase->nSpecies();
@@ -280,6 +281,9 @@ size_t Kinetics::kineticsSpeciesIndex(const std::string& nm) const
 size_t Kinetics::kineticsSpeciesIndex(const std::string& nm,
                                       const std::string& ph) const
 {
+    warn_deprecated("Kinetics::kineticsSpeciesIndex(species_name, phase_name)",
+        "To be removed after Cantera 3.0. Use kineticsSpeciesIndex(species_name).\n"
+        "Species names should be unique across all phases linked to a Kinetics object.");
     if (ph == "<any>") {
         return kineticsSpeciesIndex(nm);
     }
@@ -340,6 +344,7 @@ double Kinetics::productStoichCoeff(size_t kSpec, size_t irxn) const
 }
 
 std::string Kinetics::reactionType(size_t i) const {
+    warn_deprecated("Kinetics::reactionType", "To be removed after Cantera 3.0.");
     return m_reactions[i]->type();
 }
 
@@ -350,18 +355,21 @@ std::string Kinetics::reactionTypeStr(size_t i) const {
 
 std::string Kinetics::reactionString(size_t i) const
 {
+    warn_deprecated("Kinetics::reactionString", "To be removed after Cantera 3.0.");
     return m_reactions[i]->equation();
 }
 
 //! Returns a string containing the reactants side of the reaction equation.
 std::string Kinetics::reactantString(size_t i) const
 {
+    warn_deprecated("Kinetics::reactantString", "To be removed after Cantera 3.0.");
     return m_reactions[i]->reactantString();
 }
 
 //! Returns a string containing the products side of the reaction equation.
 std::string Kinetics::productString(size_t i) const
 {
+    warn_deprecated("Kinetics::productString", "To be removed after Cantera 3.0.");
     return m_reactions[i]->productString();
 }
 
@@ -756,6 +764,7 @@ shared_ptr<const Reaction> Kinetics::reaction(size_t i) const
 
 double Kinetics::reactionEnthalpy(const Composition& reactants, const Composition& products)
 {
+    warn_deprecated("Kinetics::reactionEnthalpy", "To be removed after Cantera 3.0");
     vector_fp hk(nTotalSpecies());
     for (size_t n = 0; n < nPhases(); n++) {
         thermo(n).getPartialMolarEnthalpies(&hk[m_start[n]]);

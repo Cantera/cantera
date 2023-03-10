@@ -741,7 +741,8 @@ public:
 
     void compareReactions() {
         auto kin = soln->kinetics();
-        EXPECT_EQ(kin->reactionString(iOld), kin->reactionString(iNew));
+        EXPECT_EQ(kin->reaction(iOld)->equation(),
+                  kin->reaction(iNew)->equation());
         EXPECT_EQ(kin->isReversible(iOld), kin->isReversible(iNew));
 
         vector_fp kf(kin->nReactions()), kr(kin->nReactions());

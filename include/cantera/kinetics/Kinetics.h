@@ -307,6 +307,8 @@ public:
      *
      * @param nm   Input string name of the species
      * @param ph   Input string name of the phase.
+     * @deprecated To be removed after Cantera 3.0. Species names should be unique
+     *     across all phases.
      */
     size_t kineticsSpeciesIndex(const std::string& nm,
                                 const std::string& ph) const;
@@ -1010,6 +1012,8 @@ public:
      *
      * @param i   reaction index
      * @since  Method returned magic number prior to Cantera 3.0.
+     * @deprecated  To be removed after Cantera 3.0. Replace with
+     *     `kin->reaction(i)->type()`
      */
     virtual std::string reactionType(size_t i) const;
 
@@ -1036,13 +1040,19 @@ public:
      * Return a string representing the reaction.
      *
      * @param i   reaction index
+     * @deprecated To be removed after Cantera 3.0. Replace with
+     *     `kin->reaction(i)->equation()`.
      */
     std::string reactionString(size_t i) const;
 
     //! Returns a string containing the reactants side of the reaction equation.
+    //! @deprecated To be removed after Cantera 3.0. Replace with
+    //!     `kin->reaction(i)->reactantString()`
     std::string reactantString(size_t i) const;
 
     //! Returns a string containing the products side of the reaction equation.
+    //! @deprecated To be removed after Cantera 3.0. Replace with
+    //!     `kin->reaction(i)->productString()`
     std::string productString(size_t i) const;
 
     /**
@@ -1238,6 +1248,7 @@ public:
      *     reaction mechanism
      * @param phase_data Output array where the values for the the specified
      *     phase are to be written.
+     * @deprecated Unused. To be removed after Cantera 3.0.
      */
     void selectPhase(const double* data, const ThermoPhase* phase,
                      double* phase_data);
@@ -1255,6 +1266,7 @@ public:
 
     //! Calculate the reaction enthalpy of a reaction which
     //! has not necessarily been added into the Kinetics object
+    //! @deprecated To be removed after Cantera 3.0
     virtual double reactionEnthalpy(const Composition& reactants,
                                     const Composition& products);
 

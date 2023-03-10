@@ -297,7 +297,7 @@ extern "C" {
     {
         int irxn = *i - 1;
         std::fill(eqn, eqn + n, ' ');
-        string e = _kin->reactionString(irxn);
+        string e = _kin->reaction(irxn)->equation();
         int ns = e.size();
         unsigned int nmx = (ns > n ? n : ns);
         copy(e.begin(), e.begin()+nmx, eqn);

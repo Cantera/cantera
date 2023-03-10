@@ -19,6 +19,7 @@
 // to include core headers directly, use the format "cantera/module/*.h".
 
 #include "cantera/core.h"
+#include "cantera/kinetics/Reaction.h"
 #include "cantera/base/global.h" // provides Cantera::writelog
 #include <iostream>
 
@@ -87,8 +88,9 @@ void demoprog()
 
     writelog("\n\n");
     for (int i = 0; i < irxns; i++) {
+        const auto& rxn = kin->reaction(i);
         writelog("{:30s} {:14.5g} {:14.5g} {:14.5g}  kmol/m3/s\n",
-               kin->reactionString(i), qf[i], qr[i], q[i]);
+               rxn->equation(), qf[i], qr[i], q[i]);
     }
 
 
