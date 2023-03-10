@@ -59,10 +59,6 @@ public:
 
     virtual int standardStateConvention() const;
 
-    virtual void getdlnActCoeffdlnN_diag(doublereal* dlnActCoeffdlnN_diag) const {
-        throw NotImplementedError("VPStandardStateTP::getdlnActCoeffdlnN_diag");
-    }
-
     //! @}
     //! @name  Partial Molar Properties of the Solution (VPStandardStateTP)
     //! @{
