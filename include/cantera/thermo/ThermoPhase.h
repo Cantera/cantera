@@ -1688,6 +1688,11 @@ public:
 
     //! @}
     //! @name  Derivatives of Thermodynamic Variables needed for Applications
+    //!
+    //! Derivatives of the activity coefficients are needed to evaluate terms arising
+    //! in multicomponent transport models for non-ideal systems. While %Cantera does
+    //! not currently implement such models, these derivatives are provided by a few
+    //! phase models.
     //! @{
 
     //! Get the change in activity coefficients wrt changes in state (temp, mole
@@ -1764,6 +1769,9 @@ public:
      * \f[
      *     \frac{d \ln(\gamma_m) }{d \ln( n_k ) }\Bigg|_{n_i}
      * \f]
+     *
+     * When implemented, this method is used within the VCS equilibrium solver to
+     * calculate the Jacobian elements, which accelerates convergence of the algorithm.
      *
      * @param ld                 Number of rows in the matrix
      * @param dlnActCoeffdlnN    Output vector of derivatives of the
