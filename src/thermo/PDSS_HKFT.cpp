@@ -35,6 +35,7 @@ doublereal PDSS_HKFT::enthalpy_mole() const
 
 doublereal PDSS_HKFT::enthalpy_mole2() const
 {
+    warn_deprecated("PDSS_HKFT::enthalpy_mole2", "To be removed after Cantera 3.0");
     double enthTRPR = m_Mu0_tr_pr + 298.15 * m_units.convertTo(m_Entrop_tr_pr, "J/kmol");
     return deltaH() + enthTRPR;
 }
@@ -370,6 +371,7 @@ void PDSS_HKFT::getParameters(AnyMap& eosNode) const
 
 doublereal PDSS_HKFT::deltaH() const
 {
+    warn_deprecated("PDSS_HKFT::deltaH", "To be removed after Cantera 3.0");
     doublereal pbar = m_pres * 1.0E-5;
     doublereal c1term = m_c1 * (m_temp - 298.15);
     doublereal a1term = m_a1 * (pbar - m_presR_bar);

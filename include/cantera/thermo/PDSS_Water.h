@@ -94,7 +94,7 @@ public:
     virtual void setPressure(doublereal pres);
     virtual void setTemperature(doublereal temp);
     virtual void setState_TP(doublereal temp, doublereal pres);
-    virtual void setState_TD(double temp, double rho);
+    virtual void setState_TR(double temp, double rho);
 
     //! Set the density of the water phase
     /*!
