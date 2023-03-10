@@ -7,8 +7,9 @@
 
 #include "cantera/thermo/PDSS_Water.h"
 #include "cantera/thermo/WaterPropsIAPWS.h"
-#include "cantera/base/stringUtils.h"
 #include "cantera/thermo/Elements.h"
+#include "cantera/base/stringUtils.h"
+#include "cantera/base/global.h"
 
 namespace Cantera
 {
@@ -220,8 +221,9 @@ void PDSS_Water::setState_TP(doublereal temp, doublereal pres)
     setPressure(pres);
 }
 
-void PDSS_Water::setState_TD(double temp, double dens)
+void PDSS_Water::setState_TR(double temp, double dens)
 {
+    warn_deprecated("PDSS_Water::setState_TR", "To be removed after Cantera 3.0");
     m_temp = temp;
     m_dens = dens;
     m_sub.setState_TD(m_temp, m_dens);

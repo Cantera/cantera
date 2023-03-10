@@ -9,6 +9,7 @@
 
 #include "cantera/thermo/PDSS_IdealGas.h"
 #include "cantera/thermo/VPStandardStateTP.h"
+#include "cantera/base/global.h"
 
 namespace Cantera
 {
@@ -68,8 +69,9 @@ void PDSS_IdealGas::setState_TP(doublereal temp, doublereal pres)
     setTemperature(temp);
 }
 
-void PDSS_IdealGas::setState_TD(double temp, double rho)
+void PDSS_IdealGas::setState_TR(double temp, double rho)
 {
+    warn_deprecated("PDSS_IdealGas::setState_TR", "To be removed after Cantera 3.0");
     m_pres = GasConstant * temp * rho / m_mw;
     setTemperature(temp);
 }

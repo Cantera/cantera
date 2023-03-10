@@ -247,18 +247,22 @@ public:
 
     //! Get the difference in the standard state enthalpy
     //! between the current pressure and the reference pressure, p0.
+    //! @deprecated To be removed after Cantera 3.0
     virtual doublereal enthalpyDelp_mole() const;
 
     //! Get the difference in the standard state entropy between
     //! the current pressure and the reference pressure, p0
+    //! @deprecated To be removed after Cantera 3.0
     virtual doublereal entropyDelp_mole() const;
 
     //! Get the difference in the standard state Gibbs free energy
     //! between the current pressure and the reference pressure, p0.
+    //! @deprecated To be removed after Cantera 3.0
     virtual doublereal gibbsDelp_mole() const;
 
     //! Get the difference in standard state heat capacity
     //! between the current pressure and the reference pressure, p0.
+    //! @deprecated To be removed after Cantera 3.0
     virtual doublereal cpDelp_mole() const;
 
     //! @}
@@ -360,17 +364,9 @@ public:
     /*!
      * @param  temp     Temperature (Kelvin)
      * @param  rho      Density (kg m-3)
-     * @deprecated  To be removed after Cantera 3.0; renamed to setState_TD()
+     * @deprecated  To be removed after Cantera 3.0
      */
     virtual void setState_TR(doublereal temp, doublereal rho);
-
-    //! Set the internal temperature and density
-    /*!
-     * @param  temp     Temperature (Kelvin)
-     * @param  rho      Density (kg m-3)
-     * @since  New in Cantera 3.0.
-     */
-    virtual void setState_TD(double temp, double rho);
 
     //! critical temperature
     virtual doublereal critTemperature() const;
@@ -440,6 +436,7 @@ public:
      * @param minTemp   output - Minimum temperature
      * @param maxTemp   output - Maximum temperature
      * @param refPressure output - reference pressure (Pa).
+     * @deprecated To be removed after Cantera 3.0. Use getParameters() instead.
      */
     virtual void reportParams(size_t& kindex, int& type, doublereal* const c,
                               doublereal& minTemp, doublereal& maxTemp,

@@ -9,6 +9,7 @@
 
 #include "cantera/thermo/PDSS_ConstVol.h"
 #include "cantera/thermo/VPStandardStateTP.h"
+#include "cantera/base/global.h"
 
 namespace Cantera
 {
@@ -83,11 +84,12 @@ void PDSS_ConstVol::setState_TP(doublereal temp, doublereal pres)
     setPressure(pres);
 }
 
-void PDSS_ConstVol::setState_TD(double temp, double rho)
+void PDSS_ConstVol::setState_TR(double temp, double rho)
 {
+    warn_deprecated("PDSS_ConstVol::setState_TR", "To be removed after Cantera 3.0");
     double rhoStored = m_mw / m_constMolarVolume;
     if (fabs(rhoStored - rho) / (rhoStored + rho) > 1.0E-4) {
-        throw CanteraError("PDSS_ConstVol::setState_TD",
+        throw CanteraError("PDSS_ConstVol::setState_TR",
                            "Inconsistent supplied density.");
     }
     setTemperature(temp);
