@@ -1,96 +1,85 @@
-// Include all clib headers to make sure all of them are C-compatible, even if
-// we don't actually use all of them in this test.
+/**
+ * CLib Demo
+ *
+ * This program illustrates using Cantera's C-library interface to compute
+ * thermodynamic, kinetic, and transport properties of a gas mixture. In addition,
+ * a simple reactor network simulation is illustrated.
+ *
+ * Keywords: tutorial, equilibrium, thermodynamics, kinetics, transport, reactor network
+ */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at https://cantera.org/license.txt for license and copyright information.
+
 #include "cantera/clib/ct.h"
+#include "cantera/clib/ctreactor.h"
+
+#include <stdio.h>
+
+// The following header files are not used by this example, but are nevertheless added
+// here to ensure C-compatibility of Cantera's clib includes in continuous testing.
 #include "cantera/clib/ctfunc.h"
 #include "cantera/clib/ctmultiphase.h"
 #include "cantera/clib/ctonedim.h"
-#include "cantera/clib/ctreactor.h"
 #include "cantera/clib/ctrpath.h"
 #include "cantera/clib/ctsurf.h"
 
-#include <stdio.h>
-#include <assert.h>
-
 int main(int argc, char** argv)
 {
-    int ret;
-    int thermo = thermo_newFromFile("gri30.yaml", "gri30");
-    assert(thermo >= 0);
-    size_t nsp = thermo_nSpecies(thermo);
-    assert(nsp == 53);
+    int soln = soln_newSolution("gri30.yaml", "gri30", "");
+    int thermo = soln_thermo(soln);
 
-    ret = thermo_setTemperature(thermo, 500);
-    assert(ret == 0);
-    ret = thermo_setPressure(thermo, 5 * 101325);
-    assert(ret == 0);
-    ret = thermo_setMoleFractionsByName(thermo, "CH4:1.0, O2:2.0, N2:7.52");
-    assert(ret == 0);
+    thermo_setTemperature(thermo, 500);
+    thermo_setPressure(thermo, 5 * 101325);
+    thermo_setMoleFractionsByName(thermo, "CH4:1.0, O2:2.0, N2:7.52");
+    thermo_equilibrate(thermo, "HP", 0, 1e-9, 50000, 1000, 0);
+    thermo_print(thermo, 1, 0);
 
-    ret = thermo_equilibrate(thermo, "HP", 0, 1e-9, 50000, 1000, 0);
-    assert(ret == 0);
-    double T = thermo_temperature(thermo);
-    assert(T > 2200 && T < 2300);
-
-    ret = thermo_print(thermo, 1, 0);
-    assert(ret == 0);
-
-    int kin = kin_newFromFile("gri30.yaml", "gri30", thermo, -1, -1, -1, -1);
-    assert(kin >= 0);
-
+    int kin = soln_kinetics(soln);
     size_t nr = kin_nReactions(kin);
-    assert(nr == 325 );
-
-    ret = thermo_setTemperature(thermo, T - 200);
-    assert(ret == 0);
+    double T = thermo_temperature(thermo);
+    thermo_setTemperature(thermo, T - 200);
 
     char buf [1000];
     double ropf[325];
     printf("\n                   Reaction           Forward ROP\n");
     kin_getFwdRatesOfProgress(kin, 325, ropf);
-    int n; // declare this here for C89 compatibility
-    for (n = 0; n < nr; n++) {
+    for (size_t n = 0; n < nr; n++) {
         kin_getReactionString(kin, n, 1000, buf);
         printf("%35s   %8.6e\n", buf, ropf[n]);
     }
 
+    int tran = soln_transport(soln);
+    size_t nsp = thermo_nSpecies(thermo);
     printf("\n  Species    Mix diff coeff\n");
-    int tran = trans_newDefault(thermo, 0);
-    assert(tran >= 0);
     double dkm[53];
     trans_getMixDiffCoeffs(tran, 53, dkm);
-    int k; // declare this here for C89 compatibility
-    for (k = 0; k < nsp; k++) {
+    for (size_t k = 0; k < nsp; k++) {
         thermo_getSpeciesName(thermo, k, 1000, buf);
         printf("%10s   %8.6e\n", buf, dkm[k]);
     }
 
-    ret = thermo_setMoleFractionsByName(thermo, "CH4:1.0, O2:2.0, N2:7.52");
-    assert(ret == 0);
-    ret = thermo_setTemperature(thermo, 1050);
-    assert(ret == 0);
-    ret = thermo_setPressure(thermo, 5 * 101325);
-    assert(ret == 0);
-
+    thermo_setMoleFractionsByName(thermo, "CH4:1.0, O2:2.0, N2:7.52");
+    thermo_setTemperature(thermo, 1050);
+    thermo_setPressure(thermo, 5 * 101325);
     thermo_print(thermo, 1, 1e-6);
 
     printf("\ntime       Temperature\n");
     int reactor = reactor_new("IdealGasReactor");
     int net = reactornet_new();
-    ret = reactor_setThermoMgr(reactor, thermo);
-    assert(ret == 0);
-    ret = reactor_setKineticsMgr(reactor, kin);
-    assert(ret == 0);
-    ret = reactornet_addreactor(net, reactor);
-    assert(ret == 0);
+    reactor_setThermoMgr(reactor, thermo);
+    reactor_setKineticsMgr(reactor, kin);
+    reactornet_addreactor(net, reactor);
 
     double t = 0.0;
+    int ret = 0;
     while (t < 0.1 && ret == 0) {
         double T = reactor_temperature(reactor);
         t = reactornet_time(net);
         printf("%.2e   %.3f\n", t, T);
         ret = reactornet_advance(net, t + 5e-3);
-        assert(ret == 0);
     }
+
     ct_appdelete();
     return 0;
 }

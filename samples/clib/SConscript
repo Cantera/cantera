@@ -4,8 +4,6 @@ from buildutils import *
 Import('env', 'install', 'buildSample')
 localenv = env.Clone()
 
-# localenv['mak_stdlib'] = ['-l' + lib for lib in env['cxx_stdlib']]
-
 # (program name, [source files])
 samples = [('demo', ['demo.c'])]
 
