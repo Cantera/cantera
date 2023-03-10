@@ -60,7 +60,8 @@ void calc_potentials()
             }
         }
 
-        electrodebulk->setState_TX(Tk, &xv[0]);
+        electrodebulk->setMoleFractions(&xv[0]);
+        electrodebulk->setTemperature(Tk);
         electrodebulk->getChemPotentials(spvals.data());
 
         // Calculate the open circuit potential

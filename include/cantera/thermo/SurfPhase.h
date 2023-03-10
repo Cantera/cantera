@@ -211,12 +211,8 @@ public:
 
     //! Since interface phases have no volume, setting this to a value other than 0.0
     //! raises an exception.
-    virtual void setMolarDensity(const double vm) {
-        if (vm != 0.0) {
-            throw CanteraError("SurfPhase::setMolarDensity",
-                               "The volume of an interface is zero");
-        }
-    }
+    //! @deprecated Unused. To be removed after Cantera 3.0
+    virtual void setMolarDensity(const double vm);
 
     //! Returns the site density
     /*!
