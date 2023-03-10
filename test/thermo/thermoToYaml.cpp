@@ -143,6 +143,7 @@ TEST_F(ThermoToYaml, Edge)
 
 TEST_F(ThermoToYaml, IonsFromNeutral)
 {
+    suppress_deprecation_warnings();
     setup("thermo-models.yaml", "ions-from-neutral-molecule");
     EXPECT_EQ(data["neutral-phase"], "KCl-neutral");
     EXPECT_FALSE(eosData[0].hasKey("special-species"));
@@ -150,6 +151,7 @@ TEST_F(ThermoToYaml, IonsFromNeutral)
     auto multipliers = eosData[1]["multipliers"].asMap<double>();
     EXPECT_EQ(multipliers.size(), (size_t) 1);
     EXPECT_DOUBLE_EQ(multipliers["KCl(l)"], 1.5);
+    make_deprecation_warnings_fatal();
 }
 
 TEST_F(ThermoToYaml, Margules)
@@ -477,10 +479,12 @@ TEST_F(ThermoYamlRoundTrip, IdealSolutionVpss)
 
 TEST_F(ThermoYamlRoundTrip, IonsFromNeutral)
 {
+    suppress_deprecation_warnings();
     roundtrip("thermo-models.yaml", "ions-from-neutral-molecule",
               {"KCl-neutral"});
     skip_cp = true; // Not implemented for IonsFromNeutral
     compareThermo(500, 3e5);
+    make_deprecation_warnings_fatal();
 }
 
 TEST_F(ThermoYamlRoundTrip, LatticeSolid)

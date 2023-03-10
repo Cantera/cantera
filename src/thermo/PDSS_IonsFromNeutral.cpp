@@ -10,9 +10,15 @@
 #include "cantera/thermo/PDSS_IonsFromNeutral.h"
 #include "cantera/thermo/IonsFromNeutralVPSSTP.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/global.h"
 
 namespace Cantera
 {
+
+PDSS_IonsFromNeutral::PDSS_IonsFromNeutral()
+{
+    warn_deprecated("class PDSS_IonsFromNeutral", "To be removed after Cantera 3.0");
+}
 
 void PDSS_IonsFromNeutral::setParent(VPStandardStateTP* phase, size_t k)
 {

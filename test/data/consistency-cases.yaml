@@ -373,6 +373,7 @@ ions-from-neutral-molecule:
   setup:
     file: thermo-models.yaml
     phase: ions-from-neutral-molecule
+    ignore-deprecations: true
     known-failures:
       g_eq_h_minus_Ts: "Inconsistent results. See GitHub Issue #1322"
       gk_eq_hk_minus_T_sk: "Inconsistent results. See GitHub Issue #1322"

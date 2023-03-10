@@ -67,6 +67,10 @@ public:
         setup = get<0>(param);
         AnyMap state = get<1>(param);
 
+        if (setup.getBool("ignore-deprecations", false)) {
+            suppress_deprecation_warnings();
+        }
+
         // For efficiency, cache the instantiated phase object rather than recreating
         // it for every single test case.
         pair<string, string> key = {setup["file"].asString(), setup.getString("phase", "")};
@@ -90,6 +94,10 @@ public:
         } else {
             ke = npos;
         }
+    }
+
+    ~TestConsistency() {
+        make_deprecation_warnings_fatal();
     }
 
     void SetUp() {

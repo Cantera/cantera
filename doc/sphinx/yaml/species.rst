@@ -383,6 +383,10 @@ A species equation of state model used with the ``ions-from-neutral-molecule``
 phase model, as
 `described here <https://cantera.org/documentation/dev/doxygen/html/d5/df4/classCantera_1_1PDSS__IonsFromNeutral.html#details>`__.
 
+.. deprecated:: 3.0
+
+    This species thermo model is deprecated and will be removed after Cantera 3.0.
+
 Additional fields:
 
 ``special-species``

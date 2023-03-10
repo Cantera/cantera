@@ -78,6 +78,7 @@ shared_ptr<Species> make_const_cp_species(const std::string& name,
 
 TEST(IonsFromNeutralConstructor, fromScratch)
 {
+    suppress_deprecation_warnings();
     // Compare to the "ions-from-neutral-molecule" phase in "thermo-models.yaml"
     auto neutral = make_shared<MargulesVPSSTP>();
     auto sKCl = make_shomate_species("KCl(L)", "K:1 Cl:1", kcl_shomate_coeffs);
@@ -115,6 +116,7 @@ TEST(IonsFromNeutralConstructor, fromScratch)
     EXPECT_NEAR(p.enthalpy_mass(), -14738312.44316336, 1e-6);
     EXPECT_NEAR(mu[0], -4.66404010e+08, 1e1);
     EXPECT_NEAR(mu[1], -2.88157316e+06, 1e-1);
+    make_deprecation_warnings_fatal();
 }
 
 class ConstructFromScratch : public testing::Test

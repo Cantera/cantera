@@ -30,13 +30,15 @@ class ThermoPhase;
  *
  * This class is for a single Ideal Gas species.
  *
+ * @deprecated To be removed after Cantera 3.0
+ *
  * @ingroup pdssthermo
  */
 class PDSS_IonsFromNeutral : public PDSS_Nondimensional
 {
 public:
     //! Default constructor
-    PDSS_IonsFromNeutral() = default;
+    PDSS_IonsFromNeutral();
 
     //! @name  Molar Thermodynamic Properties of the Species Standard State
     //! @{
