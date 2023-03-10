@@ -631,6 +631,8 @@ public:
     //! Returns a const pointer to the start of the moleFraction/MW array.
     //! This array is the array of mole fractions, each divided by the mean
     //! molecular weight.
+    //! @deprecated To be removed after Cantera 3.0. Generally replaceable by using
+    //!     getMoleFractions() and meanMolecularWeight().
     const double* moleFractdivMMW() const;
 
     //! Dimensionless electrical charge of a single molecule of species k
