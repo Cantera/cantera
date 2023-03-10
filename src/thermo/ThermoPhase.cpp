@@ -194,12 +194,16 @@ void ThermoPhase::setState_RP(doublereal rho, doublereal p)
 
 void ThermoPhase::setState_PX(doublereal p, doublereal* x)
 {
+    warn_deprecated("ThermoPhase::setState_PX", "To be removed after Cantera 3.0. "
+        "Call 'setMoleFractions' and 'setPressure' instead.");
     setMoleFractions(x);
     setPressure(p);
 }
 
 void ThermoPhase::setState_PY(doublereal p, doublereal* y)
 {
+    warn_deprecated("ThermoPhase::setState_PX", "To be removed after Cantera 3.0. "
+        "Call 'setMassFractions' and 'setPressure' instead.");
     setMassFractions(y);
     setPressure(p);
 }
@@ -1335,8 +1339,8 @@ void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld, doublereal* const
         Xmol[j] = (moles_j_base + deltaMoles_j) / v_totalMoles;
 
         // Go get new values for the activity coefficients.
-        // -> Note this calls setState_PX();
-        setState_PX(pres, Xmol.data());
+        setMoleFractions(Xmol.data());
+        setPressure(pres);
         getActivityCoefficients(ActCoeff.data());
 
         // Calculate the column of the matrix
@@ -1349,8 +1353,8 @@ void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld, doublereal* const
         v_totalMoles = TMoles_base;
         Xmol = Xmol_Base;
     }
-
-    setState_PX(pres, Xmol_Base.data());
+    setMoleFractions(Xmol_Base.data());
+    setPressure(pres);
 }
 
 std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
@@ -1488,6 +1492,7 @@ std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
 
 void ThermoPhase::reportCSV(std::ofstream& csvFile) const
 {
+    warn_deprecated("ThermoPhase::reportCSV", "To be removed after Cantera 3.0.");
     int tabS = 15;
     int tabM = 30;
     csvFile.precision(8);
@@ -1521,6 +1526,7 @@ void ThermoPhase::reportCSV(std::ofstream& csvFile) const
 void ThermoPhase::getCsvReportData(std::vector<std::string>& names,
                                    std::vector<vector_fp>& data) const
 {
+    warn_deprecated("ThermoPhase::getCsvReportData", "To be removed after Cantera 3.0.");
     names.clear();
     data.assign(10, vector_fp(nSpecies()));
 

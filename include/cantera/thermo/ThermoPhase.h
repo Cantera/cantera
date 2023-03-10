@@ -877,6 +877,7 @@ public:
      * @param p    Pressure (Pa)
      * @param x    Vector of mole fractions.
      *             Length is equal to m_kk.
+     * @deprecated To be removed after Cantera 3.0.
      */
     virtual void setState_PX(doublereal p, doublereal* x);
 
@@ -889,6 +890,7 @@ public:
      * @param p    Pressure (Pa)
      * @param y    Vector of mass fractions.
      *             Length is equal to m_kk.
+     * @deprecated To be removed after Cantera 3.0.
      */
     virtual void setState_PY(doublereal p, doublereal* y);
 
@@ -1792,6 +1794,7 @@ public:
      * override the getCsvReportData method.
      *
      * @param csvFile  ofstream file to print comma separated data for the phase
+     * @deprecated To be removed after Cantera 3.0.
      */
     virtual void reportCSV(std::ofstream& csvFile) const;
 
@@ -1805,6 +1808,7 @@ protected:
 
     //! Fills `names` and `data` with the column names and species thermo
     //! properties to be included in the output of the reportCSV method.
+    //! @deprecated To be removed after Cantera 3.0.
     virtual void getCsvReportData(std::vector<std::string>& names,
                                   std::vector<vector_fp>& data) const;
 
