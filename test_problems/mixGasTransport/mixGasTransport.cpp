@@ -31,9 +31,6 @@ using namespace Cantera;
 
 int main(int argc, char** argv)
 {
-#if defined(_MSC_VER) && _MSC_VER < 1900
-    _set_output_format(_TWO_DIGIT_EXPONENT);
-#endif
     try {
         auto sol = newSolution("gri30.yaml", "gri30", "Mix");
         auto gas = sol->thermo();

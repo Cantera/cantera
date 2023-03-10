@@ -132,9 +132,6 @@ void printSurf(ostream& oooo,
 
 int main(int argc, char** argv)
 {
-#if defined(_MSC_VER) && _MSC_VER < 1900
-    _set_output_format(_TWO_DIGIT_EXPONENT);
-#endif
     string infile = "haca2.yaml";
     string gasPhaseName = "gas";
     string bulkParticlePhaseName = "soot";
