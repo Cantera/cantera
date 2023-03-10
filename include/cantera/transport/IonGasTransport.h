@@ -52,7 +52,7 @@ public:
     IonGasTransport() = default;
 
     virtual std::string transportModel() const {
-        return "Ion";
+        return "ionized-gas";
     }
 
     virtual void init(ThermoPhase* thermo, int mode, int log_level);

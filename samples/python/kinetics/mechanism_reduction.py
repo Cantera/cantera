@@ -64,7 +64,7 @@ for i, N in enumerate([40, 50, 60, 70, 80]):
     species = [gas.species(name) for name in species_names]
 
     # create the new reduced mechanism
-    gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+    gas2 = ct.Solution(thermo='ideal-gas', kinetics='gas',
                        species=species, reactions=reactions)
 
     # save the reduced mechanism for later use

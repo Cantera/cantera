@@ -64,7 +64,7 @@ TEST(ThermoFromYaml, speciesAll)
 TEST(ThermoFromYaml, StoichSubstance1)
 {
     auto thermo = newThermo("thermo-models.yaml", "NaCl(s)");
-    EXPECT_EQ(thermo->type(), "StoichSubstance");
+    EXPECT_EQ(thermo->type(), "fixed-stoichiometry");
     EXPECT_EQ(thermo->nSpecies(), (size_t) 1);
     EXPECT_EQ(thermo->nElements(), (size_t) 2);
     EXPECT_DOUBLE_EQ(thermo->density(), 2165.0);
@@ -74,7 +74,7 @@ TEST(ThermoFromYaml, StoichSubstance1)
 TEST(ThermoFromYaml, StoichSubstance2)
 {
     auto thermo = newThermo("thermo-models.yaml", "KCl(s)");
-    EXPECT_EQ(thermo->type(), "StoichSubstance");
+    EXPECT_EQ(thermo->type(), "fixed-stoichiometry");
     EXPECT_EQ(thermo->nSpecies(), (size_t) 1);
     EXPECT_EQ(thermo->nElements(), (size_t) 2);
     EXPECT_NEAR(thermo->density(), 1980, 0.1);
@@ -83,7 +83,7 @@ TEST(ThermoFromYaml, StoichSubstance2)
 TEST(ThermoFromYaml, SurfPhase)
 {
     auto thermo = newThermo("surface-phases.yaml", "Pt-surf");
-    EXPECT_EQ(thermo->type(), "Surf");
+    EXPECT_EQ(thermo->type(), "ideal-surface");
     EXPECT_EQ(thermo->nSpecies(), (size_t) 3);
     auto surf = std::dynamic_pointer_cast<SurfPhase>(thermo);
     EXPECT_DOUBLE_EQ(surf->siteDensity(), 2.7063e-8);
@@ -96,7 +96,7 @@ TEST(ThermoFromYaml, SurfPhase)
 TEST(ThermoFromYaml, EdgePhase)
 {
     auto thermo = newThermo("surface-phases.yaml", "TPB");
-    EXPECT_EQ(thermo->type(), "Edge");
+    EXPECT_EQ(thermo->type(), "edge");
     EXPECT_EQ(thermo->nSpecies(), (size_t) 1);
     auto edge = std::dynamic_pointer_cast<SurfPhase>(thermo);
     EXPECT_DOUBLE_EQ(edge->siteDensity(), 5e-18);
@@ -133,7 +133,7 @@ TEST(ThermoFromYaml, Margules)
 TEST(ThermoFromYaml, IdealMolalSoln)
 {
     auto thermo = newThermo("thermo-models.yaml", "ideal-molal-aqueous");
-    EXPECT_EQ(thermo->type(), "IdealMolalSoln");
+    EXPECT_EQ(thermo->type(), "ideal-molal-solution");
 
     EXPECT_NEAR(thermo->enthalpy_mole(), 0.013282, 1e-6);
     EXPECT_NEAR(thermo->gibbs_mole(), -3.8986e7, 1e3);
@@ -153,7 +153,7 @@ TEST(ThermoFromYaml, DebyeHuckel_bdot_ak)
     auto thermo = newThermo("thermo-models.yaml", "debye-huckel-B-dot-ak");
 
     // Regression test based on XML input file
-    EXPECT_EQ(thermo->type(), "DebyeHuckel");
+    EXPECT_EQ(thermo->type(), "Debye-Huckel");
     EXPECT_NEAR(thermo->density(), 60.296, 1e-2);
     EXPECT_NEAR(thermo->cp_mass(), 1.58216e5, 1e0);
     EXPECT_NEAR(thermo->entropy_mass(), 4.042462e3, 1e-2);
@@ -177,7 +177,7 @@ TEST(ThermoFromYaml, DebyeHuckel_beta_ij)
     auto thermo = newThermo("thermo-models.yaml", "debye-huckel-beta_ij");
 
     // Regression test based on XML input file
-    EXPECT_EQ(thermo->type(), "DebyeHuckel");
+    EXPECT_EQ(thermo->type(), "Debye-Huckel");
     EXPECT_NEAR(thermo->density(), 122.262, 1e-3);
     EXPECT_NEAR(thermo->cp_mass(), 81263.5, 1e-1);
     EXPECT_NEAR(thermo->entropy_mass(), 4022.519, 1e-2);

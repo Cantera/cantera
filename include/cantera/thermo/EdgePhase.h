@@ -39,7 +39,7 @@ public:
     explicit EdgePhase(const std::string& infile="", const std::string& id="");
 
     virtual std::string type() const {
-        return "Edge";
+        return "edge";
     }
 };
 }

@@ -34,7 +34,7 @@ public:
     GasKinetics(ThermoPhase* thermo);
 
     virtual std::string kineticsType() const {
-        return "Gas";
+        return "gas";
     }
 
     virtual void getThirdBodyConcentrations(double* concm);

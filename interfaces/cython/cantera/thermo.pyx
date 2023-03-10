@@ -59,7 +59,7 @@ cdef class Species:
         tran = ct.GasTransportData()
         tran.set_customary_units('nonlinear', 3.75, 141.40, 0.0, 2.60, 13.00)
         ch4.transport = tran
-        gas = ct.Solution(thermo='IdealGas', species=[ch4])
+        gas = ct.Solution(thermo='ideal-gas', species=[ch4])
 
     The static methods `list_from_file` and `list_from_yaml` can be used to create
     `Species` objects from existing definitions in the YAML format. Either of the
@@ -1874,7 +1874,7 @@ cdef class InterfacePhase(ThermoPhase):
     def __cinit__(self, *args, **kwargs):
         if not kwargs.get("init", True):
             return
-        if pystr(self.thermo.type()) not in ("Surf", "Edge"):
+        if pystr(self.thermo.type()) not in ("ideal-surface", "edge"):
             raise TypeError('Underlying ThermoPhase object is of the wrong type.')
         self.surf = <CxxSurfPhase*>(self.thermo)
 

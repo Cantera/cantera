@@ -46,10 +46,10 @@ def Water(backend='Reynolds'):
 
     if backend == 'Reynolds':
         return WaterWithTransport('liquidvapor.yaml', 'water',
-                                  transport_model='Water')
+                                  transport_model='water')
     if backend == 'IAPWS95':
         return WaterWithTransport('liquidvapor.yaml', 'liquid-water-IAPWS95',
-                                  transport_model='Water')
+                                  transport_model='water')
 
     raise KeyError("Unknown backend '{}'".format(backend))
 

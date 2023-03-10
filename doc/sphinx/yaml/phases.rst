@@ -929,7 +929,7 @@ Example::
     - name: isotropic-electron-energy-plasma
       thermo: plasma
       kinetics: gas
-      transport: Ion
+      transport: ionized-gas
       electron-energy-distribution:
         type: isotropic
         shape-factor: 2.0
@@ -938,7 +938,7 @@ Example::
     - name: discretized-electron-energy-plasma
       thermo: plasma
       kinetics: gas
-      transport: Ion
+      transport: ionized-gas
       electron-energy-distribution:
         type: discretized
         energy-levels: [0.0, 0.1, 1.0, 10.0]

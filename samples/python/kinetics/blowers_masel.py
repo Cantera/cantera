@@ -36,7 +36,7 @@ r2 = ct.Reaction({"O":1, "H2":1}, {"H":1, "OH":1},
 r3 = ct.Reaction({"H":1, "CH4":1}, {"CH3":1, "H2":1},
                  ct.BlowersMaselRate(3.87e1, 2.7, 6260*1000*4.184, 1e9))
 
-gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+gas = ct.Solution(thermo='ideal-gas', kinetics='gas',
                   species=ct.Solution('gri30.yaml').species(), reactions=[r1, r2, r3])
 
 gas.TP = 300, ct.one_atm

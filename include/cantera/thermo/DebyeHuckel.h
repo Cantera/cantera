@@ -429,7 +429,7 @@ public:
     //! @{
 
     virtual std::string type() const {
-        return "DebyeHuckel";
+        return "Debye-Huckel";
     }
 
     //! @}

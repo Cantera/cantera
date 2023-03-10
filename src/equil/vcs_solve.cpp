@@ -153,7 +153,7 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
 
         // Query Cantera for the equation of state type of the current phase.
         std::string eos = tPhase->type();
-        bool gasPhase = (eos == "IdealGas");
+        bool gasPhase = (eos == "ideal-gas");
 
         // Find out the number of species in the phase
         size_t nSpPhase = tPhase->nSpecies();
@@ -184,15 +184,13 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
         VolPhase->p_activityConvention = tPhase->activityConvention();
 
         // Assign the value of eqn of state. Handle conflicts here.
-        if (eos == "IdealGas") {
+        if (eos == "ideal-gas") {
             VolPhase->m_eqnState = VCS_EOS_IDEAL_GAS;
-        } else if (eos == "ConstDensity") {
-            VolPhase->m_eqnState = VCS_EOS_CONSTANT;
-        } else if (eos == "StoichSubstance") {
+        } else if (eos == "fixed-stoichiometry") {
             VolPhase->m_eqnState = VCS_EOS_STOICH_SUB;
-        } else if (eos == "IdealSolidSoln") {
+        } else if (eos == "ideal-condensed") {
             VolPhase->m_eqnState = VCS_EOS_IDEAL_SOLN;
-        } else if (eos == "Surf" || eos == "Edge") {
+        } else if (tPhase->nDim() != 3) {
             throw CanteraError("VCS_SOLVE::VCS_SOLVE",
                                "Surface/edge phase not handled yet.");
         } else {

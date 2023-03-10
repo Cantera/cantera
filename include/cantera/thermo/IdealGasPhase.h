@@ -262,7 +262,7 @@ public:
                            const std::string& id="");
 
     virtual std::string type() const {
-        return "IdealGas";
+        return "ideal-gas";
     }
 
     virtual bool isIdeal() const {

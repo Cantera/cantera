@@ -30,7 +30,7 @@ public:
                               const std::string& id="");
 
     virtual std::string type() const {
-        return "RedlichKwong";
+        return "Redlich-Kwong";
     }
 
     //! @name Molar Thermodynamic properties

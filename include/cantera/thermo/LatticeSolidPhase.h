@@ -108,7 +108,7 @@ public:
     LatticeSolidPhase() = default;
 
     virtual std::string type() const {
-        return "LatticeSolid";
+        return "compound-lattice";
     }
 
     //! String indicating the mechanical phase of the matter in this Phase.

@@ -75,7 +75,7 @@ public:
     virtual void resizeReactions();
 
     virtual std::string kineticsType() const {
-        return "Surf";
+        return "surface";
     }
 
     //! Set the electric potential in the nth phase

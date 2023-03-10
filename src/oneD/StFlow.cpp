@@ -20,7 +20,7 @@ StFlow::StFlow(ThermoPhase* ph, size_t nsp, size_t points) :
     Domain1D(nsp+c_offset_Y, points),
     m_nsp(nsp)
 {
-    if (ph->type() == "IdealGas") {
+    if (ph->type() == "ideal-gas") {
         m_thermo = static_cast<IdealGasPhase*>(ph);
     } else {
         throw CanteraError("StFlow::StFlow",
@@ -166,7 +166,7 @@ void StFlow::setTransport(shared_ptr<Transport> trans)
         throw CanteraError("StFlow::setTransport", "Invalid Transport model 'None'.");
     }
     m_do_multicomponent = (m_trans->transportModel() == "Multi" ||
-        m_trans->transportModel() == "CK_Multi");
+        m_trans->transportModel() == "multicomponent-CK");
 
     m_diff.resize(m_nsp * m_points);
     if (m_do_multicomponent) {
@@ -249,7 +249,8 @@ void StFlow::setTransport(Transport& trans)
         throw CanteraError("StFlow::setTransport",
             "Invalid Transport model 'None'.");
     }
-    m_do_multicomponent = (m_trans->transportModel() == "Multi" || m_trans->transportModel() == "CK_Multi");
+    m_do_multicomponent = (m_trans->transportModel() == "Multi" ||
+                           m_trans->transportModel() == "multicomponent-CK");
 
     m_diff.resize(m_nsp*m_points);
     if (m_do_multicomponent) {

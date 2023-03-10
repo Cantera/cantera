@@ -1,5 +1,5 @@
 Trying VCS equilibrium solver
-Unknown Cantera EOS to VCSnonideal: 'HMWSoln'
+Unknown Cantera EOS to VCSnonideal: 'HMW-electrolyte'
 
 ================================================================================
 ================ Cantera_to_vprob: START OF PROBLEM STATEMENT ====================

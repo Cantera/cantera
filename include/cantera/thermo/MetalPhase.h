@@ -26,7 +26,7 @@ public:
     // Overloaded methods of class ThermoPhase
 
     virtual std::string type() const {
-        return "Metal";
+        return "electron-cloud";
     }
 
     virtual bool isCompressible() const {

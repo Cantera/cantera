@@ -161,7 +161,8 @@ public:
 
     //! Identifies the model represented by this Transport object. Each derived class
     //! should override this method to return a meaningful identifier.
-    //! @since  New in Cantera 3.0.
+    //! @since  New in Cantera 3.0. The name returned by this method corresponds
+    //!     to the canonical name used in the YAML input format.
     virtual std::string transportModel() const {
         return "None";
     }

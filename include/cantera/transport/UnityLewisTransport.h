@@ -28,7 +28,7 @@ public:
     UnityLewisTransport() = default;
 
     virtual std::string transportModel() const {
-        return "UnityLewis";
+        return "unity-Lewis-number";
     }
 
     //! Returns the unity Lewis number approximation based diffusion

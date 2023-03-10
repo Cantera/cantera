@@ -66,7 +66,7 @@ IonFlow::IonFlow(shared_ptr<Solution> sol, const std::string& id, size_t points)
             "An appropriate transport model\nshould be set when instantiating the "
             "Solution ('gas') object.\nImplicit setting of the transport model "
             "is deprecated and\nwill be removed after Cantera 3.0.");
-        setTransportModel("Ion");
+        setTransportModel("ionized-gas");
     }
     m_solution->registerChangedCallback(this, [this]() {
         setKinetics(m_solution->kinetics());

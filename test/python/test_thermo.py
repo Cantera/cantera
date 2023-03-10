@@ -1229,7 +1229,7 @@ class ImportTest(utilities.CanteraTest):
         gas1.equilibrate('HP')
 
         species = ct.Species.list_from_file("h2o2.yaml")
-        gas2 = ct.ThermoPhase(thermo='IdealGas', species=species)
+        gas2 = ct.ThermoPhase(thermo='ideal-gas', species=species)
         gas2.TPX = 350, 101325, 'H2:0.3, O2:0.7'
         gas2.equilibrate('HP')
         self.assertEqual(gas1.n_elements, gas2.n_elements)

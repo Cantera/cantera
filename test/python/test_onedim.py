@@ -136,8 +136,8 @@ class TestOnedim(utilities.CanteraTest):
 
         assert gas.transport_model == flame.transport_model == 'Mix'
 
-        flame.transport_model = 'UnityLewis'
-        assert gas.transport_model == flame.transport_model == 'UnityLewis'
+        flame.transport_model = 'unity-Lewis-number'
+        assert gas.transport_model == flame.transport_model == 'unity-Lewis-number'
         Dkm_flame = flame.mix_diff_coeffs
         assert all(Dkm_flame[1,:] == Dkm_flame[2,:])
 
@@ -466,7 +466,7 @@ class TestFreeFlame(utilities.CanteraTest):
 
     def test_unity_lewis(self):
         self.create_sim(ct.one_atm, 300, 'H2:1.1, O2:1, AR:5.3')
-        self.sim.transport_model = 'UnityLewis'
+        self.sim.transport_model = 'unity-Lewis-number'
         self.sim.set_refine_criteria(ratio=3.0, slope=0.08, curve=0.12)
         self.sim.solve(loglevel=0, auto=True)
         dh_unity_lewis = self.sim.enthalpy_mass.ptp()
@@ -1505,7 +1505,7 @@ class TestIonFreeFlame(utilities.CanteraTest):
         self.sim.set_refine_criteria(ratio=4, slope=0.8, curve=1.0)
         # Ionized species may require tighter absolute tolerances
         self.sim.flame.set_steady_tolerances(Y=(1e-4, 1e-12))
-        self.sim.transport_model = 'Ion'
+        self.sim.transport_model = 'ionized-gas'
 
         # stage one
         self.sim.solve(loglevel=0, auto=True)
@@ -1530,7 +1530,7 @@ class TestIonBurnerFlame(utilities.CanteraTest):
         self.sim = ct.IonBurnerFlame(self.gas, width=width)
         self.sim.set_refine_criteria(ratio=4, slope=0.1, curve=0.1)
         self.sim.burner.mdot = self.gas.density * 0.15
-        self.sim.transport_model = 'Ion'
+        self.sim.transport_model = 'ionized-gas'
 
         self.sim.solve(loglevel=0, stage=2, auto=True)
 
