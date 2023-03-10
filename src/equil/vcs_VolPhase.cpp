@@ -183,7 +183,8 @@ void vcs_VolPhase::setMoleFractions(const double* const xmol)
 void vcs_VolPhase::_updateMoleFractionDependencies()
 {
     if (TP_ptr) {
-        TP_ptr->setState_PX(Pres_, &Xmol_[m_MFStartIndex]);
+        TP_ptr->setMoleFractions(&Xmol_[m_MFStartIndex]);
+        TP_ptr->setPressure(Pres_);
     }
     if (!m_isIdealSoln) {
         m_UpToDate_AC = false;

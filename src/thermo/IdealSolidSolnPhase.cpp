@@ -422,7 +422,8 @@ void IdealSolidSolnPhase::setToEquilState(const doublereal* mu_RT)
         pres += m_pp[k];
     }
     // set state
-    setState_PX(pres, m_pp.data());
+    setMoleFractions(m_pp.data());
+    setPressure(pres);
 }
 
 void IdealSolidSolnPhase::setStandardConcentrationModel(const std::string& model)
