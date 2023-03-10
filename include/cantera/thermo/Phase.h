@@ -224,6 +224,7 @@ public:
     //!     @param  k         species index
     //!     @param atomArray  vector containing the atomic number in the species.
     //!                       Length: m_mm
+    //! @deprecated Unused. To be removed after Cantera 3.0
     void getAtoms(size_t k, double* atomArray) const;
 
     //! Returns the index of a species named 'name' within the Phase object.
@@ -243,6 +244,7 @@ public:
     //! This is guaranteed to be unique within a Cantera problem.
     //!     @param k  Species index within the phase
     //!     @return   The "phaseName:speciesName" string
+    //! @deprecated Unused. To be removed after Cantera 3.0
     std::string speciesSPName(int k) const;
 
     //! Return a const reference to the vector of species names
@@ -406,6 +408,7 @@ public:
     //!     @param t     Temperature in kelvin
     //!     @param n     molar density (kmol/m^3)
     //!     @param x     vector of species mole fractions, length m_kk
+    //! @deprecated Unused. To be removed after Cantera 3.0
     void setState_TNX(doublereal t, doublereal n, const doublereal* x);
 
     //! Set the internally stored temperature (K) and density (kg/m^3)
@@ -423,21 +426,25 @@ public:
     //! Set the internally stored temperature (K) and mole fractions.
     //!     @param t   Temperature in kelvin
     //!     @param x   vector of species mole fractions, length m_kk
+    //! @deprecated Unused. To be removed after Cantera 3.0
     void setState_TX(doublereal t, doublereal* x);
 
     //! Set the internally stored temperature (K) and mass fractions.
     //!     @param t   Temperature in kelvin
     //!     @param y   vector of species mass fractions, length m_kk
+    //! @deprecated Unused. To be removed after Cantera 3.0
     void setState_TY(doublereal t, doublereal* y);
 
     //! Set the density (kg/m^3) and mole fractions.
     //!     @param rho  Density (kg/m^3)
     //!     @param x    vector of species mole fractions, length m_kk
+    //! @deprecated Unused. To be removed after Cantera 3.0
     void setState_RX(doublereal rho, doublereal* x);
 
     //! Set the density (kg/m^3) and mass fractions.
     //!     @param rho  Density (kg/m^3)
     //!     @param y    vector of species mass fractions, length m_kk
+    //! @deprecated Unused. To be removed after Cantera 3.0
     void setState_RY(doublereal rho, doublereal* y);
 
     //! @} end group set thermo state
@@ -449,6 +456,7 @@ public:
 
     //! Copy the vector of molecular weights into vector weights.
     //!     @param weights Output vector of molecular weights (kg/kmol)
+    //! @deprecated Unused. To be removed after Cantera 3.0
     void getMolecularWeights(vector_fp& weights) const;
 
     //! Copy the vector of molecular weights into array weights.
@@ -696,6 +704,7 @@ public:
 
     //! Set the internally stored molar density (kmol/m^3) of the phase.
     //!     @param[in] molarDensity Input molar density (kmol/m^3).
+    //! @deprecated Unused. To be removed after Cantera 3.0
     virtual void setMolarDensity(const double molarDensity);
 
     //! Set the internally stored pressure (Pa) at constant temperature and

@@ -53,7 +53,8 @@ int main(int argc, char** argv)
         x[i0] = 0.1;
         size_t i1 = diamond100->speciesIndex("c6HH");
         x[i1] = 0.9;
-        diamond100->setState_TX(1200., x);
+        diamond100->setMoleFractions(x);
+        diamond100->setTemperature(1200.);
 
         for (i = 0; i < 20; i++) {
             x[i] = 0.0;
