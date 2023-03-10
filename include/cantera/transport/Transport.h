@@ -146,9 +146,12 @@ public:
      * @param thermo   Pointer to the ThermoPhase class representing this phase.
      * @param ndim     Dimension of the flux vector used in the calculation.
      *
+     * @deprecated The `thermo` and `ndim` parameters will be removed after Cantera 3.0.
+     *     The ThermoPhase object should be specifed when calling the `init` method.
+     *
      * @see TransportFactory
      */
-    Transport(ThermoPhase* thermo=0, size_t ndim = 1);
+    Transport(ThermoPhase* thermo=0, size_t ndim=npos);
 
     virtual ~Transport() {}
 
@@ -184,16 +187,19 @@ public:
 
     /*!
      * Returns true if the transport manager is ready for use.
+     * @deprecated To be removed after Cantera 3.0.
      */
     bool ready();
 
     //! Set the number of dimensions to be expected in flux expressions
     /*!
      *  @param ndim  Number of dimensions in flux expressions
+     *  @deprecated Unused. To be removed after Cantera 3.0.
      */
     void setNDim(const int ndim);
 
     //! Return the number of dimensions in flux expressions
+    //! @deprecated Unused. To be removed after Cantera 3.0.
     size_t nDim() const {
         return m_nDim;
     }
@@ -753,10 +759,13 @@ public:
      *
      * @param   thermo  Reference to the ThermoPhase object that the transport
      *                  object will use
+     * @deprecated To be removed after Cantera 3.0. The ThermoPhase object should be
+     *     set as part of the call to `init`.
      */
     virtual void setThermo(ThermoPhase& thermo);
 
     //! Set root Solution holding all phase information
+    //! @deprecated Unused. To be removed after Cantera 3.0.
     virtual void setRoot(std::shared_ptr<Solution> root);
 
     //! Boolean indicating the form of the transport properties polynomial fits.
@@ -772,6 +781,7 @@ protected:
      * Once finalize() has been called, the transport manager should be ready to
      * compute any supported transport property, and no further modifications to
      * the model parameters should be made.
+     * @deprecated To be removed after Cantera 3.0.
      */
     void finalize();
 
@@ -781,12 +791,14 @@ protected:
     ThermoPhase* m_thermo;
 
     //! true if finalize has been called
+    //! @deprecated To be removed after Cantera 3.0
     bool m_ready = false;
 
     //! Number of species
     size_t m_nsp = 0;
 
     //! Number of dimensions used in flux expressions
+    //! @deprecated To be removed after Cantera 3.0
     size_t m_nDim;
 
     //! Velocity basis from which diffusion velocities are computed.
@@ -794,6 +806,7 @@ protected:
     int m_velocityBasis = VB_MASSAVG;
 
     //! reference to Solution
+    //! @deprecated To be removed after Cantera 3.0
     std::weak_ptr<Solution> m_root;
 };
 

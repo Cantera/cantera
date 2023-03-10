@@ -16,15 +16,28 @@ Transport::Transport(ThermoPhase* thermo, size_t ndim) :
     m_thermo(thermo),
     m_nDim(ndim)
 {
+    if (thermo != nullptr) {
+        warn_deprecated("Transport::Transport", "Specifying the ThermoPhase object "
+            "in the Transport constructor is deprecated and will be removed after "
+            "Cantera 3.0");
+    }
+    if (ndim != npos) {
+        warn_deprecated("Transport::Transport", "The 'ndim' argument to the Transport "
+            "constructor is deprecated and will be removed after Cantera 3.0");
+    } else {
+        m_nDim = 1;
+    }
 }
 
 bool Transport::ready()
 {
+    warn_deprecated("Transport::ready", "To be removed after Cantera 3.0");
     return m_ready;
 }
 
 void Transport::setNDim(const int ndim)
 {
+    warn_deprecated("Transport::setNDim", "To be removed after Cantera 3.0");
     m_nDim = ndim;
 }
 
@@ -54,6 +67,7 @@ AnyMap Transport::parameters() const
 
 void Transport::setThermo(ThermoPhase& thermo)
 {
+    warn_deprecated("Transport::setThermo", "To be removed after Cantera 3.0");
     if (!ready()) {
         m_thermo = &thermo;
         m_nsp = m_thermo->nSpecies();
@@ -80,11 +94,13 @@ void Transport::setThermo(ThermoPhase& thermo)
 
 void Transport::setRoot(std::shared_ptr<Solution> root)
 {
+    warn_deprecated("Transport::setRoot", "To be removed after Cantera 3.0");
     m_root = root;
 }
 
 void Transport::finalize()
 {
+    warn_deprecated("Transport::finalize", "To be removed after Cantera 3.0");
     if (!ready()) {
         m_ready = true;
     } else {
