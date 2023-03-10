@@ -24,11 +24,7 @@ void PureFluidPhase::initThermo()
         setSubstance(m_input["pure-fluid-name"].asString());
     }
 
-    if (m_tpx_name != "") {
-        m_sub.reset(tpx::newSubstance(m_tpx_name));
-    } else {
-        m_sub.reset(tpx::GetSub(m_subflag));
-    }
+    m_sub.reset(tpx::newSubstance(m_tpx_name));
 
     m_mw = m_sub->MolWt();
     setMolecularWeight(0,m_mw);
