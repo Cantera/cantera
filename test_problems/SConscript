@@ -208,9 +208,6 @@ Test('VCS-LiSi-verbose', 'VCSnonideal/LatticeSolid_LiSi', vcs_LiSi.program,
      'verbose_blessed.txt', options='8',
      artifacts=['vcs_equilibrate_res.csv'])
 
-CompileAndTest('clib-demo', 'clib_test', 'clib_test',
-               extensions=['^clib_test.c'], libs=localenv['cantera_shared_libs'])
-
 # C++ Samples
 Test('cxx-bvp', 'cxx_samples', '#build/samples/cxx/bvp/blasius', None,
      profiles=[('blasius_blessed.csv', 'blasius.csv')],
@@ -244,6 +241,8 @@ if env['HAS_OPENMP']:
         ignoreLines=['Running on'])
 Test('cxx-rankine', 'cxx_samples', '#build/samples/cxx/rankine/rankine',
      'rankine_blessed.txt')
+
+Test('clib-demo', 'clib', '#build/samples/clib/demo', 'clib_demo_blessed.txt')
 
 if env['f90_interface'] == 'y':
     Test('f90-demo', 'fortran', '#build/samples/f90/demo', 'f90_demo_blessed.txt',
