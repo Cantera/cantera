@@ -63,6 +63,8 @@ enum IonSolnType_enumType {
  *
  *  This object can translate between any of the four mole fraction
  *  representations.
+ *
+ *  @deprecated To be removed after Cantera 3.0.
  */
 class IonsFromNeutralVPSSTP : public GibbsExcessVPSSTP
 {

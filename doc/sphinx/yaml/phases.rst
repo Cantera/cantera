@@ -667,6 +667,10 @@ expressed in terms of combinations of the ionic species that represent neutral
 molecules, as
 `described here <https://cantera.org/documentation/dev/doxygen/html/d7/d4a/classCantera_1_1IonsFromNeutralVPSSTP.html#details>`__.
 
+.. deprecated:: 3.0
+
+    This phase model is deprecated and will be removed after Cantera 3.0.
+
 Additional fields:
 
 ``neutral-phase``

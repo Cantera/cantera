@@ -7,6 +7,8 @@ import io
 import pytest
 
 from . import utilities
+from .utilities import allow_deprecated
+
 import cantera as ct
 from cantera import ck2yaml, cti2yaml, ctml2yaml, yaml2ck
 
@@ -1276,6 +1278,7 @@ class ctml2yamlTest(utilities.CanteraTest):
             yamlPhase.TP = T, ct.one_atm
             self.assertNear(ctmlPhase.density, yamlPhase.density)
 
+    @pytest.mark.usefixtures("allow_deprecated")
     def test_mock_ion(self):
         self.convert("mock_ion")
         ctmlPhase, yamlPhase = self.checkConversion("mock_ion")

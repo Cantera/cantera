@@ -28,6 +28,7 @@ namespace Cantera
 
 IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(const string& inputFile, const string& id_)
 {
+    warn_deprecated("class IonsFromNeutralVPSSTP", "To be removed after Cantera 3.0");
     initThermoFile(inputFile, id_);
 }
 
