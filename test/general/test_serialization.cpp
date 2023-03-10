@@ -270,8 +270,8 @@ TEST(YamlWriter, multipleReactionSections)
 
     ASSERT_EQ(kin1->nReactions(), kin2->nReactions());
     ASSERT_EQ(kin2->nReactions() + 1, kin3->nReactions());
-    ASSERT_EQ(kin2->reactionString(3),
-              kin3->reactionString(kin3->nReactions() - 1));
+    ASSERT_EQ(kin2->reaction(3)->equation(),
+              kin3->reaction(kin3->nReactions() - 1)->equation());
 }
 
 TEST(YamlWriter, Interface)

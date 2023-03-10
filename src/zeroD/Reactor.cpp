@@ -10,6 +10,7 @@
 #include "cantera/zeroD/ReactorNet.h"
 #include "cantera/zeroD/ReactorSurface.h"
 #include "cantera/kinetics/Kinetics.h"
+#include "cantera/kinetics/Reaction.h"
 #include "cantera/base/Solution.h"
 #include "cantera/base/utilities.h"
 
@@ -362,7 +363,7 @@ void Reactor::addSensitivityReaction(size_t rxn)
     }
 
     size_t p = network().registerSensitivityParameter(
-        name()+": "+m_kin->reactionString(rxn), 1.0, 1.0);
+        name()+": "+m_kin->reaction(rxn)->equation(), 1.0, 1.0);
     m_sensParams.emplace_back(
         SensitivityParameter{rxn, p, 1.0, SensParameterType::reaction});
 }

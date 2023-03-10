@@ -15,6 +15,7 @@
 
 // Cantera includes
 #include "cantera/kinetics/KineticsFactory.h"
+#include "cantera/kinetics/Reaction.h"
 #include "cantera/transport/TransportFactory.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/Solution.h"
@@ -1178,7 +1179,7 @@ extern "C" {
         try {
             Kinetics& kin = KineticsCabinet::item(n);
             kin.checkReactionIndex(i);
-            return static_cast<int>(copyString(kin.reactionType(i), buf, len));
+            return static_cast<int>(copyString(kin.reaction(i)->type(), buf, len));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -1383,7 +1384,7 @@ extern "C" {
         try {
             Kinetics& k = KineticsCabinet::item(n);
             k.checkReactionIndex(i);
-            return static_cast<int>(copyString(k.reactionString(i), buf, len));
+            return static_cast<int>(copyString(k.reaction(i)->equation(), buf, len));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }

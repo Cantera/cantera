@@ -7,6 +7,7 @@
 #include "cantera/zeroD/ReactorNet.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/kinetics/Kinetics.h"
+#include "cantera/kinetics/Reaction.h"
 
 namespace Cantera
 {
@@ -78,7 +79,7 @@ void ReactorSurface::addSensitivityReaction(size_t i)
                            "Reaction number out of range ({})", i);
     }
     size_t p = m_reactor->network().registerSensitivityParameter(
-        m_kinetics->reactionString(i), 1.0, 1.0);
+        m_kinetics->reaction(i)->equation(), 1.0, 1.0);
     m_params.emplace_back(
         SensitivityParameter{i, p, 1.0, SensParameterType::reaction});
 }

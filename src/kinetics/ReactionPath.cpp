@@ -7,6 +7,7 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/kinetics/ReactionPath.h"
+#include "cantera/kinetics/Reaction.h"
 #include "cantera/thermo/ThermoPhase.h"
 
 #include <boost/algorithm/string.hpp>
@@ -387,7 +388,7 @@ int ReactionPathBuilder::findGroups(ostream& logfile, Kinetics& s)
     m_groups.resize(m_nr);
     for (size_t i = 0; i < m_nr; i++) { // loop over reactions
         logfile << endl << "Reaction " << i+1 << ": "
-                << s.reactionString(i);
+                << s.reaction(i)->equation();
 
         if (m_determinate[i]) {
             logfile << " ... OK." << endl;
@@ -659,9 +660,9 @@ string reactionLabel(size_t i, size_t kr, size_t nr,
             label += " + "+ s.kineticsSpeciesName(slist[j]);
         }
     }
-    if (ba::starts_with(s.reactionType(i), "three-body")) {
+    if (ba::starts_with(s.reaction(i)->type(), "three-body")) {
         label += " + M ";
-    } else if (ba::starts_with(s.reactionType(i), "falloff")) {
+    } else if (ba::starts_with(s.reaction(i)->type(), "falloff")) {
         label += " (+ M)";
     }
     return label;
@@ -714,9 +715,9 @@ int ReactionPathBuilder::build(Kinetics& s, const string& element,
                             revlabel += " + "+ s.kineticsSpeciesName(m_prod[i][j]);
                         }
                     }
-                    if (ba::starts_with(s.reactionType(i), "three-body")) {
+                    if (ba::starts_with(s.reaction(i)->type(), "three-body")) {
                         revlabel += " + M ";
-                    } else if (ba::starts_with(s.reactionType(i), "falloff")) {
+                    } else if (ba::starts_with(s.reaction(i)->type(), "falloff")) {
                         revlabel += " (+ M)";
                     }
 
@@ -740,7 +741,7 @@ int ReactionPathBuilder::build(Kinetics& s, const string& element,
                                     output << endl;
                                     output << "*************** REACTION IGNORED ***************" << endl;
                                     output << "Warning: no rule to determine partitioning of " << element
-                                           << endl << " in reaction " << s.reactionString(i) << "." << endl
+                                           << endl << " in reaction " << s.reaction(i)->equation() << "." << endl
                                            << "*************** REACTION IGNORED **************" << endl;
                                     output << endl;
                                     warn[i] = 1;

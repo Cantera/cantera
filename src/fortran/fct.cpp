@@ -12,6 +12,7 @@
 
 // Cantera includes
 #include "cantera/kinetics/KineticsFactory.h"
+#include "cantera/kinetics/Reaction.h"
 #include "cantera/transport/TransportFactory.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/base/NoExitLogger.h"
@@ -792,7 +793,7 @@ extern "C" {
     status_t kin_getreactiontype_(const integer* n, integer* i, char* buf, ftnlen lenbuf)
     {
         try {
-            std::string r = _fkin(n)->reactionType(*i-1);
+            std::string r = _fkin(n)->reaction(*i-1)->type();
             int lout = std::min(lenbuf, (int) r.size());
             std::copy(r.c_str(), r.c_str() + lout, buf);
             for (int nn = lout; nn < lenbuf; nn++) {
@@ -903,7 +904,7 @@ extern "C" {
     {
         try {
             Kinetics* k = _fkin(n);
-            std::string r = k->reactionString(*i-1);
+            std::string r = k->reaction(*i-1)->equation();
             int lout = std::min(lenbuf, (int) r.size());
             std::copy(r.c_str(), r.c_str() + lout, buf);
             for (int nn = lout; nn < lenbuf; nn++) {
