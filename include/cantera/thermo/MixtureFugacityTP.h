@@ -115,10 +115,6 @@ public:
      */
     virtual int reportSolnBranchActual() const;
 
-    virtual void getdlnActCoeffdlnN_diag(doublereal* dlnActCoeffdlnN_diag) const {
-        throw NotImplementedError("MixtureFugacityTP::getdlnActCoeffdlnN_diag");
-    }
-
     //! @}
     //! @name Molar Thermodynamic properties
     //! @{
