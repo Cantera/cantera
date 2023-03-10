@@ -140,6 +140,8 @@ public:
     //! String indicating the thermodynamic model implemented. Usually
     //! corresponds to the name of the derived class, less any suffixes such as
     //! "Phase", TP", "VPSS", etc.
+    //! @since  Starting in Cantera 3.0, the name returned by this method corresponds
+    //!     to the canonical name used in the YAML input format.
     virtual std::string type() const {
         return "Phase";
     }

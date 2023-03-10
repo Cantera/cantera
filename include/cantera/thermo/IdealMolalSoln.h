@@ -80,7 +80,7 @@ public:
                             const std::string& id="");
 
     virtual std::string type() const {
-        return "IdealMolalSoln";
+        return "ideal-molal-solution";
     }
 
     virtual bool isIdeal() const {

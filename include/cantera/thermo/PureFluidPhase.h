@@ -34,7 +34,7 @@ public:
     PureFluidPhase() = default;
 
     virtual std::string type() const {
-        return "PureFluid";
+        return "pure-fluid";
     }
 
     //! String indicating the mechanical phase of the matter in this Phase.

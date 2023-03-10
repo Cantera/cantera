@@ -18,7 +18,7 @@ class TestTransport(utilities.CanteraTest):
         self.assertTrue(self.phase.thermal_conductivity > 0.0)
 
     def test_unityLewis(self):
-        self.phase.transport_model = 'UnityLewis'
+        self.phase.transport_model = 'unity-Lewis-number'
         alpha = self.phase.thermal_conductivity/(self.phase.density*self.phase.cp)
         Dkm_prime = self.phase.mix_diff_coeffs
 
@@ -69,8 +69,8 @@ class TestTransport(utilities.CanteraTest):
 
     def test_CK_mode(self):
         mu_ct = self.phase.viscosity
-        self.phase.transport_model = 'CK_Mix'
-        self.assertEqual(self.phase.transport_model, 'CK_Mix')
+        self.phase.transport_model = 'mixture-averaged-CK'
+        self.assertEqual(self.phase.transport_model, 'mixture-averaged-CK')
         mu_ck = self.phase.viscosity
         # values should be close, but not identical
         self.assertGreater(abs(mu_ct - mu_ck) / mu_ct, 1e-8)
@@ -79,7 +79,7 @@ class TestTransport(utilities.CanteraTest):
     def test_ionGas(self):
         # IonGasTransport gives the same result for a mixture
         # without ionized species
-        self.phase.transport_model = 'Ion'
+        self.phase.transport_model = 'ionized-gas'
         Dkm1 = self.phase.mix_diff_coeffs
         Dbin1 = self.phase.binary_diff_coeffs
 
@@ -109,11 +109,11 @@ class TestTransport(utilities.CanteraTest):
 
         state = 500, 2e5, 'H2:0.4, O2:0.29, CH4:0.01, H2O:0.3'
 
-        gas1 = ct.Solution(thermo='IdealGas', species=[S[s] for s in base+extra])
+        gas1 = ct.Solution(thermo='ideal-gas', species=[S[s] for s in base+extra])
         gas1.transport_model = 'Mix'
         gas1.TPX = state
 
-        gas2 = ct.Solution(thermo='IdealGas', species=[S[s] for s in base])
+        gas2 = ct.Solution(thermo='ideal-gas', species=[S[s] for s in base])
         gas2.transport_model = 'Mix'
         for s in extra:
             gas2.add_species(S[s])
@@ -133,11 +133,11 @@ class TestTransport(utilities.CanteraTest):
 
         state = 500, 2e5, 'H2:0.3, O2:0.28, CH4:0.02, H2O:0.3, N2:0.1'
 
-        gas1 = ct.Solution(thermo='IdealGas', species=[S[s] for s in base+extra])
+        gas1 = ct.Solution(thermo='ideal-gas', species=[S[s] for s in base+extra])
         gas1.transport_model = 'Multi'
         gas1.TPX = state
 
-        gas2 = ct.Solution(thermo='IdealGas', species=[S[s] for s in base])
+        gas2 = ct.Solution(thermo='ideal-gas', species=[S[s] for s in base])
         gas2.transport_model = 'Multi'
         for s in extra:
             gas2.add_species(S[s])

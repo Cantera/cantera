@@ -33,7 +33,7 @@ public:
     MultiTransport(ThermoPhase* thermo=0);
 
     virtual std::string transportModel() const {
-        return (m_mode == CK_Mode) ? "CK_Multi" : "Multi";
+        return (m_mode == CK_Mode) ? "multicomponent-CK" : "Multi";
     }
 
     //! Return the thermal diffusion coefficients (kg/m/s)

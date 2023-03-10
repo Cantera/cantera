@@ -13,7 +13,7 @@ phases:
 
   kinetics: gas
   reactions: all
-  transport: Ion
+  transport: ionized-gas
   electron-energy-distribution:
     type: isotropic
     shape-factor: 2.0
@@ -29,7 +29,7 @@ phases:
 
   kinetics: gas
   reactions: all
-  transport: Ion
+  transport: ionized-gas
   electron-energy-distribution:
     type: discretized
     energy-levels: [0.0, 0.1, 1.0, 10.0]

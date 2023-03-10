@@ -128,6 +128,8 @@ public:
     //! Identifies the Kinetics manager type.
     //! Each class derived from Kinetics should override this method to return
     //! a meaningful identifier.
+    //! @since  Starting in Cantera 3.0, the name returned by this method corresponds
+    //!     to the canonical name used in the YAML input format.
     virtual std::string kineticsType() const {
         return "None";
     }

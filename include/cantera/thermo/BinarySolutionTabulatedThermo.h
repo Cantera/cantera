@@ -174,7 +174,7 @@ public:
     explicit BinarySolutionTabulatedThermo(const std::string& infile="", const std::string& id="");
 
     virtual std::string type() const {
-        return "BinarySolutionTabulatedThermo";
+        return "binary-solution-tabulated";
     }
 
     virtual bool addSpecies(shared_ptr<Species> spec);

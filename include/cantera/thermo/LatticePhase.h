@@ -193,7 +193,7 @@ public:
                           const std::string& id="");
 
     virtual std::string type() const {
-        return "Lattice";
+        return "lattice";
     }
 
     virtual bool isCompressible() const {

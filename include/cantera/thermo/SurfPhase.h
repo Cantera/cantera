@@ -107,7 +107,7 @@ public:
     explicit SurfPhase(const std::string& infile="", const std::string& id="");
 
     virtual std::string type() const {
-        return "Surf";
+        return "ideal-surface";
     }
 
     virtual bool isCompressible() const {

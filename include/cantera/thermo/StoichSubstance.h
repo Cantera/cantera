@@ -100,7 +100,7 @@ public:
                              const std::string& id="");
 
     virtual std::string type() const {
-        return "StoichSubstance";
+        return "fixed-stoichiometry";
     }
 
     virtual bool isCompressible() const {

@@ -198,7 +198,7 @@ class KineticsFromReactions(utilities.CanteraTest):
 
         S = ct.Species.list_from_file("h2o2.yaml")
         R = ct.Reaction.list_from_file("h2o2.yaml", gas1)
-        gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+        gas2 = ct.Solution(thermo='ideal-gas', kinetics='gas',
                            species=S, reactions=R)
 
         self.assertEqual(gas1.n_reactions, gas2.n_reactions)
@@ -223,7 +223,7 @@ class KineticsFromReactions(utilities.CanteraTest):
         surf_species = ct.Species.list_from_file("ptcombust.yaml")
         reactions = ct.Reaction.list_from_file("ptcombust.yaml", surf1)
 
-        surf2 = ct.Interface(thermo='Surface', kinetics='interface',
+        surf2 = ct.Interface(thermo='ideal-surface', kinetics='surface',
                              species=surf_species, reactions=reactions,
                              adjacent=[gas])
         surf1.site_density = surf2.site_density = 5e-9
@@ -269,7 +269,7 @@ class KineticsFromReactions(utilities.CanteraTest):
 
         S = ct.Species.list_from_file("h2o2.yaml")
         R = ct.Reaction.list_from_file("h2o2.yaml", gas1)
-        gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+        gas2 = ct.Solution(thermo='ideal-gas', kinetics='gas',
                            species=S, reactions=R[:5])
 
         gas1.TPY = 800, 2*ct.one_atm, 'H2:0.3, O2:0.7, OH:2e-4, O:1e-3, H:5e-5'
@@ -1207,7 +1207,7 @@ class TestReaction(utilities.CanteraTest):
         r = ct.Reaction({"O":1, "H2":1}, {"H":1, "OH":1},
                         ct.ArrheniusRate(3.87e1, 2.7, 6260*1000*4.184))
 
-        gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+        gas2 = ct.Solution(thermo='ideal-gas', kinetics='gas',
                            species=self.species, reactions=[r])
         gas2.TPX = self.gas.TPX
 
@@ -1228,11 +1228,11 @@ class TestReaction(utilities.CanteraTest):
         self.assertFalse(r.rate.allow_negative_pre_exponential_factor)
 
         with self.assertRaisesRegex(ct.CanteraError, 'negative pre-exponential'):
-            gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+            gas = ct.Solution(thermo='ideal-gas', kinetics='gas',
                               species=species, reactions=[r])
 
         r.rate.allow_negative_pre_exponential_factor = True
-        gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+        gas = ct.Solution(thermo='ideal-gas', kinetics='gas',
                           species=species, reactions=[r])
 
     def test_negative_A_falloff(self):
@@ -1253,7 +1253,7 @@ class TestReaction(utilities.CanteraTest):
 
         rate.low_rate = ct.Arrhenius(-2.16e13, -0.23, 0)
         rxn = ct.Reaction("NH:1, NO:1", "N2O:1, H:1", rate)
-        gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+        gas = ct.Solution(thermo='ideal-gas', kinetics='gas',
                           species=species, reactions=[rxn])
         self.assertLess(gas.forward_rate_constants, 0)
 
@@ -1262,7 +1262,7 @@ class TestReaction(utilities.CanteraTest):
         r = ct.Reaction({"O":1, "H":1}, {"OH":1},
                         ct.ArrheniusRate(5e11, -1.0, 0.0), third_body=tb)
 
-        gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+        gas2 = ct.Solution(thermo='ideal-gas', kinetics='gas',
                            species=self.species, reactions=[r])
         gas2.TPX = self.gas.TPX
 
@@ -1280,7 +1280,7 @@ class TestReaction(utilities.CanteraTest):
                         third_body=tb)
         self.assertEqual(r.rate.type, "falloff")
 
-        gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+        gas2 = ct.Solution(thermo='ideal-gas', kinetics='gas',
                            species=self.species, reactions=[r])
         gas2.TPX = self.gas.TPX
 
@@ -1301,7 +1301,7 @@ class TestReaction(utilities.CanteraTest):
         ])
         r = ct.Reaction({"R1A":1, "R1B":1}, {"P1":1, "H":1}, rate)
 
-        gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+        gas2 = ct.Solution(thermo='ideal-gas', kinetics='gas',
                            species=species, reactions=[r])
 
         gas2.X = gas1.X = 'R1A:0.3, R1B:0.6, P1:0.1'
@@ -1337,7 +1337,7 @@ class TestReaction(utilities.CanteraTest):
                   [-3.12850e-02, -3.94120e-02,  4.43750e-02,  1.44580e-02]])
         r = ct.Reaction("R5:1, H:1", "P5A:1, P5B:1", rate)
 
-        gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+        gas2 = ct.Solution(thermo='ideal-gas', kinetics='gas',
                            species=species, reactions=[r])
 
         gas2.X = gas1.X = 'R5:0.3, P5A:0.6, H:0.1'
@@ -1360,7 +1360,7 @@ class TestReaction(utilities.CanteraTest):
                   [-3.12850e-02]])
         r = ct.Reaction("R5:1, H:1", "P5A:1, P5B:1", rate)
 
-        gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+        gas = ct.Solution(thermo='ideal-gas', kinetics='gas',
                           species=species, reactions=[r])
 
         # rate constant should be pressure independent
@@ -1379,7 +1379,7 @@ class TestReaction(utilities.CanteraTest):
             data=[[ 5.28830e+00, -1.13970e+00, -1.20590e-01,  1.60340e-02]])
         r = ct.Reaction("R5:1, H:1", "P5A:1, P5B:1", rate)
 
-        gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+        gas = ct.Solution(thermo='ideal-gas', kinetics='gas',
                           species=species, reactions=[r])
 
         # rate constant should be temperature independent
@@ -1399,7 +1399,7 @@ class TestReaction(utilities.CanteraTest):
 
     def test_chebyshev_bad_shape_yaml(self):
         species = ct.Species.list_from_file("pdep-test.yaml")
-        gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+        gas = ct.Solution(thermo='ideal-gas', kinetics='gas',
                           species=species, reactions=[])
 
         with self.assertRaisesRegex(ct.CanteraError, "Inconsistent"):
@@ -1425,7 +1425,7 @@ class TestReaction(utilities.CanteraTest):
         gas1 = ct.Solution("blowers-masel.yaml", "gas")
         self.assertIsInstance(gas1.reaction(0).rate, ct.BlowersMaselRate)
 
-        gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+        gas2 = ct.Solution(thermo='ideal-gas', kinetics='gas',
                            species=gas1.species(), reactions=[r])
 
         gas1.TP = self.gas.TP
@@ -1446,11 +1446,11 @@ class TestReaction(utilities.CanteraTest):
         self.assertFalse(r.rate.allow_negative_pre_exponential_factor)
 
         with self.assertRaisesRegex(ct.CanteraError, 'negative pre-exponential'):
-            gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+            gas = ct.Solution(thermo='ideal-gas', kinetics='gas',
                               species=species, reactions=[r])
 
         r.rate.allow_negative_pre_exponential_factor = True
-        gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+        gas = ct.Solution(thermo='ideal-gas', kinetics='gas',
                           species=species, reactions=[r])
 
     def test_Blowers_Masel_change_enthalpy(self):
@@ -1506,8 +1506,8 @@ class TestReaction(utilities.CanteraTest):
         self.assertNear(rate.coverage_dependencies["H(S)"]["E"], -6e6)
         r1 = ct.Reaction(equation="2 H(S) <=> H2 + 2 PT(S)", rate=rate)
 
-        surf2 = ct.Interface(thermo='Surface', species=surf_species,
-                             kinetics='interface', reactions=[r1], adjacent=[gas])
+        surf2 = ct.Interface(thermo='ideal-surface', species=surf_species,
+                             kinetics='surface', reactions=[r1], adjacent=[gas])
 
         surf2.site_density = surf1.site_density
         surf1.coverages = surf2.coverages = 'PT(S):0.7, H(S):0.3'
@@ -1533,8 +1533,8 @@ class TestReaction(utilities.CanteraTest):
         surf_species = []
         for species in surf1.species():
             surf_species.append(species)
-        surf2 = ct.Interface(thermo='Surface', species=surf_species,
-                             kinetics='interface', reactions=[r1], adjacent=[gas])
+        surf2 = ct.Interface(thermo='ideal-surface', species=surf_species,
+                             kinetics='surface', reactions=[r1], adjacent=[gas])
 
         surf2.site_density = surf1.site_density
         surf1.coverages = surf2.coverages = 'PT(S):0.7, H(S):0.3'

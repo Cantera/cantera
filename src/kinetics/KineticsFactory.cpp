@@ -25,14 +25,14 @@ KineticsFactory::KineticsFactory() {
     addAlias("none", "Kinetics");
     addAlias("none", "None");
     reg("gas", []() { return new GasKinetics(); });
-    addAlias("gas", "gaskinetics");
-    addAlias("gas", "Gas");
+    addDeprecatedAlias("gas", "gaskinetics");
+    addDeprecatedAlias("gas", "Gas");
     reg("surface", []() { return new InterfaceKinetics(); });
     addAlias("surface", "interface");
-    addAlias("surface", "Surf");
-    addAlias("surface", "surf");
+    addDeprecatedAlias("surface", "Surf");
+    addDeprecatedAlias("surface", "surf");
     reg("edge", []() { return new EdgeKinetics(); });
-    addAlias("edge", "Edge");
+    addDeprecatedAlias("edge", "Edge");
 }
 
 KineticsFactory* KineticsFactory::factory() {

@@ -19,7 +19,7 @@ namespace Cantera
 
 void IdealGasMoleReactor::setThermoMgr(ThermoPhase& thermo)
 {
-    if (thermo.type() != "IdealGas") {
+    if (thermo.type() != "ideal-gas") {
         throw CanteraError("IdealGasMoleReactor::setThermoMgr",
                            "Incompatible phase type provided");
     }

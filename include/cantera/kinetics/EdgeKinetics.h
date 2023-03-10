@@ -28,7 +28,7 @@ public:
     }
 
     virtual std::string kineticsType() const {
-        return "Edge";
+        return "edge";
     }
 };
 }

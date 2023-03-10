@@ -57,7 +57,7 @@ public:
                                  const std::string& id="");
 
     virtual std::string type() const {
-        return "IdealSolidSoln";
+        return "ideal-condensed";
     }
 
     virtual bool isIdeal() const {

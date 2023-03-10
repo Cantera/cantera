@@ -43,7 +43,7 @@ class TestImplicitThirdBody(utilities.CanteraTest):
     def test_duplicate(self):
         # @todo simplify this test
         #     duplicates are currently only checked for import from file
-        gas1 = ct.Solution(thermo="IdealGas", kinetics="GasKinetics",
+        gas1 = ct.Solution(thermo="ideal-gas", kinetics="gas",
                            species=self.gas.species(), reactions=[])
 
         yaml1 = """
@@ -1002,8 +1002,8 @@ class ReactionTests:
         self.assertEqual(rxn.products, self.soln.reaction(ix).products)
         self.check_rate(rxn.rate)
 
-        if self.soln.thermo_model.lower() == "surf":
-            sol2 = ct.Interface(thermo="Surface", kinetics="interface",
+        if self.soln.thermo_model.lower() == "ideal-surface":
+            sol2 = ct.Interface(thermo="ideal-surface", kinetics="surface",
                                 species=self.species, reactions=[rxn], adjacent=self.adj)
             sol2.site_density = self.soln.site_density
             sol2.coverages = self.soln.coverages
@@ -1052,8 +1052,8 @@ class ReactionTests:
             rxn = self.from_yaml()
         else:
             rxn = self.from_rate(self._rate_obj)
-        if self.soln.thermo_model.lower() == "surf":
-            sol2 = ct.Interface(thermo="Surface", kinetics="interface",
+        if self.soln.thermo_model.lower() == "ideal-surface":
+            sol2 = ct.Interface(thermo="ideal-surface", kinetics="surface",
                                 species=self.species, reactions=[], adjacent=self.adj)
             sol2.site_density = self.soln.site_density
             sol2.coverages = self.soln.coverages
@@ -1694,7 +1694,7 @@ class InterfaceReactionTests(ReactionTests):
 
     def test_electrochemistry(self):
         rxn = self.from_yaml()
-        sol2 = ct.Interface(thermo="Surface", kinetics="interface",
+        sol2 = ct.Interface(thermo="ideal-surface", kinetics="surface",
                     species=self.species, reactions=[rxn], adjacent=self.adj)
         rate2 = sol2.reaction(0).rate
         assert not rate2.uses_electrochemistry

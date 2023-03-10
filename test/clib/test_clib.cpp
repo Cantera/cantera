@@ -113,7 +113,7 @@ TEST(ct, new_interface)
     buf = new char[buflen];
     kin_getType(ph_surf, buflen, buf);
     string kinType = buf;
-    ASSERT_EQ(kinType, "Surf");
+    ASSERT_EQ(kinType, "surface");
     delete[] buf;
 }
 

@@ -243,7 +243,7 @@ public:
                                  const std::string& id="");
 
     virtual std::string type() const {
-        return "RedlichKister";
+        return "Redlich-Kister";
     }
 
     //! @name  Molar Thermodynamic Properties

@@ -649,7 +649,7 @@ TEST(KineticsFromYaml, KineticsModelWithReactionsNone1)
 {
     auto soln = newSolution("phase-reaction-spec1.yaml",
                             "kinetics-reactions-none");
-    EXPECT_EQ(soln->kinetics()->kineticsType(), "Gas");
+    EXPECT_EQ(soln->kinetics()->kineticsType(), "gas");
     EXPECT_EQ(soln->kinetics()->nReactions(), (size_t) 0);
 }
 
@@ -657,7 +657,7 @@ TEST(KineticsFromYaml, KineticsModelWithReactionsNone2)
 {
     auto soln = newSolution("phase-reaction-spec2.yaml",
                             "kinetics-reactions-none");
-    EXPECT_EQ(soln->kinetics()->kineticsType(), "Gas");
+    EXPECT_EQ(soln->kinetics()->kineticsType(), "gas");
     EXPECT_EQ(soln->kinetics()->nReactions(), (size_t) 0);
 }
 
@@ -679,7 +679,7 @@ TEST(KineticsFromYaml, KineticsModelWithoutReactionsSection3)
 {
     auto soln = newSolution("phase-reaction-spec1.yaml",
                             "kinetics-no-reaction-section3");
-    EXPECT_EQ(soln->kinetics()->kineticsType(), "Surf");
+    EXPECT_EQ(soln->kinetics()->kineticsType(), "surface");
     EXPECT_EQ(soln->kinetics()->nReactions(), (size_t) 0);
 }
 
@@ -694,7 +694,7 @@ TEST(KineticsFromYaml, KineticsModelWithoutReactionsField)
 {
     auto soln = newSolution("phase-reaction-spec2.yaml",
                             "kinetics-noreactions");
-    EXPECT_EQ(soln->kinetics()->kineticsType(), "Gas");
+    EXPECT_EQ(soln->kinetics()->kineticsType(), "gas");
     EXPECT_EQ(soln->kinetics()->nReactions(), (size_t) 1);
 }
 

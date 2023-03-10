@@ -24,7 +24,7 @@ f.burner.mdot = mdot
 f.set_refine_criteria(ratio=3.0, slope=0.05, curve=0.1)
 f.show_solution()
 
-f.transport_model = 'Ion'
+f.transport_model = 'ionized-gas'
 f.solve(loglevel, auto=True)
 f.solve(loglevel=loglevel, stage=2, enable_energy=True)
 

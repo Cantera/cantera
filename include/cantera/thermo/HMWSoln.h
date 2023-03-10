@@ -797,7 +797,7 @@ public:
     //! @{
 
     virtual std::string type() const {
-        return "HMWSoln";
+        return "HMW-electrolyte";
     }
 
     //! @}

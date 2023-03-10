@@ -463,7 +463,7 @@ cdef class ReactingSurface1D(Boundary1D):
         """
         warnings.warn("Method to be removed after Cantera 3.0; set 'Kinetics' when "
             "instantiating 'ReactingSurface1D' instead.", DeprecationWarning)
-        if pystr(kin.kinetics.kineticsType()) not in ("Surf", "Edge"):
+        if pystr(kin.kinetics.kineticsType()) not in ("surface", "edge"):
             raise TypeError('Kinetics object must be derived from '
                             'InterfaceKinetics.')
         self.surf.setKinetics(kin.base.kinetics())
