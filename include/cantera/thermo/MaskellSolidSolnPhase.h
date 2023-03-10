@@ -23,11 +23,14 @@ namespace Cantera
  * 231-235, 1983.
  *
  * @ingroup thermoprops
+ *
+ * @deprecated To be removed after Cantera 3.0. This class has numerous thermodynamic
+ *    inconsistencies. See https://github.com/Cantera/cantera/issues/1321.
  */
 class MaskellSolidSolnPhase : public VPStandardStateTP
 {
 public:
-    MaskellSolidSolnPhase() = default;
+    MaskellSolidSolnPhase();
 
     virtual std::string type() const {
         return "MaskellSolidsoln";

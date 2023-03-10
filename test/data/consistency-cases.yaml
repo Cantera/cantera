@@ -340,6 +340,7 @@ Maskell-solid-solution:
   setup:
     file: thermo-models.yaml
     phase: MaskellSolidSoln
+    ignore-deprecations: true
     known-failures:
       g_eq_sum_gk_Xk: "Inconsistent implementation. See GitHub Issue #1321"
       hk0_eq_uk0_plus_p_vk0/[234]:

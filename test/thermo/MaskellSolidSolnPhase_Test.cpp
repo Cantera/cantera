@@ -17,6 +17,14 @@ static const double expected_result_minus_5000[9] = { 1.2340671804814456e7, 8.01
 class MaskellSolidSolnPhase_Test : public testing::Test
 {
 public:
+    MaskellSolidSolnPhase_Test() {
+        suppress_deprecation_warnings();
+    }
+
+    ~MaskellSolidSolnPhase_Test() {
+        make_deprecation_warnings_fatal();
+    }
+
     void setup(const std::string & filename)
     {
         test_phase = newThermo(filename);

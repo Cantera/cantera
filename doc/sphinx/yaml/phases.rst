@@ -765,6 +765,10 @@ Example::
 A condensed phase non-ideal solution with two species, as
 `described here <https://cantera.org/documentation/dev/doxygen/html/dd/d3a/classCantera_1_1MaskellSolidSolnPhase.html#details>`__.
 
+.. deprecated:: 3.0
+
+    This phase model is deprecated and will be removed after Cantera 3.0.
+
 Additional fields:
 
 ``excess-enthalpy``
