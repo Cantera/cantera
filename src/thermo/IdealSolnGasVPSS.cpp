@@ -73,12 +73,9 @@ void IdealSolnGasVPSS::setPressure(doublereal p)
 
 void IdealSolnGasVPSS::calcDensity()
 {
-    const doublereal* const dtmp = moleFractdivMMW();
-    const vector_fp& vss = getStandardVolumes();
-    double dens = 1.0 / dot(vss.begin(), vss.end(), dtmp);
-
-    // Set the density in the parent State object directly
-    Phase::assignDensity(dens);
+    double v_mol = mean_X(getStandardVolumes());
+    // Set the density in the parent object directly
+    Phase::assignDensity(meanMolecularWeight() / v_mol);
 }
 
 Units IdealSolnGasVPSS::standardConcentrationUnits() const

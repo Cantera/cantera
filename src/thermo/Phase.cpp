@@ -547,6 +547,8 @@ double Phase::moleFraction(const std::string& nameSpec) const
 
 const double* Phase::moleFractdivMMW() const
 {
+    warn_deprecated("Phase::moleFractdivMMW", "To be removed after Cantera 3.0. "
+        "Generally replaceable by 'getMoleFractions' and 'meanMolecularWeight'.");
     return &m_ym[0];
 }
 

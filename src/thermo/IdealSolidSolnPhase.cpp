@@ -51,13 +51,11 @@ doublereal IdealSolidSolnPhase::cp_mole() const
 void IdealSolidSolnPhase::calcDensity()
 {
     // Calculate the molarVolume of the solution (m**3 kmol-1)
-    const doublereal* const dtmp = moleFractdivMMW();
-    double invDens = dot(m_speciesMolarVolume.begin(),
-                         m_speciesMolarVolume.end(), dtmp);
+    double v_mol = mean_X(m_speciesMolarVolume);
 
-    // Set the density in the parent State object directly, by calling the
+    // Set the density in the parent object directly, by calling the
     // Phase::assignDensity() function.
-    Phase::assignDensity(1.0/invDens);
+    Phase::assignDensity(meanMolecularWeight()/v_mol);
 }
 
 void IdealSolidSolnPhase::setPressure(doublereal p)
@@ -86,23 +84,18 @@ Units IdealSolidSolnPhase::standardConcentrationUnits() const
 
 void IdealSolidSolnPhase::getActivityConcentrations(doublereal* c) const
 {
-    const doublereal* const dtmp = moleFractdivMMW();
-    const double mmw = meanMolecularWeight();
+    getMoleFractions(c);
     switch (m_formGC) {
     case 0:
-        for (size_t k = 0; k < m_kk; k++) {
-            c[k] = dtmp[k] * mmw;
-        }
         break;
     case 1:
         for (size_t k = 0; k < m_kk; k++) {
-            c[k] = dtmp[k] * mmw / m_speciesMolarVolume[k];
+            c[k] /= m_speciesMolarVolume[k];
         }
         break;
     case 2:
-        double atmp = mmw / m_speciesMolarVolume[m_kk-1];
         for (size_t k = 0; k < m_kk; k++) {
-            c[k] = dtmp[k] * atmp;
+            c[k] /= m_speciesMolarVolume[m_kk-1];
         }
         break;
     }
