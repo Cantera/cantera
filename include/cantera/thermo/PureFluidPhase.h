@@ -206,15 +206,7 @@ private:
     //! Pointer to the underlying tpx object Substance that does the work
     mutable std::unique_ptr<tpx::Substance> m_sub;
 
-    //! Int indicating the type of the fluid
-    /*!
-     * The tpx package uses an int to indicate what fluid is being sought. Used
-     * only if #m_tpx_name is not set.
-     */
-    int m_subflag = -1;
-
-    //! Name for this substance used by the TPX package. If this is not set,
-    //! #m_subflag is used instead.
+    //! Name for this substance used by the TPX package
     std::string m_tpx_name;
 
     //! Molecular weight of the substance (kg kmol-1)
