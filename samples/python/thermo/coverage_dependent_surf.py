@@ -16,8 +16,8 @@ coverage. That is, it encompasses CO*-CO* interaction as well as CO*-O*
 interaction. The CO* enthalpy is plotted as a function of CO* and O*
 coverages.
 
-Requires: cantera >= 2.6.0, matplotlib >= 2.0, numpy >= 1.12
-Keywords: thermodynamics, surface, non-ideal adsorbate
+Requires: cantera >= 3.0.0, matplotlib >= 2.0
+Keywords: thermodynamics, surface chemistry, catalysis
 """
 
 import cantera as ct
