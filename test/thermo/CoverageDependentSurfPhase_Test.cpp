@@ -55,7 +55,9 @@ TEST_F(CoverageDependentSurfPhase_Test, reference_enthalpies_RT)
         idealsurf_phase->setTemperature(test_Ts[i]);
         // Get SurfPhase reference enthalpy method value
         idealsurf_phase->getEnthalpy_RT_ref(&expected_result[0]);
-        EXPECT_NEAR(enthalpies_RT_ref[1], expected_result[1], 1.e-6);
+        for (size_t j = 0; j < 5; j++) {
+            EXPECT_NEAR(enthalpies_RT_ref[j], expected_result[j], 1.e-6);
+        }
     }
 }
 
@@ -73,7 +75,9 @@ TEST_F(CoverageDependentSurfPhase_Test, reference_entropies_R)
         idealsurf_phase->setTemperature(test_Ts[i]);
         // Get SurfPhase reference entropy method value
         idealsurf_phase->getEntropy_R_ref(&expected_result[0]);
-        EXPECT_NEAR(entropies_R_ref[2], expected_result[2], 1.e-6);
+        for (size_t j = 0; j < 5; j++) {
+            EXPECT_NEAR(entropies_R_ref[j], expected_result[j], 1.e-6);
+        }
     }
 }
 
@@ -91,7 +95,9 @@ TEST_F(CoverageDependentSurfPhase_Test, reference_cp_R)
         idealsurf_phase->setTemperature(test_Ts[i]);
         // Get SurfPhase reference heat capacity method value
         idealsurf_phase->getCp_R_ref(&expected_result[0]);
-        EXPECT_NEAR(cps_R_ref[3], expected_result[3], 1.e-6);
+        for (size_t j = 0; j < 5; j++) {
+            EXPECT_NEAR(cps_R_ref[j], expected_result[j], 1.e-6);
+        }
     }
 }
 
@@ -109,7 +115,9 @@ TEST_F(CoverageDependentSurfPhase_Test, reference_gibbs_RT)
         idealsurf_phase->setTemperature(test_Ts[i]);
         // Get SurfPhase reference gibbs free energy method value
         idealsurf_phase->getGibbs_RT_ref(&expected_result[0]);
-        EXPECT_NEAR(gibbs_RT_ref[4], expected_result[4], 1.e-6);
+        for (size_t j = 0; j < 5; j++) {
+            EXPECT_NEAR(gibbs_RT_ref[j], expected_result[j], 1.e-6);
+        }
     }
 }
 
