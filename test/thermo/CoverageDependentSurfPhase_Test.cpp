@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 #include "cantera/thermo/SurfPhase.h"
+#include "cantera/base/Interface.h"
 #include "cantera/base/utilities.h"
 #include "cantera/thermo/CoverageDependentSurfPhase.h"
 #include "cantera/thermo/ThermoFactory.h"
@@ -28,14 +29,11 @@ public:
     {
         // CoverageDependentSurfPhase method values will be
         // compared against SurfPhase method values or explicitly calculated values
-        covdepsurf_phase.reset(newPhase("copt_covdepsurf_example.yaml", "covdep"));
-        idealsurf_phase.reset(newPhase("copt_covdepsurf_example.yaml", "ideal"));
-        surfphase_ptr = dynamic_cast<SurfPhase*>(covdepsurf_phase.get());
+        covdepsurf_phase = newInterface("copt_covdepsurf_example.yaml", "covdep")->thermo();
+        idealsurf_phase = newInterface("copt_covdepsurf_example.yaml", "ideal")->thermo();
     }
-    std::unique_ptr<ThermoPhase> covdepsurf_phase;
-    std::unique_ptr<ThermoPhase> idealsurf_phase;
-    // A pointer to call setCoverage method
-    SurfPhase* surfphase_ptr;
+    std::shared_ptr<SurfPhase> covdepsurf_phase;
+    std::shared_ptr<SurfPhase> idealsurf_phase;
     // To call unit convert methods
     UnitSystem us;
 
@@ -144,7 +142,7 @@ TEST_F(CoverageDependentSurfPhase_Test, standard_enthalpies_RT)
 
     // Get CoverageDependentSurfPhase standard enthalpy method value
     covdepsurf_phase->setTemperature(test_Ts[5]);
-    surfphase_ptr->setCoverages(test_covs[0].data());
+    covdepsurf_phase->setCoverages(test_covs[0].data());
     covdepsurf_phase->getEnthalpy_RT(&enthalpies_RT[0]);
     // Externally calculating value by adding coverage-dependent terms
     // to SurfPhase standard enthalpy method value
@@ -192,7 +190,7 @@ TEST_F(CoverageDependentSurfPhase_Test, standard_entropies_R)
 
     // Get CoverageDependentSurfPhase standard entropy method value
     covdepsurf_phase->setTemperature(test_Ts[3]);
-    surfphase_ptr->setCoverages(test_covs[0].data());
+    covdepsurf_phase->setCoverages(test_covs[0].data());
     covdepsurf_phase->getEntropy_R(&entropies_R[0]);
     // Externally calculate value by adding coverage-dependent terms
     // to SurfPhase standard entropy method value
@@ -225,7 +223,7 @@ TEST_F(CoverageDependentSurfPhase_Test, standard_cp_R)
 
     // Get CoverageDependentSurfPhase standard heat capacity method value
     covdepsurf_phase->setTemperature(test_Ts[4]);
-    surfphase_ptr->setCoverages(test_covs[0].data());
+    covdepsurf_phase->setCoverages(test_covs[0].data());
     covdepsurf_phase->getCp_R(&cps_R[0]);
     // Externally calculating value by adding coverage-dependent terms
     // to SurfPhase standard heat capacity method value
