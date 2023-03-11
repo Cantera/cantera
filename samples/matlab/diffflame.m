@@ -17,7 +17,7 @@ p          =   oneatm;              % Pressure
 tin        =   300.0;               % Inlet temperature
 mdot_o     =   0.72;                % Air mass flux, kg/m^2/s
 mdot_f     =   0.24;                % Fuel mass flux, kg/m^2/s
-transport  =  'Mix';                % Transport model
+transport  =  'mixture-averaged';   % Transport model
 % NOTE: Transport model needed if mechanism file does not have transport
 % properties.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

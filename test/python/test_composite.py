@@ -147,7 +147,7 @@ class TestPickle(utilities.CanteraTest):
     def test_pickle_gas_with_transport(self):
         gas = ct.Solution("h2o2.yaml")
         gas.TPX = 500, 500000, "H2:.75,O2:.25"
-        gas.transport_model = "Multi"
+        gas.transport_model = "multicomponent"
         with open(self.test_work_path / "gas.pkl", "wb") as pkl:
             pickle.dump(gas, pkl)
 
@@ -157,7 +157,7 @@ class TestPickle(utilities.CanteraTest):
         self.assertNear(gas.P, gas2.P)
         self.assertArrayNear(gas.X, gas2.X)
 
-        self.assertEqual(gas2.transport_model, "Multi")
+        self.assertEqual(gas2.transport_model, "multicomponent")
 
     def test_pickle_interface(self):
         gas = ct.Solution("diamond.yaml", "gas")

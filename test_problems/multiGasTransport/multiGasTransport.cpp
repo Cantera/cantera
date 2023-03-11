@@ -40,7 +40,7 @@ static double cutoff(double val, double atol=1.0E-15)
 int main(int argc, char** argv)
 {
     try {
-        auto sol = newSolution("gri30.yaml", "gri30", "Multi");
+        auto sol = newSolution("gri30.yaml", "gri30", "multicomponent");
         auto gas = sol->thermo();
         size_t nsp = gas->nSpecies();
         double pres = 1.0E5;

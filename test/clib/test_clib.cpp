@@ -63,7 +63,7 @@ TEST(ct, soln_objects)
 
     int ref = soln_newSolution("gri30.yaml", "gri30", "none");
     ASSERT_EQ(ref, 0);
-    int ref2 = soln_newSolution("h2o2.yaml", "ohmech", "Mix");
+    int ref2 = soln_newSolution("h2o2.yaml", "ohmech", "mixture-averaged");
     ASSERT_EQ(ref2, 1);
 
     int thermo = soln_thermo(ref2);

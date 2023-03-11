@@ -32,7 +32,7 @@ using namespace Cantera;
 int main(int argc, char** argv)
 {
     try {
-        auto sol = newSolution("gri30.yaml", "gri30", "Mix");
+        auto sol = newSolution("gri30.yaml", "gri30", "mixture-averaged");
         auto gas = sol->thermo();
         size_t nsp = gas->nSpecies();
         double pres = 1.0E5;

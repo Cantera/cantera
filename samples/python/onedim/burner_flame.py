@@ -24,7 +24,7 @@ f.burner.mdot = mdot
 f.set_refine_criteria(ratio=3.0, slope=0.05, curve=0.1)
 f.show_solution()
 
-f.transport_model = 'Mix'
+f.transport_model = 'mixture-averaged'
 f.solve(loglevel, auto=True)
 
 if "native" in ct.hdf_support():
@@ -35,7 +35,7 @@ output.unlink(missing_ok=True)
 
 f.save(output, name="mix", description="solution with mixture-averaged transport")
 
-f.transport_model = 'Multi'
+f.transport_model = 'multicomponent'
 f.solve(loglevel)  # don't use 'auto' on subsequent solves
 f.show_solution()
 f.save(output, name="multi", description="solution with multicomponent transport")

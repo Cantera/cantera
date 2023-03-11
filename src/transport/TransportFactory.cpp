@@ -33,11 +33,11 @@ TransportFactory::TransportFactory()
     reg("unity-Lewis-number", []() { return new UnityLewisTransport(); });
     addDeprecatedAlias("unity-Lewis-number", "UnityLewis");
     reg("mixture-averaged", []() { return new MixTransport(); });
-    addAlias("mixture-averaged", "Mix");
+    addDeprecatedAlias("mixture-averaged", "Mix");
     reg("mixture-averaged-CK", []() { return new MixTransport(); });
     addDeprecatedAlias("mixture-averaged-CK", "CK_Mix");
     reg("multicomponent", []() { return new MultiTransport(); });
-    addAlias("multicomponent", "Multi");
+    addDeprecatedAlias("multicomponent", "Multi");
     reg("multicomponent-CK", []() { return new MultiTransport(); });
     addDeprecatedAlias("multicomponent-CK", "CK_Multi");
     reg("ionized-gas", []() { return new IonGasTransport(); });

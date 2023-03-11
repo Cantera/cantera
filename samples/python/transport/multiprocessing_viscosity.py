@@ -28,7 +28,7 @@ def init_process(mech):
     initialize any Cantera objects we need to use.
     """
     gases[mech] = ct.Solution(mech)
-    gases[mech].transport_model = 'Multi'
+    gases[mech].transport_model = 'multicomponent'
 
 
 def get_thermal_conductivity(args):

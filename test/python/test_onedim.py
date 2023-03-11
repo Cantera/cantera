@@ -134,15 +134,15 @@ class TestOnedim(utilities.CanteraTest):
         flame = ct.FreeFlame(gas, width=0.1)
         flame.set_initial_guess()
 
-        assert gas.transport_model == flame.transport_model == 'Mix'
+        assert gas.transport_model == flame.transport_model == 'mixture-averaged'
 
         flame.transport_model = 'unity-Lewis-number'
         assert gas.transport_model == flame.transport_model == 'unity-Lewis-number'
         Dkm_flame = flame.mix_diff_coeffs
         assert all(Dkm_flame[1,:] == Dkm_flame[2,:])
 
-        gas.transport_model = 'Multi'
-        assert flame.transport_model == 'Multi'
+        gas.transport_model = 'multicomponent'
+        assert flame.transport_model == 'multicomponent'
 
 
 class TestFreeFlame(utilities.CanteraTest):
@@ -177,13 +177,13 @@ class TestFreeFlame(utilities.CanteraTest):
         self.sim.solve(loglevel=0, refine_grid=refine)
 
         self.assertTrue(self.sim.energy_enabled)
-        self.assertEqual(self.sim.transport_model, 'Mix')
+        self.assertEqual(self.sim.transport_model, 'mixture-averaged')
 
     def solve_multi(self):
-        self.sim.transport_model = 'Multi'
+        self.sim.transport_model = 'multicomponent'
         self.sim.solve(loglevel=0, refine_grid=True)
 
-        self.assertEqual(self.sim.transport_model, 'Multi')
+        self.assertEqual(self.sim.transport_model, 'multicomponent')
 
     def test_flow_type(self):
         Tin = 300
@@ -374,7 +374,7 @@ class TestFreeFlame(utilities.CanteraTest):
                    'max_time_step_count': 100,
                    'energy_enabled': False,
                    'radiation_enabled': True,
-                   'transport_model': 'Multi'}
+                   'transport_model': 'multicomponent'}
         settings.update(changed)
 
         sim.settings = settings
@@ -471,7 +471,7 @@ class TestFreeFlame(utilities.CanteraTest):
         self.sim.solve(loglevel=0, auto=True)
         dh_unity_lewis = self.sim.enthalpy_mass.ptp()
 
-        self.sim.transport_model = 'Mix'
+        self.sim.transport_model = 'mixture-averaged'
         self.sim.solve(loglevel=0)
         dh_mix = self.sim.enthalpy_mass.ptp()
 
@@ -485,7 +485,7 @@ class TestFreeFlame(utilities.CanteraTest):
 
         self.create_sim(101325, 300, 'H2:1.0, O2:1.0')
         self.assertFalse(self.sim.soret_enabled)
-        self.assertFalse(self.sim.transport_model == 'Multi')
+        self.assertFalse(self.sim.transport_model == 'multicomponent')
 
         with self.assertRaisesRegex(ct.CanteraError, 'requires.*multicomponent'):
             self.sim.soret_enabled = True
@@ -496,7 +496,7 @@ class TestFreeFlame(utilities.CanteraTest):
         # Test that auto solving with Soret enabled works
         self.create_sim(101325, 300, 'H2:2.0, O2:1.0')
         self.sim.soret_enabled = True
-        self.sim.transport_model = 'Multi'
+        self.sim.transport_model = 'multicomponent'
         self.sim.solve(loglevel=0, auto=True)
 
     def test_set_soret_multi_mix(self):
@@ -504,14 +504,14 @@ class TestFreeFlame(utilities.CanteraTest):
         # can be set in any order without raising errors
 
         self.create_sim(101325, 300, 'H2:1.0, O2:1.0')
-        self.sim.transport_model = 'Multi'
+        self.sim.transport_model = 'multicomponent'
         self.sim.soret_enabled = True
 
-        self.sim.transport_model = 'Mix'
+        self.sim.transport_model = 'mixture-averaged'
         self.sim.soret_enabled = False
 
         self.sim.soret_enabled = True
-        self.sim.transport_model = 'Multi'
+        self.sim.transport_model = 'multicomponent'
 
     def test_prune(self):
         reactants = 'H2:1.1, O2:1, AR:5'
@@ -892,7 +892,7 @@ class TestDiffusionFlame(utilities.CanteraTest):
         self.sim.solve(loglevel=0, refine_grid=True)
 
         self.assertTrue(self.sim.energy_enabled)
-        self.assertEqual(self.sim.transport_model, 'Mix')
+        self.assertEqual(self.sim.transport_model, 'mixture-averaged')
 
     @utilities.slow_test
     def test_mixture_averaged(self, saveReference=False):

@@ -11,7 +11,7 @@ using namespace Cantera;
 // (clib::test_ctonedim.cpp::ctonedim::freeflame_from_parts)
 TEST(onedim, freeflame)
 {
-    auto sol = newSolution("h2o2.yaml", "ohmech", "Mix");
+    auto sol = newSolution("h2o2.yaml", "ohmech", "mixture-averaged");
     auto gas = sol->thermo();
     size_t nsp = gas->nSpecies();
 

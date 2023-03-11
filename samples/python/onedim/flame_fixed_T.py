@@ -57,7 +57,7 @@ f.show_solution()
 f.energy_enabled = False
 
 # first solve the flame with mixture-averaged transport properties
-f.transport_model = 'Mix'
+f.transport_model = 'mixture-averaged'
 f.set_refine_criteria(ratio=3.0, slope=0.3, curve=1)
 
 f.solve(loglevel, refine_grid)
@@ -71,7 +71,7 @@ output.unlink(missing_ok=True)
 f.save(output, name="mix", description="solution with mixture-averaged transport")
 
 print('\n\n switching to multicomponent transport...\n\n')
-f.transport_model = 'Multi'
+f.transport_model = 'multicomponent'
 
 f.set_refine_criteria(ratio=3.0, slope=0.1, curve=0.2)
 f.solve(loglevel, refine_grid)

@@ -1227,9 +1227,9 @@ cdef class Sim1D:
 
         # Do initial solution steps without multicomponent transport
         transport = self.transport_model
-        solve_multi = self.transport_model == 'Multi'
+        solve_multi = self.transport_model == 'multicomponent'
         if solve_multi:
-            set_transport('Mix')
+            set_transport('mixture-averaged')
 
         def log(msg, *args):
             if loglevel:
@@ -1340,7 +1340,7 @@ cdef class Sim1D:
 
         if solve_multi:
             log('Solving with multicomponent transport')
-            set_transport('Multi')
+            set_transport('multicomponent')
 
         if soret_doms:
             log('Solving with Soret diffusion')

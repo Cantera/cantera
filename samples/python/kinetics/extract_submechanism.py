@@ -56,7 +56,8 @@ print('\n')
 
 gas1 = ct.Solution(input_file)
 gas2 = ct.Solution(name="gri30-CO-H2-submech",
-                   thermo="ideal-gas", kinetics="gas", transport_model="Mix",
+                   thermo="ideal-gas", kinetics="gas",
+                   transport_model="mixture-averaged",
                    species=species, reactions=reactions)
 
 # Save the resulting mechanism for later use

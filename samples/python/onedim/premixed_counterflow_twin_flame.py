@@ -103,7 +103,7 @@ oppFlame = ct.CounterflowTwinPremixedFlame(gas, width=width)
 
 # Uncomment the following line to use a Multi-component formulation. Default is
 # mixture-averaged
-# oppFlame.transport_model = 'Multi'
+# oppFlame.transport_model = 'multicomponent'
 
 # Now run the solver. The solver returns the peak temperature, strain rate and
 # the point which we ascribe to the characteristic strain rate.
