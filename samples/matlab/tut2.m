@@ -18,7 +18,7 @@ t0 = cputime;
 % GRI-Mech 3.0. Another way to do this is shown here, with statements
 % added to measure how long this takes:
 
-gas1 = Solution('gri30.yaml', 'gas', 'Mix');
+gas1 = Solution('gri30.yaml', 'gas', 'mixture-averaged');
 msg = sprintf('time to create gas1: %f', cputime - t0)
 
 % Function 'Solution' constructs an object representing a phase of

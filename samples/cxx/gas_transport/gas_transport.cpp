@@ -48,7 +48,7 @@ void write_csv(const std::string& name, const std::vector<std::string>& names,
 void transport_example()
 {
     // create a gas mixture, and set its state
-    auto sol = newSolution("gri30.yaml", "gri30", "Mix");
+    auto sol = newSolution("gri30.yaml", "gri30", "mixture-averaged");
     auto gas = sol->thermo();
     double temp = 500.0;
     double pres = 2.0*OneAtm;

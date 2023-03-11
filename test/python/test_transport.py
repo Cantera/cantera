@@ -31,13 +31,13 @@ class TestTransport(utilities.CanteraTest):
         self.assertNear(Dkm_prime[0], alpha)
 
     def test_mixtureAveraged(self):
-        self.assertEqual(self.phase.transport_model, 'Mix')
+        self.assertEqual(self.phase.transport_model, 'mixture-averaged')
         Dkm1 = self.phase.mix_diff_coeffs
         Dkm1b = self.phase.mix_diff_coeffs_mole
         Dkm1c = self.phase.mix_diff_coeffs_mass
         Dbin1 = self.phase.binary_diff_coeffs
 
-        self.phase.transport_model = 'Multi'
+        self.phase.transport_model = 'multicomponent'
         Dkm2 = self.phase.mix_diff_coeffs
         Dkm2b = self.phase.mix_diff_coeffs_mole
         Dkm2c = self.phase.mix_diff_coeffs_mass
@@ -83,7 +83,7 @@ class TestTransport(utilities.CanteraTest):
         Dkm1 = self.phase.mix_diff_coeffs
         Dbin1 = self.phase.binary_diff_coeffs
 
-        self.phase.transport_model = 'Mix'
+        self.phase.transport_model = 'mixture-averaged'
         Dkm2 = self.phase.mix_diff_coeffs
         Dbin2 = self.phase.binary_diff_coeffs
         self.assertArrayNear(Dkm1, Dkm2)
@@ -96,7 +96,7 @@ class TestTransport(utilities.CanteraTest):
         self.assertArrayNear(self.phase.thermal_diff_coeffs,
                              np.zeros(self.phase.n_species))
 
-        self.phase.transport_model = 'Multi'
+        self.phase.transport_model = 'multicomponent'
         self.assertTrue(all(self.phase.multi_diff_coeffs.flat >= 0.0))
         self.assertTrue(all(self.phase.thermal_diff_coeffs.flat != 0.0))
 
@@ -110,11 +110,11 @@ class TestTransport(utilities.CanteraTest):
         state = 500, 2e5, 'H2:0.4, O2:0.29, CH4:0.01, H2O:0.3'
 
         gas1 = ct.Solution(thermo='ideal-gas', species=[S[s] for s in base+extra])
-        gas1.transport_model = 'Mix'
+        gas1.transport_model = 'mixture-averaged'
         gas1.TPX = state
 
         gas2 = ct.Solution(thermo='ideal-gas', species=[S[s] for s in base])
-        gas2.transport_model = 'Mix'
+        gas2.transport_model = 'mixture-averaged'
         for s in extra:
             gas2.add_species(S[s])
         gas2.TPX = state
@@ -134,11 +134,11 @@ class TestTransport(utilities.CanteraTest):
         state = 500, 2e5, 'H2:0.3, O2:0.28, CH4:0.02, H2O:0.3, N2:0.1'
 
         gas1 = ct.Solution(thermo='ideal-gas', species=[S[s] for s in base+extra])
-        gas1.transport_model = 'Multi'
+        gas1.transport_model = 'multicomponent'
         gas1.TPX = state
 
         gas2 = ct.Solution(thermo='ideal-gas', species=[S[s] for s in base])
-        gas2.transport_model = 'Multi'
+        gas2.transport_model = 'multicomponent'
         for s in extra:
             gas2.add_species(S[s])
         gas2.TPX = state

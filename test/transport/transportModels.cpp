@@ -128,7 +128,7 @@ shared_ptr<Solution> DefaultTransportTest::soln_;
 TEST_F(DefaultTransportTest, check_type)
 {
     auto tr = soln_->transport();
-    ASSERT_EQ(tr->transportModel(), "Mix");
+    ASSERT_EQ(tr->transportModel(), "mixture-averaged");
 }
 
 TEST_F(DefaultTransportTest, check_scalar)

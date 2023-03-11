@@ -60,7 +60,7 @@ public:
     MixTransport() = default;
 
     virtual std::string transportModel() const {
-        return (m_mode == CK_Mode) ? "mixture-averaged-CK" : "Mix";
+        return (m_mode == CK_Mode) ? "mixture-averaged-CK" : "mixture-averaged";
     }
 
     //! Return the thermal diffusion coefficients

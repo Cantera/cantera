@@ -29,7 +29,7 @@ f.set_refine_criteria(ratio=3, slope=0.06, curve=0.12)
 f.show_solution()
 
 # Solve with mixture-averaged transport model
-f.transport_model = 'Mix'
+f.transport_model = 'mixture-averaged'
 f.solve(loglevel=loglevel, auto=True)
 
 if "native" in ct.hdf_support():
@@ -45,7 +45,7 @@ f.show_solution()
 print(f"mixture-averaged flamespeed = {f.velocity[0]:7f} m/s")
 
 # Solve with multi-component transport properties
-f.transport_model = 'Multi'
+f.transport_model = 'multicomponent'
 f.solve(loglevel)  # don't use 'auto' on subsequent solves
 f.show_solution()
 print(f"multicomponent flamespeed = {f.velocity[0]:7f} m/s")

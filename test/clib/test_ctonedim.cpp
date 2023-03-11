@@ -12,7 +12,7 @@ TEST(ctonedim, freeflow)
 {
     ct_resetStorage();
 
-    int sol = soln_newSolution("h2o2.yaml", "ohmech", "Mix");
+    int sol = soln_newSolution("h2o2.yaml", "ohmech", "mixture-averaged");
     int ph = soln_thermo(sol);
     ASSERT_GE(ph, 0);
     int kin = soln_kinetics(sol);
@@ -96,7 +96,7 @@ TEST(ctonedim, freeflame_from_parts)
     ct_resetStorage();
     auto gas = newThermo("h2o2.yaml", "ohmech");
 
-    int sol = soln_newSolution("h2o2.yaml", "ohmech", "Mix");
+    int sol = soln_newSolution("h2o2.yaml", "ohmech", "mixture-averaged");
     int ph = soln_thermo(sol);
     int kin = soln_kinetics(sol);
     int tr = soln_transport(sol);

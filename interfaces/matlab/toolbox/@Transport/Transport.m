@@ -4,16 +4,17 @@ function tr = Transport(th, model, loglevel)
 % Create a new instance of class :mat:func:`Transport`. One to three arguments
 % may be supplied. The first must be an instance of class
 % :mat:func:`ThermoPhase`. The second (optional) argument is the type of
-% model desired, specified by the string ``'default'``, ``'Mix'`` or
-% ``'Multi'``. ``'default'`` uses the default transport specified in the
+% model desired, specified by the string ``'default'`` or a specific transport model
+% name such as ``'mixture-averaged'`` or ``'multicomponent'``.
+% ``'default'`` uses the default transport specified in the
 % phase definition. The third argument is the logging level desired.
 %
 % :param th:
 %     Instance of class :mat:func:`ThermoPhase`
 % :param model:
 %     String indicating the transport model to use. Possible values
-%     are ``'default'``, ``'None'``, ``'Mix'``, and ``'Multi'``.
-%     Optional.
+%     are ``'default'``, ``'None'``, ``'mixture-averaged'``, and ``'multicomponent'``,
+%     among others. Optional.
 % :param loglevel:
 %     Level of diagnostic logging. Default if not specified is 4.
 % :return:

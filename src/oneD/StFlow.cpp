@@ -113,7 +113,7 @@ StFlow::StFlow(shared_ptr<Solution> sol, const std::string& id, size_t points)
             "An appropriate transport model\nshould be set when instantiating the "
             "Solution ('gas') object.\nImplicit setting of the transport model "
             "is deprecated and\nwill be removed after Cantera 3.0.");
-        setTransportModel("Mix");
+        setTransportModel("mixture-averaged");
     }
     m_solution->registerChangedCallback(this, [this]() {
         setKinetics(m_solution->kinetics());
@@ -165,7 +165,7 @@ void StFlow::setTransport(shared_ptr<Transport> trans)
     if (m_trans->transportModel() == "None") {
         throw CanteraError("StFlow::setTransport", "Invalid Transport model 'None'.");
     }
-    m_do_multicomponent = (m_trans->transportModel() == "Multi" ||
+    m_do_multicomponent = (m_trans->transportModel() == "multicomponent" ||
         m_trans->transportModel() == "multicomponent-CK");
 
     m_diff.resize(m_nsp * m_points);
@@ -249,7 +249,7 @@ void StFlow::setTransport(Transport& trans)
         throw CanteraError("StFlow::setTransport",
             "Invalid Transport model 'None'.");
     }
-    m_do_multicomponent = (m_trans->transportModel() == "Multi" ||
+    m_do_multicomponent = (m_trans->transportModel() == "multicomponent" ||
                            m_trans->transportModel() == "multicomponent-CK");
 
     m_diff.resize(m_nsp*m_points);
@@ -855,7 +855,7 @@ void StFlow::setMeta(const AnyMap& state, int loglevel)
         }
     }
 
-    setTransportModel(state.getString("transport-model", "Mix"));
+    setTransportModel(state.getString("transport-model", "mixture-averaged"));
 
     if (state.hasKey("Soret-enabled")) {
         m_do_soret = state["Soret-enabled"].asBool();
