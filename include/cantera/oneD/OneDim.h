@@ -29,12 +29,20 @@ public:
     OneDim();
 
     //! Construct a OneDim container for the domains in the list *domains*.
+    OneDim(vector<shared_ptr<Domain1D>>& domains);
+
+    //! @deprecated  To be removed after Cantera 3.0;
+    //!     superseded by OneDim() using vector<shared_ptr<Domain1D>>
     OneDim(std::vector<Domain1D*> domains);
     virtual ~OneDim();
     OneDim(const OneDim&) = delete;
     OneDim& operator=(const OneDim&) = delete;
 
     //! Add a domain. Domains are added left-to-right.
+    void addDomain(shared_ptr<Domain1D> d);
+
+    //! @deprecated  To be removed after Cantera 3.0;
+    //!     superseded by addDomain() using shared_ptr<Domain1D>
     void addDomain(Domain1D* d);
 
     //! Return a reference to the Jacobian evaluator.
@@ -339,7 +347,13 @@ protected:
     size_t m_bw = 0; //!< Jacobian bandwidth
     size_t m_size = 0; //!< solution vector size
 
-    std::vector<Domain1D*> m_dom, m_connect, m_bulk;
+    vector<shared_ptr<Domain1D>> m_sharedDom;
+    vector<shared_ptr<Domain1D>> m_sharedConnect;
+    vector<shared_ptr<Domain1D>> m_sharedBulk;
+
+    vector<Domain1D*> m_dom; //!< @todo remove raw pointers after Cantera 3.0
+    vector<Domain1D*> m_connect; //!< @todo remove raw pointers after Cantera 3.0
+    vector<Domain1D*> m_bulk; //!< @todo remove raw pointers after Cantera 3.0
 
     bool m_init = false;
     std::vector<size_t> m_nvars;

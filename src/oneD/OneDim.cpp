@@ -21,8 +21,23 @@ OneDim::OneDim()
     m_newt = make_unique<MultiNewton>(1);
 }
 
+OneDim::OneDim(vector<shared_ptr<Domain1D>>& domains)
+{
+    // create a Newton iterator, and add each domain.
+    m_newt = make_unique<MultiNewton>(1);
+    for (auto& dom : domains) {
+        addDomain(dom);
+    }
+    init();
+    resize();
+}
+
 OneDim::OneDim(vector<Domain1D*> domains)
 {
+    warn_deprecated("OneDim::OneDim(vector<Domain1D*>)",
+        "To be removed after Cantera 3.0; superseded by "
+        "OneDim::OneDim(vector<shared_ptr<Domain1D>>).");
+
     // create a Newton iterator, and add each domain.
     m_newt = make_unique<MultiNewton>(1);
     for (size_t i = 0; i < domains.size(); i++) {
@@ -60,8 +75,37 @@ std::tuple<std::string, size_t, std::string> OneDim::component(size_t i) {
     return make_tuple(dom.id(), pt, dom.componentName(comp));
 }
 
+void OneDim::addDomain(shared_ptr<Domain1D> d)
+{
+    // if 'd' is not the first domain, link it to the last domain
+    // added (the rightmost one)
+    size_t n = m_dom.size();
+    if (n > 0) {
+        m_dom.back()->append(d.get());
+    }
+
+    // every other domain is a connector
+    if (n % 2 == 0) {
+        m_sharedConnect.push_back(d);
+        m_connect.push_back(d.get());
+    } else {
+        m_sharedBulk.push_back(d);
+        m_bulk.push_back(d.get());
+    }
+
+    // add it also to the global domain list, and set its container and position
+    m_sharedDom.push_back(d);
+    m_dom.push_back(d.get());
+    d->setContainer(this, m_dom.size()-1);
+    resize();
+}
+
 void OneDim::addDomain(Domain1D* d)
 {
+    warn_deprecated("OneDim::addDomain(Domain1D*)",
+        "To be removed after Cantera 3.0; superseded by "
+        "OneDim::addDomain(shared_ptr<Domain1D>).");
+
     // if 'd' is not the first domain, link it to the last domain
     // added (the rightmost one)
     size_t n = m_dom.size();

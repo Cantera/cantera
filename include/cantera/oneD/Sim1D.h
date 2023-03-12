@@ -30,11 +30,15 @@ public:
 
     /**
      * Standard constructor.
-     * @param domains A vector of pointers to the domains to be linked together.
+     * @param domains A vector of shared pointers to the domains to be linked together.
      *     The domain pointers must be entered in left-to-right order --- that is,
      *     the pointer to the leftmost domain is domain[0], the pointer to the
      *     domain to its right is domain[1], etc.
      */
+    Sim1D(vector<shared_ptr<Domain1D>>& domains);
+
+    //! @deprecated  To be removed after Cantera 3.0;
+    //!     superseded by Sim1D() using shared_ptr
     Sim1D(std::vector<Domain1D*>& domains);
 
     //! @name Setting initial values
