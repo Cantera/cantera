@@ -97,7 +97,7 @@ cdef extern from "cantera/oneD/IonFlow.h":
 
 cdef extern from "cantera/oneD/Sim1D.h":
     cdef cppclass CxxSim1D "Cantera::Sim1D":
-        CxxSim1D(vector[CxxDomain1D*]&) except +translate_exception
+        CxxSim1D(vector[shared_ptr[CxxDomain1D]]&) except +translate_exception
         void setValue(size_t, size_t, size_t, double) except +translate_exception
         void setProfile(size_t, size_t, vector[double]&, vector[double]&) except +translate_exception
         void setFlatProfile(size_t, size_t, double) except +translate_exception

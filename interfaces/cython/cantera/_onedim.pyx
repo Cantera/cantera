@@ -761,12 +761,12 @@ cdef class Sim1D:
         self.sim = NULL
 
     def __init__(self, domains, *args, **kwargs):
-        cdef vector[CxxDomain1D*] D
+        cdef vector[shared_ptr[CxxDomain1D]] cxx_domains
         cdef Domain1D d
         for d in domains:
-            D.push_back(d.domain)
+            cxx_domains.push_back(d._domain)
 
-        self.sim = new CxxSim1D(D)
+        self.sim = new CxxSim1D(cxx_domains)
         self.domains = tuple(domains)
         self.set_interrupt(no_op)
         self._initialized = False
