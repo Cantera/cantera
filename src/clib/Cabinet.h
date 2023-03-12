@@ -345,6 +345,18 @@ public:
     }
 
     /**
+     * Return object n, cast to the specified type.
+     */
+    template <class T>
+    static shared_ptr<T> as(size_t n) {
+        auto obj = std::dynamic_pointer_cast<T>(at(n));
+        if (obj) {
+            return obj;
+        }
+        throw CanteraError("SharedCabinet::as", "Item is not of the correct type.");
+    }
+
+    /**
      * Return a reference to object n.
      */
     static M& item(size_t n) {
