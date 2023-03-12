@@ -22,10 +22,30 @@ using namespace std;
 namespace Cantera
 {
 
+Sim1D::Sim1D(vector<shared_ptr<Domain1D>>& domains) :
+    OneDim(domains),
+    m_steady_callback(0)
+{
+    // resize the internal solution vector and the work array, and perform
+    // domain-specific initialization of the solution vector.
+    resize();
+    for (size_t n = 0; n < nDomains(); n++) {
+        domain(n)._getInitialSoln(&m_x[start(n)]);
+    }
+
+    // set some defaults
+    m_tstep = 1.0e-5;
+    m_steps = { 10 };
+}
+
 Sim1D::Sim1D(vector<Domain1D*>& domains) :
     OneDim(domains),
     m_steady_callback(0)
 {
+    warn_deprecated("Sim1D::Sim1D(vector<Domain1D*>&)",
+        "To be removed after Cantera 3.0; superseded by "
+        "Sim1D::Sim1D(vector<shared_ptr<Domain1D>>&).");
+
     // resize the internal solution vector and the work array, and perform
     // domain-specific initialization of the solution vector.
     resize();
