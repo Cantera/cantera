@@ -8,13 +8,13 @@ import pytest
 class TestOnedim(utilities.CanteraTest):
     def test_instantiate(self):
         gas = ct.Solution("h2o2.yaml")
-
-        flame = ct.IdealGasFlow(gas)
+        free = ct.FreeFlow(gas)
+        axi = ct.AxisymmetricFlow(gas)
 
     def test_badInstantiate(self):
         solid = ct.Solution("diamond.yaml", "diamond")
         with pytest.raises(ct.CanteraError, match="Unsupported phase type"):
-            ct.IdealGasFlow(solid)
+            ct.FreeFlow(solid)
 
     def test_instantiateSurface(self):
         gas = ct.Solution("diamond.yaml", "gas")
@@ -27,7 +27,7 @@ class TestOnedim(utilities.CanteraTest):
         gas1 = ct.Solution("h2o2.yaml")
         gas2 = ct.Solution("h2o2.yaml")
         inlet = ct.Inlet1D(name='something', phase=gas1)
-        flame = ct.IdealGasFlow(gas1)
+        flame = ct.FreeFlow(gas1)
         sim = ct.Sim1D((inlet, flame))
 
         self.assertEqual(inlet.name, 'something')
@@ -52,7 +52,7 @@ class TestOnedim(utilities.CanteraTest):
 
     def test_grid_check(self):
         gas = ct.Solution("h2o2.yaml")
-        flame = ct.IdealGasFlow(gas)
+        flame = ct.FreeFlow(gas)
 
         with self.assertRaisesRegex(ct.CanteraError, 'monotonically'):
             flame.grid = [0, 0.1, 0.1, 0.2]
@@ -63,14 +63,14 @@ class TestOnedim(utilities.CanteraTest):
     def test_unpicklable(self):
         import pickle
         gas = ct.Solution("h2o2.yaml")
-        flame = ct.IdealGasFlow(gas)
+        flame = ct.FreeFlow(gas)
         with self.assertRaises(NotImplementedError):
             pickle.dumps(flame)
 
     def test_uncopyable(self):
         import copy
         gas = ct.Solution("h2o2.yaml")
-        flame = ct.IdealGasFlow(gas)
+        flame = ct.FreeFlow(gas)
         with self.assertRaises(NotImplementedError):
             copy.copy(flame)
 
@@ -90,7 +90,7 @@ class TestOnedim(utilities.CanteraTest):
     def test_invalid_property(self):
         gas1 = ct.Solution("h2o2.yaml")
         inlet = ct.Inlet1D(name='something', phase=gas1)
-        flame = ct.IdealGasFlow(gas1)
+        flame = ct.FreeFlow(gas1)
         sim = ct.Sim1D((inlet, flame))
 
         for x in (inlet, flame, sim):
@@ -102,7 +102,7 @@ class TestOnedim(utilities.CanteraTest):
     def test_tolerances(self):
         gas = ct.Solution("h2o2.yaml")
         left = ct.Inlet1D(gas)
-        flame = ct.IdealGasFlow(gas)
+        flame = ct.FreeFlow(gas)
         right = ct.Inlet1D(gas)
         # Some things don't work until the domains have been added to a Sim1D
         sim = ct.Sim1D((left, flame, right))

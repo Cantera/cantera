@@ -12,7 +12,35 @@ TEST(ctonedim, freeflow)
 {
     ct_resetStorage();
 
-    int sol = soln_newSolution("h2o2.yaml", "ohmech", "mixture-averaged");
+    int sol = soln_newSolution("h2o2.yaml", "ohmech", "");
+    int ph = soln_thermo(sol);
+    ASSERT_GE(ph, 0);
+
+    double T = 1050;
+    double P = 5 * 101325;
+    string X = "CH4:1.0, O2:2.0, N2:7.52";
+    thermo_setMoleFractionsByName(ph, X.c_str());
+    thermo_setTemperature(ph, T);
+    thermo_setPressure(ph, P);
+
+    int flow = domain_new("free-flow", sol, "flow");
+    ASSERT_GE(flow, 0);
+    domain_setID(flow, "flow");
+    ASSERT_NEAR(stflow_pressure(flow), P, 1e-5);
+
+    int buflen = domain_type3(flow, 0, 0);
+    char* buf = new char[buflen];
+    domain_type3(flow, buflen, buf);
+    string domName = buf;
+    ASSERT_EQ(domName, "free-flow");
+    delete[] buf;
+}
+
+TEST(ctonedim, freeflow_from_parts)
+{
+    ct_resetStorage();
+
+    int sol = soln_newSolution("h2o2.yaml", "ohmech", "");
     int ph = soln_thermo(sol);
     ASSERT_GE(ph, 0);
     int kin = soln_kinetics(sol);
@@ -30,8 +58,15 @@ TEST(ctonedim, freeflow)
     int itype = 2; // free flow
     int flow = stflow_new(ph, kin, tr, itype);
     ASSERT_GE(flow, 0);
-
+    domain_setID(flow, "flow");
     ASSERT_NEAR(stflow_pressure(flow), P, 1e-5);
+
+    int buflen = domain_type3(flow, 0, 0);
+    char* buf = new char[buflen];
+    domain_type3(flow, buflen, buf);
+    string domName = buf;
+    ASSERT_EQ(domName, "free-flow");
+    delete[] buf;
 }
 
 TEST(ctonedim, inlet)
@@ -54,6 +89,13 @@ TEST(ctonedim, outlet)
 }
 
 TEST(ctonedim, reacting_surface)
+{
+    int surf = soln_newInterface("ptcombust.yaml", "Pt_surf", 0, 0);
+    int index = domain_new("reacting-surface", surf, "surface");
+    ASSERT_GE(index, 0);
+}
+
+TEST(ctonedim, reacting_surface_from_parts)
 {
     int index = reactingsurf_new();
     ASSERT_GE(index, 0);
@@ -103,7 +145,7 @@ TEST(ctonedim, freeflame_from_parts)
     ct_resetStorage();
     auto gas = newThermo("h2o2.yaml", "ohmech");
 
-    int sol = soln_newSolution("h2o2.yaml", "ohmech", "mixture-averaged");
+    int sol = soln_newSolution("h2o2.yaml", "ohmech", "");
     int ph = soln_thermo(sol);
     int kin = soln_kinetics(sol);
     int tr = soln_transport(sol);
@@ -161,14 +203,15 @@ TEST(ctonedim, freeflame_from_parts)
     std::vector<int> doms{reac, flow, prod};
     int flame = sim1D_new(3, doms.data());
     int dom = sim1D_domainIndex(flame, "flow");
+    ASSERT_EQ(dom, 1);
 
     // set up initial guess
     vector<double> locs{0.0, 0.3, 0.7, 1.0};
     vector<double> value{uin, uin, uout, uout};
-    int comp = domain_componentIndex(dom, "velocity");
+    int comp = domain_componentIndex(flow, "velocity");
     sim1D_setProfile(flame, dom, comp, 4, locs.data(), 4, value.data());
     value = {T, T, Tad, Tad};
-    comp = domain_componentIndex(dom, "T");
+    comp = domain_componentIndex(flow, "T");
     sim1D_setProfile(flame, dom, comp, 4, locs.data(), 4, value.data());
     for (size_t i = 0; i < nsp; i++) {
         value = {yin[i], yin[i], yout[i], yout[i]};
@@ -177,7 +220,7 @@ TEST(ctonedim, freeflame_from_parts)
         thermo_getSpeciesName(ph, i, buflen, buf);
         string name = buf;
         ASSERT_EQ(name, gas->speciesName(i));
-        comp = domain_componentIndex(dom, buf);
+        comp = domain_componentIndex(flow, buf);
         sim1D_setProfile(flame, dom, comp, 4, locs.data(), 4, value.data());
     }
 
@@ -202,7 +245,7 @@ TEST(ctonedim, freeflame_from_parts)
         ASSERT_GE(ret, 0);
     }
 
-    ASSERT_EQ(domain_nPoints(flow),nz + 1);
+    ASSERT_EQ(domain_nPoints(flow), nz + 1);
     comp = domain_componentIndex(dom, "T");
     double Tprev = sim1D_value(flame, dom, comp, 0);
     for (size_t n = 0; n < domain_nPoints(flow); n++) {
