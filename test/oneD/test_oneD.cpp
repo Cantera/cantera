@@ -4,6 +4,7 @@
 
 #include "cantera/core.h"
 #include "cantera/onedim.h"
+#include "cantera/oneD/DomainFactory.h"
 
 using namespace Cantera;
 
@@ -33,8 +34,8 @@ TEST(onedim, freeflame)
     double Tad = gas->temperature();
 
     // flow
-    StFlow flow(sol, "flow");
-    flow.setFreeFlow();
+    auto flow = newDomain<StFlow>("gas-flow", sol, "flow");
+    flow->setFreeFlow();
 
     // grid
     int nz = 21;
@@ -45,20 +46,20 @@ TEST(onedim, freeflame)
     for (int iz = 0; iz < nz; iz++) {
         z[iz] = iz * dz;
     }
-    flow.setupGrid(nz, &z[0]);
+    flow->setupGrid(nz, &z[0]);
 
     // inlet
-    Inlet1D inlet(sol, "inlet");
-    inlet.setMoleFractions(X);
-    inlet.setMdot(uin * rho_in);
-    inlet.setTemperature(T);
+    auto inlet = newDomain<Inlet1D>("inlet", sol);
+    inlet->setMoleFractions(X);
+    inlet->setMdot(uin * rho_in);
+    inlet->setTemperature(T);
 
     // outlet
-    Outlet1D outlet(sol, "outlet");
-    double uout = inlet.mdot() / rho_out;
+    auto outlet = newDomain<Outlet1D>("outlet", sol);
+    double uout = inlet->mdot() / rho_out;
 
     // set up simulation
-    std::vector<Domain1D*> domains { &inlet, &flow, &outlet };
+    vector<shared_ptr<Domain1D>> domains { inlet, flow, outlet };
     Sim1D flame(domains);
     int dom = flame.domainIndex("flow");
     ASSERT_EQ(dom, 1);
@@ -82,7 +83,7 @@ TEST(onedim, freeflame)
     flame.setFixedTemperature(0.85 * T + .15 * Tad);
 
     // solve
-    flow.solveEnergyEqn();
+    flow->solveEnergyEqn();
     bool refine_grid = false;
     int loglevel = 0;
     flame.solve(loglevel, refine_grid);
@@ -91,10 +92,10 @@ TEST(onedim, freeflame)
         flame.save("gtest-freeflame.h5", "cpp", "Solution from C++ interface", 1);
     }
 
-    ASSERT_EQ(flow.nPoints(), nz + 1);
-    size_t comp = flow.componentIndex("T");
+    ASSERT_EQ(flow->nPoints(), nz + 1);
+    size_t comp = flow->componentIndex("T");
     double Tprev = flame.value(dom, comp, 0);
-    for (size_t n = 0; n < flow.nPoints(); n++) {
+    for (size_t n = 0; n < flow->nPoints(); n++) {
         T = flame.value(dom, comp, n);
         ASSERT_GE(T, Tprev);
         Tprev = T;

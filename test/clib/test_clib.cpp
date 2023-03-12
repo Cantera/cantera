@@ -63,7 +63,7 @@ TEST(ct, soln_objects)
 
     int ref = soln_newSolution("gri30.yaml", "gri30", "none");
     ASSERT_EQ(ref, 0);
-    int ref2 = soln_newSolution("h2o2.yaml", "ohmech", "mixture-averaged");
+    int ref2 = soln_newSolution("h2o2.yaml", "ohmech", "");
     ASSERT_EQ(ref2, 1);
 
     int thermo = soln_thermo(ref2);
@@ -76,6 +76,11 @@ TEST(ct, soln_objects)
 
     int trans = soln_kinetics(ref2);
     ASSERT_EQ(trans, 1);
+    int buflen = trans_transportModel(trans, 0, 0);
+    vector<char> buf(buflen);
+    trans_transportModel(trans, buflen, buf.data());
+    string trName(buf.data());
+    ASSERT_EQ(trName, "mixture-averaged");
 
     soln_del(ref2);
     size_t nsp = thermo_nSpecies(thermo);
@@ -88,14 +93,13 @@ TEST(ct, soln_objects)
     err = reportError();
     EXPECT_THAT(err, HasSubstr("has been deleted."));
 
-    trans = soln_setTransportModel(ref, "Mix");
+    trans = soln_setTransportModel(ref, "mixture-averaged");
     ASSERT_EQ(trans, 2);
-    int buflen = trans_transportModel(trans, 0, 0);
-    char* buf = new char[buflen];
-    trans_transportModel(trans, buflen, buf);
-    string trName = buf;
-    ASSERT_EQ(trName, "Mix");
-    delete[] buf;
+    buflen = trans_transportModel(trans, 0, 0);
+    buf.resize(buflen);
+    trans_transportModel(trans, buflen, buf.data());
+    trName = buf.data();
+    ASSERT_EQ(trName, "mixture-averaged");
 }
 
 TEST(ct, new_interface)
