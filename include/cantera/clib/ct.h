@@ -28,6 +28,7 @@ extern "C" {
     CANTERA_CAPI int soln_thermo(int n);
     CANTERA_CAPI int soln_kinetics(int n);
     CANTERA_CAPI int soln_transport(int n);
+    //! note that soln_setTransportModel deletes the previous transport model
     CANTERA_CAPI int soln_setTransportModel(int n, const char* model);
     CANTERA_CAPI size_t soln_nAdjacent(int n);
     CANTERA_CAPI int soln_adjacent(int n, int a);

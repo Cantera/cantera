@@ -244,7 +244,7 @@ extern "C" {
         }
     }
 
-    doublereal thermo_temperature(int n)
+    double thermo_temperature(int n)
     {
         try {
             return ThermoCabinet::item(n).temperature();
@@ -263,7 +263,7 @@ extern "C" {
         return 0;
     }
 
-    doublereal thermo_density(int n)
+    double thermo_density(int n)
     {
         try {
             return ThermoCabinet::item(n).density();
@@ -282,7 +282,7 @@ extern "C" {
         return 0;
     }
 
-    doublereal thermo_molarDensity(int n)
+    double thermo_molarDensity(int n)
     {
         try {
             return ThermoCabinet::item(n).molarDensity();
@@ -301,7 +301,7 @@ extern "C" {
         return 0;
     }
 
-    doublereal thermo_meanMolecularWeight(int n)
+    double thermo_meanMolecularWeight(int n)
     {
         try {
             return ThermoCabinet::item(n).meanMolecularWeight();
@@ -340,7 +340,7 @@ extern "C" {
         }
     }
 
-    doublereal thermo_moleFraction(int n, size_t k)
+    double thermo_moleFraction(int n, size_t k)
     {
         try {
             return ThermoCabinet::item(n).moleFraction(k);
@@ -361,7 +361,7 @@ extern "C" {
         }
     }
 
-    doublereal thermo_massFraction(int n, size_t k)
+    double thermo_massFraction(int n, size_t k)
     {
         try {
             return ThermoCabinet::item(n).massFraction(k);
@@ -501,7 +501,7 @@ extern "C" {
     }
 
 
-    doublereal thermo_nAtoms(int n, size_t k, size_t m)
+    double thermo_nAtoms(int n, size_t k, size_t m)
     {
         try {
             return ThermoCabinet::item(n).nAtoms(k,m);
@@ -510,7 +510,7 @@ extern "C" {
         }
     }
 
-    int thermo_addElement(int n, const char* name, doublereal weight)
+    int thermo_addElement(int n, const char* name, double weight)
     {
         try {
             ThermoCabinet::item(n).addElement(name, weight);
@@ -880,7 +880,7 @@ extern "C" {
         }
     }
 
-    doublereal thermo_refPressure(int n)
+    double thermo_refPressure(int n)
     {
         try {
             return ThermoCabinet::item(n).refPressure();
@@ -889,7 +889,7 @@ extern "C" {
         }
     }
 
-    doublereal thermo_minTemp(int n, int k)
+    double thermo_minTemp(int n, int k)
     {
         try {
             ThermoPhase& ph = ThermoCabinet::item(n);
@@ -904,7 +904,7 @@ extern "C" {
         }
     }
 
-    doublereal thermo_maxTemp(int n, int k)
+    double thermo_maxTemp(int n, int k)
     {
         try {
             ThermoPhase& ph = ThermoCabinet::item(n);
@@ -966,7 +966,7 @@ extern "C" {
         }
     }
 
-    doublereal thermo_thermalExpansionCoeff(int n)
+    double thermo_thermalExpansionCoeff(int n)
     {
         try {
             return ThermoCabinet::item(n).thermalExpansionCoeff();
@@ -975,7 +975,7 @@ extern "C" {
         }
     }
 
-    doublereal thermo_isothermalCompressibility(int n)
+    double thermo_isothermalCompressibility(int n)
     {
         try {
             return ThermoCabinet::item(n).isothermalCompressibility();
