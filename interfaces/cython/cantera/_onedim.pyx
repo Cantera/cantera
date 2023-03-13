@@ -16,7 +16,7 @@ class _WeakrefProxy:
     pass
 
 cdef class Domain1D:
-    _domain_type = "None"
+    _domain_type = "none"
     def __cinit__(self, _SolutionBase phase not None, *args, **kwargs):
         self.domain = NULL
 
@@ -673,6 +673,49 @@ cdef class _FlowBase(Domain1D):
             return pystr(self.flow.flowType())
 
 
+cdef class FreeFlow(_FlowBase):
+    r"""A free flow domain. The equations solved are standard equations for adiabatic
+    one-dimensional flow. The solution variables are:
+
+    *velocity*
+        axial velocity
+    *T*
+        temperature
+    *Y_k*
+        species mass fractions
+    """
+    _domain_type = "free-flow"
+
+
+cdef class AxisymmetricFlow(_FlowBase):
+    r"""
+    An axisymmetric flow domain. The equations solved are the similarity equations for
+    the flow in a finite-height gap of infinite radial extent. The solution variables
+    are:
+
+    *velocity*
+        axial velocity
+    *spread_rate*
+        radial velocity divided by radius
+    *T*
+        temperature
+    *lambda*
+        :math:`(1/r)(dP/dr)`
+    *Y_k*
+        species mass fractions
+
+    It may be shown that if the boundary conditions on these variables are independent
+    of radius, then a similarity solution to the exact governing equations exists in
+    which these variables are all independent of radius. This solution holds only in
+    the low-Mach-number limit, in which case :math:`(dP/dz) = 0`, and :math:`lambda` is
+    a constant. (Lambda is treated as a spatially-varying solution variable for
+    numerical reasons, but in the final solution it is always independent of :math:`z`.)
+    As implemented here, the governing equations assume an ideal gas mixture. Arbitrary
+    chemistry is allowed, as well as arbitrary variation of the transport properties.
+    """
+    _domain_type = "axisymmetric-flow"
+
+
 cdef class IdealGasFlow(_FlowBase):
     """
     An ideal gas flow domain. Functions `set_free_flow` and
@@ -702,8 +745,18 @@ cdef class IdealGasFlow(_FlowBase):
     it is always independent of z.) As implemented here, the governing
     equations assume an ideal gas mixture.  Arbitrary chemistry is allowed, as
     well as arbitrary variation of the transport properties.
+
+    .. deprecated:: 3.0
+
+        Class to be removed after Cantera 3.0; replaced by `FreeFlow` and
+        s`AxisymmetricFlow`.
     """
     _domain_type = "gas-flow"
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn("Class to be removed after Cantera 3.0; use 'FreeFlow' "
+                      "or AxisymmetricFlow' instead.", DeprecationWarning)
+        super().__init__(*args, **kwargs)
 
 
 cdef class IonFlow(_FlowBase):
