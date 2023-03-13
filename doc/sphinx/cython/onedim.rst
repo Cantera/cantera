@@ -59,17 +59,17 @@ IdealGasFlow
 .. autoclass:: IdealGasFlow(thermo)
     :inherited-members:
 
-IonFlow
-^^^^^^^
-.. autoclass:: IonFlow(thermo)
-
 FreeFlow
 ^^^^^^^^
 .. autoclass:: FreeFlow(thermo)
 
-AxisymmetricStagnationFlow
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-.. autoclass:: AxisymmetricStagnationFlow(thermo)
+AxisymmetricFlow
+^^^^^^^^^^^^^^^^
+.. autoclass:: AxisymmetricFlow(thermo)
+
+IonFlow
+^^^^^^^
+.. autoclass:: IonFlow(thermo)
 
 Boundaries
 ----------
