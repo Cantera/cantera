@@ -1,3 +1,19 @@
+description: |-
+  Coverage-dependent thermodynamic data for CO and O surface species
+  on Pt. NASA polynomial coefficients are extracted from K. Blondal,
+  J. Jelic, E. Mazeau, F. Studt, R.H. West, and C.F. Goldsmith,
+  "Computer-Generated Kinetics for Coupled Heterogeneous/Homogeneous
+  Systems: A Case Study in Catalytic Combustion of Methane on
+  Platinum.", Ind. Eng. Chem. Res. vol. 58, 17682–17691 (2019).
+  Coverage-dependencies data for CO-CO interaction are parametrized
+  from DFT-calculated values. The calculations were done with
+  PBE-D3 xc functional on a 3 x 3 Pt periodic slab. The CO-O
+  interaction parameters is a made-up value for the cross-interaction
+  demonstration purpose.
+
+cantera-version: 3.0.0
+date: Tue, 11 Oct 2022 14:23:01 -0500
+
 phases:
 - name: covdep_lin
   thermo: coverage-dependent-surface
