@@ -1,3 +1,17 @@
+description: |-
+  Coverage-dependent thermodynamic data for testing
+  CoverageDependentSurfPhase class implementation.
+  NASA polynomial coefficients are extracted from K. Blondal,
+  J. Jelic, E. Mazeau, F. Studt, R.H. West, and C.F. Goldsmith,
+  "Computer-Generated Kinetics for Coupled Heterogeneous/Homogeneous
+  Systems: A Case Study in Catalytic Combustion of Methane on
+  Platinum.", Ind. Eng. Chem. Res. vol. 58, 17682–17691 (2019).
+  Coverage-dependencies data among surface species are made-up values
+  for the testing purpose.
+
+cantera-version: 3.0.0
+date: Thu, 13 Oct 2022 16:18:21 -0500
+
 units: {length: cm, quantity: mol}
 
 phases:
