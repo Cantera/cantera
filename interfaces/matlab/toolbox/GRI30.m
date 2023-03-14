@@ -22,10 +22,10 @@ function s = GRI30(tr)
 %     g1 = GRI30                      % mixture-averaged transport properties
 %     g2 = GRI30('mixture-averaged')  % mixture-averaged transport properties
 %     g3 = GRI30('multicomponent')    % miulticomponent transport properties
-%     g4 = GRI30('None')              % no transport properties
+%     g4 = GRI30('none')              % no transport properties
 %
 % :param tr:
-%     Transport modeling, ``'None'``, ``'mixture-averaged'``, or ``'multicomponent'``
+%     Transport modeling, ``'none'``, ``'mixture-averaged'``, or ``'multicomponent'``
 % :return:
 %     Instance of class :mat:func:`Solution`
 %

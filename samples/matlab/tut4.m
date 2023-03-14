@@ -12,7 +12,7 @@ help tut4
 % To set a gas mixture to a state of chemical equilibrium, use the
 % 'equilibrate' method.
 %
-g = GRI30('None');
+g = GRI30('none');
 set(g,'T',1200.0,'P',oneatm,'X','CH4:0.95,O2:2,N2:7.52')
 equilibrate(g,'TP')
 

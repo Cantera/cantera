@@ -1359,9 +1359,9 @@ void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld, doublereal* const
 
 std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
 {
-    if (type() == "None") {
+    if (type() == "none") {
         throw NotImplementedError("ThermoPhase::report",
-            "Not implemented for thermo model 'None'");
+            "Not implemented for thermo model 'none'");
     }
 
     fmt::memory_buffer b;

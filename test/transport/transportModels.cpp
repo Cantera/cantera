@@ -58,7 +58,7 @@ public:
     NoTransportTest() {}
 
     static void SetUpTestCase() {
-        soln_ = newSolution("h2o2.yaml", "", "None");
+        soln_ = newSolution("h2o2.yaml", "", "none");
     }
 
     static void TearDownTestCase() {
@@ -74,7 +74,7 @@ shared_ptr<Solution> NoTransportTest::soln_;
 TEST_F(NoTransportTest, check_type)
 {
     auto tr = soln_->transport();
-    ASSERT_EQ(tr->transportModel(), "None");
+    ASSERT_EQ(tr->transportModel(), "none");
 }
 
 TEST_F(NoTransportTest, check_exceptions_scalar)

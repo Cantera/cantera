@@ -27,9 +27,9 @@ std::mutex TransportFactory::transport_mutex;
 TransportFactory::TransportFactory()
 {
     reg("none", []() { return new Transport(); });
-    addAlias("none", "Transport");
-    addAlias("none", "None");
-    addAlias("none", "");
+    addDeprecatedAlias("none", "Transport");
+    addDeprecatedAlias("none", "None");
+    addDeprecatedAlias("none", "");
     reg("unity-Lewis-number", []() { return new UnityLewisTransport(); });
     addDeprecatedAlias("unity-Lewis-number", "UnityLewis");
     reg("mixture-averaged", []() { return new MixTransport(); });
@@ -98,7 +98,7 @@ Transport* TransportFactory::newTransport(const std::string& transportModel,
 
 Transport* TransportFactory::newTransport(ThermoPhase* phase, int log_level)
 {
-    std::string transportModel = "None";
+    std::string transportModel = "none";
     AnyMap& input = phase->input();
     if (input.hasKey("transport")) {
         transportModel = input["transport"].asString();

@@ -121,7 +121,7 @@ class EquilRatio_MixFrac_Test : public testing::Test
 {
 public:
     void initSolution() {
-        m_sol = newSolution("gri30.yaml", "gri30", "None");
+        m_sol = newSolution("gri30.yaml", "gri30", "none");
     }
 
     void set_arbitrary_mixture(ThermoBasis basis) {

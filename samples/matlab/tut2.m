@@ -36,7 +36,7 @@ msg = sprintf('time to create gas1: %f', cputime - t0)
 % it has already processed and doesn't need to read them in again:
 
 t0 = cputime;
-gas1b = Solution('gri30.yaml', 'gas', 'None');
+gas1b = Solution('gri30.yaml', 'gas', 'none');
 msg = sprintf('time to create gas1b: %f', cputime - t0)
 
 % Since GRI-Mech is a rather small mechanism, there might not be much

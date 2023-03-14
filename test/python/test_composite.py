@@ -142,7 +142,7 @@ class TestPickle(utilities.CanteraTest):
         self.assertNear(gas.P, gas2.P)
         self.assertArrayNear(gas.X, gas2.X)
 
-        self.assertEqual(gas2.transport_model, "None")
+        self.assertEqual(gas2.transport_model, "none")
 
     def test_pickle_gas_with_transport(self):
         gas = ct.Solution("h2o2.yaml")
@@ -197,8 +197,8 @@ class TestEmptySolution(TestEmptyThermoPhase):
         cls.gas = ct.Solution()
 
     def test_empty_composite(self):
-        self.assertEqual(self.gas.thermo_model, "None")
-        self.assertEqual(self.gas.composite, ("None", "None", "None"))
+        self.assertEqual(self.gas.thermo_model, "none")
+        self.assertEqual(self.gas.composite, ("none", "none", "none"))
 
 
 class TestEmptyEdgeCases(utilities.CanteraTest):

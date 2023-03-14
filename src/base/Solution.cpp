@@ -110,7 +110,7 @@ AnyMap Solution::parameters(bool withInput) const
     }
     if (!m_transport) {
         out["transport"] = empty;
-    } else if (m_transport->transportModel() == "None") {
+    } else if (m_transport->transportModel() == "none") {
         out["transport"] = empty;
     } else {
         out.update(m_transport->parameters());

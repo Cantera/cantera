@@ -12,7 +12,7 @@
 
 help tut5
 
-g = GRI30('None');
+g = GRI30('none');
 set(g,'T',1500,'P',oneatm,'X',ones(nSpecies(g),1));
 
 % Methods are provided that compute many quantities of interest for

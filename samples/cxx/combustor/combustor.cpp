@@ -24,7 +24,7 @@ using namespace Cantera;
 void runexample()
 {
     // use reaction mechanism GRI-Mech 3.0
-    auto sol = newSolution("gri30.yaml", "gri30", "None");
+    auto sol = newSolution("gri30.yaml", "gri30", "none");
     auto gas = sol->thermo();
 
     // create a reservoir for the fuel inlet, and set to pure methane.
@@ -33,7 +33,7 @@ void runexample()
     fuel_in.insert(sol);
     double fuel_mw = gas->meanMolecularWeight();
 
-    auto air = newSolution("air.yaml", "air", "None");
+    auto air = newSolution("air.yaml", "air", "none");
     double air_mw = air->thermo()->meanMolecularWeight();
 
     // create a reservoir for the air inlet
