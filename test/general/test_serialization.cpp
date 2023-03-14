@@ -169,12 +169,12 @@ TEST(YamlWriter, duplicateName)
 
 TEST(YamlWriter, reactions)
 {
-    auto original = newSolution("h2o2.yaml", "", "None");
+    auto original = newSolution("h2o2.yaml", "", "none");
     YamlWriter writer;
     writer.addPhase(original);
     writer.setPrecision(14);
     writer.toYamlFile("generated-h2o2.yaml");
-    auto duplicate = newSolution("generated-h2o2.yaml", "", "None");
+    auto duplicate = newSolution("generated-h2o2.yaml", "", "none");
 
     auto kin1 = original->kinetics();
     auto kin2 = duplicate->kinetics();
@@ -190,7 +190,7 @@ TEST(YamlWriter, reactions)
 
 TEST(YamlWriter, reaction_units_from_Yaml)
 {
-    auto original = newSolution("h2o2.yaml", "", "None");
+    auto original = newSolution("h2o2.yaml", "", "none");
     YamlWriter writer;
     writer.addPhase(original);
     writer.setPrecision(14);
@@ -203,7 +203,7 @@ TEST(YamlWriter, reaction_units_from_Yaml)
     units.setDefaults(defaults);
     writer.setUnitSystem(units);
     writer.toYamlFile("generated-h2o2-outunits.yaml");
-    auto duplicate = newSolution("generated-h2o2-outunits.yaml", "", "None");
+    auto duplicate = newSolution("generated-h2o2-outunits.yaml", "", "none");
 
     auto kin1 = original->kinetics();
     auto kin2 = duplicate->kinetics();
@@ -246,9 +246,9 @@ TEST(YamlWriter, chebyshev_units_from_Yaml)
 
 TEST(YamlWriter, multipleReactionSections)
 {
-    auto original1 = newSolution("h2o2.yaml", "", "None");
-    auto original2 = newSolution("h2o2.yaml", "", "None");
-    auto original3 = newSolution("h2o2.yaml", "", "None");
+    auto original1 = newSolution("h2o2.yaml", "", "none");
+    auto original2 = newSolution("h2o2.yaml", "", "none");
+    auto original3 = newSolution("h2o2.yaml", "", "none");
     // this phase will require its own "reactions" section
     auto R = original3->kinetics()->reaction(3);
     R->duplicate = true;
@@ -261,9 +261,9 @@ TEST(YamlWriter, multipleReactionSections)
     writer.addPhase(original3);
     writer.toYamlFile("generated-multi-rxn-secs.yaml");
 
-    auto duplicate1 = newSolution("generated-multi-rxn-secs.yaml", "ohmech", "None");
-    auto duplicate2 = newSolution("generated-multi-rxn-secs.yaml", "ohmech2", "None");
-    auto duplicate3 = newSolution("generated-multi-rxn-secs.yaml", "ohmech3", "None");
+    auto duplicate1 = newSolution("generated-multi-rxn-secs.yaml", "ohmech", "none");
+    auto duplicate2 = newSolution("generated-multi-rxn-secs.yaml", "ohmech2", "none");
+    auto duplicate3 = newSolution("generated-multi-rxn-secs.yaml", "ohmech3", "none");
     auto kin1 = duplicate1->kinetics();
     auto kin2 = duplicate2->kinetics();
     auto kin3 = duplicate3->kinetics();
@@ -380,7 +380,7 @@ TEST(YamlWriter, sofc)
 
 TEST(YamlWriter, customHeader)
 {
-    auto original = newSolution("h2o2.yaml", "", "None");
+    auto original = newSolution("h2o2.yaml", "", "none");
     AnyMap header;
     header["description"] = "Copy of H2O2 mechanism";
     header["spam"] = "eggs";
@@ -390,7 +390,7 @@ TEST(YamlWriter, customHeader)
     writer.addPhase(original);
     writer.toYamlFile("generated-custom-header.yaml");
 
-    auto soln = newSolution("generated-custom-header.yaml", "", "None");
+    auto soln = newSolution("generated-custom-header.yaml", "", "none");
 
     ASSERT_EQ(soln->header()["cantera-version"].asString(), CANTERA_VERSION);
     ASSERT_EQ(soln->header()["generator"].asString(), "YamlWriter");

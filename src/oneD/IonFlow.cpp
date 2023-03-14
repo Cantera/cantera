@@ -60,7 +60,7 @@ IonFlow::IonFlow(shared_ptr<Solution> sol, const std::string& id, size_t points)
     m_id = id;
     m_kin = m_solution->kinetics().get();
     m_trans = m_solution->transport().get();
-    if (m_trans->transportModel() == "None") {
+    if (m_trans->transportModel() == "none") {
         // @deprecated
         warn_deprecated("IonFlow",
             "An appropriate transport model\nshould be set when instantiating the "

@@ -98,7 +98,7 @@ void timeit_matrix(Eigen::SparseMatrix<double> (Kinetics::*function)(),
 void benchmark(const std::string& mech, const std::string& phase,
     const std::string& fuel)
 {
-    auto sol = newSolution(mech, phase, "None");
+    auto sol = newSolution(mech, phase, "none");
     auto& gas = *(sol->thermo());
     auto& kin = *(sol->kinetics());
 

@@ -107,7 +107,7 @@ StFlow::StFlow(shared_ptr<Solution> sol, const std::string& id, size_t points)
     m_id = id;
     m_kin = m_solution->kinetics().get();
     m_trans = m_solution->transport().get();
-    if (m_trans->transportModel() == "None") {
+    if (m_trans->transportModel() == "none") {
         // @deprecated
         warn_deprecated("StFlow",
             "An appropriate transport model\nshould be set when instantiating the "
@@ -162,8 +162,8 @@ void StFlow::setTransport(shared_ptr<Transport> trans)
         throw CanteraError("StFlow::setTransport", "Unable to set empty transport.");
     }
     m_trans = trans.get();
-    if (m_trans->transportModel() == "None") {
-        throw CanteraError("StFlow::setTransport", "Invalid Transport model 'None'.");
+    if (m_trans->transportModel() == "none") {
+        throw CanteraError("StFlow::setTransport", "Invalid Transport model 'none'.");
     }
     m_do_multicomponent = (m_trans->transportModel() == "multicomponent" ||
         m_trans->transportModel() == "multicomponent-CK");
@@ -245,9 +245,9 @@ void StFlow::setTransport(Transport& trans)
     warn_deprecated("StFlow::setTransport(Transport&)", "To be removed after"
         " Cantera 3.0. Replaced by setTransport(shared_ptr<Transport>).");
     m_trans = &trans;
-    if (m_trans->transportModel() == "None") {
+    if (m_trans->transportModel() == "none") {
         throw CanteraError("StFlow::setTransport",
-            "Invalid Transport model 'None'.");
+            "Invalid Transport model 'none'.");
     }
     m_do_multicomponent = (m_trans->transportModel() == "multicomponent" ||
                            m_trans->transportModel() == "multicomponent-CK");

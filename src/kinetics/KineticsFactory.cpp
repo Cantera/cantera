@@ -22,8 +22,8 @@ std::mutex KineticsFactory::kinetics_mutex;
 
 KineticsFactory::KineticsFactory() {
     reg("none", []() { return new Kinetics(); });
-    addAlias("none", "Kinetics");
-    addAlias("none", "None");
+    addDeprecatedAlias("none", "Kinetics");
+    addDeprecatedAlias("none", "None");
     reg("gas", []() { return new GasKinetics(); });
     addDeprecatedAlias("gas", "gaskinetics");
     addDeprecatedAlias("gas", "Gas");
@@ -186,7 +186,7 @@ void addReactions(Kinetics& kin, const AnyMap& phaseNode, const AnyMap& rootNode
                 rules.push_back(item.begin()->second.asString());
             }
         }
-    } else if (kin.kineticsType() != "None") {
+    } else if (kin.kineticsType() != "none") {
         if (!phaseNode.hasKey("kinetics")) {
             // Do nothing - default surface or edge kinetics require separate detection
             // while not adding reactions

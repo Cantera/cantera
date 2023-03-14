@@ -19,7 +19,7 @@ using namespace Cantera;
 
 TEST(ReactionRate, ModifyArrheniusRate)
 {
-    auto sol = newSolution("gri30.yaml", "", "None");
+    auto sol = newSolution("gri30.yaml", "", "none");
     AnyMap rxn = AnyMap::fromYamlString(
         "{equation: N + NO <=> N2 + O,"
         " rate-constant: [-2.70000E+13 cm^3/mol/s, 0, 355 cal/mol],"
@@ -34,7 +34,7 @@ TEST(ReactionRate, ModifyArrheniusRate)
 
 TEST(Reaction, ElementaryFromYaml)
 {
-    auto sol = newSolution("gri30.yaml", "", "None");
+    auto sol = newSolution("gri30.yaml", "", "none");
     AnyMap rxn = AnyMap::fromYamlString(
         "{equation: N + NO <=> N2 + O,"
         " rate-constant: [-2.70000E+13 cm^3/mol/s, 0, 355 cal/mol],"
@@ -56,7 +56,7 @@ TEST(Reaction, ElementaryFromYaml)
 
 TEST(Reaction, ThreeBodyFromYaml1)
 {
-    auto sol = newSolution("gri30.yaml", "", "None");
+    auto sol = newSolution("gri30.yaml", "", "none");
     AnyMap rxn = AnyMap::fromYamlString(
         "{equation: 2 O + M = O2 + M,"
         " type: three-body,"
@@ -76,7 +76,7 @@ TEST(Reaction, ThreeBodyFromYaml1)
 
 TEST(Reaction, ThreeBodyFromYaml2)
 {
-    auto sol = newSolution("gri30.yaml", "", "None");
+    auto sol = newSolution("gri30.yaml", "", "none");
     AnyMap rxn = AnyMap::fromYamlString(
         "{equation: 2 O + M = O2 + M,"
         " rate-constant: [1.20000E+17 cm^6/mol^2/s, -1, 0],"
@@ -104,7 +104,7 @@ TEST(Reaction, ThreeBodyFromYaml2)
 
 TEST(Reaction, ThreeBodyFromYaml3)
 {
-    auto sol = newSolution("gri30.yaml", "", "None");
+    auto sol = newSolution("gri30.yaml", "", "none");
     AnyMap rxn = AnyMap::fromYamlString(
         "{equation: CH2 + M <=> CH2(S) + M,"
         " rate-constant: {A: 5.0e+9, b: 0.0, Ea: 0.0}}");
@@ -120,7 +120,7 @@ TEST(Reaction, ThreeBodyFromYaml3)
 
 TEST(Reaction, ThreeBodyFromYaml4)
 {
-    auto sol = newSolution("gri30.yaml", "", "None");
+    auto sol = newSolution("gri30.yaml", "", "none");
     AnyMap rxn = AnyMap::fromYamlString(
         "{equation: CH2 + O2 <=> CH2(S) + O2,"
         " type: three-body,"
@@ -142,7 +142,7 @@ TEST(Reaction, ThreeBodyFromYaml4)
 
 TEST(Reaction, ThreeBodyFromYaml5)
 {
-    auto sol = newSolution("gri30.yaml", "", "None");
+    auto sol = newSolution("gri30.yaml", "", "none");
     AnyMap rxn = AnyMap::fromYamlString(
         "{equation: CH2 + O2 <=> CH2 + O2,"
         " rate-constant: {A: 5.0e+9, b: 0.0, Ea: 0.0},"
@@ -168,7 +168,7 @@ TEST(Reaction, ThreeBodyFromYaml5)
 
 TEST(Reaction, ThreeBodyFromYaml6)
 {
-    auto sol = newSolution("gri30.yaml", "", "None");
+    auto sol = newSolution("gri30.yaml", "", "none");
     AnyMap rxn = AnyMap::fromYamlString(
         "{equation: CH2 + O2 <=> CH2 + O2,"
         " type: three-body,"
@@ -196,7 +196,7 @@ TEST(Reaction, ThreeBodyFromYaml6)
 
 TEST(Reaction, ThreeBodyFromYamlMissingM)
 {
-    auto sol = newSolution("gri30.yaml", "", "None");
+    auto sol = newSolution("gri30.yaml", "", "none");
     AnyMap rxn = AnyMap::fromYamlString(
         "{equation: 2 O <=> O2," // Missing "M" on each side of the equation
         " type: three-body,"
@@ -207,7 +207,7 @@ TEST(Reaction, ThreeBodyFromYamlMissingM)
 
 TEST(Reaction, ThreeBodyFromYamlMultiple)
 {
-    auto sol = newSolution("gri30.yaml", "", "None");
+    auto sol = newSolution("gri30.yaml", "", "none");
     AnyMap rxn = AnyMap::fromYamlString(
         "{equation: CH2 + O2 <=> CH2 + O2,"
         " type: three-body," // ambiguous valid explicit third bodies
@@ -218,7 +218,7 @@ TEST(Reaction, ThreeBodyFromYamlMultiple)
 
 TEST(Reaction, ThreeBodyFromYamlIncompatible1)
 {
-    auto sol = newSolution("gri30.yaml", "", "None");
+    auto sol = newSolution("gri30.yaml", "", "none");
     AnyMap rxn = AnyMap::fromYamlString(
         "{equation: CH2 + O2 <=> CH2 + O2,"
         " rate-constant: {A: 5.0e+9, b: 0.0, Ea: 0.0},"
@@ -230,7 +230,7 @@ TEST(Reaction, ThreeBodyFromYamlIncompatible1)
 
 TEST(Reaction, ThreeBodyFromYamlIncompatible2)
 {
-    auto sol = newSolution("gri30.yaml", "", "None");
+    auto sol = newSolution("gri30.yaml", "", "none");
     AnyMap rxn = AnyMap::fromYamlString(
         "{equation: CH2 + O2 <=> CH2(S) + O2,"
         " rate-constant: {A: 5.0e+9, b: 0.0, Ea: 0.0},"
@@ -242,7 +242,7 @@ TEST(Reaction, ThreeBodyFromYamlIncompatible2)
 
 TEST(Reaction, ThreeBodyFromYamlIncompatible3)
 {
-    auto sol = newSolution("gri30.yaml", "", "None");
+    auto sol = newSolution("gri30.yaml", "", "none");
     AnyMap rxn = AnyMap::fromYamlString(
         "{equation: CH2 + O2 <=> CH2 + O2,"
         " rate-constant: {A: 5.0e+9, b: 0.0, Ea: 0.0},"
@@ -254,7 +254,7 @@ TEST(Reaction, ThreeBodyFromYamlIncompatible3)
 
 TEST(Reaction, ThreeBodyFromYamlIncompatible4)
 {
-    auto sol = newSolution("gri30.yaml", "", "None");
+    auto sol = newSolution("gri30.yaml", "", "none");
     AnyMap rxn = AnyMap::fromYamlString(
         "{equation: CH2 + O2 <=> CH2 + O2,"
         " rate-constant: {A: 5.0e+9, b: 0.0, Ea: 0.0},"
@@ -265,7 +265,7 @@ TEST(Reaction, ThreeBodyFromYamlIncompatible4)
 
 TEST(Reaction, ThreeBodyFromYamlIncompatible5)
 {
-    auto sol = newSolution("gri30.yaml", "", "None");
+    auto sol = newSolution("gri30.yaml", "", "none");
     AnyMap rxn = AnyMap::fromYamlString(
         "{equation: CH2 + O2 <=> CH2 + O2,"
         " type: three-body,"
@@ -276,7 +276,7 @@ TEST(Reaction, ThreeBodyFromYamlIncompatible5)
 
 TEST(Reaction, FalloffFromYaml1)
 {
-    auto sol = newSolution("gri30.yaml", "", "None");
+    auto sol = newSolution("gri30.yaml", "", "none");
     AnyMap rxn = AnyMap::fromYamlString(
         "{equation: N2O (+M) = N2 + O (+ M),"
         " type: falloff,"
@@ -298,7 +298,7 @@ TEST(Reaction, FalloffFromYaml1)
 
 TEST(Reaction, FalloffFromYaml2)
 {
-    auto sol = newSolution("gri30.yaml", "", "None");
+    auto sol = newSolution("gri30.yaml", "", "none");
     AnyMap rxn = AnyMap::fromYamlString(
         "{equation: H + CH2 (+ N2) <=> CH3 (+N2),"
         " type: falloff,"
@@ -326,7 +326,7 @@ TEST(Reaction, FalloffFromYaml2)
 
 TEST(Reaction, FalloffFromYaml3)
 {
-    auto sol = newSolution("gri30.yaml", "", "None");
+    auto sol = newSolution("gri30.yaml", "", "none");
     AnyMap rxn = AnyMap::fromYamlString(
         "{equation: HCN (+ M) <=> H + CN (+ M),"
         " type: falloff,"
@@ -355,7 +355,7 @@ TEST(Reaction, FalloffFromYaml3)
 
 TEST(Reaction, ChemicallyActivatedFromYaml)
 {
-    auto sol = newSolution("gri30.yaml", "", "None");
+    auto sol = newSolution("gri30.yaml", "", "none");
     AnyMap rxn = AnyMap::fromYamlString(
         "{equation: CH3 + OH (+M) <=> CH2O + H2 (+M),"
         " units: {length: cm, quantity: mol},"
@@ -373,7 +373,7 @@ TEST(Reaction, ChemicallyActivatedFromYaml)
 
 TEST(Reaction, PlogFromYaml)
 {
-    auto sol = newSolution("gri30.yaml", "", "None");
+    auto sol = newSolution("gri30.yaml", "", "none");
     AnyMap rxn = AnyMap::fromYamlString(
         "equation: 'H + CH4 <=> H2 + CH3'\n"
         "units: {pressure: atm}\n"
@@ -399,7 +399,7 @@ TEST(Reaction, PlogFromYaml)
 
 TEST(Reaction, ChebyshevFromYaml)
 {
-    auto sol = newSolution("gri30.yaml", "", "None");
+    auto sol = newSolution("gri30.yaml", "", "none");
     AnyMap rxn = AnyMap::fromYamlString(
         "equation: 'CH4 <=> CH3 + H'\n"
         "type: Chebyshev\n"
@@ -427,7 +427,7 @@ TEST(Reaction, ChebyshevFromYaml)
 
 TEST(Reaction, BlowersMaselFromYaml)
 {
-    auto sol = newSolution("gri30.yaml", "", "None");
+    auto sol = newSolution("gri30.yaml", "", "none");
     AnyMap rxn = AnyMap::fromYamlString(
         "{equation: O + H2 <=> H + OH,"
         " type: Blowers-Masel,"
@@ -462,7 +462,7 @@ TEST(Reaction, BlowersMaselFromYaml)
 
 TEST(Reaction, ThreeBodyBlowersMaselFromYaml)
 {
-    auto sol = newSolution("gri30.yaml", "", "None");
+    auto sol = newSolution("gri30.yaml", "", "none");
     AnyMap rxn = AnyMap::fromYamlString(
         "{equation: CH2 + O2 <=> CH2(S) + O2,"
         " type: three-body-Blowers-Masel,"
@@ -482,7 +482,7 @@ TEST(Reaction, ThreeBodyBlowersMaselFromYaml)
 
 TEST(Reaction, InvalidBlowersMaselFromYaml)
 {
-    auto sol = newSolution("gri30.yaml", "", "None");
+    auto sol = newSolution("gri30.yaml", "", "none");
     AnyMap rxn = AnyMap::fromYamlString(
         "{equation: O + H2 <=> H + OH,"
         " type: three-body-Blowers-Masel,"
@@ -633,7 +633,7 @@ TEST(KineticsFromYaml, NoKineticsModelOrReactionsField1)
 {
     auto soln = newSolution("phase-reaction-spec1.yaml",
                             "nokinetics-noreactions");
-    EXPECT_EQ(soln->kinetics()->kineticsType(), "None");
+    EXPECT_EQ(soln->kinetics()->kineticsType(), "none");
     EXPECT_EQ(soln->kinetics()->nReactions(), (size_t) 0);
 }
 
@@ -641,7 +641,7 @@ TEST(KineticsFromYaml, NoKineticsModelOrReactionsField2)
 {
     auto soln = newSolution("phase-reaction-spec2.yaml",
                             "nokinetics-noreactions");
-    EXPECT_EQ(soln->kinetics()->kineticsType(), "None");
+    EXPECT_EQ(soln->kinetics()->kineticsType(), "none");
     EXPECT_EQ(soln->kinetics()->nReactions(), (size_t) 0);
 }
 
@@ -766,7 +766,7 @@ public:
 
 TEST_F(ReactionToYaml, elementary)
 {
-    soln = newSolution("h2o2.yaml", "", "None");
+    soln = newSolution("h2o2.yaml", "", "none");
     soln->thermo()->setState_TPY(1000, 2e5, "H2:1.0, O2:0.5, O:1e-8, OH:3e-8");
     duplicateReaction(2);
     EXPECT_EQ(duplicate->type(), "Arrhenius");
@@ -776,7 +776,7 @@ TEST_F(ReactionToYaml, elementary)
 
 TEST_F(ReactionToYaml, threeBody)
 {
-    soln = newSolution("h2o2.yaml", "", "None");
+    soln = newSolution("h2o2.yaml", "", "none");
     soln->thermo()->setState_TPY(1000, 2e5, "H2:1.0, O2:0.5, O:1e-8, OH:3e-8, H:2e-7");
     duplicateReaction(1);
     EXPECT_TRUE(std::dynamic_pointer_cast<ArrheniusRate>(duplicate->rate()));
@@ -785,7 +785,7 @@ TEST_F(ReactionToYaml, threeBody)
 
 TEST_F(ReactionToYaml, TroeFalloff)
 {
-    soln = newSolution("h2o2.yaml", "", "None");
+    soln = newSolution("h2o2.yaml", "", "none");
     soln->thermo()->setState_TPY(1000, 2e5, "H2:1.0, O2:0.5, H2O2:1e-8, OH:3e-8");
     duplicateReaction(21);
     auto rate = std::dynamic_pointer_cast<TroeRate>(duplicate->rate());
@@ -851,7 +851,7 @@ TEST_F(ReactionToYaml, surface)
 {
     auto gas = newSolution("diamond.yaml", "gas");
     auto solid = newSolution("diamond.yaml", "diamond");
-    soln = newSolution("diamond.yaml", "diamond_100", "None", {gas, solid});
+    soln = newSolution("diamond.yaml", "diamond_100", "none", {gas, solid});
     auto surf = std::dynamic_pointer_cast<SurfPhase>(soln->thermo());
     surf->setCoveragesByName("c6HH:0.1, c6H*:0.6, c6**:0.1");
     gas->thermo()->setMassFractionsByName("H2:0.7, CH4:0.3");
@@ -926,7 +926,7 @@ TEST_F(ReactionToYaml, BlowersMaselRate)
 TEST_F(ReactionToYaml, BlowersMaselInterface)
 {
     auto gas = newSolution("blowers-masel.yaml", "gas");
-    soln = newSolution("blowers-masel.yaml", "Pt_surf", "None", {gas});
+    soln = newSolution("blowers-masel.yaml", "Pt_surf", "none", {gas});
     gas->thermo()->setState_TPY(1100, 0.1 * OneAtm, "O:0.01, H2:0.8, O2:0.19");
     soln->thermo()->setState_TP(1100, 0.1 * OneAtm);
     auto surf = std::dynamic_pointer_cast<SurfPhase>(soln->thermo());

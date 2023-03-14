@@ -51,7 +51,7 @@ ThermoFactory::ThermoFactory()
 {
     reg("none", []() { return new ThermoPhase(); });
     addDeprecatedAlias("none", "ThermoPhase");
-    addAlias("none", "None");
+    addDeprecatedAlias("none", "None");
     reg("ideal-gas", []() { return new IdealGasPhase(); });
     addDeprecatedAlias("ideal-gas", "IdealGas");
     reg("plasma", []() { return new PlasmaPhase(); });

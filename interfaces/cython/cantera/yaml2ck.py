@@ -594,9 +594,9 @@ def convert(
         solution = ct.Solution(solution, phase_name)
 
     # NOTE: solution.transport_model returns back a string. If no transport model is
-    # present, the string is "None". We guard here against a future API change to
+    # present, the string is "none". We guard here against a future API change to
     # return the singleton None.
-    if solution.transport_model in ("None", None):
+    if solution.transport_model in ("none", None):
         transport_exists = False
     else:
         transport_exists = True

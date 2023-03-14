@@ -108,7 +108,7 @@ public:
     //! @{
 
     virtual std::string type() const {
-        return "None";
+        return "none";
     }
 
     //! Boolean indicating whether phase is ideal

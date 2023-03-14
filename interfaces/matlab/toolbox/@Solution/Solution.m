@@ -18,7 +18,7 @@ function s = Solution(src, id, trans)
 % included in ``input.yaml``, it will be included in the :mat:func:`Solution`
 % instance with the default transport modeling as set
 % in the input file. To specify the transport modeling, set the input
-% argument ``trans`` to one of ``'default'``, ``'None'``, or specific transport model
+% argument ``trans`` to one of ``'default'``, ``'none'``, or specific transport model
 % such as ``'mixture-averaged'`` or ``'multicomponent'``.
 % In this case, the phase name must be specified as well. Alternatively,
 % change the ``transport`` field in the YAML file before loading the phase. The
@@ -39,7 +39,7 @@ function s = Solution(src, id, trans)
 %     Optional unless ``trans`` is specified. Name of the phase to
 %     import as specified in the YAML file.
 % :param trans:
-%     String, transport modeling. Possible values are ``'default'``, ``'None'``,
+%     String, transport modeling. Possible values are ``'default'``, ``'none'``,
 %     or a specific transport model name. If not specified, ``'default'`` is used.
 % :return:
 %     Instance of class :mat:func:`Solution`

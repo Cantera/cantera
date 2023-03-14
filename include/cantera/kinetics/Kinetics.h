@@ -131,7 +131,7 @@ public:
     //! @since  Starting in Cantera 3.0, the name returned by this method corresponds
     //!     to the canonical name used in the YAML input format.
     virtual std::string kineticsType() const {
-        return "None";
+        return "none";
     }
 
     //! Finalize Kinetics object and associated objects

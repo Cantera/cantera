@@ -7,7 +7,7 @@ function ignite_uv(gas)
 help ignite_uv
 
 if nargin == 0
-   gas = Solution('h2o2.yaml', 'ohmech', 'None');
+   gas = Solution('h2o2.yaml', 'ohmech', 'none');
 end
 
 mw = molecularWeights(gas);

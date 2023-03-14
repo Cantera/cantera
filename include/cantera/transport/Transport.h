@@ -164,7 +164,7 @@ public:
     //! @since  New in Cantera 3.0. The name returned by this method corresponds
     //!     to the canonical name used in the YAML input format.
     virtual std::string transportModel() const {
-        return "None";
+        return "none";
     }
 
     //! Identifies the Transport object type. Each derived class should override

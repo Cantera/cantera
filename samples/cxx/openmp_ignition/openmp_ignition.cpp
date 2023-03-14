@@ -35,7 +35,7 @@ void run()
     // Create and link the Cantera objects for each thread. This step should be
     // done in serial
     for (int i = 0; i < nThreads; i++) {
-        auto sol = newSolution("gri30.yaml", "gri30", "None");
+        auto sol = newSolution("gri30.yaml", "gri30", "none");
         sols.emplace_back(sol);
         reactors.emplace_back(new IdealGasConstPressureReactor());
         nets.emplace_back(new ReactorNet());

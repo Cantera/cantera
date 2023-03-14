@@ -21,7 +21,7 @@ cdef class ReactorBase:
     """
     Common base class for reactors and reservoirs.
     """
-    reactor_type = "None"
+    reactor_type = "none"
     def __cinit__(self, *args, **kwargs):
         self.rbase = newReactor(stringify(self.reactor_type))
 
@@ -760,7 +760,7 @@ cdef class WallBase:
     """
     Common base class for walls.
     """
-    wall_type = "None"
+    wall_type = "none"
     def __cinit__(self, *args, **kwargs):
         self.wall = newWall(stringify(self.wall_type))
 
@@ -944,7 +944,7 @@ cdef class FlowDevice:
     across a FlowDevice, and the pressure difference equals the difference in
     pressure between the upstream and downstream reactors.
     """
-    flowdevice_type = "None"
+    flowdevice_type = "none"
     def __cinit__(self, *args, **kwargs):
         self.dev = newFlowDevice(stringify(self.flowdevice_type))
 

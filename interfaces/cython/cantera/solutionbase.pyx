@@ -168,7 +168,7 @@ cdef class _SolutionBase:
             raise TypeError("Cannot mix ThermoPhase objects and phase names")
 
         if transport is None or not isinstance(self, Transport):
-            transport = "None"
+            transport = "none"
         cdef string cxx_transport = stringify(transport)
 
         # Parse input in C++
