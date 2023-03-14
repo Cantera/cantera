@@ -706,47 +706,6 @@ class SolutionArray(SolutionArrayBase):
             self._indices = list(np.ndindex(shp))
             self._output_dummy = np.empty(shp)
 
-    @property
-    def _shape(self):
-        """The shape of the `SolutionArray`.
-
-        Handle transition from member variable to property.
-
-        .. deprecated:: 3.0
-
-            Property to be removed after Cantera 3.0; use `shape` instead.
-        """
-        return self.shape
-
-    @property
-    def _states(self):
-        """The `SolutionArray` state array.
-
-        Handle transition to state held by SolutionArrayBase / C++ core
-
-        .. deprecated:: 3.0
-
-            Property to be removed after Cantera 3.0.
-        """
-        states = []
-        for i in range(self.size):
-            states.append(self._get_state(i))
-        states = np.vstack(states)
-        states = states.reshape(self.shape + states.shape[1:])
-        return states
-
-    @property
-    def _extra(self):
-        """Dictionary of extra components of the `SolutionArray`.
-
-        Handle transition from member variable to list of names.
-
-        .. deprecated:: 3.0
-
-            Property to be removed after Cantera 3.0; use `extra` instead.
-        """
-        return {key: self.__getattr__(key) for key in self.extra}
-
     def append(self, state=None, normalize=True, **kwargs):
         """
         Append an element to the array with the specified state. Elements can
