@@ -69,31 +69,31 @@ namespace Cantera
  * by \f$ f^{cov} \f$ where \f$ f \f$ can be either enthalpy or entropy. Because
  * lateral interaction can compose of both self- and cross- interactions, the total
  * correction term of species \f$ k \f$ is a sum of all interacting species \f$ j \f$
- * which can include itself. Coefficients \f$ c1_{k,j}-c7_{k,j} \f$ are user-provided
- * parameters that can be given in input mechanism.
+ * which can include itself. Coefficients \f$ c^{(1)}_{k,j}-c^{(6)}_{k,j} \f$
+ * are user-provided parameters that can be given in input mechanism.
  *
  * Linear dependency model:
  * \f[
- *  f^{cov}_k(\theta) = \sum_j c1_{k,j} \theta_j
+ *  f^{cov}_k(\theta) = \sum_j c^{(1)}_{k,j} \theta_j
+ * \f]
+ *
+ * Polynomial dependency model:
+ * \f[
+ *  f^{cov}_k(\theta) =
+ *   \sum_j \left[c^{(1)}_{k,j}\theta_j + c^{(2)}_{k,j}\theta_j^2
+ *           + c^{(3)}_{k,j}\theta_j^3 + c^{(4)}_{k,j}\theta_j^4\right]
  * \f]
  *
  * Piecewise-linear dependency model:
  * \f[
  * f^{cov}_k(\theta) = \sum_j \left\{
  *  \begin{array}{ll}
- *  c2_{k,j}\theta_j & \text{, } \theta_j \leq \theta^\text{change}_{k,j} \\
- *  \left[c3_{k,j}(\theta_j - \theta^\text{change}_{k,j})
- *  + (c2_{k,j}\theta^\text{change}_{k,j})\right]
+ *  c^{(5)}_{k,j}\theta_j & \text{, } \theta_j \leq \theta^\text{change}_{k,j} \\
+ *  \left[c^{(6)}_{k,j}(\theta_j - \theta^\text{change}_{k,j})
+ *  + (c^{(5)}_{k,j}\theta^\text{change}_{k,j})\right]
  *  & \text{, } \theta_j > \theta^\text{change}_{k,j} \\
  *  \end{array}
  *  \right.
- * \f]
- *
- * Polynomial dependency model:
- * \f[
- *  f^{cov}_k(\theta) =
- *   \sum_j \left[c4_{k,j}\theta_j + c5_{k,j}\theta_j^2
- *           + c6_{k,j}\theta_j^3 + c7_{k,j}\theta_j^4\right]
  * \f]
  *
  * Interpolative dependency model:
@@ -110,13 +110,13 @@ namespace Cantera
  * Temperature is nondimensionalized with a reference temperature of 1 K.
  * The coverage-dependent heat capacity of species \f$ k \f$ is a sum of
  * all quantities dependent on coverage of species \f$ j \f$. Coefficients
- * \f$ c8_{k,j} \text{ and } c9_{k,j} \f$ are user-provided parameters that can be
- * given in input mechanism.
+ * \f$ c^{(a)}_{k,j} \text{ and } c^{(b)}_{k,j} \f$ are user-provided parameters
+ * that can be given in input mechanism.
  *
  * \f[
  *  c^{cov}_{p,k}(\theta) =
- *   \sum_j \left(c8_{k,j} \ln\left(\frac{T}{1\text{ K}}\right)
- *   + c9_{k,j}\right) \theta_j^2
+ *   \sum_j \left(c^{(a)}_{k,j} \ln\left(\frac{T}{1\text{ K}}\right)
+ *   + c^{(b)}_{k,j}\right) \theta_j^2
  * \f]
  */
 class CoverageDependentSurfPhase : public SurfPhase
@@ -131,15 +131,7 @@ public:
          * @param k index of a target species whose enthalpy and entropy are calculated
          * @param j index of a species whose coverage affects enthalpy and entropy of
          *          a target species
-         * @param enthalpy_coeffs array of polynomial coefficients describing
-         *                        coverage-dependent enthalpy [J/kmol] in order of
-         *                        1st-order, 2nd-order, 3rd-order, and 4th-order
-         *                        coefficients
-         * @param entropy_coeffs array of polynomial coefficients describing
-         *                       coverage-dependent entropy [J/kmol/K] in order of
-         *                       1st-order, 2nd-order, 3rd-order, and 4th-order
-         *                       coefficients
-         * @param isLinear boolean indicating whether the dependency is linear
+         * @param dep_map map of coverage-dependency parameters
          */
         PolynomialDependency(size_t k, size_t j, const AnyMap& dep_map):
             k(k),
@@ -178,11 +170,13 @@ public:
         size_t j;
         //! array of polynomial coefficients describing coverage-depdendent enthalpy
         //! [J/kmol] in order of 1st-order, 2nd-order, 3rd-order, and 4th-order
-        //! coefficients
+        //! coefficients (\f$ c^{(1)}, c^{(2)}, c^{(3)}, \text{ and } c^{(4)} \f$
+        //! in the linear or the polynomial dependency model)
         vector_fp enthalpy_coeffs;
         //! array of polynomial coefficients describing coverage-depdendent entropy
         //! [J/kmol/K] in order of 1st-order, 2nd-order, 3rd-order, and 4th-order
-        //! coefficients
+        //! coefficients (\f$ c^{(1)}, c^{(2)}, c^{(3)}, \text{ and } c^{(4)} \f$
+        //! in the linear or the polynomial dependency model)
         vector_fp entropy_coeffs;
         //! boolean indicating whether the dependency is linear
         bool isLinear;
@@ -197,10 +191,8 @@ public:
          * @param k index of a target species whose enthalpy and entropy are calculated
          * @param j index of a species whose coverage affects enthalpy and entropy of
          *          a target species
-         * @param enthalpy_map map of <coverage[dimensionless], enthalpy[J/kmol]> pairs
-         * @param entropy_map map of <coverage[dimensionless], entropy[J/kmol/K]> pairs
-         * @param isPiecewise boolean indicating whether the dependency is
-         *                    piecewise-linear
+         * @param dep_map map of coverage-dependency parameters
+         * @param node species node of a target species
          */
         InterpolativeDependency(size_t k, size_t j,
                                 const AnyMap& dep_map, const AnyBase& node):
@@ -211,6 +203,8 @@ public:
             isPiecewise(false)
         {
             // For piecewise-linear model
+            // Piecewise-linear model coefficients are converted into
+            // a map <coverages: values>
             if (dep_map["model"] == "piecewise-linear") {
                 if (dep_map.hasKey("enthalpy-low") ||
                     dep_map.hasKey("enthalpy-change") ||
@@ -287,8 +281,6 @@ public:
          * @param k index of a target species whose heat capacity is calculated
          * @param j index of a species whose coverage affects heat capacity of
          *          a target species
-         * @param coeff_a coefficient a [J/kmol/K]
-         * @param coeff_b coefficient b [J/kmol/K]
          */
         HeatCapacityDependency(size_t k, size_t j):
                                k(k), j(j), coeff_a(0.0), coeff_b(0.0) {}
@@ -297,9 +289,11 @@ public:
         //! index of a species whose coverage affects heat capacity of
         //! a target species
         size_t j;
-        //! coefficient a [J/kmol/K]
+        //! coefficient \f$ c^{(a)} \f$ [J/kmol/K] in the coverage-dependent
+        //! heat capacity model
         double coeff_a;
-        //! coefficient b [J/kmol/K]
+        //! coefficient \f$ c^{(b)} \f$ [J/kmol/K] in the coverage-dependent
+        //! heat capacity model
         double coeff_b;
     };
 
