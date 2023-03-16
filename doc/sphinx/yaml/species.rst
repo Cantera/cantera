@@ -504,9 +504,6 @@ Additional fields:
     Dependency model that is one of the four: linear, piecewise-linear,
     polynomial, or interpolative.
 
-``units``
-    Dictionary mapping of the units of dependency parameters.
-
 ``enthalpy``
     Slope of the coverage-dependent enthalpy used in the linear model.
 
