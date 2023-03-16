@@ -34,7 +34,7 @@ r = IdealGasReactor(gas);
 r.V = 1.0e-6;
 
 % create a reservoir to represent the environment
-a = Solution('air.yaml', 'air', 'None');
+a = Solution('air.yaml', 'air', 'none');
 a.TP = {t, OneAtm};
 env = Reservoir(a);
 

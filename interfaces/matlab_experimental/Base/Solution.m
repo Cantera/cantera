@@ -19,8 +19,8 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
     % ``phase_name``. If a :mat:class:`Transport` model is included in ``input.yaml``,
     % it will be included in the :mat:class:`Solution` instance with the default
     % transport modeling as set in the input file. To specify the transport modeling,
-    % set the input argument ``trans`` to one of ``'default'``, ``'None'``, ``'Mix'``,
-    % or ``'Multi'``.
+    % set the input argument ``trans`` to one of ``'default'``, ``'none'``,
+    % ``'mixture-averaged'``, or ``'multicomponent'``.
     % In this case, the phase name must be specified as well. Alternatively,
     % change the ``transport`` node in the YAML file, or ``transport``
     % property in the CTI file before loading the phase. The transport
@@ -41,8 +41,9 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
     % :param id:
     %     ID of the phase to import as specified in the YAML file.
     % :param trans:
-    %     String, transport modeling. Possible values are ``'default'``, ``'None'``,
-    %     ``'Mix'``, or ``'Multi'``. If not specified, ``'default'`` is used.
+    %     String, transport modeling. Possible values are ``'default'``, ``'none'``,
+    %     ``'mixture-averaged'``, or ``'multicomponent'``. If not specified,
+    %     ``'default'`` is used.
     % :return:
     %     Instance of class :mat:class:`Solution`.
 
@@ -66,8 +67,8 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
             s@ThermoPhase(src, id);
             s@Kinetics(tp, src, id);
             if nargin == 3
-                if ~(strcmp(trans, 'default') || strcmp(trans, 'None')...
-                     || strcmp(trans, 'Mix') || strcmp(trans, 'Multi'))
+                if ~(strcmp(trans, 'default') || strcmp(trans, 'none')...
+                     || strcmp(trans, 'mixture-averaged') || strcmp(trans, 'multicomponent'))
                     error('Unknown transport modelling specified.');
                 end
             else

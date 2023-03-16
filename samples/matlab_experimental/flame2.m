@@ -40,7 +40,7 @@ refine_grid = 1; % 1 to enable refinement, 0 to disable
 % This object will be used to evaluate all thermodynamic, kinetic,
 % and transport properties
 
-gas = Solution(rxnmech, 'gri30', 'Mix');
+gas = Solution(rxnmech, 'gri30', 'mixture-averaged');
 
 % set its state to that of the  fuel (arbitrary)
 gas.TPX = {tin, p, comp2};

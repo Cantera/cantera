@@ -42,7 +42,7 @@ max_jacobian_age = [5, 10];
 % This object will be used to evaluate all thermodynamic, kinetic,
 % and transport properties
 
-gas = Solution(rxnmech, 'ohmech', 'Mix');
+gas = Solution(rxnmech, 'ohmech', 'mixture-averaged');
 
 % set its state to that of the unburned gas at the burner
 gas.TPX = {tburner, p, comp};

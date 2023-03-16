@@ -12,9 +12,9 @@ Installation guide:
 3. For first time users, launch Matlab, then navigate to [/path/to/cantera/source/code]
    using "Browse for Folder". 3.5) Note for Ubuntu users, Matlab must be launched from
    the terminal using the following command:
-   `LD_PRELOAD='/usr/lib/x86_64-linux-gnu/libstdc++.so.6' matlab`. This is because
-   Matlab does not load the correct GLIBC++ library on start-up and will return an error
-   when loading the Cantera toolbox.
+   `LD_PRELOAD='/usr/lib/x86_64-linux-gnu/libstdc++.so.6' matlab -softwareopengl`.
+   This is because Matlab does not load the correct GLIBC++ library on start-up and
+   will return an error when loading the Cantera toolbox.
 4. In the Maltab command window, run
    `addpath(genpath([pwd, '/interfaces/matlab_experimental']))` to add search path for
    the experimental toolbox.
@@ -31,9 +31,9 @@ Installation guide:
    and samples files are removed (if it's already installed). Having both the current
    and experimental version of the toolbox in the search path will lead to conflicts.
 9. In the Matlab command window, run `savepath` to save all search paths.
-10. To start using the experimental toolbox, run `LoadCantera` command.
-11. To stop using the new Cantera interface, run the following commands: `clear all`
-    `cleanup` `UnloadCantera`
+10. To start using the experimental toolbox, run `ctLoad` command.
+11. To stop using the new Cantera interface, run the following commands:
+    `ctCleanUp` `ctUnload`.
 12. To switch back to the current matlab toolbox, undo steps 3, 4, 5, 8, and 9. The
     command to remove search path in Matlab is `rmpath`.
 13. A future updates will add automated installation.
