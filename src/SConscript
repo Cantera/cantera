@@ -77,17 +77,7 @@ for subdir, extensions, setup in libs:
 # Handling of extensions written in Python
 if env["python_package"] == "full":
     pyenv = setup_python_env(localenv.Clone())
-    pyenv.PrependENVPath('PYTHONPATH', Dir('#interfaces/cython').abspath)
     pyenv['PCH'] = ''  # ignore precompiled header here
-    build_dir = Path(Dir('#build').abspath).as_posix()
-    cythonized = pyenv.Command(
-         ["extensions/pythonExtensions.cpp", "extensions/pythonExtensions.h"],
-         "extensions/pythonExtensions.pyx",
-         ('''${python_cmd} -c "import Cython.Build; '''
-          f'''Cython.Build.cythonize(r'${{SOURCE}}', build_dir='{build_dir}')"''')
-    )
-    for pxd in multi_glob(pyenv, "#interfaces/cython/cantera", "pxd"):
-        localenv.Depends(cythonized, pxd)
 
     if env["OS"] == "Windows":
         escaped_home = '\\"' + pyenv["py_base"].replace("\\", "\\\\") + '\\"'
@@ -95,25 +85,16 @@ if env["python_package"] == "full":
         # Workaround for a problem with Boost, Python 3.8 and MSVC
         pyenv.Append(CPPDEFINES={"HAVE_SNPRINTF": None})
 
-    env.Command('#src/extensions/pythonExtensions.h', '#build/src/extensions/pythonExtensions.h',
-                Copy('$TARGET', '$SOURCE'))
-
-    env['python_ext_objects'] = [
-        pyenv.SharedObject(cythonized[0]),
-        pyenv.SharedObject("extensions/PythonExtensionManager.cpp")
-    ]
     pyenv.Append(LIBS=pyenv["py_libs"], LIBPATH=pyenv["py_libpath"])
+    shim = pyenv.SharedObject("extensions/pythonShim.cpp")
     pylibname = f"../lib/cantera_python{pyenv['py_version_short'].replace('.', '_')}"
     if pyenv["versioned_shared_library"]:
-        lib = build(pyenv.SharedLibrary(pylibname, env['python_ext_objects'],
-                                           SPAWN=get_spawn(pyenv),
-                                           SHLIBVERSION=pyenv["cantera_pure_version"]))
+        lib = build(pyenv.SharedLibrary(pylibname, shim, SPAWN=get_spawn(pyenv),
+                                        SHLIBVERSION=pyenv["cantera_pure_version"]))
         install(pyenv.InstallVersionedLib, "$inst_libdir", lib)
     else:
-        lib = build(pyenv.SharedLibrary(pylibname, env['python_ext_objects'],
-                                           SPAWN=get_spawn(pyenv)))
+        lib = build(pyenv.SharedLibrary(pylibname, shim, SPAWN=get_spawn(pyenv)))
         install("$inst_libdir", lib)
-
 
 
 # build the Cantera static library

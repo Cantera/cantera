@@ -6,6 +6,7 @@
 
 from .ctcxx cimport *
 from .func1 cimport *
+from .delegator cimport CxxDelegator
 
 cdef extern from "<map>" namespace "std":
     cdef cppclass multimap[T, U]:
@@ -189,10 +190,10 @@ cdef extern from "cantera/kinetics/Custom.h" namespace "Cantera":
 
 
 cdef extern from "cantera/kinetics/ReactionRateDelegator.h" namespace "Cantera":
-    cdef cppclass CxxReactionDataDelegator "Cantera::ReactionDataDelegator":
+    cdef cppclass CxxReactionDataDelegator "Cantera::ReactionDataDelegator" (CxxDelegator):
         CxxReactionDataDelegator()
 
-    cdef cppclass CxxReactionRateDelegator "Cantera::ReactionRateDelegator" (CxxReactionRate):
+    cdef cppclass CxxReactionRateDelegator "Cantera::ReactionRateDelegator" (CxxDelegator, CxxReactionRate):
         CxxReactionRateDelegator()
         void setType(string&)
 

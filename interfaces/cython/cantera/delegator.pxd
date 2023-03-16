@@ -69,6 +69,13 @@ cdef extern from "cantera/base/ExtensionManager.h" namespace "Cantera":
 
         shared_ptr[CxxExtensionManager] build(string&)
 
+
+cdef extern from "cantera/base/ExtensionManagerFactory.h" namespace "Cantera":
+    cdef cppclass CxxExtensionManagerFactory "Cantera::ExtensionManagerFactory":
+        @staticmethod
+        shared_ptr[CxxExtensionManager] build(string&)
+
+
 cdef extern from "cantera/extensions/PythonExtensionManager.h" namespace "Cantera":
     cdef cppclass CxxPythonExtensionManager "Cantera::PythonExtensionManager" (CxxExtensionManager):
         @staticmethod

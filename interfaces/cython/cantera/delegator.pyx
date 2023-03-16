@@ -3,11 +3,18 @@
 
 import inspect
 import sys
+import importlib
+
+from libc.stdlib cimport malloc
+from libc.string cimport strcpy
 
 from ._utils import CanteraError
 from ._utils cimport stringify, pystr, anymap_to_dict
 from .units cimport Units
-from .reaction import ExtensibleRate, ExtensibleRateData
+# from .reaction import ExtensibleRate, ExtensibleRateData
+from .reaction cimport (ExtensibleRate, ExtensibleRateData, CxxReaction,
+    CxxReactionRateDelegator, CxxReactionDataDelegator)
+from .solutionbase cimport CxxSolution, _assign_Solution
 from cython.operator import dereference as deref
 
 # ## Implementation for each delegated function type
@@ -339,11 +346,65 @@ cdef int assign_delegates(obj, CxxDelegator* delegator) except -1:
 
     return 0
 
+
 # Specifications for ReactionRate delegators that have not yet been registered with
 # ReactionRateFactory. This list is read by PythonExtensionManager::registerRateBuilders
 # and then cleared.
 _rate_delegators = []
 _rate_data_delegators = []
+
+
+cdef public char* ct_getExceptionString(object exType, object exValue, object exTraceback):
+    import traceback
+    result = str(exValue) + "\n\n"
+    result += "".join(traceback.format_exception(exType, exValue, exTraceback))
+    tmp = bytes(result.encode())
+    cdef char* c_string = <char*> malloc((len(tmp) + 1) * sizeof(char))
+    strcpy(c_string, tmp)
+    return c_string
+
+
+cdef public object ct_newPythonExtensibleRate(CxxReactionRateDelegator* delegator,
+                                              const string& module_name,
+                                              const string& class_name):
+
+    mod = importlib.import_module(module_name.decode())
+    cdef ExtensibleRate rate = getattr(mod, class_name.decode())(init=False)
+    rate.set_cxx_object(delegator)
+    return rate
+
+
+cdef public object ct_newPythonExtensibleRateData(CxxReactionDataDelegator* delegator,
+                                                  const string& module_name,
+                                                  const string& class_name):
+
+    mod = importlib.import_module(module_name.decode())
+    cdef ExtensibleRateData data = getattr(mod, class_name.decode())()
+    data.set_cxx_object(delegator)
+    return data
+
+
+cdef public ct_registerReactionDelegators():
+    cdef shared_ptr[CxxExtensionManager] mgr = (
+        CxxExtensionManagerFactory.build(stringify("python")))
+
+    for module, cls, name in _rate_delegators:
+        mgr.get().registerRateBuilder(stringify(module), stringify(cls), stringify(name))
+
+    _rate_delegators.clear()
+
+    for module, cls, name in _rate_data_delegators:
+        mgr.get().registerRateDataBuilder(stringify(module), stringify(cls), stringify(name))
+
+    _rate_data_delegators.clear()
+
+
+cdef public object ct_wrapSolution(shared_ptr[CxxSolution] soln):
+    from .composite import Solution
+    pySoln = Solution(init=False)
+    _assign_Solution(pySoln, soln, False, weak=True)
+    return pySoln
+
 
 CxxPythonExtensionManager.registerSelf()
 

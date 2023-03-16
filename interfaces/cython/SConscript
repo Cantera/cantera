@@ -40,17 +40,27 @@ for pyxfile in multi_glob(localenv, "cantera", "pyx"):
     else:
         cython_env = localenv
 
+    cython_output = f"cantera/{pyxfile.name.replace('.pyx', '.cpp')}"
+    if pyxfile.name == "delegator.pyx":
+        cython_output = [cython_output, "cantera/delegator.h"]
+
     cythonized = cython_env.Command(
-         f"cantera/{pyxfile.name.replace('.pyx', '.cpp')}", pyxfile,
+         cython_output, pyxfile,
          f'''${{python_cmd}} -c "import Cython.Build; Cython.Build.cythonize(r'${{SOURCE}}', compiler_directives={directives!r})"'''
     )
     for pxd in multi_glob(cython_env, "cantera", "pxd"):
         cython_env.Depends(cythonized, pxd)
 
     obj = cython_env.SharedObject(
-        f"#build/temp-py/{pyxfile.name.split('.')[0]}", cythonized)
+        f"#build/temp-py/{pyxfile.name.split('.')[0]}", cythonized[0])
     cython_obj.append(obj)
-cython_obj.extend(env['python_ext_objects'])
+
+copy_header = localenv.Command('#src/extensions/delegator.h', '#build/python/cantera/delegator.h',
+                          Copy('$TARGET', '$SOURCE'))
+ext_manager = localenv.SharedObject("#src/extensions/PythonExtensionManager.cpp")
+
+cython_obj.extend(ext_manager)
+env.Depends(ext_manager, copy_header)
 
 module_ext = localenv["py_module_ext"]
 ext = localenv.LoadableModule(f"cantera/_cantera{module_ext}",
