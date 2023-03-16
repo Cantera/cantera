@@ -81,11 +81,42 @@ SolutionArray::SolutionArray(const shared_ptr<SolutionArray>& other,
     }
 }
 
-template<class T>
-void _resetSingle(AnyValue& extra, const vector<int>& slice);
+namespace { // restrict scope of helper functions to local translation unit
 
 template<class T>
-void _resetMulti(AnyValue& extra, const vector<int>& slice);
+void resetSingle(AnyValue& extra, const vector<int>& slice);
+
+template<class T>
+AnyValue getSingle(const AnyValue& extra, const vector<int>& slice);
+
+template<class T>
+void setSingle(AnyValue& extra, const AnyValue& data, const vector<int>& slice);
+
+template<class T>
+void resizeSingle(AnyValue& extra, size_t size, const AnyValue& value);
+
+template<class T>
+void resetMulti(AnyValue& extra, const vector<int>& slice);
+
+template<class T>
+AnyValue getMulti(const AnyValue& extra, const vector<int>& slice);
+
+template<class T>
+void setMulti(AnyValue& extra, const AnyValue& data, const vector<int>& slice);
+
+template<class T>
+void resizeMulti(AnyValue& extra, size_t size, const AnyValue& value);
+
+template<class T>
+void setAuxiliarySingle(size_t loc, AnyValue& extra, const AnyValue& value);
+
+template<class T>
+void setAuxiliaryMulti(size_t loc, AnyValue& extra, const AnyValue& data);
+
+template<class T>
+void setScalar(AnyValue& extra, const AnyValue& data, const vector<int>& slice);
+
+} // end unnamed namespace
 
 void SolutionArray::reset()
 {
@@ -99,17 +130,17 @@ void SolutionArray::reset()
         if (extra.is<void>()) {
             // cannot reset placeholder (uninitialized component)
         } else if (extra.isVector<double>()) {
-            _resetSingle<double>(extra, m_active);
+            resetSingle<double>(extra, m_active);
         } else if (extra.isVector<long int>()) {
-            _resetSingle<long int>(extra, m_active);
+            resetSingle<long int>(extra, m_active);
         } else if (extra.isVector<string>()) {
-            _resetSingle<string>(extra, m_active);
+            resetSingle<string>(extra, m_active);
         } else if (extra.isVector<vector<double>>()) {
-            _resetMulti<double>(extra, m_active);
+            resetMulti<double>(extra, m_active);
         } else if (extra.isVector<vector<long int>>()) {
-            _resetMulti<long int>(extra, m_active);
+            resetMulti<long int>(extra, m_active);
         } else if (extra.isVector<vector<string>>()) {
-            _resetMulti<string>(extra, m_active);
+            resetMulti<string>(extra, m_active);
         } else {
             throw NotImplementedError("SolutionArray::reset",
                 "Unable to reset component '{}' with type '{}'.",
@@ -274,12 +305,6 @@ bool SolutionArray::hasComponent(const string& name) const
     return (m_sol->thermo()->nativeState().count(name));
 }
 
-template<class T>
-AnyValue _getSingle(const AnyValue& extra, const vector<int>& slice);
-
-template<class T>
-AnyValue _getMulti(const AnyValue& extra, const vector<int>& slice);
-
 AnyValue SolutionArray::getComponent(const string& name) const
 {
     if (!hasComponent(name)) {
@@ -298,22 +323,22 @@ AnyValue SolutionArray::getComponent(const string& name) const
             return extra; // slicing not necessary
         }
         if (extra.isVector<long int>()) {
-            return _getSingle<long int>(extra, m_active);
+            return getSingle<long int>(extra, m_active);
         }
         if (extra.isVector<double>()) {
-            return _getSingle<double>(extra, m_active);
+            return getSingle<double>(extra, m_active);
         }
         if (extra.isVector<string>()) {
-            return _getSingle<string>(extra, m_active);
+            return getSingle<string>(extra, m_active);
         }
         if (extra.isVector<vector<double>>()) {
-            return _getMulti<double>(extra, m_active);
+            return getMulti<double>(extra, m_active);
         }
         if (extra.isVector<vector<long int>>()) {
-            return _getMulti<long int>(extra, m_active);
+            return getMulti<long int>(extra, m_active);
         }
         if (extra.isVector<vector<string>>()) {
-            return _getMulti<string>(extra, m_active);
+            return getMulti<string>(extra, m_active);
         }
         throw NotImplementedError("SolutionArray::getComponent",
             "Unable to get sliced data for component '{}' with type '{}'.",
@@ -459,12 +484,6 @@ AnyMap SolutionArray::getAuxiliary(size_t loc)
     return out;
 }
 
-template<class T>
-void _setAuxiliarySingle(size_t loc, AnyValue& extra, const AnyValue& value);
-
-template<class T>
-void _setAuxiliaryMulti(size_t loc, AnyValue& extra, const AnyValue& data);
-
 void SolutionArray::setAuxiliary(size_t loc, const AnyMap& data)
 {
     setLoc(loc, false);
@@ -485,17 +504,17 @@ void SolutionArray::setAuxiliary(size_t loc, const AnyMap& data)
         }
         try {
             if (extra.isVector<long int>()) {
-                _setAuxiliarySingle<long int>(m_loc, extra, value);
+                setAuxiliarySingle<long int>(m_loc, extra, value);
             } else if (extra.isVector<double>()) {
-                _setAuxiliarySingle<double>(m_loc, extra, value);
+                setAuxiliarySingle<double>(m_loc, extra, value);
             } else if (extra.isVector<string>()) {
-                _setAuxiliarySingle<string>(m_loc, extra, value);
+                setAuxiliarySingle<string>(m_loc, extra, value);
             } else if (extra.isVector<vector<long int>>()) {
-                _setAuxiliaryMulti<long int>(m_loc, extra, value);
+                setAuxiliaryMulti<long int>(m_loc, extra, value);
             } else if (extra.isVector<vector<double>>()) {
-                _setAuxiliaryMulti<double>(m_loc, extra, value);
+                setAuxiliaryMulti<double>(m_loc, extra, value);
             } else if (extra.isVector<vector<string>>()) {
-                _setAuxiliaryMulti<string>(m_loc, extra, value);
+                setAuxiliaryMulti<string>(m_loc, extra, value);
             } else {
                 throw CanteraError("SolutionArray::setAuxiliary",
                     "Unable to set entry for type '{}'.", extra.type_str());
@@ -877,12 +896,6 @@ void SolutionArray::_initExtra(const string& name, const AnyValue& value)
     }
 }
 
-template<class T>
-void _resizeSingle(AnyValue& extra, size_t size, const AnyValue& value);
-
-template<class T>
-void _resizeMulti(AnyValue& extra, size_t size, const AnyValue& value);
-
 void SolutionArray::_resizeExtra(const string& name, const AnyValue& value)
 {
     if (!m_extra->count(name)) {
@@ -897,17 +910,17 @@ void SolutionArray::_resizeExtra(const string& name, const AnyValue& value)
 
     try {
         if (extra.isVector<long int>()) {
-            _resizeSingle<long int>(extra, m_dataSize, value);
+            resizeSingle<long int>(extra, m_dataSize, value);
         } else if (extra.isVector<double>()) {
-            _resizeSingle<double>(extra, m_dataSize, value);
+            resizeSingle<double>(extra, m_dataSize, value);
         } else if (extra.isVector<string>()) {
-            _resizeSingle<string>(extra, m_dataSize, value);
+            resizeSingle<string>(extra, m_dataSize, value);
         } else if (extra.isVector<vector<double>>()) {
-            _resizeMulti<double>(extra, m_dataSize, value);
+            resizeMulti<double>(extra, m_dataSize, value);
         } else if (extra.isVector<vector<long int>>()) {
-            _resizeMulti<long int>(extra, m_dataSize, value);
+            resizeMulti<long int>(extra, m_dataSize, value);
         } else if (extra.isVector<vector<string>>()) {
-            _resizeMulti<string>(extra, m_dataSize, value);
+            resizeMulti<string>(extra, m_dataSize, value);
         } else {
             throw NotImplementedError("SolutionArray::_resizeExtra",
                 "Unable to resize using type '{}'.", extra.type_str());
@@ -919,15 +932,6 @@ void SolutionArray::_resizeExtra(const string& name, const AnyValue& value)
             name, err.getMessage());
     }
 }
-
-template<class T>
-void _setScalar(AnyValue& extra, const AnyValue& data, const vector<int>& slice);
-
-template<class T>
-void _setSingle(AnyValue& extra, const AnyValue& data, const vector<int>& slice);
-
-template<class T>
-void _setMulti(AnyValue& extra, const AnyValue& data, const vector<int>& slice);
 
 void SolutionArray::_setExtra(const string& name, const AnyValue& data)
 {
@@ -971,23 +975,23 @@ void SolutionArray::_setExtra(const string& name, const AnyValue& data)
     }
 
     if (data.is<long int>()) {
-        _setScalar<long int>(extra, data, m_active);
+        setScalar<long int>(extra, data, m_active);
     } else if (data.is<double>()) {
-        _setScalar<double>(extra, data, m_active);
+        setScalar<double>(extra, data, m_active);
     } else if (data.is<string>()) {
-        _setScalar<string>(extra, data, m_active);
+        setScalar<string>(extra, data, m_active);
     } else if (data.isVector<long int>()) {
-        _setSingle<long int>(extra, data, m_active);
+        setSingle<long int>(extra, data, m_active);
     } else if (data.isVector<double>()) {
-        _setSingle<double>(extra, data, m_active);
+        setSingle<double>(extra, data, m_active);
     } else if (data.isVector<string>()) {
-        _setSingle<string>(extra, data, m_active);
+        setSingle<string>(extra, data, m_active);
     } else if (data.isVector<vector<long int>>()) {
-        _setMulti<long int>(extra, data, m_active);
+        setMulti<long int>(extra, data, m_active);
     } else if (data.isVector<vector<double>>()) {
-        _setMulti<double>(extra, data, m_active);
+        setMulti<double>(extra, data, m_active);
     } else if (data.isVector<vector<string>>()) {
-        _setMulti<string>(extra, data, m_active);
+        setMulti<string>(extra, data, m_active);
     } else {
         throw NotImplementedError("SolutionArray::_setExtra",
             "Unable to set sliced data for component '{}' with type '{}'.",
@@ -1393,8 +1397,10 @@ void SolutionArray::readEntry(const AnyMap& root, const string& id, const string
     }
 }
 
+namespace { // restrict scope of helper functions to local translation unit
+
 template<class T>
-AnyValue _getSingle(const AnyValue& extra, const vector<int>& slice)
+AnyValue getSingle(const AnyValue& extra, const vector<int>& slice)
 {
     vector<T> data(slice.size());
     const auto& vec = extra.asVector<T>();
@@ -1407,7 +1413,7 @@ AnyValue _getSingle(const AnyValue& extra, const vector<int>& slice)
 }
 
 template<class T>
-AnyValue _getMulti(const AnyValue& extra, const vector<int>& slice)
+AnyValue getMulti(const AnyValue& extra, const vector<int>& slice)
 {
     vector<vector<T>> data(slice.size());
     const auto& vec = extra.asVector<vector<T>>();
@@ -1420,7 +1426,7 @@ AnyValue _getMulti(const AnyValue& extra, const vector<int>& slice)
 }
 
 template<class T>
-void _setScalar(AnyValue& extra, const AnyValue& data, const vector<int>& slice)
+void setScalar(AnyValue& extra, const AnyValue& data, const vector<int>& slice)
 {
     T value = data.as<T>();
     if (extra.isVector<T>()) {
@@ -1429,14 +1435,14 @@ void _setScalar(AnyValue& extra, const AnyValue& data, const vector<int>& slice)
             vec[slice[k]] = value;
         }
     } else {
-        throw CanteraError("SolutionArray::_setScalar",
+        throw CanteraError("SolutionArray::setScalar",
             "Incompatible input data: unable to assign '{}' data to '{}'.",
             data.type_str(), extra.type_str());
     }
 }
 
 template<class T>
-void _setSingle(AnyValue& extra, const AnyValue& data, const vector<int>& slice)
+void setSingle(AnyValue& extra, const AnyValue& data, const vector<int>& slice)
 {
     size_t size = slice.size();
     if (extra.vectorSize() == size && data.vectorSize() == size) {
@@ -1449,13 +1455,13 @@ void _setSingle(AnyValue& extra, const AnyValue& data, const vector<int>& slice)
     }
     if (extra.type_str() != data.type_str()) {
         // do not allow changing of data type when slicing
-        throw CanteraError("SolutionArray::_setSingle",
+        throw CanteraError("SolutionArray::setSingle",
             "Incompatible types: expected '{}' but received '{}'.",
             extra.type_str(), data.type_str());
     }
     const auto& vData = data.asVector<T>();
     if (vData.size() != size) {
-        throw CanteraError("SolutionArray::_setSingle",
+        throw CanteraError("SolutionArray::setSingle",
             "Invalid input data size: expected {} entries but received {}.",
             size, vData.size());
     }
@@ -1466,10 +1472,10 @@ void _setSingle(AnyValue& extra, const AnyValue& data, const vector<int>& slice)
 }
 
 template<class T>
-void _setMulti(AnyValue& extra, const AnyValue& data, const vector<int>& slice)
+void setMulti(AnyValue& extra, const AnyValue& data, const vector<int>& slice)
 {
     if (!data.isMatrix<T>()) {
-        throw CanteraError("SolutionArray::_setMulti",
+        throw CanteraError("SolutionArray::setMulti",
             "Invalid input data shape: inconsistent number of columns.");
     }
     size_t size = slice.size();
@@ -1484,17 +1490,17 @@ void _setMulti(AnyValue& extra, const AnyValue& data, const vector<int>& slice)
     }
     if (extra.type_str() != data.type_str()) {
         // do not allow changing of data type when slicing
-        throw CanteraError("SolutionArray::_setMulti",
+        throw CanteraError("SolutionArray::setMulti",
             "Incompatible types: expected '{}' but received '{}'.",
             extra.type_str(), data.type_str());
     }
     if (rows != size) {
-        throw CanteraError("SolutionArray::_setMulti",
+        throw CanteraError("SolutionArray::setMulti",
             "Invalid input data shape: expected {} rows but received {}.",
             size, rows);
     }
     if (extra.matrixShape().second != cols) {
-        throw CanteraError("SolutionArray::_setMulti",
+        throw CanteraError("SolutionArray::setMulti",
             "Invalid input data shape: expected {} columns but received {}.",
             extra.matrixShape().second, cols);
     }
@@ -1506,7 +1512,7 @@ void _setMulti(AnyValue& extra, const AnyValue& data, const vector<int>& slice)
 }
 
 template<class T>
-void _resizeSingle(AnyValue& extra, size_t size, const AnyValue& value)
+void resizeSingle(AnyValue& extra, size_t size, const AnyValue& value)
 {
     T defaultValue;
     if (value.is<void>()) {
@@ -1518,7 +1524,7 @@ void _resizeSingle(AnyValue& extra, size_t size, const AnyValue& value)
 }
 
 template<class T>
-void _resizeMulti(AnyValue& extra, size_t size, const AnyValue& value)
+void resizeMulti(AnyValue& extra, size_t size, const AnyValue& value)
 {
     vector<T> defaultValue;
     if (value.is<void>()) {
@@ -1530,7 +1536,7 @@ void _resizeMulti(AnyValue& extra, size_t size, const AnyValue& value)
 }
 
 template<class T>
-void _resetSingle(AnyValue& extra, const vector<int>& slice)
+void resetSingle(AnyValue& extra, const vector<int>& slice)
 {
     T defaultValue = vector<T>(1)[0];
     vector<T>& data = extra.asVector<T>();
@@ -1540,7 +1546,7 @@ void _resetSingle(AnyValue& extra, const vector<int>& slice)
 }
 
 template<class T>
-void _resetMulti(AnyValue& extra, const vector<int>& slice)
+void resetMulti(AnyValue& extra, const vector<int>& slice)
 {
     vector<T> defaultValue = vector<T>(extra.matrixShape().second);
     vector<vector<T>>& data = extra.asVector<vector<T>>();
@@ -1550,22 +1556,24 @@ void _resetMulti(AnyValue& extra, const vector<int>& slice)
 }
 
 template<class T>
-void _setAuxiliarySingle(size_t loc, AnyValue& extra, const AnyValue& value)
+void setAuxiliarySingle(size_t loc, AnyValue& extra, const AnyValue& value)
 {
     extra.asVector<T>()[loc] = value.as<T>();
 }
 
 template<class T>
-void _setAuxiliaryMulti(size_t loc, AnyValue& extra, const AnyValue& data)
+void setAuxiliaryMulti(size_t loc, AnyValue& extra, const AnyValue& data)
 {
     const auto& value = data.asVector<T>();
     auto& vec = extra.asVector<vector<T>>();
     if (value.size() != vec[loc].size()) {
-        throw CanteraError("SolutionArray::_setAuxiliaryMulti",
+        throw CanteraError("SolutionArray::setAuxiliaryMulti",
             "New element size {} does not match existing column size {}.",
             value.size(), vec[loc].size());
     }
     vec[loc] = value;
 }
+
+} // end unnamed namespace
 
 }
