@@ -482,7 +482,6 @@ cdef object _wrap_Solution(shared_ptr[CxxSolution] cxx_soln):
     if isinstance(soln, Interface):
         iface = soln
         iface.surf = <CxxSurfPhase*>(soln.thermo)
-#        <InterfaceKinetics>(iface)._setup_phase_indices()
         iface._setup_phase_indices()
     return soln
 
@@ -515,7 +514,7 @@ cdef class SolutionArrayBase:
         cdef vector[int] cxx_selected
         for loc in selected:
             cxx_selected.push_back(loc)
-        dest._base = CxxShareSolutionArray(self._base, cxx_selected)
+        dest._base = self.base.share(cxx_selected)
         dest.base = dest._base.get()
         return dest
 

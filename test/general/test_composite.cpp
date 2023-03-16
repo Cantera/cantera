@@ -271,7 +271,7 @@ TEST(SolutionArray, extraSlicedDoubles) {
     arr->setComponent("spam", any);
 
     auto indices = vector<int>({1, 2, 3});
-    auto sliced = SolutionArray::share(arr, indices);
+    auto sliced = arr->share(indices);
     testSingleCol<double>(*sliced, 2.71828, true);
 }
 
@@ -290,7 +290,7 @@ TEST(SolutionArray, extraSlicedIntegers) {
     ASSERT_EQ(arr->getAuxiliary(1)["spam"].asInt(), 3);
 
     auto indices = vector<int>({1, 2, 3});
-    auto sliced = SolutionArray::share(arr, indices);
+    auto sliced = arr->share(indices);
     ASSERT_EQ(sliced->getAuxiliary(0)["spam"].asInt(), 3);
     ASSERT_EQ(sliced->getAuxiliary(1)["spam"].asInt(), 42);
     testSingleCol<long int>(*sliced, 101, true);
@@ -307,7 +307,7 @@ TEST(SolutionArray, extraSlicedStrings) {
     arr->setComponent("spam", any);
 
     auto indices = vector<int>({1, 2, 3});
-    auto sliced = SolutionArray::share(arr, indices);
+    auto sliced = arr->share(indices);
     testSingleCol<string>(*sliced, "bar", true);
 }
 
@@ -418,7 +418,7 @@ TEST(SolutionArray, extraSlicedDoubleArrays) {
     arr->setComponent("spam", any);
 
     auto indices = vector<int>({1, 2, 3});
-    auto sliced = SolutionArray::share(arr, indices);
+    auto sliced = arr->share(indices);
 
     testMultiCol<double>(*sliced, vector<double>({1.1, 2.2}), true);
 }
@@ -432,7 +432,7 @@ TEST(SolutionArray, extraSlicedIntegerArrays) {
     arr->setComponent("spam", any);
 
     auto indices = vector<int>({1, 2, 3});
-    auto sliced = SolutionArray::share(arr, indices);
+    auto sliced = arr->share(indices);
 
     testMultiCol<long int>(*sliced, vector<long int>({3, 4, 5}), true);
 }
@@ -454,7 +454,7 @@ TEST(SolutionArray, extraSlicedStringArrays) {
     ASSERT_EQ(arr->getAuxiliary(1)["spam"].asVector<string>()[0], "abc");
 
     auto indices = vector<int>({1, 2, 3});
-    auto sliced = SolutionArray::share(arr, indices);
+    auto sliced = arr->share(indices);
     ASSERT_EQ(sliced->getAuxiliary(0)["spam"].asVector<string>()[0], "abc");
     ASSERT_EQ(sliced->getAuxiliary(1)["spam"].asVector<string>()[0], "a");
     testMultiCol<string>(*sliced, vector<string>({"foo", "bar", "baz"}), true);

@@ -32,8 +32,7 @@ private:
                   size_t size,
                   const AnyMap& meta);
 
-    SolutionArray(const shared_ptr<SolutionArray>& arr,
-                  const vector<int>& indices);
+    SolutionArray(const SolutionArray& arr, const vector<int>& indices);
 
 public:
     virtual ~SolutionArray() {}
@@ -57,13 +56,11 @@ public:
      *
      *  Both SolutionArray object share common data. The method is used for slicing
      *  of SolutionArrays from high-level API's. Note that meta data are not inherited.
-     *  @param other  SolutionArray object containing shared data
      *  @param selected  List of locations for shared entries
      */
-    static shared_ptr<SolutionArray> share(const shared_ptr<SolutionArray>& other,
-                                           const vector<int>& selected)
+    shared_ptr<SolutionArray> share(const vector<int>& selected)
     {
-        return shared_ptr<SolutionArray>(new SolutionArray(other, selected));
+        return shared_ptr<SolutionArray>(new SolutionArray(*this, selected));
     }
 
     //! Reset all entries of the SolutionArray to the current Solution state

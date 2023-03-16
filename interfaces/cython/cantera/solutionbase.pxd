@@ -71,6 +71,7 @@ cdef extern from "cantera/base/Solution.h" namespace "Cantera":
 
 cdef extern from "cantera/base/SolutionArray.h" namespace "Cantera":
     cdef cppclass CxxSolutionArray "Cantera::SolutionArray":
+        shared_ptr[CxxSolutionArray] share(vector[int]&) except +translate_exception
         void reset() except +translate_exception
         size_t size()
         void resize(size_t) except +translate_exception
@@ -98,9 +99,6 @@ cdef extern from "cantera/base/SolutionArray.h" namespace "Cantera":
 
     cdef shared_ptr[CxxSolutionArray] CxxNewSolutionArray "Cantera::SolutionArray::create" (
         shared_ptr[CxxSolution], size_t, CxxAnyMap&) except +translate_exception
-
-    cdef shared_ptr[CxxSolutionArray] CxxShareSolutionArray "Cantera::SolutionArray::share" (
-        shared_ptr[CxxSolutionArray], vector[int]&) except +translate_exception
 
 
 ctypedef void (*transportMethod1d)(CxxTransport*, double*) except +translate_exception
