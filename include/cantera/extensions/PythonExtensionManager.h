@@ -11,7 +11,6 @@
 namespace Cantera
 {
 
-
 //! Class for managing user-defined Cantera extensions written in Python
 //!
 //! Handles Python initialization if the main application is not the Python interpreter.
@@ -26,7 +25,6 @@ namespace Cantera
 class PythonExtensionManager : public ExtensionManager
 {
 public:
-    PythonExtensionManager();
     virtual void registerRateBuilders(const std::string& extensionName) override;
 
     void registerRateBuilder(const string& moduleName,
@@ -38,7 +36,7 @@ public:
         const string& className, const string& rateName) override;
 
 private:
-    static bool s_imported;
+    PythonExtensionManager() = default;
 };
 
 }
