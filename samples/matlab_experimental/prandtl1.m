@@ -16,7 +16,7 @@ function prandtl1(g)
     if nargin == 1
         gas = g;
     else
-        gas = Solution('gri30.yaml', 'gri30', 'Mix');
+        gas = Solution('gri30.yaml', 'gri30', 'mixture-averaged');
     end
 
     pr = zeros(31, 31);

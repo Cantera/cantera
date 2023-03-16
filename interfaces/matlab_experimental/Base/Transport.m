@@ -37,15 +37,17 @@ classdef Transport < handle
             % Create a new instance of class :mat:class:`Transport`. One to three
             % arguments may be supplied. The first must be an instance of class
             % :mat:class:`ThermoPhase`. The second (optional) argument is the type of
-            % model desired, specified by the string ``'default'``, ``'Mix'`` or
-            % ``'Multi'``. ``'default'`` uses the default transport specified in the
-            % phase definition. The third argument is the logging level desired.
+            % model desired, specified by the string ``'default'``,
+            % ``'mixture-averaged'`` or ``'multicomponent'``. ``'default'``
+            % uses the default transport specified in the phase definition.
+            % The third argument is the logging level desired.
             %
             % :param th:
             %     Instance of class :mat:class:`ThermoPhase`
             % :param model:
             %     String indicating the transport model to use. Possible values
-            %     are ``'default'``, ``'None'``, ``'Mix'``, and ``'Multi'``.
+            %     are ``'default'``, ``'none'``, ``'mixture-averaged'``,
+            %     and ``'multicomponent'``.
             %     Optional.
             % :param loglevel:
             %     Level of diagnostic logging. Default if not specified is 4.

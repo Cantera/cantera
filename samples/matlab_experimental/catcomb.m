@@ -27,7 +27,7 @@ p = OneAtm; % pressure
 tinlet = 300.0; % inlet temperature
 tsurf = 900.0; % surface temperature
 mdot = 0.06; % kg/m^2/s
-transport = 'Mix'; % transport model
+transport = 'mixture-averaged'; % transport model
 
 % Solve first for a hydrogen/air case for use as the initial estimate for
 % the methane/air case.

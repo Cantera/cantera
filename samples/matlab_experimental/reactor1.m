@@ -16,7 +16,7 @@ function reactor1(g)
     if nargin == 1
         gas = g;
     else
-        gas = Solution('gri30.yaml', 'gri30', 'None');
+        gas = Solution('gri30.yaml', 'gri30', 'none');
     end
 
     P = 101325.0;
@@ -33,7 +33,7 @@ function reactor1(g)
     r = IdealGasReactor(gas);
 
     % create a reservoir to represent the environment
-    a = Solution('air.yaml', 'air', 'None');
+    a = Solution('air.yaml', 'air', 'none');
     a.TP = {a.T, P};
     env = Reservoir(a);
 
