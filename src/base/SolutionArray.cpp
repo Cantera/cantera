@@ -58,15 +58,15 @@ SolutionArray::SolutionArray(const shared_ptr<Solution>& sol,
     m_apiShape[0] = m_dataSize;
 }
 
-SolutionArray::SolutionArray(const shared_ptr<SolutionArray>& other,
+SolutionArray::SolutionArray(const SolutionArray& other,
                              const vector<int>& selected)
-    : m_sol(other->solution())
+    : m_sol(other.m_sol)
     , m_size(selected.size())
-    , m_dataSize(other->m_data->size())
-    , m_stride(other->m_stride)
-    , m_data(other->m_data)
-    , m_extra(other->m_extra)
-    , m_order(other->m_order)
+    , m_dataSize(other.m_data->size())
+    , m_stride(other.m_stride)
+    , m_data(other.m_data)
+    , m_extra(other.m_extra)
+    , m_order(other.m_order)
     , m_shared(true)
     , m_active(selected)
 {
