@@ -7,7 +7,7 @@ import numpy as np
 
 from ._utils cimport *
 
-cdef double func_callback(double t, void* obj, void** err):
+cdef double func_callback(double t, void* obj, void** err) except? 0.0:
     """
     This function is called from C/C++ to evaluate a `Func1` object ``obj``,
     returning the value of the function at ``t``. If an exception occurs while

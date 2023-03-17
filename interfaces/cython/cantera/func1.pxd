@@ -7,7 +7,7 @@
 from .ctcxx cimport *
 
 cdef extern from "cantera/cython/funcWrapper.h":
-    ctypedef double (*callback_wrapper)(double, void*, void**)
+    ctypedef double (*callback_wrapper)(double, void*, void**) except? 0.0
     cdef int translate_exception()
 
     cdef cppclass CxxFunc1 "Func1Py":
