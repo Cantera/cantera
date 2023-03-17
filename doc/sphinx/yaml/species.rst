@@ -497,72 +497,45 @@ Additional fields:
 ``coverage-dependencies``
     Mapping where keys are the name of species whose coverage affects
     thermodynamic properties of the node owner species. The map values are the
-    dependency parameters including ``model``, ``units``, and model-specific
-    parameters.
+    dependency parameters including ``model`` and model-specific parameters.
 
 ``model``
-    Dependency model that is one of the four: linear, piecewise-linear,
-    polynomial, or interpolative.
+    Dependency model that is one of the four: ``linear``, ``polynomial``,
+    ``piecewise-linear`` or ``interpolative``.
 
-``enthalpy``
-    Slope of the coverage-dependent enthalpy used in the linear model.
+``enthalpy`` or ``entropy``
+    Slope of the coverage-dependent enthalpy or entropy used in the ``linear``
+    model.
 
-``entropy``
-    Slope of the coverage-dependent entropy used in the linear model.
-
-``enthalpy-low``
-    Slope of the coverage-dependent enthalpy for the lower coverage region
-    used in the piecewise-linear model.
-
-``enthalpy-high``
-    Slope of the coverage-dependent enthalpy for the higher coverage region
-    used in the piecewise-linear model.
-
-``enthalpy-change``
-    Coverage that separates the lower and higher coverage regions of the
-    coverage-dependent enthalpy.
-
-``entropy-low``
-    Slope of the coverage-dependent entropy for the lower coverage region
-    used in the piecewise-linear model.
-
-``entropy-high``
-    Slope of the coverage-dependent entropy for the higher coverage region
-    used in the piecewise-linear model.
-
-``entropy-change``
-    Coverage that separates the lower and higher coverage regions of the
-    coverage-dependent entropy.
-
-``enthalpy-coefficients``
+``enthalpy-coefficients`` or ``entropy-coefficients``
     Array of polynomial coefficients in order of 1st, 2nd, 3rd, and 4th-order
-    used in coverage-dependent enthalpy calculation with the polynomial model.
+    used in coverage-dependent enthalpy or entropy calculation with the ``polynomial``
+    model.
 
-``entropy-coefficients``
-    Array of polynomial coefficients in order of 1st, 2nd, 3rd, and 4th-order
-    used in coverage-dependent entropy calculation with the polynomial model.
+``enthalpy-low`` or ``entropy-low``
+    Slope of the coverage-dependent enthalpy or entropy for the lower coverage
+    region used in the ``piecewise-linear`` model.
 
-``enthalpy-coverages``
+``enthalpy-high`` or ``entropy-high``
+    Slope of the coverage-dependent enthalpy or entropy for the higher coverage
+    region used in the ``piecewise-linear`` model.
+
+``enthalpy-change`` or ``entropy-change``
+    Coverage that separates the lower and higher coverage regions of the
+    coverage-dependent enthalpy or entropy used in the ``piecewise-linear`` model.
+
+``enthalpy-coverages`` or ``entropy-coverages``
     Array of discrete coverage values used in coverage-dependent enthalpy
-    calculation with the interpolative model.
+    or entropy used in the ``interpolative`` model.
 
-``enthalpies``
-    Array of discrete enthalpy values corresponding to the coverages in
-    ``enthalpy-coverages``.
+``enthalpies`` or ``entropies``
+    Array of discrete enthalpy or entropy values corresponding to the coverages
+    in ``enthalpy-coverages`` or ``entropy-coverages``, respectively, used in the
+    ``interpolative`` model.
 
-``entropy-coverages``
-    Array of discrete coverage values used in coverage-dependent entropy
-    calculation with the interpolative model.
-
-``entropies``
-    Array of discrete entropy values corresponding to the coverages in
-    ``entropy-coverages``.
-
-``heat-capacity-a``
-    Coefficient "a" used in the coverage-dependent heat capacity model.
-
-``heat-capacity-b``
-    Coefficient "b" used in the coverage-dependent heat capacity model.
+``heat-capacity-a`` or ``heat-capacity-b``
+    Coefficient :math:`c^{(a)}` or :math:`c^{(b)}` used in the coverage-dependent
+    ``heat capacity`` model.
 
 Example::
 
@@ -570,15 +543,17 @@ Example::
       OC_Pt: {model: linear,
               units: {energy: eV, quantity: molec},
               enthalpy: 0.48, entropy: -0.031}
-      CO2_Pt: {model: piecewise-linear,
-               units: {energy: kJ, quantity: mol},
-               enthalpy-low: 0.5e2, enthalpy-high: 1.0e2, enthalpy-change: 0.4,
-               entropy-low: 0.1e2, entropy-high: -0.2e2, entropy-change: 0.4,
-               heat-capacity-a: 0.02e-1, heat-capacity-b: -0.156e-1}
       C_Pt: {model: polynomial,
              units: {energy: J, quantity: mol},
              enthalpy-coefficients: [0.0, -3.86e4, 0.0, 4.2e5],
              entropy-coefficients: [0.8e3, 0.0, -1.26e4, 0.0]}
+      CO2_Pt: {model: piecewise-linear,
+               units: {energy: kJ, quantity: mol},
+               enthalpy-low: 0.5e2, enthalpy-high: 1.0e2,
+               enthalpy-change: 0.4,
+               entropy-low: 0.1e2, entropy-high: -0.2e2,
+               entropy-change: 0.4,
+               heat-capacity-a: 0.02e-1, heat-capacity-b: -0.156e-1}
       O_Pt: {model: interpolative,
              units: {energy: kcal, quantity: mol},
              enthalpy-coverages: [0.0, 0.2, 0.4, 0.7, 0.9, 1.0],
