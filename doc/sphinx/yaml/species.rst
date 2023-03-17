@@ -496,12 +496,26 @@ Additional fields:
 
 ``coverage-dependencies``
     Mapping where keys are the name of species whose coverage affects
-    thermodynamic properties of the node owner species. The map values are the
-    dependency parameters including ``model`` and model-specific parameters.
+    thermodynamic properties of the node-owner species. The map values are
+    the dependency entries including ``model``, model-specific parameters,
+    ``heat-capacity-a``, and ``heat-capacity-b`` that correspond
+    to an individual dependency between the node-owner species and keyed species.
 
 ``model``
-    Dependency model that is one of the four: ``linear``, ``polynomial``,
-    ``piecewise-linear`` or ``interpolative``.
+    Dependency model for coverage-dependent enthalpy or entropy. It should be
+    one of the four: ``linear``, ``polynomial``, ``piecewise-linear``
+    or ``interpolative``. The ``model`` and model-specific parameters are grouped
+    as follow.
+
+    ``linear``: ``enthalpy``, ``entropy``
+
+    ``polynomial``: ``enthalpy-coefficients``, ``entropy-coefficients``
+
+    ``piecewise-linear``: ``enthalpy-low``, ``enthalpy-high``, ``enthalpy-change``,
+    ``entropy-low``, ``entropy-high``, ``entropy-change``
+
+    ``interpolative``: ``enthalpy-coverages``, ``enthalpies``, ``entropy-coverages``,
+    ``entropies``
 
 ``enthalpy`` or ``entropy``
     Slope of the coverage-dependent enthalpy or entropy used in the ``linear``
