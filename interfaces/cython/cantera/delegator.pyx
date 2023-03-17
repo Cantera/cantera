@@ -85,7 +85,7 @@ from cython.operator import dereference as deref
 # function.
 
 # Wrapper for functions of type void()
-cdef void callback_v(PyFuncInfo& funcInfo):
+cdef void callback_v(PyFuncInfo& funcInfo) noexcept:
     try:
         (<object>funcInfo.func())()
     except BaseException as e:
@@ -94,7 +94,7 @@ cdef void callback_v(PyFuncInfo& funcInfo):
         funcInfo.setExceptionValue(<PyObject*>exc_value)
 
 # Wrapper for functions of type void(double)
-cdef void callback_v_d(PyFuncInfo& funcInfo, double arg):
+cdef void callback_v_d(PyFuncInfo& funcInfo, double arg) noexcept:
     try:
         (<object>funcInfo.func())(arg)
     except BaseException as e:
@@ -103,7 +103,7 @@ cdef void callback_v_d(PyFuncInfo& funcInfo, double arg):
         funcInfo.setExceptionValue(<PyObject*>exc_value)
 
 # Wrapper for functions of type void(bool)
-cdef void callback_v_b(PyFuncInfo& funcInfo, cbool arg):
+cdef void callback_v_b(PyFuncInfo& funcInfo, cbool arg) noexcept:
     try:
         (<object>funcInfo.func())(arg)
     except BaseException as e:
@@ -113,7 +113,7 @@ cdef void callback_v_b(PyFuncInfo& funcInfo, cbool arg):
 
 # Wrapper for functions of type void(const AnyMap&, const UnitStack&)
 cdef void callback_v_cAMr_cUSr(PyFuncInfo& funcInfo, const CxxAnyMap& arg1,
-                               const CxxUnitStack& arg2):
+                               const CxxUnitStack& arg2) noexcept:
 
     pyArg1 = anymap_to_dict(<CxxAnyMap&>arg1)  # cast away constness
     pyArg2 = Units.copy(arg2.product())
@@ -125,7 +125,7 @@ cdef void callback_v_cAMr_cUSr(PyFuncInfo& funcInfo, const CxxAnyMap& arg1,
         funcInfo.setExceptionValue(<PyObject*>exc_value)
 
 # Wrapper for functions of type void(double*)
-cdef void callback_v_dp(PyFuncInfo& funcInfo, size_array1 sizes, double* arg):
+cdef void callback_v_dp(PyFuncInfo& funcInfo, size_array1 sizes, double* arg) noexcept:
     cdef double[:] view = <double[:sizes[0]]>arg if sizes[0] else None
 
     try:
@@ -137,7 +137,7 @@ cdef void callback_v_dp(PyFuncInfo& funcInfo, size_array1 sizes, double* arg):
 
 # Wrapper for functions of type void(double, double*)
 cdef void callback_v_d_dp(PyFuncInfo& funcInfo, size_array1 sizes, double arg1,
-                                double* arg2):
+                          double* arg2) noexcept:
     cdef double[:] view = <double[:sizes[0]]>arg2 if sizes[0] else None
 
     try:
@@ -149,7 +149,7 @@ cdef void callback_v_d_dp(PyFuncInfo& funcInfo, size_array1 sizes, double arg1,
 
 # Wrapper for functions of type void(double*, double*, double*)
 cdef void callback_v_dp_dp_dp(PyFuncInfo& funcInfo,
-        size_array3 sizes, double* arg1, double* arg2, double* arg3):
+        size_array3 sizes, double* arg1, double* arg2, double* arg3) noexcept:
 
     cdef double[:] view1 = <double[:sizes[0]]>arg1 if sizes[0] else None
     cdef double[:] view2 = <double[:sizes[1]]>arg2 if sizes[1] else None
@@ -162,7 +162,7 @@ cdef void callback_v_dp_dp_dp(PyFuncInfo& funcInfo,
         funcInfo.setExceptionValue(<PyObject*>exc_value)
 
 # Wrapper for functions of type double(void*)
-cdef int callback_d_vp(PyFuncInfo& funcInfo, double& out, void* obj):
+cdef int callback_d_vp(PyFuncInfo& funcInfo, double& out, void* obj) noexcept:
     try:
         ret = (<object>funcInfo.func())(<object>obj)
         if ret is None:
@@ -177,7 +177,7 @@ cdef int callback_d_vp(PyFuncInfo& funcInfo, double& out, void* obj):
     return -1
 
 # Wrapper for functions of type string(size_t)
-cdef int callback_s_sz(PyFuncInfo& funcInfo, string& out, size_t arg):
+cdef int callback_s_sz(PyFuncInfo& funcInfo, string& out, size_t arg) noexcept:
     try:
         ret = (<object>funcInfo.func())(arg)
         if ret is None:
@@ -192,7 +192,7 @@ cdef int callback_s_sz(PyFuncInfo& funcInfo, string& out, size_t arg):
     return -1
 
 # Wrapper for functions of type size_t(string&)
-cdef int callback_sz_csr(PyFuncInfo& funcInfo, size_t& out, const string& arg):
+cdef int callback_sz_csr(PyFuncInfo& funcInfo, size_t& out, const string& arg) noexcept:
     try:
         ret = (<object>funcInfo.func())(pystr(arg))
         if ret is None:
@@ -208,7 +208,7 @@ cdef int callback_sz_csr(PyFuncInfo& funcInfo, size_t& out, const string& arg):
 
 # Wrapper for functions of type void(double, double*, double*)
 cdef void callback_v_d_dp_dp(PyFuncInfo& funcInfo, size_array2 sizes, double arg1,
-                                double* arg2, double* arg3):
+                             double* arg2, double* arg3) noexcept:
     cdef double[:] view1 = <double[:sizes[0]]>arg2 if sizes[0] else None
     cdef double[:] view2 = <double[:sizes[1]]>arg3 if sizes[1] else None
 
