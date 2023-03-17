@@ -662,8 +662,13 @@ Example::
 ``coverage-dependent-surface``
 ------------------------------
 
-A coverage-dependent surface phase, as
+A coverage-dependent surface phase. That is, a surface phase where the enthalpy,
+entropy, and heat capacity of each species may depend on its coverage and the
+coverage of other species in the phase.
+Full details are
 `described here <https://cantera.org/documentation/dev/doxygen/html/db/d25/classCantera_1_1CoverageDependentSurfPhase.html#details>`__.
+Majority of coverage dependency parameters are provided in the species entry as
+`described here <https://cantera.org/documentation/dev/sphinx/html/yaml/species.html#coverage-dependent-surface>`__.
 
 Additional fields:
 
@@ -671,8 +676,8 @@ Additional fields:
     The molar density of surface sites.
 
 ``reference-state-coverage``
-    The reference state coverage denoting the low-coverage limit (i.e.
-    ideal-surface) thermodynamic properties.
+    The reference state coverage denoting the low-coverage limit (ideal-surface)
+    thermodynamic properties.
 
 Example::
 
