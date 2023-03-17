@@ -19,23 +19,24 @@
 namespace Cantera
 {
 
-//! A thermodynamic model for a coverage-dependent surface phase, applying adsorbate
-//! lateral interaction correction factors to the ideal surface phase properties.
+//! A thermodynamic model for a coverage-dependent surface phase, applying surface
+//! species lateral interaction correction factors to the ideal surface phase
+//! properties.
 /*!
- * The ideal surface phase assumes no lateral interaction among adsorbates.
+ * The ideal surface phase assumes no lateral interaction among surface species.
  * This coverage-dependent surface phase allows adding lateral interaction
  * correction terms to the ideal surface phase (SurfPhase) thermodynamic properties
- * so that more accurate adsorbate thermochemistry can be achieved.
+ * so that more accurate surface species thermochemistry can be achieved.
  *
  * ## Coverage-dependent Thermodynamic Properties Formulations
  *
- * At a low-coverage limit, an adsorbate thermochemistry is the same as
- * that of ideal species since there are no adsorbates in the vicinity to cause
- * lateral interaction. Therefore, it is logical to set ideal species properties
- * as the low-coverage limit properties and add lateral interaction terms, i.e.
- * lateral interaction correction terms, to them as excess properties.
- * Accordingly, standard state coverage-dependent enthalpy, entropy,
- * and heat capacity of a species \f$ k \f$ can be formulated as follows.
+ * At a low-coverage limit, a surface species thermochemistry is the same as
+ * that of ideal surface species since there are no adsorbates in the vicinity
+ * to cause lateral interaction. Therefore, it is logical to set ideal surface
+ * species properties as the low-coverage limit and add lateral interaction terms
+ * to them as excess properties. Accordingly, standard state coverage-dependent
+ * enthalpy, entropy, and heat capacity of a surface species \f$ k \f$ can be
+ * formulated as follows.
  *
  * \f[
  *  h_k^o(T,\theta)
@@ -57,20 +58,22 @@ namespace Cantera
  *
  * \f[
  *  c_{p,k}^o(T,\theta)
- *      = c_{p,k}^{o,ideal}(T) + c_{p,k}^{o,cov}(T,\theta)
+ *      = \underbrace{c_{p,k}^{o,ideal}(T)}_{\text{low-coverage limit}}
+ *        + \underbrace{c_{p,k}^{o,cov}(T,\theta)}_{\text{coverage dependence}}
  * \f]
  *
  * ## Mathematical Models for Coverage-dependent Correction Terms
  *
  * Coverage-dependent correction terms for enthalpy and entropy can be calculated
- * with one of the four algebraic models: linear dependecy model, piecewise-linear
- * dependency model, polynomial dependency model, and interpolative dependency model.
+ * with one of the four algebraic models: linear dependecy model, polynomial
+ * dependency model, piecewise-linear, and interpolative dependency model.
  * In the dependency model equations, a coverage-dependent correction term is denoted
- * by \f$ f^{cov} \f$ where \f$ f \f$ can be either enthalpy or entropy. Because
- * lateral interaction can compose of both self- and cross- interactions, the total
- * correction term of species \f$ k \f$ is a sum of all interacting species \f$ j \f$
- * which can include itself. Coefficients \f$ c^{(1)}_{k,j}-c^{(6)}_{k,j} \f$
- * are user-provided parameters that can be given in input mechanism.
+ * by \f$ f^{cov} \f$ where \f$ f \f$ can be either enthalpy (\f$ h^{cov} \f$) or
+ * entropy (\f$ s^{cov} \f$). Because lateral interaction can compose of both
+ * self- and cross- interactions, the total correction term of species \f$ k \f$
+ * is a sum of all interacting species \f$ j \f$ which can include itself.
+ * Coefficients \f$ c^{(1)}_{k,j}-c^{(6)}_{k,j} \f$ are user-provided parameters
+ * that can be given in a input yaml.
  *
  * Linear dependency model:
  * \f[
@@ -101,8 +104,8 @@ namespace Cantera
  *  f^{cov}_k(\theta) =
  *   \sum_j \left[\frac{f^{cov}_k(\theta^{higher}_j) - f^{cov}_k(\theta^{lower}_j)}
  *   {\theta^{higher}_j - \theta^{lower}_j}(\theta_j - \theta^{lower}_j)
- *   + f^{cov}_k (\theta^{lower}_j)\right] \text{, }
- *   \theta^{lower}_j \leq \theta_j < \theta^{higher}_j
+ *   + f^{cov}_k (\theta^{lower}_j)\right] \\
+ *   \text{where } \theta^{lower}_j \leq \theta_j < \theta^{higher}_j
  * \f]
  *
  * Coverage-dependent heat capacity is calculated using an equation with a
@@ -111,7 +114,7 @@ namespace Cantera
  * The coverage-dependent heat capacity of species \f$ k \f$ is a sum of
  * all quantities dependent on coverage of species \f$ j \f$. Coefficients
  * \f$ c^{(a)}_{k,j} \text{ and } c^{(b)}_{k,j} \f$ are user-provided parameters
- * that can be given in input mechanism.
+ * that can be given in an input yaml.
  *
  * Coverage-dependent heat capacity model:
  * \f[
