@@ -180,15 +180,15 @@ class TestEmptyThermoPhase(utilities.CanteraTest):
         cls.gas = ct.ThermoPhase()
 
     def test_empty_report(self):
-        with self.assertRaisesRegex(ct.CanteraError, "NotImplementedError"):
+        with pytest.raises(NotImplementedError):
             self.gas()
 
     def test_empty_TP(self):
-        with self.assertRaisesRegex(ct.CanteraError, "NotImplementedError"):
+        with pytest.raises(NotImplementedError):
             self.gas.TP = 300, ct.one_atm
 
     def test_empty_equilibrate(self):
-        with self.assertRaisesRegex(ct.CanteraError, "NotImplementedError"):
+        with pytest.raises(NotImplementedError):
             self.gas.equilibrate("TP")
 
 

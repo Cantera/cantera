@@ -1938,7 +1938,7 @@ class TestSolutionArray(utilities.CanteraTest):
 
             try:
                 soln_value = getattr(self.gas, attr)
-            except (ct.CanteraError, ct.ThermoModelMethodError):
+            except (ct.CanteraError, ct.ThermoModelMethodError, NotImplementedError):
                 continue
 
             if not isinstance(soln_value, (float, np.ndarray)):
