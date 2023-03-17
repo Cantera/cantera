@@ -320,6 +320,16 @@ extern "C" {
         }
     }
 
+    int bdry_setSpreadRate(int i, double v)
+    {
+        try {
+            DomainCabinet::as<Boundary1D>(i)->setSpreadRate(v);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     int bdry_setMoleFractions(int i, const char* x)
     {
         try {
@@ -334,6 +344,15 @@ extern "C" {
     {
         try {
             return DomainCabinet::as<Boundary1D>(i)->temperature();
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
+    }
+
+    double bdry_spreadRate(int i)
+    {
+        try {
+            return DomainCabinet::as<Boundary1D>(i)->spreadRate();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
