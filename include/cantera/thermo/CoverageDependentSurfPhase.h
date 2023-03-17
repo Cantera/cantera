@@ -113,6 +113,7 @@ namespace Cantera
  * \f$ c^{(a)}_{k,j} \text{ and } c^{(b)}_{k,j} \f$ are user-provided parameters
  * that can be given in input mechanism.
  *
+ * Coverage-dependent heat capacity model:
  * \f[
  *  c^{cov}_{p,k}(\theta) =
  *   \sum_j \left(c^{(a)}_{k,j} \ln\left(\frac{T}{1\text{ K}}\right)
