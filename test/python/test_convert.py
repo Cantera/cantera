@@ -800,7 +800,7 @@ class cti2yamlTest(utilities.CanteraTest):
                 cp_cti = ctiPhase.partial_molar_cp
                 cp_yaml = yamlPhase.partial_molar_cp
             else:
-                with pytest.raises(ct.CanteraError):
+                with pytest.raises(NotImplementedError):
                     yamlPhase.partial_molar_cp
             h_cti = ctiPhase.partial_molar_enthalpies
             h_yaml = yamlPhase.partial_molar_enthalpies
@@ -1024,7 +1024,7 @@ class ctml2yamlTest(utilities.CanteraTest):
                 cp_ctml = ctmlPhase.partial_molar_cp
                 cp_yaml = yamlPhase.partial_molar_cp
             else:
-                with pytest.raises(ct.CanteraError):
+                with pytest.raises(NotImplementedError):
                     yamlPhase.partial_molar_cp
             h_ctml = ctmlPhase.partial_molar_enthalpies
             h_yaml = yamlPhase.partial_molar_enthalpies

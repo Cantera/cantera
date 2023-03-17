@@ -225,6 +225,8 @@ inline int translate_exception()
         PyErr_SetObject(exn.m_type, exn.m_value);
     } catch (const std::out_of_range& exn) {
         PyErr_SetString(PyExc_IndexError, exn.what());
+    } catch (const Cantera::NotImplementedError& exn) {
+        PyErr_SetString(PyExc_NotImplementedError, exn.what());
     } catch (const Cantera::CanteraError& exn) {
         PyErr_SetString(pyCanteraError, exn.what());
     } catch (const std::exception& exn) {

@@ -90,7 +90,7 @@ class TestTransport(utilities.CanteraTest):
         self.assertArrayNear(Dbin1, Dbin2)
 
     def test_multiComponent(self):
-        with self.assertRaisesRegex(ct.CanteraError, 'NotImplementedError'):
+        with pytest.raises(NotImplementedError):
             self.phase.multi_diff_coeffs
 
         self.assertArrayNear(self.phase.thermal_diff_coeffs,

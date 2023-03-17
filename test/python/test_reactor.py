@@ -540,7 +540,7 @@ class TestReactor(utilities.CanteraTest):
         with self.assertRaisesRegex(Exception, 'eggs'):
             self.net.step()
 
-        with self.assertRaisesRegex(ct.CanteraError, 'NotImplementedError'):
+        with pytest.raises(NotImplementedError):
             mfc.set_pressure_function(lambda p: p**2)
 
     def test_valve1(self):
@@ -738,7 +738,7 @@ class TestReactor(utilities.CanteraTest):
             p = ct.PressureController(self.r1, self.r2)
             p.mass_flow_rate
 
-        with self.assertRaisesRegex(ct.CanteraError, 'NotImplementedError'):
+        with pytest.raises(NotImplementedError):
             p = ct.PressureController(self.r1, self.r2)
             p.set_time_function(lambda t: t>1.)
 
