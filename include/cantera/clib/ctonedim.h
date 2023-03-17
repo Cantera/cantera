@@ -40,8 +40,10 @@ extern "C" {
 
     CANTERA_CAPI int bdry_setMdot(int i, double mdot);
     CANTERA_CAPI int bdry_setTemperature(int i, double t);
+    CANTERA_CAPI int bdry_setSpreadRate(int i, double v);
     CANTERA_CAPI int bdry_setMoleFractions(int i, const char* x);
     CANTERA_CAPI double bdry_temperature(int i);
+    CANTERA_CAPI double bdry_spreadRate(int i);
     CANTERA_CAPI double bdry_massFraction(int i, int k);
     CANTERA_CAPI double bdry_mdot(int i);
 
