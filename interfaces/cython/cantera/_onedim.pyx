@@ -25,6 +25,7 @@ cdef class Domain1D:
             raise TypeError("Can't instantiate abstract class Domain1D.")
 
         self.gas = phase
+        # Block species from being added to the phase as long as this object exists
         self.gas._references[self._weakref_proxy] = True
         self.set_default_tolerances()
 
@@ -441,6 +442,7 @@ cdef class ReactingSurface1D(Boundary1D):
             super().__init__(gas, name=name)
 
         self.surface = phase
+        # Block species from being added to the phase as long as this object exists
         self.surface._references[self._weakref_proxy] = True
 
     def __dealloc__(self):

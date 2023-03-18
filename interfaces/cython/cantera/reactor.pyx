@@ -53,6 +53,7 @@ cdef class ReactorBase:
         properties and kinetic rates for this reactor.
         """
         self._thermo = solution
+        # Block species from being added to the phase as long as this object exists
         self._thermo._references[self._weakref_proxy] = True
         self.rbase.setThermoMgr(deref(solution.thermo))
 

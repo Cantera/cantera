@@ -268,7 +268,11 @@ cdef class ThermoPhase(_SolutionBase):
             self.thermo_basis = mass_basis
         # In composite objects, the ThermoPhase constructor needs to be called first
         # to prevent instantiation of stand-alone 'Kinetics' or 'Transport' objects.
-        # The following is used as a sentinel.
+        # The following is used as a sentinel. After initialization, the _references
+        # object is used to track whether the ThermoPhase is being used by a `Reactor`,
+        # `Domain1D`, or `Mixture` object and to prevent species from being added to the
+        # ThermoPhase if so, since these objects require the number of species to remain
+        # constant.
         self._references = weakref.WeakKeyDictionary()
         # validate plasma phase
         self._enable_plasma = False
