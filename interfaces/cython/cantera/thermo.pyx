@@ -569,8 +569,9 @@ cdef class ThermoPhase(_SolutionBase):
         automatically.
         """
         if self._references:
-            raise CanteraError('Cannot add species to ThermoPhase object if it'
-                ' is linked to a Reactor, Domain1D (flame), or Mixture object.')
+            raise CanteraError('Cannot add species to ThermoPhase object because it'
+                ' is being used by another object,\nsuch as a Reactor, Domain1D (flame),'
+                ' SolutionArray, Quantity, or Mixture object.')
         self.thermo.addUndefinedElements()
         self.thermo.addSpecies(species._species)
         species._phase = self

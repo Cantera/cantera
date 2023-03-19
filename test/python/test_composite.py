@@ -220,7 +220,7 @@ class TestEmptyEdgeCases(utilities.CanteraTest):
 
 
 class TestSolutionArray(utilities.CanteraTest):
-    """ Test SolutionArray file basics """
+    """ Test SolutionArray basics """
     @classmethod
     def setUpClass(cls):
         utilities.CanteraTest.setUpClass()
@@ -259,6 +259,24 @@ class TestSolutionArray(utilities.CanteraTest):
         assert arr.get_auxiliary(4) == {"spam": 4}
         arr.set_auxiliary(0, {"spam": 42})
         assert arr.spam[0] == 42
+
+    def test_disables_add_species(self):
+        gas = ct.Solution('h2o2.yaml', transport_model=None)
+        states = [list(gas.state)] * 3
+        arr = ct.SolutionArray(gas, states=states)
+
+        species_x = ct.Species("X", {"H": 3})
+        species_x.thermo = ct.ConstantCp(200, 5000, ct.one_atm, coeffs=(0,0,0,0))
+        N = gas.n_species
+        with pytest.raises(ct.CanteraError, match="is being used"):
+            gas.add_species(species_x)
+
+        assert gas.n_species == N
+
+        # Adding species works again after the Solution is no longer in use
+        del arr
+        gas.add_species(species_x)
+        assert gas.n_species == N + 1
 
 
 class TestSolutionArrayIO(utilities.CanteraTest):
