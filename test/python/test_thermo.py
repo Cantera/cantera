@@ -1704,6 +1704,22 @@ class TestQuantity(utilities.CanteraTest):
         with self.assertRaisesRegex(ValueError, 'different phase definitions'):
             q1+q2
 
+    def test_disables_add_species(self):
+        gas = ct.Solution('h2o2.yaml', transport_model=None)
+        q1 = ct.Quantity(gas)
+
+        species_x = ct.Species("X", {"H": 3})
+        species_x.thermo = ct.ConstantCp(200, 5000, ct.one_atm, coeffs=(0,0,0,0))
+        N = gas.n_species
+        with pytest.raises(ct.CanteraError, match="is being used"):
+            gas.add_species(species_x)
+        assert gas.n_species == N
+
+        # Adding species works again after the Solution is no longer in use
+        del q1
+        gas.add_species(species_x)
+        assert gas.n_species == N + 1
+
 
 class TestMisc(utilities.CanteraTest):
     def test_stringify_bad(self):

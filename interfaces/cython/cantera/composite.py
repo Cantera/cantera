@@ -220,11 +220,13 @@ class Quantity:
         >>> q3.P
         101325.0
     """
-    __slots__ = ("state", "_phase", "_id", "mass", "constant")
+    __slots__ = ("state", "_phase", "_id", "mass", "constant", "_weakref_proxy")
 
     def __init__(self, phase, mass=None, moles=None, constant='UV'):
         self.state = phase.TDY
         self._phase = phase
+        self._weakref_proxy = _WeakrefProxy()
+        phase._references[self._weakref_proxy] = True
 
         # A unique key to prevent adding phases with different species
         # definitions
@@ -359,6 +361,11 @@ for _attr in dir(Solution):
             setattr(Quantity, _attr, _method(_orig))
         else:
             setattr(Quantity, _attr, _prop(_attr))
+
+
+# A pure-Python class to store weakrefs to
+class _WeakrefProxy:
+    pass
 
 
 class SolutionArray(SolutionArrayBase):
@@ -557,6 +564,8 @@ class SolutionArray(SolutionArrayBase):
 
     def __init__(self, phase, shape=(0,), states=None, extra=None, meta={}, init=True):
         self._phase = phase
+        self._weakref_proxy = _WeakrefProxy()
+        phase._references[self._weakref_proxy] = True
         if not init:
             return
 

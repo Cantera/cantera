@@ -126,3 +126,4 @@ cdef class _SolutionBase:
 cdef class SolutionArrayBase:
     cdef shared_ptr[CxxSolutionArray] _base
     cdef CxxSolutionArray* base
+    cdef public object _weakref_proxy
