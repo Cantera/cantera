@@ -9,7 +9,7 @@ from libc.stdlib cimport malloc
 from libc.string cimport strcpy
 
 from ._utils import CanteraError
-from ._utils cimport stringify, pystr, anymap_to_dict
+from ._utils cimport stringify, pystr, anymap_to_py
 from .units cimport Units
 # from .reaction import ExtensibleRate, ExtensibleRateData
 from .reaction cimport (ExtensibleRate, ExtensibleRateData, CxxReaction,
@@ -115,7 +115,7 @@ cdef void callback_v_b(PyFuncInfo& funcInfo, cbool arg) noexcept:
 cdef void callback_v_cAMr_cUSr(PyFuncInfo& funcInfo, const CxxAnyMap& arg1,
                                const CxxUnitStack& arg2) noexcept:
 
-    pyArg1 = anymap_to_dict(<CxxAnyMap&>arg1)  # cast away constness
+    pyArg1 = anymap_to_py(<CxxAnyMap&>arg1)  # cast away constness
     pyArg2 = Units.copy(arg2.product())
     try:
         (<object>funcInfo.func())(pyArg1, pyArg2)

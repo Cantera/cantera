@@ -94,7 +94,7 @@ cdef class ReactionRate:
                 f"Class method 'from_dict' was invoked from '{cls.__name__}' but "
                 "should be called from base class 'ReactionRate'")
 
-        cdef CxxAnyMap any_map = dict_to_anymap(data, hyphenize=hyphenize)
+        cdef CxxAnyMap any_map = py_to_anymap(data, hyphenize=hyphenize)
         cxx_rate = CxxNewReactionRate(any_map)
         return ReactionRate.wrap(cxx_rate)
 
@@ -129,7 +129,7 @@ cdef class ReactionRate:
         Get input data for this reaction rate with its current parameter values.
         """
         def __get__(self):
-            return anymap_to_dict(self.rate.parameters())
+            return anymap_to_py(self.rate.parameters())
 
 
 cdef class ArrheniusRateBase(ReactionRate):
@@ -222,7 +222,7 @@ cdef class ArrheniusRate(ArrheniusRateBase):
             self._cinit(input_data, A=A, b=b, Ea=Ea)
 
     def _from_dict(self, input_data):
-        self._rate.reset(new CxxArrheniusRate(dict_to_anymap(input_data)))
+        self._rate.reset(new CxxArrheniusRate(py_to_anymap(input_data)))
 
     def _from_parameters(self, A, b, Ea):
         self._rate.reset(new CxxArrheniusRate(A, b, Ea))
@@ -249,7 +249,7 @@ cdef class BlowersMaselRate(ArrheniusRateBase):
             self._cinit(input_data, A=A, b=b, Ea0=Ea0, w=w)
 
     def _from_dict(self, input_data):
-        self._rate.reset(new CxxBlowersMaselRate(dict_to_anymap(input_data)))
+        self._rate.reset(new CxxBlowersMaselRate(py_to_anymap(input_data)))
 
     def _from_parameters(self, A, b, Ea0, w):
         self._rate.reset(new CxxBlowersMaselRate(A, b, Ea0, w))
@@ -323,7 +323,7 @@ cdef class TwoTempPlasmaRate(ArrheniusRateBase):
 
     def _from_dict(self, input_data):
         self._rate.reset(
-            new CxxTwoTempPlasmaRate(dict_to_anymap(input_data, hyphenize=True))
+            new CxxTwoTempPlasmaRate(py_to_anymap(input_data, hyphenize=True))
         )
 
     def _from_parameters(self, A, b, Ea_gas, Ea_electron):
@@ -450,7 +450,7 @@ cdef class LindemannRate(FalloffRate):
 
     def _from_dict(self, input_data):
         self._rate.reset(
-            new CxxLindemannRate(dict_to_anymap(input_data, hyphenize=True))
+            new CxxLindemannRate(py_to_anymap(input_data, hyphenize=True))
         )
 
     cdef set_cxx_object(self):
@@ -470,7 +470,7 @@ cdef class TroeRate(FalloffRate):
 
     def _from_dict(self, input_data):
         self._rate.reset(
-            new CxxTroeRate(dict_to_anymap(input_data, hyphenize=True))
+            new CxxTroeRate(py_to_anymap(input_data, hyphenize=True))
         )
 
     cdef set_cxx_object(self):
@@ -490,7 +490,7 @@ cdef class SriRate(FalloffRate):
 
     def _from_dict(self, input_data):
         self._rate.reset(
-            new CxxSriRate(dict_to_anymap(input_data, hyphenize=True))
+            new CxxSriRate(py_to_anymap(input_data, hyphenize=True))
         )
 
     cdef set_cxx_object(self):
@@ -506,7 +506,7 @@ cdef class TsangRate(FalloffRate):
 
     def _from_dict(self, input_data):
         self._rate.reset(
-            new CxxTsangRate(dict_to_anymap(input_data, hyphenize=True))
+            new CxxTsangRate(py_to_anymap(input_data, hyphenize=True))
         )
 
     cdef set_cxx_object(self):
@@ -528,9 +528,9 @@ cdef class PlogRate(ReactionRate):
 
         elif init:
             if isinstance(input_data, dict):
-                self._rate.reset(new CxxPlogRate(dict_to_anymap(input_data)))
+                self._rate.reset(new CxxPlogRate(py_to_anymap(input_data)))
             elif rates is None:
-                self._rate.reset(new CxxPlogRate(dict_to_anymap({})))
+                self._rate.reset(new CxxPlogRate(py_to_anymap({})))
             elif input_data:
                 raise TypeError("Invalid parameter 'input_data'")
             else:
@@ -585,7 +585,7 @@ cdef class ChebyshevRate(ReactionRate):
 
         if init:
             if isinstance(input_data, dict):
-                self._rate.reset(new CxxChebyshevRate(dict_to_anymap(input_data)))
+                self._rate.reset(new CxxChebyshevRate(py_to_anymap(input_data)))
             elif all([arg is not None
                     for arg in [temperature_range, pressure_range, data]]):
                 Tmin = temperature_range[0]
@@ -596,7 +596,7 @@ cdef class ChebyshevRate(ReactionRate):
                     new CxxChebyshevRate(Tmin, Tmax, Pmin, Pmax, self._cxxarray2d(data)))
             elif all([arg is None
                     for arg in [temperature_range, pressure_range, data, input_data]]):
-                self._rate.reset(new CxxChebyshevRate(dict_to_anymap({})))
+                self._rate.reset(new CxxChebyshevRate(py_to_anymap({})))
             elif input_data:
                 raise TypeError("Invalid parameter 'input_data'")
             else:
@@ -833,9 +833,9 @@ cdef class InterfaceRateBase(ArrheniusRateBase):
         def __get__(self):
             cdef CxxAnyMap cxx_deps
             self.interface.getCoverageDependencies(cxx_deps)
-            return anymap_to_dict(cxx_deps)
+            return anymap_to_py(cxx_deps)
         def __set__(self, deps):
-            cdef CxxAnyMap cxx_deps = dict_to_anymap(deps)
+            cdef CxxAnyMap cxx_deps = py_to_anymap(deps)
 
             self.interface.setCoverageDependencies(cxx_deps)
 
@@ -893,7 +893,7 @@ cdef class InterfaceArrheniusRate(InterfaceRateBase):
             self._cinit(input_data, A=A, b=b, Ea=Ea)
 
     def _from_dict(self, input_data):
-        self._rate.reset(new CxxInterfaceArrheniusRate(dict_to_anymap(input_data)))
+        self._rate.reset(new CxxInterfaceArrheniusRate(py_to_anymap(input_data)))
 
     def _from_parameters(self, A, b, Ea):
         self._rate.reset(new CxxInterfaceArrheniusRate(A, b, Ea))
@@ -921,7 +921,7 @@ cdef class InterfaceBlowersMaselRate(InterfaceRateBase):
             self._cinit(input_data, A=A, b=b, Ea0=Ea0, w=w)
 
     def _from_dict(self, input_data):
-        self._rate.reset(new CxxInterfaceBlowersMaselRate(dict_to_anymap(input_data)))
+        self._rate.reset(new CxxInterfaceBlowersMaselRate(py_to_anymap(input_data)))
 
     def _from_parameters(self, A, b, Ea0, w):
         self._rate.reset(new CxxInterfaceBlowersMaselRate(A, b, Ea0, w))
@@ -1031,7 +1031,7 @@ cdef class StickingArrheniusRate(StickRateBase):
             self._cinit(input_data, A=A, b=b, Ea=Ea)
 
     def _from_dict(self, input_data):
-        self._rate.reset(new CxxStickingArrheniusRate(dict_to_anymap(input_data)))
+        self._rate.reset(new CxxStickingArrheniusRate(py_to_anymap(input_data)))
 
     def _from_parameters(self, A, b, Ea):
         self._rate.reset(new CxxStickingArrheniusRate(A, b, Ea))
@@ -1058,7 +1058,7 @@ cdef class StickingBlowersMaselRate(StickRateBase):
             self._cinit(input_data, A=A, b=b, Ea0=Ea0, w=w)
 
     def _from_dict(self, input_data):
-        self._rate.reset(new CxxStickingBlowersMaselRate(dict_to_anymap(input_data)))
+        self._rate.reset(new CxxStickingBlowersMaselRate(py_to_anymap(input_data)))
 
     def _from_parameters(self, A, b, Ea0, w):
         self._rate.reset(new CxxStickingBlowersMaselRate(A, b, Ea0, w))
@@ -1354,7 +1354,7 @@ cdef class Reaction:
             A `Kinetics` object whose associated phase(s) contain the species
             involved in the reaction.
         """
-        cdef CxxAnyMap any_map = dict_to_anymap(data, hyphenize=hyphenize)
+        cdef CxxAnyMap any_map = py_to_anymap(data, hyphenize=hyphenize)
         cxx_reaction = CxxNewReaction(any_map, deref(kinetics.kinetics))
         return Reaction.wrap(cxx_reaction)
 
@@ -1549,7 +1549,7 @@ cdef class Reaction:
         definition.
         """
         def __get__(self):
-            return anymap_to_dict(self.reaction.parameters(True))
+            return anymap_to_py(self.reaction.parameters(True))
 
     def update_user_data(self, data):
         """
@@ -1557,7 +1557,7 @@ cdef class Reaction:
         YAML phase definition files with `Solution.write_yaml` or in the data returned
         by `input_data`. Existing keys with matching names are overwritten.
         """
-        self.reaction.input.update(dict_to_anymap(data), False)
+        self.reaction.input.update(py_to_anymap(data), False)
 
     def clear_user_data(self):
         """

@@ -80,7 +80,7 @@ cdef class GasTransportData:
         user-specified data provided with its input (YAML) definition.
         """
         def __get__(self):
-            return anymap_to_dict(self.data.parameters(True))
+            return anymap_to_py(self.data.parameters(True))
 
     def update_user_data(self, data):
         """
@@ -88,7 +88,7 @@ cdef class GasTransportData:
         YAML phase definition files with `Solution.write_yaml` or in the data returned
         by `input_data`. Existing keys with matching names are overwritten.
         """
-        self.data.input.update(dict_to_anymap(data), False)
+        self.data.input.update(py_to_anymap(data), False)
 
     def clear_user_data(self):
         """

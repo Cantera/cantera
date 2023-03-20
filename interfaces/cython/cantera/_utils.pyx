@@ -187,9 +187,9 @@ cdef anyvalue_to_python(string name, CxxAnyValue& v):
                             "from AnyValue of held type '{}'".format(
                                 pystr(name), v.type_str()))
     elif v.isType[CxxAnyMap]():
-        return anymap_to_dict(v.asType[CxxAnyMap]())
+        return anymap_to_py(v.asType[CxxAnyMap]())
     elif v.isType[vector[CxxAnyMap]]():
-        return [anymap_to_dict(a) for a in v.asType[vector[CxxAnyMap]]()]
+        return [anymap_to_py(a) for a in v.asType[vector[CxxAnyMap]]()]
     elif v.isType[vector[double]]():
         return v.asType[vector[double]]()
     elif v.isType[vector[string]]():
@@ -216,7 +216,7 @@ cdef anyvalue_to_python(string name, CxxAnyValue& v):
                             pystr(name), v.type_str()))
 
 
-cdef anymap_to_dict(CxxAnyMap& m):
+cdef anymap_to_py(CxxAnyMap& m):
     cdef pair[string,CxxAnyValue] item
     m.applyUnits()
     cdef AnyMap out = AnyMap()
@@ -226,7 +226,7 @@ cdef anymap_to_dict(CxxAnyMap& m):
     return out
 
 
-cdef CxxAnyMap dict_to_anymap(data, cbool hyphenize=False) except *:
+cdef CxxAnyMap py_to_anymap(data, cbool hyphenize=False) except *:
     cdef CxxAnyMap m
     if hyphenize:
         # replace "_" by "-": while Python dictionaries typically use "_" in key names,
@@ -304,7 +304,7 @@ cdef get_types(item):
 cdef CxxAnyValue python_to_anyvalue(item, name=None) except *:
     cdef CxxAnyValue v
     if isinstance(item, dict):
-        v = dict_to_anymap(item)
+        v = py_to_anymap(item)
     elif isinstance(item, (list, tuple, set, np.ndarray)):
         itype, ndim = get_types(item)
         if ndim == 1:
@@ -398,7 +398,7 @@ cdef vector[CxxAnyMap] list_dict_to_anyvalue(data) except *:
     v.resize(len(data))
     cdef size_t i
     for i, item in enumerate(data):
-        v[i] = dict_to_anymap(item)
+        v[i] = py_to_anymap(item)
     return v
 
 cdef vector[vector[double]] list2_double_to_anyvalue(data):
