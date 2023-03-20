@@ -230,9 +230,11 @@ int main(int argc, char** argv)
     printf("Running main() from test_clib.cpp\n");
     testing::InitGoogleTest(&argc, argv);
     make_deprecation_warnings_fatal();
-    string fileName = "gtest-freeflame.h5";
-    if (std::ifstream(fileName).good()) {
-        std::remove(fileName.c_str());
+    vector<string> fileNames = {"gtest-freeflame.yaml", "gtest-freeflame.h5"};
+    for (const auto& fileName : fileNames) {
+        if (std::ifstream(fileName).good()) {
+            std::remove(fileName.c_str());
+        }
     }
     int result = RUN_ALL_TESTS();
     appdelete();

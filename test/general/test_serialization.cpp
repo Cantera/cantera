@@ -417,12 +417,12 @@ TEST(Storage, groups)
     // create group implicitly if permissive flag is set
     EXPECT_FALSE(file->hasGroup("one"));
     EXPECT_THROW(file->checkGroup("one"), CanteraError);
-    EXPECT_TRUE(file->checkGroup("one", true));
+    EXPECT_FALSE(file->checkGroup("one", true));
     EXPECT_TRUE(file->hasGroup("one"));
 
     // nested groups
     EXPECT_FALSE(file->hasGroup("one/two"));
-    EXPECT_TRUE(file->checkGroup("one/two", true));
+    EXPECT_FALSE(file->checkGroup("one/two", true));
     EXPECT_TRUE(file->hasGroup("one/two"));
     EXPECT_FALSE(file->hasGroup("two"));
 
