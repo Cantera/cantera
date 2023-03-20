@@ -240,9 +240,9 @@ shared_ptr<SolutionArray> Inlet1D::asArray(const double* soln) const
     return arr;
 }
 
-void Inlet1D::restore(SolutionArray& arr, double* soln, int loglevel)
+void Inlet1D::restore(SolutionArray& arr, double* soln)
 {
-    Boundary1D::setMeta(arr.meta(), loglevel);
+    Boundary1D::setMeta(arr.meta());
     arr.setLoc(0);
     auto phase = arr.thermo();
     auto meta = arr.meta();
@@ -523,9 +523,9 @@ shared_ptr<SolutionArray> OutletRes1D::asArray(const double* soln) const
     return arr;
 }
 
-void OutletRes1D::restore(SolutionArray& arr, double* soln, int loglevel)
+void OutletRes1D::restore(SolutionArray& arr, double* soln)
 {
-    Boundary1D::setMeta(arr.meta(), loglevel);
+    Boundary1D::setMeta(arr.meta());
     arr.setLoc(0);
     auto phase = arr.thermo();
     m_temp = phase->temperature();
@@ -572,9 +572,9 @@ shared_ptr<SolutionArray> Surf1D::asArray(const double* soln) const
     return SolutionArray::create(m_solution, 0, meta);
 }
 
-void Surf1D::restore(SolutionArray& arr, double* soln, int loglevel)
+void Surf1D::restore(SolutionArray& arr, double* soln)
 {
-    Boundary1D::setMeta(arr.meta(), loglevel);
+    Boundary1D::setMeta(arr.meta());
     arr.setLoc(0);
     m_temp = arr.thermo()->temperature();
 }
@@ -778,9 +778,9 @@ shared_ptr<SolutionArray> ReactingSurf1D::asArray(const double* soln) const
     return arr;
 }
 
-void ReactingSurf1D::restore(SolutionArray& arr, double* soln, int loglevel)
+void ReactingSurf1D::restore(SolutionArray& arr, double* soln)
 {
-    Boundary1D::setMeta(arr.meta(), loglevel);
+    Boundary1D::setMeta(arr.meta());
     arr.setLoc(0);
     auto surf = std::dynamic_pointer_cast<SurfPhase>(arr.thermo());
     if (!surf) {

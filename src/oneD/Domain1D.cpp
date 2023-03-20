@@ -145,7 +145,7 @@ AnyMap Domain1D::serialize(const double* soln) const
     return out;
 }
 
-void Domain1D::setMeta(const AnyMap& meta, int loglevel)
+void Domain1D::setMeta(const AnyMap& meta)
 {
     auto set_tols = [&](const AnyValue& tols, const string& which, vector_fp& out)
     {
@@ -160,7 +160,7 @@ void Domain1D::setMeta(const AnyMap& meta, int loglevel)
                 std::string name = componentName(i);
                 if (tol.hasKey(name)) {
                     out[i] = tol[name].asDouble();
-                } else if (loglevel) {
+                } else {
                     warn_user("Domain1D::setMeta", "No {} found for component '{}'",
                               which, name);
                 }
@@ -183,7 +183,7 @@ void Domain1D::restore(const AnyMap& state, double* soln, int loglevel)
         "To be removed after Cantera 3.0; restore from SolutionArray instead.");
     auto arr = SolutionArray::create(solution());
     arr->readEntry(state, "", "");
-    restore(*arr, soln, loglevel);
+    restore(*arr, soln);
 }
 
 void Domain1D::locate()
