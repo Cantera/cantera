@@ -40,7 +40,7 @@ print(f"phi = {phi:1.3f}")
 # If the compositions of fuel and oxidizer are unknown, the function can
 # be called without arguments. This assumes that all C, H and S atoms come from
 # the fuel and all O atoms from the oxidizer. In this example, the fuel was set
-# to be pre CH4 and the oxidizer O2:0.233,N2:0.767 so that the assumption is true
+# to be pure CH4 and the oxidizer O2:0.233,N2:0.767 so that the assumption is true
 # and the same equivalence ratio as above is computed
 phi = gas.equivalence_ratio()
 print(f"phi = {phi:1.3f}")
