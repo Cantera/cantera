@@ -11,6 +11,7 @@ from libcpp.cast cimport dynamic_cast
 from libcpp.pair cimport pair
 from libcpp cimport bool as cbool
 from libcpp.functional cimport function
+from libcpp.memory cimport shared_ptr
 from cpython cimport bool as pybool
 from cpython.ref cimport PyObject
 from cython.operator cimport dereference as deref, preincrement as inc
@@ -27,10 +28,3 @@ cdef extern from "cantera/cython/funcWrapper.h":
     cdef cppclass CxxAnyValue "Cantera::AnyValue"
     cdef cppclass CxxUnits "Cantera::Units"
     cdef cppclass CxxUnitSystem "Cantera::UnitSystem"
-
-
-cdef extern from "<memory>":
-    cppclass shared_ptr "std::shared_ptr" [T]:
-        T* get()
-        void reset(T*)
-        void reset()
