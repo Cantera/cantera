@@ -17,7 +17,6 @@
 #include "cantera/onedim.h"
 #include "cantera/oneD/DomainFactory.h"
 #include "cantera/base/stringUtils.h"
-#include <fstream>
 
 using namespace Cantera;
 using fmt::print;
@@ -125,10 +124,7 @@ int flamespeed(double phi, bool refine_grid, int loglevel)
         } else {
             fileName = "flamespeed.yaml";
         }
-        if (std::ifstream(fileName).good()) {
-            std::remove(fileName.c_str());
-        }
-        flame.save(fileName, "initial-guess", "Initial guess", 0);
+        flame.save(fileName, "initial-guess", "Initial guess", true);
 
         // Solve freely propagating flame
 
@@ -141,18 +137,16 @@ int flamespeed(double phi, bool refine_grid, int loglevel)
         flame.solve(loglevel,refine_grid);
         double flameSpeed_mix = flame.value(flowdomain,
                                             flow->componentIndex("velocity"),0);
-        print("Flame speed with mixture-averaged transport: {} m/s\n",
-              flameSpeed_mix);
-        flame.save(fileName, "mix", "Solution with mixture-averaged transport", 0);
+        print("Flame speed with mixture-averaged transport: {} m/s\n", flameSpeed_mix);
+        flame.save(fileName, "mix", "Solution with mixture-averaged transport", true);
 
         // now switch to multicomponent transport
         flow->setTransportModel("multicomponent");
         flame.solve(loglevel, refine_grid);
         double flameSpeed_multi = flame.value(flowdomain,
                                               flow->componentIndex("velocity"),0);
-        print("Flame speed with multicomponent transport: {} m/s\n",
-              flameSpeed_multi);
-        flame.save(fileName, "multi", "Solution with multicomponent transport", 0);
+        print("Flame speed with multicomponent transport: {} m/s\n", flameSpeed_multi);
+        flame.save(fileName, "multi", "Solution with multicomponent transport", true);
 
         // now enable Soret diffusion
         flow->enableSoret(true);
@@ -162,7 +156,7 @@ int flamespeed(double phi, bool refine_grid, int loglevel)
         print("Flame speed with multicomponent transport + Soret: {} m/s\n",
               flameSpeed_full);
         flame.save(fileName, "soret",
-            "Solution with mixture-averaged transport and Soret", 0);
+                   "Solution with mixture-averaged transport and Soret", true);
 
         vector_fp zvec,Tvec,COvec,CO2vec,Uvec;
 

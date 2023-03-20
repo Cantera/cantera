@@ -165,13 +165,13 @@ while True:
 
         # Restore last burning solution
         file_name, entry = names(f"extinction/{n_last_burning:04d}")
-        f.restore(file_name, entry, loglevel=0)
+        f.restore(file_name, entry)
 
 
 # Print some parameters at the extinction point, after restoring the last burning
 # solution
 file_name, entry = names(f"extinction/{n_last_burning:04d}")
-f.restore(file_name, entry, loglevel=0)
+f.restore(file_name, entry)
 
 print('----------------------------------------------------------------------')
 print('Parameters at the extinction point:')

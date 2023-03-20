@@ -76,14 +76,14 @@ else:
 print("Restore solution from YAML")
 gas.TPX = Tin, p, reactants
 f2 = ct.FreeFlame(gas, width=width)
-f2.restore(yaml_filepath, name="solution", loglevel=0)
+f2.restore(yaml_filepath, name="solution")
 describe(f2)
 
 if hdf_filepath:
     print("Restore solution from HDF")
     gas.TPX = Tin, p, reactants
     f2 = ct.FreeFlame(gas, width=width)
-    f2.restore(hdf_filepath, name="freeflame", loglevel=0)
+    f2.restore(hdf_filepath, name="freeflame")
     describe(f2)
 
 # Restore the flame via initial guess
