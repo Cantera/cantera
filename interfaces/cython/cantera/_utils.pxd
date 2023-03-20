@@ -98,8 +98,8 @@ cdef pystr(string x)
 cdef comp_map_to_dict(Composition m)
 cdef Composition comp_map(X) except *
 
-cdef CxxAnyMap dict_to_anymap(data, cbool hyphenize=*) except *
-cdef anymap_to_dict(CxxAnyMap& m)
+cdef CxxAnyMap py_to_anymap(data, cbool hyphenize=*) except *
+cdef anymap_to_py(CxxAnyMap& m)
 
 cdef CxxAnyValue python_to_anyvalue(item, name=*) except *
 cdef anyvalue_to_python(string name, CxxAnyValue& v)

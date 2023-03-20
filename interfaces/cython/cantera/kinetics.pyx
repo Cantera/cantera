@@ -443,9 +443,9 @@ cdef class Kinetics(_SolutionBase):
         def __get__(self):
             cdef CxxAnyMap settings
             self.kinetics.getDerivativeSettings(settings)
-            return anymap_to_dict(settings)
+            return anymap_to_py(settings)
         def __set__(self, settings):
-            self.kinetics.setDerivativeSettings(dict_to_anymap(settings))
+            self.kinetics.setDerivativeSettings(py_to_anymap(settings))
 
     property forward_rate_constants_ddT:
         """

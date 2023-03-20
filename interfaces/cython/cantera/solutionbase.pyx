@@ -263,7 +263,7 @@ cdef class _SolutionBase:
         definition.
         """
         def __get__(self):
-            return anymap_to_dict(self.base.parameters(True))
+            return anymap_to_py(self.base.parameters(True))
 
     property input_header:
         """
@@ -272,7 +272,7 @@ cdef class _SolutionBase:
         that are not required for the instantiation of Cantera objects.
         """
         def __get__(self):
-            return anymap_to_dict(self.base.header())
+            return anymap_to_py(self.base.header())
 
     def update_user_data(self, dict data):
         """
@@ -280,7 +280,7 @@ cdef class _SolutionBase:
         YAML phase definition files with `write_yaml` or in the data returned by
         `input_data`. Existing keys with matching names are overwritten.
         """
-        self.thermo.input().update(dict_to_anymap(data), False)
+        self.thermo.input().update(py_to_anymap(data), False)
 
     def clear_user_data(self):
         """
@@ -296,7 +296,7 @@ cdef class _SolutionBase:
         when generating files with `write_yaml` or in the data returned by
         `input_header`. Existing keys with matching names are overwritten.
         """
-        self.base.header().update(dict_to_anymap(data), False)
+        self.base.header().update(py_to_anymap(data), False)
 
     def clear_user_header(self):
         """
@@ -506,7 +506,7 @@ cdef class SolutionArrayBase:
         size = np.prod(shape)
         cdef CxxAnyMap cxx_meta
         if meta is not None:
-            cxx_meta = dict_to_anymap(meta)
+            cxx_meta = py_to_anymap(meta)
         self._base = CxxNewSolutionArray(phase._base, size, cxx_meta)
         self.base = self._base.get()
 
@@ -574,12 +574,12 @@ cdef class SolutionArrayBase:
         """
         Dictionary holding information describing the `SolutionArrayBase`.
         """
-        return anymap_to_dict(self.base.meta())
+        return anymap_to_py(self.base.meta())
 
     @meta.setter
     def meta(self, meta):
         if isinstance(meta, dict):
-            self.base.setMeta(dict_to_anymap(meta))
+            self.base.setMeta(py_to_anymap(meta))
         else:
             raise TypeError("Metadata needs to be a dictionary.")
 
@@ -655,18 +655,18 @@ cdef class SolutionArrayBase:
 
     def get_auxiliary(self, loc):
         """ Retrieve auxiliary data for a `SolutionArrayBase` location """
-        return anymap_to_dict(self.base.getAuxiliary(loc))
+        return anymap_to_py(self.base.getAuxiliary(loc))
 
     def set_auxiliary(self, loc, data):
         """ Set auxiliary data for a `SolutionArrayBase` location """
-        self.base.setAuxiliary(loc, dict_to_anymap(data))
+        self.base.setAuxiliary(loc, py_to_anymap(data))
 
     def _append(self, state, extra):
         """ Append at end of `SolutionArrayBase` """
         cdef vector[double] cxx_state
         for item in state:
             cxx_state.push_back(item)
-        self.base.append(cxx_state, dict_to_anymap(extra))
+        self.base.append(cxx_state, py_to_anymap(extra))
 
     def _cxx_save(self, filename, name, key, description, overwrite, compression):
         """ Interface `SolutionArray.save` with C++ core """
@@ -679,4 +679,4 @@ cdef class SolutionArrayBase:
         cdef CxxAnyMap header
         header = self.base.restore(
             stringify(str(filename)), stringify(name), stringify(key))
-        return anymap_to_dict(header)
+        return anymap_to_py(header)

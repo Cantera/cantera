@@ -120,7 +120,7 @@ cdef class Species:
         :param data:
             A dictionary corresponding to the YAML representation.
         """
-        cdef CxxAnyMap any_map = dict_to_anymap(data)
+        cdef CxxAnyMap any_map = py_to_anymap(data)
         cxx_species = CxxNewSpecies(any_map)
         species = Species(init=False)
         species._assign(cxx_species)
@@ -230,7 +230,7 @@ cdef class Species:
         """
         def __get__(self):
             cdef CxxThermoPhase* phase = self._phase.thermo if self._phase else NULL
-            return anymap_to_dict(self.species.parameters(phase))
+            return anymap_to_py(self.species.parameters(phase))
 
     def update_user_data(self, data):
         """
@@ -238,7 +238,7 @@ cdef class Species:
         YAML phase definition files with `Solution.write_yaml` or in the data returned
         by `input_data`. Existing keys with matching names are overwritten.
         """
-        self.species.input.update(dict_to_anymap(data), False)
+        self.species.input.update(py_to_anymap(data), False)
 
     def clear_user_data(self):
         """

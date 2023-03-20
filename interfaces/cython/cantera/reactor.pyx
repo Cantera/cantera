@@ -7,7 +7,7 @@ import numbers as _numbers
 from cython.operator cimport dereference as deref
 
 from .thermo cimport *
-from ._utils cimport pystr, stringify, comp_map, dict_to_anymap, anymap_to_dict
+from ._utils cimport pystr, stringify, comp_map, py_to_anymap, anymap_to_py
 from ._utils import *
 from .delegator cimport *
 
@@ -1593,7 +1593,7 @@ cdef class ReactorNet:
         def __get__(self):
             cdef CxxAnyMap stats
             stats = self.net.solverStats()
-            return anymap_to_dict(stats)
+            return anymap_to_py(stats)
 
     property derivative_settings:
         """
@@ -1601,4 +1601,4 @@ cdef class ReactorNet:
         See also `Kinetics.derivative_settings`.
         """
         def __set__(self, settings):
-            self.net.setDerivativeSettings(dict_to_anymap(settings))
+            self.net.setDerivativeSettings(py_to_anymap(settings))

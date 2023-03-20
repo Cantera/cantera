@@ -5,7 +5,7 @@ from .interrupts import no_op
 import warnings
 import numpy as np
 
-from ._utils cimport stringify, pystr, anymap_to_dict
+from ._utils cimport stringify, pystr, anymap_to_py
 from ._utils import CanteraError
 from cython.operator import dereference as deref
 
@@ -298,7 +298,7 @@ cdef class Domain1D:
         def __get__(self):
             cdef shared_ptr[CxxSolutionArray] arr
             arr = self.domain.toArray(False)
-            return anymap_to_dict(arr.get().meta())
+            return anymap_to_py(arr.get().meta())
 
 
 cdef class Boundary1D(Domain1D):
@@ -1588,7 +1588,7 @@ cdef class Sim1D:
         cdef CxxAnyMap header
         header = self.sim.restore(stringify(str(filename)), stringify(name))
         self._initialized = True
-        return anymap_to_dict(header)
+        return anymap_to_py(header)
 
     def restore_time_stepping_solution(self):
         """

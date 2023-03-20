@@ -97,7 +97,7 @@ cdef class SpeciesThermo:
         data provided with its input (YAML) definition.
         """
         def __get__(self):
-            return anymap_to_dict(self.spthermo.parameters(True))
+            return anymap_to_py(self.spthermo.parameters(True))
 
     def update_user_data(self, data):
         """
@@ -105,7 +105,7 @@ cdef class SpeciesThermo:
         YAML phase definition files with `Solution.write_yaml` or in the data returned
         by `input_data`. Existing keys with matching names are overwritten.
         """
-        self.spthermo.input().update(dict_to_anymap(data), False)
+        self.spthermo.input().update(py_to_anymap(data), False)
 
     def clear_user_data(self):
         """
