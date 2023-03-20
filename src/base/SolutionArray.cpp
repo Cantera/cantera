@@ -781,7 +781,7 @@ void SolutionArray::append(const vector<double>& state, const AnyMap& extra)
     }
 }
 
-string SolutionArray::save(const string& fname, const string& id, const string& sub,
+void SolutionArray::save(const string& fname, const string& id, const string& sub,
                            const string& desc, bool overwrite, int compression)
 {
     if (m_size < m_dataSize) {
@@ -793,7 +793,7 @@ string SolutionArray::save(const string& fname, const string& id, const string& 
     if (extension == "h5" || extension == "hdf"  || extension == "hdf5") {
         writeHeader(fname, id, desc, overwrite);
         writeEntry(fname, id, sub, true, compression);
-        return id;
+        return;
     }
     if (extension == "yaml" || extension == "yml") {
         // Check for an existing file and load it if present
@@ -808,7 +808,7 @@ string SolutionArray::save(const string& fname, const string& id, const string& 
         std::ofstream out(fname);
         out << data.toYamlString();
         AnyMap::clearCachedFile(fname);
-        return id;
+        return;
     }
     throw CanteraError("SolutionArray::save",
                        "Unknown file extension '{}'.", extension);
