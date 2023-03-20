@@ -621,6 +621,9 @@ public:
     //! Return the default units that should be used to convert stored values
     const UnitSystem& units() const { return *m_units; }
 
+    //! @copydoc units()
+    shared_ptr<UnitSystem> unitsShared() const { return m_units; }
+
     //! Use the supplied UnitSystem to set the default units, and recursively
     //! process overrides from nodes named `units`.
     /*!

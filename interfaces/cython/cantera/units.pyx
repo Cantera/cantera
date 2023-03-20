@@ -94,12 +94,20 @@ cdef class UnitSystem:
         ct.UnitSystem()
     """
     def __cinit__(self, units=None):
-        self.unitsystem = CxxUnitSystem()
+        self._unitsystem.reset(new CxxUnitSystem())
+        self.unitsystem = self._unitsystem.get()
         if units:
             self.units = units
 
     def __repr__(self):
         return f"<UnitSystem at {id(self):0x}>"
+
+    cdef _set_unitSystem(self, shared_ptr[CxxUnitSystem] units):
+        self._unitsystem = units
+        self.unitsystem = self._unitsystem.get()
+
+    def defaults(self):
+        return self.unitsystem.defaults()
 
     property units:
         """

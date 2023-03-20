@@ -3,6 +3,7 @@
 
 from .solutionbase cimport *
 from ._utils cimport *
+from cython.operator import dereference as deref
 
 cdef class YamlWriter:
     """
@@ -64,12 +65,11 @@ cdef class YamlWriter:
         def __set__(self, units):
             if not isinstance(units, UnitSystem):
                 units = UnitSystem(units)
-            cdef CxxUnitSystem cxxunits = YamlWriter._get_unitsystem(units)
-            self.writer.setUnitSystem(cxxunits)
+            self.writer.setUnitSystem(deref(YamlWriter._get_unitsystem(units).get()))
 
     @staticmethod
-    cdef CxxUnitSystem _get_unitsystem(UnitSystem units):
-        return units.unitsystem
+    cdef shared_ptr[CxxUnitSystem] _get_unitsystem(UnitSystem units):
+        return units._unitsystem
 
     def __reduce__(self):
         raise NotImplementedError('YamlWriter object is not picklable')
