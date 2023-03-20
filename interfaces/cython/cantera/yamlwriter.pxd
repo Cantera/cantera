@@ -24,4 +24,4 @@ cdef class YamlWriter:
     cdef shared_ptr[CxxYamlWriter] _writer
     cdef CxxYamlWriter* writer
     @staticmethod
-    cdef CxxUnitSystem _get_unitsystem(UnitSystem units)
+    cdef shared_ptr[CxxUnitSystem] _get_unitsystem(UnitSystem units)

@@ -153,6 +153,18 @@ class CanteraError(RuntimeError):
 
 cdef public PyObject* pyCanteraError = <PyObject*>CanteraError
 
+
+cdef class AnyMap(dict):
+    def __cinit__(self, *args, **kwawrgs):
+        self.unitsystem = UnitSystem()
+
+    cdef _set_CxxUnitSystem(self, shared_ptr[CxxUnitSystem] units):
+        self.unitsystem._set_unitSystem(units)
+
+    def default_units(self):
+        return self.unitsystem.defaults()
+
+
 cdef anyvalue_to_python(string name, CxxAnyValue& v):
     cdef CxxAnyMap a
     cdef CxxAnyValue b
@@ -207,12 +219,14 @@ cdef anyvalue_to_python(string name, CxxAnyValue& v):
 cdef anymap_to_dict(CxxAnyMap& m):
     cdef pair[string,CxxAnyValue] item
     m.applyUnits()
-    if m.empty():
-        return {}
-    return {pystr(item.first): anyvalue_to_python(item.first, item.second)
-            for item in m.ordered()}
+    cdef AnyMap out = AnyMap()
+    out._set_CxxUnitSystem(m.unitsShared())
+    for item in m.ordered():
+        out[pystr(item.first)] = anyvalue_to_python(item.first, item.second)
+    return out
 
-cdef CxxAnyMap dict_to_anymap(dict data, cbool hyphenize=False) except *:
+
+cdef CxxAnyMap dict_to_anymap(data, cbool hyphenize=False) except *:
     cdef CxxAnyMap m
     if hyphenize:
         # replace "_" by "-": while Python dictionaries typically use "_" in key names,

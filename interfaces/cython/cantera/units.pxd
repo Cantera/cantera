@@ -34,4 +34,6 @@ cdef class Units:
     cdef copy(CxxUnits)
 
 cdef class UnitSystem:
-    cdef CxxUnitSystem unitsystem
+    cdef _set_unitSystem(self, shared_ptr[CxxUnitSystem] units)
+    cdef shared_ptr[CxxUnitSystem] _unitsystem
+    cdef CxxUnitSystem* unitsystem

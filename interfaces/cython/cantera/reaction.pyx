@@ -221,7 +221,7 @@ cdef class ArrheniusRate(ArrheniusRateBase):
         if init:
             self._cinit(input_data, A=A, b=b, Ea=Ea)
 
-    def _from_dict(self, dict input_data):
+    def _from_dict(self, input_data):
         self._rate.reset(new CxxArrheniusRate(dict_to_anymap(input_data)))
 
     def _from_parameters(self, A, b, Ea):
@@ -248,7 +248,7 @@ cdef class BlowersMaselRate(ArrheniusRateBase):
         if init:
             self._cinit(input_data, A=A, b=b, Ea0=Ea0, w=w)
 
-    def _from_dict(self, dict input_data):
+    def _from_dict(self, input_data):
         self._rate.reset(new CxxBlowersMaselRate(dict_to_anymap(input_data)))
 
     def _from_parameters(self, A, b, Ea0, w):
@@ -321,7 +321,7 @@ cdef class TwoTempPlasmaRate(ArrheniusRateBase):
         """
         return self.rate.eval(temperature, elec_temp)
 
-    def _from_dict(self, dict input_data):
+    def _from_dict(self, input_data):
         self._rate.reset(
             new CxxTwoTempPlasmaRate(dict_to_anymap(input_data, hyphenize=True))
         )
@@ -448,7 +448,7 @@ cdef class LindemannRate(FalloffRate):
     """
     _reaction_rate_type = "Lindemann"
 
-    def _from_dict(self, dict input_data):
+    def _from_dict(self, input_data):
         self._rate.reset(
             new CxxLindemannRate(dict_to_anymap(input_data, hyphenize=True))
         )
@@ -468,7 +468,7 @@ cdef class TroeRate(FalloffRate):
     """
     _reaction_rate_type = "Troe"
 
-    def _from_dict(self, dict input_data):
+    def _from_dict(self, input_data):
         self._rate.reset(
             new CxxTroeRate(dict_to_anymap(input_data, hyphenize=True))
         )
@@ -488,7 +488,7 @@ cdef class SriRate(FalloffRate):
     """
     _reaction_rate_type = "SRI"
 
-    def _from_dict(self, dict input_data):
+    def _from_dict(self, input_data):
         self._rate.reset(
             new CxxSriRate(dict_to_anymap(input_data, hyphenize=True))
         )
@@ -504,7 +504,7 @@ cdef class TsangRate(FalloffRate):
     """
     _reaction_rate_type = "Tsang"
 
-    def _from_dict(self, dict input_data):
+    def _from_dict(self, input_data):
         self._rate.reset(
             new CxxTsangRate(dict_to_anymap(input_data, hyphenize=True))
         )
@@ -834,7 +834,7 @@ cdef class InterfaceRateBase(ArrheniusRateBase):
             cdef CxxAnyMap cxx_deps
             self.interface.getCoverageDependencies(cxx_deps)
             return anymap_to_dict(cxx_deps)
-        def __set__(self, dict deps):
+        def __set__(self, deps):
             cdef CxxAnyMap cxx_deps = dict_to_anymap(deps)
 
             self.interface.setCoverageDependencies(cxx_deps)
@@ -892,7 +892,7 @@ cdef class InterfaceArrheniusRate(InterfaceRateBase):
         if init:
             self._cinit(input_data, A=A, b=b, Ea=Ea)
 
-    def _from_dict(self, dict input_data):
+    def _from_dict(self, input_data):
         self._rate.reset(new CxxInterfaceArrheniusRate(dict_to_anymap(input_data)))
 
     def _from_parameters(self, A, b, Ea):
@@ -920,7 +920,7 @@ cdef class InterfaceBlowersMaselRate(InterfaceRateBase):
         if init:
             self._cinit(input_data, A=A, b=b, Ea0=Ea0, w=w)
 
-    def _from_dict(self, dict input_data):
+    def _from_dict(self, input_data):
         self._rate.reset(new CxxInterfaceBlowersMaselRate(dict_to_anymap(input_data)))
 
     def _from_parameters(self, A, b, Ea0, w):
@@ -1030,7 +1030,7 @@ cdef class StickingArrheniusRate(StickRateBase):
         if init:
             self._cinit(input_data, A=A, b=b, Ea=Ea)
 
-    def _from_dict(self, dict input_data):
+    def _from_dict(self, input_data):
         self._rate.reset(new CxxStickingArrheniusRate(dict_to_anymap(input_data)))
 
     def _from_parameters(self, A, b, Ea):
@@ -1057,7 +1057,7 @@ cdef class StickingBlowersMaselRate(StickRateBase):
         if init:
             self._cinit(input_data, A=A, b=b, Ea0=Ea0, w=w)
 
-    def _from_dict(self, dict input_data):
+    def _from_dict(self, input_data):
         self._rate.reset(new CxxStickingBlowersMaselRate(dict_to_anymap(input_data)))
 
     def _from_parameters(self, A, b, Ea0, w):
