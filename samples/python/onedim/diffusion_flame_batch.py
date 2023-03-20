@@ -137,12 +137,12 @@ for p in p_range:
         # Try solving the flame
         f.solve(loglevel=0)
         file_name, entry = names(f"pressure-loop/{p:05.1f}")
-        f.save(file_name, name=entry, loglevel=1, description=f"pressure = {p} bar")
+        f.save(file_name, name=entry, description=f"pressure = {p} bar")
         p_previous = p
     except ct.CanteraError as e:
         print('Error occurred while solving:', e, 'Try next pressure level')
         # If solution failed: Restore the last successful solution and continue
-        f.restore(file_name, name=entry, loglevel=0)
+        f.restore(file_name, name=entry)
 
 
 # PART 3: STRAIN RATE LOOP
@@ -162,7 +162,7 @@ exp_mdot_a = 1. / 2.
 
 # Restore initial solution
 file_name, entry = names("initial-solution")
-f.restore(file_name, name=entry, loglevel=0)
+f.restore(file_name, name=entry)
 
 # Counter to identify the loop
 n = 0
@@ -188,7 +188,7 @@ while np.max(f.T) > temperature_limit_extinction:
         # Try solving the flame
         f.solve(loglevel=0)
         file_name, entry = names(f"strain-loop/{n:02d}")
-        f.save(file_name, name=entry, loglevel=1,
+        f.save(file_name, name=entry,
                description=f"strain rate iteration {n}")
     except FlameExtinguished:
         print('Flame extinguished')
@@ -234,7 +234,7 @@ ax4 = fig4.add_subplot(1, 1, 1)
 n_selected = range(1, n, 5)
 for n in n_selected:
     file_name, entry = names(f"strain-loop/{n:02d}")
-    f.restore(file_name, name=entry, loglevel=0)
+    f.restore(file_name, name=entry)
     a_max = f.strain_rate('max')  # the maximum axial strain rate
 
     # Plot the temperature profiles for the strain rate loop (selected)
