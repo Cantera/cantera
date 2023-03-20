@@ -1523,7 +1523,7 @@ cdef class Sim1D:
             return self.sim.fixedTemperatureLocation()
 
     def save(self, filename='soln.yaml', name='solution', description=None,
-             loglevel=1, compression=0):
+             loglevel=None, overwrite=False, compression=0):
         """
         Save the solution in YAML or HDF format.
 
@@ -1533,17 +1533,24 @@ cdef class Sim1D:
             solution name within the file
         :param description:
             custom description text
+        :param overwrite:
+            Force overwrite if name exists; optional (default=`False`)
         :param compression:
             compression level 0..9; optional (HDF only)
 
         >>> s.save(filename='save.yaml', name='energy_off',
         ...        description='solution with energy eqn. disabled')
 
+        .. versionchanged:: 3.0
+            Argument loglevel is no longer supported
         """
+        if loglevel is not None:
+            warnings.warn("Argument 'loglevel' is deprecated and will be ignored.",
+                DeprecationWarning)
         self.sim.save(stringify(str(filename)), stringify(name),
-                      stringify(description), loglevel, compression)
+                      stringify(description), overwrite, compression)
 
-    def restore(self, filename='soln.yaml', name='solution', loglevel=2):
+    def restore(self, filename='soln.yaml', name='solution', loglevel=None):
         """Set the solution vector to a previously-saved solution.
 
         :param filename:
@@ -1559,10 +1566,13 @@ cdef class Sim1D:
         >>> s.restore(filename='save.yaml', name='energy_off')
 
         .. versionchanged:: 3.0
-            Implemented return value for meta data
+            Implemented return value for meta data; loglevel is no longer supported
         """
+        if loglevel is not None:
+            warnings.warn("Argument 'loglevel' is deprecated and will be ignored.",
+                DeprecationWarning)
         cdef CxxAnyMap header
-        header = self.sim.restore(stringify(str(filename)), stringify(name), loglevel)
+        header = self.sim.restore(stringify(str(filename)), stringify(name))
         self._initialized = True
         return anymap_to_dict(header)
 

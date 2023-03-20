@@ -576,8 +576,7 @@ class FlameBase(Sim1D):
             "Note that the call is redirected to 'save' in order to prevent the "
             "creation of a file with deprecated HDF format.", DeprecationWarning)
 
-        self.save(filename, name=group, description=description,
-                  loglevel=int(not quiet))
+        self.save(filename, name=group, description=description)
 
     def read_hdf(self, filename, group=None, restore_boundaries=True, normalize=True):
         """
