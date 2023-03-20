@@ -182,8 +182,10 @@ public:
      *  @param fname  Name of HDF container file
      *  @param id  Identifier of root location within the container file
      *  @param desc  Description
+     *  @param overwrite  Force overwrite if id exists; optional (default=false)
      */
-    static void writeHeader(const string& fname, const string& id, const string& desc);
+    static void writeHeader(const string& fname, const string& id, const string& desc,
+                            bool overwrite=false);
 
     /*!
      *  Write header data to AnyMap.
@@ -191,8 +193,10 @@ public:
      *  @param root  Root node of AnyMap structure
      *  @param id  Identifier of root location within the container file
      *  @param desc  Description
+     *  @param overwrite  Force overwrite if id exists; optional (default=false)
      */
-    static void writeHeader(AnyMap& root, const string& id, const string& desc);
+    static void writeHeader(AnyMap& root, const string& id, const string& desc,
+                            bool overwrite=false);
 
     /*!
      *  Write SolutionArray data to container file.
@@ -200,10 +204,11 @@ public:
      *  @param fname  Name of HDF container file
      *  @param id  Identifier of root location within the container file
      *  @param sub  Name identifier for the subgroup holding actual data
+     *  @param overwrite  Force overwrite if sub exists; optional (default=false)
      *  @param compression  Compression level; optional (default=0; HDF only)
      */
-    void writeEntry(const string& fname, const string& id,
-                    const string& sub, int compression=0);
+    void writeEntry(const string& fname, const string& id, const string& sub,
+                    bool overwrite=false, int compression=0);
 
     /*!
      *  Write SolutionArray data to AnyMap.
@@ -211,8 +216,10 @@ public:
      *  @param root  Root node of AnyMap structure
      *  @param id  Identifier of root location within the container file
      *  @param sub  Name identifier for the subgroup holding actual data
+     *  @param overwrite  Force overwrite if sub exists; optional (default=false)
      */
-    void writeEntry(AnyMap& root, const string& id, const string& sub);
+    void writeEntry(AnyMap& root, const string& id, const string& sub,
+                    bool overwrite=false);
 
     /*!
      *  Save current SolutionArray and header to a container file.
@@ -221,11 +228,11 @@ public:
      *  @param id  Identifier of root location within the container file
      *  @param sub  Name identifier for the subgroup holding actual data
      *  @param desc  Custom comment describing the dataset to be stored
+     *  @param overwrite  Force overwrite if sub exists; optional (default=false)
      *  @param compression  Compression level; optional (default=0; HDF only)
      */
-    string save(const string& fname, const string& id,
-                const string& sub,
-                const string& desc, int compression=0);
+    string save(const string& fname, const string& id, const string& sub,
+                const string& desc, bool overwrite=false, int compression=0);
 
     /*!
      *  Read header data from container file.
