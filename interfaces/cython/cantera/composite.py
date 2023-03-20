@@ -1230,7 +1230,8 @@ class SolutionArray(SolutionArrayBase):
             data_dict[label] = data[:, i]
         self.restore_data(data_dict, normalize)
 
-    def save(self, fname, name=None, key=None, description=None, compression=0):
+    def save(self, fname, name=None, key=None, description=None,
+             overwrite=False, compression=0):
         """
         Save current `SolutionArray` and header to a container file.
 
@@ -1244,14 +1245,14 @@ class SolutionArray(SolutionArrayBase):
             metadata objects. If `None`, the subgroup name default to ``data``.
         :param description:
             Custom comment describing the dataset to be stored.
+        :param overwrite:
+            Force overwrite if name exists; optional (default=`False`)
         :param compression:
             Compression level (0-9); optional (default=0; HDF only)
-        :return:
-            Group identifier used for storing HDF data.
 
         .. versionadded:: 3.0
         """
-        return self._cxx_save(fname, name, key, description, compression)
+        self._cxx_save(fname, name, key, description, overwrite, compression)
 
     def restore(self, fname, name=None, key=None):
         """
@@ -1352,11 +1353,13 @@ class SolutionArray(SolutionArrayBase):
         """
         warnings.warn("Method to be removed after Cantera 3.0; use 'save' instead.\n"
             "Note that the call is redirected to 'save' in order to prevent the "
-            "creation of a file with legacy HDF format.", DeprecationWarning)
+            "creation of a file with legacy HDF format;\nas a consequence, "
+            "some options are no longer supported.", DeprecationWarning)
 
         if group is None:
             raise KeyError("Missing required parameter 'group'.")
-        return self.save(filename, name=group, key=subgroup)
+        self.save(filename, name=group, key=subgroup)
+        return group
 
     def read_hdf(self, filename, group=None, subgroup=None, force=False, normalize=True):
         """

@@ -634,13 +634,11 @@ cdef class SolutionArrayBase:
             cxx_state.push_back(item)
         self.base.append(cxx_state, dict_to_anymap(extra))
 
-    def _cxx_save(self, filename, name, key, description, compression):
+    def _cxx_save(self, filename, name, key, description, overwrite, compression):
         """ Interface `SolutionArray.save` with C++ core """
-        cdef string cxx_path
-        cxx_path = self.base.save(
+        self.base.save(
             stringify(str(filename)), stringify(name), stringify(key),
-            stringify(description), compression)
-        return pystr(cxx_path)
+            stringify(description), overwrite, compression)
 
     def _cxx_restore(self, filename, name, key):
         """ Interface `SolutionArray.restore` with C++ core """
