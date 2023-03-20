@@ -349,7 +349,7 @@ class TestFreeFlame(utilities.CanteraTest):
             if mode == "csv":
                 self.sim.write_csv(data)
             else:
-                self.sim.save(data, group, loglevel=0)
+                self.sim.save(data, group)
 
         reactants = {'H2': 0.9, 'O2': 0.5, 'AR': 2}
         self.create_sim(1.1 * ct.one_atm, 500, reactants, 2.0)
@@ -600,16 +600,16 @@ class TestFreeFlame(utilities.CanteraTest):
         V1 = self.sim.spread_rate
         P1 = self.sim.P
         T1 = self.sim.T
-        self.sim.save(filename, "test", loglevel=0)
+        self.sim.save(filename, "test")
 
         # Save a second solution to the same file
         self.sim.radiation_enabled = True
         self.sim.boundary_emissivities = 0.3, 0.8
-        self.sim.save(filename, "test2", loglevel=0)
+        self.sim.save(filename, "test2")
 
         # Create flame object with dummy initial grid
         self.sim = ct.FreeFlame(self.gas)
-        self.sim.restore(filename, "test", loglevel=0)
+        self.sim.restore(filename, "test")
 
         # Sim is initially in "steady-state" mode, so this returns the
         # steady-state tolerances
@@ -647,7 +647,7 @@ class TestFreeFlame(utilities.CanteraTest):
         self.assertFalse(self.sim.radiation_enabled)
         self.assertFalse(self.sim.soret_enabled)
 
-        self.sim.restore(filename, "test2", loglevel=0)
+        self.sim.restore(filename, "test2")
         self.assertTrue(self.sim.radiation_enabled)
         self.assertEqual(self.sim.boundary_emissivities, (0.3, 0.8))
 
@@ -703,13 +703,13 @@ class TestFreeFlame(utilities.CanteraTest):
         self.solve_mix(ratio=5, slope=0.5, curve=0.3)
         self.sim.transport_model = "multicomponent"
         self.sim.soret_enabled = True
-        self.sim.save(filename, "test", loglevel=0)
+        self.sim.save(filename, "test")
         T1 = self.sim.T
         Y1 = self.sim.Y
 
         gas2 = ct.Solution("h2o2-plus.yaml", transport_model="multicomponent")
         self.sim = ct.FreeFlame(gas2)
-        self.sim.restore(filename, "test", loglevel=0)
+        self.sim.restore(filename, "test")
         T2 = self.sim.T
         Y2 = self.sim.Y
 
@@ -735,13 +735,13 @@ class TestFreeFlame(utilities.CanteraTest):
         gas1 = self.gas
         self.solve_fixed_T()
         self.solve_mix(ratio=5, slope=0.5, curve=0.3)
-        self.sim.save(filename, "test", loglevel=0)
+        self.sim.save(filename, "test")
         T1 = self.sim.T
         Y1 = self.sim.Y
 
         gas2 = ct.Solution("h2o2.yaml")
         self.sim = ct.FreeFlame(gas2)
-        self.sim.restore(filename, "test", loglevel=0)
+        self.sim.restore(filename, "test")
         T2 = self.sim.T
         Y2 = self.sim.Y
 
@@ -811,10 +811,10 @@ class TestFreeFlame(utilities.CanteraTest):
 
         self.run_mix(phi=1.1, T=350, width=2.0, p=2.0, refine=False)
         desc = 'mixture-averaged simulation'
-        self.sim.save(filename, "group0", description=desc, loglevel=0)
+        self.sim.save(filename, "group0", description=desc)
 
         f = ct.FreeFlame(self.gas)
-        meta = f.restore(filename, "group0", loglevel=0)
+        meta = f.restore(filename, "group0")
         assert meta['description'] == desc
         assert meta['cantera-version'] == ct.__version__
         assert meta['git-commit'] == f"'{ct.__git_commit__}'"
@@ -840,7 +840,7 @@ class TestFreeFlame(utilities.CanteraTest):
                 # DeprecationWarning is triggered before IOError is raised
                 f.read_hdf(filename, group="group0")
 
-        meta = f.restore(filename, "group0", loglevel=0)
+        meta = f.restore(filename, "group0")
         assert meta['description'] == desc
         assert meta['generator'] == "Cantera SolutionArray"
         assert meta['cantera-version'] == ct.__version__
@@ -1445,11 +1445,11 @@ class TestImpingingJet(utilities.CanteraTest):
         filename.unlink(missing_ok=True)
 
         self.run_reacting_surface(xch4=0.095, tsurf=900.0, mdot=0.06, width=0.1)
-        self.sim.save(filename, "test", loglevel=0)
+        self.sim.save(filename, "test")
 
         comp = {'CH4': 0.095, 'O2':0.21, 'N2':0.79}
         jet = self.create_reacting_surface(comp, 700.0, 500., width=0.2)
-        jet.restore(filename, "test", loglevel=0)
+        jet.restore(filename, "test")
 
         self.check_save_restore(jet)
 
@@ -1522,7 +1522,7 @@ class TestTwinFlame(utilities.CanteraTest):
         filename.unlink(missing_ok=True)
 
         sim = self.solve(phi=0.4, T=300, width=0.05, P=0.1)
-        sim.save(filename, loglevel=0, compression=7)
+        sim.save(filename, compression=7)
 
         gas = ct.Solution("h2o2.yaml")
         sim2 = ct.CounterflowTwinPremixedFlame(gas=gas)

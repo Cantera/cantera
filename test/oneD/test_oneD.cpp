@@ -87,9 +87,9 @@ TEST(onedim, freeflame)
     bool refine_grid = false;
     int loglevel = 0;
     flame.solve(loglevel, refine_grid);
-    flame.save("gtest-freeflame.yaml", "cpp", "Solution from C++ interface", 1);
+    flame.save("gtest-freeflame.yaml", "cpp", "Solution from C++ interface", true);
     if (usesHDF5()) {
-        flame.save("gtest-freeflame.h5", "cpp", "Solution from C++ interface", 1);
+        flame.save("gtest-freeflame.h5", "cpp", "Solution from C++ interface", true);
     }
 
     ASSERT_EQ(flow->nPoints(), nz + 1);
@@ -108,10 +108,6 @@ int main(int argc, char** argv)
     printf("Running main() from test_oneD.cpp\n");
     testing::InitGoogleTest(&argc, argv);
     make_deprecation_warnings_fatal();
-    string fileName = "gtest-freeflame.h5";
-    if (std::ifstream(fileName).good()) {
-        std::remove(fileName.c_str());
-    }
     int result = RUN_ALL_TESTS();
     appdelete();
     return result;
