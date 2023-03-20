@@ -71,7 +71,7 @@ SolutionArray::SolutionArray(const SolutionArray& other,
     , m_active(selected)
 {
     for (auto loc : m_active) {
-        if (loc < 0 || loc >= m_dataSize) {
+        if (loc < 0 || loc >= (int)m_dataSize) {
             IndexError("SolutionArray::SolutionArray", "indices", loc, m_dataSize);
         }
     }
@@ -123,7 +123,7 @@ void SolutionArray::reset()
     size_t nState = m_sol->thermo()->stateSize();
     vector<double> state(nState);
     m_sol->thermo()->saveState(state); // thermo contains current state
-    for (int k = 0; k < m_size; ++k) {
+    for (size_t k = 0; k < m_size; ++k) {
         std::copy(state.begin(), state.end(), m_data->data() + m_active[k] * m_stride);
     }
     for (auto& [key, extra] : *m_extra) {
@@ -415,7 +415,7 @@ void SolutionArray::setLoc(size_t loc, bool restore)
                 "Both current and buffered indices are invalid.");
         }
         return;
-    } else if (m_active[loc] == m_loc) {
+    } else if (m_active[loc] == (int)m_loc) {
         return;
     } else if (loc >= m_size) {
         throw IndexError("SolutionArray::setLoc", "indices", loc, m_size - 1);
@@ -584,22 +584,33 @@ AnyMap& openField(AnyMap& root, const string& id)
 }
 
 void SolutionArray::writeHeader(const string& fname, const string& id,
-                                const string& desc)
+                                const string& desc, bool overwrite)
 {
     Storage file(fname, true);
-    file.checkGroup(id, true);
+    if (file.checkGroup(id, true)) {
+        if (!overwrite) {
+            throw CanteraError("SolutionArray::writeHeader",
+                "Group id '{}' exists; use 'overwrite' argument to overwrite.", id);
+        }
+        file.deleteGroup(id);
+        file.checkGroup(id, true);
+    }
     file.writeAttributes(id, preamble(desc));
 }
 
 void SolutionArray::writeHeader(AnyMap& root, const string& id,
-                                const string& desc)
+                                const string& desc, bool overwrite)
 {
     AnyMap& data = openField(root, id);
+    if (!data.empty() && !overwrite) {
+        throw CanteraError("SolutionArray::writeHeader",
+            "Field id '{}' exists; use 'overwrite' argument to overwrite.", id);
+    }
     data.update(preamble(desc));
 }
 
-void SolutionArray::writeEntry(const string& fname, const string& id,
-                               const string& sub, int compression)
+void SolutionArray::writeEntry(const string& fname, const string& id, const string& sub,
+                               bool overwrite, int compression)
 {
     if (id == "") {
         throw CanteraError("SolutionArray::writeEntry",
@@ -619,7 +630,14 @@ void SolutionArray::writeEntry(const string& fname, const string& id,
     } else {
         path += "/data";
     }
-    file.checkGroup(path, true);
+    if (file.checkGroup(path, true)) {
+        if (!overwrite) {
+            throw CanteraError("SolutionArray::writeEntry",
+                "Group id '{}' exists; use 'overwrite' argument to overwrite.", id);
+        }
+        file.deleteGroup(path);
+        file.checkGroup(path, true);
+    }
     file.writeAttributes(path, m_meta);
     AnyMap more;
     if (apiNdim() == 1) {
@@ -665,8 +683,8 @@ void SolutionArray::writeEntry(const string& fname, const string& id,
     }
 }
 
-void SolutionArray::writeEntry(AnyMap& root,
-                               const string& id, const string& sub)
+void SolutionArray::writeEntry(AnyMap& root, const string& id, const string& sub,
+                               bool overwrite)
 {
     if (id == "") {
         throw CanteraError("SolutionArray::writeEntry",
@@ -684,6 +702,10 @@ void SolutionArray::writeEntry(AnyMap& root,
     }
     AnyMap& data = openField(root, path);
     bool preexisting = !data.empty();
+    if (preexisting && !overwrite) {
+        throw CanteraError("SolutionArray::writeEntry",
+            "Field id '{}' exists; use 'overwrite' argument to overwrite.", id);
+    }
     if (apiNdim() == 1) {
         data["size"] = int(m_dataSize);
     } else {
@@ -759,9 +781,8 @@ void SolutionArray::append(const vector<double>& state, const AnyMap& extra)
     }
 }
 
-string SolutionArray::save(const string& fname, const string& id,
-                           const string& sub, const string& desc,
-                           int compression)
+string SolutionArray::save(const string& fname, const string& id, const string& sub,
+                           const string& desc, bool overwrite, int compression)
 {
     if (m_size < m_dataSize) {
         throw NotImplementedError("SolutionArray::save",
@@ -770,8 +791,8 @@ string SolutionArray::save(const string& fname, const string& id,
     size_t dot = fname.find_last_of(".");
     string extension = (dot != npos) ? toLowerCopy(fname.substr(dot + 1)) : "";
     if (extension == "h5" || extension == "hdf"  || extension == "hdf5") {
-        writeEntry(fname, id, sub, compression);
-        writeHeader(fname, id, desc);
+        writeHeader(fname, id, desc, overwrite);
+        writeEntry(fname, id, sub, true, compression);
         return id;
     }
     if (extension == "yaml" || extension == "yml") {
@@ -780,8 +801,8 @@ string SolutionArray::save(const string& fname, const string& id,
         if (std::ifstream(fname).good()) {
             data = AnyMap::fromYamlFile(fname);
         }
-        writeEntry(data, id, sub);
-        writeHeader(data, id, desc);
+        writeHeader(data, id, desc, overwrite);
+        writeEntry(data, id, sub, true);
 
         // Write the output file and remove the now-outdated cached file
         std::ofstream out(fname);

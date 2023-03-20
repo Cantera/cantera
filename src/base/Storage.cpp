@@ -122,7 +122,7 @@ bool Storage::checkGroupWrite(const string& id, bool permissive)
                 "Specified group with id '{}' does not exist.", id);
         }
         m_file->createGroup(id);
-        return true;
+        return false;
     }
     if (m_file->getObjectType(id) != h5::ObjectType::Group) {
         throw CanteraError("Storage::checkGroupWrite",
@@ -150,6 +150,17 @@ bool Storage::checkGroup(const string& id, bool permissive)
         // convert HighFive exception
         throw CanteraError("Storage::checkGroup",
             "Encountered exception for group '{}':\n{}", id, err.what());
+    }
+}
+
+void Storage::deleteGroup(const string& id)
+{
+    try {
+        m_file->unlink(id);
+    } catch (const std::exception& err) {
+        // convert HighFive exception
+        throw CanteraError("Storage::deleteGroup",
+            "Encountered exception while deleting group '{}':\n{}", id, err.what());
     }
 }
 
@@ -578,6 +589,12 @@ bool Storage::hasGroup(const string& id) const
 bool Storage::checkGroup(const string& id, bool permissive)
 {
     throw CanteraError("Storage::checkGroup",
+                       "Saving to HDF requires HighFive installation.");
+}
+
+void Storage::deleteGroup(const string& id)
+{
+    throw CanteraError("Storage::deleteGroup",
                        "Saving to HDF requires HighFive installation.");
 }
 

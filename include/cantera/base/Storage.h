@@ -53,10 +53,17 @@ public:
     bool hasGroup(const string& id) const;
 
     //! Check whether path location exists.
-    //! If the file has write access, create location; otherwise exceptions are thrown.
+    //! If the location does not exist, an exception is thrown unless the *permissive*
+    //! flag is set; in this case, the method attempts to create a new location if the
+    //! file is accessed in write mode.
     //! @param id  storage location within file
-    //! @param permissive  if true, do not raise exceptions
+    //! @param permissive  if true, do not raise exceptions (default=false)
+    //! @returns  boolean indicating whether id is pre-existing
     bool checkGroup(const string& id, bool permissive=false);
+
+    //! Delete group
+    //! @param id  storage location within file
+    void deleteGroup(const string& id);
 
     //! Retrieve contents of file from a specified location
     //! @param id  storage location within file

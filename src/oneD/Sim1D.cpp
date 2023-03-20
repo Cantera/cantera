@@ -115,16 +115,16 @@ void Sim1D::setProfile(size_t dom, size_t comp,
 }
 
 void Sim1D::save(const std::string& fname, const std::string& id,
-                 const std::string& desc, int loglevel, int compression)
+                 const std::string& desc, int loglevel, bool overwrite, int compression)
 {
     size_t dot = fname.find_last_of(".");
     string extension = (dot != npos) ? toLowerCopy(fname.substr(dot+1)) : "";
     if (extension == "h5" || extension == "hdf"  || extension == "hdf5") {
+        SolutionArray::writeHeader(fname, id, desc, overwrite);
         for (auto dom : m_dom) {
             auto arr = dom->asArray(m_x.data() + dom->loc());
-            arr->writeEntry(fname, id, dom->id(), compression);
+            arr->writeEntry(fname, id, dom->id(), overwrite, compression);
         }
-        SolutionArray::writeHeader(fname, id, desc);
         if (loglevel > 0) {
             writelog("Solution saved to file '{}' as group '{}'.\n", fname, id);
         }
@@ -136,11 +136,11 @@ void Sim1D::save(const std::string& fname, const std::string& id,
         if (std::ifstream(fname).good()) {
             data = AnyMap::fromYamlFile(fname);
         }
-        SolutionArray::writeHeader(data, id, desc);
+        SolutionArray::writeHeader(data, id, desc, overwrite);
 
         for (auto dom : m_dom) {
             auto arr = dom->asArray(m_x.data() + dom->loc());
-            arr->writeEntry(data, id, dom->id());
+            arr->writeEntry(data, id, dom->id(), overwrite);
         }
 
         // Write the output file and remove the now-outdated cached file
@@ -152,21 +152,23 @@ void Sim1D::save(const std::string& fname, const std::string& id,
         }
         return;
     }
-    throw CanteraError("Sim1D::save",
-                        "Unsupported file format '{}'", extension);
+    throw CanteraError("Sim1D::save", "Unsupported file format '{}'.", extension);
 }
 
 void Sim1D::saveResidual(const std::string& fname, const std::string& id,
-                         const std::string& desc, int loglevel)
+                         const std::string& desc,
+                         int loglevel, bool overwrite, int compression)
 {
     vector_fp res(m_x.size(), -999);
     OneDim::eval(npos, &m_x[0], &res[0], 0.0);
     // Temporarily put the residual into m_x, since this is the vector that the save()
     // function reads.
     std::swap(res, m_x);
-    save(fname, id, desc, loglevel);
+    save(fname, id, desc, loglevel, overwrite, compression);
     std::swap(res, m_x);
 }
+
+namespace { // restrict scope of helper function to local translation unit
 
 //! convert data format used by Python h5py export (Cantera < 3.0)
 AnyMap legacyH5(shared_ptr<SolutionArray> arr, const AnyMap& header={})
@@ -250,6 +252,8 @@ AnyMap legacyH5(shared_ptr<SolutionArray> arr, const AnyMap& header={})
 
     return out;
 }
+
+} // end unnamed namespace
 
 AnyMap Sim1D::restore(const std::string& fname, const std::string& id,
                     int loglevel)
