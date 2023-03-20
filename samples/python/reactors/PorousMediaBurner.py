@@ -20,7 +20,7 @@ The Rosseland model is used for radiative heat transfer by the solid.
 A Nusselt number model is used to compute the heat transfer coefficient.
 This example assumes finding steady-state solutions with constant pressure
 so that mass controllers and pressure valves are not required. The code is written in
-a general way to support an arbitrary number of reactors and an arbirary number of
+a general way to support an arbitrary number of reactors and an arbitrary number of
 burner sections with different physical properties.
 
 The implemented equations make use of Cantera's extensible reactor models.
@@ -96,7 +96,7 @@ class ReactorProperties:
         self.midpoint = midpoint   # coordinate of the reactor center (m)
         self.chemistry = chemistry # chemistry on or off in the reactor
         self.TsInit = TsInit       # initial temperature of the solid (K)
-        self.solid = solid         # poperties of the solid porous medium
+        self.solid = solid         # properties of the solid porous medium
 
 # class to represent the properties of the solid porous media
 class SolidProperties:
