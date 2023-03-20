@@ -1,10 +1,10 @@
 description: |-
-  Properties for yttria-stabilzed zirconia alumina (YZA) used in
-  porous media burners. Data compiled by Thorsten zirwes and used in
+  Properties for yttria-stabilized zirconia alumina (YZA) used in
+  porous media burners. Data compiled by Thorsten Zirwes and used in
   https://doi.org/10.1016/j.combustflame.2023.112642
 
 phases:
-- name: yttria_stabilzed_zirconia
+- name: yttria-stabilized-zirconia
   thermo: fixed-stoichiometry
   elements: [Zr, O, Ca, Al]
   species: [YZA]
