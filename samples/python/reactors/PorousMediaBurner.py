@@ -24,14 +24,16 @@ a general way to support an arbitrary number of reactors and an arbitrary number
 burner sections with different physical properties.
 
 The implemented equations make use of Cantera's extensible reactor models.
-Therefore, Cantera version 2.6.0a4 or higher is required.
+Therefore, Cantera version 2.6.0 or higher is required.
 
 The porous media burner considered in this example is a cylindrical tube filled
 three different porous materials: a porous ceramic made from a Yttria-stabilized
 Zirconia Alumina (YZA) section with length of 2 inches and pore density of 40 pores per
-inches (PPI), then a one inch section with a porous ceramic made from
-silicon carbide (SiC) with 3 PPI and finally a 1 inch section of SiC with 10 PPI. A
-flame stabilizes at the interface between the YZA and 3 PPI SiC.
+inches (PPI) which is supposed to act as the flame arrestor and therefore chemical
+reactions in this section are disabled, even though flashback is observed for high
+hydrogen dilution in the measurements. Next, a one inch section with a porous ceramic
+made from silicon carbide (SiC) with 3 PPI is used and finally a 1 inch section of SiC
+with 10 PPI. A flame stabilizes at the interface between the YZA and 3 PPI SiC.
 
 
           |--- two inches --- | --- one inch ---| --- one inch --- |
@@ -42,6 +44,13 @@ air       __________________________________________________________    gas
 
                 inert            flame location   heat recirculation
 
+This example simplifies the complex interaction between heat transport in the gas-phase
+and solid-phase by using a reactor cascade. While key trends from the measurements can
+be recovered qualitatively, stability limits (blowoff and flashback) show large
+discrepancies to the measurements, as the interface stabilization requires detailed
+modeling of internal heat recirculation through heat transfer, conduction and
+radiation. For more realistic and quantitative predictions, running 1D simulations with
+full radiation transport is required.
 
 More details about the governing equations, submodels and physical setup and
 corresponding experiments can be found in
@@ -50,7 +59,7 @@ corresponding experiments can be found in
     pollutant formation in matrix stabilized ammonia-hydrogen combustion,
     G. Vignat, T. Zirwes, E.R. Toro, K. Younes, E. Boigne, P. Muhunthan,
     L. Simitz, D. Trimis, M. Ihme
-    Combustion and Flame (https://doi.org/10.1016/j.combustflame.2023.112642)
+    Combustion and Flame, 250 (https://doi.org/10.1016/j.combustflame.2023.112642)
 
 Requires: cantera >= 2.6.0, matplotlib >= 2.0
 Keywords: user-defined model, reactor network, combustion, porous media, heat transfer,
@@ -118,9 +127,14 @@ class SolidProperties:
                                                    # solid heat capacities and densities
 
 # Thermal conductivity of the porous medium as function of solid temperature (W/m/K)
+# Temperature-dependent fits from measurements:
+# SiC: Thermal conductivity in hot-pressed silicon carbide, D.-K. Liu, B.-W. Lin,
+#      Ceramics International, 22(5), pp. 407-414 (1996)
 def effectiveConductivitySiC(Ts):  # for silicon carbide
     return (1 - 0.84) * 1857.0 * Ts**(-0.5332)
 
+# YZA: Thermal conductivity of zirconia–alumina composites, N.P. Bansal, D. Zhu, 
+#      Ceramics International, 31(7), pp 911-916 (2015)
 def effectiveConductivityYZA(Ts):  # for yittria-stabilized zirconia alumina
     return 0.3
 
