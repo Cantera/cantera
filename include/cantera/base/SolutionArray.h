@@ -231,8 +231,8 @@ public:
      *  @param overwrite  Force overwrite if sub exists; optional (default=false)
      *  @param compression  Compression level; optional (default=0; HDF only)
      */
-    string save(const string& fname, const string& id, const string& sub,
-                const string& desc, bool overwrite=false, int compression=0);
+    void save(const string& fname, const string& id, const string& sub,
+              const string& desc, bool overwrite=false, int compression=0);
 
     /*!
      *  Read header data from container file.
