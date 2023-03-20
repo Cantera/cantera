@@ -115,7 +115,18 @@ void Sim1D::setProfile(size_t dom, size_t comp,
 }
 
 void Sim1D::save(const std::string& fname, const std::string& id,
-                 const std::string& desc, int loglevel, bool overwrite, int compression)
+                 const std::string& desc, int loglevel)
+{
+    warn_deprecated("Sim1D::save",
+        "To be removed after Cantera 3.0; use version without loglevel instead.");
+    save(fname, id, desc, true); // legacy version overwrites data
+    if (loglevel > 0) {
+        writelog("Solution saved to file '{}' as entry '{}'.\n", fname, id);
+    }
+}
+
+void Sim1D::save(const std::string& fname, const std::string& id,
+                 const std::string& desc, bool overwrite, int compression)
 {
     size_t dot = fname.find_last_of(".");
     string extension = (dot != npos) ? toLowerCopy(fname.substr(dot+1)) : "";
@@ -124,9 +135,6 @@ void Sim1D::save(const std::string& fname, const std::string& id,
         for (auto dom : m_dom) {
             auto arr = dom->asArray(m_x.data() + dom->loc());
             arr->writeEntry(fname, id, dom->id(), overwrite, compression);
-        }
-        if (loglevel > 0) {
-            writelog("Solution saved to file '{}' as group '{}'.\n", fname, id);
         }
         return;
     }
@@ -147,24 +155,31 @@ void Sim1D::save(const std::string& fname, const std::string& id,
         std::ofstream out(fname);
         out << data.toYamlString();
         AnyMap::clearCachedFile(fname);
-        if (loglevel > 0) {
-            writelog("Solution saved to file '{}' as entry '{}'.\n", fname, id);
-        }
         return;
     }
     throw CanteraError("Sim1D::save", "Unsupported file format '{}'.", extension);
 }
 
 void Sim1D::saveResidual(const std::string& fname, const std::string& id,
-                         const std::string& desc,
-                         int loglevel, bool overwrite, int compression)
+                         const std::string& desc, int loglevel)
+{
+    warn_deprecated("Sim1D::saveResidual",
+        "To be removed after Cantera 3.0; use version without loglevel instead.");
+    saveResidual(fname, id, desc, true); // legacy version overwrites data
+    if (loglevel > 0) {
+        writelog("Solution saved to file '{}' as entry '{}'.\n", fname, id);
+    }
+}
+
+void Sim1D::saveResidual(const std::string& fname, const std::string& id,
+                         const std::string& desc, bool overwrite, int compression)
 {
     vector_fp res(m_x.size(), -999);
     OneDim::eval(npos, &m_x[0], &res[0], 0.0);
     // Temporarily put the residual into m_x, since this is the vector that the save()
     // function reads.
     std::swap(res, m_x);
-    save(fname, id, desc, loglevel, overwrite, compression);
+    save(fname, id, desc, overwrite, compression);
     std::swap(res, m_x);
 }
 
@@ -255,8 +270,14 @@ AnyMap legacyH5(shared_ptr<SolutionArray> arr, const AnyMap& header={})
 
 } // end unnamed namespace
 
-AnyMap Sim1D::restore(const std::string& fname, const std::string& id,
-                    int loglevel)
+AnyMap Sim1D::restore(const std::string& fname, const std::string& id, int loglevel)
+{
+    warn_deprecated("Sim1D::saveResidual",
+        "To be removed after Cantera 3.0; use version without loglevel instead.");
+    return restore(fname, id);
+}
+
+AnyMap Sim1D::restore(const std::string& fname, const std::string& id)
 {
     size_t dot = fname.find_last_of(".");
     string extension = (dot != npos) ? toLowerCopy(fname.substr(dot+1)) : "";
@@ -281,7 +302,7 @@ AnyMap Sim1D::restore(const std::string& fname, const std::string& id,
         resize();
         m_xlast_ts.clear();
         for (auto dom : m_dom) {
-            dom->restore(*arrs[dom->id()], m_x.data() + dom->loc(), loglevel);
+            dom->restore(*arrs[dom->id()], m_x.data() + dom->loc());
         }
         finalize();
     } else if (extension == "yaml" || extension == "yml") {
@@ -298,7 +319,7 @@ AnyMap Sim1D::restore(const std::string& fname, const std::string& id,
         resize();
         m_xlast_ts.clear();
         for (auto dom : m_dom) {
-            dom->restore(*arrs[dom->id()], m_x.data() + dom->loc(), loglevel);
+            dom->restore(*arrs[dom->id()], m_x.data() + dom->loc());
         }
         finalize();
     } else {

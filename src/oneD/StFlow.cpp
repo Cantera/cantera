@@ -821,9 +821,9 @@ shared_ptr<SolutionArray> StFlow::asArray(const double* soln) const
     return arr;
 }
 
-void StFlow::restore(SolutionArray& arr, double* soln, int loglevel)
+void StFlow::restore(SolutionArray& arr, double* soln)
 {
-    Domain1D::setMeta(arr.meta(), loglevel);
+    Domain1D::setMeta(arr.meta());
     arr.setLoc(0);
     auto phase = arr.thermo();
     m_press = phase->pressure();
@@ -841,14 +841,14 @@ void StFlow::restore(SolutionArray& arr, double* soln, int loglevel)
             for (size_t j = 0; j < nPoints(); j++) {
                 soln[index(i,j)] = data[j];
             }
-        } else if (loglevel) {
+        } else {
             warn_user("StFlow::restore", "Saved state does not contain values for "
                 "component '{}' in domain '{}'.", name, id());
         }
     }
 
     updateProperties(npos, soln + loc(), 0, m_points - 1);
-    setMeta(arr.meta(), loglevel);
+    setMeta(arr.meta());
 }
 
 string StFlow::flowType() const {
@@ -863,7 +863,7 @@ string StFlow::flowType() const {
     }
 }
 
-void StFlow::setMeta(const AnyMap& state, int loglevel)
+void StFlow::setMeta(const AnyMap& state)
 {
     if (state.hasKey("energy-enabled")) {
         const AnyValue& ee = state["energy-enabled"];

@@ -369,12 +369,10 @@ public:
     /*!
      * @param[in]  arr SolutionArray defining the state of this domain
      * @param[out] soln Value of the solution vector, local to this domain
-     * @param[in]  loglevel 0 to suppress all output; 1 to show warnings; 2 for
-     *      verbose output
      *
      * @since  New in Cantera 3.0.
      */
-    virtual void restore(SolutionArray& arr, double* soln, int loglevel) {
+    virtual void restore(SolutionArray& arr, double* soln) {
         throw NotImplementedError("Domain1D::restore", "Needs to be overloaded.");
     }
 
@@ -547,7 +545,7 @@ protected:
     virtual AnyMap getMeta() const;
 
     //! Retrieve meta data
-    virtual void setMeta(const AnyMap& meta, int loglevel);
+    virtual void setMeta(const AnyMap& meta);
 
     double m_rdt = 0.0;
     size_t m_nv = 0;

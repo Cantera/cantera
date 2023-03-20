@@ -169,7 +169,7 @@ public:
     virtual void show(const double* x);
 
     virtual shared_ptr<SolutionArray> asArray(const double* soln) const;
-    virtual void restore(SolutionArray& arr, double* soln, int loglevel);
+    virtual void restore(SolutionArray& arr, double* soln);
 
     //! Set flow configuration for freely-propagating flames, using an internal
     //! point with a fixed temperature as the condition to determine the inlet
@@ -288,7 +288,7 @@ public:
 
 protected:
     virtual AnyMap getMeta() const;
-    virtual void setMeta(const AnyMap& state, int loglevel);
+    virtual void setMeta(const AnyMap& state);
 
     doublereal wdot(size_t k, size_t j) const {
         return m_wdot(k,j);

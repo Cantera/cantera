@@ -134,12 +134,21 @@ public:
      * @param id  Identifier of solution within the container file
      * @param desc  Description of the solution
      * @param loglevel  Level of diagnostic output
-     * @param overwrite  Force overwrite if name exists; optional (default=`False`)
+     * @deprecated  To be removed after Cantera 3.0; loglevel is deprecated.
+     */
+    void save(const std::string& fname, const std::string& id,
+              const std::string& desc, int loglevel);
+
+    /**
+     * Save the current solution to a container file.
+     * @param fname  Name of output container file
+     * @param id  Identifier of solution within the container file
+     * @param desc  Description of the solution
+     * @param overwrite  Force overwrite if name exists; optional (default=false)
      * @param compression  Compression level (optional; HDF only)
      */
     void save(const std::string& fname, const std::string& id,
-              const std::string& desc, int loglevel=1,
-              bool overwrite=false, int compression=0);
+              const std::string& desc, bool overwrite=false, int compression=0);
 
     /**
      * Save the residual of the current solution to a container file.
@@ -147,21 +156,39 @@ public:
      * @param id  Identifier of solution within the container file
      * @param desc  Description of the solution
      * @param loglevel  Level of diagnostic output
-     * @param overwrite  Force overwrite if name exists; optional (default=`False`)
+     * @deprecated  To be removed after Cantera 3.0; loglevel is deprecated.
+     */
+    void saveResidual(const std::string& fname, const std::string& id,
+                      const std::string& desc, int loglevel);
+
+    /**
+     * Save the residual of the current solution to a container file.
+     * @param fname  Name of output container file
+     * @param id  Identifier of solution within the container file
+     * @param desc  Description of the solution
+     * @param overwrite  Force overwrite if name exists; optional (default=false)
      * @param compression  Compression level (optional; HDF only)
      */
     void saveResidual(const std::string& fname, const std::string& id,
-                      const std::string& desc, int loglevel=1,
-                      bool overwrite=false, int compression=0);
+                      const std::string& desc, bool overwrite=false, int compression=0);
 
     /**
      * Initialize the solution with a previously-saved solution.
      * @param fname  Name of container file
      * @param id  Identifier of solution within the container file
      * @param loglevel  Level of diagnostic output
+     * @deprecated  To be removed after Cantera 3.0; loglevel is deprecated.
      * @return  AnyMap containing header information
      */
-    AnyMap restore(const std::string& fname, const std::string& id, int loglevel=2);
+    AnyMap restore(const std::string& fname, const std::string& id, int loglevel);
+
+    /**
+     * Initialize the solution with a previously-saved solution.
+     * @param fname  Name of container file
+     * @param id  Identifier of solution within the container file
+     * @return  AnyMap containing header information
+     */
+    AnyMap restore(const std::string& fname, const std::string& id);
 
     //! @}
 
