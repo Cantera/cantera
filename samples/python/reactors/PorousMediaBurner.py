@@ -52,9 +52,9 @@ corresponding experiments can be found in
     L. Simitz, D. Trimis, M. Ihme
     Combustion and Flame (https://doi.org/10.1016/j.combustflame.2023.112642)
 
-Requires: cantera >= 2.6.0a4
-Keywords: porous media burner, heat transfer between gas and solid,
-          radiation modeling, reactor cascade
+Requires: cantera >= 2.6.0, matplotlib >= 2.0
+Keywords: user-defined model, reactor network, combustion, porous media, heat transfer,
+          radiative heat transfer
 """
 
 import matplotlib.pyplot as plt
@@ -66,22 +66,22 @@ Tamb = 300.            # ambient temperature (used for radiation modeling) (K)
 TsInit = 300.          # initial temperature of the solid (K)
 constantP = ct.one_atm # gas pressure inside the porous medium (Pa)
 mech = "gri30.yaml"    # reaction mechanism file
-phi = 1.2              # equivalence ratio (phi) of the fuel/oxidizer mixture
+phi = 1.3              # equivalence ratio (phi) of the fuel/oxidizer mixture
 mdot = 0.3             # mass flux through the cascade (assumed constant) (kg/m^2/s)
                        # with respect to the cross-sectional area of the burner
 
 # initial state of the gas phase containing fuel and oxidizer at the inlet
-def getInitalGas(gas):
-    gas.set_equivalence_ratio(phi=1.3, fuel="CH4", oxidizer="O2:0.21,N2:0.79")
+def getInitialGas(gas):
+    gas.set_equivalence_ratio(phi, fuel="CH4", oxidizer="O2:0.21,N2:0.79")
     gas.TP = 300, constantP
 
 
 # create gas phase objects for the fresh gas and burnt gas states
 gas_init = ct.Solution(mech)
-getInitalGas(gas_init)
+getInitialGas(gas_init)
 
 gas_hot = ct.Solution(mech)
-getInitalGas(gas_hot)
+getInitialGas(gas_hot)
 gas_hot.equilibrate("HP")
 
 Y_in_inlet = gas_init.Y                # mass fractions of the inlet flow
@@ -180,10 +180,14 @@ class PMReactor(ct.ExtensibleIdealGasConstPressureReactor):
         self.diameter = props.diameter             # reactor diameter (m)
         self.A = np.pi * (0.5 * props.diameter)**2 # cross sectional area (m^2)
         self.V = self.A * props.length             # reactor volume (m^3)
+        self.molecular_weights = None
+        self.species_offset = None
 
     def after_initialize(self, t0):
         self.n_vars += 1                # additional equation for the solid temperature
         self.index_Ts = self.n_vars - 1
+        self.species_offset = self.component_index(self.thermo.species_name(0))
+        self.molecular_weights = self.thermo.molecular_weights
 
     def after_get_state(self, y):
         y[self.index_Ts] = self.Ts
@@ -193,8 +197,7 @@ class PMReactor(ct.ExtensibleIdealGasConstPressureReactor):
     def solidHeatConductivity(self):
         return self.solid.heat_conductivity(self.Ts)
 
-    # effective conductivity for radiative heat transfer from the Rosseland
-    # model
+    # effective conductivity for radiative heat transfer from the Rosseland model
     def radiationConductivity(self):
         extinctionCoef = (3.0 / (self.solid.pore_diameter)) * \
             (1.0 - self.solid.porosity)
@@ -225,6 +228,7 @@ class PMReactor(ct.ExtensibleIdealGasConstPressureReactor):
         self.solid.solid_phase.TP = self.Ts, constantP
 
         # create some variables for convenience
+        Y = self.thermo.Y
         density = self.thermo.density_mass
         cp = self.thermo.cp_mass
         porosity = self.solid.porosity
@@ -271,12 +275,12 @@ class PMReactor(ct.ExtensibleIdealGasConstPressureReactor):
 
         # right hand side of the mass fraction equations
         for k in range(self.thermo.n_species):
-            index = self.component_index(self.thermo.species_name(k))
+            index = k + self.species_offset
             # chemical source term
-            RHS[index] += wdot[k] * self.thermo.molecular_weights[k] / density
+            RHS[index] += wdot[k] * self.molecular_weights[k] / density
             # convective contribution
             RHS[index] += self.A * mdot / \
-                (self.V * porosity * density) * (Y_in[k] - self.thermo.Y[k])
+                (self.V * porosity * density) * (Y_in[k] - Y[k])
 
         # ============================================================================#
         #                             Temperature of the gas                          #
@@ -284,7 +288,7 @@ class PMReactor(ct.ExtensibleIdealGasConstPressureReactor):
 
         # right hand side of the gas phase temperature equation
         enthalpy_loss = np.dot(self.thermo.partial_molar_enthalpies
-                               / self.thermo.molecular_weights, Y_in)
+                               / self.molecular_weights, Y_in)
 
         hrr = -np.dot(self.thermo.partial_molar_enthalpies, wdot)  # (W/m^3)
 
