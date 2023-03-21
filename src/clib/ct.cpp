@@ -90,7 +90,7 @@ extern "C" {
                 soln = newInterface(infile, name, adj);
             } else {
                 soln = newInterface(infile, name);
-                for (int i = 0; i < soln->nAdjacent(); i++) {
+                for (size_t i = 0; i < soln->nAdjacent(); i++) {
                     // add automatically loaded adjacent solutions
                     auto adj = soln->adjacent(i);
                     if (SolutionCabinet::index(*adj) < 0) {
@@ -215,7 +215,7 @@ extern "C" {
     {
         try {
             auto soln = SolutionCabinet::at(n);
-            if (a < 0 || a >= soln->nAdjacent()) {
+            if (a < 0 || a >= (int)soln->nAdjacent()) {
                 return -1;
             }
             return SolutionCabinet::index(*(soln->adjacent(a)));
