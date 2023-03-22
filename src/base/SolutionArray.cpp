@@ -216,8 +216,8 @@ vector<string> SolutionArray::componentNames() const
 
     // state information
     auto phase = m_sol->thermo();
-    const auto& nativeState = phase->nativeState();
-    for (auto& [name, value] : nativeState) {
+    for (auto code : phase->nativeMode()) {
+        string name = string(1, code);
         if (name == "X" || name == "Y") {
             for (auto& spc : phase->speciesNames()) {
                 components.push_back(spc);

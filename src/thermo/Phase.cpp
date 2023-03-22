@@ -196,6 +196,19 @@ std::map<std::string, size_t> Phase::nativeState() const
     }
 }
 
+string Phase::nativeMode() const
+{
+    map<size_t, string> states; // reverse lookup
+    for (auto& [name, value] : nativeState()) {
+        states[value] = name;
+    }
+    string out;
+    for (auto& [value, name] : states) {
+        out += name;
+    }
+    return out;
+}
+
 vector<std::string> Phase::fullStates() const
 {
     if (isPure()) {
