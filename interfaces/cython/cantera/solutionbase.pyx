@@ -520,6 +520,9 @@ cdef class SolutionArrayBase:
         dest.base = dest._base.get()
         return dest
 
+    def __repr__(self):
+        return self.info()
+
     @property
     def size(self):
         """ The number of elements in the `SolutionArrayBase`. """
