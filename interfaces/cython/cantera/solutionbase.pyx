@@ -537,6 +537,15 @@ cdef class SolutionArrayBase:
             cxx_shape.push_back(dim)
         self.base.setApiShape(cxx_shape)
 
+    def info(self, rows=10, width=80):
+        """
+        Print a concise summary of a `SolutionArray`.
+
+        :param rows: Maximum number of rendered rows.
+        :param width: Maximum width of rendered output.
+        """
+        return pystr(self.base.info(rows, width))
+
     @property
     def meta(self):
         """
