@@ -88,6 +88,13 @@ public:
         return m_apiShape.size();
     }
 
+    /*!
+     *  Print a concise summary of a SolutionArray.
+     *  @param rows  Maximum number of rendered rows.
+     *  @param width  Maximum width of rendered output.
+     */
+    string info(int rows=10, int width=80);
+
     //! SolutionArray meta data.
     AnyMap& meta() {
         return m_meta;

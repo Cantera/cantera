@@ -14,6 +14,7 @@
 #include "cantera/thermo/SurfPhase.h"
 #include <boost/algorithm/string.hpp>
 #include <fstream>
+#include <algorithm>
 
 
 namespace ba = boost::algorithm;
@@ -197,6 +198,331 @@ void SolutionArray::_resize(size_t size)
     for (size_t i = 0; i < m_dataSize; ++i) {
         m_active.push_back(i);
     }
+}
+
+namespace { // restrict scope of helper functions to local translation unit
+
+vector<string> doubleColumn(string name, const vector<double>& comp,
+                            int rows, int width)
+{
+    // extract data for processing
+    vector<double> data;
+    vector<string> raw;
+    string notation = fmt::format("{{:{}.{}g}}", width, (width - 1) / 2);
+    int dots = comp.size() + 1;
+    if (comp.size() <= rows) {
+        for (const auto& val : comp) {
+            data.push_back(val);
+            raw.push_back(boost::trim_copy(fmt::format(notation, val)));
+        }
+    } else {
+        dots = (rows + 1) / 2;
+        for (int row = 0; row < dots; row++) {
+            data.push_back(comp[row]);
+            raw.push_back(boost::trim_copy(fmt::format(notation, comp[row])));
+        }
+        for (int row = comp.size() - rows / 2; row < comp.size(); row++) {
+            data.push_back(comp[row]);
+            raw.push_back(boost::trim_copy(fmt::format(notation, comp[row])));
+        }
+    }
+
+    // determine notation; all entries use identical formatting
+    bool isFloat = false;
+    bool isScientific = false;
+    size_t head = 0;
+    size_t tail = 0;
+    size_t exp = 0;
+    for (const auto& repr : raw) {
+        string name = repr;
+        if (name[0] == '-') {
+            // leading negative sign is not considered
+            name = name.substr(1);
+        }
+        if (name.find('e') != string::npos) {
+            // scientific notation
+            if (!isScientific) {
+                head = 1;
+                tail = name.find('e') - name.find('.');
+                exp = 4; // size of exponent
+            } else {
+                tail = std::max(tail, name.find('e') - name.find('.'));
+            }
+            isFloat = true;
+            isScientific = true;
+        } else if (name.find('.') != string::npos) {
+            // floating point notation
+            isFloat = true;
+            if (!isScientific) {
+                head = std::max(head, name.find('.'));
+                tail = std::max(tail, name.size() - name.find('.'));
+            }
+        } else {
+            head = std::max(head, name.size());
+        }
+    }
+    size_t maxLen = std::max((size_t)4, head + tail + exp + isFloat + 1);
+    size_t over = std::max(0, (int)name.size() - (int)maxLen);
+    if (isScientific) {
+        // at least one entry has scientific notation
+        notation = fmt::format(" {{:>{}.{}e}}", over + maxLen, tail);
+    } else if (isFloat) {
+        // at least one entry is a floating point
+        notation = fmt::format(" {{:>{}.{}f}}", over + maxLen, tail);
+    } else {
+        // all entries are integers
+        notation = fmt::format(" {{:>{}}}", over + maxLen);
+    }
+    maxLen = fmt::format(notation, 0.).size();
+
+    // assemble output
+    string section = fmt::format("{{:>{}}}", maxLen);
+    vector<string> col = {fmt::format(section, name)};
+    size_t count = 0;
+    for (const auto& val : data) {
+        col.push_back(fmt::format(notation, val));
+        count++;
+        if (count == dots) {
+            col.push_back(fmt::format(section, "..."));
+        }
+    }
+    return col;
+}
+
+vector<string> integerColumn(string name, const vector<long int>& comp,
+                             int rows, int width)
+{
+    // extract data for processing
+    vector<double> data;
+    string notation = fmt::format("{{:{}}}", width);
+    size_t maxLen = 2; // minimum column width is 2
+    int dots = comp.size() + 1;
+    if (comp.size() <= rows) {
+        for (const auto& val : comp) {
+            data.push_back(val);
+            string name = boost::trim_copy(fmt::format(notation, val));
+            if (name[0] == '-') {
+                name = name.substr(1);
+            }
+            maxLen = std::max(maxLen, name.size());
+        }
+    } else {
+        dots = (rows + 1) / 2;
+        for (int row = 0; row < dots; row++) {
+            data.push_back(comp[row]);
+            string name = boost::trim_copy(fmt::format(notation, comp[row]));
+            if (name[0] == '-') {
+                name = name.substr(1);
+            }
+            maxLen = std::max(maxLen, name.size());
+        }
+        for (int row = comp.size() - rows / 2; row < comp.size(); row++) {
+            data.push_back(comp[row]);
+            string name = boost::trim_copy(fmt::format(notation, comp[row]));
+            if (name[0] == '-') {
+                name = name.substr(1);
+            }
+            maxLen = std::max(maxLen, name.size());
+        }
+    }
+
+    if (name == "") {
+        // index column
+        notation = fmt::format("{{:<{}}}", maxLen);
+    } else {
+        // regular column
+        maxLen = std::max(maxLen, name.size());
+        notation = fmt::format(" {{:>{}}}", maxLen + 1);
+    }
+
+    // assemble output
+    vector<string> col = {fmt::format(notation, name)};
+    size_t count = 0;
+    for (const auto& val : data) {
+        col.push_back(fmt::format(notation, val));
+        count++;
+        if (count == dots) {
+            col.push_back(fmt::format(notation, ".."));
+        }
+    }
+    return col;
+}
+
+vector<string> stringColumn(string name, const vector<string>& comp,
+                            int rows, int width)
+{
+    // extract data for processing
+    vector<string> data;
+    string notation = fmt::format("{{:{}}}", width);
+    size_t maxLen = 3; // minimum column width is 3
+    int dots = comp.size() + 1;
+    if (comp.size() <= rows) {
+        for (const auto& val : comp) {
+            data.push_back(val);
+            maxLen = std::max(maxLen,
+                boost::trim_copy(fmt::format(notation, val)).size());
+        }
+    } else {
+        dots = (rows + 1) / 2;
+        for (int row = 0; row < dots; row++) {
+            data.push_back(comp[row]);
+            maxLen = std::max(maxLen,
+                boost::trim_copy(fmt::format(notation, comp[row])).size());
+        }
+        for (int row = comp.size() - rows / 2; row < comp.size(); row++) {
+            data.push_back(comp[row]);
+            maxLen = std::max(maxLen,
+                boost::trim_copy(fmt::format(notation, comp[row])).size());
+        }
+    }
+
+    // assemble output
+    notation = fmt::format("  {{:>{}}}", maxLen);
+    vector<string> col = {fmt::format(notation, name)};
+    size_t count = 0;
+    for (const auto& val : data) {
+        col.push_back(fmt::format(notation, val));
+        count++;
+        if (count == dots) {
+            col.push_back(fmt::format(notation, "..."));
+        }
+    }
+    return col;
+}
+
+vector<string> formatColumn(string name, const AnyValue& comp, int rows, int width)
+{
+    if (comp.isVector<double>()) {
+        return doubleColumn(name, comp.asVector<double>(), rows, width);
+    }
+    if (comp.isVector<long int>()) {
+        return integerColumn(name, comp.asVector<long int>(), rows, width);
+    }
+    if (comp.isVector<string>()) {
+        return stringColumn(name, comp.asVector<string>(), rows, width);
+    }
+
+    // create alternative representation
+    string repr;
+    size_t size;
+    if (comp.isVector<vector<double>>()) {
+        repr = "[ <double> ]";
+        size = comp.asVector<vector<double>>().size();
+    } else if (comp.isVector<vector<long int>>()) {
+        repr = "[ <long int> ]";
+        size = comp.asVector<vector<long int>>().size();
+    } else if (comp.isVector<vector<string>>()) {
+        repr = "[ <string> ]";
+        size = comp.asVector<vector<string>>().size();
+    } else {
+        throw CanteraError(
+            "formatColumn", "Encountered invalid data for component '{}'.", name);
+    }
+    size_t maxLen = std::max(repr.size(), name.size());
+
+    // assemble output
+    string notation = fmt::format("  {{:>{}}}", maxLen);
+    repr = fmt::format(notation, repr);
+    vector<string> col = {fmt::format(notation, name)};
+    if (size <= rows) {
+        for (int row = 0; row < size; row++) {
+            col.push_back(repr);
+        }
+    } else {
+        int dots = (rows + 1) / 2;
+        for (int row = 0; row < dots; row++) {
+            col.push_back(repr);
+        }
+        col.push_back(fmt::format(notation, "..."));
+        for (int row = size - rows / 2; row < size; row++) {
+            col.push_back(repr);
+        }
+    }
+    return col;
+}
+
+} // end unnamed namespace
+
+string SolutionArray::info(int rows, int width)
+{
+    fmt::memory_buffer b;
+    int col_width = 12; // targeted maximum column width
+    auto keys = componentNames();
+    try {
+        // build columns
+        vector<long int> index;
+        for (const auto ix : m_active) {
+            index.push_back(ix);
+        }
+        vector<vector<string>> cols = {integerColumn("", index, rows, col_width)};
+        vector<vector<string>> tail; // trailing columns in reverse order
+        size_t size = cols.back().size();
+
+        // assemble columns fitting within a maximum width; if this width is exceeded,
+        // a "..." separator is inserted close to the center. Accordingly, the matrix
+        // needs to be assembled from two halves.
+        size_t front = 0;
+        size_t back = keys.size() - 1;
+        size_t fLen = cols.back()[0].size();
+        size_t bLen = 0;
+        size_t sep = 5; // separator width
+        bool done = false;
+        while (!done && front <= back) {
+            string key;
+            while (bLen + sep <= fLen && front <= back) {
+                // add trailing columns
+                key = keys[back];
+                auto col = formatColumn(key, getComponent(key), rows, col_width);
+                if (col[0].size() + fLen + bLen + sep > width) {
+                    done = true;
+                    break;
+                }
+                tail.push_back(col);
+                bLen += tail.back()[0].size();
+                back--;
+            }
+            if (done || front > back) {
+                break;
+            }
+            while (fLen <= bLen + sep && front <= back) {
+                // add leading columns
+                key = keys[front];
+                auto col = formatColumn(key, getComponent(key), rows, col_width);
+                if (col[0].size() + fLen + bLen + sep > width) {
+                    done = true;
+                    break;
+                }
+                cols.push_back(col);
+                fLen += cols.back()[0].size();
+                front++;
+            }
+        }
+        if (cols.size() + tail.size() < keys.size() + 1) {
+            // add separator
+            cols.push_back(vector<string>(size + 1, "  ..."));
+        }
+        while (tail.size()) {
+            // copy trailing columns
+            cols.push_back(tail.back());
+            tail.pop_back();
+        }
+
+        // assemble formatted output
+        for (size_t row = 0; row < size; row++) {
+            for (const auto& col : cols) {
+                fmt_append(b, col[row]);
+            }
+            fmt_append(b, "\n");
+        }
+
+        // add size information
+        fmt_append(b, "\n[{} rows x {} components; state='{}']",
+            m_size, keys.size(), m_sol->thermo()->nativeMode());
+
+    } catch (CanteraError& err) {
+        return to_string(b) + err.what();
+    }
+    return to_string(b);
 }
 
 shared_ptr<ThermoPhase> SolutionArray::thermo()
