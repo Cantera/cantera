@@ -291,6 +291,11 @@ public:
     //! and restoreState().
     virtual std::map<std::string, size_t> nativeState() const;
 
+    //! Return string acronym representing native state
+    //! @see nativeState
+    //! @since  New in Cantera 3.0
+    string nativeMode() const;
+
     //! Return a vector containing full states defining a phase.
     //! Full states list combinations of properties that allow for the
     //! specification of a thermodynamic state based on user input.
