@@ -1336,7 +1336,10 @@ cdef class Sim1D:
             # If initial solve using energy equation fails, fall back on the
             # traditional fixed temperature solve followed by solving the energy
             # equation
-            if not solved:
+            if not solved or self.extinct():
+                if self.extinct():
+                    self.set_initial_guess(*self._initial_guess_args,
+                                           **self._initial_guess_kwargs)
                 log('Initial solve failed; Retrying with energy equation disabled')
                 self.energy_enabled = False
                 try:
