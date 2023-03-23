@@ -505,11 +505,8 @@ string SolutionArray::info(const vector<string>& keys, int rows, int width)
             // add separator
             cols.push_back(vector<string>(size + 1, "  ..."));
         }
-        while (tail.size()) {
-            // copy trailing columns
-            cols.push_back(tail.back());
-            tail.pop_back();
-        }
+        // copy trailing columns
+        cols.insert(cols.end(), tail.rbegin(), tail.rend());
 
         // assemble formatted output
         for (size_t row = 0; row < size; row++) {
