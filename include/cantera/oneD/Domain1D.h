@@ -540,12 +540,19 @@ public:
         m_force_full_update = update;
     }
 
+    //! Set shared data pointer
+    void setData(shared_ptr<vector<double>>& data) {
+        m_data = data;
+    }
+
 protected:
     //! Retrieve meta data
     virtual AnyMap getMeta() const;
 
     //! Retrieve meta data
     virtual void setMeta(const AnyMap& meta);
+
+    shared_ptr<vector<double>> m_data; //!< data pointer shared from OneDim
 
     double m_rdt = 0.0;
     size_t m_nv = 0;

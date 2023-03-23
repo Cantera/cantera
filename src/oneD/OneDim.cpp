@@ -25,6 +25,7 @@ OneDim::OneDim(vector<shared_ptr<Domain1D>>& domains)
 {
     // create a Newton iterator, and add each domain.
     m_newt = make_unique<MultiNewton>(1);
+    m_data = make_shared<vector<double>>();
     for (auto& dom : domains) {
         addDomain(dom);
     }
@@ -40,6 +41,7 @@ OneDim::OneDim(vector<Domain1D*> domains)
 
     // create a Newton iterator, and add each domain.
     m_newt = make_unique<MultiNewton>(1);
+    m_data = make_shared<vector<double>>();
     for (size_t i = 0; i < domains.size(); i++) {
         addDomain(domains[i]);
     }
@@ -96,6 +98,7 @@ void OneDim::addDomain(shared_ptr<Domain1D> d)
     // add it also to the global domain list, and set its container and position
     m_sharedDom.push_back(d);
     m_dom.push_back(d.get());
+    d->setData(m_data);
     d->setContainer(this, m_dom.size()-1);
     resize();
 }
@@ -122,6 +125,7 @@ void OneDim::addDomain(Domain1D* d)
 
     // add it also to the global domain list, and set its container and position
     m_dom.push_back(d);
+    d->setData(m_data);
     d->setContainer(this, m_dom.size()-1);
     resize();
 }
@@ -237,11 +241,7 @@ void OneDim::resize()
         m_size = d->loc() + d->size();
     }
 
-    if (m_data) {
-        m_data->resize(size());
-    } else {
-        m_data = make_shared<vector<double>>(size());
-    }
+    m_data->resize(size());
 
     m_newt->resize(size());
     m_mask.resize(size());
@@ -456,6 +456,8 @@ void OneDim::resetBadValues(double* x)
 
 AnyMap OneDim::serialize(const double* soln) const
 {
+    warn_deprecated("OneDim::serialize",
+        "To be removed after Cantera 3.0; unused.");
     AnyMap state;
     for (size_t i = 0; i < m_dom.size(); i++) {
         state[m_dom[i]->id()] = m_dom[i]->serialize(soln + start(i));

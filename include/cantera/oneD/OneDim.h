@@ -233,6 +233,7 @@ public:
      */
     void writeStats(int printTime = 1);
 
+    //! @deprecated  To be removed after Cantera 3.0; unused.
     AnyMap serialize(const double* soln) const;
 
     // options
