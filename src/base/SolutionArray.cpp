@@ -14,7 +14,6 @@
 #include "cantera/thermo/SurfPhase.h"
 #include <boost/algorithm/string.hpp>
 #include <fstream>
-#include <algorithm>
 
 
 namespace ba = boost::algorithm;
@@ -443,11 +442,16 @@ vector<string> formatColumn(string name, const AnyValue& comp, int rows, int wid
 
 } // end unnamed namespace
 
-string SolutionArray::info(int rows, int width)
+string SolutionArray::info(const vector<string>& keys, int rows, int width)
 {
     fmt::memory_buffer b;
     int col_width = 12; // targeted maximum column width
-    auto keys = componentNames();
+    vector<string> components;
+    if (keys.size()) {
+        components = keys;
+    } else {
+        components = componentNames();
+    }
     try {
         // build columns
         vector<long int> index;
@@ -462,7 +466,7 @@ string SolutionArray::info(int rows, int width)
         // a "..." separator is inserted close to the center. Accordingly, the matrix
         // needs to be assembled from two halves.
         size_t front = 0;
-        size_t back = keys.size() - 1;
+        size_t back = components.size() - 1;
         size_t fLen = cols.back()[0].size();
         size_t bLen = 0;
         size_t sep = 5; // separator width
@@ -471,7 +475,7 @@ string SolutionArray::info(int rows, int width)
             string key;
             while (bLen + sep <= fLen && front <= back) {
                 // add trailing columns
-                key = keys[back];
+                key = components[back];
                 auto col = formatColumn(key, getComponent(key), rows, col_width);
                 if (col[0].size() + fLen + bLen + sep > width) {
                     done = true;
@@ -486,7 +490,7 @@ string SolutionArray::info(int rows, int width)
             }
             while (fLen <= bLen + sep && front <= back) {
                 // add leading columns
-                key = keys[front];
+                key = components[front];
                 auto col = formatColumn(key, getComponent(key), rows, col_width);
                 if (col[0].size() + fLen + bLen + sep > width) {
                     done = true;
@@ -497,7 +501,7 @@ string SolutionArray::info(int rows, int width)
                 front++;
             }
         }
-        if (cols.size() + tail.size() < keys.size() + 1) {
+        if (cols.size() + tail.size() < components.size() + 1) {
             // add separator
             cols.push_back(vector<string>(size + 1, "  ..."));
         }
@@ -517,7 +521,7 @@ string SolutionArray::info(int rows, int width)
 
         // add size information
         fmt_append(b, "\n[{} rows x {} components; state='{}']",
-            m_size, keys.size(), m_sol->thermo()->nativeMode());
+            m_size, components.size(), m_sol->thermo()->nativeMode());
 
     } catch (CanteraError& err) {
         return to_string(b) + err.what();
