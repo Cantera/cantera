@@ -90,10 +90,12 @@ public:
 
     /*!
      *  Print a concise summary of a SolutionArray.
+     *  @param keys  List of components to be displayed; if empty, all components are
+     *      considered.
      *  @param rows  Maximum number of rendered rows.
      *  @param width  Maximum width of rendered output.
      */
-    string info(int rows=10, int width=80);
+    string info(const vector<string>& keys, int rows=10, int width=80);
 
     //! SolutionArray meta data.
     AnyMap& meta() {
