@@ -237,6 +237,12 @@ void OneDim::resize()
         m_size = d->loc() + d->size();
     }
 
+    if (m_data) {
+        m_data->resize(size());
+    } else {
+        m_data = make_shared<vector<double>>(size());
+    }
+
     m_newt->resize(size());
     m_mask.resize(size());
 
