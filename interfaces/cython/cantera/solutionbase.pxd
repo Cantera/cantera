@@ -78,7 +78,7 @@ cdef extern from "cantera/base/SolutionArray.h" namespace "Cantera":
         vector[long int] apiShape() except +translate_exception
         void setApiShape(vector[long int]&) except +translate_exception
         size_t apiNdim()
-        string info(int, int) except +translate_exception
+        string info(vector[string]&, int, int) except +translate_exception
         CxxAnyMap meta()
         void setMeta(CxxAnyMap&)
         vector[string] componentNames() except +translate_exception

@@ -3,8 +3,6 @@
 
 cimport numpy as np
 import numpy as np
-from collections import defaultdict as _defaultdict
-from cython.operator cimport dereference as deref, preincrement as inc
 from pathlib import PurePath
 import warnings
 
@@ -540,14 +538,29 @@ cdef class SolutionArrayBase:
             cxx_shape.push_back(dim)
         self.base.setApiShape(cxx_shape)
 
-    def info(self, rows=10, width=80):
+    def info(self, keys=None, rows=10, width=80):
         """
         Print a concise summary of a `SolutionArray`.
 
+        :param keys: List of components to be displayed; if `None`, all components are
+            considered.
         :param rows: Maximum number of rendered rows.
         :param width: Maximum width of rendered output.
         """
-        return pystr(self.base.info(rows, width))
+        cdef vector[string] cxx_keys
+        if keys is not None:
+            for key in keys:
+                cxx_keys.push_back(stringify(key))
+        elif self._phase.selected_species:
+            keep = self._phase.species_names
+            self._phase.selected_species = []
+            names = set(self._phase.species_names)
+            self._phase.selected_species = keep
+            keep = set(keep)
+            for key in self.component_names:
+                if key not in names or key in keep:
+                    cxx_keys.push_back(stringify(key))
+        return pystr(self.base.info(cxx_keys, rows, width))
 
     @property
     def meta(self):
