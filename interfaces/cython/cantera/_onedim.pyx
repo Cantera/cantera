@@ -10,6 +10,7 @@ from ._utils cimport stringify, pystr, anymap_to_dict
 from ._utils import CanteraError
 from cython.operator import dereference as deref
 
+from .solutionbase import SolutionArrayBase
 
 # Need a pure-python class to store weakrefs to
 class _WeakrefProxy:
@@ -61,6 +62,26 @@ cdef class Domain1D:
         """Number of grid points belonging to this domain."""
         def __get__(self):
             return self.domain.nPoints()
+
+    def _to_array(self, SolutionArrayBase dest, cbool normalize):
+        """
+        Retrieve domain data as a `SolutionArray` object. Service method used by
+        `FlameBase.to_array`, which adds information not available in Cython.
+
+        .. versionadded:: 3.0
+        """
+        dest._base = self.domain.toArray(normalize)
+        dest.base = dest._base.get()
+        return dest
+
+    def _from_array(self, SolutionArrayBase arr):
+        """
+        Restore domain data from a `SolutionArray` object. Service method used by
+        `FlameBase.from_array`.
+
+        .. versionadded:: 3.0
+        """
+        self.domain.fromArray(arr._base)
 
     def component_name(self, int n):
         """Name of the nth component."""
@@ -594,6 +615,9 @@ cdef class _FlowBase(Domain1D):
             return out
 
         def __set__(self, meta):
+            warnings.warn("Property setter to be removed after Cantera 3.0. "
+                "Replaceable by individual setters.", DeprecationWarning)
+
             # boundary emissivities
             if 'emissivity_left' in meta or 'emissivity_right' in meta:
                 epsilon = self.boundary_emissivities
@@ -1055,51 +1079,16 @@ cdef class Sim1D:
         list of essential non-thermodynamic solution components of the configuration as
         the ``components``. A different domain (for example, inlet or outlet) can be
         specified either by name or as the corresponding Domain1D object itself.
+
+        .. deprecated:: 3.0
+
+            Method to be removed after Cantera 3.0. Unused after moving conversion to
+            `SolutionArray` to the C++ core. As `FlameBase.to_solution_array` (which
+            itself is deprecated) bypasses this function, this service function has no
+            use and is now disabled.
         """
-        idom = self.domain_index(domain)
-        dom = self.domains[idom]
-
-        other_cols = OrderedDict()
-        meta = dom.settings
-
-        if isinstance(dom, _FlowBase):
-            n_points = dom.n_points
-
-            # retrieve gas state
-            states = self.T, self.P, self.Y.T
-
-            # create other columns
-            for e in other:
-               if e == 'grid':
-                   other_cols[e] = self.grid
-               else:
-                   other_cols[e] = self.profile(dom, e)
-            if self.radiation_enabled:
-                other_cols['qdot'] = self.flame.radiative_heat_loss
-
-            return states, other_cols, meta
-
-        elif isinstance(dom, Inlet1D):
-            self.gas.TPY = dom.T, self.P, dom.Y
-
-            # create other columns
-            for e in other:
-               if e == 'velocity':
-                   other_cols[e] = dom.mdot / self.gas.density
-               elif e not in {'lambda'}:
-                   other_cols[e] = getattr(dom, e)
-
-            return self.gas.TPY, other_cols, meta
-
-        elif isinstance(dom, ReactingSurface1D):
-            return dom.surface.TPY, other_cols, meta
-
-        elif isinstance(dom, Boundary1D):
-            return ([], [], []), other_cols, meta
-
-        else:
-            msg = ("Export of '{}' is not implemented")
-            raise NotImplementedError(msg.format(type(self).__name__))
+        raise NotImplementedError(
+            "This method is no longer supported and will be removed after Cantera 3.0.")
 
     def restore_data(self, domain, states, other_cols, meta):
         """
@@ -1111,7 +1100,14 @@ cdef class Sim1D:
         components of the configuration, respectively. An alternative ``domain``
         (such as inlet, outlet, etc.), can be specified either by name or the
         corresponding Domain1D object itself.
+
+        .. deprecated:: 3.0
+
+            Method to be removed after Cantera 3.0. Unused after moving `SolutionArray`
+            interface to the C++ core, except for `FlameBase.from_solution_array`,
+            which itself is deprecated due to a pending removal of ``h5py`` support.
         """
+        warnings.warn("Method to be removed after Cantera 3.0.", DeprecationWarning)
         idom = self.domain_index(domain)
         dom = self.domains[idom]
         T, P, Y = states

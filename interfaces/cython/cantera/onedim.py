@@ -3,7 +3,6 @@
 
 from math import erf
 from pathlib import Path
-from email.utils import formatdate
 import warnings
 import numpy as np
 
@@ -182,7 +181,7 @@ class FlameBase(Sim1D):
                 u0 = left.mdot / self.gas.density
                 arr.velocity = u0 * arr.velocity / arr.velocity[0]
 
-        self.from_solution_array(arr)
+        self.from_array(arr)
 
     def set_profile(self, component, positions, values):
         """
@@ -396,10 +395,31 @@ class FlameBase(Sim1D):
 
         # save data
         cols = ('extra', 'T', 'D', species)
-        self.to_solution_array(normalize=normalize).write_csv(filename, cols=cols)
+        self.to_array(normalize=normalize).write_csv(filename, cols=cols)
 
         if not quiet:
             print("Solution saved to '{0}'.".format(filename))
+
+    def to_array(self, domain=None, normalize=False):
+        """
+        Retrieve domain data as a `SolutionArray` object.
+
+        :param domain:
+            Domain to be converted; by default, the method retrieves the flow domain
+        :param normalize:
+            Boolean flag indicating whether mass/mole fractions should be normalized
+            (default=`False`)
+
+        .. versionadded:: 3.0
+        """
+        if domain is None:
+            domain = self.flame
+        else:
+            domain = self.domains[self.domain_index(domain)]
+        dest = SolutionArray(domain.phase, init=False)
+        dest = domain._to_array(dest, normalize)
+        dest.shape = dest._api_shape()
+        return dest
 
     def to_solution_array(self, domain=None, normalize=True):
         """
@@ -410,38 +430,46 @@ class FlameBase(Sim1D):
         By default, the mass or mole fractions will be normalized i.e they
         sum up to 1.0. If this is not desired, the ``normalize`` argument
         can be set to ``False``.
+
+        .. deprecated:: 3.0
+
+            Method to be removed after Cantera 3.0; superseded by `to_array`.
+        """
+        warnings.warn(
+            "Method to be removed after Cantera 3.0. Replaceable by 'to_array'.",
+            DeprecationWarning)
+        return self.to_array(domain, normalize)
+
+    def from_array(self, arr, domain=None):
+        """
+        Restore the solution vector from a `SolutionArray` object.
+
+        :param arr:
+            `SolutionArray` containing data to be restored.
+        :param domain:
+            Domain to be converted; by default, the method retrieves the flow domain
+
+        .. versionadded:: 3.0
         """
         if domain is None:
             domain = self.flame
         else:
             domain = self.domains[self.domain_index(domain)]
-        other = self.other_components(domain)
-
-        states, other_cols, meta = super().collect_data(domain, other)
-        n_points = np.array(states[0]).size
-        if n_points:
-            arr = SolutionArray(self.phase(domain), n_points,
-                                extra=other_cols, meta=meta)
-            if normalize:
-                arr.TPY = states
-            else:
-                if len(states) == 3:
-                    for i in range(n_points):
-                        arr._phase.set_unnormalized_mass_fractions(states[2][i])
-                        arr._phase.TP = np.atleast_1d(states[0])[i], states[1]
-                        arr._set_state(i, arr._phase.state)
-                else:
-                    arr.TP = states
-            return arr
-        else:
-            return SolutionArray(self.phase(domain), meta=meta)
+        domain._from_array(arr)
 
     def from_solution_array(self, arr, domain=None):
         """
         Restore the solution vector from a `SolutionArray` object.
 
         Derived classes define default values for *other*.
+
+        .. deprecated:: 3.0
+
+            Method to be removed after Cantera 3.0; replaced by `from_array`.
         """
+        warnings.warn(
+            "Method to be removed after Cantera 3.0. Replaced by 'from_array'.",
+            DeprecationWarning)
         if domain is None:
             domain = self.flame
         else:
@@ -465,12 +493,12 @@ class FlameBase(Sim1D):
             Boolean flag to indicate whether the mole/mass fractions should
             be normalized (default is ``True``)
 
-        This method uses `to_solution_array` and requires a working *pandas*
+        This method uses `to_array` and requires a working *pandas*
         installation. Use pip or conda to install ``pandas`` to enable this
         method.
         """
         cols = ('extra', 'T', 'D', species)
-        return self.to_solution_array(normalize=normalize).to_pandas(cols=cols)
+        return self.to_array(normalize=normalize).to_pandas(cols=cols)
 
     def from_pandas(self, df, restore_boundaries=True, settings=None):
         """
@@ -486,16 +514,21 @@ class FlameBase(Sim1D):
             dictionary containing simulation settings
             (see `FlameBase.settings`)
 
-        This method is intendend for loading of data that were previously
-        exported by `to_pandas`. The method uses `from_solution_array` and
+        This method is intended for loading of data that were previously
+        exported by `to_pandas`. The method uses `from_array` and
         requires a working *pandas* installation. The package ``pandas`` can be
         installed using pip or conda.
+
+        .. deprecated:: 3.0
+
+            Method to be removed after Cantera 3.0; not implemented.
         """
         # @todo: Discuss implementation that allows for restoration of boundaries
-        raise NotImplementedError("Use 'save'/'restore' as alternatives.")
+        raise NotImplementedError("Use 'save'/'restore' as alternatives; "
+            "method to be removed after Cantera 3.0.")
 
     def write_hdf(self, filename, *args, group=None, species='X', mode='a',
-                  description=None, compression=None, compression_opts=None,
+                  description=None, compression=None, compression_opts=0,
                   quiet=True, normalize=True, **kwargs):
         """
         Write the solution vector to a HDF container file.
@@ -576,7 +609,8 @@ class FlameBase(Sim1D):
             "Note that the call is redirected to 'save' in order to prevent the "
             "creation of a file with deprecated HDF format.", DeprecationWarning)
 
-        self.save(filename, name=group, description=description)
+        self.save(filename, name=group, description=description,
+                  compression=compression_opts)
 
     def read_hdf(self, filename, group=None, restore_boundaries=True, normalize=True):
         """
@@ -594,7 +628,7 @@ class FlameBase(Sim1D):
             be normalized (default is ``True``)
 
         The method imports data using `SolutionArray.read_hdf` via
-        `from_solution_array` and requires a working installation of *h5py*
+        `from_array` and requires a working installation of *h5py*
         (``h5py`` can be installed using pip or conda).
 
         .. deprecated:: 3.0

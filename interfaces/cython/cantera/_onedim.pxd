@@ -41,6 +41,8 @@ cdef extern from "cantera/oneD/Domain1D.h":
         void setID(string)
         string& id()
         string domainType "type"()
+        shared_ptr[CxxSolutionArray] toArray(cbool) except +translate_exception
+        void fromArray(shared_ptr[CxxSolutionArray]) except +translate_exception
 
 
 cdef extern from "cantera/oneD/Boundary1D.h":
