@@ -46,6 +46,7 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         cbool hasPhaseTransition()
         cbool isPure()
         cbool isCompressible()
+        string nativeMode()
         stdmap[string, size_t] nativeState() except +translate_exception
         vector[string] fullStates()
         vector[string] partialStates()
