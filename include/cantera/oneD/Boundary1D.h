@@ -160,7 +160,7 @@ public:
     virtual void eval(size_t jg, double* xg, double* rg,
                       integer* diagg, double rdt);
     virtual shared_ptr<SolutionArray> asArray(const double* soln) const;
-    virtual void restore(SolutionArray& arr, double* soln);
+    virtual void fromArray(SolutionArray& arr, double* soln);
 
 protected:
     int m_ilr;
@@ -199,7 +199,7 @@ public:
                       integer* diagg, double rdt);
 
     virtual shared_ptr<SolutionArray> asArray(const double* soln) const;
-    virtual void restore(SolutionArray& arr, double* soln) {}
+    virtual void fromArray(SolutionArray& arr, double* soln) {}
 };
 
 /**
@@ -229,7 +229,7 @@ public:
                       integer* diagg, double rdt);
 
     virtual shared_ptr<SolutionArray> asArray(const double* soln) const;
-    virtual void restore(SolutionArray& arr, double* soln) {}
+    virtual void fromArray(SolutionArray& arr, double* soln) {}
 };
 
 
@@ -259,7 +259,7 @@ public:
                       integer* diagg, double rdt);
 
     virtual shared_ptr<SolutionArray> asArray(const double* soln) const;
-    virtual void restore(SolutionArray& arr, double* soln) {}
+    virtual void fromArray(SolutionArray& arr, double* soln) {}
 };
 
 
@@ -293,7 +293,7 @@ public:
     virtual void eval(size_t jg, double* xg, double* rg,
                       integer* diagg, double rdt);
     virtual shared_ptr<SolutionArray> asArray(const double* soln) const;
-    virtual void restore(SolutionArray& arr, double* soln);
+    virtual void fromArray(SolutionArray& arr, double* soln);
 
 protected:
     size_t m_nsp = 0;
@@ -330,7 +330,7 @@ public:
                       integer* diagg, double rdt);
 
     virtual shared_ptr<SolutionArray> asArray(const double* soln) const;
-    virtual void restore(SolutionArray& arr, double* soln);
+    virtual void fromArray(SolutionArray& arr, double* soln);
 
     virtual void show(std::ostream& s, const double* x);
 
@@ -373,7 +373,7 @@ public:
                       integer* diagg, double rdt);
 
     virtual shared_ptr<SolutionArray> asArray(const double* soln) const;
-    virtual void restore(SolutionArray& arr, double* soln);
+    virtual void fromArray(SolutionArray& arr, double* soln);
 
     virtual void _getInitialSoln(double* x) {
         m_sphase->getCoverages(x);

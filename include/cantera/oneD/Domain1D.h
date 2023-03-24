@@ -344,15 +344,27 @@ public:
      */
     AnyMap serialize(const double* soln) const;
 
-    //! Save the state of this domain as a SolutionArray
+    //! Save the state of this domain as a SolutionArray.
     /*!
      * @param soln local solution vector for this domain
+     * @todo  Despite the method's name, data are copied; the intent is to access data
+     *      directly in future revisions, where a non-const version will be implemented.
      *
      * @since  New in Cantera 3.0.
      */
     virtual shared_ptr<SolutionArray> asArray(const double* soln) const {
         throw NotImplementedError("Domain1D::asArray", "Needs to be overloaded.");
     }
+
+    //! Save the state of this domain to a SolutionArray.
+    /*!
+     * This method serves as an external interface for high-level API's; it does not
+     * provide direct access to memory.
+     * @param normalize If true, normalize concentrations (default=false)
+     *
+     * @since  New in Cantera 3.0.
+     */
+    shared_ptr<SolutionArray> toArray(bool normalize=false) const;
 
     //! Restore the solution for this domain from an AnyMap
     /*!
@@ -372,9 +384,17 @@ public:
      *
      * @since  New in Cantera 3.0.
      */
-    virtual void restore(SolutionArray& arr, double* soln) {
-        throw NotImplementedError("Domain1D::restore", "Needs to be overloaded.");
+    virtual void fromArray(SolutionArray& arr, double* soln) {
+        throw NotImplementedError("Domain1D::fromArray", "Needs to be overloaded.");
     }
+
+    //! Restore the solution for this domain from a SolutionArray.
+    /*!
+     * This method serves as an external interface for high-level API's.
+     * @param  arr SolutionArray defining the state of this domain
+     * @since  New in Cantera 3.0.
+     */
+    void fromArray(const shared_ptr<SolutionArray>& arr);
 
     //! Return thermo/kinetics/transport manager used in the domain
     //! @since  New in Cantera 3.0.

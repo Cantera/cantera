@@ -145,6 +145,31 @@ AnyMap Domain1D::serialize(const double* soln) const
     return out;
 }
 
+shared_ptr<SolutionArray> Domain1D::toArray(bool normalize) const {
+    if (!m_data) {
+        throw CanteraError("Domain1D::toArray",
+            "Domain needs to be installed in a container before calling asArray.");
+    }
+    if (!normalize) {
+        return asArray(m_data->data() + m_iloc);
+    }
+    auto ret = asArray(m_data->data() + m_iloc);
+    ret->normalize();
+    return ret;
+}
+
+void Domain1D::fromArray(const shared_ptr<SolutionArray>& arr)
+{
+    if (!m_data) {
+        throw CanteraError("Domain1D::fromArray",
+            "Domain needs to be installed in a container before calling fromArray.");
+    }
+    resize(nComponents(), arr->size());
+    m_container->resize();
+    fromArray(*arr, m_data->data() + m_iloc);
+    _finalize(m_data->data() + m_iloc);
+}
+
 void Domain1D::setMeta(const AnyMap& meta)
 {
     auto set_tols = [&](const AnyValue& tols, const string& which, vector_fp& out)
@@ -183,7 +208,7 @@ void Domain1D::restore(const AnyMap& state, double* soln, int loglevel)
         "To be removed after Cantera 3.0; restore from SolutionArray instead.");
     auto arr = SolutionArray::create(solution());
     arr->readEntry(state, "", "");
-    restore(*arr, soln);
+    fromArray(*arr, soln);
 }
 
 void Domain1D::locate()

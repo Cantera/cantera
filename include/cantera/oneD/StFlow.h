@@ -169,7 +169,7 @@ public:
     virtual void show(const double* x);
 
     virtual shared_ptr<SolutionArray> asArray(const double* soln) const;
-    virtual void restore(SolutionArray& arr, double* soln);
+    virtual void fromArray(SolutionArray& arr, double* soln);
 
     //! Set flow configuration for freely-propagating flames, using an internal
     //! point with a fixed temperature as the condition to determine the inlet

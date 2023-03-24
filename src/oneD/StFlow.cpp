@@ -271,6 +271,7 @@ void StFlow::_getInitialSoln(double* x)
     for (size_t j = 0; j < m_points; j++) {
         T(x,j) = m_thermo->temperature();
         m_thermo->getMassFractions(&Y(x, 0, j));
+        m_rho[j] = m_thermo->density();
     }
 }
 
@@ -821,7 +822,7 @@ shared_ptr<SolutionArray> StFlow::asArray(const double* soln) const
     return arr;
 }
 
-void StFlow::restore(SolutionArray& arr, double* soln)
+void StFlow::fromArray(SolutionArray& arr, double* soln)
 {
     Domain1D::setMeta(arr.meta());
     arr.setLoc(0);
@@ -842,7 +843,7 @@ void StFlow::restore(SolutionArray& arr, double* soln)
                 soln[index(i,j)] = data[j];
             }
         } else {
-            warn_user("StFlow::restore", "Saved state does not contain values for "
+            warn_user("StFlow::fromArray", "Saved state does not contain values for "
                 "component '{}' in domain '{}'.", name, id());
         }
     }
