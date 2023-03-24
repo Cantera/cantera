@@ -423,7 +423,7 @@ void SolutionArray::setLoc(size_t loc, bool restore)
     m_loc = m_active[loc];
     if (restore) {
         size_t nState = m_sol->thermo()->stateSize();
-            m_sol->thermo()->restoreState(nState, m_data->data() + m_loc * m_stride);
+        m_sol->thermo()->restoreState(nState, m_data->data() + m_loc * m_stride);
     }
 }
 
@@ -454,6 +454,36 @@ void SolutionArray::setState(size_t loc, const vector<double>& state)
     setLoc(loc, false);
     m_sol->thermo()->restoreState(state);
     m_sol->thermo()->saveState(nState, m_data->data() + m_loc * m_stride);
+}
+
+void SolutionArray::normalize() {
+    auto phase = m_sol->thermo();
+    auto nativeState = phase->nativeState();
+    if (nativeState.size() < 3) {
+        return;
+    }
+    size_t nState = phase->stateSize();
+    vector<double> out(nState);
+    if (nativeState.count("Y")) {
+        size_t offset = nativeState["Y"];
+        for (size_t loc = 0; loc < m_size; loc++) {
+            setLoc(loc, true); // set location and restore state
+            phase->setMassFractions(m_data->data() + m_loc * m_stride + offset);
+            m_sol->thermo()->saveState(out);
+            setState(loc, out);
+        }
+    } else if (nativeState.count("X")) {
+        size_t offset = nativeState["X"];
+        for (size_t loc = 0; loc < m_size; loc++) {
+            setLoc(loc, true); // set location and restore state
+            phase->setMoleFractions(m_data->data() + m_loc * m_stride + offset);
+            m_sol->thermo()->saveState(out);
+            setState(loc, out);
+        }
+    } else {
+        throw NotImplementedError("SolutionArray::normalize",
+            "Not implemented for mode '{}'.", phase->nativeMode());
+    }
 }
 
 AnyMap SolutionArray::getAuxiliary(size_t loc)

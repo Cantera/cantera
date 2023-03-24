@@ -148,6 +148,9 @@ public:
     //! Set the state vector for a given location.
     void setState(size_t loc, const vector<double>& state);
 
+    //! Normalize mass/mole fractions
+    void normalize();
+
     /*!
      *  Add auxiliary component to SolutionArray. Initialization requires a subsequent
      *  call of setComponent.
