@@ -240,7 +240,7 @@ shared_ptr<SolutionArray> Inlet1D::asArray(const double* soln) const
     return arr;
 }
 
-void Inlet1D::restore(SolutionArray& arr, double* soln)
+void Inlet1D::fromArray(SolutionArray& arr, double* soln)
 {
     Boundary1D::setMeta(arr.meta());
     arr.setLoc(0);
@@ -523,7 +523,7 @@ shared_ptr<SolutionArray> OutletRes1D::asArray(const double* soln) const
     return arr;
 }
 
-void OutletRes1D::restore(SolutionArray& arr, double* soln)
+void OutletRes1D::fromArray(SolutionArray& arr, double* soln)
 {
     Boundary1D::setMeta(arr.meta());
     arr.setLoc(0);
@@ -572,7 +572,7 @@ shared_ptr<SolutionArray> Surf1D::asArray(const double* soln) const
     return SolutionArray::create(m_solution, 0, meta);
 }
 
-void Surf1D::restore(SolutionArray& arr, double* soln)
+void Surf1D::fromArray(SolutionArray& arr, double* soln)
 {
     Boundary1D::setMeta(arr.meta());
     arr.setLoc(0);
@@ -778,13 +778,13 @@ shared_ptr<SolutionArray> ReactingSurf1D::asArray(const double* soln) const
     return arr;
 }
 
-void ReactingSurf1D::restore(SolutionArray& arr, double* soln)
+void ReactingSurf1D::fromArray(SolutionArray& arr, double* soln)
 {
     Boundary1D::setMeta(arr.meta());
     arr.setLoc(0);
     auto surf = std::dynamic_pointer_cast<SurfPhase>(arr.thermo());
     if (!surf) {
-        throw CanteraError("ReactingSurf1D::restore",
+        throw CanteraError("ReactingSurf1D::fromArray",
             "Restoring of coverages requires surface phase");
     }
     m_temp = surf->temperature();

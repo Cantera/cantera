@@ -303,7 +303,7 @@ AnyMap Sim1D::restore(const std::string& fname, const std::string& id)
         resize();
         m_xlast_ts.clear();
         for (auto dom : m_dom) {
-            dom->restore(*arrs[dom->id()], m_data->data() + dom->loc());
+            dom->fromArray(*arrs[dom->id()], m_data->data() + dom->loc());
         }
         finalize();
     } else if (extension == "yaml" || extension == "yml") {
@@ -320,7 +320,7 @@ AnyMap Sim1D::restore(const std::string& fname, const std::string& id)
         resize();
         m_xlast_ts.clear();
         for (auto dom : m_dom) {
-            dom->restore(*arrs[dom->id()], m_data->data() + dom->loc());
+            dom->fromArray(*arrs[dom->id()], m_data->data() + dom->loc());
         }
         finalize();
     } else {
