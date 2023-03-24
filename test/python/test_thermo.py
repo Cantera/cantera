@@ -1,4 +1,3 @@
-from collections import OrderedDict
 import numpy as np
 import gc
 
@@ -73,6 +72,7 @@ class TestThermoPhase(utilities.CanteraTest):
         self.assertEqual(self.phase._native_state, ('T', 'D', 'Y'))
         self.assertIn('TPY', self.phase._full_states.values())
         self.assertIn('TD', self.phase._partial_states.values())
+        assert self.phase._native_mode == "TDY"
 
     def test_species(self):
         self.assertEqual(self.phase.n_species, 10)
@@ -2011,8 +2011,7 @@ class TestSolutionArray(utilities.CanteraTest):
         self.assertArrayNear(row2.T, 900*np.ones(5))
 
     def test_extra_create_by_dict(self):
-        extra = OrderedDict([('grid', np.arange(10)),
-                             ('velocity', np.random.rand(10))])
+        extra = {"grid": np.arange(10), "velocity": np.random.rand(10)}
         states = ct.SolutionArray(self.gas, 10, extra=extra)
         keys = states.extra
         self.assertEqual(keys[0], 'grid')

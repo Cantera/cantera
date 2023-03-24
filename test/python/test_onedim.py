@@ -287,34 +287,22 @@ class TestFreeFlame(utilities.CanteraTest):
         for rhou_j in self.sim.density * self.sim.velocity:
             self.assertNear(rhou_j, rhou, 1e-4)
 
-    def test_collect_restore(self):
-        self.run_mix(phi=1.0, T=300, width=2.0, p=1.0, refine=False)
-
-        states, other, meta = self.sim.collect_data('flame', ['grid'])
-        self.assertArrayNear(self.sim.grid, other['grid'])
-        self.assertArrayNear(self.sim.T, states[0])
-
-        f2 = ct.FreeFlame(self.gas)
-        f2.restore_data('flame', states, other, meta)
-        self.assertArrayNear(self.sim.grid, f2.grid)
-        self.assertArrayNear(self.sim.T, f2.T)
-
     def test_solution_array_output(self):
         self.run_mix(phi=1.0, T=300, width=2.0, p=1.0, refine=False)
 
-        flow = self.sim.to_solution_array(normalize=True)
+        flow = self.sim.to_array(normalize=True)
         self.assertArrayNear(self.sim.grid, flow.grid)
         self.assertArrayNear(self.sim.T, flow.T)
         for k in flow.extra:
             self.assertIn(k, self.sim._other)
 
         f2 = ct.FreeFlame(self.gas)
-        f2.from_solution_array(flow)
+        f2.from_array(flow)
         self.assertArrayNear(self.sim.grid, f2.grid)
         self.assertArrayNear(self.sim.T, f2.T)
 
-        inlet = self.sim.to_solution_array(self.sim.inlet)
-        f2.from_solution_array(inlet, f2.inlet)
+        inlet = self.sim.to_array(self.sim.inlet)
+        f2.from_array(inlet, f2.inlet)
         self.assertNear(self.sim.inlet.T, f2.inlet.T)
         self.assertNear(self.sim.inlet.mdot, f2.inlet.mdot)
         self.assertArrayNear(self.sim.inlet.Y, f2.inlet.Y)
@@ -342,7 +330,7 @@ class TestFreeFlame(utilities.CanteraTest):
 
         group = "restart"
         if mode == "array":
-            data = self.sim.to_solution_array(normalize=False)
+            data = self.sim.to_array()
         else:
             data = self.test_work_path / f"freeflame_restart.{mode}"
             data.unlink(missing_ok=True)
@@ -362,12 +350,11 @@ class TestFreeFlame(utilities.CanteraTest):
             self.assertNear(rhou_j, rhou, 1e-4)
 
     def test_settings(self):
-        self.create_sim(p=ct.one_atm, Tin=400, reactants='H2:0.8, O2:0.5',
-                        width=0.1)
+        self.create_sim(p=ct.one_atm, Tin=400, reactants='H2:0.8, O2:0.5', width=0.1)
         self.sim.set_initial_guess()
         sim = self.sim
 
-        # FlowBase specific settings
+        # FlowBase specific settings (legacy implementation)
         flame_settings = sim.flame.settings
         keys = ['Domain1D_type',
                 'emissivity_left', 'emissivity_right',
@@ -375,6 +362,15 @@ class TestFreeFlame(utilities.CanteraTest):
                 'transient_abstol', 'transient_reltol']
         for k in keys:
             self.assertIn(k, flame_settings)
+
+        # new implementation
+        new_keys = {
+            "type", "points", "tolerances", "transport-model", "phase",
+            "radiation-enabled", "energy-enabled", "Soret-enabled", "species-enabled",
+            "refine-criteria", "fixed-point"}
+        new_settings = sim.flame.get_settings3()
+        for k in new_keys:
+            assert k in new_settings
 
         changed = {'emissivity_left': .12,
                    'emissivity_right': .21,
@@ -387,7 +383,12 @@ class TestFreeFlame(utilities.CanteraTest):
         for key, val in changed.items():
             self.assertEqual(changed_settings[key], val)
 
-        # Sim1D specific settings
+        # new implementation
+        tolerances = sim.flame.get_settings3()["tolerances"]
+        assert tolerances["steady-abstol"] == pytest.approx(2.53e-9)
+        assert tolerances["steady-reltol"]["H2"] == pytest.approx(1.3e-8)
+
+        # Sim1D specific settings (legacy implementation)
         settings = sim.settings
 
         keys = ['Sim1D_type', 'transport_model',
@@ -398,16 +399,23 @@ class TestFreeFlame(utilities.CanteraTest):
         for k in keys:
             self.assertIn(k, settings)
 
-        changed = {'fixed_temperature': 900,
-                   'max_time_step_count': 100,
-                   'energy_enabled': False,
-                   'radiation_enabled': True,
-                   'transport_model': 'multicomponent'}
-        settings.update(changed)
+        changed2 = {'fixed_temperature': 900,
+                    'max_time_step_count': 100,
+                    'energy_enabled': False,
+                    'radiation_enabled': True,
+                    'transport_model': 'multicomponent'}
+        settings.update(changed2)
 
         sim.settings = settings
-        for key, val in changed.items():
+        for key, val in changed2.items():
             self.assertEqual(getattr(sim, key), val)
+
+        # new implementation
+        new_settings = sim.flame.get_settings3()
+        assert new_settings["energy-enabled"] == False
+        assert new_settings["radiation-enabled"] == True
+        assert new_settings["emissivity-left"] == changed["emissivity_left"]
+        assert new_settings["emissivity-right"] == changed["emissivity_right"]
 
     def test_mixture_averaged_case1(self):
         self.run_mix(phi=0.65, T=300, width=0.03, p=1.0, refine=True)
@@ -857,21 +865,22 @@ class TestFreeFlame(utilities.CanteraTest):
         assert list(f.X[k, :]) == pytest.approx(list(self.sim.X[k, :]), rel=1e-5)
         assert list(f.inlet.X) == pytest.approx(list(self.sim.inlet.X))
 
-        settings = self.sim.settings
-        for k, v in f.settings.items():
-            assert k in settings
-            if isinstance(v, (float)):
-                assert settings[k] == pytest.approx(v)
-            else:
-                assert settings[k] == v
+        def check_settings(one, two):
+            for k, v in one.items():
+                assert k in two
+                if isinstance(v, dict):
+                    for kk, vv in v.items():
+                        if isinstance(vv, float):
+                            assert two[k][kk] == pytest.approx(vv)
+                        else:
+                            assert two[k][kk] == vv
+                elif isinstance(v, float):
+                    assert two[k] == pytest.approx(v)
+                else:
+                    assert two[k] == v
 
-        settings = self.sim.flame.settings
-        for k, v in f.flame.settings.items():
-            assert k in settings
-            if isinstance(v, (float)):
-                assert settings[k] == pytest.approx(v)
-            else:
-                assert settings[k] == v
+        check_settings(self.sim.flame.settings, f.flame.settings)
+        check_settings(self.sim.flame.get_settings3(), f.flame.get_settings3())
 
         f.solve(loglevel=0)
 
@@ -1077,7 +1086,7 @@ class TestDiffusionFlame(utilities.CanteraTest):
     def test_restart(self):
         self.run_extinction(mdot_fuel=0.5, mdot_ox=3.0, T_ox=300, width=0.018, P=1.0)
 
-        arr = self.sim.to_solution_array()
+        arr = self.sim.to_array()
 
         self.create_sim(mdot_fuel=5.5, mdot_ox=3.3, T_ox=400, width=0.018,
                         p=ct.one_atm*1.1)
@@ -1130,7 +1139,7 @@ class TestDiffusionFlame(utilities.CanteraTest):
         self.sim.write_csv(filename) # check output
         self.assertTrue(filename.is_file())
         csv_data = np.genfromtxt(filename, dtype=float, delimiter=',', names=True)
-        self.assertIn('qdot', csv_data.dtype.names)
+        self.assertIn('radiativeheatloss', csv_data.dtype.names)
 
     def test_strain_rate(self):
         # This doesn't test that the values are correct, just that they can be
@@ -1278,7 +1287,7 @@ class TestCounterflowPremixedFlame(utilities.CanteraTest):
     def test_restart(self):
         sim = self.run_case(phi=2.0, T=300, width=0.2, P=0.2)
 
-        arr = sim.to_solution_array()
+        arr = sim.to_array()
         sim.reactants.mdot *= 1.1
         sim.products.mdot *= 1.1
         sim.set_initial_guess(data=arr)
@@ -1354,7 +1363,7 @@ class TestBurnerFlame(utilities.CanteraTest):
         sim.set_refine_criteria(ratio=3, slope=0.3, curve=0.5, prune=0)
         sim.solve(loglevel=0, auto=True)
 
-        arr = sim.to_solution_array()
+        arr = sim.to_array()
         sim.burner.mdot = 1.1
         sim.set_initial_guess(data=arr)
         sim.solve(loglevel=0, auto=True)
@@ -1467,6 +1476,12 @@ class TestImpingingJet(utilities.CanteraTest):
             if k == "fixed_temperature":
                 # fixed temperature is NaN
                 continue
+            if isinstance(v, dict):
+                for kk, vv in v.items():
+                    if isinstance(vv, float):
+                        assert settings[k][kk] == pytest.approx(vv)
+                    else:
+                        assert settings[k][kk] == vv
             if isinstance(k, float):
                 assert settings[k] == pytest.approx(v)
             else:
@@ -1495,7 +1510,7 @@ class TestTwinFlame(utilities.CanteraTest):
     def test_restart(self):
         sim = self.solve(phi=0.4, T=300, width=0.05, P=0.1)
 
-        arr = sim.to_solution_array()
+        arr = sim.to_array()
         axial_velocity = 2.2
         sim.reactants.mdot *= 1.1
         sim.reactants.T = sim.reactants.T + 100

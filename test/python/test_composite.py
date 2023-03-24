@@ -1,7 +1,6 @@
 import sys
 
 import numpy as np
-from collections import OrderedDict
 import pickle
 
 import pytest
@@ -731,8 +730,7 @@ class TestRestoreIdealGas(utilities.CanteraTest):
         # wrong data shape
         b = ct.SolutionArray(self.gas)
         with self.assertRaises(ValueError):
-            b.restore_data(OrderedDict([(k, v[np.newaxis, :])
-                                        for k, v in data.items()]))
+            b.restore_data({k: v[np.newaxis, :] for k, v in data.items()})
 
         # inconsistent shape of receiving SolutionArray
         b = ct.SolutionArray(self.gas, 9)
@@ -742,15 +740,14 @@ class TestRestoreIdealGas(utilities.CanteraTest):
         # incomplete state
         b = ct.SolutionArray(self.gas)
         with self.assertRaises(ValueError):
-            b.restore_data(OrderedDict([tup for i, tup in enumerate(data.items())
-                                        if i]))
+            b.restore_data(dict([tup for i, tup in enumerate(data.items()) if i]))
 
         # add extra column
         t = np.arange(10, dtype=float)
 
         # auto-detection of extra
         b = ct.SolutionArray(self.gas)
-        data_mod = OrderedDict(data)
+        data_mod = dict(data)  # create a copy
         data_mod['time'] = t
         b.restore_data(data_mod)
         check(a, b)

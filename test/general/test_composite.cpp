@@ -98,12 +98,13 @@ TEST(SolutionArray, normalize)
     for (size_t loc = 0; loc < arr->size(); loc++) {
         state = arr->getState(loc);
         for (size_t i = 2; i < state.size() - 1; i++) {
+            // test normalized species mass fractions - all are equal except last
             ASSERT_NEAR(state[i], state[2], 1e-12);
             ASSERT_NE(state[i], newState[i]);
             ASSERT_LE(state[i], 1.);
             ASSERT_GE(state[i], 0.);
         }
-        ASSERT_EQ(state.back(), 0.);
+        ASSERT_EQ(state.back(), 0.); // unnormalized negative value is set to zero
     }
 
     newState = {state[0], state[1], 100, 0, 0, 0, 0, 0, 0, 0, 0, -1e12};
