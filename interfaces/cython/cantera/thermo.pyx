@@ -331,6 +331,11 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.thermo.isCompressible()
 
+    @property
+    def _native_mode(self):
+        """  Return string acronym representing native state """
+        return pystr(self.thermo.nativeMode())
+
     property _native_state:
         """
         Default properties defining a state
