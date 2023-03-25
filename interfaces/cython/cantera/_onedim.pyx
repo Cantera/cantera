@@ -9,6 +9,7 @@ from ._utils cimport stringify, pystr, anymap_to_dict
 from ._utils import CanteraError
 from cython.operator import dereference as deref
 
+
 # Need a pure-python class to store weakrefs to
 class _WeakrefProxy:
     pass

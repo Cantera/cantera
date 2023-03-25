@@ -9,6 +9,11 @@ import importlib.metadata
 
 _h5py = None
 def _import_h5py():
+    """
+    .. deprecated:: 3.0
+
+        Function to be removed after Cantera 3.0, as ``h5py`` support will be removed.
+    """
     # defer h5py import
     global _h5py
     if _h5py is not None:
@@ -19,6 +24,8 @@ def _import_h5py():
     except importlib.metadata.PackageNotFoundError:
         raise ImportError('Method requires a working h5py installation.')
     else:
+        warnings.warn(
+            "Support for 'h5py' to be removed after Cantera 3.0.", DeprecationWarning)
         import h5py as _h5py
 
 
