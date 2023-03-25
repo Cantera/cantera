@@ -656,7 +656,18 @@ class FlameBase(Sim1D):
 
     @property
     def settings(self):
-        """ Return a dictionary listing simulation settings """
+        """
+        Return a dictionary listing simulation settings
+
+        .. deprecated:: 3.0
+
+            To be removed after Cantera 3.0. The getter is replaceable by
+            `Domain1D.settings`; for the setter, use setters for individual settings.
+            Also see deprecation note in `_FlowBase.settings`.
+        """
+        warnings.warn(
+            "Property 'settings' to be removed after Cantera 3.0. Access settings from "
+            "domains instead.", DeprecationWarning)
         out = {'Sim1D_type': type(self).__name__}
         out['transport_model'] = self.transport_model
         out['energy_enabled'] = self.energy_enabled
@@ -671,6 +682,9 @@ class FlameBase(Sim1D):
 
     @settings.setter
     def settings(self, s):
+        warnings.warn(
+            "Property 'settings' to be removed after Cantera 3.0. Use individual "
+            "setters instead.", DeprecationWarning)
         # simple setters
         attr = {'transport_model',
                 'energy_enabled', 'soret_enabled', 'radiation_enabled',

@@ -291,15 +291,18 @@ cdef class Domain1D:
 
     property settings:
         """
-        Return comprehensive dictionary describing type, name, and simulation
-        settings that are specific to domain types.
+        Return comprehensive dictionary describing type, name, and simulation settings
+        that are specific to domain types.
+
+        .. versionchanged:: 3.0
+
+            The dictionary layout in Cantera 3.0 combines features of HDF and YAML
+            metadata used in Cantera 2.6 to form a uniform interface.
         """
         def __get__(self):
-            out = {
-                'Domain1D_type': type(self).__name__,
-                'name': self.name}
-
-            return out
+            cdef shared_ptr[CxxSolutionArray] arr
+            arr = self.domain.toArray(False)
+            return anymap_to_dict(arr.get().meta())
 
 
 cdef class Boundary1D(Domain1D):
@@ -583,13 +586,35 @@ cdef class _FlowBase(Domain1D):
             y.push_back(t)
         self.flow.setFixedTempProfile(x, y)
 
+    def get_settings3(self):
+        """
+        Temporary method returning new behavior of settings getter.
+
+        .. versionadded:: 3.0
+        """
+        return super().settings
+
     property settings:
         """
-        Get a dictionary describing type, name, and simulation specific to this domain
-        type.
+        .. deprecated:: 3.0
+
+            Specialization to be removed after Cantera 3.0, as it is specific to the
+            legacy HDF structure for metadata. For new behavior of the getter, use the
+            temporary method 'get_settings3'; the setter will be removed, but is
+            replaceable by setters for individual settings. The global setter is no
+            longer needed, as its intended use as a service function for restoring data
+            from HDF SolutionArray is replaced by a C++ implementation. As the structure
+            of meta data is changed, the settings getter in Cantera 3.0 produces
+            different output from Cantera 2.6.
         """
         def __get__(self):
-            out = super().settings
+            warnings.warn(
+                "Property getter to change after Cantera 3.0.\nFor new behavior, use "
+                "'get_settings3'.", DeprecationWarning)
+
+            out = {
+                'Domain1D_type': type(self).__name__,
+                'name': self.name}
 
             epsilon = self.boundary_emissivities
             out.update({'emissivity_left': epsilon[0],
@@ -613,7 +638,6 @@ cdef class _FlowBase(Domain1D):
                             for c, t in zip(comp[ix], tol[ix])})
 
             return out
-
         def __set__(self, meta):
             warnings.warn("Property setter to be removed after Cantera 3.0. "
                 "Replaceable by individual setters.", DeprecationWarning)
