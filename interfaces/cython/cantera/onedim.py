@@ -14,6 +14,7 @@ from . import __version__, __git_commit__, hdf_support
 class FlameBase(Sim1D):
     """ Base class for flames with a single flow domain """
     __slots__ = ('gas',)
+    #: deprecated and to be removed after Cantera 3.0 here and elsewhere (unused)
     _other = ()
 
     def __init__(self, domains, gas, grid=None):
@@ -47,7 +48,14 @@ class FlameBase(Sim1D):
         :param domain:
             Index of a specific domain within the `Sim1D.domains`
             list. The default is to return other columns of the `Sim1D` object.
+
+        .. deprecated:: 3.0
+
+            Method to be removed after Cantera 3.0. After moving SolutionArray HDF
+            export to the C++ core, this method is unused.
         """
+        warnings.warn("Method to be removed after Cantera 3.0 (unused).",
+                      DeprecationWarning)
         if domain is None:
             return self._other
 
@@ -503,7 +511,7 @@ class FlameBase(Sim1D):
     def from_pandas(self, df, restore_boundaries=True, settings=None):
         """
         Restore the solution vector from a `pandas.DataFrame`; currently disabled
-        (`save`/`restore` or `write_hdf`/`read_hdf` should be used as alternatives).
+        (`save`/`restore` should be used as an alternative).
 
         :param df:
             `pandas.DataFrame` containing data to be restored
