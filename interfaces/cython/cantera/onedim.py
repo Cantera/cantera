@@ -368,7 +368,14 @@ class FlameBase(Sim1D):
         Get the solution at one point or for the full flame domain (if
         ``point=None``) for the specified ``component``. The ``component`` can be
         specified by name or index.
+
+        .. deprecated:: 3.0
+
+            To be removed after Cantera 3.0 to avoid conflation with `Solution`.
+            Replaceable by `profile` or `value`.
         """
+        warnings.warn("Method 'solution' to be removed after Cantera 3.0. "
+            "Replaceable by 'profile' or 'value'.")
         if point is None:
             return self.profile(self.flame, component)
         else:
@@ -381,7 +388,7 @@ class FlameBase(Sim1D):
         ``point``.
         """
         k0 = self.flame.component_index(self.gas.species_name(0))
-        Y = [self.solution(k, point)
+        Y = [self.value(self.flame, k, point)
              for k in range(k0, k0 + self.gas.n_species)]
         self.gas.set_unnormalized_mass_fractions(Y)
         self.gas.TP = self.value(self.flame, 'T', point), self.P
@@ -1492,8 +1499,9 @@ class CounterflowDiffusionFlame(FlameBase):
         >>> f.mixture_fraction('Bilger')
         """
 
-        Yf = [self.solution(k, 0) for k in self.gas.species_names]
-        Yo = [self.solution(k, self.flame.n_points-1) for k in self.gas.species_names]
+        Yf = [self.value(self.flame, k, 0) for k in self.gas.species_names]
+        Yo = [self.value(self.flame, k, self.flame.n_points - 1)
+              for k in self.gas.species_names]
 
         vals = np.empty(self.flame.n_points)
         for i in range(self.flame.n_points):
@@ -1503,8 +1511,9 @@ class CounterflowDiffusionFlame(FlameBase):
 
     @property
     def equivalence_ratio(self):
-        Yf = [self.solution(k, 0) for k in self.gas.species_names]
-        Yo = [self.solution(k, self.flame.n_points-1) for k in self.gas.species_names]
+        Yf = [self.value(self.flame, k, 0) for k in self.gas.species_names]
+        Yo = [self.value(self.flame, k, self.flame.n_points - 1)
+              for k in self.gas.species_names]
 
         vals = np.empty(self.flame.n_points)
         for i in range(self.flame.n_points):
