@@ -319,13 +319,13 @@ cdef CxxAnyValue python_to_anyvalue(item, name=None) except *:
                 v = list_to_anyvalue(item)
         else:
             v = list_to_anyvalue(item)
-    elif isinstance(item, str):
+    elif isinstance(item, (str, np.str_, np.bytes_)):
         v = stringify(item)
     elif isinstance(item, (bool, np.bool_)):
         v = <cbool>(item)
     elif isinstance(item, (int, np.int32, np.int64)):
         v = <long int>(item)
-    elif isinstance(item, float):
+    elif isinstance(item, (float, np.float32, np.float64)):
         v = <double>(item)
     elif item is None:
         pass  # None corresponds to "empty" AnyValue
