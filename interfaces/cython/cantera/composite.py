@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from ._cantera import *
 import numpy as np
-from collections import OrderedDict
 import csv as _csv
 import importlib.metadata
 
@@ -860,7 +859,7 @@ class SolutionArray(SolutionArrayBase):
         shape = data[labels[0]].shape
         if not shape:
             # ensure that data with a single entry have appropriate dimensions
-            data = OrderedDict([(k, np.array([v])) for k, v in data.items()])
+            data = {k: np.array([v]) for k, v in data.items()}
         rows = data[labels[0]].shape[0]
 
         for col in data.values():
@@ -1058,8 +1057,8 @@ class SolutionArray(SolutionArrayBase):
 
     def collect_data(self, cols=None, tabular=False, threshold=0, species=None):
         """
-        Returns the data specified by ``cols`` in an ordered dictionary, where
-        keys correspond to `SolutionArray` attributes to be exported.
+        Returns the data specified by ``cols`` in a dictionary, where keys correspond
+        to `SolutionArray` attributes to be exported.
 
         :param cols: A list of any properties of the solution that are scalars
             or which have a value for each species or reaction. If species names
@@ -1148,7 +1147,7 @@ class SolutionArray(SolutionArrayBase):
             else:
                 data += [(c, d)]
 
-        return OrderedDict(data)
+        return dict(data)
 
     def write_csv(self, filename, cols=None, *args, **kwargs):
         """
@@ -1180,7 +1179,7 @@ class SolutionArray(SolutionArrayBase):
             # bytestring needs to be converted for columns containing strings
             data = np.genfromtxt(filename, delimiter=',', deletechars='',
                                  dtype=None, names=True)
-            data_dict = OrderedDict()
+            data_dict = {}
             for label in data.dtype.names:
                 if data[label].dtype.type == np.bytes_:
                     data_dict[label] = data[label].astype('U')
@@ -1190,8 +1189,7 @@ class SolutionArray(SolutionArrayBase):
             # the 'encoding' parameter introduced with NumPy 1.14 simplifies import
             data = np.genfromtxt(filename, delimiter=',', deletechars='',
                                  dtype=None, names=True, encoding=None)
-            data_dict = OrderedDict({label: data[label]
-                                     for label in data.dtype.names})
+            data_dict = {label: data[label] for label in data.dtype.names}
         self.restore_data(data_dict, normalize)
 
     def to_pandas(self, cols=None, *args, **kwargs):
@@ -1225,7 +1223,7 @@ class SolutionArray(SolutionArrayBase):
         data = df.to_numpy(dtype=float)
         labels = list(df.columns)
 
-        data_dict = OrderedDict()
+        data_dict = {}
         for i, label in enumerate(labels):
             data_dict[label] = data[:, i]
         self.restore_data(data_dict, normalize)
@@ -1466,7 +1464,7 @@ class SolutionArray(SolutionArrayBase):
             self.meta = meta
 
             # load data
-            data = OrderedDict()
+            data = {}
             for name, value in dgroup.items():
                 if isinstance(value, _h5py.Group):
                     continue
