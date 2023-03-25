@@ -79,6 +79,52 @@ TEST(SolutionArray, simple)
     ASSERT_THROW(arr->setAuxiliary(0, m), CanteraError);
 }
 
+TEST(SolutionArray, normalize)
+{
+    auto gas = newSolution("h2o2.yaml",  "", "none");
+
+    auto arr = SolutionArray::create(gas, 10, AnyMap());
+    vector<double> state = arr->getState(0); // size is 12
+    vector<double> newState = {state[0], state[1], 1, 1, 1, 1, 1, 1, 1, 1, 1, -1e12};
+    ASSERT_EQ(newState.size(), state.size());
+    for (size_t loc = 0; loc < arr->size(); loc++) {
+        arr->setState(loc, newState);
+        state = arr->getState(loc);
+        for (size_t i = 0; i < state.size(); i++) {
+            ASSERT_EQ(state[i], newState[i]);
+        }
+    }
+    arr->normalize();
+    for (size_t loc = 0; loc < arr->size(); loc++) {
+        state = arr->getState(loc);
+        for (size_t i = 2; i < state.size() - 1; i++) {
+            ASSERT_NEAR(state[i], state[2], 1e-12);
+            ASSERT_NE(state[i], newState[i]);
+            ASSERT_LE(state[i], 1.);
+            ASSERT_GE(state[i], 0.);
+        }
+        ASSERT_EQ(state.back(), 0.);
+    }
+
+    newState = {state[0], state[1], 100, 0, 0, 0, 0, 0, 0, 0, 0, -1e12};
+    ASSERT_EQ(newState.size(), state.size());
+    for (size_t loc = 0; loc < arr->size(); loc++) {
+        arr->setState(loc, newState);
+        state = arr->getState(loc);
+        for (size_t i = 0; i < state.size(); i++) {
+            ASSERT_EQ(state[i], newState[i]);
+        }
+    }
+    arr->normalize();
+    for (size_t loc = 0; loc < arr->size(); loc++) {
+        state = arr->getState(loc);
+        ASSERT_EQ(state[2], 1.);
+        for (size_t i = 3; i < state.size(); i++) {
+            ASSERT_EQ(state[i], 0.);
+        }
+    }
+}
+
 TEST(SolutionArray, meta)
 {
     auto gas = newSolution("h2o2.yaml",  "", "none");
