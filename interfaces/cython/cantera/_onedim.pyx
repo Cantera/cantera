@@ -3,7 +3,6 @@
 
 from .interrupts import no_op
 import warnings
-from collections import OrderedDict
 import numpy as np
 
 from ._utils cimport stringify, pystr, anymap_to_dict
