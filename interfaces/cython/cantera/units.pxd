@@ -22,6 +22,13 @@ cdef extern from "cantera/base/Units.h" namespace "Cantera":
         CxxUnitSystem()
         stdmap[string, string] defaults()
         void setDefaults(stdmap[string, string]&) except +translate_exception
+        double convert(CxxAnyValue&, string&) except +translate_exception
+        double convert(CxxAnyValue&, CxxUnits&) except +translate_exception
+        double convertTo(double, string&) except +translate_exception
+        double convertTo(double, CxxUnits&) except +translate_exception
+        double convertActivationEnergy(CxxAnyValue&, string&) except +translate_exception
+        double convertActivationEnergyTo(double, string&) except +translate_exception
+        double convertActivationEnergyTo(double, CxxUnits&) except +translate_exception
 
     cdef cppclass CxxUnitStack "Cantera::UnitStack":
         CxxUnitStack()

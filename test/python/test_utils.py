@@ -1,4 +1,6 @@
 import numpy as np
+import pytest
+from pytest import approx
 
 import cantera as ct
 from . import utilities
@@ -60,6 +62,75 @@ class TestUnitSystem(utilities.CanteraTest):
             ct.UnitSystem({"temperature": "2 K"})
         with self.assertRaisesRegex(ct.CanteraError, "non-unity conversion factor"):
             ct.UnitSystem({"current": "2 A"})
+
+    def test_convert_to_default(self):
+        system = ct.UnitSystem()
+        assert system.convert_to("3 cm", "m") == 0.03
+        assert system.convert_to(4, "mm") == 4000.0
+        assert system.convert_to("3 cm", ct.Units("m")) == 0.03
+        assert system.convert_to(4, ct.Units("m")) == 4
+
+    def test_convert_activation_energy(self):
+        system = ct.UnitSystem()
+        assert system.convert_activation_energy_to("3 J/mol", "J/kmol") == 3000
+        assert system.convert_activation_energy_to(4, "J/mol") == 0.004
+
+    def test_convert_to_custom(self):
+        system = ct.UnitSystem({"length": "cm", "mass": "g"})
+        assert system.convert_to(10000, "m^2") == 1.0
+        assert system.convert_to(500, "kg") == 0.5
+
+    def test_convert_to_array(self):
+        system = ct.UnitSystem({"length": "km"})
+        x = np.array(((3, 4), (0.5, 2.0), (1.0, 0.0)))
+        self.assertArrayNear(system.convert_to(x, "m"), 1000 * x)
+
+    def test_convert_activation_energy_to_array(self):
+        system = ct.UnitSystem({"activation-energy": "J/mol"})
+        x = np.array(((3, 4), (0.5, 2.0), (1.0, 0.0)))
+        self.assertArrayNear(system.convert_activation_energy_to(x, "J/kmol"), 1000 * x)
+
+    def test_convert_to_sequence(self):
+        system = ct.UnitSystem({"length": "km"})
+        x = [("3000 mm", 4), (0.5, 2.0), 1.0]
+        x_m = system.convert_to(x, "m")
+        assert x_m[0][0] == 3.0
+        assert x_m[1][1] == 2000.0
+        assert x_m[2] == 1000.0
+
+    def test_convert_activation_energy_to_sequence(self):
+        system = ct.UnitSystem({"activation-energy": "J/mol"})
+        x = [("3000 K", 4), (0.5, 2.0), 1.0]
+        x_m = system.convert_activation_energy_to(x, "J/kmol")
+        assert x_m[0][0] == approx(3000 * ct.gas_constant)
+        assert x_m[1][1] == 2000.0
+        assert x_m[2] == 1000.0
+
+    def test_convert_errors(self):
+        system = ct.UnitSystem()
+        with pytest.raises(ct.CanteraError):
+            system.convert_to("eggs", "J/kmol")
+
+        with pytest.raises(TypeError):
+            system.convert_to("5 cm", True)
+
+        with pytest.raises(TypeError):
+            system.convert_to(None, "J/kmol")
+
+        with pytest.raises(TypeError):
+            system.convert_to(5, 6)
+
+        with pytest.raises(ct.CanteraError):
+            system.convert_activation_energy_to(4, "m^3/s")
+
+        with pytest.raises(TypeError):
+            system.convert_activation_energy_to(5, True)
+
+        with pytest.raises(ct.CanteraError):
+            system.convert_activation_energy_to("spam spam eggs", "K")
+
+        with pytest.raises(TypeError):
+            system.convert_activation_energy_to({"spam": 5}, "K")
 
 
 class TestPyToAnyValue(utilities.CanteraTest):

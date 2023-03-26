@@ -2,6 +2,9 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 from typing import Dict
+from collections.abc import Sequence
+import numbers
+import numpy as np
 
 from ._utils cimport *
 
@@ -92,6 +95,7 @@ cdef class UnitSystem:
     the default unit system is retrieved as::
 
         ct.UnitSystem()
+
     """
     def __cinit__(self, units=None):
         self._unitsystem.reset(new CxxUnitSystem())
@@ -122,3 +126,75 @@ cdef class UnitSystem:
             for dimension, unit in units.items():
                 cxxunits[stringify(dimension)] = stringify(unit)
             self.unitsystem.setDefaults(cxxunits)
+
+    def convert_to(self, quantity, dest):
+        """
+        Convert *quantity* to the units defined by *dest*, using this `UnitSystem` to
+        define the default units of *quantity*. *quantity* can be one of the following:
+
+        - A number, for example ``3.14``
+        - A "quantity string" containing a number and a dimension string, separated by
+          a space. For example, ``"3.14 kmol/m^3"``
+        - A NumPy array of either numeric values or quantity strings as described above
+        - A list, tuple, or other sequence of any shape containing numeric values or
+          quantity strings, For example ``("3000 mm", 3.14, "12 cm")``
+
+        *dest* can be a string or `Units` object specifying the destination units.
+        """
+        cdef double value
+        cdef CxxAnyValue val_units
+        if isinstance(quantity, str):
+            val_units = python_to_anyvalue(quantity)
+            if isinstance(dest, str):
+                return self.unitsystem.convert(val_units, stringify(dest))
+            elif isinstance(dest, Units):
+                return self.unitsystem.convert(val_units, (<Units>dest).units)
+            else:
+                raise TypeError("'dest' must be a string or 'Units' object")
+        elif isinstance(quantity, numbers.Real):
+            value = quantity
+            if isinstance(dest, str):
+                return self.unitsystem.convertTo(value, stringify(dest))
+            elif isinstance(dest, Units):
+                return self.unitsystem.convertTo(value, (<Units>dest).units)
+            else:
+                raise TypeError("'dest' must be a string or 'Units' object")
+        elif isinstance(quantity, np.ndarray):
+            return np.vectorize(lambda item: self.convert_to(item, dest))(quantity)
+        elif isinstance(quantity, Sequence):
+            return [self.convert_to(item, dest) for item in quantity]
+        else:
+            raise TypeError("'quantity' must be either a string or a number")
+
+    def convert_activation_energy_to(self, quantity, str dest):
+        """
+        Convert *quantity* to the activation energy units defined by *dest*, using this
+        `UnitSystem` to define the default units of *quantity*. *quantity* can be one of
+        the following:
+
+        - A number, for example ``3.14``
+        - A "quantity string" containing a number and a dimension string, separated by
+          a space. For example, ``"3.14 J/kmol"``
+        - A NumPy array of either numeric values or quantity strings as described above
+        - A list, tuple, or other sequence of any shape containing numeric values or
+          quantity strings, For example ``("30 kcal/mol", 3.14, "12000 K")``
+
+        *dest* can be a string or `Units` object specifying the destination units, which
+        must be interpretable as unit of energy per unit quantity (for example, J/kmol),
+        energy (for example, eV) or temperature (K).
+        """
+        cdef double value
+        cdef CxxAnyValue val_units
+        if isinstance(quantity, str):
+            val_units = python_to_anyvalue(quantity)
+            return self.unitsystem.convertActivationEnergy(val_units, stringify(dest))
+        elif isinstance(quantity, numbers.Real):
+            value = quantity
+            return self.unitsystem.convertActivationEnergyTo(value, stringify(dest))
+        elif isinstance(quantity, np.ndarray):
+            return np.vectorize(
+                lambda item: self.convert_activation_energy_to(item, dest))(quantity)
+        elif isinstance(quantity, Sequence):
+            return [self.convert_activation_energy_to(item, dest) for item in quantity]
+        else:
+            raise TypeError("'quantity' must be either a string or a number")
