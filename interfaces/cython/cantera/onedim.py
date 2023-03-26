@@ -423,7 +423,6 @@ class FlameBase(Sim1D):
             Domain to be converted; by default, the method retrieves the flow domain
         :param normalize:
             Boolean flag indicating whether mass/mole fractions should be normalized
-            (default=`False`)
 
         .. versionadded:: 3.0
         """
@@ -678,7 +677,6 @@ class FlameBase(Sim1D):
 
             To be removed after Cantera 3.0. The getter is replaceable by
             `Domain1D.settings`; for the setter, use setters for individual settings.
-            Also see deprecation note in `_FlowBase.settings`.
         """
         warnings.warn(
             "Property 'settings' to be removed after Cantera 3.0. Access settings from "
