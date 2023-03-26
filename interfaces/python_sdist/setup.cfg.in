@@ -60,7 +60,6 @@ cantera = *.pxd, test/*.txt, examples/*.txt
 cantera = *.cpp, *.h, *.pyx
 
 [options.extras_require]
-hdf5 = h5py
 pandas = pandas
 
 [options.entry_points]

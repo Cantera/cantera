@@ -24,8 +24,6 @@ def _import_h5py():
     except importlib.metadata.PackageNotFoundError:
         raise ImportError('Method requires a working h5py installation.')
     else:
-        warnings.warn(
-            "Support for 'h5py' to be removed after Cantera 3.0.", DeprecationWarning)
         import h5py as _h5py
 
 

@@ -9,7 +9,6 @@ from ._utils cimport stringify, pystr, anymap_to_dict
 from ._utils import CanteraError
 from cython.operator import dereference as deref
 
-
 # Need a pure-python class to store weakrefs to
 class _WeakrefProxy:
     pass
@@ -294,8 +293,7 @@ cdef class Domain1D:
 
         .. versionchanged:: 3.0
 
-            The dictionary layout in Cantera 3.0 combines features of HDF and YAML
-            metadata used in Cantera 2.6 to form a uniform interface.
+            Added missing domain-specific simulation settings and updated structure.
         """
         def __get__(self):
             cdef shared_ptr[CxxSolutionArray] arr
@@ -598,7 +596,7 @@ cdef class _FlowBase(Domain1D):
 
             Specialization to be removed after Cantera 3.0, as it is specific to the
             legacy HDF structure for metadata. For new behavior of the getter, use the
-            temporary method 'get_settings3'; the setter will be removed, but is
+            temporary method `get_settings3`; the setter will be removed, but is
             replaceable by setters for individual settings. The global setter is no
             longer needed, as its intended use as a service function for restoring data
             from HDF SolutionArray is replaced by a C++ implementation. As the structure
@@ -1091,26 +1089,6 @@ cdef class Sim1D:
         """
         dom, comp = self._get_indices(domain, component)
         self.sim.setFlatProfile(dom, comp, value)
-
-    def collect_data(self, domain, other):
-        """
-        Return the underlying data specifying a ``domain``. This method is used as
-        a service function for export via `FlameBase.to_solution_array`.
-
-        Derived classes call this function with the flow domain as the ``domain`` and a
-        list of essential non-thermodynamic solution components of the configuration as
-        the ``components``. A different domain (for example, inlet or outlet) can be
-        specified either by name or as the corresponding Domain1D object itself.
-
-        .. deprecated:: 3.0
-
-            Method to be removed after Cantera 3.0. Unused after moving conversion to
-            `SolutionArray` to the C++ core. As `FlameBase.to_solution_array` (which
-            itself is deprecated) bypasses this function, this service function has no
-            use and is now disabled.
-        """
-        raise NotImplementedError(
-            "This method is no longer supported and will be removed after Cantera 3.0.")
 
     def restore_data(self, domain, states, other_cols, meta):
         """

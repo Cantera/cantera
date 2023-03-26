@@ -60,7 +60,6 @@ cantera.test = *.txt
 cantera.examples = *.txt
 
 [options.extras_require]
-hdf5 = h5py
 pandas = pandas
 
 [options.entry_points]
