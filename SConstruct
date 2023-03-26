@@ -56,6 +56,7 @@ Additional command options:
 #  --output=<fname> ... send output to file (reST only)
 #
 # Other features not listed above:
+# 'scons sdist' - Build PyPI packages.
 # 'scons <command> dump' - Dump the state of the SCons environment to the
 #                          screen instead of doing <command>, for example
 #                          'scons build dump'. For debugging purposes.
@@ -1681,10 +1682,13 @@ env['python_cmd_esc'] = quoted(env['python_cmd'])
 
 # Python Package Settings
 python_min_version = parse_version("3.8")
+# Newest Python version not supported/tested by Cantera
+python_max_p1_version = parse_version("3.12")
 # The string is used to set python_requires in setup.cfg.in
-env['py_min_ver_str'] = str(python_min_version)
-# Note: cython_min_version is redefined below if the Python version is 3.8 or higher
-cython_min_version = parse_version('0.23')
+env["py_requires_ver_str"] = f">={python_min_version}"
+if env["python_sdist"] or env["package_build"]:
+    env["py_requires_ver_str"] += f",<{python_max_p1_version}"
+cython_min_version = parse_version("0.29.12")
 numpy_min_version = parse_version('1.12.0')
 
 # We choose ruamel.yaml 0.15.34 as the minimum version
@@ -1814,6 +1818,20 @@ if env['python_package'] != 'none':
                 f"{python_min_version} or newer is required. In order to install "
                 "Cantera without Python support, specify 'python_package=none'.")
             sys.exit(1)
+    elif python_version >= python_max_p1_version:
+        if env["python_package"] in ("minimal", "full", "default"):
+            if env["python_sdist"] or env["package_build"]:
+                # An error is triggered as the pip wheel cannot be built for
+                # 'scons build' due to safeguards in setup.cfg(.in) files.
+                logger.error(
+                    f"Python version is incompatible. Found {python_version}, which "
+                    "is not yet supported for package builds.")
+                sys.exit(1)
+            logger.warning(
+                f"Python {python_version} is not supported for Cantera "
+                f"{env['cantera_version']}. Python versions {python_max_p1_version} and "
+                "newer are untested and may result in unexpected behavior. Proceed "
+                "with caution.")
     elif env["python_package"] == "minimal":
         # If the minimal package was specified, no further checking needs to be done
         logger.info(f"Building the minimal Python package for Python {python_version}")
@@ -1825,16 +1843,6 @@ if env['python_package'] != 'none':
             logger.warning("\n| ".join(msg))
 
         warn_no_full_package = False
-        if python_version >= parse_version("3.8"):
-            # Reset the minimum Cython version if the Python version is 3.8 or higher
-            # Due to internal changes in the CPython API, more recent versions of
-            # Cython are necessary to build for Python 3.8. There is nothing Cantera
-            # can do about this, the changes in CPython are handled by Cython. This
-            # version bump is used to produce a more useful/actionable error message
-            # for users than the compilation errors that result from using
-            # Cython < 0.29.12.
-            cython_min_version = parse_version("0.29.12")
-
         numpy_version = versions.get("numpy")
         if not numpy_version:
             logger.info("NumPy not found.")
