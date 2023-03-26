@@ -684,15 +684,15 @@ void StFlow::updateDiffFluxes(const doublereal* x, size_t j0, size_t j1)
 string StFlow::componentName(size_t n) const
 {
     switch (n) {
-    case 0:
+    case c_offset_U:
         return "velocity";
-    case 1:
+    case c_offset_V:
         return "spread_rate";
-    case 2:
+    case c_offset_T:
         return "T";
-    case 3:
+    case c_offset_L:
         return "lambda";
-    case 4:
+    case c_offset_E:
         return "eField";
     default:
         if (n >= c_offset_Y && n < (c_offset_Y + m_nsp)) {
@@ -706,15 +706,15 @@ string StFlow::componentName(size_t n) const
 size_t StFlow::componentIndex(const std::string& name) const
 {
     if (name=="velocity") {
-        return 0;
+        return c_offset_U;
     } else if (name=="spread_rate") {
-        return 1;
+        return c_offset_V;
     } else if (name=="T") {
-        return 2;
+        return c_offset_T;
     } else if (name=="lambda") {
-        return 3;
+        return c_offset_L;
     } else if (name == "eField") {
-        return 4;
+        return c_offset_E;
     } else {
         for (size_t n=c_offset_Y; n<m_nsp+c_offset_Y; n++) {
             if (componentName(n)==name) {
