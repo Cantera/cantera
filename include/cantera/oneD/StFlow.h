@@ -329,6 +329,7 @@ protected:
             m_rho[j] = m_thermo->density();
             m_wtm[j] = m_thermo->meanMolecularWeight();
             m_cp[j] = m_thermo->cp_mass();
+            m_thermo->getPartialMolarEnthalpies(&m_hk(0,j));
         }
     }
 
@@ -425,9 +426,8 @@ protected:
     virtual void updateDiffFluxes(const doublereal* x, size_t j0, size_t j1);
 
     //Get the gradient of speies specific molar enthalpies 
-    virtual vector_fp grad_hk(const double* x, size_t j);
-    virtual void updateMolarEnthalpies(const double* x, size_t j);
-
+    virtual void grad_hk(const double* x, size_t j);
+    
     //---------------------------------------------------------
     //             member data
     //---------------------------------------------------------
@@ -452,6 +452,10 @@ protected:
     vector_fp m_multidiff;
     Array2D m_dthermal;
     Array2D m_flux;
+
+    // Arrays for saving molar enthalpies and enthalpy fluxes
+    Array2D m_hk;
+    Array2D m_dhk_dz;
 
     // production rates
     Array2D m_wdot;
@@ -507,11 +511,6 @@ public:
 
     //! Temperature at the point used to fix the flame location
     double m_tfixed = -1.0;
-
-    //Pointers to save molar enthalpies
-    vector_fp m_hk_current;
-    vector_fp m_hk_right;
-    vector_fp m_hk_left;
 
 private:
     vector_fp m_ybar;

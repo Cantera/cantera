@@ -20,16 +20,6 @@ StFlow::StFlow(ThermoPhase* ph, size_t nsp, size_t points) :
     Domain1D(nsp+c_offset_Y, points),
     m_nsp(nsp)
 {
-    if (ph->type() == "ideal-gas") {
-        m_thermo = static_cast<IdealGasPhase*>(ph);
-    } else if(ph->type() == "Redlich-Kwong" && ph->type() == "RedlichKwongMFTP") {
-        m_thermo = static_cast<RedlichKwongMFTP*>(ph);
-    } else if(ph->type() == "Peng-Robinson") {
-        m_thermo = static_cast<PengRobinson*>(ph);
-    } else {
-        throw CanteraError("StFlow::StFlow",
-                           "Unsupported phase type");
-    }
     m_type = cFlowType;
     m_points = points;
 
@@ -64,6 +54,8 @@ StFlow::StFlow(ThermoPhase* ph, size_t nsp, size_t points) :
     m_multidiff.resize(m_nsp*m_nsp*m_points);
     m_flux.resize(m_nsp,m_points);
     m_wdot.resize(m_nsp,m_points, 0.0);
+    m_hk.resize(m_nsp,m_points, 0.0);
+    m_dhk_dz.resize(m_nsp,m_points-1, 0.0);
     m_ybar.resize(m_nsp);
     m_qdotRadiation.resize(m_points, 0.0);
 
@@ -206,6 +198,7 @@ void StFlow::resize(size_t ncomponents, size_t points)
     }
     m_flux.resize(m_nsp,m_points);
     m_wdot.resize(m_nsp,m_points, 0.0);
+    m_hk.resize(m_nsp,m_points, 0.0);
     m_do_energy.resize(m_points,false);
     m_qdotRadiation.resize(m_points, 0.0);
     m_fixedtemp.resize(m_points);
@@ -478,7 +471,6 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
         }
     }
 
-    vector_fp h_molar(m_nsp);
     for (size_t j = jmin; j <= jmax; j++) {
         //----------------------------------------------
         //         left boundary
@@ -584,16 +576,11 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
                    sum *= GasConstant * T(x,j);
                    sum2 *= GasConstant * dtdzj;
                 } else {
-                    // Update vectors m_hk_current, m_hk_left and m_hk_right
-                    updateMolarEnthalpies(x, j);
-
-                    vector_fp dHk_dz = grad_hk(x, j);
-                    m_thermo->getPartialMolarEnthalpies(&h_molar[0]);
-
+                    grad_hk(x, j);
                     for (size_t k = 0; k < m_nsp; k++) {
                         double flxk = 0.5*(m_flux(k,j-1) + m_flux(k,j));
-                        sum += wdot(k,j)*h_molar[k];
-                        sum2 += flxk * dHk_dz[k] / m_wt[k];
+                        sum += wdot(k,j)*m_hk(k,j);
+                        sum2 += flxk * m_dhk_dz(k,j) / m_wt[k];
                     }
                 }
                 
@@ -1072,38 +1059,16 @@ void StFlow::evalContinuity(size_t j, double* x, double* rsd, int* diag, double 
     }
 }
 
-vector_fp StFlow::grad_hk(const double* x, size_t j) 
+void StFlow::grad_hk(const double* x, size_t j) 
 {
-    vector_fp dhk_dz(m_nsp, 0.0);
-
     for(size_t k = 0; k < m_nsp; k++) {
         if (u(x, j) > 0.0) {
-            dhk_dz[k] = (m_hk_current[k] - m_hk_left[k]) / m_dz[j - 1];
+            m_dhk_dz(k,j) = (m_hk(k,j) - m_hk(k,j-1)) / m_dz[j - 1];
         }
         else {
-            dhk_dz[k] = (m_hk_right[k] - m_hk_current[k]) / m_dz[j];
+            m_dhk_dz(k,j) = (m_hk(k,j+1) - m_hk(k,j)) / m_dz[j];
         }
     }
-    return dhk_dz;
-}
-
-void StFlow::updateMolarEnthalpies(const double* x, size_t j)
-{
-    m_hk_left.resize(m_nsp,0.0);
-    m_hk_current.resize(m_nsp,0.0);
-    m_hk_right.resize(m_nsp,0.0);
-
-    // Node (j-1)
-    setGas(x, j-1);
-    m_thermo->getPartialMolarEnthalpies(&m_hk_left[0]);
-    
-    // Current Node j
-    setGas(x, j);
-    m_thermo->getPartialMolarEnthalpies(&m_hk_current[0]);
-
-    // Node (j+1)
-    setGas(x, j + 1);
-    m_thermo->getPartialMolarEnthalpies(&m_hk_right[0]);
 }
 
 } // namespace
