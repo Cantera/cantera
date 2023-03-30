@@ -164,6 +164,26 @@ cdef class AnyMap(dict):
     def default_units(self):
         return self.unitsystem.defaults()
 
+    @property
+    def units(self):
+        """Get the `UnitSystem` applicable to this `AnyMap`."""
+        return self.unitsystem
+
+    def convert(self, str key, dest):
+        """
+        Convert the value corresponding to the specified *key* to the units defined by
+        *dest*. *dest* may be a string or a `Units` object.
+        """
+        return self.unitsystem.convert_to(self[key], dest)
+
+    def convert_activation_energy(self, key, dest):
+        """
+        Convert the value corresponding to the specified *key* to the units defined by
+        *dest*. *dest* may be a string or a `Units` object defining units that are
+        interpretable as an activation energy.
+        """
+        return self.unitsystem.convert_activation_energy_to(self[key], dest)
+
 
 cdef anyvalue_to_python(string name, CxxAnyValue& v):
     cdef CxxAnyMap a
@@ -240,6 +260,7 @@ cdef CxxAnyMap py_to_anymap(data, cbool hyphenize=False) except *:
 
     for k, v in data.items():
         m[stringify(k)] = python_to_anyvalue(v, k)
+    m.applyUnits()
     return m
 
 cdef get_types(item):
@@ -446,3 +467,8 @@ def _py_to_any_to_py(dd):
     cdef string name = stringify("test")
     cdef CxxAnyValue vv = python_to_anyvalue(dd)
     return anyvalue_to_python(name, vv), pystr(vv.type_str())
+
+def _py_to_anymap_to_py(pp):
+    # used for internal testing purposes only
+    cdef CxxAnyMap m = py_to_anymap(pp)
+    return anymap_to_py(m)
