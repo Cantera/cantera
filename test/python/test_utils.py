@@ -5,7 +5,7 @@ from pytest import approx
 import cantera as ct
 from . import utilities
 
-from cantera._utils import _py_to_any_to_py
+from cantera._utils import _py_to_any_to_py, _py_to_anymap_to_py
 
 
 class TestUnitSystem(utilities.CanteraTest):
@@ -239,3 +239,35 @@ class TestPyToAnyValue(utilities.CanteraTest):
 
     def test_unconvertible2(self):
         self.check_raises([3+4j, 1-2j], ct.CanteraError, "Unable to convert")
+
+
+class TestAnyMap(utilities.CanteraTest):
+    @classmethod
+    def setup_class(cls):
+        data = {
+            "units": {"length": "mm", "energy": "kJ"},
+            "group1": {
+                "a": 5000,
+                "b": "12 MJ",
+                "c": "8000 K",
+                "d": [16, "10 cm^2"]
+            },
+            "group2": {
+                "units": {"mass": "g"},
+                "x": 1300
+            }
+        }
+        cls.data = _py_to_anymap_to_py(data)
+
+    def test_units_simple(self):
+        assert self.data['group1'].convert('a', 'm') == 5.0
+        assert self.data['group1'].convert('b', 'J') == 12e6
+        assert self.data['group1'].convert('d', 'm^2') == [16e-6, 10e-4]
+
+    def test_units_activation_energy(self):
+        assert self.data['group1'].convert_activation_energy('a', 'J/kmol') == 5e6
+        assert (self.data['group1'].convert_activation_energy('c', 'J/kmol')
+                == pytest.approx(8000 * ct.gas_constant))
+
+    def test_units_nested(self):
+        assert self.data['group2'].convert('x', 'J/kg') == 1300 * 1e6
