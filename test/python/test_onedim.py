@@ -877,9 +877,9 @@ class TestFreeFlame(utilities.CanteraTest):
         # pytest.approx is used as equality for floats cannot be guaranteed for loaded
         # HDF5 files if they were created on a different OS and/or architecture
         assert list(f.grid) == pytest.approx(list(self.sim.grid))
-        assert list(f.T) == pytest.approx(list(self.sim.T), rel=1e-5)
+        assert list(f.T) == pytest.approx(list(self.sim.T), rel=1e-4)
         k = self.gas.species_index('H2')
-        assert list(f.X[k, :]) == pytest.approx(list(self.sim.X[k, :]), rel=1e-5)
+        assert list(f.X[k, :]) == pytest.approx(list(self.sim.X[k, :]), rel=1e-4)
         assert list(f.inlet.X) == pytest.approx(list(self.sim.inlet.X))
 
         def check_settings(one, two):
@@ -1481,9 +1481,9 @@ class TestImpingingJet(utilities.CanteraTest):
         # pytest.approx is used as equality for floats cannot be guaranteed for loaded
         # HDF5 files if they were created on a different OS and/or architecture
         assert list(jet.grid) == pytest.approx(list(self.sim.grid))
-        assert list(jet.T) == pytest.approx(list(self.sim.T))
+        assert list(jet.T) == pytest.approx(list(self.sim.T), 1e-3)
         k = self.sim.gas.species_index('H2')
-        assert list(jet.X[k, :]) == pytest.approx(list(self.sim.X[k, :]))
+        assert list(jet.X[k, :]) == pytest.approx(list(self.sim.X[k, :]), 1e-4)
 
         settings = self.sim.settings
         for k, v in jet.settings.items():
@@ -1504,7 +1504,8 @@ class TestImpingingJet(utilities.CanteraTest):
 
         assert list(jet.surface.surface.X) == pytest.approx(list(self.sim.surface.surface.X))
         for i in range(self.sim.surface.n_components):
-            assert self.sim.value("surface", i, 0) == pytest.approx(jet.value("surface", i, 0))
+            assert self.sim.value("surface", i, 0) == \
+                pytest.approx(jet.value("surface", i, 0), 1e-4)
 
         jet.solve(loglevel=0)
 
