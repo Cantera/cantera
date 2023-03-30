@@ -54,8 +54,8 @@ StFlow::StFlow(ThermoPhase* ph, size_t nsp, size_t points) :
     m_multidiff.resize(m_nsp*m_nsp*m_points);
     m_flux.resize(m_nsp,m_points);
     m_wdot.resize(m_nsp,m_points, 0.0);
-    m_hk.resize(m_nsp,m_points, 0.0);
-    m_dhk_dz.resize(m_nsp,m_points-1, 0.0);
+    m_hk.resize(m_nsp, m_points, 0.0);
+    m_dhk_dz.resize(m_nsp, m_points - 1, 0.0);
     m_ybar.resize(m_nsp);
     m_qdotRadiation.resize(m_points, 0.0);
 
@@ -198,7 +198,8 @@ void StFlow::resize(size_t ncomponents, size_t points)
     }
     m_flux.resize(m_nsp,m_points);
     m_wdot.resize(m_nsp,m_points, 0.0);
-    m_hk.resize(m_nsp,m_points, 0.0);
+    m_hk.resize(m_nsp, m_points, 0.0);
+    m_dhk_dz.resize(m_nsp, m_points - 1, 0.0);
     m_do_energy.resize(m_points,false);
     m_qdotRadiation.resize(m_points, 0.0);
     m_fixedtemp.resize(m_points);
