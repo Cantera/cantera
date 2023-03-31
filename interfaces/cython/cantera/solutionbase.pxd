@@ -8,6 +8,8 @@ import numpy as np
 cimport numpy as np
 
 from .ctcxx cimport *
+from .delegator cimport CxxExternalHandle
+
 
 cdef extern from "cantera/thermo/ThermoFactory.h" namespace "Cantera":
     cdef cppclass CxxThermoPhase "Cantera::ThermoPhase"
@@ -27,14 +29,6 @@ cdef extern from "cantera/transport/TransportFactory.h" namespace "Cantera":
 cdef extern from "cantera/base/Interface.h" namespace "Cantera":
     cdef shared_ptr[CxxSolution] newInterface(
         string, string, vector[string]) except +translate_exception
-
-
-cdef extern from "cantera/extensions/PythonHandle.h" namespace "Cantera":
-    cdef cppclass CxxExternalHandle "Cantera::ExternalHandle":
-        pass
-
-    cdef cppclass CxxPythonHandle "Cantera::PythonHandle" (CxxExternalHandle):
-        CxxPythonHandle(PyObject*, cbool)
 
 
 cdef extern from "cantera/base/Solution.h" namespace "Cantera":

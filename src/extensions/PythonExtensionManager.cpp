@@ -99,7 +99,8 @@ void PythonExtensionManager::registerRateBuilder(
         delegator->setParameters(params, units);
 
         // The delegator is responsible for eventually deleting the Python object
-        delegator->holdExternalHandle(make_shared<PythonHandle>(extRate, false));
+        delegator->holdExternalHandle("python",
+                                      make_shared<PythonHandle>(extRate, false));
         return delegator.release();
     };
     ReactionRateFactory::factory()->reg(rateName, builder);

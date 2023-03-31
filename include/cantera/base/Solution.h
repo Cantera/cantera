@@ -137,7 +137,7 @@ protected:
 
     AnyMap m_header;  //!< Additional input fields; usually from a YAML input file
 
-    //! Wrappers for this Kinetics object in extension languages, for evaluation
+    //! Wrappers for this Solution object in extension languages, for evaluation
     //! of user-defined reaction rates
     std::map<std::string, shared_ptr<ExternalHandle>> m_externalHandles;
 
