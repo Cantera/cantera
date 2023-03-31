@@ -12,7 +12,7 @@ from .kinetics cimport *
 from .transport cimport *
 from .reaction cimport *
 from ._utils cimport *
-from .delegator cimport pyOverride, callback_v
+from .delegator cimport pyOverride, callback_v, CxxPythonHandle
 from .yamlwriter cimport YamlWriter
 
 ctypedef CxxSurfPhase* CxxSurfPhasePtr

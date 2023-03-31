@@ -22,11 +22,22 @@ cdef extern from "<array>" namespace "std" nogil:
         size_t& operator[](size_t)
 
 
+cdef extern from "cantera/extensions/PythonHandle.h" namespace "Cantera":
+    cdef cppclass CxxExternalHandle "Cantera::ExternalHandle":
+        pass
+
+    cdef cppclass CxxPythonHandle "Cantera::PythonHandle" (CxxExternalHandle):
+        CxxPythonHandle(PyObject*, cbool)
+        PyObject* get()
+
+
 cdef extern from "cantera/base/Delegator.h" namespace "Cantera":
     cdef cppclass CxxDelegator "Cantera::Delegator":
         Delegator()
 
         void setDelegatorName(string&)
+        void holdExternalHandle(string&, shared_ptr[CxxExternalHandle]&)
+        shared_ptr[CxxExternalHandle] getExternalHandle(string&)
 
         void setDelegate(string&, function[void()], string&) except +translate_exception
         void setDelegate(string&, function[void(cbool)], string&) except +translate_exception

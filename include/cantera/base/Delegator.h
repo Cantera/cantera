@@ -7,6 +7,7 @@
 #define CT_DELEGATOR_H
 
 #include "cantera/base/global.h"
+#include "cantera/base/Units.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/ExtensionManager.h"
 #include <array>
@@ -254,8 +255,21 @@ public:
         *m_funcs_sz_csr[name] = makeDelegate(name, func, when, m_base_sz_csr[name]);
     }
 
-    void holdExternalHandle(const shared_ptr<ExternalHandle>& handle) {
-        m_handles.push_back(handle);
+    //! Store a handle to a wrapper for the delegate from an external language interface
+    void holdExternalHandle(const string& name,
+                            const shared_ptr<ExternalHandle>& handle) {
+        m_handles[name] = handle;
+    }
+
+    //! Get the handle for a wrapper for the delegate from the external language
+    //! interface specified by *name*.
+    //! Returns a null pointer if the requested handle does not exist.
+    shared_ptr<ExternalHandle> getExternalHandle(const string& name) const {
+        if (m_handles.count(name)) {
+            return m_handles.at(name);
+        } else {
+            return shared_ptr<ExternalHandle>();
+        }
     }
 
 protected:
@@ -496,8 +510,10 @@ protected:
         std::function<size_t(const std::string&)>*> m_funcs_sz_csr;
     //! @}
 
-    //! Cleanup functions to be called from the destructor
-    std::list<shared_ptr<ExternalHandle>> m_handles;
+    //! Handles to wrappers for the delegated object in external language interfaces.
+    //! Used to provide access to these wrappers as well as managing cleanup functions
+    //! called from the destructor of the derived ExternalHandle class.
+    map<string, shared_ptr<ExternalHandle>> m_handles;
 
     //! Name of the class in the extension language
     std::string m_delegatorName;
