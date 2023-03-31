@@ -98,7 +98,9 @@ void PythonExtensionManager::registerRateBuilder(
         //! Call setParameters after the delegated functions have been connected
         delegator->setParameters(params, units);
 
-        // The delegator is responsible for eventually deleting the Python object
+        // The delegator needs to hold a reference to the Python object to prevent
+        // garbage collection for as long as the delegator exists. Breaking the
+        // reference cycle is handled on the Python side.
         delegator->holdExternalHandle("python",
                                       make_shared<PythonHandle>(extRate, false));
         return delegator.release();
