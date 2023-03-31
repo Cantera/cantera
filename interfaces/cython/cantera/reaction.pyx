@@ -8,6 +8,7 @@ from cython.operator cimport dereference as deref
 
 from .kinetics cimport Kinetics
 from ._utils cimport *
+from ._utils import CanteraError
 from .units cimport *
 from .delegator cimport *
 
@@ -58,6 +59,21 @@ cdef class ReactionRate:
 
             # update global reaction class registry
             register_subclasses(ReactionRate)
+
+        # Check for delegated rate, which will already have a Python wrapper
+        cdef CxxDelegator* drate = dynamic_cast[CxxDelegatorPtr](rate.get())
+        cdef CxxPythonHandle* handle
+
+        if drate != NULL:
+            handle = dynamic_pointer_cast[CxxPythonHandle, CxxExternalHandle](
+                drate.getExternalHandle(stringify("python"))).get()
+            if handle != NULL and handle.get() != NULL:
+                py_rate = <ReactionRate>(<PyObject*>handle.get())
+                py_rate._rate = rate
+                return py_rate
+            else:
+                raise CanteraError("Internal Error: Delegator does not have a "
+                                   "corresponding Python ExtensibleRate object")
 
         # identify class (either subType or type)
         rate_type = pystr(rate.get().subType())

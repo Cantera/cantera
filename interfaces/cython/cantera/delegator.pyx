@@ -17,6 +17,8 @@ from .reaction cimport (ExtensibleRate, ExtensibleRateData, CxxReaction,
 from .solutionbase cimport CxxSolution, _assign_Solution
 from cython.operator import dereference as deref
 
+from cpython.object cimport PyTypeObject, traverseproc, visitproc, inquiry
+
 # ## Implementation for each delegated function type
 #
 # Besides the C++ functions implemented in the `Delegator` class, each delegated
@@ -404,6 +406,48 @@ cdef public object ct_wrapSolution(shared_ptr[CxxSolution] soln):
     pySoln = Solution(init=False)
     _assign_Solution(pySoln, soln, False, weak=True)
     return pySoln
+
+# The pair of (ExtensibleRate, ReactionRateDelegator) objects both hold owned references
+# to one another. To allow the Python garbage collector to break this reference cycle,
+# we need to implement custom behavior to detect when the only object referring the
+# ReactionRateDelegator is the ExtensibleRate.
+# Implementation roughly follows from https://github.com/mdavidsaver/cython-c--demo
+
+# Capture the original implementations of the tp_traverse and tp_clear methods
+cdef PyTypeObject* extensibleRate_t = <PyTypeObject*>ExtensibleRate
+cdef traverseproc extensibleRate_base_traverse = extensibleRate_t.tp_traverse
+cdef inquiry extensibleRate_base_clear = extensibleRate_t.tp_clear
+assert extensibleRate_base_traverse != NULL
+assert extensibleRate_base_clear != NULL
+
+cdef int traverse_ExtensibleRate(PyObject* raw, visitproc visit, void* arg) except -1:
+    cdef ExtensibleRate self = <ExtensibleRate>raw
+    cdef int ret = 0
+    # If self._rate.use_count() is 1, this ExtensibleRate rate is the only object
+    # referencing self._rate. To let the GC see the cycle where self._rate references
+    # self, we tell it to visit self. If self._rate.use_count() is more than one, there
+    # are other C++ objects referring to self._rate, and we don't want the GC to see a
+    # cycle, so we skip visiting self.
+    if self._rate.use_count() == 1:
+        ret = visit(<PyObject*>self, arg)
+    if ret:
+        return ret
+    # Call the original traverser to deal with all other members
+    ret = extensibleRate_base_traverse(raw, visit, arg)
+    return ret
+
+cdef int clear_ExtensibleRate(object obj) except -1:
+    cdef ExtensibleRate self = <ExtensibleRate>obj
+    # If the GC has called this method, this ExtensibleRate is the only object holding
+    # a reference to the ReactionRateDelegator, and resetting the shared_ptr will delete
+    # both that object and its reference to the ExtensibleRate, allowing the ref count
+    # for the ExtensibleRate to go to zero.
+    self._rate.reset()
+    return extensibleRate_base_clear(obj)
+
+# Assign the augmented garbage collector functions
+extensibleRate_t.tp_traverse = traverse_ExtensibleRate
+extensibleRate_t.tp_clear = clear_ExtensibleRate
 
 
 CxxPythonExtensionManager.registerSelf()

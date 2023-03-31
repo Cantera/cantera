@@ -1572,10 +1572,19 @@ class TestExtensible(ReactionTests, utilities.CanteraTest):
     def test_roundtrip(self):
         pytest.skip("ExtensibleRate does not yet support roundtrip conversion")
 
+    def test_parameter_access(self):
+        gas = ct.Solution(yaml=self._phase_def)
+        R = ct.Reaction.from_yaml(self._yaml, gas)
+        assert R.rate.A == 38.7
+
     def test_set_parameters_error(self):
         with pytest.raises(KeyError):
             # Instantiate with no A factor
             ct.ReactionRate.from_dict({"type": "user-rate-1"})
+
+    def test_standalone_rate(self):
+        R = ct.ReactionRate.from_dict({"type": "user-rate-1", "A": 101})
+        assert R.type == "user-rate-1"
 
     def test_eval_error(self):
         # Instantiate with non-numeric A factor to cause an exception during evaluation
@@ -1625,7 +1634,9 @@ class TestExtensible2(utilities.CanteraTest):
         # mixed Python/C++ ownership cycles
         import user_ext
 
-        gc.collect()
+        for _ in range(3):
+            gc.collect()
+
         initialRate = user_ext.SquareRate.use_count[0]
         initialData = user_ext.SquareRateData.use_count[0]
 
@@ -1635,12 +1646,17 @@ class TestExtensible2(utilities.CanteraTest):
             assert user_ext.SquareRate.use_count[0] == initialRate + 1
             assert user_ext.SquareRateData.use_count[0] == initialData + 1
 
+            standalone = ct.ReactionRate.from_dict({"type": "square-rate", "A": 101})
+            assert user_ext.SquareRate.use_count[0] == initialRate + 2
+            assert user_ext.SquareRateData.use_count[0] == initialData + 1
+
         run()
 
         # The number of instances for both classes should go back to its previous value
         # after deleting the Solution (may not be zero due to other Solution instances)
-        # held by other test classes
-        gc.collect()
+        # held by other test classes. Takes a few GC runs to clean up reference cycles
+        for _ in range(3):
+            gc.collect()
         assert user_ext.SquareRate.use_count[0] == initialRate
         assert user_ext.SquareRateData.use_count[0] == initialData
 
