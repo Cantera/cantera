@@ -29,6 +29,10 @@
 
 namespace h5 = HighFive;
 
+// Implement read/write support for Booleans
+// Note that HighFive 2.7.0 introduces native boolean support
+// todo: replace below by: typedef h5::details::Boolean H5Boolean;
+
 enum class H5Boolean {
     FALSE = 0,
     TRUE = 1,
@@ -39,7 +43,7 @@ h5::EnumType<H5Boolean> create_enum_boolean() {
             {"TRUE", H5Boolean::TRUE}};
 }
 
-HIGHFIVE_REGISTER_TYPE(H5Boolean, create_enum_boolean)
+HIGHFIVE_REGISTER_TYPE(H5Boolean, ::create_enum_boolean)
 
 #endif
 
