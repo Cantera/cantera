@@ -61,11 +61,30 @@ cdef class Units:
         return self.units.factor()
 
     @staticmethod
-    cdef copy(CxxUnits other):
+    cdef Units copy(CxxUnits other):
         """Copy a C++ Units object to a Python object."""
         cdef Units units = Units()
         units.units = CxxUnits(other)
         return units
+
+
+cdef class UnitStack:
+    def __cinit__(self):
+        self.stack = CxxUnitStack(CxxUnits())
+
+    @staticmethod
+    cdef UnitStack copy(const CxxUnitStack& other):
+        """Copy a C++ UnitStack object to a Python object."""
+        cdef UnitStack stack = UnitStack()
+        stack.stack = CxxUnitStack(other)
+        return stack
+
+    def product(self):
+        cdef CxxUnits units = self.stack.product()
+        return Units.copy(units)
+
+    def join(self, exponent):
+        self.stack.join(exponent)
 
 
 cdef class UnitSystem:
@@ -196,5 +215,35 @@ cdef class UnitSystem:
                 lambda item: self.convert_activation_energy_to(item, dest))(quantity)
         elif isinstance(quantity, Sequence):
             return [self.convert_activation_energy_to(item, dest) for item in quantity]
+        else:
+            raise TypeError("'quantity' must be either a string or a number")
+
+    def convert_rate_coeff_to(self, quantity, dest):
+        """
+        Convert a *quantity* representing a rate coefficient to the units defined by
+        *dest*, using this `UnitSystem` to define the default units of *quantity*.
+        Behaves similar to`convert_to` but with special handling for the case of
+        standalone rate constants, where the destination units are not actually known,
+        and where the units may be specified using `Units` or `UnitStack` objects.
+        """
+        cdef Units dest_units
+        if isinstance(dest, Units):
+            dest_units = dest
+        elif isinstance(dest, UnitStack):
+            dest_units = dest.product()
+        elif isinstance(dest, str):
+            dest_units = Units(dest)
+        else:
+            raise TypeError("'dest' must be a string, Units, or UnitStack object")
+
+        cdef CxxAnyValue val_units
+        if isinstance(quantity, (str, numbers.Real)):
+            val_units = python_to_anyvalue(quantity)
+            return self.unitsystem.convertRateCoeff(val_units, dest_units.units)
+        elif isinstance(quantity, np.ndarray):
+            return np.vectorize(
+                lambda q: self.convert_rate_coeff_to(q, dest_units))(quantity)
+        elif isinstance(quantity, Sequence):
+            return [self.convert_rate_coeff_to(q, dest_units) for q in quantity]
         else:
             raise TypeError("'quantity' must be either a string or a number")

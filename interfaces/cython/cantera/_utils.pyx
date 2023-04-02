@@ -184,6 +184,14 @@ cdef class AnyMap(dict):
         """
         return self.unitsystem.convert_activation_energy_to(self[key], dest)
 
+    def convert_rate_coeff(self, str key, dest):
+        """
+        Convert the value corresponding to the specified *key* to the units defined by
+        *dest*, with special handling for `UnitStack` input and potentially-undefined
+        rate coefficient units.
+        """
+        return self.unitsystem.convert_rate_coeff_to(self[key], dest)
+
 
 cdef anyvalue_to_python(string name, CxxAnyValue& v):
     cdef CxxAnyMap a

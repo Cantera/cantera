@@ -75,6 +75,11 @@ class TestUnitSystem(utilities.CanteraTest):
         assert system.convert_activation_energy_to("3 J/mol", "J/kmol") == 3000
         assert system.convert_activation_energy_to(4, "J/mol") == 0.004
 
+    def test_convert_rate_coeff(self):
+        system = ct.UnitSystem({"length": "cm"})
+        assert system.convert_rate_coeff_to(11, ct.Units("m^3/kmol/s")) == approx(11e-6)
+        assert system.convert_rate_coeff_to("22 m^3/mol/s", "m^3/kmol/s") == approx(22e3)
+
     def test_convert_to_custom(self):
         system = ct.UnitSystem({"length": "cm", "mass": "g"})
         assert system.convert_to(10000, "m^2") == 1.0
@@ -89,6 +94,11 @@ class TestUnitSystem(utilities.CanteraTest):
         system = ct.UnitSystem({"activation-energy": "J/mol"})
         x = np.array(((3, 4), (0.5, 2.0), (1.0, 0.0)))
         self.assertArrayNear(system.convert_activation_energy_to(x, "J/kmol"), 1000 * x)
+
+    def test_convert_rate_coeff_to_array(self):
+        system = ct.UnitSystem({"length": "cm"})
+        x = np.array(((3, 4), (0.5, 2.0), (1.0, 0.0)))
+        self.assertArrayNear(system.convert_rate_coeff_to(x, "m^2/kmol/s"), 0.0001 * x)
 
     def test_convert_to_sequence(self):
         system = ct.UnitSystem({"length": "km"})
@@ -105,6 +115,14 @@ class TestUnitSystem(utilities.CanteraTest):
         assert x_m[0][0] == approx(3000 * ct.gas_constant)
         assert x_m[1][1] == 2000.0
         assert x_m[2] == 1000.0
+
+    def test_convert_rate_coeff_to_sequence(self):
+        system = ct.UnitSystem({"length": "cm"})
+        x = [("3000 mm^3/kmol/s", 4), (0.5, 2.0), 1.0]
+        x_m = system.convert_rate_coeff_to(x, ct.Units("m^3/kmol/s"))
+        assert x_m[0][0] == approx(3000 / 1e9)
+        assert x_m[1][1] == approx(2 / 1e6)
+        assert x_m[2] == approx(1e-6)
 
     def test_convert_errors(self):
         system = ct.UnitSystem()
@@ -132,6 +150,11 @@ class TestUnitSystem(utilities.CanteraTest):
         with pytest.raises(TypeError):
             system.convert_activation_energy_to({"spam": 5}, "K")
 
+        with pytest.raises(TypeError):
+            system.convert_rate_coeff_to(11, ["m^3"])
+
+        with pytest.raises(TypeError):
+            system.convert_rate_coeff_to({"spam": 13}, "m^6/kmol^2/s")
 
 class TestPyToAnyValue(utilities.CanteraTest):
 

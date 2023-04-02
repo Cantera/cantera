@@ -760,11 +760,12 @@ cdef class ExtensibleRate(ReactionRate):
             assign_delegates(self, dynamic_cast[CxxDelegatorPtr](self.rate))
         # ReactionRate does not define __init__, so it does not need to be called
 
-    def set_parameters(self, params: dict, units: Units) -> None:
+    def set_parameters(self, params: AnyMap, rate_coeff_units: UnitStack) -> None:
         """
         Responsible for setting rate parameters based on the input data. For example,
         for reactions created from YAML, ``params`` is the YAML reaction entry converted
-        to a ``dict``. ``units`` specifies the units of the rate coefficient.
+        to an ``AnyMap``. ``rate_coeff_units`` specifies the units of the rate
+        coefficient.
         """
         raise NotImplementedError(f"{self.__class__.__name__}.set_parameters")
 

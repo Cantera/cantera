@@ -12,7 +12,7 @@ cimport numpy as np
 cdef extern from "cantera/base/Units.h" namespace "Cantera":
     cdef cppclass CxxUnits "Cantera::Units":
         CxxUnits()
-        CxxUnits(CxxUnits)
+        CxxUnits(CxxUnits&)
         CxxUnits(string, cbool) except +translate_exception
         string str()
         double factor()
@@ -26,19 +26,29 @@ cdef extern from "cantera/base/Units.h" namespace "Cantera":
         double convert(CxxAnyValue&, CxxUnits&) except +translate_exception
         double convertTo(double, string&) except +translate_exception
         double convertTo(double, CxxUnits&) except +translate_exception
+        double convertRateCoeff(CxxAnyValue&, CxxUnits&) except +translate_exception
         double convertActivationEnergy(CxxAnyValue&, string&) except +translate_exception
         double convertActivationEnergyTo(double, string&) except +translate_exception
         double convertActivationEnergyTo(double, CxxUnits&) except +translate_exception
 
     cdef cppclass CxxUnitStack "Cantera::UnitStack":
         CxxUnitStack()
+        CxxUnitStack(CxxUnits&)
+        CxxUnitStack(CxxUnitStack&)
         CxxUnits product()
+        void join(double) except +translate_exception
 
 
 cdef class Units:
     cdef CxxUnits units
     @staticmethod
-    cdef copy(CxxUnits)
+    cdef Units copy(CxxUnits)
+
+cdef class UnitStack:
+    cdef CxxUnitStack stack
+    @staticmethod
+    cdef UnitStack copy(const CxxUnitStack&)
+
 
 cdef class UnitSystem:
     cdef _set_unitSystem(self, shared_ptr[CxxUnitSystem] units)
