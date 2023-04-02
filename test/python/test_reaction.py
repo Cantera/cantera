@@ -1529,7 +1529,7 @@ class UserRate1(ct.ExtensibleRate):
 
 
 class TestExtensible(ReactionTests, utilities.CanteraTest):
-    # test Extensible reaction rate
+    # test general functionality of ExtensibleRate
     _phase_def = """
     phases:
     - name: gas
@@ -1596,6 +1596,8 @@ class TestExtensible(ReactionTests, utilities.CanteraTest):
 
 
 class TestExtensible2(utilities.CanteraTest):
+    # Test handling of ExtensibleRate defined in a separate Python module
+
     _input_template = """
     extensions:
     - type: python
@@ -1661,6 +1663,42 @@ class TestExtensible2(utilities.CanteraTest):
             gc.collect()
         assert user_ext.SquareRate.use_count[0] == initialRate
         assert user_ext.SquareRateData.use_count[0] == initialData
+
+
+@ct.extension(name="user-rate-2", data=UserRate1Data)
+class UserRate2(ct.ExtensibleRate):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.A = np.nan
+        self.Ta = np.nan
+        self.length = np.nan
+
+    def set_parameters(self, params, rc_units):
+        self.A = params.convert_rate_coeff("A", rc_units)
+        self.length = params.convert("L", "m")
+        self.Ta = params.convert_activation_energy("Ea", "K")
+
+    def eval(self, data):
+        return self.A * (self.length / 2.0)**2 * exp(-self.Ta/data.T)
+
+class TestExtensible3(utilities.CanteraTest):
+    # Additional ExtensibleRate tests
+
+    def setUp(self):
+        self.gas = ct.Solution('h2o2.yaml', transport_model=None)
+
+    def test_explicit_units(self):
+        rxn = """
+        equation: H2 + OH = H2O + H
+        type: user-rate-2
+        A: 1000 cm^3/kmol/s
+        L: 200 cm
+        Ea: 1000
+        """
+        rxn = ct.Reaction.from_yaml(rxn, kinetics=self.gas)
+        assert rxn.rate.length == 2
+        assert rxn.rate.Ta == pytest.approx(1000 / ct.gas_constant)
+
 
 class InterfaceReactionTests(ReactionTests):
     # test suite for surface reaction expressions

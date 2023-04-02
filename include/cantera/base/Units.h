@@ -106,6 +106,8 @@ struct UnitStack
     UnitStack(std::initializer_list<std::pair<Units, double>> units)
         : stack(units) {}
 
+    UnitStack() = default;
+
     //! Size of UnitStack
     size_t size() const { return stack.size(); }
 
