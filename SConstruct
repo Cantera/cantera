@@ -931,7 +931,7 @@ if "sdist" in COMMAND_LINE_TARGETS:
     elif env["python_package"] in ("full", "y"):
         logger.error("'sdist' target was specified. Cannot also build Python package.")
         sys.exit(1)
-    for ext_dependency in ("sundials", "fmt", "yamlcpp", "eigen"):
+    for ext_dependency in ("sundials", "fmt", "yamlcpp", "eigen", "highfive"):
         if env[f"system_{ext_dependency}"] == "y":
             logger.error(f"'sdist' target was specified. Cannot use 'system_{ext_dependency}'.")
             sys.exit(1)
@@ -1542,9 +1542,32 @@ else:
     if not env["use_hdf5"] and env["hdf_support"] == "y":
         config_error("HDF5 support has been specified but libraries were not found.")
 
+if env["use_hdf5"] and env["system_highfive"] in ("y", "default"):
+
+    if conf.CheckLibWithHeader(
+            "hdf5", "highfive/H5File.hpp", language="C++", autoadd=False):
+        env["system_highfive"] = True
+
+        highfive_include = "<highfive/H5Version.hpp>"
+        h5_version_source = get_expression_value(
+            [highfive_include], "QUOTE(HIGHFIVE_VERSION)")
+        retcode, h5_lib_version = conf.TryRun(h5_version_source, ".cpp")
+        if retcode:
+            env["HIGHFIVE_VERSION"] = h5_lib_version.strip()
+        else:
+            config_error("Detected invalid HighFive configuration.")
+
+        highfive_include = "<highfive/H5DataType.hpp>"
+        logger.info("Using system installation of HighFive library.")
+
+    elif env["system_highfive"] == "y":
+        config_error(
+            "Expected system installation of HighFive library, but it is either "
+            "corrupted or could not be found.")
+
 if env["use_hdf5"] and env["system_highfive"] in ("n", "default"):
     env["system_highfive"] = False
-    if not os.path.exists("ext/eigen/HighFive/include"):
+    if not Path("ext/HighFive/include").is_dir():
         if not os.path.exists(".git"):
             config_error("HighFive is missing. Install HighFive in ext/HighFive.")
 
@@ -1558,28 +1581,22 @@ if env["use_hdf5"] and env["system_highfive"] in ("n", "default"):
                         "Try manually checking out the submodule with:\n\n"
                         "    git submodule update --init --recursive ext/HighFive\n")
 
-    env["use_hdf5"] = conf.CheckLibWithHeader(
-        "hdf5", "../ext/HighFive/include/highfive/H5File.hpp",
-        language="C++", autoadd=False)
+    def highfive_version(cmake_lists):
+        """Read highfive version from CMakeLists.txt"""
+        h5_version = Path(cmake_lists).read_text()
+        h5_version = [line for line in h5_version.split("\n")
+                      if line.startswith("project(HighFive")]
+        return re.search('[0-9]+\.[0-9]+\.[0-9]+', h5_version[0]).group(0)
 
-    if env["use_hdf5"]:
-        logger.info("Using private installation of HighFive.")
-    elif env["hdf_support"] == "y":
-        config_error("HDF5 support has been specified but HighFive configuration failed.")
-    else:
-        logger.warning("HighFive is not configured correctly; skipping.")
-        env["use_hdf5"] = False
-
-elif env["use_hdf5"]:
-    env["system_highfive"] = True
-    env["use_hdf5"] = conf.CheckLibWithHeader(
-        "hdf5", "highfive/H5File.hpp", language="C++", autoadd=False)
-    if env["use_hdf5"]:
-        logger.info("Using system installation of HighFive.")
-    else:
-        config_error("Unable to locate system HighFive installation.")
+    env["HIGHFIVE_VERSION"] = highfive_version("ext/HighFive/CMakeLists.txt")
+    highfive_include = '"../ext/HighFive/include/highfive/H5DataType.hpp"'
+    logger.info(f"Using private installation of HighFive library.")
 
 if env["use_hdf5"]:
+    if conf.CheckStatement("HighFive::details::Boolean::HighFiveTrue",
+                           f"#include {highfive_include}"):
+        env["highfive_boolean"] = True
+
     hdf_version = textwrap.dedent("""\
         #include <iostream>
         #include "H5public.h"
@@ -1590,7 +1607,10 @@ if env["use_hdf5"]:
     """)
     retcode, hdf_version = conf.TryRun(hdf_version, ".cpp")
     if retcode:
-        logger.info(f"Compiling against HDF5 version {hdf_version}")
+        env["HDF_VERSION"] = hdf_version
+        logger.info(
+            f"Using HighFive version {env['HIGHFIVE_VERSION']} "
+            f"for HDF5 {env['HDF_VERSION']}")
     else:
         logger.warning("Failed to determine HDF5 version.")
 
@@ -2136,6 +2156,7 @@ cdefine('FTN_TRAILING_UNDERSCORE', 'lapack_ftn_trailing_underscore')
 cdefine('CT_USE_LAPACK', 'use_lapack')
 cdefine("CT_USE_HDF5", "use_hdf5")
 cdefine("CT_USE_SYSTEM_HIGHFIVE", "system_highfive")
+cdefine("CT_USE_HIGHFIVE_BOOLEAN", "highfive_boolean")
 cdefine("CT_USE_SYSTEM_EIGEN", "system_eigen")
 cdefine("CT_USE_SYSTEM_EIGEN_PREFIXED", "system_eigen_prefixed")
 cdefine('CT_USE_SYSTEM_FMT', 'system_fmt')
