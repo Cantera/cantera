@@ -76,6 +76,11 @@ Reaction::Reaction(const AnyMap& node, const Kinetics& kin)
 
     setParameters(node, kin);
     size_t nDim = kin.thermo(kin.reactionPhaseIndex()).nDim();
+    if (!valid()) {
+        // If the reaction isn't valid (for example, contains undefined species),
+        // setting up the rate constant won't work
+        return;
+    }
     if (nDim == 3) {
         if (ba::starts_with(rate_type, "three-body-")) {
             AnyMap rateNode = node;
@@ -134,7 +139,9 @@ void Reaction::check()
 
     // Check reaction rate evaluator to ensure changes introduced after object
     // instantiation are considered.
-    m_rate->check(equation());
+    if (m_rate) {
+        m_rate->check(equation());
+    }
 }
 
 AnyMap Reaction::parameters(bool withInput) const

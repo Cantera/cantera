@@ -3,6 +3,7 @@
 #include "cantera/base/Solution.h"
 #include "cantera/base/Interface.h"
 #include "cantera/kinetics/KineticsFactory.h"
+#include "cantera/kinetics/ReactionRateFactory.h"
 #include "cantera/kinetics/GasKinetics.h"
 #include "cantera/kinetics/Arrhenius.h"
 #include "cantera/kinetics/ChebyshevRate.h"
@@ -30,6 +31,23 @@ TEST(ReactionRate, ModifyArrheniusRate)
     EXPECT_TRUE(rr->allowNegativePreExponentialFactor());
     rr->setAllowNegativePreExponentialFactor(false);
     EXPECT_FALSE(rr->allowNegativePreExponentialFactor());
+}
+
+TEST(ReactionRate, ArrheniusUnits)
+{
+    AnyMap rxn1 = AnyMap::fromYamlString(
+        "{rate-constant: [2.70000E+13 cm^3/mol/s, 0, 355 cal/mol]}");
+    ASSERT_THROW(newReactionRate(rxn1), InputFileError);
+
+    AnyMap rxn2 = AnyMap::fromYamlString(
+        "{units: {quantity: mol, length: cm},\n"
+         "nested: {rate-constant: [27.0, 0, 355 cal/mol]}}");
+    rxn2.applyUnits();
+    ASSERT_THROW(newReactionRate(rxn2["nested"].as<AnyMap>()), InputFileError);
+
+    AnyMap rxn3 = AnyMap::fromYamlString(
+        "{rate-constant: [2.70000E+13 m^3/kmol/s, 0, 355 cal/mol]}");
+    auto rate = newReactionRate(rxn3);
 }
 
 TEST(Reaction, ElementaryFromYaml)

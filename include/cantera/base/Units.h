@@ -220,6 +220,13 @@ public:
     double convert(const AnyValue& val, const std::string& dest) const;
     double convert(const AnyValue& val, const Units& dest) const;
 
+    //! Convert a generic AnyValue node representing a reaction rate coefficient to the
+    //! units specified in `dest`. Works like `convert(AnyValue&, Units&)` but with
+    //! special handling for the case where the destination units are undefined.
+    //!
+    //! @since New in Cantera 3.0
+    double convertRateCoeff(const AnyValue& val, const Units& dest) const;
+
     //! Convert an array of AnyValue nodes to the units specified in `dest`. For
     //! each node, if the value is a double, convert it using the default units,
     //! and if it is a string, treat it as a value with the given dimensions.
