@@ -629,6 +629,32 @@ double UnitSystem::convert(const AnyValue& v, const Units& dest) const
     }
 }
 
+double UnitSystem::convertRateCoeff(const AnyValue& v, const Units& dest) const
+{
+    if (dest.factor() != 0) {
+        // If the destination units are defined, no special handling is required
+        return convert(v, dest);
+    }
+
+    auto [value, units] = split_unit(v);
+    if (units.empty()) {
+        if (m_length_factor == 1.0 && m_quantity_factor == 1.0) {
+            // Input is a number in the default mks+kmol system, so no conversion is
+            // required
+            return value;
+        }
+    } else {
+        Units sourceUnits(units);
+        if (fabs(sourceUnits.factor() - 1.0) < 1e-14) {
+            // Input is explicitly in the mks+kmol system, so no conversion is required
+            return value;
+        }
+    }
+    throw InputFileError("UnitSystem::convertRateCoeff", v,
+        "Unable to convert value with non-default units to undefined units,\n"
+        "likely while creating a standalone ReactionRate object.");
+}
+
 vector_fp UnitSystem::convert(const std::vector<AnyValue>& vals,
                               const std::string& dest) const
 {

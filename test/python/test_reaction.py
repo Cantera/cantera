@@ -213,11 +213,13 @@ class ReactionRateTests:
         self.check_rate(rate1)
 
     def test_with_units(self):
-        # test custom units
+        # test custom units. Sticking coefficients are dimensionless, so this is only
+        # a concern for other rate types
         units = "units: {length: cm, quantity: mol}"
         yaml = f"{textwrap.dedent(self._yaml)}\n{units}"
-        with self.assertRaisesRegex(Exception, "not supported"):
-            ct.ReactionRate.from_yaml(yaml)
+        if "sticking" not in yaml:
+            with self.assertRaisesRegex(Exception, "undefined units"):
+                ct.ReactionRate.from_yaml(yaml)
 
     @pytest.mark.usefixtures("has_temperature_derivative_warnings")
     def test_derivative_ddT(self):
@@ -275,7 +277,7 @@ class TestArrheniusRate(ReactionRateTests, utilities.CanteraTest):
     def test_standalone(self):
         # test creation with unsupported alternative units
         yaml = "rate-constant: {A: 4.0e+21 cm^6/mol^2/s, b: 0.0, Ea: 1207.72688}"
-        with self.assertRaisesRegex(Exception, "not supported"):
+        with self.assertRaisesRegex(Exception, "undefined units"):
             ct.ReactionRate.from_yaml(yaml)
 
     @pytest.mark.usefixtures("has_temperature_derivative_warnings")
@@ -646,7 +648,7 @@ class TestPlogRate(ReactionRateTests, utilities.CanteraTest):
             - {P: 10.0 atm, A: 1.2866e+47, b: -9.0246, Ea: 3.97965e+04 cal/mol}
             - {P: 100.0 atm, A: 5.9632e+56, b: -11.529, Ea: 5.25996e+04 cal/mol}
             """
-        with self.assertRaisesRegex(Exception, "not supported"):
+        with self.assertRaisesRegex(Exception, "undefined units"):
             ct.ReactionRate.from_yaml(yaml)
 
 

@@ -49,18 +49,7 @@ void ArrheniusBase::setRateParameters(
     if (rate.is<AnyMap>()) {
 
         auto& rate_map = rate.as<AnyMap>();
-        if (m_rate_units.factor() == 0) {
-            // A zero rate units factor is used as a sentinel to detect
-            // stand-alone reaction rate objects
-            if (rate_map[m_A_str].is<std::string>()) {
-                throw InputFileError("ArrheniusBase::setRateParameters", rate_map,
-                    "Specification of units is not supported for pre-exponential "
-                    "factor when\ncreating a standalone 'ReactionRate' object.");
-            }
-            m_A = rate_map[m_A_str].asDouble();
-        } else {
-            m_A = units.convert(rate_map[m_A_str], m_rate_units);
-        }
+        m_A = units.convertRateCoeff(rate_map[m_A_str], m_rate_units);
         m_b = rate_map[m_b_str].asDouble();
         if (rate_map.hasKey(m_Ea_str)) {
             m_Ea_R = units.convertActivationEnergy(rate_map[m_Ea_str], "K");
@@ -70,7 +59,7 @@ void ArrheniusBase::setRateParameters(
         }
     } else {
         auto& rate_vec = rate.asVector<AnyValue>(2, 4);
-        m_A = units.convert(rate_vec[0], m_rate_units);
+        m_A = units.convertRateCoeff(rate_vec[0], m_rate_units);
         m_b = rate_vec[1].asDouble();
         if (rate_vec.size() > 2) {
             m_Ea_R = units.convertActivationEnergy(rate_vec[2], "K");

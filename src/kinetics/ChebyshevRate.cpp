@@ -80,9 +80,8 @@ void ChebyshevRate::setParameters(const AnyMap& node, const UnitStack& rate_unit
                 coeffs(i, j) = vcoeffs[i][j];
             }
         }
-        if (m_rate_units.factor()) {
-            coeffs(0, 0) += std::log10(unit_system.convertTo(1.0, m_rate_units));
-        }
+        double offset = unit_system.convertRateCoeff(AnyValue(1.0), m_rate_units);
+        coeffs(0, 0) += std::log10(offset);
         setLimits(
             unit_system.convert(T_range[0], "K"),
             unit_system.convert(T_range[1], "K"),
