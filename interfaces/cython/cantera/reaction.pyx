@@ -748,17 +748,21 @@ cdef class ExtensibleRate(ReactionRate):
 
     delegatable_methods = {
         "eval": ("evalFromStruct", "double(void*)", "replace"),
-        "set_parameters": ("setParameters", "void(AnyMap&, UnitStack&)", "after")
+        "set_parameters": ("setParameters", "void(AnyMap&, UnitStack&)", "after"),
+        "get_parameters": ("getParameters", "void(AnyMap&)", "replace"),
     }
+
     def __cinit__(self, *args, init=True, **kwargs):
         if init:
             self._rate.reset(new CxxReactionRateDelegator())
             self.set_cxx_object()
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, input_data=None, **kwargs):
         if self._rate.get() is not NULL:
             assign_delegates(self, dynamic_cast[CxxDelegatorPtr](self.rate))
         # ReactionRate does not define __init__, so it does not need to be called
+        if input_data is not None:
+            self.set_parameters(input_data, UnitStack())
 
     def set_parameters(self, params: AnyMap, rate_coeff_units: UnitStack) -> None:
         """
@@ -768,6 +772,13 @@ cdef class ExtensibleRate(ReactionRate):
         coefficient.
         """
         raise NotImplementedError(f"{self.__class__.__name__}.set_parameters")
+
+    def get_parameters(self, params: AnyMap) -> None:
+        """
+        Responsible for serializing the state of the ExtensibleRate object, using the
+        same format as a YAML reaction entry. This is the inverse of `set_parameters`.
+        """
+        raise NotImplementedError(f"{self.__class__.__name__}.get_parameters")
 
     def eval(self, data: ExtensibleRateData) -> float:
         """

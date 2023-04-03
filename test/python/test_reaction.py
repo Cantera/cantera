@@ -1517,12 +1517,11 @@ class UserRate1Data(ct.ExtensibleRateData):
 
 @ct.extension(name="user-rate-1", data=UserRate1Data)
 class UserRate1(ct.ExtensibleRate):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.A = np.nan
-
     def set_parameters(self, params, units):
         self.A = params["A"]
+
+    def get_parameters(self, params):
+        params["A"] = self.A
 
     def eval(self, data):
         return self.A * data.T**2.7 * exp(-3150.15428/data.T)
@@ -1567,12 +1566,6 @@ class TestExtensible(ReactionTests, utilities.CanteraTest):
 
     def test_no_rate(self):
         pytest.skip("ExtensibleRate does not yet support validation")
-
-    def test_from_dict(self):
-        pytest.skip("ExtensibleRate does not yet support serialization")
-
-    def test_roundtrip(self):
-        pytest.skip("ExtensibleRate does not yet support roundtrip conversion")
 
     def test_parameter_access(self):
         gas = ct.Solution(yaml=self._phase_def)
@@ -1667,16 +1660,15 @@ class TestExtensible2(utilities.CanteraTest):
 
 @ct.extension(name="user-rate-2", data=UserRate1Data)
 class UserRate2(ct.ExtensibleRate):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.A = np.nan
-        self.Ta = np.nan
-        self.length = np.nan
-
     def set_parameters(self, params, rc_units):
         self.A = params.convert_rate_coeff("A", rc_units)
         self.length = params.convert("L", "m")
         self.Ta = params.convert_activation_energy("Ea", "K")
+
+    def get_parameters(self, params):
+        params["A"] = self.A
+        params["L"] = self.length
+        params["Ea"] = self.Ta
 
     def eval(self, data):
         return self.A * (self.length / 2.0)**2 * exp(-self.Ta/data.T)

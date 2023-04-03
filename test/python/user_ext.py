@@ -26,6 +26,9 @@ class SquareRate(ct.ExtensibleRate):
     def set_parameters(self, node, units):
         self.A = node["A"]
 
+    def get_parameters(self, node):
+        node["A"] = self.A
+
     def eval(self, data):
         return self.A * data.Tsquared
 

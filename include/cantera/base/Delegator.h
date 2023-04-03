@@ -146,6 +146,17 @@ public:
         *m_funcs_v_d[name] = makeDelegate(func, when, *m_funcs_v_d[name]);
     }
 
+    //! set delegates for member functions with the signature `void(AnyMap&)`
+    void setDelegate(const string& name, const function<void(AnyMap&)>& func,
+                     const string& when)
+    {
+        if (!m_funcs_v_AMr.count(name)) {
+            throw NotImplementedError("Delegator::setDelegate",
+                "for function named '{}' with signature 'void(AnyMap&)'.", name);
+        }
+        *m_funcs_v_AMr[name] = makeDelegate(func, when, *m_funcs_v_AMr[name]);
+    }
+
     //! set delegates for member functions with the signature
     //! `void(AnyMap&, UnitStack&)`
     void setDelegate(const std::string& name,
@@ -297,6 +308,14 @@ protected:
         m_funcs_v_d[name] = &target;
     }
 
+    //! Install a function with the signature `void(AnyMap&)` as being delegatable
+    void install(const string& name, function<void(AnyMap&)>& target,
+                 const function<void(AnyMap&)>& func)
+    {
+        target = func;
+        m_funcs_v_AMr[name] = &target;
+    }
+
     //! Install a function with the signature `void(const AnyMap&, const UnitStack&)`
     //! as being delegatable
     void install(const std::string& name,
@@ -306,8 +325,6 @@ protected:
         target = func;
         m_funcs_v_cAMr_cUSr[name] = &target;
     }
-
-
 
     //! Install a function with the signature `void(double*)` as being delegatable
     void install(const std::string& name,
@@ -484,6 +501,7 @@ protected:
     std::map<std::string, std::function<void()>*> m_funcs_v;
     std::map<std::string, std::function<void(bool)>*> m_funcs_v_b;
     std::map<std::string, std::function<void(double)>*> m_funcs_v_d;
+    map<string, function<void(AnyMap&)>*> m_funcs_v_AMr;
     std::map<std::string,
         std::function<void(const AnyMap&, const UnitStack&)>*> m_funcs_v_cAMr_cUSr;
     std::map<std::string,
