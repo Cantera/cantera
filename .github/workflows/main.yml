@@ -498,7 +498,7 @@ jobs:
         mamba install -q '"scons>=4.4.0"' numpy cython ruamel.yaml boost-cpp eigen yaml-cpp h5py pandas pytest highfive
       shell: pwsh
     - name: Build Cantera
-      run: scons build system_eigen=y system_yamlcpp=y logging=debug
+      run: scons build system_eigen=y system_yamlcpp=y system_highfive=y logging=debug
         msvc_toolset_version=${{ matrix.vs-toolset }} f90_interface=n debug=n --debug=time -j2
       shell: pwsh
     - name: Upload shared library
