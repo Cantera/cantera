@@ -119,7 +119,6 @@ void ArrheniusBase::getParameters(AnyMap& node) const {
         // RateType object is configured
         node["rate-constant"] = std::move(rateNode);
     }
-    node["type"] = type();
 }
 
 void ArrheniusBase::check(const std::string& equation)
