@@ -79,7 +79,6 @@ void PlogRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
 void PlogRate::getParameters(AnyMap& rateNode, const Units& rate_units) const
 {
     std::vector<AnyMap> rateList;
-    rateNode["type"] = type();
     if (!valid()) {
         // object not fully set up
         return;

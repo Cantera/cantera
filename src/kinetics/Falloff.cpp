@@ -168,11 +168,6 @@ void FalloffRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
 
 void FalloffRate::getParameters(AnyMap& node) const
 {
-    if (m_chemicallyActivated) {
-        node["type"] = "chemically-activated";
-    } else {
-        node["type"] = "falloff";
-    }
     if (m_negativeA_ok) {
         node["negative-A"] = true;
     }

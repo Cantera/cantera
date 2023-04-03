@@ -126,7 +126,6 @@ void ChebyshevRate::setData(const Array2D& coeffs)
 
 void ChebyshevRate::getParameters(AnyMap& rateNode) const
 {
-    rateNode["type"] = type();
     if (!valid()) {
         // object not fully set up
         return;

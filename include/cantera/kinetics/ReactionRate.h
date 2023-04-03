@@ -102,6 +102,7 @@ public:
     //! handled by the getParameters() method.
     AnyMap parameters() const {
         AnyMap out;
+        out["type"] = type();
         getParameters(out);
         return out;
     }
