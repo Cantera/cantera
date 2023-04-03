@@ -9,7 +9,7 @@ from libc.stdlib cimport malloc
 from libc.string cimport strcpy
 
 from ._utils import CanteraError
-from ._utils cimport stringify, pystr, anymap_to_py
+from ._utils cimport stringify, pystr, anymap_to_py, py_to_anymap
 from .units cimport Units, UnitStack
 # from .reaction import ExtensibleRate, ExtensibleRateData
 from .reaction cimport (ExtensibleRate, ExtensibleRateData, CxxReaction,
@@ -108,6 +108,19 @@ cdef void callback_v_d(PyFuncInfo& funcInfo, double arg) noexcept:
 cdef void callback_v_b(PyFuncInfo& funcInfo, cbool arg) noexcept:
     try:
         (<object>funcInfo.func())(arg)
+    except BaseException as e:
+        exc_type, exc_value = sys.exc_info()[:2]
+        funcInfo.setExceptionType(<PyObject*>exc_type)
+        funcInfo.setExceptionValue(<PyObject*>exc_value)
+
+# Wrapper for functions of type void(AnyMap&)
+cdef void callback_v_AMr(PyFuncInfo& funcInfo, CxxAnyMap& arg) noexcept:
+    pyArg = anymap_to_py(<CxxAnyMap&>arg)  # cast away constness
+    try:
+        (<object>funcInfo.func())(pyArg)
+        # return updated AnyMap to C++. Odd syntax is a workaround for Cython's
+        # unwillingness to assign to a reference
+        (&arg)[0] = py_to_anymap(pyArg)
     except BaseException as e:
         exc_type, exc_value = sys.exc_info()[:2]
         funcInfo.setExceptionType(<PyObject*>exc_type)
@@ -310,6 +323,9 @@ cdef int assign_delegates(obj, CxxDelegator* delegator) except -1:
         elif callback == 'void(double)':
             delegator.setDelegate(cxx_name,
                 pyOverride(<PyObject*>method, callback_v_d), cxx_when)
+        elif callback == 'void(AnyMap&)':
+            delegator.setDelegate(cxx_name,
+                pyOverride(<PyObject*>method, callback_v_AMr), cxx_when)
         elif callback == 'void(AnyMap&,UnitStack&)':
             delegator.setDelegate(cxx_name,
                 pyOverride(<PyObject*>method, callback_v_cAMr_cUSr), cxx_when)

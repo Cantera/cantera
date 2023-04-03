@@ -51,6 +51,8 @@ ReactionRateDelegator::ReactionRateDelegator()
     install("setParameters", m_setParameters,
         [this](const AnyMap& node, const UnitStack& units) {
             ReactionRate::setParameters(node, units); });
+    install("getParameters", m_getParameters,
+        [this](AnyMap& node) { ReactionRate::getParameters(node); });
 }
 
 unique_ptr<MultiRateBase> ReactionRateDelegator::newMultiRate() const

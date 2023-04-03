@@ -103,15 +103,20 @@ public:
         m_setParameters(node, units);
     }
 
+    void getParameters(AnyMap& node) const override {
+        m_getParameters(node);
+    }
+
 private:
     //! The name of the reaction rate type
-    std::string m_rateType;
+    string m_rateType;
 
     //! Delegated `evalFromStruct` method taking a pointer to the corresponding
     //! ReactionData wrapper object
-    std::function<double(void*)> m_evalFromStruct;
+    function<double(void*)> m_evalFromStruct;
 
-    std::function<void(const AnyMap&, const UnitStack&)> m_setParameters;
+    function<void(const AnyMap&, const UnitStack&)> m_setParameters;
+    function<void(AnyMap&)> m_getParameters;
 };
 
 }
