@@ -29,21 +29,23 @@
 
 namespace h5 = HighFive;
 
-// Implement read/write support for Booleans
-// Note that HighFive 2.7.0 introduces native boolean support
-// todo: replace below by: typedef h5::details::Boolean H5Boolean;
-
+#ifdef CT_USE_HIGHFIVE_BOOLEAN
+// HighFive 2.7.1 introduces stable native boolean support
+typedef h5::details::Boolean H5Boolean;
+#else
+// Use custom Boolean definition mimicking h5py approach
+// HighFive <=2.6.2 lacks boolean support and HighFive 2.7.0 uses alternate definition
 enum class H5Boolean {
-    FALSE = 0,
-    TRUE = 1,
+    HighFiveFalse = 0,
+    HighFiveTrue = 1,
 };
 
 h5::EnumType<H5Boolean> create_enum_boolean() {
-    return {{"FALSE", H5Boolean::FALSE},
-            {"TRUE", H5Boolean::TRUE}};
+    return {{"FALSE", H5Boolean::HighFiveFalse}, {"TRUE", H5Boolean::HighFiveTrue}};
 }
 
 HIGHFIVE_REGISTER_TYPE(H5Boolean, ::create_enum_boolean)
+#endif
 
 #endif
 
@@ -319,7 +321,8 @@ void writeH5Attributes(h5::Group sub, const AnyMap& meta)
             attr.write(value);
         } else if (item.is<bool>()) {
             bool bValue = item.asBool();
-            H5Boolean value = bValue ? H5Boolean::TRUE : H5Boolean::FALSE;
+            H5Boolean value = bValue ?
+                H5Boolean::HighFiveTrue : H5Boolean::HighFiveFalse;
             h5::Attribute attr = sub.createAttribute<H5Boolean>(
                 name, h5::DataSpace::From(value));
             attr.write(value);
@@ -342,7 +345,8 @@ void writeH5Attributes(h5::Group sub, const AnyMap& meta)
             auto bValue = item.as<vector<bool>>();
             vector<H5Boolean> values;
             for (auto b : bValue) {
-                values.push_back(b ? H5Boolean::TRUE : H5Boolean::FALSE);
+                values.push_back(b ?
+                    H5Boolean::HighFiveTrue : H5Boolean::HighFiveFalse);
             }
             h5::Attribute attr = sub.createAttribute<H5Boolean>(
                 name, h5::DataSpace::From(values));
