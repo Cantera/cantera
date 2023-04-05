@@ -124,10 +124,6 @@ ext_target = sdist(localenv.Command("ext", "#ext", copy_ext_src))
 configh["CT_USE_LAPACK"] = None
 configh["CT_SUNDIALS_USE_LAPACK"] = None
 
-# These keys are determined by the build machine
-for key in ("CT_USE_DEMANGLE"):
-    del configh[key]
-
 
 class DefineDict:
     """dict-like class used to fill config.h.in partially.

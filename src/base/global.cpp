@@ -6,9 +6,7 @@
 #include "cantera/base/FactoryBase.h"
 #include "application.h"
 #include "cantera/base/AnyMap.h"
-#ifdef CT_USE_DEMANGLE
-  #include <boost/core/demangle.hpp>
-#endif
+#include <boost/core/demangle.hpp>
 
 namespace Cantera
 {
@@ -212,11 +210,7 @@ std::string demangle(const std::type_info& type)
     if (typenames.count(type.name())) {
         return typenames[type.name()];
     } else {
-        #ifdef CT_USE_DEMANGLE
-            return boost::core::demangle(type.name());
-        #else
-            return type.name();
-        #endif
+        return boost::core::demangle(type.name());
     }
 }
 

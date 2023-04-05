@@ -46,7 +46,6 @@ typedef int ftnlen;       // Fortran hidden string length type
 {CT_USE_SYSTEM_EIGEN_PREFIXED!s}
 {CT_USE_SYSTEM_FMT!s}
 {CT_USE_SYSTEM_YAMLCPP!s}
-{CT_USE_DEMANGLE!s}
 {CT_HAS_PYTHON!s}
 
 //-------------- Optional Cantera Capabilities ----------------------

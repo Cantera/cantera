@@ -1357,9 +1357,9 @@ if not env['BOOST_LIB_VERSION']:
                  " 'boost_inc_dir' to point to the boost headers.")
 else:
     logger.info(f"Found Boost version {env['BOOST_LIB_VERSION']}")
-# demangle is available in Boost 1.56 or newer
-env['has_demangle'] = conf.CheckDeclaration("boost::core::demangle",
-                                '#include <boost/core/demangle.hpp>', 'C++')
+if parse_version(env['BOOST_LIB_VERSION']) < parse_version("1.61"):
+    # dll support is available in Boost 1.61 or newer
+    config_error("Cantera requires Boost version 1.61 or newer.")
 
 # check BLAS/LAPACK installations
 if env["system_blas_lapack"] == "n":
@@ -2147,7 +2147,6 @@ cdefine("CT_USE_SYSTEM_EIGEN", "system_eigen")
 cdefine("CT_USE_SYSTEM_EIGEN_PREFIXED", "system_eigen_prefixed")
 cdefine('CT_USE_SYSTEM_FMT', 'system_fmt')
 cdefine('CT_USE_SYSTEM_YAMLCPP', 'system_yamlcpp')
-cdefine('CT_USE_DEMANGLE', 'has_demangle')
 cdefine('CT_HAS_PYTHON', 'python_package', 'full')
 
 config_h_build = env.Command('build/src/config.h.build',
