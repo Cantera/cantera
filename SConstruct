@@ -2120,9 +2120,6 @@ def cdefine(definevar, configvar, comp=True, value=1):
     else:
         configh[definevar] = None
 
-# Need to test all of these to see what platform.system() returns
-configh['DARWIN'] = 1 if env['OS'] == 'Darwin' else None
-
 if env['OS'] == 'Solaris' or env['HAS_CLANG']:
     env["RPATHPREFIX"] = "-Wl,-rpath,"
 
