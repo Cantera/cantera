@@ -74,12 +74,6 @@ void handleError(CanteraError& err)
 
 extern "C" {
 
-    /// This is the Fortran main program. This works for g77; it may
-    /// need to be modified for other Fortran compilers
-#ifdef NEED_ALT_MAIN
-    extern int MAIN__();
-#endif
-
     /**
      * Read in a reaction mechanism file and create a Solution
      * object. The file may be in Cantera input format or in YAML. (If
@@ -374,27 +368,3 @@ extern "C" {
     }
 
 }
-
-/*
- *  HKM 7/22/09:
- *    I'm skeptical that you need this for any system.
- *    Definitely creates an error (dupl main()) for the solaris
- *    system
- */
-#ifdef NEED_ALT_MAIN
-/**
- * This C++ main program simply calls the Fortran main program.
- */
-int main()
-{
-    try {
-        return MAIN__();
-    } catch (CanteraError& err) {
-        std::cerr << err.what() << std::endl;
-        exit(-1);
-    } catch (...) {
-        cout << "An exception was trapped. Program terminating." << endl;
-        exit(-1);
-    }
-}
-#endif
