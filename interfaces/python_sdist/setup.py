@@ -138,13 +138,6 @@ def configure_build():
     else:
         create_config("DARWIN", 0)
 
-    # I have no idea if this is the value for Solaris, and I don't have a Solaris
-    # machine handy to test. YOLO!
-    if sys.platform.startswith("sunos"):
-        create_config("SOLARIS", 1)
-    else:
-        create_config("SOLARIS", 0)
-
     if sys.platform != "win32":
         extra_compile_flags = ["-std=c++14", "-g0"]
         sundials_configh = {
