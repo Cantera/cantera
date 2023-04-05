@@ -128,10 +128,10 @@ def configure_build():
         raise ValueError(
             f"Could not convert Boost minor version to integer: '{boost_version}'"
         ) from None
-    if boost_minor_version < 56:
-        create_config("CT_USE_DEMANGLE", 0)
-    else:
-        create_config("CT_USE_DEMANGLE", 1)
+    if boost_minor_version < 61:
+        raise ValueError(
+            "Cantera requires Boost version 1.61 or newer."
+        )
 
     if sys.platform != "win32":
         extra_compile_flags = ["-std=c++14", "-g0"]
