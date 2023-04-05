@@ -49,13 +49,6 @@ typedef int ftnlen;       // Fortran hidden string length type
 {CT_USE_DEMANGLE!s}
 {CT_HAS_PYTHON!s}
 
-//--------- operating system --------------------------------------
-
-// The configure script defines this if the operating system is Mac
-// OS X, This used to add some Mac-specific directories to the default
-// data file search path.
-{DARWIN!s}
-
 //-------------- Optional Cantera Capabilities ----------------------
 
 // Enable Sundials to use an external BLAS/LAPACK library if it was

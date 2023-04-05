@@ -133,11 +133,6 @@ def configure_build():
     else:
         create_config("CT_USE_DEMANGLE", 1)
 
-    if sys.platform == "darwin":
-        create_config("DARWIN", 1)
-    else:
-        create_config("DARWIN", 0)
-
     if sys.platform != "win32":
         extra_compile_flags = ["-std=c++14", "-g0"]
         sundials_configh = {

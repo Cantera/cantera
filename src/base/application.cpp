@@ -266,11 +266,6 @@ void Application::setDefaultDirectories()
 
 #endif
 
-#ifdef DARWIN
-    // add a default data location for Mac OS X
-    inputDirs.push_back("/Applications/Cantera/data");
-#endif
-
     // CANTERA_DATA is defined in file config.h. This file is written during the
     // build process (unix), and points to the directory specified by the
     // 'prefix' option to 'configure', or else to /usr/local/cantera.

@@ -412,17 +412,15 @@ protected:
      * path. It is invoked at startup by appinit(), and never should need to
      * be called by user programs.
      *
-     * The current directory (".") is always searched first. Then, on Windows
-     * platforms, if environment variable COMMONPROGRAMFILES is set (which it
-     * should be on Win XP or Win 2000), then directories under this one will
-     * be added to the search path. The %Cantera Windows installer installs
-     * data files to this location.
+     * The current directory (".") is always searched first. Then, on Windows, the
+     * registry is checked to find the Cantera installation directory, and the
+     * 'data' subdirectory of the installation directory will be added to the search
+     * path.
      *
-     * On the Mac, directory '/Applications/Cantera/data' is added to the
-     * search path.
-     *
-     * On any platform, if environment variable CANTERA_DATA is set to a
-     * directory name, then this directory is added to the search path.
+     * On any platform, if environment variable CANTERA_DATA is set to a directory
+     * name or a list of directory names separated with the OS-dependent path
+     * separator (that is, ";" on Windows, ":" elsewhere), then these directories will
+     * be added to the search path.
      *
      * Finally, the location where the data files were installed when
      * %Cantera was built is added to the search path.

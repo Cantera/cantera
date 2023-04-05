@@ -43,9 +43,6 @@ class AnyMap;
  * 'data' subdirectory of the installation directory will be added to the search
  * path.
  *
- * On the Mac, directory '/Applications/Cantera/data' is added to the
- * search path.
- *
  * On any platform, if environment variable CANTERA_DATA is set to a directory
  * name or a list of directory names separated with the OS-dependent path
  * separator (that is, ";" on Windows, ":" elsewhere), then these directories will
