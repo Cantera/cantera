@@ -125,7 +125,7 @@ configh["CT_USE_LAPACK"] = None
 configh["CT_SUNDIALS_USE_LAPACK"] = None
 
 # These keys are determined by the build machine
-for key in ("SOLARIS", "DARWIN", "CT_USE_DEMANGLE"):
+for key in ("DARWIN", "CT_USE_DEMANGLE"):
     del configh[key]
 
 

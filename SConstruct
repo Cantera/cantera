@@ -2121,7 +2121,6 @@ def cdefine(definevar, configvar, comp=True, value=1):
         configh[definevar] = None
 
 # Need to test all of these to see what platform.system() returns
-configh['SOLARIS'] = 1 if env['OS'] == 'Solaris' else None
 configh['DARWIN'] = 1 if env['OS'] == 'Darwin' else None
 
 if env['OS'] == 'Solaris' or env['HAS_CLANG']:
