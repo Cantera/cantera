@@ -449,12 +449,6 @@ config_options = [
            needed if the libraries are installed in a standard location, for example,
            '/usr/lib'.""",
         "", PathVariable.PathAccept),
-    EnumOption(
-        "lapack_names",
-        """Set depending on whether the procedure names in the specified
-           libraries are lowercase or uppercase. If you don't know, run 'nm' on
-           the library file (for example, "nm libblas.a").""",
-        "lower", ("lower", "upper")),
     BoolOption(
         "lapack_ftn_trailing_underscore",
         """Controls whether the LAPACK functions have a trailing underscore
@@ -2139,7 +2133,6 @@ else:
 cdefine('LAPACK_FTN_STRING_LEN_AT_END', 'lapack_ftn_string_len_at_end')
 cdefine('LAPACK_FTN_TRAILING_UNDERSCORE', 'lapack_ftn_trailing_underscore')
 cdefine('FTN_TRAILING_UNDERSCORE', 'lapack_ftn_trailing_underscore')
-cdefine('LAPACK_NAMES_LOWERCASE', 'lapack_names', 'lower')
 cdefine('CT_USE_LAPACK', 'use_lapack')
 cdefine("CT_USE_HDF5", "use_hdf5")
 cdefine("CT_USE_SYSTEM_HIGHFIVE", "system_highfive")
