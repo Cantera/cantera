@@ -25,7 +25,7 @@ OneDim::OneDim(vector<shared_ptr<Domain1D>>& domains)
 {
     // create a Newton iterator, and add each domain.
     m_newt = make_unique<MultiNewton>(1);
-    m_data = make_shared<vector<double>>();
+    m_state = make_shared<vector<double>>();
     for (auto& dom : domains) {
         addDomain(dom);
     }
@@ -41,7 +41,7 @@ OneDim::OneDim(vector<Domain1D*> domains)
 
     // create a Newton iterator, and add each domain.
     m_newt = make_unique<MultiNewton>(1);
-    m_data = make_shared<vector<double>>();
+    m_state = make_shared<vector<double>>();
     for (size_t i = 0; i < domains.size(); i++) {
         addDomain(domains[i]);
     }
@@ -98,7 +98,7 @@ void OneDim::addDomain(shared_ptr<Domain1D> d)
     // add it also to the global domain list, and set its container and position
     m_sharedDom.push_back(d);
     m_dom.push_back(d.get());
-    d->setData(m_data);
+    d->setData(m_state);
     d->setContainer(this, m_dom.size()-1);
     resize();
 }
@@ -125,7 +125,7 @@ void OneDim::addDomain(Domain1D* d)
 
     // add it also to the global domain list, and set its container and position
     m_dom.push_back(d);
-    d->setData(m_data);
+    d->setData(m_state);
     d->setContainer(this, m_dom.size()-1);
     resize();
 }
@@ -241,7 +241,7 @@ void OneDim::resize()
         m_size = d->loc() + d->size();
     }
 
-    m_data->resize(size());
+    m_state->resize(size());
 
     m_newt->resize(size());
     m_mask.resize(size());

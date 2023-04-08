@@ -340,7 +340,7 @@ protected:
     //! factor time step is multiplied by  if time stepping fails ( < 1 )
     double m_tfactor = 0.5;
 
-    shared_ptr<vector<double>> m_data; //!< Solution vector
+    shared_ptr<vector<double>> m_state; //!< Solution vector
 
     std::unique_ptr<MultiJac> m_jac; //!< Jacobian evaluator
     std::unique_ptr<MultiNewton> m_newt; //!< Newton iterator
