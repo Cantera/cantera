@@ -30,7 +30,7 @@ Sim1D::Sim1D(vector<shared_ptr<Domain1D>>& domains) :
     // domain-specific initialization of the solution vector.
     resize();
     for (size_t n = 0; n < nDomains(); n++) {
-        domain(n)._getInitialSoln(m_data->data() + start(n));
+        domain(n)._getInitialSoln(m_state->data() + start(n));
     }
 
     // set some defaults
@@ -50,7 +50,7 @@ Sim1D::Sim1D(vector<Domain1D*>& domains) :
     // domain-specific initialization of the solution vector.
     resize();
     for (size_t n = 0; n < nDomains(); n++) {
-        domain(n)._getInitialSoln(m_data->data() + start(n));
+        domain(n)._getInitialSoln(m_state->data() + start(n));
     }
 
     // set some defaults
@@ -74,24 +74,24 @@ void Sim1D::setInitialGuess(const std::string& component, vector_fp& locs, vecto
 void Sim1D::setValue(size_t dom, size_t comp, size_t localPoint, doublereal value)
 {
     size_t iloc = domain(dom).loc() + domain(dom).index(comp, localPoint);
-    AssertThrowMsg(iloc < m_data->size(), "Sim1D::setValue",
-                   "Index out of bounds: {} > {}", iloc, m_data->size());
-    (*m_data)[iloc] = value;
+    AssertThrowMsg(iloc < m_state->size(), "Sim1D::setValue",
+                   "Index out of bounds: {} > {}", iloc, m_state->size());
+    (*m_state)[iloc] = value;
 }
 
 doublereal Sim1D::value(size_t dom, size_t comp, size_t localPoint) const
 {
     size_t iloc = domain(dom).loc() + domain(dom).index(comp, localPoint);
-    AssertThrowMsg(iloc < m_data->size(), "Sim1D::value",
-                   "Index out of bounds: {} > {}", iloc, m_data->size());
-    return (*m_data)[iloc];
+    AssertThrowMsg(iloc < m_state->size(), "Sim1D::value",
+                   "Index out of bounds: {} > {}", iloc, m_state->size());
+    return (*m_state)[iloc];
 }
 
 doublereal Sim1D::workValue(size_t dom, size_t comp, size_t localPoint) const
 {
     size_t iloc = domain(dom).loc() + domain(dom).index(comp, localPoint);
-    AssertThrowMsg(iloc < m_data->size(), "Sim1D::workValue",
-                   "Index out of bounds: {} > {}", iloc, m_data->size());
+    AssertThrowMsg(iloc < m_state->size(), "Sim1D::workValue",
+                   "Index out of bounds: {} > {}", iloc, m_state->size());
     return m_xnew[iloc];
 }
 
@@ -133,7 +133,7 @@ void Sim1D::save(const std::string& fname, const std::string& id,
     if (extension == "h5" || extension == "hdf"  || extension == "hdf5") {
         SolutionArray::writeHeader(fname, id, desc, overwrite);
         for (auto dom : m_dom) {
-            auto arr = dom->asArray(m_data->data() + dom->loc());
+            auto arr = dom->asArray(m_state->data() + dom->loc());
             arr->writeEntry(fname, id, dom->id(), overwrite, compression);
         }
         return;
@@ -147,7 +147,7 @@ void Sim1D::save(const std::string& fname, const std::string& id,
         SolutionArray::writeHeader(data, id, desc, overwrite);
 
         for (auto dom : m_dom) {
-            auto arr = dom->asArray(m_data->data() + dom->loc());
+            auto arr = dom->asArray(m_state->data() + dom->loc());
             arr->writeEntry(data, id, dom->id(), overwrite);
         }
 
@@ -174,14 +174,14 @@ void Sim1D::saveResidual(const std::string& fname, const std::string& id,
 void Sim1D::saveResidual(const std::string& fname, const std::string& id,
                          const std::string& desc, bool overwrite, int compression)
 {
-    vector_fp res(m_data->size(), -999);
-    OneDim::eval(npos, m_data->data(), &res[0], 0.0);
-    // Temporarily put the residual into m_data, since this is the vector that the
+    vector_fp res(m_state->size(), -999);
+    OneDim::eval(npos, m_state->data(), &res[0], 0.0);
+    // Temporarily put the residual into m_state, since this is the vector that the
     // save() function reads.
-    vector<double> backup(*m_data);
-    *m_data = res;
+    vector<double> backup(*m_state);
+    *m_state = res;
     save(fname, id, desc, overwrite, compression);
-    *m_data = backup;
+    *m_state = backup;
 }
 
 namespace { // restrict scope of helper function to local translation unit
@@ -303,7 +303,7 @@ AnyMap Sim1D::restore(const std::string& fname, const std::string& id)
         resize();
         m_xlast_ts.clear();
         for (auto dom : m_dom) {
-            dom->fromArray(*arrs[dom->id()], m_data->data() + dom->loc());
+            dom->fromArray(*arrs[dom->id()], m_state->data() + dom->loc());
         }
         finalize();
     } else if (extension == "yaml" || extension == "yml") {
@@ -320,7 +320,7 @@ AnyMap Sim1D::restore(const std::string& fname, const std::string& id)
         resize();
         m_xlast_ts.clear();
         for (auto dom : m_dom) {
-            dom->fromArray(*arrs[dom->id()], m_data->data() + dom->loc());
+            dom->fromArray(*arrs[dom->id()], m_state->data() + dom->loc());
         }
         finalize();
     } else {
@@ -357,7 +357,7 @@ void Sim1D::show(ostream& s)
 {
     for (size_t n = 0; n < nDomains(); n++) {
         if (domain(n).type() != "empty") {
-            domain(n).show(s, m_data->data() + start(n));
+            domain(n).show(s, m_state->data() + start(n));
         }
     }
 }
@@ -368,7 +368,7 @@ void Sim1D::show()
         if (domain(n).type() != "empty") {
             writelog("\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> "+domain(n).id()
                      +" <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n\n");
-            domain(n).show(m_data->data() + start(n));
+            domain(n).show(m_state->data() + start(n));
         }
     }
 }
@@ -379,7 +379,7 @@ void Sim1D::restoreTimeSteppingSolution()
         throw CanteraError("Sim1D::restoreTimeSteppingSolution",
                            "No successful time steps taken on this grid.");
     }
-    *m_data = m_xlast_ts;
+    *m_state = m_xlast_ts;
 }
 
 void Sim1D::restoreSteadySolution()
@@ -388,7 +388,7 @@ void Sim1D::restoreSteadySolution()
         throw CanteraError("Sim1D::restoreSteadySolution",
                            "No successful steady state solution");
     }
-    *m_data = m_xlast_ss;
+    *m_state = m_xlast_ss;
     for (size_t n = 0; n < nDomains(); n++) {
         vector_fp& z = m_grid_last_ss[n];
         domain(n).setupGrid(z.size(), z.data());
@@ -398,14 +398,14 @@ void Sim1D::restoreSteadySolution()
 void Sim1D::getInitialSoln()
 {
     for (size_t n = 0; n < nDomains(); n++) {
-        domain(n)._getInitialSoln(m_data->data() + start(n));
+        domain(n)._getInitialSoln(m_state->data() + start(n));
     }
 }
 
 void Sim1D::finalize()
 {
     for (size_t n = 0; n < nDomains(); n++) {
-        domain(n)._finalize(m_data->data() + start(n));
+        domain(n)._finalize(m_state->data() + start(n));
     }
 }
 
@@ -420,9 +420,9 @@ void Sim1D::setTimeStep(double stepsize, size_t n, const int* tsteps)
 
 int Sim1D::newtonSolve(int loglevel)
 {
-    int m = OneDim::solve(m_data->data(), m_xnew.data(), loglevel);
+    int m = OneDim::solve(m_state->data(), m_xnew.data(), loglevel);
     if (m >= 0) {
-        *m_data = m_xnew;
+        *m_state = m_xnew;
         return 0;
     } else if (m > -10) {
         return -1;
@@ -494,8 +494,8 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                 if (loglevel > 0) {
                     writelog("Take {} timesteps   ", nsteps);
                 }
-                dt = timeStep(nsteps, dt, m_data->data(), m_xnew.data(), loglevel-1);
-                m_xlast_ts = *m_data;
+                dt = timeStep(nsteps, dt, m_state->data(), m_xnew.data(), loglevel-1);
+                m_xlast_ts = *m_state;
                 if (loglevel > 6) {
                     save("debug_sim1d.yaml", "debug", "After timestepping");
                 }
@@ -506,7 +506,7 @@ void Sim1D::solve(int loglevel, bool refine_grid)
 
                 if (loglevel == 1) {
                     writelog(" {:10.4g} {:10.4g}\n", dt,
-                             log10(ssnorm(m_data->data(), m_xnew.data())));
+                             log10(ssnorm(m_state->data(), m_xnew.data())));
                 }
                 istep++;
                 if (istep >= m_steps.size()) {
@@ -551,7 +551,7 @@ int Sim1D::refine(int loglevel)
     vector_fp znew, xnew;
     std::vector<size_t> dsize;
 
-    m_xlast_ss = *m_data;
+    m_xlast_ss = *m_state;
     m_grid_last_ss.clear();
 
     for (size_t n = 0; n < nDomains(); n++) {
@@ -563,7 +563,7 @@ int Sim1D::refine(int loglevel)
 
         // determine where new points are needed
         ianalyze = r.analyze(d.grid().size(), d.grid().data(),
-                             m_data->data() + start(n));
+                             m_state->data() + start(n));
         if (ianalyze < 0) {
             return ianalyze;
         }
@@ -628,7 +628,7 @@ int Sim1D::refine(int loglevel)
     }
 
     // Replace the current solution vector with the new one
-    *m_data = xnew;
+    *m_state = xnew;
     resize();
     finalize();
     return np;
@@ -717,7 +717,7 @@ int Sim1D::setFixedTemperature(double t)
     }
 
     // Replace the current solution vector with the new one
-    *m_data = xnew;
+    *m_state = xnew;
 
     resize();
     finalize();
@@ -814,7 +814,7 @@ doublereal Sim1D::jacobian(int i, int j)
 
 void Sim1D::evalSSJacobian()
 {
-    OneDim::evalSSJacobian(m_data->data(), m_xnew.data());
+    OneDim::evalSSJacobian(m_state->data(), m_xnew.data());
 }
 
 void Sim1D::solveAdjoint(const double* b, double* lambda)

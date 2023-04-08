@@ -291,7 +291,8 @@ public:
     //! and restoreState().
     virtual std::map<std::string, size_t> nativeState() const;
 
-    //! Return string acronym representing native state
+    //! Return string acronym representing the native state of a Phase.
+    //! Examples: "TP", "TDY", "TPY".
     //! @see nativeState
     //! @since  New in Cantera 3.0
     string nativeMode() const;

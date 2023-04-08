@@ -198,7 +198,7 @@ public:
     const doublereal* solution() {
         warn_deprecated("Sim1D::solution",
             "This method is unused and will be removed after Cantera 3.0.");
-        return m_data->data();
+        return m_state->data();
     }
 
     void setTimeStep(double stepsize, size_t n, const int* tsteps);
@@ -206,12 +206,12 @@ public:
     void solve(int loglevel = 0, bool refine_grid = true);
 
     void eval(doublereal rdt=-1.0, int count = 1) {
-        OneDim::eval(npos, m_data->data(), m_xnew.data(), rdt, count);
+        OneDim::eval(npos, m_state->data(), m_xnew.data(), rdt, count);
     }
 
     // Evaluate the governing equations and return the vector of residuals
     void getResidual(double rdt, double* resid) {
-        OneDim::eval(npos, m_data->data(), resid, rdt, 0);
+        OneDim::eval(npos, m_state->data(), resid, rdt, 0);
     }
 
     //! Refine the grid in all domains.
@@ -280,14 +280,14 @@ public:
     void setSolution(const doublereal* soln) {
         warn_deprecated("Sim1D::setSolution",
             "This method is unused and will be removed after Cantera 3.0.");
-        std::copy(soln, soln + m_data->size(), m_data->data());
+        std::copy(soln, soln + m_state->size(), m_state->data());
     }
 
     // @deprecated  To be removed after Cantera 3.0 (unused)
     const doublereal* solution() const {
         warn_deprecated("Sim1D::solution",
             "This method is unused and will be removed after Cantera 3.0.");
-        return m_data->data();
+        return m_state->data();
     }
 
     doublereal jacobian(int i, int j);
