@@ -4,6 +4,7 @@
 cimport numpy as np
 import numpy as np
 from pathlib import PurePath
+from os import get_terminal_size
 import warnings
 
 from .thermo cimport *
@@ -538,7 +539,7 @@ cdef class SolutionArrayBase:
             cxx_shape.push_back(dim)
         self.base.setApiShape(cxx_shape)
 
-    def info(self, keys=None, rows=10, width=80):
+    def info(self, keys=None, rows=10, width=None):
         """
         Print a concise summary of a `SolutionArray`.
 
@@ -560,6 +561,12 @@ cdef class SolutionArrayBase:
             for key in self.component_names:
                 if key not in names or key in keep:
                     cxx_keys.push_back(stringify(key))
+        if width is None:
+            try:
+                width = get_terminal_size().columns
+            except:
+                width = 100
+
         return pystr(self.base.info(cxx_keys, rows, width))
 
     @property
