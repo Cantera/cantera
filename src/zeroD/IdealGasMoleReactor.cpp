@@ -169,7 +169,7 @@ Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian()
     // map derivatives from the surface chemistry jacobian
     // to the reactor jacobian
     if (!m_surfaces.empty()) {
-        std::vector<Eigen::Triplet<double>> species_trips(dnk_dnj.nonZeros());
+        std::vector<Eigen::Triplet<double>> species_trips;
         for (int k = 0; k < dnk_dnj.outerSize(); k++) {
             for (Eigen::SparseMatrix<double>::InnerIterator it(dnk_dnj, k); it; ++it) {
                 species_trips.emplace_back(it.row(), it.col(), it.value());
@@ -217,33 +217,12 @@ Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian()
         }
         // d T_dot/dnj
         Eigen::VectorXd netProductionRates = Eigen::VectorXd::Zero(ssize);
-        Eigen::VectorXd internal_energy(ssize);
-        Eigen::VectorXd specificHeat(ssize);
+        Eigen::VectorXd internal_energy = Eigen::VectorXd::Zero(ssize);
+        Eigen::VectorXd specificHeat = Eigen::VectorXd::Zero(ssize);
         // getting species data
         m_thermo->getPartialMolarIntEnergies(internal_energy.data());
         m_kin->getNetProductionRates(netProductionRates.data());
         m_thermo->getPartialMolarCp(specificHeat.data());
-        // surface phases
-        size_t offset = m_nsp;
-        for (auto S : m_surfaces) {
-            S->thermo()->getPartialMolarCp(specificHeat.data() + offset);
-            S->thermo()->getPartialMolarEnthalpies(internal_energy.data() + offset);
-            // get additional net production rates
-            auto curr_kin = S->kinetics();
-            vector_fp prod_rates(curr_kin->nTotalSpecies());
-            curr_kin->getNetProductionRates(prod_rates.data());
-            for (size_t i = 0; i < curr_kin->nTotalSpecies(); i++) {
-                size_t row = speciesIndex(curr_kin->kineticsSpeciesName(i));
-                if (row != npos) {
-                    netProductionRates[row] += prod_rates[i];
-                }
-            }
-            // scale production rates by areas
-            for (size_t i = offset; i < offset + S->thermo()->nSpecies(); i++) {
-                netProductionRates[i] *= S->area();
-            }
-            offset += S->thermo()->nSpecies();
-        }
         // convert Cp to Cv for ideal gas as Cp - Cv = R
         for (size_t i = 0; i < m_nsp; i++) {
             specificHeat[i] -= GasConstant;
