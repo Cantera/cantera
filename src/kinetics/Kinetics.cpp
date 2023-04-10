@@ -566,9 +566,9 @@ Eigen::SparseMatrix<double> Kinetics::netProductionRates_ddX()
     return m_stoichMatrix * netRatesOfProgress_ddX();
 }
 
-Eigen::SparseMatrix<double> Kinetics::netProductionRates_ddC()
+Eigen::SparseMatrix<double> Kinetics::netProductionRates_ddN()
 {
-    return m_stoichMatrix * netRatesOfProgress_ddC();
+    return m_stoichMatrix * netRatesOfProgress_ddN();
 }
 
 void Kinetics::addThermo(shared_ptr<ThermoPhase> thermo)

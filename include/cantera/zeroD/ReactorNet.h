@@ -302,9 +302,8 @@ public:
     virtual Eigen::SparseMatrix<double> jacobian();
 
 protected:
-    //! Check if surfaces and preconditioning are included, if so throw an error because
-    //! they are currently not supported.
-    virtual void checkPreconditionerSupported(){};
+    //! check that preconditioning is supported.
+    virtual void checkPreconditionerSupported() {};
 
     //! Update the preconditioner based on the already computed jacobian values
     virtual void updatePreconditioner(double gamma);

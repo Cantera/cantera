@@ -164,11 +164,10 @@ Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian()
     // Determine Species Derivatives
     // get ROP derivatives, excluding the term molarVolume * sum_k(X_k * dwdot_j/dX_j)
     // which is small and would completely destroy the sparsity of the Jacobian
-    Eigen::SparseMatrix<double> dwdC =
-        m_kin->netProductionRates_ddC() / m_vol;
+    Eigen::SparseMatrix<double> dnk_dnj = m_kin->netProductionRates_ddN();
     // add to preconditioner
-    for (int k=0; k<dwdC.outerSize(); ++k) {
-        for (Eigen::SparseMatrix<double>::InnerIterator it(dwdC, k); it; ++it) {
+    for (int k=0; k<dnk_dnj.outerSize(); ++k) {
+        for (Eigen::SparseMatrix<double>::InnerIterator it(dnk_dnj, k); it; ++it) {
             m_jac_trips.emplace_back(
                 static_cast<int>(it.row() + m_sidx),
                 static_cast<int>(it.col() + m_sidx),
@@ -176,6 +175,7 @@ Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian()
         }
     }
     // Temperature Derivatives
+    double NCv = 0.0;
     if (m_energy) {
         // getting perturbed state for finite difference
         double deltaTemp = m_thermo->temperature()
@@ -202,36 +202,43 @@ Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian()
             m_jac_trips.emplace_back(static_cast<int>(j), 0,
                                      (ydotPerturbed - ydotCurrent) / deltaTemp);
         }
-        // find derivatives d T_dot/dNj
-        Eigen::VectorXd specificHeat(m_nsp);
+        // d T_dot/dnj
         Eigen::VectorXd netProductionRates(m_nsp);
         Eigen::VectorXd internal_energy(m_nsp);
         // getting species data
-        m_thermo->getPartialMolarCp(specificHeat.data());
         m_thermo->getPartialMolarIntEnergies(internal_energy.data());
         m_kin->getNetProductionRates(netProductionRates.data());
-        // scale net production rates by  volume to get molar rate
-        netProductionRates *= m_vol;
+        // get specific heat for whole system
+        Eigen::VectorXd specificHeat(m_nv - m_sidx);
+        // gas phase
+        m_thermo->getPartialMolarCp(specificHeat.data());
         // convert Cp to Cv for ideal gas as Cp - Cv = R
-        specificHeat = specificHeat.array() - GasConstant;
-        // dwdot_dC
-        Eigen::VectorXd dwdot_dC(m_nsp);
-        m_kin->getNetProductionRates_ddC(dwdot_dC.data());
-        // finding a sums inside the derivative
-        double totalCv = m_mass * m_thermo->cv_mass();
-        double uk_dwdC_sum = internal_energy.transpose() * dwdot_dC;
-        double uk_nk_sum = internal_energy.transpose() * netProductionRates;
-        Eigen::VectorXd uk_dnkdnj_sums = dwdC.transpose() * internal_energy;
-        // finding derivatives
-        // spans columns
+        for (size_t i = 0; i < m_nsp; i++) {
+            specificHeat[i] -= GasConstant;
+        }
+        // surface phases, Cp = Cv for surfaces
+        size_t shift = m_nsp;
+        for (auto S : m_surfaces) {
+            S->thermo()->getPartialMolarCp(specificHeat.data() + shift);
+            shift += S->thermo()->nSpecies();
+        }
+        // scale net production rates by  volume to get molar rate
+        double qdot = m_vol * internal_energy.dot(netProductionRates);
+        // find denominator ahead of time
+        for (size_t i = 0; i < m_nv - m_sidx; i++) {
+            NCv += yCurrent[i + m_sidx] * specificHeat[i];
+        }
+        // Make denominator beforehand
+        double denom = 1 / (NCv * NCv);
+        Eigen::VectorXd uk_dnkdnj_sums = dnk_dnj.transpose() * internal_energy;
+        // Add derivatives to jac by spanning columns
         for (size_t j = 0; j < m_nsp; j++) {
-            // set appropriate column of preconditioner
             m_jac_trips.emplace_back(0, static_cast<int>(j + m_sidx),
-                (uk_dwdC_sum - uk_dnkdnj_sums[j] + specificHeat[j] * uk_nk_sum / totalCv) / totalCv);
+                (specificHeat[j] * qdot - NCv * uk_dnkdnj_sums[j]) * denom);
         }
     }
     // add surface jacobian to system
-    addSurfJacobian();
+    addSurfJacobian(NCv, false);
     // convert triplets to sparse matrix
     Eigen::SparseMatrix<double> jac(m_nv, m_nv);
     jac.setFromTriplets(m_jac_trips.begin(), m_jac_trips.end());

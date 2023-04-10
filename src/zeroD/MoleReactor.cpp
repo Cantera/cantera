@@ -84,35 +84,70 @@ void MoleReactor::evalSurfaces(double* LHS, double* RHS, double* sdot)
     }
 }
 
-void MoleReactor::addSurfJacobian()
+void MoleReactor::addSurfJacobian(double NCp, bool pressure)
 {
-    // Translate surface netProductionRates_ddC into mole values for reactor
-    // Jacobian
+    // For all surfaces find necessary species derivatives
+    std::string gas_phase = m_thermo->name();
     for (auto& S : m_surfaces) {
         auto curr_kin = S->kinetics();
-        // get surface jacobian
-        Eigen::SparseMatrix<double> surfJac = curr_kin->netProductionRates_ddC();
+        auto curr_thermo = S->thermo();
+        double V_A = m_vol / S->area();
+        // get surface jacobian in concentration units
+        Eigen::SparseMatrix<double> surfJac = curr_kin->netProductionRates_ddN();
         // Add elements to jacobian triplets
         for (int k=0; k<surfJac.outerSize(); ++k) {
             for (Eigen::SparseMatrix<double>::InnerIterator it(surfJac, k); it; ++it) {
                 // Get species row and column inside of reactor
                 size_t row = componentIndex(curr_kin->kineticsSpeciesName(it.row()));
                 size_t col = componentIndex(curr_kin->kineticsSpeciesName(it.col()));
-                double scalar = 1;
                 if (row != npos && col != npos) {
-                    if (row > m_nsp && col > m_nsp) {
-                        scalar = 1 / S->thermo()->size(it.row());
+                    // derivatives w.r.t gas phase species
+                    if (col < m_nsp) {
+                        it.valueRef() = V_A * it.value();
                     }
-                    // surf w.r.t gas phase scalar
-                    else if (row > m_nsp) {
-                        scalar = S->area() / (S->thermo()->size(it.row()) * m_vol);
-                    }
-                    // gas phase w.r.t surf scalar
-                    else if (col > m_nsp) {
-                        scalar = m_vol / S->area();
-                    }
-                    // add derivative to the jacobian
-                    m_jac_trips.emplace_back(row, col, scalar * it.value());
+                    // add to appropriate row and col
+                    m_jac_trips.emplace_back(row, col, it.value());
+                }
+            }
+        }
+        // Add thermo jacobian for surfaces
+        if (m_energy) {
+            // d T_dot/dnj
+            // constants used for indexing
+            size_t nspec = curr_kin->nTotalSpecies();
+            size_t surf_spec = curr_thermo->nSpecies();
+            size_t ns = curr_kin->phaseIndex(gas_phase);
+            size_t gasloc = curr_kin->kineticsSpeciesIndex(0, ns);
+            size_t gasbound = gasloc + m_nsp;
+            // create needed vectors
+            Eigen::VectorXd specificHeat(nspec);
+            Eigen::VectorXd enthalpy(nspec);
+            Eigen::VectorXd netProductionRates(nspec);
+            // get needed surface data
+            curr_thermo->getPartialMolarCp(specificHeat.data());
+            curr_thermo->getPartialMolarEnthalpies(enthalpy.data());
+            curr_kin->getNetProductionRates(netProductionRates.data());
+            // get needed gas phase data
+            m_thermo->getPartialMolarCp(specificHeat.data() + gasloc);
+            if (pressure) {
+                m_thermo->getPartialMolarEnthalpies(enthalpy.data() + gasloc);
+            } else {
+                m_thermo->getPartialMolarIntEnergies(enthalpy.data() + gasloc);
+                for (size_t i = gasloc; i < gasbound; i++) {
+                    specificHeat[i] -= GasConstant;
+                }
+            }
+            // calculate need parameters
+            double qdot = S->area() * enthalpy.dot(netProductionRates);
+            // Make denominators beforehand
+            double denom = 1 / (NCp * NCp);
+            Eigen::VectorXd hk_dnkdnj_sum = surfJac.transpose() * enthalpy;
+            // Add derivatives to jac by spanning columns
+            for (size_t j = 0; j < nspec; j++) {
+                if (j < surf_spec || (j >= gasloc && j < gasbound)) {
+                    size_t col = componentIndex(curr_kin->kineticsSpeciesName(j));
+                    m_jac_trips.emplace_back(0, static_cast<int>(col),
+                        (specificHeat[j] * qdot - NCp * hk_dnkdnj_sum[j]) * denom);
                 }
             }
         }

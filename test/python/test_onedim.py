@@ -675,7 +675,9 @@ class TestFreeFlame(utilities.CanteraTest):
             # Skipped because they are 2D (conversion not implemented)
             "binary_diff_coeffs", "creation_rates_ddX", "destruction_rates_ddX",
             "forward_rates_of_progress_ddX", "net_production_rates_ddX",
-            "net_rates_of_progress_ddX", "reverse_rates_of_progress_ddX"
+            "net_rates_of_progress_ddX", "reverse_rates_of_progress_ddX",
+            "net_rates_of_progress_ddN", "forward_rates_of_progress_ddN",
+            "reverse_rates_of_progress_ddN"
         }
 
         for attr in dir(self.gas):
