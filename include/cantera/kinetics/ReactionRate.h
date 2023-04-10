@@ -53,6 +53,7 @@ public:
         : m_input(other.m_input)
         , m_rate_index(other.m_rate_index)
         , m_valid(other.m_valid)
+        , m_conversion_units(other.m_conversion_units)
     {}
 
     ReactionRate& operator=(const ReactionRate& other) {
@@ -62,6 +63,7 @@ public:
         m_input = other.m_input;
         m_rate_index = other.m_rate_index;
         m_valid = other.m_valid;
+        m_conversion_units = other.m_conversion_units;
         return *this;
     }
 
@@ -94,6 +96,7 @@ public:
     //! @param node  AnyMap object containing reaction rate specification
     //! @param units  unit definitions specific to rate information
     virtual void setParameters(const AnyMap& node, const UnitStack& units) {
+        setRateUnits(units);
         m_input = node;
     }
 
@@ -105,6 +108,30 @@ public:
         out["type"] = type();
         getParameters(out);
         return out;
+    }
+
+    //! Get the units for converting the leading term in the reaction rate expression.
+    //!
+    //! These units are often the same as the units of the rate expression itself, but
+    //! not always; sticking coefficients are a notable exception.
+    //! @since New in Cantera 3.0
+    const Units& conversionUnits() const {
+        return m_conversion_units;
+    }
+
+    //! Set the units of the reaction rate expression
+    //!
+    //! Used to determine the units that should be used for converting terms in the
+    //! reaction rate expression, which often have the same units (for example, the
+    //! Arrhenius pre-exponential) but may also be different (for example, sticking
+    //! coefficients).
+    //! @since New in Cantera 3.0
+    virtual void setRateUnits(const UnitStack& rate_units) {
+        if (rate_units.size() > 1) {
+            m_conversion_units = rate_units.product();
+        } else {
+            m_conversion_units = rate_units.standardUnits();
+        }
     }
 
     //! Check basic syntax and settings of reaction rate expression
@@ -224,6 +251,9 @@ protected:
 
     //! Flag indicating composition dependent rate
     bool m_composition_dependent_rate = false;
+
+    //! Units of the leading term in the reaction rate expression
+    Units m_conversion_units{0.};
 
 private:
     //! Return an object that be used to evaluate the rate by converting general input

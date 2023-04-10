@@ -63,7 +63,6 @@ ChebyshevRate::ChebyshevRate(const AnyMap& node, const UnitStack& rate_units)
 void ChebyshevRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
 {
     ReactionRate::setParameters(node, rate_units);
-    m_rate_units = rate_units.product();
     const UnitSystem& unit_system = node.units();
     Array2D coeffs(0, 0);
     if (node.hasKey("data")) {
@@ -80,7 +79,7 @@ void ChebyshevRate::setParameters(const AnyMap& node, const UnitStack& rate_unit
                 coeffs(i, j) = vcoeffs[i][j];
             }
         }
-        double offset = unit_system.convertRateCoeff(AnyValue(1.0), m_rate_units);
+        double offset = unit_system.convertRateCoeff(AnyValue(1.0), conversionUnits());
         coeffs(0, 0) += std::log10(offset);
         setLimits(
             unit_system.convert(T_range[0], "K"),
@@ -142,7 +141,7 @@ void ChebyshevRate::getParameters(AnyMap& rateNode) const
     }
     // Unit conversions must take place later, after the destination unit system
     // is known. A lambda function is used here to override the default behavior
-    Units rate_units2 = m_rate_units;
+    Units rate_units2 = conversionUnits();
     auto converter = [rate_units2](AnyValue& coeffs, const UnitSystem& units) {
         if (rate_units2.factor() != 0.0) {
             coeffs.asVector<vector_fp>()[0][0] += \

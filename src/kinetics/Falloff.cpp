@@ -344,7 +344,7 @@ void TroeRate::getParameters(AnyMap& node) const
     AnyMap params;
     if (!valid()) {
         // pass
-    } else if (m_lowRate.rateUnits().factor() != 0.0) {
+    } else if (m_lowRate.conversionUnits().factor() != 0.0) {
         params["A"] = m_a;
         params["T3"].setQuantity(1.0 / m_rt3, "K");
         params["T1"].setQuantity(1.0 / m_rt1, "K");
@@ -472,7 +472,7 @@ void SriRate::getParameters(AnyMap& node) const
     AnyMap params;
     if (!valid()) {
         // pass
-    } else if (m_lowRate.rateUnits().factor() != 0.0) {
+    } else if (m_lowRate.conversionUnits().factor() != 0.0) {
         params["A"] = m_a;
         params["B"].setQuantity(m_b, "K");
         params["C"].setQuantity(m_c, "K");

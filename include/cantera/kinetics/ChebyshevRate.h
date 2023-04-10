@@ -232,8 +232,6 @@ protected:
 
     Array2D m_coeffs; //!<< coefficient array
     vector_fp dotProd_; //!< dot product of coeffs with the reduced pressure polynomial
-
-    Units m_rate_units = Units(0.); //!< Reaction rate units
 };
 
 }
