@@ -133,9 +133,9 @@ Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian()
     m_kin->getNetProductionRates(netProductionRates.data()); // "omega dot"
     Eigen::SparseMatrix<double> dnk_dnj = m_kin->netProductionRates_ddN();
     double molarVolume = m_thermo->molarVolume();
-    // Calculate ROP derivatives, excluding the term
-    // molarVolume * (wdot(j) - sum_k(X_k * dwdot_j/dX_k))
-    // which is small and would completely destroy the sparsity of the Jacobian
+    // Calculate ROP derivatives, excluding the terms where dnk/dnj is zero but
+    // molarVolume * wdot is not, as it reduces matrix sparsity and diminishes
+    // performance.
     for (int k = 0; k < dnk_dnj.outerSize(); k++) {
         for (Eigen::SparseMatrix<double>::InnerIterator it(dnk_dnj, k); it; ++it) {
             it.valueRef() = it.value() + netProductionRates[it.row()] * molarVolume;

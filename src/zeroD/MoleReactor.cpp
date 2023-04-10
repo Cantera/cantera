@@ -102,8 +102,10 @@ void MoleReactor::addSurfJacobian(double NCp, bool pressure)
                 size_t col = componentIndex(curr_kin->kineticsSpeciesName(it.col()));
                 if (row != npos && col != npos) {
                     // derivatives w.r.t gas phase species
-                    if (col < m_nsp) {
+                    if (col > m_nsp && row < m_nsp) {
                         it.valueRef() = V_A * it.value();
+                    } else if (col < m_nsp && row > m_nsp)  {
+                        it.valueRef() = it.value() / V_A;
                     }
                     // add to appropriate row and col
                     m_jac_trips.emplace_back(row, col, it.value());
@@ -192,7 +194,6 @@ void MoleReactor::getState(double* y)
     // moles on walls
     getSurfaceInitialConditions(y+m_nsp+m_sidx);
 }
-
 
 void MoleReactor::updateState(double* y)
 {
