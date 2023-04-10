@@ -36,6 +36,9 @@ public:
 
     std::string componentName(size_t k);
 
+    //! Add the surface chemistry Jacobian values to m_jac_trips
+    virtual void addSurfJacobian();
+
 protected:
     //! Get moles of the system from mass fractions stored by thermo object
     //! @param y vector for moles to be put into

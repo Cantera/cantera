@@ -823,6 +823,23 @@ public:
     }
 
     /**
+     * Calculate derivatives for net rates-of-progress with respect to species
+     * concentration at constant temperature and pressure.
+     *
+     * The method returns a matrix with nReactions rows and nTotalSpecies columns.
+     * For a derivative with respect to \f$[n_i]\f$, all other \f$[n_i]\f$ are held
+     * constant.
+     *
+     * @warning  This method is an experimental part of the %Cantera API and
+     *      may be changed or removed without notice.
+     */
+    virtual Eigen::SparseMatrix<double> netRatesOfProgress_ddC()
+    {
+        throw NotImplementedError("Kinetics::netRatesOfProgress_ddC",
+            "Not implemented for kinetics type '{}'.", kineticsType());
+    }
+
+    /**
      * Calculate derivatives for species creation rates with respect to temperature
      * at constant pressure, molar concentration and mole fractions.
      * @param[out] dwdot  Output vector of derivatives. Length: m_kk.
@@ -932,6 +949,18 @@ public:
      *      may be changed or removed without notice.
      */
     Eigen::SparseMatrix<double> netProductionRates_ddX();
+
+    /**
+     * Calculate derivatives for species net production rates with respect to species
+     * concentration at constant temperature and pressure.
+     *
+     * The method returns a matrix with nTotalSpecies rows and nTotalSpecies columns.
+     * For a derivative with respect to \f$[n_i]\f$, all other \f$[n_i]\f$ are held constant.
+     *
+     * @warning  This method is an experimental part of the %Cantera API and
+     *      may be changed or removed without notice.
+     */
+    Eigen::SparseMatrix<double> netProductionRates_ddC();
 
     //! @}
     //! @name Reaction Mechanism Informational Query Routines
