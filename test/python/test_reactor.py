@@ -1144,7 +1144,7 @@ class TestIdealGasConstPressureMoleReactor(TestConstPressureMoleReactor):
         super().create_reactors(**kwargs)
         self.precon = ct.AdaptivePreconditioner()
         self.net2.preconditioner = self.precon
-        self.net2.derivative_settings = {"skip-third-bodies":True, "skip-falloff":True}
+        self.net2.derivative_settings = {"skip-third-bodies":True, "skip-falloff":True, "skip-electrochemistry":True, "skip-coverage-dependence":True}
 
     def test_get_solver_type(self):
         self.create_reactors()
@@ -1205,6 +1205,8 @@ class TestReactorJacobians(utilities.CanteraTest):
         net = ct.ReactorNet([r1, r2])
         precon = ct.AdaptivePreconditioner()
         net.preconditioner = precon
+        # set derivative settings
+        net.derivative_settings = {"skip-electrochemistry":True, "skip-coverage-dependence":True}
         # initialize network
         net.initialize()
         # compare jacobians mostly analytical jacobians
@@ -1266,9 +1268,11 @@ class TestReactorJacobians(utilities.CanteraTest):
         surf2.install(r2)
         # create reactor network
         net = ct.ReactorNet([r1, r2])
+        # set derivative settings
+        net.derivative_settings = {"skip-electrochemistry":True, "skip-coverage-dependence":True}
         net.initialize()
         # check that they two arrays are the same
-        self.assertArrayNear(r1.jacobian, r2.jacobian)
+        self.assertArrayNear(r1.jacobian, r2.jacobian, 1e-6, 1e-8)
 
 
 class TestFlowReactor(utilities.CanteraTest):

@@ -305,21 +305,8 @@ public:
     */
     double interfaceCurrent(const size_t iphase);
 
-    /**
-     * Set/modify derivative settings. For the interface kinetics object this
-     * includes `"skip-coverage-dependence"`, `"skip-electrochem"`, and `"rtol-delta"`.
-     *
-     *  - `skip-coverage-dependence` (boolean) ... if `true` (default), rate constant
-     *    coverage dependence is not considered when evaluating derivatives.
-     *  - `skip-electrochem` (boolean) ... if `true` (default), electrical charge is
-     *    not considered in evaluating the derivatives and these reactions are treated
-     *    as normal surface reactions.
-     *   - `rtol-delta` (double) ... relative tolerance used to perturb properties
-     *     when calculating numerical derivatives. The default value is 1e-8.
-     *
-     * @param settings  AnyMap containing settings determining derivative evaluation.
-     */
     virtual void setDerivativeSettings(const AnyMap& settings);
+    virtual void getDerivativeSettings(AnyMap& settings) const;
     virtual Eigen::SparseMatrix<double> fwdRatesOfProgress_ddN();
     virtual Eigen::SparseMatrix<double> revRatesOfProgress_ddN();
     virtual Eigen::SparseMatrix<double> netRatesOfProgress_ddN();

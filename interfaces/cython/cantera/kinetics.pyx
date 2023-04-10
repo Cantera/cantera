@@ -697,6 +697,23 @@ cdef class Kinetics(_SolutionBase):
             return get_from_sparse(self.kinetics.creationRates_ddX(),
                                    self.n_total_species, self.n_total_species)
 
+    property creation_rates_ddN:
+        """
+        Calculate derivatives for species creation rates with respect to species
+        concentration at constant temperature, pressure, and concentration of all other
+        species. For sparse output, set ``ct.use_sparse(True)``.
+
+        The method returns a matrix with nTotalSpecies rows and nTotalSpecies columns.
+        For a derivative with respect to \f$[n_i]\f$, all other \f$[n_i]\f$ are held
+        constant.
+
+        **Warning:** this property is an experimental part of the Cantera API and
+        may be changed or removed without notice.
+        """
+        def __get__(self):
+            return get_from_sparse(self.kinetics.creationRates_ddN(),
+                                   self.n_total_species, self.n_total_species)
+
     property destruction_rates_ddT:
         """
         Calculate derivatives of species destruction rates with respect to temperature
@@ -740,6 +757,23 @@ cdef class Kinetics(_SolutionBase):
             return get_from_sparse(self.kinetics.destructionRates_ddX(),
                                    self.n_total_species, self.n_total_species)
 
+    property destruction_rates_ddN:
+        """
+        Calculate derivatives for species destruction rates with respect to species
+        concentration at constant temperature, pressure, and concentration of all other
+        species. For sparse output, set ``ct.use_sparse(True)``.
+
+        The method returns a matrix with nTotalSpecies rows and nTotalSpecies columns.
+        For a derivative with respect to \f$[n_i]\f$, all other \f$[n_i]\f$ are held
+        constant.
+
+        **Warning:** this property is an experimental part of the Cantera API and
+        may be changed or removed without notice.
+        """
+        def __get__(self):
+            return get_from_sparse(self.kinetics.destructionRates_ddN(),
+                                   self.n_total_species, self.n_total_species)
+
     property net_production_rates_ddT:
         """
         Calculate derivatives of species net production rates with respect to
@@ -781,6 +815,23 @@ cdef class Kinetics(_SolutionBase):
         """
         def __get__(self):
             return get_from_sparse(self.kinetics.netProductionRates_ddX(),
+                                   self.n_total_species, self.n_total_species)
+
+    property net_production_rates_ddN:
+        """
+        Calculate derivatives for species net production rates with respect to species
+        concentration at constant temperature, pressure, and concentration of all other
+        species. For sparse output, set ``ct.use_sparse(True)``.
+
+        The method returns a matrix with nTotalSpecies rows and nTotalSpecies columns.
+        For a derivative with respect to \f$[n_i]\f$, all other \f$[n_i]\f$ are held
+        constant.
+
+        **Warning:** this property is an experimental part of the Cantera API and
+        may be changed or removed without notice.
+        """
+        def __get__(self):
+            return get_from_sparse(self.kinetics.netProductionRates_ddN(),
                                    self.n_total_species, self.n_total_species)
 
     property delta_enthalpy:

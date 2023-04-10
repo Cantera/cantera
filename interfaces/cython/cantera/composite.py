@@ -523,7 +523,8 @@ class SolutionArray(SolutionArrayBase):
 
     _n_species2 = [
         'multi_diff_coeffs', 'binary_diff_coeffs', 'creation_rates_ddX',
-        'destruction_rates_ddX', 'net_production_rates_ddX'
+        'destruction_rates_ddX', 'net_production_rates_ddX', 'creation_rates_ddN',
+        'destruction_rates_ddN', 'net_production_rates_ddN'
     ]
 
     _n_reactions = [
