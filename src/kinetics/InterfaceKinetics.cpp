@@ -440,7 +440,7 @@ bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base, bool resize)
     m_interfaceRates[index]->add(nReactions() - 1, *rate);
 
     // Set flag for coverage dependence to true
-    if (rate->usesCoverageDependence()) {
+    if (rate->compositionDependent()) {
         m_has_coverage_dependence = true;
     }
 

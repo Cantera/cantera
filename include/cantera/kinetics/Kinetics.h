@@ -733,11 +733,13 @@ public:
      * concentrations.
      *
      * The method returns a matrix with nReactions rows and nTotalSpecies columns.
-     * For a derivative with respect to \f$n_i\f$, all other \f$n_j\f$ are held
+     * For a derivative with respect to \f$c_i\f$, all other \f$c_j\f$ are held
      * constant.
      *
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
+     *
+     * @since  New in Cantera 3.0.
      */
     virtual Eigen::SparseMatrix<double> fwdRatesOfProgress_ddCi()
     {
@@ -804,11 +806,13 @@ public:
      * concentrations.
      *
      * The method returns a matrix with nReactions rows and nTotalSpecies columns.
-     * For a derivative with respect to \f$n_i\f$, all other \f$n_j\f$ are held
+     * For a derivative with respect to \f$c_i\f$, all other \f$c_j\f$ are held
      * constant.
      *
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
+     *
+     * @since  New in Cantera 3.0.
      */
     virtual Eigen::SparseMatrix<double> revRatesOfProgress_ddCi()
     {
@@ -880,6 +884,8 @@ public:
      *
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
+     *
+     * @since  New in Cantera 3.0.
      */
     virtual Eigen::SparseMatrix<double> netRatesOfProgress_ddCi()
     {
@@ -935,6 +941,8 @@ public:
      *
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
+     *
+     * @since  New in Cantera 3.0.
      */
     Eigen::SparseMatrix<double> creationRates_ddCi();
 
@@ -986,6 +994,8 @@ public:
      *
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
+     *
+     * @since  New in Cantera 3.0.
      */
     Eigen::SparseMatrix<double> destructionRates_ddCi();
 
@@ -1037,6 +1047,8 @@ public:
      *
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
+     *
+     * @since  New in Cantera 3.0.
      */
     Eigen::SparseMatrix<double> netProductionRates_ddCi();
 

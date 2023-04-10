@@ -93,8 +93,8 @@ void MoleReactor::addSurfaceJacobian(vector<Eigen::Triplet<double>> &triplets)
         auto kin = S->kinetics();
         size_t nk = S->thermo()->nSpecies();
         // index of gas and surface phases to check if the species is in gas or surface
-        int spi = kin->reactionPhaseIndex();
-        int gpi = kin->speciesPhaseIndex(kin->kineticsSpeciesIndex(
+        size_t spi = kin->reactionPhaseIndex();
+        size_t gpi = kin->speciesPhaseIndex(kin->kineticsSpeciesIndex(
             m_thermo->speciesName(0)));
         // get surface jacobian in concentration units
         Eigen::SparseMatrix<double> surfJac = kin->netProductionRates_ddCi();
@@ -106,8 +106,8 @@ void MoleReactor::addSurfaceJacobian(vector<Eigen::Triplet<double>> &triplets)
                 size_t col = it.col();
                 auto& rowPhase = kin->speciesPhase(row);
                 auto& colPhase = kin->speciesPhase(col);
-                int rpi = kin->phaseIndex(rowPhase.name());
-                int cpi = kin->phaseIndex(colPhase.name());
+                size_t rpi = kin->phaseIndex(rowPhase.name());
+                size_t cpi = kin->phaseIndex(colPhase.name());
                 // check if the reactor kinetics object contains both phases to avoid
                 // any solid phases which may be included then use phases to map surf
                 // kinetics indicies to reactor kinetic indices

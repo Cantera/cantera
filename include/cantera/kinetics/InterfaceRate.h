@@ -385,6 +385,9 @@ public:
     {
         InterfaceRateBase::setParameters(node);
         RateType::setParameters(node, rate_units);
+        if (node.hasKey("coverage-dependencies")) {
+            RateType::setCompositionDependence(true);
+        }
     }
 
     virtual void getParameters(AnyMap& node) const override {
