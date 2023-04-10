@@ -77,9 +77,9 @@ public:
     virtual Eigen::SparseMatrix<double> fwdRatesOfProgress_ddX();
     virtual Eigen::SparseMatrix<double> revRatesOfProgress_ddX();
     virtual Eigen::SparseMatrix<double> netRatesOfProgress_ddX();
-    virtual Eigen::SparseMatrix<double> fwdRatesOfProgress_ddN();
-    virtual Eigen::SparseMatrix<double> revRatesOfProgress_ddN();
-    virtual Eigen::SparseMatrix<double> netRatesOfProgress_ddN();
+    virtual Eigen::SparseMatrix<double> fwdRatesOfProgress_ddCi();
+    virtual Eigen::SparseMatrix<double> revRatesOfProgress_ddCi();
+    virtual Eigen::SparseMatrix<double> netRatesOfProgress_ddCi();
 
     //! Update temperature-dependent portions of reaction rates and falloff
     //! functions.

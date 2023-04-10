@@ -614,20 +614,20 @@ double InterfaceKinetics::interfaceCurrent(const size_t iphase)
     return dotProduct * Faraday;
 }
 
-Eigen::SparseMatrix<double> InterfaceKinetics::fwdRatesOfProgress_ddN()
+Eigen::SparseMatrix<double> InterfaceKinetics::fwdRatesOfProgress_ddCi()
 {
     // check derivatives are valid
-    assertDerivativesValid("InterfaceKinetics::fwdRatesOfProgress_ddN");
+    assertDerivativesValid("InterfaceKinetics::fwdRatesOfProgress_ddCi");
     // forward reaction rate coefficients
     vector_fp& rop_rates = m_rbuf0;
     processFwdRateCoefficients(rop_rates.data());
     return calculateCompositionDerivatives(m_reactantStoich, rop_rates);
 }
 
-Eigen::SparseMatrix<double> InterfaceKinetics::revRatesOfProgress_ddN()
+Eigen::SparseMatrix<double> InterfaceKinetics::revRatesOfProgress_ddCi()
 {
     // check derivatives are valid
-    assertDerivativesValid("InterfaceKinetics::revRatesOfProgress_ddN");
+    assertDerivativesValid("InterfaceKinetics::revRatesOfProgress_ddCi");
     // reverse reaction rate coefficients
     vector_fp& rop_rates = m_rbuf0;
     processFwdRateCoefficients(rop_rates.data());
@@ -635,10 +635,10 @@ Eigen::SparseMatrix<double> InterfaceKinetics::revRatesOfProgress_ddN()
     return calculateCompositionDerivatives(m_revProductStoich, rop_rates);
 }
 
-Eigen::SparseMatrix<double> InterfaceKinetics::netRatesOfProgress_ddN()
+Eigen::SparseMatrix<double> InterfaceKinetics::netRatesOfProgress_ddCi()
 {
     // check derivatives are valid
-    assertDerivativesValid("InterfaceKinetics::netRatesOfProgress_ddN");
+    assertDerivativesValid("InterfaceKinetics::netRatesOfProgress_ddCi");
     // forward reaction rate coefficients
     vector_fp& rop_rates = m_rbuf0;
     processFwdRateCoefficients(rop_rates.data());

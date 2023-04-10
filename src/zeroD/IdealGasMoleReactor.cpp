@@ -163,7 +163,7 @@ Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian()
     m_jac_trips.clear();
     // dnk_dnj represents d(dot(n_k)) / d (n_j) but is first assigned as
     // d (dot(omega)) / d [n_j], it is later transformed appropriately.
-    Eigen::SparseMatrix<double> dnk_dnj = m_kin->netProductionRates_ddN();
+    Eigen::SparseMatrix<double> dnk_dnj = m_kin->netProductionRates_ddCi();
     // species size that accounts for surface species
     size_t ssize = m_nv - m_sidx;
     // map derivatives from the surface chemistry jacobian

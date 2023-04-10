@@ -517,7 +517,7 @@ cdef class Kinetics(_SolutionBase):
             return get_from_sparse(self.kinetics.fwdRatesOfProgress_ddX(),
                                    self.n_reactions, self.n_total_species)
 
-    property forward_rates_of_progress_ddN:
+    property forward_rates_of_progress_ddCi:
         """
         Calculate derivatives for forward rates-of-progress with respect to species
         concentrations at constant temperature, pressure and remaining species
@@ -531,7 +531,7 @@ cdef class Kinetics(_SolutionBase):
         may be changed or removed without notice.
         """
         def __get__(self):
-            return get_from_sparse(self.kinetics.fwdRatesOfProgress_ddN(),
+            return get_from_sparse(self.kinetics.fwdRatesOfProgress_ddCi(),
                                    self.n_reactions, self.n_total_species)
 
     property reverse_rates_of_progress_ddT:
@@ -577,7 +577,7 @@ cdef class Kinetics(_SolutionBase):
             return get_from_sparse(self.kinetics.revRatesOfProgress_ddX(),
                                    self.n_reactions, self.n_total_species)
 
-    property reverse_rates_of_progress_ddN:
+    property reverse_rates_of_progress_ddCi:
         """
         Calculate derivatives for reverse rates-of-progress with respect to species
         concentrations at constant temperature, pressure and remaining species
@@ -591,7 +591,7 @@ cdef class Kinetics(_SolutionBase):
         may be changed or removed without notice.
         """
         def __get__(self):
-            return get_from_sparse(self.kinetics.revRatesOfProgress_ddN(),
+            return get_from_sparse(self.kinetics.revRatesOfProgress_ddCi(),
                                    self.n_reactions, self.n_total_species)
 
     property net_rates_of_progress_ddT:
@@ -637,12 +637,11 @@ cdef class Kinetics(_SolutionBase):
             return get_from_sparse(self.kinetics.netRatesOfProgress_ddX(),
                                    self.n_reactions, self.n_total_species)
 
-    property net_rates_of_progress_ddN:
+    property net_rates_of_progress_ddCi:
         """
         Calculate derivatives for net rates-of-progress with respect to species
         concentrations at constant temperature, pressure and remaining species
-        concentrations.
-        For sparse output, set ``ct.use_sparse(True)``.
+        concentrations. For sparse output, set ``ct.use_sparse(True)``.
 
         Note that for derivatives with respect to :math:`[n_i]`, all other :math:`[n_j]`
         are held constant.
@@ -651,7 +650,7 @@ cdef class Kinetics(_SolutionBase):
         may be changed or removed without notice.
         """
         def __get__(self):
-            return get_from_sparse(self.kinetics.netRatesOfProgress_ddN(),
+            return get_from_sparse(self.kinetics.netRatesOfProgress_ddCi(),
                                    self.n_reactions, self.n_total_species)
 
     property creation_rates_ddT:
@@ -697,21 +696,21 @@ cdef class Kinetics(_SolutionBase):
             return get_from_sparse(self.kinetics.creationRates_ddX(),
                                    self.n_total_species, self.n_total_species)
 
-    property creation_rates_ddN:
+    property creation_rates_ddCi:
         """
         Calculate derivatives for species creation rates with respect to species
         concentration at constant temperature, pressure, and concentration of all other
         species. For sparse output, set ``ct.use_sparse(True)``.
 
         The method returns a matrix with nTotalSpecies rows and nTotalSpecies columns.
-        For a derivative with respect to \f$[n_i]\f$, all other \f$[n_i]\f$ are held
-        constant.
+        For a derivative with respect to :math: `[n_i]`, all other :math: `[n_i]` are
+        held constant.
 
         **Warning:** this property is an experimental part of the Cantera API and
         may be changed or removed without notice.
         """
         def __get__(self):
-            return get_from_sparse(self.kinetics.creationRates_ddN(),
+            return get_from_sparse(self.kinetics.creationRates_ddCi(),
                                    self.n_total_species, self.n_total_species)
 
     property destruction_rates_ddT:
@@ -757,21 +756,21 @@ cdef class Kinetics(_SolutionBase):
             return get_from_sparse(self.kinetics.destructionRates_ddX(),
                                    self.n_total_species, self.n_total_species)
 
-    property destruction_rates_ddN:
+    property destruction_rates_ddCi:
         """
         Calculate derivatives for species destruction rates with respect to species
         concentration at constant temperature, pressure, and concentration of all other
         species. For sparse output, set ``ct.use_sparse(True)``.
 
         The method returns a matrix with nTotalSpecies rows and nTotalSpecies columns.
-        For a derivative with respect to \f$[n_i]\f$, all other \f$[n_i]\f$ are held
-        constant.
+        For a derivative with respect to :math: `[n_i]`, all other :math: `[n_i]` are
+        held constant.
 
         **Warning:** this property is an experimental part of the Cantera API and
         may be changed or removed without notice.
         """
         def __get__(self):
-            return get_from_sparse(self.kinetics.destructionRates_ddN(),
+            return get_from_sparse(self.kinetics.destructionRates_ddCi(),
                                    self.n_total_species, self.n_total_species)
 
     property net_production_rates_ddT:
@@ -817,21 +816,21 @@ cdef class Kinetics(_SolutionBase):
             return get_from_sparse(self.kinetics.netProductionRates_ddX(),
                                    self.n_total_species, self.n_total_species)
 
-    property net_production_rates_ddN:
+    property net_production_rates_ddCi:
         """
         Calculate derivatives for species net production rates with respect to species
         concentration at constant temperature, pressure, and concentration of all other
         species. For sparse output, set ``ct.use_sparse(True)``.
 
         The method returns a matrix with nTotalSpecies rows and nTotalSpecies columns.
-        For a derivative with respect to \f$[n_i]\f$, all other \f$[n_i]\f$ are held
-        constant.
+        For a derivative with respect to :math: `[n_i]`, all other :math: `[n_i]` are
+        held constant.
 
         **Warning:** this property is an experimental part of the Cantera API and
         may be changed or removed without notice.
         """
         def __get__(self):
-            return get_from_sparse(self.kinetics.netProductionRates_ddN(),
+            return get_from_sparse(self.kinetics.netProductionRates_ddCi(),
                                    self.n_total_species, self.n_total_species)
 
     property delta_enthalpy:

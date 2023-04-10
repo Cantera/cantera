@@ -97,7 +97,7 @@ void MoleReactor::addSurfaceJacobian(vector<Eigen::Triplet<double>> &triplets)
         // find location of first gas phase species in the kinetics object
         size_t gasIdx = kin->kineticsSpeciesIndex(m_kin->kineticsSpeciesName(0));
         // get surface jacobian in concentration units
-        Eigen::SparseMatrix<double> surfJac = kin->netProductionRates_ddN();
+        Eigen::SparseMatrix<double> surfJac = kin->netProductionRates_ddCi();
         // loop through surface specific jacobian and add elements to triplets vector
         // accordingly
         for (int k=0; k<surfJac.outerSize(); ++k) {

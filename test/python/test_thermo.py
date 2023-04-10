@@ -1944,8 +1944,8 @@ class TestSolutionArray(utilities.CanteraTest):
         skip = {
             # Skipped because they are complicated (conversion not implemented)
             "forward_rates_of_progress_ddX", "net_rates_of_progress_ddX",
-            "reverse_rates_of_progress_ddX", "state", "net_rates_of_progress_ddN",
-            "forward_rates_of_progress_ddN", "reverse_rates_of_progress_ddN"
+            "reverse_rates_of_progress_ddX", "state", "net_rates_of_progress_ddCi",
+            "forward_rates_of_progress_ddCi", "reverse_rates_of_progress_ddCi"
         }
         skip.update(ct.SolutionArray._passthrough)
 

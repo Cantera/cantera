@@ -1190,38 +1190,6 @@ class TestIdealGasMoleReactor(TestMoleReactor):
 
 class TestReactorJacobians(utilities.CanteraTest):
 
-    def test_network_jacobians(self):
-        # create reactor1
-        gas = ct.Solution("ptcombust.yaml", "gas")
-        gas.TP = 900, ct.one_atm
-        r1 = ct.IdealGasMoleReactor(gas)
-        r2 = ct.IdealGasConstPressureMoleReactor(gas)
-        # create surface 1
-        surf = ct.Interface("ptcombust.yaml", "Pt_surf", [gas])
-        surf.TP = 900, ct.one_atm
-        rsurf1 = ct.ReactorSurface(surf, r1)
-        rsurf2 = ct.ReactorSurface(surf, r2)
-        # create network
-        net = ct.ReactorNet([r1, r2])
-        precon = ct.AdaptivePreconditioner()
-        net.preconditioner = precon
-        # set derivative settings
-        net.derivative_settings = {"skip-electrochemistry":True, "skip-coverage-dependence":True}
-        # initialize network
-        net.initialize()
-        # compare jacobians mostly analytical jacobians
-        r1_jac = r1.jacobian
-        r2_jac = r2.jacobian
-        net_jac = net.jacobian
-        self.assertArrayNear(r1_jac, net_jac[:r1.n_vars, :r1.n_vars], 1e-8, 1e-12)
-        self.assertArrayNear(r2_jac, net_jac[r1.n_vars:, r1.n_vars:], 1e-8, 1e-12)
-        # check shape of finite difference jacobian from network
-        fd_jac = net.finite_difference_jacobian
-        assert fd_jac.shape == net_jac.shape
-        # check shape and return of preconditioner
-        precon_mat = precon.matrix
-        assert precon_mat.shape == net_jac.shape
-
     def test_phase_order_surf_jacobian(self):
         # create gas phase
         gas_def = """

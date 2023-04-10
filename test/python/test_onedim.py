@@ -676,9 +676,9 @@ class TestFreeFlame(utilities.CanteraTest):
             "binary_diff_coeffs", "creation_rates_ddX", "destruction_rates_ddX",
             "forward_rates_of_progress_ddX", "net_production_rates_ddX",
             "net_rates_of_progress_ddX", "reverse_rates_of_progress_ddX",
-            "net_rates_of_progress_ddN", "forward_rates_of_progress_ddN",
-            "reverse_rates_of_progress_ddN", "creation_rates_ddN",
-            "destruction_rates_ddN", "net_production_rates_ddN"
+            "net_rates_of_progress_ddCi", "forward_rates_of_progress_ddCi",
+            "reverse_rates_of_progress_ddCi", "creation_rates_ddCi",
+            "destruction_rates_ddCi", "net_production_rates_ddCi"
         }
 
         for attr in dir(self.gas):
