@@ -443,6 +443,39 @@ Eigen::SparseMatrix<double> GasKinetics::process_ddX(
     return out;
 }
 
+Eigen::SparseMatrix<double> GasKinetics::process_ddC(
+    StoichManagerN& stoich, const vector_fp& in)
+{
+    Eigen::SparseMatrix<double> out;
+    vector_fp& outV = m_rbuf1;
+
+    // derivatives handled by StoichManagerN
+    copy(in.begin(), in.end(), outV.begin());
+    processThirdBodies(outV.data());
+    out = stoich.derivatives(m_act_conc.data(), outV.data());
+    if (m_jac_skip_third_bodies || m_multi_concm.empty()) {
+        return out;
+    }
+
+    // derivatives due to law of mass action
+    copy(in.begin(), in.end(), outV.begin());
+    stoich.multiply(m_act_conc.data(), outV.data());
+
+    // derivatives due to reaction rates depending on third-body colliders
+    if (!m_jac_skip_falloff) {
+        for (auto& rates : m_bulk_rates) {
+            // processing step does not modify entries not dependent on M
+            rates->processRateConstants_ddM(
+                outV.data(), m_rfn.data(), m_jac_rtol_delta, false);
+        }
+    }
+
+    // derivatives handled by ThirdBodyCalc
+    out += m_multi_concm.derivatives(outV.data());
+
+    return out;
+}
+
 Eigen::SparseMatrix<double> GasKinetics::fwdRatesOfProgress_ddX()
 {
     assertDerivativesValid("GasKinetics::fwdRatesOfProgress_ddX");
@@ -476,6 +509,21 @@ Eigen::SparseMatrix<double> GasKinetics::netRatesOfProgress_ddX()
     // reverse reaction rate coefficients
     processEquilibriumConstants(rop_rates.data());
     return jac - process_ddX(m_revProductStoich, rop_rates);
+}
+
+Eigen::SparseMatrix<double> GasKinetics::netRatesOfProgress_ddC()
+{
+    assertDerivativesValid("GasKinetics::netRatesOfProgress_ddC");
+
+    // forward reaction rate coefficients
+    vector_fp& rop_rates = m_rbuf0;
+    processFwdRateCoefficients(rop_rates.data());
+    Eigen::SparseMatrix<double> jac = process_ddC(m_reactantStoich, rop_rates);
+
+
+    // reverse reaction rate coefficients
+    processEquilibriumConstants(rop_rates.data());
+    return jac - process_ddC(m_revProductStoich, rop_rates);
 }
 
 bool GasKinetics::addReaction(shared_ptr<Reaction> r, bool resize)
