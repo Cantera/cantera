@@ -165,6 +165,8 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         void setPreconditioner(shared_ptr[CxxPreconditionerBase] preconditioner)
         void setDerivativeSettings(CxxAnyMap&)
         CxxAnyMap solverStats()
+        CxxSparseMatrix jacobian() except +translate_exception
+        CxxSparseMatrix finiteDifferenceJacobian() except +translate_exception
 
 cdef extern from "cantera/zeroD/ReactorDelegator.h" namespace "Cantera":
     cdef cppclass CxxReactorAccessor "Cantera::ReactorAccessor":

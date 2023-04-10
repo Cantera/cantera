@@ -1185,6 +1185,42 @@ class TestIdealGasMoleReactor(TestMoleReactor):
             self.assertNear(r1.thermo.P, r2.thermo.P, rtol=1e-5)
 
 
+class TestReactorJacobians(utilities.CanteraTest):
+
+    def make_reactor(self, rtype=ct.IdealGasMoleReactor, model="ptcombust.yaml",
+                     gas_phase="gas", interface_phase="Pt_surf", add_surf=True):
+        # create gas and reactor
+        gas = ct.Solution(model, gas_phase)
+        r1 = rtype(gas)
+        # create surface
+        if add_surf:
+            surf = ct.Interface(model, interface_phase, [gas])
+            rsurf = ct.ReactorSurface(surf)
+            rsurf.install(r1)
+        self.net = ct.ReactorNet([r1])
+
+    def test_network_jacobian(self):
+        # create reactors
+        gas = ct.Solution("ptcombust.yaml", "gas")
+        r1 = ct.IdealGasMoleReactor(gas)
+        r2 = ct.IdealGasConstPressureMoleReactor(gas)
+        # create surface
+        surf = ct.Interface("ptcombust.yaml", "Pt_surf", [gas])
+        rsurf1 = ct.ReactorSurface(surf)
+        rsurf2 = ct.ReactorSurface(surf)
+        # install surfaces
+        rsurf1.install(r1)
+        rsurf2.install(r2)
+        # create network
+        net = ct.ReactorNet([r1, r2])
+        # net.advance(0.1)
+        net_jac = net.jacobian
+        r1_jac = r1.jacobian
+        r2_jac = r2.jacobian
+        self.assertArrayNear(r1_jac, net_jac[:r1.n_vars, :r1.n_vars], 1e-6, 1e-12)
+        self.assertArrayNear(r2_jac, net_jac[r1.n_vars:, r1.n_vars:], 1e-6, 1e-12)
+
+
 class TestFlowReactor(utilities.CanteraTest):
     gas_def = """
     phases:
