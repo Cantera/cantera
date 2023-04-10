@@ -509,7 +509,8 @@ Eigen::SparseMatrix<double> GasKinetics::netRatesOfProgress_ddN()
     // forward reaction rate coefficients
     vector_fp& rop_rates = m_rbuf0;
     processFwdRateCoefficients(rop_rates.data());
-    Eigen::SparseMatrix<double> jac = process_derivatives(m_reactantStoich, rop_rates, false);
+    Eigen::SparseMatrix<double> jac = process_derivatives(m_reactantStoich, rop_rates,
+        false);
 
     // reverse reaction rate coefficients
     processEquilibriumConstants(rop_rates.data());
