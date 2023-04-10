@@ -38,6 +38,7 @@ cdef extern from "cantera/kinetics/ReactionRate.h" namespace "Cantera":
         double eval(double, double) except +translate_exception
         double eval(double, vector[double]&) except +translate_exception
         CxxAnyMap parameters() except +translate_exception
+        CxxUnits conversionUnits()
 
 
 cdef extern from "cantera/kinetics/Arrhenius.h" namespace "Cantera":

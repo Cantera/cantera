@@ -147,6 +147,14 @@ cdef class ReactionRate:
         def __get__(self):
             return anymap_to_py(self.rate.parameters())
 
+    @property
+    def conversion_units(self) -> Units:
+        """
+        Get the units for converting the leading term in the reaction rate expression
+        to different unit systems.
+        """
+        return Units.copy(self.rate.conversionUnits())
+
 
 cdef class ArrheniusRateBase(ReactionRate):
     """

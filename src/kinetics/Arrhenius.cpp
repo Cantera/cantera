@@ -23,6 +23,7 @@ ArrheniusBase::ArrheniusBase(double A, double b, double Ea)
 ArrheniusBase::ArrheniusBase(const AnyValue& rate, const UnitSystem& units,
                              const UnitStack& rate_units)
 {
+    setRateUnits(rate_units);
     setRateParameters(rate, units, rate_units);
 }
 
@@ -40,16 +41,14 @@ void ArrheniusBase::setRateParameters(
         m_A = NAN;
         m_b = NAN;
         m_logA = NAN;
-        m_order = NAN;
-        m_rate_units = Units(0.);
+        setRateUnits(Units(0.));
         return;
     }
 
-    setRateUnits(rate_units);
     if (rate.is<AnyMap>()) {
 
         auto& rate_map = rate.as<AnyMap>();
-        m_A = units.convertRateCoeff(rate_map[m_A_str], m_rate_units);
+        m_A = units.convertRateCoeff(rate_map[m_A_str], conversionUnits());
         m_b = rate_map[m_b_str].asDouble();
         if (rate_map.hasKey(m_Ea_str)) {
             m_Ea_R = units.convertActivationEnergy(rate_map[m_Ea_str], "K");
@@ -59,7 +58,7 @@ void ArrheniusBase::setRateParameters(
         }
     } else {
         auto& rate_vec = rate.asVector<AnyValue>(2, 4);
-        m_A = units.convertRateCoeff(rate_vec[0], m_rate_units);
+        m_A = units.convertRateCoeff(rate_vec[0], conversionUnits());
         m_b = rate_vec[1].asDouble();
         if (rate_vec.size() > 2) {
             m_Ea_R = units.convertActivationEnergy(rate_vec[2], "K");
@@ -81,8 +80,8 @@ void ArrheniusBase::getRateParameters(AnyMap& node) const
         return;
     }
 
-    if (m_rate_units.factor() != 0.0) {
-        node[m_A_str].setQuantity(m_A, m_rate_units);
+    if (conversionUnits().factor() != 0.0) {
+        node[m_A_str].setQuantity(m_A, conversionUnits());
     } else {
         node[m_A_str] = m_A;
         // This can't be converted to a different unit system because the dimensions of

@@ -121,24 +121,18 @@ public:
         return m_Ea_R * GasConstant;
     }
 
-    // Return units of the reaction rate expression
-    const Units& rateUnits() const {
-        return m_rate_units;
-    }
-
     //! Return reaction order associated with the reaction rate
     double order() const {
         return m_order;
     }
 
     //! Set units of the reaction rate expression
-    void setRateUnits(const UnitStack& rate_units) {
+    void setRateUnits(const UnitStack& rate_units) override {
+        ReactionRate::setRateUnits(rate_units);
         if (rate_units.size() > 1) {
-            m_rate_units = rate_units.product();
-            m_order = 1 - m_rate_units.dimension("quantity");
+            m_order = 1 - rate_units.product().dimension("quantity");
         } else {
             m_order = NAN;
-            m_rate_units = rate_units.standardUnits();
         }
     }
 
@@ -164,7 +158,6 @@ protected:
     std::string m_b_str = "b"; //!< The string for temperature exponent
     std::string m_Ea_str = "Ea"; //!< The string for activation energy
     std::string m_E4_str = ""; //!< The string for an optional 4th parameter
-    Units m_rate_units{0.}; //!< Reaction rate units
 };
 
 //! Arrhenius reaction rate type depends only on temperature

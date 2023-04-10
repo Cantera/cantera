@@ -1111,6 +1111,10 @@ class ReactionTests:
         rxn = self.from_yaml()
         assert str(rxn.rate_coeff_units) == str(self._rc_units)
 
+    def test_rate_conversion_units(self):
+        rxn = self.from_yaml()
+        assert str(rxn.rate.conversion_units) == str(self._rc_units)
+
     def check_equal(self, one, two):
         # helper function for deprecation tests
         self.assertEqual(type(one), type(two))
@@ -1882,6 +1886,10 @@ class StickReactionTests(InterfaceReactionTests):
     def test_site_density(self):
         self.assertEqual(self.soln.site_density,
             self.soln.reaction(self._index).rate.site_density)
+
+    def test_rate_conversion_units(self):
+        rxn = self.from_yaml()
+        assert str(rxn.rate.conversion_units) == str(ct.Units('1'))
 
 
 class TestArrheniusStickReaction(StickReactionTests, utilities.CanteraTest):

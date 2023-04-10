@@ -456,12 +456,10 @@ public:
 
     //! Constructor based on AnyMap content
     StickingRate(const AnyMap& node, const UnitStack& rate_units) {
-        // sticking coefficients are dimensionless
-        setParameters(node, Units(1.0));
+        setParameters(node, rate_units);
     }
     explicit StickingRate(const AnyMap& node) {
-        // sticking coefficients are dimensionless
-        setParameters(node, Units(1.0));
+        setParameters(node, {});
     }
 
     unique_ptr<MultiRateBase> newMultiRate() const override {
@@ -473,10 +471,16 @@ public:
         return "sticking-" + RateType::type();
     }
 
+    void setRateUnits(const UnitStack& rate_units) override {
+        // Sticking coefficients are dimensionless
+        RateType::m_conversion_units = Units(1.0);
+    }
+
     virtual void setParameters(
         const AnyMap& node, const UnitStack& rate_units) override
     {
         InterfaceRateBase::setParameters(node);
+        setRateUnits(rate_units);
         RateType::m_negativeA_ok = node.getBool("negative-A", false);
         setStickingParameters(node);
         if (!node.hasKey("sticking-coefficient")) {
