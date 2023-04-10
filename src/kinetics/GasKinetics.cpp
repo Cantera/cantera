@@ -481,9 +481,9 @@ Eigen::SparseMatrix<double> GasKinetics::netRatesOfProgress_ddX()
     return jac - calculateCompositionDerivatives(m_revProductStoich, rop_rates);
 }
 
-Eigen::SparseMatrix<double> GasKinetics::fwdRatesOfProgress_ddN()
+Eigen::SparseMatrix<double> GasKinetics::fwdRatesOfProgress_ddCi()
 {
-    assertDerivativesValid("GasKinetics::fwdRatesOfProgress_ddN");
+    assertDerivativesValid("GasKinetics::fwdRatesOfProgress_ddCi");
 
     // forward reaction rate coefficients
     vector_fp& rop_rates = m_rbuf0;
@@ -491,9 +491,9 @@ Eigen::SparseMatrix<double> GasKinetics::fwdRatesOfProgress_ddN()
     return calculateCompositionDerivatives(m_reactantStoich, rop_rates, false);
 }
 
-Eigen::SparseMatrix<double> GasKinetics::revRatesOfProgress_ddN()
+Eigen::SparseMatrix<double> GasKinetics::revRatesOfProgress_ddCi()
 {
-    assertDerivativesValid("GasKinetics::revRatesOfProgress_ddN");
+    assertDerivativesValid("GasKinetics::revRatesOfProgress_ddCi");
 
     // reverse reaction rate coefficients
     vector_fp& rop_rates = m_rbuf0;
@@ -502,9 +502,9 @@ Eigen::SparseMatrix<double> GasKinetics::revRatesOfProgress_ddN()
     return calculateCompositionDerivatives(m_revProductStoich, rop_rates, false);
 }
 
-Eigen::SparseMatrix<double> GasKinetics::netRatesOfProgress_ddN()
+Eigen::SparseMatrix<double> GasKinetics::netRatesOfProgress_ddCi()
 {
-    assertDerivativesValid("GasKinetics::netRatesOfProgress_ddN");
+    assertDerivativesValid("GasKinetics::netRatesOfProgress_ddCi");
 
     // forward reaction rate coefficients
     vector_fp& rop_rates = m_rbuf0;

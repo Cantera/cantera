@@ -491,13 +491,13 @@ Eigen::SparseMatrix<double> Kinetics::creationRates_ddX()
     return jac;
 }
 
-Eigen::SparseMatrix<double> Kinetics::creationRates_ddN()
+Eigen::SparseMatrix<double> Kinetics::creationRates_ddCi()
 {
     Eigen::SparseMatrix<double> jac;
     // the forward direction creates product species
-    jac = m_productStoich.stoichCoeffs() * fwdRatesOfProgress_ddN();
+    jac = m_productStoich.stoichCoeffs() * fwdRatesOfProgress_ddCi();
     // the reverse direction creates reactant species
-    jac += m_reactantStoich.stoichCoeffs() * revRatesOfProgress_ddN();
+    jac += m_reactantStoich.stoichCoeffs() * revRatesOfProgress_ddCi();
     return jac;
 }
 
@@ -547,13 +547,13 @@ Eigen::SparseMatrix<double> Kinetics::destructionRates_ddX()
     return jac;
 }
 
-Eigen::SparseMatrix<double> Kinetics::destructionRates_ddN()
+Eigen::SparseMatrix<double> Kinetics::destructionRates_ddCi()
 {
     Eigen::SparseMatrix<double> jac;
     // the reverse direction destroys products in reversible reactions
-    jac = m_revProductStoich.stoichCoeffs() * revRatesOfProgress_ddN();
+    jac = m_revProductStoich.stoichCoeffs() * revRatesOfProgress_ddCi();
     // the forward direction destroys reactants
-    jac += m_reactantStoich.stoichCoeffs() * fwdRatesOfProgress_ddN();
+    jac += m_reactantStoich.stoichCoeffs() * fwdRatesOfProgress_ddCi();
     return jac;
 }
 
@@ -586,9 +586,9 @@ Eigen::SparseMatrix<double> Kinetics::netProductionRates_ddX()
     return m_stoichMatrix * netRatesOfProgress_ddX();
 }
 
-Eigen::SparseMatrix<double> Kinetics::netProductionRates_ddN()
+Eigen::SparseMatrix<double> Kinetics::netProductionRates_ddCi()
 {
-    return m_stoichMatrix * netRatesOfProgress_ddN();
+    return m_stoichMatrix * netRatesOfProgress_ddCi();
 }
 
 void Kinetics::addThermo(shared_ptr<ThermoPhase> thermo)

@@ -64,13 +64,13 @@ cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
         CxxSparseMatrix destructionRates_ddX() except +translate_exception
         CxxSparseMatrix netProductionRates_ddX() except +translate_exception
 
-        CxxSparseMatrix fwdRatesOfProgress_ddN() except +translate_exception
-        CxxSparseMatrix revRatesOfProgress_ddN() except +translate_exception
-        CxxSparseMatrix netRatesOfProgress_ddN() except +translate_exception
+        CxxSparseMatrix fwdRatesOfProgress_ddCi() except +translate_exception
+        CxxSparseMatrix revRatesOfProgress_ddCi() except +translate_exception
+        CxxSparseMatrix netRatesOfProgress_ddCi() except +translate_exception
 
-        CxxSparseMatrix creationRates_ddN() except +translate_exception
-        CxxSparseMatrix destructionRates_ddN() except +translate_exception
-        CxxSparseMatrix netProductionRates_ddN() except +translate_exception
+        CxxSparseMatrix creationRates_ddCi() except +translate_exception
+        CxxSparseMatrix destructionRates_ddCi() except +translate_exception
+        CxxSparseMatrix netProductionRates_ddCi() except +translate_exception
 
 
 cdef extern from "cantera/kinetics/InterfaceKinetics.h":

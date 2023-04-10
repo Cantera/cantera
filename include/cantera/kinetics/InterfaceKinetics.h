@@ -307,9 +307,9 @@ public:
 
     virtual void setDerivativeSettings(const AnyMap& settings);
     virtual void getDerivativeSettings(AnyMap& settings) const;
-    virtual Eigen::SparseMatrix<double> fwdRatesOfProgress_ddN();
-    virtual Eigen::SparseMatrix<double> revRatesOfProgress_ddN();
-    virtual Eigen::SparseMatrix<double> netRatesOfProgress_ddN();
+    virtual Eigen::SparseMatrix<double> fwdRatesOfProgress_ddCi();
+    virtual Eigen::SparseMatrix<double> revRatesOfProgress_ddCi();
+    virtual Eigen::SparseMatrix<double> netRatesOfProgress_ddCi();
 
 protected:
     //! @name Internal service methods
@@ -505,8 +505,8 @@ protected:
     vector_fp m_rbuf1;
 
     // Derivative settings initialized to their default values
-    bool m_jac_skip_cov_dependance = true;
-    bool m_jac_skip_electrochem = true;
+    bool m_jac_skip_cov_dependence = false;
+    bool m_jac_skip_electrochem = false;
     double m_jac_rtol_delta = 1e-8;
 };
 

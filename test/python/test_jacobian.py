@@ -158,14 +158,14 @@ class RateExpressionTests:
             drop[self.rxn_idx, spc_ix] = 0
         self.assertFalse(drop.any())
 
-    def test_forward_rop_ddN(self):
+    def test_forward_rop_ddCi(self):
         # check derivatives of forward rates of progress with respect to species
         # concentrations against analytic result
-        dropm = self.gas.forward_rates_of_progress_ddN
+        dropm = self.gas.forward_rates_of_progress_ddCi
         dropp = self.gas.forward_rates_of_progress_ddP
 
         self.gas.derivative_settings = {"skip-third-bodies": True}
-        drop = self.gas.forward_rates_of_progress_ddN
+        drop = self.gas.forward_rates_of_progress_ddCi
         rop = self.gas.forward_rates_of_progress
         for spc_ix in self.rix:
             if self.orders is None:
@@ -187,14 +187,14 @@ class RateExpressionTests:
             dropm[self.rxn_idx, spc_ix] = 0
         self.assertFalse(dropm.any())
 
-    def test_reverse_rop_ddN(self):
+    def test_reverse_rop_ddCi(self):
         # check derivatives of reverse rates of progress with respect to species
         # concentrations against analytic result
-        dropm = self.gas.reverse_rates_of_progress_ddN
+        dropm = self.gas.reverse_rates_of_progress_ddCi
         dropp = self.gas.reverse_rates_of_progress_ddP
 
         self.gas.derivative_settings = {"skip-third-bodies": True}
-        drop = self.gas.reverse_rates_of_progress_ddN
+        drop = self.gas.reverse_rates_of_progress_ddCi
         rop = self.gas.reverse_rates_of_progress
         for spc_ix in self.pix:
             order = self.p_stoich[spc_ix, self.rxn_idx]
@@ -213,10 +213,10 @@ class RateExpressionTests:
             dropm[self.rxn_idx, spc_ix] = 0
         self.assertFalse(dropm.any())
 
-    def test_net_rop_ddN(self):
+    def test_net_rop_ddCi(self):
         # check derivatives of net rates of progress with respect to species
         # concentrations against numeric result
-        drop = self.gas.net_rates_of_progress_ddN
+        drop = self.gas.net_rates_of_progress_ddCi
         dropp = self.gas.net_rates_of_progress_ddP
 
         for spc_ix in self.rix + self.pix:
@@ -433,9 +433,9 @@ class RateExpressionTests:
             drate[:, spc_ix] += dratep * self.gas.P
             self.assertArrayNear(drate[ix, spc_ix], drate_num[ix], self.rtol)
 
-    def test_creation_ddN(self):
+    def test_creation_ddCi(self):
         # check derivatives of creation rates with respect to mole fractions
-        drate = self.gas.creation_rates_ddN
+        drate = self.gas.creation_rates_ddCi
         dratep = self.gas.creation_rates_ddP
         for spc_ix in self.rix + self.pix:
             drate_num = self.rate_ddX(spc_ix, "creation", ddX=False)
@@ -443,9 +443,9 @@ class RateExpressionTests:
             drate[:, spc_ix] += dratep * self.gas.P
             self.assertArrayNear(drate[ix, spc_ix], drate_num[ix], 1e-3)
 
-    def test_destruction_ddN(self):
+    def test_destruction_ddCi(self):
         # check derivatives of destruction rates with respect to mole fractions
-        drate = self.gas.destruction_rates_ddN
+        drate = self.gas.destruction_rates_ddCi
         dratep = self.gas.destruction_rates_ddP
         for spc_ix in self.rix + self.pix:
             drate_num = self.rate_ddX(spc_ix, "destruction", ddX=False)
@@ -453,9 +453,9 @@ class RateExpressionTests:
             drate[:, spc_ix] += dratep * self.gas.P
             self.assertArrayNear(drate[ix, spc_ix], drate_num[ix], 1e-3)
 
-    def test_net_production_ddN(self):
+    def test_net_production_ddCi(self):
         # check derivatives of destruction rates with respect to mole fractions
-        drate = self.gas.net_production_rates_ddN
+        drate = self.gas.net_production_rates_ddCi
         dratep = self.gas.net_production_rates_ddP
         for spc_ix in self.rix + self.pix:
             drate_num = self.rate_ddX(spc_ix, "net", ddX=False)
@@ -733,10 +733,10 @@ class FullTests:
                     print(np.vstack([drop[i, ix], drop_num[i, ix]]).T)
                     raise err
 
-    def test_forward_rop_ddN(self):
+    def test_forward_rop_ddCi(self):
         # check forward rop against numerical derivative with respect to species
         # concentrations
-        drop = self.gas.forward_rates_of_progress_ddN
+        drop = self.gas.forward_rates_of_progress_ddCi
         dropp = self.gas.forward_rates_of_progress_ddP
         drop_num = self.rop_derivs(mode="forward", ddX=False)
         stoich = self.gas.reactant_stoich_coeffs
@@ -752,10 +752,10 @@ class FullTests:
                 print(np.vstack([drop[i, ix], drop_num[i, ix]]).T)
                 raise err
 
-    def test_reverse_rop_ddN(self):
+    def test_reverse_rop_ddCi(self):
         # check reverse rop against numerical derivative with respect to species
         # concentrations
-        drop = self.gas.reverse_rates_of_progress_ddN
+        drop = self.gas.reverse_rates_of_progress_ddCi
         dropp = self.gas.reverse_rates_of_progress_ddP
         drop_num = self.rop_derivs(mode="reverse", ddX=False)
         stoich = self.gas.product_stoich_coeffs
@@ -771,10 +771,10 @@ class FullTests:
                 print(np.vstack([drop[i, ix], drop_num[i, ix]]).T)
                 raise err
 
-    def test_net_rop_ddN(self):
+    def test_net_rop_ddCi(self):
         # check net rop against numerical derivative with respect to species
         # concentrations
-        drop = self.gas.net_rates_of_progress_ddN
+        drop = self.gas.net_rates_of_progress_ddCi
         dropp = self.gas.net_rates_of_progress_ddP
         drop_num = self.rop_derivs(mode="net", ddX=False)
         stoich = self.gas.product_stoich_coeffs - self.gas.reactant_stoich_coeffs
@@ -921,10 +921,10 @@ class SurfaceRateExpressionTests:
         self.assertEqual(self.equation, self.rxn.equation)
         self.assertEqual(self.rate_type, self.rxn.rate.type)
 
-    def test_forward_rop_ddN(self):
+    def test_forward_rop_ddCi(self):
         # check derivatives of forward rates of progress with respect to species
         # concentrations against analytic result
-        drop = self.surf.forward_rates_of_progress_ddN
+        drop = self.surf.forward_rates_of_progress_ddCi
         rop = self.surf.forward_rates_of_progress
         concentrations = np.concatenate((self.surf.concentrations, self.gas.concentrations))
         specs = self.surf.species_names + self.gas.species_names
@@ -936,10 +936,10 @@ class SurfaceRateExpressionTests:
             self.assertNear(rop[self.rxn_idx],
                 drop[self.rxn_idx, spc_ix] * concentrations[spc_ix] / order)
 
-    def test_reverse_rop_ddN(self):
+    def test_reverse_rop_ddCi(self):
         # check derivatives of forward rates of progress with respect to species
         # concentrations against analytic result
-        drop = self.surf.reverse_rates_of_progress_ddN
+        drop = self.surf.reverse_rates_of_progress_ddCi
         rop = self.surf.reverse_rates_of_progress
         concentrations = np.concatenate((self.surf.concentrations, self.gas.concentrations))
         specs = self.surf.species_names + self.gas.species_names
@@ -951,11 +951,11 @@ class SurfaceRateExpressionTests:
             self.assertNear(rop[self.rxn_idx],
                 drop[self.rxn_idx, spc_ix] * concentrations[spc_ix] / order)
 
-    def test_net_rop_ddN(self):
+    def test_net_rop_ddCi(self):
         # check derivatives of net rates of progress with respect to species
         # concentrations against analytic
         rop = self.surf.net_rates_of_progress
-        drop = self.surf.net_rates_of_progress_ddN
+        drop = self.surf.net_rates_of_progress_ddCi
         concentrations = np.concatenate((self.surf.concentrations, self.gas.concentrations))
 
         drop *= concentrations
@@ -1039,9 +1039,9 @@ class SurfaceFullTests:
     def get_concentrations(self):
         return np.concatenate((self.surf.concentrations, self.gas.concentrations))
 
-    def test_forward_rop_ddN(self):
+    def test_forward_rop_ddCi(self):
         # check forward rop against analytical result
-        drop = self.surf.forward_rates_of_progress_ddN
+        drop = self.surf.forward_rates_of_progress_ddCi
         rop = self.surf.forward_rates_of_progress
         conc = self.get_concentrations()
         # multiply derivatives with concentrations
@@ -1063,9 +1063,9 @@ class SurfaceFullTests:
         # compare the two
         self.assertArrayNear(drop, rop, self.rtol)
 
-    def test_reverse_rop_ddN(self):
+    def test_reverse_rop_ddCi(self):
         # check forward rop against analytical result
-        drop = self.surf.reverse_rates_of_progress_ddN
+        drop = self.surf.reverse_rates_of_progress_ddCi
         rop = self.surf.reverse_rates_of_progress
         conc = self.get_concentrations()
         # multiply derivatives with concentrations
@@ -1087,9 +1087,9 @@ class SurfaceFullTests:
         # compare the two
         self.assertArrayNear(drop, rop, self.rtol)
 
-    def test_net_rop_ddN(self):
+    def test_net_rop_ddCi(self):
         # check forward rop against analytical result
-        drop = self.surf.net_rates_of_progress_ddN
+        drop = self.surf.net_rates_of_progress_ddCi
         rop = self.surf.net_rates_of_progress
         conc = self.get_concentrations()
         # multiply derivatives with concentrations
