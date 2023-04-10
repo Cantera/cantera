@@ -283,6 +283,24 @@ public:
     //! @param settings the settings map propagated to all reactors and kinetics objects
     virtual void setDerivativeSettings(AnyMap& settings);
 
+    //! Calculate the system Jacobian using a finite difference method.
+    //!
+    //! This method is used only for informational purposes. Jacobian calculations
+    //! for the full reactor system are handled internally by CVODES.
+    //!
+    //! @warning  This method is an experimental part of the %Cantera
+    //! API and may be changed or removed without notice.
+    Eigen::SparseMatrix<double> finiteDifferenceJacobian();
+
+    //! Method to calculate the system jacobian
+    //! @warning Depending on the particular implementation, this may return an
+    //! approximate Jacobian intended only for use in forming a preconditioner for
+    //! iterative solvers.
+    //!
+    //! @warning  This method is an experimental part of the %Cantera
+    //! API and may be changed or removed without notice.
+    virtual Eigen::SparseMatrix<double> jacobian();
+
 protected:
     //! Check if surfaces and preconditioning are included, if so throw an error because
     //! they are currently not supported.

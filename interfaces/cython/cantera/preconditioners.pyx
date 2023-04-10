@@ -2,6 +2,7 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 from ._utils cimport stringify, pystr, dict_to_anymap, anymap_to_dict
+from .kinetics cimport get_from_sparse
 
 cdef class PreconditionerBase:
     """
@@ -93,3 +94,8 @@ cdef class AdaptivePreconditioner(PreconditionerBase):
 
     def print_contents(self):
         self.preconditioner.printPreconditioner()
+
+    property matrix:
+        def __get__(self):
+            cdef CxxSparseMatrix smat = self.preconditioner.matrix()
+            return get_from_sparse(smat, smat.rows(), smat.cols())
