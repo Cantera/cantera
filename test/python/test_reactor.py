@@ -824,6 +824,14 @@ class TestReactor(utilities.CanteraTest):
         with self.assertRaises(TypeError):
             r1 = self.reactorClass(foobar=3.14)
 
+    def test_preconditioner_support(self):
+        # make reactors of
+        self.make_reactors()
+        self.net.preconditioner = ct.AdaptivePreconditioner()
+        # this should throw an error, as we can't reach dt
+        with self.assertRaises(ct.CanteraError):
+            self.net.initialize()
+
 class TestMoleReactor(TestReactor):
     reactorClass = ct.MoleReactor
 
@@ -1123,6 +1131,14 @@ class TestConstPressureReactor(utilities.CanteraTest):
         self.net1.rtol = self.net2.rtol = 1e-9
         self.integrate(surf=True)
 
+    def test_preconditioner_support(self):
+        # make reactors of
+        self.create_reactors()
+        self.net2.preconditioner = ct.AdaptivePreconditioner()
+        # this should throw an error, as we can't reach dt
+        with self.assertRaises(ct.CanteraError):
+            self.net2.initialize()
+
 class TestConstPressureMoleReactor(TestConstPressureReactor):
     """
     The constant pressure reactor should give the same results as
@@ -1139,6 +1155,7 @@ class TestIdealGasConstPressureReactor(TestConstPressureReactor):
 
 class TestIdealGasConstPressureMoleReactor(TestConstPressureMoleReactor):
     reactorClass = ct.IdealGasConstPressureMoleReactor
+    test_preconditioner_support = None
 
     def create_reactors(self, **kwargs):
         super().create_reactors(**kwargs)
@@ -1154,6 +1171,7 @@ class TestIdealGasConstPressureMoleReactor(TestConstPressureMoleReactor):
 
 class TestIdealGasMoleReactor(TestMoleReactor):
     reactorClass = ct.IdealGasMoleReactor
+    test_preconditioner_support = None
 
     def test_adaptive_precon_integration(self):
         # Network one with non-mole reactor
@@ -1189,6 +1207,30 @@ class TestIdealGasMoleReactor(TestMoleReactor):
 
 
 class TestReactorJacobians(utilities.CanteraTest):
+
+    def test_coverage_dependence_flags(self):
+        gas = ct.Solution("ptcombust.yaml", "gas")
+        surf = ct.Interface("ptcombust.yaml", "Pt_surf", [gas])
+        surf.TP = 900, ct.one_atm
+        surf.coverages = {"PT(S)":1}
+        with self.assertRaises(NotImplementedError):
+            surf.net_rates_of_progress_ddCi
+        # set skip and try to get jacobian again
+        surf.derivative_settings = {"skip-coverage-dependence": True}
+        surf.net_rates_of_progress_ddCi
+
+    def test_electrochemistry_flags(self):
+             # Phases
+        mech = "lithium_ion_battery.yaml"
+        anode, cathode, metal, electrolyte = ct.import_phases(
+            mech, ["anode", "cathode", "electron", "electrolyte"])
+        anode_int = ct.Interface(
+            mech, "edge_anode_electrolyte", adjacent=[anode, metal, electrolyte])
+        with self.assertRaises(NotImplementedError):
+            anode_int.net_rates_of_progress_ddCi
+        # set skip and try to get jacobian again
+        anode_int.derivative_settings = {"skip-electrochemistry": True}
+        anode_int.net_rates_of_progress_ddCi
 
     def test_phase_order_surf_jacobian(self):
         # create gas phase

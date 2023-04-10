@@ -875,7 +875,7 @@ public:
      * concentrations.
      *
      * The method returns a matrix with nReactions rows and nTotalSpecies columns.
-     * For a derivative with respect to \f$[n_i]\f$, all other \f$[n_i]\f$ are held
+     * For a derivative with respect to \f$c_i\f$, all other \f$c_j\f$ are held
      * constant.
      *
      * @warning  This method is an experimental part of the %Cantera API and
@@ -930,7 +930,7 @@ public:
      * species.
      *
      * The method returns a matrix with nTotalSpecies rows and nTotalSpecies columns.
-     * For a derivative with respect to \f$[n_i]\f$, all other \f$[n_i]\f$ are held
+     * For a derivative with respect to \f$c_i\f$, all other \f$c_j\f$ are held
      * constant.
      *
      * @warning  This method is an experimental part of the %Cantera API and
@@ -981,7 +981,7 @@ public:
      * species.
      *
      * The method returns a matrix with nTotalSpecies rows and nTotalSpecies columns.
-     * For a derivative with respect to \f$[n_i]\f$, all other \f$[n_i]\f$ are held
+     * For a derivative with respect to \f$c_i\f$, all other \f$c_j\f$ are held
      * constant.
      *
      * @warning  This method is an experimental part of the %Cantera API and
@@ -1032,7 +1032,7 @@ public:
      * species.
      *
      * The method returns a matrix with nTotalSpecies rows and nTotalSpecies columns.
-     * For a derivative with respect to \f$[n_i]\f$, all other \f$[n_i]\f$ are held
+     * For a derivative with respect to \f$c_i\f$, all other \f$c_j\f$ are held
      * constant.
      *
      * @warning  This method is an experimental part of the %Cantera API and

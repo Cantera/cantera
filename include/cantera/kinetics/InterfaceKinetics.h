@@ -319,11 +319,9 @@ protected:
     //! their derivatives.
     //! @{
 
-    //! Calculate rate coefficients
-    void processFwdRateCoefficients(double* ropf);
 
     //! Multiply rate with inverse equilibrium constant
-    void processEquilibriumConstants(double* rop);
+    void applyEquilibriumConstants(double* rop);
 
     //! Process mole fraction derivative
     //! @param stoich  stoichiometry manager
@@ -500,14 +498,21 @@ protected:
     //! EdgeKinetics)
     size_t m_nDim = 2;
 
-    // extra buffers for surface kinetics
+    //! Buffers for partial rop results with length nReactions()
     vector_fp m_rbuf0;
     vector_fp m_rbuf1;
 
-    // Derivative settings initialized to their default values
-    bool m_jac_skip_cov_dependence = false;
-    bool m_jac_skip_electrochem = false;
+    //! A flag used to neglect rate coefficient coverage dependence in derivative
+    //! formation
+    bool m_jac_skip_coverage_dependence = false;
+    //! A flag used to neglect electrochemical contributions in derivative formation
+    bool m_jac_skip_electrochemistry = false;
+    //! Relative tolerance used in developing numerical portions of specific derivatives
     double m_jac_rtol_delta = 1e-8;
+    //! A flag stating if the object uses electrochemistry
+    bool m_has_electrochemistry = false;
+    //! A flag stating if the object has coverage dependent rates
+    bool m_has_coverage_dependence = false;
 };
 
 }

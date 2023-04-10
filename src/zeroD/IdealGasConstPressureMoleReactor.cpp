@@ -128,7 +128,7 @@ Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian()
     // clear former jacobian elements
     m_jac_trips.clear();
     // dnk_dnj represents d(dot(n_k)) / d (n_j) but is first assigned as
-    // d (dot(omega)) / d [n_j], it is later transformed appropriately.
+    // d (dot(omega)) / d c_j, it is later transformed appropriately.
     Eigen::SparseMatrix<double> dnk_dnj = m_kin->netProductionRates_ddCi();
     // species size that accounts for surface species
     size_t ssize = m_nv - m_sidx;
@@ -163,7 +163,7 @@ Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian()
     }
     double molarVol = m_thermo->molarVolume();
     // add species to species derivatives  elements to the jacobian
-    // calculate ROP derivatives, excluding the terms -n_i / (V * N) d[n_i]/dn_j
+    // calculate ROP derivatives, excluding the terms -n_i / (V * N) dc_i/dn_j
     // as it substantially reduces matrix sparsity
     for (int k = 0; k < dnk_dnj.outerSize(); k++) {
         for (Eigen::SparseMatrix<double>::InnerIterator it(dnk_dnj, k); it; ++it) {

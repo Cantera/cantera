@@ -190,6 +190,11 @@ public:
         return m_valid;
     }
 
+    //! Boolean indicating whether rate uses coverage dependence
+    bool usesCoverageDependence() {
+        return m_input.hasKey("coverage-dependencies");
+    }
+
 protected:
     //! Get parameters
     //! @param node  AnyMap containing rate information

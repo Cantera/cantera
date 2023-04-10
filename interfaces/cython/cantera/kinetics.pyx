@@ -524,11 +524,13 @@ cdef class Kinetics(_SolutionBase):
         concentrations.
         For sparse output, set ``ct.use_sparse(True)``.
 
-        Note that for derivatives with respect to :math:`[n_i]`, all other :math:`[n_j]`
+        Note that for derivatives with respect to :math:`c_i`, all other :math:`c_j`
         are held constant.
 
         **Warning:** this property is an experimental part of the Cantera API and
         may be changed or removed without notice.
+
+        .. versionadded:: 3.0
         """
         def __get__(self):
             return get_from_sparse(self.kinetics.fwdRatesOfProgress_ddCi(),
@@ -584,11 +586,13 @@ cdef class Kinetics(_SolutionBase):
         concentrations.
         For sparse output, set ``ct.use_sparse(True)``.
 
-        Note that for derivatives with respect to :math:`[n_i]`, all other :math:`[n_j]`
+        Note that for derivatives with respect to :math:`c_i`, all other :math:`c_j`
         are held constant.
 
         **Warning:** this property is an experimental part of the Cantera API and
         may be changed or removed without notice.
+
+        .. versionadded:: 3.0
         """
         def __get__(self):
             return get_from_sparse(self.kinetics.revRatesOfProgress_ddCi(),
@@ -643,11 +647,13 @@ cdef class Kinetics(_SolutionBase):
         concentrations at constant temperature, pressure and remaining species
         concentrations. For sparse output, set ``ct.use_sparse(True)``.
 
-        Note that for derivatives with respect to :math:`[n_i]`, all other :math:`[n_j]`
+        Note that for derivatives with respect to :math:`c_i`, all other :math:`c_j`
         are held constant.
 
         **Warning:** this property is an experimental part of the Cantera API and
         may be changed or removed without notice.
+
+        .. versionadded:: 3.0
         """
         def __get__(self):
             return get_from_sparse(self.kinetics.netRatesOfProgress_ddCi(),
@@ -703,11 +709,13 @@ cdef class Kinetics(_SolutionBase):
         species. For sparse output, set ``ct.use_sparse(True)``.
 
         The method returns a matrix with nTotalSpecies rows and nTotalSpecies columns.
-        For a derivative with respect to :math: `[n_i]`, all other :math: `[n_i]` are
+        For a derivative with respect to :math: `c_i`, all other :math: `c_i` are
         held constant.
 
         **Warning:** this property is an experimental part of the Cantera API and
         may be changed or removed without notice.
+
+        .. versionadded:: 3.0
         """
         def __get__(self):
             return get_from_sparse(self.kinetics.creationRates_ddCi(),
@@ -763,11 +771,13 @@ cdef class Kinetics(_SolutionBase):
         species. For sparse output, set ``ct.use_sparse(True)``.
 
         The method returns a matrix with nTotalSpecies rows and nTotalSpecies columns.
-        For a derivative with respect to :math: `[n_i]`, all other :math: `[n_i]` are
+        For a derivative with respect to :math: `c_i`, all other :math: `c_i` are
         held constant.
 
         **Warning:** this property is an experimental part of the Cantera API and
         may be changed or removed without notice.
+
+        .. versionadded:: 3.0
         """
         def __get__(self):
             return get_from_sparse(self.kinetics.destructionRates_ddCi(),
@@ -823,11 +833,13 @@ cdef class Kinetics(_SolutionBase):
         species. For sparse output, set ``ct.use_sparse(True)``.
 
         The method returns a matrix with nTotalSpecies rows and nTotalSpecies columns.
-        For a derivative with respect to :math: `[n_i]`, all other :math: `[n_i]` are
+        For a derivative with respect to :math: `c_i`, all other :math: `c_i` are
         held constant.
 
         **Warning:** this property is an experimental part of the Cantera API and
         may be changed or removed without notice.
+
+        .. versionadded:: 3.0
         """
         def __get__(self):
             return get_from_sparse(self.kinetics.netProductionRates_ddCi(),

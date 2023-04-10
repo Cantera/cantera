@@ -285,7 +285,7 @@ public:
 
 protected:
     //! check that preconditioning is supported.
-    virtual void checkPreconditionerSupported() {};
+    virtual void checkPreconditionerSupported();
 
     //! Update the preconditioner based on the already computed jacobian values
     virtual void updatePreconditioner(double gamma);
