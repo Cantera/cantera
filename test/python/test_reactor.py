@@ -235,7 +235,7 @@ class TestReactor(utilities.CanteraTest):
         self.assertNear(self.gas1.P, self.gas2.P)
         self.assertNotAlmostEqual(self.r1.T, self.r2.T)
 
-    def test_tolerances(self):
+    def test_tolerances(self, rtol_lim=1e-10, atol_lim=1e-20):
         def integrate(atol, rtol):
             P0 = 10 * ct.one_atm
             T0 = 1100
@@ -257,9 +257,9 @@ class TestReactor(utilities.CanteraTest):
 
             return nSteps
 
-        n_baseline = integrate(1e-10, 1e-20)
-        n_rtol = integrate(1e-7, 1e-20)
-        n_atol = integrate(1e-10, 1e-5)
+        n_baseline = integrate(rtol_lim, atol_lim)
+        n_rtol = integrate(rtol_lim * 1e2, atol_lim)
+        n_atol = integrate(rtol_lim, atol_lim * 1e15)
         assert n_baseline > n_rtol
         assert n_baseline > n_atol
 
@@ -874,6 +874,8 @@ class TestMoleReactor(TestReactor):
             self.assertArrayNear(rsurf1.coverages, rsurf2.coverages, rtol=1e-4,
                 atol=1e-8)
 
+    def test_tolerances(self, rtol_lim=1e-8, atol_lim=1e-18):
+        super().test_tolerances(rtol_lim, atol_lim)
 
 class TestIdealGasReactor(TestReactor):
     reactorClass = ct.IdealGasReactor
