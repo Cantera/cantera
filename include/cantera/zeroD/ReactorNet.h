@@ -290,7 +290,7 @@ public:
     //!
     //! @warning  This method is an experimental part of the %Cantera
     //! API and may be changed or removed without notice.
-    Eigen::SparseMatrix<double> finiteDifferenceJacobian();
+    virtual Eigen::SparseMatrix<double> finiteDifferenceJacobian();
 
     //! Method to calculate the system jacobian
     //! @warning Depending on the particular implementation, this may return an

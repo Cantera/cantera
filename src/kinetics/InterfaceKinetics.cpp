@@ -29,11 +29,11 @@ InterfaceKinetics::~InterfaceKinetics()
 
 void InterfaceKinetics::resizeReactions()
 {
+    Kinetics::resizeReactions();
+
     // resize buffer
     m_rbuf0.resize(nReactions());
     m_rbuf1.resize(nReactions());
-
-    Kinetics::resizeReactions();
 
     for (auto& rates : m_interfaceRates) {
         rates->resize(nTotalSpecies(), nReactions(), nPhases());
@@ -621,7 +621,7 @@ Eigen::SparseMatrix<double> InterfaceKinetics::fwdRatesOfProgress_ddN()
     // forward reaction rate coefficients
     vector_fp& rop_rates = m_rbuf0;
     processFwdRateCoefficients(rop_rates.data());
-    return process_derivatives(m_reactantStoich, rop_rates);
+    return calculateCompositionDerivatives(m_reactantStoich, rop_rates);
 }
 
 Eigen::SparseMatrix<double> InterfaceKinetics::revRatesOfProgress_ddN()
@@ -632,7 +632,7 @@ Eigen::SparseMatrix<double> InterfaceKinetics::revRatesOfProgress_ddN()
     vector_fp& rop_rates = m_rbuf0;
     processFwdRateCoefficients(rop_rates.data());
     processEquilibriumConstants(rop_rates.data());
-    return process_derivatives(m_revProductStoich, rop_rates);
+    return calculateCompositionDerivatives(m_revProductStoich, rop_rates);
 }
 
 Eigen::SparseMatrix<double> InterfaceKinetics::netRatesOfProgress_ddN()
@@ -642,18 +642,19 @@ Eigen::SparseMatrix<double> InterfaceKinetics::netRatesOfProgress_ddN()
     // forward reaction rate coefficients
     vector_fp& rop_rates = m_rbuf0;
     processFwdRateCoefficients(rop_rates.data());
-    Eigen::SparseMatrix<double> jac = process_derivatives(m_reactantStoich, rop_rates);
+    Eigen::SparseMatrix<double> jac = calculateCompositionDerivatives(m_reactantStoich,
+        rop_rates);
 
     // reverse reaction rate coefficients
     processEquilibriumConstants(rop_rates.data());
-    return jac - process_derivatives(m_revProductStoich, rop_rates);
+    return jac - calculateCompositionDerivatives(m_revProductStoich, rop_rates);
 }
 
 void InterfaceKinetics::setDerivativeSettings(const AnyMap& settings)
 {
     bool force = settings.empty();
-    if (force || settings.hasKey("skip-cov-dep")) {
-        m_jac_skip_cov_dependance = settings.getBool("skip-cov-dep",
+    if (force || settings.hasKey("skip-coverage-dependence")) {
+        m_jac_skip_cov_dependence = settings.getBool("skip-coverage-dependence",
             true);
     }
     if (force || settings.hasKey("skip-electrochem")) {
@@ -669,9 +670,8 @@ void InterfaceKinetics::processFwdRateCoefficients(double* ropf)
 {
     // evaluate rate constants and equilibrium constants at temperature and phi
     // (electric potential)
-    _update_rates_T();
     // get updated activities (rates updated below)
-    _update_rates_C();
+    updateROP();
     // copy rate coefficients into ropf
     copy(m_rfn.begin(), m_rfn.end(), ropf);
 
@@ -681,7 +681,7 @@ void InterfaceKinetics::processFwdRateCoefficients(double* ropf)
     }
 }
 
-Eigen::SparseMatrix<double> InterfaceKinetics::process_derivatives(
+Eigen::SparseMatrix<double> InterfaceKinetics::calculateCompositionDerivatives(
     StoichManagerN& stoich, const vector_fp& in)
 {
     Eigen::SparseMatrix<double> out;
@@ -692,9 +692,9 @@ Eigen::SparseMatrix<double> InterfaceKinetics::process_derivatives(
     return out;
 }
 
-void InterfaceKinetics::assertDerivativesValid(const std::string& name)
+void InterfaceKinetics::assertDerivativesValid(const string& name)
 {
-    if (!m_jac_skip_cov_dependance) {
+    if (!m_jac_skip_cov_dependence) {
         throw NotImplementedError(name, "Coverage-dependent reactions not supported.");
     }
     else if (!m_jac_skip_electrochem) {

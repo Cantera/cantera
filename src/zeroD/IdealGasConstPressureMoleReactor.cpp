@@ -139,7 +139,7 @@ Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian()
                 species_trips.emplace_back(it.row(), it.col(), it.value());
             }
         }
-        mapSurfJacobian(species_trips);
+        addSurfaceJacobian(species_trips);
         dnk_dnj.resize(ssize, ssize);
         dnk_dnj.setFromTriplets(species_trips.begin(), species_trips.end());
     }

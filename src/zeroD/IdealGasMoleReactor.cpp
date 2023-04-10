@@ -156,7 +156,7 @@ void IdealGasMoleReactor::eval(double time, double* LHS, double* RHS)
 Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian()
 {
     if (m_nv == 0) {
-        throw CanteraError("IdealGasConstPressureMoleReactor::jacobian",
+        throw CanteraError("IdealGasMoleReactor::jacobian",
                            "Reactor must be initialized first.");
     }
     // clear former jacobian elements
@@ -165,7 +165,8 @@ Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian()
     Eigen::SparseMatrix<double> dnk_dnj = m_kin->netProductionRates_ddN();
     // species size that accounts for surface species
     size_t ssize = m_nv - m_sidx;
-    // map concentration derivatives from surfaces to same vector
+    // map concentration derivatives from the surface chemistry jacobian
+    // to the reactor jacobian
     if (!m_surfaces.empty()) {
         std::vector<Eigen::Triplet<double>> species_trips(dnk_dnj.nonZeros());
         for (int k = 0; k < dnk_dnj.outerSize(); k++) {
@@ -173,16 +174,16 @@ Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian()
                 species_trips.emplace_back(it.row(), it.col(), it.value());
             }
         }
-        mapSurfJacobian(species_trips);
+        addSurfaceJacobian(species_trips);
         dnk_dnj.resize(ssize, ssize);
         dnk_dnj.setFromTriplets(species_trips.begin(), species_trips.end());
     }
+    // add species to species derivatives  elements to the jacobian
     // calculate ROP derivatives, excluding the terms where dnk/dnj is zero but
     // molarVolume * wdot is not, as it reduces matrix sparsity and diminishes
     // performance.
     for (int k = 0; k < dnk_dnj.outerSize(); k++) {
         for (Eigen::SparseMatrix<double>::InnerIterator it(dnk_dnj, k); it; ++it) {
-            // scale value by appropriate quantities.
             m_jac_trips.emplace_back(static_cast<int>(it.row() + m_sidx),
                 static_cast<int>(it.col() + m_sidx), it.value());
         }
@@ -223,10 +224,10 @@ Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian()
         m_kin->getNetProductionRates(netProductionRates.data());
         m_thermo->getPartialMolarCp(specificHeat.data());
         // surface phases
-        size_t shift = m_nsp;
+        size_t offset = m_nsp;
         for (auto S : m_surfaces) {
-            S->thermo()->getPartialMolarCp(specificHeat.data() + shift);
-            S->thermo()->getPartialMolarEnthalpies(internal_energy.data() + shift);
+            S->thermo()->getPartialMolarCp(specificHeat.data() + offset);
+            S->thermo()->getPartialMolarEnthalpies(internal_energy.data() + offset);
             // get additional net production rates
             auto curr_kin = S->kinetics();
             vector_fp prod_rates(curr_kin->nTotalSpecies());
@@ -238,10 +239,10 @@ Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian()
                 }
             }
             // scale production rates by areas
-            for (size_t i = shift; i < shift + S->thermo()->nSpecies(); i++) {
+            for (size_t i = offset; i < offset + S->thermo()->nSpecies(); i++) {
                 netProductionRates[i] *= S->area();
             }
-            shift += S->thermo()->nSpecies();
+            offset += S->thermo()->nSpecies();
         }
         // convert Cp to Cv for ideal gas as Cp - Cv = R
         for (size_t i = 0; i < m_nsp; i++) {
@@ -250,16 +251,16 @@ Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian()
         }
         // scale net production rates by  volume to get molar rate
         double qdot = internal_energy.dot(netProductionRates);
-        // find denominator ahead of time
+        // find the sum of n_i and cp_i
         double NCv = 0.0;
         double* moles = yCurrent.data() + m_sidx;
         for (size_t i = 0; i < ssize; i++) {
             NCv += moles[i] * specificHeat[i];
         }
-        // Make denominator beforehand
+        // make denominator beforehand
         double denom = 1 / (NCv * NCv);
         Eigen::VectorXd uk_dnkdnj_sums = dnk_dnj.transpose() * internal_energy;
-        // Add derivatives to jac by spanning columns
+        // add derivatives to jacobian
         for (size_t j = 0; j < ssize; j++) {
             m_jac_trips.emplace_back(0, static_cast<int>(j + m_sidx),
                 (specificHeat[j] * qdot - NCv * uk_dnkdnj_sums[j]) * denom);

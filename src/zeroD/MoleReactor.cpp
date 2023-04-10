@@ -84,7 +84,7 @@ void MoleReactor::evalSurfaces(double* LHS, double* RHS, double* sdot)
     }
 }
 
-void MoleReactor::mapSurfJacobian(std::vector<Eigen::Triplet<double>> &strips)
+void MoleReactor::addSurfaceJacobian(vector<Eigen::Triplet<double>> &triplets)
 {
     for (auto& S : m_surfaces) {
         // sync states
@@ -103,7 +103,7 @@ void MoleReactor::mapSurfJacobian(std::vector<Eigen::Triplet<double>> &strips)
                     double scalar = (row < m_nsp) ? m_vol : S->area();
                     scalar /= (col < m_nsp) ? m_vol : S->area();
                     // add to appropriate row and col
-                    strips.emplace_back(row, col, scalar * it.value());
+                    triplets.emplace_back(row, col, scalar * it.value());
                 }
             }
         }
