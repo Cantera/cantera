@@ -602,6 +602,16 @@ public:
     //!  - `rtol-delta` (double) ... relative tolerance used to perturb properties
     //!    when calculating numerical derivatives. The default value is 1e-8.
     //!
+    //! For InterfaceKinetics, the following keyword/value pairs are supported:
+    //!  - `skip-coverage-dependence` (boolean) ... if `false` (default), rate constant
+    //!   coverage dependence is not considered when evaluating derivatives.
+    //! - `skip-electrochemistry` (boolean) ... if `false` (default), electrical charge
+    //!   is not considered in evaluating the derivatives and these reactions are
+    //!   treated as normal surface reactions.
+    //!  - `rtol-delta` (double) ... relative tolerance used to perturb properties
+    //!    when calculating numerical derivatives. The default value is 1e-8.
+    //!
+    //!
     //! @warning  The calculation of derivatives is an experimental part of the
     //!      %Cantera API and may be changed or removed without notice.
     //! @{
@@ -915,6 +925,20 @@ public:
     Eigen::SparseMatrix<double> creationRates_ddX();
 
     /**
+     * Calculate derivatives for species creation rates with respect to species
+     * concentration at constant temperature, pressure, and concentration of all other
+     * species.
+     *
+     * The method returns a matrix with nTotalSpecies rows and nTotalSpecies columns.
+     * For a derivative with respect to \f$[n_i]\f$, all other \f$[n_i]\f$ are held
+     * constant.
+     *
+     * @warning  This method is an experimental part of the %Cantera API and
+     *      may be changed or removed without notice.
+     */
+    Eigen::SparseMatrix<double> creationRates_ddN();
+
+    /**
      * Calculate derivatives for species destruction rates with respect to temperature
      * at constant pressure, molar concentration and mole fractions.
      * @param[out] dwdot  Output vector of derivatives. Length: m_kk.
@@ -950,6 +974,20 @@ public:
      *      may be changed or removed without notice.
      */
     Eigen::SparseMatrix<double> destructionRates_ddX();
+
+    /**
+     * Calculate derivatives for species destruction rates with respect to species
+     * concentration at constant temperature, pressure, and concentration of all other
+     * species.
+     *
+     * The method returns a matrix with nTotalSpecies rows and nTotalSpecies columns.
+     * For a derivative with respect to \f$[n_i]\f$, all other \f$[n_i]\f$ are held
+     * constant.
+     *
+     * @warning  This method is an experimental part of the %Cantera API and
+     *      may be changed or removed without notice.
+     */
+    Eigen::SparseMatrix<double> destructionRates_ddN();
 
     /**
      * Calculate derivatives for species net production rates with respect to
@@ -990,7 +1028,7 @@ public:
 
     /**
      * Calculate derivatives for species net production rates with respect to species
-     * concentration at constant temperature,  pressure, and concentration of all other
+     * concentration at constant temperature, pressure, and concentration of all other
      * species.
      *
      * The method returns a matrix with nTotalSpecies rows and nTotalSpecies columns.

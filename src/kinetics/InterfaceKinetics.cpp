@@ -655,15 +655,22 @@ void InterfaceKinetics::setDerivativeSettings(const AnyMap& settings)
     bool force = settings.empty();
     if (force || settings.hasKey("skip-coverage-dependence")) {
         m_jac_skip_cov_dependence = settings.getBool("skip-coverage-dependence",
-            true);
+            false);
     }
-    if (force || settings.hasKey("skip-electrochem")) {
-        m_jac_skip_electrochem = settings.getBool("skip-electrochem",
-            true);
+    if (force || settings.hasKey("skip-electrochemistry")) {
+        m_jac_skip_electrochem = settings.getBool("skip-electrochemistry",
+            false);
     }
     if (force || settings.hasKey("rtol-delta")) {
         m_jac_rtol_delta = settings.getDouble("rtol-delta", 1e-8);
     }
+}
+
+void InterfaceKinetics::getDerivativeSettings(AnyMap& settings) const
+{
+    settings["skip-coverage-dependence"] = m_jac_skip_electrochem;
+    settings["skip-electrochemistry"] = m_jac_skip_cov_dependence;
+    settings["rtol-delta"] = m_jac_rtol_delta;
 }
 
 void InterfaceKinetics::processFwdRateCoefficients(double* ropf)

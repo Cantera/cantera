@@ -30,6 +30,10 @@ void Reactor::insert(shared_ptr<Solution> sol) {
 void Reactor::setDerivativeSettings(AnyMap& settings)
 {
     m_kin->setDerivativeSettings(settings);
+    // translate settings to surfaces
+    for (auto S : m_surfaces) {
+        S->kinetics()->setDerivativeSettings(settings);
+    }
 }
 
 void Reactor::setKineticsMgr(Kinetics& kin)

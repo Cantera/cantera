@@ -368,7 +368,7 @@ class RateExpressionTests:
         drop_num = self.rop_ddP(mode="net")
         self.assertNear(drop[self.rxn_idx], drop_num, self.rtol)
 
-    def rate_ddX(self, spc_ix, mode=None, const_t=True, rtol_deltac=1e-6, atol_deltac=1e-20):
+    def rate_ddX(self, spc_ix, mode=None, const_t=True, rtol_deltac=1e-6, atol_deltac=1e-20, ddX=True):
         # numerical derivative for production rates with respect to mole fractions
         def calc(mode):
             if mode == "creation":
@@ -397,7 +397,11 @@ class RateExpressionTests:
             self.gas.TPX = tnew, self.gas.P, conc / ctot1
         drate = (calc(mode) - rate0) / dconc
         self.gas.TPX = self.tpx
-        return drate * self.gas.density_mole
+        # return appropriate quantity with ddX flag
+        if ddX:
+            return drate * self.gas.density_mole
+        else:
+            return drate
 
     def test_creation_ddX(self):
         # check derivatives of creation rates with respect to mole fractions
@@ -428,6 +432,36 @@ class RateExpressionTests:
             ix = drate[:, spc_ix] != 0
             drate[:, spc_ix] += dratep * self.gas.P
             self.assertArrayNear(drate[ix, spc_ix], drate_num[ix], self.rtol)
+
+    def test_creation_ddN(self):
+        # check derivatives of creation rates with respect to mole fractions
+        drate = self.gas.creation_rates_ddN
+        dratep = self.gas.creation_rates_ddP
+        for spc_ix in self.rix + self.pix:
+            drate_num = self.rate_ddX(spc_ix, "creation", ddX=False)
+            ix = drate[:, spc_ix] != 0
+            drate[:, spc_ix] += dratep * self.gas.P
+            self.assertArrayNear(drate[ix, spc_ix], drate_num[ix], 1e-3)
+
+    def test_destruction_ddN(self):
+        # check derivatives of destruction rates with respect to mole fractions
+        drate = self.gas.destruction_rates_ddN
+        dratep = self.gas.destruction_rates_ddP
+        for spc_ix in self.rix + self.pix:
+            drate_num = self.rate_ddX(spc_ix, "destruction", ddX=False)
+            ix = drate[:, spc_ix] != 0
+            drate[:, spc_ix] += dratep * self.gas.P
+            self.assertArrayNear(drate[ix, spc_ix], drate_num[ix], 1e-3)
+
+    def test_net_production_ddN(self):
+        # check derivatives of destruction rates with respect to mole fractions
+        drate = self.gas.net_production_rates_ddN
+        dratep = self.gas.net_production_rates_ddP
+        for spc_ix in self.rix + self.pix:
+            drate_num = self.rate_ddX(spc_ix, "net", ddX=False)
+            ix = drate[:, spc_ix] != 0
+            # drate[:, spc_ix] += dratep * self.gas.P
+            self.assertArrayNear(drate[ix, spc_ix], drate_num[ix], 1e-3)
 
 
 class HydrogenOxygen(RateExpressionTests):
@@ -872,7 +906,7 @@ class SurfaceRateExpressionTests:
         self.surf.TPX = self.surf_tpx
         self.surf.set_multiplier(0.)
         self.surf.set_multiplier(1., self.rxn_idx)
-        self.surf.derivative_settings = {"skip-coverage-dependence": True, "skip-electrochem": True}
+        self.surf.derivative_settings = {"skip-coverage-dependence": True, "skip-electrochemistry": True}
 
         # check stoichiometric coefficient output
         for k, v in self.rxn.reactants.items():
@@ -999,7 +1033,7 @@ class SurfaceFullTests:
         self.gas.derivative_settings = {} # reset defaults
         # surface phase
         self.surf.TPX = self.surf_tpx
-        self.surf.derivative_settings = {"skip-coverage-dependence": True, "skip-electrochem": True}
+        self.surf.derivative_settings = {"skip-coverage-dependence": True, "skip-electrochemistry": True}
 
     # closure to get concentrations vector
     def get_concentrations(self):

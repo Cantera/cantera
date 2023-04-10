@@ -491,6 +491,16 @@ Eigen::SparseMatrix<double> Kinetics::creationRates_ddX()
     return jac;
 }
 
+Eigen::SparseMatrix<double> Kinetics::creationRates_ddN()
+{
+    Eigen::SparseMatrix<double> jac;
+    // the forward direction creates product species
+    jac = m_productStoich.stoichCoeffs() * fwdRatesOfProgress_ddN();
+    // the reverse direction creates reactant species
+    jac += m_reactantStoich.stoichCoeffs() * revRatesOfProgress_ddN();
+    return jac;
+}
+
 void Kinetics::getDestructionRates_ddT(double* dwdot)
 {
     Eigen::Map<Eigen::VectorXd> out(dwdot, m_kk);
@@ -534,6 +544,16 @@ Eigen::SparseMatrix<double> Kinetics::destructionRates_ddX()
     jac = m_revProductStoich.stoichCoeffs() * revRatesOfProgress_ddX();
     // the forward direction destroys reactants
     jac += m_reactantStoich.stoichCoeffs() * fwdRatesOfProgress_ddX();
+    return jac;
+}
+
+Eigen::SparseMatrix<double> Kinetics::destructionRates_ddN()
+{
+    Eigen::SparseMatrix<double> jac;
+    // the reverse direction destroys products in reversible reactions
+    jac = m_revProductStoich.stoichCoeffs() * revRatesOfProgress_ddN();
+    // the forward direction destroys reactants
+    jac += m_reactantStoich.stoichCoeffs() * fwdRatesOfProgress_ddN();
     return jac;
 }
 
