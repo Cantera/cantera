@@ -1199,7 +1199,7 @@ class TestReactorJacobians(utilities.CanteraTest):
             rsurf.install(r1)
         self.net = ct.ReactorNet([r1])
 
-    def test_network_jacobian(self):
+    def test_network_jacobians(self):
         # create reactors
         gas = ct.Solution("ptcombust.yaml", "gas")
         r1 = ct.IdealGasMoleReactor(gas)
@@ -1213,13 +1213,20 @@ class TestReactorJacobians(utilities.CanteraTest):
         rsurf2.install(r2)
         # create network
         net = ct.ReactorNet([r1, r2])
-        # net.advance(0.1)
+        precon = ct.AdaptivePreconditioner()
+        net.preconditioner = precon
+        # compare jacobians mostly analytical jacobians
         net_jac = net.jacobian
         r1_jac = r1.jacobian
         r2_jac = r2.jacobian
         self.assertArrayNear(r1_jac, net_jac[:r1.n_vars, :r1.n_vars], 1e-6, 1e-12)
         self.assertArrayNear(r2_jac, net_jac[r1.n_vars:, r1.n_vars:], 1e-6, 1e-12)
-
+        # check shape of finite difference jacobian from network
+        fd_jac = net.finite_difference_jacobian
+        assert fd_jac.shape == net_jac.shape
+        # check shape and return of preconditioner
+        precon_mat = precon.matrix
+        assert precon_mat.shape == net_jac.shape
 
 class TestFlowReactor(utilities.CanteraTest):
     gas_def = """
