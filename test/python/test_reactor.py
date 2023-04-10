@@ -1189,40 +1189,29 @@ class TestIdealGasMoleReactor(TestMoleReactor):
 
 class TestReactorJacobians(utilities.CanteraTest):
 
-    def make_reactor(self, rtype=ct.IdealGasMoleReactor, model="ptcombust.yaml",
-                     gas_phase="gas", interface_phase="Pt_surf", add_surf=True):
-        # create gas and reactor
-        gas = ct.Solution(model, gas_phase)
-        r1 = rtype(gas)
-        # create surface
-        if add_surf:
-            surf = ct.Interface(model, interface_phase, [gas])
-            rsurf = ct.ReactorSurface(surf)
-            rsurf.install(r1)
-        self.net = ct.ReactorNet([r1])
-
     def test_network_jacobians(self):
-        # create reactors
+        # create reactor1
         gas = ct.Solution("ptcombust.yaml", "gas")
+        gas.TP = 900, ct.one_atm
         r1 = ct.IdealGasMoleReactor(gas)
         r2 = ct.IdealGasConstPressureMoleReactor(gas)
-        # create surface
+        # create surface 1
         surf = ct.Interface("ptcombust.yaml", "Pt_surf", [gas])
-        rsurf1 = ct.ReactorSurface(surf)
-        rsurf2 = ct.ReactorSurface(surf)
-        # install surfaces
-        rsurf1.install(r1)
-        rsurf2.install(r2)
+        surf.TP = 900, ct.one_atm
+        rsurf1 = ct.ReactorSurface(surf, r1)
+        rsurf2 = ct.ReactorSurface(surf, r2)
         # create network
         net = ct.ReactorNet([r1, r2])
         precon = ct.AdaptivePreconditioner()
         net.preconditioner = precon
+        # initialize network
+        net.initialize()
         # compare jacobians mostly analytical jacobians
-        net_jac = net.jacobian
         r1_jac = r1.jacobian
         r2_jac = r2.jacobian
-        self.assertArrayNear(r1_jac, net_jac[:r1.n_vars, :r1.n_vars], 1e-6, 1e-12)
-        self.assertArrayNear(r2_jac, net_jac[r1.n_vars:, r1.n_vars:], 1e-6, 1e-12)
+        net_jac = net.jacobian
+        self.assertArrayNear(r1_jac, net_jac[:r1.n_vars, :r1.n_vars], 1e-8, 1e-12)
+        self.assertArrayNear(r2_jac, net_jac[r1.n_vars:, r1.n_vars:], 1e-8, 1e-12)
         # check shape of finite difference jacobian from network
         fd_jac = net.finite_difference_jacobian
         assert fd_jac.shape == net_jac.shape

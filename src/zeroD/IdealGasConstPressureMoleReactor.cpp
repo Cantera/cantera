@@ -127,25 +127,127 @@ Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian()
     }
     // clear former jacobian elements
     m_jac_trips.clear();
-    // Determine Species Derivatives
-    // volume / moles * rates portion of equation
-    Eigen::VectorXd netProductionRates(m_nsp);
-    m_kin->getNetProductionRates(netProductionRates.data()); // "omega dot"
-    Eigen::SparseMatrix<double> dnk_dnj = m_kin->netProductionRates_ddN();
+    // determine species derivatives w.r.t concentration
+    Eigen::SparseMatrix<double> dwdot_dci = m_kin->netProductionRates_ddN();
+    // species size that accounts for surface species
+    size_t ssize = m_nv - m_sidx;
+    // map concentration derivatives from surfaces to same vector
+    if (!m_surfaces.empty()) {
+        std::vector<Eigen::Triplet<double>> species_trips(dwdot_dci.nonZeros());
+        for (int k = 0; k < dwdot_dci.outerSize(); k++) {
+            for (Eigen::SparseMatrix<double>::InnerIterator it(dwdot_dci, k); it; ++it) {
+                species_trips.emplace_back(it.row(), it.col(), it.value());
+            }
+        }
+        mapSurfConcJacobian(species_trips);
+        dwdot_dci.resize(ssize, ssize);
+        dwdot_dci.setFromTriplets(species_trips.begin(), species_trips.end());
+    }
+    // get net production rates
+    Eigen::VectorXd netProductionRates = Eigen::VectorXd::Zero(ssize);
+    // gas phase net production rates
+    m_kin->getNetProductionRates(netProductionRates.data());
+    // surface phase net production rates mapped to reactor gas phase
+    for (auto &S: m_surfaces) {
+        auto curr_kin = S->kinetics();
+        vector_fp prod_rates(curr_kin->nTotalSpecies());
+        curr_kin->getNetProductionRates(prod_rates.data());
+        for (size_t i = 0; i < curr_kin->nTotalSpecies(); i++) {
+            size_t row = speciesIndex(curr_kin->kineticsSpeciesName(i));
+            if (row != npos) {
+                netProductionRates[row] += prod_rates[i];
+            }
+        }
+    }
+    // get current state
+    vector_fp yCurrent(m_nv);
+    getState(yCurrent.data());
+    // get total moles
+    double N = std::accumulate(yCurrent.data() + m_sidx,
+        yCurrent.data() + m_sidx + m_nsp, 0.0);
+    // get d[n_i]/dni
+    Eigen::SparseMatrix<double> dci_dnj(ssize, ssize);
+    std::vector<Eigen::Triplet<double>> dci_dnj_trips(ssize);
+    // gas phase contributions to dci_dni
+    double dci;
+    double v_Inv = 1 / m_vol;
+    double nv_Inv = 1 / (m_vol * N);
+    double* moles = yCurrent.data() + m_sidx; // kmol per s
+    for (size_t i = 0; i < m_nsp; i++) {
+        for (size_t j = 0; j < m_nsp; j++) {
+            // calculate
+            if (i == j) {
+                dci = v_Inv - moles[i] * nv_Inv;
+            } else {
+                dci = - moles[i] * nv_Inv;
+            }
+            // check greater than zero
+            if (dci > 0) {
+                dci_dnj_trips.emplace_back(i, j, dci);
+            }
+        }
+    }
+    // surface contributions
+    size_t shift = m_nsp;
+    for (auto S : m_surfaces) {
+        for (size_t i = shift; i < S->thermo()->nSpecies() + shift; i++) {
+            dci_dnj_trips.emplace_back(i, i, 1 / S->area());
+        }
+        shift += S->thermo()->nSpecies();
+    }
+    // create sparse matrix
+    dci_dnj.setFromTriplets(dci_dnj_trips.begin(), dci_dnj_trips.end());
+    // derivatives dwdot / dnj
+    Eigen::SparseMatrix<double> dnk_dnj = dwdot_dci * dci_dnj;
+    // get dwdot/dT dT / dnj
+    Eigen::VectorXd dwdot_dnj_vec(ssize);
+    // gas phase dwdot / dT
+    m_kin->getNetProductionRates_ddT(dwdot_dnj_vec.data());
+    // dT / d[n_i] * d[n_i] / d n_i
+    double dT_dci = - m_thermo->pressure() /
+        (GasConstant * m_thermo->molarDensity() * m_thermo->molarDensity());
+    Eigen::VectorXd dTdnj = dci_dnj.transpose() *
+        Eigen::VectorXd::Constant(ssize, dT_dci);
+    // surface values
+    shift = m_nsp;
+    for (auto S : m_surfaces) {
+        for (size_t i = shift; i < S->thermo()->nSpecies() + shift; i++) {
+            dTdnj[i] = 0;
+        }
+        shift += S->thermo()->nSpecies();
+    }
+    // get total derivatives
+    dnk_dnj = dnk_dnj + (dwdot_dnj_vec * dTdnj.transpose());
+    // convert to dndotk / dnj
     double molarVolume = m_thermo->molarVolume();
-    // Calculate ROP derivatives, excluding the terms where dnk/dnj is zero but
+    // calculate ROP derivatives, excluding the terms where dnk/dnj is zero but
     // molarVolume * wdot is not, as it reduces matrix sparsity and diminishes
     // performance.
     for (int k = 0; k < dnk_dnj.outerSize(); k++) {
         for (Eigen::SparseMatrix<double>::InnerIterator it(dnk_dnj, k); it; ++it) {
-            it.valueRef() = it.value() + netProductionRates[it.row()] * molarVolume;
+            // gas phase w.r.t any phase
+            if (it.row() < m_nsp) {
+                it.valueRef() = m_vol * it.value() + netProductionRates[it.row()] * molarVolume;
+            // surf phase w.r.t any phase
+            } else {
+                double A = 0.0;
+                shift = m_nsp;
+                for (auto &S: m_surfaces) {
+                    size_t nspec = S->thermo()->nSpecies();
+                    if (shift < it.row() && it.row() < nspec + shift) {
+                        A = S->area();
+                        break;
+                    }
+                    shift += nspec;
+                }
+                // get appropriate surface area
+                it.valueRef() = A * it.value();
+            }
             m_jac_trips.emplace_back(static_cast<int>(it.row() + m_sidx),
                 static_cast<int>(it.col() + m_sidx), it.value());
         }
     }
-
     // Temperature Derivatives
-    double NCp = 0.0;
     if (m_energy) {
         // getting perturbed state for finite difference
         double deltaTemp = m_thermo->temperature()
@@ -153,8 +255,6 @@ Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian()
         // finite difference temperature derivatives
         vector_fp lhsPerturbed(m_nv, 1.0), lhsCurrent(m_nv, 1.0);
         vector_fp rhsPerturbed(m_nv, 0.0), rhsCurrent(m_nv, 0.0);
-        vector_fp yCurrent(m_nv);
-        getState(yCurrent.data());
         vector_fp yPerturbed = yCurrent;
         // perturb temperature
         yPerturbed[0] += deltaTemp;
@@ -173,33 +273,41 @@ Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian()
                                      (ydotPerturbed - ydotCurrent) / deltaTemp);
         }
         // d T_dot/dnj
-        Eigen::VectorXd enthalpy(m_nsp);
-        m_thermo->getPartialMolarEnthalpies(enthalpy.data());
-        // get specific heat for whole system
-        Eigen::VectorXd specificHeat(m_nv - m_sidx);
+        // allocate vectors for whole system
+        Eigen::VectorXd enthalpy(ssize);
+        Eigen::VectorXd specificHeat(ssize);
         // gas phase
         m_thermo->getPartialMolarCp(specificHeat.data());
+        m_thermo->getPartialMolarEnthalpies(enthalpy.data());
+        // scale production rates by the volume for gas species
+        for (size_t i = 0; i < m_nsp; i++) {
+            netProductionRates[i] *= m_vol;
+        }
         // surface phases
-        size_t shift = m_nsp;
+        shift = m_nsp;
         for (auto S : m_surfaces) {
             S->thermo()->getPartialMolarCp(specificHeat.data() + shift);
+            S->thermo()->getPartialMolarEnthalpies(enthalpy.data() + shift);
+            // scale production rates by areas
+            for (size_t i = shift; i < shift + S->thermo()->nSpecies(); i++) {
+                netProductionRates[i] *= S->area();
+            }
             shift += S->thermo()->nSpecies();
         }
-        double qdot = m_vol * enthalpy.dot(netProductionRates);
+        double qdot = enthalpy.dot(netProductionRates);
         // find denominator ahead of time
-        for (size_t i = 0; i < m_nv - m_sidx; i++) {
+        double NCp = 0.0;
+        for (size_t i = 0; i < ssize; i++) {
             NCp += yCurrent[i + m_sidx] * specificHeat[i];
         }
         double denom = 1 / (NCp * NCp);
         Eigen::VectorXd hk_dnkdnj_sum = dnk_dnj.transpose() * enthalpy;
         // Add derivatives to jac by spanning columns
-        for (size_t j = 0; j < m_nsp; j++) {
+        for (size_t j = 0; j < ssize; j++) {
             m_jac_trips.emplace_back(0, static_cast<int>(j + m_sidx),
                 (specificHeat[j] * qdot - NCp * hk_dnkdnj_sum[j]) * denom);
         }
     }
-    // add surface jacobian to system
-    addSurfJacobian(NCp, true);
     // convert triplets to sparse matrix
     Eigen::SparseMatrix<double> jac(m_nv, m_nv);
     jac.setFromTriplets(m_jac_trips.begin(), m_jac_trips.end());

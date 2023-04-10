@@ -343,6 +343,7 @@ protected:
     //! @throw CanteraError if coverage dependence or electrochemical reactions are
     //! included
     void assertDerivativesValid(const std::string& name);
+
     //! @}
 
     //! Temporary work vector of length m_kk
@@ -507,7 +508,6 @@ protected:
     // extra buffers for surface kinetics
     vector_fp m_rbuf0;
     vector_fp m_rbuf1;
-    vector_fp m_rbuf2;
 
     // Derivative settings initialized to their default values
     bool m_jac_skip_cov_dependance = true;
