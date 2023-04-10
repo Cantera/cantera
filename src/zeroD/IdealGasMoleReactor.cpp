@@ -164,9 +164,8 @@ Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian()
     // Determine Species Derivatives
     // get ROP derivatives, excluding the term molarVolume * sum_k(X_k * dwdot_j/dX_j)
     // which is small and would completely destroy the sparsity of the Jacobian
-    double scalingFactor = m_thermo->molarVolume();
-    Eigen::SparseMatrix<double> speciesDervs = scalingFactor *
-        m_kin->netProductionRates_ddX();
+    Eigen::SparseMatrix<double> speciesDervs =
+        m_kin->netProductionRates_ddC() / m_vol;
     // add to preconditioner
     for (int k=0; k<speciesDervs.outerSize(); ++k) {
         for (Eigen::SparseMatrix<double>::InnerIterator it(speciesDervs, k); it; ++it) {

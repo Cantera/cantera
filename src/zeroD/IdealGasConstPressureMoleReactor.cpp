@@ -135,16 +135,16 @@ Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian()
     // volume / moles * rates portion of equation
     Eigen::VectorXd netProductionRates(m_nsp);
     m_kin->getNetProductionRates(netProductionRates.data()); // "omega dot"
-    Eigen::SparseMatrix<double> dwdX = m_kin->netProductionRates_ddX();
+    Eigen::SparseMatrix<double> dwdC = m_kin->netProductionRates_ddC();
     double molarVolume = m_thermo->molarVolume();
     // Calculate ROP derivatives, excluding the term
     // molarVolume * (wdot(j) - sum_k(X_k * dwdot_j/dX_k))
     // which is small and would completely destroy the sparsity of the Jacobian
-    for (int k = 0; k < dwdX.outerSize(); k++) {
-        for (Eigen::SparseMatrix<double>::InnerIterator it(dwdX, k); it; ++it) {
+    for (int k = 0; k < dwdC.outerSize(); k++) {
+        for (Eigen::SparseMatrix<double>::InnerIterator it(dwdC, k); it; ++it) {
             m_jac_trips.emplace_back(static_cast<int>(it.row() + m_sidx),
-                                     static_cast<int>(it.col() + m_sidx),
-                                     it.value() * molarVolume);
+                static_cast<int>(it.col() + m_sidx),
+                it.value() + netProductionRates[it.row()] * molarVolume);
         }
     }
 
@@ -179,20 +179,17 @@ Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian()
         Eigen::VectorXd dwdot_dC(m_nsp);
         m_thermo->getPartialMolarCp(specificHeat.data());
         m_thermo->getPartialMolarEnthalpies(enthalpy.data());
-        m_kin->getNetProductionRates_ddC(dwdot_dC.data());
         double qdot = enthalpy.dot(netProductionRates);
-        double hk_dwdot_dC_sum = enthalpy.dot(dwdot_dC);
-        double totalCp = m_mass * m_thermo->cp_mass();
         double cp_mole = m_thermo->cp_mole();
-
+        double total_moles = m_vol / molarVolume;
+        double denom = (total_moles * total_moles * cp_mole * cp_mole);
         // determine derivatives
         // spans columns
-        Eigen::VectorXd hkdwkdnjSum = enthalpy.transpose() * dwdX;
-        for (size_t j = 0; j < m_nsp; j++) {
+        Eigen::VectorXd hk_dnkdnj_sum = enthalpy.transpose() * dwdC;
+        for (int j = 0; j < m_nsp; j++) {
             m_jac_trips.emplace_back(0, static_cast<int>(j + m_sidx),
                 ((specificHeat[j] - cp_mole) * m_vol * qdot
-                 - m_vol * cp_mole * hkdwkdnjSum[j]
-                 + totalCp * hk_dwdot_dC_sum) / (totalCp * totalCp));
+                 - total_moles * cp_mole * hk_dnkdnj_sum[j]) / denom);
         }
     }
     // add surface jacobian to system

@@ -77,6 +77,7 @@ public:
     virtual Eigen::SparseMatrix<double> fwdRatesOfProgress_ddX();
     virtual Eigen::SparseMatrix<double> revRatesOfProgress_ddX();
     virtual Eigen::SparseMatrix<double> netRatesOfProgress_ddX();
+    virtual Eigen::SparseMatrix<double> netRatesOfProgress_ddC();
 
     //! Update temperature-dependent portions of reaction rates and falloff
     //! functions.
@@ -134,6 +135,12 @@ protected:
     //! @param stoich  stoichiometry manager
     //! @param in  rate expression used for the derivative calculation
     Eigen::SparseMatrix<double> process_ddX(StoichManagerN& stoich,
+                                            const vector_fp& in);
+
+    //! Process mole fraction derivative
+    //! @param stoich  stoichiometry manager
+    //! @param in  rate expression used for the derivative calculation
+    Eigen::SparseMatrix<double> process_ddC(StoichManagerN& stoich,
                                             const vector_fp& in);
 
     //! Helper function ensuring that all rate derivatives can be calculated
