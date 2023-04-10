@@ -161,11 +161,12 @@ Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian()
     }
     // clear former jacobian elements
     m_jac_trips.clear();
-    // determine species derivatives w.r.t concentration
+    // dnk_dnj represents d(dot(n_k)) / d (n_j) but is first assigned as
+    // d (dot(omega)) / d [n_j], it is later transformed appropriately.
     Eigen::SparseMatrix<double> dnk_dnj = m_kin->netProductionRates_ddN();
     // species size that accounts for surface species
     size_t ssize = m_nv - m_sidx;
-    // map concentration derivatives from the surface chemistry jacobian
+    // map derivatives from the surface chemistry jacobian
     // to the reactor jacobian
     if (!m_surfaces.empty()) {
         std::vector<Eigen::Triplet<double>> species_trips(dnk_dnj.nonZeros());
@@ -179,9 +180,8 @@ Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian()
         dnk_dnj.setFromTriplets(species_trips.begin(), species_trips.end());
     }
     // add species to species derivatives  elements to the jacobian
-    // calculate ROP derivatives, excluding the terms where dnk/dnj is zero but
-    // molarVolume * wdot is not, as it reduces matrix sparsity and diminishes
-    // performance.
+    // calculate ROP derivatives, excluding the terms -n_i / (V * N) d[n_i]/dn_j
+    // as it substantially reduces matrix sparsity
     for (int k = 0; k < dnk_dnj.outerSize(); k++) {
         for (Eigen::SparseMatrix<double>::InnerIterator it(dnk_dnj, k); it; ++it) {
             m_jac_trips.emplace_back(static_cast<int>(it.row() + m_sidx),

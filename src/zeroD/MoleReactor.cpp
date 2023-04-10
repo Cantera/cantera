@@ -86,27 +86,44 @@ void MoleReactor::evalSurfaces(double* LHS, double* RHS, double* sdot)
 
 void MoleReactor::addSurfaceJacobian(vector<Eigen::Triplet<double>> &triplets)
 {
+    size_t offset = m_nsp;
     for (auto& S : m_surfaces) {
-        // sync states
         S->syncState();
-        // get current kinetics object
-        auto curr_kin = S->kinetics();
+        double A = S->area();
+        auto kin = S->kinetics();
+        size_t nk = S->thermo()->nSpecies();
+        // limit on the current idx
+        size_t limit = offset + nk;
+        // find location of first gas phase species in the kinetics object
+        size_t gasIdx = kin->kineticsSpeciesIndex(m_kin->kineticsSpeciesName(0));
         // get surface jacobian in concentration units
-        Eigen::SparseMatrix<double> surfJac = curr_kin->netProductionRates_ddN();
-        // Add elements to jacobian triplets
+        Eigen::SparseMatrix<double> surfJac = kin->netProductionRates_ddN();
+        // loop through surface specific jacobian and add elements to triplets vector
+        // accordingly
         for (int k=0; k<surfJac.outerSize(); ++k) {
             for (Eigen::SparseMatrix<double>::InnerIterator it(surfJac, k); it; ++it) {
-                // Get species row and column inside of reactor
-                size_t row = speciesIndex(curr_kin->kineticsSpeciesName(it.row()));
-                size_t col = speciesIndex(curr_kin->kineticsSpeciesName(it.col()));
-                if (row != npos && col != npos) {
-                    double scalar = (row < m_nsp) ? m_vol : S->area();
-                    scalar /= (col < m_nsp) ? m_vol : S->area();
-                    // add to appropriate row and col
+                size_t row = it.row();
+                size_t col = it.col();
+                // check gas location and number of species against row and col to
+                // avoid any solid phases which may be included and
+                // map surf row and col to reactor by adding the offset if the index
+                // is less than the species in the SurfPhase or subtracting the
+                // number of SurfPhase species otherwise
+                row = (row >= gasIdx && row < limit) ? row - gasIdx : row + offset;
+                col = (col >= gasIdx && col < limit) ? col - gasIdx : col + offset;
+                if (row < limit && col < limit) {
+                    // determine appropriate scalar by location
+                    // gas phase species indices will be less than m_nsp
+                    // so use volume if that is the case or area otherwise
+                    double scalar = A;
+                    scalar /= (col < m_nsp) ? m_vol : A;
+                    // push back scaled value triplet
                     triplets.emplace_back(row, col, scalar * it.value());
                 }
             }
         }
+        // add species in this surface to the offset
+        offset += nk;
     }
 }
 
