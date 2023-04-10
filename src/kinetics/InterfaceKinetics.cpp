@@ -29,6 +29,11 @@ InterfaceKinetics::~InterfaceKinetics()
 
 void InterfaceKinetics::resizeReactions()
 {
+    // resize buffer
+    m_rbuf0.resize(nReactions());
+    m_rbuf1.resize(nReactions());
+    m_rbuf2.resize(nReactions());
+
     Kinetics::resizeReactions();
 
     for (auto& rates : m_interfaceRates) {
@@ -608,6 +613,55 @@ double InterfaceKinetics::interfaceCurrent(const size_t iphase)
     }
 
     return dotProduct * Faraday;
+}
+
+Eigen::SparseMatrix<double> InterfaceKinetics::netRatesOfProgress_ddC()
+{
+
+    // forward reaction rate coefficients
+    vector_fp& rop_rates = m_rbuf0;
+    processFwdRateCoefficients(rop_rates.data());
+    Eigen::SparseMatrix<double> jac = process_ddC(m_reactantStoich, rop_rates);
+
+    // reverse reaction rate coefficients
+    processEquilibriumConstants(rop_rates.data());
+    return jac - process_ddC(m_revProductStoich, rop_rates);
+}
+
+void InterfaceKinetics::processFwdRateCoefficients(double* ropf)
+{
+    // evaluate rate constants and equilibrium constants at temperature and phi
+    // (electric potential)
+    _update_rates_T();
+    // get updated activities (rates updated below)
+    _update_rates_C();
+    // copy rate coefficients into ropf
+    copy(m_rfn.begin(), m_rfn.end(), ropf);
+
+    // Scale the forward rate coefficient by the perturbation factor
+    for (size_t i = 0; i < nReactions(); ++i) {
+        ropf[i] *= m_perturb[i];
+    }
+}
+
+Eigen::SparseMatrix<double> InterfaceKinetics::process_ddC(
+    StoichManagerN& stoich, const vector_fp& in)
+{
+    Eigen::SparseMatrix<double> out;
+    vector_fp& outV = m_rbuf1;
+    // derivatives handled by StoichManagerN
+    copy(in.begin(), in.end(), outV.begin());
+    out = stoich.derivatives(m_actConc.data(), outV.data());
+    return out;
+}
+
+void InterfaceKinetics::processEquilibriumConstants(double* rop)
+{
+    // For reverse rates computed from thermochemistry, multiply the forward
+    // rate coefficients by the reciprocals of the equilibrium constants
+    for (size_t i = 0; i < nReactions(); ++i) {
+        rop[i] *= m_rkcn[i];
+    }
 }
 
 }

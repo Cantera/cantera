@@ -286,7 +286,7 @@ public:
 protected:
     //! Check if surfaces and preconditioning are included, if so throw an error because
     //! they are currently not supported.
-    virtual void checkPreconditionerSupported();
+    virtual void checkPreconditionerSupported(){};
 
     //! Update the preconditioner based on the already computed jacobian values
     virtual void updatePreconditioner(double gamma);

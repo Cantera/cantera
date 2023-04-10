@@ -84,6 +84,41 @@ void MoleReactor::evalSurfaces(double* LHS, double* RHS, double* sdot)
     }
 }
 
+void MoleReactor::addSurfJacobian()
+{
+    // Translate surface netProductionRates_ddC into mole values for reactor
+    // Jacobian
+    for (auto& S : m_surfaces) {
+        auto curr_kin = S->kinetics();
+        // get surface jacobian
+        Eigen::SparseMatrix<double> surfJac = curr_kin->netProductionRates_ddC();
+        // Add elements to jacobian triplets
+        for (int k=0; k<surfJac.outerSize(); ++k) {
+            for (Eigen::SparseMatrix<double>::InnerIterator it(surfJac, k); it; ++it) {
+                // Get species row and column inside of reactor
+                size_t row = componentIndex(curr_kin->kineticsSpeciesName(it.row()));
+                size_t col = componentIndex(curr_kin->kineticsSpeciesName(it.col()));
+                double scalar = 1;
+                if (row != npos && col != npos) {
+                    if (row > m_nsp && col > m_nsp) {
+                        scalar = 1 / S->thermo()->size(it.row());
+                    }
+                    // surf w.r.t gas phase scalar
+                    else if (row > m_nsp) {
+                        scalar = S->area() / (S->thermo()->size(it.row()) * m_vol);
+                    }
+                    // gas phase w.r.t surf scalar
+                    else if (col > m_nsp) {
+                        scalar = m_vol / S->area();
+                    }
+                    // add derivative to the jacobian
+                    m_jac_trips.emplace_back(row, col, scalar * it.value());
+                }
+            }
+        }
+    }
+}
+
 void MoleReactor::getMoles(double* y)
 {
     // Use inverse molecular weights to convert to moles

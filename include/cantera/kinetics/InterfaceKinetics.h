@@ -305,7 +305,28 @@ public:
     */
     double interfaceCurrent(const size_t iphase);
 
+    virtual Eigen::SparseMatrix<double> netRatesOfProgress_ddC();
+
 protected:
+    //! @name Internal service methods
+    //!
+    //! @note These methods are for internal use, and seek to avoid code duplication
+    //! while evaluating terms used for rate constants, rates of progress, and
+    //! their derivatives.
+    //! @{
+
+    //! Calculate rate coefficients
+    void processFwdRateCoefficients(double* ropf);
+
+    //! Multiply rate with inverse equilibrium constant
+    void processEquilibriumConstants(double* rop);
+
+    //! Process mole fraction derivative
+    //! @param stoich  stoichiometry manager
+    //! @param in  rate expression used for the derivative calculation
+    Eigen::SparseMatrix<double> process_ddC(StoichManagerN& stoich,
+                                            const vector_fp& in);
+
     //! Temporary work vector of length m_kk
     vector_fp m_grt;
 
@@ -464,6 +485,11 @@ protected:
     //! Number of dimensions of reacting phase (2 for InterfaceKinetics, 1 for
     //! EdgeKinetics)
     size_t m_nDim = 2;
+
+    // extra buffers for surface kinetics
+    vector_fp m_rbuf0;
+    vector_fp m_rbuf1;
+    vector_fp m_rbuf2;
 };
 
 }

@@ -242,6 +242,9 @@ Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian()
                 (ukdwdCtotSum - ukdnkdnjSum + specificHeat[j] * uknkSum / totalCv) / totalCv);
         }
     }
+    // add surface jacobian to system
+    addSurfJacobian();
+    // convert triplets to sparse matrix
     Eigen::SparseMatrix<double> jac(m_nv, m_nv);
     jac.setFromTriplets(m_jac_trips.begin(), m_jac_trips.end());
     return jac;

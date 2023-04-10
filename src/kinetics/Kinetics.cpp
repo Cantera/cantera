@@ -566,6 +566,11 @@ Eigen::SparseMatrix<double> Kinetics::netProductionRates_ddX()
     return m_stoichMatrix * netRatesOfProgress_ddX();
 }
 
+Eigen::SparseMatrix<double> Kinetics::netProductionRates_ddC()
+{
+    return m_stoichMatrix * netRatesOfProgress_ddC();
+}
+
 void Kinetics::addThermo(shared_ptr<ThermoPhase> thermo)
 {
     // the phase with lowest dimensionality is assumed to be the
