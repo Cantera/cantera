@@ -125,10 +125,6 @@ Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian()
         throw CanteraError("IdealGasConstPressureMoleReactor::jacobian",
                            "Reactor must be initialized first.");
     }
-
-    vector_fp yCurrent(m_nv);
-    getState(yCurrent.data());
-
     // clear former jacobian elements
     m_jac_trips.clear();
     // Determine Species Derivatives
@@ -156,6 +152,8 @@ Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian()
         // finite difference temperature derivatives
         vector_fp lhsPerturbed(m_nv, 1.0), lhsCurrent(m_nv, 1.0);
         vector_fp rhsPerturbed(m_nv, 0.0), rhsCurrent(m_nv, 0.0);
+        vector_fp yCurrent(m_nv);
+        getState(yCurrent.data());
         vector_fp yPerturbed = yCurrent;
         // perturb temperature
         yPerturbed[0] += deltaTemp;
