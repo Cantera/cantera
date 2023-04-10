@@ -45,7 +45,7 @@ public:
     //! between reactors, for example via inlets and outlets.
     virtual Eigen::SparseMatrix<double> jacobian();
 
-    virtual const bool preconditionerSupported() {return true;};
+    virtual bool preconditionerSupported() const {return true;};
 
 protected:
     vector_fp m_uk; //!< Species molar internal energies

@@ -116,7 +116,7 @@ public:
     //! Add a coverage dependency for species *sp*, with exponential dependence
     //! *a*, power-law exponent *m*, and activation energy dependence *e*,
     //! where *e* is in Kelvin, that is, energy divided by the molar gas constant.
-    void addCoverageDependence(const std::string& sp, double a, double m, double e);
+    virtual void addCoverageDependence(const string& sp, double a, double m, double e);
 
     //! Boolean indicating whether rate uses exchange current density formulation
     bool exchangeCurrentDensityFormulation() {
@@ -385,9 +385,6 @@ public:
     {
         InterfaceRateBase::setParameters(node);
         RateType::setParameters(node, rate_units);
-        if (node.hasKey("coverage-dependencies")) {
-            RateType::setCompositionDependence(true);
-        }
     }
 
     virtual void getParameters(AnyMap& node) const override {
@@ -435,6 +432,11 @@ public:
 
     virtual double activationEnergy() const override {
         return RateType::activationEnergy() + m_ecov * GasConstant;
+    }
+
+    void addCoverageDependence(const string& sp, double a, double m, double e) override {
+        InterfaceRateBase::addCoverageDependence(sp, a, m, e);
+        RateType::setCompositionDependence(true);
     }
 };
 

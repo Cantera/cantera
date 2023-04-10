@@ -193,7 +193,7 @@ public:
     //!
     //! @since New in Cantera 3.0
     //!
-    virtual const bool preconditionerSupported() {return false;};
+    virtual bool preconditionerSupported() const {return false;};
 
 protected:
     //! Return the index in the solution vector for this reactor of the species
