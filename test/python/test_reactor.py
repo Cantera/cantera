@@ -1151,6 +1151,7 @@ class TestIdealGasConstPressureMoleReactor(TestConstPressureMoleReactor):
         assert self.precon.side == "right"
         self.assertEqual(self.net2.linear_solver_type, "GMRES")
 
+
 class TestIdealGasMoleReactor(TestMoleReactor):
     reactorClass = ct.IdealGasMoleReactor
 
@@ -1218,6 +1219,57 @@ class TestReactorJacobians(utilities.CanteraTest):
         # check shape and return of preconditioner
         precon_mat = precon.matrix
         assert precon_mat.shape == net_jac.shape
+
+    def test_phase_order_surf_jacobian(self):
+        # create gas phase
+        gas_def = """
+        phases:
+        - name: gas
+          species:
+          - gri30.yaml/species: [H2, H, O, O2, OH, H2O, HO2, H2O2, CH3, CH4, CO, CO2,
+              HCO, CH2O, CH3O, CH3OH, N2, AR]
+          thermo: ideal-gas
+          kinetics: gas
+          reactions:
+          - gri30.yaml/reactions: declared-species
+          skip-undeclared-third-bodies: true
+        """
+        gas = ct.Solution(yaml=gas_def)
+        # set gas phase conditions
+        T0 = 1200
+        P0 = 25*ct.one_atm
+        X0 = 'CH4:0.5, H2O:0.2, CO:0.3'
+        gas.TPX = T0, P0, X0
+        # create reactors
+        r1 = ct.IdealGasMoleReactor(gas)
+        r2 = ct.IdealGasMoleReactor(gas)
+        r1.volume = 0.1
+        r2.volume = 0.1
+        # create solid and interfaces
+        solid = ct.Solution('diamond.yaml', 'diamond')
+        # first interface
+        interface1 = ct.Interface('diamond.yaml', 'diamond_100',
+                                    (gas, solid))
+        # interface with reversed phase order
+        interface2 = ct.Interface('diamond.yaml', 'diamond_100',
+                                    (solid, gas))
+        # creating initial coverages
+        C = np.zeros(interface1.n_species)
+        C[0] = 0.3
+        C[4] = 0.7
+        # creating reactor surfaces
+        surf1 = ct.ReactorSurface(interface1, A=1e-3)
+        surf2 = ct.ReactorSurface(interface2, A=1e-3)
+        surf1.coverages = C
+        surf2.coverages = C
+        surf1.install(r1)
+        surf2.install(r2)
+        # create reactor network
+        net = ct.ReactorNet([r1, r2])
+        net.initialize()
+        # check that they two arrays are the same
+        self.assertArrayNear(r1.jacobian, r2.jacobian)
+
 
 class TestFlowReactor(utilities.CanteraTest):
     gas_def = """
