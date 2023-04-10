@@ -40,6 +40,8 @@ following structure::
     - equation: A + C <=> 2 D
       # Additional fields come after this
 
+.. _sec-yaml-units:
+
 Units
 -----
 

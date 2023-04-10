@@ -155,6 +155,13 @@ cdef public PyObject* pyCanteraError = <PyObject*>CanteraError
 
 
 cdef class AnyMap(dict):
+    """
+    A key-value store representing objects defined in Cantera's YAML input format.
+
+    Extends the capabilities of a normal `dict` object by providing functions for
+    converting values between different unit systems. See :ref:`sec-yaml-units` for
+    details on how units are handled in YAML input files.
+    """
     def __cinit__(self, *args, **kwawrgs):
         self.unitsystem = UnitSystem()
 
