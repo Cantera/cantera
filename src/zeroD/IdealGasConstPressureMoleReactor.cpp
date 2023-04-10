@@ -205,25 +205,14 @@ Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian()
         }
         // d T_dot/dnj
         // allocate vectors for whole system
-        Eigen::VectorXd enthalpy(ssize);
-        Eigen::VectorXd specificHeat(ssize);
+        Eigen::VectorXd enthalpy = Eigen::VectorXd::Zero(ssize);
+        Eigen::VectorXd specificHeat = Eigen::VectorXd::Zero(ssize);
         // gas phase
         m_thermo->getPartialMolarCp(specificHeat.data());
         m_thermo->getPartialMolarEnthalpies(enthalpy.data());
         // scale production rates by the volume for gas species
         for (size_t i = 0; i < m_nsp; i++) {
             netProductionRates[i] *= m_vol;
-        }
-        // surface phases
-        size_t shift = m_nsp;
-        for (auto S : m_surfaces) {
-            S->thermo()->getPartialMolarCp(specificHeat.data() + shift);
-            S->thermo()->getPartialMolarEnthalpies(enthalpy.data() + shift);
-            // scale production rates by areas
-            for (size_t i = shift; i < shift + S->thermo()->nSpecies(); i++) {
-                netProductionRates[i] *= S->area();
-            }
-            shift += S->thermo()->nSpecies();
         }
         double qdot = enthalpy.dot(netProductionRates);
         // find denominator ahead of time

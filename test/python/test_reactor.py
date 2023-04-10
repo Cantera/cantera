@@ -1208,6 +1208,99 @@ class TestIdealGasMoleReactor(TestMoleReactor):
 
 class TestReactorJacobians(utilities.CanteraTest):
 
+    def test_multi_surface_simple(self):
+        # conditions for simulation
+        yml = "simple_surface.yaml"
+        fuel = "A:1.0, B:1.0"
+        # gas kinetics
+        gas = ct.Solution(yml, "gas")
+        gas.TPX = 1000, 2e5, fuel
+        gas.set_multiplier(0)
+        # surface kinetics for the simulation
+        surf = ct.Interface(yml, 'surf', [gas])
+        surf2 = ct.Interface(yml, 'surf', [gas])
+        surf.coverages = 'A(S):0.1, B(S):0.2, C(S):0.3, D(S):0.2, (S):0.2'
+        surf2.coverages = 'A(S):0.1, D(S):0.2, (S):0.2'
+        # create reactor
+        r = ct.IdealGasMoleReactor(gas)
+        r.volume = 3
+        # create surfaces
+        rsurf1 = ct.ReactorSurface(surf, r, A=9e-4)
+        rsurf2 = ct.ReactorSurface(surf2, r, A=5e-4)
+        # create network
+        net = ct.ReactorNet([r])
+        net.step()
+        # get jacobians
+        jacobian = r.jacobian
+        fd_jacobian = r.finite_difference_jacobian
+        # the volume row is not considered in comparisons because it is presently
+        # not calculated.
+        # check first row is near, terms which are generally on the order of 1e5 to 1e7
+        self.assertArrayNear(jacobian[0, 2:], fd_jacobian[0, 2:], 1e-1, 1e-2)
+        # check first col is near, these are finite difference terms and should be close
+        self.assertArrayNear(jacobian[2:, 0], fd_jacobian[2:, 0], 1e-3, 1e-4)
+        # check all species are near, these terms are usually ~ 1e2
+        self.assertArrayNear(jacobian[2:, 2:], fd_jacobian[2:, 2:], 1e-3, 1e-4)
+
+    def test_gas_simple(self):
+        # conditions for simulation
+        yml = "simple_surface.yaml"
+        fuel = "A:1.0, B:1.0, C:1.0, D:1.0"
+        # gas kinetics
+        gas = ct.Solution(yml, "gas")
+        gas.TPX = 1000, 2e5, fuel
+        # create reactor
+        r = ct.IdealGasMoleReactor(gas)
+        r.volume = 1
+        # create network
+        net = ct.ReactorNet([r])
+        net.initialize()
+        # compare jacobians
+        self.assertArrayNear(r.jacobian, r.finite_difference_jacobian, rtol=1e-6)
+
+    def test_const_volume_hydrogen_single(self):
+        # conditions for simulation
+        yml = "h2o2.yaml"
+        # gas kinetics
+        gas = ct.Solution(yml, "ohmech")
+        gas.TPX = 1000, ct.one_atm, "H2:1.0, H:2.0, H2O:2.0"
+        gas.set_multiplier(0)
+        gas.set_multiplier(1, 14)
+        # create reactor
+        r = ct.IdealGasMoleReactor(gas)
+        r.volume = 2
+        # create network
+        net = ct.ReactorNet([r])
+        net.step()
+        # get jacobians
+        jacobian = r.jacobian
+        fd_jacobian = r.finite_difference_jacobian
+        # the volume row is not considered in comparisons because it is presently
+        # not calculated.
+        # check first row is near, terms which are generally on the order of 1e5 to 1e7
+        self.assertArrayNear(jacobian[0, 2:], fd_jacobian[0, 2:], 1e-2, 1e-3)
+        # check first col is near, these are finite difference terms and should be close
+        self.assertArrayNear(jacobian[2:, 0], fd_jacobian[2:, 0], 1e-3, 1e-4)
+        # check all species are near, these terms are usually ~ 1e2
+        self.assertArrayNear(jacobian[2:, 2:], fd_jacobian[2:, 2:], 1e-3, 1e-4)
+
+    def test_const_pressure_hydrogen_single(self):
+        # conditions for simulation
+        yml = "h2o2.yaml"
+        # gas kinetics
+        gas = ct.Solution(yml, "ohmech")
+        gas.TPX = 1000, ct.one_atm, "H2:1.0, H:2.0, H2O:2.0"
+        gas.set_multiplier(0)
+        gas.set_multiplier(1, 14)
+        # create reactor
+        r = ct.IdealGasConstPressureMoleReactor(gas)
+        r.volume = 2
+        # create network
+        net = ct.ReactorNet([r])
+        net.step()
+        # the volume row is not considered in comparisons because it is presently
+        self.assertArrayNear(r.jacobian, r.finite_difference_jacobian, 1e-3, 1e-4)
+
     def test_coverage_dependence_flags(self):
         gas = ct.Solution("ptcombust.yaml", "gas")
         surf = ct.Interface("ptcombust.yaml", "Pt_surf", [gas])

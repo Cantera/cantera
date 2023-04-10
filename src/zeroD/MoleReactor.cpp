@@ -92,10 +92,10 @@ void MoleReactor::addSurfaceJacobian(vector<Eigen::Triplet<double>> &triplets)
         double A = S->area();
         auto kin = S->kinetics();
         size_t nk = S->thermo()->nSpecies();
-        // limit on the current idx
-        size_t limit = offset + nk;
-        // find location of first gas phase species in the kinetics object
-        size_t gasIdx = kin->kineticsSpeciesIndex(m_thermo->speciesName(0));
+        // index of gas and surface phases to check if the species is in gas or surface
+        int spi = kin->reactionPhaseIndex();
+        int gpi = kin->speciesPhaseIndex(kin->kineticsSpeciesIndex(
+            m_thermo->speciesName(0)));
         // get surface jacobian in concentration units
         Eigen::SparseMatrix<double> surfJac = kin->netProductionRates_ddCi();
         // loop through surface specific jacobian and add elements to triplets vector
@@ -104,19 +104,31 @@ void MoleReactor::addSurfaceJacobian(vector<Eigen::Triplet<double>> &triplets)
             for (Eigen::SparseMatrix<double>::InnerIterator it(surfJac, k); it; ++it) {
                 size_t row = it.row();
                 size_t col = it.col();
-                // check gas location and number of species against row and col to
-                // avoid any solid phases which may be included and
-                // map surf row and col to reactor by adding the offset if the index
-                // is less than the species in the SurfPhase or subtracting the
-                // number of SurfPhase species otherwise
-                row = (row >= gasIdx && row < limit) ? row - gasIdx : row + offset;
-                col = (col >= gasIdx && col < limit) ? col - gasIdx : col + offset;
-                if (row < limit && col < limit) {
-                    // determine appropriate scalar by location
+                auto& rowPhase = kin->speciesPhase(row);
+                auto& colPhase = kin->speciesPhase(col);
+                int rpi = kin->phaseIndex(rowPhase.name());
+                int cpi = kin->phaseIndex(colPhase.name());
+                // check if the reactor kinetics object contains both phases to avoid
+                // any solid phases which may be included then use phases to map surf
+                // kinetics indicies to reactor kinetic indices
+                if ((rpi == spi || rpi == gpi) && (cpi == spi || cpi == gpi) ) {
+                    // subtract start of phase
+                    row -= kin->kineticsSpeciesIndex(0, rpi);
+                    col -= kin->kineticsSpeciesIndex(0, cpi);
+                    // since the gas phase is the first phase in the reactor state
+                    // vector add the offset only if it is a surf species index to
+                    // both row and col
+                    row = (rpi != spi) ? row : row + offset;
+                    // determine appropriate scalar to account for dimensionality
                     // gas phase species indices will be less than m_nsp
                     // so use volume if that is the case or area otherwise
                     double scalar = A;
-                    scalar /= (col < m_nsp) ? m_vol : A;
+                    if (cpi == spi) {
+                        col += offset;
+                        scalar /= A;
+                    } else {
+                        scalar /= m_vol;
+                    }
                     // push back scaled value triplet
                     triplets.emplace_back(row, col, scalar * it.value());
                 }
