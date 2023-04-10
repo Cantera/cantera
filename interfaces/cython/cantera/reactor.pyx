@@ -1605,7 +1605,7 @@ cdef class ReactorNet:
 
     property jacobian:
         """
-        Get the Jacobian or an approximation thereof
+        Get the system Jacobian or an approximation thereof.
 
         **Warning**: Depending on the particular implementation, this may return an
         approximate Jacobian intended only for use in forming a preconditioner for

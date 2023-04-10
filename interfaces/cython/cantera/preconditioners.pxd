@@ -16,7 +16,7 @@ cdef extern from "cantera/numerics/PreconditionerBase.h" namespace "Cantera":
 cdef extern from "cantera/numerics/AdaptivePreconditioner.h" namespace "Cantera":
     cdef cppclass CxxAdaptivePreconditioner "Cantera::AdaptivePreconditioner" \
         (CxxPreconditionerBase):
-        CxxAdaptivePreconditioner() except +
+        CxxAdaptivePreconditioner() except +translate_exception
         void setThreshold(double threshold)
         double threshold()
         void setIlutFillFactor(int fillfactor)
@@ -24,7 +24,7 @@ cdef extern from "cantera/numerics/AdaptivePreconditioner.h" namespace "Cantera"
         void setIlutDropTol(double droptol)
         double ilutDropTol()
         void printPreconditioner()
-        CxxSparseMatrix matrix() except +
+        CxxSparseMatrix matrix() except +translate_exception
 
 cdef extern from "cantera/numerics/PreconditionerFactory.h" namespace "Cantera":
     cdef shared_ptr[CxxPreconditionerBase] newPreconditioner(string) except\

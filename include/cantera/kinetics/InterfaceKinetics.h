@@ -305,7 +305,16 @@ public:
     */
     double interfaceCurrent(const size_t iphase);
 
-    virtual Eigen::SparseMatrix<double> netRatesOfProgress_ddC();
+    /**
+     * Set/modify derivative settings. For the interface kinetics object this
+     * includes `"skip-cov-dep"`, `"skip-electrochem"`, and `"rtol-delta"`.
+     *
+     * @param settings  AnyMap containing settings determining derivative evaluation.
+     */
+    virtual void setDerivativeSettings(const AnyMap& settings);
+    virtual Eigen::SparseMatrix<double> fwdRatesOfProgress_ddN();
+    virtual Eigen::SparseMatrix<double> revRatesOfProgress_ddN();
+    virtual Eigen::SparseMatrix<double> netRatesOfProgress_ddN();
 
 protected:
     //! @name Internal service methods
@@ -324,8 +333,17 @@ protected:
     //! Process mole fraction derivative
     //! @param stoich  stoichiometry manager
     //! @param in  rate expression used for the derivative calculation
-    Eigen::SparseMatrix<double> process_ddC(StoichManagerN& stoich,
+    //! @return a sparse matrix of derivative contributions for each reaction of
+    //! dimensions nTotalReactions by nTotalSpecies
+    Eigen::SparseMatrix<double> process_derivatives(StoichManagerN& stoich,
                                             const vector_fp& in);
+
+    //! Helper function ensuring that all rate derivatives can be calculated
+    //! @param name  method name used for error output
+    //! @throw CanteraError if coverage dependence or electrochemical reactions are
+    //! included
+    void assertDerivativesValid(const std::string& name);
+    //! @}
 
     //! Temporary work vector of length m_kk
     vector_fp m_grt;
@@ -490,6 +508,11 @@ protected:
     vector_fp m_rbuf0;
     vector_fp m_rbuf1;
     vector_fp m_rbuf2;
+
+    // Derivative settings initialized to their default values
+    bool m_jac_skip_cov_dependance = true;
+    bool m_jac_skip_electrochem = true;
+    double m_jac_rtol_delta = 1e-8;
 };
 
 }

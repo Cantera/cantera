@@ -131,20 +131,21 @@ Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian()
     // volume / moles * rates portion of equation
     Eigen::VectorXd netProductionRates(m_nsp);
     m_kin->getNetProductionRates(netProductionRates.data()); // "omega dot"
-    Eigen::SparseMatrix<double> dwdC = m_kin->netProductionRates_ddC();
+    Eigen::SparseMatrix<double> dnk_dnj = m_kin->netProductionRates_ddN();
     double molarVolume = m_thermo->molarVolume();
     // Calculate ROP derivatives, excluding the term
     // molarVolume * (wdot(j) - sum_k(X_k * dwdot_j/dX_k))
     // which is small and would completely destroy the sparsity of the Jacobian
-    for (int k = 0; k < dwdC.outerSize(); k++) {
-        for (Eigen::SparseMatrix<double>::InnerIterator it(dwdC, k); it; ++it) {
+    for (int k = 0; k < dnk_dnj.outerSize(); k++) {
+        for (Eigen::SparseMatrix<double>::InnerIterator it(dnk_dnj, k); it; ++it) {
+            it.valueRef() = it.value() + netProductionRates[it.row()] * molarVolume;
             m_jac_trips.emplace_back(static_cast<int>(it.row() + m_sidx),
-                static_cast<int>(it.col() + m_sidx),
-                it.value() + netProductionRates[it.row()] * molarVolume);
+                static_cast<int>(it.col() + m_sidx), it.value());
         }
     }
 
     // Temperature Derivatives
+    double NCp = 0.0;
     if (m_energy) {
         // getting perturbed state for finite difference
         double deltaTemp = m_thermo->temperature()
@@ -172,26 +173,33 @@ Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian()
                                      (ydotPerturbed - ydotCurrent) / deltaTemp);
         }
         // d T_dot/dnj
-        Eigen::VectorXd specificHeat(m_nsp);
         Eigen::VectorXd enthalpy(m_nsp);
-        Eigen::VectorXd dwdot_dC(m_nsp);
-        m_thermo->getPartialMolarCp(specificHeat.data());
         m_thermo->getPartialMolarEnthalpies(enthalpy.data());
-        double qdot = enthalpy.dot(netProductionRates);
-        double cp_mole = m_thermo->cp_mole();
-        double total_moles = m_vol / molarVolume;
-        double denom = (total_moles * total_moles * cp_mole * cp_mole);
-        // determine derivatives
-        // spans columns
-        Eigen::VectorXd hk_dnkdnj_sum = enthalpy.transpose() * dwdC;
-        for (int j = 0; j < m_nsp; j++) {
+        // get specific heat for whole system
+        Eigen::VectorXd specificHeat(m_nv - m_sidx);
+        // gas phase
+        m_thermo->getPartialMolarCp(specificHeat.data());
+        // surface phases
+        size_t shift = m_nsp;
+        for (auto S : m_surfaces) {
+            S->thermo()->getPartialMolarCp(specificHeat.data() + shift);
+            shift += S->thermo()->nSpecies();
+        }
+        double qdot = m_vol * enthalpy.dot(netProductionRates);
+        // find denominator ahead of time
+        for (size_t i = 0; i < m_nv - m_sidx; i++) {
+            NCp += yCurrent[i + m_sidx] * specificHeat[i];
+        }
+        double denom = 1 / (NCp * NCp);
+        Eigen::VectorXd hk_dnkdnj_sum = dnk_dnj.transpose() * enthalpy;
+        // Add derivatives to jac by spanning columns
+        for (size_t j = 0; j < m_nsp; j++) {
             m_jac_trips.emplace_back(0, static_cast<int>(j + m_sidx),
-                ((specificHeat[j] - cp_mole) * m_vol * qdot
-                 - total_moles * cp_mole * hk_dnkdnj_sum[j]) / denom);
+                (specificHeat[j] * qdot - NCp * hk_dnkdnj_sum[j]) * denom);
         }
     }
     // add surface jacobian to system
-    addSurfJacobian();
+    addSurfJacobian(NCp, true);
     // convert triplets to sparse matrix
     Eigen::SparseMatrix<double> jac(m_nv, m_nv);
     jac.setFromTriplets(m_jac_trips.begin(), m_jac_trips.end());

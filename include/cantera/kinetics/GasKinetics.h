@@ -77,7 +77,9 @@ public:
     virtual Eigen::SparseMatrix<double> fwdRatesOfProgress_ddX();
     virtual Eigen::SparseMatrix<double> revRatesOfProgress_ddX();
     virtual Eigen::SparseMatrix<double> netRatesOfProgress_ddX();
-    virtual Eigen::SparseMatrix<double> netRatesOfProgress_ddC();
+    virtual Eigen::SparseMatrix<double> fwdRatesOfProgress_ddN();
+    virtual Eigen::SparseMatrix<double> revRatesOfProgress_ddN();
+    virtual Eigen::SparseMatrix<double> netRatesOfProgress_ddN();
 
     //! Update temperature-dependent portions of reaction rates and falloff
     //! functions.
@@ -131,17 +133,14 @@ protected:
     void process_ddC(StoichManagerN& stoich, const vector_fp& in,
                      double* drop, bool mass_action=true);
 
-    //! Process mole fraction derivative
+    //! Process derivatives
     //! @param stoich  stoichiometry manager
     //! @param in  rate expression used for the derivative calculation
-    Eigen::SparseMatrix<double> process_ddX(StoichManagerN& stoich,
-                                            const vector_fp& in);
-
-    //! Process mole fraction derivative
-    //! @param stoich  stoichiometry manager
-    //! @param in  rate expression used for the derivative calculation
-    Eigen::SparseMatrix<double> process_ddC(StoichManagerN& stoich,
-                                            const vector_fp& in);
+    //! @param ddX true: w.r.t mole fractions false: w.r.t species concentrations
+    //! @return a sparse matrix of derivative contributions for each reaction of
+    //! dimensions nTotalReactions by nTotalSpecies
+    Eigen::SparseMatrix<double> process_derivatives(StoichManagerN& stoich,
+                                                    const vector_fp& in, bool ddX=true);
 
     //! Helper function ensuring that all rate derivatives can be calculated
     //! @param name  method name used for error output

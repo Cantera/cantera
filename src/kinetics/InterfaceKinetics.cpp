@@ -615,17 +615,55 @@ double InterfaceKinetics::interfaceCurrent(const size_t iphase)
     return dotProduct * Faraday;
 }
 
-Eigen::SparseMatrix<double> InterfaceKinetics::netRatesOfProgress_ddC()
+Eigen::SparseMatrix<double> InterfaceKinetics::fwdRatesOfProgress_ddN()
 {
-
+    // check derivatives are valid
+    assertDerivativesValid("InterfaceKinetics::fwdRatesOfProgress_ddN");
     // forward reaction rate coefficients
     vector_fp& rop_rates = m_rbuf0;
     processFwdRateCoefficients(rop_rates.data());
-    Eigen::SparseMatrix<double> jac = process_ddC(m_reactantStoich, rop_rates);
+    return process_derivatives(m_reactantStoich, rop_rates);
+}
+
+Eigen::SparseMatrix<double> InterfaceKinetics::revRatesOfProgress_ddN()
+{
+    // check derivatives are valid
+    assertDerivativesValid("InterfaceKinetics::revRatesOfProgress_ddN");
+    // reverse reaction rate coefficients
+    vector_fp& rop_rates = m_rbuf0;
+    processFwdRateCoefficients(rop_rates.data());
+    processEquilibriumConstants(rop_rates.data());
+    return process_derivatives(m_revProductStoich, rop_rates);
+}
+
+Eigen::SparseMatrix<double> InterfaceKinetics::netRatesOfProgress_ddN()
+{
+    // check derivatives are valid
+    assertDerivativesValid("InterfaceKinetics::netRatesOfProgress_ddN");
+    // forward reaction rate coefficients
+    vector_fp& rop_rates = m_rbuf0;
+    processFwdRateCoefficients(rop_rates.data());
+    Eigen::SparseMatrix<double> jac = process_derivatives(m_reactantStoich, rop_rates);
 
     // reverse reaction rate coefficients
     processEquilibriumConstants(rop_rates.data());
-    return jac - process_ddC(m_revProductStoich, rop_rates);
+    return jac - process_derivatives(m_revProductStoich, rop_rates);
+}
+
+void InterfaceKinetics::setDerivativeSettings(const AnyMap& settings)
+{
+    bool force = settings.empty();
+    if (force || settings.hasKey("skip-cov-dep")) {
+        m_jac_skip_cov_dependance = settings.getBool("skip-cov-dep",
+            true);
+    }
+    if (force || settings.hasKey("skip-electrochem")) {
+        m_jac_skip_electrochem = settings.getBool("skip-electrochem",
+            true);
+    }
+    if (force || settings.hasKey("rtol-delta")) {
+        m_jac_rtol_delta = settings.getDouble("rtol-delta", 1e-8);
+    }
 }
 
 void InterfaceKinetics::processFwdRateCoefficients(double* ropf)
@@ -644,7 +682,7 @@ void InterfaceKinetics::processFwdRateCoefficients(double* ropf)
     }
 }
 
-Eigen::SparseMatrix<double> InterfaceKinetics::process_ddC(
+Eigen::SparseMatrix<double> InterfaceKinetics::process_derivatives(
     StoichManagerN& stoich, const vector_fp& in)
 {
     Eigen::SparseMatrix<double> out;
@@ -653,6 +691,16 @@ Eigen::SparseMatrix<double> InterfaceKinetics::process_ddC(
     copy(in.begin(), in.end(), outV.begin());
     out = stoich.derivatives(m_actConc.data(), outV.data());
     return out;
+}
+
+void InterfaceKinetics::assertDerivativesValid(const std::string& name)
+{
+    if (!m_jac_skip_cov_dependance) {
+        throw NotImplementedError(name, "Coverage-dependent reactions not supported.");
+    }
+    else if (!m_jac_skip_electrochem) {
+        throw NotImplementedError(name, "Electrochemical reactions not supported.");
+    }
 }
 
 void InterfaceKinetics::processEquilibriumConstants(double* rop)

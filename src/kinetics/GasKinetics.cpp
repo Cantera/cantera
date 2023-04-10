@@ -403,54 +403,24 @@ void GasKinetics::getNetRatesOfProgress_ddC(double* drop)
     dNetRop -= dNetRop2;
 }
 
-Eigen::SparseMatrix<double> GasKinetics::process_ddX(
-    StoichManagerN& stoich, const vector_fp& in)
+Eigen::SparseMatrix<double> GasKinetics::process_derivatives(
+    StoichManagerN& stoich, const vector_fp& in, bool ddX)
 {
     Eigen::SparseMatrix<double> out;
     vector_fp& scaled = m_rbuf1;
     vector_fp& outV = m_rbuf2;
 
     // convert from concentration to mole fraction output
-    double ctot = thermo().molarDensity();
-    for (size_t i = 0; i < nReactions(); ++i) {
-        scaled[i] = ctot * in[i];
-    }
-
-    // derivatives handled by StoichManagerN
-    copy(scaled.begin(), scaled.end(), outV.begin());
-    processThirdBodies(outV.data());
-    out = stoich.derivatives(m_act_conc.data(), outV.data());
-    if (m_jac_skip_third_bodies || m_multi_concm.empty()) {
-        return out;
-    }
-
-    // derivatives due to law of mass action
-    copy(scaled.begin(), scaled.end(), outV.begin());
-    stoich.multiply(m_act_conc.data(), outV.data());
-
-    // derivatives due to reaction rates depending on third-body colliders
-    if (!m_jac_skip_falloff) {
-        for (auto& rates : m_bulk_rates) {
-            // processing step does not modify entries not dependent on M
-            rates->processRateConstants_ddM(
-                outV.data(), m_rfn.data(), m_jac_rtol_delta, false);
+    copy(in.begin(), in.end(), scaled.begin());
+    if (ddX) {
+        double ctot = thermo().molarDensity();
+        for (size_t i = 0; i < nReactions(); ++i) {
+            scaled[i] *= ctot;
         }
     }
 
-    // derivatives handled by ThirdBodyCalc
-    out += m_multi_concm.derivatives(outV.data());
-
-    return out;
-}
-
-Eigen::SparseMatrix<double> GasKinetics::process_ddC(
-    StoichManagerN& stoich, const vector_fp& in)
-{
-    Eigen::SparseMatrix<double> out;
-    vector_fp& outV = m_rbuf1;
-
     // derivatives handled by StoichManagerN
-    copy(in.begin(), in.end(), outV.begin());
+    copy(scaled.begin(), scaled.end(), outV.begin());
     processThirdBodies(outV.data());
     out = stoich.derivatives(m_act_conc.data(), outV.data());
     if (m_jac_skip_third_bodies || m_multi_concm.empty()) {
@@ -458,7 +428,7 @@ Eigen::SparseMatrix<double> GasKinetics::process_ddC(
     }
 
     // derivatives due to law of mass action
-    copy(in.begin(), in.end(), outV.begin());
+    copy(scaled.begin(), scaled.end(), outV.begin());
     stoich.multiply(m_act_conc.data(), outV.data());
 
     // derivatives due to reaction rates depending on third-body colliders
@@ -483,7 +453,7 @@ Eigen::SparseMatrix<double> GasKinetics::fwdRatesOfProgress_ddX()
     // forward reaction rate coefficients
     vector_fp& rop_rates = m_rbuf0;
     processFwdRateCoefficients(rop_rates.data());
-    return process_ddX(m_reactantStoich, rop_rates);
+    return process_derivatives(m_reactantStoich, rop_rates);
 }
 
 Eigen::SparseMatrix<double> GasKinetics::revRatesOfProgress_ddX()
@@ -494,7 +464,7 @@ Eigen::SparseMatrix<double> GasKinetics::revRatesOfProgress_ddX()
     vector_fp& rop_rates = m_rbuf0;
     processFwdRateCoefficients(rop_rates.data());
     processEquilibriumConstants(rop_rates.data());
-    return process_ddX(m_revProductStoich, rop_rates);
+    return process_derivatives(m_revProductStoich, rop_rates);
 }
 
 Eigen::SparseMatrix<double> GasKinetics::netRatesOfProgress_ddX()
@@ -504,26 +474,46 @@ Eigen::SparseMatrix<double> GasKinetics::netRatesOfProgress_ddX()
     // forward reaction rate coefficients
     vector_fp& rop_rates = m_rbuf0;
     processFwdRateCoefficients(rop_rates.data());
-    Eigen::SparseMatrix<double> jac = process_ddX(m_reactantStoich, rop_rates);
+    Eigen::SparseMatrix<double> jac = process_derivatives(m_reactantStoich, rop_rates);
 
     // reverse reaction rate coefficients
     processEquilibriumConstants(rop_rates.data());
-    return jac - process_ddX(m_revProductStoich, rop_rates);
+    return jac - process_derivatives(m_revProductStoich, rop_rates);
 }
 
-Eigen::SparseMatrix<double> GasKinetics::netRatesOfProgress_ddC()
+Eigen::SparseMatrix<double> GasKinetics::fwdRatesOfProgress_ddN()
 {
-    assertDerivativesValid("GasKinetics::netRatesOfProgress_ddC");
+    assertDerivativesValid("GasKinetics::fwdRatesOfProgress_ddN");
 
     // forward reaction rate coefficients
     vector_fp& rop_rates = m_rbuf0;
     processFwdRateCoefficients(rop_rates.data());
-    Eigen::SparseMatrix<double> jac = process_ddC(m_reactantStoich, rop_rates);
+    return process_derivatives(m_reactantStoich, rop_rates, false);
+}
 
+Eigen::SparseMatrix<double> GasKinetics::revRatesOfProgress_ddN()
+{
+    assertDerivativesValid("GasKinetics::revRatesOfProgress_ddN");
+
+    // reverse reaction rate coefficients
+    vector_fp& rop_rates = m_rbuf0;
+    processFwdRateCoefficients(rop_rates.data());
+    processEquilibriumConstants(rop_rates.data());
+    return process_derivatives(m_revProductStoich, rop_rates, false);
+}
+
+Eigen::SparseMatrix<double> GasKinetics::netRatesOfProgress_ddN()
+{
+    assertDerivativesValid("GasKinetics::netRatesOfProgress_ddN");
+
+    // forward reaction rate coefficients
+    vector_fp& rop_rates = m_rbuf0;
+    processFwdRateCoefficients(rop_rates.data());
+    Eigen::SparseMatrix<double> jac = process_derivatives(m_reactantStoich, rop_rates, false);
 
     // reverse reaction rate coefficients
     processEquilibriumConstants(rop_rates.data());
-    return jac - process_ddC(m_revProductStoich, rop_rates);
+    return jac - process_derivatives(m_revProductStoich, rop_rates, false);
 }
 
 bool GasKinetics::addReaction(shared_ptr<Reaction> r, bool resize)

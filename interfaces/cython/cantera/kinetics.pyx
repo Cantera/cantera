@@ -517,6 +517,23 @@ cdef class Kinetics(_SolutionBase):
             return get_from_sparse(self.kinetics.fwdRatesOfProgress_ddX(),
                                    self.n_reactions, self.n_total_species)
 
+    property forward_rates_of_progress_ddN:
+        """
+        Calculate derivatives for forward rates-of-progress with respect to species
+        concentrations at constant temperature, pressure and remaining species
+        concentrations.
+        For sparse output, set ``ct.use_sparse(True)``.
+
+        Note that for derivatives with respect to :math:`[n_i]`, all other :math:`[n_j]`
+        are held constant.
+
+        **Warning:** this property is an experimental part of the Cantera API and
+        may be changed or removed without notice.
+        """
+        def __get__(self):
+            return get_from_sparse(self.kinetics.fwdRatesOfProgress_ddN(),
+                                   self.n_reactions, self.n_total_species)
+
     property reverse_rates_of_progress_ddT:
         """
         Calculate derivatives for reverse rates-of-progress with respect to temperature
@@ -560,6 +577,23 @@ cdef class Kinetics(_SolutionBase):
             return get_from_sparse(self.kinetics.revRatesOfProgress_ddX(),
                                    self.n_reactions, self.n_total_species)
 
+    property reverse_rates_of_progress_ddN:
+        """
+        Calculate derivatives for reverse rates-of-progress with respect to species
+        concentrations at constant temperature, pressure and remaining species
+        concentrations.
+        For sparse output, set ``ct.use_sparse(True)``.
+
+        Note that for derivatives with respect to :math:`[n_i]`, all other :math:`[n_j]`
+        are held constant.
+
+        **Warning:** this property is an experimental part of the Cantera API and
+        may be changed or removed without notice.
+        """
+        def __get__(self):
+            return get_from_sparse(self.kinetics.revRatesOfProgress_ddN(),
+                                   self.n_reactions, self.n_total_species)
+
     property net_rates_of_progress_ddT:
         """
         Calculate derivatives for net rates-of-progress with respect to temperature
@@ -601,6 +635,23 @@ cdef class Kinetics(_SolutionBase):
         """
         def __get__(self):
             return get_from_sparse(self.kinetics.netRatesOfProgress_ddX(),
+                                   self.n_reactions, self.n_total_species)
+
+    property net_rates_of_progress_ddN:
+        """
+        Calculate derivatives for net rates-of-progress with respect to species
+        concentrations at constant temperature, pressure and remaining species
+        concentrations.
+        For sparse output, set ``ct.use_sparse(True)``.
+
+        Note that for derivatives with respect to :math:`[n_i]`, all other :math:`[n_j]`
+        are held constant.
+
+        **Warning:** this property is an experimental part of the Cantera API and
+        may be changed or removed without notice.
+        """
+        def __get__(self):
+            return get_from_sparse(self.kinetics.netRatesOfProgress_ddN(),
                                    self.n_reactions, self.n_total_species)
 
     property creation_rates_ddT:
