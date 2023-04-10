@@ -37,8 +37,9 @@ public:
     std::string componentName(size_t k);
 
 protected:
-    //! Add the surface chemistry dn/dnj Jacobian values to m_jac_trips
-    virtual void addSurfJacobian(double cp, bool pressure=false);
+    //! Map all surface chemistry derivatives from concentration jacobian to
+    //! A vector of triplets for the reactor
+    virtual void mapSurfJacobian(std::vector<Eigen::Triplet<double>> &strips);
 
     //! Get moles of the system from mass fractions stored by thermo object
     //! @param y vector for moles to be put into

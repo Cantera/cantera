@@ -32,7 +32,6 @@ void InterfaceKinetics::resizeReactions()
     // resize buffer
     m_rbuf0.resize(nReactions());
     m_rbuf1.resize(nReactions());
-    m_rbuf2.resize(nReactions());
 
     Kinetics::resizeReactions();
 

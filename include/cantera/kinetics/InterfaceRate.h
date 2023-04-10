@@ -44,6 +44,11 @@ struct InterfaceData : public BlowersMaselData
 
     virtual void update(double T) override;
 
+    virtual void update(double T, double P) override {
+        BlowersMaselData::update(T);
+        pressure = P;
+    }
+
     virtual void update(double T, const vector_fp& values) override;
 
     using BlowersMaselData::update;
@@ -67,6 +72,9 @@ struct InterfaceData : public BlowersMaselData
     vector_fp electricPotentials; //!< electric potentials of phases
     vector_fp standardChemPotentials; //!< standard state chemical potentials
     vector_fp standardConcentrations; //!< standard state concentrations
+
+    protected:
+        double m_pressure_buf; //!< buffered pressure
 };
 
 

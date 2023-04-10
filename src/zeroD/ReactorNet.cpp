@@ -483,8 +483,7 @@ Eigen::SparseMatrix<double> ReactorNet::jacobian()
     Eigen::SparseMatrix<double> system_jac(m_nv, m_nv);
     for (size_t n = 0; n < m_reactors.size(); n++) {
         Reactor& r = *m_reactors[n];
-        Eigen::SparseMatrix<double> r_jac;
-        r_jac = r.jacobian();
+        Eigen::SparseMatrix<double> r_jac = r.jacobian();
         size_t st = m_start[n];
         for (int k=0; k<r_jac.outerSize(); ++k) {
             for (Eigen::SparseMatrix<double>::InnerIterator it(r_jac, k); it; ++it) {
@@ -508,8 +507,7 @@ Eigen::SparseMatrix<double> ReactorNet::finiteDifferenceJacobian()
     Eigen::SparseMatrix<double> system_fd_jac(m_nv, m_nv);
     for (size_t n = 0; n < m_reactors.size(); n++) {
         Reactor& r = *m_reactors[n];
-        Eigen::SparseMatrix<double> r_fd_jac;
-        r_fd_jac = r.finiteDifferenceJacobian();
+        Eigen::SparseMatrix<double> r_fd_jac = r.finiteDifferenceJacobian();
         size_t st = m_start[n];
         for (int k=0; k<r_fd_jac.outerSize(); ++k) {
             for (Eigen::SparseMatrix<double>::InnerIterator it(r_fd_jac, k); it; ++it) {
