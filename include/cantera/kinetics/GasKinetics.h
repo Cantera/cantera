@@ -139,7 +139,7 @@ protected:
     //! @param ddX true: w.r.t mole fractions false: w.r.t species concentrations
     //! @return a sparse matrix of derivative contributions for each reaction of
     //! dimensions nTotalReactions by nTotalSpecies
-    Eigen::SparseMatrix<double> process_derivatives(StoichManagerN& stoich,
+    Eigen::SparseMatrix<double> calculateCompositionDerivatives(StoichManagerN& stoich,
                                                     const vector_fp& in, bool ddX=true);
 
     //! Helper function ensuring that all rate derivatives can be calculated

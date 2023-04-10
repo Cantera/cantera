@@ -872,7 +872,7 @@ class SurfaceRateExpressionTests:
         self.surf.TPX = self.surf_tpx
         self.surf.set_multiplier(0.)
         self.surf.set_multiplier(1., self.rxn_idx)
-        self.surf.derivative_settings = {"skip-cov-dep": True, "skip-electrochem": True}
+        self.surf.derivative_settings = {"skip-coverage-dependence": True, "skip-electrochem": True}
 
         # check stoichiometric coefficient output
         for k, v in self.rxn.reactants.items():
@@ -999,14 +999,14 @@ class SurfaceFullTests:
         self.gas.derivative_settings = {} # reset defaults
         # surface phase
         self.surf.TPX = self.surf_tpx
-        self.surf.derivative_settings = {"skip-cov-dep": True, "skip-electrochem": True}
+        self.surf.derivative_settings = {"skip-coverage-dependence": True, "skip-electrochem": True}
 
     # closure to get concentrations vector
     def get_concentrations(self):
         return np.concatenate((self.surf.concentrations, self.gas.concentrations))
 
     def test_forward_rop_ddN(self):
-        # check forward rop against anayltical result
+        # check forward rop against analytical result
         drop = self.surf.forward_rates_of_progress_ddN
         rop = self.surf.forward_rates_of_progress
         conc = self.get_concentrations()
@@ -1024,13 +1024,13 @@ class SurfaceFullTests:
                     curr_order += v
             total_orders.append(curr_order)
         total_orders = np.array(total_orders)
-        # divide derivatives by told orders which should provide rops
+        # divide derivatives by total orders which should provide rops
         drop /= total_orders
         # compare the two
         self.assertArrayNear(drop, rop, self.rtol)
 
     def test_reverse_rop_ddN(self):
-        # check forward rop against anayltical result
+        # check forward rop against analytical result
         drop = self.surf.reverse_rates_of_progress_ddN
         rop = self.surf.reverse_rates_of_progress
         conc = self.get_concentrations()
@@ -1048,13 +1048,13 @@ class SurfaceFullTests:
                     curr_order += v
             total_orders.append(curr_order)
         total_orders = np.array(total_orders)
-        # divide derivatives by told orders which should provide rops
+        # divide derivatives by total orders which should provide rops
         drop /= total_orders
         # compare the two
         self.assertArrayNear(drop, rop, self.rtol)
 
     def test_net_rop_ddN(self):
-        # check forward rop against anayltical result
+        # check forward rop against analytical result
         drop = self.surf.net_rates_of_progress_ddN
         rop = self.surf.net_rates_of_progress
         conc = self.get_concentrations()
@@ -1072,7 +1072,7 @@ class SurfaceFullTests:
                     curr_order += v
             total_orders.append(curr_order)
         total_orders = np.array(total_orders)
-        # divide derivatives by told orders which should provide rops
+        # divide derivatives by total orders which should provide rops
         drop /= total_orders
         # compare the two
         self.assertArrayNear(drop, rop, self.rtol)

@@ -403,7 +403,7 @@ void GasKinetics::getNetRatesOfProgress_ddC(double* drop)
     dNetRop -= dNetRop2;
 }
 
-Eigen::SparseMatrix<double> GasKinetics::process_derivatives(
+Eigen::SparseMatrix<double> GasKinetics::calculateCompositionDerivatives(
     StoichManagerN& stoich, const vector_fp& in, bool ddX)
 {
     Eigen::SparseMatrix<double> out;
@@ -453,7 +453,7 @@ Eigen::SparseMatrix<double> GasKinetics::fwdRatesOfProgress_ddX()
     // forward reaction rate coefficients
     vector_fp& rop_rates = m_rbuf0;
     processFwdRateCoefficients(rop_rates.data());
-    return process_derivatives(m_reactantStoich, rop_rates);
+    return calculateCompositionDerivatives(m_reactantStoich, rop_rates);
 }
 
 Eigen::SparseMatrix<double> GasKinetics::revRatesOfProgress_ddX()
@@ -464,7 +464,7 @@ Eigen::SparseMatrix<double> GasKinetics::revRatesOfProgress_ddX()
     vector_fp& rop_rates = m_rbuf0;
     processFwdRateCoefficients(rop_rates.data());
     processEquilibriumConstants(rop_rates.data());
-    return process_derivatives(m_revProductStoich, rop_rates);
+    return calculateCompositionDerivatives(m_revProductStoich, rop_rates);
 }
 
 Eigen::SparseMatrix<double> GasKinetics::netRatesOfProgress_ddX()
@@ -474,11 +474,11 @@ Eigen::SparseMatrix<double> GasKinetics::netRatesOfProgress_ddX()
     // forward reaction rate coefficients
     vector_fp& rop_rates = m_rbuf0;
     processFwdRateCoefficients(rop_rates.data());
-    Eigen::SparseMatrix<double> jac = process_derivatives(m_reactantStoich, rop_rates);
+    Eigen::SparseMatrix<double> jac = calculateCompositionDerivatives(m_reactantStoich, rop_rates);
 
     // reverse reaction rate coefficients
     processEquilibriumConstants(rop_rates.data());
-    return jac - process_derivatives(m_revProductStoich, rop_rates);
+    return jac - calculateCompositionDerivatives(m_revProductStoich, rop_rates);
 }
 
 Eigen::SparseMatrix<double> GasKinetics::fwdRatesOfProgress_ddN()
@@ -488,7 +488,7 @@ Eigen::SparseMatrix<double> GasKinetics::fwdRatesOfProgress_ddN()
     // forward reaction rate coefficients
     vector_fp& rop_rates = m_rbuf0;
     processFwdRateCoefficients(rop_rates.data());
-    return process_derivatives(m_reactantStoich, rop_rates, false);
+    return calculateCompositionDerivatives(m_reactantStoich, rop_rates, false);
 }
 
 Eigen::SparseMatrix<double> GasKinetics::revRatesOfProgress_ddN()
@@ -499,7 +499,7 @@ Eigen::SparseMatrix<double> GasKinetics::revRatesOfProgress_ddN()
     vector_fp& rop_rates = m_rbuf0;
     processFwdRateCoefficients(rop_rates.data());
     processEquilibriumConstants(rop_rates.data());
-    return process_derivatives(m_revProductStoich, rop_rates, false);
+    return calculateCompositionDerivatives(m_revProductStoich, rop_rates, false);
 }
 
 Eigen::SparseMatrix<double> GasKinetics::netRatesOfProgress_ddN()
@@ -509,12 +509,12 @@ Eigen::SparseMatrix<double> GasKinetics::netRatesOfProgress_ddN()
     // forward reaction rate coefficients
     vector_fp& rop_rates = m_rbuf0;
     processFwdRateCoefficients(rop_rates.data());
-    Eigen::SparseMatrix<double> jac = process_derivatives(m_reactantStoich, rop_rates,
+    Eigen::SparseMatrix<double> jac = calculateCompositionDerivatives(m_reactantStoich, rop_rates,
         false);
 
     // reverse reaction rate coefficients
     processEquilibriumConstants(rop_rates.data());
-    return jac - process_derivatives(m_revProductStoich, rop_rates, false);
+    return jac - calculateCompositionDerivatives(m_revProductStoich, rop_rates, false);
 }
 
 bool GasKinetics::addReaction(shared_ptr<Reaction> r, bool resize)

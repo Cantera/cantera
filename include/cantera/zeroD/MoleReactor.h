@@ -39,7 +39,7 @@ public:
 protected:
     //! Map all surface chemistry derivatives from concentration jacobian to
     //! A vector of triplets for the reactor
-    virtual void mapSurfJacobian(std::vector<Eigen::Triplet<double>> &strips);
+    virtual void addSurfaceJacobian(vector<Eigen::Triplet<double>> &triplets);
 
     //! Get moles of the system from mass fractions stored by thermo object
     //! @param y vector for moles to be put into

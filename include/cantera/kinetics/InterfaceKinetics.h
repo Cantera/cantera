@@ -307,7 +307,15 @@ public:
 
     /**
      * Set/modify derivative settings. For the interface kinetics object this
-     * includes `"skip-cov-dep"`, `"skip-electrochem"`, and `"rtol-delta"`.
+     * includes `"skip-coverage-dependence"`, `"skip-electrochem"`, and `"rtol-delta"`.
+     *
+     *  - `skip-coverage-dependence` (boolean) ... if `true` (default), rate constant
+     *    coverage dependence is not considered when evaluating derivatives.
+     *  - `skip-electrochem` (boolean) ... if `true` (default), electrical charge is
+     *    not considered in evaluating the derivatives and these reactions are treated
+     *    as normal surface reactions.
+     *   - `rtol-delta` (double) ... relative tolerance used to perturb properties
+     *     when calculating numerical derivatives. The default value is 1e-8.
      *
      * @param settings  AnyMap containing settings determining derivative evaluation.
      */
@@ -335,14 +343,14 @@ protected:
     //! @param in  rate expression used for the derivative calculation
     //! @return a sparse matrix of derivative contributions for each reaction of
     //! dimensions nTotalReactions by nTotalSpecies
-    Eigen::SparseMatrix<double> process_derivatives(StoichManagerN& stoich,
+    Eigen::SparseMatrix<double> calculateCompositionDerivatives(StoichManagerN& stoich,
                                             const vector_fp& in);
 
     //! Helper function ensuring that all rate derivatives can be calculated
     //! @param name  method name used for error output
     //! @throw CanteraError if coverage dependence or electrochemical reactions are
     //! included
-    void assertDerivativesValid(const std::string& name);
+    void assertDerivativesValid(const string& name);
 
     //! @}
 

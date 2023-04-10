@@ -96,6 +96,9 @@ cdef class AdaptivePreconditioner(PreconditionerBase):
         self.preconditioner.printPreconditioner()
 
     property matrix:
+        """
+        Property to retrieve the latest internal preconditioner matrix.
+        """
         def __get__(self):
             cdef CxxSparseMatrix smat = self.preconditioner.matrix()
             return get_from_sparse(smat, smat.rows(), smat.cols())
