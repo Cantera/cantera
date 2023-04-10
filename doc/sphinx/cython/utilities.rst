@@ -6,8 +6,13 @@ Utilities
 .. contents::
    :local:
 
-YAML Output
------------
+YAML Input/Output
+-----------------
+
+AnyMap
+^^^^^^
+
+.. autoclass:: AnyMap
 
 YamlWriter
 ^^^^^^^^^^
