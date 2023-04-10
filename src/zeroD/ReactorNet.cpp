@@ -475,7 +475,7 @@ void ReactorNet::updatePreconditioner(double gamma)
 void ReactorNet::checkPreconditionerSupported() {
     // check for non-mole-based reactors and throw an error otherwise
     for (auto reactor : m_reactors) {
-        if (!reactor->preconditioningSupported()) {
+        if (!reactor->preconditionerSupported()) {
             throw CanteraError("ReactorNet::checkPreconditionerSupported",
                 "Preconditioning is only supported for type *MoleReactor,\n"
                 "Reactor type given: '{}'.",

@@ -284,7 +284,7 @@ public:
     virtual void setDerivativeSettings(AnyMap& settings);
 
 protected:
-    //! check that preconditioning is supported.
+    //! Check that preconditioning is supported by all reactors in the network
     virtual void checkPreconditionerSupported();
 
     //! Update the preconditioner based on the already computed jacobian values

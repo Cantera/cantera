@@ -292,6 +292,29 @@ class KineticsFromReactions(utilities.CanteraTest):
         self.assertArrayNear(gas1.net_production_rates,
                              gas2.net_production_rates)
 
+    def test_coverage_dependence_flags(self):
+        gas = ct.Solution("ptcombust.yaml", "gas")
+        surf = ct.Interface("ptcombust.yaml", "Pt_surf", [gas])
+        surf.TP = 900, ct.one_atm
+        surf.coverages = {"PT(S)":1}
+        with self.assertRaises(NotImplementedError):
+            surf.net_rates_of_progress_ddCi
+        # set skip and try to get jacobian again
+        surf.derivative_settings = {"skip-coverage-dependence": True}
+        surf.net_rates_of_progress_ddCi
+
+    def test_electrochemistry_flags(self):
+             # Phases
+        mech = "lithium_ion_battery.yaml"
+        anode, cathode, metal, electrolyte = ct.import_phases(
+            mech, ["anode", "cathode", "electron", "electrolyte"])
+        anode_int = ct.Interface(mech, "edge_anode_electrolyte", adjacent=[anode, metal, electrolyte])
+        with self.assertRaises(NotImplementedError):
+            anode_int.net_rates_of_progress_ddCi
+        # set skip and try to get jacobian again
+        anode_int.derivative_settings = {"skip-electrochemistry": True}
+        anode_int.net_rates_of_progress_ddCi
+
 
 class KineticsRepeatability(utilities.CanteraTest):
     """

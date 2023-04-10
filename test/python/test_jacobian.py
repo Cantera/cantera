@@ -368,7 +368,8 @@ class RateExpressionTests:
         drop_num = self.rop_ddP(mode="net")
         self.assertNear(drop[self.rxn_idx], drop_num, self.rtol)
 
-    def rate_ddX(self, spc_ix, mode=None, const_t=True, rtol_deltac=1e-6, atol_deltac=1e-20, ddX=True):
+    def rate_ddX(self, spc_ix, mode=None, const_t=True, rtol_deltac=1e-6,
+                 atol_deltac=1e-20, ddX=True):
         # numerical derivative for production rates with respect to mole fractions
         def calc(mode):
             if mode == "creation":
@@ -397,7 +398,9 @@ class RateExpressionTests:
             self.gas.TPX = tnew, self.gas.P, conc / ctot1
         drate = (calc(mode) - rate0) / dconc
         self.gas.TPX = self.tpx
-        # return appropriate quantity with ddX flag
+        # cantera calculates kinetics derivatives with respect to mole fractions
+        # and concentrations, when ddX flag is true it will return the numerical
+        # derivatives in the form of mole fractions but otherwise return concentrations
         if ddX:
             return drate * self.gas.density_mole
         else:
@@ -886,7 +889,7 @@ class SurfaceRateExpressionTests:
 
     @classmethod
     def setUpClass(cls):
-        # all species indexs
+        # all species indices
         all_species = cls.surf.species() + cls.gas.species()
         cls.sidxs  = {spec.name:i for i, spec in enumerate(all_species)}
 
@@ -900,6 +903,7 @@ class SurfaceRateExpressionTests:
     def setUp(self):
         # gas phase
         self.gas.TPX = self.gas_tpx
+        self.gas.set_multiplier(0)
         self.gas.derivative_settings = {} # reset defaults
 
         # surface phase
@@ -1023,7 +1027,7 @@ class SurfaceFullTests:
 
     @classmethod
     def setUpClass(cls):
-        # all species indexs
+        # all species indices
         all_species = cls.surf.species() + cls.gas.species()
         cls.sidxs  = {spec.name:i for i, spec in enumerate(all_species)}
 
@@ -1040,12 +1044,14 @@ class SurfaceFullTests:
         return np.concatenate((self.surf.concentrations, self.gas.concentrations))
 
     def test_forward_rop_ddCi(self):
-        # check forward rop against analytical result
+        # matrix multiplication of the forward rates of progress derivatives w.r.t
+        # concentration and the concentrations should provide the rate of progress
+        # for each species and can be compared to the directly calculated rate
         drop = self.surf.forward_rates_of_progress_ddCi
         rop = self.surf.forward_rates_of_progress
         conc = self.get_concentrations()
         # multiply derivatives with concentrations
-        drop = np.matmul(drop, conc)
+        drop = drop @ conc
         # get total reactant reaction orders
         total_orders = []
         for rxn in self.surf.reactions():
@@ -1058,18 +1064,20 @@ class SurfaceFullTests:
                     curr_order += v
             total_orders.append(curr_order)
         total_orders = np.array(total_orders)
-        # divide derivatives by total orders which should provide rops
+        # rates of progress do not factor in reaction order it must be accounted for
         drop /= total_orders
-        # compare the two
+        # compare the rate of progress vectors produced in different ways
         self.assertArrayNear(drop, rop, self.rtol)
 
     def test_reverse_rop_ddCi(self):
-        # check forward rop against analytical result
+        # matrix multiplication of the reverse rate of progress derivatives  w.r.t
+        # concentration and the concentrations should provide the rate of progress
+        # for each species and can be compared to the directly calculated rate
         drop = self.surf.reverse_rates_of_progress_ddCi
         rop = self.surf.reverse_rates_of_progress
         conc = self.get_concentrations()
         # multiply derivatives with concentrations
-        drop = np.matmul(drop, conc)
+        drop = drop @ conc
         # get total reactant reaction orders
         total_orders = []
         for rxn in self.surf.reactions():
@@ -1082,34 +1090,36 @@ class SurfaceFullTests:
                     curr_order += v
             total_orders.append(curr_order)
         total_orders = np.array(total_orders)
-        # divide derivatives by total orders which should provide rops
+        # rates of progress do not factor in reaction order it must be accounted for
         drop /= total_orders
-        # compare the two
+        # compare the rate of progress vectors produced in different ways
         self.assertArrayNear(drop, rop, self.rtol)
 
     def test_net_rop_ddCi(self):
-        # check forward rop against analytical result
+        # check derivatives of net rates of progress with respect to species
+        # concentrations against analytic
+        ropf = self.surf.forward_rates_of_progress
+        ropr = self.surf.reverse_rates_of_progress
         drop = self.surf.net_rates_of_progress_ddCi
-        rop = self.surf.net_rates_of_progress
         conc = self.get_concentrations()
         # multiply derivatives with concentrations
-        drop = np.matmul(drop, conc)
-        # get total reaction orders
-        total_orders = []
-        for rxn in self.surf.reactions():
+        drop = drop @ conc
+        # reaction orders are not yet accounted for in rates of progress
+        # so they must be included manually
+        for i, rxn in enumerate(self.surf.reactions()):
             orders = rxn.orders
             curr_order = 0
+            # adjust forward rates by reactant order
             for k, v in rxn.reactants.items():
-                if k in orders:
-                    curr_order += orders[k]
-                else:
-                    curr_order += v
-            total_orders.append(curr_order)
-        total_orders = np.array(total_orders)
-        # divide derivatives by total orders which should provide rops
-        drop /= total_orders
-        # compare the two
-        self.assertArrayNear(drop, rop, self.rtol)
+                curr_order += orders[k] if k in orders else v
+            ropf[i] *= curr_order
+            curr_order = 0
+            # adjust reverse rates by product order
+            for k, v in rxn.products.items():
+                curr_order += orders[k] if k in orders else v
+            ropr[i] *= curr_order
+        # compare the rate of progress vectors produced in different ways
+        self.assertArrayNear(drop, ropf - ropr, self.rtol)
 
 class FullPlatinumHydrogen(SurfaceFullTests, utilities.CanteraTest):
 

@@ -187,7 +187,13 @@ public:
     virtual void resetSensitivity(double* params);
 
     //! Return a false if preconditioning is not supported or true otherwise.
-    virtual bool preconditioningSupported() {return false;};
+    //!
+    //! @warning  This method is an experimental part of the %Cantera
+    //! API and may be changed or removed without notice.
+    //!
+    //! @since New in Cantera 3.0
+    //!
+    virtual const bool preconditionerSupported() {return false;};
 
 protected:
     //! Return the index in the solution vector for this reactor of the species

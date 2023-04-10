@@ -37,8 +37,9 @@ public:
     std::string componentName(size_t k);
 
 protected:
-    //! Map all surface chemistry derivatives from concentration jacobian to
-    //! A vector of triplets for the concentration only reactor jacobian
+    //! For each surface in the reactor, update vector of triplets with all relevant
+    //! surface jacobian derivatives of species with respect to species
+    //! which are appropriately offset to align with the reactor's state vector.
     virtual void addSurfaceJacobian(vector<Eigen::Triplet<double>> &triplets);
 
     //! Get moles of the system from mass fractions stored by thermo object

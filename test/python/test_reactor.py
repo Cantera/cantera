@@ -824,11 +824,11 @@ class TestReactor(utilities.CanteraTest):
         with self.assertRaises(TypeError):
             r1 = self.reactorClass(foobar=3.14)
 
-    def test_preconditioner_support(self):
-        # make reactors of
+    def test_preconditioner_unsupported(self):
         self.make_reactors()
         self.net.preconditioner = ct.AdaptivePreconditioner()
-        # this should throw an error, as we can't reach dt
+        # initialize should throw an error because the mass fraction
+        # reactors do not support preconditioning
         with self.assertRaises(ct.CanteraError):
             self.net.initialize()
 
@@ -1131,11 +1131,11 @@ class TestConstPressureReactor(utilities.CanteraTest):
         self.net1.rtol = self.net2.rtol = 1e-9
         self.integrate(surf=True)
 
-    def test_preconditioner_support(self):
-        # make reactors of
+    def test_preconditioner_unsupported(self):
         self.create_reactors()
         self.net2.preconditioner = ct.AdaptivePreconditioner()
-        # this should throw an error, as we can't reach dt
+        # initialize should throw an error because the mass fraction
+        # reactors do not support preconditioning
         with self.assertRaises(ct.CanteraError):
             self.net2.initialize()
 
@@ -1155,13 +1155,14 @@ class TestIdealGasConstPressureReactor(TestConstPressureReactor):
 
 class TestIdealGasConstPressureMoleReactor(TestConstPressureMoleReactor):
     reactorClass = ct.IdealGasConstPressureMoleReactor
-    test_preconditioner_support = None
+    test_preconditioner_unsupported = None
 
     def create_reactors(self, **kwargs):
         super().create_reactors(**kwargs)
         self.precon = ct.AdaptivePreconditioner()
         self.net2.preconditioner = self.precon
-        self.net2.derivative_settings = {"skip-third-bodies":True, "skip-falloff":True, "skip-electrochemistry":True, "skip-coverage-dependence":True}
+        self.net2.derivative_settings = {"skip-third-bodies":True, "skip-falloff":True,
+            "skip-coverage-dependence":True}
 
     def test_get_solver_type(self):
         self.create_reactors()
@@ -1171,7 +1172,7 @@ class TestIdealGasConstPressureMoleReactor(TestConstPressureMoleReactor):
 
 class TestIdealGasMoleReactor(TestMoleReactor):
     reactorClass = ct.IdealGasMoleReactor
-    test_preconditioner_support = None
+    test_preconditioner_unsupported = None
 
     def test_adaptive_precon_integration(self):
         # Network one with non-mole reactor
@@ -1298,32 +1299,8 @@ class TestReactorJacobians(utilities.CanteraTest):
         # create network
         net = ct.ReactorNet([r])
         net.step()
-        # the volume row is not considered in comparisons because it is presently
+        # compare analytical jacobian with finite difference
         self.assertArrayNear(r.jacobian, r.finite_difference_jacobian, 1e-3, 1e-4)
-
-    def test_coverage_dependence_flags(self):
-        gas = ct.Solution("ptcombust.yaml", "gas")
-        surf = ct.Interface("ptcombust.yaml", "Pt_surf", [gas])
-        surf.TP = 900, ct.one_atm
-        surf.coverages = {"PT(S)":1}
-        with self.assertRaises(NotImplementedError):
-            surf.net_rates_of_progress_ddCi
-        # set skip and try to get jacobian again
-        surf.derivative_settings = {"skip-coverage-dependence": True}
-        surf.net_rates_of_progress_ddCi
-
-    def test_electrochemistry_flags(self):
-             # Phases
-        mech = "lithium_ion_battery.yaml"
-        anode, cathode, metal, electrolyte = ct.import_phases(
-            mech, ["anode", "cathode", "electron", "electrolyte"])
-        anode_int = ct.Interface(
-            mech, "edge_anode_electrolyte", adjacent=[anode, metal, electrolyte])
-        with self.assertRaises(NotImplementedError):
-            anode_int.net_rates_of_progress_ddCi
-        # set skip and try to get jacobian again
-        anode_int.derivative_settings = {"skip-electrochemistry": True}
-        anode_int.net_rates_of_progress_ddCi
 
     def test_phase_order_surf_jacobian(self):
         # create gas phase
@@ -1353,11 +1330,9 @@ class TestReactorJacobians(utilities.CanteraTest):
         # create solid and interfaces
         solid = ct.Solution('diamond.yaml', 'diamond')
         # first interface
-        interface1 = ct.Interface('diamond.yaml', 'diamond_100',
-                                    (gas, solid))
+        interface1 = ct.Interface('diamond.yaml', 'diamond_100', (gas, solid))
         # interface with reversed phase order
-        interface2 = ct.Interface('diamond.yaml', 'diamond_100',
-                                    (solid, gas))
+        interface2 = ct.Interface('diamond.yaml', 'diamond_100', (solid, gas))
         # creating initial coverages
         C = np.zeros(interface1.n_species)
         C[0] = 0.3
@@ -1372,7 +1347,7 @@ class TestReactorJacobians(utilities.CanteraTest):
         # create reactor network
         net = ct.ReactorNet([r1, r2])
         # set derivative settings
-        net.derivative_settings = {"skip-electrochemistry":True, "skip-coverage-dependence":True}
+        net.derivative_settings = {"skip-coverage-dependence":True}
         net.initialize()
         # check that they two arrays are the same
         self.assertArrayNear(r1.jacobian, r2.jacobian, 1e-6, 1e-8)

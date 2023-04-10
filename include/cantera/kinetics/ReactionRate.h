@@ -190,9 +190,16 @@ public:
         return m_valid;
     }
 
-    //! Boolean indicating whether rate uses coverage dependence
-    bool usesCoverageDependence() {
-        return m_input.hasKey("coverage-dependencies");
+    //! Boolean indicating whether rate has compositional dependence
+    //! @since New in Cantera 3.0
+    bool compositionDependent() {
+        return m_composition_dependent_rate;
+    }
+
+    //! Set rate compositional dependence
+    //! @since New in Cantera 3.0
+    void setCompositionDependence(bool comp_dep) {
+        m_composition_dependent_rate = comp_dep;
     }
 
 protected:
@@ -213,6 +220,9 @@ protected:
 
     //! Flag indicating whether reaction rate is set up correctly
     bool m_valid = false;
+
+    //! Flag indicating composition dependent rate
+    bool m_composition_dependent_rate = false;
 
 private:
     //! Return an object that be used to evaluate the rate by converting general input
