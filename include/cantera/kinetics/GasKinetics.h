@@ -106,14 +106,14 @@ protected:
     void processThirdBodies(double* rop);
 
     //! Multiply rate with inverse equilibrium constant
-    void processEquilibriumConstants(double* rop);
+    void applyEquilibriumConstants(double* rop);
 
     //! Multiply rate with scaled temperature derivatives of the inverse
     //! equilibrium constant
     /*!
      *  This (scaled) derivative is handled by a finite difference.
      */
-    void processEquilibriumConstants_ddT(double* drkcn);
+    void applyEquilibriumConstants_ddT(double* drkcn);
 
     //! Process temperature derivative
     //! @param in  rate expression used for the derivative calculation
