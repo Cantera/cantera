@@ -548,6 +548,7 @@ UnitStack Reaction::calculateRateCoeffUnits(const Kinetics& kin)
         rate_units.join(-1);
     }
 
+    Reaction::rate_units = rate_units.product();
     return rate_units;
 }
 
