@@ -44,7 +44,7 @@ cdef class Units:
         return self.units.dimension(stringify(primary))
 
     @property
-    def dimensions(self) -> Dict[str, str]:
+    def dimensions(self) -> Dict[str, float]:
         """A dictionary of the primary unit components to their dimensions.
 
         .. versionadded:: 3.0
