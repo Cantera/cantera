@@ -148,10 +148,9 @@ void FalloffRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
     UnitStack high_rate_units = rate_units;
     if (rate_units.size()) {
         if (m_chemicallyActivated) {
-            low_rate_units.join(1);
-            high_rate_units.join(2);
-        } else {
             high_rate_units.join(1);
+        } else {
+            low_rate_units.join(-1);
         }
     }
     if (node.hasKey("low-P-rate-constant")) {
