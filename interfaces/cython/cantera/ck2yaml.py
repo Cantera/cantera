@@ -1947,7 +1947,7 @@ class Parser:
             metadata = BlockMap([
                 ("generator", "ck2yaml"),
                 ("input-files", FlowList(files)),
-                ("cantera-version", "3.0.0a4"),
+                ("cantera-version", "3.0.0a5"),
                 ("date", formatdate(localtime=True)),
             ])
             if desc.strip():
