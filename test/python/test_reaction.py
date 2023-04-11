@@ -942,6 +942,7 @@ class ReactionTests:
     _index = None # index of reaction in "kineticsfromscratch.yaml"
     _rate_type = None # name of reaction rate type
     _yaml = None # YAML parameterization
+    _rc_units = None # Units of the rate coefficient
 
     @classmethod
     def setUpClass(cls):
@@ -1106,6 +1107,10 @@ class ReactionTests:
         rxn2 = self.from_rate(rate_obj)
         self.check_rxn(rxn2)
 
+    def test_rate_coeff_units(self):
+        rxn = self.from_yaml()
+        assert str(rxn.rate_coeff_units) == str(self._rc_units)
+
     def check_equal(self, one, two):
         # helper function for deprecation tests
         self.assertEqual(type(one), type(two))
@@ -1130,6 +1135,7 @@ class TestElementary(ReactionTests, utilities.CanteraTest):
         type: elementary
         rate-constant: {A: 38.7, b: 2.7, Ea: 6260.0 cal/mol}
         """
+    _rc_units = ct.Units("m^3 / kmol / s")
 
     @classmethod
     def setUpClass(cls):
@@ -1150,6 +1156,7 @@ class TestThreeBody(TestElementary):
         rate-constant: {A: 1.2e+11, b: -1.0, Ea: 0.0 cal/mol}
         efficiencies: {H2: 2.4, H2O: 15.4, AR: 0.83}
         """
+    _rc_units = ct.Units("m^6 / kmol^2 / s")
 
     def test_efficiencies(self):
         # check efficiencies
@@ -1176,6 +1183,7 @@ class TestImplicitThreeBody(TestThreeBody):
         equation: H + 2 O2 <=> HO2 + O2
         rate-constant: {A: 2.08e+19, b: -1.24, Ea: 0.0}
         """
+    _rc_units = ct.Units("m^6 / kmol^2 / s")
 
     def test_efficiencies(self):
         # overload of default tester
@@ -1207,6 +1215,7 @@ class TestTwoTempPlasma(ReactionTests, utilities.CanteraTest):
         type: two-temperature-plasma
         rate-constant: {A: 17283, b: -3.1, Ea-gas: -5820 J/mol, Ea-electron: 1081 J/mol}
         """
+    _rc_units = ct.Units("m^3 / kmol / s")
 
     def eval_rate(self, rate):
         return rate(self.soln.T, self.soln.Te)
@@ -1232,6 +1241,7 @@ class TestBlowersMasel(ReactionTests, utilities.CanteraTest):
         type: Blowers-Masel
         rate-constant: {A: 38700, b: 2.7, Ea0: 2.619184e4 cal/mol, w: 4.184e9 cal/mol}
         """
+    _rc_units = ct.Units("m^3 / kmol / s")
 
     def eval_rate(self, rate):
         rate.delta_enthalpy = self.soln.delta_enthalpy[self._index]
@@ -1250,6 +1260,7 @@ class TestThreeBodyBlowersMasel(TestBlowersMasel):
         type: Blowers-Masel
         rate-constant: {A: 38700, b: 2.7, Ea0: 2.619184e4 cal/mol, w: 4.184e9 cal/mol}
         """
+    _rc_units = ct.Units("m^6 / kmol^2 / s")
 
 
 class TestTroe(ReactionTests, utilities.CanteraTest):
@@ -1274,6 +1285,7 @@ class TestTroe(ReactionTests, utilities.CanteraTest):
         Troe: {A: 0.7346, T3: 94.0, T1: 1756.0, T2: 5182.0}
         efficiencies: {AR: 0.7, H2: 2.0, H2O: 6.0}
         """
+    _rc_units = ct.Units("m^3 / kmol / s")
 
     @classmethod
     def setUpClass(cls):
@@ -1312,6 +1324,7 @@ class TestLindemann(ReactionTests, utilities.CanteraTest):
         high-P-rate-constant: {A: 7.4e+10, b: -0.37, Ea: 0.0 cal/mol}
         efficiencies: {AR: 0.7, H2: 2.0, H2O: 6.0}
         """
+    _rc_units = ct.Units("m^3 / kmol / s")
 
     @classmethod
     def setUpClass(cls):
@@ -1346,6 +1359,7 @@ class TestChemicallyActivated(ReactionTests, utilities.CanteraTest):
         low-P-rate-constant: [282320.078, 1.46878, -3270.56495]
         high-P-rate-constant: [5.88E-14, 6.721, -3022.227]
         """
+    _rc_units = ct.Units("m^3 / kmol / s")
 
     @classmethod
     def setUpClass(cls):
@@ -1385,6 +1399,7 @@ class TestPlog(ReactionTests, utilities.CanteraTest):
         - {P: 10.0 atm, A: 1.2866e+47, b: -9.0246, Ea: 3.97965e+04 cal/mol}
         - {P: 100.0 atm, A: 5.9632e+56, b: -11.529, Ea: 5.25996e+04 cal/mol}
         """
+    _rc_units = ct.Units("m^3 / kmol / s")
 
     @classmethod
     def setUpClass(cls):
@@ -1435,6 +1450,7 @@ class TestChebyshev(ReactionTests, utilities.CanteraTest):
         - [1.9764, 1.0037, 7.2865e-03, -0.030432]
         - [0.3177, 0.26889, 0.094806, -7.6385e-03]
         """
+    _rc_units = ct.Units("1 / s")
 
     def eval_rate(self, rate):
         return rate(self.soln.T, self.soln.P)
@@ -1450,6 +1466,7 @@ class TestCustom(ReactionTests, utilities.CanteraTest):
     _index = 0
     _rate_type = "custom-rate-function"
     _yaml = None
+    _rc_units = ct.Units("m^3 / kmol / s")
 
     def setUp(self):
         # need to overwrite rate to ensure correct type ("method" is not compatible with Func1)
@@ -1553,6 +1570,7 @@ class TestExtensible(ReactionTests, utilities.CanteraTest):
         type: user-rate-1
         A: 38.7
     """
+    _rc_units = ct.Units("m^3 / kmol / s")
 
     def setUp(self):
         super().setUp()
@@ -1762,6 +1780,7 @@ class TestArrheniusInterfaceReaction(InterfaceReactionTests, utilities.CanteraTe
         rate-constant: {A: 3.7e+20, b: 0, Ea: 11500 J/mol}
         type: interface-Arrhenius
         """
+    _rc_units = ct.Units("m^2 / kmol / s")
     _value = 7.9574172975288e+19
 
 
@@ -1782,6 +1801,7 @@ class TestArrheniusCoverageReaction(InterfaceReactionTests, utilities.CanteraTes
         units: {length: cm, quantity: mol, activation-energy: J/mol}
         type: interface-Arrhenius
         """
+    _rc_units = ct.Units("m^2 / kmol / s")
     _value = 349029090.19755
 
 
@@ -1799,6 +1819,7 @@ class TestBMInterfaceReaction(InterfaceReactionTests, utilities.CanteraTest):
         units: {length: cm, quantity: mol, activation-energy: J/mol}
         type: interface-Blowers-Masel
         """
+    _rc_units = ct.Units("m^2 / kmol / s")
     _value = 1.2891970390741e+14
 
 
@@ -1819,6 +1840,7 @@ class TestBMCoverageReaction(InterfaceReactionTests, utilities.CanteraTest):
         units: {length: cm, quantity: mol, activation-energy: J/mol}
         type: interface-Blowers-Masel
         """
+    _rc_units = ct.Units("m^2 / kmol / s")
     _value = 1.7068593925679e+14
 
 
@@ -1878,6 +1900,7 @@ class TestArrheniusStickReaction(StickReactionTests, utilities.CanteraTest):
         units: {length: cm, quantity: mol, activation-energy: J/mol}
         type: sticking-Arrhenius
         """
+    _rc_units = ct.Units("m^3 / kmol / s")
     _value = 401644856274.97
 
 
@@ -1900,6 +1923,7 @@ class TestArrheniusCovStickReaction(StickReactionTests, utilities.CanteraTest):
         units: {length: cm, quantity: mol, activation-energy: J/mol}
         type: sticking-Arrhenius
         """
+    _rc_units = ct.Units("m^5 / kmol^2 / s")
     _value = 1.3792438668539e+19
 
 
@@ -1920,6 +1944,7 @@ class TestArrheniusMotzStickReaction(StickReactionTests, utilities.CanteraTest):
         units: {length: cm, quantity: mol, activation-energy: J/mol}
         type: sticking-Arrhenius
         """
+    _rc_units = ct.Units("m^3 / kmol / s")
     _value = 195563866595.97
 
 
@@ -1940,4 +1965,5 @@ class TestBlowersMaselStickReaction(StickReactionTests, utilities.CanteraTest):
         units: {length: cm, quantity: mol, activation-energy: J/mol}
         type: sticking-Blowers-Masel
         """
+    _rc_units = ct.Units("m^3 / kmol / s")
     _value = 195563866595.97
