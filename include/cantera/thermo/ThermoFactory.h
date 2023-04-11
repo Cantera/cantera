@@ -59,8 +59,8 @@ private:
     static std::mutex thermo_mutex;
 };
 
-//! @copydoc ThermoFactory::newThermo(const string&)
-//! @deprecated  To be removed after Cantera 3.0; superseded by newThermo()
+//! @copydoc newThermoModel(const string&)
+//! @deprecated  To be removed after Cantera 3.0; superseded by newThermoModel()
 ThermoPhase* newThermoPhase(const string& model);
 
 //! Create a new ThermoPhase instance.
@@ -99,12 +99,12 @@ shared_ptr<ThermoPhase> newThermo(const AnyMap& phaseNode,
  */
 shared_ptr<ThermoPhase> newThermo(const string& infile, const string& id="");
 
-//! @copydoc ThermoFactory::newThermoPhase(const AnyMap&, const AnyMap&)
+//! @copydoc newThermo(const AnyMap&, const AnyMap&)
 //! @deprecated  To be removed after Cantera 3.0; superseded by newThermo()
 unique_ptr<ThermoPhase> newPhase(const AnyMap& phaseNode,
                                  const AnyMap& rootNode=AnyMap());
 
-//! @copydoc ThermoFactory::newThermoPhase(const string&, const string&)
+//! @copydoc newThermo(const string&, const string&)
 //! @deprecated  To be removed after Cantera 3.0; superseded by newThermo()
 ThermoPhase* newPhase(const std::string& infile, std::string id="");
 
