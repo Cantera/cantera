@@ -1,6 +1,6 @@
 classdef Transport < handle
 
-    properties (Access = private)
+    properties (Access = protected)
         th % ID of the ThermoPhase object used to create the Transport object.
     end
 
@@ -29,10 +29,10 @@ classdef Transport < handle
     methods
         %% Transport Class Constructor
 
-        function tr = Transport(tp, model, loglevel)
+        function tr = Transport(varargin)
             % Transport Class ::
             %
-            %     >> tr = Transport(r, th, model, loglevel)
+            %     >> tr = Transport(th, model, loglevel)
             %
             % Create a new instance of class :mat:class:`Transport`. One to three
             % arguments may be supplied. The first must be an instance of class
@@ -57,6 +57,16 @@ classdef Transport < handle
             ctIsLoaded;
             tr.trID = 0;
 
+            tp = varargin{1};
+            model = varargin{2};
+
+            if ischar(tp) & isnumeric(model)
+                if strcmp(tp, 'CreateFromSolution')
+                    tr.trID = ctFunc('soln_transport', model);
+                    return
+                end
+            end
+
             if nargin == 2
                 model = 'default'
             end
@@ -78,14 +88,6 @@ classdef Transport < handle
                 tr.trID = ctFunc('trans_new', model, tp.tpID, loglevel);
             end
 
-        end
-
-        %% Transport Class Destructor
-
-        function delete(tr)
-            % Delete the :mat:class:`Transport` object.
-
-            ctFunc('trans_del', tr.trID);
         end
 
         %% Transport Get Methods

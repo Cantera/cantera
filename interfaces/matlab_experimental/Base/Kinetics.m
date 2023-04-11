@@ -116,12 +116,22 @@ classdef Kinetics < handle
 
             ctIsLoaded;
 
-            ph = varargin{1}.tpID;
+            tmp = varargin{1};
             src = varargin{2};
-            id = varargin{3};
+
+            if ischar(tmp) & isnumeric(src)
+                if strcmp(tmp, 'CreateFromSolution')
+                    kin.kinID = ctFunc('soln_kinetics', src);
+                    return
+                end
+            end
+
+            ph = tmp.tpID;
 
             if nargin == 2
                 id = '-';
+            elseif nargin > 2
+                id = varargin{3};
             end
 
             % indices for bulk phases in a heterogeneous mechanism
@@ -132,14 +142,6 @@ classdef Kinetics < handle
             end
 
             kin.kinID = ctFunc('kin_newFromFile', src, id, ph, neighbours{:});
-        end
-
-        %% Kinetics Class Destructor
-
-        function delete(kin)
-            % Delete the :mat:class:`Kinetics` object.
-
-            ctFunc('kin_del', kin.kinID);
         end
 
         %% Get scalar attributes
