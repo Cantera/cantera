@@ -21,6 +21,7 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
     % transport modeling as set in the input file. To specify the transport modeling,
     % set the input argument ``trans`` to one of ``'default'``, ``'none'``,
     % ``'mixture-averaged'``, or ``'multicomponent'``.
+    %
     % In this case, the phase name must be specified as well. Alternatively,
     % change the ``transport`` node in the YAML file, or ``transport``
     % property in the CTI file before loading the phase. The transport
@@ -47,8 +48,9 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
     % :return:
     %     Instance of class :mat:class:`Solution`.
 
-    properties (Access = private)
-        tp
+    properties (SetAccess = immutable)
+        solnID
+        solnName
     end
 
     methods
@@ -63,9 +65,7 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
             if nargin < 2 || nargin > 3
                 error('Solution class constructor expects 2 or 3 input arguments.');
             end
-            tp = ThermoPhase(src, id);
-            s@ThermoPhase(src, id);
-            s@Kinetics(tp, src, id);
+
             if nargin == 3
                 if ~(strcmp(trans, 'default') || strcmp(trans, 'none')...
                      || strcmp(trans, 'mixture-averaged') || strcmp(trans, 'multicomponent'))
@@ -74,17 +74,21 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
             else
                 trans = 'default';
             end
-            s@Transport(tp, trans, 0);
-            s.tpClear;
-            s.tpID = tp.tpID;
+
+            ID = ctFunc('soln_newSolution', src, id, trans);
+            s@ThermoPhase('CreateFromSolution', ID);
+            s@Kinetics('CreateFromSolution', ID);
+            s@Transport('CreateFromSolution', ID);
+            s.solnID = ID;
+            s.solnName = ctString('soln_name', s.solnID);
+            s.th = s.tpID;
         end
 
         %% Solution Class Destructor
 
         function delete(s)
             % Delete :mat:class:`Solution` object.
-            s.tpClear;
-
+            ctFunc('soln_del', s.solnID);
             disp('Solution class object has been deleted');
         end
 

@@ -420,20 +420,18 @@ classdef ThermoPhase < handle
             % Create a :mat:class:`ThermoPhase` object.
             ctIsLoaded;
 
+            if strcmp(src, 'CreateFromSolution') & isnumeric(id)
+                tp.tpID = ctFunc('soln_thermo', id);
+                tp.basis = 'molar';
+                return
+            end
+
             if nargin < 2
                 id = '';
             end
 
             tp.tpID = ctFunc('thermo_newFromFile', src, id);
             tp.basis = 'molar';
-        end
-
-        %% ThermoPhase Class Destructor
-
-        function tpClear(tp)
-            % Delete the :mat:class:`ThermoPhase` object.
-
-            ctFunc('thermo_del', tp.tpID);
         end
 
         %% ThermoPhase Utility Methods
