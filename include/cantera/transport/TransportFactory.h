@@ -102,7 +102,7 @@ Transport* newTransportMgr(const std::string& model="", ThermoPhase* thermo=0,
 shared_ptr<Transport> newTransport(shared_ptr<ThermoPhase> thermo,
                                    const string& model="default");
 
-//! @copydoc TransportFactory::newTransport(shared_ptr<ThermoPhase>, const string&)
+//! @copydoc newTransport(shared_ptr<ThermoPhase>, const string&)
 //! @deprecated  To be removed after Cantera 3.0; superseded by newTransport()
 shared_ptr<Transport> newTransport(ThermoPhase* thermo, const string& model="default");
 

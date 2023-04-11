@@ -127,7 +127,7 @@ void ThermoFactory::deleteFactory()
 ThermoPhase* ThermoFactory::newThermoPhase(const std::string& model)
 {
     warn_deprecated("newThermoPhase",
-        "To be removed after Cantera 3.0; superseded by newThermo.");
+        "To be removed after Cantera 3.0; superseded by newThermoModel.");
     return create(model);
 }
 
