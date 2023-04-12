@@ -807,7 +807,7 @@ shared_ptr<SolutionArray> StFlow::asArray(const double* soln) const
                 data[j] = soln[index(i, j)];
             }
             if (!arr->hasComponent(name)) {
-                arr->addExtra(name, false); // add to front
+                arr->addExtra(name, componentIndex(name) > c_offset_Y);
             }
             value = data;
             arr->setComponent(name, value);
