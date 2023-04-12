@@ -1590,7 +1590,7 @@ class TestReaction(utilities.CanteraTest):
     def test_modify_elementary(self):
         gas = ct.Solution('h2o2.yaml', transport_model=None)
         gas.TPX = self.gas.TPX
-        R = self.gas.reaction(2)
+        R = gas.reaction(2)
         A1 = R.rate.pre_exponential_factor
         b1 = R.rate.temperature_exponent
         Ta1 = R.rate.activation_energy / ct.gas_constant
@@ -1607,7 +1607,7 @@ class TestReaction(utilities.CanteraTest):
     def test_modify_third_body(self):
         gas = ct.Solution('h2o2.yaml', transport_model=None)
         gas.TPX = self.gas.TPX
-        R = self.gas.reaction(5)
+        R = gas.reaction(5)
         A1 = R.rate.pre_exponential_factor
         b1 = R.rate.temperature_exponent
         T = gas.T
