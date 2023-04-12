@@ -342,21 +342,12 @@ void TroeRate::getParameters(AnyMap& node) const
     FalloffRate::getParameters(node);
 
     AnyMap params;
-    if (!valid()) {
-        // pass
-    } else if (m_lowRate.conversionUnits().factor() != 0.0) {
+    if (valid()) {
         params["A"] = m_a;
         params["T3"].setQuantity(1.0 / m_rt3, "K");
         params["T1"].setQuantity(1.0 / m_rt1, "K");
         if (std::abs(m_t2) > SmallNumber) {
             params["T2"].setQuantity(m_t2, "K");
-        }
-    } else {
-        params["A"] = m_a;
-        params["T3"] = 1.0 / m_rt3;
-        params["T1"] = 1.0 / m_rt1;
-        if (std::abs(m_t2) > SmallNumber) {
-            params["T2"] = m_t2;
         }
     }
     params.setFlowStyle();
@@ -470,20 +461,10 @@ void SriRate::getParameters(AnyMap& node) const
     FalloffRate::getParameters(node);
 
     AnyMap params;
-    if (!valid()) {
-        // pass
-    } else if (m_lowRate.conversionUnits().factor() != 0.0) {
+    if (valid()) {
         params["A"] = m_a;
         params["B"].setQuantity(m_b, "K");
         params["C"].setQuantity(m_c, "K");
-        if (m_d != 1.0 || m_e != 0.0) {
-            params["D"] = m_d;
-            params["E"] = m_e;
-        }
-    } else {
-        params["A"] = m_a;
-        params["B"] = m_b;
-        params["C"] = m_c;
         if (m_d != 1.0 || m_e != 0.0) {
             params["D"] = m_d;
             params["E"] = m_e;
