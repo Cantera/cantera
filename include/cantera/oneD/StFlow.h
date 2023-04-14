@@ -171,21 +171,31 @@ public:
     virtual shared_ptr<SolutionArray> asArray(const double* soln) const;
     virtual void fromArray(SolutionArray& arr, double* soln);
 
-    //! Set flow configuration for freely-propagating flames, using an internal
-    //! point with a fixed temperature as the condition to determine the inlet
-    //! mass flux.
+    //! Set flow configuration for freely-propagating flames, using an internal point
+    //! with a fixed temperature as the condition to determine the inlet mass flux.
     void setFreeFlow() {
         m_type = cFreeFlow;
         m_dovisc = false;
         m_isFree = true;
+        m_usesLambda = false;
     }
 
-    //! Set flow configuration for axisymmetric counterflow or burner-stabilized
-    //! flames, using specified inlet mass fluxes.
+    //! Set flow configuration for axisymmetric counterflow flames, using specified
+    //! inlet mass fluxes.
     void setAxisymmetricFlow() {
         m_type = cAxisymmetricStagnationFlow;
         m_dovisc = true;
         m_isFree = false;
+        m_usesLambda = true;
+    }
+
+    //! Set flow configuration for burner-stabilized flames, using specified inlet mass
+    //! fluxes.
+    void setUnstrainedFlow() {
+        m_type = cAxisymmetricStagnationFlow;
+        m_dovisc = false;
+        m_isFree = false;
+        m_usesLambda = false;
     }
 
     //! Return the type of flow domain being represented, either "Free Flame" or
@@ -482,6 +492,7 @@ protected:
 
     bool m_dovisc;
     bool m_isFree;
+    bool m_usesLambda;
 
     //! Update the transport properties at grid points in the range from `j0`
     //! to `j1`, based on solution `x`.

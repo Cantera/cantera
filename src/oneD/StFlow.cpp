@@ -132,7 +132,10 @@ string StFlow::type() const {
     if (m_isFree) {
         return "free-flow";
     }
-    return "axisymmetric-flow";
+    if (m_usesLambda) {
+        return "axisymmetric-flow";
+    }
+    return "unstrained-flow";
 }
 
 void StFlow::setThermo(IdealGasPhase& th) {
@@ -730,9 +733,9 @@ bool StFlow::componentActive(size_t n) const
 {
     switch (n) {
     case c_offset_V: // spread_rate
-        return !m_isFree;
+        return m_usesLambda;
     case c_offset_L: // lambda
-        return !m_isFree;
+        return m_usesLambda;
     case c_offset_E: // eField
         return false;
     default:
