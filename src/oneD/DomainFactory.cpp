@@ -53,6 +53,11 @@ DomainFactory::DomainFactory()
         ret->setAxisymmetricFlow();
         return ret;
     });
+    reg("unstrained-flow", [](shared_ptr<Solution> solution, const string& id) {
+        StFlow* ret = new StFlow(solution, id);
+        ret->setUnstrainedFlow();
+        return ret;
+    });
 }
 
 DomainFactory* DomainFactory::factory()
