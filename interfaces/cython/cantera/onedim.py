@@ -1067,7 +1067,7 @@ class BurnerFlame(FlameBase):
             Defines a grid on the interval [0, width] with internal points
             determined automatically by the solver.
 
-        A domain of class `AxisymmetricFlow` named ``flame`` will be created to
+        A domain of class `UnstrainedFlow` named ``flame`` will be created to
         represent the flame. The three domains comprising the stack are stored as
         ``self.burner``, ``self.flame``, and ``self.outlet``.
         """
@@ -1080,8 +1080,8 @@ class BurnerFlame(FlameBase):
 
         if not hasattr(self, 'flame'):
             # Create flame domain if not already instantiated by a child class
-            #: `AxisymmetricFlow` domain representing the flame
-            self.flame = AxisymmetricFlow(gas, name='flame')
+            #: `UnstrainedFlow` domain representing the flame
+            self.flame = UnstrainedFlow(gas, name='flame')
 
         if width is not None:
             grid = np.array([0.0, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0]) * width

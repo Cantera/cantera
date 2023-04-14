@@ -733,6 +733,20 @@ cdef class FreeFlow(_FlowBase):
     _domain_type = "free-flow"
 
 
+cdef class UnstrainedFlow(_FlowBase):
+    r"""An unstrained flow domain. The equations solved are standard equations for
+    adiabatic one-dimensional flow. The solution variables are:
+
+    *velocity*
+        axial velocity
+    *T*
+        temperature
+    *Y_k*
+        species mass fractions
+    """
+    _domain_type = "unstrained-flow"
+
+
 cdef class AxisymmetricFlow(_FlowBase):
     r"""
     An axisymmetric flow domain. The equations solved are the similarity equations for
@@ -794,14 +808,15 @@ cdef class IdealGasFlow(_FlowBase):
 
     .. deprecated:: 3.0
 
-        Class to be removed after Cantera 3.0; replaced by `FreeFlow` and
-        s`AxisymmetricFlow`.
+        Class to be removed after Cantera 3.0; replaced by `FreeFlow`,
+        `AxisymmetricFlow` and `UnstrainedFlow`.
     """
     _domain_type = "gas-flow"
 
     def __init__(self, *args, **kwargs):
-        warnings.warn("Class to be removed after Cantera 3.0; use 'FreeFlow' "
-                      "or AxisymmetricFlow' instead.", DeprecationWarning)
+        warnings.warn("Class to be removed after Cantera 3.0; use 'FreeFlow', "
+                      "'AxisymmetricFlow' or 'UnstrainedFlow' instead.",
+                      DeprecationWarning)
         super().__init__(*args, **kwargs)
 
 
