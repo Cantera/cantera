@@ -7,7 +7,9 @@ import warnings
 from cpython.ref cimport PyObject
 import numbers
 import importlib.metadata
+from collections import namedtuple
 import numpy as np
+from .units cimport Units
 
 
 _scipy_sparse = None
@@ -151,6 +153,10 @@ cdef comp_map_to_dict(Composition m):
 class CanteraError(RuntimeError):
     pass
 
+_DimensionalValue = namedtuple('_DimensionalValue',
+                              ('value', 'units', 'activation_energy'),
+                              defaults=[False])
+
 cdef public PyObject* pyCanteraError = <PyObject*>CanteraError
 
 
@@ -198,6 +204,22 @@ cdef class AnyMap(dict):
         rate coefficient units.
         """
         return self.unitsystem.convert_rate_coeff_to(self[key], dest)
+
+    def set_quantity(self, str key, value, src):
+        """
+        Set the element *key* of this map to the specified value, converting from the
+        units defined by *src* to the correct unit system for this map when serializing
+        to YAML.
+        """
+        self[key] = _DimensionalValue(value, src)
+
+    def set_activation_energy(self, str key, value, src):
+        """
+        Set the element *key* of this map to the specified value, converting from the
+        activation energy units defined by *src* to the correct unit system for this map
+        when serializing to YAML.
+        """
+        self[key] = _DimensionalValue(value, src, True)
 
 
 cdef anyvalue_to_python(string name, CxxAnyValue& v):
@@ -261,6 +283,22 @@ cdef anymap_to_py(CxxAnyMap& m):
     return out
 
 
+cdef void setQuantity(CxxAnyMap& m, str k, v: _DimensionalValue) except *:
+    cdef CxxAnyValue testval = python_to_anyvalue(v.value)
+    cdef CxxAnyValue target
+    if isinstance(v.units, str):
+        if testval.isScalar():
+            target.setQuantity(testval.asType[double](), stringify(v.units),
+                               <cbool?>v.activation_energy)
+        else:
+            target.setQuantity(testval.asVector[double](), stringify(v.units))
+    elif isinstance(v.units, Units):
+        target.setQuantity(testval.asType[double](), (<Units>v.units).units)
+    else:
+        raise TypeError(f'Expected a string or Units object. Got {type(v.units)}')
+    m[stringify(k)] = target
+
+
 cdef CxxAnyMap py_to_anymap(data, cbool hyphenize=False) except *:
     cdef CxxAnyMap m
     if hyphenize:
@@ -274,8 +312,10 @@ cdef CxxAnyMap py_to_anymap(data, cbool hyphenize=False) except *:
         data = _hyphenize(data)
 
     for k, v in data.items():
-        m[stringify(k)] = python_to_anyvalue(v, k)
-    m.applyUnits()
+        if isinstance(v, _DimensionalValue):
+            setQuantity(m, k, v)
+        else:
+            m[stringify(k)] = python_to_anyvalue(v, k)
     return m
 
 cdef get_types(item):

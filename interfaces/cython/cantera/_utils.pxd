@@ -7,7 +7,7 @@
 from libcpp.unordered_map cimport unordered_map
 
 from .ctcxx cimport *
-from .units cimport UnitSystem
+from .units cimport UnitSystem, CxxUnits
 
 cdef extern from "cantera/base/AnyMap.h" namespace "Cantera":
     cdef cppclass CxxAnyValue "Cantera::AnyValue"
@@ -37,7 +37,7 @@ cdef extern from "cantera/base/AnyMap.h" namespace "Cantera":
         void clear()
         void update(CxxAnyMap& other, cbool)
         string keys_str()
-        void applyUnits()
+        void applyUnits() except +translate_exception
         shared_ptr[CxxUnitSystem] unitsShared()
 
     cdef cppclass CxxAnyValue "Cantera::AnyValue":
@@ -51,7 +51,11 @@ cdef extern from "cantera/base/AnyMap.h" namespace "Cantera":
         CxxAnyValue& operator=[T](vector[T]) except +translate_exception
         unordered_map[string, CxxAnyMap*] asMap(string) except +translate_exception
         CxxAnyMap& getMapWhere(string, string) except +translate_exception
+        void setQuantity(double, string&, cbool) except +translate_exception
+        void setQuantity(vector[double]&, string&) except +translate_exception
+        void setQuantity(double, CxxUnits&) except +translate_exception
         T& asType "as" [T]() except +translate_exception
+        vector[T]& asVector[T]() except +translate_exception
         string type_str()
         cbool empty()
         cbool isType "is" [T]()

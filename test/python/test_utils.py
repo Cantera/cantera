@@ -294,3 +294,31 @@ class TestAnyMap(utilities.CanteraTest):
 
     def test_units_nested(self):
         assert self.data['group2'].convert('x', 'J/kg') == 1300 * 1e6
+
+    def test_set_quantity(self):
+        params = ct.AnyMap()
+        params.set_quantity('spam', [2, 3, 4], 'Gg')
+        params.set_quantity('eggs', 10, ct.Units('kg/m^3'))
+        params.set_activation_energy('beans', 5, 'K')
+
+        converted = _py_to_anymap_to_py(params)
+        assert converted['spam'] == [2e6, 3e6, 4e6]
+        assert converted['eggs'] == pytest.approx(10)
+        assert converted['beans'] == pytest.approx(5 * ct.gas_constant)
+
+        # Unit conversions are deferred
+        outer = ct.AnyMap()
+        outer['units'] = {'mass': 'g', 'activation-energy': 'K'}
+        outer['inner'] = params
+        converted = _py_to_anymap_to_py(outer)
+        assert converted['inner']['spam'] == pytest.approx([2e9, 3e9, 4e9])
+        assert converted['inner']['eggs'] == pytest.approx(10e3)
+        assert converted['inner']['beans'] == pytest.approx(5)
+
+        outer.set_quantity('cheese', {'gouda': 5.5}, 'J/kg')
+        with pytest.raises(ct.CanteraError):
+            _py_to_anymap_to_py(outer)
+
+        outer.set_activation_energy('cheese', 12, 'V/m')
+        with pytest.raises(ct.CanteraError):
+            _py_to_anymap_to_py(outer)

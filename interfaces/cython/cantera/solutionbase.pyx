@@ -274,7 +274,7 @@ cdef class _SolutionBase:
         def __get__(self):
             return anymap_to_py(self.base.header())
 
-    def update_user_data(self, dict data):
+    def update_user_data(self, data):
         """
         Add the contents of the provided `dict` as additional fields when generating
         YAML phase definition files with `write_yaml` or in the data returned by
