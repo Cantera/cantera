@@ -1688,9 +1688,9 @@ class UserRate2(ct.ExtensibleRate):
         self.Ta = params.convert_activation_energy("Ea", "K")
 
     def get_parameters(self, params):
-        params["A"] = self.A
-        params["L"] = self.length
-        params["Ea"] = self.Ta
+        params.set_quantity("A", self.A, self.conversion_units)
+        params.set_quantity("L", self.length, "m")
+        params.set_activation_energy("Ea", self.Ta, "K")
 
     def eval(self, data):
         return self.A * (self.length / 2.0)**2 * exp(-self.Ta/data.T)
@@ -1712,6 +1712,41 @@ class TestExtensible3(utilities.CanteraTest):
         rxn = ct.Reaction.from_yaml(rxn, kinetics=self.gas)
         assert rxn.rate.length == 2
         assert rxn.rate.Ta == pytest.approx(1000 / ct.gas_constant)
+
+    def test_implicit_units(self):
+        rxn = """
+        equation: H2 + OH = H2O + H
+        units: {length: cm}
+        type: user-rate-2
+        A: 1000
+        L: 200
+        Ea: 1000
+        """
+        rxn = ct.Reaction.from_yaml(rxn, kinetics=self.gas)
+        assert rxn.rate.length == 2
+        assert rxn.rate.Ta == pytest.approx(1000 / ct.gas_constant)
+
+    def test_output_units(self):
+        rxn = """
+        equation: H2 + OH = H2O + H
+        type: user-rate-2
+        A: 1000
+        L: 200
+        Ea: 50
+        """
+        rxn = ct.Reaction.from_yaml(rxn, kinetics=self.gas)
+        N = self.gas.n_reactions
+        self.gas.add_reaction(rxn)
+
+        self.gas.write_yaml(self.test_work_path / 'user-rate-units.yaml',
+                            units={'length': 'mm', 'activation-energy': 'eV'})
+
+        yml = utilities.load_yaml(self.test_work_path / 'user-rate-units.yaml')
+        rxn = yml['reactions'][-1]
+        assert rxn['type'] == 'user-rate-2'
+        assert rxn['A'] == pytest.approx(1000 * 1000**3)
+        assert rxn['L'] == pytest.approx(200 * 1000)
+        assert rxn['Ea'] == pytest.approx(50 / ct.faraday)
 
 
 class InterfaceReactionTests(ReactionTests):
