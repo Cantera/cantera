@@ -139,6 +139,16 @@ cdef void callback_v_cAMr_cUSr(PyFuncInfo& funcInfo, const CxxAnyMap& arg1,
         funcInfo.setExceptionType(<PyObject*>exc_type)
         funcInfo.setExceptionValue(<PyObject*>exc_value)
 
+# Wrapper for functions of type void(const string&, void*)
+cdef void callback_v_csr_vp(PyFuncInfo& funcInfo,
+                            const string& arg1, void* obj) noexcept:
+    try:
+        (<object>funcInfo.func())(pystr(arg1), <object>obj)
+    except BaseException as e:
+        exc_type, exc_value = sys.exc_info()[:2]
+        funcInfo.setExceptionType(<PyObject*>exc_type)
+        funcInfo.setExceptionValue(<PyObject*>exc_value)
+
 # Wrapper for functions of type void(double*)
 cdef void callback_v_dp(PyFuncInfo& funcInfo, size_array1 sizes, double* arg) noexcept:
     cdef double[:] view = <double[:sizes[0]]>arg if sizes[0] else None
@@ -329,6 +339,9 @@ cdef int assign_delegates(obj, CxxDelegator* delegator) except -1:
         elif callback == 'void(AnyMap&,UnitStack&)':
             delegator.setDelegate(cxx_name,
                 pyOverride(<PyObject*>method, callback_v_cAMr_cUSr), cxx_when)
+        elif callback == 'void(string,void*)':
+            delegator.setDelegate(cxx_name,
+                pyOverride(<PyObject*>method, callback_v_csr_vp), cxx_when)
         elif callback == 'void(double*)':
             delegator.setDelegate(cxx_name,
                 pyOverride(<PyObject*>method, callback_v_dp), cxx_when)
