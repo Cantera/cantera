@@ -11,6 +11,7 @@ namespace Cantera
 
 map<string, function<void(ReactionDataDelegator&)>> ExtensionManager::s_ReactionData_linkers = {};
 map<string, function<shared_ptr<ExternalHandle>(shared_ptr<Solution>)>> ExtensionManager::s_Solution_linkers = {};
+map<string, string> ExtensionManager::s_userTypeToWrapperType = {};
 
 void ExtensionManager::wrapReactionData(const string& rateName,
                                         ReactionDataDelegator& data)
@@ -25,9 +26,10 @@ void ExtensionManager::wrapReactionData(const string& rateName,
 }
 
 void ExtensionManager::registerReactionDataLinker(const string& rateName,
-    function<void(ReactionDataDelegator& delegator)> link)
+    const string& wrapperName, function<void(ReactionDataDelegator& delegator)> link)
 {
     s_ReactionData_linkers[rateName] = link;
+    s_userTypeToWrapperType[rateName] = wrapperName;
 }
 
 shared_ptr<ExternalHandle> ExtensionManager::wrapSolution(
@@ -46,6 +48,16 @@ void ExtensionManager::registerSolutionLinker(const string& rateName,
     function<shared_ptr<ExternalHandle>(shared_ptr<Solution>)> link)
 {
     s_Solution_linkers[rateName] = link;
+}
+
+string ExtensionManager::getSolutionWrapperType(const string& userType)
+{
+    if (s_userTypeToWrapperType.count(userType)) {
+        return s_userTypeToWrapperType[userType];
+    } else {
+        throw CanteraError("ExtensionManager::getSolutionWrapperType",
+                           "No Solution linker for type {} registered", userType);
+    }
 }
 
 }
