@@ -258,8 +258,10 @@ int ChemEquil::estimateElementPotentials(ThermoPhase& s, vector_fp& lambda_RT,
         b[m] = mu_RT[m_component[m]];
     }
 
-    int info = solve(aa, b.data());
-    if (info) {
+    int info;
+    try {
+        info = solve(aa, b.data());
+    } catch (CanteraError&) {
         info = -2;
     }
     for (size_t m = 0; m < m_nComponents; m++) {
