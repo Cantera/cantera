@@ -58,10 +58,12 @@ shared_ptr<Kinetics> newKinetics(const string& model);
  *     to the Kinetics object.
  * @param rootNode   The root node of the file containing the phase definition,
  *     which will be treated as the default source for reactions
+ * @param soln       The Solution object that this Kinetics object is being added to.
  */
 shared_ptr<Kinetics> newKinetics(const vector<shared_ptr<ThermoPhase>>& phases,
                                  const AnyMap& phaseNode,
-                                 const AnyMap& rootNode=AnyMap());
+                                 const AnyMap& rootNode=AnyMap(),
+                                 shared_ptr<Solution> soln={});
 
 //! @copydoc newKinetics(const vector<shared_ptr<ThermoPhase>>&, const AnyMap&, const AnyMap&)
 //! @deprecated  To be removed after Cantera 3.0;
