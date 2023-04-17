@@ -23,17 +23,17 @@ ReactionDataDelegator::ReactionDataDelegator()
 bool ReactionDataDelegator::update(const ThermoPhase& phase, const Kinetics& kin)
 {
     if (!m_wrappedSolution) {
+        auto wrapperType = ExtensionManager::getSolutionWrapperType(m_rateType);
         auto soln = kin.root();
         if (!soln) {
             throw CanteraError("ReactionDataDelegator::update",
                 "Phase must be instantiated as a Solution to use extensible "
                 "reactions of type '{}'", m_rateType);
         }
-        if (soln->getExternalHandle(m_solutionWrapperType)) {
-            m_wrappedSolution = soln->getExternalHandle(m_solutionWrapperType);
+        if (soln->getExternalHandle(wrapperType)) {
+            m_wrappedSolution = soln->getExternalHandle(wrapperType);
         } else {
-            m_wrappedSolution = ExtensionManager::wrapSolution(m_solutionWrapperType,
-                                                               soln);
+            m_wrappedSolution = ExtensionManager::wrapSolution(wrapperType, soln);
         }
     }
     double needsUpdate = m_update(m_wrappedSolution->get());

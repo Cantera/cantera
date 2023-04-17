@@ -117,7 +117,6 @@ void PythonExtensionManager::registerRateDataBuilder(
     // object and a Python ExtensibleRateData object of a particular type, and register
     // this function for making that link
     auto builder = [moduleName, className](ReactionDataDelegator& delegator) {
-        delegator.setSolutionWrapperType("python");
         PyObject* extData = ct_newPythonExtensibleRateData(&delegator,
                 moduleName, className);
         if (extData == nullptr) {
@@ -127,7 +126,7 @@ void PythonExtensionManager::registerRateDataBuilder(
         }
         delegator.setWrapper(make_shared<PythonHandle>(extData, false));
     };
-    mgr.registerReactionDataLinker(rateName, builder);
+    mgr.registerReactionDataLinker(rateName, "python", builder);
 
     // Create a function that will link a Python Solution object to the C++ Solution
     // object that gets passed to the Reaction

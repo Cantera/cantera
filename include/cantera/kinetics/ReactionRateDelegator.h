@@ -46,19 +46,9 @@ public:
         m_wrappedData = wrapper;
     }
 
-    //! Set the type of the Solution wrapper needed for this delegated reaction type.
-    //! This should correspond to the name registered for the external language with
-    //! ExtensionManager::registerSolutionLinker().
-    void setSolutionWrapperType(const std::string& type) {
-        m_solutionWrapperType = type;
-    }
-
 protected:
     //! The reaction rate type
     std::string m_rateType;
-
-    //! The name registered for creating Solution wrappers for this delegated reaction
-    std::string m_solutionWrapperType;
 
     //! An external language's wrapper for the Solution object where this ReactionData
     //! object is being used
