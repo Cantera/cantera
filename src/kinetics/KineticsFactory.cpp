@@ -11,6 +11,7 @@
 #include "cantera/kinetics/EdgeKinetics.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/Solution.h"
 
 #include <boost/algorithm/string.hpp>
 
@@ -69,7 +70,8 @@ shared_ptr<Kinetics> newKinetics(const string& model)
 
 shared_ptr<Kinetics> newKinetics(const vector<shared_ptr<ThermoPhase>>& phases,
                                  const AnyMap& phaseNode,
-                                 const AnyMap& rootNode)
+                                 const AnyMap& rootNode,
+                                 shared_ptr<Solution> soln)
 {
     std::string kinType = phaseNode.getString("kinetics", "none");
     kinType = KineticsFactory::factory()->canonicalize(kinType);
@@ -88,6 +90,9 @@ shared_ptr<Kinetics> newKinetics(const vector<shared_ptr<ThermoPhase>>& phases,
     }
 
     shared_ptr<Kinetics> kin(KineticsFactory::factory()->newKinetics(kinType));
+    if (soln) {
+        soln->setKinetics(kin);
+    }
     for (auto& phase : phases) {
         kin->addThermo(phase);
     }

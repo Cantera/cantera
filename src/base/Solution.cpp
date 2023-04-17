@@ -311,7 +311,7 @@ shared_ptr<Solution> newSolution(const AnyMap& phaseNode,
     for (size_t i = 0; i < sol->nAdjacent(); i++) {
         phases.push_back(sol->adjacent(i)->thermo());
     }
-    sol->setKinetics(newKinetics(phases, phaseNode, rootNode));
+    sol->setKinetics(newKinetics(phases, phaseNode, rootNode, sol));
 
     // set transport model by name
     sol->setTransportModel(transport);

@@ -113,8 +113,8 @@ cdef class _SolutionBase:
             self.name = name
 
     def __dealloc__(self):
-        if self.base != NULL:
-            self.base.removeChangedCallback(<PyObject*>self)
+        if self._base:
+            self._base.get().removeChangedCallback(<PyObject*>self)
 
     property name:
         """
