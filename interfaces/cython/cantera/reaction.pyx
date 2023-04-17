@@ -758,6 +758,7 @@ cdef class ExtensibleRate(ReactionRate):
         "eval": ("evalFromStruct", "double(void*)", "replace"),
         "set_parameters": ("setParameters", "void(AnyMap&, UnitStack&)", "after"),
         "get_parameters": ("getParameters", "void(AnyMap&)", "replace"),
+        "validate": ("validate", "void(string, void*)", "replace")
     }
 
     def __cinit__(self, *args, init=True, **kwargs):
@@ -795,6 +796,15 @@ cdef class ExtensibleRate(ReactionRate):
         `ExtensibleRateData`.
         """
         raise NotImplementedError(f"{self.__class__.__name__}.eval")
+
+    def validate(self, equation: str, soln: "Solution") -> None:
+        """
+        Responsible for validating that the rate expression is configured with valid
+        parameters. This may depend on properties of the Solution, for example
+        temperature ranges over which the rate expression can be evaluated. Raises an
+        exception if any validation fails.
+        """
+        pass
 
     cdef set_cxx_object(self, CxxReactionRate* rate=NULL):
         if rate is NULL:

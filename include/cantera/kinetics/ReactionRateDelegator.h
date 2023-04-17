@@ -97,6 +97,8 @@ public:
         m_getParameters(node);
     }
 
+    void validate(const string& equation, const Kinetics& kin) override;
+
 private:
     //! The name of the reaction rate type
     string m_rateType;
@@ -105,6 +107,7 @@ private:
     //! ReactionData wrapper object
     function<double(void*)> m_evalFromStruct;
 
+    function<void(const string&, void*)> m_validate;
     function<void(const AnyMap&, const UnitStack&)> m_setParameters;
     function<void(AnyMap&)> m_getParameters;
 };
