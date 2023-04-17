@@ -52,9 +52,18 @@ class ExtensibleArrheniusData(ct.ExtensibleRateData):
 class ExtensibleArrhenius(ct.ExtensibleRate):
     __slots__ = ("A", "b", "Ea_R")
     def set_parameters(self, params, units):
-        self.A = params["A"]
+        self.A = params.convert_rate_coeff("A", units)
         self.b = params["b"]
-        self.Ea_R = params["Ea_R"]
+        self.Ea_R = params.convert_activation_energy("Ea", "K")
+
+    def get_parameters(self, params):
+        params.set_quantity("A", self.A, self.conversion_units)
+        params["b"] = self.b
+        params.set_activation_energy("Ea", self.Ea_R, "K")
+
+    def validate(self, equation, soln):
+        if self.A < 0:
+            raise ValueError(f"Found negative 'A' for reaction {equation}")
 
     def eval(self, data):
         return self.A * data.T**self.b * exp(-self.Ea_R/data.T)
@@ -62,17 +71,19 @@ class ExtensibleArrhenius(ct.ExtensibleRate):
 extensible_yaml2 = """
     equation: H2 + O <=> H + OH
     type: extensible-Arrhenius
-    A: 38.7
+    units: {length: cm, quantity: mol, activation-energy: cal/mol}
+    A: 3.87e+04
     b: 2.7
-    Ea_R: 3150.1542797022735
+    Ea: 6260.0
     """
 
 extensible_yaml4 = """
     equation: H2O2 + O <=> HO2 + OH
     type: extensible-Arrhenius
-    A: 9630.0
+    units: {length: cm, quantity: mol, activation-energy: cal/mol}
+    A: 9.63e+06
     b: 2
-    Ea_R: 2012.8781339950629
+    Ea: 4000
     """
 
 extensible_reactions = gas0.reactions()
