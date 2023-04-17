@@ -53,6 +53,9 @@ ReactionRateDelegator::ReactionRateDelegator()
             ReactionRate::setParameters(node, units); });
     install("getParameters", m_getParameters,
         [this](AnyMap& node) { ReactionRate::getParameters(node); });
+    install("validate", m_validate,
+        [](const string& equation, void* soln) {
+            throw NotImplementedError("ReactionRateDelegator::validate"); });
 }
 
 unique_ptr<MultiRateBase> ReactionRateDelegator::newMultiRate() const
@@ -62,6 +65,28 @@ unique_ptr<MultiRateBase> ReactionRateDelegator::newMultiRate() const
     multirate->sharedData().setType(m_rateType);
     ExtensionManager::wrapReactionData(m_rateType, multirate->sharedData());
     return multirate;
+}
+
+void ReactionRateDelegator::validate(const string& equation, const Kinetics& kin)
+{
+    auto soln = kin.root();
+    if (!soln) {
+        throw CanteraError("ReactionRateDelegator::validate",
+            "Phase must be instantiated as a Solution to use extensible "
+            "reactions of type '{}'", m_rateType);
+    }
+    auto wrapperType = ExtensionManager::getSolutionWrapperType(m_rateType);
+    auto wrappedSoln = soln->getExternalHandle(wrapperType);
+    if (!wrappedSoln) {
+        wrappedSoln = ExtensionManager::wrapSolution(wrapperType, soln);
+    }
+
+    try {
+        m_validate(equation, wrappedSoln->get());
+    } catch (CanteraError& err) {
+        throw InputFileError("'" + m_rateType + "' validate", m_input,
+            err.getMessage());
+    }
 }
 
 }

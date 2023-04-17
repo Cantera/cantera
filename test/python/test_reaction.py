@@ -1538,13 +1538,26 @@ class UserRate1Data(ct.ExtensibleRateData):
 
 @ct.extension(name="user-rate-1", data=UserRate1Data)
 class UserRate1(ct.ExtensibleRate):
+    def __init__(self, *args, **kwargs):
+        # Do default initialization before calling parent init since that init function
+        # may call set_parameters and we don't want to overwrite those values
+        self.A = np.nan
+        self.eval_error = False
+        super().__init__(*args, **kwargs)
+
     def set_parameters(self, params, units):
         self.A = params["A"]
 
     def get_parameters(self, params):
         params["A"] = self.A
 
+    def validate(self, equation, soln):
+        if np.isnan(self.A):
+            raise ValueError("'A' is NaN")
+
     def eval(self, data):
+        if self.eval_error:
+            raise ValueError("Error evaluating rate")
         return self.A * data.T**2.7 * exp(-3150.15428/data.T)
 
 
@@ -1587,7 +1600,11 @@ class TestExtensible(ReactionTests, utilities.CanteraTest):
         return gas.forward_rate_constants[0]
 
     def test_no_rate(self):
-        pytest.skip("ExtensibleRate does not yet support validation")
+        # Slightly different from the base case since we normally check evaluation via
+        # a Kinetics object, which will fail validation
+        rxn = self.from_empty()
+        with pytest.raises(ct.CanteraError, match="validate"):
+            self.eval_rate(rxn.rate)
 
     def test_parameter_access(self):
         gas = ct.Solution(yaml=self._phase_def)
@@ -1605,8 +1622,9 @@ class TestExtensible(ReactionTests, utilities.CanteraTest):
 
     def test_eval_error(self):
         # Instantiate with non-numeric A factor to cause an exception during evaluation
-        R = ct.ReactionRate.from_dict({"type": "user-rate-1", "A": "xyz"})
-        with pytest.raises(TypeError):
+        R = ct.ReactionRate.from_dict({"type": "user-rate-1", "A": 12})
+        R.eval_error = True
+        with pytest.raises(ValueError):
             self.eval_rate(R)
 
 
@@ -1692,6 +1710,10 @@ class UserRate2(ct.ExtensibleRate):
         params.set_quantity("L", self.length, "m")
         params.set_activation_energy("Ea", self.Ta, "K")
 
+    def validate(self, equation, soln):
+        if self.length < 0:
+            raise ValueError(f"Negative length found in reaction {equation}")
+
     def eval(self, data):
         return self.A * (self.length / 2.0)**2 * exp(-self.Ta/data.T)
 
@@ -1747,6 +1769,19 @@ class TestExtensible3(utilities.CanteraTest):
         assert rxn['A'] == pytest.approx(1000 * 1000**3)
         assert rxn['L'] == pytest.approx(200 * 1000)
         assert rxn['Ea'] == pytest.approx(50 / ct.faraday)
+
+    def test_validate_error(self):
+        rxn = """
+        equation: H2 + OH = H2O + H
+        type: user-rate-2
+        A: 1000
+        L: -200
+        Ea: 50
+        """
+        rxn = ct.Reaction.from_yaml(rxn, kinetics=self.gas)
+        N = self.gas.n_reactions
+        with pytest.raises(ct.CanteraError, match="Negative"):
+            self.gas.add_reaction(rxn)
 
 
 class InterfaceReactionTests(ReactionTests):
