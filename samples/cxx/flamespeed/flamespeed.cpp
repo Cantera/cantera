@@ -17,6 +17,7 @@
 #include "cantera/onedim.h"
 #include "cantera/oneD/DomainFactory.h"
 #include "cantera/base/stringUtils.h"
+#include <fstream>
 
 using namespace Cantera;
 using fmt::print;

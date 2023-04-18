@@ -12,6 +12,11 @@
 #include "BulkKinetics.h"
 #include "Reaction.h"
 
+#ifndef CT_SKIP_DEPRECATION_WARNINGS
+#pragma message("warning: GasKinetics.h and class GasKinetics are deprecated and will " \
+                "be removed after Cantera 3.0. Replace with class BulkKinetics.")
+#endif
+
 namespace Cantera
 {
 
@@ -20,158 +25,48 @@ namespace Cantera
  * implements standard mass-action reaction rate expressions for low-density
  * gases.
  * @ingroup kinetics
+ * @deprecated Replace with BulkKinetics. To be removed after Cantera 3.0.
  */
 class GasKinetics : public BulkKinetics
 {
 public:
-    //! @name Constructors and General Information
-    //! @{
 
     //! Constructor.
-    GasKinetics();
+    GasKinetics() {}
 
     //! @deprecated  To be removed after Cantera 3.0; code base only uses default.
-    GasKinetics(ThermoPhase* thermo);
+    GasKinetics(ThermoPhase* thermo) : GasKinetics() {
+        warn_deprecated("GasKinetics::GasKinetics(ThermoPhase*)",
+            "To be removed after Cantera 3.0. Use default constructor instead.");
+        addPhase(*thermo);
+    }
 
     virtual std::string kineticsType() const {
         return "gas";
     }
 
-    virtual void getThirdBodyConcentrations(double* concm);
-    virtual const vector_fp& thirdBodyConcentrations() const {
-        return m_concm;
-    }
-
-    //! @}
-    //! @name Reaction Rates Of Progress
-    //! @{
-
-    virtual void getEquilibriumConstants(doublereal* kc);
-    virtual void getFwdRateConstants(double* kfwd);
-
-    //! @}
-    //! @name Reaction Mechanism Setup Routines
-    //! @{
-    virtual bool addReaction(shared_ptr<Reaction> r, bool resize=true);
-    virtual void modifyReaction(size_t i, shared_ptr<Reaction> rNew);
-    virtual void invalidateCache();
-    //! @}
-
-    virtual void resizeReactions();
-    void updateROP();
-
-    virtual void getDerivativeSettings(AnyMap& settings) const;
-    virtual void setDerivativeSettings(const AnyMap& settings);
-    virtual void getFwdRateConstants_ddT(double* dkfwd);
-    virtual void getFwdRatesOfProgress_ddT(double* drop);
-    virtual void getRevRatesOfProgress_ddT(double* drop);
-    virtual void getNetRatesOfProgress_ddT(double* drop);
-    virtual void getFwdRateConstants_ddP(double* dkfwd);
-    virtual void getFwdRatesOfProgress_ddP(double* drop);
-    virtual void getRevRatesOfProgress_ddP(double* drop);
-    virtual void getNetRatesOfProgress_ddP(double* drop);
-    virtual void getFwdRateConstants_ddC(double* dkfwd);
-    virtual void getFwdRatesOfProgress_ddC(double* drop);
-    virtual void getRevRatesOfProgress_ddC(double* drop);
-    virtual void getNetRatesOfProgress_ddC(double* drop);
-    virtual Eigen::SparseMatrix<double> fwdRatesOfProgress_ddX();
-    virtual Eigen::SparseMatrix<double> revRatesOfProgress_ddX();
-    virtual Eigen::SparseMatrix<double> netRatesOfProgress_ddX();
-    virtual Eigen::SparseMatrix<double> fwdRatesOfProgress_ddCi();
-    virtual Eigen::SparseMatrix<double> revRatesOfProgress_ddCi();
-    virtual Eigen::SparseMatrix<double> netRatesOfProgress_ddCi();
-
     //! Update temperature-dependent portions of reaction rates and falloff
     //! functions.
-    virtual void update_rates_T();
+    virtual void update_rates_T() {
+        warn_deprecated("GasKinetics::update_rates_T",
+            "Class GasKinetics has been merged into class BulkKinetics, and the "
+            "update_rates_T() method is now part of updateROP(). Class GasKinetics "
+            "will be removed after Cantera 3.0.");
+        updateROP();
+    }
 
     //! Update properties that depend on concentrations.
     //! Currently the enhanced collision partner concentrations are updated
     //! here, as well as the pressure-dependent portion of P-log and Chebyshev
     //! reactions.
-    virtual void update_rates_C();
+    virtual void update_rates_C() {
+        warn_deprecated("GasKinetics::update_rates_C",
+            "Class GasKinetics has been merged into class BulkKinetics, and the "
+            "update_rates_T() method is now part of updateROP(). Class GasKinetics "
+            "will be removed after Cantera 3.0.");
+        updateROP();
+    }
 
-protected:
-    //! @name Internal service methods
-    //!
-    //! @note These methods are for internal use, and seek to avoid code duplication
-    //! while evaluating terms used for rate constants, rates of progress, and
-    //! their derivatives.
-    //! @{
-
-    //! Calculate rate coefficients
-    void processFwdRateCoefficients(double* ropf);
-
-    //! Multiply rate with third-body collider concentrations
-    void processThirdBodies(double* rop);
-
-    //! Multiply rate with inverse equilibrium constant
-    void applyEquilibriumConstants(double* rop);
-
-    //! Multiply rate with scaled temperature derivatives of the inverse
-    //! equilibrium constant
-    /*!
-     *  This (scaled) derivative is handled by a finite difference.
-     */
-    void applyEquilibriumConstants_ddT(double* drkcn);
-
-    //! Process temperature derivative
-    //! @param in  rate expression used for the derivative calculation
-    //! @param drop  pointer to output buffer
-    void process_ddT(const vector_fp& in, double* drop);
-
-    //! Process pressure derivative
-    //! @param in  rate expression used for the derivative calculation
-    //! @param drop  pointer to output buffer
-    void process_ddP(const vector_fp& in, double* drop);
-
-    //! Process concentration (molar density) derivative
-    //! @param stoich  stoichiometry manager
-    //! @param in  rate expression used for the derivative calculation
-    //! @param drop  pointer to output buffer
-    //! @param mass_action  boolean indicating whether law of mass action applies
-    void process_ddC(StoichManagerN& stoich, const vector_fp& in,
-                     double* drop, bool mass_action=true);
-
-    //! Process derivatives
-    //! @param stoich  stoichiometry manager
-    //! @param in  rate expression used for the derivative calculation
-    //! @param ddX true: w.r.t mole fractions false: w.r.t species concentrations
-    //! @return a sparse matrix of derivative contributions for each reaction of
-    //! dimensions nTotalReactions by nTotalSpecies
-    Eigen::SparseMatrix<double> calculateCompositionDerivatives(StoichManagerN& stoich,
-                                                    const vector_fp& in, bool ddX=true);
-
-    //! Helper function ensuring that all rate derivatives can be calculated
-    //! @param name  method name used for error output
-    //! @throw CanteraError if ideal gas assumption does not hold
-    void assertDerivativesValid(const std::string& name);
-
-    //! @}
-
-    //! @name Reaction rate data
-    //! @{
-
-    double m_logStandConc = 0.0;
-
-    double m_pres = 0.0; //!< Last pressure at which rates were evaluated
-
-    //! @}
-
-    //! Buffers for partial rop results with length nReactions()
-    vector_fp m_rbuf0;
-    vector_fp m_rbuf1;
-    vector_fp m_rbuf2;
-    vector_fp m_sbuf0;
-    vector_fp m_state;
-
-    //! Derivative settings
-    bool m_jac_skip_third_bodies;
-    bool m_jac_skip_falloff;
-    double m_jac_rtol_delta;
-
-    //! Update the equilibrium constants in molar units.
-    void updateKc();
 };
 
 }

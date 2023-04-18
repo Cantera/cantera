@@ -6,7 +6,11 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/kinetics/KineticsFactory.h"
-#include "cantera/kinetics/GasKinetics.h"
+#include "cantera/kinetics/BulkKinetics.h"
+
+#define CT_SKIP_DEPRECATION_WARNINGS
+#include "cantera/kinetics/GasKinetics.h" // @todo Remove after Cantera 3.0
+
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/kinetics/EdgeKinetics.h"
 #include "cantera/thermo/ThermoPhase.h"
@@ -25,6 +29,8 @@ KineticsFactory::KineticsFactory() {
     reg("none", []() { return new Kinetics(); });
     addDeprecatedAlias("none", "Kinetics");
     addDeprecatedAlias("none", "None");
+    reg("bulk", []() { return new BulkKinetics(); });
+    // @todo After Cantera 3.0, "gas" should be an alias for "bulk"
     reg("gas", []() { return new GasKinetics(); });
     addDeprecatedAlias("gas", "gaskinetics");
     addDeprecatedAlias("gas", "Gas");

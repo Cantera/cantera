@@ -4,7 +4,8 @@
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/thermo/Species.h"
 #include "cantera/kinetics/KineticsFactory.h"
-#include "cantera/kinetics/GasKinetics.h"
+#include "cantera/kinetics/BulkKinetics.h"
+#include "cantera/kinetics/Reaction.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/kinetics/Arrhenius.h"
 #include "cantera/kinetics/ChebyshevRate.h"
@@ -35,7 +36,7 @@ public:
 
     shared_ptr<ThermoPhase> pp;
     shared_ptr<ThermoPhase> pp_ref;
-    GasKinetics kin;
+    BulkKinetics kin;
     shared_ptr<Kinetics> kin_ref;
 
     //! iRef is the index of the corresponding reaction in the reference mech
@@ -617,7 +618,7 @@ public:
 
     shared_ptr<ThermoPhase> p;
     shared_ptr<ThermoPhase> pp_ref;
-    GasKinetics kin;
+    BulkKinetics kin;
     shared_ptr<Kinetics> kin_ref;
     std::vector<shared_ptr<Reaction>> reactions;
     std::map<std::string, shared_ptr<Species>> species;

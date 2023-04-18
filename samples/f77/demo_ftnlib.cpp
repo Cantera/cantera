@@ -28,10 +28,8 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 // add any other Cantera header files you need here
-#include "cantera/thermo/IdealGasPhase.h"
-#include "cantera/kinetics/GasKinetics.h"
-#include "cantera/base/Solution.h"
-#include "cantera/transport.h"
+#include "cantera/core.h"
+#include "cantera/kinetics/Reaction.h"
 
 #include <iostream>
 

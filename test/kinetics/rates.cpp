@@ -3,7 +3,6 @@
 #include "cantera/kinetics.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/IdealGasPhase.h"
-#include "cantera/kinetics/GasKinetics.h"
 #include "cantera/base/Solution.h"
 #include "cantera/base/Interface.h"
 
