@@ -742,9 +742,9 @@ cdef class ExtensibleRate(ReactionRate):
     of the rate parameterization and its corresponding data class, and to make these
     rates constructible through factory functions and input files.
 
-    Classes derived from `ExtensibleRate` should implement the `set_parameters` and
-    `eval` methods, which will be called as delegates from the C++ :ct:`ReactionRate`
-    class.
+    Classes derived from `ExtensibleRate` should implement the `set_parameters`,
+    `get_parameters`, `eval`, and (optionally) `validate` methods, which will be called
+    as delegates from the C++ :ct:`ReactionRate` class.
 
     **Warning:** The delegatable methods defined here are an experimental part of the
     Cantera API and may change without notice.
@@ -779,6 +779,11 @@ cdef class ExtensibleRate(ReactionRate):
         for reactions created from YAML, ``params`` is the YAML reaction entry converted
         to an ``AnyMap``. ``rate_coeff_units`` specifies the units of the rate
         coefficient.
+
+        Input values contained in ``params`` may be in non-default unit systems,
+        specified in the user-provided input file. To convert them to Cantera's native
+        mks+kmol unit system, use the functions `AnyMap.convert`,
+        `AnyMap.convert_activation_energy`, and `AnyMap.convert_rate_coeff` as needed.
         """
         raise NotImplementedError(f"{self.__class__.__name__}.set_parameters")
 
@@ -786,6 +791,11 @@ cdef class ExtensibleRate(ReactionRate):
         """
         Responsible for serializing the state of the ExtensibleRate object, using the
         same format as a YAML reaction entry. This is the inverse of `set_parameters`.
+
+        Serialization methods may request output in unit systems other than Cantera's
+        native mks+kmol system. To enable conversions to the user-specified unit system,
+        dimensional values should be added to ``params`` using the methods
+        `AnyMap.set_quantity` and `AnyMap.set_activation_energy`.
         """
         raise NotImplementedError(f"{self.__class__.__name__}.get_parameters")
 
