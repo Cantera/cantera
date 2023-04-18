@@ -157,7 +157,6 @@ protected:
     void correctBinDiffCoeffs();
 
     //! Boolean indicating viscosity is up to date
-    bool m_abc_ok;
     bool m_l0000_ok;
     bool m_lmatrix_soln_ok;
 
@@ -188,7 +187,6 @@ protected:
     double pressure_ig();
 
     virtual void solveLMatrixEquation();
-    DenseMatrix incl;
     bool m_debug;
 };
 }
