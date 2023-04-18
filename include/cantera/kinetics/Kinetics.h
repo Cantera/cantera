@@ -597,7 +597,7 @@ public:
     //! Settings for derivative evaluation are set by keyword/value pairs using
     //! the methods getDerivativeSettings() and setDerivativeSettings().
     //!
-    //! For GasKinetics, the following keyword/value pairs are supported:
+    //! For BulkKinetics, the following keyword/value pairs are supported:
     //!  - `skip-third-bodies` (boolean) ... if `false` (default), third body
     //!    concentrations are considered for the evaluation of jacobians
     //!  - `skip-falloff` (boolean) ... if `false` (default), third-body effects
@@ -613,7 +613,6 @@ public:
     //!   treated as normal surface reactions.
     //!  - `rtol-delta` (double) ... relative tolerance used to perturb properties
     //!    when calculating numerical derivatives. The default value is 1e-8.
-    //!
     //!
     //! @warning  The calculation of derivatives is an experimental part of the
     //!      %Cantera API and may be changed or removed without notice.

@@ -16,47 +16,164 @@
 namespace Cantera
 {
 
-//! Partial specialization of Kinetics for chemistry in a single bulk phase
+//! Specialization of Kinetics for chemistry in a single bulk phase
+//! @ingroup kinetics
 class BulkKinetics : public Kinetics
 {
 public:
-    BulkKinetics() = default;
+    //! @name Constructors and General Information
+    //! @{
+    BulkKinetics();
 
     //! @deprecated  To be removed after Cantera 3.0; code base only uses default.
     BulkKinetics(ThermoPhase* thermo);
 
-    virtual void resizeReactions();
+    string kineticsType() const override {
+        return "bulk";
+    }
 
-    virtual bool isReversible(size_t i);
+    bool isReversible(size_t i) override;
+    //! @}
 
-    virtual void getDeltaGibbs(doublereal* deltaG);
-    virtual void getDeltaEnthalpy(doublereal* deltaH);
-    virtual void getDeltaEntropy(doublereal* deltaS);
-
-    virtual void getDeltaSSGibbs(doublereal* deltaG);
-    virtual void getDeltaSSEnthalpy(doublereal* deltaH);
-    virtual void getDeltaSSEntropy(doublereal* deltaS);
-
-    virtual void getRevRateConstants(double* krev,
-                                     bool doIrreversible = false);
-
-    virtual bool addReaction(shared_ptr<Reaction> r, bool resize=true);
-    virtual void modifyReaction(size_t i, shared_ptr<Reaction> rNew);
-
-    virtual void resizeSpecies();
-
-    virtual void setMultiplier(size_t i, double f);
-    virtual void invalidateCache();
-
+    //! @name Reaction Mechanism Setup Routines
+    //! @{
+    bool addReaction(shared_ptr<Reaction> r, bool resize=true) override;
     void addThirdBody(shared_ptr<Reaction> r);
+    void modifyReaction(size_t i, shared_ptr<Reaction> rNew) override;
+    void resizeSpecies() override;
+    void resizeReactions() override;
+    void setMultiplier(size_t i, double f) override;
+    void invalidateCache() override;
+    //! @}
+
+    //! @name Reaction rate constants, rates of progress, and thermodynamic properties
+    //! @{
+    void getFwdRateConstants(double* kfwd) override;
+    void getEquilibriumConstants(double* kc) override;
+    void getRevRateConstants(double* krev, bool doIrreversible=false) override;
+
+    void getDeltaGibbs(double* deltaG) override;
+    void getDeltaEnthalpy(double* deltaH) override;
+    void getDeltaEntropy(double* deltaS) override;
+
+    void getDeltaSSGibbs(double* deltaG) override;
+    void getDeltaSSEnthalpy(double* deltaH) override;
+    void getDeltaSSEntropy(double* deltaS) override;
+    //! @}
+
+    //! @name Derivatives of rate constants and rates of progress
+    //! @{
+    void getDerivativeSettings(AnyMap& settings) const override;
+    void setDerivativeSettings(const AnyMap& settings) override;
+    void getFwdRateConstants_ddT(double* dkfwd) override;
+    void getFwdRatesOfProgress_ddT(double* drop) override;
+    void getRevRatesOfProgress_ddT(double* drop) override;
+    void getNetRatesOfProgress_ddT(double* drop) override;
+    void getFwdRateConstants_ddP(double* dkfwd) override;
+    void getFwdRatesOfProgress_ddP(double* drop) override;
+    void getRevRatesOfProgress_ddP(double* drop) override;
+    void getNetRatesOfProgress_ddP(double* drop) override;
+    void getFwdRateConstants_ddC(double* dkfwd) override;
+    void getFwdRatesOfProgress_ddC(double* drop) override;
+    void getRevRatesOfProgress_ddC(double* drop) override;
+    void getNetRatesOfProgress_ddC(double* drop) override;
+    Eigen::SparseMatrix<double> fwdRatesOfProgress_ddX() override;
+    Eigen::SparseMatrix<double> revRatesOfProgress_ddX() override;
+    Eigen::SparseMatrix<double> netRatesOfProgress_ddX() override;
+    Eigen::SparseMatrix<double> fwdRatesOfProgress_ddCi() override;
+    Eigen::SparseMatrix<double> revRatesOfProgress_ddCi() override;
+    Eigen::SparseMatrix<double> netRatesOfProgress_ddCi() override;
+    //! @}
+
+    //! @name Rate calculation intermediate methods
+    //! @{
+
+    //! Update temperature-dependent portions of reaction rates and falloff
+    //! functions.
+    virtual void update_rates_T();
+
+    //! Update properties that depend on concentrations.
+    //! Currently the enhanced collision partner concentrations are updated
+    //! here, as well as the pressure-dependent portion of P-log and Chebyshev
+    //! reactions.
+    virtual void update_rates_C();
+
+    void updateROP() override;
+
+    void getThirdBodyConcentrations(double* concm) override;
+    const vector_fp& thirdBodyConcentrations() const override {
+        return m_concm;
+    }
+
+    //! @}
 
 protected:
-    //! Vector of rate handlers
-    std::vector<unique_ptr<MultiRateBase>> m_bulk_rates;
-    std::map<std::string, size_t> m_bulk_types; //!< Mapping of rate handlers
+    //! @name Internal service methods
+    //!
+    //! @note These methods are for internal use, and seek to avoid code duplication
+    //! while evaluating terms used for rate constants, rates of progress, and
+    //! their derivatives.
+    //! @{
 
-    std::vector<size_t> m_revindex; //!< Indices of reversible reactions
-    std::vector<size_t> m_irrev; //!< Indices of irreversible reactions
+    //! Calculate rate coefficients
+    void processFwdRateCoefficients(double* ropf);
+
+    //! Multiply rate with third-body collider concentrations
+    void processThirdBodies(double* rop);
+
+    //! Update the equilibrium constants in molar units.
+    void updateKc();
+
+    //! Multiply rate with inverse equilibrium constant
+    void applyEquilibriumConstants(double* rop);
+
+    //! Multiply rate with scaled temperature derivatives of the inverse
+    //! equilibrium constant
+    /*!
+     *  This (scaled) derivative is handled by a finite difference.
+     */
+    void applyEquilibriumConstants_ddT(double* drkcn);
+
+    //! Process temperature derivative
+    //! @param in  rate expression used for the derivative calculation
+    //! @param drop  pointer to output buffer
+    void process_ddT(const vector_fp& in, double* drop);
+
+    //! Process pressure derivative
+    //! @param in  rate expression used for the derivative calculation
+    //! @param drop  pointer to output buffer
+    void process_ddP(const vector_fp& in, double* drop);
+
+    //! Process concentration (molar density) derivative
+    //! @param stoich  stoichiometry manager
+    //! @param in  rate expression used for the derivative calculation
+    //! @param drop  pointer to output buffer
+    //! @param mass_action  boolean indicating whether law of mass action applies
+    void process_ddC(StoichManagerN& stoich, const vector_fp& in,
+                     double* drop, bool mass_action=true);
+
+    //! Process derivatives
+    //! @param stoich  stoichiometry manager
+    //! @param in  rate expression used for the derivative calculation
+    //! @param ddX true: w.r.t mole fractions false: w.r.t species concentrations
+    //! @return a sparse matrix of derivative contributions for each reaction of
+    //! dimensions nTotalReactions by nTotalSpecies
+    Eigen::SparseMatrix<double> calculateCompositionDerivatives(
+        StoichManagerN& stoich, const vector_fp& in, bool ddX=true);
+
+    //! Helper function ensuring that all rate derivatives can be calculated
+    //! @param name  method name used for error output
+    //! @throw CanteraError if ideal gas assumption does not hold
+    void assertDerivativesValid(const string& name);
+
+    //! @}
+
+    //! Vector of rate handlers
+    vector<unique_ptr<MultiRateBase>> m_bulk_rates;
+    map<string, size_t> m_bulk_types; //!< Mapping of rate handlers
+
+    vector<size_t> m_revindex; //!< Indices of reversible reactions
+    vector<size_t> m_irrev; //!< Indices of irreversible reactions
 
     //! Difference between the global reactants order and the global products
     //! order. Of type "double" to account for the fact that we can have real-
@@ -74,10 +191,22 @@ protected:
     //! Physical concentrations, as calculated by ThermoPhase::getConcentrations
     vector_fp m_phys_conc;
 
-    vector_fp m_grt;
+    //! Derivative settings
+    bool m_jac_skip_third_bodies;
+    bool m_jac_skip_falloff;
+    double m_jac_rtol_delta;
 
     bool m_ROP_ok = false;
     double m_temp = 0.0;
+    double m_logStandConc = 0.0;
+
+    //! Buffers for partial rop results with length nReactions()
+    vector_fp m_rbuf0;
+    vector_fp m_rbuf1;
+    vector_fp m_rbuf2;
+    vector_fp m_sbuf0;
+    vector_fp m_state;
+    vector_fp m_grt;
 };
 
 }

@@ -4,7 +4,7 @@
 #include "cantera/base/Interface.h"
 #include "cantera/kinetics/KineticsFactory.h"
 #include "cantera/kinetics/ReactionRateFactory.h"
-#include "cantera/kinetics/GasKinetics.h"
+#include "cantera/kinetics/Reaction.h"
 #include "cantera/kinetics/Arrhenius.h"
 #include "cantera/kinetics/ChebyshevRate.h"
 #include "cantera/kinetics/Custom.h"
