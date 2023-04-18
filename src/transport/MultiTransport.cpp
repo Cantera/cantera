@@ -57,7 +57,6 @@ void MultiTransport::init(ThermoPhase* thermo, int mode, int log_level)
     m_cstar.resize(m_nsp, m_nsp);
 
     // set flags all false
-    m_abc_ok = false;
     m_l0000_ok = false;
     m_lmatrix_soln_ok = false;
     m_thermal_tlast = 0.0;
@@ -399,7 +398,6 @@ void MultiTransport::update_T()
     GasTransport::update_T();
     // temperature has changed, so polynomial fits will need to be
     // redone, and the L matrix reevaluated.
-    m_abc_ok = false;
     m_lmatrix_soln_ok = false;
     m_l0000_ok = false;
 }
@@ -449,7 +447,6 @@ void MultiTransport::updateThermal_T()
             m_cstar(j,i) = m_cstar(i,j);
         }
     }
-    m_abc_ok = true;
 
     // evaluate the temperature-dependent rotational relaxation rate
     for (size_t k = 0; k < m_nsp; k++) {

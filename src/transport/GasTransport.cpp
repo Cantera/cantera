@@ -40,11 +40,9 @@ void GasTransport::update_T()
 
     m_temp = T;
     m_kbt = Boltzmann * m_temp;
-    m_sqrt_kbt = sqrt(Boltzmann*m_temp);
     m_logt = log(m_temp);
     m_sqrt_t = sqrt(m_temp);
     m_t14 = sqrt(m_sqrt_t);
-    m_t32 = m_temp * m_sqrt_t;
 
     // compute powers of log(T)
     m_polytempvec[0] = 1.0;

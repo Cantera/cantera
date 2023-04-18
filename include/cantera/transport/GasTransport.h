@@ -362,10 +362,6 @@ protected:
     //! Current value of Boltzmann constant times the temperature (Joules)
     double m_kbt = 0.0;
 
-    //! current value of Boltzmann constant times the temperature.
-    //! (Joules) to 1/2 power
-    double m_sqrt_kbt = 0.0;
-
     //! current value of temperature to 1/2 power
     double m_sqrt_t = 0.0;
 
@@ -374,9 +370,6 @@ protected:
 
     //! Current value of temperature to 1/4 power
     double m_t14 = 0.0;
-
-    //! Current value of temperature to the 3/2 power
-    double m_t32 = 0.0;
 
     //! Polynomial fits to the binary diffusivity of each species
     /*!
