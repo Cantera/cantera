@@ -1347,7 +1347,9 @@ public:
         m_perturb[i] = f;
     }
 
-    virtual void invalidateCache() {};
+    virtual void invalidateCache() {
+        m_cache.clear();
+    };
 
     //! @}
     //! Check for unmarked duplicate reactions and unmatched marked duplicates

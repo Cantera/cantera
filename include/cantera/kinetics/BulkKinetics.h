@@ -88,16 +88,6 @@ public:
     //! @name Rate calculation intermediate methods
     //! @{
 
-    //! Update temperature-dependent portions of reaction rates and falloff
-    //! functions.
-    virtual void update_rates_T();
-
-    //! Update properties that depend on concentrations.
-    //! Currently the enhanced collision partner concentrations are updated
-    //! here, as well as the pressure-dependent portion of P-log and Chebyshev
-    //! reactions.
-    virtual void update_rates_C();
-
     void updateROP() override;
 
     void getThirdBodyConcentrations(double* concm) override;
@@ -115,14 +105,8 @@ protected:
     //! their derivatives.
     //! @{
 
-    //! Calculate rate coefficients
-    void processFwdRateCoefficients(double* ropf);
-
     //! Multiply rate with third-body collider concentrations
     void processThirdBodies(double* rop);
-
-    //! Update the equilibrium constants in molar units.
-    void updateKc();
 
     //! Multiply rate with inverse equilibrium constant
     void applyEquilibriumConstants(double* rop);
@@ -197,13 +181,12 @@ protected:
     double m_jac_rtol_delta;
 
     bool m_ROP_ok = false;
-    double m_temp = 0.0;
-    double m_logStandConc = 0.0;
 
     //! Buffers for partial rop results with length nReactions()
     vector_fp m_rbuf0;
     vector_fp m_rbuf1;
     vector_fp m_rbuf2;
+    vector_fp m_kf0; //!< Forward rate constants without perturbation
     vector_fp m_sbuf0;
     vector_fp m_state;
     vector_fp m_grt;
