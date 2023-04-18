@@ -96,6 +96,9 @@ cdef class UnitSystem:
     native unit system, which is SI units except for the use of kmol as the base
     unit of quantity, that is, kilogram, meter, second, kelvin, ampere, and kmol.
 
+    Generally, this class is used indirectly, through methods interacting with `AnyMap`
+    objects such as `ExtensibleRate.set_parameters` and `ExtensibleRate.get_parameters`.
+
     The default unit system used by Cantera is SI+kmol::
 
         ct.UnitSystem({
