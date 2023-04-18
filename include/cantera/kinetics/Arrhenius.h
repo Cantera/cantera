@@ -71,7 +71,11 @@ public:
 
     //! Perform object setup based on AnyValue node information
     /*!
-     *  @param rate  AnyValue containing rate information
+     *  Used to set parameters from a child of the reaction node, which may have
+     *  different names for different rate parameterizations, such as falloff rates.
+     *
+     *  @param rate  Child of the reaction node containing Arrhenius rate parameters.
+     *      For example, the `rate-coefficient` node for a standard Arrhenius reaction.
      *  @param units  Unit system
      *  @param rate_units  Unit definitions specific to rate information
      */
@@ -79,7 +83,8 @@ public:
                            const UnitSystem& units,
                            const UnitStack& rate_units);
 
-    //! Return parameters
+    //! Get Arrhenius parameters used to populate the `rate-coefficient` or
+    //! equivalent field
     void getRateParameters(AnyMap& node) const;
 
     virtual void setParameters(
