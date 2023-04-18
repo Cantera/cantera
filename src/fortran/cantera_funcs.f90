@@ -24,7 +24,7 @@ module cantera_funcs
          self = ctthermo_newFromFile(src)
       end if
 
-      call ctkin_newFromFile(self, src, id)
+      call ctkin_newFromFile(self, src, '')
 
       if (present(loglevel)) then
          self%tran_id = trans_newdefault(self%thermo_id, loglevel)
@@ -52,7 +52,7 @@ module cantera_funcs
         self%bulk = bulk
       end if
       self%gas = gas
-      call ctkin_newFromFile(self%surf, src, id, gas, bulk)
+      call ctkin_newFromFile(self%surf, src, '', gas, bulk)
 
       ctfunc_importInterface = self
       return

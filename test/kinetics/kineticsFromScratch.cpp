@@ -27,7 +27,7 @@ public:
     {
         vector<shared_ptr<ThermoPhase>> th;
         th.push_back(pp_ref);
-        kin_ref = newKinetics(th, "../data/kineticsfromscratch.yaml", "ohmech");
+        kin_ref = newKinetics(th, "../data/kineticsfromscratch.yaml");
 
         kin.addThermo(pp);
         kin.init();
@@ -519,7 +519,7 @@ public:
         , surf(newThermo("sofc.yaml", "metal_surface"))
         , surf_ref(newThermo("sofc.yaml", "metal_surface"))
     {
-        kin_ref = newKinetics({surf_ref, gas_ref}, "sofc.yaml", "metal_surface");
+        kin_ref = newKinetics({surf_ref, gas_ref}, "sofc.yaml");
         kin.addThermo(surf);
         kin.addThermo(gas);
     }
@@ -602,7 +602,7 @@ public:
         p = make_shared<IdealGasPhase>();
         vector<shared_ptr<ThermoPhase>> th;
         th.push_back(pp_ref);
-        kin_ref = newKinetics(th, "../data/kineticsfromscratch.yaml", "ohmech");
+        kin_ref = newKinetics(th, "../data/kineticsfromscratch.yaml");
         kin.addThermo(p);
 
         std::vector<shared_ptr<Species>> S = getSpecies(

@@ -28,8 +28,7 @@ int main(int argc, char** argv)
         size_t nsp_d100 = diamond100->nSpecies();
         cout << "Number of species in diamond_100 = " << nsp_d100 << endl;
 
-        auto kin = newKinetics({gas, diamond, diamond100},
-                               "diamond.yaml", "diamond_100");
+        auto kin = newKinetics({diamond100, gas, diamond}, "diamond.yaml");
         InterfaceKinetics& ikin = dynamic_cast<InterfaceKinetics&>(*kin);
         size_t nr = kin->nReactions();
         cout << "Number of reactions = " << nr << endl;

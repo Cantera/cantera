@@ -11,7 +11,7 @@ using namespace Cantera;
 TEST(ctreactor, reactor_objects)
 {
     int thermo = thermo_newFromFile("gri30.yaml", "gri30");
-    int kin = kin_newFromFile("gri30.yaml", "gri30", thermo, -1, -1, -1, -1);
+    int kin = kin_newFromFile("gri30.yaml", "", thermo, -1, -1, -1, -1);
 
     int reactor = reactor_new("IdealGasReactor");
     ASSERT_GT(reactor, 0);
@@ -64,7 +64,7 @@ TEST(ctreactor, reactor_from_parts)
     string X = "CH4:1.0, O2:2.0, N2:7.52";
 
     int thermo = thermo_newFromFile("gri30.yaml", "gri30");
-    int kin = kin_newFromFile("gri30.yaml", "gri30", thermo, -1, -1, -1, -1);
+    int kin = kin_newFromFile("gri30.yaml", "", thermo, -1, -1, -1, -1);
     thermo_setMoleFractionsByName(thermo, X.c_str());
     thermo_setTemperature(thermo, T);
     thermo_setPressure(thermo, P);

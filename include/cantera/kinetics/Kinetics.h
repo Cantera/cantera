@@ -216,6 +216,9 @@ public:
      * phase with the smallest spatial dimension (1, 2, or 3) among the list
      * of phases. If there is more than one, the index of the first one is
      * returned. For homogeneous mechanisms, the value 0 is returned.
+     *
+     * @deprecated Starting in Cantera 3.0, the reacting phase will always be the
+     *     first phase in the InterfaceKinetics object. To be removed after Cantera 3.1.
      */
     size_t reactionPhaseIndex() const {
         return m_rxnphase;
