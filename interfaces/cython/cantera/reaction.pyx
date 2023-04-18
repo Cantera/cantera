@@ -1776,12 +1776,6 @@ cdef class Arrhenius:
         return self.base.evalRate(np.log(T), 1/T)
 
 
-cdef wrapArrhenius(CxxArrheniusRate* rate, Reaction reaction):
-    r = Arrhenius(init=False)
-    r.base = rate
-    r.reaction = reaction
-    return r
-
 cdef copyArrhenius(CxxArrheniusRate* rate):
     r = Arrhenius(rate.preExponentialFactor(), rate.temperatureExponent(),
                   rate.activationEnergy())
