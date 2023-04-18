@@ -596,6 +596,11 @@ void Kinetics::addThermo(shared_ptr<ThermoPhase> thermo)
     // the phase with lowest dimensionality is assumed to be the
     // phase/interface at which reactions take place
     if (thermo->nDim() <= m_mindim) {
+        if (!m_thermo.empty()) {
+            warn_deprecated("Kinetics::addThermo", "The reacting (lowest dimensional) "
+                "phase should be added first. This warning will become an error after "
+                "Cantera 3.0.");
+        }
         m_mindim = thermo->nDim();
         m_rxnphase = nPhases();
     }

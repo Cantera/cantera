@@ -16,7 +16,7 @@ public:
     FracCoeffTest() :
         therm(newThermo("frac.yaml", "gas"))
     {
-        kin = newKinetics({therm}, "frac.yaml", "gas");
+        kin = newKinetics({therm}, "frac.yaml");
         therm->setState_TPX(2000, 4*OneAtm,
                             "H2O:0.5, OH:.05, H:0.1, O2:0.15, H2:0.2");
         kH2O = therm->speciesIndex("H2O");

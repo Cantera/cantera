@@ -281,7 +281,7 @@ TEST(YamlWriter, Interface)
     shared_ptr<ThermoPhase> gas1(newThermo("ptcombust.yaml", "gas"));
     shared_ptr<ThermoPhase> surf1(newThermo("ptcombust.yaml", "Pt_surf"));
     vector<shared_ptr<ThermoPhase>> phases1{surf1, gas1};
-    shared_ptr<Kinetics> kin1 = newKinetics(phases1, "ptcombust.yaml", "Pt_surf");
+    shared_ptr<Kinetics> kin1 = newKinetics(phases1, "ptcombust.yaml");
 
     double T = 900;
     double P = OneAtm;
@@ -301,7 +301,7 @@ TEST(YamlWriter, Interface)
     shared_ptr<ThermoPhase> gas2(newThermo("generated-ptcombust.yaml", "gas"));
     shared_ptr<ThermoPhase> surf2(newThermo("generated-ptcombust.yaml", "Pt_surf"));
     vector<shared_ptr<ThermoPhase>> phases2{surf2, gas2};
-    shared_ptr<Kinetics> kin2 = newKinetics(phases2, "generated-ptcombust.yaml", "Pt_surf");
+    shared_ptr<Kinetics> kin2 = newKinetics(phases2, "generated-ptcombust.yaml");
 
     auto iface1 = std::dynamic_pointer_cast<SurfPhase>(surf1);
     auto iface2 = std::dynamic_pointer_cast<SurfPhase>(surf2);

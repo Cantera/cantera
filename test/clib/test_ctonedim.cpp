@@ -102,7 +102,7 @@ TEST(ctonedim, reacting_surface_from_parts)
 
     int gas = thermo_newFromFile("ptcombust.yaml", "gas");
     int surf = thermo_newFromFile("ptcombust.yaml", "Pt_surf");
-    int kin = kin_newFromFile("ptcombust.yaml", "Pt_surf", surf, gas, -1, -1, -1);
+    int kin = kin_newFromFile("ptcombust.yaml", "", surf, gas, -1, -1, -1);
     ASSERT_GE(kin, 0);
 
     int ret = reactingsurf_setkineticsmgr(index, kin);
@@ -117,7 +117,7 @@ TEST(ctonedim, catcomb_stack)
     int trans = soln_transport(sol);
 
     int surf = thermo_newFromFile("ptcombust.yaml", "Pt_surf");
-    int surf_kin = kin_newFromFile("ptcombust.yaml", "Pt_surf", surf, gas, -1, -1, -1);
+    int surf_kin = kin_newFromFile("ptcombust.yaml", "", surf, gas, -1, -1, -1);
 
     // inlet
     int inlet = inlet_new();

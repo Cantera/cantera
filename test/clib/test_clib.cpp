@@ -175,7 +175,7 @@ TEST(ct, thermo)
 TEST(ct, kinetics)
 {
     int thermo = thermo_newFromFile("gri30.yaml", "gri30");
-    int kin = kin_newFromFile("gri30.yaml", "gri30", thermo, -1, -1, -1, -1);
+    int kin = kin_newFromFile("gri30.yaml", "", thermo, -1, -1, -1, -1);
     ASSERT_GE(kin, 0);
 
     size_t nr = kin_nReactions(kin);

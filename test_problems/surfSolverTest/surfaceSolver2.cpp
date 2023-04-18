@@ -26,14 +26,15 @@ void printGas(ostream& oooo, shared_ptr<ThermoPhase> gasTP,
     double x[MSSIZE];
     double C[MSSIZE];
     oooo.precision(3);
-    string gasPhaseName          = "gas";
+    string gasPhaseName = "gas";
     gasTP->getMoleFractions(x);
     gasTP->getConcentrations(C);
     double Temp = gasTP->temperature();
     double p = gasTP->pressure();
     oooo << "Gas Temperature = " << Temp << endl;
     oooo << "Gas Pressure    = " << p << endl;
-    size_t kstart = iKin_ptr->kineticsSpeciesIndex(0, 0);
+    size_t nGas = iKin_ptr->phaseIndex(gasPhaseName);
+    size_t kstart = iKin_ptr->kineticsSpeciesIndex(0, nGas);
     oooo << "Gas Phase:  " << gasPhaseName << "   "
          << "(" << kstart << ")" << endl;
     oooo << "                       Name      "
@@ -43,7 +44,7 @@ void printGas(ostream& oooo, shared_ptr<ThermoPhase> gasTP,
     double sum = 0.0;
     size_t nspGas = gasTP->nSpecies();
     for (size_t k = 0; k < nspGas; k++) {
-        kstart = iKin_ptr->kineticsSpeciesIndex(k, 0);
+        kstart = iKin_ptr->kineticsSpeciesIndex(k, nGas);
         fmt::print(oooo, "{:4d} {:>24s}   {:14g} {:14g}  {:14e}\n",
                    k, gasTP->speciesName(k), C[k], x[k], src[kstart]);
         sum += x[k];
@@ -63,7 +64,8 @@ void printBulk(ostream& oooo, shared_ptr<ThermoPhase> bulkPhaseTP,
     string bulkParticlePhaseName = bulkPhaseTP->name();
     bulkPhaseTP->getMoleFractions(x);
     bulkPhaseTP->getConcentrations(C);
-    size_t kstart = iKin_ptr->kineticsSpeciesIndex(0, 1);
+    size_t nBulk = iKin_ptr->phaseIndex(bulkParticlePhaseName);
+    size_t kstart = iKin_ptr->kineticsSpeciesIndex(0, nBulk);
     double dens = bulkPhaseTP->density();
     oooo << "Bulk Phase:  " << bulkParticlePhaseName << "   "
          << "(" << kstart << ")" << endl;
@@ -80,7 +82,7 @@ void printBulk(ostream& oooo, shared_ptr<ThermoPhase> bulkPhaseTP,
     const vector_fp& molecW = bulkPhaseTP->molecularWeights();
     size_t nspBulk = bulkPhaseTP->nSpecies();
     for (size_t k = 0; k < nspBulk; k++) {
-        kstart = iKin_ptr->kineticsSpeciesIndex(k, 1);
+        kstart = iKin_ptr->kineticsSpeciesIndex(k, nBulk);
         fmt::print(oooo, "{:4d} {:>24s}   {:14g} {:14g}  {:14e}\n",
                    k, bulkPhaseTP->speciesName(k), C[k], x[k], src[kstart]);
         sum += x[k];
@@ -105,7 +107,8 @@ void printSurf(ostream& oooo, shared_ptr<ThermoPhase> surfPhaseTP,
     oooo.precision(3);
     string surfParticlePhaseName = surfPhaseTP->name();
     surfPhaseTP->getMoleFractions(x);
-    size_t kstart = iKin_ptr->kineticsSpeciesIndex(0, 2);
+    size_t nSurf = iKin_ptr->phaseIndex(surfParticlePhaseName);
+    size_t kstart = iKin_ptr->kineticsSpeciesIndex(0, nSurf);
     oooo << "Surface Phase:  " << surfParticlePhaseName
          << " (" << kstart << ")" << endl;
     double Temp = surfPhaseTP->temperature();
@@ -117,7 +120,7 @@ void printSurf(ostream& oooo, shared_ptr<ThermoPhase> surfPhaseTP,
     double sum = 0.0;
     size_t nspSurf = surfPhaseTP->nSpecies();
     for (size_t k = 0; k < nspSurf; k++) {
-        kstart = iKin_ptr->kineticsSpeciesIndex(0, 2);
+        kstart = iKin_ptr->kineticsSpeciesIndex(k, nSurf);
         double srcK = src[kstart];
         if (fabs(srcK) < 1.0E-8) {
             srcK = 0.0;
@@ -152,8 +155,7 @@ int main(int argc, char** argv)
         cout << "Number of species in surface phase, " << surfParticlePhaseName
              << " = " << nsp_d100 << endl;
 
-        auto kin = newKinetics({gasTP, bulkPhaseTP, surfPhaseTP},
-                               infile, surfParticlePhaseName);
+        auto kin = newKinetics({surfPhaseTP, gasTP, bulkPhaseTP}, infile);
         auto iKin_ptr = dynamic_pointer_cast<InterfaceKinetics>(kin);
         size_t nr = iKin_ptr->nReactions();
         cout << "Number of reactions = " << nr << endl;
@@ -170,8 +172,7 @@ int main(int argc, char** argv)
 
         // create the second  InterfaceKinetics object based on the
         // second surface phase.
-        auto kin2 = newKinetics({gasTP, bulkPhaseTP, surfPhaseTP2},
-                                infile, surfParticlePhaseName);
+        auto kin2 = newKinetics({surfPhaseTP2, gasTP, bulkPhaseTP}, infile);
         auto iKin2_ptr = dynamic_pointer_cast<InterfaceKinetics>(kin2);
         nr = iKin_ptr->nReactions();
         cout << "Number of reactions = " << nr << endl;

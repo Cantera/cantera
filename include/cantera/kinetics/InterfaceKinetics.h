@@ -133,7 +133,8 @@ public:
     //!  Add a thermo phase to the kinetics manager object.
     /*!
      * This must be done before the function init() is called or
-     * before any reactions are input.
+     * before any reactions are input. The lowest dimensional phase, where reactions
+     * occur, must be added first.
      *
      * This function calls Kinetics::addPhase(). It also sets the following
      * fields:
