@@ -209,25 +209,25 @@ void BulkKinetics::getRevRateConstants(double* krev, bool doIrreversible)
 void BulkKinetics::getDeltaGibbs(double* deltaG)
 {
     // Get the chemical potentials for each species
-    thermo().getChemPotentials(m_grt.data());
+    thermo().getChemPotentials(m_sbuf0.data());
     // Use the stoichiometric manager to find deltaG for each reaction.
-    getReactionDelta(m_grt.data(), deltaG);
+    getReactionDelta(m_sbuf0.data(), deltaG);
 }
 
 void BulkKinetics::getDeltaEnthalpy(double* deltaH)
 {
     // Get the partial molar enthalpy for each species
-    thermo().getPartialMolarEnthalpies(m_grt.data());
+    thermo().getPartialMolarEnthalpies(m_sbuf0.data());
     // Use the stoichiometric manager to find deltaH for each reaction.
-    getReactionDelta(m_grt.data(), deltaH);
+    getReactionDelta(m_sbuf0.data(), deltaH);
 }
 
 void BulkKinetics::getDeltaEntropy(double* deltaS)
 {
     // Get the partial molar entropy for each species
-    thermo().getPartialMolarEntropies(m_grt.data());
+    thermo().getPartialMolarEntropies(m_sbuf0.data());
     // Use the stoichiometric manager to find deltaS for each reaction.
-    getReactionDelta(m_grt.data(), deltaS);
+    getReactionDelta(m_sbuf0.data(), deltaS);
 }
 
 void BulkKinetics::getDeltaSSGibbs(double* deltaG)
@@ -236,20 +236,20 @@ void BulkKinetics::getDeltaSSGibbs(double* deltaG)
     // array of chemical potentials at unit activity. We define these here as
     // the chemical potentials of the pure species at the temperature and
     // pressure of the solution.
-    thermo().getStandardChemPotentials(m_grt.data());
+    thermo().getStandardChemPotentials(m_sbuf0.data());
     // Use the stoichiometric manager to find deltaG for each reaction.
-    getReactionDelta(m_grt.data(), deltaG);
+    getReactionDelta(m_sbuf0.data(), deltaG);
 }
 
 void BulkKinetics::getDeltaSSEnthalpy(double* deltaH)
 {
     // Get the standard state enthalpies of the species.
-    thermo().getEnthalpy_RT(m_grt.data());
+    thermo().getEnthalpy_RT(m_sbuf0.data());
     for (size_t k = 0; k < m_kk; k++) {
-        m_grt[k] *= thermo().RT();
+        m_sbuf0[k] *= thermo().RT();
     }
     // Use the stoichiometric manager to find deltaH for each reaction.
-    getReactionDelta(m_grt.data(), deltaH);
+    getReactionDelta(m_sbuf0.data(), deltaH);
 }
 
 void BulkKinetics::getDeltaSSEntropy(double* deltaS)
@@ -257,12 +257,12 @@ void BulkKinetics::getDeltaSSEntropy(double* deltaS)
     // Get the standard state entropy of the species. We define these here as
     // the entropies of the pure species at the temperature and pressure of the
     // solution.
-    thermo().getEntropy_R(m_grt.data());
+    thermo().getEntropy_R(m_sbuf0.data());
     for (size_t k = 0; k < m_kk; k++) {
-        m_grt[k] *= GasConstant;
+        m_sbuf0[k] *= GasConstant;
     }
     // Use the stoichiometric manager to find deltaS for each reaction.
-    getReactionDelta(m_grt.data(), deltaS);
+    getReactionDelta(m_sbuf0.data(), deltaS);
 }
 
 void BulkKinetics::getDerivativeSettings(AnyMap& settings) const

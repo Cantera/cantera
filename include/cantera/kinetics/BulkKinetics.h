@@ -189,7 +189,7 @@ protected:
     vector_fp m_kf0; //!< Forward rate constants without perturbation
     vector_fp m_sbuf0;
     vector_fp m_state;
-    vector_fp m_grt;
+    vector_fp m_grt; //!< Standard chemical potentials for each species
 };
 
 }
