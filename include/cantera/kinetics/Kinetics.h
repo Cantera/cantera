@@ -607,10 +607,10 @@ public:
     //!
     //! For InterfaceKinetics, the following keyword/value pairs are supported:
     //!  - `skip-coverage-dependence` (boolean) ... if `false` (default), rate constant
-    //!   coverage dependence is not considered when evaluating derivatives.
-    //! - `skip-electrochemistry` (boolean) ... if `false` (default), electrical charge
-    //!   is not considered in evaluating the derivatives and these reactions are
-    //!   treated as normal surface reactions.
+    //!    coverage dependence is not considered when evaluating derivatives.
+    //!  - `skip-electrochemistry` (boolean) ... if `false` (default), electrical charge
+    //!    is not considered in evaluating the derivatives and these reactions are
+    //!    treated as normal surface reactions.
     //!  - `rtol-delta` (double) ... relative tolerance used to perturb properties
     //!    when calculating numerical derivatives. The default value is 1e-8.
     //!

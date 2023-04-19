@@ -285,6 +285,7 @@ public:
      *
      *  @param fname  Name of container file (YAML or HDF)
      *  @param id  Identifier of SolutionArray within the container file
+     *  @param sub  Name of the subgroup holding actual data
      */
     AnyMap restore(const string& fname, const string& id, const string& sub);
 
