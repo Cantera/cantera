@@ -65,7 +65,7 @@ shared_ptr<Kinetics> newKinetics(const vector<shared_ptr<ThermoPhase>>& phases,
                                  const AnyMap& rootNode=AnyMap(),
                                  shared_ptr<Solution> soln={});
 
-//! @copydoc newKinetics(const vector<shared_ptr<ThermoPhase>>&, const AnyMap&, const AnyMap&)
+//! @see newKinetics(const vector<shared_ptr<ThermoPhase>>&, const AnyMap&, const AnyMap&, shared_ptr<Solution>)
 //! @deprecated  To be removed after Cantera 3.0;
 //!     superseded by newKinetics() returning shared_ptr
 unique_ptr<Kinetics> newKinetics(const std::vector<ThermoPhase*>& phases,

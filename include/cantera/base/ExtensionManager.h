@@ -92,6 +92,8 @@ public:
     //! @param rateName  The name of the reaction rate type
     //! @param wrapperName  The name used for Solution wrappers to be used with this
     //!     object, corresponding to a type registered with registerSolutionLinker().
+    //! @param link  Function that creates ReactionData wrapper and links it to the
+    //!     provided C++ object
     static void registerReactionDataLinker(const string& rateName,
         const string& wrapperName, function<void(ReactionDataDelegator&)> link);
 
