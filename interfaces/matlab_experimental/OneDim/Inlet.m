@@ -1,7 +1,7 @@
 classdef Inlet < Boundary1D
     % Create an inlet domain. ::
     %
-    %     >> m = Inlet(id)
+    %     >> m = Inlet(phase, id)
     %
     % Note that an inlet can only be a terminal domain - it must be
     % either the leftmost or rightmost domain in a stack.
