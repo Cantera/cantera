@@ -1,4 +1,4 @@
-classdef Inlet < Domain1D
+classdef Inlet < Boundary1D
     % Create an inlet domain. ::
     %
     %     >> m = Inlet(id)
@@ -6,6 +6,8 @@ classdef Inlet < Domain1D
     % Note that an inlet can only be a terminal domain - it must be
     % either the leftmost or rightmost domain in a stack.
     %
+    % :param phase:
+    %     Instance of class :mat:class:`Solution`.
     % :param id:
     %     String name of the inlet.
     % :return:
@@ -13,16 +15,13 @@ classdef Inlet < Domain1D
 
     methods
 
-        function m = Inlet(id)
+        function m = Inlet(phase, id)
             % Constructor
-
-            m@Domain1D('Inlet1D');
-
-            if nargin == 0
-                m.setID('inlet');
-            else
-                m.setID(id);
+            if nargin < 2
+                id = 'inlet';
             end
+
+            m@Boundary1D('inlet', phase, id);
 
         end
 

@@ -1,8 +1,10 @@
-classdef SymmPlane < Domain1D
+classdef SymmPlane < Boundary1D
     % Create a symmetry plane domain. ::
     %
     %     >> m = SymmPlane(id)
     %
+    % :param phase:
+    %     Instance of class :mat:class:`Solution`.
     % :param id:
     %     String ID of the symmetry plane.
     % :return:
@@ -10,16 +12,14 @@ classdef SymmPlane < Domain1D
 
     methods
 
-        function m = SymmPlane(id)
+        function m = SymmPlane(phase, id)
             % Constructor
 
-            m@Domain1D('Symm1D');
-
-            if nargin == 0
-                m.setID('symmetry_plane');
-            else
-                m.setID(id);
+            if nargin < 2
+                id = 'symmetry-plane';
             end
+
+            m@Boundary1D('symmetry-plane', phase, id);
 
         end
 

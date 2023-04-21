@@ -10,19 +10,19 @@ function f = flame(gas, left, flow, right)
         error('gas object must represent an ideal gas mixture.');
     end
 
-    if ~left.isInlet
+    if ~isa(left, 'Inlet')
         error('burner object of wrong type.');
     end
 
-    if ~flow.isFlow
+    if ~isa(flow, 'Flow1D')
         error('flow object of wrong type.');
     end
 
     flametype = 0;
 
-    if right.isSurface
+    if isa(right, 'ReactingSurface')
         flametype = 1;
-    elseif right.isInlet
+    elseif isa(right, 'Inlet')
         flametype = 3;
     end
 

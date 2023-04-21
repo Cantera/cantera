@@ -34,11 +34,6 @@ classdef Sim1D < handle
             s.stID = -1;
             s.domains = domains;
 
-            if nargin ~= 1
-                help(Sim1D);
-                error('Wrong number of parameters.');
-            end
-
             nd = length(domains);
             ids = zeros(1, nd);
 
@@ -70,28 +65,6 @@ classdef Sim1D < handle
             ctFunc('sim1D_showSolution', s.stID, fname);
         end
 
-        function plotSolution(s, domain, component)
-            % Plot a specified solution component. ::
-            %
-            %     >> s.plotSolution(domain, component)
-            %
-            % :param s:
-            %    Instance of class :mat:class:`Sim1D`.
-            % :param domain:
-            %    Name of domain from which the component should be
-            %    retrieved.
-            % :param component:
-            %    Name of the component to be plotted.
-
-            n = s.stackIndex(domain);
-            d = s.domains{n};
-            z = d.gridPoints;
-            x = s.solution(domain, component);
-            plot(z, x);
-            xlabel('z (m)');
-            ylabel(component);
-        end
-
         function restore(s, fname, id)
             % Restore a previously-saved solution. ::
             %
@@ -111,10 +84,10 @@ classdef Sim1D < handle
             ctFunc('sim1D_restore', s.stID, fname, id)
         end
 
-        function saveSoln(s, fname, id, desc)
+        function save(s, fname, id, desc)
             % Save a solution to a file. ::
             %
-            %     >> s.saveSoln(fname, id, desc)
+            %     >> s.save(fname, id, desc)
             %
             % The output file is in a format that can be used by :mat:class:`restore`
             %
@@ -127,24 +100,19 @@ classdef Sim1D < handle
             % :param desc:
             %     Description to be written to the output file.
 
-            if nargin == 1
-                fname = 'soln.yaml';
-                id = 'solution';
-                desc = '--';
-            elseif nargin == 2
-                id = 'solution';
-                desc = '--';
+            if nargin < 3
+                error('Not enough input arguments');
             elseif nargin == 3
-                desc = '--';
+                desc = '';
             end
 
             ctFunc('sim1D_save', s.stID, fname, id, desc);
         end
 
-        function x = solution(s, domain, component)
+        function x = getSolution(s, domain, component)
             % Get a solution component in one domain. ::
             %
-            %     >> s.solution(domain, component)
+            %     >> s.getSolution(domain, component)
             %
             % :param s:
             %    Instance of class :mat:class:`Sim1D`.
@@ -269,10 +237,10 @@ classdef Sim1D < handle
             z = d.gridPoints;
         end
 
-        function r = resid(s, domain, rdt, count)
+        function r = residual(s, domain, rdt, count)
             % Evaluate the multi-domain residual function. ::
             %
-            %     >> r = s.resid(domain, rdt, count)
+            %     >> r = s.residual(domain, rdt, count)
             %
             % :param s:
             %    Instance of class :mat:class:`Sim1D`.
@@ -500,7 +468,7 @@ classdef Sim1D < handle
             %    taken first time the steady-state solution attempted.
             %    If this failed, two time steps would be taken.
 
-            ctFunc('sim1D_TimeStep', s.stID, stepsize, length(steps), steps);
+            ctFunc('sim1D_setTimeStep', s.stID, stepsize, length(steps), steps);
         end
 
         function setValue(s, n, comp, localPoints, v)
