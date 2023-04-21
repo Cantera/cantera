@@ -11,12 +11,17 @@ classdef Interface < handle & ThermoPhase & Kinetics
     %       - src: YAML file containing the interface or edge phase.
     %       - id: Name of the interface or edge phase in the YAML file.
     %     Optional:
-    %       - p1: 1st Adjoining phase to the interface.
-    %       - p2: 2nd Adjoining phase to the interface.
-    %       - p3: 3rd Adjoining phase to the interface.
-    %       - p4: 4th Adjoining phase to the interface.
+    %       - p1: 1st adjacent phase to the interface.
+    %       - p2: 2nd adjacent phase to the interface.
+    %       - p3: 3rd adjacent phase to the interface.
+    %       - p4: 4th adjacent phase to the interface.
     % :return:
     %     Instance of class :mat:class:`Interface`.
+
+    properties (SetAccess = immutable)
+        phaseID
+        interfaceName
+    end
 
     properties (SetAccess = public)
 
@@ -28,6 +33,7 @@ classdef Interface < handle & ThermoPhase & Kinetics
 
     properties (SetAccess = protected)
         concentrations % Concentrations of the species on an interface.
+        nAdjacent % Number of adjacent phases.
     end
 
     methods
@@ -39,15 +45,20 @@ classdef Interface < handle & ThermoPhase & Kinetics
             ctIsLoaded;
 
             src = varargin{1};
-            id = varargin{2};
+            name = varargin{2};
+            na = nargin - 2;
 
-            t = ThermoPhase(src, id);
-            s@ThermoPhase(src, id);
+            adj = [];
+            for i = 3:nargin
+                adj(i-2) = varargin{i}.phaseID;
+            end
 
-            args = varargin(3:end);
-
-            s@Kinetics(t, src, id, args{:});
-            s.tpID = t.tpID;
+            ID = ctFunc('soln_newInterface', src, name, na, adj);
+            s@ThermoPhase('CreateFromSolution', ID);
+            s@Kinetics('CreateFromSolution', ID);
+            s.phaseID = ID;
+            s.interfaceName = name;
+            s.nAdjacent = ctFunc('soln_nAdjacent', ID);
         end
 
         %% Interface Class Destructor
@@ -58,6 +69,11 @@ classdef Interface < handle & ThermoPhase & Kinetics
         end
 
         %% Interface Get Methods
+
+        function phase = adjacent(s, n)
+            % Get the nth adjacent phase of an interface.
+            phase = ctFunc('soln_adjacent', s, n);
+        end
 
         function c = coverages(s)
             % Surface coverages of the species on an interface.

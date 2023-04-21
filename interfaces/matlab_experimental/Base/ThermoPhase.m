@@ -434,6 +434,16 @@ classdef ThermoPhase < handle
             tp.basis = 'molar';
         end
 
+        %% ThermoPhase class Destructor
+
+        function delete(tp)
+            % Delete the :mat:class:`ThermoPhase` object.
+
+            if ~isa(tp, 'Solution') && ~isa(tp, 'Interface')
+                ctFunc('thermo_del', tp.tpID);
+            end
+        end
+
         %% ThermoPhase Utility Methods
 
         function display(tp)
@@ -911,7 +921,7 @@ classdef ThermoPhase < handle
         end
 
         function v = get.isIdealGas(tp)
-            v = strcmp(tp.eosType, 'IdealGas');
+            v = strcmp(tp.eosType, 'ideal-gas');
         end
 
         function b = get.isothermalCompressibility(tp)

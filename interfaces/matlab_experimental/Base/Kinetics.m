@@ -144,6 +144,16 @@ classdef Kinetics < handle
             kin.kinID = ctFunc('kin_newFromFile', src, id, ph, neighbours{:});
         end
 
+        %% Kinetics Class Destructor
+
+        function delete(kin)
+            % Delete the :mat:class:`Sim1D` object.
+
+            if ~isa(kin, 'Solution') && ~isa(kin, 'Interface')
+                ctFunc('kin_del', kin.kinID);
+            end
+        end
+
         %% Get scalar attributes
 
         function n = kineticsSpeciesIndex(kin, name, phase)
