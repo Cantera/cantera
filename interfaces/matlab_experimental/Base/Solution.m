@@ -49,7 +49,7 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
     %     Instance of class :mat:class:`Solution`.
 
     properties (SetAccess = immutable)
-        solnID
+        phaseID
         solnName
     end
 
@@ -79,8 +79,8 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
             s@ThermoPhase('CreateFromSolution', ID);
             s@Kinetics('CreateFromSolution', ID);
             s@Transport('CreateFromSolution', ID);
-            s.solnID = ID;
-            s.solnName = ctString('soln_name', s.solnID);
+            s.phaseID = ID;
+            s.solnName = ctString('soln_name', s.phaseID);
             s.th = s.tpID;
         end
 
@@ -88,7 +88,7 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
 
         function delete(s)
             % Delete :mat:class:`Solution` object.
-            ctFunc('soln_del', s.solnID);
+            ctFunc('soln_del', s.phaseID);
             disp('Solution class object has been deleted');
         end
 
