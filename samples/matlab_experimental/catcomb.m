@@ -106,11 +106,11 @@ flow.setTransientTolerances('default', tol_ts{:});
 %  specified. This object provides the inlet boundary conditions for
 %  the flow equations.
 
-inlt = Inlet('inlet');
+inlt = Inlet(gas, 'inlet');
 
 % set the inlet parameters. Start with comp1 (hydrogen/air)
 inlt.T = tinlet;
-inlt.setMassFlowRate(mdot);
+inlt.massFlux = mdot;
 inlt.setMoleFractions(comp1);
 
 %% create the surface
@@ -121,7 +121,7 @@ inlt.setMoleFractions(comp1);
 % equation set, and used to compute the surface production rates of
 % the gas-phase species.
 
-surf = Surface('surface', surf_phase);
+surf = ReactingSurface(surf_phase, 'surface');
 surf.T = tsurf;
 
 %% create the stack
@@ -144,20 +144,18 @@ for k = 1:gas.nSpecies
     stack.setProfile(2, names{k}, [0, 1; y, y]);
 end
 
-stack
-
-%setTimeStep(fl, 1.0e-5, [1, 3, 6, 12]);
-%setMaxJacAge(fl, 4, 5);
+stack.setTimeStep(1.0e-5, [1, 3, 6, 12]);
+stack.setMaxJacAge(4, 5);
 
 %% Solution
 
 % start with the energy equation on
-flow.enableEnergy;
+flow.energyEnabled = true;
 
 % disable the surface coverage equations, and turn off all gas and
 % surface chemistry
 
-surf.setCoverageEqs('off');
+surf.coverageEnabled = false;
 surf_phase.setMultiplier(0.0);
 gas.setMultiplier(0.0);
 
@@ -167,7 +165,7 @@ stack.solve(1, refine_grid);
 % now turn on the surface coverage equations, and turn the
 % chemistry on slowly
 
-surf.setCoverageEqs('on');
+surf.coverageEnabled = true;
 
 for iter = 1:6
     mult = 10.0^(iter - 6);
@@ -186,12 +184,6 @@ stack.setRefineCriteria(2, 100.0, 0.15, 0.2);
 % solve the problem for the final time
 stack.solve(loglevel, refine_grid);
 
-% show the solution
-stack
-
-% save the solution
-stack.saveSoln('catcomb.xml', 'energy', ['solution with energy equation']);
-
 %% Show statistics
 
 stack.writeStats;
@@ -204,37 +196,37 @@ disp(e);
 clf;
 
 subplot(3, 3, 1);
-stack.plotSolution('flow', 'T');
+plotSolution(stack, 'flow', 'T');
 title('Temperature [K]');
 
 subplot(3, 3, 2);
-stack.plotSolution('flow', 'velocity');
+plotSolution(stack, 'flow', 'velocity');
 title('Axial Velocity [m/s]');
 
 subplot(3, 3, 3);
-stack.plotSolution('flow', 'spread_rate');
+plotSolution(stack, 'flow', 'spread_rate');
 title('Radial Velocity / Radius [1/s]');
 
 subplot(3, 3, 4);
-stack.plotSolution('flow', 'CH4');
+plotSolution(stack, 'flow', 'CH4');
 title('CH4 Mass Fraction');
 
 subplot(3, 3, 5);
-stack.plotSolution('flow', 'O2');
+plotSolution(stack, 'flow', 'O2');
 title('O2 Mass Fraction');
 
 subplot(3, 3, 6);
-stack.plotSolution('flow', 'CO');
+plotSolution(stack, 'flow', 'CO');
 title('CO Mass Fraction');
 
 subplot(3, 3, 7);
-stack.plotSolution('flow', 'CO2');
+plotSolution(stack, 'flow', 'CO2');
 title('CO2 Mass Fraction');
 
 subplot(3, 3, 8);
-stack.plotSolution('flow', 'H2O');
+plotSolution(stack, 'flow', 'H2O');
 title('H2O Mass Fraction');
 
 subplot(3, 3, 9);
-stack.plotSolution('flow', 'H2');
+plotSolution(stack, 'flow', 'H2');
 title('H2 Mass Fraction');

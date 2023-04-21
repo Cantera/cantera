@@ -58,16 +58,16 @@ f.setTransientTolerances('default', tol_ts{:});
 %  The temperature, mass flux, and composition (relative molar) may be
 %  specified.
 
-inlet_o = Inlet('air_inlet');
+inlet_o = Inlet(gas, 'air_inlet');
 inlet_o.T = tin;
-inlet_o.setMassFlowRate(mdot_o);
+inlet_o.massFlux = mdot_o;
 inlet_o.setMoleFractions(comp1);
 
 %% Create the fuel inlet
 %
-inlet_f = Inlet('fuel_inlet');
+inlet_f = Inlet(gas, 'fuel_inlet');
 inlet_f.T = tin;
-inlet_f.setMassFlowRate(mdot_f);
+inlet_f.massFlux = mdot_f;
 inlet_f.setMoleFractions(comp2);
 
 %% Create the flame object
@@ -90,10 +90,9 @@ fl.solve(loglevel, refine_grid);
 %  temperature profile. We also tighten the grid refinement
 %  criteria to get an accurate final solution.
 
-f.enableEnergy;
+f.energyEnabled = true;
 fl.setRefineCriteria(2, 200.0, 0.1, 0.1);
 fl.solve(loglevel, refine_grid);
-fl.saveSoln('c2h6.xml', 'energy', ['solution with energy equation']);
 
 %% Show statistics
 

@@ -45,15 +45,15 @@ classdef CounterFlowDiffusionFlame < Sim1D
                 error('Oxidizer gas object must represent an ideal gas mixture.');
             end
 
-            if ~left.isInlet
+            if ~isa(left, 'Inlet')
                 error('Left inlet object of wrong type.');
             end
 
-            if ~flow.isFlow
+            if ~isa(flow, 'Flow1D')
                 error('Flow object of wrong type.');
             end
 
-            if ~right.isInlet
+            if ~isa(right, 'Inlet')
                 error('Right inlet object of wrong type.');
             end
 

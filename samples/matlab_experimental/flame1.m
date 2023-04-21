@@ -59,9 +59,9 @@ f.setTransientTolerances('default', tol_ts{:});
 %
 %  The burner is an Inlet object. The temperature, mass flux,
 %  and composition (relative molar) may be specified.
-burner = Inlet('burner');
+burner = Inlet(gas, 'burner');
 burner.T = tburner;
-burner.setMassFlowRate(mdot);
+burner.massFlux = mdot;
 burner.setMoleFractions(comp);
 
 %% Create the outlet
@@ -71,7 +71,7 @@ burner.setMoleFractions(comp);
 %  conditions for the temperature and mass fractions, and zero
 %  radial velocity and radial pressure gradient.
 
-s = Outlet('out');
+s = Outlet(gas, 'out');
 
 %% Create the flame object
 %
@@ -93,10 +93,9 @@ fl.solve(loglevel, refine_grid);
 %  temperature profile. We also tighten the grid refinement
 %  criteria to get an accurate final solution.
 
-f.enableEnergy;
+f.energyEnabled = true;
 fl.setRefineCriteria(2, 200.0, 0.05, 0.1);
 fl.solve(1, 1);
-fl.saveSoln('h2fl.xml', 'energy', ['solution with energy equation']);
 
 %% Show statistics
 

@@ -22,7 +22,7 @@ p = OneAtm; % Pressure
 tin = 300.0; % Inlet temperature
 mdot_o = 0.72; % Air mass flux, kg/m^2/s
 mdot_f = 0.24; % Fuel mass flux, kg/m^2/s
-transport = 'Mix'; % Transport model
+transport = 'mixture-averaged'; % Transport model
 % NOTE: Transport model needed if mechanism file does not have transport
 % properties.
 
@@ -65,15 +65,15 @@ f.setTransientTolerances('default', tol_ts{:});
 % Specify the temperature, mass flux, and composition correspondingly.
 
 % Set the oxidizer inlet.
-inlet_o = Inlet('air_inlet');
+inlet_o = Inlet(ox, 'air_inlet');
 inlet_o.T = tin;
-inlet_o.setMassFlowRate(mdot_o);
+inlet_o.massFlux = mdot_o;
 inlet_o.setMoleFractions(oxcomp);
 
 % Set the fuel inlet.
-inlet_f = Inlet('fuel_inlet');
+inlet_f = Inlet(fuel, 'fuel_inlet');
 inlet_f.T = tin;
-inlet_f.setMassFlowRate(mdot_f);
+inlet_f.massFlux = mdot_f;
 inlet_f.setMoleFractions(fuelcomp);
 
 %% Create the flame object.
@@ -102,10 +102,9 @@ fl.solve(loglevel, 0);
 % on cantera.org in the Matlab User's Guide and can be accessed by
 % help setRefineCriteria
 
-f.enableEnergy;
+f.energyEnabled = true;
 fl.setRefineCriteria(2, 200.0, 0.1, 0.2);
 fl.solve(loglevel, refine_grid);
-fl.saveSoln('c2h6.xml', 'energy', ['solution with energy equation']);
 
 %% Show statistics of solution and elapsed time.
 
@@ -120,11 +119,11 @@ disp(e);
 
 z = fl.grid('flow'); % Get grid points of flow
 spec = fuel.speciesNames; % Get species names in gas
-T = fl.solution('flow', 'T'); % Get temperature solution
+T = fl.getSolution('flow', 'T'); % Get temperature solution
 
 for i = 1:length(spec)
     % Get mass fraction of all species from solution
-    y(i, :) = fl.solution('flow', spec{i});
+    y(i, :) = fl.getSolution('flow', spec{i});
 end
 
 j = fuel.speciesIndex('O2'); % Get index of O2 in gas object
