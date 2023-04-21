@@ -1,7 +1,7 @@
 classdef SymmPlane < Boundary1D
     % Create a symmetry plane domain. ::
     %
-    %     >> m = SymmPlane(id)
+    %     >> m = SymmPlane(phase, id)
     %
     % :param phase:
     %     Instance of class :mat:class:`Solution`.

@@ -1,7 +1,7 @@
 classdef Surface < Bondary1D
     % Create a surface domain. ::
     %
-    %     >> m = Surface(id)
+    %     >> m = Surface(phase, id)
     %
     % :param phase:
     %     Instance of class :mat:class:`Solution`.

@@ -19,8 +19,8 @@ classdef Interface < handle & ThermoPhase & Kinetics
     %     Instance of class :mat:class:`Interface`.
 
     properties (SetAccess = immutable)
-        phaseID
-        interfaceName
+        phaseID % ID of the interface.
+        interfaceName % Name of the interface.
     end
 
     properties (SetAccess = public)

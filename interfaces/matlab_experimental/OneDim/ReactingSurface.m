@@ -1,7 +1,7 @@
 classdef ReactingSurface < Boundary1D
     % Create a reacting surface domain. ::
     %
-    %     >> m = Surface(surface_mech, id)
+    %     >> m = ReactingSurface(surface_mech, id)
     %
     % :param surface_mech:
     %     Instance of class :mat:class:`Interface` defining

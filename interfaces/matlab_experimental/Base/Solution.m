@@ -49,8 +49,8 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
     %     Instance of class :mat:class:`Solution`.
 
     properties (SetAccess = immutable)
-        phaseID
-        solnName
+        phaseID % ID of the solution.
+        solnName % Name of the solution.
     end
 
     methods

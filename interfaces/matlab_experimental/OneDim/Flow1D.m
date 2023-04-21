@@ -1,8 +1,12 @@
 classdef Flow1D < Domain1D
     % Create a Flow domain. ::
     %
-    %     >> m = Flow1D(phase, id)
+    %     >> m = Flow1D(type, phase, id)
     %
+    % :param type:
+    %    String type of domain. Possible values are:
+    %      - `axisymmetric-flow`
+    %      - `free-flow`
     % :param phase:
     %     Instance of class :mat:class:`Solution`.
     % :param id:

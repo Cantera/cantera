@@ -1,23 +1,24 @@
 classdef Domain1D < handle
     % Domain1D Class ::
     %
-    %     >> d = Domain1D(a, b)
+    %     >> d = Domain1D(type, phase, id)
     %
-    % :param a:
+    % :param type:
     %    String type of domain. Possible values are:
-    %      - `StagnationFlow`
-    %      - `AxisymmetricFlow`
-    %      - `Inlet1D`
-    %      - `Surf1D`
-    %      - `Symm1D`
-    %      - `Outlet1D`
-    %      - `ReactingSurface`
-    %      - `OutletRes`
-    % :param b:
-    %     Instance of :mat:class:`Solution` (for ``a == 'StagnationFlow`` or
-    %     ``a = 'AxisymmetricFlow'``) or :mat:class:`Interface`
-    %     (for ``a == 'ReactingSurface'``).
-    %     Not used for all other valid values of ``a``.
+    %      - `axisymmetric-flow`
+    %      - `free-flow`
+    %      - `inlet`
+    %      - `outlet`
+    %      - `reacting-surface`
+    %      - `surface`
+    %      - `symmetry-plane`
+    %      - `outlet-reservoir`
+    % :param phase:
+    %     Instance of :mat:class:`Solution` or :mat:class:`Interface`.
+    % :param id:
+    %     String ID of the domain.
+    % :return:
+    %     Instance of class :mat:class:`Domain1D`
 
     properties (SetAccess = immutable)
 
