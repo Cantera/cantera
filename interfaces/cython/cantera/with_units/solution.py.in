@@ -38,7 +38,7 @@ class Solution:
 
     This implementation of `Solution <cantera.with_units.Solution>` operates with
     units by using the `pint` library to convert between unit systems. All properties
-    are asssigned units in the standard MKS system that Cantera uses, substituting kmol
+    are assigned units in the standard MKS system that Cantera uses, substituting kmol
     instead of mol. Each property is an instance of the `pint.Quantity` class.
 
     Similarly, properties must be instances of `pint.Quantity` classes when they are
@@ -100,7 +100,7 @@ class PureFluid:
     """
     This implementation of `PureFluid <cantera.with_units.PureFluid>` operates with
     units by using the `pint` library to convert between unit systems. All properties
-    are asssigned units in the standard MKS system that Cantera uses, substituting kmol
+    are assigned units in the standard MKS system that Cantera uses, substituting kmol
     instead of mol. Each property is an instance of the `pint.Quantity` class.
 
     Similarly, properties must be instances of `pint.Quantity` classes when they are
