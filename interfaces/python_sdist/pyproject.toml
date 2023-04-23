@@ -1,3 +1,10 @@
 [build-system]
-requires = ["setuptools>=43.0.0", "wheel", "oldest-supported-numpy", "Cython>=0.29.12"]
+# These versions are pinned to the latest versions at the time of this commit.
+# Feel free to update as required.
+requires = [
+  "setuptools==67.7.1",
+  "wheel",
+  "oldest-supported-numpy",
+  "Cython==0.29.34",
+]
 build-backend = "setuptools.build_meta"

@@ -8,14 +8,13 @@ from pathlib import Path
 import numpy
 import shutil
 
-HERE = Path(__file__).parent
-CT_SRC = HERE / "src"
-EXT_SRC = HERE / "ext"
-CT_INCLUDE = HERE / "include"
+CT_SRC = Path("src")
+EXT_SRC = Path("ext")
+CT_INCLUDE = Path("include")
 BOOST_INCLUDE = None
 FORCE_CYTHON_COMPILE = False
 
-CYTHON_BUILT_FILES = [HERE / "cantera" / f"_cantera.{ext}" for ext in ("cpp", "h")]
+CYTHON_BUILT_FILES = [Path("cantera") / f"_cantera.{ext}" for ext in ("cpp", "h")]
 
 
 class CanteraOptionsMixin:
@@ -114,9 +113,6 @@ def configure_build():
 
     config_h = {}
 
-    def create_config(key, value):
-        config_h[key] = f"#define {key} {value}"
-
     if not boost_version:
         raise ValueError(
             "Could not find Boost headers. Please set an environment variable called "
@@ -134,7 +130,7 @@ def configure_build():
         )
 
     if sys.platform != "win32":
-        extra_compile_flags = ["-std=c++14", "-g0"]
+        extra_compile_flags = ["-std=c++17", "-g0"]
         sundials_configh = {
             "SUNDIALS_USE_GENERIC_MATH": "#define SUNDIALS_USE_GENERIC_MATH 1",
             "SUNDIALS_BLAS_LAPACK": "/* #undef SUNDIALS_BLAS_LAPACK */"
@@ -150,14 +146,14 @@ def configure_build():
         }
         sundials_cflags = []
 
-    sun_config_h_in = (HERE / "sundials_config.h.in").read_text()
-    sun_config_h = HERE / "sundials_config.h"
+    sun_config_h_in = Path("sundials_config.h.in").read_text()
+    sun_config_h = Path("sundials_config.h")
     sun_config_h.write_text(sun_config_h_in.format_map(sundials_configh))
     shutil.copy2(sun_config_h, EXT_SRC / "sundials" / "sundials")
     shutil.copy2(sun_config_h, CT_INCLUDE / "cantera" / "ext" / "sundials")
 
-    config_h_in = (HERE / "config.h.in").read_text()
-    ct_config_h = HERE / "include" / "cantera" / "base" / "config.h"
+    config_h_in = Path("config.h.in").read_text()
+    ct_config_h = Path("include") / "cantera" / "base" / "config.h"
     ct_config_h.write_text(config_h_in.format_map(config_h))
 
     return extra_compile_flags, sundials_cflags, sundials_macros

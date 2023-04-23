@@ -170,8 +170,6 @@ sdist(localenv.RecursiveInstall("cantera",
                                 exclude=["__pycache__"]))
 sdist(localenv.RecursiveInstall("cantera/data",
                                 "#build/data"))
-sdist(localenv.RecursiveInstall("cantera/test/data",
-                                "#test/data"))
 
 # Copy the minimal Sundials configuration template into the sdist so that
 # it can be filled in at compile time on the user's machine
