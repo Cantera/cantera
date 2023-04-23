@@ -813,7 +813,7 @@ else:
     config.add(config_options)
     toolchain = ["default"]
 
-env = Environment(tools=toolchain+["textfile", "subst", "recursiveInstall", "wix", "gch"],
+env = Environment(tools=toolchain+["textfile", "subst", "recursiveInstall", "UnitsInterfaceBuilder", "wix", "gch"],
                   ENV={"PATH": os.environ["PATH"]},
                   toolchain=toolchain,
                   **extraEnvArgs)

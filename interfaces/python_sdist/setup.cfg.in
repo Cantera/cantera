@@ -61,6 +61,7 @@ cantera = *.cpp, *.h, *.pyx
 
 [options.extras_require]
 pandas = pandas
+units = pint
 
 [options.entry_points]
 console_scripts =
