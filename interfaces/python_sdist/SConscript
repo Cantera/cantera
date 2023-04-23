@@ -159,6 +159,10 @@ config_h_in_target = sdist(localenv.Command(
     config_builder,
 ))
 
+sdist(localenv.UnitsInterfaceBuilder(
+    "cantera/with_units/solution.py",
+    "#interfaces/cython/cantera/with_units/solution.py.in",
+))
 # Use RecursiveInstall to make sure that files are not overwritten during the copy.
 # A normal Copy Action would fail because of the existing directories.
 sdist(localenv.RecursiveInstall("cantera",
