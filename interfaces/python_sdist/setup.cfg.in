@@ -45,15 +45,19 @@ install_requires =
     packaging
 python_requires @py_requires_ver_str@
 packages =
-    cantera
     cantera.data
+    cantera.examples
+    cantera.test
+    cantera.with_units
 
 # These options include data in the sdist and wheel if the files are also listed in
 # MANIFEST.in. Note that only files that are inside the "cantera" packages will be
 # included in the wheel.
 [options.package_data]
-cantera.data = *.*, */*.*
-cantera = *.pxd, test/*.txt, examples/*.txt
+cantera = *.pxd
+cantera.data = *.*
+cantera.examples = *.txt
+cantera.test = *.txt
 
 # These options exclude data from the wheel file but not from the sdist
 [options.exclude_package_data]

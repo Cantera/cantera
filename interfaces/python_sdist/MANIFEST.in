@@ -3,7 +3,6 @@
 # listed in setup.cfg:options.exclude_package_data.
 
 include cantera/_cantera.cpp
-include cantera/_cantera.h
 recursive-include cantera *.pyx
 include sundials_config.h.in
 include config.h.in
