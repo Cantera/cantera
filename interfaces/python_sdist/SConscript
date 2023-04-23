@@ -38,6 +38,8 @@ def copy_ext_src(target, source, env):
     if not FMT_SOURCE.is_dir():
         raise ValueError("Missing fmt submodule. " + error_message)
     for cc_file in (FMT_SOURCE / "src").glob("*.cc"):
+        if cc_file.name == "fmt.cc":
+            continue
         shutil.copy2(cc_file, FMT_ROOT)
     shutil.copytree(FMT_SOURCE / "include" / "fmt", FMT_ROOT / "fmt")
 
