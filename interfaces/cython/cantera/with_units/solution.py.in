@@ -17,6 +17,12 @@ Q_ = units.Quantity
 
 
 def copy_doc(method):
+    """Decorator to copy docstrings from related methods in upstream classes.
+
+    This decorator will copy the docstring from the same named method in the upstream
+    class, either `Solution` or `PureFluid`. The docstring in the method being
+    decorated is appended to the upstream documentation.
+    """
     doc = getattr(method, "__doc__", None) or ""
     if isinstance(method, property):
         method = method.fget
@@ -32,10 +38,6 @@ def copy_doc(method):
 
 class Solution:
     """
-    A class for chemically-reacting solutions. Instances can be created to
-    represent any type of solution -- a mixture of gases, a liquid solution, or
-    a solid solution, for example.
-
     This implementation of `Solution <cantera.with_units.Solution>` operates with
     units by using the `pint` library to convert between unit systems. All properties
     are assigned units in the standard MKS system that Cantera uses, substituting kmol
@@ -50,51 +52,19 @@ class Solution:
     See the `pint documentation <https://pint.readthedocs.io>`__ for more information
     about using pint's ``Quantity`` classes.
 
-    The most common way to instantiate `Solution` objects is by using a phase
-    definition, species and reactions defined in an input file::
-
-        gas = ct.Solution('gri30.yaml')
-
-    If an input file defines multiple phases, the corresponding key in the
-    ``phases`` map can be used to specify the desired phase via the ``name`` keyword
-    argument of the constructor::
-
-        gas = ct.Solution('diamond.yaml', name='gas')
-        diamond = ct.Solution('diamond.yaml', name='diamond')
-
-    The name of the `Solution` object defaults to the *phase* identifier
-    specified in the input file. Upon initialization of a `Solution` object,
-    a custom name can assigned via::
-
-        gas.name = 'my_custom_name'
-
-    In addition, `Solution` objects can be constructed by passing the text of
-    the YAML phase definition in directly, using the ``yaml`` keyword
-    argument::
-
-        yaml_def = '''
-        phases:
-        - name: gas
-          thermo: ideal-gas
-          kinetics: gas
-          elements: [O, H, Ar]
-          species:
-          - gri30.yaml/species: all
-          reactions:
-          - gri30.yaml/reactions: declared-species
-          skip-undeclared-elements: true
-          skip-undeclared-third-bodies: true
-          state: {T: 300, P: 1 atm}
-        '''
-        gas = ct.Solution(yaml=yaml_def)
+    **Note:** This class is experimental. It only implements methods from `ThermoPhase`.
+    Methods from other classes are not yet supported. If you are interested in contributing
+    to this feature, please chime in on our enhancements issue:
+    `<https://github.com/Cantera/enhancements/issues/174>`__.
     """
     def __init__(self, infile="", name="", *, yaml=None):
         self.__dict__["_phase"] = _Solution(infile, name, yaml=yaml)
 
-    @common_properties@
+@common_properties@
 
-    @thermophase_properties@
+@thermophase_properties@
 
+Solution.__doc__ = f"{Solution.__doc__}\n{_Solution.__doc__}"
 
 class PureFluid:
     """
@@ -113,9 +83,9 @@ class PureFluid:
     about using pint's ``Quantity`` classes.
     """
     def __init__(self, infile, name="", *, yaml=None, **kwargs):
-        self.__dict__["_phase"] = _PureFluid(infile, name, **kwargs)
+        self.__dict__["_phase"] = _PureFluid(infile, name, yaml=yaml, **kwargs)
 
-    @common_properties@
+@common_properties@
 
     @property
     @copy_doc
@@ -135,12 +105,12 @@ class PureFluid:
                         f"Value {value!r} must be an instance of a pint.Quantity class"
                     ) from None
                 else:
-                    raise  # pragma: no cover
+                    raise
         else:
             Q = self.Q.magnitude
         self._phase.Q = Q
 
-    @thermophase_properties@
+@thermophase_properties@
 
     @property
     @copy_doc
@@ -150,7 +120,6 @@ class PureFluid:
 
     @TPQ.setter
     def TPQ(self, value):
-        msg = "Value {value!r} must be an instance of a pint.Quantity class"
         T = value[0] if value[0] is not None else self.T
         P = value[1] if value[1] is not None else self.P
         Q = value[2] if value[2] is not None else self.Q
@@ -159,12 +128,14 @@ class PureFluid:
                 val.ito(unit)
             except AttributeError as e:
                 if "'ito'" in str(e):
-                    raise CanteraError(msg.format(value=val)) from None
+                    raise CanteraError(
+                        f"Value {val!r} must be an instance of a pint.Quantity class"
+                    ) from None
                 else:
-                    raise  # pragma: no cover
+                    raise
         self._phase.TPQ = T.magnitude, P.magnitude, Q.magnitude
 
-    @purefluid_properties@
+@purefluid_properties@
 
 
 PureFluid.__doc__ = f"{PureFluid.__doc__}\n{_PureFluid.__doc__}"
