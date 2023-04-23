@@ -1,5 +1,6 @@
 """
-Compute the "equilibrium" and "frozen" sound speeds for a gas
+Compute the "equilibrium" and "frozen" sound speeds for a gas. Uses the pint library to
+include customized units in the calculation.
 
 Requires: Cantera >= 3.0.0, pint
 Keywords: thermodynamics, equilibrium, units
@@ -57,7 +58,7 @@ def equilibrium_sound_speeds(gas, rtol=1.0e-6, max_iter=5000):
 if __name__ == "__main__":
     gas = ctu.Solution('gri30.yaml')
     gas.X = 'CH4:1.00, O2:2.0, N2:7.52'
-    T_range = np.linspace(80.33, 4760.33, 50) * ctu.units.degF
+    T_range = np.linspace(80, 4880, 25) * ctu.units.degF
     print("Temperature      Equilibrium Sound Speed     Frozen Sound Speed      Frozen Sound Speed Check")
     for T in T_range:
         gas.TP = T, 1.0 * ctu.units.atm

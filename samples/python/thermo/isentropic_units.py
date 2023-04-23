@@ -1,5 +1,7 @@
 """
-Isentropic, adiabatic flow example - calculate area ratio vs. Mach number curve
+Isentropic, adiabatic flow example - calculate area ratio vs. Mach number curve.
+Uses the pint library to include customized units in the calculation.
+
 
 Requires: Cantera >= 3.0.0, pint
 Keywords: thermodynamics, compressible flow, units
@@ -10,7 +12,7 @@ import numpy as np
 
 # This sets the default output format of the units to have 2 significant digits
 # and the units are printed with a Unicode font. See:
-# https://pint.readthedocs.io/en/stable/formatting.html#unit-format-types
+# https://pint.readthedocs.io/en/stable/user/formatting.html
 ctu.units.default_format = ".2F~P"
 
 
@@ -18,8 +20,8 @@ def soundspeed(gas):
     """The speed of sound. Assumes an ideal gas."""
 
     gamma = gas.cp / gas.cv
-    return np.sqrt(gamma * ctu.units.molar_gas_constant
-                     * gas.T / gas.mean_molecular_weight).to("m/s")
+    specific_gas_constant = ctu.units.molar_gas_constant / gas.mean_molecular_weight
+    return np.sqrt(gamma * specific_gas_constant * gas.T).to("m/s")
 
 
 def isentropic(gas=None):
@@ -45,7 +47,7 @@ def isentropic(gas=None):
     data = []
 
     # compute values for a range of pressure ratios
-    p_range = np.logspace(-3, 0, 200) * p0
+    p_range = np.logspace(-3, 0, 10) * p0
     for p in p_range:
 
         # set the state using (p,s0)
