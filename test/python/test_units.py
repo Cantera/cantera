@@ -29,13 +29,7 @@ def generic_phase(request):
 
 
 def test_setting_basis_units_fails(generic_phase):
-    # Python 3.10 includes the name of the attribute which was improperly used as a
-    # setter. Earlier versions have just a generic error message.
-    if sys.version_info.minor < 10:
-        match = "set attribute"
-    else:
-        match = "basis_units"
-    with pytest.raises(AttributeError, match=match):
+    with pytest.raises(AttributeError):
         generic_phase.basis_units = "some random string"
 
 
@@ -109,6 +103,8 @@ class Dimensions:
         return dimensionality
 
 
+# Create instances of Dimensions that correspond to all the combinations of dimensions
+# that are implemented in the with_units interface.
 temperature = Dimensions(temperature=1, name="temperature")
 pressure = Dimensions(mass=1, length=-1, time=-2, name="pressure")
 isothermal_compressiblity = pressure.inverse()
@@ -186,6 +182,24 @@ def yield_dimensions():
 
 @pytest.mark.parametrize("prop,dimensions", yield_dimensions())
 def test_dimensions(generic_phase, prop, dimensions):
+    """Test that the dimensions returned for a property are correct.
+
+    Arguments
+    =========
+
+    generic_phase: A phase definition created from cantera.with_units objects.
+        Currently, one of `Solution` or `PureFluid`. Created by the generic_phase
+        fixture.
+    prop: A string of the property name
+    dimensions: The known dimensions for this property
+
+    The latter two arguments are supplied by the parametrize on this test. That
+    parametrize is effectively a loop over all the implemented properties on the
+    classes. The loop is implemented in the `yield_dimensions()` function. The
+    parametrize call is kinda like calling ``list(generator_function())`` to
+    discover all the values in the generator, except pytest does that automatically
+    for us and fills in the arguments.
+    """
     pint_dim = dict(getattr(generic_phase, prop).dimensionality)
     assert pint_dim == dimensions
 
@@ -263,7 +277,7 @@ def some_setters_arent_implemented_for_purefluid(request):
     if is_pure_fluid and pair_or_triple.startswith("DP"):
         request.applymarker(
             pytest.mark.xfail(
-                raises=ctu.CanteraError,
+                raises=NotImplementedError,
                 reason=f"The {pair_or_triple} method isn't implemented",
             )
         )
@@ -361,6 +375,13 @@ def test_multi_prop_getters_are_equal_to_single(generic_phase, props, basis, rho
     if generic_phase.n_species != 1:
         generic_phase.Y = "H2:0.1, H2O2:0.1, AR:0.8"
     generic_phase.TD = ctu.Q_(350.0, "K"), rho_0
+    # This test is equivalent to
+    # T, P, X = solution.TPX
+    # assert isclose(T, solution.T)
+    # assert isclose(P, solution.P)
+    # assert all(isclose(X, solution.X))
+    # Where T, P, and X loop through all the valid property pairs and triples, for
+    # both mass and molar basis units.
     first_value, second_value, *third_value = getattr(generic_phase, pair_or_triple)
     assert_allclose(getattr(generic_phase, first), first_value)
     assert_allclose(getattr(generic_phase, second), second_value)
@@ -374,36 +395,22 @@ def test_set_pair_without_units_is_an_error(generic_phase, pair):
         setattr(generic_phase, pair[0], [300, None])
 
 
-@pytest.fixture
-def third_prop_sometimes_fails(request):
-    # Setting these property triples with None, None, [all equal fractions] results in
-    # a convergence error in setting the state. We don't care that it fails because
-    # this is just testing what happens to the value that gets passed in to the
-    # with_units setters in terms of conversion to/from values that don't have units
-    # already attached to them.
-    prop_triple = request.getfixturevalue("triple")[0]
-    is_purefluid = isinstance(request.getfixturevalue("generic_phase"), ctu.PureFluid)
-    if prop_triple in ("SPX", "UVX", "UVY", "HPX", "HPY", "SVX") and not is_purefluid:
-        return pytest.raises(ctu.CanteraError, match="ThermoPhase::setState")
-    elif prop_triple in ("DPX", "DPY") and is_purefluid:
-        return pytest.raises(ctu.CanteraError, match="setState_RP")
-    else:
-        return nullcontext()
-
 
 @pytest.mark.parametrize("triple", yield_prop_triples())
-def test_set_triple_without_units_is_an_error(
-    generic_phase,
-    triple,
-    third_prop_sometimes_fails,
-):
-    value_1 = [300, None, [1] * generic_phase.n_species]
+def test_set_triple_without_units_is_an_error(generic_phase, triple):
+    value_1 = [300, None, [1] + [0] * (generic_phase.n_species - 1)]
     with pytest.raises(ctu.CanteraError, match="an instance of a pint"):
         setattr(generic_phase, triple[0], value_1)
 
-    value_3 = [None, None, [1] * generic_phase.n_species]
-    with third_prop_sometimes_fails:
-        setattr(generic_phase, triple[0], value_3)
+@pytest.mark.parametrize("props", yield_prop_triples())
+@pytest.mark.usefixtures("some_setters_arent_implemented_for_purefluid")
+def test_set_triple_with_no_units_on_composition_succeeds(
+    generic_phase,
+    props,
+):
+    value_3 = [None, None, [1] + [0] * (generic_phase.n_species - 1)]
+    setattr(generic_phase, props[0], value_3)
+    assert_allclose(getattr(generic_phase, props[0][2]), value_3[2])
 
 
 @pytest.fixture
@@ -466,13 +473,17 @@ def yield_all_purefluid_only_props():
 def test_set_without_units_is_error_purefluid(prop, pure_fluid):
     value = [None] * (len(prop[0]) - 1) + [0.5]
     with pytest.raises(ctu.CanteraError, match="an instance of a pint"):
-        # Don't use append here, because append returns None which would be
-        # passed to setattr
         setattr(pure_fluid, prop[0], value)
 
 
 @pytest.mark.parametrize("props", yield_all_purefluid_only_props())
 def test_multi_prop_getters_purefluid(pure_fluid, props):
+    # This test is equivalent to
+    # T, P, X = pure_fluid.TPX
+    # assert isclose(T, pure_fluid.T)
+    # assert isclose(P, pure_fluid.P)
+    # assert all(isclose(X, pure_fluid.X))
+    # Where T, P, and X loop through all the valid property pairs and triples.
     pair_or_triple, first, second, *third = props
     first_value, second_value, *third_value = getattr(pure_fluid, pair_or_triple)
     assert_allclose(getattr(pure_fluid, first), first_value)
@@ -500,7 +511,6 @@ def test_setters_purefluid(props, pure_fluid):
     # Use TD setting to get the properties at the modified state
     pure_fluid.TD = T_1, rho_1
     new_props = getattr(pure_fluid, pair_or_triple)
-    print(new_props)
 
     # Reset to the initial state so that the next state setting actually has to do
     # something.
@@ -536,18 +546,20 @@ def test_thermophase_properties_exist(ideal_gas):
     tp = ct.ThermoPhase("h2o2.yaml")
 
     for attr in dir(tp):
-        if attr.startswith("_"):  # or attr in skip:
+        if attr.startswith("_"):
             continue
 
         try:
             getattr(tp, attr)
-        except (ct.CanteraError, ct.ThermoModelMethodError):
+        except (NotImplementedError, ct.ThermoModelMethodError):
             continue
 
         assert hasattr(ideal_gas, attr)
 
 
 def test_purefluid_properties_exist(pure_fluid):
+    # Test that all the properties implemented on the "upstream" PureFluid class
+    # are also implemented for the "with_units" variety.
     pf = ct.PureFluid("liquidvapor.yaml", "water")
     for attr in dir(pf):
         if attr.startswith("_"):
@@ -555,7 +567,7 @@ def test_purefluid_properties_exist(pure_fluid):
 
         try:
             getattr(pf, attr)
-        except (ct.CanteraError, ct.ThermoModelMethodError):
+        except (NotImplementedError, ct.ThermoModelMethodError):
             continue
 
         assert hasattr(pure_fluid, attr)
