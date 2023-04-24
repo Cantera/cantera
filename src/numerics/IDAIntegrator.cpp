@@ -71,7 +71,7 @@ IDAIntegrator::IDAIntegrator() :
     m_y(0),
     m_ydot(0),
     m_abstol(0),
-    m_type(DENSE+NOJAC),
+    m_type("DENSE"),
     m_itol(IDA_SS),
     m_maxord(0),
     m_reltol(1.e-9),
@@ -150,9 +150,9 @@ void IDAIntegrator::setSensitivityTolerances(double reltol, double abstol)
 }
 
 
-void IDAIntegrator::setProblemType(int probtype)
+void IDAIntegrator::setLinearSolverType(const string& linearSolverType)
 {
-    m_type = probtype;
+    m_type = linearSolverType;
 }
 
 void IDAIntegrator::setMaxStepSize(double hmax)
@@ -362,7 +362,7 @@ void IDAIntegrator::reinitialize(double t0, FuncEval& func)
 
 void IDAIntegrator::applyOptions()
 {
-    if (m_type == DENSE + NOJAC) {
+    if (m_type == "DENSE") {
         sd_size_t N = static_cast<sd_size_t>(m_neq);
         #if CT_SUNDIALS_VERSION >= 30
             SUNLinSolFree((SUNLinearSolver) m_linsol);
@@ -395,10 +395,10 @@ void IDAIntegrator::applyOptions()
                 IDADense(m_ida_mem, N);
             #endif
         #endif
-    } else if (m_type == DIAG) {
+    } else if (m_type == "DIAG") {
         throw CanteraError("IDAIntegrator::applyOptions",
                            "Cannot use a diagonal matrix with IDA.");
-    } else if (m_type == GMRES) {
+    } else if (m_type == "GMRES") {
         #if CT_SUNDIALS_VERSION >= 30
             #if CT_SUNDIALS_VERSION >= 60
                 m_linsol = SUNLinSol_SPGMR(m_y, PREC_NONE, 0, m_sundials_ctx.get());
@@ -409,7 +409,7 @@ void IDAIntegrator::applyOptions()
         #else
             IDASpgmr(m_ida_mem, 0);
         #endif
-    } else if (m_type == BAND + NOJAC) {
+    } else if (m_type == "BAND") {
         sd_size_t N = static_cast<sd_size_t>(m_neq);
         long int nu = m_mupper;
         long int nl = m_mlower;

@@ -35,7 +35,7 @@ public:
     virtual void setTolerances(double reltol, size_t n, double* abstol);
     virtual void setTolerances(double reltol, double abstol);
     virtual void setSensitivityTolerances(double reltol, double abstol);
-    virtual void setProblemType(int probtype);
+    virtual void setLinearSolverType(const string& linearSolverType);
     virtual void initialize(double t0, FuncEval& func);
     virtual void reinitialize(double t0, FuncEval& func);
     virtual void integrate(double tout);
@@ -94,7 +94,7 @@ private:
     double m_t0;
     double m_time; //!< The current integrator time
     N_Vector m_y, m_ydot, m_abstol;
-    int m_type;
+    string m_type;
     int m_itol;
     int m_maxord;
     double m_reltol;
