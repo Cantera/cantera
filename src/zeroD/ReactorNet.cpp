@@ -73,8 +73,8 @@ void ReactorNet::initialize()
     // use backward differencing, with a full Jacobian computed
     // numerically, and use a Newton linear iterator
     m_integ->setMethod(BDF_Method);
-    m_integ->setProblemType(DENSE + NOJAC);
-    
+    m_integ->setLinearSolverType("DENSE");
+
     debuglog("Initializing reactor network.\n", m_verbose);
     if (m_reactors.empty()) {
         throw CanteraError("ReactorNet::initialize",
