@@ -107,6 +107,12 @@ void ReactorNet::initialize()
     m_integ->setSensitivityTolerances(m_rtolsens, m_atolsens);
     m_integ->setMaxStepSize(m_maxstep);
     m_integ->setMaxErrTestFails(m_maxErrTestFails);
+    if (!m_linearSolverType.empty()) {
+        m_integ->setLinearSolverType(m_linearSolverType);
+    }
+    if (m_precon) {
+        m_integ->setPreconditioner(m_precon);
+    }
     m_integ->initialize(m_time, *this);
     if (m_verbose) {
         writelog("Number of equations: {:d}\n", neq());
@@ -114,6 +120,9 @@ void ReactorNet::initialize()
     }
     if (m_integ->preconditionerSide() != PreconditionerSide::NO_PRECONDITION) {
         checkPreconditionerSupported();
+    }
+    if (m_maxSteps != -1) {
+        m_integ->setMaxSteps(m_maxSteps);
     }
     m_integrator_init = true;
     m_init = true;
@@ -135,24 +144,31 @@ void ReactorNet::reinitialize()
 
 void ReactorNet::setLinearSolverType(const std::string& linSolverType)
 {
-    m_integ->setLinearSolverType(linSolverType);
+    m_linearSolverType = linSolverType;
     m_integrator_init = false;
 }
 
 void ReactorNet::setPreconditioner(shared_ptr<PreconditionerBase> preconditioner)
 {
-    m_integ->setPreconditioner(preconditioner);
+    m_precon = preconditioner;
     m_integrator_init = false;
 }
 
 void ReactorNet::setMaxSteps(int nmax)
 {
-    m_integ->setMaxSteps(nmax);
+    m_maxSteps = nmax;
+    if (m_integ) {
+        m_integ->setMaxSteps(nmax);
+    }
 }
 
 int ReactorNet::maxSteps()
 {
-    return m_integ->maxSteps();
+    if (m_integ) {
+        return m_integ->maxSteps();
+    } else {
+        return m_maxSteps;
+    }
 }
 
 void ReactorNet::advance(doublereal time)
@@ -236,6 +252,9 @@ double ReactorNet::step()
 
 void ReactorNet::getEstimate(double time, int k, double* yest)
 {
+    if (!m_init) {
+        initialize();
+    }
     // initialize
     double* cvode_dky = m_integ->solution();
     for (size_t j = 0; j < m_nv; j++) {
@@ -256,7 +275,11 @@ void ReactorNet::getEstimate(double time, int k, double* yest)
 
 int ReactorNet::lastOrder()
 {
-    return m_integ->lastOrder();
+    if (m_integ) {
+        return m_integ->lastOrder();
+    } else {
+        return 0;
+    }
 }
 
 void ReactorNet::addReactor(Reactor& r)
@@ -266,7 +289,7 @@ void ReactorNet::addReactor(Reactor& r)
         dynamic_cast<FlowReactor&>(r);
         m_is_dae = true;
     } 
-    catch(std::bad_cast) {
+    catch(std::bad_cast&) {
         if (m_is_dae)
         {
             throw CanteraError("ReactorNet::addReactor",
@@ -368,6 +391,9 @@ void ReactorNet::updateState(doublereal* y)
 
 void ReactorNet::getDerivative(int k, double* dky)
 {
+    if (!m_init) {
+        initialize();
+    }
     double* cvode_dky = m_integ->derivative(m_time, k);
     for (size_t j = 0; j < m_nv; j++) {
         dky[j] = cvode_dky[j];
@@ -460,16 +486,28 @@ void ReactorNet::setDerivativeSettings(AnyMap& settings)
 
 AnyMap ReactorNet::solverStats() const
 {
-    return m_integ->solverStats();
+    if (m_integ) {
+        return m_integ->solverStats();
+    } else {
+        return AnyMap();
+    }
 }
 
 std::string ReactorNet::linearSolverType() const
 {
-    return m_integ->linearSolverType();
+    if (m_integ) {
+        return m_integ->linearSolverType();
+    } else {
+        return "";
+    }
 }
 
 void ReactorNet::preconditionerSolve(double* rhs, double* output)
 {
+    if (!m_integ) {
+        throw CanteraError("ReactorNet::preconditionerSolve",
+                           "Must only be called after ReactorNet is initialized.");
+    }
     m_integ->preconditionerSolve(m_nv, rhs, output);
 }
 
@@ -507,6 +545,10 @@ void ReactorNet::preconditionerSetup(double t, double* y, double gamma)
 
 void ReactorNet::updatePreconditioner(double gamma)
 {
+    if (!m_integ) {
+        throw CanteraError("ReactorNet::updatePreconditioner",
+                           "Must only be called after ReactorNet is initialized.");
+    }
     auto precon = m_integ->preconditioner();
     precon->setGamma(gamma);
     precon->updatePreconditioner();
