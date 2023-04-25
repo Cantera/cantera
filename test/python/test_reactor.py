@@ -1167,6 +1167,7 @@ class TestIdealGasConstPressureMoleReactor(TestConstPressureMoleReactor):
     def test_get_solver_type(self):
         self.create_reactors()
         assert self.precon.side == "right"
+        self.net2.initialize()
         self.assertEqual(self.net2.linear_solver_type, "GMRES")
 
 

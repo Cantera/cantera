@@ -488,7 +488,7 @@ void CVodesIntegrator::applyOptions()
         #endif
     } else {
         throw CanteraError("CVodesIntegrator::applyOptions",
-                           "unsupported option");
+                           "unsupported linear solver flag '{}'", m_type);
     }
 
     if (m_maxord > 0) {

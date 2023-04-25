@@ -320,6 +320,9 @@ protected:
     double m_rtolsens = 1.0e-4;
     double m_atols = 1.0e-15;
     double m_atolsens = 1.0e-6;
+    shared_ptr<PreconditionerBase> m_precon;
+    string m_linearSolverType;
+    int m_maxSteps = -1;
 
     //! Maximum integrator internal timestep. Default of 0.0 means infinity.
     double m_maxstep = 0.0;

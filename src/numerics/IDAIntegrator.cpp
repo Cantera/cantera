@@ -441,7 +441,7 @@ void IDAIntegrator::applyOptions()
         #endif
     } else {
         throw CanteraError("IDAIntegrator::applyOptions",
-                           "unsupported option");
+                           "unsupported linear solver flag '{}'", m_type);
     }
 
     if (m_init_step > 0) {
