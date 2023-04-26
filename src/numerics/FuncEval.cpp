@@ -4,7 +4,7 @@
 namespace Cantera
 {
 
-int FuncEval::eval_nothrow(double t, double* y, double* ydot)
+int FuncEval::evalNoThrow(double t, double* y, double* ydot)
 {
     try {
         eval(t, y, ydot, m_sens_params.data());
@@ -37,10 +37,10 @@ int FuncEval::eval_nothrow(double t, double* y, double* ydot)
     return 0; // successful evaluation
 }
 
-int FuncEval::eval_nothrow(double t, double* y, double* ydot, double* r)
+int FuncEval::evalDaeNoThrow(double t, double* y, double* ydot, double* r)
 {
     try {
-        eval(t, y, ydot, m_sens_params.data(), r);
+        evalDae(t, y, ydot, m_sens_params.data(), r);
     } catch (CanteraError& err) {
         if (suppressErrors()) {
             m_errors.push_back(err.what());
@@ -143,16 +143,6 @@ int FuncEval::preconditioner_solve_nothrow(double* rhs, double* output)
         return -1; // unrecoverable error
     }
     return 0; // successful evaluation
-}
-
-void FuncEval::eval(double t, double* y, double* ydot, double* p)
-{
-    throw CanteraError("FuncEval::eval", "Not implemented!");
-}
-
-void FuncEval::eval(double t, double* y, double* ydot, double* p, double* residual)
-{
-    throw CanteraError("FuncEval::eval", "Not implemented!");
 }
 
 }

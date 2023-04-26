@@ -199,13 +199,11 @@ public:
         return m_reactors.size();
     }
 
-    virtual void eval(double t, double* y,
-                      double* ydot, double* p);
+    virtual void eval(double t, double* y, double* ydot, double* p);
 
     //! eval coupling for IDA / DAEs
-    virtual void eval(double t, double* y,
-                      double* ydot, double* p,
-                      double* residaul);
+    virtual void evalDae(double t, double* y, double* ydot, double* p,
+                         double* residaul);
 
     virtual void getState(double* y);
 

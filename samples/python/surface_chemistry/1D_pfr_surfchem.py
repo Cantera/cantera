@@ -39,18 +39,20 @@ reactor = ct.FlowReactor(gas, area=Ac)
 # set the mass flow-rate
 reactor.mass_flow_rate = gas.density * u0 * Ac
 
+gas_si_n_interface.advance_coverages(2.0)
 rsurf = ct.ReactorSurface(gas_si_n_interface, reactor)
 net = ct.ReactorNet([reactor])
-soln = ct.SolutionArray(gas, extra=['t', 'speed', 'coverages'])
+soln = ct.SolutionArray(gas, extra=['t', 'speed', 'surf_coverages'])
 
 while net.time < 0.7:
+    print(net.time, rsurf.coverages)
     net.step()
     soln.append(T=reactor.thermo.T,
                 P=reactor.thermo.P,
                 X=reactor.thermo.X,
                 t=net.time,
                 speed=reactor.speed,
-                coverages=rsurf.coverages)
+                surf_coverages=rsurf.coverages)
 
 f, ax = plt.subplots(4, 2, figsize=(9, 16), dpi=96)
 # plot gas velocity along the flow direction
@@ -101,7 +103,7 @@ ax[2, 0].set_ylabel('Pressure (Pa)')
 
 # plot the site fraction of the surface species along the flow direction
 for i, name in enumerate(gas_si_n_interface.species_names):
-    ax[2, 1].plot(soln.t, soln.coverages[:, i], label=name)
+    ax[2, 1].plot(soln.t, soln.surf_coverages[:, i], label=name)
 ax[2, 1].legend(fontsize=8)
 ax[2, 1].set_xlabel('Distance (m)')
 ax[2, 1].set_ylabel('Site Fraction')
