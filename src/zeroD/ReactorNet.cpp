@@ -299,8 +299,7 @@ void ReactorNet::addReactor(Reactor& r)
     m_reactors.push_back(&r);
 }
 
-void ReactorNet::eval(doublereal t, doublereal* y,
-                      doublereal* ydot, doublereal* p)
+void ReactorNet::eval(double t, double* y, double* ydot, double* p)
 {
     m_time = t;
     updateState(y);
@@ -323,14 +322,12 @@ void ReactorNet::eval(doublereal t, doublereal* y,
     checkFinite("ydot", ydot, m_nv);
 }
 
-void ReactorNet::eval(doublereal t, doublereal* y,
-                      doublereal* ydot, doublereal* p,
-                      doublereal* residual)
+void ReactorNet::evalDae(double t, double* y, double* ydot, double* p, double* residual)
 {
     m_time = t;
     updateState(y);
     for (size_t n = 0; n < m_reactors.size(); n++) {
-        m_reactors[n]->evalEqs(t, y, ydot, p, residual);
+        m_reactors[n]->evalDae(t, y, ydot, p, residual);
     }
     checkFinite("ydot", ydot, m_nv);
 }

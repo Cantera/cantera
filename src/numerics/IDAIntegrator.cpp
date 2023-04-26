@@ -47,7 +47,7 @@ extern "C" {
     static int ida_rhs(realtype t, N_Vector y, N_Vector ydot, N_Vector r, void* f_data)
     {
         FuncEval* f = (FuncEval*) f_data;
-        return f->eval_nothrow(t, NV_DATA_S(y), NV_DATA_S(ydot), NV_DATA_S(r));
+        return f->evalDaeNoThrow(t, NV_DATA_S(y), NV_DATA_S(ydot), NV_DATA_S(r));
     }
 
     //! Function called by IDA when an error is encountered instead of

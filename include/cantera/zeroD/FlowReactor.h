@@ -29,7 +29,7 @@ public:
 
     virtual void getState(double* y)
     {
-        throw CanteraError("FlowReactor::getState", "Not Implemented!");
+        throw NotImplementedError("FlowReactor::getState");
     }
     virtual void getState(double* y, double* ydot);
 
@@ -42,10 +42,9 @@ public:
      * @param[out] ydot rate of change of solution vector, length neq()
      * @param[in] params sensitivity parameter vector, length ReactorNet::nparams()
      */
-    virtual void eval(double t, double* y,
-                         double* ydot, double* params)
+    virtual void eval(double t, double* LHS, double* RHS)
     {
-        throw CanteraError("FlowReactor::eval", "Not Implemented!");
+        throw NotImplementedError("FlowReactor::eval");
     }
 
     /*!
@@ -56,7 +55,7 @@ public:
      * @param[in] params sensitivity parameter vector, length ReactorNet::nparams()
      * @param[out] residual resisduals vector, length neq()
      */
-    virtual void evalEqs(double t, double* y,
+    virtual void evalDae(double t, double* y,
                          double* ydot, double* params,
                          double* residual);
 

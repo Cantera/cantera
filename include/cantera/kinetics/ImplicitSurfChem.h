@@ -160,8 +160,7 @@ public:
      *                derivative of the surface coverages.
      *  @param p   Unused parameter pass-through parameter vector
      */
-    virtual void eval(doublereal t, doublereal* y, doublereal* ydot,
-                      doublereal* p);
+    virtual void eval(double t, double* y, double* ydot, double* p);
 
     //! Get the current state of the solution vector
     /*!

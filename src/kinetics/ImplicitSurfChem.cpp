@@ -161,8 +161,7 @@ void ImplicitSurfChem::updateState(doublereal* c)
     }
 }
 
-void ImplicitSurfChem::eval(doublereal time, doublereal* y,
-                            doublereal* ydot, doublereal* p)
+void ImplicitSurfChem::eval(double time, double* y, double* ydot, double* p)
 {
     updateState(y); // synchronize the surface state(s) with y
     size_t loc = 0;

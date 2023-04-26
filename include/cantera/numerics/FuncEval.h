@@ -37,7 +37,9 @@ public:
      * @param[out] ydot rate of change of solution vector, length neq()
      * @param[in] p sensitivity parameter vector, length nparams()
      */
-    virtual void eval(double t, double* y, double* ydot, double* p);
+    virtual void eval(double t, double* y, double* ydot, double* p) {
+        throw NotImplementedError("FuncEval::eval");
+    }
 
     /**
      * Evaluate the right-hand-side DAE function. Called by the integrator.
@@ -47,8 +49,10 @@ public:
      * @param[in] p sensitivity parameter vector, length nparams()
      * @param[out] residual the DAE residuals, length nparams()
      */
-    virtual void eval(double t, double* y, double* ydot, double* p,
-                      double* residual);
+    virtual void evalDae(double t, double* y, double* ydot, double* p,
+                         double* residual) {
+        throw NotImplementedError("FuncEval::evalDae");
+    }
 
     //! Given a vector of length neq(), mark which variables should be
     //! considered algebraic constraints
@@ -65,7 +69,7 @@ public:
      *  @returns 0 for a successful evaluation; 1 after a potentially-
      *      recoverable error; -1 after an unrecoverable error.
      */
-    int eval_nothrow(double t, double* y, double* ydot);
+    int evalNoThrow(double t, double* y, double* ydot);
 
     //! Evaluate the right-hand side using return code to indicate status.
     /*!
@@ -76,7 +80,7 @@ public:
      *  @returns 0 for a successful evaluation; 1 after a potentially-
      *      recoverable error; -1 after an unrecoverable error.
      */
-    int eval_nothrow(double t, double* y, double* ydot, double* residual);
+    int evalDaeNoThrow(double t, double* y, double* ydot, double* residual);
 
     /*! Evaluate the setup processes for the Jacobian preconditioner.
      * @param[in] t time.

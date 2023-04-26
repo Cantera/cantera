@@ -128,17 +128,16 @@ public:
      * @param[in] params sensitivity parameter vector, length ReactorNet::nparams()
      * @param[out] residual residuals vector, length neq()
      */
-    virtual void evalEqs(double t, double* y,
-                         double* ydot, double* params,
+    virtual void evalDae(double t, double* y, double* ydot, double* params,
                          double* residual)
     {
-        throw CanteraError("Reactor::evalEqs", "Not Implemented");
+        throw NotImplementedError("Reactor::evalDae");
     }
 
     //! Given a vector of length neq(), mark which variables should be
     //! considered algebraic constraints
     virtual void getConstraints(double* constraints) {
-        throw CanteraError("Reactor::getConstraints", "Not Implemented");
+        throw NotImplementedError("Reactor::getConstraints");
     }
 
 

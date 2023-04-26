@@ -39,7 +39,7 @@ extern "C" {
     static int cvodes_rhs(realtype t, N_Vector y, N_Vector ydot, void* f_data)
     {
         FuncEval* f = (FuncEval*) f_data;
-        return f->eval_nothrow(t, NV_DATA_S(y), NV_DATA_S(ydot));
+        return f->evalNoThrow(t, NV_DATA_S(y), NV_DATA_S(ydot));
     }
 
     //! Function called by CVodes when an error is encountered instead of
