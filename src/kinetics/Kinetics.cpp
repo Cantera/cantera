@@ -17,7 +17,7 @@
 #include "cantera/base/utilities.h"
 #include "cantera/base/global.h"
 #include <unordered_set>
-#include <boost/algorithm/string/join.hpp>
+#include <boost/algorithm/string.hpp>
 
 using namespace std;
 
@@ -606,7 +606,7 @@ void Kinetics::addThermo(shared_ptr<ThermoPhase> thermo)
     }
 
     // there should only be one surface phase
-    if (thermo->type() == kineticsType()) {
+    if (boost::algorithm::contains(thermo->type(), "surface")) {
         m_surfphase = nPhases();
     }
     m_thermo.push_back(thermo.get());
