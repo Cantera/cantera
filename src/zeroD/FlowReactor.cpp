@@ -321,7 +321,7 @@ void FlowReactor::evalDae(double time, double* y, double* ydot, double* params,
             SurfPhase* surf = m_surf->thermo();
             size_t nk = surf->nSpecies();
             kin->getNetProductionRates(m_sdot_temp.data());
-            size_t ns = kin->surfacePhaseIndex();
+            size_t ns = kin->reactionPhaseIndex();
             size_t surfloc = kin->kineticsSpeciesIndex(0,ns);
             double sum = y[loc];
             for (size_t i = 1; i < nk; ++i)
