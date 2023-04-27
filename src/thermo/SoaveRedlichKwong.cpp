@@ -481,37 +481,16 @@ double SoaveRedlichKwong::dpdVCalc(double T, double molarVol, double& presCalc) 
     return -GasConstant * T / (vmb * vmb) + m_aAlpha_mix * (2 * molarVol + m_b) / (denom * denom);
 }
 
-double SoaveRedlichKwong::isothermalCompressibility() const 
+double SoaveRedlichKwong::isothermalCompressibility() const
 {
-    double P = pressure();
-    double RT_ = RT();
-    double Z = z();
-
-    double A = m_aAlpha_mix * P / (RT_ * RT_);
-    double B = m_b * P / RT_;
-
-    double dAdP = A / P;
-    double dBdP = B / P;
-    double dZdP = ((B - Z) * dAdP + (A + Z + 2 * B * Z) * dBdP) / (3 * Z * Z - 2 * Z + A - B - B * B);
-
-    return 1 / P - dZdP / Z;
+    calculatePressureDerivatives();
+    return -1 / (molarVolume() * m_dpdV);
 }
 
-double SoaveRedlichKwong::thermalExpansionCoeff() const 
+double SoaveRedlichKwong::thermalExpansionCoeff() const
 {
-    double P = pressure();
-    double T = temperature();
-    double RT_ = RT();
-    double Z = z();
-
-    double A = m_aAlpha_mix * P / (RT_ * RT_);
-    double B = m_b * P / RT_;
-
-    double dAdT = P / (RT_ * RT_) * (daAlpha_dT() - 2 * m_aAlpha_mix / T);
-    double dBdT = -B / T;
-    double dZdT = ((B - Z) * dAdT + (A + Z + 2 * B * Z) * dBdT) / (3 * Z * Z - 2 * Z + A - B - B * B);
-
-    return 1 / T + dZdT / Z;
+    calculatePressureDerivatives();
+    return -m_dpdT / (molarVolume() * m_dpdV);
 }
 
 void SoaveRedlichKwong::calculatePressureDerivatives() const
