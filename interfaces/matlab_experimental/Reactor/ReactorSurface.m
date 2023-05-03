@@ -4,11 +4,11 @@ classdef ReactorSurface < handle
     %     >> s = ReactorSurface(surf, reactor, area)
     %
     % A surface on which heterogeneous reactions take place. The
-    % mechanism object (typically an instance of class 'Interface')
+    % mechanism object (typically an instance of :mat:class:`Interface`)
     % mustb be constructed so that it is properly linked to the
     % object representing the fluid in the reactor. The surface
     % temperature on each side is taken to be equal to the
-    % temprature of the reactor.
+    % temperature of the reactor.
     %
     % Note: all of the arguments are optional and can be activated
     % after initial construction by using the various methods of
@@ -16,8 +16,8 @@ classdef ReactorSurface < handle
     %
     % :param surf:
     %    Surface reaction mechanisms for the left-facing surface.
-    %    This must bean instance of class 'Kinetics', or of a class
-    %    derived from 'Kinetics', such as 'Interface'.
+    %    This must bean instance of class :mat:class:`Kinetics`, or of a class
+    %    derived from Kinetics, such as :mat:class:`Interface`.
     % :param reactor:
     %    Instance of class 'Reactor' to be used as the adjacent bulk phase.
     % :param area:
