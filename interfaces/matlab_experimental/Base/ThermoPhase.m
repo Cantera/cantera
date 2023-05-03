@@ -4,7 +4,9 @@ classdef ThermoPhase < handle
     %     >> t = ThermoPhase(src, id)
     %
     % :param src:
-    %     Input string of YAML file name.
+    %     Input string of YAML file name when creating from file OR
+    %     "clib" when called by the class constructors of :mat:class:`Solution`
+    %     or :mat:class:`Interface`.
     % :param id:
     %     ID of the phase to import as specified in the input file.
     % :return:
@@ -420,7 +422,7 @@ classdef ThermoPhase < handle
             % Create a :mat:class:`ThermoPhase` object.
             ctIsLoaded;
 
-            if strcmp(src, 'CreateFromSolution') & isnumeric(id)
+            if strcmp(src, 'clib') & isnumeric(id)
                 tp.tpID = ctFunc('soln_thermo', id);
                 tp.basis = 'molar';
                 return

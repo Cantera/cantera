@@ -1,4 +1,28 @@
 classdef Transport < handle
+    % Transport Class ::
+    %
+    %     >> tr = Transport(th, model, loglevel)
+    %
+    % Create a new instance of class :mat:class:`Transport`. One to three
+    % arguments may be supplied. The first must be an instance of class
+    % :mat:class:`ThermoPhase`. The second (optional) argument is the type of
+    % model desired, specified by the string ``'default'``,
+    % ``'mixture-averaged'`` or ``'multicomponent'``. ``'default'``
+    % uses the default transport specified in the phase definition.
+    % The third argument is the logging level desired.
+    %
+    % :param tp:
+    %     Instance of class :mat:class:`ThermoPhase` OR string "clib"
+    %     when called by the class constructors of :mat:class:`Solution` or
+    %     :mat:class:`Interface`.
+    % :param model:
+    %     String indicating the transport model to use. Possible values
+    %     are ``'default'``, ``'none'``, ``'mixture-averaged'``,
+    %     and ``'multicomponent'``. Optional.
+    % :param loglevel:
+    %     Level of diagnostic logging. Default if not specified is 4. Optional.
+    % :return:
+    %     Instance of class :mat:class:`Transport`.
 
     properties (Access = protected)
         th % ID of the ThermoPhase object used to create the Transport object.
@@ -30,45 +54,23 @@ classdef Transport < handle
         %% Transport Class Constructor
 
         function tr = Transport(varargin)
-            % Transport Class ::
-            %
-            %     >> tr = Transport(th, model, loglevel)
-            %
-            % Create a new instance of class :mat:class:`Transport`. One to three
-            % arguments may be supplied. The first must be an instance of class
-            % :mat:class:`ThermoPhase`. The second (optional) argument is the type of
-            % model desired, specified by the string ``'default'``,
-            % ``'mixture-averaged'`` or ``'multicomponent'``. ``'default'``
-            % uses the default transport specified in the phase definition.
-            % The third argument is the logging level desired.
-            %
-            % :param th:
-            %     Instance of class :mat:class:`ThermoPhase`
-            % :param model:
-            %     String indicating the transport model to use. Possible values
-            %     are ``'default'``, ``'none'``, ``'mixture-averaged'``,
-            %     and ``'multicomponent'``.
-            %     Optional.
-            % :param loglevel:
-            %     Level of diagnostic logging. Default if not specified is 4.
-            % :return:
-            %     Instance of class :mat:class:`Transport`.
 
             ctIsLoaded;
             tr.trID = 0;
 
             tp = varargin{1};
-            model = varargin{2};
 
-            if ischar(tp) & isnumeric(model)
-                if strcmp(tp, 'CreateFromSolution')
-                    tr.trID = ctFunc('soln_transport', model);
+            if ischar(tp) & isnumeric(varargin{2})
+                if strcmp(tp, 'clib')
+                    tr.trID = ctFunc('soln_transport', varargin{2});
                     return
                 end
             end
 
-            if nargin == 2
+            if nargin < 2
                 model = 'default'
+            else
+                model = varargin{2};
             end
 
             if nargin < 3

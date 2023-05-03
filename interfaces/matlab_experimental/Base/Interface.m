@@ -48,14 +48,17 @@ classdef Interface < handle & ThermoPhase & Kinetics
             name = varargin{2};
             na = nargin - 2;
 
+            % Get ID of adjacent phases
             adj = [];
             for i = 3:nargin
                 adj(i-2) = varargin{i}.phaseID;
             end
 
             ID = ctFunc('soln_newInterface', src, name, na, adj);
-            s@ThermoPhase('CreateFromSolution', ID);
-            s@Kinetics('CreateFromSolution', ID);
+
+            % Inherit methods and properties from ThermoPhase and Kinetics
+            s@ThermoPhase('clib', ID);
+            s@Kinetics('clib', ID);
             s.phaseID = ID;
             s.interfaceName = name;
             s.nAdjacent = ctFunc('soln_nAdjacent', ID);

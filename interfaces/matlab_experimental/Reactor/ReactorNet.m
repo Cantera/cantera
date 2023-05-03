@@ -185,7 +185,7 @@ classdef ReactorNet < handle
             % :param p:
             %    Integer sensitivity parameter.
             % :param rxtr:
-            %    Instance of class 'reactor'.
+            %    Instance of class :mat:class:`reactor`.
 
             if isa(component, 'string')
                 ctFunc('reactornet_sensitivity', r.id, component, p, rxtr.id);

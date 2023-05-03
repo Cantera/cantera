@@ -1,4 +1,42 @@
 classdef Kinetics < handle
+    % Kinetics Class ::
+    %
+    %     >> k = Kinetics(varargin)
+    %
+    % Class :mat:class:`Kinetics` represents kinetics managers, which manage
+    % reaction mechanisms. The reaction mechanism attributes are specified in a
+    % YAML file.
+    %
+    % Instances of class :mat:class:`Kinetics` are responsible for evaluating
+    % reaction rates of progress, species production rates, and other
+    % quantities pertaining to a reaction mechanism.
+    %
+    % :param varagin:
+    %     Variable number of inputs consisting of the following:
+    %       - ph:
+    %           An instance of class :mat:class:`ThermoPhase` representing the
+    %           phase in which reactions occur.
+    %       - src:
+    %           Input string of YAML file name when creating from file OR
+    %           "clib" when called by the class constructors of :mat:class:`Solution`
+    %           or :mat:class:`Interface`.
+    %     Optional:
+    %       - id:
+    %           ID of the phase to import as specified in the input file.
+    %       - neighbor1:
+    %           Instance of class :mat:class:`ThermoPhase` or
+    %           :mat:class:`Solution` representing the 1st neighboring phase.
+    %       - neighbor2:
+    %           Instance of class :mat:class:`ThermoPhase` or
+    %           :mat:class:`Solution` representing the 2nd neighboring phase.
+    %       - neighbor3:
+    %           Instance of class :mat:class:`ThermoPhase` or
+    %           :mat:class:`Solution` representing the 3rd neighboring phase.
+    %       - neighbor4:
+    %           Instance of class :mat:class:`ThermoPhase` or
+    %           :mat:class:`Solution` representing the 4th neighboring phase.
+    % :return:
+    %      Instance of class :mat:class:`Kinetics`.
 
     properties (SetAccess = immutable)
         kinID % ID of the Kinetics object.
@@ -77,42 +115,6 @@ classdef Kinetics < handle
         %% Kinetics Class Constructor
 
         function kin = Kinetics(varargin)
-            % Kinetics Class ::
-            %
-            %     >> k = Kinetics(varargin)
-            %
-            % Class Kinetics represents kinetics managers, which are classes that manage
-            % reaction mechanisms. The reaction mechanism attributes are specified in a
-            % YAML file.
-            %
-            % Instances of class :mat:class:`Kinetics` are responsible for evaluating
-            % reaction rates of progress, species production rates, and other
-            % quantities pertaining to a reaction mechanism.
-            %
-            % :param varagin:
-            %     Variable number of inputs consisting of the following:
-            %       - ph:
-            %           An instance of class :mat:class:`ThermoPhase` representing the
-            %           phase in which reactions occur.
-            %       - src:
-            %           Input string of YAML file name.
-            %     Optional:
-            %       - id:
-            %           ID of the phase to import as specified in the input file.
-            %       - neighbor1:
-            %           Instance of class :mat:class:`ThermoPhase` or
-            %           :mat:class:`Solution` representing the 1st neighboring phase.
-            %       - neighbor2:
-            %           Instance of class :mat:class:`ThermoPhase` or
-            %           :mat:class:`Solution` representing the 2nd neighboring phase.
-            %       - neighbor3:
-            %           Instance of class :mat:class:`ThermoPhase` or
-            %           :mat:class:`Solution` representing the 3rd neighboring phase.
-            %       - neighbor4:
-            %           Instance of class :mat:class:`ThermoPhase` or
-            %           :mat:class:`Solution` representing the 4th neighboring phase.
-            % :return:
-            %      Instance of class :mat:class:`Kinetics`.
 
             ctIsLoaded;
 
@@ -120,7 +122,7 @@ classdef Kinetics < handle
             src = varargin{2};
 
             if ischar(tmp) & isnumeric(src)
-                if strcmp(tmp, 'CreateFromSolution')
+                if strcmp(tmp, 'clib')
                     kin.kinID = ctFunc('soln_kinetics', src);
                     return
                 end
@@ -134,7 +136,6 @@ classdef Kinetics < handle
                 id = varargin{3};
             end
 
-            % indices for bulk phases in a heterogeneous mechanism
             neighbours = {-1, -1, -1, -1};
 
             for i = 4:length(varargin)
