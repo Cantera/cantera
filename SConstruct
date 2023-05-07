@@ -126,6 +126,8 @@ if "clean" in COMMAND_LINE_TARGETS:
     remove_directory("test/work")
     remove_file(".sconsign.dblite")
     remove_file("include/cantera/base/config.h")
+    remove_file("src/extensions/PythonExtensionManager.os")
+    remove_file("src/extensions/delegator.h")
     remove_file("src/pch/system.h.gch")
     remove_directory("include/cantera/ext")
     remove_file("config.log")
