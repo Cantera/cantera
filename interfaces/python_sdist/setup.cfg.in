@@ -45,6 +45,7 @@ install_requires =
     packaging
 python_requires @py_requires_ver_str@
 packages =
+    cantera
     cantera.data
     cantera.examples
     cantera.test
