@@ -111,8 +111,6 @@ def configure_build():
             boost_version = boost_lib_version.group(1)
             break
 
-    config_h = {}
-
     if not boost_version:
         raise ValueError(
             "Could not find Boost headers. Please set an environment variable called "
@@ -151,10 +149,6 @@ def configure_build():
     sun_config_h.write_text(sun_config_h_in.format_map(sundials_configh))
     shutil.copy2(sun_config_h, EXT_SRC / "sundials" / "sundials")
     shutil.copy2(sun_config_h, CT_INCLUDE / "cantera" / "ext" / "sundials")
-
-    config_h_in = Path("config.h.in").read_text()
-    ct_config_h = Path("include") / "cantera" / "base" / "config.h"
-    ct_config_h.write_text(config_h_in.format_map(config_h))
 
     return extra_compile_flags, sundials_cflags, sundials_macros
 
