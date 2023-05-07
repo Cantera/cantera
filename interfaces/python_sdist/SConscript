@@ -9,8 +9,7 @@ from build.env import IsolatedEnvBuilder
 
 from buildutils import logger
 
-Import("env", "configh")
-configh = configh.copy()
+Import("env")
 
 localenv = env.Clone()
 
@@ -107,10 +106,10 @@ include_target = sdist(localenv.RecursiveInstall(
         "clib$",
         "ext$",
         r"config\.h\.in",
-        r"config\.h",
     ],
 ))
 localenv.Depends(clib_defs_target, include_target)
+localenv.Depends(include_target, env["config_h_target"])
 
 ext_include_target = sdist(localenv.Command(
     "include/cantera/ext",
@@ -121,45 +120,6 @@ localenv.Depends(ext_include_target, env["ext_include_copies_target"])
 localenv.Depends(ext_include_target, include_target)
 
 ext_target = sdist(localenv.Command("ext", "#ext", copy_ext_src))
-
-# Disable Lapack for the sdist
-configh["CT_USE_LAPACK"] = None
-configh["CT_SUNDIALS_USE_LAPACK"] = None
-
-
-class DefineDict:
-    """dict-like class used to fill config.h.in partially.
-
-    We cannot use buildutils.DefineDict because missing keys in self.data are replaced
-    with /* #undef {key} */, but here we want to leave those as template strings for
-    setup.py to fill in on the final build machine.
-    """
-
-    def __init__(self, data):
-        self.data = data
-
-    def __getitem__(self, key):
-        if key not in self.data:
-            return f"{{{key!s}!s}}"
-        elif self.data[key] is None:
-            return f"/* #undef {key!s} */"
-        else:
-            return f"#define {key!s} {self.data[key]!s}"
-
-
-def config_builder(target, source, env):
-    configh = env["configh"]
-    config_h = Path(str(target[0]))
-    config_h_in = Path(str(source[0])).read_text()
-    config_h.write_text(config_h_in.format_map(configh))
-
-
-localenv["configh"] = DefineDict(configh)
-config_h_in_target = sdist(localenv.Command(
-    "config.h.in",
-    "#include/cantera/base/config.h.in",
-    config_builder,
-))
 
 sdist(localenv.UnitsInterfaceBuilder(
     "cantera/with_units/solution.py",
