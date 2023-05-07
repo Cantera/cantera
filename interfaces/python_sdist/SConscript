@@ -83,10 +83,12 @@ def replace_git_hash(target, source, env):
 sdist(localenv.RecursiveInstall(
     "src",
     "#src",
-    exclude=["fortran", "matlab", "clib", r"global\.cpp", "SCons.*"],
+    exclude=["fortran", "matlab", "clib", r"global\.cpp", "SCons.*", r"canteraStatic\.cpp"],
 ))
 
 sdist(localenv.Command("src/base/global.cpp", "#src/base/global.cpp",
+                       replace_git_hash))
+sdist(localenv.Command("include/cantera/cython/utils_utils.h", "#include/cantera/cython/utils_utils.h",
                        replace_git_hash))
 
 # This is the only bit of the clib that we need for the Python interface
@@ -106,6 +108,7 @@ include_target = sdist(localenv.RecursiveInstall(
         "clib$",
         "ext$",
         r"config\.h\.in",
+        r"utils_utils\.h",
     ],
 ))
 localenv.Depends(clib_defs_target, include_target)
