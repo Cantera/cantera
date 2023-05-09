@@ -345,12 +345,13 @@ jobs:
           "${DOCS_OUTPUT_DIR}" ${RSYNC_USER}@${RSYNC_SERVER}:${RSYNC_DEST}
 
   run-examples:
-    name: Run the Python examples using bash
+    name: Run Python ${{ matrix.python-version }} examples on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     needs: ["ubuntu-multiple-pythons"]
     strategy:
       matrix:
+        os: ["ubuntu-20.04", "ubuntu-22.04"]
         python-version: ['3.8', '3.10', '3.11']
       fail-fast: false
     env:
