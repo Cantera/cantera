@@ -62,10 +62,10 @@ jobs:
         cc_flags=-D_GLIBCXX_ASSERTIONS
     - name: Upload shared library
       uses: actions/upload-artifact@v3
-      if: matrix.python-version == '3.10' && matrix.os == 'ubuntu-22.04'
+      if: matrix.python-version == '3.10'
       with:
         path: build/lib/libcantera_shared.so
-        name: libcantera_shared.so
+        name: libcantera_shared-${{ matrix.os }}.so
         retention-days: 2
     - name: Test Cantera
       run:
@@ -370,12 +370,17 @@ jobs:
       - name: Install Apt dependencies
         run: |
           sudo apt update
-          sudo apt install graphviz
+          sudo apt install graphviz libhdf5-103
       - name: Download the wheel artifact
         uses: actions/download-artifact@v3
         with:
           name: cantera-wheel-${{ matrix.python-version }}-${{ matrix.os }}
           path: dist
+      - name: Download the Cantera shared library (.so)
+        uses: actions/download-artifact@v3
+        with:
+          name: libcantera_shared-${{ matrix.os }}.so
+          path: build/lib
       - name: Upgrade pip
         run: python3 -m pip install -U pip setuptools wheel
       - name: Install Python dependencies
@@ -385,6 +390,7 @@ jobs:
       - name: Run the examples
         # See https://unix.stackexchange.com/a/392973 for an explanation of the -exec part
         run: |
+          ln -s libcantera_shared.so build/lib/libcantera_shared.so.3
           export LD_LIBRARY_PATH=build/lib
           find samples/python -type f -iname "*.py" \
           -exec sh -c 'for n; do echo "$n" | tee -a results.txt && python3 "$n" >> results.txt || exit 1; done' sh {} +
@@ -785,7 +791,7 @@ jobs:
     - name: Download the Cantera shared library (.so)
       uses: actions/download-artifact@v3
       with:
-        name: libcantera_shared.so
+        name: libcantera_shared-ubuntu-22.04.so
         path: build/lib
     - name: Download the Cantera shared library (.dylib)
       uses: actions/download-artifact@v3
