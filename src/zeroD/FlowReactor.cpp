@@ -146,16 +146,20 @@ void FlowReactor::getState(double* y, double* ydot)
     // - u * (perim / Ac) * sum(sk' * wk)
     ydot[2] = -m_u * h_sk_wk;
 
-    // energy conservation, Kee 16.58, adiabatic
-    // -sum(wk' * Wk * hk) - (perim / Ac) * sum(sk' * Wk * hk)
-    // Note: the partial molar enthalpies are in molar units, while Kee uses mass
-    //       units, where:
-    //              h_mass = h_mole / Wk
-    //       hence:
-    //              h_mass * Wk = h_mol
-    m_thermo->getPartialMolarEnthalpies(m_hk.data());
-    for (size_t i = 0; i < m_nsp; ++i) {
-        ydot[3] -= m_hk[i] * (m_wdot[i] + hydraulic * m_sdot[i]);
+    if (m_energy) {
+        // energy conservation, Kee 16.58, adiabatic
+        // -sum(wk' * Wk * hk) - (perim / Ac) * sum(sk' * Wk * hk)
+        // Note: the partial molar enthalpies are in molar units, while Kee uses mass
+        //       units, where:
+        //              h_mass = h_mole / Wk
+        //       hence:
+        //              h_mass * Wk = h_mol
+        m_thermo->getPartialMolarEnthalpies(m_hk.data());
+        for (size_t i = 0; i < m_nsp; ++i) {
+            ydot[3] -= m_hk[i] * (m_wdot[i] + hydraulic * m_sdot[i]);
+        }
+    } else {
+        ydot[3] = 0;
     }
 
     // mass-fraction equations Kee 16.51
@@ -296,10 +300,14 @@ void FlowReactor::evalDae(double time, double* y, double* ydot, double* params,
     //              h_mass = h_mole / Wk
     //       hence:
     //              h_mass * Wk = h_mol
-    const double cp_mass = m_thermo->cp_mass();
-    residual[3] = m_rho * m_u * cp_mass * m_dTdz;
-    for (size_t i = 0; i < m_nsp; ++i) {
-        residual[3] += m_hk[i] * (m_wdot[i] + hydraulic * m_sdot[i]);
+    if (m_energy) {
+        const double cp_mass = m_thermo->cp_mass();
+        residual[3] = m_rho * m_u * cp_mass * m_dTdz;
+        for (size_t i = 0; i < m_nsp; ++i) {
+            residual[3] += m_hk[i] * (m_wdot[i] + hydraulic * m_sdot[i]);
+        }
+    } else {
+        residual[3] = m_dTdz;
     }
 
     //! species conservation equations
