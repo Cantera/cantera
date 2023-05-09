@@ -446,7 +446,7 @@ jobs:
           system_highfive=y blas_lapack_libs='lapack,blas' -j2 logging=debug debug=n \
           optimize_flags='-O3 -ffast-math -fno-finite-math-only'
       - name: Test Cantera
-        run: scons test show_long_tests=yes verbose_tests=yes
+        run: scons test-zeroD test-python-reactor show_long_tests=yes verbose_tests=yes
       - name: Test Install
         # spot-check installation locations
         run: |
