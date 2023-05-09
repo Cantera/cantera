@@ -489,6 +489,7 @@ jobs:
         miniforge-variant: Mambaforge
         miniforge-version: latest
         activate-environment: test
+        run-post: false
     - name: Install conda dependencies
       # See https://github.com/conda-forge/boost-cpp-feedstock/issues/41 for why we
       # use boost-cpp rather than boost from conda-forge
