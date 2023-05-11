@@ -48,7 +48,7 @@ classdef Reactor < handle
         %
         % If the chemistry is disabled, then the reactor composition is
         % constant. The parameter should be the string "on" to enable
-        % the species equaionts, or "off" to disable it.
+        % the species equations, or "off" to disable it.
         %
         % By default, :mat:class:`Reactor` objects are created with the species
         % equations enabled if there are reactions present in the
@@ -92,9 +92,9 @@ classdef Reactor < handle
             %     >> r = Reactor(content, typ)
             %
             % A :mat:class:`Reactor` object simulates a perfectly-stirred reactor.
-            % It has a time-dependent tstate, and may be coupled to other
+            % It has a time-dependent state, and may be coupled to other
             % reactors through flow lines or through walls that may expand
-            % or contract and/orconduct heat.
+            % or contract and/or conduct heat.
             %
             % :param contents:
             %    Instance of :mat:class:`Solution` representing the contents of

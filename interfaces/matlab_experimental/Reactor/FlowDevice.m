@@ -24,7 +24,7 @@ classdef FlowDevice < handle
     properties (SetAccess = immutable)
 
         type % Type of flow device.
-        id % ID of Flowdevice object.
+        id % ID of FlowDevice object.
 
     end
 
@@ -110,13 +110,13 @@ classdef FlowDevice < handle
 
         end
 
-        %% Flowdevice Get Methods
+        %% FlowDevice Get Methods
 
         function mdot = get.massFlowRate(f)
             mdot = ctFunc('flowdev_massFlowRate2', f.id);
         end
 
-        %% Flowdevice Set Methods
+        %% FlowDevice Set Methods
 
         function set.massFlowRate(f, mdot)
 

@@ -11,7 +11,7 @@ classdef Kinetics < handle
     % reaction rates of progress, species production rates, and other
     % quantities pertaining to a reaction mechanism.
     %
-    % :param varagin:
+    % :param varargin:
     %     Variable number of inputs consisting of the following:
     %       - ph:
     %           An instance of class :mat:class:`ThermoPhase` representing the
@@ -235,7 +235,7 @@ classdef Kinetics < handle
             %    coefficients should be retrieved. Optional argument; if
             %    specified, ``rxns`` must be specified as well.
             % :param rxns:
-            %    Reaction indicies for which reactant stoichiometric
+            %    Reaction indices for which reactant stoichiometric
             %    coefficients should be retrieved. Optional argument; if
             %    specified, ``species`` must be specified as well.
             % :return:
@@ -246,7 +246,7 @@ classdef Kinetics < handle
             %    matrix will contain only entries for the specified species
             %    and reactions. For example, ``stoich_p(a, 3, [1, 3, 5,
             %    7])`` returns a sparse matrix containing only the
-            %    coefficients for specis 3 in reactions 1, 3, 5, and 7.
+            %    coefficients for species 3 in reactions 1, 3, 5, and 7.
 
             nsp = kin.nTotalSpecies;
             nr = kin.nReactions;
@@ -288,7 +288,7 @@ classdef Kinetics < handle
             %    coefficients should be retrieved. Optional argument; if
             %    specified, ``rxns`` must be specified as well.
             % :param rxns:
-            %    Reaction indicies for which product stoichiometric
+            %    Reaction indices for which product stoichiometric
             %    coefficients should be retrieved. Optional argument; if
             %    specified, ``species`` must be specified as well.
             % :return:
@@ -335,7 +335,7 @@ classdef Kinetics < handle
             %    should be retrieved. Optional argument; if specified,
             %    "rxns" must be specified as well.
             % :param rxns:
-            %    Reaction indicies for which net stoichiometric
+            %    Reaction indices for which net stoichiometric
             %    coefficients should be retrieved. Optional argument; if
             %    specified, "species" must be specified as well.
             % :return:
@@ -534,7 +534,7 @@ classdef Kinetics < handle
         end
 
         function advanceCoverages(kin, dt)
-            % Advance the surface coveages forward in time. ::
+            % Advance the surface coverages forward in time. ::
             %
             %     >> kin.advanceCoverages(dt)
             %

@@ -121,7 +121,7 @@ classdef Sim1D < handle
             % :param component:
             %    String component for which the solution is desired. If omitted,
             %    solution for all of the components will be returned in
-            %    an :math:`nPoints \times nComponnts` array.
+            %    an :math:`nPoints \times nComponents` array.
             % :return:
             %    Either an :math:`nPoints \times 1` vector, or
             %    :math:`nPoints \times nComponents` array.
@@ -163,7 +163,7 @@ classdef Sim1D < handle
             %    Instance of class :mat:class:`Sim1D`.
             % :param loglevel:
             %    Integer flag controlling the amount of diagnostic output.
-            %    Zero supresses all output, and 5 produces very verbose output.
+            %    Zero suppresses all output, and 5 produces very verbose output.
             % :param refineGrid:
             %    Integer, 1 to allow grid refinement, 0 to disallow.
 
@@ -483,7 +483,7 @@ classdef Sim1D < handle
             % This sets component 5 at the leftmost point (local point 1)
             % in domain 3 to the value 5.6. Note that the local index
             % always begins at 1 at the left of each domain, independent of
-            % the global index of the point, wchih depends on the location
+            % the global index of the point, which depends on the location
             % of this domain in the class :mat:class:`Sim1D` object.
             %
             % :param s:

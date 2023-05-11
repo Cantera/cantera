@@ -105,7 +105,7 @@ classdef Mixture < handle
         % :param m:
         %     Instance of class :mat:class:`Mixture`.
         % :param name:
-        %     Name of the speces whose index is desired.
+        %     Name of the species whose index is desired.
         % :return:
         %     Index of species with name ``name``.
         %
