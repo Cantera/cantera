@@ -121,7 +121,7 @@ classdef Domain1D < handle
         function b = bounds(d, component)
             % Get the (lower, upper) bounds for a solution component. ::
             %
-            %     >> b = d.bounds(componoent)
+            %     >> b = d.bounds(component)
             %
             % :param component:
             %    String name of the component for which the bounds are returned.

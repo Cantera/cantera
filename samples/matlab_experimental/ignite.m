@@ -42,7 +42,7 @@ function plotdata = ignite(g)
     % boundary conditions - the rate of change of volume, the heat
     % flux, and the area.
 
-    % Rate of change of volume. Any arbirtrary function may be implemented.
+    % Rate of change of volume. Any arbitrary function may be implemented.
     % Input arguments:
     %   t      time
     %   vol    volume

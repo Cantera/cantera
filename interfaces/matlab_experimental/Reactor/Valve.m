@@ -18,8 +18,7 @@ classdef Valve < FlowDevice
     % does not model real valve characteristics - in particular, it
     % does not model choked flow. The mass flow rate is always assumed
     % to be linearly proportional to the pressure difference, no matter how
-    % large the pressure difference. THIS MAY CHANGE IN A F`UTURE
-    % RELEASE.
+    % large the pressure difference. THIS MAY CHANGE IN A FUTURE RELEASE.
     %
     % see also: :mat:class:`FlowDevice`, :mat:class:`MassFlowController`
     %

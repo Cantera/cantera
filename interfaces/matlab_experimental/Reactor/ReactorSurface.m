@@ -5,7 +5,7 @@ classdef ReactorSurface < handle
     %
     % A surface on which heterogeneous reactions take place. The
     % mechanism object (typically an instance of :mat:class:`Interface`)
-    % mustb be constructed so that it is properly linked to the
+    % must be constructed so that it is properly linked to the
     % object representing the fluid in the reactor. The surface
     % temperature on each side is taken to be equal to the
     % temperature of the reactor.

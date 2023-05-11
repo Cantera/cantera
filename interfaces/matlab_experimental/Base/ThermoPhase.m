@@ -667,11 +667,6 @@ classdef ThermoPhase < handle
                 m = element;
             end
 
-            % if k < 0 | m < 0
-            %     n = -1;
-            %     return
-            % end
-
             n = ctFunc('thermo_nAtoms', tp.tpID, k - 1, m - 1);
 
         end
@@ -1341,7 +1336,7 @@ classdef ThermoPhase < handle
             elseif isa(yy, 'char')
                 ctFunc('thermo_setMassFractionsByName', tp.tpID, yy);
             else
-                error('Invalud input.')
+                error('Invalid input.')
             end
 
         end

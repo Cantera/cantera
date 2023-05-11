@@ -6,7 +6,7 @@ classdef Interface < handle & ThermoPhase & Kinetics
     % See `ideal-surface <https://cantera.org/documentation/docs-2.6/sphinx/html/yaml/phases.html#sec-yaml-ideal-surface>`__
     % and `Declaring adjacent phases <https://cantera.org/tutorials/yaml/phases.html#declaring-adjacent-phases>`__.
     %
-    % :param varagin:
+    % :param varargin:
     %     Variable number of inputs consisting of the following:
     %       - src: YAML file containing the interface or edge phase.
     %       - id: Name of the interface or edge phase in the YAML file.
@@ -91,7 +91,7 @@ classdef Interface < handle & ThermoPhase & Kinetics
 
         function d = get.siteDensity(s)
             surfID = s.tpID;
-            d = calllibt(ct, 'surf_siteDensity', surfID);
+            d = ctFunc('surf_siteDensity', surfID);
         end
 
         function c = get.concentrations(s)

@@ -1,4 +1,4 @@
-classdef Surface < Bondary1D
+classdef Surface < Boundary1D
     % Create a surface domain. ::
     %
     %     >> m = Surface(phase, id)
