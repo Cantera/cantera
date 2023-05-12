@@ -22,72 +22,49 @@ N_Vector newNVector(size_t N, Cantera::SundialsContext& context)
 }
 
 } // end anonymous namespace
+
 namespace Cantera
 {
 
 extern "C" {
-    //! Function called by IDA to evaluate the residual, given y and ydot.
-    /*!
-     * IDA allows passing in a void* pointer to access external data. Instead of
-     * requiring the user to provide a residual function directly to IDA (which
-     * would require using the sundials data types N_Vector, etc.), we define
-     * this function as the single function that IDA always calls. The real
-     * evaluation of the residual is done by an instance of a subclass of
-     * ResidEval, passed in to this function as a pointer in the parameters.
-     *
-     * FROM IDA WRITEUP -> What the IDA solver expects as a return flag from its
-     * residual routines:
-     *
-     * A IDAResFn res should return a value of 0 if successful, a positive value
-     * if a recoverable error occured (e.g. yy has an illegal value), or a
-     * negative value if a nonrecoverable error occured. In the latter case, the
-     * program halts. If a recoverable error occured, the integrator will
-     * attempt to correct and retry.
-     */
-    static int ida_rhs(realtype t, N_Vector y, N_Vector ydot, N_Vector r, void* f_data)
-    {
-        FuncEval* f = (FuncEval*) f_data;
-        return f->evalDaeNoThrow(t, NV_DATA_S(y), NV_DATA_S(ydot), NV_DATA_S(r));
-    }
 
-    //! Function called by IDA when an error is encountered instead of
-    //! writing to stdout. Here, save the error message provided by IDA so
-    //! that it can be included in the subsequently raised CanteraError.
-    static void ida_err(int error_code, const char* module,
-                        const char* function, char* msg, void* eh_data)
-    {
-        IDAIntegrator* integrator = (IDAIntegrator*) eh_data;
-        integrator->m_error_message = msg;
-        integrator->m_error_message += "\n";
-    }
+//! Function called by IDA to evaluate the residual, given y and ydot.
+/*!
+* IDA allows passing in a void* pointer to access external data. Instead of requiring
+* the user to provide a residual function directly to IDA (which would require using the
+* Sundials data types N_Vector, etc.), we define this function as the single function
+* that IDA always calls. The real evaluation of the residual is done by an instance of a
+* subclass of ResidEval, passed in to this function as a pointer in the parameters.
+*
+* FROM IDA WRITEUP -> What the IDA solver expects as a return flag from its
+* residual routines:
+*
+* A IDAResFn res should return a value of 0 if successful, a positive value if a
+* recoverable error occurred (e.g. yy has an illegal value), or a negative value if a
+* nonrecoverable error occurred. In the latter case, the program halts. If a recoverable
+* error occurred, the integrator will attempt to correct and retry.
+*/
+static int ida_rhs(realtype t, N_Vector y, N_Vector ydot, N_Vector r, void* f_data)
+{
+    FuncEval* f = (FuncEval*) f_data;
+    return f->evalDaeNoThrow(t, NV_DATA_S(y), NV_DATA_S(ydot), NV_DATA_S(r));
 }
 
-IDAIntegrator::IDAIntegrator() :
-    m_ida_mem(0),
-    m_linsol(0),
-    m_linsol_matrix(0),
-    m_func(0),
-    m_t0(0.0),
-    m_y(0),
-    m_ydot(0),
-    m_abstol(0),
-    m_type("DENSE"),
-    m_itol(IDA_SS),
-    m_maxord(0),
-    m_reltol(1.e-9),
-    m_abstols(1.e-15),
-    m_nabs(0),
-    m_hmax(0.0),
-    m_hmin(0.0),
-    m_maxsteps(20000),
-    m_maxErrTestFails(-1),
-    m_mupper(0),
-    m_mlower(0),
-    m_constraints(0),
-    m_maxNonlinIters(0),
-    m_maxNonlinConvFails(-1),
-    m_setSuppressAlg(0),
-    m_init_step(1.e-14)
+//! Function called by IDA when an error is encountered instead of writing to stdout.
+//! Here, save the error message provided by IDA so that it can be included in the
+//! subsequently raised CanteraError.
+static void ida_err(int error_code, const char* module,
+                    const char* function, char* msg, void* eh_data)
+{
+    IDAIntegrator* integrator = (IDAIntegrator*) eh_data;
+    integrator->m_error_message = msg;
+    integrator->m_error_message += "\n";
+}
+
+}
+
+IDAIntegrator::IDAIntegrator()
+    : m_itol(IDA_SS)
 {
 }
 
@@ -112,7 +89,7 @@ IDAIntegrator::~IDAIntegrator()
 
 double& IDAIntegrator::solution(size_t k)
 {
-    return NV_Ith_S(m_y,k);
+    return NV_Ith_S(m_y, k);
 }
 
 double* IDAIntegrator::solution()
@@ -187,11 +164,10 @@ void IDAIntegrator::setMaxErrTestFails(int n)
 void IDAIntegrator::setMaxNonlinIterations(int n)
 {
     m_maxNonlinIters = n;
-    if (m_ida_mem)
-    {
+    if (m_ida_mem) {
         int flag = IDASetMaxNonlinIters(m_ida_mem, m_maxNonlinIters);
         if (flag != IDA_SUCCESS) {
-            throw CanteraError("IDAIntegrator::init",
+            throw CanteraError("IDAIntegrator::setMaxNonlinIterations",
                                "IDASetmaxNonlinIters failed.");
         }
     }
@@ -199,7 +175,8 @@ void IDAIntegrator::setMaxNonlinIterations(int n)
     if (m_setSuppressAlg != 0) {
         int flag = IDASetSuppressAlg(m_ida_mem, m_setSuppressAlg);
         if (flag != IDA_SUCCESS) {
-            throw CanteraError("IDAIntegrator::init", "IDASetSuppressAlg failed.");
+            throw CanteraError("IDAIntegrator::setMaxNonlinIterations",
+                               "IDASetSuppressAlg failed.");
         }
     }
 }
@@ -207,11 +184,10 @@ void IDAIntegrator::setMaxNonlinIterations(int n)
 void IDAIntegrator::setMaxNonlinConvFailures(int n)
 {
     m_maxNonlinIters = n;
-    if (m_ida_mem)
-    {
+    if (m_ida_mem) {
         int flag = IDASetMaxConvFails(m_ida_mem, m_maxNonlinConvFails);
         if (flag != IDA_SUCCESS) {
-            throw CanteraError("IDAIntegrator::init",
+            throw CanteraError("IDAIntegrator::setMaxNonlinConvFailures",
                                "IDASetMaxConvFails failed.");
         }
     }
@@ -219,17 +195,13 @@ void IDAIntegrator::setMaxNonlinConvFailures(int n)
 
 void IDAIntegrator::inclAlgebraicInErrorTest(bool yesno)
 {
-    if (yesno) {
-        m_setSuppressAlg = 0;
-    } else {
-        m_setSuppressAlg = 1;
-    }
+    m_setSuppressAlg = !yesno;
 
-    if (m_ida_mem)
-    {
+    if (m_ida_mem) {
         int flag = IDASetSuppressAlg(m_ida_mem, m_setSuppressAlg);
         if (flag != IDA_SUCCESS) {
-            throw CanteraError("IDAIntegrator::init", "IDASetSuppressAlg failed.");
+            throw CanteraError("IDAIntegrator::inclAlgebraicInErrorTest",
+                               "IDASetSuppressAlg failed.");
         }
     }
 }
@@ -267,7 +239,6 @@ void IDAIntegrator::initialize(double t0, FuncEval& func)
     // set the constraints
     func.getConstraints(NV_DATA_S(m_constraints));
 
-
     // get the initial conditions
     func.getState(NV_DATA_S(m_y), NV_DATA_S(m_ydot));
 
@@ -282,8 +253,7 @@ void IDAIntegrator::initialize(double t0, FuncEval& func)
         m_ida_mem = IDACreate();
     #endif
     if (!m_ida_mem) {
-        throw CanteraError("IDAIntegrator::initialize",
-                           "IDACreate failed.");
+        throw CanteraError("IDAIntegrator::initialize", "IDACreate failed.");
     }
 
     int flag = IDAInit(m_ida_mem, ida_rhs, m_t0, m_y, m_ydot);
@@ -295,8 +265,7 @@ void IDAIntegrator::initialize(double t0, FuncEval& func)
             throw CanteraError("IDAIntegrator::initialize",
                                "Illegal value for IDAInit input argument.");
         } else {
-            throw CanteraError("IDAIntegrator::initialize",
-                               "IDAInit failed.");
+            throw CanteraError("IDAIntegrator::initialize", "IDAInit failed.");
         }
     }
 
@@ -307,15 +276,13 @@ void IDAIntegrator::initialize(double t0, FuncEval& func)
             throw CanteraError("IDAIntegrator::initialize",
                                "Memory allocation failed.");
         } else {
-            throw CanteraError("IDAIntegrator::initialize",
-                               "IDASetId failed.");
+            throw CanteraError("IDAIntegrator::initialize", "IDASetId failed.");
         }
     }
 
     flag = IDASetErrHandlerFn(m_ida_mem, &ida_err, this);
     if (flag != IDA_SUCCESS) {
-        throw CanteraError("IDAIntegrator::initialize",
-                            "IDASetErrHandlerFn failed.");
+        throw CanteraError("IDAIntegrator::initialize", "IDASetErrHandlerFn failed.");
     }
 
     if (m_itol == IDA_SV) {
@@ -332,14 +299,13 @@ void IDAIntegrator::initialize(double t0, FuncEval& func)
                                "Illegal value for IDAInit input argument.");
         } else {
             throw CanteraError("IDAIntegrator::initialize",
-                               "IDAInit failed.");
+                               "IDASStolerances failed.");
         }
     }
 
     flag = IDASetUserData(m_ida_mem, &func);
     if (flag != IDA_SUCCESS) {
-        throw CanteraError("IDAIntegrator::initialize",
-                           "IDASetUserData failed.");
+        throw CanteraError("IDAIntegrator::initialize", "IDASetUserData failed.");
     }
     applyOptions();
 }
@@ -592,7 +558,7 @@ string IDAIntegrator::getErrorInfo(int N)
     IDAGetErrWeights(m_ida_mem, errw);
     IDAGetEstLocalErrors(m_ida_mem, errs);
 
-    vector<tuple<double, double, size_t> > weightedErrors;
+    vector<tuple<double, double, size_t>> weightedErrors;
     for (size_t i=0; i<m_neq; i++) {
         double err = NV_Ith_S(errs, i) * NV_Ith_S(errw, i);
         weightedErrors.emplace_back(-abs(err), err, i);
@@ -604,8 +570,7 @@ string IDAIntegrator::getErrorInfo(int N)
     sort(weightedErrors.begin(), weightedErrors.end());
     fmt::memory_buffer s;
     for (int i=0; i<N; i++) {
-        fmt_append(s, "{}: {}\n",
-                get<2>(weightedErrors[i]), get<1>(weightedErrors[i]));
+        fmt_append(s, "{}: {}\n", get<2>(weightedErrors[i]), get<1>(weightedErrors[i]));
     }
     return to_string(s);
 }
@@ -615,14 +580,6 @@ void IDAIntegrator::setMethod(MethodType t)
     if (t != BDF_Method) {
         // IDA only has the BDF method
         throw CanteraError("IDAIntegrator::setMethod", "unknown method");
-    }
-}
-
-void IDAIntegrator::setIterator(IterType t)
-{
-    if (t != Newton_Iter) {
-        // IDA only has the newton iterator
-        throw CanteraError("IDAIntegrator::setIterator", "unknown iterator");
     }
 }
 
