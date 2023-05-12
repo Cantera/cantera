@@ -1,9 +1,9 @@
-//! @file IDAIntegrator.cpp
+//! @file IdasIntegrator.cpp
 
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at http://www.cantera.org/license.txt for license and copyright information.
 
-#include "cantera/numerics/IDAIntegrator.h"
+#include "cantera/numerics/IdasIntegrator.h"
 #include "cantera/base/stringUtils.h"
 
 #include "cantera/numerics/sundials_headers.h"
@@ -56,19 +56,19 @@ static int ida_rhs(realtype t, N_Vector y, N_Vector ydot, N_Vector r, void* f_da
 static void ida_err(int error_code, const char* module,
                     const char* function, char* msg, void* eh_data)
 {
-    IDAIntegrator* integrator = (IDAIntegrator*) eh_data;
+    IdasIntegrator* integrator = (IdasIntegrator*) eh_data;
     integrator->m_error_message = msg;
     integrator->m_error_message += "\n";
 }
 
 }
 
-IDAIntegrator::IDAIntegrator()
+IdasIntegrator::IdasIntegrator()
     : m_itol(IDA_SS)
 {
 }
 
-IDAIntegrator::~IDAIntegrator()
+IdasIntegrator::~IdasIntegrator()
 {
     if (m_ida_mem) {
         IDAFree(&m_ida_mem);
@@ -87,17 +87,17 @@ IDAIntegrator::~IDAIntegrator()
     }
 }
 
-double& IDAIntegrator::solution(size_t k)
+double& IdasIntegrator::solution(size_t k)
 {
     return NV_Ith_S(m_y, k);
 }
 
-double* IDAIntegrator::solution()
+double* IdasIntegrator::solution()
 {
     return NV_DATA_S(m_y);
 }
 
-void IDAIntegrator::setTolerances(double reltol, size_t n, double* abstol)
+void IdasIntegrator::setTolerances(double reltol, size_t n, double* abstol)
 {
     m_itol = IDA_SV;
     m_nabs = n;
@@ -113,26 +113,26 @@ void IDAIntegrator::setTolerances(double reltol, size_t n, double* abstol)
     m_reltol = reltol;
 }
 
-void IDAIntegrator::setTolerances(double reltol, double abstol)
+void IdasIntegrator::setTolerances(double reltol, double abstol)
 {
     m_itol = IDA_SS;
     m_reltol = reltol;
     m_abstols = abstol;
 }
 
-void IDAIntegrator::setSensitivityTolerances(double reltol, double abstol)
+void IdasIntegrator::setSensitivityTolerances(double reltol, double abstol)
 {
     m_reltolsens = reltol;
     m_abstolsens = abstol;
 }
 
 
-void IDAIntegrator::setLinearSolverType(const string& linearSolverType)
+void IdasIntegrator::setLinearSolverType(const string& linearSolverType)
 {
     m_type = linearSolverType;
 }
 
-void IDAIntegrator::setMaxStepSize(double hmax)
+void IdasIntegrator::setMaxStepSize(double hmax)
 {
     m_hmax = hmax;
     if (m_ida_mem) {
@@ -140,7 +140,7 @@ void IDAIntegrator::setMaxStepSize(double hmax)
     }
 }
 
-void IDAIntegrator::setMaxSteps(int nmax)
+void IdasIntegrator::setMaxSteps(int nmax)
 {
     m_maxsteps = nmax;
     if (m_ida_mem) {
@@ -148,12 +148,12 @@ void IDAIntegrator::setMaxSteps(int nmax)
     }
 }
 
-int IDAIntegrator::maxSteps()
+int IdasIntegrator::maxSteps()
 {
     return m_maxsteps;
 }
 
-void IDAIntegrator::setMaxErrTestFails(int n)
+void IdasIntegrator::setMaxErrTestFails(int n)
 {
     m_maxErrTestFails = n;
     if (m_ida_mem) {
@@ -161,13 +161,13 @@ void IDAIntegrator::setMaxErrTestFails(int n)
     }
 }
 
-void IDAIntegrator::setMaxNonlinIterations(int n)
+void IdasIntegrator::setMaxNonlinIterations(int n)
 {
     m_maxNonlinIters = n;
     if (m_ida_mem) {
         int flag = IDASetMaxNonlinIters(m_ida_mem, m_maxNonlinIters);
         if (flag != IDA_SUCCESS) {
-            throw CanteraError("IDAIntegrator::setMaxNonlinIterations",
+            throw CanteraError("IdasIntegrator::setMaxNonlinIterations",
                                "IDASetmaxNonlinIters failed.");
         }
     }
@@ -175,38 +175,38 @@ void IDAIntegrator::setMaxNonlinIterations(int n)
     if (m_setSuppressAlg != 0) {
         int flag = IDASetSuppressAlg(m_ida_mem, m_setSuppressAlg);
         if (flag != IDA_SUCCESS) {
-            throw CanteraError("IDAIntegrator::setMaxNonlinIterations",
+            throw CanteraError("IdasIntegrator::setMaxNonlinIterations",
                                "IDASetSuppressAlg failed.");
         }
     }
 }
 
-void IDAIntegrator::setMaxNonlinConvFailures(int n)
+void IdasIntegrator::setMaxNonlinConvFailures(int n)
 {
     m_maxNonlinIters = n;
     if (m_ida_mem) {
         int flag = IDASetMaxConvFails(m_ida_mem, m_maxNonlinConvFails);
         if (flag != IDA_SUCCESS) {
-            throw CanteraError("IDAIntegrator::setMaxNonlinConvFailures",
+            throw CanteraError("IdasIntegrator::setMaxNonlinConvFailures",
                                "IDASetMaxConvFails failed.");
         }
     }
 }
 
-void IDAIntegrator::inclAlgebraicInErrorTest(bool yesno)
+void IdasIntegrator::inclAlgebraicInErrorTest(bool yesno)
 {
     m_setSuppressAlg = !yesno;
 
     if (m_ida_mem) {
         int flag = IDASetSuppressAlg(m_ida_mem, m_setSuppressAlg);
         if (flag != IDA_SUCCESS) {
-            throw CanteraError("IDAIntegrator::inclAlgebraicInErrorTest",
+            throw CanteraError("IdasIntegrator::inclAlgebraicInErrorTest",
                                "IDASetSuppressAlg failed.");
         }
     }
 }
 
-void IDAIntegrator::initialize(double t0, FuncEval& func)
+void IdasIntegrator::initialize(double t0, FuncEval& func)
 {
     m_neq = func.neq();
     m_t0 = t0;
@@ -228,7 +228,7 @@ void IDAIntegrator::initialize(double t0, FuncEval& func)
 
     // check abs tolerance array size
     if (m_itol == IDA_SV && m_nabs < m_neq) {
-        throw CanteraError("IDAIntegrator::initialize",
+        throw CanteraError("IdasIntegrator::initialize",
                            "not enough absolute tolerance values specified.");
     }
 
@@ -253,19 +253,19 @@ void IDAIntegrator::initialize(double t0, FuncEval& func)
         m_ida_mem = IDACreate();
     #endif
     if (!m_ida_mem) {
-        throw CanteraError("IDAIntegrator::initialize", "IDACreate failed.");
+        throw CanteraError("IdasIntegrator::initialize", "IDACreate failed.");
     }
 
     int flag = IDAInit(m_ida_mem, ida_rhs, m_t0, m_y, m_ydot);
     if (flag != IDA_SUCCESS) {
         if (flag == IDA_MEM_FAIL) {
-            throw CanteraError("IDAIntegrator::initialize",
+            throw CanteraError("IdasIntegrator::initialize",
                                "Memory allocation failed.");
         } else if (flag == IDA_ILL_INPUT) {
-            throw CanteraError("IDAIntegrator::initialize",
+            throw CanteraError("IdasIntegrator::initialize",
                                "Illegal value for IDAInit input argument.");
         } else {
-            throw CanteraError("IDAIntegrator::initialize", "IDAInit failed.");
+            throw CanteraError("IdasIntegrator::initialize", "IDAInit failed.");
         }
     }
 
@@ -273,16 +273,16 @@ void IDAIntegrator::initialize(double t0, FuncEval& func)
     flag = IDASetId(m_ida_mem, m_constraints);
     if (flag != IDA_SUCCESS) {
         if (flag == IDA_MEM_NULL) {
-            throw CanteraError("IDAIntegrator::initialize",
+            throw CanteraError("IdasIntegrator::initialize",
                                "Memory allocation failed.");
         } else {
-            throw CanteraError("IDAIntegrator::initialize", "IDASetId failed.");
+            throw CanteraError("IdasIntegrator::initialize", "IDASetId failed.");
         }
     }
 
     flag = IDASetErrHandlerFn(m_ida_mem, &ida_err, this);
     if (flag != IDA_SUCCESS) {
-        throw CanteraError("IDAIntegrator::initialize", "IDASetErrHandlerFn failed.");
+        throw CanteraError("IdasIntegrator::initialize", "IDASetErrHandlerFn failed.");
     }
 
     if (m_itol == IDA_SV) {
@@ -292,25 +292,25 @@ void IDAIntegrator::initialize(double t0, FuncEval& func)
     }
     if (flag != IDA_SUCCESS) {
         if (flag == IDA_MEM_FAIL) {
-            throw CanteraError("IDAIntegrator::initialize",
+            throw CanteraError("IdasIntegrator::initialize",
                                "Memory allocation failed.");
         } else if (flag == IDA_ILL_INPUT) {
-            throw CanteraError("IDAIntegrator::initialize",
+            throw CanteraError("IdasIntegrator::initialize",
                                "Illegal value for IDAInit input argument.");
         } else {
-            throw CanteraError("IDAIntegrator::initialize",
+            throw CanteraError("IdasIntegrator::initialize",
                                "IDASStolerances failed.");
         }
     }
 
     flag = IDASetUserData(m_ida_mem, &func);
     if (flag != IDA_SUCCESS) {
-        throw CanteraError("IDAIntegrator::initialize", "IDASetUserData failed.");
+        throw CanteraError("IdasIntegrator::initialize", "IDASetUserData failed.");
     }
     applyOptions();
 }
 
-void IDAIntegrator::reinitialize(double t0, FuncEval& func)
+void IdasIntegrator::reinitialize(double t0, FuncEval& func)
 {
     m_t0 = t0;
     m_time = t0;
@@ -320,13 +320,13 @@ void IDAIntegrator::reinitialize(double t0, FuncEval& func)
 
     int result = IDAReInit(m_ida_mem, m_t0, m_y, m_ydot);
     if (result != IDA_SUCCESS) {
-        throw CanteraError("IDAIntegrator::reinitialize",
+        throw CanteraError("IdasIntegrator::reinitialize",
                            "IDAReInit failed. result = {}", result);
     }
     applyOptions();
 }
 
-void IDAIntegrator::applyOptions()
+void IdasIntegrator::applyOptions()
 {
     if (m_type == "DENSE") {
         sd_size_t N = static_cast<sd_size_t>(m_neq);
@@ -367,7 +367,7 @@ void IDAIntegrator::applyOptions()
             #endif
         #endif
     } else if (m_type == "DIAG") {
-        throw CanteraError("IDAIntegrator::applyOptions",
+        throw CanteraError("IdasIntegrator::applyOptions",
                            "Cannot use a diagonal matrix with IDA.");
     } else if (m_type == "GMRES") {
         #if CT_SUNDIALS_VERSION >= 30
@@ -416,7 +416,7 @@ void IDAIntegrator::applyOptions()
             #endif
         #endif
     } else {
-        throw CanteraError("IDAIntegrator::applyOptions",
+        throw CanteraError("IdasIntegrator::applyOptions",
                            "unsupported linear solver flag '{}'", m_type);
     }
 
@@ -436,26 +436,26 @@ void IDAIntegrator::applyOptions()
     if (m_maxNonlinIters > 0) {
         int flag = IDASetMaxNonlinIters(m_ida_mem, m_maxNonlinIters);
         if (flag != IDA_SUCCESS) {
-            throw CanteraError("IDAIntegrator::init",
+            throw CanteraError("IdasIntegrator::init",
                                "IDASetmaxNonlinIters failed.");
         }
     }
     if (m_maxNonlinConvFails > 0) {
         int flag = IDASetMaxConvFails(m_ida_mem, m_maxNonlinConvFails);
         if (flag != IDA_SUCCESS) {
-            throw CanteraError("IDAIntegrator::init",
+            throw CanteraError("IdasIntegrator::init",
                                "IDASetMaxConvFails failed.");
         }
     }
     if (m_setSuppressAlg != 0) {
         int flag = IDASetSuppressAlg(m_ida_mem, m_setSuppressAlg);
         if (flag != IDA_SUCCESS) {
-            throw CanteraError("IDAIntegrator::init", "IDASetSuppressAlg failed.");
+            throw CanteraError("IdasIntegrator::init", "IDASetSuppressAlg failed.");
         }
     }
 }
 
-void IDAIntegrator::sensInit(double t0, FuncEval& func)
+void IdasIntegrator::sensInit(double t0, FuncEval& func)
 {
     m_np = func.nparams();
     m_sens_ok = false;
@@ -476,7 +476,7 @@ void IDAIntegrator::sensInit(double t0, FuncEval& func)
                            IDA_STAGGERED, IDASensResFn(0), m_yS, m_ySdot);
 
     if (flag != IDA_SUCCESS) {
-        throw CanteraError("IDAIntegrator::sensInit", "Error in IDASensInit");
+        throw CanteraError("IdasIntegrator::sensInit", "Error in IDASensInit");
     }
     vector_fp atol(m_np);
     for (size_t n = 0; n < m_np; n++) {
@@ -486,11 +486,11 @@ void IDAIntegrator::sensInit(double t0, FuncEval& func)
     }
     flag = IDASensSStolerances(m_ida_mem, m_reltolsens, atol.data());
     if (flag != IDA_SUCCESS) {
-        throw CanteraError("IDAIntegrator::sensInit", "Error in IDASensSStolerances");
+        throw CanteraError("IdasIntegrator::sensInit", "Error in IDASensSStolerances");
     }
 }
 
-void IDAIntegrator::integrate(double tout)
+void IdasIntegrator::integrate(double tout)
 {
     if (tout == m_time) {
         return;
@@ -501,7 +501,7 @@ void IDAIntegrator::integrate(double tout)
         if (!f_errs.empty()) {
             f_errs = "Exceptions caught during RHS evaluation:\n" + f_errs;
         }
-        throw CanteraError("IDAIntegrator::integrate",
+        throw CanteraError("IdasIntegrator::integrate",
             "IDA error encountered. Error code: {}\n{}\n"
             "{}"
             "Components with largest weighted error estimates:\n{}",
@@ -509,7 +509,7 @@ void IDAIntegrator::integrate(double tout)
     }
 }
 
-double IDAIntegrator::step(double tout)
+double IdasIntegrator::step(double tout)
 {
     int flag = IDASolve(m_ida_mem, tout, &m_time, m_y, m_ydot, IDA_ONE_STEP);
     if (flag != IDA_SUCCESS) {
@@ -517,7 +517,7 @@ double IDAIntegrator::step(double tout)
         if (!f_errs.empty()) {
             f_errs = "Exceptions caught during RHS evaluation:\n" + f_errs;
         }
-        throw CanteraError("IDAIntegrator::step",
+        throw CanteraError("IdasIntegrator::step",
             "IDA error encountered. Error code: {}\n{}\n"
             "{}"
             "Components with largest weighted error estimates:\n{}",
@@ -527,15 +527,15 @@ double IDAIntegrator::step(double tout)
     return m_time;
 }
 
-int IDAIntegrator::nEvals() const
+int IdasIntegrator::nEvals() const
 {
     // neither IDAGetNumRhsEvals, IDADlsGetNumRhsEvals, IDASpilsGetNumRhsEvals,
     // or IDAGetNumLinResEvals seem to exist
-    throw CanteraError("IDAIntegrator::nEvals",
+    throw CanteraError("IdasIntegrator::nEvals",
                        "Not implemented.");
 }
 
-double IDAIntegrator::sensitivity(size_t k, size_t p)
+double IdasIntegrator::sensitivity(size_t k, size_t p)
 {
     if (m_time == m_t0) {
         // calls to IDAGetSens are only allowed after a successful time step.
@@ -544,24 +544,24 @@ double IDAIntegrator::sensitivity(size_t k, size_t p)
     if (!m_sens_ok && m_np) {
         int flag = IDAGetSens(m_ida_mem, &m_time, m_yS);
         if (flag != IDA_SUCCESS) {
-            throw CanteraError("IDAIntegrator::sensitivity",
+            throw CanteraError("IdasIntegrator::sensitivity",
                                "IDAGetSens failed. Error code: {}", flag);
         }
         m_sens_ok = true;
     }
 
     if (k >= m_neq) {
-        throw CanteraError("IDAIntegrator::sensitivity",
+        throw CanteraError("IdasIntegrator::sensitivity",
                            "sensitivity: k out of range ({})", k);
     }
     if (p >= m_np) {
-        throw CanteraError("IDAIntegrator::sensitivity",
+        throw CanteraError("IdasIntegrator::sensitivity",
                            "sensitivity: p out of range ({})", p);
     }
     return NV_Ith_S(m_yS[p],k);
 }
 
-string IDAIntegrator::getErrorInfo(int N)
+string IdasIntegrator::getErrorInfo(int N)
 {
     N_Vector errs = newNVector(static_cast<sd_size_t>(m_neq), m_sundials_ctx);
     N_Vector errw = newNVector(static_cast<sd_size_t>(m_neq), m_sundials_ctx);
@@ -585,11 +585,11 @@ string IDAIntegrator::getErrorInfo(int N)
     return to_string(s);
 }
 
-void IDAIntegrator::setMethod(MethodType t)
+void IdasIntegrator::setMethod(MethodType t)
 {
     if (t != BDF_Method) {
         // IDA only has the BDF method
-        throw CanteraError("IDAIntegrator::setMethod", "unknown method");
+        throw CanteraError("IdasIntegrator::setMethod", "unknown method");
     }
 }
 
