@@ -54,7 +54,7 @@ rvol = area * rlen * porosity
 # catalyst area in one reactor
 cat_area = cat_area_per_vol * rvol
 
-mass_flow_rate = velocity * gas.density * area
+mass_flow_rate = velocity * gas.density * area * porosity
 
 # The plug flow reactor is represented by a linear chain of zero-dimensional
 # reactors. The gas at the inlet to the first one has the specified inlet
@@ -96,11 +96,6 @@ m = ct.MassFlowController(upstream, r, mdot=mass_flow_rate)
 v = ct.PressureController(r, downstream, master=m, K=1e-5)
 
 sim = ct.ReactorNet([r])
-sim.max_err_test_fails = 12
-
-# set relative and absolute tolerances on the simulation
-sim.rtol = 1.0e-9
-sim.atol = 1.0e-21
 
 output_data = []
 
