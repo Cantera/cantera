@@ -16,34 +16,25 @@ class FlowReactor : public IdealGasReactor
 {
 public:
     //! Note: currently assumes a cylinder
-    FlowReactor(double area=1.0,
-                double sa_to_vol=-1,
-                double ss_atol=1e-14,
-                double ss_rtol=1e-7,
-                int max_ss_steps = 20000,
-                int max_ss_error_fails=10);
+    FlowReactor() = default;
 
-    virtual std::string type() const {
+    string type() const override {
         return "FlowReactor";
     }
 
-    virtual void getState(double* y)
-    {
+    void getState(double* y) override {
         throw NotImplementedError("FlowReactor::getState");
     }
-    virtual void getState(double* y, double* ydot);
 
-    virtual void initialize(doublereal t0 = 0.0);
-    virtual void updateState(doublereal* y);
+    void getState(double* y, double* ydot) override;
+    void initialize(double t0=0.0) override;
+    void syncState() override;
+    void updateState(double* y) override;
+
     /*!
-     * Evaluate the reactor governing equations. Called by ReactorNet::eval.
-     * @param[in] t time.
-     * @param[in] y solution vector, length neq()
-     * @param[out] ydot rate of change of solution vector, length neq()
-     * @param[in] params sensitivity parameter vector, length ReactorNet::nparams()
+     * Not implemented for FlowReactor
      */
-    virtual void eval(double t, double* LHS, double* RHS)
-    {
+    void eval(double t, double* LHS, double* RHS) override {
         throw NotImplementedError("FlowReactor::eval");
     }
 
@@ -53,26 +44,17 @@ public:
      * @param[in] y solution vector, length neq()
      * @param[in] ydot rate of change of solution vector, length neq()
      * @param[in] params sensitivity parameter vector, length ReactorNet::nparams()
-     * @param[out] residual resisduals vector, length neq()
+     * @param[out] residual residuals vector, length neq()
      */
-    virtual void evalDae(double t, double* y,
-                         double* ydot, double* params,
-                         double* residual);
+    void evalDae(double t, double* y, double* ydot, double* params,
+                 double* residual) override;
 
     //! Given a vector of length neq(), mark which variables should be
     //! considered algebraic constraints
-    virtual void getConstraints(double* constraints) {
-        // mark all variables differential equations unless otherwise specified
-        std::fill(constraints, constraints + m_nv, 1.0);
-        // the species coverages are algebraic constraints
-        std::fill(constraints + m_offset_Y + m_nsp, constraints + m_nv, 0.0);
-    }
-
-
-    virtual void syncState();
+    void getConstraints(double* constraints) override;
 
     //! Set the mass flow rate through the reactor [kg/s]
-    void setMassFlowRate(doublereal mdot);
+    void setMassFlowRate(double mdot);
 
     //! The current gas speed in the reactor [m/s]
     double speed() const {
@@ -90,15 +72,7 @@ public:
     //! The ratio of the reactor's surface area to volume ratio [m^-1]
     //! @note If the surface area to volume ratio is unspecified by the user,
     //!       this will be calculated assuming the reactor is a cylinder.
-    double surfaceAreaToVolumeRatio() const {
-        if (m_sa_to_vol > 0)
-            return m_sa_to_vol;
-
-        // assuming a cylinder, volume = Pi * r^2 * L, and perimeter = 2 * Pi * r * L
-        // where L is the length, and r is the radius of the reactor
-        // hence, perimeter / area = 2 * Pi * r * L / (Pi * L * r^2) = 2 / r
-        return 2.0 / sqrt(m_area / Pi);
-    }
+    double surfaceAreaToVolumeRatio() const;
 
     //! Set the reactor's surface area to volume ratio [m^-1]
     void setSurfaceAreaToVolumeRatio(double sa_to_vol) {
@@ -129,36 +103,38 @@ public:
         m_max_ss_error_fails = max_fails;
     }
 
-
     //! Return the index in the solution vector for this reactor of the
     //! component named *nm*. Possible values for *nm* are "X" (position),
     //! "U", the name of a homogeneous phase species, or the name of a surface
     //! species.
-    virtual size_t componentIndex(const std::string& nm) const;
+    size_t componentIndex(const string& nm) const override;
 
-    virtual void updateSurfaceState(double* y);
+    void updateSurfaceState(double* y) override;
 
 protected:
-    double m_u, m_T, m_P, m_rho;
+    double m_u = NAN;
+    double m_T = NAN;
+    double m_P = NAN;
+    double m_rho = NAN;
     //! offset to the species equations
     const size_t m_offset_Y = 4;
     //! reactor area [m^2]
-    double m_area;
+    double m_area = 1.0;
     //! reactor surface area to volume ratio [m^-1]
-    double m_sa_to_vol;
+    double m_sa_to_vol = -1.0;
     //! temporary storage for surface species production rates
     vector_fp m_sdot_temp;
-    //! temporary storage for species partial molar enthalipes
+    //! temporary storage for species partial molar enthalpies
     vector_fp m_hk;
 
     //! steady-state relative tolerance, used to determine initial surface coverages
-    double m_ss_rtol;
+    double m_ss_rtol = 1e-7;
     //! steady-state absolute tolerance, used to determine initial surface coverages
-    double m_ss_atol;
+    double m_ss_atol = 1e-14;
     //! maximum number of steady-state coverage integrator-steps
-    int m_max_ss_steps;
+    int m_max_ss_steps = 20000;
     //! maximum number of steady-state integrator error test failures
-    int m_max_ss_error_fails;
+    int m_max_ss_error_fails = 10;
 };
 }
 

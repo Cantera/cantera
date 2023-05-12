@@ -332,7 +332,7 @@ void ReactorNet::evalDae(double t, double* y, double* ydot, double* p, double* r
     checkFinite("ydot", ydot, m_nv);
 }
 
-void ReactorNet::getConstraints(doublereal* constraints)
+void ReactorNet::getConstraints(double* constraints)
 {
     for (size_t n = 0; n < m_reactors.size(); n++) {
         m_reactors[n]->getConstraints(constraints + m_start[n]);
