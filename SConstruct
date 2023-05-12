@@ -1474,7 +1474,8 @@ env['NEED_LIBM'] = not conf.CheckLibWithHeader(None, 'math.h', 'C',
 env['LIBM'] = ['m'] if env['NEED_LIBM'] else []
 
 if env['system_sundials'] == 'y':
-    for subdir in ('sundials', 'nvector', 'cvodes', 'ida', 'sunlinsol', 'sunmatrix'):
+    for subdir in ('sundials', 'nvector', 'cvodes', 'idas', 'sunlinsol', 'sunmatrix',
+                   'sunnonlinsol'):
         remove_directory('include/cantera/ext/' + subdir)
 
     # Determine Sundials version

@@ -344,7 +344,12 @@ void IDAIntegrator::applyOptions()
                 m_linsol_matrix = SUNDenseMatrix(N, N);
             #endif
             #if CT_SUNDIALS_USE_LAPACK
-                m_linsol = SUNLapackDense(m_y, (SUNMatrix) m_linsol_matrix);
+                #if CT_SUNDIALS_VERSION >= 60
+                    m_linsol = SUNLinSol_LapackDense(m_y, (SUNMatrix) m_linsol_matrix,
+                                                     m_sundials_ctx.get());
+                #else
+                    m_linsol = SUNLapackDense(m_y, (SUNMatrix) m_linsol_matrix);
+                #endif
             #else
                 #if CT_SUNDIALS_VERSION >= 60
                     m_linsol = SUNLinSol_Dense(m_y, (SUNMatrix) m_linsol_matrix, m_sundials_ctx.get());
@@ -388,7 +393,12 @@ void IDAIntegrator::applyOptions()
                 m_linsol_matrix = SUNBandMatrix(N, nu, nl);
             #endif
             #if CT_SUNDIALS_USE_LAPACK
-                m_linsol = SUNLapackBand(m_y, (SUNMatrix) m_linsol_matrix);
+                #if CT_SUNDIALS_VERSION >= 60
+                    m_linsol = SUNLinSol_LapackBand(m_y, (SUNMatrix) m_linsol_matrix,
+                                                    m_sundials_ctx.get());
+                #else
+                    m_linsol = SUNLapackBand(m_y, (SUNMatrix) m_linsol_matrix);
+                #endif
             #else
                 #if CT_SUNDIALS_VERSION >= 60
                     m_linsol = SUNLinSol_Band(m_y, (SUNMatrix) m_linsol_matrix, m_sundials_ctx.get());
