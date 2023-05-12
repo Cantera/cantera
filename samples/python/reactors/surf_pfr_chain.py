@@ -1,7 +1,9 @@
 """
 This example solves a plug flow reactor problem, where the chemistry is
 surface chemistry. The specific problem simulated is the partial oxidation of
-methane over a platinum catalyst in a packed bed reactor.
+methane over a platinum catalyst in a packed bed reactor. To avoid needing to solve a
+DAE system, the PFR is approximated as a chain of successive WSRs. See surf_pfr.py
+for a more advanced implementation that solves the DAE system directly.
 
 Requires: cantera >= 2.5.0
 Keywords: catalysis, reactor network, surface chemistry, plug flow reactor,
