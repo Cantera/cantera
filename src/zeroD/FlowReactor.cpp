@@ -238,6 +238,12 @@ void FlowReactor::setMassFlowRate(double mdot)
     m_u = mdot/(m_rho * m_area);
 }
 
+void FlowReactor::setArea(double area) {
+    double mdot = m_rho * m_u * m_area;
+    m_area = area;
+    setMassFlowRate(mdot);
+}
+
 void FlowReactor::updateSurfaceState(double* y)
 {
     size_t loc = 0;
