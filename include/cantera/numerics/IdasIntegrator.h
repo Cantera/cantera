@@ -1,13 +1,13 @@
 /**
- *  @file IDAIntegrator.h
- *  Header file for class IDAIntegrator
+ *  @file IdasIntegrator.h
+ *  Header file for class IdasIntegrator
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://www.cantera.org/license.txt for license and copyright information.
 
-#ifndef CT_IDAIntegrator_H
-#define CT_IDAIntegrator_H
+#ifndef CT_IDASINTEGRATOR_H
+#define CT_IDASINTEGRATOR_H
 
 #include "cantera/numerics/Integrator.h"
 #include "cantera/base/ctexceptions.h"
@@ -19,18 +19,18 @@ namespace Cantera
 
 /**
  * Wrapper for Sundials IDA solver
- * @see FuncEval.h. Classes that use IDAIntegrator:
+ * @see FuncEval.h. Classes that use IdasIntegrator:
  * FlowReactor
  */
-class IDAIntegrator : public Integrator
+class IdasIntegrator : public Integrator
 {
 public:
     /**
      *  Constructor. Default settings: dense Jacobian, no user-supplied
      *  Jacobian function, Newton iteration.
      */
-    IDAIntegrator();
-    ~IDAIntegrator() override;
+    IdasIntegrator();
+    ~IdasIntegrator() override;
     void setTolerances(double reltol, size_t n, double* abstol) override;
     void setTolerances(double reltol, double abstol) override;
     void setSensitivityTolerances(double reltol, double abstol) override;

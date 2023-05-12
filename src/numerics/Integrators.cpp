@@ -6,7 +6,7 @@
 #include "cantera/base/ct_defs.h"
 #include "cantera/numerics/Integrator.h"
 #include "cantera/numerics/CVodesIntegrator.h"
-#include "cantera/numerics/IDAIntegrator.h"
+#include "cantera/numerics/IdasIntegrator.h"
 
 namespace Cantera
 {
@@ -16,7 +16,7 @@ Integrator* newIntegrator(const std::string& itype)
     if (itype == "CVODE") {
         return new CVodesIntegrator();
     } else if (itype == "IDA") {
-        return new IDAIntegrator();
+        return new IdasIntegrator();
     } else {
         throw CanteraError("newIntegrator",
                            "unknown integrator: "+itype);
