@@ -467,12 +467,17 @@ cdef class FlowReactor(Reactor):
             self.steady_state_max_error_failures = ss_max_fail
 
     property mass_flow_rate:
-        """ Mass flow rate per unit area [kg/m^2*s] """
+        """ Mass flow rate [kg/s] """
         def __set__(self, double value):
             (<CxxFlowReactor*>self.reactor).setMassFlowRate(value)
 
     property area:
-        """ Get/set the area of the reactor [m^2] """
+        """
+        Get/set the area of the reactor [m^2].
+
+        When the area is changed, the flow speed is scaled to keep the total mass flow
+        rate constant.
+        """
         def __get__(self):
             return (<CxxFlowReactor*>self.reactor).area()
         def __set__(self, area):

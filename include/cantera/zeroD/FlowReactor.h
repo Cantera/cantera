@@ -70,7 +70,8 @@ public:
 
 
     virtual void syncState();
-    
+
+    //! Set the mass flow rate through the reactor [kg/s]
     void setMassFlowRate(doublereal mdot);
 
     //! The current gas speed in the reactor [m/s]
@@ -84,10 +85,7 @@ public:
     }
 
     //! Sets the area of the reactor [m^2]
-    void setArea(double area) {
-        m_area = area;
-        setMassFlowRate(m_rho * m_u * area);
-    }
+    void setArea(double area);
 
     //! The ratio of the reactor's surface area to volume ratio [m^-1]
     //! @note If the surface area to volume ratio is unspecified by the user,
