@@ -330,90 +330,88 @@ void IdasIntegrator::applyOptions()
 {
     if (m_type == "DENSE") {
         sd_size_t N = static_cast<sd_size_t>(m_neq);
-        #if CT_SUNDIALS_VERSION >= 30
-            SUNLinSolFree((SUNLinearSolver) m_linsol);
-            SUNMatDestroy((SUNMatrix) m_linsol_matrix);
-            #if CT_SUNDIALS_VERSION >= 60
-                m_linsol_matrix = SUNDenseMatrix(N, N, m_sundials_ctx.get());
-            #else
-                m_linsol_matrix = SUNDenseMatrix(N, N);
-            #endif
-            #if CT_SUNDIALS_VERSION >= 60
-                m_linsol_matrix = SUNDenseMatrix(N, N, m_sundials_ctx.get());
-            #else
-                m_linsol_matrix = SUNDenseMatrix(N, N);
-            #endif
-            #if CT_SUNDIALS_USE_LAPACK
-                #if CT_SUNDIALS_VERSION >= 60
-                    m_linsol = SUNLinSol_LapackDense(m_y, (SUNMatrix) m_linsol_matrix,
-                                                     m_sundials_ctx.get());
-                #else
-                    m_linsol = SUNLapackDense(m_y, (SUNMatrix) m_linsol_matrix);
-                #endif
-            #else
-                #if CT_SUNDIALS_VERSION >= 60
-                    m_linsol = SUNLinSol_Dense(m_y, (SUNMatrix) m_linsol_matrix, m_sundials_ctx.get());
-                #else
-                    m_linsol = SUNLinSol_Dense(m_y, (SUNMatrix) m_linsol_matrix);
-                #endif
-            #endif
-            IDASetLinearSolver(m_ida_mem, (SUNLinearSolver) m_linsol,
-                                  (SUNMatrix) m_linsol_matrix);
+        SUNLinSolFree((SUNLinearSolver) m_linsol);
+        SUNMatDestroy((SUNMatrix) m_linsol_matrix);
+        #if CT_SUNDIALS_VERSION >= 60
+            m_linsol_matrix = SUNDenseMatrix(N, N, m_sundials_ctx.get());
         #else
-            #if CT_SUNDIALS_USE_LAPACK
-                IDALapackDense(m_ida_mem, N);
+            m_linsol_matrix = SUNDenseMatrix(N, N);
+        #endif
+        #if CT_SUNDIALS_VERSION >= 60
+            m_linsol_matrix = SUNDenseMatrix(N, N, m_sundials_ctx.get());
+        #else
+            m_linsol_matrix = SUNDenseMatrix(N, N);
+        #endif
+        #if CT_SUNDIALS_USE_LAPACK
+            #if CT_SUNDIALS_VERSION >= 60
+                m_linsol = SUNLinSol_LapackDense(m_y, (SUNMatrix) m_linsol_matrix,
+                                                 m_sundials_ctx.get());
             #else
-                IDADense(m_ida_mem, N);
+                m_linsol = SUNLapackDense(m_y, (SUNMatrix) m_linsol_matrix);
             #endif
+        #else
+            #if CT_SUNDIALS_VERSION >= 60
+                m_linsol = SUNLinSol_Dense(m_y, (SUNMatrix) m_linsol_matrix,
+                                           m_sundials_ctx.get());
+            #else
+                m_linsol = SUNLinSol_Dense(m_y, (SUNMatrix) m_linsol_matrix);
+            #endif
+        #endif
+        #if CT_SUNDIALS_VERSION >= 60
+            IDASetLinearSolver(m_ida_mem, (SUNLinearSolver) m_linsol,
+                               (SUNMatrix) m_linsol_matrix);
+        #else
+            IDADlsSetLinearSolver(m_ida_mem, (SUNLinearSolver) m_linsol,
+                                  (SUNMatrix) m_linsol_matrix);
         #endif
     } else if (m_type == "DIAG") {
         throw CanteraError("IdasIntegrator::applyOptions",
                            "Cannot use a diagonal matrix with IDA.");
     } else if (m_type == "GMRES") {
-        #if CT_SUNDIALS_VERSION >= 30
-            #if CT_SUNDIALS_VERSION >= 60
-                m_linsol = SUNLinSol_SPGMR(m_y, PREC_NONE, 0, m_sundials_ctx.get());
-            #else
-                m_linsol = SUNLinSol_SPGMR(m_y, PREC_NONE, 0);
-            #endif
+        #if CT_SUNDIALS_VERSION >= 60
+            m_linsol = SUNLinSol_SPGMR(m_y, PREC_NONE, 0, m_sundials_ctx.get());
+            IDASetLinearSolver(m_ida_mem, (SUNLinearSolver) m_linsol, nullptr);
+        #elif CT_SUNDIALS_VERSION >= 40
+            m_linsol = SUNLinSol_SPGMR(m_y, PREC_NONE, 0);
             IDASpilsSetLinearSolver(m_ida_mem, (SUNLinearSolver) m_linsol);
         #else
-            IDASpgmr(m_ida_mem, 0);
+            m_linsol = SUNSPGMR(m_y, PREC_NONE, 0);
+            IDASpilsSetLinearSolver(m_ida_mem, (SUNLinearSolver) m_linsol);
         #endif
     } else if (m_type == "BAND") {
         sd_size_t N = static_cast<sd_size_t>(m_neq);
         long int nu = m_mupper;
         long int nl = m_mlower;
-        #if CT_SUNDIALS_VERSION >= 30
-            SUNLinSolFree((SUNLinearSolver) m_linsol);
-            SUNMatDestroy((SUNMatrix) m_linsol_matrix);
-            #if CT_SUNDIALS_VERSION >= 60
-                m_linsol_matrix = SUNBandMatrix(N, nu, nl, m_sundials_ctx.get());
-            #else
-                m_linsol_matrix = SUNBandMatrix(N, nu, nl);
-            #endif
-            #if CT_SUNDIALS_USE_LAPACK
-                #if CT_SUNDIALS_VERSION >= 60
-                    m_linsol = SUNLinSol_LapackBand(m_y, (SUNMatrix) m_linsol_matrix,
-                                                    m_sundials_ctx.get());
-                #else
-                    m_linsol = SUNLapackBand(m_y, (SUNMatrix) m_linsol_matrix);
-                #endif
-            #else
-                #if CT_SUNDIALS_VERSION >= 60
-                    m_linsol = SUNLinSol_Band(m_y, (SUNMatrix) m_linsol_matrix, m_sundials_ctx.get());
-                #else
-                    m_linsol = SUNLinSol_Band(m_y, (SUNMatrix) m_linsol_matrix);
-                #endif
-            #endif
-            IDASetLinearSolver(m_ida_mem, (SUNLinearSolver) m_linsol,
-                                 (SUNMatrix) m_linsol_matrix);
+        SUNLinSolFree((SUNLinearSolver) m_linsol);
+        SUNMatDestroy((SUNMatrix) m_linsol_matrix);
+        #if CT_SUNDIALS_VERSION >= 60
+            m_linsol_matrix = SUNBandMatrix(N, nu, nl, m_sundials_ctx.get());
+        #elif CT_SUNDIALS_VERSION >= 40
+            m_linsol_matrix = SUNBandMatrix(N, nu, nl);
         #else
-            #if CT_SUNDIALS_USE_LAPACK
-                IDALapackBand(m_ida_mem, N, nu, nl);
+            m_linsol_matrix = SUNBandMatrix(N, nu, nl, nu+nl);
+        #endif
+        #if CT_SUNDIALS_USE_LAPACK
+            #if CT_SUNDIALS_VERSION >= 60
+                m_linsol = SUNLinSol_LapackBand(m_y, (SUNMatrix) m_linsol_matrix,
+                                                m_sundials_ctx.get());
             #else
-                IDABand(m_ida_mem, N, nu, nl);
+                m_linsol = SUNLapackBand(m_y, (SUNMatrix) m_linsol_matrix);
             #endif
+        #else
+            #if CT_SUNDIALS_VERSION >= 60
+                m_linsol = SUNLinSol_Band(m_y, (SUNMatrix) m_linsol_matrix,
+                                          m_sundials_ctx.get());
+            #else
+                m_linsol = SUNLinSol_Band(m_y, (SUNMatrix) m_linsol_matrix);
+            #endif
+        #endif
+        #if CT_SUNDIALS_VERSION >= 40
+            IDASetLinearSolver(m_ida_mem, (SUNLinearSolver) m_linsol,
+                            (SUNMatrix) m_linsol_matrix);
+        #else
+            IDADlsSetLinearSolver(m_ida_mem, (SUNLinearSolver) m_linsol,
+                                  (SUNMatrix) m_linsol_matrix);
         #endif
     } else {
         throw CanteraError("IdasIntegrator::applyOptions",
@@ -461,13 +459,21 @@ void IdasIntegrator::sensInit(double t0, FuncEval& func)
     m_sens_ok = false;
 
     N_Vector y = newNVector(static_cast<sd_size_t>(func.neq()), m_sundials_ctx);
-    m_yS = N_VCloneVectorArray_Serial(static_cast<sd_size_t>(m_np), y);
+    #if CT_SUNDIALS_VERSION >= 60
+        m_yS = N_VCloneVectorArray(static_cast<int>(m_np), y);
+    #else
+        m_yS = N_VCloneVectorArray_Serial(static_cast<int>(m_np), y);
+    #endif
     for (size_t n = 0; n < m_np; n++) {
         N_VConst(0.0, m_yS[n]);
     }
     N_VDestroy_Serial(y);
     N_Vector ydot = newNVector(static_cast<sd_size_t>(func.neq()), m_sundials_ctx);
-    m_ySdot = N_VCloneVectorArray_Serial(static_cast<sd_size_t>(m_np), ydot);
+    #if CT_SUNDIALS_VERSION >= 60
+        m_ySdot = N_VCloneVectorArray(static_cast<int>(m_np), ydot);
+    #else
+        m_ySdot = N_VCloneVectorArray_Serial(static_cast<int>(m_np), ydot);
+    #endif
     for (size_t n = 0; n < m_np; n++) {
         N_VConst(0.0, m_ySdot[n]);
     }
