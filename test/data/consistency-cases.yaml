@@ -55,6 +55,15 @@ peng-robinson:
   - {T: 320, P: 200 bar, X: {CO2: 0.3, CH4: 0.5, H2O: 0.2}}
   - {T: 600, P: 200 bar, X: {CO2: 0.4, CH4: 0.2, H2O: 0.4}}
 
+soave-redlich-kwong:
+  setup:
+    file: co2_SRK_example.yaml
+    rtol_fd: 1e-5
+  states:
+  - {T: 300, P: 101325, X: {CO2: 0.7, CH4: 0.2, H2O: 0.1}}
+  - {T: 320, P: 200 bar, X: {CO2: 0.3, CH4: 0.5, H2O: 0.2}}
+  - {T: 600, P: 200 bar, X: {CO2: 0.4, CH4: 0.2, H2O: 0.4}}
+
 ideal-molal-solution:
   setup:
     file: thermo-models.yaml
