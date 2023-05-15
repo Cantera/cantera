@@ -3,6 +3,7 @@ import re
 
 import numpy as np
 import pytest
+from pytest import approx
 from .utilities import unittest
 
 import cantera as ct
@@ -1403,6 +1404,48 @@ class TestFlowReactor(utilities.CanteraTest):
         while net.time < 1.0:
             net.step()
             assert r.speed * r.density * r.area == pytest.approx(10)
+
+    def test_catalytic_surface(self):
+        # Regression test based roughly on surf_pfr.py
+        T0 = 1073.15
+        P0 = ct.one_atm
+        X0 = 'CH4:1, O2:1.5, AR:0.1'
+
+        surf = ct.Interface('methane_pox_on_pt.yaml', 'Pt_surf')
+        gas = surf.adjacent['gas']
+        gas.TPX = T0, P0, X0
+        surf.TP = T0, P0
+
+        r = ct.FlowReactor(gas, energy='off')
+        r.area = 1e-4
+        porosity = 0.3
+        velocity = 0.4 / 60
+        mdot = velocity * gas.density * r.area * porosity
+        r.surface_area_to_volume_ratio = porosity * 1e5
+        r.mass_flow_rate = mdot
+        r.energy_enabled = False
+
+        rsurf = ct.ReactorSurface(surf, r)
+
+        sim = ct.ReactorNet([r])
+        kCH4 = gas.species_index('CH4')
+        kH2 = gas.species_index('H2')
+        kCO = gas.species_index('CO')
+
+        sim.advance(1e-7)
+        X = r.thermo['CH4', 'H2', 'CO'].X
+        assert X == approx([0.10578801, 0.001654415, 0.012103974])
+        assert r.thermo.density * r.area * r.speed == approx(mdot)
+
+        sim.advance(1e-5)
+        X = r.thermo['CH4', 'H2', 'CO'].X
+        assert X == approx([0.07748481, 0.048165072, 0.01446654])
+        assert r.thermo.density * r.area * r.speed == approx(mdot)
+
+        sim.advance(1e-3)
+        X = r.thermo['CH4', 'H2', 'CO'].X
+        assert X == approx([0.01815402, 0.21603645, 0.045640395])
+        assert r.thermo.density * r.area * r.speed == approx(mdot)
 
 
 class TestSurfaceKinetics(utilities.CanteraTest):
