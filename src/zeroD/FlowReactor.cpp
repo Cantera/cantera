@@ -73,7 +73,7 @@ void FlowReactor::getState(double* y, double* ydot)
     // hence are not included here
     DenseMatrix a(m_offset_Y + m_nsp, m_offset_Y + m_nsp);
 
-    // first row is the ideal gas equation
+    // first row is the ideal gas equation, differentiated with respect to z
     a(0, 0) = - GasConstant * m_T / m_thermo->meanMolecularWeight();
     a(0, 2) = 1;
     a(0, 3) = - m_rho * GasConstant / m_thermo->meanMolecularWeight();
@@ -261,13 +261,7 @@ void FlowReactor::evalDae(double time, double* y, double* ydot, double* params,
     double dTdz = ydot[3];
 
     // use equation of state for density residual
-    const double R_specific = GasConstant / m_thermo->meanMolecularWeight();
-    // P' - rho' * (R/M) * T - rho * (R/M) * T'
-    residual[0] = m_dPdz - m_drhodz * R_specific * m_T - m_rho * R_specific * m_dTdz;
-    // next, subtract off rho * T * sum(Yi' / Wi)
-    for (size_t i = 0; i < m_nsp; ++i) {
-        residual[0] -= m_rho * m_T * ydot[m_offset_Y + i] / mw[i];
-    }
+    residual[0] = m_rho - m_thermo->density();
 
     //! use mass continuity for velocity residual
     //! Kee.'s Chemically Reacting Flow, Eq. 16.48
