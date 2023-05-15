@@ -342,21 +342,49 @@ void FlowReactor::getConstraints(double* constraints) {
 
 size_t FlowReactor::componentIndex(const string& nm) const
 {
-    // check for a gas species name
-    size_t k = m_thermo->speciesIndex(nm);
+    size_t k = speciesIndex(nm);
     if (k != npos) {
         return k + m_offset_Y;
-    } else if (nm == "rho" || nm == "density") {
+    } else if (nm == "density") {
         return 0;
-    } else if (nm == "U" || nm == "velocity") {
+    } else if (nm == "speed") {
         return 1;
-    } else if (nm == "P" || nm == "pressure") {
+    } else if (nm == "pressure") {
         return 2;
-    } else if (nm == "T" || nm == "temperature") {
+    } else if (nm == "temperature") {
         return 3;
     } else {
         return npos;
     }
+}
+
+string FlowReactor::componentName(size_t k)
+{
+    if (k == 0) {
+        return "density";
+    } else if (k == 1) {
+        return "speed";
+    } else if (k == 2) {
+        return "pressure";
+    } else if (k == 3) {
+        return "temperature";
+    } else if (k >= 4 && k < neq()) {
+        k -= 4;
+        if (k < m_thermo->nSpecies()) {
+            return m_thermo->speciesName(k);
+        } else {
+            k -= m_thermo->nSpecies();
+        }
+        for (auto& S : m_surfaces) {
+            ThermoPhase* th = S->thermo();
+            if (k < th->nSpecies()) {
+                return th->speciesName(k);
+            } else {
+                k -= th->nSpecies();
+            }
+        }
+    }
+    throw CanteraError("FlowReactor::componentName", "Index {} is out of bounds.", k);
 }
 
 }

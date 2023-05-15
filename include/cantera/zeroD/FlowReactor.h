@@ -103,11 +103,13 @@ public:
         m_max_ss_error_fails = max_fails;
     }
 
-    //! Return the index in the solution vector for this reactor of the
-    //! component named *nm*. Possible values for *nm* are "X" (position),
-    //! "U", the name of a homogeneous phase species, or the name of a surface
+    //! Return the index in the solution vector for this reactor of the component named
+    //! *nm*. Possible values for *nm* are "density", "speed", "pressure",
+    //! "temperature", the name of a homogeneous phase species, or the name of a surface
     //! species.
     size_t componentIndex(const string& nm) const override;
+
+    string componentName(size_t k) override;
 
     void updateSurfaceState(double* y) override;
 
