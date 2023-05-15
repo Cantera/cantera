@@ -1447,6 +1447,27 @@ class TestFlowReactor(utilities.CanteraTest):
         assert X == approx([0.01815402, 0.21603645, 0.045640395])
         assert r.thermo.density * r.area * r.speed == approx(mdot)
 
+    def test_component_names(self):
+        surf = ct.Interface('methane_pox_on_pt.yaml', 'Pt_surf')
+        gas = surf.adjacent['gas']
+        r = ct.FlowReactor(gas)
+        rsurf = ct.ReactorSurface(surf, r)
+        sim = ct.ReactorNet([r])
+        sim.initialize()
+
+        assert r.n_vars == 4 + gas.n_species + surf.n_species
+        assert sim.n_vars == r.n_vars
+
+        for i in range(r.n_vars):
+            name = r.component_name(i)
+            assert r.component_index(name) == i
+
+        with pytest.raises(IndexError, match="No such component: 'spam'"):
+            r.component_index('spam')
+
+        with pytest.raises(ct.CanteraError, match='out of bounds'):
+            r.component_name(200)
+
 
 class TestSurfaceKinetics(utilities.CanteraTest):
     def make_reactors(self):
