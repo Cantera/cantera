@@ -152,6 +152,7 @@ public:
     virtual void resizeSpecies();
     virtual bool addReaction(shared_ptr<Reaction> r, bool resize=true);
     virtual void modifyReaction(size_t i, shared_ptr<Reaction> rNew);
+    virtual void setMultiplier(size_t i, double f);
     //! @}
 
     //! Internal routine that updates the Rates of Progress of the reactions
