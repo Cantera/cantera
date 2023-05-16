@@ -479,6 +479,12 @@ void InterfaceKinetics::modifyReaction(size_t i, shared_ptr<Reaction> r_base)
     m_temp += 0.1;
 }
 
+void InterfaceKinetics::setMultiplier(size_t i, double f)
+{
+    Kinetics::setMultiplier(i, f);
+    m_ROP_ok = false;
+}
+
 void InterfaceKinetics::setIOFlag(int ioFlag)
 {
     m_ioFlag = ioFlag;
