@@ -237,8 +237,7 @@ void FlowReactor::updateSurfaceState(double* y)
     }
 }
 
-void FlowReactor::evalDae(double time, double* y, double* ydot, double* params,
-                          double* residual)
+void FlowReactor::evalDae(double time, double* y, double* ydot, double* residual)
 {
     m_thermo->restoreState(m_state);
 
