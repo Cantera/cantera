@@ -38,16 +38,7 @@ public:
         throw NotImplementedError("FlowReactor::eval");
     }
 
-    /*!
-     * Evaluate the reactor governing equations. Called by ReactorNet::eval.
-     * @param[in] t time.
-     * @param[in] y solution vector, length neq()
-     * @param[in] ydot rate of change of solution vector, length neq()
-     * @param[in] params sensitivity parameter vector, length ReactorNet::nparams()
-     * @param[out] residual residuals vector, length neq()
-     */
-    void evalDae(double t, double* y, double* ydot, double* params,
-                 double* residual) override;
+    void evalDae(double t, double* y, double* ydot, double* residual) override;
 
     //! Given a vector of length neq(), mark which variables should be
     //! considered algebraic constraints

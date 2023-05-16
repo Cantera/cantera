@@ -307,6 +307,17 @@ void IdasIntegrator::initialize(double t0, FuncEval& func)
     if (flag != IDA_SUCCESS) {
         throw CanteraError("IdasIntegrator::initialize", "IDASetUserData failed.");
     }
+    if (func.nparams() > 0) {
+        throw CanteraError("IdasIntegrator::initialize", "Sensitivity analysis "
+                           "for DAE systems is not fully implemented");
+        sensInit(t0, func);
+        flag = IDASetSensParams(m_ida_mem, func.m_sens_params.data(),
+                                func.m_paramScales.data(), NULL);
+        if (flag != IDA_SUCCESS) {
+            throw CanteraError("IdasIntegrator::initialize",
+                               "IDASetSensParams failed.");
+        }
+    }
     applyOptions();
 }
 

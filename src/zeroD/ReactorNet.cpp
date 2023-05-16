@@ -327,7 +327,9 @@ void ReactorNet::evalDae(double t, double* y, double* ydot, double* p, double* r
     m_time = t;
     updateState(y);
     for (size_t n = 0; n < m_reactors.size(); n++) {
-        m_reactors[n]->evalDae(t, y, ydot, p, residual);
+        m_reactors[n]->applySensitivity(p);
+        m_reactors[n]->evalDae(t, y, ydot, residual);
+        m_reactors[n]->resetSensitivity(p);
     }
     checkFinite("ydot", ydot, m_nv);
 }
