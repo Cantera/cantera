@@ -458,6 +458,29 @@ TEST_P(TestConsistency, alphaV_eq_dmv_dT_const_P_div_mv)
                 max({rtol_fd * alphaV_mid, rtol_fd * alphaV_fd, atol_e}));
 }
 
+TEST_P(TestConsistency, c_eq_sqrt_dP_drho_const_s)
+{
+    double c1;
+    try {
+        c1 = phase->soundSpeed();
+    } catch (NotImplementedError& err) {
+        GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
+    }
+
+    double P1 = phase->pressure();
+    double rho1 = phase->density();
+
+    double rho2 = rho1 * (1 + 1e-6);
+    phase->setState_SV(phase->entropy_mass(), 1 / rho2);
+    double c2 = phase->soundSpeed();
+    double P2 = phase->pressure();
+    
+    double c_mid = 0.5 * (c1 + c2);
+    double c_fd = sqrt((P2 - P1) / (rho2 - rho1));
+
+    EXPECT_NEAR(c_fd, c_mid, max({rtol_fd * c_mid, rtol_fd * c_fd, atol}));
+}
+
 // ---------- Tests for consistency of standard state properties ---------------
 
 TEST_P(TestConsistency, hk0_eq_uk0_plus_p_vk0)
