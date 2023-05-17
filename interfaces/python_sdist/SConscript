@@ -55,7 +55,7 @@ def copy_ext_src(target, source, env):
     SUNDIALS_SOURCE = source_ext / "sundials"
     if not SUNDIALS_SOURCE.is_dir():
         raise ValueError("Missing sundials submodule. " + error_message)
-    subdirs = ["sundials", "nvector/serial", "cvodes", "ida", "sunmatrix/band",
+    subdirs = ["sundials", "nvector/serial", "cvodes", "idas", "sunmatrix/band",
                "sunmatrix/dense", "sunmatrix/sparse", "sunlinsol/dense",
                "sunlinsol/band", "sunlinsol/spgmr", "sunnonlinsol/newton"]
     ignores = shutil.ignore_patterns("fsun*", "CMake*", "fmod", "fcmix")
