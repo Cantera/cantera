@@ -712,6 +712,12 @@ double RedlichKwongMFTP::thermalExpansionCoeff() const
     return -dpdT_ / (molarVolume() * dpdV_);
 }
 
+double RedlichKwongMFTP::soundSpeed() const
+{
+    pressureDerivatives();
+    return molarVolume() * sqrt(-cp_mole() / cv_mole() * dpdV_ / meanMolecularWeight());
+}
+
 void RedlichKwongMFTP::pressureDerivatives() const
 {
     doublereal TKelvin = temperature();

@@ -207,6 +207,7 @@ public:
 
     virtual double isothermalCompressibility() const;
     virtual double thermalExpansionCoeff() const;
+    virtual double soundSpeed() const;
 
     //! Calculate \f$dp/dV\f$ and \f$dp/dT\f$ at the current conditions
     /*!

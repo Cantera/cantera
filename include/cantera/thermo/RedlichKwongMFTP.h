@@ -176,6 +176,7 @@ public:
 
     virtual double isothermalCompressibility() const;
     virtual double thermalExpansionCoeff() const;
+    virtual double soundSpeed() const;
 
     //! Calculate dpdV and dpdT at the current conditions
     /*!
