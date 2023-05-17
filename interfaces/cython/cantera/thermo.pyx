@@ -1713,6 +1713,11 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.thermo.thermalExpansionCoeff()
 
+    property sound_speed:
+        """Speed of sound [m/s]."""
+        def __get__(self):
+            return self.thermo.soundSpeed()
+
     property min_temp:
         """
         Minimum temperature for which the thermodynamic data for the phase are

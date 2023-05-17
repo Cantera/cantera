@@ -292,6 +292,17 @@ public:
         throw NotImplementedError("ThermoPhase::thermalExpansionCoeff");
     }
 
+    //! Return the speed of sound. Units: m/s.
+    /*!
+     * The speed of sound is defined as 
+     * \f[
+     * c = \sqrt{\left(\frac{\partial P}{\partial\rho}\right)_s}
+     * \f]
+     */
+    virtual double soundSpeed() const {
+        throw NotImplementedError("ThermoPhase::soundSpeed");
+    }
+
     //! @}
     //! @name Electric Potential
     //!
