@@ -636,6 +636,12 @@ double PengRobinson::thermalExpansionCoeff() const
     return -m_dpdT / (molarVolume() * m_dpdV);
 }
 
+double PengRobinson::soundSpeed() const
+{
+    calculatePressureDerivatives();
+    return molarVolume() * sqrt(-cp_mole() / cv_mole() * m_dpdV / meanMolecularWeight());
+}
+
 void PengRobinson::calculatePressureDerivatives() const
 {
     double T = temperature();
