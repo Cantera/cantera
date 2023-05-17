@@ -1,5 +1,21 @@
 description: |-
-  nits(length='cm', time='s', quantity='mol', act_energy='cal/mol')
+  Silicon nitride (Si3N4) deposition from ammonia (NH3) and silicon tetrafluoride
+  (SiF4).
+
+  The gas phase mechanism includes a detailed description of NH3 decomposition, two
+  reactions describing SiF4 decomposition, and three cross-reactions.
+
+  The surface reaction mechanism contains six steps describing the overall conversion
+  of 3 SiF4 and 4 NH3 molecules to 3 Si(d) and 4 N(d) and 12 HF. Note that the surface
+  reaction mechanism is from a preliminary analysis at one temperature (1713 K), and
+  thus no activation energies are supplied. As such, this mechanism should only be
+  considered as illustrative and not as a source of kinetic data on the Si3N4 system.
+
+  M.E. Coltrin, R.J. Kee, and F.M. Rupley. "Surface CHEMKIN (Version 4.0): A
+  Fortran package for analyzing heterogeneous chemical kinetics at a
+  solid-surface---gas-phase interface", Sandia Report SAND-90-8003B, 1991.
+  https://doi.org/10.2172/6128661
+
 
 generator: cti2yaml
 cantera-version: 3.0.0a5
