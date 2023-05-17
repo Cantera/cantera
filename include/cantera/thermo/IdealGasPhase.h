@@ -401,6 +401,8 @@ public:
         return 1.0 / temperature();
     }
 
+    virtual double soundSpeed() const;
+
     //! @}
     //! @name Chemical Potentials and Activities
     //!

@@ -37,6 +37,12 @@ doublereal IdealGasPhase::cv_mole() const
     return cp_mole() - GasConstant;
 }
 
+double IdealGasPhase::soundSpeed() const {
+    return sqrt(
+        cp_mole() / cv_mole() * GasConstant / meanMolecularWeight() * temperature()
+    );
+}
+
 doublereal IdealGasPhase::standardConcentration(size_t k) const
 {
     return pressure() / RT();
