@@ -1354,6 +1354,31 @@ class TestReactorJacobians(utilities.CanteraTest):
         # check that they two arrays are the same
         self.assertArrayNear(r1.jacobian, r2.jacobian, 1e-6, 1e-8)
 
+# A rate type used for testing integrator error handling
+class FailRateData(ct.ExtensibleRateData):
+    def __init__(self):
+        self.fail = False
+
+    def update(self, gas):
+        self.T = gas.T
+        if self.T < 1400:
+            self.fail = True
+        return True
+
+@ct.extension(name="fail-rate", data=FailRateData)
+class FailRate(ct.ExtensibleRate):
+    def __init__(self, *args, recoverable, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.recoverable = recoverable
+        self.count = 0
+
+    def eval(self, data):
+        if data.fail:
+            self.count += 1
+            if self.count < 3 or not self.recoverable:
+                raise ValueError("spam")
+        return 0.0
+
 
 class TestFlowReactor(utilities.CanteraTest):
     gas_def = """
@@ -1467,6 +1492,70 @@ class TestFlowReactor(utilities.CanteraTest):
 
         with pytest.raises(ct.CanteraError, match='out of bounds'):
             r.component_name(200)
+
+class TestFlowReactor2(utilities.CanteraTest):
+    def import_phases(self):
+        surf = ct.Interface('SiF4_NH3_mec.yaml', 'SI3N4')
+        return surf, surf.adjacent['gas']
+
+    def make_reactors(self, gas, surf):
+        r = ct.FlowReactor(gas)
+        r.area = 1e-4
+        r.surface_area_to_volume_ratio = 5000
+        r.mass_flow_rate = 0.02
+        rsurf = ct.ReactorSurface(surf, r)
+        sim = ct.ReactorNet([r])
+        return r, rsurf, sim
+
+    def test_unrecoverable_integrator_errors(self):
+        surf, gas = self.import_phases()
+
+        # To cause integrator failures, add a reaction that will fail under
+        # certain conditions (T < 1400)
+        fail = ct.Reaction(equation='NH3 <=> NH3', rate=FailRate(recoverable=False))
+        gas.add_reaction(fail)
+
+        gas.TPX = 1500, 4000, 'NH3:1.0, SiF4:0.4'
+        surf.TP = gas.TP
+        r, rsurf, sim = self.make_reactors(gas, surf)
+
+        with pytest.raises(ct.CanteraError, match="repeated recoverable residual errors"):
+            while r.thermo.T > 1300:
+                sim.step()
+
+    def test_integrator_errors_advance(self):
+        surf, gas = self.import_phases()
+
+        # To cause integrator failures, add a reaction that will fail under
+        # certain conditions (T < 1400)
+        fail = ct.Reaction(equation='NH3 <=> NH3', rate=FailRate(recoverable=False))
+        gas.add_reaction(fail)
+
+        gas.TPX = 1500, 4000, 'NH3:1.0, SiF4:0.4'
+        surf.TP = gas.TP
+        r, rsurf, sim = self.make_reactors(gas, surf)
+
+        with pytest.raises(ct.CanteraError, match="repeated recoverable residual errors"):
+            while r.thermo.T > 1300:
+                sim.advance(sim.time + 0.01)
+
+    def test_recoverable_integrator_errors(self):
+        surf, gas = self.import_phases()
+
+        # Test integrator behavior on "recoverable" errors that are resolved by
+        # calling taking a different step size
+        fail = ct.Reaction(equation='NH3 <=> NH3', rate=FailRate(recoverable=True))
+        gas.add_reaction(fail)
+
+        gas.TPX = 1500, 4000, 'NH3:1.0, SiF4:0.4'
+        surf.TP = gas.TP
+        r, rsurf, sim = self.make_reactors(gas, surf)
+
+        while r.thermo.T > 1300:
+            sim.step()
+
+        # At least some "recoverable" errors occurred
+        assert fail.rate.count > 0
 
 
 class TestSurfaceKinetics(utilities.CanteraTest):
