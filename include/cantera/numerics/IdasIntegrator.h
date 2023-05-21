@@ -44,7 +44,6 @@ public:
     int nEquations() const override {
         return static_cast<int>(m_neq);
     }
-    int nEvals() const override;
     void setMaxOrder(int n) override {
         m_maxord = n;
     }
@@ -52,6 +51,7 @@ public:
     void setMaxSteps(int nmax) override;
     int maxSteps() override;
     void setMaxErrTestFails(int n) override;
+    AnyMap solverStats() const override;
     void setBandwidth(int N_Upper, int N_Lower) override {
         m_mupper = N_Upper;
         m_mlower = N_Lower;

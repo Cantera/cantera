@@ -1426,9 +1426,15 @@ class TestFlowReactor(utilities.CanteraTest):
         net = ct.ReactorNet()
         net.add_reactor(r)
 
+        i = 0
         while net.time < 1.0:
             net.step()
+            i += 1
             assert r.speed * r.density * r.area == pytest.approx(10)
+
+        stats = net.solver_stats
+        assert stats['steps'] == i
+        assert 'err_tests_fails' in stats
 
     def test_catalytic_surface(self):
         # Regression test based roughly on surf_pfr.py

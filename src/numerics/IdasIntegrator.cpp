@@ -161,6 +161,29 @@ void IdasIntegrator::setMaxErrTestFails(int n)
     }
 }
 
+AnyMap IdasIntegrator::solverStats() const
+{
+    AnyMap stats;
+    long int val;
+    int lastOrder;
+
+    IDAGetNumSteps(m_ida_mem, &val);
+    stats["steps"] = val;
+    IDAGetNumResEvals(m_ida_mem, &val);
+    stats["res_evals"] = val;
+    IDAGetNumLinSolvSetups(m_ida_mem, &val);
+    stats["lin_solve_setups"] = val;
+    IDAGetNumErrTestFails(m_ida_mem, &val);
+    stats["err_tests_fails"] = val;
+    IDAGetLastOrder(m_ida_mem, &lastOrder);
+    stats["last_order"] = lastOrder;
+    IDAGetNumNonlinSolvIters(m_ida_mem, &val);
+    stats["nonlinear_iters"] = val;
+    IDAGetNumNonlinSolvConvFails(m_ida_mem, &val);
+    stats["nonlinear_conv_fails"] = val;
+    return stats;
+}
+
 void IdasIntegrator::setMaxNonlinIterations(int n)
 {
     m_maxNonlinIters = n;
@@ -542,14 +565,6 @@ double IdasIntegrator::step(double tout)
 
     }
     return m_time;
-}
-
-int IdasIntegrator::nEvals() const
-{
-    // neither IDAGetNumRhsEvals, IDADlsGetNumRhsEvals, IDASpilsGetNumRhsEvals,
-    // or IDAGetNumLinResEvals seem to exist
-    throw CanteraError("IdasIntegrator::nEvals",
-                       "Not implemented.");
 }
 
 double IdasIntegrator::sensitivity(size_t k, size_t p)
