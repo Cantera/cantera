@@ -1563,6 +1563,66 @@ class TestFlowReactor2(utilities.CanteraTest):
         # At least some "recoverable" errors occurred
         assert fail.rate.count > 0
 
+    def test_max_steps(self):
+        surf, gas = self.import_phases()
+        gas.TPX = 1500, 4000, 'NH3:1.0, SiF4:0.4'
+        surf.TP = gas.TP
+        r, rsurf, sim = self.make_reactors(gas, surf)
+
+        sim.max_steps = 13
+        assert sim.max_steps == 13
+
+        with pytest.raises(ct.CanteraError, match="mxstep steps taken"):
+            sim.advance(0.1)
+
+        assert sim.solver_stats['steps'] == 13
+
+    def test_max_time_step(self):
+        surf, gas = self.import_phases()
+        gas.TPX = 1500, 4000, 'NH3:1.0, SiF4:0.4'
+        surf.TP = gas.TP
+        r, rsurf, sim = self.make_reactors(gas, surf)
+
+        sim.advance(0.01)
+        t1 = sim.time
+        t2 = sim.step()
+        dt_limit = 0.05 * (t2-t1)
+
+        sim.max_time_step = dt_limit
+        assert sim.max_time_step == dt_limit
+
+        # Setting a time step limit seems to take one additional time step before it's
+        # fully enforced
+        sim.step()
+
+        for i in range(20):
+            tPrev = sim.time
+            tNow = sim.step()
+            assert tNow - tPrev <= 1.0001 * dt_limit
+
+    def test_tolerances(self):
+        surf, gas = self.import_phases()
+        gas.TPX = 1500, 4000, 'NH3:1.0, SiF4:0.4'
+        surf.TP = gas.TP
+
+        r0, rsurf0, sim0 = self.make_reactors(gas, surf)
+        r1, rsurf1, sim1 = self.make_reactors(gas, surf)
+        r2, rsurf2, sim2 = self.make_reactors(gas, surf)
+
+        sim0.advance(0.05)
+        baseline = sim0.solver_stats
+
+        # Expect that satisfying tighter tolerances will require more time steps
+        sim1.atol = 0.001 * sim0.atol
+        sim1.advance(0.05)
+        tight_atol = sim1.solver_stats
+        assert tight_atol['steps'] > baseline['steps']
+
+        sim2.rtol = 0.001 * sim0.rtol
+        sim2.advance(0.1)
+        tight_rtol = sim2.solver_stats
+        assert tight_rtol['steps'] > baseline['steps']
+
 
 class TestSurfaceKinetics(utilities.CanteraTest):
     def make_reactors(self):
