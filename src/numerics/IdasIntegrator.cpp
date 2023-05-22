@@ -204,7 +204,7 @@ void IdasIntegrator::setMaxNonlinConvFailures(int n)
     }
 }
 
-void IdasIntegrator::inclAlgebraicInErrorTest(bool yesno)
+void IdasIntegrator::includeAlgebraicInErrorTest(bool yesno)
 {
     m_setSuppressAlg = !yesno;
     if (m_ida_mem) {
