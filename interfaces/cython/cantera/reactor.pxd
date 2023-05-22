@@ -137,7 +137,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
 
     cdef cppclass CxxReactorNet "Cantera::ReactorNet":
         CxxReactorNet()
-        void addReactor(CxxReactor&)
+        void addReactor(CxxReactor&) except +translate_exception
         double advance(double, cbool) except +translate_exception
         double step() except +translate_exception
         void initialize() except +translate_exception
@@ -148,9 +148,9 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         double rtol()
         double atol()
         double maxTimeStep()
-        void setMaxTimeStep(double)
-        void setMaxErrTestFails(int)
-        void setMaxSteps(int)
+        void setMaxTimeStep(double) except +translate_exception
+        void setMaxErrTestFails(int) except +translate_exception
+        void setMaxSteps(int) except +translate_exception
         int maxSteps()
         cbool verbose()
         void setVerbose(cbool)

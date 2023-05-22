@@ -143,10 +143,9 @@ public:
         suppressErrors(!m_verbose);
     }
 
-    //! Return a reference to the integrator.
-    Integrator& integrator() {
-        return *m_integ;
-    }
+    //! Return a reference to the integrator. Only valid after adding at least one
+    //! reactor to the network.
+    Integrator& integrator();
 
     //! Update the state of all the reactors in the network to correspond to
     //! the values in the solution vector *y*.
@@ -320,16 +319,11 @@ protected:
     double m_atolsens = 1.0e-6;
     shared_ptr<PreconditionerBase> m_precon;
     string m_linearSolverType;
-    int m_maxSteps = -1;
 
     //! Maximum integrator internal timestep. Default of 0.0 means infinity.
     double m_maxstep = 0.0;
 
-    int m_maxErrTestFails = 0;
     bool m_verbose = false;
-
-    // flag indicating whether this is a flow reactor net or a regular reactor net
-    bool m_is_dae;
 
     //! Names corresponding to each sensitivity parameter
     std::vector<std::string> m_paramNames;

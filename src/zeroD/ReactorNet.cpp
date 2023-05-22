@@ -16,8 +16,7 @@
 namespace Cantera
 {
 
-ReactorNet::ReactorNet() :
-    m_is_dae(false)
+ReactorNet::ReactorNet()
 {
     suppressErrors(true);
 }
@@ -35,13 +34,12 @@ void ReactorNet::setInitialTime(double time)
 void ReactorNet::setMaxTimeStep(double maxstep)
 {
     m_maxstep = maxstep;
-    m_init = false;
+    integrator().setMaxStepSize(m_maxstep);
 }
 
 void ReactorNet::setMaxErrTestFails(int nmax)
 {
-    m_maxErrTestFails = nmax;
-    m_init = false;
+    integrator().setMaxErrTestFails(nmax);
 }
 
 void ReactorNet::setTolerances(double rtol, double atol)
@@ -69,12 +67,6 @@ void ReactorNet::setSensitivityTolerances(double rtol, double atol)
 void ReactorNet::initialize()
 {
     m_nv = 0;
-    m_integ.reset(newIntegrator(m_is_dae ? "IDA" : "CVODE"));
-    // use backward differencing, with a full Jacobian computed
-    // numerically, and use a Newton linear iterator
-    m_integ->setMethod(BDF_Method);
-    m_integ->setLinearSolverType("DENSE");
-
     debuglog("Initializing reactor network.\n", m_verbose);
     if (m_reactors.empty()) {
         throw CanteraError("ReactorNet::initialize",
@@ -105,8 +97,6 @@ void ReactorNet::initialize()
     fill(m_atol.begin(), m_atol.end(), m_atols);
     m_integ->setTolerances(m_rtol, neq(), m_atol.data());
     m_integ->setSensitivityTolerances(m_rtolsens, m_atolsens);
-    m_integ->setMaxStepSize(m_maxstep);
-    m_integ->setMaxErrTestFails(m_maxErrTestFails);
     if (!m_linearSolverType.empty()) {
         m_integ->setLinearSolverType(m_linearSolverType);
     }
@@ -120,9 +110,6 @@ void ReactorNet::initialize()
     }
     if (m_integ->preconditionerSide() != PreconditionerSide::NO_PRECONDITION) {
         checkPreconditionerSupported();
-    }
-    if (m_maxSteps != -1) {
-        m_integ->setMaxSteps(m_maxSteps);
     }
     m_integrator_init = true;
     m_init = true;
@@ -156,19 +143,12 @@ void ReactorNet::setPreconditioner(shared_ptr<PreconditionerBase> preconditioner
 
 void ReactorNet::setMaxSteps(int nmax)
 {
-    m_maxSteps = nmax;
-    if (m_integ) {
-        m_integ->setMaxSteps(nmax);
-    }
+    integrator().setMaxSteps(nmax);
 }
 
 int ReactorNet::maxSteps()
 {
-    if (m_integ) {
-        return m_integ->maxSteps();
-    } else {
-        return m_maxSteps;
-    }
+    return integrator().maxSteps();
 }
 
 void ReactorNet::advance(doublereal time)
@@ -284,19 +264,30 @@ int ReactorNet::lastOrder()
 
 void ReactorNet::addReactor(Reactor& r)
 {
-    r.setNetwork(this);
-    try {
-        dynamic_cast<FlowReactor&>(r);
-        m_is_dae = true;
-    } 
-    catch(std::bad_cast&) {
-        if (m_is_dae)
-        {
+    for (auto current : m_reactors) {
+        if (current->isOde() != r.isOde()) {
             throw CanteraError("ReactorNet::addReactor",
-                               "Cannot mix Reactors and FlowReactor's");
+                "Cannot mix Reactor types using both ODEs and DAEs ({} and {})",
+                current->type(), r.type());
         }
     }
+    r.setNetwork(this);
     m_reactors.push_back(&r);
+    if (!m_integ) {
+        m_integ.reset(newIntegrator(r.isOde() ? "CVODE" : "IDA"));
+        // use backward differencing, with a full Jacobian computed
+        // numerically, and use a Newton linear iterator
+        m_integ->setMethod(BDF_Method);
+        m_integ->setLinearSolverType("DENSE");
+    }
+}
+
+Integrator& ReactorNet::integrator() {
+    if (m_integ == nullptr) {
+        throw CanteraError("ReactorNet::integrator",
+            "Integrator has not been instantiated. Add one or more reactors first.");
+    }
+    return *m_integ;
 }
 
 void ReactorNet::eval(double t, double* y, double* ydot, double* p)
