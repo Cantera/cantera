@@ -172,7 +172,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         string linearSolverType()
         void setPreconditioner(shared_ptr[CxxPreconditionerBase] preconditioner)
         void setDerivativeSettings(CxxAnyMap&)
-        CxxAnyMap solverStats()
+        CxxAnyMap solverStats() except +translate_exception
 
 cdef extern from "cantera/zeroD/ReactorDelegator.h" namespace "Cantera":
     cdef cppclass CxxReactorAccessor "Cantera::ReactorAccessor":

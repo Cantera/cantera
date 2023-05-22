@@ -83,6 +83,11 @@ protected:
 
 private:
     void sensInit(double t0, FuncEval& func);
+
+    //! Check whether an IDAS method indicated an error. If so, throw an exception
+    //! containing the method name and the error code stashed by the ida_err() function.
+    void checkError(long flag, const string& ctMethod, const string& idaMethod) const;
+
     size_t m_neq;
     void* m_ida_mem = nullptr; //!< Pointer to the IDA memory for the problem
     void* m_linsol = nullptr; //!< Sundials linear solver object
