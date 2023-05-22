@@ -1626,9 +1626,26 @@ class TestFlowReactor2(utilities.CanteraTest):
         assert tight_atol['steps'] > baseline['steps']
 
         sim2.rtol = 0.001 * sim0.rtol
-        sim2.advance(0.1)
+        sim2.advance(0.05)
         tight_rtol = sim2.solver_stats
         assert tight_rtol['steps'] > baseline['steps']
+
+    def test_iteration_limits(self):
+        surf, gas = self.import_phases()
+        gas.TPX = 1700, 4000, 'NH3:1.0, SiF4:0.4'
+        surf.TP = gas.TP
+
+        r, rsurf, sim = self.make_reactors(gas, surf)
+
+        # Too restrictive limits should cause integration errors:
+        sim.advance(0.1)
+        sim.max_nonlinear_iterations = 1
+        sim.max_nonlinear_convergence_failures = 1
+        sim.include_algebraic_in_error_test = True
+        sim.max_err_test_fails = 2
+        sim.rtol = 1e-12
+        with pytest.raises(ct.CanteraError, match="corrector convergence"):
+            sim.advance(0.2)
 
 
 class TestSurfaceKinetics(utilities.CanteraTest):

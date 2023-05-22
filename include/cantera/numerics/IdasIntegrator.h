@@ -72,7 +72,7 @@ public:
 
     void setMaxNonlinIterations(int n) override;
     void setMaxNonlinConvFailures(int n) override;
-    void inclAlgebraicInErrorTest(bool yesno);
+    void includeAlgebraicInErrorTest(bool yesno) override;
     void setMethod(MethodType t) override;
 
 protected:

@@ -1342,10 +1342,34 @@ cdef class ReactorNet:
     property max_err_test_fails:
         """
         The maximum number of error test failures permitted by the CVODES
-        integrator in a single time step.
+        integrator in a single time step. The default is 10.
         """
         def __set__(self, n):
             self.net.setMaxErrTestFails(n)
+
+    property max_nonlinear_iterations:
+        """
+        Set the maximum number of nonlinear solver iterations permitted by the SUNDIALS
+        solver in one solve attempt. The default value is 4.
+        """
+        def __set__(self, int n):
+            self.net.integrator().setMaxNonlinIterations(n)
+
+    property max_nonlinear_convergence_failures:
+        """
+        Set the maximum number of nonlinear solver convergence failures permitted in one
+        step of the SUNDIALS integrator. The default value is 10.
+        """
+        def __set__(self, int n):
+            self.net.integrator().setMaxNonlinConvFailures(n)
+
+    property include_algebraic_in_error_test:
+        """
+        Set whether to include algebraic variables in the in the local error test.
+        Applicable only to DAE systems. The default is `True`.
+        """
+        def __set__(self, pybool yesno):
+            self.net.integrator().includeAlgebraicInErrorTest(yesno)
 
     property max_steps:
         """

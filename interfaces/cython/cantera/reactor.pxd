@@ -9,6 +9,17 @@ from .kinetics cimport *
 from .func1 cimport *
 from .preconditioners cimport *
 
+    # SUNDIALS integrator
+cdef extern from "cantera/numerics/Integrator.h" namespace "Cantera":
+    cdef cppclass CxxIntegrator "Cantera::Integrator":
+        CxxIntegrator()
+
+        void setMaxNonlinIterations(int) except +translate_exception
+        void setMaxNonlinConvFailures(int) except +translate_exception
+        void includeAlgebraicInErrorTest(cbool) except +translate_exception
+
+
+
 cdef extern from "cantera/zerodim.h" namespace "Cantera":
     cdef cppclass CxxWall "Cantera::Wall"
     cdef cppclass CxxReactorSurface "Cantera::ReactorSurface"
@@ -150,6 +161,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         double maxTimeStep()
         void setMaxTimeStep(double) except +translate_exception
         void setMaxErrTestFails(int) except +translate_exception
+        CxxIntegrator& integrator() except +translate_exception
         void setMaxSteps(int) except +translate_exception
         int maxSteps()
         cbool verbose()
