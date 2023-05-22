@@ -44,6 +44,7 @@ void FlowReactor::getState(double* y, double* ydot)
     // need to advance the reactor surface to steady state to get the initial
     // coverages
     for (auto m_surf : m_surfaces) {
+        m_surf->syncState();
         auto kin = static_cast<InterfaceKinetics*>(m_surf->kinetics());
         kin->advanceCoverages(100.0, m_ss_rtol, m_ss_atol, 0, m_max_ss_steps,
                               m_max_ss_error_fails);
@@ -51,7 +52,6 @@ void FlowReactor::getState(double* y, double* ydot)
         vector_fp cov(surf.nSpecies());
         surf.getCoverages(cov.data());
         m_surf->setCoverages(cov.data());
-        m_surf->syncState();
     }
 
     // set the initial coverages
