@@ -22,6 +22,10 @@ public:
         return "FlowReactor";
     }
 
+    bool isOde() const override {
+        return false;
+    }
+
     void getState(double* y) override {
         throw NotImplementedError("FlowReactor::getState");
     }

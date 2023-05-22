@@ -1513,6 +1513,13 @@ class TestFlowReactor2(utilities.CanteraTest):
         sim = ct.ReactorNet([r])
         return r, rsurf, sim
 
+    def test_mixed_reactor_types(self):
+        surf, gas = self.import_phases()
+        r1 = ct.FlowReactor(gas)
+        r2 = ct.IdealGasReactor(gas)
+        with pytest.raises(ct.CanteraError, match="Cannot mix Reactor types"):
+            ct.ReactorNet([r1, r2])
+
     def test_unrecoverable_integrator_errors(self):
         surf, gas = self.import_phases()
 

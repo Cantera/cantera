@@ -49,6 +49,13 @@ public:
         return "Reactor";
     }
 
+    //! Indicate whether the governing equations for this reactor type are a system of
+    //! ODEs or DAEs. In the first case, this class implements the eval() method. In the
+    //! second case, this class implements the evalDae() method.
+    virtual bool isOde() const {
+        return true;
+    }
+
     /**
      * Insert something into the reactor. The 'something' must belong to a class
      * that is a subclass of both ThermoPhase and Kinetics.
