@@ -100,8 +100,8 @@ double* IdasIntegrator::solution()
 void IdasIntegrator::setTolerances(double reltol, size_t n, double* abstol)
 {
     m_itol = IDA_SV;
-    m_nabs = n;
-    if (n != m_neq) {
+    if (n != m_nabs) {
+        m_nabs = n;
         if (m_abstol) {
             N_VDestroy_Serial(m_abstol);
         }
