@@ -132,6 +132,15 @@ void IdasIntegrator::setLinearSolverType(const string& linearSolverType)
     m_type = linearSolverType;
 }
 
+void IdasIntegrator::setMaxOrder(int n)
+{
+    if (m_ida_mem) {
+        int flag = IDASetMaxOrd(m_ida_mem, n);
+        checkError(flag, "setMaxOrder", "IDASetMaxOrd");
+    }
+    m_maxord = n;
+}
+
 void IdasIntegrator::setMaxStepSize(double hmax)
 {
     m_hmax = hmax;
@@ -414,7 +423,8 @@ void IdasIntegrator::applyOptions()
     }
 
     if (m_maxord > 0) {
-        IDASetMaxOrd(m_ida_mem, m_maxord);
+        int flag = IDASetMaxOrd(m_ida_mem, m_maxord);
+        checkError(flag, "applyOptions", "IDASetMaxOrd");
     }
     if (m_maxsteps > 0) {
         IDASetMaxNumSteps(m_ida_mem, m_maxsteps);

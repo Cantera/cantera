@@ -1350,6 +1350,14 @@ cdef class ReactorNet:
         def __set__(self, pybool yesno):
             self.net.integrator().includeAlgebraicInErrorTest(yesno)
 
+    property max_order:
+        """
+        Set the maximum order of the linear multistep method. The default value and
+        maximum is 5.
+        """
+        def __set__(self, int n):
+            self.net.integrator().setMaxOrder(n)
+
     property max_steps:
         """
         The maximum number of internal integration time-steps that CVODES

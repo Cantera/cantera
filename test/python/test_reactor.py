@@ -1653,6 +1653,28 @@ class TestFlowReactor2(utilities.CanteraTest):
         with pytest.raises(ct.CanteraError, match="corrector convergence"):
             sim.advance(0.2)
 
+    def test_solver_order(self):
+        surf, gas = self.import_phases()
+        gas.TPX = 1700, 4000, 'NH3:1.0, SiF4:0.4'
+        surf.TP = gas.TP
+
+        r, rsurf, sim = self.make_reactors(gas, surf)
+
+        sim.max_order = 7  # Invalid, will be caught later
+        with pytest.raises(ct.CanteraError, match="IDA_ILL_INPUT"):
+            sim.initialize()
+
+        sim.max_order = 2
+        sim.advance(0.1)
+        assert sim.solver_stats['last_order'] == 2
+
+        sim.max_order = 4
+        sim.advance(0.4)
+        assert sim.solver_stats['last_order'] == 4
+
+        with pytest.raises(ct.CanteraError, match="IDA_ILL_INPUT"):
+            sim.max_order = -1
+
     def test_reinitialization(self):
         surf, gas = self.import_phases()
         gas.TPX = 1700, 4000, 'NH3:1.0, SiF4:0.4'
