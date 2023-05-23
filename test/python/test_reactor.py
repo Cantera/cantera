@@ -1436,6 +1436,11 @@ class TestFlowReactor(utilities.CanteraTest):
         assert stats['steps'] == i
         assert 'err_tests_fails' in stats
 
+        # advancing to the current time should be a no-op
+        t_now = net.time
+        net.advance(t_now)
+        assert net.solver_stats['steps'] == i
+
     def test_catalytic_surface(self):
         # Regression test based roughly on surf_pfr.py
         T0 = 1073.15
@@ -1590,6 +1595,7 @@ class TestFlowReactor2(utilities.CanteraTest):
         surf.TP = gas.TP
         r, rsurf, sim = self.make_reactors(gas, surf)
 
+        sim.max_time_step = 0.2
         sim.advance(0.01)
         t1 = sim.time
         t2 = sim.step()
@@ -1738,6 +1744,9 @@ class TestSurfaceKinetics(utilities.CanteraTest):
 
         self.assertNear(sum(C_left), 1.0)
         self.assertArrayNear(C_left, C_right)
+
+        with pytest.raises(ValueError):
+            surf2.coverages = np.ones(self.interface.n_species + 1)
 
     def test_coverages_regression1(self):
         # Test with energy equation disabled
