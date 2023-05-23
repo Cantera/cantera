@@ -1672,6 +1672,33 @@ class TestFlowReactor2(utilities.CanteraTest):
         assert Ygas1 == approx(Ygas2)
         assert cov1 == approx(cov2)
 
+    def test_initial_condition_tolerances(self):
+        surf, gas = self.import_phases()
+        gas.TPX = 1700, 4000, 'NH3:1.0, SiF4:0.4'
+        surf.coverages = np.ones(surf.n_species)
+        surf.TP = gas.TP
+        r, rsurf, sim = self.make_reactors(gas, surf)
+
+        # With tight tolerances, some error test failures should be expected
+        r.inlet_surface_atol = 1e-14
+        r.inlet_surface_rtol = 1e-20
+        r.inlet_surface_max_error_failures = 1
+        with pytest.raises(ct.CanteraError, match="error test failed repeatedly"):
+            sim.initialize()
+
+        # With few steps allowed, won't be able to reach steady-state
+        r.inlet_surface_max_error_failures = 10
+        r.inlet_surface_max_steps = 200
+        with pytest.raises(ct.CanteraError, match="mxstep steps taken"):
+            sim.initialize()
+
+        # Relaxing the tolerances will allow the integrator to reach steady-state
+        # in fewer timesteps
+        surf.coverages = np.ones(surf.n_species)
+        r.inlet_surface_atol = 0.001
+        r.inlet_surface_rtol = 0.001
+        sim.initialize()
+
 
 class TestSurfaceKinetics(utilities.CanteraTest):
     def make_reactors(self):
