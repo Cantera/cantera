@@ -425,10 +425,10 @@ void ReactorNet::getState(double* y)
     }
 }
 
-void ReactorNet::getState(double* y, double* ydot)
+void ReactorNet::getStateDae(double* y, double* ydot)
 {
     for (size_t n = 0; n < m_reactors.size(); n++) {
-        m_reactors[n]->getState(y + m_start[n], ydot + m_start[n]);
+        m_reactors[n]->getStateDae(y + m_start[n], ydot + m_start[n]);
     }
 }
 

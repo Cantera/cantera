@@ -247,7 +247,7 @@ void IdasIntegrator::initialize(double t0, FuncEval& func)
     func.getConstraints(NV_DATA_S(m_constraints));
 
     // get the initial conditions
-    func.getState(NV_DATA_S(m_y), NV_DATA_S(m_ydot));
+    func.getStateDae(NV_DATA_S(m_y), NV_DATA_S(m_ydot));
 
     if (m_ida_mem) {
         IDAFree(&m_ida_mem);
@@ -308,7 +308,7 @@ void IdasIntegrator::reinitialize(double t0, FuncEval& func)
 {
     m_t0 = t0;
     m_time = t0;
-    func.getState(NV_DATA_S(m_y));
+    func.getStateDae(NV_DATA_S(m_y), NV_DATA_S(m_ydot));
     m_func = &func;
     func.clearErrors();
 

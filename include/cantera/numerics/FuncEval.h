@@ -129,14 +129,16 @@ public:
      */
     int preconditioner_solve_nothrow(double* rhs, double* output);
 
-    //! Fill in the vector *y* with the current state of the system
+    //! Fill in the vector *y* with the current state of the system.
+    //! Used for getting the initial state for ODE systems.
     virtual void getState(double* y) {
         throw NotImplementedError("FuncEval::getState");
     }
 
-    //! Fill in the vectors *y* and *ydot* with the current state of the system
-    virtual void getState(double* y, double* ydot) {
-        throw NotImplementedError("FuncEval::getState");
+    //! Fill in the vectors *y* and *ydot* with the current state of the system.
+    //! Used for getting the initial state for DAE systems.
+    virtual void getStateDae(double* y, double* ydot) {
+        throw NotImplementedError("FuncEval::getStateDae");
     }
 
     //! Number of equations.

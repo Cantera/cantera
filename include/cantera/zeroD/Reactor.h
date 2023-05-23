@@ -112,9 +112,8 @@ public:
      *  @param[out] ydot  state vector representing the initial derivatives of the
      *                    reactor
      */
-    virtual void getState(double* y, double* ydot)
-    {
-        throw CanteraError("Reactor::getState(y, ydot)", "Not Implemented");
+    virtual void getStateDae(double* y, double* ydot) {
+        throw NotImplementedError("Reactor::getStateDae(y, ydot)");
     }
 
     virtual void initialize(double t0 = 0.0);

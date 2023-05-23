@@ -30,7 +30,7 @@ public:
         throw NotImplementedError("FlowReactor::getState");
     }
 
-    void getState(double* y, double* ydot) override;
+    void getStateDae(double* y, double* ydot) override;
     void initialize(double t0=0.0) override;
     void syncState() override;
     void updateState(double* y) override;
