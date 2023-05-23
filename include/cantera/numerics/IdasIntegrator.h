@@ -44,9 +44,7 @@ public:
     int nEquations() const override {
         return static_cast<int>(m_neq);
     }
-    void setMaxOrder(int n) override {
-        m_maxord = n;
-    }
+    void setMaxOrder(int n) override;
     void setMaxStepSize(double hmax) override;
     void setMaxSteps(int nmax) override;
     int maxSteps() override;

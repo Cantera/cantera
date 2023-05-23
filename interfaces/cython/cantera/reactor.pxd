@@ -9,15 +9,15 @@ from .kinetics cimport *
 from .func1 cimport *
 from .preconditioners cimport *
 
-    # SUNDIALS integrator
 cdef extern from "cantera/numerics/Integrator.h" namespace "Cantera":
+    # SUNDIALS integrator
     cdef cppclass CxxIntegrator "Cantera::Integrator":
         CxxIntegrator()
 
+        void setMaxOrder(int) except +translate_exception
         void setMaxNonlinIterations(int) except +translate_exception
         void setMaxNonlinConvFailures(int) except +translate_exception
         void includeAlgebraicInErrorTest(cbool) except +translate_exception
-
 
 
 cdef extern from "cantera/zerodim.h" namespace "Cantera":
