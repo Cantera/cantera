@@ -47,7 +47,8 @@ gas.TPX = t, ct.one_atm, 'CH4:1, O2:1.5, AR:0.1'
 mass_flow_rate = velocity * gas.density * area * porosity
 
 # create a new reactor
-r = ct.FlowReactor(gas, energy='off', area=area)
+r = ct.FlowReactor(gas)
+r.area = area
 r.surface_area_to_volume_ratio = cat_area_per_vol * porosity
 r.mass_flow_rate = mass_flow_rate
 r.energy_enabled = False

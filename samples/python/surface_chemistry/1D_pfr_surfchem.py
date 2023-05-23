@@ -37,7 +37,8 @@ D = 5.08e-2  # diameter of the tube [m]
 Ac = np.pi * D**2 / 4  # cross section of the tube [m]
 u0 = 11.53  # m/s initial velocity of the flow
 
-reactor = ct.FlowReactor(gas, area=Ac)
+reactor = ct.FlowReactor(gas)
+reactor.area = Ac
 reactor.mass_flow_rate = gas.density * u0 * Ac
 reactor.energy_enabled = False
 
