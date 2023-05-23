@@ -1447,7 +1447,7 @@ class TestFlowReactor(utilities.CanteraTest):
         gas.TPX = T0, P0, X0
         surf.TP = T0, P0
 
-        r = ct.FlowReactor(gas, energy='off')
+        r = ct.FlowReactor(gas)
         r.area = 1e-4
         porosity = 0.3
         velocity = 0.4 / 60

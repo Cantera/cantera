@@ -445,27 +445,6 @@ cdef class FlowReactor(Reactor):
     """
     reactor_type = "FlowReactor"
 
-    def __init__(self, *args, **kwargs):
-        area = kwargs.pop('area', None)
-        sa_to_vol = kwargs.pop('surface_area_to_volume_ratio', None)
-        ss_atol = kwargs.pop('steady_state_atol', None)
-        ss_rtol = kwargs.pop('steady_state_rtol', None)
-        ss_max_steps = kwargs.pop('steady_state_max_steps', None)
-        ss_max_fail = kwargs.pop('steady_state_max_error_failures', None)
-        super(FlowReactor, self).__init__(*args, **kwargs)
-        if area is not None:
-            self.area = area
-        if sa_to_vol is not None:
-            self.surface_area_to_volume_ratio = sa_to_vol
-        if ss_atol is not None:
-            self.steady_state_atol = ss_atol
-        if ss_rtol is not None:
-            self.steady_state_rtol = ss_rtol
-        if ss_max_steps is not None:
-            self.steady_state_max_steps = ss_max_steps
-        if ss_max_fail is not None:
-            self.steady_state_max_error_failures = ss_max_fail
-
     property mass_flow_rate:
         """ Mass flow rate [kg/s] """
         def __set__(self, double value):
