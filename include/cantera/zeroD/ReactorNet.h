@@ -205,10 +205,10 @@ public:
                          double* residaul);
 
     virtual void getState(double* y);
+    virtual void getStateDae(double* y, double* ydot);
 
     //! Return k-th derivative at the current time
     virtual void getDerivative(int k, double* dky);
-    virtual void getState(double* y, double* ydot);
 
     virtual void getConstraints(double* constraints);
 

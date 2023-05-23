@@ -1647,6 +1647,31 @@ class TestFlowReactor2(utilities.CanteraTest):
         with pytest.raises(ct.CanteraError, match="corrector convergence"):
             sim.advance(0.2)
 
+    def test_reinitialization(self):
+        surf, gas = self.import_phases()
+        gas.TPX = 1700, 4000, 'NH3:1.0, SiF4:0.4'
+        surf.TP = gas.TP
+
+        r, rsurf, sim = self.make_reactors(gas, surf)
+        r.mass_flow_rate = 0.01
+        sim.advance(0.6)
+        Ygas1 = r.thermo.Y
+        cov1 = rsurf.kinetics.coverages
+
+        # Reset the reactor to the same initial state
+        gas.TPX = 1700, 4000, 'NH3:1.0, SiF4:0.4'
+        surf.TP = gas.TP
+        r.mass_flow_rate = 0.01
+        r.syncState()
+
+        sim.set_initial_time(0.0)
+        sim.advance(0.6)
+        Ygas2 = r.thermo.Y
+        cov2 = rsurf.kinetics.coverages
+
+        assert Ygas1 == approx(Ygas2)
+        assert cov1 == approx(cov2)
+
 
 class TestSurfaceKinetics(utilities.CanteraTest):
     def make_reactors(self):
