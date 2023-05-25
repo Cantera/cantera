@@ -34,6 +34,8 @@ classdef ThermoPhase < handle
         %     String. Can be 'mole'/'molar'/'Molar'/'Mole' or 'mass'/'Mass'.
         basis
 
+        phaseName % Name of the phase. 
+
         electricPotential % Electric potential. Units: V.
 
     end
@@ -173,6 +175,14 @@ classdef ThermoPhase < handle
         minTemp
 
         refPressure % Reference pressure for standard-state. Units: Pa.
+
+        % Generate a report describing the thermodynamic state of this phase. 
+        % To print the report to the terminal, simply call the phase object. 
+        % The following two statements are equivalent ::
+        %
+        %     >> phase
+        %     >> disp(phase.report)
+        report
 
         % Saturation pressure at current temperature ::
         %
@@ -449,19 +459,7 @@ classdef ThermoPhase < handle
         %% ThermoPhase Utility Methods
 
         function display(tp)
-            % Display thermo properties
-
-            buflen = 0 - calllib(ctLib, 'thermo_report', tp.tpID, 0, '', 1);
-            aa = char(ones(1, buflen));
-            ptr = libpointer('cstring', aa);
-            [iok, bb] = calllib(ctLib, 'thermo_report', tp.tpID, buflen, ptr, 1);
-
-            if iok < 0
-                error(ctGetErr);
-            else
-                disp(bb);
-            end
-
+            disp(tp.report);
         end
 
         function tp = equilibrate(tp, xy, solver, rtol, maxsteps, maxiter, loglevel)
@@ -990,6 +988,23 @@ classdef ThermoPhase < handle
 
         end
 
+        function s = get.phaseName(tp)
+            s = ctString('thermo_getName', tp.tpID);
+        end
+
+        function str = get.report(tp)
+            buflen = 0 - calllib(ctLib, 'thermo_report', tp.tpID, 0, '', 1);
+            aa = char(ones(1, buflen));
+            ptr = libpointer('cstring', aa);
+            [iok, bb] = calllib(ctLib, 'thermo_report', tp.tpID, buflen, ptr, 1);
+                                
+            if iok < 0
+                error(ctGetErr);
+            end
+
+            str = bb;
+        end
+
         function n = get.speciesNames(tp)
             n = tp.speciesName(1:tp.nSpecies);
         end
@@ -1286,7 +1301,7 @@ classdef ThermoPhase < handle
             ctFunc('thermo_setElectricPotential', tp.tpID, phi);
         end
 
-        function tp = set.basis(tp, b)
+        function set.basis(tp, b)
 
             if strcmp(b, 'mole') || strcmp(b, 'molar') ...
                 || strcmp(b, 'Mole') || strcmp(b, 'Molar')
@@ -1299,6 +1314,10 @@ classdef ThermoPhase < handle
 
         end
 
+        function set.phaseName(tp, str)
+            ctFunc('thermo_setName', tp.tpID, str);
+        end
+
         function set.X(tp, xx)
             tol = 1e-9;
 
@@ -1308,6 +1327,9 @@ classdef ThermoPhase < handle
 
             if isa(xx, 'double')
                 nsp = tp.nSpecies;
+                if length(xx) ~= nsp
+                    error('Length of array must be equal to number of species.')
+                end
 
                 if length(xx) ~= nsp
                     error('Length of array must be equal to number of species.')
@@ -1407,7 +1429,7 @@ classdef ThermoPhase < handle
             tp.PV = input(1:2);
         end
 
-        function tp = set.PQ(tp, input)
+        function set.PQ(tp, input)
             p = input{1};
             q = input{2};
             ctFunc('thermo_setState_Psat', tp.tpID, p, q);
