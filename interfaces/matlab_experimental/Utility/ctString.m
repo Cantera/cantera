@@ -14,11 +14,11 @@ function output = ctString(varargin)
         output = bb;
         clear aa bb ptr;
     else
-        error(ctGetErr);
+        error('Cantera:ctError', ctGetErr);
     end
 
     if iok == -err1
-        error(ctGetErr);
+        error('Cantera:ctError', ctGetErr);
     end
 
 end

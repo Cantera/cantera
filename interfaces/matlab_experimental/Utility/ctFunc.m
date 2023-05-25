@@ -8,7 +8,7 @@ function output = ctFunc(varargin)
     output = calllib(ctLib, funcName, varargin{2:end});
 
     if ismember(output, errorcode)
-        error(ctGetErr);
+        error('Cantera:ctError', ctGetErr);
     end
 
 end
