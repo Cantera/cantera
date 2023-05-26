@@ -763,12 +763,9 @@ cdef class ExtensibleRate(ReactionRate):
 
     def __cinit__(self, *args, init=True, **kwargs):
         if init:
-            self._rate.reset(new CxxReactionRateDelegator())
             self.set_cxx_object()
 
     def __init__(self, *args, input_data=None, **kwargs):
-        if self._rate.get() is not NULL:
-            assign_delegates(self, dynamic_cast[CxxDelegatorPtr](self.rate))
         # ReactionRate does not define __init__, so it does not need to be called
         if input_data is not None:
             self.set_parameters(input_data, UnitStack())
@@ -817,12 +814,25 @@ cdef class ExtensibleRate(ReactionRate):
         pass
 
     cdef set_cxx_object(self, CxxReactionRate* rate=NULL):
+        cdef CxxDelegator* drate
+        cdef shared_ptr[CxxExternalHandle] handle
+
         if rate is NULL:
+            # Started with Python object first. Create the C++ object and attach to it.
+            # In this case, the Python object owns the C++ object, via self._rate
+            self._rate.reset(new CxxReactionRateDelegator())
             self.rate = self._rate.get()
+            drate = dynamic_cast[CxxDelegatorPtr](self.rate)
+            handle.reset(new CxxPythonHandle(<PyObject*>self, True))
+            drate.holdExternalHandle(stringify('python'), handle)
         else:
+            # Set up Python object from a C++ object that was created first. In this
+            # case, the C++ object owns the Python object, and self._rate is empty to
+            # avoid creating a circular dependency.
             self._rate.reset()
             self.rate = rate
-            assign_delegates(self, dynamic_cast[CxxDelegatorPtr](self.rate))
+
+        assign_delegates(self, dynamic_cast[CxxDelegatorPtr](self.rate))
         (<CxxReactionRateDelegator*>self.rate).setType(
             stringify(self._reaction_rate_type))
 
