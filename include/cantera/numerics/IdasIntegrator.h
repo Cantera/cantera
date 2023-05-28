@@ -50,10 +50,6 @@ public:
     int maxSteps() override;
     void setMaxErrTestFails(int n) override;
     AnyMap solverStats() const override;
-    void setBandwidth(int N_Upper, int N_Lower) override {
-        m_mupper = N_Upper;
-        m_mlower = N_Lower;
-    }
     int nSensParams() override {
         return static_cast<int>(m_np);
     }
@@ -110,8 +106,6 @@ private:
     N_Vector* m_yS = nullptr;
     N_Vector* m_ySdot = nullptr;
     size_t m_np;
-    int m_mupper = 0;
-    int m_mlower = 0;
     N_Vector m_constraints = nullptr;
 
     //! Indicates whether the sensitivities stored in m_yS have been updated
