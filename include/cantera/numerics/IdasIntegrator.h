@@ -18,7 +18,7 @@ namespace Cantera
 {
 
 /**
- * Wrapper for Sundials IDA solver
+ * Wrapper for Sundials IDAS solver
  * @see FuncEval.h. Classes that use IdasIntegrator:
  * FlowReactor
  */
@@ -82,34 +82,50 @@ private:
     //! containing the method name and the error code stashed by the ida_err() function.
     void checkError(long flag, const string& ctMethod, const string& idaMethod) const;
 
-    size_t m_neq;
+    size_t m_neq; //!< Number of equations/variables in the system
     void* m_ida_mem = nullptr; //!< Pointer to the IDA memory for the problem
     void* m_linsol = nullptr; //!< Sundials linear solver object
     void* m_linsol_matrix = nullptr; //!< matrix used by Sundials
     SundialsContext m_sundials_ctx; //!< SUNContext object for Sundials>=6.0
-    FuncEval* m_func = nullptr;
-    double m_t0 = 0.0;
-    double m_time; //!< The current integrator time
-    N_Vector m_y = nullptr;
-    N_Vector m_ydot = nullptr;
-    N_Vector m_abstol = nullptr;
-    string m_type = "DENSE";
-    int m_itol;
-    int m_maxord = 0;
-    double m_reltol = 1.0e-9;
-    double m_abstols = 1.0e-15;
-    double m_reltolsens, m_abstolsens;
-    size_t m_nabs = 0;
-    double m_hmax = 0.0;
-    int m_maxsteps = 20000;
-    int m_maxErrTestFails = -1;
-    N_Vector* m_yS = nullptr;
-    N_Vector* m_ySdot = nullptr;
-    size_t m_np;
-    N_Vector m_constraints = nullptr;
 
-    //! Indicates whether the sensitivities stored in m_yS have been updated
-    //! for at the current integrator time.
+    //! Object implementing the DAE residual function \f$ f(t, y, \dot{y}) = 0\f$
+    FuncEval* m_func = nullptr;
+
+    double m_t0 = 0.0; //!< The start time for the integrator
+    double m_time; //!< The current integrator time
+    N_Vector m_y = nullptr; //!< The current system state
+    N_Vector m_ydot = nullptr; //!< The time derivatives of the system state
+    N_Vector m_abstol = nullptr; //!< Absolute tolerances for each state variable
+    string m_type = "DENSE"; //!< The linear solver type. @see setLinearSolverType()
+
+    //! Flag indicating whether scalar (`IDA_SS`) or vector (`IDA_SV`) absolute
+    //! tolerances are being used.
+    int m_itol;
+
+    int m_maxord = 0; //!< Maximum order allowed for the BDF method
+    double m_reltol = 1.0e-9; //!< Relative tolerance for all state variables
+    double m_abstols = 1.0e-15; //!< Scalar absolute tolerance
+    double m_reltolsens; //!< Scalar relative tolerance for sensitivities
+    double m_abstolsens; //!< Scalar absolute tolerance for sensitivities
+
+    //!! Number of variables for which absolute tolerances were provided
+    size_t m_nabs = 0;
+
+    double m_hmax = 0.0; //!< Maximum time step size. Zero means infinity.
+
+    //! Maximum number of internal steps taken in a call to integrate()
+    int m_maxsteps = 20000;
+
+    //! Maximum number of error test failures in attempting one step
+    int m_maxErrTestFails = -1;
+
+    size_t m_np; //!< Number of sensitivity parameters
+    N_Vector* m_yS = nullptr; //!< Sensitivities of y, size #m_np by #m_neq.
+    N_Vector* m_ySdot = nullptr; //!< Sensitivities of ydot, size #m_np by #m_neq.
+    N_Vector m_constraints = nullptr; //!<
+
+    //! Indicates whether the sensitivities stored in #m_yS and #m_ySdot have been
+    //! updated for the current integrator time.
     bool m_sens_ok;
 
     //! Maximum number of nonlinear solver iterations at one solution
@@ -124,7 +140,7 @@ private:
     //! If true, the algebraic variables don't contribute to error tolerances
     bool m_setSuppressAlg = false;
 
-    //! Initial IDA stepsize
+    //! Initial IDA step size
     double m_init_step = 1e-14;
 };
 
