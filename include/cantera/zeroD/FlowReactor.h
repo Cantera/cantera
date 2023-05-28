@@ -11,11 +11,10 @@
 namespace Cantera
 {
 
-//! Adiabatic flow in a constant-area duct.
+//! Adiabatic flow in a constant-area duct with homogeneous and heterogeneous reactions
 class FlowReactor : public IdealGasReactor
 {
 public:
-    //! Note: currently assumes a cylinder
     FlowReactor() = default;
 
     string type() const override {
@@ -26,6 +25,7 @@ public:
         return false;
     }
 
+    //! Not implemented; FlowReactor implements getStateDAE() instead.
     void getState(double* y) override {
         throw NotImplementedError("FlowReactor::getState");
     }
@@ -35,17 +35,13 @@ public:
     void syncState() override;
     void updateState(double* y) override;
 
-    /*!
-     * Not implemented for FlowReactor
-     */
+    //! Not implemented; FlowReactor implements evalDae() instead.
     void eval(double t, double* LHS, double* RHS) override {
         throw NotImplementedError("FlowReactor::eval");
     }
 
     void evalDae(double t, double* y, double* ydot, double* residual) override;
 
-    //! Given a vector of length neq(), mark which variables should be
-    //! considered algebraic constraints
     void getConstraints(double* constraints) override;
 
     //! Set the mass flow rate through the reactor [kg/s]
@@ -109,10 +105,14 @@ public:
     void updateSurfaceState(double* y) override;
 
 protected:
-    double m_u = NAN;
-    double m_T = NAN;
-    double m_P = NAN;
+    //! Density [kg/m^3]. First component of the state vector.
     double m_rho = NAN;
+    //! Axial velocity [m/s]. Second component of the state vector.
+    double m_u = NAN;
+    //! Pressure [Pa]. Third component of the state vector.
+    double m_P = NAN;
+    //! Temperature [K]. Fourth component of the state vector.
+    double m_T = NAN;
     //! offset to the species equations
     const size_t m_offset_Y = 4;
     //! reactor area [m^2]
@@ -123,7 +123,6 @@ protected:
     vector_fp m_sdot_temp;
     //! temporary storage for species partial molar enthalpies
     vector_fp m_hk;
-
     //! steady-state relative tolerance, used to determine initial surface coverages
     double m_ss_rtol = 1e-7;
     //! steady-state absolute tolerance, used to determine initial surface coverages
