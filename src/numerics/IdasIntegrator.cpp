@@ -364,9 +364,6 @@ void IdasIntegrator::applyOptions()
             IDADlsSetLinearSolver(m_ida_mem, (SUNLinearSolver) m_linsol,
                                   (SUNMatrix) m_linsol_matrix);
         #endif
-    } else if (m_type == "DIAG") {
-        throw CanteraError("IdasIntegrator::applyOptions",
-                           "Cannot use a diagonal matrix with IDA.");
     } else if (m_type == "GMRES") {
         #if CT_SUNDIALS_VERSION >= 60
             m_linsol = SUNLinSol_SPGMR(m_y, PREC_NONE, 0, m_sundials_ctx.get());
@@ -377,41 +374,6 @@ void IdasIntegrator::applyOptions()
         #else
             m_linsol = SUNSPGMR(m_y, PREC_NONE, 0);
             IDASpilsSetLinearSolver(m_ida_mem, (SUNLinearSolver) m_linsol);
-        #endif
-    } else if (m_type == "BAND") {
-        sd_size_t N = static_cast<sd_size_t>(m_neq);
-        long int nu = m_mupper;
-        long int nl = m_mlower;
-        SUNLinSolFree((SUNLinearSolver) m_linsol);
-        SUNMatDestroy((SUNMatrix) m_linsol_matrix);
-        #if CT_SUNDIALS_VERSION >= 60
-            m_linsol_matrix = SUNBandMatrix(N, nu, nl, m_sundials_ctx.get());
-        #elif CT_SUNDIALS_VERSION >= 40
-            m_linsol_matrix = SUNBandMatrix(N, nu, nl);
-        #else
-            m_linsol_matrix = SUNBandMatrix(N, nu, nl, nu+nl);
-        #endif
-        #if CT_SUNDIALS_USE_LAPACK
-            #if CT_SUNDIALS_VERSION >= 60
-                m_linsol = SUNLinSol_LapackBand(m_y, (SUNMatrix) m_linsol_matrix,
-                                                m_sundials_ctx.get());
-            #else
-                m_linsol = SUNLapackBand(m_y, (SUNMatrix) m_linsol_matrix);
-            #endif
-        #else
-            #if CT_SUNDIALS_VERSION >= 60
-                m_linsol = SUNLinSol_Band(m_y, (SUNMatrix) m_linsol_matrix,
-                                          m_sundials_ctx.get());
-            #else
-                m_linsol = SUNLinSol_Band(m_y, (SUNMatrix) m_linsol_matrix);
-            #endif
-        #endif
-        #if CT_SUNDIALS_VERSION >= 40
-            IDASetLinearSolver(m_ida_mem, (SUNLinearSolver) m_linsol,
-                            (SUNMatrix) m_linsol_matrix);
-        #else
-            IDADlsSetLinearSolver(m_ida_mem, (SUNLinearSolver) m_linsol,
-                                  (SUNMatrix) m_linsol_matrix);
         #endif
     } else {
         throw CanteraError("IdasIntegrator::applyOptions",
