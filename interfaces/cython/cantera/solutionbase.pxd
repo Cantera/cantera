@@ -107,6 +107,7 @@ cdef object _wrap_Solution(shared_ptr[CxxSolution] cxx_soln)
 
 cdef class _SolutionBase:
     cdef shared_ptr[CxxSolution] _base
+    cdef weak_ptr[CxxSolution] weak_base
     cdef CxxSolution* base
     cdef CxxThermoPhase* thermo
     cdef CxxKinetics* kinetics
