@@ -113,8 +113,9 @@ cdef class _SolutionBase:
             self.name = name
 
     def __del__(self):
-        if self.base:
-            self.base.removeChangedCallback(<PyObject*>self)
+        cdef shared_ptr[CxxSolution] shared = self.weak_base.lock()
+        if shared:
+            shared.get().removeChangedCallback(<PyObject*>self)
 
     property name:
         """
@@ -433,12 +434,17 @@ cdef class _SolutionBase:
 cdef _assign_Solution(_SolutionBase soln, shared_ptr[CxxSolution] cxx_soln,
                       pybool reset_adjacent, pybool weak=False):
     if not weak:
-        # When the main application isn't Python, we should only hold a weak reference
-        # here, since the C++ Solution object owns this Python Solution.
+        # _SolutionBase owns the C++ Solution object by holding the shared_ptr instance
         if soln._base.get() != NULL:
             soln._base.get().removeChangedCallback(<PyObject*>(soln))
         soln._base = cxx_soln
+    # Make a raw pointer available for most use cases, where existence of the C++
+    # Solution object is assured.
     soln.base = cxx_soln.get()
+
+    # Hold a weak_ptr for use in the _SolutionBase destructor, where the C++
+    # object may have already been destroyed depending on ownership.
+    soln.weak_base = weak_ptr[CxxSolution](cxx_soln)
 
     def assign_pointers():
         soln.thermo = soln.base.thermo().get()

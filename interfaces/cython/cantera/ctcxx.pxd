@@ -11,7 +11,7 @@ from libcpp.cast cimport dynamic_cast
 from libcpp.pair cimport pair
 from libcpp cimport bool as cbool
 from libcpp.functional cimport function
-from libcpp.memory cimport shared_ptr, dynamic_pointer_cast
+from libcpp.memory cimport shared_ptr, weak_ptr, dynamic_pointer_cast
 from cpython cimport bool as pybool
 from cpython.ref cimport PyObject
 from cython.operator cimport dereference as deref, preincrement as inc
