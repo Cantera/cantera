@@ -1801,6 +1801,24 @@ class TestExtensible3(utilities.CanteraTest):
         rxn2 = self.gas.reaction(self.gas.n_reactions - 1)
         assert id(rate) == id(rxn.rate) == id(rxn2.rate)
 
+    def test_interface_adjacent(self):
+        # Phases adjacent to an interface automatically are initialized slightly
+        # differently, warranting a separate test to make sure the Solution wrapper
+        # is created correctly
+        surf = ct.Interface('kineticsfromscratch.yaml', 'Pt_surf', transport_model=None)
+        gas = surf.adjacent['ohmech']
+        rxn = """
+        equation: H2 + OH = H2O + H
+        type: user-rate-2
+        A: 1000
+        L: 200
+        Ea: 1000 K
+        """
+        rxn = ct.Reaction.from_yaml(rxn, kinetics=gas)
+        gas.add_reaction(rxn)
+        kf = 1000 * (200 / 2.0)**2 * exp(-1000/gas.T)
+        assert gas.forward_rate_constants[-1] == approx(kf)
+
 
 class InterfaceReactionTests(ReactionTests):
     # test suite for surface reaction expressions
