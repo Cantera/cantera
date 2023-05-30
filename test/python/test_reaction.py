@@ -9,6 +9,7 @@ import numpy as np
 from . import utilities
 from .utilities import has_temperature_derivative_warnings
 import pytest
+from pytest import approx
 
 
 class TestImplicitThirdBody(utilities.CanteraTest):
@@ -1782,6 +1783,23 @@ class TestExtensible3(utilities.CanteraTest):
         N = self.gas.n_reactions
         with pytest.raises(ct.CanteraError, match="Negative"):
             self.gas.add_reaction(rxn)
+
+    def test_direct_instantiation(self):
+        # Test creating an ExtensibleRate directly as a Python object rather than from
+        # YAML input. Retrieving the reaction/rate from the Solution object should
+        # return the original Python ReactionRate object.
+        rate = UserRate2()
+        rate.A = 200
+        rate.length = 4
+        rate.Ta = 500
+        rxn = ct.Reaction(equation='H2 + OH = H2O + H', rate=rate)
+        self.gas.add_reaction(rxn)
+
+        kf = rate.A * (rate.length / 2.0)**2 * exp(-rate.Ta/self.gas.T)
+        assert self.gas.forward_rate_constants[-1] == approx(kf)
+
+        rxn2 = self.gas.reaction(self.gas.n_reactions - 1)
+        assert id(rate) == id(rxn.rate) == id(rxn2.rate)
 
 
 class InterfaceReactionTests(ReactionTests):
