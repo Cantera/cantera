@@ -100,10 +100,6 @@ cdef class _SolutionBase:
 
         self._selected_species = np.ndarray(0, dtype=np.uint64)
 
-        cdef shared_ptr[CxxExternalHandle] handle
-        handle.reset(new CxxPythonHandle(<PyObject*>self, True))
-        self.base.holdExternalHandle(stringify("python"), handle)
-
     def __init__(self, *args, **kwargs):
         if isinstance(self, Transport) and kwargs.get("init", True):
             assert self.transport is not NULL
@@ -465,6 +461,10 @@ cdef _assign_Solution(_SolutionBase soln, shared_ptr[CxxSolution] cxx_soln,
             adj_soln = soln.base.adjacent(i)
             name = pystr(adj_soln.get().name())
             soln._adjacent[name] = _wrap_Solution(adj_soln)
+
+    cdef shared_ptr[CxxExternalHandle] handle
+    handle.reset(new CxxPythonHandle(<PyObject*>soln, True))
+    soln.base.holdExternalHandle(stringify("python"), handle)
 
 
 cdef object _wrap_Solution(shared_ptr[CxxSolution] cxx_soln):
