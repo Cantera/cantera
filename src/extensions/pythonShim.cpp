@@ -38,6 +38,10 @@ void checkPythonError(bool condition, const string& message) {
 
 void loadCanteraPython()
 {
+    // Prevent output buffering managed by Python.
+    // @todo: It may be better to avoid replacing the existing Logger instance
+    //     with a PythonLogger in the case of an embedded Python interpreter.
+    Py_UnbufferedStdioFlag = 1;
     const char* venv_path = getenv("VIRTUAL_ENV");
     if (venv_path != nullptr) {
         PyConfig pyconf;
