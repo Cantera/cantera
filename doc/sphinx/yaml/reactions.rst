@@ -388,7 +388,9 @@ Includes the fields of an :ref:`sec-yaml-elementary` reaction plus:
 
     ``E``
         Activation energy dependence on coverage, which uses the same sign convention
-        as the leading-order activation energy term
+        as the leading-order activation energy term. This can be a scalar value for
+        the linear dependency or a list of four values for the polynomial dependency
+        given in the order of 1st, 2nd, 3rd, and 4th-order coefficients
 
     or a list containing the three elements above, in the given order.
 
@@ -403,12 +405,21 @@ Examples::
       rate-constant: {A: 3.7e21 cm^2/mol/s, b: 0, Ea: 67400 J/mol}
       coverage-dependencies: {H(s): {a: 0, m: 0, E: -6000 J/mol}}
 
+    - equation: 2 O(S) => O2 + 2 Pt(S)
+      rate-constant: {A: 3.7e+21, b: 0, Ea: 213200 J/mol}
+      coverage-dependencies: {O(S): {a: 0.0, m: 0.0,
+        E: [1.0e3 J/mol, 3.0e3 J/mol , -7.0e4 J/mol , 5.0e3 J/mol]}
+
     - equation: CH4 + PT(S) + O(S) => CH3(S) + OH(S)
       rate-constant: {A: 5.0e+18, b: 0.7, Ea: 4.2e+04}
       coverage-dependencies:
         O(S): [0, 0, 8000]
         PT(S): [0, -1.0, 0]
 
+    - equation: 2 O(S) => O2 + 2 Pt(S)
+      rate-constant: {A: 3.7e+21, b: 0, Ea: 213200 J/mol}
+      coverage-dependencies:
+        O(S): [0, 0, [1.0e6, 3.0e6, -7.0e7, 5.0e6]]
 
 .. _sec-yaml-interface-Blowers-Masel:
 

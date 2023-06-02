@@ -84,9 +84,20 @@ struct InterfaceData : public BlowersMaselData
  * It is evident that this expression combines a regular modified Arrhenius rate
  * expression \f$ A T^b \exp \left( - \frac{E_a}{RT} \right) \f$ with coverage-related
  * terms, where the parameters \f$ (a_k, E_k, m_k) \f$ describe the dependency on the
- * surface coverage of species \f$ k, \theta_k \f$. The InterfaceRateBase class implements
- * terms related to coverage only, which allows for combinations with arbitrary rate
- * parameterizations (for example Arrhenius and BlowersMaselRate).
+ * surface coverage of species \f$ k, \theta_k \f$. In addition to the linear coverage
+ * dependence on the activation energy modifier \f$ E_k \f$, polynomial coverage
+ * dependence is also available. When the dependence parameter \f$ E_k \f$ is given as
+ * a scalar value, the linear dependency is applied whereas if a list of four values
+ * are given as \f$ [E^{(1)}_k-E^{(4)}_k] \f$, a polynomial dependency is applied as
+ *  \f[
+ *      k_f = A T^b \exp \left( - \frac{E_a}{RT} \right)
+ *          \prod_k 10^{a_k \theta_k} \theta_k^{m_k}
+ *          \exp \left( \frac{- E^{(1)}_k \theta_k - E^{(2)}_k \theta_k^2
+ *          - E^{(3)}_k \theta_k^3 - E^{(4)}_k \theta_k^4}{RT} \right)
+ *  \f]
+ * The InterfaceRateBase class implements terms related to coverage only, which allows
+ * for combinations with arbitrary rate parameterizations (for example Arrhenius and
+ * BlowersMaselRate).
  */
 class InterfaceRateBase
 {
@@ -116,7 +127,7 @@ public:
     //! Add a coverage dependency for species *sp*, with exponential dependence
     //! *a*, power-law exponent *m*, and activation energy dependence *e*,
     //! where *e* is in Kelvin, that is, energy divided by the molar gas constant.
-    virtual void addCoverageDependence(const string& sp, double a, double m, double e);
+    virtual void addCoverageDependence(const string& sp, double a, double m, vector_fp e);
 
     //! Boolean indicating whether rate uses exchange current density formulation
     bool exchangeCurrentDensityFormulation() {
@@ -243,7 +254,11 @@ protected:
     map<size_t, size_t> m_indices;
     vector<string> m_cov; //!< Vector holding names of coverage species
     vector_fp m_ac; //!< Vector holding coverage-specific exponential dependence
-    vector_fp m_ec; //!< Vector holding coverage-specific activation energy dependence
+    //! Vector holding coverage-specific activation energy dependence as a
+    //! 5-membered array of polynomial coeffcients starting from 0th-order to
+    //! 4th-order coefficients
+    std::vector<vector_fp> m_ec;
+    std::vector<bool> m_lindep; //!< Vector holding boolean for linear dependence
     vector_fp m_mc; //!< Vector holding coverage-specific power-law exponents
 
 private:
@@ -434,7 +449,7 @@ public:
         return RateType::activationEnergy() + m_ecov * GasConstant;
     }
 
-    void addCoverageDependence(const string& sp, double a, double m, double e) override {
+    void addCoverageDependence(const string& sp, double a, double m, vector_fp e) override {
         InterfaceRateBase::addCoverageDependence(sp, a, m, e);
         RateType::setCompositionDependence(true);
     }
