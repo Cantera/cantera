@@ -148,6 +148,10 @@ Pt-reactions:
 Pt-multisite-reactions:
 - equation: 2 O(s) <=> O2(s)
   rate-constant: {A: 3.1e9 cm^2/mol/s, b: 0.0, Ea: 0.0}
+  # dummy reaction for polynomial Ea coverage dependence
+  coverage-dependencies:
+    {O(s): {a: 0, m: 0, E: [1.0e3 J/mol, 3.0e3 J/mol,
+                            -7.0e4 J/mol, 5.0e3 J/mol]}}
 
 graphite-anode-species:
 - name: EC(e)
