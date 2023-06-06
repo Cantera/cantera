@@ -6,18 +6,10 @@ classdef ctMatlabTestThermo < matlab.unittest.TestCase
         atol = 1e-8;
     end
 
-    methods (TestClassSetup)
-        function ctLoad(testCase)
-            % Load Cantera
-            ctLoad
-            import matlab.unittest.constraints.Throws;
-        end
-    end
-
     methods (TestClassTeardown)
-        function ctUnload(testCase)
-            % Unload Cantera
-            ctUnload
+        function testTearDown(testCase)
+            % Clean up Cantera
+            ctCleanUp
         end
     end
 
@@ -40,17 +32,160 @@ classdef ctMatlabTestThermo < matlab.unittest.TestCase
     end
 
     methods
-        % Generic function to set invalid values to attribute
-        function setInvalidValue(testCase, attr, val)
-            testCase.phase.(attr) = val;
+        % Generic function to check whether a value is near expected value (relative).
+        function verifyNearRelative(testCase, val, exp)
+            diff = max(abs((val - exp) ./ exp));
+            testCase.verifyLessThanOrEqual(diff, testCase.rtol);
         end
+
+        % Generic function to check whether a value is near expected value (absolute).
+        function verifyNearAbsolute(testCase, val, exp)
+            diff = max(abs(val - exp));
+            testCase.verifyLessThanOrEqual(diff, testCase.atol);
+        end
+
+        % Generic function to set invalid values to attribute and verify errors
+        function setInvalidValue(testCase, attr, val, errMessage)
+            try 
+                testCase.phase.(attr) = val;
+            catch ME
+                testCase.verifySubstring(ME.message, errMessage);
+            end
+        end
+
+        % Generic function to get invalid values of an attribute and verify errors
+        function val = getInvalidValue(testCase, attr, args, errMessage)
+            try
+                if nargin == 3
+                    val = testCase.phase.(attr);
+                else 
+                    val = testCase.phase.(attr)(args{:});
+                end
+            catch ME
+                testCase.verifySubstring(ME.message, errMessage);
+            end                
+        end
+        
         % Generic function to get an invalid property
         function a = getInvalidProperty(testCase)
             a = testCase.phase.foobar;
         end
+        
         % Generic function to set an invalid property
         function setInvalidProperty(testCase, val)
             testCase.phase.foobar = val;
+        end
+
+        % Check state
+        function checkState(testCase, T, D, Y)
+            testCase.verifyNearRelative(testCase.phase.T, T);
+            testCase.verifyNearRelative(testCase.phase.D, D);            
+            testCase.verifyNearAbsolute(testCase.phase.Y, Y);            
+        end
+
+        % Check multi properties
+        function checkMultiProperties(testCase, str)
+            val = testCase.phase.(str);
+            for i = 1:length(str)
+                attr = str(i);
+                exp = testCase.phase.(attr);
+                testCase.verifyNearAbsolute(val{i}, exp);
+            end
+        end
+
+        % Check getter
+        function checkGetters(testCase)
+            testCase.checkMultiProperties('TD');
+            testCase.checkMultiProperties('TDX');
+            testCase.checkMultiProperties('TDY');
+
+            testCase.checkMultiProperties('TP');
+            testCase.checkMultiProperties('TPX');
+            testCase.checkMultiProperties('TPY');
+
+            testCase.checkMultiProperties('HP');
+            testCase.checkMultiProperties('HPX');
+            testCase.checkMultiProperties('HPY'); 
+            
+            testCase.checkMultiProperties('UV');
+            testCase.checkMultiProperties('UVX');
+            testCase.checkMultiProperties('UVY');
+            
+            testCase.checkMultiProperties('SP');
+            testCase.checkMultiProperties('SPX');
+            testCase.checkMultiProperties('SPY');
+            
+            testCase.checkMultiProperties('SV');
+            testCase.checkMultiProperties('SVX');
+            testCase.checkMultiProperties('SVY'); 
+
+            testCase.checkMultiProperties('DP');
+            testCase.checkMultiProperties('DPX');
+            testCase.checkMultiProperties('DPY'); 
+        end
+
+        % Check setter
+        function checkSetters(testCase, T1, D1, Y1)
+            val = testCase.phase.TDY;
+            T0 = val{1};
+            D0 = val{2};
+            Y0 = val{3};
+
+            testCase.phase.TDY = {T1, D1, Y1};
+            X1 = testCase.phase.X;
+            P1 = testCase.phase.P;
+            H1 = testCase.phase.H;
+            S1 = testCase.phase.S;
+            U1 = testCase.phase.U;
+            V1 = testCase.phase.V;
+
+            testCase.phase.TDY = {T0, D0, Y0};
+            testCase.phase.TPY = {T1, P1, Y1};
+            testCase.checkState(T1, D1, Y1);
+
+            testCase.phase.TDY = {T0, D0, Y0};
+            testCase.phase.UVY = {U1, V1, Y1};
+            testCase.checkState(T1, D1, Y1); 
+            
+            testCase.phase.TDY = {T0, D0, Y0};
+            testCase.phase.HPY = {H1, P1, Y1};
+            testCase.checkState(T1, D1, Y1);
+            
+            testCase.phase.TDY = {T0, D0, Y0};
+            testCase.phase.SPY = {S1, P1, Y1};
+            testCase.checkState(T1, D1, Y1);
+
+            testCase.phase.TDY = {T0, D0, Y0};
+            testCase.phase.TPX = {T1, P1, X1};
+            testCase.checkState(T1, D1, Y1); 
+            
+            testCase.phase.TDY = {T0, D0, Y0};
+            testCase.phase.UVX = {U1, V1, X1};
+            testCase.checkState(T1, D1, Y1);
+            
+            testCase.phase.TDY = {T0, D0, Y0};
+            testCase.phase.HPX = {H1, P1, X1};
+            testCase.checkState(T1, D1, Y1);
+            
+            testCase.phase.TDY = {T0, D0, Y0};
+            testCase.phase.SPX = {S1, P1, X1};
+            testCase.checkState(T1, D1, Y1);
+            
+            testCase.phase.TDY = {T0, D0, Y0};
+            testCase.phase.SVX = {S1, V1, X1};
+            testCase.checkState(T1, D1, Y1);
+            
+            testCase.phase.TDY = {T0, D0, Y0};
+            testCase.phase.SVY = {S1, V1, Y1};
+            testCase.checkState(T1, D1, Y1); 
+
+            testCase.phase.TDY = {T0, D0, Y0};
+            testCase.phase.DPX = {D1, P1, X1};
+            testCase.checkState(T1, D1, Y1);
+            
+            testCase.phase.TDY = {T0, D0, Y0};
+            testCase.phase.DPY = {D1, P1, Y1};
+            testCase.checkState(T1, D1, Y1); 
         end
     end
 
@@ -65,16 +200,13 @@ classdef ctMatlabTestThermo < matlab.unittest.TestCase
                                       'char');
 
             testCase.phase.phaseName = 'spam';
-            testCase.verifyEqual(testCase.phase.phaseName, ...
-                                 'spam');
+            testCase.verifyMatches(testCase.phase.phaseName, 'spam');
 
             testCase.verifyGreaterThanOrEqual(testCase.phase.tpID, 0);
 
-            testCase.verifyEqual(testCase.phase.basis, ...
-                                 'molar');
+            testCase.verifyMatches(testCase.phase.basis, 'molar');
             testCase.phase.basis = 'mass';
-            testCase.verifyEqual(testCase.phase.basis, ...
-                                 'mass');            
+            testCase.verifyMatches(testCase.phase.basis, 'mass');            
         end
 
         function testPhases(testCase)
@@ -90,11 +222,11 @@ classdef ctMatlabTestThermo < matlab.unittest.TestCase
                 n = testCase.phase.speciesName(i);
                 m = testCase.phase.speciesIndex(n{:});
 
-                testCase.verifyEqual(n{:}, names{i});
+                testCase.verifyMatches(n{:}, names{i});
                 testCase.verifyEqual(i, m);
             end
 
-            testCase.verifyError(@() testCase.phase.speciesName(11), 'Cantera:ctError');
+            testCase.getInvalidValue('speciesNames', {11}, 'must not exceed');
         end
 
         function testElements(testCase)
@@ -118,10 +250,8 @@ classdef ctMatlabTestThermo < matlab.unittest.TestCase
                 testCase.verifyEqual(n1, n);
                 testCase.verifyEqual(n2, n);
 
-                testCase.verifyError(@() testCase.phase.nAtoms('C', 'H2'),...
-                                    'Cantera:ctError');
-                testCase.verifyError(@() testCase.phase.nAtoms('H', 'CH4'),...
-                                    'Cantera:ctError');
+                testCase.getInvalidValue('nAtoms', {'C', 'H2'}, 'no such species');
+                testCase.getInvalidValue('nAtoms', {'H', 'CH4'}, 'no such element');
             end
         end
 
@@ -135,16 +265,12 @@ classdef ctMatlabTestThermo < matlab.unittest.TestCase
             exp2 = 0.5 * (2.016 / 18.015);
             exp3 = 0.0;
 
-            diff1 = abs(Zo - exp1)/exp1;
-            diff2 = abs(Zh - exp2)/exp2;
-            diff3 = abs(Zar - exp3);
+            testCase.verifyNearRelative(Zo, exp1);
+            testCase.verifyNearRelative(Zh, exp2);
+            testCase.verifyNearAbsolute(Zar, exp3);
 
-            testCase.verifyLessThanOrEqual(diff1, testCase.rtol);
-            testCase.verifyLessThanOrEqual(diff2, testCase.rtol);
-            testCase.verifyLessThanOrEqual(diff3, testCase.atol);
-
-            testCase.verifyError(@() testCase.phase.elementalMassFraction('C'),...
-                                'Cantera:ctError');        
+            testCase.getInvalidValue('elementalMassFraction', {'C'}, 'No such element');
+            testCase.getInvalidValue('elementalMassFraction', {5}, 'No such element');
         end
 
         function testWeights(testCase)
@@ -160,9 +286,7 @@ classdef ctMatlabTestThermo < matlab.unittest.TestCase
                     testWeight = testWeight + ...
                                  aw(j) * testCase.phase.nAtoms(i, j);
                 end
-                diff = (testWeight - mw(i))/mw(i);
-
-                testCase.verifyLessThanOrEqual(diff, testCase.rtol);
+                testCase.verifyNearRelative(testWeight, mw(i));
             end
         end
 
@@ -184,13 +308,109 @@ classdef ctMatlabTestThermo < matlab.unittest.TestCase
             clear chargePhase
         end
 
+        function testReport(testCase)
+            str = testCase.phase.report;
+
+            testCase.verifySubstring(str, testCase.phase.phaseName);
+            testCase.verifySubstring(str, 'temperature');
+
+            for i = 1:testCase.phase.nSpecies
+                name = testCase.phase.speciesName(i);
+                testCase.verifySubstring(str, name{:});
+            end
+        end
+
+        function testRefInfo(testCase)
+            testCase.verifyNearRelative(testCase.phase.refPressure, OneAtm);
+            testCase.verifyNearRelative(testCase.phase.minTemp, 300);
+            testCase.verifyNearRelative(testCase.phase.maxTemp, 3500);
+        end
+
+        function testSingleGetters(testCase)
+            val = testCase.phase.T;
+            exp = 300;
+            testCase.verifyNearRelative(val, exp);
+            testCase.verifyGreaterThan(testCase.phase.maxTemp, 0);
+            testCase.verifyGreaterThan(testCase.phase.minTemp, 0);
+
+            val = testCase.phase.P;
+            exp = OneAtm;
+            testCase.verifyNearRelative(val, exp);
+
+            val = testCase.phase.D;
+            exp = testCase.phase.P * testCase.phase.meanMolecularWeight / ...
+                  (GasConstant * testCase.phase.T);
+            testCase.verifyNearRelative(val, exp);
+
+            testCase.phase.basis = 'mass';
+            val = testCase.phase.V;
+            exp = 1/exp;
+            testCase.verifyNearRelative(val, exp);
+            testCase.phase.basis = 'molar';
+            val = testCase.phase.V;
+            exp = exp * testCase.phase.meanMolecularWeight;
+            testCase.verifyNearRelative(val, exp);
+
+            val = testCase.phase.molarDensity;
+            exp = testCase.phase.D/testCase.phase.meanMolecularWeight;
+            testCase.verifyNearRelative(val, exp);
+
+            testCase.verifyMatches(testCase.phase.eosType, 'ideal-gas');
+            testCase.verifyTrue(testCase.phase.isIdealGas);
+
+            val = testCase.phase.X;
+            exp = zeros(1, 10);
+            exp(1) = 1.0;
+            testCase.verifyNearAbsolute(val, exp);
+
+            val = testCase.phase.Y;
+            testCase.verifyNearAbsolute(val, exp);
+
+            val1 = [testCase.phase.H, testCase.phase.S, ...
+                    testCase.phase.U, testCase.phase.G, ...
+                    testCase.phase.cp, testCase.phase.cv];
+            testCase.phase.basis = 'mass';
+            val2 = [testCase.phase.H, testCase.phase.S, ...
+                    testCase.phase.U, testCase.phase.G, ...
+                    testCase.phase.cp, testCase.phase.cv];
+            exp = val2.*testCase.phase.meanMolecularWeight;
+            testCase.verifyNearRelative(val1, exp);
+
+            val = testCase.phase.isothermalCompressibility;
+            exp = 1.0 / testCase.phase.P;
+            testCase.verifyNearRelative(val, exp);
+
+            val = testCase.phase.thermalExpansionCoeff;
+            exp = 1.0 / testCase.phase.T;
+            testCase.verifyNearRelative(val, exp);
+
+        end
+
+        function testGetStateMole(testCase)
+            testCase.phase.TDX = {350.0, 0.01, 'H2:0.1, O2:0.3, AR:0.6'};
+            testCase.checkGetters;
+        end
+
+        function testGetStateMass(testCase)
+            testCase.phase.basis = 'mass';
+            testCase.phase.TDY = {350.0, 0.7, 'H2:0.1, H2O2:0.1, AR:0.8'};
+            testCase.checkGetters;
+        end
+
         function testSetComposition(testCase)
             xx = zeros(1, testCase.phase.nSpecies);
             xx(3) = 1.0;
             testCase.phase.X = xx;
             yy = testCase.phase.Y;
 
-            testCase.verifyEqual(xx, yy)
+            testCase.verifyNearAbsolute(xx, yy)
+        end
+
+        function testSetCompositionBadLength(testCase)
+            xx = zeros(1, 5);
+            testCase.setInvalidValue('X', [], 'cannot be empty');
+            testCase.setInvalidValue('X', xx, 'must be equal');
+            testCase.setInvalidValue('Y', xx, 'must be equal');
         end
 
         function testSetCompositionString(testCase)
@@ -205,88 +425,33 @@ classdef ctMatlabTestThermo < matlab.unittest.TestCase
         end
 
         function testSetCompositionStringBad(testCase)
-            testCase.verifyError(@()...
-                                testCase.setInvalidValue('X','H2:1.0,CO2:1.5'),...
-                                'Cantera:ctError'); 
-            testCase.verifyError(@()...
-                                testCase.setInvalidValue('X','H2:1.0,O2:asdf'),...
-                                'Cantera:ctError'); 
-            testCase.verifyError(@()...
-                                testCase.setInvalidValue('X','H2:1.e-x4'),...
-                                'Cantera:ctError'); 
-            testCase.verifyError(@()...
-                                testCase.setInvalidValue('X','H2:1e-1.4'),...
-                                'Cantera:ctError');  
-            testCase.verifyError(@()...
-                                testCase.setInvalidValue('X','H2:0.5,O2:1.0,H2:0.1'),...
-                                'Cantera:ctError');                 
+            testCase.setInvalidValue('X', 'H2:1.0,CO2:1.5', 'Unknown species');
+            testCase.setInvalidValue('X', 'H2:1.0,O2:asdf', 'Trouble processing');
+            testCase.setInvalidValue('X', 'H2:1.e-x4', 'Trouble processing');
+            testCase.setInvalidValue('X', 'H2:1e-1.4', 'decimal point in exponent');
+            testCase.setInvalidValue('X', 'H2:0.5,O2:1.0,H2:0.1', 'Duplicate key');
+            testCase.setInvalidValue('X', '', 'cannot be empty');
         end
 
-        function testReport(testCase)
-            str = testCase.phase.report;
-
-            testCase.verifySubstring(str, testCase.phase.phaseName);
-            testCase.verifySubstring(str, 'temperature');
-
-            for i = 1:testCase.phase.nSpecies
-                name = testCase.phase.speciesName(i);
-                testCase.verifySubstring(str, name{:});
-            end
+        function testSetStateMole(testCase)
+            testCase.checkSetters(750, 0.07, [0.2, 0.1, 0.0, 0.3, 0.1, ...
+                                  0.0, 0.0, 0.2, 0.1, 0.0]);
         end
 
-        function checkGetters(testCase)
-            val = testCase.phase.T;
-            exp = 300;
-            diff = abs(val - exp)/exp;
-            testCase.verifyLessThanOrEqual(diff, testCase.rtol);
-            testCase.verifyGreaterThan(testCase.phase.maxTemp, 0);
-            testCase.verifyGreaterThan(testCase.phase.minTemp, 0);
-
-            val = testCase.phase.P;
-            exp = 101325;
-            diff = abs(val - exp)/exp;
-            testCase.verifyLessThanOrEqual(diff, testCase.rtol);
-
-            val = testCase.phase.D;
-            exp = 0.081894;
-            diff = abs(val - exp)/exp;
-            testCase.verifyLessThanOrEqual(diff, testCase.rtol);
-
-            val = testCase.phase.V;
-            exp = 1/0.081894;
-            diff = abs(val - exp)/exp;
-            testCase.verifyLessThanOrEqual(diff, testCase.rtol);
-
-            val = testCase.phase.molarDensity;
-            exp = testCase.phase.D/testCase.phase.meanMolecularWeight;
-            diff = abs(val - exp)/exp;
-            testCase.verifyLessThanOrEqual(diff, testCase.rtol);
-
-            testCase.verifyEqual(testCase.phase.eosType, 'ideal-gas');
-            testCase.verifyTrue(testCase.phase.isIdealGas);
-
-            val = testCase.phase.X;
-            exp = zeros(1, 10);
-            exp(1) = 1.0;
-            testCase.verifyEqual(val, exp);
-
-            val = testCase.phase.Y;
-            testCase.verifyEqual(val, exp);
-
-            val1 = [testCase.phase.H, testCase.phase.S, ...
-                    testCase.phase.U, testCase.phase.G, ...
-                    testCase.phase.cp,testCase.phase.cv];
+        function testSetStateMass(testCase)
             testCase.phase.basis = 'mass';
-            val2 = [testCase.phase.H, testCase.phase.S, ...
-                    testCase.phase.U, testCase.phase.G, ...
-                    testCase.phase.cp,testCase.phase.cv];
-            exp = val2.*testCase.phase.meanMolecularWeight;
-            testCase.verifyEqual(val1, exp);
-
+            testCase.checkSetters(500, 1.5, [0.1, 0.0, 0.0, 0.1, 0.4, ...
+                                  0.2, 0.0, 0.0, 0.2, 0.0]);            
         end
 
-        function checkSetters(testCase)
-            
+        function testSetterErrors(testCase)
+            testCase.setInvalidValue('TD', 400, 'not supported');
+            testCase.setInvalidValue('TP', {300, 101325, 'CH4:1.0'}, ...
+                                     'incorrect number');
+            testCase.setInvalidValue('HPY', {1.2e6, 101325}, ...
+                                     'incorrect number'); 
+            testCase.setInvalidValue('UVX', {-4e5, 4.4, 'H2:1.0', -1}, ...
+                                     'incorrect number');           
         end
 
         function testInvalidProperty(testCase)
@@ -294,24 +459,6 @@ classdef ctMatlabTestThermo < matlab.unittest.TestCase
                                 'MATLAB:noSuchMethodOrField');
             testCase.verifyError(@() testCase.setInvalidProperty(300),...
                                 'MATLAB:noPublicFieldForClass');            
-        end
-
-        function temperatureSetTest(testCase)
-            setPoint = 500;
-            testCase.phase.TP = {setPoint, testCase.phase.P};
-            val = testCase.phase.T;
-            diff = abs(val - setPoint)/setPoint;
-            testCase.verifyLessThanOrEqual(diff, testCase.rtol);
-
-            setPoint = -1;
-            errMessage = 'Cantera:ctError';
-
-            % testCase.verifyError(@() testCase.setInvalidValue('TP',...
-            %                     {setPoint, testCase.phase.P}), ... 
-            %                     errMessage);    
-            testCase.verifyThat(@() testCase.setInvalidValue('TP',...
-                                {setPoint, testCase.phase.P}), ... 
-                                Throws(errMessage));   
         end
 
     end
