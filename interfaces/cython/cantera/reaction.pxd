@@ -66,6 +66,15 @@ cdef extern from "cantera/kinetics/Arrhenius.h" namespace "Cantera":
         CxxBlowersMaselRate(CxxAnyMap) except +translate_exception
         CxxBlowersMaselRate(double, double, double, double)
 
+cdef extern from "cantera/kinetics/PhotolysisRate.h" namespace "Cantera":
+    cdef cppclass CxxPhotolysisRate "Cantera::PhotolysisRate" (CxxReactionRate):
+        CxxPhotolysisRate(CxxAnyMap) except +translate_exception
+        CxxPhotolysisRate(double)
+        CxxPhotolysisRate(double, double, double)
+        double evalRate(double)
+        double l_param()
+        double m_param()
+        double n_param()
 
 cdef extern from "cantera/kinetics/TwoTempPlasmaRate.h" namespace "Cantera":
     cdef cppclass CxxTwoTempPlasmaRate "Cantera::TwoTempPlasmaRate" (CxxArrheniusBase):
@@ -246,6 +255,10 @@ cdef class ReactionRate:
     cdef CxxReactionRate* rate
     @staticmethod
     cdef wrap(shared_ptr[CxxReactionRate])
+    cdef set_cxx_object(self)
+
+cdef class PhotolysisRate(ReactionRate):
+    cdef CxxPhotolysisRate* photolysis
     cdef set_cxx_object(self)
 
 cdef class ArrheniusRateBase(ReactionRate):

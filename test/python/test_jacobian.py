@@ -586,8 +586,8 @@ class FromScratchCases(RateExpressionTests):
     @classmethod
     def setUpClass(cls):
         cls.gas = ct.Solution("kineticsfromscratch.yaml", transport_model=None)
-        #   species: [AR, O, H2, H, OH, O2, H2O, H2O2, HO2]
-        cls.gas.X = [0.1, 3e-4, 5e-5, 6e-6, 3e-3, 0.6, 0.25, 1e-6, 2e-5]
+        #   species: [AR, O, H2, H, OH, O2, H2O, H2O2, HO2, O3]
+        cls.gas.X = [0.1, 3e-4, 5e-5, 6e-6, 3e-3, 0.6, 0.25, 1e-6, 2e-5, 1e-4]
         cls.gas.TP = 2000, 5 * ct.one_atm
         super().setUpClass()
 

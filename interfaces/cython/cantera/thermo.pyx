@@ -538,6 +538,13 @@ cdef class ThermoPhase(_SolutionBase):
         def __set__(self, val):
             self.thermo.setCaseSensitiveSpecies(bool(val))
 
+    property zenith_angle:
+        """Zenith angle for photolysis reactions"""
+        def __get__(self):
+            return self.thermo.zenithAngle()
+        def __set__(self, value):
+            self.thermo.setZenithAngle(value)
+
     def species(self, k=None):
         """
         Return the `Species` object for species ``k``, where ``k`` is either the

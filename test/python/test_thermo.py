@@ -47,6 +47,10 @@ class TestThermoPhase(utilities.CanteraTest):
         with self.assertRaisesRegex(ct.CanteraError, "(?s)phasename.*said so"):
             ct.Solution(yaml=yaml)
 
+    def test_zenith_application(self):
+        gas = ct.Solution("ozone-photolysis.yaml", "atmos")
+        self.assertEqual(gas.zenith_angle, 0.785)
+
     def test_base_attributes(self):
         self.assertIsInstance(self.phase.name, str)
         self.assertIsInstance(self.phase.phase_of_matter, str)
@@ -1945,7 +1949,8 @@ class TestSolutionArray(utilities.CanteraTest):
             # Skipped because they are complicated (conversion not implemented)
             "forward_rates_of_progress_ddX", "net_rates_of_progress_ddX",
             "reverse_rates_of_progress_ddX", "state", "net_rates_of_progress_ddCi",
-            "forward_rates_of_progress_ddCi", "reverse_rates_of_progress_ddCi"
+            "forward_rates_of_progress_ddCi", "reverse_rates_of_progress_ddCi",
+            "zenith_angle"
         }
         skip.update(ct.SolutionArray._passthrough)
 

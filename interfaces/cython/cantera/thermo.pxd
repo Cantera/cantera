@@ -174,6 +174,9 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         double equivalenceRatio() except +translate_exception
         double stoichAirFuelRatio(const double* fuelComp, const double* oxComp, ThermoBasis basis) except +translate_exception
 
+        double zenithAngle()
+        void setZenithAngle(double)
+
 
 cdef extern from "cantera/thermo/SurfPhase.h":
     cdef cppclass CxxSurfPhase "Cantera::SurfPhase":

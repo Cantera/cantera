@@ -16,6 +16,7 @@
 #include "cantera/kinetics/InterfaceRate.h"
 #include "cantera/kinetics/PlogRate.h"
 #include "cantera/kinetics/TwoTempPlasmaRate.h"
+#include "cantera/kinetics/PhotolysisRate.h"
 
 namespace Cantera
 {
@@ -32,6 +33,11 @@ ReactionRateFactory::ReactionRateFactory()
     addAlias("Arrhenius", "");
     addAlias("Arrhenius", "elementary");
     addAlias("Arrhenius", "three-body");
+
+    // PhotolysisRate evaluator
+    reg("photolysis", [](const AnyMap& node, const UnitStack& rate_units) {
+        return new PhotolysisRate(node, rate_units);
+    });
 
     // TwoTempPlasmaRate evaluator
     reg("two-temperature-plasma", [](const AnyMap& node, const UnitStack& rate_units) {

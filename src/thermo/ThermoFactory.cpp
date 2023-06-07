@@ -389,6 +389,11 @@ void setupPhase(ThermoPhase& thermo, const AnyMap& phaseNode, const AnyMap& root
         }
     }
 
+    // set zenith angle if it is provided
+    if (phaseNode.hasKey("zenith_angle")) {
+        thermo.setZenithAngle(phaseNode["zenith_angle"].asDouble());
+    }
+
     thermo.setParameters(phaseNode, rootNode);
     thermo.initThermo();
 

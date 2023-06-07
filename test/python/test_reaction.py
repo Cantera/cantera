@@ -699,6 +699,77 @@ class TestChebyshevRate(ReactionRateTests, utilities.CanteraTest):
         self.assertEqual(rate.n_temperature, rate.data.shape[0])
 
 
+class TestPhotolysisRateParameterization(ReactionRateTests, utilities.CanteraTest):
+    # test Photolysis rate expressions
+    _cls = ct.PhotolysisRate
+    _type = "photolysis"
+    _index = 14
+    _input = {"rate-constant": {"l": 4.775e-4, "m": 0.298, "n": 0.080}}
+    _parts = {"l": 4.775e-4, "m": 0.298, "n": 0.080}
+    _yaml = """
+            type: photolysis
+            rate-constant: {l: 4.775e-4, m: 0.298, n: 0.080}
+            """
+    zenith_angle = 0.785
+
+    @classmethod
+    def setUpClass(cls):
+        utilities.CanteraTest.setUpClass()
+        cls.soln = ct.Solution("kineticsfromscratch.yaml")
+        cls.soln.zenith_angle = cls.zenith_angle
+
+    def eval(self, rate):
+        # evaluate rate expression
+        return rate(self.zenith_angle)
+
+    def test_from_parts(self):
+        rate = self.from_parts()
+        self.assertEqual(self._parts["l"], rate.l_param)
+        self.assertEqual(self._parts["m"], rate.m_param)
+        self.assertEqual(self._parts["n"], rate.n_param)
+        self.check_rate(rate)
+
+    def test_derivative_ddT(self):
+        """ Photolysis rate is not temperature dependent. """
+        drate = self.soln.forward_rate_constants_ddT
+        self.assertEqual(0.0, drate[self._index])
+
+    def test_derivative_ddP(self):
+        """ Photolysis rate is not pressure dependent. """
+        drate = self.soln.forward_rate_constants_ddP
+        self.assertEqual(0.0, drate[self._index])
+
+
+class TestPhotolysisRateConstant(ReactionRateTests, utilities.CanteraTest):
+    # test Photolysis rate expressions
+    _cls = ct.PhotolysisRate
+    _type = "photolysis"
+    _index = 15
+    _input = {"rate-constant": {"J": 0.5}}
+    _parts = {"J": 0.5}
+    _yaml = """
+            type: photolysis
+            rate-constant: {J: 0.5}
+            """
+
+    def eval(self, rate):
+        return rate(0)
+
+    def test_from_parts(self):
+        rate = self.from_parts()
+        self.assertNear(self._parts["J"], self.eval(rate))
+        self.check_rate(rate)
+
+    def test_derivative_ddT(self):
+        """ Photolysis rate is not temperature dependent. """
+        drate = self.soln.forward_rate_constants_ddT
+        self.assertEqual(0.0, drate[self._index])
+
+    def test_derivative_ddP(self):
+        """ Photolysis rate is not pressure dependent. """
+        drate = self.soln.forward_rate_constants_ddP
+        self.assertEqual(0.0, drate[self._index])
+
 class SurfaceReactionRateTests(ReactionRateTests):
     # test suite for surface reaction rate expressions
 
@@ -1567,7 +1638,9 @@ class TestExtensible(ReactionTests, utilities.CanteraTest):
     phases:
     - name: gas
       thermo: ideal-gas
-      species: [{h2o2.yaml/species: [AR, O, H2, H, OH, O2, H2O, H2O2, HO2]}]
+      species:
+      - h2o2.yaml/species: [AR, O, H2, H, OH, O2, H2O, H2O2, HO2]
+      - ozone-photolysis.yaml/species: [O3]
       kinetics: gas
       reactions: none
       state: {T: 300.0, P: 1 atm}

@@ -15,6 +15,7 @@ phases:
   elements: [O, H, Ar]
   species:
   - h2o2.yaml/species: [AR, O, H2, H, OH, O2, H2O, H2O2, HO2]
+  - ozone-photolysis.yaml/species: [O3]
   kinetics: gas
   reactions: [reactions]
   state:
@@ -101,6 +102,14 @@ reactions:
 - equation: O + H2 + M <=> H2O + M  # Reaction 14
   type: Blowers-Masel
   rate-constant: {A: 38700, b: 2.7, Ea0: 2.619184e4, w: 4.184e9}
+- equation: O3 => O + O2 # Reaction 15
+  duplicate: true
+  type: photolysis
+  rate-constant: {l: 4.775e-4, m: 0.298, n: 0.080}
+- equation: O3 => O + O2 # Reaction 16
+  duplicate: true
+  type: photolysis
+  rate-constant: {J: 0.5}
 
 surface:
 - units: {length: cm, quantity: mol, activation-energy: J/mol}

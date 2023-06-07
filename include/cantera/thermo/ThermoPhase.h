@@ -1808,6 +1808,19 @@ public:
 
     //! @}
 
+    //! Return zenith angle of light exposure, see @file PhotolysisRate.h.
+    //! @since  New in Cantera 3.0.
+    double zenithAngle() const {
+        return m_zenith_angle;
+    }
+
+    //! Set zenith angle of light exposure, see @file PhotolysisRate.h.
+    //! @param X zenith angle in radians
+    //! @since  New in Cantera 3.0.
+    void setZenithAngle(double X) {
+        m_zenith_angle = X;
+    }
+
 protected:
     //! Store the parameters of a ThermoPhase object such that an identical
     //! one could be reconstructed using the newThermo(AnyMap&) function. This
@@ -1850,6 +1863,9 @@ protected:
 
     //! last value of the temperature processed by reference state
     mutable double m_tlast = 0.0;
+
+    //! Zenith angle for light exposure in atmospherics
+    double m_zenith_angle = NAN;
 };
 
 }

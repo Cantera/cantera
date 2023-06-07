@@ -259,6 +259,90 @@ cdef class ArrheniusRate(ArrheniusRateBase):
         return <CxxArrheniusRate*>self.rate
 
 
+cdef class PhotolysisRate(ReactionRate):
+    r"""
+    A reaction rate coefficient which depends on light exposure (photolysis rate). A
+    constant value of J can be used or the following correlation is applied.
+
+    .. math::
+
+        J(x) = l(\cos x)^m e^{-n \sec x }
+
+    where l, m, and n are optimized parameters and x is the zenith angle from the Master Chemical Mechanism protocol (Saunders et al., 2003).
+
+    Saunders, S. M., Jenkin, M. E., Derwent, R. G., & Pilling, M. J. (2003). Protocol
+    for the development of the Master Chemical Mechanism, MCM v3 (Part A): tropospheric
+    degradation of non-aromatic volatile organic compounds. Atmospheric Chemistry and
+    Physics, 3(1), 161-180.
+    """
+    _reaction_rate_type = "photolysis"
+
+    def __cinit__(self, l=None, m=None, n=None, J=None, input_data=None, init=True):
+
+        if init:
+            self._cinit(input_data, l=l, m=m, n=n, J=J)
+
+    def __call__(self, float zenith):
+        return self.photolysis.evalRate(zenith)
+
+    def _cinit(self, input_data, **kwargs):
+        """
+        Helper function called by __cinit__. The method is used as a uniform interface
+        for object construction.
+        """
+
+        if isinstance(input_data, dict):
+            self._from_dict(input_data)
+        elif all([kwargs[k] is not None for k in ["l", "m", "n"]]):
+            self._from_parameters(*[kwargs[k] for k in ["l", "m", "n"]])
+        elif kwargs["J"] is not None:
+            self._from_rate(kwargs["J"])
+        elif all([kwargs[k] is None for k in kwargs]) and input_data is None:
+            self._from_dict({})
+        elif input_data:
+            raise TypeError("Invalid parameter 'input_data'")
+        else:
+            par_list = [f"'{k}'" for k in kwargs]
+            par_string = ", ".join(par_list[:-1])
+            par_string += f" or {par_list[-1]}"
+            raise TypeError(f"Invalid parameters {par_string}")
+        self.set_cxx_object()
+
+    def _from_dict(self, input_data):
+        self._rate.reset(new CxxPhotolysisRate(py_to_anymap(input_data)))
+
+    def _from_parameters(self, l, m, n):
+        self._rate.reset(new CxxPhotolysisRate(l, m, n))
+
+    def _from_rate(self, float J):
+        self._rate.reset(new CxxPhotolysisRate(J))
+
+    cdef set_cxx_object(self):
+        self.rate = self._rate.get()
+        self.photolysis = <CxxPhotolysisRate*>self.rate
+
+    property l_param:
+        """
+        l parameter of the photolysis rate calculation.
+        """
+        def __get__(self):
+            return self.photolysis.l_param()
+
+    property m_param:
+        """
+        m parameter of the photolysis rate calculation.
+        """
+        def __get__(self):
+            return self.photolysis.m_param()
+
+    property n_param:
+        """
+        n parameter of the photolysis rate calculation.
+        """
+        def __get__(self):
+            return self.photolysis.n_param()
+
+
 cdef class BlowersMaselRate(ArrheniusRateBase):
     r"""
     A reaction rate coefficient which depends on temperature and enthalpy change

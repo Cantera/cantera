@@ -671,7 +671,7 @@ class TestFreeFlame(utilities.CanteraTest):
             "min_temp", "molecular_weights", "product_stoich_coeffs",
             "product_stoich_coeffs3", "product_stoich_coeffs_reversible",
             "reactant_stoich_coeffs", "reactant_stoich_coeffs3", "reference_pressure",
-            "state", "u", "v",
+            "state", "u", "v", "zenith_angle",
             # Skipped because they are 2D (conversion not implemented)
             "binary_diff_coeffs", "creation_rates_ddX", "destruction_rates_ddX",
             "forward_rates_of_progress_ddX", "net_production_rates_ddX",

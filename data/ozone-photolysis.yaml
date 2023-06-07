@@ -1,0 +1,230 @@
+description: |-
+  A simple photolysis mechanism for the breakdown of ozone and formation of NOx. This
+  model was constructed manually from a subset of MCM. Saunders, S. M., Jenkin, M. E.,
+  Derwent, R. G., & Pilling, M. J. (2003). Protocol for the development of the Master
+  Chemical Mechanism, MCM v3 (Part A): tropospheric degradation of non-aromatic
+  volatile organic compounds. Atmospheric Chemistry and Physics, 3(1), 161-180.
+cantera-version: 3.0
+
+units: {length: cm, time: s, quantity: molec}
+
+phases:
+- name: atmos
+  thermo: ideal-gas
+  elements: [O, N, H]
+  species: [O, O2, O1D, O3, NO, NO2, NO3, OH, H2O2, HNO3, HONO]
+  kinetics: gas
+  transport: mixture-averaged
+  state: {T: 300.0, P: 1 atm}
+  zenith_angle: 0.785 # 45 degrees
+
+species:
+- name: O
+  composition: {O: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [3.1682671, -3.27931884e-03, 6.64306396e-06, -6.12806624e-09, 2.11265971e-12,
+      2.91222592e+04, 2.05193346]
+    - [2.56942078, -8.59741137e-05, 4.19484589e-08, -1.00177799e-11, 1.22833691e-15,
+      2.92175791e+04, 4.78433864]
+    note: L1/90
+  transport:
+    model: gas
+    geometry: atom
+    well-depth: 80.0
+    diameter: 2.75
+- name: O1D
+  composition: {O: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [3.1682671, -3.27931884e-03, 6.64306396e-06, -6.12806624e-09, 2.11265971e-12,
+      2.91222592e+04, 2.05193346]
+    - [2.56942078, -8.59741137e-05, 4.19484589e-08, -1.00177799e-11, 1.22833691e-15,
+      2.92175791e+04, 4.78433864]
+    note: L1/90
+  transport:
+    model: gas
+    geometry: atom
+    well-depth: 80.0
+    diameter: 2.75
+- name: O2
+  composition: {O: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [3.78245636, -2.99673416e-03, 9.84730201e-06, -9.68129509e-09, 3.24372837e-12,
+      -1063.94356, 3.65767573]
+    - [3.28253784, 1.48308754e-03, -7.57966669e-07, 2.09470555e-10, -2.16717794e-14,
+      -1088.45772, 5.45323129]
+    note: TPIS89
+  transport:
+    model: gas
+    geometry: linear
+    well-depth: 107.4
+    diameter: 3.458
+    polarizability: 1.6
+    rotational-relaxation: 3.8
+- name: O3
+  composition: {O: 3}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [3.40738221, 2.05379063e-03, 1.38486052e-05, -2.23311542e-08, 9.76073226e-12,
+      1.58644979e+04, 8.2824758]
+    - [12.3302914, -0.0119324783, 7.98741278e-06, -1.77194552e-09, 1.26075824e-13,
+      1.26755831e+04, -40.8823374]
+  transport:
+    model: gas
+    geometry: nonlinear
+    diameter: 4.1
+    well-depth: 180.0
+    rotational-relaxation: 2.0
+- name: NO3
+  composition: {N: 1, O: 3}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [2.1735931, 0.0104902697, 1.1047265e-05, -2.81561854e-08, 1.36583958e-11,
+      7392.19877, 14.6022098]
+    - [7.48347734, 2.57772041e-03, -1.00945831e-06, 1.72314072e-10, -1.07154015e-14,
+      5709.19428, -14.1618155]
+  transport:
+    model: gas
+    geometry: nonlinear
+    well-depth: 400.0
+    diameter: 4.2
+    dipole: 0.2
+    rotational-relaxation: 1.0
+- name: NO
+  composition: {N: 1, O: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [4.2184763, -4.638976e-03, 1.1041022e-05, -9.3361354e-09, 2.803577e-12,
+      9844.623, 2.2808464]
+    - [3.2606056, 1.1911043e-03, -4.2917048e-07, 6.9457669e-11, -4.0336099e-15,
+      9920.9746, 6.3693027]
+  transport:
+    model: gas
+    geometry: linear
+    well-depth: 97.53
+    diameter: 3.621
+    polarizability: 1.76
+    rotational-relaxation: 4.0
+- name: NO2
+  composition: {N: 1, O: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [3.9440312, -1.585429e-03, 1.6657812e-05, -2.0475426e-08, 7.8350564e-12,
+      2896.6179, 6.3119917]
+    - [4.8847542, 2.1723956e-03, -8.2806906e-07, 1.574751e-10, -1.0510895e-14,
+      2316.4983, -0.11741695]
+  transport:
+    model: gas
+    geometry: nonlinear
+    diameter: 3.5
+    well-depth: 200.0
+    rotational-relaxation: 1.0
+  note: L 7/88
+- name: OH
+  composition: {O: 1, H: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [3.99201543, -2.40131752e-03, 4.61793841e-06, -3.88113333e-09, 1.3641147e-12,
+      3615.08056, -0.103925458]
+    - [3.09288767, 5.48429716e-04, 1.26505228e-07, -8.79461556e-11, 1.17412376e-14,
+      3858.657, 4.4766961]
+    note: RUS78
+  transport:
+    model: gas
+    geometry: linear
+    well-depth: 80.0
+    diameter: 2.75
+- name: HNO3
+  composition: {H: 1, N: 1, O: 3}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [1.55975056, 0.0201502169, -1.15217296e-05, -2.3189123e-09, 3.17580552e-12,
+      -1.73955871e+04, 17.7294677]
+    - [8.03061257, 4.46368336e-03, -1.72272779e-06, 2.91611606e-10, -1.80487362e-14,
+      -1.93033764e+04, -16.2543421]
+  transport:
+    model: gas
+    geometry: nonlinear
+    well-depth: 300.0
+    diameter: 3.5
+    rotational-relaxation: 1.0
+- name: HONO
+  composition: {H: 1, N: 1, O: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [298.15, 1000.0, 3000.0]
+    data:
+    - [3.49106617, 6.81116875e-03, -1.3094312e-06, -2.34197204e-09, 1.18931535e-12,
+      -1.05722865e+04, 8.99803804]
+    - [4.19966671, 5.94217338e-03, -2.95404834e-06, 7.19846187e-10, -6.74909061e-14,
+      -1.08122769e+04, 5.08809833]
+  transport:
+    model: gas
+    geometry: nonlinear
+    well-depth: 350.0
+    diameter: 3.95
+    dipole: 1.639
+    rotational-relaxation: 1.0
+- name: H2O2
+  composition: {H: 2, O: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [4.27611269, -5.42822417e-04, 1.67335701e-05, -2.15770813e-08, 8.62454363e-12,
+      -1.77025821e+04, 3.43505074]
+    - [4.16500285, 4.90831694e-03, -1.90139225e-06, 3.71185986e-10, -2.87908305e-14,
+      -1.78617877e+04, 2.91615662]
+    note: L7/88
+  transport:
+    model: gas
+    geometry: nonlinear
+    well-depth: 107.4
+    diameter: 3.458
+    rotational-relaxation: 3.8
+
+reactions:
+- equation: O3 => O1D + O2 # Reaction 1
+  type: photolysis
+  rate-constant: {l: 6.07e-5, m: 1.743, n: 0.474}
+- equation: O3 => O + O2 # Reaction 2
+  type: photolysis
+  rate-constant: {l: 4.775e-4, m: 0.298, n: 0.080}
+- equation: H2O2 => 2 OH # Reaction 3
+  type: photolysis
+  rate-constant: {l: 1.041e-5, m: 0.723, n: 0.279}
+- equation: NO2 => NO + O # Reaction 4
+  type: photolysis
+  rate-constant: {l: 1.165e-2, m: 0.244, n: 0.267}
+- equation: NO3 => NO + O2 # Reaction 5
+  type: photolysis
+  rate-constant: {l: 2.484e-2, m: 0.168, n: 0.108}
+- equation: NO3 => NO2 + O  # Reaction 6
+  type: photolysis
+  rate-constant: {l: 1.747e-1, m: 0.155, n: 0.125}
+- equation: HONO => NO + OH  # Reaction 7
+  type: photolysis
+  rate-constant: {l: 2.644e-3, m: 0.261, n: 0.288}
+- equation: HNO3 => NO2 + OH  # Reaction 8
+  type: photolysis
+  rate-constant: {l: 9.312e-7, m: 1.230, n: 0.307}
