@@ -23,6 +23,8 @@ jobs:
   matlab-test:
     name: Run MATLAB Test Script
     runs-on: ubuntu-latest
+    env:
+      LD_PRELOAD: /usr/lib/x86_64-linux-gnu/libstdc++.so.6
     steps:
       - uses: actions/checkout@v3
         name: Checkout the repository
