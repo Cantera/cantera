@@ -108,6 +108,7 @@ int main(int argc, char** argv)
     printf("Running main() from test_oneD.cpp\n");
     testing::InitGoogleTest(&argc, argv);
     make_deprecation_warnings_fatal();
+    printStackTraceOnSegfault();
     int result = RUN_ALL_TESTS();
     appdelete();
     return result;

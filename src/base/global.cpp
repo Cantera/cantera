@@ -6,7 +6,12 @@
 #include "cantera/base/FactoryBase.h"
 #include "application.h"
 #include "cantera/base/AnyMap.h"
+
+#define BOOST_STACKTRACE_GNU_SOURCE_NOT_REQUIRED
+#include <boost/stacktrace.hpp>
 #include <boost/core/demangle.hpp>
+
+#include <signal.h>
 
 namespace Cantera
 {
@@ -103,6 +108,26 @@ void use_legacy_rate_constants(bool legacy)
 bool legacy_rate_constants_used()
 {
     return app()->legacy_rate_constants_used();
+}
+
+namespace {
+void stacktraceWriter(int signum) {
+    if (signum == SIGSEGV) {
+        std::cerr << "\nSegmentation fault. Stack trace:\n";
+    } else {
+        std::cerr << "\nProcess terminated abnormally. Stack trace:\n";
+    }
+    ::signal(signum, SIG_DFL);
+    std::cerr << boost::stacktrace::stacktrace();
+    ::raise(signum);
+}
+}
+
+void printStackTraceOnSegfault()
+{
+    // Install signal handler to print stacktrace in case of segfault.
+    ::signal(SIGSEGV, &stacktraceWriter);
+    ::signal(SIGABRT, &stacktraceWriter);
 }
 
 // **************** Global Data ****************

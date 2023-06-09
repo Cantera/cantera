@@ -81,6 +81,7 @@ cdef extern from "cantera/base/global.h" namespace "Cantera":
     cdef string CxxVersion "Cantera::version" ()
     cdef cbool CxxUsesHDF5 "Cantera::usesHDF5" ()
     cdef cbool CxxDebugModeEnabled "Cantera::debugModeEnabled" ()
+    cdef void CxxPrintStackTraceOnSegfault "Cantera::printStackTraceOnSegfault" ()
 
 
 cdef extern from "cantera/cython/utils_utils.h":

@@ -275,6 +275,13 @@ bool legacy_rate_constants_used();
 //! @copydoc Application::Messages::setLogger
 void setLogger(Logger* logwriter);
 
+//! Enables printing a stacktrace to `std::err` if a segfault occurs. The Boost
+//! documentation says doing this from an error handler is not safe on all platforms
+//! and risks deadlocking. However, it can be useful for debugging and is therefore
+//! enabled when running tests.
+//! @since New in Cantera 3.0
+void printStackTraceOnSegfault();
+
 //! Clip *value* such that lower <= value <= upper
 template <class T>
 inline T clip(const T& value, const T& lower, const T& upper)
