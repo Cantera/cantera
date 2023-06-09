@@ -6,15 +6,22 @@ classdef ctTestThermo < matlab.unittest.TestCase
         atol = 1e-8;
     end
 
+    methods (TestClassSetup)
+        function testSetUp(self)
+            ctTestSetUp
+        end
+    end
+
     methods (TestClassTeardown)
         function testTearDown(self)
             % Clean up Cantera
             ctCleanUp
+            ctTestTearDown
         end
     end
 
     methods (TestMethodSetup)
-        % Setup for each test
+
         function createPhase(self)
             src = 'h2o2.yaml';
             id = 'ohmech';
@@ -25,7 +32,7 @@ classdef ctTestThermo < matlab.unittest.TestCase
     end
 
     methods (TestMethodTeardown)
-        % Destroy object
+
         function deleteSolution(self)
             clear self.phase;
         end

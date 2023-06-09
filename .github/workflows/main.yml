@@ -57,10 +57,10 @@ jobs:
           cc_flags=-D_GLIBCXX_ASSERTIONS
       - name: Set up MATLAB
         uses: matlab-actions/setup-matlab@v1
-      - name: Run test script
-        uses: matlab-actions/run-command@v1
-        with:
-          command: cd ~/work/cantera/cantera; addpath([pwd, '/test/matlab_experimental']); ctRunTests;
+      # - name: Run test script
+      #   uses: matlab-actions/run-command@v1
+      #   with:
+      #     command: cd ~/work/cantera/cantera; addpath([pwd, '/test/matlab_experimental']); ctRunTests;
       - name: Run tests directly
         uses: matlab-actions/run-tests@v1
         with:
