@@ -20,8 +20,14 @@ public:
     //! @param obj  The Python object to be held
     //! @param weak  `true` if this is a weak reference to the Python object and this
     //!    handle is not responsible for deleting the Python object, or `false` if this
-    //!    handle "owns" the Python object
-    PythonHandle(PyObject* obj, bool weak) : m_obj(obj), m_weak(weak) {}
+    //!    handle should own a reference to the Python object
+    PythonHandle(PyObject* obj, bool weak) : m_obj(obj), m_weak(weak) {
+        if (!weak) {
+            Py_XINCREF(obj);
+        }
+    }
+    PythonHandle(const PythonHandle&) = delete;
+    PythonHandle& operator=(const PythonHandle&) = delete;
 
     ~PythonHandle() {
         if (!m_weak) {

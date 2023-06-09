@@ -463,7 +463,7 @@ cdef _assign_Solution(_SolutionBase soln, shared_ptr[CxxSolution] cxx_soln,
             soln._adjacent[name] = _wrap_Solution(adj_soln)
 
     cdef shared_ptr[CxxExternalHandle] handle
-    handle.reset(new CxxPythonHandle(<PyObject*>soln, True))
+    handle.reset(new CxxPythonHandle(<PyObject*>soln, not weak))
     soln.base.holdExternalHandle(stringify("python"), handle)
 
 
