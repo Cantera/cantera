@@ -171,6 +171,8 @@ TEST_F(TransportFromScratch, thermalConductivityMulti)
 int main(int argc, char** argv)
 {
     printf("Running main() from transportFromScratch.cpp\n");
+    make_deprecation_warnings_fatal();
+    printStackTraceOnSegfault();
     testing::InitGoogleTest(&argc, argv);
     int result = RUN_ALL_TESTS();
     appdelete();

@@ -72,6 +72,15 @@ _USE_SPARSE = False
 def debug_mode_enabled():
     return CxxDebugModeEnabled()
 
+def print_stack_trace_on_segfault():
+    """
+    Enable printing a stack trace if a segfault occurs. Not recommended for general
+    use as it is possible for this to deadlock.
+
+    .. versionadded:: 3.0
+    """
+    CxxPrintStackTraceOnSegfault()
+
 def appdelete():
     """ Delete all global Cantera C++ objects """
     CxxAppdelete()
