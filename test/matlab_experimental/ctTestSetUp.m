@@ -18,12 +18,3 @@ if ~libisloaded('libcantera_shared')
 end
 
 disp('Cantera is loaded for test');
-
-% Run all tests
-results1 = runtests('ctTestThermo')
-
-% Unload Cantera and remove temporary library file
-unloadlibrary('libcantera_shared');
-delete([rootDir, ctName]);
-
-disp('Cantera has been unloaded');
