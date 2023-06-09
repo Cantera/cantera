@@ -103,6 +103,7 @@ void PythonExtensionManager::registerRateBuilder(
         // reference cycle is handled on the Python side.
         delegator->holdExternalHandle("python",
                                       make_shared<PythonHandle>(extRate, false));
+        Py_XDECREF(extRate);
         return delegator.release();
     };
     ReactionRateFactory::factory()->reg(rateName, builder);
@@ -124,7 +125,9 @@ void PythonExtensionManager::registerRateDataBuilder(
                                "Problem in ct_newPythonExtensibleRateData:\n{}",
                                getPythonExceptionInfo());
         }
-        delegator.setWrapper(make_shared<PythonHandle>(extData, false));
+        auto handle = make_shared<PythonHandle>(extData, false);
+        Py_XDECREF(extData);
+        delegator.setWrapper(handle);
     };
     mgr.registerReactionDataLinker(rateName, "python", builder);
 
@@ -137,7 +140,9 @@ void PythonExtensionManager::registerRateDataBuilder(
                                "Problem in ct_wrapSolution:\n{}",
                                getPythonExceptionInfo());
         }
-        return make_shared<PythonHandle>(pySoln, false);
+        auto handle = make_shared<PythonHandle>(pySoln, false);
+        Py_XDECREF(pySoln);
+        return handle;
     };
     mgr.registerSolutionLinker("python", solnLinker);
 }
