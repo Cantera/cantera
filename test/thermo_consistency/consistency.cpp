@@ -1,3 +1,6 @@
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at https://cantera.org/license.txt for license and copyright information.
+
 #include "gtest/gtest.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/thermo/PlasmaPhase.h"
@@ -27,9 +30,7 @@
 // definition.
 
 using namespace std;
-
-namespace Cantera
-{
+using namespace Cantera;
 
 // Helper functions to reduce code duplication in test suite instantiations
 vector<AnyMap> getStates(const string& name) {
@@ -41,6 +42,8 @@ AnyMap getSetup(const string& name) {
     static AnyMap cases = AnyMap::fromYamlFile("consistency-cases.yaml");
     return cases[name]["setup"].as<AnyMap>();
 }
+
+namespace Cantera {
 
 // For more informative output about failing test cases
 std::ostream& operator<<(std::ostream& s, const AnyMap& m)
@@ -58,6 +61,8 @@ std::ostream& operator<<(std::ostream& s, const AnyMap& m)
     }
     return s;
 }
+
+} // end namespace Cantera
 
 class TestConsistency : public testing::TestWithParam<std::tuple<AnyMap, AnyMap>>
 {
@@ -844,4 +849,12 @@ INSTANTIATE_TEST_SUITE_P(HMWSoln, TestConsistency,
         testing::ValuesIn(getStates("HMW-electrolyte")))
 );
 
+int main(int argc, char** argv)
+{
+    printf("Running main() from consistency.cpp\n");
+    testing::InitGoogleTest(&argc, argv);
+    Cantera::make_deprecation_warnings_fatal();
+    int result = RUN_ALL_TESTS();
+    Cantera::appdelete();
+    return result;
 }

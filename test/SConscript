@@ -287,6 +287,7 @@ addTestProgram('general', 'general')
 addTestProgram('kinetics', 'kinetics')
 addTestProgram('oneD', 'oneD')
 addTestProgram('thermo', 'thermo')
+addTestProgram('thermo_consistency', 'thermo-consistency')
 addTestProgram('transport', 'transport')
 addTestProgram('zeroD', 'zeroD')
 
