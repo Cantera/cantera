@@ -287,7 +287,8 @@ addTestProgram('general', 'general')
 addTestProgram('kinetics', 'kinetics')
 addTestProgram('oneD', 'oneD')
 addTestProgram('thermo', 'thermo')
-addTestProgram('thermo_consistency', 'thermo-consistency')
+addTestProgram('thermo_consistency', 'thermo-consistency',
+               env_vars={'GTEST_BRIEF': '0' if env['verbose_tests'] else '1'})
 addTestProgram('transport', 'transport')
 addTestProgram('zeroD', 'zeroD')
 
