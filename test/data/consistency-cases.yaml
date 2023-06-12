@@ -180,11 +180,35 @@ debye-huckel-dilute:
      molalities: {Na+: 9.3549, Cl-: 9.3549, H+: 1.05e-08, OH-: 1.3765e-06,
                   NaCl(aq): 0.98492, NaOH(aq): 3.8836e-06}}
 
+debye-huckel-dilute-IAPWS:
+  setup:
+    file: debye-huckel-all.yaml
+    phase: debye-huckel-dilute-IAPWS
+    rtol_fd: 1e-5  # Good finite difference results with IAPWS are challenging
+    known-failures:
+      cv_eq_.+: cv not implemented
+      activity_coeffs: "Activity coeffs are incorrect. See GitHub Issue #1311"
+      cp_eq_.+: "cp with variable A_Debye is incorrect. See GitHub Issue #1500"
+      dsdP_const_T_eq_minus_dV_dT_const_P.+:
+        "Error with dilute limit with variable A_Debye. See GitHub Issue #1502"
+  states: *debye-huckel-states
+
 debye-huckel-B-dot-ak:
   setup:
     file: debye-huckel-all.yaml
     phase: debye-huckel-B-dot-ak
     known-failures: *debye-huckel-failures
+  states: *debye-huckel-states
+
+debye-huckel-B-dot-ak-IAPWS:
+  setup:
+    file: debye-huckel-all.yaml
+    phase: debye-huckel-B-dot-ak-IAPWS
+    rtol_fd: 1e-5  # Good finite difference results with IAPWS are challenging
+    known-failures: &debye-huckel-IAPWS-failures
+      cv_eq_.+: cv not implemented
+      activity_coeffs: "Activity coeffs are incorrect. See GitHub Issue #1311"
+      cp_eq_.+: "cp with variable A_debye is incorrect. See GitHub Issue #1500"
   states: *debye-huckel-states
 
 debye-huckel-B-dot-a:
@@ -194,6 +218,14 @@ debye-huckel-B-dot-a:
     known-failures: *debye-huckel-failures
   states: *debye-huckel-states
 
+debye-huckel-B-dot-a-IAPWS:
+  setup:
+    file: debye-huckel-all.yaml
+    phase: debye-huckel-B-dot-a-IAPWS
+    rtol_fd: 1e-5  # Good finite difference results with IAPWS are challenging
+    known-failures: *debye-huckel-IAPWS-failures
+  states: *debye-huckel-states
+
 debye-huckel-pitzer-beta_ij:
   setup:
     file: debye-huckel-all.yaml
@@ -201,11 +233,27 @@ debye-huckel-pitzer-beta_ij:
     known-failures: *debye-huckel-failures
   states: *debye-huckel-states
 
+debye-huckel-pitzer-beta_ij-IAPWS:
+  setup:
+    file: debye-huckel-all.yaml
+    phase: debye-huckel-pitzer-beta_ij-IAPWS
+    rtol_fd: 1e-5  # Good finite difference results with IAPWS are challenging
+    known-failures: *debye-huckel-IAPWS-failures
+  states: *debye-huckel-states
+
 debye-huckel-beta_ij:
   setup:
     file: debye-huckel-all.yaml
     phase: debye-huckel-beta_ij
     known-failures: *debye-huckel-failures
+  states: *debye-huckel-states
+
+debye-huckel-beta_ij-IAPWS:
+  setup:
+    file: debye-huckel-all.yaml
+    phase: debye-huckel-beta_ij-IAPWS
+    rtol_fd: 1e-5  # Good finite difference results with IAPWS are challenging
+    known-failures: *debye-huckel-IAPWS-failures
   states: *debye-huckel-states
 
 margules:
