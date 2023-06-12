@@ -356,24 +356,26 @@ TEST_P(TestConsistency, cv_eq_dsdT_const_v_times_T)
 
 TEST_P(TestConsistency, dsdP_const_T_eq_minus_dV_dT_const_P)
 {
-    double s1, P1, T1, v1;
+    double P0 = phase->pressure();
+    double T0 = phase->temperature();
+    double s1, v1;
+    double dP = 1e-4 * P0;
+    double dT = 1e-4 * T0;
     try {
+        phase->setState_TP(T0, P0 - dP);
         s1 = phase->entropy_mole();
-        P1 = phase->pressure();
-        T1 = phase->temperature();
+        phase->setState_TP(T0 - dT, P0);
         v1 = phase->molarVolume();
     } catch (NotImplementedError& err) {
         GTEST_SKIP() << err.getMethod() << " threw NotImplementedError";
     }
-    double P2 = P1 * (1 + 1e-6);
-    phase->setState_TP(T1, P2);
+    phase->setState_TP(T0, P0 + dP);
     double s2 = phase->entropy_mole();
-    double dsdP = (s2 - s1) / (P2 - P1);
+    double dsdP = (s2 - s1) / (2 * dP);
 
-    double T2 = T1 * (1 + 1e-6);
-    phase->setState_TP(T2, P1);
+    phase->setState_TP(T0 + dT, P0);
     double v2 = phase->molarVolume();
-    double dvdT = (v2 - v1) / (T2 - T1);
+    double dvdT = (v2 - v1) / (2 * dT);
     double tol = rtol_fd * std::max(std::abs(dsdP), std::abs(dvdT));
     EXPECT_NEAR(dsdP, -dvdT, tol);
 }
