@@ -866,7 +866,7 @@ doublereal WaterPropsIAPWSphi::dfind(doublereal p_red, doublereal tau, doublerea
     doublereal dd = deltaGuess;
     bool conv = false;
     doublereal deldd = dd;
-    doublereal pcheck = 1.0E-30 + 1.0E-8 * p_red;
+    doublereal pcheck = 1.0E-30 + 1.0E-14 * p_red;
     for (int n = 0; n < 200; n++) {
 
         // Calculate the internal polynomials, and then calculate the phi deriv

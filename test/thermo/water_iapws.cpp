@@ -104,11 +104,11 @@ TEST_F(WaterPropsIAPWS_Test, normal_boiling_point)
 
     rho = water.density(T, P, WATER_GAS);
     EXPECT_NEAR(rho, 0.597651, 2e-6);
-    EXPECT_NEAR(water.isothermalCompressibility(), 1.003322548320e-05, 2e-17);
+    EXPECT_NEAR(water.isothermalCompressibility(), 1.003322546019e-05, 2e-17);
 
     rho = water.density(T, P * 0.999, WATER_GAS);
     EXPECT_NEAR(rho, 0.597043, 2e-6);
-    EXPECT_NEAR(water.isothermalCompressibility(), 1.004307957351e-05, 2e-17);
+    EXPECT_NEAR(water.isothermalCompressibility(), 1.004307955057e-05, 2e-17);
 }
 
 TEST_F(WaterPropsIAPWS_Test, saturation_pressure_estimate)
@@ -126,9 +126,9 @@ TEST_F(WaterPropsIAPWS_Test, expansion_coeffs)
 {
     vector_fp TT{300.0, 300.0, 700.0};
     vector_fp PP{10.0, 10.0e6, 10.0e6};
-    vector_fp alpha{0.003333433139236, -0.02277763412159, 0.002346416497423};
-    vector_fp beta{1.000020308917, 1265.572840683, 1.240519801360};
-    vector_fp beta_num{1.0000203087, 1265.46651311, 1.2405192825};
+    vector_fp alpha{0.003333433139236, -0.02277763412159, 0.002346416506367};
+    vector_fp beta{1.000020308917, 1265.572840683, 1.240519803181};
+    vector_fp beta_num{1.0000203087, 1265.46651311, 1.2405192843};
     for (size_t i = 0; i < TT.size(); i++) {
         double rho = water.density(TT[i], PP[i], WATER_GAS);
         water.setState_TD(TT[i], rho);
