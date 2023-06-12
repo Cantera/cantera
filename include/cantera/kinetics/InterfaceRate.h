@@ -88,7 +88,7 @@ struct InterfaceData : public BlowersMaselData
  * dependence on the activation energy modifier \f$ E_k \f$, polynomial coverage
  * dependence is also available. When the dependence parameter \f$ E_k \f$ is given as
  * a scalar value, the linear dependency is applied whereas if a list of four values
- * are given as \f$ [E^{(1)}_k-E^{(4)}_k] \f$, a polynomial dependency is applied as
+ * are given as \f$ [E^{(1)}_k, ..., E^{(4)}_k] \f$, a polynomial dependency is applied as
  *  \f[
  *      k_f = A T^b \exp \left( - \frac{E_a}{RT} \right)
  *          \prod_k 10^{a_k \theta_k} \theta_k^{m_k}
@@ -127,7 +127,7 @@ public:
     //! Add a coverage dependency for species *sp*, with exponential dependence
     //! *a*, power-law exponent *m*, and activation energy dependence *e*,
     //! where *e* is in Kelvin, that is, energy divided by the molar gas constant.
-    virtual void addCoverageDependence(const string& sp, double a, double m, vector_fp e);
+    virtual void addCoverageDependence(const string& sp, double a, double m, const vector_fp& e);
 
     //! Boolean indicating whether rate uses exchange current density formulation
     bool exchangeCurrentDensityFormulation() {
@@ -449,7 +449,7 @@ public:
         return RateType::activationEnergy() + m_ecov * GasConstant;
     }
 
-    void addCoverageDependence(const string& sp, double a, double m, vector_fp e) override {
+    void addCoverageDependence(const string& sp, double a, double m, const vector_fp& e) override {
         InterfaceRateBase::addCoverageDependence(sp, a, m, e);
         RateType::setCompositionDependence(true);
     }
