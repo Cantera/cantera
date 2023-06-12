@@ -599,10 +599,10 @@ TEST(Kinetics, InterfaceKineticsFromYaml)
     auto R2 = kin->reaction(1);
     const auto rate2 = std::dynamic_pointer_cast<InterfaceArrheniusRate>(R2->rate());
     EXPECT_DOUBLE_EQ(rate2->preExponentialFactor(), 3.7e20);
-    Cantera::AnyMap coverage_deps;
+    AnyMap coverage_deps;
     rate2->getCoverageDependencies(coverage_deps);
     coverage_deps.applyUnits();
-    auto& cov_map = coverage_deps["H(s)"].as<Cantera::AnyMap>();
+    auto& cov_map = coverage_deps["H(s)"].as<AnyMap>();
     EXPECT_DOUBLE_EQ(cov_map["E"].asDouble(), -6e6);
 
 
@@ -614,10 +614,10 @@ TEST(Kinetics, InterfaceKineticsFromYaml)
     auto R4 = kin2->reaction(3);
     vector_fp coeffs{1.0e6, 3.0e6, -7.0e7, 5.0e6};
     const auto rate4 = std::dynamic_pointer_cast<InterfaceArrheniusRate>(R4->rate());
-    Cantera::AnyMap coverage_deps2;
+    AnyMap coverage_deps2;
     rate4->getCoverageDependencies(coverage_deps2);
     coverage_deps2.applyUnits();
-    auto& cov_map2 = coverage_deps2["O(s)"].as<Cantera::AnyMap>();
+    auto& cov_map2 = coverage_deps2["O(s)"].as<AnyMap>();
     auto& poly_dep = cov_map2["E"].asVector<AnyValue>();
     for (size_t i = 0; i < poly_dep.size(); i++) {
         EXPECT_DOUBLE_EQ(poly_dep[i].asDouble(), coeffs[i]);
@@ -639,10 +639,10 @@ TEST(Kinetics, BMInterfaceKineticsFromYaml)
     auto R2 = kin->reaction(0);
     const auto rate2 = std::dynamic_pointer_cast<InterfaceBlowersMaselRate>(R2->rate());
     EXPECT_DOUBLE_EQ(rate2->preExponentialFactor(), 3.7e20);
-    Cantera::AnyMap coverage_deps;
+    AnyMap coverage_deps;
     rate2->getCoverageDependencies(coverage_deps);
     coverage_deps.applyUnits();
-    auto& cov_map = coverage_deps["H(S)"].as<Cantera::AnyMap>();
+    auto& cov_map = coverage_deps["H(S)"].as<AnyMap>();
     EXPECT_DOUBLE_EQ(cov_map["E"].asDouble(), -6e6);
 
     auto R3 = kin->reaction(1);
