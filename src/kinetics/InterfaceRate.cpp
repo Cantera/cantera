@@ -154,7 +154,7 @@ void InterfaceRateBase::setCoverageDependencies(const AnyMap& dependencies,
                 E[1] = units.convertActivationEnergy(cov_map["E"], "K");
             } else {
                 m_lindep.push_back(false);
-                auto& E_temp = cov_map["E"].asVector<AnyValue>(4);
+                auto& E_temp = cov_map["E"].asVector<AnyValue>(1, 4);
                 for (size_t i = 0; i < E_temp.size(); i++) {
                     E[i+1] = units.convertActivationEnergy(E_temp[i], "K");
                 }
@@ -168,7 +168,7 @@ void InterfaceRateBase::setCoverageDependencies(const AnyMap& dependencies,
                 E[1] = units.convertActivationEnergy(cov_vec[2], "K");
             } else {
                 m_lindep.push_back(false);
-                auto& E_temp = cov_vec[2].asVector<AnyValue>(4);
+                auto& E_temp = cov_vec[2].asVector<AnyValue>(1, 4);
                 for (size_t i = 0; i < E_temp.size(); i++) {
                     E[i+1] = units.convertActivationEnergy(E_temp[i], "K");
                 }
@@ -219,7 +219,8 @@ void InterfaceRateBase::getCoverageDependencies(AnyMap& dependencies,
 }
 
 void InterfaceRateBase::addCoverageDependence(const std::string& sp,
-                                              double a, double m, vector_fp e)
+                                              double a, double m,
+                                              const vector_fp& e)
 {
     if (std::find(m_cov.begin(), m_cov.end(), sp) == m_cov.end()) {
         m_cov.push_back(sp);
@@ -264,7 +265,11 @@ void InterfaceRateBase::updateFromStruct(const InterfaceData& shared_data) {
     m_mcov = 0.0;
     for (auto& [iCov, iKin] : m_indices) {
         m_acov += m_ac[iCov] * shared_data.coverages[iKin];
-        m_ecov += poly4(shared_data.coverages[iKin], m_ec[iCov].data());
+        if (m_lindep[iCov]) {
+            m_ecov += m_ec[iCov][1] * shared_data.coverages[iKin];
+        } else {
+            m_ecov += poly4(shared_data.coverages[iKin], m_ec[iCov].data());
+        }
         m_mcov += m_mc[iCov] * shared_data.logCoverages[iKin];
     }
 
