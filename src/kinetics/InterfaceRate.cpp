@@ -190,7 +190,7 @@ void InterfaceRateBase::getCoverageDependencies(AnyMap& dependencies,
             if (m_lindep[k]) {
                 dep[2] = m_ec[k][1];
             } else {
-                std::vector<AnyValue> dep(3);
+                vector<AnyValue> dep(3);
                 vector_fp E_temp(4);
                 for (size_t i = 0; i < m_ec[k].size() - 1; i++) {
                     E_temp[i] = m_ec[k][i+1];
@@ -207,7 +207,7 @@ void InterfaceRateBase::getCoverageDependencies(AnyMap& dependencies,
             if (m_lindep[k]) {
                 dep["E"].setQuantity(m_ec[k][1], "K", true);
             } else {
-                std::vector<AnyValue> E_temp(4);
+                vector<AnyValue> E_temp(4);
                 for (size_t i = 0; i < m_ec[k].size() - 1; i++) {
                     E_temp[i].setQuantity(m_ec[k][i+1], "K", true);
                 }
@@ -218,7 +218,7 @@ void InterfaceRateBase::getCoverageDependencies(AnyMap& dependencies,
     }
 }
 
-void InterfaceRateBase::addCoverageDependence(const std::string& sp,
+void InterfaceRateBase::addCoverageDependence(const string& sp,
                                               double a, double m,
                                               const vector_fp& e)
 {
@@ -234,7 +234,7 @@ void InterfaceRateBase::addCoverageDependence(const std::string& sp,
     }
 }
 
-void InterfaceRateBase::setSpecies(const std::vector<std::string>& species)
+void InterfaceRateBase::setSpecies(const vector<string>& species)
 {
     m_indices.clear();
     for (size_t k = 0; k < m_cov.size(); k++) {
@@ -367,11 +367,11 @@ void StickingCoverage::setContext(const Reaction& rxn, const Kinetics& kin)
     // Identify the interface phase
     size_t iInterface = kin.reactionPhaseIndex();
 
-    std::string sticking_species = m_stickingSpecies;
+    string sticking_species = m_stickingSpecies;
     if (sticking_species == "") {
         // Identify the sticking species if not explicitly given
-        std::vector<std::string> gasSpecies;
-        std::vector<std::string> anySpecies;
+        vector<string> gasSpecies;
+        vector<string> anySpecies;
         for (const auto& [name, stoich] : rxn.reactants) {
             size_t iPhase = kin.speciesPhaseIndex(kin.kineticsSpeciesIndex(name));
             if (iPhase != iInterface) {

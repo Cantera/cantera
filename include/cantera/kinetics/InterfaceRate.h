@@ -141,7 +141,7 @@ public:
 
     //! Set association with an ordered list of all species associated with a given
     //! `Kinetics` object.
-    void setSpecies(const std::vector<std::string>& species);
+    void setSpecies(const vector<string>& species);
 
     //! Update reaction rate parameters
     //! @param shared_data  data shared by all reactions of a given type
@@ -257,16 +257,16 @@ protected:
     //! Vector holding coverage-specific activation energy dependence as a
     //! 5-membered array of polynomial coeffcients starting from 0th-order to
     //! 4th-order coefficients
-    std::vector<vector_fp> m_ec;
-    std::vector<bool> m_lindep; //!< Vector holding boolean for linear dependence
+    vector<vector_fp> m_ec;
+    vector<bool> m_lindep; //!< Vector holding boolean for linear dependence
     vector_fp m_mc; //!< Vector holding coverage-specific power-law exponents
 
 private:
     //! Pairs of species index and multipliers to calculate enthalpy change
-    std::vector<std::pair<size_t, double>> m_stoichCoeffs;
+    vector<pair<size_t, double>> m_stoichCoeffs;
 
     //! Pairs of phase index and net electric charges (same order as m_stoichCoeffs)
-    std::vector<std::pair<size_t, double>> m_netCharges;
+    vector<pair<size_t, double>> m_netCharges;
 };
 
 
@@ -301,7 +301,7 @@ public:
     }
 
     //! Get sticking species.
-    std::string stickingSpecies() const {
+    string stickingSpecies() const {
         return m_stickingSpecies;
     }
 
@@ -311,7 +311,7 @@ public:
      *  to be explicitly identified. Note that species have to be specified prior
      *  to adding a reaction to a Kinetics object.
      */
-    void setStickingSpecies(const std::string& stickingSpecies) {
+    void setStickingSpecies(const string& stickingSpecies) {
         m_stickingSpecies = stickingSpecies;
         m_explicitSpecies = true;
     }
@@ -360,7 +360,7 @@ public:
 protected:
     bool m_motzWise; //!< boolean indicating whether Motz & Wise correction is used
     bool m_explicitMotzWise; //!< Correction cannot be overriden by default
-    std::string m_stickingSpecies; //!< string identifying sticking species
+    string m_stickingSpecies; //!< string identifying sticking species
     bool m_explicitSpecies; //!< Boolean flag
     double m_surfaceOrder; //!< exponent applied to site density term
     double m_multiplier; //!< multiplicative factor in rate expression
@@ -391,7 +391,7 @@ public:
     }
 
     //! Identifier of reaction rate type
-    virtual const std::string type() const override {
+    virtual const string type() const override {
         return "interface-" + RateType::type();
     }
 
@@ -482,7 +482,7 @@ public:
     }
 
     //! Identifier of reaction rate type
-    virtual const std::string type() const override {
+    virtual const string type() const override {
         return "sticking-" + RateType::type();
     }
 
@@ -527,7 +527,7 @@ public:
         StickingCoverage::setContext(rxn, kin);
     }
 
-    virtual void validate(const std::string &equation, const Kinetics& kin) override {
+    virtual void validate(const string &equation, const Kinetics& kin) override {
         RateType::validate(equation, kin);
         fmt::memory_buffer err_reactions;
         double T[] = {200.0, 500.0, 1000.0, 2000.0, 5000.0, 10000.0};
