@@ -14,9 +14,13 @@ cdef extern from "cantera/numerics/Integrator.h" namespace "Cantera":
     cdef cppclass CxxIntegrator "Cantera::Integrator":
         CxxIntegrator()
 
+        int maxOrder()
         void setMaxOrder(int) except +translate_exception
+        int maxNonlinIterations()
         void setMaxNonlinIterations(int) except +translate_exception
+        int maxNonlinConvFailures()
         void setMaxNonlinConvFailures(int) except +translate_exception
+        cbool algebraicInErrorTest()
         void includeAlgebraicInErrorTest(cbool) except +translate_exception
 
 
@@ -70,9 +74,13 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         double area() except +translate_exception
         void setSurfaceAreaToVolumeRatio(double) except +translate_exception
         double surfaceAreaToVolumeRatio() except +translate_exception
+        double inletSurfaceAtol()
         void setInletSurfaceAtol(double) except +translate_exception
+        double inletSurfaceRtol()
         void setInletSurfaceRtol(double) except +translate_exception
+        double inletSurfaceMaxSteps()
         void setInletSurfaceMaxSteps(int) except +translate_exception
+        int inletSurfaceMaxErrorFailures()
         void setInletSurfaceMaxErrorFailures(int) except +translate_exception
 
     # walls

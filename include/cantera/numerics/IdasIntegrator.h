@@ -44,6 +44,9 @@ public:
     int nEquations() const override {
         return static_cast<int>(m_neq);
     }
+    int maxOrder() const override {
+        return m_maxord;
+    }
     void setMaxOrder(int n) override;
     void setMaxStepSize(double hmax) override;
     void setMaxSteps(int nmax) override;
@@ -64,9 +67,21 @@ public:
     //! Error message information provide by IDAS
     string m_error_message;
 
+    int maxNonlinIterations() const override {
+        return m_maxNonlinIters;
+    }
     void setMaxNonlinIterations(int n) override;
+
+    int maxNonlinConvFailures() const override {
+        return m_maxNonlinConvFails;
+    }
     void setMaxNonlinConvFailures(int n) override;
+
+    bool algebraicInErrorTest() const override {
+        return !m_setSuppressAlg;
+    }
     void includeAlgebraicInErrorTest(bool yesno) override;
+
     void setMethod(MethodType t) override;
 
 protected:

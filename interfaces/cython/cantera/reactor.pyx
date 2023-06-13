@@ -450,53 +450,81 @@ cdef class FlowReactor(Reactor):
         def __set__(self, double value):
             (<CxxFlowReactor*>self.reactor).setMassFlowRate(value)
 
-    property area:
+    @property
+    def area(self):
         """
         Get/set the area of the reactor [m^2].
 
         When the area is changed, the flow speed is scaled to keep the total mass flow
         rate constant.
         """
-        def __get__(self):
-            return (<CxxFlowReactor*>self.reactor).area()
-        def __set__(self, area):
-            (<CxxFlowReactor*>self.reactor).setArea(area)
+        return (<CxxFlowReactor*>self.reactor).area()
 
-    property inlet_surface_atol:
-        """ Set the steady-state tolerances used to determine the initial surface
-            species coverages"""
-        def __set__(self, atol):
-            (<CxxFlowReactor*>self.reactor).setInletSurfaceAtol(atol)
+    @area.setter
+    def area(self, area):
+        (<CxxFlowReactor*>self.reactor).setArea(area)
 
-    property inlet_surface_rtol:
-        """ Set the steady-state tolerances used to determine the initial surface
-            species coverages"""
-        def __set__(self, rtol):
-            (<CxxFlowReactor*>self.reactor).setInletSurfaceRtol(rtol)
+    @property
+    def inlet_surface_atol(self):
+        """
+        Get/Set the steady-state tolerances used to determine the initial surface
+        species coverages.
+        """
+        return (<CxxFlowReactor*>self.reactor).inletSurfaceAtol()
 
-    property inlet_surface_max_steps:
-        """ Set the maximum number of integrator steps used to determine the initial surface
-            species coverages"""
-        def __set__(self, nsteps):
-            (<CxxFlowReactor*>self.reactor).setInletSurfaceMaxSteps(nsteps)
+    @inlet_surface_atol.setter
+    def inlet_surface_atol(self, atol):
+        (<CxxFlowReactor*>self.reactor).setInletSurfaceAtol(atol)
 
-    property inlet_surface_max_error_failures:
-        """ Set the maximum number of integrator error failures allowed when determining
-            the initial surface species coverages"""
-        def __set__(self, nsteps):
-            (<CxxFlowReactor*>self.reactor).setInletSurfaceMaxErrorFailures(nsteps)
+    @property
+    def inlet_surface_rtol(self):
+        """
+        Get/Set the steady-state tolerances used to determine the initial surface
+        species coverages.
+        """
+        return (<CxxFlowReactor*>self.reactor).inletSurfaceRtol()
 
-    property surface_area_to_volume_ratio:
-        """ Get/set the surface area to volume ratio of the reactor [m^-1] """
-        def __get__(self):
-            return (<CxxFlowReactor*>self.reactor).surfaceAreaToVolumeRatio()
-        def __set__(self, sa_to_vol):
-            (<CxxFlowReactor*>self.reactor).setSurfaceAreaToVolumeRatio(sa_to_vol)
+    @inlet_surface_rtol.setter
+    def inlet_surface_rtol(self, rtol):
+        (<CxxFlowReactor*>self.reactor).setInletSurfaceRtol(rtol)
 
-    property speed:
+    @property
+    def inlet_surface_max_steps(self):
+        """
+        Get/Set the maximum number of integrator steps used to determine the initial
+        surface species coverages.
+        """
+        return (<CxxFlowReactor*>self.reactor).inletSurfaceMaxSteps()
+
+    @inlet_surface_max_steps.setter
+    def inlet_surface_max_steps(self, nsteps):
+        (<CxxFlowReactor*>self.reactor).setInletSurfaceMaxSteps(nsteps)
+
+    @property
+    def inlet_surface_max_error_failures(self):
+        """
+        Get/Set the maximum number of integrator error failures allowed when determining
+        the initial surface species coverages.
+        """
+        return (<CxxFlowReactor*>self.reactor).inletSurfaceMaxErrorFailures()
+
+    @inlet_surface_max_error_failures.setter
+    def inlet_surface_max_error_failures(self, nsteps):
+        (<CxxFlowReactor*>self.reactor).setInletSurfaceMaxErrorFailures(nsteps)
+
+    @property
+    def surface_area_to_volume_ratio(self):
+        """ Get/Set the surface area to volume ratio of the reactor [m^-1] """
+        return (<CxxFlowReactor*>self.reactor).surfaceAreaToVolumeRatio()
+
+    @surface_area_to_volume_ratio.setter
+    def surface_area_to_volume_ratio(self, sa_to_vol):
+        (<CxxFlowReactor*>self.reactor).setSurfaceAreaToVolumeRatio(sa_to_vol)
+
+    @property
+    def speed(self):
         """ Speed [m/s] of the flow in the reactor at the current position """
-        def __get__(self):
-            return (<CxxFlowReactor*>self.reactor).speed()
+        return (<CxxFlowReactor*>self.reactor).speed()
 
 
 cdef class ExtensibleReactor(Reactor):
@@ -1326,37 +1354,53 @@ cdef class ReactorNet:
         def __set__(self, n):
             self.net.setMaxErrTestFails(n)
 
-    property max_nonlinear_iterations:
+    @property
+    def max_nonlinear_iterations(self):
         """
-        Set the maximum number of nonlinear solver iterations permitted by the SUNDIALS
-        solver in one solve attempt. The default value is 4.
+        Get/Set the maximum number of nonlinear solver iterations permitted by the
+        SUNDIALS solver in one solve attempt. The default value is 4.
         """
-        def __set__(self, int n):
-            self.net.integrator().setMaxNonlinIterations(n)
+        return self.net.integrator().maxNonlinIterations()
 
-    property max_nonlinear_convergence_failures:
-        """
-        Set the maximum number of nonlinear solver convergence failures permitted in one
-        step of the SUNDIALS integrator. The default value is 10.
-        """
-        def __set__(self, int n):
-            self.net.integrator().setMaxNonlinConvFailures(n)
+    @max_nonlinear_iterations.setter
+    def max_nonlinear_iterations(self, int n):
+        self.net.integrator().setMaxNonlinIterations(n)
 
-    property include_algebraic_in_error_test:
+    @property
+    def max_nonlinear_convergence_failures(self):
         """
-        Set whether to include algebraic variables in the in the local error test.
+        Get/Set the maximum number of nonlinear solver convergence failures permitted in
+        one step of the SUNDIALS integrator. The default value is 10.
+        """
+        return self.net.integrator().maxNonlinConvFailures()
+
+    @max_nonlinear_convergence_failures.setter
+    def max_nonlinear_convergence_failures(self, int n):
+        self.net.integrator().setMaxNonlinConvFailures(n)
+
+    @property
+    def include_algebraic_in_error_test(self):
+        """
+        Get/Set whether to include algebraic variables in the in the local error test.
         Applicable only to DAE systems. The default is `True`.
         """
-        def __set__(self, pybool yesno):
-            self.net.integrator().includeAlgebraicInErrorTest(yesno)
+        return self.net.integrator().algebraicInErrorTest()
 
-    property max_order:
+    @include_algebraic_in_error_test.setter
+    def include_algebraic_in_error_test(self, pybool yesno):
+        self.net.integrator().includeAlgebraicInErrorTest(yesno)
+
+    @property
+    def max_order(self):
         """
-        Set the maximum order of the linear multistep method. The default value and
+        Get/Set the maximum order of the linear multistep method. The default value and
         maximum is 5.
         """
-        def __set__(self, int n):
-            self.net.integrator().setMaxOrder(n)
+        return self.net.integrator().maxOrder()
+
+    @max_order.setter
+    def max_order(self, int n):
+        self.net.integrator().setMaxOrder(n)
 
     property max_steps:
         """
