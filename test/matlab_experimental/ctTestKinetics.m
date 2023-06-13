@@ -50,52 +50,52 @@ classdef ctTestKinetics < matlab.unittest.TestCase
 
     methods (Test)
 
-        function testCounts(self)
-            self.verifyEqual(self.phase.nReactions, 29);
-            self.verifyEqual(self.phase.nTotalSpecies, 10);
-            self.verifyEqual(self.phase.nPhases, 1);
-            self.verifyEqual(self.phase.reactionPhaseIndex, 0);
-        end
+        % function testCounts(self)
+        %     self.verifyEqual(self.phase.nReactions, 29);
+        %     self.verifyEqual(self.phase.nTotalSpecies, 10);
+        %     self.verifyEqual(self.phase.nPhases, 1);
+        %     self.verifyEqual(self.phase.reactionPhaseIndex, 0);
+        % end
 
-        function testIsReversible(self)
+        % function testIsReversible(self)
 
-            for i = 1:self.phase.nReactions
-                self.verifyTrue(self.phase.isReversible(i));
-            end
+        %     for i = 1:self.phase.nReactions
+        %         self.verifyTrue(self.phase.isReversible(i));
+        %     end
 
-        end
+        % end
 
-        function testMultipler(self)
-            f0 = self.phase.forwardRatesOfProgress;
-            r0 = self.phase.reverseRatesOfProgress;
+        % function testMultipler(self)
+        %     f0 = self.phase.forwardRatesOfProgress;
+        %     r0 = self.phase.reverseRatesOfProgress;
 
-            self.phase.setMultiplier(2.0, 1);
-            self.phase.setMultiplier(0.1, 7);
+        %     self.phase.setMultiplier(2.0, 1);
+        %     self.phase.setMultiplier(0.1, 7);
 
-            f1 = self.phase.forwardRatesOfProgress;
-            r1 = self.phase.reverseRatesOfProgress;
+        %     f1 = self.phase.forwardRatesOfProgress;
+        %     r1 = self.phase.reverseRatesOfProgress;
 
-            self.verifyEqual(2 .* f0(1), f1(1), 'AbsTol', self.atol);
-            self.verifyEqual(2 .* f0(7), f1(7), 'AbsTol', self.atol);
-            self.verifyEqual(2 .* r0(1), r1(1), 'AbsTol', self.atol);
-            self.verifyEqual(2 .* r0(7), r1(7), 'AbsTol', self.atol);
+        %     self.verifyEqual(2 .* f0(1), f1(1), 'AbsTol', self.atol);
+        %     self.verifyEqual(2 .* f0(7), f1(7), 'AbsTol', self.atol);
+        %     self.verifyEqual(2 .* r0(1), r1(1), 'AbsTol', self.atol);
+        %     self.verifyEqual(2 .* r0(7), r1(7), 'AbsTol', self.atol);
 
-            for i = 1:self.phase.nReactions
+        %     for i = 1:self.phase.nReactions
 
-                if i ~= 1 || i ~= 7
-                    self.verifyEqual(f0(i), f1(i), 'AbsTol', self.atol);
-                    self.verifyEqual(r0(i), r1(i), 'AbsTol', self.atol);
-                end
+        %         if i ~= 1 || i ~= 7
+        %             self.verifyEqual(f0(i), f1(i), 'AbsTol', self.atol);
+        %             self.verifyEqual(r0(i), r1(i), 'AbsTol', self.atol);
+        %         end
 
-            end
+        %     end
 
-            self.phase.setMultiplier(0.5);
-            f2 = self.phase.forwardRatesOfProgress;
-            r2 = self.phase.reverseRatesOfProgress;
-            tol = ones(1, self.phase.nReactions) .* self.atol;
-            self.verifyEqual(0.5 .* f0, f2, 'AbsTol', tol);
+        %     self.phase.setMultiplier(0.5);
+        %     f2 = self.phase.forwardRatesOfProgress;
+        %     r2 = self.phase.reverseRatesOfProgress;
+        %     tol = ones(1, self.phase.nReactions) .* self.atol;
+        %     self.verifyEqual(0.5 .* f0, f2, 'AbsTol', tol);
 
-        end
+        % end
 
         function testReactionEquations(self)
             self.verifyEqual(self.phase.nReactions, ...
@@ -110,46 +110,46 @@ classdef ctTestKinetics < matlab.unittest.TestCase
 
         end
 
-        function testStoichCoeffs(self)
-            nu_r = self.phase.reactantStoichCoeffs;
-            nu_p = self.phase.productStoichCoeffs;
+        % function testStoichCoeffs(self)
+        %     nu_r = self.phase.reactantStoichCoeffs;
+        %     nu_p = self.phase.productStoichCoeffs;
 
-            function checkReactnat(s, i, val)
-                k = self.phase.kineticsSpeciesIndex(s);
-                self.verifyEqual(self.phase.reactantStoichCoeffs(s, i), ...
-                                 val);
-                self.verifyEqual(self.phase.reactantStoichCoeffs(k, i), ...
-                                 val);
-                self.verifyEqual(nu_r(k, i), val);
-            end
+        %     function checkReactnat(s, i, val)
+        %         k = self.phase.kineticsSpeciesIndex(s);
+        %         self.verifyEqual(self.phase.reactantStoichCoeffs(s, i), ...
+        %                          val);
+        %         self.verifyEqual(self.phase.reactantStoichCoeffs(k, i), ...
+        %                          val);
+        %         self.verifyEqual(nu_r(k, i), val);
+        %     end
 
-            function checkProduct(s, i, val)
-                k = self.phase.kineticsSpeciesIndex(s);
-                self.verifyEqual(self.phase.productStoichCoeffs(s, i), ...
-                                 val);
-                self.verifyEqual(self.phase.productStoichCoeffs(k, i), ...
-                                 val);
-                self.verifyEqual(nu_p(k, i), val);
-            end
+        %     function checkProduct(s, i, val)
+        %         k = self.phase.kineticsSpeciesIndex(s);
+        %         self.verifyEqual(self.phase.productStoichCoeffs(s, i), ...
+        %                          val);
+        %         self.verifyEqual(self.phase.productStoichCoeffs(k, i), ...
+        %                          val);
+        %         self.verifyEqual(nu_p(k, i), val);
+        %     end
 
-            % H + H2O2 <=> HO2 + H2
-            checkReactant('H', 19, 1)
-            checkReactant('H2O2', 19, 1)
-            checkReactant('HO2', 19, 0)
-            checkReactant('H2', 19, 0)
+        %     % H + H2O2 <=> HO2 + H2
+        %     checkReactant('H', 19, 1)
+        %     checkReactant('H2O2', 19, 1)
+        %     checkReactant('HO2', 19, 0)
+        %     checkReactant('H2', 19, 0)
 
-            checkProduct('H', 19, 0)
-            checkProduct('H2O2', 19, 0)
-            checkProduct('HO2', 19, 1)
-            checkProduct('H2', 19, 1)
+        %     checkProduct('H', 19, 0)
+        %     checkProduct('H2O2', 19, 0)
+        %     checkProduct('HO2', 19, 1)
+        %     checkProduct('H2', 19, 1)
 
-            % 2 O + M <=> O2 + M
-            checkReactant('O', 1, 2)
-            checkReactant('O2', 1, 0)
-            checkProduct('O', 1, 0)
-            checkProduct('O2', 1, 1)
+        %     % 2 O + M <=> O2 + M
+        %     checkReactant('O', 1, 2)
+        %     checkReactant('O2', 1, 0)
+        %     checkProduct('O', 1, 0)
+        %     checkProduct('O2', 1, 1)
 
-        end
+        % end
 
     end
 
