@@ -46,11 +46,8 @@ def equilibrium_sound_speeds(gas, rtol=1.0e-6, max_iter=5000):
     # equilibrium sound speed
     aequil = np.sqrt((p1 - p0)/(gas.density - r0)).to("ft/s")
 
-    # compute the frozen sound speed using the ideal gas expression as a check
-    gamma = gas.cp/gas.cv
-    gamma * ctu.units.molar_gas_constant
-    afrozen2 = np.sqrt(gamma * ctu.units.molar_gas_constant * gas.T /
-                         gas.mean_molecular_weight).to("ft/s")
+    # check against the built-in sound speed function
+    afrozen2 = gas.sound_speed.to("ft/s")
 
     return aequil, afrozen, afrozen2
 

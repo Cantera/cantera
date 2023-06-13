@@ -1,7 +1,7 @@
 """
 Compute the "equilibrium" and "frozen" sound speeds for a gas
 
-Requires: cantera >= 2.5.0
+Requires: cantera >= 3.0.0
 Keywords: thermodynamics, equilibrium
 """
 
@@ -42,10 +42,8 @@ def equilSoundSpeeds(gas, rtol=1.0e-6, max_iter=5000):
     # equilibrium sound speed
     aequil = math.sqrt((p1 - p0)/(gas.density - r0))
 
-    # compute the frozen sound speed using the ideal gas expression as a check
-    gamma = gas.cp/gas.cv
-    afrozen2 = math.sqrt(gamma * ct.gas_constant * gas.T /
-                         gas.mean_molecular_weight)
+    # check against the built-in sound speed function
+    afrozen2 = gas.sound_speed
 
     return aequil, afrozen, afrozen2
 
