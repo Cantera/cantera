@@ -4,7 +4,7 @@ clear all
 ctTestPath;
 
 % Load Cantera
-rootDir = fullfile(pwd);
+rootDir = getenv('CANTERA_ROOT');
 ctName = '/test/matlab_experimental/libcantera_shared.so';
 % Load Cantera
 if ~libisloaded('libcantera_shared')
