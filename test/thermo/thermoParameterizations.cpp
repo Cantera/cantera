@@ -54,10 +54,19 @@ TEST_F(SpeciesThermoInterpTypeTest, install_const_cp)
     EXPECT_DOUBLE_EQ(p2.cp_mass(), p.cp_mass());
 }
 
-TEST_F(SpeciesThermoInterpTypeTest, DISABLED_install_bad_pref)
+TEST_F(SpeciesThermoInterpTypeTest, install_specified_pref)
 {
-    // Currently broken because MultiSpeciesThermo does not enforce reference
-    // pressure consistency.
+    auto sO2 = make_shared<Species>("O2", parseCompString("O:2"));
+    auto sH2 = make_shared<Species>("H2", parseCompString("H:2"));
+    sO2->thermo = make_shared<ConstCpPoly>(200, 5000, 100000, c_o2);
+    sH2->thermo = make_shared<ConstCpPoly>(200, 5000, 100000, c_h2);
+    p.addSpecies(sO2);
+    // Pref does not match
+    EXPECT_DOUBLE_EQ(p.refPressure(), 1e5);
+}
+
+TEST_F(SpeciesThermoInterpTypeTest, install_bad_pref)
+{
     auto sO2 = make_shared<Species>("O2", parseCompString("O:2"));
     auto sH2 = make_shared<Species>("H2", parseCompString("H:2"));
     sO2->thermo = make_shared<ConstCpPoly>(200, 5000, 101325, c_o2);

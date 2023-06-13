@@ -13,12 +13,13 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/utilities.h"
 #include "cantera/base/ctexceptions.h"
+#include "cantera/base/global.h"
 
 namespace Cantera
 {
 
 void MultiSpeciesThermo::install_STIT(size_t index,
-                                        shared_ptr<SpeciesThermoInterpType> stit_ptr)
+                                      shared_ptr<SpeciesThermoInterpType> stit_ptr)
 {
     if (!stit_ptr) {
         throw CanteraError("MultiSpeciesThermo::install_STIT",
@@ -27,6 +28,15 @@ void MultiSpeciesThermo::install_STIT(size_t index,
     AssertThrowMsg(m_speciesLoc.find(index) == m_speciesLoc.end(),
             "MultiSpeciesThermo::install_STIT",
             "Index position isn't null, duplication of assignment: {}", index);
+    if (m_p0 == 0) {
+        // First species added; use this to set the reference pressure
+        m_p0 = stit_ptr->refPressure();
+    } else if (fabs(m_p0 - stit_ptr->refPressure()) > 1e-6) {
+        throw CanteraError("MultiSpeciesThermo::install_STIT",
+            "Cannot add species {} with reference pressure {}.\n"
+            "Inconsistent with previously-added species with reference pressure {}.",
+            index, stit_ptr->refPressure(), m_p0);
+    }
     int type = stit_ptr->reportType();
     m_speciesLoc[index] = {type, m_sp[type].size()};
     m_sp[type].emplace_back(index, stit_ptr);
@@ -144,6 +154,9 @@ doublereal MultiSpeciesThermo::maxTemp(size_t k) const
 doublereal MultiSpeciesThermo::refPressure(size_t k) const
 {
     if (k != npos) {
+        warn_deprecated("MultiSpeciesThermo::refPressure(size_t k)",
+            "The species index parameter is deprecated and will be removed after"
+            " Cantera 3.0.");
         const SpeciesThermoInterpType* sp = provideSTIT(k);
         if (sp) {
             return sp->refPressure();

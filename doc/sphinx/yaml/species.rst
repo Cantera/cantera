@@ -160,6 +160,7 @@ Example::
     thermo:
       model: Shomate
       temperature-ranges: [298, 1300, 6000]
+      reference-pressure: 1 bar
       data:
       - [25.56759, 6.096130, 4.054656, -2.671301, 0.131021,
         -118.0089, 227.3665]

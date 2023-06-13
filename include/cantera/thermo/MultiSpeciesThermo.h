@@ -126,6 +126,8 @@ public:
      * for the first species.
      *
      * @param k Species Index
+     * @deprecated The species index parameter is deprecated and will be removed after
+     *     Cantera 3.0. All species in a phase must have the same reference pressure.
      */
     virtual doublereal refPressure(size_t k=npos) const;
 
@@ -226,7 +228,7 @@ protected:
     double m_thigh_min = 1e+30;
 
     //! reference pressure (Pa)
-    double m_p0 = OneAtm;
+    double m_p0 = 0.0;
 
     //! indicates if data for species has been installed
     std::vector<bool> m_installed;
