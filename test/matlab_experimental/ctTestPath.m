@@ -20,7 +20,7 @@ for i = 1:length(dirs)
     end
 end
 
-cantera_root = fullfile(pwd);
+cantera_root = getenv('CANTERA_ROOT');
 
 % Copy the Cantera shared library from the build directory if necessary
 if ispc
@@ -32,7 +32,7 @@ elseif isunix
 end
 
 copyfile(fullfile(cantera_root, 'build', 'lib', libname), ...
-         fullfile(pwd, 'test', 'matlab_experimental'));
+         fullfile(cantera_root, 'test', 'matlab_experimental'));
 
 % Add the Cantera toolbox to the Matlab path
 addpath(genpath([cantera_root, '/interfaces/matlab_experimental']));

@@ -25,6 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       LD_PRELOAD: /usr/lib/x86_64-linux-gnu/libstdc++.so.6
+      CANTERA_ROOT: /home/runner/work/cantera/cantera
       CANTERA_DATA: /home/runner/work/cantera/cantera/data
     steps:
       - uses: actions/checkout@v3
@@ -57,11 +58,11 @@ jobs:
           cc_flags=-D_GLIBCXX_ASSERTIONS
       - name: Set up MATLAB
         uses: matlab-actions/setup-matlab@v1
-      # - name: Run test script
-      #   uses: matlab-actions/run-command@v1
-      #   with:
-      #     command: cd ~/work/cantera/cantera; addpath([pwd, '/test/matlab_experimental']); ctRunTests;
-      - name: Run tests directly
+      - name: Print environment variables
+        uses: matlab-actions/run-command@v1
+        with:
+          command: disp(getenv('CANTERA_ROOT')); disp(getenv('CANTERA_DATA')); disp(getenv('CANTERA_TEST'));
+      - name: Run tests
         uses: matlab-actions/run-tests@v1
         with:
           select-by-folder: /home/runner/work/cantera/cantera/test/matlab_experimental
