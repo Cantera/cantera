@@ -70,10 +70,22 @@ public:
         m_sa_to_vol = sa_to_vol;
     }
 
+    //! Get the steady state tolerances used to determine the initial state for
+    //! surface coverages
+    double inletSurfaceAtol() const {
+        return m_ss_atol;
+    }
+
     //! Set the steady state tolerances used to determine the initial state for
     //! surface coverages
     void setInletSurfaceAtol(double atol) {
         m_ss_atol = atol;
+    }
+
+    //! Get the steady state tolerances used to determine the initial state for
+    //! surface coverages
+    double inletSurfaceRtol() const {
+        return m_ss_rtol;
     }
 
     //! Set the steady state tolerances used to determine the initial state for
@@ -82,10 +94,22 @@ public:
         m_ss_rtol = rtol;
     }
 
+    //! Get the steady state tolerances used to determine the initial state for
+    //! surface coverages
+    double inletSurfaceMaxSteps() const {
+        return m_max_ss_steps;
+    }
+
     //! Set the steady state tolerances used to determine the initial state for
     //! surface coverages
     void setInletSurfaceMaxSteps(int max_steps) {
         m_max_ss_steps = max_steps;
+    }
+
+    //! Get the steady state tolerances used to determine the initial state for
+    //! surface coverages
+    double inletSurfaceMaxErrorFailures() const {
+        return m_max_ss_error_fails;
     }
 
     //! Set the steady state tolerances used to determine the initial state for

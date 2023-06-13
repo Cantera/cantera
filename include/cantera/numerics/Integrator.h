@@ -227,6 +227,11 @@ public:
         return 0;
     }
 
+    virtual int maxOrder() const {
+        warn("maxOrder");
+        return 0;
+    }
+
     //! Set the maximum integration order that will be used.
     virtual void setMaxOrder(int n) {
         warn("setMaxorder");
@@ -288,11 +293,25 @@ public:
         return stats;
     }
 
+    virtual int maxNonlinIterations() const {
+        warn("maxNonlinIterations");
+        return 0;
+    }
     virtual void setMaxNonlinIterations(int n) {
         warn("setMaxNonlinIterations");
     }
+
+    virtual int maxNonlinConvFailures() const {
+        warn("maxNonlinConvFailures");
+        return 0;
+    }
     virtual void setMaxNonlinConvFailures(int n) {
         warn("setMaxNonlinConvFailures");
+    }
+
+    virtual bool algebraicInErrorTest() const {
+        warn("algebraicInErrorTest");
+        return true;
     }
     virtual void includeAlgebraicInErrorTest(bool yesno) {
         warn("includeAlgebraicInErrorTest");
