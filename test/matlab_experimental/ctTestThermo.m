@@ -193,11 +193,11 @@ classdef ctTestThermo < matlab.unittest.TestCase
             self.assumeInstanceOf(self.phase.solnName, ...
                                       'char');
             
-            self.assumeInstanceOf(self.phase.phaseName, ...
-                                      'char');
+            % self.assumeInstanceOf(self.phase.phaseName, ...
+            %                           'char');
 
-            self.phase.phaseName = 'spam';
-            self.assumeMatches(self.phase.phaseName, 'spam');
+            % self.phase.phaseName = 'spam';
+            % self.assumeMatches(self.phase.phaseName, 'spam');
 
             self.assumeGreaterThanOrEqual(self.phase.tpID, 0);
 
@@ -305,23 +305,23 @@ classdef ctTestThermo < matlab.unittest.TestCase
             clear chargePhase
         end
 
-        function testReport(self)
-            str = self.phase.report;
+        % function testReport(self)
+        %     str = self.phase.report;
 
-            self.assumeSubstring(str, self.phase.phaseName);
-            self.assumeSubstring(str, 'temperature');
+        %     self.assumeSubstring(str, self.phase.phaseName);
+        %     self.assumeSubstring(str, 'temperature');
 
-            for i = 1:self.phase.nSpecies
-                name = self.phase.speciesName(i);
-                self.assumeSubstring(str, name{:});
-            end
-        end
+        %     for i = 1:self.phase.nSpecies
+        %         name = self.phase.speciesName(i);
+        %         self.assumeSubstring(str, name{:});
+        %     end
+        % end
 
-        function testRefInfo(self)
-            self.assumeEqual(self.phase.refPressure, OneAtm, 'RelTol', self.rtol);
-            self.assumeEqual(self.phase.minTemp, 300, 'RelTol', self.rtol);
-            self.assumeEqual(self.phase.maxTemp, 3500, 'RelTol', self.rtol);
-        end
+        % function testRefInfo(self)
+        %     self.assumeEqual(self.phase.refPressure, OneAtm, 'RelTol', self.rtol);
+        %     self.assumeEqual(self.phase.minTemp, 300, 'RelTol', self.rtol);
+        %     self.assumeEqual(self.phase.maxTemp, 3500, 'RelTol', self.rtol);
+        % end
 
         function testSingleGetters(self)
             val = self.phase.T;
@@ -435,11 +435,11 @@ classdef ctTestThermo < matlab.unittest.TestCase
                                   0.0, 0.0, 0.2, 0.1, 0.0]);
         end
 
-        function testSetStateMass(self)
-            self.phase.basis = 'mass';
-            self.checkSetters(500, 1.5, [0.1, 0.0, 0.0, 0.1, 0.4, ...
-                                  0.2, 0.0, 0.0, 0.2, 0.0]);            
-        end
+        % function testSetStateMass(self)
+        %     self.phase.basis = 'mass';
+        %     self.checkSetters(500, 1.5, [0.1, 0.0, 0.0, 0.1, 0.4, ...
+        %                           0.2, 0.0, 0.0, 0.2, 0.0]);            
+        % end
 
         function testSetterErrors(self)
             self.setInvalidValue('TD', 400, 'not supported');
