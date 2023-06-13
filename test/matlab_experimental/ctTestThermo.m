@@ -41,16 +41,16 @@ classdef ctTestThermo < matlab.unittest.TestCase
 
     methods
 
-        % Generic function to set invalid values to attribute and verify errors
+        % Generic function to set invalid values to attribute and assume errors
         function setInvalidValue(self, attr, val, errMessage)
             try 
                 self.phase.(attr) = val;
             catch ME
-                self.verifySubstring(ME.message, errMessage);
+                self.assumeSubstring(ME.message, errMessage);
             end
         end
 
-        % Generic function to get invalid values of an attribute and verify errors
+        % Generic function to get invalid values of an attribute and assume errors
         function val = getInvalidValue(self, attr, args, errMessage)
             try
                 if nargin == 3
@@ -59,7 +59,7 @@ classdef ctTestThermo < matlab.unittest.TestCase
                     val = self.phase.(attr)(args{:});
                 end
             catch ME
-                self.verifySubstring(ME.message, errMessage);
+                self.assumeSubstring(ME.message, errMessage);
             end                
         end
         
@@ -75,9 +75,9 @@ classdef ctTestThermo < matlab.unittest.TestCase
 
         % Check state
         function checkState(self, T, D, Y)
-            self.verifyEqual(self.phase.T, T, 'RelTol', self.rtol);
-            self.verifyEqual(self.phase.D, D, 'RelTol', self.rtol);            
-            self.verifyEqual(self.phase.Y, Y, 'AbsTol', self.atol);            
+            self.assumeEqual(self.phase.T, T, 'RelTol', self.rtol);
+            self.assumeEqual(self.phase.D, D, 'RelTol', self.rtol);            
+            self.assumeEqual(self.phase.Y, Y, 'AbsTol', self.atol);            
         end
 
         % Check multi properties
@@ -86,7 +86,7 @@ classdef ctTestThermo < matlab.unittest.TestCase
             for i = 1:length(str)
                 attr = str(i);
                 exp = self.phase.(attr);
-                self.verifyEqual(val{i}, exp, 'RelTol', self.rtol);
+                self.assumeEqual(val{i}, exp, 'RelTol', self.rtol);
             end
         end
 
@@ -190,37 +190,37 @@ classdef ctTestThermo < matlab.unittest.TestCase
         % Test methods
 
         function testBaseAttributes(self)
-            self.verifyInstanceOf(self.phase.solnName, ...
+            self.assumeInstanceOf(self.phase.solnName, ...
                                       'char');
             
-            self.verifyInstanceOf(self.phase.phaseName, ...
+            self.assumeInstanceOf(self.phase.phaseName, ...
                                       'char');
 
             self.phase.phaseName = 'spam';
-            self.verifyMatches(self.phase.phaseName, 'spam');
+            self.assumeMatches(self.phase.phaseName, 'spam');
 
-            self.verifyGreaterThanOrEqual(self.phase.tpID, 0);
+            self.assumeGreaterThanOrEqual(self.phase.tpID, 0);
 
-            self.verifyMatches(self.phase.basis, 'molar');
+            self.assumeMatches(self.phase.basis, 'molar');
             self.phase.basis = 'mass';
-            self.verifyMatches(self.phase.basis, 'mass');            
+            self.assumeMatches(self.phase.basis, 'mass');            
         end
 
         function testPhases(self)
             % Note: ThermoPhase.phaseOfMatter is not implemented in Clib
-            self.verifyEqual(self.phase.nPhases, 1);
+            self.assumeEqual(self.phase.nPhases, 1);
         end
 
         function testSpecies(self)
-            self.verifyEqual(self.phase.nSpecies, 10);
+            self.assumeEqual(self.phase.nSpecies, 10);
 
             names = self.phase.speciesNames;
             for i = 1:10
                 n = self.phase.speciesName(i);
                 m = self.phase.speciesIndex(n{:});
 
-                self.verifyMatches(n{:}, names{i});
-                self.verifyEqual(i, m);
+                self.assumeMatches(n{:}, names{i});
+                self.assumeEqual(i, m);
             end
 
             self.getInvalidValue('speciesNames', {11}, 'must not exceed');
@@ -228,7 +228,7 @@ classdef ctTestThermo < matlab.unittest.TestCase
 
         function testElements(self)
             % Note: ThermoPhase.elementName is not implemented in Clib
-            self.verifyEqual(self.phase.nElements, 4);
+            self.assumeEqual(self.phase.nElements, 4);
         end
 
         function testNAtoms(self)
@@ -244,8 +244,8 @@ classdef ctTestThermo < matlab.unittest.TestCase
                 n1 = self.phase.nAtoms(species, element);
                 n2 = self.phase.nAtoms(kSpec, mElem);
 
-                self.verifyEqual(n1, n);
-                self.verifyEqual(n2, n);
+                self.assumeEqual(n1, n);
+                self.assumeEqual(n2, n);
 
                 self.getInvalidValue('nAtoms', {'C', 'H2'}, 'no such species');
                 self.getInvalidValue('nAtoms', {'H', 'CH4'}, 'no such element');
@@ -262,9 +262,9 @@ classdef ctTestThermo < matlab.unittest.TestCase
             exp2 = 0.5 * (2.016 / 18.015);
             exp3 = 0.0;
 
-            self.verifyEqual(Zo, exp1, 'AbsTol', self.atol);
-            self.verifyEqual(Zh, exp2, 'AbsTol', self.atol);
-            self.verifyEqual(Zar, exp3, 'AbsTol', self.atol);
+            self.assumeEqual(Zo, exp1, 'AbsTol', self.atol);
+            self.assumeEqual(Zh, exp2, 'AbsTol', self.atol);
+            self.assumeEqual(Zar, exp3, 'AbsTol', self.atol);
 
             self.getInvalidValue('elementalMassFraction', {'C'}, 'No such element');
             self.getInvalidValue('elementalMassFraction', {5}, 'No such element');
@@ -274,8 +274,8 @@ classdef ctTestThermo < matlab.unittest.TestCase
             aw = self.phase.atomicMasses;
             mw = self.phase.molecularWeights;
 
-            self.verifyEqual(length(aw), self.phase.nElements);
-            self.verifyEqual(length(mw), self.phase.nSpecies);
+            self.assumeEqual(length(aw), self.phase.nElements);
+            self.assumeEqual(length(mw), self.phase.nSpecies);
 
             for i = 1:length(mw)
                 testWeight = 0.0;
@@ -283,7 +283,7 @@ classdef ctTestThermo < matlab.unittest.TestCase
                     testWeight = testWeight + ...
                                  aw(j) * self.phase.nAtoms(i, j);
                 end
-                self.verifyEqual(testWeight, mw(i), 'RelTol', self.rtol);
+                self.assumeEqual(testWeight, mw(i), 'RelTol', self.rtol);
             end
         end
 
@@ -297,10 +297,10 @@ classdef ctTestThermo < matlab.unittest.TestCase
                 charge = test{i}{2};
 
                 flag = sum(ismember(chargePhase.speciesNames, species));
-                self.verifyGreaterThan(flag, 0);
+                self.assumeGreaterThan(flag, 0);
                 
                 idx = chargePhase.speciesIndex(species);
-                self.verifyEqual(charges(idx), charge);
+                self.assumeEqual(charges(idx), charge);
             end
             clear chargePhase
         end
@@ -308,61 +308,61 @@ classdef ctTestThermo < matlab.unittest.TestCase
         function testReport(self)
             str = self.phase.report;
 
-            self.verifySubstring(str, self.phase.phaseName);
-            self.verifySubstring(str, 'temperature');
+            self.assumeSubstring(str, self.phase.phaseName);
+            self.assumeSubstring(str, 'temperature');
 
             for i = 1:self.phase.nSpecies
                 name = self.phase.speciesName(i);
-                self.verifySubstring(str, name{:});
+                self.assumeSubstring(str, name{:});
             end
         end
 
         function testRefInfo(self)
-            self.verifyEqual(self.phase.refPressure, OneAtm, 'RelTol', self.rtol);
-            self.verifyEqual(self.phase.minTemp, 300, 'RelTol', self.rtol);
-            self.verifyEqual(self.phase.maxTemp, 3500, 'RelTol', self.rtol);
+            self.assumeEqual(self.phase.refPressure, OneAtm, 'RelTol', self.rtol);
+            self.assumeEqual(self.phase.minTemp, 300, 'RelTol', self.rtol);
+            self.assumeEqual(self.phase.maxTemp, 3500, 'RelTol', self.rtol);
         end
 
         function testSingleGetters(self)
             val = self.phase.T;
             exp = 300;
-            self.verifyEqual(val, exp, 'RelTol', self.rtol);
-            self.verifyGreaterThan(self.phase.maxTemp, 0);
-            self.verifyGreaterThan(self.phase.minTemp, 0);
+            self.assumeEqual(val, exp, 'RelTol', self.rtol);
+            self.assumeGreaterThan(self.phase.maxTemp, 0);
+            self.assumeGreaterThan(self.phase.minTemp, 0);
 
             val = self.phase.P;
             exp = OneAtm;
-            self.verifyEqual(val, exp, 'RelTol', self.rtol);
+            self.assumeEqual(val, exp, 'RelTol', self.rtol);
 
             val = self.phase.D;
             exp = self.phase.P * self.phase.meanMolecularWeight / ...
                   (GasConstant * self.phase.T);
-            self.verifyEqual(val, exp, 'RelTol', self.rtol);
+            self.assumeEqual(val, exp, 'RelTol', self.rtol);
 
             self.phase.basis = 'mass';
             val = self.phase.V;
             exp = 1/exp;
-            self.verifyEqual(val, exp, 'RelTol', self.rtol);
+            self.assumeEqual(val, exp, 'RelTol', self.rtol);
             self.phase.basis = 'molar';
             val = self.phase.V;
             exp = exp * self.phase.meanMolecularWeight;
-            self.verifyEqual(val, exp, 'RelTol', self.rtol);
+            self.assumeEqual(val, exp, 'RelTol', self.rtol);
 
             val = self.phase.molarDensity;
             exp = self.phase.D/self.phase.meanMolecularWeight;
-            self.verifyEqual(val, exp, 'RelTol', self.rtol);
+            self.assumeEqual(val, exp, 'RelTol', self.rtol);
 
-            self.verifyMatches(self.phase.eosType, 'ideal-gas');
-            self.verifyTrue(self.phase.isIdealGas);
+            self.assumeMatches(self.phase.eosType, 'ideal-gas');
+            self.assumeTrue(self.phase.isIdealGas);
 
             val = self.phase.X;
             exp = zeros(1, 10);
             exp(1) = 1.0;
             tol = ones(1, 10).*self.rtol;
-            self.verifyEqual(val, exp, 'RelTol', tol);
+            self.assumeEqual(val, exp, 'RelTol', tol);
 
             val = self.phase.Y;
-            self.verifyEqual(val, exp, 'RelTol', tol);
+            self.assumeEqual(val, exp, 'RelTol', tol);
 
             val1 = [self.phase.H, self.phase.S, ...
                     self.phase.U, self.phase.G, ...
@@ -373,15 +373,15 @@ classdef ctTestThermo < matlab.unittest.TestCase
                     self.phase.cp, self.phase.cv];
             exp = val2.*self.phase.meanMolecularWeight;
             tol = ones(1, 9).*self.rtol;
-            self.verifyEqual(val1, exp, 'RelTol', tol);
+            self.assumeEqual(val1, exp, 'RelTol', tol);
 
             val = self.phase.isothermalCompressibility;
             exp = 1.0 / self.phase.P;
-            self.verifyEqual(val, exp, 'RelTol', self.rtol);
+            self.assumeEqual(val, exp, 'RelTol', self.rtol);
 
             val = self.phase.thermalExpansionCoeff;
             exp = 1.0 / self.phase.T;
-            self.verifyEqual(val, exp, 'RelTol', self.rtol);
+            self.assumeEqual(val, exp, 'RelTol', self.rtol);
 
         end
 
@@ -403,23 +403,22 @@ classdef ctTestThermo < matlab.unittest.TestCase
             yy = self.phase.Y;
             tol = ones(1, 10).*self.atol;
 
-            self.verifyEqual(xx, yy, 'AbsTol', tol)
+            self.assumeEqual(xx, yy, 'AbsTol', tol)
         end
-% This segment is disabled since it gets a SegFault error without patching
-% the Cantera Matlab Toolbox. 
-%         function testSetCompositionBadLength(self)
-%             xx = zeros(1, 5);
-%             self.setInvalidValue('X', [], 'cannot be empty');
-%             self.setInvalidValue('X', xx, 'must be equal');
-%             self.setInvalidValue('Y', xx, 'must be equal');
-%         end
+
+        function testSetCompositionBadLength(self)
+            xx = zeros(1, 5);
+            self.setInvalidValue('X', [], 'cannot be empty');
+            self.setInvalidValue('X', xx, 'must be equal');
+            self.setInvalidValue('Y', xx, 'must be equal');
+        end
 
         function testSetCompositionString(self)
             self.phase.X = 'h2:1.0, o2:1.0';
             xx = self.phase.X;
 
-            self.verifyEqual(xx(1), 0.5, 'AbsTol', self.atol);
-            self.verifyEqual(xx(4), 0.5, 'AbsTol', self.atol);
+            self.assumeEqual(xx(1), 0.5, 'AbsTol', self.atol);
+            self.assumeEqual(xx(4), 0.5, 'AbsTol', self.atol);
         end
 
         function testSetCompositionStringBad(self)
@@ -453,9 +452,9 @@ classdef ctTestThermo < matlab.unittest.TestCase
         end
 
         function testInvalidProperty(self)
-            self.verifyError(@() self.getInvalidProperty(),...
+            self.assumeError(@() self.getInvalidProperty(),...
                                 'MATLAB:noSuchMethodOrField');
-            self.verifyError(@() self.setInvalidProperty(300),...
+            self.assumeError(@() self.setInvalidProperty(300),...
                                 'MATLAB:noPublicFieldForClass');            
         end
 
