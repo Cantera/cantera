@@ -36,6 +36,7 @@ classdef ctTestThermo < matlab.unittest.TestCase
         function deleteSolution(self)
             clear self.phase;
         end
+
     end
 
     methods
