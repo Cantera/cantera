@@ -69,7 +69,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         CxxFlowReactor()
         void setMassFlowRate(double) except +translate_exception
         double speed()
-        double distance()
+        double distance() except +translate_exception
         void setArea(double) except +translate_exception
         double area() except +translate_exception
         void setSurfaceAreaToVolumeRatio(double) except +translate_exception

@@ -526,6 +526,17 @@ cdef class FlowReactor(Reactor):
         """ Speed [m/s] of the flow in the reactor at the current position """
         return (<CxxFlowReactor*>self.reactor).speed()
 
+    @property
+    def distance(self):
+        """
+        The distance of the fluid element from the inlet of the reactor.
+
+        .. deprecated:: 3.0
+
+            To be removed after Cantera 3.0. Access distance via `ReactorNet`.
+        """
+        return (<CxxFlowReactor*>self.reactor).distance()
+
 
 cdef class ExtensibleReactor(Reactor):
     """
