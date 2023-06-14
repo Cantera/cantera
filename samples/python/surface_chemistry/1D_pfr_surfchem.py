@@ -48,14 +48,13 @@ soln = ct.SolutionArray(gas, extra=['x', 'speed', 'surf_coverages', 'N_dep', 'Si
 kN = gas_si_n_interface.kinetics_species_index('N(D)')
 kSi = gas_si_n_interface.kinetics_species_index('Si(D)')
 
-# Integrate the reactor network. Note that "time" is really the coordinate along
-# the length of the plug flow reactor
-while net.time < 0.6:
-    print(net.time, rsurf.coverages)
+# Integrate the reactor network
+while net.distance < 0.6:
+    print(net.distance, rsurf.coverages)
     net.step()
     wdot = rsurf.kinetics.net_production_rates
     soln.append(TDY=reactor.thermo.TDY,
-                x=net.time,
+                x=net.distance,
                 speed=reactor.speed,
                 surf_coverages=rsurf.coverages,
                 N_dep=wdot[kN],

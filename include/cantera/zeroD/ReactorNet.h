@@ -19,9 +19,10 @@ class PreconditionerBase;
 
 //! A class representing a network of connected reactors.
 /*!
- *  This class is used to integrate the time-dependent governing equations for
- *  a network of reactors (Reactor, ConstPressureReactor) connected by various
- *  means, for example Wall, MassFlowController, Valve, or PressureController.
+ *  This class is used to integrate the governing equations for a network of reactors
+ *  that are time dependent (Reactor, ConstPressureReactor) connected by various
+ *  means, for example Wall, MassFlowController, Valve, or PressureController; or
+ *  reactors dependent on a single spatial variable (FlowReactor).
  *
  * @ingroup ZeroD
  */
@@ -45,20 +46,21 @@ public:
     //! @param preconditioner preconditioner object used for the linear solver
     void setPreconditioner(shared_ptr<PreconditionerBase> preconditioner);
 
-    //! Set initial time. Default = 0.0 s. Restarts integration from this time
-    //! using the current mixture state as the initial condition.
+    //! Set the initial value of the independent variable (typically time).
+    //! Default = 0.0 s. Restarts integration from this value using the current mixture
+    //! state as the initial condition.
     void setInitialTime(double time);
 
-    //! Get the maximum time step.
+    //! Get the maximum integrator step.
     double maxTimeStep() {
         return m_maxstep;
     }
 
-    //! Set the maximum time step.
+    //! Set the maximum integrator step.
     void setMaxTimeStep(double maxstep);
 
     //! Set the maximum number of error test failures permitted by the CVODES
-    //! integrator in a single time step.
+    //! integrator in a single step.
     void setMaxErrTestFails(int nmax);
 
     //! Set the relative and absolute tolerances for the integrator.
@@ -68,10 +70,13 @@ public:
     //! sensitivity equations.
     void setSensitivityTolerances(double rtol, double atol);
 
-    //! Current value of the simulation time.
-    double time() {
-        return m_time;
-    }
+    //! Current value of the simulation time [s], for reactor networks that are solved
+    //! in the time domain.
+    double time();
+
+    //! Current position [m] along the length of the reactor network, for reactors that
+    //! are solved as a function of space.
+    double distance();
 
     //! Relative tolerance.
     double rtol() {
@@ -96,29 +101,30 @@ public:
     //! Problem type of integrator
     std::string linearSolverType() const;
 
-    //! Returns the maximum number of internal integration time-steps the
-    //!  integrator will take before reaching the next output time
+    //! Returns the maximum number of internal integration steps the
+    //! integrator will take before reaching the next output point
     int maxSteps();
 
     /**
-     * Advance the state of all reactors in time. Take as many internal
-     * timesteps as necessary to reach *time*.
-     * @param time Time to advance to (s).
+     * Advance the state of all reactors in the independent variable (time or space).
+     * Take as many internal steps as necessary to reach *t*.
+     * @param t Time/distance to advance to (s or m).
      */
-    void advance(double time);
+    void advance(double t);
 
     /**
-     * Advance the state of all reactors in time. Take as many internal
-     * timesteps as necessary towards *time*. If *applylimit* is true,
-     * the advance step will be automatically reduced if needed to
-     * stay within limits (set by setAdvanceLimit).
-     * Returns the time at the end of integration.
-     * @param time Time to advance to (s).
+     * Advance the state of all reactors in the independent variable (time or space).
+     * Take as many internal steps as necessary towards *t*. If *applylimit* is true,
+     * the advance step will be automatically reduced if needed to stay within limits
+     * (set by setAdvanceLimit).
+     * Returns the time/distance at the end of integration.
+     * @param t Time/distance to advance to (s or m).
      * @param applylimit Limit advance step (boolean).
      */
-    double advance(double time, bool applylimit);
+    double advance(double t, bool applylimit);
 
-    //! Advance the state of all reactors in time.
+    //! Advance the state of all reactors with respect to the independent variable
+    //! (time or space). Returns the new value of the independent variable [s or m].
     double step();
 
     //! Add the reactor *r* to this reactor network.
@@ -180,9 +186,10 @@ public:
 
     //! Evaluate the Jacobian matrix for the reactor network.
     /*!
-     *  @param[in] t Time at which to evaluate the Jacobian
-     *  @param[in] y Global state vector at time *t*
-     *  @param[out] ydot Time derivative of the state vector evaluated at *t*.
+     *  @param[in] t Time/distance at which to evaluate the Jacobian
+     *  @param[in] y Global state vector at *t*
+     *  @param[out] ydot Derivative of the state vector evaluated at *t*, with respect
+     *      to *t*.
      *  @param[in] p sensitivity parameter vector (unused?)
      *  @param[out] j Jacobian matrix, size neq() by neq().
      */
@@ -207,7 +214,7 @@ public:
     virtual void getState(double* y);
     virtual void getStateDae(double* y, double* ydot);
 
-    //! Return k-th derivative at the current time
+    //! Return k-th derivative at the current state of the system
     virtual void getDerivative(int k, double* dky);
 
     virtual void getConstraints(double* constraints);
@@ -259,8 +266,8 @@ public:
         m_integrator_init = false;
     }
 
-    //! Set the maximum number of internal integration time-steps the
-    //! integrator will take before reaching the next output time
+    //! Set the maximum number of internal integration steps the
+    //! integrator will take before reaching the next output point
     //! @param nmax The maximum number of steps, setting this value
     //!             to zero disables this option.
     virtual void setMaxSteps(int nmax);
@@ -304,7 +311,11 @@ protected:
 
     std::vector<Reactor*> m_reactors;
     std::unique_ptr<Integrator> m_integ;
+
+    //! The independent variable in the system. May be either time or space depending
+    //! on the type of reactors in the network.
     double m_time = 0.0;
+
     bool m_init = false;
     bool m_integrator_init = false; //!< True if integrator initialization is current
     size_t m_nv = 0;
@@ -324,6 +335,9 @@ protected:
     double m_maxstep = 0.0;
 
     bool m_verbose = false;
+
+    //! Indicates whether time or space is the independent variable
+    bool m_timeIsIndependent = true;
 
     //! Names corresponding to each sensitivity parameter
     std::vector<std::string> m_paramNames;
