@@ -13,6 +13,11 @@
 #include "ResidEval.h"
 #include "DenseMatrix.h"
 
+#ifndef CT_SKIP_DEPRECATION_WARNINGS
+#pragma message("warning: ResidJacEval.h and class ResidJacEval are deprecated and " \
+                "will be removed after Cantera 3.0.")
+#endif
+
 namespace Cantera
 {
 
@@ -51,6 +56,8 @@ enum ResidEval_Type_Enum {
  * A class for full (non-sparse dense matrices with Fortran-compatible data
  * storage. The class adds support for identifying what types of calls are made
  * to the residual evaluator by adding the ResidEval_Type_Enum class.
+ *
+ * @deprecated Unused. To be removed after Cantera 3.0.
  */
 class ResidJacEval : public ResidEval
 {

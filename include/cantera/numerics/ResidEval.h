@@ -11,6 +11,11 @@
 #include "cantera/base/utilities.h"
 #include "cantera/base/global.h"
 
+#ifndef CT_SKIP_DEPRECATION_WARNINGS
+#pragma message("warning: ResidEval.h and class ResidEval are deprecated and will " \
+                "be removed after Cantera 3.0.")
+#endif
+
 namespace Cantera
 {
 
@@ -27,12 +32,15 @@ const int c_LT_ZERO = -2;
  *             \vec{F}(t,\vec{y}, \vec{y^\prime})
  * \f]
  * The DAE solver attempts to find a solution y(t) such that F = 0.
+ * @deprecated Unused. To be removed after Cantera 3.0.
  *  @ingroup DAE_Group
  */
 class ResidEval
 {
 public:
-    ResidEval() {}
+    ResidEval() {
+        warn_deprecated("class ResidEval", "To be removed after Cantera 3.0");
+    }
     virtual ~ResidEval() {}
 
     /**

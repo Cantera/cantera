@@ -7,6 +7,7 @@
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/Species.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/utilities.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/math/tools/roots.hpp>
