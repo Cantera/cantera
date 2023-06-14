@@ -52,6 +52,8 @@ const int CK_Mode = 10;
  * quantities refers to the reference velocity being referenced to a particular
  * species. Below are the predefined constants for its value.
  *
+ * @deprecated To be removed after Cantera 3.0.
+ *
  * - VB_MASSAVG    Diffusion velocities are based on the mass averaged velocity
  * - VB_MOLEAVG    Diffusion velocities are based on the mole averaged velocities
  * - VB_SPECIES_0  Diffusion velocities are based on the relative motion wrt species 0
@@ -67,16 +69,22 @@ typedef int VelocityBasis;
  */
 //! @{
 //! Diffusion velocities are based on the mass averaged velocity
+//! @deprecated To be removed after Cantera 3.0.
 const VelocityBasis VB_MASSAVG = -1;
 //! Diffusion velocities are based on the mole averaged velocities
+//! @deprecated To be removed after Cantera 3.0.
 const VelocityBasis VB_MOLEAVG = -2;
 //! Diffusion velocities are based on the relative motion wrt species 0
+//! @deprecated To be removed after Cantera 3.0.
 const VelocityBasis VB_SPECIES_0 = 0;
 //! Diffusion velocities are based on the relative motion wrt species 1
+//! @deprecated To be removed after Cantera 3.0.
 const VelocityBasis VB_SPECIES_1 = 1;
 //! Diffusion velocities are based on the relative motion wrt species 2
+//! @deprecated To be removed after Cantera 3.0.
 const VelocityBasis VB_SPECIES_2 = 2;
 //! Diffusion velocities are based on the relative motion wrt species 3
+//! @deprecated To be removed after Cantera 3.0.
 const VelocityBasis VB_SPECIES_3 = 3;
 //! @}
 
@@ -248,6 +256,7 @@ public:
     }
 
     //! The ionic conductivity in 1/ohm/m.
+    //! @deprecated To be removed after Cantera 3.0. Not implemented by any model.
     virtual double ionConductivity() {
         throw NotImplementedError("Transport::ionConductivity",
             "Not implemented for transport model '{}'.", transportModel());
@@ -258,6 +267,8 @@ public:
      *  The units are 1/ohm/m and the length is the number of species
      *
      * @param ionCond   Vector of ionic conductivities
+     *
+     * @deprecated To be removed after Cantera 3.0. Not implemented by any model.
      */
     virtual void getSpeciesIonConductivity(double* const ionCond) {
         throw NotImplementedError("Transport::getSpeciesIonConductivity",
@@ -278,6 +289,8 @@ public:
      *        k = j * nsp + i
      *
      * The size of mobRat must be at least equal to nsp*nsp
+     *
+     * @deprecated To be removed after Cantera 3.0. Not implemented by any model.
      */
     virtual void mobilityRatio(double* mobRat) {
         throw NotImplementedError("Transport::mobilityRatio",
@@ -289,6 +302,8 @@ public:
      * The value is dimensionless and the length is the number of species
      *
      * @param mobRat   Vector of mobility ratios
+     *
+     * @deprecated To be removed after Cantera 3.0. Not implemented by any model.
      */
     virtual void getSpeciesMobilityRatio(double** mobRat) {
         throw NotImplementedError("Transport::getSpeciesMobilityRatio",
@@ -349,6 +364,8 @@ public:
      * @param mobil_f  Returns the mobilities of the species in array \c mobil.
      *               The array must be dimensioned at least as large as the
      *               number of species.
+     *
+     * @deprecated To be removed after Cantera 3.0. Not implemented by any model.
      */
     virtual void getFluidMobilities(double* const mobil_f) {
         throw NotImplementedError("Transport::getFluidMobilities",
@@ -373,6 +390,8 @@ public:
      * The conductivity is the reciprocal of the resistivity.
      *
      * The units are Siemens m-1, where 1 S = 1 A / volt = 1 s^3 A^2 /kg /m^2
+     *
+     * @deprecated To be removed after Cantera 3.0. Replaced by electricalConductivity()
      */
     virtual double getElectricConduct() {
         throw NotImplementedError("Transport::getElectricConduct",
@@ -391,6 +410,8 @@ public:
      * @param ldf     Leading dimension of the grad_V and current vectors.
      * @param grad_V  The electrostatic potential gradient.
      * @param current The electric current in A/m^2. This is a vector of length ndim
+     *
+     * @deprecated To be removed after Cantera 3.0. Not implemented by any model.
      */
     virtual void getElectricCurrent(int ndim,
                                     const double* grad_T,
@@ -446,6 +467,8 @@ public:
      * @param[in] grad_Phi Gradients of the electrostatic potential (length = ndim)
      * @param[out] fluxes  The diffusive mass fluxes. Flat vector with the m_nsp
      *             in the inner loop. length = ldx * ndim.
+     *
+     * @deprecated To be removed after Cantera 3.0. Not implemented by any model.
      */
     virtual void getSpeciesFluxesES(size_t ndim,
                                     const double* grad_T,
@@ -471,6 +494,8 @@ public:
      * @param[out] Vdiff  Diffusive velocities wrt the mass- averaged velocity.
      *               Flat vector with the m_nsp in the inner loop.
      *               length = ldx * ndim. units are m / s.
+     *
+     * @deprecated To be removed after Cantera 3.0. Not implemented by any model.
      */
     virtual void getSpeciesVdiff(size_t ndim,
                                  const double* grad_T,
@@ -499,6 +524,8 @@ public:
      * @param[out] Vdiff  Diffusive velocities wrt the mass-averaged velocity.
      *               Flat vector with the m_nsp in the inner loop. length = ldx
      *               * ndim. units are m / s.
+     *
+     * @deprecated To be removed after Cantera 3.0. Not implemented by any model.
      */
     virtual void getSpeciesVdiffES(size_t ndim,
                                    const double* grad_T,
@@ -695,6 +722,7 @@ public:
      * @param k       Species index to set the parameters on
      * @param p       Vector of parameters. The length of the vector varies with
      *                 the parameterization
+     * @deprecated  To be removed after Cantera 3.0.
      */
     virtual void setParameters(const int type, const int k, const double* const p) {
         throw NotImplementedError("Transport::setParameters",
@@ -714,6 +742,7 @@ public:
      * operators including all of the gas-phase operators.
      *
      * @param ivb   Species the velocity basis
+     * @deprecated  To be removed after Cantera 3.0.
      */
     void setVelocityBasis(VelocityBasis ivb) {
         m_velocityBasis = ivb;
@@ -726,6 +755,7 @@ public:
      * operators including all of the gas-phase operators.
      *
      * @returns the velocity basis
+     * @deprecated  To be removed after Cantera 3.0.
      */
     VelocityBasis getVelocityBasis() const {
         return m_velocityBasis;
@@ -804,6 +834,7 @@ protected:
 
     //! Velocity basis from which diffusion velocities are computed.
     //! Defaults to the mass averaged basis = -2
+    //! @deprecated  To be removed after Cantera 3.0.
     int m_velocityBasis = VB_MASSAVG;
 
     //! reference to Solution
