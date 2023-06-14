@@ -14,6 +14,11 @@
 namespace Cantera
 {
 
+PDSS_IdealGas::PDSS_IdealGas()
+{
+    warn_deprecated("class PDSS_IdealGas", "To be removed after Cantera 3.0");
+}
+
 void PDSS_IdealGas::initThermo()
 {
     PDSS::initThermo();

@@ -544,8 +544,6 @@ gas-species:
       -917.935173, 0.683010238]
     - [3.3372792, -4.94024731e-05, 4.99456778e-07, -1.79566394e-10, 2.00255376e-14,
       -950.158922, -3.20502331]
-  equation-of-state:
-    model: ideal-gas
 - name: H2O
   composition: {H: 2, O: 1}
   thermo:
