@@ -9,6 +9,7 @@
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/zeroD/ReactorSurface.h"
+#include "cantera/zeroD/ReactorNet.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/numerics/DenseMatrix.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
@@ -205,6 +206,17 @@ void FlowReactor::setMassFlowRate(double mdot)
 {
     m_rho = m_thermo->density();
     m_u = mdot/(m_rho * m_area);
+}
+
+double FlowReactor::distance() const
+{
+    warn_deprecated("FlowReactor::distance", "To be removed after Cantera 3.0."
+                    "Access distance through the ReactorNet object.");
+    if (m_net != nullptr) {
+        return m_net->distance();
+    } else {
+        return 0.0;
+    }
 }
 
 void FlowReactor::setArea(double area) {
