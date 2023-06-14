@@ -2117,7 +2117,10 @@ else:
     locations = ["libdir", "bindir", "python_bindir", "incdir", "incroot",
         "matlab_dir", "datadir", "sampledir", "docdir", "mandir"]
     for loc in locations:
-        env[f"inst_{loc}"] = env[f"ct_{loc}"].replace(env["ct_installroot"], instRoot)
+        if env["prefix"] == ".":
+            env[f"inst_{loc}"] = (Path(instRoot) / env[f"ct_{loc}"]).as_posix()
+        else:
+            env[f"inst_{loc}"] = env[f"ct_{loc}"].replace(env["ct_installroot"], instRoot)
 
 if env['use_rpath_linkage']:
     env.Append(RPATH=env['ct_libdir'])
