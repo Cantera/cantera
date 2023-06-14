@@ -23,14 +23,15 @@ StFlow::StFlow(ThermoPhase* ph, size_t nsp, size_t points) :
     m_type = cFlowType;
     m_points = points;
 
-    if (ph->type() == "ideal-gas" || ph->type() == "Redlich-Kwong" || ph->type() == "Peng-Robinson") {
-        m_thermo = static_cast<ThermoPhase*>(ph);
-    } else {
-        throw CanteraError("StFlow::StFlow",
-                           "Unsupported phase type: need 'IdealGasPhase' or 'Redlich-Kwong'or 'Peng-Robinson'");
-    }
     if (ph == 0) {
         return; // used to create a dummy object
+    }
+    if (ph->type() == "ideal-gas" || ph->type() == "Redlich-Kwong" || 
+        ph->type() == "Peng-Robinson") {
+        m_thermo = static_cast<ThermoPhase*>(ph);
+    } else {
+        throw CanteraError("StFlow::StFlow", "Unsupported phase type:", 
+            "need 'IdealGasPhase' or 'Redlich-Kwong'or 'Peng-Robinson'");
     }
 
     size_t nsp2 = m_thermo->nSpecies();
