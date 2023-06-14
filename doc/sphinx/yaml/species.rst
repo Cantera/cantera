@@ -372,8 +372,10 @@ Ideal gas
 
 A species using the ideal gas equation of state, as
 `described here <https://cantera.org/documentation/dev/doxygen/html/df/d31/classCantera_1_1PDSS__IdealGas.html#details>`__.
-This model is the default if no ``equation-of-state`` section is included.
 
+.. deprecated:: 3.0
+
+    This species thermo model is deprecated and will be removed after Cantera 3.0.
 
 .. _sec-yaml-eos-ions-from-neutral:
 

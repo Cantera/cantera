@@ -20,12 +20,13 @@ namespace Cantera
  * This class is for a single Ideal Gas species.
  *
  * @ingroup pdssthermo
+ * @deprecated To be removed after Cantera 3.0.
  */
 class PDSS_IdealGas : public PDSS_Nondimensional
 {
 public:
     //! Default Constructor
-    PDSS_IdealGas() = default;
+    PDSS_IdealGas();
 
     //! @name Molar Thermodynamic Properties of the Species Standard State
     //! @{

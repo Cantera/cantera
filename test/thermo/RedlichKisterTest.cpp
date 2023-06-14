@@ -4,7 +4,7 @@
 #include "cantera/thermo/Species.h"
 #include "cantera/thermo/ConstCpPoly.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/thermo/PDSS_IdealGas.h"
+#include "cantera/thermo/PDSS_ConstVol.h"
 
 namespace Cantera
 {
@@ -112,10 +112,10 @@ TEST_F(RedlichKister_Test, fromScratch)
     rk.addSpecies(sLiC6);
     rk.addSpecies(sVC6);
 
-    auto ssLiC6 = make_unique<PDSS_IdealGas>();
+    auto ssLiC6 = make_unique<PDSS_ConstVol>();
     rk.installPDSS(0, std::move(ssLiC6));
 
-    auto ssVC6 = make_unique<PDSS_IdealGas>();
+    auto ssVC6 = make_unique<PDSS_ConstVol>();
     rk.installPDSS(1, std::move(ssVC6));
 
     double hcoeffs[] = {-3.268E6, 3.955E6, -4.573E6, 6.147E6, -3.339E6, 1.117E7,
