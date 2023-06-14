@@ -56,6 +56,12 @@ public:
         return true;
     }
 
+    //! Indicates whether the governing equations for this reactor are functions of time
+    //! or a spatial variable. All reactors in a network must have the same value.
+    virtual bool timeIsIndependent() const {
+        return true;
+    }
+
     /**
      * Insert something into the reactor. The 'something' must belong to a class
      * that is a subclass of both ThermoPhase and Kinetics.

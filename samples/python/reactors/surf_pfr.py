@@ -64,8 +64,8 @@ print('    distance       X_CH4        X_H2        X_CO')
 print('  {:10f}  {:10f}  {:10f}  {:10f}'.format(
       0, *r.thermo['CH4', 'H2', 'CO'].X))
 
-while sim.time < length:
-    dist = sim.time * 1e3
+while sim.distance < length:
+    dist = sim.distance * 1e3  # convert to mm
     sim.step()
 
     if n % 100 == 0 or (dist > 1 and n % 10 == 0):

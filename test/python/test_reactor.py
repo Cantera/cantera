@@ -99,6 +99,14 @@ class TestReactor(utilities.CanteraTest):
             self.assertEqual(self.net.component_name(N+i),
                 '{}: {}'.format(self.r2.name, self.r2.component_name(i)))
 
+    def test_independent_variable(self):
+        self.make_reactors(independent=False, n_reactors=1)
+
+        with pytest.raises(ct.CanteraError, match="independent variable"):
+            self.net.distance
+
+        assert self.net.time == 0.0
+
     def test_disjoint(self):
         T1, P1 = 300, 101325
         T2, P2 = 500, 300000
@@ -1403,18 +1411,12 @@ class TestFlowReactor(utilities.CanteraTest):
         net = ct.ReactorNet()
         net.add_reactor(r)
 
-        t = 0
+        x = 0
         v0 = r.speed
-        times = [0]
-        velocities = [r.speed]
         self.assertNear(v0, 10 / r.density)
-        while t < 10.0:
-            t = net.step()
-            times.append(t)
-            velocities.append(r.speed)
-
+        while x < 10.0:
+            x = net.step()
             self.assertNear(v0, r.speed)
-            self.assertNear(np.trapz(velocities, x=times), v0 * t, 1e-3)
 
     def test_reacting(self):
         g = ct.Solution(yaml=self.gas_def)
@@ -1427,7 +1429,7 @@ class TestFlowReactor(utilities.CanteraTest):
         net.add_reactor(r)
 
         i = 0
-        while net.time < 1.0:
+        while net.distance < 1.0:
             net.step()
             i += 1
             assert r.speed * r.density * r.area == pytest.approx(10)
@@ -1436,9 +1438,9 @@ class TestFlowReactor(utilities.CanteraTest):
         assert stats['steps'] == i
         assert 'err_tests_fails' in stats
 
-        # advancing to the current time should be a no-op
-        t_now = net.time
-        net.advance(t_now)
+        # advancing to the current distance should be a no-op
+        x_now = net.distance
+        net.advance(x_now)
         assert net.solver_stats['steps'] == i
 
     def test_catalytic_surface(self):
@@ -1555,7 +1557,7 @@ class TestFlowReactor2(utilities.CanteraTest):
 
         with pytest.raises(ct.CanteraError, match="repeated recoverable residual errors"):
             while r.thermo.T > 1300:
-                sim.advance(sim.time + 0.01)
+                sim.advance(sim.distance + 0.01)
 
     def test_recoverable_integrator_errors(self):
         surf, gas = self.import_phases()
@@ -1589,6 +1591,14 @@ class TestFlowReactor2(utilities.CanteraTest):
 
         assert sim.solver_stats['steps'] == 13
 
+    def test_independent_variable(self):
+        surf, gas = self.import_phases()
+        r, rsurf, sim = self.make_reactors(gas, surf)
+        with pytest.raises(ct.CanteraError, match="independent variable"):
+            sim.time
+
+        assert sim.distance == 0.0
+
     def test_max_time_step(self):
         surf, gas = self.import_phases()
         gas.TPX = 1500, 4000, 'NH3:1.0, SiF4:0.4'
@@ -1597,21 +1607,21 @@ class TestFlowReactor2(utilities.CanteraTest):
 
         sim.max_time_step = 0.2
         sim.advance(0.01)
-        t1 = sim.time
-        t2 = sim.step()
-        dt_limit = 0.05 * (t2-t1)
+        x1 = sim.distance
+        x2 = sim.step()
+        dx_limit = 0.05 * (x2-x1)
 
-        sim.max_time_step = dt_limit
-        assert sim.max_time_step == dt_limit
+        sim.max_time_step = dx_limit
+        assert sim.max_time_step == dx_limit
 
-        # Setting a time step limit seems to take one additional time step before it's
+        # Setting a step size limit seems to take one additional step before it's
         # fully enforced
         sim.step()
 
         for i in range(20):
-            tPrev = sim.time
+            tPrev = sim.distance
             tNow = sim.step()
-            assert tNow - tPrev <= 1.0001 * dt_limit
+            assert tNow - tPrev <= 1.0001 * dx_limit
 
     def test_tolerances(self):
         surf, gas = self.import_phases()

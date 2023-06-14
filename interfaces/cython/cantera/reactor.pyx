@@ -440,7 +440,7 @@ cdef class IdealGasConstPressureMoleReactor(Reactor):
 cdef class FlowReactor(Reactor):
     """
     A steady-state plug flow reactor with constant cross sectional area.
-    Time integration follows a fluid element along the length of the reactor.
+    Integration follows a fluid element along the length of the reactor.
     The reactor is assumed to be frictionless and adiabatic.
     """
     reactor_type = "FlowReactor"
@@ -1291,19 +1291,22 @@ cdef class ReactorNet:
 
     def advance(self, double t, pybool apply_limit=True):
         """
-        Advance the state of the reactor network in time from the current time
-        towards time ``t`` in seconds, taking as many integrator time steps as necessary.
-        If ``apply_limit`` is true and an advance limit is specified, the reactor
-        state at the end of the timestep is estimated prior to advancing. If
-        the difference exceed limits, the end time is reduced by half until
-        the projected end state remains within specified limits.
-        Returns the time reached at the end of integration.
+        Advance the state of the reactor network from the current time/distance towards
+        the specified value ``t`` of the independent variable, which depends on the type
+        of reactors included in the network.
+
+        The integrator will take as many steps as necessary to reach ``t``. If
+        ``apply_limit`` is true and an advance limit is specified, the reactor state at
+        the end of the step is estimated prior to advancing. If the difference exceed
+        limits, the end value is reduced by half until the projected end state remains
+        within specified limits. Returns the time/distance reached at the end of
+        integration.
         """
         return self.net.advance(t, apply_limit)
 
     def step(self):
         """
-        Take a single internal time step. The time after taking the step is
+        Take a single internal step. The time/distance after taking the step is
         returned.
         """
         return self.net.step()
@@ -1322,10 +1325,20 @@ cdef class ReactorNet:
         """
         self.net.reinitialize()
 
-    property time:
-        """The current time [s]."""
-        def __get__(self):
-            return self.net.time()
+    @property
+    def time(self):
+        """
+        The current time [s], for reactor networks that are solved in the time domain.
+        """
+        return self.net.time()
+
+    @property
+    def distance(self):
+        """
+        The current distance[ m] along the length of the reactor network, for reactors
+        that are solved as a function of space.
+        """
+        return self.net.distance()
 
     def set_initial_time(self, double t):
         """
@@ -1348,8 +1361,8 @@ cdef class ReactorNet:
 
     property max_err_test_fails:
         """
-        The maximum number of error test failures permitted by the CVODES
-        integrator in a single time step. The default is 10.
+        The maximum number of error test failures permitted by the CVODES integrator
+        in a single step. The default is 10.
         """
         def __set__(self, n):
             self.net.setMaxErrTestFails(n)
@@ -1404,8 +1417,8 @@ cdef class ReactorNet:
 
     property max_steps:
         """
-        The maximum number of internal integration time-steps that CVODES
-        is allowed to take before reaching the next output time.
+        The maximum number of internal integration steps that CVODES
+        is allowed to take before reaching the next output point.
         """
         def __set__(self, nsteps):
             self.net.setMaxSteps(nsteps)
@@ -1486,7 +1499,7 @@ cdef class ReactorNet:
         string or an integer. See `component_index` and `sensitivities` to
         determine the integer index for the variables and the definition of the
         resulting sensitivity coefficient. If it is not given, ``r`` defaults to
-        the first reactor. Returns an empty array until the first time step is
+        the first reactor. Returns an empty array until the first integration step is
         taken.
         """
         if isinstance(component, int):
@@ -1508,7 +1521,7 @@ cdef class ReactorNet:
         reversible reactions).
 
         The sensitivities are returned in an array with dimensions *(n_vars,
-        n_sensitivity_params)*, unless no timesteps have been taken, in which
+        n_sensitivity_params)*, unless no integration steps have been taken, in which
         case the shape is *(0, n_sensitivity_params)*. The order of the
         variables (that is, rows) is:
 
@@ -1578,7 +1591,8 @@ cdef class ReactorNet:
 
     def get_derivative(self, k):
         """
-        Get the k-th time derivative of the state vector of the reactor network.
+        Get the k-th derivative of the state vector of the reactor network with respect
+        to the independent integrator variable (time/distance).
         """
         if not self.n_vars:
             raise CanteraError('ReactorNet empty or not initialized.')

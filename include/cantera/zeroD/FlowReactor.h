@@ -25,6 +25,10 @@ public:
         return false;
     }
 
+    bool timeIsIndependent() const override {
+        return false;
+    }
+
     //! Not implemented; FlowReactor implements getStateDAE() instead.
     void getState(double* y) override {
         throw NotImplementedError("FlowReactor::getState");

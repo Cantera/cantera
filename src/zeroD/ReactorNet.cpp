@@ -64,6 +64,24 @@ void ReactorNet::setSensitivityTolerances(double rtol, double atol)
     m_init = false;
 }
 
+double ReactorNet::time() {
+    if (m_timeIsIndependent) {
+        return m_time;
+    } else {
+        throw CanteraError("ReactorNet::time", "Time is not the independent variable"
+            " for this reactor network.");
+    }
+}
+
+double ReactorNet::distance() {
+    if (!m_timeIsIndependent) {
+        return m_time;
+    } else {
+        throw CanteraError("ReactorNet::distance", "Distance is not the independent"
+            " variable for this reactor network.");
+    }
+}
+
 void ReactorNet::initialize()
 {
     m_nv = 0;
@@ -270,7 +288,13 @@ void ReactorNet::addReactor(Reactor& r)
                 "Cannot mix Reactor types using both ODEs and DAEs ({} and {})",
                 current->type(), r.type());
         }
+        if (current->timeIsIndependent() != r.timeIsIndependent()) {
+            throw CanteraError("ReactorNet::addReactor",
+                "Cannot mix Reactor types using time and space as independent variables"
+                "\n({} and {})", current->type(), r.type());
+        }
     }
+    m_timeIsIndependent = r.timeIsIndependent();
     r.setNetwork(this);
     m_reactors.push_back(&r);
     if (!m_integ) {

@@ -161,7 +161,8 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         double step() except +translate_exception
         void initialize() except +translate_exception
         void reinitialize() except +translate_exception
-        double time()
+        double time() except +translate_exception
+        double distance() except +translate_exception
         void setInitialTime(double)
         void setTolerances(double, double)
         double rtol()

@@ -191,7 +191,10 @@ void Reactor::updateConnected(bool updatePressure) {
     m_thermo->saveState(m_state);
 
     // Update the mass flow rate of connected flow devices
-    double time = (m_net != nullptr) ? m_net->time() : 0.0;
+    double time = 0.0;
+    if (m_net != nullptr) {
+        time = (timeIsIndependent()) ? m_net->time() : m_net->distance();
+    }
     for (size_t i = 0; i < m_outlet.size(); i++) {
         m_outlet[i]->updateMassFlowRate(time);
     }
