@@ -11,6 +11,7 @@ namespace Cantera
 ResidJacEval::ResidJacEval(doublereal atol) :
     m_atol(atol)
 {
+    warn_deprecated("class ResidJacEval", "To be removed after Cantera 3.0");
 }
 
 int ResidJacEval::nEquations() const

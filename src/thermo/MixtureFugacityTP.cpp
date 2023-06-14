@@ -10,6 +10,8 @@
 
 #include "cantera/thermo/MixtureFugacityTP.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/utilities.h"
+#include "cantera/base/global.h"
 
 using namespace std;
 
