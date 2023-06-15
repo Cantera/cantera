@@ -30,23 +30,31 @@ binary: build
 	sed 's|#\!/usr/bin/env python$$|#\!/usr/bin/env python3|' interfaces/cython/cantera/cti2yaml.py > debian/cantera-common/usr/bin/cti2yaml
 	sed 's|#\!/usr/bin/env python$$|#\!/usr/bin/env python3|' interfaces/cython/cantera/yaml2ck.py > debian/cantera-common/usr/bin/yaml2ck
 	chmod a+x debian/cantera-common/usr/bin/*
-	rm -f debian/cantera-python3/usr/bin/*
-	rm -rf debian/cantera-python3/usr/lib/python3/dist-packages/cantera/data
-	rm -f debian/cantera-python3/usr/lib/python3/dist-packages/cantera/*.cpp
-	rm -f debian/cantera-python3/usr/lib/python3/dist-packages/cantera/*.h
-	rm -f debian/cantera-python3/usr/lib/python3/dist-packages/cantera/*.pyx
-	rm -f debian/cantera-python3/usr/lib/python3/dist-packages/LICENSE.txt
-	rm -f debian/cantera-python3/usr/lib/python3/dist-packages/README.rst
-	rm -f debian/cantera-python3/usr/lib/python3/dist-packages/SConscript
-	rm -f debian/cantera-python3/usr/lib/python3/dist-packages/pyproject.toml
-	rm -f debian/cantera-python3/usr/lib/python3/dist-packages/setup.cfg
-	rm -f debian/cantera-python3/usr/lib/python3/dist-packages/setup.cfg.in
-	rm -f debian/cantera-python3/usr/lib/python3/dist-packages/setup.py
-	rm -rf debian/cantera-python3/usr/lib/python3/dist-packages/dist
-	rm -rf debian/cantera-python3/usr/lib/python3/dist-packages/build
+	mv stage/usr/share/cantera/data debian/cantera-common/usr/share/cantera/
+	mv stage/usr/share/cantera/samples debian/cantera-common/usr/share/cantera/
 
+	mkdir -p debian/cantera-python3/usr/lib/python3/dist-packages
+	mkdir -p debian/cantera-python3/usr/lib/${DEB_HOST_MULTIARCH}/
+
+	rm -rf stage/usr/local/lib/python3.*/dist-packages/cantera/data
+	find stage -name __pycache__ | xargs rm -rf
+	rm -f stage/usr/local/lib/python3.*/dist-packages/Cantera-*.dist-info/INSTALLER
+	rm -f stage/usr/local/lib/python3.*/dist-packages/Cantera-*.dist-info/LICENSE.txt
+	rm -f stage/usr/local/lib/python3.*/dist-packages/Cantera-*.dist-info/direct_url.json
+	rm -f stage/usr/local/lib/python3.*/dist-packages/Cantera-*.dist-info/REQUESTED
+	mv stage/usr/local/lib/python3.*/dist-packages/cantera debian/cantera-python3/usr/lib/python3/dist-packages/
+	mv stage/usr/local/lib/python3.*/dist-packages/Cantera-*.dist-info debian/cantera-python3/usr/lib/python3/dist-packages/
+	mv stage/usr/lib/libcantera_python*.so debian/cantera-python3/usr/lib/${DEB_HOST_MULTIARCH}/
+
+	mkdir -p debian/libcantera-dev/usr/lib
+	mv stage/usr/lib/*.a debian/libcantera-dev/usr/lib/
 	mkdir -p debian/cantera-dev/usr/lib/${DEB_HOST_MULTIARCH}/pkgconfig
-	mv debian/cantera-dev/usr/lib/pkgconfig/cantera.pc debian/cantera-dev/usr/lib/${DEB_HOST_MULTIARCH}/pkgconfig/
+	mv stage/usr/lib/pkgconfig/cantera.pc debian/cantera-dev/usr/lib/${DEB_HOST_MULTIARCH}/pkgconfig/
+	mkdir -p debian/libcantera-dev/usr/include
+	mv stage/usr/include/cantera debian/libcantera-dev/usr/include
+
+	mkdir -p debian/libcantera3/usr/lib/${DEB_HOST_MULTIARCH}
+	mv stage/usr/lib/*.so debian/libcantera3/usr/lib/${DEB_HOST_MULTIARCH}/
 
 	dh_strip
 	dh_shlibdeps
@@ -61,9 +69,10 @@ binary-indep: binary
 	/bin/true
 
 build:
-	scons build -j6 prefix=/usr blas_lapack_libs=lapack,blas system_sundials=y \
-		f90_interface=y renamed_shared_libraries=n versioned_shared_library=n \
-		python_package=full layout=debian system_eigen=y system_fmt=y \
+	scons build -j6 prefix=/usr layout=standard stage_dir=stage \
+	    blas_lapack_libs=lapack,blas system_sundials=y f90_interface=y \
+		renamed_shared_libraries=n versioned_shared_library=n \
+		python_package=full system_eigen=y system_fmt=y \
 		use_rpath_linkage=n
 
 build-arch: build
