@@ -1,0 +1,155 @@
+From: Ray Speth <speth@mit.edu>
+Date: Thu, 15 Jun 2023 15:42:57 -0400
+Subject: Make compatible with Cython<0.29.31
+
+This needs to be undone to be compatible with Cython>=3.0
+---
+ SConstruct                              |  2 +-
+ interfaces/cython/cantera/delegator.pxd |  2 +-
+ interfaces/cython/cantera/delegator.pyx | 26 +++++++++++++-------------
+ 3 files changed, 15 insertions(+), 15 deletions(-)
+
+diff --git a/SConstruct b/SConstruct
+index beac093..fc49dd1 100644
+--- a/SConstruct
++++ b/SConstruct
+@@ -1705,7 +1705,7 @@ python_max_p1_version = parse_version("3.12")
+ env["py_requires_ver_str"] = f">={python_min_version}"
+ if env["python_sdist"] or env["package_build"]:
+     env["py_requires_ver_str"] += f",<{python_max_p1_version}"
+-cython_min_version = parse_version("0.29.31")
++cython_min_version = parse_version("0.29.14")
+ numpy_min_version = parse_version('1.12.0')
+ 
+ # We choose ruamel.yaml 0.15.34 as the minimum version
+diff --git a/interfaces/cython/cantera/delegator.pxd b/interfaces/cython/cantera/delegator.pxd
+index 721ddd7..974112d 100644
+--- a/interfaces/cython/cantera/delegator.pxd
++++ b/interfaces/cython/cantera/delegator.pxd
+@@ -107,4 +107,4 @@ cdef extern from "cantera/base/ExtensionManagerFactory.h" namespace "Cantera":
+ ctypedef CxxDelegator* CxxDelegatorPtr
+ 
+ cdef int assign_delegates(object, CxxDelegator*) except -1
+-cdef void callback_v(PyFuncInfo& funcInfo) noexcept
++cdef void callback_v(PyFuncInfo& funcInfo)
+diff --git a/interfaces/cython/cantera/delegator.pyx b/interfaces/cython/cantera/delegator.pyx
+index fe2dc16..6eedbe4 100644
+--- a/interfaces/cython/cantera/delegator.pyx
++++ b/interfaces/cython/cantera/delegator.pyx
+@@ -87,7 +87,7 @@ from cpython.object cimport PyTypeObject, traverseproc, visitproc, inquiry
+ # function.
+ 
+ # Wrapper for functions of type void()
+-cdef void callback_v(PyFuncInfo& funcInfo) noexcept:
++cdef void callback_v(PyFuncInfo& funcInfo):
+     try:
+         (<object>funcInfo.func())()
+     except BaseException as e:
+@@ -96,7 +96,7 @@ cdef void callback_v(PyFuncInfo& funcInfo) noexcept:
+         funcInfo.setExceptionValue(<PyObject*>exc_value)
+ 
+ # Wrapper for functions of type void(double)
+-cdef void callback_v_d(PyFuncInfo& funcInfo, double arg) noexcept:
++cdef void callback_v_d(PyFuncInfo& funcInfo, double arg):
+     try:
+         (<object>funcInfo.func())(arg)
+     except BaseException as e:
+@@ -105,7 +105,7 @@ cdef void callback_v_d(PyFuncInfo& funcInfo, double arg) noexcept:
+         funcInfo.setExceptionValue(<PyObject*>exc_value)
+ 
+ # Wrapper for functions of type void(bool)
+-cdef void callback_v_b(PyFuncInfo& funcInfo, cbool arg) noexcept:
++cdef void callback_v_b(PyFuncInfo& funcInfo, cbool arg):
+     try:
+         (<object>funcInfo.func())(arg)
+     except BaseException as e:
+@@ -114,7 +114,7 @@ cdef void callback_v_b(PyFuncInfo& funcInfo, cbool arg) noexcept:
+         funcInfo.setExceptionValue(<PyObject*>exc_value)
+ 
+ # Wrapper for functions of type void(AnyMap&)
+-cdef void callback_v_AMr(PyFuncInfo& funcInfo, CxxAnyMap& arg) noexcept:
++cdef void callback_v_AMr(PyFuncInfo& funcInfo, CxxAnyMap& arg):
+     pyArg = anymap_to_py(<CxxAnyMap&>arg)  # cast away constness
+     try:
+         (<object>funcInfo.func())(pyArg)
+@@ -128,7 +128,7 @@ cdef void callback_v_AMr(PyFuncInfo& funcInfo, CxxAnyMap& arg) noexcept:
+ 
+ # Wrapper for functions of type void(const AnyMap&, const UnitStack&)
+ cdef void callback_v_cAMr_cUSr(PyFuncInfo& funcInfo, const CxxAnyMap& arg1,
+-                               const CxxUnitStack& arg2) noexcept:
++                               const CxxUnitStack& arg2):
+ 
+     pyArg1 = anymap_to_py(<CxxAnyMap&>arg1)  # cast away constness
+     pyArg2 = UnitStack.copy(arg2)
+@@ -141,7 +141,7 @@ cdef void callback_v_cAMr_cUSr(PyFuncInfo& funcInfo, const CxxAnyMap& arg1,
+ 
+ # Wrapper for functions of type void(const string&, void*)
+ cdef void callback_v_csr_vp(PyFuncInfo& funcInfo,
+-                            const string& arg1, void* obj) noexcept:
++                            const string& arg1, void* obj):
+     try:
+         (<object>funcInfo.func())(pystr(arg1), <object>obj)
+     except BaseException as e:
+@@ -150,7 +150,7 @@ cdef void callback_v_csr_vp(PyFuncInfo& funcInfo,
+         funcInfo.setExceptionValue(<PyObject*>exc_value)
+ 
+ # Wrapper for functions of type void(double*)
+-cdef void callback_v_dp(PyFuncInfo& funcInfo, size_array1 sizes, double* arg) noexcept:
++cdef void callback_v_dp(PyFuncInfo& funcInfo, size_array1 sizes, double* arg):
+     cdef double[:] view = <double[:sizes[0]]>arg if sizes[0] else None
+ 
+     try:
+@@ -162,7 +162,7 @@ cdef void callback_v_dp(PyFuncInfo& funcInfo, size_array1 sizes, double* arg) no
+ 
+ # Wrapper for functions of type void(double, double*)
+ cdef void callback_v_d_dp(PyFuncInfo& funcInfo, size_array1 sizes, double arg1,
+-                          double* arg2) noexcept:
++                          double* arg2):
+     cdef double[:] view = <double[:sizes[0]]>arg2 if sizes[0] else None
+ 
+     try:
+@@ -174,7 +174,7 @@ cdef void callback_v_d_dp(PyFuncInfo& funcInfo, size_array1 sizes, double arg1,
+ 
+ # Wrapper for functions of type void(double*, double*, double*)
+ cdef void callback_v_dp_dp_dp(PyFuncInfo& funcInfo,
+-        size_array3 sizes, double* arg1, double* arg2, double* arg3) noexcept:
++        size_array3 sizes, double* arg1, double* arg2, double* arg3):
+ 
+     cdef double[:] view1 = <double[:sizes[0]]>arg1 if sizes[0] else None
+     cdef double[:] view2 = <double[:sizes[1]]>arg2 if sizes[1] else None
+@@ -187,7 +187,7 @@ cdef void callback_v_dp_dp_dp(PyFuncInfo& funcInfo,
+         funcInfo.setExceptionValue(<PyObject*>exc_value)
+ 
+ # Wrapper for functions of type double(void*)
+-cdef int callback_d_vp(PyFuncInfo& funcInfo, double& out, void* obj) noexcept:
++cdef int callback_d_vp(PyFuncInfo& funcInfo, double& out, void* obj):
+     try:
+         ret = (<object>funcInfo.func())(<object>obj)
+         if ret is None:
+@@ -202,7 +202,7 @@ cdef int callback_d_vp(PyFuncInfo& funcInfo, double& out, void* obj) noexcept:
+     return -1
+ 
+ # Wrapper for functions of type string(size_t)
+-cdef int callback_s_sz(PyFuncInfo& funcInfo, string& out, size_t arg) noexcept:
++cdef int callback_s_sz(PyFuncInfo& funcInfo, string& out, size_t arg):
+     try:
+         ret = (<object>funcInfo.func())(arg)
+         if ret is None:
+@@ -217,7 +217,7 @@ cdef int callback_s_sz(PyFuncInfo& funcInfo, string& out, size_t arg) noexcept:
+     return -1
+ 
+ # Wrapper for functions of type size_t(string&)
+-cdef int callback_sz_csr(PyFuncInfo& funcInfo, size_t& out, const string& arg) noexcept:
++cdef int callback_sz_csr(PyFuncInfo& funcInfo, size_t& out, const string& arg):
+     try:
+         ret = (<object>funcInfo.func())(pystr(arg))
+         if ret is None:
+@@ -233,7 +233,7 @@ cdef int callback_sz_csr(PyFuncInfo& funcInfo, size_t& out, const string& arg) n
+ 
+ # Wrapper for functions of type void(double, double*, double*)
+ cdef void callback_v_d_dp_dp(PyFuncInfo& funcInfo, size_array2 sizes, double arg1,
+-                             double* arg2, double* arg3) noexcept:
++                             double* arg2, double* arg3):
+     cdef double[:] view1 = <double[:sizes[0]]>arg2 if sizes[0] else None
+     cdef double[:] view2 = <double[:sizes[1]]>arg3 if sizes[1] else None
+ 
