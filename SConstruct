@@ -1705,7 +1705,7 @@ python_max_p1_version = parse_version("3.12")
 env["py_requires_ver_str"] = f">={python_min_version}"
 if env["python_sdist"] or env["package_build"]:
     env["py_requires_ver_str"] += f",<{python_max_p1_version}"
-cython_min_version = parse_version("0.29.12")
+cython_min_version = parse_version("0.29.31")
 numpy_min_version = parse_version('1.12.0')
 
 # We choose ruamel.yaml 0.15.34 as the minimum version
