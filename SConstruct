@@ -1878,7 +1878,7 @@ if env['python_package'] != 'none':
             logger.info("Cython not found.")
             warn_no_full_package = True
         elif cython_version < cython_min_version:
-            lopgger.warning(
+            logger.warning(
                 f"Cython is an incompatible version: Found {cython_version} but "
                 f"{cython_min_version} or newer is required.")
             warn_no_full_package = True
