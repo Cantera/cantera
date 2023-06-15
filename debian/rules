@@ -25,17 +25,15 @@ binary: build
 	scons install
 
 	mkdir -p debian/cantera-common/usr/bin
-	sed 's|#\!/usr/bin/env python$$|#\!/usr/bin/env python3|' interfaces/cython/cantera/ctml_writer.py > debian/cantera-common/usr/bin/ctml_writer
-	sed 's|#\!/usr/bin/env python$$|#\!/usr/bin/env python3|' interfaces/cython/cantera/ck2cti.py > debian/cantera-common/usr/bin/ck2cti
 	sed 's|#\!/usr/bin/env python$$|#\!/usr/bin/env python3|' interfaces/cython/cantera/ck2yaml.py > debian/cantera-common/usr/bin/ck2yaml
 	sed 's|#\!/usr/bin/env python$$|#\!/usr/bin/env python3|' interfaces/cython/cantera/ctml2yaml.py > debian/cantera-common/usr/bin/ctml2yaml
 	sed 's|#\!/usr/bin/env python$$|#\!/usr/bin/env python3|' interfaces/cython/cantera/cti2yaml.py > debian/cantera-common/usr/bin/cti2yaml
+	sed 's|#\!/usr/bin/env python$$|#\!/usr/bin/env python3|' interfaces/cython/cantera/yaml2ck.py > debian/cantera-common/usr/bin/yaml2ck
 	chmod a+x debian/cantera-common/usr/bin/*
 	rm -f debian/cantera-python3/usr/bin/*
 	rm -rf debian/cantera-python3/usr/lib/python3/dist-packages/cantera/data
-	rm -f debian/cantera-python3/usr/lib/python3/dist-packages/cantera/_cantera.cpp
-	rm -f debian/cantera-python3/usr/lib/python3/dist-packages/cantera/_cantera.h
-	rm -f debian/cantera-python3/usr/lib/python3/dist-packages/cantera/*.pxd
+	rm -f debian/cantera-python3/usr/lib/python3/dist-packages/cantera/*.cpp
+	rm -f debian/cantera-python3/usr/lib/python3/dist-packages/cantera/*.h
 	rm -f debian/cantera-python3/usr/lib/python3/dist-packages/cantera/*.pyx
 	rm -f debian/cantera-python3/usr/lib/python3/dist-packages/LICENSE.txt
 	rm -f debian/cantera-python3/usr/lib/python3/dist-packages/README.rst
@@ -62,7 +60,9 @@ binary-indep: binary
 	/bin/true
 
 build:
-	scons build -j6 prefix=/usr blas_lapack_libs=lapack,blas system_sundials=y f90_interface=y renamed_shared_libraries=n python_package=full layout=debian system_eigen=y extra_inc_dirs=/usr/include/eigen3 system_fmt=y
+	scons build -j6 prefix=/usr blas_lapack_libs=lapack,blas system_sundials=y \
+		f90_interface=y renamed_shared_libraries=n versioned_shared_library=n \
+		python_package=full layout=debian system_eigen=y system_fmt=y
 
 build-arch: build
 
