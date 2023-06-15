@@ -190,12 +190,8 @@ void InterfaceRateBase::getCoverageDependencies(AnyMap& dependencies,
             if (m_lindep[k]) {
                 dep[2] = m_ec[k][1];
             } else {
-                vector<AnyValue> dep(3);
-                vector_fp E_temp(4);
-                for (size_t i = 0; i < m_ec[k].size() - 1; i++) {
-                    E_temp[i] = m_ec[k][i+1];
-                }
-                dep[2] = E_temp;
+                throw NotImplementedError("InterfaceRateBase::getCoverageDependencies",
+                    "Polynomial dependency not implemented for asVector.");
             }
             dep[0] = m_ac[k];
             dep[1] = m_mc[k];
