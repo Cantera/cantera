@@ -43,6 +43,7 @@ binary: build
 	rm -f debian/cantera-python3/usr/lib/python3/dist-packages/setup.cfg.in
 	rm -f debian/cantera-python3/usr/lib/python3/dist-packages/setup.py
 	rm -rf debian/cantera-python3/usr/lib/python3/dist-packages/dist
+	rm -rf debian/cantera-python3/usr/lib/python3/dist-packages/build
 
 	mkdir -p debian/cantera-dev/usr/lib/${DEB_HOST_MULTIARCH}/pkgconfig
 	mv debian/cantera-dev/usr/lib/pkgconfig/cantera.pc debian/cantera-dev/usr/lib/${DEB_HOST_MULTIARCH}/pkgconfig/
