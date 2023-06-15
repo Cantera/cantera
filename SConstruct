@@ -627,15 +627,14 @@ config_options = [
            'prefix/include/cantera', 'prefix/lib' etc. This layout is best used in
            conjunction with "prefix='/usr/local'". 'compact' puts all installed files
            in the subdirectory defined by 'prefix'. This layout is best with a prefix
-           like '/opt/cantera'. 'debian' installs to the stage directory in a layout
-           used for generating Debian packages. If the Python executable found during
-           compilation is managed by 'conda', the layout will default to 'conda'
-           irrespective of operating system. For the 'conda' layout, the Python package
-           as well as all libraries and header files are installed into the active
-           'conda' environment. Input data, samples, and other files are installed in
-           the 'shared/cantera' subdirectory of the active 'conda' environment.""",
+           like '/opt/cantera'. If the Python executable found during compilation is
+           managed by 'conda', the layout will default to 'conda' irrespective of
+           operating system. For the 'conda' layout, the Python package as well as all
+           libraries and header files are installed into the active 'conda' environment.
+           Input data, samples, and other files are installed in the 'shared/cantera'
+           subdirectory of the active 'conda' environment.""",
         {"Windows": "compact", "default": "standard"},
-        ("standard", "compact", "debian", "conda")),
+        ("standard", "compact", "conda")),
     BoolOption(
         "package_build",
         """Used in combination with packaging tools (example: 'conda-build'). If
@@ -1982,10 +1981,6 @@ if env["matlab_toolbox"] == "y":
 # *** Set additional configuration variables ***
 # **********************************************
 
-# On Debian-based systems, need to special-case installation to
-# /usr/local because of dist-packages vs site-packages
-env['debian'] = any(name.endswith('dist-packages') for name in sys.path)
-
 # Identify options selected either on command line or in cantera.conf
 selected_options = set(line.split("=")[0].strip()
     for line in cantera_conf.splitlines())
@@ -1998,13 +1993,6 @@ if "msi" in COMMAND_LINE_TARGETS:
     selected_options.add("prefix")
     selected_options.add("stage_dir")
     env["python_package"] = "none"
-elif env["layout"] == "debian":
-    COMMAND_LINE_TARGETS.append("install")
-    env["stage_dir"] = "stage/cantera"
-    env["PYTHON_INSTALLER"] = "debian"
-    env["INSTALL_MANPAGES"] = False
-else:
-    env["PYTHON_INSTALLER"] = "direct"
 
 env["default_prefix"] = True
 if "prefix" in selected_options:
@@ -2092,35 +2080,14 @@ if os.path.abspath(instRoot) == Dir('.').abspath:
     logger.error("cannot install Cantera into source directory.")
     sys.exit(1)
 
-if env["layout"] == "debian":
-    base = Path(os.getcwd()) / "debian"
-    env["inst_root"] = base.as_posix()
-
-    env["inst_libdir"] = (base / "cantera-dev" / "usr" / env["libdirname"]).as_posix()
-    env["inst_incdir"] = (base / "cantera-dev" / "usr" / "include" / "cantera").as_posix()
-    env["inst_incroot"] = (base / "cantera-dev" / "usr" / "include").as_posix()
-
-    env["inst_bindir"] = (base / "cantera-common" / "usr" / "bin").as_posix()
-    env["inst_datadir"] = (base / "cantera-common" / "usr" / "share" / "cantera" / "data").as_posix()
-    env["inst_docdir"] = (base / "cantera-common" / "usr" / "share" / "cantera" / "doc").as_posix()
-    env["inst_sampledir"] = (base / "cantera-common" / "usr" / "share" / "cantera" / "samples").as_posix()
-    env["inst_mandir"] = (base / "cantera-common" / "usr" / "share" / "man" / "man1").as_posix()
-
-    env["inst_matlab_dir"] = (
-        base / "cantera-matlab" / "usr" /
-        env["libdirname"] / "cantera" / "matlab" / "toolbox").as_posix()
-
-    env["inst_python_bindir"] = (base / "cantera-python" / "usr" / "bin").as_posix()
-    env["python_prefix"] = (base / "cantera-python3").as_posix()
-else:
-    env["inst_root"] = instRoot
-    locations = ["libdir", "bindir", "python_bindir", "incdir", "incroot",
-        "matlab_dir", "datadir", "sampledir", "docdir", "mandir"]
-    for loc in locations:
-        if env["prefix"] == ".":
-            env[f"inst_{loc}"] = (Path(instRoot) / env[f"ct_{loc}"]).as_posix()
-        else:
-            env[f"inst_{loc}"] = env[f"ct_{loc}"].replace(env["ct_installroot"], instRoot)
+env["inst_root"] = instRoot
+locations = ["libdir", "bindir", "python_bindir", "incdir", "incroot",
+    "matlab_dir", "datadir", "sampledir", "docdir", "mandir"]
+for loc in locations:
+    if env["prefix"] == ".":
+        env[f"inst_{loc}"] = (Path(instRoot) / env[f"ct_{loc}"]).as_posix()
+    else:
+        env[f"inst_{loc}"] = env[f"ct_{loc}"].replace(env["ct_installroot"], instRoot)
 
 if env['use_rpath_linkage']:
     env.Append(RPATH=env['ct_libdir'])
