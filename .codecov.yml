@@ -7,3 +7,6 @@ coverage:
 comment:
   behavior: once
   require_changes: yes
+
+fixes:
+- "build/python/::interfaces/cython/"

@@ -8,6 +8,7 @@
 
 #include "Domain1D.h"
 #include "cantera/base/Array.h"
+#include "cantera/base/Solution.h"
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/kinetics/Kinetics.h"
 
@@ -18,13 +19,16 @@ namespace Cantera
 //   constants
 //------------------------------------------
 
-// Offsets of solution components in the solution array.
-const size_t c_offset_U = 0; // axial velocity
-const size_t c_offset_V = 1; // strain rate
-const size_t c_offset_T = 2; // temperature
-const size_t c_offset_L = 3; // (1/r)dP/dr
-const size_t c_offset_E = 4; // electric poisson's equation
-const size_t c_offset_Y = 5; // mass fractions
+//! Offsets of solution components in the 1D solution array.
+enum offset
+{
+    c_offset_U   //! axial velocity
+    , c_offset_V //! strain rate
+    , c_offset_T //! temperature
+    , c_offset_L //! (1/r)dP/dr
+    , c_offset_E //! electric poisson's equation
+    , c_offset_Y //! mass fractions
+};
 
 class Transport;
 
@@ -48,9 +52,18 @@ public:
     StFlow(ThermoPhase* ph = 0, size_t nsp = 1, size_t points = 1);
 
     //! Delegating constructor
-    StFlow(shared_ptr<ThermoPhase> th, size_t nsp = 1, size_t points = 1) :
-        StFlow(th.get(), nsp, points) {
-    }
+    StFlow(shared_ptr<ThermoPhase> th, size_t nsp = 1, size_t points = 1);
+
+    //! Create a new flow domain.
+    //! @param sol  Solution object used to evaluate all thermodynamic, kinetic, and
+    //!     transport properties
+    //! @param id  name of flow domain
+    //! @param points  initial number of grid points
+    StFlow(shared_ptr<Solution> sol, const std::string& id="", size_t points=1);
+
+    ~StFlow();
+
+    virtual string type() const;
 
     //! @name Problem Specification
     //! @{
@@ -59,10 +72,10 @@ public:
 
     virtual void resetBadValues(double* xg);
 
-
     ThermoPhase& phase() {
         return *m_thermo;
     }
+
     Kinetics& kinetics() {
         return *m_kin;
     }
@@ -70,18 +83,30 @@ public:
     /**
      * Set the thermo manager. Note that the flow equations assume
      * the ideal gas equation.
+     *
+     * @deprecated  To be removed after Cantera 3.0 (unused)
      */
-    void setThermo(IdealGasPhase& th) {
-        m_thermo = &th;
-    }
+    void setThermo(IdealGasPhase& th);
 
-    //! Set the kinetics manager. The kinetics manager must
-    void setKinetics(Kinetics& kin) {
-        m_kin = &kin;
-    }
+    virtual void setKinetics(shared_ptr<Kinetics> kin);
 
-    //! set the transport manager
+    //! Set the kinetics manager.
+    //! @deprecated  To be removed after Cantera 3.0; replaced by Domain1D::setKinetics
+    void setKinetics(Kinetics& kin);
+
+    virtual void setTransport(shared_ptr<Transport> trans);
+
+    //! Set transport model to existing instance
+    //! @deprecated  To be removed after Cantera 3.0; replaced by Domain1D::setKinetics
     void setTransport(Transport& trans);
+
+    //! Set the transport model
+    //! @since  New in Cantera 3.0.
+    void setTransportModel(const std::string& trans);
+
+    //! Retrieve transport model
+    //! @since  New in Cantera 3.0.
+    std::string transportModel() const;
 
     //! Enable thermal diffusion, also known as Soret diffusion.
     //! Requires that multicomponent transport properties be
@@ -141,53 +166,43 @@ public:
     virtual bool componentActive(size_t n) const;
 
     //! Print the solution.
-    virtual void showSolution(const doublereal* x);
+    virtual void show(const double* x);
 
-    //! Save the current solution for this domain into an XML_Node
-    /*!
-     *  @param o    XML_Node to save the solution to.
-     *  @param sol  Current value of the solution vector. The object will pick
-     *              out which part of the solution vector pertains to this
-     *              object.
-     *
-     * @deprecated The XML output format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    virtual XML_Node& save(XML_Node& o, const doublereal* const sol);
+    virtual shared_ptr<SolutionArray> asArray(const double* soln) const;
+    virtual void fromArray(SolutionArray& arr, double* soln);
 
-    virtual void restore(const XML_Node& dom, doublereal* soln,
-                         int loglevel);
-
-    virtual AnyMap serialize(const double* soln) const;
-    virtual void restore(const AnyMap& state, double* soln, int loglevel);
-
-    //! Set flow configuration for freely-propagating flames, using an internal
-    //! point with a fixed temperature as the condition to determine the inlet
-    //! mass flux.
+    //! Set flow configuration for freely-propagating flames, using an internal point
+    //! with a fixed temperature as the condition to determine the inlet mass flux.
     void setFreeFlow() {
         m_type = cFreeFlow;
         m_dovisc = false;
+        m_isFree = true;
+        m_usesLambda = false;
     }
 
-    //! Set flow configuration for axisymmetric counterflow or burner-stabilized
-    //! flames, using specified inlet mass fluxes.
+    //! Set flow configuration for axisymmetric counterflow flames, using specified
+    //! inlet mass fluxes.
     void setAxisymmetricFlow() {
         m_type = cAxisymmetricStagnationFlow;
         m_dovisc = true;
+        m_isFree = false;
+        m_usesLambda = true;
+    }
+
+    //! Set flow configuration for burner-stabilized flames, using specified inlet mass
+    //! fluxes.
+    void setUnstrainedFlow() {
+        m_type = cAxisymmetricStagnationFlow;
+        m_dovisc = false;
+        m_isFree = false;
+        m_usesLambda = false;
     }
 
     //! Return the type of flow domain being represented, either "Free Flame" or
     //! "Axisymmetric Stagnation".
     //! @see setFreeFlow setAxisymmetricFlow
-    virtual std::string flowType() const {
-        if (m_type == cFreeFlow) {
-            return "Free Flame";
-        } else if (m_type == cAxisymmetricStagnationFlow) {
-            return "Axisymmetric Stagnation";
-        } else {
-            throw CanteraError("StFlow::flowType", "Unknown value for 'm_type'");
-        }
-    }
+    //! @deprecated  To be removed after Cantera 3.0; replaced by type.
+    virtual string flowType() const;
 
     void solveEnergyEqn(size_t j=npos);
 
@@ -220,10 +235,10 @@ public:
      */
     void setBoundaryEmissivities(double e_left, double e_right);
 
-    //! Return emissivitiy at left boundary
+    //! Return emissivity at left boundary
     double leftEmissivity() const { return m_epsilon_left; }
 
-    //! Return emissivitiy at right boundary
+    //! Return emissivity at right boundary
     double rightEmissivity() const { return m_epsilon_right; }
 
     void fixTemperature(size_t j=npos);
@@ -246,9 +261,8 @@ public:
         return m_rho[j];
     }
 
-    virtual bool fixed_mdot() {
-        return (domainType() != cFreeFlow);
-    }
+    virtual bool fixed_mdot();
+
     void setViscosityFlag(bool dovisc) {
         m_dovisc = dovisc;
     }
@@ -283,6 +297,9 @@ public:
     }
 
 protected:
+    virtual AnyMap getMeta() const;
+    virtual void setMeta(const AnyMap& state);
+
     doublereal wdot(size_t k, size_t j) const {
         return m_wdot(k,j);
     }
@@ -370,6 +387,7 @@ protected:
     //! @}
 
     //! @name convective spatial derivatives.
+    //!
     //! These use upwind differencing, assuming u(z) is negative
     //! @{
     doublereal dVdz(const doublereal* x, size_t j) const {
@@ -411,7 +429,7 @@ protected:
     //             member data
     //---------------------------------------------------------
 
-    doublereal m_press; // pressure
+    double m_press = -1.0; // pressure
 
     // grid parameters
     vector_fp m_dz;
@@ -437,13 +455,13 @@ protected:
 
     size_t m_nsp;
 
-    IdealGasPhase* m_thermo;
-    Kinetics* m_kin;
-    Transport* m_trans;
+    IdealGasPhase* m_thermo = nullptr;
+    Kinetics* m_kin = nullptr;
+    Transport* m_trans = nullptr;
 
     // boundary emissivities for the radiation calculations
-    doublereal m_epsilon_left;
-    doublereal m_epsilon_right;
+    double m_epsilon_left = 0.0;
+    double m_epsilon_right = 0.0;
 
     //! Indices within the ThermoPhase of the radiating species. First index is
     //! for CO2, second is for H2O.
@@ -451,12 +469,12 @@ protected:
 
     // flags
     std::vector<bool> m_do_energy;
-    bool m_do_soret;
+    bool m_do_soret = false;
     std::vector<bool> m_do_species;
-    bool m_do_multicomponent;
+    bool m_do_multicomponent = false;
 
     //! flag for the radiative heat loss
-    bool m_do_radiation;
+    bool m_do_radiation = false;
 
     //! radiative heat loss vector
     vector_fp m_qdotRadiation;
@@ -469,10 +487,12 @@ protected:
     //! Index of species with a large mass fraction at each boundary, for which
     //! the mass fraction may be calculated as 1 minus the sum of the other mass
     //! fractions
-    size_t m_kExcessLeft;
-    size_t m_kExcessRight;
+    size_t m_kExcessLeft = 0;
+    size_t m_kExcessRight = 0;
 
     bool m_dovisc;
+    bool m_isFree;
+    bool m_usesLambda;
 
     //! Update the transport properties at grid points in the range from `j0`
     //! to `j1`, based on solution `x`.
@@ -480,10 +500,10 @@ protected:
 
 public:
     //! Location of the point where temperature is fixed
-    double m_zfixed;
+    double m_zfixed = Undef;
 
     //! Temperature at the point used to fix the flame location
-    double m_tfixed;
+    double m_tfixed = -1.0;
 
 private:
     vector_fp m_ybar;

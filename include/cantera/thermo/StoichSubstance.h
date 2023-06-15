@@ -83,76 +83,13 @@ namespace Cantera
  * constant expression, since it's a stoichiometric phase and the activity is
  * always equal to 1.0.
  *
- * ## Instantiation of the Class
- *
- * The constructor for this phase is NOT located in the default ThermoFactory
- * for %Cantera. However, a new StoichSubstance may be created by
- * the following code snippets:
- *
- * @code
- *    XML_Node *xm = get_XML_NameID("phase", iFile + "#NaCl(S)", 0);
- *    StoichSubstance *solid = new StoichSubstance(*xm);
- * @endcode
- *
- * or by the following call to importPhase():
- *
- * @code
- *    XML_Node *xm = get_XML_NameID("phase", iFile + "#NaCl(S)", 0);
- *    StoichSubstance solid;
- *    importPhase(*xm, &solid);
- * @endcode
- *
- * ## XML Example
- *
- * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
- *
- * The phase model name for this is called StoichSubstance. It must be supplied
- * as the model attribute of the thermo XML element entry. Within the phase XML
- * block, the density of the phase must be specified. An example of an XML file
- * this phase is given below.
- *
- * @code
- * <!-- phase NaCl(S)    -->
- * <phase dim="3" id="NaCl(S)">
- *    <elementArray datasrc="elements.xml">
- *       Na Cl
- *    </elementArray>
- *    <speciesArray datasrc="#species_NaCl(S)"> NaCl(S) </speciesArray>
- *    <thermo model="StoichSubstance">
- *       <density units="g/cm3">2.165</density>
- *    </thermo>
- *    <transport model="None"/>
- *    <kinetics model="none"/>
- * </phase>
- *
- * <!-- species definitions     -->
- * <speciesData id="species_NaCl(S)">
- *   <!-- species NaCl(S)   -->
- *   <species name="NaCl(S)">
- *      <atomArray> Na:1 Cl:1 </atomArray>
- *      <thermo>
- *         <Shomate Pref="1 bar" Tmax="1075.0" Tmin="250.0">
- *            <floatArray size="7">
- *                50.72389, 6.672267, -2.517167,
- *                10.15934, -0.200675, -427.2115,
- *                130.3973
- *            </floatArray>
- *         </Shomate>
- *      </thermo>
- *      <density units="g/cm3">2.165</density>
- *    </species>
- * </speciesData>  @endcode
- *
- * The model attribute, "StoichSubstance", on the thermo element
- * identifies the phase as being a StoichSubstance object.
- *
  * @ingroup thermoprops
  */
 class StoichSubstance : public SingleSpeciesTP
 {
 public:
     //! Construct and initialize a StoichSubstance ThermoPhase object directly
-    //! from an ASCII input file
+    //! from an input file
     /*!
      * @param infile name of the input file. If blank, an empty phase will be
      *               created.
@@ -162,19 +99,8 @@ public:
     explicit StoichSubstance(const std::string& infile="",
                              const std::string& id="");
 
-    //! Construct and initialize a StoichSubstance ThermoPhase object directly
-    //! from an XML database
-    /*!
-     *  @param phaseRef XML node pointing to a StoichSubstance description
-     *  @param id       Id of the phase.
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    StoichSubstance(XML_Node& phaseRef, const std::string& id = "");
-
     virtual std::string type() const {
-        return "StoichSubstance";
+        return "fixed-stoichiometry";
     }
 
     virtual bool isCompressible() const {
@@ -204,14 +130,12 @@ public:
     virtual doublereal isothermalCompressibility() const;
     virtual doublereal thermalExpansionCoeff() const;
 
-    /**
-     * @}
-     * @name Activities, Standard States, and Activity Concentrations
-     *
-     *  This section is largely handled by parent classes, since there
-     *  is only one species. Therefore, the activity is equal to one.
-     * @{
-     */
+    //! @}
+    //! @name Activities, Standard States, and Activity Concentrations
+    //!
+    //! This section is largely handled by parent classes, since there
+    //! is only one species. Therefore, the activity is equal to one.
+    //! @{
 
     virtual Units standardConcentrationUnits() const;
 
@@ -303,52 +227,6 @@ public:
     virtual void initThermo();
     virtual void getSpeciesParameters(const std::string& name,
                                       AnyMap& speciesNode) const;
-    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
-
-    //! Set the equation of state parameters
-    /*!
-     * @internal
-     *
-     * @param n number of parameters
-     * @param c array of \a n coefficients
-     *        c[0] = density of phase [ kg/m3 ]
-     */
-    virtual void setParameters(int n, doublereal* const c);
-
-    //! Get the equation of state parameters in a vector
-    /*!
-     * @internal
-     *
-     * @param n number of parameters
-     * @param c array of \a n coefficients
-     *
-     *  For this phase:
-     *       -  n = 1
-     *       -  c[0] = density of phase [ kg/m3 ]
-     */
-    virtual void getParameters(int& n, doublereal* const c) const;
-
-    //! Set equation of state parameter values from XML entries.
-    /*!
-     * For this phase, the density of the phase is specified in this block.
-     *
-     * @param eosdata An XML_Node object corresponding to
-     *                the "thermo" entry for this phase in the input file.
-     *
-     * eosdata points to the thermo block, and looks like this:
-     *
-     *   @code
-     *   <phase id="stoichsolid" >
-     *     <thermo model="StoichSubstance">
-     *         <density units="g/cm3">3.52</density>
-     *     </thermo>
-     *   </phase>
-     *   @endcode
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    virtual void setParametersFromXML(const XML_Node& eosdata);
 };
 
 }

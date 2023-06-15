@@ -7,17 +7,16 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-#include "cantera/base/ctml.h"
 #include "cantera/thermo/PDSS_IdealGas.h"
 #include "cantera/thermo/VPStandardStateTP.h"
-
-using namespace std;
+#include "cantera/base/global.h"
 
 namespace Cantera
 {
 
 PDSS_IdealGas::PDSS_IdealGas()
 {
+    warn_deprecated("class PDSS_IdealGas", "To be removed after Cantera 3.0");
 }
 
 void PDSS_IdealGas::initThermo()
@@ -75,8 +74,9 @@ void PDSS_IdealGas::setState_TP(doublereal temp, doublereal pres)
     setTemperature(temp);
 }
 
-void PDSS_IdealGas::setState_TR(doublereal temp, doublereal rho)
+void PDSS_IdealGas::setState_TR(double temp, double rho)
 {
+    warn_deprecated("PDSS_IdealGas::setState_TR", "To be removed after Cantera 3.0");
     m_pres = GasConstant * temp * rho / m_mw;
     setTemperature(temp);
 }

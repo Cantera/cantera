@@ -19,13 +19,7 @@ namespace Cantera
 class MassFlowController : public FlowDevice
 {
 public:
-    MassFlowController();
-
-    virtual std::string typeStr() const {
-        warn_deprecated("MassFlowController::typeStr",
-                        "To be removed after Cantera 2.6. Use type() instead.");
-        return "MassFlowController";
-    }
+    MassFlowController() = default;
 
     virtual std::string type() const {
         return "MassFlowController";
@@ -55,9 +49,9 @@ public:
         throw NotImplementedError("MassFlowController::setPressureFunction");
     }
 
-    /// If a function of time has been specified for mdot, then update the
-    /// stored mass flow rate. Otherwise, mdot is a constant, and does not
-    /// need updating.
+    //! If a function of time has been specified for mdot, then update the
+    //! stored mass flow rate. Otherwise, mdot is a constant, and does not
+    //! need updating.
     virtual void updateMassFlowRate(double time);
 };
 
@@ -69,13 +63,7 @@ public:
 class PressureController : public FlowDevice
 {
 public:
-    PressureController();
-
-    virtual std::string typeStr() const {
-        warn_deprecated("PressureController::typeStr",
-                        "To be removed after Cantera 2.6. Use type() instead.");
-        return "PressureController";
-    }
+    PressureController() = default;
 
     virtual std::string type() const {
         return "PressureController";
@@ -116,7 +104,7 @@ public:
     virtual void updateMassFlowRate(double time);
 
 protected:
-    FlowDevice* m_master;
+    FlowDevice* m_master = nullptr;
 };
 
 //! Supply a mass flow rate that is a function of the pressure drop across the
@@ -129,13 +117,7 @@ protected:
 class Valve : public FlowDevice
 {
 public:
-    Valve();
-
-    virtual std::string typeStr() const {
-        warn_deprecated("Valve::typeStr",
-                        "To be removed after Cantera 2.6. Use type() instead.");
-        return "Valve";
-    }
+    Valve() = default;
 
     virtual std::string type() const {
         return "Valve";
@@ -160,7 +142,7 @@ public:
         return m_coeff;
     }
 
-    /// Compute the current mass flow rate, based on the pressure difference.
+    //! Compute the current mass flow rate, based on the pressure difference.
     virtual void updateMassFlowRate(double time);
 };
 

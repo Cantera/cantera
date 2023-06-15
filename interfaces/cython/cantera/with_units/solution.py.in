@@ -1,0 +1,195 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+from textwrap import dedent
+
+from .. import Solution as _Solution, PureFluid as _PureFluid, CanteraError
+from .. import (Heptane as _Heptane, Water as _Water, Hfc134a as _Hfc134a,
+                CarbonDioxide as _CarbonDioxide, Hydrogen as _Hydrogen,
+                Methane as _Methane, Nitrogen as _Nitrogen, Oxygen as _Oxygen)
+from pint import get_application_registry
+
+__all__ = ("units", "Q_", "Solution", "PureFluid", "Heptane", "CarbonDioxide",
+           "Hfc134a", "Hydrogen", "Methane", "Nitrogen", "Oxygen", "Water",
+           "CanteraError")
+
+units = get_application_registry()
+Q_ = units.Quantity
+
+
+def copy_doc(method):
+    """Decorator to copy docstrings from related methods in upstream classes.
+
+    This decorator will copy the docstring from the same named method in the upstream
+    class, either `Solution` or `PureFluid`. The docstring in the method being
+    decorated is appended to the upstream documentation.
+    """
+    doc = getattr(method, "__doc__", None) or ""
+    if isinstance(method, property):
+        method = method.fget
+        if not doc:
+            doc = getattr(method, "__doc__", None) or ""
+    original_klass = method.__qualname__.split(".")[0]
+    klass = {"Solution": _Solution, "PureFluid": _PureFluid}[original_klass]
+    original_method = getattr(klass, method.__name__)
+    original_doc = dedent(getattr(original_method, "__doc__", ""))
+    method.__doc__ = f"{original_doc}\n{doc}"
+    return method
+
+
+class Solution:
+    """
+    This implementation of `Solution <cantera.with_units.Solution>` operates with
+    units by using the `pint` library to convert between unit systems. All properties
+    are assigned units in the standard MKS system that Cantera uses, substituting kmol
+    instead of mol. Each property is an instance of the `pint.Quantity` class.
+
+    Similarly, properties must be instances of `pint.Quantity` classes when they are
+    used for assignment to set the state. The properties may have any units, so long
+    as the dimensions for the quantity are consistent. For example, temperatures can
+    be provided in K, degC, degF, or degR; conversion will be done internally to
+    Cantera's consistent unit system.
+
+    See the `pint documentation <https://pint.readthedocs.io>`__ for more information
+    about using pint's ``Quantity`` classes.
+
+    **Note:** This class is experimental. It only implements methods from `ThermoPhase`.
+    Methods from other classes are not yet supported. If you are interested in contributing
+    to this feature, please chime in on our enhancements issue:
+    `<https://github.com/Cantera/enhancements/issues/174>`__.
+    """
+    def __init__(self, infile="", name="", *, yaml=None):
+        self.__dict__["_phase"] = _Solution(infile, name, yaml=yaml)
+
+@common_properties@
+
+@thermophase_properties@
+
+Solution.__doc__ = f"{Solution.__doc__}\n{_Solution.__doc__}"
+
+class PureFluid:
+    """
+    This implementation of `PureFluid <cantera.with_units.PureFluid>` operates with
+    units by using the `pint` library to convert between unit systems. All properties
+    are assigned units in the standard MKS system that Cantera uses, substituting kmol
+    instead of mol. Each property is an instance of the `pint.Quantity` class.
+
+    Similarly, properties must be instances of `pint.Quantity` classes when they are
+    used for assignment to set the state. The properties may have any units, so long
+    as the dimensions for the quantity are consistent. For example, temperatures can
+    be provided in K, degC, degF, or degR; conversion will be done internally to
+    Cantera's consistent unit system.
+
+    See the `pint documentation <https://pint.readthedocs.io>`__ for more information
+    about using pint's ``Quantity`` classes.
+    """
+    def __init__(self, infile, name="", *, yaml=None, **kwargs):
+        self.__dict__["_phase"] = _PureFluid(infile, name, yaml=yaml, **kwargs)
+
+@common_properties@
+
+    @property
+    @copy_doc
+    def Q(self):
+        """Must be set using a quantity with dimensionless units."""
+        Q = self._phase.Q
+        return Q_(Q, "dimensionless")
+
+    @Q.setter
+    def Q(self, value):
+        if value is not None:
+            try:
+                Q = value.to("dimensionless").magnitude
+            except AttributeError as e:
+                if "'to'" in str(e):
+                    raise CanteraError(
+                        f"Value {value!r} must be an instance of a pint.Quantity class"
+                    ) from None
+                else:
+                    raise
+        else:
+            Q = self.Q.magnitude
+        self._phase.Q = Q
+
+@thermophase_properties@
+
+    @property
+    @copy_doc
+    def TPQ(self):
+        T, P, Q = self._phase.TPQ
+        return Q_(T, "K"), Q_(P, "Pa"), Q_(Q, "dimensionless")
+
+    @TPQ.setter
+    def TPQ(self, value):
+        T = value[0] if value[0] is not None else self.T
+        P = value[1] if value[1] is not None else self.P
+        Q = value[2] if value[2] is not None else self.Q
+        for val, unit in ((T, "K"), (P, "Pa"), (Q, "dimensionless")):
+            try:
+                val.ito(unit)
+            except AttributeError as e:
+                if "'ito'" in str(e):
+                    raise CanteraError(
+                        f"Value {val!r} must be an instance of a pint.Quantity class"
+                    ) from None
+                else:
+                    raise
+        self._phase.TPQ = T.magnitude, P.magnitude, Q.magnitude
+
+@purefluid_properties@
+
+
+PureFluid.__doc__ = f"{PureFluid.__doc__}\n{_PureFluid.__doc__}"
+
+
+def Heptane():
+    return PureFluid("liquidvapor.yaml", "heptane")
+
+Heptane.__doc__ = _Heptane.__doc__
+
+
+def CarbonDioxide():
+    return PureFluid("liquidvapor.yaml", "carbon-dioxide")
+
+
+CarbonDioxide.__doc__ = _CarbonDioxide.__doc__
+
+
+def Hfc134a():
+    return PureFluid("liquidvapor.yaml", "HFC-134a")
+
+
+Hfc134a.__doc__ = _Hfc134a.__doc__
+
+
+def Hydrogen():
+    return PureFluid("liquidvapor.yaml", "hydrogen")
+
+
+Hydrogen.__doc__ = _Hydrogen.__doc__
+
+
+def Methane():
+    return PureFluid("liquidvapor.yaml", "methane")
+
+
+Methane.__doc__ = _Methane.__doc__
+
+
+def Nitrogen():
+    return PureFluid("liquidvapor.yaml", "nitrogen")
+
+
+Nitrogen.__doc__ = _Nitrogen.__doc__
+
+
+def Oxygen():
+    return PureFluid("liquidvapor.yaml", "oxygen")
+
+
+Oxygen.__doc__ = _Oxygen.__doc__
+
+
+def Water(backend="Reynolds"):
+    return PureFluid("liquidvapor.yaml", "water", backend=backend)
+
+Water.__doc__ = _Water.__doc__

@@ -39,9 +39,9 @@ TEST_F(SpeciesThermoInterpTypeTest, install_const_cp)
     auto sO2 = make_shared<Species>("O2", parseCompString("O:2"));
     auto sH2 = make_shared<Species>("H2", parseCompString("H:2"));
     auto sH2O = make_shared<Species>("H2O", parseCompString("H:2 O:1"));
-    sO2->thermo.reset(new ConstCpPoly(200, 5000, 101325, c_o2));
-    sH2->thermo.reset(new ConstCpPoly(200, 5000, 101325, c_h2));
-    sH2O->thermo.reset(new ConstCpPoly(200, 5000, 101325, c_h2o));
+    sO2->thermo = make_shared<ConstCpPoly>(200, 5000, 101325, c_o2);
+    sH2->thermo = make_shared<ConstCpPoly>(200, 5000, 101325, c_h2);
+    sH2O->thermo = make_shared<ConstCpPoly>(200, 5000, 101325, c_h2o);
     p.addSpecies(sO2);
     p.addSpecies(sH2);
     p.addSpecies(sH2O);
@@ -54,14 +54,23 @@ TEST_F(SpeciesThermoInterpTypeTest, install_const_cp)
     EXPECT_DOUBLE_EQ(p2.cp_mass(), p.cp_mass());
 }
 
-TEST_F(SpeciesThermoInterpTypeTest, DISABLED_install_bad_pref)
+TEST_F(SpeciesThermoInterpTypeTest, install_specified_pref)
 {
-    // Currently broken because MultiSpeciesThermo does not enforce reference
-    // pressure consistency.
     auto sO2 = make_shared<Species>("O2", parseCompString("O:2"));
     auto sH2 = make_shared<Species>("H2", parseCompString("H:2"));
-    sO2->thermo.reset(new ConstCpPoly(200, 5000, 101325, c_o2));
-    sH2->thermo.reset(new ConstCpPoly(200, 5000, 100000, c_h2));
+    sO2->thermo = make_shared<ConstCpPoly>(200, 5000, 100000, c_o2);
+    sH2->thermo = make_shared<ConstCpPoly>(200, 5000, 100000, c_h2);
+    p.addSpecies(sO2);
+    // Pref does not match
+    EXPECT_DOUBLE_EQ(p.refPressure(), 1e5);
+}
+
+TEST_F(SpeciesThermoInterpTypeTest, install_bad_pref)
+{
+    auto sO2 = make_shared<Species>("O2", parseCompString("O:2"));
+    auto sH2 = make_shared<Species>("H2", parseCompString("H:2"));
+    sO2->thermo = make_shared<ConstCpPoly>(200, 5000, 101325, c_o2);
+    sH2->thermo = make_shared<ConstCpPoly>(200, 5000, 100000, c_h2);
     p.addSpecies(sO2);
     // Pref does not match
     ASSERT_THROW(p.addSpecies(sH2), CanteraError);
@@ -74,9 +83,9 @@ TEST_F(SpeciesThermoInterpTypeTest, install_nasa)
     auto sO2 = make_shared<Species>("O2", parseCompString("O:2"));
     auto sH2 = make_shared<Species>("H2", parseCompString("H:2"));
     auto sH2O = make_shared<Species>("H2O", parseCompString("H:2 O:1"));
-    sO2->thermo.reset(new NasaPoly2(200, 3500, 101325, o2_nasa_coeffs));
-    sH2->thermo.reset(new NasaPoly2(200, 3500, 101325, h2_nasa_coeffs));
-    sH2O->thermo.reset(new NasaPoly2(200, 3500, 101325, h2o_nasa_coeffs));
+    sO2->thermo = make_shared<NasaPoly2>(200, 3500, 101325, o2_nasa_coeffs);
+    sH2->thermo = make_shared<NasaPoly2>(200, 3500, 101325, h2_nasa_coeffs);
+    sH2O->thermo = make_shared<NasaPoly2>(200, 3500, 101325, h2o_nasa_coeffs);
     p.addSpecies(sO2);
     p.addSpecies(sH2);
     p.addSpecies(sH2O);
@@ -95,8 +104,8 @@ TEST_F(SpeciesThermoInterpTypeTest, install_shomate)
     IdealGasPhase p2("simplephases.yaml", "shomate1");
     auto sCO = make_shared<Species>("CO", parseCompString("C:1 O:1"));
     auto sCO2 = make_shared<Species>("CO2", parseCompString("C:1 O:2"));
-    sCO->thermo.reset(new ShomatePoly2(200, 6000, 101325, co_shomate_coeffs));
-    sCO2->thermo.reset(new ShomatePoly2(200, 6000, 101325, co2_shomate_coeffs));
+    sCO->thermo = make_shared<ShomatePoly2>(200, 6000, 101325, co_shomate_coeffs);
+    sCO2->thermo = make_shared<ShomatePoly2>(200, 6000, 101325, co2_shomate_coeffs);
     p.addSpecies(sCO);
     p.addSpecies(sCO2);
     p.initThermo();

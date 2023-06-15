@@ -64,24 +64,24 @@ public:
     int solve(doublereal* x0, doublereal* x1, OneDim& r, MultiJac& jac,
               int loglevel);
 
-    /// Set options.
+    //! Set options.
     void setOptions(int maxJacAge = 5) {
         m_maxAge = maxJacAge;
     }
 
-    /// Change the problem size.
+    //! Change the problem size.
     void resize(size_t points);
 
 protected:
     //! Work arrays of size #m_n used in solve().
     vector_fp m_x, m_stp, m_stp1;
 
-    int m_maxAge;
+    int m_maxAge = 5;
 
     //! number of variables
     size_t m_n;
 
-    doublereal m_elapsed;
+    double m_elapsed = 0.0;
 };
 }
 

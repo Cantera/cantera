@@ -12,13 +12,10 @@ using namespace std;
 namespace Cantera
 {
 Refiner::Refiner(Domain1D& domain) :
-    m_ratio(10.0), m_slope(0.8), m_curve(0.8), m_prune(-0.001),
-    m_min_range(0.01), m_domain(&domain), m_npmax(1000),
-    m_gridmin(1e-10)
+    m_domain(&domain)
 {
     m_nv = m_domain->nComponents();
     m_active.resize(m_nv, true);
-    m_thresh = std::sqrt(std::numeric_limits<double>::epsilon());
 }
 
 void Refiner::setCriteria(doublereal ratio, doublereal slope,
@@ -111,8 +108,8 @@ int Refiner::analyze(size_t n, const doublereal* z,
                 for (size_t j = 0; j < n-1; j++) {
                     doublereal r = fabs(v[j+1] - v[j])/dmax;
                     if (r > 1.0 && dz[j] >= 2 * m_gridmin) {
-                        m_loc[j] = 1;
-                        m_c[name] = 1;
+                        m_loc.insert(j);
+                        m_c.insert(name);
                     }
                     if (r >= m_prune) {
                         m_keep[j] = 1;
@@ -135,9 +132,9 @@ int Refiner::analyze(size_t n, const doublereal* z,
                     doublereal r = fabs(s[j+1] - s[j]) / (dmax + m_thresh/dz[j]);
                     if (r > 1.0 && dz[j] >= 2 * m_gridmin &&
                             dz[j+1] >= 2 * m_gridmin) {
-                        m_c[name] = 1;
-                        m_loc[j] = 1;
-                        m_loc[j+1] = 1;
+                        m_c.insert(name);
+                        m_loc.insert(j);
+                        m_loc.insert(j+1);
                     }
                     if (r >= m_prune) {
                         m_keep[j+1] = 1;
@@ -155,8 +152,8 @@ int Refiner::analyze(size_t n, const doublereal* z,
     for (size_t j = 1; j < n-1; j++) {
         // Add a new point if the ratio with left interval is too large
         if (dz[j] > m_ratio*dz[j-1]) {
-            m_loc[j] = 1;
-            m_c[fmt::format("point {}", j)] = 1;
+            m_loc.insert(j);
+            m_c.insert(fmt::format("point {}", j));
             m_keep[j-1] = 1;
             m_keep[j] = 1;
             m_keep[j+1] = 1;
@@ -165,8 +162,8 @@ int Refiner::analyze(size_t n, const doublereal* z,
 
         // Add a point if the ratio with right interval is too large
         if (dz[j] < dz[j-1]/m_ratio) {
-            m_loc[j-1] = 1;
-            m_c[fmt::format("point {}", j-1)] = 1;
+            m_loc.insert(j-1);
+            m_c.insert(fmt::format("point {}", j-1));
             m_keep[j-2] = 1;
             m_keep[j-1] = 1;
             m_keep[j] = 1;
@@ -186,7 +183,7 @@ int Refiner::analyze(size_t n, const doublereal* z,
         }
 
         // Keep the point where the temperature is fixed
-        if (fflame && fflame->domainType() == cFreeFlow && z[j] == fflame->m_zfixed) {
+        if (fflame && !fflame->fixed_mdot() && z[j] == fflame->m_zfixed) {
             m_keep[j] = 1;
         }
     }
@@ -215,12 +212,12 @@ void Refiner::show()
                  m_domain->id()+".\n"
                  +"    New points inserted after grid points ");
         for (const auto& loc : m_loc) {
-            writelog("{} ", loc.first);
+            writelog("{} ", loc);
         }
         writelog("\n");
         writelog("    to resolve ");
         for (const auto& c : m_c) {
-            writelog(string(c.first)+" ");
+            writelog(c + " ");
         }
         writelog("\n");
         writeline('#', 78);

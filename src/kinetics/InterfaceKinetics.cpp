@@ -6,34 +6,20 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/kinetics/InterfaceKinetics.h"
-#include "cantera/kinetics/RateCoeffMgr.h"
 #include "cantera/kinetics/ImplicitSurfChem.h"
 #include "cantera/kinetics/Reaction.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/base/utilities.h"
 
-using namespace std;
-
 namespace Cantera
 {
 
-InterfaceKinetics::InterfaceKinetics(ThermoPhase* thermo) :
-    m_redo_rates(false),
-    m_surf(0),
-    m_integrator(0),
-    m_ROP_ok(false),
-    m_temp(0.0),
-    m_logtemp(0.0),
-    m_has_coverage_dependence(false),
-    m_has_electrochem_rxns(false),
-    m_has_exchange_current_density_formulation(false),
-    m_phaseExistsCheck(false),
-    m_ioFlag(0),
-    m_nDim(2)
+InterfaceKinetics::InterfaceKinetics(ThermoPhase* thermo)
+    : InterfaceKinetics()
 {
-    if (thermo != 0) {
-        addPhase(*thermo);
-    }
+    warn_deprecated("InterfaceKinetics::InterfaceKinetics(ThermoPhase*)",
+        "To be removed after Cantera 3.0. Use default constructor instead.");
+    addPhase(*thermo);
 }
 
 InterfaceKinetics::~InterfaceKinetics()
@@ -44,6 +30,10 @@ InterfaceKinetics::~InterfaceKinetics()
 void InterfaceKinetics::resizeReactions()
 {
     Kinetics::resizeReactions();
+
+    // resize buffer
+    m_rbuf0.resize(nReactions());
+    m_rbuf1.resize(nReactions());
 
     for (auto& rates : m_interfaceRates) {
         rates->resize(nTotalSpecies(), nReactions(), nPhases());
@@ -63,36 +53,19 @@ void InterfaceKinetics::_update_rates_T()
 {
     // First task is update the electrical potentials from the Phases
     _update_rates_phi();
-    if (m_has_coverage_dependence) {
-        m_surf->getCoverages(m_actConc.data());
-        m_rates.update_C(m_actConc.data());
-        m_redo_rates = true;
-    }
 
     // Go find the temperature from the surface
-    doublereal T = thermo(surfacePhaseIndex()).temperature();
+    doublereal T = thermo(reactionPhaseIndex()).temperature();
     m_redo_rates = true;
     if (T != m_temp || m_redo_rates) {
-        m_logtemp = log(T);
-
         //  Calculate the forward rate constant by calling m_rates and store it in m_rfn[]
-        m_rates.update(T, m_logtemp, m_rfn.data());
         for (size_t n = 0; n < nPhases(); n++) {
             thermo(n).getPartialMolarEnthalpies(m_grt.data() + m_start[n]);
         }
 
         // Use the stoichiometric manager to find deltaH for each reaction.
         getReactionDelta(m_grt.data(), m_dH.data());
-        applyStickingCorrection(T, m_rfn.data());
 
-        // If we need to do conversions between exchange current density
-        // formulation and regular formulation (either way) do it here.
-        if (m_has_exchange_current_density_formulation) {
-            convertExchangeCurrentDensityFormulation(m_rfn.data());
-        }
-        if (m_has_electrochem_rxns) {
-            applyVoltageKfwdCorrection(m_rfn.data());
-        }
         m_temp = T;
         m_ROP_ok = false;
         m_redo_rates = false;
@@ -100,7 +73,7 @@ void InterfaceKinetics::_update_rates_T()
 
     // loop over interface MultiRate evaluators for each reaction type
     for (auto& rates : m_interfaceRates) {
-        bool changed = rates->update(thermo(surfacePhaseIndex()), *this);
+        bool changed = rates->update(thermo(reactionPhaseIndex()), *this);
         if (changed) {
             rates->getRateConstants(m_rfn.data());
             m_ROP_ok = false;
@@ -187,7 +160,6 @@ void InterfaceKinetics::updateMu0()
 
     // @todo  There is significant potential to further simplify calculations
     //      once the old framework is removed
-    updateExchangeCurrentQuantities();
     size_t ik = 0;
     for (size_t n = 0; n < nPhases(); n++) {
         thermo(n).getStandardChemPotentials(m_mu0.data() + m_start[n]);
@@ -208,94 +180,6 @@ void InterfaceKinetics::getEquilibriumConstants(doublereal* kc)
     getReactionDelta(m_mu0_Kc.data(), kc);
     for (size_t i = 0; i < nReactions(); i++) {
         kc[i] = exp(-kc[i]*rrt);
-    }
-}
-
-void InterfaceKinetics::updateExchangeCurrentQuantities()
-{
-    // Calculate:
-    //   - m_StandardConc[]
-    //   - m_ProdStanConcReac[]
-    //   - m_deltaG0[]
-    //   - m_mu0[]
-
-    // First collect vectors of the standard Gibbs free energies of the
-    // species and the standard concentrations
-    //   - m_mu0
-    //   - m_StandardConc
-    size_t ik = 0;
-
-    for (size_t n = 0; n < nPhases(); n++) {
-        thermo(n).getStandardChemPotentials(m_mu0.data() + m_start[n]);
-        size_t nsp = thermo(n).nSpecies();
-        for (size_t k = 0; k < nsp; k++) {
-            m_StandardConc[ik] = thermo(n).standardConcentration(k);
-            ik++;
-        }
-    }
-
-    getReactionDelta(m_mu0.data(), m_deltaG0.data());
-
-    //  Calculate the product of the standard concentrations of the reactants
-    for (size_t i = 0; i < nReactions(); i++) {
-        m_ProdStanConcReac[i] = 1.0;
-    }
-    m_reactantStoich.multiply(m_StandardConc.data(), m_ProdStanConcReac.data());
-}
-
-void InterfaceKinetics::applyVoltageKfwdCorrection(doublereal* const kf)
-{
-    // Compute the electrical potential energy of each species
-    size_t ik = 0;
-    for (size_t n = 0; n < nPhases(); n++) {
-        size_t nsp = thermo(n).nSpecies();
-        for (size_t k = 0; k < nsp; k++) {
-            m_pot[ik] = Faraday * thermo(n).charge(k) * m_phi[n];
-            ik++;
-        }
-    }
-
-    // Compute the change in electrical potential energy for each reaction. This
-    // will only be non-zero if a potential difference is present.
-    getReactionDelta(m_pot.data(), deltaElectricEnergy_.data());
-
-    // Modify the reaction rates. Only modify those with a non-zero activation
-    // energy. Below we decrease the activation energy below zero but in some
-    // debug modes we print out a warning message about this.
-
-    // NOTE, there is some discussion about this point. Should we decrease the
-    // activation energy below zero? I don't think this has been decided in any
-    // definitive way. The treatment below is numerically more stable, however.
-    for (size_t i = 0; i < m_beta.size(); i++) {
-        size_t irxn = m_ctrxn[i];
-
-        // Add the voltage correction to the forward reaction rate constants.
-        double eamod = m_beta[i] * deltaElectricEnergy_[irxn];
-        if (eamod != 0.0) {
-            kf[irxn] *= exp(-eamod/thermo(reactionPhaseIndex()).RT());
-        }
-    }
-}
-
-void InterfaceKinetics::convertExchangeCurrentDensityFormulation(doublereal* const kfwd)
-{
-    updateExchangeCurrentQuantities();
-    // Loop over all reactions which are defined to have a voltage transfer
-    // coefficient that affects the activity energy for the reaction
-    for (size_t i = 0; i < m_ctrxn.size(); i++) {
-        size_t irxn = m_ctrxn[i];
-
-        // Determine whether the reaction rate constant is in an exchange
-        // current density formulation format.
-        int iECDFormulation = m_ctrxn_ecdf[i];
-        if (iECDFormulation) {
-            // We need to have the straight chemical reaction rate constant to
-            // come out of this calculation.
-            double tmp = exp(- m_beta[i] * m_deltaG0[irxn]
-                                / thermo(reactionPhaseIndex()).RT());
-            tmp *= 1.0 / m_ProdStanConcReac[irxn] / Faraday;
-            kfwd[irxn] *= tmp;
-        }
     }
 }
 
@@ -414,10 +298,10 @@ void InterfaceKinetics::getDeltaGibbs(doublereal* deltaG)
     }
 
     // Use the stoichiometric manager to find deltaG for each reaction.
-    getReactionDelta(m_mu.data(), m_deltaG.data());
-    if (deltaG != 0 && (m_deltaG.data() != deltaG)) {
+    getReactionDelta(m_mu.data(), m_rbuf.data());
+    if (deltaG != 0 && (m_rbuf.data() != deltaG)) {
         for (size_t j = 0; j < nReactions(); ++j) {
-            deltaG[j] = m_deltaG[j];
+            deltaG[j] = m_rbuf[j];
         }
     }
 }
@@ -523,62 +407,47 @@ bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base, bool resize)
     m_rxnPhaseIsReactant.emplace_back(nPhases(), false);
     m_rxnPhaseIsProduct.emplace_back(nPhases(), false);
 
-    for (const auto& sp : r_base->reactants) {
-        size_t k = kineticsSpeciesIndex(sp.first);
+    for (const auto& [name, stoich] : r_base->reactants) {
+        size_t k = kineticsSpeciesIndex(name);
         size_t p = speciesPhaseIndex(k);
         m_rxnPhaseIsReactant[i][p] = true;
     }
-    for (const auto& sp : r_base->products) {
-        size_t k = kineticsSpeciesIndex(sp.first);
+    for (const auto& [name, stoich] : r_base->products) {
+        size_t k = kineticsSpeciesIndex(name);
         size_t p = speciesPhaseIndex(k);
         m_rxnPhaseIsProduct[i][p] = true;
     }
 
-    if (!(r_base->usesLegacy())) {
-        // Set index of rate to number of reaction within kinetics
-        shared_ptr<ReactionRate> rate = r_base->rate();
-        rate->setRateIndex(nReactions() - 1);
-        rate->setContext(*r_base, *this);
+    // Set index of rate to number of reaction within kinetics
+    shared_ptr<ReactionRate> rate = r_base->rate();
+    rate->setRateIndex(nReactions() - 1);
+    rate->setContext(*r_base, *this);
 
-        // If necessary, add new interface MultiRate evaluator
-        if (m_interfaceTypes.find(rate->type()) == m_interfaceTypes.end()) {
-            m_interfaceTypes[rate->type()] = m_interfaceRates.size();
-            m_interfaceRates.push_back(rate->newMultiRate());
-            m_interfaceRates.back()->resize(m_kk, nReactions(), nPhases());
-        }
-
-        // Add reaction rate to evaluator
-        size_t index = m_interfaceTypes[rate->type()];
-        m_interfaceRates[index]->add(nReactions() - 1, *rate);
-
-    } else if (r_base->reaction_type == SURFACE_RXN) {
-        InterfaceReaction2& r = dynamic_cast<InterfaceReaction2&>(*r_base);
-        SurfaceArrhenius rate = buildSurfaceArrhenius(i, r, false);
-        m_rates.install(i, rate);
-
-        // Turn on the global flag indicating surface coverage dependence
-        if (!r.coverage_deps.empty()) {
-            m_has_coverage_dependence = true;
-        }
-        ElectrochemicalReaction2* re = dynamic_cast<ElectrochemicalReaction2*>(&r);
-        if (re) {
-            m_has_electrochem_rxns = true;
-            m_beta.push_back(re->beta);
-            m_ctrxn.push_back(i);
-            if (re->exchange_current_density_formulation) {
-                m_has_exchange_current_density_formulation = true;
-                m_ctrxn_ecdf.push_back(1);
-            } else {
-                m_ctrxn_ecdf.push_back(0);
-            }
-        }
-    } else {
-        throw NotImplementedError("InterfaceKinetics::addReaction");
+    std::string rtype = rate->subType();
+    if (rtype == "") {
+        rtype = rate->type();
     }
-    deltaElectricEnergy_.push_back(0.0);
-    m_deltaG0.push_back(0.0);
-    m_deltaG.push_back(0.0);
-    m_ProdStanConcReac.push_back(0.0);
+
+    // If necessary, add new interface MultiRate evaluator
+    if (m_interfaceTypes.find(rtype) == m_interfaceTypes.end()) {
+        m_interfaceTypes[rtype] = m_interfaceRates.size();
+        m_interfaceRates.push_back(rate->newMultiRate());
+        m_interfaceRates.back()->resize(m_kk, nReactions(), nPhases());
+    }
+
+    // Add reaction rate to evaluator
+    size_t index = m_interfaceTypes[rtype];
+    m_interfaceRates[index]->add(nReactions() - 1, *rate);
+
+    // Set flag for coverage dependence to true
+    if (rate->compositionDependent()) {
+        m_has_coverage_dependence = true;
+    }
+
+    // Set flag for electrochemistry to true
+    if (r_base->usesElectrochemistry(*this)) {
+        m_has_electrochemistry = true;
+    }
 
     return true;
 }
@@ -586,125 +455,34 @@ bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base, bool resize)
 void InterfaceKinetics::modifyReaction(size_t i, shared_ptr<Reaction> r_base)
 {
     Kinetics::modifyReaction(i, r_base);
-    if (!(r_base->usesLegacy())) {
-        shared_ptr<ReactionRate> rate = r_base->rate();
-        rate->setRateIndex(i);
-        rate->setContext(*r_base, *this);
 
-        const auto& rtype = rate->type();
-        // Ensure that interface MultiRate evaluator is available
-        if (!m_interfaceTypes.count(rtype)) {
-            throw CanteraError("InterfaceKinetics::modifyReaction",
-                "Interface evaluator not available for type '{}'.", rtype);
-        }
-        // Replace reaction rate evaluator
-        size_t index = m_interfaceTypes[rate->type()];
-        m_interfaceRates[index]->replace(i, *rate);
+    shared_ptr<ReactionRate> rate = r_base->rate();
+    rate->setRateIndex(i);
+    rate->setContext(*r_base, *this);
 
-    } else if (r_base->reaction_type == SURFACE_RXN) {
-        InterfaceReaction2& r = dynamic_cast<InterfaceReaction2&>(*r_base);
-        SurfaceArrhenius rate = buildSurfaceArrhenius(i, r, true);
-        m_rates.replace(i, rate);
-    } else {
-        throw NotImplementedError("InterfaceKinetics::modifyReaction");
+    std::string rtype = rate->subType();
+    if (rtype == "") {
+        rtype = rate->type();
     }
+
+    // Ensure that interface MultiRate evaluator is available
+    if (!m_interfaceTypes.count(rtype)) {
+        throw CanteraError("InterfaceKinetics::modifyReaction",
+            "Interface evaluator not available for type '{}'.", rtype);
+    }
+    // Replace reaction rate evaluator
+    size_t index = m_interfaceTypes[rate->type()];
+    m_interfaceRates[index]->replace(i, *rate);
+
     // Invalidate cached data
     m_redo_rates = true;
     m_temp += 0.1;
 }
 
-SurfaceArrhenius InterfaceKinetics::buildSurfaceArrhenius(
-    size_t i, InterfaceReaction2& r, bool replace)
+void InterfaceKinetics::setMultiplier(size_t i, double f)
 {
-    if (r.is_sticking_coefficient) {
-        // Identify the interface phase
-        size_t iInterface = npos;
-        size_t min_dim = 4;
-        for (size_t n = 0; n < nPhases(); n++) {
-            if (thermo(n).nDim() < min_dim) {
-                iInterface = n;
-                min_dim = thermo(n).nDim();
-            }
-        }
-
-        std::string sticking_species = r.sticking_species;
-        if (sticking_species == "") {
-            // Identify the sticking species if not explicitly given
-            bool foundStick = false;
-            for (const auto& sp : r.reactants) {
-                size_t iPhase = speciesPhaseIndex(kineticsSpeciesIndex(sp.first));
-                if (iPhase != iInterface) {
-                    // Non-interface species. There should be exactly one of these
-                    if (foundStick) {
-                        throw InputFileError("InterfaceKinetics::buildSurfaceArrhenius",
-                            r.input, "Multiple non-interface species ('{}' and '{}')\n"
-                            "found in sticking reaction: '{}'.\nSticking species "
-                            "must be explicitly specified.",
-                            sticking_species, sp.first, r.equation());
-                    }
-                    foundStick = true;
-                    sticking_species = sp.first;
-                }
-            }
-            if (!foundStick) {
-                throw InputFileError("InterfaceKinetics::buildSurfaceArrhenius",
-                    r.input, "No non-interface species found "
-                    "in sticking reaction: '{}'", r.equation());
-            }
-        }
-
-        double surface_order = 0.0;
-        double multiplier = 1.0;
-        // Adjust the A-factor
-        for (const auto& sp : r.reactants) {
-            size_t iPhase = speciesPhaseIndex(kineticsSpeciesIndex(sp.first));
-            const ThermoPhase& p = thermo(iPhase);
-            size_t k = p.speciesIndex(sp.first);
-            if (sp.first == sticking_species) {
-                multiplier *= sqrt(GasConstant/(2*Pi*p.molecularWeight(k)));
-            } else {
-                // Non-sticking species. Convert from coverages used in the
-                // sticking probability expression to the concentration units
-                // used in the mass action rate expression. For surface phases,
-                // the dependence on the site density is incorporated when the
-                // rate constant is evaluated, since we don't assume that the
-                // site density is known at this time.
-                double order = getValue(r.orders, sp.first, sp.second);
-                if (&p == m_surf) {
-                    multiplier *= pow(m_surf->size(k), order);
-                    surface_order += order;
-                } else {
-                    multiplier *= pow(p.standardConcentration(k), -order);
-                }
-            }
-        }
-
-        if (!replace) {
-            m_stickingData.emplace_back(StickData{i, surface_order, multiplier,
-                                                  r.use_motz_wise_correction});
-        } else {
-            // Modifying an existing sticking reaction.
-            for (auto& item : m_stickingData) {
-                if (item.index == i) {
-                    item.order = surface_order;
-                    item.multiplier = multiplier;
-                    item.use_motz_wise = r.use_motz_wise_correction;
-                    break;
-                }
-            }
-        }
-    }
-
-    SurfaceArrhenius rate(r.rate.preExponentialFactor(),
-                          r.rate.temperatureExponent(),
-                          r.rate.activationEnergy_R());
-
-    // Set up coverage dependencies
-    for (const auto& sp : r.coverage_deps) {
-        size_t k = thermo(reactionPhaseIndex()).speciesIndex(sp.first);
-        rate.addCoverageDependence(k, sp.second.a, sp.second.m, sp.second.E);
-    }
-    return rate;
+    Kinetics::setMultiplier(i, f);
+    m_ROP_ok = false;
 }
 
 void InterfaceKinetics::setIOFlag(int ioFlag)
@@ -713,6 +491,13 @@ void InterfaceKinetics::setIOFlag(int ioFlag)
     if (m_integrator) {
         m_integrator->setIOFlag(ioFlag);
     }
+}
+
+void InterfaceKinetics::addThermo(shared_ptr<ThermoPhase> thermo)
+{
+    Kinetics::addThermo(thermo);
+    m_phaseExists.push_back(true);
+    m_phaseIsStable.push_back(true);
 }
 
 void InterfaceKinetics::addPhase(ThermoPhase& thermo)
@@ -749,27 +534,11 @@ void InterfaceKinetics::resizeSpecies()
     }
     m_actConc.resize(m_kk);
     m_conc.resize(m_kk);
-    m_StandardConc.resize(m_kk, 0.0);
     m_mu0.resize(m_kk);
     m_mu.resize(m_kk);
     m_mu0_Kc.resize(m_kk);
     m_grt.resize(m_kk);
-    m_pot.resize(m_kk, 0.0);
     m_phi.resize(nPhases(), 0.0);
-}
-
-doublereal InterfaceKinetics::electrochem_beta(size_t irxn) const
-{
-    warn_deprecated("InterfaceKinetics::electrochem_beta",
-                    "This function only works for the legacy framework. "
-                    "To be removed after Cantera 2.6.");
-
-    for (size_t i = 0; i < m_ctrxn.size(); i++) {
-        if (m_ctrxn[i] == irxn) {
-            return m_beta[i];
-        }
-    }
-    return 0.0;
 }
 
 void InterfaceKinetics::advanceCoverages(doublereal tstep, doublereal rtol,
@@ -844,30 +613,106 @@ void InterfaceKinetics::setPhaseStability(const size_t iphase, const int isStabl
     }
 }
 
-void InterfaceKinetics::applyStickingCorrection(double T, double* kf)
+double InterfaceKinetics::interfaceCurrent(const size_t iphase)
 {
-    if (m_stickingData.empty()) {
-        return;
+    vector_fp charges(m_kk, 0.0);
+    vector_fp netProdRates(m_kk, 0.0);
+    double dotProduct = 0.0;
+
+    thermo(iphase).getCharges(charges.data());
+    getNetProductionRates(netProdRates.data());
+
+    for (size_t k = 0; k < thermo(iphase).nSpecies(); k++)
+    {
+        dotProduct += charges[k] * netProdRates[m_start[iphase] + k];
     }
 
-    static const int cacheId = m_cache.getId();
-    CachedArray cached = m_cache.getArray(cacheId);
-    vector_fp& factors = cached.value;
+    return dotProduct * Faraday;
+}
 
-    double n0 = m_surf->siteDensity();
-    if (!cached.validate(n0)) {
-        factors.resize(m_stickingData.size());
-        for (size_t n = 0; n < m_stickingData.size(); n++) {
-            factors[n] = pow(n0, -m_stickingData[n].order);
-        }
+Eigen::SparseMatrix<double> InterfaceKinetics::fwdRatesOfProgress_ddCi()
+{
+    // check derivatives are valid
+    assertDerivativesValid("InterfaceKinetics::fwdRatesOfProgress_ddCi");
+    // forward reaction rate coefficients
+    vector_fp& rop_rates = m_rbuf0;
+    getFwdRateConstants(rop_rates.data());
+    return calculateCompositionDerivatives(m_reactantStoich, rop_rates);
+}
+
+Eigen::SparseMatrix<double> InterfaceKinetics::revRatesOfProgress_ddCi()
+{
+    // check derivatives are valid
+    assertDerivativesValid("InterfaceKinetics::revRatesOfProgress_ddCi");
+    // reverse reaction rate coefficients
+    vector_fp& rop_rates = m_rbuf0;
+    getFwdRateConstants(rop_rates.data());
+    applyEquilibriumConstants(rop_rates.data());
+    return calculateCompositionDerivatives(m_revProductStoich, rop_rates);
+}
+
+Eigen::SparseMatrix<double> InterfaceKinetics::netRatesOfProgress_ddCi()
+{
+    // check derivatives are valid
+    assertDerivativesValid("InterfaceKinetics::netRatesOfProgress_ddCi");
+    // forward reaction rate coefficients
+    vector_fp& rop_rates = m_rbuf0;
+    getFwdRateConstants(rop_rates.data());
+    Eigen::SparseMatrix<double> jac = calculateCompositionDerivatives(m_reactantStoich,
+        rop_rates);
+
+    // reverse reaction rate coefficients
+    applyEquilibriumConstants(rop_rates.data());
+    return jac - calculateCompositionDerivatives(m_revProductStoich, rop_rates);
+}
+
+void InterfaceKinetics::setDerivativeSettings(const AnyMap& settings)
+{
+    bool force = settings.empty();
+    if (force || settings.hasKey("skip-coverage-dependence")) {
+        m_jac_skip_coverage_dependence = settings.getBool("skip-coverage-dependence",
+            false);
     }
+    if (force || settings.hasKey("skip-electrochemistry")) {
+        m_jac_skip_electrochemistry = settings.getBool("skip-electrochemistry",
+            false);
+    }
+    if (force || settings.hasKey("rtol-delta")) {
+        m_jac_rtol_delta = settings.getDouble("rtol-delta", 1e-8);
+    }
+}
 
-    for (size_t n = 0; n < m_stickingData.size(); n++) {
-        const StickData& item = m_stickingData[n];
-        if (item.use_motz_wise) {
-            kf[item.index] /= 1 - 0.5 * kf[item.index];
-        }
-        kf[item.index] *= factors[n] * sqrt(T) * item.multiplier;
+void InterfaceKinetics::getDerivativeSettings(AnyMap& settings) const
+{
+    settings["skip-coverage-dependence"] = m_jac_skip_electrochemistry;
+    settings["skip-electrochemistry"] = m_jac_skip_coverage_dependence;
+    settings["rtol-delta"] = m_jac_rtol_delta;
+}
+
+Eigen::SparseMatrix<double> InterfaceKinetics::calculateCompositionDerivatives(
+    StoichManagerN& stoich, const vector_fp& in)
+{
+    vector_fp& outV = m_rbuf1;
+    // derivatives handled by StoichManagerN
+    copy(in.begin(), in.end(), outV.begin());
+    return stoich.derivatives(m_actConc.data(), outV.data());
+}
+
+void InterfaceKinetics::assertDerivativesValid(const string& name)
+{
+    if (!m_jac_skip_coverage_dependence && m_has_coverage_dependence) {
+        throw NotImplementedError(name, "Coverage-dependent reactions not supported.");
+    } else if (!m_jac_skip_electrochemistry && m_has_electrochemistry) {
+        throw NotImplementedError(name, "Electrochemical reactions not supported.");
+    }
+}
+
+void InterfaceKinetics::applyEquilibriumConstants(double* rop)
+{
+    // For reverse rates computed from thermochemistry, multiply the forward
+    // rate coefficients by the reciprocals of the equilibrium constants
+    for (size_t i = 0; i < nReactions(); ++i) {
+        rop[i] *= m_rkcn[i];
     }
 }
 

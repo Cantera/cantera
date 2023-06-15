@@ -4,12 +4,22 @@
 import warnings
 import weakref
 import numbers as _numbers
+import numpy as np
+cimport numpy as np
+
+from .speciesthermo cimport *
+from .kinetics cimport CxxKinetics
+from .transport cimport *
+from ._utils cimport *
+from ._utils import CanteraError
+from .units cimport *
 
 cdef enum ThermoBasisType:
     mass_basis = 0
     molar_basis = 1
 
 ctypedef CxxPlasmaPhase* CxxPlasmaPhasePtr
+ctypedef CxxSurfPhase* CxxSurfPhasePtr
 
 class ThermoModelMethodError(Exception):
     """Exception raised for an invalid method used by a thermo model
@@ -50,18 +60,17 @@ cdef class Species:
         tran = ct.GasTransportData()
         tran.set_customary_units('nonlinear', 3.75, 141.40, 0.0, 2.60, 13.00)
         ch4.transport = tran
-        gas = ct.Solution(thermo='IdealGas', species=[ch4])
+        gas = ct.Solution(thermo='ideal-gas', species=[ch4])
 
-    The static methods `fromYaml`, `fromCti`, `fromXml`, `listFromFile`,
-    `listFromYaml`, `listFromCti`, and `listFromXml` can be used to create
-    `Species` objects from existing definitions in the CTI or XML formats.
-    Either of the following will produce a list of 53 `Species` objects
-    containing the species defined in the GRI 3.0 mechanism::
+    The static methods `list_from_file` and `list_from_yaml` can be used to create
+    `Species` objects from existing definitions in the YAML format. Either of the
+    following will produce a list of 53 `Species` objects containing the species defined
+    in the GRI 3.0 mechanism::
 
         S = ct.Species.list_from_file("gri30.yaml")
 
         import pathlib
-        S = ct.Species.listFromYaml(
+        S = ct.Species.list_from_yaml(
             pathlib.Path('path/to/gri30.yaml').read_text(),
             section='species')
 
@@ -93,49 +102,6 @@ cdef class Species:
         self.species = self._species.get()
 
     @staticmethod
-    def fromCti(text):
-        """
-        Create a Species object from its CTI string representation.
-
-        .. deprecated:: 2.5
-
-            The CTI input format is deprecated and will be removed in Cantera 3.0.
-        """
-        cxx_species = CxxGetSpecies(deref(CxxGetXmlFromString(stringify(text))))
-        assert cxx_species.size() == 1, cxx_species.size()
-        species = Species(init=False)
-        species._assign(cxx_species[0])
-        return species
-
-    @staticmethod
-    def fromXml(text):
-        """
-        Create a Species object from its XML string representation.
-
-        .. deprecated:: 2.5
-
-            The XML input format is deprecated and will be removed in Cantera 3.0.
-        """
-        cxx_species = CxxNewSpecies(deref(CxxGetXmlFromString(stringify(text))))
-        species = Species(init=False)
-        species._assign(cxx_species)
-        return species
-
-    @staticmethod
-    def fromYaml(text):
-        """
-        Create a Species object from its YAML string representation.
-
-        .. deprecated:: 2.6
-             To be deprecated with version 2.6, and removed thereafter.
-             Replaced by `Reaction.from_yaml`.
-        """
-        warnings.warn("Class method 'fromYaml' is renamed to 'from_yaml' "
-            "and will be removed after Cantera 2.6.", DeprecationWarning)
-
-        return Species.from_yaml(text)
-
-    @staticmethod
     def from_yaml(text):
         """
         Create a `Species` object from its YAML string representation.
@@ -154,49 +120,10 @@ cdef class Species:
         :param data:
             A dictionary corresponding to the YAML representation.
         """
-        cdef CxxAnyMap any_map = dict_to_anymap(data)
+        cdef CxxAnyMap any_map = py_to_anymap(data)
         cxx_species = CxxNewSpecies(any_map)
         species = Species(init=False)
         species._assign(cxx_species)
-        return species
-
-    @staticmethod
-    def listFromFile(filename, section='species'):
-        """
-        Create a list of Species objects from all of the species defined in a
-        YAML, CTI or XML file. For YAML files, return species from the section
-        ``section``.
-
-        Directories on Cantera's input file path will be searched for the
-        specified file.
-
-        In the case of an XML file, the ``<species>`` nodes are assumed to be
-        children of the ``<speciesData>`` node in a document with a ``<ctml>``
-        root node, as in the XML files produced by conversion from CTI files.
-
-        .. deprecated:: 2.5
-
-            The CTI and XML input formats are deprecated and will be removed in
-            Cantera 3.0.
-
-        .. deprecated:: 2.6
-
-            To be removed after Cantera 2.6. Replaced by 'Species.list_from_file'.
-        """
-        warnings.warn("Static method 'listFromFile' is renamed to 'list_from_file'."
-            " The old name will be removed after Cantera 2.6.", DeprecationWarning)
-
-        if filename.lower().split('.')[-1] in ('yml', 'yaml'):
-            root = AnyMapFromYamlFile(stringify(filename))
-            cxx_species = CxxGetSpecies(root[stringify(section)])
-        else:
-            cxx_species = CxxGetSpecies(deref(CxxGetXmlFile(stringify(filename))))
-
-        species = []
-        for a in cxx_species:
-            b = Species(init=False)
-            b._assign(a)
-            species.append(b)
         return species
 
     @staticmethod
@@ -213,59 +140,6 @@ cdef class Species:
             b._assign(a)
             species.append(b)
         return species
-
-    @staticmethod
-    def listFromXml(text):
-        """
-        Create a list of Species objects from all the species defined in an XML
-        string. The ``<species>`` nodes are assumed to be children of the
-        ``<speciesData>`` node in a document with a ``<ctml>`` root node, as in
-        the XML files produced by conversion from CTI files.
-
-        .. deprecated:: 2.5
-
-            The XML input format is deprecated and will be removed in Cantera 3.0.
-        """
-        cxx_species = CxxGetSpecies(deref(CxxGetXmlFromString(stringify(text))))
-        species = []
-        for a in cxx_species:
-            b = Species(init=False)
-            b._assign(a)
-            species.append(b)
-        return species
-
-    @staticmethod
-    def listFromCti(text):
-        """
-        Create a list of Species objects from all the species defined in a CTI
-        string.
-
-        .. deprecated:: 2.5
-
-            The CTI input format is deprecated and will be removed in Cantera 3.0.
-        """
-        # Currently identical to listFromXml since get_XML_from_string is able
-        # to distinguish between CTI and XML.
-        cxx_species = CxxGetSpecies(deref(CxxGetXmlFromString(stringify(text))))
-        species = []
-        for a in cxx_species:
-            b = Species(init=False)
-            b._assign(a)
-            species.append(b)
-        return species
-
-    @staticmethod
-    def listFromYaml(text, section=None):
-        """
-        Create a list of Species objects from all the species defined in a YAML string.
-
-        .. deprecated:: 2.6
-             To be deprecated with version 2.6, and removed thereafter.
-             Replaced by `Reaction.list_from_yaml`.
-        """
-        warnings.warn("Class method 'listFromYaml' is renamed to 'list_from_yaml' "
-            "and will be removed after Cantera 2.6.", DeprecationWarning)
-        return Species.list_from_yaml(text, section)
 
     @staticmethod
     def list_from_yaml(text, section=None):
@@ -312,6 +186,14 @@ cdef class Species:
         def __get__(self):
             return self.species.size
 
+    property molecular_weight:
+        """The molecular weight [amu] of the species.
+
+        .. versionadded:: 3.0
+        """
+        def __get__(self):
+            return self.species.molecularWeight()
+
     property thermo:
         """
         Get/Set the species reference-state thermodynamic data, as an instance
@@ -348,7 +230,7 @@ cdef class Species:
         """
         def __get__(self):
             cdef CxxThermoPhase* phase = self._phase.thermo if self._phase else NULL
-            return anymap_to_dict(self.species.parameters(phase))
+            return anymap_to_py(self.species.parameters(phase))
 
     def update_user_data(self, data):
         """
@@ -356,7 +238,7 @@ cdef class Species:
         YAML phase definition files with `Solution.write_yaml` or in the data returned
         by `input_data`. Existing keys with matching names are overwritten.
         """
-        self.species.input.update(dict_to_anymap(data), False)
+        self.species.input.update(py_to_anymap(data), False)
 
     def clear_user_data(self):
         """
@@ -387,7 +269,11 @@ cdef class ThermoPhase(_SolutionBase):
             self.thermo_basis = mass_basis
         # In composite objects, the ThermoPhase constructor needs to be called first
         # to prevent instantiation of stand-alone 'Kinetics' or 'Transport' objects.
-        # The following is used as a sentinel.
+        # The following is used as a sentinel. After initialization, the _references
+        # object is used to track whether the ThermoPhase is being used by a `Reactor`,
+        # `Domain1D`, or `Mixture` object and to prevent species from being added to the
+        # ThermoPhase if so, since these objects require the number of species to remain
+        # constant.
         self._references = weakref.WeakKeyDictionary()
         # validate plasma phase
         self._enable_plasma = False
@@ -444,6 +330,11 @@ cdef class ThermoPhase(_SolutionBase):
         """
         def __get__(self):
             return self.thermo.isCompressible()
+
+    @property
+    def _native_mode(self):
+        """  Return string acronym representing native state """
+        return pystr(self.thermo.nativeMode())
 
     property _native_state:
         """
@@ -684,8 +575,9 @@ cdef class ThermoPhase(_SolutionBase):
         automatically.
         """
         if self._references:
-            raise CanteraError('Cannot add species to ThermoPhase object if it'
-                ' is linked to a Reactor, Domain1D (flame), or Mixture object.')
+            raise CanteraError('Cannot add species to ThermoPhase object because it'
+                ' is being used by another object,\nsuch as a Reactor, Domain1D (flame),'
+                ' SolutionArray, Quantity, or Mixture object.')
         self.thermo.addUndefinedElements()
         self.thermo.addSpecies(species._species)
         species._phase = self
@@ -810,7 +702,10 @@ cdef class ThermoPhase(_SolutionBase):
                 self._setArray1(thermo_setMoleFractions, X)
 
     property concentrations:
-        """Get/Set the species concentrations [kmol/m^3]."""
+        """
+        Get/Set the species concentrations. Units are kmol/m^3 for bulk phases, kmol/m^2
+        for surface phases, and kmol/m for edge phases.
+        """
         def __get__(self):
             return self._getArray1(thermo_getConcentrations)
         def __set__(self, C):
@@ -854,10 +749,10 @@ cdef class ThermoPhase(_SolutionBase):
 
             >>> gas.set_equivalence_ratio(0.5, 'CH4', 'O2:1.0, N2:3.76', basis='mole')
             >>> gas.mass_fraction_dict()
-            {'CH4': 0.02837633052851681, 'N2': 0.7452356312613029, 'O2': 0.22638803821018036}
-            >>> gas.set_equivalence_ratio(1.2, {'NH3':0.8, 'CO':0.2}, 'O2:1.0', basis='mole')
+            {'CH4': 0.02837633052851, 'N2': 0.7452356312613, 'O2': 0.22638803821018}
+            >>> gas.set_equivalence_ratio(1.2, 'NH3:0.8,CO:0.2', 'O2:1', basis='mole')
             >>> gas.mass_fraction_dict()
-            {'CO': 0.14784006249290754, 'NH3': 0.35956645545401045, 'O2': 0.49259348205308207}
+            {'CO': 0.14784006249290, 'NH3': 0.35956645545401, 'O2': 0.49259348205308}
 
         :param phi:
             Equivalence ratio
@@ -867,23 +762,23 @@ cdef class ThermoPhase(_SolutionBase):
             Oxidizer species name or mole/mass fractions as a string, array, or dict.
         :param basis:
             Determines if ``fuel`` and ``oxidizer`` are given in mole
-            fractions (``basis='mole'``) or mass fractions (``basis='mass'``)
-        :param: diluent:
+            fractions (``basis='mole'``) or mass fractions (``basis='mass'``).
+        :param diluent:
             Optional parameter. Required if dilution is used. Specifies the composition
-            of the diluent in mole/mass fractions as a string, array or dict
-        :param: fraction:
+            of the diluent in mole/mass fractions as a string, array or dict.
+        :param fraction:
             Optional parameter. Dilutes the fuel/oxidizer mixture with the diluent
             according to ``fraction``. Fraction can refer to the fraction of diluent in
-            the  mixture (for example ``fraction="diluent:0.7`` will create a mixture
+            the  mixture (for example ``fraction="diluent:0.7"`` will create a mixture
             with 30 % fuel/oxidizer and 70 % diluent), the fraction of fuel in the
-            mixture (for example ``fraction="fuel:0.1" means that the mixture contains
+            mixture (for example ``fraction="fuel:0.1"`` means that the mixture contains
             10 % fuel. The amount of oxidizer is determined from the equivalence ratio
             and the remaining mixture is the diluent) or fraction of oxidizer in the
-            mixture (for example ``fraction="oxidizer:0.1")``. The fraction itself is
+            mixture (for example ``fraction="oxidizer:0.1"``). The fraction itself is
             interpreted as mole or mass fraction based on ``basis``. The diluent is not
             considered in the computation of the equivalence ratio. Default is no
             dilution or ``fraction=None``. May be given as string or dictionary (for
-            example ``fraction={"fuel":0.7})``
+            example ``fraction={"fuel":0.7}``).
         """
         cdef np.ndarray[np.double_t, ndim=1] fuel_comp = np.ascontiguousarray(
                 self.__composition_to_array(fuel, basis), dtype=np.double)
@@ -948,7 +843,7 @@ cdef class ThermoPhase(_SolutionBase):
         if Z_fuel == 0.0 and fraction_type == "fuel":
             raise ValueError("No fuel in the fuel/oxidizer mixture")
 
-        if Z_fuel == 1.0 and fraction_type == "oxidzer":
+        if Z_fuel == 1.0 and fraction_type == "oxidizer":
             raise ValueError("No oxidizer in the fuel/oxidizer mixture")
 
         if basis == "mass": # for mass basis, it is straight forward
@@ -992,7 +887,9 @@ cdef class ThermoPhase(_SolutionBase):
         H to H2O and S to SO2. Other elements are assumed not to participate in
         oxidation (that is, N ends up as N2). The ``basis`` determines the composition
         of fuel and oxidizer: ``basis='mole'`` (default) means mole fractions,
-        ``basis='mass'`` means mass fractions::
+        ``basis='mass'`` means mass fractions. For more information, see `Python
+        example
+        <https://cantera.org/examples/python/thermo/equivalenceRatio.py.html>`_ ::
 
             >>> gas.set_mixture_fraction(0.5, 'CH4', 'O2:1.0, N2:3.76')
             >>> gas.mass_fraction_dict()
@@ -1020,15 +917,29 @@ cdef class ThermoPhase(_SolutionBase):
 
     def equivalence_ratio(self, fuel=None, oxidizer=None, basis="mole",
                           include_species=None):
-        """
-        Get the equivalence ratio of the current mixture, which is a
+        r"""
+        Get the equivalence ratio :math:`\phi` of the current mixture, which is a
         conserved quantity. Considers the oxidation of C to CO2, H to H2O
         and S to SO2. Other elements are assumed not to participate in oxidation
         (that is, N ends up as N2). If fuel and oxidizer are not specified, the
         equivalence ratio is computed from the available oxygen and the
-        required oxygen for complete oxidation. The ``basis`` determines the
-        composition of fuel and oxidizer: ``basis='mole'`` (default) means mole
-        fractions, ``basis='mass'`` means mass fractions. Additionally, a
+        required oxygen for complete oxidation:
+
+        .. math:: \phi = \frac{Z_{\mathrm{mole},C} + Z_{\mathrm{mole},S}
+                  + \frac{1}{4}Z_{\mathrm{mole},H}} {\frac{1}{2}Z_{\mathrm{mole},O}}
+
+        where :math:`Z_{\mathrm{mole},e}` is the elemental mole fraction of element
+        :math:`e`. If the fuel and oxidizer compositions are specified, :math:`\phi` is
+        computed from:
+
+        .. math:: \phi = \frac{Z}{1-Z}\frac{1-Z_{\mathrm{st}}}{Z_{\mathrm{st}}}
+
+        where :math:`Z` is the Bilger mixture fraction and :math:`Z_{\mathrm{st}}`
+        the Bilger mixture fraction at stoichiometric conditions.
+        The ``basis`` determines the composition of fuel and oxidizer:
+        ``basis='mole'`` (default) means mole fractions, ``basis='mass'`` means
+        mass fractions. Note that this definition takes all species into account.
+        In case certain species like inert diluents should be ignored, a
         list of species can be provided with ``include_species``. This means that
         only these species are considered for the computation of the equivalence
         ratio. For more information, see `Python example
@@ -1077,19 +988,41 @@ cdef class ThermoPhase(_SolutionBase):
         return phi
 
     def mixture_fraction(self, fuel, oxidizer, basis='mole', element="Bilger"):
-        """
-        Get the mixture fraction of the current mixture (kg fuel / (kg oxidizer + kg fuel))
-        This is a quantity that is conserved after oxidation. Considers the
-        oxidation of C to CO2, H to H2O and S to SO2. Other elements are assumed
-        not to participate in oxidation (that is, N ends up as N2).
+        r"""
+        Get the mixture fraction of the current mixture in
+        (kg fuel / (kg oxidizer + kg fuel)). This is a quantity that is conserved after
+        oxidation. Considers the oxidation of C to CO2, H to H2O and S to SO2. Other
+        elements are assumed not to participate in oxidation (that is, N ends up as N2).
         The ``basis`` determines the composition of fuel and oxidizer:
-        ``basis="mole"`` (default) means mole fractions, ``basis="mass"`` means mass fractions.
-        The mixture fraction can be computed from a single element (for example, carbon
-        with ``element="C"``) or from all elements, which is the Bilger mixture
-        fraction (``element="Bilger"``). The Bilger mixture fraction is computed by default::
+        ``basis="mole"`` (default) means mole fractions, ``basis="mass"`` means mass
+        fractions. The mixture fraction can be computed from a single element (for
+        example, carbon with ``element="C"``)
 
-            >>> gas.set_mixture_fraction(0.5, 'CH3:0.5, CH3OH:.5, N2:0.125', 'O2:0.21, N2:0.79, NO:0.01')
-            >>> gas.mixture_fraction('CH3:0.5, CH3OH:.5, N2:0.125', 'O2:0.21, N2:0.79, NO:0.01')
+        .. math:: Z_m = \frac{Z_{\mathrm{mass},m}-Z_{\mathrm{mass},m,\mathrm{ox}}}
+            {Z_{\mathrm{mass},\mathrm{fuel}}-Z_{\mathrm{mass},m,\mathrm{ox}}}
+
+        where :math:`Z_{\mathrm{mass},m}` is the elemental mass fraction of
+        element :math:`m` in the mixture, and :math:`Z_{\mathrm{mass},m,\mathrm{ox}}`
+        and :math:`Z_{\mathrm{mass},\mathrm{fuel}}` are the elemental mass fractions of
+        the oxidizer and fuel, or from the Bilger mixture fraction
+        (``element="Bilger"``), which considers the elements C, S, H and O
+        (R. W. Bilger, "Turbulent jet diffusion flames," Prog. Energy Combust. Sci.,
+        109-131 (1979)). The Bilger mixture fraction is computed by default:
+
+        .. math:: Z_m = Z_{\mathrm{Bilger}} = \frac{\beta-\beta_{\mathrm{ox}}}
+            {\beta_{\mathrm{fuel}}-\beta_{\mathrm{ox}}}
+
+        with
+
+        .. math:: \beta = 2\frac{Z_C}{M_C}+2\frac{Z_S}{M_S}+\frac{1}{2}\frac{Z_H}{M_H}
+            - \frac{Z_O}{M_O}
+
+        and :math:`M_m` the atomic weight of element :math:`m`.
+        For more information, see `Python example
+        <https://cantera.org/examples/python/thermo/equivalenceRatio.py.html>`_.::
+
+            >>> gas.set_mixture_fraction(0.5, 'CH3:0.5, CH3OH:0.5, N2:0.125', 'O2:0.21, N2:0.79, NO:0.01')
+            >>> gas.mixture_fraction('CH3:0.5, CH3OH:0.5, N2:0.125', 'O2:0.21, N2:0.79, NO:.01')
             0.5
 
         :param fuel:
@@ -1429,7 +1362,7 @@ cdef class ThermoPhase(_SolutionBase):
             assert len(values) == 2, 'incorrect number of values'
             T = values[0] if values[0] is not None else self.T
             D = values[1] if values[1] is not None else self.density
-            self.thermo.setState_TR(T, D * self._mass_factor())
+            self.thermo.setState_TD(T, D * self._mass_factor())
 
     property TDX:
         """
@@ -1443,7 +1376,7 @@ cdef class ThermoPhase(_SolutionBase):
             T = values[0] if values[0] is not None else self.T
             D = values[1] if values[1] is not None else self.density
             self.X = values[2]
-            self.thermo.setState_TR(T, D * self._mass_factor())
+            self.thermo.setState_TD(T, D * self._mass_factor())
 
     property TDY:
         """
@@ -1457,7 +1390,7 @@ cdef class ThermoPhase(_SolutionBase):
             T = values[0] if values[0] is not None else self.T
             D = values[1] if values[1] is not None else self.density
             self.Y = values[2]
-            self.thermo.setState_TR(T, D * self._mass_factor())
+            self.thermo.setState_TD(T, D * self._mass_factor())
 
     property TP:
         """Get/Set temperature [K] and pressure [Pa]."""
@@ -1543,7 +1476,7 @@ cdef class ThermoPhase(_SolutionBase):
             assert len(values) == 2, 'incorrect number of values'
             D = values[0] if values[0] is not None else self.density
             P = values[1] if values[1] is not None else self.P
-            self.thermo.setState_RP(D*self._mass_factor(), P)
+            self.thermo.setState_DP(D*self._mass_factor(), P)
 
     property DPX:
         """Get/Set density [kg/m^3], pressure [Pa], and mole fractions."""
@@ -1554,7 +1487,7 @@ cdef class ThermoPhase(_SolutionBase):
             D = values[0] if values[0] is not None else self.density
             P = values[1] if values[1] is not None else self.P
             self.X = values[2]
-            self.thermo.setState_RP(D*self._mass_factor(), P)
+            self.thermo.setState_DP(D*self._mass_factor(), P)
 
     property DPY:
         """Get/Set density [kg/m^3], pressure [Pa], and mass fractions."""
@@ -1565,7 +1498,7 @@ cdef class ThermoPhase(_SolutionBase):
             D = values[0] if values[0] is not None else self.density
             P = values[1] if values[1] is not None else self.P
             self.Y = values[2]
-            self.thermo.setState_RP(D*self._mass_factor(), P)
+            self.thermo.setState_DP(D*self._mass_factor(), P)
 
     property HP:
         """Get/Set enthalpy [J/kg or J/kmol] and pressure [Pa]."""
@@ -1780,6 +1713,11 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.thermo.thermalExpansionCoeff()
 
+    property sound_speed:
+        """Speed of sound [m/s]."""
+        def __get__(self):
+            return self.thermo.soundSpeed()
+
     property min_temp:
         """
         Minimum temperature for which the thermodynamic data for the phase are
@@ -1824,6 +1762,13 @@ cdef class ThermoPhase(_SolutionBase):
             if not self._enable_plasma:
                 raise ThermoModelMethodError(self.thermo_model)
             self.plasma.setElectronTemperature(value)
+
+    property Pe:
+        """Get electron Pressure [Pa]."""
+        def __get__(self):
+            if not self._enable_plasma:
+                raise ThermoModelMethodError(self.thermo_model)
+            return self.plasma.electronPressure()
 
     def set_discretized_electron_energy_distribution(self, levels, distribution):
         """
@@ -1941,11 +1886,11 @@ cdef class ThermoPhase(_SolutionBase):
 
 
 cdef class InterfacePhase(ThermoPhase):
-    """ A class representing a surface or edge phase"""
+    """ A class representing a surface, edge phase """
     def __cinit__(self, *args, **kwargs):
         if not kwargs.get("init", True):
             return
-        if pystr(self.thermo.type()) not in ("Surf", "Edge"):
+        if not dynamic_cast[CxxSurfPhasePtr](self.thermo):
             raise TypeError('Underlying ThermoPhase object is of the wrong type.')
         self.surf = <CxxSurfPhase*>(self.thermo)
 
@@ -2020,7 +1965,7 @@ cdef class PureFluid(ThermoPhase):
         def __set__(self, Q):
             if (self.P >= self.critical_pressure or
                 abs(self.P-self.P_sat)/self.P > 1e-4):
-                raise ValueError('Cannot set vapor quality outside the'
+                raise ValueError('Cannot set vapor quality outside the '
                                  'two-phase region')
             self.thermo.setState_Psat(self.P, Q)
 
@@ -2181,6 +2126,18 @@ cdef class PureFluid(ThermoPhase):
         def __get__(self):
             return self.s, self.v, self.Q
 
+# TODO: Remove these helper methods when support for Python 3.8 is dropped. Python 3.9
+# allows the classmethod and property decorators to be chained, so these can be
+# implemented as properties in the Element class.
+def _element_symbols():
+    syms = elementSymbols()
+    return tuple(pystr(s) for s in syms)
+
+
+def _element_names():
+    names = elementNames()
+    return tuple(pystr(n) for n in names)
+
 
 class Element:
     """
@@ -2228,13 +2185,11 @@ class Element:
 
     #: A list of the symbols of all the elements (not isotopes) defined
     #: in Cantera
-    element_symbols = [pystr(getElementSymbol(<int>(m+1)))
-                       for m in range(num_elements_defined)]
+    element_symbols = _element_symbols()
 
     #: A list of the names of all the elements (not isotopes) defined
     #: in Cantera
-    element_names = [pystr(getElementName(<int>m+1))
-                     for m in range(num_elements_defined)]
+    element_names = _element_names()
 
     def __init__(self, arg):
         if isinstance(arg, (str, bytes)):

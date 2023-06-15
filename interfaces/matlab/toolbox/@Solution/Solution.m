@@ -18,11 +18,11 @@ function s = Solution(src, id, trans)
 % included in ``input.yaml``, it will be included in the :mat:func:`Solution`
 % instance with the default transport modeling as set
 % in the input file. To specify the transport modeling, set the input
-% argument ``trans`` to one of ``'default'``, ``'None'``, ``'Mix'``, or ``'Multi'``.
+% argument ``trans`` to one of ``'default'``, ``'none'``, or specific transport model
+% such as ``'mixture-averaged'`` or ``'multicomponent'``.
 % In this case, the phase name must be specified as well. Alternatively,
-% change the ``transport`` node in the CTML file, or ``transport``
-% property in the CTI file before loading the phase. The transport
-% modeling cannot be changed once the phase is loaded.
+% change the ``transport`` field in the YAML file before loading the phase. The
+% transport modeling cannot be changed once the phase is loaded.
 %
 % Class :mat:func:`Solution` derives from three more basic classes, and most of
 % its methods are inherited from these classes. These are:
@@ -34,13 +34,13 @@ function s = Solution(src, id, trans)
 % See also: :mat:func:`ThermoPhase`, :mat:func:`Kinetics`, :mat:func:`Transport`
 %
 % :param src:
-%     Input string of CTI or CTML file name.
+%     Input string of YAML file name.
 % :param id:
-%     Optional unless ``trans`` is specified. ID of the phase to
-%     import as specified in the CTML or CTI file.
+%     Optional unless ``trans`` is specified. Name of the phase to
+%     import as specified in the YAML file.
 % :param trans:
-%     String, transport modeling. Possible values are ``'default'``, ``'None'``,
-%     ``'Mix'``, or ``'Multi'``. If not specified, ``'default'`` is used.
+%     String, transport modeling. Possible values are ``'default'``, ``'none'``,
+%     or a specific transport model name. If not specified, ``'default'`` is used.
 % :return:
 %     Instance of class :mat:func:`Solution`
 %
@@ -52,12 +52,7 @@ k = Kinetics(t, src, id);
 s.kin = k;
 s.th = t;
 if nargin == 3
-    if (strcmp(trans, 'default') || strcmp(trans, 'None')...
-        || strcmp(trans, 'Mix') || strcmp(trans, 'Multi'))
-        tr = Transport(t, trans, 0);
-    else
-        error('Unknown transport modeling specified.')
-    end
+    tr = Transport(t, trans, 0);
 else
     tr = Transport(t, 'default', 0);
 end

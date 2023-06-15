@@ -28,7 +28,7 @@ r = IdealGasReactor(gas);
 setInitialVolume(r, 1.0e-6)
 
 % create a reservoir to represent the environment
-a = Solution('air.yaml','air','None');
+a = Solution('air.yaml','air','none');
 set(a,'T',t,'P',oneatm);
 env = Reservoir(a);
 
@@ -57,9 +57,9 @@ nSteps = 100;
 p0 = pressure(r);
 names = {'CH4','CO','CO2','H2O'};
 x = zeros([nSteps 4]);
-tim = zeros(nSteps);
-temp = zeros(nSteps);
-pres = zeros(nSteps);
+tim = zeros(nSteps, 1);
+temp = zeros(nSteps, 1);
+pres = zeros(nSteps, 1);
 cov = zeros([nSteps nSurfSp]);
 t = 0;
 dt = 0.1;

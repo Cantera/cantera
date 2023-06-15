@@ -5,7 +5,7 @@
 #define CT_EXAMPLE_UTILS_H
 
 #include "cantera/base/Array.h"
-#include "cantera/base/plots.h"
+#include <fstream>
 
 // Save the temperature, density, pressure, and mole fractions at one
 // time
@@ -34,28 +34,29 @@ void saveSoln(double time, const G& gas, A& soln)
     }
 }
 
-template<class G, class V>
-void makeDataLabels(const G& gas, V& names)
+void writeCsv(const std::string& fname, const Cantera::ThermoPhase& gas,
+              const Cantera::Array2D& data)
 {
-    int nsp = gas.nSpecies();
-    names.resize(nsp + 4);
-    names[0] = "time (s)";
-    names[1] = "Temperature (K)";
-    names[2] = "Density (kg/m3)";
-    names[3] = "Pressure (Pa)";
-    int k;
-    for (k = 0; k < nsp; k++) {
-        names[4+k] = gas.speciesName(k);
-    }
-}
+    std::ofstream s(fname);
+    // Write labels
+    s << "time (s),Temperature (K),Density (kg/m3),Pressure (Pa),";
 
-template<class G, class A>
-void plotSoln(const std::string& fname, const std::string& fmt,
-              const std::string& title, const G& gas, const A& soln)
-{
-    std::vector<std::string> names;
-    makeDataLabels(gas, names);
-    writePlotFile(fname, fmt, title, names, soln);
+    for (size_t k = 0; k < gas.nSpecies(); k++) {
+        s << gas.speciesName(k);
+        if (k != gas.nSpecies()-1) {
+            s << ",";
+        }
+    }
+    s << std::endl;
+    for (size_t i = 0; i < data.nColumns(); i++) {
+        for (size_t j = 0; j < data.nRows(); j++) {
+            s << data(j,i);
+            if (j != data.nRows()-1) {
+                s << ",";
+            }
+        }
+        s << std::endl;
+    }
 }
 
 #endif

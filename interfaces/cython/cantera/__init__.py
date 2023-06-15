@@ -2,11 +2,12 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 from ._cantera import *
-from ._cantera import __version__, __sundials_version__, __git_commit__
+from ._utils import __version__, __sundials_version__, __git_commit__
 from .composite import *
 from .liquidvapor import *
 from .onedim import *
 from .utils import *
+from .data import *
 import cantera.interrupts  # Helps with standalone packaging (PyInstaller etc.)
 
 import os

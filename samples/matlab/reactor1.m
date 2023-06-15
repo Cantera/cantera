@@ -16,7 +16,7 @@ help reactor1
 if nargin == 1
    gas = g;
 else
-   gas = Solution('h2o2.yaml', 'gas', 'None');
+   gas = Solution('h2o2.yaml', 'ohmech', 'none');
 end
 
 P = oneatm;
@@ -27,7 +27,7 @@ set(gas,'T',1001.0,'P',P,'X','H2:2,O2:1,N2:4');
 r = IdealGasReactor(gas);
 
 % create a reservoir to represent the environment
-a = Solution('air.yaml','air','None');
+a = Solution('air.yaml','air','none');
 set(a,'P',P)
 env = Reservoir(a);
 

@@ -16,9 +16,11 @@ program main
   implicit none
 
   ! objects representing phases of matter have type 'phase_t'
-  type(phase_t) gas
+  type(phase_t) :: gas, surf
+  type(interface_t) iface
   integer nsp, nrxns
   double precision :: t, p
+  character*1000 err_buf
 
   write(*,*)
   write(*,*) '********   Fortran 90 Test Program   ********'
@@ -40,6 +42,14 @@ program main
   nrxns = nReactions(gas)  ! number of reactions
 
   call demo(gas, nsp, nrxns)
+
+  ! Demo of importing a phase with surface kinetics
+  gas = importPhase('ptcombust.yaml', 'gas')
+  iface = importInterface('ptcombust.yaml', 'Pt_surf', gas)
+  surf = iface%surf
+  call setState_TPX(gas, t, p, 'H2:0.1, O2:0.65, H2O:0.2, CO:0.05')
+  call setState_TPX(surf, t, p, 'O(S):0.01, PT(S): 0.8, CO(S): 0.19')
+  call demo_surf(surf, nSpecies(surf), nReactions(surf))
 
 end program main
 
@@ -137,3 +147,27 @@ subroutine demo(gas, MAXSP, MAXRXNS)
   return
 
 end subroutine demo
+
+subroutine demo_surf(surf, nsp, nrxn)
+  use cantera
+  implicit none
+
+  type(phase_t) surf
+  integer :: nsp, nrxn, i
+  character*40 equation
+  double precision :: ropf(nrxn), ropnet(nrxn)
+
+  write(*,*)
+  write(*,*) '********   Interface Kinetics Test   ********'
+  write(*,*)
+
+  call getFwdRatesOfProgress(surf, ropf)
+  call getNetRatesOfProgress(surf, ropnet)
+
+  write(*,*) 'Equation                                    Fwd rate      Net rate'
+  do i = 1, nrxn
+    call getReactionString(surf, i, equation)
+    write(*,60) equation, ropf(i), ropnet(i)
+60  format(' ',a40, e14.5, e14.5)
+  end do
+end subroutine demo_surf

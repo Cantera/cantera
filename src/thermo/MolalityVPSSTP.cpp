@@ -11,22 +11,14 @@
 
 #include "cantera/thermo/MolalityVPSSTP.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/base/ctml.h"
 #include "cantera/base/utilities.h"
 
 #include <fstream>
 
-using namespace std;
-
 namespace Cantera
 {
 
-MolalityVPSSTP::MolalityVPSSTP() :
-    m_pHScalingType(PHSCALE_PITZER),
-    m_indexCLM(npos),
-    m_weightSolvent(18.01528),
-    m_xmolSolventMIN(0.01),
-    m_Mnaught(18.01528E-3)
+MolalityVPSSTP::MolalityVPSSTP()
 {
     // Change the default to be that charge neutrality in the phase is necessary
     // condition for the proper specification of thermodynamic functions within
@@ -237,19 +229,6 @@ doublereal MolalityVPSSTP::osmoticCoefficient() const
         oc = - log(act[0]) / (m_Mnaught * sum);
     }
     return oc;
-}
-
-void MolalityVPSSTP::setStateFromXML(const XML_Node& state)
-{
-    VPStandardStateTP::setStateFromXML(state);
-    string comp = getChildValue(state,"soluteMolalities");
-    if (comp != "") {
-        setMolalitiesByName(comp);
-    }
-    if (state.hasChild("pressure")) {
-        double p = getFloat(state, "pressure", "pressure");
-        setPressure(p);
-    }
 }
 
 void MolalityVPSSTP::setState_TPM(doublereal t, doublereal p,

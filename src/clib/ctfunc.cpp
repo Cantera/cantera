@@ -5,18 +5,15 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-#define CANTERA_USE_INTERNAL
 #include "cantera/clib/ctfunc.h"
 
 #include "cantera/numerics/Func1.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/stringUtils.h"
-
-#include "Cabinet.h"
+#include "clib_utils.h"
 
 using namespace Cantera;
-using namespace std;
 
 typedef Func1 func_t;
 

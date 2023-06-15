@@ -224,18 +224,6 @@ public:
     explicit MargulesVPSSTP(const std::string& inputFile="",
                             const std::string& id="");
 
-    //! Construct and initialize a MargulesVPSSTP ThermoPhase object directly
-    //! from an XML database
-    /*!
-     *  @param phaseRef XML phase node containing the description of the phase
-     *  @param id     id attribute containing the name of the phase.
-     *                (default is the empty string)
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    MargulesVPSSTP(XML_Node& phaseRef, const std::string& id = "");
-
     virtual std::string type() const {
         return "Margules";
     }
@@ -248,21 +236,19 @@ public:
     virtual doublereal cp_mole() const;
     virtual doublereal cv_mole() const;
 
-    /**
-     * @}
-     * @name Activities, Standard States, and Activity Concentrations
-     *
-     * The activity \f$a_k\f$ of a species in solution is related to the
-     * chemical potential by \f[ \mu_k = \mu_k^0(T) + \hat R T \log a_k. \f] The
-     * quantity \f$\mu_k^0(T,P)\f$ is the chemical potential at unit activity,
-     * which depends only on temperature and pressure.
-     * @{
-     */
+    //! @}
+    //! @name Activities, Standard States, and Activity Concentrations
+    //!
+    //! The activity \f$a_k\f$ of a species in solution is related to the
+    //! chemical potential by \f[ \mu_k = \mu_k^0(T) + \hat R T \log a_k. \f] The
+    //! quantity \f$\mu_k^0(T,P)\f$ is the chemical potential at unit activity,
+    //! which depends only on temperature and pressure.
+    //! @{
 
     virtual void getLnActivityCoefficients(doublereal* lnac) const;
 
     //! @}
-    /// @name  Partial Molar Properties of the Solution
+    //! @name  Partial Molar Properties of the Solution
     //! @{
 
     virtual void getChemPotentials(doublereal* mu) const;
@@ -341,16 +327,17 @@ public:
 
     virtual void getdlnActCoeffdT(doublereal* dlnActCoeffdT) const;
 
-    /// @}
-    /// @name Initialization The following methods are used in the process of
-    ///     constructing the phase and setting its parameters from a
-    ///     specification in an input file. They are not normally used in
-    ///     application programs. To see how they are used, see importPhase()
-    /// @{
+    //! @}
+    //! @name Initialization
+    //!
+    //! The following methods are used in the process of constructing the phase
+    //! and setting its parameters from a specification in an input file. They
+    //! are not normally used in application programs. To see how they are used,
+    //! see importPhase()
+    //! @{
 
     virtual void initThermo();
     virtual void getParameters(AnyMap& phaseNode) const;
-    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     //! Add a binary species interaction with the specified parameters
     /*!
@@ -381,18 +368,6 @@ public:
     //! @}
 
 private:
-    //! Process an XML node called "binaryNeutralSpeciesParameters"
-    /*!
-     * This node contains all of the parameters necessary to describe the
-     * Margules model for a particular binary interaction. This function reads
-     * the XML file and writes the coefficients it finds to an internal data
-     * structures.
-     *
-     * @param xmlBinarySpecies  Reference to the XML_Node named "binaryNeutralSpeciesParameters"
-     *                          containing the binary interaction
-     */
-    void readXMLBinarySpecies(XML_Node& xmlBinarySpecies);
-
     //! Initialize lengths of local variables after all species have been
     //! identified.
     void initLengths();
@@ -440,7 +415,7 @@ private:
 
 protected:
     //! number of binary interaction expressions
-    size_t numBinaryInteractions_;
+    size_t numBinaryInteractions_ = 0;
 
     //! Enthalpy term for the binary mole fraction interaction of the
     //! excess Gibbs free energy expression
@@ -492,13 +467,13 @@ protected:
     /*!
      *  Currently there is only one form.
      */
-    int formMargules_;
+    int formMargules_ = 0;
 
     //! form of the temperature dependence of the Margules interaction expression
     /*!
      *  Currently there is only one form -> constant wrt temperature.
      */
-    int formTempModel_;
+    int formTempModel_ = 0;
 };
 
 }

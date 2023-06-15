@@ -1,0 +1,56 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <LangVersion>10</LangVersion>
+    <TargetFrameworks>net6.0;netstandard2.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <AssemblyName>CanteraDotNet</AssemblyName>
+    <IsPackable>false</IsPackable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <LibDir>$([MSBuild]::NormalizePath($(MSBuildProjectDirectory)/../../../build/lib))</LibDir>
+    <DataDir>$([MSBuild]::NormalizePath($(MSBuildProjectDirectory)/../../../data))</DataDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Cantera.Tests" />
+
+    <None Include="$(DataDir)/*" CopyToOutputDirectory="PreserveNewest" LinkBase="data/" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$([MSBuild]::IsOsPlatform(Windows))">
+    <None Include="$(LibDir)/cantera_shared.dll" CopyToOutputDirectory="PreserveNewest"/>
+  </ItemGroup>
+  <ItemGroup Condition="$([MSBuild]::IsOsPlatform(OSX))">
+    <None Include="$(LibDir)/libcantera_shared.dylib" CopyToOutputDirectory="PreserveNewest"/>
+  </ItemGroup>
+  <ItemGroup Condition="$([MSBuild]::IsOsPlatform(Linux))">
+    <None Include="$(LibDir)/libcantera_shared.so" CopyToOutputDirectory="PreserveNewest"/>
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+    <PackageReference Include="Nullable" Version="1.3.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="System.Memory" Version="4.5.4" />
+  </ItemGroup>
+
+  <Target Name="GenerateInterop" BeforeTargets="CoreCompile">
+    <PropertyGroup>
+      <Script>$([MSBuild]::NormalizePath(../../../interfaces/sourcegen/run.py))</Script>
+      <GeneratedPath>$([MSBuild]::NormalizePath($(IntermediateOutputPath)/sourcegen/))</GeneratedPath>
+    </PropertyGroup>
+
+    <Exec Command="python3 $(Script) csharp $(GeneratedPath)"
+      Condition="'$(GenerateInterop)' == 'true' Or !Exists('$(GeneratedPath)')"/>
+
+    <ItemGroup>
+      <Compile Remove="$(GeneratedPath)*.cs" />
+      <Compile Include="$(GeneratedPath)*.cs" />
+    </ItemGroup>
+  </Target>
+</Project>

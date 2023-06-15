@@ -18,37 +18,8 @@ namespace Cantera
 {
 
 vcs_VolPhase::vcs_VolPhase(VCS_SOLVE* owningSolverObject) :
-    m_owningSolverObject(0),
-    VP_ID_(npos),
-    m_singleSpecies(true),
-    m_gasPhase(false),
-    m_eqnState(VCS_EOS_CONSTANT),
-    ChargeNeutralityElement(npos),
-    p_activityConvention(0),
-    m_numElemConstraints(0),
-    m_elemGlobalIndex(0),
-    m_numSpecies(0),
-    m_totalMolesInert(0.0),
-    m_isIdealSoln(false),
-    m_existence(VCS_PHASE_EXIST_NO),
-    m_MFStartIndex(0),
-    IndSpecies(0),
-    TP_ptr(0),
-    v_totalMoles(0.0),
-    m_phiVarIndex(npos),
-    m_totalVol(0.0),
-    m_vcsStateStatus(VCS_STATECALC_OLD),
-    m_phi(0.0),
-    m_UpToDate(false),
-    m_UpToDate_AC(false),
-    m_UpToDate_VolStar(false),
-    m_UpToDate_VolPM(false),
-    m_UpToDate_GStar(false),
-    m_UpToDate_G0(false),
-    Temp_(273.15),
-    Pres_(1.01325E5)
+    m_owningSolverObject(owningSolverObject)
 {
-    m_owningSolverObject = owningSolverObject;
 }
 
 vcs_VolPhase::~vcs_VolPhase()
@@ -212,7 +183,8 @@ void vcs_VolPhase::setMoleFractions(const double* const xmol)
 void vcs_VolPhase::_updateMoleFractionDependencies()
 {
     if (TP_ptr) {
-        TP_ptr->setState_PX(Pres_, &Xmol_[m_MFStartIndex]);
+        TP_ptr->setMoleFractions(&Xmol_[m_MFStartIndex]);
+        TP_ptr->setPressure(Pres_);
     }
     if (!m_isIdealSoln) {
         m_UpToDate_AC = false;
@@ -600,15 +572,7 @@ void vcs_VolPhase::setPtrThermoPhase(ThermoPhase* tp_ptr)
     if (nsp == 1) {
         m_isIdealSoln = true;
     } else {
-        std::string eos = TP_ptr->type();
-        if (eos == "IdealGas" || eos == "ConstDensity" || eos == "Surf"
-            || eos == "Metal" || eos == "StoichSubstance"
-            || eos == "LatticeSolid"
-            || eos == "Lattice" || eos == "Edge" || eos == "IdealSolidSoln") {
-            m_isIdealSoln = true;
-        } else {
-            m_isIdealSoln = false;
-        };
+        m_isIdealSoln = TP_ptr->isIdeal();
     }
 }
 

@@ -51,7 +51,9 @@ namespace Cantera
  *    G^E_{i} =   n X_{Ai} X_{Bi} \sum_m \left( A^{i}_m {\left( X_{Ai} -  X_{Bi} \right)}^m \right)
  * \f]
  *
- * and where we can break down the Gibbs free energy contributions into enthalpy and entropy contributions
+ * where n is the total moles in the solution and where we can break down the Gibbs free
+ * energy contributions into enthalpy and entropy contributions by defining
+ * \f$ A^i_m = H^i_m - T S^i_m \f$ :
  *
  * \f[
  *    H^E_i = n X_{Ai} X_{Bi} \sum_m \left( H^{i}_m {\left( X_{Ai} -  X_{Bi} \right)}^m \right)
@@ -61,8 +63,8 @@ namespace Cantera
  *    S^E_i = n X_{Ai} X_{Bi} \sum_m \left( S^{i}_m {\left( X_{Ai} -  X_{Bi} \right)}^m \right)
  * \f]
  *
- * where n is the total moles in the solution. The activity of a species defined
- * in the phase is given by an excess Gibbs free energy formulation.
+ * The activity of a species defined in the phase is given by an excess Gibbs free
+ * energy formulation:
  *
  * \f[
  *      a_k = \gamma_k  X_k
@@ -78,6 +80,20 @@ namespace Cantera
  * \f[
  *      R T \ln( \gamma_k )=  \sum_i \delta_{Ai,k} (1 - X_{Ai}) X_{Bi} \sum_m \left( A^{i}_m {\left( X_{Ai} -  X_{Bi} \right)}^m \right)
  *                           + \sum_i \delta_{Ai,k} X_{Ai} X_{Bi} \sum_m \left(  A^{i}_0 +  A^{i}_m {\left( X_{Ai} -  X_{Bi} \right)}^{m-1} (1 - X_{Ai} + X_{Bi}) \right)
+ * \f]
+ *
+ * Evaluating thermodynamic properties requires the following derivatives of
+ * \f$ \ln(\gamma_k) \f$:
+ *
+ * \f[
+ *    \frac{d \ln( \gamma_k )}{dT} = - \frac{1}{RT^2} \left( \sum_i \delta_{Ai,k} (1 - X_{Ai}) X_{Bi} \sum_m \left( H^{i}_m {\left( X_{Ai} -  X_{Bi} \right)}^m \right)
+ *        + \sum_i \delta_{Ai,k} X_{Ai} X_{Bi} \sum_m \left(  H^{i}_0 +  H^{i}_m {\left( X_{Ai} -  X_{Bi} \right)}^{m-1} (1 - X_{Ai} + X_{Bi}) \right) \right)
+ * \f]
+ *
+ * and
+ *
+ * \f[
+ *    \frac{d^2 \ln( \gamma_k )}{dT^2} = -\frac{2}{T} \frac{d \ln( \gamma_k )}{dT}
  * \f]
  *
  * This object inherits from the class VPStandardStateTP. Therefore, the
@@ -112,7 +128,7 @@ namespace Cantera
  *
  * \f[
  *      \tilde{C}_{p,k}(T,P) = C^o_{p,k}(T,P)   - 2 R T \frac{d \ln( \gamma_k )}{dT}
- *              - R T^2 \frac{d^2 \ln(\gamma_k) }{{dT}^2}
+ *              - R T^2 \frac{d^2 \ln(\gamma_k) }{{dT}^2} = C^o_{p,k}(T,P)
  * \f]
  *
  * ## %Application within Kinetics Managers
@@ -226,20 +242,8 @@ public:
     explicit RedlichKisterVPSSTP(const std::string& inputFile="",
                                  const std::string& id="");
 
-    //! Construct and initialize a RedlichKisterVPSSTP ThermoPhase object
-    //! directly from an XML database
-    /*!
-     *  @param phaseRef XML phase node containing the description of the phase
-     *  @param id     id attribute containing the name of the phase.
-     *                (default is the empty string)
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    RedlichKisterVPSSTP(XML_Node& phaseRef, const std::string& id = "");
-
     virtual std::string type() const {
-        return "RedlichKister";
+        return "Redlich-Kister";
     }
 
     //! @name  Molar Thermodynamic Properties
@@ -250,17 +254,15 @@ public:
     virtual doublereal cp_mole() const;
     virtual doublereal cv_mole() const;
 
-    /**
-     * @}
-     * @name Activities, Standard States, and Activity Concentrations
-     *
-     * The activity \f$a_k\f$ of a species in solution is
-     * related to the chemical potential by \f[ \mu_k = \mu_k^0(T)
-     * + \hat R T \log a_k. \f] The quantity \f$\mu_k^0(T,P)\f$ is
-     * the chemical potential at unit activity, which depends only
-     * on temperature and pressure.
-     * @{
-     */
+    //! @}
+    //! @name Activities, Standard States, and Activity Concentrations
+    //!
+    //! The activity \f$a_k\f$ of a species in solution is
+    //! related to the chemical potential by \f[ \mu_k = \mu_k^0(T)
+    //! + \hat R T \log a_k. \f] The quantity \f$\mu_k^0(T,P)\f$ is
+    //! the chemical potential at unit activity, which depends only
+    //! on temperature and pressure.
+    //! @{
 
     virtual void getLnActivityCoefficients(doublereal* lnac) const;
 
@@ -291,15 +293,12 @@ public:
     //! Returns an array of partial molar entropies for the species in the
     //! mixture.
     /*!
-     * Units (J/kmol)
-     *
-     * For this phase, the partial molar enthalpies are equal to the standard
-     * state enthalpies modified by the derivative of the activity coefficient
-     * wrt temperature
+     * For this phase, the partial molar entropies are equal to the standard
+     * state entropies modified by the derivative of the activity coefficient
+     * with respect to temperature:
      *
      *  \f[
-     *   \bar s_k(T,P) = s^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
-     *                              - R \ln( \gamma_k X_k)
+     *   \bar s_k(T,P) = s^o_k(T,P) - R \ln( \gamma_k X_k)
      *                              - R T \frac{d \ln(\gamma_k) }{dT}
      *  \f]
      *
@@ -308,22 +307,17 @@ public:
      */
     virtual void getPartialMolarEntropies(doublereal* sbar) const;
 
-    //! Returns an array of partial molar entropies for the species in the
+    //! Returns an array of partial molar heat capacities for the species in the
     //! mixture.
     /*!
-     * Units (J/kmol)
+     * Units (J/kmol/K)
      *
-     * For this phase, the partial molar enthalpies are equal to the standard
-     * state enthalpies modified by the derivative of the activity coefficient
-     * wrt temperature
+     * For this phase, the partial molar heat capacities are equal to the standard
+     * state heat capacities:
      *
-     *  \f[
-     *   ???????????????
-     *   \bar s_k(T,P) = s^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
-     *                              - R \ln( \gamma_k X_k)
-     *                              - R T \frac{d \ln(\gamma_k) }{dT}
-     *   ???????????????
-     *  \f]
+     * \f[
+     *      \tilde{C}_{p,k}(T,P) = C^o_{p,k}(T,P)
+     * \f]
      *
      * @param cpbar  Vector of returned partial molar heat capacities
      *              (length m_kk, units = J/kmol/K)
@@ -345,15 +339,15 @@ public:
 
     virtual void getdlnActCoeffdT(doublereal* dlnActCoeffdT) const;
 
-    /// @name Initialization
-    /// The following methods are used in the process of constructing
-    /// the phase and setting its parameters from a specification in an
-    /// input file. They are not normally used in application programs.
-    /// To see how they are used, see importPhase().
+    //! @name Initialization
+    //!
+    //! The following methods are used in the process of constructing
+    //! the phase and setting its parameters from a specification in an
+    //! input file. They are not normally used in application programs.
+    //! To see how they are used, see importPhase().
 
     virtual void initThermo();
     virtual void getParameters(AnyMap& phaseNode) const;
-    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     //! Add a binary species interaction with the specified parameters
     /*!
@@ -378,18 +372,6 @@ public:
     //! @}
 
 private:
-    //! Process an XML node called "binaryNeutralSpeciesParameters"
-    /*!
-     * This node contains all of the parameters necessary to describe the
-     * Redlich-Kister model for a particular binary interaction. This function
-     * reads the XML file and writes the coefficients it finds to an internal
-     * data structures.
-     *
-     * @param xmlBinarySpecies  Reference to the XML_Node named
-     *     "binaryNeutralSpeciesParameters" containing the binary interaction
-     */
-    void readXMLBinarySpecies(XML_Node& xmlBinarySpecies);
-
     //! Initialize lengths of local variables after all species have been
     //! identified.
     void initLengths();
@@ -432,9 +414,6 @@ private:
     void s_update_dlnActCoeff_dlnX_diag() const;
 
 protected:
-    //! number of binary interaction expressions
-    size_t numBinaryInteractions_;
-
     //! vector of species indices representing species A in the interaction
     /*!
      *  Each Redlich-Kister excess Gibbs free energy term involves two species,
@@ -449,25 +428,13 @@ protected:
      */
     std::vector<size_t> m_pSpecies_B_ij;
 
-    //! Vector of the length of the polynomial for the interaction.
-    std::vector<size_t> m_N_ij;
-
     //! Enthalpy term for the binary mole fraction interaction of the excess
     //! Gibbs free energy expression
-    mutable std::vector< vector_fp> m_HE_m_ij;
+    vector<vector_fp> m_HE_m_ij;
 
     //! Entropy term for the binary mole fraction interaction of the excess
     //! Gibbs free energy expression
-    mutable std::vector< vector_fp> m_SE_m_ij;
-
-    //! form of the RedlichKister interaction expression. Currently there is
-    //! only one form.
-    int formRedlichKister_;
-
-    //! form of the temperature dependence of the Redlich-Kister interaction
-    //! expression. Currently there is only one form -> constant wrt
-    //! temperature.
-    int formTempModel_;
+    vector<vector_fp> m_SE_m_ij;
 
     //! Two dimensional array of derivatives of activity coefficients wrt mole
     //! fractions

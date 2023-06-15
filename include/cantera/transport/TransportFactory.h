@@ -11,7 +11,7 @@
 #define CT_TRANSPORTFACTORY_H
 
 // Cantera includes
-#include "TransportBase.h"
+#include "Transport.h"
 #include "cantera/base/FactoryBase.h"
 
 namespace Cantera
@@ -42,13 +42,7 @@ public:
      * f = TransportFactory::factory();
      * @endcode
      */
-    static TransportFactory* factory() {
-        std::unique_lock<std::mutex> transportLock(transport_mutex);
-        if (!s_factory) {
-            s_factory = new TransportFactory();
-        }
-        return s_factory;
-    }
+    static TransportFactory* factory();
 
     //! Deletes the statically allocated factory instance.
     virtual void deleteFactory();
@@ -93,6 +87,7 @@ private:
 };
 
 //! @copydoc TransportFactory::newTransport(const std::string&, ThermoPhase*, int)
+//! @deprecated  To be removed after Cantera 3.0; superseded by newTransport()
 Transport* newTransportMgr(const std::string& model="", ThermoPhase* thermo=0,
                            int log_level=0);
 
@@ -104,22 +99,19 @@ Transport* newTransportMgr(const std::string& model="", ThermoPhase* thermo=0,
  *  @returns a Transport object for the phase
  * @ingroup tranprops
  */
-inline shared_ptr<Transport> newTransport(ThermoPhase* thermo,
-                                          const std::string& model = "default") {
-    Transport* tr;
-    if (model == "default") {
-        tr = TransportFactory::factory()->newTransport(thermo, 0);
-    } else {
-        tr = TransportFactory::factory()->newTransport(model, thermo, 0);
-    }
-    return shared_ptr<Transport> (tr);
-}
+shared_ptr<Transport> newTransport(shared_ptr<ThermoPhase> thermo,
+                                   const string& model="default");
+
+//! @copydoc newTransport(shared_ptr<ThermoPhase>, const string&)
+//! @deprecated  To be removed after Cantera 3.0; superseded by newTransport()
+shared_ptr<Transport> newTransport(ThermoPhase* thermo, const string& model="default");
 
 //!  Create a new transport manager instance.
 /*!
  *  @param thermo     ThermoPhase object associated with the phase
  *  @param loglevel   int containing the Loglevel, defaults to zero
  *  @returns a transport manager for the phase
+ * @deprecated  To be removed after Cantera 3.0; superseded by newTransport()
  * @ingroup tranprops
  */
 Transport* newDefaultTransportMgr(ThermoPhase* thermo, int loglevel = 0);

@@ -5,17 +5,17 @@ Number of reactions = 20
 0  1  -8.96e-05
 1  2  4.486e-05
 2  3  -3.801e-08
-3  4   nil
+3  4   0.0
 4  0  3.801e-08
-5  2   nil
-6  1   nil
-7  1   nil
-8  0   nil
-9  4   nil
-10  3   nil
-11  3   nil
-12  2   nil
-sum =  nil
+5  2   0.0
+6  1   0.0
+7  1   0.0
+8  0   0.0
+9  4   0.0
+10  3   0.0
+11  3   0.0
+12  2   0.0
+sum =  0.0
 growth rate = 0.4669 microns per hour
 Coverages:
 0   c6HH   0.4622

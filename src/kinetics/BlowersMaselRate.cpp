@@ -11,13 +11,6 @@
 namespace Cantera
 {
 
-BlowersMaselData::BlowersMaselData()
-    : ready(false)
-    , density(NAN)
-    , m_state_mf_number(-1)
-{
-}
-
 void BlowersMaselData::update(double T) {
     warn_user("BlowersMaselData::update",
         "This method does not update the change of reaction enthalpy.");
@@ -44,7 +37,6 @@ bool BlowersMaselData::update(const ThermoPhase& phase, const Kinetics& kin)
 }
 
 BlowersMaselRate::BlowersMaselRate()
-    : m_deltaH_R(0.)
 {
     m_Ea_str = "Ea0";
     m_E4_str = "w";
@@ -52,11 +44,16 @@ BlowersMaselRate::BlowersMaselRate()
 
 BlowersMaselRate::BlowersMaselRate(double A, double b, double Ea0, double w)
     : ArrheniusBase(A, b, Ea0)
-    , m_deltaH_R(0.)
 {
     m_Ea_str = "Ea0";
     m_E4_str = "w";
     m_E4_R = w / GasConstant;
+}
+
+BlowersMaselRate::BlowersMaselRate(const AnyMap& node, const UnitStack& rate_units)
+    : BlowersMaselRate()
+{
+    setParameters(node, rate_units);
 }
 
 double BlowersMaselRate::ddTScaledFromStruct(const BlowersMaselData& shared_data) const
@@ -70,11 +67,11 @@ double BlowersMaselRate::ddTScaledFromStruct(const BlowersMaselData& shared_data
 void BlowersMaselRate::setContext(const Reaction& rxn, const Kinetics& kin)
 {
     m_stoich_coeffs.clear();
-    for (const auto& sp : rxn.reactants) {
-        m_stoich_coeffs.emplace_back(kin.kineticsSpeciesIndex(sp.first), -sp.second);
+    for (const auto& [name, stoich] : rxn.reactants) {
+        m_stoich_coeffs.emplace_back(kin.kineticsSpeciesIndex(name), -stoich);
     }
-    for (const auto& sp : rxn.products) {
-        m_stoich_coeffs.emplace_back(kin.kineticsSpeciesIndex(sp.first), sp.second);
+    for (const auto& [name, stoich] : rxn.products) {
+        m_stoich_coeffs.emplace_back(kin.kineticsSpeciesIndex(name), stoich);
     }
 }
 

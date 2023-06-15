@@ -2,8 +2,8 @@ function v = multiDiffCoeffs(a)
 % MULTIDIFFCOEFFS  Get the multicomponent diffusion coefficients.
 % v = multiDiffCoeffs(a)
 % Object ``a`` must belong to a class derived from
-% Transport, and that was constructed by specifying the ``'Multi'``
-% option. If ``'Multi'`` was not specified, you will get the
+% Transport, and that was constructed by specifying the ``'multicomponent'``
+% option. If ``'multicomponent'`` was not specified, you will get the
 % error message ::
 %
 %     **** Method getMultiDiffCoeffs not implemented. ****
@@ -12,7 +12,7 @@ function v = multiDiffCoeffs(a)
 % new gas mixture model that uses a mixture-averaged transport manager,
 % for example::
 %
-%     >> gas = GRI30('Multi');
+%     >> gas = GRI30('multicompnent');
 %
 % :param a:
 %     Instance of class :mat:func:`Transport` (or another

@@ -21,40 +21,38 @@
 namespace Cantera
 {
 
-/*!
- * @name Temperature Dependence of the Pitzer Coefficients
- *
- * Note, the temperature dependence of the Gibbs free energy also depends on the
- * temperature dependence of the standard state and the temperature dependence
- * of the Debye-Huckel constant, which includes the dielectric constant and the
- * density. Therefore, this expression defines only part of the temperature
- * dependence for the mixture thermodynamic functions.
- *
- *  PITZER_TEMP_CONSTANT
- *     All coefficients are considered constant wrt temperature
- *  PITZER_TEMP_LINEAR
- *     All coefficients are assumed to have a linear dependence
- *     wrt to temperature.
- *  PITZER_TEMP_COMPLEX1
- *     All coefficients are assumed to have a complex functional
- *     based dependence wrt temperature;  See:
- *    (Silvester, Pitzer, J. Phys. Chem. 81, 19 1822 (1977)).
- *
- *       beta0 = q0 + q3(1/T - 1/Tr) + q4(ln(T/Tr)) +
- *               q1(T - Tr) + q2(T**2 - Tr**2)
- */
+//! @name Temperature Dependence of the Pitzer Coefficients
+//!
+//! Note, the temperature dependence of the Gibbs free energy also depends on the
+//! temperature dependence of the standard state and the temperature dependence
+//! of the Debye-Huckel constant, which includes the dielectric constant and the
+//! density. Therefore, this expression defines only part of the temperature
+//! dependence for the mixture thermodynamic functions.
+//!
+//!  PITZER_TEMP_CONSTANT
+//!     All coefficients are considered constant wrt temperature
+//!  PITZER_TEMP_LINEAR
+//!     All coefficients are assumed to have a linear dependence
+//!     wrt to temperature.
+//!  PITZER_TEMP_COMPLEX1
+//!     All coefficients are assumed to have a complex functional
+//!     based dependence wrt temperature;  See:
+//!    (Silvester, Pitzer, J. Phys. Chem. 81, 19 1822 (1977)).
+//!
+//!       beta0 = q0 + q3(1/T - 1/Tr) + q4(ln(T/Tr)) +
+//!               q1(T - Tr) + q2(T**2 - Tr**2)
 //! @{
+
 #define PITZER_TEMP_CONSTANT 0
 #define PITZER_TEMP_LINEAR 1
 #define PITZER_TEMP_COMPLEX1 2
-//! @}
 
-/*!
- * @name ways to calculate the value of A_Debye
- *
- * These defines determine the way A_Debye is calculated
- */
+//! @}
+//! @name ways to calculate the value of A_Debye
+//!
+//! These defines determine the way A_Debye is calculated
 //! @{
+
 #define A_DEBYE_CONST 0
 #define A_DEBYE_WATER 1
 //! @}
@@ -496,32 +494,12 @@ class WaterProps;
  *        and \f$ C^{\phi}_{MX} \f$ coefficients described above.
  *        There are 2 coefficients for each term.
  *
- * The temperature dependence is specified in an attributes field in the
- * `activityCoefficients` XML block, called `TempModel`. Permissible values for
- * that attribute are `CONSTANT`, `COMPLEX1`, and `LINEAR`.
- *
  * The specification of the binary interaction between a cation and an anion is
  * given by the coefficients, \f$ B_{MX}\f$ and \f$ C_{MX}\f$ The specification
  * of \f$ B_{MX}\f$ is a function of \f$\beta^{(0)}_{MX} \f$,
  * \f$\beta^{(1)}_{MX} \f$, \f$\beta^{(2)}_{MX} \f$, \f$\alpha^{(1)}_{MX} \f$,
  * and \f$\alpha^{(2)}_{MX} \f$. \f$ C_{MX}\f$ is calculated from
- * \f$C^{\phi}_{MX} \f$ from the formula above. All of the underlying
- * coefficients are specified in the XML element block `binarySaltParameters`,
- * which has the attribute `cation` and `anion` to identify the interaction. XML
- * elements named `beta0, beta1, beta2, Cphi, Alpha1, Alpha2` within each
- * `binarySaltParameters` block specify the parameters. Within each of these
- * blocks multiple parameters describing temperature or pressure dependence are
- * serially listed in the order that they appear in the equation in this
- * document. An example of the `beta0` block that fits the `COMPLEX1`
- * temperature dependence given above is
- *
- * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
- *
- * @code
- *  <binarySaltParameters cation="Na+" anion="OH-">
- *    <beta0> q0, q1, q2, q3, q4  </beta0>
- *  </binarySaltParameters>
- * @endcode
+ * \f$C^{\phi}_{MX} \f$ from the formula above.
  *
  * The parameters for \f$ \beta^{(0)}\f$ fit the following equation:
  *
@@ -585,133 +563,27 @@ class WaterProps;
  * and \f$ q = - (\frac{x}{y}) e^{-y} \f$. \f$ J(x) \f$ is evaluated by
  * numerical integration.
  *
- * The \f$  \Theta_{ij} \f$ term is a constant that is specified by the XML
- * element `thetaCation` and `thetaAnion`, which has the attribute `cation1`,
- * `cation2` and `anion1`, `anion2` respectively to identify the interaction. No
- * temperature or pressure dependence of this parameter is currently allowed. An
- * example of the block is presented below.
- *
- * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
- *
- * @code
- *   <thetaCation cation1="Na+" cation2="H+">
- *              <Theta> 0.036 </Theta>
- *   </thetaCation>
- * @endcode
+ * The \f$  \Theta_{ij} \f$ term is a constant value, specified for pair of cations
+ * or a pair of anions.
  *
  * ### Ternary Pitzer Parameters
  *
  * The \f$  \Psi_{c{c'}a} \f$ and \f$  \Psi_{ca{a'}} \f$ terms represent ternary
  * interactions between two cations and an anion and two anions and a cation,
  * respectively. In Pitzer's implementation these terms are usually small in
- * absolute size. Currently these parameters do not have any dependence on
- * temperature, pressure, or ionic strength.
- *
- * Their values are input using the XML element `psiCommonCation` and
- * `psiCommonAnion`. The species id's are specified in attribute fields in the
- * XML element. The fields `cation`, `anion1`, and `anion2` are used for
- * `psiCommonCation`. The fields `anion`, `cation1` and `cation2` are used for
- * `psiCommonAnion`. An example block is given below. The `Theta` field below is
- * a duplicate of the `thetaAnion` field mentioned above. The two fields are
- * input into the same block for convenience, and because their data are highly
- * correlated, in practice. It is an error for the two blocks to specify
- * different information about thetaAnion (or thetaCation) in different blocks.
- * It's ok to specify duplicate but consistent information in multiple blocks.
- *
- * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
- *
- * @code
- * <psiCommonCation cation="Na+" anion1="Cl-" anion2="OH-">
- *     <Theta> -0.05 </Theta>
- *     <Psi> -0.006 </Psi>
- * </psiCommonCation>
- * @endcode
+ * absolute size.
  *
  * ### Treatment of Neutral Species
  *
  * Binary virial-coefficient-like interactions between two neutral species may
  * be specified in the \f$ \lambda_{mn} \f$ terms that appear in the formulas
- * above. Currently these interactions are independent of temperature, pressure,
- * and ionic strength. Also, currently, the neutrality of the species are not
- * checked. Therefore, this interaction may involve charged species in the
- * solution as well. The identity of the species is specified by the `species1`
- * and `species2` attributes to the XML `lambdaNeutral` node. These terms are
- * symmetrical; `species1` and `species2` may be reversed and the term will be
- * the same. An example is given below.
+ * above. Currently these interactions are independent of pressure and ionic strength.
+ * Also, currently, the neutrality of the species are not checked. Therefore, this
+ * interaction may involve charged species in the solution as well.
  *
- * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
- *
- * @code
- * <lambdaNeutral species1="CO2" species2="CH4">
- *     <lambda> 0.05 </lambda>
- * </lambdaNeutral>
- * @endcode
- *
- * ## Example of the Specification of Parameters for the Activity Coefficients
- *
- * An example is given below.
- *
- * An example `activityCoefficients` XML block for this formulation is supplied
- * below
- *
- * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
- *
- * @code
- * <activityCoefficients model="Pitzer" TempModel="complex1">
- *     <!-- Pitzer Coefficients
- *          These coefficients are from Pitzer's main
- *          paper, in his book.
- *       -->
- *     <A_Debye model="water" />
- *     <ionicRadius default="3.042843"  units="Angstroms">
- *     </ionicRadius>
- *     <binarySaltParameters cation="Na+" anion="Cl-">
- *       <beta0> 0.0765, 0.008946, -3.3158E-6,
- *               -777.03, -4.4706
- *       </beta0>
- *       <beta1> 0.2664, 6.1608E-5, 1.0715E-6, 0.0, 0.0 </beta1>
- *       <beta2> 0.0,   0.0, 0.0, 0.0, 0.0  </beta2>
- *       <Cphi> 0.00127, -4.655E-5, 0.0,
- *              33.317, 0.09421
- *       </Cphi>
- *       <Alpha1> 2.0 </Alpha1>
- *     </binarySaltParameters>
- *
- *     <binarySaltParameters cation="H+" anion="Cl-">
- *       <beta0> 0.1775, 0.0, 0.0, 0.0, 0.0 </beta0>
- *       <beta1> 0.2945, 0.0, 0.0, 0.0, 0.0 </beta1>
- *       <beta2> 0.0,    0.0, 0.0, 0.0, 0.0 </beta2>
- *       <Cphi> 0.0008, 0.0, 0.0, 0.0, 0.0 </Cphi>
- *       <Alpha1> 2.0 </Alpha1>
- *     </binarySaltParameters>
- *
- *     <binarySaltParameters cation="Na+" anion="OH-">
- *       <beta0> 0.0864, 0.0, 0.0, 0.0, 0.0 </beta0>
- *       <beta1> 0.253,  0.0, 0.0  0.0, 0.0 </beta1>
- *       <beta2> 0.0     0.0, 0.0, 0.0, 0.0 </beta2>
- *       <Cphi> 0.0044,  0.0, 0.0, 0.0, 0.0 </Cphi>
- *       <Alpha1> 2.0 </Alpha1>
- *     </binarySaltParameters>
- *
- *     <thetaAnion anion1="Cl-" anion2="OH-">
- *       <Theta> -0.05,  0.0, 0.0, 0.0, 0.0 </Theta>
- *     </thetaAnion>
- *
- *     <psiCommonCation cation="Na+" anion1="Cl-" anion2="OH-">
- *       <Theta> -0.05,  0.0, 0.0, 0.0, 0.0 </Theta>
- *       <Psi> -0.006 </Psi>
- *     </psiCommonCation>
- *
- *     <thetaCation cation1="Na+" cation2="H+">
- *       <Theta> 0.036,  0.0, 0.0, 0.0, 0.0 </Theta>
- *     </thetaCation>
- *
- *     <psiCommonAnion anion="Cl-" cation1="Na+" cation2="H+">
- *       <Theta> 0.036,  0.0, 0.0, 0.0, 0.0 </Theta>
- *       <Psi> -0.004 </Psi>
- *     </psiCommonAnion>
- *   </activityCoefficients>
- * @endcode
+ * An example phase definition specifying a number of the above species interaction
+ * parameters is given in the
+ * <a href="../../sphinx/html/yaml/phases.html#hmw-electrolyte">YAML API Reference</a>.
  *
  * ### Specification of the Debye-Huckel Constant
  *
@@ -755,31 +627,6 @@ class WaterProps;
  *  - \f$ \epsilon / \epsilon_0 \f$ = 78.54 (water at 25C)
  *  - T = 298.15 K
  *  - B_Debye = 3.28640E9 (kg/gmol)^(1/2) / m
- *
- * An example of a fixed value implementation is given below.
- *
- * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
- *
- * @code
- *   <activityCoefficients model="Pitzer">
- *         <!-- A_Debye units = sqrt(kg/gmol)  -->
- *         <A_Debye> 1.172576 </A_Debye>
- *         <!-- object description continues -->
- *   </activityCoefficients>
- * @endcode
- *
- * An example of a variable value implementation within the HMWSoln object is
- * given below. The model attribute, "water", triggers the full implementation.
- *
- * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
- *
- * @code
- *   <activityCoefficients model="Pitzer">
- *         <!-- A_Debye units = sqrt(kg/gmol)  -->
- *         <A_Debye model="water" />
- *         <!-- object description continues -->
- *   </activityCoefficients>
- * @endcode
  *
  * ### Temperature and Pressure Dependence of the Activity Coefficients
  *
@@ -844,7 +691,7 @@ class WaterProps;
  * s_update_d2lnMolalityActCoeff_dT2(), and the first derivative of the log
  * activity coefficients wrt pressure, s_update_dlnMolalityActCoeff_dP().
  *
- * ## %Application within Kinetics Managers
+ * ## Application within Kinetics Managers
  *
  * For the time being, we have set the standard concentration for all solute
  * species in this phase equal to the default concentration of the solvent at
@@ -925,100 +772,6 @@ class WaterProps;
  *
  * \f$ k^{-1} \f$ has units of 1/s.
  *
- * Note, this treatment may be modified in the future, as events dictate.
- *
- * ## XML Example
- *
- * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
- *
- * The phase model name for this is called StoichSubstance. It must be supplied
- * as the model attribute of the thermo XML element entry. Within the phase XML
- * block, the density of the phase must be specified. An example of an XML file
- * this phase is given below.
- *
- * @code
- * <phase id="NaCl_electrolyte" dim="3">
- *   <speciesArray datasrc="#species_waterSolution">
- *              H2O(L) Na+ Cl- H+ OH-
- *   </speciesArray>
- *   <state>
- *     <temperature units="K"> 300  </temperature>
- *     <pressure units="Pa">101325.0</pressure>
- *     <soluteMolalities>
- *            Na+:3.0
- *            Cl-:3.0
- *            H+:1.0499E-8
- *            OH-:1.3765E-6
- *     </soluteMolalities>
- *   </state>
- *   <!-- thermo model identifies the inherited class
- *        from ThermoPhase that will handle the thermodynamics.
- *     -->
- *   <thermo model="HMW">
- *      <standardConc model="solvent_volume" />
- *    <activityCoefficients model="Pitzer" TempModel="complex1">
- *               <!-- Pitzer Coefficients
- *                    These coefficients are from Pitzer's main
- *                    paper, in his book.
- *                 -->
- *               <A_Debye model="water" />
- *               <ionicRadius default="3.042843"  units="Angstroms">
- *               </ionicRadius>
- *               <binarySaltParameters cation="Na+" anion="Cl-">
- *                 <beta0> 0.0765, 0.008946, -3.3158E-6,
- *                         -777.03, -4.4706
- *                 </beta0>
- *                 <beta1> 0.2664, 6.1608E-5, 1.0715E-6 </beta1>
- *                 <beta2> 0.0    </beta2>
- *                 <Cphi> 0.00127, -4.655E-5, 0.0,
- *                        33.317, 0.09421
- *                 </Cphi>
- *                 <Alpha1> 2.0 </Alpha1>
- *               </binarySaltParameters>
- *
- *               <binarySaltParameters cation="H+" anion="Cl-">
- *                 <beta0> 0.1775, 0.0, 0.0, 0.0, 0.0</beta0>
- *                 <beta1> 0.2945, 0.0, 0.0 </beta1>
- *                 <beta2> 0.0    </beta2>
- *                 <Cphi> 0.0008, 0.0, 0.0, 0.0, 0.0 </Cphi>
- *                 <Alpha1> 2.0 </Alpha1>
- *               </binarySaltParameters>
- *
- *               <binarySaltParameters cation="Na+" anion="OH-">
- *                 <beta0> 0.0864, 0.0, 0.0, 0.0, 0.0 </beta0>
- *                 <beta1> 0.253, 0.0, 0.0 </beta1>
- *                 <beta2> 0.0    </beta2>
- *                 <Cphi> 0.0044, 0.0, 0.0, 0.0, 0.0 </Cphi>
- *                 <Alpha1> 2.0 </Alpha1>
- *               </binarySaltParameters>
- *
- *               <thetaAnion anion1="Cl-" anion2="OH-">
- *                 <Theta> -0.05 </Theta>
- *               </thetaAnion>
- *
- *               <psiCommonCation cation="Na+" anion1="Cl-" anion2="OH-">
- *                 <Theta> -0.05 </Theta>
- *                 <Psi> -0.006 </Psi>
- *               </psiCommonCation>
- *
- *               <thetaCation cation1="Na+" cation2="H+">
- *                 <Theta> 0.036 </Theta>
- *               </thetaCation>
- *
- *               <psiCommonAnion anion="Cl-" cation1="Na+" cation2="H+">
- *                 <Theta> 0.036 </Theta>
- *                 <Psi> -0.004 </Psi>
- *               </psiCommonAnion>
- *
- *      </activityCoefficients>
- *
- *      <solvent> H2O(L) </solvent>
- *   </thermo>
- *   <elementArray datasrc="elements.xml"> O H Na Cl </elementArray>
- *   <kinetics model="none" >
- *   </kinetics>
- * </phase>
- * @endcode
  * @ingroup thermoprops
  */
 class HMWSoln : public MolalityVPSSTP
@@ -1027,7 +780,7 @@ public:
     ~HMWSoln();
 
     //! Construct and initialize an HMWSoln ThermoPhase object
-    //! directly from an ASCII input file
+    //! directly from an input file
     /*!
      *  This constructor is a shell that calls the routine initThermo(), with
      *  a reference to the parsed input file to get the info for the phase.
@@ -1040,30 +793,18 @@ public:
      */
     explicit HMWSoln(const std::string& inputFile="", const std::string& id="");
 
-    //! Construct and initialize an HMWSoln ThermoPhase object
-    //! directly from an XML database
-    /*!
-     *  @param phaseRef XML phase node containing the description of the phase
-     *  @param id     id attribute containing the name of the phase.
-     *                (default is the empty string)
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    HMWSoln(XML_Node& phaseRef, const std::string& id = "");
-
     //! @name  Utilities
     //! @{
 
     virtual std::string type() const {
-        return "HMWSoln";
+        return "HMW-electrolyte";
     }
 
     //! @}
     //! @name  Molar Thermodynamic Properties of the Solution
     //! @{
 
-    /// Molar enthalpy. Units: J/kmol.
+    //! Molar enthalpy. Units: J/kmol.
     /**
      * Molar enthalpy of the solution. Units: J/kmol.
      *      (HKM -> Bump up to Parent object)
@@ -1087,7 +828,7 @@ public:
      */
     virtual doublereal relative_molal_enthalpy() const;
 
-    /// Molar entropy. Units: J/kmol/K.
+    //! Molar entropy. Units: J/kmol/K.
     /**
      * Molar entropy of the solution. Units: J/kmol/K. For an ideal, constant
      * partial molar volume solution mixture with pure species phases which
@@ -1106,7 +847,7 @@ public:
      */
     virtual doublereal entropy_mole() const;
 
-    /// Molar Gibbs function. Units: J/kmol.
+    //! Molar Gibbs function. Units: J/kmol.
     /*!
      *      (HKM -> Bump up to Parent object)
      */
@@ -1114,22 +855,21 @@ public:
 
     virtual doublereal cp_mole() const;
 
-    /// Molar heat capacity at constant volume. Units: J/kmol/K.
+    //! Molar heat capacity at constant volume. Units: J/kmol/K.
     /*!
      *      (HKM -> Bump up to Parent object)
      */
     virtual doublereal cv_mole() const;
 
-    //!@}
+    //! @}
     //! @name Mechanical Equation of State Properties
-    /*!
-     * In this equation of state implementation, the density is a function
-     * only of the mole fractions. Therefore, it can't be an independent
-     * variable. Instead, the pressure is used as the independent variable.
-     * Functions which try to set the thermodynamic state by calling
-     * setDensity() will cause an exception to be thrown.
-     */
-    //!@{
+    //!
+    //! In this equation of state implementation, the density is a function
+    //! only of the mole fractions. Therefore, it can't be an independent
+    //! variable. Instead, the pressure is used as the independent variable.
+    //! Functions which try to set the thermodynamic state by calling
+    //! setDensity() will cause an exception to be thrown.
+    //! @{
 
 protected:
     /**
@@ -1156,17 +896,15 @@ protected:
     void calcDensity();
 
 public:
-    /**
-     * @}
-     * @name Activities, Standard States, and Activity Concentrations
-     *
-     * The activity \f$a_k\f$ of a species in solution is related to the
-     * chemical potential by \f[ \mu_k = \mu_k^0(T) + \hat R T \log a_k. \f] The
-     * quantity \f$\mu_k^0(T,P)\f$ is the chemical potential at unit activity,
-     * which depends only on temperature and the pressure. Activity is assumed
-     * to be molality-based here.
-     * @{
-     */
+    //! @}
+    //! @name Activities, Standard States, and Activity Concentrations
+    //!
+    //! The activity \f$a_k\f$ of a species in solution is related to the
+    //! chemical potential by \f[ \mu_k = \mu_k^0(T) + \hat R T \log a_k. \f] The
+    //! quantity \f$\mu_k^0(T,P)\f$ is the chemical potential at unit activity,
+    //! which depends only on temperature and the pressure. Activity is assumed
+    //! to be molality-based here.
+    //! @{
 
     //! This method returns an array of generalized activity concentrations
     /*!
@@ -1454,25 +1192,6 @@ public:
     virtual void initThermo();
     virtual void getParameters(AnyMap& phaseNode) const;
 
-    //! Initialize the phase parameters from an XML file.
-    /*!
-     * This gets called from importPhase(). It processes the XML file after the
-     * species are set up. This is the main routine for reading in activity
-     * coefficient parameters.
-     *
-     * @param phaseNode This object must be the phase node of a complete XML
-     *             tree description of the phase, including all of the species
-     *             data. In other words while "phase" must point to an XML phase
-     *             object, it must have sibling nodes "speciesData" that
-     *             describe the species in the phase.
-     * @param id   ID of the phase. If nonnull, a check is done to see if
-     *             phaseNode is pointing to the phase with the correct id.
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
-
     //! Value of the Debye Huckel constant as a function of temperature
     //! and pressure.
     /*!
@@ -1668,19 +1387,19 @@ private:
      *       PITZER_TEMP_LINEAR     1
      *       PITZER_TEMP_COMPLEX1   2
      */
-    int m_formPitzerTemp;
+    int m_formPitzerTemp = PITZER_TEMP_CONSTANT;
 
     //! Current value of the ionic strength on the molality scale Associated
     //! Salts, if present in the mechanism, don't contribute to the value of the
     //! ionic strength in this version of the Ionic strength.
-    mutable double m_IionicMolality;
+    mutable double m_IionicMolality = 0.0;
 
     //! Maximum value of the ionic strength allowed in the calculation of the
     //! activity coefficients.
     double m_maxIionicStrength;
 
     //! Reference Temperature for the Pitzer formulations.
-    double m_TempPitzerRef;
+    double m_TempPitzerRef = 298.15;
 
 public:
     /**
@@ -1697,7 +1416,7 @@ public:
      * water is a relatively strong function of T, and its variability must be
      * accounted for,
      */
-    int m_form_A_Debye;
+    int m_form_A_Debye = A_DEBYE_CONST;
 
 private:
     /**
@@ -1735,7 +1454,7 @@ private:
     /*!
      *  derived from the equation of state for water.
      */
-    PDSS* m_waterSS;
+    PDSS* m_waterSS = nullptr;
 
     //! Pointer to the water property calculator
     std::unique_ptr<WaterProps> m_waterProps;
@@ -2053,7 +1772,7 @@ private:
     mutable vector_fp m_molalitiesCropped;
 
     //! Boolean indicating whether the molalities are cropped or are modified
-    mutable bool m_molalitiesAreCropped;
+    mutable bool m_molalitiesAreCropped = false;
 
     //! a counter variable for keeping track of symmetric binary
     //! interactions amongst the solute species.
@@ -2181,41 +1900,41 @@ private:
 
     //! value of the solute mole fraction that centers the cutoff polynomials
     //! for the cutoff =1 process;
-    doublereal IMS_X_o_cutoff_;
+    double IMS_X_o_cutoff_ = 0.2;
 
     //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
-    doublereal IMS_cCut_;
+    double IMS_cCut_ = 0.05;
 
     //! Parameter in the polyExp cutoff treatment
     /*!
      *  This is the slope of the g function at the zero solvent point
      *  Default value is 0.0
      */
-    doublereal IMS_slopegCut_;
+    double IMS_slopegCut_ = 0.0;
 
     //! @name Parameters in the polyExp cutoff treatment having to do with rate of exp decay
     //! @{
-    doublereal IMS_dfCut_;
-    doublereal IMS_efCut_;
-    doublereal IMS_afCut_;
-    doublereal IMS_bfCut_;
-    doublereal IMS_dgCut_;
-    doublereal IMS_egCut_;
-    doublereal IMS_agCut_;
-    doublereal IMS_bgCut_;
+    double IMS_dfCut_ = 0.0;
+    double IMS_efCut_ = 0.0;
+    double IMS_afCut_ = 0.0;
+    double IMS_bfCut_ = 0.0;
+    double IMS_dgCut_ = 0.0;
+    double IMS_egCut_ = 0.0;
+    double IMS_agCut_ = 0.0;
+    double IMS_bgCut_ = 0.0;
     //! @}
 
     //! value of the solvent mole fraction that centers the cutoff polynomials
     //! for the cutoff =1 process;
-    doublereal MC_X_o_cutoff_;
+    double MC_X_o_cutoff_ = 0.0;
 
     //! @name Parameters in the Molality Exp cutoff treatment
     //! @{
-    doublereal MC_dpCut_;
-    doublereal MC_epCut_;
-    doublereal MC_apCut_;
-    doublereal MC_bpCut_;
-    doublereal MC_cpCut_;
+    double MC_dpCut_ = 0.0;
+    double MC_epCut_ = 0.0;
+    double MC_apCut_ = 0.0;
+    double MC_bpCut_ = 0.0;
+    double MC_cpCut_ = 0.0;
     doublereal CROP_ln_gamma_o_min;
     doublereal CROP_ln_gamma_o_max;
     doublereal CROP_ln_gamma_k_min;
@@ -2341,7 +2060,7 @@ private:
      * @param is Ionic strength
      */
     void calc_lambdas(double is) const;
-    mutable doublereal m_last_is;
+    mutable double m_last_is = -1.0;
 
     /**
      * Calculate etheta and etheta_prime
@@ -2380,69 +2099,6 @@ private:
      * from m_molalities
      */
     void calcMolalitiesCropped() const;
-
-    //! Process an XML node called "binarySaltParameters"
-    /*!
-     * This node contains all of the parameters necessary to describe the Pitzer
-     * model for that particular binary salt. This function reads the XML file
-     * and writes the coefficients it finds to an internal data structures.
-     *
-     * @param BinSalt  reference to the XML_Node named binarySaltParameters
-     *                 containing the anion - cation interaction
-     */
-    void readXMLBinarySalt(XML_Node& BinSalt);
-
-    //! Process an XML node called "thetaAnion" or "thetaCation"
-    /*!
-     * This node contains all of the parameters necessary to describe the binary
-     * interactions between two anions or two cations.
-     *
-     * @param BinSalt  reference to the XML_Node named thetaAnion containing the
-     *                 anion - anion interaction
-     */
-    void readXMLTheta(XML_Node& BinSalt);
-
-    //! Process an XML node called "psiCommonAnion" or "psiCommonCation"
-    /*!
-     * This node contains all of the parameters necessary to describe
-     * the ternary interactions between one anion and two cations or two anions
-     * and one cation.
-     *
-     * @param BinSalt  reference to the XML_Node named psiCommonAnion containing
-     *                 the anion - cation1 - cation2 interaction
-     */
-    void readXMLPsi(XML_Node& BinSalt);
-
-    //! Process an XML node called "lambdaNeutral"
-    /*!
-     * This node contains all of the parameters necessary to describe the binary
-     * interactions between one neutral species and any other species (neutral
-     * or otherwise) in the mechanism.
-     *
-     * @param BinSalt  reference to the XML_Node named lambdaNeutral containing
-     *                 multiple Neutral - species interactions
-     */
-    void readXMLLambdaNeutral(XML_Node& BinSalt);
-
-    //! Process an XML node called "MunnnNeutral"
-    /*!
-     * This node contains all of the parameters necessary to describe
-     * the self-ternary interactions for one neutral species.
-     *
-     * @param BinSalt  reference to the XML_Node named Munnn containing the
-     *                 self-ternary interaction
-     */
-    void readXMLMunnnNeutral(XML_Node& BinSalt);
-
-    //! Process an XML node called "zetaCation"
-    /*!
-     * This node contains all of the parameters necessary to describe
-     * the ternary interactions between one neutral, one cation, and one anion.
-     *
-     * @param BinSalt  reference to the XML_Node named psiCommonCation
-     *                 containing the neutral - cation - anion interaction
-     */
-    void readXMLZetaCation(const XML_Node& BinSalt);
 
     //! Precalculate the IMS Cutoff parameters for typeCutoff = 2
     void calcIMSCutoffParams_();

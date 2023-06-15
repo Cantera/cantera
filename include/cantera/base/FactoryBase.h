@@ -11,7 +11,6 @@
 
 #include <mutex>
 #include <unordered_map>
-#include <functional>
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/global.h"
 
@@ -98,8 +97,9 @@ public:
         } else if (m_synonyms.count(name)) {
             return m_synonyms.at(name);
         } else if (m_deprecated_names.count(name)) {
-            warn_deprecated(name,
-                fmt::format("Use '{}' instead.", m_deprecated_names.at(name)));
+            warn_deprecated("FactoryBase::canonicalize",
+                fmt::format("Model name '{}' is deprecated. Use '{}' instead.",
+                            name, m_deprecated_names.at(name)));
             return m_deprecated_names.at(name);
         } else {
             throw CanteraError("Factory::canonicalize", "No such type: '{}'", name);

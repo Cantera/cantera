@@ -23,10 +23,9 @@ class PDSS_ConstVol : public PDSS_Nondimensional
 {
 public:
     //! Default Constructor
-    PDSS_ConstVol();
+    PDSS_ConstVol() = default;
 
-    //! @name Molar Thermodynamic Properties of the Species Standard State in
-    //!     the Solution
+    //! @name Molar Thermodynamic Properties of the Species Standard State
     //! @{
 
     // See PDSS.h for documentation of functions overridden from Class PDSS
@@ -40,7 +39,7 @@ public:
     virtual void setPressure(doublereal pres);
     virtual void setTemperature(doublereal temp);
     virtual void setState_TP(doublereal temp, doublereal pres);
-    virtual void setState_TR(doublereal temp, doublereal rho);
+    virtual void setState_TR(double temp, double rho);
     virtual doublereal satPressure(doublereal t);
 
     //! @}
@@ -48,7 +47,6 @@ public:
     //! @{
 
     virtual void initThermo();
-    virtual void setParametersFromXML(const XML_Node& speciesNode);
     virtual void getParameters(AnyMap& eosNode) const;
 
     //! Set the (constant) molar volume [m3/kmol] of the species. Must be called before

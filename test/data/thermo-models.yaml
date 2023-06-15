@@ -103,6 +103,19 @@ phases:
                       -2.129e+07, -1.722e+08, 3.956e+07, 9.302e+07, -3.280e+07]
     excess-entropy: [0.0]
 
+- name: Redlich-Kister-complex
+  thermo: Redlich-Kister
+  species: [KCl(l), LiCl(l), NaCl(s)]
+  interactions:
+  - species: [KCl(l), LiCl(l)]
+    excess-enthalpy: [-3.268e+06, 3.955e+06, -4.573e+06, 6.147e+06, -3.339e+06,
+                      ]
+    excess-entropy: [13000, -18000, 12000, -25000]
+  - species: [NaCl(s), LiCl(l)]
+    excess-enthalpy: [2.0e+06, -3.0e+06, 1.0e+06, -5.0e+06]
+    excess-entropy: [-14000, 5000, -22000, 15000]
+
+
 - name: MaskellSolidSoln
   thermo: Maskell-solid-solution
   species: [H(s), He(s)]
@@ -426,7 +439,7 @@ ideal-molal-fake-species:
       -917.935173, 0.683010238]
   equation-of-state:
     model: constant-volume
-    molar-volume: 0.1
+    molar-density: 10
 - name: CH4(aq)
   composition: {C: 1, H: 4}
   thermo:
@@ -437,7 +450,7 @@ ideal-molal-fake-species:
       -917.935173, 0.683010238]
   equation-of-state:
     model: constant-volume
-    molar-volume: 0.1
+    density: 160.43 g/L
 
 
 dh-electrolyte-species:
@@ -531,8 +544,6 @@ gas-species:
       -917.935173, 0.683010238]
     - [3.3372792, -4.94024731e-05, 4.99456778e-07, -1.79566394e-10, 2.00255376e-14,
       -950.158922, -3.20502331]
-  equation-of-state:
-    model: ideal-gas
 - name: H2O
   composition: {H: 2, O: 1}
   thermo:

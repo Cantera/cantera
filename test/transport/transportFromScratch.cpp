@@ -26,9 +26,9 @@ public:
         , tO2(new GasTransportData())
         , tH2O(new GasTransportData())
     {
-        sH2->thermo.reset(new NasaPoly2(200, 3500, 101325, h2_nasa_coeffs));
-        sO2->thermo.reset(new NasaPoly2(200, 3500, 101325, o2_nasa_coeffs));
-        sH2O->thermo.reset(new NasaPoly2(200, 3500, 101325, h2o_nasa_coeffs));
+        sH2->thermo = make_shared<NasaPoly2>(200, 3500, 101325, h2_nasa_coeffs);
+        sO2->thermo = make_shared<NasaPoly2>(200, 3500, 101325, o2_nasa_coeffs);
+        sH2O->thermo = make_shared<NasaPoly2>(200, 3500, 101325, h2o_nasa_coeffs);
 
         tH2->setCustomaryUnits("linear", 2.92, 38.0, 0.0, 0.79, 280.0);
         tO2->setCustomaryUnits("linear", 3.458, 107.40, 0.0, 1.60, 3.80);
@@ -43,8 +43,8 @@ public:
             "thermo: ideal-gas\n"
             "species: [{gri30.yaml/species: [H2, O2, H2O]}]");
 
-        ref = newPhase(phase_def);
-        test.reset(new IdealGasPhase());
+        ref = newThermo(phase_def);
+        test = make_shared<IdealGasPhase>();
 
         test->addElement("O");
         test->addElement("H");
@@ -59,13 +59,13 @@ public:
 
     shared_ptr<Species> sH2, sO2, sH2O;
     shared_ptr<GasTransportData> tH2, tO2, tH2O;
-    unique_ptr<ThermoPhase> ref;
-    unique_ptr<ThermoPhase> test;
+    shared_ptr<ThermoPhase> ref;
+    shared_ptr<ThermoPhase> test;
 };
 
 TEST_F(TransportFromScratch, binaryDiffCoeffs)
 {
-    Transport* trRef = newTransportMgr("Mix", ref.get());
+    auto trRef = newTransport(ref, "mixture-averaged");
     MixTransport trTest;
     trTest.init(test.get());
 
@@ -86,7 +86,7 @@ TEST_F(TransportFromScratch, binaryDiffCoeffs)
 
 TEST_F(TransportFromScratch, mixDiffCoeffs)
 {
-    Transport* trRef = newTransportMgr("Mix", ref.get());
+    auto trRef = newTransport(ref, "mixture-averaged");
     MixTransport trTest;
     trTest.init(test.get());
 
@@ -105,7 +105,7 @@ TEST_F(TransportFromScratch, mixDiffCoeffs)
 
 TEST_F(TransportFromScratch, viscosity)
 {
-    Transport* trRef = newTransportMgr("Mix", ref.get());
+    auto trRef = newTransport(ref, "mixture-averaged");
     MixTransport trTest;
     trTest.init(test.get());
 
@@ -119,7 +119,7 @@ TEST_F(TransportFromScratch, viscosity)
 
 TEST_F(TransportFromScratch, thermalConductivityMix)
 {
-    Transport* trRef = newTransportMgr("Mix", ref.get());
+    auto trRef = newTransport(ref, "mixture-averaged");
     MixTransport trTest;
     trTest.init(test.get());
 
@@ -134,7 +134,7 @@ TEST_F(TransportFromScratch, thermalConductivityMix)
 
 TEST_F(TransportFromScratch, multiDiffCoeffs)
 {
-    Transport* trRef = newTransportMgr("Multi", ref.get());
+    auto trRef = newTransport(ref, "multicomponent");
     MultiTransport trTest;
     trTest.init(test.get());
 
@@ -155,7 +155,7 @@ TEST_F(TransportFromScratch, multiDiffCoeffs)
 
 TEST_F(TransportFromScratch, thermalConductivityMulti)
 {
-    Transport* trRef = newTransportMgr("Multi", ref.get());
+    auto trRef = newTransport(ref, "multicomponent");
     MultiTransport trTest;
     trTest.init(test.get());
 
@@ -171,6 +171,8 @@ TEST_F(TransportFromScratch, thermalConductivityMulti)
 int main(int argc, char** argv)
 {
     printf("Running main() from transportFromScratch.cpp\n");
+    make_deprecation_warnings_fatal();
+    printStackTraceOnSegfault();
     testing::InitGoogleTest(&argc, argv);
     int result = RUN_ALL_TESTS();
     appdelete();

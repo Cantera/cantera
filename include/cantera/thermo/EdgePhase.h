@@ -32,46 +32,15 @@ class EdgePhase : public SurfPhase
 public:
     //! Construct and initialize an EdgePhase directly from an input file
     /*!
-     * @param infile name of the input file
+     * @param infile name of the input file. If blank, an empty phase will be created.
      * @param id     name of the phase id in the file.
      *               If this is blank, the first phase in the file is used.
      */
-    explicit EdgePhase(const std::string& infile, const std::string& id="");
-
-    //! Constructor
-    /*!
-     * @param n0  Surface site density (kmol m-1).
-     * @deprecated The `n0` constructor argument is deprecated and will be
-     *      removed after Cantera 2.6. Use setSiteDensity() instead.
-     */
-    EdgePhase(doublereal n0=-1.0);
+    explicit EdgePhase(const std::string& infile="", const std::string& id="");
 
     virtual std::string type() const {
-        return "Edge";
+        return "edge";
     }
-
-    //! Set the Equation-of-State parameters by reading an XML Node Input
-    /*!
-     * The Equation-of-State data consists of one item, the site density.
-     *
-     * @param thermoData   Reference to an XML_Node named thermo containing the
-     *                     equation-of-state data. The XML_Node is within the
-     *                     phase XML_Node describing the EdgePhase object.
-     *
-     * An example of the contents of the thermoData XML_Node is provided below.
-     * The units attribute is used to supply the units of the site density in
-     * any convenient form. Internally it is changed into MKS form.
-     *
-     * @code
-     *    <thermo model="Edge">
-     *       <site_density units="mol/cm"> 3e-15 </site_density>
-     *    </thermo>
-     * @endcode
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    virtual void setParametersFromXML(const XML_Node& thermoData);
 };
 }
 

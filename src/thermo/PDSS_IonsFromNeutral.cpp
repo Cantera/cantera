@@ -10,18 +10,14 @@
 #include "cantera/thermo/PDSS_IonsFromNeutral.h"
 #include "cantera/thermo/IonsFromNeutralVPSSTP.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/base/ctml.h"
-
-using namespace std;
+#include "cantera/base/global.h"
 
 namespace Cantera
 {
 
 PDSS_IonsFromNeutral::PDSS_IonsFromNeutral()
-    : neutralMoleculePhase_(0)
-    , numMult_(0)
-    , add2RTln2_(true)
 {
+    warn_deprecated("class PDSS_IonsFromNeutral", "To be removed after Cantera 3.0");
 }
 
 void PDSS_IonsFromNeutral::setParent(VPStandardStateTP* phase, size_t k)
@@ -37,35 +33,6 @@ void PDSS_IonsFromNeutral::setNeutralSpeciesMultiplier(const std::string& specie
 
 void PDSS_IonsFromNeutral::setSpecialSpecies(bool special) {
     add2RTln2_ = !special;
-}
-
-void PDSS_IonsFromNeutral::setParametersFromXML(const XML_Node& speciesNode)
-{
-    PDSS::setParametersFromXML(speciesNode);
-    const XML_Node* tn = speciesNode.findByName("thermo");
-    if (!tn) {
-        throw CanteraError("PDSS_IonsFromNeutral::setParametersFromXML",
-                           "no 'thermo' Node for species '{}'", speciesNode.name());
-    }
-    if (!caseInsensitiveEquals(tn->attrib("model"), "ionfromneutral")) {
-        throw CanteraError("PDSS_IonsFromNeutral::setParametersFromXML",
-                           "thermo model for species '{}' isn't 'IonsFromNeutral'",
-                           speciesNode.name());
-    }
-    const XML_Node* nsm = tn->findByName("neutralSpeciesMultipliers");
-    if (!nsm) {
-        throw CanteraError("PDSS_IonsFromNeutral::setParametersFromXML",
-                           "no 'Thermo::neutralSpeciesMultipliers' Node for species '{}'",
-                           speciesNode.name());
-    }
-
-    for (auto& species_mult : parseCompString(nsm->value())) {
-        setNeutralSpeciesMultiplier(species_mult.first, species_mult.second);
-    }
-
-    if (tn->findByName("specialSpecies")) {
-        setSpecialSpecies();
-    }
 }
 
 void PDSS_IonsFromNeutral::getParameters(AnyMap& eosNode) const
@@ -87,8 +54,8 @@ void PDSS_IonsFromNeutral::initThermo()
         setSpecialSpecies();
     }
     if (m_input.hasKey("multipliers")) {
-        for (const auto& item : m_input["multipliers"].asMap<double>()) {
-            setNeutralSpeciesMultiplier(item.first, item.second);
+        for (const auto& [species, multiplier] : m_input["multipliers"].asMap<double>()) {
+            setNeutralSpeciesMultiplier(species, multiplier);
         }
     }
 
@@ -96,9 +63,9 @@ void PDSS_IonsFromNeutral::initThermo()
     m_minTemp = neutralMoleculePhase_->minTemp();
     m_maxTemp = neutralMoleculePhase_->maxTemp();
     tmpNM.resize(neutralMoleculePhase_->nSpecies());
-    for (auto multiplier : neutralSpeciesMultipliers_) {
-        idNeutralMoleculeVec.push_back( neutralMoleculePhase_->speciesIndex(multiplier.first));
-        factorVec.push_back(multiplier.second);
+    for (auto [species, multiplier] : neutralSpeciesMultipliers_) {
+        idNeutralMoleculeVec.push_back(neutralMoleculePhase_->speciesIndex(species));
+        factorVec.push_back(multiplier);
     }
 }
 

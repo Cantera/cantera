@@ -13,7 +13,6 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/zerodim.h"
-#include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/numerics/Integrator.h"
 #include "example_utils.h"
 
@@ -28,7 +27,7 @@ int kinetics1(int np, void* p)
          " mixture \nbeginning at T = 1001 K and P = 1 atm." << endl;
 
     // create an ideal gas mixture that corresponds to OH submech from GRI-Mech 3.0
-    auto sol = newSolution("h2o2.yaml", "ohmech", "None");
+    auto sol = newSolution("h2o2.yaml", "ohmech", "none");
     auto gas = sol->thermo();
 
     // set the state
@@ -50,8 +49,8 @@ int kinetics1(int np, void* p)
 
     // create a 2D array to hold the output variables,
     // and store the values for the initial state
-    Array2D soln(nsp+4, 1);
-    saveSoln(0, 0.0, *(sol->thermo()), soln);
+    Array2D states(nsp+4, 1);
+    saveSoln(0, 0.0, *(sol->thermo()), states);
 
     // create a container object to run the simulation
     // and add the reactor to it
@@ -64,16 +63,13 @@ int kinetics1(int np, void* p)
         double tm = i*dt;
         sim.advance(tm);
         cout << "time = " << tm << " s" << endl;
-        saveSoln(tm, *(sol->thermo()), soln);
+        saveSoln(tm, *(sol->thermo()), states);
     }
     clock_t t1 = clock(); // save end time
 
 
-    // make a Tecplot data file and an Excel spreadsheet
-    std::string plotTitle = "kinetics example 1: constant-pressure ignition";
-    plotSoln("kin1.dat", "TEC", plotTitle, *(sol->thermo()), soln);
-    plotSoln("kin1.csv", "XL", plotTitle, *(sol->thermo()), soln);
-
+    // make a CSV output file
+    writeCsv("kin1.csv", *sol->thermo(), states);
 
     // print final temperature and timing data
     double tmm = 1.0*(t1 - t0)/CLOCKS_PER_SEC;
@@ -84,8 +80,7 @@ int kinetics1(int np, void* p)
     cout << " time per evaluation = " << tmm/sim.integrator().nEvals()
          << endl << endl;
     cout << "Output files:" << endl
-         << "  kin1.csv    (Excel CSV file)" << endl
-         << "  kin1.dat    (Tecplot data file)" << endl;
+         << "  kin1.csv    (Excel CSV file)" << endl;
 
     return 0;
 }

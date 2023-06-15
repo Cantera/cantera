@@ -31,10 +31,10 @@ class PureFluidPhase : public ThermoPhase
 {
 public:
     //! Empty Base Constructor
-    PureFluidPhase();
+    PureFluidPhase() = default;
 
     virtual std::string type() const {
-        return "PureFluid";
+        return "pure-fluid";
     }
 
     //! String indicating the mechanical phase of the matter in this Phase.
@@ -121,13 +121,12 @@ public:
     //! Returns a reference to the substance object
     tpx::Substance& TPX_Substance();
 
-    /// @name Properties of the Standard State of the Species in the Solution
-    /*!
-     *  The standard state of the pure fluid is defined as the real properties
-     *  of the pure fluid at the most stable state of the fluid at the current
-     *  temperature and pressure of the solution. With this definition, the
-     *  activity of the fluid is always then defined to be equal to one.
-     */
+    //! @name Properties of the Standard State of the Species in the Solution
+    //!
+    //! The standard state of the pure fluid is defined as the real properties
+    //! of the pure fluid at the most stable state of the fluid at the current
+    //! temperature and pressure of the solution. With this definition, the
+    //! activity of the fluid is always then defined to be equal to one.
     //! @{
 
     virtual void getStandardChemPotentials(doublereal* mu) const;
@@ -136,11 +135,10 @@ public:
     virtual void getGibbs_RT(doublereal* grt) const;
 
     //! @}
-    /// @name Thermodynamic Values for the Species Reference States
-    /*!
-     * The species reference state for pure fluids is defined as an ideal gas at
-     * the reference pressure and current temperature of the fluid.
-     */
+    //! @name Thermodynamic Values for the Species Reference States
+    //!
+    //! The species reference state for pure fluids is defined as an ideal gas at
+    //! the reference pressure and current temperature of the fluid.
     //! @{
 
     virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
@@ -149,12 +147,10 @@ public:
     virtual void getEntropy_R_ref(doublereal* er) const;
 
     //! @}
-    /**
-     * @name Setting the State
-     *
-     * These methods set all or part of the thermodynamic state.
-     * @{
-     */
+    //! @name Setting the State
+    //!
+    //! These methods set all or part of the thermodynamic state.
+    //! @{
 
     virtual void setState_HP(double h, double p, double tol=1e-9);
     virtual void setState_UV(double u, double v, double tol=1e-9);
@@ -189,7 +185,6 @@ public:
 
     virtual void initThermo();
     virtual void getParameters(AnyMap& phaseNode) const;
-    virtual void setParametersFromXML(const XML_Node& eosdata);
 
     virtual std::string report(bool show_thermo=true,
                                doublereal threshold=1e-14) const;
@@ -211,22 +206,14 @@ private:
     //! Pointer to the underlying tpx object Substance that does the work
     mutable std::unique_ptr<tpx::Substance> m_sub;
 
-    //! Int indicating the type of the fluid
-    /*!
-     * The tpx package uses an int to indicate what fluid is being sought. Used
-     * only if #m_tpx_name is not set.
-     */
-    int m_subflag;
-
-    //! Name for this substance used by the TPX package. If this is not set,
-    //! #m_subflag is used instead.
+    //! Name for this substance used by the TPX package
     std::string m_tpx_name;
 
     //! Molecular weight of the substance (kg kmol-1)
-    doublereal m_mw;
+    double m_mw = -1.0;
 
     //! flag to turn on some printing.
-    bool m_verbose;
+    bool m_verbose = false;
 };
 
 }

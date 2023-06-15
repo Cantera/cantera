@@ -1,0 +1,118 @@
+units: {length: cm, quantity: mol, activation-energy: J/mol}
+
+phases:
+- name: gas
+  thermo: ideal-gas
+  species: [A, B, C, D]
+  kinetics: gas
+  reactions: [gas-reactions]
+  state:
+    T: 300.0
+    P: 1.01325e+05
+- name: surf
+  thermo: ideal-surface
+  adjacent-phases: [gas]
+  species: [A(S), B(S), C(S), D(S), (S)]
+  kinetics: surface
+  reactions: [surf-reactions]
+  state:
+    T: 900.0
+    coverages: {(S): 1.0}
+  site-density: 2.7063e-09
+
+species:
+- name: A
+  composition: {C: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 3000.0]
+    data:
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+- name: B
+  composition: {C: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 3000.0]
+    data:
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+- name: C
+  composition: {C: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 3000.0]
+    data:
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+- name: D
+  composition: {C: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 3000.0]
+    data:
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+- name: A(S)
+  composition: {C: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 3000.0]
+    data:
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+- name: B(S)
+  composition: {C: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 3000.0]
+    data:
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+- name: C(S)
+  composition: {C: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 3000.0]
+    data:
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+- name: D(S)
+  composition: {C: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 3000.0]
+    data:
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+- name: (S)
+  composition: {}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 3000.0]
+    data:
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+
+gas-reactions:
+- equation: A + B <=> C + D
+  rate-constant: {A: 1200, b: 0, Ea: 0}
+- equation: A + C <=> B + D
+  rate-constant: {A: 800, b: 0, Ea: 0}
+
+surf-reactions:
+- equation: A + (S) => A(S)
+  rate-constant: {A: 5e3, b: 0, Ea: 0}
+- equation: B + (S) => B(S)
+  rate-constant: {A: 2e4, b: 0, Ea: 0}
+- equation: A(S) => A + (S)
+  rate-constant: {A: 500, b: 0, Ea: 0}
+- equation: B(S) => B + (S)
+  rate-constant: {A: 800, b: 0, Ea: 0}
+- equation: C(S) => C + (S)
+  rate-constant: {A: 500, b: 0, Ea: 0}
+- equation: D(S) => D + (S)
+  rate-constant: {A: 400, b: 0, Ea: 0}
+
+- equation: A(S) + B(S) => C(S) + D(S)
+  rate-constant: {A: 1200, b: 0, Ea: 0}

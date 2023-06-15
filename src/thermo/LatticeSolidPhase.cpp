@@ -13,22 +13,15 @@
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/SpeciesThermoFactory.h"
 #include "cantera/thermo/MultiSpeciesThermo.h"
-#include "cantera/base/ctml.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/utilities.h"
 
 #include <boost/algorithm/string.hpp>
 
-using namespace std;
 namespace ba = boost::algorithm;
 
 namespace Cantera
 {
-LatticeSolidPhase::LatticeSolidPhase() :
-    m_press(-1.0),
-    m_molar_density(0.0)
-{
-}
 
 doublereal LatticeSolidPhase::minTemp(size_t k) const
 {
@@ -305,9 +298,9 @@ void LatticeSolidPhase::initThermo()
 {
     if (m_input.hasKey("composition")) {
         compositionMap composition = m_input["composition"].asMap<double>();
-        for (auto& item : composition) {
-            AnyMap& node = m_rootNode["phases"].getMapWhere("name", item.first);
-            addLattice(newPhase(node, m_rootNode));
+        for (auto& [name, stoich] : composition) {
+            AnyMap& node = m_rootNode["phases"].getMapWhere("name", name);
+            addLattice(newThermo(node, m_rootNode));
         }
         setLatticeStoichiometry(composition);
     }
@@ -431,17 +424,6 @@ void LatticeSolidPhase::setLatticeMoleFractionsByName(int nn, const std::string&
         }
     }
     setMoleFractions(m_x.data());
-}
-
-void LatticeSolidPhase::setParametersFromXML(const XML_Node& eosdata)
-{
-    eosdata._require("model","LatticeSolid");
-    XML_Node& la = eosdata.child("LatticeArray");
-    std::vector<XML_Node*> lattices = la.getChildren("phase");
-    for (auto lattice : lattices) {
-        addLattice(shared_ptr<ThermoPhase>(newPhase(*lattice)));
-    }
-    setLatticeStoichiometry(parseCompString(eosdata.child("LatticeStoichiometry").value()));
 }
 
 void LatticeSolidPhase::modifyOneHf298SS(const size_t k, const doublereal Hf298New)

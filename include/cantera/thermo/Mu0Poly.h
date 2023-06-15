@@ -17,7 +17,6 @@
 
 namespace Cantera
 {
-class XML_Node;
 
 //! The Mu0Poly class implements an interpolation of the Gibbs free energy based
 //! on a piecewise constant heat capacity approximation.
@@ -141,11 +140,11 @@ public:
 protected:
     //! Number of intervals in the interpolating linear approximation. Number
     //! of points is one more than the number of intervals.
-    size_t m_numIntervals;
+    size_t m_numIntervals = 0;
 
     //! Value of the enthalpy at T = 298.15. This value is tied to the Heat of
     //! formation of the species at 298.15.
-    doublereal m_H298;
+    double m_H298 = 0.0;
 
     //! Points at which the standard state chemical potential are given.
     vector_fp m_t0_int;
@@ -164,20 +163,6 @@ protected:
     vector_fp m_cp0_R_int;
 };
 
-//! Install a Mu0 polynomial thermodynamic reference state
-/*!
- * Install a Mu0 polynomial thermodynamic reference state property
- * parameterization for species k into a MultiSpeciesThermo instance, getting
- * the information from an XML database.
- *
- * @param Mu0Node Pointer to the XML element containing the Mu0 information.
- *
- * @ingroup spthermo
- *
- * @deprecated The XML input format is deprecated and will be removed in
- *     Cantera 3.0.
- */
-Mu0Poly* newMu0ThermoFromXML(const XML_Node& Mu0Node);
 }
 
 #endif

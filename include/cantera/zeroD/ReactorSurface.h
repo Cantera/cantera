@@ -20,8 +20,8 @@ class SurfPhase;
 class ReactorSurface
 {
 public:
-    ReactorSurface();
-    virtual ~ReactorSurface() {}
+    ReactorSurface() = default;
+    virtual ~ReactorSurface() = default;
     ReactorSurface(const ReactorSurface&) = delete;
     ReactorSurface& operator=(const ReactorSurface&) = delete;
 
@@ -67,11 +67,6 @@ public:
     //! number of surface species.
     void getCoverages(double* cov) const;
 
-    //! Set the coverages in the surface phase object to the values for this
-    //! surface.
-    //! @deprecated To be removed after Cantera 2.6. Use syncState() instead.
-    void syncCoverages();
-
     //! Set the coverages and temperature in the surface phase object to the
     //! values for this surface. The temperature is set to match the bulk phase
     //! of the attached Reactor.
@@ -92,11 +87,11 @@ public:
     void resetSensitivityParameters();
 
 protected:
-    double m_area;
+    double m_area = 1.0;
 
-    SurfPhase* m_thermo;
-    Kinetics* m_kinetics;
-    ReactorBase* m_reactor;
+    SurfPhase* m_thermo = nullptr;
+    Kinetics* m_kinetics = nullptr;
+    ReactorBase* m_reactor = nullptr;
     vector_fp m_cov;
     std::vector<SensitivityParameter> m_params;
 };

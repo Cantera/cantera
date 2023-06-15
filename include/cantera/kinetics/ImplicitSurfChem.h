@@ -75,7 +75,7 @@ public:
                      double maxStepSize=0, size_t maxSteps=20000,
                      size_t maxErrTestFails=7);
 
-    virtual ~ImplicitSurfChem() {};
+    virtual ~ImplicitSurfChem() = default;
 
     /*!
      *  Must be called before calling method 'advance'
@@ -160,8 +160,7 @@ public:
      *                derivative of the surface coverages.
      *  @param p   Unused parameter pass-through parameter vector
      */
-    virtual void eval(doublereal t, doublereal* y, doublereal* ydot,
-                      doublereal* p);
+    virtual void eval(double t, double* y, double* ydot, double* p);
 
     //! Get the current state of the solution vector
     /*!
@@ -252,10 +251,10 @@ protected:
     /*!
      * This is the total number of unknowns in m_mode 0 problem
      */
-    size_t m_nv;
+    size_t m_nv = 0;
 
-    size_t m_numTotalBulkSpecies;
-    size_t m_numTotalSpecies;
+    size_t m_numTotalBulkSpecies = 0;
+    size_t m_numTotalSpecies = 0;
 
     std::vector<vector_int> pLocVec;
     //! Pointer to the CVODE integrator
@@ -278,17 +277,17 @@ protected:
      * Index into the species vector of the kinetics manager,
      * pointing to the first species from the surrounding medium.
      */
-    int m_mediumSpeciesStart;
+    int m_mediumSpeciesStart = -1;
     /**
      * Index into the species vector of the kinetics manager, pointing to the
      * first species from the condensed phase of the particles.
      */
-    int m_bulkSpeciesStart;
+    int m_bulkSpeciesStart = -1;
     /**
      * Index into the species vector of the kinetics manager, pointing to the
      * first species from the surface of the particles
      */
-    int m_surfSpeciesStart;
+    int m_surfSpeciesStart = -1;
     /**
      * Pointer to the helper method, Placid, which solves the surface problem.
      */
@@ -296,17 +295,12 @@ protected:
 
     //! If true, a common temperature and pressure for all surface and bulk
     //! phases associated with the surface problem is imposed
-    bool m_commonTempPressForPhases;
-
-    //! We make the solveSS class a friend because we need to access all of
-    //! the above information directly. Adding the members into the class is
-    //! also a possibility.
-    friend class solveSS;
+    bool m_commonTempPressForPhases = true;
 
 private:
     //! Controls the amount of printing from this routine
     //! and underlying routines.
-    int m_ioFlag;
+    int m_ioFlag = 0;
 };
 }
 

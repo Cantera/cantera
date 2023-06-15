@@ -7,7 +7,7 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/kinetics/ReactionPath.h"
-#include "cantera/kinetics/reaction_defs.h"
+#include "cantera/kinetics/Reaction.h"
 #include "cantera/thermo/ThermoPhase.h"
 
 #include <boost/algorithm/string.hpp>
@@ -41,7 +41,7 @@ void SpeciesNode::printPaths()
 }
 
 Path::Path(SpeciesNode* begin, SpeciesNode* end)
-    : m_a(begin), m_b(end), m_total(0.0)
+    : m_a(begin), m_b(end)
 {
     begin->addPath(this);
     end->addPath(this);
@@ -63,12 +63,12 @@ void Path::writeLabel(ostream& s, doublereal threshold)
         return;
     }
     doublereal v;
-    for (const auto& label : m_label) {
-        v = label.second/m_total;
+    for (const auto& [species, value] : m_label) {
+        v = value / m_total;
         if (m_label.size() == 1) {
-            s << label.first << "\\l";
+            s << species << "\\l";
         } else if (v > threshold) {
-            s << label.first;
+            s << species;
             int percent = int(100*v + 0.5);
             if (percent < 100) {
                 s << " (" << percent << "%)\\l";
@@ -79,35 +79,11 @@ void Path::writeLabel(ostream& s, doublereal threshold)
     }
 }
 
-ReactionPathDiagram::ReactionPathDiagram()
-{
-    name = "reaction_paths";
-    m_flxmax = 0.0;
-    bold_color = "blue";
-    normal_color = "steelblue";
-    dashed_color = "gray";
-    dot_options = "center=1;";
-    m_font = "Helvetica";
-    bold_min = 0.2;
-    dashed_max = 0.0;
-    label_min = 0.0;
-    threshold = 0.005;
-    flow_type = NetFlow;
-    scale = -1;
-    x_size = -1.0;
-    y_size = -1.0;
-    arrow_width = -5.0;
-    show_details = false;
-    arrow_hue = 0.6666;
-    title = "";
-    m_local = npos;
-}
-
 ReactionPathDiagram::~ReactionPathDiagram()
 {
     // delete the nodes
-    for (const auto& node : m_nodes) {
-        delete node.second;
+    for (const auto& [k, node] : m_nodes) {
+        delete node;
     }
 
     // delete the paths
@@ -126,16 +102,16 @@ vector_int ReactionPathDiagram::reactions()
     }
     m_rxns.clear();
     for (size_t i = 0; i < nPaths(); i++) {
-        for (const auto& rxn : path(i)->reactionMap()) {
-            double flxratio = rxn.second/flmax;
+        for (const auto& [iRxn, flux] : path(i)->reactionMap()) {
+            double flxratio = flux / flmax;
             if (flxratio > threshold) {
-                m_rxns[rxn.first] = 1;
+                m_rxns.insert(iRxn);
             }
         }
     }
     vector_int r;
     for (const auto& rxn : m_rxns) {
-        r.push_back(int(rxn.first));
+        r.push_back(int(rxn));
     }
     return r;
 }
@@ -365,9 +341,9 @@ void ReactionPathDiagram::exportToDot(ostream& s)
         }
     }
     s.precision(2);
-    for (const auto& node : m_nodes) {
-        if (node.second->visible) {
-            s << "s" << node.first << " [ fontname=\""+m_font+"\", label=\"" << node.second->name
+    for (const auto& [kSpecies, node] : m_nodes) {
+        if (node->visible) {
+            s << "s" << kSpecies << " [ fontname=\""+m_font+"\", label=\"" << node->name
               << "\"];" << endl;
         }
     }
@@ -398,7 +374,7 @@ void ReactionPathDiagram::linkNodes(size_t k1, size_t k2, size_t rxn,
         m_pathlist.push_back(ff);
     }
     ff->addReaction(rxn, value, legend);
-    m_rxns[rxn] = 1;
+    m_rxns.insert(rxn);
     m_flxmax = std::max(ff->flow(), m_flxmax);
 }
 
@@ -412,7 +388,7 @@ int ReactionPathBuilder::findGroups(ostream& logfile, Kinetics& s)
     m_groups.resize(m_nr);
     for (size_t i = 0; i < m_nr; i++) { // loop over reactions
         logfile << endl << "Reaction " << i+1 << ": "
-                << s.reactionString(i);
+                << s.reaction(i)->equation();
 
         if (m_determinate[i]) {
             logfile << " ... OK." << endl;
@@ -684,9 +660,9 @@ string reactionLabel(size_t i, size_t kr, size_t nr,
             label += " + "+ s.kineticsSpeciesName(slist[j]);
         }
     }
-    if (ba::starts_with(s.reactionTypeStr(i), "three-body")) {
+    if (ba::starts_with(s.reaction(i)->type(), "three-body")) {
         label += " + M ";
-    } else if (ba::starts_with(s.reactionTypeStr(i), "falloff")) {
+    } else if (ba::starts_with(s.reaction(i)->type(), "falloff")) {
         label += " (+ M)";
     }
     return label;
@@ -739,9 +715,9 @@ int ReactionPathBuilder::build(Kinetics& s, const string& element,
                             revlabel += " + "+ s.kineticsSpeciesName(m_prod[i][j]);
                         }
                     }
-                    if (ba::starts_with(s.reactionTypeStr(i), "three-body")) {
+                    if (ba::starts_with(s.reaction(i)->type(), "three-body")) {
                         revlabel += " + M ";
-                    } else if (ba::starts_with(s.reactionTypeStr(i), "falloff")) {
+                    } else if (ba::starts_with(s.reaction(i)->type(), "falloff")) {
                         revlabel += " (+ M)";
                     }
 
@@ -765,7 +741,7 @@ int ReactionPathBuilder::build(Kinetics& s, const string& element,
                                     output << endl;
                                     output << "*************** REACTION IGNORED ***************" << endl;
                                     output << "Warning: no rule to determine partitioning of " << element
-                                           << endl << " in reaction " << s.reactionString(i) << "." << endl
+                                           << endl << " in reaction " << s.reaction(i)->equation() << "." << endl
                                            << "*************** REACTION IGNORED **************" << endl;
                                     output << endl;
                                     warn[i] = 1;

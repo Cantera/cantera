@@ -62,22 +62,22 @@ public:
     bool operator==(const Units& other) const;
 
     //! Return dimension of primary unit component
-    //! ("mass", "length", "time", "temperature", "current" or "quantity")
+    //! ("mass", "length", "time", "temperature", "current", or "quantity")
     double dimension(const std::string& primary) const;
 
 private:
     //! Scale the unit by the factor `k`
     void scale(double k) { m_factor *= k; }
 
-    double m_factor; //!< conversion factor to Cantera base units
-    double m_mass_dim;
-    double m_length_dim;
-    double m_time_dim;
-    double m_temperature_dim;
-    double m_current_dim;
-    double m_quantity_dim;
-    double m_pressure_dim; //!< pseudo-dimension to track explicit pressure units
-    double m_energy_dim; //!< pseudo-dimension to track explicit energy units
+    double m_factor = 1.0; //!< conversion factor to Cantera base units
+    double m_mass_dim = 0.0;
+    double m_length_dim = 0.0;
+    double m_time_dim = 0.0;
+    double m_temperature_dim = 0.0;
+    double m_current_dim = 0.0;
+    double m_quantity_dim = 0.0;
+    double m_pressure_dim = 0.0; //!< pseudo-dimension to track explicit pressure units
+    double m_energy_dim = 0.0; //!< pseudo-dimension to track explicit energy units
 
     friend class UnitSystem;
 };
@@ -90,7 +90,7 @@ private:
  *  simplifies access when joining exponents. The utility is used in the context
  *  of effective reaction rate units.
  *
- * @internal Helper utility class.
+ * @note Helper utility class for internal use within Cantera.
  *
  * @warning This class is an experimental part of the %Cantera API and
  *    may be changed or removed without notice.
@@ -105,6 +105,8 @@ struct UnitStack
     //! Alternative constructor allows for direct assignment of vector
     UnitStack(std::initializer_list<std::pair<Units, double>> units)
         : stack(units) {}
+
+    UnitStack() = default;
 
     //! Size of UnitStack
     size_t size() const { return stack.size(); }
@@ -220,6 +222,13 @@ public:
     double convert(const AnyValue& val, const std::string& dest) const;
     double convert(const AnyValue& val, const Units& dest) const;
 
+    //! Convert a generic AnyValue node representing a reaction rate coefficient to the
+    //! units specified in `dest`. Works like `convert(AnyValue&, Units&)` but with
+    //! special handling for the case where the destination units are undefined.
+    //!
+    //! @since New in Cantera 3.0
+    double convertRateCoeff(const AnyValue& val, const Units& dest) const;
+
     //! Convert an array of AnyValue nodes to the units specified in `dest`. For
     //! each node, if the value is a double, convert it using the default units,
     //! and if it is a string, treat it as a value with the given dimensions.
@@ -254,29 +263,29 @@ public:
 
 private:
     //! Factor to convert mass from this unit system to kg
-    double m_mass_factor;
+    double m_mass_factor = 1.0;
 
     //! Factor to convert length from this unit system to meters
-    double m_length_factor;
+    double m_length_factor = 1.0;
 
     //! Factor to convert time from this unit system to seconds
-    double m_time_factor;
+    double m_time_factor = 1.0;
 
     //! Factor to convert pressure from this unit system to Pa
-    double m_pressure_factor;
+    double m_pressure_factor = 1.0;
 
     //! Factor to convert energy from this unit system to J
-    double m_energy_factor;
+    double m_energy_factor = 1.0;
 
     //! Factor to convert activation energy from this unit system to J/kmol
-    double m_activation_energy_factor;
+    double m_activation_energy_factor = 1.0;
 
     //! Factor to convert quantity from this unit system to kmol
-    double m_quantity_factor;
+    double m_quantity_factor = 1.0;
 
     //! True if activation energy units are set explicitly, rather than as a
     //! combination of energy and quantity units
-    bool m_explicit_activation_energy;
+    bool m_explicit_activation_energy = false;
 
     //! Map of dimensions (mass, length, etc.) to names of specified default
     //! units

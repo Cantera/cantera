@@ -1,0 +1,14 @@
+{
+    "$schema": "http://json.schemastore.org/template",
+    "author": "Cantera Developers",
+    "classifications": [ "Console" ],
+    "name": "Cantera Examples",
+    "identity": "Cantera.Examples.CSharp",
+    "groupIdentity":"Cantera.Examples",
+    "shortName": "ct-examples",
+    "tags": {
+        "language": "C#",
+        "type":"project"
+    },
+    "preferNameDirectory": true
+}

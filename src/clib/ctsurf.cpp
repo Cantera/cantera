@@ -6,17 +6,15 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 // clib header information
-#define CANTERA_USE_INTERNAL
 #include "cantera/clib/ctsurf.h"
 
 // Cantera includes
 #include "cantera/thermo/SurfPhase.h"
-#include "Cabinet.h"
+#include "clib_utils.h"
 
-using namespace std;
 using namespace Cantera;
 
-typedef Cabinet<ThermoPhase> ThermoCabinet;
+typedef SharedCabinet<ThermoPhase> ThermoCabinet;
 template<> ThermoCabinet* ThermoCabinet::s_storage; // defined in ct.cpp
 
 

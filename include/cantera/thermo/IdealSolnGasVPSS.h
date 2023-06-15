@@ -27,7 +27,7 @@ namespace Cantera
 class IdealSolnGasVPSS : public VPStandardStateTP
 {
 public:
-    /// Create an object from an input file
+    //! Create an object from an input file
     explicit IdealSolnGasVPSS(const std::string& infile="", std::string id="");
 
     //! @name  Utilities (IdealSolnGasVPSS)
@@ -123,19 +123,17 @@ public:
 
 public:
     //! @name Initialization Methods - For Internal use
-    /*!
-     * The following methods are used in the process of constructing the phase
-     * and setting its parameters from a specification in an input file. They
-     * are not normally used in application programs. To see how they are used,
-     * see importPhase().
-     */
+    //!
+    //! The following methods are used in the process of constructing the phase
+    //! and setting its parameters from a specification in an input file. They
+    //! are not normally used in application programs. To see how they are used,
+    //! see importPhase().
     //! @{
 
     virtual bool addSpecies(shared_ptr<Species> spec);
     virtual void initThermo();
     virtual void getParameters(AnyMap& phaseNode) const;
     virtual void setToEquilState(const doublereal* lambda_RT);
-    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     //! @}
 
@@ -146,7 +144,7 @@ protected:
      *    - 1 1/V_k
      *    - 2 1/V_0
      */
-    int m_formGC;
+    int m_formGC = 0;
 
     //! Temporary storage - length = m_kk.
     vector_fp m_pp;

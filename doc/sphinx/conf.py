@@ -84,18 +84,18 @@ def setup(app):
                     lines[i] = l.replace("*", r"\*")
     app.connect('autodoc-process-docstring', escape_splats)
 
-
 autoclass_content = 'both'
 
 doxylink = {
-        'ct': (os.path.abspath('../../build/docs/Cantera.tag'),
-               '../../doxygen/html/')
+    'ct': (os.path.abspath('../../build/docs/Cantera.tag'),
+            '../../doxygen/html/')
 }
 
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None),
     'pandas': ('https://pandas.pydata.org/pandas-docs/stable/', None),
     'numpy': ('https://numpy.org/doc/stable/', None),
+    'pint': ('https://pint.readthedocs.io/en/stable/', None),
 }
 
 # Ensure that the primary domain is the Python domain, since we've added the
@@ -116,7 +116,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Cantera'
-copyright = "2001-2022, Cantera Developers"
+copyright = "2001-2023, Cantera Developers"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

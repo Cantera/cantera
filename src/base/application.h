@@ -11,15 +11,10 @@
 
 #include <boost/algorithm/string/join.hpp>
 
-#include <set>
 #include <thread>
 
 namespace Cantera
 {
-
-class XML_Node;
-
-int get_modified_time(const std::string& path);
 
 /*!
  * @defgroup globalData Global Data
@@ -139,7 +134,7 @@ protected:
 
         //!  Write a warning message to the screen.
         /*!
-         * @param warning  String specifying type of warning; @see Logger::warn
+         * @param warning  String specifying type of warning; see Logger::warn()
          * @param msg  String to be written to the screen
          * @ingroup textlogs
          */
@@ -205,10 +200,7 @@ public:
     static Application* Instance();
 
     //! Destructor for class deletes global data
-    /*!
-     *  Deletes any open XML trees.
-     */
-    virtual ~Application();
+    virtual ~Application() {}
 
     //! Static function that destroys the application class's data
     static void ApplicationDestroy();
@@ -288,41 +280,21 @@ public:
         return boost::algorithm::join(inputDirs, sep);
     }
 
-    //! Return a pointer to the XML tree for a Cantera input file.
-    /*!
-     * This routine will find the file and read the XML file into an XML tree
-     * structure. Then, a pointer will be returned. If the file has already been
-     * processed, then just the pointer will be returned.
-     *
-     * @param file String containing the relative or absolute file name
-     * @param debug Debug flag
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    XML_Node* get_XML_File(const std::string& file, int debug=0);
+    //! Load an extension implementing user-defined models
+    //! @param extType Specifies the interface / language of the extension, for example
+    //!     "python"
+    //! @param name Specifies the name of the extension. The meaning of this
+    //!     parameter depends on the specific extension interface. For example, for
+    //!     Python extensions, this is the name of the Python module containing the
+    //!     models.
+    //! @since New in Cantera 3.0
+    void loadExtension(const std::string& extType, const std::string& name);
 
-    //! Read a CTI or CTML string and fill up an XML tree.
-    /*!
-     * Return a pointer to the XML tree corresponding to the specified CTI or
-     * XML string. If the given string has been processed before, the cached XML
-     * tree will be returned. Otherwise, the XML tree will be generated and
-     * stored in the cache.
-     * @param text    CTI or CTML string
-     * @return        Root of the corresponding XML tree
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    XML_Node* get_XML_from_string(const std::string& text);
-
-    //! Close an XML File
-    /*!
-     * Close a file that is opened by this application object
-     *
-     * @param file String containing the relative or absolute file name
-     */
-    void close_XML_File(const std::string& file);
+    //! Set the versions of Python to try when loading user-defined extensions,
+    //! in order of preference. Separate multiple versions with commas, for example
+    //! `"3.11,3.10"`.
+    //! @since New in Cantera 3.0
+    void searchPythonVersions(const string& versions);
 
 #ifdef _WIN32
     long int readStringRegistryKey(const std::string& keyName, const std::string& valueName,
@@ -364,7 +336,7 @@ public:
     }
 
     //! Generate a general purpose warning; repeated warnings are not suppressed
-    //! @param warning  Warning type; @see Logger::warn
+    //! @param warning  Warning type; see Logger::warn()
     //! @param method  Name of method triggering the warning
     //! @param extra  Additional information printed for the warning
     void warn(const std::string& warning,
@@ -402,21 +374,11 @@ public:
     //! Set definition used for rate constant calculation.
     //! @see Kinetics::getFwdRateConstants()
     /*!
-     * If set to 'false', rate constants of three-body reactions are consistent with
-     * conventional definitions. If set to 'true', output for rate constants of
-     * three-body reactions is multipied by third-body concentrations (legacy
-     * behavior). For the pre-compiled Cantera 2.6 distribution, the default value is
-     * set to 'true', which implies no change compared to previous behavior. For
-     * user-compiled Cantera, the default behavior can be changed by the SCons flag
-     * 'legacy_rate_constants'.
-     *
-     * @deprecated  Behavior to change after Cantera 2.6; for Cantera 2.6, rate
-     *              constants of three-body reactions are multiplied with third-body
-     *              concentrations (no change to legacy behavior). After Cantera 2.6,
-     *              results will no longer include third-body concentrations and be
-     *              consistent with conventional definitions (see Eq. 9.75 in
-     *              Kee, Coltrin and Glarborg, 'Chemically Reacting Flow', Wiley
-     *              Interscience, 2003).
+     * If set to 'false' (default value), rate constants of three-body reactions are
+     * consistent with conventional definitions (for example Eq. 9.75 in Kee, Coltrin
+     * and Glarborg, 'Chemically Reacting Flow', Wiley Interscience, 2003). If set to
+     * 'true', output for rate constants of three-body reactions is multiplied by
+     * third-body concentrations, consistent with Cantera's behavior prior to version 3.0.
      */
     void use_legacy_rate_constants(bool legacy=true) {
         m_use_legacy_rate_constants = legacy;
@@ -450,17 +412,15 @@ protected:
      * path. It is invoked at startup by appinit(), and never should need to
      * be called by user programs.
      *
-     * The current directory (".") is always searched first. Then, on Windows
-     * platforms, if environment variable COMMONPROGRAMFILES is set (which it
-     * should be on Win XP or Win 2000), then directories under this one will
-     * be added to the search path. The %Cantera Windows installer installs
-     * data files to this location.
+     * The current directory (".") is always searched first. Then, on Windows, the
+     * registry is checked to find the Cantera installation directory, and the
+     * 'data' subdirectory of the installation directory will be added to the search
+     * path.
      *
-     * On the Mac, directory '/Applications/Cantera/data' is added to the
-     * search path.
-     *
-     * On any platform, if environment variable CANTERA_DATA is set to a
-     * directory name, then this directory is added to the search path.
+     * On any platform, if environment variable CANTERA_DATA is set to a directory
+     * name or a list of directory names separated with the OS-dependent path
+     * separator (that is, ";" on Windows, ":" elsewhere), then these directories will
+     * be added to the search path.
      *
      * Finally, the location where the data files were installed when
      * %Cantera was built is added to the search path.
@@ -473,23 +433,21 @@ protected:
     //! Current vector of input directories to search for input files
     std::vector<std::string> inputDirs;
 
-    //! Current vector of XML file trees that have been previously parsed
-    //! The second element of the value is used to store the last-modified time
-    //! for the file, to enable change detection.
-    //!
-    //! @deprecated The XML input format is deprecated and will be removed in
-    //!     Cantera 3.0.
-    std::map<std::string, std::pair<XML_Node*, int> > xmlfiles;
+    //! Versions of Python to consider when attempting to load user extensions
+    vector<string> m_pythonSearchVersions = {"3.11", "3.10", "3.9", "3.8"};
+
     //! Vector of deprecation warnings that have been emitted (to suppress
     //! duplicates)
     std::set<std::string> warnings;
 
-    bool m_suppress_deprecation_warnings;
-    bool m_fatal_deprecation_warnings;
-    bool m_suppress_thermo_warnings;
-    bool m_suppress_warnings;
-    bool m_fatal_warnings;
-    bool m_use_legacy_rate_constants;
+    bool m_suppress_deprecation_warnings = false;
+    bool m_fatal_deprecation_warnings = false;
+    bool m_suppress_thermo_warnings = false;
+    bool m_suppress_warnings = false;
+    bool m_fatal_warnings = false;
+    bool m_use_legacy_rate_constants = false;
+
+    std::set<std::pair<std::string, std::string>> m_loaded_extensions;
 
     ThreadMessages pMessenger;
 

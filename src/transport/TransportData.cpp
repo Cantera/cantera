@@ -7,9 +7,6 @@
 #include "cantera/thermo/Species.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/base/ctml.h"
-
-#include <set>
 
 namespace Cantera
 {
@@ -25,18 +22,6 @@ AnyMap TransportData::parameters(bool withInput) const
 }
 
 void TransportData::getParameters(AnyMap &transportNode) const
-{
-}
-
-GasTransportData::GasTransportData()
-    : diameter(0.0)
-    , well_depth(0.0)
-    , dipole(0.0)
-    , polarizability(0.0)
-    , rotational_relaxation(0.0)
-    , acentric_factor(0.0)
-    , dispersion_coefficient(0.0)
-    , quadrupole_polarizability(0.0)
 {
 }
 
@@ -77,9 +62,9 @@ void GasTransportData::setCustomaryUnits(
 void GasTransportData::validate(const Species& sp)
 {
     double nAtoms = 0;
-    for (const auto& elem : sp.composition) {
-        if (!caseInsensitiveEquals(elem.first, "E")) {
-            nAtoms += elem.second;
+    for (const auto& [eName, stoich] : sp.composition) {
+        if (!caseInsensitiveEquals(eName, "E")) {
+            nAtoms += stoich;
         }
     }
 
@@ -173,35 +158,6 @@ void GasTransportData::getParameters(AnyMap& transportNode) const
     }
 }
 
-void setupGasTransportData(GasTransportData& tr, const XML_Node& tr_node)
-{
-    std::string geometry, dummy;
-    getString(tr_node, "geometry", geometry, dummy);
-
-    double diam = getFloat(tr_node, "LJ_diameter");
-    double welldepth = getFloat(tr_node, "LJ_welldepth");
-
-    double dipole = 0.0;
-    getOptionalFloat(tr_node, "dipoleMoment", dipole);
-
-    double polar = 0.0;
-    getOptionalFloat(tr_node, "polarizability", polar);
-
-    double rot = 0.0;
-    getOptionalFloat(tr_node, "rotRelax", rot);
-    double acentric = 0.0;
-    getOptionalFloat(tr_node, "acentric_factor", acentric);
-
-    double dispersion = 0.0;
-    getOptionalFloat(tr_node, "dispersion_coefficient", dispersion);
-
-    double quad = 0.0;
-    getOptionalFloat(tr_node, "quadrupole_polarizability", quad);
-
-    tr.setCustomaryUnits(geometry, diam, welldepth, dipole, polar,
-                         rot, acentric, dispersion, quad);
-}
-
 void setupGasTransportData(GasTransportData& tr, const AnyMap& node)
 {
     std::string geometry = node["geometry"].asString();
@@ -220,28 +176,15 @@ void setupGasTransportData(GasTransportData& tr, const AnyMap& node)
     tr.input = node;
 }
 
-shared_ptr<TransportData> newTransportData(const XML_Node& transport_node)
-{
-    std::string model = transport_node["model"];
-    if (model == "gas_transport") {
-        auto tr = make_shared<GasTransportData>();
-        setupGasTransportData(*tr, transport_node);
-        return tr;
-    } else {
-        // Transport model not handled here
-        return make_shared<TransportData>();
-    }
-}
-
 unique_ptr<TransportData> newTransportData(const AnyMap& node)
 {
     if (node.getString("model", "") == "gas") {
-        unique_ptr<GasTransportData> tr(new GasTransportData());
+        auto tr = make_unique<GasTransportData>();
         setupGasTransportData(*tr, node);
-        return unique_ptr<TransportData>(move(tr));
+        return tr;
     } else {
         // Transport model not handled here
-        unique_ptr<TransportData> tr(new TransportData());
+        auto tr = make_unique<TransportData>();
         tr->input = node;
         return tr;
     }

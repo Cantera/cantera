@@ -8,18 +8,19 @@
 
 #include "cantera/base/Solution.h"
 #include "cantera/base/Interface.h"
+#include "cantera/base/ExtensionManager.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/kinetics/KineticsFactory.h"
-#include "cantera/transport/TransportBase.h"
+#include "cantera/transport/Transport.h"
 #include "cantera/transport/TransportFactory.h"
 #include "cantera/base/stringUtils.h"
 
+#include <boost/algorithm/string.hpp>
+
 namespace Cantera
 {
-
-Solution::Solution() {}
 
 std::string Solution::name() const {
     if (m_thermo) {
@@ -41,14 +42,44 @@ void Solution::setName(const std::string& name) {
 
 void Solution::setThermo(shared_ptr<ThermoPhase> thermo) {
     m_thermo = thermo;
+    for (const auto& [id, callback] : m_changeCallbacks) {
+        callback();
+    }
 }
 
 void Solution::setKinetics(shared_ptr<Kinetics> kinetics) {
+    if (kinetics == m_kinetics) {
+        return;
+    }
     m_kinetics = kinetics;
+    if (m_kinetics) {
+        m_kinetics->setRoot(shared_from_this());
+    }
+    for (const auto& [id, callback] : m_changeCallbacks) {
+        callback();
+    }
 }
 
 void Solution::setTransport(shared_ptr<Transport> transport) {
+    if (transport == m_transport) {
+        return;
+    }
     m_transport = transport;
+    for (const auto& [id, callback] : m_changeCallbacks) {
+        callback();
+    }
+}
+
+void Solution::setTransportModel(const std::string& model) {
+    if (!m_thermo) {
+        throw CanteraError("Solution::setTransportModel",
+            "Unable to set Transport model without valid ThermoPhase object.");
+    }
+    if (model == "") {
+        setTransport(newTransport(m_thermo, "default"));
+    } else {
+        setTransport(newTransport(m_thermo, model));
+    }
 }
 
 void Solution::addAdjacent(shared_ptr<Solution> adjacent) {
@@ -79,7 +110,7 @@ AnyMap Solution::parameters(bool withInput) const
     }
     if (!m_transport) {
         out["transport"] = empty;
-    } else if (m_transport->transportType() == "None") {
+    } else if (m_transport->transportModel() == "none") {
         out["transport"] = empty;
     } else {
         out.update(m_transport->parameters());
@@ -119,10 +150,35 @@ void Solution::setSource(const std::string& source) {
     m_header.setMetadata("filename", filename);
 }
 
-shared_ptr<Solution> newSolution(const std::string& infile,
-                                 const std::string& name,
-                                 const std::string& transport,
-                                 const std::vector<shared_ptr<Solution>>& adjacent)
+void Solution::holdExternalHandle(const std::string& name,
+                                  shared_ptr<ExternalHandle> handle)
+{
+    m_externalHandles[name] = handle;
+}
+
+shared_ptr<ExternalHandle> Solution::getExternalHandle(const std::string& name) const
+{
+    if (m_externalHandles.count(name)) {
+        return m_externalHandles.at(name);
+    } else {
+        return shared_ptr<ExternalHandle>();
+    }
+}
+
+void Solution::registerChangedCallback(void *id, const function<void()>& callback)
+{
+    m_changeCallbacks[id] = callback;
+}
+
+void Solution::removeChangedCallback(void* id)
+{
+    m_changeCallbacks.erase(id);
+}
+
+shared_ptr<Solution> newSolution(const std::string &infile,
+                                 const std::string &name,
+                                 const std::string &transport,
+                                 const std::vector<shared_ptr<Solution>> &adjacent)
 {
     // get file extension
     size_t dot = infile.find_last_of(".");
@@ -131,61 +187,22 @@ shared_ptr<Solution> newSolution(const std::string& infile,
         extension = toLowerCopy(infile.substr(dot+1));
     }
 
-    if (extension == "yml" || extension == "yaml") {
-        // load YAML file
-        auto rootNode = AnyMap::fromYamlFile(infile);
-        AnyMap& phaseNode = rootNode["phases"].getMapWhere("name", name);
-        auto sol = newSolution(phaseNode, rootNode, transport, adjacent);
-        sol->setSource(infile);
-        return sol;
+    if (extension == "cti" || extension == "xml") {
+        throw CanteraError("newSolution",
+                           "The CTI and XML formats are no longer supported.");
     }
 
-    // instantiate Solution object
-    auto sol = Solution::create();
+    // load YAML file
+    auto rootNode = AnyMap::fromYamlFile(infile);
+    AnyMap& phaseNode = rootNode["phases"].getMapWhere("name", name);
+    auto sol = newSolution(phaseNode, rootNode, transport, adjacent);
     sol->setSource(infile);
-
-    // thermo phase
-    sol->setThermo(shared_ptr<ThermoPhase>(newPhase(infile, name)));
-
-    // kinetics
-    std::vector<ThermoPhase*> phases;
-    phases.push_back(sol->thermo().get());
-    for (auto& adj : adjacent) {
-        phases.push_back(adj->thermo().get());
-    }
-    sol->setKinetics(newKinetics(phases, infile, name));
-
-    // transport
-    if (transport == "") {
-        sol->setTransport(shared_ptr<Transport>(
-            newDefaultTransportMgr(sol->thermo().get())));
-    } else if (transport == "None") {
-        sol->setTransport(shared_ptr<Transport>(newTransportMgr("None")));
-    } else {
-        sol->setTransport(shared_ptr<Transport>(
-            newTransportMgr(transport, sol->thermo().get())));
-    }
-
     return sol;
 }
 
 shared_ptr<Solution> newSolution(const std::string& infile, const std::string& name,
     const std::string& transport, const std::vector<std::string>& adjacent)
 {
-    // @todo Remove file extension check after Cantera 2.6
-    // get file extension
-    size_t dot = infile.find_last_of(".");
-    std::string extension;
-    if (dot != npos) {
-        extension = toLowerCopy(infile.substr(dot+1));
-    }
-
-    if (extension == "xml" || extension == "cti") {
-        throw CanteraError("newSolution(string infile, string name, string transport, "
-            "vector<string> adjacent)",
-            "This constructor is only compatible with YAML input files");
-    }
-
     auto rootNode = AnyMap::fromYamlFile(infile);
     AnyMap& phaseNode = rootNode["phases"].getMapWhere("name", name);
 
@@ -205,7 +222,7 @@ shared_ptr<Solution> newSolution(const AnyMap& phaseNode,
                                  const std::map<std::string, shared_ptr<Solution>>& related)
 {
     // thermo phase
-    auto thermo = shared_ptr<ThermoPhase>(newPhase(phaseNode, rootNode));
+    auto thermo = newThermo(phaseNode, rootNode);
 
     // instantiate Solution object of the correct derived type
     shared_ptr<Solution> sol;
@@ -289,33 +306,24 @@ shared_ptr<Solution> newSolution(const AnyMap& phaseNode,
     }
 
     // kinetics
-    std::vector<ThermoPhase*> phases;
-    phases.push_back(sol->thermo().get());
+    vector<shared_ptr<ThermoPhase>> phases;
+    phases.push_back(sol->thermo());
     for (size_t i = 0; i < sol->nAdjacent(); i++) {
-        phases.push_back(sol->adjacent(i)->thermo().get());
+        phases.push_back(sol->adjacent(i)->thermo());
     }
-    sol->setKinetics(newKinetics(phases, phaseNode, rootNode));
+    sol->setKinetics(newKinetics(phases, phaseNode, rootNode, sol));
 
-    // transport
-    if (transport == "") {
-        sol->setTransport(shared_ptr<Transport>(
-            newDefaultTransportMgr(sol->thermo().get())));
-    } else if (transport == "None") {
-        sol->setTransport(shared_ptr<Transport>(newTransportMgr("None")));
-    } else {
-        sol->setTransport(shared_ptr<Transport>(
-            newTransportMgr(transport, sol->thermo().get())));
-    }
+    // set transport model by name
+    sol->setTransportModel(transport);
 
     // save root-level information (YAML header)
     AnyMap header;
-    for (const auto& item : rootNode.ordered()) {
-        std::string key = item.first;
+    for (const auto& [key, value] : rootNode.ordered()) {
         if (key == "phases") {
             // header ends with "phases" field
             break;
         } else if (key != "units") {
-            header[key] = item.second;
+            header[key] = value;
         }
     }
     sol->header() = header;

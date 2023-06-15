@@ -7,42 +7,21 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-#include "cantera/base/ctml.h"
 #include "cantera/thermo/PDSS_ConstVol.h"
 #include "cantera/thermo/VPStandardStateTP.h"
-
-using namespace std;
+#include "cantera/base/global.h"
 
 namespace Cantera
 {
 
-PDSS_ConstVol::PDSS_ConstVol()
-{
-}
-
-void PDSS_ConstVol::setParametersFromXML(const XML_Node& speciesNode)
-{
-    PDSS::setParametersFromXML(speciesNode);
-
-    const XML_Node* ss = speciesNode.findByName("standardState");
-    if (!ss) {
-        throw CanteraError("PDSS_ConstVol::setParametersFromXML",
-                           "no standardState Node for species '{}'",
-                           speciesNode.name());
-    }
-    if (ss->attrib("model") != "constant_incompressible") {
-        throw CanteraError("PDSS_ConstVol::setParametersFromXML",
-                           "standardState model for species '{}' isn't "
-                           "'constant_incompressible'", speciesNode.name());
-    }
-
-    setMolarVolume(getFloat(*ss, "molarVolume", "toSI"));
-}
-
 void PDSS_ConstVol::initThermo()
 {
     PDSS::initThermo();
-    if (m_input.hasKey("molar-volume")) {
+    if (m_input.hasKey("density")) {
+        setMolarVolume(m_mw / m_input.convert("density", "kg/m^3"));
+    } else if (m_input.hasKey("molar-density")) {
+        setMolarVolume(1.0 / m_input.convert("molar-density", "kmol/m^3"));
+    } else if (m_input.hasKey("molar-volume")) {
         setMolarVolume(m_input.convert("molar-volume", "m^3/kmol"));
     }
     m_minTemp = m_spthermo->minTemp();
@@ -56,7 +35,14 @@ void PDSS_ConstVol::getParameters(AnyMap &eosNode) const
 {
     PDSS::getParameters(eosNode);
     eosNode["model"] = "constant-volume";
-    eosNode["molar-volume"].setQuantity(m_constMolarVolume, "m^3/kmol");
+    // Output volume information in a form consistent with the input
+    if (m_input.hasKey("density")) {
+        eosNode["density"].setQuantity(m_mw / m_constMolarVolume, "kg/m^3");
+    } else if (m_input.hasKey("molar-density")) {
+        eosNode["molar-density"].setQuantity(1.0 / m_constMolarVolume, "kmol/m^3");
+    } else {
+        eosNode["molar-volume"].setQuantity(m_constMolarVolume, "m^3/kmol");
+    }
 }
 
 doublereal PDSS_ConstVol::intEnergy_mole() const
@@ -98,12 +84,13 @@ void PDSS_ConstVol::setState_TP(doublereal temp, doublereal pres)
     setPressure(pres);
 }
 
-void PDSS_ConstVol::setState_TR(doublereal temp, doublereal rho)
+void PDSS_ConstVol::setState_TR(double temp, double rho)
 {
-    doublereal rhoStored = m_mw / m_constMolarVolume;
+    warn_deprecated("PDSS_ConstVol::setState_TR", "To be removed after Cantera 3.0");
+    double rhoStored = m_mw / m_constMolarVolume;
     if (fabs(rhoStored - rho) / (rhoStored + rho) > 1.0E-4) {
         throw CanteraError("PDSS_ConstVol::setState_TR",
-                           "Inconsistent supplied rho");
+                           "Inconsistent supplied density.");
     }
     setTemperature(temp);
 }

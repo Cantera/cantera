@@ -1,28 +1,44 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
+from __future__ import annotations
 
 from ._cantera import *
 import numpy as np
-from collections import OrderedDict
 import csv as _csv
+import importlib.metadata
 
-import pkg_resources
+_h5py = None
+def _import_h5py():
+    """
+    .. deprecated:: 3.0
 
-# avoid explicit dependence of cantera on h5py
-try:
-    pkg_resources.get_distribution('h5py')
-except pkg_resources.DistributionNotFound:
-    _h5py = ImportError('Method requires a working h5py installation.')
-else:
-    import h5py as _h5py
+        Function to be removed after Cantera 3.0, as ``h5py`` support will be removed.
+    """
+    # defer h5py import
+    global _h5py
+    if _h5py is not None:
+        return
 
-# avoid explicit dependence of cantera on pandas
-try:
-    pkg_resources.get_distribution('pandas')
-except pkg_resources.DistributionNotFound:
-    _pandas = ImportError('Method requires a working pandas installation.')
-else:
-    import pandas as _pandas
+    try:
+        importlib.metadata.version('h5py')
+    except importlib.metadata.PackageNotFoundError:
+        raise ImportError('Method requires a working h5py installation.')
+    else:
+        import h5py as _h5py
+
+
+_pandas = None
+def _import_pandas():
+    # defer import of pandas
+    global _pandas
+    if _pandas is not None:
+        return
+    try:
+        importlib.metadata.version('pandas')
+    except importlib.metadata.PackageNotFoundError:
+        raise ImportError('Method requires a working pandas installation.')
+    else:
+        import pandas as _pandas
 
 
 class Solution(Transport, Kinetics, ThermoPhase):
@@ -45,9 +61,8 @@ class Solution(Transport, Kinetics, ThermoPhase):
         gas = ct.Solution('gri30.yaml')
 
     If an input file defines multiple phases, the corresponding key in the
-    ``phases`` map (in YAML), ``name`` (in CTI), or ``id`` (in XML) can be used
-    to specify the desired phase via the ``name`` keyword argument of
-    the constructor::
+    ``phases`` map can be used to specify the desired phase via the ``name`` keyword
+    argument of the constructor::
 
         gas = ct.Solution('diamond.yaml', name='gas')
         diamond = ct.Solution('diamond.yaml', name='diamond')
@@ -63,9 +78,9 @@ class Solution(Transport, Kinetics, ThermoPhase):
     directly in Python::
 
         spec = ct.Species.list_from_file("gri30.yaml")
-        spec_gas = ct.Solution(thermo='IdealGas', species=spec)
+        spec_gas = ct.Solution(thermo='ideal-gas', species=spec)
         rxns = ct.Reaction.list_from_file("gri30.yaml", spec_gas)
-        gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+        gas = ct.Solution(thermo='ideal-tas', kinetics='gas',
                           species=spec, reactions=rxns, name='my_custom_name')
 
     where the ``thermo`` and ``kinetics`` keyword arguments are strings
@@ -209,11 +224,13 @@ class Quantity:
         >>> q3.P
         101325.0
     """
-    __slots__ = ("state", "_phase", "_id", "mass", "constant")
+    __slots__ = ("state", "_phase", "_id", "mass", "constant", "_weakref_proxy")
 
     def __init__(self, phase, mass=None, moles=None, constant='UV'):
         self.state = phase.TDY
         self._phase = phase
+        self._weakref_proxy = _WeakrefProxy()
+        phase._references[self._weakref_proxy] = True
 
         # A unique key to prevent adding phases with different species
         # definitions
@@ -350,7 +367,12 @@ for _attr in dir(Solution):
             setattr(Quantity, _attr, _prop(_attr))
 
 
-class SolutionArray:
+# A pure-Python class to store weakrefs to
+class _WeakrefProxy:
+    pass
+
+
+class SolutionArray(SolutionArrayBase):
     """
     A class providing a convenient interface for representing many thermodynamic
     states using the same `Solution` object and computing properties for that
@@ -437,20 +459,20 @@ class SolutionArray:
         >>> states.read_csv('somefile.csv')
 
     As an alternative to comma separated export and import, data extracted from
-    `SolutionArray` objects can also be saved to and restored from a HDF
-    container file using the `write_hdf`::
+    `SolutionArray` objects can also be saved to and restored from YAML and HDF
+    container files using the `save` function::
 
-        >>> states.write_hdf('somefile.h5', cols=('T', 'P', 'X'), group='some_key')
+        >>> states.save('somefile.yaml', id='some_key')
 
-    and `read_hdf` methods::
+    and `restore` methods::
 
         >>> states = ct.SolutionArray(gas)
-        >>> states.read_hdf('somefile.h5', key='some_key')
+        >>> states.restore('somefile.yaml', id='some_key')
 
-    For HDF export and import, the (optional) keyword argument ``group`` allows
-    for saving and accessing of multiple solutions in a single container file.
-    Note that `write_hdf` and `read_hdf` require a working installation of *h5py*.
-    The package *h5py* can be installed using pip or conda.
+    For YAML and HDF export and import, the keyword argument ``id`` allows for saving
+    and accessing of multiple solutions in a single container file.
+    Note that `save` and `restore` for HDF requires Cantera to be compiled with HDF
+    support, as it depends on external *HighFive* and *HDF5* libraries.
 
     :param phase: The `Solution` object used to compute the thermodynamic,
         kinetic, and transport properties
@@ -463,14 +485,14 @@ class SolutionArray:
 
     _scalar = [
         # From ThermoPhase
-        'mean_molecular_weight', 'P', 'T', 'density', 'density_mass',
+        'mean_molecular_weight', 'P', 'T', 'Te', 'density', 'density_mass',
         'density_mole', 'v', 'volume_mass', 'volume_mole', 'u',
         'int_energy_mole', 'int_energy_mass', 'h', 'enthalpy_mole',
         'enthalpy_mass', 's', 'entropy_mole', 'entropy_mass', 'g', 'gibbs_mole',
         'gibbs_mass', 'cv', 'cv_mole', 'cv_mass', 'cp', 'cp_mole', 'cp_mass',
         'critical_temperature', 'critical_pressure', 'critical_density',
         'P_sat', 'T_sat', 'isothermal_compressibility',
-        'thermal_expansion_coeff', 'electric_potential',
+        'thermal_expansion_coeff', 'sound_speed', 'electric_potential',
         # From Kinetics
         'heat_release_rate',
         # From Transport
@@ -484,18 +506,26 @@ class SolutionArray:
         'chemical_potentials', 'electrochemical_potentials', 'partial_molar_cp',
         'partial_molar_volumes', 'standard_enthalpies_RT',
         'standard_entropies_R', 'standard_int_energies_RT', 'standard_gibbs_RT',
-        'standard_cp_R',
+        'standard_cp_R', 'activities', 'activity_coefficients',
         # From Transport
         'mix_diff_coeffs', 'mix_diff_coeffs_mass', 'mix_diff_coeffs_mole',
-        'thermal_diff_coeffs'
+        'thermal_diff_coeffs', 'mobilities', 'species_viscosities',
     ]
 
     # From Kinetics (differs from Solution.n_species for Interface phases)
     _n_total_species = [
         'creation_rates', 'destruction_rates', 'net_production_rates',
+        'creation_rates_ddC', 'creation_rates_ddP', 'creation_rates_ddT',
+        'destruction_rates_ddC', 'destruction_rates_ddP', 'destruction_rates_ddT',
+        'net_production_rates_ddC', 'net_production_rates_ddP',
+        'net_production_rates_ddT'
     ]
 
-    _n_species2 = ['multi_diff_coeffs', 'binary_diff_coeffs']
+    _n_species2 = [
+        'multi_diff_coeffs', 'binary_diff_coeffs', 'creation_rates_ddX',
+        'destruction_rates_ddX', 'net_production_rates_ddX', 'creation_rates_ddCi',
+        'destruction_rates_ddCi', 'net_production_rates_ddCi'
+    ]
 
     _n_reactions = [
         'forward_rates_of_progress', 'reverse_rates_of_progress',
@@ -504,6 +534,13 @@ class SolutionArray:
         'delta_enthalpy', 'delta_gibbs', 'delta_entropy',
         'delta_standard_enthalpy', 'delta_standard_gibbs',
         'delta_standard_entropy', 'heat_production_rates',
+        'forward_rate_constants_ddC', 'forward_rate_constants_ddP',
+        'forward_rate_constants_ddT', 'forward_rates_of_progress_ddC',
+        'forward_rates_of_progress_ddP', 'forward_rates_of_progress_ddT',
+        'net_rates_of_progress_ddC', 'net_rates_of_progress_ddP',
+        'net_rates_of_progress_ddT', 'reverse_rates_of_progress_ddC',
+        'reverse_rates_of_progress_ddP', 'reverse_rates_of_progress_ddP',
+        'reverse_rates_of_progress_ddT', 'third_body_concentrations',
     ]
     _call_scalar = ['elemental_mass_fraction', 'elemental_mole_fraction']
 
@@ -517,10 +554,10 @@ class SolutionArray:
         # From Kinetics
         'n_total_species', 'n_reactions', 'n_phases', 'reaction_phase_index',
         'kinetics_species_index', 'reaction', 'reactions', 'modify_reaction',
-        'is_reversible', 'multiplier', 'set_multiplier', 'reaction_type',
-        'reaction_equation', 'reactants', 'products', 'reaction_equations',
+        'multiplier', 'set_multiplier', 'reaction_equations',
         'reactant_stoich_coeff', 'product_stoich_coeff',
-        'reactant_stoich_coeffs', 'product_stoich_coeffs',
+        'reactant_stoich_coeffs', 'product_stoich_coeffs', 'product_stoich_coeffs3',
+        'reactant_stoich_coeffs3', 'product_stoich_coeffs_reversible',
         # from Transport
         'transport_model',
     ]
@@ -530,58 +567,61 @@ class SolutionArray:
 
     _purefluid_scalar = ['Q']
 
-    def __init__(self, phase, shape=(0,), states=None, extra=None, meta=None):
-        self.__dict__['_extra'] = OrderedDict()
+    def __init__(self, phase, shape=(0,), states=None, extra=None, meta={}, init=True):
         self._phase = phase
-
-        if isinstance(shape, int):
-            shape = (shape,)
+        self._weakref_proxy = _WeakrefProxy()
+        phase._references[self._weakref_proxy] = True
+        if not init:
+            return
 
         if states is not None:
-            self._shape = np.shape(states)[:-1]
-            self._states = states
+            np_states = np.array(states)
+            self.shape = np_states.shape[:-1]
+            for ix, nd_ix in enumerate(self._indices):
+                self._set_state(ix, np_states[nd_ix])
+        elif isinstance(shape, int):
+            self.shape = (shape,)
         else:
-            self._shape = tuple(shape)
-            if len(shape) == 1:
-                S = [self._phase.state for _ in range(shape[0])]
-            else:
-                S = np.empty(shape + (2+self._phase.n_species,))
-                S[:] = self._phase.state
-            self._states = S
+            self.shape = tuple(shape)
 
-        if len(self._shape) == 1:
-            self._indices = list(range(self._shape[0]))
-            self._output_dummy = self._indices
-        else:
-            self._indices = list(np.ndindex(self._shape))
-            self._output_dummy = self._states[..., 0]
-
-        reserved = self.__dir__()
+        def check_extra(name):
+            if not isinstance(name, str):
+                raise TypeError(
+                    f"Unable to create extra component, passed value '{name!r}' "
+                    "is not a string")
+            if name in self.__dir__():
+                raise ValueError(
+                    f"Unable to create extra component '{name}': name is already "
+                    "used by SolutionArray objects.")
 
         if isinstance(extra, dict):
             for name, v in extra.items():
-                if name in reserved:
-                    raise ValueError(
-                        "Unable to create extra column '{}': name is already "
-                        "used by SolutionArray objects.".format(name))
+                check_extra(name)
+                ndim = self.ndim
                 if not np.shape(v):
-                    self._extra[name] = np.full(self._shape, v)
-                elif (self._shape[0] == 1
-                      or np.array(v).shape[:len(self._shape)] == self._shape):
+                    # initialize with scalar
+                    self._add_extra(name)
+                    self._set_component(name, v)
+                elif (self.shape[0] == 1 or np.array(v).shape[:ndim] == self.shape):
                     arr = np.array(v)
                     if arr.dtype == object:
                         raise ValueError(
-                            "Unable to create extra column '{}': data type "
-                            "'object' is not supported.".format(name))
-                    if self._shape[0] == 1 and len(arr) > 1:
-                        arr = arr[np.newaxis, :]
-                    self._extra[name] = arr
+                            f"Unable to create extra component '{name}': data type "
+                            "'object' is not supported.")
+                    self._add_extra(name)
+                    if len(arr):
+                        if arr.ndim >= ndim and arr.shape[:ndim] == self.shape:
+                            # direct assignment of multi-column component
+                            shape = (self.size,) + arr.shape[ndim:]
+                            self._set_component(name, arr.reshape(shape))
+                        else:
+                            self._set_component(name, arr)
                 else:
-                    raise ValueError("Unable to map extra SolutionArray "
-                                     "input named {!r}".format(name))
+                    raise ValueError(
+                        f"Unable to map extra SolutionArray component named {name!r}")
         elif extra is not None:
-            if self._shape != (0,):
-                raise ValueError("Initial values for extra properties must be "
+            if self.shape != (0,):
+                raise ValueError("Initial values for extra components must be "
                                  "supplied in a dictionary if the SolutionArray "
                                  "is not initially empty.")
             if isinstance(extra, np.ndarray):
@@ -593,67 +633,92 @@ class SolutionArray:
                 iter_extra = iter(extra)
             except TypeError:
                 raise ValueError(
-                    "Extra properties can be created by passing an iterable "
-                    "of names for the properties. If you want to supply initial "
-                    "values for the properties, use a dictionary whose keys are "
-                    "the names of the properties and values are the initial "
+                    "Extra components can be created by passing an iterable "
+                    "of names for the components. If you want to supply initial "
+                    "values for the components, use a dictionary whose keys are "
+                    "the names of the components and values are the initial "
                     "values.") from None
 
             for name in iter_extra:
-                if not isinstance(name, str):
-                    raise TypeError(
-                        "Unable to create extra column, passed value '{!r}' "
-                        "is not a string".format(name))
-                if name in reserved:
-                    raise ValueError(
-                        "Unable to create extra column '{}': name is already "
-                        "used by SolutionArray objects.".format(name))
-                self._extra[name] = np.empty(shape=(0,))
-
-        if meta is None:
-            self._meta = {}
-        else:
-            self._meta = meta
+                check_extra(name)
+                self._add_extra(name)
 
     def __getitem__(self, index):
-        states = self._states[index]
-        extra = OrderedDict({key: val[index] for key, val in self._extra.items()})
-        if(isinstance(states, list)):
-            num_rows = len(states)
-            if num_rows == 0:
-                states = None
-            return SolutionArray(self._phase, num_rows, states, extra=extra)
+        selected = np.arange(self.size).reshape(self.shape)[index]
+        out = SolutionArray(self._phase, init=False)
+        if hasattr(selected, "__len__"):
+            self._share(out, selected)
         else:
-            shape = states.shape[:-1]
-            return SolutionArray(self._phase, shape, states, extra=extra)
+            self._share(out, [selected])
+        out.shape = selected.shape
+        return out
 
     def __getattr__(self, name):
-        if name in self._extra:
-            return self._extra[name]
+        if self._has_component(name):
+            out = self._get_component(name)
+            out.setflags(write=False)
+            return out.reshape(self.shape + out.shape[1:])
         elif name in self.__dict__:
             super().__getattr__(name)
         else:
-            raise AttributeError("'{}' object has no attribute '{}'".format(
-                self.__class__.__name__, name))
+            raise AttributeError(
+                f"{self.__class__.__name__!r} object has no attribute '{name}'")
 
     def __setattr__(self, name, value):
-        if name in self._extra:
+        if self._has_extra(name):
+            if not self.shape:
+                # scalar
+                self._set_component(name, [value])
+                return
             new = np.array(value)
             if not new.shape:
                 # maintain shape of extra entry
-                new = np.full(self._extra[name].shape, value)
-            elif new.shape[:len(self._shape)] != self._shape:
+                new = np.full(self.__getattr__(name).shape, value)
+            elif new.shape[:len(self.shape)] != self.shape:
                 raise ValueError(
-                    "Incompatible shapes for extra column '{}': cannot assign "
-                    "value with shape {} to SolutionArray with shape {}"
-                    "".format(name, new.shape, self._shape))
-            super().__setattr__(name, new)
+                    f"Incompatible shapes for extra column '{name}': cannot assign "
+                    f"value with shape {new.shape} to SolutionArray with shape "
+                    f"{self.shape}")
+            self._set_component(name, new)
         else:
             super().__setattr__(name, value)
 
     def __call__(self, *species):
-        return SolutionArray(self._phase[species], states=self._states,
-                             extra=self._extra)
+        out = SolutionArray(self._phase[species], init=False)
+        self._share(out, range(self.size))
+        out.shape = self.shape
+        return out
+
+    def __len__(self) -> int:
+        return self.shape[0]
+
+    @property
+    def ndim(self) -> int:
+        """The number of dimensions in the SolutionArray.
+
+        .. versionadded:: 3.0
+        """
+        return len(self.shape)
+
+    @property
+    def shape(self) -> tuple[int, ...]:
+        """The shape of the SolutionArray.
+
+        .. versionadded:: 3.0
+
+        :return: A tuple of integers with the number of elements in each dimension.
+        """
+        return self._api_shape()
+
+    @shape.setter
+    def shape(self, shp):
+        self._set_api_shape(shp)
+        if len(shp) == 1:
+            self._indices = list(range(shp[0]))
+            self._output_dummy = self._indices
+        else:
+            self._indices = list(np.ndindex(shp))
+            self._output_dummy = np.empty(shp)
 
     def append(self, state=None, normalize=True, **kwargs):
         """
@@ -681,12 +746,12 @@ class SolutionArray:
         are truncated and the mass or mole fractions sum up to 1.0. If this
         is not desired, the ``normalize`` argument can be set to ``False``.
         """
-        if len(self._shape) != 1:
+        if len(self.shape) != 1:
             raise IndexError("Can only append to 1D SolutionArray")
 
         # This check must go before we start appending to any arrays so that
         # array lengths don't get out of sync.
-        missing_extra_kwargs = self._extra.keys() - kwargs.keys()
+        missing_extra_kwargs = set(self.extra) - set(kwargs.keys())
         if missing_extra_kwargs:
             raise TypeError(
                 "Missing keyword arguments for extra values: "
@@ -700,7 +765,7 @@ class SolutionArray:
         # storage so that appending can be done at the end of the function
         # all at once.
         extra_temp = {}
-        for name in self._extra:
+        for name in self.extra:
             extra_temp[name] = kwargs.pop(name)
 
         if state is not None:
@@ -709,9 +774,7 @@ class SolutionArray:
         elif len(kwargs) == 1:
             attr, value = kwargs.popitem()
             if frozenset(attr) not in self._phase._full_states:
-                raise KeyError(
-                    "'{}' does not specify a full thermodynamic state".format(attr)
-                )
+                raise KeyError(f"'{attr}' does not specify a full thermodynamic state")
             if normalize or attr.endswith("Q"):
                 setattr(self._phase, attr, value)
             else:
@@ -741,38 +804,8 @@ class SolutionArray:
                 attr = attr[:-1]
                 setattr(self._phase, attr, list(kwargs.values()))
 
-        for name, value in self._extra.items():
-            new = extra_temp[name]
-            if len(value):
-                if (value.ndim == 1 and hasattr(new, '__len__') and
-                    not isinstance(new, str)):
-                    raise ValueError(
-                        "Encountered incompatible value '{}' for extra column '{}'."
-                        "".format(new, name))
-                elif value.ndim > 1 and value.shape[1:] != np.array(new).shape:
-                    raise ValueError(
-                        "Shape of new element does not match existing extra "
-                        "column '{}'".format(name))
-            # Casting to a list before appending is ~5x faster than using
-            # np.append when appending a single item.
-            v = value.tolist()
-            v.append(new)
-            extra_temp[name] = np.array(v)
-
-        for name, value in extra_temp.items():
-            self._extra[name] = value
-
-        self._states.append(self._phase.state)
+        self._append(self._phase.state, extra_temp)
         self._indices.append(len(self._indices))
-        self._shape = (len(self._indices),)
-
-    @property
-    def meta(self):
-        """
-        Dictionary holding information describing the `SolutionArray`. Metadata
-        should be provided for the creation of `SolutionArray` objects.
-        """
-        return self._meta
 
     def sort(self, col, reverse=False):
         """
@@ -781,22 +814,26 @@ class SolutionArray:
         :param col: Column that is used to sort the SolutionArray.
         :param reverse: If True, the sorted list is reversed (descending order).
         """
-        if len(self._shape) != 1:
+        if len(self.shape) != 1:
             raise TypeError("sort only works for 1D SolutionArray objects")
 
         indices = np.argsort(getattr(self, col))
         if reverse:
             indices = indices[::-1]
-        self._states = [self._states[ix] for ix in indices]
-        for k, v in self._extra.items():
-            self._extra[k] = v[indices]
+        states = [self._get_state(ix) for ix in indices]
+        for loc in range(self.size):
+            self._set_state(loc, states[loc])
+
+        for k in self.extra:
+            v = self._get_component(k)
+            self._set_component(k, v[indices])
 
     def equilibrate(self, *args, **kwargs):
         """ See `ThermoPhase.equilibrate` """
-        for index in self._indices:
-            self._phase.state = self._states[index]
+        for loc in range(self.size):
+            self._set_loc(loc)
             self._phase.equilibrate(*args, **kwargs)
-            self._states[index][:] = self._phase.state
+            self._update_state(loc)
 
     def restore_data(self, data, normalize=True):
         """
@@ -828,7 +865,7 @@ class SolutionArray:
         shape = data[labels[0]].shape
         if not shape:
             # ensure that data with a single entry have appropriate dimensions
-            data = OrderedDict([(k, np.array([v])) for k, v in data.items()])
+            data = {k: np.array([v]) for k, v in data.items()}
         rows = data[labels[0]].shape[0]
 
         for col in data.values():
@@ -841,12 +878,12 @@ class SolutionArray:
                                  "all data entries to have a consistent "
                                  "first dimension")
 
-        if self._shape != (0,) and self._shape != (rows,):
+        if self.shape != (0,) and self.shape != (rows,):
             raise ValueError(
                 "incompatible dimensions ({} vs. {}): the receiving "
                 "SolutionArray object either needs to be empty "
                 "or have a length that matches data rows "
-                "to be restored".format(self._shape[0], rows)
+                "to be restored".format(self.shape[0], rows)
             )
 
         # get full state information (may differ depending on ThermoPhase type)
@@ -910,12 +947,14 @@ class SolutionArray:
 
         # determine suitable thermo properties for reconstruction
         basis = 'mass' if self.basis == 'mass' else 'mole'
-        prop = {'T': ('T'), 'P': ('P'), 'Q': ('Q'),
-                'D': ('density', 'density_{}'.format(basis)),
-                'U': ('u', 'int_energy_{}'.format(basis)),
-                'V': ('v', 'volume_{}'.format(basis)),
-                'H': ('h', 'enthalpy_{}'.format(basis)),
-                'S': ('s', 'entropy_{}'.format(basis))}
+        prop = {"T": ("T", "temperature"),
+                "P": ("P", "pressure"),
+                "Q": ("Q", "quality"),
+                "D": ("D", "density", f"density_{basis}"),
+                "U": ("u", f"int_energy_{basis}"),
+                "V": ("v", f"volume_{basis}"),
+                "H": ("h", f"enthalpy_{basis}"),
+                "S": ("s", f"entropy_{basis}")}
         for st in states:
             # identify property specifiers
             state = [{st[i]: p for p in prop[st[i]] if p in labels}
@@ -947,25 +986,24 @@ class SolutionArray:
         exclude += ['X', 'Y']
         extra = {lab: data[lab] for lab in labels
                  if lab not in exclude}
-        if len(self._extra):
-            extra_lists = {k: extra[k] for k in self._extra}
+        if len(self.extra):
+            extra_lists = {k: extra[k] for k in self.extra}
         else:
             extra_lists = extra
 
         # ensure that SolutionArray accommodates dimensions
-        if self._shape == (0,):
-            self._states = [self._phase.state] * rows
-            self._indices = list(range(rows))
-            self._output_dummy = self._indices
-            self._shape = (rows,)
+        if self.shape == (0,):
+            self.shape = (rows,)
+        else:
+            self.resize(np.prod(self.shape))
 
         # restore data
         if normalize or mode.endswith("Q"):
-            for i in self._indices:
+            for loc, i in enumerate(self._indices):
                 setattr(self._phase, mode, [st[i, ...] for st in state_data])
-                self._states[i] = self._phase.state
+                self._update_state(loc)
         else:
-            for i in self._indices:
+            for loc, i in enumerate(self._indices):
                 if mode.endswith("X"):
                     self._phase.set_unnormalized_mole_fractions(
                         [st[i, ...] for st in state_data][2]
@@ -980,9 +1018,12 @@ class SolutionArray:
                             [st[i, ...] for st in state_data[:2]])
                 else:
                     setattr(self._phase, mode, [st[i, ...] for st in state_data])
-                self._states[i] = self._phase.state
+                self._update_state(loc)
 
-        self._extra = extra_lists
+        for key, value in extra_lists.items():
+            if not self._has_component(key):
+                self._add_extra(key)
+            self._set_component(key, value)
 
     def set_equivalence_ratio(self, phi, *args, **kwargs):
         """
@@ -992,40 +1033,38 @@ class SolutionArray:
         to be matched to the `SolutionArray`.
         """
 
-        # If ``phi`` is lower-dimensional than the SolutionArray's  shape (for 
-        # example, a scalar), broadcast it to have the right number of 
+        # If ``phi`` is lower-dimensional than the SolutionArray's shape (for
+        # example, a scalar), broadcast it to have the right number of
         # dimensions.
         phi, _ = np.broadcast_arrays(phi, self._output_dummy)
 
-        for index in self._indices:
-            self._phase.state = self._states[index]
+        for loc, index in enumerate(self._indices):
+            self._set_loc(loc)
             self._phase.set_equivalence_ratio(phi[index], *args, **kwargs)
-            self._states[index][:] = self._phase.state
+            self._update_state(loc)
 
     def set_mixture_fraction(self, mixture_fraction, *args, **kwargs):
         """
         See `ThermoPhase.set_mixture_fraction`
 
-        Note that ``mixture_fraction`` either needs to be a scalar value or 
+        Note that ``mixture_fraction`` either needs to be a scalar value or
         dimensions have to be matched to the `SolutionArray`.
         """
 
-        # If ``mixture_fraction`` is lower-dimensional than the SolutionArray's 
-        # shape (for example, a scalar), broadcast it to have the right number 
+        # If ``mixture_fraction`` is lower-dimensional than the SolutionArray's
+        # shape (for example, a scalar), broadcast it to have the right number
         # of dimensions.
-        mixture_fraction, _ = np.broadcast_arrays(mixture_fraction, 
-            self._output_dummy)
+        mixture_fraction, _ = np.broadcast_arrays(mixture_fraction, self._output_dummy)
 
-        for index in self._indices:
-            self._phase.state = self._states[index]
-            self._phase.set_mixture_fraction(mixture_fraction[index], *args, 
-                **kwargs)
-            self._states[index][:] = self._phase.state
+        for loc, index in enumerate(self._indices):
+            self._set_loc(loc)
+            self._phase.set_mixture_fraction(mixture_fraction[index], *args, **kwargs)
+            self._update_state(loc)
 
     def collect_data(self, cols=None, tabular=False, threshold=0, species=None):
         """
-        Returns the data specified by ``cols`` in an ordered dictionary, where
-        keys correspond to `SolutionArray` attributes to be exported.
+        Returns the data specified by ``cols`` in a dictionary, where keys correspond
+        to `SolutionArray` attributes to be exported.
 
         :param cols: A list of any properties of the solution that are scalars
             or which have a value for each species or reaction. If species names
@@ -1044,7 +1083,7 @@ class SolutionArray:
         :param species: Specifies whether to use mass ('Y') or mole ('X')
             fractions for individual species specified in 'cols'
         """
-        if tabular and len(self._shape) != 1:
+        if tabular and len(self.shape) != 1:
             raise AttributeError("Tabular output of collect_data only works "
                                  "for 1D SolutionArray")
 
@@ -1061,7 +1100,7 @@ class SolutionArray:
         expanded_cols = []
         for c in cols:
             if c == 'extra':
-                expanded_cols.extend(self._extra)
+                expanded_cols.extend(self.extra)
             else:
                 expanded_cols.append(c)
 
@@ -1078,7 +1117,7 @@ class SolutionArray:
                              for r in self.reaction_equations()]
             elif c in species_names:
                 collabels = ['{}_{}'.format(species, c)]
-            elif c in self._extra and d.ndim > 1:
+            elif c in self.extra and d.ndim > 1:
                 raise NotImplementedError(
                     "Detected multi-dimensional extra column '{}': "
                     "tabular output is not supported.".format(c))
@@ -1098,16 +1137,15 @@ class SolutionArray:
                 return [(collabels[0], d)]
 
         data = []
-        attrs = self.__dir__() + list(self._extra.keys())
+        attrs = self.__dir__() + self.component_names
         species_names = set(self.species_names)
         for c in expanded_cols:
             if c in species_names:
-
                 d = getattr(self(c), species)
             elif c in attrs:
                 d = getattr(self, c)
             else:
-                raise CanteraError('property "{}" not supported'.format(c))
+                raise AttributeError(f"Component '{c}' not supported")
 
             if tabular:
                 data += split(c, d)
@@ -1115,7 +1153,7 @@ class SolutionArray:
             else:
                 data += [(c, d)]
 
-        return OrderedDict(data)
+        return dict(data)
 
     def write_csv(self, filename, cols=None, *args, **kwargs):
         """
@@ -1147,7 +1185,7 @@ class SolutionArray:
             # bytestring needs to be converted for columns containing strings
             data = np.genfromtxt(filename, delimiter=',', deletechars='',
                                  dtype=None, names=True)
-            data_dict = OrderedDict()
+            data_dict = {}
             for label in data.dtype.names:
                 if data[label].dtype.type == np.bytes_:
                     data_dict[label] = data[label].astype('U')
@@ -1157,8 +1195,7 @@ class SolutionArray:
             # the 'encoding' parameter introduced with NumPy 1.14 simplifies import
             data = np.genfromtxt(filename, delimiter=',', deletechars='',
                                  dtype=None, names=True, encoding=None)
-            data_dict = OrderedDict({label: data[label]
-                                     for label in data.dtype.names})
+            data_dict = {label: data[label] for label in data.dtype.names}
         self.restore_data(data_dict, normalize)
 
     def to_pandas(self, cols=None, *args, **kwargs):
@@ -1169,9 +1206,8 @@ class SolutionArray:
         only with 1D `SolutionArray` objects and requires a working *pandas*
         installation. Use pip or conda to install ``pandas`` to enable this method.
         """
-
-        if isinstance(_pandas, ImportError):
-            raise _pandas
+        if not _pandas:
+            _import_pandas()
 
         data_dict = self.collect_data(*args, cols=cols, tabular=True, **kwargs)
         data = np.hstack([d[:, np.newaxis] for d in data_dict.values()])
@@ -1182,7 +1218,7 @@ class SolutionArray:
         """
         Restores `SolutionArray` data from a `pandas.DataFrame` ``df``.
 
-        This method is intendend for loading of data that were previously
+        This method is intended for loading of data that were previously
         exported by `to_pandas`. The method requires a working *pandas*
         installation. The package ``pandas`` can be installed using pip or conda.
 
@@ -1193,10 +1229,57 @@ class SolutionArray:
         data = df.to_numpy(dtype=float)
         labels = list(df.columns)
 
-        data_dict = OrderedDict()
+        data_dict = {}
         for i, label in enumerate(labels):
             data_dict[label] = data[:, i]
         self.restore_data(data_dict, normalize)
+
+    def save(self, fname, name=None, key=None, description=None,
+             overwrite=False, compression=0):
+        """
+        Save current `SolutionArray` and header to a container file.
+
+        :param fname:
+            Name of output container file (YAML or HDF)
+        :param name:
+            Identifier of root location within the container file; the root location
+            contains header data and a subgroup holding the actual `SolutionArray`.
+        :param key:
+            Name identifier for the subgroup holding the `SolutionArray` data and
+            metadata objects. If `None`, the subgroup name default to ``data``.
+        :param description:
+            Custom comment describing the dataset to be stored.
+        :param overwrite:
+            Force overwrite if name exists; optional (default=`False`)
+        :param compression:
+            Compression level (0-9); optional (default=0; HDF only)
+
+        .. versionadded:: 3.0
+        """
+        self._cxx_save(fname, name, key, description, overwrite, compression)
+
+    def restore(self, fname, name=None, key=None):
+        """
+        Retrieve `SolutionArray` and header from a container file.
+
+        :param fname:
+            Name of container file (YAML or HDF)
+        :param name:
+            Identifier of root location within the container file; the root location
+            contains header data and a subgroup holding the actual `SolutionArray`.
+        :param key:
+            Name identifier for the subgroup holding the `SolutionArray` data and
+            metadata objects.
+        :return:
+            Dictionary holding `SolutionArray` meta data.
+
+        .. versionadded:: 3.0
+        """
+        meta = self._cxx_restore(fname, name, key)
+
+        # ensure self._indices and self._output_dummy are set
+        self.shape = self._api_shape()
+        return meta
 
     def write_hdf(self, filename, *args, cols=None, group=None, subgroup=None,
                   attrs={}, mode='a', append=False,
@@ -1265,62 +1348,21 @@ class SolutionArray:
         `collect_data`; see `collect_data` for further information. This method
         requires a working installation of *h5py* (``h5py`` can be installed using
         pip or conda).
+
+        .. deprecated:: 3.0
+
+            Method to be removed after Cantera 3.0; use `save` instead. Note that
+            the call is redirected to `save` in order to prevent the creation of a file
+            with legacy HDF format.
         """
-        if isinstance(_h5py, ImportError):
-            raise _h5py
+        warnings.warn("Method to be removed after Cantera 3.0; use 'save' instead.\n"
+            "Note that the call is redirected to 'save' in order to prevent the "
+            "creation of a file with legacy HDF format;\nas a consequence, "
+            "some options are no longer supported.", DeprecationWarning)
 
-        # collect data
-        data = self.collect_data(*args, cols=cols, **kwargs)
-
-        hdf_kwargs = {'compression': compression,
-                      'compression_opts': compression_opts}
-        hdf_kwargs = {k: v for k, v in hdf_kwargs.items() if v is not None}
-
-        # save to container file
-        with _h5py.File(filename, mode) as hdf:
-
-            # check existence of tagged item
-            if not group:
-                # add group with default name
-                group = 'group{}'.format(len(hdf.keys()))
-                root = hdf.create_group(group)
-            elif group not in hdf.keys():
-                # add group with custom name
-                root = hdf.create_group(group)
-            elif append and subgroup is not None:
-                # add subgroup to existing subgroup(s)
-                root = hdf[group]
-            else:
-                # reset data in existing group
-                root = hdf[group]
-                for sub in root.keys():
-                    del root[sub]
-
-            # save attributes
-            for attr, value in attrs.items():
-                root.attrs[attr] = value
-
-            # add subgroup if specified
-            if subgroup is not None:
-                dgroup = root.create_group(subgroup)
-            else:
-                dgroup = root
-
-            # add subgroup containing information on gas
-            sol = dgroup.create_group('phase')
-            sol.attrs['name'] = self.name
-            sol.attrs['source'] = self.source
-
-            # store SolutionArray data
-            for key, val in self._meta.items():
-                dgroup.attrs[key] = val
-            for header, value in data.items():
-                if value.dtype.type == np.str_:
-                    dgroup.create_dataset(header, data=value.astype('S'),
-                                          **hdf_kwargs)
-                else:
-                    dgroup.create_dataset(header, data=value, **hdf_kwargs)
-
+        if group is None:
+            raise KeyError("Missing required parameter 'group'.")
+        self.save(filename, name=group, key=subgroup)
         return group
 
     def read_hdf(self, filename, group=None, subgroup=None, force=False, normalize=True):
@@ -1349,9 +1391,18 @@ class SolutionArray:
 
         The method imports data using `restore_data` and requires a working
         installation of *h5py* (``h5py`` can be installed using pip or conda).
+
+        .. deprecated:: 3.0
+
+            Method to be removed after Cantera 3.0; use `restore` instead. After
+            Cantera 3.0, HDF import using ``h5py`` will be replaced by native
+            support based on C++ ``HighFive`` and ``HDF5`` libraries.
         """
-        if isinstance(_h5py, ImportError):
-            raise _h5py
+        if _h5py is None:
+            _import_h5py()
+
+        warnings.warn("Method to be removed after Cantera 3.0; use 'restore' instead.",
+            DeprecationWarning)
 
         with _h5py.File(filename, 'r') as hdf:
 
@@ -1370,13 +1421,13 @@ class SolutionArray:
             root = hdf[group]
 
             # identify subgroup
-            sub_names = [key for key, value in root.items()
-                         if isinstance(value, _h5py.Group)]
-            if not len(sub_names):
-                msg = "HDF group '{}' does not contain valid data"
-                raise IOError(msg.format(group))
-
             if subgroup is not None:
+                sub_names = [key for key, value in root.items()
+                             if isinstance(value, _h5py.Group)]
+                if not len(sub_names):
+                    msg = "HDF group '{}' does not contain valid data"
+                    raise IOError(msg.format(group))
+
                 if subgroup not in sub_names:
                     msg = ("HDF file does not contain data set '{}' within "
                            "group '{}'; available data sets are: {}")
@@ -1390,34 +1441,56 @@ class SolutionArray:
             def strip_ext(source):
                 """Strip extension if source identifies a file name"""
                 out = source
-                for ext in ['.yml', '.yaml', '.xml', '.cti']:
+                for ext in ('.yml', '.yaml'):
                     if source.endswith(ext):
                         out = '.'.join(source.split('.')[:-1])
                         break
                 return out
 
-            # ensure that mechanisms are matching
-            sol_source = strip_ext(dgroup['phase'].attrs['source'])
-            source = strip_ext(self.source)
-            if sol_source != source and not force:
-                msg = ("Sources of thermodynamic phases do not match: '{}' vs "
-                       "'{}'; use option 'force' to override this error.")
-                raise IOError(msg.format(sol_source, source))
-
             # load metadata
-            self._meta = dict(dgroup.attrs.items())
+            meta = dict(dgroup.attrs.items())
+            for name, value in dgroup.items():
+                # support one level of recursion
+                if isinstance(value, _h5py.Group):
+                    meta[name] = dict(value.attrs.items())
+
+            if "generator" in root_attrs or "generator" in meta:
+                raise IOError("Unable to read Cantera 3.0 HDF format with deprecated "
+                              "'read_hdf' method; use 'restore' instead.")
+
+            # ensure that mechanisms are matching
+            if "phase" in dgroup:
+                sol_source = strip_ext(dgroup['phase'].attrs['source']).split("/")[-1]
+                source = strip_ext(self.source)
+                if sol_source != source and not force:
+                    msg = ("Sources of thermodynamic phases do not match: '{}' vs "
+                        "'{}'; use option 'force' to override this error.")
+                    raise IOError(msg.format(sol_source, source))
+
+            self.meta = meta
 
             # load data
-            data = OrderedDict()
+            data = {}
             for name, value in dgroup.items():
-                if name == 'phase':
+                if isinstance(value, _h5py.Group):
                     continue
                 elif value.dtype.type == np.bytes_:
                     data[name] = np.array(value).astype('U')
                 else:
                     data[name] = np.array(value)
 
-        self.restore_data(data, normalize)
+        try:
+            self.restore_data(data, normalize)
+        except ValueError as error:
+            if "surface" in self._phase.thermo_model:
+                # legacy HDF format uses TDX state information, which is incomplete
+                # for surfaces phases (should be TPX or TPY as density is constant)
+                raise IOError(
+                    f"Unable to load surface phase '{subgroup}' from legacy HDF "
+                    "format (incomplete phase definition); use 'restore' instead."
+                ) from None
+            else:
+                raise error
 
         return root_attrs
 
@@ -1432,20 +1505,20 @@ def _state2_prop(name, doc_source):
     # Factory for creating properties which consist of a tuple of two variables,
     # such as 'TP' or 'SV'
     def getter(self):
-        a = np.empty(self._shape)
-        b = np.empty(self._shape)
-        for index in self._indices:
-            self._phase.state = self._states[index]
+        a = np.empty(self.shape)
+        b = np.empty(self.shape)
+        for loc, index in enumerate(self._indices):
+            self._set_loc(loc)
             a[index], b[index] = getattr(self._phase, name)
         return a, b
 
     def setter(self, AB):
         assert len(AB) == 2, "Expected 2 elements, got {}".format(len(AB))
         A, B, _ = np.broadcast_arrays(AB[0], AB[1], self._output_dummy)
-        for index in self._indices:
-            self._phase.state = self._states[index]
+        for loc, index in enumerate(self._indices):
+            self._set_loc(loc)
             setattr(self._phase, name, (A[index], B[index]))
-            self._states[index][:] = self._phase.state
+            self._update_state(loc)
 
     return getter, setter
 
@@ -1454,14 +1527,14 @@ def _state3_prop(name, doc_source, scalar=False):
     # Factory for creating properties which consist of a tuple of three
     # variables, such as 'TPY' or 'UVX'
     def getter(self):
-        a = np.empty(self._shape)
-        b = np.empty(self._shape)
+        a = np.empty(self.shape)
+        b = np.empty(self.shape)
         if scalar:
-            c = np.empty(self._shape)
+            c = np.empty(self.shape)
         else:
-            c = np.empty(self._shape + (self._phase.n_selected_species,))
-        for index in self._indices:
-            self._phase.state = self._states[index]
+            c = np.empty(self.shape + (self._phase.n_selected_species,))
+        for loc, index in enumerate(self._indices):
+            self._set_loc(loc)
             a[index], b[index], c[index] = getattr(self._phase, name)
         return a, b, c
 
@@ -1471,18 +1544,18 @@ def _state3_prop(name, doc_source, scalar=False):
         XY = ABC[2] # composition
         if len(np.shape(XY)) < 2:
             # composition is a single array (or string or dict)
-            for index in self._indices:
-                self._phase.state = self._states[index]
+            for loc, index in enumerate(self._indices):
+                self._set_loc(loc)
                 setattr(self._phase, name, (A[index], B[index], XY))
-                self._states[index][:] = self._phase.state
+                self._update_state(loc)
         else:
             # composition is an array with trailing dimension n_species
-            C = np.empty(self._shape + (self._phase.n_selected_species,))
+            C = np.empty(self.shape + (self._phase.n_selected_species,))
             C[:] = XY
-            for index in self._indices:
-                self._phase.state = self._states[index]
+            for loc, index in enumerate(self._indices):
+                self._set_loc(loc)
                 setattr(self._phase, name, (A[index], B[index], C[index]))
-                self._states[index][:] = self._phase.state
+                self._update_state(loc)
 
     return getter, setter
 
@@ -1516,33 +1589,33 @@ def _make_functions():
     # Functions which define empty output arrays of an appropriate size for
     # different properties
     def empty_scalar(self):
-        return np.empty(self._shape)
+        return np.empty(self.shape)
 
     def empty_strings(self):
         # The maximum length of strings assigned by built-in methods is
         # currently limited to 50 characters; an attempt to assign longer
         # character arrays will result in truncated strings.
-        return np.empty(self._shape, dtype='U50')
+        return np.empty(self.shape, dtype='U50')
 
     def empty_species(self):
-        return np.empty(self._shape + (self._phase.n_selected_species,))
+        return np.empty(self.shape + (self._phase.n_selected_species,))
 
     def empty_total_species(self):
-        return np.empty(self._shape + (self._phase.n_total_species,))
+        return np.empty(self.shape + (self._phase.n_total_species,))
 
     def empty_species2(self):
-        return np.empty(self._shape + (self._phase.n_species,
+        return np.empty(self.shape + (self._phase.n_species,
                                        self._phase.n_species))
 
     def empty_reactions(self):
-        return np.empty(self._shape + (self._phase.n_reactions,))
+        return np.empty(self.shape + (self._phase.n_reactions,))
 
     # Factory for creating read-only properties
     def make_prop(name, get_container, doc_source):
         def getter(self):
             v = get_container(self)
-            for index in self._indices:
-                self._phase.state = self._states[index]
+            for loc, index in enumerate(self._indices):
+                self._set_loc(loc)
                 v[index] = getattr(self._phase, name)
             return v
         return property(getter, doc=getattr(doc_source, name).__doc__)
@@ -1576,8 +1649,8 @@ def _make_functions():
     def caller(name, get_container):
         def wrapper(self, *args, **kwargs):
             v = get_container(self)
-            for index in self._indices:
-                self._phase.state = self._states[index]
+            for loc, index in enumerate(self._indices):
+                self._set_loc(loc)
                 v[index] = getattr(self._phase, name)(*args, **kwargs)
             return v
         return wrapper

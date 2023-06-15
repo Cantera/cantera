@@ -1,4 +1,4 @@
-include @tmpl_Cantera_dot_mak@
+include @make_Cantera_dot_mak@
 
 F90=@F90@
 RM=rm -f
@@ -13,7 +13,7 @@ OBJS=$(subst .f90,.o,$(SRCS))
 all: @make_target@
 
 @make_target@: $(OBJS)
-	$(F90) $(LDFLAGS) -o @make_target@ $(OBJS) $(LDLIBS)
+	$(F90) $(LDFLAGS) -o @make_target@ $(OBJS) $(LDLIBS) $(CANTERA_LIBS)
 
 %.o : %.f90
 	$(F90) -c $< @FORTRANMODDIRPREFIX@$(F90MODDIR) $(F90FLAGS)

@@ -25,10 +25,10 @@ namespace Cantera
 class UnityLewisTransport : public MixTransport
 {
 public:
-//    UnityLewisTransport() {}
+    UnityLewisTransport() = default;
 
-    virtual std::string transportType() const {
-        return "UnityLewis";
+    virtual std::string transportModel() const {
+        return "unity-Lewis-number";
     }
 
     //! Returns the unity Lewis number approximation based diffusion

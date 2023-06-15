@@ -103,17 +103,17 @@ public:
 
 protected:
     //! Base temperature
-    doublereal m_t0;
+    double m_t0 = 0.0;
     //! Dimensionless value of the heat capacity
-    doublereal m_cp0_R;
+    double m_cp0_R = 0.0;
     //! dimensionless value of the enthaply at t0
-    doublereal m_h0_R;
+    double m_h0_R = 0.0;
     //! Dimensionless value of the entropy at t0
-    doublereal m_s0_R;
+    double m_s0_R = 0.0;
     //! log of the t0 value
-    doublereal m_logt0;
+    double m_logt0 = 0.0;
     //! Original value of h0_R, restored by calling resetHf298()
-    double m_h0_R_orig;
+    double m_h0_R_orig = 0.0;
 };
 
 }

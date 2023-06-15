@@ -12,15 +12,8 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/global.h"
 
-using namespace std;
-
 namespace Cantera
 {
-SingleSpeciesTP::SingleSpeciesTP() :
-    m_press(OneAtm),
-    m_p0(OneAtm)
-{
-}
 
 // ------------ Molar Thermodynamic Properties --------------------
 
@@ -95,6 +88,8 @@ void SingleSpeciesTP::getChemPotentials(doublereal* mu) const
 
 void SingleSpeciesTP::getChemPotentials_RT(doublereal* murt) const
 {
+    warn_deprecated("SingleSpeciesTP::getChemPotentials_RT",
+                    "To be removed after Cantera 3.0. Use getChemPotentials instead.");
     getStandardChemPotentials(murt);
     murt[0] /= RT();
 }

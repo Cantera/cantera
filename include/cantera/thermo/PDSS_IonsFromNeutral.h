@@ -30,6 +30,8 @@ class ThermoPhase;
  *
  * This class is for a single Ideal Gas species.
  *
+ * @deprecated To be removed after Cantera 3.0
+ *
  * @ingroup pdssthermo
  */
 class PDSS_IonsFromNeutral : public PDSS_Nondimensional
@@ -38,7 +40,7 @@ public:
     //! Default constructor
     PDSS_IonsFromNeutral();
 
-    //! @name  Molar Thermodynamic Properties of the Species Standard State in the Solution
+    //! @name  Molar Thermodynamic Properties of the Species Standard State
     //! @{
 
     // See PDSS.h for documentation of functions overridden from Class PDSS
@@ -89,7 +91,6 @@ public:
 
     void setNeutralSpeciesMultiplier(const std::string& species, double mult);
     void setSpecialSpecies(bool special=true);
-    void setParametersFromXML(const XML_Node& speciesNode);
     virtual void getParameters(AnyMap& eosNode) const;
     virtual void initThermo();
     //! @}
@@ -102,7 +103,7 @@ protected:
 
     //! Number of neutral molecule species that make up the stoichiometric
     //! vector for this species, in terms of calculating thermodynamic functions
-    size_t numMult_;
+    size_t numMult_ = 0;
 
     //! Vector of species indices in the neutral molecule ThermoPhase
     std::vector<size_t> idNeutralMoleculeVec;
@@ -115,7 +116,7 @@ protected:
     /*!
      *  This is true if this species is not the special species
      */
-    bool add2RTln2_;
+    bool add2RTln2_ = true;
 
     //! Vector of length equal to the number of species in the neutral molecule phase
     mutable vector_fp tmpNM;

@@ -1,6 +1,12 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
+cimport numpy as np
+import numpy as np
+
+from ._utils cimport *
+from .thermo cimport ThermoPhase
+
 # NOTE: These cdef functions cannot be members of Transport because they would
 # cause "layout conflicts" when creating derived classes with multiple bases,
 # such as class Solution. [Cython 0.16]
@@ -74,7 +80,7 @@ cdef class GasTransportData:
         user-specified data provided with its input (YAML) definition.
         """
         def __get__(self):
-            return anymap_to_dict(self.data.parameters(True))
+            return anymap_to_py(self.data.parameters(True))
 
     def update_user_data(self, data):
         """
@@ -82,7 +88,7 @@ cdef class GasTransportData:
         YAML phase definition files with `Solution.write_yaml` or in the data returned
         by `input_data`. Existing keys with matching names are overwritten.
         """
-        self.data.input.update(dict_to_anymap(data), False)
+        self.data.input.update(py_to_anymap(data), False)
 
     def clear_user_data(self):
         """
@@ -170,17 +176,6 @@ cdef class Transport(_SolutionBase):
     Not all transport properties are implemented in all transport models.
     """
     def __init__(self, *args, **kwargs):
-        if self.transport == NULL and kwargs.get("init", True):
-            # @todo ... after removal of CTI/XML, this should be handled by base.pyx
-            if 'transport_model' not in kwargs:
-                self.base.setTransport(newTransport(self.thermo, stringify("default")))
-            else:
-                model = kwargs['transport_model']
-                if not model:
-                    model = 'None'
-                self.base.setTransport(newTransport(self.thermo, stringify(model)))
-            self.transport = self.base.transport().get()
-
         super().__init__(*args, **kwargs)
         if self._references is None:
             raise ValueError(
@@ -196,11 +191,10 @@ cdef class Transport(_SolutionBase):
         object and replaces it with a new one implementing the specified model.
         """
         def __get__(self):
-            return pystr(self.transport.transportType())
+            return pystr(self.transport.transportModel())
 
         def __set__(self, model):
-            self.base.setTransport(newTransport(self.thermo, stringify(model)))
-            self.transport = self.base.transport().get()
+            self.base.setTransport(newTransport(self.base.thermo(), stringify(model)))
 
     property CK_mode:
         """Boolean to indicate if the chemkin interpretation is used."""
@@ -264,7 +258,7 @@ cdef class Transport(_SolutionBase):
 
     property multi_diff_coeffs:
         """Multicomponent diffusion coefficients, D[i,j], the diffusion
-        coefficient for species i due to concentration gradients in 
+        coefficient for species i due to concentration gradients in
         species j [m**2/s]."""
         def __get__(self):
             return get_transport_2d(self, tran_getMultiDiffCoeffs)
@@ -383,7 +377,7 @@ cdef class DustyGasTransport(Transport):
     coefficients are not implemented.
     """
     def __init__(self, *args, **kwargs):
-        self.base.setTransport(newTransport(self.thermo, stringify("DustyGas")))
+        self.base.setTransport(newTransport(self.base.thermo(), stringify("DustyGas")))
         self.transport = self.base.transport().get()
         super().__init__(*args, **kwargs)
 

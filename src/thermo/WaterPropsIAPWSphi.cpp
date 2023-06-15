@@ -11,9 +11,6 @@
 #include "cantera/thermo/WaterPropsIAPWSphi.h"
 #include "cantera/base/global.h"
 
-#include <cmath>
-#include <algorithm>
-
 namespace Cantera
 {
 
@@ -351,10 +348,7 @@ static const doublereal Bbetai[2] = {
 };
 // \endcond
 
-WaterPropsIAPWSphi::WaterPropsIAPWSphi() :
-    TAUsave(-1.0),
-    TAUsqrt(-1.0),
-    DELTAsave(-1.0)
+WaterPropsIAPWSphi::WaterPropsIAPWSphi()
 {
     for (int i = 0; i < 52; i++) {
         TAUp[i] = 1.0;
@@ -872,7 +866,7 @@ doublereal WaterPropsIAPWSphi::dfind(doublereal p_red, doublereal tau, doublerea
     doublereal dd = deltaGuess;
     bool conv = false;
     doublereal deldd = dd;
-    doublereal pcheck = 1.0E-30 + 1.0E-8 * p_red;
+    doublereal pcheck = 1.0E-30 + 1.0E-14 * p_red;
     for (int n = 0; n < 200; n++) {
 
         // Calculate the internal polynomials, and then calculate the phi deriv

@@ -10,18 +10,13 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/Mu0Poly.h"
-#include "cantera/base/ctml.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/AnyMap.h"
-
-using namespace std;
 
 namespace Cantera
 {
 Mu0Poly::Mu0Poly()
     : SpeciesThermoInterpType(0.0, std::numeric_limits<double>::infinity(), 0.0)
-    , m_numIntervals(0)
-    , m_H298(0.0)
 {
 }
 
@@ -50,13 +45,12 @@ void Mu0Poly::setParameters(double h0, const std::map<double, double>& T_mu)
     // Distribute the data into the internal arrays, and find the index of the
     // point at 298.15 K.
     size_t iT298 = npos;
-    for (const auto& row : T_mu) {
-        double T1 = row.first;
+    for (const auto& [T1, mu] : T_mu) {
         if (T1 == 298.15) {
             iT298 = m_t0_int.size();
         }
         m_t0_int.push_back(T1);
-        m_mu0_R_int.push_back(row.second / GasConstant);
+        m_mu0_R_int.push_back(mu / GasConstant);
     }
     if (iT298 == npos) {
         throw CanteraError("Mu0Poly::setParameters",
@@ -176,66 +170,6 @@ void Mu0Poly::getParameters(AnyMap& thermo) const
         }
     }
     thermo["data"] = std::move(data);
-}
-
-Mu0Poly* newMu0ThermoFromXML(const XML_Node& Mu0Node)
-{
-    bool dimensionlessMu0Values = false;
-
-    doublereal h298 = 0.0;
-    if (Mu0Node.hasChild("H298")) {
-        h298 = getFloat(Mu0Node, "H298", "actEnergy");
-    }
-
-    size_t numPoints = 1;
-    if (Mu0Node.hasChild("numPoints")) {
-        numPoints = getInteger(Mu0Node, "numPoints");
-    }
-
-    vector_fp cValues(numPoints);
-    const XML_Node* valNode_ptr = getByTitle(Mu0Node, "Mu0Values");
-    if (!valNode_ptr) {
-        throw CanteraError("newMu0ThermoFromXML", "missing Mu0Values");
-    }
-    getFloatArray(*valNode_ptr, cValues, true, "actEnergy");
-
-    // Check to see whether the Mu0's were input in a dimensionless form. If
-    // they were, then the assumed temperature needs to be adjusted from the
-    // assumed T = 273.15
-    if (valNode_ptr->attrib("units") == "Dimensionless") {
-        dimensionlessMu0Values = true;
-    }
-    if (cValues.size() != numPoints) {
-        throw CanteraError("newMu0ThermoFromXML", "numPoints inconsistent");
-    }
-
-    vector_fp cTemperatures(numPoints);
-    const XML_Node* tempNode_ptr = getByTitle(Mu0Node, "Mu0Temperatures");
-    if (!tempNode_ptr) {
-        throw CanteraError("newMu0ThermoFromXML", "missing Mu0Temperatures");
-    }
-    getFloatArray(*tempNode_ptr, cTemperatures, false);
-    if (cTemperatures.size() != numPoints) {
-        throw CanteraError("newMu0ThermoFromXML", "numPoints inconsistent");
-    }
-
-    // Fix up dimensionless Mu0 values if input
-    if (dimensionlessMu0Values) {
-        for (size_t i = 0; i < numPoints; i++) {
-            cValues[i] *= cTemperatures[i] / 273.15;
-        }
-    }
-
-    vector_fp c(2 + 2 * numPoints);
-    c[0] = static_cast<double>(numPoints);
-    c[1] = h298;
-    for (size_t i = 0; i < numPoints; i++) {
-        c[2+i*2] = cTemperatures[i];
-        c[2+i*2+1] = cValues[i];
-    }
-
-    return new Mu0Poly(fpValue(Mu0Node["Tmin"]), fpValue(Mu0Node["Tmax"]),
-                       fpValue(Mu0Node["Pref"]), &c[0]);
 }
 
 }

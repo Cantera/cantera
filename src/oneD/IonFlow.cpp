@@ -6,22 +6,17 @@
 #include "cantera/oneD/IonFlow.h"
 #include "cantera/oneD/StFlow.h"
 #include "cantera/oneD/refine.h"
-#include "cantera/base/ctml.h"
-#include "cantera/transport/TransportBase.h"
+#include "cantera/transport/Transport.h"
 #include "cantera/numerics/funcs.h"
 #include "cantera/numerics/polyfit.h"
 #include "cantera/base/utilities.h"
-
-using namespace std;
+#include "cantera/base/global.h"
 
 namespace Cantera
 {
 
-IonFlow::IonFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
-    StFlow(ph, nsp, points),
-    m_import_electron_transport(false),
-    m_stage(1),
-    m_kElectron(npos)
+IonFlow::IonFlow(ThermoPhase* ph, size_t nsp, size_t points) :
+    StFlow(ph, nsp, points)
 {
     // make a local copy of species charge
     for (size_t k = 0; k < m_nsp; k++) {
@@ -56,6 +51,34 @@ IonFlow::IonFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     m_refiner->setActive(c_offset_E, false);
     m_mobility.resize(m_nsp*m_points);
     m_do_electric_field.resize(m_points,false);
+}
+
+IonFlow::IonFlow(shared_ptr<Solution> sol, const std::string& id, size_t points)
+    : IonFlow(sol->thermo().get(), sol->thermo()->nSpecies(), points)
+{
+    m_solution = sol;
+    m_id = id;
+    m_kin = m_solution->kinetics().get();
+    m_trans = m_solution->transport().get();
+    if (m_trans->transportModel() == "none") {
+        // @deprecated
+        warn_deprecated("IonFlow",
+            "An appropriate transport model\nshould be set when instantiating the "
+            "Solution ('gas') object.\nImplicit setting of the transport model "
+            "is deprecated and\nwill be removed after Cantera 3.0.");
+        setTransportModel("ionized-gas");
+    }
+    m_solution->registerChangedCallback(this, [this]() {
+        setKinetics(m_solution->kinetics());
+        setTransport(m_solution->transport());
+    });
+}
+
+string IonFlow::type() const {
+    if (m_isFree) {
+        return "free-ion-flow";
+    }
+    return "stagnation-ion-flow";
 }
 
 void IonFlow::resize(size_t components, size_t points){
@@ -134,11 +157,9 @@ void IonFlow::electricFieldMethod(const double* x, size_t j0, size_t j1)
         double dz = z(j+1) - z(j);
 
         // mixture-average diffusion
-        double sum = 0.0;
         for (size_t k = 0; k < m_nsp; k++) {
             m_flux(k,j) = m_wt[k]*(rho*m_diff[k+m_nsp*j]/wtm);
             m_flux(k,j) *= (X(x,k,j) - X(x,k,j+1))/dz;
-            sum -= m_flux(k,j);
         }
 
         // ambipolar diffusion

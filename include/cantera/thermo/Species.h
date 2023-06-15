@@ -14,7 +14,6 @@ namespace Cantera
 
 class SpeciesThermoInterpType;
 class TransportData;
-class XML_Node;
 class ThermoPhase;
 
 //! Contains data about a single chemical species
@@ -25,7 +24,7 @@ class ThermoPhase;
 class Species
 {
 public:
-    Species();
+    Species() = default;
 
     //! Constructor
     Species(const std::string& name, const compositionMap& comp,
@@ -34,7 +33,7 @@ public:
     //! Species objects are not copyable or assignable
     Species(const Species&) = delete;
     Species& operator=(const Species& other) = delete;
-    ~Species();
+    ~Species() = default;
 
     AnyMap parameters(const ThermoPhase* phase=0, bool withInput=true) const;
 
@@ -46,11 +45,34 @@ public:
     compositionMap composition;
 
     //! The electrical charge on the species, in units of the elementary charge.
-    double charge;
+    double charge = 0.0;
 
     //! The effective size of the species. Currently used only for surface
     //! species, where it represents the number of sites occupied.
-    double size;
+    double size = 1.0;
+
+    //! The molecular weight [amu] of the species.
+    /*!
+     * Calculates and sets the molecular weight from the elemental composition of the
+     * species and element definitions in Elements.cpp, if the molecular weight is
+     * Undef.
+     *
+     * @since New in version 3.0
+     */
+    double molecularWeight();
+
+    //! Set the molecular weight of the species.
+    /*!
+     * Since phases can have custom element weights, the phase will always call this
+     * method when a species is added to that phase. The species may also call this
+     * method the first time the molecularWeight() method is called if the species has
+     * not been added to a phase.
+     *
+     * @param weight: The weight of this species to assign
+     *
+     * @since New in version 3.0
+     */
+    void setMolecularWeight(double weight);
 
     shared_ptr<TransportData> transport;
 
@@ -59,30 +81,16 @@ public:
 
     //! Input parameters used to define a species, for example from a YAML input file.
     AnyMap input;
-};
 
-//! Create a new Species object from a 'species' XML_Node.
-//!
-//! @deprecated The XML input format is deprecated and will be removed in
-//!     Cantera 3.0.
-shared_ptr<Species> newSpecies(const XML_Node& species_node);
+protected:
+
+    //! The molecular weight of the species, in atomic mass units. Includes
+    //! electron mass for charged species.
+    double m_molecularWeight = Undef;
+};
 
 //! Create a new Species object from an AnyMap specification
 unique_ptr<Species> newSpecies(const AnyMap& node);
-
-//! Generate Species objects for all `<species>` nodes in an XML document.
-//!
-//! The `<species>` nodes are assumed to be children of the `<speciesData>` node
-//! in an XML document with a `<ctml>` root node, as in the case of XML files
-//! produced by conversion from CTI files.
-//!
-//! This function can be used in combination with get_XML_File and
-//! get_XML_from_string to get Species objects from either a file or a string,
-//! respectively, where the string or file is formatted as either CTI or XML.
-//!
-//! @deprecated The XML input format is deprecated and will be removed in
-//!     Cantera 3.0.
-std::vector<shared_ptr<Species> > getSpecies(const XML_Node& node);
 
 //! Generate Species objects for each item (an AnyMap) in `items`.
 std::vector<shared_ptr<Species>> getSpecies(const AnyValue& items);

@@ -10,19 +10,16 @@
 
 #include "cantera/thermo/MaskellSolidSolnPhase.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/base/xml.h"
+#include "cantera/base/global.h"
 
 #include <cassert>
 
 namespace Cantera
 {
 
-MaskellSolidSolnPhase::MaskellSolidSolnPhase() :
-    m_Pcurrent(OneAtm),
-    h_mixing(0.0),
-    product_species_index(-1),
-    reactant_species_index(-1)
+MaskellSolidSolnPhase::MaskellSolidSolnPhase()
 {
+    warn_deprecated("class MaskellSolidSolnPhase", "To be removed after Cantera 3.0");
 }
 
 void MaskellSolidSolnPhase::getActivityConcentrations(doublereal* c) const
@@ -113,6 +110,8 @@ void MaskellSolidSolnPhase::getChemPotentials(doublereal* mu) const
 
 void MaskellSolidSolnPhase::getChemPotentials_RT(doublereal* mu) const
 {
+    warn_deprecated("MaskellSolidSolnPhase::getChemPotentials_RT",
+                    "To be removed after Cantera 3.0. Use getChemPotentials instead.");
     getChemPotentials(mu);
     for (size_t sp=0; sp < m_kk; ++sp) {
         mu[sp] *= 1.0 / RT();
@@ -171,50 +170,6 @@ void MaskellSolidSolnPhase::getParameters(AnyMap& phaseNode) const
     VPStandardStateTP::getParameters(phaseNode);
     phaseNode["excess-enthalpy"].setQuantity(h_mixing, "J/kmol");
     phaseNode["product-species"] = speciesName(product_species_index);
-}
-
-void MaskellSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string& id_)
-{
-    if (id_.size() > 0 && phaseNode.id() != id_) {
-        throw CanteraError("MaskellSolidSolnPhase::initThermoXML",
-                           "phasenode and Id are incompatible");
-    }
-
-    // Check on the thermo field. Must have:
-    // <thermo model="MaskellSolidSolution" />
-    if (phaseNode.hasChild("thermo")) {
-        XML_Node& thNode = phaseNode.child("thermo");
-        if (!caseInsensitiveEquals(thNode["model"], "maskellsolidsolnphase")) {
-            throw CanteraError("MaskellSolidSolnPhase::initThermoXML",
-                               "Unknown thermo model: " + thNode["model"]);
-        }
-
-        // Parse the enthalpy of mixing constant
-        if (thNode.hasChild("h_mix")) {
-            set_h_mix(fpValue(thNode.child("h_mix").value()));
-        } else {
-            throw CanteraError("MaskellSolidSolnPhase::initThermoXML",
-                               "Mixing enthalpy parameter not specified.");
-        }
-
-        if (thNode.hasChild("product_species")) {
-            setProductSpecies(thNode.child("product_species").value());
-        } else {
-            setProductSpecies(speciesName(0)); // default
-        }
-    } else {
-        throw CanteraError("MaskellSolidSolnPhase::initThermoXML",
-                           "Unspecified thermo model");
-    }
-
-    // Confirm that the phase only contains 2 species
-    if (m_kk != 2) {
-        throw CanteraError("MaskellSolidSolnPhase::initThermoXML",
-                "MaskellSolidSolution model requires exactly 2 species.");
-    }
-
-    // Call the base initThermo, which handles setting the initial state.
-    VPStandardStateTP::initThermoXML(phaseNode, id_);
 }
 
 void MaskellSolidSolnPhase::setProductSpecies(const std::string& name)

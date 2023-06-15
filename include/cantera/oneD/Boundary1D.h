@@ -41,12 +41,20 @@ public:
         _init(1);
     }
 
-    /// Set the temperature.
+    virtual string type() const {
+        return "boundary";
+    }
+
+    virtual bool isConnector() {
+        return true;
+    }
+
+    //! Set the temperature.
     virtual void setTemperature(double t) {
         m_temp = t;
     }
 
-    /// Temperature [K].
+    //! Temperature [K].
     virtual double temperature() {
         return m_temp;
     }
@@ -55,27 +63,37 @@ public:
         return 0;
     }
 
-    /// Set the mole fractions by specifying a std::string.
+    //! Set the mole fractions by specifying a std::string.
     virtual void setMoleFractions(const std::string& xin) {
         throw NotImplementedError("Boundary1D::setMoleFractions");
     }
 
-    /// Set the mole fractions by specifying an array.
+    //! Set the mole fractions by specifying an array.
     virtual void setMoleFractions(const double* xin) {
         throw NotImplementedError("Boundary1D::setMoleFractions");
     }
 
-    /// Mass fraction of species k.
+    //! Mass fraction of species k.
     virtual double massFraction(size_t k) {
         throw NotImplementedError("Boundary1D::massFraction");
     }
 
-    /// Set the total mass flow rate.
+    //! Set the total mass flow rate.
     virtual void setMdot(double mdot) {
         m_mdot = mdot;
     }
 
-    /// The total mass flow rate [kg/m2/s].
+    //! Set tangential velocity gradient [1/s] at this boundary.
+    virtual void setSpreadRate(double V0) {
+        throw NotImplementedError("Boundary1D::setSpreadRate");
+    }
+
+    //! Tangential velocity gradient [1/s] at this boundary.
+    virtual double spreadRate() {
+        throw NotImplementedError("Boundary1D::spreadRate");
+    }
+
+    //! The total mass flow rate [kg/m2/s].
     virtual double mdot() {
         return m_mdot;
     }
@@ -85,15 +103,24 @@ public:
 protected:
     void _init(size_t n);
 
-    StFlow* m_flow_left, *m_flow_right;
-    size_t m_ilr, m_left_nv, m_right_nv;
-    size_t m_left_loc, m_right_loc;
-    size_t m_left_points;
-    size_t m_left_nsp, m_right_nsp;
-    size_t m_sp_left, m_sp_right;
-    size_t m_start_left, m_start_right;
-    ThermoPhase* m_phase_left, *m_phase_right;
-    double m_temp, m_mdot;
+    StFlow* m_flow_left = nullptr;
+    StFlow* m_flow_right = nullptr;
+    size_t m_ilr = 0;
+    size_t m_left_nv = 0;
+    size_t m_right_nv = 0;
+    size_t m_left_loc = 0;
+    size_t m_right_loc = 0;
+    size_t m_left_points = 0;
+    size_t m_left_nsp = 0;
+    size_t m_right_nsp = 0;
+    size_t m_sp_left = 0;
+    size_t m_sp_right = 0;
+    size_t m_start_left = 0;
+    size_t m_start_right = 0;
+    ThermoPhase* m_phase_left = nullptr;
+    ThermoPhase* m_phase_right = nullptr;
+    double m_temp = 0.0;
+    double m_mdot = 0.0;
 };
 
 
@@ -106,18 +133,19 @@ class Inlet1D : public Boundary1D
 public:
     Inlet1D();
 
-    /// set spreading rate
-    virtual void setSpreadRate(double V0) {
-        m_V0 = V0;
-        needJacUpdate();
+    Inlet1D(shared_ptr<Solution> solution, const string& id="");
+
+    virtual string type() const {
+        return "inlet";
     }
 
-    /// spreading rate
+    virtual void setSpreadRate(double V0);
+
     virtual double spreadRate() {
         return m_V0;
     }
 
-    virtual void showSolution(const double* x);
+    virtual void show(const double* x);
 
     virtual size_t nSpecies() {
         return m_nsp;
@@ -131,18 +159,16 @@ public:
     virtual void init();
     virtual void eval(size_t jg, double* xg, double* rg,
                       integer* diagg, double rdt);
-    virtual XML_Node& save(XML_Node& o, const double* const soln);
-    virtual void restore(const XML_Node& dom, double* soln, int loglevel);
-    virtual AnyMap serialize(const double* soln) const;
-    virtual void restore(const AnyMap& state, double* soln, int loglevel);
+    virtual shared_ptr<SolutionArray> asArray(const double* soln) const;
+    virtual void fromArray(SolutionArray& arr, double* soln);
 
 protected:
     int m_ilr;
-    double m_V0;
-    size_t m_nsp;
+    double m_V0 = 0.0;
+    size_t m_nsp = 0;
     vector_fp m_yin;
     std::string m_xstr;
-    StFlow* m_flow;
+    StFlow* m_flow = nullptr;
 };
 
 /**
@@ -152,20 +178,28 @@ protected:
 class Empty1D : public Boundary1D
 {
 public:
-    Empty1D() : Boundary1D() {
+    Empty1D() {
         m_type = cEmptyType;
     }
 
-    virtual void showSolution(const double* x) {}
+    Empty1D(shared_ptr<Solution> solution, const std::string& id="") : Empty1D() {
+        m_solution = solution;
+        m_id = id;
+    }
+
+    virtual string type() const {
+        return "empty";
+    }
+
+    virtual void show(const double* x) {}
 
     virtual void init();
 
     virtual void eval(size_t jg, double* xg, double* rg,
                       integer* diagg, double rdt);
 
-    virtual XML_Node& save(XML_Node& o, const double* const soln);
-    virtual void restore(const XML_Node& dom, double* soln, int loglevel);
-    virtual AnyMap serialize(const double* soln) const;
+    virtual shared_ptr<SolutionArray> asArray(const double* soln) const;
+    virtual void fromArray(SolutionArray& arr, double* soln) {}
 };
 
 /**
@@ -176,8 +210,17 @@ public:
 class Symm1D : public Boundary1D
 {
 public:
-    Symm1D() : Boundary1D() {
+    Symm1D() {
         m_type = cSymmType;
+    }
+
+    Symm1D(shared_ptr<Solution> solution, const std::string& id="") : Symm1D() {
+        m_solution = solution;
+        m_id = id;
+    }
+
+    virtual string type() const {
+        return "symmetry-plane";
     }
 
     virtual void init();
@@ -185,9 +228,8 @@ public:
     virtual void eval(size_t jg, double* xg, double* rg,
                       integer* diagg, double rdt);
 
-    virtual XML_Node& save(XML_Node& o, const double* const soln);
-    virtual void restore(const XML_Node& dom, double* soln, int loglevel);
-    virtual AnyMap serialize(const double* soln) const;
+    virtual shared_ptr<SolutionArray> asArray(const double* soln) const;
+    virtual void fromArray(SolutionArray& arr, double* soln) {}
 };
 
 
@@ -198,8 +240,17 @@ public:
 class Outlet1D : public Boundary1D
 {
 public:
-    Outlet1D() : Boundary1D() {
+    Outlet1D() {
         m_type = cOutletType;
+    }
+
+    Outlet1D(shared_ptr<Solution> solution, const std::string& id="") : Outlet1D() {
+        m_solution = solution;
+        m_id = id;
+    }
+
+    virtual string type() const {
+        return "outlet";
     }
 
     virtual void init();
@@ -207,9 +258,8 @@ public:
     virtual void eval(size_t jg, double* xg, double* rg,
                       integer* diagg, double rdt);
 
-    virtual XML_Node& save(XML_Node& o, const double* const soln);
-    virtual void restore(const XML_Node& dom, double* soln, int loglevel);
-    virtual AnyMap serialize(const double* soln) const;
+    virtual shared_ptr<SolutionArray> asArray(const double* soln) const;
+    virtual void fromArray(SolutionArray& arr, double* soln) {}
 };
 
 
@@ -222,7 +272,13 @@ class OutletRes1D : public Boundary1D
 public:
     OutletRes1D();
 
-    virtual void showSolution(const double* x) {}
+    OutletRes1D(shared_ptr<Solution> solution, const string& id="");
+
+    virtual string type() const {
+        return "outlet-reservoir";
+    }
+
+    virtual void show(const double* x) {}
 
     virtual size_t nSpecies() {
         return m_nsp;
@@ -236,16 +292,14 @@ public:
     virtual void init();
     virtual void eval(size_t jg, double* xg, double* rg,
                       integer* diagg, double rdt);
-    virtual XML_Node& save(XML_Node& o, const double* const soln);
-    virtual void restore(const XML_Node& dom, double* soln, int loglevel);
-    virtual AnyMap serialize(const double* soln) const;
-    virtual void restore(const AnyMap& state, double* soln, int loglevel);
+    virtual shared_ptr<SolutionArray> asArray(const double* soln) const;
+    virtual void fromArray(SolutionArray& arr, double* soln);
 
 protected:
-    size_t m_nsp;
+    size_t m_nsp = 0;
     vector_fp m_yres;
     std::string m_xstr;
-    StFlow* m_flow;
+    StFlow* m_flow = nullptr;
 };
 
 /**
@@ -257,8 +311,17 @@ protected:
 class Surf1D : public Boundary1D
 {
 public:
-    Surf1D() : Boundary1D() {
+    Surf1D() {
         m_type = cSurfType;
+    }
+
+    Surf1D(shared_ptr<Solution> solution, const std::string& id="") : Surf1D() {
+        m_solution = solution;
+        m_id = id;
+    }
+
+    virtual string type() const {
+        return "surface";
     }
 
     virtual void init();
@@ -266,14 +329,12 @@ public:
     virtual void eval(size_t jg, double* xg, double* rg,
                       integer* diagg, double rdt);
 
-    virtual XML_Node& save(XML_Node& o, const double* const soln);
-    virtual void restore(const XML_Node& dom, double* soln, int loglevel);
-    virtual AnyMap serialize(const double* soln) const;
-    virtual void restore(const AnyMap& state, double* soln, int loglevel);
+    virtual shared_ptr<SolutionArray> asArray(const double* soln) const;
+    virtual void fromArray(SolutionArray& arr, double* soln);
 
-    virtual void showSolution_s(std::ostream& s, const double* x);
+    virtual void show(std::ostream& s, const double* x);
 
-    virtual void showSolution(const double* x);
+    virtual void show(const double* x);
 };
 
 /**
@@ -284,7 +345,15 @@ class ReactingSurf1D : public Boundary1D
 {
 public:
     ReactingSurf1D();
+    ReactingSurf1D(shared_ptr<Solution> solution, const std::string& id="");
 
+    virtual string type() const {
+        return "reacting-surface";
+    }
+
+    virtual void setKinetics(shared_ptr<Kinetics> kin);
+
+    //! @deprecated  To be removed after Cantera 3.0; replaced by setKinetics
     void setKineticsMgr(InterfaceKinetics* kin);
 
     void enableCoverageEquations(bool docov) {
@@ -303,10 +372,8 @@ public:
     virtual void eval(size_t jg, double* xg, double* rg,
                       integer* diagg, double rdt);
 
-    virtual XML_Node& save(XML_Node& o, const double* const soln);
-    virtual void restore(const XML_Node& dom, double* soln, int loglevel);
-    virtual AnyMap serialize(const double* soln) const;
-    virtual void restore(const AnyMap& state, double* soln, int loglevel);
+    virtual shared_ptr<SolutionArray> asArray(const double* soln) const;
+    virtual void fromArray(SolutionArray& arr, double* soln);
 
     virtual void _getInitialSoln(double* x) {
         m_sphase->getCoverages(x);
@@ -316,13 +383,14 @@ public:
         std::copy(x, x+m_nsp, m_fixed_cov.begin());
     }
 
-    virtual void showSolution(const double* x);
+    virtual void show(const double* x);
 
 protected:
-    InterfaceKinetics* m_kin;
-    SurfPhase* m_sphase;
-    size_t m_surfindex, m_nsp;
-    bool m_enabled;
+    InterfaceKinetics* m_kin = nullptr;
+    SurfPhase* m_sphase = nullptr;
+    size_t m_surfindex = 0;
+    size_t m_nsp = 0;
+    bool m_enabled = false;
     vector_fp m_work;
     vector_fp m_fixed_cov;
 };

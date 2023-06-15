@@ -12,79 +12,14 @@
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/Species.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/base/ctml.h"
 #include "cantera/base/utilities.h"
-
-using namespace std;
 
 namespace Cantera
 {
 
-IdealSolidSolnPhase::IdealSolidSolnPhase(int formGC) :
-    m_formGC(formGC),
-    m_Pref(OneAtm),
-    m_Pcurrent(OneAtm)
+IdealSolidSolnPhase::IdealSolidSolnPhase(const string& inputFile, const string& id_)
 {
-    // @todo: After Cantera 2.6, this constructor can be deleted and the default
-    // construction option can be provided by adding "" as the default argument
-    // to the constructor from input file name and phase id.
-    if (formGC == -1) {
-        formGC = 0;
-    } else {
-        warn_deprecated("IdealSolidSolnPhase(int formGC)",
-            "The formGC constructor argument is deprecated and will be removed"
-            " after Cantera 2.6. Use the setStandardConcentrationModel"
-            " method instead.");
-    }
-    m_formGC = formGC;
-    if (formGC < 0 || formGC > 2) {
-        throw CanteraError("IdealSolidSolnPhase::IdealSolidSolnPhase",
-                           "Illegal value of formGC");
-    }
-}
-
-IdealSolidSolnPhase::IdealSolidSolnPhase(const std::string& inputFile,
-        const std::string& id_, int formGC) :
-    m_formGC(formGC),
-    m_Pref(OneAtm),
-    m_Pcurrent(OneAtm)
-{
-    if (formGC == -1) {
-        formGC = 0;
-    } else {
-        warn_deprecated("IdealSolidSolnPhase(string inputFile, string id_, int formGC)",
-            "The formGC constructor argument is deprecated and will be removed"
-            " after Cantera 2.6. Use the setStandardConcentrationModel"
-            " method instead.");
-    }
-    m_formGC = formGC;
-    if (formGC < 0 || formGC > 2) {
-        throw CanteraError("IdealSolidSolnPhase::IdealSolidSolnPhase",
-                           "Illegal value of formGC");
-    }
     initThermoFile(inputFile, id_);
-}
-
-IdealSolidSolnPhase::IdealSolidSolnPhase(XML_Node& root, const std::string& id_,
-        int formGC) :
-    m_formGC(formGC),
-    m_Pref(OneAtm),
-    m_Pcurrent(OneAtm)
-{
-    if (formGC == -1) {
-        formGC = 0;
-    } else {
-        warn_deprecated("IdealSolidSolnPhase(XML_Node root, string id_, int formGC)",
-            "The formGC constructor argument is deprecated and will be removed"
-            " after Cantera 2.6. Use the setStandardConcentrationModel"
-            " method instead.");
-    }
-    m_formGC = formGC;
-    if (formGC < 0 || formGC > 2) {
-        throw CanteraError("IdealSolidSolnPhase::IdealSolidSolnPhase",
-                           "Illegal value of formGC");
-    }
-    importPhase(root, this);
 }
 
 // Molar Thermodynamic Properties of the Solution
@@ -102,7 +37,8 @@ doublereal IdealSolidSolnPhase::entropy_mole() const
 
 doublereal IdealSolidSolnPhase::gibbs_mole() const
 {
-    return RT() * (mean_X(gibbs_RT_ref()) + sum_xlogx());
+    double Pv = (pressure() - m_Pref)/molarDensity();
+    return RT() * (mean_X(gibbs_RT_ref()) + sum_xlogx()) + Pv;
 }
 
 doublereal IdealSolidSolnPhase::cp_mole() const
@@ -115,13 +51,11 @@ doublereal IdealSolidSolnPhase::cp_mole() const
 void IdealSolidSolnPhase::calcDensity()
 {
     // Calculate the molarVolume of the solution (m**3 kmol-1)
-    const doublereal* const dtmp = moleFractdivMMW();
-    double invDens = dot(m_speciesMolarVolume.begin(),
-                         m_speciesMolarVolume.end(), dtmp);
+    double v_mol = mean_X(m_speciesMolarVolume);
 
-    // Set the density in the parent State object directly, by calling the
+    // Set the density in the parent object directly, by calling the
     // Phase::assignDensity() function.
-    Phase::assignDensity(1.0/invDens);
+    Phase::assignDensity(meanMolecularWeight()/v_mol);
 }
 
 void IdealSolidSolnPhase::setPressure(doublereal p)
@@ -150,23 +84,18 @@ Units IdealSolidSolnPhase::standardConcentrationUnits() const
 
 void IdealSolidSolnPhase::getActivityConcentrations(doublereal* c) const
 {
-    const doublereal* const dtmp = moleFractdivMMW();
-    const double mmw = meanMolecularWeight();
+    getMoleFractions(c);
     switch (m_formGC) {
     case 0:
-        for (size_t k = 0; k < m_kk; k++) {
-            c[k] = dtmp[k] * mmw;
-        }
         break;
     case 1:
         for (size_t k = 0; k < m_kk; k++) {
-            c[k] = dtmp[k] * mmw / m_speciesMolarVolume[k];
+            c[k] /= m_speciesMolarVolume[k];
         }
         break;
     case 2:
-        double atmp = mmw / m_speciesMolarVolume[m_kk-1];
         for (size_t k = 0; k < m_kk; k++) {
-            c[k] = dtmp[k] * atmp;
+            c[k] /= m_speciesMolarVolume[m_kk-1];
         }
         break;
     }
@@ -205,6 +134,8 @@ void IdealSolidSolnPhase::getChemPotentials(doublereal* mu) const
 
 void IdealSolidSolnPhase::getChemPotentials_RT(doublereal* mu) const
 {
+    warn_deprecated("IdealSolidSolnPhase::getChemPotentials_RT",
+                    "To be removed after Cantera 3.0. Use getChemPotentials instead.");
     double delta_pdRT = (m_Pcurrent - m_Pref) / (temperature() * GasConstant);
     const vector_fp& g_RT = gibbs_RT_ref();
     for (size_t k = 0; k < m_kk; k++) {
@@ -402,9 +333,6 @@ bool IdealSolidSolnPhase::addSpecies(shared_ptr<Species> spec)
                     "specification", spec->name);
             }
             m_speciesMolarVolume.push_back(mv);
-        } else if (spec->input.hasKey("molar_volume")) {
-            // @Deprecated - remove this case for Cantera 3.0 with removal of the XML format
-            m_speciesMolarVolume.push_back(spec->input["molar_volume"].asDouble());
         } else {
             throw CanteraError("IdealSolidSolnPhase::addSpecies",
                 "Molar volume not specified for species '{}'", spec->name);
@@ -461,42 +389,6 @@ void IdealSolidSolnPhase::getSpeciesParameters(const std::string &name,
     }
 }
 
-void IdealSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string& id_)
-{
-    if (id_.size() > 0 && phaseNode.id() != id_) {
-        throw CanteraError("IdealSolidSolnPhase::initThermoXML",
-                           "phasenode and Id are incompatible");
-    }
-
-    // Check on the thermo field. Must have:
-    // <thermo model="IdealSolidSolution" />
-    if (phaseNode.hasChild("thermo")) {
-        XML_Node& thNode = phaseNode.child("thermo");
-        if (!caseInsensitiveEquals(thNode["model"], "idealsolidsolution")) {
-            throw CanteraError("IdealSolidSolnPhase::initThermoXML",
-                               "Unknown thermo model: " + thNode["model"]);
-        }
-    } else {
-        throw CanteraError("IdealSolidSolnPhase::initThermoXML",
-                           "Unspecified thermo model");
-    }
-
-    // Form of the standard concentrations. Must have one of:
-    //
-    //     <standardConc model="unity" />
-    //     <standardConc model="molar_volume" />
-    //     <standardConc model="solvent_volume" />
-    if (phaseNode.hasChild("standardConc")) {
-        setStandardConcentrationModel(phaseNode.child("standardConc")["model"]);
-    } else {
-        throw CanteraError("IdealSolidSolnPhase::initThermoXML",
-                           "Unspecified standardConc model");
-    }
-
-    // Call the base initThermo, which handles setting the initial state.
-    ThermoPhase::initThermoXML(phaseNode, id_);
-}
-
 void IdealSolidSolnPhase::setToEquilState(const doublereal* mu_RT)
 {
     const vector_fp& grt = gibbs_RT_ref();
@@ -523,7 +415,8 @@ void IdealSolidSolnPhase::setToEquilState(const doublereal* mu_RT)
         pres += m_pp[k];
     }
     // set state
-    setState_PX(pres, m_pp.data());
+    setMoleFractions(m_pp.data());
+    setPressure(pres);
 }
 
 void IdealSolidSolnPhase::setStandardConcentrationModel(const std::string& model)

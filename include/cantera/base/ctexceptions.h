@@ -11,6 +11,7 @@
 #ifndef CT_CTEXCEPTIONS_H
 #define CT_CTEXCEPTIONS_H
 
+#include "ct_defs.h"
 #include "cantera/base/fmt.h"
 #include <exception>
 
@@ -94,6 +95,9 @@ public:
 
     //! Method overridden by derived classes to format the error message
     virtual std::string getMessage() const;
+
+    //! Get the name of the method that threw the exception
+    virtual std::string getMethod() const;
 
     //! Method overridden by derived classes to indicate their type
     virtual std::string getClass() const {
@@ -191,7 +195,7 @@ public:
     NotImplementedError(const std::string& func) :
         CanteraError(func, "Not implemented.") {}
 
-    //! Alternative constructor taking same arguments as @see CanteraError
+    //! Alternative constructor taking same arguments as CanteraError
     template <typename... Args>
     NotImplementedError(const std::string& func, const std::string& msg,
                         const Args&... args) :

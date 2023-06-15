@@ -1,0 +1,461 @@
+# Parameters for test cases defined in test/thermo/consistency.cpp
+#
+# Each top-level entry here corresponds to a Googletest "test suite" instantiation,
+# using the INSTANTIATE_TEST_SUITE_P macro.
+#
+# Each of these entries has two keys, 'setup' and 'states'. The 'setup' map defines the
+# phase to be loaded, information on cases that are known to fail, and optional
+# tolerance parameters that are used in some tests. Within the 'setup' map, the
+# following keys are recognized:
+# - file: the name of the input file, read from the usual data paths (which
+#   includes test/data when running the test suite)
+# - phase: The name of the phase to read. Optional - by default, the first phase
+#   in the file is used.
+# - known-failures: A map where the keys identify tests that should be skipped because
+#   they are known to fail and the values are messages to be printed in the test log
+#   explaining why the test has been skipped. The keys are regular expressions that are
+#   searched for in the test names (second argument to TEST_P) defined in
+#   consistency.cpp. The test name is suffixed with '/N' where 'N' is the (zero-indexed)
+#   index into the 'states' array and can be used to skip specific test instances. Where
+#   possible, known failures should reference GitHub Issue numbers documenting known
+#   errors. This mechanism is not used to handle test cases that raise
+#   NotImplementedError; Those tests should be skipped automatically.
+# - atol: An absolute tolerance used for tests comparing molar energy-like quantities.
+#   Default 1.0e-5.
+# - atol_v: An absolute tolerance used for tests comparing molar volumes.
+#   Default 1.0e-11.
+# - rtol_fd: A relative tolerance used in some finite difference tests. Default 1.0e-6.
+#
+# The 'states' key defines a list of maps, where each map provides a complete state
+# definition for the phase. The map is passed directly to ThermoPhase::setState(), and
+# supports setting the state using any of the variables supported there.
+
+ideal-gas-h2o2:
+  setup: {file: h2o2.yaml}
+  states:
+  - {T: 300, P: 101325, X: {H2: 0.1, O2: 0.7, H2O2: 0.1}}
+  - {T: 300, P: 101325, Y: {H2: 0.1, O2: 0.7, H2O2: 0.1}}
+  - {T: 400, density: 5 g/cm^3 , X: {H2: 0.1, O2: 0.7, H2O2: 0.1}}
+
+redlich-kwong:
+  setup:
+    file: co2_RK_example.yaml
+    rtol_fd: 1e-5
+  states:
+  - {T: 300, P: 101325, X: {CO2: 0.7, CH4: 0.2, H2O: 0.1}}
+  - {T: 320, P: 200 bar, X: {CO2: 0.3, CH4: 0.5, H2O: 0.2}}
+  - {T: 600, P: 200 bar, X: {CO2: 0.4, CH4: 0.2, H2O: 0.4}}
+
+peng-robinson:
+  setup:
+    file: co2_PR_example.yaml
+    rtol_fd: 1e-5
+  states:
+  - {T: 300, P: 101325, X: {CO2: 0.7, CH4: 0.2, H2O: 0.1}}
+  - {T: 320, P: 200 bar, X: {CO2: 0.3, CH4: 0.5, H2O: 0.2}}
+  - {T: 600, P: 200 bar, X: {CO2: 0.4, CH4: 0.2, H2O: 0.4}}
+
+ideal-molal-solution:
+  setup:
+    file: thermo-models.yaml
+    phase: ideal-molal-aqueous
+    known-failures:
+      g_eq_h_minus_Ts:
+        "Implementations of g and s are inconsistent. See GitHub Issue #1300"
+      gk_eq_hk_minus_T_sk:
+        "Implementations of g and s are inconsistent. See GitHub Issue #1300"
+      cv_eq_.+: cv not implemented
+      cp_eq_dsdT_const_p_times_T:
+        "Implementation of cp and s are inconsistent. See GitHub Issue #1300"
+      activity_coeffs: "Activity coeffs are incorrect. See GitHub Issue #1311"
+  states:
+  - {T: 300, P: 101325, molalities: {CH4(aq): 0.01, H2S(aq): 0.03, CO2(aq): 0.1}}
+  - {T: 300, P: 2 atm, molalities: {CH4(aq): 0.1, H2S(aq): 0.01, CO2(aq): 0.1}}
+  - {T: 340, P: 5 atm, molalities: {CH4(aq): 0.1, H2S(aq): 0.01, CO2(aq): 0.1}}
+
+ideal-condensed-1:
+  setup:
+    file: thermo-models.yaml
+    phase: IdealSolidSolnPhase
+  states:
+  - {T: 300, P: 0.1 atm, X: {sp1: 1.0}}
+  - {T: 300, P: 1 atm, X: {sp1: 0.6, sp2: 0.4}}
+  - {T: 400, P: 0.1 atm, X: {sp1: 0.01, sp2: 0.03, sp3: 0.94}}
+  - {T: 500, P: 2 bar, X: {sp1: 0.1, sp2: 0.89, sp3: 0.01}}
+
+ideal-condensed-2:
+  setup:
+    file: thermo-models.yaml
+    phase: IdealSolidSolnPhase2
+  states:
+  - {T: 300, P: 0.1 atm, X: {sp1: 1.0}}
+  - {T: 400, P: 0.1 atm, X: {sp1: 0.01, sp2: 0.03, sp3: 0.94}}
+  - {T: 500, P: 2 bar, X: {sp1: 0.1, sp2: 0.89, sp3: 0.01}}
+
+binary-solution-tabulated:
+  setup:
+    file: BinarySolutionTabulatedThermo.yaml
+    phase: anode
+    known-failures:
+      g_eq_h_minus_Ts/4: "Problems near composition limit. See GitHub Issue #1303"
+      g_eq_sum_gk_Xk/4: "Problems near composition limit. See GitHub Issue #1303"
+      s_eq_sum_sk_Xk/4: "Problems near composition limit. See GitHub Issue #1303"
+      gk_eq_hk_minus_T_sk/[34]: "Problems near composition limit. See GitHub Issue #1303"
+      gk0_eq_hk0_minus_T_sk0/[34]:
+        "Problems near composition limit. See GitHub Issue #1303"
+      chem_potentials_to_activities/3:
+        "Problems near composition limit. See GitHub Issue #1303"
+      gRef_eq_hRef_minus_T_sRef/[34]:
+        "Problems near composition limit. See GitHub Issue #1303"
+  states:
+  - {T: 300, P: 1 atm, X: {"Li[anode]": 0.3, "V[anode]": 0.7}}
+  - {T: 320, P: 1 atm, X: {"Li[anode]": 0.3, "V[anode]": 0.7}}
+  - {T: 340, P: 10 atm, X: {"Li[anode]": 0.6, "V[anode]": 0.4}}
+  - {T: 300, P: 5 atm, X: {"Li[anode]": 0.0, "V[anode]": 1.0}}
+  - {T: 300, P: 1 atm, X: {"Li[anode]": 1.0, "V[anode]": 0.0}}
+  - {T: 300, P: 5 atm, X: {"Li[anode]": 1.0e-10, "V[anode]": 1.0}}
+  - {T: 300, P: 1 atm, X: {"Li[anode]": 1.0, "V[anode]": 1.0e-10}}
+
+electron-cloud:
+  setup:
+    file: thermo-models.yaml
+    phase: Metal
+  states:
+  - {T: 300, P: 1 atm}
+  - {T: 400, P: 1 atm}
+  - {T: 500, P: 10 atm}
+
+# The Python test_purefluid.py test suite contains a much more extensive set of tests
+# for the pure substance models
+nitrogen-purefluid:
+  setup:
+    file: liquidvapor.yaml
+    phase: nitrogen
+    rtol_fd: 2e-3  # agreement for Maxwell relations is limited
+    known-failures:
+      cv_eq_.+/3: cv not defined in two-phase region
+      cp_eq_sum_cpk_Xk: cp is inf in the two-phase region
+      dsdP_const_T_eq_minus_dV_dT_const_P/3: Can't set TP in two-phase region
+  states:
+  - {T: 300, P: 1 atm}
+  - {T: 70, P: 1 atm}
+  - {T: 80, P: 100 atm}
+  - {T: 80, density: 100 kg/m^3}
+
+plasma:
+  setup:
+    file: oxygen-plasma.yaml
+    phase: discretized-electron-energy-plasma
+    known-failures:
+      cp_eq_.+/1: Test does not account for distinct electron temperature
+      cv_eq_.+/1: Test does not account for distinct electron temperature
+      c._eq_dsdT_const_._times_T: Test does not account for distinct electron temperature
+      cpk0_eq_dhk0dT: Test does not account for distinct electron temperature
+      cpRef_eq_dhRefdT: Test does not account for distinct electron temperature
+  states:
+  - {T: 300, P: 1 atm, X: {O2: 1.0, O2-: 1e-5, E: 1e-5}}
+  - {T: 300, P: 1 atm, X: {E: 1.0}}
+  - {T: 3500, P: 10 atm, X: {O2: 1.0, O2-: 2e-5, E: 2e-5}}
+
+debye-huckel-dilute:
+  setup:
+    file: debye-huckel-all.yaml
+    phase: debye-huckel-dilute
+    known-failures: &debye-huckel-failures
+      cv_eq_.+: cv not implemented
+      activity_coeffs: "Activity coeffs are incorrect. See GitHub Issue #1311"
+
+  states: &debye-huckel-states
+  - {T: 300, P: 1 atm,
+     molalities: {Na+: 9.3549, Cl-: 9.3549, H+: 1.05e-08, OH-: 1.3765e-06,
+                  NaCl(aq): 0.98492, NaOH(aq): 3.8836e-06, NaH3SiO4(aq): 6.8798e-05,
+                  SiO2(aq): 3.0179e-05, H3SiO4-: 1.0231e-06}}
+  - {T: 300, P: 1 atm,
+     molalities: {Na+: 4.1, Cl-: 4.1, H+: 1.05e-07, OH-: 1.3765e-05,
+                  NaCl(aq): 2.2, NaOH(aq): 3.8836e-03}}
+  - {T: 320, P: 1 atm,
+     molalities: {Na+: 9.3549, Cl-: 9.3549, H+: 1.05e-06, OH-: 2.0e-05,
+                  NaCl(aq): 0.98492, NaOH(aq): 3.8836e-06}}
+  - {T: 320, P: 20 atm,
+     molalities: {Na+: 9.3549, Cl-: 9.3549, H+: 1.05e-08, OH-: 1.3765e-06,
+                  NaCl(aq): 0.98492, NaOH(aq): 3.8836e-06}}
+
+debye-huckel-dilute-IAPWS:
+  setup:
+    file: debye-huckel-all.yaml
+    phase: debye-huckel-dilute-IAPWS
+    rtol_fd: 1e-5  # Good finite difference results with IAPWS are challenging
+    known-failures:
+      cv_eq_.+: cv not implemented
+      activity_coeffs: "Activity coeffs are incorrect. See GitHub Issue #1311"
+      cp_eq_.+: "cp with variable A_Debye is incorrect. See GitHub Issue #1500"
+      dsdP_const_T_eq_minus_dV_dT_const_P.+:
+        "Error with dilute limit with variable A_Debye. See GitHub Issue #1502"
+  states: *debye-huckel-states
+
+debye-huckel-B-dot-ak:
+  setup:
+    file: debye-huckel-all.yaml
+    phase: debye-huckel-B-dot-ak
+    known-failures: *debye-huckel-failures
+  states: *debye-huckel-states
+
+debye-huckel-B-dot-ak-IAPWS:
+  setup:
+    file: debye-huckel-all.yaml
+    phase: debye-huckel-B-dot-ak-IAPWS
+    rtol_fd: 1e-5  # Good finite difference results with IAPWS are challenging
+    known-failures: &debye-huckel-IAPWS-failures
+      cv_eq_.+: cv not implemented
+      activity_coeffs: "Activity coeffs are incorrect. See GitHub Issue #1311"
+      cp_eq_.+: "cp with variable A_debye is incorrect. See GitHub Issue #1500"
+  states: *debye-huckel-states
+
+debye-huckel-B-dot-a:
+  setup:
+    file: debye-huckel-all.yaml
+    phase: debye-huckel-B-dot-a
+    known-failures: *debye-huckel-failures
+  states: *debye-huckel-states
+
+debye-huckel-B-dot-a-IAPWS:
+  setup:
+    file: debye-huckel-all.yaml
+    phase: debye-huckel-B-dot-a-IAPWS
+    rtol_fd: 1e-5  # Good finite difference results with IAPWS are challenging
+    known-failures: *debye-huckel-IAPWS-failures
+  states: *debye-huckel-states
+
+debye-huckel-pitzer-beta_ij:
+  setup:
+    file: debye-huckel-all.yaml
+    phase: debye-huckel-pitzer-beta_ij
+    known-failures: *debye-huckel-failures
+  states: *debye-huckel-states
+
+debye-huckel-pitzer-beta_ij-IAPWS:
+  setup:
+    file: debye-huckel-all.yaml
+    phase: debye-huckel-pitzer-beta_ij-IAPWS
+    rtol_fd: 1e-5  # Good finite difference results with IAPWS are challenging
+    known-failures: *debye-huckel-IAPWS-failures
+  states: *debye-huckel-states
+
+debye-huckel-beta_ij:
+  setup:
+    file: debye-huckel-all.yaml
+    phase: debye-huckel-beta_ij
+    known-failures: *debye-huckel-failures
+  states: *debye-huckel-states
+
+debye-huckel-beta_ij-IAPWS:
+  setup:
+    file: debye-huckel-all.yaml
+    phase: debye-huckel-beta_ij-IAPWS
+    rtol_fd: 1e-5  # Good finite difference results with IAPWS are challenging
+    known-failures: *debye-huckel-IAPWS-failures
+  states: *debye-huckel-states
+
+margules:
+  setup:
+    file: LiKCl_liquid.yaml
+    known-failures:
+      cv_eq.+: "Implementation of cv is incorrect. See GitHub Issue #1308"
+  states:
+  - {T: 900, P: 1 atm, X: {KCl(L): 0.2, LiCl(L): 0.8}}
+  - {T: 1000, P: 10 atm, X: {KCl(L): 0.99, LiCl(L): 0.01}}
+  - {T: 1400, P: 20 atm, X: {KCl(L): 2.0e-5, LiCl(L): 1}}
+
+lattice:
+  setup:
+    file: thermo-models.yaml
+    phase: Li7Si3-interstitial
+    known-failures:
+      _sum_.+_Xk: "Implementation is wrong. See GitHub Issue #1309"
+      gk_eq_hk_minus_T_sk: "Implementation is wrong. See GitHub Issue #1309"
+      standard_gibbs_nondim: "Implementation is wrong. See GitHub Issue #1309"
+      chem_potentials_to_activities: "Implementation is wrong. See GitHub Issue #1309"
+  states:
+  - {T: 725.0 K, P: 1.0 atm, X: {Li(i): 0.2, V(i): 0.8}}
+  - {T: 825.0 K, P: 50.0 bar, X: {Li(i): 0.7, V(i): 0.3}}
+  - {T: 925.0 K, P: 50.0 bar, X: {Li(i): 1.0, V(i): 0.0}}
+
+compound-lattice:
+  setup:
+    file: thermo-models.yaml
+    phase: Li7Si3_and_interstitials
+    known-failures:
+      _sum_.+_Xk: "LatticePhase implementation is wrong. See GitHub Issue #1309"
+      h_eq_u_plus_Pv: "Implementation is inconsistent. See GitHub Issue #1310"
+      gk_eq_hk_minus_T_sk: "Implementation is inconsistent. See GitHub Issue #1310"
+      chem_potentials_to_activities:
+        "LatticePhase implementation is wrong. See GitHub Issue #1309"
+      activity_coeffs: "See GitHub Issue #1309"
+  states:
+  - {T: 725.0 K, P: 1.0 atm}
+  - {T: 825.0 K, P: 50.0 bar}
+  - {T: 825.0 K, P: 50.0 bar, X: {Li7Si3(s): 0.3, Li(i): 0.5, V(i): 0.2}}
+
+fixed-stoichiometry:
+  setup:
+    file: thermo-models.yaml
+    phase: KCl(s)
+  states:
+  - {T: 300, P: 1 atm}
+  - {T: 300, P: 10 atm}
+  - {T: 500, P: 10 atm}
+
+ideal-surface:
+  setup:
+    file: surface-phases.yaml
+    phase: Pt-surf
+    atol_v: 1e-7
+  states:
+  - {T: 800, P: 1 atm, coverages: {Pt(s): 0.5, H(s): 0.4, O(s): 0.1}}
+  - {T: 800, P: 5 atm, coverages: {H(s): 1.0}}
+  - {T: 300, P: 20 atm, coverages: {Pt(s): 1.0}}
+  - {T: 600, P: 5 atm, coverages: {Pt(s): 0.1, O(s): 0.9}}
+
+ideal-edge:
+  setup:
+    file: surface-phases.yaml
+    phase: TPB
+    atol_v: 1e3  # site density of 5e-18 kmol/m = linear molar volume of 2e17 m/kmol
+  states:
+  - {T: 300, P: 1 atm}
+  - {T: 900, P: 20 atm}
+
+coverage-dependent-surface:
+  setup:
+    file: copt_covdepsurf_example.yaml
+    phase: covdep
+    atol_v: 1e-7
+  states:
+  - {T: 700, P: 1 atm,
+     coverages: {Pt: 0.0, OC_Pt: 0.1, CO2_Pt: 0.5, C_Pt: 0.1, O_Pt: 0.3}}
+  - {T: 800, P: 5 atm,
+     coverages: {Pt: 0.12, OC_Pt: 0.07, CO2_Pt: 0.21, C_Pt: 0.17, O_Pt: 0.43}}
+  - {T: 300, P: 3 atm,
+     coverages: {Pt: 0.0, OC_Pt: 0.71, CO2_Pt: 0.08, C_Pt: 0.07, O_Pt: 0.14}}
+  - {T: 500, P: 10 atm,
+     coverages: {Pt: 0.0, OC_Pt: 0.0, CO2_Pt: 0.09, C_Pt: 0.81, O_Pt: 0.1}}
+
+liquid-water-IAPWS95:
+  setup:
+    file: liquidvapor.yaml
+    phase: liquid-water-IAPWS95
+    rtol_fd: 5e-3  # Limited agreement for Maxwell relations
+    known-failures:
+      log_standard_concentrations: Not implemented
+  states:
+  - {T: 300, P: 1 atm}
+  - {T: 360, P: 1 atm}
+  - {T: 450, P: 100 atm}
+
+ideal-solution-VPSS-simple:
+  setup:
+    file: IdealSolidSolnPhaseExample.yaml
+    phase: VpssSolidSolutionExample
+    known-failures:
+      cv_eq_dudT: "Implementation of cv is incorrect. See GitHub Issue #1317"
+      cv_eq_dsdT_const_v_times_T:
+        "Implementation of cv is incorrect. See GitHub Issue #1317"
+  states:
+  - {T: 300, P: 1 atm, X: {C2H2-graph: 0.2, C-graph: 0.5, H2-solute: 0.3}}
+  - {T: 400, P: 1 atm, X: {C2H2-graph: 1.0}}
+  - {T: 500, P: 10 atm, X: {C-graph: 0.6, H2-solute: 0.4}}
+
+ideal-solution-VPSS-HKFT:
+  setup:
+    file: pdss_hkft.yaml
+    known-failures:
+      cv_eq_dudT: "Implementation of cv is incorrect. See GitHub Issue #1317"
+      cv_eq_dsdT_const_v_times_T:
+        "Implementation of cv is incorrect. See GitHub Issue #1317"
+      dsdP_const_T_eq_minus_dV_dT_const_P:
+        "Implementation of cv is incorrect. See GitHub Issue #1318"
+  states:
+  - {T: 300, P: 1 atm, X: {H2O(L): 0.9, Na+: 0.05, Cl-: 0.05, H+: 1e-7, OH-: 1e-7}}
+  - {T: 360, P: 5 atm, X: {H2O(L): 0.6, Na+: 0.2, Cl-: 0.2}}
+  - {T: 330, P: 10 atm, X: {H2O(L): 0.9, Na+: 0.05, Cl-: 0.05, H+: 1e-7, OH-: 1e-7}}
+  - {T: 320, P: 1 atm, X: {H2O(L): 1.0, Na+: 0.01, Cl-: 0.05, H+: 0.04}}
+
+Redlich-Kister-LiC6:
+  setup:
+    file: thermo-models.yaml
+    phase: Redlich-Kister-LiC6
+  states:
+  - {T: 300, P: 1 atm, X: {Li(C6): 0.85, V(C6): 0.15}}
+  - {T: 440, P: 1 atm, X: {Li(C6): 0.75, V(C6): 0.25}}
+  - {T: 350, P: 10 atm, X: {Li(C6): 1.0, V(C6): 0.0}}
+  - {T: 350, P: 10 atm, X: {Li(C6): 0.0, V(C6): 1.0}}
+
+Redlich-Kister-complex:
+  setup:
+    file: thermo-models.yaml
+    phase: Redlich-Kister-complex
+  states:
+  - {T: 900, P: 1 atm, X: {KCl(l): 0.85, LiCl(l): 0.15}}
+  - {T: 950, P: 10 atm, X: {KCl(l): 0.3, LiCl(l): 0.2, NaCl(s): 0.5}}
+  - {T: 950, P: 0.1 atm, X: {KCl(l): 0.05, LiCl(l): 0.0, NaCl(s): 0.95}}
+
+Maskell-solid-solution:
+  setup:
+    file: thermo-models.yaml
+    phase: MaskellSolidSoln
+    ignore-deprecations: true
+    known-failures:
+      g_eq_sum_gk_Xk: "Inconsistent implementation. See GitHub Issue #1321"
+      hk0_eq_uk0_plus_p_vk0/[234]:
+        "Inconsistent except at P = 1 atm. See GitHub Issue #1321"
+      cpk0_eq_dhk0dT/[234]:
+        "Inconsistent except at P = 1 atm. See GitHub Issue #1321"
+      standard_gibbs_nondim/[234]:
+        "Inconsistent except at P = 1 atm. See GitHub Issue #1321"
+      g_eq_h_minus_Ts/[34]:
+        "Generates NaN at limiting composition. See GitHub Issue #1321"
+      dsdP_const_T_eq_minus_dV_dT_const_P/[34]:
+        "Generates NaN at limiting composition. See GitHub Issue #1321"
+      chem_potentials_to_activities/[34]:
+        "Generates NaN at limiting composition. See GitHub Issue #1321"
+      activity_coeffs/[34]:
+        "Generates NaN at limiting composition. See GitHub Issue #1321"
+      activity_concentrations/[34]:
+        "Generates NaN at limiting composition. See GitHub Issue #1321"
+      log_activity_coeffs/[34]:
+        "Generates NaN at limiting composition. See GitHub Issue #1321"
+      h_eq_u_plus_Pv/4:
+        "Generates NaN at limiting composition. See GitHub Issue #1321"
+  states:
+  - {T: 300, P: 1 atm, X: {H(s): 0.3, He(s): 0.7}}
+  - {T: 340, P: 1 atm, X: {H(s): 0.3, He(s): 0.7}}
+  - {T: 330, P: 10 atm, X: {H(s): 0.3, He(s): 0.7}}
+  - {T: 280, P: 20 atm, X: {H(s): 1.0, He(s): 0.0}}
+  - {T: 380, P: 5 atm, X: {H(s): 0.0, He(s): 1.0}}
+
+ions-from-neutral-molecule:
+  setup:
+    file: thermo-models.yaml
+    phase: ions-from-neutral-molecule
+    ignore-deprecations: true
+    known-failures:
+      g_eq_h_minus_Ts: "Inconsistent results. See GitHub Issue #1322"
+      gk_eq_hk_minus_T_sk: "Inconsistent results. See GitHub Issue #1322"
+      v_eq_sum_vk_Xk: "Inconsistent results. See GitHub Issue #1322"
+      chem_potentials_to_activities: "Inconsistent results. See GitHub Issue #1322"
+  states:
+  - {T: 300, P: 1 atm, X: {K+: 0.1, Cl-: 0.1}}
+  - {T: 500, P: 5 bar, X: {K+: 0.1, Cl-: 0.1}}
+
+HMW-electrolyte:
+  setup:
+    file: HMW_NaCl.yaml
+    known-failures:
+      cp_eq_dhdT: "Moderate discrepancies. See GitHub Issue #1324"
+      cp_eq_dsdT_const_p_times_T: "Moderate discrepancies. See GitHub Issue #1324"
+      dsdP_const_T_eq_minus_dV_dT_const_P: "Moderate discrepancies. See GitHub Issue #1324"
+      activity_coeffs: "Major discrepancies for all solute species. See GitHub Issue #1324"
+  states:
+  - {T: 300, P: 1 atm, molalities: {Na+: 9.4, Cl-: 9.4, H+: 1.05e-05, OH-: 1.0e-05}}
+  - {T: 330, P: 1 atm, molalities: {Na+: 9.4, Cl-: 9.4, H+: 1.05e-04, OH-: 1.0e-04}}
+  - {T: 330, P: 10 atm, molalities: {Na+: 5.0, Cl-: 4.8, H+: 1.0e-07, OH-: 0.2}}

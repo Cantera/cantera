@@ -12,7 +12,7 @@ class ThermoToYaml : public testing::Test
 {
 public:
     void setup(const std::string& fileName, const std::string& phaseName="") {
-        thermo.reset(newPhase(fileName, phaseName));
+        thermo = newThermo(fileName, phaseName);
         // Because ThermoPhase::input may already contain the data we are trying
         // to check for here, clear it so that the only parameters are those
         // added by the overrides of getParameters.
@@ -141,8 +141,40 @@ TEST_F(ThermoToYaml, Edge)
     EXPECT_DOUBLE_EQ(data["site-density"].asDouble(), 5e-18);
 }
 
+TEST_F(ThermoToYaml, CoverageDependentSurface)
+{
+    setup("copt_covdepsurf_example.yaml", "covdep");
+    EXPECT_EQ(data["thermo"], "coverage-dependent-surface");
+    EXPECT_DOUBLE_EQ(data["site-density"].asDouble(), 2.72e-8);
+    EXPECT_DOUBLE_EQ(data["reference-state-coverage"].asDouble(), 0.22);
+    UnitSystem us;
+    EXPECT_EQ(speciesData[1]["coverage-dependencies"]["OC_Pt"]["model"], "linear");
+    EXPECT_DOUBLE_EQ(
+        speciesData[1]["coverage-dependencies"]["OC_Pt"]["enthalpy"]
+        .asDouble(), us.convertFrom(0.48, "eV/molec"));
+    EXPECT_EQ(
+        speciesData[2]["coverage-dependencies"]["OC_Pt"]["model"], "piecewise-linear");
+    EXPECT_DOUBLE_EQ(
+        speciesData[2]["coverage-dependencies"]["OC_Pt"]["entropy-high"]
+        .asDouble(), us.convertFrom(-0.1, "eV/molec"));
+    EXPECT_EQ(
+        speciesData[1]["coverage-dependencies"]["O_Pt"]["model"], "interpolative");
+    EXPECT_DOUBLE_EQ(
+        speciesData[1]["coverage-dependencies"]["O_Pt"]["enthalpies"]
+        .asVector<double>()[3], us.convertFrom(2.7, "kcal/mol"));
+    EXPECT_EQ(
+        speciesData[4]["coverage-dependencies"]["O_Pt"]["model"], "polynomial");
+    EXPECT_DOUBLE_EQ(
+        speciesData[4]["coverage-dependencies"]["O_Pt"]["enthalpy-coefficients"]
+        .asVector<double>()[3], us.convertFrom(2.11, "eV/molec"));
+    EXPECT_DOUBLE_EQ(
+        speciesData[3]["coverage-dependencies"]["C_Pt"]["heat-capacity-a"]
+        .asDouble(), us.convertFrom(0.07e-3, "eV/molec"));
+}
+
 TEST_F(ThermoToYaml, IonsFromNeutral)
 {
+    suppress_deprecation_warnings();
     setup("thermo-models.yaml", "ions-from-neutral-molecule");
     EXPECT_EQ(data["neutral-phase"], "KCl-neutral");
     EXPECT_FALSE(eosData[0].hasKey("special-species"));
@@ -150,6 +182,7 @@ TEST_F(ThermoToYaml, IonsFromNeutral)
     auto multipliers = eosData[1]["multipliers"].asMap<double>();
     EXPECT_EQ(multipliers.size(), (size_t) 1);
     EXPECT_DOUBLE_EQ(multipliers["KCl(l)"], 1.5);
+    make_deprecation_warnings_fatal();
 }
 
 TEST_F(ThermoToYaml, Margules)
@@ -173,9 +206,11 @@ TEST_F(ThermoToYaml, RedlichKister)
 
 TEST_F(ThermoToYaml, MaskellSolidSolution)
 {
+    suppress_deprecation_warnings();
     setup("thermo-models.yaml", "MaskellSolidSoln");
     EXPECT_EQ(data["product-species"], "H(s)");
     EXPECT_DOUBLE_EQ(data["excess-enthalpy"].asDouble(), 5e3);
+    make_deprecation_warnings_fatal();
 }
 
 TEST_F(ThermoToYaml, DebyeHuckel_B_dot_ak)
@@ -301,7 +336,10 @@ TEST_F(ThermoToYaml, IdealMolalSolution)
     EXPECT_DOUBLE_EQ(cutoff["gamma_o"].asDouble(), 0.0001);
 
     EXPECT_EQ(eosData[2]["model"], "constant-volume");
-    EXPECT_DOUBLE_EQ(eosData[2]["molar-volume"].asDouble(), 0.1);
+    EXPECT_DOUBLE_EQ(eosData[2]["molar-density"].asDouble(), 10);
+
+    EXPECT_EQ(eosData[3]["model"], "constant-volume");
+    EXPECT_DOUBLE_EQ(eosData[3]["density"].asDouble(), 160.43);
 }
 
 TEST_F(ThermoToYaml, IsotropicElectronEnergyPlasma)
@@ -329,19 +367,19 @@ class ThermoYamlRoundTrip : public testing::Test
 public:
     void roundtrip(const std::string& fileName, const std::string& phaseName="",
         const std::vector<std::string> extraPhases={}) {
-        original.reset(newPhase(fileName, phaseName));
+        original = newThermo(fileName, phaseName);
         YamlWriter writer;
         writer.addPhase(original);
         for (const auto& name : extraPhases) {
-            shared_ptr<ThermoPhase> p(newPhase(fileName, name));
+            shared_ptr<ThermoPhase> p(newThermo(fileName, name));
             writer.addPhase(p);
         }
         writer.skipUserDefined();
         AnyMap input1 = AnyMap::fromYamlString(writer.toYamlString());
-        duplicate = newPhase(input1["phases"].getMapWhere("name", phaseName),
-                             input1);
+        duplicate = newThermo(input1["phases"].getMapWhere("name", phaseName), input1);
         skip_cp = false;
         skip_activities = false;
+        skip_entropy = false;
         rtol = 1e-14;
     }
 
@@ -357,14 +395,20 @@ public:
             duplicate->setState_TPX(T, P, X);
         }
 
-        EXPECT_NEAR(original->density(), duplicate->density(),
-                    rtol * original->density());
+        double rhoOrig = original->density();
+        double rhoDup = duplicate->density();
+        if (rhoOrig != rhoDup) {
+            EXPECT_NEAR(original->density(), duplicate->density(),
+                        rtol * original->density());
+        }
         if (!skip_cp) {
             EXPECT_NEAR(original->cp_mass(), duplicate->cp_mass(),
                         rtol * original->cp_mass());
         }
-        EXPECT_NEAR(original->entropy_mass(), duplicate->entropy_mass(),
-                    rtol * fabs(original->entropy_mass()));
+        if (!skip_entropy) {
+            EXPECT_NEAR(original->entropy_mass(), duplicate->entropy_mass(),
+                        rtol * fabs(original->entropy_mass()));
+        }
         EXPECT_NEAR(original->enthalpy_mole(), duplicate->enthalpy_mole(),
                     rtol * fabs(original->enthalpy_mole()));
 
@@ -399,6 +443,7 @@ public:
     shared_ptr<ThermoPhase> duplicate;
     bool skip_cp;
     bool skip_activities;
+    bool skip_entropy;
     double rtol;
 };
 
@@ -437,8 +482,8 @@ TEST_F(ThermoYamlRoundTrip, PengRobinson_crit_props)
 
 TEST_F(ThermoYamlRoundTrip, BinarySolutionTabulated)
 {
-    roundtrip("lithium_ion_battery.yaml", "cathode");
-    compareThermo(310, 2e5, "Li[cathode]:0.4, V[cathode]:0.6");
+    roundtrip("BinarySolutionTabulatedThermo.yaml", "anode");
+    compareThermo(310, 2e5, "Li[anode]:0.4, V[anode]:0.6");
 }
 
 TEST_F(ThermoYamlRoundTrip, Margules)
@@ -467,10 +512,12 @@ TEST_F(ThermoYamlRoundTrip, IdealSolutionVpss)
 
 TEST_F(ThermoYamlRoundTrip, IonsFromNeutral)
 {
+    suppress_deprecation_warnings();
     roundtrip("thermo-models.yaml", "ions-from-neutral-molecule",
               {"KCl-neutral"});
     skip_cp = true; // Not implemented for IonsFromNeutral
     compareThermo(500, 3e5);
+    make_deprecation_warnings_fatal();
 }
 
 TEST_F(ThermoYamlRoundTrip, LatticeSolid)
@@ -510,9 +557,19 @@ TEST_F(ThermoYamlRoundTrip, Surface)
     EXPECT_DOUBLE_EQ(origSurf->siteDensity(), duplSurf->siteDensity());
 }
 
+TEST_F(ThermoYamlRoundTrip, CoverageDependentSurface)
+{
+    roundtrip("copt_covdepsurf_example.yaml", "covdep");
+    skip_activities = true;
+    compareThermo(800, 2*OneAtm,
+        "Pt: 0.2, OC_Pt: 0.2, CO2_Pt: 0.2, C_Pt: 0.2, O_Pt: 0.2");
+}
+
 TEST_F(ThermoYamlRoundTrip, IsotropicElectronEnergyPlasma)
 {
     roundtrip("oxygen-plasma.yaml", "isotropic-electron-energy-plasma");
+    skip_cp = true; // Not implemented for PlasmaPhase
+    skip_entropy = true; // Not implemented for PlasmaPhase
     compareThermo(800, 2*OneAtm);
     auto origPlasma = std::dynamic_pointer_cast<PlasmaPhase>(original);
     auto duplPlasma = std::dynamic_pointer_cast<PlasmaPhase>(duplicate);
@@ -526,6 +583,8 @@ TEST_F(ThermoYamlRoundTrip, IsotropicElectronEnergyPlasma)
 TEST_F(ThermoYamlRoundTrip, DiscretizedElectronEnergyPlasma)
 {
     roundtrip("oxygen-plasma.yaml", "discretized-electron-energy-plasma");
+    skip_cp = true; // Not implemented for PlasmaPhase
+    skip_entropy = true; // Not implemented for PlasmaPhase
     compareThermo(800, 2*OneAtm);
     EXPECT_DOUBLE_EQ(original->electronTemperature(), duplicate->electronTemperature());
 }

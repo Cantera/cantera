@@ -15,7 +15,6 @@
 #include "cantera/thermo/SpeciesThermoInterpType.h"
 #include "cantera/equil/ChemEquil.h"
 #include "cantera/equil/MultiPhase.h"
-#include "cantera/base/ctml.h"
 
 #include <iomanip>
 #include <fstream>
@@ -25,22 +24,6 @@ using namespace std;
 
 namespace Cantera
 {
-
-ThermoPhase::ThermoPhase() :
-    m_speciesData(0),
-    m_phi(0.0),
-    m_chargeNeutralityNecessary(false),
-    m_ssConvention(cSS_CONVENTION_TEMPERATURE),
-    m_tlast(0.0)
-{
-}
-
-ThermoPhase::~ThermoPhase()
-{
-    for (size_t k = 0; k < m_speciesData.size(); k++) {
-        delete m_speciesData[k];
-    }
-}
 
 void ThermoPhase::resetHf298(size_t k) {
     if (k != npos) {
@@ -143,55 +126,84 @@ void ThermoPhase::setState_TP(doublereal t, doublereal p)
         setTemperature(t);
         setPressure(p);
     } catch (CanteraError&) {
-        setState_TR(tsave, dsave);
+        setState_TD(tsave, dsave);
         throw;
     }
 }
 
 void ThermoPhase::setState_RPX(doublereal rho, doublereal p, const doublereal* x)
 {
+    warn_deprecated("ThermoPhase::setState_RPX",
+        "To be removed after Cantera 3.0. Replaceable by calls to "
+        "setMoleFractions and setState_DP.");
     setMoleFractions(x);
-    setState_RP(rho, p);
+    setState_DP(rho, p);
 }
 
 void ThermoPhase::setState_RPX(doublereal rho, doublereal p, const compositionMap& x)
 {
+    warn_deprecated("ThermoPhase::setState_RPX",
+        "To be removed after Cantera 3.0. Replaceable by calls to "
+        "setMoleFractionsByName and setState_DP.");
     setMoleFractionsByName(x);
-    setState_RP(rho,p);
+    setState_DP(rho, p);
 }
 
 void ThermoPhase::setState_RPX(doublereal rho, doublereal p, const std::string& x)
 {
+    warn_deprecated("ThermoPhase::setState_RPX",
+        "To be removed after Cantera 3.0. Replaceable by calls to "
+        "setMoleFractionsByName and setState_DP.");
     setMoleFractionsByName(x);
-    setState_RP(rho,p);
+    setState_DP(rho, p);
 }
 
 void ThermoPhase::setState_RPY(doublereal rho, doublereal p, const doublereal* y)
 {
+    warn_deprecated("ThermoPhase::setState_RPY",
+        "To be removed after Cantera 3.0. Replaceable by calls to "
+        "setMassFractions and setState_DP.");
     setMassFractions(y);
-    setState_RP(rho,p);
+    setState_DP(rho, p);
 }
 
 void ThermoPhase::setState_RPY(doublereal rho, doublereal p, const compositionMap& y)
 {
+    warn_deprecated("ThermoPhase::setState_RPY",
+        "To be removed after Cantera 3.0. Replaceable by calls to "
+        "setMassFractionsByName and setState_DP.");
     setMassFractionsByName(y);
-    setState_RP(rho,p);
+    setState_DP(rho, p);
 }
 
 void ThermoPhase::setState_RPY(doublereal rho, doublereal p, const std::string& y)
 {
+    warn_deprecated("ThermoPhase::setState_RPY",
+        "To be removed after Cantera 3.0. Replaceable by calls to "
+        "setMassFractionsByName and setState_DP.");
     setMassFractionsByName(y);
-    setState_RP(rho,p);
+    setState_DP(rho, p);
+}
+
+void ThermoPhase::setState_RP(doublereal rho, doublereal p)
+{
+    warn_deprecated("ThermoPhase::setState_RP",
+        "To be removed after Cantera 3.0. Renamed to setState_DP.");
+    setState_DP(rho, p);
 }
 
 void ThermoPhase::setState_PX(doublereal p, doublereal* x)
 {
+    warn_deprecated("ThermoPhase::setState_PX", "To be removed after Cantera 3.0. "
+        "Call 'setMoleFractions' and 'setPressure' instead.");
     setMoleFractions(x);
     setPressure(p);
 }
 
 void ThermoPhase::setState_PY(doublereal p, doublereal* y)
 {
+    warn_deprecated("ThermoPhase::setState_PX", "To be removed after Cantera 3.0. "
+        "Call 'setMassFractions' and 'setPressure' instead.");
     setMassFractions(y);
     setPressure(p);
 }
@@ -276,7 +288,7 @@ void ThermoPhase::setState(const AnyMap& input_state)
             setState_TP(T, P);
         }
     } else if (state.hasKey("T") && state.hasKey("D")) {
-        setState_TR(state.convert("T", "K"), state.convert("D", "kg/m^3"));
+        setState_TD(state.convert("T", "K"), state.convert("D", "kg/m^3"));
     } else if (state.hasKey("T") && state.hasKey("V")) {
         setState_TV(state.convert("T", "K"), state.convert("V", "m^3/kg"));
     } else if (state.hasKey("H") && state.hasKey("P")) {
@@ -300,7 +312,7 @@ void ThermoPhase::setState(const AnyMap& input_state)
     } else if (state.hasKey("S") && state.hasKey("H")) {
         setState_SH(state.convert("S", "J/kg/K"), state.convert("H", "J/kg"));
     } else if (state.hasKey("D") && state.hasKey("P")) {
-        setState_RP(state.convert("D", "kg/m^3"), state.convert("P", "Pa"));
+        setState_DP(state.convert("D", "kg/m^3"), state.convert("P", "Pa"));
     } else if (state.hasKey("P") && state.hasKey("Q")) {
         setState_Psat(state.convert("P", "Pa"), state["Q"].asDouble());
     } else if (state.hasKey("T") && state.hasKey("Q")) {
@@ -1075,28 +1087,14 @@ void ThermoPhase::initThermoFile(const std::string& inputFile,
     if (dot != npos) {
         extension = inputFile.substr(dot+1);
     }
-
-    if (extension == "yml" || extension == "yaml") {
-        AnyMap root = AnyMap::fromYamlFile(inputFile);
-        auto& phase = root["phases"].getMapWhere("name", id);
-        setupPhase(*this, phase, root);
-    } else {
-        XML_Node* fxml = get_XML_File(inputFile);
-        XML_Node* fxml_phase = findXMLPhase(fxml, id);
-        if (!fxml_phase) {
-            throw CanteraError("ThermoPhase::initThermoFile",
-                               "ERROR: Can not find phase named {} in file"
-                               " named {}", id, inputFile);
-        }
-        importPhase(*fxml_phase, this);
+    if (extension == "xml" || extension == "cti") {
+        throw CanteraError("ThermoPhase::initThermoFile",
+                           "The CTI and XML formats are no longer supported.");
     }
-}
 
-void ThermoPhase::initThermoXML(XML_Node& phaseNode, const std::string& id)
-{
-    if (phaseNode.hasChild("state")) {
-        setStateFromXML(phaseNode.child("state"));
-    }
+    AnyMap root = AnyMap::fromYamlFile(inputFile);
+    auto& phase = root["phases"].getMapWhere("name", id);
+    setupPhase(*this, phase, root);
 }
 
 void ThermoPhase::initThermo()
@@ -1166,36 +1164,6 @@ void ThermoPhase::modifySpecies(size_t k, shared_ptr<Species> spec)
     spec->thermo->validate(spec->name);
     m_spthermo.modifySpecies(k, spec->thermo);
 }
-
-void ThermoPhase::saveSpeciesData(const size_t k, const XML_Node* const data)
-{
-    if (m_speciesData.size() < (k + 1)) {
-        m_speciesData.resize(k+1, 0);
-    }
-    m_speciesData[k] = new XML_Node(*data);
-}
-
-const std::vector<const XML_Node*> & ThermoPhase::speciesData() const
-{
-    if (m_speciesData.size() != m_kk) {
-        throw CanteraError("ThermoPhase::speciesData",
-                           "m_speciesData is the wrong size");
-    }
-    return m_speciesData;
-}
-
-void ThermoPhase::setParameters(int n, doublereal* const c)
-{
-    warn_deprecated("ThermoPhase::setParamters(int, double*)",
-        "To be removed after Cantera 2.6.");
-}
-
-void ThermoPhase::getParameters(int& n, doublereal* const c) const
-{
-    warn_deprecated("ThermoPhase::getParamters(int&, double*)",
-        "To be removed after Cantera 2.6.");
-}
-
 
 void ThermoPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
 {
@@ -1273,31 +1241,6 @@ const AnyMap& ThermoPhase::input() const
 AnyMap& ThermoPhase::input()
 {
     return m_input;
-}
-
-void ThermoPhase::setStateFromXML(const XML_Node& state)
-{
-    string comp = getChildValue(state,"moleFractions");
-    if (comp != "") {
-        setMoleFractionsByName(comp);
-    } else {
-        comp = getChildValue(state,"massFractions");
-        if (comp != "") {
-            setMassFractionsByName(comp);
-        }
-    }
-    if (state.hasChild("temperature")) {
-        double t = getFloat(state, "temperature", "temperature");
-        setTemperature(t);
-    }
-    if (state.hasChild("pressure")) {
-        double p = getFloat(state, "pressure", "pressure");
-        setPressure(p);
-    }
-    if (state.hasChild("density")) {
-        double rho = getFloat(state, "density", "density");
-        setDensity(rho);
-    }
 }
 
 void ThermoPhase::invalidateCache() {
@@ -1396,8 +1339,8 @@ void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld, doublereal* const
         Xmol[j] = (moles_j_base + deltaMoles_j) / v_totalMoles;
 
         // Go get new values for the activity coefficients.
-        // -> Note this calls setState_PX();
-        setState_PX(pres, Xmol.data());
+        setMoleFractions(Xmol.data());
+        setPressure(pres);
         getActivityCoefficients(ActCoeff.data());
 
         // Calculate the column of the matrix
@@ -1410,15 +1353,15 @@ void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld, doublereal* const
         v_totalMoles = TMoles_base;
         Xmol = Xmol_Base;
     }
-
-    setState_PX(pres, Xmol_Base.data());
+    setMoleFractions(Xmol_Base.data());
+    setPressure(pres);
 }
 
 std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
 {
-    if (type() == "None") {
+    if (type() == "none") {
         throw NotImplementedError("ThermoPhase::report",
-            "Not implemented for thermo model 'None'");
+            "Not implemented for thermo model 'none'");
     }
 
     fmt::memory_buffer b;
@@ -1549,6 +1492,7 @@ std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
 
 void ThermoPhase::reportCSV(std::ofstream& csvFile) const
 {
+    warn_deprecated("ThermoPhase::reportCSV", "To be removed after Cantera 3.0.");
     int tabS = 15;
     int tabM = 30;
     csvFile.precision(8);
@@ -1582,6 +1526,7 @@ void ThermoPhase::reportCSV(std::ofstream& csvFile) const
 void ThermoPhase::getCsvReportData(std::vector<std::string>& names,
                                    std::vector<vector_fp>& data) const
 {
+    warn_deprecated("ThermoPhase::getCsvReportData", "To be removed after Cantera 3.0.");
     names.clear();
     data.assign(10, vector_fp(nSpecies()));
 

@@ -9,17 +9,10 @@
 #include "cantera/zeroD/ReactorSurface.h"
 #include "cantera/thermo/ThermoPhase.h"
 
-using namespace std;
 namespace Cantera
 {
 
-ReactorBase::ReactorBase(const string& name) : m_nsp(0),
-    m_thermo(0),
-    m_vol(1.0),
-    m_enthalpy(0.0),
-    m_intEnergy(0.0),
-    m_pressure(0.0),
-    m_net(0)
+ReactorBase::ReactorBase(const string& name)
 {
     m_name = name;
 }

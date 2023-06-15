@@ -14,8 +14,9 @@
 
 namespace Cantera
 {
+
 /**
- *  Virtual base class for ODE right-hand-side function evaluators.
+ *  Virtual base class for ODE/DAE right-hand-side function evaluators.
  *  Classes derived from FuncEval evaluate the right-hand-side function
  * \f$ \vec{F}(t,\vec{y})\f$ in
  * \f[
@@ -26,17 +27,38 @@ namespace Cantera
 class FuncEval
 {
 public:
-    FuncEval();
-    virtual ~FuncEval() {}
+    FuncEval() = default;
+    virtual ~FuncEval() = default;
 
     /**
-     * Evaluate the right-hand-side function. Called by the integrator.
+     * Evaluate the right-hand-side ODE function. Called by the integrator.
      * @param[in] t time.
      * @param[in] y solution vector, length neq()
      * @param[out] ydot rate of change of solution vector, length neq()
      * @param[in] p sensitivity parameter vector, length nparams()
      */
-    virtual void eval(double t, double* y, double* ydot, double* p)=0;
+    virtual void eval(double t, double* y, double* ydot, double* p) {
+        throw NotImplementedError("FuncEval::eval");
+    }
+
+    /**
+     * Evaluate the right-hand-side DAE function. Called by the integrator.
+     * @param[in] t time.
+     * @param[in] y solution vector, length neq()
+     * @param[out] ydot rate of change of solution vector, length neq()
+     * @param[in] p sensitivity parameter vector, length nparams()
+     * @param[out] residual the DAE residuals, length nparams()
+     */
+    virtual void evalDae(double t, double* y, double* ydot, double* p,
+                         double* residual) {
+        throw NotImplementedError("FuncEval::evalDae");
+    }
+
+    //! Given a vector of length neq(), mark which variables should be
+    //! considered algebraic constraints
+    virtual void getConstraints(double* constraints) {
+        throw NotImplementedError("FuncEval::getConstraints");
+    }
 
     //! Evaluate the right-hand side using return code to indicate status.
     /*!
@@ -47,11 +69,76 @@ public:
      *  @returns 0 for a successful evaluation; 1 after a potentially-
      *      recoverable error; -1 after an unrecoverable error.
      */
-    int eval_nothrow(double t, double* y, double* ydot);
+    int evalNoThrow(double t, double* y, double* ydot);
 
-    //! Fill in the vector *y* with the current state of the system
+    //! Evaluate the right-hand side using return code to indicate status.
+    /*!
+     * Errors are indicated using the return value, rather than by throwing
+     *  exceptions. This method is used when calling from a C-based integrator
+     *  such as CVODES. Exceptions may either be stored or printed, based on the
+     *  setting of suppressErrors().
+     *  @returns 0 for a successful evaluation; 1 after a potentially-
+     *      recoverable error; -1 after an unrecoverable error.
+     */
+    int evalDaeNoThrow(double t, double* y, double* ydot, double* residual);
+
+    /*! Evaluate the setup processes for the Jacobian preconditioner.
+     * @param[in] t time.
+     * @param[in] y solution vector, length neq()
+     * @param gamma the gamma in M=I-gamma*J
+     * @warning This function is an experimental part of the %Cantera API and may be
+     * changed or removed without notice.
+     */
+    virtual void preconditionerSetup(double t, double* y, double gamma) {
+        throw NotImplementedError("FuncEval::preconditionerSetup");
+    }
+
+    /*! Evaluate the linear system Ax=b where A is the preconditioner.
+     * @param[in] rhs right hand side vector used in linear system
+     * @param[out] output output vector for solution
+     * @warning This function is an experimental part of the %Cantera API and may be
+     * changed or removed without notice.
+     */
+    virtual void preconditionerSolve(double* rhs, double* output) {
+        throw NotImplementedError("FuncEval::preconditionerSolve");
+    }
+
+    //! Update the preconditioner based on already computed jacobian values
+    virtual void updatePreconditioner(double gamma) {
+        throw NotImplementedError("FuncEval::updatePreconditioner");
+    }
+
+    /*! Preconditioner setup that doesn't throw an error but returns a
+     * CVODES flag. It also helps as a first level of polymorphism
+     * which identifies the specific FuncEval, e.g., ReactorNet.
+     * @param[in] t time.
+     * @param[in] y solution vector, length neq()
+     * @param gamma the gamma in M=I-gamma*J
+     * @warning This function is an experimental part of the %Cantera API and may be
+     * changed or removed without notice.
+     */
+    int preconditioner_setup_nothrow(double t, double* y, double gamma);
+
+    /*! Preconditioner solve that doesn't throw an error but returns a
+     * CVODES flag. It also helps as a first level of polymorphism
+     * which identifies the specific FuncEval, e.g., ReactorNet.
+     * @param[in] rhs right hand side vector used in linear system
+     * @param[out] output output vector for solution
+     * @warning This function is an experimental part of the %Cantera API and may be
+     * changed or removed without notice.
+     */
+    int preconditioner_solve_nothrow(double* rhs, double* output);
+
+    //! Fill in the vector *y* with the current state of the system.
+    //! Used for getting the initial state for ODE systems.
     virtual void getState(double* y) {
         throw NotImplementedError("FuncEval::getState");
+    }
+
+    //! Fill in the vectors *y* and *ydot* with the current state of the system.
+    //! Used for getting the initial state for DAE systems.
+    virtual void getStateDae(double* y, double* ydot) {
+        throw NotImplementedError("FuncEval::getStateDae");
     }
 
     //! Number of equations.
@@ -90,7 +177,7 @@ public:
 
 protected:
     // If true, errors are accumulated in m_errors. Otherwise, they are printed
-    bool m_suppress_errors;
+    bool m_suppress_errors = false;
 
     //! Errors occurring during function evaluations
     std::vector<std::string> m_errors;

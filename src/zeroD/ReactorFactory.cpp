@@ -6,17 +6,18 @@
 #include "cantera/zeroD/ReactorFactory.h"
 #include "cantera/zeroD/Reservoir.h"
 #include "cantera/zeroD/Reactor.h"
+#include "cantera/zeroD/MoleReactor.h"
 #include "cantera/zeroD/FlowReactor.h"
 #include "cantera/zeroD/ConstPressureReactor.h"
+#include "cantera/zeroD/ConstPressureMoleReactor.h"
 #include "cantera/zeroD/IdealGasReactor.h"
+#include "cantera/zeroD/IdealGasMoleReactor.h"
 #include "cantera/zeroD/IdealGasConstPressureReactor.h"
 #include "cantera/zeroD/ReactorDelegator.h"
+#include "cantera/zeroD/IdealGasConstPressureMoleReactor.h"
 
-using namespace std;
 namespace Cantera
 {
-
-class Reservoir;
 
 ReactorFactory* ReactorFactory::s_factory = 0;
 std::mutex ReactorFactory::reactor_mutex;
@@ -36,11 +37,43 @@ ReactorFactory::ReactorFactory()
         []() { return new ReactorDelegator<ConstPressureReactor>(); });
     reg("ExtensibleIdealGasConstPressureReactor",
         []() { return new ReactorDelegator<IdealGasConstPressureReactor>(); });
+    reg("ExtensibleMoleReactor",
+        []() { return new ReactorDelegator<MoleReactor>(); });
+    reg("ExtensibleConstPressureMoleReactor",
+        []() { return new ReactorDelegator<ConstPressureMoleReactor>(); });
+    reg("ExtensibleIdealGasMoleReactor",
+        []() { return new ReactorDelegator<IdealGasMoleReactor>(); });
+    reg("ExtensibleIdealGasConstPressureMoleReactor",
+        []() { return new ReactorDelegator<IdealGasConstPressureMoleReactor>(); });
+    reg("IdealGasConstPressureMoleReactor", []() { return new
+        IdealGasConstPressureMoleReactor(); });
+    reg("IdealGasMoleReactor", []() { return new IdealGasMoleReactor(); });
+    reg("ConstPressureMoleReactor", []() { return new ConstPressureMoleReactor(); });
+    reg("MoleReactor", []() { return new MoleReactor(); });
+}
+
+ReactorFactory* ReactorFactory::factory() {
+    std::unique_lock<std::mutex> lock(reactor_mutex);
+    if (!s_factory) {
+        s_factory = new ReactorFactory;
+    }
+    return s_factory;
+}
+
+void ReactorFactory::deleteFactory() {
+    std::unique_lock<std::mutex> lock(reactor_mutex);
+    delete s_factory;
+    s_factory = 0;
 }
 
 ReactorBase* ReactorFactory::newReactor(const std::string& reactorType)
 {
     return create(reactorType);
+}
+
+ReactorBase* newReactor(const string& model)
+{
+    return ReactorFactory::factory()->newReactor(model);
 }
 
 }

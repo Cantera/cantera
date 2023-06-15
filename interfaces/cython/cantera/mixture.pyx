@@ -2,6 +2,11 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 import warnings
+import numpy as np
+
+from .solutionbase cimport *
+from .thermo cimport *
+from ._utils cimport *
 
 # Need a pure-python class to store weakrefs to
 class _WeakrefProxy:
@@ -47,6 +52,7 @@ cdef class Mixture:
             phases = [(p, 1 if i == 0 else 0) for i,p in enumerate(phases)]
 
         for phase,moles in phases:
+            # Block species from being added to the phase as long as this object exists
             phase._references[self._weakref_proxy] = True
             self.mix.addPhase(phase.thermo, moles)
             self._phases.append(phase)

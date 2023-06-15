@@ -13,23 +13,19 @@
 #include "cantera/thermo/PDSS.h"
 #include "cantera/thermo/Species.h"
 #include "cantera/base/utilities.h"
-
-using namespace std;
+#include "cantera/base/global.h"
 
 namespace Cantera
 {
 
-VPStandardStateTP::VPStandardStateTP() :
-    m_Pcurrent(OneAtm),
-    m_minTemp(0.0),
-    m_maxTemp(BigNumber),
-    m_Tlast_ss(-1.0),
-    m_Plast_ss(-1.0)
+VPStandardStateTP::VPStandardStateTP()
 {
+    // Defined in .cpp to limit dependence on PDSS.h via vector<unique_ptr<PDSS>>
 }
 
 VPStandardStateTP::~VPStandardStateTP()
 {
+    // Defined in .cpp to limit dependence on PDSS.h
 }
 
 int VPStandardStateTP::standardStateConvention() const
@@ -39,6 +35,8 @@ int VPStandardStateTP::standardStateConvention() const
 
 void VPStandardStateTP::getChemPotentials_RT(doublereal* muRT) const
 {
+    warn_deprecated("VPStandardStateTP::getChemPotentials_RT",
+                    "To be removed after Cantera 3.0. Use getChemPotentials instead.");
     getChemPotentials(muRT);
     for (size_t k = 0; k < m_kk; k++) {
         muRT[k] *= 1.0 / RT();

@@ -9,20 +9,22 @@
 namespace Cantera
 {
 
-CustomFunc1Rate::CustomFunc1Rate()
-    : m_ratefunc(0)
+CustomFunc1Rate::CustomFunc1Rate(const AnyMap& node, const UnitStack& rate_units)
+    : CustomFunc1Rate()
 {
+    setParameters(node, rate_units);
 }
 
 void CustomFunc1Rate::setRateFunction(shared_ptr<Func1> f)
 {
     m_ratefunc = f;
+    m_valid = true;
 }
 
 void CustomFunc1Rate::validate(const std::string& equation, const Kinetics& kin)
 {
     if (!m_ratefunc) {
-        throw CanteraError("CustomFunc1Rate::validate",
+        throw InputFileError("CustomFunc1Rate::validate", m_input,
             "Rate object for reaction '{}' is not configured.", equation);
     }
 }

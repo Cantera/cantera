@@ -49,18 +49,9 @@ class ReactorBase
 {
 public:
     explicit ReactorBase(const std::string& name = "(none)");
-    virtual ~ReactorBase() {}
+    virtual ~ReactorBase() = default;
     ReactorBase(const ReactorBase&) = delete;
     ReactorBase& operator=(const ReactorBase&) = delete;
-
-    //! String indicating the reactor model implemented. Usually
-    //! corresponds to the name of the derived class.
-    //! @deprecated To be removed after Cantera 2.6. Use type() instead.
-    virtual std::string typeStr() const {
-        warn_deprecated("ReactorBase::typeStr",
-                        "To be removed after Cantera 2.6. Use type() instead.");
-        return "ReactorBase";
-    }
 
     //! String indicating the reactor model implemented. Usually
     //! corresponds to the name of the derived class.
@@ -78,7 +69,7 @@ public:
         m_name = name;
     }
 
-    //! @name Methods to set up a simulation.
+    //! @name Methods to set up a simulation
     //! @{
 
     //! Set the initial reactor volume. By default, the volume is 1.0 m^3.
@@ -147,11 +138,16 @@ public:
     //! Return a reference to the *n*-th Wall connected to this reactor.
     WallBase& wall(size_t n);
 
-    void addSurface(ReactorSurface* surf);
+    virtual void addSurface(ReactorSurface* surf);
 
     //! Return a reference to the *n*-th ReactorSurface connected to this
     //! reactor
     ReactorSurface* surface(size_t n);
+
+    //! Return the number of surfaces in a reactor
+    virtual size_t nSurfs() {
+        return m_surfaces.size();
+    }
 
     /**
      * Initialize the reactor. Called automatically by ReactorNet::initialize.
@@ -192,11 +188,10 @@ public:
     //! on the outlet mass flow rates and the mass of the reactor contents.
     doublereal residenceTime();
 
-    /**
-     * @name Solution components.
-     * The values returned are those after the last call to ReactorNet::advance
-     * or ReactorNet::step.
-     */
+    //! @name Solution components
+    //!
+    //! The values returned are those after the last call to ReactorNet::advance
+    //! or ReactorNet::step.
     //! @{
 
     //! Returns the current volume (m^3) of the reactor.
@@ -254,13 +249,13 @@ public:
 
 protected:
     //! Number of homogeneous species in the mixture
-    size_t m_nsp;
+    size_t m_nsp = 0;
 
-    ThermoPhase* m_thermo;
-    double m_vol; //!< Current volume of the reactor [m^3]
-    double m_enthalpy; //!< Current specific enthalpy of the reactor [J/kg]
-    double m_intEnergy; //!< Current internal energy of the reactor [J/kg]
-    double m_pressure; //!< Current pressure in the reactor [Pa]
+    ThermoPhase* m_thermo = nullptr;
+    double m_vol = 1.0; //!< Current volume of the reactor [m^3]
+    double m_enthalpy = 0.0; //!< Current specific enthalpy of the reactor [J/kg]
+    double m_intEnergy = 0.0; //!< Current internal energy of the reactor [J/kg]
+    double m_pressure = 0.0; //!< Current pressure in the reactor [Pa]
     vector_fp m_state;
     std::vector<FlowDevice*> m_inlet, m_outlet;
 
@@ -273,7 +268,7 @@ protected:
     std::string m_name;
 
     //! The ReactorNet that this reactor is part of
-    ReactorNet* m_net;
+    ReactorNet* m_net = nullptr;
 };
 }
 

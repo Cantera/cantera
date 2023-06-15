@@ -17,16 +17,8 @@
 namespace Cantera
 {
 
-DenseMatrix::DenseMatrix() :
-    m_useReturnErrorCode(0),
-    m_printLevel(0)
-{
-}
-
 DenseMatrix::DenseMatrix(size_t n, size_t m, doublereal v) :
-    Array2D(n, m, v),
-    m_useReturnErrorCode(0),
-    m_printLevel(0)
+    Array2D(n, m, v)
 {
     m_ipiv.resize(std::max(n, m));
     m_colPts.resize(m);
@@ -38,9 +30,7 @@ DenseMatrix::DenseMatrix(size_t n, size_t m, doublereal v) :
 }
 
 DenseMatrix::DenseMatrix(const DenseMatrix& y) :
-    Array2D(y),
-    m_useReturnErrorCode(0),
-    m_printLevel(0)
+    Array2D(y)
 {
     m_ipiv = y.ipiv();
     m_colPts.resize(m_ncols);

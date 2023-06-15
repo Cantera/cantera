@@ -145,12 +145,11 @@ public:
     virtual double speciesCritTemperature(double a, double b) const;
 
     //! @name Initialization Methods - For Internal use
-    /*!
-     * The following methods are used in the process of constructing
-     * the phase and setting its parameters from a specification in an
-     * input file. They are not normally used in application programs.
-     * To see how they are used, see importPhase().
-     */
+    //!
+    //! The following methods are used in the process of constructing
+    //! the phase and setting its parameters from a specification in an
+    //! input file. They are not normally used in application programs.
+    //! To see how they are used, see importPhase().
     //! @{
 
     virtual bool addSpecies(shared_ptr<Species> spec);
@@ -206,6 +205,10 @@ protected:
 
 public:
 
+    virtual double isothermalCompressibility() const;
+    virtual double thermalExpansionCoeff() const;
+    virtual double soundSpeed() const;
+
     //! Calculate \f$dp/dV\f$ and \f$dp/dT\f$ at the current conditions
     /*!
      *  These are stored internally.
@@ -241,19 +244,19 @@ protected:
     /*!
      *  `m_b` is a function of the mole fractions and species-specific b values.
      */
-    double m_b;
+    double m_b = 0.0;
 
     //! Value of \f$a\f$ in the equation of state
     /*!
      *  `m_a` depends only on the mole fractions.
      */
-    double m_a;
+    double m_a = 0.0;
 
-    //! Value of \f$\alpha\f$ in the equation of state
+    //! Value of \f$a \alpha\f$ in the equation of state
     /*!
      *  `m_aAlpha_mix` is a function of the temperature and the mole fractions.
      */
-    double m_aAlpha_mix;
+    double m_aAlpha_mix = 0.0;
 
     // Vectors required to store species-specific a_coeff, b_coeff, alpha, kappa
     // and other derivatives. Length = m_kk.
@@ -272,9 +275,9 @@ protected:
     //! Explicitly-specified binary interaction parameters, to enable serialization
     std::map<std::string, std::map<std::string, double>> m_binaryParameters;
 
-    int m_NSolns;
+    int m_NSolns = 0;
 
-    double m_Vroot[3];
+    double m_Vroot[3] = {0.0, 0.0, 0.0};
 
     //! Temporary storage - length = m_kk.
     mutable vector_fp m_pp;
@@ -287,14 +290,14 @@ protected:
      * Calculated at the current conditions. temperature and mole number kept
      * constant
      */
-    mutable double m_dpdV;
+    mutable double m_dpdV = 0.0;
 
     //! The derivative of the pressure with respect to the temperature
     /*!
      *  Calculated at the current conditions. Total volume and mole number kept
      *  constant
      */
-    mutable double m_dpdT;
+    mutable double m_dpdT = 0.0;
 
     //! Vector of derivatives of pressure with respect to mole number
     /*!

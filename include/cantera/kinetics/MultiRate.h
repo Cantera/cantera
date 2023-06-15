@@ -65,8 +65,8 @@ public:
     }
 
     virtual void getRateConstants(double* kf) override {
-        for (auto& rxn : m_rxn_rates) {
-            kf[rxn.first] = rxn.second.evalFromStruct(m_shared);
+        for (auto& [iRxn, rate] : m_rxn_rates) {
+            kf[iRxn] = rate.evalFromStruct(m_shared);
         }
     }
 
@@ -74,18 +74,54 @@ public:
                                           const double* kf,
                                           double deltaT) override
     {
-        // call helper function: implementation of derivative depends on whether
-        // ReactionRate::ddTFromStruct is defined
-        _process_ddT(rop, kf, deltaT);
+        if constexpr (has_ddT<RateType>::value) {
+            for (const auto& [iRxn, rate] : m_rxn_rates) {
+                rop[iRxn] *= rate.ddTScaledFromStruct(m_shared);
+            }
+        } else {
+            // perturb conditions
+            double dTinv = 1. / (m_shared.temperature * deltaT);
+            m_shared.perturbTemperature(deltaT);
+            _update();
+
+            // apply numerical derivative
+            for (auto& [iRxn, rate] : m_rxn_rates) {
+                if (kf[iRxn] != 0.) {
+                    double k1 = rate.evalFromStruct(m_shared);
+                    rop[iRxn] *= dTinv * (k1 / kf[iRxn] - 1.);
+                } // else not needed: derivative is already zero
+            }
+
+            // revert changes
+            m_shared.restore();
+            _update();
+        }
     }
 
     virtual void processRateConstants_ddP(double* rop,
                                           const double* kf,
                                           double deltaP) override
     {
-        // call helper function: implementation of derivative depends on whether
-        // ReactionData::perturbPressure is defined
-        _process_ddP(rop, kf, deltaP);
+        if constexpr (has_ddP<DataType>::value) {
+            double dPinv = 1. / (m_shared.pressure * deltaP);
+            m_shared.perturbPressure(deltaP);
+            _update();
+
+            for (auto& [iRxn, rate] : m_rxn_rates) {
+                if (kf[iRxn] != 0.) {
+                    double k1 = rate.evalFromStruct(m_shared);
+                    rop[iRxn] *= dPinv * (k1 / kf[iRxn] - 1.);
+                } // else not needed: derivative is already zero
+            }
+
+            // revert changes
+            m_shared.restore();
+            _update();
+        } else {
+            for (const auto& [iRxn, rate] : m_rxn_rates) {
+                rop[iRxn] = 0.;
+            }
+        }
     }
 
     virtual void processRateConstants_ddM(double* rop,
@@ -93,9 +129,33 @@ public:
                                           double deltaM,
                                           bool overwrite=true) override
     {
-        // call helper function: implementation of derivative depends on whether
-        // ReactionRate::thirdBodyConcentration is defined
-        _process_ddM(rop, kf, deltaM, overwrite);
+        if constexpr (has_ddM<DataType>::value) {
+            double dMinv = 1. / deltaM;
+            m_shared.perturbThirdBodies(deltaM);
+            _update();
+
+            for (auto& [iRxn, rate] : m_rxn_rates) {
+                if (kf[iRxn] != 0. && m_shared.conc_3b[iRxn] > 0.) {
+                    double k1 = rate.evalFromStruct(m_shared);
+                    rop[iRxn] *= dMinv * (k1 / kf[iRxn] - 1.);
+                    rop[iRxn] /= m_shared.conc_3b[iRxn];
+                } else {
+                    rop[iRxn] = 0.;
+                }
+            }
+
+            // revert changes
+            m_shared.restore();
+            _update();
+        } else {
+            if (!overwrite) {
+                // do not overwrite existing entries
+                return;
+            }
+            for (const auto& [iRxn, rate] : m_rxn_rates) {
+                rop[iRxn] = 0.;
+            }
+        }
     }
 
     virtual void update(double T) override {
@@ -125,139 +185,25 @@ public:
 
     virtual double evalSingle(ReactionRate& rate) override {
         RateType& R = static_cast<RateType&>(rate);
-        _updateRate(R);
+        if constexpr (has_update<RateType>::value) {
+            R.updateFromStruct(m_shared);
+        }
         return R.evalFromStruct(m_shared);
     }
 
+    //! Access the underlying shared data object. Used for setting up
+    //! ReactionDataDelegator instances.
+    DataType& sharedData() {
+        return m_shared;
+    }
+
 protected:
-    //! Helper function to process updates for rate types that implement the
-    //! `updateFromStruct` method.
-    template <typename T=RateType,
-        typename std::enable_if<has_update<T>::value, bool>::type = true>
+    //! Helper function to process updates
     void _update() {
-        for (auto& rxn : m_rxn_rates) {
-            rxn.second.updateFromStruct(m_shared);
-        }
-    }
-
-    //! Helper function for rate types that do not implement `updateFromStruct`.
-    //! Does nothing, but exists to allow generic implementations of update().
-    template <typename T=RateType,
-        typename std::enable_if<!has_update<T>::value, bool>::type = true>
-    void _update() {
-    }
-
-    //! Helper function to update a single rate that has an `updateFromStruct` method`.
-    template <typename T=RateType,
-        typename std::enable_if<has_update<T>::value, bool>::type = true>
-    void _updateRate(RateType& rate) {
-        rate.updateFromStruct(m_shared);
-    }
-
-    //! Helper function for single rate that does not implement `updateFromStruct`.
-    //! Exists to allow generic implementations of `evalSingle` and `ddTSingle`.
-    template <typename T=RateType,
-        typename std::enable_if<!has_update<T>::value, bool>::type = true>
-    void _updateRate(RateType& rate) {
-    }
-
-    //! Helper function to process temperature derivatives for rate types that
-    //! implement the `ddTScaledFromStruct` method.
-    template <typename T=RateType,
-        typename std::enable_if<has_ddT<T>::value, bool>::type = true>
-    void _process_ddT(double* rop, const double* kf, double deltaT) {
-        for (const auto& rxn : m_rxn_rates) {
-            rop[rxn.first] *= rxn.second.ddTScaledFromStruct(m_shared);
-        }
-    }
-
-    //! Helper function for rate types that do not implement `ddTScaledFromStruct`
-    template <typename T=RateType,
-        typename std::enable_if<!has_ddT<T>::value, bool>::type = true>
-    void _process_ddT(double* rop, const double* kf, double deltaT) {
-
-        // perturb conditions
-        double dTinv = 1. / (m_shared.temperature * deltaT);
-        m_shared.perturbTemperature(deltaT);
-        _update();
-
-        // apply numerical derivative
-        for (auto& rxn : m_rxn_rates) {
-            if (kf[rxn.first] != 0.) {
-                double k1 = rxn.second.evalFromStruct(m_shared);
-                rop[rxn.first] *= dTinv * (k1 / kf[rxn.first] - 1.);
-            } // else not needed: derivative is already zero
-        }
-
-        // revert changes
-        m_shared.restore();
-        _update();
-    }
-
-    //! Helper function to process third-body derivatives for rate data that
-    //! implement the `perturbThirdBodies` method.
-    template <typename T=RateType, typename D=DataType,
-        typename std::enable_if<has_ddM<D>::value, bool>::type = true>
-    void _process_ddM(double* rop, const double* kf, double deltaM, bool overwrite) {
-        double dMinv = 1. / deltaM;
-        m_shared.perturbThirdBodies(deltaM);
-        _update();
-
-        for (auto& rxn : m_rxn_rates) {
-            if (kf[rxn.first] != 0. && m_shared.conc_3b[rxn.first] > 0.) {
-                double k1 = rxn.second.evalFromStruct(m_shared);
-                rop[rxn.first] *= dMinv * (k1 / kf[rxn.first] - 1.);
-                rop[rxn.first] /= m_shared.conc_3b[rxn.first];
-            } else {
-                rop[rxn.first] = 0.;
+        if constexpr (has_update<RateType>::value) {
+            for (auto& [i, rxn] : m_rxn_rates) {
+                rxn.updateFromStruct(m_shared);
             }
-        }
-
-        // revert changes
-        m_shared.restore();
-        _update();
-    }
-
-    //! Helper function for rate data that do not implement `perturbThirdBodies`
-    template <typename T=RateType, typename D=DataType,
-        typename std::enable_if<!has_ddM<D>::value, bool>::type = true>
-    void _process_ddM(double* rop, const double* kf, double deltaM, bool overwrite) {
-        if (!overwrite) {
-            // do not overwrite existing entries
-            return;
-        }
-        for (const auto& rxn : m_rxn_rates) {
-            rop[rxn.first] = 0.;
-        }
-    }
-
-    //! Helper function to process pressure derivatives for rate data that
-    //! implement the `perturbPressure` method.
-    template <typename T=RateType, typename D=DataType,
-        typename std::enable_if<has_ddP<D>::value, bool>::type = true>
-    void _process_ddP(double* rop, const double* kf, double deltaP) {
-        double dPinv = 1. / (m_shared.pressure * deltaP);
-        m_shared.perturbPressure(deltaP);
-        _update();
-
-        for (auto& rxn : m_rxn_rates) {
-            if (kf[rxn.first] != 0.) {
-                double k1 = rxn.second.evalFromStruct(m_shared);
-                rop[rxn.first] *= dPinv * (k1 / kf[rxn.first] - 1.);
-            } // else not needed: derivative is already zero
-        }
-
-        // revert changes
-        m_shared.restore();
-        _update();
-    }
-
-    //! Helper function for rate data that do not implement `perturbPressure`
-    template <typename T=RateType, typename D=DataType,
-        typename std::enable_if<!has_ddP<D>::value, bool>::type = true>
-    void _process_ddP(double* rop, const double* kf, double deltaP) {
-        for (const auto& rxn : m_rxn_rates) {
-            rop[rxn.first] = 0.;
         }
     }
 

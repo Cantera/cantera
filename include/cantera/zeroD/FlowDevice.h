@@ -23,20 +23,11 @@ class ReactorBase;
 class FlowDevice
 {
 public:
-    FlowDevice();
+    FlowDevice() = default;
 
-    virtual ~FlowDevice() {}
+    virtual ~FlowDevice() = default;
     FlowDevice(const FlowDevice&) = delete;
     FlowDevice& operator=(const FlowDevice&) = delete;
-
-    //! String indicating the flow device implemented.
-    //! Usually corresponds to the name of the derived class.
-    //! @deprecated To be removed after Cantera 2.6. Use type() instead.
-    virtual std::string typeStr() const {
-        warn_deprecated("FlowDevice::typeStr",
-                        "To be removed after Cantera 2.6. Use type() instead.");
-        return "FlowDevice";
-    }
 
     //! String indicating the flow device implemented. Usually
     //! corresponds to the name of the derived class.
@@ -97,21 +88,22 @@ public:
     virtual void setTimeFunction(Func1* g);
 
 protected:
-    double m_mdot;
+    double m_mdot = Undef;
 
     //! Function set by setPressureFunction; used by updateMassFlowRate
-    Func1* m_pfunc;
+    Func1* m_pfunc = nullptr;
 
     //! Function set by setTimeFunction; used by updateMassFlowRate
-    Func1* m_tfunc;
+    Func1* m_tfunc = nullptr;
 
     //! Coefficient set by derived classes; used by updateMassFlowRate
-    double m_coeff;
+    double m_coeff = 1.0;
 
 private:
-    size_t m_nspin, m_nspout;
-    ReactorBase* m_in;
-    ReactorBase* m_out;
+    size_t m_nspin = 0;
+    size_t m_nspout = 0;
+    ReactorBase* m_in = nullptr;
+    ReactorBase* m_out = nullptr;
     std::vector<size_t> m_in2out, m_out2in;
 };
 

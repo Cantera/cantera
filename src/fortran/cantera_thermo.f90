@@ -4,7 +4,6 @@
 module cantera_thermo
 
   use fct
-  use cantera_xml
 
   type phase_t
     integer :: thermo_id
@@ -15,6 +14,12 @@ module cantera_thermo
     integer :: nsp
     integer :: nrxn
   end type phase_t
+
+  type interface_t
+  type(phase_t) :: gas
+  type(phase_t) :: bulk
+  type(phase_t) :: surf
+end type interface_t
 
 ! these definitions are for use with the equilibrate function.
 !  integer, parameter :: TV = 100
@@ -53,28 +58,6 @@ contains
       self%tran_id = -1
       ctthermo_newFromFile = self
     end function ctthermo_newFromFile
-
-    type(phase_t) function newThermoPhase(xml_phase, index)
-      implicit none
-      type(XML_Node), intent(inout), optional :: xml_phase
-      integer, intent(in), optional :: index
-      type(phase_t) :: self
-      if (present(index)) then
-         self%thermo_id = index
-         self%err = 0
-      else if (present(xml_phase)) then
-         self%thermo_id = newthermofromxml(xml_phase%xml_id)
-         self%nel = phase_nelements(self%thermo_id)
-         self%nsp = phase_nspecies(self%thermo_id)
-         self%nrxn = 0
-         self%err = 0
-         self%kin_id = -1
-         self%tran_id = -1
-      else
-         call cantera_error('newThermoPhase','xml_phase or id must be specified.')
-      end if
-      newThermoPhase = self
-    end function newThermoPhase
 
     subroutine ctthermo_getName(self, name)
       implicit none

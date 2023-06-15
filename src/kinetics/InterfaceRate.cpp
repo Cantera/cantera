@@ -13,11 +13,6 @@
 namespace Cantera
 {
 
-InterfaceData::InterfaceData()
-    : sqrtT(NAN)
-{
-}
-
 void InterfaceData::update(double T)
 {
     throw CanteraError("InterfaceData::update",
@@ -55,7 +50,7 @@ bool InterfaceData::update(const ThermoPhase& phase, const Kinetics& kin)
     double T = phase.temperature();
     bool changed = false;
     const auto& surf = dynamic_cast<const SurfPhase&>(
-        kin.thermo(kin.surfacePhaseIndex()));
+        kin.thermo(kin.reactionPhaseIndex()));
     double site_density = surf.siteDensity();
     if (density != site_density) {
         density = surf.siteDensity();
@@ -145,20 +140,20 @@ void InterfaceRateBase::setCoverageDependencies(const AnyMap& dependencies,
     m_ac.clear();
     m_ec.clear();
     m_mc.clear();
-    for (const auto& item : dependencies) {
+    for (const auto& [species, coeffs] : dependencies) {
         double a, E, m;
-        if (item.second.is<AnyMap>()) {
-            auto& cov_map = item.second.as<AnyMap>();
+        if (coeffs.is<AnyMap>()) {
+            auto& cov_map = coeffs.as<AnyMap>();
             a = cov_map["a"].asDouble();
             m = cov_map["m"].asDouble();
             E = units.convertActivationEnergy(cov_map["E"], "K");
         } else {
-            auto& cov_vec = item.second.asVector<AnyValue>(3);
+            auto& cov_vec = coeffs.asVector<AnyValue>(3);
             a = cov_vec[0].asDouble();
             m = cov_vec[1].asDouble();
             E = units.convertActivationEnergy(cov_vec[2], "K");
         }
-        addCoverageDependence(item.first, a, m, E);
+        addCoverageDependence(species, a, m, E);
     }
 }
 
@@ -168,6 +163,8 @@ void InterfaceRateBase::getCoverageDependencies(AnyMap& dependencies,
     for (size_t k = 0; k < m_cov.size(); k++) {
         if (asVector) {
             // this preserves the previous 'coverage_deps' units
+            warn_deprecated("InterfaceRateBase::getCoverageDependencies",
+                "To be changed after Cantera 3.0: second argument will be removed.");
             vector_fp dep(3);
             dep[0] = m_ac[k];
             dep[1] = m_mc[k];
@@ -227,18 +224,18 @@ void InterfaceRateBase::updateFromStruct(const InterfaceData& shared_data) {
     m_acov = 0.0;
     m_ecov = 0.0;
     m_mcov = 0.0;
-    for (auto& item : m_indices) {
-        m_acov += m_ac[item.first] * shared_data.coverages[item.second];
-        m_ecov += m_ec[item.first] * shared_data.coverages[item.second];
-        m_mcov += m_mc[item.first] * shared_data.logCoverages[item.second];
+    for (auto& [iCov, iKin] : m_indices) {
+        m_acov += m_ac[iCov] * shared_data.coverages[iKin];
+        m_ecov += m_ec[iCov] * shared_data.coverages[iKin];
+        m_mcov += m_mc[iCov] * shared_data.logCoverages[iKin];
     }
 
     // Update change in electrical potential energy
     if (m_chargeTransfer) {
         m_deltaPotential_RT = 0.;
-        for (const auto& ch : m_netCharges) {
+        for (const auto& [iPhase, netCharge] : m_netCharges) {
             m_deltaPotential_RT +=
-                shared_data.electricPotentials[ch.first] * ch.second;
+                shared_data.electricPotentials[iPhase] * netCharge;
         }
         m_deltaPotential_RT /= GasConstant * shared_data.temperature;
     }
@@ -247,12 +244,12 @@ void InterfaceRateBase::updateFromStruct(const InterfaceData& shared_data) {
     if (m_exchangeCurrentDensityFormulation) {
         m_deltaGibbs0_RT = 0.;
         m_prodStandardConcentrations = 1.;
-        for (const auto& item : m_stoichCoeffs) {
+        for (const auto& [k, stoich] : m_stoichCoeffs) {
             m_deltaGibbs0_RT +=
-                shared_data.standardChemPotentials[item.first] * item.second;
-            if (item.second > 0.) {
+                shared_data.standardChemPotentials[k] * stoich;
+            if (stoich > 0.) {
                 m_prodStandardConcentrations *=
-                    shared_data.standardConcentrations[item.first];
+                    shared_data.standardConcentrations[k];
             }
         }
         m_deltaGibbs0_RT /= GasConstant * shared_data.temperature;
@@ -269,19 +266,19 @@ void InterfaceRateBase::setContext(const Reaction& rxn, const Kinetics& kin)
     }
 
     m_stoichCoeffs.clear();
-    for (const auto& sp : rxn.reactants) {
-        m_stoichCoeffs.emplace_back(kin.kineticsSpeciesIndex(sp.first), -sp.second);
+    for (const auto& [name, stoich] : rxn.reactants) {
+        m_stoichCoeffs.emplace_back(kin.kineticsSpeciesIndex(name), -stoich);
     }
-    for (const auto& sp : rxn.products) {
-        m_stoichCoeffs.emplace_back(kin.kineticsSpeciesIndex(sp.first), sp.second);
+    for (const auto& [name, stoich] : rxn.products) {
+        m_stoichCoeffs.emplace_back(kin.kineticsSpeciesIndex(name), stoich);
     }
 
     m_netCharges.clear();
-    for (const auto& sp : m_stoichCoeffs) {
-        size_t n = kin.speciesPhaseIndex(sp.first);
+    for (const auto& [k, stoich] : m_stoichCoeffs) {
+        size_t n = kin.speciesPhaseIndex(k);
         size_t start = kin.kineticsSpeciesIndex(0, n);
-        double charge = kin.thermo(n).charge(sp.first - start);
-        m_netCharges.emplace_back(n, Faraday * charge * sp.second);
+        double charge = kin.thermo(n).charge(k - start);
+        m_netCharges.emplace_back(n, Faraday * charge * stoich);
     }
 }
 
@@ -317,7 +314,7 @@ void StickingCoverage::getStickingParameters(AnyMap& node) const
 void StickingCoverage::setContext(const Reaction& rxn, const Kinetics& kin)
 {
     // Ensure that site density is initialized
-    const ThermoPhase& phase = kin.thermo(kin.surfacePhaseIndex());
+    const ThermoPhase& phase = kin.thermo(kin.reactionPhaseIndex());
     const auto& surf = dynamic_cast<const SurfPhase&>(phase);
     m_siteDensity = surf.siteDensity();
     if (!m_explicitMotzWise) {
@@ -332,15 +329,15 @@ void StickingCoverage::setContext(const Reaction& rxn, const Kinetics& kin)
         // Identify the sticking species if not explicitly given
         std::vector<std::string> gasSpecies;
         std::vector<std::string> anySpecies;
-        for (const auto& sp : rxn.reactants) {
-            size_t iPhase = kin.speciesPhaseIndex(kin.kineticsSpeciesIndex(sp.first));
+        for (const auto& [name, stoich] : rxn.reactants) {
+            size_t iPhase = kin.speciesPhaseIndex(kin.kineticsSpeciesIndex(name));
             if (iPhase != iInterface) {
                 // Non-interface species. There should be exactly one of these
                 // (either in gas phase or other phase)
                 if (kin.thermo(iPhase).phaseOfMatter() == "gas") {
-                    gasSpecies.push_back(sp.first);
+                    gasSpecies.push_back(name);
                 }
-                anySpecies.push_back(sp.first);
+                anySpecies.push_back(name);
             }
         }
         if (gasSpecies.size() == 1) {
@@ -365,11 +362,11 @@ void StickingCoverage::setContext(const Reaction& rxn, const Kinetics& kin)
     double surface_order = 0.0;
     double multiplier = 1.0;
     // Adjust the A-factor
-    for (const auto& sp : rxn.reactants) {
-        size_t iPhase = kin.speciesPhaseIndex(kin.kineticsSpeciesIndex(sp.first));
+    for (const auto& [name, stoich] : rxn.reactants) {
+        size_t iPhase = kin.speciesPhaseIndex(kin.kineticsSpeciesIndex(name));
         const ThermoPhase& p = kin.thermo(iPhase);
-        size_t k = p.speciesIndex(sp.first);
-        if (sp.first == sticking_species) {
+        size_t k = p.speciesIndex(name);
+        if (name == sticking_species) {
             multiplier *= sqrt(GasConstant / (2 * Pi * p.molecularWeight(k)));
         } else {
             // Non-sticking species. Convert from coverages used in the
@@ -378,7 +375,7 @@ void StickingCoverage::setContext(const Reaction& rxn, const Kinetics& kin)
             // the dependence on the site density is incorporated when the
             // rate constant is evaluated, since we don't assume that the
             // site density is known at this time.
-            double order = getValue(rxn.orders, sp.first, sp.second);
+            double order = getValue(rxn.orders, name, stoich);
             if (&p == &surf) {
                 multiplier *= pow(surf.size(k), order);
                 surface_order += order;

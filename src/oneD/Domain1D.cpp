@@ -8,28 +8,13 @@
 #include "cantera/oneD/Domain1D.h"
 #include "cantera/oneD/MultiJac.h"
 #include "cantera/oneD/refine.h"
-#include "cantera/base/ctml.h"
 #include "cantera/base/AnyMap.h"
-
-#include <set>
-
-using namespace std;
+#include "cantera/base/SolutionArray.h"
 
 namespace Cantera
 {
 
-Domain1D::Domain1D(size_t nv, size_t points, double time) :
-    m_rdt(0.0),
-    m_nv(0),
-    m_container(0),
-    m_index(npos),
-    m_type(0),
-    m_iloc(0),
-    m_jstart(0),
-    m_left(0),
-    m_right(0),
-    m_bw(-1),
-    m_force_full_update(false)
+Domain1D::Domain1D(size_t nv, size_t points, double time)
 {
     resize(nv, points);
 }
@@ -38,13 +23,20 @@ Domain1D::~Domain1D()
 {
 }
 
+int Domain1D::domainType()
+{
+    warn_deprecated("Domain1D::domainType",
+        "To be changed after Cantera 3.0; for new behavior, see 'type'.");
+    return m_type;
+}
+
 void Domain1D::resize(size_t nv, size_t np)
 {
     // if the number of components is being changed, then a
     // new grid refiner is required.
     if (nv != m_nv || !m_refiner) {
         m_nv = nv;
-        m_refiner.reset(new Refiner(*this));
+        m_refiner = make_unique<Refiner>(*this);
     }
     m_nv = nv;
     m_name.resize(m_nv,"");
@@ -115,61 +107,7 @@ void Domain1D::needJacUpdate()
     }
 }
 
-XML_Node& Domain1D::save(XML_Node& o, const doublereal* const sol)
-{
-    XML_Node& d = o.addChild("domain");
-    d.addAttribute("points", nPoints());
-    d.addAttribute("components", nComponents());
-    d.addAttribute("id", id());
-    addFloatArray(d, "abstol_transient", nComponents(), m_atol_ts.data());
-    addFloatArray(d, "reltol_transient", nComponents(), m_rtol_ts.data());
-    addFloatArray(d, "abstol_steady", nComponents(), m_atol_ss.data());
-    addFloatArray(d, "reltol_steady", nComponents(), m_rtol_ss.data());
-    return d;
-}
-
-void Domain1D::restore(const XML_Node& dom, doublereal* soln, int loglevel)
-{
-    vector_fp values;
-    vector<XML_Node*> nodes = dom.getChildren("floatArray");
-    for (size_t i = 0; i < nodes.size(); i++) {
-        string title = nodes[i]->attrib("title");
-        getFloatArray(*nodes[i], values, false);
-        if (values.size() != nComponents()) {
-            if (loglevel > 0) {
-                warn_user("Domain1D::restore", "Received an array of length "
-                    "{} when one of length {} was expected. Tolerances for "
-                    "individual species may not be preserved.",
-                    values.size(), nComponents());
-            }
-            // The number of components will differ when restoring from a
-            // mechanism with a different number of species. Assuming that
-            // tolerances are the same for all species, we can just copy the
-            // tolerance from the last species.
-            if (!values.empty()) {
-                values.resize(nComponents(), values[values.size()-1]);
-            } else {
-                // If the tolerance vector is empty, just leave the defaults
-                // in place.
-                continue;
-            }
-        }
-        if (title == "abstol_transient") {
-            m_atol_ts = values;
-        } else if (title == "reltol_transient") {
-            m_rtol_ts = values;
-        } else if (title == "abstol_steady") {
-            m_atol_ss = values;
-        } else if (title == "reltol_steady") {
-            m_rtol_ss = values;
-        } else {
-            throw CanteraError("Domain1D::restore",
-                               "Got an unexpected array, '" + title + "'");
-        }
-    }
-}
-
-AnyMap Domain1D::serialize(const double* soln) const
+AnyMap Domain1D::getMeta() const
 {
     auto wrap_tols = [this](const vector_fp& tols) {
         // If all tolerances are the same, just store the scalar value.
@@ -186,6 +124,7 @@ AnyMap Domain1D::serialize(const double* soln) const
         }
     };
     AnyMap state;
+    state["type"] = type();
     state["points"] = static_cast<long int>(nPoints());
     if (nComponents() && nPoints()) {
         state["tolerances"]["transient-abstol"] = wrap_tols(m_atol_ts);
@@ -196,7 +135,41 @@ AnyMap Domain1D::serialize(const double* soln) const
     return state;
 }
 
-void Domain1D::restore(const AnyMap& state, double* soln, int loglevel)
+AnyMap Domain1D::serialize(const double* soln) const
+{
+    warn_deprecated("Domain1D::serialize",
+        "To be removed after Cantera 3.0; superseded by asArray.");
+    AnyMap out;
+    auto arr = asArray(soln);
+    arr->writeEntry(out, "", "");
+    return out;
+}
+
+shared_ptr<SolutionArray> Domain1D::toArray(bool normalize) const {
+    if (!m_state) {
+        throw CanteraError("Domain1D::toArray",
+            "Domain needs to be installed in a container before calling asArray.");
+    }
+    auto ret = asArray(m_state->data() + m_iloc);
+    if (normalize) {
+        ret->normalize();
+    }
+    return ret;
+}
+
+void Domain1D::fromArray(const shared_ptr<SolutionArray>& arr)
+{
+    if (!m_state) {
+        throw CanteraError("Domain1D::fromArray",
+            "Domain needs to be installed in a container before calling fromArray.");
+    }
+    resize(nComponents(), arr->size());
+    m_container->resize();
+    fromArray(*arr, m_state->data() + m_iloc);
+    _finalize(m_state->data() + m_iloc);
+}
+
+void Domain1D::setMeta(const AnyMap& meta)
 {
     auto set_tols = [&](const AnyValue& tols, const string& which, vector_fp& out)
     {
@@ -211,21 +184,30 @@ void Domain1D::restore(const AnyMap& state, double* soln, int loglevel)
                 std::string name = componentName(i);
                 if (tol.hasKey(name)) {
                     out[i] = tol[name].asDouble();
-                } else if (loglevel) {
-                    warn_user("Domain1D::restore", "No {} found for component '{}'",
+                } else {
+                    warn_user("Domain1D::setMeta", "No {} found for component '{}'",
                               which, name);
                 }
             }
         }
     };
 
-    if (state.hasKey("tolerances")) {
-        const auto& tols = state["tolerances"];
+    if (meta.hasKey("tolerances")) {
+        const auto& tols = meta["tolerances"];
         set_tols(tols, "transient-abstol", m_atol_ts);
         set_tols(tols, "transient-reltol", m_rtol_ts);
         set_tols(tols, "steady-abstol", m_atol_ss);
         set_tols(tols, "steady-reltol", m_rtol_ss);
     }
+}
+
+void Domain1D::restore(const AnyMap& state, double* soln, int loglevel)
+{
+    warn_deprecated("Domain1D::restore",
+        "To be removed after Cantera 3.0; restore from SolutionArray instead.");
+    auto arr = SolutionArray::create(solution());
+    arr->readEntry(state, "", "");
+    fromArray(*arr, soln);
 }
 
 void Domain1D::locate()
@@ -258,7 +240,21 @@ void Domain1D::setupGrid(size_t n, const doublereal* z)
     }
 }
 
-void Domain1D::showSolution(const doublereal* x)
+void Domain1D::showSolution_s(std::ostream& s, const double* x)
+{
+    warn_deprecated("Domain1D::showSolution_s",
+        "To be removed after Cantera 3.0; replaced by 'show'.");
+    show(s, x);
+}
+
+void Domain1D::showSolution(const double* x)
+{
+    warn_deprecated("Domain1D::showSolution",
+        "To be removed after Cantera 3.0; replaced by 'show'.");
+    show(x);
+}
+
+void Domain1D::show(const double* x)
 {
     size_t nn = m_nv/5;
     for (size_t i = 0; i < nn; i++) {

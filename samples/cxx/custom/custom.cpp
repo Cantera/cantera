@@ -13,9 +13,7 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-#include "cantera/thermo.h"
-#include "cantera/kinetics.h"
-#include "cantera/base/Solution.h"
+#include "cantera/core.h"
 #include "cantera/numerics/Integrator.h"
 #include <fstream>
 
@@ -75,7 +73,7 @@ public:
         double *massFracs = &y[1];
         double *dTdt = &ydot[0];
         double *dYdt = &ydot[1];
-        
+
         /* ------------------------- UPDATE GAS STATE ------------------------- */
         // the state of the ThermoPhase is updated to reflect the current solution
         // vector, which was calculated by the integrator.
@@ -87,7 +85,7 @@ public:
         double cp = m_gas->cp_mass();
         m_gas->getPartialMolarEnthalpies(&m_hbar[0]);
         m_kinetics->getNetProductionRates(&m_wdot[0]);
-        
+
         /* -------------------------- ENERGY EQUATION ------------------------- */
         // the rate of change of the system temperature is found using the energy
         // equation for a closed-system constant pressure ideal gas:
@@ -110,7 +108,7 @@ public:
             dYdt[k] = m_wdot[k] * m_gas->molecularWeight(k) / rho;
         }
     }
-    
+
     /**
      * Number of equations in the ODE system.
      *   - overridden from FuncEval, called by the integrator during initialization.
@@ -144,7 +142,7 @@ private:
 
 int main() {
     /* -------------------- CREATE GAS & SPECIFY STATE -------------------- */
-    auto sol = newSolution("h2o2.yaml", "ohmech", "None");
+    auto sol = newSolution("h2o2.yaml", "ohmech", "none");
     auto gas = sol->thermo();
     gas->setState_TPX(1001, OneAtm, "H2:2, O2:1, N2:4");
 
@@ -153,7 +151,7 @@ int main() {
     // for each simulation time point.
     // create the csv file, overwriting any existing ones with the same name.
     std::ofstream outputFile("custom_cxx.csv");
-    
+
     // for convenience, a title for each of the state vector's components is written to
     // the first line of the csv file.
     outputFile << "time (s), temp (K)";
@@ -171,7 +169,7 @@ int main() {
     // the new absolute time of the system.
     double tnow = 0.0;
     double tfinal = 1e-3;
-    
+
     /* ------------------- CREATE & INIT ODE INTEGRATOR ------------------- */
     // create an ODE integrator object, which will be used to solve the system of ODES defined
     // in the ReactorODEs class. a C++ interface to the C-implemented SUNDIALS CVODES integrator
@@ -188,7 +186,7 @@ int main() {
     // internally, the integrator will apply settings, allocate needed memory, and populate
     // this memory with the appropriate initial values for the system.
     integrator->initialize(tnow, odes);
-    
+
     /* ----------------------- SIMULATION TIME LOOP ----------------------- */
     while (tnow < tfinal) {
         // advance the simulation to the current absolute time, tnow, using the integrator's

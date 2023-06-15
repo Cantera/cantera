@@ -10,49 +10,25 @@
 using namespace std;
 using namespace Cantera;
 
-void printDbl(double val)
-{
-    if (fabs(val) < 5.0E-17) {
-        cout << " nil";
-    } else {
-        cout << val;
-    }
-}
-
 int main(int argc, char** argv)
 {
-#if defined(_MSC_VER) && _MSC_VER < 1900
-    _set_output_format(_TWO_DIGIT_EXPONENT);
-#endif
-    if (argc != 2) {
-        cout << "Error: no input file specified.\n"
-             "Choose 'diamond.yaml', 'diamond.cti', or 'diamond.xml'" << endl;
-        exit(-1);
-    }
-    std::string infile(argv[1]);
     int i, k;
-    if (boost::algorithm::ends_with(infile, "xml") ||
-        boost::algorithm::ends_with(infile, "cti"))
-    {
-        suppress_deprecation_warnings();
-    }
 
     try {
-        shared_ptr<ThermoPhase> gas(newPhase(infile, "gas"));
+        auto gas = newThermo("diamond.yaml", "gas");
         size_t nsp = gas->nSpecies();
         cout.precision(4);
         cout << "Number of species = " << nsp << endl;
 
-        shared_ptr<ThermoPhase> diamond(newPhase(infile, "diamond"));
+        auto diamond = newThermo("diamond.yaml", "diamond");
         size_t nsp_diamond = diamond->nSpecies();
         cout << "Number of species in diamond = " << nsp_diamond << endl;
 
-        shared_ptr<ThermoPhase> diamond100(newPhase(infile, "diamond_100"));
+        auto diamond100 = newThermo("diamond.yaml", "diamond_100");
         size_t nsp_d100 = diamond100->nSpecies();
         cout << "Number of species in diamond_100 = " << nsp_d100 << endl;
 
-        auto kin = newKinetics({gas.get(), diamond.get(), diamond100.get()},
-                               infile, "diamond_100");
+        auto kin = newKinetics({diamond100, gas, diamond}, "diamond.yaml");
         InterfaceKinetics& ikin = dynamic_cast<InterfaceKinetics&>(*kin);
         size_t nr = kin->nReactions();
         cout << "Number of reactions = " << nr << endl;
@@ -76,7 +52,8 @@ int main(int argc, char** argv)
         x[i0] = 0.1;
         size_t i1 = diamond100->speciesIndex("c6HH");
         x[i1] = 0.9;
-        diamond100->setState_TX(1200., x);
+        diamond100->setMoleFractions(x);
+        diamond100->setTemperature(1200.);
 
         for (i = 0; i < 20; i++) {
             x[i] = 0.0;
@@ -107,15 +84,11 @@ int main(int argc, char** argv)
                 int itp = k - 5;
                 naH = diamond100->nAtoms(itp, 0);
             }
-            cout << k << "  " << naH << "  " ;
-            printDbl(src[k]);
-            cout << endl;
+            writelog("{} {} {}\n", k, naH, src[k]);
             sum += naH * src[k];
         }
 
-        cout << "sum = ";
-        printDbl(sum);
-        cout << endl;
+        writelog("sum = {}\n", sum);
         double mwd = diamond->molecularWeight(0);
         double dens = diamond->density();
         double gr = src[4] * mwd / dens;

@@ -12,8 +12,6 @@
 #include "cantera/kinetics/solveSP.h"
 #include "cantera/thermo/SurfPhase.h"
 
-using namespace std;
-
 namespace Cantera
 {
 
@@ -21,19 +19,11 @@ ImplicitSurfChem::ImplicitSurfChem(
         vector<InterfaceKinetics*> k, double rtol, double atol,
         double maxStepSize, size_t maxSteps,
         size_t maxErrTestFails) :
-    m_nv(0),
-    m_numTotalBulkSpecies(0),
-    m_numTotalSpecies(0),
     m_atol(atol),
     m_rtol(rtol),
     m_maxstep(maxStepSize),
     m_nmax(maxSteps),
-    m_maxErrTestFails(maxErrTestFails),
-    m_mediumSpeciesStart(-1),
-    m_bulkSpeciesStart(-1),
-    m_surfSpeciesStart(-1),
-    m_commonTempPressForPhases(true),
-    m_ioFlag(0)
+    m_maxErrTestFails(maxErrTestFails)
 {
     size_t ntmax = 0;
     size_t kinSpIndex = 0;
@@ -41,13 +31,14 @@ ImplicitSurfChem::ImplicitSurfChem(
     for (size_t n = 0; n < k.size(); n++) {
         InterfaceKinetics* kinPtr = k[n];
         m_vecKinPtrs.push_back(kinPtr);
-        size_t ns = k[n]->surfacePhaseIndex();
-        if (ns == npos) {
+        size_t ns = k[n]->reactionPhaseIndex();
+        SurfPhase* surf = dynamic_cast<SurfPhase*>(&k[n]->thermo(ns));
+        if (surf == nullptr) {
             throw CanteraError("ImplicitSurfChem::ImplicitSurfChem",
                                "kinetics manager contains no surface phase");
         }
         m_surfindex.push_back(ns);
-        m_surf.push_back((SurfPhase*)&k[n]->thermo(ns));
+        m_surf.push_back(surf);
         size_t nsp = m_surf.back()->nSpecies();
         m_nsp.push_back(nsp);
         m_nv += m_nsp.back();
@@ -83,7 +74,7 @@ ImplicitSurfChem::ImplicitSurfChem(
     // use backward differencing, with a full Jacobian computed
     // numerically, and use a Newton linear iterator
     m_integ->setMethod(BDF_Method);
-    m_integ->setProblemType(DENSE + NOJAC);
+    m_integ->setLinearSolverType("DENSE");
     m_work.resize(ntmax);
 }
 
@@ -170,8 +161,7 @@ void ImplicitSurfChem::updateState(doublereal* c)
     }
 }
 
-void ImplicitSurfChem::eval(doublereal time, doublereal* y,
-                            doublereal* ydot, doublereal* p)
+void ImplicitSurfChem::eval(double time, double* y, double* ydot, double* p)
 {
     updateState(y); // synchronize the surface state(s) with y
     size_t loc = 0;
@@ -198,7 +188,7 @@ void ImplicitSurfChem::solvePseudoSteadyStateProblem(int ifuncOverride,
     // time scale - time over which to integrate equations
     doublereal time_scale = timeScaleOverride;
     if (!m_surfSolver) {
-        m_surfSolver.reset(new solveSP(this, bulkFunc));
+        m_surfSolver = make_unique<solveSP>(this, bulkFunc);
         // set ifunc, which sets the algorithm.
         ifunc = SFLUX_INITIALIZE;
     } else {
@@ -231,7 +221,7 @@ void ImplicitSurfChem::solvePseudoSteadyStateProblem(int ifuncOverride,
     doublereal reltol = 1.0E-6;
     doublereal atol = 1.0E-20;
 
-    // Install a filter for negative concentrations. One of the few ways solveSS
+    // Install a filter for negative concentrations. One of the few ways solveSP
     // can fail is if concentrations on input are below zero.
     bool rset = false;
     for (size_t k = 0; k < m_nv; k++) {

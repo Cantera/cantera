@@ -98,6 +98,9 @@ reactions:
 - equation: O + OH => O + OH  # Reaction 13
   type: two-temperature-plasma
   rate-constant: {A: 17283, b: -3.1}
+- equation: O + H2 + M <=> H2O + M  # Reaction 14
+  type: Blowers-Masel
+  rate-constant: {A: 38700, b: 2.7, Ea0: 2.619184e4, w: 4.184e9}
 
 surface:
 - units: {length: cm, quantity: mol, activation-energy: J/mol}

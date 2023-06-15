@@ -15,14 +15,12 @@
 namespace Cantera
 {
 
-/*!
- * @name Types of Element Constraint Equations
- *
- * There may be several different types of element constraints handled by the
- * equilibrium program and by Cantera in other contexts. These defines are used
- * to assign each constraint to one category.
- * @{
- */
+//! @name Types of Element Constraint Equations
+//!
+//! There may be several different types of element constraints handled by the
+//! equilibrium program and by Cantera in other contexts. These defines are used
+//! to assign each constraint to one category.
+//! @{
 
 //! An element constraint that is current turned off
 #define CT_ELEM_TYPE_TURNEDOFF -1
@@ -85,6 +83,24 @@ namespace Cantera
 //! Number indicating we don't know the entropy of the element in its most
 //! stable state at 298.15 K and 1 bar.
 #define ENTROPY298_UNKNOWN -123456789.
+
+//! Get a vector of the atomic symbols of the elements defined in Cantera.
+//! @since New in version 3.0
+const std::vector<std::string>& elementSymbols();
+
+//! Get a vector of the names of the elements defined in Cantera.
+//! @since New in version 3.0
+const std::vector<std::string>& elementNames();
+
+//! Get a map with the element and isotope symbols and names as keys and weights as
+//! values.
+/*!
+ * This is a constant in the application so it is only generated once
+ * when it is first needed.
+ *
+ * @since New in version 3.0
+ */
+const std::map<std::string, double>& elementWeights();
 
 //! Get the atomic weight of an element.
 /*!
@@ -177,11 +193,13 @@ int getAtomicNumber(const std::string& ename);
 
 //! Get the number of named elements defined in Cantera.
 //! This array excludes named isotopes
-int numElementsDefined();
+//! @since Type is `size_t` in Cantera 3.0
+size_t numElementsDefined();
 
 //! Get the number of named isotopes defined in Cantera.
 //! This array excludes the named elements
-int numIsotopesDefined();
+//! @since Type is `size_t` in Cantera 3.0
+size_t numIsotopesDefined();
 
 } // namespace
 

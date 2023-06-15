@@ -11,7 +11,7 @@
 namespace Cantera
 {
 
-// domain types
+// domain types (deprecated); to be removed after Cantera 3.0
 const int cFlowType = 50;
 const int cFreeFlow = 51;
 const int cAxisymmetricStagnationFlow = 52;
@@ -28,7 +28,10 @@ class MultiJac;
 class OneDim;
 class Refiner;
 class AnyMap;
-class XML_Node;
+class Kinetics;
+class Transport;
+class Solution;
+class SolutionArray;
 
 /**
  * Base class for one-dimensional domains.
@@ -50,8 +53,14 @@ public:
     Domain1D& operator=(const Domain1D&) = delete;
 
     //! Domain type flag.
-    int domainType() {
-        return m_type;
+    //! @deprecated  To be changed after Cantera 3.0; for new behavior, see type.
+    int domainType();
+
+    //! String indicating the domain implemented.
+    //! @since New in Cantera 3.0.
+    //! @todo Transition back to domainType after Cantera 3.0
+    virtual string type() const {
+        return "domain";
     }
 
     //! The left-to-right location of this domain.
@@ -60,8 +69,26 @@ public:
     }
 
     //! True if the domain is a connector domain.
-    bool isConnector() {
-        return (m_type >= cConnectorType);
+    virtual bool isConnector() {
+        return false;
+    }
+
+    //! Set the solution manager.
+    //! @since  New in Cantera 3.0.
+    void setSolution(shared_ptr<Solution> sol) {
+        m_solution = sol;
+    }
+
+    //! Set the kinetics manager.
+    //! @since  New in Cantera 3.0.
+    virtual void setKinetics(shared_ptr<Kinetics> kin) {
+        throw NotImplementedError("Domain1D::setKinetics");
+    }
+
+    //! Set transport model to existing instance
+    //! @since  New in Cantera 3.0.
+    virtual void setTransport(shared_ptr<Transport> trans) {
+        throw NotImplementedError("Domain1D::setTransport");
     }
 
     //! The container holding this domain.
@@ -309,43 +336,35 @@ public:
 
     virtual void setJac(MultiJac* jac) {}
 
-    //! Save the current solution for this domain into an XML_Node
-    /*!
-     * Base class version of the general domain1D save function. Derived classes
-     * should call the base class method in addition to saving their own data.
-     *
-     * @param o    XML_Node to save the solution to.
-     * @param sol  Current value of the solution vector. The object will pick
-     *             out which part of the solution vector pertains to this
-     *             object.
-     * @return     XML_Node created to represent this domain
-     *
-     * @deprecated The XML output format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    virtual XML_Node& save(XML_Node& o, const doublereal* const sol);
-
-    //! Restore the solution for this domain from an XML_Node
-    /*!
-     * Base class version of the general Domain1D restore function. Derived
-     * classes should call the base class method in addition to restoring
-     * their own data.
-     *
-     * @param dom XML_Node for this domain
-     * @param soln Current value of the solution vector, local to this object.
-     * @param loglevel 0 to suppress all output; 1 to show warnings; 2 for
-     *      verbose output
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
-
     //! Save the state of this domain as an AnyMap
     /*!
      * @param soln local solution vector for this domain
+     *
+     * @deprecated  To be removed after Cantera 3.0; superseded by asArray.
      */
-    virtual AnyMap serialize(const double* soln) const;
+    AnyMap serialize(const double* soln) const;
+
+    //! Save the state of this domain as a SolutionArray.
+    /*!
+     * @param soln local solution vector for this domain
+     * @todo  Despite the method's name, data are copied; the intent is to access data
+     *      directly in future revisions, where a non-const version will be implemented.
+     *
+     * @since  New in Cantera 3.0.
+     */
+    virtual shared_ptr<SolutionArray> asArray(const double* soln) const {
+        throw NotImplementedError("Domain1D::asArray", "Needs to be overloaded.");
+    }
+
+    //! Save the state of this domain to a SolutionArray.
+    /*!
+     * This method serves as an external interface for high-level API's; it does not
+     * provide direct access to memory.
+     * @param normalize If true, normalize concentrations (default=false)
+     *
+     * @since  New in Cantera 3.0.
+     */
+    shared_ptr<SolutionArray> toArray(bool normalize=false) const;
 
     //! Restore the solution for this domain from an AnyMap
     /*!
@@ -353,8 +372,35 @@ public:
      * @param[out] soln Value of the solution vector, local to this domain
      * @param[in]  loglevel 0 to suppress all output; 1 to show warnings; 2 for
      *      verbose output
+     *
+     * @deprecated  To be removed after Cantera 3.0; restore from SolutionArray instead.
      */
-    virtual void restore(const AnyMap& state, double* soln, int loglevel);
+    void restore(const AnyMap& state, double* soln, int loglevel);
+
+    //! Restore the solution for this domain from a SolutionArray
+    /*!
+     * @param[in]  arr SolutionArray defining the state of this domain
+     * @param[out] soln Value of the solution vector, local to this domain
+     *
+     * @since  New in Cantera 3.0.
+     */
+    virtual void fromArray(SolutionArray& arr, double* soln) {
+        throw NotImplementedError("Domain1D::fromArray", "Needs to be overloaded.");
+    }
+
+    //! Restore the solution for this domain from a SolutionArray.
+    /*!
+     * This method serves as an external interface for high-level API's.
+     * @param  arr SolutionArray defining the state of this domain
+     * @since  New in Cantera 3.0.
+     */
+    void fromArray(const shared_ptr<SolutionArray>& arr);
+
+    //! Return thermo/kinetics/transport manager used in the domain
+    //! @since  New in Cantera 3.0.
+    shared_ptr<Solution> solution() const {
+        return m_solution;
+    }
 
     size_t size() const {
         return m_nv*m_points;
@@ -396,12 +442,18 @@ public:
      */
     void linkLeft(Domain1D* left) {
         m_left = left;
+        if (!m_solution && left && left->solution()) {
+            m_solution = left->solution();
+        }
         locate();
     }
 
     //! Set the right neighbor to domain 'right.'
     void linkRight(Domain1D* right) {
         m_right = right;
+        if (!m_solution && right && right->solution()) {
+            m_solution = right->solution();
+        }
     }
 
     //! Append domain 'right' to this one, and update all links.
@@ -438,10 +490,18 @@ public:
         }
     }
 
-    virtual void showSolution_s(std::ostream& s, const doublereal* x) {}
+    //! @deprecated To be removed after Cantera 3.0; replaced by show
+    virtual void showSolution_s(std::ostream& s, const double* x);
 
     //! Print the solution.
-    virtual void showSolution(const doublereal* x);
+    //! @deprecated To be removed after Cantera 3.0; replaced by show
+    virtual void showSolution(const double* x);
+
+    //! Print the solution.
+    virtual void show(std::ostream& s, const double* x) {}
+
+    //! Print the solution.
+    virtual void show(const double* x);
 
     doublereal z(size_t jlocal) const {
         return m_z[jlocal];
@@ -493,16 +553,29 @@ public:
     /**
      * In some cases, for computational efficiency some properties (such as
      * transport coefficients) may not be updated during Jacobian evaluations.
-     * Set this to `true` to force these properties to be udpated even while
+     * Set this to `true` to force these properties to be updated even while
      * calculating Jacobian elements.
      */
     void forceFullUpdate(bool update) {
         m_force_full_update = update;
     }
 
+    //! Set shared data pointer
+    void setData(shared_ptr<vector<double>>& data) {
+        m_state = data;
+    }
+
 protected:
-    doublereal m_rdt;
-    size_t m_nv;
+    //! Retrieve meta data
+    virtual AnyMap getMeta() const;
+
+    //! Retrieve meta data
+    virtual void setMeta(const AnyMap& meta);
+
+    shared_ptr<vector<double>> m_state; //!< data pointer shared from OneDim
+
+    double m_rdt = 0.0;
+    size_t m_nv = 0;
     size_t m_points;
     vector_fp m_slast;
     vector_fp m_max;
@@ -510,27 +583,31 @@ protected:
     vector_fp m_rtol_ss, m_rtol_ts;
     vector_fp m_atol_ss, m_atol_ts;
     vector_fp m_z;
-    OneDim* m_container;
+    OneDim* m_container = nullptr;
     size_t m_index;
-    int m_type;
+    int m_type = 0; //!< @deprecated To be removed after Cantera 3.0
 
     //! Starting location within the solution vector for unknowns that
     //! correspond to this domain
     /*!
      * Remember there may be multiple domains associated with this problem
      */
-    size_t m_iloc;
+    size_t m_iloc = 0;
 
-    size_t m_jstart;
+    size_t m_jstart = 0;
 
-    Domain1D* m_left, *m_right;
+    Domain1D* m_left = nullptr;
+    Domain1D* m_right = nullptr;
 
     //! Identity tag for the domain
     std::string m_id;
     std::unique_ptr<Refiner> m_refiner;
     std::vector<std::string> m_name;
-    int m_bw;
-    bool m_force_full_update;
+    int m_bw = -1;
+    bool m_force_full_update = false;
+
+    //! Composite thermo/kinetics/transport handler
+    shared_ptr<Solution> m_solution;
 };
 }
 

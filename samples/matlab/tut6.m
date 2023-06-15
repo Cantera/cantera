@@ -29,11 +29,11 @@
 % To use the multicomponent model with GRI-Mech 3.0, call function
 % GRI30 as follows:
 
-g1 = GRI30('Multi')
+g1 = GRI30('multicomponent')
 
 % To use the mixture-averaged model:
 
-g2 = GRI30('Mix')
+g2 = GRI30('mixture-averaged')
 
 % Both models use a mixture-averaged formulation for the viscosity.
 visc = [viscosity(g1), viscosity(g2)]

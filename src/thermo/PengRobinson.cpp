@@ -7,8 +7,9 @@
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/Species.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/base/ctml.h"
+#include "cantera/base/utilities.h"
 
+#include <boost/algorithm/string.hpp>
 #include <boost/math/tools/roots.hpp>
 
 namespace bmt = boost::math::tools;
@@ -20,15 +21,8 @@ const double PengRobinson::omega_a = 4.5723552892138218E-01;
 const double PengRobinson::omega_b = 7.77960739038885E-02;
 const double PengRobinson::omega_vc = 3.07401308698703833E-01;
 
-PengRobinson::PengRobinson(const std::string& infile, const std::string& id_) :
-    m_b(0.0),
-    m_a(0.0),
-    m_aAlpha_mix(0.0),
-    m_NSolns(0),
-    m_dpdV(0.0),
-    m_dpdT(0.0)
+PengRobinson::PengRobinson(const string& infile, const string& id_)
 {
-    std::fill_n(m_Vroot, 3, 0.0);
     initThermoFile(infile, id_);
 }
 
@@ -348,9 +342,9 @@ void PengRobinson::initThermo()
     AnyMap critPropsDb;
     std::unordered_map<std::string, AnyMap*> dbSpecies;
 
-    for (auto& item : m_species) {
-        auto& data = item.second->input;
-        size_t k = speciesIndex(item.first);
+    for (auto& [name, species] : m_species) {
+        auto& data = species->input;
+        size_t k = speciesIndex(name);
         if (m_a_coeffs(k, k) != 0.0) {
             continue;
         }
@@ -367,16 +361,16 @@ void PengRobinson::initThermo()
                 double b = eos.convert("b", "m^3/kmol");
                 // unitless acentric factor:
                 double w = eos["acentric-factor"].asDouble();
-                setSpeciesCoeffs(item.first, a0, b, w);
+                setSpeciesCoeffs(name, a0, b, w);
                 foundCoeffs = true;
             }
 
             if (eos.hasKey("binary-a")) {
                 AnyMap& binary_a = eos["binary-a"].as<AnyMap>();
                 const UnitSystem& units = binary_a.units();
-                for (auto& item2 : binary_a) {
-                    double a0 = units.convert(item2.second, "Pa*m^6/kmol^2");
-                    setBinaryCoeffs(item.first, item2.first, a0);
+                for (auto& [name2, coeff] : binary_a) {
+                    double a0 = units.convert(coeff, "Pa*m^6/kmol^2");
+                    setBinaryCoeffs(name, name2, a0);
                 }
             }
             if (foundCoeffs) {
@@ -403,7 +397,7 @@ void PengRobinson::initThermo()
             }
 
             // All names in critical-properties.yaml are upper case
-            auto ucName = boost::algorithm::to_upper_copy(item.first);
+            auto ucName = boost::algorithm::to_upper_copy(name);
             if (dbSpecies.count(ucName)) {
                 auto& spec = *dbSpecies.at(ucName);
                 auto& critProps = spec["critical-parameters"].as<AnyMap>();
@@ -418,11 +412,11 @@ void PengRobinson::initThermo()
         if (!isnan(Tc)) {
             double a = omega_a * std::pow(GasConstant * Tc, 2) / Pc;
             double b = omega_b * GasConstant * Tc / Pc;
-            setSpeciesCoeffs(item.first, a, b, omega_ac);
+            setSpeciesCoeffs(name, a, b, omega_ac);
         } else {
             throw InputFileError("PengRobinson::initThermo", data,
             "No Peng-Robinson model parameters or critical properties found for "
-            "species '{}'", item.first);
+            "species '{}'", name);
         }
     }
 }
@@ -457,8 +451,8 @@ void PengRobinson::getSpeciesParameters(const std::string& name,
         auto& eosNode = speciesNode["equation-of-state"].getMapWhere(
             "model", "Peng-Robinson", true);
         AnyMap bin_a;
-        for (const auto& item : m_binaryParameters.at(name)) {
-            bin_a[item.first].setQuantity(item.second, "Pa*m^6/kmol^2");
+        for (const auto& [species, coeff] : m_binaryParameters.at(name)) {
+            bin_a[species].setQuantity(coeff, "Pa*m^6/kmol^2");
         }
         eosNode["binary-a"] = std::move(bin_a);
     }
@@ -594,11 +588,11 @@ double PengRobinson::densSpinodalLiquid() const
     };
 
     boost::uintmax_t maxiter = 100;
-    std::pair<double, double> vv = bmt::toms748_solve(
+    auto [lower, upper] = bmt::toms748_solve(
         resid, Vroot[0], Vroot[1], bmt::eps_tolerance<double>(48), maxiter);
 
     double mmw = meanMolecularWeight();
-    return mmw / (0.5 * (vv.first + vv.second));
+    return mmw / (0.5 * (lower + upper));
 }
 
 double PengRobinson::densSpinodalGas() const
@@ -616,11 +610,11 @@ double PengRobinson::densSpinodalGas() const
     };
 
     boost::uintmax_t maxiter = 100;
-    std::pair<double, double> vv = bmt::toms748_solve(
+    auto [lower, upper] = bmt::toms748_solve(
         resid, Vroot[1], Vroot[2], bmt::eps_tolerance<double>(48), maxiter);
 
     double mmw = meanMolecularWeight();
-    return mmw / (0.5 * (vv.first + vv.second));
+    return mmw / (0.5 * (lower + upper));
 }
 
 double PengRobinson::dpdVCalc(double T, double molarVol, double& presCalc) const
@@ -629,6 +623,24 @@ double PengRobinson::dpdVCalc(double T, double molarVol, double& presCalc) const
     double vpb = molarVol + m_b;
     double vmb = molarVol - m_b;
     return -GasConstant * T / (vmb * vmb) + 2 * m_aAlpha_mix * vpb / (denom*denom);
+}
+
+double PengRobinson::isothermalCompressibility() const
+{
+    calculatePressureDerivatives();
+    return -1 / (molarVolume() * m_dpdV);
+}
+
+double PengRobinson::thermalExpansionCoeff() const
+{
+    calculatePressureDerivatives();
+    return -m_dpdT / (molarVolume() * m_dpdV);
+}
+
+double PengRobinson::soundSpeed() const
+{
+    calculatePressureDerivatives();
+    return molarVolume() * sqrt(-cp_mole() / cv_mole() * m_dpdV / meanMolecularWeight());
 }
 
 void PengRobinson::calculatePressureDerivatives() const

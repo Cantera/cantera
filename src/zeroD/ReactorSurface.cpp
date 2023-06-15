@@ -7,17 +7,10 @@
 #include "cantera/zeroD/ReactorNet.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/kinetics/Kinetics.h"
+#include "cantera/kinetics/Reaction.h"
 
 namespace Cantera
 {
-
-ReactorSurface::ReactorSurface()
-    : m_area(1.0)
-    , m_thermo(nullptr)
-    , m_kinetics(nullptr)
-    , m_reactor(nullptr)
-{
-}
 
 double ReactorSurface::area() const
 {
@@ -36,13 +29,12 @@ void ReactorSurface::setKinetics(Kinetics* kin) {
         return;
     }
 
-    size_t i = kin->surfacePhaseIndex();
-    if (i == npos) {
+    m_thermo = dynamic_cast<SurfPhase*>(&kin->thermo(kin->reactionPhaseIndex()));
+    if (m_thermo == nullptr) {
         throw CanteraError("ReactorSurface::setKinetics",
-            "Specified surface kinetics manager does not represent a surface "
+            "Specified kinetics manager does not represent a surface "
             "kinetics mechanism.");
     }
-    m_thermo = dynamic_cast<SurfPhase*>(&kin->thermo(i));
     m_cov.resize(m_thermo->nSpecies());
     m_thermo->getCoverages(m_cov.data());
 }
@@ -74,13 +66,6 @@ void ReactorSurface::getCoverages(double* cov) const
     copy(m_cov.begin(), m_cov.end(), cov);
 }
 
-void ReactorSurface::syncCoverages()
-{
-    warn_deprecated("ReactorSurface::syncCoverages",
-                    "To be removed after Cantera 2.6. Use syncState() instead.");
-    m_thermo->setCoveragesNoNorm(m_cov.data());
-}
-
 void ReactorSurface::syncState()
 {
     m_thermo->setTemperature(m_reactor->temperature());
@@ -94,7 +79,7 @@ void ReactorSurface::addSensitivityReaction(size_t i)
                            "Reaction number out of range ({})", i);
     }
     size_t p = m_reactor->network().registerSensitivityParameter(
-        m_kinetics->reactionString(i), 1.0, 1.0);
+        m_kinetics->reaction(i)->equation(), 1.0, 1.0);
     m_params.emplace_back(
         SensitivityParameter{i, p, 1.0, SensParameterType::reaction});
 }

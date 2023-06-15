@@ -8,7 +8,7 @@
 #ifndef CT_GAS_TRANSPORT_H
 #define CT_GAS_TRANSPORT_H
 
-#include "TransportBase.h"
+#include "Transport.h"
 #include "cantera/numerics/DenseMatrix.h"
 
 namespace Cantera
@@ -48,7 +48,7 @@ public:
      *
      * @returns the viscosity of the mixture (units =  Pa s = kg /m /s)
      *
-     * @see updateViscosity_T();
+     * @see updateViscosity_T()
      */
     virtual doublereal viscosity();
 
@@ -129,9 +129,9 @@ public:
 
     //! Return the polynomial fits to the collision integral of species pair (i, j)
     //! @see fitCollisionIntegrals()
-    virtual void getCollisionIntegralPolynomial(size_t i, size_t j, 
-                                                double* astar_coeffs, 
-                                                double* bstar_coeffs, 
+    virtual void getCollisionIntegralPolynomial(size_t i, size_t j,
+                                                double* astar_coeffs,
+                                                double* bstar_coeffs,
                                                 double* cstar_coeffs) const;
 
     //! Modify the polynomial fits to the viscosity of species i
@@ -148,13 +148,13 @@ public:
 
     //! Modify the polynomial fits to the collision integral of species pair (i, j)
     //! @see fitCollisionIntegrals()
-    virtual void setCollisionIntegralPolynomial(size_t i, size_t j, 
-                                                double* astar_coeffs, 
-                                                double* bstar_coeffs, 
+    virtual void setCollisionIntegralPolynomial(size_t i, size_t j,
+                                                double* astar_coeffs,
+                                                double* bstar_coeffs,
                                                 double* cstar_coeffs, bool actualT);
 
     virtual void init(ThermoPhase* thermo, int mode=0, int log_level=0);
-    
+
     //! Boolean indicating the form of the transport properties polynomial fits.
     //! Returns true if the Chemkin form is used.
     bool CKMode() const {
@@ -296,23 +296,23 @@ protected:
     vector_fp m_molefracs;
 
     //! Internal storage for the viscosity of the mixture  (kg /m /s)
-    doublereal m_viscmix;
+    double m_viscmix = 0.0;
 
     //! Update boolean for mixture rule for the mixture viscosity
-    bool m_visc_ok;
+    bool m_visc_ok = false;
 
     //! Update boolean for the weighting factors for the mixture viscosity
-    bool m_viscwt_ok;
+    bool m_viscwt_ok = false;
 
     //! Update boolean for the species viscosities
-    bool m_spvisc_ok;
+    bool m_spvisc_ok = false;
 
     //! Update boolean for the binary diffusivities at unit pressure
-    bool m_bindiff_ok;
+    bool m_bindiff_ok = false;
 
     //! Type of the polynomial fits to temperature. CK_Mode means Chemkin mode.
     //! Currently CA_Mode is used which are different types of fits to temperature.
-    int m_mode;
+    int m_mode = 0;
 
     //! m_phi is a Viscosity Weighting Function. size = m_nsp * n_nsp
     DenseMatrix m_phi;
@@ -357,26 +357,19 @@ protected:
 
     //! Current value of the temperature at which the properties in this object
     //! are calculated (Kelvin).
-    doublereal m_temp;
+    double m_temp = -1.0;
 
     //! Current value of Boltzmann constant times the temperature (Joules)
-    doublereal m_kbt;
-
-    //! current value of Boltzmann constant times the temperature.
-    //! (Joules) to 1/2 power
-    doublereal m_sqrt_kbt;
+    double m_kbt = 0.0;
 
     //! current value of temperature to 1/2 power
-    doublereal m_sqrt_t;
+    double m_sqrt_t = 0.0;
 
     //! Current value of the log of the temperature
-    doublereal m_logt;
+    double m_logt = 0.0;
 
     //! Current value of temperature to 1/4 power
-    doublereal m_t14;
-
-    //! Current value of temperature to the 3/2 power
-    doublereal m_t32;
+    double m_t14 = 0.0;
 
     //! Polynomial fits to the binary diffusivity of each species
     /*!
@@ -418,8 +411,8 @@ protected:
      * (i,j).
      */
     std::vector<vector_fp> m_omega22_poly;
-    
-    //! Flag to indicate for which (i,j) interaction pairs the 
+
+    //! Flag to indicate for which (i,j) interaction pairs the
     //! actual temperature is used instead of the reduced temperature
     std::vector<vector_int> m_star_poly_uses_actualT;
 
@@ -548,7 +541,7 @@ protected:
     vector_fp m_quad_polar;
 
     //! Level of verbose printing during initialization
-    int m_log_level;
+    int m_log_level = 0;
 };
 
 } // namespace Cantera

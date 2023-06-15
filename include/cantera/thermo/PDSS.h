@@ -67,7 +67,7 @@ namespace Cantera
  *     handle the calculation of the reference state. This object adds the
  *     pressure dependencies to the thermo functions.
  *
- * - PDSS_ConstVol
+ * - PDSS_ConstVol (deprecated in Cantera 3.0)
  *    - standardState model = "ConstVol" or "constant_incompressible"
  *    - This model assumes that the species in the phase obeys the constant
  *      partial molar volume pressure dependence. The manager uses a
@@ -119,7 +119,6 @@ namespace Cantera
  * @ingroup thermoprops
  */
 
-class XML_Node;
 class SpeciesThermoInterpType;
 class VPStandardStateTP;
 
@@ -151,17 +150,16 @@ public:
     //! @{
 
     //! Default Constructor
-    PDSS();
+    PDSS() = default;
 
     // PDSS objects are not copyable or assignable
     PDSS(const PDSS& b) = delete;
     PDSS& operator=(const PDSS& b) = delete;
-    virtual ~PDSS() {}
+    virtual ~PDSS() = default;
 
-     //! @}
-     //! @name Molar Thermodynamic Properties of the Species Standard State in
-     //!     the Solution
-     //! @{
+    //! @}
+    //! @name Molar Thermodynamic Properties of the Species Standard State
+    //! @{
 
     //! Return the molar enthalpy in units of J kmol-1
     /*!
@@ -249,18 +247,22 @@ public:
 
     //! Get the difference in the standard state enthalpy
     //! between the current pressure and the reference pressure, p0.
+    //! @deprecated To be removed after Cantera 3.0
     virtual doublereal enthalpyDelp_mole() const;
 
     //! Get the difference in the standard state entropy between
     //! the current pressure and the reference pressure, p0
+    //! @deprecated To be removed after Cantera 3.0
     virtual doublereal entropyDelp_mole() const;
 
     //! Get the difference in the standard state Gibbs free energy
     //! between the current pressure and the reference pressure, p0.
+    //! @deprecated To be removed after Cantera 3.0
     virtual doublereal gibbsDelp_mole() const;
 
     //! Get the difference in standard state heat capacity
     //! between the current pressure and the reference pressure, p0.
+    //! @deprecated To be removed after Cantera 3.0
     virtual doublereal cpDelp_mole() const;
 
     //! @}
@@ -317,7 +319,7 @@ public:
     virtual doublereal molarVolume_ref() const;
 
     //! @}
-    //!  @name Mechanical Equation of State Properties
+    //! @name Mechanical Equation of State Properties
     //! @{
 
     //! Returns the pressure (Pa)
@@ -362,6 +364,7 @@ public:
     /*!
      * @param  temp     Temperature (Kelvin)
      * @param  rho      Density (kg m-3)
+     * @deprecated  To be removed after Cantera 3.0
      */
     virtual void setState_TR(doublereal temp, doublereal rho);
 
@@ -423,16 +426,6 @@ public:
     //! Store the parameters needed to reconstruct a copy of this PDSS object
     virtual void getParameters(AnyMap& eosNode) const {}
 
-    //! Initialization routine for the PDSS object based on the speciesNode
-    /*!
-     * This is a cascading call, where each level should call the the parent
-     * level. This function is called before initThermo()
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    virtual void setParametersFromXML(const XML_Node& speciesNode) {}
-
     //! This utility function reports back the type of parameterization and
     //! all of the parameters for the species, index.
     /*!
@@ -443,6 +436,7 @@ public:
      * @param minTemp   output - Minimum temperature
      * @param maxTemp   output - Maximum temperature
      * @param refPressure output - reference pressure (Pa).
+     * @deprecated To be removed after Cantera 3.0. Use getParameters() instead.
      */
     virtual void reportParams(size_t& kindex, int& type, doublereal* const c,
                               doublereal& minTemp, doublereal& maxTemp,
@@ -452,22 +446,22 @@ public:
 
 protected:
     //! Current temperature used by the PDSS object
-    mutable doublereal m_temp;
+    mutable double m_temp = -1.0;
 
     //! State of the system - pressure
-    mutable doublereal m_pres;
+    mutable double m_pres = -1.0;
 
     //! Reference state pressure of the species.
-    doublereal m_p0;
+    double m_p0 = -1.0;
 
     //! Minimum temperature
-    doublereal m_minTemp;
+    double m_minTemp = -1.0;
 
     //! Maximum temperature
-    doublereal m_maxTemp;
+    double m_maxTemp = 10000.0;
 
     //! Molecular Weight of the species
-    doublereal m_mw;
+    double m_mw = 0.0;
 
     //! Input data supplied via setParameters. This may include parameters for
     //! different phase models, which will be used when initThermo() is called.

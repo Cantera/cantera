@@ -47,12 +47,12 @@ class MultiSpeciesThermo
 {
 public:
     //! Constructor
-    MultiSpeciesThermo();
+    MultiSpeciesThermo() = default;
 
     // MultiSpeciesThermo objects are not copyable or assignable
     MultiSpeciesThermo(const MultiSpeciesThermo& b) = delete;
     MultiSpeciesThermo& operator=(const MultiSpeciesThermo& b) = delete;
-    virtual ~MultiSpeciesThermo() {}
+    virtual ~MultiSpeciesThermo() = default;
 
     //! Install a new species thermodynamic property parameterization for one
     //! species.
@@ -126,6 +126,8 @@ public:
      * for the first species.
      *
      * @param k Species Index
+     * @deprecated The species index parameter is deprecated and will be removed after
+     *     Cantera 3.0. All species in a phase must have the same reference pressure.
      */
     virtual doublereal refPressure(size_t k=npos) const;
 
@@ -220,13 +222,13 @@ protected:
     std::map<size_t, std::pair<int, size_t> > m_speciesLoc;
 
     //! Maximum value of the lowest temperature
-    doublereal m_tlow_max;
+    double m_tlow_max = 0.0;
 
     //! Minimum value of the highest temperature
-    doublereal m_thigh_min;
+    double m_thigh_min = 1e+30;
 
     //! reference pressure (Pa)
-    doublereal m_p0;
+    double m_p0 = 0.0;
 
     //! indicates if data for species has been installed
     std::vector<bool> m_installed;

@@ -18,7 +18,7 @@ namespace Cantera
  */
 struct BlowersMaselData : public ReactionData
 {
-    BlowersMaselData();
+    BlowersMaselData() = default;
 
     virtual void update(double T) override;
     virtual bool update(const ThermoPhase& phase, const Kinetics& kin) override;
@@ -29,12 +29,12 @@ struct BlowersMaselData : public ReactionData
         ready = true;
     }
 
-    bool ready; //!< boolean indicating whether vectors are accessible
-    double density; //!< used to determine if updates are needed
+    bool ready = false; //!< boolean indicating whether vectors are accessible
+    double density = NAN; //!< used to determine if updates are needed
     vector_fp partialMolarEnthalpies; //!< partial molar enthalpies
 
 protected:
-    int m_state_mf_number; //!< integer that is incremented when composition changes
+    int m_state_mf_number = -1; //!< integer that is incremented when composition changes
 };
 
 
@@ -84,14 +84,11 @@ public:
      */
     BlowersMaselRate(double A, double b, double Ea0, double w);
 
-    explicit BlowersMaselRate(const AnyMap& node, const UnitStack& rate_units={})
-        : BlowersMaselRate()
-    {
-        setParameters(node, rate_units);
-    }
+    explicit BlowersMaselRate(const AnyMap& node,
+                              const UnitStack& rate_units={});
 
     unique_ptr<MultiRateBase> newMultiRate() const override {
-        return unique_ptr<MultiRateBase>(new MultiRate<BlowersMaselRate, BlowersMaselData>);
+        return make_unique<MultiRate<BlowersMaselRate, BlowersMaselData>>();
     }
 
     virtual const std::string type() const override {
@@ -110,8 +107,8 @@ public:
     void updateFromStruct(const BlowersMaselData& shared_data) {
         if (shared_data.ready) {
             m_deltaH_R = 0.;
-            for (const auto& item : m_stoich_coeffs) {
-                m_deltaH_R += shared_data.partialMolarEnthalpies[item.first] * item.second;
+            for (const auto& [k, multiplier] : m_stoich_coeffs) {
+                m_deltaH_R += shared_data.partialMolarEnthalpies[k] * multiplier;
             }
             m_deltaH_R /= GasConstant;
         }
@@ -138,7 +135,6 @@ public:
 protected:
     //! Return the effective activation energy (a function of the delta H of reaction)
     //! divided by the gas constant (that is, the activation temperature) [K]
-    //! @internal  The enthalpy change of reaction is not an independent parameter
     double effectiveActivationEnergy_R(double deltaH_R) const {
         if (deltaH_R < -4 * m_Ea_R) {
             return 0.;
@@ -170,7 +166,7 @@ public:
 
     //! Set current enthalpy change of reaction [J/kmol]
     /*!
-     *  @internal  used for testing purposes only; note that this quantity is not an
+     *  @note  used for testing purposes only; this quantity is not an
      *      independent variable and will be overwritten during an update of the state.
      *
      *  @warning  This method is an experimental part of the %Cantera API and
@@ -181,10 +177,10 @@ public:
     }
 
 protected:
-    //! Pairs of species indices and multiplers to calculate enthalpy change
+    //! Pairs of species indices and multipliers to calculate enthalpy change
     std::vector<std::pair<size_t, double>> m_stoich_coeffs;
 
-    double m_deltaH_R; //!< enthalpy change of reaction (in temperature units)
+    double m_deltaH_R = 0.0; //!< enthalpy change of reaction (in temperature units)
 };
 
 }

@@ -9,8 +9,6 @@
 #include "cantera/clib/ctsurf.h"
 #include "cantera/clib/ct.h"
 
-using namespace std;
-
 void surfmethods(int nlhs, mxArray* plhs[],
                  int nrhs, const mxArray* prhs[])
 {

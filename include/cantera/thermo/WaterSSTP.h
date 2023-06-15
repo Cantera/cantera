@@ -63,29 +63,6 @@ class WaterProps;
  *
  * This is unimplemented.
  *
- * ## XML Example
- *
- * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
- *
- * An example of an XML Element named phase setting up a WaterSSTP object with
- * id "water" is given below.
- *
- * @code
- * <!-- phase water     -->
- * <phase dim="3" id="water">
- *   <elementArray datasrc="elements.xml">O  H </elementArray>
- *   <speciesArray datasrc="#species_data">H2O</speciesArray>
- *   <state>
- *     <temperature units="K">300.0</temperature>
- *     <pressure units="Pa">101325.0</pressure>
- *   </state>
- *   <thermo model="PureLiquidWater"/>
- *   <kinetics model="none"/>
- * </phase>
- * @endcode
- *
- *  Note the model "PureLiquidWater" indicates the usage of the WaterSSTP object.
- *
  * @ingroup thermoprops
  */
 class WaterSSTP : public SingleSpeciesTP
@@ -98,16 +75,6 @@ public:
      */
     explicit WaterSSTP(const std::string& inputFile="",
                        const std::string& id="");
-
-    //! Full constructor for a water phase
-    /*!
-     * @param phaseRef  XML node referencing the water phase.
-     * @param id        string id of the phase name
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    explicit WaterSSTP(XML_Node& phaseRef, const std::string& id = "");
 
     virtual std::string type() const {
         return "liquid-water-IAPWS95";
@@ -146,11 +113,10 @@ public:
 
     //! @}
     //! @name Thermodynamic Values for the Species Reference State
-    /*!
-     *  All functions in this group need to be overridden, because the
-     *  m_spthermo MultiSpeciesThermo function is not adequate for the real
-     *  equation of state.
-     */
+    //!
+    //! All functions in this group need to be overridden, because the
+    //! m_spthermo MultiSpeciesThermo function is not adequate for the real
+    //! equation of state.
     //! @{
 
     virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
@@ -198,7 +164,6 @@ public:
     virtual void setDensity(const doublereal dens);
 
     virtual void initThermo();
-    virtual void setParametersFromXML(const XML_Node& eosdata);
 
     //! Get a pointer to a changeable WaterPropsIAPWS object
     WaterPropsIAPWS* getWater() {
@@ -220,10 +185,7 @@ public:
     void _allowGasPhase(bool flag) { m_allowGasPhase = flag; }
 
 protected:
-    /**
-     * @internal This internal routine must be overridden because it is not
-     *        applicable.
-     */
+    //! This routine must be overridden because it is not applicable.
     void _updateThermo() const;
 
 private:
@@ -239,24 +201,24 @@ private:
     std::unique_ptr<WaterProps> m_waterProps;
 
     //! Molecular weight of Water -> Cantera assumption
-    doublereal m_mw;
+    double m_mw = 0.0;
 
     //! Offset constants used to obtain consistency with the NIST database.
     /*!
      *  This is added to all internal energy and enthalpy results.
      *  units = J kmol-1.
      */
-    doublereal EW_Offset;
+    double EW_Offset = 0.0;
 
     //! Offset constant used to obtain consistency with NIST convention.
     /*!
      *  This is added to all internal entropy results.
      *  units = J kmol-1 K-1.
      */
-    doublereal SW_Offset;
+    double SW_Offset = 0.0;
 
     //! Boolean is true if object has been properly initialized for calculation
-    bool m_ready;
+    bool m_ready = false;
 
     /**
      *  Since this phase represents a liquid (or supercritical) phase, it is an
@@ -264,7 +226,7 @@ private:
      *  a gas-phase answer is allowed. This is used to check the thermodynamic
      *  consistency with ideal-gas thermo functions for example.
      */
-    bool m_allowGasPhase;
+    bool m_allowGasPhase = false;
 };
 
 }

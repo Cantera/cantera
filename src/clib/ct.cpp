@@ -11,32 +11,32 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-#define CANTERA_USE_INTERNAL
 #include "cantera/clib/ct.h"
 
 // Cantera includes
 #include "cantera/kinetics/KineticsFactory.h"
+#include "cantera/kinetics/Reaction.h"
 #include "cantera/transport/TransportFactory.h"
-#include "cantera/base/ctml.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/kinetics/importKinetics.h"
+#include "cantera/base/Solution.h"
+#include "cantera/base/Interface.h"
 #include "cantera/thermo/ThermoFactory.h"
-#include "Cabinet.h"
+#include "clib_utils.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/thermo/PureFluidPhase.h"
+#include "cantera/base/ExternalLogger.h"
 
-using namespace std;
 using namespace Cantera;
 
-typedef Cabinet<ThermoPhase> ThermoCabinet;
-typedef Cabinet<Kinetics> KineticsCabinet;
-typedef Cabinet<Transport> TransportCabinet;
-typedef Cabinet<XML_Node, false> XmlCabinet;
+typedef SharedCabinet<ThermoPhase> ThermoCabinet;
+typedef SharedCabinet<Kinetics> KineticsCabinet;
+typedef SharedCabinet<Transport> TransportCabinet;
+typedef SharedCabinet<Solution> SolutionCabinet;
 
 template<> ThermoCabinet* ThermoCabinet::s_storage = 0;
 template<> KineticsCabinet* KineticsCabinet::s_storage = 0;
 template<> TransportCabinet* TransportCabinet::s_storage = 0;
-template<> XmlCabinet* XmlCabinet::s_storage; // defined in ctxml.cpp
+template<> SolutionCabinet* SolutionCabinet::s_storage = 0;
 
 /**
  * Exported functions.
@@ -50,6 +50,177 @@ extern "C" {
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    //--------------- Solution ------------------//
+
+    int soln_newSolution(const char* infile,
+                         const char* name,
+                         const char* transport)
+    {
+        try {
+            auto soln = newSolution(infile, name, transport);
+            // add associated objects
+            ThermoCabinet::add(soln->thermo());
+            if (soln->kinetics()) {
+                KineticsCabinet::add(soln->kinetics());
+            }
+            if (soln->transport()) {
+                TransportCabinet::add(soln->transport());
+            }
+            return SolutionCabinet::add(soln);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int soln_newInterface(const char* infile,
+                          const char* name,
+                          int na,
+                          const int* adjacent)
+    {
+        try {
+            shared_ptr<Solution> soln;
+            if (na) {
+                std::vector<shared_ptr<Solution>> adj;
+                for (int i = 0; i < na; i++) {
+                    adj.push_back(SolutionCabinet::at(adjacent[i]));
+                }
+                soln = newInterface(infile, name, adj);
+            } else {
+                soln = newInterface(infile, name);
+                for (size_t i = 0; i < soln->nAdjacent(); i++) {
+                    // add automatically loaded adjacent solutions
+                    auto adj = soln->adjacent(i);
+                    if (SolutionCabinet::index(*adj) < 0) {
+                        SolutionCabinet::add(adj);
+                    }
+                }
+            }
+            // add associated objects
+            ThermoCabinet::add(soln->thermo());
+            if (soln->kinetics()) {
+                KineticsCabinet::add(soln->kinetics());
+            }
+            if (soln->transport()) {
+                TransportCabinet::add(soln->transport());
+            }
+            return SolutionCabinet::add(soln);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int soln_del(int n)
+    {
+        try {
+            if (n >= 0 && n < SolutionCabinet::size()) {
+                // remove all associated objects
+                auto soln = SolutionCabinet::at(n);
+                int index = ThermoCabinet::index(*(soln->thermo()));
+                if (index >= 0) {
+                    ThermoCabinet::del(index);
+                }
+                if (soln->kinetics()) {
+                    index = KineticsCabinet::index(*(soln->kinetics()));
+                    if (index >= 0) {
+                        KineticsCabinet::del(index);
+                    }
+                }
+                if (soln->transport()) {
+                    index = TransportCabinet::index(*(soln->transport()));
+                    if (index >= 0) {
+                        TransportCabinet::del(index);
+                    }
+                }
+            }
+            SolutionCabinet::del(n);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int soln_name(int n, int buflen, char* buf)
+    {
+        try {
+            string name = SolutionCabinet::item(n).name();
+            copyString(name, buf, buflen);
+            return int(name.size());
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int soln_thermo(int n)
+    {
+        try {
+            auto soln = SolutionCabinet::at(n);
+            return ThermoCabinet::index(*soln->thermo());
+        } catch (...) {
+            return handleAllExceptions(-2, ERR);
+        }
+    }
+
+    int soln_kinetics(int n)
+    {
+        try {
+            auto soln = SolutionCabinet::at(n);
+            if (!soln->kinetics()) {
+                return -1;
+            }
+            return KineticsCabinet::index(*(soln->kinetics()));
+        } catch (...) {
+            return handleAllExceptions(-2, ERR);
+        }
+    }
+
+    int soln_transport(int n)
+    {
+        try {
+            auto soln = SolutionCabinet::at(n);
+            if (!soln->transport()) {
+                return -1;
+            }
+            return TransportCabinet::index(*(soln->transport()));
+        } catch (...) {
+            return handleAllExceptions(-2, ERR);
+        }
+    }
+
+    int soln_setTransportModel(int n, const char* model)
+    {
+        try {
+            auto soln = SolutionCabinet::at(n);
+            TransportCabinet::del(
+                TransportCabinet::index(*(soln->transport())));
+            soln->setTransportModel(model);
+            return TransportCabinet::add(soln->transport());
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    size_t soln_nAdjacent(int n)
+    {
+        try {
+            return SolutionCabinet::at(n)->nAdjacent();
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int soln_adjacent(int n, int a)
+    {
+        try {
+            auto soln = SolutionCabinet::at(n);
+            if (a < 0 || a >= (int)soln->nAdjacent()) {
+                return -1;
+            }
+            return SolutionCabinet::index(*(soln->adjacent(a)));
+        } catch (...) {
+            return handleAllExceptions(-2, ERR);
         }
     }
 
@@ -73,7 +244,7 @@ extern "C" {
         }
     }
 
-    doublereal thermo_temperature(int n)
+    double thermo_temperature(int n)
     {
         try {
             return ThermoCabinet::item(n).temperature();
@@ -92,7 +263,7 @@ extern "C" {
         return 0;
     }
 
-    doublereal thermo_density(int n)
+    double thermo_density(int n)
     {
         try {
             return ThermoCabinet::item(n).density();
@@ -103,9 +274,6 @@ extern "C" {
 
     int thermo_setDensity(int n, double rho)
     {
-        if (rho < 0.0) {
-            return -1;
-        }
         try {
             ThermoCabinet::item(n).setDensity(rho);
         } catch (...) {
@@ -114,7 +282,7 @@ extern "C" {
         return 0;
     }
 
-    doublereal thermo_molarDensity(int n)
+    double thermo_molarDensity(int n)
     {
         try {
             return ThermoCabinet::item(n).molarDensity();
@@ -125,9 +293,6 @@ extern "C" {
 
     int thermo_setMolarDensity(int n, double ndens)
     {
-        if (ndens < 0.0) {
-            return -1;
-        }
         try {
             ThermoCabinet::item(n).setMolarDensity(ndens);
         } catch (...) {
@@ -136,7 +301,7 @@ extern "C" {
         return 0;
     }
 
-    doublereal thermo_meanMolecularWeight(int n)
+    double thermo_meanMolecularWeight(int n)
     {
         try {
             return ThermoCabinet::item(n).meanMolecularWeight();
@@ -175,7 +340,7 @@ extern "C" {
         }
     }
 
-    doublereal thermo_moleFraction(int n, size_t k)
+    double thermo_moleFraction(int n, size_t k)
     {
         try {
             return ThermoCabinet::item(n).moleFraction(k);
@@ -196,7 +361,7 @@ extern "C" {
         }
     }
 
-    doublereal thermo_massFraction(int n, size_t k)
+    double thermo_massFraction(int n, size_t k)
     {
         try {
             return ThermoCabinet::item(n).massFraction(k);
@@ -336,7 +501,7 @@ extern "C" {
     }
 
 
-    doublereal thermo_nAtoms(int n, size_t k, size_t m)
+    double thermo_nAtoms(int n, size_t k, size_t m)
     {
         try {
             return ThermoCabinet::item(n).nAtoms(k,m);
@@ -345,7 +510,7 @@ extern "C" {
         }
     }
 
-    int thermo_addElement(int n, const char* name, doublereal weight)
+    int thermo_addElement(int n, const char* name, double weight)
     {
         try {
             ThermoCabinet::item(n).addElement(name, weight);
@@ -359,18 +524,7 @@ extern "C" {
 
     int thermo_newFromFile(const char* filename, const char* phasename) {
         try {
-            return ThermoCabinet::add(newPhase(filename, phasename));
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int thermo_newFromXML(int mxml)
-    {
-        try {
-            XML_Node& x = XmlCabinet::item(mxml);
-            ThermoPhase* th = newPhase(x);
-            return ThermoCabinet::add(th);
+            return ThermoCabinet::add(newThermo(filename, phasename));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -535,10 +689,40 @@ extern "C" {
         }
     }
 
+    int thermo_set_TP(int n, double* vals)
+    {
+        try{
+            ThermoCabinet::item(n).setState_TP(vals[0], vals[1]);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int thermo_set_TD(int n, double* vals)
+    {
+        try{
+            ThermoCabinet::item(n).setState_TD(vals[0], vals[1]);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     int thermo_set_RP(int n, double* vals)
     {
         try{
             ThermoCabinet::item(n).setState_RP(vals[0], vals[1]);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int thermo_set_DP(int n, double* vals)
+    {
+        try{
+            ThermoCabinet::item(n).setState_DP(vals[0], vals[1]);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -696,7 +880,7 @@ extern "C" {
         }
     }
 
-    doublereal thermo_refPressure(int n)
+    double thermo_refPressure(int n)
     {
         try {
             return ThermoCabinet::item(n).refPressure();
@@ -705,7 +889,7 @@ extern "C" {
         }
     }
 
-    doublereal thermo_minTemp(int n, int k)
+    double thermo_minTemp(int n, int k)
     {
         try {
             ThermoPhase& ph = ThermoCabinet::item(n);
@@ -720,7 +904,7 @@ extern "C" {
         }
     }
 
-    doublereal thermo_maxTemp(int n, int k)
+    double thermo_maxTemp(int n, int k)
     {
         try {
             ThermoPhase& ph = ThermoCabinet::item(n);
@@ -782,7 +966,7 @@ extern "C" {
         }
     }
 
-    doublereal thermo_thermalExpansionCoeff(int n)
+    double thermo_thermalExpansionCoeff(int n)
     {
         try {
             return ThermoCabinet::item(n).thermalExpansionCoeff();
@@ -791,7 +975,7 @@ extern "C" {
         }
     }
 
-    doublereal thermo_isothermalCompressibility(int n)
+    double thermo_isothermalCompressibility(int n)
     {
         try {
             return ThermoCabinet::item(n).isothermalCompressibility();
@@ -883,53 +1067,22 @@ extern "C" {
                         int neighbor3, int neighbor4)
     {
         try {
-            vector<ThermoPhase*> phases;
-            phases.push_back(&ThermoCabinet::item(reactingPhase));
+            vector<shared_ptr<ThermoPhase>> phases;
+            phases.push_back(ThermoCabinet::at(reactingPhase));
             if (neighbor1 >= 0) {
-                phases.push_back(&ThermoCabinet::item(neighbor1));
+                phases.push_back(ThermoCabinet::at(neighbor1));
                 if (neighbor2 >= 0) {
-                    phases.push_back(&ThermoCabinet::item(neighbor2));
+                    phases.push_back(ThermoCabinet::at(neighbor2));
                     if (neighbor3 >= 0) {
-                        phases.push_back(&ThermoCabinet::item(neighbor3));
+                        phases.push_back(ThermoCabinet::at(neighbor3));
                         if (neighbor4 >= 0) {
-                            phases.push_back(&ThermoCabinet::item(neighbor4));
+                            phases.push_back(ThermoCabinet::at(neighbor4));
                         }
                     }
                 }
             }
-            unique_ptr<Kinetics> kin = newKinetics(phases, filename, phasename);
-            return KineticsCabinet::add(kin.release());
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int kin_newFromXML(int mxml, int iphase,
-                       int neighbor1, int neighbor2, int neighbor3,
-                       int neighbor4)
-    {
-        try {
-            XML_Node& x = XmlCabinet::item(mxml);
-            vector<ThermoPhase*> phases;
-            phases.push_back(&ThermoCabinet::item(iphase));
-            if (neighbor1 >= 0) {
-                phases.push_back(&ThermoCabinet::item(neighbor1));
-                if (neighbor2 >= 0) {
-                    phases.push_back(&ThermoCabinet::item(neighbor2));
-                    if (neighbor3 >= 0) {
-                        phases.push_back(&ThermoCabinet::item(neighbor3));
-                        if (neighbor4 >= 0) {
-                            phases.push_back(&ThermoCabinet::item(neighbor4));
-                        }
-                    }
-                }
-            }
-            Kinetics* kin = newKineticsMgr(x, phases);
-            if (kin) {
-                return KineticsCabinet::add(kin);
-            } else {
-                return 0;
-            }
+            shared_ptr<Kinetics> kin = newKinetics(phases, filename, phasename);
+            return KineticsCabinet::add(kin);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -1034,12 +1187,12 @@ extern "C" {
         }
     }
 
-    int kin_reactionType(int n, int i)
+    int kin_getReactionType(int n, int i, size_t len, char* buf)
     {
         try {
             Kinetics& kin = KineticsCabinet::item(n);
             kin.checkReactionIndex(i);
-            return kin.reactionType(i);
+            return static_cast<int>(copyString(kin.reaction(i)->type(), buf, len));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -1244,7 +1397,7 @@ extern "C" {
         try {
             Kinetics& k = KineticsCabinet::item(n);
             k.checkReactionIndex(i);
-            return static_cast<int>(copyString(k.reactionString(i), buf, len));
+            return static_cast<int>(copyString(k.reaction(i)->equation(), buf, len));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -1281,8 +1434,7 @@ extern "C" {
     int trans_newDefault(int ith, int loglevel)
     {
         try {
-            Transport* tr = newDefaultTransportMgr(&ThermoCabinet::item(ith),
-                                                   loglevel);
+            auto tr = newTransport(ThermoCabinet::at(ith), "default");
             return TransportCabinet::add(tr);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -1292,9 +1444,18 @@ extern "C" {
     int trans_new(const char* model, int ith, int loglevel)
     {
         try {
-            Transport* tr = newTransportMgr(model, &ThermoCabinet::item(ith),
-                                            loglevel);
+            auto tr = newTransport(ThermoCabinet::at(ith), model);
             return TransportCabinet::add(tr);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int trans_transportModel(int i, int lennm, char* nm)
+    {
+        try {
+            return static_cast<int>(
+                copyString(TransportCabinet::item(i).transportModel(), nm, lennm));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -1430,7 +1591,7 @@ extern "C" {
     {
         try {
             bool stherm = (show_thermo != 0);
-            writelog(ThermoCabinet::item(nth).report(stherm, threshold)+"\n");
+            writelog(ThermoCabinet::item(nth).report(stherm, threshold));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -1516,9 +1677,35 @@ extern "C" {
         }
     }
 
+    int ct_setLogCallback(LogCallback writer)
+    {
+        static unique_ptr<Logger> logwriter;
+        try {
+            logwriter = make_unique<ExternalLogger>(writer);
+            setLogger(logwriter.get());
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int ct_resetStorage()
+    {
+        try {
+            SolutionCabinet::reset();
+            ThermoCabinet::reset();
+            KineticsCabinet::reset();
+            TransportCabinet::reset();
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     int ct_clearStorage()
     {
         try {
+            SolutionCabinet::clear();
             ThermoCabinet::clear();
             KineticsCabinet::clear();
             TransportCabinet::clear();
@@ -1552,17 +1739,6 @@ extern "C" {
     {
         try {
             TransportCabinet::del(n);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int ct_ck2cti(const char* in_file, const char* db_file, const char* tr_file,
-                  const char* id_tag, int debug, int validate)
-    {
-        try {
-            ck2cti(in_file, db_file, tr_file, id_tag);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

@@ -1,0 +1,254 @@
+description: |-
+  Sample reactions used for testing of round trip yaml to chemkin to yaml.
+  Some reaction rate definitions use arbitrary parameters.
+
+  ! generator: yaml2ck
+
+units: {activation-energy: cal/mol}
+
+phases:
+- name: yaml2ck
+  thermo: ideal-gas
+  elements: [O, H, Ar]
+  kinetics: gas
+  transport: mixture-averaged
+  reactions: all
+  state:
+    T: 300.0
+    P: 1.01325e+05
+    
+species:
+- name: AR
+  composition: {Ar: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [2.5, 0.0, 0.0, 0.0, 0.0, -745.375, 4.37967491]
+    - [2.5, 0.0, 0.0, 0.0, 0.0, -745.375, 4.37967491]
+    note: G5/97
+  transport:
+    model: gas
+    geometry: atom
+    well-depth: 136.5
+    diameter: 3.33
+- name: O
+  composition: {O: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0]
+    data:
+    - [3.1682671, -3.27931884e-03, 6.64306396e-06, -6.12806624e-09, 2.11265971e-12,
+      2.91222592e+04, 2.05193346]
+    note: Modified to have only one temperature range
+  transport:
+    model: gas
+    geometry: atom
+    well-depth: 80.0
+    diameter: 2.75
+- name: O2
+  composition: {O: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [3.78245636, -2.99673416e-03, 9.84730201e-06, -9.68129509e-09, 3.24372837e-12,
+      -1063.94356, 3.65767573]
+    - [3.66096065, 6.56365811e-04, -1.41149627e-07, 2.05797935e-11, -1.29913436e-15,
+      -1215.97718, 3.41536279]
+    note: RUS89
+  transport:
+    model: gas
+    geometry: linear
+    well-depth: 107.4
+    diameter: 3.458
+    polarizability: 1.6
+    rotational-relaxation: 3.8
+- name: H
+  composition: {H: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [2.5, 0.0, 0.0, 0.0, 0.0, 2.547366e+04, -0.44668285]
+    - [2.5, 0.0, 0.0, 0.0, 0.0, 2.547366e+04, -0.44668285]
+    note: L6/94
+  transport:
+    model: gas
+    geometry: atom
+    well-depth: 145.0
+    diameter: 2.05  
+- name: H2
+  composition: {H: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [2.34433112, 7.98052075e-03, -1.9478151e-05, 2.01572094e-08, -7.37611761e-12,
+      -917.935173, 0.683010238]
+    - [2.93286575, 8.26608026e-04, -1.46402364e-07, 1.54100414e-11, -6.888048e-16,
+      -813.065581, -1.02432865]
+    note: TPIS78
+  transport:
+    model: gas
+    geometry: linear
+    well-depth: 38.0
+    diameter: 2.92
+    polarizability: 0.79
+    rotational-relaxation: 280.0  
+- name: H2O
+  composition: {H: 2, O: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [4.1986352, -2.0364017e-03, 6.5203416e-06, -5.4879269e-09, 1.771968e-12,
+      -3.0293726e+04, -0.84900901]
+    - [2.6770389, 2.9731816e-03, -7.7376889e-07, 9.4433514e-11, -4.2689991e-15,
+      -2.9885894e+04, 6.88255]
+    note: There's definitely a note in here
+  transport:
+    model: gas
+    geometry: nonlinear
+    well-depth: 572.4
+    diameter: 2.605
+    dipole: 1.844
+    rotational-relaxation: 4.0
+- name: OH
+  composition: {O: 1, H: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [3.99198424, -2.40106655e-03, 4.61664033e-06, -3.87916306e-09, 1.36319502e-12,
+      3368.89836, -0.103998477]
+    - [2.83853033, 1.10741289e-03, -2.94000209e-07, 4.20698729e-11, -2.4228989e-15,
+      3697.80808, 5.84494652]
+    note: IU3/03
+  transport:
+    model: gas
+    geometry: linear
+    well-depth: 80.0
+    diameter: 2.75
+- name: H2O2
+  composition: {H: 2, O: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [4.31515149, -8.47390622e-04, 1.76404323e-05, -2.26762944e-08, 9.08950158e-12,
+      -1.77067437e+04, 3.27373319]
+    - [4.57977305, 4.05326003e-03, -1.2984473e-06, 1.982114e-10, -1.13968792e-14,
+      -1.80071775e+04, 0.664970694]
+    note: T8/03
+  transport:
+    model: gas
+    geometry: nonlinear
+    well-depth: 107.4
+    diameter: 3.458
+    rotational-relaxation: 3.8
+- name: HO2
+  composition: {H: 1, O: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 5000.0]
+    data:
+    - [4.30179807, -4.74912097e-03, 2.11582905e-05, -2.42763914e-08, 9.29225225e-12,
+      264.018485, 3.7166622]
+    - [4.17228741, 1.88117627e-03, -3.46277286e-07, 1.94657549e-11, 1.76256905e-16,
+      31.0206839, 2.95767672]
+    note: T1/09
+  transport:
+    model: gas
+    geometry: nonlinear
+    well-depth: 107.4
+    diameter: 3.458
+    rotational-relaxation: 1.0
+
+reactions:
+- equation: O + H2 <=> H + OH  # Reaction 1
+  rate-constant: {A: 38.7, b: 2.7, Ea: 6260.0}
+  note: Arrhenius reversible
+- equation: H + 2 O2 => HO2 + O2 # Reaction 2
+  rate-constant: {A: 2.08e+19, b: -1.24, Ea: 0.0}
+  note: Arrhenius irreversible
+- equation: 0.7 H2 + 0.6 OH + 1.2 O2 => H2O2 + O  # Reaction 3
+  rate-constant: {A: 3.981072e+04, b: 0.0, Ea: 9.252008e+04}
+  orders: {H2: 0.8, O2: 1.0, OH: 2.0}
+  note: Arrhenius fractional reaction order
+- equation: H2O2 + M <=> O + H2O + M  # Reaction 4
+  type: three-body
+  rate-constant: {A: 1.2e+11, b: -1.0, Ea: 0.0}
+  efficiencies: {AR: 0.83, H2: 2.4, H2O: 15.4}
+  note: Three-body
+- equation: 2 OH (+ M) <=> H2O2 (+ M)  # Reaction 5
+  duplicate: true
+  type: falloff
+  low-P-rate-constant: {A: 2.3e+12, b: -0.9, Ea: -1700.0}
+  high-P-rate-constant: {A: 7.4e+10, b: -0.37, Ea: 0.0}
+  efficiencies: {AR: 0.7, H2: 2.0, H2O: 6.0}
+  note: Lindemann
+- equation: 2 OH (+ M) <=> H2O2 (+ M)  # Reaction 6
+  duplicate: true
+  type: falloff
+  low-P-rate-constant: {A: 2.3e+12, b: -0.9, Ea: -1700.0}
+  high-P-rate-constant: {A: 7.4e+10, b: -0.37, Ea: 0.0}
+  Troe: {A: 0.51, T3: 1.000e-30, T1: 1.000e+30}
+  efficiencies: {AR: 0.3, H2: 1.5, H2O: 2.7}
+  note: Troe 3 parameters
+- equation: 2 OH (+ M) <=> H2O2 (+ M)  # Reaction 7
+  duplicate: true
+  type: falloff
+  low-P-rate-constant: {A: 2.3e+12, b: -0.9, Ea: -1700.0}
+  high-P-rate-constant: {A: 7.4e+10, b: -0.37, Ea: 0.0}
+  Troe: {A: 0.7346, T3: 94.0, T1: 1756.0, T2: 5182.0}
+  efficiencies: {AR: 0.7, H2: 2.0, H2O: 6.0}
+  note: Troe 4 parameters
+- equation: O + H2 (+ M) <=> H + OH (+ M) # Reaction 8
+  type: falloff
+  high-P-rate-constant: {A: 1.0e+15, b: -2.0, Ea: 1000.0 cal/mol}
+  low-P-rate-constant: {A: 4.0e+19, b: -3.0, Ea: 0.0 cal/mol}
+  SRI: {A: 0.54, B: 201.0, C: 1024.0}
+  note: SRI 3 parameter
+- equation: H + HO2 (+ M) <=> H2 + O2 (+ M)  # Reaction 9
+  type: falloff
+  high-P-rate-constant: {A: 4.0e+15, b: -0.5, Ea: 100.0 cal/mol}
+  low-P-rate-constant: {A: 7.0e+20, b: -1.0, Ea: 0.0 cal/mol}
+  efficiencies: {AR: 0.7, H2: 2.0, H2O: 6.0}
+  SRI: {A: 1.1, B: 700.0, C: 1234.0, D: 56.0, E: 0.7}
+  note: SRI 5 parameter
+- equation: H2 + O2 <=> 2 OH  # Reaction 10
+  type: pressure-dependent-Arrhenius
+  rate-constants:
+  - {P: 0.01 atm, A: 1.2124e+16, b: -0.5779, Ea: 1.08727e+04}
+  - {P: 1.0 atm, A: 4.9108e+31, b: -4.8507, Ea: 2.47728e+04}
+  - {P: 10.0 atm, A: 1.2866e+47, b: -9.0246, Ea: 3.97965e+04}
+  - {P: 100.0 atm, A: 5.9632e+56, b: -11.529, Ea: 5.25996e+04}
+  note: PLOG
+- equation: O + H => O + H  # Reaction 11
+  type: pressure-dependent-Arrhenius
+  rate-constants:
+  - {P: 0.001316 atm, A: 1.23e+08, b: 1.53, Ea: 4737.0}
+  - {P: 0.039474 atm, A: 2.72e+09, b: 1.2, Ea: 6834.0}
+  - {P: 1.0 atm, A: 1.26e+20, b: -1.83, Ea: 1.5003e+04}
+  - {P: 1.0 atm, A: 1.23e+04, b: 2.68, Ea: 6335.0}
+  - {P: 10.0 atm, A: 1.68e+16, b: -0.6, Ea: 1.4754e+04}
+  - {P: 10.0 atm, A: 3.31e+08, b: 1.14, Ea: 8886.0}
+  - {P: 100.0 atm, A: 1.37e+17, b: -0.79, Ea: 1.7603e+04}
+  - {P: 100.0 atm, A: 1.28e+06, b: 1.71, Ea: 9774.0}
+  note: Multiple PLOG expressions at the same pressure
+- equation: HO2 <=> OH + O  # Reaction 12
+  type: Chebyshev
+  temperature-range: [290.0, 3000.0]
+  pressure-range: [9.869232667160128e-03 atm, 98.69232667160128 atm]
+  data:
+  - [8.2883, -1.1397, -0.12059, 0.016034]
+  - [1.9764, 1.0037, 7.2865e-03, -0.030432]
+  - [0.3177, 0.26889, 0.094806, -7.6385e-03]
+  note: Chebyshev
+- equation: H2O + OH (+M) <=> HO2 + H2 (+M)  # Reaction 13
+  units: {length: cm, quantity: mol}
+  type: chemically-activated
+  high-P-rate-constant: [5.88E-14, 6.721, -3022.227]
+  low-P-rate-constant: [282320.078, 1.46878, -3270.56495]
+  note: Chemically activated

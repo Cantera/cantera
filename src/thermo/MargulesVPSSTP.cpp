@@ -12,26 +12,12 @@
 #include "cantera/thermo/MargulesVPSSTP.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/base/ctml.h"
-
-using namespace std;
 
 namespace Cantera
 {
-MargulesVPSSTP::MargulesVPSSTP(const std::string& inputFile, const std::string& id_) :
-    numBinaryInteractions_(0),
-    formMargules_(0),
-    formTempModel_(0)
+MargulesVPSSTP::MargulesVPSSTP(const string& inputFile, const string& id_)
 {
     initThermoFile(inputFile, id_);
-}
-
-MargulesVPSSTP::MargulesVPSSTP(XML_Node& phaseRoot, const std::string& id_) :
-    numBinaryInteractions_(0),
-    formMargules_(0),
-    formTempModel_(0)
-{
-    importPhase(phaseRoot, this);
 }
 
 // -- Activities, Standard States, Activity Concentrations -----------
@@ -248,52 +234,6 @@ void MargulesVPSSTP::getParameters(AnyMap& phaseNode) const
 void MargulesVPSSTP::initLengths()
 {
     dlnActCoeffdlnN_.resize(m_kk, m_kk);
-}
-
-void MargulesVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id_)
-{
-    if ((int) id_.size() > 0) {
-        string idp = phaseNode.id();
-        if (idp != id_) {
-            throw CanteraError("MargulesVPSSTP::initThermoXML", "phasenode and Id are incompatible");
-        }
-    }
-
-    // Find the Thermo XML node
-    if (!phaseNode.hasChild("thermo")) {
-        throw CanteraError("MargulesVPSSTP::initThermoXML",
-                           "no thermo XML node");
-    }
-    XML_Node& thermoNode = phaseNode.child("thermo");
-
-    // Make sure that the thermo model is Margules
-    if (!caseInsensitiveEquals(thermoNode["model"], "margules")) {
-        throw CanteraError("MargulesVPSSTP::initThermoXML",
-                           "model name isn't Margules: " + thermoNode["model"]);
-    }
-
-    // Go get all of the coefficients and factors in the activityCoefficients
-    // XML block
-    if (thermoNode.hasChild("activityCoefficients")) {
-        XML_Node& acNode = thermoNode.child("activityCoefficients");
-        if (!caseInsensitiveEquals(acNode["model"], "margules")) {
-            throw CanteraError("MargulesVPSSTP::initThermoXML",
-                               "Unknown activity coefficient model: " + acNode["model"]);
-        }
-        for (size_t i = 0; i < acNode.nChildren(); i++) {
-            XML_Node& xmlACChild = acNode.child(i);
-
-            // Process a binary salt field, or any of the other XML fields that
-            // make up the Pitzer Database. Entries will be ignored if any of
-            // the species in the entry isn't in the solution.
-            if (caseInsensitiveEquals(xmlACChild.name(), "binaryneutralspeciesparameters")) {
-                readXMLBinarySpecies(xmlACChild);
-            }
-        }
-    }
-
-    // Go down the chain
-    GibbsExcessVPSSTP::initThermoXML(phaseNode, id_);
 }
 
 void MargulesVPSSTP::addBinaryInteraction(const std::string& speciesA,
@@ -534,89 +474,6 @@ void MargulesVPSSTP::getdlnActCoeffdlnN(const size_t ld, doublereal* dlnActCoeff
             dlnActCoeffdlnN[ld * k + m] = data[m_kk * k + m];
         }
     }
-}
-
-void MargulesVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
-{
-    string xname = xmLBinarySpecies.name();
-    if (xname != "binaryNeutralSpeciesParameters") {
-        throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies",
-                           "Incorrect name for processing this routine: " + xname);
-    }
-    string aName = xmLBinarySpecies.attrib("speciesA");
-    if (aName == "") {
-        throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies", "no speciesA attrib");
-    }
-    string bName = xmLBinarySpecies.attrib("speciesB");
-    if (bName == "") {
-        throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies", "no speciesB attrib");
-    }
-
-    vector_fp vParams;
-    double h0 = 0.0;
-    double h1 = 0.0;
-    double s0 = 0.0;
-    double s1 = 0.0;
-    double vh0 = 0.0;
-    double vh1 = 0.0;
-    double vs0 = 0.0;
-    double vs1 = 0.0;
-
-    for (size_t iChild = 0; iChild < xmLBinarySpecies.nChildren(); iChild++) {
-        XML_Node& xmlChild = xmLBinarySpecies.child(iChild);
-        string nodeName = toLowerCopy(xmlChild.name());
-
-        // Process the binary species interaction parameters.
-        // They are in subblocks labeled:
-        //           excessEnthalpy
-        //           excessEntropy
-        //           excessVolume_Enthalpy
-        //           excessVolume_Entropy
-        // Other blocks are currently ignored.
-        // @todo determine a policy about ignoring blocks that should or shouldn't be there.
-        if (nodeName == "excessenthalpy") {
-            // Get the string containing all of the values
-            getFloatArray(xmlChild, vParams, true, "toSI", "excessEnthalpy");
-            if (vParams.size() != 2) {
-                throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies"
-                    "excessEnthalpy for {} : {}: wrong number of params found."
-                    " Need 2", aName, bName);
-            }
-            h0 = vParams[0];
-            h1 = vParams[1];
-        } else if (nodeName == "excessentropy") {
-            // Get the string containing all of the values
-            getFloatArray(xmlChild, vParams, true, "toSI", "excessEntropy");
-            if (vParams.size() != 2) {
-                throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies"
-                    "excessEntropy for {} : {}: wrong number of params found."
-                    " Need 2", aName, bName);
-            }
-            s0 = vParams[0];
-            s1 = vParams[1];
-        } else if (nodeName == "excessvolume_enthalpy") {
-            // Get the string containing all of the values
-            getFloatArray(xmlChild, vParams, true, "toSI", "excessVolume_Enthalpy");
-            if (vParams.size() != 2) {
-                throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies"
-                    "excessVolume_Enthalpy for {} : {}: wrong number of params"
-                    "  found. Need 2", aName, bName);
-            }
-            vh0 = vParams[0];
-            vh1 = vParams[1];
-        } else if (nodeName == "excessvolume_entropy") {
-            // Get the string containing all of the values
-            getFloatArray(xmlChild, vParams, true, "toSI", "excessVolume_Entropy");
-            if (vParams.size() != 2) {
-                throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies"
-                    "excessVolume_Entropy for {} : {}: wrong number of params"
-                    " found. Need 2", aName, bName);
-            }
-            vs0 = vParams[0];
-            vs1 = vParams[1];
-        }
-    }
-    addBinaryInteraction(aName, bName, h0, h1, s0, s1, vh0, vh1, vs0, vs1);
 }
 
 }

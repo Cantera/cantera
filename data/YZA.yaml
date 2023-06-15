@@ -1,0 +1,26 @@
+description: |-
+  Properties for yttria-stabilized zirconia alumina (YZA) used in
+  porous media burners. Data compiled by Thorsten Zirwes and used in
+  https://doi.org/10.1016/j.combustflame.2023.112642
+
+phases:
+- name: yttria-stabilized-zirconia
+  thermo: fixed-stoichiometry
+  elements: [Zr, O, Ca, Al]
+  species: [YZA]
+  state:
+    T: 300.0
+    P: 1.01325e+05
+
+species:
+- name: YZA
+  composition: {Zr: 0.5715672995778173, O: 2.306889570287332, Ca: 0.06077156506742553, Al: 0.7353222707095146}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 5000.0]
+    data:
+    - [-2.15829976e+00, 5.54056331e-02, -9.68144479e-05, 7.94178722e-08, -2.47332419e-11, -1.55293386e+05, 5.42538895e+00]
+    - [9.90166264e+00, 1.44818585e-03, -8.12194927e-08, -2.02609691e-10, 5.14962496e-14, -1.57670861e+05, -5.19395475e+01]
+  equation-of-state:
+    model: constant-volume
+    density: 4.32 g/cm^3

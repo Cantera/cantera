@@ -9,30 +9,27 @@
 namespace Cantera
 {
 
-ArrheniusBase::ArrheniusBase()
-    : m_negativeA_ok(false)
-    , m_A(NAN)
-    , m_b(NAN)
-    , m_Ea_R(0.)
-    , m_E4_R(0.)
-    , m_logA(NAN)
-    , m_order(NAN)
-    , m_rate_units(Units(0.))
-{
-}
-
 ArrheniusBase::ArrheniusBase(double A, double b, double Ea)
-    : m_negativeA_ok(false)
-    , m_A(A)
+    : m_A(A)
     , m_b(b)
     , m_Ea_R(Ea / GasConstant)
-    , m_E4_R(0.)
-    , m_order(NAN)
-    , m_rate_units(Units(0.))
 {
     if (m_A > 0.0) {
         m_logA = std::log(m_A);
     }
+    m_valid = true;
+}
+
+ArrheniusBase::ArrheniusBase(const AnyValue& rate, const UnitSystem& units,
+                             const UnitStack& rate_units)
+{
+    setRateUnits(rate_units);
+    setRateParameters(rate, units, rate_units);
+}
+
+ArrheniusBase::ArrheniusBase(const AnyMap& node, const UnitStack& rate_units)
+{
+    setParameters(node, rate_units);
 }
 
 void ArrheniusBase::setRateParameters(
@@ -44,27 +41,14 @@ void ArrheniusBase::setRateParameters(
         m_A = NAN;
         m_b = NAN;
         m_logA = NAN;
-        m_order = NAN;
-        m_rate_units = Units(0.);
+        setRateUnits(Units(0.));
         return;
     }
 
-    setRateUnits(rate_units);
     if (rate.is<AnyMap>()) {
 
         auto& rate_map = rate.as<AnyMap>();
-        if (m_rate_units.factor() == 0) {
-            // A zero rate units factor is used as a sentinel to detect
-            // stand-alone reaction rate objects
-            if (rate_map[m_A_str].is<std::string>()) {
-                throw InputFileError("Arrhenius::setRateParameters", rate_map,
-                    "Specification of units is not supported for pre-exponential "
-                    "factor when\ncreating a standalone 'ReactionRate' object.");
-            }
-            m_A = rate_map[m_A_str].asDouble();
-        } else {
-            m_A = units.convert(rate_map[m_A_str], m_rate_units);
-        }
+        m_A = units.convertRateCoeff(rate_map[m_A_str], conversionUnits());
         m_b = rate_map[m_b_str].asDouble();
         if (rate_map.hasKey(m_Ea_str)) {
             m_Ea_R = units.convertActivationEnergy(rate_map[m_Ea_str], "K");
@@ -74,7 +58,7 @@ void ArrheniusBase::setRateParameters(
         }
     } else {
         auto& rate_vec = rate.asVector<AnyValue>(2, 4);
-        m_A = units.convert(rate_vec[0], m_rate_units);
+        m_A = units.convertRateCoeff(rate_vec[0], conversionUnits());
         m_b = rate_vec[1].asDouble();
         if (rate_vec.size() > 2) {
             m_Ea_R = units.convertActivationEnergy(rate_vec[2], "K");
@@ -86,15 +70,18 @@ void ArrheniusBase::setRateParameters(
     if (m_A > 0.0) {
         m_logA = std::log(m_A);
     }
+    m_valid = true;
 }
 
 void ArrheniusBase::getRateParameters(AnyMap& node) const
 {
-    if (std::isnan(m_A)) {
+    if (!valid()) {
         // Return empty/unmodified AnyMap
         return;
-    } else if (m_rate_units.factor() != 0.0) {
-        node[m_A_str].setQuantity(m_A, m_rate_units);
+    }
+
+    if (conversionUnits().factor() != 0.0) {
+        node[m_A_str].setQuantity(m_A, conversionUnits());
     } else {
         node[m_A_str] = m_A;
         // This can't be converted to a different unit system because the dimensions of
@@ -131,12 +118,9 @@ void ArrheniusBase::getParameters(AnyMap& node) const {
         // RateType object is configured
         node["rate-constant"] = std::move(rateNode);
     }
-    if (type() != "Arrhenius") {
-        node["type"] = type();
-    }
 }
 
-void ArrheniusBase::check(const std::string& equation, const AnyMap& node)
+void ArrheniusBase::check(const std::string& equation)
 {
     if (!m_negativeA_ok && m_A < 0) {
         if (equation == "") {
@@ -145,7 +129,7 @@ void ArrheniusBase::check(const std::string& equation, const AnyMap& node)
                 "Enable 'allowNegativePreExponentialFactor' to suppress "
                 "this message.", m_A);
         }
-        throw InputFileError("ArrheniusBase::check", node,
+        throw InputFileError("ArrheniusBase::check", m_input,
             "Undeclared negative pre-exponential factor found in reaction '{}'",
             equation);
     }
@@ -153,8 +137,8 @@ void ArrheniusBase::check(const std::string& equation, const AnyMap& node)
 
 void ArrheniusBase::validate(const std::string& equation, const Kinetics& kin)
 {
-    if (isnan(m_A) || isnan(m_b)) {
-        throw CanteraError("ArrheniusBase::validate",
+    if (!valid()) {
+        throw InputFileError("ArrheniusBase::validate", m_input,
             "Rate object for reaction '{}' is not configured.", equation);
     }
 }

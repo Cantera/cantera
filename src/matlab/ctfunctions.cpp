@@ -12,12 +12,9 @@
 #include "cantera/clib/ctreactor.h"
 #include "cantera/clib/ctonedim.h"
 #include "cantera/clib/ctmultiphase.h"
-#include "cantera/clib/ctxml.h"
 #include "cantera/clib/ctfunc.h"
 #include "cantera/clib/ctrpath.h"
 #include "ctmatutils.h"
-
-using namespace std;
 
 void reportError()
 {
@@ -39,21 +36,6 @@ void ctfunctions(int nlhs, mxArray* plhs[],
     char* output_buf = 0;
 
     switch (job) {
-        // convert CK file to CTI
-    case 1:
-        if (nrhs < 8) {
-            mexErrMsgTxt("Wrong number of inputs.");
-            return;
-        }
-        infile = getString(prhs[2]);
-        dbfile = getString(prhs[3]);
-        trfile = getString(prhs[4]);
-        idtag = getString(prhs[5]);
-        dbg = getInt(prhs[6]);
-        validate = getInt(prhs[7]);
-        iok = ct_ck2cti(infile, dbfile, trfile, idtag, dbg, validate);
-        break;
-
         // get Cantera error
     case 2:
         buflen = ct_getCanteraError(buflen, output_buf) + 1;
@@ -73,7 +55,6 @@ void ctfunctions(int nlhs, mxArray* plhs[],
     case 4:
         iok = ct_clearOneDim();
         iok = ct_clearMix();
-        iok = ct_clearXML();
         iok = ct_clearFunc();
         iok = ct_clearStorage();
         iok = ct_clearReactors();

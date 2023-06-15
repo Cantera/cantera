@@ -16,13 +16,10 @@ double tvalue(double val, double atol = 1.0E-9)
 
 int main()
 {
-#if defined(_MSC_VER) && _MSC_VER < 1900
-    _set_output_format(_TWO_DIGIT_EXPONENT);
-#endif
     double pres;
     try {
-        ThermoPhase* w = newPhase("liquidvapor.yaml", "liquid-water-IAPWS95");
-        (dynamic_cast<WaterSSTP*>(w))->_allowGasPhase(true);
+        auto w = newThermo("liquidvapor.yaml", "liquid-water-IAPWS95");
+        (std::dynamic_pointer_cast<WaterSSTP>(w))->_allowGasPhase(true);
 
         /*
          * Print out the triple point conditions
@@ -302,8 +299,6 @@ int main()
         printf("Critical Temp     = %10.3g K\n", w->critTemperature());
         printf("Critical Pressure = %10.3g atm\n", w->critPressure()/OneAtm);
         printf("Critical Dens     = %10.3g kg/m3\n", w->critDensity());
-
-        delete w;
     } catch (CanteraError& err) {
         std::cout << err.what() << std::endl;
         Cantera::appdelete();

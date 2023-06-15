@@ -52,7 +52,7 @@ class ArrheniusBase : public ReactionRate
 {
 public:
     //! Default constructor.
-    ArrheniusBase();
+    ArrheniusBase() {}
 
     //! Constructor.
     /*!
@@ -64,21 +64,18 @@ public:
     ArrheniusBase(double A, double b, double Ea);
 
     //! Constructor based on AnyValue content
-    ArrheniusBase(const AnyValue& rate,
-                  const UnitSystem& units, const UnitStack& rate_units)
-    {
-        setRateParameters(rate, units, rate_units);
-    }
+    ArrheniusBase(const AnyValue& rate, const UnitSystem& units,
+                  const UnitStack& rate_units);
 
-    explicit ArrheniusBase(const AnyMap& node, const UnitStack& rate_units={})
-        : ArrheniusBase()
-    {
-        setParameters(node, rate_units);
-    }
+    explicit ArrheniusBase(const AnyMap& node, const UnitStack& rate_units={});
 
     //! Perform object setup based on AnyValue node information
     /*!
-     *  @param rate  AnyValue containing rate information
+     *  Used to set parameters from a child of the reaction node, which may have
+     *  different names for different rate parameterizations, such as falloff rates.
+     *
+     *  @param rate  Child of the reaction node containing Arrhenius rate parameters.
+     *      For example, the `rate-coefficient` node for a standard Arrhenius reaction.
      *  @param units  Unit system
      *  @param rate_units  Unit definitions specific to rate information
      */
@@ -86,7 +83,8 @@ public:
                            const UnitSystem& units,
                            const UnitStack& rate_units);
 
-    //! Return parameters
+    //! Get Arrhenius parameters used to populate the `rate-coefficient` or
+    //! equivalent field
     void getRateParameters(AnyMap& node) const;
 
     virtual void setParameters(
@@ -95,7 +93,7 @@ public:
     virtual void getParameters(AnyMap& node) const override;
 
     //! Check rate expression
-    virtual void check(const std::string& equation, const AnyMap& node) override;
+    virtual void check(const std::string& equation) override;
 
     virtual void validate(const std::string& equation, const Kinetics& kin) override;
 
@@ -128,24 +126,18 @@ public:
         return m_Ea_R * GasConstant;
     }
 
-    // Return units of the reaction rate expression
-    const Units& rateUnits() const {
-        return m_rate_units;
-    }
-
     //! Return reaction order associated with the reaction rate
     double order() const {
         return m_order;
     }
 
     //! Set units of the reaction rate expression
-    void setRateUnits(const UnitStack& rate_units) {
+    void setRateUnits(const UnitStack& rate_units) override {
+        ReactionRate::setRateUnits(rate_units);
         if (rate_units.size() > 1) {
-            m_rate_units = rate_units.product();
-            m_order = 1 - m_rate_units.dimension("quantity");
+            m_order = 1 - rate_units.product().dimension("quantity");
         } else {
             m_order = NAN;
-            m_rate_units = rate_units.standardUnits();
         }
     }
 
@@ -160,18 +152,17 @@ public:
     }
 
 protected:
-    bool m_negativeA_ok; //!< Flag indicating whether negative A values are permitted
-    double m_A; //!< Pre-exponential factor
-    double m_b; //!< Temperature exponent
-    double m_Ea_R; //!< Activation energy (in temperature units)
-    double m_E4_R; //!< Optional 4th energy parameter (in temperature units)
-    double m_logA; //!< Logarithm of pre-exponential factor
-    double m_order; //!< Reaction order
-    std::string m_A_str = "A"; //!< The string for temperature exponent
+    bool m_negativeA_ok = false; //!< Permissible negative A values
+    double m_A = NAN; //!< Pre-exponential factor
+    double m_b = NAN; //!< Temperature exponent
+    double m_Ea_R = 0.; //!< Activation energy (in temperature units)
+    double m_E4_R = 0.; //!< Optional 4th energy parameter (in temperature units)
+    double m_logA = NAN; //!< Logarithm of pre-exponential factor
+    double m_order = NAN; //!< Reaction order
+    std::string m_A_str = "A"; //!< The string for the pre-exponential factor
     std::string m_b_str = "b"; //!< The string for temperature exponent
     std::string m_Ea_str = "Ea"; //!< The string for activation energy
     std::string m_E4_str = ""; //!< The string for an optional 4th parameter
-    Units m_rate_units; //!< Reaction rate units
 };
 
 //! Arrhenius reaction rate type depends only on temperature
@@ -183,10 +174,6 @@ protected:
  *   \f]
  *
  * @ingroup arrheniusGroup
- *
- * @todo supersedes Arrhenius2 and will replace Arrhenius after Cantera 2.6. The new
- *      behavior can be forced in self-compiled Cantera installations by defining
- *      CT_NO_LEGACY_REACTIONS_26 via the 'no_legacy_reactions' option in SCons.
  */
 class ArrheniusRate : public ArrheniusBase
 {
@@ -194,7 +181,7 @@ public:
     using ArrheniusBase::ArrheniusBase; // inherit constructors
 
     unique_ptr<MultiRateBase> newMultiRate() const override {
-        return unique_ptr<MultiRateBase>(new MultiRate<ArrheniusRate, ArrheniusData>);
+        return make_unique<MultiRate<ArrheniusRate, ArrheniusData>>();
     }
 
     virtual const std::string type() const override {

@@ -1,0 +1,58 @@
+.TH "yaml2ck" 1 "12 Aug 2022" "yaml2ck" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+yaml2ck \- convert Cantera YAML input files to Chemkin-format mechanisms
+
+.SH SYNOPSIS
+.B yaml2ck [\fIOPTIONS\fR] \fIINPUT\fR
+
+.SH DESCRIPTION
+
+.I yaml2ck
+converts a Cantera YAML input file to Chemkin-format reaction mechanism.
+
+The parameters are as follows:
+.TP
+.B \fIINPUT\fR
+Cantera YAML input file to be converted. This file contains the declarations
+of the elements and species, thermodynamic data, as well as the reactions
+and transport data (if any).
+.TP
+.B --phase-name=\fIPHASE\fR
+Name of the phase to load from the input. If unspecified, the first phase
+listed in the input file will be loaded.
+.TP
+.B --mechanism=\fIMECH\fR
+The path to the output mechanism file. Optional. If not provided, the name
+of the input file will be used, with the extension replaced by '.ck'. If
+the path specified here is an existing directory, the output file(s) will
+be placed in that directory.
+.TP
+.B --thermo=\fITHERM\fR
+The path to the output thermodynamics database file. Optional. If not
+provided, the thermodynamic data will be included in the mechanism file.
+.TP
+.B --transport=\fITRAN\fR
+The path to the output transport database file. Optional. If not provided,
+transport data will be included in the mechanism file.
+.TP
+.B --sort-elements=\fIOPTION\fR
+Sort elements in source order (None, default), alphabetically (alphabetical),
+or from lowest to highest atomic mass (molar-mass).
+.TP
+.B --sort-species=\fIOPTION\fR
+Sort species in source order (None, default), alphabetically (alphabetical),
+or from lowest to highest atomic mass (molar-mass).
+.TP
+.B --overwrite, --no-overwrite
+If set, overwrite existing output files. (default: False)
+.TP
+.B --validate, --no-validate
+Check that the mechanism can be loaded back into Cantera. (default: True)
+.TP
+.B -h | --help
+Show the help message and exit.
+
+.SH EXAMPLE
+yaml2ck --mechanism=chem.inp --thermo=therm.dat chem.yaml

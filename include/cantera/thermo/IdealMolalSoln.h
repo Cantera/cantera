@@ -58,22 +58,9 @@ namespace Cantera
  * The value and form of the activity concentration will affect reaction rate
  * constants involving species in this phase.
  *
- * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
- *
- *      <thermo model="IdealMolalSoln">
- *         <standardConc model="solvent_volume" />
- *         <solvent> H2O(l) </solvent>
- *         <activityCoefficients model="IdealMolalSoln" >
- *             <idealMolalSolnCutoff model="polyExp">
- *                 <gamma_O_limit> 1.0E-5  </gamma_O_limit>
- *                 <gamma_k_limit> 1.0E-5  <gamma_k_limit>
- *                 <X_o_cutoff>    0.20    </X_o_cutoff>
- *                 <C_0_param>     0.05    </C_0_param>
- *                 <slope_f_limit> 0.6     </slope_f_limit>
- *                 <slope_g_limit> 0.0     </slope_g_limit>
- *             </idealMolalSolnCutoff>
- *          </activityCoefficients>
- *      </thermo>
+ * An example phase definition is given in the
+ * <a href="../../sphinx/html/yaml/phases.html#ideal-molal-solution">
+ * YAML API Reference</a>.
  *
  * @ingroup thermoprops
  */
@@ -92,22 +79,8 @@ public:
     explicit IdealMolalSoln(const std::string& inputFile="",
                             const std::string& id="");
 
-    //! Constructor for phase initialization
-    /*!
-     * This constructor will initialize a phase, by reading the required
-     * information from XML_Node tree.
-     *
-     *  @param phaseRef    reference for an XML_Node tree that contains
-     *                     the information necessary to initialize the phase.
-     *  @param id          id of the phase within the input file
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    IdealMolalSoln(XML_Node& phaseRef, const std::string& id = "");
-
     virtual std::string type() const {
-        return "IdealMolalSoln";
+        return "ideal-molal-solution";
     }
 
     virtual bool isIdeal() const {
@@ -184,14 +157,13 @@ public:
     virtual doublereal cp_mole() const;
 
     //! @}
-    /** @name Mechanical Equation of State Properties
-     *
-     * In this equation of state implementation, the density is a function only
-     * of the mole fractions. Therefore, it can't be an independent variable.
-     * Instead, the pressure is used as the independent variable. Functions
-     * which try to set the thermodynamic state by calling setDensity() will
-     * cause an exception to be thrown.
-     */
+    //! @name Mechanical Equation of State Properties
+    //!
+    //! In this equation of state implementation, the density is a function only
+    //! of the mole fractions. Therefore, it can't be an independent variable.
+    //! Instead, the pressure is used as the independent variable. Functions
+    //! which try to set the thermodynamic state by calling setDensity() will
+    //! cause an exception to be thrown.
     //! @{
 
 protected:
@@ -241,16 +213,14 @@ public:
      */
     virtual doublereal thermalExpansionCoeff() const;
 
-    /**
-     * @}
-     * @name Activities and Activity Concentrations
-     *
-     * The activity \f$a_k\f$ of a species in solution is related to the
-     * chemical potential by \f[ \mu_k = \mu_k^0(T) + \hat R T \log a_k. \f] The
-     * quantity \f$\mu_k^0(T)\f$ is the chemical potential at unit activity,
-     * which depends only on temperature and the pressure.
-     * @{
-     */
+    //! @}
+    //! @name Activities and Activity Concentrations
+    //!
+    //! The activity \f$a_k\f$ of a species in solution is related to the
+    //! chemical potential by \f[ \mu_k = \mu_k^0(T) + \hat R T \log a_k. \f] The
+    //! quantity \f$\mu_k^0(T)\f$ is the chemical potential at unit activity,
+    //! which depends only on temperature and the pressure.
+    //! @{
 
     virtual Units standardConcentrationUnits() const;
     virtual void getActivityConcentrations(doublereal* c) const;
@@ -279,7 +249,7 @@ public:
     virtual void getMolalityActivityCoefficients(doublereal* acMolality) const;
 
     //! @}
-    /// @name  Partial Molar Properties of the Solution
+    //! @name  Partial Molar Properties of the Solution
     //! @{
 
     //!Get the species chemical potentials: Units: J/kmol.
@@ -324,6 +294,19 @@ public:
      *               Length: m_kk.
      */
     virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
+
+    //! Returns an array of partial molar internal energies for the species in the
+    //! mixture.
+    /*!
+     * Units (J/kmol). For this phase, the partial molar internal energies are equal to
+     * the species standard state internal energies (which are equal to the reference
+     * state internal energies)
+     *  \f[
+     * \bar u_k(T,P) = \hat u^{ref}_k(T)
+     * \f]
+     * @param hbar   Output vector of partial molar internal energies, length #m_kk
+     */
+    virtual void getPartialMolarIntEnergies(doublereal* hbar) const;
 
     //! Returns an array of partial molar entropies of the species in the
     //! solution. Units: J/kmol.
@@ -389,22 +372,20 @@ public:
 
     virtual bool addSpecies(shared_ptr<Species> spec);
 
-    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id="");
-
     virtual void initThermo();
 
     virtual void getParameters(AnyMap& phaseNode) const;
 
     //! Set the standard concentration model.
     /*!
-     * Must be one of 'unity', 'molar_volume', or 'solvent_volume'.
-     * The default is 'solvent_volume'.
+     * Must be one of 'unity', 'species-molar-volume', or 'solvent-molar-volume'.
+     * The default is 'solvent-molar-volume'.
      *
-     * | model          | ActivityConc                     | StandardConc       |
-     * | -------------- | -------------------------------- | ------------------ |
-     * | unity          | \f$ {m_k}/ { m^{\Delta}}\f$      | \f$ 1.0        \f$ |
-     * | molar_volume   | \f$  m_k / (m^{\Delta} V_k)\f$   | \f$ 1.0 / V_k  \f$ |
-     * | solvent_volume | \f$  m_k / (m^{\Delta} V^0_0)\f$ | \f$ 1.0 / V^0_0\f$ |
+     * | model                | ActivityConc                     | StandardConc       |
+     * | -------------------- | -------------------------------- | ------------------ |
+     * | unity                | \f$ {m_k}/ { m^{\Delta}}\f$      | \f$ 1.0        \f$ |
+     * | species-molar-volume | \f$  m_k / (m^{\Delta} V_k)\f$   | \f$ 1.0 / V_k  \f$ |
+     * | solvent-molar-volume | \f$  m_k / (m^{\Delta} V^0_0)\f$ | \f$ 1.0 / V^0_0\f$ |
      */
     void setStandardConcentrationModel(const std::string& model);
 
@@ -433,13 +414,13 @@ protected:
 
     /**
      * The standard concentrations can have one of three different forms:
-     * 0 = 'unity', 1 = 'molar_volume', 2 = 'solvent_volume'. See
+     * 0 = 'unity', 1 = 'species-molar-volume', 2 = 'solvent-molar-volume'. See
      * setStandardConcentrationModel().
      */
-    int m_formGC;
+    int m_formGC = 2;
 
     //! Cutoff type
-    int IMS_typeCutoff_;
+    int IMS_typeCutoff_ = 0;
 
 private:
     //! vector of size m_kk, used as a temporary holding area.
@@ -469,18 +450,17 @@ public:
     //! function at the zero solvent point. Default value is 0.0
     doublereal IMS_slopegCut_;
 
-    //! @name Parameters in the polyExp cutoff treatment having to do with rate
-    //!     of exp decay
+    //! @name Parameters in the polyExp cutoff having to do with rate of exp decay
     //! @{
-    doublereal IMS_cCut_;
-    doublereal IMS_dfCut_;
-    doublereal IMS_efCut_;
-    doublereal IMS_afCut_;
-    doublereal IMS_bfCut_;
-    doublereal IMS_dgCut_;
-    doublereal IMS_egCut_;
-    doublereal IMS_agCut_;
-    doublereal IMS_bgCut_;
+    double IMS_cCut_;
+    double IMS_dfCut_ = 0.0;
+    double IMS_efCut_ = 0.0;
+    double IMS_afCut_ = 0.0;
+    double IMS_bfCut_ = 0.0;
+    double IMS_dgCut_ = 0.0;
+    double IMS_egCut_ = 0.0;
+    double IMS_agCut_ = 0.0;
+    double IMS_bgCut_ = 0.0;
     //! @}
 
 private:

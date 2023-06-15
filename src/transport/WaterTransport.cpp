@@ -8,8 +8,6 @@
 #include "cantera/thermo/PDSS_Water.h"
 #include "cantera/thermo/WaterSSTP.h"
 
-using namespace std;
-
 namespace {
 
 const double Tstar = 647.27;

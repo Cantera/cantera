@@ -105,10 +105,10 @@ class LatticeSolidPhase : public ThermoPhase
 {
 public:
     //! Base empty constructor
-    LatticeSolidPhase();
+    LatticeSolidPhase() = default;
 
     virtual std::string type() const {
-        return "LatticeSolid";
+        return "compound-lattice";
     }
 
     //! String indicating the mechanical phase of the matter in this Phase.
@@ -311,7 +311,7 @@ public:
         throw NotImplementedError("LatticeSolidPhase::getConcentrations");
     }
 
-    virtual doublereal concentration(int k) const {
+    virtual doublereal concentration(size_t k) const {
         throw NotImplementedError("LatticeSolidPhase::concentration");
     }
 
@@ -416,7 +416,7 @@ public:
     virtual doublereal standardConcentration(size_t k=0) const;
     virtual doublereal logStandardConc(size_t k=0) const;
 
-    /// @name Thermodynamic Values for the Species Reference States
+    //! @name Thermodynamic Values for the Species Reference States
     //! @{
 
     virtual void getGibbs_RT_ref(doublereal* grt) const;
@@ -438,8 +438,6 @@ public:
     virtual void getSpeciesParameters(const std::string& name,
                                       AnyMap& speciesNode) const;
 
-    virtual void setParametersFromXML(const XML_Node& eosdata);
-
     //! Set the Lattice mole fractions using a string
     /*!
      * @param n  Integer value of the lattice whose mole fractions are being set
@@ -453,10 +451,10 @@ public:
 
 protected:
     //! Current value of the pressure
-    doublereal m_press;
+    double m_press = -1.0;
 
     //! Current value of the molar density
-    doublereal m_molar_density;
+    double m_molar_density = 0.0;
 
     //! Vector of sublattic ThermoPhase objects
     std::vector<shared_ptr<ThermoPhase>> m_lattice;

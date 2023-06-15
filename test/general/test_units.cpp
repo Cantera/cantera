@@ -1,8 +1,10 @@
 #include "gtest/gtest.h"
+#include "gmock/gmock.h"
 #include "cantera/base/Units.h"
 #include "cantera/base/AnyMap.h"
 
 using namespace Cantera;
+using namespace ::testing;
 
 TEST(Units, from_string) {
     EXPECT_EQ(Units("").str(), "1");
@@ -205,6 +207,28 @@ TEST(Units, from_anymap_default) {
     EXPECT_DOUBLE_EQ(m.convert("h1", "J/kmol", 999), 999);
 }
 
+TEST(Units, from_anymap_bad) {
+    AnyMap m = AnyMap::fromYamlString(
+        "{p: 12 bar, v: 10, A: 1 cm^2, V: 1,"
+        " k1: [5e2, 2, 29000], k2: [1e14, -1, 1300 cal/kmol]}");
+    UnitSystem U({"mm", "min", "atm"});
+    m.setUnits(U);
+    m.applyUnits();
+
+    try {
+        m.convert("p", "kg");
+        FAIL() << "did not throw";
+    } catch (InputFileError& err) {
+        EXPECT_THAT(err.what(), HasSubstr("Error on line"));
+        #ifdef GTEST_USES_POSIX_RE
+            EXPECT_THAT(err.what(),
+                        Not(ContainsRegex("Error on line.*\\\nError on line")));
+        #endif
+    } catch (...) {
+        FAIL() << "threw wrong exception type";
+    }
+}
+
 TEST(Units, to_anymap) {
     UnitSystem U{"kcal", "mol", "cm"};
     AnyMap m;
@@ -312,19 +336,19 @@ TEST(Units, act_energy_from_yaml) {
 TEST(UnitStack, aggregate) {
     Units stdUnits = Units("m");
     UnitStack ustack(stdUnits);
-    EXPECT_EQ(ustack.size(), 1);
+    EXPECT_EQ(ustack.size(), 1u);
     EXPECT_TRUE(ustack.standardUnits() == stdUnits);
     EXPECT_DOUBLE_EQ(ustack.standardExponent(), 0.);
     EXPECT_DOUBLE_EQ(ustack.standardExponent(), 0.);
     ustack.join(1.);
     EXPECT_DOUBLE_EQ(ustack.standardExponent(), 1.);
     ustack.update(stdUnits, 1.); // same effect as join
-    EXPECT_EQ(ustack.size(), 1);
+    EXPECT_EQ(ustack.size(), 1u);
     EXPECT_DOUBLE_EQ(ustack.standardExponent(), 2.);
     EXPECT_EQ(ustack.product().str(), "m^2");
 
     ustack.update(Units("s"), -1);
-    EXPECT_EQ(ustack.size(), 2);
+    EXPECT_EQ(ustack.size(), 2u);
     EXPECT_EQ(ustack.product().str(), "m^2 / s");
 
     Units net = ustack.product();
@@ -338,7 +362,7 @@ TEST(UnitStack, aggregate) {
 
 TEST(UnitStack, empty) {
     UnitStack ustack({});
-    EXPECT_EQ(ustack.size(), 0);
+    EXPECT_EQ(ustack.size(), 0u);
     EXPECT_TRUE(ustack.standardUnits() == Units(0));
     EXPECT_TRUE(std::isnan(ustack.standardExponent()));
 }
@@ -346,7 +370,7 @@ TEST(UnitStack, empty) {
 TEST(UnitStack, from_list) {
     Units stdUnits = Units("m");
     UnitStack ustack({std::make_pair(stdUnits, 2), std::make_pair(Units("s"), -1)});
-    EXPECT_EQ(ustack.size(), 2);
+    EXPECT_EQ(ustack.size(), 2u);
     EXPECT_TRUE(ustack.standardUnits() == stdUnits);
     EXPECT_DOUBLE_EQ(ustack.standardExponent(), 2.);
     EXPECT_EQ(ustack.product().str(), "m^2 / s");

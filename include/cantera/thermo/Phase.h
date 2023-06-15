@@ -18,7 +18,6 @@ namespace Cantera
 
 class Solution;
 class Species;
-class XML_Node;
 
 /**
  * @defgroup phases Models of Phases of Matter
@@ -61,10 +60,15 @@ class XML_Node;
  * based on a T and P, in which case they need to overload these functions too.
  *
  * Class Phase contains a number of utility functions that will set the state
- * of the phase in its entirety, by first setting the composition, then the
- * temperature and then density (or pressure for incompressible substances)
- * An example of this is the function
- * Phase::setState_TRY(double t, double dens, const double* y).
+ * of the phase in its entirety, by first setting the composition, and then
+ * temperature and pressure. An example of this is the function
+ * Phase::setState_TPY(double t, double p, const double* y).
+ *
+ * For bulk (3-dimensional) phases, the mass density has units of kg/m^3, and the molar
+ * density and concentrations have units of kmol/m^3, and the units listed in the
+ * methods of the Phase class assume a bulk phase. However, for surface (2-dimensional)
+ * phases have units of kg/m^2 and kmol/m^2, respectively. And for edge (1-dimensional)
+ * phases, these units kg/m and kmol/m.
  *
  * Class Phase contains methods for saving and restoring the full internal state
  * of a given phase. These are saveState() and restoreState(). These functions
@@ -102,42 +106,17 @@ class XML_Node;
 class Phase
 {
 public:
-    Phase(); //!< Default constructor.
-
-    virtual ~Phase();
+    Phase() = default; //!< Default constructor.
+    virtual ~Phase() = default;
 
     // Phase objects are not copyable or assignable
     Phase(const Phase&) = delete;
     Phase& operator=(const Phase&) = delete;
 
-    //! Returns a const reference to the XML_Node that describes the phase.
-    /*!
-     *  The XML_Node for the phase contains all of the input data used to set up
-     *  the model for the phase during its initialization.
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    XML_Node& xml() const;
-
-    //! Stores the XML tree information for the current phase
-    /*!
-     *  This function now stores the complete XML_Node tree as read into the
-     *  code via a file. This is needed to move around within the XML tree
-     *  during construction of transport and kinetics mechanisms after copy
-     *  construction operations.
-     *
-     *  @param xmlPhase Reference to the XML node corresponding to the phase
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    void setXMLdata(XML_Node& xmlPhase);
-
     /*! @name Name
-     * Class Phase uses the string name to identify a phase. The name is the
-     * value of the corresponding key in the phase map (in YAML), name (in
-     * CTI), or id (in XML) that is used to initialize a phase when it is read.
+     * Class Phase uses the string name to identify a phase. For phases instantiated
+     * from YAML input files, the name is the value of the corresponding key in the
+     * phase map.
      *
      * However, the name field may be changed to another value during the
      * course of a calculation. For example, if duplicates of a phase object
@@ -161,14 +140,16 @@ public:
     //! String indicating the thermodynamic model implemented. Usually
     //! corresponds to the name of the derived class, less any suffixes such as
     //! "Phase", TP", "VPSS", etc.
+    //! @since  Starting in Cantera 3.0, the name returned by this method corresponds
+    //!     to the canonical name used in the YAML input format.
     virtual std::string type() const {
         return "Phase";
     }
 
-    //!@} end group Name
+    //! @} end group Name
 
     //! @name Element and Species Information
-    //!@{
+    //! @{
 
     //! Name of the element with index m.
     //!     @param m  Element index.
@@ -245,6 +226,7 @@ public:
     //!     @param  k         species index
     //!     @param atomArray  vector containing the atomic number in the species.
     //!                       Length: m_mm
+    //! @deprecated Unused. To be removed after Cantera 3.0
     void getAtoms(size_t k, double* atomArray) const;
 
     //! Returns the index of a species named 'name' within the Phase object.
@@ -264,12 +246,13 @@ public:
     //! This is guaranteed to be unique within a Cantera problem.
     //!     @param k  Species index within the phase
     //!     @return   The "phaseName:speciesName" string
+    //! @deprecated Unused. To be removed after Cantera 3.0
     std::string speciesSPName(int k) const;
 
     //! Return a const reference to the vector of species names
     const std::vector<std::string>& speciesNames() const;
 
-    /// Returns the number of species in the phase
+    //! Returns the number of species in the phase
     size_t nSpecies() const {
         return m_kk;
     }
@@ -283,7 +266,7 @@ public:
     //! which take an array pointer.
     void checkSpeciesArraySize(size_t kk) const;
 
-    //!@} end group Element and Species Information
+    //! @} end group Element and Species Information
 
     //! Return whether phase represents a pure (single species) substance
     virtual bool isPure() const {
@@ -307,6 +290,12 @@ public:
     //! In all cases, offsets into the state vector are used by saveState()
     //! and restoreState().
     virtual std::map<std::string, size_t> nativeState() const;
+
+    //! Return string acronym representing the native state of a Phase.
+    //! Examples: "TP", "TDY", "TPY".
+    //! @see nativeState
+    //! @since  New in Cantera 3.0
+    string nativeMode() const;
 
     //! Return a vector containing full states defining a phase.
     //! Full states list combinations of properties that allow for the
@@ -357,14 +346,14 @@ public:
     //!     @param state      Vector of state conditions.
     virtual void restoreState(size_t lenstate, const doublereal* state);
 
-    /*! @name Set thermodynamic state
-     * Set the internal thermodynamic state by setting the internally stored
-     * temperature, density and species composition. Note that the composition
-     * is always set first.
-     *
-     * Temperature and density are held constant if not explicitly set.
-     */
-    //!@{
+    //! @name Set Thermodynamic State
+    //!
+    //! Set the internal thermodynamic state by setting the internally stored
+    //! temperature, density and species composition. Note that the composition
+    //! is always set first.
+    //!
+    //! Temperature and density are held constant if not explicitly set.
+    //! @{
 
     //! Set the species mole fractions by name.
     //! Species not listed by name in \c xMap are set to zero.
@@ -390,6 +379,8 @@ public:
     //!     @param t     Temperature in kelvin
     //!     @param dens  Density (kg/m^3)
     //!     @param x     vector of species mole fractions, length m_kk
+    //!     @deprecated To be removed after Cantera 3.0; replaceable by calls to
+    //!                 setMoleFractions() and setState_TD().
     void setState_TRX(doublereal t, doublereal dens, const doublereal* x);
 
     //! Set the internally stored temperature (K), density, and mole fractions.
@@ -398,12 +389,16 @@ public:
     //!     @param x     Composition Map containing the mole fractions.
     //!                  Species not included in the map are assumed to have
     //!                  a zero mole fraction.
+    //!     @deprecated To be removed after Cantera 3.0; replaceable by calls to
+    //!                 setMoleFractionsByName() and setState_TD().
     void setState_TRX(doublereal t, doublereal dens, const compositionMap& x);
 
     //! Set the internally stored temperature (K), density, and mass fractions.
     //!     @param t     Temperature in kelvin
     //!     @param dens  Density (kg/m^3)
     //!     @param y     vector of species mass fractions, length m_kk
+    //!     @deprecated To be removed after Cantera 3.0; replaceable by calls to
+    //!                 setMassFractions() and setState_TD().
     void setState_TRY(doublereal t, doublereal dens, const doublereal* y);
 
     //! Set the internally stored temperature (K), density, and mass fractions.
@@ -412,6 +407,8 @@ public:
     //!     @param y     Composition Map containing the mass fractions.
     //!                  Species not included in the map are assumed to have
     //!                  a zero mass fraction.
+    //!     @deprecated To be removed after Cantera 3.0; replaceable by calls to
+    //!                 setMassFractionsByName() and setState_TD().
     void setState_TRY(doublereal t, doublereal dens, const compositionMap& y);
 
     //! Set the internally stored temperature (K), molar density (kmol/m^3), and
@@ -419,34 +416,46 @@ public:
     //!     @param t     Temperature in kelvin
     //!     @param n     molar density (kmol/m^3)
     //!     @param x     vector of species mole fractions, length m_kk
+    //! @deprecated Unused. To be removed after Cantera 3.0
     void setState_TNX(doublereal t, doublereal n, const doublereal* x);
 
     //! Set the internally stored temperature (K) and density (kg/m^3)
     //!     @param t     Temperature in kelvin
     //!     @param rho   Density (kg/m^3)
+    //!     @deprecated  To be removed after Cantera 3.0; renamed to setState_TD()
     void setState_TR(doublereal t, doublereal rho);
+
+    //! Set the internally stored temperature (K) and density (kg/m^3)
+    //!     @param t     Temperature in kelvin
+    //!     @param rho   Density (kg/m^3)
+    //!     @since  New in Cantera 3.0.
+    void setState_TD(double t, double rho);
 
     //! Set the internally stored temperature (K) and mole fractions.
     //!     @param t   Temperature in kelvin
     //!     @param x   vector of species mole fractions, length m_kk
+    //! @deprecated Unused. To be removed after Cantera 3.0
     void setState_TX(doublereal t, doublereal* x);
 
     //! Set the internally stored temperature (K) and mass fractions.
     //!     @param t   Temperature in kelvin
     //!     @param y   vector of species mass fractions, length m_kk
+    //! @deprecated Unused. To be removed after Cantera 3.0
     void setState_TY(doublereal t, doublereal* y);
 
     //! Set the density (kg/m^3) and mole fractions.
     //!     @param rho  Density (kg/m^3)
     //!     @param x    vector of species mole fractions, length m_kk
+    //! @deprecated Unused. To be removed after Cantera 3.0
     void setState_RX(doublereal rho, doublereal* x);
 
     //! Set the density (kg/m^3) and mass fractions.
     //!     @param rho  Density (kg/m^3)
     //!     @param y    vector of species mass fractions, length m_kk
+    //! @deprecated Unused. To be removed after Cantera 3.0
     void setState_RY(doublereal rho, doublereal* y);
 
-    //!@} end group set thermo state
+    //! @} end group set thermo state
 
     //! Molecular weight of species \c k.
     //!     @param k   index of species \c k
@@ -455,6 +464,7 @@ public:
 
     //! Copy the vector of molecular weights into vector weights.
     //!     @param weights Output vector of molecular weights (kg/kmol)
+    //! @deprecated Unused. To be removed after Cantera 3.0
     void getMolecularWeights(vector_fp& weights) const;
 
     //! Copy the vector of molecular weights into array weights.
@@ -464,6 +474,10 @@ public:
     //! Return a const reference to the internal vector of molecular weights.
     //! units = kg / kmol
     const vector_fp& molecularWeights() const;
+
+    //! Return a const reference to the internal vector of molecular weights.
+    //! units = kmol / kg
+    const vector_fp& inverseMolecularWeights() const;
 
     //! Copy the vector of species charges into array charges.
     //!     @param charges Output array of species charges (elem. charge)
@@ -553,7 +567,7 @@ public:
      *                  kmol/m^3. The length of the vector must be greater than
      *                  or equal to the number of species within the phase.
      */
-    void getConcentrations(double* const c) const;
+    virtual void getConcentrations(double* const c) const;
 
     //! Concentration of species k.
     //! If k is outside the valid range, an exception will be thrown.
@@ -562,7 +576,7 @@ public:
      *
      *    @returns the concentration of species k (kmol m-3).
      */
-    double concentration(const size_t k) const;
+    virtual double concentration(const size_t k) const;
 
     //! Set the concentrations to the specified values within the phase.
     //! We set the concentrations here and therefore we set the overall density
@@ -579,6 +593,9 @@ public:
     //! Set the concentrations without ignoring negative concentrations
     virtual void setConcentrationsNoNorm(const double* const conc);
     //! @}
+
+    //! Set the state of the object with moles in [kmol]
+    virtual void setMolesNoTruncate(const double* const N);
 
     //! Elemental mass fraction of element m
     /*!
@@ -622,6 +639,8 @@ public:
     //! Returns a const pointer to the start of the moleFraction/MW array.
     //! This array is the array of mole fractions, each divided by the mean
     //! molecular weight.
+    //! @deprecated To be removed after Cantera 3.0. Generally replaceable by using
+    //!     getMoleFractions() and meanMolecularWeight().
     const double* moleFractdivMMW() const;
 
     //! Dimensionless electrical charge of a single molecule of species k
@@ -682,11 +701,11 @@ public:
 
     //! Molar density (kmol/m^3).
     //!     @return The molar density of the phase
-    double molarDensity() const;
+    virtual double molarDensity() const;
 
     //! Molar volume (m^3/kmol).
     //!     @return The molar volume of the phase
-    double molarVolume() const;
+    virtual double molarVolume() const;
 
     //! Set the internally stored density (kg/m^3) of the phase.
     //! Note the density of a phase is an independent variable.
@@ -695,6 +714,7 @@ public:
 
     //! Set the internally stored molar density (kmol/m^3) of the phase.
     //!     @param[in] molarDensity Input molar density (kmol/m^3).
+    //! @deprecated Unused. To be removed after Cantera 3.0
     virtual void setMolarDensity(const double molarDensity);
 
     //! Set the internally stored pressure (Pa) at constant temperature and
@@ -758,6 +778,7 @@ public:
 
     //! @}
     //! @name Adding Elements and Species
+    //!
     //! These methods are used to add new elements or species. These are not
     //! usually called by user programs.
     //!
@@ -804,10 +825,8 @@ public:
 
     //! Add a species alias (that is, a user-defined alternative species name).
     //! Aliases are case-sensitive.
-    //!     @param name original species name std::string.
-    //!     @param alias alternate name std::string.
-    //!     @return `true` if the alias was successfully added
-    //!             (that is, the original species name is found)
+    //!     @param name original species name
+    //!     @param alias alternate name
     void addSpeciesAlias(const std::string& name, const std::string& alias);
 
     //! Return a vector with isomers names matching a given composition map
@@ -846,7 +865,7 @@ public:
         error, ignore, add
     }; };
 
-    //!@} end group adding species and elements
+    //! @} end group adding species and elements
 
     //!  Returns a bool indicating whether the object is ready for use
     /*!
@@ -873,10 +892,6 @@ public:
     void setCaseSensitiveSpecies(bool cflag = true) {
         m_caseSensitiveSpecies = cflag;
     }
-
-    //! Set root Solution holding all phase information
-    //! @deprecated This function has no effect. To be removed after Cantera 2.6.
-    virtual void setRoot(std::shared_ptr<Solution> root);
 
     //! Converts a compositionMap to a vector with entries for each species
     //! Species that are not specified are set to zero in the vector
@@ -940,11 +955,11 @@ protected:
     //! should call the parent class method as well.
     virtual void compositionChanged();
 
-    size_t m_kk; //!< Number of species in the phase.
+    size_t m_kk = 0; //!< Number of species in the phase.
 
     //! Dimensionality of the phase. Volumetric phases have dimensionality 3
     //! and surface phases have dimensionality 2.
-    size_t m_ndim;
+    size_t m_ndim = 3;
 
     //! Atomic composition of the species. The number of atoms of element i
     //! in species k is equal to m_speciesComp[k * m_mm + i]
@@ -956,10 +971,10 @@ protected:
     std::map<std::string, shared_ptr<Species> > m_species;
 
     //! Flag determining behavior when adding species with an undefined element
-    UndefElement::behavior m_undefinedElementBehavior;
+    UndefElement::behavior m_undefinedElementBehavior = UndefElement::add;
 
     //! Flag determining whether case sensitive species names are enforced
-    bool m_caseSensitiveSpecies;
+    bool m_caseSensitiveSpecies = false;
 
 private:
     //! Find lowercase species name in m_speciesIndices when case sensitive
@@ -967,27 +982,20 @@ private:
     //! species name. Raise exception if lowercase name is not unique.
     size_t findSpeciesLower(const std::string& nameStr) const;
 
-    XML_Node* m_xml; //!< XML node containing the XML info for this phase
-
-    //! ID of the phase. This is the value of the ID attribute of the XML
-    //! phase node. The field will stay that way even if the name is changed.
-    std::string m_id;
-
     //! Name of the phase.
-    //! Initially, this is the name specified in the YAML or CTI input file, or
-    //! the value of the ID attribute of the XML phase node. It may be changed
+    //! Initially, this is the name specified in the YAML input file. It may be changed
     //! to another value during the course of a calculation.
     std::string m_name;
 
-    doublereal m_temp; //!< Temperature (K). This is an independent variable
+    double m_temp = 0.001; //!< Temperature (K). This is an independent variable
 
     //! Density (kg m-3). This is an independent variable except in the case
     //! of incompressible phases, where it has to be changed using the
     //! assignDensity() method. For compressible substances, the pressure is
     //! determined from this variable rather than other way round.
-    doublereal m_dens;
+    double m_dens = 0.001;
 
-    doublereal m_mmw; //!< mean molecular weight of the mixture (kg kmol-1)
+    double m_mmw = 0.0; //!< mean molecular weight of the mixture (kg kmol-1)
 
     //! m_ym[k] = mole fraction of species k divided by the mean molecular
     //! weight of mixture.
@@ -1006,7 +1014,7 @@ private:
 
     //! State Change variable. Whenever the mole fraction vector changes,
     //! this int is incremented.
-    int m_stateNum;
+    int m_stateNum = -1;
 
     //! Vector of the species names
     std::vector<std::string> m_speciesNames;
@@ -1017,7 +1025,7 @@ private:
     //! Map of lower-case species names to indices
     std::map<std::string, size_t> m_speciesLower;
 
-    size_t m_mm; //!< Number of elements.
+    size_t m_mm = 0; //!< Number of elements.
     vector_fp m_atomicWeights; //!< element atomic weights (kg kmol-1)
     vector_int m_atomicNumbers; //!< element atomic numbers
     std::vector<std::string> m_elementNames; //!< element names

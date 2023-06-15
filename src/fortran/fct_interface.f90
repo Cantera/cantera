@@ -128,10 +128,6 @@ interface
         character*(*), intent(in) :: id
     end function th_newfromfile
 
-    integer function newthermofromxml(mxml)
-        integer, intent(in) :: mxml
-    end function newthermofromxml
-
     integer function th_geteostype(n, buf)
         integer, intent(in) :: n
         character*(*), intent(out) :: buf
@@ -294,15 +290,6 @@ interface
         integer, intent(in) :: neighbor4
     end function kin_newfromfile
 
-    integer function newkineticsfromxml(mxml, iphase, neighbor1, neighbor2, neighbor3, neighbor4)
-        integer, intent(in) :: mxml
-        integer, intent(in) :: iphase
-        integer, intent(in) :: neighbor1
-        integer, intent(in) :: neighbor2
-        integer, intent(in) :: neighbor3
-        integer, intent(in) :: neighbor4
-    end function newkineticsfromxml
-
     integer function kin_gettype(n, buf)
         integer, intent(in) :: n
         character*(*), intent(out) :: buf
@@ -348,10 +335,11 @@ interface
         integer, intent(in) :: i
     end function kin_productstoichcoeff
 
-    integer function kin_reactiontype(n, i)
+    integer function kin_getreactiontype(n, i, buf)
         integer, intent(in) :: n
         integer, intent(in) :: i
-    end function kin_reactiontype
+        character*(*), intent(out) :: buf
+    end function kin_getreactiontype
 
     integer function kin_getfwdratesofprogress(n, fwdROP)
         integer, intent(in) :: n
@@ -494,14 +482,6 @@ interface
         integer, intent(in) :: buflen
         character*(*), intent(in) :: buf
     end function ctaddCanteraDirectory
-
-    integer function ctbuildSolutionFromXML(src, ixml, id, ith, ikin)
-        character*(*), intent(in) :: src
-        integer, intent(in) :: ixml
-        character*(*), intent(in) :: id
-        integer, intent(in) :: ith
-        integer, intent(in) :: ikin
-    end function ctbuildSolutionFromXML
 
 end interface
 end module fct

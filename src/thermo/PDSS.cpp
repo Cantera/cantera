@@ -8,21 +8,12 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-#include "cantera/base/ctml.h"
+#include "cantera/base/global.h"
 #include "cantera/thermo/PDSS.h"
 #include "cantera/thermo/VPStandardStateTP.h"
 
 namespace Cantera
 {
-PDSS::PDSS() :
-    m_temp(-1.0),
-    m_pres(-1.0),
-    m_p0(-1.0),
-    m_minTemp(-1.0),
-    m_maxTemp(10000.0),
-    m_mw(0.0)
-{
-}
 
 doublereal PDSS::enthalpy_mole() const
 {
@@ -111,21 +102,25 @@ doublereal PDSS::molarVolume_ref() const
 
 doublereal PDSS::enthalpyDelp_mole() const
 {
+    warn_deprecated("PDSS::enthalpyDelp_mole", "To be removed after Cantera 3.0");
     return enthalpy_mole() - m_temp * GasConstant * enthalpy_RT_ref();
 }
 
 doublereal PDSS::entropyDelp_mole() const
 {
+    warn_deprecated("PDSS::entropyDelp_mole", "To be removed after Cantera 3.0");
     return entropy_mole() - GasConstant * entropy_R_ref();
 }
 
 doublereal PDSS::gibbsDelp_mole() const
 {
+    warn_deprecated("PDSS::gibbsDelp_mole", "To be removed after Cantera 3.0");
     return gibbs_mole() - m_temp * GasConstant * gibbs_RT_ref();
 }
 
 doublereal PDSS::cpDelp_mole() const
 {
+    warn_deprecated("PDSS::cpDelp_mole", "To be removed after Cantera 3.0");
     return cp_mole() - GasConstant * cp_R_ref();
 }
 
@@ -199,6 +194,8 @@ void PDSS::reportParams(size_t& kindex, int& type,
                         doublereal& maxTemp_,
                         doublereal& refPressure_) const
 {
+    warn_deprecated("PDSS:reportParams", "To be removed after Cantera 3.0. "
+                    "Use getParameters(AnyMap&) instead.");
     kindex = npos;
     type = 0;
     minTemp_ = m_minTemp;

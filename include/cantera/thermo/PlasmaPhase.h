@@ -187,10 +187,80 @@ public:
         return m_electronTemp;
     }
 
+    //! Return the Gas Constant multiplied by the current electron temperature
+    /*!
+     *  The units are Joules kmol-1
+     */
+    double RTe() const {
+        return electronTemperature() * GasConstant;
+    }
+
+    /**
+     * Electron pressure. Units: Pa.
+     * \f[P = n_{k_e} R T_e\f]
+     */
+    virtual double electronPressure() const {
+        return GasConstant * concentration(m_electronSpeciesIndex) *
+               electronTemperature();
+    }
+
     //! Number of electron levels
     size_t nElectronEnergyLevels() const {
         return m_nPoints;
     }
+
+    //! Electron Species Index
+    size_t electronSpeciesIndex() const {
+        return m_electronSpeciesIndex;
+    }
+
+    //! Return the Molar enthalpy. Units: J/kmol.
+    /*!
+     * For an ideal gas mixture with additional electron,
+     * \f[
+     * \hat h(T) = \sum_{k \neq k_e} X_k \hat h^0_k(T) + X_{k_e} \hat h^0_{k_e}(T_e),
+     * \f]
+     * and is a function only of temperature. The standard-state pure-species
+     * enthalpies \f$ \hat h^0_k(T) \f$ are computed by the species
+     * thermodynamic property manager.
+     *
+     * \see MultiSpeciesThermo
+     */
+    virtual double enthalpy_mole() const;
+
+    virtual double cp_mole() const {
+        throw NotImplementedError("PlasmaPhase::cp_mole");
+    }
+
+    virtual double entropy_mole() const {
+        throw NotImplementedError("PlasmaPhase::entropy_mole");
+    }
+
+    virtual double gibbs_mole() const {
+        throw NotImplementedError("PlasmaPhase::gibbs_mole");
+    }
+
+    virtual double intEnergy_mole() const {
+        throw NotImplementedError("PlasmaPhase::intEnergy_mole");
+    }
+
+    virtual void getEntropy_R(double* sr) const;
+
+    virtual void getGibbs_RT(double* grt) const;
+
+    virtual void getGibbs_ref(double* g) const;
+
+    virtual void getStandardVolumes_ref(double* vol) const;
+
+    virtual void getChemPotentials(double* mu) const;
+
+    virtual void getStandardChemPotentials(double* muStar) const;
+
+    virtual void getPartialMolarEnthalpies(double* hbar) const;
+
+    virtual void getPartialMolarEntropies(double* sbar) const;
+
+    virtual void getPartialMolarIntEnergies(double* ubar) const;
 
     virtual void getParameters(AnyMap& phaseNode) const;
 
@@ -234,10 +304,10 @@ protected:
     void normalizeElectronEnergyDistribution();
 
     // Electron energy order in the exponential term
-    double m_isotropicShapeFactor;
+    double m_isotropicShapeFactor = 2.0;
 
     //! Number of points of electron energy levels
-    size_t m_nPoints;
+    size_t m_nPoints = 1001;
 
     //! electron energy levels [ev]. Length: #m_nPoints
     Eigen::ArrayXd m_electronEnergyLevels;
@@ -247,19 +317,19 @@ protected:
     Eigen::ArrayXd m_electronEnergyDist;
 
     //! Index of electron species
-    size_t m_electronSpeciesIndex;
+    size_t m_electronSpeciesIndex = npos;
 
     //! Electron temperature [K]
     double m_electronTemp;
 
     //! Electron energy distribution type
-    std::string m_distributionType;
+    string m_distributionType = "isotropic";
 
     //! Numerical quadrature method for electron energy distribution
-    std::string m_quadratureMethod;
+    string m_quadratureMethod = "simpson";
 
     //! Flag of normalizing electron energy distribution
-    bool m_do_normalizeElectronEnergyDist;
+    bool m_do_normalizeElectronEnergyDist = true;
 };
 
 }

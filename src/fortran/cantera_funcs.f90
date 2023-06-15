@@ -3,11 +3,9 @@
 
 module cantera_funcs
 
-  use cantera_xml
   use cantera_thermo
   use cantera_kinetics
   use cantera_transport
-  use cantera_iface
 
   contains
 
@@ -26,7 +24,7 @@ module cantera_funcs
          self = ctthermo_newFromFile(src)
       end if
 
-      call ctkin_newFromFile(self, src, id)
+      call ctkin_newFromFile(self, src, '')
 
       if (present(loglevel)) then
          self%tran_id = trans_newdefault(self%thermo_id, loglevel)
@@ -43,24 +41,18 @@ module cantera_funcs
       implicit none
       character*(*), intent(in) :: src
       character*(*), intent(in), optional :: id
-      type(phase_t) gas, bulk, surf
+      type(phase_t) gas, surf
+      type(phase_t), intent(in), optional :: bulk
       integer, intent(in), optional :: loglevel
 
-      character(20) :: model
-      type(XML_Node) root, s, str
       type(interface_t) self
 
-      root = new_XML_Node(src = src)
-      if (present(id)) then
-         s = ctxml_child(root, id = id)
-      else
-         s = ctxml_child(root, 'phase')
+      self%surf = ctthermo_newFromFile(src, id)
+      if (present(bulk)) then
+        self%bulk = bulk
       end if
-
-      surf = newThermoPhase(s)
-      !write(*,*) 'from importInterface: nSpecies = ',ctthermo_nSpecies(surf)
-      self = newInterface(s,surf,gas,bulk)
-      ! call newKinetics(s, self)
+      self%gas = gas
+      call ctkin_newFromFile(self%surf, src, '', gas, bulk)
 
       ctfunc_importInterface = self
       return

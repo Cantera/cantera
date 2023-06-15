@@ -16,7 +16,6 @@
 namespace Cantera
 {
 
-class XML_Node;
 class AnyMap;
 
 //! Create a new SpeciesThermoInterpType object given a corresponding constant.
@@ -42,17 +41,6 @@ SpeciesThermoInterpType* newSpeciesThermoInterpType(int type, double tlow,
  */
 SpeciesThermoInterpType* newSpeciesThermoInterpType(const std::string& type,
     double tlow, double thigh, double pref, const double* coeffs);
-
-//! Create a new SpeciesThermoInterpType object from XML_Node
-/*!
- *  @param thermoNode 'thermo' XML_Node (child of the 'species' node) with child
- *      nodes representing parameterizations for one or more temperature ranges
- *  @returns the pointer to the newly allocated SpeciesThermoInterpType object
- *
- * @deprecated The XML input format is deprecated and will be removed in
- *     Cantera 3.0.
- */
-SpeciesThermoInterpType* newSpeciesThermoInterpType(const XML_Node& thermoNode);
 
 //! Create a new SpeciesThermoInterpType object using the specified parameters
 /*!

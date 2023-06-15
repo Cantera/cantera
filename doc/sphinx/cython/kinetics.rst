@@ -21,18 +21,11 @@ Reactions
 ---------
 
 These classes contain the definition of a single reaction, independent of a specific
-`Kinetics` object. For legacy objects (CTI/XML input), each class integrates associated
-rate expressions, whereas for the new, YAML-based implementation, reaction rate
-evaluation is handled by dedicated `ReactionRate` objects.
+`Kinetics` object. Reaction rate evaluation is handled by `ReactionRate` objects.
 
 Reaction
 ^^^^^^^^
 .. autoclass:: Reaction
-   :no-undoc-members:
-
-ElementaryReaction
-^^^^^^^^^^^^^^^^^^
-.. autoclass:: ElementaryReaction
    :no-undoc-members:
 
 ThreeBodyReaction
@@ -50,20 +43,11 @@ ChemicallyActivatedReaction
 .. autoclass:: ChemicallyActivatedReaction
    :no-undoc-members:
 
-PlogReaction
-^^^^^^^^^^^^
-.. autoclass:: PlogReaction
+CustomReaction
+^^^^^^^^^^^^^^
+.. autoclass:: CustomReaction
    :no-undoc-members:
 
-ChebyshevReaction
-^^^^^^^^^^^^^^^^^
-.. autoclass:: ChebyshevReaction
-   :no-undoc-members:
-
-InterfaceReaction
-^^^^^^^^^^^^^^^^^
-.. autoclass:: InterfaceReaction
-   :no-undoc-members:
 
 Reaction Rates
 --------------
@@ -132,6 +116,11 @@ CustomRate
 .. autoclass:: CustomRate(k)
    :no-undoc-members:
 
+ExtensibleRate
+^^^^^^^^^^^^^^
+.. autoclass:: ExtensibleRate()
+   :no-undoc-members:
+
 InterfaceRateBase
 ^^^^^^^^^^^^^^^^^
 .. autoclass:: InterfaceRateBase
@@ -162,27 +151,22 @@ StickingBlowersMaselRate
 .. autoclass:: StickingBlowersMaselRate(A, b, Ea0, w)
    :no-undoc-members:
 
-Auxiliary Reaction Data (legacy only)
--------------------------------------
+Auxiliary Reaction Data
+-----------------------
+
+ExtensibleRateData
+^^^^^^^^^^^^^^^^^^
+.. autoclass:: ExtensibleRateData
+   :no-undoc-members:
+
+ThirdBody
+^^^^^^^^^
+.. autoclass:: ThirdBody
+   :no-undoc-members:
 
 Arrhenius
 ^^^^^^^^^
 .. autoclass:: Arrhenius(A, b, E)
-
-Falloff
-^^^^^^^
-.. autoclass:: Falloff(params=(), init=True)
-   :no-undoc-members:
-
-TroeFalloff
-^^^^^^^^^^^
-.. autoclass:: TroeFalloff(params=(), init=True)
-   :no-undoc-members:
-
-SriFalloff
-^^^^^^^^^^
-.. autoclass:: SriFalloff(params=(), init=True)
-   :no-undoc-members:
 
 Reaction Path Analysis
 ----------------------

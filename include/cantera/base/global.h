@@ -25,8 +25,8 @@
 namespace Cantera
 {
 
-class XML_Node;
 class Logger;
+class AnyMap;
 
 /*!
  * @defgroup inputfiles Input File Handling
@@ -43,9 +43,6 @@ class Logger;
  * 'data' subdirectory of the installation directory will be added to the search
  * path.
  *
- * On the Mac, directory '/Applications/Cantera/data' is added to the
- * search path.
- *
  * On any platform, if environment variable CANTERA_DATA is set to a directory
  * name or a list of directory names separated with the OS-dependent path
  * separator (that is, ";" on Windows, ":" elsewhere), then these directories will
@@ -56,31 +53,14 @@ class Logger;
  *
  * Additional directories may be added by calling function addDirectory.
  *
- * There are currently three different types of input files within %Cantera. The
- * YAML format is new in Cantera 2.5, and replaces both the CTI and CTML (XML)
- * formats, which are deprecated and will be removed in Cantera 3.0. The scripts
- * `cti2yaml.py` and `ctml2yaml.py` can be used to convert legacy input files to
- * the YAML format.
+ * %Cantera input files are written using YAML syntax. For more information on using
+ * YAML files in Cantera, see the
+ * <a href="https://cantera.org/tutorials/yaml/defining-phases.html">YAML Users' Guide</a>
+ * or the <a href="../../../../sphinx/html/yaml/index.html">YAML Input File API Reference</a>.
  *
- *  - YAML: A human-readable input file written using YAML syntax which
- *    defines species, phases, and reactions, and contains thermodynamic,
- *    chemical kinetic, and transport data needed by %Cantera.
- *
- *  - CTI: A human-readable input file written using Python syntax. Some options
- *    for non-ideal equations of state available in the CTML format have not
- *    been implemented for the CTI format.
- *
- *  - CTML: This is an XML file laid out in such a way that %Cantera can
- *    interpret the contents directly. Given a file in CTI format, %Cantera will
- *    convert the CTI file into the CTML format on-the-fly using a Python script
- *    (ctml_writer). This process is done in-memory without writing any new
- *    files to disk. Explicit use of the CTML format is not recommended.
- *
- * %Cantera provides converters (`ck2yaml` and `ckcti`) for converting
- * Chemkin-format mechanisms to the YAML and CTI formats, respectively.
- *
- * Other input routines in other modules:
- *   @see importKinetics()
+ * %Cantera provides the `ck2yaml` tool for converting Chemkin-format mechanisms to the
+ * YAML format. The scripts `cti2yaml.py` and `ctml2yaml.py` can be used to convert
+ * legacy CTI and XML input files (from Cantera 2.6 and earlier) to the YAML format.
  *
  * @{
  */
@@ -95,6 +75,23 @@ void addDirectory(const std::string& dir);
 std::string getDataDirectories(const std::string& sep);
 //! @}
 
+//! @copydoc Application::loadExtension
+void loadExtension(const std::string& extType, const std::string& name);
+
+//! Load extensions providing user-defined models from the `extensions` section of the
+//! given node. @see Application::loadExtension
+//!
+//! @since New in Cantera 3.0
+void loadExtensions(const AnyMap& node);
+
+//! @copydoc Application::searchPythonVersions
+void searchPythonVersions(const string& versions);
+
+//! Returns `true` if Cantera was loaded as a shared library in the current
+//! application. Returns `false` if it was statically linked.
+//! @since New in Cantera 3.0
+bool usingSharedLibrary();
+
 //! Delete and free all memory associated with the application
 /*!
  * Delete all global data.  It should be called at the end of the
@@ -105,24 +102,22 @@ void appdelete();
 //! @copydoc Application::thread_complete
 void thread_complete();
 
+//! Returns the Cantera version. This function when needing to access the version from a
+//! library, rather than the `CANTERA_VERSION` macro that is available at compile time.
+//! @since New in Cantera 3.0
+string version();
+
 //! Returns the hash of the git commit from which Cantera was compiled, if known
 std::string gitCommit();
-
-//! Returns root directory where %Cantera is installed
-/*!
- * @returns a string containing the name of the base directory where %Cantera is
- *     installed. If the environmental variable CANTERA_ROOT is defined, this
- *     function will return its value, preferentially.
- * @deprecated Unused within Cantera. To be removed after Cantera 2.6
- *
- * @ingroup inputfiles
- */
-std::string canteraRoot();
 
 //! Returns true if Cantera was compiled in debug mode. Used for handling some cases
 //! where behavior tested in the test suite changes depending on whether the `NDEBUG`
 //! preprocessor macro is defined.
 bool debugModeEnabled();
+
+//! Returns true if Cantera was compiled with C++ HDF5 support.
+//! @since  New in Cantera 3.0.
+bool usesHDF5();
 
 /*!
  * @defgroup logs Diagnostic Output
@@ -195,8 +190,9 @@ void writeline(char repeat, size_t count,
 //! helper function passing deprecation warning to global handler
 void _warn_deprecated(const std::string& method, const std::string& extra="");
 
-//! Print a deprecation warning raised from *method*. @see Application::warn_deprecated
+//! Print a deprecation warning raised from *method*.
 /*!
+*  @see Application::warn_deprecated
  * @param method  method name
  * @param msg  Python-style format string with the following arguments
  * @param args  arguments for the format string
@@ -218,9 +214,10 @@ void suppress_deprecation_warnings();
 void _warn(const std::string& warning,
            const std::string& method, const std::string& extra);
 
-//! Print a generic warning raised from *method*. @see Application::warn
+//! Print a generic warning raised from *method*.
 /*!
- * @param warning  type of warning; @see Logger::warn
+ * @see Application::warn
+ * @param warning  type of warning; See Logger::warn
  * @param method  method name
  * @param msg  Python-style format string with the following arguments
  * @param args  arguments for the format string
@@ -278,78 +275,12 @@ bool legacy_rate_constants_used();
 //! @copydoc Application::Messages::setLogger
 void setLogger(Logger* logwriter);
 
-//! Return the conversion factor to convert unit std::string 'unit'
-//! to SI units.
-/*!
- * @param unit String containing the units
- * @deprecated To be removed after Cantera 2.6. Used only with XML input.
- */
-doublereal toSI(const std::string& unit);
-
-/// Return the conversion factor to convert activation energy unit
-/// std::string 'unit' to Kelvin.
-/*!
- * @param unit  String containing the activation energy units
- * @deprecated To be removed after Cantera 2.6. Used only with XML input.
- */
-doublereal actEnergyToSI(const std::string& unit);
-
-//! @copydoc Application::get_XML_File
-XML_Node* get_XML_File(const std::string& file, int debug = 0);
-
-//! @copydoc Application::get_XML_from_string
-XML_Node* get_XML_from_string(const std::string& text);
-
-//! @copydoc Application::close_XML_File
-void close_XML_File(const std::string& file);
-
-//! This routine will locate an XML node in either the input
-//! XML tree or in another input file specified by the file
-//! part of the file_ID string.
-/*!
- * Searches are based on the ID attribute of the XML element only.
- *
- * @param file_ID This is a concatenation of two strings separated by the "#"
- *                character. The string before the pound character is the file
- *                name of an XML file to carry out the search. The string after
- *                the # character is the ID attribute of the XML element to
- *                search for. The string is interpreted as a file string if no #
- *                character is in the string.
- * @param root    If the file string is empty, searches for the XML element with
- *                matching ID attribute are carried out from this XML node.
- * @returns the XML_Node, if found. Returns null if not found.
- *
- * @deprecated The XML input format is deprecated and will be removed in
- *     Cantera 3.0.
- */
-XML_Node* get_XML_Node(const std::string& file_ID, XML_Node* root);
-
-
-//! This routine will locate an XML node in either the input XML tree or in
-//! another input file specified by the file part of the file_ID string.
-/*!
- * Searches are based on the XML element name and the ID attribute of the XML
- * element. An exact match of both is usually required. However, the ID
- * attribute may be set to "", in which case the first XML element with the
- * correct element name will be returned.
- *
- * @param nameTarget This is the XML element name to look for.
- * @param file_ID This is a concatenation of two strings separated by the "#"
- *                character. The string before the pound character is the file
- *                name of an XML file to carry out the search. The string after
- *                the # character is the ID attribute of the XML element to
- *                search for. The string is interpreted as a file string if no #
- *                character is in the string.
- * @param root    If the file string is empty, searches for the XML element with
- *                matching ID attribute are carried out from this XML node.
- * @returns the XML_Node, if found. Returns null if not found.
- *
- * @deprecated The XML input format is deprecated and will be removed in
- *     Cantera 3.0.
- */
-XML_Node* get_XML_NameID(const std::string& nameTarget,
-                         const std::string& file_ID,
-                         XML_Node* root);
+//! Enables printing a stacktrace to `std::err` if a segfault occurs. The Boost
+//! documentation says doing this from an error handler is not safe on all platforms
+//! and risks deadlocking. However, it can be useful for debugging and is therefore
+//! enabled when running tests.
+//! @since New in Cantera 3.0
+void printStackTraceOnSegfault();
 
 //! Clip *value* such that lower <= value <= upper
 template <class T>
@@ -365,7 +296,7 @@ template <typename T> int sign(T x) {
 
 //! Convert a type name to a human readable string, using `boost::core::demangle` if
 //! available. Also has a set of short names for some common types.
-//! @internal Mainly for use by AnyMap and Delegator
+//! @note Mainly for internal use by AnyMap and Delegator
 std::string demangle(const std::type_info& type);
 
 }

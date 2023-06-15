@@ -19,18 +19,10 @@
 #include "cantera/thermo/speciesThermoTypes.h"
 #include "cantera/base/AnyMap.h"
 
-using namespace std;
-
 namespace Cantera
 {
 
-Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion()
-    : m_currRegion(0)
-{
-}
-
-Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion(vector<Nasa9Poly1*>& regionPts) :
-    m_currRegion(0)
+Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion(vector<Nasa9Poly1*>& regionPts)
 {
     // From now on, we own these pointers
     for (Nasa9Poly1* region : regionPts) {
@@ -91,22 +83,18 @@ void Nasa9PolyMultiTempRegion::setParameters(const std::map<double, vector_fp>& 
 {
     m_regionPts.clear();
     m_lowerTempBounds.clear();
-    for (const auto& region : regions) {
-        m_lowerTempBounds.push_back(region.first);
+    for (const auto& [Tmin, coeffs] : regions) {
+        m_lowerTempBounds.push_back(Tmin);
         Nasa9Poly1* poly = new Nasa9Poly1;
         poly->setRefPressure(refPressure());
-        poly->setMinTemp(region.first);
-        poly->setParameters(region.second);
+        poly->setMinTemp(Tmin);
+        poly->setParameters(coeffs);
         if (!m_regionPts.empty()) {
-            m_regionPts.back()->setMaxTemp(region.first);
+            m_regionPts.back()->setMaxTemp(Tmin);
         }
         m_regionPts.emplace_back(poly);
     }
     m_regionPts.back()->setMaxTemp(maxTemp());
-}
-
-Nasa9PolyMultiTempRegion::~Nasa9PolyMultiTempRegion()
-{
 }
 
 int Nasa9PolyMultiTempRegion::reportType() const

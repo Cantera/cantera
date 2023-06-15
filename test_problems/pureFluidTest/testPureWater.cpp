@@ -18,13 +18,10 @@ double tvalue(double val, double atol = 1.0E-9)
 
 int main()
 {
-#if defined(_MSC_VER) && _MSC_VER < 1900
-    _set_output_format(_TWO_DIGIT_EXPONENT);
-#endif
     double pres;
     try {
 
-        unique_ptr<ThermoPhase> w(newPhase("liquidvapor.yaml", "water"));
+        auto w = newThermo("liquidvapor.yaml", "water");
 
         /*
          * Print out the triple point conditions

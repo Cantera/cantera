@@ -30,21 +30,23 @@ public:
 
     /**
      * Standard constructor.
-     * @param domains A vector of pointers to the domains to be linked together.
+     * @param domains A vector of shared pointers to the domains to be linked together.
      *     The domain pointers must be entered in left-to-right order --- that is,
      *     the pointer to the leftmost domain is domain[0], the pointer to the
      *     domain to its right is domain[1], etc.
      */
+    Sim1D(vector<shared_ptr<Domain1D>>& domains);
+
+    //! @deprecated  To be removed after Cantera 3.0;
+    //!     superseded by Sim1D() using shared_ptr
     Sim1D(std::vector<Domain1D*>& domains);
 
-    /**
-     * @name Setting initial values
-     *
-     * These methods are used to set the initial values of solution components.
-     */
+    //! @name Setting initial values
+    //!
+    //! These methods are used to set the initial values of solution components.
     //! @{
 
-    /// Set initial guess for one component for all domains
+    //! Set initial guess for one component for all domains
     /**
      * @param component component name
      * @param locs A vector of relative positions, beginning with 0.0 at the
@@ -93,23 +95,110 @@ public:
     void setProfile(size_t dom, size_t comp, const vector_fp& pos,
                     const vector_fp& values);
 
-    /// Set component 'comp' of domain 'dom' to value 'v' at all points.
+    //! Set component 'comp' of domain 'dom' to value 'v' at all points.
     void setFlatProfile(size_t dom, size_t comp, doublereal v);
 
     //! @}
 
-    void save(const std::string& fname, const std::string& id,
-              const std::string& desc, int loglevel=1);
+    //! @name Logging, saving and restoring of solutions
+    //!
+    //! @{
 
-    void saveResidual(const std::string& fname, const std::string& id,
-                      const std::string& desc, int loglevel=1);
-
-    /// Print to stream s the current solution for all domains.
+    /**
+     * Output information on current solution for all domains to stream.
+     * @param s  Output stream
+     * @deprecated To be removed after Cantera 3.0; replaced by show
+     */
     void showSolution(std::ostream& s);
+
+    /**
+     * Show logging information on current solution for all domains.
+     * @deprecated To be removed after Cantera 3.0; replaced by show
+     */
     void showSolution();
 
+    /**
+     * Output information on current solution for all domains to stream.
+     * @param s  Output stream
+     * @since  New in Cantera 3.0.
+     */
+    void show(std::ostream& s);
+
+    /**
+     * Show logging information on current solution for all domains.
+     * @since  New in Cantera 3.0.
+     */
+    void show();
+
+    /**
+     * Save the current solution to a container file.
+     * @param fname  Name of output container file
+     * @param id  Identifier of solution within the container file
+     * @param desc  Description of the solution
+     * @param loglevel  Level of diagnostic output
+     * @deprecated  To be removed after Cantera 3.0; loglevel is deprecated.
+     */
+    void save(const std::string& fname, const std::string& id,
+              const std::string& desc, int loglevel);
+
+    /**
+     * Save the current solution to a container file.
+     * @param fname  Name of output container file
+     * @param id  Identifier of solution within the container file
+     * @param desc  Description of the solution
+     * @param overwrite  Force overwrite if name exists; optional (default=false)
+     * @param compression  Compression level (optional; HDF only)
+     */
+    void save(const std::string& fname, const std::string& id,
+              const std::string& desc, bool overwrite=false, int compression=0);
+
+    /**
+     * Save the residual of the current solution to a container file.
+     * @param fname  Name of output container file
+     * @param id  Identifier of solution within the container file
+     * @param desc  Description of the solution
+     * @param loglevel  Level of diagnostic output
+     * @deprecated  To be removed after Cantera 3.0; loglevel is deprecated.
+     */
+    void saveResidual(const std::string& fname, const std::string& id,
+                      const std::string& desc, int loglevel);
+
+    /**
+     * Save the residual of the current solution to a container file.
+     * @param fname  Name of output container file
+     * @param id  Identifier of solution within the container file
+     * @param desc  Description of the solution
+     * @param overwrite  Force overwrite if name exists; optional (default=false)
+     * @param compression  Compression level (optional; HDF only)
+     */
+    void saveResidual(const std::string& fname, const std::string& id,
+                      const std::string& desc, bool overwrite=false, int compression=0);
+
+    /**
+     * Initialize the solution with a previously-saved solution.
+     * @param fname  Name of container file
+     * @param id  Identifier of solution within the container file
+     * @param loglevel  Level of diagnostic output
+     * @deprecated  To be removed after Cantera 3.0; loglevel is deprecated.
+     * @return  AnyMap containing header information
+     */
+    AnyMap restore(const std::string& fname, const std::string& id, int loglevel);
+
+    /**
+     * Initialize the solution with a previously-saved solution.
+     * @param fname  Name of container file
+     * @param id  Identifier of solution within the container file
+     * @return  AnyMap containing header information
+     */
+    AnyMap restore(const std::string& fname, const std::string& id);
+
+    //! @}
+
+    // @deprecated  To be removed after Cantera 3.0 (unused)
     const doublereal* solution() {
-        return m_x.data();
+        warn_deprecated("Sim1D::solution",
+            "This method is unused and will be removed after Cantera 3.0.");
+        return m_state->data();
     }
 
     void setTimeStep(double stepsize, size_t n, const int* tsteps);
@@ -117,15 +206,15 @@ public:
     void solve(int loglevel = 0, bool refine_grid = true);
 
     void eval(doublereal rdt=-1.0, int count = 1) {
-        OneDim::eval(npos, m_x.data(), m_xnew.data(), rdt, count);
+        OneDim::eval(npos, m_state->data(), m_xnew.data(), rdt, count);
     }
 
     // Evaluate the governing equations and return the vector of residuals
     void getResidual(double rdt, double* resid) {
-        OneDim::eval(npos, m_x.data(), resid, rdt, 0);
+        OneDim::eval(npos, m_state->data(), resid, rdt, 0);
     }
 
-    /// Refine the grid in all domains.
+    //! Refine the grid in all domains.
     int refine(int loglevel=0);
 
     //! Add node for fixed temperature point of freely propagating flame
@@ -175,9 +264,6 @@ public:
      */
     void setGridMin(int dom, double gridmin);
 
-    //! Initialize the solution with a previously-saved solution.
-    void restore(const std::string& fname, const std::string& id, int loglevel=2);
-
     //! Set the current solution vector to the last successful time-stepping
     //! solution. This can be used to examine the solver progress after a failed
     //! integration.
@@ -190,12 +276,18 @@ public:
 
     void getInitialSoln();
 
+    // @deprecated  To be removed after Cantera 3.0 (unused)
     void setSolution(const doublereal* soln) {
-        std::copy(soln, soln + m_x.size(), m_x.data());
+        warn_deprecated("Sim1D::setSolution",
+            "This method is unused and will be removed after Cantera 3.0.");
+        std::copy(soln, soln + m_state->size(), m_state->data());
     }
 
+    // @deprecated  To be removed after Cantera 3.0 (unused)
     const doublereal* solution() const {
-        return m_x.data();
+        warn_deprecated("Sim1D::solution",
+            "This method is unused and will be removed after Cantera 3.0.");
+        return m_state->data();
     }
 
     doublereal jacobian(int i, int j);
@@ -227,9 +319,6 @@ public:
     }
 
 protected:
-    //! the solution vector
-    vector_fp m_x;
-
     //! the solution vector after the last successful timestepping
     vector_fp m_xlast_ts;
 
@@ -255,7 +344,7 @@ protected:
     Func1* m_steady_callback;
 
 private:
-    /// Calls method _finalize in each domain.
+    //! Calls method _finalize in each domain.
     void finalize();
 
     //! Wrapper around the Newton solver

@@ -52,7 +52,7 @@ public:
     //! Default constructor
     PDSS_Water();
 
-    //! @name  Molar Thermodynamic Properties of the Species Standard State in the Solution
+    //! @name  Molar Thermodynamic Properties of the Species Standard State
     //! @{
 
     // See PDSS.h for documentation of functions overridden from Class PDSS
@@ -94,7 +94,7 @@ public:
     virtual void setPressure(doublereal pres);
     virtual void setTemperature(doublereal temp);
     virtual void setState_TP(doublereal temp, doublereal pres);
-    virtual void setState_TR(doublereal temp, doublereal rho);
+    virtual void setState_TR(double temp, double rho);
 
     //! Set the density of the water phase
     /*!
@@ -175,7 +175,7 @@ private:
      * Density is the independent variable here, but it's hidden behind the
      * object's interface.
      */
-    doublereal m_dens;
+    double m_dens;
 
     //! state of the fluid
     /*!
@@ -187,21 +187,21 @@ private:
      *    4  WATER_UNSTABLEGAS
      *  @endcode
      */
-    int m_iState;
+    int m_iState = WATER_LIQUID;
 
     /**
      *  Offset constants used to obtain consistency with the NIST database.
      *  This is added to all internal energy and enthalpy results.
      *  units = J kmol-1.
      */
-    doublereal EW_Offset;
+    double EW_Offset = 0.0;
 
     /**
      *  Offset constant used to obtain consistency with NIST convention.
      *  This is added to all internal entropy results.
      *  units = J kmol-1 K-1.
      */
-    doublereal SW_Offset;
+    double SW_Offset = 0.0;
 
 public:
     /**
@@ -210,7 +210,7 @@ public:
      *  a gas-phase answer is allowed. This is used to check the thermodynamic
      *  consistency with ideal-gas thermo functions for example.
      */
-    bool m_allowGasPhase;
+    bool m_allowGasPhase = false;
 };
 
 }

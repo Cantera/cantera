@@ -18,7 +18,7 @@ t0 = cputime;
 % GRI-Mech 3.0. Another way to do this is shown here, with statements
 % added to measure how long this takes:
 
-gas1 = Solution('gri30.yaml', 'gas', 'Mix');
+gas1 = Solution('gri30.yaml', 'gas', 'mixture-averaged');
 msg = sprintf('time to create gas1: %f', cputime - t0)
 
 % Function 'Solution' constructs an object representing a phase of
@@ -36,14 +36,14 @@ msg = sprintf('time to create gas1: %f', cputime - t0)
 % it has already processed and doesn't need to read them in again:
 
 t0 = cputime;
-gas1b = Solution('gri30.yaml', 'gas', 'None');
+gas1b = Solution('gri30.yaml', 'gas', 'none');
 msg = sprintf('time to create gas1b: %f', cputime - t0)
 
 % Since GRI-Mech is a rather small mechanism, there might not be much
 % difference in these times.
 
-% CTI files distributed with Cantera
-%-----------------------------------
+% YAML files distributed with Cantera
+%------------------------------------
 
 % Several reaction mechanism files in this format are included in the
 % Cantera distribution, including ones that model high-temperature

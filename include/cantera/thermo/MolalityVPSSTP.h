@@ -23,6 +23,51 @@
 namespace Cantera
 {
 
+//! Scale to be used for the output of single-ion activity coefficients is that
+//! used by Pitzer.
+/*!
+ * This is the internal scale used within the code. One property is that the
+ * activity coefficients for the cation and anion of a single salt will be
+ * equal. This scale is the one presumed by the formulation of the single-ion
+ * activity coefficients described in this report.
+ *
+ * Activity coefficients for species k may be altered between scales s1 to s2
+ * using the following formula
+ *
+ * \f[
+ *     ln(\gamma_k^{s2}) = ln(\gamma_k^{s1})
+ *        + \frac{z_k}{z_j} \left(  ln(\gamma_j^{s2}) - ln(\gamma_j^{s1}) \right)
+ * \f]
+ *
+ * where j is any one species.
+ */
+const int PHSCALE_PITZER = 0;
+
+//! Scale to be used for evaluation of single-ion activity coefficients is that
+//! used by the NBS standard for evaluation of the pH variable.
+/*!
+ * This is not the internal scale used within the code.
+ *
+ * Activity coefficients for species k may be altered between scales s1 to s2
+ * using the following formula
+ *
+ * \f[
+ *     ln(\gamma_k^{s2}) = ln(\gamma_k^{s1})
+ *        + \frac{z_k}{z_j} \left(  ln(\gamma_j^{s2}) - ln(\gamma_j^{s1}) \right)
+ * \f]
+ *
+ * where j is any one species. For the NBS scale, j is equal to the Cl- species
+ * and
+ *
+ * \f[
+ *     ln(\gamma_{Cl-}^{s2}) = \frac{-A_{\phi} \sqrt{I}}{1.0 + 1.5 \sqrt{I}}
+ * \f]
+ *
+ * This is the NBS pH scale, which is used in all conventional pH measurements.
+ * and is based on the Bates-Guggenheim equations.
+ */
+const int PHSCALE_NBS = 1;
+
 /*!
  * MolalityVPSSTP is a derived class of ThermoPhase that handles variable
  * pressure standard state methods for calculating thermodynamic properties that
@@ -181,7 +226,7 @@ namespace Cantera
 class MolalityVPSSTP : public VPStandardStateTP
 {
 public:
-    /// Default Constructor
+    //! Default Constructor
     /*!
      * This doesn't do much more than initialize constants with default values
      * for water at 25C. Water molecular weight comes from the default
@@ -327,16 +372,14 @@ public:
      */
     void setMolalitiesByName(const std::string& name);
 
-    /**
-     * @}
-     * @name Activities, Standard States, and Activity Concentrations
-     *
-     * The activity \f$a_k\f$ of a species in solution is related to the
-     * chemical potential by \f[ \mu_k = \mu_k^0(T) + \hat R T \log a_k. \f] The
-     * quantity \f$\mu_k^0(T,P)\f$ is the chemical potential at unit activity,
-     * which depends only on temperature and pressure.
-     * @{
-     */
+    //! @}
+    //! @name Activities, Standard States, and Activity Concentrations
+    //!
+    //! The activity \f$a_k\f$ of a species in solution is related to the
+    //! chemical potential by \f[ \mu_k = \mu_k^0(T) + \hat R T \log a_k. \f] The
+    //! quantity \f$\mu_k^0(T,P)\f$ is the chemical potential at unit activity,
+    //! which depends only on temperature and pressure.
+    //! @{
 
     /**
      *  We set the convention to molality here.
@@ -443,38 +486,12 @@ public:
 
     //! @}
 
-    //! Set equation of state parameter values from XML entries.
-    /*!
-     * This method is called by function importPhase() when processing a phase
-     * definition in an input file. It should be overloaded in subclasses to set
-     * any parameters that are specific to that particular phase model.
-     *
-     * The MolalityVPSSTP object defines a new method for setting the
-     * concentrations of a phase. The new method is defined by a block called
-     * "soluteMolalities". If this block is found, the concentrations within
-     * that phase are set to the "name":"molalities pairs found within that XML
-     * block. The solvent concentration is then set to everything else.
-     *
-     * The function first calls the overloaded function,
-     * VPStandardStateTP::setStateFromXML(), to pick up the parent class
-     * behavior.
-     *
-     * usage: Overloaded functions should call this function before carrying out
-     *        their own behavior.
-     *
-     * @param state An XML_Node object corresponding to the "state" entry for
-     *              this phase in the input file.
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    virtual void setStateFromXML(const XML_Node& state);
-
     //! @name Initialization
-    /// The following methods are used in the process of constructing the phase
-    /// and setting its parameters from a specification in an input file. They
-    /// are not normally used in application programs. To see how they are used,
-    /// see importPhase().
+    //!
+    //! The following methods are used in the process of constructing the phase
+    //! and setting its parameters from a specification in an input file. They
+    //! are not normally used in application programs. To see how they are used,
+    //! see importPhase().
     //! @{
 
     virtual bool addSpecies(shared_ptr<Species> spec);
@@ -573,17 +590,17 @@ protected:
      * the identity of the Cl- species for the PHSCALE_NBS scaling. Either
      * PHSCALE_PITZER or PHSCALE_NBS
      */
-    int m_pHScalingType;
+    int m_pHScalingType = PHSCALE_PITZER;
 
     //! Index of the phScale species
     /*!
      * Index of the species to be used in the single-ion scaling law. This is
      * the identity of the Cl- species for the PHSCALE_NBS scaling
      */
-    size_t m_indexCLM;
+    size_t m_indexCLM = npos;
 
     //! Molecular weight of the Solvent
-    doublereal m_weightSolvent;
+    double m_weightSolvent = 18.01528;
 
     /*!
      * In any molality implementation, it makes sense to have a minimum solvent
@@ -592,63 +609,17 @@ protected:
      * the molality definition to ensure that molal_solvent = 0 when
      * xmol_solvent = 0.
      */
-    doublereal m_xmolSolventMIN;
+    double m_xmolSolventMIN = 0.01;
 
     //! This is the multiplication factor that goes inside log expressions
     //! involving the molalities of species. It's equal to Wt_0 / 1000, where
     //! Wt_0 = weight of solvent (kg/kmol)
-    doublereal m_Mnaught;
+    double m_Mnaught = 18.01528E-3;
 
     //! Current value of the molalities of the species in the phase. Note this
     //! vector is a mutable quantity. units are (kg/kmol)
     mutable vector_fp m_molalities;
 };
-
-
-//! Scale to be used for the output of single-ion activity coefficients is that
-//! used by Pitzer.
-/*!
- * This is the internal scale used within the code. One property is that the
- * activity coefficients for the cation and anion of a single salt will be
- * equal. This scale is the one presumed by the formulation of the single-ion
- * activity coefficients described in this report.
- *
- * Activity coefficients for species k may be altered between scales s1 to s2
- * using the following formula
- *
- * \f[
- *     ln(\gamma_k^{s2}) = ln(\gamma_k^{s1})
- *        + \frac{z_k}{z_j} \left(  ln(\gamma_j^{s2}) - ln(\gamma_j^{s1}) \right)
- * \f]
- *
- * where j is any one species.
- */
-const int PHSCALE_PITZER = 0;
-
-//! Scale to be used for evaluation of single-ion activity coefficients is that
-//! used by the NBS standard for evaluation of the pH variable.
-/*!
- * This is not the internal scale used within the code.
- *
- * Activity coefficients for species k may be altered between scales s1 to s2
- * using the following formula
- *
- * \f[
- *     ln(\gamma_k^{s2}) = ln(\gamma_k^{s1})
- *        + \frac{z_k}{z_j} \left(  ln(\gamma_j^{s2}) - ln(\gamma_j^{s1}) \right)
- * \f]
- *
- * where j is any one species. For the NBS scale, j is equal to the Cl- species
- * and
- *
- * \f[
- *     ln(\gamma_{Cl-}^{s2}) = \frac{-A_{\phi} \sqrt{I}}{1.0 + 1.5 \sqrt{I}}
- * \f]
- *
- * This is the NBS pH scale, which is used in all conventional pH measurements.
- * and is based on the Bates-Guggenheim equations.
- */
-const int PHSCALE_NBS = 1;
 
 }
 

@@ -5,17 +5,17 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-#include "cantera/kinetics/ReactionRateFactory.h"
-#include "cantera/kinetics/MultiRate.h"
+#include "cantera/base/AnyMap.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/kinetics/Kinetics.h"
-#include "cantera/kinetics/Falloff.h"
-#include "cantera/kinetics/TwoTempPlasmaRate.h"
+#include "cantera/kinetics/ReactionRateFactory.h"
+#include "cantera/kinetics/Arrhenius.h"
 #include "cantera/kinetics/ChebyshevRate.h"
 #include "cantera/kinetics/Custom.h"
-#include "cantera/kinetics/RxnRates.h"
+#include "cantera/kinetics/Falloff.h"
 #include "cantera/kinetics/InterfaceRate.h"
-#include "cantera/base/AnyMap.h"
+#include "cantera/kinetics/PlogRate.h"
+#include "cantera/kinetics/TwoTempPlasmaRate.h"
 
 namespace Cantera
 {
@@ -100,6 +100,20 @@ ReactionRateFactory::ReactionRateFactory()
     });
 }
 
+ReactionRateFactory* ReactionRateFactory::factory() {
+    std::unique_lock<std::mutex> lock(rate_mutex);
+    if (!s_factory) {
+        s_factory = new ReactionRateFactory();
+    }
+    return s_factory;
+}
+
+void ReactionRateFactory::deleteFactory() {
+    std::unique_lock<std::mutex> lock(rate_mutex);
+    delete s_factory;
+    s_factory = 0;
+}
+
 shared_ptr<ReactionRate> newReactionRate(const std::string& type)
 {
     return shared_ptr<ReactionRate> (
@@ -137,15 +151,7 @@ shared_ptr<ReactionRate> newReactionRate(
 
 shared_ptr<ReactionRate> newReactionRate(const AnyMap& rate_node)
 {
-    const UnitSystem& system = rate_node.units();
-    if (system.convertTo(1., "m") != 1. || system.convertTo(1., "kmol") != 1.) {
-        throw InputFileError("ReactionRateFactory::newReactionRate",
-            rate_node.at("__units__"),
-            "Alternative units for 'length' or 'quantity` are not supported "
-            "when creating\na standalone 'ReactionRate' object.");
-    }
-    AnyMap node(rate_node);
-        return newReactionRate(node, UnitStack({}));
+    return newReactionRate(AnyMap(rate_node), UnitStack({}));
 }
 
 }

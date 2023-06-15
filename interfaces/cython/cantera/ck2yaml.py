@@ -687,17 +687,30 @@ class Sri:
 class TransportData:
     geometry_flags = ['atom', 'linear', 'nonlinear']
 
-    def __init__(self, label, geometry, well_depth, collision_diameter,
+    def __init__(self, parser, label, geometry, well_depth, collision_diameter,
                  dipole_moment, polarizability, z_rot, note=''):
 
         try:
             geometry = int(geometry)
         except ValueError:
-            raise InputError(
-                "Bad geometry flag '{}' for species '{}', is the flag a float "
-                "or character? It should be an integer.", geometry, label)
+            try:
+                geometry = float(geometry)
+            except ValueError:
+                raise InputError(
+                    "Invalid geometry flag '{}' for species '{}'. "
+                    "Flag should be an integer.", geometry, label) from None
+            if geometry == int(geometry):
+                geometry = int(geometry)
+                parser.warn("Incorrect geometry flag syntax for species {0}. "
+                            "If --permissive was given, the flag was automatically "
+                            "converted to an integer.".format(label))
+            else:
+                raise InputError(
+                    "Invalid float geometry flag '{}' for species '{}'. "
+                    "Flag should be an integer.", geometry, label) from None
         if geometry not in (0, 1, 2):
-            raise InputError("Bad geometry flag '{}' for species '{}'.", geometry, label)
+            raise InputError("Invalid geometry flag value '{}' for species '{}'. "
+                             "Flag value should be 0, 1, or 2.", geometry, label)
 
         self.geometry = self.geometry_flags[int(geometry)]
         self.well_depth = float(well_depth)
@@ -850,7 +863,7 @@ class Parser:
         the elemental composition of the species.
 
         For more details on this format, see `Debugging common errors in CK files
-        <https://cantera.org/tutorials/ck2cti-tutorial.html#debugging-common-errors-in-ck-files>`__.
+        <https://cantera.org/tutorials/ck2yaml-tutorial.html#debugging-common-errors-in-ck-files>`__.
         """
         identifier = lines[0][0:24].split(maxsplit=1)
         species = identifier[0].strip()
@@ -1890,7 +1903,7 @@ class Parser:
                             line_offset + i, filename, original_line, len(data)-1)
 
                 if self.species_dict[speciesName].transport is None:
-                    self.species_dict[speciesName].transport = TransportData(*data, note=comment)
+                    self.species_dict[speciesName].transport = TransportData(self, *data, note=comment)
                 else:
                     self.warn('Ignoring duplicate transport data'
                          ' for species "{}" on line {} of "{}".'.format(
@@ -1934,7 +1947,7 @@ class Parser:
             metadata = BlockMap([
                 ("generator", "ck2yaml"),
                 ("input-files", FlowList(files)),
-                ("cantera-version", "2.6.0"),
+                ("cantera-version", "3.0.0a5"),
                 ("date", formatdate(localtime=True)),
             ])
             if desc.strip():
@@ -2238,7 +2251,7 @@ def main(argv):
         return
 
     try:
-        import cantera as ct
+        from cantera import Solution, Interface
     except ImportError:
         logger.warning('WARNING: Unable to import Cantera Python module. '
                         'Output mechanism has not been validated')
@@ -2246,9 +2259,9 @@ def main(argv):
 
     try:
         logger.info('Validating mechanism...')
-        gas = ct.Solution(out_name)
+        gas = Solution(out_name)
         for surf_name in surfaces:
-            phase = ct.Interface(out_name, surf_name, [gas])
+            phase = Interface(out_name, surf_name, [gas])
         logger.info('PASSED')
     except RuntimeError as e:
         logger.info('FAILED')

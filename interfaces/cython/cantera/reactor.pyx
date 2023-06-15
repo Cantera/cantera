@@ -4,6 +4,12 @@
 import warnings
 from collections import defaultdict as _defaultdict
 import numbers as _numbers
+from cython.operator cimport dereference as deref
+
+from .thermo cimport *
+from ._utils cimport pystr, stringify, comp_map, py_to_anymap, anymap_to_py
+from ._utils import *
+from .delegator cimport *
 
 _reactor_counts = _defaultdict(int)
 
@@ -15,7 +21,7 @@ cdef class ReactorBase:
     """
     Common base class for reactors and reservoirs.
     """
-    reactor_type = "None"
+    reactor_type = "none"
     def __cinit__(self, *args, **kwargs):
         self.rbase = newReactor(stringify(self.reactor_type))
 
@@ -47,6 +53,7 @@ cdef class ReactorBase:
         properties and kinetic rates for this reactor.
         """
         self._thermo = solution
+        # Block species from being added to the phase as long as this object exists
         self._thermo._references[self._weakref_proxy] = True
         self.rbase.setThermoMgr(deref(solution.thermo))
 
@@ -272,7 +279,7 @@ cdef class Reactor(ReactorBase):
         ``'int_energy'`` or ``'temperature'``, depending on the reactor's equations.
         """
         k = self.reactor.componentIndex(stringify(name))
-        if k == CxxNpos:
+        if k == -1:
             raise IndexError('No such component: {!r}'.format(name))
         return k
 
@@ -327,6 +334,31 @@ cdef class Reactor(ReactorBase):
         self.reactor.getState(&y[0])
         return y
 
+    property jacobian:
+        """
+        Get the local, reactor-specific Jacobian or an approximation thereof
+
+        **Warning**: Depending on the particular implementation, this may return an
+        approximate Jacobian intended only for use in forming a preconditioner for
+        iterative solvers, excluding terms that would generate a fully-dense Jacobian.
+
+        **Warning**: This method is an experimental part of the Cantera API and may be
+        changed or removed without notice.
+        """
+        def __get__(self):
+            return get_from_sparse(self.reactor.jacobian(), self.n_vars, self.n_vars)
+
+    property finite_difference_jacobian:
+        """
+        Get the reactor-specific Jacobian, calculated using a finite difference method.
+
+        **Warning:** this property is an experimental part of the Cantera API and
+        may be changed or removed without notice.
+        """
+        def __get__(self):
+            return get_from_sparse(self.reactor.finiteDifferenceJacobian(),
+                                   self.n_vars, self.n_vars)
+
     def set_advance_limit(self, name, limit):
         """
         Limit absolute change of component ``name`` during `ReactorNet.advance`.
@@ -338,6 +370,16 @@ cdef class Reactor(ReactorBase):
             limit = -1.
         self.reactor.setAdvanceLimit(stringify(name), limit)
 
+cdef class MoleReactor(Reactor):
+    """
+    A homogeneous zero-dimensional reactor with a mole based state vector. By default,
+    they are closed (no inlets or outlets), have fixed volume, and have adiabatic,
+    chemically-inert walls. These properties may all be changed by adding
+    appropriate components such as `Wall`, `MassFlowController` and `Valve`.
+
+    .. versionadded:: 3.0
+    """
+    reactor_type = "MoleReactor"
 
 cdef class Reservoir(ReactorBase):
     """
@@ -355,10 +397,27 @@ cdef class ConstPressureReactor(Reactor):
     """
     reactor_type = "ConstPressureReactor"
 
+cdef class ConstPressureMoleReactor(Reactor):
+    """A homogeneous, constant pressure, zero-dimensional reactor with a mole based
+    state vector. The volume of the reactor changes as a function of time in order to
+    keep the pressure constant.
+
+    .. versionadded:: 3.0
+    """
+    reactor_type = "ConstPressureMoleReactor"
+
 
 cdef class IdealGasReactor(Reactor):
     """ A constant volume, zero-dimensional reactor for ideal gas mixtures. """
     reactor_type = "IdealGasReactor"
+
+
+cdef class IdealGasMoleReactor(Reactor):
+    """
+    A constant volume, zero-dimensional reactor for ideal gas mixtures with a mole
+    based state vector
+    """
+    reactor_type = "IdealGasMoleReactor"
 
 
 cdef class IdealGasConstPressureReactor(Reactor):
@@ -369,29 +428,114 @@ cdef class IdealGasConstPressureReactor(Reactor):
     """
     reactor_type = "IdealGasConstPressureReactor"
 
+cdef class IdealGasConstPressureMoleReactor(Reactor):
+    """
+    A homogeneous, constant pressure, zero-dimensional reactor for ideal gas
+    mixtures. The volume of the reactor changes as a function of time in order
+    to keep the pressure constant. This reactor also uses a mole based state vector.
+    """
+    reactor_type = "IdealGasConstPressureMoleReactor"
+
 
 cdef class FlowReactor(Reactor):
     """
     A steady-state plug flow reactor with constant cross sectional area.
-    Time integration follows a fluid element along the length of the reactor.
+    Integration follows a fluid element along the length of the reactor.
     The reactor is assumed to be frictionless and adiabatic.
     """
     reactor_type = "FlowReactor"
 
     property mass_flow_rate:
-        """ Mass flow rate per unit area [kg/m^2*s] """
+        """ Mass flow rate [kg/s] """
         def __set__(self, double value):
             (<CxxFlowReactor*>self.reactor).setMassFlowRate(value)
 
-    property speed:
-        """ Speed [m/s] of the flow in the reactor at the current position """
-        def __get__(self):
-            return (<CxxFlowReactor*>self.reactor).speed()
+    @property
+    def area(self):
+        """
+        Get/set the area of the reactor [m^2].
 
-    property distance:
-        """ The distance of the fluid element from the inlet of the reactor."""
-        def __get__(self):
-            return (<CxxFlowReactor*>self.reactor).distance()
+        When the area is changed, the flow speed is scaled to keep the total mass flow
+        rate constant.
+        """
+        return (<CxxFlowReactor*>self.reactor).area()
+
+    @area.setter
+    def area(self, area):
+        (<CxxFlowReactor*>self.reactor).setArea(area)
+
+    @property
+    def inlet_surface_atol(self):
+        """
+        Get/Set the steady-state tolerances used to determine the initial surface
+        species coverages.
+        """
+        return (<CxxFlowReactor*>self.reactor).inletSurfaceAtol()
+
+    @inlet_surface_atol.setter
+    def inlet_surface_atol(self, atol):
+        (<CxxFlowReactor*>self.reactor).setInletSurfaceAtol(atol)
+
+    @property
+    def inlet_surface_rtol(self):
+        """
+        Get/Set the steady-state tolerances used to determine the initial surface
+        species coverages.
+        """
+        return (<CxxFlowReactor*>self.reactor).inletSurfaceRtol()
+
+    @inlet_surface_rtol.setter
+    def inlet_surface_rtol(self, rtol):
+        (<CxxFlowReactor*>self.reactor).setInletSurfaceRtol(rtol)
+
+    @property
+    def inlet_surface_max_steps(self):
+        """
+        Get/Set the maximum number of integrator steps used to determine the initial
+        surface species coverages.
+        """
+        return (<CxxFlowReactor*>self.reactor).inletSurfaceMaxSteps()
+
+    @inlet_surface_max_steps.setter
+    def inlet_surface_max_steps(self, nsteps):
+        (<CxxFlowReactor*>self.reactor).setInletSurfaceMaxSteps(nsteps)
+
+    @property
+    def inlet_surface_max_error_failures(self):
+        """
+        Get/Set the maximum number of integrator error failures allowed when determining
+        the initial surface species coverages.
+        """
+        return (<CxxFlowReactor*>self.reactor).inletSurfaceMaxErrorFailures()
+
+    @inlet_surface_max_error_failures.setter
+    def inlet_surface_max_error_failures(self, nsteps):
+        (<CxxFlowReactor*>self.reactor).setInletSurfaceMaxErrorFailures(nsteps)
+
+    @property
+    def surface_area_to_volume_ratio(self):
+        """ Get/Set the surface area to volume ratio of the reactor [m^-1] """
+        return (<CxxFlowReactor*>self.reactor).surfaceAreaToVolumeRatio()
+
+    @surface_area_to_volume_ratio.setter
+    def surface_area_to_volume_ratio(self, sa_to_vol):
+        (<CxxFlowReactor*>self.reactor).setSurfaceAreaToVolumeRatio(sa_to_vol)
+
+    @property
+    def speed(self):
+        """ Speed [m/s] of the flow in the reactor at the current position """
+        return (<CxxFlowReactor*>self.reactor).speed()
+
+    @property
+    def distance(self):
+        """
+        The distance of the fluid element from the inlet of the reactor.
+
+        .. deprecated:: 3.0
+
+            To be removed after Cantera 3.0. Access distance via `ReactorNet`.
+        """
+        return (<CxxFlowReactor*>self.reactor).distance()
 
 
 cdef class ExtensibleReactor(Reactor):
@@ -402,7 +546,7 @@ cdef class ExtensibleReactor(Reactor):
     The following methods of the C++ :ct:`Reactor` class can be modified by a
     Python class which inherits from this class. For each method, the name below
     should be prefixed with ``before_``, ``after_``, or ``replace_``, indicating
-    whether the this method should be called before, after, or instead of the
+    whether this method should be called before, after, or instead of the
     corresponding method from the base class.
 
     For methods that return a value and have a ``before`` method specified, if
@@ -566,6 +710,46 @@ cdef class ExtensibleIdealGasConstPressureReactor(ExtensibleReactor):
     reactor_type = "ExtensibleIdealGasConstPressureReactor"
 
 
+cdef class ExtensibleMoleReactor(ExtensibleReactor):
+    """
+    A variant of `ExtensibleReactor` where the base behavior corresponds to the
+    `MoleReactor` class.
+
+    .. versionadded:: 3.0
+    """
+    reactor_type = "ExtensibleMoleReactor"
+
+
+cdef class ExtensibleIdealGasMoleReactor(ExtensibleReactor):
+    """
+    A variant of `ExtensibleReactor` where the base behavior corresponds to the
+    `IdealGasMoleReactor` class.
+
+    .. versionadded:: 3.0
+    """
+    reactor_type = "ExtensibleIdealGasMoleReactor"
+
+
+cdef class ExtensibleConstPressureMoleReactor(ExtensibleReactor):
+    """
+    A variant of `ExtensibleReactor` where the base behavior corresponds to the
+    `ConstPressureMoleReactor` class.
+
+    .. versionadded:: 3.0
+    """
+    reactor_type = "ExtensibleConstPressureMoleReactor"
+
+
+cdef class ExtensibleIdealGasConstPressureMoleReactor(ExtensibleReactor):
+    """
+    A variant of `ExtensibleReactor` where the base behavior corresponds to the
+    `IdealGasConstPressureMoleReactor` class.
+
+    .. versionadded:: 3.0
+    """
+    reactor_type = "ExtensibleIdealGasConstPressureMoleReactor"
+
+
 cdef class ReactorSurface:
     """
     Represents a surface in contact with the contents of a reactor.
@@ -654,7 +838,7 @@ cdef class WallBase:
     """
     Common base class for walls.
     """
-    wall_type = "None"
+    wall_type = "none"
     def __cinit__(self, *args, **kwargs):
         self.wall = newWall(stringify(self.wall_type))
 
@@ -838,7 +1022,7 @@ cdef class FlowDevice:
     across a FlowDevice, and the pressure difference equals the difference in
     pressure between the upstream and downstream reactors.
     """
-    flowdevice_type = "None"
+    flowdevice_type = "none"
     def __cinit__(self, *args, **kwargs):
         self.dev = newFlowDevice(stringify(self.flowdevice_type))
 
@@ -1118,19 +1302,22 @@ cdef class ReactorNet:
 
     def advance(self, double t, pybool apply_limit=True):
         """
-        Advance the state of the reactor network in time from the current time
-        towards time ``t`` in seconds, taking as many integrator time steps as necessary.
-        If ``apply_limit`` is true and an advance limit is specified, the reactor
-        state at the end of the timestep is estimated prior to advancing. If
-        the difference exceed limits, the end time is reduced by half until
-        the projected end state remains within specified limits.
-        Returns the time reached at the end of integration.
+        Advance the state of the reactor network from the current time/distance towards
+        the specified value ``t`` of the independent variable, which depends on the type
+        of reactors included in the network.
+
+        The integrator will take as many steps as necessary to reach ``t``. If
+        ``apply_limit`` is true and an advance limit is specified, the reactor state at
+        the end of the step is estimated prior to advancing. If the difference exceed
+        limits, the end value is reduced by half until the projected end state remains
+        within specified limits. Returns the time/distance reached at the end of
+        integration.
         """
         return self.net.advance(t, apply_limit)
 
     def step(self):
         """
-        Take a single internal time step. The time after taking the step is
+        Take a single internal step. The time/distance after taking the step is
         returned.
         """
         return self.net.step()
@@ -1149,10 +1336,20 @@ cdef class ReactorNet:
         """
         self.net.reinitialize()
 
-    property time:
-        """The current time [s]."""
-        def __get__(self):
-            return self.net.time()
+    @property
+    def time(self):
+        """
+        The current time [s], for reactor networks that are solved in the time domain.
+        """
+        return self.net.time()
+
+    @property
+    def distance(self):
+        """
+        The current distance[ m] along the length of the reactor network, for reactors
+        that are solved as a function of space.
+        """
+        return self.net.distance()
 
     def set_initial_time(self, double t):
         """
@@ -1175,16 +1372,64 @@ cdef class ReactorNet:
 
     property max_err_test_fails:
         """
-        The maximum number of error test failures permitted by the CVODES
-        integrator in a single time step.
+        The maximum number of error test failures permitted by the CVODES integrator
+        in a single step. The default is 10.
         """
         def __set__(self, n):
             self.net.setMaxErrTestFails(n)
 
+    @property
+    def max_nonlinear_iterations(self):
+        """
+        Get/Set the maximum number of nonlinear solver iterations permitted by the
+        SUNDIALS solver in one solve attempt. The default value is 4.
+        """
+        return self.net.integrator().maxNonlinIterations()
+
+    @max_nonlinear_iterations.setter
+    def max_nonlinear_iterations(self, int n):
+        self.net.integrator().setMaxNonlinIterations(n)
+
+    @property
+    def max_nonlinear_convergence_failures(self):
+        """
+        Get/Set the maximum number of nonlinear solver convergence failures permitted in
+        one step of the SUNDIALS integrator. The default value is 10.
+        """
+        return self.net.integrator().maxNonlinConvFailures()
+
+    @max_nonlinear_convergence_failures.setter
+    def max_nonlinear_convergence_failures(self, int n):
+        self.net.integrator().setMaxNonlinConvFailures(n)
+
+    @property
+    def include_algebraic_in_error_test(self):
+        """
+        Get/Set whether to include algebraic variables in the in the local error test.
+        Applicable only to DAE systems. The default is `True`.
+        """
+        return self.net.integrator().algebraicInErrorTest()
+
+    @include_algebraic_in_error_test.setter
+    def include_algebraic_in_error_test(self, pybool yesno):
+        self.net.integrator().includeAlgebraicInErrorTest(yesno)
+
+    @property
+    def max_order(self):
+        """
+        Get/Set the maximum order of the linear multistep method. The default value and
+        maximum is 5.
+        """
+        return self.net.integrator().maxOrder()
+
+    @max_order.setter
+    def max_order(self, int n):
+        self.net.integrator().setMaxOrder(n)
+
     property max_steps:
         """
-        The maximum number of internal integration time-steps that CVODES
-        is allowed to take before reaching the next output time.
+        The maximum number of internal integration steps that CVODES
+        is allowed to take before reaching the next output point.
         """
         def __set__(self, nsteps):
             self.net.setMaxSteps(nsteps)
@@ -1265,7 +1510,7 @@ cdef class ReactorNet:
         string or an integer. See `component_index` and `sensitivities` to
         determine the integer index for the variables and the definition of the
         resulting sensitivity coefficient. If it is not given, ``r`` defaults to
-        the first reactor. Returns an empty array until the first time step is
+        the first reactor. Returns an empty array until the first integration step is
         taken.
         """
         if isinstance(component, int):
@@ -1287,7 +1532,7 @@ cdef class ReactorNet:
         reversible reactions).
 
         The sensitivities are returned in an array with dimensions *(n_vars,
-        n_sensitivity_params)*, unless no timesteps have been taken, in which
+        n_sensitivity_params)*, unless no integration steps have been taken, in which
         case the shape is *(0, n_sensitivity_params)*. The order of the
         variables (that is, rows) is:
 
@@ -1357,7 +1602,8 @@ cdef class ReactorNet:
 
     def get_derivative(self, k):
         """
-        Get the k-th time derivative of the state vector of the reactor network.
+        Get the k-th derivative of the state vector of the reactor network with respect
+        to the independent integrator variable (time/distance).
         """
         if not self.n_vars:
             raise CanteraError('ReactorNet empty or not initialized.')
@@ -1415,7 +1661,7 @@ cdef class ReactorNet:
         """
         # get default tolerances:
         if not atol:
-            atol = self.rtol
+            atol = self.atol
         if not residual_threshold:
             residual_threshold = 10. * self.rtol
         if residual_threshold <= self.rtol:
@@ -1453,3 +1699,45 @@ cdef class ReactorNet:
 
     def __copy__(self):
         raise NotImplementedError('ReactorNet object is not copyable')
+
+    property preconditioner:
+        """Preconditioner associated with integrator"""
+        def __set__(self, PreconditionerBase precon):
+            # set preconditioner
+            self.net.setPreconditioner(precon.pbase)
+            # set problem type as default of preconditioner
+            self.linear_solver_type = precon.precon_linear_solver_type
+
+    property linear_solver_type:
+        """
+            The type of linear solver used in integration.
+
+            Options for this property include:
+
+              - `"DENSE"`
+              - `"GMRES"`
+              - `"BAND"`
+              - `"DIAG"`
+
+        """
+        def __set__(self, linear_solver_type):
+            self.net.setLinearSolverType(stringify(linear_solver_type))
+
+        def __get__(self):
+            return pystr(self.net.linearSolverType())
+
+
+    property solver_stats:
+        """ODE solver stats from integrator"""
+        def __get__(self):
+            cdef CxxAnyMap stats
+            stats = self.net.solverStats()
+            return anymap_to_py(stats)
+
+    property derivative_settings:
+        """
+        Apply derivative settings to all reactors in the network.
+        See also `Kinetics.derivative_settings`.
+        """
+        def __set__(self, settings):
+            self.net.setDerivativeSettings(py_to_anymap(settings))

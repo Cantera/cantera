@@ -178,32 +178,6 @@ namespace Cantera
  * K_c \f$, using the second and third part of the above expression as a
  * definition for the concentration equilibrium constant.
  *
- * ## XML Example
- *
- * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
- *
- * An example of an XML Element named phase setting up a LatticePhase object
- * named "O_lattice_SiO2" is given below.
- *
- * @code
- * <!--     phase O_lattice_SiO2      -->
- *   <phase dim="3" id="O_lattice_SiO2">
- *     <elementArray datasrc="elements.xml"> Si  H  He </elementArray>
- *     <speciesArray datasrc="#species_data">
- *       O_O  Vac_O
- *     </speciesArray>
- *     <reactionArray datasrc="#reaction_data"/>
- *     <thermo model="Lattice">
- *       <site_density> 73.159 </site_density>
- *     </thermo>
- *     <kinetics model="BulkKinetics"/>
- *     <transport model="None"/>
- *  </phase>
- *  @endcode
- *
- * The model attribute "Lattice" of the thermo XML element identifies the phase
- * as being of the type handled by the LatticePhase object.
- *
  * @ingroup thermoprops
  */
 class LatticePhase : public ThermoPhase
@@ -218,18 +192,8 @@ public:
     explicit LatticePhase(const std::string& inputFile="",
                           const std::string& id="");
 
-    //! Full constructor for a water phase
-    /*!
-     * @param phaseRef  XML node referencing the lattice phase.
-     * @param id        string id of the phase name
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    LatticePhase(XML_Node& phaseRef, const std::string& id = "");
-
     virtual std::string type() const {
-        return "Lattice";
+        return "lattice";
     }
 
     virtual bool isCompressible() const {
@@ -308,13 +272,12 @@ public:
 
     //! @}
     //! @name Mechanical Equation of State Properties
-    /*!
-     * In this equation of state implementation, the density is a function only
-     * of the mole fractions. Therefore, it can't be an independent variable.
-     * Instead, the pressure is used as the independent variable. Functions
-     * which try to set the thermodynamic state by calling setDensity() may
-     * cause an exception to be thrown.
-     */
+    //!
+    //! In this equation of state implementation, the density is a function only
+    //! of the mole fractions. Therefore, it can't be an independent variable.
+    //! Instead, the pressure is used as the independent variable. Functions
+    //! which try to set the thermodynamic state by calling setDensity() may
+    //! cause an exception to be thrown.
     //! @{
 
     //! Pressure. Units: Pa.
@@ -356,14 +319,13 @@ public:
     doublereal calcDensity();
 
     //! @}
-    /// @name Activities, Standard States, and Activity Concentrations
-    /**
-     * The activity \f$a_k\f$ of a species in solution is related to the
-     * chemical potential by \f[ \mu_k = \mu_k^0(T) + \hat R T \log a_k. \f] The
-     * quantity \f$\mu_k^0(T,P)\f$ is the chemical potential at unit activity,
-     * which depends only on temperature and the pressure. Activity is assumed
-     * to be molality-based here.
-     */
+    //! @name Activities, Standard States, and Activity Concentrations
+    //!
+    //! The activity \f$a_k\f$ of a species in solution is related to the
+    //! chemical potential by \f[ \mu_k = \mu_k^0(T) + \hat R T \log a_k. \f] The
+    //! quantity \f$\mu_k^0(T,P)\f$ is the chemical potential at unit activity,
+    //! which depends only on temperature and the pressure. Activity is assumed
+    //! to be molality-based here.
     //! @{
 
     virtual Units standardConcentrationUnits() const;
@@ -396,7 +358,7 @@ public:
     virtual void getActivityCoefficients(doublereal* ac) const;
 
     //! @}
-    /// @name  Partial Molar Properties of the Solution
+    //! @name  Partial Molar Properties of the Solution
     //! @{
 
     //! Get the species chemical potentials. Units: J/kmol.
@@ -550,7 +512,7 @@ public:
     virtual void getStandardVolumes(doublereal* vol) const;
 
     //! @}
-    /// @name Thermodynamic Values for the Species Reference States
+    //! @name Thermodynamic Values for the Species Reference States
     //! @{
 
     const vector_fp& enthalpy_RT_ref() const;
@@ -595,41 +557,13 @@ public:
     virtual void getSpeciesParameters(const std::string& name,
                                       AnyMap& speciesNode) const;
 
-    //! Set equation of state parameter values from XML entries.
-    /*!
-     * This method is called by function importPhase() when processing a phase
-     * definition in an input file. It should be overloaded in subclasses to set
-     * any parameters that are specific to that particular phase
-     * model. Note, this method is called before the phase is
-     * initialized with elements and/or species.
-     *
-     * For this phase, the molar density of the phase is specified in this
-     * block, and is a required parameter.
-     *
-     * @param eosdata An XML_Node object corresponding to
-     *                the "thermo" entry for this phase in the input file.
-     *
-     * eosdata points to the thermo block, and looks like this:
-     *
-     * @code
-     * <phase id="O_lattice_SiO2" >
-     *   <thermo model="Lattice">
-     *     <site_density units="kmol/m^3"> 73.159 </site_density>
-     *   </thermo>
-     * </phase>
-     * @endcode
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    virtual void setParametersFromXML(const XML_Node& eosdata);
     //! @}
 
 protected:
     virtual void compositionChanged();
 
     //! Reference state pressure
-    doublereal m_Pref;
+    double m_Pref = OneAtm;
 
     //! The current pressure
     /*!
@@ -638,7 +572,7 @@ protected:
      * variable which is inherited as part of the State class, m_dens, is always
      * kept current whenever T, P, or X[] change.
      */
-    doublereal m_Pcurrent;
+    double m_Pcurrent = OneAtm;
 
     //! Reference state enthalpies / RT
     mutable vector_fp m_h0_RT;
@@ -665,7 +599,7 @@ protected:
      *
      *  units are kmol m-3
      */
-    doublereal m_site_density;
+    double m_site_density = 0.0;
 
 private:
     //! Update the species reference state thermodynamic functions

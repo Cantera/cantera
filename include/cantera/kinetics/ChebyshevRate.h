@@ -22,7 +22,7 @@ namespace Cantera
  */
 struct ChebyshevData : public ReactionData
 {
-    ChebyshevData() : pressure(NAN), log10P(0.), m_pressure_buf(-1.) {}
+    ChebyshevData() = default;
 
     virtual void update(double T) override;
 
@@ -50,11 +50,11 @@ struct ChebyshevData : public ReactionData
         pressure = NAN;
     }
 
-    double pressure; //!< pressure
-    double log10P; //!< base 10 logarithm of pressure
+    double pressure = NAN; //!< pressure
+    double log10P = 0.0; //!< base 10 logarithm of pressure
 
 protected:
-    double m_pressure_buf; //!< buffered pressure
+    double m_pressure_buf = -1.0; //!< buffered pressure
 };
 
 //! Pressure-dependent rate expression where the rate coefficient is expressed
@@ -90,7 +90,7 @@ class ChebyshevRate final : public ReactionRate
 {
 public:
     //! Default constructor.
-    ChebyshevRate() : m_log10P(NAN), m_rate_units(Units(0.)) {}
+    ChebyshevRate() = default;
 
     //! Constructor directly from coefficient array
     /*!
@@ -105,15 +105,10 @@ public:
     ChebyshevRate(double Tmin, double Tmax, double Pmin, double Pmax,
                   const Array2D& coeffs);
 
-    ChebyshevRate(const AnyMap& node, const UnitStack& rate_units={})
-        : ChebyshevRate()
-    {
-        setParameters(node, rate_units);
-    }
+    ChebyshevRate(const AnyMap& node, const UnitStack& rate_units={});
 
     unique_ptr<MultiRateBase> newMultiRate() const {
-        return unique_ptr<MultiRateBase>(
-            new MultiRate<ChebyshevRate, ChebyshevData>);
+        return make_unique<MultiRate<ChebyshevRate, ChebyshevData>>();
     }
 
     const std::string type() const { return "Chebyshev"; }
@@ -121,14 +116,18 @@ public:
     //! Perform object setup based on AnyMap node information
     /*!
      *  @param node  AnyMap containing rate information
-     *  @param units  Unit definitions specific to rate information
+     *  @param rate_units  Unit definitions specific to rate information
      */
-    void setParameters(const AnyMap& node, const UnitStack& units);
+    void setParameters(const AnyMap& node, const UnitStack& rate_units);
+
+    void getParameters(AnyMap& rateNode) const;
+
+    //! @deprecated  To be removed after Cantera 3.0.
     void getParameters(AnyMap& rateNode, const Units& rate_units) const {
-        // @todo: deprecate, as second argument is no longer needed
+        warn_deprecated("ChebyshevRate:getParameters",
+            "To be removed after Cantera 3.0. Second argument is no longer needed.");
         return getParameters(rateNode);
     }
-    void getParameters(AnyMap& rateNode) const;
 
     virtual void validate(const std::string& equation, const Kinetics& kin);
 
@@ -138,7 +137,22 @@ public:
      */
     void updateFromStruct(const ChebyshevData& shared_data) {
         if (shared_data.log10P != m_log10P) {
-            update_C(&shared_data.log10P);
+            m_log10P = shared_data.log10P;
+            double Pr = (2 * shared_data.log10P + PrNum_) * PrDen_;
+            double Cnm1 = Pr;
+            double Cn = 1;
+            double Cnp1;
+            for (size_t i = 0; i < m_coeffs.nRows(); i++) {
+                dotProd_[i] = m_coeffs(i, 0);
+            }
+            for (size_t j = 1; j < m_coeffs.nColumns(); j++) {
+                Cnp1 = 2 * Pr * Cn - Cnm1;
+                for (size_t i = 0; i < m_coeffs.nRows(); i++) {
+                    dotProd_[i] += Cnp1 * m_coeffs(i, j);
+                }
+                Cnm1 = Cn;
+                Cn = Cnp1;
+            }
         }
     }
 
@@ -147,58 +161,7 @@ public:
      *  @param shared_data  data shared by all reactions of a given type
      */
     double evalFromStruct(const ChebyshevData& shared_data) {
-        return updateRC(0., shared_data.recipT);
-    }
-
-    //! Set up ChebyshevRate object
-    /*!
-     * @deprecated   Deprecated in Cantera 2.6. Replaceable with
-     *               @see setLimits() and @see setCoeffs().
-     */
-    void setup(double Tmin, double Tmax, double Pmin, double Pmax,
-                  const Array2D& coeffs);
-
-    //! Set limits for ChebyshevRate object
-    /*!
-     *  @param Tmin    Minimum temperature [K]
-     *  @param Tmax    Maximum temperature [K]
-     *  @param Pmin    Minimum pressure [Pa]
-     *  @param Pmax    Maximum pressure [Pa]
-     */
-    void setLimits(double Tmin, double Tmax, double Pmin, double Pmax);
-
-    //! Update concentration-dependent parts of the rate coefficient.
-    //! @param c base-10 logarithm of the pressure in Pa
-    //! @deprecated To be removed after Cantera 2.6. Implementation will be moved to
-    //! the updateFromStruct() method.
-    void update_C(const double* c) {
-        m_log10P = c[0];
-        double Pr = (2 * c[0] + PrNum_) * PrDen_;
-        double Cnm1 = Pr;
-        double Cn = 1;
-        double Cnp1;
-        for (size_t i = 0; i < m_coeffs.nRows(); i++) {
-            dotProd_[i] = m_coeffs(i, 0);
-        }
-        for (size_t j = 1; j < m_coeffs.nColumns(); j++) {
-            Cnp1 = 2 * Pr * Cn - Cnm1;
-            for (size_t i = 0; i < m_coeffs.nRows(); i++) {
-                dotProd_[i] += Cnp1 * m_coeffs(i, j);
-            }
-            Cnm1 = Cn;
-            Cn = Cnp1;
-        }
-    }
-
-    /**
-     * Update the value the rate constant.
-     *
-     * This function returns the actual value of the rate constant.
-     * @deprecated To be removed after Cantera 2.6. Implementation will be moved to
-     * the evalFromStruct() method.
-     */
-    double updateRC(double logT, double recipT) const {
-        double Tr = (2 * recipT + TrNum_) * TrDen_;
+        double Tr = (2 * shared_data.recipT + TrNum_) * TrDen_;
         double Cnm1 = Tr;
         double Cn = 1;
         double Cnp1;
@@ -211,6 +174,15 @@ public:
         }
         return std::pow(10, logk);
     }
+
+    //! Set limits for ChebyshevRate object
+    /*!
+     *  @param Tmin    Minimum temperature [K]
+     *  @param Tmax    Maximum temperature [K]
+     *  @param Pmin    Minimum pressure [Pa]
+     *  @param Pmax    Maximum pressure [Pa]
+     */
+    void setLimits(double Tmin, double Tmax, double Pmin, double Pmax);
 
     //! Minimum valid temperature [K]
     double Tmin() const {
@@ -242,19 +214,6 @@ public:
         return m_coeffs.nRows();
     }
 
-    //! Access the ChebyshevRate coefficients.
-    /*!
-     *  \f$ \alpha_{t,p} = \mathrm{coeffs}[N_P*t + p] \f$ where
-     *  \f$ 0 <= t < N_T \f$ and \f$ 0 <= p < N_P \f$.
-     *
-     * @deprecated   To be removed after Cantera 2.6. Replaceable by @see data().
-     */
-    const vector_fp& coeffs() const {
-        warn_deprecated("ChebyshevRate::coeffs", "Deprecated in Cantera 2.6 "
-            "and to be removed thereafter; replaceable by data().");
-        return chebCoeffs_;
-    }
-
     //! Access Chebyshev coefficients as 2-dimensional array with temperature and
     //! pressure dimensions corresponding to rows and columns, respectively.
     const Array2D& data() const {
@@ -265,17 +224,14 @@ public:
     void setData(const Array2D& coeffs);
 
 protected:
-    double m_log10P; //!< value detecting updates
+    double m_log10P = NAN; //!< value detecting updates
     double Tmin_, Tmax_; //!< valid temperature range
     double Pmin_, Pmax_; //!< valid pressure range
     double TrNum_, TrDen_; //!< terms appearing in the reduced temperature
     double PrNum_, PrDen_; //!< terms appearing in the reduced pressure
 
     Array2D m_coeffs; //!<< coefficient array
-    vector_fp chebCoeffs_; //!< Chebyshev coefficients, length nP * nT
-    vector_fp dotProd_; //!< dot product of chebCoeffs with the reduced pressure polynomial
-
-    Units m_rate_units; //!< Reaction rate units
+    vector_fp dotProd_; //!< dot product of coeffs with the reduced pressure polynomial
 };
 
 }

@@ -11,8 +11,8 @@
 #include "cantera/oneD/MultiNewton.h"
 #include "cantera/oneD/refine.h"
 #include "cantera/numerics/funcs.h"
-#include "cantera/base/xml.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/SolutionArray.h"
 #include "cantera/numerics/Func1.h"
 #include <limits>
 #include <fstream>
@@ -22,7 +22,7 @@ using namespace std;
 namespace Cantera
 {
 
-Sim1D::Sim1D(vector<Domain1D*>& domains) :
+Sim1D::Sim1D(vector<shared_ptr<Domain1D>>& domains) :
     OneDim(domains),
     m_steady_callback(0)
 {
@@ -30,7 +30,27 @@ Sim1D::Sim1D(vector<Domain1D*>& domains) :
     // domain-specific initialization of the solution vector.
     resize();
     for (size_t n = 0; n < nDomains(); n++) {
-        domain(n)._getInitialSoln(&m_x[start(n)]);
+        domain(n)._getInitialSoln(m_state->data() + start(n));
+    }
+
+    // set some defaults
+    m_tstep = 1.0e-5;
+    m_steps = { 10 };
+}
+
+Sim1D::Sim1D(vector<Domain1D*>& domains) :
+    OneDim(domains),
+    m_steady_callback(0)
+{
+    warn_deprecated("Sim1D::Sim1D(vector<Domain1D*>&)",
+        "To be removed after Cantera 3.0; superseded by "
+        "Sim1D::Sim1D(vector<shared_ptr<Domain1D>>&).");
+
+    // resize the internal solution vector and the work array, and perform
+    // domain-specific initialization of the solution vector.
+    resize();
+    for (size_t n = 0; n < nDomains(); n++) {
+        domain(n)._getInitialSoln(m_state->data() + start(n));
     }
 
     // set some defaults
@@ -54,24 +74,24 @@ void Sim1D::setInitialGuess(const std::string& component, vector_fp& locs, vecto
 void Sim1D::setValue(size_t dom, size_t comp, size_t localPoint, doublereal value)
 {
     size_t iloc = domain(dom).loc() + domain(dom).index(comp, localPoint);
-    AssertThrowMsg(iloc < m_x.size(), "Sim1D::setValue",
-                   "Index out of bounds: {} > {}", iloc, m_x.size());
-    m_x[iloc] = value;
+    AssertThrowMsg(iloc < m_state->size(), "Sim1D::setValue",
+                   "Index out of bounds: {} > {}", iloc, m_state->size());
+    (*m_state)[iloc] = value;
 }
 
 doublereal Sim1D::value(size_t dom, size_t comp, size_t localPoint) const
 {
     size_t iloc = domain(dom).loc() + domain(dom).index(comp, localPoint);
-    AssertThrowMsg(iloc < m_x.size(), "Sim1D::value",
-                   "Index out of bounds: {} > {}", iloc, m_x.size());
-    return m_x[iloc];
+    AssertThrowMsg(iloc < m_state->size(), "Sim1D::value",
+                   "Index out of bounds: {} > {}", iloc, m_state->size());
+    return (*m_state)[iloc];
 }
 
 doublereal Sim1D::workValue(size_t dom, size_t comp, size_t localPoint) const
 {
     size_t iloc = domain(dom).loc() + domain(dom).index(comp, localPoint);
-    AssertThrowMsg(iloc < m_x.size(), "Sim1D::workValue",
-                   "Index out of bounds: {} > {}", iloc, m_x.size());
+    AssertThrowMsg(iloc < m_state->size(), "Sim1D::workValue",
+                   "Index out of bounds: {} > {}", iloc, m_state->size());
     return m_xnew[iloc];
 }
 
@@ -97,124 +117,218 @@ void Sim1D::setProfile(size_t dom, size_t comp,
 void Sim1D::save(const std::string& fname, const std::string& id,
                  const std::string& desc, int loglevel)
 {
+    warn_deprecated("Sim1D::save",
+        "To be removed after Cantera 3.0; use version without loglevel instead.");
+    save(fname, id, desc, true); // legacy version overwrites data
+    if (loglevel > 0) {
+        writelog("Solution saved to file '{}' as entry '{}'.\n", fname, id);
+    }
+}
+
+void Sim1D::save(const std::string& fname, const std::string& id,
+                 const std::string& desc, bool overwrite, int compression)
+{
     size_t dot = fname.find_last_of(".");
     string extension = (dot != npos) ? toLowerCopy(fname.substr(dot+1)) : "";
-    if (extension != "yml" && extension != "yaml") {
-        OneDim::save(fname, id, desc, m_x.data(), loglevel);
+    if (extension == "h5" || extension == "hdf"  || extension == "hdf5") {
+        SolutionArray::writeHeader(fname, id, desc, overwrite);
+        for (auto dom : m_dom) {
+            auto arr = dom->asArray(m_state->data() + dom->loc());
+            arr->writeEntry(fname, id, dom->id(), overwrite, compression);
+        }
         return;
     }
+    if (extension == "yaml" || extension == "yml") {
+        // Check for an existing file and load it if present
+        AnyMap data;
+        if (std::ifstream(fname).good()) {
+            data = AnyMap::fromYamlFile(fname);
+        }
+        SolutionArray::writeHeader(data, id, desc, overwrite);
 
-    // Check for an existing file and load it if present
-    AnyMap data;
-    if (ifstream(fname).good()) {
-        data = AnyMap::fromYamlFile(fname);
+        for (auto dom : m_dom) {
+            auto arr = dom->asArray(m_state->data() + dom->loc());
+            arr->writeEntry(data, id, dom->id(), overwrite);
+        }
+
+        // Write the output file and remove the now-outdated cached file
+        std::ofstream out(fname);
+        out << data.toYamlString();
+        AnyMap::clearCachedFile(fname);
+        return;
     }
-    bool preexisting = data.hasKey(id);
-
-    // Add this simulation to the YAML
-    data[id] = serialize(m_x.data());
-
-    // Add metadata
-    data[id]["description"] = desc;
-    data[id]["generator"] = "Cantera Sim1D";
-    data[id]["cantera-version"] = CANTERA_VERSION;
-    data[id]["git-commit"] = gitCommit();
-
-    // Add a timestamp indicating the current time
-    time_t aclock;
-    ::time(&aclock); // Get time in seconds
-    struct tm* newtime = localtime(&aclock); // Convert time to struct tm form
-    data[id]["date"] = stripnonprint(asctime(newtime));
-
-    // Force metadata fields to the top of the file
-    data[id]["description"].setLoc(-6, 0);
-    data[id]["generator"].setLoc(-5, 0);
-    data[id]["cantera-version"].setLoc(-4, 0);
-    data[id]["git-commit"].setLoc(-3, 0);
-    data[id]["date"].setLoc(-2, 0);
-
-    // If this is not replacing an existing solution, put it at the end
-    if (!preexisting) {
-        data[id].setLoc(INT_MAX, 0);
-    }
-
-    // Write the output file and remove the now-outdated cached file
-    std::ofstream out(fname);
-    out << data.toYamlString();
-    AnyMap::clearCachedFile(fname);
-    if (loglevel > 0) {
-        writelog("Solution saved to file {} as solution '{}'.\n", fname, id);
-    }
+    throw CanteraError("Sim1D::save", "Unsupported file format '{}'.", extension);
 }
 
 void Sim1D::saveResidual(const std::string& fname, const std::string& id,
                          const std::string& desc, int loglevel)
 {
-    vector_fp res(m_x.size(), -999);
-    OneDim::eval(npos, &m_x[0], &res[0], 0.0);
-    // Temporarily put the residual into m_x, since this is the vector that the save()
-    // function reads.
-    std::swap(res, m_x);
-    save(fname, id, desc, loglevel);
-    std::swap(res, m_x);
+    warn_deprecated("Sim1D::saveResidual",
+        "To be removed after Cantera 3.0; use version without loglevel instead.");
+    saveResidual(fname, id, desc, true); // legacy version overwrites data
+    if (loglevel > 0) {
+        writelog("Solution saved to file '{}' as entry '{}'.\n", fname, id);
+    }
 }
 
-void Sim1D::restore(const std::string& fname, const std::string& id,
-                    int loglevel)
+void Sim1D::saveResidual(const std::string& fname, const std::string& id,
+                         const std::string& desc, bool overwrite, int compression)
+{
+    vector_fp res(m_state->size(), -999);
+    OneDim::eval(npos, m_state->data(), &res[0], 0.0);
+    // Temporarily put the residual into m_state, since this is the vector that the
+    // save() function reads.
+    vector<double> backup(*m_state);
+    *m_state = res;
+    save(fname, id, desc, overwrite, compression);
+    *m_state = backup;
+}
+
+namespace { // restrict scope of helper function to local translation unit
+
+//! convert data format used by Python h5py export (Cantera < 3.0)
+AnyMap legacyH5(shared_ptr<SolutionArray> arr, const AnyMap& header={})
+{
+    auto meta = arr->meta();
+    AnyMap out;
+
+    std::map<std::string, std::string> meta_pairs = {
+        {"type", "Domain1D_type"},
+        {"name", "name"},
+        {"emissivity-left", "emissivity_left"},
+        {"emissivity-right", "emissivity_right"},
+    };
+    for (const auto& [newName, oldName] : meta_pairs) {
+        if (meta.hasKey(oldName)) {
+            out[newName] = meta[oldName];
+        }
+    }
+
+    std::map<std::string, std::string> tol_pairs = {
+        {"transient-abstol", "transient_abstol"},
+        {"steady-abstol", "steady_abstol"},
+        {"transient-reltol", "transient_reltol"},
+        {"steady-reltol", "steady_reltol"},
+    };
+    for (const auto& [newName, oldName] : tol_pairs) {
+        if (meta.hasKey(oldName)) {
+            out["tolerances"][newName] = meta[oldName];
+        }
+    }
+
+    if (meta.hasKey("phase")) {
+        out["phase"]["name"] = meta["phase"]["name"];
+        out["phase"]["source"] = meta["phase"]["source"];
+    }
+
+    if (arr->size() <= 1) {
+        return out;
+    }
+
+    std::map<std::string, std::string> header_pairs = {
+        {"transport-model", "transport_model"},
+        {"radiation-enabled", "radiation_enabled"},
+        {"energy-enabled", "energy_enabled"},
+        {"Soret-enabled", "soret_enabled"},
+        {"species-enabled", "species_enabled"},
+    };
+    for (const auto& [newName, oldName] : header_pairs) {
+        if (header.hasKey(oldName)) {
+            out[newName] = header[oldName];
+        }
+    }
+
+    std::map<std::string, std::string> refiner_pairs = {
+        {"ratio", "ratio"},
+        {"slope", "slope"},
+        {"curve", "curve"},
+        {"prune", "prune"},
+        // {"grid-min", "???"}, // missing
+        {"max-points", "max_grid_points"},
+    };
+    for (const auto& [newName, oldName] : refiner_pairs) {
+        if (header.hasKey(oldName)) {
+            out["refine-criteria"][newName] = header[oldName];
+        }
+    }
+
+    if (header.hasKey("fixed_temperature")) {
+        double temp = header.getDouble("fixed_temperature", -1.);
+        auto profile = arr->getComponent("T").as<vector<double>>();
+        int ix = 0;
+        while (profile[ix] <= temp && ix < arr->size()) {
+            ix++;
+        }
+        if (ix != 0) {
+            auto grid = arr->getComponent("grid").as<vector<double>>();
+            out["fixed-point"]["location"] = grid[ix - 1];
+            out["fixed-point"]["temperature"] = temp;
+        }
+    }
+
+    return out;
+}
+
+} // end unnamed namespace
+
+AnyMap Sim1D::restore(const std::string& fname, const std::string& id, int loglevel)
+{
+    warn_deprecated("Sim1D::saveResidual",
+        "To be removed after Cantera 3.0; use version without loglevel instead.");
+    return restore(fname, id);
+}
+
+AnyMap Sim1D::restore(const std::string& fname, const std::string& id)
 {
     size_t dot = fname.find_last_of(".");
     string extension = (dot != npos) ? toLowerCopy(fname.substr(dot+1)) : "";
-    if (extension == "yml" || extension == "yaml") {
-        AnyMap root = AnyMap::fromYamlFile(fname);
-        if (!root.hasKey(id)) {
-            throw InputFileError("Sim1D::restore", root,
-                                 "No solution with id '{}'", id);
-        }
-        const auto& state = root[id];
-        for (auto dom : m_dom) {
-            if (!state.hasKey(dom->id())) {
-                throw InputFileError("Sim1D::restore", state,
-                    "Saved state '{}' does not contain a domain named '{}'.",
-                    id, dom->id());
-            }
-            dom->resize(dom->nComponents(), state[dom->id()]["points"].asInt());
-        }
-        resize();
-        m_xlast_ts.clear();
-        for (auto dom : m_dom) {
-            dom->restore(state[dom->id()].as<AnyMap>(), m_x.data() + dom->loc(),
-                         loglevel);
-        }
-    } else {
-        XML_Node root;
-        root.build(fname);
-
-        XML_Node* f = root.findID(id);
-        if (!f) {
-            throw CanteraError("Sim1D::restore","No solution with id = "+id);
-        }
-
-        vector<XML_Node*> xd = f->getChildren("domain");
-        if (xd.size() != nDomains()) {
-            throw CanteraError("Sim1D::restore", "Solution does not contain the "
-                " correct number of domains. Found {} expected {}.\n",
-                xd.size(), nDomains());
-        }
-        for (size_t m = 0; m < nDomains(); m++) {
-            Domain1D& dom = domain(m);
-            if (loglevel > 0 && xd[m]->attrib("id") != dom.id()) {
-                warn_user("Sim1D::restore", "Domain names do not match: "
-                    "'{} and '{}'", (*xd[m])["id"], dom.id());
-            }
-            dom.resize(domain(m).nComponents(), intValue((*xd[m])["points"]));
-        }
-        resize();
-        m_xlast_ts.clear();
-        for (size_t m = 0; m < nDomains(); m++) {
-            domain(m).restore(*xd[m], &m_x[start(m)], loglevel);
-        }
+    if (extension == "xml") {
+        throw CanteraError("Sim1D::restore",
+                           "Restoring from XML is no longer supported.");
     }
-    finalize();
+    AnyMap header;
+    if (extension == "h5" || extension == "hdf"  || extension == "hdf5") {
+        std::map<std::string, shared_ptr<SolutionArray>> arrs;
+        header = SolutionArray::readHeader(fname, id);
+
+        for (auto dom : m_dom) {
+            auto arr = SolutionArray::create(dom->solution());
+            arr->readEntry(fname, id, dom->id());
+            dom->resize(dom->nComponents(), arr->size());
+            if (!header.hasKey("generator")) {
+                arr->meta() = legacyH5(arr, header);
+            }
+            arrs[dom->id()] = arr;
+        }
+        resize();
+        m_xlast_ts.clear();
+        for (auto dom : m_dom) {
+            dom->fromArray(*arrs[dom->id()], m_state->data() + dom->loc());
+        }
+        finalize();
+    } else if (extension == "yaml" || extension == "yml") {
+        AnyMap root = AnyMap::fromYamlFile(fname);
+        std::map<std::string, shared_ptr<SolutionArray>> arrs;
+        header = SolutionArray::readHeader(root, id);
+
+        for (auto dom : m_dom) {
+            auto arr = SolutionArray::create(dom->solution());
+            arr->readEntry(root, id, dom->id());
+            dom->resize(dom->nComponents(), arr->size());
+            arrs[dom->id()] = arr;
+        }
+        resize();
+        m_xlast_ts.clear();
+        for (auto dom : m_dom) {
+            dom->fromArray(*arrs[dom->id()], m_state->data() + dom->loc());
+        }
+        finalize();
+    } else {
+        throw CanteraError("Sim1D::restore",
+                           "Unknown file extension '{}'; supported extensions include "
+                           "'h5'/'hdf'/'hdf5' and 'yml'/'yaml'.", extension);
+    }
+    return header;
 }
 
 void Sim1D::setFlatProfile(size_t dom, size_t comp, doublereal v)
@@ -227,20 +341,34 @@ void Sim1D::setFlatProfile(size_t dom, size_t comp, doublereal v)
 
 void Sim1D::showSolution(ostream& s)
 {
-    for (size_t n = 0; n < nDomains(); n++) {
-        if (domain(n).domainType() != cEmptyType) {
-            domain(n).showSolution_s(s, &m_x[start(n)]);
-        }
-    }
+    warn_deprecated("Sim1D::showSolution",
+        "To be removed after Cantera 3.0; replaced by 'show'.");
+    show(s);
 }
 
 void Sim1D::showSolution()
 {
+    warn_deprecated("Sim1D::showSolution",
+        "To be removed after Cantera 3.0; replaced by 'show'.");
+    show();
+}
+
+void Sim1D::show(ostream& s)
+{
     for (size_t n = 0; n < nDomains(); n++) {
-        if (domain(n).domainType() != cEmptyType) {
+        if (domain(n).type() != "empty") {
+            domain(n).show(s, m_state->data() + start(n));
+        }
+    }
+}
+
+void Sim1D::show()
+{
+    for (size_t n = 0; n < nDomains(); n++) {
+        if (domain(n).type() != "empty") {
             writelog("\n\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> "+domain(n).id()
                      +" <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n\n");
-            domain(n).showSolution(&m_x[start(n)]);
+            domain(n).show(m_state->data() + start(n));
         }
     }
 }
@@ -251,7 +379,7 @@ void Sim1D::restoreTimeSteppingSolution()
         throw CanteraError("Sim1D::restoreTimeSteppingSolution",
                            "No successful time steps taken on this grid.");
     }
-    m_x = m_xlast_ts;
+    *m_state = m_xlast_ts;
 }
 
 void Sim1D::restoreSteadySolution()
@@ -260,7 +388,7 @@ void Sim1D::restoreSteadySolution()
         throw CanteraError("Sim1D::restoreSteadySolution",
                            "No successful steady state solution");
     }
-    m_x = m_xlast_ss;
+    *m_state = m_xlast_ss;
     for (size_t n = 0; n < nDomains(); n++) {
         vector_fp& z = m_grid_last_ss[n];
         domain(n).setupGrid(z.size(), z.data());
@@ -270,14 +398,14 @@ void Sim1D::restoreSteadySolution()
 void Sim1D::getInitialSoln()
 {
     for (size_t n = 0; n < nDomains(); n++) {
-        domain(n)._getInitialSoln(&m_x[start(n)]);
+        domain(n)._getInitialSoln(m_state->data() + start(n));
     }
 }
 
 void Sim1D::finalize()
 {
     for (size_t n = 0; n < nDomains(); n++) {
-        domain(n)._finalize(&m_x[start(n)]);
+        domain(n)._finalize(m_state->data() + start(n));
     }
 }
 
@@ -292,9 +420,9 @@ void Sim1D::setTimeStep(double stepsize, size_t n, const int* tsteps)
 
 int Sim1D::newtonSolve(int loglevel)
 {
-    int m = OneDim::solve(m_x.data(), m_xnew.data(), loglevel);
+    int m = OneDim::solve(m_state->data(), m_xnew.data(), loglevel);
     if (m >= 0) {
-        m_x = m_xnew;
+        *m_state = m_xnew;
         return 0;
     } else if (m > -10) {
         return -1;
@@ -366,9 +494,8 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                 if (loglevel > 0) {
                     writelog("Take {} timesteps   ", nsteps);
                 }
-                dt = timeStep(nsteps, dt, m_x.data(), m_xnew.data(),
-                              loglevel-1);
-                m_xlast_ts = m_x;
+                dt = timeStep(nsteps, dt, m_state->data(), m_xnew.data(), loglevel-1);
+                m_xlast_ts = *m_state;
                 if (loglevel > 6) {
                     save("debug_sim1d.yaml", "debug", "After timestepping");
                 }
@@ -379,7 +506,7 @@ void Sim1D::solve(int loglevel, bool refine_grid)
 
                 if (loglevel == 1) {
                     writelog(" {:10.4g} {:10.4g}\n", dt,
-                             log10(ssnorm(m_x.data(), m_xnew.data())));
+                             log10(ssnorm(m_state->data(), m_xnew.data())));
                 }
                 istep++;
                 if (istep >= m_steps.size()) {
@@ -394,7 +521,7 @@ void Sim1D::solve(int loglevel, bool refine_grid)
             writeline('.', 78, true, true);
         }
         if (loglevel > 2) {
-            showSolution();
+            show();
         }
 
         if (refine_grid) {
@@ -424,7 +551,7 @@ int Sim1D::refine(int loglevel)
     vector_fp znew, xnew;
     std::vector<size_t> dsize;
 
-    m_xlast_ss = m_x;
+    m_xlast_ss = *m_state;
     m_grid_last_ss.clear();
 
     for (size_t n = 0; n < nDomains(); n++) {
@@ -435,7 +562,8 @@ int Sim1D::refine(int loglevel)
         m_grid_last_ss.push_back(d.grid());
 
         // determine where new points are needed
-        ianalyze = r.analyze(d.grid().size(), d.grid().data(), &m_x[start(n)]);
+        ianalyze = r.analyze(d.grid().size(), d.grid().data(),
+                             m_state->data() + start(n));
         if (ianalyze < 0) {
             return ianalyze;
         }
@@ -493,12 +621,14 @@ int Sim1D::refine(int loglevel)
     for (size_t n = 0; n < nDomains(); n++) {
         Domain1D& d = domain(n);
         gridsize = dsize[n];
-        d.setupGrid(gridsize, &znew[gridstart]);
+        if (gridsize != 0) {
+            d.setupGrid(gridsize, &znew[gridstart]);
+        }
         gridstart += gridsize;
     }
 
     // Replace the current solution vector with the new one
-    m_x = xnew;
+    *m_state = xnew;
     resize();
     finalize();
     return np;
@@ -521,7 +651,7 @@ int Sim1D::setFixedTemperature(double t)
         StFlow* d_free = dynamic_cast<StFlow*>(&domain(n));
         size_t npnow = d.nPoints();
         size_t nstart = znew.size();
-        if (d_free && d_free->domainType() == cFreeFlow) {
+        if (d_free && !d_free->fixed_mdot()) {
             for (size_t m = 0; m < npnow - 1; m++) {
                 bool fixedpt = false;
                 double t1 = value(n, 2, m);
@@ -587,7 +717,7 @@ int Sim1D::setFixedTemperature(double t)
     }
 
     // Replace the current solution vector with the new one
-    m_x = xnew;
+    *m_state = xnew;
 
     resize();
     finalize();
@@ -599,7 +729,7 @@ double Sim1D::fixedTemperature()
     double t_fixed = std::numeric_limits<double>::quiet_NaN();
     for (size_t n = 0; n < nDomains(); n++) {
         StFlow* d = dynamic_cast<StFlow*>(&domain(n));
-        if (d && d->domainType() == cFreeFlow && d->m_tfixed > 0) {
+        if (d && !d->fixed_mdot() && d->m_tfixed > 0) {
             t_fixed = d->m_tfixed;
             break;
         }
@@ -612,7 +742,7 @@ double Sim1D::fixedTemperatureLocation()
     double z_fixed = std::numeric_limits<double>::quiet_NaN();
     for (size_t n = 0; n < nDomains(); n++) {
         StFlow* d = dynamic_cast<StFlow*>(&domain(n));
-        if (d && d->domainType() == cFreeFlow && d->m_tfixed > 0) {
+        if (d && !d->fixed_mdot() && d->m_tfixed > 0) {
             z_fixed = d->m_zfixed;
             break;
         }
@@ -684,7 +814,7 @@ doublereal Sim1D::jacobian(int i, int j)
 
 void Sim1D::evalSSJacobian()
 {
-    OneDim::evalSSJacobian(m_x.data(), m_xnew.data());
+    OneDim::evalSSJacobian(m_state->data(), m_xnew.data());
 }
 
 void Sim1D::solveAdjoint(const double* b, double* lambda)
@@ -714,7 +844,6 @@ void Sim1D::solveAdjoint(const double* b, double* lambda)
 void Sim1D::resize()
 {
     OneDim::resize();
-    m_x.resize(size(), 0.0);
     m_xnew.resize(size(), 0.0);
 }
 

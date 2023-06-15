@@ -20,18 +20,6 @@ using namespace std;
 namespace Cantera
 {
 
-MultiPhase::MultiPhase() :
-    m_temp(298.15),
-    m_press(OneBar),
-    m_nel(0),
-    m_nsp(0),
-    m_init(false),
-    m_eloc(npos),
-    m_Tmin(1.0),
-    m_Tmax(100000.0)
-{
-}
-
 void MultiPhase::addPhases(MultiPhase& mix)
 {
     for (size_t n = 0; n < mix.nPhases(); n++) {
@@ -818,7 +806,7 @@ void MultiPhase::uploadMoleFractionsFromPhases()
     size_t loc = 0;
     for (size_t ip = 0; ip < nPhases(); ip++) {
         ThermoPhase* p = m_phase[ip];
-        p->getMoleFractions(&m_moleFractions[loc]);
+        p->getMoleFractions(m_moleFractions.data() + loc);
         loc += p->nSpecies();
     }
     calcElemAbundances();
@@ -828,7 +816,7 @@ void MultiPhase::updatePhases() const
 {
     size_t loc = 0;
     for (size_t p = 0; p < nPhases(); p++) {
-        m_phase[p]->setState_TPX(m_temp, m_press, &m_moleFractions[loc]);
+        m_phase[p]->setState_TPX(m_temp, m_press, m_moleFractions.data() + loc);
         loc += m_phase[p]->nSpecies();
         m_temp_OK[p] = true;
         if (m_temp < m_phase[p]->minTemp() || m_temp > m_phase[p]->maxTemp()) {

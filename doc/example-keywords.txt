@@ -12,6 +12,7 @@ equilibrium
 extinction
 flame speed
 fuel cell
+heat transfer
 ignition delay
 input files
 internal combustion engine
@@ -26,7 +27,10 @@ plasma
 plotting
 plug flow reactor
 pollutant formation
+porous media
+preconditioner
 premixed flame
+radiative heat transfer
 reaction path analysis
 reactor network
 saving output
@@ -37,5 +41,6 @@ thermodynamic cycle
 thermodynamics
 transport
 tutorial
+units
 user-defined model
 well-stirred reactor

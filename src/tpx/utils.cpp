@@ -5,6 +5,7 @@
 
 #include "cantera/tpx/utils.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/global.h"
 
 #include "CarbonDioxide.h"
 #include "Heptane.h"
@@ -44,6 +45,8 @@ Substance* newSubstance(const std::string& name)
 
 Substance* GetSub(int isub)
 {
+    Cantera::warn_deprecated("tpx::GetSub", "To be removed after Cantera 3.0. "
+                             "Use tpx::newSubstance(string) instead.");
     if (isub == 0) {
         return new water;
     } else if (isub == 1) {

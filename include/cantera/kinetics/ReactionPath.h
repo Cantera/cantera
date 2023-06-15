@@ -26,24 +26,22 @@ class Path;
 class SpeciesNode
 {
 public:
-    /// Default constructor
-    SpeciesNode() : number(npos), value(0.0),
-        visible(false), m_in(0.0), m_out(0.0) {}
+    //! Default constructor
+    SpeciesNode() = default;
 
-    /// Destructor
-    virtual ~SpeciesNode() {}
+    //! Destructor
+    virtual ~SpeciesNode() = default;
 
     // public attributes
-    size_t number; ///< Species number
-    std::string name; ///< Label on graph
-    doublereal value; ///< May be used to set node appearance
-    bool visible; ///< Visible on graph;
+    size_t number = npos; //!< Species number
+    string name; //!< Label on graph
+    double value = 0.0; //!< May be used to set node appearance
+    bool visible = false; //!< Visible on graph;
 
-    /**
-     *  @name References.
-     * Return a reference to a path object connecting this node
-     *  to another node.
-     */
+    //! @name References
+    //!
+    //! Return a reference to a path object connecting this node
+    //! to another node.
     //! @{
     Path* path(int n) {
         return m_paths[n];
@@ -53,12 +51,12 @@ public:
     }
     //! @}
 
-    /// Total number of paths to or from this node
+    //! Total number of paths to or from this node
     int nPaths() const {
         return static_cast<int>(m_paths.size());
     }
 
-    /// add a path to or from this node
+    //! add a path to or from this node
     void addPath(Path* path);
 
     doublereal outflow() {
@@ -74,8 +72,8 @@ public:
     void printPaths();
 
 protected:
-    doublereal m_in;
-    doublereal m_out;
+    double m_in = 0.0;
+    double m_out = 0.0;
     std::vector<Path*> m_paths;
 };
 
@@ -90,7 +88,7 @@ public:
      */
     Path(SpeciesNode* begin, SpeciesNode* end);
 
-    /// Destructor
+    //! Destructor
     virtual ~Path() {}
 
     /**
@@ -100,7 +98,7 @@ public:
     void addReaction(size_t rxnNumber, doublereal value,
                      const std::string& label = "");
 
-    /// Upstream node.
+    //! Upstream node.
     const SpeciesNode* begin() const {
         return m_a;
     }
@@ -108,7 +106,7 @@ public:
         return m_a;
     }
 
-    /// Downstream node.
+    //! Downstream node.
     const SpeciesNode* end() const {
         return m_b;
     }
@@ -124,7 +122,7 @@ public:
         return (n == m_a ? m_b : (n == m_b ? m_a : 0));
     }
 
-    /// The total flow in this path
+    //! The total flow in this path
     doublereal flow() {
         return m_total;
     }
@@ -132,12 +130,12 @@ public:
         m_total = v;
     }
 
-    ///  Number of reactions contributing to this path
+    //!  Number of reactions contributing to this path
     int nReactions() {
         return static_cast<int>(m_rxn.size());
     }
 
-    ///  Map from reaction number to flow from that reaction in this path.
+    //!  Map from reaction number to flow from that reaction in this path.
     const rxn_path_map& reactionMap() {
         return m_rxn;
     }
@@ -152,7 +150,7 @@ protected:
     std::map<std::string, doublereal> m_label;
     SpeciesNode* m_a, *m_b;
     rxn_path_map m_rxn;
-    doublereal m_total;
+    double m_total = 0.0;
 };
 
 
@@ -162,29 +160,29 @@ protected:
 class ReactionPathDiagram
 {
 public:
-    ReactionPathDiagram();
+    ReactionPathDiagram() = default;
 
     /**
      * Destructor. Deletes all nodes and paths in the diagram.
      */
     virtual ~ReactionPathDiagram();
 
-    /// The largest one-way flow value in any path
+    //! The largest one-way flow value in any path
     doublereal maxFlow() {
         return m_flxmax;
     }
 
-    /// The net flow from node \c k1 to node \c k2
+    //! The net flow from node \c k1 to node \c k2
     doublereal netFlow(size_t k1, size_t k2) {
         return flow(k1, k2) - flow(k2, k1);
     }
 
-    /// The one-way flow from node \c k1 to node \c k2
+    //! The one-way flow from node \c k1 to node \c k2
     doublereal flow(size_t k1, size_t k2) {
         return (m_paths[k1][k2] ? m_paths[k1][k2]->flow() : 0.0);
     }
 
-    /// True if a node for species k exists
+    //! True if a node for species k exists
     bool hasNode(size_t k) {
         return (m_nodes[k] != 0);
     }
@@ -261,39 +259,48 @@ public:
     }
     // public attributes
 
-    std::string title;
-    std::string bold_color;
-    std::string normal_color;
-    std::string dashed_color;
-    std::string element;
-    std::string m_font;
-    doublereal threshold, bold_min, dashed_max, label_min;
-    doublereal x_size, y_size;
-    std::string name, dot_options;
-    flow_t flow_type;
-    doublereal scale;
-    doublereal arrow_width;
-    bool show_details;
-    doublereal arrow_hue;
+    string title;
+    string bold_color = "blue";
+    string normal_color = "steelblue";
+    string dashed_color = "gray";
+    string element;
+    string m_font = "Helvetica";
+    double threshold = 0.005;
+    double bold_min = 0.2;
+    double dashed_max = 0.0;
+    double label_min = 0.0;
+    double x_size = -1.0;
+    double y_size = -1.0;
+    string name = "reaction_paths";
+    string dot_options = "center=1;";
+    flow_t flow_type = NetFlow;
+    double scale = -1;
+    double arrow_width = -5.0;
+    bool show_details = false;
+    double arrow_hue = 0.6666;
 
 protected:
-    doublereal m_flxmax;
+    double m_flxmax = 0.0;
     std::map<size_t, std::map<size_t, Path*> > m_paths;
-    std::map<size_t, SpeciesNode*> m_nodes;
+
+    //! map of species index to SpeciesNode
+    map<size_t, SpeciesNode*> m_nodes;
     std::vector<Path*> m_pathlist;
     std::vector<std::string> m_include;
     std::vector<std::string> m_exclude;
     std::vector<size_t> m_speciesNumber;
-    std::map<size_t, int> m_rxns;
-    size_t m_local;
+
+    //! Indices of reactions that are included in the diagram
+    set<size_t> m_rxns;
+    size_t m_local = npos;
 };
 
 
 class ReactionPathBuilder
 {
 public:
-    ReactionPathBuilder() {}
-    virtual ~ReactionPathBuilder() {}
+    ReactionPathBuilder() = default;
+    virtual ~ReactionPathBuilder() = default;
 
     int init(std::ostream& logfile, Kinetics& s);
 

@@ -13,14 +13,13 @@ namespace Cantera
 {
 
 class Species;
-class XML_Node;
 
 //! Base class for transport data for a single species
 class TransportData
 {
 public:
-    TransportData() {}
-    virtual ~TransportData() {}
+    TransportData() = default;
+    virtual ~TransportData() = default;
 
     virtual void validate(const Species& species) {}
 
@@ -46,7 +45,7 @@ protected:
 class GasTransportData : public TransportData
 {
 public:
-    GasTransportData();
+    GasTransportData() = default;
 
     //! Construct a GasTransportData object using MKS units for all parameters.
     GasTransportData(const std::string& geometry, double diameter,
@@ -77,37 +76,31 @@ public:
     std::string geometry;
 
     //! The Lennard-Jones collision diameter [m]
-    double diameter;
+    double diameter = 0.0;
 
     //! The Lennard-Jones well depth [J]
-    double well_depth;
+    double well_depth = 0.0;
 
     //! The permanent dipole moment of the molecule [Coulomb-m]. Default 0.0.
-    double dipole;
+    double dipole = 0.0;
 
     //! The polarizability of the molecule [m^3]. Default 0.0.
-    double polarizability;
+    double polarizability = 0.0;
 
     //! The rotational relaxation number (the number of collisions it takes to
     //! equilibrate the rotational degrees of freedom with the temperature).
     //! Default 0.0.
-    double rotational_relaxation;
+    double rotational_relaxation = 0.0;
 
     //! Pitzer's acentric factor [dimensionless]. Default 0.0.
-    double acentric_factor;
+    double acentric_factor = 0.0;
 
     //! dispersion normalized by e^2. [m^5] Default 0.0.
-    double dispersion_coefficient;
+    double dispersion_coefficient = 0.0;
 
     //! quadrupole. Default 0.0.
-    double quadrupole_polarizability;
+    double quadrupole_polarizability = 0.0;
 };
-
-//! Create a new TransportData object from a 'transport' XML_Node.
-//!
-//! @deprecated The XML input format is deprecated and will be removed in
-//!     Cantera 3.0.
-shared_ptr<TransportData> newTransportData(const XML_Node& transport_node);
 
 //! Create a new TransportData object from an AnyMap specification
 unique_ptr<TransportData> newTransportData(const AnyMap& node);

@@ -43,9 +43,9 @@ class TimesConstant1;
 class Func1
 {
 public:
-    Func1();
+    Func1() = default;
 
-    virtual ~Func1() {}
+    virtual ~Func1() = default;
 
     Func1(const Func1& right);
 
@@ -63,7 +63,7 @@ public:
     //! Calls method eval to evaluate the function
     doublereal operator()(doublereal t) const;
 
-    /// Evaluate the function.
+    //! Evaluate the function.
     virtual doublereal eval(doublereal t) const;
 
     //! Creates a derivative to the current function
@@ -110,10 +110,10 @@ public:
     void setParent(Func1* p);
 
 protected:
-    doublereal m_c;
-    Func1* m_f1;
-    Func1* m_f2;
-    Func1* m_parent;
+    double m_c = 0.0;
+    Func1* m_f1 = nullptr;
+    Func1* m_f2 = nullptr;
+    Func1* m_parent = nullptr;
 };
 
 
@@ -133,8 +133,7 @@ Func1& newPlusConstFunction(Func1& f1, doublereal c);
 class Sin1 : public Func1
 {
 public:
-    Sin1(doublereal omega = 1.0) :
-        Func1() {
+    Sin1(double omega=1.0) {
         m_c = omega;
     }
 
@@ -176,8 +175,7 @@ public:
 class Cos1 : public Func1
 {
 public:
-    Cos1(doublereal omega = 1.0) :
-        Func1() {
+    Cos1(double omega=1.0) {
         m_c = omega;
     }
 
@@ -212,8 +210,7 @@ public:
 class Exp1 : public Func1
 {
 public:
-    Exp1(doublereal A = 1.0) :
-        Func1() {
+    Exp1(double A=1.0) {
         m_c = A;
     }
 
@@ -246,8 +243,7 @@ public:
 class Pow1 : public Func1
 {
 public:
-    Pow1(doublereal n) :
-        Func1() {
+    Pow1(double n) {
         m_c = n;
     }
 
@@ -287,7 +283,7 @@ public:
      * @param method Interpolation method ('linear' or 'previous')
      */
     Tabulated1(size_t n, const double* tvals, const double* fvals,
-               const std::string& method = "linear");
+               const string& method="linear");
 
     virtual std::string write(const std::string& arg) const;
     virtual int ID() const {
@@ -320,8 +316,7 @@ public:
     /*!
      * @param A   Constant
      */
-    Const1(double A) :
-        Func1() {
+    Const1(double A) {
         m_c = A;
     }
 
@@ -361,8 +356,7 @@ public:
 class Sum1 : public Func1
 {
 public:
-    Sum1(Func1& f1, Func1& f2) :
-        Func1() {
+    Sum1(Func1& f1, Func1& f2) {
         m_f1 = &f1;
         m_f2 = &f2;
         m_f1->setParent(this);
@@ -485,8 +479,7 @@ public:
 class Product1 : public Func1
 {
 public:
-    Product1(Func1& f1, Func1& f2) :
-        Func1() {
+    Product1(Func1& f1, Func1& f2) {
         m_f1 = &f1;
         m_f2 = &f2;
         m_f1->setParent(this);
@@ -548,8 +541,7 @@ public:
 class TimesConstant1 : public Func1
 {
 public:
-    TimesConstant1(Func1& f1, doublereal A) :
-        Func1() {
+    TimesConstant1(Func1& f1, double A) {
         m_f1 = &f1;
         m_c = A;
         m_f1->setParent(this);
@@ -623,8 +615,7 @@ public:
 class PlusConstant1 : public Func1
 {
 public:
-    PlusConstant1(Func1& f1, doublereal A) :
-        Func1() {
+    PlusConstant1(Func1& f1, double A) {
         m_f1 = &f1;
         m_c = A;
         m_f1->setParent(this);
@@ -680,8 +671,7 @@ public:
 class Ratio1 : public Func1
 {
 public:
-    Ratio1(Func1& f1, Func1& f2) :
-        Func1() {
+    Ratio1(Func1& f1, Func1& f2) {
         m_f1 = &f1;
         m_f2 = &f2;
         m_f1->setParent(this);
@@ -746,8 +736,7 @@ public:
 class Composite1 : public Func1
 {
 public:
-    Composite1(Func1& f1, Func1& f2) :
-        Func1() {
+    Composite1(Func1& f1, Func1& f2) {
         m_f1 = &f1;
         m_f2 = &f2;
         m_f1->setParent(this);
@@ -823,8 +812,7 @@ public:
 class Gaussian : public Func1
 {
 public:
-    Gaussian(double A, double t0, double fwhm) :
-        Func1() {
+    Gaussian(double A, double t0, double fwhm) {
         m_A = A;
         m_t0 = t0;
         m_tau = fwhm/(2.0*std::sqrt(std::log(2.0)));
@@ -868,8 +856,7 @@ protected:
 class Poly1 : public Func1
 {
 public:
-    Poly1(size_t n, const double* c) :
-        Func1() {
+    Poly1(size_t n, const double* c) {
         m_cpoly.resize(n+1);
         std::copy(c, c+m_cpoly.size(), m_cpoly.begin());
     }
@@ -919,9 +906,7 @@ protected:
 class Fourier1 : public Func1
 {
 public:
-    Fourier1(size_t n, double omega, double a0,
-             const double* a, const double* b) :
-        Func1() {
+    Fourier1(size_t n, double omega, double a0, const double* a, const double* b) {
         m_omega = omega;
         m_a0_2 = 0.5*a0;
         m_ccos.resize(n);
@@ -979,8 +964,7 @@ protected:
 class Arrhenius1 : public Func1
 {
 public:
-    Arrhenius1(size_t n, const double* c) :
-        Func1() {
+    Arrhenius1(size_t n, const double* c) {
         m_A.resize(n);
         m_b.resize(n);
         m_E.resize(n);
@@ -1032,14 +1016,12 @@ protected:
 class Periodic1 : public Func1
 {
 public:
-    Periodic1(Func1& f, doublereal T) :
-        Func1() {
+    Periodic1(Func1& f, double T) {
         m_func = &f;
         m_c = T;
     }
 
-    Periodic1(const Periodic1& b) :
-        Func1() {
+    Periodic1(const Periodic1& b) {
         *this = Periodic1::operator=(b);
     }
 

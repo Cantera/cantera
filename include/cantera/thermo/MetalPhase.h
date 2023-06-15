@@ -9,7 +9,6 @@
 #define CT_METALPHASE_H
 
 #include "ThermoPhase.h"
-#include "cantera/base/ctml.h"
 
 namespace Cantera
 {
@@ -27,7 +26,7 @@ public:
     // Overloaded methods of class ThermoPhase
 
     virtual std::string type() const {
-        return "Metal";
+        return "electron-cloud";
     }
 
     virtual bool isCompressible() const {
@@ -38,7 +37,7 @@ public:
         return 0.0;
     }
     virtual doublereal intEnergy_mole() const {
-        return 0.0;
+        return - pressure() * molarVolume();
     }
     virtual doublereal entropy_mole() const {
         return 0.0;
@@ -116,12 +115,6 @@ public:
     virtual void getParameters(AnyMap& phaseNode) const {
         ThermoPhase::getParameters(phaseNode);
         phaseNode["density"].setQuantity(density(), "kg/m^3");
-    }
-
-    virtual void setParametersFromXML(const XML_Node& eosdata) {
-        eosdata._require("model","Metal");
-        doublereal rho = getFloat(eosdata, "density", "density");
-        assignDensity(rho);
     }
 
 private:

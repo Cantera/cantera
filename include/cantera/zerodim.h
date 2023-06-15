@@ -6,6 +6,9 @@
 #ifndef CT_INCL_ZERODIM_H
 #define CT_INCL_ZERODIM_H
 
+// Cantera core
+#include "cantera/core.h"
+
 // reactor network
 #include "cantera/zeroD/ReactorNet.h"
 
@@ -16,6 +19,8 @@
 #include "cantera/zeroD/ConstPressureReactor.h"
 #include "cantera/zeroD/IdealGasReactor.h"
 #include "cantera/zeroD/IdealGasConstPressureReactor.h"
+#include "cantera/zeroD/IdealGasConstPressureMoleReactor.h"
+#include "cantera/zeroD/IdealGasMoleReactor.h"
 
 // flow devices
 #include "cantera/zeroD/flowControllers.h"

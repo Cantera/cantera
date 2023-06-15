@@ -48,7 +48,7 @@ namespace Cantera
 class NasaPoly2 : public SpeciesThermoInterpType
 {
 public:
-    NasaPoly2();
+    NasaPoly2() = default;
 
     //! Constructor with all input data
     /*!
@@ -169,7 +169,7 @@ public:
 
 protected:
     //! Midrange temperature
-    doublereal m_midT;
+    double m_midT = 0.0;
     //! NasaPoly1 object for the low temperature region.
     NasaPoly1 mnp_low;
     //! NasaPoly1 object for the high temperature region.

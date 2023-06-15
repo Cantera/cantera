@@ -32,8 +32,8 @@ public:
      */
     MultiTransport(ThermoPhase* thermo=0);
 
-    virtual std::string transportType() const {
-        return (m_mode == CK_Mode) ? "CK_Multi" : "Multi";
+    virtual std::string transportModel() const {
+        return (m_mode == CK_Mode) ? "multicomponent-CK" : "multicomponent";
     }
 
     //! Return the thermal diffusion coefficients (kg/m/s)
@@ -157,7 +157,6 @@ protected:
     void correctBinDiffCoeffs();
 
     //! Boolean indicating viscosity is up to date
-    bool m_abc_ok;
     bool m_l0000_ok;
     bool m_lmatrix_soln_ok;
 
@@ -188,7 +187,6 @@ protected:
     double pressure_ig();
 
     virtual void solveLMatrixEquation();
-    DenseMatrix incl;
     bool m_debug;
 };
 }

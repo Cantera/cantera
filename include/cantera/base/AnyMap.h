@@ -11,12 +11,8 @@
 #include "cantera/base/Units.h"
 
 #include <unordered_map>
-#include <functional>
-
-namespace boost
-{
-class any;
-}
+#include <filesystem>
+#include <any>
 
 namespace YAML
 {
@@ -32,8 +28,8 @@ namespace Cantera
 //! objects.
 class AnyBase {
 public:
-    AnyBase();
-    virtual ~AnyBase() {};
+    AnyBase() = default;
+    virtual ~AnyBase() = default;
 
     //! For values which are derived from an input file, set the line and column
     //! of this value in that file. Used for providing context for some error
@@ -47,11 +43,11 @@ public:
 protected:
     //! The line where this value occurs in the input file. Set to -1 for values
     //! that weren't created from an input file.
-    int m_line;
+    int m_line = -1;
 
     //! If m_line >= 0, the column where this value occurs in the input file.
     //! If m_line == -1, a value used for determining output ordering
-    int m_column;
+    int m_column = 0;
 
     //! Metadata relevant to an entire AnyMap tree, such as information about
     // the input file used to create it
@@ -85,10 +81,6 @@ class AnyValue : public AnyBase
 public:
     AnyValue();
     ~AnyValue();
-    AnyValue(AnyValue const& other);
-    AnyValue(AnyValue&& other);
-    AnyValue& operator=(AnyValue const& other);
-    AnyValue& operator=(AnyValue&& other);
 
     bool operator==(const AnyValue& other) const;
     bool operator!=(const AnyValue& other) const;
@@ -128,9 +120,37 @@ public:
     template<class T>
     bool is() const;
 
+    //! Returns `true` if the held value is a vector of the specified type, such as
+    //! `vector<double>`.
+    //! @since  New in Cantera 3.0.
+    template<class T>
+    bool isVector() const;
+
+    //! Returns `true` if the held value is a matrix of the specified type and a
+    //! consistent number of columns, such as `vector<vector<double>>`. If the
+    //! number of columns is provided, a match is required.
+    //! @since  New in Cantera 3.0.
+    template<class T>
+    bool isMatrix(size_t cols=npos) const;
+
     //! Returns `true` if the held value is a scalar type (such as `double`, `long
     //! int`, `string`, or `bool`).
     bool isScalar() const;
+
+    //! Returns size of the held vector.
+    //! If not a vector or the type is not supported npos is returned.
+    //! Types considered include `vector<double>`, `vector<long int>`, `vector<string>`,
+    //! and `vector<bool`.
+    //! @since  New in Cantera 3.0.
+    size_t vectorSize() const;
+
+    //! Returns rows and columns of a matrix.
+    //! If the number of columns is not consistent, the number of columns is set to
+    //! npos; if the type is not supported, a npos pair is returned.
+    //! Types considered include `vector<vector<double>>`, `vector<vector<long int>>`,
+    //! `vector<vector<string>>` and `vector<vector<bool>>`.
+    //! @since  New in Cantera 3.0.
+    pair<size_t, size_t> matrixShape() const;
 
     explicit AnyValue(const std::string& value);
     explicit AnyValue(const char* value);
@@ -261,10 +281,10 @@ public:
     //! Return values used to determine the sort order when outputting to YAML
     std::pair <int, int> order() const;
 
-    //! @see AnyMap::applyUnits(const UnitSystem&)
+    //! See AnyMap::applyUnits()
     void applyUnits(shared_ptr<UnitSystem>& units);
 
-    //! @see AnyMap::setFlowStyle
+    //! See AnyMap::setFlowStyle()
     void setFlowStyle(bool flow=true);
 
 private:
@@ -275,24 +295,24 @@ private:
     std::string m_key;
 
     //! The held value
-    std::unique_ptr<boost::any> m_value;
+    std::any m_value;
 
-    typedef bool (*Comparer)(const boost::any&, const boost::any&);
+    typedef bool (*Comparer)(const std::any&, const std::any&);
 
     //! Equality comparison function used when *lhs* is of type *T*
     template <typename T>
-    static bool eq_comparer(const boost::any& lhs, const boost::any& rhs);
+    static bool eq_comparer(const std::any& lhs, const std::any& rhs);
 
     //! Helper function for comparing vectors of different (but comparable)
     //! types, for example `vector<double>` and `vector<long int>`
     template<class T, class U>
-    static bool vector_eq(const boost::any& lhs, const boost::any& rhs);
+    static bool vector_eq(const std::any& lhs, const std::any& rhs);
 
     //! Helper function for comparing nested vectors of different (but
     //! comparable) types, for example `vector<vector<double>>` and
     //! `vector<vector<long int>>`
     template<class T, class U>
-    static bool vector2_eq(const boost::any& lhs, const boost::any& rhs);
+    static bool vector2_eq(const std::any& lhs, const std::any& rhs);
 
     mutable Comparer m_equals;
 
@@ -447,6 +467,10 @@ public:
     //! messages, for example
     std::string keys_str() const;
 
+    //! Return an unordered set of keys
+    //! @since  New in Cantera 3.0.
+    std::set<std::string> keys() const;
+
     //! Set a metadata value that applies to this AnyMap and its children.
     //! Mainly for internal use in reading or writing from files.
     void setMetadata(const std::string& key, const AnyValue& value);
@@ -597,6 +621,9 @@ public:
     //! Return the default units that should be used to convert stored values
     const UnitSystem& units() const { return *m_units; }
 
+    //! @copydoc units()
+    shared_ptr<UnitSystem> unitsShared() const { return m_units; }
+
     //! Use the supplied UnitSystem to set the default units, and recursively
     //! process overrides from nodes named `units`.
     /*!
@@ -615,7 +642,7 @@ public:
      */
     void applyUnits();
 
-    //! @see applyUnits(const UnitSystem&)
+    //! See applyUnits()
     void applyUnits(shared_ptr<UnitSystem>& units);
 
     //! Set the unit system for this AnyMap. The applyUnits() method should be
@@ -671,7 +698,8 @@ private:
     //! Cache for previously-parsed input (YAML) files. The key is the full path
     //! to the file, and the second element of the value is the last-modified
     //! time for the file, which is used to enable change detection.
-    static std::unordered_map<std::string, std::pair<AnyMap, int>> s_cache;
+    static std::unordered_map<string,
+                              pair<AnyMap, std::filesystem::file_time_type>> s_cache;
 
     //! Information about fields that should appear first when outputting to
     //! YAML. Keys in this map are matched to `__type__` keys in AnyMap
@@ -709,8 +737,9 @@ public:
                    const std::string& message, const Args&... args)
         : CanteraError(
             procedure,
-            formatError(fmt::format(message, args...),
-                        node.m_line, node.m_column, node.m_metadata))
+            formatError(
+                (sizeof...(args) == 0) ? message : fmt::format(message, args...),
+                node.m_line, node.m_column, node.m_metadata))
         {
         }
 
@@ -723,12 +752,12 @@ public:
                    const Args&... args)
         : CanteraError(
             procedure,
-            formatError2(fmt::format(message, args...),
-                         node1.m_line, node1.m_column, node1.m_metadata,
-                         node2.m_line, node2.m_column, node2.m_metadata))
+            formatError2(
+                (sizeof...(args) == 0) ? message : fmt::format(message, args...),
+                node1.m_line, node1.m_column, node1.m_metadata,
+                node2.m_line, node2.m_column, node2.m_metadata))
         {
         }
-
 
     virtual std::string getClass() const {
         return "InputFileError";
@@ -748,8 +777,6 @@ void warn_deprecated(const std::string& source, const AnyBase& node,
 
 }
 
-#ifndef CANTERA_API_NO_BOOST
 #include "cantera/base/AnyMap.inl.h"
-#endif
 
 #endif

@@ -57,10 +57,10 @@ class MixTransport : public GasTransport
 {
 public:
     //! Default constructor.
-    MixTransport();
+    MixTransport() = default;
 
-    virtual std::string transportType() const {
-        return (m_mode == CK_Mode) ? "CK_Mix" : "Mix";
+    virtual std::string transportModel() const {
+        return (m_mode == CK_Mode) ? "mixture-averaged-CK" : "mixture-averaged";
     }
 
     //! Return the thermal diffusion coefficients
@@ -171,13 +171,13 @@ protected:
     /*!
      *  Units = W /m /K
      */
-    doublereal m_lambda;
+    double m_lambda = 0.0;
 
     //! Update boolean for the species thermal conductivities
-    bool m_spcond_ok;
+    bool m_spcond_ok = false;
 
     //! Update boolean for the mixture rule for the mixture thermal conductivity
-    bool m_condmix_ok;
+    bool m_condmix_ok = false;
 };
 }
 #endif

@@ -12,21 +12,12 @@
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/base/utilities.h"
 
-using namespace std;
-
 namespace Cantera
 {
 
-IdealGasPhase::IdealGasPhase(const std::string& inputFile, const std::string& id_) :
-    m_p0(-1.0)
+IdealGasPhase::IdealGasPhase(const string& inputFile, const string& id_)
 {
     initThermoFile(inputFile, id_);
-}
-
-IdealGasPhase::IdealGasPhase(XML_Node& phaseRef, const std::string& id_) :
-    m_p0(-1.0)
-{
-    importPhase(phaseRef, this);
 }
 
 // Molar Thermodynamic Properties of the Solution ------------------
@@ -46,6 +37,12 @@ doublereal IdealGasPhase::cv_mole() const
     return cp_mole() - GasConstant;
 }
 
+double IdealGasPhase::soundSpeed() const {
+    return sqrt(
+        cp_mole() / cv_mole() * GasConstant / meanMolecularWeight() * temperature()
+    );
+}
+
 doublereal IdealGasPhase::standardConcentration(size_t k) const
 {
     return pressure() / RT();
@@ -60,8 +57,7 @@ void IdealGasPhase::getActivityCoefficients(doublereal* ac) const
 
 void IdealGasPhase::getStandardChemPotentials(doublereal* muStar) const
 {
-    const vector_fp& gibbsrt = gibbs_RT_ref();
-    scale(gibbsrt.begin(), gibbsrt.end(), muStar, RT());
+    getGibbs_ref(muStar);
     double tmp = log(pressure() / refPressure()) * RT();
     for (size_t k = 0; k < m_kk; k++) {
         muStar[k] += tmp; // add RT*ln(P/P_0)
@@ -158,10 +154,7 @@ void IdealGasPhase::getPureGibbs(doublereal* gpure) const
 
 void IdealGasPhase::getIntEnergy_RT(doublereal* urt) const
 {
-    const vector_fp& _h = enthalpy_RT_ref();
-    for (size_t k = 0; k < m_kk; k++) {
-        urt[k] = _h[k] - 1.0;
-    }
+    getIntEnergy_RT_ref(urt);
 }
 
 void IdealGasPhase::getCp_R(doublereal* cpr) const
@@ -267,7 +260,8 @@ void IdealGasPhase::setToEquilState(const doublereal* mu_RT)
         pres += m_pp[k];
     }
     // set state
-    setState_PX(pres, &m_pp[0]);
+    setMoleFractions(m_pp.data());
+    setPressure(pres);
 }
 
 void IdealGasPhase::updateThermo() const

@@ -1,0 +1,15 @@
+extensions:
+- type: python
+  name: user_ext
+
+phases:
+- name: gas
+  thermo: ideal-gas
+  species: [{h2o2.yaml/species: all}]
+  kinetics: gas
+  state: {T: 300.0, P: 1 atm}
+
+reactions:
+- equation: H + O2 = HO2
+  type: square-rate
+  A: 3.14

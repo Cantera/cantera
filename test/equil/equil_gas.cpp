@@ -25,11 +25,11 @@ public:
         AnyMap phase = AnyMap::fromYamlString(
             "{name: gas, thermo: ideal-gas, elements: [" + elements + "], "
             " species: [{gri30.yaml/species: [CH, C2H2]}]}");
-        gas = newPhase(phase);
+        gas = newThermo(phase);
         gas->setState_TPX(1000, 1e5, "C2H2:0.9, CH:0.1");
     }
 
-    unique_ptr<ThermoPhase> gas;
+    shared_ptr<ThermoPhase> gas;
 };
 
 TEST_F(OverconstrainedEquil, ChemEquil)
@@ -315,6 +315,7 @@ int main(int argc, char** argv)
     printf("Running main() from equil_gas.cpp\n");
     testing::InitGoogleTest(&argc, argv);
     make_deprecation_warnings_fatal();
+    printStackTraceOnSegfault();
     int result = RUN_ALL_TESTS();
     appdelete();
     return result;

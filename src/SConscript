@@ -1,4 +1,6 @@
 from buildutils import *
+from pathlib import Path
+import re
 
 Import('env', 'build', 'install', 'libraryTargets')
 
@@ -38,8 +40,10 @@ libs = [('base', ['cpp'], baseSetup),
         ]
 
 localenv = env.Clone()
-localenv.Prepend(CPPPATH=[Dir('#include'), Dir('#include/cantera/ext'), Dir('.')])
+localenv.Prepend(CPPPATH=[Dir('#include'), Dir('.')])
+add_system_include(localenv, Dir('#include/cantera/ext'), 'prepend')
 localenv.Append(CCFLAGS=env['warning_flags'])
+indicatorEnv = localenv.Clone()  # Get this before any of the PCH complications
 
 if env['CC'] == 'cl' and env['debug']:
     env['use_pch'] = False # PCH doesn't work with per-file PDB
@@ -70,9 +74,32 @@ for subdir, extensions, setup in libs:
         env2.Requires(objects, pch)
     libraryTargets.extend(objects)
 
+# Handling of extensions written in Python
+if env["python_package"] == "full":
+    pyenv = setup_python_env(localenv.Clone())
+    pyenv['PCH'] = ''  # ignore precompiled header here
+
+    if env["OS"] == "Windows":
+        escaped_home = '\\"' + pyenv["py_base"].replace("\\", "\\\\") + '\\"'
+        pyenv.Append(CPPDEFINES={"CT_PYTHONHOME": escaped_home})
+        # Workaround for a problem with Boost, Python 3.8 and MSVC
+        pyenv.Append(CPPDEFINES={"HAVE_SNPRINTF": None})
+
+    pyenv.Append(LIBS=pyenv["py_libs"], LIBPATH=pyenv["py_libpath"])
+    shim = pyenv.SharedObject("extensions/pythonShim.cpp")
+    pylibname = f"../lib/cantera_python{pyenv['py_version_short'].replace('.', '_')}"
+    if pyenv["versioned_shared_library"]:
+        lib = build(pyenv.SharedLibrary(pylibname, shim, SPAWN=get_spawn(pyenv),
+                                        SHLIBVERSION=pyenv["cantera_pure_version"]))
+        install(pyenv.InstallVersionedLib, "$inst_libdir", lib)
+    else:
+        lib = build(pyenv.SharedLibrary(pylibname, shim, SPAWN=get_spawn(pyenv)))
+        install("$inst_libdir", lib)
+
 
 # build the Cantera static library
-lib = build(localenv.StaticLibrary('../lib/cantera', libraryTargets,
+staticIndicator = indicatorEnv.SharedObject('extensions/canteraStatic.cpp')
+lib = build(localenv.StaticLibrary('../lib/cantera', libraryTargets + staticIndicator,
                                    SPAWN=get_spawn(localenv)))
 localenv.Depends(lib, localenv['config_h_target'])
 install('$inst_libdir', lib)
@@ -81,6 +108,45 @@ env['cantera_staticlib'] = lib
 localenv.Append(LIBS=localenv['external_libs'],
                 LIBPATH=localenv['sundials_libdir'] + localenv['blas_lapack_dir'])
 
+def create_def_file(target, source, env):
+    # Adapted from https://stackoverflow.com/a/58958294
+    startPoint = False
+    # Avoid exporting some unnecessary symbols
+    exclusions = [
+        lambda name: name.startswith(('??_G', '??_E')), # deleting destructors; generate warning LNK4102
+        lambda name: name.startswith(('??_C', '__real@', '__xmm')), # various constants
+        lambda name: name.startswith(('??$forward', '??$addressof', '??$construct', '??$destroy')),
+        lambda name: name.startswith(('SUN', 'N_V', 'CV', 'cv', 'IDA', 'ida')), # Sundials
+        lambda name: '<lambda_' in name, # lambdas
+        lambda name: '@boost@' in name,
+        lambda name: ('@Eigen@' in name or '@YAML@' in name) and 'Cantera' not in name,
+        lambda name: '$vector@' in name and 'Cantera' not in name,
+        lambda name: 'char_traits' in name and 'Cantera' not in name and 'fmt' not in name,
+        lambda name: '_Tree' in name or '$_Hash' in name, # standard library internals
+        lambda name: re.match(r'[\?$]+_[A-Z][a-z_]+@', name), # standard library methods
+    ]
+
+    func_count = 0
+    include_count = 0
+    with open(target[0].abspath, 'w') as outfile, open(source[0].abspath, 'r') as infile:
+        outfile.write('EXPORTS\n')
+
+        for l in infile:
+            l_str = l.strip()
+            if startPoint and l_str == 'Summary': # end point
+                break
+            if not startPoint and "public symbols" in l_str:
+                startPoint = True
+                continue
+            func_count += 1
+            if startPoint and l_str:
+                funcName = l_str.split(' ')[-1]
+                if not any(test(funcName) for test in exclusions):
+                    include_count += 1
+                    outfile.write("    " + funcName + "\n")
+
+    logger.info(f"Exported {include_count} out of {func_count} functions in .def file")
+
 # Build the Cantera shared library
 if localenv['layout'] != 'debian':
     if localenv['renamed_shared_libraries']:
@@ -88,19 +154,31 @@ if localenv['layout'] != 'debian':
     else:
         sharedName = '../lib/cantera'
 
+    sharedIndicator = indicatorEnv.SharedObject('extensions/canteraShared.cpp')
+
+    if env['CC'] == 'cl':
+        # For MSVC, use the static library to create a .def file listing all
+        # symbols to export in the shared library.
+        dump = localenv.Command('cantera.dump', lib,
+                                'dumpbin /LINKERMEMBER:1 $SOURCE /OUT:$TARGET')
+        def_file = localenv.Command('cantera_shared.def', dump, create_def_file)
+        localenv.Append(LINKFLAGS=['/DEF:build/src/cantera_shared.def'])
+
     if localenv['versioned_shared_library']:
-        lib = build(localenv.SharedLibrary(sharedName, libraryTargets,
+        lib = build(localenv.SharedLibrary(sharedName, libraryTargets + sharedIndicator,
                                            SPAWN=get_spawn(localenv),
                                            SHLIBVERSION=localenv['cantera_pure_version']))
         install(localenv.InstallVersionedLib, '$inst_libdir', lib)
     else:
-        lib = build(localenv.SharedLibrary(sharedName, libraryTargets,
+        lib = build(localenv.SharedLibrary(sharedName, libraryTargets + sharedIndicator,
                                            SPAWN=get_spawn(localenv)))
         install('$inst_libdir', lib)
 
     if env["OS"] == "Darwin":
         localenv.AddPostAction(lib,
             Action(f"install_name_tool -id @rpath/{lib[0].name} {lib[0].get_abspath()}"))
+    elif env["CC"] == "cl":
+        env.Depends(lib, def_file)
 
     env['cantera_shlib'] = lib
     localenv.Depends(lib, localenv['config_h_target'])

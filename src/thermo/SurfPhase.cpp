@@ -14,43 +14,15 @@
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/Species.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/base/ctml.h"
 #include "cantera/base/utilities.h"
-
-using namespace std;
 
 namespace Cantera
 {
-SurfPhase::SurfPhase(doublereal n0):
-    m_press(OneAtm)
-{
-    // @todo After Cantera 2.6, this constructor can be deleted and a
-    // default value of "" can be added to for the infile argument of
-    // the other constructor to make this class default constructible.
-    if (n0 != -1.0) {
-        warn_deprecated("SurfPhase(double)", "The 'n0' argument to the "
-            "SurfPhase constructor is deprecated and will be removed after "
-            "Cantera 2.6. Use the 'setSiteDensity' method instead.");
-    } else {
-        n0 = 1.0;
-    }
-    setSiteDensity(n0);
-    setNDim(2);
-}
 
-SurfPhase::SurfPhase(const std::string& infile, const std::string& id_) :
-    m_n0(1.0),
-    m_press(OneAtm)
+SurfPhase::SurfPhase(const string& infile, const string& id_)
 {
     setNDim(2);
     initThermoFile(infile, id_);
-}
-
-SurfPhase::SurfPhase(XML_Node& xmlphase) :
-    m_n0(1.0),
-    m_press(OneAtm)
-{
-    importPhase(xmlphase, this);
 }
 
 doublereal SurfPhase::enthalpy_mole() const
@@ -100,7 +72,9 @@ void SurfPhase::getPartialMolarEnthalpies(doublereal* hbar) const
 void SurfPhase::getPartialMolarEntropies(doublereal* sbar) const
 {
     getEntropy_R(sbar);
+    getActivityConcentrations(m_work.data());
     for (size_t k = 0; k < m_kk; k++) {
+        sbar[k] -= log(std::max(m_work[k], SmallNumber)) - logStandardConc(k);
         sbar[k] *= GasConstant;
     }
 }
@@ -132,7 +106,7 @@ void SurfPhase::getChemPotentials(doublereal* mu) const
     copy(m_mu0.begin(), m_mu0.end(), mu);
     getActivityConcentrations(m_work.data());
     for (size_t k = 0; k < m_kk; k++) {
-        mu[k] += RT() * (log(m_work[k]) - logStandardConc(k));
+        mu[k] += RT() * (log(std::max(m_work[k], SmallNumber)) - logStandardConc(k));
     }
 }
 
@@ -149,17 +123,6 @@ doublereal SurfPhase::standardConcentration(size_t k) const
 doublereal SurfPhase::logStandardConc(size_t k) const
 {
     return m_logn0 - m_logsize[k];
-}
-
-void SurfPhase::setParameters(int n, doublereal* const c)
-{
-    warn_deprecated("SurfPhase::setParamters(int, double*)",
-        "To be removed after Cantera 2.6.");
-    if (n != 1) {
-        throw CanteraError("SurfPhase::setParameters",
-                           "Bad value for number of parameter");
-    }
-    setSiteDensity(c[0]);
 }
 
 void SurfPhase::getPureGibbs(doublereal* g) const
@@ -194,9 +157,8 @@ void SurfPhase::getCp_R(doublereal* cpr) const
 
 void SurfPhase::getStandardVolumes(doublereal* vol) const
 {
-    _updateThermo();
     for (size_t k = 0; k < m_kk; k++) {
-        vol[k] = 1.0/standardConcentration(k);
+        vol[k] = 0.0;
     }
 }
 
@@ -239,6 +201,14 @@ bool SurfPhase::addSpecies(shared_ptr<Species> spec)
     return added;
 }
 
+void SurfPhase::setMolarDensity(const double vm) {
+    warn_deprecated("SurfPhase::setMolarDensity", "To be removed after Cantera 3.0");
+    if (vm != 0.0) {
+        throw CanteraError("SurfPhase::setMolarDensity",
+                            "The volume of an interface is zero");
+    }
+}
+
 void SurfPhase::setSiteDensity(doublereal n0)
 {
     if (n0 <= 0.0) {
@@ -246,6 +216,7 @@ void SurfPhase::setSiteDensity(doublereal n0)
                            "Site density must be positive. Got {}", n0);
     }
     m_n0 = n0;
+    assignDensity(n0 * meanMolecularWeight());
     m_logn0 = log(m_n0);
 }
 
@@ -253,32 +224,47 @@ void SurfPhase::setCoverages(const doublereal* theta)
 {
     double sum = 0.0;
     for (size_t k = 0; k < m_kk; k++) {
-        sum += theta[k];
+        sum += theta[k] / size(k);
     }
     if (sum <= 0.0) {
         throw CanteraError("SurfPhase::setCoverages",
                            "Sum of Coverage fractions is zero or negative");
     }
     for (size_t k = 0; k < m_kk; k++) {
-        m_work[k] = m_n0*theta[k]/(sum*size(k));
+        m_work[k] = theta[k] / (sum * size(k));
     }
-    // Call the Phase:: class function setConcentrations.
-    setConcentrations(m_work.data());
+    setMoleFractions(m_work.data());
 }
 
 void SurfPhase::setCoveragesNoNorm(const doublereal* theta)
 {
+    double sum = 0.0;
+    double sum2 = 0.0;
     for (size_t k = 0; k < m_kk; k++) {
-        m_work[k] = m_n0*theta[k]/size(k);
+        sum += theta[k] / size(k);
+        sum2 += theta[k];
     }
-    setConcentrationsNoNorm(m_work.data());
+    if (sum <= 0.0) {
+        throw CanteraError("SurfPhase::setCoverages",
+                           "Sum of Coverage fractions is zero or negative");
+    }
+    for (size_t k = 0; k < m_kk; k++) {
+        m_work[k] = theta[k] * sum2 / (sum * size(k));
+    }
+    setMoleFractions_NoNorm(m_work.data());
 }
 
 void SurfPhase::getCoverages(doublereal* theta) const
 {
-    getConcentrations(theta);
+    double sum_X = 0.0;
+    double sum_X_s = 0.0;
+    getMoleFractions(theta);
     for (size_t k = 0; k < m_kk; k++) {
-        theta[k] *= size(k)/m_n0;
+        sum_X += theta[k];
+        sum_X_s += theta[k] * size(k);
+    }
+    for (size_t k = 0; k < m_kk; k++) {
+        theta[k] *= size(k) * sum_X / sum_X_s;
     }
 }
 
@@ -316,6 +302,12 @@ void SurfPhase::setState(const AnyMap& state) {
     ThermoPhase::setState(state);
 }
 
+void SurfPhase::compositionChanged()
+{
+    ThermoPhase::compositionChanged();
+    assignDensity(m_n0 * meanMolecularWeight());
+}
+
 void SurfPhase::_updateThermo(bool force) const
 {
     doublereal tnow = temperature();
@@ -330,13 +322,6 @@ void SurfPhase::_updateThermo(bool force) const
         }
         m_tlast = tnow;
     }
-}
-
-void SurfPhase::setParametersFromXML(const XML_Node& eosdata)
-{
-    eosdata._require("model","Surface");
-    doublereal n = getFloat(eosdata, "site_density", "toSI");
-    setSiteDensity(n);
 }
 
 void SurfPhase::initThermo()
@@ -355,43 +340,10 @@ void SurfPhase::getParameters(AnyMap& phaseNode) const
         m_n0, Units(1.0, 0, -static_cast<double>(m_ndim), 0, 0, 0, 1));
 }
 
-void SurfPhase::setStateFromXML(const XML_Node& state)
-{
-    double t;
-    if (getOptionalFloat(state, "temperature", t, "temperature")) {
-        setTemperature(t);
-    }
-
-    if (state.hasChild("coverages")) {
-        string comp = getChildValue(state,"coverages");
-        setCoveragesByName(comp);
-    }
-}
-
-EdgePhase::EdgePhase(doublereal n0)
-{
-    if (n0 != -1.0) {
-        warn_deprecated("EdgePhase(double)", "The 'n0' argument to the "
-            "EdgePhase constructor is deprecated and will be removed after "
-            "Cantera 2.6. Use the 'setSiteDensity' method instead.");
-    } else {
-        n0 = 1.0;
-    }
-    setSiteDensity(n0);
-    setNDim(1);
-}
-
 EdgePhase::EdgePhase(const std::string& infile, const std::string& id_)
 {
     setNDim(1);
     initThermoFile(infile, id_);
-}
-
-void EdgePhase::setParametersFromXML(const XML_Node& eosdata)
-{
-    eosdata._require("model","Edge");
-    doublereal n = getFloat(eosdata, "site_density", "toSI");
-    setSiteDensity(n);
 }
 
 }

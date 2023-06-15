@@ -12,13 +12,12 @@
 
 // Cantera includes
 #include "cantera/kinetics/KineticsFactory.h"
+#include "cantera/kinetics/Reaction.h"
 #include "cantera/transport/TransportFactory.h"
 #include "cantera/thermo/ThermoFactory.h"
-#include "cantera/base/ctml.h"
 #include "cantera/base/NoExitLogger.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/kinetics/importKinetics.h"
-#include "clib/Cabinet.h"
+#include "clib/clib_utils.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
 
 #include "cantera/clib/clib_defs.h"
@@ -26,19 +25,17 @@
 
 using namespace Cantera;
 
-typedef Cabinet<XML_Node, false> XmlCabinet;
-typedef Cabinet<ThermoPhase> ThermoCabinet;
-typedef Cabinet<Kinetics> KineticsCabinet;
-typedef Cabinet<Transport> TransportCabinet;
+typedef SharedCabinet<ThermoPhase> ThermoCabinet;
+typedef SharedCabinet<Kinetics> KineticsCabinet;
+typedef SharedCabinet<Transport> TransportCabinet;
 
 typedef integer status_t;
 
-namespace {
+template<> ThermoCabinet* ThermoCabinet::s_storage; // defined in ct.cpp
+template<> KineticsCabinet* KineticsCabinet::s_storage; // defined in ct.cpp
+template<> TransportCabinet* TransportCabinet::s_storage; // defined in ct.cpp
 
-XML_Node* _xml(const integer* n)
-{
-    return &XmlCabinet::item(*n);
-}
+namespace {
 
 ThermoPhase* _fph(const integer* n)
 {
@@ -53,6 +50,11 @@ static Kinetics* _fkin(const integer* n)
 ThermoPhase* _fth(const integer* n)
 {
     return &ThermoCabinet::item(*n);
+}
+
+shared_ptr<ThermoPhase> _fthermo(const integer* n)
+{
+    return ThermoCabinet::at(*n);
 }
 
 Transport* _ftrans(const integer* n)
@@ -366,19 +368,8 @@ extern "C" {
     integer th_newfromfile_(char* filename, char* phasename, ftnlen lenf, ftnlen lenp)
     {
         try {
-            ThermoPhase* th = newPhase(f2string(filename, lenf),
-                                    f2string(phasename, lenp));
-            return ThermoCabinet::add(th);
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    integer newthermofromxml_(integer* mxml)
-    {
-        try {
-            XML_Node* x = _xml(mxml);
-            ThermoPhase* th = newPhase(*x);
+            auto th = newThermo(f2string(filename, lenf),
+                                f2string(phasename, lenp));
             return ThermoCabinet::add(th);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -665,7 +656,7 @@ extern "C" {
 
     status_t th_getpartialmolarenthalpies_(const integer* n, double* hbar) {
       try {
-        thermo_t* thrm = _fth(n);
+        ThermoPhase* thrm = _fth(n);
         thrm->getPartialMolarEnthalpies(hbar);
       } catch(...) {
         return handleAllExceptions(-1, ERR);
@@ -675,7 +666,7 @@ extern "C" {
 
     status_t th_getpartialmolarcp_(const integer* n, double* cpbar) {
       try {
-        thermo_t* thrm = _fth(n);
+        ThermoPhase* thrm = _fth(n);
         thrm->getPartialMolarCp(cpbar);
       } catch(...) {
         return handleAllExceptions(-1, ERR);
@@ -691,54 +682,23 @@ extern "C" {
                              const integer* neighbor4, ftnlen nlen, ftnlen plen)
     {
         try {
-            std::vector<ThermoPhase*> phases;
-            phases.push_back(_fth(reactingPhase));
+            vector<shared_ptr<ThermoPhase>> phases;
+            phases.push_back(_fthermo(reactingPhase));
             if (*neighbor1 >= 0) {
-                phases.push_back(_fth(neighbor1));
+                phases.push_back(_fthermo(neighbor1));
                 if (*neighbor2 >= 0) {
-                    phases.push_back(_fth(neighbor2));
+                    phases.push_back(_fthermo(neighbor2));
                     if (*neighbor3 >= 0) {
-                        phases.push_back(_fth(neighbor3));
+                        phases.push_back(_fthermo(neighbor3));
                         if (*neighbor4 >= 0) {
-                            phases.push_back(_fth(neighbor4));
+                            phases.push_back(_fthermo(neighbor4));
                         }
                     }
                 }
             }
             auto kin = newKinetics(phases, f2string(filename, nlen),
                                    f2string(phasename, plen));
-            return KineticsCabinet::add(kin.release());
-        } catch (...) {
-            return handleAllExceptions(999, ERR);
-        }
-    }
-
-    integer newkineticsfromxml_(integer* mxml, integer* iphase,
-                                const integer* neighbor1, const integer* neighbor2, const integer* neighbor3,
-                                const integer* neighbor4)
-    {
-        try {
-            XML_Node* x = _xml(mxml);
-            std::vector<ThermoPhase*> phases;
-            phases.push_back(_fth(iphase));
-            if (*neighbor1 >= 0) {
-                phases.push_back(_fth(neighbor1));
-                if (*neighbor2 >= 0) {
-                    phases.push_back(_fth(neighbor2));
-                    if (*neighbor3 >= 0) {
-                        phases.push_back(_fth(neighbor3));
-                        if (*neighbor4 >= 0) {
-                            phases.push_back(_fth(neighbor4));
-                        }
-                    }
-                }
-            }
-            Kinetics* kin = newKineticsMgr(*x, phases);
-            if (kin) {
-                return KineticsCabinet::add(kin);
-            } else {
-                return 0;
-            }
+            return KineticsCabinet::add(kin);
         } catch (...) {
             return handleAllExceptions(999, ERR);
         }
@@ -830,13 +790,19 @@ extern "C" {
         }
     }
 
-    integer kin_reactiontype_(const integer* n, integer* i)
+    status_t kin_getreactiontype_(const integer* n, integer* i, char* buf, ftnlen lenbuf)
     {
         try {
-            return _fkin(n)->reactionType(*i-1);
+            std::string r = _fkin(n)->reaction(*i-1)->type();
+            int lout = std::min(lenbuf, (int) r.size());
+            std::copy(r.c_str(), r.c_str() + lout, buf);
+            for (int nn = lout; nn < lenbuf; nn++) {
+                buf[nn] = ' ';
+            }
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
+        return 0;
     }
 
     status_t kin_getfwdratesofprogress_(const integer* n, double* fwdROP)
@@ -938,7 +904,7 @@ extern "C" {
     {
         try {
             Kinetics* k = _fkin(n);
-            std::string r = k->reactionString(*i-1);
+            std::string r = k->reaction(*i-1)->equation();
             int lout = std::min(lenbuf, (int) r.size());
             std::copy(r.c_str(), r.c_str() + lout, buf);
             for (int nn = lout; nn < lenbuf; nn++) {
@@ -964,7 +930,7 @@ extern "C" {
     {
         try {
             Kinetics* k = _fkin(n);
-            if (k->kineticsType() == "Surf" || k->kineticsType() == "Edge") {
+            if (k->kineticsType() == "surface" || k->kineticsType() == "edge") {
                 ((InterfaceKinetics*)k)->advanceCoverages(*tstep);
             } else {
                 throw CanteraError("kin_advanceCoverages",
@@ -983,8 +949,8 @@ extern "C" {
     {
         try {
             std::string mstr = f2string(model, lenmodel);
-            ThermoPhase* t = _fth(ith);
-            Transport* tr = newTransportMgr(mstr, t, *loglevel);
+            auto t = _fthermo(ith);
+            auto tr = newTransport(t, mstr);
             return TransportCabinet::add(tr);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -994,8 +960,8 @@ extern "C" {
     integer trans_newdefault_(integer* ith, integer* loglevel, ftnlen lenmodel)
     {
         try {
-            ThermoPhase* t = _fth(ith);
-            Transport* tr = newDefaultTransportMgr(t, *loglevel);
+            auto t = _fthermo(ith);
+            auto tr = newTransport(t, "default");
             return TransportCabinet::add(tr);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -1140,50 +1106,6 @@ extern "C" {
     {
         try {
             addDirectory(std::string(buf));
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-        return 0;
-    }
-
-    status_t ctbuildsolutionfromxml(char* src, integer* ixml, char* id,
-                                    integer* ith, integer* ikin, ftnlen lensrc, ftnlen lenid)
-    {
-        try {
-            XML_Node* root = 0;
-            if (*ixml > 0) {
-                root = _xml(ixml);
-            }
-
-            ThermoPhase* t = _fth(ith);
-            Kinetics* k = _fkin(ikin);
-
-            XML_Node* x, *r=0;
-            if (root) {
-                r = &root->root();
-            }
-            std::string srcS = f2string(src, lensrc);
-            std::string idS = f2string(id, lenid);
-            if (srcS != "") {
-                x = get_XML_Node(srcS, r);
-            } else {
-                x = get_XML_Node(idS, r);
-            }
-            if (!x) {
-                return 0;
-            }
-            importPhase(*x, t);
-            k->addPhase(*t);
-            k->init();
-            installReactionArrays(*x, *k, x->id());
-            t->setState_TP(300.0, OneAtm);
-            if (r) {
-                if (&x->root() != &r->root()) {
-                    delete &x->root();
-                }
-            } else {
-                delete &x->root();
-            }
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }

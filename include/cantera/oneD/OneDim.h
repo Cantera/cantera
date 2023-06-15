@@ -29,18 +29,26 @@ public:
     OneDim();
 
     //! Construct a OneDim container for the domains in the list *domains*.
+    OneDim(vector<shared_ptr<Domain1D>>& domains);
+
+    //! @deprecated  To be removed after Cantera 3.0;
+    //!     superseded by OneDim() using vector<shared_ptr<Domain1D>>
     OneDim(std::vector<Domain1D*> domains);
     virtual ~OneDim();
     OneDim(const OneDim&) = delete;
     OneDim& operator=(const OneDim&) = delete;
 
-    /// Add a domain. Domains are added left-to-right.
+    //! Add a domain. Domains are added left-to-right.
+    void addDomain(shared_ptr<Domain1D> d);
+
+    //! @deprecated  To be removed after Cantera 3.0;
+    //!     superseded by addDomain() using shared_ptr<Domain1D>
     void addDomain(Domain1D* d);
 
     //! Return a reference to the Jacobian evaluator.
     MultiJac& jacobian();
 
-    /// Return a reference to the Newton iterator.
+    //! Return a reference to the Newton iterator.
     MultiNewton& newton();
 
     /**
@@ -51,12 +59,12 @@ public:
      */
     int solve(doublereal* x0, doublereal* x1, int loglevel);
 
-    /// Number of domains.
+    //! Number of domains.
     size_t nDomains() const {
         return m_dom.size();
     }
 
-    /// Return a reference to domain i.
+    //! Return a reference to domain i.
     Domain1D& domain(size_t i) const {
         return *m_dom[i];
     }
@@ -82,7 +90,7 @@ public:
         }
     }
 
-    /// The index of the start of domain i in the solution vector.
+    //! The index of the start of domain i in the solution vector.
     size_t start(size_t i) const {
         if (m_dom[i]->nComponents()) {
             return m_dom[i]->loc();
@@ -93,22 +101,22 @@ public:
         }
     }
 
-    /// Total solution vector length;
+    //! Total solution vector length;
     size_t size() const {
         return m_size;
     }
 
-    /// Pointer to left-most domain (first added).
+    //! Pointer to left-most domain (first added).
     Domain1D* left() {
         return m_dom[0];
     }
 
-    /// Pointer to right-most domain (last added).
+    //! Pointer to right-most domain (last added).
     Domain1D* right() {
         return m_dom.back();
     }
 
-    /// Number of solution components at global point jg.
+    //! Number of solution components at global point jg.
     size_t nVars(size_t jg) {
         return m_nvars[jg];
     }
@@ -123,7 +131,7 @@ public:
     //! component of the global solution vector
     std::tuple<std::string, size_t, std::string> component(size_t i);
 
-    /// Jacobian bandwidth.
+    //! Jacobian bandwidth.
     size_t bandwidth() const {
         return m_bw;
     }
@@ -135,7 +143,7 @@ public:
      */
     void init();
 
-    /// Total number of points.
+    //! Total number of points.
     size_t points() {
         return m_pts;
     }
@@ -147,7 +155,7 @@ public:
      */
     doublereal ssnorm(doublereal* x, doublereal* r);
 
-    /// Reciprocal of the time step.
+    //! Reciprocal of the time step.
     doublereal rdt() const {
         return m_rdt;
     }
@@ -155,12 +163,12 @@ public:
     //! Prepare for time stepping beginning with solution *x* and timestep *dt*.
     void initTimeInteg(doublereal dt, doublereal* x);
 
-    /// True if transient mode.
+    //! True if transient mode.
     bool transient() const {
         return (m_rdt != 0.0);
     }
 
-    /// True if steady mode.
+    //! True if steady mode.
     bool steady() const {
         return (m_rdt == 0.0);
     }
@@ -225,9 +233,7 @@ public:
      */
     void writeStats(int printTime = 1);
 
-    void save(const std::string& fname, std::string id,
-              const std::string& desc, doublereal* sol, int loglevel);
-
+    //! @deprecated  To be removed after Cantera 3.0; unused.
     AnyMap serialize(const double* soln) const;
 
     // options
@@ -328,47 +334,56 @@ public:
 protected:
     void evalSSJacobian(doublereal* x, doublereal* xnew);
 
-    doublereal m_tmin; //!< minimum timestep size
-    doublereal m_tmax; //!< maximum timestep size
+    double m_tmin = 1e-16; //!< minimum timestep size
+    double m_tmax = 1e+08; //!< maximum timestep size
 
     //! factor time step is multiplied by  if time stepping fails ( < 1 )
-    doublereal m_tfactor;
+    double m_tfactor = 0.5;
+
+    shared_ptr<vector<double>> m_state; //!< Solution vector
 
     std::unique_ptr<MultiJac> m_jac; //!< Jacobian evaluator
     std::unique_ptr<MultiNewton> m_newt; //!< Newton iterator
-    doublereal m_rdt; //!< reciprocal of time step
-    bool m_jac_ok; //!< if true, Jacobian is current
+    double m_rdt = 0.0; //!< reciprocal of time step
+    bool m_jac_ok = false; //!< if true, Jacobian is current
 
-    size_t m_bw; //!< Jacobian bandwidth
-    size_t m_size; //!< solution vector size
+    size_t m_bw = 0; //!< Jacobian bandwidth
+    size_t m_size = 0; //!< solution vector size
 
-    std::vector<Domain1D*> m_dom, m_connect, m_bulk;
+    vector<shared_ptr<Domain1D>> m_sharedDom;
+    vector<shared_ptr<Domain1D>> m_sharedConnect;
+    vector<shared_ptr<Domain1D>> m_sharedBulk;
 
-    bool m_init;
+    vector<Domain1D*> m_dom; //!< @todo remove raw pointers after Cantera 3.0
+    vector<Domain1D*> m_connect; //!< @todo remove raw pointers after Cantera 3.0
+    vector<Domain1D*> m_bulk; //!< @todo remove raw pointers after Cantera 3.0
+
+    bool m_init = false;
     std::vector<size_t> m_nvars;
     std::vector<size_t> m_loc;
     vector_int m_mask;
-    size_t m_pts;
+    size_t m_pts = 0;
 
     // options
-    int m_ss_jac_age, m_ts_jac_age;
+    int m_ss_jac_age = 20;
+    int m_ts_jac_age = 20;
 
     //! Function called at the start of every call to #eval.
-    Func1* m_interrupt;
+    Func1* m_interrupt = nullptr;
 
     //! User-supplied function called after each successful timestep.
-    Func1* m_time_step_callback;
+    Func1* m_time_step_callback = nullptr;
 
     //! Number of time steps taken in the current call to solve()
-    int m_nsteps;
+    int m_nsteps = 0;
 
     //! Maximum number of timesteps allowed per call to solve()
-    int m_nsteps_max;
+    int m_nsteps_max = 500;
 
 private:
     // statistics
-    int m_nevals;
-    doublereal m_evaltime;
+    int m_nevals = 0;
+    double m_evaltime = 0;
     std::vector<size_t> m_gridpts;
     vector_int m_jacEvals;
     vector_fp m_jacElapsed;

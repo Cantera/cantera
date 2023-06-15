@@ -19,10 +19,10 @@ classifiers =
     Operating System :: Microsoft :: Windows
     Operating System :: POSIX :: Linux
     Programming Language :: Python :: 3 :: Only
-    Programming Language :: Python :: 3.6
-    Programming Language :: Python :: 3.7
     Programming Language :: Python :: 3.8
     Programming Language :: Python :: 3.9
+    Programming Language :: Python :: 3.10
+    Programming Language :: Python :: 3.11
     Topic :: Scientific/Engineering :: Chemistry
     Topic :: Scientific/Engineering :: Physics
 project_urls =
@@ -36,14 +36,13 @@ zip_safe = True
 install_requires =
     numpy >= 1.12.0
     ruamel.yaml >= 0.15.34
-python_requires = >=@py_min_ver_str@
+python_requires @py_requires_ver_str@
 packages =
     cantera
 
 [options.entry_points]
 console_scripts =
-    ck2cti = cantera.ck2cti:script_entry_point
-    ctml_writer = cantera.ctml_writer:main
     ck2yaml = cantera.ck2yaml:script_entry_point
     cti2yaml = cantera.cti2yaml:main
     ctml2yaml = cantera.ctml2yaml:main
+    yaml2ck = cantera.yaml2ck:main

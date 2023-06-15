@@ -13,3 +13,6 @@
 [submodule "ext/yaml-cpp"]
 	path = ext/yaml-cpp
 	url = https://github.com/jbeder/yaml-cpp.git
+[submodule "ext/HighFive"]
+	path = ext/HighFive
+	url = https://github.com/BlueBrain/HighFive.git

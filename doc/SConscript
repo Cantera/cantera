@@ -2,7 +2,9 @@
 from collections import namedtuple
 from os.path import join as pjoin
 import os
+import subprocess
 from buildutils import *
+from SCons import Errors
 
 Import('env', 'build', 'install')
 
@@ -31,7 +33,7 @@ def extract_matlab_docstring(mfile, level):
     elif level == 1:
         docstring = "    .. mat:function:: "
     else:
-        print("Unknown level for MATLAB documentation.")
+        logger.error("Unknown level for MATLAB documentation.")
         sys.exit(1)
 
     # The leader is the number of spaces at the beginning of a regular line
@@ -81,7 +83,7 @@ def get_function_name(function_string):
     elif function_string.startswith('classdef '):
         sig = function_string[len('classdef '):]
     else:
-        print("Unknown function declaration in MATLAB document", function_string)
+        logger.error(f"Unknown function declaration in MATLAB document: {function_string}")
         sys.exit(1)
 
     # Split the function signature on the equals sign, if it exists.
@@ -107,12 +109,16 @@ if localenv['doxygen_docs']:
             '#/build/docs/doxygen/html', exclude=['\\.map', '\\.md5'])
 
 if localenv['sphinx_docs']:
-    localenv['SPHINXBUILD'] = Dir('#build/docs/sphinx')
-    localenv['SPHINXSRC'] = Dir('sphinx')
+    def build_sphinx(target, source, env):
+        cmd = [env['sphinx_cmd']] + env['sphinx_options'].split()
+        cmd += ('-b', 'html', '-d', 'build/docs/sphinx/doctrees', 'doc/sphinx',
+                'build/docs/sphinx/html')
+        code = subprocess.call(cmd, env=env['ENV'])
+        if code:
+            raise Errors.BuildError(target, action=env['sphinx_cmd'])
 
-    sphinxdocs = build(localenv.Command('${SPHINXBUILD}/html/index.html',
-        'sphinx/conf.py',
-        '${sphinx_cmd} ${sphinx_options} -b html -d ${SPHINXBUILD}/doctrees ${SPHINXSRC} ${SPHINXBUILD}/html'))
+    sphinxdocs = build(localenv.Command('#build/doc/sphinx/html/index.html',
+        'sphinx/conf.py', build_sphinx))
     env.Alias('sphinx', sphinxdocs)
     env.Depends(sphinxdocs, env['python_module'])
 
@@ -131,7 +137,7 @@ if localenv['sphinx_docs']:
              ['@Func', '@Reactor', '@ReactorNet', '@FlowDevice', '@Wall']),
         Page('one-dim', 'One-Dimensional Reacting Flows', ['1D/@Domain1D', '1D/@Stack']),
         Page('data', 'Physical Constants', ['@Data']),
-        Page('utilities', 'Utility Functions', ['@Utilities', '@XML_Node']),
+        Page('utilities', 'Utility Functions', ['@Utilities']),
     ]
 
     # Create a dictionary of extra files associated with each class. These
@@ -151,9 +157,8 @@ if localenv['sphinx_docs']:
         '1D/@Stack': ['1D/FreeFlame.m', '1D/CounterFlowDiffusionFlame.m'],
         '@Interface': ['importEdge.m', 'importInterface.m'],
         '@Data': ['gasconstant.m', 'oneatm.m'],
-        '@Utilities': ['adddir.m', 'ck2cti.m', 'cleanup.m', 'geterr.m',
-                       'getDataDirectories.m', 'canteraVersion.m',
-                       'canteraGitCommit.m']
+        '@Utilities': ['adddir.m', 'cleanup.m', 'geterr.m', 'getDataDirectories.m',
+                       'canteraVersion.m', 'canteraGitCommit.m']
     }
 
     # These files do not need to be documented in the MATLAB classes because they

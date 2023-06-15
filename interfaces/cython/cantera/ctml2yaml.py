@@ -21,7 +21,7 @@ from email.utils import formatdate
 import warnings
 import copy
 
-from typing import Any, Dict, Union, Iterable, Optional, List, Tuple
+from typing import Any, Dict, Union, Iterable, Optional, List, Tuple, TypedDict
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -47,9 +47,6 @@ if yaml_version < yaml_min_version:
     )
 
 if TYPE_CHECKING:
-    # This is available in the built-in typing module in Python 3.8
-    from typing_extensions import TypedDict
-
     QUANTITY = Union[float, str]
 
     RK_EOS_DICT = TypedDict(
@@ -2641,7 +2638,7 @@ def convert(
     metadata = BlockMap(
         {
             "generator": "ctml2yaml",
-            "cantera-version": "2.6.0",
+            "cantera-version": "3.0.0a5",
             "date": formatdate(localtime=True),
         }
     )

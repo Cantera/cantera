@@ -12,11 +12,8 @@
 #include "cantera/transport/DustyGasTransport.h"
 #include "cantera/transport/HighPressureGasTransport.h"
 #include "cantera/transport/TransportFactory.h"
-#include "cantera/base/ctml.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/utilities.h"
-
-using namespace std;
 
 namespace Cantera
 {
@@ -30,27 +27,35 @@ std::mutex TransportFactory::transport_mutex;
 TransportFactory::TransportFactory()
 {
     reg("none", []() { return new Transport(); });
-    addAlias("none", "Transport");
-    addAlias("none", "None");
-    addAlias("none", "");
+    addDeprecatedAlias("none", "Transport");
+    addDeprecatedAlias("none", "None");
+    addDeprecatedAlias("none", "");
     reg("unity-Lewis-number", []() { return new UnityLewisTransport(); });
-    addAlias("unity-Lewis-number", "UnityLewis");
+    addDeprecatedAlias("unity-Lewis-number", "UnityLewis");
     reg("mixture-averaged", []() { return new MixTransport(); });
-    addAlias("mixture-averaged", "Mix");
+    addDeprecatedAlias("mixture-averaged", "Mix");
     reg("mixture-averaged-CK", []() { return new MixTransport(); });
-    addAlias("mixture-averaged-CK", "CK_Mix");
+    addDeprecatedAlias("mixture-averaged-CK", "CK_Mix");
     reg("multicomponent", []() { return new MultiTransport(); });
-    addAlias("multicomponent", "Multi");
+    addDeprecatedAlias("multicomponent", "Multi");
     reg("multicomponent-CK", []() { return new MultiTransport(); });
-    addAlias("multicomponent-CK", "CK_Multi");
+    addDeprecatedAlias("multicomponent-CK", "CK_Multi");
     reg("ionized-gas", []() { return new IonGasTransport(); });
-    addAlias("ionized-gas", "Ion");
+    addDeprecatedAlias("ionized-gas", "Ion");
     reg("water", []() { return new WaterTransport(); });
-    addAlias("water", "Water");
+    addDeprecatedAlias("water", "Water");
     reg("high-pressure", []() { return new HighPressureGasTransport(); });
-    addAlias("high-pressure", "HighP");
+    addDeprecatedAlias("high-pressure", "HighP");
     m_CK_mode["CK_Mix"] = m_CK_mode["mixture-averaged-CK"] = true;
     m_CK_mode["CK_Multi"] = m_CK_mode["multicomponent-CK"] = true;
+}
+
+TransportFactory* TransportFactory::factory() {
+    std::unique_lock<std::mutex> transportLock(transport_mutex);
+    if (!s_factory) {
+        s_factory = new TransportFactory();
+    }
+    return s_factory;
 }
 
 void TransportFactory::deleteFactory()
@@ -93,25 +98,51 @@ Transport* TransportFactory::newTransport(const std::string& transportModel,
 
 Transport* TransportFactory::newTransport(ThermoPhase* phase, int log_level)
 {
-    std::string transportModel = "None";
-    XML_Node& phaseNode = phase->xml();
+    std::string transportModel = "none";
     AnyMap& input = phase->input();
     if (input.hasKey("transport")) {
         transportModel = input["transport"].asString();
-    } else if (phaseNode.hasChild("transport")) {
-        transportModel = phaseNode.child("transport").attrib("model");
     }
     return newTransport(transportModel, phase,log_level);
 }
 
 Transport* newTransportMgr(const std::string& model, ThermoPhase* thermo, int log_level)
 {
+    warn_deprecated("newTransportMgr",
+        "To be removed after Cantera 3.0; superseded by newTransport.");
     TransportFactory* f = TransportFactory::factory();
     return f->newTransport(model, thermo, log_level);
 }
 
+shared_ptr<Transport> newTransport(shared_ptr<ThermoPhase> thermo, const string& model)
+{
+    Transport* tr;
+    if (model == "default") {
+        tr = TransportFactory::factory()->newTransport(thermo.get(), 0);
+    } else {
+        tr = TransportFactory::factory()->newTransport(model, thermo.get(), 0);
+    }
+    return shared_ptr<Transport>(tr);
+}
+
+shared_ptr<Transport> newTransport(ThermoPhase* thermo, const string& model)
+{
+    warn_deprecated("newTransport",
+        "To be removed after Cantera 3.0; superseded by\n"
+        "newTransport(shared_ptr<ThermoPhase>, const string&).");
+    Transport* tr;
+    if (model == "default") {
+        tr = TransportFactory::factory()->newTransport(thermo, 0);
+    } else {
+        tr = TransportFactory::factory()->newTransport(model, thermo, 0);
+    }
+    return shared_ptr<Transport>(tr);
+}
+
 Transport* newDefaultTransportMgr(ThermoPhase* thermo, int loglevel)
 {
+    warn_deprecated("newDefaultTransportMgr",
+        "To be removed after Cantera 3.0; superseded by newTransport.");
     return TransportFactory::factory()->newTransport(thermo, loglevel);
 }
 

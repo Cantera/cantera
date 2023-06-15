@@ -12,12 +12,6 @@
 namespace Cantera {
 
 PlasmaPhase::PlasmaPhase(const std::string& inputFile, const std::string& id_)
-    : m_isotropicShapeFactor(2.0)
-    , m_nPoints(1001)
-    , m_electronSpeciesIndex(npos)
-    , m_distributionType("isotropic")
-    , m_quadratureMethod("simpson")
-    , m_do_normalizeElectronEnergyDist(true)
 {
     initThermoFile(inputFile, id_);
 
@@ -266,6 +260,94 @@ void PlasmaPhase::updateThermo() const
     }
     // update the species Gibbs functions
     m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
+}
+
+double PlasmaPhase::enthalpy_mole() const {
+    double value = IdealGasPhase::enthalpy_mole();
+    value += GasConstant * (electronTemperature() - temperature()) *
+             moleFraction(m_electronSpeciesIndex) *
+             m_h0_RT[m_electronSpeciesIndex];
+    return value;
+}
+
+void PlasmaPhase::getGibbs_ref(double* g) const
+{
+    IdealGasPhase::getGibbs_ref(g);
+    g[m_electronSpeciesIndex] *= electronTemperature() / temperature();
+}
+
+void PlasmaPhase::getStandardVolumes_ref(double* vol) const
+{
+    IdealGasPhase::getStandardVolumes_ref(vol);
+    vol[m_electronSpeciesIndex] *= electronTemperature() / temperature();
+}
+
+void PlasmaPhase::getPartialMolarEnthalpies(double* hbar) const
+{
+    IdealGasPhase::getPartialMolarEnthalpies(hbar);
+    hbar[m_electronSpeciesIndex] *= electronTemperature() / temperature();
+}
+
+void PlasmaPhase::getPartialMolarEntropies(double* sbar) const
+{
+    IdealGasPhase::getPartialMolarEntropies(sbar);
+    double logp = log(pressure());
+    double logpe = log(electronPressure());
+    sbar[m_electronSpeciesIndex] += GasConstant * (logp - logpe);
+}
+
+void PlasmaPhase::getPartialMolarIntEnergies(double* ubar) const
+{
+    const vector_fp& _h = enthalpy_RT_ref();
+    for (size_t k = 0; k < m_kk; k++) {
+        ubar[k] = RT() * (_h[k] - 1.0);
+    }
+    size_t k = m_electronSpeciesIndex;
+    ubar[k] = RTe() * (_h[k] - 1.0);
+}
+
+void PlasmaPhase::getChemPotentials(double* mu) const
+{
+    IdealGasPhase::getChemPotentials(mu);
+    size_t k = m_electronSpeciesIndex;
+    double xx = std::max(SmallNumber, moleFraction(k));
+    mu[k] += (RTe() - RT()) * log(xx);
+}
+
+void PlasmaPhase::getStandardChemPotentials(double* muStar) const
+{
+    IdealGasPhase::getStandardChemPotentials(muStar);
+    size_t k = m_electronSpeciesIndex;
+    muStar[k] -= log(pressure() / refPressure()) * RT();
+    muStar[k] += log(electronPressure() / refPressure()) * RTe();
+}
+
+void PlasmaPhase::getEntropy_R(double* sr) const
+{
+    const vector_fp& _s = entropy_R_ref();
+    copy(_s.begin(), _s.end(), sr);
+    double tmp = log(pressure() / refPressure());
+    for (size_t k = 0; k < m_kk; k++) {
+        if (k != m_electronSpeciesIndex) {
+            sr[k] -= tmp;
+        } else {
+            sr[k] -= log(electronPressure() / refPressure());
+        }
+    }
+}
+
+void PlasmaPhase::getGibbs_RT(double* grt) const
+{
+    const vector_fp& gibbsrt = gibbs_RT_ref();
+    copy(gibbsrt.begin(), gibbsrt.end(), grt);
+    double tmp = log(pressure() / refPressure());
+    for (size_t k = 0; k < m_kk; k++) {
+        if (k != m_electronSpeciesIndex) {
+            grt[k] += tmp;
+        } else {
+            grt[k] += log(electronPressure() / refPressure());
+        }
+    }
 }
 
 }

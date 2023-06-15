@@ -9,12 +9,13 @@
 #include <cstdlib>
 #include <vector>
 #include <map>
+#include <set>
 #include <string>
 #include <algorithm>
 #include <memory>
+#include <functional>
+#include <any>
 
 #include <boost/algorithm/string.hpp>
-#include "cantera/base/fmt.h"
-#include "cantera/base/AnyMap.h"
 
 #endif

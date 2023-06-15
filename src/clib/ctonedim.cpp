@@ -5,15 +5,14 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-#define CANTERA_USE_INTERNAL
-
 #include "cantera/clib/ctonedim.h"
 
 // Cantera includes
 #include "cantera/oneD/Sim1D.h"
 #include "cantera/oneD/Boundary1D.h"
-#include "cantera/transport/TransportBase.h"
-#include "Cabinet.h"
+#include "cantera/oneD/DomainFactory.h"
+#include "cantera/transport/Transport.h"
+#include "clib_utils.h"
 #include "cantera/base/stringUtils.h"
 
 #include <fstream>
@@ -21,17 +20,19 @@
 using namespace std;
 using namespace Cantera;
 
-typedef Cabinet<Sim1D> SimCabinet;
-typedef Cabinet<Domain1D> DomainCabinet;
+typedef SharedCabinet<Sim1D> SimCabinet;
+typedef SharedCabinet<Domain1D> DomainCabinet;
 template<> SimCabinet* SimCabinet::s_storage = 0;
 template<> DomainCabinet* DomainCabinet::s_storage = 0;
 
-typedef Cabinet<ThermoPhase> ThermoCabinet;
-typedef Cabinet<Kinetics> KineticsCabinet;
-typedef Cabinet<Transport> TransportCabinet;
+typedef SharedCabinet<ThermoPhase> ThermoCabinet;
+typedef SharedCabinet<Kinetics> KineticsCabinet;
+typedef SharedCabinet<Transport> TransportCabinet;
+typedef SharedCabinet<Solution> SolutionCabinet;
 template<> ThermoCabinet* ThermoCabinet::s_storage; // defined in ct.cpp
 template<> KineticsCabinet* KineticsCabinet::s_storage; // defined in ct.cpp
 template<> TransportCabinet* TransportCabinet::s_storage; // defined in ct.cpp
+template<> SolutionCabinet* SolutionCabinet::s_storage; // defined in ct.cpp
 
 extern "C" {
 
@@ -41,6 +42,17 @@ extern "C" {
             DomainCabinet::clear();
             SimCabinet::clear();
             return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int domain_new(const char* type, int i, const char* id)
+    {
+        try {
+            auto soln = SolutionCabinet::at(i);
+            auto d = newDomain(type, soln, id);
+            return DomainCabinet::add(d);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -60,6 +72,15 @@ extern "C" {
     {
         try {
             return DomainCabinet::item(i).domainType();
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int domain_type3(int i, size_t lennm, char* nm)
+    {
+        try {
+            return static_cast<int>(copyString(DomainCabinet::item(i).type(), nm, lennm));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -228,7 +249,7 @@ extern "C" {
     int inlet_new()
     {
         try {
-            return DomainCabinet::add(new Inlet1D());
+            return DomainCabinet::add(make_shared<Inlet1D>());
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -237,7 +258,7 @@ extern "C" {
     int surf_new()
     {
         try {
-            return DomainCabinet::add(new Surf1D());
+            return DomainCabinet::add(make_shared<Surf1D>());
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -246,7 +267,7 @@ extern "C" {
     int reactingsurf_new()
     {
         try {
-            return DomainCabinet::add(new ReactingSurf1D());
+            return DomainCabinet::add(make_shared<ReactingSurf1D>());
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -255,7 +276,7 @@ extern "C" {
     int symm_new()
     {
         try {
-            return DomainCabinet::add(new Symm1D());
+            return DomainCabinet::add(make_shared<Symm1D>());
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -264,7 +285,7 @@ extern "C" {
     int outlet_new()
     {
         try {
-            return DomainCabinet::add(new Outlet1D());
+            return DomainCabinet::add(make_shared<Outlet1D>());
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -273,7 +294,7 @@ extern "C" {
     int outletres_new()
     {
         try {
-            return DomainCabinet::add(new OutletRes1D());
+            return DomainCabinet::add(make_shared<OutletRes1D>());
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -282,7 +303,7 @@ extern "C" {
     int bdry_setMdot(int i, double mdot)
     {
         try {
-            DomainCabinet::get<Boundary1D>(i).setMdot(mdot);
+            DomainCabinet::as<Boundary1D>(i)->setMdot(mdot);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -292,7 +313,17 @@ extern "C" {
     int bdry_setTemperature(int i, double t)
     {
         try {
-            DomainCabinet::get<Boundary1D>(i).setTemperature(t);
+            DomainCabinet::as<Boundary1D>(i)->setTemperature(t);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int bdry_setSpreadRate(int i, double v)
+    {
+        try {
+            DomainCabinet::as<Boundary1D>(i)->setSpreadRate(v);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -302,7 +333,7 @@ extern "C" {
     int bdry_setMoleFractions(int i, const char* x)
     {
         try {
-            DomainCabinet::get<Boundary1D>(i).setMoleFractions(x);
+            DomainCabinet::as<Boundary1D>(i)->setMoleFractions(x);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -312,7 +343,16 @@ extern "C" {
     double bdry_temperature(int i)
     {
         try {
-            return DomainCabinet::get<Boundary1D>(i).temperature();
+            return DomainCabinet::as<Boundary1D>(i)->temperature();
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
+    }
+
+    double bdry_spreadRate(int i)
+    {
+        try {
+            return DomainCabinet::as<Boundary1D>(i)->spreadRate();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -339,8 +379,8 @@ extern "C" {
     int reactingsurf_setkineticsmgr(int i, int j)
     {
         try {
-            InterfaceKinetics& k = Cabinet<Kinetics>::get<InterfaceKinetics>(j);
-            DomainCabinet::get<ReactingSurf1D>(i).setKineticsMgr(&k);
+            auto k = KineticsCabinet::at(j);
+            DomainCabinet::get<ReactingSurf1D>(i).setKinetics(k);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -372,29 +412,27 @@ extern "C" {
     int stflow_new(int iph, int ikin, int itr, int itype)
     {
         try {
-            IdealGasPhase& ph = ThermoCabinet::get<IdealGasPhase>(iph);
-            StFlow* x = new StFlow(&ph, ph.nSpecies(), 2);
+            auto ph = ThermoCabinet::at(iph);
+            auto x = make_shared<StFlow>(ph, ph->nSpecies(), 2);
             if (itype == 1) {
                 x->setAxisymmetricFlow();
             } else if (itype == 2) {
                 x->setFreeFlow();
             } else {
-                delete x;
                 return -2;
             }
-            x->setKinetics(KineticsCabinet::item(ikin));
-            x->setTransport(TransportCabinet::item(itr));
+            x->setKinetics(KineticsCabinet::at(ikin));
+            x->setTransport(TransportCabinet::at(itr));
             return DomainCabinet::add(x);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
     }
 
-
     int stflow_setTransport(int i, int itr)
     {
         try {
-            DomainCabinet::get<StFlow>(i).setTransport(TransportCabinet::item(itr));
+            DomainCabinet::get<StFlow>(i).setTransport(TransportCabinet::at(itr));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -466,11 +504,11 @@ extern "C" {
     int sim1D_new(size_t nd, const int* domains)
     {
         try {
-            vector<Domain1D*> d;
+            vector<shared_ptr<Domain1D>> d;
             for (size_t n = 0; n < nd; n++) {
-                d.push_back(&DomainCabinet::item(domains[n]));
+                d.push_back(DomainCabinet::at(domains[n]));
             }
-            return SimCabinet::add(new Sim1D(d));
+            return SimCabinet::add(make_shared<Sim1D>(d));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -522,6 +560,22 @@ extern "C" {
             sim.checkDomainIndex(dom);
             sim.domain(dom).checkComponentIndex(comp);
             sim.setFlatProfile(dom, comp, v);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int sim1D_show(int i, const char* fname)
+    {
+        try {
+            string fn = string(fname);
+            if (fn == "-") {
+                SimCabinet::item(i).show();
+            } else {
+                ofstream fout(fname);
+                SimCabinet::item(i).show(fout);
+            }
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

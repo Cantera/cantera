@@ -171,7 +171,7 @@ elseif ntot == 2
         setTemperature(tp, tval);
         setPressure(tp, pval);
     elseif np == 1 && nv == 1
-        setState_RP(tp, [1.0/vval, pval])
+        setState_DP(tp, [1.0/vval, pval])
     elseif nt == 1 && nq == 1
         setState_Tsat(tp, [tval,qval]);
     elseif np == 1 && nq == 1

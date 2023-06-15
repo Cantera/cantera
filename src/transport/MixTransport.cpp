@@ -11,16 +11,8 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/base/utilities.h"
 
-using namespace std;
-
 namespace Cantera
 {
-MixTransport::MixTransport() :
-    m_lambda(0.0),
-    m_spcond_ok(false),
-    m_condmix_ok(false)
-{
-}
 
 void MixTransport::init(ThermoPhase* thermo, int mode, int log_level)
 {

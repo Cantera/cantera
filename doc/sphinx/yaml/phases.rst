@@ -86,6 +86,7 @@ and optionally reactions that can take place in that phase. The fields of a
     - :ref:`ideal-condensed <sec-yaml-ideal-condensed>`
     - :ref:`ideal-solution-VPSS <sec-yaml-ideal-solution-VPSS>`
     - :ref:`ideal-surface <sec-yaml-ideal-surface>`
+    - :ref:`coverage-dependent-surface <sec-yaml-coverage-dependent-surface>`
     - :ref:`ions-from-neutral-molecule <sec-yaml-ions-from-neutral-molecule>`
     - :ref:`lattice <sec-yaml-lattice>`
     - :ref:`liquid-water-IAPWS95 <sec-yaml-liquid-water-IAPWS95>`
@@ -210,7 +211,7 @@ Phase thermodynamic models
 A phase implementing tabulated standard state thermodynamics for one species in
 a binary solution, as `described here <https://cantera.org/documentation/dev/doxygen/html/de/ddf/classCantera_1_1BinarySolutionTabulatedThermo.html#details>`__.
 
-Includes the fields of :ref:`sec-yaml-ideal-molal-solution`, plus:
+Includes the fields of :ref:`sec-yaml-ideal-condensed`, plus:
 
 ``tabulated-species``
     The name of the species to which the tabulated enthalpy and entropy is
@@ -293,10 +294,12 @@ field:
 
     ``A_Debye``
         The value of the Debye "A" parameter, or the string ``variable`` to use
-        a calculation based on the water equation of state.
+        a calculation based on the water equation of state. Defaults to the constant
+        value of 1.172576 kg^0.5/gmol^0.5, a nominal value for water at 298 K and 1 atm.
 
     ``B_Debye``
-        The Debye "B" parameter
+        The Debye "B" parameter. Defaults to 3.2864e+09 kg^0.5/gmol^0.5/m, a nominal
+        value for water.
 
     ``max-ionic-strength``
         The maximum ionic strength
@@ -413,11 +416,12 @@ field:
 
     ``temperature-model``
         The form of the Pitzer temperature model. One of ``constant``,
-        ``linear`` or ``complex``.
+        ``linear`` or ``complex``. The default is ``constant``.
 
     ``A_Debye``
         The value of the Debye "A" parameter, or the string ``variable`` to use
-        a calculation based on the water equation of state.
+        a calculation based on the water equation of state. The default is
+        1.172576 kg^0.5/gmol^0.5, a nominal value for water at 298 K and 1 atm.
 
     ``max-ionic-strength``
         The maximum ionic strength
@@ -528,6 +532,16 @@ Example::
 The ideal gas model as
 `described here <https://cantera.org/documentation/dev/doxygen/html/d7/dfa/classCantera_1_1IdealGasPhase.html#details>`__.
 
+Example::
+
+    - name: ohmech
+      thermo: ideal-gas
+      elements: [O, H, Ar, N]
+      species: [H2, H, O, O2, OH, H2O, HO2, H2O2, AR, N2]
+      kinetics: gas
+      transport: mixture-averaged
+      state: {T: 300.0, P: 1 atm}
+
 
 .. _sec-yaml-ideal-molal-solution:
 
@@ -627,6 +641,56 @@ Additional fields:
 ``site-density``
     The molar density of surface sites
 
+Example::
+
+    - name: Pt_surf
+      thermo: ideal-surface
+      adjacent-phases: [gas]
+      elements: [Pt, H, O, C]
+      species: [PT(S), H(S), H2O(S), OH(S), CO(S), CO2(S), CH3(S), CH2(S)s,
+        CH(S), C(S), O(S)]
+      kinetics: surface
+      reactions: all
+      state:
+        T: 900.0
+        coverages: {O(S): 0.0, PT(S): 0.5, H(S): 0.5}
+      site-density: 2.7063e-09
+
+
+.. _sec-yaml-coverage-dependent-surface:
+
+``coverage-dependent-surface``
+------------------------------
+
+A coverage-dependent surface phase. That is, a surface phase where the enthalpy,
+entropy, and heat capacity of each species may depend on its coverage and the
+coverage of other species in the phase.
+Full details are
+`described here <https://cantera.org/documentation/dev/doxygen/html/db/d25/classCantera_1_1CoverageDependentSurfPhase.html#details>`__.
+Majority of coverage dependency parameters are provided in the species entry as
+`described here <https://cantera.org/documentation/dev/sphinx/html/yaml/species.html#coverage-dependent-surface>`__.
+
+Additional fields:
+
+``site-density``
+    The molar density of surface sites.
+
+``reference-state-coverage``
+    The reference state coverage denoting the low-coverage limit (ideal-surface)
+    thermodynamic properties.
+
+Example::
+
+    - name: covdep
+      thermo: coverage-dependent-surface
+      species: [Pt, OC_Pt, CO2_Pt, C_Pt, O_Pt]
+      state:
+        T: 500.0
+        P: 1.01325e+05
+        coverages: {Pt: 0.5, OC_Pt: 0.5, CO2_Pt: 0.0, C_Pt: 0.0, O_Pt: 0.0}
+      site-density: 2.72e-09
+      reference-state-coverage: 0.22
+
 
 .. _sec-yaml-ions-from-neutral-molecule:
 
@@ -638,6 +702,10 @@ species, given a specification of the chemical potentials for the same phase
 expressed in terms of combinations of the ionic species that represent neutral
 molecules, as
 `described here <https://cantera.org/documentation/dev/doxygen/html/d7/d4a/classCantera_1_1IonsFromNeutralVPSSTP.html#details>`__.
+
+.. deprecated:: 3.0
+
+    This phase model is deprecated and will be removed after Cantera 3.0.
 
 Additional fields:
 
@@ -732,6 +800,10 @@ Example::
 
 A condensed phase non-ideal solution with two species, as
 `described here <https://cantera.org/documentation/dev/doxygen/html/dd/d3a/classCantera_1_1MaskellSolidSolnPhase.html#details>`__.
+
+.. deprecated:: 3.0
+
+    This phase model is deprecated and will be removed after Cantera 3.0.
 
 Additional fields:
 
@@ -829,7 +901,7 @@ A multi-species Redlich-Kwong phase as
 `described here <https://cantera.org/documentation/dev/doxygen/html/d6/d29/classCantera_1_1RedlichKwongMFTP.html#details>`__.
 
 The parameters for each species are contained in the corresponding species
-entries.
+entries. See :ref:`Redlich-Kwong species equation of state <sec-yaml-eos-redlich-kwong>`.
 
 .. _sec-yaml-Peng-Robinson:
 
@@ -840,7 +912,7 @@ A multi-species Peng-Robinson phase as
 `described here <https://cantera.org/documentation/dev/doxygen/html/d3/ddc/classCantera_1_1PengRobinson.html#details>`__.
 
 The parameters for each species are contained in the corresponding species
-entries.
+entries. See :ref:`Peng-Robinson species equation of state <sec-yaml-eos-peng-robinson>`.
 
 .. _sec-yaml-plasma:
 
@@ -893,7 +965,7 @@ Example::
     - name: isotropic-electron-energy-plasma
       thermo: plasma
       kinetics: gas
-      transport: Ion
+      transport: ionized-gas
       electron-energy-distribution:
         type: isotropic
         shape-factor: 2.0
@@ -902,7 +974,7 @@ Example::
     - name: discretized-electron-energy-plasma
       thermo: plasma
       kinetics: gas
-      transport: Ion
+      transport: ionized-gas
       electron-energy-distribution:
         type: discretized
         energy-levels: [0.0, 0.1, 1.0, 10.0]

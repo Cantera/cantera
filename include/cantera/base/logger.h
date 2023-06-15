@@ -17,26 +17,26 @@
 namespace Cantera
 {
 
-/// Base class for 'loggers' that write text messages to log files.
-///
-/// This class is used to direct log messages to application- or environment-
-/// specific output. The default is to simply print the messages to the standard
-/// output stream or standard error stream, but classes may be derived from
-/// Logger that implement other output options. This is important when Cantera
-/// is used in applications that do not display the standard output, such as
-/// MATLAB. The Cantera MATLAB interface derives a class from Logger that
-/// implements these methods with MATLAB-specific procedures, insuring that the
-/// messages will be passed through to the user. It would also be possible to
-/// derive a class that displayed the messages in a pop-up window, or redirected
-/// them to a file, etc.
-///
-/// To install a logger, call function setLogger (global.h / misc.cpp).
-///
-/// See the files Cantera/python/src/pylogger.h and
-/// Cantera/matlab/cantera/private/mllogger.h for examples of
-/// deriving logger classes.
-/// @ingroup textlogs
-///
+//! Base class for 'loggers' that write text messages to log files.
+//!
+//! This class is used to direct log messages to application- or environment-
+//! specific output. The default is to simply print the messages to the standard
+//! output stream or standard error stream, but classes may be derived from
+//! Logger that implement other output options. This is important when Cantera
+//! is used in applications that do not display the standard output, such as
+//! MATLAB. The Cantera MATLAB interface derives a class from Logger that
+//! implements these methods with MATLAB-specific procedures, insuring that the
+//! messages will be passed through to the user. It would also be possible to
+//! derive a class that displayed the messages in a pop-up window, or redirected
+//! them to a file, etc.
+//!
+//! To install a logger, call function setLogger (global.h / misc.cpp).
+//!
+//! See the files Cantera/python/src/pylogger.h and
+//! Cantera/matlab/cantera/private/mllogger.h for examples of
+//! deriving logger classes.
+//! @ingroup textlogs
+//!
 class Logger
 {
 public:
@@ -70,7 +70,7 @@ public:
     //! Write a warning message.
     /*!
      * The default behavior is to write to the logging output.
-     * @param warning  String specifying type of warning; @see Logger::warn
+     * @param warning  String specifying type of warning
      * @param msg      String message to be written to cout
      */
     virtual void warn(const std::string& warning, const std::string& msg) {

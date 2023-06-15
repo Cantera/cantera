@@ -11,6 +11,7 @@
 #include "MultiRateBase.h"
 #include "cantera/base/AnyMap.h"
 #include "cantera/base/Units.h"
+#include "cantera/base/global.h"
 #include "cantera/base/ctexceptions.h"
 
 namespace Cantera
@@ -44,13 +45,15 @@ class Reaction;
 class ReactionRate
 {
 public:
-    ReactionRate() : m_rate_index(npos) {}
+    ReactionRate() {}
 
     // Copy constructor and assignment operator need to be defined because of the
     // #m_evaluator member that can't (and shouldn't) be copied.
     ReactionRate(const ReactionRate& other)
         : m_input(other.m_input)
         , m_rate_index(other.m_rate_index)
+        , m_valid(other.m_valid)
+        , m_conversion_units(other.m_conversion_units)
     {}
 
     ReactionRate& operator=(const ReactionRate& other) {
@@ -59,6 +62,8 @@ public:
         }
         m_input = other.m_input;
         m_rate_index = other.m_rate_index;
+        m_valid = other.m_valid;
+        m_conversion_units = other.m_conversion_units;
         return *this;
     }
 
@@ -69,7 +74,7 @@ public:
     //!
     //! ```.cpp
     //! unique_ptr<MultiRateBase> newMultiRate() const override {
-    //!     return unique_ptr<MultiRateBase>(new MultiRate<RateType, DataType>);
+    //!     return make_unique<MultiRate<RateType, DataType>>();
     //! ```
     //!
     //! where `RateType` is the derived class name and `DataType` is the corresponding
@@ -82,10 +87,16 @@ public:
     //! String identifying reaction rate specialization
     virtual const std::string type() const = 0;
 
+    //! String identifying sub-type of reaction rate specialization
+    virtual const std::string subType() const {
+        return "";
+    }
+
     //! Set parameters
     //! @param node  AnyMap object containing reaction rate specification
     //! @param units  unit definitions specific to rate information
     virtual void setParameters(const AnyMap& node, const UnitStack& units) {
+        setRateUnits(units);
         m_input = node;
     }
 
@@ -94,19 +105,57 @@ public:
     //! handled by the getParameters() method.
     AnyMap parameters() const {
         AnyMap out;
+        out["type"] = type();
         getParameters(out);
         return out;
     }
 
+    //! Get the units for converting the leading term in the reaction rate expression.
+    //!
+    //! These units are often the same as the units of the rate expression itself, but
+    //! not always; sticking coefficients are a notable exception.
+    //! @since New in Cantera 3.0
+    const Units& conversionUnits() const {
+        return m_conversion_units;
+    }
+
+    //! Set the units of the reaction rate expression
+    //!
+    //! Used to determine the units that should be used for converting terms in the
+    //! reaction rate expression, which often have the same units (for example, the
+    //! Arrhenius pre-exponential) but may also be different (for example, sticking
+    //! coefficients).
+    //! @since New in Cantera 3.0
+    virtual void setRateUnits(const UnitStack& rate_units) {
+        if (rate_units.size() > 1) {
+            m_conversion_units = rate_units.product();
+        } else {
+            m_conversion_units = rate_units.standardUnits();
+        }
+    }
+
     //! Check basic syntax and settings of reaction rate expression
-    virtual void check(const std::string& equation, const AnyMap& node) {}
+    virtual void check(const std::string& equation) {}
+
+    //! Check basic syntax and settings of reaction rate expression
+    //! @deprecated  To be removed after Cantera 3.0.
+    //!              Superseded by single-parameter version
+    void check(const std::string& equation, const AnyMap& node) {
+        warn_deprecated("ReactionRate::check",
+            "To be removed after Cantera 3.0; superseded by single-parameter version.");
+        check(equation);
+    }
 
     //! Validate the reaction rate expression
     virtual void validate(const std::string& equation, const Kinetics& kin) {}
 
     //! Validate the reaction rate expression (legacy call)
-    //! @todo deprecate in favor of two-parameter version
-    virtual void validate(const std::string& equation) {}
+    //! @deprecated  To be removed after Cantera 3.0.
+    //!              Superseded by two-parameter version
+    virtual void validate(const std::string& equation) {
+        warn_deprecated("ReactionRate::validate",
+            "To be removed after Cantera 3.0; superseded by two-parameter version.");
+    }
 
     //! Reaction rate index within kinetics evaluator
     size_t rateIndex() const {
@@ -164,6 +213,23 @@ public:
         return _evaluator().evalSingle(*this);
     }
 
+    //! Get flag indicating whether reaction rate is set up correctly
+    bool valid() const {
+        return m_valid;
+    }
+
+    //! Boolean indicating whether rate has compositional dependence
+    //! @since New in Cantera 3.0
+    bool compositionDependent() {
+        return m_composition_dependent_rate;
+    }
+
+    //! Set rate compositional dependence
+    //! @since New in Cantera 3.0
+    void setCompositionDependence(bool comp_dep) {
+        m_composition_dependent_rate = comp_dep;
+    }
+
 protected:
     //! Get parameters
     //! @param node  AnyMap containing rate information
@@ -178,7 +244,16 @@ protected:
     AnyMap m_input;
 
     //! Index of reaction rate within kinetics evaluator
-    size_t m_rate_index;
+    size_t m_rate_index = npos;
+
+    //! Flag indicating whether reaction rate is set up correctly
+    bool m_valid = false;
+
+    //! Flag indicating composition dependent rate
+    bool m_composition_dependent_rate = false;
+
+    //! Units of the leading term in the reaction rate expression
+    Units m_conversion_units{0.};
 
 private:
     //! Return an object that be used to evaluate the rate by converting general input

@@ -160,6 +160,7 @@ Example::
     thermo:
       model: Shomate
       temperature-ranges: [298, 1300, 6000]
+      reference-pressure: 1 bar
       data:
       - [25.56759, 6.096130, 4.054656, -2.671301, 0.131021,
         -118.0089, 227.3665]
@@ -245,6 +246,21 @@ Example::
       data: {298.15: -91.50963, 333.15: -85.0}
 
 
+.. _sec-yaml-species-crit-props:
+
+Species critical state parameters
+=================================
+
+``critical-temperature``
+    The critical temperature of the species [K]
+
+``critical-pressure``
+    The critical pressure of the species [Pa]
+
+``acentric-factor``
+    Pitzer's acentric factor :math:`omega` [-]
+
+
 .. _sec-yaml-species-eos:
 
 Species equation of state models
@@ -261,21 +277,9 @@ Species equation of state models
     - :ref:`ions-from-neutral-molecule <sec-yaml-eos-ions-from-neutral>`
     - :ref:`liquid-water-IAPWS95 <sec-yaml-eos-liquid-water-iapws95>`
     - :ref:`molar-volume-temperature-polynomial <sec-yaml-eos-molar-volume-temperature-polynomial>`
+    - :ref:`Peng-Robinson <sec-yaml-eos-peng-robinson>`
     - :ref:`Redlich-Kwong <sec-yaml-eos-redlich-kwong>`
 
-.. _sec-yaml-species-crit-props:
-
-Species critical state parameters
-=================================
-
-``critical-temperature``
-    The critical temperature of the species.
-
-``critical-pressure``
-    The critical pressure of the species.
-
-``acentric-factor``
-    Pitzer's acentric factor :math:`omega`.
 
 .. _sec-yaml-eos-constant-volume:
 
@@ -368,8 +372,10 @@ Ideal gas
 
 A species using the ideal gas equation of state, as
 `described here <https://cantera.org/documentation/dev/doxygen/html/df/d31/classCantera_1_1PDSS__IdealGas.html#details>`__.
-This model is the default if no ``equation-of-state`` section is included.
 
+.. deprecated:: 3.0
+
+    This species thermo model is deprecated and will be removed after Cantera 3.0.
 
 .. _sec-yaml-eos-ions-from-neutral:
 
@@ -379,6 +385,10 @@ Ions from neutral molecule
 A species equation of state model used with the ``ions-from-neutral-molecule``
 phase model, as
 `described here <https://cantera.org/documentation/dev/doxygen/html/d5/df4/classCantera_1_1PDSS__IonsFromNeutral.html#details>`__.
+
+.. deprecated:: 3.0
+
+    This species thermo model is deprecated and will be removed after Cantera 3.0.
 
 Additional fields:
 
@@ -418,6 +428,41 @@ Additional fields:
 ``data``
     Vector of 4 coefficients for a cubic polynomial in temperature
 
+.. _sec-yaml-eos-peng-robinson:
+
+Peng-Robinson
+-------------
+
+A model where species follow the Peng-Robinson equation of state as
+`described here <https://cantera.org/documentation/dev/doxygen/html/d3/ddc/classCantera_1_1PengRobinson.html#details>`__.
+
+Additional fields:
+
+``a``
+    Pure-species ``a`` coefficient [Pa*m^6/kmol^2]
+
+``b``
+    Pure-species ``b`` coefficient [m^3/kmol]
+
+``acentric-factor``
+    Pitzer's acentric factor [-]
+
+``binary-a``
+    Optional mapping where the keys are species names and the values are the ``a``
+    coefficients for binary interactions between the two species.
+
+Example::
+
+    equation-of-state:
+      model: Peng-Robinson
+      units: {length: cm, quantity: mol}
+      a: 5.998873E+11
+      b: 18.9714
+      acentric-factor: 0.344
+      binary-a:
+        H2: 4 bar*cm^6/mol^2
+        CO2: 7.897e7 bar*cm^6/mol^2
+
 
 .. _sec-yaml-eos-redlich-kwong:
 
@@ -439,6 +484,99 @@ Additional fields:
 ``binary-a``
     Mapping where the keys are species and the values are the ``a``
     coefficients for binary interactions between the two species.
+
+
+.. _sec-yaml-coverage-dependent-surface-species:
+
+Coverage-dependent Surface
+--------------------------
+
+A model where species thermodynamic properties are calculated as a function
+coverage as
+`described here <https://cantera.org/documentation/dev/doxygen/html/db/d25/classCantera_1_1CoverageDependentSurfPhase.html#details>`__.
+
+Additional fields:
+
+``coverage-dependencies``
+    Mapping where keys are the name of species whose coverage affects
+    thermodynamic properties of the node-owner species. The map values are
+    the dependency entries including ``model``, model-specific parameters,
+    ``heat-capacity-a``, and ``heat-capacity-b`` that correspond
+    to an individual dependency between the node-owner species and keyed species.
+
+``model``
+    Dependency model for coverage-dependent enthalpy or entropy. It should be
+    one of the four: ``linear``, ``polynomial``, ``piecewise-linear``
+    or ``interpolative``. The ``model`` and model-specific parameters are grouped
+    as follow.
+
+    ``linear``: ``enthalpy``, ``entropy``
+
+    ``polynomial``: ``enthalpy-coefficients``, ``entropy-coefficients``
+
+    ``piecewise-linear``: ``enthalpy-low``, ``enthalpy-high``, ``enthalpy-change``,
+    ``entropy-low``, ``entropy-high``, ``entropy-change``
+
+    ``interpolative``: ``enthalpy-coverages``, ``enthalpies``, ``entropy-coverages``,
+    ``entropies``
+
+``enthalpy`` or ``entropy``
+    Slope of the coverage-dependent enthalpy or entropy used in the ``linear``
+    model.
+
+``enthalpy-coefficients`` or ``entropy-coefficients``
+    Array of polynomial coefficients in order of 1st, 2nd, 3rd, and 4th-order
+    used in coverage-dependent enthalpy or entropy calculation with the ``polynomial``
+    model.
+
+``enthalpy-low`` or ``entropy-low``
+    Slope of the coverage-dependent enthalpy or entropy for the lower coverage
+    region used in the ``piecewise-linear`` model.
+
+``enthalpy-high`` or ``entropy-high``
+    Slope of the coverage-dependent enthalpy or entropy for the higher coverage
+    region used in the ``piecewise-linear`` model.
+
+``enthalpy-change`` or ``entropy-change``
+    Coverage that separates the lower and higher coverage regions of the
+    coverage-dependent enthalpy or entropy used in the ``piecewise-linear`` model.
+
+``enthalpy-coverages`` or ``entropy-coverages``
+    Array of discrete coverage values used in coverage-dependent enthalpy
+    or entropy used in the ``interpolative`` model.
+
+``enthalpies`` or ``entropies``
+    Array of discrete enthalpy or entropy values corresponding to the coverages
+    in ``enthalpy-coverages`` or ``entropy-coverages``, respectively, used in the
+    ``interpolative`` model.
+
+``heat-capacity-a`` or ``heat-capacity-b``
+    Coefficient :math:`c^{(a)}` or :math:`c^{(b)}` used in the coverage-dependent
+    ``heat capacity`` model.
+
+Example::
+
+    coverage-dependencies:
+      OC_Pt: {model: linear,
+              units: {energy: eV, quantity: molec},
+              enthalpy: 0.48, entropy: -0.031}
+      C_Pt: {model: polynomial,
+             units: {energy: J, quantity: mol},
+             enthalpy-coefficients: [0.0, -3.86e4, 0.0, 4.2e5],
+             entropy-coefficients: [0.8e3, 0.0, -1.26e4, 0.0]}
+      CO2_Pt: {model: piecewise-linear,
+               units: {energy: kJ, quantity: mol},
+               enthalpy-low: 0.5e2, enthalpy-high: 1.0e2,
+               enthalpy-change: 0.4,
+               entropy-low: 0.1e2, entropy-high: -0.2e2,
+               entropy-change: 0.4,
+               heat-capacity-a: 0.02e-1, heat-capacity-b: -0.156e-1}
+      O_Pt: {model: interpolative,
+             units: {energy: kcal, quantity: mol},
+             enthalpy-coverages: [0.0, 0.2, 0.4, 0.7, 0.9, 1.0],
+             enthalpies: [0.0, 0.5, 1.0, 2.7, 3.5, 4.0],
+             entropy-coverages: [0.0, 0.5, 1.0],
+             entropies: [0.0, -0.7, -2.0]}
 
 
 .. _sec-yaml-species-transport:

@@ -54,11 +54,17 @@ ChebyshevRate::ChebyshevRate(double Tmin, double Tmax, double Pmin, double Pmax,
     setData(coeffs);
 }
 
-void ChebyshevRate::setParameters(const AnyMap& node, const UnitStack& units)
+ChebyshevRate::ChebyshevRate(const AnyMap& node, const UnitStack& rate_units)
+    : ChebyshevRate()
 {
-    m_rate_units = units.product();
+    setParameters(node, rate_units);
+}
+
+void ChebyshevRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
+{
+    ReactionRate::setParameters(node, rate_units);
     const UnitSystem& unit_system = node.units();
-    Array2D coeffs;
+    Array2D coeffs(0, 0);
     if (node.hasKey("data")) {
         const auto& T_range = node["temperature-range"].asVector<AnyValue>(2);
         const auto& P_range = node["pressure-range"].asVector<AnyValue>(2);
@@ -73,9 +79,8 @@ void ChebyshevRate::setParameters(const AnyMap& node, const UnitStack& units)
                 coeffs(i, j) = vcoeffs[i][j];
             }
         }
-        if (m_rate_units.factor()) {
-            coeffs(0, 0) += std::log10(unit_system.convertTo(1.0, m_rate_units));
-        }
+        double offset = unit_system.convertRateCoeff(AnyValue(1.0), conversionUnits());
+        coeffs(0, 0) += std::log10(offset);
         setLimits(
             unit_system.convert(T_range[0], "K"),
             unit_system.convert(T_range[1], "K"),
@@ -83,21 +88,8 @@ void ChebyshevRate::setParameters(const AnyMap& node, const UnitStack& units)
             unit_system.convert(P_range[1], "Pa")
         );
     } else {
-        // ensure that reaction rate can be evaluated (but returns NaN)
-        coeffs = Array2D(1, 1);
-        coeffs(0, 0) = NAN;
-        setLimits(290., 3000., 1.e-7, 1.e14);
+        setLimits(290., 3000., Tiny, 1. / Tiny);
     }
-
-    setData(coeffs);
-}
-
-void ChebyshevRate::setup(double Tmin, double Tmax, double Pmin, double Pmax,
-                          const Array2D& coeffs)
-{
-    warn_deprecated("ChebyshevRate::setup", "Deprecated in Cantera 2.6; "
-        "replaceable with setLimits() and setData().");
-    setLimits(Tmin, Tmax, Pmin, Pmax);
     setData(coeffs);
 }
 
@@ -121,25 +113,19 @@ void ChebyshevRate::setLimits(double Tmin, double Tmax, double Pmin, double Pmax
 
 void ChebyshevRate::setData(const Array2D& coeffs)
 {
-    m_coeffs = coeffs;
-    dotProd_.resize(coeffs.nRows());
-
-    // convert to row major for legacy output
-    // note: chebCoeffs_ is not used internally (@todo: remove after Cantera 2.6)
-    size_t rows = m_coeffs.nRows();
-    size_t cols = m_coeffs.nColumns();
-    chebCoeffs_.resize(rows * cols);
-    for (size_t i = 0; i < rows; i++) {
-        for (size_t j = 0; j < cols; j++) {
-            chebCoeffs_[cols * i + j] = m_coeffs(i, j);
-        }
+    m_valid = !coeffs.data().empty();
+    if (m_valid) {
+        m_coeffs = coeffs;
+    } else {
+        // ensure that reaction rate can be evaluated (but returns NaN)
+        m_coeffs = Array2D(1, 1, NAN);
     }
+    dotProd_.resize(m_coeffs.nRows());
 }
 
 void ChebyshevRate::getParameters(AnyMap& rateNode) const
 {
-    rateNode["type"] = type();
-    if (!m_coeffs.data().size() || std::isnan(m_coeffs(0, 0))) {
+    if (!valid()) {
         // object not fully set up
         return;
     }
@@ -155,7 +141,7 @@ void ChebyshevRate::getParameters(AnyMap& rateNode) const
     }
     // Unit conversions must take place later, after the destination unit system
     // is known. A lambda function is used here to override the default behavior
-    Units rate_units2 = m_rate_units;
+    Units rate_units2 = conversionUnits();
     auto converter = [rate_units2](AnyValue& coeffs, const UnitSystem& units) {
         if (rate_units2.factor() != 0.0) {
             coeffs.asVector<vector_fp>()[0][0] += \
@@ -173,8 +159,8 @@ void ChebyshevRate::getParameters(AnyMap& rateNode) const
 
 void ChebyshevRate::validate(const std::string& equation, const Kinetics& kin)
 {
-    if (m_coeffs.data().empty() || isnan(m_coeffs(0, 0))) {
-        throw CanteraError("ChebyshevRate::validate",
+    if (!valid()) {
+        throw InputFileError("ChebyshevRate::validate", m_input,
             "Rate object for reaction '{}' is not configured.", equation);
     }
 }

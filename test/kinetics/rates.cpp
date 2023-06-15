@@ -1,60 +1,31 @@
 #include "gtest/gtest.h"
 #include "cantera/thermo.h"
 #include "cantera/kinetics.h"
+#include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/IdealGasPhase.h"
-#include "cantera/kinetics/GasKinetics.h"
 #include "cantera/base/Solution.h"
 #include "cantera/base/Interface.h"
 
 namespace Cantera
 {
 
-#ifndef CT_NO_PYTHON
-TEST(FracCoeff, ConvertFracCoeff)
-{
-    suppress_deprecation_warnings();
-    IdealGasPhase thermo1("../data/frac.cti", "gas");
-    std::vector<ThermoPhase*> phases1 { &thermo1 };
-    GasKinetics kinetics1;
-    importKinetics(thermo1.xml(), phases1, &kinetics1);
-
-    IdealGasPhase thermo2("../data/frac.xml", "gas");
-    std::vector<ThermoPhase*> phases2 { &thermo2 };
-    GasKinetics kinetics2;
-    importKinetics(thermo2.xml(), phases2, &kinetics2);
-    make_deprecation_warnings_fatal();
-
-    ASSERT_EQ(thermo2.nSpecies(), thermo1.nSpecies());
-    ASSERT_EQ(kinetics2.nReactions(), kinetics1.nReactions());
-
-    for (size_t i = 0; i < kinetics1.nReactions(); i++) {
-        for (size_t k = 0; k < thermo1.nSpecies(); k++) {
-            EXPECT_EQ(kinetics1.reactantStoichCoeff(k,i),
-                      kinetics2.reactantStoichCoeff(k,i));
-            EXPECT_EQ(kinetics1.productStoichCoeff(k,i),
-                      kinetics2.productStoichCoeff(k,i));
-        }
-    }
-}
-#endif
-
 class FracCoeffTest : public testing::Test
 {
 public:
     FracCoeffTest() :
-        therm("frac.yaml", "gas")
+        therm(newThermo("frac.yaml", "gas"))
     {
-        kin = newKinetics({&therm}, "frac.yaml", "gas");
-        therm.setState_TPX(2000, 4*OneAtm,
+        kin = newKinetics({therm}, "frac.yaml");
+        therm->setState_TPX(2000, 4*OneAtm,
                             "H2O:0.5, OH:.05, H:0.1, O2:0.15, H2:0.2");
-        kH2O = therm.speciesIndex("H2O");
-        kH = therm.speciesIndex("H");
-        kOH = therm.speciesIndex("OH");
-        kO2 = therm.speciesIndex("O2");
-        kH2 = therm.speciesIndex("H2");
+        kH2O = therm->speciesIndex("H2O");
+        kH = therm->speciesIndex("H");
+        kOH = therm->speciesIndex("OH");
+        kO2 = therm->speciesIndex("O2");
+        kH2 = therm->speciesIndex("H2");
     }
-    IdealGasPhase therm;
-    unique_ptr<Kinetics> kin;
+    shared_ptr<ThermoPhase> therm;
+    shared_ptr<Kinetics> kin;
     size_t kH2O, kH, kOH, kO2, kH2;
 };
 
@@ -93,9 +64,9 @@ TEST_F(FracCoeffTest, RateConstants)
 TEST_F(FracCoeffTest, RatesOfProgress)
 {
     vector_fp kf(kin->nReactions(), 0.0);
-    vector_fp conc(therm.nSpecies(), 0.0);
+    vector_fp conc(therm->nSpecies(), 0.0);
     vector_fp ropf(kin->nReactions(), 0.0);
-    therm.getConcentrations(&conc[0]);
+    therm->getConcentrations(&conc[0]);
     kin->getFwdRateConstants(&kf[0]);
     kin->getFwdRatesOfProgress(&ropf[0]);
 
@@ -107,8 +78,8 @@ TEST_F(FracCoeffTest, RatesOfProgress)
 TEST_F(FracCoeffTest, CreationDestructionRates)
 {
     vector_fp ropf(kin->nReactions(), 0.0);
-    vector_fp cdot(therm.nSpecies(), 0.0);
-    vector_fp ddot(therm.nSpecies(), 0.0);
+    vector_fp cdot(therm->nSpecies(), 0.0);
+    vector_fp ddot(therm->nSpecies(), 0.0);
     kin->getFwdRatesOfProgress(&ropf[0]);
     kin->getCreationRates(&cdot[0]);
     kin->getDestructionRates(&ddot[0]);
@@ -123,23 +94,23 @@ TEST_F(FracCoeffTest, CreationDestructionRates)
     EXPECT_DOUBLE_EQ(0.2*ropf[1]+0.5*ropf[2], ddot[kO2]);
     EXPECT_DOUBLE_EQ(ropf[1]+ropf[2], cdot[kH2O]);
 
-    EXPECT_DOUBLE_EQ(0.0, cdot[therm.speciesIndex("O")]);
-    EXPECT_DOUBLE_EQ(0.0, ddot[therm.speciesIndex("O")]);
+    EXPECT_DOUBLE_EQ(0.0, cdot[therm->speciesIndex("O")]);
+    EXPECT_DOUBLE_EQ(0.0, ddot[therm->speciesIndex("O")]);
 }
 
 TEST_F(FracCoeffTest, EquilibriumConstants)
 {
     vector_fp Kc(kin->nReactions(), 0.0);
-    vector_fp mu0(therm.nSpecies(), 0.0);
+    vector_fp mu0(therm->nSpecies(), 0.0);
 
     kin->getEquilibriumConstants(&Kc[0]);
-    therm.getGibbs_ref(&mu0[0]); // at pRef
+    therm->getGibbs_ref(&mu0[0]); // at pRef
 
     double deltaG0_0 = 1.4 * mu0[kH] + 0.6 * mu0[kOH] + 0.2 * mu0[kO2] - mu0[kH2O];
     double deltaG0_1 = mu0[kH2O] - 0.7 * mu0[kH2] - 0.6 * mu0[kOH] - 0.2 * mu0[kO2];
 
-    double pRef = therm.refPressure();
-    double RT = therm.RT();
+    double pRef = therm->refPressure();
+    double RT = therm->RT();
 
     // Net stoichiometric coefficients are 1.2 and -0.5
     EXPECT_NEAR(exp(-deltaG0_0/RT) * pow(pRef/RT, 1.2), Kc[0], 1e-13 * Kc[0]);
@@ -184,16 +155,6 @@ public:
     shared_ptr<Solution> soln;
     size_t nRxn, nSpec;
 };
-
-#ifndef CT_NO_PYTHON
-TEST_F(NegativePreexponentialFactor, fromCti)
-{
-    suppress_deprecation_warnings();
-    setup("../data/noxNeg.cti");
-    make_deprecation_warnings_fatal();
-    testNetProductionRates();
-}
-#endif
 
 TEST_F(NegativePreexponentialFactor, fromYaml)
 {

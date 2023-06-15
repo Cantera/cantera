@@ -22,7 +22,7 @@ class Transport;
 class YamlWriter
 {
 public:
-    YamlWriter();
+    YamlWriter() = default;
 
     //! Include top-level information used in YAML header block
     void setHeader(const AnyMap& header);
@@ -75,11 +75,11 @@ protected:
 
     std::vector<shared_ptr<Solution>> m_phases;
 
-    //! @see setPrecision()
-    long int m_float_precision;
+    //! See setPrecision()
+    long int m_float_precision = 15;
 
-    //! @see skipUserDefined()
-    bool m_skip_user_defined;
+    //! See skipUserDefined()
+    bool m_skip_user_defined = false;
 
     //! Top-level units directive for the output file. Defaults to Cantera's
     //! native SI+kmol system.

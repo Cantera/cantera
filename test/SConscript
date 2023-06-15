@@ -10,16 +10,9 @@ from buildutils import *
 Import('env','build','install')
 localenv = env.Clone()
 
-# Where possible, link tests against the shared libraries to minimize the sizes
-# of the resulting binaries.
-if localenv['OS'] == 'Linux':
-    cantera_libs = localenv['cantera_shared_libs']
-else:
-    cantera_libs = localenv['cantera_libs']
-
 localenv.Prepend(CPPPATH=['#include'],
                  LIBPATH='#build/lib')
-localenv.Append(LIBS=cantera_libs,
+localenv.Append(LIBS=localenv['cantera_shared_libs'],
                 CCFLAGS=env['warning_flags'])
 
 if env['googletest'] == 'submodule':
@@ -39,10 +32,10 @@ localenv['ENV']['CANTERA_DATA'] = (Dir('#build/data').abspath + os.pathsep +
                                    Dir('#samples/data').abspath + os.pathsep +
                                    Dir('#test/data').abspath)
 
-PASSED_FILES = {}
+# For Python model extensions
+localenv.PrependENVPath('PYTHONPATH', Dir('#test/python').abspath)
 
-# Add build/lib in order to find Cantera shared library
-localenv.PrependENVPath('LD_LIBRARY_PATH', Dir('#build/lib').abspath)
+PASSED_FILES = {}
 
 def addTestProgram(subdir, progName, env_vars={}):
     """
@@ -68,7 +61,7 @@ def addTestProgram(subdir, progName, env_vars={}):
         code = subprocess.call(cmd, env=env['ENV'], cwd=workDir)
 
         if code:
-            print("FAILED: Test '{0}' exited with code {1}".format(progName, code))
+            logger.failed(f"Test {progName!r} exited with code {code}")
             if env["fast_fail_tests"]:
                 sys.exit(1)
         else:
@@ -118,14 +111,14 @@ def addTestProgram(subdir, progName, env_vars={}):
                                             [], [Delete(passedFile.abspath)]))
 
 
-def addPythonTest(testname, subdir, script, interpreter,
-                  args="", dependencies=(), env_vars={}, optional=False):
+def addPythonTest(testname, subset):
     """
     Create targets for running and resetting a test script.
     """
+
     def scriptRunner(target, source, env):
+        """Scons Action to run a set of tests using pytest """
         pytest_outfile = File("#test/work/pytest.xml").abspath
-        """Scons Action to run a test script using the specified interpreter"""
         workDir = Dir('#test/work').abspath
         passedFile = target[0]
         test_results.tests.pop(passedFile.name, None)
@@ -135,34 +128,35 @@ def addPythonTest(testname, subdir, script, interpreter,
             os.remove(pytest_outfile)
 
         environ = dict(env['ENV'])
-        for k,v in env_vars.items():
-            print(k,v)
-            environ[k] = v
-
-        cmdargs = args.split()
-        if env["fast_fail_tests"]:
-            cmdargs.insert(0, "fast_fail")
-        if env["show_long_tests"]:
-            cmdargs.insert(0, "show_long")
-        if env["verbose_tests"]:
-            cmdargs.insert(0, "verbose")
         if env["skip_slow_tests"]:
             environ["CT_SKIP_SLOW"] = "1"
 
-        code = subprocess.call(
-            [env.subst(interpreter), source[0].abspath] + cmdargs,
-            env=environ
-        )
+        cmd = [env.subst("$python_cmd"), "-m", "pytest", "-raP",
+               "--junitxml=test/work/pytest.xml"]
+        if env["fast_fail_tests"]:
+            cmd.append("-x")
+        if env["show_long_tests"]:
+            cmd.append("--durations=50")
+
+        if env["verbose_tests"]:
+            cmd.append("-v")
+        else:
+            cmd.append("--log-level=ERROR")
+
+        if env["coverage"]:
+            cmd.extend([
+                "--cov=cantera",
+                "--cov-config=test/python/coverage.ini",
+                "--cov-report=xml:build/pycov.xml",
+                "--cov-report=html:build/python-coverage"
+            ])
+
+        code = subprocess.call(cmd + [str(s) for s in source], env=environ)
+
         if not code:
             # Test was successful
             with open(target[0].path, 'w') as passed_file:
                 passed_file.write(time.asctime()+'\n')
-        elif code == 21:  # Special error code from runCythonTests.py for pytest errors
-            msg = (f"{testname}: Test suite requires the Python package 'pytest',"
-                " which can be installed using pip or conda"
-            )
-            test_results.failed[msg] = 100
-            return
         elif env["fast_fail_tests"]:
             sys.exit(1)
 
@@ -187,19 +181,21 @@ def addPythonTest(testname, subdir, script, interpreter,
                 ' ***no results for entire test suite***'] = 100
 
     testenv = localenv.Clone()
-    passedFile = File(pjoin(subdir, '%s.passed' % testname))
+    passedFile = File(f'python/{name}.passed')
     PASSED_FILES[testname] = str(passedFile)
 
-    run_program = testenv.Command(passedFile, pjoin('#test', subdir, script), scriptRunner)
-    for dep in dependencies:
-        if isinstance(dep, str):
-            dep = File(pjoin(subdir, dep))
-        testenv.Depends(run_program, dep)
-    if not optional:
+    if subset:
+        test_files = [f"python/test_{subset}.py"]
+    else:
+        test_files = multi_glob(localenv, "python", "^test_*.py")
+    run_program = testenv.Command(passedFile, test_files, scriptRunner)
+    testenv.Depends(run_program, localenv["python_module"])
+    testenv.Depends(run_program, localenv["python_extension"])
+    if not subset:
         testenv.Depends(env['test_results'], run_program)
         test_results.tests[passedFile.name] = True
     if os.path.exists(passedFile.abspath):
-        Alias('test-reset', testenv.Command('reset-%s%s' % (subdir, testname),
+        Alias("test-reset", testenv.Command(f"reset-python{testname}",
                                             [], [Delete(passedFile.abspath)]))
 
     return run_program
@@ -237,9 +233,12 @@ def addMatlabTest(script, testName, dependencies=None, env_vars=()):
                 ' ***no results for entire test suite***'] = 100
             return
 
-        print('-------- Matlab test results --------')
-        print(results)
-        print('------ end Matlab test results ------')
+        matlab_test_message = [
+            f"{' Matlab test results ':-^88}",
+            results,
+            f"{' end Matlab test results ':-^88}",
+        ]
+        logger.info("\n".join(matlab_test_message))
 
         passed = True
         for line in results.split('\n'):
@@ -282,15 +281,19 @@ def addMatlabTest(script, testName, dependencies=None, env_vars=()):
     return run_program
 
 # Instantiate tests
-addTestProgram('general', 'general')
-addTestProgram('thermo', 'thermo')
+addTestProgram('clib', 'clib')
 addTestProgram('equil', 'equil')
+addTestProgram('general', 'general')
 addTestProgram('kinetics', 'kinetics')
+addTestProgram('oneD', 'oneD')
+addTestProgram('thermo', 'thermo')
+addTestProgram('thermo_consistency', 'thermo-consistency',
+               env_vars={'GTEST_BRIEF': '0' if env['verbose_tests'] else '1'})
 addTestProgram('transport', 'transport')
 addTestProgram('zeroD', 'zeroD')
 
 python_subtests = ['']
-test_root = '#interfaces/cython/cantera/test'
+test_root = '#test/python'
 for f in multi_glob(localenv, test_root, '^test_*.py'):
     python_subtests.append(f.name[5:-3])
 
@@ -300,13 +303,7 @@ if localenv['python_package'] == 'full':
     # tests (test-python) for the main suite.
     for subset in python_subtests:
         name = 'python-' + subset if subset else 'python'
-        pyTest = addPythonTest(
-            name, 'python', 'runCythonTests.py',
-            args=subset,
-            interpreter='$python_cmd',
-            dependencies=(localenv['python_module'] + localenv['python_extension'] +
-                          multi_glob(localenv, test_root, 'py')),
-            optional=bool(subset))
+        pyTest = addPythonTest(name, subset=subset)
         localenv.Alias('test-' + name, pyTest)
         env['testNames'].append(name)
 

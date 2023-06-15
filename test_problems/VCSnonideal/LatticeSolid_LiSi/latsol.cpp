@@ -14,18 +14,18 @@ void testProblem(int printLvl)
     VCS_SOLVE::disableTiming();
 
     // Create the phases
-    std::unique_ptr<ThermoPhase> LiSi_solid(newPhase("Li7Si3_latsol.yaml",
-                                                     "Li7Si3_and_Interstitials(S)"));
-    std::unique_ptr<ThermoPhase> Li_liq(newPhase("Li7Si3_latsol.yaml", "Li(L)"));
-    std::unique_ptr<ThermoPhase> LiFixed(newPhase("Li7Si3_latsol.yaml", "LiFixed"));
-    MargulesVPSSTP salt("Li7Si3_latsol.yaml", "MoltenSalt_electrolyte");
+    auto LiSi_solid = newThermo("Li7Si3_latsol.yaml", "Li7Si3_and_Interstitials(S)");
+    auto Li_liq = newThermo("Li7Si3_latsol.yaml", "Li(L)");
+    auto LiFixed = newThermo("Li7Si3_latsol.yaml", "LiFixed");
+    auto salt = make_unique<MargulesVPSSTP>(
+        "Li7Si3_latsol.yaml", "MoltenSalt_electrolyte");
 
     // set states
-    vector_fp x(salt.nSpecies(), 0);
+    vector_fp x(salt->nSpecies(), 0);
     x[0] = 0.7;
     x[1] = 1.0 - x[0];
 
-    salt.setState_TPX(T, OneAtm, &x[0]);
+    salt->setState_TPX(T, OneAtm, &x[0]);
     LiSi_solid->setState_TP(T, OneAtm);
 
     int ee = static_cast<int>(LiSi_solid->nElements());
@@ -51,7 +51,7 @@ void testProblem(int printLvl)
 
     MultiPhase mmm;
 
-    mmm.addPhase(&salt, 10.);
+    mmm.addPhase(salt.get(), 10.);
     mmm.addPhase(LiSi_solid.get(), 1.);
     mmm.addPhase(LiFixed.get(), 100.);
 

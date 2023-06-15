@@ -5,12 +5,11 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-#define CANTERA_USE_INTERNAL
 #include "cantera/clib/ctrpath.h"
 
 // Cantera includes
 #include "cantera/kinetics/ReactionPath.h"
-#include "Cabinet.h"
+#include "clib_utils.h"
 
 #include <fstream>
 
@@ -22,7 +21,7 @@ typedef Cabinet<ReactionPathDiagram> DiagramCabinet;
 template<> DiagramCabinet* DiagramCabinet::s_storage = 0;
 template<> BuilderCabinet* BuilderCabinet::s_storage = 0;
 
-typedef Cabinet<Kinetics> KineticsCabinet;
+typedef SharedCabinet<Kinetics> KineticsCabinet;
 template<> KineticsCabinet* KineticsCabinet::s_storage; // defined in ct.cpp
 
 extern "C" {

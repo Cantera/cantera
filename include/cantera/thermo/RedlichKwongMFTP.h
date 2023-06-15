@@ -29,20 +29,8 @@ public:
     explicit RedlichKwongMFTP(const std::string& infile="",
                               const std::string& id="");
 
-    //! Construct and initialize a RedlichKwongMFTP object directly from an
-    //! XML database
-    /*!
-     *  @param phaseRef XML phase node containing the description of the phase
-     *  @param id       id attribute containing the name of the phase.  (default
-     *      is the empty string)
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    RedlichKwongMFTP(XML_Node& phaseRef, const std::string& id = "");
-
     virtual std::string type() const {
-        return "RedlichKwong";
+        return "Redlich-Kwong";
     }
 
     //! @name Molar Thermodynamic properties
@@ -96,7 +84,7 @@ public:
      */
     virtual void getActivityCoefficients(doublereal* ac) const;
 
-    /// @name  Partial Molar Properties of the Solution
+    //! @name  Partial Molar Properties of the Solution
     //! @{
 
     //! Get the array of non-dimensional species chemical potentials.
@@ -110,6 +98,7 @@ public:
      *
      * @param mu    Output vector of non-dimensional species chemical potentials
      *              Length: m_kk.
+     * @deprecated To be removed after Cantera 3.0. Use getChemPotentials() instead.
      */
     virtual void getChemPotentials_RT(doublereal* mu) const;
 
@@ -125,37 +114,17 @@ public:
 
 public:
     //! @name Initialization Methods - For Internal use
-    /*!
-     * The following methods are used in the process of constructing
-     * the phase and setting its parameters from a specification in an
-     * input file. They are not normally used in application programs.
-     * To see how they are used, see importPhase().
-     */
+    //!
+    //! The following methods are used in the process of constructing
+    //! the phase and setting its parameters from a specification in an
+    //! input file. They are not normally used in application programs.
+    //! To see how they are used, see importPhase().
     //! @{
 
     virtual bool addSpecies(shared_ptr<Species> spec);
-    virtual void setParametersFromXML(const XML_Node& thermoNode);
-    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
     virtual void initThermo();
     virtual void getSpeciesParameters(const std::string& name,
                                       AnyMap& speciesNode) const;
-
-    //! Retrieve a and b coefficients by looking up tabulated critical parameters
-    /*!
-     *  If pureFluidParameters are not provided for any species in the phase,
-     *  consult the critical properties tabulated in `critical-properties.yaml`.
-     *  If the species is found there, calculate pure fluid parameters a_k and b_k as:
-     *  \f[ a_k = 0.4278*R**2*T_c^2.5/P_c \f]
-     *
-     *  and:
-     *  \f[ b_k = 0.08664*R*T_c/P_c \f]
-     *
-     * @deprecated To be removed after Cantera 2.6. Use of critical-properties.yaml is
-     *     integrated into initThermo() for YAML input files.
-     *
-     *  @param iName    Name of the species
-     */
-    virtual std::vector<double> getCoeff(const std::string& iName);
 
     //! Set the pure fluid interaction parameters for a species
     /*!
@@ -190,20 +159,6 @@ public:
      */
     void setBinaryCoeffs(const std::string& species_i,
                          const std::string& species_j, double a0, double a1);
-
-private:
-    //! Read the pure species RedlichKwong input parameters
-    /*!
-     *  @param pureFluidParam   XML_Node for the pure fluid parameters
-     */
-    void readXMLPureFluid(XML_Node& pureFluidParam);
-
-    //! Read the cross species RedlichKwong input parameters
-    /*!
-     *  @param pureFluidParam   XML_Node for the cross fluid parameters
-     */
-    void readXMLCrossFluid(XML_Node& pureFluidParam);
-
     //! @}
 
 protected:
@@ -218,6 +173,10 @@ public:
     virtual doublereal densSpinodalLiquid() const;
     virtual doublereal densSpinodalGas() const;
     virtual doublereal dpdVCalc(doublereal TKelvin, doublereal molarVol, doublereal& presCalc) const;
+
+    virtual double isothermalCompressibility() const;
+    virtual double thermalExpansionCoeff() const;
+    virtual double soundSpeed() const;
 
     //! Calculate dpdV and dpdT at the current conditions
     /*!
@@ -259,19 +218,19 @@ protected:
      *  - 0 = There is no temperature parameterization of a or b
      *  - 1 = The a_ij parameter is a linear function of the temperature
      */
-    int m_formTempParam;
+    int m_formTempParam = 0;
 
     //! Value of b in the equation of state
     /*!
      *  m_b is a function of the temperature and the mole fraction.
      */
-    doublereal m_b_current;
+    double m_b_current = 0.0;
 
     //! Value of a in the equation of state
     /*!
      *  a_b is a function of the temperature and the mole fraction.
      */
-    doublereal m_a_current;
+    double m_a_current = 0.0;
 
     vector_fp a_vec_Curr_;
     vector_fp b_vec_Curr_;
@@ -285,9 +244,9 @@ protected:
     //! For each species, specifies the source of the a and b coefficients
     std::vector<CoeffSource> m_coeffSource;
 
-    int NSolns_;
+    int NSolns_ = 0;
 
-    doublereal Vroot_[3];
+    double Vroot_[3] = {0.0, 0.0, 0.0};
 
     //! Temporary storage - length = m_kk.
     mutable vector_fp m_pp;
@@ -300,14 +259,14 @@ protected:
      * Calculated at the current conditions. temperature and mole number kept
      * constant
      */
-    mutable doublereal dpdV_;
+    mutable double dpdV_ = 0.0;
 
     //! The derivative of the pressure wrt the temperature
     /*!
      *  Calculated at the current conditions. Total volume and mole number kept
      *  constant
      */
-    mutable doublereal dpdT_;
+    mutable double dpdT_ = 0.0;
 
     //! Vector of derivatives of pressure wrt mole number
     /*!

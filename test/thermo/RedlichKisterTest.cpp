@@ -4,7 +4,7 @@
 #include "cantera/thermo/Species.h"
 #include "cantera/thermo/ConstCpPoly.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/thermo/PDSS_IdealGas.h"
+#include "cantera/thermo/PDSS_ConstVol.h"
 
 namespace Cantera
 {
@@ -27,7 +27,7 @@ public:
     RedlichKister_Test() {}
 
     void setup() {
-        test_phase.reset(newPhase("thermo-models.yaml", "Redlich-Kister-LiC6"));
+        test_phase = newThermo("thermo-models.yaml", "Redlich-Kister-LiC6");
     }
 
     void set_r(const double r) {
@@ -37,15 +37,8 @@ public:
         test_phase->setMoleFractions(&moleFracs[0]);
     }
 
-    std::unique_ptr<ThermoPhase> test_phase;
+    std::shared_ptr<ThermoPhase> test_phase;
 };
-
-TEST_F(RedlichKister_Test, construct_from_file)
-{
-    setup();
-    RedlichKisterVPSSTP* redlich_kister_phase = dynamic_cast<RedlichKisterVPSSTP*>(test_phase.get());
-    ASSERT_TRUE(redlich_kister_phase != NULL);
-}
 
 TEST_F(RedlichKister_Test, chem_potentials)
 {
@@ -96,33 +89,6 @@ TEST_F(RedlichKister_Test, dlnActivities)
     }
 }
 
-TEST_F(RedlichKister_Test, activityCoeffs)
-{
-    setup();
-    test_phase->setState_TP(298., 1.);
-
-    // Test that mu0 + RT log(activityCoeff * MoleFrac) == mu
-    const double RT = GasConstant * 298.;
-    vector_fp mu0(2);
-    vector_fp activityCoeffs(2);
-    vector_fp chemPotentials(2);
-    double xmin = 0.6;
-    double xmax = 0.9;
-    int numSteps = 9;
-    double dx = (xmax-xmin)/(numSteps-1);
-
-    for(int i=0; i < numSteps; ++i)
-    {
-        const double r = xmin + i*dx;
-        set_r(r);
-        test_phase->getChemPotentials(&chemPotentials[0]);
-        test_phase->getActivityCoefficients(&activityCoeffs[0]);
-        test_phase->getStandardChemPotentials(&mu0[0]);
-        EXPECT_NEAR(chemPotentials[0], mu0[0] + RT*std::log(activityCoeffs[0] * r), 1.e-6);
-        EXPECT_NEAR(chemPotentials[1], mu0[1] + RT*std::log(activityCoeffs[1] * (1-r)), 1.e-6);
-    }
-}
-
 TEST_F(RedlichKister_Test, standardConcentrations)
 {
     setup();
@@ -130,52 +96,26 @@ TEST_F(RedlichKister_Test, standardConcentrations)
     EXPECT_DOUBLE_EQ(1.0, test_phase->standardConcentration(1));
 }
 
-TEST_F(RedlichKister_Test, activityConcentrations)
-{
-    setup();
-    // Check to make sure activityConcentration_i == standardConcentration_i * gamma_i * X_i
-    vector_fp standardConcs(2);
-    vector_fp activityCoeffs(2);
-    vector_fp activityConcentrations(2);
-    double xmin = 0.6;
-    double xmax = 0.9;
-    int numSteps = 9;
-    double dx = (xmax-xmin)/(numSteps-1);
-
-    for(int i=0; i < 9; ++i)
-    {
-        const double r = xmin + i*dx;
-        set_r(r);
-        test_phase->getActivityCoefficients(&activityCoeffs[0]);
-        standardConcs[0] = test_phase->standardConcentration(0);
-        standardConcs[1] = test_phase->standardConcentration(1);
-        test_phase->getActivityConcentrations(&activityConcentrations[0]);
-
-        EXPECT_NEAR(standardConcs[0] * r * activityCoeffs[0], activityConcentrations[0], 1.e-6);
-        EXPECT_NEAR(standardConcs[1] * (1-r) * activityCoeffs[1], activityConcentrations[1], 1.e-6);
-    }
-}
-
 TEST_F(RedlichKister_Test, fromScratch)
 {
-    test_phase.reset(new RedlichKisterVPSSTP());
+    test_phase = make_shared<RedlichKisterVPSSTP>();
     RedlichKisterVPSSTP& rk = dynamic_cast<RedlichKisterVPSSTP&>(*test_phase);
 
     auto sLiC6 = make_shared<Species>("Li(C6)", parseCompString("C:6 Li:1"));
     double coeffs1[] = {298.15, -11.65e6, 0.0, 0.0};
-    sLiC6->thermo.reset(new ConstCpPoly(100, 5000, 101325, coeffs1));
+    sLiC6->thermo = make_shared<ConstCpPoly>(100, 5000, 101325, coeffs1);
 
     auto sVC6 = make_shared<Species>("V(C6)", parseCompString("C:6"));
     double coeffs2[] = {298.15, 0.0, 0.0, 0.0};
-    sVC6->thermo.reset(new ConstCpPoly(250, 800, 101325, coeffs2));
+    sVC6->thermo = make_shared<ConstCpPoly>(250, 800, 101325, coeffs2);
 
     rk.addSpecies(sLiC6);
     rk.addSpecies(sVC6);
 
-    std::unique_ptr<PDSS> ssLiC6(new PDSS_IdealGas());
+    auto ssLiC6 = make_unique<PDSS_ConstVol>();
     rk.installPDSS(0, std::move(ssLiC6));
 
-    std::unique_ptr<PDSS> ssVC6(new PDSS_IdealGas());
+    auto ssVC6 = make_unique<PDSS_ConstVol>();
     rk.installPDSS(1, std::move(ssVC6));
 
     double hcoeffs[] = {-3.268E6, 3.955E6, -4.573E6, 6.147E6, -3.339E6, 1.117E7,

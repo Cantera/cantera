@@ -2,18 +2,19 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 from math import erf
-from email.utils import formatdate
+from pathlib import Path
 import warnings
 import numpy as np
 
 from ._cantera import *
 from .composite import Solution, SolutionArray
-from . import __version__, __git_commit__
+from . import __version__, __git_commit__, hdf_support
 
 
 class FlameBase(Sim1D):
     """ Base class for flames with a single flow domain """
     __slots__ = ('gas',)
+    #: deprecated and to be removed after Cantera 3.0 here and elsewhere (unused)
     _other = ()
 
     def __init__(self, domains, gas, grid=None):
@@ -47,7 +48,14 @@ class FlameBase(Sim1D):
         :param domain:
             Index of a specific domain within the `Sim1D.domains`
             list. The default is to return other columns of the `Sim1D` object.
+
+        .. deprecated:: 3.0
+
+            Method to be removed after Cantera 3.0. After moving SolutionArray HDF
+            export to the C++ core, this method is unused.
         """
+        warnings.warn("Method to be removed after Cantera 3.0 (unused).",
+                      DeprecationWarning)
         if domain is None:
             return self._other
 
@@ -55,7 +63,7 @@ class FlameBase(Sim1D):
         if isinstance(dom, Inlet1D):
             return tuple([e for e in self._other
                           if e not in {'grid', 'lambda', 'eField'}])
-        elif isinstance(dom, (IdealGasFlow, IonFlow)):
+        elif isinstance(dom, (FreeFlow, AxisymmetricFlow, IdealGasFlow, IonFlow)):
             return self._other
         else:
             return ()
@@ -106,17 +114,17 @@ class FlameBase(Sim1D):
         :param data:
             Restart data, which are typically based on an earlier simulation
             result. Restart data may be specified using a `SolutionArray`,
-            `pandas.DataFrame`, or previously saved CSV or HDF container files.
+            `pandas.DataFrame`, or previously saved CSV, YAML or HDF container files.
             Note that restart data do not overwrite boundary conditions.
             DataFrame input requires a working installation of *pandas*, whereas
             HDF input requires an installation of *h5py*. These packages can be
             installed using pip or conda (``pandas`` and ``h5py``, respectively).
-        :param key:
+        :param group:
             Group identifier within a HDF container file (only used in
             combination with HDF restart data).
         """
         super().set_initial_guess(*args, data=data, group=group, **kwargs)
-        if not data:
+        if data is None:
             return
 
         # load restart data into SolutionArray
@@ -124,23 +132,25 @@ class FlameBase(Sim1D):
             # already a solution array
             arr = data
 
-        elif isinstance(data, str):
-            if data.endswith('.hdf5') or data.endswith('.h5'):
+        elif isinstance(data, (str, Path)):
+            data = str(data)
+            arr = SolutionArray(self.gas, extra=self.other_components())
+            if any(data.endswith(suffix) for suffix in [".hdf5", ".h5", ".hdf"]):
                 # data source identifies a HDF file
-                arr = SolutionArray(self.gas, extra=self.other_components())
-                arr.read_hdf(data, group=group)
-
+                if "native" in hdf_support():
+                    arr.restore(data, name=group, key=self.domains[1].name)
+                else:
+                    arr.read_hdf(data, group=group, subgroup=self.domains[1].name)
+            elif data.endswith(".yaml") or data.endswith(".yml"):
+                # data source identifies a YAML file
+                arr.restore(data, name=group, key=self.domains[1].name)
             elif data.endswith('.csv'):
                 # data source identifies a CSV file
-                arr = SolutionArray(self.gas, extra=self.other_components())
                 arr.read_csv(data)
-
             else:
-                raise ValueError(
-                    "'{}' does not identify CSV or HDF file.".format(data)
-                )
+                raise ValueError(f"'{data}' does not identify CSV, YAML or HDF file.")
         else:
-            # data source is a pandas DataFrame
+            # data source is presumably a pandas DataFrame
             arr = SolutionArray(self.gas, extra=self.other_components())
             arr.from_pandas(data)
 
@@ -163,12 +173,10 @@ class FlameBase(Sim1D):
             u = arr.velocity
 
             self.gas.TPY = left.T, self.P, left.Y
-            u[:i] = u[:i] * left.mdot / self.gas.density / u[0]
+            arr[:i].velocity = u[:i] * left.mdot / self.gas.density / u[0]
 
             self.gas.TPY = right.T, self.P, right.Y
-            u[i:] = - u[i:] * right.mdot / self.gas.density / u[-1]
-
-            arr.velocity = u
+            arr[i:].velocity = - u[i:] * right.mdot / self.gas.density / u[-1]
 
         elif isinstance(left, Inlet1D):
             # adjust temperatures
@@ -176,12 +184,12 @@ class FlameBase(Sim1D):
             arr.TP = T + left.T - T[0], self.P
 
             # adjust velocities
-            if self.flame.flow_type != "Free Flame":
+            if self.flame.domain_type.startswith("axisymmetric"):
                 self.gas.TPY = left.T, self.P, left.Y
                 u0 = left.mdot / self.gas.density
-                arr.velocity *= u0 / arr.velocity[0]
+                arr.velocity = u0 * arr.velocity / arr.velocity[0]
 
-        self.from_solution_array(arr)
+        self.from_array(arr)
 
     def set_profile(self, component, positions, values):
         """
@@ -216,12 +224,11 @@ class FlameBase(Sim1D):
         Get/Set the transport model used by the `Solution` object used for this
         simulation.
         """
-        return self.gas.transport_model
+        return self.flame.transport_model
 
     @transport_model.setter
     def transport_model(self, model):
-        self.gas.transport_model = model
-        self.flame.set_transport(self.gas)
+        self.flame.transport_model = model
 
     @property
     def energy_enabled(self):
@@ -361,7 +368,14 @@ class FlameBase(Sim1D):
         Get the solution at one point or for the full flame domain (if
         ``point=None``) for the specified ``component``. The ``component`` can be
         specified by name or index.
+
+        .. deprecated:: 3.0
+
+            To be removed after Cantera 3.0 to avoid conflation with `Solution`.
+            Replaceable by `profile` or `value`.
         """
+        warnings.warn("Method 'solution' to be removed after Cantera 3.0. "
+            "Replaceable by 'profile' or 'value'.")
         if point is None:
             return self.profile(self.flame, component)
         else:
@@ -374,7 +388,7 @@ class FlameBase(Sim1D):
         ``point``.
         """
         k0 = self.flame.component_index(self.gas.species_name(0))
-        Y = [self.solution(k, point)
+        Y = [self.value(self.flame, k, point)
              for k in range(k0, k0 + self.gas.n_species)]
         self.gas.set_unnormalized_mass_fractions(Y)
         self.gas.TP = self.value(self.flame, 'T', point), self.P
@@ -396,10 +410,30 @@ class FlameBase(Sim1D):
 
         # save data
         cols = ('extra', 'T', 'D', species)
-        self.to_solution_array(normalize=normalize).write_csv(filename, cols=cols)
+        self.to_array(normalize=normalize).write_csv(filename, cols=cols)
 
         if not quiet:
             print("Solution saved to '{0}'.".format(filename))
+
+    def to_array(self, domain=None, normalize=False):
+        """
+        Retrieve domain data as a `SolutionArray` object.
+
+        :param domain:
+            Domain to be converted; by default, the method retrieves the flow domain
+        :param normalize:
+            Boolean flag indicating whether mass/mole fractions should be normalized
+
+        .. versionadded:: 3.0
+        """
+        if domain is None:
+            domain = self.flame
+        else:
+            domain = self.domains[self.domain_index(domain)]
+        dest = SolutionArray(domain.phase, init=False)
+        dest = domain._to_array(dest, normalize)
+        dest.shape = dest._api_shape()
+        return dest
 
     def to_solution_array(self, domain=None, normalize=True):
         """
@@ -410,38 +444,46 @@ class FlameBase(Sim1D):
         By default, the mass or mole fractions will be normalized i.e they
         sum up to 1.0. If this is not desired, the ``normalize`` argument
         can be set to ``False``.
+
+        .. deprecated:: 3.0
+
+            Method to be removed after Cantera 3.0; superseded by `to_array`.
+        """
+        warnings.warn(
+            "Method to be removed after Cantera 3.0. Replaceable by 'to_array'.",
+            DeprecationWarning)
+        return self.to_array(domain, normalize)
+
+    def from_array(self, arr, domain=None):
+        """
+        Restore the solution vector from a `SolutionArray` object.
+
+        :param arr:
+            `SolutionArray` containing data to be restored.
+        :param domain:
+            Domain to be converted; by default, the method retrieves the flow domain
+
+        .. versionadded:: 3.0
         """
         if domain is None:
             domain = self.flame
         else:
             domain = self.domains[self.domain_index(domain)]
-        other = self.other_components(domain)
-
-        states, other_cols, meta = super().collect_data(domain, other)
-        n_points = np.array(states[0]).size
-        if n_points:
-            arr = SolutionArray(self.phase(domain), n_points,
-                                extra=other_cols, meta=meta)
-            if normalize:
-                arr.TPY = states
-            else:
-                if len(states) == 3:
-                    for i in range(n_points):
-                        arr._phase.set_unnormalized_mass_fractions(states[2][i])
-                        arr._phase.TP = np.atleast_1d(states[0])[i], states[1]
-                        arr._states[i] = arr._phase.state
-                else:
-                    arr.TP = states
-            return arr
-        else:
-            return SolutionArray(self.phase(domain), meta=meta)
+        domain._from_array(arr)
 
     def from_solution_array(self, arr, domain=None):
         """
         Restore the solution vector from a `SolutionArray` object.
 
         Derived classes define default values for *other*.
+
+        .. deprecated:: 3.0
+
+            Method to be removed after Cantera 3.0; replaced by `from_array`.
         """
+        warnings.warn(
+            "Method to be removed after Cantera 3.0. Replaced by 'from_array'.",
+            DeprecationWarning)
         if domain is None:
             domain = self.flame
         else:
@@ -450,7 +492,7 @@ class FlameBase(Sim1D):
 
         states = arr.TPY
         other_cols = {e: getattr(arr, e) for e in other
-                      if e in arr._extra}
+                      if e in arr.extra}
         meta = arr.meta
         super().restore_data(domain, states, other_cols, meta)
 
@@ -465,17 +507,17 @@ class FlameBase(Sim1D):
             Boolean flag to indicate whether the mole/mass fractions should
             be normalized (default is ``True``)
 
-        This method uses `to_solution_array` and requires a working *pandas*
+        This method uses `to_array` and requires a working *pandas*
         installation. Use pip or conda to install ``pandas`` to enable this
         method.
         """
         cols = ('extra', 'T', 'D', species)
-        return self.to_solution_array(normalize=normalize).to_pandas(cols=cols)
+        return self.to_array(normalize=normalize).to_pandas(cols=cols)
 
     def from_pandas(self, df, restore_boundaries=True, settings=None):
         """
         Restore the solution vector from a `pandas.DataFrame`; currently disabled
-        (`save`/`restore` or `write_hdf`/`read_hdf` should be used as alternatives).
+        (`save`/`restore` should be used as an alternative).
 
         :param df:
             `pandas.DataFrame` containing data to be restored
@@ -486,17 +528,21 @@ class FlameBase(Sim1D):
             dictionary containing simulation settings
             (see `FlameBase.settings`)
 
-        This method is intendend for loading of data that were previously
-        exported by `to_pandas`. The method uses `from_solution_array` and
+        This method is intended for loading of data that were previously
+        exported by `to_pandas`. The method uses `from_array` and
         requires a working *pandas* installation. The package ``pandas`` can be
         installed using pip or conda.
+
+        .. deprecated:: 3.0
+
+            Method to be removed after Cantera 3.0; not implemented.
         """
         # @todo: Discuss implementation that allows for restoration of boundaries
-        raise NotImplementedError(
-            "Use 'save'/'restore' or 'write_hdf'/'read_hdf' as alternatives.")
+        raise NotImplementedError("Use 'save'/'restore' as alternatives; "
+            "method to be removed after Cantera 3.0.")
 
     def write_hdf(self, filename, *args, group=None, species='X', mode='a',
-                  description=None, compression=None, compression_opts=None,
+                  description=None, compression=None, compression_opts=0,
                   quiet=True, normalize=True, **kwargs):
         """
         Write the solution vector to a HDF container file.
@@ -566,28 +612,19 @@ class FlameBase(Sim1D):
         `SolutionArray.collect_data`. The method exports data using
         `SolutionArray.write_hdf` via `to_solution_array` and requires a working
         installation of *h5py* (``h5py`` can be installed using pip or conda).
-        """
-        cols = ('extra', 'T', 'D', species)
-        meta = self.settings
-        meta['date'] = formatdate(localtime=True)
-        meta['cantera_version'] = __version__
-        meta['git_commit'] = __git_commit__
-        if description is not None:
-            meta['description'] = description
-        for i in range(3):
-            arr = self.to_solution_array(domain=self.domains[i], normalize=normalize)
-            group = arr.write_hdf(filename, *args, group=group, cols=cols,
-                                  subgroup=self.domains[i].name,
-                                  attrs=meta, mode=mode, append=(i > 0),
-                                  compression=compression,
-                                  compression_opts=compression_opts,
-                                  **kwargs)
-            meta = {}
-            mode = 'a'
 
-        if not quiet:
-            msg = "Solution saved to '{0}' as group '{1}'."
-            print(msg.format(filename, group))
+        .. deprecated:: 3.0
+
+            Method to be removed after Cantera 3.0; use `save` instead. Note that
+            the call is redirected to `save` in order to prevent the creation of a file
+            with deprecated HDF format.
+        """
+        warnings.warn("Method to be removed after Cantera 3.0; use 'save' instead.\n"
+            "Note that the call is redirected to 'save' in order to prevent the "
+            "creation of a file with deprecated HDF format.", DeprecationWarning)
+
+        self.save(filename, name=group, description=description,
+                  compression=compression_opts)
 
     def read_hdf(self, filename, group=None, restore_boundaries=True, normalize=True):
         """
@@ -605,9 +642,17 @@ class FlameBase(Sim1D):
             be normalized (default is ``True``)
 
         The method imports data using `SolutionArray.read_hdf` via
-        `from_solution_array` and requires a working installation of *h5py*
+        `from_array` and requires a working installation of *h5py*
         (``h5py`` can be installed using pip or conda).
+
+        .. deprecated:: 3.0
+
+            Method to be removed after Cantera 3.0; superseded by `restore`.
         """
+        warnings.warn(
+            "Method to be removed after Cantera 3.0; use 'restore' instead.",
+            DeprecationWarning)
+
         if restore_boundaries:
             domains = range(3)
         else:
@@ -625,7 +670,17 @@ class FlameBase(Sim1D):
 
     @property
     def settings(self):
-        """ Return a dictionary listing simulation settings """
+        """
+        Return a dictionary listing simulation settings
+
+        .. deprecated:: 3.0
+
+            To be removed after Cantera 3.0. The getter is replaceable by
+            `Domain1D.settings`; for the setter, use setters for individual settings.
+        """
+        warnings.warn(
+            "Property 'settings' to be removed after Cantera 3.0. Access settings from "
+            "domains instead.", DeprecationWarning)
         out = {'Sim1D_type': type(self).__name__}
         out['transport_model'] = self.transport_model
         out['energy_enabled'] = self.energy_enabled
@@ -640,6 +695,9 @@ class FlameBase(Sim1D):
 
     @settings.setter
     def settings(self, s):
+        warnings.warn(
+            "Property 'settings' to be removed after Cantera 3.0. Use individual "
+            "setters instead.", DeprecationWarning)
         # simple setters
         attr = {'transport_model',
                 'energy_enabled', 'soret_enabled', 'radiation_enabled',
@@ -715,7 +773,8 @@ for _attr in ['density', 'density_mass', 'density_mole', 'volume_mass',
               'entropy_mass', 'g', 'gibbs_mole', 'gibbs_mass', 'cv',
               'cv_mole', 'cv_mass', 'cp', 'cp_mole', 'cp_mass',
               'isothermal_compressibility', 'thermal_expansion_coeff',
-              'viscosity', 'thermal_conductivity', 'heat_release_rate']:
+              'sound_speed', 'viscosity', 'thermal_conductivity', 
+              'heat_release_rate', 'mean_molecular_weight']:
     setattr(FlameBase, _attr, _array_property(_attr))
 FlameBase.volume = _array_property('v') # avoid confusion with velocity gradient 'V'
 FlameBase.int_energy = _array_property('u') # avoid collision with velocity 'u'
@@ -727,8 +786,13 @@ for _attr in ['X', 'Y', 'concentrations', 'partial_molar_enthalpies',
               'partial_molar_volumes', 'standard_enthalpies_RT',
               'standard_entropies_R', 'standard_int_energies_RT',
               'standard_gibbs_RT', 'standard_cp_R', 'creation_rates',
-              'destruction_rates', 'net_production_rates', 'mix_diff_coeffs',
-              'mix_diff_coeffs_mass', 'mix_diff_coeffs_mole', 'thermal_diff_coeffs']:
+              'destruction_rates', 'net_production_rates', 'creation_rates_ddC',
+              'creation_rates_ddP', 'creation_rates_ddT', 'destruction_rates_ddC',
+              'destruction_rates_ddP', 'destruction_rates_ddT',
+              'net_production_rates_ddC', 'net_production_rates_ddP',
+              'net_production_rates_ddT', 'mix_diff_coeffs', 'mix_diff_coeffs_mass',
+              'mix_diff_coeffs_mole', 'thermal_diff_coeffs', 'activities',
+              'activity_coefficients', 'mobilities', 'species_viscosities']:
     setattr(FlameBase, _attr, _array_property(_attr, 'n_species'))
 
 # Remove misleading examples and references to setters that don't exist
@@ -742,7 +806,14 @@ for _attr in ['forward_rates_of_progress', 'reverse_rates_of_progress', 'net_rat
               'equilibrium_constants', 'forward_rate_constants', 'reverse_rate_constants',
               'delta_enthalpy', 'delta_gibbs', 'delta_entropy',
               'delta_standard_enthalpy', 'delta_standard_gibbs',
-              'delta_standard_entropy', 'heat_production_rates']:
+              'delta_standard_entropy', 'heat_production_rates',
+              'third_body_concentrations', 'forward_rate_constants_ddC',
+              'forward_rate_constants_ddP', 'forward_rate_constants_ddT',
+              'forward_rates_of_progress_ddC', 'forward_rates_of_progress_ddP',
+              'forward_rates_of_progress_ddT', 'net_rates_of_progress_ddC',
+              'net_rates_of_progress_ddP', 'net_rates_of_progress_ddT',
+              'reverse_rates_of_progress_ddC', 'reverse_rates_of_progress_ddP',
+              'reverse_rates_of_progress_ddT']:
     setattr(FlameBase, _attr, _array_property(_attr, 'n_reactions'))
 
 
@@ -753,9 +824,9 @@ class FreeFlame(FlameBase):
 
     def __init__(self, gas, grid=None, width=None):
         """
-        A domain of type IdealGasFlow named 'flame' will be created to represent
-        the flame and set to free flow. The three domains comprising the stack
-        are stored as ``self.inlet``, ``self.flame``, and ``self.outlet``.
+        A domain of type `FreeFlow` named 'flame' will be created to represent
+        the flame. The three domains comprising the stack are stored as ``self.inlet``,
+        ``self.flame``, and ``self.outlet``.
 
         :param grid:
             A list of points to be used as the initial grid. Not recommended
@@ -774,9 +845,8 @@ class FreeFlame(FlameBase):
 
         if not hasattr(self, 'flame'):
             # Create flame domain if not already instantiated by a child class
-            #: `IdealGasFlow` domain representing the flame
-            self.flame = IdealGasFlow(gas, name='flame')
-            self.flame.set_free_flow()
+            #: `FreeFlow` domain representing the flame
+            self.flame = FreeFlow(gas, name='flame')
 
         if width is not None:
             grid = np.array([0.0, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1.0]) * width
@@ -801,11 +871,11 @@ class FreeFlame(FlameBase):
             location. Locations are given as a fraction of the entire domain
         """
         super().set_initial_guess(data=data, group=group)
-        if data:
+        if data is not None:
             # set fixed temperature
             Tmid = .75 * self.T[0] + .25 * self.T[-1]
-            i = np.flatnonzero(data.T < Tmid)[-1]
-            self.fixed_temperature = data.T[i]
+            i = np.flatnonzero(self.T < Tmid)[-1]
+            self.fixed_temperature = self.T[i]
 
             return
 
@@ -997,10 +1067,9 @@ class BurnerFlame(FlameBase):
             Defines a grid on the interval [0, width] with internal points
             determined automatically by the solver.
 
-        A domain of class `IdealGasFlow` named ``flame`` will be created to
-        represent the flame and set to axisymmetric stagnation flow. The three
-        domains comprising the stack are stored as ``self.burner``,
-        ``self.flame``, and ``self.outlet``.
+        A domain of class `UnstrainedFlow` named ``flame`` will be created to
+        represent the flame. The three domains comprising the stack are stored as
+        ``self.burner``, ``self.flame``, and ``self.outlet``.
         """
         #: `Inlet1D` at the left of the domain representing the burner surface through
         #: which reactants flow
@@ -1011,9 +1080,8 @@ class BurnerFlame(FlameBase):
 
         if not hasattr(self, 'flame'):
             # Create flame domain if not already instantiated by a child class
-            #: `IdealGasFlow` domain representing the flame
-            self.flame = IdealGasFlow(gas, name='flame')
-            self.flame.set_axisymmetric_flow()
+            #: `UnstrainedFlow` domain representing the flame
+            self.flame = UnstrainedFlow(gas, name='flame')
 
         if width is not None:
             grid = np.array([0.0, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0]) * width
@@ -1148,10 +1216,9 @@ class CounterflowDiffusionFlame(FlameBase):
             Defines a grid on the interval [0, width] with internal points
             determined automatically by the solver.
 
-        A domain of class `IdealGasFlow` named ``flame`` will be created to
-        represent the flame and set to axisymmetric stagnation flow. The three
-        domains comprising the stack are stored as ``self.fuel_inlet``,
-        ``self.flame``, and ``self.oxidizer_inlet``.
+        A domain of class `AxisymmetricFlow` named ``flame`` will be created to
+        represent the flame. The three domains comprising the stack are stored as
+        ``self.fuel_inlet``, ``self.flame``, and ``self.oxidizer_inlet``.
         """
 
         #: `Inlet1D` at the left of the domain representing the fuel mixture
@@ -1162,9 +1229,8 @@ class CounterflowDiffusionFlame(FlameBase):
         self.oxidizer_inlet = Inlet1D(name='oxidizer_inlet', phase=gas)
         self.oxidizer_inlet.T = gas.T
 
-        #: `IdealGasFlow` domain representing the flame
-        self.flame = IdealGasFlow(gas, name='flame')
-        self.flame.set_axisymmetric_flow()
+        #: `AxisymmetricFlow` domain representing the flame
+        self.flame = AxisymmetricFlow(gas, name='flame')
 
         if width is not None:
             grid = np.array([0.0, 0.2, 0.4, 0.6, 0.8, 1.0]) * width
@@ -1284,28 +1350,28 @@ class CounterflowDiffusionFlame(FlameBase):
         if loglevel > 0:
             if self.extinct():
                 print('WARNING: Flame is extinct.')
+            else:
+                # Check if the flame is very thick
+                # crude width estimate based on temperature
+                z_flame = self.grid[self.T > np.max(self.T) / 2]
+                flame_width = z_flame[-1] - z_flame[0]
+                domain_width = self.grid[-1] - self.grid[0]
+                if flame_width / domain_width > 0.4:
+                    print('WARNING: The flame is thick compared to the domain '
+                          'size. The flame might be affected by the plug-flow '
+                          'boundary conditions. Consider increasing the inlet mass '
+                          'fluxes or using a larger domain.')
 
-            # Check if the flame is very thick
-            # crude width estimate based on temperature
-            z_flame = self.grid[self.T > np.max(self.T) / 2]
-            flame_width = z_flame[-1] - z_flame[0]
-            domain_width = self.grid[-1] - self.grid[0]
-            if flame_width / domain_width > 0.4:
-                print('WARNING: The flame is thick compared to the domain '
-                      'size. The flame might be affected by the plug-flow '
-                      'boundary conditions. Consider increasing the inlet mass '
-                      'fluxes or using a larger domain.')
-
-            # Check if the temperature peak is close to a boundary
-            z_center = (self.grid[np.argmax(self.T)] - self.grid[0]) / domain_width
-            if z_center < 0.25:
-                print('WARNING: The flame temperature peak is close to the '
-                      'fuel inlet. Consider increasing the ratio of the '
-                      'fuel inlet mass flux to the oxidizer inlet mass flux.')
-            if z_center > 0.75:
-                print('WARNING: The flame temperature peak is close to the '
-                      'oxidizer inlet. Consider increasing the ratio of the '
-                      'oxidizer inlet mass flux to the fuel inlet mass flux.')
+                # Check if the temperature peak is close to a boundary
+                z_center = (self.grid[np.argmax(self.T)] - self.grid[0]) / domain_width
+                if z_center < 0.25:
+                    print('WARNING: The flame temperature peak is close to the '
+                          'fuel inlet. Consider increasing the ratio of the '
+                          'fuel inlet mass flux to the oxidizer inlet mass flux.')
+                if z_center > 0.75:
+                    print('WARNING: The flame temperature peak is close to the '
+                          'oxidizer inlet. Consider increasing the ratio of the '
+                          'oxidizer inlet mass flux to the fuel inlet mass flux.')
 
     def strain_rate(self, definition, fuel=None, oxidizer='O2', stoich=None):
         r"""
@@ -1431,14 +1497,28 @@ class CounterflowDiffusionFlame(FlameBase):
         >>> f.mixture_fraction('Bilger')
         """
 
-        Yf = [self.solution(k, 0) for k in self.gas.species_names]
-        Yo = [self.solution(k, self.flame.n_points-1) for k in self.gas.species_names]
+        Yf = [self.value(self.flame, k, 0) for k in self.gas.species_names]
+        Yo = [self.value(self.flame, k, self.flame.n_points - 1)
+              for k in self.gas.species_names]
 
         vals = np.empty(self.flame.n_points)
         for i in range(self.flame.n_points):
             self.set_gas_state(i)
             vals[i] = self.gas.mixture_fraction(Yf, Yo, 'mass', m)
         return vals
+
+    @property
+    def equivalence_ratio(self):
+        Yf = [self.value(self.flame, k, 0) for k in self.gas.species_names]
+        Yo = [self.value(self.flame, k, self.flame.n_points - 1)
+              for k in self.gas.species_names]
+
+        vals = np.empty(self.flame.n_points)
+        for i in range(self.flame.n_points):
+            self.set_gas_state(i)
+            vals[i] = self.gas.equivalence_ratio(Yf, Yo, "mass")
+        return vals
+
 
 class ImpingingJet(FlameBase):
     """An axisymmetric flow impinging on a surface at normal incidence."""
@@ -1460,17 +1540,16 @@ class ImpingingJet(FlameBase):
         :param surface:
             A Kinetics object used to compute any surface reactions.
 
-        A domain of class `IdealGasFlow` named ``flame`` will be created to
-        represent the flame and set to axisymmetric stagnation flow. The three
-        domains comprising the stack are stored as ``self.inlet``,
-        ``self.flame``, and ``self.surface``.
+        A domain of class `AxisymmetricFlow` named ``flame`` will be created to
+        represent the flame. The three domains comprising the stack are stored as
+        ``self.inlet``, ``self.flame``, and ``self.surface``.
         """
 
         #: `Inlet1D` at the left of the domain representing the incoming reactants
         self.inlet = Inlet1D(name='inlet', phase=gas)
 
-        #: `IdealGasFlow` domain representing the flame
-        self.flame = IdealGasFlow(gas, name='flame')
+        #: `AxisymmetricFlow` domain representing the flame
+        self.flame = AxisymmetricFlow(gas, name='flame')
         self.flame.set_axisymmetric_flow()
 
         if width is not None:
@@ -1482,8 +1561,7 @@ class ImpingingJet(FlameBase):
             self.surface = Surface1D(name='surface', phase=gas)
             self.surface.T = gas.T
         else:
-            self.surface = ReactingSurface1D(name='surface', phase=gas)
-            self.surface.set_kinetics(surface)
+            self.surface = ReactingSurface1D(name='surface', phase=surface)
             self.surface.T = surface.T
 
         super().__init__((self.inlet, self.flame, self.surface), gas, grid)
@@ -1548,10 +1626,9 @@ class CounterflowPremixedFlame(FlameBase):
             Defines a grid on the interval [0, width] with internal points
             determined automatically by the solver.
 
-        A domain of class `IdealGasFlow` named ``flame`` will be created to
-        represent the flame and set to axisymmetric stagnation flow. The three
-        domains comprising the stack are stored as ``self.reactants``,
-        ``self.flame``, and ``self.products``.
+        A domain of class `AxisymmetricFlow` named ``flame`` will be created to
+        represent the flame. The three domains comprising the stack are stored as
+        ``self.reactants``, ``self.flame``, and ``self.products``.
         """
 
         #: `Inlet1D` at the left of the domain representing premixed reactants
@@ -1562,9 +1639,8 @@ class CounterflowPremixedFlame(FlameBase):
         self.products = Inlet1D(name='products', phase=gas)
         self.products.T = gas.T
 
-        #: `IdealGasFlow` domain representing the flame
-        self.flame = IdealGasFlow(gas, name='flame')
-        self.flame.set_axisymmetric_flow()
+        #: `AxisymmetricFlow` domain representing the flame
+        self.flame = AxisymmetricFlow(gas, name='flame')
 
         if width is not None:
             # Create grid points aligned with initial guess profile
@@ -1652,16 +1728,15 @@ class CounterflowTwinPremixedFlame(FlameBase):
             Defines a grid on the interval [0, width] with internal points
             determined automatically by the solver.
 
-        A domain of class `IdealGasFlow` named ``flame`` will be created to
-        represent the flame and set to axisymmetric stagnation flow. The three
-        domains comprising the stack are stored as ``self.reactants``,
-        ``self.flame``, and ``self.products``.
+        A domain of class `AxisymmetricFlow` named ``flame`` will be created to
+        represent the flame. The three domains comprising the stack are stored as
+        ``self.reactants``, ``self.flame``, and ``self.products``.
         """
         self.reactants = Inlet1D(name='reactants', phase=gas)
         self.reactants.T = gas.T
 
-        self.flame = IdealGasFlow(gas, name='flame')
-        self.flame.set_axisymmetric_flow()
+        #: `AxisymmetricFlow` domain representing the flame
+        self.flame = AxisymmetricFlow(gas, name='flame')
 
         #The right boundary is a symmetry plane
         self.products = SymmetryPlane1D(name='products', phase=gas)

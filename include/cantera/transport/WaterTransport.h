@@ -9,7 +9,7 @@
 #define CT_WATERTRAN_H
 
 #include "cantera/thermo/WaterPropsIAPWS.h"
-#include "cantera/transport/TransportBase.h"
+#include "cantera/transport/Transport.h"
 
 namespace Cantera
 {
@@ -25,10 +25,13 @@ public:
      *                  Defaults to zero
      *  @param ndim     Number of dimensions of the flux expressions.
      *                  Defaults to a value of one.
+     *
+     * @deprecated The `thermo` and `ndim` parameters will be removed after Cantera 3.0.
+     *     The ThermoPhase object should be specifed when calling the `init` method.
      */
-    WaterTransport(ThermoPhase* thermo = 0, int ndim = 1);
+    WaterTransport(ThermoPhase* thermo = 0, int ndim = -1);
 
-    virtual std::string transportType() const {
+    virtual std::string transportModel() const {
         return "Water";
     }
 

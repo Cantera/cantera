@@ -9,14 +9,13 @@
 #define CT_CHEM_EQUIL_H
 
 #include "cantera/base/ct_defs.h"
-#include <functional>
 
 namespace Cantera
 {
 
 class DenseMatrix;
 class ThermoPhase;
-/// map property strings to integers
+//! map property strings to integers
 int _equilflag(const char* xy);
 
 /**
@@ -25,33 +24,31 @@ int _equilflag(const char* xy);
 class EquilOpt
 {
 public:
-    EquilOpt() : relTolerance(1.e-8), absElemTol(1.0E-70),maxIterations(1000),
-        iterations(0),
-        maxStepSize(10.0), propertyPair(TP), contin(false) {}
+    EquilOpt() = default;
 
-    doublereal relTolerance; ///< Relative tolerance
-    doublereal absElemTol; ///< Abs Tol in element number
-    int maxIterations; ///< Maximum number of iterations
-    int iterations; ///< Iteration counter
+    double relTolerance = 1e-8; //!< Relative tolerance
+    double absElemTol = 1e-70; //!< Abs Tol in element number
+    int maxIterations = 1000; //!< Maximum number of iterations
+    int iterations = 0; //!< Iteration counter
 
     /**
      * Maximum step size. Largest change in any element potential or
-     * in log(T) allowed in one Newton step. Default: 10.0
+     * in log(T) allowed in one Newton step.
      */
-    doublereal maxStepSize;
+    double maxStepSize = 10.0;
 
     /**
      * Property pair flag. Determines which two thermodynamic properties
      * are fixed.
      */
-    int propertyPair;
+    int propertyPair = TP;
 
     /**
      * Continuation flag. Set true if the calculation should be initialized from
      * the last calculation. Otherwise, the calculation will be started from
      * scratch and the initial composition and element potentials estimated.
      */
-    bool contin;
+    bool contin = false;
 };
 
 /**
@@ -80,7 +77,7 @@ public:
 class ChemEquil
 {
 public:
-    ChemEquil();
+    ChemEquil() = default;
 
     //! Constructor combined with the initialization function
     /*!
@@ -91,7 +88,7 @@ public:
      */
     ChemEquil(ThermoPhase& s);
 
-    virtual ~ChemEquil();
+    virtual ~ChemEquil() = default;
 
     /*!
      * Equilibrate a phase, holding the elemental composition fixed at the
@@ -124,7 +121,7 @@ public:
 
     /**
      * Options controlling how the calculation is carried out.
-     * @see EquilOptions
+     * @see EquilOpt
      */
     EquilOpt options;
 
@@ -249,7 +246,7 @@ protected:
 
     size_t m_mm; //!< number of elements in the phase
     size_t m_kk; //!< number of species in the phase
-    size_t m_skip;
+    size_t m_skip = npos;
 
     //! This is equal to the rank of the stoichiometric coefficient matrix when
     //! it is computed. It's initialized to #m_mm.
@@ -262,7 +259,7 @@ protected:
 
     //! Current value of the sum of the element abundances given the current
     //! element potentials.
-    doublereal m_elementTotalSum;
+    double m_elementTotalSum = 1.0;
 
     //! Current value of the element mole fractions. Note these aren't the goal
     //! element mole fractions.
@@ -274,11 +271,11 @@ protected:
     //! Storage of the element compositions. natom(k,m) = m_comp[k*m_mm+ m];
     vector_fp m_comp;
     doublereal m_temp, m_dens;
-    doublereal m_p0;
+    double m_p0 = OneAtm;
 
     //! Index of the element id corresponding to the electric charge of each
     //! species. Equal to -1 if there is no such element id.
-    size_t m_eloc;
+    size_t m_eloc = npos;
 
     vector_fp m_startSoln;
 
@@ -292,8 +289,8 @@ protected:
     std::vector<size_t> m_component;
 
     //! element fractional cutoff, below which the element will be zeroed.
-    double m_elemFracCutoff;
-    bool m_doResPerturb;
+    double m_elemFracCutoff = 1e-100;
+    bool m_doResPerturb = false;
 
     std::vector<size_t> m_orderVectorElements;
     std::vector<size_t> m_orderVectorSpecies;

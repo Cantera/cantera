@@ -46,7 +46,6 @@ void TwoTempPlasmaData::updateTe(double Te)
 }
 
 TwoTempPlasmaRate::TwoTempPlasmaRate()
-    : ArrheniusBase()
 {
     m_Ea_str = "Ea-gas";
     m_E4_str = "Ea-electron";
@@ -58,6 +57,12 @@ TwoTempPlasmaRate::TwoTempPlasmaRate(double A, double b, double Ea, double EE)
     m_Ea_str = "Ea-gas";
     m_E4_str = "Ea-electron";
     m_E4_R = EE / GasConstant;
+}
+
+TwoTempPlasmaRate::TwoTempPlasmaRate(const AnyMap& node, const UnitStack& rate_units)
+    : TwoTempPlasmaRate()
+{
+    setParameters(node, rate_units);
 }
 
 double TwoTempPlasmaRate::ddTScaledFromStruct(const TwoTempPlasmaData& shared_data) const

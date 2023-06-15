@@ -8,8 +8,6 @@
 #include "ctmatutils.h"
 #include "cantera/clib/ctonedim.h"
 
-using namespace std;
-
 void onedimmethods(int nlhs, mxArray* plhs[],
                    int nrhs, const mxArray* prhs[])
 {
@@ -99,6 +97,16 @@ void onedimmethods(int nlhs, mxArray* plhs[],
             reportError();
         }
         return;
+    } else if (job == 12) {
+        checkNArgs(3, nrhs);
+        int buflen = domain_type3(dom, 0, 0);
+        char* output_buf = (char*)mxCalloc(buflen, sizeof(char));
+        int iok = domain_type3(dom, buflen, output_buf);
+        if (iok < 0) {
+            reportError();
+        }
+        plhs[0] = mxCreateString(output_buf);
+        return;
     } else if (job < 40) {
         // methods
         int k;
@@ -111,10 +119,6 @@ void onedimmethods(int nlhs, mxArray* plhs[],
         case 11:
             checkNArgs(3, nrhs);
             vv = (double) domain_nComponents(dom);
-            break;
-        case 12:
-            checkNArgs(3, nrhs);
-            vv = domain_type(dom);
             break;
         case 13:
             checkNArgs(3, nrhs);
@@ -302,7 +306,7 @@ void onedimmethods(int nlhs, mxArray* plhs[],
         case 103:
             checkNArgs(4, nrhs);
             fname = getString(prhs[3]);
-            iok = sim1D_showSolution(dom, fname);
+            iok = sim1D_show(dom, fname);
             break;
         case 104:
             checkNArgs(5, nrhs);

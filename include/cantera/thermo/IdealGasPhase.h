@@ -239,38 +239,18 @@ namespace Cantera
  *
  * \f$k^{-1} \f$ has units of s-1.
  *
- * ## XML Example
+ * ## YAML Example
  *
- * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
+ * An example ideal gas phase definition is given in the
+ * <a href="../../sphinx/html/yaml/phases.html#ideal-gas">YAML API Reference</a>.
  *
- *   An example of an XML Element named phase setting up a IdealGasPhase
- *   object named silane is given below.
- *
- * @code
- * <!--     phase silane      -->
- * <phase dim="3" id="silane">
- *   <elementArray datasrc="elements.xml"> Si  H  He </elementArray>
- *   <speciesArray datasrc="#species_data">
- *     H2  H  HE  SIH4  SI  SIH  SIH2  SIH3  H3SISIH  SI2H6
- *     H2SISIH2  SI3H8  SI2  SI3
- *   </speciesArray>
- *   <reactionArray datasrc="#reaction_data"/>
- *   <thermo model="IdealGas"/>
- *   <kinetics model="GasKinetics"/>
- *   <transport model="None"/>
- * </phase>
- * @endcode
- *
- * The model attribute "IdealGas" of the thermo XML element identifies the phase
- * as being of the type handled by the IdealGasPhase object.
- *
- *    @ingroup thermoprops
+ * @ingroup thermoprops
  */
 class IdealGasPhase: public ThermoPhase
 {
 public:
     //! Construct and initialize an IdealGasPhase ThermoPhase object
-    //! directly from an ASCII input file
+    //! directly from an input file
     /*!
      * @param inputFile Name of the input file containing the phase definition
      *                  to set up the object. If blank, an empty phase will be
@@ -281,20 +261,8 @@ public:
     explicit IdealGasPhase(const std::string& inputFile="",
                            const std::string& id="");
 
-    //! Construct and initialize an IdealGasPhase ThermoPhase object
-    //! directly from an XML database
-    /*!
-     *  @param phaseRef XML phase node containing the description of the phase
-     *  @param id     id attribute containing the name of the phase.
-     *                (default is the empty string)
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    IdealGasPhase(XML_Node& phaseRef, const std::string& id = "");
-
     virtual std::string type() const {
-        return "IdealGas";
+        return "ideal-gas";
     }
 
     virtual bool isIdeal() const {
@@ -397,11 +365,12 @@ public:
      *
      * @param rho Density (kg/m^3)
      * @param p Pressure (Pa)
+     * @since  New in Cantera 3.0.
      */
-    virtual void setState_RP(doublereal rho, doublereal p)
+    virtual void setState_DP(doublereal rho, doublereal p)
     {
         if (p <= 0) {
-            throw CanteraError("IdealGasPhase::setState_RP",
+            throw CanteraError("IdealGasPhase::setState_DP",
                                "pressure must be positive");
         }
         setDensity(rho);
@@ -432,38 +401,37 @@ public:
         return 1.0 / temperature();
     }
 
-    //! @}
+    virtual double soundSpeed() const;
 
-    /**
-     * @name Chemical Potentials and Activities
-     *
-     * The activity \f$a_k\f$ of a species in solution is
-     * related to the chemical potential by
-     * \f[
-     *  \mu_k(T,P,X_k) = \mu_k^0(T,P)
-     * + \hat R T \log a_k.
-     *  \f]
-     * The quantity \f$\mu_k^0(T,P)\f$ is the standard state chemical potential
-     * at unit activity. It may depend on the pressure and the temperature.
-     * However, it may not depend on the mole fractions of the species in the
-     * solution.
-     *
-     * The activities are related to the generalized concentrations, \f$\tilde
-     * C_k\f$, and standard concentrations, \f$C^0_k\f$, by the following
-     * formula:
-     *
-     *  \f[
-     *  a_k = \frac{\tilde C_k}{C^0_k}
-     *  \f]
-     * The generalized concentrations are used in the kinetics classes to
-     * describe the rates of progress of reactions involving the species. Their
-     * formulation depends upon the specification of the rate constants for
-     * reaction, especially the units used in specifying the rate constants. The
-     * bridge between the thermodynamic equilibrium expressions that use a_k and
-     * the kinetics expressions which use the generalized concentrations is
-     * provided by the multiplicative factor of the standard concentrations.
-     * @{
-     */
+    //! @}
+    //! @name Chemical Potentials and Activities
+    //!
+    //! The activity \f$a_k\f$ of a species in solution is
+    //! related to the chemical potential by
+    //! \f[
+    //!  \mu_k(T,P,X_k) = \mu_k^0(T,P)
+    //! + \hat R T \log a_k.
+    //!  \f]
+    //! The quantity \f$\mu_k^0(T,P)\f$ is the standard state chemical potential
+    //! at unit activity. It may depend on the pressure and the temperature.
+    //! However, it may not depend on the mole fractions of the species in the
+    //! solution.
+    //!
+    //! The activities are related to the generalized concentrations, \f$\tilde
+    //! C_k\f$, and standard concentrations, \f$C^0_k\f$, by the following
+    //! formula:
+    //!
+    //!  \f[
+    //!  a_k = \frac{\tilde C_k}{C^0_k}
+    //!  \f]
+    //! The generalized concentrations are used in the kinetics classes to
+    //! describe the rates of progress of reactions involving the species. Their
+    //! formulation depends upon the specification of the rate constants for
+    //! reaction, especially the units used in specifying the rate constants. The
+    //! bridge between the thermodynamic equilibrium expressions that use a_k and
+    //! the kinetics expressions which use the generalized concentrations is
+    //! provided by the multiplicative factor of the standard concentrations.
+    //! @{
 
     //! This method returns the array of generalized concentrations.
     /*!
@@ -503,7 +471,7 @@ public:
     virtual void getActivityCoefficients(doublereal* ac) const;
 
     //! @}
-    /// @name Partial Molar Properties of the Solution
+    //! @name Partial Molar Properties of the Solution
     //! @{
 
     virtual void getChemPotentials(doublereal* mu) const;
@@ -514,7 +482,7 @@ public:
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
 
     //! @}
-    /// @name  Properties of the Standard State of the Species in the Solution
+    //! @name  Properties of the Standard State of the Species in the Solution
     //! @{
 
     virtual void getStandardChemPotentials(doublereal* mu) const;
@@ -527,7 +495,7 @@ public:
     virtual void getStandardVolumes(doublereal* vol) const;
 
     //! @}
-    /// @name Thermodynamic Values for the Species Reference States
+    //! @name Thermodynamic Values for the Species Reference States
     //! @{
 
     virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
@@ -539,7 +507,7 @@ public:
     virtual void getStandardVolumes_ref(doublereal* vol) const;
 
     //! @}
-    /// @name NonVirtual Internal methods to Return References to Reference State Thermo
+    //! @name NonVirtual Internal methods to Return References to Reference State Thermo
     //! @{
 
     //! Returns a reference to the dimensionless reference state enthalpy vector.
@@ -593,7 +561,7 @@ protected:
      *  Value of the reference state pressure in Pascals.
      *  All species must have the same reference state pressure.
      */
-    doublereal m_p0;
+    double m_p0 = -1.0;
 
     //! Temporary storage for dimensionless reference state enthalpies
     mutable vector_fp m_h0_RT;
@@ -612,7 +580,7 @@ protected:
     //! Temporary array containing internally calculated partial pressures
     mutable vector_fp m_pp;
 
-    //! @internal Update the species reference state thermodynamic functions
+    //! Update the species reference state thermodynamic functions
     /*!
      *  This method is called each time a thermodynamic property is requested,
      *  to check whether the internal species properties within the object

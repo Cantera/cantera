@@ -15,8 +15,6 @@
 #include <unordered_set>
 
 namespace ba = boost::algorithm;
-using std::vector;
-using std::string;
 
 namespace { // helper functions
 
@@ -282,9 +280,7 @@ YAML::Emitter& operator<<(YAML::Emitter& out, const AnyMap& rhs)
         out << YAML::Flow;
         out << YAML::BeginMap;
         size_t width = 15;
-        for (const auto& item : rhs.ordered()) {
-            const auto& name = item.first;
-            const auto& value = item.second;
+        for (const auto& [name, value] : rhs.ordered()) {
             string valueStr;
             bool foundType = true;
             if (value.is<double>()) {
@@ -319,9 +315,9 @@ YAML::Emitter& operator<<(YAML::Emitter& out, const AnyMap& rhs)
         }
     } else {
         out << YAML::BeginMap;
-        for (const auto& item : rhs.ordered()) {
-            out << item.first;
-            out << item.second;
+        for (const auto& [key, value] : rhs.ordered()) {
+            out << key;
+            out << value;
         }
     }
     out << YAML::EndMap;
@@ -556,17 +552,13 @@ struct convert<Cantera::AnyValue> {
 
 namespace Cantera {
 
-std::unordered_map<std::string, std::pair<AnyMap, int>> AnyMap::s_cache;
+std::unordered_map<string,
+                   pair<AnyMap, std::filesystem::file_time_type>> AnyMap::s_cache;
 
 std::unordered_map<std::string, std::vector<std::string>> AnyMap::s_headFields;
 std::unordered_map<std::string, std::vector<std::string>> AnyMap::s_tailFields;
 
 // Methods of class AnyBase
-
-AnyBase::AnyBase()
-    : m_line(-1)
-    , m_column(0)
-{}
 
 void AnyBase::setLoc(int line, int column)
 {
@@ -586,59 +578,19 @@ const AnyValue& AnyBase::getMetadata(const std::string& key) const
 // Methods of class AnyValue
 
 AnyValue::AnyValue()
-  : m_key()
-  , m_value(new boost::any{})
-  , m_equals(eq_comparer<size_t>)
+  : m_equals(eq_comparer<size_t>)
 {}
 
 AnyValue::~AnyValue() = default;
 
-AnyValue::AnyValue(AnyValue const& other)
-    : AnyBase(other)
-    , m_key(other.m_key)
-    , m_value(new boost::any{*other.m_value})
-    , m_equals(other.m_equals)
-{
-}
-
-AnyValue::AnyValue(AnyValue&& other)
-    : AnyBase(std::move(other))
-    , m_key(std::move(other.m_key))
-    , m_value(std::move(other.m_value))
-    , m_equals(other.m_equals)
-{
-}
-
-AnyValue& AnyValue::operator=(AnyValue const& other) {
-    if (this == &other) {
-        return *this;
-    }
-    AnyBase::operator=(other);
-    m_key = other.m_key;
-    m_value.reset(new boost::any{*other.m_value});
-    m_equals = other.m_equals;
-    return *this;
-}
-
-AnyValue& AnyValue::operator=(AnyValue&& other) {
-    if (this == &other) {
-        return *this;
-    }
-    AnyBase::operator=(std::move(other));
-    m_key = std::move(other.m_key);
-    m_value = std::move(other.m_value);
-    m_equals = other.m_equals;
-    return *this;
-}
-
 bool AnyValue::operator==(const AnyValue& other) const
 {
-    return m_equals(*m_value, *other.m_value);
+    return m_equals(m_value, other.m_value);
 }
 
 bool AnyValue::operator!=(const AnyValue& other) const
 {
-    return !m_equals(*m_value, *other.m_value);
+    return !m_equals(m_value, other.m_value);
 }
 
 AnyValue& AnyValue::operator[](const std::string& key)
@@ -658,7 +610,7 @@ bool AnyValue::hasKey(const std::string& key) const {
 void AnyValue::setKey(const std::string &key) { m_key = key; }
 
 const std::type_info &AnyValue::type() const {
-    return m_value->type();
+    return m_value.type();
 }
 
 void AnyValue::propagateMetadata(shared_ptr<AnyMap>& metadata)
@@ -682,34 +634,94 @@ std::string AnyValue::type_str() const {
 }
 
 bool AnyValue::empty() const {
-    return m_value->empty();
+    return !m_value.has_value();
 }
 
 bool AnyValue::isScalar() const {
     return is<double>() || is<long int>() || is<std::string>() || is<bool>();
 }
 
+size_t AnyValue::vectorSize() const {
+    if (isVector<double>()) {
+        return as<vector<double>>().size();
+    }
+    if (isVector<long int>()) {
+        return as<vector<long int>>().size();
+    }
+    if (isVector<string>()) {
+        return as<vector<string>>().size();
+    }
+    if (isVector<bool>()) {
+        return as<vector<bool>>().size();
+    }
+    return npos;
+}
+
+pair<size_t, size_t> AnyValue::matrixShape() const {
+    if (isVector<vector<double>>()) {
+        auto& mat = as<vector<vector<double>>>();
+        if (isMatrix<double>()) {
+            if (mat.size()) {
+                return {mat.size(), mat[0].size()};
+            }
+            return {mat.size(), 0};
+        }
+        return {mat.size(), npos};
+    }
+    if (isVector<vector<long int>>()) {
+        auto& mat = as<vector<vector<long int>>>();
+        if (isMatrix<long int>()) {
+            if (mat.size()) {
+                return {mat.size(), mat[0].size()};
+            }
+            return {mat.size(), 0};
+        }
+        return {mat.size(), npos};
+    }
+    if (isVector<vector<string>>()) {
+        auto& mat = as<vector<vector<string>>>();
+        if (isMatrix<string>()) {
+            if (mat.size()) {
+                return {mat.size(), mat[0].size()};
+            }
+            return {mat.size(), 0};
+        }
+        return {mat.size(), npos};
+    }
+    if (isVector<vector<bool>>()) {
+        auto& mat = as<vector<vector<bool>>>();
+        if (isMatrix<bool>()) {
+            if (mat.size()) {
+                return {mat.size(), mat[0].size()};
+            }
+            return {mat.size(), 0};
+        }
+        return {mat.size(), npos};
+    }
+    return {npos, npos};
+}
+
 // Specializations for "std::string" and "const char*"
 
-AnyValue::AnyValue(const std::string& value)
-    : m_value(new boost::any{value})
-    , m_equals(eq_comparer<std::string>)
+AnyValue::AnyValue(const string& value)
+    : m_value{value}
+    , m_equals(eq_comparer<string>)
 {}
 
 AnyValue::AnyValue(const char* value)
-    : m_value(new boost::any{std::string(value)})
-    , m_equals(eq_comparer<std::string>)
+    : m_value{string(value)}
+    , m_equals(eq_comparer<string>)
 {}
 
-AnyValue &AnyValue::operator=(const std::string &value) {
-    *m_value = value;
-    m_equals = eq_comparer<std::string>;
+AnyValue &AnyValue::operator=(const string &value) {
+    m_value = value;
+    m_equals = eq_comparer<string>;
     return *this;
 }
 
 AnyValue &AnyValue::operator=(const char *value) {
-    *m_value = std::string(value);
-    m_equals = eq_comparer<std::string>;
+    m_value = string(value);
+    m_equals = eq_comparer<string>;
     return *this;
 }
 
@@ -719,8 +731,8 @@ const std::string &AnyValue::asString() const {
 
 bool AnyValue::operator==(const std::string& other) const
 {
-    if (m_value->type() == typeid(std::string)) {
-        return boost::any_cast<std::string>(*m_value) == other;
+    if (m_value.type() == typeid(string)) {
+        return std::any_cast<string>(m_value) == other;
     } else {
         return false;
     }
@@ -744,34 +756,34 @@ bool operator!=(const std::string& lhs, const AnyValue& rhs)
 // Specialization for "Quantity"
 
 void AnyValue::setQuantity(double value, const std::string& units, bool is_act_energy) {
-    *m_value = Quantity{AnyValue(value), Units(units), is_act_energy};
+    m_value = Quantity{AnyValue(value), Units(units), is_act_energy};
     m_equals = eq_comparer<Quantity>;
 }
 
 void AnyValue::setQuantity(double value, const Units& units) {
-    *m_value = Quantity{AnyValue(value), units, false};
+    m_value = Quantity{AnyValue(value), units, false};
     m_equals = eq_comparer<Quantity>;
 }
 
 void AnyValue::setQuantity(const vector_fp& values, const std::string& units) {
     AnyValue v;
     v = values;
-    *m_value = Quantity{v, Units(units), false};
+    m_value = Quantity{v, Units(units), false};
     m_equals = eq_comparer<Quantity>;
 }
 
 void AnyValue::setQuantity(const AnyValue& value, const unitConverter& converter)
 {
-    *m_value = Quantity{value, Units(0.0), false, converter};
+    m_value = Quantity{value, Units(0.0), false, converter};
     m_equals = eq_comparer<Quantity>;
 }
 
 template<>
 bool AnyValue::is<vector<double>>() const
 {
-    if (m_value->type() == typeid(vector<double>)) {
+    if (m_value.type() == typeid(vector<double>)) {
         return true;
-    } else if (m_value->type() == typeid(vector<AnyValue>)) {
+    } else if (m_value.type() == typeid(vector<AnyValue>)) {
         for (const auto& item : as<vector<AnyValue>>()) {
             if (!(item.is<double>()
                 || (item.is<Quantity>() && item.as<Quantity>().value.is<double>())))
@@ -788,12 +800,12 @@ bool AnyValue::is<vector<double>>() const
 // Specializations for "double"
 
 AnyValue::AnyValue(double value)
-    : m_value(new boost::any{value})
+    : m_value{value}
     , m_equals(eq_comparer<double>)
 {}
 
 AnyValue &AnyValue::operator=(double value) {
-    *m_value = value;
+    m_value = value;
     m_equals = eq_comparer<double>;
     return *this;
 }
@@ -808,10 +820,10 @@ const double& AnyValue::asDouble() const {
 
 bool AnyValue::operator==(const double& other) const
 {
-    if (m_value->type() == typeid(double)) {
-        return boost::any_cast<double>(*m_value) == other;
-    } else if (m_value->type() == typeid(long int)) {
-        return boost::any_cast<long int>(*m_value) == other;
+    if (m_value.type() == typeid(double)) {
+        return std::any_cast<double>(m_value) == other;
+    } else if (m_value.type() == typeid(long int)) {
+        return std::any_cast<long int>(m_value) == other;
     } else {
         return false;
     }
@@ -835,12 +847,12 @@ bool operator!=(const double& lhs, const AnyValue& rhs)
 // Specializations for "bool"
 
 AnyValue::AnyValue(bool value)
-    : m_value(new boost::any{value})
+    : m_value{value}
     , m_equals(eq_comparer<bool>)
 {}
 
 AnyValue &AnyValue::operator=(bool value) {
-    *m_value = value;
+    m_value = value;
     m_equals = eq_comparer<bool>;
     return *this;
 }
@@ -856,23 +868,23 @@ const bool& AnyValue::asBool() const {
 // Specializations for "long int" and "int"
 
 AnyValue::AnyValue(long int value)
-    : m_value(new boost::any{value})
+    : m_value{value}
     , m_equals(eq_comparer<long int>)
 {}
 
 AnyValue::AnyValue(int value)
-    : m_value(new boost::any{static_cast<long int>(value)})
+    : m_value{static_cast<long int>(value)}
     , m_equals(eq_comparer<long int>)
 {}
 
 AnyValue &AnyValue::operator=(long int value) {
-    *m_value = value;
+    m_value = value;
     m_equals = eq_comparer<long int>;
     return *this;
 }
 
 AnyValue &AnyValue::operator=(int value) {
-    *m_value = static_cast<long int>(value);
+    m_value = static_cast<long int>(value);
     m_equals = eq_comparer<long int>;
     return *this;
 }
@@ -887,10 +899,10 @@ const long int& AnyValue::asInt() const {
 
 bool AnyValue::operator==(const long int& other) const
 {
-    if (m_value->type() == typeid(long int)) {
-        return boost::any_cast<long int>(*m_value) == other;
-    } else if (m_value->type() == typeid(double)) {
-        return boost::any_cast<double>(*m_value) == other;
+    if (m_value.type() == typeid(long int)) {
+        return std::any_cast<long int>(m_value) == other;
+    } else if (m_value.type() == typeid(double)) {
+        return std::any_cast<double>(m_value) == other;
     } else {
         return false;
     }
@@ -934,18 +946,18 @@ bool operator!=(const int& lhs, const AnyValue& rhs)
 // Specializations for "AnyMap"
 
 AnyValue::AnyValue(const AnyMap& value)
-    : m_value(new boost::any{value})
+    : m_value{value}
     , m_equals(eq_comparer<AnyMap>)
 {}
 
 AnyValue& AnyValue::operator=(const AnyMap& value) {
-    *m_value = value;
+    m_value = value;
     m_equals = eq_comparer<AnyMap>;
     return *this;
 }
 
 AnyValue& AnyValue::operator=(AnyMap&& value) {
-    *m_value = std::move(value);
+    m_value = std::move(value);
     m_equals = eq_comparer<AnyMap>;
     return *this;
 }
@@ -1121,18 +1133,18 @@ void AnyValue::applyUnits(shared_ptr<UnitSystem>& units)
                     } else {
                         // Merge with a child units declaration
                         auto& childUnits = item["units"].as<AnyMap>();
-                        for (auto& jtem : deltaUnits) {
-                            if (!childUnits.hasKey(jtem.first)) {
-                                childUnits[jtem.first] = jtem.second;
+                        for (auto& [dimension, unit] : deltaUnits) {
+                            if (!childUnits.hasKey(dimension)) {
+                                childUnits[dimension] = unit;
                             }
                         }
                     }
                 } else if (item.hasKey("__units__")) {
                     // Merge with a child units declaration
                     auto& childUnits = item["__units__"].as<AnyMap>();
-                    for (auto& jtem : deltaUnits) {
-                        if (!childUnits.hasKey(jtem.first)) {
-                            childUnits[jtem.first] = jtem.second;
+                    for (auto& [dimension, unit] : deltaUnits) {
+                        if (!childUnits.hasKey(dimension)) {
+                            childUnits[dimension] = unit;
                         }
                     }
                 } else {
@@ -1164,7 +1176,7 @@ void AnyValue::applyUnits(shared_ptr<UnitSystem>& units)
             m_equals = Q.value.m_equals;
             // Replace the value last since Q is a reference to m_value and won't be
             // valid after this
-            m_value = std::move(Q.value.m_value);
+            m_value = Q.value.m_value;
         } else if (Q.value.is<double>()) {
             if (Q.isActivationEnergy) {
                 *this = Q.value.as<double>() / units->convertActivationEnergyTo(1.0, Q.units);
@@ -1201,17 +1213,17 @@ const std::vector<AnyValue>& AnyValue::asVector<AnyValue>(size_t nMin, size_t nM
             for (const auto& el : asVector<double>()) {
                 v.push_back(AnyValue(el));
             }
-            *m_value = v;
+            const_cast<AnyValue*>(this)->m_value = v;
         } else if (is<std::vector<long int>>()) {
             for (const auto& el : asVector<long int>()) {
                 v.push_back(AnyValue(el));
             }
-            *m_value = v;
+            const_cast<AnyValue*>(this)->m_value = v;
         } else if (is<std::vector<std::string>>()) {
             for (const auto& el : asVector<std::string>()) {
                 v.push_back(AnyValue(el));
             }
-            *m_value = v;
+            const_cast<AnyValue*>(this)->m_value = v;
         }
         // If none of these special cases match, the value won't be replaced,
         // and an exception will be thrown.
@@ -1239,7 +1251,7 @@ const std::vector<double>& AnyValue::asVector<double>(size_t nMin, size_t nMax) 
         for (const auto& el : asVector<long int>()) {
             v.push_back(el);
         }
-        *m_value = v;
+        const_cast<AnyValue*>(this)->m_value = v;
     }
     const auto& vv = as<std::vector<double>>();
     m_equals = eq_comparer<std::vector<double>>;
@@ -1255,7 +1267,7 @@ std::vector<double>& AnyValue::asVector<double>(size_t nMin, size_t nMax)
         for (const auto& el : asVector<long int>()) {
             v.push_back(el);
         }
-        *m_value = v;
+        m_value = v;
     }
     auto& vv = as<std::vector<double>>();
     m_equals = eq_comparer<std::vector<double>>;
@@ -1274,7 +1286,7 @@ const std::vector<vector_fp>& AnyValue::asVector<vector_fp>(size_t nMin, size_t 
                 v.back().push_back(inner);
             }
         }
-        *m_value = v;
+        const_cast<AnyValue*>(this)->m_value = v;
     }
     const auto& vv = as<std::vector<vector_fp>>();
     m_equals = eq_comparer<std::vector<vector_fp>>;
@@ -1293,7 +1305,7 @@ std::vector<vector_fp>& AnyValue::asVector<vector_fp>(size_t nMin, size_t nMax)
                 v.back().push_back(inner);
             }
         }
-        *m_value = v;
+        m_value = v;
     }
     auto& vv = as<std::vector<vector_fp>>();
     m_equals = eq_comparer<std::vector<vector_fp>>;
@@ -1305,13 +1317,13 @@ template<>
 const std::vector<AnyMap>& AnyValue::asVector<AnyMap>(size_t nMin, size_t nMax) const
 {
     if (is<AnyMap>()) {
-        std::vector<AnyMap> v;
+        vector<AnyMap> v;
         v.push_back(std::move(as<AnyMap>()));
-        *m_value = std::move(v);
-    } else if (is<std::vector<AnyValue>>() && asVector<AnyValue>().empty()) {
-        *m_value = std::vector<AnyMap>();
+        const_cast<AnyValue*>(this)->m_value = std::move(v);
+    } else if (is<vector<AnyValue>>() && asVector<AnyValue>().empty()) {
+        const_cast<AnyValue*>(this)->m_value = vector<AnyMap>();
     }
-    const auto& vv = as<std::vector<AnyMap>>();
+    const auto& vv = as<vector<AnyMap>>();
     checkSize(vv, nMin, nMax);
     return vv;
 }
@@ -1320,13 +1332,13 @@ template<>
 std::vector<AnyMap>& AnyValue::asVector<AnyMap>(size_t nMin, size_t nMax)
 {
     if (is<AnyMap>()) {
-        std::vector<AnyMap> v;
+        vector<AnyMap> v;
         v.push_back(std::move(as<AnyMap>()));
-        *m_value = std::move(v);
-    } else if (is<std::vector<AnyValue>>() && asVector<AnyValue>().empty()) {
-        *m_value = std::vector<AnyMap>();
+        m_value = std::move(v);
+    } else if (is<vector<AnyValue>>() && asVector<AnyValue>().empty()) {
+        m_value = vector<AnyMap>();
     }
-    auto& vv = as<std::vector<AnyMap>>();
+    auto& vv = as<vector<AnyMap>>();
     checkSize(vv, nMin, nMax);
     return vv;
 }
@@ -1343,9 +1355,7 @@ AnyValue& AnyMap::operator[](const std::string& key)
     const auto& iter = m_data.find(key);
     if (iter == m_data.end()) {
         // Create a new key to return
-        // NOTE: 'insert' can be replaced with 'emplace' after support for
-        // G++ 4.7 is dropped.
-        AnyValue& value = m_data.insert({key, AnyValue()}).first->second;
+        AnyValue& value = m_data.emplace(key, AnyValue()).first->second;
         value.setKey(key);
         if (m_metadata) {
             value.propagateMetadata(m_metadata);
@@ -1376,9 +1386,7 @@ const AnyValue& AnyMap::operator[](const std::string& key) const
 
 AnyValue& AnyMap::createForYaml(const std::string& key, int line, int column)
 {
-    // NOTE: 'insert' can be replaced with 'emplace' after support for
-    // G++ 4.7 is dropped.
-    AnyValue& value = m_data.insert({key, AnyValue()}).first->second;
+    AnyValue& value = m_data.emplace(key, AnyValue()).first->second;
     value.setKey(key);
     if (m_metadata) {
         value.propagateMetadata(m_metadata);
@@ -1420,9 +1428,9 @@ void AnyMap::clear()
 
 void AnyMap::update(const AnyMap& other, bool keepExisting)
 {
-    for (const auto& item : other) {
-        if (!keepExisting || !hasKey(item.first)) {
-            (*this)[item.first] = item.second;
+    for (const auto& [key, value] : other) {
+        if (!keepExisting || !hasKey(key)) {
+            (*this)[key] = value;
         }
     }
 }
@@ -1442,11 +1450,22 @@ std::string AnyMap::keys_str() const
     return to_string(b);
 }
 
+std::set<std::string> AnyMap::keys() const
+{
+    std::set<std::string> out;
+    auto iter = this->begin();
+    while (iter != this->end()) {
+        out.insert(iter->first);
+        ++iter;
+    }
+    return out;
+}
+
 void AnyMap::propagateMetadata(shared_ptr<AnyMap>& metadata)
 {
     m_metadata = metadata;
-    for (auto& item : m_data) {
-        item.second.propagateMetadata(m_metadata);
+    for (auto& [name, value] : m_data) {
+        value.propagateMetadata(m_metadata);
     }
 }
 
@@ -1477,8 +1496,8 @@ void AnyMap::copyMetadata(const AnyMap& other)
         m_metadata = make_shared<AnyMap>();
     }
 
-    for (const auto& item : *other.m_metadata) {
-        (*m_metadata)[item.first] = item.second;
+    for (const auto& [key, value] : *other.m_metadata) {
+        (*m_metadata)[key] = value;
     }
 
     propagateMetadata(m_metadata);
@@ -1561,7 +1580,8 @@ AnyMap::OrderedProxy::OrderedProxy(const AnyMap& data)
 {
     // Units always come first
     if (m_data->hasKey("__units__") && m_data->at("__units__").as<AnyMap>().size()) {
-        m_units.reset(new std::pair<const string, AnyValue>{"units", m_data->at("__units__")});
+        m_units = make_unique<pair<const string, AnyValue>>(
+            "units", m_data->at("__units__"));
         m_units->second.setFlowStyle();
         m_ordered.emplace_back(std::pair<int, int>{-2, 0}, m_units.get());
     }
@@ -1586,14 +1606,14 @@ AnyMap::OrderedProxy::OrderedProxy(const AnyMap& data)
         std::unique_lock<std::mutex> lock(yaml_field_order_mutex);
         if (AnyMap::s_headFields.count(itemType)) {
             for (const auto& key : AnyMap::s_headFields[itemType]) {
-                for (auto& item : m_ordered) {
-                    if (item.first.first >= 0) {
+                for (auto& [order, item] : m_ordered) {
+                    if (order.first >= 0) {
                         // This and following items come from an input file and
                         // should not be re-ordered
                         break;
                     }
-                    if (item.second->first == key) {
-                        item.first.second = --head;
+                    if (item->first == key) {
+                        order.second = --head;
                         order_changed = true;
                     }
                 }
@@ -1601,14 +1621,14 @@ AnyMap::OrderedProxy::OrderedProxy(const AnyMap& data)
         }
         if (AnyMap::s_tailFields.count(itemType)) {
             for (const auto& key : AnyMap::s_tailFields[itemType]) {
-                for (auto& item : m_ordered) {
-                    if (item.first.first >= 0) {
+                for (auto& [order, item] : m_ordered) {
+                    if (order.first >= 0) {
                         // This and following items come from an input file and
                         // should not be re-ordered
                         break;
                     }
-                    if (item.second->first == key) {
-                        item.first.second = ++tail;
+                    if (item->first == key) {
+                        order.second = ++tail;
                         order_changed = true;
                     }
                 }
@@ -1643,14 +1663,14 @@ bool AnyMap::operator==(const AnyMap& other) const
 {
     // First, make sure that 'other' has all of the non-hidden keys that are in
     // this map
-    for (auto& item : *this) {
-        if (!other.hasKey(item.first)) {
+    for (auto& [key, value] : *this) {
+        if (!other.hasKey(key)) {
             return false;
         }
     }
     // Then check for equality, using the non-hidden keys from 'other'
-    for (auto & item : other) {
-        if (!hasKey(item.first) || item.second != at(item.first)) {
+    for (auto & [key, value] : other) {
+        if (!hasKey(key) || value != at(key)) {
             return false;
         }
     }
@@ -1673,26 +1693,26 @@ void AnyMap::applyUnits(shared_ptr<UnitSystem>& units) {
         m_data.erase("units");
     }
     if (hasKey("__units__")) {
-        m_units.reset(new UnitSystem(*units));
+        m_units = make_shared<UnitSystem>(*units);
         m_units->setDefaults(m_data["__units__"].asMap<std::string>());
     } else {
         m_units = units;
     }
-    for (auto& item : m_data) {
-        item.second.applyUnits(m_units);
+    for (auto& [name, item] : m_data) {
+        item.applyUnits(m_units);
     }
 }
 
 void AnyMap::setUnits(const UnitSystem& units)
 {
     if (hasKey("__units__")) {
-        for (const auto& item : units.getDelta(*m_units)) {
-            m_data["__units__"][item.first] = item.second;
+        for (const auto& [dimension, value] : units.getDelta(*m_units)) {
+            m_data["__units__"][dimension] = value;
         }
     } else {
         m_data["__units__"] = units.getDelta(*m_units);
     }
-    m_units.reset(new UnitSystem(units));
+    m_units = make_shared<UnitSystem>(units);
 }
 
 void AnyMap::setFlowStyle(bool flow) {
@@ -1759,7 +1779,7 @@ AnyMap AnyMap::fromYamlFile(const std::string& name,
 
     // Check for an already-parsed YAML file with the same last-modified time,
     // and return that if possible
-    int mtime = get_modified_time(fullName);
+    auto mtime = std::filesystem::last_write_time(fullName);
     std::unique_lock<std::mutex> lock(yaml_cache_mutex);
     auto iter = s_cache.find(fullName);
     if (iter != s_cache.end() && iter->second.second == mtime) {
@@ -1772,13 +1792,13 @@ AnyMap AnyMap::fromYamlFile(const std::string& name,
     }
 
     // Generate an AnyMap from the YAML file and store it in the cache
-    auto& cache_item = s_cache[fullName];
-    cache_item.second = mtime;
+    auto& [cache_item, cache_time] = s_cache[fullName];
+    cache_time = mtime;
     try {
         YAML::Node node = YAML::LoadFile(fullName);
-        cache_item.first = node.as<AnyMap>();
-        cache_item.first.setMetadata("filename", AnyValue(fullName));
-        cache_item.first.applyUnits();
+        cache_item = node.as<AnyMap>();
+        cache_item.setMetadata("filename", AnyValue(fullName));
+        cache_item.applyUnits();
     } catch (YAML::Exception& err) {
         s_cache.erase(fullName);
         AnyMap fake;
@@ -1789,14 +1809,14 @@ AnyMap AnyMap::fromYamlFile(const std::string& name,
         s_cache.erase(fullName);
         throw;
     }
-    cache_item.first["__file__"] = fullName;
+    cache_item["__file__"] = fullName;
 
-    if (cache_item.first.hasKey("deprecated")) {
-        warn_deprecated(fullName, cache_item.first["deprecated"].asString());
+    if (cache_item.hasKey("deprecated")) {
+        warn_deprecated(fullName, cache_item["deprecated"].asString());
     }
 
     // Return a copy of the AnyMap
-    return cache_item.first;
+    return cache_item;
 }
 
 std::string AnyMap::toYamlString() const

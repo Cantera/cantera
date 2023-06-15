@@ -1,13 +1,18 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
-cdef extern from "cantera/thermo/speciesThermoTypes.h" namespace "Cantera":
-    cdef int SPECIES_THERMO_CONSTANT_CP "CONSTANT_CP"
-    cdef int SPECIES_THERMO_NASA2 "NASA2"
-    cdef int SPECIES_THERMO_SHOMATE2 "SHOMATE2"
-    cdef int SPECIES_THERMO_NASA9MULTITEMP "NASA9MULTITEMP"
-    cdef int SPECIES_THERMO_MU0_INTERP "MU0_INTERP"
+cimport numpy as np
+import numpy as np
 
+from ._utils cimport *
+from .constants import *
+
+# These match the definitions in speciesThermoTyeps.h
+cdef int SPECIES_THERMO_CONSTANT_CP = 1
+cdef int SPECIES_THERMO_NASA2 = 4
+cdef int SPECIES_THERMO_SHOMATE2 = 8
+cdef int SPECIES_THERMO_NASA9MULTITEMP = 513
+cdef int SPECIES_THERMO_MU0_INTERP = 64
 
 cdef class SpeciesThermo:
     """
@@ -92,7 +97,7 @@ cdef class SpeciesThermo:
         data provided with its input (YAML) definition.
         """
         def __get__(self):
-            return anymap_to_dict(self.spthermo.parameters(True))
+            return anymap_to_py(self.spthermo.parameters(True))
 
     def update_user_data(self, data):
         """
@@ -100,7 +105,7 @@ cdef class SpeciesThermo:
         YAML phase definition files with `Solution.write_yaml` or in the data returned
         by `input_data`. Existing keys with matching names are overwritten.
         """
-        self.spthermo.input().update(dict_to_anymap(data), False)
+        self.spthermo.input().update(py_to_anymap(data), False)
 
     def clear_user_data(self):
         """

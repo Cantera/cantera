@@ -6,8 +6,6 @@
 #include "cantera/oneD/MultiJac.h"
 #include <ctime>
 
-using namespace std;
-
 namespace Cantera
 {
 
@@ -20,11 +18,6 @@ MultiJac::MultiJac(OneDim& r)
     m_r1.resize(m_size);
     m_ssdiag.resize(m_size);
     m_mask.resize(m_size);
-    m_elapsed = 0.0;
-    m_nevals = 0;
-    m_age = 100000;
-    m_atol = sqrt(std::numeric_limits<double>::epsilon());
-    m_rtol = 1.0e-5;
 }
 
 void MultiJac::updateTransient(doublereal rdt, integer* mask)

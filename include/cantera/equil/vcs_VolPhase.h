@@ -9,7 +9,8 @@
 #ifndef VCS_VOLPHASE_H
 #define VCS_VOLPHASE_H
 
-#include "cantera/equil/vcs_SpeciesProperties.h"
+#include "vcs_SpeciesProperties.h"
+#include "vcs_defs.h"
 #include "cantera/base/Array.h"
 
 namespace Cantera
@@ -527,7 +528,7 @@ private:
 
 private:
     //! Backtrack value of VCS_SOLVE *
-    VCS_SOLVE* m_owningSolverObject;
+    VCS_SOLVE* m_owningSolverObject = nullptr;
 
 public:
     //! Original ID of the phase in the problem.
@@ -535,23 +536,23 @@ public:
      * If a non-ideal phase splits into two due to a miscibility gap, these
      * numbers will stay the same after the split.
      */
-    size_t VP_ID_;
+    size_t VP_ID_ = npos;
 
     //! If true, this phase consists of a single species
-    bool m_singleSpecies;
+    bool m_singleSpecies = true;
 
     //! If true, this phase is a gas-phase like phase
     /*!
      * A RTlog(p/1atm) term is added onto the chemical potential for inert
      * species if this is true.
      */
-    bool m_gasPhase;
+    bool m_gasPhase = false;
 
     //! Type of the equation of state
     /*!
      * The known types are listed at the top of this file.
      */
-    int m_eqnState;
+    int m_eqnState = VCS_EOS_CONSTANT;
 
     //! This is the element number for the charge neutrality condition of the
     //! phase
@@ -559,7 +560,7 @@ public:
      *  If it has one.  If it does not have a charge neutrality
      * constraint, then this value is equal to -1
      */
-    size_t ChargeNeutralityElement;
+    size_t ChargeNeutralityElement = npos;
 
     //! Convention for the activity formulation
     /*!
@@ -567,14 +568,14 @@ public:
      *  * 1 = Molality based activities, mu = mu_0 + ln a_molality. Standard
      *    state is based on unity molality
      */
-    int p_activityConvention;
+    int p_activityConvention = 0;
 
 private:
     //! Number of element constraints within the problem
     /*!
      *  This is usually equal to the number of elements.
      */
-    size_t m_numElemConstraints;
+    size_t m_numElemConstraints = 0;
 
     //! vector of strings containing the element constraint names
     /*!
@@ -620,7 +621,7 @@ private:
     std::vector<size_t> m_elemGlobalIndex;
 
     //! Number of species in the phase
-    size_t m_numSpecies;
+    size_t m_numSpecies = 0;
 
 public:
     //! String name for the phase
@@ -628,12 +629,12 @@ public:
 
 private:
     //!  Total moles of inert in the phase
-    double m_totalMolesInert;
+    double m_totalMolesInert = 0.0;
 
     //! Boolean indicating whether the phase is an ideal solution
     //! and therefore its molar-based activity coefficients are
     //! uniformly equal to one.
-    bool m_isIdealSoln;
+    bool m_isIdealSoln = false;
 
     //! Current state of existence:
     /*!
@@ -649,7 +650,7 @@ private:
      *   because it consists of a single species, which is identified with the
      *   voltage, for example, its an electron metal phase.
      */
-    int m_existence;
+    int m_existence = VCS_PHASE_EXIST_NO;
 
     // Index of the first MF species in the list of unknowns for this phase
     /*!
@@ -659,7 +660,7 @@ private:
      *  to 0 for single species phases, where we set by hand the mole fraction
      *  of species 0 to one.
      */
-    int m_MFStartIndex;
+    int m_MFStartIndex = 0;
 
     //! Index into the species vectors
     /*!
@@ -679,10 +680,10 @@ private:
      *  If we are using Cantera, this is the pointer to the ThermoPhase
      *  object. If not, this is null.
      */
-    ThermoPhase* TP_ptr;
+    ThermoPhase* TP_ptr = nullptr;
 
     //!  Total mols in the phase. units are kmol
-    double v_totalMoles;
+    double v_totalMoles = 0.0;
 
     //! Vector of the current mole fractions for species in the phase
     vector_fp Xmol_;
@@ -712,10 +713,10 @@ private:
 
     //! If the potential is a solution variable in VCS, it acts as a species.
     //! This is the species index in the phase for the potential
-    size_t m_phiVarIndex;
+    size_t m_phiVarIndex = npos;
 
     //! Total Volume of the phase. Units are m**3.
-    mutable double m_totalVol;
+    mutable double m_totalVol = 0.0;
 
     //! Vector of calculated SS0 chemical potentials for the
     //! current Temperature.
@@ -763,14 +764,14 @@ private:
      *  - VCS_STATECALC_NEW
      *  - VCS_STATECALC_TMP
      */
-    int m_vcsStateStatus;
+    int m_vcsStateStatus = VCS_STATECALC_OLD;
 
     //! Value of the potential for the phase (Volts)
-    double m_phi;
+    double m_phi = 0.0;
 
     //! Boolean indicating whether the object has an up-to-date mole number vector
     //! and potential with respect to the current vcs state calc status
-    bool m_UpToDate;
+    bool m_UpToDate = false;
 
     //! Boolean indicating whether activity coefficients are up to date.
     /*!
@@ -778,7 +779,7 @@ private:
      * called when they are needed (and when the state has changed so that they
      * need to be recalculated).
      */
-    mutable bool m_UpToDate_AC;
+    mutable bool m_UpToDate_AC = false;
 
     //! Boolean indicating whether Star volumes are up to date.
     /*!
@@ -787,7 +788,7 @@ private:
      * need to be recalculated). Star volumes are sensitive to temperature and
      * pressure
      */
-    mutable bool m_UpToDate_VolStar;
+    mutable bool m_UpToDate_VolStar = false;
 
     //! Boolean indicating whether partial molar volumes are up to date.
     /*!
@@ -796,25 +797,25 @@ private:
      * need to be recalculated). partial molar volumes are sensitive to
      * everything
      */
-    mutable bool m_UpToDate_VolPM;
+    mutable bool m_UpToDate_VolPM = false;
 
     //! Boolean indicating whether GStar is up to date.
     /*!
      * GStar is sensitive to the temperature and the pressure, only
      */
-    mutable bool m_UpToDate_GStar;
+    mutable bool m_UpToDate_GStar = false;
 
     //! Boolean indicating whether G0 is up to date.
     /*!
      * G0 is sensitive to the temperature and the pressure, only
      */
-    mutable bool m_UpToDate_G0;
+    mutable bool m_UpToDate_G0 = false;
 
     //! Current value of the temperature for this object, and underlying objects
-    double Temp_;
+    double Temp_ = 273.15;
 
     //! Current value of the pressure for this object, and underlying objects
-    double Pres_;
+    double Pres_ = OneAtm;
 };
 
 }

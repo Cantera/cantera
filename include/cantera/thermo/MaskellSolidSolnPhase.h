@@ -23,6 +23,9 @@ namespace Cantera
  * 231-235, 1983.
  *
  * @ingroup thermoprops
+ *
+ * @deprecated To be removed after Cantera 3.0. This class has numerous thermodynamic
+ *    inconsistencies. See https://github.com/Cantera/cantera/issues/1321.
  */
 class MaskellSolidSolnPhase : public VPStandardStateTP
 {
@@ -45,14 +48,13 @@ public:
     virtual doublereal entropy_mole() const;
 
     //! @}
-    /** @name Mechanical Equation of State Properties
-     *
-     * In this equation of state implementation, the density is a function only
-     * of the mole fractions. Therefore, it can't be an independent variable.
-     * Instead, the pressure is used as the independent variable. Functions
-     * which try to set the thermodynamic state by calling setDensity() will
-     * cause an exception to be thrown.
-     */
+    //! @name Mechanical Equation of State Properties
+    //!
+    //! In this equation of state implementation, the density is a function only
+    //! of the mole fractions. Therefore, it can't be an independent variable.
+    //! Instead, the pressure is used as the independent variable. Functions
+    //! which try to set the thermodynamic state by calling setDensity() will
+    //! cause an exception to be thrown.
     //! @{
 
     /**
@@ -81,6 +83,7 @@ public:
 
     virtual void getActivityCoefficients(doublereal* ac) const;
     virtual void getChemPotentials(doublereal* mu) const;
+    //! @deprecated To be removed after Cantera 3.0. Use getChemPotentials() instead.
     virtual void getChemPotentials_RT(doublereal* mu) const;
 
     //! @}
@@ -100,7 +103,6 @@ public:
 
     virtual void initThermo();
     virtual void getParameters(AnyMap& phaseNode) const;
-    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     void set_h_mix(const doublereal hmix) { h_mixing = hmix; }
 
@@ -114,15 +116,15 @@ private:
      * pressure, but only of the mole fractions, we need to independently
      * specify the pressure.
      */
-    doublereal m_Pcurrent;
+    double m_Pcurrent = OneAtm;
 
     //! Value of the enthalpy change on mixing due to protons changing from type
     //! B to type A configurations.
-    doublereal h_mixing;
+    double h_mixing = 0.0;
 
     //! Index of the species whose mole fraction defines the extent of reduction r
-    int product_species_index;
-    int reactant_species_index;
+    int product_species_index = -1;
+    int reactant_species_index = -1;
 
     // Functions to calculate some of the pieces of the mixing terms.
     doublereal s() const;

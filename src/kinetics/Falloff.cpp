@@ -18,10 +18,6 @@ namespace Cantera
 {
 
 FalloffData::FalloffData()
-    : ready(false)
-    , molar_density(NAN)
-    , m_state_mf_number(-1)
-    , m_perturbed(false)
 {
     conc_3b.resize(1, NAN);
     m_conc_3b_buf.resize(1, NAN);
@@ -82,8 +78,16 @@ void FalloffData::restore()
     m_perturbed = false;
 }
 
+FalloffRate::FalloffRate(const AnyMap& node, const UnitStack& rate_units)
+    : FalloffRate()
+{
+    setParameters(node, rate_units);
+}
+
 void FalloffRate::init(const vector_fp& c)
 {
+    warn_deprecated("FalloffRate::init",
+        "To be removed after Cantera 3.0; superseded by setFalloffCoeffs.");
     setFalloffCoeffs(c);
 }
 
@@ -91,7 +95,7 @@ void FalloffRate::setLowRate(const ArrheniusRate& low)
 {
     ArrheniusRate _low = low;
     _low.setAllowNegativePreExponentialFactor(m_negativeA_ok);
-    _low.check("", AnyMap());
+    _low.check(m_input.getString("equation", ""));
     if (_low.preExponentialFactor() * m_highRate.preExponentialFactor() < 0.) {
         throw CanteraError("FalloffRate::setLowRate",
             "Detected inconsistent rate definitions;\nhigh and low "
@@ -104,7 +108,7 @@ void FalloffRate::setHighRate(const ArrheniusRate& high)
 {
     ArrheniusRate _high = high;
     _high.setAllowNegativePreExponentialFactor(m_negativeA_ok);
-    _high.check("", AnyMap());
+    _high.check(m_input.getString("equation", ""));
     if (m_lowRate.preExponentialFactor() * _high.preExponentialFactor() < 0.) {
         throw CanteraError("FalloffRate::setHighRate",
             "Detected inconsistent rate definitions;\nhigh and low "
@@ -116,10 +120,11 @@ void FalloffRate::setHighRate(const ArrheniusRate& high)
 void FalloffRate::setFalloffCoeffs(const vector_fp& c)
 {
     if (c.size() != 0) {
-        throw CanteraError("FalloffRate::setFalloffCoeffs",
+        throw InputFileError("FalloffRate::setFalloffCoeffs", m_input,
             "Incorrect number of parameters. 0 required. Received {}.",
             c.size());
     }
+    m_valid = true;
 }
 
 void FalloffRate::getFalloffCoeffs(vector_fp& c) const
@@ -129,6 +134,7 @@ void FalloffRate::getFalloffCoeffs(vector_fp& c) const
 
 void FalloffRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
 {
+    ReactionRate::setParameters(node, rate_units);
     if (node.empty()) {
         return;
     }
@@ -142,10 +148,9 @@ void FalloffRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
     UnitStack high_rate_units = rate_units;
     if (rate_units.size()) {
         if (m_chemicallyActivated) {
-            low_rate_units.join(1);
-            high_rate_units.join(2);
-        } else {
             high_rate_units.join(1);
+        } else {
+            low_rate_units.join(-1);
         }
     }
     if (node.hasKey("low-P-rate-constant")) {
@@ -162,11 +167,6 @@ void FalloffRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
 
 void FalloffRate::getParameters(AnyMap& node) const
 {
-    if (m_chemicallyActivated) {
-        node["type"] = "chemically-activated";
-    } else {
-        node["type"] = "falloff";
-    }
     if (m_negativeA_ok) {
         node["negative-A"] = true;
     }
@@ -182,19 +182,16 @@ void FalloffRate::getParameters(AnyMap& node) const
     }
 }
 
-void FalloffRate::check(const std::string& equation, const AnyMap& node)
+void FalloffRate::check(const std::string& equation)
 {
-    m_lowRate.check(equation, node);
-    m_highRate.check(equation, node);
-
-    double lowA = m_lowRate.preExponentialFactor();
-    double highA = m_highRate.preExponentialFactor();
-    if (std::isnan(lowA) || std::isnan(highA)) {
+    m_lowRate.check(equation);
+    m_highRate.check(equation);
+    if (!m_lowRate.valid() || !m_highRate.valid()) {
         // arrhenius rates are not initialized
         return;
     }
-    if (lowA * highA < 0) {
-        throw InputFileError("FalloffRate::check", node,
+    if (m_lowRate.preExponentialFactor() * m_highRate.preExponentialFactor() < 0) {
+        throw InputFileError("FalloffRate::check", m_input,
             "Inconsistent rate definitions found in reaction '{}';\nhigh and low "
             "rate pre-exponential factors must have the same sign.", equation);
     }
@@ -202,14 +199,48 @@ void FalloffRate::check(const std::string& equation, const AnyMap& node)
 
 void FalloffRate::validate(const std::string& equation, const Kinetics& kin)
 {
-    m_lowRate.validate(equation, kin);
-    m_highRate.validate(equation, kin);
+    try {
+        m_lowRate.validate(equation, kin);
+        m_highRate.validate(equation, kin);
+    } catch (CanteraError& err) {
+        throw InputFileError("FalloffRate::validate", m_input, err.getMessage());
+    }
+}
+
+LindemannRate::LindemannRate(const AnyMap& node, const UnitStack& rate_units)
+    : LindemannRate()
+{
+    setParameters(node, rate_units);
+}
+
+LindemannRate::LindemannRate(const ArrheniusRate& low, const ArrheniusRate& high,
+                             const vector_fp& c)
+    : LindemannRate()
+{
+    m_lowRate = low;
+    m_highRate = high;
+    setFalloffCoeffs(c);
+}
+
+TroeRate::TroeRate(const AnyMap& node, const UnitStack& rate_units)
+    : TroeRate()
+{
+    setParameters(node, rate_units);
+}
+
+TroeRate::TroeRate(const ArrheniusRate& low, const ArrheniusRate& high,
+                   const vector_fp& c)
+    : TroeRate()
+{
+    m_lowRate = low;
+    m_highRate = high;
+    setFalloffCoeffs(c);
 }
 
 void TroeRate::setFalloffCoeffs(const vector_fp& c)
 {
     if (c.size() != 3 && c.size() != 4) {
-        throw CanteraError("TroeRate::setFalloffCoeffs",
+        throw InputFileError("TroeRate::setFalloffCoeffs", m_input,
             "Incorrect number of coefficients. 3 or 4 required. Received {}.",
             c.size());
     }
@@ -240,15 +271,20 @@ void TroeRate::setFalloffCoeffs(const vector_fp& c)
     } else {
         m_t2 = 0.;
     }
+    m_valid = true;
 }
 
 void TroeRate::getFalloffCoeffs(vector_fp& c) const
 {
-    c.resize(4, 0.);
-    getParameters(c.data());
-    if (std::abs(c[3]) < SmallNumber) {
+    if (std::abs(m_t2) < SmallNumber) {
         c.resize(3);
+    } else {
+        c.resize(4, 0.);
+        c[3] = m_t2;
     }
+    c[0] = m_a;
+    c[1] = 1.0 / m_rt3;
+    c[2] = 1.0 / m_rt1;
 }
 
 void TroeRate::updateTemp(double T, double* work) const
@@ -293,6 +329,8 @@ void TroeRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
 }
 
 void TroeRate::getParameters(double* params) const {
+    warn_deprecated("TroeRate::getParameters",
+        "To be removed after Cantera 3.0; superseded by getFalloffCoeffs.");
     params[0] = m_a;
     params[1] = 1.0/m_rt3;
     params[2] = 1.0/m_rt1;
@@ -304,38 +342,35 @@ void TroeRate::getParameters(AnyMap& node) const
     FalloffRate::getParameters(node);
 
     AnyMap params;
-    if (std::isnan(m_a)) {
-        // pass
-    } else if (m_lowRate.rateUnits().factor() != 0.0) {
+    if (valid()) {
         params["A"] = m_a;
         params["T3"].setQuantity(1.0 / m_rt3, "K");
         params["T1"].setQuantity(1.0 / m_rt1, "K");
         if (std::abs(m_t2) > SmallNumber) {
             params["T2"].setQuantity(m_t2, "K");
         }
-    } else {
-        params["A"] = m_a;
-        params["T3"] = 1.0 / m_rt3;
-        params["T1"] = 1.0 / m_rt1;
-        if (std::abs(m_t2) > SmallNumber) {
-            params["T2"] = m_t2;
-        }
     }
     params.setFlowStyle();
     node["Troe"] = std::move(params);
 }
 
+SriRate::SriRate(const AnyMap& node, const UnitStack& rate_units)
+    : SriRate()
+{
+    setParameters(node, rate_units);
+}
+
 void SriRate::setFalloffCoeffs(const vector_fp& c)
 {
     if (c.size() != 3 && c.size() != 5) {
-        throw CanteraError("SriRate::setFalloffCoeffs",
+        throw InputFileError("SriRate::setFalloffCoeffs", m_input,
             "Incorrect number of coefficients. 3 or 5 required. Received {}.",
             c.size());
     }
 
     if (c[2] < 0.0) {
-        throw CanteraError("SriRate::setFalloffCoeffs()",
-                           "m_c parameter is less than zero: {}", c[2]);
+        throw InputFileError("SriRate::setFalloffCoeffs()", m_input,
+                             "m_c parameter is less than zero: {}", c[2]);
     }
     m_a = c[0];
     m_b = c[1];
@@ -343,8 +378,8 @@ void SriRate::setFalloffCoeffs(const vector_fp& c)
 
     if (c.size() == 5) {
         if (c[3] < 0.0) {
-            throw CanteraError("SriRate::setFalloffCoeffs()",
-                               "m_d parameter is less than zero: {}", c[3]);
+            throw InputFileError("SriRate::setFalloffCoeffs()", m_input,
+                                 "m_d parameter is less than zero: {}", c[3]);
         }
         m_d = c[3];
         m_e = c[4];
@@ -352,15 +387,21 @@ void SriRate::setFalloffCoeffs(const vector_fp& c)
         m_d = 1.0;
         m_e = 0.0;
     }
+    m_valid = true;
 }
 
 void SriRate::getFalloffCoeffs(vector_fp& c) const
 {
-    c.resize(5, 0.);
-    getParameters(c.data());
     if (m_e < SmallNumber && std::abs(m_e - 1.) < SmallNumber) {
         c.resize(3);
+    } else {
+        c.resize(5, 0.);
+        c[3] = m_d;
+        c[4] = m_e;
     }
+    c[0] = m_a;
+    c[1] = m_b;
+    c[2] = m_c;
 }
 
 void SriRate::updateTemp(double T, double* work) const
@@ -406,6 +447,8 @@ void SriRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
 
 void SriRate::getParameters(double* params) const
 {
+    warn_deprecated("SriRate::getParameters",
+        "To be removed after Cantera 3.0; superseded by getFalloffCoeffs.");
     params[0] = m_a;
     params[1] = m_b;
     params[2] = m_c;
@@ -418,20 +461,10 @@ void SriRate::getParameters(AnyMap& node) const
     FalloffRate::getParameters(node);
 
     AnyMap params;
-    if (std::isnan(m_a)) {
-        // pass
-    } else if (m_lowRate.rateUnits().factor() != 0.0) {
+    if (valid()) {
         params["A"] = m_a;
         params["B"].setQuantity(m_b, "K");
         params["C"].setQuantity(m_c, "K");
-        if (m_d != 1.0 || m_e != 0.0) {
-            params["D"] = m_d;
-            params["E"] = m_e;
-        }
-    } else {
-        params["A"] = m_a;
-        params["B"] = m_b;
-        params["C"] = m_c;
         if (m_d != 1.0 || m_e != 0.0) {
             params["D"] = m_d;
             params["E"] = m_e;
@@ -441,10 +474,16 @@ void SriRate::getParameters(AnyMap& node) const
     node["SRI"] = std::move(params);
 }
 
+TsangRate::TsangRate(const AnyMap& node, const UnitStack& rate_units)
+    : TsangRate()
+{
+    setParameters(node, rate_units);
+}
+
 void TsangRate::setFalloffCoeffs(const vector_fp& c)
 {
     if (c.size() != 1 && c.size() != 2) {
-        throw CanteraError("TsangRate::init",
+        throw InputFileError("TsangRate::init", m_input,
             "Incorrect number of coefficients. 1 or 2 required. Received {}.",
             c.size());
     }
@@ -456,15 +495,18 @@ void TsangRate::setFalloffCoeffs(const vector_fp& c)
     else {
         m_b = 0.0;
     }
+    m_valid = true;
 }
 
 void TsangRate::getFalloffCoeffs(vector_fp& c) const
 {
-    c.resize(2, 0.);
-    getParameters(c.data());
-    if (m_b < SmallNumber) {
+    if (std::abs(m_b) < SmallNumber) {
         c.resize(1);
+    } else {
+        c.resize(2, 0.);
+        c[1] = m_b;
     }
+    c[0] = m_a;
 }
 
 void TsangRate::updateTemp(double T, double* work) const
@@ -502,6 +544,8 @@ void TsangRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
 }
 
 void TsangRate::getParameters(double* params) const {
+    warn_deprecated("TsangRate::getParameters",
+        "To be removed after Cantera 3.0; superseded by getFalloffCoeffs.");
     params[0] = m_a;
     params[1] = m_b;
 }
@@ -511,7 +555,7 @@ void TsangRate::getParameters(AnyMap& node) const
     FalloffRate::getParameters(node);
 
     AnyMap params;
-    if (std::isnan(m_a)) {
+    if (!valid()) {
         // pass
     } else {
         // Parameters do not have unit system (yet)

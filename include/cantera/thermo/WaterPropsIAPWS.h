@@ -15,19 +15,18 @@
 
 namespace Cantera
 {
-/**
- * @name Names for the phase regions
- *
- * These constants are defined and used in the interface to describe the
- * location of where we are in (T,rho) space.
- *
- * WATER_UNSTABLELIQUID indicates that we are in the unstable region, inside the
- * spinodal curve where dpdrho < 0.0 amongst other properties. The difference
- * between WATER_UNSTABLELIQUID and WATER_UNSTABLEGAS is that
- *     for WATER_UNSTABLELIQUID  d2pdrho2 > 0   and dpdrho < 0.0
- *     for WATER_UNSTABLEGAS     d2pdrho2 < 0   and dpdrho < 0.0
- */
+//! @name Names for the phase regions
+//!
+//! These constants are defined and used in the interface to describe the
+//! location of where we are in (T,rho) space.
+//!
+//! WATER_UNSTABLELIQUID indicates that we are in the unstable region, inside the
+//! spinodal curve where dpdrho < 0.0 amongst other properties. The difference
+//! between WATER_UNSTABLELIQUID and WATER_UNSTABLEGAS is that
+//!     for WATER_UNSTABLELIQUID  d2pdrho2 > 0   and dpdrho < 0.0
+//!     for WATER_UNSTABLEGAS     d2pdrho2 < 0   and dpdrho < 0.0
 //@{
+
 #define WATER_GAS 0
 #define WATER_LIQUID 1
 #define WATER_SUPERCRIT 2
@@ -141,11 +140,11 @@ namespace Cantera
  * There are only three functions which actually change the value of the
  * internal state of this object after it's been instantiated
  *
- *   - setState_TR(temperature, rho)
+ *   - setState_TD(temperature, rho)
  *   - density(temperature, pressure, phase, rhoguess)
  *   - psat(temperature, waterState);
  *
- * The setState_TR() is the main function that sets the temperature and rho
+ * The setState_TD() is the main function that sets the temperature and rho
  * value. The density() function serves as a setState_TP() function, in that
  * it sets internal state to a temperature and pressure. However, note that
  * this is potentially multivalued. Therefore, we need to supply in addition a
@@ -163,7 +162,7 @@ class WaterPropsIAPWS
 {
 public:
     //! Base constructor
-    WaterPropsIAPWS();
+    WaterPropsIAPWS() = default;
 
     WaterPropsIAPWS(const WaterPropsIAPWS& right) = delete;
     WaterPropsIAPWS& operator=(const WaterPropsIAPWS& right) = delete;
@@ -172,37 +171,82 @@ public:
     /*!
      * @param temperature   temperature (kelvin)
      * @param rho           density  (kg m-3)
+     * @deprecated  To be removed after Cantera 3.0; renamed to setState_TD()
      */
     void setState_TR(doublereal temperature, doublereal rho);
 
+    //! Set the internal state of the object wrt temperature and density
+    /*!
+     * @param temperature   temperature (kelvin)
+     * @param rho           density  (kg m-3)
+     * @since  New in Cantera 3.0.
+     */
+    void setState_TD(double temperature, double rho);
+
+    //! Get the Gibbs free energy (J/kg) at the current temperature and density
+    double gibbs_mass() const;
+
+    //! Get the enthalpy (J/kg) at the current temperature and density
+    double enthalpy_mass() const;
+
+    //! Get the internal energy (J/kg) at the current temperature and density
+    double intEnergy_mass() const;
+
+    //! Get the entropy (J/kg/K) at the current temperature and density
+    double entropy_mass() const;
+
+    //! Get the constant volume heat capacity (J/kg/K) at the current temperature and
+    //! density
+    double cv_mass() const;
+
+    //! Get the constant pressure heat capacity (J/kg/K) at the current temperature and
+    //! density
+    double cp_mass() const;
+
     //! Calculate the Helmholtz free energy in mks units of J kmol-1 K-1,
     //! using the last temperature and density
+    //! @deprecated To be removed after Cantera 3.0. This class provides mass-based
+    //!     values only.
     doublereal helmholtzFE() const;
 
     //! Calculate the Gibbs free energy in mks units of J kmol-1 K-1.
     //! using the last temperature and density
+    //! @deprecated To be removed after Cantera 3.0. This class provides mass-based
+    //!     values only.
     doublereal Gibbs() const;
 
     //! Calculate the enthalpy in mks units of J kmol-1
     //! using the last temperature and density
+    //! @deprecated To be removed after Cantera 3.0. This class provides mass-based
+    //!     values only.
     doublereal enthalpy() const;
 
     //! Calculate the internal energy in mks units of J kmol-1
+    //! @deprecated To be removed after Cantera 3.0. This class provides mass-based
+    //!     values only.
     doublereal intEnergy() const;
 
     //! Calculate the entropy in mks units of J kmol-1 K-1
+    //! @deprecated To be removed after Cantera 3.0. This class provides mass-based
+    //!     values only.
     doublereal entropy() const;
 
     //! Calculate the constant volume heat capacity in mks units of J kmol-1 K-1
     //! at the last temperature and density
+    //! @deprecated To be removed after Cantera 3.0. This class provides mass-based
+    //!     values only.
     doublereal cv() const;
 
     //! Calculate the constant pressure heat capacity in mks units of J kmol-1 K-1
     //! at the last temperature and density
+    //! @deprecated To be removed after Cantera 3.0. This class provides mass-based
+    //!     values only.
     doublereal cp() const;
 
     //! Calculate the molar volume (kmol m-3) at the last temperature and
     //! density
+    //! @deprecated To be removed after Cantera 3.0. This class provides mass-based
+    //!     values only.
     doublereal molarVolume() const;
 
     //! Calculates the pressure (Pascals), given the current value of the
@@ -433,13 +477,13 @@ private:
     mutable WaterPropsIAPWSphi m_phi;
 
     //! Dimensionless temperature,  tau = T_C / T
-    doublereal tau;
+    double tau = -1.0;
 
     //! Dimensionless density, delta = rho / rho_c
-    mutable doublereal delta;
+    mutable double delta = -1.0;
 
     //! Current state of the system
-    mutable int iState;
+    mutable int iState = -30000;
 };
 
 }

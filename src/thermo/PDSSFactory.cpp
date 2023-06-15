@@ -21,20 +21,34 @@ PDSSFactory::PDSSFactory()
 {
     reg("ideal-gas", []() { return new PDSS_IdealGas(); });
     reg("constant-volume", []() { return new PDSS_ConstVol(); });
-    addAlias("constant-volume", "constant_incompressible");
-    addAlias("constant-volume", "constant-incompressible");
+    addDeprecatedAlias("constant-volume", "constant_incompressible");
+    addDeprecatedAlias("constant-volume", "constant-incompressible");
     reg("liquid-water-IAPWS95", []() { return new PDSS_Water(); });
-    addAlias("liquid-water-IAPWS95", "waterPDSS");
-    addAlias("liquid-water-IAPWS95", "waterIAPWS");
-    addAlias("liquid-water-IAPWS95", "water");
+    addDeprecatedAlias("liquid-water-IAPWS95", "waterPDSS");
+    addDeprecatedAlias("liquid-water-IAPWS95", "waterIAPWS");
+    addDeprecatedAlias("liquid-water-IAPWS95", "water");
     reg("ions-from-neutral-molecule", []() { return new PDSS_IonsFromNeutral(); });
-    addAlias("ions-from-neutral-molecule", "IonFromNeutral");
-    addAlias("ions-from-neutral-molecule", "ions-from-neutral");
+    addDeprecatedAlias("ions-from-neutral-molecule", "IonFromNeutral");
+    addDeprecatedAlias("ions-from-neutral-molecule", "ions-from-neutral");
     reg("molar-volume-temperature-polynomial", []() { return new PDSS_SSVol(); });
-    addAlias("molar-volume-temperature-polynomial", "temperature_polynomial");
+    addDeprecatedAlias("molar-volume-temperature-polynomial", "temperature_polynomial");
     reg("density-temperature-polynomial", []() { return new PDSS_SSVol(); });
-    addAlias("density-temperature-polynomial", "density_temperature_polynomial");
+    addDeprecatedAlias("density-temperature-polynomial", "density_temperature_polynomial");
     reg("HKFT", []() { return new PDSS_HKFT(); });
+}
+
+PDSSFactory* PDSSFactory::factory() {
+    std::unique_lock<std::mutex> lock(thermo_mutex);
+    if (!s_factory) {
+        s_factory = new PDSSFactory;
+    }
+    return s_factory;
+}
+
+void PDSSFactory::deleteFactory() {
+    std::unique_lock<std::mutex> lock(thermo_mutex);
+    delete s_factory;
+    s_factory = 0;
 }
 
 PDSS* PDSSFactory::newPDSS(const std::string& model)

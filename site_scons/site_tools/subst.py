@@ -12,7 +12,7 @@ import re
 
 from SCons.Script import *
 import SCons.Errors
-
+from pathlib import Path
 
 # Helper/core functions
 ##############################################################################
@@ -20,12 +20,7 @@ import SCons.Errors
 # Do the substitution
 def _subst_file(target, source, env, pattern, replace):
     # Read file
-    #print 'CALLING SUBST_FILE'
-    f = open(source, "rU")
-    try:
-        contents = f.read()
-    finally:
-        f.close()
+    contents = Path(source).read_text()
 
     # Substitute, make sure result is a string
     def subfn(mo):
@@ -33,7 +28,7 @@ def _subst_file(target, source, env, pattern, replace):
         if not SCons.Util.is_String(value):
             raise SCons.Errors.UserError("Substitution must be a string.")
         return value
-    #print 'pattern  = ' , pattern
+
     contents = re.sub(pattern, subfn, contents)
 
     # Write file
@@ -43,27 +38,25 @@ def _subst_file(target, source, env, pattern, replace):
     finally:
         f.close()
 
+
 # Determine which keys are used
 def _subst_keys(source, pattern):
     # Read file
-    f = open(source, "rU")
-    try:
-        contents = f.read()
-    finally:
-        f.close()
+    contents = Path(source).read_text()
 
     # Determine keys
     keys = []
+
     def subfn(mo):
         key = mo.group("key")
         if key:
             keys.append(key)
-        return ''
+        return ""
 
-    
     re.sub(pattern, subfn, contents)
 
     return keys
+
 
 # Get the value of a key as a string, or None if it is not in the environment
 def _subst_value(env, key):
@@ -75,17 +68,10 @@ def _subst_value(env, key):
 
     # env.subst already returns a string even if it is stored as a number
     # such as env['HAVE_XYZ'] = 1
-    #print 'key = ', key
-    #print '  straight env = ', env[key]
-    #print '  str of the thing = ', str(env[key])
-    #print '  subst(${}) of the thing = ', env.subst("${%s}" % key) 
-    #print '  %s of the thing = ', "%s" % str(env[key])
     aa = env[key]
     if aa == []:
-       aa = ''
+        aa = ""
     return aa
-    #return str(env[key])
-    #return env.subst("${%s}" % key)
 
 
 # Builder related functions
@@ -96,19 +82,21 @@ def _subst_action(target, source, env):
     # Substitute in the files
     pattern = env["SUBST_PATTERN"]
     replace = env["SUBST_REPLACE"]
-    #print 'SUBSTITUTE: ', pattern, ' for ', replace
 
     for (t, s) in zip(target, source):
         _subst_file(str(t), str(s), env, pattern, replace)
 
     return 0
 
+
 # Builder message
 def _subst_message(target, source, env):
-    items = ["Substituting vars from %s to %s" % (s, t)
-             for (t, s) in zip(target, source)]
+    items = [
+        "Substituting vars from %s to %s" % (s, t) for (t, s) in zip(target, source)
+    ]
 
     return "\n".join(items)
+
 
 # Builder dependency emitter
 def _subst_emitter(target, source, env):
@@ -126,7 +114,6 @@ def _subst_emitter(target, source, env):
         d = dict()
         for key in keys:
             value = _subst_value(env, key)
-            # print 'key = ', key, ' -> value = ', value
             if not value is None:
                 d[key] = value
 
@@ -140,6 +127,8 @@ def _subst_emitter(target, source, env):
 ##############################################################################
 
 _SubstFile_pattern = "@(?P<key>\w*?)@"
+
+
 def _SubstFile_replace(env, mo):
     key = mo.group("key")
     if not key:
@@ -150,11 +139,14 @@ def _SubstFile_replace(env, mo):
         raise SCons.Errors.UserError("Error: key %s does not exist" % key)
     return value
 
+
 def SubstFile(env, target, source):
-    return env.SubstGeneric(target,
-                            source,
-                            SUBST_PATTERN=_SubstFile_pattern,
-                            SUBST_REPLACE=_SubstFile_replace)
+    return env.SubstGeneric(
+        target,
+        source,
+        SUBST_PATTERN=_SubstFile_pattern,
+        SUBST_REPLACE=_SubstFile_replace,
+    )
 
 
 # A substitutor similar to config.h header substitution
@@ -176,7 +168,11 @@ def SubstFile(env, target, source):
 # other defines that you do not desire to be replaced.
 ##############################################################################
 
-_SubstHeader_pattern = "(?m)^(?P<space>\\s*?)(?P<type>#define|#undef)\\s+?@(?P<key>\w+?)@(?P<ending>.*?)$"
+_SubstHeader_pattern = (
+    "(?m)^(?P<space>\\s*?)(?P<type>#define|#undef)\\s+?@(?P<key>\w+?)@(?P<ending>.*?)$"
+)
+
+
 def _SubstHeader_replace(env, mo):
     space = mo.group("space")
     type = mo.group("type")
@@ -201,18 +197,20 @@ def _SubstHeader_replace(env, mo):
     # It was #undef
     return "%s#undef %s" % (space, key)
 
+
 def SubstHeader(env, target, source):
-    return env.SubstGeneric(target,
-                            source,
-                            SUBST_PATTERN=_SubstHeader_pattern,
-                            SUBST_REPLACE=_SubstHeader_replace)
+    return env.SubstGeneric(
+        target,
+        source,
+        SUBST_PATTERN=_SubstHeader_pattern,
+        SUBST_REPLACE=_SubstHeader_replace,
+    )
 
 
 def generate(env, **kw):
     # The generic builder
     subst = SCons.Action.Action(_subst_action, _subst_message)
-    env['BUILDERS']['SubstGeneric'] = Builder(action=subst,
-                                              emitter=_subst_emitter)
+    env["BUILDERS"]["SubstGeneric"] = Builder(action=subst, emitter=_subst_emitter)
 
     # Additional ones
     env.AddMethod(SubstFile)

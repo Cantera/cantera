@@ -46,7 +46,7 @@ public:
     /**
      * Default constructor. Create an empty array.
      */
-    Array2D();
+    Array2D() = default;
 
     //! Constructor.
     /*!
@@ -72,7 +72,7 @@ public:
 
     Array2D(const Array2D& y);
 
-    virtual ~Array2D() {}
+    virtual ~Array2D() = default;
 
     Array2D& operator=(const Array2D& y);
 
@@ -184,42 +184,42 @@ public:
         return m_data[m_nrows*j + i];
     }
 
-    /// Number of rows
+    //! Number of rows
     size_t nRows() const {
         return m_nrows;
     }
 
-    /// Number of columns
+    //! Number of columns
     size_t nColumns() const {
         return m_ncols;
     }
 
-    /// Return an iterator pointing to the first element
+    //! Return an iterator pointing to the first element
     iterator begin() {
         return m_data.begin();
     }
 
-    /// Return an iterator pointing past the last element
+    //! Return an iterator pointing past the last element
     iterator end() {
         return m_data.end();
     }
 
-    /// Return a const iterator pointing to the first element
+    //! Return a const iterator pointing to the first element
     const_iterator begin() const {
         return m_data.begin();
     }
 
-    /// Return a const iterator pointing to past the last element
+    //! Return a const iterator pointing to past the last element
     const_iterator end() const {
         return m_data.end();
     }
 
-    /// Return a reference to the data vector
+    //! Return a reference to the data vector
     vector_fp& data() {
         return m_data;
     }
 
-    /// Return a const reference to the data vector
+    //! Return a const reference to the data vector
     const vector_fp& data() const {
         return m_data;
     }
@@ -249,10 +249,10 @@ protected:
     vector_fp m_data;
 
     //! Number of rows
-    size_t m_nrows;
+    size_t m_nrows = 0;
 
     //! Number of columns
-    size_t m_ncols;
+    size_t m_ncols = 0;
 };
 
 //! Output the current contents of the Array2D object

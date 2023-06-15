@@ -19,20 +19,18 @@
 namespace Cantera
 {
 
-/*!
- * @name CONSTANTS - Specification of the Molality convention
- */
+//! @name CONSTANTS - Specification of the Molality convention
 //! @{
+
 //! Standard state uses the molar convention
 const int cAC_CONVENTION_MOLAR = 0;
 //! Standard state uses the molality convention
 const int cAC_CONVENTION_MOLALITY = 1;
-//! @}
 
-/*!
- * @name CONSTANTS - Specification of the SS convention
- */
+//! @}
+//! @name CONSTANTS - Specification of the SS convention
 //! @{
+
 //! Standard state uses the molar convention
 const int cSS_CONVENTION_TEMPERATURE = 0;
 //! Standard state uses the molality convention
@@ -41,7 +39,8 @@ const int cSS_CONVENTION_VPSS = 1;
 const int cSS_CONVENTION_SLAVE = 2;
 //! @}
 
-//! Differentiate between mole fractions and mass fractions for input mixture composition
+//! Differentiate between mole fractions and mass fractions for input mixture
+//! composition
 enum class ThermoBasis
 {
     mass,
@@ -103,15 +102,13 @@ class ThermoPhase : public Phase
 public:
     //! Constructor. Note that ThermoPhase is meant to be used as a base class,
     //! so this constructor should not be called explicitly.
-    ThermoPhase();
-
-    virtual ~ThermoPhase();
+    ThermoPhase() = default;
 
     //! @name  Information Methods
     //! @{
 
     virtual std::string type() const {
-        return "None";
+        return "none";
     }
 
     //! Boolean indicating whether phase is ideal
@@ -235,32 +232,32 @@ public:
     //! @name  Molar Thermodynamic Properties of the Solution
     //! @{
 
-    /// Molar enthalpy. Units: J/kmol.
+    //! Molar enthalpy. Units: J/kmol.
     virtual doublereal enthalpy_mole() const {
         throw NotImplementedError("ThermoPhase::enthalpy_mole");
     }
 
-    /// Molar internal energy. Units: J/kmol.
+    //! Molar internal energy. Units: J/kmol.
     virtual doublereal intEnergy_mole() const {
         return enthalpy_mole() - pressure()* molarVolume();
     }
 
-    /// Molar entropy. Units: J/kmol/K.
+    //! Molar entropy. Units: J/kmol/K.
     virtual doublereal entropy_mole() const {
         throw NotImplementedError("ThermoPhase::entropy_mole");
     }
 
-    /// Molar Gibbs function. Units: J/kmol.
+    //! Molar Gibbs function. Units: J/kmol.
     virtual doublereal gibbs_mole() const {
         return enthalpy_mole() - temperature()*entropy_mole();
     }
 
-    /// Molar heat capacity at constant pressure. Units: J/kmol/K.
+    //! Molar heat capacity at constant pressure. Units: J/kmol/K.
     virtual doublereal cp_mole() const {
         throw NotImplementedError("ThermoPhase::cp_mole");
     }
 
-    /// Molar heat capacity at constant volume. Units: J/kmol/K.
+    //! Molar heat capacity at constant volume. Units: J/kmol/K.
     virtual doublereal cv_mole() const {
         throw NotImplementedError("ThermoPhase::cv_mole");
     }
@@ -295,13 +292,22 @@ public:
         throw NotImplementedError("ThermoPhase::thermalExpansionCoeff");
     }
 
-    /**
-     * @}
-     * @name Electric Potential
-     *
-     * The phase may be at some non-zero electrical potential. These methods
-     * set or get the value of the electric potential.
+    //! Return the speed of sound. Units: m/s.
+    /*!
+     * The speed of sound is defined as 
+     * \f[
+     * c = \sqrt{\left(\frac{\partial P}{\partial\rho}\right)_s}
+     * \f]
      */
+    virtual double soundSpeed() const {
+        throw NotImplementedError("ThermoPhase::soundSpeed");
+    }
+
+    //! @}
+    //! @name Electric Potential
+    //!
+    //! The phase may be at some non-zero electrical potential. These methods
+    //! set or get the value of the electric potential.
     //! @{
 
     //! Set the electric potential of this phase (V).
@@ -327,17 +333,15 @@ public:
         return m_phi;
     }
 
-    /**
-     * @}
-     * @name Activities, Standard States, and Activity Concentrations
-     *
-     * The activity \f$a_k\f$ of a species in solution is related to the
-     * chemical potential by \f[ \mu_k = \mu_k^0(T,P) + \hat R T \log a_k. \f]
-     * The quantity \f$\mu_k^0(T,P)\f$ is the standard chemical potential at
-     * unit activity, which depends on temperature and pressure, but not on
-     * composition. The activity is dimensionless.
-     * @{
-     */
+    //! @}
+    //! @name Activities, Standard States, and Activity Concentrations
+    //!
+    //! The activity \f$a_k\f$ of a species in solution is related to the
+    //! chemical potential by \f[ \mu_k = \mu_k^0(T,P) + \hat R T \log a_k. \f]
+    //! The quantity \f$\mu_k^0(T,P)\f$ is the standard chemical potential at
+    //! unit activity, which depends on temperature and pressure, but not on
+    //! composition. The activity is dimensionless.
+    //! @{
 
     //! This method returns the convention used in specification of the
     //! activities, of which there are currently two, molar- and molality-based
@@ -478,6 +482,8 @@ public:
      *
      * @param mu  Output vector of dimensionless chemical potentials.
      *            Length: m_kk.
+     *
+     * @deprecated To be removed after Cantera 3.0. Use getChemPotentials() instead.
      */
     virtual void getChemPotentials_RT(doublereal* mu) const {
         throw NotImplementedError("ThermoPhase::getChemPotentials_RT");
@@ -783,12 +789,10 @@ public:
         return temperature() * GasConstant;
     }
 
-    /**
-     * @name Setting the State
-     *
-     * These methods set all or part of the thermodynamic state.
-     * @{
-     */
+    //! @name Setting the State
+    //!
+    //! These methods set all or part of the thermodynamic state.
+    //! @{
 
     //! Set the temperature (K), pressure (Pa), and mole fractions.
     /*!
@@ -884,6 +888,7 @@ public:
      * @param p    Pressure (Pa)
      * @param x    Vector of mole fractions.
      *             Length is equal to m_kk.
+     * @deprecated To be removed after Cantera 3.0.
      */
     virtual void setState_PX(doublereal p, doublereal* x);
 
@@ -896,6 +901,7 @@ public:
      * @param p    Pressure (Pa)
      * @param y    Vector of mass fractions.
      *             Length is equal to m_kk.
+     * @deprecated To be removed after Cantera 3.0.
      */
     virtual void setState_PY(doublereal p, doublereal* y);
 
@@ -1074,9 +1080,26 @@ public:
      *
      * @param rho Density (kg/m^3)
      * @param p   Pressure (Pa)
+     * @deprecated  To be removed after Cantera 3.0; renamed to setState_DP()
      */
-    virtual void setState_RP(doublereal rho, doublereal p) {
-        throw NotImplementedError("ThermoPhase::setState_RP");
+    void setState_RP(doublereal rho, doublereal p);
+
+    //! Set the density (kg/m**3) and pressure (Pa) at constant composition
+    /*!
+     * This method must be reimplemented in derived classes, where it may
+     * involve the solution of a nonlinear equation. Within %Cantera, the
+     * independent variable is the density. Therefore, this function solves for
+     * the temperature that will yield the desired input pressure and density.
+     * The composition is held constant during this process.
+     *
+     * This base class function will print an error, if not overridden.
+     *
+     * @param rho Density (kg/m^3)
+     * @param p   Pressure (Pa)
+     * @since  New in Cantera 3.0.
+     */
+    virtual void setState_DP(double rho, double p) {
+        throw NotImplementedError("ThermoPhase::setState_DP");
     }
 
     //! Set the density (kg/m**3), pressure (Pa) and mole fractions
@@ -1089,6 +1112,8 @@ public:
      * @param p    Pressure (Pa)
      * @param x    Vector of mole fractions.
      *             Length is equal to m_kk.
+     * @deprecated  To be removed after Cantera 3.0; replaceable by calls to
+     *              setMoleFractions() and setState_DP().
      */
     virtual void setState_RPX(doublereal rho, doublereal p, const doublereal* x);
 
@@ -1102,6 +1127,8 @@ public:
      * @param p    Pressure (Pa)
      * @param x    Composition map of mole fractions. Species not in
      *              the composition map are assumed to have zero mole fraction
+     * @deprecated  To be removed after Cantera 3.0; replaceable by calls to
+     *              setMoleFractionsByName() and setState_DP().
      */
     virtual void setState_RPX(doublereal rho, doublereal p, const compositionMap& x);
 
@@ -1116,6 +1143,8 @@ public:
      * @param x    String containing a composition map of the mole fractions.
      *              Species not in the composition map are assumed to have zero
      *              mole fraction
+     * @deprecated  To be removed after Cantera 3.0; replaceable by calls to
+     *              setMoleFractionsByName() and setState_DP().
      */
     virtual void setState_RPX(doublereal rho, doublereal p, const std::string& x);
 
@@ -1129,6 +1158,8 @@ public:
      * @param p    Pressure (Pa)
      * @param y    Vector of mole fractions.
      *              Length is equal to m_kk.
+     * @deprecated  To be removed after Cantera 3.0; replaceable by calls to
+     *              setMassFractions() and setState_DP().
      */
     virtual void setState_RPY(doublereal rho, doublereal p, const doublereal* y);
 
@@ -1142,6 +1173,8 @@ public:
      * @param p   Pressure (Pa)
      * @param y   Composition map of mole fractions. Species not in
      *             the composition map are assumed to have zero mole fraction
+     * @deprecated  To be removed after Cantera 3.0; replaceable by calls to
+     *              setMassFractionsByName() and setState_DP().
      */
     virtual void setState_RPY(doublereal rho, doublereal p, const compositionMap& y);
 
@@ -1156,6 +1189,8 @@ public:
      * @param y    String containing a composition map of the mole fractions.
      *              Species not in the composition map are assumed to have zero
      *              mole fraction
+     * @deprecated  To be removed after Cantera 3.0; replaceable by calls to
+     *              setMassFractionsByName() and setState_DP().
      */
     virtual void setState_RPY(doublereal rho, doublereal p, const std::string& y);
 
@@ -1203,14 +1238,14 @@ public:
      *                   Fuel and oxidizer composition are interpreted
      *                   as mole or mass fractions (default: molar)
      */
-    void setMixtureFraction(double mixFrac, const double* fuelComp, const double* oxComp,
-                            ThermoBasis basis = ThermoBasis::molar);
+    void setMixtureFraction(double mixFrac, const double* fuelComp,
+                            const double* oxComp, ThermoBasis basis=ThermoBasis::molar);
     //! @copydoc ThermoPhase::setMixtureFraction
-    void setMixtureFraction(double mixFrac, const std::string& fuelComp, const std::string& oxComp,
-                            ThermoBasis basis = ThermoBasis::molar);
+    void setMixtureFraction(double mixFrac, const std::string& fuelComp,
+            const std::string& oxComp, ThermoBasis basis=ThermoBasis::molar);
     //! @copydoc ThermoPhase::setMixtureFraction
-    void setMixtureFraction(double mixFrac, const compositionMap& fuelComp, const compositionMap& oxComp,
-                            ThermoBasis basis = ThermoBasis::molar);
+    void setMixtureFraction(double mixFrac, const compositionMap& fuelComp,
+            const compositionMap& oxComp, ThermoBasis basis=ThermoBasis::molar);
     //! @}
     //! @name Compute Mixture Fraction
     //! @{
@@ -1238,7 +1273,7 @@ public:
      *
      * @param fuelComp   composition of the fuel
      * @param oxComp     composition of the oxidizer
-     * @param basis      either ThermoPhase::mole or ThermoPhase::mass.
+     * @param basis      either ThermoBasis::molar or ThermoBasis::mass.
      *                   Fuel and oxidizer composition are interpreted
      *                   as mole or mass fractions (default: molar)
      * @param element    either "Bilger" to compute the mixture fraction
@@ -1248,13 +1283,16 @@ public:
      * @returns          mixture fraction (kg fuel / kg mixture)
      */
     double mixtureFraction(const double* fuelComp, const double* oxComp,
-                              ThermoBasis basis = ThermoBasis::molar, const std::string& element = "Bilger") const;
+                           ThermoBasis basis=ThermoBasis::molar,
+                           const std::string& element="Bilger") const;
     //! @copydoc ThermoPhase::mixtureFraction
     double mixtureFraction(const std::string& fuelComp, const std::string& oxComp,
-                              ThermoBasis basis = ThermoBasis::molar, const std::string& element = "Bilger") const;
+                           ThermoBasis basis=ThermoBasis::molar,
+                           const std::string& element="Bilger") const;
     //! @copydoc ThermoPhase::mixtureFraction
     double mixtureFraction(const compositionMap& fuelComp, const compositionMap& oxComp,
-                              ThermoBasis basis = ThermoBasis::molar, const std::string& element = "Bilger") const;
+                           ThermoBasis basis=ThermoBasis::molar,
+                           const std::string& element="Bilger") const;
     //! @}
     //! @name Set Mixture Composition by Equivalence Ratio
     //! @{
@@ -1269,15 +1307,18 @@ public:
      * @param phi        equivalence ratio
      * @param fuelComp   composition of the fuel
      * @param oxComp     composition of the oxidizer
-     * @param basis      either ThermoPhase::mole or ThermoPhase::mass.
+     * @param basis      either ThermoBasis::mole or ThermoBasis::mass.
      *                   Fuel and oxidizer composition are interpreted
      *                   as mole or mass fractions (default: molar)
      */
-    void setEquivalenceRatio(double phi, const double* fuelComp, const double* oxComp, ThermoBasis basis = ThermoBasis::molar);
+    void setEquivalenceRatio(double phi, const double* fuelComp, const double* oxComp,
+                             ThermoBasis basis=ThermoBasis::molar);
     //! @copydoc ThermoPhase::setEquivalenceRatio
-    void setEquivalenceRatio(double phi, const std::string& fuelComp, const std::string& oxComp, ThermoBasis basis = ThermoBasis::molar);
+    void setEquivalenceRatio(double phi, const std::string& fuelComp,
+            const std::string& oxComp, ThermoBasis basis=ThermoBasis::molar);
     //! @copydoc ThermoPhase::setEquivalenceRatio
-    void setEquivalenceRatio(double phi, const compositionMap& fuelComp, const compositionMap& oxComp, ThermoBasis basis = ThermoBasis::molar);
+    void setEquivalenceRatio(double phi, const compositionMap& fuelComp,
+            const compositionMap& oxComp, ThermoBasis basis=ThermoBasis::molar);
     //! @}
 
     //! @name Compute Equivalence Ratio
@@ -1307,18 +1348,22 @@ public:
      * @see mixtureFraction for the definition of the Bilger mixture fraction
      * @see equivalenceRatio() for the computation of \f$ \phi \f$ without arguments
      */
-    double equivalenceRatio(const double* fuelComp, const double* oxComp, ThermoBasis basis = ThermoBasis::molar) const;
+    double equivalenceRatio(const double* fuelComp, const double* oxComp,
+                            ThermoBasis basis=ThermoBasis::molar) const;
     //! @copydoc ThermoPhase::equivalenceRatio
-    double equivalenceRatio(const std::string& fuelComp, const std::string& oxComp, ThermoBasis basis = ThermoBasis::molar) const;
+    double equivalenceRatio(const std::string& fuelComp, const std::string& oxComp,
+                            ThermoBasis basis=ThermoBasis::molar) const;
     //! @copydoc ThermoPhase::equivalenceRatio
-    double equivalenceRatio(const compositionMap& fuelComp, const compositionMap& oxComp, ThermoBasis basis = ThermoBasis::molar) const;
+    double equivalenceRatio(const compositionMap& fuelComp,
+            const compositionMap& oxComp, ThermoBasis basis=ThermoBasis::molar) const;
     //! @}
 
     //! Compute the equivalence ratio for the current mixture
     //! from available oxygen and required oxygen
     /*!
      * Computes the equivalence ratio \f$ \phi \f$ from
-     * \f[ \phi = \frac{Z_{\mathrm{mole},C} + Z_{\mathrm{mole},S} + \frac{1}{4}Z_{\mathrm{mole},H}}
+     * \f[ \phi =
+     * \frac{Z_{\mathrm{mole},C} + Z_{\mathrm{mole},S} + \frac{1}{4}Z_{\mathrm{mole},H}}
      * {\frac{1}{2}Z_{\mathrm{mole},O}} \f]
      * where \f$ Z_{\mathrm{mole},m} \f$ is the elemental mole fraction
      * of element \f$ m \f$. In this special case, the equivalence ratio
@@ -1347,8 +1392,8 @@ public:
      * and do not need to be normalized.
      * Elements C, S, H and O are considered for the oxidation.
      * Note that the stoichiometric air to fuel ratio \f$ \mathit{AFR}_{\mathrm{st}} \f$
-     * does not depend on the current mixture composition. The current
-     * air to fuel ratio can be computed from \f$ \mathit{AFR} = \mathit{AFR}_{\mathrm{st}}/\phi \f$
+     * does not depend on the current mixture composition. The current air to fuel ratio
+     * can be computed from \f$ \mathit{AFR} = \mathit{AFR}_{\mathrm{st}}/\phi \f$
      * where \f$ \phi \f$ is the equivalence ratio of the current mixture
      *
      * @param fuelComp   composition of the fuel
@@ -1358,11 +1403,14 @@ public:
      *                   as mole or mass fractions (default: molar)
      * @returns          Stoichiometric Air to Fuel Ratio (kg oxidizer / kg fuel)
      */
-    double stoichAirFuelRatio(const double* fuelComp, const double* oxComp, ThermoBasis basis = ThermoBasis::molar) const;
+    double stoichAirFuelRatio(const double* fuelComp, const double* oxComp,
+                              ThermoBasis basis=ThermoBasis::molar) const;
     //! @copydoc ThermoPhase::stoichAirFuelRatio
-    double stoichAirFuelRatio(const std::string& fuelComp, const std::string& oxComp, ThermoBasis basis = ThermoBasis::molar) const;
+    double stoichAirFuelRatio(const std::string& fuelComp, const std::string& oxComp,
+                              ThermoBasis basis=ThermoBasis::molar) const;
     //! @copydoc ThermoPhase::stoichAirFuelRatio
-    double stoichAirFuelRatio(const compositionMap& fuelComp, const compositionMap& oxComp, ThermoBasis basis = ThermoBasis::molar) const;
+    double stoichAirFuelRatio(const compositionMap& fuelComp,
+            const compositionMap& oxComp, ThermoBasis basis=ThermoBasis::molar) const;
     //! @}
 
 private:
@@ -1394,7 +1442,8 @@ private:
     //! Sets the temperature and (if set_p is true) the pressure.
     void setState_conditional_TP(doublereal t, doublereal p, bool set_p);
 
-    //! Helper function for computing the amount of oxygen required for complete oxidation.
+    //! Helper function for computing the amount of oxygen required for complete
+    //! oxidation.
     /*!
      * @param y       array of (possibly non-normalized) mass fractions (length m_kk)
      * @returns       amount of required oxygen in kmol O / kg mixture
@@ -1410,11 +1459,10 @@ private:
     double o2Present(const double* y) const;
 
 public:
-    /**
-     * @name Chemical Equilibrium
-     * Chemical equilibrium.
-     * @{
-     */
+    //! @name Chemical Equilibrium
+    //!
+    //! Chemical equilibrium.
+    //! @{
 
     //! Equilibrate a ThermoPhase object
     /*!
@@ -1475,43 +1523,42 @@ public:
     }
 
     //! @}
-    /// @name Critical State Properties.
-    /// These methods are only implemented by subclasses that implement
-    /// liquid-vapor equations of state.
+    //! @name Critical State Properties
+    //!
+    //! These methods are only implemented by subclasses that implement
+    //! liquid-vapor equations of state.
     //! @{
 
-    /// Critical temperature (K).
+    //! Critical temperature (K).
     virtual doublereal critTemperature() const {
         throw NotImplementedError("ThermoPhase::critTemperature");
     }
 
-    /// Critical pressure (Pa).
+    //! Critical pressure (Pa).
     virtual doublereal critPressure() const {
         throw NotImplementedError("ThermoPhase::critPressure");
     }
 
-    /// Critical volume (m3/kmol).
+    //! Critical volume (m3/kmol).
     virtual doublereal critVolume() const {
         throw NotImplementedError("ThermoPhase::critVolume");
     }
 
-    /// Critical compressibility (unitless).
+    //! Critical compressibility (unitless).
     virtual doublereal critCompressibility() const {
         throw NotImplementedError("ThermoPhase::critCompressibility");
     }
 
-    /// Critical density (kg/m3).
+    //! Critical density (kg/m3).
     virtual doublereal critDensity() const {
         throw NotImplementedError("ThermoPhase::critDensity");
     }
 
     //! @}
-
-    /** @name Saturation Properties.
-     *
-     *  These methods are only implemented by subclasses that implement full
-     *  liquid-vapor equations of state.
-     */
+    //! @name Saturation Properties
+    //!
+    //! These methods are only implemented by subclasses that implement full
+    //! liquid-vapor equations of state.
     //! @{
 
     //! Return the saturation temperature given the pressure
@@ -1572,55 +1619,28 @@ public:
     void setState_TPQ(double T, double P, double Q);
 
     //! @}
-
     //! @name Initialization Methods - For Internal Use (ThermoPhase)
-    /*!
-     * The following methods are used in the process of constructing
-     * the phase and setting its parameters from a specification in an
-     * input file. They are not normally used in application programs.
-     * To see how they are used, see importPhase().
-     */
+    //!
+    //! The following methods are used in the process of constructing
+    //! the phase and setting its parameters from a specification in an
+    //! input file. They are not normally used in application programs.
+    //! To see how they are used, see importPhase().
     //! @{
 
     virtual bool addSpecies(shared_ptr<Species> spec);
 
     virtual void modifySpecies(size_t k, shared_ptr<Species> spec);
 
-    //! Store a reference pointer to the XML tree containing the species data
-    //! for this phase.
-    /*!
-     *   This is used to access data needed to construct transport manager later.
-     *   @internal
-     *
-     * @param k      Species index
-     * @param data   Pointer to the XML_Node data containing
-     *               information about the species in the phase.
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    void saveSpeciesData(const size_t k, const XML_Node* const data);
-
-    //!  Return a pointer to the vector of XML nodes containing the species
-    //!  data for this phase.
-    //!
-    //! @deprecated The XML input format is deprecated and will be removed in
-    //!     Cantera 3.0.
-    const std::vector<const XML_Node*> & speciesData() const;
-
     //! Return a changeable reference to the calculation manager for species
     //! reference-state thermodynamic properties
     /*!
      * @param k   Species id. The default is -1, meaning return the default
-     *
-     * @internal
      */
     virtual MultiSpeciesThermo& speciesThermo(int k = -1);
 
     virtual const MultiSpeciesThermo& speciesThermo(int k = -1) const;
 
     /**
-     * @internal
      * Initialize a ThermoPhase object using an input file.
      *
      * Used to implement constructors for derived classes which take a
@@ -1633,39 +1653,8 @@ public:
      */
     void initThermoFile(const std::string& inputFile, const std::string& id);
 
-    //!Import and initialize a ThermoPhase object using an XML tree.
-    /*!
-     * @internal
-     *
-     * Here we read extra information about the XML description of a phase.
-     * Regular information about elements and species and their reference state
-     * thermodynamic information have already been read at this point. For
-     * example, we do not need to call this function for ideal gas equations of
-     * state. This function is called from importPhase() after the elements and
-     * the species are initialized with default ideal solution level data.
-     *
-     * The default implementation in ThermoPhase calls the virtual function
-     * initThermo() and then sets the "state" of the phase by looking for an XML
-     * element named "state", and then interpreting its contents by calling the
-     * virtual function setStateFromXML().
-     *
-     * @param phaseNode This object must be the phase node of a complete XML
-     *     tree description of the phase, including all of the species data. In
-     *     other words while "phase" must point to an XML phase object, it must
-     *     have sibling nodes "speciesData" that describe the species in the
-     *     phase.
-     * @param id   ID of the phase. If nonnull, a check is done to see if
-     *             phaseNode is pointing to the phase with the correct id.
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
-
     //! Initialize the ThermoPhase object after all species have been set up
     /*!
-     * @internal Initialize.
-     *
      * This method is provided to allow subclasses to perform any initialization
      * required after all species have been added. For example, it might be used
      * to resize internal work arrays that must have an entry for each species.
@@ -1674,35 +1663,11 @@ public:
      * classes which do override this function should call their parent class's
      * implementation of this function as their last action.
      *
-     * When importing a CTML phase description, this method is called from
-     * initThermoXML(), which is called from importPhase(), just prior to
-     * returning from function importPhase().
-     *
      * When importing from an AnyMap phase description (or from a YAML file),
-     * this method is responsible for setting model parameters from the data
-     * stored in #m_input.
+     * setupPhase() adds all the species, stores the input data in #m_input, and then
+     * calls this method to set model parameters from the data stored in #m_input.
      */
     virtual void initThermo();
-
-    //! Set the equation of state parameters
-    /*!
-     * @internal The number and meaning of these depends on the subclass.
-     *
-     * @param n number of parameters
-     * @param c array of \a n coefficients
-     * @deprecated To be removed after Cantera 2.6
-     */
-    virtual void setParameters(int n, doublereal* const c);
-
-    //! Get the equation of state parameters in a vector
-    /*!
-     * @internal The number and meaning of these depends on the subclass.
-     *
-     * @param n number of parameters
-     * @param c array of \a n coefficients
-     * @deprecated To be removed after Cantera 2.6
-     */
-    virtual void getParameters(int& n, doublereal* const c) const;
 
     //! Set equation of state parameters from an AnyMap phase description.
     //! Phases that need additional parameters from the root node should
@@ -1711,7 +1676,7 @@ public:
                                const AnyMap& rootNode=AnyMap());
 
     //! Returns the parameters of a ThermoPhase object such that an identical
-    //! one could be reconstructed using the newPhase(AnyMap&) function.
+    //! one could be reconstructed using the newThermo(AnyMap&) function.
     //! @param withInput  If true, include additional input data fields associated
     //!   with the phase description, such as user-defined fields from a YAML input
     //!   file, as returned by the input() method.
@@ -1730,40 +1695,15 @@ public:
     const AnyMap& input() const;
     AnyMap& input();
 
-    //! Set equation of state parameter values from XML entries.
-    /*!
-     * This method is called by function importPhase() when processing a phase
-     * definition in an input file. It should be overloaded in subclasses to set
-     * any parameters that are specific to that particular phase model. Note,
-     * this method is called before the phase is initialized with elements
-     * and/or species.
-     *
-     * @param eosdata An XML_Node object corresponding to
-     *                the "thermo" entry for this phase in the input file.
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    virtual void setParametersFromXML(const XML_Node& eosdata) {}
-
-    //! Set the initial state of the phase to the conditions specified in the
-    //! state XML element.
-    /*!
-     * This method sets the temperature, pressure, and mole fraction vector to a
-     * set default value.
-     *
-     * @param state AN XML_Node object corresponding to the "state" entry for
-     *              this phase in the input file.
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    virtual void setStateFromXML(const XML_Node& state);
-
     virtual void invalidateCache();
 
     //! @}
     //! @name  Derivatives of Thermodynamic Variables needed for Applications
+    //!
+    //! Derivatives of the activity coefficients are needed to evaluate terms arising
+    //! in multicomponent transport models for non-ideal systems. While %Cantera does
+    //! not currently implement such models, these derivatives are provided by a few
+    //! phase models.
     //! @{
 
     //! Get the change in activity coefficients wrt changes in state (temp, mole
@@ -1841,13 +1781,17 @@ public:
      *     \frac{d \ln(\gamma_m) }{d \ln( n_k ) }\Bigg|_{n_i}
      * \f]
      *
+     * When implemented, this method is used within the VCS equilibrium solver to
+     * calculate the Jacobian elements, which accelerates convergence of the algorithm.
+     *
      * @param ld                 Number of rows in the matrix
      * @param dlnActCoeffdlnN    Output vector of derivatives of the
      *                           log Activity Coefficients. length = m_kk * m_kk
      */
     virtual void getdlnActCoeffdlnN(const size_t ld, doublereal* const dlnActCoeffdlnN);
 
-    virtual void getdlnActCoeffdlnN_numderiv(const size_t ld, doublereal* const dlnActCoeffdlnN);
+    virtual void getdlnActCoeffdlnN_numderiv(const size_t ld,
+                                             double* const dlnActCoeffdlnN);
 
     //! @}
     //! @name Printing
@@ -1869,6 +1813,7 @@ public:
      * override the getCsvReportData method.
      *
      * @param csvFile  ofstream file to print comma separated data for the phase
+     * @deprecated To be removed after Cantera 3.0.
      */
     virtual void reportCSV(std::ofstream& csvFile) const;
 
@@ -1876,12 +1821,13 @@ public:
 
 protected:
     //! Store the parameters of a ThermoPhase object such that an identical
-    //! one could be reconstructed using the newPhase(AnyMap&) function. This
+    //! one could be reconstructed using the newThermo(AnyMap&) function. This
     //! does not include user-defined fields available in input().
     virtual void getParameters(AnyMap& phaseNode) const;
 
     //! Fills `names` and `data` with the column names and species thermo
     //! properties to be included in the output of the reportCSV method.
+    //! @deprecated To be removed after Cantera 3.0.
     virtual void getCsvReportData(std::vector<std::string>& names,
                                   std::vector<vector_fp>& data) const;
 
@@ -1897,19 +1843,8 @@ protected:
     //! parameters used by different phase models when initThermo() is called.
     AnyMap m_input;
 
-    //! Vector of pointers to the species databases.
-    /*!
-     * This is used to access data needed to construct the transport manager and
-     * other properties later in the initialization process. We create a copy of
-     * the XML_Node data read in here. Therefore, we own this data.
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    std::vector<const XML_Node*> m_speciesData;
-
     //! Stored value of the electric potential for this phase. Units are Volts.
-    doublereal m_phi;
+    double m_phi = 0.0;
 
     //! Boolean indicating whether a charge neutrality condition is a necessity
     /*!
@@ -1919,18 +1854,14 @@ protected:
      * account. However, liquid phases usually require charge neutrality in
      * order for their derived thermodynamics to be valid.
      */
-    bool m_chargeNeutralityNecessary;
+    bool m_chargeNeutralityNecessary = false;
 
     //! Contains the standard state convention
-    int m_ssConvention;
+    int m_ssConvention = cSS_CONVENTION_TEMPERATURE;
 
     //! last value of the temperature processed by reference state
-    mutable doublereal m_tlast;
+    mutable double m_tlast = 0.0;
 };
-
-//! typedef for the ThermoPhase class
-//! @deprecated To be removed after Cantera 2.6.
-typedef ThermoPhase thermo_t;
 
 }
 

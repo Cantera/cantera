@@ -51,7 +51,7 @@ class DenseMatrix : public Array2D
 {
 public:
     //! Default Constructor
-    DenseMatrix();
+    DenseMatrix() = default;
 
     //! Constructor.
     /*!
@@ -137,7 +137,7 @@ public:
      * an error code, that is up to the calling routine to handle correctly.
      * Negative return codes always throw an exception.
      */
-    int m_useReturnErrorCode;
+    int m_useReturnErrorCode = 0;
 
     //! Print Level
     /*!
@@ -146,7 +146,7 @@ public:
      * Level of printing that is carried out. Only error conditions are printed
      * out, if this value is nonzero.
      */
-    int m_printLevel;
+    int m_printLevel = 0;
 
     // Listing of friend functions which are defined below
 

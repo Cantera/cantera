@@ -17,10 +17,7 @@
 #include <iostream>
 #include <iomanip>
 #include <numeric>
-#include "cantera/base/Solution.h"
-#include "cantera/thermo/IdealGasPhase.h"
-#include "cantera/kinetics.h"
-#include "cantera/numerics/eigen_sparse.h"
+#include "cantera/core.h"
 
 using namespace Cantera;
 
@@ -101,7 +98,7 @@ void timeit_matrix(Eigen::SparseMatrix<double> (Kinetics::*function)(),
 void benchmark(const std::string& mech, const std::string& phase,
     const std::string& fuel)
 {
-    auto sol = newSolution(mech, phase, "None");
+    auto sol = newSolution(mech, phase, "none");
     auto& gas = *(sol->thermo());
     auto& kin = *(sol->kinetics());
 

@@ -14,8 +14,6 @@
 #include "cantera/base/utilities.h"
 #include "cantera/base/global.h"
 
-using namespace std;
-
 namespace Cantera
 {
 
@@ -42,24 +40,9 @@ int _equilflag(const char* xy)
     return -1;
 }
 
-ChemEquil::ChemEquil() : m_skip(npos), m_elementTotalSum(1.0),
-    m_p0(OneAtm), m_eloc(npos),
-    m_elemFracCutoff(1.0E-100),
-    m_doResPerturb(false)
-{}
-
-ChemEquil::ChemEquil(ThermoPhase& s) :
-    m_skip(npos),
-    m_elementTotalSum(1.0),
-    m_p0(OneAtm), m_eloc(npos),
-    m_elemFracCutoff(1.0E-100),
-    m_doResPerturb(false)
+ChemEquil::ChemEquil(ThermoPhase& s)
 {
     initialize(s);
-}
-
-ChemEquil::~ChemEquil()
-{
 }
 
 void ChemEquil::initialize(ThermoPhase& s)
@@ -275,8 +258,10 @@ int ChemEquil::estimateElementPotentials(ThermoPhase& s, vector_fp& lambda_RT,
         b[m] = mu_RT[m_component[m]];
     }
 
-    int info = solve(aa, b.data());
-    if (info) {
+    int info;
+    try {
+        info = solve(aa, b.data());
+    } catch (CanteraError&) {
         info = -2;
     }
     for (size_t m = 0; m < m_nComponents; m++) {

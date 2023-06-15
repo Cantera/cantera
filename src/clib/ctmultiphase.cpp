@@ -5,19 +5,17 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-#define CANTERA_USE_INTERNAL
 #include "cantera/clib/ctmultiphase.h"
 
 // Cantera includes
 #include "cantera/equil/MultiPhase.h"
 #include "cantera/thermo/ThermoPhase.h"
-#include "Cabinet.h"
+#include "clib_utils.h"
 
-using namespace std;
 using namespace Cantera;
 
 typedef Cabinet<MultiPhase> mixCabinet;
-typedef Cabinet<ThermoPhase> ThermoCabinet;
+typedef SharedCabinet<ThermoPhase> ThermoCabinet;
 
 template<> mixCabinet* mixCabinet::s_storage = 0;
 template<> ThermoCabinet* ThermoCabinet::s_storage; // defined in ct.cpp
@@ -123,7 +121,7 @@ extern "C" {
         }
     }
 
-    doublereal mix_nAtoms(int i, int k, int m)
+    double mix_nAtoms(int i, int k, int m)
     {
         try {
             MultiPhase& mix = mixCabinet::item(i);
@@ -144,7 +142,7 @@ extern "C" {
         }
     }
 
-    doublereal mix_phaseMoles(int i, int n)
+    double mix_phaseMoles(int i, int n)
     {
         try {
             MultiPhase& mix = mixCabinet::item(i);
@@ -208,7 +206,7 @@ extern "C" {
         }
     }
 
-    doublereal mix_temperature(int i)
+    double mix_temperature(int i)
     {
         try {
             return mixCabinet::item(i).temperature();
@@ -217,7 +215,7 @@ extern "C" {
         }
     }
 
-    doublereal mix_minTemp(int i)
+    double mix_minTemp(int i)
     {
         try {
             return mixCabinet::item(i).minTemp();
@@ -226,7 +224,7 @@ extern "C" {
         }
     }
 
-    doublereal mix_maxTemp(int i)
+    double mix_maxTemp(int i)
     {
         try {
             return mixCabinet::item(i).maxTemp();
@@ -235,7 +233,7 @@ extern "C" {
         }
     }
 
-    doublereal mix_charge(int i)
+    double mix_charge(int i)
     {
         try {
             return mixCabinet::item(i).charge();
@@ -244,7 +242,7 @@ extern "C" {
         }
     }
 
-    doublereal mix_phaseCharge(int i, int p)
+    double mix_phaseCharge(int i, int p)
     {
         try {
             MultiPhase& mix = mixCabinet::item(i);
@@ -269,7 +267,7 @@ extern "C" {
         }
     }
 
-    doublereal mix_pressure(int i)
+    double mix_pressure(int i)
     {
         try {
             return mixCabinet::item(i).pressure();
@@ -278,7 +276,7 @@ extern "C" {
         }
     }
 
-    doublereal mix_speciesMoles(int i, int k)
+    double mix_speciesMoles(int i, int k)
     {
         try {
             MultiPhase& mix = mixCabinet::item(i);
@@ -289,7 +287,7 @@ extern "C" {
         }
     }
 
-    doublereal mix_elementMoles(int i, int m)
+    double mix_elementMoles(int i, int m)
     {
         try {
             MultiPhase& mix = mixCabinet::item(i);
@@ -300,8 +298,8 @@ extern "C" {
         }
     }
 
-    doublereal mix_equilibrate(int i, const char* XY, doublereal rtol,
-                               int maxsteps, int maxiter, int loglevel)
+    double mix_equilibrate(int i, const char* XY, double rtol,
+                           int maxsteps, int maxiter, int loglevel)
     {
         try {
             mixCabinet::item(i).equilibrate(XY, "auto", rtol, maxsteps, maxiter,

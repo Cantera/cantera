@@ -101,34 +101,10 @@ namespace Cantera
  *            U^o_k(T,P) = H^o_k(T,P) - p V^o_k
  *       \f]
  *
- * ## XML Example
- *
- * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
- *
- * An example of the specification of a standard state for the LiCl molten salt
- * which has a temperature dependent standard state volume.
- *
- * @code
- * <speciesData id="species_MoltenSalt">
- * <species name="LiCl(L)">
- *    <atomArray> Li:1 Cl:1 </atomArray>
- *    <standardState  model="density_temperature_polynomial">
- *       <densityTemperaturePolynomial units="gm/cm3" >
- *          1.98715, -5.890906E-4, 0.0, 0.0
- *       </densityTemperaturePolynomial>
- *    </standardState>
- *    <thermo>
- *      <Shomate Pref="1 bar" Tmax="2000.0" Tmin="700.0">
- *        <floatArray size="7">
- *          73.18025, -9.047232, -0.316390,
- *          0.079587, 0.013594, -417.1314,
- *          157.6711
- *        </floatArray>
- *      </Shomate>
- *    </thermo>
- *  </species>
- *  </speciesData>
- * @endcode
+ * An example of the specification of a standard state using a temperature dependent
+ * standard state volume is given in the
+ * <a href="../../sphinx/html/yaml/species.html#density-temperature-polynomial">
+ * YAML API Reference</a>.
  *
  * @ingroup pdssthermo
  */
@@ -138,7 +114,7 @@ public:
     //! Default Constructor
     PDSS_SSVol();
 
-    //! @name  Molar Thermodynamic Properties of the Species Standard State in the Solution
+    //! @name  Molar Thermodynamic Properties of the Species Standard State
     //! @{
 
     // See PDSS.h for documentation of functions overridden from Class PDSS
@@ -177,7 +153,6 @@ public:
     //! is the constant (temperature-independent) term [kg/m^3].
     void setDensityPolynomial(double* coeffs);
 
-    virtual void setParametersFromXML(const XML_Node& speciesNode);
     virtual void getParameters(AnyMap& eosNode) const;
 
     //! @}
@@ -205,7 +180,7 @@ private:
 
     //! Enumerated data type describing the type of volume model
     //! used to calculate the standard state volume of the species
-    SSVolume_Model volumeModel_;
+    SSVolume_Model volumeModel_ = SSVolume_Model::tpoly;
 
     //! coefficients for the temperature representation
     vector_fp TCoeff_;

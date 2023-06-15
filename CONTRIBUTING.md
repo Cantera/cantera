@@ -66,7 +66,12 @@
 ## C++
 
 * All classes, member variables, and methods should have Doxygen-style comments
-  (for example, comment lines starting with `//!` or comment blocks starting with `/*!`)
+  (for example, comment lines starting with `//!` or comment blocks starting with
+  `/*!`; do not use `///` or `/**` in new code)
+* Doxygen-style groupings should bracket code using `//! @{` and `//! @}`
+* Indicate the version added for new functions and classes with an annotation like
+  `@since New in Cantera X.Y` where `X.Y` is the next Cantera version. This notation
+  should also be used indicate significant changes in behavior.
 * Avoid defining non-trivial functions in header files
 * Header files should include an 'include guard'
 * Protected and private member variable names are generally prefixed with
@@ -74,8 +79,8 @@
 * Class names use `InitialCapsNames`
 * Methods use `camelCaseNames`
 * Do not indent the contents of namespaces
-* Code should follow the C++11 standard, with minimum required compiler versions
-  GCC 4.8, Clang 3.4, MSVC 14.0 (2015) and Intel 15.0.
+* Code should follow the C++17 standard, with minimum required compiler versions
+  GCC 7.0, Clang 4.0, MSVC 14.14 (Visual Studio 2017 version 15.7) and Intel 19.0.
 * Avoid manual memory management (that is, `new` and `delete`), preferring to use
   standard library containers, as well as `std::unique_ptr` and
   `std::shared_ptr` when dynamic allocation is required.
@@ -92,10 +97,51 @@
 * For any new code, do *not* use the `doublereal` and `integer` typedefs for the
   basic types `double` and `int`, but also do not go out of your way to change
   uses of these in otherwise unmodified code.
+* Initialize member variables with their declarations, when possible, rather than using
+  constructor-based initialization.
 
 ## Python
 
 * Style generally follows PEP8 (https://www.python.org/dev/peps/pep-0008/)
 * Code in `.py` and `.pyx` files needs to be written to work with Python 3
-* The minimum Python version that Cantera supports is Python 3.6, so code should only use features added in Python 3.6 or earlier
+* The minimum Python version that Cantera supports is Python 3.8, so code should only
+  use features added in Python 3.8 or earlier
+* Indicate the version added for new functions and classes with an annotation like
+  `.. versionadded:: X.Y` where `X.Y` is the next Cantera version. Significant changes
+  in behavior should be indicated with `.. versionchanged:: X.Y`.
 * Please use double quotes in all new Python code
+
+## C#
+
+* C# coding conventions should follow https://docs.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/coding-conventions
+* All identifiers should follow the naming conventions in the above document including
+  * Prefixing with `_` for private instance fields (`_foo`, unlike C++)
+  * Prefixing with `s_` for private static fields (`s_bar`), `t_` for private
+    `[ThreadStatic]` fields (`t_baz`).
+  * Initial caps names for class methods (`DoSomething()`, unlike C++)
+* Give the opening brace of a statement block its own line (unlike C++), except empty
+  blocks, which may be written as an `{ }` (for example, a constructor which calls
+  a base-class constructor only).
+* Use only one statement per line.
+* Always use statement blocks (`{ ... }`) for the bodies of statements that can take
+  either a statement block or a single statement (`if`, `for`, etc.)
+* Use file-scoped namespaces in each new file.
+* Do not take any extra Nuget dependencies in the `Cantera.csproj` project.
+* Use C# XML Doc-Comments on types and members, including at least the `<summary>` tag.
+  Always include a doc comment for types, but for members with self-explanatory names,
+  you may omit the doc comment and suppress the build error that would be thrown with
+  `#pragma warning disable/restore CS1591`.
+  * C# doc-comments use `///`, unlike Cantera's preferred use of `//!` for C++
+* Do not expose any code requiring the `unsafe` keyword via a public API
+  (pointers, the `fixed` statement, etc). Pointers are used for the high-performance
+  interop layer with the native Cantera library, but such access should have a
+  “safe” wrapper, such as a `Span<T>` or a managed array.
+* Do not allow exceptions to pass uncaught out of a callback invoked from native code,
+  as the interop layer cannot marshall exceptions between managed and native code,
+  and the process will crash. Use `CallbackException.Register()` within a catch-all
+  block to log the exception for later throwing back in managed code.
+* The primary API for accessing Cantera is the `Application` class, which handles
+  required static initialization of the library. When exposing a new wrapper for CLib
+  functionality, do not expose a public constructor. Rather, mark the constructor
+  `internal` and wrap it in an appropriate factory method in the `Application` class
+  (`public static CreateFoo(string filename) { ... }`).

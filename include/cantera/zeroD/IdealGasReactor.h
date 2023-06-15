@@ -21,12 +21,6 @@ class IdealGasReactor : public Reactor
 public:
     IdealGasReactor() {}
 
-    virtual std::string typeStr() const {
-        warn_deprecated("IdealGasReactor::typeStr",
-                        "To be removed after Cantera 2.6. Use type() instead.");
-        return "IdealGasReactor";
-    }
-
     virtual std::string type() const {
         return "IdealGasReactor";
     }

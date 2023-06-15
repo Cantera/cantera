@@ -8,7 +8,6 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-#include "cantera/base/xml.h"
 #include "cantera/thermo/PureFluidPhase.h"
 
 #include "cantera/tpx/Sub.h"
@@ -16,17 +15,8 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/global.h"
 
-using std::string;
-
 namespace Cantera
 {
-
-PureFluidPhase::PureFluidPhase() :
-    m_subflag(-1),
-    m_mw(-1.0),
-    m_verbose(false)
-{
-}
 
 void PureFluidPhase::initThermo()
 {
@@ -34,11 +24,7 @@ void PureFluidPhase::initThermo()
         setSubstance(m_input["pure-fluid-name"].asString());
     }
 
-    if (m_tpx_name != "") {
-        m_sub.reset(tpx::newSubstance(m_tpx_name));
-    } else {
-        m_sub.reset(tpx::GetSub(m_subflag));
-    }
+    m_sub.reset(tpx::newSubstance(m_tpx_name));
 
     m_mw = m_sub->MolWt();
     setMolecularWeight(0,m_mw);
@@ -66,16 +52,6 @@ void PureFluidPhase::getParameters(AnyMap& phaseNode) const
 {
     ThermoPhase::getParameters(phaseNode);
     phaseNode["pure-fluid-name"] = m_sub->name();
-}
-
-void PureFluidPhase::setParametersFromXML(const XML_Node& eosdata)
-{
-    eosdata._require("model","PureFluid");
-    m_subflag = atoi(eosdata["fluid_type"].c_str());
-    if (m_subflag < 0) {
-        throw CanteraError("PureFluidPhase::setParametersFromXML",
-                           "missing or negative substance flag");
-    }
 }
 
 std::vector<std::string> PureFluidPhase::fullStates() const
@@ -252,25 +228,25 @@ void PureFluidPhase::getGibbs_RT(doublereal* grt) const
 
 void PureFluidPhase::getEnthalpy_RT_ref(doublereal* hrt) const
 {
-    double psave = pressure();
+    double rhoSave = density();
     double t = temperature();
     double plow = 1.0E-8;
     Set(tpx::PropertyPair::TP, t, plow);
     getEnthalpy_RT(hrt);
-    Set(tpx::PropertyPair::TP, t, psave);
+    Set(tpx::PropertyPair::TV, t, 1 / rhoSave);
 
 }
 
 void PureFluidPhase::getGibbs_RT_ref(doublereal* grt) const
 {
-    double psave = pressure();
+    double rhoSave = density();
     double t = temperature();
     double pref = refPressure();
     double plow = 1.0E-8;
     Set(tpx::PropertyPair::TP, t, plow);
     getGibbs_RT(grt);
     grt[0] += log(pref/plow);
-    Set(tpx::PropertyPair::TP, t, psave);
+    Set(tpx::PropertyPair::TV, t, 1 / rhoSave);
 }
 
 void PureFluidPhase::getGibbs_ref(doublereal* g) const
@@ -281,14 +257,14 @@ void PureFluidPhase::getGibbs_ref(doublereal* g) const
 
 void PureFluidPhase::getEntropy_R_ref(doublereal* er) const
 {
-    double psave = pressure();
+    double rhoSave = density();
     double t = temperature();
     double pref = refPressure();
     double plow = 1.0E-8;
     Set(tpx::PropertyPair::TP, t, plow);
     getEntropy_R(er);
     er[0] -= log(pref/plow);
-    Set(tpx::PropertyPair::TP, t, psave);
+    Set(tpx::PropertyPair::TV, t, 1 / rhoSave);
 }
 
 doublereal PureFluidPhase::critTemperature() const
@@ -319,67 +295,67 @@ doublereal PureFluidPhase::satTemperature(doublereal p) const
 void PureFluidPhase::setState_HP(double h, double p, double tol)
 {
     Set(tpx::PropertyPair::HP, h, p);
-    setState_TR(m_sub->Temp(), 1.0/m_sub->v());
+    setState_TD(m_sub->Temp(), 1.0/m_sub->v());
 }
 
 void PureFluidPhase::setState_UV(double u, double v, double tol)
 {
     Set(tpx::PropertyPair::UV, u, v);
-    setState_TR(m_sub->Temp(), 1.0/m_sub->v());
+    setState_TD(m_sub->Temp(), 1.0/m_sub->v());
 }
 
 void PureFluidPhase::setState_SV(double s, double v, double tol)
 {
     Set(tpx::PropertyPair::SV, s, v);
-    setState_TR(m_sub->Temp(), 1.0/m_sub->v());
+    setState_TD(m_sub->Temp(), 1.0/m_sub->v());
 }
 
 void PureFluidPhase::setState_SP(double s, double p, double tol)
 {
     Set(tpx::PropertyPair::SP, s, p);
-    setState_TR(m_sub->Temp(), 1.0/m_sub->v());
+    setState_TD(m_sub->Temp(), 1.0/m_sub->v());
 }
 
 void PureFluidPhase::setState_ST(double s, double t, double tol)
 {
     Set(tpx::PropertyPair::ST, s, t);
-    setState_TR(m_sub->Temp(), 1.0/m_sub->v());
+    setState_TD(m_sub->Temp(), 1.0/m_sub->v());
 }
 
 void PureFluidPhase::setState_TV(double t, double v, double tol)
 {
     Set(tpx::PropertyPair::TV, t, v);
-    setState_TR(m_sub->Temp(), 1.0/m_sub->v());
+    setState_TD(m_sub->Temp(), 1.0/m_sub->v());
 }
 
 void PureFluidPhase::setState_PV(double p, double v, double tol)
 {
     Set(tpx::PropertyPair::PV, p, v);
-    setState_TR(m_sub->Temp(), 1.0/m_sub->v());
+    setState_TD(m_sub->Temp(), 1.0/m_sub->v());
 }
 
 void PureFluidPhase::setState_UP(double u, double p, double tol)
 {
     Set(tpx::PropertyPair::UP, u, p);
-    setState_TR(m_sub->Temp(), 1.0/m_sub->v());
+    setState_TD(m_sub->Temp(), 1.0/m_sub->v());
 }
 
 void PureFluidPhase::setState_VH(double v, double h, double tol)
 {
     Set(tpx::PropertyPair::VH, v, h);
-    setState_TR(m_sub->Temp(), 1.0/m_sub->v());
+    setState_TD(m_sub->Temp(), 1.0/m_sub->v());
 }
 
 void PureFluidPhase::setState_TH(double t, double h, double tol)
 {
     Set(tpx::PropertyPair::TH, t, h);
-    setState_TR(m_sub->Temp(), 1.0/m_sub->v());
+    setState_TD(m_sub->Temp(), 1.0/m_sub->v());
 }
 
 void PureFluidPhase::setState_SH(double s, double h, double tol)
 {
     Set(tpx::PropertyPair::SH, s, h);
-    setState_TR(m_sub->Temp(), 1.0/m_sub->v());
+    setState_TD(m_sub->Temp(), 1.0/m_sub->v());
 }
 
 doublereal PureFluidPhase::satPressure(doublereal t)

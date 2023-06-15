@@ -24,9 +24,6 @@ void printUsage()
 
 int main(int argc, char** argv)
 {
-#if defined(_MSC_VER) && _MSC_VER < 1900
-    _set_output_format(_TWO_DIGIT_EXPONENT);
-#endif
     suppress_deprecation_warnings();
     int numSucc = 0;
     int numFail = 0;
@@ -85,15 +82,15 @@ int main(int argc, char** argv)
 
         // Initialize the individual phases
 
-        HMWSoln hmw(inputFile, "NaCl_electrolyte_complex_shomate");
-        hmw.setName("NaCl_electrolyte");
-        size_t kk = hmw.nSpecies();
+        auto hmw = make_shared<HMWSoln>(inputFile, "NaCl_electrolyte_complex_shomate");
+        hmw->setName("NaCl_electrolyte");
+        size_t kk = hmw->nSpecies();
         vector_fp Xmol(kk, 0.0);
-        size_t iH2OL = hmw.speciesIndex("H2O(L)");
+        size_t iH2OL = hmw->speciesIndex("H2O(L)");
         Xmol[iH2OL] = 1.0;
-        hmw.setState_TPX(T, pres, Xmol.data());
+        hmw->setState_TPX(T, pres, Xmol.data());
 
-        ThermoPhase* gas = newPhase("NaCl_gas.yaml");
+        auto gas = newThermo("NaCl_gas.yaml");
 
         kk = gas->nSpecies();
         Xmol.resize(kk, 0.0);
@@ -105,16 +102,16 @@ int main(int argc, char** argv)
         gas->setState_TPX(T, pres, Xmol.data());
 
 
-        StoichSubstance ss("NaCl_Solid.yaml");
-        ss.setState_TP(T, pres);
+        auto ss = make_unique<StoichSubstance>("NaCl_Solid.yaml");
+        ss->setState_TP(T, pres);
 
 
         // Construct the multiphase object
         MultiPhase* mp = new MultiPhase();
 
-        mp->addPhase(&hmw, 2.0);
-        mp->addPhase(gas, 4.0);
-        mp->addPhase(&ss, 5.0);
+        mp->addPhase(hmw.get(), 2.0);
+        mp->addPhase(gas.get(), 4.0);
+        mp->addPhase(ss.get(), 5.0);
 
 
         try {

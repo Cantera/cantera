@@ -15,62 +15,15 @@
 namespace Cantera
 {
 
-//! @deprecated Unused. To be removed after Cantera 2.6.
-class UnknownKineticsModel : public CanteraError
-{
-public:
-    UnknownKineticsModel(const std::string& proc, const std::string& kineticsModel) :
-        CanteraError(proc, "Specified Kinetics model "
-                     + kineticsModel +
-                     " does not match any known type.") {
-        warn_deprecated("class UnknownKineticsModel",
-            "Unused. To be removed after Cantera 2.6.");
-    }
-};
-
 /**
  * Factory for kinetics managers.
  */
 class KineticsFactory : public Factory<Kinetics>
 {
 public:
-    static KineticsFactory* factory() {
-        std::unique_lock<std::mutex> lock(kinetics_mutex);
-        if (!s_factory) {
-            s_factory = new KineticsFactory;
-        }
-        return s_factory;
-    }
+    static KineticsFactory* factory();
 
-    virtual void deleteFactory() {
-        std::unique_lock<std::mutex> lock(kinetics_mutex);
-        delete s_factory;
-        s_factory = 0;
-    }
-
-    /**
-     * Return a new kinetics manager that implements a reaction mechanism
-     * specified in a CTML file. In other words, the kinetics manager, given
-     * the rate constants and formulation of the reactions that make up a
-     * kinetics mechanism, is responsible for calculating the rates of
-     * progress of the reactions and for calculating the source terms for
-     * species.
-     *
-     * @param phase An XML_Node that contains the XML data describing the
-     *              phase. Of particular note to this routine is the child XML
-     *              element called "kinetics". The element has one attribute
-     *              called "model", with a string value. The value of this
-     *              string is used to decide which kinetics manager is used to
-     *              calculate the reaction mechanism.
-     * @param th    Vector of phases. The first phase is the phase in which
-     *              the reactions occur, and the subsequent phases (if any)
-     *              are for example bulk phases adjacent to a reacting surface.
-     * @return Pointer to the new kinetics manager.
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    virtual Kinetics* newKinetics(XML_Node& phase, std::vector<ThermoPhase*> th);
+    virtual void deleteFactory();
 
     /**
      * Return a new, empty kinetics manager.
@@ -85,31 +38,14 @@ private:
 
 /**
  *  Create a new kinetics manager.
- *
- * @deprecated The XML input format is deprecated and will be removed in
- *     Cantera 3.0.
+ *  @deprecated  To be removed after Cantera 3.0; superseded by newKinetics.
  */
-inline Kinetics* newKineticsMgr(XML_Node& phase, std::vector<ThermoPhase*> th)
-{
-    return KineticsFactory::factory()->newKinetics(phase, th);
-}
-
-/**
- *  Create a new kinetics manager.
- */
-inline Kinetics* newKineticsMgr(const std::string& model)
-{
-    return KineticsFactory::factory()->newKinetics(model);
-}
+Kinetics* newKineticsMgr(const string& model);
 
 /**
  *  Create a new Kinetics instance.
  */
-inline shared_ptr<Kinetics> newKinetics(const std::string& model)
-{
-    shared_ptr<Kinetics> kin(KineticsFactory::factory()->newKinetics(model));
-    return kin;
-}
+shared_ptr<Kinetics> newKinetics(const string& model);
 
 /*!
  * Create a new kinetics manager, initialize it, and add reactions
@@ -122,7 +58,16 @@ inline shared_ptr<Kinetics> newKinetics(const std::string& model)
  *     to the Kinetics object.
  * @param rootNode   The root node of the file containing the phase definition,
  *     which will be treated as the default source for reactions
+ * @param soln       The Solution object that this Kinetics object is being added to.
  */
+shared_ptr<Kinetics> newKinetics(const vector<shared_ptr<ThermoPhase>>& phases,
+                                 const AnyMap& phaseNode,
+                                 const AnyMap& rootNode=AnyMap(),
+                                 shared_ptr<Solution> soln={});
+
+//! @see newKinetics(const vector<shared_ptr<ThermoPhase>>&, const AnyMap&, const AnyMap&, shared_ptr<Solution>)
+//! @deprecated  To be removed after Cantera 3.0;
+//!     superseded by newKinetics() returning shared_ptr
 unique_ptr<Kinetics> newKinetics(const std::vector<ThermoPhase*>& phases,
                                  const AnyMap& phaseNode,
                                  const AnyMap& rootNode=AnyMap());
@@ -137,7 +82,19 @@ unique_ptr<Kinetics> newKinetics(const std::vector<ThermoPhase*>& phases,
  *     the reactions occur. Searches the Cantera data for this file.
  * @param phase_name  The name of the reacting phase in the input file (that is, the
  *     name of the first phase in the `phases` vector)
+ * @deprecated The 'phase_name' argument is deprecated and will be removed after
+ *     Cantera 3.0.
+ * @since  Starting with Cantera 3.0, if the reacting phase is not the first item in the
+ *     `phases` vector, a deprecation warning will be issued. In Cantera 3.1, this
+ *     warning will become an error.
  */
+shared_ptr<Kinetics> newKinetics(const vector<shared_ptr<ThermoPhase>>& phases,
+                                 const string& filename,
+                                 const string& phase_name="");
+
+//! @copydoc newKinetics(const vector<shared_ptr<ThermoPhase>>&, const string&, const string&)
+//! @deprecated  To be removed after Cantera 3.0;
+//!     superseded by newKinetics() returning shared_ptr
 unique_ptr<Kinetics> newKinetics(const std::vector<ThermoPhase*>& phases,
                                  const std::string& filename,
                                  const std::string& phase_name);

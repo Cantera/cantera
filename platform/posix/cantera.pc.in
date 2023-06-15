@@ -5,7 +5,7 @@ includedir=${prefix}/include
 
 Name: Cantera
 Description: Cantera library
-URL: http://www.cantera.org
+URL: https://cantera.org
 Version: @cantera_version@
 
 Libs: -L${libdir} @pc_libdirs@ @pc_libs@

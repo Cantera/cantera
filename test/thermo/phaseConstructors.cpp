@@ -26,7 +26,6 @@
 #include "cantera/thermo/ShomatePoly.h"
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/thermo/Mu0Poly.h"
-#include "cantera/base/ctml.h"
 #include "cantera/base/stringUtils.h"
 #include <fstream>
 #include "thermo_data.h"
@@ -38,7 +37,7 @@ shared_ptr<Species> make_species(const std::string& name,
      const std::string& composition, const double* nasa_coeffs)
 {
     auto species = make_shared<Species>(name, parseCompString(composition));
-    species->thermo.reset(new NasaPoly2(200, 3500, 101325, nasa_coeffs));
+    species->thermo = make_shared<NasaPoly2>(200, 3500, 101325, nasa_coeffs);
     return species;
 }
 
@@ -46,7 +45,7 @@ shared_ptr<Species> make_shomate_species(const std::string& name,
      const std::string& composition, const double* shomate_coeffs)
 {
     auto species = make_shared<Species>(name, parseCompString(composition));
-    species->thermo.reset(new ShomatePoly(200, 3500, 101325, shomate_coeffs));
+    species->thermo = make_shared<ShomatePoly>(200, 3500, 101325, shomate_coeffs);
     return species;
 }
 
@@ -54,7 +53,7 @@ shared_ptr<Species> make_shomate2_species(const std::string& name,
      const std::string& composition, const double* shomate_coeffs)
 {
     auto species = make_shared<Species>(name, parseCompString(composition));
-    species->thermo.reset(new ShomatePoly2(200, 3500, 101325, shomate_coeffs));
+    species->thermo = make_shared<ShomatePoly2>(200, 3500, 101325, shomate_coeffs);
     return species;
 }
 
@@ -64,7 +63,7 @@ shared_ptr<Species> make_species(const std::string& name,
 {
     auto species = make_shared<Species>(name, parseCompString(composition));
     double coeffs[] = {2, h298, T1, mu1*GasConstant*T1, T2, mu2*GasConstant*T2};
-    species->thermo.reset(new Mu0Poly(200, 3500, pref, coeffs));
+    species->thermo = make_shared<Mu0Poly>(200, 3500, pref, coeffs);
     return species;
 }
 
@@ -73,17 +72,18 @@ shared_ptr<Species> make_const_cp_species(const std::string& name,
 {
     auto species = make_shared<Species>(name, parseCompString(composition));
     double coeffs[] = {T0, h0, s0, cp};
-    species->thermo.reset(new ConstCpPoly(200, 3500, 101325, coeffs));
+    species->thermo = make_shared<ConstCpPoly>(200, 3500, 101325, coeffs);
     return species;
 }
 
 TEST(IonsFromNeutralConstructor, fromScratch)
 {
+    suppress_deprecation_warnings();
     // Compare to the "ions-from-neutral-molecule" phase in "thermo-models.yaml"
     auto neutral = make_shared<MargulesVPSSTP>();
     auto sKCl = make_shomate_species("KCl(L)", "K:1 Cl:1", kcl_shomate_coeffs);
     neutral->addSpecies(sKCl);
-    std::unique_ptr<PDSS_ConstVol> ssKCl(new PDSS_ConstVol());
+    auto ssKCl = make_unique<PDSS_ConstVol>();
     ssKCl->setMolarVolume(0.03757);
     neutral->installPDSS(0, std::move(ssKCl));
     neutral->initThermo();
@@ -97,8 +97,8 @@ TEST(IonsFromNeutralConstructor, fromScratch)
     sClm->input["equation-of-state"]["model"] = "ions-from-neutral-molecule";
     p.addSpecies(sKp);
     p.addSpecies(sClm);
-    std::unique_ptr<PDSS_IonsFromNeutral> ssKp(new PDSS_IonsFromNeutral());
-    std::unique_ptr<PDSS_IonsFromNeutral> ssClm(new PDSS_IonsFromNeutral());
+    auto ssKp = make_unique<PDSS_IonsFromNeutral>();
+    auto ssClm = make_unique<PDSS_IonsFromNeutral>();
     ssKp->setNeutralSpeciesMultiplier("KCl(L)", 1.2);
     ssClm->setNeutralSpeciesMultiplier("KCl(L)", 1.5);
     ssClm->setSpecialSpecies();
@@ -116,75 +116,8 @@ TEST(IonsFromNeutralConstructor, fromScratch)
     EXPECT_NEAR(p.enthalpy_mass(), -14738312.44316336, 1e-6);
     EXPECT_NEAR(mu[0], -4.66404010e+08, 1e1);
     EXPECT_NEAR(mu[1], -2.88157316e+06, 1e-1);
-}
-
-#ifndef CT_NO_PYTHON
-class CtiConversionTest : public testing::Test
-{
-public:
-    CtiConversionTest() {
-        close_XML_File("all");
-    }
-
-    std::unique_ptr<ThermoPhase> p1;
-    std::unique_ptr<ThermoPhase> p2;
-    void compare()
-    {
-        ASSERT_EQ(p1->nSpecies(), p2->nSpecies());
-        for (size_t i = 0; i < p1->nSpecies(); i++) {
-            ASSERT_EQ(p1->speciesName(i), p2->speciesName(i));
-            ASSERT_EQ(p1->molecularWeight(i), p2->molecularWeight(i));
-        }
-    }
-};
-
-TEST_F(CtiConversionTest, ExplicitConversion) {
-    suppress_deprecation_warnings();
-    p1.reset(newPhase("../data/air-no-reactions.xml"));
-    ct2ctml("../data/air-no-reactions.cti");
-    p2.reset(newPhase("air-no-reactions.xml", ""));
-    compare();
     make_deprecation_warnings_fatal();
 }
-
-TEST_F(CtiConversionTest, ImplicitConversion) {
-    suppress_deprecation_warnings();
-    p1.reset(newPhase("../data/air-no-reactions.xml"));
-    p2.reset(newPhase("../data/air-no-reactions.cti"));
-    compare();
-    make_deprecation_warnings_fatal();
-}
-
-class ChemkinConversionTest : public testing::Test {
-public:
-    void copyInputFile(const std::string& name) {
-        std::string in_name = "../data/" + name;
-        std::ifstream source(in_name, std::ios::binary);
-        std::ofstream dest(name, std::ios::binary);
-        dest << source.rdbuf();
-    }
-};
-
-TEST_F(ChemkinConversionTest, ValidConversion) {
-    suppress_deprecation_warnings();
-    copyInputFile("pdep-test.inp");
-    ck2cti("pdep-test.inp");
-    std::unique_ptr<ThermoPhase> p(newPhase("pdep-test.cti"));
-    ASSERT_GT(p->temperature(), 0.0);
-    make_deprecation_warnings_fatal();
-}
-
-TEST_F(ChemkinConversionTest, MissingInputFile) {
-    ASSERT_THROW(ck2cti("nonexistent-file.inp"),
-                 CanteraError);
-}
-
-TEST_F(ChemkinConversionTest, FailedConversion) {
-    copyInputFile("h2o2_missingThermo.inp");
-    ASSERT_THROW(ck2cti("h2o2_missingThermo.inp"),
-                 CanteraError);
-}
-#endif
 
 class ConstructFromScratch : public testing::Test
 {
@@ -197,7 +130,7 @@ public:
         , sCO(make_species("CO", "C:1 O:1", o2_nasa_coeffs))
         , sCO2(new Species("CO2", parseCompString("C:1 O:2")))
     {
-        sCO2->thermo.reset(new ShomatePoly2(200, 3500, 101325, co2_shomate_coeffs));
+        sCO2->thermo = make_shared<ShomatePoly2>(200, 3500, 101325, co2_shomate_coeffs);
     }
 
     shared_ptr<Species> sH2O, sH2, sO2, sOH, sCO, sCO2;
@@ -280,8 +213,9 @@ TEST_F(ConstructFromScratch, RedlichKwongMFTP)
     p.addSpecies(sCO2);
     p.addSpecies(sH2O);
     p.addSpecies(sH2);
-    double fa = toSI("bar-cm6/mol2");
-    double fb = toSI("cm3/mol");
+    UnitSystem units;
+    double fa = units.convertFrom(1.0, "bar*cm^6/gmol^2");
+    double fb = units.convertFrom(1.0, "cm^3/gmol");
     p.setBinaryCoeffs("H2", "H2O", 4 * fa, 40 * fa);
     p.setSpeciesCoeffs("CO2", 7.54e7 * fa, -4.13e4 * fa, 27.80 * fb);
     p.setBinaryCoeffs("CO2", "H2O", 7.897e7 * fa, 0.0);
@@ -307,8 +241,9 @@ TEST_F(ConstructFromScratch, RedlichKwongMFTP_missing_coeffs)
     p.addSpecies(sH2O);
     p.addSpecies(sCO2);
     p.addSpecies(sH2);
-    double fa = toSI("bar-cm6/mol2");
-    double fb = toSI("cm3/mol");
+    UnitSystem units;
+    double fa = units.convertFrom(1.0, "bar*cm^6/gmol^2");
+    double fb = units.convertFrom(1.0, "cm^3/gmol");
     p.setSpeciesCoeffs("H2O", 1.7458e8 * fa, -8e4 * fa, 18.18 * fb);
     p.setSpeciesCoeffs("H2", 30e7 * fa, -330e4 * fa, 31 * fb);
     EXPECT_THROW(p.setState_TP(300, 200e5), CanteraError);
@@ -318,7 +253,7 @@ TEST(PureFluidFromScratch, CarbonDioxide)
 {
     PureFluidPhase p;
     auto sCO2 = make_shared<Species>("CO2", parseCompString("C:1 O:2"));
-    sCO2->thermo.reset(new ShomatePoly2(200, 6000, 101325, co2_shomate_coeffs));
+    sCO2->thermo = make_shared<ShomatePoly2>(200, 6000, 101325, co2_shomate_coeffs);
     p.addSpecies(sCO2);
     p.setSubstance("carbon-dioxide");
     p.initThermo();
@@ -344,11 +279,11 @@ TEST(IdealMolalSoln, fromScratch)
     p.addSpecies(make_species("CH4(aq)", "C:1, H:4", h2_nasa_coeffs));
     size_t k = 0;
     for (double v : {1.5, 1.3, 0.1, 0.1}) {
-        std::unique_ptr<PDSS_ConstVol> ss(new PDSS_ConstVol());
+        auto ss = make_unique<PDSS_ConstVol>();
         ss->setMolarVolume(v);
         p.installPDSS(k++, std::move(ss));
     }
-    p.setStandardConcentrationModel("solvent_volume");
+    p.setStandardConcentrationModel("solvent-molar-volume");
     p.setCutoffModel("polyexp");
     // These propreties probably shouldn't be public
     p.IMS_X_o_cutoff_ = 0.20;
@@ -391,11 +326,11 @@ TEST(DebyeHuckel, fromScratch)
     for (auto& s : {sH2O, sNa, sCl, sH, sOH, sNaCl}) {
         p.addSpecies(s);
     }
-    std::unique_ptr<PDSS_Water> ss(new PDSS_Water());
+    auto ss = make_unique<PDSS_Water>();
     p.installPDSS(0, std::move(ss));
     size_t k = 1;
     for (double v : {1.3, 1.3, 0.0, 1.3, 1.3}) {
-        std::unique_ptr<PDSS_ConstVol> ss(new PDSS_ConstVol());
+        auto ss = make_unique<PDSS_ConstVol>();
         ss->setMolarVolume(v);
         p.installPDSS(k++, std::move(ss));
     }
@@ -412,7 +347,7 @@ TEST(DebyeHuckel, fromScratch)
     // Regression test based on XML input file
     EXPECT_NEAR(p.density(), 60.296, 1e-2);
     EXPECT_NEAR(p.cp_mass(), 1.58216e5, 2e0);
-    EXPECT_NEAR(p.entropy_mass(), 4.01279e3, 2e-2);
+    EXPECT_NEAR(p.entropy_mass(), 4.01292e3, 2e-2);
     vector_fp actcoeff(p.nSpecies());
     vector_fp mu_ss(p.nSpecies());
     p.getMolalityActivityCoefficients(actcoeff.data());
@@ -435,7 +370,7 @@ TEST(MargulesVPSSTP, fromScratch)
     p.addSpecies(sLiCl);
     size_t k = 0;
     for (double v : {0.03757, 0.020304}) {
-        std::unique_ptr<PDSS_ConstVol> ss(new PDSS_ConstVol());
+        auto ss = make_unique<PDSS_ConstVol>();
         ss->setMolarVolume(v);
         p.installPDSS(k++, std::move(ss));
     }
@@ -454,9 +389,9 @@ TEST(LatticeSolidPhase, fromScratch)
 {
     auto base = make_shared<StoichSubstance>();
     base->setName("Li7Si3(S)");
-    double rho = 1390.0;
-    base->setParameters(1, &rho);
     auto sLi7Si3 = make_shomate2_species("Li7Si3(S)", "Li:7 Si:3", li7si3_shomate_coeffs);
+    sLi7Si3->input["equation-of-state"]["model"] = "constant-volume";
+    sLi7Si3->input["equation-of-state"]["density"] = 1390.0;
     base->addSpecies(sLi7Si3);
     base->initThermo();
 
@@ -464,7 +399,8 @@ TEST(LatticeSolidPhase, fromScratch)
     interstital->setName("Li7Si3_Interstitial");
     auto sLii = make_const_cp_species("Li(i)", "Li:1", 298.15, 0, 2e4, 2e4);
     auto sVac = make_const_cp_species("V(i)", "", 298.15, 8.98e4, 0, 0);
-    sLii->input["molar_volume"] = 0.2;
+    sLii->input["equation-of-state"]["molar-volume"] = 0.2;
+    sLii->input["equation-of-state"]["model"] = "constant-volume";
     interstital->setSiteDensity(10.46344);
     interstital->addSpecies(sLii);
     interstital->addSpecies(sVac);
@@ -498,18 +434,21 @@ TEST(IdealSolidSolnPhase, fromScratch)
     // Regression test based fictitious XML input file
     IdealSolidSolnPhase p;
     auto sp1 = make_species("sp1", "C:2, H:2", o2_nasa_coeffs);
-    sp1->input["molar_volume"] = 1.5;
+    sp1->input["equation-of-state"]["molar-volume"] = 1.5;
+    sp1->input["equation-of-state"]["model"] = "constant-volume";
     auto sp2 = make_species("sp2", "C:1", h2o_nasa_coeffs);
-    sp2->input["molar_volume"] = 1.3;
+    sp2->input["equation-of-state"]["molar-volume"] = 1.3;
+    sp2->input["equation-of-state"]["model"] = "constant-volume";
     auto sp3 = make_species("sp3", "H:2", h2_nasa_coeffs);
-    sp3->input["molar_volume"] = 0.1;
+    sp3->input["equation-of-state"]["molar-volume"] = 0.1;
+    sp3->input["equation-of-state"]["model"] = "constant-volume";
     for (auto& s : {sp1, sp2, sp3}) {
         p.addSpecies(s);
     }
     p.setState_TPX(500, 2e5, "sp1:0.1, sp2:0.89, sp3:0.01");
     EXPECT_NEAR(p.density(), 10.1787080, 1e-6);
     EXPECT_NEAR(p.enthalpy_mass(), -15642788.8547624, 1e-4);
-    EXPECT_NEAR(p.gibbs_mole(), -313642312.7114608, 1e-4);
+    EXPECT_NEAR(p.gibbs_mole(), -313513245.8114608, 1e-4);
 }
 
 static void set_hmw_interactions(HMWSoln& p) {
@@ -563,11 +502,11 @@ TEST(HMWSoln, fromScratch)
     for (auto& s : {sH2O, sCl, sH, sNa, sOH}) {
         p.addSpecies(s);
     }
-    std::unique_ptr<PDSS_Water> ss(new PDSS_Water());
+    auto ss = make_unique<PDSS_Water>();
     p.installPDSS(0, std::move(ss));
     size_t k = 1;
     for (double v : {1.3, 1.3, 1.3, 1.3}) {
-        std::unique_ptr<PDSS_ConstVol> ss(new PDSS_ConstVol());
+        auto ss = make_unique<PDSS_ConstVol>();
         ss->setMolarVolume(v);
         p.installPDSS(k++, std::move(ss));
     }
@@ -591,7 +530,7 @@ TEST(HMWSoln, fromScratch)
     double mfRef[] = {0.8198, 0.0901, 0.0000, 0.0901, 0.0000};
     double activitiesRef[] = {0.7658, 6.2164, 0.0000, 6.2164, 0.0000};
     double mollRef[] = {55.5093, 6.0997, 0.0000, 6.0997, 0.0000};
-    double mu0Ref[] = {-317.175791, -186.014570, 0.0017225, -441.615456, -322.000432}; // kJ/gmol
+    double mu0Ref[] = {-317.1767, -186.014570, 0.0017225, -441.615456, -322.000432}; // kJ/gmol
 
     for (size_t k = 0 ; k < N; k++) {
         EXPECT_NEAR(acMol[k], acMolRef[k], 2e-4);
@@ -630,28 +569,29 @@ TEST(HMWSoln, fromScratch_HKFT)
     double c[][2] = {{18.18, -29810}, {-4.4, -57140}, {0.0, 0.0}, {4.15, -103460}};
     double omega[] = {33060, 145600, 0.0, 172460};
 
-    std::unique_ptr<PDSS_Water> ss(new PDSS_Water());
+    auto ss = make_unique<PDSS_Water>();
     p.installPDSS(0, std::move(ss));
+    UnitSystem units;
     for (size_t k = 0; k < 4; k++) {
-        std::unique_ptr<PDSS_HKFT> ss(new PDSS_HKFT());
+        auto ss = make_unique<PDSS_HKFT>();
         if (h0[k] != Undef) {
-            ss->setDeltaH0(h0[k] * toSI("cal/gmol"));
+            ss->setDeltaH0(units.convertFrom(h0[k], "cal/gmol"));
         }
         if (g0[k] != Undef) {
-            ss->setDeltaG0(g0[k] * toSI("cal/gmol"));
+            ss->setDeltaG0(units.convertFrom(g0[k], "cal/gmol"));
         }
         if (s0[k] != Undef) {
-            ss->setS0(s0[k] * toSI("cal/gmol/K"));
+            ss->setS0(units.convertFrom(s0[k], "cal/gmol/K"));
         }
-        a[k][0] *= toSI("cal/gmol/bar");
-        a[k][1] *= toSI("cal/gmol");
-        a[k][2] *= toSI("cal-K/gmol/bar");
-        a[k][3] *= toSI("cal-K/gmol");
-        c[k][0] *= toSI("cal/gmol/K");
-        c[k][1] *= toSI("cal-K/gmol");
+        a[k][0] *= units.convertFrom(1.0, "cal/gmol/bar");
+        a[k][1] *= units.convertFrom(1.0, "cal/gmol");
+        a[k][2] *= units.convertFrom(1.0, "cal*K/gmol/bar");
+        a[k][3] *= units.convertFrom(1.0, "cal*K/gmol");
+        c[k][0] *= units.convertFrom(1.0, "cal/gmol/K");
+        c[k][1] *= units.convertFrom(1.0, "cal*K/gmol");
         ss->set_a(a[k]);
         ss->set_c(c[k]);
-        ss->setOmega(omega[k] * toSI("cal/gmol"));
+        ss->setOmega(units.convertFrom(omega[k], "cal/gmol"));
         p.installPDSS(k+1, std::move(ss));
     }
     p.setPitzerTempModel("complex");
@@ -670,7 +610,7 @@ TEST(HMWSoln, fromScratch_HKFT)
     p.getActivities(ac.data());
     p.getActivityCoefficients(acoeff.data());
 
-    double mvRef[] = {0.01815224, 0.00157182, 0.01954605, 0.00173137, -0.0020266};
+    double mvRef[] = {0.01815196, 0.00157182, 0.01954605, 0.00173137, -0.0020266};
 
     for (size_t k = 0; k < N; k++) {
         EXPECT_NEAR(mv[k], mvRef[k], 2e-8);
@@ -687,7 +627,7 @@ TEST(PDSS_SSVol, fromScratch)
     auto sLi = make_shomate2_species("Li(L)", "Li:1", coeffs);
     p.addSpecies(sLi);
     p.setStandardConcentrationModel("unity");
-    std::unique_ptr<PDSS_SSVol> ss(new PDSS_SSVol());
+    auto ss = make_unique<PDSS_SSVol>();
     double rho_coeffs[] = {536.504, -1.04279e-1, 3.84825e-6, -5.2853e-9};
     ss->setDensityPolynomial(rho_coeffs);
     p.installPDSS(0, std::move(ss));

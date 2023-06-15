@@ -39,11 +39,8 @@ static double cutoff(double val, double atol=1.0E-15)
 
 int main(int argc, char** argv)
 {
-#if defined(_MSC_VER) && _MSC_VER < 1900
-    _set_output_format(_TWO_DIGIT_EXPONENT);
-#endif
     try {
-        auto sol = newSolution("gri30.yaml", "gri30", "Multi");
+        auto sol = newSolution("gri30.yaml", "gri30", "multicomponent");
         auto gas = sol->thermo();
         size_t nsp = gas->nSpecies();
         double pres = 1.0E5;

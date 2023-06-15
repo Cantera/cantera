@@ -12,8 +12,6 @@
 #include <cstdio>
 #include <numeric>
 
-using namespace std;
-
 namespace Cantera
 {
 
@@ -25,10 +23,6 @@ MultiPhaseEquil::MultiPhaseEquil(MultiPhase* mix, bool start, int loglevel) : m_
     m_press = mix->pressure();
     m_temp = mix->temperature();
 
-    m_force = true;
-    m_nel = 0;
-    m_nsp = 0;
-    m_eloc = 1000;
     m_incl_species.resize(m_nsp_mix,1);
     m_incl_element.resize(m_nel_mix,1);
     for (size_t m = 0; m < m_nel_mix; m++) {
@@ -602,8 +596,7 @@ void MultiPhaseEquil::computeN()
     std::vector<std::pair<double, size_t> > moleFractions(m_nsp);
     for (size_t k = 0; k < m_nsp; k++) {
         // use -Xk to generate reversed sort order
-        moleFractions[k].first = - m_mix->speciesMoles(m_species[k]);
-        moleFractions[k].second = k;
+        moleFractions[k] = {-m_mix->speciesMoles(m_species[k]), k};
     }
     std::sort(moleFractions.begin(), moleFractions.end());
     for (size_t k = 0; k < m_nsp; k++) {

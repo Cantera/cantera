@@ -20,29 +20,16 @@
 #include "cantera/thermo/PDSS_IonsFromNeutral.h"
 #include "cantera/base/stringUtils.h"
 
+#include <boost/algorithm/string.hpp>
 #include <fstream>
-
-using namespace std;
 
 namespace Cantera
 {
 
-IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(const std::string& inputFile,
-        const std::string& id_) :
-    ionSolnType_(cIonSolnType_SINGLEANION),
-    numNeutralMoleculeSpecies_(0),
-    indexSpecialSpecies_(npos)
+IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(const string& inputFile, const string& id_)
 {
+    warn_deprecated("class IonsFromNeutralVPSSTP", "To be removed after Cantera 3.0");
     initThermoFile(inputFile, id_);
-}
-
-IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(XML_Node& phaseRoot,
-        const std::string& id_) :
-    ionSolnType_(cIonSolnType_SINGLEANION),
-    numNeutralMoleculeSpecies_(0),
-    indexSpecialSpecies_(npos)
-{
-    importPhase(phaseRoot, this);
 }
 
 // ------------ Molar Thermodynamic Properties ----------------------
@@ -487,10 +474,10 @@ void IonsFromNeutralVPSSTP::initThermo()
             AnyMap infile = AnyMap::fromYamlFile(fileName,
                         m_input.getString("__file__", ""));
             AnyMap& phaseNode = infile["phases"].getMapWhere("name", neutralName);
-            setNeutralMoleculePhase(newPhase(phaseNode, infile));
+            setNeutralMoleculePhase(newThermo(phaseNode, infile));
         } else {
             AnyMap& phaseNode = m_rootNode["phases"].getMapWhere("name", neutralName);
-            setNeutralMoleculePhase(newPhase(phaseNode, m_rootNode));
+            setNeutralMoleculePhase(newThermo(phaseNode, m_rootNode));
         }
     }
 
@@ -642,25 +629,6 @@ bool IonsFromNeutralVPSSTP::addSpecies(shared_ptr<Species> spec)
         }
     }
     return added;
-}
-
-void IonsFromNeutralVPSSTP::setParametersFromXML(const XML_Node& thermoNode)
-{
-    GibbsExcessVPSSTP::setParametersFromXML(thermoNode);
-    // Find the Neutral Molecule Phase
-    if (!thermoNode.hasChild("neutralMoleculePhase")) {
-        throw CanteraError("IonsFromNeutralVPSSTP::setParametersFromXML",
-                           "no neutralMoleculePhase XML node");
-    }
-    XML_Node& neutralMoleculeNode = thermoNode.child("neutralMoleculePhase");
-
-    XML_Node* neut_ptr = get_XML_Node(neutralMoleculeNode["datasrc"], 0);
-    if (!neut_ptr) {
-        throw CanteraError("IonsFromNeutralVPSSTP::setParametersFromXML",
-                           "neut_ptr = 0");
-    }
-
-    setNeutralMoleculePhase(shared_ptr<ThermoPhase>(newPhase(*neut_ptr)));
 }
 
 void IonsFromNeutralVPSSTP::s_update_lnActCoeff() const

@@ -1045,13 +1045,13 @@ public:
     size_t m_nsp;
 
     //! Number of element constraints in the problem
-    size_t m_nelem;
+    size_t m_nelem = 0;
 
     //! Number of components calculated for the problem
-    size_t m_numComponents;
+    size_t m_numComponents = 0;
 
     //! Total number of non-component species in the problem
-    size_t m_numRxnTot;
+    size_t m_numRxnTot = 0;
 
     //! Current number of species in the problems. Species can be deleted if
     //! they aren't stable under the current conditions
@@ -1059,11 +1059,11 @@ public:
 
     //! Current number of non-component species in the problem. Species can be
     //! deleted if they aren't stable under the current conditions
-    size_t m_numRxnRdc;
+    size_t m_numRxnRdc = 0;
 
     //! Number of active species which are currently either treated as
     //! minor species
-    size_t m_numRxnMinorZeroed;
+    size_t m_numRxnMinorZeroed = 0;
 
     //! Number of Phases in the problem
     size_t m_numPhases;
@@ -1143,7 +1143,7 @@ public:
      *       1 Only do an estimate if the element abundances aren't satisfied.
      *      -1 Force an estimate of the soln. Throw out the input mole numbers.
      */
-    int m_doEstimateEquil;
+    int m_doEstimateEquil = -1;
 
     //! Total moles of the species
     /*!
@@ -1236,7 +1236,7 @@ public:
      * This number includes the inerts.
      *            -> Don't use this except for scaling purposes
      */
-    double m_totalMolNum;
+    double m_totalMolNum = 0.0;
 
     //! Total kmols of species in each phase
     /*!
@@ -1281,16 +1281,16 @@ public:
     vector_fp TPhInertMoles;
 
     //! Tolerance requirement for major species
-    double m_tolmaj;
+    double m_tolmaj= 1e-8;
 
     //! Tolerance requirements for minor species
-    double m_tolmin;
+    double m_tolmin = 1e-6;
 
     //! Below this, major species aren't refined any more
-    double m_tolmaj2;
+    double m_tolmaj2 = 1e-10;
 
     //! Below this, minor species aren't refined any more
-    double m_tolmin2;
+    double m_tolmin2 = 1e-8;
 
     //! Index vector that keeps track of the species vector rearrangement
     /*!
@@ -1466,7 +1466,7 @@ public:
      * If this is true, then we will use a better approximation to the Hessian
      * based on Jacobian of the ln(ActCoeff) with respect to mole numbers
      */
-    int m_useActCoeffJac;
+    int m_useActCoeffJac = 0;
 
     //! Total volume of all phases. Units are m^3
     double m_totalVol;
@@ -1482,7 +1482,7 @@ public:
     double m_Faraday_dim;
 
     //! Timing and iteration counters for the vcs object
-    VCS_COUNTERS* m_VCount;
+    VCS_COUNTERS* m_VCount = nullptr;
 
     //! Debug printing lvl
     /*!
@@ -1496,14 +1496,14 @@ public:
      *     * 6  Each decision in solve_TP gets a line per species in addition to 4
      *     * 10 Additionally Hessian matrix is printed out
      */
-    int m_debug_print_lvl;
+    int m_debug_print_lvl = 0;
 
     //! printing level of timing information
     /*!
      *  * 1 allowing printing of timing
      *  * 0 do not allow printing of timing -> everything is printed as a NA.
      */
-    int m_timing_print_lvl;
+    int m_timing_print_lvl = 1;
 
     //! Disable printing of timing information. Used to generate consistent
     //! output for tests.

@@ -63,6 +63,8 @@ enum IonSolnType_enumType {
  *
  *  This object can translate between any of the four mole fraction
  *  representations.
+ *
+ *  @deprecated To be removed after Cantera 3.0.
  */
 class IonsFromNeutralVPSSTP : public GibbsExcessVPSSTP
 {
@@ -79,18 +81,6 @@ public:
      */
     explicit IonsFromNeutralVPSSTP(const std::string& inputFile="",
                                    const std::string& id="");
-
-    //! Construct and initialize an IonsFromNeutralVPSSTP object
-    //! directly from an XML database
-    /*!
-     * @param phaseRoot XML phase node containing the description of the phase
-     * @param id     id attribute containing the name of the phase.
-     *               (default is the empty string)
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    IonsFromNeutralVPSSTP(XML_Node& phaseRoot, const std::string& id = "");
 
     //! @}
     //! @name  Utilities
@@ -115,17 +105,15 @@ public:
     virtual doublereal cp_mole() const;
     virtual doublereal cv_mole() const;
 
-    /**
-     * @}
-     * @name Activities, Standard States, and Activity Concentrations
-     *
-     * The activity \f$a_k\f$ of a species in solution is
-     * related to the chemical potential by \f[ \mu_k = \mu_k^0(T)
-     * + \hat R T \log a_k. \f] The quantity \f$\mu_k^0(T,P)\f$ is
-     * the chemical potential at unit activity, which depends only
-     * on temperature and pressure.
-     * @{
-     */
+    //! @}
+    //! @name Activities, Standard States, and Activity Concentrations
+    //!
+    //! The activity \f$a_k\f$ of a species in solution is
+    //! related to the chemical potential by \f[ \mu_k = \mu_k^0(T)
+    //! + \hat R T \log a_k. \f] The quantity \f$\mu_k^0(T,P)\f$ is
+    //! the chemical potential at unit activity, which depends only
+    //! on temperature and pressure.
+    //! @{
 
     virtual void getActivityCoefficients(doublereal* ac) const;
 
@@ -235,11 +223,10 @@ public:
         anion=anionList_;
     }
 
-    /**
-     * @name Setting the State
-     * These methods set all or part of the thermodynamic state.
-     * @{
-     */
+    //! @name Setting the State
+    //!
+    //! These methods set all or part of the thermodynamic state.
+    //! @{
 
     virtual void calcDensity();
 
@@ -273,7 +260,6 @@ public:
                                const AnyMap& rootNode=AnyMap());
     virtual void initThermo();
     virtual void getParameters(AnyMap& phaseNode) const;
-    virtual void setParametersFromXML(const XML_Node& thermoNode);
 
 private:
     //! Update the activity coefficients
@@ -335,17 +321,17 @@ protected:
      *
      *  Defaults to cIonSolnType_SINGLEANION, so that LiKCl can be hardwired
      */
-    IonSolnType_enumType ionSolnType_;
+    IonSolnType_enumType ionSolnType_ = cIonSolnType_SINGLEANION;
 
     //! Number of neutral molecule species
     /*!
      * This is equal to the number of species in the neutralMoleculePhase_
      * ThermoPhase.
      */
-    size_t numNeutralMoleculeSpecies_;
+    size_t numNeutralMoleculeSpecies_ = 0;
 
     //! Index of special species
-    size_t indexSpecialSpecies_;
+    size_t indexSpecialSpecies_ = npos;
 
     //! Formula Matrix for composition of neutral molecules
     //! in terms of the molecules in this ThermoPhase

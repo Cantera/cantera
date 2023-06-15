@@ -19,13 +19,13 @@ function s = GRI30(tr)
 %
 % .. code-block:: matlab
 %
-%     g1 = GRI30           % mixture-averaged transport properties
-%     g2 = GRI30('Mix')    % mixture-averaged transport properties
-%     g3 = GRI30('Multi')  % miulticomponent transport properties
-%     g4 = GRI30('None')   % no transport properties
+%     g1 = GRI30                      % mixture-averaged transport properties
+%     g2 = GRI30('mixture-averaged')  % mixture-averaged transport properties
+%     g3 = GRI30('multicomponent')    % miulticomponent transport properties
+%     g4 = GRI30('none')              % no transport properties
 %
 % :param tr:
-%     Transport modeling, ``'None'``, ``'Mix'``, or ``'Multi'``
+%     Transport modeling, ``'none'``, ``'mixture-averaged'``, or ``'multicomponent'``
 % :return:
 %     Instance of class :mat:func:`Solution`
 %
@@ -33,15 +33,7 @@ function s = GRI30(tr)
 if nargin == 0
     s = Solution('gri30.yaml', 'gri30');
 elseif nargin == 1
-    if strcmp(tr, 'None')
-        s = Solution('gri30.yaml', 'gri30', 'None');
-    elseif strcmp(tr, 'Mix')
-        s = Solution('gri30.yaml', 'gri30', 'Mix');
-    elseif strcmp(tr, 'Multi')
-        s = Solution('gri30.yaml', 'gri30', 'Multi')
-    else
-        error('Unknown transport specified. "None", "Mix", or "Multi" are supported.')
-    end
+    s = Solution('gri30.yaml', 'gri30', tr);
 else
     error('Wrong number of arguments.');
 end

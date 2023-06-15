@@ -13,6 +13,8 @@ Defining Functions
 
 .. autoclass:: Func1
 
+.. autoclass:: TabulatedFunction
+
 Base Classes
 ------------
 
@@ -40,17 +42,33 @@ Reactor
 ^^^^^^^
 .. autoclass:: Reactor
 
+MoleReactor
+^^^^^^^^^^^
+.. autoclass:: MoleReactor(contents=None, *, name=None, energy='on')
+
 IdealGasReactor
 ^^^^^^^^^^^^^^^
 .. autoclass:: IdealGasReactor(contents=None, *, name=None, energy='on')
+
+IdealGasMoleReactor
+^^^^^^^^^^^^^^^^^^^
+.. autoclass:: IdealGasMoleReactor(contents=None, *, name=None, energy='on')
 
 ConstPressureReactor
 ^^^^^^^^^^^^^^^^^^^^
 .. autoclass:: ConstPressureReactor(contents=None, *, name=None, energy='on')
 
+ConstPressureMoleReactor
+^^^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: ConstPressureMoleReactor(contents=None, *, name=None, energy='on')
+
 IdealGasConstPressureReactor
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. autoclass:: IdealGasConstPressureReactor(contents=None, *, name=None, energy='on')
+
+IdealGasConstPressureMoleReactor
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: IdealGasConstPressureMoleReactor(contents=None, *, name=None, energy='on')
 
 FlowReactor
 ^^^^^^^^^^^
@@ -72,12 +90,29 @@ ExtensibleIdealGasConstPressureReactor
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. autoclass:: ExtensibleIdealGasConstPressureReactor(contents=None, *, name=None, energy='on')
 
+ExtensibleMoleReactor
+^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: ExtensibleMoleReactor(contents=None, *, name=None, energy='on')
+
+ExtensibleIdealGasMoleReactor
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: ExtensibleIdealGasMoleReactor(contents=None, *, name=None, energy='on')
+
+ExtensibleConstPressureMoleReactor
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: ExtensibleConstPressureMoleReactor(contents=None, *, name=None, energy='on')
+
+ExtensibleIdealGasConstPressureMoleReactor
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: ExtensibleIdealGasConstPressureMoleReactor(contents=None, *, name=None, energy='on')
+
 Walls
 -----
 
 Wall
 ^^^^
 .. autoclass:: Wall(left, right, *, name=None, A=None, K=None, U=None, Q=None, velocity=None)
+   :inherited-members:
 
 Surfaces
 --------
@@ -103,3 +138,10 @@ PressureController
 ^^^^^^^^^^^^^^^^^^
 .. autoclass:: PressureController
    :inherited-members:
+
+Preconditioners
+---------------
+
+AdaptivePreconditioner
+^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: AdaptivePreconditioner

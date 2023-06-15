@@ -44,31 +44,16 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
     m_printLvl(printLvl),
     m_mix(mphase),
     m_nsp(mphase->nSpecies()),
-    m_nelem(0),
-    m_numComponents(0),
-    m_numRxnTot(0),
     m_numSpeciesRdc(mphase->nSpecies()),
-    m_numRxnRdc(0),
-    m_numRxnMinorZeroed(0),
     m_numPhases(mphase->nPhases()),
-    m_doEstimateEquil(-1),
-    m_totalMolNum(0.0),
     m_temperature(mphase->temperature()),
     m_pressurePA(mphase->pressure()),
-    m_tolmaj(1.0E-8),
-    m_tolmin(1.0E-6),
-    m_tolmaj2(1.0E-10),
-    m_tolmin2(1.0E-8),
-    m_useActCoeffJac(0),
     m_totalVol(mphase->volume()),
-    m_Faraday_dim(Faraday / (m_temperature * GasConstant)),
-    m_VCount(0),
-    m_debug_print_lvl(0),
-    m_timing_print_lvl(1)
+    m_Faraday_dim(Faraday / (m_temperature * GasConstant))
 {
     m_speciesThermoList.resize(m_nsp);
     for (size_t kspec = 0; kspec < m_nsp; kspec++) {
-        m_speciesThermoList[kspec].reset(new VCS_SPECIES_THERMO());
+        m_speciesThermoList[kspec] = make_unique<VCS_SPECIES_THERMO>();
     }
 
     string ser = "VCS_SOLVE: ERROR:\n\t";
@@ -138,7 +123,7 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
     // Phase Info
     m_VolPhaseList.resize(m_numPhases);
     for (size_t iph = 0; iph < m_numPhases; iph++) {
-        m_VolPhaseList[iph].reset(new vcs_VolPhase(this));
+        m_VolPhaseList[iph] = make_unique<vcs_VolPhase>(this);
     }
 
     // For Future expansion
@@ -168,7 +153,7 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
 
         // Query Cantera for the equation of state type of the current phase.
         std::string eos = tPhase->type();
-        bool gasPhase = (eos == "IdealGas");
+        bool gasPhase = (eos == "ideal-gas");
 
         // Find out the number of species in the phase
         size_t nSpPhase = tPhase->nSpecies();
@@ -199,15 +184,13 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
         VolPhase->p_activityConvention = tPhase->activityConvention();
 
         // Assign the value of eqn of state. Handle conflicts here.
-        if (eos == "IdealGas") {
+        if (eos == "ideal-gas") {
             VolPhase->m_eqnState = VCS_EOS_IDEAL_GAS;
-        } else if (eos == "ConstDensity") {
-            VolPhase->m_eqnState = VCS_EOS_CONSTANT;
-        } else if (eos == "StoichSubstance") {
+        } else if (eos == "fixed-stoichiometry") {
             VolPhase->m_eqnState = VCS_EOS_STOICH_SUB;
-        } else if (eos == "IdealSolidSoln") {
+        } else if (eos == "ideal-condensed") {
             VolPhase->m_eqnState = VCS_EOS_IDEAL_SOLN;
-        } else if (eos == "Surf" || eos == "Edge") {
+        } else if (tPhase->nDim() != 3) {
             throw CanteraError("VCS_SOLVE::VCS_SOLVE",
                                "Surface/edge phase not handled yet.");
         } else {
@@ -1326,10 +1309,8 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
             }
 
             // Now possibly dampen the estimate.
-            double sumADel = 0.0;
             for (size_t k = 0; k < nsp; k++) {
                 delFrac[k] = fracDelta_raw[k] - fracDelta_old[k];
-                sumADel += fabs(delFrac[k]);
             }
             normUpdate = vcs_l2norm(delFrac);
 

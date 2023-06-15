@@ -9,26 +9,16 @@
 #include "cantera/base/utilities.h"
 #include "cantera/base/Array.h"
 #include "cantera/numerics/Integrator.h"
+#include "cantera/zeroD/FlowReactor.h"
 
-using namespace std;
+#include <cstdio>
 
 namespace Cantera
 {
 
-ReactorNet::ReactorNet() :
-    m_integ(newIntegrator("CVODE")),
-    m_time(0.0), m_init(false), m_integrator_init(false),
-    m_nv(0), m_rtol(1.0e-9), m_rtolsens(1.0e-4),
-    m_atols(1.0e-15), m_atolsens(1.0e-6),
-    m_maxstep(0.0), m_maxErrTestFails(0),
-    m_verbose(false), m_checked_eval_deprecation(false)
+ReactorNet::ReactorNet()
 {
     suppressErrors(true);
-
-    // use backward differencing, with a full Jacobian computed
-    // numerically, and use a Newton linear iterator
-    m_integ->setMethod(BDF_Method);
-    m_integ->setProblemType(DENSE + NOJAC);
 }
 
 ReactorNet::~ReactorNet()
@@ -44,13 +34,12 @@ void ReactorNet::setInitialTime(double time)
 void ReactorNet::setMaxTimeStep(double maxstep)
 {
     m_maxstep = maxstep;
-    m_init = false;
+    integrator().setMaxStepSize(m_maxstep);
 }
 
 void ReactorNet::setMaxErrTestFails(int nmax)
 {
-    m_maxErrTestFails = nmax;
-    m_init = false;
+    integrator().setMaxErrTestFails(nmax);
 }
 
 void ReactorNet::setTolerances(double rtol, double atol)
@@ -73,6 +62,24 @@ void ReactorNet::setSensitivityTolerances(double rtol, double atol)
         m_atolsens = atol;
     }
     m_init = false;
+}
+
+double ReactorNet::time() {
+    if (m_timeIsIndependent) {
+        return m_time;
+    } else {
+        throw CanteraError("ReactorNet::time", "Time is not the independent variable"
+            " for this reactor network.");
+    }
+}
+
+double ReactorNet::distance() {
+    if (!m_timeIsIndependent) {
+        return m_time;
+    } else {
+        throw CanteraError("ReactorNet::distance", "Distance is not the independent"
+            " variable for this reactor network.");
+    }
 }
 
 void ReactorNet::initialize()
@@ -108,13 +115,20 @@ void ReactorNet::initialize()
     fill(m_atol.begin(), m_atol.end(), m_atols);
     m_integ->setTolerances(m_rtol, neq(), m_atol.data());
     m_integ->setSensitivityTolerances(m_rtolsens, m_atolsens);
-    m_integ->setMaxStepSize(m_maxstep);
-    m_integ->setMaxErrTestFails(m_maxErrTestFails);
+    if (!m_linearSolverType.empty()) {
+        m_integ->setLinearSolverType(m_linearSolverType);
+    }
+    if (m_precon) {
+        m_integ->setPreconditioner(m_precon);
+    }
+    m_integ->initialize(m_time, *this);
     if (m_verbose) {
         writelog("Number of equations: {:d}\n", neq());
         writelog("Maximum time step:   {:14.6g}\n", m_maxstep);
     }
-    m_integ->initialize(m_time, *this);
+    if (m_integ->preconditionerSide() != PreconditionerSide::NO_PRECONDITION) {
+        checkPreconditionerSupported();
+    }
     m_integrator_init = true;
     m_init = true;
 }
@@ -124,20 +138,35 @@ void ReactorNet::reinitialize()
     if (m_init) {
         debuglog("Re-initializing reactor network.\n", m_verbose);
         m_integ->reinitialize(m_time, *this);
+        if (m_integ->preconditionerSide() != PreconditionerSide::NO_PRECONDITION) {
+            checkPreconditionerSupported();
+        }
         m_integrator_init = true;
     } else {
         initialize();
     }
 }
 
+void ReactorNet::setLinearSolverType(const std::string& linSolverType)
+{
+    m_linearSolverType = linSolverType;
+    m_integrator_init = false;
+}
+
+void ReactorNet::setPreconditioner(shared_ptr<PreconditionerBase> preconditioner)
+{
+    m_precon = preconditioner;
+    m_integrator_init = false;
+}
+
 void ReactorNet::setMaxSteps(int nmax)
 {
-    m_integ->setMaxSteps(nmax);
+    integrator().setMaxSteps(nmax);
 }
 
 int ReactorNet::maxSteps()
 {
-    return m_integ->maxSteps();
+    return integrator().maxSteps();
 }
 
 void ReactorNet::advance(doublereal time)
@@ -221,6 +250,9 @@ double ReactorNet::step()
 
 void ReactorNet::getEstimate(double time, int k, double* yest)
 {
+    if (!m_init) {
+        initialize();
+    }
     // initialize
     double* cvode_dky = m_integ->solution();
     for (size_t j = 0; j < m_nv; j++) {
@@ -241,69 +273,87 @@ void ReactorNet::getEstimate(double time, int k, double* yest)
 
 int ReactorNet::lastOrder()
 {
-    return m_integ->lastOrder();
+    if (m_integ) {
+        return m_integ->lastOrder();
+    } else {
+        return 0;
+    }
 }
 
 void ReactorNet::addReactor(Reactor& r)
 {
+    for (auto current : m_reactors) {
+        if (current->isOde() != r.isOde()) {
+            throw CanteraError("ReactorNet::addReactor",
+                "Cannot mix Reactor types using both ODEs and DAEs ({} and {})",
+                current->type(), r.type());
+        }
+        if (current->timeIsIndependent() != r.timeIsIndependent()) {
+            throw CanteraError("ReactorNet::addReactor",
+                "Cannot mix Reactor types using time and space as independent variables"
+                "\n({} and {})", current->type(), r.type());
+        }
+    }
+    m_timeIsIndependent = r.timeIsIndependent();
     r.setNetwork(this);
     m_reactors.push_back(&r);
+    if (!m_integ) {
+        m_integ.reset(newIntegrator(r.isOde() ? "CVODE" : "IDA"));
+        // use backward differencing, with a full Jacobian computed
+        // numerically, and use a Newton linear iterator
+        m_integ->setMethod(BDF_Method);
+        m_integ->setLinearSolverType("DENSE");
+    }
 }
 
-void ReactorNet::eval(doublereal t, doublereal* y,
-                      doublereal* ydot, doublereal* p)
+Integrator& ReactorNet::integrator() {
+    if (m_integ == nullptr) {
+        throw CanteraError("ReactorNet::integrator",
+            "Integrator has not been instantiated. Add one or more reactors first.");
+    }
+    return *m_integ;
+}
+
+void ReactorNet::eval(double t, double* y, double* ydot, double* p)
 {
     m_time = t;
     updateState(y);
     m_LHS.assign(m_nv, 1);
     m_RHS.assign(m_nv, 0);
-    if (!m_checked_eval_deprecation) {
-        m_have_deprecated_eval.assign(m_reactors.size(), false);
-        for (size_t n = 0; n < m_reactors.size(); n++) {
-            m_reactors[n]->applySensitivity(p);
-            try {
-                m_reactors[n]->evalEqs(t, y + m_start[n], ydot + m_start[n], p);
-                warn_deprecated(m_reactors[n]->type() +
-                    "::evalEqs(double t, double* y , double* ydot, double* params)",
-                    "Reactor time derivative evaluation now uses signature "
-                    "eval(double t, double* ydot)");
-                m_have_deprecated_eval[n] = true;
-            } catch (NotImplementedError&) {
-                m_reactors[n]->eval(t, m_LHS.data() + m_start[n], m_RHS.data() + m_start[n]);
-                size_t yEnd = 0;
-                if (n == m_reactors.size() - 1) {
-                    yEnd = m_RHS.size();
-                } else {
-                    yEnd = m_start[n + 1];
-                }
-                for (size_t i = m_start[n]; i < yEnd; i++) {
-                    ydot[i] = m_RHS[i] / m_LHS[i];
-                }
-            }
-            m_reactors[n]->resetSensitivity(p);
+    for (size_t n = 0; n < m_reactors.size(); n++) {
+        m_reactors[n]->applySensitivity(p);
+        m_reactors[n]->eval(t, m_LHS.data() + m_start[n], m_RHS.data() + m_start[n]);
+        size_t yEnd = 0;
+        if (n == m_reactors.size() - 1) {
+            yEnd = m_RHS.size();
+        } else {
+            yEnd = m_start[n + 1];
         }
-        m_checked_eval_deprecation = true;
-    } else {
-        for (size_t n = 0; n < m_reactors.size(); n++) {
-            m_reactors[n]->applySensitivity(p);
-            if (m_have_deprecated_eval[n]) {
-                m_reactors[n]->evalEqs(t, y + m_start[n], ydot + m_start[n], p);
-            } else {
-                m_reactors[n]->eval(t, m_LHS.data() + m_start[n], m_RHS.data() + m_start[n]);
-                size_t yEnd = 0;
-                if (n == m_reactors.size() - 1) {
-                    yEnd = m_RHS.size();
-                } else {
-                    yEnd = m_start[n + 1];
-                }
-                for (size_t i = m_start[n]; i < yEnd; i++) {
-                    ydot[i] = m_RHS[i] / m_LHS[i];
-                }
-            }
-            m_reactors[n]->resetSensitivity(p);
+        for (size_t i = m_start[n]; i < yEnd; i++) {
+            ydot[i] = m_RHS[i] / m_LHS[i];
         }
+        m_reactors[n]->resetSensitivity(p);
     }
     checkFinite("ydot", ydot, m_nv);
+}
+
+void ReactorNet::evalDae(double t, double* y, double* ydot, double* p, double* residual)
+{
+    m_time = t;
+    updateState(y);
+    for (size_t n = 0; n < m_reactors.size(); n++) {
+        m_reactors[n]->applySensitivity(p);
+        m_reactors[n]->evalDae(t, y, ydot, residual);
+        m_reactors[n]->resetSensitivity(p);
+    }
+    checkFinite("ydot", ydot, m_nv);
+}
+
+void ReactorNet::getConstraints(double* constraints)
+{
+    for (size_t n = 0; n < m_reactors.size(); n++) {
+        m_reactors[n]->getConstraints(constraints + m_start[n]);
+    }
 }
 
 double ReactorNet::sensitivity(size_t k, size_t p)
@@ -353,15 +403,11 @@ void ReactorNet::updateState(doublereal* y)
     }
 }
 
-void ReactorNet::getState(double* y)
-{
-    for (size_t n = 0; n < m_reactors.size(); n++) {
-        m_reactors[n]->getState(y + m_start[n]);
-    }
-}
-
 void ReactorNet::getDerivative(int k, double* dky)
 {
+    if (!m_init) {
+        initialize();
+    }
     double* cvode_dky = m_integ->derivative(m_time, k);
     for (size_t j = 0; j < m_nv; j++) {
         dky[j] = cvode_dky[j];
@@ -396,6 +442,20 @@ bool ReactorNet::getAdvanceLimits(double *limits)
     return has_limit;
 }
 
+void ReactorNet::getState(double* y)
+{
+    for (size_t n = 0; n < m_reactors.size(); n++) {
+        m_reactors[n]->getState(y + m_start[n]);
+    }
+}
+
+void ReactorNet::getStateDae(double* y, double* ydot)
+{
+    for (size_t n = 0; n < m_reactors.size(); n++) {
+        m_reactors[n]->getStateDae(y + m_start[n], ydot + m_start[n]);
+    }
+}
+
 size_t ReactorNet::globalComponentIndex(const string& component, size_t reactor)
 {
     if (!m_init) {
@@ -428,6 +488,96 @@ size_t ReactorNet::registerSensitivityParameter(
     m_sens_params.push_back(value);
     m_paramScales.push_back(scale);
     return m_sens_params.size() - 1;
+}
+
+void ReactorNet::setDerivativeSettings(AnyMap& settings)
+{
+    // Apply given settings to all reactors
+    for (size_t i = 0; i < m_reactors.size(); i++) {
+        m_reactors[i]->setDerivativeSettings(settings);
+    }
+}
+
+AnyMap ReactorNet::solverStats() const
+{
+    if (m_integ) {
+        return m_integ->solverStats();
+    } else {
+        return AnyMap();
+    }
+}
+
+std::string ReactorNet::linearSolverType() const
+{
+    if (m_integ) {
+        return m_integ->linearSolverType();
+    } else {
+        return "";
+    }
+}
+
+void ReactorNet::preconditionerSolve(double* rhs, double* output)
+{
+    if (!m_integ) {
+        throw CanteraError("ReactorNet::preconditionerSolve",
+                           "Must only be called after ReactorNet is initialized.");
+    }
+    m_integ->preconditionerSolve(m_nv, rhs, output);
+}
+
+void ReactorNet::preconditionerSetup(double t, double* y, double gamma)
+{
+    // ensure state is up to date.
+    updateState(y);
+    // get the preconditioner
+    auto precon = m_integ->preconditioner();
+    // Reset preconditioner
+    precon->reset();
+    // Set gamma value for M =I - gamma*J
+    precon->setGamma(gamma);
+    // Make a copy of state to adjust it for preconditioner
+    vector_fp yCopy(m_nv);
+    // Get state of reactor
+    getState(yCopy.data());
+    // transform state based on preconditioner rules
+    precon->stateAdjustment(yCopy);
+    // update network with adjusted state
+    updateState(yCopy.data());
+    // Get jacobians and give elements to preconditioners
+    for (size_t i = 0; i < m_reactors.size(); i++) {
+        Eigen::SparseMatrix<double> rJac = m_reactors[i]->jacobian();
+        for (int k=0; k<rJac.outerSize(); ++k) {
+            for (Eigen::SparseMatrix<double>::InnerIterator it(rJac, k); it; ++it) {
+                precon->setValue(it.row() + m_start[i], it.col() + m_start[i],
+                    it.value());
+            }
+        }
+    }
+    // post reactor setup operations
+    precon->setup();
+}
+
+void ReactorNet::updatePreconditioner(double gamma)
+{
+    if (!m_integ) {
+        throw CanteraError("ReactorNet::updatePreconditioner",
+                           "Must only be called after ReactorNet is initialized.");
+    }
+    auto precon = m_integ->preconditioner();
+    precon->setGamma(gamma);
+    precon->updatePreconditioner();
+}
+
+void ReactorNet::checkPreconditionerSupported() {
+    // check for non-mole-based reactors and throw an error otherwise
+    for (auto reactor : m_reactors) {
+        if (!reactor->preconditionerSupported()) {
+            throw CanteraError("ReactorNet::checkPreconditionerSupported",
+                "Preconditioning is only supported for type *MoleReactor,\n"
+                "Reactor type given: '{}'.",
+                reactor->type());
+        }
+    }
 }
 
 }

@@ -15,15 +15,16 @@ namespace Cantera
 class ThermoPhase;
 class Kinetics;
 class Transport;
+class ExternalHandle;
 
 //! A container class holding managers for all pieces defining a phase
-class Solution
+class Solution : public std::enable_shared_from_this<Solution>
 {
 protected:
-    Solution();
+    Solution() = default;
 
 public:
-    virtual ~Solution() {}
+    virtual ~Solution() = default;
     Solution(const Solution&) = delete;
     Solution& operator=(const Solution&) = delete;
 
@@ -44,8 +45,13 @@ public:
     //! Set the Kinetics object
     virtual void setKinetics(shared_ptr<Kinetics> kinetics);
 
-    //! Set the Transport object
+    //! Set the Transport object directly
     virtual void setTransport(shared_ptr<Transport> transport);
+
+    //! Set the Transport object by name
+    //! @param model  name of transport model; if omitted, the default model is used
+    //! @since New in Cantera 3.0
+    void setTransportModel(const std::string& model="");
 
     //! Accessor for the ThermoPhase pointer
     shared_ptr<ThermoPhase> thermo() {
@@ -93,6 +99,31 @@ public:
     //! Overwrite source (only required if object is not created using newSolution)
     void setSource(const std::string& source);
 
+    //! Store a handle to a wrapper for this Solution object from an external
+    //! language interface (for example, a Python Solution object)
+    void holdExternalHandle(const std::string& name, shared_ptr<ExternalHandle> handle);
+
+    //! Get the handle for a wrapper for this Solution object from an external
+    //! language interface.
+    //! Returns a null pointer if the requested handle does not exist.
+    shared_ptr<ExternalHandle> getExternalHandle(const std::string& name) const;
+
+    //! Register a function to be called if any of the Solution's thermo, kinetics,
+    //! or transport objects is replaced.
+    //! @param id  A unique ID corresponding to the object affected by the callback.
+    //!   Typically, this is a pointer to an object that also holds a reference to the
+    //!   Solution object.
+    //! @param callback  The callback function to be called after any component of the
+    //!   Solution is replaced.
+    //! When the callback becomes invalid (for example, the corresponding object is
+    //! being deleted, the removeChangedCallback() method must be invoked.
+    //! @since New in Cantera 3.0
+    void registerChangedCallback(void* id, const function<void()>& callback);
+
+    //! Remove the callback function associated with the specified object.
+    //! @since New in Cantera 3.0
+    void removeChangedCallback(void* id);
+
 protected:
     shared_ptr<ThermoPhase> m_thermo;  //!< ThermoPhase manager
     shared_ptr<Kinetics> m_kinetics;  //!< Kinetics manager
@@ -105,11 +136,19 @@ protected:
     std::map<std::string, shared_ptr<Solution>> m_adjacentByName;
 
     AnyMap m_header;  //!< Additional input fields; usually from a YAML input file
+
+    //! Wrappers for this Solution object in extension languages, for evaluation
+    //! of user-defined reaction rates
+    std::map<std::string, shared_ptr<ExternalHandle>> m_externalHandles;
+
+    //! Callback functions that are invoked when the therm, kinetics, or transport
+    //! members of the Solution are replaced.
+    map<void*, function<void()>> m_changeCallbacks;
 };
 
 //! Create and initialize a new Solution from an input file
 /*!
- * This constructor wraps newPhase(), newKinetics() and newTransportMgr() routines
+ * This constructor wraps newThermo(), newKinetics() and newTransport() routines
  * for initialization.
  *
  * @param infile name of the input file
@@ -127,8 +166,8 @@ shared_ptr<Solution> newSolution(const std::string& infile, const std::string& n
 
 //! Create and initialize a new Solution manager from an input file
 /*!
- * This constructor wraps newPhase(), newKinetics() and
- * newTransportMgr() routines for initialization.
+ * This constructor wraps newThermo(), newKinetics() and newTransport() routines
+ * for initialization.
  *
  * @param infile name of the input file
  * @param name   name of the phase in the file.
@@ -145,8 +184,8 @@ shared_ptr<Solution> newSolution(const std::string& infile,
 
 //! Create and initialize a new Solution manager from AnyMap objects
 /*!
- * This constructor wraps newPhase(), newKinetics() and
- * newTransportMgr() routines for initialization.
+ * This constructor wraps newThermo(), newKinetics() and newTransport() routines
+ * for initialization.
  *
  * @param phaseNode the node containing the phase definition (that is, thermo model,
  *     list of species, and initial state)

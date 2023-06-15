@@ -11,7 +11,6 @@
 #include "cantera/clib/ctmultiphase.h"
 #include "cantera/clib/ct.h"
 #include "ctmatutils.h"
-using namespace std;
 
 void mixturemethods(int nlhs, mxArray* plhs[],
                     int nrhs, const mxArray* prhs[])

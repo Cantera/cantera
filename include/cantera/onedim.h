@@ -11,6 +11,9 @@
 #ifndef CT_INCL_ONEDIM_H
 #define CT_INCL_ONEDIM_H
 
+// Cantera core
+#include "cantera/core.h"
+
 #include "oneD/Sim1D.h"
 #include "oneD/Domain1D.h"
 #include "oneD/Boundary1D.h"

@@ -10,8 +10,8 @@ class WaterTransportTest : public testing::Test
 {
 public:
     WaterTransportTest() {
-        phase = newPhase("thermo-models.yaml", "liquid-water");
-        tran = newDefaultTransportMgr(phase);
+        phase = newThermo("thermo-models.yaml", "liquid-water");
+        tran = newTransport(phase, "default");
     }
 
     void check_viscosity(double T, double P, double mu_expected) {
@@ -24,8 +24,8 @@ public:
         EXPECT_NEAR(tran->thermalConductivity(), lambda_expected, 3e-4);
     }
 
-    ThermoPhase* phase;
-    Transport* tran;
+    shared_ptr<ThermoPhase> phase;
+    shared_ptr<Transport> tran;
 };
 
 // Reference values taken from tables in the Sengers and Watson paper
@@ -58,7 +58,7 @@ public:
     NoTransportTest() {}
 
     static void SetUpTestCase() {
-        soln_ = newSolution("h2o2.yaml", "", "None");
+        soln_ = newSolution("h2o2.yaml", "", "none");
     }
 
     static void TearDownTestCase() {
@@ -74,7 +74,7 @@ shared_ptr<Solution> NoTransportTest::soln_;
 TEST_F(NoTransportTest, check_type)
 {
     auto tr = soln_->transport();
-    ASSERT_EQ(tr->transportType(), "None");
+    ASSERT_EQ(tr->transportModel(), "none");
 }
 
 TEST_F(NoTransportTest, check_exceptions_scalar)
@@ -128,7 +128,7 @@ shared_ptr<Solution> DefaultTransportTest::soln_;
 TEST_F(DefaultTransportTest, check_type)
 {
     auto tr = soln_->transport();
-    ASSERT_EQ(tr->transportType(), "Mix");
+    ASSERT_EQ(tr->transportModel(), "mixture-averaged");
 }
 
 TEST_F(DefaultTransportTest, check_scalar)

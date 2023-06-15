@@ -28,15 +28,12 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 // add any other Cantera header files you need here
-#include "cantera/thermo/IdealGasPhase.h"
-#include "cantera/kinetics/GasKinetics.h"
-#include "cantera/base/Solution.h"
-#include "cantera/transport.h"
+#include "cantera/core.h"
+#include "cantera/kinetics/Reaction.h"
 
 #include <iostream>
 
 using namespace Cantera;
-using std::string;
 
 // store a pointer to a Solution object
 // provides access to the pointers for functions in other libraries
@@ -74,12 +71,6 @@ void handleError(CanteraError& err)
 // in the object file are exactly as shown here.
 
 extern "C" {
-
-    /// This is the Fortran main program. This works for g77; it may
-    /// need to be modified for other Fortran compilers
-#ifdef NEED_ALT_MAIN
-    extern int MAIN__();
-#endif
 
     /**
      * Read in a reaction mechanism file and create a Solution
@@ -298,7 +289,7 @@ extern "C" {
     {
         int irxn = *i - 1;
         std::fill(eqn, eqn + n, ' ');
-        string e = _kin->reactionString(irxn);
+        string e = _kin->reaction(irxn)->equation();
         int ns = e.size();
         unsigned int nmx = (ns > n ? n : ns);
         copy(e.begin(), e.begin()+nmx, eqn);
@@ -375,27 +366,3 @@ extern "C" {
     }
 
 }
-
-/*
- *  HKM 7/22/09:
- *    I'm skeptical that you need this for any system.
- *    Definitely creates an error (dupl main()) for the solaris
- *    system
- */
-#ifdef NEED_ALT_MAIN
-/**
- * This C++ main program simply calls the Fortran main program.
- */
-int main()
-{
-    try {
-        return MAIN__();
-    } catch (CanteraError& err) {
-        std::cerr << err.what() << std::endl;
-        exit(-1);
-    } catch (...) {
-        cout << "An exception was trapped. Program terminating." << endl;
-        exit(-1);
-    }
-}
-#endif

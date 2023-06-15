@@ -38,7 +38,7 @@ class AnyMap;
  */
 struct InterfaceData : public BlowersMaselData
 {
-    InterfaceData();
+    InterfaceData() = default;
 
     virtual bool update(const ThermoPhase& bulk, const Kinetics& kin) override;
 
@@ -60,7 +60,7 @@ struct InterfaceData : public BlowersMaselData
         ready = true;
     }
 
-    double sqrtT; //!< square root of temperature
+    double sqrtT = NAN; //!< square root of temperature
 
     vector_fp coverages; //!< surface coverages
     vector_fp logCoverages; //!< logarithm of surface coverages
@@ -110,13 +110,13 @@ public:
     //! Store parameters needed to reconstruct coverage dependencies
     //! @param dependencies  AnyMap receiving coverage information
     //! @param asVector  Optional boolean flag to override map output
-    //! @todo  Remove vector version (which currently only serves testing purposes)
+    //! @deprecated  After Cantera 3.0, the optional asVector argument will be removed.
     void getCoverageDependencies(AnyMap& dependencies, bool asVector=false) const;
 
     //! Add a coverage dependency for species *sp*, with exponential dependence
     //! *a*, power-law exponent *m*, and activation energy dependence *e*,
     //! where *e* is in Kelvin, that is, energy divided by the molar gas constant.
-    void addCoverageDependence(const std::string& sp, double a, double m, double e);
+    virtual void addCoverageDependence(const string& sp, double a, double m, double e);
 
     //! Boolean indicating whether rate uses exchange current density formulation
     bool exchangeCurrentDensityFormulation() {
@@ -188,7 +188,9 @@ public:
      *  \f[
      *    f_{BV} = \exp ( - \beta * Delta E_{p,j} / R T )
      *  \f]
-     *  is applied to the forward reaction rate, @see voltageCorrection.
+     *  is applied to the forward reaction rate.
+     *
+     *  @see voltageCorrection().
      */
     bool usesElectrochemistry() {
         return m_chargeTransfer;
@@ -213,9 +215,9 @@ public:
 
     //! Set site density [kmol/m^2]
     /*!
-     *  @internal  This method is used for testing purposes only as the site density
-     *      is a property of InterfaceKinetics and will be overwritten during an update
-     *      of the thermodynamic state.
+     *  @note  This method is used internally, for testing purposes only as the site
+     *      density is a property of InterfaceKinetics and will be overwritten during an
+     *      update of the thermodynamic state.
      *
      *  @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
@@ -235,14 +237,17 @@ protected:
     double m_deltaPotential_RT; //!< Normalized electric potential energy change
     double m_deltaGibbs0_RT; //!< Normalized standard state Gibbs free energy change
     double m_prodStandardConcentrations; //!< Products of standard concentrations
-    std::map<size_t, size_t> m_indices; //!< Map holding indices of coverage species
-    std::vector<std::string> m_cov; //!< Vector holding names of coverage species
+
+    //! Map from coverage dependencies stored in this object to the index of the
+    //! coverage species in the Kinetics object
+    map<size_t, size_t> m_indices;
+    vector<string> m_cov; //!< Vector holding names of coverage species
     vector_fp m_ac; //!< Vector holding coverage-specific exponential dependence
     vector_fp m_ec; //!< Vector holding coverage-specific activation energy dependence
     vector_fp m_mc; //!< Vector holding coverage-specific power-law exponents
 
 private:
-    //! Pairs of species index and multiplers to calculate enthalpy change
+    //! Pairs of species index and multipliers to calculate enthalpy change
     std::vector<std::pair<size_t, double>> m_stoichCoeffs;
 
     //! Pairs of phase index and net electric charges (same order as m_stoichCoeffs)
@@ -303,7 +308,7 @@ public:
 
     //! Set exponent applied to site density (sticking order)
     /*!
-     *  @internal  This method is used for testing purposes only as the value is
+     *  @note  This method is used for internal testing purposes only as the value is
      *      determined automatically by setContext.
      *
      *  @warning  This method is an experimental part of the %Cantera API and
@@ -320,7 +325,7 @@ public:
 
     //! Set the molecular weight of the sticking species
     /*!
-     *  @internal  This method is used for testing purposes only as the value is
+     *  @note  This method is used for internal testing purposes only as the value is
      *      determined automatically by setContext.
      *
      *  @warning  This method is an experimental part of the %Cantera API and
@@ -367,8 +372,7 @@ public:
     }
 
     unique_ptr<MultiRateBase> newMultiRate() const override {
-        return unique_ptr<MultiRateBase>(
-            new MultiRate<InterfaceRate<RateType, DataType>, DataType>);
+        return make_unique<MultiRate<InterfaceRate<RateType, DataType>, DataType>>();
     }
 
     //! Identifier of reaction rate type
@@ -397,7 +401,9 @@ public:
     //! Update reaction rate parameters
     //! @param shared_data  data shared by all reactions of a given type
     void updateFromStruct(const DataType& shared_data) {
-        _update(shared_data);
+        if constexpr (has_update<RateType>::value) {
+            RateType::updateFromStruct(shared_data);
+        }
         InterfaceRateBase::updateFromStruct(shared_data);
     }
 
@@ -428,20 +434,9 @@ public:
         return RateType::activationEnergy() + m_ecov * GasConstant;
     }
 
-protected:
-    //! Helper function to process updates for rate types that implement the
-    //! `updateFromStruct` method.
-    template <typename T=RateType,
-        typename std::enable_if<has_update<T>::value, bool>::type = true>
-    void _update(const DataType& shared_data) {
-        T::updateFromStruct(shared_data);
-    }
-
-    //! Helper function for rate types that do not implement `updateFromStruct`.
-    //! Does nothing, but exists to allow generic implementations of update().
-    template <typename T=RateType,
-        typename std::enable_if<!has_update<T>::value, bool>::type = true>
-    void _update(const DataType& shared_data) {
+    void addCoverageDependence(const string& sp, double a, double m, double e) override {
+        InterfaceRateBase::addCoverageDependence(sp, a, m, e);
+        RateType::setCompositionDependence(true);
     }
 };
 
@@ -461,17 +456,14 @@ public:
 
     //! Constructor based on AnyMap content
     StickingRate(const AnyMap& node, const UnitStack& rate_units) {
-        // sticking coefficients are dimensionless
-        setParameters(node, Units(1.0));
+        setParameters(node, rate_units);
     }
     explicit StickingRate(const AnyMap& node) {
-        // sticking coefficients are dimensionless
-        setParameters(node, Units(1.0));
+        setParameters(node, {});
     }
 
     unique_ptr<MultiRateBase> newMultiRate() const override {
-        return unique_ptr<MultiRateBase>(
-            new MultiRate<StickingRate<RateType, DataType>, DataType>);
+        return make_unique<MultiRate<StickingRate<RateType, DataType>, DataType>>();
     }
 
     //! Identifier of reaction rate type
@@ -479,10 +471,16 @@ public:
         return "sticking-" + RateType::type();
     }
 
+    void setRateUnits(const UnitStack& rate_units) override {
+        // Sticking coefficients are dimensionless
+        RateType::m_conversion_units = Units(1.0);
+    }
+
     virtual void setParameters(
         const AnyMap& node, const UnitStack& rate_units) override
     {
         InterfaceRateBase::setParameters(node);
+        setRateUnits(rate_units);
         RateType::m_negativeA_ok = node.getBool("negative-A", false);
         setStickingParameters(node);
         if (!node.hasKey("sticking-coefficient")) {
@@ -521,20 +519,22 @@ public:
         for (size_t i=0; i < 6; i++) {
             double k = RateType::evalRate(log(T[i]), 1 / T[i]);
             if (k > 1) {
-                fmt_append(err_reactions,
-                    "\n Sticking coefficient is greater than 1 for reaction '{}'\n"
-                    " at T = {:.1f}\n", equation, T[i]);
+                fmt_append(err_reactions, "at T = {:.1f}\n", T[i]);
             }
         }
         if (err_reactions.size()) {
-            warn_user("StickingRate::validate", to_string(err_reactions));
+            warn_user("StickingRate::validate",
+                "\nSticking coefficient is greater than 1 for reaction '{}'\n{}",
+                equation, to_string(err_reactions));
         }
     }
 
     //! Update reaction rate parameters
     //! @param shared_data  data shared by all reactions of a given type
     void updateFromStruct(const DataType& shared_data) {
-        _update(shared_data);
+        if constexpr (has_update<RateType>::value) {
+            RateType::updateFromStruct(shared_data);
+        }
         InterfaceRateBase::updateFromStruct(shared_data);
         m_factor = pow(m_siteDensity, -m_surfaceOrder);
     }
@@ -569,22 +569,6 @@ public:
 
     virtual double activationEnergy() const override {
         return RateType::activationEnergy() + m_ecov * GasConstant;
-    }
-
-protected:
-    //! Helper function to process updates for rate types that implement the
-    //! `updateFromStruct` method.
-    template <typename T=RateType,
-        typename std::enable_if<has_update<T>::value, bool>::type = true>
-    void _update(const DataType& shared_data) {
-        T::updateFromStruct(shared_data);
-    }
-
-    //! Helper function for rate types that do not implement `updateFromStruct`.
-    //! Does nothing, but exists to allow generic implementations of update().
-    template <typename T=RateType,
-        typename std::enable_if<!has_update<T>::value, bool>::type = true>
-    void _update(const DataType& shared_data) {
     }
 };
 

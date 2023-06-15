@@ -165,8 +165,9 @@ protected:
     }
 
     size_t m_nel_mix, m_nsp_mix;
-    size_t m_nel, m_nsp;
-    size_t m_eloc;
+    size_t m_nel = 0;
+    size_t m_nsp = 0;
+    size_t m_eloc = 1000;
     int m_iter;
     MultiPhase* m_mix;
     doublereal m_press, m_temp;
@@ -186,7 +187,7 @@ protected:
     std::vector<size_t> m_species;
     std::vector<size_t> m_element;
     std::vector<bool> m_solnrxn;
-    bool m_force;
+    bool m_force = true;
 };
 
 }

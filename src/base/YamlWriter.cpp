@@ -9,19 +9,12 @@
 #include "cantera/thermo/Species.h"
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/kinetics/Reaction.h"
-#include "cantera/transport/TransportBase.h"
+#include "cantera/transport/Transport.h"
 
-#include <set>
 #include <fstream>
 #include <chrono>
 
 namespace Cantera {
-
-YamlWriter::YamlWriter()
-    : m_float_precision(15)
-    , m_skip_user_defined(false)
-{
-}
 
 void YamlWriter::setHeader(const AnyMap& header) {
     m_header = header;
@@ -82,10 +75,9 @@ std::string YamlWriter::toYamlString() const
     // Add remaining header information, ignoring obsolete information
     std::set<std::string> exclude = {
         "description", "generator", "cantera-version", "git-commit", "date"};
-    for (const auto& item : m_header) {
-        std::string key = item.first;
+    for (const auto& [key, value] : m_header) {
         if (!exclude.count(key)) {
-            output[key] = item.second;
+            output[key] = value;
         }
     }
 
@@ -157,9 +149,9 @@ std::string YamlWriter::toYamlString() const
             continue;
         }
         bool match = false;
-        for (auto& group : phaseGroups) {
-            if (allReactions[group.first] == allReactions[name]) {
-                group.second.push_back(name);
+        for (auto& [canonicalPhase, dependentPhases] : phaseGroups) {
+            if (allReactions[canonicalPhase] == allReactions[name]) {
+                dependentPhases.push_back(name);
                 allReactions.erase(name);
                 match = true;
                 break;
@@ -174,15 +166,15 @@ std::string YamlWriter::toYamlString() const
     if (phaseGroups.size() == 1) {
         output["reactions"] = std::move(allReactions[phaseGroups.begin()->first]);
     } else {
-        for (const auto& group : phaseGroups) {
+        for (const auto& [canonicalPhase, dependentPhases] : phaseGroups) {
             std::string groupName;
-            for (auto& name : group.second) {
+            for (auto& name : dependentPhases) {
                 groupName += name + "-";
             }
             groupName += "reactions";
-            output[groupName] = std::move(allReactions[group.first]);
+            output[groupName] = std::move(allReactions[canonicalPhase]);
 
-            for (auto& name : group.second) {
+            for (auto& name : dependentPhases) {
                 AnyMap& phaseDef = output["phases"].getMapWhere("name", name);
                 phaseDef["reactions"] = std::vector<std::string>{groupName};
             }

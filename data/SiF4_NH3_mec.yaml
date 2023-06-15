@@ -1,0 +1,539 @@
+description: |-
+  Silicon nitride (Si3N4) deposition from ammonia (NH3) and silicon tetrafluoride
+  (SiF4).
+
+  The gas phase mechanism includes a detailed description of NH3 decomposition, two
+  reactions describing SiF4 decomposition, and three cross-reactions.
+
+  The surface reaction mechanism contains six steps describing the overall conversion
+  of 3 SiF4 and 4 NH3 molecules to 3 Si(d) and 4 N(d) and 12 HF. Note that the surface
+  reaction mechanism is from a preliminary analysis at one temperature (1713 K), and
+  thus no activation energies are supplied. As such, this mechanism should only be
+  considered as illustrative and not as a source of kinetic data on the Si3N4 system.
+
+  M.E. Coltrin, R.J. Kee, and F.M. Rupley. "Surface CHEMKIN (Version 4.0): A
+  Fortran package for analyzing heterogeneous chemical kinetics at a
+  solid-surface---gas-phase interface", Sandia Report SAND-90-8003B, 1991.
+  https://doi.org/10.2172/6128661
+
+
+generator: cti2yaml
+cantera-version: 3.0.0a5
+date: Sun, 23 Apr 2023 21:03:15 -0400
+input-files: [SiF4_NH3_mec.cti]
+
+units: {length: cm, quantity: mol, activation-energy: cal/mol}
+
+phases:
+- name: SI3N4
+  thermo: ideal-surface
+  elements: [H, N, Si, F]
+  species: [HN_SIF(S), HN_NH2(S), F3SI_NH2(S), F2SINH(S), H2NFSINH(S), HN(FSINH)2(S)]
+  kinetics: surface
+  reactions: [SI3N4-reactions]
+  state:
+    T: 300.0
+    P: 1.01325e+05
+  adjacent-phases: [gas, SiBulk, NBulk]
+  site-density: 4.1683e-09
+- name: gas
+  thermo: ideal-gas
+  elements: [H, N, Si, F]
+  species: [H2, H, N2, N, NH, NH2, NNH, N2H2, N2H3, N2H4, HF, F, SIF4, SIF3,
+    SIHF3, SIF3NH2, NH3]
+  kinetics: gas
+  reactions: [gas-reactions]
+  transport: mixture-averaged
+  state:
+    T: 300.0
+    P: 1.01325e+05
+- name: SiBulk
+  thermo: fixed-stoichiometry
+  elements: [Si]
+  species: [SI(D)]
+- name: NBulk
+  thermo: fixed-stoichiometry
+  elements: [N]
+  species: [N(D)]
+
+species:
+- name: H2
+  composition: {H: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [2.34433112, 7.98052075e-03, -1.9478151e-05, 2.01572094e-08, -7.37611761e-12,
+      -917.935173, 0.683010238]
+    - [2.93286575, 8.26608026e-04, -1.46402364e-07, 1.54100414e-11, -6.888048e-16,
+      -813.065581, -1.02432865]
+  transport:
+    model: gas
+    geometry: linear
+    diameter: 2.92
+    well-depth: 38.0
+    polarizability: 0.79
+    rotational-relaxation: 280.0
+  note: TPIS78
+- name: H
+  composition: {H: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [2.5, 0.0, 0.0, 0.0, 0.0, 2.547366e+04, -0.44668285]
+    - [2.5, 0.0, 0.0, 0.0, 0.0, 2.547366e+04, -0.44668285]
+  transport:
+    model: gas
+    geometry: atom
+    diameter: 2.05
+    well-depth: 145.0
+  note: L6/94
+- name: N2
+  composition: {N: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [3.53100528, -1.23660988e-04, -5.02999433e-07, 2.43530612e-09, -1.40881235e-12,
+      -1046.97628, 2.96747038]
+    - [2.95257637, 1.3969004e-03, -4.92631603e-07, 7.86010195e-11, -4.60755204e-15,
+      -923.948688, 5.87188762]
+  transport:
+    model: gas
+    geometry: linear
+    diameter: 3.621
+    well-depth: 97.53
+    polarizability: 1.76
+    rotational-relaxation: 4.0
+  note: G8/02
+- name: N
+  composition: {N: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 5000.0]
+    data:
+    - [2.503071, -2.180018e-05, 5.420529e-08, -5.64756e-11, 2.099904e-14,
+      5.60989e+04, 4.167566]
+    - [2.450268, 1.066146e-04, -7.465337e-08, 1.879652e-11, -1.025984e-15,
+      5.611604e+04, 4.448758]
+  transport:
+    model: gas
+    geometry: atom
+    diameter: 3.298
+    well-depth: 71.4
+  note: '120186'
+- name: NH
+  composition: {H: 1, N: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 6000.0]
+    data:
+    - [3.4929084, 3.1179197e-04, -1.4890484e-06, 2.4816442e-09, -1.0356967e-12,
+      4.1894294e+04, 1.8483277]
+    - [2.7836929, 1.3298429e-03, -4.2478047e-07, 7.8348504e-11, -5.504447e-15,
+      4.2134514e+04, 5.7407798]
+  transport:
+    model: gas
+    geometry: linear
+    diameter: 2.65
+    well-depth: 80.0
+    rotational-relaxation: 4.0
+- name: NH2
+  composition: {H: 2, N: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 5000.0]
+    data:
+    - [3.432493, 3.29954e-03, -6.6136e-06, 8.590947e-09, -3.572047e-12,
+      2.177228e+04, 3.090111]
+    - [2.961311, 2.932699e-03, -9.0636e-07, 1.617257e-10, -1.2042e-14, 2.191977e+04,
+      5.777878]
+  transport:
+    model: gas
+    geometry: nonlinear
+    diameter: 2.65
+    well-depth: 80.0
+    polarizability: 2.26
+    rotational-relaxation: 4.0
+  note: '121686'
+- name: NNH
+  composition: {H: 1, N: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [250.0, 1000.0, 4000.0]
+    data:
+    - [3.501344, 2.053587e-03, 7.17041e-07, 4.921348e-10, -9.67117e-13,
+      2.833347e+04, 6.391837]
+    - [4.415342, 1.614388e-03, -1.632894e-07, -8.559846e-11, 1.614791e-14,
+      2.788029e+04, 0.9042888]
+  transport:
+    model: gas
+    geometry: nonlinear
+    diameter: 3.798
+    well-depth: 71.4
+    rotational-relaxation: 1.0
+  note: '120186'
+- name: N2H2
+  composition: {H: 2, N: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 5000.0]
+    data:
+    - [1.617999, 0.01306312, -1.715712e-05, 1.605608e-08, -6.093639e-12,
+      2.467526e+04, 13.79467]
+    - [3.371185, 6.039968e-03, -2.303854e-06, 4.062789e-10, -2.713144e-14,
+      2.418172e+04, 4.980585]
+  transport:
+    model: gas
+    geometry: nonlinear
+    diameter: 3.798
+    well-depth: 71.4
+    rotational-relaxation: 1.0
+  note: '121286'
+- name: N2H3
+  composition: {H: 3, N: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 5000.0]
+    data:
+    - [3.174204, 4.715907e-03, 1.334867e-05, -1.919685e-08, 7.487564e-12,
+      1.72727e+04, 7.557224]
+    - [4.441846, 7.214271e-03, -2.495684e-06, 3.920565e-10, -2.29895e-14,
+      1.664221e+04, -0.4275205]
+  transport:
+    model: gas
+    geometry: nonlinear
+    diameter: 3.9
+    well-depth: 200.0
+    rotational-relaxation: 1.0
+  note: '120186'
+- name: N2H4
+  composition: {H: 4, N: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 5000.0]
+    data:
+    - [0.06442606, 0.0274973, -2.899451e-05, 1.74524e-08, -4.422282e-12,
+      1.045192e+04, 21.27789]
+    - [4.977317, 9.595519e-03, -3.547639e-06, 6.124299e-10, -4.029795e-14,
+      9341.219, -2.96299]
+  transport:
+    model: gas
+    geometry: nonlinear
+    diameter: 4.23
+    well-depth: 205.0
+    polarizability: 4.26
+    rotational-relaxation: 1.5
+  note: '121286'
+- name: HF
+  composition: {F: 1, H: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 5000.0]
+    data:
+    - [3.4379986, 5.3571598e-04, -1.5229655e-06, 1.7564491e-09, -5.786994e-13,
+      -3.3818972e+04, 1.1930153]
+    - [2.991911, 7.1489475e-04, -6.8630973e-08, -1.161713e-11, 1.9412375e-15,
+      -3.3621364e+04, 3.8123288]
+  transport:
+    model: gas
+    geometry: linear
+    diameter: 3.148
+    well-depth: 330.0
+    dipole: 1.92
+    polarizability: 2.46
+    rotational-relaxation: 1.0
+  note: J6/77
+- name: F
+  composition: {F: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 5000.0]
+    data:
+    - [2.812874, -3.3023098e-06, -1.289731e-06, 1.6837365e-09, -6.4587833e-13,
+      8660.4019, 3.0984198]
+    - [2.7004353, -2.2293182e-04, 9.7941385e-08, -1.9123038e-11, 1.3768154e-15,
+      8716.3617, 3.8067182]
+  transport:
+    model: gas
+    geometry: atom
+    diameter: 2.75
+    well-depth: 80.0
+  note: J9/65
+- name: SIF4
+  composition: {F: 4, Si: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 5000.0]
+    data:
+    - [2.1893068, 0.033702007, -4.6723179e-05, 3.1584638e-08, -8.4506114e-12,
+      -1.9603289e+05, 13.287308]
+    - [10.478473, 2.8586756e-03, -1.2646314e-06, 2.4746863e-10, -1.7824296e-14,
+      -1.979055e+05, -27.520641]
+  transport:
+    model: gas
+    geometry: nonlinear
+    diameter: 4.88
+    well-depth: 171.9
+    rotational-relaxation: 1.0
+  note: J6/76
+- name: SIF3
+  composition: {F: 3, Si: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 3000.0]
+    data:
+    - [4.6628685, 0.010087878, -1.8055442e-06, -7.769299e-09, 4.3778518e-12,
+      -1.2129652e+05, 4.672966]
+    - [8.5247898, 1.3237924e-03, -2.1042787e-07, -1.149504e-10, 3.0553014e-14,
+      -1.2235223e+05, -15.502343]
+  transport:
+    model: gas
+    geometry: nonlinear
+    diameter: 4.359
+    well-depth: 309.6
+    rotational-relaxation: 1.0
+  note: '41889'
+- name: SIHF3
+  composition: {F: 3, H: 1, Si: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 3000.0]
+    data:
+    - [3.9180529, 0.014639172, -1.8560698e-06, -1.0582003e-08, 5.6175433e-12,
+      -1.4704386e+05, 7.0242615]
+    - [9.3635674, 2.9475559e-03, -3.577633e-07, -2.8582245e-10, 6.9157286e-14,
+      -1.4860736e+05, -21.694529]
+  transport:
+    model: gas
+    geometry: nonlinear
+    diameter: 4.681
+    well-depth: 180.8
+    rotational-relaxation: 1.0
+  note: '41889'
+- name: SIF3NH2
+  composition: {F: 3, H: 2, N: 1, Si: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 3000.0]
+    data:
+    - [6.229403, 0.017780151, -2.6123043e-06, -1.2672435e-08, 7.0445559e-12,
+      -1.6258489e+05, 0.20454407]
+    - [12.109636, 4.3832823e-03, -4.1422453e-07, -3.9890902e-10, 8.9589543e-14,
+      -1.6417678e+05, -30.469284]
+  transport:
+    model: gas
+    geometry: nonlinear
+    diameter: 4.975
+    well-depth: 231.0
+    rotational-relaxation: 1.0
+  note: '41889'
+- name: NH3
+  composition: {H: 3, N: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 5000.0]
+    data:
+    - [2.204352, 0.01011476, -1.465265e-05, 1.447235e-08, -5.328509e-12,
+      -6525.488, 8.127138]
+    - [2.461904, 6.059166e-03, -2.004977e-06, 3.136003e-10, -1.938317e-14,
+      -6493.27, 7.472097]
+  transport:
+    model: gas
+    geometry: nonlinear
+    diameter: 2.92
+    well-depth: 481.0
+    dipole: 1.47
+    rotational-relaxation: 10.0
+  note: '121386'
+- name: F3SI_NH2(S)
+  composition: {F: 3, H: 2, N: 1, Si: 1}
+  sites: 2.0
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 1685.0]
+    data:
+    - [0.84197538, 8.3710416e-03, -1.307703e-05, 9.7593603e-09, -2.727938e-12,
+      -524.86288, -4.5272678]
+    - [2.4753989, 8.8112187e-04, -2.0939481e-07, 4.2757187e-12, 1.6006564e-14,
+      -812.5562, -12.188747]
+  note: J3/67
+- name: F2SINH(S)
+  composition: {F: 2, H: 1, N: 1, Si: 1}
+  sites: 2.0
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 1685.0]
+    data:
+    - [0.84197538, 8.3710416e-03, -1.307703e-05, 9.7593603e-09, -2.727938e-12,
+      -524.86288, -4.5272678]
+    - [2.4753989, 8.8112187e-04, -2.0939481e-07, 4.2757187e-12, 1.6006564e-14,
+      -812.5562, -12.188747]
+  note: J3/67
+- name: H2NFSINH(S)
+  composition: {F: 1, H: 3, N: 2, Si: 1}
+  sites: 2.0
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 1685.0]
+    data:
+    - [0.84197538, 8.3710416e-03, -1.307703e-05, 9.7593603e-09, -2.727938e-12,
+      -524.86288, -4.5272678]
+    - [2.4753989, 8.8112187e-04, -2.0939481e-07, 4.2757187e-12, 1.6006564e-14,
+      -812.5562, -12.188747]
+  note: J3/67
+- name: HN(FSINH)2(S)
+  composition: {F: 2, H: 3, N: 3, Si: 2}
+  sites: 4.0
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 1685.0]
+    data:
+    - [0.84197538, 8.3710416e-03, -1.307703e-05, 9.7593603e-09, -2.727938e-12,
+      -524.86288, -4.5272678]
+    - [2.4753989, 8.8112187e-04, -2.0939481e-07, 4.2757187e-12, 1.6006564e-14,
+      -812.5562, -12.188747]
+  note: J3/67
+- name: HN_SIF(S)
+  composition: {F: 1, H: 1, N: 1, Si: 1}
+  sites: 2.0
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 1685.0]
+    data:
+    - [0.84197538, 8.3710416e-03, -1.307703e-05, 9.7593603e-09, -2.727938e-12,
+      -524.86288, -4.5272678]
+    - [2.4753989, 8.8112187e-04, -2.0939481e-07, 4.2757187e-12, 1.6006564e-14,
+      -812.5562, -12.188747]
+  note: J3/67
+- name: HN_NH2(S)
+  composition: {H: 3, N: 2}
+  sites: 2.0
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 1685.0]
+    data:
+    - [0.84197538, 8.3710416e-03, -1.307703e-05, 9.7593603e-09, -2.727938e-12,
+      -524.86288, -4.5272678]
+    - [2.4753989, 8.8112187e-04, -2.0939481e-07, 4.2757187e-12, 1.6006564e-14,
+      -812.5562, -12.188747]
+  note: J3/67
+- name: SI(D)
+  composition: {Si: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 1685.0]
+    data:
+    - [0.84197538, 8.3710416e-03, -1.307703e-05, 9.7593603e-09, -2.727938e-12,
+      -524.86288, -4.5272678]
+    - [2.4753989, 8.8112187e-04, -2.0939481e-07, 4.2757187e-12, 1.6006564e-14,
+      -812.5562, -12.188747]
+  equation-of-state:
+    model: constant-volume
+    density: 2.066 g/cm^3
+  note: J3/67
+- name: N(D)
+  composition: {N: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 1685.0]
+    data:
+    - [0.84197538, 8.3710416e-03, -1.307703e-05, 9.7593603e-09, -2.727938e-12,
+      -524.86288, -4.5272678]
+    - [2.4753989, 8.8112187e-04, -2.0939481e-07, 4.2757187e-12, 1.6006564e-14,
+      -812.5562, -12.188747]
+  equation-of-state:
+    model: constant-volume
+    density: 1.374 g/cm^3
+  note: J3/67
+
+gas-reactions:
+- equation: H + H + M <=> H2 + M  # Reaction 1
+  type: three-body
+  rate-constant: {A: 1.0e+18, b: -1.0, Ea: 0.0}
+  efficiencies: {H2: 0.0}
+- equation: H + H + H2 <=> H2 + H2  # Reaction 2
+  rate-constant: {A: 9.2e+16, b: -0.6, Ea: 0.0}
+- equation: NH + N <=> N2 + H  # Reaction 3
+  rate-constant: {A: 3.0e+13, b: 0.0, Ea: 0.0}
+- equation: NH + H <=> N + H2  # Reaction 4
+  rate-constant: {A: 1.0e+14, b: 0.0, Ea: 0.0}
+- equation: NH2 + H <=> NH + H2  # Reaction 5
+  rate-constant: {A: 6.92e+13, b: 0.0, Ea: 3650.0}
+- equation: NH3 + H <=> NH2 + H2  # Reaction 6
+  rate-constant: {A: 6.36e+05, b: 2.39, Ea: 1.0171e+04}
+- equation: NNH <=> N2 + H  # Reaction 7
+  rate-constant: {A: 1.0e+04, b: 0.0, Ea: 0.0}
+- equation: NNH + H <=> N2 + H2  # Reaction 8
+  rate-constant: {A: 1.0e+14, b: 0.0, Ea: 0.0}
+- equation: NNH + NH2 <=> N2 + NH3  # Reaction 9
+  rate-constant: {A: 5.0e+13, b: 0.0, Ea: 0.0}
+- equation: NNH + NH <=> N2 + NH2  # Reaction 10
+  rate-constant: {A: 5.0e+13, b: 0.0, Ea: 0.0}
+- equation: NH2 + NH <=> N2H2 + H  # Reaction 11
+  rate-constant: {A: 5.0e+13, b: 0.0, Ea: 0.0}
+- equation: NH + NH <=> N2 + H + H  # Reaction 12
+  rate-constant: {A: 2.54e+13, b: 0.0, Ea: 0.0}
+- equation: NH2 + N <=> N2 + H + H  # Reaction 13
+  rate-constant: {A: 7.2e+13, b: 0.0, Ea: 0.0}
+- equation: N2H2 + M <=> NNH + H + M  # Reaction 14
+  type: three-body
+  rate-constant: {A: 5.0e+16, b: 0.0, Ea: 5.0e+04}
+  efficiencies: {H2: 2.0, N2: 2.0}
+- equation: N2H2 + H <=> NNH + H2  # Reaction 15
+  rate-constant: {A: 5.0e+13, b: 0.0, Ea: 1000.0}
+- equation: N2H2 + NH <=> NNH + NH2  # Reaction 16
+  rate-constant: {A: 1.0e+13, b: 0.0, Ea: 1000.0}
+- equation: N2H2 + NH2 <=> NH3 + NNH  # Reaction 17
+  rate-constant: {A: 1.0e+13, b: 0.0, Ea: 1000.0}
+- equation: NH2 + NH2 <=> N2H2 + H2  # Reaction 18
+  rate-constant: {A: 5.0e+11, b: 0.0, Ea: 0.0}
+- equation: NH3 + M <=> NH2 + H + M  # Reaction 19
+  type: three-body
+  rate-constant: {A: 1.4e+16, b: 0.0, Ea: 9.06e+04}
+- equation: N2H3 + H <=> NH2 + NH2  # Reaction 20
+  rate-constant: {A: 1.6e+12, b: 0.0, Ea: 0.0}
+- equation: N2H3 + M <=> N2H2 + H + M  # Reaction 21
+  type: three-body
+  rate-constant: {A: 3.5e+16, b: 0.0, Ea: 4.6e+04}
+- equation: N2H3 + NH <=> NH2 + N2H2  # Reaction 22
+  rate-constant: {A: 2.0e+13, b: 0.0, Ea: 0.0}
+- equation: NH2 + NH2 + M <=> N2H4 + M  # Reaction 23
+  type: three-body
+  rate-constant: {A: 3.0e+20, b: -1.0, Ea: 0.0}
+- equation: H + N2H4 <=> H2 + N2H3  # Reaction 24
+  rate-constant: {A: 1.3e+13, b: 0.0, Ea: 2500.0}
+- equation: NH2 + N2H4 <=> NH3 + N2H3  # Reaction 25
+  rate-constant: {A: 3.9e+12, b: 0.0, Ea: 1500.0}
+- equation: NH + H + M <=> NH2 + M  # Reaction 26
+  type: three-body
+  rate-constant: {A: 2.0e+16, b: -0.5, Ea: 0.0}
+- equation: NH2 + NH2 <=> NH3 + NH  # Reaction 27
+  rate-constant: {A: 5.0e+12, b: 0.0, Ea: 1.0e+04}
+- equation: F + NH3 <=> NH2 + HF  # Reaction 28
+  rate-constant: {A: 4.27e+11, b: 0.5, Ea: 800.0}
+- equation: SIF4 <=> SIF3 + F  # Reaction 29
+  rate-constant: {A: 3.0e+12, b: 0.0, Ea: 1.4717e+05}
+- equation: H + SIF4 <=> HF + SIF3  # Reaction 30
+  rate-constant: {A: 1.0e+13, b: 0.0, Ea: 5.0e+04}
+- equation: NH2 + SIF4 <=> SIF3NH2 + F  # Reaction 31
+  rate-constant: {A: 1.0e+11, b: 0.0, Ea: 4.095e+04}
+- equation: NH3 + SIF3 <=> SIF3NH2 + H  # Reaction 32
+  rate-constant: {A: 1.0e+11, b: 0.0, Ea: 5000.0}
+- equation: NH3 + SIF3 <=> SIHF3 + NH2  # Reaction 33
+  rate-constant: {A: 1.0e+11, b: 0.0, Ea: 1.0e+04}
+
+SI3N4-reactions:
+- equation: F3SI_NH2(S) => F2SINH(S) + HF  # Reaction 34
+  rate-constant: {A: 1.0e+05, b: 0.0, Ea: 0.0}
+- equation: NH3 + F2SINH(S) => H2NFSINH(S) + HF  # Reaction 35
+  rate-constant: {A: 7.562e+08, b: 0.5, Ea: 0.0}
+- equation: H2NFSINH(S) + F2SINH(S) => HN(FSINH)2(S) + HF  # Reaction 36
+  rate-constant: {A: 1.0e+15, b: 0.0, Ea: 0.0}
+- equation: NH3 + HN_SIF(S) => HN_NH2(S) + SI(D) + HF  # Reaction 37
+  rate-constant: {A: 7.56e+08, b: 0.5, Ea: 0.0}
+- equation: SIF4 + HN_NH2(S) => F3SI_NH2(S) + N(D) + HF  # Reaction 38
+  rate-constant: {A: 3.1e+08, b: 0.5, Ea: 0.0}
+- equation: HN(FSINH)2(S) + F2SINH(S) => 3 HN_SIF(S) + N(D) + HF  # Reaction 39
+  rate-constant: {A: 1.0e+15, b: 0.0, Ea: 0.0}

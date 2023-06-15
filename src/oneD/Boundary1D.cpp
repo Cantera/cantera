@@ -3,9 +3,9 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
+#include "cantera/base/SolutionArray.h"
 #include "cantera/oneD/Boundary1D.h"
 #include "cantera/oneD/OneDim.h"
-#include "cantera/base/ctml.h"
 #include "cantera/oneD/StFlow.h"
 
 using namespace std;
@@ -13,15 +13,7 @@ using namespace std;
 namespace Cantera
 {
 
-Boundary1D::Boundary1D() : Domain1D(1, 1, 0.0),
-    m_flow_left(0), m_flow_right(0),
-    m_ilr(0), m_left_nv(0), m_right_nv(0),
-    m_left_loc(0), m_right_loc(0),
-    m_left_points(0),
-    m_left_nsp(0), m_right_nsp(0),
-    m_sp_left(0), m_sp_right(0),
-    m_start_left(0), m_start_right(0),
-    m_phase_left(0), m_phase_right(0), m_temp(0.0), m_mdot(0.0)
+Boundary1D::Boundary1D() : Domain1D(1, 1, 0.0)
 {
     m_type = cConnectorType;
 }
@@ -58,7 +50,7 @@ void Boundary1D::_init(size_t n)
         } else {
             throw CanteraError("Boundary1D::_init",
                 "Boundary domains can only be connected on the left to flow "
-                "domains, not type {} domains.", r.domainType());
+                "domains, not '{}' domains.", r.type());
         }
     }
 
@@ -80,7 +72,7 @@ void Boundary1D::_init(size_t n)
         } else {
             throw CanteraError("Boundary1D::_init",
                 "Boundary domains can only be connected on the right to flow "
-                "domains, not type {} domains.", r.domainType());
+                "domains, not '{}' domains.", r.type());
         }
     }
 }
@@ -88,15 +80,27 @@ void Boundary1D::_init(size_t n)
 // ---------------- Inlet1D methods ----------------
 
 Inlet1D::Inlet1D()
-    : m_V0(0.0)
-    , m_nsp(0)
-    , m_flow(0)
 {
     m_type = cInletType;
-    m_xstr = "";
 }
 
-void Inlet1D::showSolution(const double* x)
+Inlet1D::Inlet1D(shared_ptr<Solution> solution, const string& id)
+    : Inlet1D()
+{
+    m_solution = solution;
+    m_id = id;
+}
+
+
+//! set spreading rate
+void Inlet1D::setSpreadRate(double V0)
+{
+    m_V0 = V0;
+    needJacUpdate();
+}
+
+
+void Inlet1D::show(const double* x)
 {
     writelog("    Mass Flux:   {:10.4g} kg/m^2/s \n", m_mdot);
     writelog("    Temperature: {:10.4g} K \n", m_temp);
@@ -219,76 +223,38 @@ void Inlet1D::eval(size_t jg, double* xg, double* rg,
     }
 }
 
-XML_Node& Inlet1D::save(XML_Node& o, const double* const soln)
+shared_ptr<SolutionArray> Inlet1D::asArray(const double* soln) const
 {
-    XML_Node& inlt = Domain1D::save(o, soln);
-    inlt.addAttribute("type","inlet");
-    addFloat(inlt, "temperature", m_temp);
-    addFloat(inlt, "mdot", m_mdot);
-    for (size_t k=0; k < m_nsp; k++) {
-        addFloat(inlt, "massFraction", m_yin[k], "",
-                       m_flow->phase().speciesName(k));
-    }
-    return inlt;
+    AnyMap meta = Boundary1D::getMeta();
+    meta["mass-flux"] = m_mdot;
+    auto arr = SolutionArray::create(m_solution, 1, meta);
+
+    // set gas state (using pressure from adjacent domain)
+    double pressure = m_flow->phase().pressure();
+    auto phase = m_solution->thermo();
+    phase->setState_TPY(m_temp, pressure, m_yin.data());
+    vector_fp data(phase->stateSize());
+    phase->saveState(data);
+
+    arr->setState(0, data);
+    return arr;
 }
 
-void Inlet1D::restore(const XML_Node& dom, double* soln, int loglevel)
+void Inlet1D::fromArray(SolutionArray& arr, double* soln)
 {
-    Domain1D::restore(dom, soln, loglevel);
-    m_mdot = getFloat(dom, "mdot");
-    m_temp = getFloat(dom, "temperature");
-
-    m_yin.assign(m_nsp, 0.0);
-
-    for (size_t i = 0; i < dom.nChildren(); i++) {
-        const XML_Node& node = dom.child(i);
-        if (node.name() == "massFraction") {
-            size_t k = m_flow->phase().speciesIndex(node.attrib("type"));
-            if (k != npos) {
-                m_yin[k] = node.fp_value();
-            }
-        }
+    Boundary1D::setMeta(arr.meta());
+    arr.setLoc(0);
+    auto phase = arr.thermo();
+    auto meta = arr.meta();
+    m_temp = phase->temperature();
+    if (meta.hasKey("mass-flux")) {
+        m_mdot = meta.at("mass-flux").asDouble();
+    } else {
+        // convert data format used by Python h5py export (Cantera < 3.0)
+        auto aux = arr.getAuxiliary(0);
+        m_mdot = phase->density() * aux.at("velocity").as<double>();
     }
-    resize(0, 1);
-}
-
-AnyMap Inlet1D::serialize(const double* soln) const
-{
-    AnyMap state = Boundary1D::serialize(soln);
-    state["type"] = "inlet";
-    state["temperature"] = m_temp;
-    state["mass-flux"] = m_mdot;
-    AnyMap Y;
-    for (size_t k = 0; k < m_nsp; k++) {
-        if (m_yin[k] != 0.0) {
-            Y[m_flow->phase().speciesName(k)] = m_yin[k];
-        }
-    }
-    state["mass-fractions"] = std::move(Y);
-    return state;
-}
-
-void Inlet1D::restore(const AnyMap& state, double* soln, int loglevel)
-{
-    Boundary1D::restore(state, soln, loglevel);
-    m_mdot = state["mass-flux"].asDouble();
-    m_temp = state["temperature"].asDouble();
-    const auto& Y = state["mass-fractions"].as<AnyMap>();
-    ThermoPhase& thermo = m_flow->phase();
-    for (size_t k = 0; k < m_nsp; k++) {
-        m_yin[k] = Y.getDouble(thermo.speciesName(k), 0.0);
-    }
-
-    // Warn about species not in the current phase
-    if (loglevel) {
-        for (auto& item : Y) {
-            if (thermo.speciesIndex(item.first) == npos) {
-                warn_user("Inlet1D::restore", "Phase '{}' does not contain a species "
-                    "named '{}'\n which was specified as having a mass fraction of {}.",
-                    thermo.name(), item.first, item.second.asDouble());
-            }
-        }
-    }
+    phase->getMassFractions(m_yin.data());
 }
 
 // ------------- Empty1D -------------
@@ -303,24 +269,10 @@ void Empty1D::eval(size_t jg, double* xg, double* rg,
 {
 }
 
-XML_Node& Empty1D::save(XML_Node& o, const double* const soln)
+shared_ptr<SolutionArray> Empty1D::asArray(const double* soln) const
 {
-    XML_Node& symm = Domain1D::save(o, soln);
-    symm.addAttribute("type","empty");
-    return symm;
-}
-
-void Empty1D::restore(const XML_Node& dom, double* soln, int loglevel)
-{
-    Domain1D::restore(dom, soln, loglevel);
-    resize(0, 1);
-}
-
-AnyMap Empty1D::serialize(const double* soln) const
-{
-    AnyMap state = Boundary1D::serialize(soln);
-    state["type"] = "empty";
-    return state;
+    AnyMap meta = Boundary1D::getMeta();
+    return SolutionArray::create(m_solution, 0, meta);
 }
 
 // -------------- Symm1D --------------
@@ -369,34 +321,24 @@ void Symm1D::eval(size_t jg, double* xg, double* rg, integer* diagg,
     }
 }
 
-XML_Node& Symm1D::save(XML_Node& o, const double* const soln)
+shared_ptr<SolutionArray> Symm1D::asArray(const double* soln) const
 {
-    XML_Node& symm = Domain1D::save(o, soln);
-    symm.addAttribute("type","symmetry");
-    return symm;
-}
-
-void Symm1D::restore(const XML_Node& dom, double* soln, int loglevel)
-{
-    Domain1D::restore(dom, soln, loglevel);
-    resize(0, 1);
-}
-
-AnyMap Symm1D::serialize(const double* soln) const
-{
-    AnyMap state = Boundary1D::serialize(soln);
-    state["type"] = "symmetry";
-    return state;
+    AnyMap meta = Boundary1D::getMeta();
+    return SolutionArray::create(m_solution, 0, meta);
 }
 
 // -------- Outlet1D --------
 
 OutletRes1D::OutletRes1D()
-    : m_nsp(0)
-    , m_flow(0)
 {
     m_type = cOutletResType;
-    m_xstr = "";
+}
+
+OutletRes1D::OutletRes1D(shared_ptr<Solution> solution, const string& id)
+    : OutletRes1D()
+{
+    m_solution = solution;
+    m_id = id;
 }
 
 void Outlet1D::init()
@@ -460,24 +402,10 @@ void Outlet1D::eval(size_t jg, double* xg, double* rg, integer* diagg,
     }
 }
 
-XML_Node& Outlet1D::save(XML_Node& o, const double* const soln)
+shared_ptr<SolutionArray> Outlet1D::asArray(const double* soln) const
 {
-    XML_Node& outlt = Domain1D::save(o, soln);
-    outlt.addAttribute("type","outlet");
-    return outlt;
-}
-
-void Outlet1D::restore(const XML_Node& dom, double* soln, int loglevel)
-{
-    Domain1D::restore(dom, soln, loglevel);
-    resize(0, 1);
-}
-
-AnyMap Outlet1D::serialize(const double* soln) const
-{
-    AnyMap state = Boundary1D::serialize(soln);
-    state["type"] = "outlet";
-    return state;
+    AnyMap meta = Boundary1D::getMeta();
+    return SolutionArray::create(m_solution, 0, meta);
 }
 
 // -------- OutletRes1D --------
@@ -578,73 +506,31 @@ void OutletRes1D::eval(size_t jg, double* xg, double* rg,
     }
 }
 
-XML_Node& OutletRes1D::save(XML_Node& o, const double* const soln)
+shared_ptr<SolutionArray> OutletRes1D::asArray(const double* soln) const
 {
-    XML_Node& outlt = Domain1D::save(o, soln);
-    outlt.addAttribute("type","outletres");
-    addFloat(outlt, "temperature", m_temp, "K");
-    for (size_t k=0; k < m_nsp; k++) {
-        addFloat(outlt, "massFraction", m_yres[k], "",
-                       m_flow->phase().speciesName(k));
-    }
-    return outlt;
+    AnyMap meta = Boundary1D::getMeta();
+    meta["temperature"] = m_temp;
+    auto arr = SolutionArray::create(m_solution, 1, meta);
+
+    // set gas state (using pressure from adjacent domain)
+    double pressure = m_flow->phase().pressure();
+    auto phase = m_solution->thermo();
+    phase->setState_TPY(m_temp, pressure, &m_yres[0]);
+    vector_fp data(phase->stateSize());
+    phase->saveState(data);
+
+    arr->setState(0, data);
+    return arr;
 }
 
-void OutletRes1D::restore(const XML_Node& dom, double* soln, int loglevel)
+void OutletRes1D::fromArray(SolutionArray& arr, double* soln)
 {
-    Domain1D::restore(dom, soln, loglevel);
-    m_temp = getFloat(dom, "temperature");
-
-    m_yres.assign(m_nsp, 0.0);
-    for (size_t i = 0; i < dom.nChildren(); i++) {
-        const XML_Node& node = dom.child(i);
-        if (node.name() == "massFraction") {
-            size_t k = m_flow->phase().speciesIndex(node.attrib("type"));
-            if (k != npos) {
-                m_yres[k] = node.fp_value();
-            }
-        }
-    }
-
-    resize(0, 1);
-}
-
-AnyMap OutletRes1D::serialize(const double* soln) const
-{
-    AnyMap state = Boundary1D::serialize(soln);
-    state["type"] = "outlet-reservoir";
-    state["temperature"] = m_temp;
-    AnyMap Y;
-    for (size_t k = 0; k < m_nsp; k++) {
-        if (m_yres[k] != 0.0) {
-            Y[m_flow->phase().speciesName(k)] = m_yres[k];
-        }
-    }
-    state["mass-fractions"] = std::move(Y);
-    return state;
-}
-
-void OutletRes1D::restore(const AnyMap& state, double* soln, int loglevel)
-{
-    Boundary1D::restore(state, soln, loglevel);
-    m_temp = state["temperature"].asDouble();
-    const auto& Y = state["mass-fractions"].as<AnyMap>();
-    ThermoPhase& thermo = m_flow->phase();
-    for (size_t k = 0; k < m_nsp; k++) {
-        m_yres[k] = Y.getDouble(thermo.speciesName(k), 0.0);
-    }
-
-    // Warn about species not in the current phase
-    if (loglevel) {
-        for (auto& item : Y) {
-            if (thermo.speciesIndex(item.first) == npos) {
-                warn_user("OutletRes1D::restore", "Phase '{}' does not contain a "
-                    "species named '{}'\nwhich was specified as having a mass "
-                    "fraction of {}.",
-                    thermo.name(), item.first, item.second.asDouble());
-            }
-        }
-    }
+    Boundary1D::setMeta(arr.meta());
+    arr.setLoc(0);
+    auto phase = arr.thermo();
+    m_temp = phase->temperature();
+    auto Y = phase->massFractions();
+    std::copy(Y, Y + m_nsp, &m_yres[0]);
 }
 
 // -------- Surf1D --------
@@ -679,42 +565,27 @@ void Surf1D::eval(size_t jg, double* xg, double* rg,
     }
 }
 
-XML_Node& Surf1D::save(XML_Node& o, const double* const soln)
+shared_ptr<SolutionArray> Surf1D::asArray(const double* soln) const
 {
-    XML_Node& inlt = Domain1D::save(o, soln);
-    inlt.addAttribute("type","surface");
-    addFloat(inlt, "temperature", m_temp);
-    return inlt;
+    AnyMap meta = Boundary1D::getMeta();
+    meta["temperature"] = m_temp;
+    return SolutionArray::create(m_solution, 0, meta);
 }
 
-void Surf1D::restore(const XML_Node& dom, double* soln, int loglevel)
+void Surf1D::fromArray(SolutionArray& arr, double* soln)
 {
-    Domain1D::restore(dom, soln, loglevel);
-    m_temp = getFloat(dom, "temperature");
-    resize(0, 1);
+    Boundary1D::setMeta(arr.meta());
+    arr.setLoc(0);
+    m_temp = arr.thermo()->temperature();
 }
 
-AnyMap Surf1D::serialize(const double* soln) const
-{
-    AnyMap state = Boundary1D::serialize(soln);
-    state["type"] = "surface";
-    state["temperature"] = m_temp;
-    return state;
-}
-
-void Surf1D::restore(const AnyMap& state, double* soln, int loglevel)
-{
-    Boundary1D::restore(state, soln, loglevel);
-    m_temp = state["temperature"].asDouble();
-}
-
-void Surf1D::showSolution_s(std::ostream& s, const double* x)
+void Surf1D::show(std::ostream& s, const double* x)
 {
     s << "-------------------  Surface " << domainIndex() << " ------------------- " << std::endl;
     s << "  temperature: " << m_temp << " K" << std::endl;
 }
 
-void Surf1D::showSolution(const double* x)
+void Surf1D::show(const double* x)
 {
     writelog("    Temperature: {:10.4g} K \n\n", m_temp);
 }
@@ -729,10 +600,48 @@ ReactingSurf1D::ReactingSurf1D()
     m_type = cSurfType;
 }
 
+ReactingSurf1D::ReactingSurf1D(shared_ptr<Solution> solution, const std::string& id)
+{
+    auto phase = std::dynamic_pointer_cast<SurfPhase>(solution->thermo());
+    if (!phase) {
+        throw CanteraError("ReactingSurf1D::ReactingSurf1D",
+            "Detected incompatible ThermoPhase type '{}'", solution->thermo()->type());
+    }
+    auto kin = std::dynamic_pointer_cast<InterfaceKinetics>(solution->kinetics());
+    if (!kin) {
+        throw CanteraError("ReactingSurf1D::ReactingSurf1D",
+            "Detected incompatible kinetics type '{}'",
+            solution->kinetics()->kineticsType());
+    }
+    m_solution = solution;
+    m_id = id;
+    m_kin = kin.get();
+    m_sphase = phase.get();
+
+    m_surfindex = m_kin->reactionPhaseIndex();
+    m_nsp = m_sphase->nSpecies();
+    m_enabled = true;
+}
+
+void ReactingSurf1D::setKinetics(shared_ptr<Kinetics> kin)
+{
+    m_solution = Solution::create();
+    m_solution->setThermo(kin->reactionPhase());
+    m_solution->setKinetics(kin);
+    m_solution->setTransportModel("none");
+    m_kin = dynamic_pointer_cast<InterfaceKinetics>(kin).get();
+    m_surfindex = kin->reactionPhaseIndex();
+    m_sphase = dynamic_pointer_cast<SurfPhase>(kin->reactionPhase()).get();
+    m_nsp = m_sphase->nSpecies();
+    m_enabled = true;
+}
+
 void ReactingSurf1D::setKineticsMgr(InterfaceKinetics* kin)
 {
+    warn_deprecated("ReactingSurf1D::setKineticsMgr",
+        "To be removed after Cantera 3.0. Replaced by Domain1D::setKinetics.");
     m_kin = kin;
-    m_surfindex = kin->surfacePhaseIndex();
+    m_surfindex = kin->reactionPhaseIndex();
     m_sphase = (SurfPhase*)&kin->thermo(m_surfindex);
     m_nsp = m_sphase->nSpecies();
     m_enabled = true;
@@ -850,79 +759,39 @@ void ReactingSurf1D::eval(size_t jg, double* xg, double* rg,
     }
 }
 
-XML_Node& ReactingSurf1D::save(XML_Node& o, const double* const soln)
+shared_ptr<SolutionArray> ReactingSurf1D::asArray(const double* soln) const
 {
-    const double* s = soln + loc();
-    XML_Node& dom = Domain1D::save(o, soln);
-    dom.addAttribute("type","surface");
-    addFloat(dom, "temperature", m_temp, "K");
-    for (size_t k=0; k < m_nsp; k++) {
-        addFloat(dom, "coverage", s[k], "", m_sphase->speciesName(k));
-    }
-    return dom;
+    AnyMap meta = Boundary1D::getMeta();
+    meta["temperature"] = m_temp;
+    meta["phase"]["name"] = m_sphase->name();
+    AnyValue source = m_sphase->input().getMetadata("filename");
+    meta["phase"]["source"] = source.empty() ? "<unknown>" : source.asString();
+
+    // set state of surface phase
+    m_sphase->setState_TP(m_temp, m_sphase->pressure());
+    m_sphase->setCoverages(soln);
+    vector_fp data(m_sphase->stateSize());
+    m_sphase->saveState(data.size(), &data[0]);
+
+    auto arr = SolutionArray::create(m_solution, 1, meta);
+    arr->setState(0, data);
+    return arr;
 }
 
-void ReactingSurf1D::restore(const XML_Node& dom, double* soln,
-                             int loglevel)
+void ReactingSurf1D::fromArray(SolutionArray& arr, double* soln)
 {
-    Domain1D::restore(dom, soln, loglevel);
-    m_temp = getFloat(dom, "temperature");
-
-    m_fixed_cov.assign(m_nsp, 0.0);
-    for (size_t i = 0; i < dom.nChildren(); i++) {
-        const XML_Node& node = dom.child(i);
-        if (node.name() == "coverage") {
-            size_t k = m_sphase->speciesIndex(node.attrib("type"));
-            if (k != npos) {
-                m_fixed_cov[k] = soln[k] = node.fp_value();
-            }
-        }
+    Boundary1D::setMeta(arr.meta());
+    arr.setLoc(0);
+    auto surf = std::dynamic_pointer_cast<SurfPhase>(arr.thermo());
+    if (!surf) {
+        throw CanteraError("ReactingSurf1D::fromArray",
+            "Restoring of coverages requires surface phase");
     }
-    m_sphase->setCoverages(&m_fixed_cov[0]);
-
-    resize(m_nsp, 1);
+    m_temp = surf->temperature();
+    surf->getCoverages(soln);
 }
 
-AnyMap ReactingSurf1D::serialize(const double* soln) const
-{
-    AnyMap state = Boundary1D::serialize(soln);
-    state["type"] = "reacting-surface";
-    state["temperature"] = m_temp;
-    state["phase"]["name"] = m_sphase->name();
-    AnyValue source =m_sphase->input().getMetadata("filename");
-    state["phase"]["source"] = source.empty() ? "<unknown>" : source.asString();
-    AnyMap cov;
-    for (size_t k = 0; k < m_nsp; k++) {
-        cov[m_sphase->speciesName(k)] = soln[k];
-    }
-    state["coverages"] = std::move(cov);
-
-    return state;
-}
-
-void ReactingSurf1D::restore(const AnyMap& state, double* soln, int loglevel)
-{
-    Boundary1D::restore(state, soln, loglevel);
-    m_temp = state["temperature"].asDouble();
-    const auto& cov = state["coverages"].as<AnyMap>();
-    for (size_t k = 0; k < m_nsp; k++) {
-        soln[k] = cov.getDouble(m_sphase->speciesName(k), 0.0);
-    }
-
-    // Warn about species not in the current phase
-    if (loglevel) {
-        for (auto& item : cov) {
-            if (m_sphase->speciesIndex(item.first) == npos) {
-                warn_user("OutletRes1D::restore", "Phase '{}' does not contain a "
-                    "species named '{}'\nwhich was specified as having a coverage "
-                    "of {}.",
-                    m_sphase->name(), item.first, item.second.asDouble());
-            }
-        }
-    }
-}
-
-void ReactingSurf1D::showSolution(const double* x)
+void ReactingSurf1D::show(const double* x)
 {
     writelog("    Temperature: {:10.4g} K \n", m_temp);
     writelog("    Coverages: \n");

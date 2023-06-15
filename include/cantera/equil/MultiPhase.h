@@ -64,11 +64,11 @@ public:
      *  The constructor takes no arguments, since phases are added using
      *  method addPhase().
      */
-    MultiPhase();
+    MultiPhase() = default;
 
     //! Destructor. Does nothing. Class MultiPhase does not take "ownership"
     //! (that is, responsibility for destroying) the phase objects.
-    virtual ~MultiPhase() {}
+    virtual ~MultiPhase() = default;
 
     //! Add a vector of phases to the mixture
     /*!
@@ -151,7 +151,7 @@ public:
      */
     doublereal nAtoms(const size_t kGlob, const size_t mGlob) const;
 
-    /// Returns the global Species mole fractions.
+    //! Returns the global Species mole fractions.
     /*!
      *   Write the array of species mole
      *   fractions into array \c x. The mole fractions are
@@ -195,7 +195,7 @@ public:
      */
     void setPhaseMoles(const size_t n, const doublereal moles);
 
-    /// Return a reference to phase n.
+    //! Return a reference to phase n.
     /*!
      *  The state of phase n is also updated to match the state stored locally
      *  in the mixture object.
@@ -243,16 +243,16 @@ public:
      */
     size_t speciesIndex(const std::string& speciesName, const std::string& phaseName);
 
-    /// Minimum temperature for which all solution phases have valid thermo
-    /// data. Stoichiometric phases are not considered, since they may have
-    /// thermo data only valid for conditions for which they are stable.
+    //! Minimum temperature for which all solution phases have valid thermo
+    //! data. Stoichiometric phases are not considered, since they may have
+    //! thermo data only valid for conditions for which they are stable.
     doublereal minTemp() const {
         return m_Tmin;
     }
 
-    /// Maximum temperature for which all solution phases have valid thermo
-    /// data. Stoichiometric phases are not considered, since they may have
-    /// thermo data only valid for conditions for which they are stable.
+    //! Maximum temperature for which all solution phases have valid thermo
+    //! data. Stoichiometric phases are not considered, since they may have
+    //! thermo data only valid for conditions for which they are stable.
     doublereal maxTemp() const {
         return m_Tmax;
     }
@@ -260,7 +260,7 @@ public:
     //! Total charge summed over all phases (Coulombs).
     doublereal charge() const;
 
-    /// Charge (Coulombs) of phase with index \a p.
+    //! Charge (Coulombs) of phase with index \a p.
     /*!
      *  The net charge is computed as \f[ Q_p = N_p \sum_k F z_k X_k \f]
      *  where the sum runs only over species in phase \a p.
@@ -288,7 +288,7 @@ public:
      */
     void getChemPotentials(doublereal* mu) const;
 
-    /// Returns a vector of Valid chemical potentials.
+    //! Returns a vector of Valid chemical potentials.
     /*!
      * Write into array \a mu the chemical potentials of all species with
      * thermo data valid for the current temperature [J/kmol]. For other
@@ -365,7 +365,7 @@ public:
                      double rtol=1e-9, int max_steps=50000, int max_iter=100,
                      int estimate_equil=0, int log_level=0);
 
-    /// Set the temperature [K].
+    //! Set the temperature [K].
     /*!
      * @param T   value of the temperature (Kelvin)
      */
@@ -387,12 +387,12 @@ public:
      */
     void setState_TPMoles(const doublereal T, const doublereal Pres, const doublereal* Moles);
 
-    /// Pressure [Pa].
+    //! Pressure [Pa].
     doublereal pressure() const {
         return m_press;
     }
 
-    /// The total mixture volume [m^3].
+    //! The total mixture volume [m^3].
     /*!
      * Returns the cumulative sum of the volumes of all the phases in the
      * mixture.
@@ -618,23 +618,23 @@ private:
     std::map<std::string, size_t> m_enamemap;
 
     //! Current value of the temperature (kelvin)
-    doublereal m_temp;
+    double m_temp = 298.15;
 
     //! Current value of the pressure (Pa)
-    doublereal m_press;
+    double m_press = OneBar;
 
     //! Number of distinct elements in all of the phases
-    size_t m_nel;
+    size_t m_nel = 0;
 
     //! Number of distinct species in all of the phases
-    size_t m_nsp;
+    size_t m_nsp = 0;
 
     //! True if the init() routine has been called, and the MultiPhase frozen
-    bool m_init;
+    bool m_init = false;
 
     //! Global ID of the element corresponding to the electronic charge. If
     //! there is none, then this is equal to -1
-    size_t m_eloc;
+    size_t m_eloc = npos;
 
     //! Vector of bools indicating whether temperatures are ok for phases.
     /*!
@@ -645,11 +645,11 @@ private:
 
     //! Minimum temperature for which thermo parameterizations are valid.
     //! Stoichiometric phases are ignored in this determination. units Kelvin
-    doublereal m_Tmin;
+    double m_Tmin = 1.0;
 
     //! Minimum temperature for which thermo parameterizations are valid.
     //! Stoichiometric phases are ignored in this determination. units Kelvin
-    doublereal m_Tmax;
+    double m_Tmax = 100000.0;
 
     //! Vector of element abundances
     /*!

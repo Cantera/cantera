@@ -10,7 +10,7 @@ class TransportPolynomialsTest : public testing::Test
 {
 public:
     TransportPolynomialsTest() {
-        phase.reset(newPhase("h2o2.yaml"));
+        phase = newThermo("h2o2.yaml", "");
         tran.init(phase.get(), 0);
         ck_tran.init(phase.get(), CK_Mode);
     }
@@ -57,7 +57,7 @@ public:
         }
     }
 
-    std::unique_ptr<ThermoPhase> phase;
+    std::shared_ptr<ThermoPhase> phase;
     MixTransport tran;
     MixTransport ck_tran;
 };

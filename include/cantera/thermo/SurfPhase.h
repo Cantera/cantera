@@ -89,71 +89,29 @@ namespace Cantera
  *            C^0_k = \frac{n_0}{s_k}
  *        \f]
  *
- * ## XML Example
- *
- * *Note: The XML input format is deprecated and will be removed in %Cantera 3.0*
- *
- * An example of an XML Element named phase setting up a SurfPhase object named
- * diamond_100 is given below.
- *
- * @code
- * <phase dim="2" id="diamond_100">
- *    <elementArray datasrc="elements.xml">H C</elementArray>
- *    <speciesArray datasrc="#species_data">c6HH c6H* c6*H c6** c6HM c6HM* c6*M c6B </speciesArray>
- *    <reactionArray datasrc="#reaction_data"/>
- *    <state>
- *       <temperature units="K">1200.0</temperature>
- *       <coverages>c6H*:0.1, c6HH:0.9</coverages>
- *    </state>
- *    <thermo model="Surface">
- *       <site_density units="mol/cm2">3e-09</site_density>
- *    </thermo>
- *    <kinetics model="Interface"/>
- *    <transport model="None"/>
- *    <phaseArray>
- *         gas_phase diamond_bulk
- *    </phaseArray>
- * </phase>
- * @endcode
- *
- * The model attribute, "Surface", on the thermo element identifies the phase as being
- * a SurfPhase object.
+ * An example phase definition is given in the
+ * <a href="../../sphinx/html/yaml/phases.html#ideal-surface"> YAML API Reference</a>.
  *
  * @ingroup thermoprops
  */
 class SurfPhase : public ThermoPhase
 {
 public:
-    //! Constructor.
-    /*!
-     *  @param n0 Site Density of the Surface Phase
-     *            Units: kmol m-2.
-     *  @deprecated The `n0` constructor argument is deprecated and will be
-     *      removed after Cantera 2.6. Use setSiteDensity() instead.
-     */
-    SurfPhase(doublereal n0 = -1.0);
-
     //! Construct and initialize a SurfPhase ThermoPhase object directly from an
-    //! ASCII input file
+    //! input file
     /*!
-     * @param infile name of the input file
+     * @param infile name of the input file. If blank, an empty phase will be created.
      * @param id     name of the phase id in the file.
      *               If this is blank, the first phase in the file is used.
      */
-    explicit SurfPhase(const std::string& infile, const std::string& id="");
-
-    //! Construct and initialize a SurfPhase ThermoPhase object directly from an
-    //! XML database
-    /*!
-     *  @param xmlphase XML node pointing to a SurfPhase description
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    SurfPhase(XML_Node& xmlphase);
+    explicit SurfPhase(const std::string& infile="", const std::string& id="");
 
     virtual std::string type() const {
-        return "Surf";
+        return "ideal-surface";
+    }
+
+    virtual bool isCompressible() const {
+        return false;
     }
 
     //! Return the Molar Enthalpy. Units: J/kmol.
@@ -235,71 +193,26 @@ public:
      *
      * @param k Optional parameter indicating the species. The default
      *          is to assume this refers to species 0.
-     * @return
-     *   Returns the standard Concentration in units of m3 kmol-1.
+     * @return the standard concentration in units of kmol/m^2 for surface phases or
+     *     kmol/m for edge phases.
      */
     virtual doublereal standardConcentration(size_t k = 0) const;
     virtual doublereal logStandardConc(size_t k=0) const;
 
-    //! Set the equation of state parameters from the argument list
-    /*!
-     * @internal
-     * Set equation of state parameters.
-     *
-     * @param n number of parameters. Must be one
-     * @param c array of \a n coefficients
-     *           c[0] = The site density (kmol m-2)
-     * @deprecated To be removed after Cantera 2.6
-     */
-    virtual void setParameters(int n, doublereal* const c);
-
-    //! Set the Equation-of-State parameters by reading an XML Node Input
-    /*!
-     * The Equation-of-State data consists of one item, the site density.
-     *
-     * @param thermoData   Reference to an XML_Node named thermo containing the
-     *                     equation-of-state data. The XML_Node is within the
-     *                     phase XML_Node describing the SurfPhase object.
-     *
-     * An example of the contents of the thermoData XML_Node is provided below.
-     * The units attribute is used to supply the units of the site density in
-     * any convenient form. Internally it is changed into MKS form.
-     *
-     * @code
-     *    <thermo model="Surface">
-     *       <site_density units="mol/cm2"> 3e-09 </site_density>
-     *    </thermo>
-     * @endcode
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    virtual void setParametersFromXML(const XML_Node& thermoData);
     virtual void initThermo();
     virtual void getParameters(AnyMap& phaseNode) const;
 
     virtual bool addSpecies(shared_ptr<Species> spec);
 
-    //! Set the initial state of the Surface Phase from an XML_Node
-    /*!
-     * State variables that can be set by this routine are the temperature and
-     * the surface site coverages.
-     *
-     * @param state  XML_Node containing the state information
-     *
-     * An example of the XML code block is given below.
-     *
-     * @code
-     *   <state>
-     *      <temperature units="K">1200.0</temperature>
-     *      <coverages>c6H*:0.1, c6HH:0.9</coverages>
-     *   </state>
-     * @endcode
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    virtual void setStateFromXML(const XML_Node& state);
+    //! Since interface phases have no volume, this returns 0.0.
+    virtual double molarVolume() const {
+        return 0.0;
+    }
+
+    //! Since interface phases have no volume, setting this to a value other than 0.0
+    //! raises an exception.
+    //! @deprecated Unused. To be removed after Cantera 3.0
+    virtual void setMolarDensity(const double vm);
 
     //! Returns the site density
     /*!
@@ -397,8 +310,10 @@ public:
     virtual void setState(const AnyMap& state);
 
 protected:
+    virtual void compositionChanged();
+
     //! Surface site density (kmol m-2)
-    doublereal m_n0;
+    double m_n0 = 1.0;
 
     //! Vector of species sizes (number of sites occupied). length m_kk.
     vector_fp m_speciesSize;
@@ -407,7 +322,7 @@ protected:
     doublereal m_logn0;
 
     //! Current value of the pressure (Pa)
-    doublereal m_press;
+    double m_press = OneAtm;
 
     //! Temporary storage for the reference state enthalpies
     mutable vector_fp m_h0;
@@ -431,7 +346,6 @@ protected:
      */
     mutable vector_fp m_logsize;
 
-private:
     //! Update the species reference state thermodynamic functions
     /*!
      * The polynomials for the standard state functions are only reevaluated if

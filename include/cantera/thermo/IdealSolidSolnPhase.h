@@ -39,20 +39,8 @@ namespace Cantera
 class IdealSolidSolnPhase : public ThermoPhase
 {
 public:
-    /**
-     * Constructor for IdealSolidSolnPhase.
-     * The generalized concentrations can have three different forms
-     * depending on the value of the member attribute #m_formGC, which
-     * is supplied in the constructor or read from the input file.
-     *
-     * @param formCG This parameter initializes the #m_formGC variable.
-     * @deprecated the formGC argument is deprecated and will be removed after
-     *     Cantera 2.6. Use the setStandardConcentrationModel method instead.
-     */
-    IdealSolidSolnPhase(int formCG=-1);
-
     //! Construct and initialize an IdealSolidSolnPhase ThermoPhase object
-    //! directly from an ASCII input file
+    //! directly from an input file
     /*!
      * This constructor will also fully initialize the object.
      * The generalized concentrations can have three different forms
@@ -64,34 +52,12 @@ public:
      *               created.
      * @param id     The name of this phase. This is used to look up
      *               the phase in the input file.
-     * @param formCG This parameter initializes the #m_formGC variable.
-     * @deprecated the formGC argument is deprecated and will be removed after
-     *     Cantera 2.6. Use the setStandardConcentrationModel method instead.
      */
-    explicit IdealSolidSolnPhase(const std::string& infile,
-                                 const std::string& id="", int formCG=-1);
-
-    //! Construct and initialize an IdealSolidSolnPhase ThermoPhase object
-    //! directly from an XML database
-    /*!
-     * The generalized concentrations can have three different forms
-     * depending on the value of the member attribute #m_formGC, which
-     * is supplied in the constructor and/or read from the data file.
-     *
-     * @param root   XML tree containing a description of the phase.
-     *               The tree must be positioned at the XML element
-     *               named phase with id, "id", on input to this routine.
-     * @param id     The name of this phase. This is used to look up
-     *               the phase in the XML datafile.
-     * @param formCG This parameter initializes the #m_formGC variable.
-     *
-     * @deprecated The XML input format is deprecated and will be removed in
-     *     Cantera 3.0.
-     */
-    IdealSolidSolnPhase(XML_Node& root, const std::string& id="", int formCG=-1);
+    explicit IdealSolidSolnPhase(const std::string& infile="",
+                                 const std::string& id="");
 
     virtual std::string type() const {
-        return "IdealSolidSoln";
+        return "ideal-condensed";
     }
 
     virtual bool isIdeal() const {
@@ -176,14 +142,13 @@ public:
     }
 
     //! @}
-    /** @name Mechanical Equation of State Properties
-     *
-     * In this equation of state implementation, the density is a function only
-     * of the mole fractions. Therefore, it can't be an independent variable.
-     * Instead, the pressure is used as the independent variable. Functions
-     * which try to set the thermodynamic state by calling setDensity() will
-     * cause an exception to be thrown.
-     */
+    //! @name Mechanical Equation of State Properties
+    //!
+    //! In this equation of state implementation, the density is a function only
+    //! of the mole fractions. Therefore, it can't be an independent variable.
+    //! Instead, the pressure is used as the independent variable. Functions
+    //! which try to set the thermodynamic state by calling setDensity() will
+    //! cause an exception to be thrown.
     //! @{
 
     /**
@@ -224,37 +189,34 @@ public:
     virtual void calcDensity();
 
     //! @}
-
-    /**
-     * @name Chemical Potentials and Activities
-     *
-     * The activity \f$a_k\f$ of a species in solution is related to the
-     * chemical potential by
-     * \f[
-     *  \mu_k(T,P,X_k) = \mu_k^0(T,P)
-     * + \hat R T \log a_k.
-     *  \f]
-     * The quantity \f$\mu_k^0(T,P)\f$ is the standard state chemical potential
-     * at unit activity. It may depend on the pressure and the temperature.
-     * However, it may not depend on the mole fractions of the species in the
-     * solid solution.
-     *
-     * The activities are related to the generalized concentrations, \f$\tilde
-     * C_k\f$, and standard concentrations, \f$C^0_k\f$, by the following
-     * formula:
-     *
-     *  \f[
-     *  a_k = \frac{\tilde C_k}{C^0_k}
-     *  \f]
-     * The generalized concentrations are used in the kinetics classes to
-     * describe the rates of progress of reactions involving the species. Their
-     * formulation depends upon the specification of the rate constants for
-     * reaction, especially the units used in specifying the rate constants. The
-     * bridge between the thermodynamic equilibrium expressions that use a_k and
-     * the kinetics expressions which use the generalized concentrations is
-     * provided by the multiplicative factor of the standard concentrations.
-     * @{
-     */
+    //! @name Chemical Potentials and Activities
+    //!
+    //! The activity \f$a_k\f$ of a species in solution is related to the
+    //! chemical potential by
+    //! \f[
+    //!  \mu_k(T,P,X_k) = \mu_k^0(T,P)
+    //! + \hat R T \log a_k.
+    //!  \f]
+    //! The quantity \f$\mu_k^0(T,P)\f$ is the standard state chemical potential
+    //! at unit activity. It may depend on the pressure and the temperature.
+    //! However, it may not depend on the mole fractions of the species in the
+    //! solid solution.
+    //!
+    //! The activities are related to the generalized concentrations, \f$\tilde
+    //! C_k\f$, and standard concentrations, \f$C^0_k\f$, by the following
+    //! formula:
+    //!
+    //!  \f[
+    //!  a_k = \frac{\tilde C_k}{C^0_k}
+    //!  \f]
+    //! The generalized concentrations are used in the kinetics classes to
+    //! describe the rates of progress of reactions involving the species. Their
+    //! formulation depends upon the specification of the rate constants for
+    //! reaction, especially the units used in specifying the rate constants. The
+    //! bridge between the thermodynamic equilibrium expressions that use a_k and
+    //! the kinetics expressions which use the generalized concentrations is
+    //! provided by the multiplicative factor of the standard concentrations.
+    //! @{
 
     virtual Units standardConcentrationUnits() const;
 
@@ -344,11 +306,12 @@ public:
      *
      * @param mu   Output vector of dimensionless chemical potentials.
      *             Length = m_kk.
+     * @deprecated To be removed after Cantera 3.0. Use getChemPotentials() instead.
      */
     virtual void getChemPotentials_RT(doublereal* mu) const;
 
     //! @}
-    /// @name  Partial Molar Properties of the Solution
+    //! @name  Partial Molar Properties of the Solution
     //! @{
 
     //! Returns an array of partial molar enthalpies for the species in the
@@ -410,7 +373,7 @@ public:
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
 
     //! @}
-    /// @name  Properties of the Standard State of the Species in the Solution
+    //! @name  Properties of the Standard State of the Species in the Solution
     //! @{
 
     /**
@@ -508,7 +471,7 @@ public:
     virtual void getStandardVolumes(doublereal* vol) const;
 
     //! @}
-    /// @name Thermodynamic Values for the Species Reference States
+    //! @name Thermodynamic Values for the Species Reference States
     //! @{
 
     virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
@@ -565,7 +528,6 @@ public:
     virtual void getParameters(AnyMap& phaseNode) const;
     virtual void getSpeciesParameters(const std::string& name,
                                       AnyMap& speciesNode) const;
-    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
     virtual void setToEquilState(const doublereal* mu_RT);
 
     //! Set the form for the standard and generalized concentrations
@@ -610,10 +572,10 @@ protected:
 
     /**
      * The standard concentrations can have one of three different forms:
-     * 0 = 'unity', 1 = 'molar_volume', 2 = 'solvent_volume'. See
+     * 0 = 'unity', 1 = 'species-molar-volume', 2 = 'solvent-molar-volume'. See
      * setStandardConcentrationModel().
      */
-    int m_formGC;
+    int m_formGC = 0;
 
     /**
      * Value of the reference pressure for all species in this phase. The T
@@ -621,7 +583,7 @@ protected:
      * because this is a single value, all species are required to have the same
      * reference pressure.
      */
-    doublereal m_Pref;
+    double m_Pref = OneAtm;
 
     /**
      * m_Pcurrent = The current pressure
@@ -630,13 +592,14 @@ protected:
      * The density variable which is inherited as part of the State class,
      * m_dens, is always kept current whenever T, P, or X[] change.
      */
-    doublereal m_Pcurrent;
+    double m_Pcurrent = OneAtm;
 
     //! Vector of molar volumes for each species in the solution
     /**
-     * Species molar volumes \f$ m^3 kmol^-1 \f$
+     * Species molar volumes (\f$ m^3 kmol^-1 \f$) at the current mixture state.
+     * For the IdealSolidSolnPhase class, these are constant.
      */
-    vector_fp m_speciesMolarVolume;
+    mutable vector_fp m_speciesMolarVolume;
 
     //! Vector containing the species reference enthalpies at T = m_tlast
     mutable vector_fp m_h0_RT;

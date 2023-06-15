@@ -125,7 +125,6 @@ namespace Cantera
  * Handles one species in a reaction.
  * See @ref Stoichiometry
  * @ingroup Stoichiometry
- * @internal
  */
 class C1
 {
@@ -331,15 +330,11 @@ private:
 class C_AnyN
 {
 public:
-    C_AnyN() :
-        m_n(0),
-        m_rxn(npos) {
-    }
+    C_AnyN() = default;
 
     C_AnyN(size_t rxn, const std::vector<size_t>& ic, const vector_fp& order_, const vector_fp& stoich_) :
-        m_n(0),
+        m_n(ic.size()),
         m_rxn(rxn) {
-        m_n = ic.size();
         m_ic.resize(m_n);
         m_jc.resize(m_n, 0);
         m_order.resize(m_n);
@@ -444,7 +439,7 @@ private:
      *  and stoichiometric coefficient vectors for the reactant or product
      *  description of the reaction.
      */
-    size_t m_n;
+    size_t m_n = 0;
 
     //! ID of the reaction corresponding to this stoichiometric manager
     /*!
@@ -452,7 +447,7 @@ private:
      *  and write to Normally this is associated with the reaction number in an
      *  array of quantities indexed by the reaction number, for example, ROP[irxn].
      */
-    size_t m_rxn;
+    size_t m_rxn = npos;
 
     //! Vector of species which are involved with this stoichiometric manager
     //! calculations
@@ -596,16 +591,6 @@ class StoichManagerN
 public:
     /**
      * Constructor for the StoichManagerN class.
-     *
-     * @internal Consider adding defaulted entries here that supply the total
-     *     number of reactions in the mechanism and the total number of species
-     *     in the species list. Then, we could use those numbers to provide
-     *     error checks during the construction of the object. Those numbers
-     *     would also provide some clarity to the purpose and utility of this
-     *     class.
-     *
-     * DGG - the problem is that the number of reactions and species are not
-     * known initially.
      */
     StoichManagerN() : m_ready(true) {
         m_stoichCoeffs.setZero();

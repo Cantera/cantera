@@ -8,19 +8,6 @@ module cantera_transport
 
 contains
 
-!!$  integer function newTransport(model, phase, loglevel)
-!!$    implicit none
-!!$    type(XML_Node), intent(in) :: xml_phase
-!!$    type(phase_t), intent(inout) :: phase
-!!$    integer, optional :: loglevel
-!!$    integer :: llevel
-!!$    llevel = 0
-!!$    if (present(loglevel)) then
-!!$       llevel = loglevel
-!!$    end if
-!!$    phase%tran_id = newtransport(xml_phase%xml_id, phase%phase_id, loglevel)
-!!$  end function newTransport
-
   double precision function ctrans_viscosity(self)
     implicit none
     type(phase_t), intent(inout) :: self

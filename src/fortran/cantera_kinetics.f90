@@ -4,7 +4,6 @@
 module cantera_kinetics
 
   use cantera_thermo
-  use cantera_xml
   use fct
 
   contains
@@ -51,45 +50,6 @@ module cantera_kinetics
       end if
       phase%nrxn = kin_nreactions(phase%kin_id)
     end subroutine ctkin_newFromFile
-
-    subroutine newKinetics(xml_phase, phase, &
-         neighbor1, neighbor2, neighbor3, neighbor4)
-      implicit none
-      type(XML_Node), intent(in) :: xml_phase
-      type(phase_t), intent(inout) :: phase
-      type(phase_t), intent(in), optional :: neighbor1
-      type(phase_t), intent(in), optional :: neighbor2
-      type(phase_t), intent(in), optional :: neighbor3
-      type(phase_t), intent(in), optional :: neighbor4
-      integer :: missing
-      missing = -1
-
-      if (present(neighbor1)) then
-         if (present(neighbor2)) then
-            if (present(neighbor3)) then
-               if (present(neighbor4)) then
-                  phase%kin_id = newkineticsfromxml(xml_phase%xml_id, phase%thermo_id, &
-                       neighbor1%thermo_id, neighbor2%thermo_id, neighbor3%thermo_id, &
-                       neighbor4%thermo_id)
-               else
-                  phase%kin_id = newkineticsfromxml(xml_phase%xml_id, phase%thermo_id, &
-                       neighbor1%thermo_id, neighbor2%thermo_id, neighbor3%thermo_id, &
-                       missing)
-               end if
-            else
-               phase%kin_id = newkineticsfromxml(xml_phase%xml_id, phase%thermo_id, &
-                    neighbor1%thermo_id, neighbor2%thermo_id, missing, missing)
-            end if
-         else
-            phase%kin_id = newkineticsfromxml(xml_phase%xml_id, phase%thermo_id, &
-                 neighbor1%thermo_id, missing, missing, missing)
-         end if
-      else
-         phase%kin_id = newkineticsfromxml(xml_phase%xml_id, phase%thermo_id, &
-              missing, missing, missing, missing)
-      end if
-      phase%nrxn = kin_nreactions(phase%kin_id)
-    end subroutine newKinetics
 
     subroutine ctkin_getKineticsType(self, nm)
       implicit none
@@ -154,12 +114,13 @@ module cantera_kinetics
       ctkin_productstoichcoeff = kin_productstoichcoeff(self%kin_id, k, i)
     end function ctkin_productstoichcoeff
 
-    integer function ctkin_reactionType(self, i)
+    subroutine ctkin_getReactionType(self, i, buf)
       implicit none
-      type(phase_t), intent(in) :: self
+      type(phase_t), intent(inout) :: self
       integer, intent(in) :: i
-      ctkin_reactiontype = kin_reactiontype(self%kin_id, i)
-    end function ctkin_reactiontype
+      character*(*), intent(out) :: buf
+      self%err = kin_getreactiontype(self%kin_id, i, buf)
+    end subroutine ctkin_getReactionType
 
     subroutine ctkin_getFwdRatesOfProgress(self, fwdROP)
       implicit none

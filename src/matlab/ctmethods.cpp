@@ -19,7 +19,6 @@
 #include "mllogger.h"
 
 const int NO_CLASS = 0;
-const int XML_CLASS = 10;
 const int THERMO_CLASS = 20;
 const int PHASE_CLASS = 30;
 const int KINETICS_CLASS = 40;
@@ -36,9 +35,6 @@ const int MIXTURE_CLASS = 120;
 
 void ctfunctions(int nlhs, mxArray* plhs[], int nrhs,
                  const mxArray* prhs[]);
-
-void xmlmethods(int nlhs, mxArray* plhs[], int nrhs,
-                const mxArray* prhs[]);
 
 void thermomethods(int nlhs, mxArray* plhs[], int nrhs,
                    const mxArray* prhs[]);
@@ -107,9 +103,6 @@ extern "C" {
         switch (iclass) {
         case NO_CLASS:
             ctfunctions(nlhs, plhs, nrhs, prhs);
-            break;
-        case XML_CLASS:
-            xmlmethods(nlhs, plhs, nrhs, prhs);
             break;
         case THERMO_CLASS:
             thermomethods(nlhs, plhs, nrhs, prhs);

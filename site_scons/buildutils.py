@@ -2,7 +2,6 @@ from __future__ import annotations
 import json
 import os
 import sys
-import platform
 import textwrap
 import re
 import subprocess
@@ -11,10 +10,15 @@ import time
 import shutil
 import enum
 from pathlib import Path
+try:
+    from packaging.version import parse as parse_version
+except ImportError:
+    from pkg_resources import parse_version
 import logging
 from typing import TYPE_CHECKING
 from collections.abc import Mapping as MappingABC
 from SCons.Variables import PathVariable, EnumVariable, BoolVariable
+from SCons.Script import Dir
 
 try:
     import numpy as np
@@ -24,8 +28,8 @@ except ImportError:
 __all__ = ("Option", "PathOption", "BoolOption", "EnumOption", "Configuration",
            "logger", "remove_directory", "remove_file", "test_results",
            "add_RegressionTest", "get_command_output", "listify", "which",
-           "ConfigBuilder", "multi_glob", "get_spawn", "quoted",
-           "get_pip_install_location")
+           "ConfigBuilder", "multi_glob", "get_spawn", "quoted", "add_system_include",
+           "get_pip_install_location", "compiler_flag_list", "setup_python_env")
 
 if TYPE_CHECKING:
     from typing import Iterable, TypeVar, Union, List, Dict, Tuple, Optional, \
@@ -299,7 +303,7 @@ class Configuration:
     Class enabling selection of options based on a dictionary of `Option` objects
     that allows for a differentiation between platform/compiler dependent options.
 
-    In addition, the class facilitiates the generation of formatted help text and
+    In addition, the class facilitates the generation of formatted help text and
     reST documentation.
     """
 
@@ -439,6 +443,13 @@ class Configuration:
         return "\n".join(message)
 
 
+# Add custom logging levels
+LOGGING_STATUS_NUM = 32
+logging.addLevelName(LOGGING_STATUS_NUM, "STATUS")
+LOGGING_FAILED_NUM = 42
+logging.addLevelName(LOGGING_FAILED_NUM, "FAILED")
+
+
 class LevelAdapter(logging.LoggerAdapter):
     """This adapter processes the ``print_level`` keyword-argument to log functions.
 
@@ -455,6 +466,22 @@ class LevelAdapter(logging.LoggerAdapter):
     """
     def __init__(self, logger):
         self.logger = logger
+        self.logger.status = self.status
+        self.logger.failed = self.failed
+
+    def status(self, message, *args, **kws):
+        # custom logger adapted from https://stackoverflow.com/questions/2183233
+        if self.isEnabledFor(LOGGING_STATUS_NUM):
+            msg, kwargs = self.process(message, kws)
+            # logger takes its '*args' as 'args'
+            self._log(LOGGING_STATUS_NUM, msg, args, **kwargs)
+
+    def failed(self, message, *args, **kws):
+        # custom logger adapted from https://stackoverflow.com/questions/2183233
+        if self.isEnabledFor(LOGGING_FAILED_NUM):
+            msg, kwargs = self.process(message, kws)
+            # logger takes its '*args' as 'args'
+            self._log(LOGGING_FAILED_NUM, msg, args, **kwargs)
 
     def process(self, msg, kwargs):
         """Pop the value of ``print_level`` into the ``extra`` dictionary.
@@ -638,32 +665,25 @@ class TestResults:
         Note that the three arguments are not used here but are required by SCons,
         and they must be keyword arguments.
         """
-        values = {
-            "passed": sum(self.passed.values()),
-            "failed": sum(self.failed.values()),
-            "skipped": len(self.tests),
-        }
-        message = textwrap.dedent(
-            """
-            *****************************
-            ***    Testing Summary    ***
-            *****************************
+        message = [textwrap.dedent(
+            f"""
+            {' Testing Summary ':*^88}
 
-            Tests passed: {passed!s}
-            Up-to-date tests skipped: {skipped!s}
-            Tests failed: {failed!s}
-            """
-        ).format_map(values)
+            Tests passed: {sum(self.passed.values())!s}
+            Up-to-date tests skipped: {len(self.tests)!s}
+            Tests failed: {sum(self.failed.values())!s}
+            """)]
         if self.failed:
-            message = (message + "Failed tests:" +
-                       "".join("\n    - " + n for n in self.failed) +
-                       "\n")
-        message = message + "*****************************"
+            message.append("Failed tests:")
+            for failed in self.failed:
+                message.append(f"    - {failed}")
+            message.append("")
+        message.append(f"{'*' * 88}\n")
+        message = "\n".join(message)
+        logger.status(message, print_level=False)
         if self.failed:
-            logger.error("One or more tests failed.\n" + message, print_level=False)
+            logger.failed("One or more tests failed.")
             sys.exit(1)
-        else:
-            logger.info(message, print_level=False)
 
 
 test_results = TestResults()
@@ -1076,6 +1096,48 @@ def add_RegressionTest(env: "SCEnvironment") -> None:
     )
 
 
+def compiler_flag_list(
+        flags: "Union[str, Iterable]",
+        excludes: "Optional[Iterable]" = []
+    ) -> "List[str]":
+    """
+    Separate concatenated compiler flags in ``flags``.
+    Entries listed in ``excludes`` are omitted.
+    """
+    if not isinstance(flags, str):
+        flags = " ".join(flags)
+    # split concatenated entries
+    flags = f" {flags}".split(" -")[1:]
+    flags = [f"-{flag}" for flag in flags]
+    cc_flags = []
+    excludes = tuple(excludes)
+    for flag in flags:
+        if not flag.startswith(excludes) and flag not in cc_flags:
+            cc_flags.append(flag)
+    return cc_flags
+
+
+def add_system_include(env, include, mode='append'):
+    # Add a file to the include path as a "system" include directory, which will
+    # suppress warnings stemming from code that isn't part of Cantera, and reduces
+    # time spent scanning these files for changes.
+    if mode == 'append':
+        add = env.Append
+    elif mode == 'prepend':
+        add = env.Prepend
+    else:
+        raise ValueError("mode must be 'append' or 'prepend'")
+
+    if env['CC'] == 'cl':
+        add(CPPPATH=include)
+    else:
+        if isinstance(include, (list, tuple)):
+            for inc in include:
+                add(CXXFLAGS=('-isystem', inc))
+        else:
+            add(CXXFLAGS=('-isystem', include))
+
+
 def quoted(s: str) -> str:
     """Return the given string wrapped in double quotes."""
     return f'"{s}"'
@@ -1097,15 +1159,15 @@ def multi_glob(env: "SCEnvironment", subdir: str, *args: str):
     return matches
 
 
-def which(program: str) -> bool:
+def which(program: str) -> "Optional[str]":
     """Replicates the functionality of the 'which' shell command."""
     for ext in ("", ".exe", ".bat"):
         fpath = Path(program + ext)
         for path in os.environ["PATH"].split(os.pathsep):
             exe_file = Path(path).joinpath(fpath)
             if exe_file.exists() and os.access(exe_file, os.X_OK):
-                return True
-    return False
+                return str(exe_file)
+    return None
 
 
 def listify(value: "Union[str, Iterable]") -> "List[str]":
@@ -1209,6 +1271,92 @@ def get_command_output(cmd: str, *args: str, ignore_errors=False):
     )
     return data.stdout.strip()
 
+_python_info = None
+def setup_python_env(env):
+    """Set up an environment for compiling Python extension modules"""
+
+    global _python_info
+    if _python_info is None:
+        # Get information needed to build the Python module
+        script = textwrap.dedent("""\
+        from sysconfig import *
+        import numpy
+        import json
+        import site
+        import sys
+        vars = get_config_vars()
+        vars["plat"] = get_platform()
+        vars["numpy_include"] = numpy.get_include()
+        vars["site_packages"] = [d for d in site.getsitepackages() if d.endswith("-packages")]
+        vars["user_site_packages"] = site.getusersitepackages()
+        vars["abiflags"] = getattr(sys, "abiflags", "")
+        print(json.dumps(vars))
+        """)
+        _python_info = json.loads(get_command_output(env["python_cmd"], "-c", script))
+
+    info = _python_info
+    module_ext = info["EXT_SUFFIX"]
+    inc = info["INCLUDEPY"]
+    pylib = info.get("LDLIBRARY")
+    prefix = info["prefix"]
+    py_version_short = parse_version(info["py_version_short"])
+    py_version_full = parse_version(info["py_version"])
+    py_version_nodot = info["py_version_nodot"]
+    plat = info['plat'].replace('-', '_').replace('.', '_')
+    numpy_include = info["numpy_include"]
+    env.Prepend(CPPPATH=Dir('#include'))
+    add_system_include(env, (inc, numpy_include), 'prepend')
+    env.Prepend(LIBS=env['cantera_shared_libs'])
+
+    # Fix the module extension for Windows from the sysconfig library.
+    # See https://github.com/python/cpython/pull/22088 and
+    # https://bugs.python.org/issue39825
+    if (py_version_full < parse_version("3.8.7")
+        and env["OS"] == "Windows"
+        and module_ext == ".pyd"
+    ):
+        module_ext = f".cp{py_version_nodot}-{info['plat'].replace('-', '_')}.pyd"
+
+    env["py_module_ext"] = module_ext
+    env["py_version_nodot"] = py_version_nodot
+    env["py_version_short"] = info["py_version_short"]
+    env["py_plat"] = plat
+    env["py_base"] = info["installed_base"]
+    env["site_packages"] = info["site_packages"]
+    env["user_site_packages"] = info["user_site_packages"]
+    if env["OS"] != "Windows":
+        env["py_libpath"] = [info["LIBPL"], info["LIBDIR"]]
+        py_lib = "python" + info["py_version_short"] + info["abiflags"]
+    else:
+        env["py_libpath"] = [info["installed_base"] + "\\libs"]
+        py_lib = "python" + py_version_nodot
+    env["py_libs"] = [py_lib] + [lib[2:] for lib in info.get("LIBS", "").split()
+                                 if lib.startswith("-l")]
+
+    # Don't print deprecation warnings for internal Python changes.
+    # Only applies to Python 3.8. The field that is deprecated in Python 3.8
+    # and causes the warnings to appear will be removed in Python 3.9 so no
+    # further warnings should be issued.
+    if env["HAS_CLANG"] and py_version_short == parse_version("3.8"):
+        env.Append(CXXFLAGS='-Wno-deprecated-declarations')
+
+    if "icc" in env["CC"]:
+        env.Append(CPPDEFINES={"CYTHON_FALLTHROUGH": " __attribute__((fallthrough))"})
+
+    if env['OS'] == 'Darwin':
+        env.Append(LINKFLAGS='-undefined dynamic_lookup')
+    elif env['OS'] == 'Windows':
+        env.Append(LIBPATH=prefix + '/libs')
+        if env['toolchain'] == 'mingw':
+            env.Append(LIBS=f"python{py_version_nodot}")
+            if env['OS_BITS'] == 64:
+                env.Append(CPPDEFINES='MS_WIN64')
+
+    if "numpy_1_7_API" in env:
+        env.Append(CPPDEFINES="NPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION")
+
+
+    return env
 
 def get_pip_install_location(
     python_cmd: str,
@@ -1228,7 +1376,10 @@ def get_pip_install_location(
     root = quoted(root) if root is not None else None
     install_script = textwrap.dedent(f"""
         from pip import __version__ as pip_version
-        from pkg_resources import parse_version
+        try:
+            from packaging.version import parse as parse_version
+        except ImportError:
+            from pkg_resources import parse_version
         import pip
         import json
         pip_version = parse_version(pip_version)
@@ -1247,10 +1398,3 @@ def get_pip_install_location(
         print(json.dumps(scheme))
     """)
     return json.loads(get_command_output(python_cmd, "-c", install_script))
-
-
-# Monkey patch for SCons Cygwin bug
-# See https://github.com/SCons/scons/issues/2664
-if "cygwin" in platform.system().lower():
-    import SCons.Node.FS
-    SCons.Node.FS._my_normcase = lambda x: x

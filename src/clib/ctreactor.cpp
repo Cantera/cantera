@@ -5,7 +5,6 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-#define CANTERA_USE_INTERNAL
 #include "cantera/clib/ctreactor.h"
 
 // Cantera includes
@@ -13,18 +12,18 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/zerodim.h"
-#include "Cabinet.h"
+#include "clib_utils.h"
 
 using namespace Cantera;
-using namespace std;
 
 typedef Cabinet<ReactorBase> ReactorCabinet;
 typedef Cabinet<ReactorNet> NetworkCabinet;
 typedef Cabinet<FlowDevice> FlowDeviceCabinet;
 typedef Cabinet<WallBase> WallCabinet;
 typedef Cabinet<Func1> FuncCabinet;
-typedef Cabinet<ThermoPhase> ThermoCabinet;
-typedef Cabinet<Kinetics> KineticsCabinet;
+typedef SharedCabinet<ThermoPhase> ThermoCabinet;
+typedef SharedCabinet<Kinetics> KineticsCabinet;
+typedef SharedCabinet<Solution> SolutionCabinet;
 typedef Cabinet<ReactorSurface> ReactorSurfaceCabinet;
 
 template<> ReactorCabinet* ReactorCabinet::s_storage = 0;
@@ -35,6 +34,7 @@ template<> ReactorSurfaceCabinet* ReactorSurfaceCabinet::s_storage = 0;
 template<> FuncCabinet* FuncCabinet::s_storage; // defined in ctfunc.cpp
 template<> ThermoCabinet* ThermoCabinet::s_storage; // defined in ct.cpp
 template<> KineticsCabinet* KineticsCabinet::s_storage; // defined in ct.cpp
+template<> SolutionCabinet* SolutionCabinet::s_storage; // defined in ct.cpp
 
 extern "C" {
 
@@ -48,13 +48,6 @@ extern "C" {
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
-    }
-
-    int reactor_new2(const char* type)
-    {
-        warn_deprecated("reactor_new2(char*)",
-                "To be removed after Cantera 2.6. Use reactor_new(char*) instead");
-        return reactor_new(type);
     }
 
     int reactor_del(int i)
@@ -91,6 +84,16 @@ extern "C" {
     {
         try {
             ReactorCabinet::item(i).setKineticsMgr(KineticsCabinet::item(n));
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int reactor_insert(int i, int n)
+    {
+        try {
+            ReactorCabinet::get<Reactor>(i).insert(SolutionCabinet::at(n));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -357,18 +360,6 @@ extern "C" {
         }
     }
 
-    int flowdev_new2(const char* type)
-    {
-        warn_deprecated("flowdev_new2(char*)",
-                "To be removed after Cantera 2.6. Use flowdev_new(char*) instead.");
-        try {
-            FlowDevice* f = FlowDeviceFactory::factory()->newFlowDevice(type);
-            return FlowDeviceCabinet::add(f);
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
     int flowdev_del(int i)
     {
         try {
@@ -408,17 +399,6 @@ extern "C" {
     double flowdev_massFlowRate(int i)
     {
         try {
-            return FlowDeviceCabinet::item(i).massFlowRate();
-        } catch (...) {
-            return handleAllExceptions(DERR, DERR);
-        }
-    }
-
-    double flowdev_massFlowRate2(int i)
-    {
-        try {
-            warn_deprecated("flowdev_massFlowRate2(int i)",
-                "To be removed after Cantera 2.6. Use flowdev_massFlowRate(int i).");
             return FlowDeviceCabinet::item(i).massFlowRate();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
@@ -479,18 +459,6 @@ extern "C" {
 
     int wall_new(const char* type)
     {
-        try {
-            WallBase* w = WallFactory::factory()->newWall(type);
-            return WallCabinet::add(w);
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int wall_new2(const char* type)
-    {
-        warn_deprecated("wall_new2(char*)",
-                "To be removed after Cantera 2.6. Use wall_new(char*) instead.");
         try {
             WallBase* w = WallFactory::factory()->newWall(type);
             return WallCabinet::add(w);

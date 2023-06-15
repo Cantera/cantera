@@ -10,8 +10,6 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctexceptions.h"
 
-using namespace std;
-
 namespace Cantera
 {
 
@@ -58,15 +56,15 @@ struct isotopeWeightData {
 };
 
 /*!
- * @var static struct atomicWeightData atomicWeightTable[]
+ * @var static vector<atomicWeightData> atomicWeightTable
  * \brief atomicWeightTable is a vector containing the atomic weights database.
  *
- * atomicWeightTable[] is a static variable with scope limited to this file.
+ * atomicWeightTable is a static variable with scope limited to this file.
  * It can only be referenced via the functions in this file.
  *
  * The size of the table is given by the initial instantiation.
  */
-static struct atomicWeightData atomicWeightTable[] = {
+static vector<atomicWeightData> atomicWeightTable {
     {"H",  "hydrogen",        1.008},
     {"He", "helium",          4.002602},
     {"Li", "lithium",         6.94},
@@ -188,15 +186,15 @@ static struct atomicWeightData atomicWeightTable[] = {
 };
 
 /*!
- * @var static struct isotopeWeightData isotopeWeightTable[]
+ * @var static vector<isotopeWeightData> isotopeWeightTable
  * \brief isotopeWeightTable is a vector containing the atomic weights database.
  *
- * isotopeWeightTable[] is a static function with scope limited to this file.
+ * isotopeWeightTable is a static variable with scope limited to this file.
  * It can only be referenced via the functions in this file.
  *
  * The size of the table is given by the initial instantiation.
  */
-static struct isotopeWeightData isotopeWeightTable[] = {
+static vector<isotopeWeightData> isotopeWeightTable {
     // M. Wang et al. The AME2016 atomic mass evaluation. Chinese Physics C.
     // doi:10.1088/1674-1137/41/3/030003.
     {"D",  "deuterium", 2.0141017781, 1},
@@ -204,20 +202,68 @@ static struct isotopeWeightData isotopeWeightTable[] = {
     {"E", "electron", ElectronMass * Avogadro, 0},
 };
 
+// This is implemented as a separate function from elementSymbols() because this pattern
+// allows elementSymbols() to return a const reference to the data.
+vector<string> elementVectorsFromSymbols() {
+    vector<string> values;
+    for (const auto& atom : atomicWeightTable) {
+        values.push_back(atom.symbol);
+    }
+    return values;
+}
+
+const vector<string>& elementSymbols() {
+    const static vector<string> values = elementVectorsFromSymbols();
+    return values;
+}
+
+// This is implemented as a separate function from elementNames() because this pattern
+// allows elementNames() to return a const reference to the data.
+vector<string> elementVectorsFromNames() {
+    vector<string> values;
+    for (const auto& atom : atomicWeightTable) {
+        values.push_back(atom.fullName);
+    }
+    return values;
+}
+
+const vector<string>& elementNames() {
+    const static vector<string> values = elementVectorsFromNames();
+    return values;
+}
+
+map<string, double> mapAtomicWeights() {
+    map<string, double> symMap;
+
+    for (auto const& atom : atomicWeightTable) {
+        symMap.emplace(atom.symbol, atom.atomicWeight);
+        symMap.emplace(atom.fullName, atom.atomicWeight);
+    }
+    for (auto const& isotope : isotopeWeightTable) {
+        symMap.emplace(isotope.symbol, isotope.atomicWeight);
+        symMap.emplace(isotope.fullName, isotope.atomicWeight);
+    }
+    return symMap;
+}
+
+const map<string, double>& elementWeights() {
+    const static map<string, double> symMap = mapAtomicWeights();
+    return symMap;
+}
+
 double getElementWeight(const std::string& ename)
 {
-    int numElements = numElementsDefined();
-    int numIsotopes = numIsotopesDefined();
+    const auto& elementMap = elementWeights();
     double elementWeight = 0.0;
     string symbol = trimCopy(ename);
-    string name = toLowerCopy(symbol);
-    for (int i = 0; i < numElements; i++) {
-        if (symbol == atomicWeightTable[i].symbol) {
-            elementWeight =  atomicWeightTable[i].atomicWeight;
-            break;
-        } else if (name == atomicWeightTable[i].fullName) {
-            elementWeight = atomicWeightTable[i].atomicWeight;
-            break;
+    auto search = elementMap.find(symbol);
+    if (search != elementMap.end()) {
+        elementWeight = search->second;
+    } else {
+        string name = toLowerCopy(symbol);
+        search = elementMap.find(name);
+        if (search != elementMap.end()) {
+            elementWeight = search->second;
         }
     }
     if (elementWeight > 0.0) {
@@ -226,19 +272,12 @@ double getElementWeight(const std::string& ename)
         throw CanteraError("getElementWeight",
             "element '{}' has no stable isotopes", ename);
     }
-    for (int i = 0; i < numIsotopes; i++) {
-        if (symbol == isotopeWeightTable[i].symbol) {
-            return isotopeWeightTable[i].atomicWeight;
-        } else if (name == isotopeWeightTable[i].fullName) {
-            return isotopeWeightTable[i].atomicWeight;
-        }
-    }
     throw CanteraError("getElementWeight", "element not found: " + ename);
 }
 
 double getElementWeight(int atomicNumber)
 {
-    int num = numElementsDefined();
+    int num = static_cast<int>(numElementsDefined());
     if (atomicNumber > num || atomicNumber < 1) {
         throw IndexError("getElementWeight", "atomicWeightTable", atomicNumber, num);
     }
@@ -252,17 +291,15 @@ double getElementWeight(int atomicNumber)
 
 string getElementSymbol(const std::string& ename)
 {
-    int numElements = numElementsDefined();
-    int numIsotopes = numIsotopesDefined();
     string name = toLowerCopy(trimCopy(ename));
-    for (int i = 0; i < numElements; i++) {
-        if (name == atomicWeightTable[i].fullName) {
-            return atomicWeightTable[i].symbol;
+    for (const auto& atom : atomicWeightTable) {
+        if (name == atom.fullName) {
+            return atom.symbol;
         }
     }
-    for (int i = 0; i < numIsotopes; i++) {
-        if (name == isotopeWeightTable[i].fullName) {
-            return isotopeWeightTable[i].symbol;
+    for (const auto& atom : isotopeWeightTable) {
+        if (name == atom.fullName) {
+            return atom.symbol;
         }
     }
     throw CanteraError("getElementSymbol", "element not found: " + ename);
@@ -270,27 +307,24 @@ string getElementSymbol(const std::string& ename)
 
 string getElementSymbol(int atomicNumber)
 {
-    int num = numElementsDefined();
+    int num = static_cast<int>(numElementsDefined());
     if (atomicNumber > num || atomicNumber < 1) {
-        throw IndexError("getElementSymbol", "atomicWeightTable", atomicNumber,
-                         num);
+        throw IndexError("getElementSymbol", "atomicWeightTable", atomicNumber, num);
     }
     return atomicWeightTable[atomicNumber - 1].symbol;
 }
 
 string getElementName(const std::string& ename)
 {
-    int numElements = numElementsDefined();
-    int numIsotopes = numIsotopesDefined();
     string symbol = trimCopy(ename);
-    for (int i = 0; i < numElements; i++) {
-        if (symbol == atomicWeightTable[i].symbol) {
-            return atomicWeightTable[i].fullName;
+    for (const auto& atom : atomicWeightTable) {
+        if (symbol == atom.symbol) {
+            return atom.fullName;
         }
     }
-    for (int i = 0; i < numIsotopes; i++) {
-        if (symbol == isotopeWeightTable[i].symbol) {
-            return isotopeWeightTable[i].fullName;
+    for (const auto& atom : isotopeWeightTable) {
+        if (symbol == atom.symbol) {
+            return atom.fullName;
         }
     }
     throw CanteraError("getElementName", "element not found: " + ename);
@@ -298,28 +332,27 @@ string getElementName(const std::string& ename)
 
 string getElementName(int atomicNumber)
 {
-    int num = numElementsDefined();
+    int num = static_cast<int>(numElementsDefined());
     if (atomicNumber > num || atomicNumber < 1) {
-        throw IndexError("getElementName", "atomicWeightTable", atomicNumber,
-                         num);
+        throw IndexError("getElementName", "atomicWeightTable", atomicNumber, num);
     }
     return atomicWeightTable[atomicNumber - 1].fullName;
 }
 
 int getAtomicNumber(const std::string& ename)
 {
-    int numElements = numElementsDefined();
-    int numIsotopes = numIsotopesDefined();
+    size_t numElements = numElementsDefined();
+    size_t numIsotopes = numIsotopesDefined();
     string symbol = trimCopy(ename);
     string name = toLowerCopy(symbol);
-    for (int i = 0; i < numElements; i++) {
+    for (size_t i = 0; i < numElements; i++) {
         if (symbol == atomicWeightTable[i].symbol) {
-            return i+1;
+            return static_cast<int>(i) + 1;
         } else if (name == atomicWeightTable[i].fullName) {
-            return i+1;
+            return static_cast<int>(i) + 1;
         }
     }
-    for (int i = 0; i < numIsotopes; i++) {
+    for (size_t i = 0; i < numIsotopes; i++) {
         if (symbol == isotopeWeightTable[i].symbol) {
             return isotopeWeightTable[i].atomicNumber;
         } else if (name == isotopeWeightTable[i].fullName) {
@@ -329,14 +362,14 @@ int getAtomicNumber(const std::string& ename)
     throw CanteraError("getAtomicNumber", "element not found: " + ename);
 }
 
-int numElementsDefined()
+size_t numElementsDefined()
 {
-    return sizeof(atomicWeightTable) / sizeof(struct atomicWeightData);
+    return atomicWeightTable.size();
 }
 
-int numIsotopesDefined()
+size_t numIsotopesDefined()
 {
-    return sizeof(isotopeWeightTable) / sizeof(struct isotopeWeightData);
+    return isotopeWeightTable.size();
 }
 
 }

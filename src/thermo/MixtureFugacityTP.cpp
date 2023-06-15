@@ -10,18 +10,13 @@
 
 #include "cantera/thermo/MixtureFugacityTP.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/base/ctml.h"
+#include "cantera/base/utilities.h"
+#include "cantera/base/global.h"
 
 using namespace std;
 
 namespace Cantera
 {
-
-MixtureFugacityTP::MixtureFugacityTP() :
-    iState_(FLUID_GAS),
-    forcedState_(FLUID_UNDEFINED)
-{
-}
 
 int MixtureFugacityTP::standardStateConvention() const
 {
@@ -64,6 +59,8 @@ double MixtureFugacityTP::entropy_mole() const
 
 void MixtureFugacityTP::getChemPotentials_RT(doublereal* muRT) const
 {
+    warn_deprecated("MixtureFugacityTP::getChemPotentials_RT",
+                    "To be removed after Cantera 3.0. Use getChemPotentials instead.");
     getChemPotentials(muRT);
     for (size_t k = 0; k < m_kk; k++) {
         muRT[k] *= 1.0 / RT();
@@ -170,39 +167,6 @@ void MixtureFugacityTP::getStandardVolumes_ref(doublereal* vol) const
 {
     for (size_t i = 0; i < m_kk; i++) {
         vol[i]= RT() / refPressure();
-    }
-}
-
-void MixtureFugacityTP::setStateFromXML(const XML_Node& state)
-{
-    int doTP = 0;
-    string comp = getChildValue(state,"moleFractions");
-    if (comp != "") {
-        // not overloaded in current object -> phase state is not calculated.
-        setMoleFractionsByName(comp);
-        doTP = 1;
-    } else {
-        comp = getChildValue(state,"massFractions");
-        if (comp != "") {
-            // not overloaded in current object -> phase state is not calculated.
-            setMassFractionsByName(comp);
-            doTP = 1;
-        }
-    }
-    double t = temperature();
-    if (state.hasChild("temperature")) {
-        t = getFloat(state, "temperature", "temperature");
-        doTP = 1;
-    }
-    if (state.hasChild("pressure")) {
-        double p = getFloat(state, "pressure", "pressure");
-        setState_TP(t, p);
-    } else if (state.hasChild("density")) {
-        double rho = getFloat(state, "density", "density");
-        setState_TR(t, rho);
-    } else if (doTP) {
-        double rho = density();
-        setState_TR(t, rho);
     }
 }
 
@@ -494,7 +458,7 @@ int MixtureFugacityTP::corr0(doublereal TKelvin, doublereal pres, doublereal& de
         retn = -1;
     } else {
         densLiqGuess = densLiq;
-        setState_TR(TKelvin, densLiq);
+        setState_TD(TKelvin, densLiq);
         liqGRT = gibbs_mole() / RT();
     }
 
@@ -508,7 +472,7 @@ int MixtureFugacityTP::corr0(doublereal TKelvin, doublereal pres, doublereal& de
         retn = -2;
     } else {
         densGasGuess = densGas;
-        setState_TR(TKelvin, densGas);
+        setState_TD(TKelvin, densGas);
         gasGRT = gibbs_mole() / RT();
     }
     return retn;
@@ -750,14 +714,14 @@ doublereal MixtureFugacityTP::calculatePsat(doublereal TKelvin, doublereal& mola
         molarVolGas = mw / RhoGas;
         molarVolLiquid = mw / RhoLiquid;
         // Put the fluid in the desired end condition
-        setState_TR(tempSave, densSave);
+        setState_TD(tempSave, densSave);
         return pres;
     } else {
         pres = critPressure();
         setState_TP(TKelvin, pres);
         molarVolGas = mw / density();
         molarVolLiquid = molarVolGas;
-        setState_TR(tempSave, densSave);
+        setState_TD(tempSave, densSave);
     }
     return pres;
 }

@@ -5,7 +5,6 @@
 
 #include "cantera/oneD/OneDim.h"
 #include "cantera/numerics/Func1.h"
-#include "cantera/base/ctml.h"
 #include "cantera/oneD/MultiNewton.h"
 #include "cantera/base/AnyMap.h"
 
@@ -18,30 +17,31 @@ namespace Cantera
 {
 
 OneDim::OneDim()
-    : m_tmin(1.0e-16), m_tmax(1e8), m_tfactor(0.5),
-      m_rdt(0.0), m_jac_ok(false),
-      m_bw(0), m_size(0),
-      m_init(false), m_pts(0),
-      m_ss_jac_age(20), m_ts_jac_age(20),
-      m_interrupt(0), m_time_step_callback(0),
-      m_nsteps(0), m_nsteps_max(500),
-      m_nevals(0), m_evaltime(0.0)
 {
-    m_newt.reset(new MultiNewton(1));
+    m_newt = make_unique<MultiNewton>(1);
 }
 
-OneDim::OneDim(vector<Domain1D*> domains) :
-    m_tmin(1.0e-16), m_tmax(1e8), m_tfactor(0.5),
-    m_rdt(0.0), m_jac_ok(false),
-    m_bw(0), m_size(0),
-    m_init(false),
-    m_ss_jac_age(20), m_ts_jac_age(20),
-    m_interrupt(0), m_time_step_callback(0),
-    m_nsteps(0), m_nsteps_max(500),
-    m_nevals(0), m_evaltime(0.0)
+OneDim::OneDim(vector<shared_ptr<Domain1D>>& domains)
 {
     // create a Newton iterator, and add each domain.
-    m_newt.reset(new MultiNewton(1));
+    m_newt = make_unique<MultiNewton>(1);
+    m_state = make_shared<vector<double>>();
+    for (auto& dom : domains) {
+        addDomain(dom);
+    }
+    init();
+    resize();
+}
+
+OneDim::OneDim(vector<Domain1D*> domains)
+{
+    warn_deprecated("OneDim::OneDim(vector<Domain1D*>)",
+        "To be removed after Cantera 3.0; superseded by "
+        "OneDim::OneDim(vector<shared_ptr<Domain1D>>).");
+
+    // create a Newton iterator, and add each domain.
+    m_newt = make_unique<MultiNewton>(1);
+    m_state = make_shared<vector<double>>();
     for (size_t i = 0; i < domains.size(); i++) {
         addDomain(domains[i]);
     }
@@ -77,8 +77,38 @@ std::tuple<std::string, size_t, std::string> OneDim::component(size_t i) {
     return make_tuple(dom.id(), pt, dom.componentName(comp));
 }
 
+void OneDim::addDomain(shared_ptr<Domain1D> d)
+{
+    // if 'd' is not the first domain, link it to the last domain
+    // added (the rightmost one)
+    size_t n = m_dom.size();
+    if (n > 0) {
+        m_dom.back()->append(d.get());
+    }
+
+    // every other domain is a connector
+    if (n % 2 == 0) {
+        m_sharedConnect.push_back(d);
+        m_connect.push_back(d.get());
+    } else {
+        m_sharedBulk.push_back(d);
+        m_bulk.push_back(d.get());
+    }
+
+    // add it also to the global domain list, and set its container and position
+    m_sharedDom.push_back(d);
+    m_dom.push_back(d.get());
+    d->setData(m_state);
+    d->setContainer(this, m_dom.size()-1);
+    resize();
+}
+
 void OneDim::addDomain(Domain1D* d)
 {
+    warn_deprecated("OneDim::addDomain(Domain1D*)",
+        "To be removed after Cantera 3.0; superseded by "
+        "OneDim::addDomain(shared_ptr<Domain1D>).");
+
     // if 'd' is not the first domain, link it to the last domain
     // added (the rightmost one)
     size_t n = m_dom.size();
@@ -95,6 +125,7 @@ void OneDim::addDomain(Domain1D* d)
 
     // add it also to the global domain list, and set its container and position
     m_dom.push_back(d);
+    d->setData(m_state);
     d->setContainer(this, m_dom.size()-1);
     resize();
 }
@@ -210,11 +241,13 @@ void OneDim::resize()
         m_size = d->loc() + d->size();
     }
 
+    m_state->resize(size());
+
     m_newt->resize(size());
     m_mask.resize(size());
 
     // delete the current Jacobian evaluator and create a new one
-    m_jac.reset(new MultiJac(*this));
+    m_jac = make_unique<MultiJac>(*this);
     m_jac_ok = false;
 
     for (size_t i = 0; i < nDomains(); i++) {
@@ -421,48 +454,10 @@ void OneDim::resetBadValues(double* x)
     }
 }
 
-void OneDim::save(const std::string& fname, std::string id,
-                  const std::string& desc, doublereal* sol,
-                  int loglevel)
-{
-    time_t aclock;
-    ::time(&aclock); // Get time in seconds
-    struct tm* newtime = localtime(&aclock); // Convert time to struct tm form
-
-    XML_Node root("ctml");
-    ifstream fin(fname);
-    if (fin) {
-        root.build(fin, fname);
-        // Remove existing solution with the same id
-        XML_Node* same_ID = root.findID(id);
-        if (same_ID) {
-            same_ID->parent()->removeChild(same_ID);
-        }
-        fin.close();
-    }
-    XML_Node& sim = root.addChild("simulation");
-    sim.addAttribute("id",id);
-    addString(sim,"timestamp",asctime(newtime));
-    if (desc != "") {
-        addString(sim,"description",desc);
-    }
-
-    Domain1D* d = left();
-    while (d) {
-        d->save(sim, sol);
-        d = d->right();
-    }
-    ofstream s(fname);
-    if (!s) {
-        throw CanteraError("OneDim::save","could not open file "+fname);
-    }
-    root.write(s);
-    s.close();
-    debuglog("Solution saved to file "+fname+" as solution "+id+".\n", loglevel);
-}
-
 AnyMap OneDim::serialize(const double* soln) const
 {
+    warn_deprecated("OneDim::serialize",
+        "To be removed after Cantera 3.0; unused.");
     AnyMap state;
     for (size_t i = 0; i < m_dom.size(); i++) {
         state[m_dom[i]->id()] = m_dom[i]->serialize(soln + start(i));

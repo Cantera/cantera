@@ -14,15 +14,11 @@
 #include "cantera/thermo/PDSS.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/utilities.h"
-#include "cantera/base/xml.h"
-
-using namespace std;
 
 namespace Cantera
 {
 
-IdealSolnGasVPSS::IdealSolnGasVPSS(const std::string& infile, std::string id_) :
-    m_formGC(0)
+IdealSolnGasVPSS::IdealSolnGasVPSS(const string& infile, string id_)
 {
     initThermoFile(infile, id_);
 }
@@ -77,12 +73,9 @@ void IdealSolnGasVPSS::setPressure(doublereal p)
 
 void IdealSolnGasVPSS::calcDensity()
 {
-    const doublereal* const dtmp = moleFractdivMMW();
-    const vector_fp& vss = getStandardVolumes();
-    double dens = 1.0 / dot(vss.begin(), vss.end(), dtmp);
-
-    // Set the density in the parent State object directly
-    Phase::assignDensity(dens);
+    double v_mol = mean_X(getStandardVolumes());
+    // Set the density in the parent object directly
+    Phase::assignDensity(meanMolecularWeight() / v_mol);
 }
 
 Units IdealSolnGasVPSS::standardConcentrationUnits() const
@@ -206,7 +199,8 @@ void IdealSolnGasVPSS::setToEquilState(const doublereal* mu_RT)
         pres += m_pp[k];
     }
     // set state
-    setState_PX(pres, &m_pp[0]);
+    setMoleFractions(m_pp.data());
+    setPressure(pres);
 }
 
 bool IdealSolnGasVPSS::addSpecies(shared_ptr<Species> spec)
@@ -235,24 +229,6 @@ void IdealSolnGasVPSS::getParameters(AnyMap& phaseNode) const
     } else if (m_formGC == 2) {
         phaseNode["standard-concentration-basis"] = "solvent-molar-volume";
     }
-}
-
-void IdealSolnGasVPSS::initThermoXML(XML_Node& phaseNode, const std::string& id_)
-{
-    // Form of the standard concentrations. Must have one of:
-    //
-    //     <standardConc model="unity" />
-    //     <standardConc model="molar_volume" />
-    //     <standardConc model="solvent_volume" />
-    if (phaseNode.hasChild("standardConc")) {
-        XML_Node& scNode = phaseNode.child("standardConc");
-        setStandardConcentrationModel(scNode.attrib("model"));
-    } else {
-        throw CanteraError("IdealSolnGasVPSS::initThermoXML",
-                           "Unspecified standardConc model");
-    }
-
-    VPStandardStateTP::initThermoXML(phaseNode, id_);
 }
 
 }

@@ -6,42 +6,32 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/WaterProps.h"
-#include "cantera/base/ctml.h"
 #include "cantera/thermo/PDSS_Water.h"
 #include "cantera/base/stringUtils.h"
 
 namespace Cantera
 {
 WaterProps::WaterProps():
-    m_waterIAPWS(0),
-    m_own_sub(false)
+    m_waterIAPWS(new WaterPropsIAPWS()),
+    m_own_sub(true)
 {
-    // object owns its own water evaluator
-    m_waterIAPWS = new WaterPropsIAPWS();
-    m_own_sub = true;
 }
 
-WaterProps::WaterProps(PDSS_Water* wptr)  :
-    m_waterIAPWS(0),
-    m_own_sub(false)
+WaterProps::WaterProps(PDSS_Water* wptr)
 {
     if (wptr) {
         // object in slave mode; it doesn't own its own water evaluator.
         m_waterIAPWS = wptr->getWater();
-        m_own_sub = false;
     } else {
         m_waterIAPWS = new WaterPropsIAPWS();
         m_own_sub = true;
     }
 }
 
-WaterProps::WaterProps(WaterPropsIAPWS* waterIAPWS)  :
-    m_waterIAPWS(0),
-    m_own_sub(false)
+WaterProps::WaterProps(WaterPropsIAPWS* waterIAPWS)
 {
     if (waterIAPWS) {
         m_waterIAPWS = waterIAPWS;
-        m_own_sub = false;
     } else {
         m_waterIAPWS = new WaterPropsIAPWS();
         m_own_sub = true;
