@@ -63,7 +63,8 @@ binary-indep: binary
 build:
 	scons build -j6 prefix=/usr blas_lapack_libs=lapack,blas system_sundials=y \
 		f90_interface=y renamed_shared_libraries=n versioned_shared_library=n \
-		python_package=full layout=debian system_eigen=y system_fmt=y
+		python_package=full layout=debian system_eigen=y system_fmt=y \
+		use_rpath_linkage=n
 
 build-arch: build
 
