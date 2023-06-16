@@ -2,6 +2,8 @@
 
 export DH_OPTIONS
 export DH_VERBOSE
+export FULL_VERSION=`head -n 1 debian/changelog | sed 's/cantera (\([0-9]\+\.[0-9]\+\.[0-9]\+\).*).*/\1/'`
+export MAJOR_VERSION=`head -n 1 debian/changelog | sed 's/cantera (\([0-9]\+\).*).*/\1/'`
 
 clean:
 	scons clean
@@ -54,10 +56,17 @@ binary: build
 	mv stage/usr/include/cantera debian/libcantera-dev/usr/include
 
 	mkdir -p debian/libcantera3/usr/lib/${DEB_HOST_MULTIARCH}
-	mv stage/usr/lib/*.so debian/libcantera3/usr/lib/${DEB_HOST_MULTIARCH}/
+
+	patchelf --set-soname libcantera.so.${FULL_VERSION} stage/usr/lib/libcantera.so
+	mv stage/usr/lib/libcantera.so debian/libcantera3/usr/lib/${DEB_HOST_MULTIARCH}/libcantera.so.${FULL_VERSION}
+	ln -s libcantera.so.${FULL_VERSION} debian/libcantera3/usr/lib/${DEB_HOST_MULTIARCH}/libcantera.so.${MAJOR_VERSION}
+
+	patchelf --set-soname libcantera_fortran.so.${FULL_VERSION} stage/usr/lib/libcantera_fortran.so
+	mv stage/usr/lib/libcantera_fortran.so debian/libcantera3/usr/lib/${DEB_HOST_MULTIARCH}/libcantera_fortran.so.${FULL_VERSION}
+	ln -s libcantera_fortran.so.${FULL_VERSION} debian/libcantera3/usr/lib/${DEB_HOST_MULTIARCH}/libcantera_fortran.so.${MAJOR_VERSION}
 
 	dh_strip
-	dh_shlibdeps
+	dh_shlibdeps -- -Sdebian/libcantera3
 	dh_compress
 	dh_gencontrol
 	dh_fixperms
