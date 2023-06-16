@@ -20,7 +20,7 @@ Description: Common files needed for all Cantera interfaces
  This package includes programs for parsing and converting chemical
  mechanisms, a set of common mechanism files, and several sample problems.
 
-Package: libcantera3
+Package: libcantera3.0
 Architecture: any
 Depends: cantera-common, ${shlibs:Depends}, ${misc:Depends}
 Description: Cantera shared library used by all Cantera interfaces
@@ -33,7 +33,7 @@ Description: Cantera shared library used by all Cantera interfaces
  .
  This package contains the Cantera shared library for C/C++.
 
-Package: libcantera-fortran3
+Package: libcantera-fortran3.0
 Architecture: any
 Depends: cantera-common, ${shlibs:Depends}, ${misc:Depends}
 Description: Cantera Fortran 90 library
@@ -75,7 +75,7 @@ Description: Header files and static libraries for Cantera
 
 Package: cantera
 Architecture: any
-Depends: cantera-common, cantera-python3, libcantera3, libcantera-fortran3, ${misc:Depends}
+Depends: cantera-common, cantera-python3, libcantera3.0, libcantera-fortran3.0, ${misc:Depends}
 Description: Tools for chemical kinetics, thermodynamics and transport properties
  Cantera is a suite of object-oriented software tools for solving problems
  involving chemical kinetics, thermodynamics, and/or transport processes.

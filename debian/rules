@@ -3,7 +3,7 @@
 export DH_OPTIONS
 export DH_VERBOSE
 export FULL_VERSION=`head -n 1 debian/changelog | sed 's/cantera (\([0-9]\+\.[0-9]\+\.[0-9]\+\).*).*/\1/'`
-export MAJOR_VERSION=`head -n 1 debian/changelog | sed 's/cantera (\([0-9]\+\).*).*/\1/'`
+export SO_VERSION=3.0
 
 clean:
 	scons clean
@@ -54,15 +54,15 @@ binary: build
 	mkdir -p debian/libcantera-dev/usr/include
 	mv stage/usr/include/cantera debian/libcantera-dev/usr/include
 
-	mkdir -p debian/libcantera3/usr/lib/${DEB_HOST_MULTIARCH}
-	patchelf --set-soname libcantera.so.${FULL_VERSION} stage/usr/lib/libcantera.so
-	mv stage/usr/lib/libcantera.so debian/libcantera3/usr/lib/${DEB_HOST_MULTIARCH}/libcantera.so.${FULL_VERSION}
-	ln -s libcantera.so.${FULL_VERSION} debian/libcantera3/usr/lib/${DEB_HOST_MULTIARCH}/libcantera.so.${MAJOR_VERSION}
+	mkdir -p debian/libcantera${SO_VERSION}/usr/lib/${DEB_HOST_MULTIARCH}
+	patchelf --set-soname libcantera.so.${SO_VERSION} stage/usr/lib/libcantera.so
+	mv stage/usr/lib/libcantera.so debian/libcantera${SO_VERSION}/usr/lib/${DEB_HOST_MULTIARCH}/libcantera.so.${FULL_VERSION}
+	ln -s libcantera.so.${FULL_VERSION} debian/libcantera${SO_VERSION}/usr/lib/${DEB_HOST_MULTIARCH}/libcantera.so.${SO_VERSION}
 
-	mkdir -p debian/libcantera-fortran3/usr/lib/${DEB_HOST_MULTIARCH}
-	patchelf --set-soname libcantera_fortran.so.${FULL_VERSION} stage/usr/lib/libcantera_fortran.so
-	mv stage/usr/lib/libcantera_fortran.so debian/libcantera-fortran3/usr/lib/${DEB_HOST_MULTIARCH}/libcantera_fortran.so.${FULL_VERSION}
-	ln -s libcantera_fortran.so.${FULL_VERSION} debian/libcantera-fortran3/usr/lib/${DEB_HOST_MULTIARCH}/libcantera_fortran.so.${MAJOR_VERSION}
+	mkdir -p debian/libcantera-fortran${SO_VERSION}/usr/lib/${DEB_HOST_MULTIARCH}
+	patchelf --set-soname libcantera_fortran.so.${SO_VERSION} stage/usr/lib/libcantera_fortran.so
+	mv stage/usr/lib/libcantera_fortran.so debian/libcantera-fortran${SO_VERSION}/usr/lib/${DEB_HOST_MULTIARCH}/libcantera_fortran.so.${FULL_VERSION}
+	ln -s libcantera_fortran.so.${FULL_VERSION} debian/libcantera-fortran${SO_VERSION}/usr/lib/${DEB_HOST_MULTIARCH}/libcantera_fortran.so.${SO_VERSION}
 
 	dh_compress
 	dh_fixperms
