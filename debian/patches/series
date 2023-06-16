@@ -1,1 +1,2 @@
 0001-Make-compatible-with-Cython-0.29.31.patch
+0002-Use-private-version-of-cantera_python-shim-library.patch

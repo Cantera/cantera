@@ -1,0 +1,27 @@
+From: Ray Speth <speth@mit.edu>
+Date: Fri, 16 Jun 2023 16:16:35 -0400
+Subject: Use private version of cantera_python shim library
+
+---
+ src/base/application.cpp | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/src/base/application.cpp b/src/base/application.cpp
+index 2d728d4..b127f30 100644
+--- a/src/base/application.cpp
++++ b/src/base/application.cpp
+@@ -395,12 +395,11 @@ void Application::loadExtension(const string& extType, const string& name)
+             string py_ver_underscore = ba::replace_all_copy(py_ver, ".", "_");
+             try {
+                 loader = boost::dll::import_alias<loader_t>(
+-                    "cantera_python" + py_ver_underscore, // library name
++                    "/usr/lib/cantera/cantera_python" + py_ver_underscore, // library name
+                     "registerPythonExtensionManager", // symbol to import
+                     // append extensions and prefixes, search normal library path, and
+                     // expose all loaded symbols (specifically, those from libpython)
+-                    boost::dll::load_mode::search_system_folders
+-                    | boost::dll::load_mode::append_decorations
++                    boost::dll::load_mode::append_decorations
+                     | boost::dll::load_mode::rtld_global
+                 );
+                 loader();

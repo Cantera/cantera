@@ -35,7 +35,7 @@ binary: build
 	mv stage/usr/share/cantera/samples debian/cantera-common/usr/share/cantera/
 
 	mkdir -p debian/cantera-python3/usr/lib/python3/dist-packages
-	mkdir -p debian/cantera-python3/usr/lib/${DEB_HOST_MULTIARCH}/
+	mkdir -p debian/cantera-python3/usr/lib/cantera
 
 	rm -rf stage/usr/local/lib/python3.*/dist-packages/cantera/data
 	find stage -name __pycache__ | xargs rm -rf
@@ -45,7 +45,7 @@ binary: build
 	rm -f stage/usr/local/lib/python3.*/dist-packages/Cantera-*.dist-info/REQUESTED
 	mv stage/usr/local/lib/python3.*/dist-packages/cantera debian/cantera-python3/usr/lib/python3/dist-packages/
 	mv stage/usr/local/lib/python3.*/dist-packages/Cantera-*.dist-info debian/cantera-python3/usr/lib/python3/dist-packages/
-	mv stage/usr/lib/libcantera_python*.so debian/cantera-python3/usr/lib/${DEB_HOST_MULTIARCH}/
+	mv stage/usr/lib/libcantera_python*.so debian/cantera-python3/usr/lib/cantera/
 
 	mkdir -p debian/libcantera-dev/usr/lib
 	mv stage/usr/lib/*.a debian/libcantera-dev/usr/lib/

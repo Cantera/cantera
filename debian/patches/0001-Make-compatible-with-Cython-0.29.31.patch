@@ -10,10 +10,10 @@ This needs to be undone to be compatible with Cython>=3.0
  3 files changed, 15 insertions(+), 15 deletions(-)
 
 diff --git a/SConstruct b/SConstruct
-index beac093..fc49dd1 100644
+index 7a39c47..d1eb781 100644
 --- a/SConstruct
 +++ b/SConstruct
-@@ -1705,7 +1705,7 @@ python_max_p1_version = parse_version("3.12")
+@@ -1704,7 +1704,7 @@ python_max_p1_version = parse_version("3.12")
  env["py_requires_ver_str"] = f">={python_min_version}"
  if env["python_sdist"] or env["package_build"]:
      env["py_requires_ver_str"] += f",<{python_max_p1_version}"
