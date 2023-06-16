@@ -44,6 +44,8 @@ binary: build
 	rm -f stage/usr/local/lib/python3.*/dist-packages/Cantera-*.dist-info/LICENSE.txt
 	rm -f stage/usr/local/lib/python3.*/dist-packages/Cantera-*.dist-info/direct_url.json
 	rm -f stage/usr/local/lib/python3.*/dist-packages/Cantera-*.dist-info/REQUESTED
+	patchelf --replace-needed libcantera.so libcantera.so.${SO_VERSION} stage/usr/lib/libcantera_python*.so
+	patchelf --replace-needed libcantera.so libcantera.so.${SO_VERSION} stage/usr/local/lib/python3.*/dist-packages/_cantera*.so
 	mv stage/usr/local/lib/python3.*/dist-packages/cantera debian/cantera-python3/usr/lib/python3/dist-packages/
 	mv stage/usr/local/lib/python3.*/dist-packages/Cantera-*.dist-info debian/cantera-python3/usr/lib/python3/dist-packages/
 	mv stage/usr/lib/libcantera_python*.so debian/cantera-python3/usr/lib/cantera/
@@ -62,6 +64,7 @@ binary: build
 
 	mkdir -p debian/libcantera-fortran${SO_VERSION}/usr/lib/${DEB_HOST_MULTIARCH}
 	patchelf --set-soname libcantera_fortran.so.${SO_VERSION} stage/usr/lib/libcantera_fortran.so
+	patchelf --replace-needed libcantera.so libcantera.so.${SO_VERSION} stage/usr/lib/libcantera_fortran.so
 	mv stage/usr/lib/libcantera_fortran.so debian/libcantera-fortran${SO_VERSION}/usr/lib/${DEB_HOST_MULTIARCH}/libcantera_fortran.so.${FULL_VERSION}
 	ln -s libcantera_fortran.so.${FULL_VERSION} debian/libcantera-fortran${SO_VERSION}/usr/lib/${DEB_HOST_MULTIARCH}/libcantera_fortran.so.${SO_VERSION}
 
