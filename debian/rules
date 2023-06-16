@@ -56,16 +56,17 @@ binary: build
 	mv stage/usr/include/cantera debian/libcantera-dev/usr/include
 
 	mkdir -p debian/libcantera3/usr/lib/${DEB_HOST_MULTIARCH}
-
 	patchelf --set-soname libcantera.so.${FULL_VERSION} stage/usr/lib/libcantera.so
 	mv stage/usr/lib/libcantera.so debian/libcantera3/usr/lib/${DEB_HOST_MULTIARCH}/libcantera.so.${FULL_VERSION}
 	ln -s libcantera.so.${FULL_VERSION} debian/libcantera3/usr/lib/${DEB_HOST_MULTIARCH}/libcantera.so.${MAJOR_VERSION}
 
+	mkdir -p debian/libcantera-fortran3/usr/lib/${DEB_HOST_MULTIARCH}
 	patchelf --set-soname libcantera_fortran.so.${FULL_VERSION} stage/usr/lib/libcantera_fortran.so
-	mv stage/usr/lib/libcantera_fortran.so debian/libcantera3/usr/lib/${DEB_HOST_MULTIARCH}/libcantera_fortran.so.${FULL_VERSION}
-	ln -s libcantera_fortran.so.${FULL_VERSION} debian/libcantera3/usr/lib/${DEB_HOST_MULTIARCH}/libcantera_fortran.so.${MAJOR_VERSION}
+	mv stage/usr/lib/libcantera_fortran.so debian/libcantera-fortran3/usr/lib/${DEB_HOST_MULTIARCH}/libcantera_fortran.so.${FULL_VERSION}
+	ln -s libcantera_fortran.so.${FULL_VERSION} debian/libcantera-fortran3/usr/lib/${DEB_HOST_MULTIARCH}/libcantera_fortran.so.${MAJOR_VERSION}
 
 	dh_strip
+	dh_makeshlibs
 	dh_shlibdeps -- -Sdebian/libcantera3
 	dh_compress
 	dh_gencontrol

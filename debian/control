@@ -23,7 +23,7 @@ Description: Common files needed for all Cantera interfaces
 Package: libcantera3
 Architecture: any
 Depends: cantera-common, ${shlibs:Depends}, ${misc:Depends}
-Description: Header files and static libraries for Cantera
+Description: Cantera shared library used by all Cantera interfaces
  Cantera is a suite of object-oriented software tools for solving problems
  involving chemical kinetics, thermodynamics, and/or transport processes.
  Cantera can be used for simulating time-dependent or steady reactor
@@ -31,7 +31,20 @@ Description: Header files and static libraries for Cantera
  ideal gases, aqueous electrolytes, plasmas, and multiphase substances
  are provided.
  .
- This package contains the Cantera shared library.
+ This package contains the Cantera shared library for C/C++.
+
+Package: libcantera-fortran3
+Architecture: any
+Depends: cantera-common, ${shlibs:Depends}, ${misc:Depends}
+Description: Cantera Fortran 90 library
+ Cantera is a suite of object-oriented software tools for solving problems
+ involving chemical kinetics, thermodynamics, and/or transport processes.
+ Cantera can be used for simulating time-dependent or steady reactor
+ networks and one-dimensional reacting flows. Thermodynamic models for
+ ideal gases, aqueous electrolytes, plasmas, and multiphase substances
+ are provided.
+ .
+ This package contains the Cantera shared library for Fortran 90.
 
 Package: cantera-python3
 Architecture: any
@@ -62,7 +75,7 @@ Description: Header files and static libraries for Cantera
 
 Package: cantera
 Architecture: any
-Depends: cantera-common, cantera-python3, libcantera3, ${misc:Depends}
+Depends: cantera-common, cantera-python3, libcantera3, libcantera-fortran3, ${misc:Depends}
 Description: Tools for chemical kinetics, thermodynamics and transport properties
  Cantera is a suite of object-oriented software tools for solving problems
  involving chemical kinetics, thermodynamics, and/or transport processes.
