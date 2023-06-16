@@ -19,7 +19,6 @@ clean:
 
 binary: build
 	dh_prep
-	dh_installdeb
 	dh_installdocs
 	dh_installchangelogs
 	dh_installman platform/posix/man/*
@@ -65,12 +64,13 @@ binary: build
 	mv stage/usr/lib/libcantera_fortran.so debian/libcantera-fortran3/usr/lib/${DEB_HOST_MULTIARCH}/libcantera_fortran.so.${FULL_VERSION}
 	ln -s libcantera_fortran.so.${FULL_VERSION} debian/libcantera-fortran3/usr/lib/${DEB_HOST_MULTIARCH}/libcantera_fortran.so.${MAJOR_VERSION}
 
+	dh_compress
+	dh_fixperms
 	dh_strip
 	dh_makeshlibs
 	dh_shlibdeps -- -Sdebian/libcantera3
-	dh_compress
+	dh_installdeb
 	dh_gencontrol
-	dh_fixperms
 	dh_builddeb
 
 binary-arch: binary
