@@ -1313,6 +1313,116 @@ class TestCounterflowPremixedFlame(utilities.CanteraTest):
         self.assertNear(mdot[0], sim.reactants.mdot, 1e-4)
         self.assertNear(mdot[-1], -sim.products.mdot, 1e-4)
 
+class TestCounterflowPremixedFlameNonIdeal(utilities.CanteraTest):
+    # Note: to re-create the reference file:
+    # (1) set PYTHONPATH to build/python.
+    # (2) Start Python and run:
+    #     >>> import cantera.test
+    #     >>> t = cantera.test.test_onedim.TestCounterflowPremixedFlameNonIdeal()
+    #     >>> t.setUpClass()
+    #     >>> t.test_mixture_averaged(True)
+    # (3) Compare the reference files created in the current working directory with
+    #     the ones in test/data and replace them if needed.
+
+    def test_mixture_averaged(self, saveReference=False):
+        T_in = 373.0  # inlet temperature
+        comp = 'H2:1.6, O2:1, AR:7'  # premixed gas composition
+
+        gas = ct.Solution("h2o2.yaml", "ohmech-RK")
+        gas.TPX = T_in, 0.05 * ct.one_atm, comp
+        width = 0.2 # m
+
+        sim = ct.CounterflowPremixedFlame(gas=gas, width=width)
+
+        # set the properties at the inlets
+        sim.reactants.mdot = 0.12  # kg/m^2/s
+        sim.reactants.X = comp
+        sim.reactants.T = T_in
+        sim.products.mdot = 0.06  # kg/m^2/s
+
+        sim.flame.set_steady_tolerances(default=[1.0e-5, 1.0e-11])
+        sim.flame.set_transient_tolerances(default=[1.0e-5, 1.0e-11])
+        sim.set_initial_guess()  # assume adiabatic equilibrium products
+
+        sim.energy_enabled = False
+        sim.solve(loglevel=0, refine_grid=False)
+
+        sim.set_refine_criteria(ratio=3, slope=0.2, curve=0.4, prune=0.02)
+        sim.energy_enabled = True
+        self.assertFalse(sim.radiation_enabled)
+        sim.solve(loglevel=0, refine_grid=True)
+
+        data = np.empty((sim.flame.n_points, gas.n_species + 4))
+        data[:,0] = sim.grid
+        data[:,1] = sim.velocity
+        data[:,2] = sim.spread_rate
+        data[:,3] = sim.T
+        data[:,4:] = sim.Y.T
+
+        referenceFile = "CounterflowPremixedFlame-h2-mix-RK.csv"
+        if saveReference:
+            np.savetxt(referenceFile, data, '%11.6e', ', ')
+        else:
+            bad = utilities.compareProfiles(self.test_data_path / referenceFile, data,
+                                            rtol=1e-2, atol=1e-8, xtol=1e-2)
+            self.assertFalse(bad, bad)
+
+        filename = self.test_work_path / "CounterflowPremixedFlame-h2-mix-RK.csv"
+        # In Python >= 3.8, this can be replaced by the missing_ok argument
+        if filename.is_file():
+            filename.unlink()
+
+        sim.write_csv(filename) # check output
+        self.assertTrue(filename.is_file())
+        csv_data = np.genfromtxt(filename, dtype=float, delimiter=',', names=True)
+        self.assertNotIn('qdot', csv_data.dtype.names)
+
+    def run_case(self, phi, T, width, P):
+        gas = ct.Solution("h2o2.yaml", "ohmech-RK")
+        gas.TPX = T, P * ct.one_atm, {'H2':phi, 'O2':0.5, 'AR':2}
+        sim = ct.CounterflowPremixedFlame(gas=gas, width=width)
+        sim.reactants.mdot = 10 * gas.density
+        sim.products.mdot = 5 * gas.density
+        sim.set_refine_criteria(ratio=6, slope=0.7, curve=0.8, prune=0.4)
+        sim.solve(loglevel=0, auto=True)
+        self.assertTrue(all(sim.T >= T - 1e-3))
+        self.assertTrue(all(sim.spread_rate >= -1e-9))
+        return sim
+
+    @utilities.slow_test
+    def test_solve_case1(self):
+        self.run_case(phi=0.4, T=400, width=0.05, P=10.0)
+
+    @utilities.slow_test
+    def test_solve_case2(self):
+        self.run_case(phi=0.5, T=500, width=0.03, P=2.0)
+
+    @utilities.slow_test
+    def test_solve_case3(self):
+        self.run_case(phi=0.7, T=300, width=0.05, P=2.0)
+
+    @utilities.slow_test
+    def test_solve_case4(self):
+        self.run_case(phi=1.5, T=400, width=0.03, P=0.02)
+
+    @utilities.slow_test
+    def test_solve_case5(self):
+        self.run_case(phi=2.0, T=300, width=0.2, P=0.2)
+
+    @utilities.slow_test
+    def test_restart(self):
+        sim = self.run_case(phi=2.0, T=300, width=0.2, P=0.2)
+
+        arr = sim.to_array()
+        sim.reactants.mdot *= 1.1
+        sim.products.mdot *= 1.1
+        sim.set_initial_guess(data=arr)
+        sim.solve(loglevel=0, auto=True)
+
+        # Check inlet / outlet
+        mdot = sim.density * sim.velocity
+        self.assertNear(mdot[0], sim.reactants.mdot, 1e-4)
+        self.assertNear(mdot[-1], -sim.products.mdot, 1e-4)
 
 class TestBurnerFlame(utilities.CanteraTest):
     def solve(self, phi, T, width, P):
