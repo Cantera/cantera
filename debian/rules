@@ -26,6 +26,7 @@ binary: build
 	scons install
 
 	mkdir -p debian/cantera-common/usr/bin
+	mkdir -p debian/cantera-common/usr/share/cantera/
 	sed 's|#\!/usr/bin/env python$$|#\!/usr/bin/env python3|' interfaces/cython/cantera/ck2yaml.py > debian/cantera-common/usr/bin/ck2yaml
 	sed 's|#\!/usr/bin/env python$$|#\!/usr/bin/env python3|' interfaces/cython/cantera/ctml2yaml.py > debian/cantera-common/usr/bin/ctml2yaml
 	sed 's|#\!/usr/bin/env python$$|#\!/usr/bin/env python3|' interfaces/cython/cantera/cti2yaml.py > debian/cantera-common/usr/bin/cti2yaml
