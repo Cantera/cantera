@@ -8,6 +8,7 @@ env.Append(FFLAGS='-g',
            CPPPATH=@tmpl_cantera_incdirs@,
            LIBS=@tmpl_cantera_libs@,
            LIBPATH=@tmpl_cantera_libdirs@,
+           RPATH=@tmpl_cantera_libdirs@,
            LINKFLAGS=@tmpl_cantera_linkflags@,
            FRAMEWORKS=@tmpl_cantera_frameworks@)
 
