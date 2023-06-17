@@ -45,7 +45,7 @@ binary: build
 	rm -f stage/usr/local/lib/python3.*/dist-packages/Cantera-*.dist-info/direct_url.json
 	rm -f stage/usr/local/lib/python3.*/dist-packages/Cantera-*.dist-info/REQUESTED
 	patchelf --replace-needed libcantera.so libcantera.so.${SO_VERSION} stage/usr/lib/libcantera_python*.so
-	patchelf --replace-needed libcantera.so libcantera.so.${SO_VERSION} stage/usr/local/lib/python3.*/dist-packages/_cantera*.so
+	patchelf --replace-needed libcantera.so libcantera.so.${SO_VERSION} stage/usr/local/lib/python3.*/dist-packages/cantera/_cantera*.so
 	mv stage/usr/local/lib/python3.*/dist-packages/cantera debian/cantera-python3/usr/lib/python3/dist-packages/
 	mv stage/usr/local/lib/python3.*/dist-packages/Cantera-*.dist-info debian/cantera-python3/usr/lib/python3/dist-packages/
 	mv stage/usr/lib/libcantera_python*.so debian/cantera-python3/usr/lib/cantera/
