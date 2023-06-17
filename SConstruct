@@ -2223,6 +2223,12 @@ if env['system_sundials'] == 'y':
 else:
     env['sundials_libs'] = []
 
+# List of shared libraries needed to link to Cantera
+if env["renamed_shared_libraries"]:
+    env["cantera_shared_libs"] = ["cantera_shared"]
+else:
+    env["cantera_shared_libs"] = ["cantera"]
+
 # External libraries to link to
 env["external_libs"] = []
 env["external_libs"].extend(env["sundials_libs"])
@@ -2235,6 +2241,9 @@ if env["use_hdf5"]:
 
 if env["system_fmt"]:
     env["external_libs"].append("fmt")
+    # Usually need to link to fmt directly because of templated/inlined code that calls
+    # fmt
+    env["cantera_shared_libs"].append("fmt")
 
 if env["system_yamlcpp"]:
     env["external_libs"].append("yaml-cpp")
@@ -2244,12 +2253,6 @@ if env["blas_lapack_libs"]:
 
 # List of static libraries needed to link to Cantera
 env["cantera_libs"] = ["cantera"] + env["external_libs"]
-
-# List of shared libraries needed to link to Cantera
-if env["renamed_shared_libraries"]:
-    env["cantera_shared_libs"] = ["cantera_shared"] + env["external_libs"]
-else:
-    env["cantera_shared_libs"] = ["cantera"] + env["external_libs"]
 
 # Add targets from the SConscript files in the various subdirectories
 Export('env', 'build', 'libraryTargets', 'install', 'buildSample', "configh")

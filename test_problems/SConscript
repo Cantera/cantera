@@ -54,7 +54,7 @@ class Test(object):
         if source_files:
             self.program = localenv.Program(
                 pjoin(self.subdir, self.programName), source_files,
-                LIBS=self.libs or localenv['cantera_shared_libs'])
+                LIBS=localenv['cantera_shared_libs'])
         else:
             if isinstance(self.programName, str):
                 self.programName += '$PROGSUFFIX'
@@ -110,9 +110,8 @@ class Test(object):
 
 class CompileAndTest(Test):
     def __init__(self, testName, subdir=None, programName=None,
-                 blessedName='output_blessed.txt', libs=(), extensions=('cpp',),
+                 blessedName='output_blessed.txt', extensions=('cpp',),
                  **kwargs):
-        self.libs = list(libs)
         sources = multi_glob(env, subdir or testName, *extensions)
         Test.__init__(self, testName, subdir, programName, blessedName,
                       source_files=sources, **kwargs)
