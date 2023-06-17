@@ -16,20 +16,20 @@ for programName, sources in samples:
                 LINK='$FORTRAN_LINK')
 
     # Generate SConstruct files to be installed
+    linkflags = ["-g", localenv["thread_flags"]]
     incdirs = [pjoin(localenv["ct_incroot"], "cantera")] # path to fortran .mod
-    libdirs = [localenv["ct_libdir"]]
+    libdirs = []
     if not localenv["package_build"]:
-        incdirs.extend([localenv["sundials_include"], localenv["boost_inc_dir"]])
-        incdirs.append(localenv["hdf_include"])
-        incdirs.extend(localenv["extra_inc_dirs"])
-        incdirs = list(set(incdirs))
+        linkflags.append(f"-Wl,-rpath,{localenv['ct_libdir']}")
+        libdirs = [localenv["ct_libdir"]]
         libdirs.extend([localenv["sundials_libdir"], localenv["blas_lapack_dir"]])
         libdirs.append(localenv["hdf_libdir"])
         libdirs.extend(localenv["extra_lib_dirs"])
         libdirs = list(set(libdirs))
+    else:
+        libdirs = []
 
     libs = ['cantera_fortran'] + localenv['cantera_libs'] + env['cxx_stdlib']
-    linkflags = ("-g", localenv["thread_flags"], f"-Wl,-rpath,{localenv['ct_libdir']}")
 
     localenv['tmpl_cantera_incdirs'] = repr([x for x in incdirs if x])
     localenv['tmpl_cantera_libs'] = repr(libs)
