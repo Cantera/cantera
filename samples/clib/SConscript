@@ -10,9 +10,8 @@ samples = [('demo', ['demo.c'])]
 for programName, sources in samples:
     buildSample(localenv.Program, programName, sources,
                 CPPPATH=['#include'],
-                LIBS=env['cantera_shared_libs']+env['cantera_libs']+env['cxx_stdlib'],
-                LIBPATH=[localenv['sundials_libdir'], env['blas_lapack_dir'],
-                         env['extra_lib_dirs'], env["hdf_libdir"], '#build/lib'])
+                LIBS=env['cantera_shared_libs'],
+                LIBPATH=env['extra_lib_dirs'] + ['#build/lib'])
 
     # Generate SConstruct files to be installed
     incdirs = [localenv["ct_incroot"]]
@@ -27,7 +26,7 @@ for programName, sources in samples:
         libdirs.extend(localenv["extra_lib_dirs"])
         libdirs = list(set(libdirs))
 
-    libs = localenv['cantera_shared_libs'] + localenv['cantera_libs'] + env['cxx_stdlib']
+    libs = localenv['cantera_shared_libs']
     linkflags = ("-g", localenv["thread_flags"], f"-Wl,-rpath,{localenv['ct_libdir']}")
     cc_flags = localenv["CCFLAGS"]
 
