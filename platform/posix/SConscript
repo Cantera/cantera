@@ -11,7 +11,6 @@ if env['INSTALL_MANPAGES']:
 
 ### Generate customized scripts ###
 
-# Cantera.mak include file for Makefile projects
 # cantera.pc for use with pkg-config
 
 pc_libs = list(localenv['cantera_libs'])
@@ -19,72 +18,30 @@ pc_libdirs = []
 pc_incdirs = []
 pc_cflags = list(localenv['CXXFLAGS'])
 
-localenv["mak_corelibs"] = " ".join(f"-l{lib}" for lib in localenv["cantera_libs"])
-
-if localenv["package_build"]:
-    # folders outside of conda environment are not transferable
-    localenv["mak_extra_includes"] = ""
-    localenv["mak_extra_libdirs"] = ""
-else:
-    localenv["mak_extra_includes"] = " ".join(
-        f"-I{dir}" for dir in localenv["extra_inc_dirs"])
+if not localenv["package_build"]:
     pc_incdirs.extend(localenv["extra_inc_dirs"])
-
-    localenv["mak_extra_libdirs"] = " ".join(
-        f"-L{dir} -Wl,-rpath,{dir}" for dir in localenv["extra_lib_dirs"])
     pc_libdirs.extend(localenv["extra_lib_dirs"])
-
-localenv["mak_stdlib"] = " ".join(f"-l{lib}" for lib in env["cxx_stdlib"])
 
 if localenv['system_sundials']:
     # Add links to the sundials environment
-    localenv["mak_sundials_libs"] = " ".join(
-        f"-l{lib}" for lib in localenv["sundials_libs"])
     if localenv["sundials_libdir"] and not localenv["package_build"]:
-        localenv["mak_sundials_libdir"] = f"-L{localenv['sundials_libdir']}"
         pc_libdirs.append(localenv['sundials_libdir'])
-    else:
-        localenv['mak_sundials_libdir'] = ''
 
     if localenv["sundials_include"] and not localenv["package_build"]:
-        localenv["mak_sundials_include"] = f"-I{localenv['sundials_include']}"
         pc_incdirs.append(localenv['sundials_include'])
-    else:
-        localenv['mak_sundials_include'] = ''
 
 if localenv["boost_inc_dir"] and not localenv["package_build"]:
-    localenv["mak_boost_include"] = f"-I{localenv['boost_inc_dir']}"
     pc_incdirs.append(localenv['boost_inc_dir'])
-else:
-    localenv['mak_boost_include'] = ''
 
 if localenv["use_hdf5"] and not localenv["package_build"]:
-    localenv["mak_hdf_include"] = f"-I{localenv['hdf_include']}"
     pc_incdirs.append(localenv["hdf_include"])
-    localenv["mak_hdf_libs"] = f"-L{localenv['hdf_libdir']} -lhdf5"
-else:
-    localenv["mak_hdf_include"] = ""
-    localenv["mak_hdf_libs"] = "-lhdf5"
-
-# Handle BLAS/LAPACK linkage
-blas_lapack_libs = " ".join(f"-l{lib}" for lib in localenv["blas_lapack_libs"])
-if localenv["blas_lapack_dir"] and not localenv["package_build"]:
-    localenv["mak_blas_lapack_libs"] = (
-        f"-L{localenv['blas_lapack_dir']} {blas_lapack_libs}")
-else:
-    localenv['mak_blas_lapack_libs'] = blas_lapack_libs
 
 if 'Accelerate' in localenv['FRAMEWORKS']:
-    localenv['mak_blas_lapack_libs'] += ' -framework Accelerate'
     pc_cflags.append('-framework Accelerate')
 
-localenv['mak_threadflags'] = localenv['thread_flags']
 if '-pthread' in localenv['thread_flags']:
-    localenv['mak_fort_threadflags'] = '-lpthread'
     pc_cflags.append('-pthread')
     pc_libs.append('pthread')
-else:
-    localenv['mak_fort_threadflags'] = ''
 
 if localenv["package_build"]:
     # Remove sysroot flags in templated output files. This only applies to the
@@ -95,9 +52,6 @@ if localenv["package_build"]:
         "-isysroot", "-mmacosx", "-march", "-mtune", "-fdebug-prefix-map")
     localenv["CCFLAGS"] = compiler_flag_list(localenv["CCFLAGS"], excludes)
     localenv["CXXFLAGS"] = compiler_flag_list(localenv["CXXFLAGS"], excludes)
-
-mak = build(localenv.SubstFile('Cantera.mak', 'Cantera.mak.in'))
-install('$inst_incdir', mak)
 
 # Generate cantera.pc for use with pkg-config
 localenv["pc_prefix"] = localenv["prefix"]

@@ -49,18 +49,3 @@ for programName, sources in samples:
     localenv['cmake_cantera_libdirs'] = ' '.join(quoted(x) for x in libdirs if x)
     cmakelists = localenv.SubstFile('CMakeLists.txt', 'CMakeLists.txt.in')
     install("$inst_sampledir/clib", cmakelists)
-
-    if localenv["OS"] != "Windows":
-        # Generate Makefile to be installed
-        mak_path = pjoin(localenv["ct_incroot"], "cantera", "Cantera.mak")
-        localenv["mak_compiler_flags"] = " ".join(cc_flags)
-        if " " in mak_path:
-            # There is no reasonable way to handle spaces in Makefile 'include'
-            # statement, so we fall back to using the relative path instead
-            mak_path = relpath(mak_path, pjoin(localenv["ct_sampledir"], "clib"))
-        localenv["make_Cantera_dot_mak"] = mak_path
-
-        localenv["make_target"] = programName
-        localenv["make_sourcefile"] = programName + ".c"
-        makefile = localenv.SubstFile("Makefile", "Makefile.in")
-        install("$inst_sampledir/clib", makefile)
