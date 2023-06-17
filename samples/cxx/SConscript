@@ -52,8 +52,7 @@ set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS})
     # Note: These CMakeLists.txt and SConstruct files are automatically installed
     # by the "RecursiveInstall" that grabs everything in the cxx directory.
 
-    incdirs = [localenv["ct_incroot"]]
-    libdirs = [localenv["ct_libdir"]]
+
     if localenv["package_build"]:
         # Remove sysroot flags in templated output files. This only applies to the
         # conda package for now.
@@ -63,17 +62,21 @@ set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS})
             "-isysroot", "-mmacosx", "-march", "-mtune", "-fdebug-prefix-map")
         cc_flags = compiler_flag_list(localenv["CCFLAGS"] + localenv["CXXFLAGS"],
             excludes)
+        incdirs = []
+        libdirs = []
     else:
+        cc_flags = localenv["CCFLAGS"] + localenv["CXXFLAGS"]
+        incdirs = [localenv["ct_incroot"]]
         incdirs.extend([localenv["sundials_include"], localenv["boost_inc_dir"]])
         incdirs.append(localenv["hdf_include"])
         incdirs.extend(localenv["extra_inc_dirs"])
         incdirs = list(set(incdirs))
+
+        libdirs = [localenv["ct_libdir"]]
         libdirs.extend([localenv["sundials_libdir"], localenv["blas_lapack_dir"]])
         libdirs.append(localenv["hdf_libdir"])
         libdirs.extend(localenv["extra_lib_dirs"])
         libdirs = list(set(libdirs))
-
-        cc_flags = localenv["CCFLAGS"] + localenv["CXXFLAGS"]
 
     localenv["tmpl_compiler_flags"] = repr(cc_flags)
     localenv['tmpl_cantera_frameworks'] = repr(localenv['FRAMEWORKS'])
