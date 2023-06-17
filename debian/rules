@@ -83,7 +83,7 @@ binary-indep: binary
 	/bin/true
 
 build:
-	scons build -j6 prefix=/usr layout=standard stage_dir=stage \
+	scons build -j6 prefix=/usr layout=standard stage_dir=stage package_build=y \
 	    blas_lapack_libs=lapack,blas system_sundials=y f90_interface=y \
 		renamed_shared_libraries=n versioned_shared_library=n \
 		python_package=full system_eigen=y system_fmt=y \
