@@ -49,7 +49,7 @@ set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS})
         buildSample(localenv.Program, pjoin(subdir, name),
                     multi_glob(localenv, subdir, *extensions))
 
-    # Note: These Makefiles and SConstruct files are automatically installed
+    # Note: These CMakeLists.txt and SConstruct files are automatically installed
     # by the "RecursiveInstall" that grabs everything in the cxx directory.
 
     incdirs = [localenv["ct_incroot"]]
@@ -118,16 +118,3 @@ set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS})
     ## Generate CMakeList.txt files to be installed
     cmakelists = localenv.SubstFile(pjoin(subdir, 'CMakeLists.txt'), 'CMakeLists.txt.in')
     install(pjoin('$inst_sampledir', 'cxx', subdir), cmakelists)
-
-    if localenv["OS"] != "Windows":
-        ## Generate Makefiles to be installed
-        mak_path = pjoin(localenv["ct_incroot"], "cantera", "Cantera.mak")
-        localenv["mak_compiler_flags"] = " ".join(cc_flags)
-        if " " in mak_path:
-            # There is no reasonable way to handle spaces in Makefile 'include'
-            # statement, so we fall back to using the relative path instead
-            mak_path = os.path.relpath(mak_path, pjoin(localenv["ct_sampledir"], "cxx", subdir))
-        localenv["make_Cantera_dot_mak"] = mak_path
-
-        makefile = build(localenv.SubstFile(pjoin(subdir, "Makefile"), "Makefile.in"))
-        install(pjoin("$inst_sampledir", "cxx", subdir), makefile)

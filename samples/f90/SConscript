@@ -4,8 +4,6 @@ from buildutils import *
 Import('env', 'install', 'buildSample')
 localenv = env.Clone()
 
-localenv['mak_stdlib'] = ['-l' + lib for lib in env['cxx_stdlib']]
-
 # (program name, [source files])
 samples = [('demo', ['demo.f90'])]
 
@@ -51,17 +49,3 @@ for programName, sources in samples:
     localenv['cmake_cantera_libdirs'] = ' '.join(quoted(x) for x in libdirs if x)
     cmakelists = localenv.SubstFile('CMakeLists.txt', 'CMakeLists.txt.in')
     install("$inst_sampledir/f90", cmakelists)
-
-    if localenv["OS"] != "Windows":
-        # Generate Makefile to be installed
-        mak_path = pjoin(localenv["ct_incroot"], "cantera", "Cantera.mak")
-        if " " in mak_path:
-            # There is no reasonable way to handle spaces in Makefile 'include'
-            # statement, so we fall back to using the relative path instead
-            mak_path = relpath(mak_path, pjoin(localenv["ct_sampledir"], "f90"))
-        localenv["make_Cantera_dot_mak"] = mak_path
-
-        localenv["make_target"] = programName
-        localenv["make_sourcefile"] = programName + ".f90"
-        makefile = localenv.SubstFile("Makefile", "Makefile.in")
-        install("$inst_sampledir/f90", makefile)
