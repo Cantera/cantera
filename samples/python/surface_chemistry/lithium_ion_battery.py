@@ -108,7 +108,7 @@ def anode_current(phi_s, phi_l, X_Li_anode):
     # Get the net reaction rate at the anode-side interface
     # Reaction according to input file:
     # Li+[electrolyte] + V[anode] + electron <=> Li[anode]
-    r = anode_int.net_rates_of_progress  # [kmol/m2/s]
+    r = anode_int.net_rates_of_progress[0]  # [kmol/m2/s]
 
     # Calculate the current. Should be negative for cell discharge.
     return r * ct.faraday * area_anode
@@ -129,7 +129,7 @@ def cathode_current(phi_s, phi_l, X_Li_cathode):
     # Get the net reaction rate at the cathode-side interface
     # Reaction according to input file:
     # Li+[electrolyte] + V[cathode] + electron <=> Li[cathode]
-    r = cathode_int.net_rates_of_progress  # [kmol/m2/s]
+    r = cathode_int.net_rates_of_progress[0]  # [kmol/m2/s]
 
     # Calculate the current. Should be negative for cell discharge.
     return - r * ct.faraday * area_cathode
