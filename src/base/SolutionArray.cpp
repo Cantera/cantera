@@ -966,6 +966,11 @@ void SolutionArray::writeHeader(AnyMap& root, const string& id,
     data.update(preamble(desc));
 }
 
+void SolutionArray::writeEntry(const string& fname, bool overwrite)
+{
+    throw NotImplementedError("SolutionArray::writeEntry");
+}
+
 void SolutionArray::writeEntry(const string& fname, const string& id, const string& sub,
                                bool overwrite, int compression)
 {
@@ -1139,7 +1144,7 @@ void SolutionArray::append(const vector<double>& state, const AnyMap& extra)
 }
 
 void SolutionArray::save(const string& fname, const string& id, const string& sub,
-                           const string& desc, bool overwrite, int compression)
+                         const string& desc, bool overwrite, int compression)
 {
     if (m_size < m_dataSize) {
         throw NotImplementedError("SolutionArray::save",
@@ -1166,6 +1171,12 @@ void SolutionArray::save(const string& fname, const string& id, const string& su
         out << data.toYamlString();
         AnyMap::clearCachedFile(fname);
         return;
+    }
+    if (extension == "csv") {
+        if (id != "") {
+            warn_user("SolutionArray::save", "Parameter 'id' not used for CSV output.");
+        }
+        writeEntry(fname, overwrite);
     }
     throw CanteraError("SolutionArray::save",
                        "Unknown file extension '{}'.", extension);

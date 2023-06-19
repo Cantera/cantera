@@ -211,6 +211,14 @@ public:
                             bool overwrite=false);
 
     /*!
+     *  Write SolutionArray data to comma-separated data file.
+     *
+     *  @param fname  Name of CSV file
+     *  @param overwrite  Force overwrite if file exists; optional (default=false)
+     */
+    void writeEntry(const string& fname, bool overwrite=false);
+
+    /*!
      *  Write SolutionArray data to container file.
      *
      *  @param fname  Name of HDF container file
@@ -234,17 +242,18 @@ public:
                     bool overwrite=false);
 
     /*!
-     *  Save current SolutionArray and header to a container file.
+     *  Save current SolutionArray and header to a data file.
      *
-     *  @param fname  Name of output container file (YAML or HDF)
-     *  @param id  Identifier of root location within the container file
-     *  @param sub  Name identifier for the subgroup holding actual data
-     *  @param desc  Custom comment describing the dataset to be stored
-     *  @param overwrite  Force overwrite if sub exists; optional (default=false)
+     *  @param fname  Name of output container file (CSV, YAML or HDF)
+     *  @param id  Identifier of root location within container file (YAML/HDF only)
+     *  @param sub  Name identifier for subgroup holding actual data (YAML/HDF only)
+     *  @param desc  Custom comment describing dataset to be stored (YAML/HDF only)
+     *  @param overwrite  Force overwrite if file and/or data entry exists; optional
+     *      (default=false)
      *  @param compression  Compression level; optional (default=0; HDF only)
      */
-    void save(const string& fname, const string& id, const string& sub,
-              const string& desc, bool overwrite=false, int compression=0);
+    void save(const string& fname, const string& id="", const string& sub="",
+              const string& desc="", bool overwrite=false, int compression=0);
 
     /*!
      *  Read header data from container file.
