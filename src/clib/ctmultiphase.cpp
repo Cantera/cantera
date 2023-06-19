@@ -14,7 +14,7 @@
 
 using namespace Cantera;
 
-typedef Cabinet<MultiPhase> mixCabinet;
+typedef SharedCabinet<MultiPhase> mixCabinet;
 typedef SharedCabinet<ThermoPhase> ThermoCabinet;
 
 template<> mixCabinet* mixCabinet::s_storage = 0;
@@ -25,8 +25,7 @@ extern "C" {
     int mix_new()
     {
         try {
-            MultiPhase* m = new MultiPhase;
-            return mixCabinet::add(m);
+            return mixCabinet::add(make_shared<MultiPhase>());
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
