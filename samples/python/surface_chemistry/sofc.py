@@ -55,7 +55,7 @@ def show_coverages(s):
 
 def equil_OCV(gas1, gas2):
     return (-ct.gas_constant * gas1.T *
-            math.log(gas1['O2'].X / gas2['O2'].X) / (4.0*ct.faraday))
+            math.log(gas1['O2'].X[0] / gas2['O2'].X[0]) / (4.0 * ct.faraday))
 
 
 def NewtonSolver(f, xstart, C=0.0):
