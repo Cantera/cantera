@@ -72,24 +72,24 @@ extern "C" {
             } else if (type == PeriodicFuncType) {
                 r = new Periodic1(FuncCabinet::item(n), params[0]);
             } else if (type == SumFuncType) {
-                r = &newSumFunction(FuncCabinet::item(n).duplicate(),
-                                    FuncCabinet::item(m).duplicate());
+                r = new Sum1(FuncCabinet::item(n).duplicate(),
+                             FuncCabinet::item(m).duplicate());
             } else if (type == DiffFuncType) {
-                r = &newDiffFunction(FuncCabinet::item(n).duplicate(),
-                                     FuncCabinet::item(m).duplicate());
+                r = new Diff1(FuncCabinet::item(n).duplicate(),
+                              FuncCabinet::item(m).duplicate());
             } else if (type == ProdFuncType) {
-                r = &newProdFunction(FuncCabinet::item(n).duplicate(),
-                                     FuncCabinet::item(m).duplicate());
+                r = new Product1(FuncCabinet::item(n).duplicate(),
+                                 FuncCabinet::item(m).duplicate());
             } else if (type == RatioFuncType) {
-                r = &newRatioFunction(FuncCabinet::item(n).duplicate(),
-                                      FuncCabinet::item(m).duplicate());
+                r = new Ratio1(FuncCabinet::item(n).duplicate(),
+                               FuncCabinet::item(m).duplicate());
             } else if (type == CompositeFuncType) {
-                r = &newCompositeFunction(FuncCabinet::item(n).duplicate(),
-                                          FuncCabinet::item(m).duplicate());
+                r = new Composite1(FuncCabinet::item(n).duplicate(),
+                                   FuncCabinet::item(m).duplicate());
             } else if (type == TimesConstantFuncType) {
-                r = &newTimesConstFunction(FuncCabinet::item(n).duplicate(), params[0]);
+                r = new TimesConstant1(FuncCabinet::item(n).duplicate(), params[0]);
             } else if (type == PlusConstantFuncType) {
-                r = &newPlusConstFunction(FuncCabinet::item(n).duplicate(), params[0]);
+                r = new PlusConstant1(FuncCabinet::item(n).duplicate(), params[0]);
             } else {
                 throw CanteraError("func_new","unknown function type");
                 r = new Func1();
