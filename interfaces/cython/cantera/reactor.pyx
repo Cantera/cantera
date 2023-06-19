@@ -838,7 +838,8 @@ cdef class WallBase:
     """
     wall_type = "none"
     def __cinit__(self, *args, **kwargs):
-        self.wall = newWall(stringify(self.wall_type))
+        self._wall = newWall3(stringify(self.wall_type))
+        self.wall = self._wall.get()
 
     def __init__(self, left, right, *, name=None, A=None, K=None, U=None,
                  Q=None, velocity=None):

@@ -19,7 +19,7 @@ using namespace Cantera;
 typedef SharedCabinet<ReactorBase> ReactorCabinet;
 typedef SharedCabinet<ReactorNet> NetworkCabinet;
 typedef Cabinet<FlowDevice> FlowDeviceCabinet;
-typedef Cabinet<WallBase> WallCabinet;
+typedef SharedCabinet<WallBase> WallCabinet;
 typedef Cabinet<Func1> FuncCabinet;
 typedef SharedCabinet<ThermoPhase> ThermoCabinet;
 typedef SharedCabinet<Kinetics> KineticsCabinet;
@@ -459,8 +459,7 @@ extern "C" {
     int wall_new(const char* type)
     {
         try {
-            WallBase* w = WallFactory::factory()->newWall(type);
-            return WallCabinet::add(w);
+            return WallCabinet::add(newWall3(type));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
