@@ -24,7 +24,7 @@ typedef Cabinet<Func1> FuncCabinet;
 typedef SharedCabinet<ThermoPhase> ThermoCabinet;
 typedef SharedCabinet<Kinetics> KineticsCabinet;
 typedef SharedCabinet<Solution> SolutionCabinet;
-typedef Cabinet<ReactorSurface> ReactorSurfaceCabinet;
+typedef SharedCabinet<ReactorSurface> ReactorSurfaceCabinet;
 
 template<> ReactorCabinet* ReactorCabinet::s_storage = 0;
 template<> NetworkCabinet* NetworkCabinet::s_storage = 0;
@@ -599,7 +599,7 @@ extern "C" {
     int reactorsurface_new(int type)
     {
         try {
-            return ReactorSurfaceCabinet::add(new ReactorSurface());
+            return ReactorSurfaceCabinet::add(make_shared<ReactorSurface>());
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
