@@ -68,12 +68,22 @@ void ReactorFactory::deleteFactory() {
 
 ReactorBase* ReactorFactory::newReactor(const std::string& reactorType)
 {
+    warn_deprecated("ReactorFactory::newReactor",
+        "To be removed after Cantera 3.0; for new behavior, see 'newReactor3'.");
     return create(reactorType);
 }
 
 ReactorBase* newReactor(const string& model)
 {
+    warn_deprecated("newReactor",
+        "To be changed after Cantera 3.0; for new behavior, see 'newReactor3'.");
     return ReactorFactory::factory()->newReactor(model);
+}
+
+shared_ptr<ReactorBase> newReactor3(const string& model)
+{
+    shared_ptr<ReactorBase> rptr(ReactorFactory::factory()->create(model));
+    return rptr;
 }
 
 }
