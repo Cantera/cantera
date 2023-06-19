@@ -23,7 +23,8 @@ cdef class ReactorBase:
     """
     reactor_type = "none"
     def __cinit__(self, *args, **kwargs):
-        self.rbase = newReactor(stringify(self.reactor_type))
+        self._reactor = newReactor3(stringify(self.reactor_type))
+        self.rbase = self._reactor.get()
 
     def __init__(self, ThermoPhase contents=None, name=None, *, volume=None):
         self._weakref_proxy = _WeakrefProxy()
@@ -43,9 +44,6 @@ cdef class ReactorBase:
 
         if volume is not None:
             self.volume = volume
-
-    def __dealloc__(self):
-        del self.rbase
 
     def insert(self, _SolutionBase solution):
         """

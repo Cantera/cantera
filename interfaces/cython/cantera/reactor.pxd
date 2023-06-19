@@ -30,7 +30,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
     cdef cppclass CxxFlowDevice "Cantera::FlowDevice"
 
     # factories
-    cdef CxxReactorBase* newReactor(string) except +translate_exception
+    cdef shared_ptr[CxxReactorBase] newReactor3(string) except +translate_exception
     cdef CxxFlowDevice* newFlowDevice(string) except +translate_exception
     cdef CxxWallBase* newWall(string) except +translate_exception
 
@@ -210,6 +210,7 @@ cdef extern from "cantera/zeroD/ReactorDelegator.h" namespace "Cantera":
 ctypedef CxxReactorAccessor* CxxReactorAccessorPtr
 
 cdef class ReactorBase:
+    cdef shared_ptr[CxxReactorBase] _reactor
     cdef CxxReactorBase* rbase
     cdef object _thermo
     cdef list _inlets

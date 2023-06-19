@@ -16,7 +16,7 @@
 
 using namespace Cantera;
 
-typedef Cabinet<ReactorBase> ReactorCabinet;
+typedef SharedCabinet<ReactorBase> ReactorCabinet;
 typedef SharedCabinet<ReactorNet> NetworkCabinet;
 typedef Cabinet<FlowDevice> FlowDeviceCabinet;
 typedef Cabinet<WallBase> WallCabinet;
@@ -43,8 +43,7 @@ extern "C" {
     int reactor_new(const char* type)
     {
         try {
-            ReactorBase* r = ReactorFactory::factory()->newReactor(type);
-            return ReactorCabinet::add(r);
+            return ReactorCabinet::add(newReactor3(type));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
