@@ -33,12 +33,22 @@ void WallFactory::deleteFactory() {
 
 WallBase* WallFactory::newWall(const std::string& wallType)
 {
+    warn_deprecated("WallFactory::newWall",
+        "To be removed after Cantera 3.0; for new behavior, see 'newWall3'.");
     return create(wallType);
 }
 
 WallBase* newWall(const string& model)
 {
+    warn_deprecated("newWall",
+        "To be changed after Cantera 3.0; for new behavior, see 'newWall3'.");
     return WallFactory::factory()->newWall(model);
+}
+
+shared_ptr<WallBase> newWall3(const string& model)
+{
+    shared_ptr<WallBase> wptr(WallFactory::factory()->create(model));
+    return wptr;
 }
 
 }
