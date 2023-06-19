@@ -46,15 +46,6 @@ extern "C" {
         }
     }
 
-    int rdiag_copy(int i)
-    {
-        try {
-            return DiagramCabinet::newCopy(i);
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
     int rdiag_detailed(int i)
     {
         try {
