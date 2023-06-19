@@ -36,12 +36,22 @@ void FlowDeviceFactory::deleteFactory() {
 
 FlowDevice* FlowDeviceFactory::newFlowDevice(const std::string& flowDeviceType)
 {
+    warn_deprecated("FlowDeviceFactory::newFlowDevice",
+        "To be removed after Cantera 3.0; for new behavior, see 'newFlowDevice3'.");
     return create(flowDeviceType);
 }
 
 FlowDevice* newFlowDevice(const string& model)
 {
+    warn_deprecated("newFlowDevice",
+        "To be changed after Cantera 3.0; for new behavior, see 'newFlowDevice3'.");
     return FlowDeviceFactory::factory()->newFlowDevice(model);
+}
+
+shared_ptr<FlowDevice> newFlowDevice3(const string& model)
+{
+    shared_ptr<FlowDevice> fdptr(FlowDeviceFactory::factory()->create(model));
+    return fdptr;
 }
 
 }

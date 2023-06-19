@@ -18,7 +18,7 @@ using namespace Cantera;
 
 typedef SharedCabinet<ReactorBase> ReactorCabinet;
 typedef SharedCabinet<ReactorNet> NetworkCabinet;
-typedef Cabinet<FlowDevice> FlowDeviceCabinet;
+typedef SharedCabinet<FlowDevice> FlowDeviceCabinet;
 typedef SharedCabinet<WallBase> WallCabinet;
 typedef Cabinet<Func1> FuncCabinet;
 typedef SharedCabinet<ThermoPhase> ThermoCabinet;
@@ -352,8 +352,7 @@ extern "C" {
     int flowdev_new(const char* type)
     {
         try {
-            FlowDevice* f = FlowDeviceFactory::factory()->newFlowDevice(type);
-            return FlowDeviceCabinet::add(f);
+            return FlowDeviceCabinet::add(newFlowDevice3(type));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
