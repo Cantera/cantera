@@ -14,10 +14,10 @@ namespace Cantera
 
 //! Factory class to create FlowDevice objects.
 //!
-//! This class is mainly used via the newFlowDevice() function, for example:
+//! This class is mainly used via the newFlowDevice3() function, for example:
 //!
 //! ```cpp
-//!     unique_ptr<FlowDevice> mfc(newFlowDevice("MassFlowController"));
+//!     shared_ptr<FlowDevice> mfc = newFlowDevice3("MassFlowController");
 //! ```
 //!
 //! @ingroup ZeroD
@@ -31,6 +31,7 @@ public:
     //! Create a new flow device by type name.
     /*!
      * @param flowDeviceType the type to be created.
+     * @deprecated  To be removed after Cantera 3.0; replaceable by newFlowDevice3.
      */
     virtual FlowDevice* newFlowDevice(const std::string& flowDeviceType);
 
@@ -41,8 +42,15 @@ private:
 };
 
 //! Create a FlowDevice object of the specified type
+//! @deprecated  To be changed after Cantera 3.0; for new behavior, see newFlowDevice3.
 //! @ingroup ZeroD
 FlowDevice* newFlowDevice(const string& model);
+
+//! Create a FlowDevice object of the specified type
+//! @ingroup ZeroD
+//! @since New in Cantera 3.0.
+//! @todo Transition back to newFlowDevice after Cantera 3.0
+shared_ptr<FlowDevice> newFlowDevice3(const string& model);
 
 }
 

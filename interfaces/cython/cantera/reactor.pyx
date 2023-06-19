@@ -1023,7 +1023,8 @@ cdef class FlowDevice:
     """
     flowdevice_type = "none"
     def __cinit__(self, *args, **kwargs):
-        self.dev = newFlowDevice(stringify(self.flowdevice_type))
+        self._dev = newFlowDevice3(stringify(self.flowdevice_type))
+        self.dev = self._dev.get()
 
     def __init__(self, upstream, downstream, *, name=None):
         assert self.dev != NULL
@@ -1037,9 +1038,6 @@ cdef class FlowDevice:
             self.name = '{0}_{1}'.format(self.__class__.__name__, n)
 
         self._install(upstream, downstream)
-
-    def __dealloc__(self):
-        del self.dev
 
     property type:
         """The type of the flow device."""
