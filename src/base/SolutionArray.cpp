@@ -982,20 +982,30 @@ void SolutionArray::writeEntry(const string& fname, bool overwrite)
     auto names = componentNames();
     size_t last = names.size() - 1;
     vector<AnyValue> components;
-    std::stringstream buffer;
+    vector<bool> isSpecies;
+    std::stringstream header;
     bool escaped = false;
     for (const auto& key : names) {
-        components.emplace_back(getComponent(key));
-        size_t col = components.size() - 1;
-        if (!components[col].isVector<double>() &&
-            !components[col].isVector<long int>() &&
-            !components[col].isVector<string>())
-        {
-            throw CanteraError("SolutionArray::writeEntry",
-                "Multi-dimensional column '{}' is not supported for CSV output.", key);
-        }
         string name = key;
-        if (speciesNames.find(key) != speciesNames.end()) {
+        size_t col;
+        if (speciesNames.find(key) == speciesNames.end()) {
+            // Pre-read component vectors
+            isSpecies.push_back(false);
+            components.emplace_back(getComponent(key));
+            col = components.size() - 1;
+            if (!components[col].isVector<double>() &&
+                !components[col].isVector<long int>() &&
+                !components[col].isVector<string>())
+            {
+                throw CanteraError("SolutionArray::writeEntry",
+                    "Multi-dimensional column '{}' is not supported for CSV output.",
+                    key);
+            }
+        } else {
+            // Delay reading species data as basis can be either mole or mass
+            isSpecies.push_back(true);
+            components.emplace_back(AnyValue());
+            col = components.size() - 1;
             if (mole) {
                 name = "X_" + name;
             } else {
@@ -1008,13 +1018,13 @@ void SolutionArray::writeEntry(const string& fname, bool overwrite)
                 name);
         }
         if (name.find(",") != string::npos) {
-            buffer << "\"" << name << "\"";
+            header << "\"" << name << "\"";
             escaped = true;
         } else {
-            buffer << name;
+            header << name;
         }
         if (col != last) {
-            buffer << ",";
+            header << ",";
         }
     }
 
@@ -1028,29 +1038,42 @@ void SolutionArray::writeEntry(const string& fname, bool overwrite)
         std::remove(fname.c_str());
     }
     std::ofstream output(fname);
-    output << buffer.str() << std::endl;
+    output << header.str() << std::endl;
 
+    vector<double> buf(speciesNames.size(), 0.);
     for (size_t row = 0; row < m_size; row++) {
+        setLoc(row);
+        if (mole) {
+            m_sol->thermo()->getMoleFractions(buf.data());
+        } else {
+            m_sol->thermo()->getMassFractions(buf.data());
+        }
+
+        size_t idx = 0;
         for (size_t col = 0; col < components.size(); col++) {
-            auto& data = components[col];
-            if (data.isVector<double>()) {
-                output << data.asVector<double>()[row];
-            } else if (data.isVector<long int>()) {
-                output << data.asVector<long int>()[row];
-            } else if (data.isVector<string>()) {
-                auto value = data.asVector<string>()[row];
-                if (value.find("\"") != string::npos ||
-                    value.find("\n") != string::npos)
-                {
-                    throw NotImplementedError("SolutionArray::writeEntry",
-                        "Detected value containing double quotes or line feeds: '{}'",
-                        value);
-                }
-                if (value.find(",") != string::npos) {
-                    output << "\"" << value << "\"";
-                    escaped = true;
+            if (isSpecies[col]) {
+                output << buf[idx++];
+            } else {
+                auto& data = components[col];
+                if (data.isVector<double>()) {
+                    output << data.asVector<double>()[row];
+                } else if (data.isVector<long int>()) {
+                    output << data.asVector<long int>()[row];
                 } else {
-                    output << value;
+                    auto value = data.asVector<string>()[row];
+                    if (value.find("\"") != string::npos ||
+                        value.find("\n") != string::npos)
+                    {
+                        throw NotImplementedError("SolutionArray::writeEntry",
+                            "Detected value containing double quotes or line feeds: "
+                            "'{}'", value);
+                    }
+                    if (value.find(",") != string::npos) {
+                        output << "\"" << value << "\"";
+                        escaped = true;
+                    } else {
+                        output << value;
+                    }
                 }
             }
             if (col != last) {
