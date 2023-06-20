@@ -984,14 +984,15 @@ void SolutionArray::writeEntry(const string& fname, bool overwrite)
     bool mole = nativeState.find("X") != nativeState.end();
 
     auto names = componentNames();
-    auto last = names[names.size() - 1];
-    map<string, AnyValue> components;
+    size_t last = names.size() - 1;
+    vector<AnyValue> components;
     std::stringstream buffer;
     for (const auto& key : names) {
-        components[key] = getComponent(key);
-        if (!components[key].isVector<double>() &&
-            !components[key].isVector<long int>() &&
-            !components[key].isVector<string>())
+        components.emplace_back(getComponent(key));
+        size_t col = components.size() - 1;
+        if (!components[col].isVector<double>() &&
+            !components[col].isVector<long int>() &&
+            !components[col].isVector<string>())
         {
             throw CanteraError("SolutionArray::writeEntry",
                 "Multi-dimensional column '{}' is not supported for CSV output.", key);
@@ -1005,12 +1006,12 @@ void SolutionArray::writeEntry(const string& fname, bool overwrite)
             }
         }
         if (name.find(",") != string::npos) {
-            name = "\"" + name + "\"";
-        }
-        if (key == last) {
-            buffer << name;
+            buffer << "\"" << name << "\"";
         } else {
-            buffer << name << ",";
+            buffer << name;
+        }
+        if (col != last) {
+            buffer << ",";
         }
     }
 
@@ -1018,21 +1019,22 @@ void SolutionArray::writeEntry(const string& fname, bool overwrite)
     std::ofstream output(fname);
     output << buffer.str() << std::endl;
 
-    for (size_t i = 0; i < m_size; i++) {
-        for (const auto& key : names) {
-            auto& data = components[key];
+    for (size_t row = 0; row < m_size; row++) {
+        for (size_t col = 0; col < components.size(); col++) {
+            auto& data = components[col];
             if (data.isVector<double>()) {
-                output << data.asVector<double>()[i];
+                output << data.asVector<double>()[row];
             } else if (data.isVector<long int>()) {
-                output << data.asVector<long int>()[i];
+                output << data.asVector<long int>()[row];
             } else if (data.isVector<string>()) {
-                auto value = data.asVector<string>()[i];
+                auto value = data.asVector<string>()[row];
                 if (value.find(",") != string::npos) {
-                    value = "\"" + value + "\"";
+                    output << "\"" << value << "\"";
+                } else {
+                    output << value;
                 }
-                output << value;
             }
-            if (key != last) {
+            if (col != last) {
                 output << ",";
             }
         }
