@@ -1537,20 +1537,26 @@ cdef class Sim1D:
             return self.sim.fixedTemperatureLocation()
 
     def save(self, filename='soln.yaml', name='solution', description=None,
-             loglevel=None, overwrite=False, compression=0):
+             loglevel=None, *, overwrite=False, compression=0, basis=None):
         """
-        Save the solution in YAML or HDF format.
+        Save the solution to a container or CSV format.
+
+        For HDF and YAML files, the entire content of the `Sim1D` object is saved; for
+        CSV, only the main 1D domain is saved.
 
         :param filename:
             solution file
         :param name:
-            solution name within the file
+            solution name within the file (HDF/YAML only)
         :param description:
-            custom description text
+            custom description text (HDF/YAML only)
         :param overwrite:
             Force overwrite if name exists; optional (default=`False`)
         :param compression:
             compression level 0..9; optional (HDF only)
+        :param basis:
+            Output mass (``Y``/``mass``) or mole (``X``/``mole``) fractions (CSV only);
+            if not specified (`None`), the native storage mode is used
 
         >>> s.save(filename='save.yaml', name='energy_off',
         ...        description='solution with energy eqn. disabled')
@@ -1562,7 +1568,7 @@ cdef class Sim1D:
             warnings.warn("Argument 'loglevel' is deprecated and will be ignored.",
                 DeprecationWarning)
         self.sim.save(stringify(str(filename)), stringify(name),
-                      stringify(description), overwrite, compression)
+                      stringify(description), overwrite, compression, stringify(basis))
 
     def restore(self, filename='soln.yaml', name='solution', loglevel=None):
         """Set the solution vector to a previously-saved solution.

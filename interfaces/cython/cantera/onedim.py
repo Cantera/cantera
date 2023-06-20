@@ -406,7 +406,13 @@ class FlameBase(Sim1D):
         :param normalize:
             Boolean flag to indicate whether the mole/mass fractions should
             be normalized.
+
+        .. deprecated:: 3.0
+
+            Method to be removed after Cantera 3.0; superseded by `save`.
         """
+        warnings.warn("'write_csv' is superseded by 'save' and will be removed "
+                      "after Cantera 3.0.", DeprecationWarning)
 
         # save data
         cols = ('extra', 'T', 'D', species)
@@ -773,7 +779,7 @@ for _attr in ['density', 'density_mass', 'density_mole', 'volume_mass',
               'entropy_mass', 'g', 'gibbs_mole', 'gibbs_mass', 'cv',
               'cv_mole', 'cv_mass', 'cp', 'cp_mole', 'cp_mass',
               'isothermal_compressibility', 'thermal_expansion_coeff',
-              'sound_speed', 'viscosity', 'thermal_conductivity', 
+              'sound_speed', 'viscosity', 'thermal_conductivity',
               'heat_release_rate', 'mean_molecular_weight']:
     setattr(FlameBase, _attr, _array_property(_attr))
 FlameBase.volume = _array_property('v') # avoid confusion with velocity gradient 'V'

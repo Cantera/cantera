@@ -126,10 +126,25 @@ void Sim1D::save(const std::string& fname, const std::string& id,
 }
 
 void Sim1D::save(const std::string& fname, const std::string& id,
-                 const std::string& desc, bool overwrite, int compression)
+                 const std::string& desc, bool overwrite, int compression,
+                 const string& basis)
 {
     size_t dot = fname.find_last_of(".");
     string extension = (dot != npos) ? toLowerCopy(fname.substr(dot+1)) : "";
+    if (extension == "csv") {
+        for (auto dom : m_dom) {
+            auto arr = dom->asArray(m_state->data() + dom->loc());
+            if (dom->size() > 1) {
+                arr->writeEntry(fname, overwrite, basis);
+                break;
+            }
+        }
+        return;
+    }
+    if (basis != "") {
+        warn_user("Sim1D::save",
+            "Species basis '{}' not implemented for HDF5 or YAML output.", basis);
+    }
     if (extension == "h5" || extension == "hdf"  || extension == "hdf5") {
         SolutionArray::writeHeader(fname, id, desc, overwrite);
         for (auto dom : m_dom) {
