@@ -968,10 +968,6 @@ void SolutionArray::writeHeader(AnyMap& root, const string& id,
 
 void SolutionArray::writeEntry(const string& fname, bool overwrite)
 {
-    if (std::ifstream(fname).good() && !overwrite) {
-        throw CanteraError("SolutionArray::writeEntry",
-            "File '{}' exists; use option 'overwrite' to replace CSV file.", fname);
-    }
     if (apiNdim() != 1) {
         throw CanteraError("SolutionArray::writeEntry",
             "Tabular output of CSV data only works for 1D SolutionArray objects.");
@@ -987,6 +983,7 @@ void SolutionArray::writeEntry(const string& fname, bool overwrite)
     size_t last = names.size() - 1;
     vector<AnyValue> components;
     std::stringstream buffer;
+    bool escaped = false;
     for (const auto& key : names) {
         components.emplace_back(getComponent(key));
         size_t col = components.size() - 1;
@@ -1005,8 +1002,14 @@ void SolutionArray::writeEntry(const string& fname, bool overwrite)
                 name = "Y_" + name;
             }
         }
+        if (name.find("\"") != string::npos || name.find("\n") != string::npos) {
+            throw NotImplementedError("SolutionArray::writeEntry",
+                "Detected column name containing double quotes or line feeds: '{}'.",
+                name);
+        }
         if (name.find(",") != string::npos) {
             buffer << "\"" << name << "\"";
+            escaped = true;
         } else {
             buffer << name;
         }
@@ -1015,7 +1018,15 @@ void SolutionArray::writeEntry(const string& fname, bool overwrite)
         }
     }
 
-    // Potential exceptions have been thrown; start writing data to file
+    // (Most) potential exceptions have been thrown; start writing data to file
+    if (std::ifstream(fname).good()) {
+        if (!overwrite) {
+            throw CanteraError("SolutionArray::writeEntry",
+                "File '{}' already exists; use option 'overwrite' to replace CSV file.",
+                fname);
+        }
+        std::remove(fname.c_str());
+    }
     std::ofstream output(fname);
     output << buffer.str() << std::endl;
 
@@ -1028,8 +1039,16 @@ void SolutionArray::writeEntry(const string& fname, bool overwrite)
                 output << data.asVector<long int>()[row];
             } else if (data.isVector<string>()) {
                 auto value = data.asVector<string>()[row];
+                if (value.find("\"") != string::npos ||
+                    value.find("\n") != string::npos)
+                {
+                    throw NotImplementedError("SolutionArray::writeEntry",
+                        "Detected value containing double quotes or line feeds: '{}'",
+                        value);
+                }
                 if (value.find(",") != string::npos) {
                     output << "\"" << value << "\"";
+                    escaped = true;
                 } else {
                     output << value;
                 }
@@ -1041,6 +1060,13 @@ void SolutionArray::writeEntry(const string& fname, bool overwrite)
         output << std::endl;
     }
     output << std::endl;
+
+    if (escaped) {
+        warn_user("SolutionArray::writeEntry",
+            "One or more CSV column names or values contain commas.\n"
+            "Values have been escaped with double quotes, which may not be supported "
+            "by all CSV readers.");
+    }
 }
 
 void SolutionArray::writeEntry(const string& fname, const string& id, const string& sub,
