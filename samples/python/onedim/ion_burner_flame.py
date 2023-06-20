@@ -36,4 +36,4 @@ output.unlink(missing_ok=True)
 
 f.save(output, name="mix", description="solution with mixture-averaged transport")
 
-f.write_csv('ion_burner_flame.csv', quiet=False)
+f.save('ion_burner_flame.csv', basis="mole")

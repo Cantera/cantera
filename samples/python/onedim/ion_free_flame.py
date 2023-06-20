@@ -44,4 +44,4 @@ f.show()
 print(f"mixture-averaged flamespeed = {f.velocity[0]:7f} m/s")
 
 # write the velocity, temperature, density, and mole fractions to a CSV file
-f.write_csv('ion_free_flame.csv', quiet=False)
+f.save('ion_free_flame.csv', basis="mole")
