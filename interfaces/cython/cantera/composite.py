@@ -1233,29 +1233,34 @@ class SolutionArray(SolutionArrayBase):
                 data_dict[label] = data_dict[label].astype('U')
         self.restore_data(data_dict, normalize)
 
-    def save(self, fname, name=None, key=None, description=None,
-             overwrite=False, compression=0):
+    def save(self, fname, name=None, key=None, description=None, *,
+             overwrite=False, compression=0, basis=None):
         """
-        Save current `SolutionArray` and header to a container file.
+        Save current `SolutionArray` to a container or CSV file.
 
         :param fname:
             Name of output container file (YAML or HDF)
         :param name:
             Identifier of root location within the container file; the root location
-            contains header data and a subgroup holding the actual `SolutionArray`.
+            contains header data and a subgroup holding the actual `SolutionArray`
+            (HDF/YAML only).
         :param key:
             Name identifier for the subgroup holding the `SolutionArray` data and
-            metadata objects. If `None`, the subgroup name default to ``data``.
+            metadata objects. If `None`, the subgroup name default to ``data``
+            (HDF/YAML only).
         :param description:
-            Custom comment describing the dataset to be stored.
+            Custom comment describing the dataset to be stored (HDF/YAML only).
         :param overwrite:
             Force overwrite if name exists; optional (default=`False`)
         :param compression:
             Compression level (0-9); optional (default=0; HDF only)
+        :param basis:
+            Output mass (``Y``/``mass``) or mole (``X``/``mole``) fractions (CSV only);
+            if not specified (`None`), the native storage mode is used
 
         .. versionadded:: 3.0
         """
-        self._cxx_save(fname, name, key, description, overwrite, compression)
+        self._cxx_save(fname, name, key, description, overwrite, compression, basis)
 
     def restore(self, fname, name=None, key=None):
         """

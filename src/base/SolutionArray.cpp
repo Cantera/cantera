@@ -966,7 +966,7 @@ void SolutionArray::writeHeader(AnyMap& root, const string& id,
     data.update(preamble(desc));
 }
 
-void SolutionArray::writeEntry(const string& fname, bool overwrite)
+void SolutionArray::writeEntry(const string& fname, bool overwrite, const string& basis)
 {
     if (apiNdim() != 1) {
         throw CanteraError("SolutionArray::writeEntry",
@@ -976,8 +976,18 @@ void SolutionArray::writeEntry(const string& fname, bool overwrite)
     for (const auto& species : m_sol->thermo()->speciesNames()) {
         speciesNames.insert(species);
     }
-    const auto& nativeState = m_sol->thermo()->nativeState();
-    bool mole = nativeState.find("X") != nativeState.end();
+    bool mole;
+    if (basis == "") {
+        const auto& nativeState = m_sol->thermo()->nativeState();
+        mole = nativeState.find("X") != nativeState.end();
+    } else if (basis == "X" || basis == "mole") {
+        mole = true;
+    } else if (basis == "Y" || basis == "mass") {
+        mole = false;
+    } else {
+        throw CanteraError("SolutionArray::writeEntry",
+            "Invalid species basis '{}'.", basis);
+    }
 
     auto names = componentNames();
     size_t last = names.size() - 1;
@@ -1002,7 +1012,7 @@ void SolutionArray::writeEntry(const string& fname, bool overwrite)
                     key);
             }
         } else {
-            // Delay reading species data as basis can be either mole or mass
+            // Delay reading species data as base can be either mole or mass
             isSpecies.push_back(true);
             components.emplace_back(AnyValue());
             col = components.size() - 1;
@@ -1265,7 +1275,8 @@ void SolutionArray::append(const vector<double>& state, const AnyMap& extra)
 }
 
 void SolutionArray::save(const string& fname, const string& id, const string& sub,
-                         const string& desc, bool overwrite, int compression)
+                         const string& desc, bool overwrite, int compression,
+                         const string& basis)
 {
     if (m_size < m_dataSize) {
         throw NotImplementedError("SolutionArray::save",
@@ -1273,6 +1284,17 @@ void SolutionArray::save(const string& fname, const string& id, const string& su
     }
     size_t dot = fname.find_last_of(".");
     string extension = (dot != npos) ? toLowerCopy(fname.substr(dot + 1)) : "";
+    if (extension == "csv") {
+        if (id != "") {
+            warn_user("SolutionArray::save", "Parameter 'id' not used for CSV output.");
+        }
+        writeEntry(fname, overwrite, basis);
+        return;
+    }
+    if (basis != "") {
+        warn_user("SolutionArray::save",
+            "Species basis '{}' not implemented for HDF5 or YAML output.", basis);
+    }
     if (extension == "h5" || extension == "hdf"  || extension == "hdf5") {
         writeHeader(fname, id, desc, overwrite);
         writeEntry(fname, id, sub, true, compression);
@@ -1291,13 +1313,6 @@ void SolutionArray::save(const string& fname, const string& id, const string& su
         std::ofstream out(fname);
         out << data.toYamlString();
         AnyMap::clearCachedFile(fname);
-        return;
-    }
-    if (extension == "csv") {
-        if (id != "") {
-            warn_user("SolutionArray::save", "Parameter 'id' not used for CSV output.");
-        }
-        writeEntry(fname, overwrite);
         return;
     }
     throw CanteraError("SolutionArray::save",
