@@ -1225,13 +1225,12 @@ class SolutionArray(SolutionArrayBase):
         The ``normalize`` argument is passed on to `restore_data` to normalize
         mole or mass fractions. By default, ``normalize`` is ``True``.
         """
-
-        data = df.to_numpy(dtype=float)
-        labels = list(df.columns)
-
         data_dict = {}
-        for i, label in enumerate(labels):
-            data_dict[label] = data[:, i]
+        for label in list(df.columns):
+            data_dict[label] = df[label].values
+            if data_dict[label].dtype.type == np.object_:
+                # convert object columns to string
+                data_dict[label] = data_dict[label].astype('U')
         self.restore_data(data_dict, normalize)
 
     def save(self, fname, name=None, key=None, description=None,
