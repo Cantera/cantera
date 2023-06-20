@@ -335,7 +335,7 @@ class TestFreeFlame(utilities.CanteraTest):
             data = self.test_work_path / f"freeflame_restart.{mode}"
             data.unlink(missing_ok=True)
             if mode == "csv":
-                self.sim.write_csv(data)
+                self.sim.save(data, basis="mole")
             else:
                 self.sim.save(data, group)
 
@@ -761,7 +761,8 @@ class TestFreeFlame(utilities.CanteraTest):
             k1 = gas1.species_index(species)
             self.assertArrayNear(Y1[k1], Y2[k2])
 
-    def test_write_csv(self):
+    @pytest.mark.usefixtures("allow_deprecated")
+    def test_write_csv_legacy(self):
         filename = self.test_work_path / "onedim-write_csv.csv"
         # In Python >= 3.8, this can be replaced by the missing_ok argument
         if filename.is_file():
@@ -769,6 +770,19 @@ class TestFreeFlame(utilities.CanteraTest):
 
         self.create_sim(2e5, 350, 'H2:1.0, O2:2.0', mech="h2o2.yaml")
         self.sim.write_csv(filename)
+        data = ct.SolutionArray(self.gas)
+        data.read_csv(filename)
+        self.assertArrayNear(data.grid, self.sim.grid)
+        self.assertArrayNear(data.T, self.sim.T)
+        k = self.gas.species_index('H2')
+        self.assertArrayNear(data.X[:, k], self.sim.X[k, :])
+
+    def test_write_csv(self):
+        filename = self.test_work_path / "onedim-save.csv"
+        filename.unlink(missing_ok=True)
+
+        self.create_sim(2e5, 350, 'H2:1.0, O2:2.0', mech="h2o2.yaml")
+        self.sim.save(filename, basis="mole")
         data = ct.SolutionArray(self.gas)
         data.read_csv(filename)
         self.assertArrayNear(data.grid, self.sim.grid)
@@ -1139,7 +1153,7 @@ class TestDiffusionFlame(utilities.CanteraTest):
         if filename.is_file():
             filename.unlink()
 
-        self.sim.write_csv(filename) # check output
+        self.sim.save(filename, basis="mole") # check output
         self.assertTrue(filename.is_file())
         csv_data = np.genfromtxt(filename, dtype=float, delimiter=',', names=True)
         self.assertIn('radiativeheatloss', csv_data.dtype.names)
@@ -1245,11 +1259,9 @@ class TestCounterflowPremixedFlame(utilities.CanteraTest):
             self.assertFalse(bad, bad)
 
         filename = self.test_work_path / "CounterflowPremixedFlame-h2-mix.csv"
-        # In Python >= 3.8, this can be replaced by the missing_ok argument
-        if filename.is_file():
-            filename.unlink()
+        filename.unlink(missing_ok=True)
 
-        sim.write_csv(filename) # check output
+        sim.save(filename) # check output
         self.assertTrue(filename.is_file())
         csv_data = np.genfromtxt(filename, dtype=float, delimiter=',', names=True)
         self.assertNotIn('qdot', csv_data.dtype.names)
