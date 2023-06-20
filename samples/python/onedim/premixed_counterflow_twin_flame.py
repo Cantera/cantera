@@ -127,7 +127,7 @@ oppFlame.save(output, name="mix")
 print(f"Peak temperature: {T:.1f} K")
 print(f"Strain Rate: {K:.1f} 1/s")
 print(f"Consumption Speed: {Sc * 100:.2f} cm/s")
-oppFlame.write_csv("premixed_counterflow_twin_flame.csv", quiet=False)
+oppFlame.save("premixed_counterflow_twin_flame.csv", basis="mole")
 
 # Generate plots to see results, if user desires
 if '--plot' in sys.argv:

@@ -78,5 +78,5 @@ f.solve(loglevel, refine_grid)
 f.save(output, name="multi", description="solution with multicomponent transport")
 
 # write the velocity, temperature, density, and mole fractions to a CSV file
-f.write_csv('flame_fixed_T.csv', quiet=False)
+f.save('flame_fixed_T.csv', basis="mole")
 f.show_stats()

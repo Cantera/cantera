@@ -64,7 +64,7 @@ output.unlink(missing_ok=True)
 f.save(output)
 
 # write the velocity, temperature, and mole fractions to a CSV file
-f.write_csv('diffusion_flame.csv', quiet=False)
+f.save('diffusion_flame.csv', basis="mole")
 
 f.show_stats(0)
 
