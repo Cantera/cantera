@@ -1368,9 +1368,7 @@ class TestCounterflowPremixedFlameNonIdeal(utilities.CanteraTest):
             self.assertFalse(bad, bad)
 
         filename = self.test_work_path / "CounterflowPremixedFlame-h2-mix-RK.csv"
-        # In Python >= 3.8, this can be replaced by the missing_ok argument
-        if filename.is_file():
-            filename.unlink()
+        filename.unlink(missing_ok=True)
 
         sim.write_csv(filename) # check output
         self.assertTrue(filename.is_file())
