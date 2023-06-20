@@ -1,6 +1,11 @@
 description: |-
   Hydrogen-Oxygen submechanism extracted from GRI-Mech 3.0.
   Modified from the original to include N2.
+  
+  Redlich-Kwong coefficients are based on tabulated critical properties or
+  estimated according to the method of Joback and Reid, "Estimation of pure-
+  component properties from group-contributions," Chem. Eng. Comm. 57 (1987)
+  233-243
 
 generator: ck2yaml
 input-files: [h2o2.inp, gri30_tran.dat]
@@ -18,7 +23,6 @@ phases:
   transport: mixture-averaged
   state: {T: 300.0, P: 1 atm}
 
-# Note: The Redlich-Kwong thermodynamic data is obtained from nDodecane_Reitz.yaml
 - name: ohmech-RK
   thermo: Redlich-Kwong
   elements: [O, H, Ar, N]
@@ -48,7 +52,7 @@ species:
     rotational-relaxation: 280.0
   equation-of-state:
     model: Redlich-Kwong
-    a: [1.43319e+11, 0]
+    a: 1.43319e+11
     b: 18.42802577
 - name: H
   composition: {H: 1}
@@ -68,7 +72,7 @@ species:
     diameter: 2.05
   equation-of-state:
     model: Redlich-Kwong
-    a: [1.32125e+11, 0]
+    a: 1.32125e+11
     b: 17.63395812
 - name: O
   composition: {O: 1}
@@ -88,7 +92,7 @@ species:
     diameter: 2.75
   equation-of-state:
     model: Redlich-Kwong
-    a: [4.74173e+11, 0]
+    a: 4.74173e+11
     b: 10.69952492
 - name: O2
   composition: {O: 2}
@@ -110,7 +114,7 @@ species:
     rotational-relaxation: 3.8
   equation-of-state:
     model: Redlich-Kwong
-    a: [1.74102e+12, 0]
+    a: 1.74102e+12
     b: 22.08100907
 - name: OH
   composition: {O: 1, H: 1}
@@ -130,7 +134,7 @@ species:
     diameter: 2.75
   equation-of-state:
     model: Redlich-Kwong
-    a: [4.77552e+11, 0]
+    a: 4.77552e+11
     b: 10.72986231
 - name: H2O
   composition: {H: 2, O: 1}
@@ -152,7 +156,7 @@ species:
     rotational-relaxation: 4.0
   equation-of-state:
     model: Redlich-Kwong
-    a: [1.42674e+13, 0]
+    a: 1.42674e+13
     b: 21.12705912
 - name: HO2
   composition: {H: 1, O: 2}
@@ -174,7 +178,7 @@ species:
     note: '*'
   equation-of-state:
     model: Redlich-Kwong
-    a: [1.46652e+12, 0]
+    a: 1.46652e+12
     b: 21.27344867
 - name: H2O2
   composition: {H: 2, O: 2}
@@ -195,7 +199,7 @@ species:
     rotational-relaxation: 3.8
   equation-of-state:
     model: Redlich-Kwong
-    a: [1.46652e+12, 0]
+    a: 1.46652e+12
     b: 21.27344867
 - name: AR
   composition: {Ar: 1}
@@ -213,7 +217,7 @@ species:
     diameter: 3.33
   equation-of-state:
     model: Redlich-Kwong
-    a: [1.69466E+12, 0]
+    a: 1.69466E+12
     b: 22.30627035
 - name: N2
   composition: {N: 2}
@@ -235,7 +239,7 @@ species:
     rotational-relaxation: 4.0
   equation-of-state:
     model: Redlich-Kwong
-    a: [1.55976e+12, 0]
+    a: 1.55976e+12
     b: 26.81724983
 
 reactions:
