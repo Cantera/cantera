@@ -28,7 +28,7 @@ StFlow::StFlow(ThermoPhase* ph, size_t nsp, size_t points) :
     }
     if (ph->type() == "ideal-gas" || ph->type() == "Redlich-Kwong" || 
         ph->type() == "Peng-Robinson") {
-        m_thermo = static_cast<ThermoPhase*>(ph);
+        m_thermo = ph;
     } else {
         throw CanteraError("StFlow::StFlow", "Unsupported phase type:", 
             "need 'IdealGasPhase' or 'Redlich-Kwong'or 'Peng-Robinson'");
@@ -570,17 +570,16 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
                 setGas(x,j);
                 double dtdzj = dTdz(x,j);
                 double sum = 0.0;
-                double sum2 = 0.0;
                 
                 grad_hk(x, j);
                 for (size_t k = 0; k < m_nsp; k++) {
                     double flxk = 0.5*(m_flux(k,j-1) + m_flux(k,j));
                     sum += wdot(k,j)*m_hk(k,j);
-                    sum2 += flxk * m_dhk_dz(k,j) / m_wt[k];
+                    sum += flxk * m_dhk_dz(k,j) / m_wt[k];
                 }
                 
                 rsd[index(c_offset_T, j)] = - m_cp[j]*rho_u(x,j)*dtdzj
-                                            - divHeatFlux(x,j) - sum - sum2;
+                                            - divHeatFlux(x,j) - sum;
                 rsd[index(c_offset_T, j)] /= (m_rho[j]*m_cp[j]);
                 rsd[index(c_offset_T, j)] -= rdt*(T(x,j) - T_prev(j));
                 rsd[index(c_offset_T, j)] -= (m_qdotRadiation[j] / (m_rho[j] * m_cp[j]));
