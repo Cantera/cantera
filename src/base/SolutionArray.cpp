@@ -1048,7 +1048,8 @@ void SolutionArray::writeEntry(const string& fname, bool overwrite, const string
         std::remove(fname.c_str());
     }
     std::ofstream output(fname);
-    output << header.str() << std::endl;
+    const auto default_precision = output.precision();
+    output << header.str() << std::endl << std::setprecision(9);
 
     vector<double> buf(speciesNames.size(), 0.);
     for (size_t row = 0; row < m_size; row++) {
@@ -1092,7 +1093,7 @@ void SolutionArray::writeEntry(const string& fname, bool overwrite, const string
         }
         output << std::endl;
     }
-    output << std::endl;
+    output << std::endl << std::setprecision(default_precision);
 
     if (escaped) {
         warn_user("SolutionArray::writeEntry",
