@@ -1329,8 +1329,8 @@ class TestCounterflowPremixedFlameNonIdeal(utilities.CanteraTest):
         comp = 'H2:1.6, O2:1, AR:7'  # premixed gas composition
 
         gas = ct.Solution("h2o2.yaml", "ohmech-RK")
-        gas.TPX = T_in, 0.05 * ct.one_atm, comp
-        width = 0.2 # m
+        gas.TPX = T_in, 10 * ct.one_atm, comp
+        width = 0.005 # m
 
         sim = ct.CounterflowPremixedFlame(gas=gas, width=width)
 
