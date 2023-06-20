@@ -610,6 +610,10 @@ cdef class SolutionArrayBase:
             out.append(pystr(item))
         return out
 
+    def resize(self, size):
+        """ Resize `SolutionArrayBase` to given size """
+        self.base.resize(size)
+
     def _has_component(self, name):
         """ Check whether `SolutionArrayBase` has component """
         return self.base.hasComponent(stringify(name))
