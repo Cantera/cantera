@@ -968,7 +968,49 @@ void SolutionArray::writeHeader(AnyMap& root, const string& id,
 
 void SolutionArray::writeEntry(const string& fname, bool overwrite)
 {
-    throw NotImplementedError("SolutionArray::writeEntry");
+    if (std::ifstream(fname).good() && !overwrite) {
+        throw CanteraError("SolutionArray::writeEntry",
+            "File '{}' exists; use option 'overwrite' to replace CSV file.", fname);
+    }
+    if (apiNdim() != 1) {
+        throw CanteraError("SolutionArray::writeEntry",
+            "Tabular output of CSV data only works for 1D SolutionArray objects.");
+    }
+    set<string> speciesNames;
+    for (const auto& species : m_sol->thermo()->speciesNames()) {
+        speciesNames.insert(species);
+    }
+    const auto& nativeState = m_sol->thermo()->nativeState();
+    bool mole = nativeState.find("X") != nativeState.end();
+
+    auto names = componentNames();
+    map<string, AnyValue> components;
+    std::stringstream buffer;
+    for (const auto& key : names) {
+        components[key] = getComponent(key);
+        if (!components[key].isVector<double>() &&
+            !components[key].isVector<long int>() &&
+            !components[key].isVector<string>())
+        {
+            throw CanteraError("SolutionArray::writeEntry",
+                "Multi-dimensional column '{}' is not supported for CSV output.", key);
+        }
+        string name = key;
+        if (speciesNames.find(key) != speciesNames.end()) {
+            if (mole) {
+                name = "X_" + name;
+            } else {
+                name = "Y_" + name;
+            }
+        }
+        if (name.find(",") != string::npos) {
+            name = "\"" + name + "\"";
+        }
+        buffer << name << ",";
+    }
+    // Potential exceptions have been thrown; start writing data to file
+    std::ofstream output(fname);
+    output << buffer.str() << std::endl;
 }
 
 void SolutionArray::writeEntry(const string& fname, const string& id, const string& sub,
@@ -1177,6 +1219,7 @@ void SolutionArray::save(const string& fname, const string& id, const string& su
             warn_user("SolutionArray::save", "Parameter 'id' not used for CSV output.");
         }
         writeEntry(fname, overwrite);
+        return;
     }
     throw CanteraError("SolutionArray::save",
                        "Unknown file extension '{}'.", extension);
