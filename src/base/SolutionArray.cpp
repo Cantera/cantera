@@ -984,6 +984,7 @@ void SolutionArray::writeEntry(const string& fname, bool overwrite)
     bool mole = nativeState.find("X") != nativeState.end();
 
     auto names = componentNames();
+    auto last = names[names.size() - 1];
     map<string, AnyValue> components;
     std::stringstream buffer;
     for (const auto& key : names) {
@@ -1006,11 +1007,38 @@ void SolutionArray::writeEntry(const string& fname, bool overwrite)
         if (name.find(",") != string::npos) {
             name = "\"" + name + "\"";
         }
-        buffer << name << ",";
+        if (key == last) {
+            buffer << name;
+        } else {
+            buffer << name << ",";
+        }
     }
+
     // Potential exceptions have been thrown; start writing data to file
     std::ofstream output(fname);
     output << buffer.str() << std::endl;
+
+    for (size_t i = 0; i < m_size; i++) {
+        for (const auto& key : names) {
+            auto& data = components[key];
+            if (data.isVector<double>()) {
+                output << data.asVector<double>()[i];
+            } else if (data.isVector<long int>()) {
+                output << data.asVector<long int>()[i];
+            } else if (data.isVector<string>()) {
+                auto value = data.asVector<string>()[i];
+                if (value.find(",") != string::npos) {
+                    value = "\"" + value + "\"";
+                }
+                output << value;
+            }
+            if (key != last) {
+                output << ",";
+            }
+        }
+        output << std::endl;
+    }
+    output << std::endl;
 }
 
 void SolutionArray::writeEntry(const string& fname, const string& id, const string& sub,
