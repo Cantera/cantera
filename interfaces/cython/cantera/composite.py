@@ -6,6 +6,7 @@ from ._cantera import *
 import numpy as np
 import csv as _csv
 import importlib.metadata
+import warnings
 
 _h5py = None
 def _import_h5py():
@@ -447,30 +448,30 @@ class SolutionArray(SolutionArrayBase):
         >>> s.reaction_equation(10)
         'CH4 + O <=> CH3 + OH'
 
-    Data represented by a `SolutionArray` can be extracted and saved to a CSV file
-    using the `write_csv` method::
+    Data represented by a `SolutionArray` can be extracted to a CSV file using the
+    `save` method::
 
-        >>> states.write_csv('somefile.csv', cols=('T', 'P', 'X', 'net_rates_of_progress'))
+        >>> states.save('somefile.csv', basis="mole')
 
-    As long as stored columns specify a valid thermodynamic state, the contents of
-    a `SolutionArray` can be restored using the `read_csv` method::
-
-        >>> states = ct.SolutionArray(gas)
-        >>> states.read_csv('somefile.csv')
-
-    As an alternative to comma separated export and import, data extracted from
-    `SolutionArray` objects can also be saved to and restored from YAML and HDF
-    container files using the `save` function::
+    As an alternative to the CSV format, `SolutionArray` objects can also be saved in
+    YAML or HDF formats, where the keyword argument ``id`` allows for saving and
+    accessing of multiple solutions in a single container file::
 
         >>> states.save('somefile.yaml', id='some_key')
 
-    and `restore` methods::
+    YAML and HDF files can be read back into `SolutionArray` objects using the
+    `restore` method::
 
         >>> states = ct.SolutionArray(gas)
         >>> states.restore('somefile.yaml', id='some_key')
 
-    For YAML and HDF export and import, the keyword argument ``id`` allows for saving
-    and accessing of multiple solutions in a single container file.
+    As long as stored columns in a CSV file specify a valid thermodynamic state, the
+    contents of a `SolutionArray` can be restored using the `read_csv` method, which
+    is specific to the Python API::
+
+        >>> states = ct.SolutionArray(gas)
+        >>> states.read_csv('somefile.csv')
+
     Note that `save` and `restore` for HDF requires Cantera to be compiled with HDF
     support, as it depends on external *HighFive* and *HDF5* libraries.
 
@@ -1162,7 +1163,14 @@ class SolutionArray(SolutionArrayBase):
 
         Additional arguments are passed on to `collect_data`. This method works
         only with 1D `SolutionArray` objects.
+
+        .. deprecated:: 3.0
+
+            Method to be removed after Cantera 3.0; superseded by `save`. Note that
+            `write_csv` does not support escaping of commas within string entries.
         """
+        warnings.warn("'write_csv' is superseded by 'save' and will be removed "
+                      "after Cantera 3.0.", DeprecationWarning)
         data_dict = self.collect_data(*args, cols=cols, tabular=True, **kwargs)
         data = np.hstack([d[:, np.newaxis] for d in data_dict.values()])
         labels = list(data_dict.keys())
@@ -1181,6 +1189,16 @@ class SolutionArray(SolutionArrayBase):
         The ``normalize`` argument is passed on to `restore_data` to normalize
         mole or mass fractions. By default, ``normalize`` is ``True``.
         """
+        try:
+            # pandas handles escaped entries correctly
+            _import_pandas()
+            df = _pandas.read_csv(filename)
+            self.from_pandas(df)
+            return
+        except ImportError:
+            pass
+
+        # fall back to numpy; this works unless CSV file contains escaped entries
         if np.lib.NumpyVersion(np.__version__) < "1.14.0":
             # bytestring needs to be converted for columns containing strings
             data = np.genfromtxt(filename, delimiter=',', deletechars='',
