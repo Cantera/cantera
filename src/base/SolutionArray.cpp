@@ -1367,6 +1367,11 @@ AnyMap SolutionArray::restore(const string& fname,
     size_t dot = fname.find_last_of(".");
     string extension = (dot != npos) ? toLowerCopy(fname.substr(dot + 1)) : "";
     AnyMap header;
+    if (extension == "csv") {
+        throw NotImplementedError("SolutionArray::restore",
+            "CSV import not implemented; if using Python, data can be imported via "
+            "'read_csv' instead.");
+    }
     if (extension == "h5" || extension == "hdf"  || extension == "hdf5") {
         readEntry(fname, id, sub);
         header = readHeader(fname, id);
