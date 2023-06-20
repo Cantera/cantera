@@ -89,7 +89,7 @@ cdef extern from "cantera/base/SolutionArray.h" namespace "Cantera":
         CxxAnyMap getAuxiliary(size_t) except +translate_exception
         void setAuxiliary(size_t, CxxAnyMap&) except +translate_exception
         void append(vector[double]&, CxxAnyMap&) except +translate_exception
-        void save(string&, string&, string&, string&, cbool, int) except +translate_exception
+        void save(string&, string&, string&, string&, cbool, int, string&) except +translate_exception
         CxxAnyMap restore(string&, string&, string&) except +translate_exception
 
     cdef shared_ptr[CxxSolutionArray] CxxNewSolutionArray "Cantera::SolutionArray::create" (

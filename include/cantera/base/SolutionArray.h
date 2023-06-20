@@ -215,8 +215,10 @@ public:
      *
      *  @param fname  Name of CSV file
      *  @param overwrite  Force overwrite if file exists; optional (default=false)
+     *  @param basis  Output mass ("Y"/"mass") or mole ("X"/"mole") fractions;
+     *      if not specified (""), the native storage mode is used
      */
-    void writeEntry(const string& fname, bool overwrite=false);
+    void writeEntry(const string& fname, bool overwrite=false, const string& basis="");
 
     /*!
      *  Write SolutionArray data to container file.
@@ -251,9 +253,12 @@ public:
      *  @param overwrite  Force overwrite if file and/or data entry exists; optional
      *      (default=false)
      *  @param compression  Compression level; optional (default=0; HDF only)
+     *  @param basis  Output mass ("Y"/"mass") or mole ("X"/"mole") fractions (CSV
+     *      only); if omitted (default=""), the native storage mode is used
      */
     void save(const string& fname, const string& id="", const string& sub="",
-              const string& desc="", bool overwrite=false, int compression=0);
+              const string& desc="", bool overwrite=false, int compression=0,
+              const string& basis="");
 
     /*!
      *  Read header data from container file.
