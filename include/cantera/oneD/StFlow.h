@@ -425,7 +425,7 @@ protected:
     //! Update the diffusive mass fluxes.
     virtual void updateDiffFluxes(const doublereal* x, size_t j0, size_t j1);
 
-    //Get the gradient of speies specific molar enthalpies 
+    //! Get the gradient of species specific molar enthalpies 
     virtual void grad_hk(const double* x, size_t j);
     
     //---------------------------------------------------------
@@ -453,8 +453,10 @@ protected:
     Array2D m_dthermal;
     Array2D m_flux;
 
-    // Arrays for saving molar enthalpies and enthalpy fluxes
+    //! Array of size #m_nsp by #m_points for saving molar enthalpies
     Array2D m_hk;
+
+    //! Array of size #m_nsp by #m_points -1 for saving enthalpy fluxes
     Array2D m_dhk_dz;
 
     // production rates
