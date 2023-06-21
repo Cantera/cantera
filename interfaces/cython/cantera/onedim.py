@@ -138,12 +138,12 @@ class FlameBase(Sim1D):
             if any(data.endswith(suffix) for suffix in [".hdf5", ".h5", ".hdf"]):
                 # data source identifies a HDF file
                 if "native" in hdf_support():
-                    arr.restore(data, name=group, key=self.domains[1].name)
+                    arr.restore(data, name=group, sub=self.domains[1].name)
                 else:
                     arr.read_hdf(data, group=group, subgroup=self.domains[1].name)
             elif data.endswith(".yaml") or data.endswith(".yml"):
                 # data source identifies a YAML file
-                arr.restore(data, name=group, key=self.domains[1].name)
+                arr.restore(data, name=group, sub=self.domains[1].name)
             elif data.endswith('.csv'):
                 # data source identifies a CSV file
                 arr.read_csv(data)

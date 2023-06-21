@@ -1541,8 +1541,12 @@ cdef class Sim1D:
         """
         Save the solution to a container or CSV format.
 
-        For HDF and YAML files, the entire content of the `Sim1D` object is saved; for
-        CSV, only the main 1D domain is saved.
+        In order to save the content of a `Sim1D` object, individual domains are
+        converted to `SolutionArray` objects and saved using the `SolutionArray.save`
+        method. For HDF and YAML output, all domains are written to a single container
+        file with shared header information. Simulation settings of individual domains
+        are preserved as meta data of the corresponding `SolutionArray` objects.
+        For CSV files, only state and auxiliary data of the main 1D domain are saved.
 
         :param filename:
             solution file

@@ -994,7 +994,6 @@ void SolutionArray::writeEntry(const string& fname, bool overwrite, const string
     vector<AnyValue> components;
     vector<bool> isSpecies;
     std::stringstream header;
-    bool escaped = false;
     for (const auto& key : names) {
         string name = key;
         size_t col;
@@ -1029,7 +1028,6 @@ void SolutionArray::writeEntry(const string& fname, bool overwrite, const string
         }
         if (name.find(",") != string::npos) {
             header << "\"" << name << "\"";
-            escaped = true;
         } else {
             header << name;
         }
@@ -1081,7 +1079,6 @@ void SolutionArray::writeEntry(const string& fname, bool overwrite, const string
                     }
                     if (value.find(",") != string::npos) {
                         output << "\"" << value << "\"";
-                        escaped = true;
                     } else {
                         output << value;
                     }
@@ -1094,13 +1091,6 @@ void SolutionArray::writeEntry(const string& fname, bool overwrite, const string
         output << std::endl;
     }
     output << std::endl << std::setprecision(default_precision);
-
-    if (escaped) {
-        warn_user("SolutionArray::writeEntry",
-            "One or more CSV column names or values contain commas.\n"
-            "Values have been escaped with double quotes, which may not be supported "
-            "by all CSV readers.");
-    }
 }
 
 void SolutionArray::writeEntry(const string& fname, const string& id, const string& sub,
@@ -1294,7 +1284,7 @@ void SolutionArray::save(const string& fname, const string& id, const string& su
     }
     if (basis != "") {
         warn_user("SolutionArray::save",
-            "Species basis '{}' not implemented for HDF5 or YAML output.", basis);
+            "Argument 'basis' is not used for HDF or YAML output.", basis);
     }
     if (extension == "h5" || extension == "hdf"  || extension == "hdf5") {
         writeHeader(fname, id, desc, overwrite);
