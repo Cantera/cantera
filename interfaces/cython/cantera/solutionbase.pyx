@@ -678,16 +678,16 @@ cdef class SolutionArrayBase:
             cxx_state.push_back(item)
         self.base.append(cxx_state, py_to_anymap(extra))
 
-    def _cxx_save(self, filename, name, key, description,
+    def _cxx_save(self, filename, name, sub, description,
                   overwrite, compression, basis):
         """ Interface `SolutionArray.save` with C++ core """
         self.base.save(
-            stringify(str(filename)), stringify(name), stringify(key),
+            stringify(str(filename)), stringify(name), stringify(sub),
             stringify(description), overwrite, compression, stringify(basis))
 
-    def _cxx_restore(self, filename, name, key):
+    def _cxx_restore(self, filename, name, sub):
         """ Interface `SolutionArray.restore` with C++ core """
         cdef CxxAnyMap header
         header = self.base.restore(
-            stringify(str(filename)), stringify(name), stringify(key))
+            stringify(str(filename)), stringify(name), stringify(sub))
         return anymap_to_py(header)

@@ -125,7 +125,7 @@ void Sim1D::save(const std::string& fname, const std::string& id,
     }
 }
 
-void Sim1D::save(const std::string& fname, const std::string& id,
+void Sim1D::save(const std::string& fname, const std::string& name,
                  const std::string& desc, bool overwrite, int compression,
                  const string& basis)
 {
@@ -146,10 +146,10 @@ void Sim1D::save(const std::string& fname, const std::string& id,
             "Species basis '{}' not implemented for HDF5 or YAML output.", basis);
     }
     if (extension == "h5" || extension == "hdf"  || extension == "hdf5") {
-        SolutionArray::writeHeader(fname, id, desc, overwrite);
+        SolutionArray::writeHeader(fname, name, desc, overwrite);
         for (auto dom : m_dom) {
             auto arr = dom->asArray(m_state->data() + dom->loc());
-            arr->writeEntry(fname, id, dom->id(), overwrite, compression);
+            arr->writeEntry(fname, name, dom->id(), overwrite, compression);
         }
         return;
     }
@@ -159,11 +159,11 @@ void Sim1D::save(const std::string& fname, const std::string& id,
         if (std::ifstream(fname).good()) {
             data = AnyMap::fromYamlFile(fname);
         }
-        SolutionArray::writeHeader(data, id, desc, overwrite);
+        SolutionArray::writeHeader(data, name, desc, overwrite);
 
         for (auto dom : m_dom) {
             auto arr = dom->asArray(m_state->data() + dom->loc());
-            arr->writeEntry(data, id, dom->id(), overwrite);
+            arr->writeEntry(data, name, dom->id(), overwrite);
         }
 
         // Write the output file and remove the now-outdated cached file
@@ -186,7 +186,7 @@ void Sim1D::saveResidual(const std::string& fname, const std::string& id,
     }
 }
 
-void Sim1D::saveResidual(const std::string& fname, const std::string& id,
+void Sim1D::saveResidual(const std::string& fname, const std::string& name,
                          const std::string& desc, bool overwrite, int compression)
 {
     vector_fp res(m_state->size(), -999);
@@ -195,7 +195,7 @@ void Sim1D::saveResidual(const std::string& fname, const std::string& id,
     // save() function reads.
     vector<double> backup(*m_state);
     *m_state = res;
-    save(fname, id, desc, overwrite, compression);
+    save(fname, name, desc, overwrite, compression);
     *m_state = backup;
 }
 
@@ -293,7 +293,7 @@ AnyMap Sim1D::restore(const std::string& fname, const std::string& id, int logle
     return restore(fname, id);
 }
 
-AnyMap Sim1D::restore(const std::string& fname, const std::string& id)
+AnyMap Sim1D::restore(const std::string& fname, const std::string& name)
 {
     size_t dot = fname.find_last_of(".");
     string extension = (dot != npos) ? toLowerCopy(fname.substr(dot+1)) : "";
@@ -304,11 +304,11 @@ AnyMap Sim1D::restore(const std::string& fname, const std::string& id)
     AnyMap header;
     if (extension == "h5" || extension == "hdf"  || extension == "hdf5") {
         std::map<std::string, shared_ptr<SolutionArray>> arrs;
-        header = SolutionArray::readHeader(fname, id);
+        header = SolutionArray::readHeader(fname, name);
 
         for (auto dom : m_dom) {
             auto arr = SolutionArray::create(dom->solution());
-            arr->readEntry(fname, id, dom->id());
+            arr->readEntry(fname, name, dom->id());
             dom->resize(dom->nComponents(), arr->size());
             if (!header.hasKey("generator")) {
                 arr->meta() = legacyH5(arr, header);
@@ -324,11 +324,11 @@ AnyMap Sim1D::restore(const std::string& fname, const std::string& id)
     } else if (extension == "yaml" || extension == "yml") {
         AnyMap root = AnyMap::fromYamlFile(fname);
         std::map<std::string, shared_ptr<SolutionArray>> arrs;
-        header = SolutionArray::readHeader(root, id);
+        header = SolutionArray::readHeader(root, name);
 
         for (auto dom : m_dom) {
             auto arr = SolutionArray::create(dom->solution());
-            arr->readEntry(root, id, dom->id());
+            arr->readEntry(root, name, dom->id());
             dom->resize(dom->nComponents(), arr->size());
             arrs[dom->id()] = arr;
         }

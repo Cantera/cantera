@@ -915,15 +915,15 @@ AnyMap preamble(const string& desc)
     return data;
 }
 
-AnyMap& openField(AnyMap& root, const string& id)
+AnyMap& openField(AnyMap& root, const string& name)
 {
-    if (!id.size()) {
+    if (!name.size()) {
         return root;
     }
 
-    // locate field based on 'id'
+    // locate field based on 'name'
     vector<string> tokens;
-    tokenizePath(id, tokens);
+    tokenizePath(name, tokens);
     AnyMap* ptr = &root; // use raw pointer to avoid copying
     string path = "";
     for (auto& field : tokens) {
@@ -940,28 +940,28 @@ AnyMap& openField(AnyMap& root, const string& id)
     return *ptr;
 }
 
-void SolutionArray::writeHeader(const string& fname, const string& id,
+void SolutionArray::writeHeader(const string& fname, const string& name,
                                 const string& desc, bool overwrite)
 {
     Storage file(fname, true);
-    if (file.checkGroup(id, true)) {
+    if (file.checkGroup(name, true)) {
         if (!overwrite) {
             throw CanteraError("SolutionArray::writeHeader",
-                "Group id '{}' exists; use 'overwrite' argument to overwrite.", id);
+                "Group name '{}' exists; use 'overwrite' argument to overwrite.", name);
         }
-        file.deleteGroup(id);
-        file.checkGroup(id, true);
+        file.deleteGroup(name);
+        file.checkGroup(name, true);
     }
-    file.writeAttributes(id, preamble(desc));
+    file.writeAttributes(name, preamble(desc));
 }
 
-void SolutionArray::writeHeader(AnyMap& root, const string& id,
+void SolutionArray::writeHeader(AnyMap& root, const string& name,
                                 const string& desc, bool overwrite)
 {
-    AnyMap& data = openField(root, id);
+    AnyMap& data = openField(root, name);
     if (!data.empty() && !overwrite) {
         throw CanteraError("SolutionArray::writeHeader",
-            "Field id '{}' exists; use 'overwrite' argument to overwrite.", id);
+            "Field name '{}' exists; use 'overwrite' argument to overwrite.", name);
     }
     data.update(preamble(desc));
 }
@@ -995,7 +995,7 @@ void SolutionArray::writeEntry(const string& fname, bool overwrite, const string
     vector<bool> isSpecies;
     std::stringstream header;
     for (const auto& key : names) {
-        string name = key;
+        string label = key;
         size_t col;
         if (speciesNames.find(key) == speciesNames.end()) {
             // Pre-read component vectors
@@ -1016,20 +1016,20 @@ void SolutionArray::writeEntry(const string& fname, bool overwrite, const string
             components.emplace_back(AnyValue());
             col = components.size() - 1;
             if (mole) {
-                name = "X_" + name;
+                label = "X_" + label;
             } else {
-                name = "Y_" + name;
+                label = "Y_" + label;
             }
         }
-        if (name.find("\"") != string::npos || name.find("\n") != string::npos) {
+        if (label.find("\"") != string::npos || label.find("\n") != string::npos) {
             throw NotImplementedError("SolutionArray::writeEntry",
                 "Detected column name containing double quotes or line feeds: '{}'.",
-                name);
+                label);
         }
-        if (name.find(",") != string::npos) {
-            header << "\"" << name << "\"";
+        if (label.find(",") != string::npos) {
+            header << "\"" << label << "\"";
         } else {
-            header << name;
+            header << label;
         }
         if (col != last) {
             header << ",";
@@ -1093,12 +1093,12 @@ void SolutionArray::writeEntry(const string& fname, bool overwrite, const string
     output << std::endl << std::setprecision(default_precision);
 }
 
-void SolutionArray::writeEntry(const string& fname, const string& id, const string& sub,
-                               bool overwrite, int compression)
+void SolutionArray::writeEntry(const string& fname, const string& name,
+                               const string& sub, bool overwrite, int compression)
 {
-    if (id == "") {
+    if (name == "") {
         throw CanteraError("SolutionArray::writeEntry",
-            "Group id specifying root location must not be empty.");
+            "Group name specifying root location must not be empty.");
     }
     if (m_size < m_dataSize) {
         throw NotImplementedError("SolutionArray::writeEntry",
@@ -1108,7 +1108,7 @@ void SolutionArray::writeEntry(const string& fname, const string& id, const stri
     if (compression) {
         file.setCompressionLevel(compression);
     }
-    string path = id;
+    string path = name;
     if (sub != "") {
         path += "/" + sub;
     } else {
@@ -1117,7 +1117,7 @@ void SolutionArray::writeEntry(const string& fname, const string& id, const stri
     if (file.checkGroup(path, true)) {
         if (!overwrite) {
             throw CanteraError("SolutionArray::writeEntry",
-                "Group id '{}' exists; use 'overwrite' argument to overwrite.", id);
+                "Group name '{}' exists; use 'overwrite' argument to overwrite.", name);
         }
         file.deleteGroup(path);
         file.checkGroup(path, true);
@@ -1137,8 +1137,8 @@ void SolutionArray::writeEntry(const string& fname, const string& id, const stri
 
     const auto& nativeState = m_sol->thermo()->nativeState();
     size_t nSpecies = m_sol->thermo()->nSpecies();
-    for (auto& [name, offset] : nativeState) {
-        if (name == "X" || name == "Y") {
+    for (auto& [key, offset] : nativeState) {
+        if (key == "X" || key == "Y") {
             vector<vector<double>> prop;
             for (size_t i = 0; i < m_size; i++) {
                 size_t first = offset + i * m_stride;
@@ -1147,38 +1147,38 @@ void SolutionArray::writeEntry(const string& fname, const string& id, const stri
             }
             AnyValue data;
             data = prop;
-            file.writeData(path, name, data);
+            file.writeData(path, key, data);
         } else {
-            auto data = getComponent(name);
-            file.writeData(path, name, data);
+            auto data = getComponent(key);
+            file.writeData(path, key, data);
         }
     }
 
-    for (const auto& [name, value] : *m_extra) {
+    for (const auto& [key, value] : *m_extra) {
         if (isSimpleVector(value)) {
-            file.writeData(path, name, value);
+            file.writeData(path, key, value);
         } else if (value.is<void>()) {
             // skip unintialized component
         } else {
             throw NotImplementedError("SolutionArray::writeEntry",
                 "Unable to save component '{}' with data type {}.",
-                name, value.type_str());
+                key, value.type_str());
         }
     }
 }
 
-void SolutionArray::writeEntry(AnyMap& root, const string& id, const string& sub,
+void SolutionArray::writeEntry(AnyMap& root, const string& name, const string& sub,
                                bool overwrite)
 {
-    if (id == "") {
+    if (name == "") {
         throw CanteraError("SolutionArray::writeEntry",
-            "Field id specifying root location must not be empty.");
+            "Field name specifying root location must not be empty.");
     }
     if (m_size < m_dataSize) {
         throw NotImplementedError("SolutionArray::writeEntry",
             "Unable to save sliced data.");
     }
-    string path = id;
+    string path = name;
     if (sub != "") {
         path += "/" + sub;
     } else {
@@ -1188,7 +1188,7 @@ void SolutionArray::writeEntry(AnyMap& root, const string& id, const string& sub
     bool preexisting = !data.empty();
     if (preexisting && !overwrite) {
         throw CanteraError("SolutionArray::writeEntry",
-            "Field id '{}' exists; use 'overwrite' argument to overwrite.", id);
+            "Field name '{}' exists; use 'overwrite' argument to overwrite.", name);
     }
     if (apiNdim() == 1) {
         data["size"] = int(m_dataSize);
@@ -1197,8 +1197,8 @@ void SolutionArray::writeEntry(AnyMap& root, const string& id, const string& sub
     }
     data.update(m_meta);
 
-    for (auto& [name, value] : *m_extra) {
-        data[name] = value;
+    for (auto& [key, value] : *m_extra) {
+        data[key] = value;
     }
 
     auto phase = m_sol->thermo();
@@ -1227,14 +1227,14 @@ void SolutionArray::writeEntry(AnyMap& root, const string& id, const string& sub
         }
     } else if (m_size > 1) {
         const auto& nativeState = phase->nativeState();
-        for (auto& [name, offset] : nativeState) {
-            if (name == "X" || name == "Y") {
+        for (auto& [key, offset] : nativeState) {
+            if (key == "X" || key == "Y") {
                 for (auto& spc : phase->speciesNames()) {
                     data[spc] = getComponent(spc);
                 }
-                data["basis"] = name == "X" ? "mole" : "mass";
+                data["basis"] = key == "X" ? "mole" : "mass";
             } else {
-                data[name] = getComponent(name);
+                data[key] = getComponent(key);
             }
         }
         data["components"] = componentNames();
@@ -1265,7 +1265,7 @@ void SolutionArray::append(const vector<double>& state, const AnyMap& extra)
     }
 }
 
-void SolutionArray::save(const string& fname, const string& id, const string& sub,
+void SolutionArray::save(const string& fname, const string& name, const string& sub,
                          const string& desc, bool overwrite, int compression,
                          const string& basis)
 {
@@ -1276,8 +1276,9 @@ void SolutionArray::save(const string& fname, const string& id, const string& su
     size_t dot = fname.find_last_of(".");
     string extension = (dot != npos) ? toLowerCopy(fname.substr(dot + 1)) : "";
     if (extension == "csv") {
-        if (id != "") {
-            warn_user("SolutionArray::save", "Parameter 'id' not used for CSV output.");
+        if (name != "") {
+            warn_user("SolutionArray::save",
+                      "Parameter 'name' not used for CSV output.");
         }
         writeEntry(fname, overwrite, basis);
         return;
@@ -1287,8 +1288,8 @@ void SolutionArray::save(const string& fname, const string& id, const string& su
             "Argument 'basis' is not used for HDF or YAML output.", basis);
     }
     if (extension == "h5" || extension == "hdf"  || extension == "hdf5") {
-        writeHeader(fname, id, desc, overwrite);
-        writeEntry(fname, id, sub, true, compression);
+        writeHeader(fname, name, desc, overwrite);
+        writeEntry(fname, name, sub, true, compression);
         return;
     }
     if (extension == "yaml" || extension == "yml") {
@@ -1297,8 +1298,8 @@ void SolutionArray::save(const string& fname, const string& id, const string& su
         if (std::ifstream(fname).good()) {
             data = AnyMap::fromYamlFile(fname);
         }
-        writeHeader(data, id, desc, overwrite);
-        writeEntry(data, id, sub, true);
+        writeHeader(data, name, desc, overwrite);
+        writeEntry(data, name, sub, true);
 
         // Write the output file and remove the now-outdated cached file
         std::ofstream out(fname);
@@ -1310,22 +1311,22 @@ void SolutionArray::save(const string& fname, const string& id, const string& su
                        "Unknown file extension '{}'.", extension);
 }
 
-AnyMap SolutionArray::readHeader(const string& fname, const string& id)
+AnyMap SolutionArray::readHeader(const string& fname, const string& name)
 {
     Storage file(fname, false);
-    file.checkGroup(id);
-    return file.readAttributes(id, false);
+    file.checkGroup(name);
+    return file.readAttributes(name, false);
 }
 
-const AnyMap& locateField(const AnyMap& root, const string& id)
+const AnyMap& locateField(const AnyMap& root, const string& name)
 {
-    if (!id.size()) {
+    if (!name.size()) {
         return root;
     }
 
-    // locate field based on 'id'
+    // locate field based on 'name'
     vector<string> tokens;
-    tokenizePath(id, tokens);
+    tokenizePath(name, tokens);
     const AnyMap* ptr = &root; // use raw pointer to avoid copying
     string path = "";
     for (auto& field : tokens) {
@@ -1333,27 +1334,27 @@ const AnyMap& locateField(const AnyMap& root, const string& id)
         const AnyMap& sub = *ptr;
         if (!sub.hasKey(field) || !sub[field].is<AnyMap>()) {
             throw CanteraError("SolutionArray::locateField",
-                "No field or solution with id '{}'.", path);
+                "No field or solution with name '{}'.", path);
         }
         ptr = &sub[field].as<AnyMap>();
     }
     return *ptr;
 }
 
-AnyMap SolutionArray::readHeader(const AnyMap& root, const string& id)
+AnyMap SolutionArray::readHeader(const AnyMap& root, const string& name)
 {
-    auto sub = locateField(root, id);
+    auto sub = locateField(root, name);
     AnyMap header;
-    for (const auto& [name, value] : sub) {
-        if (!sub[name].is<AnyMap>()) {
-            header[name] = value;
+    for (const auto& [key, value] : sub) {
+        if (!sub[key].is<AnyMap>()) {
+            header[key] = value;
         }
     }
     return header;
 }
 
 AnyMap SolutionArray::restore(const string& fname,
-                              const string& id, const string& sub)
+                              const string& name, const string& sub)
 {
     size_t dot = fname.find_last_of(".");
     string extension = (dot != npos) ? toLowerCopy(fname.substr(dot + 1)) : "";
@@ -1364,12 +1365,12 @@ AnyMap SolutionArray::restore(const string& fname,
             "'read_csv' instead.");
     }
     if (extension == "h5" || extension == "hdf"  || extension == "hdf5") {
-        readEntry(fname, id, sub);
-        header = readHeader(fname, id);
+        readEntry(fname, name, sub);
+        header = readHeader(fname, name);
     } else if (extension == "yaml" || extension == "yml") {
         const AnyMap& root = AnyMap::fromYamlFile(fname);
-        readEntry(root, id, sub);
-        header = readHeader(root, id);
+        readEntry(root, name, sub);
+        header = readHeader(root, name);
     } else {
         throw CanteraError("SolutionArray::restore",
             "Unknown file extension '{}'; supported extensions include "
@@ -1609,23 +1610,24 @@ string getName(const set<string>& names, const string& name)
     return name; // let exception be thrown elsewhere
 }
 
-void SolutionArray::readEntry(const string& fname, const string& id, const string& sub)
+void SolutionArray::readEntry(const string& fname, const string& name,
+                              const string& sub)
 {
     Storage file(fname, false);
-    if (id == "") {
+    if (name == "") {
         throw CanteraError("SolutionArray::readEntry",
-            "Group id specifying root location must not be empty.");
+            "Group name specifying root location must not be empty.");
     }
-    string path = id;
-    if (sub != "" && file.checkGroup(id + "/" + sub, true)) {
+    string path = name;
+    if (sub != "" && file.checkGroup(name + "/" + sub, true)) {
         path += "/" + sub;
-    } else if (sub == "" && file.checkGroup(id + "/data", true)) {
+    } else if (sub == "" && file.checkGroup(name + "/data", true)) {
         // default data location
         path += "/data";
     }
     if (!file.checkGroup(path)) {
         throw CanteraError("SolutionArray::readEntry",
-            "Group id specifying data entry is empty.");
+            "Group name specifying data entry is empty.");
     }
     m_extra->clear();
     auto [size, names] = file.contents(path);
@@ -1735,8 +1737,8 @@ void SolutionArray::readEntry(const string& fname, const string& id, const strin
             m_sol->thermo()->saveState(nState, m_data->data() + i * m_stride);
         }
         warn_user("SolutionArray::readEntry",
-            "Detected legacy HDF format with incomplete state information\nfor id '{}' "
-            "(pressure missing).", path);
+            "Detected legacy HDF format with incomplete state information\nfor name "
+            "'{}' (pressure missing).", path);
     } else if (mode == "") {
         throw CanteraError("SolutionArray::readEntry",
             "Data are not consistent with full state modes.");
@@ -1774,19 +1776,19 @@ void SolutionArray::readEntry(const string& fname, const string& id, const strin
     }
 }
 
-void SolutionArray::readEntry(const AnyMap& root, const string& id, const string& sub)
+void SolutionArray::readEntry(const AnyMap& root, const string& name, const string& sub)
 {
-    if (id == "") {
+    if (name == "") {
         throw CanteraError("SolutionArray::readEntry",
-            "Field id specifying root location must not be empty.");
+            "Field name specifying root location must not be empty.");
     }
-    auto path = locateField(root, id);
+    auto path = locateField(root, name);
     if (path.hasKey("generator") && sub != "") {
         // read entry from subfolder (since Cantera 3.0)
-        path = locateField(root, id + "/" + sub);
+        path = locateField(root, name + "/" + sub);
     } else if (sub == "" && path.hasKey("data")) {
         // default data location
-        path = locateField(root, id + "/data");
+        path = locateField(root, name + "/data");
     }
 
     // set size and initialize
@@ -1837,8 +1839,8 @@ void SolutionArray::readEntry(const AnyMap& root, const string& id, const string
             auto Y = path["mass-fractions"].asMap<double>();
             m_sol->thermo()->setState_TPY(T, m_sol->thermo()->pressure(), Y);
             warn_user("SolutionArray::readEntry",
-                "Detected legacy YAML format with incomplete state information\nfor id "
-                "'{}' (pressure missing).", id + "/" + sub);
+                "Detected legacy YAML format with incomplete state information\n"
+                "for name '{}' (pressure missing).", name + "/" + sub);
         } else if (mode == "") {
             throw CanteraError("SolutionArray::readEntry",
                 "Data are not consistent with full state modes.");
