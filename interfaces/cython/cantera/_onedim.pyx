@@ -1539,28 +1539,37 @@ cdef class Sim1D:
     def save(self, filename='soln.yaml', name='solution', description=None,
              loglevel=None, *, overwrite=False, compression=0, basis=None):
         """
-        Save the solution to a container or CSV format.
+        Save current simulation data to a data file (CSV, YAML or HDF).
 
-        In order to save the content of a `Sim1D` object, individual domains are
-        converted to `SolutionArray` objects and saved using the `SolutionArray.save`
+        In order to save the content of the current object, individual domains are
+        converted to `SolutionArray` objects and saved using the `~SolutionArray.save`
         method. For HDF and YAML output, all domains are written to a single container
         file with shared header information. Simulation settings of individual domains
         are preserved as meta data of the corresponding `SolutionArray` objects.
         For CSV files, only state and auxiliary data of the main 1D domain are saved.
 
+        The complete state of the current object can be restored from HDF and YAML
+        container files using the `restore` method, while individual domains can be
+        loaded using `SolutionArray.restore` for further analysis. While CSV files do
+        not contain complete information, they can be used for setting initial states
+        of individual simulation objects (example: `~FreeFlame.set_initial_guess`).
+
         :param filename:
-            solution file
+            Name of output file (CSV, YAML or HDF)
         :param name:
-            solution name within the file (HDF/YAML only)
+            Identifier of storage location within the container file; this node/group
+            contains header information and multiple subgroups holding domain-specific
+            `SolutionArray` data (YAML/HDF only).
         :param description:
-            custom description text (HDF/YAML only)
+            Custom comment describing the dataset to be stored (YAML/HDF only).
         :param overwrite:
-            Force overwrite if name exists; optional (default=`False`)
+            Force overwrite if file and/or data entry exists; optional (default=`False`)
         :param compression:
-            compression level 0..9; optional (HDF only)
+            Compression level (0-9); optional (default=0; HDF only)
         :param basis:
-            Output mass (``Y``/``mass``) or mole (``X``/``mole``) fractions (CSV only);
-            if not specified (`None`), the native storage mode is used
+            Output mass (``Y``/``mass``) or mole (``Y``/``mass``) fractions;
+            if not specified (`None`), the native basis of the underlying `ThermoPhase`
+            manager is used.
 
         >>> s.save(filename='save.yaml', name='energy_off',
         ...        description='solution with energy eqn. disabled')
@@ -1575,17 +1584,21 @@ cdef class Sim1D:
                       stringify(description), overwrite, compression, stringify(basis))
 
     def restore(self, filename='soln.yaml', name='solution', loglevel=None):
-        """Set the solution vector to a previously-saved solution.
+        """Retrieve data and settings from a previously saved simulation.
+
+        This method restores a simulation object from YAML or HDF data previously saved
+        using the `save` method.
 
         :param filename:
-            solution file
+            Name of container file (YAML or HDF)
         :param name:
-            solution name within the file
+            Identifier of location within the container file; this node/group contains
+            header information and subgroups with domain-specific `SolutionArray` data
         :param loglevel:
             Amount of logging information to display while restoring,
             from 0 (disabled) to 2 (most verbose).
         :return:
-            dictionary containing meta data
+            Dictionary containing header information
 
         >>> s.restore(filename='save.yaml', name='energy_off')
 

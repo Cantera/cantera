@@ -1275,9 +1275,9 @@ class SolutionArray(SolutionArrayBase):
         :param fname:
             Name of output file (CSV, YAML or HDF)
         :param name:
-            Identifier of location within the container file; this node/group contains
-            header information and a subgroup holding actual `SolutionArray` data
-            (YAML/HDF only).
+            Identifier of storage location within the container file; this node/group
+            contains header information and a subgroup holding actual `SolutionArray`
+            data (YAML/HDF only).
         :param sub:
             Name identifier for the subgroup holding the `SolutionArray` data and
             metadata objects. If `None`, the subgroup name defaults to ``data``
@@ -1285,7 +1285,7 @@ class SolutionArray(SolutionArrayBase):
         :param description:
             Custom comment describing the dataset to be stored (YAML/HDF only).
         :param overwrite:
-            Force overwrite if name exists; optional (default=`False`)
+            Force overwrite if file/name exists; optional (default=`False`)
         :param compression:
             Compression level (0-9); optional (default=0; HDF only)
         :param basis:

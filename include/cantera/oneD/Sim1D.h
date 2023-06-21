@@ -142,18 +142,31 @@ public:
               const std::string& desc, int loglevel);
 
     /**
-     * Save the current solution to a container or CSV file.
+     * Save current simulation data to a container file or CSV format.
      *
-     * For HDF and YAML, the entire content of the object is saved; for CSV, only the
-     * main 1D domain is saved.
+     * In order to save the content of a Sim1D object, individual domains are
+     * converted to SolutionArray objects and saved using the SolutionArray::save()
+     * method. For HDF and YAML output, all domains are written to a single container
+     * file with shared header information. Simulation settings of individual domains
+     * are preserved as meta data of the corresponding SolutionArray objects.
+     * For CSV files, only state and auxiliary data of the main 1D domain are saved.
      *
-     * @param fname  Name of output container file
-     * @param name  Identifier of solution within the container file
-     * @param desc  Description of the solution
-     * @param overwrite  Force overwrite if name exists; optional (default=false)
-     * @param compression  Compression level (optional; HDF only)
-     * @param basis  Output mass ("Y"/"mass") or mole ("X"/"mole") fractions (CSV only);
-     *      if omitted (default=""), the native storage mode is used
+     * The complete state of the current object can be restored from HDF and YAML
+     * container files using the restore() method, while individual domains can be
+     * loaded using SolutionArray::restore() for further analysis. While CSV do not
+     * contain complete information, they can still be used for setting initial states
+     * of individual simulation objects for some Cantera API's.
+     *
+     * @param fname  Name of output file (CSV, YAML or HDF)
+     * @param name  Identifier of storage location within the container file; this
+     *      node/group contains header information and multiple subgroups holding
+     *      domain-specific SolutionArray data (YAML/HDF only)
+     * @param desc  Custom comment describing the dataset to be stored (YAML/HDF only)
+     * @param overwrite  Force overwrite if file/name exists; optional (default=false)
+     * @param compression  Compression level (0-9); optional (default=0; HDF only)
+     * @param basis  Output mass ("Y"/"mass") or mole ("X"/"mole") fractions;
+     *      if not specified (default=""), the native basis of the underlying
+     *      ThermoPhase manager is used - @see nativeState (CSV only)
      */
     void save(const std::string& fname, const std::string& name,
               const std::string& desc, bool overwrite=false, int compression=0,
@@ -192,9 +205,15 @@ public:
     AnyMap restore(const std::string& fname, const std::string& id, int loglevel);
 
     /**
-     * Initialize the solution with a previously-saved solution.
-     * @param fname  Name of container file
-     * @param name  Identifier of solution within the container file
+     * Retrieve data and settings from a previously saved simulation.
+     *
+     * This method restores a simulation object from YAML or HDF data previously saved
+     * using the save() method.
+     *
+     * @param fname  Name of container file (YAML or HDF)
+     * @param name  Identifier of location within the container file; this node/group
+     *      contains header information and subgroups with domain-specific SolutionArray
+     *      data
      * @return  AnyMap containing header information
      */
     AnyMap restore(const std::string& fname, const std::string& name);
