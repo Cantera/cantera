@@ -15,6 +15,9 @@ localenv.Prepend(CPPPATH=['#include'],
 localenv.Append(LIBS=localenv['cantera_shared_libs'],
                 CCFLAGS=env['warning_flags'])
 
+if env['python_package'] != 'full':
+    localenv.Append(CPPDEFINES={'CT_SKIP_PYTHON': '1'})
+
 if env['googletest'] == 'submodule':
     localenv.Prepend(CPPPATH=['#ext/googletest/googletest/include',
                               '#ext/googletest/googlemock/include'])

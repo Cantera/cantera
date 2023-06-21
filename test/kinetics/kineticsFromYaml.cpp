@@ -533,7 +533,7 @@ TEST(Reaction, TwoTempPlasmaFromYaml)
 
 TEST(Reaction, PythonExtensibleRate)
 {
-    #ifndef CT_HAS_PYTHON
+    #ifdef CT_SKIP_PYTHON // Possibly set via test/SConscript
     GTEST_SKIP();
     #endif
     auto sol = newSolution("extensible-reactions.yaml");
