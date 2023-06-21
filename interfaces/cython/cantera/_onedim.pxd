@@ -74,6 +74,10 @@ cdef extern from "cantera/oneD/StFlow.h":
         void setPressure(double)
         void enableRadiation(cbool)
         cbool radiationEnabled()
+        void enableOnePointControl(cbool)
+        cbool onePointControlEnabled()
+        void enableTwoPointControl(cbool)
+        cbool twoPointControlEnabled()
         double radiativeHeatLoss(size_t)
         double pressure()
         void setFixedTempProfile(vector[double]&, vector[double]&)
@@ -87,6 +91,10 @@ cdef extern from "cantera/oneD/StFlow.h":
         double rightEmissivity()
         void solveEnergyEqn()
         void fixTemperature()
+        double fuelInternalBoundaryTemperature()
+        double oxidInternalBoundaryTemperature()
+        void setFuelInternalBoundaryTemperature(double)
+        void setOxidInternalBoundaryTemperature(double)
         cbool doEnergy(size_t)
         void enableSoret(cbool) except +translate_exception
         cbool withSoret()
@@ -141,6 +149,8 @@ cdef extern from "cantera/oneD/Sim1D.h":
         void setFixedTemperature(double) except +translate_exception
         double fixedTemperature()
         double fixedTemperatureLocation()
+        void setFuelInternalBoundary(double) except +translate_exception
+        void setOxidizerInternalBoundary(double) except +translate_exception
         void setInterrupt(CxxFunc1*) except +translate_exception
         void setTimeStepCallback(CxxFunc1*)
         void setSteadyCallback(CxxFunc1*)

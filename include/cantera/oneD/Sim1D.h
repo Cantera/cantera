@@ -253,10 +253,10 @@ public:
     double fixedTemperatureLocation();
 
     //! Set the fuel internal boundary location
-    void setFuelSideBoundary(doublereal tFuel);
-
-    //! Set the oxidizer side internal boundary location
-    void setOxidSideBoundary(doublereal tOxid);
+    void setFuelInternalBoundary(double temperature);
+    
+    //! Set the oxidizer internal boundary location
+    void setOxidizerInternalBoundary(double temperature);
 
     /**
      * Set grid refinement criteria. If dom >= 0, then the settings

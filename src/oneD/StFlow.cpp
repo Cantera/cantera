@@ -19,12 +19,6 @@ namespace Cantera
 StFlow::StFlow(ThermoPhase* ph, size_t nsp, size_t points) :
     Domain1D(nsp+c_offset_Y, points),
     m_nsp(nsp)
-    m_onePntCtrl(false),
-    m_twoPntCtrl(false),
-    m_zFuel(Undef),
-    m_tFuel(Undef),
-    m_zOxid(Undef),
-    m_tOxid(Undef)
 {
     m_type = cFlowType;
     m_points = points;
@@ -305,7 +299,7 @@ void StFlow::setGasAtMidpoint(const doublereal* x, size_t j)
 }
 
 bool StFlow::fixed_mdot() {
-    return !m_isFree;
+    return !m_isFree && !m_onePointControl && !m_twoPointControl;
 }
 
 void StFlow::_finalize(const doublereal* x)
@@ -407,13 +401,8 @@ void StFlow::updateProperties(size_t jg, double* x, size_t jmin, size_t jmax)
     updateDiffFluxes(x, j0, j1);
 }
 
-void StFlow::evalResidual(double* x, double* rsd, int* diag,
-                          double rdt, size_t jmin, size_t jmax)
+void StFlow::computeRadiation(double* x, size_t jmin, size_t jmax) 
 {
-    //----------------------------------------------------
-    // evaluate the residual equations at all required
-    // grid points
-    //----------------------------------------------------
 
     // calculation of qdotRadiation
 
@@ -430,209 +419,331 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
     // Environment, NIST technical note 1402, 1993]. The coefficients for the
     // polynomials are taken from [http://www.sandia.gov/TNF/radiation.html].
 
-    if (m_do_radiation) {
-        // variable definitions for the Planck absorption coefficient and the
-        // radiation calculation:
-        doublereal k_P_ref = 1.0*OneAtm;
+    // variable definitions for the Planck absorption coefficient and the
+    // radiation calculation:
+    doublereal k_P_ref = 1.0*OneAtm;
 
-        // polynomial coefficients:
-        const doublereal c_H2O[6] = {-0.23093, -1.12390, 9.41530, -2.99880,
-                                     0.51382, -1.86840e-5};
-        const doublereal c_CO2[6] = {18.741, -121.310, 273.500, -194.050,
-                                     56.310, -5.8169};
+    // polynomial coefficients:
+    const doublereal c_H2O[6] = {-0.23093, -1.12390, 9.41530, -2.99880,
+                                    0.51382, -1.86840e-5};
+    const doublereal c_CO2[6] = {18.741, -121.310, 273.500, -194.050,
+                                    56.310, -5.8169};
 
-        // calculation of the two boundary values
-        double boundary_Rad_left = m_epsilon_left * StefanBoltz * pow(T(x, 0), 4);
-        double boundary_Rad_right = m_epsilon_right * StefanBoltz * pow(T(x, m_points - 1), 4);
+    // calculation of the two boundary values
+    double boundary_Rad_left = m_epsilon_left * StefanBoltz * pow(T(x, 0), 4);
+    double boundary_Rad_right = m_epsilon_right * StefanBoltz * pow(T(x, m_points - 1), 4);
 
-        // loop over all grid points
-        for (size_t j = jmin; j < jmax; j++) {
-            // helping variable for the calculation
-            double radiative_heat_loss = 0;
+    // loop over all grid points
+    for (size_t j = jmin; j < jmax; j++) {
+        // helping variable for the calculation
+        double radiative_heat_loss = 0;
 
-            // calculation of the mean Planck absorption coefficient
-            double k_P = 0;
-            // absorption coefficient for H2O
-            if (m_kRadiating[1] != npos) {
-                double k_P_H2O = 0;
-                for (size_t n = 0; n <= 5; n++) {
-                    k_P_H2O += c_H2O[n] * pow(1000 / T(x, j), (double) n);
-                }
-                k_P_H2O /= k_P_ref;
-                k_P += m_press * X(x, m_kRadiating[1], j) * k_P_H2O;
+        // calculation of the mean Planck absorption coefficient
+        double k_P = 0;
+        // absorption coefficient for H2O
+        if (m_kRadiating[1] != npos) {
+            double k_P_H2O = 0;
+            for (size_t n = 0; n <= 5; n++) {
+                k_P_H2O += c_H2O[n] * pow(1000 / T(x, j), (double) n);
             }
-            // absorption coefficient for CO2
-            if (m_kRadiating[0] != npos) {
-                double k_P_CO2 = 0;
-                for (size_t n = 0; n <= 5; n++) {
-                    k_P_CO2 += c_CO2[n] * pow(1000 / T(x, j), (double) n);
-                }
-                k_P_CO2 /= k_P_ref;
-                k_P += m_press * X(x, m_kRadiating[0], j) * k_P_CO2;
-            }
-
-            // calculation of the radiative heat loss term
-            radiative_heat_loss = 2 * k_P *(2 * StefanBoltz * pow(T(x, j), 4)
-            - boundary_Rad_left - boundary_Rad_right);
-
-            // set the radiative heat loss vector
-            m_qdotRadiation[j] = radiative_heat_loss;
+            k_P_H2O /= k_P_ref;
+            k_P += m_press * X(x, m_kRadiating[1], j) * k_P_H2O;
         }
+        // absorption coefficient for CO2
+        if (m_kRadiating[0] != npos) {
+            double k_P_CO2 = 0;
+            for (size_t n = 0; n <= 5; n++) {
+                k_P_CO2 += c_CO2[n] * pow(1000 / T(x, j), (double) n);
+            }
+            k_P_CO2 /= k_P_ref;
+            k_P += m_press * X(x, m_kRadiating[0], j) * k_P_CO2;
+        }
+
+        // calculation of the radiative heat loss term
+        radiative_heat_loss = 2 * k_P *(2 * StefanBoltz * pow(T(x, j), 4)
+        - boundary_Rad_left - boundary_Rad_right);
+
+        // set the radiative heat loss vector
+        m_qdotRadiation[j] = radiative_heat_loss;
+    }
+    
+}
+
+void StFlow::evalLeftBoundary(double* x, double* rsd, int* diag, double rdt, size_t j) 
+{
+    //----------------------------------------------
+    //         left boundary
+    //----------------------------------------------
+
+    // Continuity. This propagates information right-to-left, since
+    // rho_u at point 0 is dependent on rho_u at point 1, but not on
+    // mdot from the inlet.
+    rsd[index(c_offset_U,0)] =
+        -(rho_u(x,1) - rho_u(x,0))/m_dz[0]
+        -(density(1)*V(x,1) + density(0)*V(x,0));
+
+    // the inlet (or other) object connected to this one will modify
+    // these equations by subtracting its values for V, T, and mdot. As
+    // a result, these residual equations will force the solution
+    // variables to the values for the boundary object
+    rsd[index(c_offset_V,0)] = V(x,0);
+    if (doEnergy(0)) {
+        rsd[index(c_offset_T,0)] = T(x,0);
+    } else {
+        rsd[index(c_offset_T,0)] = T(x,0) - T_fixed(0);
+    }
+
+    // have different boundary type with different flame control method                
+    if (m_onePointControl) {
+        rsd[index(c_offset_L,0)] = lambda(x,1) - lambda(x,0);
+        rsd[index(c_offset_Uo,0)] = Uo(x,0);
+    } else if (m_twoPointControl) {
+        rsd[index(c_offset_L,0)] = lambda(x,1) - lambda(x,0);
+        rsd[index(c_offset_Uo,0)] = Uo(x,1) - Uo(x,0);
+    } else {
+        rsd[index(c_offset_L,0)] = -rho_u(x,0);
+        rsd[index(c_offset_Uo,0)] = Uo(x,1) - Uo(x,0);
+    }
+
+    // The default boundary condition for species is zero flux. However,
+    // the boundary object may modify this.
+    double sum = 0.0;
+    for (size_t k = 0; k < m_nsp; k++) {
+        sum += Y(x,k,0);
+        rsd[index(c_offset_Y + k, 0)] =
+            -(m_flux(k,0) + rho_u(x,0)* Y(x,k,0));
+    }
+    rsd[index(c_offset_Y + leftExcessSpecies(), 0)] = 1.0 - sum;
+
+    // set residual of poisson's equ to zero
+    rsd[index(c_offset_E, 0)] = x[index(c_offset_E, j)];
+
+}
+
+void StFlow::evalRightBoundary(double* x, double* rsd, int* diag, double rdt, size_t j) 
+{
+    // the boundary object connected to the right of this one may modify or
+    // replace these equations. The default boundary conditions are zero u, V,
+    // and T, and zero diffusive flux for all species.
+
+    rsd[index(c_offset_V,j)] = V(x,j);
+    doublereal sum = 0.0;
+    rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
+    diag[index(c_offset_L, j)] = 0;
+
+    // Point-control
+    if (!m_onePointControl && !m_twoPointControl) {
+        rsd[index(c_offset_Uo,j)] = Uo(x,j);
+    } else {
+        rsd[index(c_offset_Uo, j)] = Uo(x,j) - Uo(x,j-1);
+    }
+    diag[index(c_offset_Uo, j)] = 0;
+
+    for (size_t k = 0; k < m_nsp; k++) {
+        sum += Y(x,k,j);
+        rsd[index(k+c_offset_Y,j)] = m_flux(k,j-1) + rho_u(x,j)*Y(x,k,j);
+    }
+    rsd[index(c_offset_Y + rightExcessSpecies(), j)] = 1.0 - sum;
+    diag[index(c_offset_Y + rightExcessSpecies(), j)] = 0;
+    if (!m_isFree) {
+        rsd[index(c_offset_U,j)] = rho_u(x,j);
+        if (m_do_energy[j]) {
+            rsd[index(c_offset_T,j)] = T(x,j);
+        } else {
+            rsd[index(c_offset_T, j)] = T(x,j) - T_fixed(j);
+        }
+    } else {
+        rsd[index(c_offset_U,j)] = rho_u(x,j) - rho_u(x,j-1);
+        rsd[index(c_offset_T,j)] = T(x,j) - T(x,j-1);
+    }
+
+    // set residual of poisson's equ to zero
+    rsd[index(c_offset_E, j)] = x[index(c_offset_E, j)];
+}
+
+void StFlow::evalRadialMomentumEquation(double* x, double* rsd, int* diag, double rdt, size_t j)
+{
+    //------------------------------------------------
+    //    Radial momentum equation
+    //
+    //    \rho dV/dt + \rho u dV/dz + \rho V^2
+    //       = d(\mu dV/dz)/dz - lambda
+    //-------------------------------------------------
+    rsd[index(c_offset_V,j)]
+    = (shear(x,j) - lambda(x,j) - rho_u(x,j)*dVdz(x,j)
+        - m_rho[j]*V(x,j)*V(x,j))/m_rho[j]
+        - rdt*(V(x,j) - V_prev(j));
+    diag[index(c_offset_V, j)] = 1;
+}
+
+void StFlow::evalContinuityEquation(double* x, double* rsd, int* diag, double rdt, size_t j) 
+{
+    //algebraic constraint
+    diag[index(c_offset_U, j)] = 0;
+    //----------------------------------------------
+    //    Continuity equation
+    //
+    //    d(\rho u)/dz + 2\rho V = 0
+    //----------------------------------------------
+    if (!m_isFree) {
+        // Note that this propagates the mass flow rate information to the left
+        // (j+1 -> j) from the value specified at the right boundary. The
+        // lambda information propagates in the opposite direction.
+        rsd[index(c_offset_U,j)] =
+            -(rho_u(x,j+1) - rho_u(x,j))/m_dz[j]
+            -(density(j+1)*V(x,j+1) + density(j)*V(x,j));
+    } else {
+        if (grid(j) > m_zfixed) {
+            rsd[index(c_offset_U,j)] =
+                - (rho_u(x,j) - rho_u(x,j-1))/m_dz[j-1]
+                - (density(j-1)*V(x,j-1) + density(j)*V(x,j));
+        } else if (grid(j) == m_zfixed) {
+            if (m_do_energy[j]) {
+                rsd[index(c_offset_U,j)] = (T(x,j) - m_tfixed);
+            } else {
+                rsd[index(c_offset_U,j)] = (rho_u(x,j)
+                                            - m_rho[0]*0.3);
+            }
+        } else if (grid(j) < m_zfixed) {
+            rsd[index(c_offset_U,j)] =
+                - (rho_u(x,j+1) - rho_u(x,j))/m_dz[j]
+                - (density(j+1)*V(x,j+1) + density(j)*V(x,j));
+        }
+    }
+}
+
+void StFlow::evalSpeciesEquation(double* x, double* rsd, int* diag, double rdt, size_t j)
+{
+    //-------------------------------------------------
+    //    Species equations
+    //
+    //   \rho dY_k/dt + \rho u dY_k/dz + dJ_k/dz
+    //   = M_k\omega_k
+    //-------------------------------------------------
+    getWdot(x,j);
+    for (size_t k = 0; k < m_nsp; k++) {
+        double convec = rho_u(x,j)*dYdz(x,k,j);
+        double diffus = 2.0*(m_flux(k,j) - m_flux(k,j-1))
+                        / (z(j+1) - z(j-1));
+        rsd[index(c_offset_Y + k, j)]
+        = (m_wt[k]*(wdot(k,j))
+            - convec - diffus)/m_rho[j]
+            - rdt*(Y(x,k,j) - Y_prev(k,j));
+        diag[index(c_offset_Y + k, j)] = 1;
+    }
+}
+
+void StFlow::evalEnergyEquation(double* x, double* rsd, int* diag, double rdt, size_t j)
+{
+    //-----------------------------------------------
+    //    energy equation
+    //
+    //    \rho c_p dT/dt + \rho c_p u dT/dz
+    //    = d(k dT/dz)/dz
+    //      - sum_k(\omega_k h_k_ref)
+    //      - sum_k(J_k c_p_k / M_k) dT/dz
+    //-----------------------------------------------
+    if (m_do_energy[j]) {
+        setGas(x,j);
+
+        // heat release term
+        double dtdzj = dTdz(x,j);
+        double sum = 0.0;
+        
+        grad_hk(x, j);
+        for (size_t k = 0; k < m_nsp; k++) {
+            double flxk = 0.5*(m_flux(k,j-1) + m_flux(k,j));
+            sum += wdot(k,j)*m_hk(k,j);
+            sum += flxk * m_dhk_dz(k,j) / m_wt[k];
+        }
+        
+        rsd[index(c_offset_T, j)] = - m_cp[j]*rho_u(x,j)*dtdzj
+                                    - divHeatFlux(x,j) - sum;
+        rsd[index(c_offset_T, j)] /= (m_rho[j]*m_cp[j]);
+        rsd[index(c_offset_T, j)] -= rdt*(T(x,j) - T_prev(j));
+        rsd[index(c_offset_T, j)] -= (m_qdotRadiation[j] / (m_rho[j] * m_cp[j]));
+        diag[index(c_offset_T, j)] = 1;
+    } else {
+        // residual equations if the energy equation is disabled
+        rsd[index(c_offset_T, j)] = T(x,j) - T_fixed(j);
+        diag[index(c_offset_T, j)] = 0;
+    }
+}
+
+void StFlow::evalLEquation(double* x, double* rsd, int* diag, double rdt, size_t j) 
+{
+    if (m_onePointControl) {
+        if (grid(j) > m_zFuel) {
+            rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
+        } else if (grid(j) == m_zFuel) {
+            rsd[index(c_offset_L, j)] = T(x,j) - m_tFuel;
+        } else if (grid(j) < m_zFuel) {
+            rsd[index(c_offset_L, j)] = lambda(x,j+1) - lambda(x,j);
+        }
+    } else if (m_twoPointControl) {
+        if (grid(j) > m_zFuel) {
+            rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
+        } else if (grid(j) == m_zFuel) {
+            rsd[index(c_offset_L, j)] = T(x,j) - m_tFuel;
+        } else if (grid(j) < m_zFuel) {
+            rsd[index(c_offset_L, j)] = lambda(x,j+1) - lambda(x,j);
+        }
+    } else {
+        rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
+    }
+    diag[index(c_offset_L, j)] = 0;
+}
+
+void StFlow::evalUoEquation(double* x, double* rsd, int* diag, double rdt, size_t j) 
+{
+    if (m_onePointControl) {
+        rsd[index(c_offset_Uo, j)] = Uo(x,j) - Uo(x,j-1);
+    } else if (m_twoPointControl) {
+        if (grid(j) > m_zOxid) {
+            rsd[index(c_offset_Uo, j)] = Uo(x,j) - Uo(x,j-1);
+        } else if (grid(j) == m_zOxid) {
+            rsd[index(c_offset_Uo, j)] = T(x,j) - m_tOxid;
+        } else if (grid(j) < m_zOxid) {
+            rsd[index(c_offset_Uo, j)] = Uo(x,j+1) - Uo(x,j);
+        }
+    } else {
+        rsd[index(c_offset_Uo, j)] = Uo(x,j+1) - Uo(x,j);
+    }
+    diag[index(c_offset_Uo, j)] = 0;
+}
+
+void StFlow::evalInterior(double* x, double* rsd, int* diag, double rdt, size_t j) 
+{
+    // interior points
+    evalContinuityEquation(x, rsd, diag, rdt, j);
+    // set residual of poisson's equ to zero
+    rsd[index(c_offset_E, j)] = x[index(c_offset_E, j)];
+    evalRadialMomentumEquation(x, rsd, diag, rdt, j);
+    evalSpeciesEquation(x, rsd, diag, rdt, j);
+    evalEnergyEquation(x, rsd, diag, rdt, j);
+    evalLEquation(x, rsd, diag, rdt, j);
+    evalUoEquation(x, rsd, diag, rdt, j);
+}
+
+void StFlow::evalResidual(double* x, double* rsd, int* diag,
+                          double rdt, size_t jmin, size_t jmax)
+{
+    //----------------------------------------------------
+    // evaluate the residual equations at all required
+    // grid points
+    //----------------------------------------------------
+
+    if (m_do_radiation) {
+        computeRadiation(x, jmin, jmax);
     }
 
     for (size_t j = jmin; j <= jmax; j++) {
-        //----------------------------------------------
-        //         left boundary
-        //----------------------------------------------
-
-        if (j == 0) {
-            // these may be modified by a boundary object
-
-            // Continuity. This propagates information right-to-left, since
-            // rho_u at point 0 is dependent on rho_u at point 1, but not on
-            // mdot from the inlet.
-            rsd[index(c_offset_U,0)] =
-                -(rho_u(x,1) - rho_u(x,0))/m_dz[0]
-                -(density(1)*V(x,1) + density(0)*V(x,0));
-
-            // the inlet (or other) object connected to this one will modify
-            // these equations by subtracting its values for V, T, and mdot. As
-            // a result, these residual equations will force the solution
-            // variables to the values for the boundary object
-            rsd[index(c_offset_V,0)] = V(x,0);
-            if (doEnergy(0)) {
-                rsd[index(c_offset_T,0)] = T(x,0);
-            } else {
-                rsd[index(c_offset_T,0)] = T(x,0) - T_fixed(0);
-            }
-
-            // have different boundary type with different flame control method
-            if (!m_onePntCtrl && !m_twoPntCtrl) {
-                rsd[index(c_offset_L,0)] = -rho_u(x,0);
-                rsd[index(c_offset_Uo,0)] = Uo(x,1) - Uo(x,0);
-            } else if (m_onePntCtrl) {
-                rsd[index(c_offset_L,0)] = lambda(x,1) - lambda(x,0);
-                rsd[index(c_offset_Uo,0)] = Uo(x,0);
-            } else if (m_twoPntCtrl) {
-                rsd[index(c_offset_L,0)] = lambda(x,1) - lambda(x,0);
-                rsd[index(c_offset_Uo,0)] = Uo(x,1) - Uo(x,0);
-            }
-
-            // The default boundary condition for species is zero flux. However,
-            // the boundary object may modify this.
-            double sum = 0.0;
-            for (size_t k = 0; k < m_nsp; k++) {
-                sum += Y(x,k,0);
-                rsd[index(c_offset_Y + k, 0)] =
-                    -(m_flux(k,0) + rho_u(x,0)* Y(x,k,0));
-            }
-            rsd[index(c_offset_Y + leftExcessSpecies(), 0)] = 1.0 - sum;
-
-            // set residual of poisson's equ to zero
-            rsd[index(c_offset_E, 0)] = x[index(c_offset_E, j)];
-        } else if (j == m_points - 1) {
-            evalRightBoundary(x, rsd, diag, rdt);
+        if (j == 0) { // left boundary
+            evalLeftBoundary(x, rsd, diag, rdt, j);
+        } else if (j == m_points - 1) { // right boundary
+            evalRightBoundary(x, rsd, diag, rdt, j);
         } else { // interior points
-            evalContinuity(j, x, rsd, diag, rdt);
-            // set residual of poisson's equ to zero
-            rsd[index(c_offset_E, j)] = x[index(c_offset_E, j)];
-
-            //------------------------------------------------
-            //    Radial momentum equation
-            //
-            //    \rho dV/dt + \rho u dV/dz + \rho V^2
-            //       = d(\mu dV/dz)/dz - lambda
-            //-------------------------------------------------
-            rsd[index(c_offset_V,j)]
-            = (shear(x,j) - lambda(x,j) - rho_u(x,j)*dVdz(x,j)
-               - m_rho[j]*V(x,j)*V(x,j))/m_rho[j]
-              - rdt*(V(x,j) - V_prev(j));
-            diag[index(c_offset_V, j)] = 1;
-
-            //-------------------------------------------------
-            //    Species equations
-            //
-            //   \rho dY_k/dt + \rho u dY_k/dz + dJ_k/dz
-            //   = M_k\omega_k
-            //-------------------------------------------------
-            getWdot(x,j);
-            for (size_t k = 0; k < m_nsp; k++) {
-                double convec = rho_u(x,j)*dYdz(x,k,j);
-                double diffus = 2.0*(m_flux(k,j) - m_flux(k,j-1))
-                                / (z(j+1) - z(j-1));
-                rsd[index(c_offset_Y + k, j)]
-                = (m_wt[k]*(wdot(k,j))
-                   - convec - diffus)/m_rho[j]
-                  - rdt*(Y(x,k,j) - Y_prev(k,j));
-                diag[index(c_offset_Y + k, j)] = 1;
-            }
-
-            //-----------------------------------------------
-            //    energy equation
-            //
-            //    \rho c_p dT/dt + \rho c_p u dT/dz
-            //    = d(k dT/dz)/dz
-            //      - sum_k(\omega_k h_k_ref)
-            //      - sum_k(J_k c_p_k / M_k) dT/dz
-            //-----------------------------------------------
-            if (m_do_energy[j]) {
-
-                setGas(x,j);
-                double dtdzj = dTdz(x,j);
-                double sum = 0.0;
-
-                grad_hk(x, j);
-                for (size_t k = 0; k < m_nsp; k++) {
-                    double flxk = 0.5*(m_flux(k,j-1) + m_flux(k,j));
-                    sum += wdot(k,j)*m_hk(k,j);
-                    sum += flxk * m_dhk_dz(k,j) / m_wt[k];
-                }
-
-                rsd[index(c_offset_T, j)] = - m_cp[j]*rho_u(x,j)*dtdzj
-                                            - divHeatFlux(x,j) - sum;
-                rsd[index(c_offset_T, j)] /= (m_rho[j]*m_cp[j]);
-                rsd[index(c_offset_T, j)] -= rdt*(T(x,j) - T_prev(j));
-                rsd[index(c_offset_T, j)] -= (m_qdotRadiation[j] / (m_rho[j] * m_cp[j]));
-                diag[index(c_offset_T, j)] = 1;
-            } else {
-                // residual equations if the energy equation is disabled
-                rsd[index(c_offset_T, j)] = T(x,j) - T_fixed(j);
-                diag[index(c_offset_T, j)] = 0;
-            }
-
-            if (!m_onePntCtrl && !m_twoPntCtrl) {
-                rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
-                rsd[index(c_offset_Uo, j)] = Uo(x,j+1) - Uo(x,j);
-            } else if (m_onePntCtrl) {
-                if (grid(j) > m_zFuel) {
-                    rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
-                } else if (grid(j) == m_zFuel) {
-                    rsd[index(c_offset_L, j)] = T(x,j) - m_tFuel;
-                } else if (grid(j) < m_zFuel) {
-                    rsd[index(c_offset_L, j)] = lambda(x,j+1) - lambda(x,j);
-                }
-
-                rsd[index(c_offset_Uo, j)] = Uo(x,j) - Uo(x,j-1);
-            } else if (m_twoPntCtrl) {
-                if (grid(j) > m_zFuel) {
-                    rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
-                } else if (grid(j) == m_zFuel) {
-                    rsd[index(c_offset_L, j)] = T(x,j) - m_tFuel;
-                } else if (grid(j) < m_zFuel) {
-                    rsd[index(c_offset_L, j)] = lambda(x,j+1) - lambda(x,j);
-                }
-
-                if (grid(j) > m_zOxid) {
-                    rsd[index(c_offset_Uo, j)] = Uo(x,j) - Uo(x,j-1);
-                } else if (grid(j) == m_zOxid) {
-                    rsd[index(c_offset_Uo, j)] = T(x,j) - m_tOxid;
-                } else if (grid(j) < m_zOxid) {
-                    rsd[index(c_offset_Uo, j)] = Uo(x,j+1) - Uo(x,j);
-                }
-            }
-
-            diag[index(c_offset_L, j)] = 0;
-            diag[index(c_offset_Uo, j)] = 0;
+            evalInterior(x, rsd, diag, rdt, j);
         }
     }
 }
@@ -789,55 +900,6 @@ bool StFlow::componentActive(size_t n) const
     }
 }
 
-AnyMap StFlow::getMeta() const
-{
-    AnyMap state = Domain1D::getMeta();
-    state["transport-model"] = m_trans->transportModel();
-
-    state["phase"]["name"] = m_thermo->name();
-    AnyValue source = m_thermo->input().getMetadata("filename");
-    state["phase"]["source"] = source.empty() ? "<unknown>" : source.asString();
-
-    state["radiation-enabled"] = m_do_radiation;
-    if (m_do_radiation) {
-        state["emissivity-left"] = m_epsilon_left;
-        state["emissivity-right"] = m_epsilon_right;
-    }
-
-    std::set<bool> energy_flags(m_do_energy.begin(), m_do_energy.end());
-    if (energy_flags.size() == 1) {
-        state["energy-enabled"] = m_do_energy[0];
-    } else {
-        state["energy-enabled"] = m_do_energy;
-    }
-
-    state["Soret-enabled"] = m_do_soret;
-
-    std::set<bool> species_flags(m_do_species.begin(), m_do_species.end());
-    if (species_flags.size() == 1) {
-        state["species-enabled"] = m_do_species[0];
-    } else {
-        for (size_t k = 0; k < m_nsp; k++) {
-            state["species-enabled"][m_thermo->speciesName(k)] = m_do_species[k];
-        }
-    }
-
-    state["refine-criteria"]["ratio"] = m_refiner->maxRatio();
-    state["refine-criteria"]["slope"] = m_refiner->maxDelta();
-    state["refine-criteria"]["curve"] = m_refiner->maxSlope();
-    state["refine-criteria"]["prune"] = m_refiner->prune();
-    state["refine-criteria"]["grid-min"] = m_refiner->gridMin();
-    state["refine-criteria"]["max-points"] =
-        static_cast<long int>(m_refiner->maxPoints());
-
-    if (m_zfixed != Undef) {
-        state["fixed-point"]["location"] = m_zfixed;
-        state["fixed-point"]["temperature"] = m_tfixed;
-    }
-
-    return state;
-}
-
 shared_ptr<SolutionArray> StFlow::asArray(const double* soln) const
 {
     auto arr = SolutionArray::create(
@@ -914,6 +976,68 @@ string StFlow::flowType() const {
     }
 }
 
+AnyMap StFlow::getMeta() const
+{
+    AnyMap state = Domain1D::getMeta();
+    state["transport-model"] = m_trans->transportModel();
+
+    state["phase"]["name"] = m_thermo->name();
+    AnyValue source = m_thermo->input().getMetadata("filename");
+    state["phase"]["source"] = source.empty() ? "<unknown>" : source.asString();
+
+    state["radiation-enabled"] = m_do_radiation;
+    if (m_do_radiation) {
+        state["emissivity-left"] = m_epsilon_left;
+        state["emissivity-right"] = m_epsilon_right;
+    }
+
+    std::set<bool> energy_flags(m_do_energy.begin(), m_do_energy.end());
+    if (energy_flags.size() == 1) {
+        state["energy-enabled"] = m_do_energy[0];
+    } else {
+        state["energy-enabled"] = m_do_energy;
+    }
+
+    state["Soret-enabled"] = m_do_soret;
+
+    std::set<bool> species_flags(m_do_species.begin(), m_do_species.end());
+    if (species_flags.size() == 1) {
+        state["species-enabled"] = m_do_species[0];
+    } else {
+        for (size_t k = 0; k < m_nsp; k++) {
+            state["species-enabled"][m_thermo->speciesName(k)] = m_do_species[k];
+        }
+    }
+
+    state["refine-criteria"]["ratio"] = m_refiner->maxRatio();
+    state["refine-criteria"]["slope"] = m_refiner->maxDelta();
+    state["refine-criteria"]["curve"] = m_refiner->maxSlope();
+    state["refine-criteria"]["prune"] = m_refiner->prune();
+    state["refine-criteria"]["grid-min"] = m_refiner->gridMin();
+    state["refine-criteria"]["max-points"] =
+        static_cast<long int>(m_refiner->maxPoints());
+
+    if (m_zfixed != Undef) {
+        state["fixed-point"]["location"] = m_zfixed;
+        state["fixed-point"]["temperature"] = m_tfixed;
+    }
+
+    // One and two-point control meta data
+    if (m_onePointControl) {
+        state["point-control"]["type"] = "one-point";
+        state["point-control"]["location"] = m_zFuel;
+        state["point-control"]["temperature"] = m_tFuel;
+    } else if (m_twoPointControl) {
+        state["point-control"]["type"] = "two-point";
+        state["point-control"]["fuel-location"] = m_zFuel;
+        state["point-control"]["oxidizer-location"] = m_zOxid;
+        state["point-control"]["fuel-temperature"] = m_tFuel;
+        state["point-control"]["oxidizer-temperature"] = m_tOxid;
+    }
+
+    return state;
+}
+
 void StFlow::setMeta(const AnyMap& state)
 {
     if (state.hasKey("energy-enabled")) {
@@ -968,6 +1092,26 @@ void StFlow::setMeta(const AnyMap& state)
         m_zfixed = state["fixed-point"]["location"].asDouble();
         m_tfixed = state["fixed-point"]["temperature"].asDouble();
     }
+
+    // One and two-point control meta data
+    if (state.hasKey("point-control")) {
+        //Check to see if it is one-point or two-point control
+        const AnyMap& pc = state["point-control"].as<AnyMap>();
+        if (pc["type"] == "one-point") {
+            m_onePointControl = true;
+            m_twoPointControl = false;
+            m_zFuel = pc["location"].asDouble();
+            m_tFuel = pc["temperature"].asDouble();
+        } else if (state["fixed-point"]["type"] == "two-point") {
+            m_onePointControl = false;
+            m_twoPointControl = true;
+            m_zFuel = pc["fuel-location"].asDouble();
+            m_zOxid = pc["oxidizer-location"].asDouble();
+            m_tFuel = pc["fuel-temperature"].asDouble();
+            m_tOxid = pc["oxidizer-temperature"].asDouble();
+        }
+    }
+
 }
 
 void StFlow::solveEnergyEqn(size_t j)
@@ -1062,80 +1206,6 @@ void StFlow::fixTemperature(size_t j)
     }
 }
 
-void StFlow::evalRightBoundary(double* x, double* rsd, int* diag, double rdt)
-{
-    size_t j = m_points - 1;
-
-    // the boundary object connected to the right of this one may modify or
-    // replace these equations. The default boundary conditions are zero u, V,
-    // and T, and zero diffusive flux for all species.
-
-    rsd[index(c_offset_V,j)] = V(x,j);
-    doublereal sum = 0.0;
-    rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
-    diag[index(c_offset_L, j)] = 0;
-    // set residual of poisson's equ to zero
-    rsd[index(c_offset_E, j)] = x[index(c_offset_E, j)];
-    if (!m_onePntCtrl && !m_twoPntCtrl) {
-        rsd[index(c_offset_Uo,j)] = Uo(x,j);
-    } else {
-        rsd[index(c_offset_Uo, j)] = Uo(x,j) - Uo(x,j-1);
-    }
-    diag[index(c_offset_Uo, j)] = 0;
-    for (size_t k = 0; k < m_nsp; k++) {
-        sum += Y(x,k,j);
-        rsd[index(k+c_offset_Y,j)] = m_flux(k,j-1) + rho_u(x,j)*Y(x,k,j);
-    }
-    rsd[index(c_offset_Y + rightExcessSpecies(), j)] = 1.0 - sum;
-    diag[index(c_offset_Y + rightExcessSpecies(), j)] = 0;
-    if (!m_isFree) {
-        rsd[index(c_offset_U,j)] = rho_u(x,j);
-        if (m_do_energy[j]) {
-            rsd[index(c_offset_T,j)] = T(x,j);
-        } else {
-            rsd[index(c_offset_T, j)] = T(x,j) - T_fixed(j);
-        }
-    } else {
-        rsd[index(c_offset_U,j)] = rho_u(x,j) - rho_u(x,j-1);
-        rsd[index(c_offset_T,j)] = T(x,j) - T(x,j-1);
-    }
-}
-
-void StFlow::evalContinuity(size_t j, double* x, double* rsd, int* diag, double rdt)
-{
-    //algebraic constraint
-    diag[index(c_offset_U, j)] = 0;
-    //----------------------------------------------
-    //    Continuity equation
-    //
-    //    d(\rho u)/dz + 2\rho V = 0
-    //----------------------------------------------
-    if (!m_isFree) {
-        // Note that this propagates the mass flow rate information to the left
-        // (j+1 -> j) from the value specified at the right boundary. The
-        // lambda information propagates in the opposite direction.
-        rsd[index(c_offset_U,j)] =
-            -(rho_u(x,j+1) - rho_u(x,j))/m_dz[j]
-            -(density(j+1)*V(x,j+1) + density(j)*V(x,j));
-    } else {
-        if (grid(j) > m_zfixed) {
-            rsd[index(c_offset_U,j)] =
-                - (rho_u(x,j) - rho_u(x,j-1))/m_dz[j-1]
-                - (density(j-1)*V(x,j-1) + density(j)*V(x,j));
-        } else if (grid(j) == m_zfixed) {
-            if (m_do_energy[j]) {
-                rsd[index(c_offset_U,j)] = (T(x,j) - m_tfixed);
-            } else {
-                rsd[index(c_offset_U,j)] = (rho_u(x,j)
-                                            - m_rho[0]*0.3);
-            }
-        } else if (grid(j) < m_zfixed) {
-            rsd[index(c_offset_U,j)] =
-                - (rho_u(x,j+1) - rho_u(x,j))/m_dz[j]
-                - (density(j+1)*V(x,j+1) + density(j)*V(x,j));
-        }
-    }
-}
 
 void StFlow::grad_hk(const double* x, size_t j)
 {
