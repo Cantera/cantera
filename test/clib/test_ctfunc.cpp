@@ -13,8 +13,8 @@ TEST(ctfunc, sin)
     double omega = 2.;
     int fcn = func_new(SinFuncType, 0, 1, &omega);
     ASSERT_GE(fcn, 0);
-    ASSERT_EQ(func_value(fcn, 0.), 0.);
-    ASSERT_EQ(func_value(fcn, 0.5), sin(omega * 0.5));
+    EXPECT_DOUBLE_EQ(func_value(fcn, 0.), 0.);
+    EXPECT_DOUBLE_EQ(func_value(fcn, 0.5), sin(omega * 0.5));
 }
 
 TEST(ctfunc, cos)
@@ -22,8 +22,8 @@ TEST(ctfunc, cos)
     double omega = 2.;
     int fcn = func_new(CosFuncType, 0, 1, &omega);
     ASSERT_GE(fcn, 0);
-    ASSERT_EQ(func_value(fcn, 0.), 1.);
-    ASSERT_EQ(func_value(fcn, 0.5), cos(omega * 0.5));
+    EXPECT_DOUBLE_EQ(func_value(fcn, 0.), 1.);
+    EXPECT_DOUBLE_EQ(func_value(fcn, 0.5), cos(omega * 0.5));
 }
 
 TEST(ctfunc, sum)
@@ -33,8 +33,8 @@ TEST(ctfunc, sum)
     int fcn1 = func_new(CosFuncType, 0, 1, &omega);
     int fcn = func_new(SumFuncType, fcn0, fcn1, NULL);
     ASSERT_GE(fcn, 0);
-    ASSERT_EQ(func_value(fcn, 0.), 1.);
-    ASSERT_EQ(func_value(fcn, 0.5), sin(omega * 0.5) + cos(omega * 0.5));
+    EXPECT_DOUBLE_EQ(func_value(fcn, 0.), 1.);
+    EXPECT_DOUBLE_EQ(func_value(fcn, 0.5), sin(omega * 0.5) + cos(omega * 0.5));
 }
 
 TEST(ctfunc, diff)
@@ -44,8 +44,8 @@ TEST(ctfunc, diff)
     int fcn1 = func_new(CosFuncType, 0, 1, &omega);
     int fcn = func_new(DiffFuncType, fcn0, fcn1, NULL);
     ASSERT_GE(fcn, 0);
-    ASSERT_EQ(func_value(fcn, 0.), -1.);
-    ASSERT_EQ(func_value(fcn, 0.5), sin(omega * 0.5) - cos(omega * 0.5));
+    EXPECT_DOUBLE_EQ(func_value(fcn, 0.), -1.);
+    EXPECT_DOUBLE_EQ(func_value(fcn, 0.5), sin(omega * 0.5) - cos(omega * 0.5));
 }
 
 TEST(ctfunc, prod)
@@ -55,8 +55,8 @@ TEST(ctfunc, prod)
     int fcn1 = func_new(CosFuncType, 0, 1, &omega);
     int fcn = func_new(ProdFuncType, fcn0, fcn1, NULL);
     ASSERT_GE(fcn, 0);
-    ASSERT_EQ(func_value(fcn, 0.), 0);
-    ASSERT_EQ(func_value(fcn, 0.5), sin(omega * 0.5) * cos(omega * 0.5));
+    EXPECT_DOUBLE_EQ(func_value(fcn, 0.), 0);
+    EXPECT_DOUBLE_EQ(func_value(fcn, 0.5), sin(omega * 0.5) * cos(omega * 0.5));
 }
 
 TEST(ctfunc, ratio)
@@ -66,8 +66,8 @@ TEST(ctfunc, ratio)
     int fcn1 = func_new(CosFuncType, 0, 1, &omega);
     int fcn = func_new(RatioFuncType, fcn0, fcn1, NULL);
     ASSERT_GE(fcn, 0);
-    ASSERT_EQ(func_value(fcn, 0.), 0.);
-    ASSERT_EQ(func_value(fcn, 0.5), sin(omega * 0.5) / cos(omega * 0.5));
+    EXPECT_DOUBLE_EQ(func_value(fcn, 0.), 0.);
+    EXPECT_DOUBLE_EQ(func_value(fcn, 0.5), sin(omega * 0.5) / cos(omega * 0.5));
 }
 
 TEST(ctfunc, composite)
@@ -77,8 +77,8 @@ TEST(ctfunc, composite)
     int fcn1 = func_new(CosFuncType, 0, 1, &omega);
     int fcn = func_new(CompositeFuncType, fcn0, fcn1, NULL);
     ASSERT_GE(fcn, 0);
-    ASSERT_EQ(func_value(fcn, 0.), sin(omega));
-    ASSERT_EQ(func_value(fcn, 0.5), sin(omega * cos(omega * 0.5)));
+    EXPECT_DOUBLE_EQ(func_value(fcn, 0.), sin(omega));
+    EXPECT_DOUBLE_EQ(func_value(fcn, 0.5), sin(omega * cos(omega * 0.5)));
 }
 
 TEST(ctfunc, times_constant)
@@ -88,8 +88,8 @@ TEST(ctfunc, times_constant)
     double A = 1.234;
     int fcn = func_new(TimesConstantFuncType, fcn0, 1, &A);
     ASSERT_GE(fcn, 0);
-    ASSERT_EQ(func_value(fcn, 0.), 0.);
-    ASSERT_EQ(func_value(fcn, 0.5), sin(omega * 0.5) * A);
+    EXPECT_DOUBLE_EQ(func_value(fcn, 0.), 0.);
+    EXPECT_DOUBLE_EQ(func_value(fcn, 0.5), sin(omega * 0.5) * A);
 }
 
 TEST(ctfunc, plus_constant)
@@ -99,6 +99,6 @@ TEST(ctfunc, plus_constant)
     double A = 1.234;
     int fcn = func_new(PlusConstantFuncType, fcn0, 1, &A);
     ASSERT_GE(fcn, 0);
-    ASSERT_EQ(func_value(fcn, 0.), A);
-    ASSERT_EQ(func_value(fcn, 0.5), sin(omega * 0.5) + A);
+    EXPECT_DOUBLE_EQ(func_value(fcn, 0.), A);
+    EXPECT_DOUBLE_EQ(func_value(fcn, 0.5), sin(omega * 0.5) + A);
 }
