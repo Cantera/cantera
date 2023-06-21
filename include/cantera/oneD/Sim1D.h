@@ -148,14 +148,14 @@ public:
      * main 1D domain is saved.
      *
      * @param fname  Name of output container file
-     * @param id  Identifier of solution within the container file
+     * @param name  Identifier of solution within the container file
      * @param desc  Description of the solution
      * @param overwrite  Force overwrite if name exists; optional (default=false)
      * @param compression  Compression level (optional; HDF only)
      * @param basis  Output mass ("Y"/"mass") or mole ("X"/"mole") fractions (CSV only);
      *      if omitted (default=""), the native storage mode is used
      */
-    void save(const std::string& fname, const std::string& id,
+    void save(const std::string& fname, const std::string& name,
               const std::string& desc, bool overwrite=false, int compression=0,
               const string& basis="");
 
@@ -173,12 +173,12 @@ public:
     /**
      * Save the residual of the current solution to a container file.
      * @param fname  Name of output container file
-     * @param id  Identifier of solution within the container file
+     * @param name  Identifier of solution within the container file
      * @param desc  Description of the solution
      * @param overwrite  Force overwrite if name exists; optional (default=false)
      * @param compression  Compression level (optional; HDF only)
      */
-    void saveResidual(const std::string& fname, const std::string& id,
+    void saveResidual(const std::string& fname, const std::string& name,
                       const std::string& desc, bool overwrite=false, int compression=0);
 
     /**
@@ -194,10 +194,10 @@ public:
     /**
      * Initialize the solution with a previously-saved solution.
      * @param fname  Name of container file
-     * @param id  Identifier of solution within the container file
+     * @param name  Identifier of solution within the container file
      * @return  AnyMap containing header information
      */
-    AnyMap restore(const std::string& fname, const std::string& id);
+    AnyMap restore(const std::string& fname, const std::string& name);
 
     //! @}
 
