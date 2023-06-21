@@ -574,8 +574,7 @@ class TestSolutionArrayIO(utilities.CanteraTest):
         arr = ct.SolutionArray(self.gas, 7, extra=extra)
         arr.TPX = np.linspace(300, 1000, 7), 2e5, "H2:0.5, O2:0.4"
         arr.equilibrate("HP")
-        with pytest.warns(UserWarning, match="escaped"):
-            arr.save(outfile, basis="mass")
+        arr.save(outfile, basis="mass")
 
         with open(outfile, "r") as fid:
             header = fid.readline()
