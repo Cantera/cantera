@@ -53,6 +53,8 @@ set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS})
     # by the "RecursiveInstall" that grabs everything in the cxx directory.
 
     flag_excludes = ["$(", "/TP", "$)", "/nologo"]
+    incdirs = [localenv["ct_incroot"]]
+    libdirs = [localenv["ct_libdir"]]
     if localenv["package_build"]:
         # Remove sysroot flags in templated output files. This only applies to the
         # conda package for now.
@@ -60,16 +62,12 @@ set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS})
         # compatible with the SDK used for building.
         flag_excludes.extend(["-isysroot", "-mmacosx", "-march", "-mtune"
                               "-fdebug-prefix-map"])
-        incdirs = []
-        libdirs = []
     else:
-        incdirs = [localenv["ct_incroot"]]
         incdirs.extend([localenv["sundials_include"], localenv["boost_inc_dir"]])
         incdirs.append(localenv["hdf_include"])
         incdirs.extend(localenv["extra_inc_dirs"])
         incdirs = list(set(incdirs))
 
-        libdirs = [localenv["ct_libdir"]]
         libdirs.extend([localenv["sundials_libdir"], localenv["blas_lapack_dir"]])
         libdirs.append(localenv["hdf_libdir"])
         libdirs.extend(localenv["extra_lib_dirs"])
