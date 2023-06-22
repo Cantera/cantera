@@ -2024,7 +2024,8 @@ elif env["layout"] == "conda":
 prefix = Path(env["prefix"])
 
 if env["layout"] == "conda" and os.name == "nt":
-    env["ct_libdir"] = (prefix / "Library" / env["libdirname"]).as_posix()
+    env["ct_libdir"] = (prefix / "Library" / "lib").as_posix()
+    env["ct_shlibdir"] = (prefix / "Library" / "bin").as_posix()
     env["ct_bindir"] = (prefix / "Scripts").as_posix()
     env["ct_python_bindir"] = (prefix / "Scripts").as_posix()
     env["ct_incdir"] = (prefix / "Library" / "include" / "cantera").as_posix()
@@ -2035,6 +2036,14 @@ else:
         env["prefix"] = prefix.as_posix()
     env["ct_libdir"] = (prefix / env["libdirname"]).as_posix()
     env["ct_bindir"] = (prefix / "bin").as_posix()
+
+    # On Windows, the search path for DLLs is the "bin" dir. "lib" dirs are used only for
+    # static and "import" libraries
+    if env["OS"] == "Windows":
+        env["ct_shlibdir"] = env["ct_bindir"]
+    else:
+        env["ct_shlibdir"] = env["ct_libdir"]
+
     env["ct_python_bindir"] = (prefix / "bin").as_posix()
     env["ct_incdir"] = (prefix / "include" / "cantera").as_posix()
     env["ct_incroot"] = (prefix / "include").as_posix()
@@ -2081,7 +2090,7 @@ if os.path.abspath(instRoot) == Dir('.').abspath:
     sys.exit(1)
 
 env["inst_root"] = instRoot
-locations = ["libdir", "bindir", "python_bindir", "incdir", "incroot",
+locations = ["libdir", "shlibdir", "bindir", "python_bindir", "incdir", "incroot",
     "matlab_dir", "datadir", "sampledir", "docdir", "mandir"]
 for loc in locations:
     if env["prefix"] == ".":

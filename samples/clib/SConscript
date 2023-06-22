@@ -16,7 +16,7 @@ for programName, sources in samples:
     # Generate SConstruct files to be installed
     linkflags = ["-g", localenv["thread_flags"]]
     if not localenv["package_build"]:
-        linkflags.append(f"-Wl,-rpath,{localenv['ct_libdir']}")
+        linkflags.append(f"-Wl,-rpath,{localenv['ct_shlibdir']}")
         incdirs = [localenv["ct_incroot"]]
         libdirs = [localenv["ct_libdir"]] + localenv["extra_lib_dirs"]
     else:

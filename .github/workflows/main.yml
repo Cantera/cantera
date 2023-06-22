@@ -520,8 +520,9 @@ jobs:
     - name: Test Install
       # spot-check installation locations
       run: |
+        set -x
         scons install
-        test -f ${CONDA_PREFIX}/Library/lib/cantera_shared.dll
+        test -f ${CONDA_PREFIX}/Library/bin/cantera_shared.dll
         test -f ${CONDA_PREFIX}/Library/include/cantera/base/Solution.h
         test -f ${CONDA_PREFIX}/Scripts/ck2yaml
         test -f ${CONDA_PREFIX}/share/cantera/data/gri30.yaml
@@ -531,6 +532,7 @@ jobs:
     - name: Test Essentials
       # ensure that Python package loads and converter scripts work
       run: |
+        set -x
         python -c 'import cantera as ct; import sys; sys.exit(0) if ct.__version__.startswith("3.0.0") else sys.exit(1)'
         ck2yaml --input=test/data/h2o2.inp --output=h2o2-test.yaml
         test -f h2o2-test.yaml
