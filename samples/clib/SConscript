@@ -15,13 +15,11 @@ for programName, sources in samples:
 
     # Generate SConstruct files to be installed
     linkflags = ["-g", localenv["thread_flags"]]
+    incdirs = [localenv["ct_incroot"]]
+    libdirs = [localenv["ct_libdir"]] + localenv["extra_lib_dirs"]
     if not localenv["package_build"]:
         linkflags.append(f"-Wl,-rpath,{localenv['ct_shlibdir']}")
-        incdirs = [localenv["ct_incroot"]]
-        libdirs = [localenv["ct_libdir"]] + localenv["extra_lib_dirs"]
-    else:
-        incdirs = []
-        libdirs = []
+        libdirs.extend(localenv["extra_lib_dirs"])
 
     localenv["tmpl_compiler_flags"] = repr(localenv["CCFLAGS"])
     localenv['tmpl_cantera_incdirs'] = repr([x for x in incdirs if x])

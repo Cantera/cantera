@@ -18,16 +18,13 @@ for programName, sources in samples:
     # Generate SConstruct files to be installed
     linkflags = ["-g", localenv["thread_flags"]]
     incdirs = [pjoin(localenv["ct_incroot"], "cantera")] # path to fortran .mod
-    libdirs = []
+    libdirs = [localenv["ct_libdir"]]
     if not localenv["package_build"]:
         linkflags.append(f"-Wl,-rpath,{localenv['ct_shlibdir']}")
-        libdirs = [localenv["ct_libdir"]]
         libdirs.extend([localenv["sundials_libdir"], localenv["blas_lapack_dir"]])
         libdirs.append(localenv["hdf_libdir"])
         libdirs.extend(localenv["extra_lib_dirs"])
         libdirs = list(set(libdirs))
-    else:
-        libdirs = []
 
     libs = ['cantera_fortran'] + localenv['cantera_libs'] + env['cxx_stdlib']
 
