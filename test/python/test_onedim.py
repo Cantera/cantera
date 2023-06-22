@@ -13,7 +13,7 @@ class TestOnedim(utilities.CanteraTest):
 
     def test_badInstantiate(self):
         solid = ct.Solution("diamond.yaml", "diamond")
-        with pytest.raises(ct.CanteraError, match="Unsupported phase type"):
+        with pytest.raises(ct.CanteraError, match="An appropriate transport model\nshould be set when instantiating"):
             ct.FreeFlow(solid)
 
     def test_instantiateSurface(self):
