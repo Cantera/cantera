@@ -172,7 +172,8 @@ Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian()
         std::vector<Eigen::Triplet<double>> species_trips;
         for (int k = 0; k < dnk_dnj.outerSize(); k++) {
             for (Eigen::SparseMatrix<double>::InnerIterator it(dnk_dnj, k); it; ++it) {
-                species_trips.emplace_back(it.row(), it.col(), it.value());
+                species_trips.emplace_back(static_cast<int>(it.row()),
+                                           static_cast<int>(it.col()), it.value());
             }
         }
         addSurfaceJacobian(species_trips);

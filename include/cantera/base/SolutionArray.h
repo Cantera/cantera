@@ -66,7 +66,7 @@ public:
 
     //! Size of SolutionArray (number of entries)
     int size() const {
-        return m_size;
+        return static_cast<int>(m_size);
     }
 
     //! Resize SolutionArray objects with a single dimension (default).
