@@ -37,7 +37,7 @@ if localenv["package_build"]:
     libdirs = []
 else:
     cc_flags = localenv["CCFLAGS"] + localenv["CXXFLAGS"]
-    linkflags.append(f"-Wl,-rpath,{localenv['ct_libdir']}")
+    linkflags.append(f"-Wl,-rpath,{localenv['ct_shlibdir']}")
 
     incdirs = [localenv["ct_incroot"]]
     incdirs.extend([localenv["sundials_include"], localenv["boost_inc_dir"]])

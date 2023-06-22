@@ -20,7 +20,7 @@ for programName, sources in samples:
     incdirs = [pjoin(localenv["ct_incroot"], "cantera")] # path to fortran .mod
     libdirs = []
     if not localenv["package_build"]:
-        linkflags.append(f"-Wl,-rpath,{localenv['ct_libdir']}")
+        linkflags.append(f"-Wl,-rpath,{localenv['ct_shlibdir']}")
         libdirs = [localenv["ct_libdir"]]
         libdirs.extend([localenv["sundials_libdir"], localenv["blas_lapack_dir"]])
         libdirs.append(localenv["hdf_libdir"])
