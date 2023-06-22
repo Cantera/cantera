@@ -1370,7 +1370,7 @@ class TestCounterflowPremixedFlameNonIdeal(utilities.CanteraTest):
         filename = self.test_work_path / "CounterflowPremixedFlame-h2-mix-RK.csv"
         filename.unlink(missing_ok=True)
 
-        sim.write_csv(filename) # check output
+        sim.save(filename) # check output
         self.assertTrue(filename.is_file())
         csv_data = np.genfromtxt(filename, dtype=float, delimiter=',', names=True)
         self.assertNotIn('qdot', csv_data.dtype.names)
