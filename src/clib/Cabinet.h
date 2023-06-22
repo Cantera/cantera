@@ -299,7 +299,7 @@ public:
     /**
      * Add a copy of the nth object to storage. The index of the new entry is returned.
      */
-    static int copy(size_t n) {
+    static int copy(int n) {
         dataRef data = getData();
         try {
             return add(*data[n]);
@@ -311,7 +311,7 @@ public:
     /**
      * Delete the nth object.
      */
-    static void del(size_t n) {
+    static void del(int n) {
         dataRef data = getData();
         if (n >= 0 && n < data.size()) {
             lookupRef lookup = getLookup();
@@ -336,7 +336,7 @@ public:
     /**
      * Return a shared pointer to object n.
      */
-    static shared_ptr<M>& at(size_t n) {
+    static shared_ptr<M>& at(int n) {
         dataRef data = getData();
         if (n < 0 || n >= data.size()) {
             throw CanteraError("SharedCabinet::at", "Index {} out of range.", n);
@@ -348,7 +348,7 @@ public:
      * Return object n, cast to the specified type.
      */
     template <class T>
-    static shared_ptr<T> as(size_t n) {
+    static shared_ptr<T> as(int n) {
         auto obj = std::dynamic_pointer_cast<T>(at(n));
         if (obj) {
             return obj;
@@ -359,7 +359,7 @@ public:
     /**
      * Return a reference to object n.
      */
-    static M& item(size_t n) {
+    static M& item(int n) {
         auto ptr = at(n);
         if (!ptr) {
             throw CanteraError("SharedCabinet::item",
@@ -372,7 +372,7 @@ public:
      * Return a reference to object n, cast to a reference of the specified type.
      */
     template <class T>
-    static T& get(size_t n) {
+    static T& get(int n) {
         auto obj = std::dynamic_pointer_cast<T>(at(n));
         if (obj) {
             return *obj;
