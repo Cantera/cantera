@@ -14,6 +14,7 @@
 #include "cantera/thermo/SurfPhase.h"
 #include <boost/algorithm/string.hpp>
 #include <fstream>
+#include <sstream>
 
 
 namespace ba = boost::algorithm;
