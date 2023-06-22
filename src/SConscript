@@ -88,13 +88,8 @@ if env["python_package"] == "full":
     pyenv.Append(LIBS=pyenv["py_libs"], LIBPATH=pyenv["py_libpath"])
     shim = pyenv.SharedObject("extensions/pythonShim.cpp")
     pylibname = f"../lib/cantera_python{pyenv['py_version_short'].replace('.', '_')}"
-    if pyenv["versioned_shared_library"]:
-        lib = build(pyenv.SharedLibrary(pylibname, shim, SPAWN=get_spawn(pyenv),
-                                        SHLIBVERSION=pyenv["cantera_pure_version"]))
-        install(pyenv.InstallVersionedLib, "$inst_libdir", lib)
-    else:
-        lib = build(pyenv.SharedLibrary(pylibname, shim, SPAWN=get_spawn(pyenv)))
-        install("$inst_libdir", lib)
+    lib = build(pyenv.SharedLibrary(pylibname, shim, SPAWN=get_spawn(pyenv)))
+    install("$inst_libdir", lib)
 
 
 # build the Cantera static library
