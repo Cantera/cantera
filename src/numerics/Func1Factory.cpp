@@ -58,4 +58,71 @@ void Func1Factory::deleteFactory()
     s_factory = 0;
 }
 
+Math1FactoryA* Math1FactoryA::s_factory = 0;
+std::mutex Math1FactoryA::domain_mutex;
+
+Math1FactoryA::Math1FactoryA()
+{
+    reg("sum", [](const shared_ptr<Func1> f1, const shared_ptr<Func1> f2) {
+        return new Sum1(f1, f2);
+    });
+    reg("diff", [](const shared_ptr<Func1> f1, const shared_ptr<Func1> f2) {
+        return new Diff1(f1, f2);
+    });
+    reg("product", [](const shared_ptr<Func1> f1, const shared_ptr<Func1> f2) {
+        return new Product1(f1, f2);
+    });
+    reg("ratio", [](const shared_ptr<Func1> f1, const shared_ptr<Func1> f2) {
+        return new Ratio1(f1, f2);
+    });
+    reg("composite", [](const shared_ptr<Func1> f1, const shared_ptr<Func1> f2) {
+        return new Composite1(f1, f2);
+    });
+}
+
+Math1FactoryA* Math1FactoryA::factory()
+{
+    std::unique_lock<std::mutex> lock(domain_mutex);
+    if (!s_factory) {
+        s_factory = new Math1FactoryA;
+    }
+    return s_factory;
+}
+
+void Math1FactoryA::deleteFactory()
+{
+    std::unique_lock<std::mutex> lock(domain_mutex);
+    delete s_factory;
+    s_factory = 0;
+}
+
+Math1FactoryB* Math1FactoryB::s_factory = 0;
+std::mutex Math1FactoryB::domain_mutex;
+
+Math1FactoryB::Math1FactoryB()
+{
+    reg("times-constant", [](const shared_ptr<Func1> f1, double c) {
+        return new TimesConstant1(f1, c);
+    });
+    reg("plus-constant", [](const shared_ptr<Func1> f1, double c) {
+        return new PlusConstant1(f1, c);
+    });
+}
+
+Math1FactoryB* Math1FactoryB::factory()
+{
+    std::unique_lock<std::mutex> lock(domain_mutex);
+    if (!s_factory) {
+        s_factory = new Math1FactoryB;
+    }
+    return s_factory;
+}
+
+void Math1FactoryB::deleteFactory()
+{
+    std::unique_lock<std::mutex> lock(domain_mutex);
+    delete s_factory;
+    s_factory = 0;
+}
+
 }
