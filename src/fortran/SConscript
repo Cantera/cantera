@@ -20,30 +20,29 @@ install('$inst_libdir', lib)
 install('$inst_incdir', mods)
 
 # Build the Cantera Fortran interface shared library
-if localenv['layout'] != 'debian':
-    if localenv['renamed_shared_libraries']:
-        sharedName = '../../lib/cantera_fortran_shared'
-    else:
-        sharedName = '../../lib/cantera_fortran'
+if localenv['renamed_shared_libraries']:
+    sharedName = '../../lib/cantera_fortran_shared'
+else:
+    sharedName = '../../lib/cantera_fortran'
 
-    if localenv['versioned_shared_library']:
-        shlib = build(localenv.SharedLibrary(target=sharedName, source=objects,
-                                             SPAWN=get_spawn(localenv),
-                                             SHLIBVERSION=localenv['cantera_pure_version'],
-                                             LIBS=list(env['cantera_shared_libs'] + env['cxx_stdlib']),
-                                             LINK='$FORTRAN_LINK'))
-        install(localenv.InstallVersionedLib, '$inst_shlibdir', shlib)
-    else:
-        shlib = build(localenv.SharedLibrary(target=sharedName, source=objects,
-                                             SPAWN=get_spawn(localenv),
-                                             LIBS=list(env['cantera_shared_libs'] + env['cxx_stdlib']),
-                                             LINK='$FORTRAN_LINK'))
-        for libfile in shlib:
-            if libfile.name.endswith(('.exp', '.lib')):
-                # On Windows, these are the export/import libraries used when linking, which
-                # should be installed in the same location as static libraries
-                install('$inst_libdir', libfile)
-            else:
-                install('$inst_shlibdir', libfile)
+if localenv['versioned_shared_library']:
+    shlib = build(localenv.SharedLibrary(target=sharedName, source=objects,
+                                         SPAWN=get_spawn(localenv),
+                                         SHLIBVERSION=localenv['cantera_pure_version'],
+                                         LIBS=list(env['cantera_shared_libs'] + env['cxx_stdlib']),
+                                         LINK='$FORTRAN_LINK'))
+    install(localenv.InstallVersionedLib, '$inst_shlibdir', shlib)
+else:
+    shlib = build(localenv.SharedLibrary(target=sharedName, source=objects,
+                                         SPAWN=get_spawn(localenv),
+                                         LIBS=list(env['cantera_shared_libs'] + env['cxx_stdlib']),
+                                         LINK='$FORTRAN_LINK'))
+    for libfile in shlib:
+        if libfile.name.endswith(('.exp', '.lib')):
+            # On Windows, these are the export/import libraries used when linking, which
+            # should be installed in the same location as static libraries
+            install('$inst_libdir', libfile)
+        else:
+            install('$inst_shlibdir', libfile)
 
-    localenv.Depends(shlib, localenv['config_h_target'])
+localenv.Depends(shlib, localenv['config_h_target'])
