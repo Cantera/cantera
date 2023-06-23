@@ -766,8 +766,7 @@ double Sim1D::fixedTemperatureLocation()
 
 void Sim1D::setFuelInternalBoundary(double temperature)
 {
-    double epsilon = 1e-10; // Define your precision threshold here
-
+    double epsilon = 1e-5; // Precision threshold for being 'equal' to a temperature
     for (size_t n = 0; n < nDomains(); n++) {
         Domain1D& d = domain(n);
 

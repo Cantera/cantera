@@ -403,7 +403,6 @@ void StFlow::updateProperties(size_t jg, double* x, size_t jmin, size_t jmax)
 
 void StFlow::computeRadiation(double* x, size_t jmin, size_t jmax) 
 {
-
     // calculation of qdotRadiation
 
     // The simple radiation model used was established by Y. Liu and B. Rogg [Y.
@@ -578,8 +577,8 @@ void StFlow::evalRadialMomentumEquation(double* x, double* rsd, int* diag, doubl
 
 void StFlow::evalContinuityEquation(double* x, double* rsd, int* diag, double rdt, size_t j) 
 {
-    //algebraic constraint
-    diag[index(c_offset_U, j)] = 0;
+    
+    double epsilon = 1e-5; // Precision threshold for being 'equal' to a coordinate
     //----------------------------------------------
     //    Continuity equation
     //
@@ -597,7 +596,7 @@ void StFlow::evalContinuityEquation(double* x, double* rsd, int* diag, double rd
             rsd[index(c_offset_U,j)] =
                 - (rho_u(x,j) - rho_u(x,j-1))/m_dz[j-1]
                 - (density(j-1)*V(x,j-1) + density(j)*V(x,j));
-        } else if (grid(j) == m_zfixed) {
+        } else if (std::abs(grid(j) - m_zfixed) < epsilon) {
             if (m_do_energy[j]) {
                 rsd[index(c_offset_U,j)] = (T(x,j) - m_tfixed);
             } else {
@@ -610,6 +609,8 @@ void StFlow::evalContinuityEquation(double* x, double* rsd, int* diag, double rd
                 - (density(j+1)*V(x,j+1) + density(j)*V(x,j));
         }
     }
+    //algebraic constraint
+    diag[index(c_offset_U, j)] = 0;
 }
 
 void StFlow::evalSpeciesEquation(double* x, double* rsd, int* diag, double rdt, size_t j)
@@ -672,10 +673,11 @@ void StFlow::evalEnergyEquation(double* x, double* rsd, int* diag, double rdt, s
 
 void StFlow::evalLEquation(double* x, double* rsd, int* diag, double rdt, size_t j) 
 {
+    double epsilon = 1e-5; // Precision threshold for being 'equal' to a coordinate
     if (m_onePointControl) {
         if (grid(j) > m_zFuel) {
             rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
-        } else if (grid(j) == m_zFuel) {
+        } else if (std::abs(grid(j) - m_zFuel) < epsilon ) {
             rsd[index(c_offset_L, j)] = T(x,j) - m_tFuel;
         } else if (grid(j) < m_zFuel) {
             rsd[index(c_offset_L, j)] = lambda(x,j+1) - lambda(x,j);
@@ -683,7 +685,7 @@ void StFlow::evalLEquation(double* x, double* rsd, int* diag, double rdt, size_t
     } else if (m_twoPointControl) {
         if (grid(j) > m_zFuel) {
             rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
-        } else if (grid(j) == m_zFuel) {
+        } else if (std::abs(grid(j) - m_zFuel) < epsilon ) {
             rsd[index(c_offset_L, j)] = T(x,j) - m_tFuel;
         } else if (grid(j) < m_zFuel) {
             rsd[index(c_offset_L, j)] = lambda(x,j+1) - lambda(x,j);
@@ -696,12 +698,13 @@ void StFlow::evalLEquation(double* x, double* rsd, int* diag, double rdt, size_t
 
 void StFlow::evalUoEquation(double* x, double* rsd, int* diag, double rdt, size_t j) 
 {
+    double epsilon = 1e-5; // Precision threshold for being 'equal' to a coordinate
     if (m_onePointControl) {
         rsd[index(c_offset_Uo, j)] = Uo(x,j) - Uo(x,j-1);
     } else if (m_twoPointControl) {
         if (grid(j) > m_zOxid) {
             rsd[index(c_offset_Uo, j)] = Uo(x,j) - Uo(x,j-1);
-        } else if (grid(j) == m_zOxid) {
+        } else if (std::abs(grid(j) - m_zOxid) < epsilon) {
             rsd[index(c_offset_Uo, j)] = T(x,j) - m_tOxid;
         } else if (grid(j) < m_zOxid) {
             rsd[index(c_offset_Uo, j)] = Uo(x,j+1) - Uo(x,j);
@@ -1102,7 +1105,7 @@ void StFlow::setMeta(const AnyMap& state)
             m_twoPointControl = false;
             m_zFuel = pc["location"].asDouble();
             m_tFuel = pc["temperature"].asDouble();
-        } else if (state["fixed-point"]["type"] == "two-point") {
+        } else if (pc["type"] == "two-point") {
             m_onePointControl = false;
             m_twoPointControl = true;
             m_zFuel = pc["fuel-location"].asDouble();
