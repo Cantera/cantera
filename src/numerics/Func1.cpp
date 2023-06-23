@@ -35,6 +35,8 @@ Func1& Func1::operator=(const Func1& right)
 
 Func1& Func1::duplicate() const
 {
+    warn_deprecated("Func1::duplicate",
+        "To be removed after Cantera 3.0. No longer needed.");
     Func1* nfunc = new Func1(*this);
     return *nfunc;
 }
@@ -58,6 +60,8 @@ doublereal Func1::eval(doublereal t) const
 
 Func1& Func1::derivative() const
 {
+    warn_deprecated("Func1::derivative",
+        "To be changed after Cantera 3.0; for new behavior, see 'derivative3'.");
     cout << "derivative error... ERR: ID = " << ID() << endl;
     cout << write("x") << endl;
     return *(new Func1);
@@ -161,8 +165,17 @@ string Sin1::write(const string& arg) const
     }
 }
 
+Func1& Sin1::duplicate() const {
+    warn_deprecated("Sin1::duplicate",
+        "To be removed after Cantera 3.0; no longer needed.");
+    Sin1* nfunc = new Sin1(*this);
+    return (Func1&) *nfunc;
+}
+
 Func1& Sin1::derivative() const
 {
+    warn_deprecated("Sin1::derivative",
+        "To be changed after Cantera 3.0; for new behavior, see 'derivative3'.");
     Func1* c = new Cos1(m_c);
     Func1* r = &newTimesConstFunction(*c, m_c);
     return *r;
@@ -185,8 +198,17 @@ Cos1::Cos1(size_t n, const vector<double>& params)
     m_c = params[0];
 }
 
+Func1& Cos1::duplicate() const {
+    warn_deprecated("Cos1::duplicate",
+        "To be removed after Cantera 3.0; no longer needed.");
+    Cos1* nfunc = new Cos1(*this);
+    return (Func1&) *nfunc;
+}
+
 Func1& Cos1::derivative() const
 {
+    warn_deprecated("Cos1::derivative",
+        "To be changed after Cantera 3.0; for new behavior, see 'derivative3'.");
     Func1* s = new Sin1(m_c);
     Func1* r = &newTimesConstFunction(*s, -m_c);
     return *r;
@@ -218,8 +240,16 @@ Exp1::Exp1(size_t n, const vector<double>& params)
     m_c = params[0];
 }
 
+Func1& Exp1::duplicate() const {
+    warn_deprecated("Exp1::duplicate",
+        "To be removed after Cantera 3.0; no longer needed.");
+    return *(new Exp1(m_c));
+}
+
 Func1& Exp1::derivative() const
 {
+    warn_deprecated("Exp1::derivative",
+        "To be changed after Cantera 3.0; for new behavior, see 'derivative3'.");
     Func1* f = new Exp1(m_c);
     if (m_c != 1.0) {
         return newTimesConstFunction(*f, m_c);
@@ -283,8 +313,16 @@ Pow1::Pow1(size_t n, const vector<double>& params)
     m_c = params[0];
 }
 
+Func1& Pow1::duplicate() const {
+    warn_deprecated("Pow1::duplicate",
+        "To be removed after Cantera 3.0; no longer needed.");
+    return *(new Pow1(m_c));
+}
+
 Func1& Pow1::derivative() const
 {
+    warn_deprecated("Pow1::derivative",
+        "To be changed after Cantera 3.0; for new behavior, see 'derivative3'.");
     Func1* r;
     if (m_c == 0.0) {
         r = new Const1(0.0);
@@ -459,7 +497,21 @@ double Tabulated1::eval(double t) const {
     }
 }
 
+Func1& Tabulated1::duplicate() const {
+    warn_deprecated("Tabulated1::duplicate",
+        "To be removed after Cantera 3.0; no longer needed.");
+    if (m_isLinear) {
+        return *(new Tabulated1(m_tvec.size(), &m_tvec[0], &m_fvec[0],
+                                "linear"));
+    } else {
+        return *(new Tabulated1(m_tvec.size(), &m_tvec[0], &m_fvec[0],
+                                "previous"));
+    }
+}
+
 Func1& Tabulated1::derivative() const {
+    warn_deprecated("Tabulated1::derivative",
+        "To be changed after Cantera 3.0; for new behavior, see 'derivative3'.");
     vector_fp tvec;
     vector_fp dvec;
     size_t siz = m_tvec.size();
@@ -525,6 +577,41 @@ Gaussian::Gaussian(const Gaussian& b) : Gaussian1(b)
         "Replaced by 'Gaussian1'.");
 }
 
+Func1& Gaussian::duplicate() const {
+    warn_deprecated("Gaussian::duplicate",
+        "To be removed after Cantera 3.0; no longer needed.");
+    Gaussian* np = new Gaussian(*this);
+    return *((Func1*)np);
+}
+
+Func1& Poly1::duplicate() const {
+    warn_deprecated("Poly1::duplicate",
+        "To be removed after Cantera 3.0; no longer needed.");
+    Poly1* np = new Poly1(*this);
+    return *((Func1*)np);
+}
+
+Func1& Fourier1::duplicate() const {
+    warn_deprecated("Fourier1::duplicate",
+        "To be removed after Cantera 3.0; no longer needed.");
+    Fourier1* np = new Fourier1(*this);
+    return *((Func1*)np);
+}
+
+Func1& Arrhenius1::duplicate() const {
+    warn_deprecated("Arrhenius1::duplicate",
+        "To be removed after Cantera 3.0; no longer needed.");
+    Arrhenius1* np = new Arrhenius1(*this);
+    return *((Func1*)np);
+}
+
+Func1& Periodic1::duplicate() const {
+    warn_deprecated("Periodic1::duplicate",
+        "To be removed after Cantera 3.0; no longer needed.");
+    Periodic1* np = new Periodic1(*this);
+    return *((Func1*)np);
+}
+
 string Func1::write(const std::string& arg) const
 {
     return fmt::format("<unknown {}>({})", ID(), arg);
@@ -555,10 +642,41 @@ string Const1::write(const std::string& arg) const
     return fmt::format("{}", m_c);
 }
 
+Func1& Const1::duplicate() const {
+    warn_deprecated("Const1::duplicate",
+        "To be removed after Cantera 3.0; no longer needed.");
+    return *(new Const1(m_c));
+}
+
+Func1& Const1::derivative() const {
+    warn_deprecated("Const1::derivative",
+        "To be changed after Cantera 3.0; for new behavior, see 'derivative3'.");
+    Func1* z = new Const1(0.0);
+    return *z;
+}
+
 string Ratio1::write(const std::string& arg) const
 {
     return "\\frac{" + m_f1->write(arg) + "}{"
            + m_f2->write(arg) + "}";
+}
+
+Func1& Ratio1::duplicate() const {
+    warn_deprecated("Ratio1::duplicate",
+        "To be removed after Cantera 3.0; no longer needed.");
+    Func1& f1d = m_f1->duplicate();
+    Func1& f2d = m_f2->duplicate();
+    return newRatioFunction(f1d, f2d);
+}
+
+Func1& Ratio1::derivative() const {
+    warn_deprecated("Ratio1::derivative",
+        "To be changed after Cantera 3.0; for new behavior, see 'derivative3'.");
+    Func1& a1 = newProdFunction(m_f1->derivative(), m_f2->duplicate());
+    Func1& a2 = newProdFunction(m_f1->duplicate(), m_f2->derivative());
+    Func1& s = newDiffFunction(a1, a2);
+    Func1& p = newProdFunction(m_f2->duplicate(), m_f2->duplicate());
+    return newRatioFunction(s, p);
 }
 
 string Product1::write(const std::string& arg) const
@@ -574,6 +692,22 @@ string Product1::write(const std::string& arg) const
     return s + " " + s2;
 }
 
+Func1& Product1::duplicate() const {
+    warn_deprecated("Product1::duplicate",
+        "To be removed after Cantera 3.0; no longer needed.");
+    Func1& f1d = m_f1->duplicate();
+    Func1& f2d = m_f2->duplicate();
+    return newProdFunction(f1d, f2d);
+}
+
+Func1& Product1::derivative() const {
+    warn_deprecated("Product1::derivative",
+        "To be changed after Cantera 3.0; for new behavior, see 'derivative3'.");
+    Func1& a1 = newProdFunction(m_f1->duplicate(), m_f2->derivative());
+    Func1& a2 = newProdFunction(m_f2->duplicate(), m_f1->derivative());
+    return newSumFunction(a1, a2);
+}
+
 string Sum1::write(const std::string& arg) const
 {
     string s1 = m_f1->write(arg);
@@ -583,6 +717,22 @@ string Sum1::write(const std::string& arg) const
     } else {
         return s1 + " + " + s2;
     }
+}
+
+Func1& Sum1::duplicate() const {
+    warn_deprecated("Sum1::duplicate",
+        "To be removed after Cantera 3.0; no longer needed.");
+    Func1& f1d = m_f1->duplicate();
+    Func1& f2d = m_f2->duplicate();
+    return newSumFunction(f1d, f2d);
+}
+
+Func1& Sum1::derivative() const {
+    warn_deprecated("Sum1::derivative",
+        "To be changed after Cantera 3.0; for new behavior, see 'derivative3'.");
+    Func1& d1 = m_f1->derivative();
+    Func1& d2 = m_f2->derivative();
+    return newSumFunction(d1, d2);
 }
 
 string Diff1::write(const std::string& arg) const
@@ -596,10 +746,42 @@ string Diff1::write(const std::string& arg) const
     }
 }
 
+Func1& Diff1::duplicate() const {
+    warn_deprecated("Diff1::duplicate",
+        "To be removed after Cantera 3.0; no longer needed.");
+    Func1& f1d = m_f1->duplicate();
+    Func1& f2d = m_f2->duplicate();
+    return newDiffFunction(f1d, f2d);
+}
+
+Func1& Diff1::derivative() const {
+    warn_deprecated("Diff1::derivative",
+        "To be changed after Cantera 3.0; for new behavior, see 'derivative3'.");
+    return newDiffFunction(m_f1->derivative(), m_f2->derivative());
+}
+
 string Composite1::write(const std::string& arg) const
 {
     string g = m_f2->write(arg);
     return m_f1->write(g);
+}
+
+Func1& Composite1::duplicate() const {
+    warn_deprecated("Composite1::duplicate",
+        "To be removed after Cantera 3.0; no longer needed.");
+    Func1& f1d = m_f1->duplicate();
+    Func1& f2d = m_f2->duplicate();
+    return newCompositeFunction(f1d, f2d);
+}
+
+Func1& Composite1::derivative() const {
+    warn_deprecated("Composite1::derivative",
+        "To be changed after Cantera 3.0; for new behavior, see 'derivative3'.");
+    Func1* d1 = &m_f1->derivative();
+    Func1* d3 = &newCompositeFunction(*d1, m_f2->duplicate());
+    Func1* d2 = &m_f2->derivative();
+    Func1* p = &newProdFunction(*d3, *d2);
+    return *p;
 }
 
 string TimesConstant1::write(const std::string& arg) const
@@ -621,6 +803,22 @@ string TimesConstant1::write(const std::string& arg) const
     return fmt::format("{}{}", m_c, s);
 }
 
+Func1& TimesConstant1::duplicate() const {
+    warn_deprecated("TimesConstant1::duplicate",
+        "To be removed after Cantera 3.0; no longer needed.");
+    Func1& f1 = m_f1->duplicate();
+    Func1* dup = new TimesConstant1(f1, m_c);
+    return *dup;
+}
+
+Func1& TimesConstant1::derivative() const {
+    warn_deprecated("TimesConstant1::derivative",
+        "To be changed after Cantera 3.0; for new behavior, see 'derivative3'.");
+    Func1& f1d = m_f1->derivative();
+    Func1* d = &newTimesConstFunction(f1d, m_c);
+    return *d;
+}
+
 string PlusConstant1::write(const std::string& arg) const
 {
     if (m_c == 0.0) {
@@ -628,6 +826,21 @@ string PlusConstant1::write(const std::string& arg) const
     }
     return fmt::format("{} + {}", m_f1->write(arg), m_c);
 }
+
+Func1& PlusConstant1::duplicate() const {
+    warn_deprecated("PlusConstant1::duplicate",
+        "To be removed after Cantera 3.0; no longer needed.");
+    Func1& f1 = m_f1->duplicate();
+    Func1* dup = new PlusConstant1(f1, m_c);
+    return *dup;
+}
+
+Func1& PlusConstant1::derivative() const {
+    warn_deprecated("PlusConstant1::derivative",
+        "To be changed after Cantera 3.0; for new behavior, see 'derivative3'.");
+    return m_f1->derivative();
+}
+
 
 doublereal Func1::isProportional(TimesConstant1& other)
 {
@@ -731,6 +944,9 @@ static bool isPow(shared_ptr<Func1> f)
 
 Func1& newSumFunction(Func1& f1, Func1& f2)
 {
+    warn_deprecated("newSumFunction(Func1&, Func1&)",
+        "To be removed after Cantera 3.0; replaced by shared pointer version.");
+
     if (f1.isIdentical(f2)) {
         return newTimesConstFunction(f1, 2.0);
     }
@@ -776,6 +992,9 @@ shared_ptr<Func1> newSumFunction(shared_ptr<Func1> f1, shared_ptr<Func1> f2)
 
 Func1& newDiffFunction(Func1& f1, Func1& f2)
 {
+    warn_deprecated("newDiffFunction(Func1&, Func1&)",
+        "To be removed after Cantera 3.0; replaced by shared pointer version.");
+
     if (isZero(f2)) {
         delete &f2;
         return f1;
@@ -821,6 +1040,9 @@ shared_ptr<Func1> newDiffFunction(shared_ptr<Func1> f1, shared_ptr<Func1> f2)
 
 Func1& newProdFunction(Func1& f1, Func1& f2)
 {
+    warn_deprecated("newProdFunction(Func1&, Func1&)",
+        "To be removed after Cantera 3.0; replaced by shared pointer version.");
+
     if (isOne(f1)) {
         delete &f1;
         return f2;
@@ -952,6 +1174,9 @@ shared_ptr<Func1> newProdFunction(shared_ptr<Func1> f1, shared_ptr<Func1> f2)
 
 Func1& newRatioFunction(Func1& f1, Func1& f2)
 {
+    warn_deprecated("newRatioFunction(Func1&, Func1&)",
+        "To be removed after Cantera 3.0; replaced by shared pointer version.");
+
     if (isOne(f2)) {
         return f1;
     }
@@ -994,6 +1219,9 @@ shared_ptr<Func1> newRatioFunction(shared_ptr<Func1> f1, shared_ptr<Func1> f2)
 
 Func1& newCompositeFunction(Func1& f1, Func1& f2)
 {
+    warn_deprecated("newCompositeFunction(Func1&, Func1&)",
+        "To be removed after Cantera 3.0; replaced by shared pointer version.");
+
     if (isZero(f1)) {
         delete &f1;
         delete &f2;
@@ -1043,6 +1271,9 @@ shared_ptr<Func1> newCompositeFunction(shared_ptr<Func1> f1, shared_ptr<Func1> f
 
 Func1& newTimesConstFunction(Func1& f, doublereal c)
 {
+    warn_deprecated("newTimesConstFunction(Func1&, doublereal)",
+        "To be removed after Cantera 3.0; replaced by shared pointer version.");
+
     if (c == 0.0) {
         delete &f;
         return *(new Const1(0.0));
@@ -1073,6 +1304,9 @@ shared_ptr<Func1> newTimesConstFunction(shared_ptr<Func1> f, double c)
 
 Func1& newPlusConstFunction(Func1& f, doublereal c)
 {
+    warn_deprecated("newPlusConstFunction(Func1&, doublereal)",
+        "To be removed after Cantera 3.0; replaced by shared pointer version.");
+
     if (c == 0.0) {
         return f;
     }
