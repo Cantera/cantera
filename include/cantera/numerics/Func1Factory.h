@@ -110,35 +110,28 @@ private:
 
 //! Create a new Func1 functor object.
 //! @param func1Type  string identifying function type.
+//! @param coeff  Coefficient; definition depends on the function type.
+shared_ptr<Func1> newFunc1(const string& func1Type, double coeff=1.);
+
+//! Create a new Func1 functor object.
+//! @param func1Type  string identifying function type.
 //! @param n  Integer; definition depends on the function type.
 //! @param params  Parameter vector; definition depends on the function type.
 shared_ptr<Func1> newFunc1(const string& func1Type, size_t n=0,
-                           const vector<double>& params={})
-{
-    return shared_ptr<Func1>(
-        Func1Factory::factory()->create(func1Type, n, params));
-}
+                           const vector<double>& params={});
 
 //! Create a new Func1 functor object based on mathematical operations.
 //! @param mathType  String identifying operation.
 //! @param f1  First Func1 object.
 //! @param f2  Second Func1 object.
 shared_ptr<Func1> newMath1(const string& mathType, const shared_ptr<Func1> f1,
-                           const shared_ptr<Func1> f2)
-{
-    return shared_ptr<Func1>(
-        Math1FactoryA::factory()->create(mathType, f1, f2));
-}
+                           const shared_ptr<Func1> f2);
 
 //! Create a new Func1 functor object based on mathematical operations.
 //! @param mathType  String identifying operation.
 //! @param f  Func1 object.
 //! @param c  Coefficient.
-shared_ptr<Func1> newMath1(const string& mathType, const shared_ptr<Func1> f, double c)
-{
-    return shared_ptr<Func1>(
-        Math1FactoryB::factory()->create(mathType, f, c));
-}
+shared_ptr<Func1> newMath1(const string& mathType, const shared_ptr<Func1> f, double c);
 
 }
 
