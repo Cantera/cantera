@@ -20,7 +20,7 @@ typedef SharedCabinet<ReactorBase> ReactorCabinet;
 typedef SharedCabinet<ReactorNet> NetworkCabinet;
 typedef SharedCabinet<FlowDevice> FlowDeviceCabinet;
 typedef SharedCabinet<WallBase> WallCabinet;
-typedef Cabinet<Func1> FuncCabinet;
+typedef SharedCabinet<Func1> FuncCabinet;
 typedef SharedCabinet<ThermoPhase> ThermoCabinet;
 typedef SharedCabinet<Kinetics> KineticsCabinet;
 typedef SharedCabinet<Solution> SolutionCabinet;
