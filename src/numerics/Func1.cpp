@@ -564,6 +564,11 @@ static bool isConstant(Func1& f)
     }
 }
 
+static bool isConstant(shared_ptr<Func1> f)
+{
+    return f->ID() == ConstFuncType;
+}
+
 static bool isZero(Func1& f)
 {
     if (f.ID() == ConstFuncType && f.c() == 0.0) {
@@ -571,6 +576,11 @@ static bool isZero(Func1& f)
     } else {
         return false;
     }
+}
+
+static bool isZero(shared_ptr<Func1> f)
+{
+    return f->ID() == ConstFuncType && f->c() == 0.0;
 }
 
 static bool isOne(Func1& f)
@@ -582,6 +592,11 @@ static bool isOne(Func1& f)
     }
 }
 
+static bool isOne(shared_ptr<Func1> f)
+{
+    return f->ID() == ConstFuncType && f->c() == 1.0;
+}
+
 static bool isTimesConst(Func1& f)
 {
     if (f.ID() == TimesConstantFuncType) {
@@ -589,6 +604,11 @@ static bool isTimesConst(Func1& f)
     } else {
         return false;
     }
+}
+
+static bool isTimesConst(shared_ptr<Func1> f)
+{
+    return f->ID() == TimesConstantFuncType;
 }
 
 static bool isExp(Func1& f)
@@ -600,6 +620,11 @@ static bool isExp(Func1& f)
     }
 }
 
+static bool isExp(shared_ptr<Func1> f)
+{
+    return f->ID() == ExpFuncType;
+}
+
 static bool isPow(Func1& f)
 {
     if (f.ID() == PowFuncType) {
@@ -607,6 +632,11 @@ static bool isPow(Func1& f)
     } else {
         return false;
     }
+}
+
+static bool isPow(shared_ptr<Func1> f)
+{
+    return f->ID() == PowFuncType;
 }
 
 Func1& newSumFunction(Func1& f1, Func1& f2)
@@ -633,6 +663,27 @@ Func1& newSumFunction(Func1& f1, Func1& f2)
     return *(new Sum1(f1, f2));
 }
 
+shared_ptr<Func1> newSumFunction(shared_ptr<Func1> f1, shared_ptr<Func1> f2)
+{
+    if (f1->isIdentical(*f2)) {
+        return newTimesConstFunction(f1, 2.);
+    }
+    if (isZero(f1)) {
+        return f2;
+    }
+    if (isZero(f2)) {
+        return f1;
+    }
+    double c = f1->isProportional(*f2);
+    if (c != 0.) {
+        if (c == -1.) {
+            return shared_ptr<Func1>(new Const1(0.));
+        }
+        return newTimesConstFunction(f1, c + 1.);
+    }
+    return shared_ptr<Func1>(new Sum1(f1, f2));
+}
+
 Func1& newDiffFunction(Func1& f1, Func1& f2)
 {
     if (isZero(f2)) {
@@ -653,6 +704,29 @@ Func1& newDiffFunction(Func1& f1, Func1& f2)
         }
     }
     return *(new Diff1(f1, f2));
+}
+
+shared_ptr<Func1> newDiffFunction(shared_ptr<Func1> f1, shared_ptr<Func1> f2)
+{
+    if (isZero(f2)) {
+        return f1;
+    }
+    if (isZero(f1)) {
+        return newTimesConstFunction(f2, -1.);
+    }
+
+    if (f1->isIdentical(*f2)) {
+        return shared_ptr<Func1>(new Const1(0.));
+    }
+    double c = f1->isProportional(*f2);
+    if (c != 0.) {
+        if (c == 1.0) {
+            return shared_ptr<Func1>(new Const1(0.));
+        } else {
+            return newTimesConstFunction(f1, 1. - c);
+        }
+    }
+    return shared_ptr<Func1>(new Diff1(f1, f2));
 }
 
 Func1& newProdFunction(Func1& f1, Func1& f2)
@@ -733,6 +807,59 @@ Func1& newProdFunction(Func1& f1, Func1& f2)
     }
 }
 
+shared_ptr<Func1> newProdFunction(shared_ptr<Func1> f1, shared_ptr<Func1> f2)
+{
+    if (isOne(f1)) {
+        return f2;
+    }
+    if (isOne(f2)) {
+        return f1;
+    }
+    if (isZero(f1) || isZero(f2)) {
+        return shared_ptr<Func1>(new Const1(0.));
+    }
+    if (isConstant(f1) && isConstant(f2)) {
+        return shared_ptr<Func1>(new Const1(f1->c() * f2->c()));
+    }
+    if (isConstant(f1)) {
+        return newTimesConstFunction(f2, f1->c());
+    }
+    if (isConstant(f2)) {
+        return newTimesConstFunction(f1, f2->c());
+    }
+    if (isPow(f1) && isPow(f2)) {
+        return shared_ptr<Func1>(new Pow1(f1->c() + f2->c()));
+    }
+    if (isExp(f1) && isExp(f2)) {
+        return shared_ptr<Func1>(new Exp1(f1->c() + f2->c()));
+    }
+
+    bool tc1 = isTimesConst(f1);
+    bool tc2 = isTimesConst(f2);
+
+    if (tc1 || tc2) {
+        double c1 = 1.0;
+        auto ff1 = f1;
+        if (tc1) {
+            c1 = f1->c();
+            ff1 = f1->func1_shared();
+        }
+        double c2 = 1.0;
+        auto ff2 = f2;
+        if (tc2) {
+            c2 = f2->c();
+            ff2 = f2->func1_shared();
+        }
+        auto p = newProdFunction(ff1, ff2);
+
+        if (c1 * c2 != 1.0) {
+            return newTimesConstFunction(p, c1 * c2);
+        }
+        return p;
+    }
+    return shared_ptr<Func1>(new Product1(f1, f2));
+}
+
 Func1& newRatioFunction(Func1& f1, Func1& f2)
 {
     if (isOne(f2)) {
@@ -753,6 +880,26 @@ Func1& newRatioFunction(Func1& f1, Func1& f2)
         return *(new Exp1(f1.c() - f2.c()));
     }
     return *(new Ratio1(f1, f2));
+}
+
+shared_ptr<Func1> newRatioFunction(shared_ptr<Func1> f1, shared_ptr<Func1> f2)
+{
+    if (isOne(f2)) {
+        return f1;
+    }
+    if (isZero(f1)) {
+        return shared_ptr<Func1>(new Const1(0.));
+    }
+    if (f1->isIdentical(*f2)) {
+        return shared_ptr<Func1>(new Const1(1.));
+    }
+    if (isPow(f1) && isPow(f2)) {
+        return shared_ptr<Func1>(new Pow1(f1->c() - f2->c()));
+    }
+    if (isExp(f1) && isExp(f2)) {
+        return shared_ptr<Func1>(new Exp1(f1->c() - f2->c()));
+    }
+    return shared_ptr<Func1>(new Ratio1(f1, f2));
 }
 
 Func1& newCompositeFunction(Func1& f1, Func1& f2)
@@ -782,6 +929,26 @@ Func1& newCompositeFunction(Func1& f1, Func1& f2)
         return *(new Pow1(c1c2));
     }
     return *(new Composite1(f1, f2));
+}
+
+shared_ptr<Func1> newCompositeFunction(shared_ptr<Func1> f1, shared_ptr<Func1> f2)
+{
+    if (isZero(f1)) {
+        return shared_ptr<Func1>(new Const1(0.0));
+    }
+    if (isConstant(f1)) {
+        return f1;
+    }
+    if (isPow(f1) && f1->c() == 1.0) {
+        return f2;
+    }
+    if (isPow(f1) && f1->c() == 0.0) {
+        return shared_ptr<Func1>(new Const1(1.));
+    }
+    if (isPow(f1) && isPow(f2)) {
+        return shared_ptr<Func1>(new Pow1(f1->c() * f2->c()));
+    }
+    return shared_ptr<Func1>(new Composite1(f1, f2));
 }
 
 Func1& newTimesConstFunction(Func1& f, doublereal c)
@@ -829,6 +996,20 @@ Func1& newPlusConstFunction(Func1& f, doublereal c)
         return f;
     }
     return *(new PlusConstant1(f, c));
+}
+
+shared_ptr<Func1> newPlusConstFunction(shared_ptr<Func1> f, double c)
+{
+    if (c == 0.0) {
+        return f;
+    }
+    if (isConstant(f)) {
+        return shared_ptr<Func1>(new Const1(f->c() + c));
+    }
+    if (f->ID() == PlusConstantFuncType) {
+        return shared_ptr<Func1>(new PlusConstant1(f->func1_shared(), f->c() + c));
+    }
+    return shared_ptr<Func1>(new PlusConstant1(f, c));
 }
 
 }

@@ -49,6 +49,17 @@ public:
     //! on specialization.
     Func1(size_t n, const vector<double>& params) {}
 
+    Func1(shared_ptr<Func1> f1, shared_ptr<Func1> f2)
+        : m_f1_shared(f1), m_f2_shared(f2)
+    {
+        m_f1 = f1.get();
+        m_f2 = f2.get();
+    }
+
+    Func1(shared_ptr<Func1> f1, double A) : m_c(A), m_f1_shared(f1) {
+        m_f1 = f1.get();
+    }
+
     virtual ~Func1() = default;
 
     Func1(const Func1& right);
@@ -152,7 +163,13 @@ Func1& newCompositeFunction(Func1& f1, Func1& f2);
 Func1& newTimesConstFunction(Func1& f1, doublereal c);
 Func1& newPlusConstFunction(Func1& f1, doublereal c);
 
+shared_ptr<Func1> newSumFunction(shared_ptr<Func1> f1, shared_ptr<Func1> f2);
+shared_ptr<Func1> newDiffFunction(shared_ptr<Func1> f1, shared_ptr<Func1> f2);
+shared_ptr<Func1> newProdFunction(shared_ptr<Func1> f1, shared_ptr<Func1> f2);
+shared_ptr<Func1> newRatioFunction(shared_ptr<Func1> f1, shared_ptr<Func1> f2);
+shared_ptr<Func1> newCompositeFunction(shared_ptr<Func1> f1, shared_ptr<Func1> f2);
 shared_ptr<Func1> newTimesConstFunction(shared_ptr<Func1> f1, double c);
+shared_ptr<Func1> newPlusConstFunction(shared_ptr<Func1> f1, double c);
 
 //! implements the sin() function
 /*!
@@ -413,9 +430,15 @@ public:
         m_f2->setParent(this);
     }
 
+    Sum1(shared_ptr<Func1> f1, shared_ptr<Func1> f2) : Func1(f1, f2) {}
+
     virtual ~Sum1() {
-        delete m_f1;
-        delete m_f2;
+        if (!m_f1_shared) {
+            delete m_f1;
+        }
+        if (!m_f2_shared) {
+            delete m_f2;
+        }
     }
 
     Sum1(const Sum1& b) :
@@ -476,9 +499,15 @@ public:
         m_f2->setParent(this);
     }
 
+    Diff1(shared_ptr<Func1> f1, shared_ptr<Func1> f2) : Func1(f1, f2) {}
+
     virtual ~Diff1() {
-        delete m_f1;
-        delete m_f2;
+        if (!m_f1_shared) {
+            delete m_f1;
+        }
+        if (!m_f2_shared) {
+            delete m_f2;
+        }
     }
 
     Diff1(const Diff1& b) :
@@ -536,9 +565,15 @@ public:
         m_f2->setParent(this);
     }
 
+    Product1(shared_ptr<Func1> f1, shared_ptr<Func1> f2) : Func1(f1, f2) {}
+
     virtual ~Product1() {
-        delete m_f1;
-        delete m_f2;
+        if (!m_f1_shared) {
+            delete m_f1;
+        }
+        if (!m_f2_shared) {
+            delete m_f2;
+        }
     }
 
     Product1(const Product1& b) :
@@ -597,11 +632,7 @@ public:
         m_f1->setParent(this);
     }
 
-    TimesConstant1(shared_ptr<Func1> f1, double A) {
-        m_f1_shared = f1;
-        m_f1 = m_f1_shared.get();
-        m_c = A;
-    }
+    TimesConstant1(shared_ptr<Func1> f1, double A) : Func1(f1, A) {}
 
     virtual ~TimesConstant1() {
         if (!m_f1_shared) {
@@ -679,8 +710,12 @@ public:
         m_f1->setParent(this);
     }
 
+    PlusConstant1(shared_ptr<Func1> f1, double A) : Func1(f1, A) {}
+
     virtual ~PlusConstant1() {
-        delete m_f1;
+        if (!m_f1_shared) {
+            delete m_f1;
+        }
     }
 
     PlusConstant1(const PlusConstant1& b) :
@@ -736,9 +771,15 @@ public:
         m_f2->setParent(this);
     }
 
+    Ratio1(shared_ptr<Func1> f1, shared_ptr<Func1> f2) : Func1(f1, f2) {}
+
     virtual ~Ratio1() {
-        delete m_f1;
-        delete m_f2;
+        if (!m_f1_shared) {
+            delete m_f1;
+        }
+        if (!m_f2_shared) {
+            delete m_f2;
+        }
     }
 
     Ratio1(const Ratio1& b) :
@@ -801,9 +842,15 @@ public:
         m_f2->setParent(this);
     }
 
+    Composite1(shared_ptr<Func1> f1, shared_ptr<Func1> f2) : Func1(f1, f2) {}
+
     virtual ~Composite1() {
-        delete m_f1;
-        delete m_f2;
+        if (!m_f1_shared) {
+            delete m_f1;
+        }
+        if (!m_f2_shared) {
+            delete m_f2;
+        }
     }
 
     Composite1(const Composite1& b) :
