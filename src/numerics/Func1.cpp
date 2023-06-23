@@ -63,6 +63,12 @@ Func1& Func1::derivative() const
     return *(new Func1);
 }
 
+shared_ptr<Func1> Func1::derivative3() const
+{
+    throw CanteraError("Func1::derivative3",
+        "Needs to be overloaded by Func1 specialization.");
+}
+
 bool Func1::isIdentical(Func1& other) const
 {
     if (ID() != other.ID() || m_c != other.m_c) {
@@ -161,6 +167,13 @@ Func1& Sin1::derivative() const
     Func1* r = &newTimesConstFunction(*c, m_c);
     return *r;
 }
+
+shared_ptr<Func1> Sin1::derivative3() const
+{
+    auto c = shared_ptr<Func1>(new Cos1(m_c));
+    return newTimesConstFunction(c, m_c);
+}
+
 /*****************************************************************************/
 
 Cos1::Cos1(size_t n, const vector<double>& params)
@@ -177,6 +190,12 @@ Func1& Cos1::derivative() const
     Func1* s = new Sin1(m_c);
     Func1* r = &newTimesConstFunction(*s, -m_c);
     return *r;
+}
+
+shared_ptr<Func1> Cos1::derivative3() const
+{
+    auto s = shared_ptr<Func1>(new Sin1(m_c));
+    return newTimesConstFunction(s, -m_c);
 }
 
 std::string Cos1::write(const std::string& arg) const
@@ -207,6 +226,15 @@ Func1& Exp1::derivative() const
     } else {
         return *f;
     }
+}
+
+shared_ptr<Func1> Exp1::derivative3() const
+{
+    auto f = shared_ptr<Func1>(new Exp1(m_c));
+    if (m_c != 1.0) {
+        return newTimesConstFunction(f, m_c);
+    }
+    return f;
 }
 
 std::string Exp1::write(const std::string& arg) const
@@ -241,6 +269,18 @@ Func1& Pow1::derivative() const
         r = &newTimesConstFunction(*f, m_c);
     }
     return *r;
+}
+
+shared_ptr<Func1> Pow1::derivative3() const
+{
+    if (m_c == 0.0) {
+        return shared_ptr<Func1>(new Const1(0.0));
+    }
+    if (m_c == 1.0) {
+        return shared_ptr<Func1>(new Const1(1.0));
+    }
+    auto f = shared_ptr<Func1>(new Pow1(m_c - 1.));
+    return newTimesConstFunction(f, m_c);
 }
 
 /******************************************************************************/
@@ -758,6 +798,20 @@ Func1& newTimesConstFunction(Func1& f, doublereal c)
         return f;
     }
     return *(new TimesConstant1(f, c));
+}
+
+shared_ptr<Func1> newTimesConstFunction(shared_ptr<Func1> f, double c)
+{
+    if (c == 0.0) {
+        return shared_ptr<Func1>(new Const1(0.0));
+    }
+    if (c == 1.0) {
+        return f;
+    }
+    if (f->ID() == TimesConstantFuncType) {
+        return shared_ptr<Func1>(new TimesConstant1(f->func1_shared(), f->c() * c));
+    }
+    return shared_ptr<Func1>(new TimesConstant1(f, c));
 }
 
 Func1& newPlusConstFunction(Func1& f, doublereal c)

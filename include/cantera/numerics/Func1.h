@@ -40,7 +40,7 @@ class TimesConstant1;
 /**
  * Base class for 'functor' classes that evaluate a function of one variable.
  */
-class Func1
+class Func1 : public std::enable_shared_from_this<Func1>
 {
 public:
     Func1() = default;
@@ -77,6 +77,14 @@ public:
      */
     virtual Func1& derivative() const;
 
+    //! Creates a derivative to the current function
+    /*!
+     * This will create a new derivative function
+     * @return  shared pointer to new derivative function.
+     * @since  New in Cantera 3.0.
+     */
+    virtual shared_ptr<Func1> derivative3() const;
+
     //! Routine to determine if two functions are the same.
     /*!
      * Two functions are the same if they are the same function. This means
@@ -99,8 +107,20 @@ public:
     //! accessor function for m_f1
     Func1& func1() const;
 
+    //! accessor function for m_f1_shared
+    //! @since  New in Cantera 3.0.
+    shared_ptr<Func1> func1_shared() const {
+        return m_f1_shared;
+    }
+
     //! accessor function for m_f2
     Func1& func2() const;
+
+    //! accessor function for m_f2_shared
+    //! @since  New in Cantera 3.0.
+    shared_ptr<Func1> func2_shared() const {
+        return m_f2_shared;
+    }
 
     //! Return the order of the function, if it makes sense
     virtual int order() const;
@@ -118,6 +138,9 @@ protected:
     Func1* m_f1 = nullptr;
     Func1* m_f2 = nullptr;
     Func1* m_parent = nullptr;
+
+    shared_ptr<Func1> m_f1_shared;
+    shared_ptr<Func1> m_f2_shared;
 };
 
 
@@ -129,6 +152,7 @@ Func1& newCompositeFunction(Func1& f1, Func1& f2);
 Func1& newTimesConstFunction(Func1& f1, doublereal c);
 Func1& newPlusConstFunction(Func1& f1, doublereal c);
 
+shared_ptr<Func1> newTimesConstFunction(shared_ptr<Func1> f1, double c);
 
 //! implements the sin() function
 /*!
@@ -172,6 +196,7 @@ public:
     }
 
     virtual Func1& derivative() const;
+    virtual shared_ptr<Func1> derivative3() const;
 };
 
 
@@ -213,6 +238,7 @@ public:
         return cos(m_c * t);
     }
     virtual Func1& derivative() const;
+    virtual shared_ptr<Func1> derivative3() const;
 };
 
 
@@ -249,6 +275,7 @@ public:
     }
 
     virtual Func1& derivative() const;
+    virtual shared_ptr<Func1> derivative3() const;
 };
 
 
@@ -284,6 +311,7 @@ public:
         return pow(t, m_c);
     }
     virtual Func1& derivative() const;
+    virtual shared_ptr<Func1> derivative3() const;
 };
 
 
@@ -365,6 +393,9 @@ public:
     virtual Func1& derivative() const {
         Func1* z = new Const1(0.0);
         return *z;
+    }
+    virtual shared_ptr<Func1> derivative3() const {
+        return shared_ptr<Func1>(new Const1(0.0));
     }
 };
 
@@ -566,8 +597,16 @@ public:
         m_f1->setParent(this);
     }
 
+    TimesConstant1(shared_ptr<Func1> f1, double A) {
+        m_f1_shared = f1;
+        m_f1 = m_f1_shared.get();
+        m_c = A;
+    }
+
     virtual ~TimesConstant1() {
-        delete m_f1;
+        if (!m_f1_shared) {
+            delete m_f1;
+        }
     }
 
     TimesConstant1(const TimesConstant1& b) :
