@@ -346,6 +346,13 @@ public:
     Tabulated1(size_t n, const double* tvals, const double* fvals,
                const string& method="linear");
 
+    //! Constructor uses 2*n parameters
+    //! [t0, t1, .. tn-1, f0, f1, .. fn-1]
+    Tabulated1(size_t n, const vector<double>& params);
+
+    //! Set the interpolation method
+    void setMethod(const string& mode);
+
     virtual std::string write(const std::string& arg) const;
     virtual int ID() const {
         return TabulatedFuncType;
@@ -362,6 +369,7 @@ public:
     }
 
     virtual Func1& derivative() const;
+    virtual shared_ptr<Func1> derivative3() const;
 private:
     vector_fp m_tvec; //!< Vector of time values
     vector_fp m_fvec; //!< Vector of function values
@@ -1199,7 +1207,7 @@ class Periodic1 : public Func1
 {
 public:
     Periodic1(Func1& f, double T) {
-        m_func = &f;
+        m_f1 = &f;
         m_c = T;
     }
 
@@ -1207,12 +1215,14 @@ public:
         *this = Periodic1::operator=(b);
     }
 
+    Periodic1(shared_ptr<Func1> f, double A) : Func1(f, A) {}
+
     Periodic1& operator=(const Periodic1& right) {
         if (&right == this) {
             return *this;
         }
         Func1::operator=(right);
-        m_func = &right.m_func->duplicate();
+        m_f1 = &right.m_f1->duplicate();
         return *this;
     }
 
@@ -1222,17 +1232,16 @@ public:
     }
 
     virtual ~Periodic1() {
-        delete m_func;
+        if (!m_f1_shared) {
+            delete m_f1;
+        }
     }
 
     virtual doublereal eval(doublereal t) const {
         int np = int(t/m_c);
         doublereal time = t - np*m_c;
-        return m_func->eval(time);
+        return m_f1->eval(time);
     }
-
-protected:
-    Func1* m_func;
 };
 
 }

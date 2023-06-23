@@ -296,6 +296,10 @@ Const1::Const1(size_t n, const vector<double>& params)
 
 Poly1::Poly1(size_t n, const vector<double>& params)
 {
+    if (n < 0) {
+        throw CanteraError("Poly1::Poly1",
+            "Parameter n must be at least 0.");
+    }
     if (params.size() != n + 1) {
         throw CanteraError("Poly1::Poly1",
             "Constructor needs exactly n + 1 = {} parameters (with n={}).", n + 1, n);
@@ -306,6 +310,10 @@ Poly1::Poly1(size_t n, const vector<double>& params)
 
 Fourier1::Fourier1(size_t n, const vector<double>& params)
 {
+    if (n < 1) {
+        throw CanteraError("Fourier1::Fourier1",
+            "Parameter n must be at least 1.");
+    }
     if (params.size() != 2 * n + 2) {
         throw CanteraError("Fourier1::Fourier1",
             "Constructor needs exactly 2 * n + 2 = {} parameters (with n={}).",
@@ -332,6 +340,10 @@ Gaussian1::Gaussian1(size_t n, const vector<double>& params)
 
 Arrhenius1::Arrhenius1(size_t n, const vector<double>& params)
 {
+    if (n < 1) {
+        throw CanteraError("Arrhenius1::Arrhenius1",
+            "Parameter n must be at least 1.");
+    }
     if (params.size() != 3 * n) {
         throw CanteraError("Arrhenius1::Arrhenius1",
             "Constructor needs exactly 3 * n parameters grouped as (Ai, bi, Ei) for "
@@ -361,14 +373,40 @@ Tabulated1::Tabulated1(size_t n, const double* tvals, const double* fvals,
     }
     m_fvec.resize(n);
     std::copy(fvals, fvals + n, m_fvec.begin());
+    setMethod(method);
+}
+
+Tabulated1::Tabulated1(size_t n, const vector<double>& params) : m_isLinear(true)
+{
+    if (n < 1) {
+        throw CanteraError("Tabulated1::Tabulated1",
+            "Parameter n must be at least 1.");
+    }
+    if (params.size() != 2 * n) {
+        throw CanteraError("Tabulated1::Tabulated1",
+            "Constructor needs exactly 2 * n = {} parameters (with n={}).", 2 * n, n);
+    }
+    m_tvec.resize(n);
+    copy(params.data(), params.data() + n, m_tvec.begin());
+    for (auto it = std::begin(m_tvec) + 1; it != std::end(m_tvec); it++) {
+        if (*(it - 1) > *it) {
+            throw CanteraError("Tabulated1::Tabulated1",
+                "Time values are not monotonically increasing.");
+        }
+    }
+    m_fvec.resize(n);
+    copy(params.data() + n, params.data() + 2 * n, m_fvec.begin());
+}
+
+void Tabulated1::setMethod(const string& method)
+{
     if (method == "linear") {
         m_isLinear = true;
     } else if (method == "previous") {
         m_isLinear = false;
     } else {
-        throw CanteraError("Tabulated1::Tabulated1",
-                           "interpolation method '{}' is not implemented",
-                           method);
+        throw NotImplementedError("Tabulated1::setMethod",
+            "Interpolation method '{}' is not implemented.", method);
     }
 }
 
@@ -419,6 +457,32 @@ Func1& Tabulated1::derivative() const {
         dvec.push_back(0.);
     }
     return *(new Tabulated1(tvec.size(), &tvec[0], &dvec[0], "previous"));
+}
+
+shared_ptr<Func1> Tabulated1::derivative3() const {
+    vector_fp tvec;
+    vector_fp dvec;
+    size_t siz = m_tvec.size();
+    if (m_isLinear) {
+        // piece-wise continuous derivative
+        if (siz>1) {
+            for (size_t i=1; i<siz; i++) {
+                double d = (m_fvec[i] - m_fvec[i-1]) /
+                  (m_tvec[i] - m_tvec[i-1]);
+                tvec.push_back(m_tvec[i-1]);
+                dvec.push_back(d);
+            }
+        }
+        tvec.push_back(m_tvec[siz-1]);
+        dvec.push_back(0.);
+    } else {
+        // derivative is zero (ignoring discontinuities)
+        tvec.push_back(m_tvec[0]);
+        tvec.push_back(m_tvec[siz-1]);
+        dvec.push_back(0.);
+        dvec.push_back(0.);
+    }
+    return shared_ptr<Func1>(new Tabulated1(tvec.size(), &tvec[0], &dvec[0], "previous"));
 }
 
 /******************************************************************************/
