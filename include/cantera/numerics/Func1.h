@@ -16,6 +16,8 @@
 namespace Cantera
 {
 
+// Magic numbers are only used by legacy C API methods
+// Example: traditional MATLAB toolbox
 const int FourierFuncType = 1;
 const int PolyFuncType = 2;
 const int ArrheniusFuncType = 3;
@@ -40,14 +42,10 @@ class TimesConstant1;
 /**
  * Base class for 'functor' classes that evaluate a function of one variable.
  */
-class Func1 : public std::enable_shared_from_this<Func1>
+class Func1
 {
 public:
     Func1() = default;
-
-    //! Universal constructor; interpretation of n and definition of parameters depends
-    //! on specialization.
-    Func1(size_t n, const vector<double>& params) {}
 
     Func1(shared_ptr<Func1> f1, shared_ptr<Func1> f2)
         : m_f1_shared(f1), m_f2_shared(f2)
@@ -62,22 +60,22 @@ public:
 
     virtual ~Func1() = default;
 
+    //! @deprecated To be removed after Cantera 3.0. Only used by deprecated methods.
     Func1(const Func1& right);
 
+    //! @deprecated To be removed after Cantera 3.0. Only used by deprecated methods.
     Func1& operator=(const Func1& right);
 
     //! Duplicate the current function.
     /*!
      * This duplicates the current function, returning a reference to the newly
      * created function.
+     * @deprecated To be removed after Cantera 3.0. Only used by deprecated methods.
      */
     virtual Func1& duplicate() const;
 
+    //! @deprecated To be removed after Cantera 3.0. Replaced by type.
     virtual int ID() const;
-
-    virtual string type() const {
-        return "functor";
-    }
 
     //! Calls method eval to evaluate the function
     doublereal operator()(doublereal t) const;
@@ -89,6 +87,7 @@ public:
     /*!
      * This will create a new derivative function and return a reference to the
      * function.
+     * @deprecated To be changed after Cantera 3.0; for new behavior, see derivative3.
      */
     virtual Func1& derivative() const;
 
@@ -111,27 +110,31 @@ public:
     virtual doublereal isProportional(TimesConstant1& other);
     virtual doublereal isProportional(Func1& other);
 
+    //! Write LaTeX string describing function.
     virtual std::string write(const std::string& arg) const;
 
-    //! accessor function for the stored constant
+    //! Accessor function for the stored constant
     doublereal c() const;
 
     //! Function to set the stored constant
+    //! @deprecated To be removed after Cantera 3.0. Only used by deprecated methods.
     void setC(doublereal c);
 
     //! accessor function for m_f1
+    //! @deprecated To be removed after Cantera 3.0; replaced by func1_shared.
     Func1& func1() const;
 
-    //! accessor function for m_f1_shared
+    //! Accessor function for m_f1_shared
     //! @since  New in Cantera 3.0.
     shared_ptr<Func1> func1_shared() const {
         return m_f1_shared;
     }
 
     //! accessor function for m_f2
+    //! @deprecated To be removed after Cantera 3.0. Only used by deprecated methods.
     Func1& func2() const;
 
-    //! accessor function for m_f2_shared
+    //! Accessor function for m_f2_shared
     //! @since  New in Cantera 3.0.
     shared_ptr<Func1> func2_shared() const {
         return m_f2_shared;
@@ -140,12 +143,16 @@ public:
     //! Return the order of the function, if it makes sense
     virtual int order() const;
 
+    //! @deprecated To be removed after Cantera 3.0. Only used by deprecated methods.
     Func1& func1_dup() const;
 
+    //! @deprecated To be removed after Cantera 3.0. Only used by deprecated methods.
     Func1& func2_dup() const;
 
+    //! @deprecated To be removed after Cantera 3.0. Only used by deprecated methods.
     Func1* parent() const;
 
+    //! @deprecated To be removed after Cantera 3.0. Only used by deprecated methods.
     void setParent(Func1* p);
 
 protected:
@@ -159,6 +166,7 @@ protected:
 };
 
 
+// all functions using references are deprecated
 Func1& newSumFunction(Func1& f1, Func1& f2);
 Func1& newDiffFunction(Func1& f1, Func1& f2);
 Func1& newProdFunction(Func1& f1, Func1& f2);
@@ -201,11 +209,7 @@ public:
         return *this;
     }
 
-    virtual Func1& duplicate() const {
-        Sin1* nfunc = new Sin1(*this);
-        return (Func1&) *nfunc;
-    }
-
+    virtual Func1& duplicate() const;
     virtual std::string write(const std::string& arg) const;
 
     virtual int ID() const {
@@ -247,10 +251,7 @@ public:
         return *this;
     }
 
-    virtual Func1& duplicate() const {
-        Cos1* nfunc = new Cos1(*this);
-        return (Func1&) *nfunc;
-    }
+    virtual Func1& duplicate() const;
     virtual std::string write(const std::string& arg) const;
     virtual int ID() const {
         return CosFuncType;
@@ -288,9 +289,7 @@ public:
     virtual int ID() const {
         return ExpFuncType;
     }
-    virtual Func1& duplicate() const {
-        return *(new Exp1(m_c));
-    }
+    virtual Func1& duplicate() const;
     virtual doublereal eval(doublereal t) const {
         return exp(m_c*t);
     }
@@ -349,9 +348,7 @@ public:
     virtual int ID() const {
         return PowFuncType;
     }
-    virtual Func1& duplicate() const {
-        return *(new Pow1(m_c));
-    }
+    virtual Func1& duplicate() const;
     virtual doublereal eval(doublereal t) const {
         return pow(t, m_c);
     }
@@ -386,16 +383,7 @@ public:
         return TabulatedFuncType;
     }
     virtual double eval(double t) const;
-    virtual Func1& duplicate() const {
-        if (m_isLinear) {
-            return *(new Tabulated1(m_tvec.size(), &m_tvec[0], &m_fvec[0],
-                                    "linear"));
-        } else {
-            return *(new Tabulated1(m_tvec.size(), &m_tvec[0], &m_fvec[0],
-                                    "previous"));
-        }
-    }
-
+    virtual Func1& duplicate() const;
     virtual Func1& derivative() const;
     virtual shared_ptr<Func1> derivative3() const;
 private:
@@ -439,14 +427,8 @@ public:
     virtual doublereal eval(doublereal t) const {
         return m_c;
     }
-    virtual Func1& duplicate() const {
-        return *(new Const1(m_c));
-    }
-
-    virtual Func1& derivative() const {
-        Func1* z = new Const1(0.0);
-        return *z;
-    }
+    virtual Func1& duplicate() const;
+    virtual Func1& derivative() const;
     virtual shared_ptr<Func1> derivative3() const {
         return shared_ptr<Func1>(new Const1(0.0));
     }
@@ -503,17 +485,8 @@ public:
         return m_f1->eval(t) + m_f2->eval(t);
     }
 
-    virtual Func1& duplicate() const {
-        Func1& f1d = m_f1->duplicate();
-        Func1& f2d = m_f2->duplicate();
-        return newSumFunction(f1d, f2d);
-    }
-
-    virtual Func1& derivative() const {
-        Func1& d1 = m_f1->derivative();
-        Func1& d2 = m_f2->derivative();
-        return newSumFunction(d1, d2);
-    }
+    virtual Func1& duplicate() const;
+    virtual Func1& derivative() const;
 
     virtual shared_ptr<Func1> derivative3() const {
         return newSumFunction(m_f1_shared->derivative3(), m_f2_shared->derivative3());
@@ -577,14 +550,8 @@ public:
         return m_f1->eval(t) - m_f2->eval(t);
     }
 
-    virtual Func1& duplicate() const {
-        Func1& f1d = m_f1->duplicate();
-        Func1& f2d = m_f2->duplicate();
-        return newDiffFunction(f1d, f2d);
-    }
-    virtual Func1& derivative() const {
-        return newDiffFunction(m_f1->derivative(), m_f2->derivative());
-    }
+    virtual Func1& duplicate() const;
+    virtual Func1& derivative() const;
 
     virtual shared_ptr<Func1> derivative3() const {
         return newDiffFunction(m_f1_shared->derivative3(), m_f2_shared->derivative3());
@@ -644,23 +611,14 @@ public:
         return ProdFuncType;
     }
 
-    virtual Func1& duplicate() const {
-        Func1& f1d = m_f1->duplicate();
-        Func1& f2d = m_f2->duplicate();
-        return newProdFunction(f1d, f2d);
-    }
-
     virtual std::string write(const std::string& arg) const;
 
     virtual doublereal eval(doublereal t) const {
         return m_f1->eval(t) * m_f2->eval(t);
     }
 
-    virtual Func1& derivative() const {
-        Func1& a1 = newProdFunction(m_f1->duplicate(), m_f2->derivative());
-        Func1& a2 = newProdFunction(m_f2->duplicate(), m_f1->derivative());
-        return newSumFunction(a1, a2);
-    }
+    virtual Func1& duplicate() const;
+    virtual Func1& derivative() const;
 
     virtual shared_ptr<Func1> derivative3() const {
         auto a1 = newProdFunction(m_f1_shared, m_f2_shared->derivative3());
@@ -712,12 +670,6 @@ public:
         return TimesConstantFuncType;
     }
 
-    virtual Func1& duplicate() const {
-        Func1& f1 = m_f1->duplicate();
-        Func1* dup = new TimesConstant1(f1, m_c);
-        return *dup;
-    }
-
     virtual doublereal isProportional(TimesConstant1& other) {
         if (func1().isIdentical(other.func1())) {
             return (other.c()/c());
@@ -738,11 +690,8 @@ public:
         return m_f1->eval(t) * m_c;
     }
 
-    virtual Func1& derivative() const {
-        Func1& f1d = m_f1->derivative();
-        Func1* d = &newTimesConstFunction(f1d, m_c);
-        return *d;
-    }
+    virtual Func1& duplicate() const;
+    virtual Func1& derivative() const;
 
     virtual shared_ptr<Func1> derivative3() const {
         return newTimesConstFunction(m_f1_shared->derivative3(), m_c);
@@ -795,18 +744,12 @@ public:
         return PlusConstantFuncType;
     }
 
-    virtual Func1& duplicate() const {
-        Func1& f1 = m_f1->duplicate();
-        Func1* dup = new PlusConstant1(f1, m_c);
-        return *dup;
-    }
-
     virtual doublereal eval(doublereal t) const {
         return m_f1->eval(t) + m_c;
     }
-    virtual Func1& derivative() const {
-        return m_f1->derivative();
-    }
+
+    virtual Func1& duplicate() const;
+    virtual Func1& derivative() const;
 
     virtual shared_ptr<Func1> derivative3() const {
         return m_f1_shared->derivative3();
@@ -870,19 +813,8 @@ public:
         return m_f1->eval(t) / m_f2->eval(t);
     }
 
-    virtual Func1& duplicate() const {
-        Func1& f1d = m_f1->duplicate();
-        Func1& f2d = m_f2->duplicate();
-        return newRatioFunction(f1d, f2d);
-    }
-
-    virtual Func1& derivative() const {
-        Func1& a1 = newProdFunction(m_f1->derivative(), m_f2->duplicate());
-        Func1& a2 = newProdFunction(m_f1->duplicate(), m_f2->derivative());
-        Func1& s = newDiffFunction(a1, a2);
-        Func1& p = newProdFunction(m_f2->duplicate(), m_f2->duplicate());
-        return newRatioFunction(s, p);
-    }
+    virtual Func1& duplicate() const;
+    virtual Func1& derivative() const;
 
     virtual shared_ptr<Func1> derivative3() const {
         auto a1 = newProdFunction(m_f1_shared->derivative3(), m_f2_shared);
@@ -949,20 +881,8 @@ public:
         return m_f1->eval(m_f2->eval(t));
     }
 
-    virtual Func1& duplicate() const {
-        Func1& f1d = m_f1->duplicate();
-        Func1& f2d = m_f2->duplicate();
-        return newCompositeFunction(f1d, f2d);
-    }
-
-    virtual Func1& derivative() const {
-        Func1* d1 = &m_f1->derivative();
-
-        Func1* d3 = &newCompositeFunction(*d1, m_f2->duplicate());
-        Func1* d2 = &m_f2->derivative();
-        Func1* p = &newProdFunction(*d3, *d2);
-        return *p;
-    }
+    virtual Func1& duplicate() const;
+    virtual Func1& derivative() const;
 
     virtual shared_ptr<Func1> derivative3() const {
         auto d1 = m_f1_shared->derivative3();
@@ -1022,11 +942,6 @@ public:
         return *this;
     }
 
-    virtual Func1& duplicate() const {
-        Gaussian1* np = new Gaussian1(*this);
-        return *((Func1*)np);
-    }
-
     virtual doublereal eval(doublereal t) const {
         doublereal x = (t - m_t0)/m_tau;
         return m_A * std::exp(-x*x);
@@ -1053,6 +968,8 @@ class Gaussian : public Gaussian1
     Gaussian(double A, double t0, double fwhm);
 
     Gaussian(const Gaussian& b);
+
+    virtual Func1& duplicate() const;
 };
 
 
@@ -1086,10 +1003,7 @@ public:
         return *this;
     }
 
-    virtual Func1& duplicate() const {
-        Poly1* np = new Poly1(*this);
-        return *((Func1*)np);
-    }
+    virtual Func1& duplicate() const;
 
     virtual doublereal eval(doublereal t) const {
         doublereal r = m_cpoly[m_cpoly.size()-1];
@@ -1147,10 +1061,7 @@ public:
         return *this;
     }
 
-    virtual Func1& duplicate() const {
-        Fourier1* np = new Fourier1(*this);
-        return *((Func1*)np);
-    }
+    virtual Func1& duplicate() const;
 
     virtual doublereal eval(doublereal t) const {
         size_t n, nn;
@@ -1211,10 +1122,7 @@ public:
         return *this;
     }
 
-    virtual Func1& duplicate() const {
-        Arrhenius1* np = new Arrhenius1(*this);
-        return *((Func1*)np);
-    }
+    virtual Func1& duplicate() const;
 
     virtual doublereal eval(doublereal t) const {
         doublereal sum = 0.0;
@@ -1254,10 +1162,7 @@ public:
         return *this;
     }
 
-    virtual Func1& duplicate() const {
-        Periodic1* np = new Periodic1(*this);
-        return *((Func1*)np);
-    }
+    virtual Func1& duplicate() const;
 
     virtual ~Periodic1() {
         if (!m_f1_shared) {
