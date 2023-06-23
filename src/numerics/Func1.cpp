@@ -860,7 +860,7 @@ doublereal Func1::isProportional(Func1& other)
 
 static bool isConstant(Func1& f)
 {
-    if (f.ID() == ConstFuncType) {
+    if (f.type() == "constant") {
         return true;
     } else {
         return false;
@@ -869,12 +869,12 @@ static bool isConstant(Func1& f)
 
 static bool isConstant(shared_ptr<Func1> f)
 {
-    return f->ID() == ConstFuncType;
+    return f->type() == "constant";
 }
 
 static bool isZero(Func1& f)
 {
-    if (f.ID() == ConstFuncType && f.c() == 0.0) {
+    if (f.type() == "constant" && f.c() == 0.0) {
         return true;
     } else {
         return false;
@@ -883,12 +883,12 @@ static bool isZero(Func1& f)
 
 static bool isZero(shared_ptr<Func1> f)
 {
-    return f->ID() == ConstFuncType && f->c() == 0.0;
+    return f->type() == "constnat" && f->c() == 0.0;
 }
 
 static bool isOne(Func1& f)
 {
-    if (f.ID() == ConstFuncType && f.c() == 1.0) {
+    if (f.type() == "constant" && f.c() == 1.0) {
         return true;
     } else {
         return false;
@@ -897,12 +897,12 @@ static bool isOne(Func1& f)
 
 static bool isOne(shared_ptr<Func1> f)
 {
-    return f->ID() == ConstFuncType && f->c() == 1.0;
+    return f->type() == "constant" && f->c() == 1.0;
 }
 
 static bool isTimesConst(Func1& f)
 {
-    if (f.ID() == TimesConstantFuncType) {
+    if (f.type() == "times-constant") {
         return true;
     } else {
         return false;
@@ -911,12 +911,12 @@ static bool isTimesConst(Func1& f)
 
 static bool isTimesConst(shared_ptr<Func1> f)
 {
-    return f->ID() == TimesConstantFuncType;
+    return f->type() == "times-constant";
 }
 
 static bool isExp(Func1& f)
 {
-    if (f.ID() == ExpFuncType) {
+    if (f.type() == "exp") {
         return true;
     } else {
         return false;
@@ -925,12 +925,12 @@ static bool isExp(Func1& f)
 
 static bool isExp(shared_ptr<Func1> f)
 {
-    return f->ID() == ExpFuncType;
+    return f->type() == "exp";
 }
 
 static bool isPow(Func1& f)
 {
-    if (f.ID() == PowFuncType) {
+    if (f.type() == "pow") {
         return true;
     } else {
         return false;
@@ -939,7 +939,7 @@ static bool isPow(Func1& f)
 
 static bool isPow(shared_ptr<Func1> f)
 {
-    return f->ID() == PowFuncType;
+    return f->type() == "pow";
 }
 
 Func1& newSumFunction(Func1& f1, Func1& f2)
@@ -1281,7 +1281,7 @@ Func1& newTimesConstFunction(Func1& f, doublereal c)
     if (c == 1.0) {
         return f;
     }
-    if (f.ID() == TimesConstantFuncType) {
+    if (f.type() == "times-constant") {
         f.setC(f.c() * c);
         return f;
     }
@@ -1296,7 +1296,7 @@ shared_ptr<Func1> newTimesConstFunction(shared_ptr<Func1> f, double c)
     if (c == 1.0) {
         return f;
     }
-    if (f->ID() == TimesConstantFuncType) {
+    if (f->type() == "times-constant") {
         return shared_ptr<Func1>(new TimesConstant1(f->func1_shared(), f->c() * c));
     }
     return shared_ptr<Func1>(new TimesConstant1(f, c));
@@ -1315,7 +1315,7 @@ Func1& newPlusConstFunction(Func1& f, doublereal c)
         delete &f;
         return *(new Const1(cc));
     }
-    if (f.ID() == PlusConstantFuncType) {
+    if (f.type() == "plus-constant") {
         f.setC(f.c() + c);
         return f;
     }
@@ -1330,7 +1330,7 @@ shared_ptr<Func1> newPlusConstFunction(shared_ptr<Func1> f, double c)
     if (isConstant(f)) {
         return shared_ptr<Func1>(new Const1(f->c() + c));
     }
-    if (f->ID() == PlusConstantFuncType) {
+    if (f->type() == "plus-constant") {
         return shared_ptr<Func1>(new PlusConstant1(f->func1_shared(), f->c() + c));
     }
     return shared_ptr<Func1>(new PlusConstant1(f, c));

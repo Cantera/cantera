@@ -77,6 +77,12 @@ public:
     //! @deprecated To be removed after Cantera 3.0. Replaced by type.
     virtual int ID() const;
 
+    //! Returns a string describing the type of the function
+    //! @since  New in Cantera 3.0.
+    virtual string type() const {
+        return "functor";
+    }
+
     //! Calls method eval to evaluate the function
     doublereal operator()(doublereal t) const;
 
@@ -209,17 +215,21 @@ public:
         return *this;
     }
 
-    virtual Func1& duplicate() const;
     virtual std::string write(const std::string& arg) const;
 
     virtual int ID() const {
         return SinFuncType;
     }
 
+    virtual string type() const {
+        return "sin";
+    }
+
     virtual doublereal eval(doublereal t) const {
         return sin(m_c*t);
     }
 
+    virtual Func1& duplicate() const;
     virtual Func1& derivative() const;
     virtual shared_ptr<Func1> derivative3() const;
 };
@@ -256,6 +266,10 @@ public:
     virtual int ID() const {
         return CosFuncType;
     }
+    virtual string type() const {
+        return "cos";
+    }
+
     virtual doublereal eval(doublereal t) const {
         return cos(m_c * t);
     }
@@ -289,11 +303,15 @@ public:
     virtual int ID() const {
         return ExpFuncType;
     }
-    virtual Func1& duplicate() const;
+    virtual string type() const {
+        return "exp";
+    }
+
     virtual doublereal eval(doublereal t) const {
         return exp(m_c*t);
     }
 
+    virtual Func1& duplicate() const;
     virtual Func1& derivative() const;
     virtual shared_ptr<Func1> derivative3() const;
 };
@@ -348,10 +366,14 @@ public:
     virtual int ID() const {
         return PowFuncType;
     }
-    virtual Func1& duplicate() const;
+    virtual string type() const {
+        return "pow";
+    }
+
     virtual doublereal eval(doublereal t) const {
         return pow(t, m_c);
     }
+    virtual Func1& duplicate() const;
     virtual Func1& derivative() const;
     virtual shared_ptr<Func1> derivative3() const;
 };
@@ -382,6 +404,13 @@ public:
     virtual int ID() const {
         return TabulatedFuncType;
     }
+    virtual string type() const {
+        if (m_isLinear) {
+            return "tabulated-linear";
+        }
+        return "tabulated-previous";
+    }
+
     virtual double eval(double t) const;
     virtual Func1& duplicate() const;
     virtual Func1& derivative() const;
@@ -424,6 +453,10 @@ public:
     virtual int ID() const {
         return ConstFuncType;
     }
+    virtual string type() const {
+        return "constant";
+    }
+
     virtual doublereal eval(doublereal t) const {
         return m_c;
     }
@@ -479,6 +512,9 @@ public:
 
     virtual int ID() const {
         return SumFuncType;
+    }
+    virtual string type() const {
+        return "sum";
     }
 
     virtual doublereal eval(doublereal t) const {
@@ -546,6 +582,10 @@ public:
         return DiffFuncType;
     }
 
+    virtual string type() const {
+        return "diff";
+    }
+
     virtual doublereal eval(doublereal t) const {
         return m_f1->eval(t) - m_f2->eval(t);
     }
@@ -611,6 +651,10 @@ public:
         return ProdFuncType;
     }
 
+    virtual string type() const {
+        return "product";
+    }
+
     virtual std::string write(const std::string& arg) const;
 
     virtual doublereal eval(doublereal t) const {
@@ -632,7 +676,7 @@ public:
 };
 
 /**
- * Product of two functions.
+ * Product of function and constant.
  */
 class TimesConstant1 : public Func1
 {
@@ -668,6 +712,9 @@ public:
     }
     virtual int ID() const {
         return TimesConstantFuncType;
+    }
+    virtual string type() const {
+        return "times-constant";
     }
 
     virtual doublereal isProportional(TimesConstant1& other) {
@@ -743,6 +790,9 @@ public:
     virtual int ID() const {
         return PlusConstantFuncType;
     }
+    virtual string type() const {
+        return "plus-constant";
+    }
 
     virtual doublereal eval(doublereal t) const {
         return m_f1->eval(t) + m_c;
@@ -807,6 +857,9 @@ public:
 
     virtual int ID() const {
         return RatioFuncType;
+    }
+    virtual string type() const {
+        return "ratio";
     }
 
     virtual doublereal eval(doublereal t) const {
@@ -876,6 +929,9 @@ public:
     virtual int ID() const {
         return CompositeFuncType;
     }
+    virtual string type() const {
+        return "composite";
+    }
 
     virtual doublereal eval(doublereal t) const {
         return m_f1->eval(m_f2->eval(t));
@@ -942,6 +998,10 @@ public:
         return *this;
     }
 
+    virtual string type() const {
+        return "gaussian";
+    }
+
     virtual doublereal eval(doublereal t) const {
         doublereal x = (t - m_t0)/m_tau;
         return m_A * std::exp(-x*x);
@@ -1003,6 +1063,10 @@ public:
         return *this;
     }
 
+    virtual string type() const {
+        return "polynomial";
+    }
+
     virtual Func1& duplicate() const;
 
     virtual doublereal eval(doublereal t) const {
@@ -1059,6 +1123,10 @@ public:
         m_csin = right.m_csin;
         m_parent = 0;
         return *this;
+    }
+
+    virtual string type() const {
+        return "fourier";
     }
 
     virtual Func1& duplicate() const;
@@ -1122,6 +1190,10 @@ public:
         return *this;
     }
 
+    virtual string type() const {
+        return "arrhenius";
+    }
+
     virtual Func1& duplicate() const;
 
     virtual doublereal eval(doublereal t) const {
@@ -1160,6 +1232,10 @@ public:
         Func1::operator=(right);
         m_f1 = &right.m_f1->duplicate();
         return *this;
+    }
+
+    virtual string type() const {
+        return "periodic";
     }
 
     virtual Func1& duplicate() const;
