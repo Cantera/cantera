@@ -4,6 +4,8 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/numerics/Func1.h"
+#include "cantera/base/global.h"
+#include "cantera/base/ctexceptions.h"
 #include "cantera/base/stringUtils.h"
 
 using namespace std;
@@ -135,6 +137,15 @@ void Func1::setParent(Func1* p)
 
 /*****************************************************************************/
 
+Sin1::Sin1(size_t n, const vector<double>& params)
+{
+    if (params.size() != 1) {
+        throw CanteraError("Sin1::Sin1",
+            "Constructor needs exactly one parameter (frequency).");
+    }
+    m_c = params[0];
+}
+
 string Sin1::write(const string& arg) const
 {
     if (m_c == 1.0) {
@@ -151,6 +162,15 @@ Func1& Sin1::derivative() const
     return *r;
 }
 /*****************************************************************************/
+
+Cos1::Cos1(size_t n, const vector<double>& params)
+{
+    if (params.size() != 1) {
+        throw CanteraError("Cos1::Cos1",
+            "Constructor needs exactly one parameter (frequency).");
+    }
+    m_c = params[0];
+}
 
 Func1& Cos1::derivative() const
 {
@@ -169,6 +189,15 @@ std::string Cos1::write(const std::string& arg) const
 }
 
 /**************************************************************************/
+
+Exp1::Exp1(size_t n, const vector<double>& params)
+{
+    if (params.size() != 1) {
+        throw CanteraError("Exp1::Exp1",
+            "Constructor needs exactly one parameter (exponent factor).");
+    }
+    m_c = params[0];
+}
 
 Func1& Exp1::derivative() const
 {
@@ -191,6 +220,15 @@ std::string Exp1::write(const std::string& arg) const
 
 /******************************************************************************/
 
+Pow1::Pow1(size_t n, const vector<double>& params)
+{
+    if (params.size() != 1) {
+        throw CanteraError("Pow1::Pow1",
+            "Constructor needs exactly one parameter (exponent).");
+    }
+    m_c = params[0];
+}
+
 Func1& Pow1::derivative() const
 {
     Func1* r;
@@ -206,6 +244,69 @@ Func1& Pow1::derivative() const
 }
 
 /******************************************************************************/
+
+Const1::Const1(size_t n, const vector<double>& params)
+{
+    if (params.size() != 1) {
+        throw CanteraError("Const1::Const1",
+            "Constructor needs exactly one parameter (constant).");
+    }
+    m_c = params[0];
+}
+
+Poly1::Poly1(size_t n, const vector<double>& params)
+{
+    if (params.size() != n + 1) {
+        throw CanteraError("Poly1::Poly1",
+            "Constructor needs exactly n + 1 = {} parameters (with n={}).", n + 1, n);
+    }
+    m_cpoly.resize(n + 1);
+    copy(params.data(), params.data() + m_cpoly.size(), m_cpoly.begin());
+}
+
+Fourier1::Fourier1(size_t n, const vector<double>& params)
+{
+    if (params.size() != 2 * n + 2) {
+        throw CanteraError("Fourier1::Fourier1",
+            "Constructor needs exactly 2 * n + 2 = {} parameters (with n={}).",
+            2 * n + 2, n);
+    }
+    m_omega = params[n + 1];
+    m_a0_2 = 0.5 * params[0];
+    m_ccos.resize(n);
+    m_csin.resize(n);
+    copy(params.data() + 1, params.data() + n + 1, m_ccos.begin());
+    copy(params.data() + n + 2, params.data() + 2 * n + 2, m_csin.begin());
+}
+
+Gaussian1::Gaussian1(size_t n, const vector<double>& params)
+{
+    if (params.size() != 3) {
+        throw CanteraError("Gaussian1::Gaussian1",
+            "Constructor needs exactly 3 parameters (amplitude, center, width).");
+    }
+    m_A = params[0];
+    m_t0 = params[1];
+    m_tau = params[2] / (2. * sqrt(log(2.)));
+}
+
+Arrhenius1::Arrhenius1(size_t n, const vector<double>& params)
+{
+    if (params.size() != 3 * n) {
+        throw CanteraError("Arrhenius1::Arrhenius1",
+            "Constructor needs exactly 3 * n parameters grouped as (Ai, bi, Ei) for "
+            "i=0..n-1.");
+    }
+    m_A.resize(n);
+    m_b.resize(n);
+    m_E.resize(n);
+    for (size_t i = 0; i < n; i++) {
+        size_t loc = 3 * i;
+        m_A[i] = params[loc];
+        m_b[i] = params[loc + 1];
+        m_E[i] = params[loc + 2];
+    }
+}
 
 Tabulated1::Tabulated1(size_t n, const double* tvals, const double* fvals,
                        const std::string& method)
@@ -281,6 +382,18 @@ Func1& Tabulated1::derivative() const {
 }
 
 /******************************************************************************/
+
+Gaussian::Gaussian(double A, double t0, double fwhm) : Gaussian1(A, t0, fwhm)
+{
+    warn_deprecated("Gaussian::Gaussian", "To be removed after Cantera 3.0. "
+        "Replaced by 'Gaussian1'.");
+}
+
+Gaussian::Gaussian(const Gaussian& b) : Gaussian1(b)
+{
+    warn_deprecated("Gaussian::Gaussian", "To be removed after Cantera 3.0. "
+        "Replaced by 'Gaussian1'.");
+}
 
 string Func1::write(const std::string& arg) const
 {
