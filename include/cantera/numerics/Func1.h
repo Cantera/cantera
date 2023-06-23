@@ -478,6 +478,11 @@ public:
         Func1& d2 = m_f2->derivative();
         return newSumFunction(d1, d2);
     }
+
+    virtual shared_ptr<Func1> derivative3() const {
+        return newSumFunction(m_f1_shared->derivative3(), m_f2_shared->derivative3());
+    }
+
     virtual int order() const {
         return 0;
     }
@@ -544,6 +549,11 @@ public:
     virtual Func1& derivative() const {
         return newDiffFunction(m_f1->derivative(), m_f2->derivative());
     }
+
+    virtual shared_ptr<Func1> derivative3() const {
+        return newDiffFunction(m_f1_shared->derivative3(), m_f2_shared->derivative3());
+    }
+
     virtual int order() const {
         return 0;
     }
@@ -615,6 +625,13 @@ public:
         Func1& a2 = newProdFunction(m_f2->duplicate(), m_f1->derivative());
         return newSumFunction(a1, a2);
     }
+
+    virtual shared_ptr<Func1> derivative3() const {
+        auto a1 = newProdFunction(m_f1_shared, m_f2_shared->derivative3());
+        auto a2 = newProdFunction(m_f2_shared, m_f1_shared->derivative3());
+        return newSumFunction(a1, a2);
+    }
+
     virtual int order() const {
         return 1;
     }
@@ -691,6 +708,10 @@ public:
         return *d;
     }
 
+    virtual shared_ptr<Func1> derivative3() const {
+        return newTimesConstFunction(m_f1_shared->derivative3(), m_c);
+    }
+
     virtual std::string write(const std::string& arg) const;
 
     virtual int order() const {
@@ -750,6 +771,11 @@ public:
     virtual Func1& derivative() const {
         return m_f1->derivative();
     }
+
+    virtual shared_ptr<Func1> derivative3() const {
+        return m_f1_shared->derivative3();
+    }
+
     virtual std::string write(const std::string& arg) const;
 
     virtual int order() const {
@@ -819,6 +845,14 @@ public:
         Func1& a2 = newProdFunction(m_f1->duplicate(), m_f2->derivative());
         Func1& s = newDiffFunction(a1, a2);
         Func1& p = newProdFunction(m_f2->duplicate(), m_f2->duplicate());
+        return newRatioFunction(s, p);
+    }
+
+    virtual shared_ptr<Func1> derivative3() const {
+        auto a1 = newProdFunction(m_f1_shared->derivative3(), m_f2_shared);
+        auto a2 = newProdFunction(m_f1_shared, m_f2_shared->derivative3());
+        auto s = newDiffFunction(a1, a2);
+        auto p = newProdFunction(m_f2_shared, m_f2_shared);
         return newRatioFunction(s, p);
     }
 
@@ -892,6 +926,13 @@ public:
         Func1* d2 = &m_f2->derivative();
         Func1* p = &newProdFunction(*d3, *d2);
         return *p;
+    }
+
+    virtual shared_ptr<Func1> derivative3() const {
+        auto d1 = m_f1_shared->derivative3();
+        auto d2 = m_f2_shared->derivative3();
+        auto d3 = newCompositeFunction(d1, m_f2_shared);
+        return newProdFunction(d3, d2);
     }
 
     virtual std::string write(const std::string& arg) const;
