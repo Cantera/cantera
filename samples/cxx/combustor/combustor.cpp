@@ -90,7 +90,7 @@ void runexample()
     double A = 0.1;
     double FWHM = 0.2;
     double t0 = 0.5;
-    Gaussian igniter_mdot(A, t0, FWHM);
+    Gaussian1 igniter_mdot(A, t0, FWHM);
 
     MassFlowController m3;
     m3.install(igniter, combustor);

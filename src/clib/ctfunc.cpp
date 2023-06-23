@@ -31,44 +31,36 @@ extern "C" {
             func_t* r=0;
             size_t m = lenp;
             if (type == SinFuncType) {
-                r = new Sin1(params[0]);
+                vector<double> par = {params[0]};
+                r = new Sin1(0, par);
             } else if (type == CosFuncType) {
-                r = new Cos1(params[0]);
+                vector<double> par = {params[0]};
+                r = new Cos1(0, par);
             } else if (type == ExpFuncType) {
-                r = new Exp1(params[0]);
+                vector<double> par = {params[0]};
+                r = new Exp1(0, par);
             } else if (type == PowFuncType) {
-                if (lenp < 1) {
-                    throw CanteraError("func_new",
-                                       "exponent for pow must be supplied");
-                }
-                r = new Pow1(params[0]);
+                vector<double> par = {params[0]};
+                r = new Pow1(0, par);
             } else if (type == ConstFuncType) {
-                r = new Const1(params[0]);
+                vector<double> par = {params[0]};
+                r = new Const1(0, par);
             } else if (type == FourierFuncType) {
-                if (lenp < 2*n + 2) {
-                    throw CanteraError("func_new",
-                                       "not enough Fourier coefficients");
-                }
-                r = new Fourier1(n, params[n+1], params[0], params + 1,
-                                 params + n + 2);
+                vector<double> par(lenp);
+                std::copy(params, params + lenp, par.data());
+                r = new Fourier1(n, par);
             } else if (type == GaussianFuncType) {
-                if (lenp < 3) {
-                    throw CanteraError("func_new",
-                                       "not enough Gaussian coefficients");
-                }
-                r = new Gaussian(params[0], params[1], params[2]);
+                vector<double> par(lenp);
+                std::copy(params, params + lenp, par.data());
+                r = new Gaussian1(n, par);
             } else if (type == PolyFuncType) {
-                if (lenp < n + 1) {
-                    throw CanteraError("func_new",
-                                       "not enough polynomial coefficients");
-                }
-                r = new Poly1(n, params);
+                vector<double> par(lenp);
+                std::copy(params, params + lenp, par.data());
+                r = new Poly1(n, par);
             } else if (type == ArrheniusFuncType) {
-                if (lenp < 3*n) {
-                    throw CanteraError("func_new",
-                                       "not enough Arrhenius coefficients");
-                }
-                r = new Arrhenius1(n, params);
+                vector<double> par(lenp);
+                std::copy(params, params + lenp, par.data());
+                r = new Arrhenius1(n, par);
             } else if (type == PeriodicFuncType) {
                 r = new Periodic1(FuncCabinet::item(n), params[0]);
             } else if (type == SumFuncType) {

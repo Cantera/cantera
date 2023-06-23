@@ -45,6 +45,10 @@ class Func1
 public:
     Func1() = default;
 
+    //! Universal constructor; interpretation of n and definition of parameters depends
+    //! on specialization.
+    Func1(size_t n, const vector<double>& params) {}
+
     virtual ~Func1() = default;
 
     Func1(const Func1& right);
@@ -137,6 +141,9 @@ public:
         m_c = omega;
     }
 
+    //! Constructor uses single parameter (frequency)
+    Sin1(size_t n, const vector<double>& params);
+
     Sin1(const Sin1& b) :
         Func1(b) {
     }
@@ -179,6 +186,9 @@ public:
         m_c = omega;
     }
 
+    //! Constructor uses single parameter (frequency)
+    Cos1(size_t n, const vector<double>& params);
+
     Cos1(const Cos1& b) :
         Func1(b) {
     }
@@ -214,6 +224,9 @@ public:
         m_c = A;
     }
 
+    //! Constructor uses single parameter (exponent factor)
+    Exp1(size_t n, const vector<double>& params);
+
     Exp1(const Exp1& b) :
         Func1(b) {
     }
@@ -246,6 +259,9 @@ public:
     Pow1(double n) {
         m_c = n;
     }
+
+    //! Constructor uses single parameter (exponent)
+    Pow1(size_t n, const vector<double>& params);
 
     Pow1(const Pow1& b) :
         Func1(b) {
@@ -319,6 +335,9 @@ public:
     Const1(double A) {
         m_c = A;
     }
+
+    //! Constructor uses single parameter (constant)
+    Const1(size_t n, const vector<double>& params);
 
     Const1(const Const1& b) :
         Func1(b) {
@@ -808,22 +827,27 @@ public:
  * @param A peak value
  * @param t0 offset
  * @param fwhm full width at half max
+ * @since  New in Cantera 3.0.
  */
-class Gaussian : public Func1
+class Gaussian1 : public Func1
 {
 public:
-    Gaussian(double A, double t0, double fwhm) {
+    Gaussian1(double A, double t0, double fwhm) {
         m_A = A;
         m_t0 = t0;
         m_tau = fwhm/(2.0*std::sqrt(std::log(2.0)));
     }
 
-    Gaussian(const Gaussian& b) :
+    //! Constructor uses 3 parameters in the following order:
+    //! [A, t0, fwhm]
+    Gaussian1(size_t n, const vector<double>& params);
+
+    Gaussian1(const Gaussian1& b) :
         Func1(b) {
-        *this = Gaussian::operator=(b);
+        *this = Gaussian1::operator=(b);
     }
 
-    Gaussian& operator=(const Gaussian& right) {
+    Gaussian1& operator=(const Gaussian1& right) {
         if (&right == this) {
             return *this;
         }
@@ -836,7 +860,7 @@ public:
     }
 
     virtual Func1& duplicate() const {
-        Gaussian* np = new Gaussian(*this);
+        Gaussian1* np = new Gaussian1(*this);
         return *((Func1*)np);
     }
 
@@ -851,6 +875,25 @@ protected:
 
 
 /**
+ * A Gaussian.
+ * \f[
+ * f(t) = A e^{-[(t - t_0)/\tau]^2}
+ * \f]
+ * where \f[ \tau = \frac{fwhm}{2\sqrt{\ln 2}} \f]
+ * @param A peak value
+ * @param t0 offset
+ * @param fwhm full width at half max
+ * @deprecated  To be removed after Cantera 3.0; replaced by Gaussian1.
+ */
+class Gaussian : public Gaussian1
+{
+    Gaussian(double A, double t0, double fwhm);
+
+    Gaussian(const Gaussian& b);
+};
+
+
+/**
  * Polynomial of degree n.
  */
 class Poly1 : public Func1
@@ -860,6 +903,10 @@ public:
         m_cpoly.resize(n+1);
         std::copy(c, c+m_cpoly.size(), m_cpoly.begin());
     }
+
+    //! Constructor uses n + 1 parameters in the following order:
+    //! [an, ..., a1, a0]
+    Poly1(size_t n, const vector<double>& params);
 
     Poly1(const Poly1& b) :
         Func1(b) {
@@ -914,6 +961,10 @@ public:
         std::copy(a, a+n, m_ccos.begin());
         std::copy(b, b+n, m_csin.begin());
     }
+
+    //! Constructor uses 2 * n + 2 parameters in the following order:
+    //! [a0, a1, ... an, omega, b1, ... bn]
+    Fourier1(size_t n, const vector<double>& params);
 
     Fourier1(const Fourier1& b) :
         Func1(b) {
@@ -975,6 +1026,10 @@ public:
             m_E[i] = c[loc+2];
         }
     }
+
+    //! Constructor uses 3 * n parameters in the following order:
+    //! [A1, b1, E1, A2, b2, E2, ... An, bn, En]
+    Arrhenius1(size_t n, const vector<double>& params);
 
     Arrhenius1(const Arrhenius1& b) :
         Func1() {
