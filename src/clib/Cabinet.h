@@ -146,6 +146,10 @@ public:
         if (n < 0 || n >= data.size()) {
             throw CanteraError("SharedCabinet::at", "Index {} out of range.", n);
         }
+        if (!data[n]) {
+            throw CanteraError("SharedCabinet::at",
+                "Object with index {} has been deleted.", n);
+        }
         return data[n];
     }
 
@@ -165,12 +169,7 @@ public:
      * Return a reference to object n.
      */
     static M& item(int n) {
-        auto ptr = at(n);
-        if (!ptr) {
-            throw CanteraError("SharedCabinet::item",
-                "Object with index {} has been deleted.", n);
-        }
-        return *ptr;
+        return *at(n);
     }
 
     /**
