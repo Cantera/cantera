@@ -79,6 +79,45 @@ extern "C" {
         }
     }
 
+    int func_new_basic(const char* type, double c)
+    {
+        try {
+            return FuncCabinet::add(newFunc1(type, c));
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int func_new_advanced(const char* type, size_t n, size_t lenp, const double* params)
+    {
+        try {
+            vector<double> par(lenp);
+            std::copy(params, params + lenp, par.data());
+            return FuncCabinet::add(newFunc1(type, n, par));
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int func_new_math(const char* type, size_t a, size_t b)
+    {
+        try {
+            return FuncCabinet::add(
+                newMath1(type, FuncCabinet::at(a), FuncCabinet::at(b)));
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int func_new_misc(const char* type, size_t a, double c)
+    {
+        try {
+            return FuncCabinet::add(newMath1(type, FuncCabinet::at(a), c));
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     int func_del(int i)
     {
         try {
@@ -94,6 +133,15 @@ extern "C" {
         try {
             FuncCabinet::clear();
             return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int func_type(int i, size_t lennm, char* nm)
+    {
+        try {
+            return static_cast<int>(copyString(FuncCabinet::item(i).type(), nm, lennm));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
