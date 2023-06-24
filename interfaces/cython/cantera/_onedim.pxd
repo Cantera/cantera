@@ -76,6 +76,11 @@ cdef extern from "cantera/oneD/StFlow.h":
         double radiativeHeatLoss(size_t)
         double pressure()
         void setFixedTempProfile(vector[double]&, vector[double]&)
+        size_t getSolvingStage()
+        void setSolvingStage(size_t)
+        void solveElectricField()
+        void fixElectricField()
+        cbool doElectricField(size_t)
         void setBoundaryEmissivities(double, double)
         double leftEmissivity()
         double rightEmissivity()
@@ -87,14 +92,6 @@ cdef extern from "cantera/oneD/StFlow.h":
         void setFreeFlow()
         void setAxisymmetricFlow()
         string flowType()
-
-
-cdef extern from "cantera/oneD/IonFlow.h":
-    cdef cppclass CxxIonFlow "Cantera::IonFlow" (CxxStFlow):
-        void setSolvingStage(int)
-        void solveElectricField()
-        void fixElectricField()
-        cbool doElectricField(size_t)
 
 
 cdef extern from "cantera/oneD/Sim1D.h":

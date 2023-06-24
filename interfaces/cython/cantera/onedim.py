@@ -63,7 +63,7 @@ class FlameBase(Sim1D):
         if isinstance(dom, Inlet1D):
             return tuple([e for e in self._other
                           if e not in {'grid', 'lambda', 'eField'}])
-        elif isinstance(dom, (FreeFlow, AxisymmetricFlow, IdealGasFlow, IonFlow)):
+        elif isinstance(dom, (FreeFlow, AxisymmetricFlow, IdealGasFlow)):
             return self._other
         else:
             return ()
@@ -1032,7 +1032,7 @@ class IonFlameBase(FlameBase):
         return self.profile(self.flame, 'eField')
 
     def solve(self, loglevel=1, refine_grid=True, auto=False, stage=1, enable_energy=True):
-        self.flame.set_solving_stage(stage)
+        self.flame.solving_stage = stage
         if stage == 1:
             super().solve(loglevel, refine_grid, auto)
         if stage == 2:
@@ -1048,8 +1048,8 @@ class IonFreeFlame(IonFlameBase, FreeFlame):
     def __init__(self, gas, grid=None, width=None):
         if not hasattr(self, 'flame'):
             # Create flame domain if not already instantiated by a child class
-            #: `IonFlow` domain representing the flame
-            self.flame = IonFlow(gas, name='flame')
+            #: `FreeFlow` domain representing the flame
+            self.flame = FreeFlow(gas, name='flame')
             self.flame.set_free_flow()
 
         super().__init__(gas, grid, width)
@@ -1197,8 +1197,8 @@ class IonBurnerFlame(IonFlameBase, BurnerFlame):
     def __init__(self, gas, grid=None, width=None):
         if not hasattr(self, 'flame'):
             # Create flame domain if not already instantiated by a child class
-            #: `IonFlow` domain representing the flame
-            self.flame = IonFlow(gas, name='flame')
+            #: `UnstrainedFlow` domain representing the flame
+            self.flame = UnstrainedFlow(gas, name='flame')
             self.flame.set_axisymmetric_flow()
 
         super().__init__(gas, grid, width)
