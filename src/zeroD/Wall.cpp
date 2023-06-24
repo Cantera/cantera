@@ -34,6 +34,13 @@ void WallBase::setArea(double a) {
     m_surf[1].setArea(a);
 }
 
+double Wall::velocity() const {
+    if (m_vf) {
+        return m_vf->eval(m_time);
+    }
+    return 0.;
+}
+
 double Wall::vdot(double t)
 {
     double rate = m_k * m_area * (m_left->pressure() - m_right->pressure());
@@ -42,6 +49,13 @@ double Wall::vdot(double t)
         rate += m_area * m_vf->eval(t);
     }
     return rate;
+}
+
+double Wall::heatFlux() const {
+    if (m_qf) {
+        return m_qf->eval(m_time);
+    }
+    return 0.;
 }
 
 double Wall::Q(double t)

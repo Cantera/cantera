@@ -201,6 +201,9 @@ void Reactor::updateConnected(bool updatePressure) {
     for (size_t i = 0; i < m_inlet.size(); i++) {
         m_inlet[i]->updateMassFlowRate(time);
     }
+    for (size_t i = 0; i < m_wall.size(); i++) {
+        m_wall[i]->setSimTime(time);
+    }
 }
 
 void Reactor::eval(double time, double* LHS, double* RHS)

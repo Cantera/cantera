@@ -45,6 +45,12 @@ public:
         return 0.0;
     }
 
+    //! Rate of volume change (m^3/s) for the adjacent reactors at current reactor
+    //! network time.
+    double vdot() {
+        return vdot(m_time);
+    }
+
     //! Heat flow rate through the wall (W).
     /*!
      * This method is called by Reactor::evalWalls(). Base class method
@@ -52,6 +58,11 @@ public:
      */
     virtual double Q(double t) {
         return 0.0;
+    }
+
+    //! Heat flow rate through the wall (W) at current reactor network time.
+    double qdot() {
+        return Q(m_time);
     }
 
     //! Area in (m^2).
@@ -83,11 +94,19 @@ public:
         return *m_right;
     }
 
+    //! Set current reactor network time
+    void setSimTime(double time) {
+        m_time = time;
+    }
+
 protected:
     ReactorBase* m_left = nullptr;
     ReactorBase* m_right = nullptr;
 
     std::vector<ReactorSurface> m_surf;
+
+    //! current reactor network time
+    double m_time = 0.0;
 
     double m_area = 1.0;
 };
@@ -108,6 +127,9 @@ public:
         return "Wall";
     }
 
+    //! Wall velocity \f$ v(t) \f$ at current reactor network time.
+    double velocity() const;
+
     //! Set the wall velocity to a specified function of time, \f$ v(t) \f$.
     void setVelocity(Func1* f=0) {
         if (f) {
@@ -127,6 +149,9 @@ public:
      * decreases in the volume of the reactor on the right.
      */
     virtual double vdot(double t);
+
+    //! Heat flux function \f$ q_0(t) \f$ evaluated at current reactor network time.
+    double heatFlux() const;
 
     //! Specify the heat flux function \f$ q_0(t) \f$.
     void setHeatFlux(Func1* q) {
