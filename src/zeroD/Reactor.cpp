@@ -277,7 +277,7 @@ void Reactor::evalWalls(double t)
     for (size_t i = 0; i < m_wall.size(); i++) {
         int f = 2 * m_lr[i] - 1;
         m_vdot -= f * m_wall[i]->vdot(t);
-        m_Qdot += f * m_wall[i]->Q(t);
+        m_Qdot += f * m_wall[i]->qdot(t);
     }
 }
 

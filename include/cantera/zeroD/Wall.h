@@ -55,14 +55,27 @@ public:
     /*!
      * This method is called by Reactor::evalWalls(). Base class method
      * does nothing (that is, an adiabatic wall), but may be overloaded.
+     * @deprecated To be removed after Cantera 2.6; replaced by qdot(double).
      */
-    virtual double Q(double t) {
+    double Q(double t) {
+        warn_deprecated("WallBase::Q",
+            "To be removed after Cantera 3.0; replaced by qdot(double).");
+        return qdot(t);
+    }
+
+    //! Heat flow rate through the wall (W).
+    /*!
+     * This method is called by Reactor::evalWalls(). Base class method
+     * does nothing (that is, an adiabatic wall), but may be overloaded.
+     * @since Cantera 3.0
+     */
+    virtual double qdot(double t) {
         return 0.0;
     }
 
     //! Heat flow rate through the wall (W) at current reactor network time.
     double qdot() {
-        return Q(m_time);
+        return qdot(m_time);
     }
 
     //! Area in (m^2).
@@ -168,7 +181,7 @@ public:
      * *G(t)* is a specified function of time. Positive values denote a flux
      * from left to right.
      */
-    virtual double Q(double t);
+    virtual double qdot(double t);
 
     void setThermalResistance(double Rth) {
         m_rrth = 1.0/Rth;

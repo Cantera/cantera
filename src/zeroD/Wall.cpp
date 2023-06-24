@@ -58,7 +58,7 @@ double Wall::heatFlux() const {
     return 0.;
 }
 
-double Wall::Q(double t)
+double Wall::qdot(double t)
 {
     double q1 = (m_area * m_rrth) *
                 (m_left->temperature() - m_right->temperature());
