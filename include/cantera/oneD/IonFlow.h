@@ -42,18 +42,19 @@ public:
 
     virtual string type() const;
 
-    //! set the solving stage
-    virtual void setSolvingStage(const size_t phase);
+    virtual size_t getSolvingStage() const {
+        return m_stage;
+    }
+    virtual void setSolvingStage(const size_t stage);
 
     virtual void resize(size_t components, size_t points);
     virtual bool componentActive(size_t n) const;
 
     virtual void _finalize(const double* x);
-    //! set to solve electric field on a point
-    void solveElectricField(size_t j=npos);
-    //! set to fix voltage on a point
-    void fixElectricField(size_t j=npos);
-    bool doElectricField(size_t j) {
+
+    virtual void solveElectricField(size_t j=npos);
+    virtual void fixElectricField(size_t j=npos);
+    virtual bool doElectricField(size_t j) const {
         return m_do_electric_field[j];
     }
 
