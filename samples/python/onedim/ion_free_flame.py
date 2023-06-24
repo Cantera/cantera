@@ -22,7 +22,7 @@ gas = ct.Solution('gri30_ion.yaml')
 gas.TPX = Tin, p, reactants
 
 # Set up flame object
-f = ct.IonFreeFlame(gas, width=width)
+f = ct.FreeFlame(gas, width=width)
 f.set_refine_criteria(ratio=3, slope=0.05, curve=0.1)
 f.show()
 
@@ -30,7 +30,7 @@ f.show()
 f.solve(loglevel=loglevel, auto=True)
 
 # stage two
-f.solve(loglevel=loglevel, stage=2, enable_energy=True)
+f.solve(loglevel=loglevel, stage=2)
 
 if "native" in ct.hdf_support():
     output = Path() / "ion_free_flame.h5"
@@ -44,4 +44,4 @@ f.show()
 print(f"mixture-averaged flamespeed = {f.velocity[0]:7f} m/s")
 
 # write the velocity, temperature, density, and mole fractions to a CSV file
-f.save('ion_free_flame.csv', basis="mole")
+f.save('ion_free_flame.csv', basis="mole", overwrite=True)
