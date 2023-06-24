@@ -316,6 +316,16 @@ class FlameBase(Sim1D):
         """
         return self.profile(self.flame, 'lambda')
 
+    @property
+    def E(self):
+        """
+        Array containing the electric field strength at each point.
+        """
+        if self.flame.transport_model != "ionized-gas":
+            raise AttributeError(
+                "Electric field is only defined for transport model 'ionized_gas'.")
+        return self.profile(self.flame, 'eField')
+
     def elemental_mass_fraction(self, m):
         r"""
         Get the elemental mass fraction :math:`Z_{\mathrm{mass},m}` of element
@@ -719,6 +729,15 @@ class FlameBase(Sim1D):
         if refine:
             self.set_refine_criteria(**refine)
 
+    @property
+    def electric_field_enabled(self):
+        """ Get/Set whether or not to solve the Poisson's equation."""
+        return self.flame.electric_field_enabled
+
+    @electric_field_enabled.setter
+    def electric_field_enabled(self, enable):
+        self.flame.electric_field_enabled = enable
+
 
 def _trim(docstring):
     """Remove block indentation from a docstring."""
@@ -920,7 +939,7 @@ class FreeFlame(FlameBase):
             self.set_profile(self.gas.species_name(n),
                              locs, [Y0[n], Y0[n], Yeq[n], Yeq[n]])
 
-    def solve(self, loglevel=1, refine_grid=True, auto=False):
+    def solve(self, loglevel=1, refine_grid=True, auto=False, stage=1):
         """
         Solve the problem.
 
@@ -937,7 +956,11 @@ class FreeFlame(FlameBase):
             If non-default tolerances have been specified or multicomponent
             transport is enabled, an additional solution using these options
             will be calculated.
+        :param stage: solution stage; only used when transport model is ``ionized-gas``.
         """
+        if self.flame.transport_model == 'ionized-gas':
+            self.flame.solving_stage = stage
+
         if not auto:
             return super().solve(loglevel, refine_grid, auto)
 
@@ -1013,45 +1036,20 @@ class FreeFlame(FlameBase):
         return self.solve_adjoint(perturb, self.gas.n_reactions, dgdx) / Su0
 
 
-class IonFlameBase(FlameBase):
+class IonFreeFlame(FreeFlame):
+    """A freely-propagating flame with ionized gas.
 
-    @property
-    def electric_field_enabled(self):
-        """ Get/Set whether or not to solve the Poisson's equation."""
-        return self.flame.electric_field_enabled
+    .. deprecated:: 3.0
 
-    @electric_field_enabled.setter
-    def electric_field_enabled(self, enable):
-        self.flame.electric_field_enabled = enable
-
-    @property
-    def E(self):
-        """
-        Array containing the electric field strength at each point.
-        """
-        return self.profile(self.flame, 'eField')
-
-    def solve(self, loglevel=1, refine_grid=True, auto=False, stage=1, enable_energy=True):
-        self.flame.solving_stage = stage
-        if stage == 1:
-            super().solve(loglevel, refine_grid, auto)
-        if stage == 2:
-            self.poisson_enabled = True
-            super().solve(loglevel, refine_grid, auto)
-
-
-class IonFreeFlame(IonFlameBase, FreeFlame):
-    """A freely-propagating flame with ionized gas."""
+        Class to be removed after Cantera 3.0; absorbed by `FreeFlame`.
+    """
     __slots__ = ('inlet', 'flame', 'outlet')
-    _other = ('grid', 'velocity', 'eField')
+    _other = ('grid', 'velocity', 'eField') # only used by deprecated methods
 
     def __init__(self, gas, grid=None, width=None):
-        if not hasattr(self, 'flame'):
-            # Create flame domain if not already instantiated by a child class
-            #: `FreeFlow` domain representing the flame
-            self.flame = FreeFlow(gas, name='flame')
-            self.flame.set_free_flow()
-
+        warnings.warn(
+            "'IonFreeFlame' is deprecated and will be removed after Cantera 3.0;",
+            "replaceable by 'FreeFlame'.", DeprecationWarning)
         super().__init__(gas, grid, width)
 
 
@@ -1130,7 +1128,7 @@ class BurnerFlame(FlameBase):
             self.set_profile(self.gas.species_name(n),
                              locs, [Y0[n], Yeq[n], Yeq[n]])
 
-    def solve(self, loglevel=1, refine_grid=True, auto=False):
+    def solve(self, loglevel=1, refine_grid=True, auto=False, stage=1):
         """
         Solve the problem.
 
@@ -1147,7 +1145,10 @@ class BurnerFlame(FlameBase):
             If non-default tolerances have been specified or multicomponent
             transport is enabled, an additional solution using these options
             will be calculated.
+        :param stage: solution stage; only used when transport model is ``ionized-gas``.
         """
+        if self.flame.transport_model == 'ionized-gas':
+            self.flame.solving_stage = stage
 
         # Use a callback function to check that the flame has not been blown off
         # the burner surface. If the user provided a callback, store this so it
@@ -1189,18 +1190,20 @@ class BurnerFlame(FlameBase):
         self.set_steady_callback(original_callback)
 
 
-class IonBurnerFlame(IonFlameBase, BurnerFlame):
-    """A burner-stabilized flat flame with ionized gas."""
+class IonBurnerFlame(BurnerFlame):
+    """A burner-stabilized flat flame with ionized gas.
+
+    .. deprecated:: 3.0
+
+        Class to be removed after Cantera 3.0; absorbed by `BurnerFlame`.
+    """
     __slots__ = ('burner', 'flame', 'outlet')
-    _other = ('grid', 'velocity', 'eField')
+    _other = ('grid', 'velocity', 'eField') # only used by deprecated methods
 
     def __init__(self, gas, grid=None, width=None):
-        if not hasattr(self, 'flame'):
-            # Create flame domain if not already instantiated by a child class
-            #: `UnstrainedFlow` domain representing the flame
-            self.flame = UnstrainedFlow(gas, name='flame')
-            self.flame.set_axisymmetric_flow()
-
+        warnings.warn(
+            "'IonBurnerFlame' is deprecated and will be removed after Cantera 3.0; ",
+            "replaceable by 'BurnerFlame'.", DeprecationWarning)
         super().__init__(gas, grid, width)
 
 
@@ -1333,7 +1336,7 @@ class CounterflowDiffusionFlame(FlameBase):
     def extinct(self):
         return max(self.T) - max(self.fuel_inlet.T, self.oxidizer_inlet.T) < 10
 
-    def solve(self, loglevel=1, refine_grid=True, auto=False):
+    def solve(self, loglevel=1, refine_grid=True, auto=False, stage=1):
         """
         Solve the problem.
 
@@ -1350,7 +1353,14 @@ class CounterflowDiffusionFlame(FlameBase):
             If non-default tolerances have been specified or multicomponent
             transport is enabled, an additional solution using these options
             will be calculated.
+        :param stage: solution stage; only used when transport model is ``ionized-gas``.
         """
+        if self.flame.transport_model == 'ionized-gas':
+            warnings.warn(
+                "The 'ionized-gas' transport model is untested for "
+                "'CounterflowDiffusionFlame' objects.", UserWarning)
+            self.flame.solving_stage = stage
+
         super().solve(loglevel, refine_grid, auto)
         # Do some checks if loglevel is set
         if loglevel > 0:

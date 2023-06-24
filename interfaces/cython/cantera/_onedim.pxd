@@ -77,11 +77,11 @@ cdef extern from "cantera/oneD/StFlow.h":
         double radiativeHeatLoss(size_t)
         double pressure()
         void setFixedTempProfile(vector[double]&, vector[double]&)
-        size_t getSolvingStage()
-        void setSolvingStage(size_t)
-        void solveElectricField()
-        void fixElectricField()
-        cbool doElectricField(size_t)
+        size_t getSolvingStage() except +translate_exception
+        void setSolvingStage(size_t) except +translate_exception
+        void solveElectricField() except +translate_exception
+        void fixElectricField() except +translate_exception
+        cbool doElectricField(size_t) except +translate_exception
         void setBoundaryEmissivities(double, double)
         double leftEmissivity()
         double rightEmissivity()
