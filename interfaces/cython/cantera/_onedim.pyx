@@ -542,6 +542,24 @@ cdef class _FlowBase(Domain1D):
         self.gas = phase
         self.flow.setTransport(deref(self.gas.transport))
 
+    def set_default_tolerances(self):
+        """
+        Set all tolerances to their default values
+        """
+        super().set_default_tolerances()
+        if self.transport_model != "ionized-gas":
+            return
+
+        chargetol = {}
+        for S in self.gas.species():
+            if S.composition == {'E': 1.0}:
+                chargetol[S.name] = (1e-5, 1e-20)
+            elif S.charge != 0:
+                chargetol[S.name] = (1e-5, 1e-16)
+        self.set_steady_tolerances(**chargetol)
+        self.set_transient_tolerances(**chargetol)
+        self.have_user_tolerances = False
+
     property soret_enabled:
         """
         Determines whether or not to include diffusive mass fluxes due to the
@@ -718,6 +736,37 @@ cdef class _FlowBase(Domain1D):
         def __get__(self):
             return pystr(self.flow.flowType())
 
+    @property
+    def solving_stage(self):
+        """
+        Solving stage mode for handling ionized species (only relevant if transport
+        model is ``ionized-gas``):
+
+        - ``stage == 1``: the fluxes of charged species are set to zero
+        - ``stage == 2``: the electric field equation is solved, and the drift flux for
+          ionized species is evaluated
+        """
+        return self.flow.getSolvingStage()
+
+    @solving_stage.setter
+    def solving_stage(self, stage):
+        self.flow.setSolvingStage(stage)
+
+    @property
+    def electric_field_enabled(self):
+        """
+        Determines whether or not to solve the electric field equation (only relevant
+        if transport model is ``ionized-gas``).
+        """
+        return self.flow.doElectricField(0)
+
+    @electric_field_enabled.setter
+    def electric_field_enabled(self, enable):
+        if enable:
+            self.flow.solveElectricField()
+        else:
+            self.flow.fixElectricField()
+
 
 cdef class FreeFlow(_FlowBase):
     r"""A free flow domain. The equations solved are standard equations for adiabatic
@@ -825,8 +874,19 @@ cdef class IonFlow(_FlowBase):
     An ion flow domain.
 
     In an ion flow domain, the electric drift is added to the diffusion flux
+
+    .. deprecated:: 3.0
+
+        Class to be removed after Cantera 3.0; replaced by `FreeFlow`,
+        `AxisymmetricFlow` and `UnstrainedFlow`.
     """
     _domain_type = "ion-flow"
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn("Class to be removed after Cantera 3.0; use 'FreeFlow', "
+                      "'AxisymmetricFlow' or 'UnstrainedFlow' instead.",
+                      DeprecationWarning)
+        super().__init__(*args, **kwargs)
 
     def set_solving_stage(self, stage):
         """
@@ -836,30 +896,9 @@ cdef class IonFlow(_FlowBase):
         - ``stage == 2``: the electric field equation is solved, and the drift flux for
           ionized species is evaluated
         """
-        (<CxxIonFlow*>self.flow).setSolvingStage(stage)
-
-    property electric_field_enabled:
-        """ Determines whether or not to solve the energy equation."""
-        def __get__(self):
-            return (<CxxIonFlow*>self.flow).doElectricField(0)
-        def __set__(self, enable):
-            if enable:
-                (<CxxIonFlow*>self.flow).solveElectricField()
-            else:
-                (<CxxIonFlow*>self.flow).fixElectricField()
-
-    def set_default_tolerances(self):
-        """ Set all tolerances to their default values """
-        super().set_default_tolerances()
-        chargetol = {}
-        for S in self.gas.species():
-            if S.composition == {'E': 1.0}:
-                chargetol[S.name] = (1e-5, 1e-20)
-            elif S.charge != 0:
-                chargetol[S.name] = (1e-5, 1e-16)
-        self.set_steady_tolerances(**chargetol)
-        self.set_transient_tolerances(**chargetol)
-        self.have_user_tolerances = False
+        warnings.warn("Method to be removed after Cantera 3.0; use "
+                      "'solving_stage' property instead.", DeprecationWarning)
+        self.solving_stage = stage
 
 
 cdef class Sim1D:
