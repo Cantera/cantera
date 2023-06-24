@@ -69,6 +69,7 @@ cdef extern from "cantera/oneD/StFlow.h":
     cdef cppclass CxxStFlow "Cantera::StFlow" (CxxDomain1D):
         void setTransportModel(const string&) except +translate_exception
         void setTransport(CxxTransport&) except +translate_exception
+        string type()
         string transportModel()
         void setPressure(double)
         void enableRadiation(cbool)
