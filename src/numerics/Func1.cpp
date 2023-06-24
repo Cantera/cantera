@@ -246,6 +246,32 @@ std::string Exp1::write(const std::string& arg) const
     }
 }
 
+Log1::Log1(size_t n, const vector<double>& params)
+{
+    if (params.size() != 1) {
+        throw CanteraError("Log1::Log1",
+            "Constructor needs exactly one parameter (factor).");
+    }
+    m_c = params[0];
+}
+
+shared_ptr<Func1> Log1::derivative3() const
+{
+    auto f = shared_ptr<Func1>(new Pow1(-1.));
+    if (m_c != 1.0) {
+        return newTimesConstFunction(f, m_c);
+    }
+    return f;
+}
+
+std::string Log1::write(const std::string& arg) const
+{
+    if (m_c == 1.0) {
+        return fmt::format("\\log({})", arg);
+    }
+    return fmt::format("\\log({}{})", m_c, arg);
+}
+
 /******************************************************************************/
 
 Pow1::Pow1(size_t n, const vector<double>& params)
