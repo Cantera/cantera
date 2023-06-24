@@ -75,6 +75,10 @@ public:
 
     virtual int ID() const;
 
+    virtual string type() const {
+        return "functor";
+    }
+
     //! Calls method eval to evaluate the function
     doublereal operator()(doublereal t) const;
 
@@ -295,6 +299,30 @@ public:
     virtual shared_ptr<Func1> derivative3() const;
 };
 
+
+//! implements the natural logarithm function (log)
+class Log1 : public Func1
+{
+public:
+    Log1(double A=1.0) {
+        m_c = A;
+    }
+
+    //! Constructor uses single parameter (factor)
+    Log1(size_t n, const vector<double>& params);
+
+    virtual string type() const {
+        return "log";
+    }
+
+    virtual double eval(double t) const {
+        return log(m_c * t);
+    }
+
+    virtual shared_ptr<Func1> derivative3() const;
+
+    virtual std::string write(const string& arg) const;
+};
 
 //! implements the power function (pow)
 class Pow1 : public Func1
