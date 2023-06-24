@@ -51,7 +51,9 @@ extern "C" {
     CANTERA_CAPI int flowdev_new(const char* type);
     CANTERA_CAPI int flowdev_del(int i);
     CANTERA_CAPI int flowdev_install(int i, int n, int m);
+    //! @deprecated To be removed after Cantera 3.0; replaced by flowdev_setPrimary
     CANTERA_CAPI int flowdev_setMaster(int i, int n);
+    CANTERA_CAPI int flowdev_setPrimary(int i, int n);
     CANTERA_CAPI double flowdev_massFlowRate(int i);
     CANTERA_CAPI int flowdev_setMassFlowCoeff(int i, double v);
     CANTERA_CAPI int flowdev_setValveCoeff(int i, double v);
@@ -62,8 +64,16 @@ extern "C" {
     CANTERA_CAPI int wall_new(const char* type);
     CANTERA_CAPI int wall_del(int i);
     CANTERA_CAPI int wall_install(int i, int n, int m);
+    //! @deprecated To be changed after Cantera 3.0; for new behavior, see wall_vdot3,
+    //!     to continue old behavior, use wall_vdot2.
     CANTERA_CAPI double wall_vdot(int i, double t);
+    CANTERA_CAPI double wall_vdot3(int i);
+    CANTERA_CAPI double wall_vdot2(int i, double t);
+    //! @deprecated To be removed after Cantera 3.0; for new behavior, see wall_qdot,
+    //!     to continue old behavior, use wall_qdot2.
     CANTERA_CAPI double wall_Q(int i, double t);
+    CANTERA_CAPI double wall_qdot(int i);
+    CANTERA_CAPI double wall_qdot2(int i, double t);
     CANTERA_CAPI double wall_area(int i);
     CANTERA_CAPI int wall_setArea(int i, double v);
     CANTERA_CAPI int wall_setThermalResistance(int i, double rth);

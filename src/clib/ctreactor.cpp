@@ -394,6 +394,17 @@ extern "C" {
         }
     }
 
+    int flowdev_setPrimary(int i, int n)
+    {
+        try {
+            FlowDeviceCabinet::get<PressureController>(i).setPrimary(
+                &FlowDeviceCabinet::item(n));
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     double flowdev_massFlowRate(int i)
     {
         try {
@@ -494,10 +505,46 @@ extern "C" {
         }
     }
 
+    double wall_vdot2(int i, double t)
+    {
+        try {
+            return WallCabinet::item(i).vdot(t);
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
+    }
+
+    double wall_vdot3(int i)
+    {
+        try {
+            return WallCabinet::item(i).vdot();
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
+    }
+
     double wall_Q(int i, double t)
     {
         try {
             return WallCabinet::item(i).Q(t);
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
+    }
+
+    double wall_qdot2(int i, double t)
+    {
+        try {
+            return WallCabinet::item(i).qdot(t);
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
+    }
+
+    double wall_qdot(int i)
+    {
+        try {
+            return WallCabinet::item(i).qdot();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
