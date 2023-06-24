@@ -1684,17 +1684,17 @@ class TestIonFreeFlame(utilities.CanteraTest):
         # Solution object used to compute mixture properties
         self.gas = ct.Solution('ch4_ion.yaml')
         self.gas.TPX = Tin, p, reactants
-        self.sim = ct.IonFreeFlame(self.gas, width=width)
+        self.sim = ct.FreeFlame(self.gas, width=width)
+        assert self.sim.transport_model == 'ionized-gas'
         self.sim.set_refine_criteria(ratio=4, slope=0.8, curve=1.0)
         # Ionized species may require tighter absolute tolerances
         self.sim.flame.set_steady_tolerances(Y=(1e-4, 1e-12))
-        self.sim.transport_model = 'ionized-gas'
 
         # stage one
         self.sim.solve(loglevel=0, auto=True)
 
         #stage two
-        self.sim.solve(loglevel=0, stage=2, enable_energy=True)
+        self.sim.solve(loglevel=0, stage=2)
 
         # Regression test
         self.assertNear(max(self.sim.E), 142.666221, 1e-3)
@@ -1710,10 +1710,10 @@ class TestIonBurnerFlame(utilities.CanteraTest):
         # Solution object used to compute mixture properties
         self.gas = ct.Solution('ch4_ion.yaml')
         self.gas.TPX = Tburner, p, reactants
-        self.sim = ct.IonBurnerFlame(self.gas, width=width)
+        self.sim = ct.BurnerFlame(self.gas, width=width)
+        assert self.sim.transport_model == 'ionized-gas'
         self.sim.set_refine_criteria(ratio=4, slope=0.1, curve=0.1)
         self.sim.burner.mdot = self.gas.density * 0.15
-        self.sim.transport_model = 'ionized-gas'
 
         self.sim.solve(loglevel=0, stage=2, auto=True)
 
