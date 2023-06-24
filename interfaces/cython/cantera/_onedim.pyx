@@ -737,6 +737,18 @@ cdef class _FlowBase(Domain1D):
             return pystr(self.flow.flowType())
 
     @property
+    def type(self):
+        """
+        Return the type of flow domain being represented.
+
+        Examples:
+        - ``free-flow``/``free-ion-flow``,
+        - ``axisymmetric-flow``/``axisymmetric-ion-flow``,
+        - ``unstrained-flow``/``unstrained-ion-flow``
+        """
+        return pystr(self.flow.type())
+
+    @property
     def solving_stage(self):
         """
         Solving stage mode for handling ionized species (only relevant if transport
