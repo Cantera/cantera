@@ -94,8 +94,10 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         void setCoverages(int, double*)
         void setCoverages(int, Composition&) except +translate_exception
         void syncCoverages(int)
+        double vdot()
         double vdot(double)
-        double Q(double)
+        double qdot()
+        double qdot(double)
 
         void addSensitivityReaction(int, size_t) except +translate_exception
         size_t nSensParams(int)
@@ -108,7 +110,9 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         double getHeatTransferCoeff()
         void setEmissivity(double) except +translate_exception
         double getEmissivity()
+        double velocity()
         void setVelocity(CxxFunc1*)
+        double heatFlux()
         void setHeatFlux(CxxFunc1*)
 
     # reactor surface
@@ -132,7 +136,9 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         double massFlowRate() except +translate_exception
         double massFlowRate(double) except +translate_exception
         cbool install(CxxReactorBase&, CxxReactorBase&) except +translate_exception
+        double getPressureFunction()
         void setPressureFunction(CxxFunc1*) except +translate_exception
+        double getTimeFunction()
         void setTimeFunction(CxxFunc1*) except +translate_exception
 
     cdef cppclass CxxMassFlowController "Cantera::MassFlowController" (CxxFlowDevice):
@@ -150,7 +156,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         CxxPressureController()
         double getPressureCoeff()
         void setPressureCoeff(double)
-        void setMaster(CxxFlowDevice*)
+        void setPrimary(CxxFlowDevice*)
 
     # reactor net
 
@@ -164,6 +170,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         double time() except +translate_exception
         double distance() except +translate_exception
         void setInitialTime(double)
+        double getInitialTime()
         void setTolerances(double, double)
         double rtol()
         double atol()
