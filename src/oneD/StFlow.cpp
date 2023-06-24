@@ -564,14 +564,14 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
                 setGas(x,j);
                 double dtdzj = dTdz(x,j);
                 double sum = 0.0;
-                
+
                 grad_hk(x, j);
                 for (size_t k = 0; k < m_nsp; k++) {
                     double flxk = 0.5*(m_flux(k,j-1) + m_flux(k,j));
                     sum += wdot(k,j)*m_hk(k,j);
                     sum += flxk * m_dhk_dz(k,j) / m_wt[k];
                 }
-                
+
                 rsd[index(c_offset_T, j)] = - m_cp[j]*rho_u(x,j)*dtdzj
                                             - divHeatFlux(x,j) - sum;
                 rsd[index(c_offset_T, j)] /= (m_rho[j]*m_cp[j]);
@@ -942,6 +942,36 @@ void StFlow::solveEnergyEqn(size_t j)
     }
 }
 
+size_t StFlow::getSolvingStage() const
+{
+    throw NotImplementedError("StFlow::getSolvingStage",
+        "Not used by '{}' objects.", type());
+}
+
+void StFlow::setSolvingStage(const size_t stage)
+{
+    throw NotImplementedError("StFlow::setSolvingStage",
+        "Not used by '{}' objects.", type());
+}
+
+void StFlow::solveElectricField(size_t j)
+{
+    throw NotImplementedError("StFlow::solveElectricField",
+        "Not used by '{}' objects.", type());
+}
+
+void StFlow::fixElectricField(size_t j)
+{
+    throw NotImplementedError("StFlow::fixElectricField",
+        "Not used by '{}' objects.", type());
+}
+
+bool StFlow::doElectricField(size_t j) const
+{
+    throw NotImplementedError("StFlow::doElectricField",
+        "Not used by '{}' objects.", type());
+}
+
 void StFlow::setBoundaryEmissivities(doublereal e_left, doublereal e_right)
 {
     if (e_left < 0 || e_left > 1) {
@@ -1047,7 +1077,7 @@ void StFlow::evalContinuity(size_t j, double* x, double* rsd, int* diag, double 
     }
 }
 
-void StFlow::grad_hk(const double* x, size_t j) 
+void StFlow::grad_hk(const double* x, size_t j)
 {
     for(size_t k = 0; k < m_nsp; k++) {
         if (u(x, j) > 0.0) {

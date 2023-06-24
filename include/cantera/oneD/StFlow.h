@@ -205,6 +205,26 @@ public:
 
     void solveEnergyEqn(size_t j=npos);
 
+    //! Get the solving stage (used by IonFlow specialization)
+    //! @since New in Cantera 3.0
+    virtual size_t getSolvingStage() const;
+
+    //! Solving stage mode for handling ionized species (used by IonFlow specialization)
+    //! - \c stage=1: the fluxes of charged species are set to zero
+    //! - \c stage=2: the electric field equation is solved, and the drift flux for
+    //!     ionized species is evaluated
+    virtual void setSolvingStage(const size_t stage);
+
+    //! Set to solve electric field in a point (used by IonFlow specialization)
+    virtual void solveElectricField(size_t j=npos);
+
+    //! Set to fix voltage in a point (used by IonFlow specialization)
+    virtual void fixElectricField(size_t j=npos);
+
+    //! Retrieve flag indicating whether electric field is solved or not (used by
+    //! IonFlow specialization)
+    virtual bool doElectricField(size_t j) const;
+
     //! Turn radiation on / off.
     /*!
      *  The simple radiation model used was established by Y. Liu and B. Rogg
@@ -425,9 +445,9 @@ protected:
     //! Update the diffusive mass fluxes.
     virtual void updateDiffFluxes(const doublereal* x, size_t j0, size_t j1);
 
-    //! Get the gradient of species specific molar enthalpies 
+    //! Get the gradient of species specific molar enthalpies
     virtual void grad_hk(const double* x, size_t j);
-    
+
     //---------------------------------------------------------
     //             member data
     //---------------------------------------------------------

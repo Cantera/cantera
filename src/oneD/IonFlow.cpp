@@ -78,7 +78,10 @@ string IonFlow::type() const {
     if (m_isFree) {
         return "free-ion-flow";
     }
-    return "stagnation-ion-flow";
+    if (m_usesLambda) {
+        return "axisymmetric-ion-flow";
+    }
+    return "unstrained-ion-flow";
 }
 
 void IonFlow::resize(size_t components, size_t points){
