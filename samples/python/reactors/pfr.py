@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
 """
 This example solves a plug-flow reactor problem of hydrogen-oxygen combustion.
 The PFR is computed by two approaches: The simulation of a Lagrangian fluid
 particle, and the simulation of a chain of reactors.
 
-Requires: cantera >= 2.5.0, matplotlib >= 2.0
+Requires: cantera >= 3.0, matplotlib >= 2.0
 Keywords: combustion, reactor network, plug flow reactor
 """
 
@@ -109,7 +108,7 @@ m = ct.MassFlowController(upstream, r2, mdot=mass_flow_rate2)
 # We need an outlet to the downstream reservoir. This will determine the
 # pressure in the reactor. The value of K will only affect the transient
 # pressure difference.
-v = ct.PressureController(r2, downstream, master=m, K=1e-5)
+v = ct.PressureController(r2, downstream, primary=m, K=1e-5)
 
 sim2 = ct.ReactorNet([r2])
 
