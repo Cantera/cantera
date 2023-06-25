@@ -60,6 +60,8 @@ classdef Wall < handle
     properties (SetAccess = public)
 
         area % Area of the wall in m^2.
+        heatRate % Total heat transfer rate through the wall at current time step in W.
+        expansionRate % Rate of volumetric change at current time step in m^3/s.
         thermalResistance % Thermal resistance in K*m^2/W.
         heatTransferCoeff % Heat transfer coefficient in W/(m^2-K).
         emissivity % Non-dimensional emissivity.
@@ -129,15 +131,12 @@ classdef Wall < handle
             a = ctFunc('wall_area', w.id);
         end
 
-        function q = qdot(w, t)
-            % Total heat transfer rate through a wall at a given time t.
-
-            q = ctFunc('wall_Q', w.id, t);
+        function q = get.heatRate(w)
+            q = ctFunc('wall_heatRate', w.id);
         end
 
-        function v = vdot(w, t)
-            % Rate of volumetric change at a given time t.
-            v = ctFunc('wall_vdot', w.id, t);
+        function v = get.expansionRate(w)
+            v = ctFunc('wall_expansionRate', w.id);
         end
 
         %% ReactorNet set methods
