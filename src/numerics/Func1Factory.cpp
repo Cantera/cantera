@@ -155,17 +155,17 @@ shared_ptr<Func1> newFunc1(const string& func1Type,
         Func1Factory::factory()->create(func1Type, params, n));
 }
 
-shared_ptr<Func1> newMath1(const string& mathType, const shared_ptr<Func1> f1,
+shared_ptr<Func1> newMath1(const string& func1Type, const shared_ptr<Func1> f1,
                            const shared_ptr<Func1> f2)
 {
     return shared_ptr<Func1>(
-        Math1FactoryA::factory()->create(mathType, f1, f2));
+        Math1FactoryA::factory()->create(func1Type, f1, f2));
 }
 
-shared_ptr<Func1> newMath1(const string& mathType, const shared_ptr<Func1> f, double c)
+shared_ptr<Func1> newMath1(const string& func1Type, const shared_ptr<Func1> f, double c)
 {
     return shared_ptr<Func1>(
-        Math1FactoryB::factory()->create(mathType, f, c));
+        Math1FactoryB::factory()->create(func1Type, f, c));
 }
 
 }

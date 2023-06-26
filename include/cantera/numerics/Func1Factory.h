@@ -19,6 +19,7 @@ namespace Cantera
 //! ```cpp
 //!     shared_ptr<Func1> d1 = newFunc1("sin", {1.0});
 //! ```
+//! @since New in Cantera 3.0
 class Func1Factory : public Factory<Func1, const vector<double>&, size_t>
 {
 public:
@@ -51,6 +52,7 @@ private:
 //! ```cpp
 //!     shared_ptr<Func1> d1 = newMath1("sum", f1, f2);
 //! ```
+//! @since New in Cantera 3.0
 class Math1FactoryA
     : public Factory<Func1, const shared_ptr<Func1>, const shared_ptr<Func1>>
 {
@@ -84,6 +86,7 @@ private:
 //! ```cpp
 //!     shared_ptr<Func1> d1 = newMath1("plus-constant", f, 1.);
 //! ```
+//! @since New in Cantera 3.0
 class Math1FactoryB : public Factory<Func1, const shared_ptr<Func1>, double>
 {
 public:
@@ -108,30 +111,38 @@ private:
 };
 
 
-//! Create a new Func1 functor object.
+//! Create a new simple functor object (see \ref func1simple).
 //! @param func1Type  string identifying function type.
 //! @param coeff  Coefficient; definition depends on the function type.
+//! @ingroup func1simple
+//! @since New in Cantera 3.0
 shared_ptr<Func1> newFunc1(const string& func1Type, double coeff=1.);
 
-//! Create a new Func1 functor object.
+//! Create a new advanced functor object (see \ref func1advanced).
 //! @param func1Type  string identifying function type.
 //! @param params  Parameter vector; definition depends on the function type.
 //! @param n  Integer; definition depends on function type and may or may not be used.
+//! @ingroup func1advanced
+//! @since New in Cantera 3.0
 shared_ptr<Func1> newFunc1(const string& func1Type,
                            const vector<double>& params, size_t n=1);
 
-//! Create a new Func1 functor object based on mathematical operations.
-//! @param mathType  String identifying operation.
+//! Create a new compound functor object (see \ref func1compound).
+//! @param func1Type  String identifying operation.
 //! @param f1  First Func1 object.
 //! @param f2  Second Func1 object.
-shared_ptr<Func1> newMath1(const string& mathType, const shared_ptr<Func1> f1,
+//! @ingroup func1compound
+//! @since New in Cantera 3.0
+shared_ptr<Func1> newMath1(const string& func1Type, const shared_ptr<Func1> f1,
                            const shared_ptr<Func1> f2);
 
-//! Create a new Func1 functor object based on mathematical operations.
-//! @param mathType  String identifying operation.
+//! Create a new modified functor object (see \ref func1modified).
+//! @param func1Type  String identifying operation.
 //! @param f  Func1 object.
 //! @param c  Coefficient.
-shared_ptr<Func1> newMath1(const string& mathType, const shared_ptr<Func1> f, double c);
+//! @ingroup func1modified
+//! @since New in Cantera 3.0
+shared_ptr<Func1> newMath1(const string& func1Type, const shared_ptr<Func1> f, double c);
 
 }
 

@@ -39,8 +39,33 @@ const int TabulatedFuncType = 120;
 
 class TimesConstant1;
 
+//! @defgroup func1 Functor Expressions for one Variable
+
+//! @defgroup func1simple Simple Functor Classes
+//! Simple functor classes implement standard mathematical expressions with a single
+//! parameter.
+//! @ingroup func1
+
+//! @defgroup func1advanced Advanced Functor Classes
+//! Advanced functor classes implement expressions that require multiple parameters.
+//! @ingroup func1
+
+//! @defgroup func1compound Compound Functor Classes
+//! Compound functor classes implement expressions that are composed of other functors.
+//! @ingroup func1
+
+//! @defgroup func1modified Modified Functor Classes
+//! This group of functor classes implement expressions that involve one functor and
+//! a single parameter.
+//! @ingroup func1
+
+//! @defgroup func1helper Helper Functions
+//! Helper functions detect simplifications that can be made to a compound expression.
+//! @ingroup func1
+
 /**
  * Base class for 'functor' classes that evaluate a function of one variable.
+ * @ingroup func1
  */
 class Func1
 {
@@ -181,17 +206,39 @@ Func1& newCompositeFunction(Func1& f1, Func1& f2);
 Func1& newTimesConstFunction(Func1& f1, doublereal c);
 Func1& newPlusConstFunction(Func1& f1, doublereal c);
 
+
+//! Sum of two functions.
+//! @ingroup func1helper
 shared_ptr<Func1> newSumFunction(shared_ptr<Func1> f1, shared_ptr<Func1> f2);
+
+//! Difference of two functions.
+//! @ingroup func1helper
 shared_ptr<Func1> newDiffFunction(shared_ptr<Func1> f1, shared_ptr<Func1> f2);
+
+//! Product of two functions.
+//! @ingroup func1helper
 shared_ptr<Func1> newProdFunction(shared_ptr<Func1> f1, shared_ptr<Func1> f2);
+
+//! Ratio of two functions.
+//! @ingroup func1helper
 shared_ptr<Func1> newRatioFunction(shared_ptr<Func1> f1, shared_ptr<Func1> f2);
+
+//! Composite of two functions.
+//! @ingroup func1helper
 shared_ptr<Func1> newCompositeFunction(shared_ptr<Func1> f1, shared_ptr<Func1> f2);
+
+//! Product of function and constant.
+//! @ingroup func1helper
 shared_ptr<Func1> newTimesConstFunction(shared_ptr<Func1> f1, double c);
+
+//! Sum of function and constant.
+//! @ingroup func1helper
 shared_ptr<Func1> newPlusConstFunction(shared_ptr<Func1> f1, double c);
 
-//! implements the sin() function
+//! Implements the \c sin() function
 /*!
  * The argument to sin() is in radians
+ * @ingroup func1simple
  */
 class Sin1 : public Func1
 {
@@ -235,9 +282,10 @@ public:
 };
 
 
-//! implements the cos() function
+//! Implements the \c cos() function
 /*!
  * The argument to cos() is in radians
+ * @ingroup func1simple
  */
 class Cos1 : public Func1
 {
@@ -278,7 +326,10 @@ public:
 };
 
 
-//! implements the exponential function
+//! Implements the \c exp() (exponential) function
+/*!
+ * @ingroup func1simple
+ */
 class Exp1 : public Func1
 {
 public:
@@ -317,7 +368,11 @@ public:
 };
 
 
-//! implements the natural logarithm function (log)
+//! Implements the \c log() (natural logarithm) function
+/*!
+ * @ingroup func1simple
+ * @since New in Cantera 3.0
+ */
 class Log1 : public Func1
 {
 public:
@@ -341,7 +396,10 @@ public:
     virtual std::string write(const string& arg) const;
 };
 
-//! implements the power function (pow)
+//! Implements the \c pow() (power) function
+/*!
+ * @ingroup func1simple
+ */
 class Pow1 : public Func1
 {
 public:
@@ -378,8 +436,15 @@ public:
     virtual shared_ptr<Func1> derivative3() const;
 };
 
-
 //! The Tabulated1 class implements a tabulated function
+/*!
+ * The function is specified by providing tabulated arrays t and f, where t contain
+ * independent variables and f are corresponding function values. Depending on
+ * configuration, the function is either interpolated linearly between the tabulated
+ * points, or yields the last tabulated value until a new tabulated time value is
+ * reached.
+ * @ingroup func1advanced
+ */
 class Tabulated1 : public Func1
 {
 public:
@@ -393,8 +458,8 @@ public:
     Tabulated1(size_t n, const double* tvals, const double* fvals,
                const string& method="linear");
 
-    //! Constructor uses 2*n parameters
-    //! [t0, t1, .. tn-1, f0, f1, .. fn-1]
+    //! Constructor uses \f$ 2 n\f$ parameters in the following order:
+    //! \f$ [t_0, t_1, \dots, t_{n-1}, f_0, f_1, \dots, f_{n-1}] \f$
     Tabulated1(const vector<double>& params, size_t n);
 
     //! Set the interpolation method
@@ -422,7 +487,10 @@ private:
 };
 
 
-//! The Const1 class implements a constant
+//! Implements a constant
+/*!
+ * @ingroup func1simple
+ */
 class Const1 : public Func1
 {
 public:
@@ -470,6 +538,7 @@ public:
 
 /**
  * Sum of two functions.
+ * @ingroup func1compound
  */
 class Sum1 : public Func1
 {
@@ -535,9 +604,9 @@ public:
     virtual std::string write(const std::string& arg) const;
 };
 
-
 /**
  * Difference of two functions.
+ * @ingroup func1compound
  */
 class Diff1 : public Func1
 {
@@ -607,6 +676,7 @@ public:
 
 /**
  * Product of two functions.
+ * @ingroup func1compound
  */
 class Product1 : public Func1
 {
@@ -677,6 +747,7 @@ public:
 
 /**
  * Product of function and constant.
+ * @ingroup func1modified
  */
 class TimesConstant1 : public Func1
 {
@@ -753,6 +824,7 @@ public:
 
 /**
  * A function plus a constant.
+ * @ingroup func1modified
  */
 class PlusConstant1 : public Func1
 {
@@ -815,6 +887,7 @@ public:
 
 /**
  * Ratio of two functions.
+ * @ingroup func1compound
  */
 class Ratio1 : public Func1
 {
@@ -886,6 +959,7 @@ public:
 
 /**
  * Composite function.
+ * @ingroup func1compound
  */
 class Composite1 : public Func1
 {
@@ -966,6 +1040,7 @@ public:
  * @param A peak value
  * @param t0 offset
  * @param fwhm full width at half max
+ * @ingroup func1advanced
  * @since  New in Cantera 3.0.
  */
 class Gaussian1 : public Func1
@@ -978,7 +1053,7 @@ public:
     }
 
     //! Constructor uses 3 parameters in the following order:
-    //! [A, t0, fwhm]
+    //! \f$ [A, t_0, \mathrm{fwhm}] \f$
     Gaussian1(const vector<double>& params, size_t n=npos);
 
     Gaussian1(const Gaussian1& b) :
@@ -1021,6 +1096,7 @@ protected:
  * @param A peak value
  * @param t0 offset
  * @param fwhm full width at half max
+ * @ingroup func1advanced
  * @deprecated  To be removed after Cantera 3.0; replaced by Gaussian1.
  */
 class Gaussian : public Gaussian1
@@ -1034,7 +1110,8 @@ class Gaussian : public Gaussian1
 
 
 /**
- * Polynomial of degree n.
+ * Polynomial of degree \e n.
+ * @ingroup func1advanced
  */
 class Poly1 : public Func1
 {
@@ -1044,8 +1121,8 @@ public:
         std::copy(c, c+m_cpoly.size(), m_cpoly.begin());
     }
 
-    //! Constructor uses n + 1 parameters in the following order:
-    //! [an, ..., a1, a0]
+    //! Constructor uses \f$ n + 1 \f$ parameters in the following order:
+    //! \f$ [a_n, \dots, a_1, a_0] \f$
     Poly1(const vector<double>& params, size_t n);
 
     Poly1(const Poly1& b) :
@@ -1090,6 +1167,7 @@ protected:
  * f(t) = \frac{A_0}{2} +
  * \sum_{n=1}^N A_n \cos (n \omega t) + B_n \sin (n \omega t)
  * \f]
+ * @ingroup func1advanced
  */
 class Fourier1 : public Func1
 {
@@ -1103,8 +1181,8 @@ public:
         std::copy(b, b+n, m_csin.begin());
     }
 
-    //! Constructor uses 2 * n + 2 parameters in the following order:
-    //! [a0, a1, ... an, omega, b1, ... bn]
+    //! Constructor uses \f$ 2 n + 2 \f$ parameters in the following order:
+    //! \f$ [a_0, a_1, \dots, a_n, \omega, b_1, \dots, b_n] \f$
     Fourier1(const vector<double>& params, size_t n);
 
     Fourier1(const Fourier1& b) :
@@ -1153,6 +1231,7 @@ protected:
  * \f[
  * f(T) = \sum_{n=1}^N A_n T^b_n \exp(-E_n/T)
  * \f]
+ * @ingroup func1advanced
  */
 class Arrhenius1 : public Func1
 {
@@ -1169,8 +1248,8 @@ public:
         }
     }
 
-    //! Constructor uses 3 * n parameters in the following order:
-    //! [A1, b1, E1, A2, b2, E2, ... An, bn, En]
+    //! Constructor uses \f$ 3 n\f$ parameters in the following order:
+    //! \f$ [A_1, b_1, E_1, A_2, b_2, E_2, \dots, A_n, b_n, E_n] \f$
     Arrhenius1(const vector<double>& params, size_t n=1);
 
     Arrhenius1(const Arrhenius1& b) :
@@ -1209,7 +1288,8 @@ protected:
 };
 
 /**
- *  Periodic function. Takes any function and makes it periodic with period T.
+ * Periodic function. Takes any function and makes it periodic with period T.
+ * @ingroup func1modified
  */
 class Periodic1 : public Func1
 {
