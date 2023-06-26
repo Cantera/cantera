@@ -196,9 +196,11 @@ void Reactor::updateConnected(bool updatePressure) {
         time = (timeIsIndependent()) ? m_net->time() : m_net->distance();
     }
     for (size_t i = 0; i < m_outlet.size(); i++) {
+        m_outlet[i]->setSimTime(time);
         m_outlet[i]->updateMassFlowRate(time);
     }
     for (size_t i = 0; i < m_inlet.size(); i++) {
+        m_inlet[i]->setSimTime(time);
         m_inlet[i]->updateMassFlowRate(time);
     }
     for (size_t i = 0; i < m_wall.size(); i++) {

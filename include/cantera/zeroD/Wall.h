@@ -47,6 +47,9 @@ public:
 
     //! Rate of volume change (m^3/s) for the adjacent reactors at current reactor
     //! network time.
+    /*!
+     * @since New in Cantera 3.0.
+     */
     double vdot() {
         return vdot(m_time);
     }
@@ -67,13 +70,16 @@ public:
     /*!
      * This method is called by Reactor::evalWalls(). Base class method
      * does nothing (that is, an adiabatic wall), but may be overloaded.
-     * @since Cantera 3.0
+     * @since New in Cantera 3.0
      */
     virtual double qdot(double t) {
         return 0.0;
     }
 
     //! Heat flow rate through the wall (W) at current reactor network time.
+    /*!
+     * @since New in Cantera 3.0.
+     */
     double qdot() {
         return qdot(m_time);
     }
@@ -108,6 +114,9 @@ public:
     }
 
     //! Set current reactor network time
+    /*!
+     * @since New in Cantera 3.0.
+     */
     void setSimTime(double time) {
         m_time = time;
     }

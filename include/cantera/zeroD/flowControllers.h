@@ -73,6 +73,10 @@ public:
         return FlowDevice::ready() && m_primary != 0;
     }
 
+    //! Set the primary mass flow controller.
+    /*!
+     * @since New in Cantera 3.0.
+     */
     void setPrimary(FlowDevice* primary) {
         m_primary = primary;
     }

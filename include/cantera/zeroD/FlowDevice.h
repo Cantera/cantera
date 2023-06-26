@@ -77,15 +77,42 @@ public:
         return *m_out;
     }
 
+    //! Return current value of the pressure function.
+    /*!
+     * The mass flow rate [kg/s] is calculated given the pressure drop [Pa] and a
+     * coefficient set by a flow device specific function; unless a user-defined
+     * pressure function is set, this is the pressure difference across the device.
+     * The calculation of mass flow rate depends to the flow device.
+     * @since New in Cantera 3.0.
+     */
+    double getPressureFunction();
+
     //! Set a function of pressure that is used in determining the
     //! mass flow rate through the device. The evaluation of mass flow
     //! depends on the derived flow device class.
     virtual void setPressureFunction(Func1* f);
 
+    //! Return current value of the time function.
+    /*!
+     * The mass flow rate [kg/s] is calculated for a Flow device, and multiplied by a
+     * function of time, which returns 1.0 unless a user-defined function is provided.
+     * The calculation of mass flow rate depends on the flow device.
+     * @since New in Cantera 3.0.
+     */
+    double getTimeFunction();
+
     //! Set a function of time that is used in determining
     //! the mass flow rate through the device. The evaluation of mass flow
     //! depends on the derived flow device class.
     virtual void setTimeFunction(Func1* g);
+
+    //! Set current reactor network time
+    /*!
+     * @since New in Cantera 3.0.
+     */
+    void setSimTime(double time) {
+        m_time = time;
+    }
 
 protected:
     double m_mdot = Undef;
@@ -98,6 +125,9 @@ protected:
 
     //! Coefficient set by derived classes; used by updateMassFlowRate
     double m_coeff = 1.0;
+
+    //! Current reactor network time
+    double m_time = 0.;
 
 private:
     size_t m_nspin = 0;
