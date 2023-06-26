@@ -603,7 +603,7 @@ config_options = [
            more generic library name, for example, 'libcantera_shared.so.2.5.0' as the
            actual library and 'libcantera_shared.so' and 'libcantera_shared.so.2'
            as symlinks.""",
-        {"mingw": False, "default": True}),
+        {"mingw": False, "cl": False, "default": True}),
     BoolOption(
         "use_rpath_linkage",
         """If enabled, link to all shared libraries using 'rpath', that is, a fixed
