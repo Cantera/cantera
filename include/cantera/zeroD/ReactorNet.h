@@ -51,6 +51,14 @@ public:
     //! state as the initial condition.
     void setInitialTime(double time);
 
+    //! Get the initial value of the independent variable (typically time).
+    /*!
+     * @since New in Cantera 3.0.
+     */
+    double getInitialTime() const {
+        return m_initial_time;
+    }
+
     //! Get the maximum integrator step.
     double maxTimeStep() {
         return m_maxstep;
@@ -315,6 +323,9 @@ protected:
     //! The independent variable in the system. May be either time or space depending
     //! on the type of reactors in the network.
     double m_time = 0.0;
+
+    //! The initial value of the independent variable in the system.
+    double m_initial_time = 0.0;
 
     bool m_init = false;
     bool m_integrator_init = false; //!< True if integrator initialization is current
