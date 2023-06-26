@@ -134,11 +134,11 @@ classdef FlowDevice < handle
 
         end
 
-        function setMaster(f, d)
-            % Set the Master flow device used to compute this device's
+        function setPrimary(f, d)
+            % Set the primary flow device used to compute this device's
             % mass flow rate. ::
             %
-            %     >> f.setMaster(d)
+            %     >> f.setPrimary(d)
             %
             % :param f:
             %     Instance of class :mat:class:`MassFlowController`.
@@ -146,9 +146,9 @@ classdef FlowDevice < handle
             %     Instance of class :mat:class:`Func`.
 
             if strcmp(f.type, 'PressureController')
-                k = ctFunc('flowdev_setMaster', f.id, d);
+                k = ctFunc('flowdev_setPrimary', f.id, d);
             else
-                error('Master flow device can only be set for pressure controllers.');
+                error('Primary flow device can only be set for pressure controllers.');
             end
 
         end
