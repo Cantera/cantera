@@ -103,6 +103,8 @@ cyl.volume = V_oT
 
 # define inlet state
 gas.TPX = T_inlet, p_inlet, comp_inlet
+# Note: The previous line is technically not needed as the state of the gas object is
+# already set correctly; change if inlet state is different from the reactor state.
 inlet = ct.Reservoir(gas)
 
 # inlet valve
