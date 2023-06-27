@@ -41,19 +41,19 @@ extern "C" {
             } else if (type == FourierFuncType) {
                 vector<double> par(lenp);
                 std::copy(params, params + lenp, par.data());
-                r = newFunc1("fourier", n, par);
+                r = newFunc1("fourier", par, n);
             } else if (type == GaussianFuncType) {
                 vector<double> par(lenp);
                 std::copy(params, params + lenp, par.data());
-                r = newFunc1("gaussian", n, par);
+                r = newFunc1("gaussian", par, n);
             } else if (type == PolyFuncType) {
                 vector<double> par(lenp);
                 std::copy(params, params + lenp, par.data());
-                r = newFunc1("polynomial", n, par);
+                r = newFunc1("polynomial", par, n);
             } else if (type == ArrheniusFuncType) {
                 vector<double> par(lenp);
                 std::copy(params, params + lenp, par.data());
-                r = newFunc1("arrhenius", n, par);
+                r = newFunc1("arrhenius", par, n);
             } else if (type == PeriodicFuncType) {
                 r = newMath1("periodic", FuncCabinet::at(n), params[0]);
             } else if (type == SumFuncType) {
@@ -88,12 +88,12 @@ extern "C" {
         }
     }
 
-    int func_new_advanced(const char* type, size_t n, size_t lenp, const double* params)
+    int func_new_advanced(const char* type, size_t lenp, const double* params, size_t n)
     {
         try {
             vector<double> par(lenp);
             std::copy(params, params + lenp, par.data());
-            return FuncCabinet::add(newFunc1(type, n, par));
+            return FuncCabinet::add(newFunc1(type, par, n));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }

@@ -147,7 +147,7 @@ void Func1::setParent(Func1* p)
 
 /*****************************************************************************/
 
-Sin1::Sin1(size_t n, const vector<double>& params)
+Sin1::Sin1(const vector<double>& params, size_t n)
 {
     if (params.size() != 1) {
         throw CanteraError("Sin1::Sin1",
@@ -189,7 +189,7 @@ shared_ptr<Func1> Sin1::derivative3() const
 
 /*****************************************************************************/
 
-Cos1::Cos1(size_t n, const vector<double>& params)
+Cos1::Cos1(const vector<double>& params, size_t n)
 {
     if (params.size() != 1) {
         throw CanteraError("Cos1::Cos1",
@@ -231,7 +231,7 @@ std::string Cos1::write(const std::string& arg) const
 
 /**************************************************************************/
 
-Exp1::Exp1(size_t n, const vector<double>& params)
+Exp1::Exp1(const vector<double>& params, size_t n)
 {
     if (params.size() != 1) {
         throw CanteraError("Exp1::Exp1",
@@ -276,7 +276,7 @@ std::string Exp1::write(const std::string& arg) const
     }
 }
 
-Log1::Log1(size_t n, const vector<double>& params)
+Log1::Log1(const vector<double>& params, size_t n)
 {
     if (params.size() != 1) {
         throw CanteraError("Log1::Log1",
@@ -304,7 +304,7 @@ std::string Log1::write(const std::string& arg) const
 
 /******************************************************************************/
 
-Pow1::Pow1(size_t n, const vector<double>& params)
+Pow1::Pow1(const vector<double>& params, size_t n)
 {
     if (params.size() != 1) {
         throw CanteraError("Pow1::Pow1",
@@ -349,7 +349,7 @@ shared_ptr<Func1> Pow1::derivative3() const
 
 /******************************************************************************/
 
-Const1::Const1(size_t n, const vector<double>& params)
+Const1::Const1(const vector<double>& params, size_t n)
 {
     if (params.size() != 1) {
         throw CanteraError("Const1::Const1",
@@ -358,7 +358,7 @@ Const1::Const1(size_t n, const vector<double>& params)
     m_c = params[0];
 }
 
-Poly1::Poly1(size_t n, const vector<double>& params)
+Poly1::Poly1(const vector<double>& params, size_t n)
 {
     if (n < 0) {
         throw CanteraError("Poly1::Poly1",
@@ -372,7 +372,7 @@ Poly1::Poly1(size_t n, const vector<double>& params)
     copy(params.data(), params.data() + m_cpoly.size(), m_cpoly.begin());
 }
 
-Fourier1::Fourier1(size_t n, const vector<double>& params)
+Fourier1::Fourier1(const vector<double>& params, size_t n)
 {
     if (n < 1) {
         throw CanteraError("Fourier1::Fourier1",
@@ -391,7 +391,7 @@ Fourier1::Fourier1(size_t n, const vector<double>& params)
     copy(params.data() + n + 2, params.data() + 2 * n + 2, m_csin.begin());
 }
 
-Gaussian1::Gaussian1(size_t n, const vector<double>& params)
+Gaussian1::Gaussian1(const vector<double>& params, size_t n)
 {
     if (params.size() != 3) {
         throw CanteraError("Gaussian1::Gaussian1",
@@ -402,7 +402,7 @@ Gaussian1::Gaussian1(size_t n, const vector<double>& params)
     m_tau = params[2] / (2. * sqrt(log(2.)));
 }
 
-Arrhenius1::Arrhenius1(size_t n, const vector<double>& params)
+Arrhenius1::Arrhenius1(const vector<double>& params, size_t n)
 {
     if (n < 1) {
         throw CanteraError("Arrhenius1::Arrhenius1",
@@ -440,7 +440,7 @@ Tabulated1::Tabulated1(size_t n, const double* tvals, const double* fvals,
     setMethod(method);
 }
 
-Tabulated1::Tabulated1(size_t n, const vector<double>& params) : m_isLinear(true)
+Tabulated1::Tabulated1(const vector<double>& params, size_t n) : m_isLinear(true)
 {
     if (n < 1) {
         throw CanteraError("Tabulated1::Tabulated1",

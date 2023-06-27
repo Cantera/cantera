@@ -13,44 +13,44 @@ std::mutex Func1Factory::domain_mutex;
 
 Func1Factory::Func1Factory()
 {
-    reg("functor", [](size_t n, const vector<double>& params) {
+    reg("functor", [](const vector<double>& params, size_t n) {
         return new Func1();
     });
-    reg("sin", [](size_t n, const vector<double>& params) {
-        return new Sin1(n, params);
+    reg("sin", [](const vector<double>& params, size_t n) {
+        return new Sin1(params);
     });
-    reg("cos", [](size_t n, const vector<double>& params) {
-        return new Cos1(n, params);
+    reg("cos", [](const vector<double>& params, size_t n) {
+        return new Cos1(params);
     });
-    reg("exp", [](size_t n, const vector<double>& params) {
-        return new Exp1(n, params);
+    reg("exp", [](const vector<double>& params, size_t n) {
+        return new Exp1(params);
     });
-    reg("log", [](size_t n, const vector<double>& params) {
-        return new Log1(n, params);
+    reg("log", [](const vector<double>& params, size_t n) {
+        return new Log1(params);
     });
-    reg("pow", [](size_t n, const vector<double>& params) {
-        return new Pow1(n, params);
+    reg("pow", [](const vector<double>& params, size_t n) {
+        return new Pow1(params);
     });
-    reg("constant", [](size_t n, const vector<double>& params) {
-        return new Const1(n, params);
+    reg("constant", [](const vector<double>& params, size_t n) {
+        return new Const1(params);
     });
-    reg("polynomial", [](size_t n, const vector<double>& params) {
-        return new Poly1(n, params);
+    reg("polynomial", [](const vector<double>& params, size_t n) {
+        return new Poly1(params, n);
     });
-    reg("fourier", [](size_t n, const vector<double>& params) {
-        return new Fourier1(n, params);
+    reg("fourier", [](const vector<double>& params, size_t n) {
+        return new Fourier1(params, n);
     });
-    reg("gaussian", [](size_t n, const vector<double>& params) {
-        return new Gaussian1(n, params);
+    reg("gaussian", [](const vector<double>& params, size_t n) {
+        return new Gaussian1(params, n);
     });
-    reg("arrhenius", [](size_t n, const vector<double>& params) {
-        return new Arrhenius1(n, params);
+    reg("arrhenius", [](const vector<double>& params, size_t n) {
+        return new Arrhenius1(params, n);
     });
-    reg("tabulated-linear", [](size_t n, const vector<double>& params) {
-        return new Tabulated1(n, params);
+    reg("tabulated-linear", [](const vector<double>& params, size_t n) {
+        return new Tabulated1(params, n);
     });
-    reg("tabulated-previous", [](size_t n, const vector<double>& params) {
-        auto fcn = new Tabulated1(n, params);
+    reg("tabulated-previous", [](const vector<double>& params, size_t n) {
+        auto fcn = new Tabulated1(params, n);
         fcn->setMethod("previous");
         return fcn;
     });
@@ -145,14 +145,14 @@ void Math1FactoryB::deleteFactory()
 shared_ptr<Func1> newFunc1(const string& func1Type, double c)
 {
     return shared_ptr<Func1>(
-        Func1Factory::factory()->create(func1Type, 0, {c}));
+        Func1Factory::factory()->create(func1Type, {c}, npos));
 }
 
-shared_ptr<Func1> newFunc1(const string& func1Type, size_t n,
-                           const vector<double>& params)
+shared_ptr<Func1> newFunc1(const string& func1Type,
+                           const vector<double>& params, size_t n)
 {
     return shared_ptr<Func1>(
-        Func1Factory::factory()->create(func1Type, n, params));
+        Func1Factory::factory()->create(func1Type, params, n));
 }
 
 shared_ptr<Func1> newMath1(const string& mathType, const shared_ptr<Func1> f1,
