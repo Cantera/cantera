@@ -37,13 +37,13 @@ Func1Factory::Func1Factory()
     reg("polynomial", [](const vector<double>& params, size_t n) {
         return new Poly1(params, n);
     });
-    reg("fourier", [](const vector<double>& params, size_t n) {
+    reg("Fourier", [](const vector<double>& params, size_t n) {
         return new Fourier1(params, n);
     });
-    reg("gaussian", [](const vector<double>& params, size_t n) {
+    reg("Gaussian", [](const vector<double>& params, size_t n) {
         return new Gaussian1(params, n);
     });
-    reg("arrhenius", [](const vector<double>& params, size_t n) {
+    reg("Arrhenius", [](const vector<double>& params, size_t n) {
         return new Arrhenius1(params, n);
     });
     reg("tabulated-linear", [](const vector<double>& params, size_t n) {

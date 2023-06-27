@@ -18,7 +18,7 @@ classdef gaussian < Func
         function f = gaussian(peak, center, width)
             % Constructor
 
-            f@Func('gaussian', 0, [peak, center, width]);
+            f@Func('Gaussian', 0, [peak, center, width]);
         end
 
     end
