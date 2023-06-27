@@ -40,17 +40,17 @@ private:
     Func1Factory();
 
     //! Mutex for use when calling the factory
-    static std::mutex domain_mutex;
+    static std::mutex s_mutex;
 };
 
 
-//! Factory class to create Func1 math objects - version A
+//! Factory class to create Func1 compound objects - version A
 //!
-//! This class is mainly used via the newMath1(const string&, const shared_ptr<Func1>,
+//! This class is mainly used via the newFunc1(const string&, const shared_ptr<Func1>,
 //! const shared_ptr<Func1>) function, for example:
 //!
 //! ```cpp
-//!     shared_ptr<Func1> d1 = newMath1("sum", f1, f2);
+//!     shared_ptr<Func1> d1 = newFunc1("sum", f1, f2);
 //! ```
 //! @since New in Cantera 3.0
 class Math1FactoryA
@@ -74,17 +74,17 @@ private:
     Math1FactoryA();
 
     //! Mutex for use when calling the factory
-    static std::mutex domain_mutex;
+    static std::mutex s_mutex;
 };
 
 
-//! Factory class to create Func1 math objects - version B
+//! Factory class to create Func1 compound objects - version B
 //!
-//! This class is mainly used via the newMath1(const string&, const shared_ptr<Func1>,
+//! This class is mainly used via the newFunc1(const string&, const shared_ptr<Func1>,
 //! double) function, for example:
 //!
 //! ```cpp
-//!     shared_ptr<Func1> d1 = newMath1("plus-constant", f, 1.);
+//!     shared_ptr<Func1> d1 = newFunc1("plus-constant", f, 1.);
 //! ```
 //! @since New in Cantera 3.0
 class Math1FactoryB : public Factory<Func1, const shared_ptr<Func1>, double>
@@ -107,7 +107,7 @@ private:
     Math1FactoryB();
 
     //! Mutex for use when calling the factory
-    static std::mutex domain_mutex;
+    static std::mutex s_mutex;
 };
 
 
@@ -133,8 +133,8 @@ shared_ptr<Func1> newFunc1(const string& func1Type,
 //! @param f2  Second Func1 object.
 //! @ingroup func1compound
 //! @since New in Cantera 3.0
-shared_ptr<Func1> newMath1(const string& func1Type, const shared_ptr<Func1> f1,
-                           const shared_ptr<Func1> f2);
+shared_ptr<Func1> newFunc1(const string& func1Type,
+                           const shared_ptr<Func1> f1, const shared_ptr<Func1> f2);
 
 //! Create a new modified functor object (see \ref func1modified).
 //! @param func1Type  String identifying operation.
@@ -142,7 +142,8 @@ shared_ptr<Func1> newMath1(const string& func1Type, const shared_ptr<Func1> f1,
 //! @param c  Coefficient.
 //! @ingroup func1modified
 //! @since New in Cantera 3.0
-shared_ptr<Func1> newMath1(const string& func1Type, const shared_ptr<Func1> f, double c);
+shared_ptr<Func1> newFunc1(const string& func1Type,
+                           const shared_ptr<Func1> f, double c);
 
 }
 

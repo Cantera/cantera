@@ -39,37 +39,33 @@ extern "C" {
             } else if (type == ConstFuncType) {
                 r = newFunc1("constant", params[0]);
             } else if (type == FourierFuncType) {
-                vector<double> par(lenp);
-                std::copy(params, params + lenp, par.data());
+                vector<double> par(params, params + lenp);
                 r = newFunc1("Fourier", par, n);
             } else if (type == GaussianFuncType) {
-                vector<double> par(lenp);
-                std::copy(params, params + lenp, par.data());
+                vector<double> par(params, params + lenp);
                 r = newFunc1("Gaussian", par, n);
             } else if (type == PolyFuncType) {
-                vector<double> par(lenp);
-                std::copy(params, params + lenp, par.data());
+                vector<double> par(params, params + lenp);
                 r = newFunc1("polynomial", par, n);
             } else if (type == ArrheniusFuncType) {
-                vector<double> par(lenp);
-                std::copy(params, params + lenp, par.data());
+                vector<double> par(params, params + lenp);
                 r = newFunc1("Arrhenius", par, n);
             } else if (type == PeriodicFuncType) {
-                r = newMath1("periodic", FuncCabinet::at(n), params[0]);
+                r = newFunc1("periodic", FuncCabinet::at(n), params[0]);
             } else if (type == SumFuncType) {
-                r = newMath1("sum", FuncCabinet::at(n), FuncCabinet::at(m));
+                r = newFunc1("sum", FuncCabinet::at(n), FuncCabinet::at(m));
             } else if (type == DiffFuncType) {
-                r = newMath1("diff", FuncCabinet::at(n), FuncCabinet::at(m));
+                r = newFunc1("diff", FuncCabinet::at(n), FuncCabinet::at(m));
             } else if (type == ProdFuncType) {
-                r = newMath1("product", FuncCabinet::at(n), FuncCabinet::at(m));
+                r = newFunc1("product", FuncCabinet::at(n), FuncCabinet::at(m));
             } else if (type == RatioFuncType) {
-                r = newMath1("ratio", FuncCabinet::at(n), FuncCabinet::at(m));
+                r = newFunc1("ratio", FuncCabinet::at(n), FuncCabinet::at(m));
             } else if (type == CompositeFuncType) {
-                r = newMath1("composite", FuncCabinet::at(n), FuncCabinet::at(m));
+                r = newFunc1("composite", FuncCabinet::at(n), FuncCabinet::at(m));
             } else if (type == TimesConstantFuncType) {
-                r = newMath1("times-constant", FuncCabinet::at(n), params[0]);
+                r = newFunc1("times-constant", FuncCabinet::at(n), params[0]);
             } else if (type == PlusConstantFuncType) {
-                r = newMath1("plus-constant", FuncCabinet::at(n), params[0]);
+                r = newFunc1("plus-constant", FuncCabinet::at(n), params[0]);
             } else {
                 throw CanteraError("func_new", "unknown function type");
             }
@@ -91,19 +87,18 @@ extern "C" {
     int func_new_advanced(const char* type, size_t lenp, const double* params, size_t n)
     {
         try {
-            vector<double> par(lenp);
-            std::copy(params, params + lenp, par.data());
+            vector<double> par(params, params + lenp);
             return FuncCabinet::add(newFunc1(type, par, n));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
     }
 
-    int func_new_math(const char* type, size_t a, size_t b)
+    int func_new_compound(const char* type, size_t a, size_t b)
     {
         try {
             return FuncCabinet::add(
-                newMath1(type, FuncCabinet::at(a), FuncCabinet::at(b)));
+                newFunc1(type, FuncCabinet::at(a), FuncCabinet::at(b)));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -112,7 +107,7 @@ extern "C" {
     int func_new_misc(const char* type, size_t a, double c)
     {
         try {
-            return FuncCabinet::add(newMath1(type, FuncCabinet::at(a), c));
+            return FuncCabinet::add(newFunc1(type, FuncCabinet::at(a), c));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }

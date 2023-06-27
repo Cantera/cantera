@@ -9,7 +9,7 @@ namespace Cantera
 {
 
 Func1Factory* Func1Factory::s_factory = 0;
-std::mutex Func1Factory::domain_mutex;
+std::mutex Func1Factory::s_mutex;
 
 Func1Factory::Func1Factory()
 {
@@ -58,7 +58,7 @@ Func1Factory::Func1Factory()
 
 Func1Factory* Func1Factory::factory()
 {
-    std::unique_lock<std::mutex> lock(domain_mutex);
+    std::unique_lock<std::mutex> lock(s_mutex);
     if (!s_factory) {
         s_factory = new Func1Factory;
     }
@@ -67,13 +67,13 @@ Func1Factory* Func1Factory::factory()
 
 void Func1Factory::deleteFactory()
 {
-    std::unique_lock<std::mutex> lock(domain_mutex);
+    std::unique_lock<std::mutex> lock(s_mutex);
     delete s_factory;
     s_factory = 0;
 }
 
 Math1FactoryA* Math1FactoryA::s_factory = 0;
-std::mutex Math1FactoryA::domain_mutex;
+std::mutex Math1FactoryA::s_mutex;
 
 Math1FactoryA::Math1FactoryA()
 {
@@ -96,7 +96,7 @@ Math1FactoryA::Math1FactoryA()
 
 Math1FactoryA* Math1FactoryA::factory()
 {
-    std::unique_lock<std::mutex> lock(domain_mutex);
+    std::unique_lock<std::mutex> lock(s_mutex);
     if (!s_factory) {
         s_factory = new Math1FactoryA;
     }
@@ -105,13 +105,13 @@ Math1FactoryA* Math1FactoryA::factory()
 
 void Math1FactoryA::deleteFactory()
 {
-    std::unique_lock<std::mutex> lock(domain_mutex);
+    std::unique_lock<std::mutex> lock(s_mutex);
     delete s_factory;
     s_factory = 0;
 }
 
 Math1FactoryB* Math1FactoryB::s_factory = 0;
-std::mutex Math1FactoryB::domain_mutex;
+std::mutex Math1FactoryB::s_mutex;
 
 Math1FactoryB::Math1FactoryB()
 {
@@ -128,7 +128,7 @@ Math1FactoryB::Math1FactoryB()
 
 Math1FactoryB* Math1FactoryB::factory()
 {
-    std::unique_lock<std::mutex> lock(domain_mutex);
+    std::unique_lock<std::mutex> lock(s_mutex);
     if (!s_factory) {
         s_factory = new Math1FactoryB;
     }
@@ -137,7 +137,7 @@ Math1FactoryB* Math1FactoryB::factory()
 
 void Math1FactoryB::deleteFactory()
 {
-    std::unique_lock<std::mutex> lock(domain_mutex);
+    std::unique_lock<std::mutex> lock(s_mutex);
     delete s_factory;
     s_factory = 0;
 }
@@ -155,14 +155,14 @@ shared_ptr<Func1> newFunc1(const string& func1Type,
         Func1Factory::factory()->create(func1Type, params, n));
 }
 
-shared_ptr<Func1> newMath1(const string& func1Type, const shared_ptr<Func1> f1,
+shared_ptr<Func1> newFunc1(const string& func1Type, const shared_ptr<Func1> f1,
                            const shared_ptr<Func1> f2)
 {
     return shared_ptr<Func1>(
         Math1FactoryA::factory()->create(func1Type, f1, f2));
 }
 
-shared_ptr<Func1> newMath1(const string& func1Type, const shared_ptr<Func1> f, double c)
+shared_ptr<Func1> newFunc1(const string& func1Type, const shared_ptr<Func1> f, double c)
 {
     return shared_ptr<Func1>(
         Math1FactoryB::factory()->create(func1Type, f, c));
