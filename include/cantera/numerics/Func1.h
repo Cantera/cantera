@@ -201,7 +201,7 @@ public:
     }
 
     //! Constructor uses single parameter (frequency)
-    Sin1(size_t n, const vector<double>& params);
+    Sin1(const vector<double>& paramss, size_t n=npos);
 
     Sin1(const Sin1& b) :
         Func1(b) {
@@ -247,7 +247,7 @@ public:
     }
 
     //! Constructor uses single parameter (frequency)
-    Cos1(size_t n, const vector<double>& params);
+    Cos1(const vector<double>& params, size_t n=npos);
 
     Cos1(const Cos1& b) :
         Func1(b) {
@@ -287,7 +287,7 @@ public:
     }
 
     //! Constructor uses single parameter (exponent factor)
-    Exp1(size_t n, const vector<double>& params);
+    Exp1(const vector<double>& params, size_t n=npos);
 
     Exp1(const Exp1& b) :
         Func1(b) {
@@ -326,7 +326,7 @@ public:
     }
 
     //! Constructor uses single parameter (factor)
-    Log1(size_t n, const vector<double>& params);
+    Log1(const vector<double>& params, size_t n=npos);
 
     virtual string type() const {
         return "log";
@@ -350,7 +350,7 @@ public:
     }
 
     //! Constructor uses single parameter (exponent)
-    Pow1(size_t n, const vector<double>& params);
+    Pow1(const vector<double>& params, size_t n=npos);
 
     Pow1(const Pow1& b) :
         Func1(b) {
@@ -395,7 +395,7 @@ public:
 
     //! Constructor uses 2*n parameters
     //! [t0, t1, .. tn-1, f0, f1, .. fn-1]
-    Tabulated1(size_t n, const vector<double>& params);
+    Tabulated1(const vector<double>& params, size_t n);
 
     //! Set the interpolation method
     void setMethod(const string& mode);
@@ -435,7 +435,7 @@ public:
     }
 
     //! Constructor uses single parameter (constant)
-    Const1(size_t n, const vector<double>& params);
+    Const1(const vector<double>& params, size_t n=npos);
 
     Const1(const Const1& b) :
         Func1(b) {
@@ -979,7 +979,7 @@ public:
 
     //! Constructor uses 3 parameters in the following order:
     //! [A, t0, fwhm]
-    Gaussian1(size_t n, const vector<double>& params);
+    Gaussian1(const vector<double>& params, size_t n=npos);
 
     Gaussian1(const Gaussian1& b) :
         Func1(b) {
@@ -1046,7 +1046,7 @@ public:
 
     //! Constructor uses n + 1 parameters in the following order:
     //! [an, ..., a1, a0]
-    Poly1(size_t n, const vector<double>& params);
+    Poly1(const vector<double>& params, size_t n);
 
     Poly1(const Poly1& b) :
         Func1(b) {
@@ -1105,7 +1105,7 @@ public:
 
     //! Constructor uses 2 * n + 2 parameters in the following order:
     //! [a0, a1, ... an, omega, b1, ... bn]
-    Fourier1(size_t n, const vector<double>& params);
+    Fourier1(const vector<double>& params, size_t n);
 
     Fourier1(const Fourier1& b) :
         Func1(b) {
@@ -1171,7 +1171,7 @@ public:
 
     //! Constructor uses 3 * n parameters in the following order:
     //! [A1, b1, E1, A2, b2, E2, ... An, bn, En]
-    Arrhenius1(size_t n, const vector<double>& params);
+    Arrhenius1(const vector<double>& params, size_t n=1);
 
     Arrhenius1(const Arrhenius1& b) :
         Func1() {

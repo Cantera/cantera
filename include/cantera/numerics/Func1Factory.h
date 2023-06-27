@@ -17,9 +17,9 @@ namespace Cantera
 //! This class is mainly used via the newFunc1() function, for example:
 //!
 //! ```cpp
-//!     shared_ptr<Func1> d1 = newFunc1("sin", 0, {1.0});
+//!     shared_ptr<Func1> d1 = newFunc1("sin", {1.0});
 //! ```
-class Func1Factory : public Factory<Func1, size_t, const vector<double>&>
+class Func1Factory : public Factory<Func1, const vector<double>&, size_t>
 {
 public:
     /**
@@ -115,10 +115,10 @@ shared_ptr<Func1> newFunc1(const string& func1Type, double coeff=1.);
 
 //! Create a new Func1 functor object.
 //! @param func1Type  string identifying function type.
-//! @param n  Integer; definition depends on the function type.
 //! @param params  Parameter vector; definition depends on the function type.
-shared_ptr<Func1> newFunc1(const string& func1Type, size_t n=0,
-                           const vector<double>& params={});
+//! @param n  Integer; definition depends on function type and may or may not be used.
+shared_ptr<Func1> newFunc1(const string& func1Type,
+                           const vector<double>& params, size_t n=1);
 
 //! Create a new Func1 functor object based on mathematical operations.
 //! @param mathType  String identifying operation.
