@@ -463,7 +463,11 @@ public:
     Tabulated1(const vector<double>& params, size_t n);
 
     //! Set the interpolation method
-    void setMethod(const string& mode);
+    //! @param method  Evaluation method. If 'linear' (default), a linear interpolation
+    //!     between tabulated values is used; if 'previous', the last tabulated value
+    //!     is held until a new tabulated time value is reached.
+    //! @since  New in Cantera 3.0
+    void setMethod(const string& method);
 
     virtual std::string write(const std::string& arg) const;
     virtual int ID() const {
@@ -531,7 +535,7 @@ public:
     virtual Func1& duplicate() const;
     virtual Func1& derivative() const;
     virtual shared_ptr<Func1> derivative3() const {
-        return shared_ptr<Func1>(new Const1(0.0));
+        return make_shared<Const1>(0.0);
     }
 };
 
@@ -734,11 +738,7 @@ public:
     virtual Func1& duplicate() const;
     virtual Func1& derivative() const;
 
-    virtual shared_ptr<Func1> derivative3() const {
-        auto a1 = newProdFunction(m_f1_shared, m_f2_shared->derivative3());
-        auto a2 = newProdFunction(m_f2_shared, m_f1_shared->derivative3());
-        return newSumFunction(a1, a2);
-    }
+    virtual shared_ptr<Func1> derivative3() const;
 
     virtual int order() const {
         return 1;
@@ -942,13 +942,7 @@ public:
     virtual Func1& duplicate() const;
     virtual Func1& derivative() const;
 
-    virtual shared_ptr<Func1> derivative3() const {
-        auto a1 = newProdFunction(m_f1_shared->derivative3(), m_f2_shared);
-        auto a2 = newProdFunction(m_f1_shared, m_f2_shared->derivative3());
-        auto s = newDiffFunction(a1, a2);
-        auto p = newProdFunction(m_f2_shared, m_f2_shared);
-        return newRatioFunction(s, p);
-    }
+    virtual shared_ptr<Func1> derivative3() const;
 
     virtual std::string write(const std::string& arg) const;
 
@@ -1014,12 +1008,7 @@ public:
     virtual Func1& duplicate() const;
     virtual Func1& derivative() const;
 
-    virtual shared_ptr<Func1> derivative3() const {
-        auto d1 = m_f1_shared->derivative3();
-        auto d2 = m_f2_shared->derivative3();
-        auto d3 = newCompositeFunction(d1, m_f2_shared);
-        return newProdFunction(d3, d2);
-    }
+    virtual shared_ptr<Func1> derivative3() const;
 
     virtual std::string write(const std::string& arg) const;
 
