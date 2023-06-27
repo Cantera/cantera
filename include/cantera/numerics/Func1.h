@@ -999,7 +999,7 @@ public:
     }
 
     virtual string type() const {
-        return "gaussian";
+        return "Gaussian";
     }
 
     virtual doublereal eval(doublereal t) const {
@@ -1126,7 +1126,7 @@ public:
     }
 
     virtual string type() const {
-        return "fourier";
+        return "Fourier";
     }
 
     virtual Func1& duplicate() const;
@@ -1191,7 +1191,7 @@ public:
     }
 
     virtual string type() const {
-        return "arrhenius";
+        return "Arrhenius";
     }
 
     virtual Func1& duplicate() const;

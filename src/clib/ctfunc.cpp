@@ -41,11 +41,11 @@ extern "C" {
             } else if (type == FourierFuncType) {
                 vector<double> par(lenp);
                 std::copy(params, params + lenp, par.data());
-                r = newFunc1("fourier", par, n);
+                r = newFunc1("Fourier", par, n);
             } else if (type == GaussianFuncType) {
                 vector<double> par(lenp);
                 std::copy(params, params + lenp, par.data());
-                r = newFunc1("gaussian", par, n);
+                r = newFunc1("Gaussian", par, n);
             } else if (type == PolyFuncType) {
                 vector<double> par(lenp);
                 std::copy(params, params + lenp, par.data());
@@ -53,7 +53,7 @@ extern "C" {
             } else if (type == ArrheniusFuncType) {
                 vector<double> par(lenp);
                 std::copy(params, params + lenp, par.data());
-                r = newFunc1("arrhenius", par, n);
+                r = newFunc1("Arrhenius", par, n);
             } else if (type == PeriodicFuncType) {
                 r = newMath1("periodic", FuncCabinet::at(n), params[0]);
             } else if (type == SumFuncType) {
