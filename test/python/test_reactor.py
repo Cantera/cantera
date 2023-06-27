@@ -1499,6 +1499,7 @@ class TestFlowReactor(utilities.CanteraTest):
         surf = ct.Interface('methane_pox_on_pt.yaml', 'Pt_surf')
         gas = surf.adjacent['gas']
         r = ct.FlowReactor(gas)
+        r.mass_flow_rate = 0.1
         rsurf = ct.ReactorSurface(surf, r)
         sim = ct.ReactorNet([r])
         sim.initialize()
@@ -1529,6 +1530,14 @@ class TestFlowReactor2(utilities.CanteraTest):
         rsurf = ct.ReactorSurface(surf, r)
         sim = ct.ReactorNet([r])
         return r, rsurf, sim
+
+    def test_no_mass_flow_rate(self):
+        surf, gas = self.import_phases()
+        r = ct.FlowReactor(gas)
+        rsurf = ct.ReactorSurface(surf, r)
+        sim = ct.ReactorNet([r])
+        with pytest.raises(ct.CanteraError, match="mass flow rate"):
+            sim.initialize()
 
     def test_mixed_reactor_types(self):
         surf, gas = self.import_phases()

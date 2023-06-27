@@ -140,7 +140,7 @@ protected:
     //! Density [kg/m^3]. First component of the state vector.
     double m_rho = NAN;
     //! Axial velocity [m/s]. Second component of the state vector.
-    double m_u = NAN;
+    double m_u = -1.0;
     //! Pressure [Pa]. Third component of the state vector.
     double m_P = NAN;
     //! Temperature [K]. Fourth component of the state vector.
