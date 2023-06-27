@@ -94,7 +94,7 @@ extern "C" {
         }
     }
 
-    int func_new_compound(const char* type, size_t a, size_t b)
+    int func_new_compound(const char* type, int a, int b)
     {
         try {
             return FuncCabinet::add(
@@ -104,7 +104,7 @@ extern "C" {
         }
     }
 
-    int func_new_misc(const char* type, size_t a, double c)
+    int func_new_modified(const char* type, int a, double c)
     {
         try {
             return FuncCabinet::add(newFunc1(type, FuncCabinet::at(a), c));
