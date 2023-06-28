@@ -1681,6 +1681,14 @@ class TestQuantity(utilities.CanteraTest):
         self.assertNear(q1.V + q2.V, q3.V)
         self.assertArrayNear(q1.X*q1.moles + q2.X*q2.moles, q3.X*q3.moles)
 
+    def test_add_errors(self):
+        q1 = ct.Quantity(self.gas, mass=5)
+        q2 = ct.Quantity(self.gas, mass=5)
+        q1.constant = q2.constant = 'HP'
+        q2.TP = q1.T, 1.2 * q1.P
+        with pytest.raises(ValueError, match="pressure is not equal"):
+            q3 = q1 + q2
+
     def test_equilibrate(self):
         self.gas.TPX = 300, 101325, 'CH4:1.0, O2:0.2, N2:1.0'
         q1 = ct.Quantity(self.gas)
