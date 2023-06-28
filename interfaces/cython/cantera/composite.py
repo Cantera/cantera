@@ -317,6 +317,13 @@ class Quantity:
             raise ValueError('Cannot add Quantities with different phase '
                 'definitions.')
         assert self.constant == other.constant
+
+        if self.constant == 'HP':
+            dp_rel = 2 * abs(self.P - other.P) / (self.P + other.P)
+            if dp_rel > 1.0e-7:
+                raise ValueError('Cannot add Quantities at constant pressure when'
+                    f'pressure is not equal ({self.P} != {other.P})')
+
         a1,b1 = getattr(self.phase, self.constant)
         a2,b2 = getattr(other.phase, self.constant)
         m = self.mass + other.mass
