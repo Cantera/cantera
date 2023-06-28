@@ -318,19 +318,29 @@ class Quantity:
                 'definitions.')
         assert self.constant == other.constant
 
-        if self.constant == 'HP':
+        m = self.mass + other.mass
+        Y = (self.Y * self.mass + other.Y * other.mass)
+        if self.constant == 'UV':
+            U = self.int_energy + other.int_energy
+            V = self.volume + other.volume
+            if self.basis == 'mass':
+                self._phase.UVY = U / m, V / m, Y
+            else:
+                n = self.moles + other.moles
+                self._phase.UVY = U / n, V / n, Y
+        else:  # self.constant == 'HP'
             dp_rel = 2 * abs(self.P - other.P) / (self.P + other.P)
             if dp_rel > 1.0e-7:
                 raise ValueError('Cannot add Quantities at constant pressure when'
                     f'pressure is not equal ({self.P} != {other.P})')
 
-        a1,b1 = getattr(self.phase, self.constant)
-        a2,b2 = getattr(other.phase, self.constant)
-        m = self.mass + other.mass
-        a = (a1 * self.mass + a2 * other.mass) / m
-        b = (b1 * self.mass + b2 * other.mass) / m
-        self._phase.Y = (self.Y * self.mass + other.Y * other.mass) / m
-        setattr(self._phase, self.constant, (a,b))
+            H = self.enthalpy + other.enthalpy
+            if self.basis == 'mass':
+                self._phase.HPY = H / m, None, Y
+            else:
+                n = self.moles + other.moles
+                self._phase.HPY = H / n, None, Y
+
         self.state = self._phase.state
         self.mass = m
         return self

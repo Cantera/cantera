@@ -1692,6 +1692,30 @@ class TestQuantity(utilities.CanteraTest):
         self.assertNear(q1.V + q2.V, q3.V)
         self.assertArrayNear(q1.X*q1.moles + q2.X*q2.moles, q3.X*q3.moles)
 
+    def test_add_molar(self):
+        q1 = ct.Quantity(self.gas, mass=5)
+        q2 = ct.Quantity(self.gas, mass=5)
+        q2.TPX = 900, 101325, 'CH4:1.0'
+
+        q1.basis = 'molar'
+        q2.basis = 'molar'
+
+        # addition at constant UV
+        q3 = q1 + q2
+        assert q1.mass + q2.mass == approx(q3.mass)
+
+        assert q1.U + q2.U == approx(q3.U)
+        assert q1.V + q2.V == approx(q3.V)
+
+        # addition at constant HP
+        q1.constant = q2.constant = 'HP'
+        q4 = q1 + q2
+        assert q1.mass + q2.mass == approx(q4.mass)
+
+        assert q1.H + q2.H == approx(q4.H)
+        assert q4.P == approx(q1.P)
+        self.assertArrayNear(q1.X*q1.moles + q2.X*q2.moles, q4.X*q4.moles)
+
     def test_add_errors(self):
         q1 = ct.Quantity(self.gas, mass=5)
         q2 = ct.Quantity(self.gas, mass=5)
