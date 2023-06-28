@@ -5,7 +5,7 @@ import cantera as ct
 from . import utilities
 from .utilities import allow_deprecated
 import pytest
-
+from pytest import approx
 
 class TestThermoPhase(utilities.CanteraTest):
     def setUp(self):
@@ -1610,6 +1610,7 @@ class TestQuantity(utilities.CanteraTest):
 
     def setUp(self):
         self.gas.TPX = 300, 101325, 'O2:1.0, N2:3.76'
+        self.gas.basis = 'mass'
 
     def test_mass_moles(self):
         q1 = ct.Quantity(self.gas, mass=5)
@@ -1637,6 +1638,16 @@ class TestQuantity(utilities.CanteraTest):
         self.assertNear(q1.enthalpy, q1.H)
         self.assertNear(q1.entropy, q1.S)
         self.assertNear(q1.gibbs, q1.G)
+
+    def test_basis(self):
+        q1 = ct.Quantity(self.gas, mass=5)
+        T1, P1 = q1.TP
+        h1 = q1.h  # J/kg
+
+        q1.basis = 'molar'
+        assert q1.T == approx(T1)
+        assert q1.P == approx(P1)
+        assert q1.h == approx(h1 * q1.mean_molecular_weight)
 
     def test_multiply(self):
         q1 = ct.Quantity(self.gas, mass=5)
