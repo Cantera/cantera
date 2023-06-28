@@ -228,7 +228,7 @@ class Quantity:
     __slots__ = ("state", "_phase", "_id", "mass", "constant", "_weakref_proxy")
 
     def __init__(self, phase, mass=None, moles=None, constant='UV'):
-        self.state = phase.TDY
+        self.state = phase.state
         self._phase = phase
         self._weakref_proxy = _WeakrefProxy()
         phase._references[self._weakref_proxy] = True
@@ -253,7 +253,7 @@ class Quantity:
         Get the underlying `Solution` object, with the state set to match the
         wrapping `Quantity` object.
         """
-        self._phase.TDY = self.state
+        self._phase.state = self.state
         return self._phase
 
     @property
@@ -300,7 +300,7 @@ class Quantity:
         if XY is None:
             XY = self.constant
         self.phase.equilibrate(XY, *args, **kwargs)
-        self.state = self._phase.TDY
+        self.state = self._phase.state
 
     def __imul__(self, other):
         self.mass *= other
@@ -331,7 +331,7 @@ class Quantity:
         b = (b1 * self.mass + b2 * other.mass) / m
         self._phase.Y = (self.Y * self.mass + other.Y * other.mass) / m
         setattr(self._phase, self.constant, (a,b))
-        self.state = self._phase.TDY
+        self.state = self._phase.state
         self.mass = m
         return self
 
@@ -354,7 +354,7 @@ def _prop(attr):
 
     def setter(self, value):
         setattr(self.phase, attr, value)
-        self.state = self._phase.TDY
+        self.state = self._phase.state
 
     return property(getter, setter, doc=getattr(Solution, attr).__doc__)
 
