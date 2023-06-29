@@ -13,7 +13,12 @@
 namespace Cantera
 {
 
-//! A container class holding managers for all pieces defining an interface
+//! A container class for chemically-reacting interfaces.
+/*!
+ * Instances of class Interface represent reacting 2D surfaces between bulk 3D phases,
+ * or 1D edges where multiple surfaces (and bulk phases) meet.
+ * @ingroup compobj
+ */
 class Interface : public Solution
 {
 private:
@@ -61,6 +66,7 @@ protected:
  *                 phases kinetics. If empty, adjacent phases will be instantiated based
  *                 on the phase definition.
  * @returns an initialized Interface object.
+ * @ingroup compobj
  */
 shared_ptr<Interface> newInterface(const std::string& infile,
     const std::string& name="", const std::vector<std::string>& adjacent={});
@@ -76,6 +82,7 @@ shared_ptr<Interface> newInterface(const std::string& infile,
  * @param adjacent vector containing adjacent Solution objects. If empty, adjacent
  *                 phases will be instantiated based on the phase definition.
  * @returns an initialized Interface object.
+ * @ingroup compobj
  */
 shared_ptr<Interface> newInterface(const std::string& infile,
     const std::string& name, const std::vector<shared_ptr<Solution>>& adjacent);
@@ -91,6 +98,7 @@ shared_ptr<Interface> newInterface(const std::string& infile,
  * @param adjacent vector containing adjacent Solution objects. If empty, adjacent
  *                 phases will be instantiated based on the phase definition.
  * @returns an initialized Interface object.
+ * @ingroup compobj
  */
 shared_ptr<Interface> newInterface(AnyMap& phaseNode, const AnyMap& rootNode=AnyMap(),
     const std::vector<shared_ptr<Solution>>& adjacent={});

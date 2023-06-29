@@ -17,7 +17,29 @@ class Kinetics;
 class Transport;
 class ExternalHandle;
 
-//! A container class holding managers for all pieces defining a phase
+//! @defgroup compobj Composite Objects
+//! Composite objects create a high-level interface to Cantera's core objects.
+
+//! A container class for chemically-reacting solutions.
+/*!
+ * The Solution class collects all objects needed to describe a chemically-reacting
+ * solution. Instances can be created to represent any type of solution -- a mixture
+ * of gases, a liquid solution, or a solid solution, for example.
+ *
+ * Solution objects only define a small number of methods of their own, and are provided
+ * so that a single object can be used to access thermodynamic, kinetic, and transport
+ * properties of a solution:
+ *  - ThermoPhase manager; accessed via thermo()
+ *  - Kinetics manager; accessed via kinetics()
+ *  - Transport manager; accessed via transport()
+ *
+ * The most common way to instantiate Solution objects is by using a phase definition,
+ * species and reactions defined in an input file:
+ * @code
+ *    shared_ptr<Solution> sol = newSolution("gri30.yaml", "gri30");
+ * @endcode
+ * @ingroup compobj
+ */
 class Solution : public std::enable_shared_from_this<Solution>
 {
 protected:
@@ -160,6 +182,7 @@ protected:
  *                 phases kinetics. If empty, adjacent phases will be instantiated based
  *                 on the phase definition.
  * @returns an initialized Solution object.
+ * @ingroup compobj
  */
 shared_ptr<Solution> newSolution(const std::string& infile, const std::string& name,
     const std::string& transport, const std::vector<std::string>& adjacent);
@@ -176,6 +199,7 @@ shared_ptr<Solution> newSolution(const std::string& infile, const std::string& n
  * @param adjacent vector containing adjacent Solution objects. If empty, adjacent
  *                 phases will be instantiated based on the phase definition.
  * @returns an initialized Solution object.
+ * @ingroup compobj
  */
 shared_ptr<Solution> newSolution(const std::string& infile,
                                  const std::string& name="",
@@ -199,6 +223,7 @@ shared_ptr<Solution> newSolution(const std::string& infile,
  *                 a phase may be adjacent to multiple other phases but should be
  *                 instantiated only once.
  * @returns an initialized Solution object.
+ * @ingroup compobj
  */
 shared_ptr<Solution> newSolution(
     const AnyMap& phaseNode, const AnyMap& rootNode=AnyMap(),
