@@ -27,7 +27,8 @@ extern "C" {
     {
         try {
             shared_ptr<Func1> r;
-            size_t m = lenp;
+            int m = static_cast<int>(lenp);
+            int nn = static_cast<int>(n);
             if (type == SinFuncType) {
                 r = newFunc1("sin", params[0]);
             } else if (type == CosFuncType) {
@@ -51,21 +52,21 @@ extern "C" {
                 vector<double> par(params, params + lenp);
                 r = newFunc1("Arrhenius", par, n);
             } else if (type == PeriodicFuncType) {
-                r = newFunc1("periodic", FuncCabinet::at(n), params[0]);
+                r = newFunc1("periodic", FuncCabinet::at(nn), params[0]);
             } else if (type == SumFuncType) {
-                r = newFunc1("sum", FuncCabinet::at(n), FuncCabinet::at(m));
+                r = newFunc1("sum", FuncCabinet::at(nn), FuncCabinet::at(m));
             } else if (type == DiffFuncType) {
-                r = newFunc1("diff", FuncCabinet::at(n), FuncCabinet::at(m));
+                r = newFunc1("diff", FuncCabinet::at(nn), FuncCabinet::at(m));
             } else if (type == ProdFuncType) {
-                r = newFunc1("product", FuncCabinet::at(n), FuncCabinet::at(m));
+                r = newFunc1("product", FuncCabinet::at(nn), FuncCabinet::at(m));
             } else if (type == RatioFuncType) {
-                r = newFunc1("ratio", FuncCabinet::at(n), FuncCabinet::at(m));
+                r = newFunc1("ratio", FuncCabinet::at(nn), FuncCabinet::at(m));
             } else if (type == CompositeFuncType) {
-                r = newFunc1("composite", FuncCabinet::at(n), FuncCabinet::at(m));
+                r = newFunc1("composite", FuncCabinet::at(nn), FuncCabinet::at(m));
             } else if (type == TimesConstantFuncType) {
-                r = newFunc1("times-constant", FuncCabinet::at(n), params[0]);
+                r = newFunc1("times-constant", FuncCabinet::at(nn), params[0]);
             } else if (type == PlusConstantFuncType) {
-                r = newFunc1("plus-constant", FuncCabinet::at(n), params[0]);
+                r = newFunc1("plus-constant", FuncCabinet::at(nn), params[0]);
             } else {
                 throw CanteraError("func_new", "unknown function type");
             }

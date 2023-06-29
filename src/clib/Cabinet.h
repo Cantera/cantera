@@ -63,7 +63,7 @@ public:
     static int add(shared_ptr<M> obj) {
         dataRef data = getData();
         data.push_back(obj);
-        int idx = data.size() - 1;
+        int idx = static_cast<int>(data.size()) - 1;
         lookupRef lookup = getLookup();
         if (index(*obj) >= 0) {
             lookup[obj.get()].insert(idx);
@@ -77,8 +77,7 @@ public:
      * Return cabinet size.
      */
     static int size() {
-        int size = getData().size();
-        return size;
+        return static_cast<int>(getData().size());
     }
 
     /**
@@ -87,7 +86,7 @@ public:
     static int clear() {
         dataRef data = getData();
         for (size_t i = 0; i < data.size(); i++) {
-            del(i);
+            del(static_cast<int>(i));
         }
         return 0;
     }
