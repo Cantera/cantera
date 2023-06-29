@@ -13,7 +13,6 @@
 #include <boost/dll/alias.hpp>
 
 #include "Python.h"
-#include <codecvt>
 #include <filesystem>
 
 #ifdef _WIN32
@@ -83,7 +82,7 @@ void loadCanteraPython()
         #endif
         string path(venv_path);
         path += suffix;
-        wstring wpath = wstring_convert<codecvt_utf8<wchar_t>>().from_bytes(path);
+        wstring wpath = std::filesystem::path(path).wstring();
         PyStatus status = PyConfig_SetString(&pyconf, &pyconf.program_name,
                                                 wpath.c_str());
         checkPythonError(PyStatus_Exception(status), "PyConfig_SetString failed");
