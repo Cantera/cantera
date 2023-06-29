@@ -302,6 +302,20 @@ class Quantity:
         self.phase.equilibrate(XY, *args, **kwargs)
         self.state = self._phase.state
 
+    def set_equivalence_ratio(self, phi, fuel, oxidizer, basis="mole", *, diluent=None,
+                              fraction=None):
+        self._phase.state = self.state
+        self._phase.set_equivalence_ratio(phi, fuel, oxidizer, basis, diluent=diluent,
+                                          fraction=fraction)
+        self.state = self._phase.state
+    set_equivalence_ratio.__doc__ = Solution.set_equivalence_ratio.__doc__
+
+    def set_mixture_fraction(self, mixture_fraction, fuel, oxidizer, basis='mole'):
+        self._phase.state = self.state
+        self._phase.set_mixture_fraction(mixture_fraction, fuel, oxidizer, basis)
+        self.state = self._phase.state
+    set_mixture_fraction.__doc__ = Solution.set_mixture_fraction.__doc__
+
     def __imul__(self, other):
         self.mass *= other
         return self
