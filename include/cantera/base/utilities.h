@@ -186,6 +186,12 @@ const U& getValue(const std::map<T, U>& m, const T& key, const U& default_val) {
     return (iter == m.end()) ? default_val : iter->second;
 }
 
+//! Get the size of a container, cast to a signed integer type
+template <class T, class U=int>
+U len(const T& container) {
+    return static_cast<U>(container.size());
+}
+
 //! A macro for generating member function detectors, which can then be used in
 //! combination with `if constexpr` to condition behavior on the availability of that
 //! member function. See MultiRate for examples of use.
