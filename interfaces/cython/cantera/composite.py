@@ -391,6 +391,8 @@ def _method(orig):
 for _attr in dir(Solution):
     if _attr.startswith('_') or _attr in Quantity.__dict__ or _attr == 'state':
         continue
+    if _attr.startswith('set_unnormalized'):
+        continue
     else:
         _orig = getattr(Solution, _attr)
         if hasattr(_orig, "__call__"):
