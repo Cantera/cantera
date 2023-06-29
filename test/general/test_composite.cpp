@@ -87,7 +87,7 @@ TEST(SolutionArray, normalize)
     vector<double> state = arr->getState(0); // size is 12
     vector<double> newState = {state[0], state[1], 1, 1, 1, 1, 1, 1, 1, 1, 1, -1e12};
     ASSERT_EQ(newState.size(), state.size());
-    for (size_t loc = 0; loc < arr->size(); loc++) {
+    for (int loc = 0; loc < arr->size(); loc++) {
         arr->setState(loc, newState);
         state = arr->getState(loc);
         for (size_t i = 0; i < state.size(); i++) {
@@ -95,7 +95,7 @@ TEST(SolutionArray, normalize)
         }
     }
     arr->normalize();
-    for (size_t loc = 0; loc < arr->size(); loc++) {
+    for (int loc = 0; loc < arr->size(); loc++) {
         state = arr->getState(loc);
         for (size_t i = 2; i < state.size() - 1; i++) {
             // test normalized species mass fractions - all are equal except last
@@ -109,7 +109,7 @@ TEST(SolutionArray, normalize)
 
     newState = {state[0], state[1], 100, 0, 0, 0, 0, 0, 0, 0, 0, -1e12};
     ASSERT_EQ(newState.size(), state.size());
-    for (size_t loc = 0; loc < arr->size(); loc++) {
+    for (int loc = 0; loc < arr->size(); loc++) {
         arr->setState(loc, newState);
         state = arr->getState(loc);
         for (size_t i = 0; i < state.size(); i++) {
@@ -117,7 +117,7 @@ TEST(SolutionArray, normalize)
         }
     }
     arr->normalize();
-    for (size_t loc = 0; loc < arr->size(); loc++) {
+    for (int loc = 0; loc < arr->size(); loc++) {
         state = arr->getState(loc);
         ASSERT_EQ(state[2], 1.);
         for (size_t i = 3; i < state.size(); i++) {
@@ -222,7 +222,7 @@ TEST(SolutionArray, extraSingle) {
 template<class T>
 void testSingleCol(SolutionArray& arr, const T& value, bool sliced=false)
 {
-    size_t size = arr.size();
+    int size = arr.size();
     T defaultValue = vector<T>(1)[0];
 
     AnyValue any;
@@ -240,8 +240,8 @@ void testSingleCol(SolutionArray& arr, const T& value, bool sliced=false)
     AnyValue extra;
     extra = arr.getComponent("spam");
     ASSERT_TRUE(extra.isVector<T>());
-    ASSERT_EQ(extra.asVector<T>().size(), arr.size());
-    for (size_t i = 0; i < size; ++i) {
+    ASSERT_EQ(len(extra.asVector<T>()), arr.size());
+    for (int i = 0; i < size; ++i) {
         ASSERT_EQ(extra.asVector<T>()[i], value);
     }
 
@@ -259,7 +259,7 @@ void testSingleCol(SolutionArray& arr, const T& value, bool sliced=false)
         extra = arr.getComponent("spam");
         ASSERT_TRUE(extra.isVector<T>());
         ASSERT_EQ(arr.size(), 2 * size);
-        for (size_t i = 0; i < size; ++i) {
+        for (int i = 0; i < size; ++i) {
             ASSERT_EQ(extra.asVector<T>()[i], value);
             ASSERT_EQ(extra.asVector<T>()[i + size], defaultValue);
         }
@@ -269,7 +269,7 @@ void testSingleCol(SolutionArray& arr, const T& value, bool sliced=false)
     extra = arr.getComponent("spam");
     AnyMap m;
     m["spam"] = value;
-    for (size_t i = 0; i < arr.size(); ++i) {
+    for (int i = 0; i < arr.size(); ++i) {
         ASSERT_EQ(extra.asVector<T>()[i], defaultValue);
         arr.setAuxiliary(i, m);
         ASSERT_EQ(arr.getAuxiliary(i)["spam"].as<T>(), value);
@@ -279,7 +279,7 @@ void testSingleCol(SolutionArray& arr, const T& value, bool sliced=false)
     any = value;
     arr.setComponent("spam", any);
     extra = arr.getComponent("spam");
-    for (size_t i = 0; i < arr.size(); ++i) {
+    for (int i = 0; i < arr.size(); ++i) {
         ASSERT_EQ(extra.asVector<T>()[i], value);
     }
 }
@@ -361,7 +361,7 @@ TEST(SolutionArray, extraSlicedStrings) {
 template<class T>
 void testMultiCol(SolutionArray& arr, const vector<T>& value, bool sliced=false)
 {
-    size_t size = arr.size();
+    int size = arr.size();
     T defaultValue = vector<T>(1)[0];
 
     AnyValue any;
@@ -382,8 +382,8 @@ void testMultiCol(SolutionArray& arr, const vector<T>& value, bool sliced=false)
     ASSERT_TRUE(extra.isMatrix<T>());
     ASSERT_EQ(extra.matrixShape().first, arr.size());
     ASSERT_EQ(extra.matrixShape().second, any.vectorSize());
-    for (size_t i = 0; i < size; ++i) {
-        for (size_t j = 0; j < value.size(); ++j) {
+    for (int i = 0; i < size; ++i) {
+        for (int j = 0; j < value.size(); ++j) {
             ASSERT_EQ(extra.asVector<vector<T>>()[i][j], value[j]);
         }
     }
@@ -406,9 +406,9 @@ void testMultiCol(SolutionArray& arr, const vector<T>& value, bool sliced=false)
         arr.resize(2 * size);
         extra = arr.getComponent("spam");
         ASSERT_EQ(arr.size(), 2 * size);
-        ASSERT_EQ(extra.asVector<vector<T>>().size(), 2 * size);
-        for (size_t i = 0; i < size; ++i) {
-            for (size_t j = 0; j < value.size(); ++j) {
+        ASSERT_EQ(len(extra.asVector<vector<T>>()), 2 * size);
+        for (int i = 0; i < size; ++i) {
+            for (int j = 0; j < value.size(); ++j) {
                 ASSERT_EQ(extra.asVector<vector<T>>()[i][j], value[j]);
                 ASSERT_EQ(extra.asVector<vector<T>>()[i + size][j], defaultValue);
             }
@@ -421,7 +421,7 @@ void testMultiCol(SolutionArray& arr, const vector<T>& value, bool sliced=false)
     extra = arr.getComponent("spam");
     ASSERT_TRUE(extra.isMatrix<T>());
     ASSERT_EQ(extra.matrixShape().second, value.size());
-    for (size_t i = 0; i < arr.size(); ++i) {
+    for (int i = 0; i < arr.size(); ++i) {
         for (size_t j = 0; j < value.size(); ++j) {
             ASSERT_EQ(extra.asVector<vector<T>>()[i][j], defaultValue);
         }

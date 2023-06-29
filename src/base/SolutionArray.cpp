@@ -12,6 +12,7 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/thermo/SurfPhase.h"
+#include "cantera/base/utilities.h"
 #include <boost/algorithm/string.hpp>
 #include <fstream>
 #include <sstream>
@@ -279,7 +280,7 @@ vector<string> doubleColumn(string name, const vector<double>& comp,
     // assemble output
     string section = fmt::format("{{:>{}}}", maxLen);
     vector<string> col = {fmt::format(section, name)};
-    size_t count = 0;
+    int count = 0;
     for (const auto& val : data) {
         col.push_back(fmt::format(notation, val));
         count++;
@@ -339,7 +340,7 @@ vector<string> integerColumn(string name, const vector<long int>& comp,
 
     // assemble output
     vector<string> col = {fmt::format(notation, name)};
-    size_t count = 0;
+    int count = 0;
     for (const auto& val : data) {
         col.push_back(fmt::format(notation, val));
         count++;
@@ -382,7 +383,7 @@ vector<string> stringColumn(string name, const vector<string>& comp,
     // assemble output
     notation = fmt::format("  {{:>{}}}", maxLen);
     vector<string> col = {fmt::format(notation, name)};
-    size_t count = 0;
+    int count = 0;
     for (const auto& val : data) {
         col.push_back(fmt::format(notation, val));
         count++;
@@ -407,16 +408,16 @@ vector<string> formatColumn(string name, const AnyValue& comp, int rows, int wid
 
     // create alternative representation
     string repr;
-    size_t size;
+    int size;
     if (comp.isVector<vector<double>>()) {
         repr = "[ <double> ]";
-        size = comp.asVector<vector<double>>().size();
+        size = len(comp.asVector<vector<double>>());
     } else if (comp.isVector<vector<long int>>()) {
         repr = "[ <long int> ]";
-        size = comp.asVector<vector<long int>>().size();
+        size = len(comp.asVector<vector<long int>>());
     } else if (comp.isVector<vector<string>>()) {
         repr = "[ <string> ]";
-        size = comp.asVector<vector<string>>().size();
+        size = len(comp.asVector<vector<string>>());
     } else {
         throw CanteraError(
             "formatColumn", "Encountered invalid data for component '{}'.", name);
@@ -437,8 +438,7 @@ vector<string> formatColumn(string name, const AnyValue& comp, int rows, int wid
             col.push_back(repr);
         }
         col.push_back(fmt::format(notation, "..."));
-        int size_ = static_cast<int>(size);
-        for (int row = size_ - rows / 2; row < size_; row++) {
+        for (int row = size - rows / 2; row < size; row++) {
             col.push_back(repr);
         }
     }
@@ -470,11 +470,11 @@ string SolutionArray::info(const vector<string>& keys, int rows, int width)
         // assemble columns fitting within a maximum width; if this width is exceeded,
         // a "..." separator is inserted close to the center. Accordingly, the matrix
         // needs to be assembled from two halves.
-        size_t front = 0;
-        size_t back = components.size() - 1;
-        size_t fLen = cols.back()[0].size();
-        size_t bLen = 0;
-        size_t sep = 5; // separator width
+        int front = 0;
+        int back = len(components) - 1;
+        int fLen = len(cols.back()[0]);
+        int bLen = 0;
+        int sep = 5; // separator width
         bool done = false;
         while (!done && front <= back) {
             string key;
@@ -482,12 +482,12 @@ string SolutionArray::info(const vector<string>& keys, int rows, int width)
                 // add trailing columns
                 key = components[back];
                 auto col = formatColumn(key, getComponent(key), rows, col_width);
-                if (col[0].size() + fLen + bLen + sep > width) {
+                if (len(col[0]) + fLen + bLen + sep > width) {
                     done = true;
                     break;
                 }
                 tail.push_back(col);
-                bLen += tail.back()[0].size();
+                bLen += len(tail.back()[0]);
                 back--;
             }
             if (done || front > back) {
@@ -497,12 +497,12 @@ string SolutionArray::info(const vector<string>& keys, int rows, int width)
                 // add leading columns
                 key = components[front];
                 auto col = formatColumn(key, getComponent(key), rows, col_width);
-                if (col[0].size() + fLen + bLen + sep > width) {
+                if (len(col[0]) + fLen + bLen + sep > width) {
                     done = true;
                     break;
                 }
                 cols.push_back(col);
-                fLen += cols.back()[0].size();
+                fLen += len(cols.back()[0]);
                 front++;
             }
         }
@@ -748,12 +748,12 @@ void SolutionArray::setLoc(int loc, bool restore)
                 "Both current and buffered indices are invalid.");
         }
         return;
-    } else if (m_active[loc_] == m_loc) {
+    } else if (static_cast<size_t>(m_active[loc_]) == m_loc) {
         return;
     } else if (loc_ >= m_size) {
         throw IndexError("SolutionArray::setLoc", "indices", loc_, m_size - 1);
     }
-    m_loc = m_active[loc_];
+    m_loc = static_cast<size_t>(m_active[loc_]);
     if (restore) {
         size_t nState = m_sol->thermo()->stateSize();
         m_sol->thermo()->restoreState(nState, m_data->data() + m_loc * m_stride);
