@@ -1639,6 +1639,23 @@ class TestQuantity(utilities.CanteraTest):
         self.assertNear(q1.entropy, q1.S)
         self.assertNear(q1.gibbs, q1.G)
 
+    def test_set_equivalence_ratio(self):
+        q1 = ct.Quantity(self.gas, mass=3)
+        T1, P1 = q1.TP
+        q1.set_equivalence_ratio(2.0, 'CH4:1.0', 'O2:1.0, N2:3.76')
+        assert q1.T == approx(T1)
+        assert q1.P == approx(P1)
+        assert q1.X[q1.species_index('CH4')] == approx(1.0 / (1 + 4.76))
+
+    def test_set_mixture_fraction(self):
+        q1 = ct.Quantity(self.gas, mass=3)
+        T1, P1 = q1.TP
+        q1.set_mixture_fraction(1.0, 'CH3OH:1.0', 'O2:1.0, N2:3.76')
+        assert q1.T == approx(T1)
+        assert q1.P == approx(P1)
+        assert q1.mass == 3
+        assert q1.X[q1.species_index('CH3OH')] == approx(1.0)
+
     def test_basis(self):
         q1 = ct.Quantity(self.gas, mass=5)
         T1, P1 = q1.TP
