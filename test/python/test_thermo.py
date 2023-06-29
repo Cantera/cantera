@@ -1756,6 +1756,12 @@ class TestQuantity(utilities.CanteraTest):
         with self.assertRaises(AttributeError):
             q1.HPQ = self.gas.H, self.gas.P, 1
 
+        with pytest.raises(AttributeError):
+            q1.set_unnormalized_mass_fractions(np.ones(q1.n_species))
+
+        with pytest.raises(AttributeError):
+            q1.set_unnormalized_mole_fractions(np.ones(q1.n_species))
+
     def test_incompatible(self):
         gas2 = ct.Solution('h2o2.yaml', transport_model=None)
         q1 = ct.Quantity(self.gas)
