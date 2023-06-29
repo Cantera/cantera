@@ -37,7 +37,7 @@ namespace Cantera
 {
 
 SolutionArray::SolutionArray(const shared_ptr<Solution>& sol,
-                             size_t size, const AnyMap& meta)
+                             int size, const AnyMap& meta)
     : m_sol(sol)
     , m_size(size)
     , m_dataSize(size)
@@ -52,11 +52,11 @@ SolutionArray::SolutionArray(const shared_ptr<Solution>& sol,
     m_extra = make_shared<map<string, AnyValue>>();
     m_order = make_shared<map<int, string>>();
     for (size_t i = 0; i < m_dataSize; ++i) {
-        m_active.push_back(i);
+        m_active.push_back(static_cast<int>(i));
     }
     reset();
     m_apiShape.resize(1);
-    m_apiShape[0] = m_dataSize;
+    m_apiShape[0] = static_cast<long>(m_dataSize);
 }
 
 SolutionArray::SolutionArray(const SolutionArray& other,
@@ -150,7 +150,7 @@ void SolutionArray::reset()
     }
 }
 
-void SolutionArray::resize(size_t size)
+void SolutionArray::resize(int size)
 {
     if (apiNdim() > 1) {
         throw CanteraError("SolutionArray::resize",
@@ -161,8 +161,8 @@ void SolutionArray::resize(size_t size)
         throw CanteraError("SolutionArray::resize",
             "Unable to resize as data are shared by multiple objects.");
     }
-    _resize(size);
-    m_apiShape[0] = size;
+    _resize(static_cast<size_t>(size));
+    m_apiShape[0] = static_cast<long>(size);
 }
 
 void SolutionArray::setApiShape(const vector<long int>& shape)
@@ -196,7 +196,7 @@ void SolutionArray::_resize(size_t size)
     }
     m_active.clear();
     for (size_t i = 0; i < m_dataSize; ++i) {
-        m_active.push_back(i);
+        m_active.push_back(static_cast<int>(i));
     }
 }
 
@@ -209,8 +209,9 @@ vector<string> doubleColumn(string name, const vector<double>& comp,
     vector<double> data;
     vector<string> raw;
     string notation = fmt::format("{{:{}.{}g}}", width, (width - 1) / 2);
-    int dots = comp.size() + 1;
-    if (comp.size() <= rows) {
+    int csize = static_cast<int>(comp.size());
+    int dots = csize + 1;
+    if (csize <= rows) {
         for (const auto& val : comp) {
             data.push_back(val);
             raw.push_back(boost::trim_copy(fmt::format(notation, val)));
@@ -221,7 +222,7 @@ vector<string> doubleColumn(string name, const vector<double>& comp,
             data.push_back(comp[row]);
             raw.push_back(boost::trim_copy(fmt::format(notation, comp[row])));
         }
-        for (int row = comp.size() - rows / 2; row < comp.size(); row++) {
+        for (int row = csize - rows / 2; row < csize; row++) {
             data.push_back(comp[row]);
             raw.push_back(boost::trim_copy(fmt::format(notation, comp[row])));
         }
@@ -296,8 +297,9 @@ vector<string> integerColumn(string name, const vector<long int>& comp,
     vector<double> data;
     string notation = fmt::format("{{:{}}}", width);
     size_t maxLen = 2; // minimum column width is 2
-    int dots = comp.size() + 1;
-    if (comp.size() <= rows) {
+    int csize = static_cast<int>(comp.size());
+    int dots = csize + 1;
+    if (csize <= rows) {
         for (const auto& val : comp) {
             data.push_back(val);
             string name = boost::trim_copy(fmt::format(notation, val));
@@ -316,7 +318,7 @@ vector<string> integerColumn(string name, const vector<long int>& comp,
             }
             maxLen = std::max(maxLen, name.size());
         }
-        for (int row = comp.size() - rows / 2; row < comp.size(); row++) {
+        for (int row = csize - rows / 2; row < csize; row++) {
             data.push_back(comp[row]);
             string name = boost::trim_copy(fmt::format(notation, comp[row]));
             if (name[0] == '-') {
@@ -355,8 +357,9 @@ vector<string> stringColumn(string name, const vector<string>& comp,
     vector<string> data;
     string notation = fmt::format("{{:{}}}", width);
     size_t maxLen = 3; // minimum column width is 3
-    int dots = comp.size() + 1;
-    if (comp.size() <= rows) {
+    int csize = static_cast<int>(comp.size());
+    int dots = csize + 1;
+    if (csize <= rows) {
         for (const auto& val : comp) {
             data.push_back(val);
             maxLen = std::max(maxLen,
@@ -369,7 +372,7 @@ vector<string> stringColumn(string name, const vector<string>& comp,
             maxLen = std::max(maxLen,
                 boost::trim_copy(fmt::format(notation, comp[row])).size());
         }
-        for (int row = comp.size() - rows / 2; row < comp.size(); row++) {
+        for (int row = csize - rows / 2; row < csize; row++) {
             data.push_back(comp[row]);
             maxLen = std::max(maxLen,
                 boost::trim_copy(fmt::format(notation, comp[row])).size());
@@ -434,7 +437,8 @@ vector<string> formatColumn(string name, const AnyValue& comp, int rows, int wid
             col.push_back(repr);
         }
         col.push_back(fmt::format(notation, "..."));
-        for (int row = size - rows / 2; row < size; row++) {
+        int size_ = static_cast<int>(size);
+        for (int row = size_ - rows / 2; row < size_; row++) {
             col.push_back(repr);
         }
     }
@@ -732,37 +736,38 @@ void SolutionArray::setComponent(const string& name, const AnyValue& data)
     }
 }
 
-void SolutionArray::setLoc(size_t loc, bool restore)
+void SolutionArray::setLoc(int loc, bool restore)
 {
+    size_t loc_ = static_cast<size_t>(loc);
     if (m_size == 0) {
         throw CanteraError("SolutionArray::setLoc",
             "Unable to set location in empty SolutionArray.");
-    } else if (loc == npos) {
+    } else if (loc < 0) {
         if (m_loc == npos) {
             throw CanteraError("SolutionArray::setLoc",
                 "Both current and buffered indices are invalid.");
         }
         return;
-    } else if (m_active[loc] == (int)m_loc) {
+    } else if (m_active[loc_] == m_loc) {
         return;
-    } else if (loc >= m_size) {
-        throw IndexError("SolutionArray::setLoc", "indices", loc, m_size - 1);
+    } else if (loc_ >= m_size) {
+        throw IndexError("SolutionArray::setLoc", "indices", loc_, m_size - 1);
     }
-    m_loc = m_active[loc];
+    m_loc = m_active[loc_];
     if (restore) {
         size_t nState = m_sol->thermo()->stateSize();
         m_sol->thermo()->restoreState(nState, m_data->data() + m_loc * m_stride);
     }
 }
 
-void SolutionArray::updateState(size_t loc)
+void SolutionArray::updateState(int loc)
 {
     setLoc(loc, false);
     size_t nState = m_sol->thermo()->stateSize();
     m_sol->thermo()->saveState(nState, m_data->data() + m_loc * m_stride);
 }
 
-vector<double> SolutionArray::getState(size_t loc)
+vector<double> SolutionArray::getState(int loc)
 {
     setLoc(loc);
     size_t nState = m_sol->thermo()->stateSize();
@@ -771,7 +776,7 @@ vector<double> SolutionArray::getState(size_t loc)
     return out;
 }
 
-void SolutionArray::setState(size_t loc, const vector<double>& state)
+void SolutionArray::setState(int loc, const vector<double>& state)
 {
     size_t nState = m_sol->thermo()->stateSize();
     if (state.size() != nState) {
@@ -794,7 +799,7 @@ void SolutionArray::normalize() {
     vector<double> out(nState);
     if (nativeState.count("Y")) {
         size_t offset = nativeState["Y"];
-        for (size_t loc = 0; loc < m_size; loc++) {
+        for (int loc = 0; loc < static_cast<int>(m_size); loc++) {
             setLoc(loc, true); // set location and restore state
             phase->setMassFractions(m_data->data() + m_loc * m_stride + offset);
             m_sol->thermo()->saveState(out);
@@ -802,7 +807,7 @@ void SolutionArray::normalize() {
         }
     } else if (nativeState.count("X")) {
         size_t offset = nativeState["X"];
-        for (size_t loc = 0; loc < m_size; loc++) {
+        for (int loc = 0; loc < static_cast<int>(m_size); loc++) {
             setLoc(loc, true); // set location and restore state
             phase->setMoleFractions(m_data->data() + m_loc * m_stride + offset);
             m_sol->thermo()->saveState(out);
@@ -814,7 +819,7 @@ void SolutionArray::normalize() {
     }
 }
 
-AnyMap SolutionArray::getAuxiliary(size_t loc)
+AnyMap SolutionArray::getAuxiliary(int loc)
 {
     setLoc(loc);
     AnyMap out;
@@ -842,7 +847,7 @@ AnyMap SolutionArray::getAuxiliary(size_t loc)
     return out;
 }
 
-void SolutionArray::setAuxiliary(size_t loc, const AnyMap& data)
+void SolutionArray::setAuxiliary(int loc, const AnyMap& data)
 {
     setLoc(loc, false);
     for (const auto& [name, value] : data) {
@@ -1051,7 +1056,7 @@ void SolutionArray::writeEntry(const string& fname, bool overwrite, const string
     output << header.str() << std::endl << std::setprecision(9);
 
     vector<double> buf(speciesNames.size(), 0.);
-    for (size_t row = 0; row < m_size; row++) {
+    for (int row = 0; row < static_cast<int>(m_size); row++) {
         setLoc(row);
         if (mole) {
             m_sol->thermo()->getMoleFractions(buf.data());
@@ -1254,7 +1259,7 @@ void SolutionArray::append(const vector<double>& state, const AnyMap& extra)
             "Unable to append multi-dimensional arrays.");
     }
 
-    size_t pos = size();
+    int pos = size();
     resize(pos + 1);
     try {
         setState(pos, state);
@@ -1643,7 +1648,7 @@ void SolutionArray::readEntry(const string& fname, const string& name,
         m_meta.erase("api-shape");
     } else {
         // legacy format; size needs to be detected
-        resize(size);
+        resize(static_cast<int>(size));
     }
 
     if (m_size == 0) {
@@ -1793,7 +1798,7 @@ void SolutionArray::readEntry(const AnyMap& root, const string& name, const stri
     }
 
     // set size and initialize
-    size_t size = 0;
+    long size = 0;
     if (path.hasKey("size")) {
         // one-dimensional array
         resize(path["size"].asInt());
@@ -1806,9 +1811,9 @@ void SolutionArray::readEntry(const AnyMap& root, const string& name, const stri
         size = path.getInt("points", 0);
         if (!path.hasKey("T") && !path.hasKey("temperature")) {
             // overwrite size - Sim1D erroneously assigns '1'
-            size = 0;
+            size = (long)0;
         }
-        resize(size);
+        resize(static_cast<int>(size));
     }
     m_extra->clear();
 

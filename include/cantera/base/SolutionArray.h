@@ -27,7 +27,7 @@ class SolutionArray
 {
 private:
     SolutionArray(const shared_ptr<Solution>& sol,
-                  size_t size,
+                  int size,
                   const AnyMap& meta);
 
     SolutionArray(const SolutionArray& arr, const vector<int>& indices);
@@ -43,7 +43,7 @@ public:
      *  @param meta  AnyMap holding SolutionArray meta data
      */
     static shared_ptr<SolutionArray> create(const shared_ptr<Solution>& sol,
-                                            size_t size=0,
+                                            int size=0,
                                             const AnyMap& meta={})
     {
         return shared_ptr<SolutionArray>(new SolutionArray(sol, size, meta));
@@ -70,7 +70,7 @@ public:
     }
 
     //! Resize SolutionArray objects with a single dimension (default).
-    void resize(size_t size);
+    void resize(int size);
 
     //! SolutionArray shape information used by high-level API's.
     vector<long int> apiShape() const {
@@ -82,8 +82,8 @@ public:
     void setApiShape(const vector<long int>& shape);
 
     //! Number of SolutionArray dimensions used by high-level API's.
-    size_t apiNdim() const {
-        return m_apiShape.size();
+    int apiNdim() const {
+        return static_cast<int>(m_apiShape.size());
     }
 
     /*!
@@ -142,18 +142,18 @@ public:
     /*!
      *  Update the buffered location used to access SolutionArray entries.
      */
-    void setLoc(size_t loc, bool restore=true);
+    void setLoc(int loc, bool restore=true);
 
     /*!
      *  Update state at given location to state of associated Solution object.
      */
-    void updateState(size_t loc);
+    void updateState(int loc);
 
     //! Retrieve the state vector for a given location.
-    vector<double> getState(size_t loc);
+    vector<double> getState(int loc);
 
     //! Set the state vector for a given location.
-    void setState(size_t loc, const vector<double>& state);
+    void setState(int loc, const vector<double>& state);
 
     //! Normalize mass/mole fractions
     void normalize();
@@ -178,10 +178,10 @@ public:
     vector<string> listExtra(bool all=true) const;
 
     //! Retrieve auxiliary data for a given location.
-    AnyMap getAuxiliary(size_t loc);
+    AnyMap getAuxiliary(int loc);
 
     //! Set auxiliary data for a given location.
-    void setAuxiliary(size_t loc, const AnyMap& data);
+    void setAuxiliary(int loc, const AnyMap& data);
 
     //! Append location entry at end of SolutionArray.
     void append(const vector<double>& state, const AnyMap& extra);

@@ -789,7 +789,8 @@ AnyMap StFlow::getMeta() const
 
 shared_ptr<SolutionArray> StFlow::asArray(const double* soln) const
 {
-    auto arr = SolutionArray::create(m_solution, nPoints(), getMeta());
+    auto arr = SolutionArray::create(
+        m_solution, static_cast<int>(nPoints()), getMeta());
     arr->addExtra("grid", false); // leading entry
     AnyValue value;
     value = m_z;
