@@ -39,28 +39,52 @@ const int TabulatedFuncType = 120;
 
 class TimesConstant1;
 
-//! @defgroup func1 Functor Expressions for one Variable
+//! @defgroup func1 Functor Objects
+//! Functors implement functions of a single variable \f$ f(x) \f$.
+//! Functor objects can be combined to form compound expressions, which allows for
+//! the implementation of generic mathematical expressions.
 
-//! @defgroup func1simple Simple Functor Classes
-//! Simple functor classes implement standard mathematical expressions with a single
+//! @defgroup func1simple Simple Functors
+//! Simple functors implement standard mathematical expressions with a single
 //! parameter.
+//! The following simple functor types are implemented:
+//! - \c "sin" (class Sin1), \c "cos" (class Cos1),
+//! - \c "exp" (class Exp1), \c "log" (class Log1),
+//! - \c "pow" (class Pow1),
+//! - \c "constant" (class Const1).
 //! @ingroup func1
 
-//! @defgroup func1advanced Advanced Functor Classes
-//! Advanced functor classes implement expressions that require multiple parameters.
+//! @defgroup func1advanced Advanced Functors
+//! Advanced functors implement expressions that require multiple parameters.
+//! The following advanced functor types are implemented:
+//! - \c "tabulated-linear" and \c "tabulated-previous" (class Tabulated1),
+//! - \c "polynomial" (class Poly1),
+//! - \c "Fourier" (class Fourier1),
+//! - \c "Gaussian" (class Gaussian1),
+//! - \c "Arrhenius" (class Arrhenius1).
 //! @ingroup func1
 
-//! @defgroup func1compound Compound Functor Classes
-//! Compound functor classes implement expressions that are composed of other functors.
+//! @defgroup func1compound Compound Functors
+//! Compound functors implement expressions that are composed of other functors.
+//! The following compound functor types are implemented:
+//! - \c "sum" (class Sum1),
+//! - \c "diff" (class Diff1),
+//! - \c "product" (class Product1),
+//! - \c "ratio" (class Ratio1),
+//! - \c "composite" (class Composite1),
 //! @ingroup func1
 
-//! @defgroup func1modified Modified Functor Classes
-//! This group of functor classes implement expressions that involve one functor and
+//! @defgroup func1modified Modified Functors
+//! Modified functors implement expressions that involve one functor and
 //! a single parameter.
+//! The following modified functor types are implemented:
+//! - \c "times-constant" (class TimesConstant1),
+//! - \c "plus-constant" (class PlusConstant1),
+//! - \c "periodic" (class Periodic1).
 //! @ingroup func1
 
 //! @defgroup func1helper Helper Functions
-//! Helper functions detect simplifications that can be made to a compound expression.
+//! Helper functions detect simplifications that can be made to compound expressions.
 //! @ingroup func1
 
 /**
@@ -235,9 +259,11 @@ shared_ptr<Func1> newTimesConstFunction(shared_ptr<Func1> f1, double c);
 //! @ingroup func1helper
 shared_ptr<Func1> newPlusConstFunction(shared_ptr<Func1> f1, double c);
 
-//! Implements the \c sin() function
+//! Implements the \c sin() function.
 /*!
- * The argument to sin() is in radians
+ * The functor class with type \c "sin" returns \f$ f(x) = \cos(\omega x) \f$,
+ * where the argument \f$ x \f$ is in radians.
+ * @param omega  Frequency \f$ \omega \f$ (default=1.0)
  * @ingroup func1simple
  */
 class Sin1 : public Func1
@@ -248,7 +274,7 @@ public:
     }
 
     //! Constructor uses single parameter (frequency)
-    Sin1(const vector<double>& paramss, size_t n=npos);
+    Sin1(const vector<double>& params, size_t n=npos);
 
     Sin1(const Sin1& b) :
         Func1(b) {
@@ -282,9 +308,11 @@ public:
 };
 
 
-//! Implements the \c cos() function
+//! Implements the \c cos() function.
 /*!
- * The argument to cos() is in radians
+ * The functor class with type \c "cos" returns \f$ f(x) = \cos(\omega x) \f$,
+ * where the argument \f$ x \f$ is in radians.
+ * @param omega  Frequency \f$ \omega \f$ (default=1.0)
  * @ingroup func1simple
  */
 class Cos1 : public Func1
@@ -326,15 +354,17 @@ public:
 };
 
 
-//! Implements the \c exp() (exponential) function
+//! Implements the \c exp() (exponential) function.
 /*!
+ * The functor class with type \c "exp" returns \f$ f(x) = \exp(a x) \f$.
+ * @param a  Factor (default=1.0)
  * @ingroup func1simple
  */
 class Exp1 : public Func1
 {
 public:
-    Exp1(double A=1.0) {
-        m_c = A;
+    Exp1(double a=1.0) {
+        m_c = a;
     }
 
     //! Constructor uses single parameter (exponent factor)
@@ -368,16 +398,18 @@ public:
 };
 
 
-//! Implements the \c log() (natural logarithm) function
+//! Implements the \c log() (natural logarithm) function.
 /*!
+ * The functor class with type \c "log" returns \f$ f(x) = \log(a x) \f$.
+ * @param a  Factor (default=1.0)
  * @ingroup func1simple
  * @since New in Cantera 3.0
  */
 class Log1 : public Func1
 {
 public:
-    Log1(double A=1.0) {
-        m_c = A;
+    Log1(double a=1.0) {
+        m_c = a;
     }
 
     //! Constructor uses single parameter (factor)
@@ -396,8 +428,10 @@ public:
     virtual std::string write(const string& arg) const;
 };
 
-//! Implements the \c pow() (power) function
+//! Implements the \c pow() (power) function.
 /*!
+ * The functor class with type \c "pow" returns \f$ f(x) = x^n \f$.
+ * @param n  Exponent
  * @ingroup func1simple
  */
 class Pow1 : public Func1
@@ -436,13 +470,14 @@ public:
     virtual shared_ptr<Func1> derivative3() const;
 };
 
-//! The Tabulated1 class implements a tabulated function
+//! Implements a tabulated function.
 /*!
- * The function is specified by providing tabulated arrays t and f, where t contain
- * independent variables and f are corresponding function values. Depending on
- * configuration, the function is either interpolated linearly between the tabulated
- * points, or yields the last tabulated value until a new tabulated time value is
- * reached.
+ * The functor class is based on tabulated arrays \c tvals and \c fvals, where
+ * \c tvals contain independent variables and \c fvals are corresponding function
+ * values. Depending on configuration, the function is either interpolated linearly
+ * between the tabulated points (type \c "tabulated-linear" ; default), or yields
+ * the last tabulated value until a new tabulated time value is reached (type
+ * \c "tabulated-previous" ).
  * @ingroup func1advanced
  */
 class Tabulated1 : public Func1
@@ -463,9 +498,9 @@ public:
     Tabulated1(const vector<double>& params, size_t n);
 
     //! Set the interpolation method
-    //! @param method  Evaluation method. If 'linear' (default), a linear interpolation
-    //!     between tabulated values is used; if 'previous', the last tabulated value
-    //!     is held until a new tabulated time value is reached.
+    //! @param method  Evaluation method. If \c "linear" (default), a linear
+    //!     interpolation between tabulated values is used; if \c "previous", the
+    //!     last tabulated value is held until a new tabulated time value is reached.
     //! @since  New in Cantera 3.0
     void setMethod(const string& method);
 
@@ -491,19 +526,17 @@ private:
 };
 
 
-//! Implements a constant
+//! Implements a constant.
 /*!
+ * The functor class with type \c "constant" returns \f$ f(x) = a \f$.
+ * @param a  Constant
  * @ingroup func1simple
  */
 class Const1 : public Func1
 {
 public:
-    //! Constructor.
-    /*!
-     * @param A   Constant
-     */
-    Const1(double A) {
-        m_c = A;
+    Const1(double a) {
+        m_c = a;
     }
 
     //! Constructor uses single parameter (constant)
@@ -541,7 +574,10 @@ public:
 
 
 /**
- * Sum of two functions.
+ * Implements the sum of two functions.
+ * The functor class with type \c "sum" returns \f$ f(x) = f_1(x) + f_2(x) \f$.
+ * @param f1  Functor \f$ f_1(x) \f$
+ * @param f2  Functor \f$ f_2(x) \f$
  * @ingroup func1compound
  */
 class Sum1 : public Func1
@@ -609,7 +645,10 @@ public:
 };
 
 /**
- * Difference of two functions.
+ * Implements the difference of two functions.
+ * The functor class with type \c "diff" returns \f$ f(x) = f_1(x) - f_2(x) \f$.
+ * @param f1  Functor \f$ f_1(x) \f$
+ * @param f2  Functor \f$ f_2(x) \f$
  * @ingroup func1compound
  */
 class Diff1 : public Func1
@@ -679,7 +718,10 @@ public:
 
 
 /**
- * Product of two functions.
+ * Implements the product of two functions.
+ * The functor class with type \c "product" returns \f$ f(x) = f_1(x) f_2(x) \f$.
+ * @param f1  Functor \f$ f_1(x) \f$
+ * @param f2  Functor \f$ f_2(x) \f$
  * @ingroup func1compound
  */
 class Product1 : public Func1
@@ -746,19 +788,22 @@ public:
 };
 
 /**
- * Product of function and constant.
+ * Implements the product of a function and a constant.
+ * The functor class with type \c "times-constant" returns \f$ f(x) = a f_1(x) \f$.
+ * @param f1  Functor \f$ f_1(x) \f$
+ * @param a   Constant \f$ a \f$
  * @ingroup func1modified
  */
 class TimesConstant1 : public Func1
 {
 public:
-    TimesConstant1(Func1& f1, double A) {
+    TimesConstant1(Func1& f1, double a) {
         m_f1 = &f1;
-        m_c = A;
+        m_c = a;
         m_f1->setParent(this);
     }
 
-    TimesConstant1(shared_ptr<Func1> f1, double A) : Func1(f1, A) {}
+    TimesConstant1(shared_ptr<Func1> f1, double a) : Func1(f1, a) {}
 
     virtual ~TimesConstant1() {
         if (!m_f1_shared) {
@@ -823,19 +868,22 @@ public:
 };
 
 /**
- * A function plus a constant.
+ * Implements the sum of a function and a constant.
+ * The functor class with type \c "plus-constant" returns \f$ f(x) = f_1(x) + a \f$.
+ * @param f1  Functor \f$ f_1(x) \f$
+ * @param a   Constant \f$ a \f$
  * @ingroup func1modified
  */
 class PlusConstant1 : public Func1
 {
 public:
-    PlusConstant1(Func1& f1, double A) {
+    PlusConstant1(Func1& f1, double a) {
         m_f1 = &f1;
-        m_c = A;
+        m_c = a;
         m_f1->setParent(this);
     }
 
-    PlusConstant1(shared_ptr<Func1> f1, double A) : Func1(f1, A) {}
+    PlusConstant1(shared_ptr<Func1> f1, double a) : Func1(f1, a) {}
 
     virtual ~PlusConstant1() {
         if (!m_f1_shared) {
@@ -886,7 +934,10 @@ public:
 
 
 /**
- * Ratio of two functions.
+ * Implements the ratio of two functions.
+ * The functor class with type \c "ratio" returns \f$ f(x) = f_1(x) / f_2(x) \f$.
+ * @param f1  Functor \f$ f_1(x) \f$
+ * @param f2  Functor \f$ f_2(x) \f$
  * @ingroup func1compound
  */
 class Ratio1 : public Func1
@@ -952,7 +1003,10 @@ public:
 };
 
 /**
- * Composite function.
+ * Implements a composite function.
+ * The functor class with type \c "composite" returns \f$ f(x) = f_1\left(f_2(x)\right) \f$.
+ * @param f1  Functor \f$ f_1(x) \f$
+ * @param f2  Functor \f$ f_2(x) \f$
  * @ingroup func1compound
  */
 class Composite1 : public Func1
@@ -1021,11 +1075,12 @@ public:
 // but can't do derivatives.
 
 /**
- * A Gaussian.
+ * Implements a Gaussian function.
+ * The functor class with type \c "Gaussian" returns
  * \f[
  * f(t) = A e^{-[(t - t_0)/\tau]^2}
  * \f]
- * where \f[ \tau = \frac{fwhm}{2\sqrt{\ln 2}} \f]
+ * where \f$ \tau = \mathrm{fwhm} / (2 \sqrt{\ln 2}) \f$.
  * @param A peak value
  * @param t0 offset
  * @param fwhm full width at half max
@@ -1099,7 +1154,11 @@ class Gaussian : public Gaussian1
 
 
 /**
- * Polynomial of degree \e n.
+ * Implements a polynomial of degree \e n.
+ * The functor class with type \c "polynomial" returns
+ * \f[
+ * f(x) = a_n x^n + \dots + a_1 x + a_0
+ * \f]
  * @ingroup func1advanced
  */
 class Poly1 : public Func1
@@ -1150,8 +1209,8 @@ protected:
 
 
 /**
- * Fourier cosine/sine series.
- *
+ * Implements a Fourier cosine/sine series.
+ * The functor class with type \c "Fourier" returns
  * \f[
  * f(t) = \frac{A_0}{2} +
  * \sum_{n=1}^N A_n \cos (n \omega t) + B_n \sin (n \omega t)
@@ -1216,7 +1275,8 @@ protected:
 
 
 /**
- * Sum of Arrhenius terms.
+ * Implements a sum of Arrhenius terms.
+ * The functor class with type \c "Arrhenius" returns
  * \f[
  * f(T) = \sum_{n=1}^N A_n T^b_n \exp(-E_n/T)
  * \f]
@@ -1277,7 +1337,10 @@ protected:
 };
 
 /**
- * Periodic function. Takes any function and makes it periodic with period T.
+ * Implements a periodic function.
+ * Takes any function and makes it periodic with period \f$ T \f$.
+ * @param f  Functor to be made periodic
+ * @param T  Period
  * @ingroup func1modified
  */
 class Periodic1 : public Func1

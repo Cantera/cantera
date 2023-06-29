@@ -142,10 +142,10 @@ void Math1FactoryB::deleteFactory()
     s_factory = 0;
 }
 
-shared_ptr<Func1> newFunc1(const string& func1Type, double c)
+shared_ptr<Func1> newFunc1(const string& func1Type, double coeff)
 {
     return shared_ptr<Func1>(
-        Func1Factory::factory()->create(func1Type, {c}, npos));
+        Func1Factory::factory()->create(func1Type, {coeff}, npos));
 }
 
 shared_ptr<Func1> newFunc1(const string& func1Type,
@@ -162,10 +162,11 @@ shared_ptr<Func1> newFunc1(const string& func1Type, const shared_ptr<Func1> f1,
         Math1FactoryA::factory()->create(func1Type, f1, f2));
 }
 
-shared_ptr<Func1> newFunc1(const string& func1Type, const shared_ptr<Func1> f, double c)
+shared_ptr<Func1> newFunc1(const string& func1Type,
+                           const shared_ptr<Func1> f, double coeff)
 {
     return shared_ptr<Func1>(
-        Math1FactoryB::factory()->create(func1Type, f, c));
+        Math1FactoryB::factory()->create(func1Type, f, coeff));
 }
 
 }
