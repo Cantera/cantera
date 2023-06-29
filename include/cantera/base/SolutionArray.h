@@ -15,13 +15,19 @@ namespace Cantera
 class Solution;
 class ThermoPhase;
 
+//! A container class holding arrays of state information.
 /*!
- *  A container class providing a convenient interface for representing many
- *  thermodynamic states using the same Solution object. C++ SolutionArray objects are
- *  one-dimensional by design; while shape information for multi-dimensional arrays is
- *  stored, reshaping operations need to be implemented in high-level API's.
+ * SolutionArray objects provide a convenient interface for representing many
+ * thermodynamic states using the same Solution object. C++ SolutionArray objects are
+ * one-dimensional by design; while shape information for multi-dimensional arrays is
+ * stored, reshaping operations need to be implemented in high-level API's.
  *
- *  @since  New in Cantera 3.0.
+ * The SolutionArray class implements the main interface for saving and restoring of
+ * Cantera simulation data. SolutionArray objects can be serialized to and from YAML and
+ * HDF container files using the save() and restore() methods. In addition, there is
+ * limited support for CSV files.
+ * @since  New in Cantera 3.0.
+ * @ingroup compobj
  */
 class SolutionArray
 {
