@@ -13,7 +13,7 @@ TEST(ctfunc, invalid)
 {
     // exceptions return -1
     ASSERT_EQ(func_new_basic("spam", 0.), -1);
-    ASSERT_EQ(func_new_advanced("eggs", 0, NULL, 1), -1);
+    ASSERT_EQ(func_new_advanced("eggs", 0, NULL), -1);
 }
 
 TEST(ctfunc, sin)
@@ -86,55 +86,45 @@ TEST(ctfunc, tabulated_linear)
 {
     vector<double> params = {0., 1., 2., 1., 0., 1.};
 
-    int fcn = func_new_advanced("tabulated-linear", params.size(), params.data(), 3);
+    int fcn = func_new_advanced("tabulated-linear", params.size(), params.data());
     ASSERT_GE(fcn, 0);
     EXPECT_DOUBLE_EQ(func_value(fcn, 0.5), 0.5);
 
     // exceptions return -1
-    EXPECT_EQ(
-        func_new_advanced("tabulated-linear", params.size(), params.data(), 2), -1);
-    EXPECT_EQ(func_new_advanced("tabulated-linear", 5, params.data(), 3), -1);
+    EXPECT_EQ(func_new_advanced("tabulated-linear", 5, params.data()), -1);
 }
 
 TEST(ctfunc, tabulated_previous)
 {
     vector<double> params = {0., 1., 2., 1., 0., 1.};
 
-    int fcn = func_new_advanced("tabulated-previous", params.size(), params.data(), 3);
+    int fcn = func_new_advanced("tabulated-previous", params.size(), params.data());
     ASSERT_GE(fcn, 0);
     EXPECT_DOUBLE_EQ(func_value(fcn, 0.5), 1.);
 }
 
 TEST(ctfunc, poly)
 {
-    int n = 2;
     double a0 = .5;
     double a1 = .25;
     double a2 = .125;
     vector<double> params = {a0, a1, a2};
-    int fcn = func_new_advanced("polynomial", params.size(), params.data(), n);
+    int fcn = func_new_advanced("polynomial", params.size(), params.data());
     ASSERT_GE(fcn, 0);
     EXPECT_DOUBLE_EQ(func_value(fcn, .5), (a2 * .5 + a1) * .5 + a0);
-
-    // exceptions return -1
-    EXPECT_EQ(func_new_advanced("polynomial", n, params.data(), n), -1);
 }
 
 TEST(ctfunc, Fourier)
 {
-    int n = 1;
     double a0 = .5;
     double a1 = .25;
     double b1 = .125;
     double omega = 2.;
     vector<double> params = {a0, a1, omega, b1};
-    int fcn = func_new_advanced("Fourier", params.size(), params.data(), n);
+    int fcn = func_new_advanced("Fourier", params.size(), params.data());
     ASSERT_GE(fcn, 0);
     EXPECT_DOUBLE_EQ(
         func_value(fcn, .5), .5 * a0 + a1 * cos(omega * .5) + b1 * sin(omega * .5));
-
-    // exceptions return -1
-    EXPECT_EQ(func_new_advanced("Fourier", 2 * n, params.data(), n), -1);
 }
 
 TEST(ctfunc, Gaussian)
@@ -143,14 +133,14 @@ TEST(ctfunc, Gaussian)
     double t0 = .6;
     double fwhm = .25;
     vector<double> params = {A, t0, fwhm};
-    int fcn = func_new_advanced("Gaussian", params.size(), params.data(), npos);
+    int fcn = func_new_advanced("Gaussian", params.size(), params.data());
     ASSERT_GE(fcn, 0);
     double tau = fwhm / (2. * sqrt(log(2.)));
     double x = - t0 / tau;
     EXPECT_DOUBLE_EQ(func_value(fcn, 0.), A * exp(-x * x));
 
     // exceptions return -1
-    EXPECT_EQ(func_new_advanced("Gaussian", 2, params.data(), 0), -1);
+    EXPECT_EQ(func_new_advanced("Gaussian", 2, params.data()), -1);
 }
 
 TEST(ctfunc, Arrhenius)
@@ -159,7 +149,7 @@ TEST(ctfunc, Arrhenius)
     double b = 2.7;
     double E = 2.619184e+07 / GasConstant;
     vector<double> params = {A, b, E};
-    int fcn = func_new_advanced("Arrhenius", params.size(), params.data(), 1);
+    int fcn = func_new_advanced("Arrhenius", params.size(), params.data());
     ASSERT_GE(fcn, 0);
     EXPECT_DOUBLE_EQ(func_value(fcn, 1000.), A * pow(1000., b) * exp(-E/1000.));
 }
@@ -258,7 +248,7 @@ TEST(ctmath, generic)
     // Composite function reported in issue #752
 
     vector<double> params = {0., 0., 1., 1.};
-    int fs = func_new_advanced("Fourier", params.size(), params.data(), 1); // sin(x)
+    int fs = func_new_advanced("Fourier", params.size(), params.data()); // sin(x)
     auto func_s = newFunc1("sin", 1.);
     EXPECT_DOUBLE_EQ(func_value(fs, 0.5), func_s->eval(0.5));
 
@@ -267,7 +257,7 @@ TEST(ctmath, generic)
     EXPECT_DOUBLE_EQ(func_value(fs2, 0.5), func_s2->eval(0.5));
 
     double one = 1.;
-    int fs1 = func_new_advanced("polynomial", 1, &one, 0); // 1.
+    int fs1 = func_new_advanced("polynomial", 1, &one); // 1.
     auto func_s1 = newFunc1("constant", 1.);
     EXPECT_DOUBLE_EQ(func_value(fs1, 0.5), func_s1->eval(0.5));
     EXPECT_DOUBLE_EQ(func_value(fs1, 0.5), 1.);
@@ -277,7 +267,7 @@ TEST(ctmath, generic)
     EXPECT_DOUBLE_EQ(func_value(fs2_1, 0.5), func_s2_1->eval(0.5));
 
     vector<double> p_arr = {1., .5, 0.};
-    int fs3 = func_new_advanced("Arrhenius", 3, p_arr.data(), 1);  // sqrt function
+    int fs3 = func_new_advanced("Arrhenius", 3, p_arr.data());  // sqrt function
     auto func_s3 = newFunc1("Arrhenius", p_arr);
     EXPECT_DOUBLE_EQ(func_value(fs3, 0.5), func_s3->eval(0.5));
 

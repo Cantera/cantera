@@ -154,7 +154,7 @@ TEST(ctfunc, sin)
     EXPECT_DOUBLE_EQ(dfunctor->eval(0.), omega);
     EXPECT_DOUBLE_EQ(dfunctor->eval(.5), omega * cos(omega * .5));
 
-    ASSERT_THROW(newFunc1("sin", {}, npos), CanteraError);
+    ASSERT_THROW(newFunc1("sin", vector<double>()), CanteraError);
 }
 
 TEST(ctfunc, cos)
@@ -169,7 +169,7 @@ TEST(ctfunc, cos)
     EXPECT_DOUBLE_EQ(dfunctor->eval(0.), 0.);
     EXPECT_DOUBLE_EQ(dfunctor->eval(.5), -omega * sin(omega * .5));
 
-    ASSERT_THROW(newFunc1("cos", {1., 2.}, npos), CanteraError);
+    ASSERT_THROW(newFunc1("cos", {1., 2.}), CanteraError);
 }
 
 TEST(ctfunc, exp)
@@ -184,7 +184,7 @@ TEST(ctfunc, exp)
     EXPECT_DOUBLE_EQ(dfunctor->eval(0.), omega);
     EXPECT_DOUBLE_EQ(dfunctor->eval(.5), omega * exp(omega * .5));
 
-    ASSERT_THROW(newFunc1("exp", {1., 2.}, npos), CanteraError);
+    ASSERT_THROW(newFunc1("exp", {1., 2.}), CanteraError);
 }
 
 TEST(ctfunc, log)
@@ -200,7 +200,7 @@ TEST(ctfunc, log)
     EXPECT_DOUBLE_EQ(dfunctor->eval(.1), omega / .1);
     EXPECT_DOUBLE_EQ(dfunctor->eval(.5), omega / .5);
 
-    ASSERT_THROW(newFunc1("log", {}, npos), CanteraError);
+    ASSERT_THROW(newFunc1("log", vector<double>()), CanteraError);
 }
 
 TEST(ctfunc, pow)
@@ -213,7 +213,7 @@ TEST(ctfunc, pow)
     auto dfunctor = functor->derivative3();
     EXPECT_DOUBLE_EQ(dfunctor->eval(.5), exp * pow(.5, exp - 1));
 
-    ASSERT_THROW(newFunc1("pow", {}, npos), CanteraError);
+    ASSERT_THROW(newFunc1("pow", vector<double>()), CanteraError);
 }
 
 TEST(ctfunc, constant)
@@ -228,14 +228,14 @@ TEST(ctfunc, constant)
     EXPECT_DOUBLE_EQ(dfunctor->eval(0.), 0.);
     EXPECT_DOUBLE_EQ(dfunctor->eval(.5), 0.);
 
-    ASSERT_THROW(newFunc1("constant", {1., 2., 3.}, npos), CanteraError);
+    ASSERT_THROW(newFunc1("constant", {1., 2., 3.}), CanteraError);
 }
 
 TEST(ctfunc, tabulated_linear)
 {
     vector<double> params = {0., 1., 2., 1., 0., 1.};
 
-    auto functor = newFunc1("tabulated-linear", params, 3);
+    auto functor = newFunc1("tabulated-linear", params);
     ASSERT_EQ(functor->type(), "tabulated-linear");
     EXPECT_DOUBLE_EQ(functor->eval(0.), 1.);
     EXPECT_DOUBLE_EQ(functor->eval(.5), .5);
@@ -247,14 +247,15 @@ TEST(ctfunc, tabulated_linear)
     EXPECT_DOUBLE_EQ(dfunctor->eval(.5), -1.);
     EXPECT_DOUBLE_EQ(dfunctor->eval(1.5), 1.);
 
-    ASSERT_THROW(newFunc1("tabulated-linear", params, 2), CanteraError);
+    params.push_back(1.);
+    ASSERT_THROW(newFunc1("tabulated-linear", params), CanteraError);
 }
 
 TEST(ctfunc, tabulated_previous)
 {
     vector<double> params = {0., 1., 2., 1., 0., 1.};
 
-    auto functor = newFunc1("tabulated-previous", params, 3);
+    auto functor = newFunc1("tabulated-previous", params);
     ASSERT_EQ(functor->type(), "tabulated-previous");
     EXPECT_DOUBLE_EQ(functor->eval(0.), 1.);
     EXPECT_DOUBLE_EQ(functor->eval(.5), 1.);
@@ -271,30 +272,26 @@ TEST(ctfunc, tabulated_previous)
 
 TEST(ctfunc, poly)
 {
-    int n = 2;
     double a0 = .5;
     double a1 = .25;
     double a2 = .125;
     vector<double> params = {a0, a1, a2};
-    auto functor = newFunc1("polynomial", params, n);
+    auto functor = newFunc1("polynomial", params);
     ASSERT_EQ(functor->type(), "polynomial");
     EXPECT_DOUBLE_EQ(functor->eval(0.), a0);
     EXPECT_DOUBLE_EQ(functor->eval(.5), (a2 * .5 + a1) * .5 + a0);
 
     ASSERT_THROW(functor->derivative3(), CanteraError);
-
-    ASSERT_THROW(newFunc1("polynomial", params, 3), CanteraError);
 }
 
 TEST(ctfunc, Fourier)
 {
-    int n = 1;
     double a0 = .5;
     double a1 = .25;
     double b1 = .125;
     double omega = 2.;
     vector<double> params = {a0, a1, omega, b1};
-    auto functor = newFunc1("Fourier", params, n);
+    auto functor = newFunc1("Fourier", params);
     ASSERT_EQ(functor->type(), "Fourier");
     EXPECT_DOUBLE_EQ(functor->eval(0.), .5 * a0 + a1);
     EXPECT_DOUBLE_EQ(
@@ -302,7 +299,9 @@ TEST(ctfunc, Fourier)
 
     ASSERT_THROW(functor->derivative3(), CanteraError);
 
-    ASSERT_THROW(newFunc1("polynomial", params, 2 * n), CanteraError);
+    params.push_back(1.);
+    ASSERT_THROW(newFunc1("Fourier", params), CanteraError);
+    ASSERT_THROW(newFunc1("Fourier", vector<double>({1., 2.})), CanteraError);
 }
 
 TEST(ctfunc, Gaussian)
@@ -320,6 +319,8 @@ TEST(ctfunc, Gaussian)
     EXPECT_DOUBLE_EQ(functor->eval(.5), A * exp(-x * x));
 
     ASSERT_THROW(functor->derivative3(), CanteraError);
+
+    ASSERT_THROW(newFunc1("Gaussian", vector<double>({1., 2.})), CanteraError);
 }
 
 TEST(ctfunc, Arrhenius)
@@ -328,11 +329,13 @@ TEST(ctfunc, Arrhenius)
     double b = 2.7;
     double E = 2.619184e+07 / GasConstant;
     vector<double> params = {A, b, E};
-    auto functor = newFunc1("Arrhenius", params, 1);
+    auto functor = newFunc1("Arrhenius", params);
     ASSERT_EQ(functor->type(), "Arrhenius");
     EXPECT_DOUBLE_EQ(functor->eval(1000.), A * pow(1000., b) * exp(-E/1000.));
 
     ASSERT_THROW(functor->derivative3(), CanteraError);
+
+    ASSERT_THROW(newFunc1("Arrhenius", vector<double>({1., 2.})), CanteraError);
 }
 
 TEST(ctmath, invalid)
