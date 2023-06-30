@@ -595,8 +595,8 @@ cdef class ExtensibleReactor(Reactor):
         `n_vars`.
 
     ``eval_walls(self, t : double) -> None``
-        Responsible for calculating the net rate of volume change `vdot`
-        and the net rate of heat transfer `qdot` caused by walls connected
+        Responsible for calculating the net rate of volume change `expansion_rate`
+        and the net rate of heat transfer `heat_rate` caused by walls connected
         to this reactor.
 
     ``eval_surfaces(LHS : double[:], RHS : double[:], sdot : double[:]) -> None``
@@ -654,20 +654,66 @@ cdef class ExtensibleReactor(Reactor):
     property vdot:
         """
         Get/Set the net rate of volume change (for example, from moving walls) [m^3/s]
+
+        .. deprecated:: 3.0
+
+            To be removed in Cantera 3.0; renamed to `expansion_rate`.
         """
         def __get__(self):
-            return self.accessor.vdot()
+            warnings.warn(
+                "ExtensibleReactor.vdot: To be removed in Cantera 3.0; "
+                "renamed to 'expansion_rate'.", DeprecationWarning)
+            return self.accessor.expansionRate()
         def __set__(self, vdot):
-            self.accessor.setVdot(vdot)
+            warnings.warn(
+                "ExtensibleReactor.vdot: To be removed in Cantera 3.0; "
+                "renamed to 'expansion_rate'.", DeprecationWarning)
+            self.accessor.setExpansionRate(vdot)
+
+    @property
+    def expansion_rate(self):
+        """
+        Get/Set the net rate of volume change (for example, from moving walls) [m^3/s]
+
+        .. versionadded:: 3.0
+        """
+        return self.accessor.expansionRate()
+
+    @expansion_rate.setter
+    def expansion_rate(self, vdot):
+        self.accessor.setExpansionRate(vdot)
 
     property qdot:
         """
         Get/Set the net heat transfer rate (for example, through walls) [W]
+
+        .. deprecated:: 3.0
+
+            To be removed in Cantera 3.0; renamed to `heat_rate`.
         """
         def __get__(self):
-            return self.accessor.qdot()
+            warnings.warn(
+                "ExtensibleReactor.qdot: To be removed in Cantera 3.0; "
+                "renamed to 'heat_rate'.", DeprecationWarning)
+            return self.accessor.heatRate()
         def __set__(self, qdot):
-            self.accessor.setQdot(qdot)
+            warnings.warn(
+                "ExtensibleReactor.qdot: To be removed in Cantera 3.0; "
+                "renamed to 'heat_rate'.", DeprecationWarning)
+            self.accessor.setHeatRate(qdot)
+
+    @property
+    def heat_rate(self):
+        """
+        Get/Set the net heat transfer rate (for example, through walls) [W]
+
+        .. versionadded:: 3.0
+        """
+        return self.accessor.heatRate()
+
+    @heat_rate.setter
+    def heat_rate(self, qdot):
+        self.accessor.setHeatRate(qdot)
 
     def restore_thermo_state(self):
         """
