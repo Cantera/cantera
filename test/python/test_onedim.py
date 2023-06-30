@@ -349,6 +349,8 @@ class TestFreeFlame(utilities.CanteraTest):
         for rhou_j in self.sim.density * self.sim.velocity:
             self.assertNear(rhou_j, rhou, 1e-4)
 
+    @pytest.mark.filterwarnings("ignore:.*_FlowBase.settings.*Cantera 3.0.*:DeprecationWarning")
+    @pytest.mark.filterwarnings("ignore:.*FlameBase.settings.*Cantera 3.0.*:DeprecationWarning")
     def test_settings(self):
         self.create_sim(p=ct.one_atm, Tin=400, reactants='H2:0.8, O2:0.5', width=0.1)
         self.sim.set_initial_guess()
@@ -567,6 +569,7 @@ class TestFreeFlame(utilities.CanteraTest):
         # TODO: check that the solution is actually correct (that is, that the
         # residual satisfies the error tolerances) on the new grid.
 
+    @pytest.mark.filterwarnings("ignore:.*legacy YAML format.*:UserWarning")
     def test_restore_legacy_yaml(self):
         reactants = 'H2:1.1, O2:1, AR:5'
         p = 5 * ct.one_atm
@@ -796,6 +799,7 @@ class TestFreeFlame(utilities.CanteraTest):
         self.run_restore_legacy_hdf(True)
 
     @pytest.mark.usefixtures("allow_deprecated")
+    @pytest.mark.filterwarnings("ignore:.*legacy HDF.*:UserWarning")
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
     def test_restore_legacy_hdf(self):
@@ -823,10 +827,12 @@ class TestFreeFlame(utilities.CanteraTest):
 
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
+    @pytest.mark.filterwarnings("ignore:.*_FlowBase.settings.*Cantera 3.0.*:DeprecationWarning")
     def test_save_restore_hdf(self):
         # save and restore with native format (HighFive only)
         self.run_save_restore("h5")
 
+    @pytest.mark.filterwarnings("ignore:.*_FlowBase.settings.*Cantera 3.0.*:DeprecationWarning")
     def test_save_restore_yaml(self):
         self.run_save_restore("yaml")
 
@@ -1554,9 +1560,10 @@ class TestImpingingJet(utilities.CanteraTest):
     @pytest.mark.usefixtures("allow_deprecated")
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
+    @pytest.mark.filterwarnings("ignore:.*legacy HDF.*:UserWarning")
     def test_restore_legacy_hdf(self):
         # Legacy input file was created using the Cantera 2.6 Python test suite:
-        # - restore_legacy.h5 -> test_onedim.py::TestImpinginJet::test_write_hdf
+        # - restore_legacy.h5 -> test_onedim.py::TestImpingingJet::test_write_hdf
         filename = self.test_data_path / f"impingingjet_legacy.h5"
 
         self.run_reacting_surface(xch4=0.095, tsurf=900.0, mdot=0.06, width=0.1)
@@ -1593,8 +1600,8 @@ class TestImpingingJet(utilities.CanteraTest):
         k = self.sim.gas.species_index('H2')
         assert list(jet.X[k, :]) == pytest.approx(list(self.sim.X[k, :]), 1e-4)
 
-        settings = self.sim.settings
-        for k, v in jet.settings.items():
+        settings = self.sim.flame.get_settings3()
+        for k, v in jet.flame.get_settings3().items():
             assert k in settings
             if k == "fixed_temperature":
                 # fixed temperature is NaN
