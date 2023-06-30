@@ -299,8 +299,9 @@ cdef class Kinetics(_SolutionBase):
             `Kinetics.reactant_stoich_coeffs`
         """
         def __get__(self):
-            warnings.warn("Method to be removed after Cantera 3.0; use property "
-                        "'reactant_stoich_coeffs' instead.", DeprecationWarning)
+            warnings.warn("Kinetics.reactant_stoich_coeffs3: To be removed after "
+                          "Cantera 3.0; use property 'reactant_stoich_coeffs' instead.",
+                          DeprecationWarning)
             return self.reactant_stoich_coeffs
 
     property product_stoich_coeffs:
@@ -333,8 +334,9 @@ cdef class Kinetics(_SolutionBase):
             `Kinetics.product_stoich_coeffs`
         """
         def __get__(self):
-            warnings.warn("Method to be removed after Cantera 3.0; use property "
-                        "'product_stoich_coeffs' instead.", DeprecationWarning)
+            warnings.warn("Kinetics.product_stoich_coeffs3: Method to be removed after "
+                          "Cantera 3.0; use property 'product_stoich_coeffs' instead.",
+                          DeprecationWarning)
             return self.product_stoich_coeffs
 
     property product_stoich_coeffs_reversible:

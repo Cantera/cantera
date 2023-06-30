@@ -1202,7 +1202,7 @@ class SolutionArray(SolutionArrayBase):
             Method to be removed after Cantera 3.0; superseded by `save`. Note that
             `write_csv` does not support escaping of commas within string entries.
         """
-        warnings.warn("'write_csv' is superseded by 'save' and will be removed "
+        warnings.warn("SolutionArray.write_csv: Superseded by 'save' and will be removed "
                       "after Cantera 3.0.", DeprecationWarning)
         data_dict = self.collect_data(*args, cols=cols, tabular=True, **kwargs)
         data = np.hstack([d[:, np.newaxis] for d in data_dict.values()])
@@ -1430,9 +1430,9 @@ class SolutionArray(SolutionArrayBase):
             the call is redirected to `save` in order to prevent the creation of a file
             with legacy HDF format.
         """
-        warnings.warn("Method to be removed after Cantera 3.0; use 'save' instead.\n"
-            "Note that the call is redirected to 'save' in order to prevent the "
-            "creation of a file with legacy HDF format;\nas a consequence, "
+        warnings.warn("SolutionArray.write_hdf: To be removed after Cantera 3.0; use "
+            "'save' instead.\n Note that the call is redirected to 'save' in order to "
+            "prevent the creation of a file with legacy HDF format;\nas a consequence, "
             "some options are no longer supported.", DeprecationWarning)
 
         if group is None:
@@ -1476,8 +1476,8 @@ class SolutionArray(SolutionArrayBase):
         if _h5py is None:
             _import_h5py()
 
-        warnings.warn("Method to be removed after Cantera 3.0; use 'restore' instead.",
-            DeprecationWarning)
+        warnings.warn("SolutionArray.read_hdf: Method to be removed after Cantera 3.0; "
+                      "use 'restore' instead.", DeprecationWarning)
 
         with _h5py.File(filename, 'r') as hdf:
 
