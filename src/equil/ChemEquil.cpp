@@ -1027,10 +1027,8 @@ int ChemEquil::estimateEP_Brinkley(ThermoPhase& s, vector_fp& x,
             for (size_t m = 0; m < m_mm; m++) {
                 size_t kMSp = npos;
                 size_t kMSp2 = npos;
-                int nSpeciesWithElem = 0;
                 for (size_t k = 0; k < m_kk; k++) {
                     if (n_i_calc[k] > nCutoff && fabs(nAtoms(k,m)) > 0.001) {
-                        nSpeciesWithElem++;
                         if (kMSp != npos) {
                             kMSp2 = k;
                             double factor = fabs(nAtoms(kMSp,m) / nAtoms(kMSp2,m));

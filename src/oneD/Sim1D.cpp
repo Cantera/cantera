@@ -452,7 +452,6 @@ void Sim1D::solve(int loglevel, bool refine_grid)
     int new_points = 1;
     doublereal dt = m_tstep;
     m_nsteps = 0;
-    int soln_number = -1;
     finalize();
 
     while (new_points > 0) {
@@ -495,7 +494,6 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                                  "After successful Newton solve");
                 }
                 ok = true;
-                soln_number++;
             } else {
                 debuglog("    failure. \n", loglevel);
                 if (loglevel > 6) {
