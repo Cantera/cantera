@@ -1307,9 +1307,8 @@ cdef class Reaction:
                   equation=None, init=True, efficiencies=None,
                   Kinetics kinetics=None, third_body=None):
         if kinetics:
-            warnings.warn(
-                "Parameter 'kinetics' is no longer used and will be removed after "
-                "Cantera 3.0.", DeprecationWarning)
+            warnings.warn("Reaction: Parameter 'kinetics' is no longer used and will "
+                          "be removed after Cantera 3.0.", DeprecationWarning)
 
         if not init:
             return
@@ -1349,8 +1348,8 @@ cdef class Reaction:
             _third_body = ThirdBody(third_body)
         elif efficiencies:
             warnings.warn(
-                "Argument 'efficiencies' is deprecated and will be removed after "
-                "Cantera 3.0. Use ThirdBody instead.", DeprecationWarning)
+                "Reaction: Argument 'efficiencies' is deprecated and will be removed "
+                "after Cantera 3.0. Use ThirdBody instead.", DeprecationWarning)
             third_body = "M"
             _third_body = ThirdBody(third_body)
             _third_body.efficiencies = efficiencies
@@ -1668,15 +1667,15 @@ cdef class Reaction:
         """
         def __get__(self):
             warnings.warn(
-                "Property 'efficiencies' is deprecated and will be removed after "
-                "Cantera 3.0. Use ThirdBody instead.", DeprecationWarning)
+                "Reaction.efficiencies: Property is deprecated and will be removed "
+                "after Cantera 3.0. Access via ThirdBody instead.", DeprecationWarning)
             if self.third_body is None:
                 raise ValueError("Reaction does not involve third body collider")
             return self.third_body.efficiencies
         def __set__(self, eff):
             warnings.warn(
-                "Property 'efficiencies' is deprecated and will be removed after "
-                "Cantera 3.0. Use ThirdBody instead.", DeprecationWarning)
+                "Reaction.efficiencies: Property is deprecated and will be removed "
+                "after Cantera 3.0. Access via ThirdBody instead.", DeprecationWarning)
             if self.third_body is None:
                 raise ValueError("Reaction does not involve third body collider")
             self.third_body.efficiencies = comp_map(eff)
@@ -1693,15 +1692,15 @@ cdef class Reaction:
         """
         def __get__(self):
             warnings.warn(
-                "Property 'default_efficiency' is deprecated and will be removed after "
-                "Cantera 3.0. Use ThirdBody instead.", DeprecationWarning)
+                "Reaction.default_efficiency: Property is deprecated and will be "
+                "removed after Cantera 3.0. Use ThirdBody instead.", DeprecationWarning)
             if self.third_body is None:
                 raise ValueError("Reaction does not involve third body collider")
             return self.third_body.default_efficiency
         def __set__(self, default_eff):
             warnings.warn(
-                "Property 'default_efficiency' is deprecated and will be removed after "
-                "Cantera 3.0. Use ThirdBody instead.", DeprecationWarning)
+                "Reaction.default_efficiency: Property is deprecated and will be "
+                "removed after Cantera 3.0. Use ThirdBody instead.", DeprecationWarning)
             if self.third_body is None:
                 raise ValueError("Reaction does not involve third body collider")
             self.third_body.default_efficiency = default_eff
@@ -1717,7 +1716,7 @@ cdef class Reaction:
             `ThirdBody` object instead.
         """
         warnings.warn(
-            "Method 'efficiency' is deprecated and will be removed after "
+            "Reaction.efficiency: Method is deprecated and will be removed after "
             "Cantera 3.0. Use ThirdBody instead.", DeprecationWarning)
         if self.third_body is None:
             raise ValueError("Reaction does not involve third body collider")
@@ -1818,8 +1817,8 @@ cdef class ThreeBodyReaction(Reaction):
     """
 
     def __init__(self, *args, **kwargs):
-        warnings.warn("Class to be removed after Cantera 3.0; no specialization "
-                      "necessary.", DeprecationWarning)
+        warnings.warn("ThreeBodyReaction: Class to be removed after Cantera 3.0; "
+                      "no specialization necessary.", DeprecationWarning)
 
 
 cdef class FalloffReaction(Reaction):
@@ -1852,8 +1851,8 @@ cdef class FalloffReaction(Reaction):
     """
 
     def __init__(self, *args, **kwargs):
-        warnings.warn("Class to be removed after Cantera 3.0; no specialization "
-                      "necessary.", DeprecationWarning)
+        warnings.warn("FalloffReaction: Class to be removed after Cantera 3.0; "
+                      "no specialization necessary.", DeprecationWarning)
 
 cdef class ChemicallyActivatedReaction(FalloffReaction):
     """
@@ -1864,8 +1863,8 @@ cdef class ChemicallyActivatedReaction(FalloffReaction):
     """
 
     def __init__(self, *args, **kwargs):
-        warnings.warn("Class to be removed after Cantera 3.0; no specialization "
-                      "necessary.", DeprecationWarning)
+        warnings.warn("ChemicallyActivatedReaction: Class to be removed after Cantera "
+                      "3.0; no specialization necessary.", DeprecationWarning)
 
 cdef class CustomReaction(Reaction):
     """
@@ -1884,5 +1883,5 @@ cdef class CustomReaction(Reaction):
     """
 
     def __init__(self, *args, **kwargs):
-        warnings.warn("Class to be removed after Cantera 3.0; no specialization "
-                      "necessary.", DeprecationWarning)
+        warnings.warn("CustomReaction: Class to be removed after Cantera 3.0; no "
+                      "specialization necessary.", DeprecationWarning)

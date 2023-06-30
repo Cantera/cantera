@@ -438,8 +438,8 @@ cdef class ReactingSurface1D(Boundary1D):
     def __init__(self, _SolutionBase phase, name=None):
         self._weakref_proxy = _WeakrefProxy()
         if phase.phase_of_matter == "gas":
-            warnings.warn("Starting in Cantera 3.0, parameter 'phase' should "
-                "reference surface instead of gas phase.", DeprecationWarning)
+            warnings.warn("ReactingSurface1D: Starting in Cantera 3.0, parameter 'phase'"
+                " should reference surface instead of gas phase.", DeprecationWarning)
             super().__init__(phase)
             if name is not None:
                 self.name = name
@@ -477,8 +477,9 @@ cdef class ReactingSurface1D(Boundary1D):
             Method to be removed after Cantera 3.0; set `Kinetics` when instantiating
             `ReactingSurface1D` instead.
         """
-        warnings.warn("Method to be removed after Cantera 3.0; set 'Kinetics' when "
-            "instantiating 'ReactingSurface1D' instead.", DeprecationWarning)
+        warnings.warn("ReactingSurface1D.set_kinetics: Method to be removed after "
+            "Cantera 3.0; set 'Kinetics' when instantiating 'ReactingSurface1D' "
+            "instead.", DeprecationWarning)
         if pystr(kin.kinetics.kineticsType()) not in ("surface", "edge"):
             raise TypeError('Kinetics object must be derived from '
                             'InterfaceKinetics.')
@@ -535,8 +536,8 @@ cdef class _FlowBase(Domain1D):
 
             Method to be removed after Cantera 3.0. Replaceable by `transport_model`
         """
-        warnings.warn("Method to be removed after Cantera 3.0; use property "
-                      "'transport_model' instead.", DeprecationWarning)
+        warnings.warn("_FlowBase.set_transport: Method to be removed after Cantera 3.0;"
+                      " use property 'transport_model' instead.", DeprecationWarning)
         self._weakref_proxy = _WeakrefProxy()
         self.gas._references[self._weakref_proxy] = True
         self.gas = phase
@@ -623,8 +624,8 @@ cdef class _FlowBase(Domain1D):
         """
         def __get__(self):
             warnings.warn(
-                "Property getter to change after Cantera 3.0.\nFor new behavior, use "
-                "'get_settings3'.", DeprecationWarning)
+                "_FlowBase.settings: Property getter to change after Cantera 3.0.\n"
+                "For new behavior, use 'get_settings3'.", DeprecationWarning)
 
             out = {
                 'Domain1D_type': type(self).__name__,
@@ -653,8 +654,8 @@ cdef class _FlowBase(Domain1D):
 
             return out
         def __set__(self, meta):
-            warnings.warn("Property setter to be removed after Cantera 3.0. "
-                "Replaceable by individual setters.", DeprecationWarning)
+            warnings.warn("_FlowBase.settings: Property setter to be removed after "
+            "Cantera 3.0. Replaceable by individual setters.", DeprecationWarning)
 
             # boundary emissivities
             if 'emissivity_left' in meta or 'emissivity_right' in meta:
@@ -875,8 +876,8 @@ cdef class IdealGasFlow(_FlowBase):
     _domain_type = "gas-flow"
 
     def __init__(self, *args, **kwargs):
-        warnings.warn("Class to be removed after Cantera 3.0; use 'FreeFlow', "
-                      "'AxisymmetricFlow' or 'UnstrainedFlow' instead.",
+        warnings.warn("Class 'IdealGasFlow' to be removed after Cantera 3.0; use "
+                      "'FreeFlow', 'AxisymmetricFlow' or 'UnstrainedFlow' instead.",
                       DeprecationWarning)
         super().__init__(*args, **kwargs)
 
@@ -895,8 +896,8 @@ cdef class IonFlow(_FlowBase):
     _domain_type = "ion-flow"
 
     def __init__(self, *args, **kwargs):
-        warnings.warn("Class to be removed after Cantera 3.0; use 'FreeFlow', "
-                      "'AxisymmetricFlow' or 'UnstrainedFlow' instead.",
+        warnings.warn("Class 'IonFlow' to be removed after Cantera 3.0; use 'FreeFlow',"
+                      " 'AxisymmetricFlow' or 'UnstrainedFlow' instead.",
                       DeprecationWarning)
         super().__init__(*args, **kwargs)
 
@@ -908,8 +909,8 @@ cdef class IonFlow(_FlowBase):
         - ``stage == 2``: the electric field equation is solved, and the drift flux for
           ionized species is evaluated
         """
-        warnings.warn("Method to be removed after Cantera 3.0; use "
-                      "'solving_stage' property instead.", DeprecationWarning)
+        warnings.warn("IonFlow.set_solving_stage: Method to be removed after Cantera "
+                      "3.0; use 'solving_stage' property instead.", DeprecationWarning)
         self.solving_stage = stage
 
 
@@ -1173,7 +1174,8 @@ cdef class Sim1D:
             interface to the C++ core, except for `FlameBase.from_solution_array`,
             which itself is deprecated due to a pending removal of ``h5py`` support.
         """
-        warnings.warn("Method to be removed after Cantera 3.0.", DeprecationWarning)
+        warnings.warn("Sim1D.restore_data: Method to be removed after Cantera 3.0.",
+                      DeprecationWarning)
         idom = self.domain_index(domain)
         dom = self.domains[idom]
         T, P, Y = states
@@ -1629,8 +1631,8 @@ cdef class Sim1D:
             Argument loglevel is no longer supported
         """
         if loglevel is not None:
-            warnings.warn("Argument 'loglevel' is deprecated and will be ignored.",
-                DeprecationWarning)
+            warnings.warn("Sim1D.save: Argument 'loglevel' is deprecated and will be "
+                "ignored.", DeprecationWarning)
         self.sim.save(stringify(str(filename)), stringify(name),
                       stringify(description), overwrite, compression, stringify(basis))
 
@@ -1657,8 +1659,8 @@ cdef class Sim1D:
             Implemented return value for meta data; loglevel is no longer supported
         """
         if loglevel is not None:
-            warnings.warn("Argument 'loglevel' is deprecated and will be ignored.",
-                DeprecationWarning)
+            warnings.warn("Sim1D.restore: Argument 'loglevel' is deprecated and will be"
+                 " ignored.", DeprecationWarning)
         cdef CxxAnyMap header
         header = self.sim.restore(stringify(str(filename)), stringify(name))
         self._initialized = True

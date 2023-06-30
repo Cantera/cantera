@@ -54,8 +54,8 @@ class FlameBase(Sim1D):
             Method to be removed after Cantera 3.0. After moving SolutionArray HDF
             export to the C++ core, this method is unused.
         """
-        warnings.warn("Method to be removed after Cantera 3.0 (unused).",
-                      DeprecationWarning)
+        warnings.warn("FlameBase.other_components: Method to be removed after "
+                      "Cantera 3.0 (unused).", DeprecationWarning)
         if domain is None:
             return self._other
 
@@ -384,8 +384,8 @@ class FlameBase(Sim1D):
             To be removed after Cantera 3.0 to avoid conflation with `Solution`.
             Replaceable by `profile` or `value`.
         """
-        warnings.warn("Method 'solution' to be removed after Cantera 3.0. "
-            "Replaceable by 'profile' or 'value'.")
+        warnings.warn("FlameBase.solution: To be removed after Cantera 3.0. "
+                      "Replaceable by 'profile' or 'value'.", DeprecationWarning)
         if point is None:
             return self.profile(self.flame, component)
         else:
@@ -421,7 +421,7 @@ class FlameBase(Sim1D):
 
             Method to be removed after Cantera 3.0; superseded by `save`.
         """
-        warnings.warn("'write_csv' is superseded by 'save' and will be removed "
+        warnings.warn("FlameBase.write_csv: Superseded by 'save'. To be removed "
                       "after Cantera 3.0.", DeprecationWarning)
 
         # save data
@@ -465,9 +465,8 @@ class FlameBase(Sim1D):
 
             Method to be removed after Cantera 3.0; superseded by `to_array`.
         """
-        warnings.warn(
-            "Method to be removed after Cantera 3.0. Replaceable by 'to_array'.",
-            DeprecationWarning)
+        warnings.warn("FlameBase.to_solution_array: To be removed after Cantera 3.0. "
+                      "Replaceable by 'to_array'.", DeprecationWarning)
         return self.to_array(domain, normalize)
 
     def from_array(self, arr, domain=None):
@@ -497,9 +496,8 @@ class FlameBase(Sim1D):
 
             Method to be removed after Cantera 3.0; replaced by `from_array`.
         """
-        warnings.warn(
-            "Method to be removed after Cantera 3.0. Replaced by 'from_array'.",
-            DeprecationWarning)
+        warnings.warn("FlameBase.from_solution_array: To be removed after Cantera 3.0. "
+                      "Replaced by 'from_array'.", DeprecationWarning)
         if domain is None:
             domain = self.flame
         else:
@@ -635,9 +633,10 @@ class FlameBase(Sim1D):
             the call is redirected to `save` in order to prevent the creation of a file
             with deprecated HDF format.
         """
-        warnings.warn("Method to be removed after Cantera 3.0; use 'save' instead.\n"
-            "Note that the call is redirected to 'save' in order to prevent the "
-            "creation of a file with deprecated HDF format.", DeprecationWarning)
+        warnings.warn("FlameBase.write_hdf: To be removed after Cantera 3.0; use "
+            "'save' instead.\nNote that the call is redirected to 'save' in order to "
+            "prevent the creation of a file with deprecated HDF format.",
+            DeprecationWarning)
 
         self.save(filename, name=group, description=description,
                   compression=compression_opts)
@@ -665,9 +664,8 @@ class FlameBase(Sim1D):
 
             Method to be removed after Cantera 3.0; superseded by `restore`.
         """
-        warnings.warn(
-            "Method to be removed after Cantera 3.0; use 'restore' instead.",
-            DeprecationWarning)
+        warnings.warn("FlameBase.read_hdf: To be removed after Cantera 3.0; use "
+                      "'restore' instead.", DeprecationWarning)
 
         if restore_boundaries:
             domains = range(3)
@@ -694,9 +692,8 @@ class FlameBase(Sim1D):
             To be removed after Cantera 3.0. The getter is replaceable by
             `Domain1D.settings`; for the setter, use setters for individual settings.
         """
-        warnings.warn(
-            "Property 'settings' to be removed after Cantera 3.0. Access settings from "
-            "domains instead.", DeprecationWarning)
+        warnings.warn("FlameBase.settings: to be removed after Cantera 3.0. Access "
+            "settings from domains instead.", DeprecationWarning)
         out = {'Sim1D_type': type(self).__name__}
         out['transport_model'] = self.transport_model
         out['energy_enabled'] = self.energy_enabled
@@ -711,9 +708,8 @@ class FlameBase(Sim1D):
 
     @settings.setter
     def settings(self, s):
-        warnings.warn(
-            "Property 'settings' to be removed after Cantera 3.0. Use individual "
-            "setters instead.", DeprecationWarning)
+        warnings.warn("FlameBase.settings: To be removed after Cantera 3.0. Use "
+            "individual setters instead.", DeprecationWarning)
         # simple setters
         attr = {'transport_model',
                 'energy_enabled', 'soret_enabled', 'radiation_enabled',
