@@ -2654,12 +2654,13 @@ class ExtensibleReactorTest(utilities.CanteraTest):
         self.assertNear(add_heat, r1_heat, atol=1e-5)
 
     def test_heat_addition(self):
-        # Applying heat via 'qdot' property should be equivalent to adding it via a wall
+        # Applying heat via 'heat_rate' property should be equivalent to adding it via
+        # a wall
         Qext = 100
         Qwall = -66
         class HeatedReactor(ct.ExtensibleReactor):
             def after_eval_walls(self, y):
-                self.qdot += Qext
+                self.heat_rate += Qext
 
         self.gas.TPX = 300, ct.one_atm, "N2:1.0"
         r1 = HeatedReactor(self.gas)
@@ -2671,7 +2672,7 @@ class ExtensibleReactorTest(utilities.CanteraTest):
             net.advance(t)
             U = r1.thermo.int_energy_mass * r1.mass
             self.assertNear(U - U0, (Qext + Qwall) * t)
-            self.assertNear(r1.qdot, Qext + Qwall)
+            self.assertNear(r1.heat_rate, Qext + Qwall)
 
     def test_with_surface(self):
         phase_defs = """
@@ -2774,8 +2775,8 @@ class ExtensibleReactorTest(utilities.CanteraTest):
 
             def replace_eval_walls(self, t):
                 if self.neighbor:
-                    self.vdot = np.clip(self.p_coeff * (self.P - self.neighbor.P),
-                                        -1.7, 1.7)
+                    self.expansion_rate = np.clip(
+                        self.p_coeff * (self.P - self.neighbor.P), -1.7, 1.7)
 
             def after_eval(self, t, LHS, RHS):
                 if self.neighbor:
@@ -2804,14 +2805,14 @@ class ExtensibleReactorTest(utilities.CanteraTest):
         V0 = r1.volume + r2.volume
         for t in np.linspace(0.01, 0.2, 50):
             net.advance(t)
-            self.assertNear(r1.vdot, -r2.vdot)
+            self.assertNear(r1.expansion_rate, -r2.expansion_rate)
             self.assertNear(V0, r1.volume + r2.volume)
             deltaCnow = deltaC()
             self.assertLess(deltaCnow, deltaCprev) # difference is always decreasing
             deltaCprev = deltaCnow
             self.assertArrayNear(M0, r1.mass * r1.thermo.Y + r2.mass * r2.thermo.Y, rtol=2e-8)
-            states1.append(r1.thermo.state, t=net.time, mass=r1.mass, vdot=r1.vdot)
-            states2.append(r2.thermo.state, t=net.time, mass=r2.mass, vdot=r2.vdot)
+            states1.append(r1.thermo.state, t=net.time, mass=r1.mass, vdot=r1.expansion_rate)
+            states2.append(r2.thermo.state, t=net.time, mass=r2.mass, vdot=r2.expansion_rate)
 
         # Regression test values
         self.assertNear(r1.thermo.P, 151561.15, rtol=1e-6)

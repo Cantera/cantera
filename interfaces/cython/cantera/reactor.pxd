@@ -206,10 +206,10 @@ cdef extern from "cantera/zeroD/ReactorDelegator.h" namespace "Cantera":
     cdef cppclass CxxReactorAccessor "Cantera::ReactorAccessor":
         CxxReactorAccessor()
         void setNEq(size_t)
-        double vdot()
-        void setVdot(double)
-        double qdot()
-        void setQdot(double)
+        double expansionRate()
+        void setExpansionRate(double)
+        double heatRate()
+        void setHeatRate(double)
         void restoreThermoState() except +translate_exception
         void restoreSurfaceState(size_t) except +translate_exception
 

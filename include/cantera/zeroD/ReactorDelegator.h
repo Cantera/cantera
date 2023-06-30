@@ -29,21 +29,21 @@ public:
     virtual void setNEq(size_t n) = 0;
 
     //! Get the net rate of volume change (for example, from moving walls) [m^3/s]
-    virtual double vdot() const = 0;
+    virtual double expansionRate() const = 0;
 
     //! Set the net rate of volume change (for example, from moving walls) [m^3/s]
-    virtual void setVdot(double v) = 0;
+    virtual void setExpansionRate(double v) = 0;
 
     //! Get the net heat transfer rate (for example, through walls) into the
     //! reactor [W]. This value is initialized and calculated as part of
     //! Reactor::evalWalls().
-    virtual double qdot() const = 0;
+    virtual double heatRate() const = 0;
 
     //! Set the net heat transfer rate (for example, through walls) into the
     //! reactor [W]. For a value set using this method to affect the calculations done
     //! by Reactor::eval, this method should be called in either a "replace" or "after"
     //! delegate for Reactor::evalWalls().
-    virtual void setQdot(double q) = 0;
+    virtual void setHeatRate(double q) = 0;
 
     //! Set the state of the thermo object to correspond to the state of the reactor
     virtual void restoreThermoState() = 0;
@@ -160,19 +160,19 @@ public:
         R::m_nv = n;
     }
 
-    virtual double vdot() const override {
+    virtual double expansionRate() const override {
         return R::m_vdot;
     }
 
-    virtual void setVdot(double v) override {
+    virtual void setExpansionRate(double v) override {
         R::m_vdot = v;
     }
 
-    virtual double qdot() const override {
+    virtual double heatRate() const override {
         return R::m_Qdot;
     }
 
-    virtual void setQdot(double q) override {
+    virtual void setHeatRate(double q) override {
         R::m_Qdot = q;
     }
 
