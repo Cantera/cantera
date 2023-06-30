@@ -9,6 +9,7 @@
 #define CT_CABINET_H
 
 #include "cantera/base/ctexceptions.h"
+#include "cantera/base/utilities.h"
 #include <unordered_map>
 
 namespace Cantera {
@@ -117,7 +118,7 @@ public:
      */
     static void del(int n) {
         dataRef data = getData();
-        if (n >= 0 && n < data.size()) {
+        if (n >= 0 && n < len(data)) {
             lookupRef lookup = getLookup();
             if (!lookup.count(data[n].get())) {
                 throw CanteraError("SharedCabinet::del",
@@ -142,7 +143,7 @@ public:
      */
     static shared_ptr<M>& at(int n) {
         dataRef data = getData();
-        if (n < 0 || n >= data.size()) {
+        if (n < 0 || n >= len(data)) {
             throw CanteraError("SharedCabinet::at", "Index {} out of range.", n);
         }
         if (!data[n]) {
