@@ -1052,7 +1052,7 @@ class TestLithiumIonBatteryKinetics(utilities.CanteraTest):
             electrolyte.electric_potential = phi_l
 
             # Calculate the current.
-            return ct.faraday * anode_int.net_rates_of_progress * area_anode
+            return ct.faraday * anode_int.net_rates_of_progress[0] * area_anode
 
         # This function returns the Cantera calculated cathode current
         def cathode_current(phi_s, phi_l, X_Li_cathode):
@@ -1062,7 +1062,7 @@ class TestLithiumIonBatteryKinetics(utilities.CanteraTest):
             electrolyte.electric_potential = phi_l
 
             # Calculate the current. Should be negative for cell discharge.
-            return - ct.faraday * cathode_int.net_rates_of_progress * area_cathode
+            return - ct.faraday * cathode_int.net_rates_of_progress[0] * area_cathode
 
         # Calculate cell voltage, separately for each entry of the input vectors
         data = []
