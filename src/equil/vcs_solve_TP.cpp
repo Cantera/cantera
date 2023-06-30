@@ -816,7 +816,7 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
         // We have a tentative m_deltaMolNumSpecies[]. Now apply other criteria
         // to limit its magnitude.
         double par = 0.5;
-        size_t ll;
+        size_t ll = 0;
         for (size_t k = 0; k < m_numComponents; ++k) {
             if (m_molNumSpecies_old[k] > 0.0) {
                 double xx = -m_deltaMolNumSpecies[k] / m_molNumSpecies_old[k];
