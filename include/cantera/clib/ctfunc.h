@@ -16,8 +16,7 @@ extern "C" {
 
     CANTERA_CAPI int func_new(int type, size_t n, size_t lenp, const double* p);
     CANTERA_CAPI int func_new_basic(const char* type, double c);
-    CANTERA_CAPI int func_new_advanced(
-        const char* type, size_t lenp, const double* p, size_t n);
+    CANTERA_CAPI int func_new_advanced(const char* type, size_t lenp, const double* p);
     CANTERA_CAPI int func_new_compound(const char* type, int a, int b);
     CANTERA_CAPI int func_new_modified(const char* type, int a, double c);
     CANTERA_CAPI int func_del(int i);

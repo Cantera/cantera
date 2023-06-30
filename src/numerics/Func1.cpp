@@ -147,7 +147,7 @@ void Func1::setParent(Func1* p)
 
 /*****************************************************************************/
 
-Sin1::Sin1(const vector<double>& params, size_t n)
+Sin1::Sin1(const vector<double>& params)
 {
     if (params.size() != 1) {
         throw CanteraError("Sin1::Sin1",
@@ -189,7 +189,7 @@ shared_ptr<Func1> Sin1::derivative3() const
 
 /*****************************************************************************/
 
-Cos1::Cos1(const vector<double>& params, size_t n)
+Cos1::Cos1(const vector<double>& params)
 {
     if (params.size() != 1) {
         throw CanteraError("Cos1::Cos1",
@@ -231,7 +231,7 @@ std::string Cos1::write(const std::string& arg) const
 
 /**************************************************************************/
 
-Exp1::Exp1(const vector<double>& params, size_t n)
+Exp1::Exp1(const vector<double>& params)
 {
     if (params.size() != 1) {
         throw CanteraError("Exp1::Exp1",
@@ -276,7 +276,7 @@ std::string Exp1::write(const std::string& arg) const
     }
 }
 
-Log1::Log1(const vector<double>& params, size_t n)
+Log1::Log1(const vector<double>& params)
 {
     if (params.size() != 1) {
         throw CanteraError("Log1::Log1",
@@ -304,7 +304,7 @@ std::string Log1::write(const std::string& arg) const
 
 /******************************************************************************/
 
-Pow1::Pow1(const vector<double>& params, size_t n)
+Pow1::Pow1(const vector<double>& params)
 {
     if (params.size() != 1) {
         throw CanteraError("Pow1::Pow1",
@@ -349,7 +349,7 @@ shared_ptr<Func1> Pow1::derivative3() const
 
 /******************************************************************************/
 
-Const1::Const1(const vector<double>& params, size_t n)
+Const1::Const1(const vector<double>& params)
 {
     if (params.size() != 1) {
         throw CanteraError("Const1::Const1",
@@ -358,31 +358,28 @@ Const1::Const1(const vector<double>& params, size_t n)
     m_c = params[0];
 }
 
-Poly1::Poly1(const vector<double>& params, size_t n)
+Poly1::Poly1(const vector<double>& params)
 {
-    if (n < 0) {
+    if (params.size() == 0) {
         throw CanteraError("Poly1::Poly1",
-            "Parameter n must be at least 0.");
+            "Constructor needs an array that is not empty.");
     }
-    if (params.size() != n + 1) {
-        throw CanteraError("Poly1::Poly1",
-            "Constructor needs exactly n + 1 = {} parameters (with n={}).", n + 1, n);
-    }
+    size_t n = params.size() - 1;
     m_cpoly.resize(n + 1);
     copy(params.data(), params.data() + m_cpoly.size(), m_cpoly.begin());
 }
 
-Fourier1::Fourier1(const vector<double>& params, size_t n)
+Fourier1::Fourier1(const vector<double>& params)
 {
-    if (n < 1) {
+    if (params.size() < 4) {
         throw CanteraError("Fourier1::Fourier1",
-            "Parameter n must be at least 1.");
+            "Constructor needs an array with at least 4 entries.");
     }
-    if (params.size() != 2 * n + 2) {
+    if (params.size() % 2 != 0) {
         throw CanteraError("Fourier1::Fourier1",
-            "Constructor needs exactly 2 * n + 2 = {} parameters (with n={}).",
-            2 * n + 2, n);
+            "Constructor needs an array with an even number of entries.");
     }
+    size_t n = params.size() / 2 - 1;
     m_omega = params[n + 1];
     m_a0_2 = 0.5 * params[0];
     m_ccos.resize(n);
@@ -391,7 +388,7 @@ Fourier1::Fourier1(const vector<double>& params, size_t n)
     copy(params.data() + n + 2, params.data() + 2 * n + 2, m_csin.begin());
 }
 
-Gaussian1::Gaussian1(const vector<double>& params, size_t n)
+Gaussian1::Gaussian1(const vector<double>& params)
 {
     if (params.size() != 3) {
         throw CanteraError("Gaussian1::Gaussian1",
@@ -402,17 +399,17 @@ Gaussian1::Gaussian1(const vector<double>& params, size_t n)
     m_tau = params[2] / (2. * sqrt(log(2.)));
 }
 
-Arrhenius1::Arrhenius1(const vector<double>& params, size_t n)
+Arrhenius1::Arrhenius1(const vector<double>& params)
 {
-    if (n < 1) {
+    if (params.size() < 3) {
         throw CanteraError("Arrhenius1::Arrhenius1",
-            "Parameter n must be at least 1.");
+            "Constructor needs an array with at least 3 entries.");
     }
-    if (params.size() != 3 * n) {
+    if (params.size() % 3 != 0) {
         throw CanteraError("Arrhenius1::Arrhenius1",
-            "Constructor needs exactly 3 * n parameters grouped as (Ai, bi, Ei) for "
-            "i=0..n-1.");
+            "Constructor needs an array with multiples of 3 entries.");
     }
+    size_t n = params.size() / 3;
     m_A.resize(n);
     m_b.resize(n);
     m_E.resize(n);
@@ -440,16 +437,17 @@ Tabulated1::Tabulated1(size_t n, const double* tvals, const double* fvals,
     setMethod(method);
 }
 
-Tabulated1::Tabulated1(const vector<double>& params, size_t n) : m_isLinear(true)
+Tabulated1::Tabulated1(const vector<double>& params) : m_isLinear(true)
 {
-    if (n < 1) {
+    if (params.size() < 4) {
         throw CanteraError("Tabulated1::Tabulated1",
-            "Parameter n must be at least 1.");
+            "Constructor needs an array with at least 4 entries.");
     }
-    if (params.size() != 2 * n) {
+    if (params.size() % 2 != 0) {
         throw CanteraError("Tabulated1::Tabulated1",
-            "Constructor needs exactly 2 * n = {} parameters (with n={}).", 2 * n, n);
+            "Constructor needs an array with an even number of entries.");
     }
+    size_t n = params.size() / 2;
     m_tvec.resize(n);
     copy(params.data(), params.data() + n, m_tvec.begin());
     for (auto it = std::begin(m_tvec) + 1; it != std::end(m_tvec); it++) {
