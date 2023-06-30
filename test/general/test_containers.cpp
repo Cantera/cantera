@@ -414,7 +414,7 @@ TEST(AnyMap, nestedVectorsToYaml)
         for (size_t j = 0; j < 4; j++) {
             strings.back().push_back(words[(i + 3 * j) % words.size()]);
             booleans.back().push_back(i == j);
-            integers.back().push_back(6*i + j);
+            integers.back().push_back(static_cast<int>(6*i + j));
         }
     }
     AnyMap original;
