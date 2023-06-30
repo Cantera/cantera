@@ -47,7 +47,7 @@ void FlowDevice::setPressureFunction(Func1* f)
     m_pfunc = f;
 }
 
-double FlowDevice::getPressureFunction()
+double FlowDevice::evalPressureFunction()
 {
     double delta_P = in().pressure() - out().pressure();
     if (m_pfunc) {
@@ -61,7 +61,7 @@ void FlowDevice::setTimeFunction(Func1* g)
     m_tfunc = g;
 }
 
-double FlowDevice::getTimeFunction()
+double FlowDevice::evalTimeFunction()
 {
     if (m_tfunc) {
         return m_tfunc->eval(m_time);

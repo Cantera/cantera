@@ -912,7 +912,7 @@ cdef class WallBase:
             self.wall.setArea(value)
 
     @property
-    def vdot3(self):
+    def expansion_rate(self):
         """
         Get the rate of volumetric change [m^3/s] associated with the wall at the
         current reactor network time. A positive value corresponds to the left-hand
@@ -920,7 +920,7 @@ cdef class WallBase:
 
         .. versionadded:: 3.0
         """
-        return self.wall.vdot()
+        return self.wall.expansionRate()
 
     def vdot(self, double t):
         """
@@ -930,23 +930,20 @@ cdef class WallBase:
 
         .. deprecated:: 3.0
 
-            To be changed after Cantera 3.0; for new behavior, see property ``vdot3``.
+            To be removed after Cantera 3.0; replaceable by ``expansion_rate``.
         """
-        warnings.warn(
-            "To be changed after Cantera 3.0; for new behavior, see property 'vdot3'.",
-            DeprecationWarning)
         return self.wall.vdot(t)
 
     @property
-    def qdot3(self):
+    def heat_rate(self):
         """
         Get the total heat flux [W] through the wall  at the current reactor network
-        time. A positive value corresponds to the left-hand reactor volume increasing,
-        and the right-hand reactor volume decreasing.
+        time. A positive value corresponds to heat flowing from the left-hand reactor
+        to the right-hand one.
 
         .. versionadded:: 3.0
         """
-        return self.wall.qdot()
+        return self.wall.heatRate()
 
     def qdot(self, double t):
         """
@@ -956,12 +953,9 @@ cdef class WallBase:
 
         .. deprecated:: 3.0
 
-            To be changed after Cantera 3.0; for new behavior, see property ``qdot3``.
+            To be removed after Cantera 3.0; replaceable by ``heat_rate``.
         """
-        warnings.warn(
-            "To be changed after Cantera 3.0; for new behavior, see property 'qdot3'.",
-            DeprecationWarning)
-        return self.wall.qdot(t)
+        return self.wall.Q(t)
 
 
 cdef class Wall(WallBase):
@@ -1158,7 +1152,7 @@ cdef class FlowDevice:
 
         .. versionadded:: 3.0
         """
-        return self.dev.getPressureFunction()
+        return self.dev.evalPressureFunction()
 
     @pressure_function.setter
     def pressure_function(self, k):
@@ -1205,7 +1199,7 @@ cdef class FlowDevice:
 
         .. versionadded:: 3.0
         """
-        return self.dev.getTimeFunction()
+        return self.dev.evalTimeFunction()
 
     @time_function.setter
     def time_function(self, k):

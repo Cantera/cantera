@@ -94,10 +94,10 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         void setCoverages(int, double*)
         void setCoverages(int, Composition&) except +translate_exception
         void syncCoverages(int)
-        double vdot()
-        double vdot(double)
-        double qdot()
-        double qdot(double)
+        double expansionRate() except +translate_exception
+        double vdot(double) except +translate_exception
+        double heatRate() except +translate_exception
+        double Q(double) except +translate_exception
 
         void addSensitivityReaction(int, size_t) except +translate_exception
         size_t nSensParams(int)
@@ -136,9 +136,9 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         double massFlowRate() except +translate_exception
         double massFlowRate(double) except +translate_exception
         cbool install(CxxReactorBase&, CxxReactorBase&) except +translate_exception
-        double getPressureFunction()
+        double evalPressureFunction() except +translate_exception
         void setPressureFunction(CxxFunc1*) except +translate_exception
-        double getTimeFunction()
+        double evalTimeFunction() except +translate_exception
         void setTimeFunction(CxxFunc1*) except +translate_exception
 
     cdef cppclass CxxMassFlowController "Cantera::MassFlowController" (CxxFlowDevice):

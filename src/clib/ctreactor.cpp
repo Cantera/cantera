@@ -505,19 +505,10 @@ extern "C" {
         }
     }
 
-    double wall_vdot2(int i, double t)
+    double wall_expansionRate(int i)
     {
         try {
-            return WallCabinet::item(i).vdot(t);
-        } catch (...) {
-            return handleAllExceptions(DERR, DERR);
-        }
-    }
-
-    double wall_vdot3(int i)
-    {
-        try {
-            return WallCabinet::item(i).vdot();
+            return WallCabinet::item(i).expansionRate();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -532,19 +523,10 @@ extern "C" {
         }
     }
 
-    double wall_qdot2(int i, double t)
+    double wall_heatRate(int i)
     {
         try {
-            return WallCabinet::item(i).qdot(t);
-        } catch (...) {
-            return handleAllExceptions(DERR, DERR);
-        }
-    }
-
-    double wall_qdot(int i)
-    {
-        try {
-            return WallCabinet::item(i).qdot();
+            return WallCabinet::item(i).heatRate();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
