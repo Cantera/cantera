@@ -90,7 +90,7 @@ cdef class Func1:
 
     cpdef void _set_callback(self, c) except *:
         self.callable = c
-        self._func.reset(new CxxFunc1(func_callback, <void*>self))
+        self._func.reset(new CxxFunc1Py(func_callback, <void*>self))
         self.func = self._func.get()
 
     def __call__(self, t):

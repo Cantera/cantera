@@ -6,13 +6,20 @@
 
 from .ctcxx cimport *
 
+cdef extern from "cantera/numerics/Func1.h":
+    cdef cppclass CxxFunc1 "Cantera::Func1":
+        double eval(double) except +translate_exception
+
+    cdef cppclass CxxTabulated1 "Cantera::Tabulated1" (CxxFunc1):
+        CxxTabulated1(int, double*, double*, string) except +translate_exception
+        double eval(double) except +translate_exception
+
 cdef extern from "cantera/cython/funcWrapper.h":
     ctypedef double (*callback_wrapper)(double, void*, void**) except? 0.0
     cdef int translate_exception()
 
-    cdef cppclass CxxFunc1 "Func1Py":
-        CxxFunc1(callback_wrapper, void*)
-        double eval(double) except +translate_exception
+    cdef cppclass CxxFunc1Py "Func1Py" (CxxFunc1):
+        CxxFunc1Py(callback_wrapper, void*)
 
     cdef cppclass PyFuncInfo:
         PyFuncInfo()
@@ -22,12 +29,6 @@ cdef extern from "cantera/cython/funcWrapper.h":
         void setExceptionType(PyObject*)
         PyObject* exceptionValue()
         void setExceptionValue(PyObject*)
-
-
-cdef extern from "cantera/numerics/Func1.h":
-    cdef cppclass CxxTabulated1 "Cantera::Tabulated1":
-        CxxTabulated1(int, double*, double*, string) except +translate_exception
-        double eval(double) except +translate_exception
 
 
 cdef class Func1:
