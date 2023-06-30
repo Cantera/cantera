@@ -46,6 +46,11 @@ int Func1::ID() const
     return 0;
 }
 
+string Func1::type_name() const
+{
+    return demangle(typeid(*this));
+}
+
 // Calls method eval to evaluate the function
 doublereal Func1::operator()(doublereal t) const
 {
