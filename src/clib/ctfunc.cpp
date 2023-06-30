@@ -41,16 +41,16 @@ extern "C" {
                 r = newFunc1("constant", params[0]);
             } else if (type == FourierFuncType) {
                 vector<double> par(params, params + lenp);
-                r = newFunc1("Fourier", par, n);
+                r = newFunc1("Fourier", par);
             } else if (type == GaussianFuncType) {
                 vector<double> par(params, params + lenp);
-                r = newFunc1("Gaussian", par, n);
+                r = newFunc1("Gaussian", par);
             } else if (type == PolyFuncType) {
                 vector<double> par(params, params + lenp);
-                r = newFunc1("polynomial", par, n);
+                r = newFunc1("polynomial", par);
             } else if (type == ArrheniusFuncType) {
                 vector<double> par(params, params + lenp);
-                r = newFunc1("Arrhenius", par, n);
+                r = newFunc1("Arrhenius", par);
             } else if (type == PeriodicFuncType) {
                 r = newFunc1("periodic", FuncCabinet::at(nn), params[0]);
             } else if (type == SumFuncType) {
@@ -85,11 +85,11 @@ extern "C" {
         }
     }
 
-    int func_new_advanced(const char* type, size_t lenp, const double* params, size_t n)
+    int func_new_advanced(const char* type, size_t lenp, const double* params)
     {
         try {
             vector<double> par(params, params + lenp);
-            return FuncCabinet::add(newFunc1(type, par, n));
+            return FuncCabinet::add(newFunc1(type, par));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
