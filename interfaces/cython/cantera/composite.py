@@ -1203,7 +1203,7 @@ class SolutionArray(SolutionArrayBase):
             `write_csv` does not support escaping of commas within string entries.
         """
         warnings.warn("SolutionArray.write_csv: Superseded by 'save' and will be removed "
-                      "after Cantera 3.0.", DeprecationWarning)
+                      "after Cantera 3.0.", DeprecationWarning, stacklevel=2)
         data_dict = self.collect_data(*args, cols=cols, tabular=True, **kwargs)
         data = np.hstack([d[:, np.newaxis] for d in data_dict.values()])
         labels = list(data_dict.keys())
@@ -1433,7 +1433,7 @@ class SolutionArray(SolutionArrayBase):
         warnings.warn("SolutionArray.write_hdf: To be removed after Cantera 3.0; use "
             "'save' instead.\n Note that the call is redirected to 'save' in order to "
             "prevent the creation of a file with legacy HDF format;\nas a consequence, "
-            "some options are no longer supported.", DeprecationWarning)
+            "some options are no longer supported.", DeprecationWarning, stacklevel=2)
 
         if group is None:
             raise KeyError("Missing required parameter 'group'.")
@@ -1477,7 +1477,7 @@ class SolutionArray(SolutionArrayBase):
             _import_h5py()
 
         warnings.warn("SolutionArray.read_hdf: Method to be removed after Cantera 3.0; "
-                      "use 'restore' instead.", DeprecationWarning)
+                      "use 'restore' instead.", DeprecationWarning, stacklevel=2)
 
         with _h5py.File(filename, 'r') as hdf:
 
