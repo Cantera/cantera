@@ -625,14 +625,17 @@ class TestBlowersMasel(FromScratchCases, utilities.CanteraTest):
     rate_type = "Blowers-Masel"
 
     @pytest.mark.xfail(reason="Change of reaction enthalpy is not considered")
+    @pytest.mark.filterwarnings("ignore:.*does not consider.*(electron|enthalpy).*:UserWarning")
     def test_forward_rop_ddT(self):
         super().test_forward_rop_ddT()
 
     @pytest.mark.xfail(reason="Change of reaction enthalpy is not considered")
+    @pytest.mark.filterwarnings("ignore:.*does not consider.*(electron|enthalpy).*:UserWarning")
     def test_reverse_rop_ddT(self):
         super().test_reverse_rop_ddT()
 
     @pytest.mark.xfail(reason="Change of reaction enthalpy is not considered")
+    @pytest.mark.filterwarnings("ignore:.*does not consider.*(electron|enthalpy).*:UserWarning")
     def test_net_rop_ddT(self):
         super().test_net_rop_ddT()
 

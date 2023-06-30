@@ -723,9 +723,11 @@ class TestLegacyHDF(utilities.CanteraTest):
     def test_legacy_hdf_str_column_h5py(self):
         self.run_read_legacy_hdf_str_column(legacy=True)
 
+
     @pytest.mark.xfail(reason="Unable to read fixed length strings from HDF")
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
+    @pytest.mark.filterwarnings("ignore:.*legacy HDF.*:UserWarning")
     def test_legacy_hdf_str_column(self):
         # h5py writes strings with fixed length, which require a priori knowledge of
         # length in order to be read with HighFive (which currently only supports
@@ -752,6 +754,7 @@ class TestLegacyHDF(utilities.CanteraTest):
 
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
+    @pytest.mark.filterwarnings("ignore:.*legacy HDF.*:UserWarning")
     def test_legacy_hdf_multidim(self):
         self.run_read_legacy_hdf_multidim()
 
@@ -801,6 +804,7 @@ class TestLegacyHDF(utilities.CanteraTest):
 
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
+    @pytest.mark.filterwarnings("ignore:.*legacy HDF.*:UserWarning")
     def test_legacy_hdf(self):
         self.run_legacy_hdf()
 
@@ -834,6 +838,7 @@ class TestLegacyHDF(utilities.CanteraTest):
 
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
+    @pytest.mark.filterwarnings("ignore:.*legacy HDF.*:UserWarning")
     def test_read_legacy_hdf_no_norm(self):
         self.run_read_legacy_hdf_no_norm()
 
@@ -860,6 +865,7 @@ class TestLegacyHDF(utilities.CanteraTest):
 
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
+    @pytest.mark.filterwarnings("ignore:.*legacy HDF.*:UserWarning")
     def test_import_no_norm_water(self):
         self.run_import_no_norm_water()
 
