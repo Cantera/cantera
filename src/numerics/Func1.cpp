@@ -612,7 +612,7 @@ Func1& Periodic1::duplicate() const {
 
 string Func1::write(const std::string& arg) const
 {
-    return fmt::format("<unknown {}>({})", ID(), arg);
+    return fmt::format("\\mathrm{{{}}}({})", type(), arg);
 }
 
 string Pow1::write(const std::string& arg) const
