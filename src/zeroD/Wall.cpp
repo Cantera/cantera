@@ -43,10 +43,22 @@ double Wall::velocity() const {
 
 double Wall::vdot(double t)
 {
+    warn_deprecated("Wall::vdot",
+        "To be removed after Cantera 3.0; replaceable by 'expansionRate'.");
     double rate = m_k * m_area * (m_left->pressure() - m_right->pressure());
 
     if (m_vf) {
         rate += m_area * m_vf->eval(t);
+    }
+    return rate;
+}
+
+double Wall::expansionRate()
+{
+    double rate = m_k * m_area * (m_left->pressure() - m_right->pressure());
+
+    if (m_vf) {
+        rate += m_area * m_vf->eval(m_time);
     }
     return rate;
 }
@@ -58,8 +70,10 @@ double Wall::heatFlux() const {
     return 0.;
 }
 
-double Wall::qdot(double t)
+double Wall::Q(double t)
 {
+    warn_deprecated("Wall::Q",
+        "To be removed after Cantera 3.0; replaceable by 'heatRate'.");
     double q1 = (m_area * m_rrth) *
                 (m_left->temperature() - m_right->temperature());
     if (m_emiss > 0.0) {
@@ -70,6 +84,22 @@ double Wall::qdot(double t)
 
     if (m_qf) {
         q1 += m_area * m_qf->eval(t);
+    }
+    return q1;
+}
+
+double Wall::heatRate()
+{
+    double q1 = (m_area * m_rrth) *
+                (m_left->temperature() - m_right->temperature());
+    if (m_emiss > 0.0) {
+        double tl = m_left->temperature();
+        double tr = m_right->temperature();
+        q1 += m_emiss * m_area * StefanBoltz * (tl*tl*tl*tl - tr*tr*tr*tr);
+    }
+
+    if (m_qf) {
+        q1 += m_area * m_qf->eval(m_time);
     }
     return q1;
 }

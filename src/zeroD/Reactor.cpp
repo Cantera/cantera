@@ -274,12 +274,13 @@ void Reactor::eval(double time, double* LHS, double* RHS)
 
 void Reactor::evalWalls(double t)
 {
+    // time is currently unused
     m_vdot = 0.0;
     m_Qdot = 0.0;
     for (size_t i = 0; i < m_wall.size(); i++) {
         int f = 2 * m_lr[i] - 1;
-        m_vdot -= f * m_wall[i]->vdot(t);
-        m_Qdot += f * m_wall[i]->qdot(t);
+        m_vdot -= f * m_wall[i]->expansionRate();
+        m_Qdot += f * m_wall[i]->heatRate();
     }
 }
 

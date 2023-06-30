@@ -132,7 +132,7 @@ public:
         return "functor";
     }
 
-    //! Returns a string describing the type of the function
+    //! Returns a string with the class name of the functor
     //! @since  New in Cantera 3.0.
     string typeName() const;
 

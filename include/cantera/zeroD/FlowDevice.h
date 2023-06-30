@@ -85,7 +85,7 @@ public:
      * The calculation of mass flow rate depends to the flow device.
      * @since New in Cantera 3.0.
      */
-    double getPressureFunction();
+    double evalPressureFunction();
 
     //! Set a function of pressure that is used in determining the
     //! mass flow rate through the device. The evaluation of mass flow
@@ -99,7 +99,7 @@ public:
      * The calculation of mass flow rate depends on the flow device.
      * @since New in Cantera 3.0.
      */
-    double getTimeFunction();
+    double evalTimeFunction();
 
     //! Set a function of time that is used in determining
     //! the mass flow rate through the device. The evaluation of mass flow
