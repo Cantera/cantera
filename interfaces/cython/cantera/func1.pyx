@@ -84,7 +84,7 @@ cdef class Func1:
                 k = float(c)
             elif arr.size == 1:
                 # handle lists, tuples or numpy arrays with a single element
-                k = float(c[0])
+                k = float(arr.flat[0])
             else:
                 raise TypeError
             func = Func1.cxx_functor("constant", k)

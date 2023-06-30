@@ -104,7 +104,7 @@ class TestModels(utilities.CanteraTest):
                 else:
                     X = a.X
                     xmin = np.min(X[X>0])
-                    ix = np.where(xmin)
+                    ix = np.where(X == xmin)
                     X[ix] = .5 * X[ix]
                     X = np.diag(X.sum(axis=1)).dot(X)
                     self.assertFalse(sol.is_pure)

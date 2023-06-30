@@ -1998,7 +1998,7 @@ class TestSolutionArray(utilities.CanteraTest):
         self.assertEqual(Dkm.shape, (2,3,5,self.gas.n_species))
 
         for i,j,k in np.ndindex(TT.shape):
-            self.gas.TPX = T[k], P[i], X[j]
+            self.gas.TPX = T[k], P[i][0][0], X[j]
             self.assertNear(self.gas.enthalpy_mass, h[i,j,k])
             self.assertArrayNear(self.gas.reverse_rates_of_progress, ropr[i,j,k])
             self.assertArrayNear(self.gas.mix_diff_coeffs, Dkm[i,j,k])
