@@ -44,11 +44,11 @@ TEST(SolutionArray, empty)
     AnyValue vec;
     vec = arr->getComponent("T");
     ASSERT_TRUE(vec.isVector<double>());
-    ASSERT_EQ(vec.vectorSize(), 0);
+    ASSERT_EQ(vec.vectorSize(), 0u);
 
     vec = arr->getComponent("H2");
     ASSERT_TRUE(vec.isVector<double>());
-    ASSERT_EQ(vec.vectorSize(), 0);
+    ASSERT_EQ(vec.vectorSize(), 0u);
 
     ASSERT_THROW(arr->getAuxiliary(0), CanteraError);
     ASSERT_THROW(arr->getComponent("foo"), CanteraError);
@@ -65,11 +65,11 @@ TEST(SolutionArray, simple)
     AnyValue vec;
     vec = arr->getComponent("T");
     ASSERT_TRUE(vec.isVector<double>());
-    ASSERT_EQ(vec.vectorSize(), 5);
+    ASSERT_EQ(vec.vectorSize(), 5u);
 
     vec = arr->getComponent("H2");
     ASSERT_TRUE(vec.isVector<double>());
-    ASSERT_EQ(vec.vectorSize(), 5);
+    ASSERT_EQ(vec.vectorSize(), 5u);
 
     ASSERT_THROW(arr->getComponent("foo"), CanteraError);
 
@@ -157,7 +157,7 @@ TEST(SolutionArray, extraEmpty) {
     arr->setComponent("spam", any);
     any = arr->getComponent("spam");
     ASSERT_TRUE(any.isVector<double>());
-    ASSERT_EQ(any.asVector<double>().size(), 0);
+    ASSERT_EQ(any.asVector<double>().size(), 0u);
     arr->setComponent("spam", AnyValue());
     any = arr->getComponent("spam");
     ASSERT_TRUE(any.is<void>());
@@ -177,7 +177,7 @@ TEST(SolutionArray, extraSingle) {
     // set entire component
     any = vector<double>({3.1415});
     ASSERT_TRUE(any.isVector<double>());
-    ASSERT_EQ(any.asVector<double>().size(), 1);
+    ASSERT_EQ(any.asVector<double>().size(), 1u);
 
     // reset
     arr->setComponent("spam", AnyValue());
@@ -189,7 +189,7 @@ TEST(SolutionArray, extraSingle) {
     arr->setComponent("spam", any);
     any = arr->getComponent("spam");
     ASSERT_TRUE(any.isVector<long int>());
-    ASSERT_EQ(any.asVector<long int>().size(), 1);
+    ASSERT_EQ(any.asVector<long int>().size(), 1u);
     any = 2;
     arr->setComponent("spam", any);
     any = vector<double>({2.});
@@ -201,7 +201,7 @@ TEST(SolutionArray, extraSingle) {
     arr->setComponent("spam", any);
     any = arr->getComponent("spam");
     ASSERT_TRUE(any.isVector<string>());
-    ASSERT_EQ(any.asVector<string>().size(), 1);
+    ASSERT_EQ(any.asVector<string>().size(), 1u);
 
     // replace/initialize using default values: vectors
     any = vector<long int>({3, 4, 5});
@@ -210,8 +210,8 @@ TEST(SolutionArray, extraSingle) {
     arr->setComponent("spam", any);
     any = arr->getComponent("spam");
     ASSERT_TRUE(any.isMatrix<long int>());
-    ASSERT_EQ(any.matrixShape().first, 1);
-    ASSERT_EQ(any.matrixShape().second, 3);
+    ASSERT_EQ(any.matrixShape().first, 1u);
+    ASSERT_EQ(any.matrixShape().second, 3u);
 
     // attempt to reset with empty vector
     arr->setComponent("spam", AnyValue());
@@ -380,10 +380,10 @@ void testMultiCol(SolutionArray& arr, const vector<T>& value, bool sliced=false)
     AnyValue extra;
     extra = arr.getComponent("spam");
     ASSERT_TRUE(extra.isMatrix<T>());
-    ASSERT_EQ(extra.matrixShape().first, arr.size());
+    ASSERT_EQ(extra.matrixShape().first, static_cast<size_t>(arr.size()));
     ASSERT_EQ(extra.matrixShape().second, any.vectorSize());
     for (int i = 0; i < size; ++i) {
-        for (int j = 0; j < value.size(); ++j) {
+        for (size_t j = 0; j < value.size(); ++j) {
             ASSERT_EQ(extra.asVector<vector<T>>()[i][j], value[j]);
         }
     }
@@ -408,7 +408,7 @@ void testMultiCol(SolutionArray& arr, const vector<T>& value, bool sliced=false)
         ASSERT_EQ(arr.size(), 2 * size);
         ASSERT_EQ(len(extra.asVector<vector<T>>()), 2 * size);
         for (int i = 0; i < size; ++i) {
-            for (int j = 0; j < value.size(); ++j) {
+            for (size_t j = 0; j < value.size(); ++j) {
                 ASSERT_EQ(extra.asVector<vector<T>>()[i][j], value[j]);
                 ASSERT_EQ(extra.asVector<vector<T>>()[i + size][j], defaultValue);
             }

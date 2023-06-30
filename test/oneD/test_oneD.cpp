@@ -61,7 +61,7 @@ TEST(onedim, freeflame)
     // set up simulation
     vector<shared_ptr<Domain1D>> domains { inlet, flow, outlet };
     Sim1D flame(domains);
-    int dom = flame.domainIndex("flow");
+    int dom = static_cast<int>(flame.domainIndex("flow"));
     ASSERT_EQ(dom, 1);
 
     // set up initial guess
@@ -92,7 +92,7 @@ TEST(onedim, freeflame)
         flame.save("gtest-freeflame.h5", "cpp", "Solution from C++ interface", true);
     }
 
-    ASSERT_EQ(flow->nPoints(), nz + 1);
+    ASSERT_EQ(flow->nPoints(), static_cast<size_t>(nz + 1));
     size_t comp = flow->componentIndex("T");
     double Tprev = flame.value(dom, comp, 0);
     for (size_t n = 0; n < flow->nPoints(); n++) {

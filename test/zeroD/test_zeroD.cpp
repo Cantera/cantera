@@ -120,7 +120,7 @@ TEST(AdaptivePreconditionerTests, test_adaptive_precon_utils)
     precon.setIlutDropTol(droptol);
     EXPECT_NEAR(precon.ilutDropTol(), droptol, tol);
 
-    double fillfactor = testSize/2;
+    int fillfactor = static_cast<int>(testSize) / 2;
     precon.setIlutFillFactor(fillfactor);
     EXPECT_NEAR(precon.ilutFillFactor(), fillfactor, tol);
 
