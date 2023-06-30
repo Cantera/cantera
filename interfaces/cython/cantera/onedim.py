@@ -134,7 +134,7 @@ class FlameBase(Sim1D):
 
         elif isinstance(data, (str, Path)):
             data = str(data)
-            arr = SolutionArray(self.gas, extra=self.other_components())
+            arr = SolutionArray(self.gas)
             if any(data.endswith(suffix) for suffix in [".hdf5", ".h5", ".hdf"]):
                 # data source identifies a HDF file
                 if "native" in hdf_support():
@@ -151,7 +151,7 @@ class FlameBase(Sim1D):
                 raise ValueError(f"'{data}' does not identify CSV, YAML or HDF file.")
         else:
             # data source is presumably a pandas DataFrame
-            arr = SolutionArray(self.gas, extra=self.other_components())
+            arr = SolutionArray(self.gas)
             arr.from_pandas(data)
 
         # get left and right boundaries
