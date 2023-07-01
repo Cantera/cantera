@@ -13,7 +13,7 @@ if env['INSTALL_MANPAGES']:
 
 # cantera.pc for use with pkg-config
 
-pc_libs = list(localenv['cantera_libs'])
+pc_libs = list(localenv['cantera_shared_libs'])
 pc_libdirs = []
 pc_incdirs = []
 pc_cflags = list(localenv['CXXFLAGS'])
@@ -22,19 +22,14 @@ if not localenv["package_build"]:
     pc_incdirs.extend(localenv["extra_inc_dirs"])
     pc_libdirs.extend(localenv["extra_lib_dirs"])
 
-if localenv['system_sundials']:
-    # Add links to the sundials environment
-    if localenv["sundials_libdir"] and not localenv["package_build"]:
-        pc_libdirs.append(localenv['sundials_libdir'])
-
-    if localenv["sundials_include"] and not localenv["package_build"]:
+    if localenv['system_sundials'] and localenv["sundials_include"]:
         pc_incdirs.append(localenv['sundials_include'])
 
-if localenv["boost_inc_dir"] and not localenv["package_build"]:
-    pc_incdirs.append(localenv['boost_inc_dir'])
+    if localenv["boost_inc_dir"]:
+        pc_incdirs.append(localenv['boost_inc_dir'])
 
-if localenv["use_hdf5"] and not localenv["package_build"]:
-    pc_incdirs.append(localenv["hdf_include"])
+    if localenv["use_hdf5"]:
+        pc_incdirs.append(localenv["hdf_include"])
 
 if 'Accelerate' in localenv['FRAMEWORKS']:
     pc_cflags.append('-framework Accelerate')
