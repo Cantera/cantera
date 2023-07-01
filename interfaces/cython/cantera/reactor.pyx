@@ -1088,8 +1088,8 @@ cdef class Wall(WallBase):
             Replaced by the ``velocity`` property.
         """
         warnings.warn(
-            "To be removed after Cantera 3.0; replaced by property 'velocity'.",
-            DeprecationWarning)
+            "Wall.set_velocity: To be removed after Cantera 3.0; replaced by property "
+            "'velocity'.", DeprecationWarning)
         self.velocity = v
 
     @property
@@ -1123,8 +1123,8 @@ cdef class Wall(WallBase):
             Replaced by the ``heat_flux`` property.
         """
         warnings.warn(
-            "To be removed after Cantera 3.0; replaced by property 'heat_flux'.",
-            DeprecationWarning)
+            "Wall.set_heat_flux: To be removed after Cantera 3.0; replaced by property "
+            "'heat_flux'.", DeprecationWarning)
         self.heat_flux = q
 
 
@@ -1226,8 +1226,8 @@ cdef class FlowDevice:
             To be removed after Cantera 3.0. Use property ``pressure_function`` instead.
         """
         warnings.warn(
-            "To be removed after Cantera 3.0; replaced by 'pressure_function'.",
-            DeprecationWarning)
+            "FlowDevice.set_pressure_function: To be removed after Cantera 3.0; "
+            "replaced by 'pressure_function'.", DeprecationWarning)
         self.pressure_function = k
 
     @property
@@ -1272,8 +1272,8 @@ cdef class FlowDevice:
             To be removed after Cantera 3.0. Use property ``time_function`` instead.
         """
         warnings.warn(
-            "To be removed after Cantera 3.0; replaced by 'time_function'.",
-            DeprecationWarning)
+            "FlowDevice.set_time_function: To be removed after Cantera 3.0; "
+            "replaced by 'time_function'.", DeprecationWarning)
         self.time_function = k
 
 
@@ -1421,8 +1421,9 @@ cdef class PressureController(FlowDevice):
     def __init__(self, upstream, downstream, *,
             name=None, primary=None, K=1., **kwargs):
         if "master" in kwargs:
-            warnings.warn("The 'master' keyword argument is deprecated; "
-                          "use 'primary' instead.", DeprecationWarning)
+            warnings.warn(
+                "PressureController: The 'master' keyword argument is deprecated; "
+                "use 'primary' instead.", DeprecationWarning)
             primary = kwargs["master"]
         super().__init__(upstream, downstream, name=name)
         if primary is not None:
@@ -1465,8 +1466,9 @@ cdef class PressureController(FlowDevice):
 
             To be removed after Cantera 3.0; replaced by property ``primary``.
         """
-        warnings.warn("To be removed after Cantera 3.0; replaced by 'primary'.",
-                      DeprecationWarning)
+        warnings.warn(
+            "PressureController.set_master: To be removed after Cantera 3.0; "
+            "replaced by 'primary'.", DeprecationWarning)
         self.primary = d
 
 
@@ -1568,8 +1570,8 @@ cdef class ReactorNet:
             To be removed after Cantera 3.0. Use property ``initial_time`` instead.
         """
         warnings.warn(
-            "To be removed after Cantera 3.0. Use property 'initial_time' instead.",
-            DeprecationWarning)
+            "ReactorNet.set_initial_time: To be removed after Cantera 3.0. "
+            "Use property 'initial_time' instead.", DeprecationWarning)
         self.initial_time = t
 
     property max_time_step:
