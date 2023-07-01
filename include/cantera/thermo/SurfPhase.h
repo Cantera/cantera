@@ -75,7 +75,7 @@ namespace Cantera
  *            s_k(T,P) = s^o_k(T) - R \log(\theta_k)
  *       \f]
  *
- * ## %Application within Kinetics Managers
+ * ## Application within Kinetics Managers
  *
  * The activity concentration,\f$  C^a_k \f$, used by the kinetics manager, is equal to
  * the actual concentration, \f$ C^s_k \f$, and is given by the following

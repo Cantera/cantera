@@ -123,7 +123,7 @@ namespace Cantera
  * only has a weak dependence on the enthalpy, and doesn't effect the molar
  * concentration.
  *
- * ## %Application within Kinetics Managers
+ * ## Application within Kinetics Managers
  *
  * \f$ C^a_k\f$ are defined such that \f$ C^a_k = a_k = X_k \f$. \f$ C^s_k \f$,
  * the standard concentration, is defined to be equal to one. \f$ a_k \f$ are

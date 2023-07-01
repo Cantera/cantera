@@ -142,7 +142,7 @@ namespace Cantera
  *      \tilde{Cp}_k(T,P) = Cp^o_k(T,P) = Cp^{ref}_k(T)
  * \f]
  *
- * ## %Application within Kinetics Managers
+ * ## Application within Kinetics Managers
  *
  * \f$ C^a_k\f$ are defined such that \f$ a_k = C^a_k / C^s_k, \f$ where \f$
  * C^s_k \f$ is a standard concentration defined below and \f$ a_k \f$ are
