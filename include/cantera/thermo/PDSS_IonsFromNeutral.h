@@ -57,7 +57,7 @@ public:
      * \f]
      *
      * *m* is the neutral molecule species index. \f$ \alpha_{m , k} \f$ is the
-     * stoiciometric coefficient for the neutral molecule, *m*, that creates the
+     * stoichiometric coefficient for the neutral molecule, *m*, that creates the
      * thermodynamics for the ionic species  *k*. A factor  \f$ 2.0 \ln{2.0} \f$
      * is added to all ions except for the species ionic species, which in this
      * case is the single anion species, with species index *sp*.

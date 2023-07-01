@@ -299,7 +299,7 @@ public:
     //! Gets the interface current for the ith phase
     /*!
     * @param iphase Phase Id
-    * @return The double specifying the interface current. The interface Current
+    * @return The double specifying the interface current. The interface current
     *         is useful when charge transfer reactions occur at an interface. It
     *         is defined here as the net positive charge entering the phase
     *         specified by the Phase Id. (Units: A/m^2 for a surface reaction,

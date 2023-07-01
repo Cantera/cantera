@@ -66,8 +66,8 @@ public:
      * "Calculation and analysis of the mobility and diffusion coefficient
      * of thermal electrons in methane/air premixed flames."
      * Combustion and flame 159.12 (2012): 3518-3521.
-     * If in the future the class GasTranport is improved, this method may
-     * be discard. This method specifies this profile.
+     * If in the future the class GasTransport is improved, this method may
+     * be discarded. This method specifies this profile.
     */
     void setElectronTransport(vector_fp& tfix,
                               vector_fp& diff_e,
