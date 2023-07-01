@@ -1874,7 +1874,7 @@ cdef class ThermoPhase(_SolutionBase):
             self.plasma.setQuadratureMethod(stringify(method))
 
     property normalize_electron_energy_distribution_enabled:
-        """ Automatically normalize electron energy distribuion """
+        """ Automatically normalize electron energy distribution """
         def __get__(self):
             if not self._enable_plasma:
                 raise ThermoModelMethodError(self.thermo_model)

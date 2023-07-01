@@ -104,7 +104,7 @@ namespace Cantera
  * The PDSS objects may or may not utilize a SpeciesThermoInterpType reference
  * state manager class to calculate the reference state thermodynamics functions
  * in their own calculation. There are some classes, such as PDSS_IdealGas and
- * PDSS+_ConstVol, which utilize the SpeciesThermoInterpType object because the
+ * PDSS_ConstVol, which utilize the SpeciesThermoInterpType object because the
  * calculation is very similar to the reference state calculation, while there
  * are other classes, PDSS_Water and PDSS_HKFT, which don't utilize the
  * reference state calculation at all, because it wouldn't make sense to. For

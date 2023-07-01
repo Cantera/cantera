@@ -40,7 +40,7 @@ namespace Cantera {
  * inadvertently nothing happens, and if an attempt is made to reference the object by
  * its index number, a standard exception is thrown.
  *
- * The SharedCabinet<M> class is implemented as a singlet. The constructor is never
+ * The SharedCabinet<M> class is implemented as a singleton. The constructor is never
  * explicitly called; instead, static function SharedCabinet<M>::SharedCabinet() is
  * called to obtain a pointer to the instance. This function calls the constructor on
  * the first call and stores the pointer to this instance. Subsequent calls simply

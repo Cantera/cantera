@@ -46,7 +46,7 @@ public:
     }
 
     //! Update the mass flow rate at time 'time'. This must be overloaded in
-    //! subclassess to update m_mdot.
+    //! subclasses to update m_mdot.
     virtual void updateMassFlowRate(double time) {}
 
     //! Mass flow rate (kg/s) of outlet species k. Returns zero if this species

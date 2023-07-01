@@ -106,7 +106,7 @@ protected:
     double m_t0 = 0.0;
     //! Dimensionless value of the heat capacity
     double m_cp0_R = 0.0;
-    //! dimensionless value of the enthaply at t0
+    //! dimensionless value of the enthalpy at t0
     double m_h0_R = 0.0;
     //! Dimensionless value of the entropy at t0
     double m_s0_R = 0.0;

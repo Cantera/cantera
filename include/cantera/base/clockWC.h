@@ -60,7 +60,7 @@ public:
      * machines clock() returns type unsigned long (HP) and on others (SUN)
      * it returns type long. An attempt to recover the actual time for clocks
      * which have rolled over is made also. However, it only works if this
-     * function is called fairly regularily during the solution procedure.
+     * function is called fairly regularly during the solution procedure.
      */
     double secondsWC();
 
