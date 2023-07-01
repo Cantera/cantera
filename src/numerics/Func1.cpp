@@ -46,7 +46,7 @@ int Func1::ID() const
     return 0;
 }
 
-string Func1::type_name() const
+string Func1::typeName() const
 {
     return demangle(typeid(*this));
 }

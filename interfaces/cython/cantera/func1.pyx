@@ -151,7 +151,7 @@ cdef class Func1:
         else:
             raise ValueError("Invalid arguments")
 
-        cls_name = pystr(func.get().type_name()).split("::")[-1]
+        cls_name = pystr(func.get().typeName()).split("::")[-1]
         cdef Func1 out = type(
             cls_name, (cls, ), {"__module__": cls.__module__})(None, init=False)
         out._func = func
