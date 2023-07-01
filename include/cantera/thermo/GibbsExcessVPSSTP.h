@@ -57,7 +57,7 @@ namespace Cantera
  * vector. That's one of its primary usages. In order to keep the mole fraction
  * vector constant, all of the setState functions are redesigned at this layer.
  *
- * ### Activity Concentrations: Relationship of ThermoPhase to %Kinetics Expressions
+ * ### Activity Concentrations: Relationship of ThermoPhase to Kinetics Expressions
  *
  * As explained in a similar discussion in the ThermoPhase class, the actual
  * units used in kinetics expressions must be specified in the ThermoPhase class

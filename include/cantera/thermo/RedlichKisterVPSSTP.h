@@ -131,7 +131,7 @@ namespace Cantera
  *              - R T^2 \frac{d^2 \ln(\gamma_k) }{{dT}^2} = C^o_{p,k}(T,P)
  * \f]
  *
- * ## %Application within Kinetics Managers
+ * ## Application within Kinetics Managers
  *
  * \f$ C^a_k\f$ are defined such that \f$ a_k = C^a_k / C^s_k, \f$ where
  * \f$ C^s_k \f$ is a standard concentration defined below and \f$ a_k \f$ are

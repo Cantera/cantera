@@ -59,7 +59,7 @@ class WaterProps;
  *
  * So(1bar) = S(P0) + RT ln(1bar/P0)
  *
- * ## %Application within Kinetics Managers
+ * ## Application within Kinetics Managers
  *
  * This is unimplemented.
  *
