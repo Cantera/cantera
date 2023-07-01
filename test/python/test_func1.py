@@ -127,7 +127,7 @@ class TestFunc1(utilities.CanteraTest):
         arr = np.array([[0, 2], [1, 1], [2, 0]])
         time = arr[:, 0]
         fval = arr[:, 1]
-        fcn = ct.TabulatedFunction(time, fval)
+        fcn = ct.Tabulated1(time, fval)
         assert fcn.type == "tabulated-linear"
         for t, f in zip(time, fval):
             self.assertNear(f, fcn(t))
@@ -135,7 +135,7 @@ class TestFunc1(utilities.CanteraTest):
     def test_tabulated2(self):
         time = [0, 1, 2]
         fval = [2, 1, 0]
-        fcn = ct.TabulatedFunction(time, fval)
+        fcn = ct.Tabulated1(time, fval)
         assert fcn.type == "tabulated-linear"
         for t, f in zip(time, fval):
             self.assertNear(f, fcn(t))
@@ -143,14 +143,14 @@ class TestFunc1(utilities.CanteraTest):
     def test_tabulated3(self):
         time = 0, 1, 2,
         fval = 2, 1, 0,
-        fcn = ct.TabulatedFunction(time, fval)
+        fcn = ct.Tabulated1(time, fval)
         self.assertNear(fcn(-1), fval[0])
         self.assertNear(fcn(3), fval[-1])
 
     def test_tabulated4(self):
         time = np.array([0, 1, 2])
         fval = np.array([2, 1, 0])
-        fcn = ct.TabulatedFunction(time, fval)
+        fcn = ct.Tabulated1(time, fval)
         tt = .5*(time[1:] + time[:-1])
         ff = .5*(fval[1:] + fval[:-1])
         for t, f in zip(tt, ff):
@@ -159,17 +159,17 @@ class TestFunc1(utilities.CanteraTest):
     def test_tabulated5(self):
         time = [0, 1, 2]
         fval = [2, 1, 0]
-        fcn = ct.TabulatedFunction(time, fval, method='previous')
+        fcn = ct.Tabulated1(time, fval, method='previous')
         assert fcn.type == "tabulated-previous"
         val = np.array([fcn(v) for v in [-0.5, 0, 0.5, 1.5, 2, 2.5]])
         self.assertArrayNear(val, np.array([2.0, 2.0, 2.0, 1.0, 0.0, 0.0]))
 
     def test_tabulated_failures(self):
         with pytest.raises(ct.CanteraError, match="even number of entries"):
-            ct.TabulatedFunction(range(2), range(3))
+            ct.Tabulated1(range(2), range(3))
         with pytest.raises(ct.CanteraError, match="at least 4 entries"):
-            ct.TabulatedFunction([], [])
+            ct.Tabulated1([], [])
         with pytest.raises(ct.CanteraError, match="monotonically"):
-            ct.TabulatedFunction((0, 1, 0.5, 2), (2, 1, 1, 0))
+            ct.Tabulated1((0, 1, 0.5, 2), (2, 1, 1, 0))
         with pytest.raises(ct.CanteraError, match="No such type"):
-            ct.TabulatedFunction((0, 1, 1, 2), (2, 1, 1, 0), method='spam')
+            ct.Tabulated1((0, 1, 1, 2), (2, 1, 1, 0), method='spam')

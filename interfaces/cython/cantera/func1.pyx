@@ -4,6 +4,7 @@
 import sys
 cimport numpy as np
 import numpy as np
+import warnings
 
 from ._utils cimport *
 
@@ -180,7 +181,48 @@ cdef class Func1:
         raise NotImplementedError(msg)
 
 
-cdef class TabulatedFunction(Func1):
+cdef class Tabulated1(Func1):
+    """
+    A `Tabulated1` object representing a tabulated function is defined by
+    sample points and corresponding function values. Inputs are specified by
+    two iterable objects containing sample point location and function values.
+    Between sample points, values are evaluated based on the optional argument
+    ``method``; options are ``'linear'`` (linear interpolation, default) or
+    ``'previous'`` (nearest previous value). Outside the sample interval, the
+    value at the closest end point is returned.
+
+    Examples for `Tabulated1` objects are::
+
+        >>> t1 = Tabulated1([0, 1, 2], [2, 1, 0])
+        >>> [t1(v) for v in [-0.5, 0, 0.5, 1.5, 2, 2.5]]
+        [2.0, 2.0, 1.5, 0.5, 0.0, 0.0]
+
+        >>> t2 = Tabulated1(np.array([0, 1, 2]), np.array([2, 1, 0]))
+        >>> [t2(v) for v in [-0.5, 0, 0.5, 1.5, 2, 2.5]]
+        [2.0, 2.0, 1.5, 0.5, 0.0, 0.0]
+
+    The optional ``method`` keyword argument changes the type of interpolation
+    from the ``'linear'`` default to ``'previous'``::
+
+        >>> t3 = Tabulated1([0, 1, 2], [2, 1, 0], method='previous')
+        >>> [t3(v) for v in [-0.5, 0, 0.5, 1.5, 2, 2.5]]
+        [2.0, 2.0, 2.0, 1.0, 0.0, 0.0]
+
+    .. versionadded:: 3.0
+    """
+
+    def __init__(self, time, fval, method='linear'):
+        cdef vector[double] arr
+        for v in time:
+            arr.push_back(v)
+        for v in fval:
+            arr.push_back(v)
+        cdef string cxx_string = stringify(f"tabulated-{method}")
+        self._func = CxxNewFunc1(cxx_string, arr)
+        self.func = self._func.get()
+
+
+cdef class TabulatedFunction(Tabulated1):
     """
     A `TabulatedFunction` object representing a tabulated function is defined by
     sample points and corresponding function values. Inputs are specified by
@@ -206,10 +248,13 @@ cdef class TabulatedFunction(Func1):
         >>> t3 = TabulatedFunction([0, 1, 2], [2, 1, 0], method='previous')
         >>> [t3(v) for v in [-0.5, 0, 0.5, 1.5, 2, 2.5]]
         [2.0, 2.0, 2.0, 1.0, 0.0, 0.0]
-    """
 
-    def __init__(self, time, fval, method='linear'):
-        arr = np.hstack([np.array(time), np.array(fval)])
-        cdef Func1 func = Func1.cxx_functor(f"tabulated-{method}", arr)
-        self._func = func._func
-        self.func = self._func.get()
+    .. deprecated:: 3.0
+
+        To be removed after Cantera 3.0. Renamed to `Tabulated1`.
+    """
+    def __init__(self, *args, **kwargs):
+        warnings.warn(
+            "TabulatedFunction: To be removed after Cantera 3.0. "
+            "Renamed to 'Tabulated1'.", DeprecationWarning)
+        super().__init__(*args, **kwargs)
