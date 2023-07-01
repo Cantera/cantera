@@ -11,7 +11,7 @@ cdef extern from "cantera/numerics/Func1.h":
     cdef cppclass CxxFunc1 "Cantera::Func1":
         double eval(double) except +translate_exception
         string type()
-        string type_name()
+        string typeName()
         string write(string)
 
 

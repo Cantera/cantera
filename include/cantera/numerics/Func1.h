@@ -134,7 +134,7 @@ public:
 
     //! Returns a string describing the type of the function
     //! @since  New in Cantera 3.0.
-    string type_name() const;
+    string typeName() const;
 
     //! Calls method eval to evaluate the function
     doublereal operator()(doublereal t) const;
