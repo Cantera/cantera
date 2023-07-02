@@ -12,8 +12,10 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/thermo/SurfPhase.h"
+#include "cantera/base/utilities.h"
 #include <boost/algorithm/string.hpp>
 #include <fstream>
+#include <sstream>
 
 
 namespace ba = boost::algorithm;
@@ -36,7 +38,7 @@ namespace Cantera
 {
 
 SolutionArray::SolutionArray(const shared_ptr<Solution>& sol,
-                             size_t size, const AnyMap& meta)
+                             int size, const AnyMap& meta)
     : m_sol(sol)
     , m_size(size)
     , m_dataSize(size)
@@ -51,11 +53,11 @@ SolutionArray::SolutionArray(const shared_ptr<Solution>& sol,
     m_extra = make_shared<map<string, AnyValue>>();
     m_order = make_shared<map<int, string>>();
     for (size_t i = 0; i < m_dataSize; ++i) {
-        m_active.push_back(i);
+        m_active.push_back(static_cast<int>(i));
     }
     reset();
     m_apiShape.resize(1);
-    m_apiShape[0] = m_dataSize;
+    m_apiShape[0] = static_cast<long>(m_dataSize);
 }
 
 SolutionArray::SolutionArray(const SolutionArray& other,
@@ -149,7 +151,7 @@ void SolutionArray::reset()
     }
 }
 
-void SolutionArray::resize(size_t size)
+void SolutionArray::resize(int size)
 {
     if (apiNdim() > 1) {
         throw CanteraError("SolutionArray::resize",
@@ -160,8 +162,8 @@ void SolutionArray::resize(size_t size)
         throw CanteraError("SolutionArray::resize",
             "Unable to resize as data are shared by multiple objects.");
     }
-    _resize(size);
-    m_apiShape[0] = size;
+    _resize(static_cast<size_t>(size));
+    m_apiShape[0] = static_cast<long>(size);
 }
 
 void SolutionArray::setApiShape(const vector<long int>& shape)
@@ -195,7 +197,7 @@ void SolutionArray::_resize(size_t size)
     }
     m_active.clear();
     for (size_t i = 0; i < m_dataSize; ++i) {
-        m_active.push_back(i);
+        m_active.push_back(static_cast<int>(i));
     }
 }
 
@@ -208,8 +210,9 @@ vector<string> doubleColumn(string name, const vector<double>& comp,
     vector<double> data;
     vector<string> raw;
     string notation = fmt::format("{{:{}.{}g}}", width, (width - 1) / 2);
-    int dots = comp.size() + 1;
-    if (comp.size() <= rows) {
+    int csize = static_cast<int>(comp.size());
+    int dots = csize + 1;
+    if (csize <= rows) {
         for (const auto& val : comp) {
             data.push_back(val);
             raw.push_back(boost::trim_copy(fmt::format(notation, val)));
@@ -220,7 +223,7 @@ vector<string> doubleColumn(string name, const vector<double>& comp,
             data.push_back(comp[row]);
             raw.push_back(boost::trim_copy(fmt::format(notation, comp[row])));
         }
-        for (int row = comp.size() - rows / 2; row < comp.size(); row++) {
+        for (int row = csize - rows / 2; row < csize; row++) {
             data.push_back(comp[row]);
             raw.push_back(boost::trim_copy(fmt::format(notation, comp[row])));
         }
@@ -277,7 +280,7 @@ vector<string> doubleColumn(string name, const vector<double>& comp,
     // assemble output
     string section = fmt::format("{{:>{}}}", maxLen);
     vector<string> col = {fmt::format(section, name)};
-    size_t count = 0;
+    int count = 0;
     for (const auto& val : data) {
         col.push_back(fmt::format(notation, val));
         count++;
@@ -295,8 +298,9 @@ vector<string> integerColumn(string name, const vector<long int>& comp,
     vector<double> data;
     string notation = fmt::format("{{:{}}}", width);
     size_t maxLen = 2; // minimum column width is 2
-    int dots = comp.size() + 1;
-    if (comp.size() <= rows) {
+    int csize = static_cast<int>(comp.size());
+    int dots = csize + 1;
+    if (csize <= rows) {
         for (const auto& val : comp) {
             data.push_back(val);
             string name = boost::trim_copy(fmt::format(notation, val));
@@ -315,7 +319,7 @@ vector<string> integerColumn(string name, const vector<long int>& comp,
             }
             maxLen = std::max(maxLen, name.size());
         }
-        for (int row = comp.size() - rows / 2; row < comp.size(); row++) {
+        for (int row = csize - rows / 2; row < csize; row++) {
             data.push_back(comp[row]);
             string name = boost::trim_copy(fmt::format(notation, comp[row]));
             if (name[0] == '-') {
@@ -336,7 +340,7 @@ vector<string> integerColumn(string name, const vector<long int>& comp,
 
     // assemble output
     vector<string> col = {fmt::format(notation, name)};
-    size_t count = 0;
+    int count = 0;
     for (const auto& val : data) {
         col.push_back(fmt::format(notation, val));
         count++;
@@ -354,8 +358,9 @@ vector<string> stringColumn(string name, const vector<string>& comp,
     vector<string> data;
     string notation = fmt::format("{{:{}}}", width);
     size_t maxLen = 3; // minimum column width is 3
-    int dots = comp.size() + 1;
-    if (comp.size() <= rows) {
+    int csize = static_cast<int>(comp.size());
+    int dots = csize + 1;
+    if (csize <= rows) {
         for (const auto& val : comp) {
             data.push_back(val);
             maxLen = std::max(maxLen,
@@ -368,7 +373,7 @@ vector<string> stringColumn(string name, const vector<string>& comp,
             maxLen = std::max(maxLen,
                 boost::trim_copy(fmt::format(notation, comp[row])).size());
         }
-        for (int row = comp.size() - rows / 2; row < comp.size(); row++) {
+        for (int row = csize - rows / 2; row < csize; row++) {
             data.push_back(comp[row]);
             maxLen = std::max(maxLen,
                 boost::trim_copy(fmt::format(notation, comp[row])).size());
@@ -378,7 +383,7 @@ vector<string> stringColumn(string name, const vector<string>& comp,
     // assemble output
     notation = fmt::format("  {{:>{}}}", maxLen);
     vector<string> col = {fmt::format(notation, name)};
-    size_t count = 0;
+    int count = 0;
     for (const auto& val : data) {
         col.push_back(fmt::format(notation, val));
         count++;
@@ -403,16 +408,16 @@ vector<string> formatColumn(string name, const AnyValue& comp, int rows, int wid
 
     // create alternative representation
     string repr;
-    size_t size;
+    int size;
     if (comp.isVector<vector<double>>()) {
         repr = "[ <double> ]";
-        size = comp.asVector<vector<double>>().size();
+        size = len(comp.asVector<vector<double>>());
     } else if (comp.isVector<vector<long int>>()) {
         repr = "[ <long int> ]";
-        size = comp.asVector<vector<long int>>().size();
+        size = len(comp.asVector<vector<long int>>());
     } else if (comp.isVector<vector<string>>()) {
         repr = "[ <string> ]";
-        size = comp.asVector<vector<string>>().size();
+        size = len(comp.asVector<vector<string>>());
     } else {
         throw CanteraError(
             "formatColumn", "Encountered invalid data for component '{}'.", name);
@@ -465,11 +470,11 @@ string SolutionArray::info(const vector<string>& keys, int rows, int width)
         // assemble columns fitting within a maximum width; if this width is exceeded,
         // a "..." separator is inserted close to the center. Accordingly, the matrix
         // needs to be assembled from two halves.
-        size_t front = 0;
-        size_t back = components.size() - 1;
-        size_t fLen = cols.back()[0].size();
-        size_t bLen = 0;
-        size_t sep = 5; // separator width
+        int front = 0;
+        int back = len(components) - 1;
+        int fLen = len(cols.back()[0]);
+        int bLen = 0;
+        int sep = 5; // separator width
         bool done = false;
         while (!done && front <= back) {
             string key;
@@ -477,12 +482,12 @@ string SolutionArray::info(const vector<string>& keys, int rows, int width)
                 // add trailing columns
                 key = components[back];
                 auto col = formatColumn(key, getComponent(key), rows, col_width);
-                if (col[0].size() + fLen + bLen + sep > width) {
+                if (len(col[0]) + fLen + bLen + sep > width) {
                     done = true;
                     break;
                 }
                 tail.push_back(col);
-                bLen += tail.back()[0].size();
+                bLen += len(tail.back()[0]);
                 back--;
             }
             if (done || front > back) {
@@ -492,12 +497,12 @@ string SolutionArray::info(const vector<string>& keys, int rows, int width)
                 // add leading columns
                 key = components[front];
                 auto col = formatColumn(key, getComponent(key), rows, col_width);
-                if (col[0].size() + fLen + bLen + sep > width) {
+                if (len(col[0]) + fLen + bLen + sep > width) {
                     done = true;
                     break;
                 }
                 cols.push_back(col);
-                fLen += cols.back()[0].size();
+                fLen += len(cols.back()[0]);
                 front++;
             }
         }
@@ -731,37 +736,38 @@ void SolutionArray::setComponent(const string& name, const AnyValue& data)
     }
 }
 
-void SolutionArray::setLoc(size_t loc, bool restore)
+void SolutionArray::setLoc(int loc, bool restore)
 {
+    size_t loc_ = static_cast<size_t>(loc);
     if (m_size == 0) {
         throw CanteraError("SolutionArray::setLoc",
             "Unable to set location in empty SolutionArray.");
-    } else if (loc == npos) {
+    } else if (loc < 0) {
         if (m_loc == npos) {
             throw CanteraError("SolutionArray::setLoc",
                 "Both current and buffered indices are invalid.");
         }
         return;
-    } else if (m_active[loc] == (int)m_loc) {
+    } else if (static_cast<size_t>(m_active[loc_]) == m_loc) {
         return;
-    } else if (loc >= m_size) {
-        throw IndexError("SolutionArray::setLoc", "indices", loc, m_size - 1);
+    } else if (loc_ >= m_size) {
+        throw IndexError("SolutionArray::setLoc", "indices", loc_, m_size - 1);
     }
-    m_loc = m_active[loc];
+    m_loc = static_cast<size_t>(m_active[loc_]);
     if (restore) {
         size_t nState = m_sol->thermo()->stateSize();
         m_sol->thermo()->restoreState(nState, m_data->data() + m_loc * m_stride);
     }
 }
 
-void SolutionArray::updateState(size_t loc)
+void SolutionArray::updateState(int loc)
 {
     setLoc(loc, false);
     size_t nState = m_sol->thermo()->stateSize();
     m_sol->thermo()->saveState(nState, m_data->data() + m_loc * m_stride);
 }
 
-vector<double> SolutionArray::getState(size_t loc)
+vector<double> SolutionArray::getState(int loc)
 {
     setLoc(loc);
     size_t nState = m_sol->thermo()->stateSize();
@@ -770,7 +776,7 @@ vector<double> SolutionArray::getState(size_t loc)
     return out;
 }
 
-void SolutionArray::setState(size_t loc, const vector<double>& state)
+void SolutionArray::setState(int loc, const vector<double>& state)
 {
     size_t nState = m_sol->thermo()->stateSize();
     if (state.size() != nState) {
@@ -793,7 +799,7 @@ void SolutionArray::normalize() {
     vector<double> out(nState);
     if (nativeState.count("Y")) {
         size_t offset = nativeState["Y"];
-        for (size_t loc = 0; loc < m_size; loc++) {
+        for (int loc = 0; loc < static_cast<int>(m_size); loc++) {
             setLoc(loc, true); // set location and restore state
             phase->setMassFractions(m_data->data() + m_loc * m_stride + offset);
             m_sol->thermo()->saveState(out);
@@ -801,7 +807,7 @@ void SolutionArray::normalize() {
         }
     } else if (nativeState.count("X")) {
         size_t offset = nativeState["X"];
-        for (size_t loc = 0; loc < m_size; loc++) {
+        for (int loc = 0; loc < static_cast<int>(m_size); loc++) {
             setLoc(loc, true); // set location and restore state
             phase->setMoleFractions(m_data->data() + m_loc * m_stride + offset);
             m_sol->thermo()->saveState(out);
@@ -813,7 +819,7 @@ void SolutionArray::normalize() {
     }
 }
 
-AnyMap SolutionArray::getAuxiliary(size_t loc)
+AnyMap SolutionArray::getAuxiliary(int loc)
 {
     setLoc(loc);
     AnyMap out;
@@ -841,7 +847,7 @@ AnyMap SolutionArray::getAuxiliary(size_t loc)
     return out;
 }
 
-void SolutionArray::setAuxiliary(size_t loc, const AnyMap& data)
+void SolutionArray::setAuxiliary(int loc, const AnyMap& data)
 {
     setLoc(loc, false);
     for (const auto& [name, value] : data) {
@@ -915,15 +921,15 @@ AnyMap preamble(const string& desc)
     return data;
 }
 
-AnyMap& openField(AnyMap& root, const string& id)
+AnyMap& openField(AnyMap& root, const string& name)
 {
-    if (!id.size()) {
+    if (!name.size()) {
         return root;
     }
 
-    // locate field based on 'id'
+    // locate field based on 'name'
     vector<string> tokens;
-    tokenizePath(id, tokens);
+    tokenizePath(name, tokens);
     AnyMap* ptr = &root; // use raw pointer to avoid copying
     string path = "";
     for (auto& field : tokens) {
@@ -940,38 +946,165 @@ AnyMap& openField(AnyMap& root, const string& id)
     return *ptr;
 }
 
-void SolutionArray::writeHeader(const string& fname, const string& id,
+void SolutionArray::writeHeader(const string& fname, const string& name,
                                 const string& desc, bool overwrite)
 {
     Storage file(fname, true);
-    if (file.checkGroup(id, true)) {
+    if (file.checkGroup(name, true)) {
         if (!overwrite) {
             throw CanteraError("SolutionArray::writeHeader",
-                "Group id '{}' exists; use 'overwrite' argument to overwrite.", id);
+                "Group name '{}' exists; use 'overwrite' argument to overwrite.", name);
         }
-        file.deleteGroup(id);
-        file.checkGroup(id, true);
+        file.deleteGroup(name);
+        file.checkGroup(name, true);
     }
-    file.writeAttributes(id, preamble(desc));
+    file.writeAttributes(name, preamble(desc));
 }
 
-void SolutionArray::writeHeader(AnyMap& root, const string& id,
+void SolutionArray::writeHeader(AnyMap& root, const string& name,
                                 const string& desc, bool overwrite)
 {
-    AnyMap& data = openField(root, id);
+    AnyMap& data = openField(root, name);
     if (!data.empty() && !overwrite) {
         throw CanteraError("SolutionArray::writeHeader",
-            "Field id '{}' exists; use 'overwrite' argument to overwrite.", id);
+            "Field name '{}' exists; use 'overwrite' argument to overwrite.", name);
     }
     data.update(preamble(desc));
 }
 
-void SolutionArray::writeEntry(const string& fname, const string& id, const string& sub,
-                               bool overwrite, int compression)
+void SolutionArray::writeEntry(const string& fname, bool overwrite, const string& basis)
 {
-    if (id == "") {
+    if (apiNdim() != 1) {
         throw CanteraError("SolutionArray::writeEntry",
-            "Group id specifying root location must not be empty.");
+            "Tabular output of CSV data only works for 1D SolutionArray objects.");
+    }
+    set<string> speciesNames;
+    for (const auto& species : m_sol->thermo()->speciesNames()) {
+        speciesNames.insert(species);
+    }
+    bool mole;
+    if (basis == "") {
+        const auto& nativeState = m_sol->thermo()->nativeState();
+        mole = nativeState.find("X") != nativeState.end();
+    } else if (basis == "X" || basis == "mole") {
+        mole = true;
+    } else if (basis == "Y" || basis == "mass") {
+        mole = false;
+    } else {
+        throw CanteraError("SolutionArray::writeEntry",
+            "Invalid species basis '{}'.", basis);
+    }
+
+    auto names = componentNames();
+    size_t last = names.size() - 1;
+    vector<AnyValue> components;
+    vector<bool> isSpecies;
+    std::stringstream header;
+    for (const auto& key : names) {
+        string label = key;
+        size_t col;
+        if (speciesNames.find(key) == speciesNames.end()) {
+            // Pre-read component vectors
+            isSpecies.push_back(false);
+            components.emplace_back(getComponent(key));
+            col = components.size() - 1;
+            if (!components[col].isVector<double>() &&
+                !components[col].isVector<long int>() &&
+                !components[col].isVector<string>())
+            {
+                throw CanteraError("SolutionArray::writeEntry",
+                    "Multi-dimensional column '{}' is not supported for CSV output.",
+                    key);
+            }
+        } else {
+            // Delay reading species data as base can be either mole or mass
+            isSpecies.push_back(true);
+            components.emplace_back(AnyValue());
+            col = components.size() - 1;
+            if (mole) {
+                label = "X_" + label;
+            } else {
+                label = "Y_" + label;
+            }
+        }
+        if (label.find("\"") != string::npos || label.find("\n") != string::npos) {
+            throw NotImplementedError("SolutionArray::writeEntry",
+                "Detected column name containing double quotes or line feeds: '{}'.",
+                label);
+        }
+        if (label.find(",") != string::npos) {
+            header << "\"" << label << "\"";
+        } else {
+            header << label;
+        }
+        if (col != last) {
+            header << ",";
+        }
+    }
+
+    // (Most) potential exceptions have been thrown; start writing data to file
+    if (std::ifstream(fname).good()) {
+        if (!overwrite) {
+            throw CanteraError("SolutionArray::writeEntry",
+                "File '{}' already exists; use option 'overwrite' to replace CSV file.",
+                fname);
+        }
+        std::remove(fname.c_str());
+    }
+    std::ofstream output(fname);
+    const auto default_precision = output.precision();
+    output << header.str() << std::endl << std::setprecision(9);
+
+    vector<double> buf(speciesNames.size(), 0.);
+    for (int row = 0; row < static_cast<int>(m_size); row++) {
+        setLoc(row);
+        if (mole) {
+            m_sol->thermo()->getMoleFractions(buf.data());
+        } else {
+            m_sol->thermo()->getMassFractions(buf.data());
+        }
+
+        size_t idx = 0;
+        for (size_t col = 0; col < components.size(); col++) {
+            if (isSpecies[col]) {
+                output << buf[idx++];
+            } else {
+                auto& data = components[col];
+                if (data.isVector<double>()) {
+                    output << data.asVector<double>()[row];
+                } else if (data.isVector<long int>()) {
+                    output << data.asVector<long int>()[row];
+                } else {
+                    auto value = data.asVector<string>()[row];
+                    if (value.find("\"") != string::npos ||
+                        value.find("\n") != string::npos)
+                    {
+                        throw NotImplementedError("SolutionArray::writeEntry",
+                            "Detected value containing double quotes or line feeds: "
+                            "'{}'", value);
+                    }
+                    if (value.find(",") != string::npos) {
+                        output << "\"" << value << "\"";
+                    } else {
+                        output << value;
+                    }
+                }
+            }
+            if (col != last) {
+                output << ",";
+            }
+        }
+        output << std::endl;
+    }
+    output << std::endl << std::setprecision(default_precision);
+}
+
+void SolutionArray::writeEntry(const string& fname, const string& name,
+                               const string& sub, bool overwrite, int compression)
+{
+    if (name == "") {
+        throw CanteraError("SolutionArray::writeEntry",
+            "Group name specifying root location must not be empty.");
     }
     if (m_size < m_dataSize) {
         throw NotImplementedError("SolutionArray::writeEntry",
@@ -981,7 +1114,7 @@ void SolutionArray::writeEntry(const string& fname, const string& id, const stri
     if (compression) {
         file.setCompressionLevel(compression);
     }
-    string path = id;
+    string path = name;
     if (sub != "") {
         path += "/" + sub;
     } else {
@@ -990,7 +1123,7 @@ void SolutionArray::writeEntry(const string& fname, const string& id, const stri
     if (file.checkGroup(path, true)) {
         if (!overwrite) {
             throw CanteraError("SolutionArray::writeEntry",
-                "Group id '{}' exists; use 'overwrite' argument to overwrite.", id);
+                "Group name '{}' exists; use 'overwrite' argument to overwrite.", name);
         }
         file.deleteGroup(path);
         file.checkGroup(path, true);
@@ -1010,8 +1143,8 @@ void SolutionArray::writeEntry(const string& fname, const string& id, const stri
 
     const auto& nativeState = m_sol->thermo()->nativeState();
     size_t nSpecies = m_sol->thermo()->nSpecies();
-    for (auto& [name, offset] : nativeState) {
-        if (name == "X" || name == "Y") {
+    for (auto& [key, offset] : nativeState) {
+        if (key == "X" || key == "Y") {
             vector<vector<double>> prop;
             for (size_t i = 0; i < m_size; i++) {
                 size_t first = offset + i * m_stride;
@@ -1020,38 +1153,38 @@ void SolutionArray::writeEntry(const string& fname, const string& id, const stri
             }
             AnyValue data;
             data = prop;
-            file.writeData(path, name, data);
+            file.writeData(path, key, data);
         } else {
-            auto data = getComponent(name);
-            file.writeData(path, name, data);
+            auto data = getComponent(key);
+            file.writeData(path, key, data);
         }
     }
 
-    for (const auto& [name, value] : *m_extra) {
+    for (const auto& [key, value] : *m_extra) {
         if (isSimpleVector(value)) {
-            file.writeData(path, name, value);
+            file.writeData(path, key, value);
         } else if (value.is<void>()) {
             // skip unintialized component
         } else {
             throw NotImplementedError("SolutionArray::writeEntry",
                 "Unable to save component '{}' with data type {}.",
-                name, value.type_str());
+                key, value.type_str());
         }
     }
 }
 
-void SolutionArray::writeEntry(AnyMap& root, const string& id, const string& sub,
+void SolutionArray::writeEntry(AnyMap& root, const string& name, const string& sub,
                                bool overwrite)
 {
-    if (id == "") {
+    if (name == "") {
         throw CanteraError("SolutionArray::writeEntry",
-            "Field id specifying root location must not be empty.");
+            "Field name specifying root location must not be empty.");
     }
     if (m_size < m_dataSize) {
         throw NotImplementedError("SolutionArray::writeEntry",
             "Unable to save sliced data.");
     }
-    string path = id;
+    string path = name;
     if (sub != "") {
         path += "/" + sub;
     } else {
@@ -1061,7 +1194,7 @@ void SolutionArray::writeEntry(AnyMap& root, const string& id, const string& sub
     bool preexisting = !data.empty();
     if (preexisting && !overwrite) {
         throw CanteraError("SolutionArray::writeEntry",
-            "Field id '{}' exists; use 'overwrite' argument to overwrite.", id);
+            "Field name '{}' exists; use 'overwrite' argument to overwrite.", name);
     }
     if (apiNdim() == 1) {
         data["size"] = int(m_dataSize);
@@ -1070,8 +1203,8 @@ void SolutionArray::writeEntry(AnyMap& root, const string& id, const string& sub
     }
     data.update(m_meta);
 
-    for (auto& [name, value] : *m_extra) {
-        data[name] = value;
+    for (auto& [key, value] : *m_extra) {
+        data[key] = value;
     }
 
     auto phase = m_sol->thermo();
@@ -1100,14 +1233,14 @@ void SolutionArray::writeEntry(AnyMap& root, const string& id, const string& sub
         }
     } else if (m_size > 1) {
         const auto& nativeState = phase->nativeState();
-        for (auto& [name, offset] : nativeState) {
-            if (name == "X" || name == "Y") {
+        for (auto& [key, offset] : nativeState) {
+            if (key == "X" || key == "Y") {
                 for (auto& spc : phase->speciesNames()) {
                     data[spc] = getComponent(spc);
                 }
-                data["basis"] = name == "X" ? "mole" : "mass";
+                data["basis"] = key == "X" ? "mole" : "mass";
             } else {
-                data[name] = getComponent(name);
+                data[key] = getComponent(key);
             }
         }
         data["components"] = componentNames();
@@ -1126,7 +1259,7 @@ void SolutionArray::append(const vector<double>& state, const AnyMap& extra)
             "Unable to append multi-dimensional arrays.");
     }
 
-    size_t pos = size();
+    int pos = size();
     resize(pos + 1);
     try {
         setState(pos, state);
@@ -1138,8 +1271,9 @@ void SolutionArray::append(const vector<double>& state, const AnyMap& extra)
     }
 }
 
-void SolutionArray::save(const string& fname, const string& id, const string& sub,
-                           const string& desc, bool overwrite, int compression)
+void SolutionArray::save(const string& fname, const string& name, const string& sub,
+                         const string& desc, bool overwrite, int compression,
+                         const string& basis)
 {
     if (m_size < m_dataSize) {
         throw NotImplementedError("SolutionArray::save",
@@ -1147,9 +1281,21 @@ void SolutionArray::save(const string& fname, const string& id, const string& su
     }
     size_t dot = fname.find_last_of(".");
     string extension = (dot != npos) ? toLowerCopy(fname.substr(dot + 1)) : "";
+    if (extension == "csv") {
+        if (name != "") {
+            warn_user("SolutionArray::save",
+                      "Parameter 'name' not used for CSV output.");
+        }
+        writeEntry(fname, overwrite, basis);
+        return;
+    }
+    if (basis != "") {
+        warn_user("SolutionArray::save",
+            "Argument 'basis' is not used for HDF or YAML output.", basis);
+    }
     if (extension == "h5" || extension == "hdf"  || extension == "hdf5") {
-        writeHeader(fname, id, desc, overwrite);
-        writeEntry(fname, id, sub, true, compression);
+        writeHeader(fname, name, desc, overwrite);
+        writeEntry(fname, name, sub, true, compression);
         return;
     }
     if (extension == "yaml" || extension == "yml") {
@@ -1158,8 +1304,8 @@ void SolutionArray::save(const string& fname, const string& id, const string& su
         if (std::ifstream(fname).good()) {
             data = AnyMap::fromYamlFile(fname);
         }
-        writeHeader(data, id, desc, overwrite);
-        writeEntry(data, id, sub, true);
+        writeHeader(data, name, desc, overwrite);
+        writeEntry(data, name, sub, true);
 
         // Write the output file and remove the now-outdated cached file
         std::ofstream out(fname);
@@ -1171,22 +1317,22 @@ void SolutionArray::save(const string& fname, const string& id, const string& su
                        "Unknown file extension '{}'.", extension);
 }
 
-AnyMap SolutionArray::readHeader(const string& fname, const string& id)
+AnyMap SolutionArray::readHeader(const string& fname, const string& name)
 {
     Storage file(fname, false);
-    file.checkGroup(id);
-    return file.readAttributes(id, false);
+    file.checkGroup(name);
+    return file.readAttributes(name, false);
 }
 
-const AnyMap& locateField(const AnyMap& root, const string& id)
+const AnyMap& locateField(const AnyMap& root, const string& name)
 {
-    if (!id.size()) {
+    if (!name.size()) {
         return root;
     }
 
-    // locate field based on 'id'
+    // locate field based on 'name'
     vector<string> tokens;
-    tokenizePath(id, tokens);
+    tokenizePath(name, tokens);
     const AnyMap* ptr = &root; // use raw pointer to avoid copying
     string path = "";
     for (auto& field : tokens) {
@@ -1194,38 +1340,43 @@ const AnyMap& locateField(const AnyMap& root, const string& id)
         const AnyMap& sub = *ptr;
         if (!sub.hasKey(field) || !sub[field].is<AnyMap>()) {
             throw CanteraError("SolutionArray::locateField",
-                "No field or solution with id '{}'.", path);
+                "No field or solution with name '{}'.", path);
         }
         ptr = &sub[field].as<AnyMap>();
     }
     return *ptr;
 }
 
-AnyMap SolutionArray::readHeader(const AnyMap& root, const string& id)
+AnyMap SolutionArray::readHeader(const AnyMap& root, const string& name)
 {
-    auto sub = locateField(root, id);
+    auto sub = locateField(root, name);
     AnyMap header;
-    for (const auto& [name, value] : sub) {
-        if (!sub[name].is<AnyMap>()) {
-            header[name] = value;
+    for (const auto& [key, value] : sub) {
+        if (!sub[key].is<AnyMap>()) {
+            header[key] = value;
         }
     }
     return header;
 }
 
 AnyMap SolutionArray::restore(const string& fname,
-                              const string& id, const string& sub)
+                              const string& name, const string& sub)
 {
     size_t dot = fname.find_last_of(".");
     string extension = (dot != npos) ? toLowerCopy(fname.substr(dot + 1)) : "";
     AnyMap header;
+    if (extension == "csv") {
+        throw NotImplementedError("SolutionArray::restore",
+            "CSV import not implemented; if using Python, data can be imported via "
+            "'read_csv' instead.");
+    }
     if (extension == "h5" || extension == "hdf"  || extension == "hdf5") {
-        readEntry(fname, id, sub);
-        header = readHeader(fname, id);
+        readEntry(fname, name, sub);
+        header = readHeader(fname, name);
     } else if (extension == "yaml" || extension == "yml") {
         const AnyMap& root = AnyMap::fromYamlFile(fname);
-        readEntry(root, id, sub);
-        header = readHeader(root, id);
+        readEntry(root, name, sub);
+        header = readHeader(root, name);
     } else {
         throw CanteraError("SolutionArray::restore",
             "Unknown file extension '{}'; supported extensions include "
@@ -1465,23 +1616,24 @@ string getName(const set<string>& names, const string& name)
     return name; // let exception be thrown elsewhere
 }
 
-void SolutionArray::readEntry(const string& fname, const string& id, const string& sub)
+void SolutionArray::readEntry(const string& fname, const string& name,
+                              const string& sub)
 {
     Storage file(fname, false);
-    if (id == "") {
+    if (name == "") {
         throw CanteraError("SolutionArray::readEntry",
-            "Group id specifying root location must not be empty.");
+            "Group name specifying root location must not be empty.");
     }
-    string path = id;
-    if (sub != "" && file.checkGroup(id + "/" + sub, true)) {
+    string path = name;
+    if (sub != "" && file.checkGroup(name + "/" + sub, true)) {
         path += "/" + sub;
-    } else if (sub == "" && file.checkGroup(id + "/data", true)) {
+    } else if (sub == "" && file.checkGroup(name + "/data", true)) {
         // default data location
         path += "/data";
     }
     if (!file.checkGroup(path)) {
         throw CanteraError("SolutionArray::readEntry",
-            "Group id specifying data entry is empty.");
+            "Group name specifying data entry is empty.");
     }
     m_extra->clear();
     auto [size, names] = file.contents(path);
@@ -1496,7 +1648,7 @@ void SolutionArray::readEntry(const string& fname, const string& id, const strin
         m_meta.erase("api-shape");
     } else {
         // legacy format; size needs to be detected
-        resize(size);
+        resize(static_cast<int>(size));
     }
 
     if (m_size == 0) {
@@ -1591,8 +1743,8 @@ void SolutionArray::readEntry(const string& fname, const string& id, const strin
             m_sol->thermo()->saveState(nState, m_data->data() + i * m_stride);
         }
         warn_user("SolutionArray::readEntry",
-            "Detected legacy HDF format with incomplete state information\nfor id '{}' "
-            "(pressure missing).", path);
+            "Detected legacy HDF format with incomplete state information\nfor name "
+            "'{}' (pressure missing).", path);
     } else if (mode == "") {
         throw CanteraError("SolutionArray::readEntry",
             "Data are not consistent with full state modes.");
@@ -1630,23 +1782,23 @@ void SolutionArray::readEntry(const string& fname, const string& id, const strin
     }
 }
 
-void SolutionArray::readEntry(const AnyMap& root, const string& id, const string& sub)
+void SolutionArray::readEntry(const AnyMap& root, const string& name, const string& sub)
 {
-    if (id == "") {
+    if (name == "") {
         throw CanteraError("SolutionArray::readEntry",
-            "Field id specifying root location must not be empty.");
+            "Field name specifying root location must not be empty.");
     }
-    auto path = locateField(root, id);
+    auto path = locateField(root, name);
     if (path.hasKey("generator") && sub != "") {
         // read entry from subfolder (since Cantera 3.0)
-        path = locateField(root, id + "/" + sub);
+        path = locateField(root, name + "/" + sub);
     } else if (sub == "" && path.hasKey("data")) {
         // default data location
-        path = locateField(root, id + "/data");
+        path = locateField(root, name + "/data");
     }
 
     // set size and initialize
-    size_t size = 0;
+    long size = 0;
     if (path.hasKey("size")) {
         // one-dimensional array
         resize(path["size"].asInt());
@@ -1659,9 +1811,9 @@ void SolutionArray::readEntry(const AnyMap& root, const string& id, const string
         size = path.getInt("points", 0);
         if (!path.hasKey("T") && !path.hasKey("temperature")) {
             // overwrite size - Sim1D erroneously assigns '1'
-            size = 0;
+            size = (long)0;
         }
-        resize(size);
+        resize(static_cast<int>(size));
     }
     m_extra->clear();
 
@@ -1693,8 +1845,8 @@ void SolutionArray::readEntry(const AnyMap& root, const string& id, const string
             auto Y = path["mass-fractions"].asMap<double>();
             m_sol->thermo()->setState_TPY(T, m_sol->thermo()->pressure(), Y);
             warn_user("SolutionArray::readEntry",
-                "Detected legacy YAML format with incomplete state information\nfor id "
-                "'{}' (pressure missing).", id + "/" + sub);
+                "Detected legacy YAML format with incomplete state information\n"
+                "for name '{}' (pressure missing).", name + "/" + sub);
         } else if (mode == "") {
             throw CanteraError("SolutionArray::readEntry",
                 "Data are not consistent with full state modes.");

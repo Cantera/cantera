@@ -18,7 +18,7 @@ TEST(YamlWriter, formatDouble)
 {
     AnyMap m;
     int count;
-    float delta;
+    double delta;
 
     // check least significant digit
     // default precision is 15 (see AnyMap.cpp::getPrecision)
@@ -49,7 +49,7 @@ TEST(YamlWriter, formatDoubleExp)
 {
     AnyMap m;
     int count;
-    float delta;
+    double delta;
 
     // check least significant digit
     // default precision is 15 (see AnyMap.cpp::getPrecision)
@@ -572,8 +572,8 @@ TEST(Storage, writeData)
 
     // matrices
     any = vector<vector<double>>({{1.1, 2.2, 3.3}, {4.4, 5.5, 6.6}});
-    EXPECT_EQ(any.matrixShape().first, 2);
-    EXPECT_EQ(any.matrixShape().second, 3);
+    EXPECT_EQ(any.matrixShape().first, 2u);
+    EXPECT_EQ(any.matrixShape().second, 3u);
     file->writeData("test", "double-matrix", any);
     any = vector<vector<long int>>({{1, 2}, {3, 4}, {5, 6}});
     file->writeData("test", "integer-matrix", any);
@@ -586,7 +586,7 @@ TEST(Storage, writeData)
 
     // invalid vectors of vectors (irregular shape)
     any = vector<vector<double>>({{1.1, 2.2}, {3.3}});
-    EXPECT_EQ(any.matrixShape().first, 2);
+    EXPECT_EQ(any.matrixShape().first, 2u);
     EXPECT_EQ(any.matrixShape().second, npos);
     EXPECT_THROW(file->writeData("test", "invalid3", any), CanteraError);
     any = vector<vector<long int>>({{1, 2}, {3, 4, 5}, {6}});
@@ -657,19 +657,19 @@ TEST(Storage, readData)
 
     auto data = file->readData("test", "double-vector", 3);
     ASSERT_TRUE(data.isVector<double>());
-    ASSERT_EQ(data.asVector<double>().size(), 3);
+    ASSERT_EQ(data.asVector<double>().size(), 3u);
     // need to know length
     EXPECT_THROW(file->readData("test", "double-vector", 4), CanteraError);
 
     data = file->readData("test", "integer-vector", 4, 0);
     ASSERT_TRUE(data.isVector<long int>());
-    ASSERT_EQ(data.asVector<long int>().size(), 4);
+    ASSERT_EQ(data.asVector<long int>().size(), 4u);
     // invalid number of columns
     EXPECT_THROW(file->readData("test", "integer-vector", 4, 2), CanteraError);
 
     data = file->readData("test", "string-vector", 2);
     ASSERT_TRUE(data.isVector<string>());
-    ASSERT_EQ(data.asVector<string>().size(), 2);
+    ASSERT_EQ(data.asVector<string>().size(), 2u);
 
     data = file->readData("test", "double-matrix", 2);
     ASSERT_TRUE(data.isMatrix<double>());

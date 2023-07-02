@@ -603,7 +603,7 @@ config_options = [
            more generic library name, for example, 'libcantera_shared.so.2.5.0' as the
            actual library and 'libcantera_shared.so' and 'libcantera_shared.so.2'
            as symlinks.""",
-        {"mingw": False, "default": True}),
+        {"mingw": False, "cl": False, "default": True}),
     BoolOption(
         "use_rpath_linkage",
         """If enabled, link to all shared libraries using 'rpath', that is, a fixed
@@ -627,15 +627,14 @@ config_options = [
            'prefix/include/cantera', 'prefix/lib' etc. This layout is best used in
            conjunction with "prefix='/usr/local'". 'compact' puts all installed files
            in the subdirectory defined by 'prefix'. This layout is best with a prefix
-           like '/opt/cantera'. 'debian' installs to the stage directory in a layout
-           used for generating Debian packages. If the Python executable found during
-           compilation is managed by 'conda', the layout will default to 'conda'
-           irrespective of operating system. For the 'conda' layout, the Python package
-           as well as all libraries and header files are installed into the active
-           'conda' environment. Input data, samples, and other files are installed in
-           the 'shared/cantera' subdirectory of the active 'conda' environment.""",
+           like '/opt/cantera'. If the Python executable found during compilation is
+           managed by 'conda', the layout will default to 'conda' irrespective of
+           operating system. For the 'conda' layout, the Python package as well as all
+           libraries and header files are installed into the active 'conda' environment.
+           Input data, samples, and other files are installed in the 'shared/cantera'
+           subdirectory of the active 'conda' environment.""",
         {"Windows": "compact", "default": "standard"},
-        ("standard", "compact", "debian", "conda")),
+        ("standard", "compact", "conda")),
     BoolOption(
         "package_build",
         """Used in combination with packaging tools (example: 'conda-build'). If
@@ -948,7 +947,7 @@ for arg in ARGUMENTS:
         logger.error(f"Encountered unexpected command line option: {arg!r}")
         sys.exit(1)
 
-env["cantera_version"] = "3.0.0a5"
+env["cantera_version"] = "3.0.0b1"
 # For use where pre-release tags are not permitted (MSI, sonames)
 env['cantera_pure_version'] = re.match(r'(\d+\.\d+\.\d+)', env['cantera_version']).group(0)
 env['cantera_short_version'] = re.match(r'(\d+\.\d+)', env['cantera_version']).group(0)
@@ -1705,7 +1704,7 @@ python_max_p1_version = parse_version("3.12")
 env["py_requires_ver_str"] = f">={python_min_version}"
 if env["python_sdist"] or env["package_build"]:
     env["py_requires_ver_str"] += f",<{python_max_p1_version}"
-cython_min_version = parse_version("0.29.12")
+cython_min_version = parse_version("0.29.31")
 numpy_min_version = parse_version('1.12.0')
 
 # We choose ruamel.yaml 0.15.34 as the minimum version
@@ -1878,7 +1877,7 @@ if env['python_package'] != 'none':
             logger.info("Cython not found.")
             warn_no_full_package = True
         elif cython_version < cython_min_version:
-            lopgger.warning(
+            logger.warning(
                 f"Cython is an incompatible version: Found {cython_version} but "
                 f"{cython_min_version} or newer is required.")
             warn_no_full_package = True
@@ -1982,10 +1981,6 @@ if env["matlab_toolbox"] == "y":
 # *** Set additional configuration variables ***
 # **********************************************
 
-# On Debian-based systems, need to special-case installation to
-# /usr/local because of dist-packages vs site-packages
-env['debian'] = any(name.endswith('dist-packages') for name in sys.path)
-
 # Identify options selected either on command line or in cantera.conf
 selected_options = set(line.split("=")[0].strip()
     for line in cantera_conf.splitlines())
@@ -1998,13 +1993,6 @@ if "msi" in COMMAND_LINE_TARGETS:
     selected_options.add("prefix")
     selected_options.add("stage_dir")
     env["python_package"] = "none"
-elif env["layout"] == "debian":
-    COMMAND_LINE_TARGETS.append("install")
-    env["stage_dir"] = "stage/cantera"
-    env["PYTHON_INSTALLER"] = "debian"
-    env["INSTALL_MANPAGES"] = False
-else:
-    env["PYTHON_INSTALLER"] = "direct"
 
 env["default_prefix"] = True
 if "prefix" in selected_options:
@@ -2036,7 +2024,8 @@ elif env["layout"] == "conda":
 prefix = Path(env["prefix"])
 
 if env["layout"] == "conda" and os.name == "nt":
-    env["ct_libdir"] = (prefix / "Library" / env["libdirname"]).as_posix()
+    env["ct_libdir"] = (prefix / "Library" / "lib").as_posix()
+    env["ct_shlibdir"] = (prefix / "Library" / "bin").as_posix()
     env["ct_bindir"] = (prefix / "Scripts").as_posix()
     env["ct_python_bindir"] = (prefix / "Scripts").as_posix()
     env["ct_incdir"] = (prefix / "Library" / "include" / "cantera").as_posix()
@@ -2047,6 +2036,14 @@ else:
         env["prefix"] = prefix.as_posix()
     env["ct_libdir"] = (prefix / env["libdirname"]).as_posix()
     env["ct_bindir"] = (prefix / "bin").as_posix()
+
+    # On Windows, the search path for DLLs is the "bin" dir. "lib" dirs are used only for
+    # static and "import" libraries
+    if env["OS"] == "Windows":
+        env["ct_shlibdir"] = env["ct_bindir"]
+    else:
+        env["ct_shlibdir"] = env["ct_libdir"]
+
     env["ct_python_bindir"] = (prefix / "bin").as_posix()
     env["ct_incdir"] = (prefix / "include" / "cantera").as_posix()
     env["ct_incroot"] = (prefix / "include").as_posix()
@@ -2092,35 +2089,14 @@ if os.path.abspath(instRoot) == Dir('.').abspath:
     logger.error("cannot install Cantera into source directory.")
     sys.exit(1)
 
-if env["layout"] == "debian":
-    base = Path(os.getcwd()) / "debian"
-    env["inst_root"] = base.as_posix()
-
-    env["inst_libdir"] = (base / "cantera-dev" / "usr" / env["libdirname"]).as_posix()
-    env["inst_incdir"] = (base / "cantera-dev" / "usr" / "include" / "cantera").as_posix()
-    env["inst_incroot"] = (base / "cantera-dev" / "usr" / "include").as_posix()
-
-    env["inst_bindir"] = (base / "cantera-common" / "usr" / "bin").as_posix()
-    env["inst_datadir"] = (base / "cantera-common" / "usr" / "share" / "cantera" / "data").as_posix()
-    env["inst_docdir"] = (base / "cantera-common" / "usr" / "share" / "cantera" / "doc").as_posix()
-    env["inst_sampledir"] = (base / "cantera-common" / "usr" / "share" / "cantera" / "samples").as_posix()
-    env["inst_mandir"] = (base / "cantera-common" / "usr" / "share" / "man" / "man1").as_posix()
-
-    env["inst_matlab_dir"] = (
-        base / "cantera-matlab" / "usr" /
-        env["libdirname"] / "cantera" / "matlab" / "toolbox").as_posix()
-
-    env["inst_python_bindir"] = (base / "cantera-python" / "usr" / "bin").as_posix()
-    env["python_prefix"] = (base / "cantera-python3").as_posix()
-else:
-    env["inst_root"] = instRoot
-    locations = ["libdir", "bindir", "python_bindir", "incdir", "incroot",
-        "matlab_dir", "datadir", "sampledir", "docdir", "mandir"]
-    for loc in locations:
-        if env["prefix"] == ".":
-            env[f"inst_{loc}"] = (Path(instRoot) / env[f"ct_{loc}"]).as_posix()
-        else:
-            env[f"inst_{loc}"] = env[f"ct_{loc}"].replace(env["ct_installroot"], instRoot)
+env["inst_root"] = instRoot
+locations = ["libdir", "shlibdir", "bindir", "python_bindir", "incdir", "incroot",
+    "matlab_dir", "datadir", "sampledir", "docdir", "mandir"]
+for loc in locations:
+    if env["prefix"] == ".":
+        env[f"inst_{loc}"] = (Path(instRoot) / env[f"ct_{loc}"]).as_posix()
+    else:
+        env[f"inst_{loc}"] = env[f"ct_{loc}"].replace(env["ct_installroot"], instRoot)
 
 if env['use_rpath_linkage']:
     env.Append(RPATH=env['ct_libdir'])
@@ -2168,7 +2144,6 @@ cdefine("CT_USE_SYSTEM_EIGEN", "system_eigen")
 cdefine("CT_USE_SYSTEM_EIGEN_PREFIXED", "system_eigen_prefixed")
 cdefine('CT_USE_SYSTEM_FMT', 'system_fmt')
 cdefine('CT_USE_SYSTEM_YAMLCPP', 'system_yamlcpp')
-cdefine('CT_HAS_PYTHON', 'python_package', 'full')
 
 config_h_build = env.Command('build/src/config.h.build',
                              'include/cantera/base/config.h.in',
@@ -2256,6 +2231,12 @@ if env['system_sundials'] == 'y':
 else:
     env['sundials_libs'] = []
 
+# List of shared libraries needed to link to Cantera
+if env["renamed_shared_libraries"]:
+    env["cantera_shared_libs"] = ["cantera_shared"]
+else:
+    env["cantera_shared_libs"] = ["cantera"]
+
 # External libraries to link to
 env["external_libs"] = []
 env["external_libs"].extend(env["sundials_libs"])
@@ -2268,6 +2249,9 @@ if env["use_hdf5"]:
 
 if env["system_fmt"]:
     env["external_libs"].append("fmt")
+    # Usually need to link to fmt directly because of templated/inlined code that calls
+    # fmt
+    env["cantera_shared_libs"].append("fmt")
 
 if env["system_yamlcpp"]:
     env["external_libs"].append("yaml-cpp")
@@ -2277,12 +2261,6 @@ if env["blas_lapack_libs"]:
 
 # List of static libraries needed to link to Cantera
 env["cantera_libs"] = ["cantera"] + env["external_libs"]
-
-# List of shared libraries needed to link to Cantera
-if env["renamed_shared_libraries"]:
-    env["cantera_shared_libs"] = ["cantera_shared"] + env["external_libs"]
-else:
-    env["cantera_shared_libs"] = ["cantera"] + env["external_libs"]
 
 # Add targets from the SConscript files in the various subdirectories
 Export('env', 'build', 'libraryTargets', 'install', 'buildSample', "configh")

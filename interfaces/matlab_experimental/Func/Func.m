@@ -49,9 +49,9 @@ classdef Func < handle
             %     String indicating type of functor to create. Possible values are:
             %
             %     * ``'polynomial'``
-            %     * ``'fourier'``
-            %     * ``'gaussian'``
-            %     * ``'arrhenius'``
+            %     * ``'Fourier'``
+            %     * ``'Gaussian'``
+            %     * ``'Arrhenius'``
             %     * ``'sum'``
             %     * ``'diff'``
             %     * ``'ratio'``
@@ -92,11 +92,11 @@ classdef Func < handle
 
             if strcmp(typ, 'polynomial')
                 itype = 2;
-            elseif strcmp(typ, 'fourier')
+            elseif strcmp(typ, 'Fourier')
                 itype = 1;
-            elseif strcmp(typ, 'arrhenius')
+            elseif strcmp(typ, 'Arrhenius')
                 itype = 3;
-            elseif strcmp(typ, 'gaussian')
+            elseif strcmp(typ, 'Gaussian')
                 itype = 4;
             end
 
@@ -246,10 +246,10 @@ classdef Func < handle
 
                     d = d - 1;
                 end
-            elseif strcmp(f.typ, 'gaussian')
+            elseif strcmp(f.typ, 'Gaussian')
                 s = ['Gaussian(' num2str(f.coeffs(1)) ',' ...
                     num2str(f.coeffs(2)) ',' num2str(f.coeffs(3)) ')'];
-            elseif strcmp(f.typ, 'fourier')
+            elseif strcmp(f.typ, 'Fourier')
                 c = reshape(f.coeffs, [], 2);
                 Ao = c(1, 1);
                 w = c(1, 2);

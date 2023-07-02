@@ -60,8 +60,8 @@ cdef class _SolutionBase:
                 raise AttributeError('duplicate specification of phase name')
 
             warnings.warn(
-                "Support for keyword 'phaseid' to be removed after Cantera 3.0. "
-                "Replaceable by keyword 'name'.", DeprecationWarning)
+                "_SolutionBase: Support for keyword 'phaseid' to be removed after "
+                "Cantera 3.0. Replaceable by keyword 'name'.", DeprecationWarning)
             name = kwargs['phaseid']
 
         if 'phases' in kwargs:
@@ -70,8 +70,8 @@ cdef class _SolutionBase:
                     'duplicate specification of adjacent phases')
 
             warnings.warn(
-                "Support for keyword 'phases' to be removed after Cantera 3.0. "
-                "Replaceable by keyword 'adjacent'.", DeprecationWarning)
+                "_SolutionBase: Support for keyword 'phases' to be removed after "
+                "Cantera 3.0. Replaceable by keyword 'adjacent'.", DeprecationWarning)
             adjacent = kwargs['phases']
 
         # Shallow copy of an existing Solution (for slicing support)
@@ -610,6 +610,10 @@ cdef class SolutionArrayBase:
             out.append(pystr(item))
         return out
 
+    def resize(self, size):
+        """ Resize `SolutionArrayBase` to given size """
+        self.base.resize(size)
+
     def _has_component(self, name):
         """ Check whether `SolutionArrayBase` has component """
         return self.base.hasComponent(stringify(name))
@@ -674,15 +678,16 @@ cdef class SolutionArrayBase:
             cxx_state.push_back(item)
         self.base.append(cxx_state, py_to_anymap(extra))
 
-    def _cxx_save(self, filename, name, key, description, overwrite, compression):
+    def _cxx_save(self, filename, name, sub, description,
+                  overwrite, compression, basis):
         """ Interface `SolutionArray.save` with C++ core """
         self.base.save(
-            stringify(str(filename)), stringify(name), stringify(key),
-            stringify(description), overwrite, compression)
+            stringify(str(filename)), stringify(name), stringify(sub),
+            stringify(description), overwrite, compression, stringify(basis))
 
-    def _cxx_restore(self, filename, name, key):
+    def _cxx_restore(self, filename, name, sub):
         """ Interface `SolutionArray.restore` with C++ core """
         cdef CxxAnyMap header
         header = self.base.restore(
-            stringify(str(filename)), stringify(name), stringify(key))
+            stringify(str(filename)), stringify(name), stringify(sub))
         return anymap_to_py(header)

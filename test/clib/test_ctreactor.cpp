@@ -14,7 +14,7 @@ TEST(ctreactor, reactor_objects)
     int kin = kin_newFromFile("gri30.yaml", "", thermo, -1, -1, -1, -1);
 
     int reactor = reactor_new("IdealGasReactor");
-    ASSERT_GT(reactor, 0);
+    ASSERT_GE(reactor, 0);
     int ret = reactor_setThermoMgr(reactor, thermo);
     ASSERT_EQ(ret, 0);
     ret = reactor_setKineticsMgr(reactor, kin);

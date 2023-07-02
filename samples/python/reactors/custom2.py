@@ -14,7 +14,7 @@ acceleration is proportional to the pressure difference, and the velocity is
 determined by integrating the equation of motion. This requires adding a new
 variable to the reactor's state vector which represents the wall velocity.
 
-Requires: cantera >= 2.6.0, matplotlib >= 2.0
+Requires: cantera >= 3.0, matplotlib >= 2.0
 Keywords: combustion, reactor network, user-defined model, plotting
 """
 
@@ -47,7 +47,7 @@ class InertialWallReactor(ct.ExtensibleIdealGasReactor):
         # This method is used to set the state of the Reactor and Wall objects
         # based on the new values for the state vector provided by the ODE solver
         self.v_wall = y[self.i_wall]
-        self.walls[0].set_velocity(self.v_wall)
+        self.walls[0].velocity = self.v_wall
 
     def after_eval(self, t, LHS, RHS):
         # Calculate the time derivative for the additional equation

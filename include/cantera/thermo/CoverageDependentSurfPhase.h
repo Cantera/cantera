@@ -172,12 +172,12 @@ public:
         //! index of a species whose coverage affects enthalpy and entropy of
         //! a target species
         size_t j;
-        //! array of polynomial coefficients describing coverage-depdendent enthalpy
+        //! array of polynomial coefficients describing coverage-dependent enthalpy
         //! [J/kmol] in order of 1st-order, 2nd-order, 3rd-order, and 4th-order
         //! coefficients (\f$ c^{(1)}, c^{(2)}, c^{(3)}, \text{ and } c^{(4)} \f$
         //! in the linear or the polynomial dependency model)
         vector_fp enthalpy_coeffs;
-        //! array of polynomial coefficients describing coverage-depdendent entropy
+        //! array of polynomial coefficients describing coverage-dependent entropy
         //! [J/kmol/K] in order of 1st-order, 2nd-order, 3rd-order, and 4th-order
         //! coefficients (\f$ c^{(1)}, c^{(2)}, c^{(3)}, \text{ and } c^{(4)} \f$
         //! in the linear or the polynomial dependency model)

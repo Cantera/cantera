@@ -59,7 +59,7 @@ f.save(yaml_filepath, name="solution", description="Initial methane flame")
 
 print("Save CSV")
 csv_filepath = output_path / "flame.csv"
-f.write_csv(csv_filepath)
+f.save(csv_filepath, basis="mole")
 
 if "native" in ct.hdf_support():
     # HDF is not a required dependency
@@ -104,7 +104,7 @@ if hdf_filepath:
     print("Load initial guess from HDF file via SolutionArray")
     arr2 = ct.SolutionArray(gas)
     # the flame domain needs to be specified as subgroup
-    arr2.restore(hdf_filepath, name="freeflame", key="flame")
+    arr2.restore(hdf_filepath, name="freeflame", sub="flame")
     gas.TPX = Tin, p, reactants  # set the gas T back to the inlet before making new flame
     f2 = ct.FreeFlame(gas, width=width)
     f2.set_initial_guess(data=arr2)

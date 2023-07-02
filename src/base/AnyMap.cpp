@@ -160,7 +160,7 @@ string formatDouble(double x, long int precision)
 
     // Build string with full precision
     bool useExp = std::abs(x) < 1e-2 || std::abs(x) >= 1e4;
-    int log10x;
+    int log10x = 0;
     size_t last;
     string s0;
     if (useExp) {

@@ -16,15 +16,15 @@
 
 using namespace Cantera;
 
-typedef Cabinet<ReactorBase> ReactorCabinet;
-typedef Cabinet<ReactorNet> NetworkCabinet;
-typedef Cabinet<FlowDevice> FlowDeviceCabinet;
-typedef Cabinet<WallBase> WallCabinet;
-typedef Cabinet<Func1> FuncCabinet;
+typedef SharedCabinet<ReactorBase> ReactorCabinet;
+typedef SharedCabinet<ReactorNet> NetworkCabinet;
+typedef SharedCabinet<FlowDevice> FlowDeviceCabinet;
+typedef SharedCabinet<WallBase> WallCabinet;
+typedef SharedCabinet<Func1> FuncCabinet;
 typedef SharedCabinet<ThermoPhase> ThermoCabinet;
 typedef SharedCabinet<Kinetics> KineticsCabinet;
 typedef SharedCabinet<Solution> SolutionCabinet;
-typedef Cabinet<ReactorSurface> ReactorSurfaceCabinet;
+typedef SharedCabinet<ReactorSurface> ReactorSurfaceCabinet;
 
 template<> ReactorCabinet* ReactorCabinet::s_storage = 0;
 template<> NetworkCabinet* NetworkCabinet::s_storage = 0;
@@ -43,8 +43,7 @@ extern "C" {
     int reactor_new(const char* type)
     {
         try {
-            ReactorBase* r = ReactorFactory::factory()->newReactor(type);
-            return ReactorCabinet::add(r);
+            return ReactorCabinet::add(newReactor3(type));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -226,7 +225,7 @@ extern "C" {
     int reactornet_new()
     {
         try {
-            return NetworkCabinet::add(new ReactorNet());
+            return NetworkCabinet::add(make_shared<ReactorNet>());
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -353,8 +352,7 @@ extern "C" {
     int flowdev_new(const char* type)
     {
         try {
-            FlowDevice* f = FlowDeviceFactory::factory()->newFlowDevice(type);
-            return FlowDeviceCabinet::add(f);
+            return FlowDeviceCabinet::add(newFlowDevice3(type));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -389,6 +387,17 @@ extern "C" {
     {
         try {
             FlowDeviceCabinet::get<PressureController>(i).setMaster(
+                &FlowDeviceCabinet::item(n));
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int flowdev_setPrimary(int i, int n)
+    {
+        try {
+            FlowDeviceCabinet::get<PressureController>(i).setPrimary(
                 &FlowDeviceCabinet::item(n));
             return 0;
         } catch (...) {
@@ -460,8 +469,7 @@ extern "C" {
     int wall_new(const char* type)
     {
         try {
-            WallBase* w = WallFactory::factory()->newWall(type);
-            return WallCabinet::add(w);
+            return WallCabinet::add(newWall3(type));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -497,10 +505,28 @@ extern "C" {
         }
     }
 
+    double wall_expansionRate(int i)
+    {
+        try {
+            return WallCabinet::item(i).expansionRate();
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
+    }
+
     double wall_Q(int i, double t)
     {
         try {
             return WallCabinet::item(i).Q(t);
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
+    }
+
+    double wall_heatRate(int i)
+    {
+        try {
+            return WallCabinet::item(i).heatRate();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -599,7 +625,7 @@ extern "C" {
     int reactorsurface_new(int type)
     {
         try {
-            return ReactorSurfaceCabinet::add(new ReactorSurface());
+            return ReactorSurfaceCabinet::add(make_shared<ReactorSurface>());
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }

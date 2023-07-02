@@ -57,7 +57,7 @@ public:
 
 /**
  * A class for flow controllers where the flow rate is equal to the flow rate
- * of a "master" mass flow controller plus a correction proportional to the
+ * of a primary mass flow controller plus a correction proportional to the
  * pressure difference between the inlet and outlet.
  */
 class PressureController : public FlowDevice
@@ -69,14 +69,20 @@ public:
         return "PressureController";
     }
 
-
     virtual bool ready() {
-        return FlowDevice::ready() && m_master != 0;
+        return FlowDevice::ready() && m_primary != 0;
     }
 
-    void setMaster(FlowDevice* master) {
-        m_master = master;
+    //! Set the primary mass flow controller.
+    /*!
+     * @since New in Cantera 3.0.
+     */
+    void setPrimary(FlowDevice* primary) {
+        m_primary = primary;
     }
+
+    //! @deprecated To be removed after Cantera 3.0; replaced by setPrimary.
+    void setMaster(FlowDevice* master);
 
     virtual void setTimeFunction(Func1* g) {
         throw NotImplementedError("PressureController::setTimeFunction");
@@ -86,11 +92,11 @@ public:
     //! rate
     /*!
      * *c* has units of kg/s/Pa. The mass flow rate is computed as:
-     * \f[\dot{m} = \dot{m}_{master} + c f(\Delta P) \f]
+     * \f[\dot{m} = \dot{m}_{primary} + c f(\Delta P) \f]
      * where *f* is a functions of pressure drop that is set by
      * `setPressureFunction`. If no functions is specified, the mass flow
      * rate defaults to:
-     * \f[\dot{m} = \dot{m}_{master} + c \Delta P \f]
+     * \f[\dot{m} = \dot{m}_{primary} + c \Delta P \f]
      */
     void setPressureCoeff(double c) {
         m_coeff = c;
@@ -104,7 +110,7 @@ public:
     virtual void updateMassFlowRate(double time);
 
 protected:
-    FlowDevice* m_master = nullptr;
+    FlowDevice* m_primary = nullptr;
 };
 
 //! Supply a mass flow rate that is a function of the pressure drop across the

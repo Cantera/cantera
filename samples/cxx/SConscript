@@ -49,9 +49,10 @@ set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS})
         buildSample(localenv.Program, pjoin(subdir, name),
                     multi_glob(localenv, subdir, *extensions))
 
-    # Note: These Makefiles and SConstruct files are automatically installed
+    # Note: These CMakeLists.txt and SConstruct files are automatically installed
     # by the "RecursiveInstall" that grabs everything in the cxx directory.
 
+    flag_excludes = ["$(", "/TP", "$)", "/nologo"]
     incdirs = [localenv["ct_incroot"]]
     libdirs = [localenv["ct_libdir"]]
     if localenv["package_build"]:
@@ -59,28 +60,25 @@ set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS})
         # conda package for now.
         # Users should compile against their local SDKs, which should be backwards
         # compatible with the SDK used for building.
-        excludes = (
-            "-isysroot", "-mmacosx", "-march", "-mtune", "-fdebug-prefix-map")
-        cc_flags = compiler_flag_list(localenv["CCFLAGS"] + localenv["CXXFLAGS"],
-            excludes)
+        flag_excludes.extend(["-isysroot", "-mmacosx", "-march", "-mtune"
+                              "-fdebug-prefix-map"])
     else:
         incdirs.extend([localenv["sundials_include"], localenv["boost_inc_dir"]])
         incdirs.append(localenv["hdf_include"])
         incdirs.extend(localenv["extra_inc_dirs"])
         incdirs = list(set(incdirs))
-        libdirs.extend([localenv["sundials_libdir"], localenv["blas_lapack_dir"]])
-        libdirs.append(localenv["hdf_libdir"])
+
         libdirs.extend(localenv["extra_lib_dirs"])
         libdirs = list(set(libdirs))
 
-        cc_flags = localenv["CCFLAGS"] + localenv["CXXFLAGS"]
-
+    cc_flags = compiler_flag_list(localenv["CCFLAGS"] + localenv["CXXFLAGS"],
+                                  flag_excludes)
     localenv["tmpl_compiler_flags"] = repr(cc_flags)
     localenv['tmpl_cantera_frameworks'] = repr(localenv['FRAMEWORKS'])
     localenv['tmpl_cantera_incdirs'] = repr([x for x in incdirs if x])
     localenv['cmake_cantera_incdirs'] = ' '.join(quoted(x) for x in incdirs if x)
-    localenv['tmpl_cantera_libs'] = repr(localenv['cantera_libs'])
-    localenv['cmake_cantera_libs'] = ' '.join(localenv['cantera_libs'])
+    localenv['tmpl_cantera_libs'] = repr(localenv['cantera_shared_libs'])
+    localenv['cmake_cantera_libs'] = ' '.join(localenv['cantera_shared_libs'])
     if env['OS'] == 'Darwin':
         localenv['cmake_cantera_libs'] += ' ${ACCELERATE_FRAMEWORK}'
         localenv['cmake_cantera_incdirs'] += ' "/usr/local/include"'
@@ -118,16 +116,3 @@ set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS})
     ## Generate CMakeList.txt files to be installed
     cmakelists = localenv.SubstFile(pjoin(subdir, 'CMakeLists.txt'), 'CMakeLists.txt.in')
     install(pjoin('$inst_sampledir', 'cxx', subdir), cmakelists)
-
-    if localenv["OS"] != "Windows":
-        ## Generate Makefiles to be installed
-        mak_path = pjoin(localenv["ct_incroot"], "cantera", "Cantera.mak")
-        localenv["mak_compiler_flags"] = " ".join(cc_flags)
-        if " " in mak_path:
-            # There is no reasonable way to handle spaces in Makefile 'include'
-            # statement, so we fall back to using the relative path instead
-            mak_path = os.path.relpath(mak_path, pjoin(localenv["ct_sampledir"], "cxx", subdir))
-        localenv["make_Cantera_dot_mak"] = mak_path
-
-        makefile = build(localenv.SubstFile(pjoin(subdir, "Makefile"), "Makefile.in"))
-        install(pjoin("$inst_sampledir", "cxx", subdir), makefile)

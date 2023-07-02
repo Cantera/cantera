@@ -17,6 +17,7 @@ class TestReactor(utilities.CanteraTest):
                       T2=300, P2=101325, X2='O2:1.0'):
 
         self.net = ct.ReactorNet()
+        assert self.net.initial_time == 0.
 
         self.gas1 = ct.Solution('h2o2.yaml', transport_model=None)
         self.gas1.TPX = T1, P1, X1
@@ -197,7 +198,8 @@ class TestReactor(utilities.CanteraTest):
 
         self.net.max_time_step = dt_max
         self.assertEqual(self.net.max_time_step, dt_max)
-        self.net.set_initial_time(tStart)
+        self.net.initial_time = tStart
+        assert self.net.initial_time == tStart
         self.assertNear(self.net.time, tStart)
 
         while t < tEnd:
@@ -215,7 +217,7 @@ class TestReactor(utilities.CanteraTest):
         # enough time-steps to reach the endtime
         max_steps = 10
         max_step_size = 1e-07
-        self.net.set_initial_time(0)
+        self.net.initial_time = 0.
         self.net.max_time_step = max_step_size
         self.net.max_steps = max_steps
         with self.assertRaisesRegex(
@@ -361,10 +363,10 @@ class TestReactor(utilities.CanteraTest):
         w = self.add_wall(U=100, A=0.5)
 
         self.assertNear(w.heat_transfer_coeff * w.area * (self.r1.T - self.r2.T),
-                        w.qdot(0))
+                        w.heat_rate)
         self.net.advance(1.0)
         self.assertNear(w.heat_transfer_coeff * w.area * (self.r1.T - self.r2.T),
-                        w.qdot(1.0))
+                        w.heat_rate)
         T1b = self.r1.T
         T2b = self.r2.T
 
@@ -427,19 +429,14 @@ class TestReactor(utilities.CanteraTest):
 
         self.add_wall(A=A)
 
-        def v(t):
-            if 0 < t <= 1:
-                return t
-            elif 1 <= t <= 2:
-                return 2 - t
-            else:
-                return 0.0
+        v = ct.Tabulated1([0.0, 1.0, 2.0], [0.0, 1.0, 0.0])
 
-        self.w.set_velocity(v)
+        self.w.velocity = v
         self.net.advance(1.0)
-        self.assertNear(self.w.vdot(1.0), 1.0 * A, 1e-7)
+        assert self.w.velocity == approx(v(1.0))
+        self.assertNear(self.w.expansion_rate, 1.0 * A, 1e-7)
         self.net.advance(2.0)
-        self.assertNear(self.w.vdot(2.0), 0.0, 1e-7)
+        self.assertNear(self.w.expansion_rate, 0.0, 1e-7)
 
         self.assertNear(self.r1.volume, V1 + 1.0 * A, 1e-7)
         self.assertNear(self.r2.volume, V2 - 1.0 * A, 1e-7)
@@ -474,10 +471,12 @@ class TestReactor(utilities.CanteraTest):
         V2a = self.r2.volume
 
         self.add_wall(A=0.3)
-        self.w.set_heat_flux(lambda t: 90000 * (1 - t**2) if t <= 1.0 else 0.0)
+        hfunc = lambda t: 90000 * (1 - t**2) if t <= 1.0 else 0.0
+        self.w.heat_flux = hfunc
         Q = 0.3 * 60000
 
         self.net.advance(1.1)
+        assert self.w.heat_flux == hfunc(1.1)
         U1b = self.r1.volume * self.r1.density * self.r1.thermo.u
         U2b = self.r2.volume * self.r2.density * self.r2.thermo.u
 
@@ -550,7 +549,7 @@ class TestReactor(utilities.CanteraTest):
             self.net.step()
 
         with pytest.raises(NotImplementedError):
-            mfc.set_pressure_function(lambda p: p**2)
+            mfc.pressure_function = lambda p: p**2
 
     def test_valve1(self):
         self.make_reactors(P1=10*ct.one_atm, X1='AR:1.0', X2='O2:1.0')
@@ -627,7 +626,7 @@ class TestReactor(utilities.CanteraTest):
         self.net.atol = 1e-20
         valve = ct.Valve(self.r1, self.r2)
         mdot = lambda dP: 5e-3 * np.sqrt(dP) if dP > 0 else 0.0
-        valve.set_pressure_function(mdot)
+        valve.pressure_function = mdot
         self.assertEqual(valve.valve_coeff, 1.)
 
         Y1 = self.r1.Y
@@ -656,17 +655,26 @@ class TestReactor(utilities.CanteraTest):
         valve = ct.Valve(self.r1, self.r2)
         k = 2e-5
         valve.valve_coeff = k
-        valve.set_time_function(lambda t: t>.01)
+        valve.time_function = lambda t: t > .01
 
+        delta_p = lambda: self.r1.thermo.P - self.r2.thermo.P
         mdot = lambda: valve.valve_coeff * (self.r1.thermo.P - self.r2.thermo.P)
         self.net.initialize()
-        self.assertEqual(valve.mass_flow_rate, 0.0)
+        assert valve.time_function == 0.0
+        assert valve.pressure_function == approx(delta_p())
+        assert valve.mass_flow_rate == 0.0
         self.net.advance(0.01)
-        self.assertEqual(valve.mass_flow_rate, 0.0)
+        assert valve.time_function == 0.0
+        assert valve.pressure_function == approx(delta_p())
+        assert valve.mass_flow_rate == 0.0
         self.net.advance(0.01 + 1e-9)
-        self.assertNear(valve.mass_flow_rate, mdot())
+        assert valve.time_function == 1.0
+        assert valve.pressure_function == approx(delta_p())
+        assert valve.mass_flow_rate == approx(mdot())
         self.net.advance(0.02)
-        self.assertNear(valve.mass_flow_rate, mdot())
+        assert valve.time_function == 1.0
+        assert valve.pressure_function == approx(delta_p())
+        assert valve.mass_flow_rate == approx(mdot())
 
     def test_valve_errors(self):
         self.make_reactors()
@@ -692,10 +700,10 @@ class TestReactor(utilities.CanteraTest):
         mfc = ct.MassFlowController(inlet_reservoir, self.r1)
         mdot = lambda t: np.exp(-100*(t-0.5)**2)
         mfc.mass_flow_coeff = 1.
-        mfc.set_time_function(mdot)
+        mfc.time_function = mdot
 
         pc = ct.PressureController(self.r1, outlet_reservoir)
-        pc.set_master(mfc)
+        pc.primary = mfc
         pc.pressure_coeff = 1e-5
         self.assertEqual(pc.pressure_coeff, 1e-5)
 
@@ -717,12 +725,12 @@ class TestReactor(utilities.CanteraTest):
         mfc = ct.MassFlowController(inlet_reservoir, self.r1)
         mdot = lambda t: np.exp(-100*(t-0.5)**2)
         mfc.mass_flow_coeff = 1.
-        mfc.set_time_function(mdot)
+        mfc.time_function = mdot
 
         pc = ct.PressureController(self.r1, outlet_reservoir)
-        pc.set_master(mfc)
+        pc.primary = mfc
         pfunc = lambda dp: 1.e-5 * abs(dp)**.5
-        pc.set_pressure_function(pfunc)
+        pc.pressure_function = pfunc
         self.assertEqual(pc.pressure_coeff, 1.)
 
         t = 0
@@ -737,7 +745,7 @@ class TestReactor(utilities.CanteraTest):
         res = ct.Reservoir(self.gas1)
         mfc = ct.MassFlowController(res, self.r1, mdot=0.6)
 
-        p = ct.PressureController(self.r1, self.r2, master=mfc, K=0.5)
+        p = ct.PressureController(self.r1, self.r2, primary=mfc, K=0.5)
 
         with self.assertRaisesRegex(ct.CanteraError, 'is not ready'):
             p = ct.PressureController(self.r1, self.r2, K=0.5)
@@ -749,14 +757,14 @@ class TestReactor(utilities.CanteraTest):
 
         with pytest.raises(NotImplementedError):
             p = ct.PressureController(self.r1, self.r2)
-            p.set_time_function(lambda t: t>1.)
+            p.time_function = lambda t: t>1.
 
     def test_set_initial_time(self):
         self.make_reactors(P1=10*ct.one_atm, X1='AR:1.0', X2='O2:1.0')
         self.net.rtol = 1e-12
         valve = ct.Valve(self.r1, self.r2)
-        mdot = lambda dP: 5e-3 * np.sqrt(dP) if dP > 0 else 0.0
-        valve.set_pressure_function(mdot)
+        pfunc_a = lambda dP: 5e-3 * np.sqrt(dP) if dP > 0 else 0.0
+        valve.pressure_function = pfunc_a
 
         t0 = 0.0
         tf = t0 + 0.5
@@ -764,20 +772,22 @@ class TestReactor(utilities.CanteraTest):
         self.assertNear(self.net.time, tf)
         p1a = self.r1.thermo.P
         p2a = self.r2.thermo.P
+        assert valve.pressure_function == approx(pfunc_a(p1a - p2a))
 
         self.make_reactors(P1=10*ct.one_atm, X1='AR:1.0', X2='O2:1.0')
         self.net.rtol = 1e-12
         valve = ct.Valve(self.r1, self.r2)
-        mdot = lambda dP: 5e-3 * np.sqrt(dP) if dP > 0 else 0.0
-        valve.set_pressure_function(mdot)
+        pfunc_b = lambda dP: 5e-3 * np.sqrt(dP) if dP > 0 else 0.0
+        valve.pressure_function = pfunc_b
 
         t0 = 0.2
-        self.net.set_initial_time(t0)
+        self.net.initial_time = t0
         tf = t0 + 0.5
         self.net.advance(tf)
         self.assertNear(self.net.time, tf)
         p1b = self.r1.thermo.P
         p2b = self.r2.thermo.P
+        assert valve.pressure_function == approx(pfunc_b(p1b - p2b))
 
         self.assertNear(p1a, p1b)
         self.assertNear(p2a, p2b)
@@ -1432,7 +1442,7 @@ class TestFlowReactor(utilities.CanteraTest):
         while net.distance < 1.0:
             net.step()
             i += 1
-            assert r.speed * r.density * r.area == pytest.approx(10)
+            assert r.speed * r.density * r.area == approx(10)
 
         stats = net.solver_stats
         assert stats['steps'] == i
@@ -1489,6 +1499,7 @@ class TestFlowReactor(utilities.CanteraTest):
         surf = ct.Interface('methane_pox_on_pt.yaml', 'Pt_surf')
         gas = surf.adjacent['gas']
         r = ct.FlowReactor(gas)
+        r.mass_flow_rate = 0.1
         rsurf = ct.ReactorSurface(surf, r)
         sim = ct.ReactorNet([r])
         sim.initialize()
@@ -1519,6 +1530,14 @@ class TestFlowReactor2(utilities.CanteraTest):
         rsurf = ct.ReactorSurface(surf, r)
         sim = ct.ReactorNet([r])
         return r, rsurf, sim
+
+    def test_no_mass_flow_rate(self):
+        surf, gas = self.import_phases()
+        r = ct.FlowReactor(gas)
+        rsurf = ct.ReactorSurface(surf, r)
+        sim = ct.ReactorNet([r])
+        with pytest.raises(ct.CanteraError, match="mass flow rate"):
+            sim.initialize()
 
     def test_mixed_reactor_types(self):
         surf, gas = self.import_phases()
@@ -1702,7 +1721,7 @@ class TestFlowReactor2(utilities.CanteraTest):
         r.mass_flow_rate = 0.01
         r.syncState()
 
-        sim.set_initial_time(0.0)
+        sim.initial_time = 0.
         sim.advance(0.6)
         Ygas2 = r.thermo.Y
         cov2 = rsurf.kinetics.coverages
@@ -2473,7 +2492,7 @@ class ExtensibleReactorTest(utilities.CanteraTest):
 
             def after_update_state(self, y):
                 self.v_wall = y[self.i_wall]
-                self.walls[0].set_velocity(self.v_wall)
+                self.walls[0].velocity = self.v_wall
 
             def after_eval(self, t, LHS, RHS):
                 # Extra equation is d(v_wall)/dt = k * delta P
@@ -2644,12 +2663,13 @@ class ExtensibleReactorTest(utilities.CanteraTest):
         self.assertNear(add_heat, r1_heat, atol=1e-5)
 
     def test_heat_addition(self):
-        # Applying heat via 'qdot' property should be equivalent to adding it via a wall
+        # Applying heat via 'heat_rate' property should be equivalent to adding it via
+        # a wall
         Qext = 100
         Qwall = -66
         class HeatedReactor(ct.ExtensibleReactor):
             def after_eval_walls(self, y):
-                self.qdot += Qext
+                self.heat_rate += Qext
 
         self.gas.TPX = 300, ct.one_atm, "N2:1.0"
         r1 = HeatedReactor(self.gas)
@@ -2661,7 +2681,7 @@ class ExtensibleReactorTest(utilities.CanteraTest):
             net.advance(t)
             U = r1.thermo.int_energy_mass * r1.mass
             self.assertNear(U - U0, (Qext + Qwall) * t)
-            self.assertNear(r1.qdot, Qext + Qwall)
+            self.assertNear(r1.heat_rate, Qext + Qwall)
 
     def test_with_surface(self):
         phase_defs = """
@@ -2764,8 +2784,8 @@ class ExtensibleReactorTest(utilities.CanteraTest):
 
             def replace_eval_walls(self, t):
                 if self.neighbor:
-                    self.vdot = np.clip(self.p_coeff * (self.P - self.neighbor.P),
-                                        -1.7, 1.7)
+                    self.expansion_rate = np.clip(
+                        self.p_coeff * (self.P - self.neighbor.P), -1.7, 1.7)
 
             def after_eval(self, t, LHS, RHS):
                 if self.neighbor:
@@ -2794,14 +2814,14 @@ class ExtensibleReactorTest(utilities.CanteraTest):
         V0 = r1.volume + r2.volume
         for t in np.linspace(0.01, 0.2, 50):
             net.advance(t)
-            self.assertNear(r1.vdot, -r2.vdot)
+            self.assertNear(r1.expansion_rate, -r2.expansion_rate)
             self.assertNear(V0, r1.volume + r2.volume)
             deltaCnow = deltaC()
             self.assertLess(deltaCnow, deltaCprev) # difference is always decreasing
             deltaCprev = deltaCnow
             self.assertArrayNear(M0, r1.mass * r1.thermo.Y + r2.mass * r2.thermo.Y, rtol=2e-8)
-            states1.append(r1.thermo.state, t=net.time, mass=r1.mass, vdot=r1.vdot)
-            states2.append(r2.thermo.state, t=net.time, mass=r2.mass, vdot=r2.vdot)
+            states1.append(r1.thermo.state, t=net.time, mass=r1.mass, vdot=r1.expansion_rate)
+            states2.append(r2.thermo.state, t=net.time, mass=r2.mass, vdot=r2.expansion_rate)
 
         # Regression test values
         self.assertNear(r1.thermo.P, 151561.15, rtol=1e-6)

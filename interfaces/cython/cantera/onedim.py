@@ -54,8 +54,8 @@ class FlameBase(Sim1D):
             Method to be removed after Cantera 3.0. After moving SolutionArray HDF
             export to the C++ core, this method is unused.
         """
-        warnings.warn("Method to be removed after Cantera 3.0 (unused).",
-                      DeprecationWarning)
+        warnings.warn("FlameBase.other_components: Method to be removed after "
+                      "Cantera 3.0 (unused).", DeprecationWarning, stacklevel=2)
         if domain is None:
             return self._other
 
@@ -63,7 +63,7 @@ class FlameBase(Sim1D):
         if isinstance(dom, Inlet1D):
             return tuple([e for e in self._other
                           if e not in {'grid', 'lambda', 'eField'}])
-        elif isinstance(dom, (FreeFlow, AxisymmetricFlow, IdealGasFlow, IonFlow)):
+        elif isinstance(dom, (FreeFlow, AxisymmetricFlow, IdealGasFlow)):
             return self._other
         else:
             return ()
@@ -134,16 +134,16 @@ class FlameBase(Sim1D):
 
         elif isinstance(data, (str, Path)):
             data = str(data)
-            arr = SolutionArray(self.gas, extra=self.other_components())
+            arr = SolutionArray(self.gas)
             if any(data.endswith(suffix) for suffix in [".hdf5", ".h5", ".hdf"]):
                 # data source identifies a HDF file
                 if "native" in hdf_support():
-                    arr.restore(data, name=group, key=self.domains[1].name)
+                    arr.restore(data, name=group, sub=self.domains[1].name)
                 else:
                     arr.read_hdf(data, group=group, subgroup=self.domains[1].name)
             elif data.endswith(".yaml") or data.endswith(".yml"):
                 # data source identifies a YAML file
-                arr.restore(data, name=group, key=self.domains[1].name)
+                arr.restore(data, name=group, sub=self.domains[1].name)
             elif data.endswith('.csv'):
                 # data source identifies a CSV file
                 arr.read_csv(data)
@@ -151,7 +151,7 @@ class FlameBase(Sim1D):
                 raise ValueError(f"'{data}' does not identify CSV, YAML or HDF file.")
         else:
             # data source is presumably a pandas DataFrame
-            arr = SolutionArray(self.gas, extra=self.other_components())
+            arr = SolutionArray(self.gas)
             arr.from_pandas(data)
 
         # get left and right boundaries
@@ -316,6 +316,16 @@ class FlameBase(Sim1D):
         """
         return self.profile(self.flame, 'lambda')
 
+    @property
+    def E(self):
+        """
+        Array containing the electric field strength at each point.
+        """
+        if self.flame.transport_model != "ionized-gas":
+            raise AttributeError(
+                "Electric field is only defined for transport model 'ionized_gas'.")
+        return self.profile(self.flame, 'eField')
+
     def elemental_mass_fraction(self, m):
         r"""
         Get the elemental mass fraction :math:`Z_{\mathrm{mass},m}` of element
@@ -374,8 +384,9 @@ class FlameBase(Sim1D):
             To be removed after Cantera 3.0 to avoid conflation with `Solution`.
             Replaceable by `profile` or `value`.
         """
-        warnings.warn("Method 'solution' to be removed after Cantera 3.0. "
-            "Replaceable by 'profile' or 'value'.")
+        warnings.warn("FlameBase.solution: To be removed after Cantera 3.0. "
+                      "Replaceable by 'profile' or 'value'.", DeprecationWarning,
+                      stacklevel=2)
         if point is None:
             return self.profile(self.flame, component)
         else:
@@ -406,7 +417,13 @@ class FlameBase(Sim1D):
         :param normalize:
             Boolean flag to indicate whether the mole/mass fractions should
             be normalized.
+
+        .. deprecated:: 3.0
+
+            Method to be removed after Cantera 3.0; superseded by `save`.
         """
+        warnings.warn("FlameBase.write_csv: Superseded by 'save'. To be removed "
+                      "after Cantera 3.0.", DeprecationWarning, stacklevel=2)
 
         # save data
         cols = ('extra', 'T', 'D', species)
@@ -449,9 +466,8 @@ class FlameBase(Sim1D):
 
             Method to be removed after Cantera 3.0; superseded by `to_array`.
         """
-        warnings.warn(
-            "Method to be removed after Cantera 3.0. Replaceable by 'to_array'.",
-            DeprecationWarning)
+        warnings.warn("FlameBase.to_solution_array: To be removed after Cantera 3.0. "
+                      "Replaceable by 'to_array'.", DeprecationWarning, stacklevel=2)
         return self.to_array(domain, normalize)
 
     def from_array(self, arr, domain=None):
@@ -481,9 +497,8 @@ class FlameBase(Sim1D):
 
             Method to be removed after Cantera 3.0; replaced by `from_array`.
         """
-        warnings.warn(
-            "Method to be removed after Cantera 3.0. Replaced by 'from_array'.",
-            DeprecationWarning)
+        warnings.warn("FlameBase.from_solution_array: To be removed after Cantera 3.0. "
+                      "Replaced by 'from_array'.", DeprecationWarning, stacklevel=2)
         if domain is None:
             domain = self.flame
         else:
@@ -619,9 +634,10 @@ class FlameBase(Sim1D):
             the call is redirected to `save` in order to prevent the creation of a file
             with deprecated HDF format.
         """
-        warnings.warn("Method to be removed after Cantera 3.0; use 'save' instead.\n"
-            "Note that the call is redirected to 'save' in order to prevent the "
-            "creation of a file with deprecated HDF format.", DeprecationWarning)
+        warnings.warn("FlameBase.write_hdf: To be removed after Cantera 3.0; use "
+            "'save' instead.\nNote that the call is redirected to 'save' in order to "
+            "prevent the creation of a file with deprecated HDF format.",
+            DeprecationWarning, stacklevel=2)
 
         self.save(filename, name=group, description=description,
                   compression=compression_opts)
@@ -649,9 +665,8 @@ class FlameBase(Sim1D):
 
             Method to be removed after Cantera 3.0; superseded by `restore`.
         """
-        warnings.warn(
-            "Method to be removed after Cantera 3.0; use 'restore' instead.",
-            DeprecationWarning)
+        warnings.warn("FlameBase.read_hdf: To be removed after Cantera 3.0; use "
+                      "'restore' instead.", DeprecationWarning, stacklevel=2)
 
         if restore_boundaries:
             domains = range(3)
@@ -678,9 +693,8 @@ class FlameBase(Sim1D):
             To be removed after Cantera 3.0. The getter is replaceable by
             `Domain1D.settings`; for the setter, use setters for individual settings.
         """
-        warnings.warn(
-            "Property 'settings' to be removed after Cantera 3.0. Access settings from "
-            "domains instead.", DeprecationWarning)
+        warnings.warn("FlameBase.settings: to be removed after Cantera 3.0. Access "
+            "settings from domains instead.", DeprecationWarning, stacklevel=2)
         out = {'Sim1D_type': type(self).__name__}
         out['transport_model'] = self.transport_model
         out['energy_enabled'] = self.energy_enabled
@@ -695,9 +709,8 @@ class FlameBase(Sim1D):
 
     @settings.setter
     def settings(self, s):
-        warnings.warn(
-            "Property 'settings' to be removed after Cantera 3.0. Use individual "
-            "setters instead.", DeprecationWarning)
+        warnings.warn("FlameBase.settings: To be removed after Cantera 3.0. Use "
+            "individual setters instead.", DeprecationWarning, stacklevel=2)
         # simple setters
         attr = {'transport_model',
                 'energy_enabled', 'soret_enabled', 'radiation_enabled',
@@ -712,6 +725,15 @@ class FlameBase(Sim1D):
                   if k in ['ratio', 'slope', 'curve', 'prune']}
         if refine:
             self.set_refine_criteria(**refine)
+
+    @property
+    def electric_field_enabled(self):
+        """ Get/Set whether or not to solve the Poisson's equation."""
+        return self.flame.electric_field_enabled
+
+    @electric_field_enabled.setter
+    def electric_field_enabled(self, enable):
+        self.flame.electric_field_enabled = enable
 
 
 def _trim(docstring):
@@ -773,7 +795,7 @@ for _attr in ['density', 'density_mass', 'density_mole', 'volume_mass',
               'entropy_mass', 'g', 'gibbs_mole', 'gibbs_mass', 'cv',
               'cv_mole', 'cv_mass', 'cp', 'cp_mole', 'cp_mass',
               'isothermal_compressibility', 'thermal_expansion_coeff',
-              'sound_speed', 'viscosity', 'thermal_conductivity', 
+              'sound_speed', 'viscosity', 'thermal_conductivity',
               'heat_release_rate', 'mean_molecular_weight']:
     setattr(FlameBase, _attr, _array_property(_attr))
 FlameBase.volume = _array_property('v') # avoid confusion with velocity gradient 'V'
@@ -914,7 +936,7 @@ class FreeFlame(FlameBase):
             self.set_profile(self.gas.species_name(n),
                              locs, [Y0[n], Y0[n], Yeq[n], Yeq[n]])
 
-    def solve(self, loglevel=1, refine_grid=True, auto=False):
+    def solve(self, loglevel=1, refine_grid=True, auto=False, stage=1):
         """
         Solve the problem.
 
@@ -931,7 +953,11 @@ class FreeFlame(FlameBase):
             If non-default tolerances have been specified or multicomponent
             transport is enabled, an additional solution using these options
             will be calculated.
+        :param stage: solution stage; only used when transport model is ``ionized-gas``.
         """
+        if self.flame.transport_model == 'ionized-gas':
+            self.flame.solving_stage = stage
+
         if not auto:
             return super().solve(loglevel, refine_grid, auto)
 
@@ -1007,45 +1033,20 @@ class FreeFlame(FlameBase):
         return self.solve_adjoint(perturb, self.gas.n_reactions, dgdx) / Su0
 
 
-class IonFlameBase(FlameBase):
+class IonFreeFlame(FreeFlame):
+    """A freely-propagating flame with ionized gas.
 
-    @property
-    def electric_field_enabled(self):
-        """ Get/Set whether or not to solve the Poisson's equation."""
-        return self.flame.electric_field_enabled
+    .. deprecated:: 3.0
 
-    @electric_field_enabled.setter
-    def electric_field_enabled(self, enable):
-        self.flame.electric_field_enabled = enable
-
-    @property
-    def E(self):
-        """
-        Array containing the electric field strength at each point.
-        """
-        return self.profile(self.flame, 'eField')
-
-    def solve(self, loglevel=1, refine_grid=True, auto=False, stage=1, enable_energy=True):
-        self.flame.set_solving_stage(stage)
-        if stage == 1:
-            super().solve(loglevel, refine_grid, auto)
-        if stage == 2:
-            self.poisson_enabled = True
-            super().solve(loglevel, refine_grid, auto)
-
-
-class IonFreeFlame(IonFlameBase, FreeFlame):
-    """A freely-propagating flame with ionized gas."""
+        Class to be removed after Cantera 3.0; absorbed by `FreeFlame`.
+    """
     __slots__ = ('inlet', 'flame', 'outlet')
-    _other = ('grid', 'velocity', 'eField')
+    _other = ('grid', 'velocity', 'eField') # only used by deprecated methods
 
     def __init__(self, gas, grid=None, width=None):
-        if not hasattr(self, 'flame'):
-            # Create flame domain if not already instantiated by a child class
-            #: `IonFlow` domain representing the flame
-            self.flame = IonFlow(gas, name='flame')
-            self.flame.set_free_flow()
-
+        warnings.warn(
+            "'IonFreeFlame' is deprecated and will be removed after Cantera 3.0;",
+            "replaceable by 'FreeFlame'.", DeprecationWarning, stacklevel=2)
         super().__init__(gas, grid, width)
 
 
@@ -1124,7 +1125,7 @@ class BurnerFlame(FlameBase):
             self.set_profile(self.gas.species_name(n),
                              locs, [Y0[n], Yeq[n], Yeq[n]])
 
-    def solve(self, loglevel=1, refine_grid=True, auto=False):
+    def solve(self, loglevel=1, refine_grid=True, auto=False, stage=1):
         """
         Solve the problem.
 
@@ -1141,7 +1142,10 @@ class BurnerFlame(FlameBase):
             If non-default tolerances have been specified or multicomponent
             transport is enabled, an additional solution using these options
             will be calculated.
+        :param stage: solution stage; only used when transport model is ``ionized-gas``.
         """
+        if self.flame.transport_model == 'ionized-gas':
+            self.flame.solving_stage = stage
 
         # Use a callback function to check that the flame has not been blown off
         # the burner surface. If the user provided a callback, store this so it
@@ -1183,18 +1187,20 @@ class BurnerFlame(FlameBase):
         self.set_steady_callback(original_callback)
 
 
-class IonBurnerFlame(IonFlameBase, BurnerFlame):
-    """A burner-stabilized flat flame with ionized gas."""
+class IonBurnerFlame(BurnerFlame):
+    """A burner-stabilized flat flame with ionized gas.
+
+    .. deprecated:: 3.0
+
+        Class to be removed after Cantera 3.0; absorbed by `BurnerFlame`.
+    """
     __slots__ = ('burner', 'flame', 'outlet')
-    _other = ('grid', 'velocity', 'eField')
+    _other = ('grid', 'velocity', 'eField') # only used by deprecated methods
 
     def __init__(self, gas, grid=None, width=None):
-        if not hasattr(self, 'flame'):
-            # Create flame domain if not already instantiated by a child class
-            #: `IonFlow` domain representing the flame
-            self.flame = IonFlow(gas, name='flame')
-            self.flame.set_axisymmetric_flow()
-
+        warnings.warn(
+            "'IonBurnerFlame' is deprecated and will be removed after Cantera 3.0; ",
+            "replaceable by 'BurnerFlame'.", DeprecationWarning, stacklevel=2)
         super().__init__(gas, grid, width)
 
 
@@ -1327,7 +1333,7 @@ class CounterflowDiffusionFlame(FlameBase):
     def extinct(self):
         return max(self.T) - max(self.fuel_inlet.T, self.oxidizer_inlet.T) < 10
 
-    def solve(self, loglevel=1, refine_grid=True, auto=False):
+    def solve(self, loglevel=1, refine_grid=True, auto=False, stage=1):
         """
         Solve the problem.
 
@@ -1344,7 +1350,14 @@ class CounterflowDiffusionFlame(FlameBase):
             If non-default tolerances have been specified or multicomponent
             transport is enabled, an additional solution using these options
             will be calculated.
+        :param stage: solution stage; only used when transport model is ``ionized-gas``.
         """
+        if self.flame.transport_model == 'ionized-gas':
+            warnings.warn(
+                "The 'ionized-gas' transport model is untested for "
+                "'CounterflowDiffusionFlame' objects.", UserWarning)
+            self.flame.solving_stage = stage
+
         super().solve(loglevel, refine_grid, auto)
         # Do some checks if loglevel is set
         if loglevel > 0:

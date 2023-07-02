@@ -9,6 +9,7 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/base/AnyMap.h"
+#include "cantera/base/utilities.h"
 
 namespace Cantera
 {
@@ -140,18 +141,38 @@ void InterfaceRateBase::setCoverageDependencies(const AnyMap& dependencies,
     m_ac.clear();
     m_ec.clear();
     m_mc.clear();
+    m_lindep.clear();
     for (const auto& [species, coeffs] : dependencies) {
-        double a, E, m;
+        double a, m;
+        vector_fp E(5, 0.0);
         if (coeffs.is<AnyMap>()) {
             auto& cov_map = coeffs.as<AnyMap>();
             a = cov_map["a"].asDouble();
             m = cov_map["m"].asDouble();
-            E = units.convertActivationEnergy(cov_map["E"], "K");
+            if (cov_map["E"].isScalar()) {
+                m_lindep.push_back(true);
+                E[1] = units.convertActivationEnergy(cov_map["E"], "K");
+            } else {
+                m_lindep.push_back(false);
+                auto& E_temp = cov_map["E"].asVector<AnyValue>(1, 4);
+                for (size_t i = 0; i < E_temp.size(); i++) {
+                    E[i+1] = units.convertActivationEnergy(E_temp[i], "K");
+                }
+            }
         } else {
             auto& cov_vec = coeffs.asVector<AnyValue>(3);
             a = cov_vec[0].asDouble();
             m = cov_vec[1].asDouble();
-            E = units.convertActivationEnergy(cov_vec[2], "K");
+            if (cov_vec[2].isScalar()) {
+                m_lindep.push_back(true);
+                E[1] = units.convertActivationEnergy(cov_vec[2], "K");
+            } else {
+                m_lindep.push_back(false);
+                auto& E_temp = cov_vec[2].asVector<AnyValue>(1, 4);
+                for (size_t i = 0; i < E_temp.size(); i++) {
+                    E[i+1] = units.convertActivationEnergy(E_temp[i], "K");
+                }
+            }
         }
         addCoverageDependence(species, a, m, E);
     }
@@ -166,22 +187,36 @@ void InterfaceRateBase::getCoverageDependencies(AnyMap& dependencies,
             warn_deprecated("InterfaceRateBase::getCoverageDependencies",
                 "To be changed after Cantera 3.0: second argument will be removed.");
             vector_fp dep(3);
+            if (m_lindep[k]) {
+                dep[2] = m_ec[k][1];
+            } else {
+                throw NotImplementedError("InterfaceRateBase::getCoverageDependencies",
+                    "Polynomial dependency not implemented for asVector.");
+            }
             dep[0] = m_ac[k];
             dep[1] = m_mc[k];
-            dep[2] = m_ec[k];
             dependencies[m_cov[k]] = std::move(dep);
         } else {
             AnyMap dep;
             dep["a"] = m_ac[k];
             dep["m"] = m_mc[k];
-            dep["E"].setQuantity(m_ec[k], "K", true);
+            if (m_lindep[k]) {
+                dep["E"].setQuantity(m_ec[k][1], "K", true);
+            } else {
+                vector<AnyValue> E_temp(4);
+                for (size_t i = 0; i < m_ec[k].size() - 1; i++) {
+                    E_temp[i].setQuantity(m_ec[k][i+1], "K", true);
+                }
+                dep["E"] = E_temp;
+            }
             dependencies[m_cov[k]] = std::move(dep);
         }
     }
 }
 
-void InterfaceRateBase::addCoverageDependence(const std::string& sp,
-                                              double a, double m, double e)
+void InterfaceRateBase::addCoverageDependence(const string& sp,
+                                              double a, double m,
+                                              const vector_fp& e)
 {
     if (std::find(m_cov.begin(), m_cov.end(), sp) == m_cov.end()) {
         m_cov.push_back(sp);
@@ -195,7 +230,7 @@ void InterfaceRateBase::addCoverageDependence(const std::string& sp,
     }
 }
 
-void InterfaceRateBase::setSpecies(const std::vector<std::string>& species)
+void InterfaceRateBase::setSpecies(const vector<string>& species)
 {
     m_indices.clear();
     for (size_t k = 0; k < m_cov.size(); k++) {
@@ -226,7 +261,11 @@ void InterfaceRateBase::updateFromStruct(const InterfaceData& shared_data) {
     m_mcov = 0.0;
     for (auto& [iCov, iKin] : m_indices) {
         m_acov += m_ac[iCov] * shared_data.coverages[iKin];
-        m_ecov += m_ec[iCov] * shared_data.coverages[iKin];
+        if (m_lindep[iCov]) {
+            m_ecov += m_ec[iCov][1] * shared_data.coverages[iKin];
+        } else {
+            m_ecov += poly4(shared_data.coverages[iKin], m_ec[iCov].data());
+        }
         m_mcov += m_mc[iCov] * shared_data.logCoverages[iKin];
     }
 
@@ -324,11 +363,11 @@ void StickingCoverage::setContext(const Reaction& rxn, const Kinetics& kin)
     // Identify the interface phase
     size_t iInterface = kin.reactionPhaseIndex();
 
-    std::string sticking_species = m_stickingSpecies;
+    string sticking_species = m_stickingSpecies;
     if (sticking_species == "") {
         // Identify the sticking species if not explicitly given
-        std::vector<std::string> gasSpecies;
-        std::vector<std::string> anySpecies;
+        vector<string> gasSpecies;
+        vector<string> anySpecies;
         for (const auto& [name, stoich] : rxn.reactants) {
             size_t iPhase = kin.speciesPhaseIndex(kin.kineticsSpeciesIndex(name));
             if (iPhase != iInterface) {

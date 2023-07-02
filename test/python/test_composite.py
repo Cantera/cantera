@@ -104,7 +104,7 @@ class TestModels(utilities.CanteraTest):
                 else:
                     X = a.X
                     xmin = np.min(X[X>0])
-                    ix = np.where(xmin)
+                    ix = np.where(X == xmin)
                     X[ix] = .5 * X[ix]
                     X = np.diag(X.sum(axis=1)).dot(X)
                     self.assertFalse(sol.is_pure)
@@ -461,7 +461,23 @@ class TestSolutionArrayIO(utilities.CanteraTest):
         self.assertArrayNear(states.P, b.P)
         self.assertArrayNear(states.X, b.X)
 
-    def test_write_csv(self):
+    def check_arrays(self, a, b, rtol=1e-8):
+        self.assertArrayNear(a.T, b.T, rtol=rtol)
+        self.assertArrayNear(a.P, b.P, rtol=rtol)
+        self.assertArrayNear(a.X, b.X, rtol=rtol)
+        for key in a.extra:
+            value = getattr(a, key)
+            if isinstance(value[0], str):
+                assert (getattr(b, key) == value).all()
+            else:
+                self.assertArrayNear(getattr(b, key), value, rtol=rtol)
+        if b.meta:
+            # not all output formats preserve metadata
+            for key, value in a.meta.items():
+                assert b.meta[key] == value
+
+    @pytest.mark.usefixtures("allow_deprecated")
+    def test_write_csv_legacy(self):
         states = ct.SolutionArray(self.gas, 7)
         states.TPX = np.linspace(300, 1000, 7), 2e5, 'H2:0.5, O2:0.4'
         states.equilibrate('HP')
@@ -476,10 +492,9 @@ class TestSolutionArrayIO(utilities.CanteraTest):
 
         b = ct.SolutionArray(self.gas)
         b.read_csv(outfile)
-        self.assertArrayNear(states.T, b.T)
-        self.assertArrayNear(states.P, b.P)
-        self.assertArrayNear(states.X, b.X)
+        self.check_arrays(states, b)
 
+    @pytest.mark.usefixtures("allow_deprecated")
     def test_write_csv_single_row(self):
         gas = ct.Solution("gri30.yaml")
         states = ct.SolutionArray(gas)
@@ -491,10 +506,9 @@ class TestSolutionArrayIO(utilities.CanteraTest):
 
         b = ct.SolutionArray(gas)
         b.read_csv(outfile)
-        self.assertArrayNear(states.T, b.T)
-        self.assertArrayNear(states.P, b.P)
-        self.assertArrayNear(states.X, b.X)
+        self.check_arrays(states, b)
 
+    @pytest.mark.usefixtures("allow_deprecated")
     def test_write_csv_str_column(self):
         states = ct.SolutionArray(self.gas, 3, extra={'spam': 'eggs'})
 
@@ -504,13 +518,101 @@ class TestSolutionArrayIO(utilities.CanteraTest):
         b = ct.SolutionArray(self.gas, extra={'spam'})
         b.read_csv(outfile)
         self.assertEqual(list(states.spam), list(b.spam))
+        self.check_arrays(states, b)
 
+    @pytest.mark.usefixtures("allow_deprecated")
     def test_write_csv_multidim_column(self):
         states = ct.SolutionArray(self.gas, 3, extra={'spam': np.zeros((3, 5,))})
 
         outfile = self.test_work_path / "solutionarray.csv"
         with self.assertRaisesRegex(NotImplementedError, 'not supported'):
             states.write_csv(outfile)
+
+    def test_write_csv(self):
+        outfile = self.test_work_path / "solutionarray_new.csv"
+        outfile.unlink(missing_ok=True)
+
+        arr = ct.SolutionArray(self.gas, 7)
+        arr.TPX = np.linspace(300, 1000, 7), 2e5, "H2:0.5, O2:0.4"
+        arr.equilibrate("HP")
+        arr.save(outfile, basis="mole")
+
+        with open(outfile, "r") as fid:
+            header = fid.readline()
+        assert "X_H2" in header.split(",")
+
+        b = ct.SolutionArray(self.gas)
+        b.read_csv(outfile)
+        self.check_arrays(arr, b)
+
+        with pytest.raises(ct.CanteraError, match="already exists"):
+            arr.save(outfile)
+
+    def test_write_csv_fancy(self):
+        outfile = self.test_work_path / "solutionarray_fancy.csv"
+        outfile.unlink(missing_ok=True)
+
+        extra = {"foo": range(7), "bar": range(7), "spam": "eggs"}
+        arr = ct.SolutionArray(self.gas, 7, extra=extra)
+        arr.TPX = np.linspace(300, 1000, 7), 2e5, "H2:0.5, O2:0.4"
+        arr.equilibrate("HP")
+        arr.save(outfile)
+
+        with open(outfile, "r") as fid:
+            header = fid.readline()
+        assert "Y_H2" in header.split(",")
+
+        b = ct.SolutionArray(self.gas)
+        b.read_csv(outfile)
+        self.check_arrays(arr, b)
+
+    def test_write_csv_escaped(self):
+        outfile = self.test_work_path / "solutionarray_escaped.csv"
+        outfile.unlink(missing_ok=True)
+
+        extra = {"foo": range(7), "bar": range(7), "spam,eggs": "a,b,"}
+        arr = ct.SolutionArray(self.gas, 7, extra=extra)
+        arr.TPX = np.linspace(300, 1000, 7), 2e5, "H2:0.5, O2:0.4"
+        arr.equilibrate("HP")
+        arr.save(outfile, basis="mass")
+
+        with open(outfile, "r") as fid:
+            header = fid.readline()
+        assert "Y_H2" in header.split(",")
+
+        b = ct.SolutionArray(self.gas)
+        if _pandas is None:
+            with pytest.raises(ValueError):
+                # np.genfromtxt does not support escaped characters
+                b.read_csv(outfile)
+            return
+
+        b.read_csv(outfile)
+        self.check_arrays(arr, b)
+
+        df = _pandas.read_csv(outfile)
+        b.from_pandas(df)
+        self.check_arrays(arr, b)
+
+    def test_write_csv_exceptions(self):
+        outfile = self.test_work_path / f"solutionarray_invalid.csv"
+        outfile.unlink(missing_ok=True)
+
+        arr = ct.SolutionArray(self.gas, (2, 5))
+        with pytest.raises(ct.CanteraError, match="only works for 1D SolutionArray"):
+            arr.save(outfile)
+
+        arr = ct.SolutionArray(self.gas, 10, extra={'spam"eggs': "foo"})
+        with pytest.raises(NotImplementedError, match="double quotes or line feeds"):
+            arr.save(outfile)
+
+        arr = ct.SolutionArray(self.gas, 10, extra={"foo": 'spam\neggs'})
+        with pytest.raises(NotImplementedError, match="double quotes or line feeds"):
+            arr.save(outfile)
+
+        arr = ct.SolutionArray(self.gas, 10)
+        with pytest.raises(ct.CanteraError, match="Invalid species basis"):
+            arr.save(outfile, basis="foo")
 
     @utilities.unittest.skipIf(_pandas is None, "pandas is not installed")
     def test_to_pandas(self):
@@ -524,7 +626,6 @@ class TestSolutionArrayIO(utilities.CanteraTest):
 
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
-    @utilities.unittest.skipIf(_h5py is None, "h5py is not installed")
     def test_write_hdf(self):
         outfile = self.test_work_path / "solutionarray_fancy.h5"
         outfile.unlink(missing_ok=True)
@@ -539,13 +640,7 @@ class TestSolutionArrayIO(utilities.CanteraTest):
 
         b = ct.SolutionArray(self.gas)
         attr = b.restore(outfile, "group0")
-        self.assertArrayNear(states.T, b.T)
-        self.assertArrayNear(states.P, b.P)
-        self.assertArrayNear(states.X, b.X)
-        self.assertArrayNear(states.foo, b.foo)
-        self.assertArrayNear(states.bar, b.bar)
-        self.assertEqual(b.meta['spam'], 'eggs')
-        self.assertEqual(b.meta['hello'], 'world')
+        self.check_arrays(states, b)
 
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
@@ -564,7 +659,7 @@ class TestSolutionArrayIO(utilities.CanteraTest):
 
         b = ct.SolutionArray(self.gas, extra={'spam'})
         b.restore(outfile, "arr")
-        self.assertEqual(list(states.spam), list(b.spam))
+        self.check_arrays(states, b)
 
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
@@ -583,7 +678,7 @@ class TestSolutionArrayIO(utilities.CanteraTest):
 
         b = ct.SolutionArray(self.gas, extra={'spam'})
         b.restore(outfile, "arr")
-        self.assertArrayNear(states.spam, b.spam)
+        self.check_arrays(states, b)
 
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
@@ -603,6 +698,7 @@ class TestSolutionArrayIO(utilities.CanteraTest):
         b = ct.SolutionArray(self.gas)
         b.restore(outfile, "arr")
         assert b.shape == states.shape
+
 
 class TestLegacyHDF(utilities.CanteraTest):
     # Test SolutionArray legacy HDF file input
@@ -627,9 +723,11 @@ class TestLegacyHDF(utilities.CanteraTest):
     def test_legacy_hdf_str_column_h5py(self):
         self.run_read_legacy_hdf_str_column(legacy=True)
 
+
     @pytest.mark.xfail(reason="Unable to read fixed length strings from HDF")
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
+    @pytest.mark.filterwarnings("ignore:.*legacy HDF.*:UserWarning")
     def test_legacy_hdf_str_column(self):
         # h5py writes strings with fixed length, which require a priori knowledge of
         # length in order to be read with HighFive (which currently only supports
@@ -656,6 +754,7 @@ class TestLegacyHDF(utilities.CanteraTest):
 
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
+    @pytest.mark.filterwarnings("ignore:.*legacy HDF.*:UserWarning")
     def test_legacy_hdf_multidim(self):
         self.run_read_legacy_hdf_multidim()
 
@@ -705,6 +804,7 @@ class TestLegacyHDF(utilities.CanteraTest):
 
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
+    @pytest.mark.filterwarnings("ignore:.*legacy HDF.*:UserWarning")
     def test_legacy_hdf(self):
         self.run_legacy_hdf()
 
@@ -738,6 +838,7 @@ class TestLegacyHDF(utilities.CanteraTest):
 
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
+    @pytest.mark.filterwarnings("ignore:.*legacy HDF.*:UserWarning")
     def test_read_legacy_hdf_no_norm(self):
         self.run_read_legacy_hdf_no_norm()
 
@@ -764,6 +865,7 @@ class TestLegacyHDF(utilities.CanteraTest):
 
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
+    @pytest.mark.filterwarnings("ignore:.*legacy HDF.*:UserWarning")
     def test_import_no_norm_water(self):
         self.run_import_no_norm_water()
 

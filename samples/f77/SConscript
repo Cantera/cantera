@@ -4,8 +4,6 @@ from buildutils import *
 Import('env', 'install', 'buildSample')
 localenv = env.Clone()
 
-localenv['mak_stdlib'] = ['-l' + lib for lib in env['cxx_stdlib']]
-
 # (program name, [source files])
 samples = [("ctlib", ["ctlib.f"]),
            ("demo", ["demo.f"]),
@@ -24,6 +22,9 @@ for program_name, fortran_sources in samples:
                 LINK='$FORTRAN_LINK')
 
 # Generate SConstruct file to be installed
+linkflags = ["-g", localenv["thread_flags"]]
+
+flag_excludes = ["$(", "/TP", "$)", "/nologo"]
 incdirs = [localenv["ct_incroot"]]
 libdirs = [localenv["ct_libdir"]]
 if localenv["package_build"]:
@@ -31,25 +32,25 @@ if localenv["package_build"]:
     # conda package for now.
     # Users should compile against their local SDKs, which should be backwards
     # compatible with the SDK used for building.
-    excludes = (
-        "-isysroot", "-mmacosx", "-march", "-mtune", "-fdebug-prefix-map")
-    cc_flags = compiler_flag_list(localenv["CCFLAGS"] + localenv["CXXFLAGS"],
-        excludes)
+    flag_excludes.extend(["-isysroot", "-mmacosx", "-march", "-mtune",
+                          "-fdebug-prefix-map"])
 else:
+    linkflags.append(f"-Wl,-rpath,{localenv['ct_shlibdir']}")
+
     incdirs.extend([localenv["sundials_include"], localenv["boost_inc_dir"]])
     incdirs.append(localenv["hdf_include"])
     incdirs.extend(localenv["extra_inc_dirs"])
     incdirs = list(set(incdirs))
+
     libdirs.extend([localenv["sundials_libdir"], localenv["blas_lapack_dir"]])
     libdirs.append(localenv["hdf_libdir"])
     libdirs.extend(localenv["extra_lib_dirs"])
     libdirs = list(set(libdirs))
 
-    cc_flags = localenv["CCFLAGS"] + localenv["CXXFLAGS"]
-
 libs = ["cantera_fortran"] + localenv["cantera_libs"] + localenv["cxx_stdlib"]
-linkflags = ("-g", localenv["thread_flags"], f"-Wl,-rpath,{localenv['ct_libdir']}")
 
+cc_flags = compiler_flag_list(localenv["CCFLAGS"] + localenv["CXXFLAGS"],
+                              flag_excludes)
 localenv["tmpl_compiler_flags"] = repr(cc_flags)
 localenv['tmpl_cantera_incdirs'] = repr([x for x in incdirs if x])
 localenv['tmpl_cantera_libs'] = repr(libs)
@@ -71,19 +72,5 @@ if localenv["package_build"]:
         localenv["F77"] = "gfortran"
         localenv["CC"] = "gcc"
 
-localenv["mak_compiler_flags"] = " ".join(cc_flags)
-
 sconstruct = localenv.SubstFile('SConstruct', 'SConstruct.in')
 install("$inst_sampledir/f77", sconstruct)
-
-if localenv["OS"] != "Windows":
-    # Generate Makefile to be installed
-    mak_path = pjoin(localenv["ct_incroot"], "cantera", "Cantera.mak")
-    if " " in mak_path:
-        # There is no reasonable way to handle spaces in Makefile 'include'
-        # statement, so we fall back to using the relative path instead
-        mak_path = relpath(mak_path, pjoin(localenv["ct_sampledir"], "f77"))
-    localenv["make_Cantera_dot_mak"] = mak_path
-
-    makefile = localenv.SubstFile("Makefile", "Makefile.in")
-    install("$inst_sampledir/f77", makefile)

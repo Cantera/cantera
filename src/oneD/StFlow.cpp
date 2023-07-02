@@ -20,18 +20,13 @@ StFlow::StFlow(ThermoPhase* ph, size_t nsp, size_t points) :
     Domain1D(nsp+c_offset_Y, points),
     m_nsp(nsp)
 {
-    if (ph->type() == "ideal-gas") {
-        m_thermo = static_cast<IdealGasPhase*>(ph);
-    } else {
-        throw CanteraError("StFlow::StFlow",
-                           "Unsupported phase type: need 'IdealGasPhase'");
-    }
     m_type = cFlowType;
     m_points = points;
 
     if (ph == 0) {
         return; // used to create a dummy object
     }
+    m_thermo = ph;
 
     size_t nsp2 = m_thermo->nSpecies();
     if (nsp2 != m_nsp) {
@@ -60,6 +55,8 @@ StFlow::StFlow(ThermoPhase* ph, size_t nsp, size_t points) :
     m_multidiff.resize(m_nsp*m_nsp*m_points);
     m_flux.resize(m_nsp,m_points);
     m_wdot.resize(m_nsp,m_points, 0.0);
+    m_hk.resize(m_nsp, m_points, 0.0);
+    m_dhk_dz.resize(m_nsp, m_points - 1, 0.0);
     m_ybar.resize(m_nsp);
     m_qdotRadiation.resize(m_points, 0.0);
 
@@ -138,7 +135,7 @@ string StFlow::type() const {
     return "unstrained-flow";
 }
 
-void StFlow::setThermo(IdealGasPhase& th) {
+void StFlow::setThermo(ThermoPhase& th) {
     warn_deprecated("StFlow::setThermo", "To be removed after Cantera 3.0.");
     m_thermo = &th;
 }
@@ -202,6 +199,8 @@ void StFlow::resize(size_t ncomponents, size_t points)
     }
     m_flux.resize(m_nsp,m_points);
     m_wdot.resize(m_nsp,m_points, 0.0);
+    m_hk.resize(m_nsp, m_points, 0.0);
+    m_dhk_dz.resize(m_nsp, m_points - 1, 0.0);
     m_do_energy.resize(m_points,false);
     m_qdotRadiation.resize(m_points, 0.0);
     m_fixedtemp.resize(m_points);
@@ -561,24 +560,20 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
             //      - sum_k(J_k c_p_k / M_k) dT/dz
             //-----------------------------------------------
             if (m_do_energy[j]) {
-                setGas(x,j);
 
-                // heat release term
-                const vector_fp& h_RT = m_thermo->enthalpy_RT_ref();
-                const vector_fp& cp_R = m_thermo->cp_R_ref();
+                setGas(x,j);
+                double dtdzj = dTdz(x,j);
                 double sum = 0.0;
-                double sum2 = 0.0;
+
+                grad_hk(x, j);
                 for (size_t k = 0; k < m_nsp; k++) {
                     double flxk = 0.5*(m_flux(k,j-1) + m_flux(k,j));
-                    sum += wdot(k,j)*h_RT[k];
-                    sum2 += flxk*cp_R[k]/m_wt[k];
+                    sum += wdot(k,j)*m_hk(k,j);
+                    sum += flxk * m_dhk_dz(k,j) / m_wt[k];
                 }
-                sum *= GasConstant * T(x,j);
-                double dtdzj = dTdz(x,j);
-                sum2 *= GasConstant * dtdzj;
 
                 rsd[index(c_offset_T, j)] = - m_cp[j]*rho_u(x,j)*dtdzj
-                                            - divHeatFlux(x,j) - sum - sum2;
+                                            - divHeatFlux(x,j) - sum;
                 rsd[index(c_offset_T, j)] /= (m_rho[j]*m_cp[j]);
                 rsd[index(c_offset_T, j)] -= rdt*(T(x,j) - T_prev(j));
                 rsd[index(c_offset_T, j)] -= (m_qdotRadiation[j] / (m_rho[j] * m_cp[j]));
@@ -794,7 +789,8 @@ AnyMap StFlow::getMeta() const
 
 shared_ptr<SolutionArray> StFlow::asArray(const double* soln) const
 {
-    auto arr = SolutionArray::create(m_solution, nPoints(), getMeta());
+    auto arr = SolutionArray::create(
+        m_solution, static_cast<int>(nPoints()), getMeta());
     arr->addExtra("grid", false); // leading entry
     AnyValue value;
     value = m_z;
@@ -947,6 +943,36 @@ void StFlow::solveEnergyEqn(size_t j)
     }
 }
 
+size_t StFlow::getSolvingStage() const
+{
+    throw NotImplementedError("StFlow::getSolvingStage",
+        "Not used by '{}' objects.", type());
+}
+
+void StFlow::setSolvingStage(const size_t stage)
+{
+    throw NotImplementedError("StFlow::setSolvingStage",
+        "Not used by '{}' objects.", type());
+}
+
+void StFlow::solveElectricField(size_t j)
+{
+    throw NotImplementedError("StFlow::solveElectricField",
+        "Not used by '{}' objects.", type());
+}
+
+void StFlow::fixElectricField(size_t j)
+{
+    throw NotImplementedError("StFlow::fixElectricField",
+        "Not used by '{}' objects.", type());
+}
+
+bool StFlow::doElectricField(size_t j) const
+{
+    throw NotImplementedError("StFlow::doElectricField",
+        "Not used by '{}' objects.", type());
+}
+
 void StFlow::setBoundaryEmissivities(doublereal e_left, doublereal e_right)
 {
     if (e_left < 0 || e_left > 1) {
@@ -1048,6 +1074,18 @@ void StFlow::evalContinuity(size_t j, double* x, double* rsd, int* diag, double 
             rsd[index(c_offset_U,j)] =
                 - (rho_u(x,j+1) - rho_u(x,j))/m_dz[j]
                 - (density(j+1)*V(x,j+1) + density(j)*V(x,j));
+        }
+    }
+}
+
+void StFlow::grad_hk(const double* x, size_t j)
+{
+    for(size_t k = 0; k < m_nsp; k++) {
+        if (u(x, j) > 0.0) {
+            m_dhk_dz(k,j) = (m_hk(k,j) - m_hk(k,j-1)) / m_dz[j - 1];
+        }
+        else {
+            m_dhk_dz(k,j) = (m_hk(k,j+1) - m_hk(k,j)) / m_dz[j];
         }
     }
 }

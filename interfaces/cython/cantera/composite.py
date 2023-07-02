@@ -6,6 +6,7 @@ from ._cantera import *
 import numpy as np
 import csv as _csv
 import importlib.metadata
+import warnings
 
 _h5py = None
 def _import_h5py():
@@ -227,7 +228,7 @@ class Quantity:
     __slots__ = ("state", "_phase", "_id", "mass", "constant", "_weakref_proxy")
 
     def __init__(self, phase, mass=None, moles=None, constant='UV'):
-        self.state = phase.TDY
+        self.state = phase.state
         self._phase = phase
         self._weakref_proxy = _WeakrefProxy()
         phase._references[self._weakref_proxy] = True
@@ -252,7 +253,7 @@ class Quantity:
         Get the underlying `Solution` object, with the state set to match the
         wrapping `Quantity` object.
         """
-        self._phase.TDY = self.state
+        self._phase.state = self.state
         return self._phase
 
     @property
@@ -299,7 +300,21 @@ class Quantity:
         if XY is None:
             XY = self.constant
         self.phase.equilibrate(XY, *args, **kwargs)
-        self.state = self._phase.TDY
+        self.state = self._phase.state
+
+    def set_equivalence_ratio(self, phi, fuel, oxidizer, basis="mole", *, diluent=None,
+                              fraction=None):
+        self._phase.state = self.state
+        self._phase.set_equivalence_ratio(phi, fuel, oxidizer, basis, diluent=diluent,
+                                          fraction=fraction)
+        self.state = self._phase.state
+    set_equivalence_ratio.__doc__ = Solution.set_equivalence_ratio.__doc__
+
+    def set_mixture_fraction(self, mixture_fraction, fuel, oxidizer, basis='mole'):
+        self._phase.state = self.state
+        self._phase.set_mixture_fraction(mixture_fraction, fuel, oxidizer, basis)
+        self.state = self._phase.state
+    set_mixture_fraction.__doc__ = Solution.set_mixture_fraction.__doc__
 
     def __imul__(self, other):
         self.mass *= other
@@ -316,14 +331,31 @@ class Quantity:
             raise ValueError('Cannot add Quantities with different phase '
                 'definitions.')
         assert self.constant == other.constant
-        a1,b1 = getattr(self.phase, self.constant)
-        a2,b2 = getattr(other.phase, self.constant)
+
         m = self.mass + other.mass
-        a = (a1 * self.mass + a2 * other.mass) / m
-        b = (b1 * self.mass + b2 * other.mass) / m
-        self._phase.Y = (self.Y * self.mass + other.Y * other.mass) / m
-        setattr(self._phase, self.constant, (a,b))
-        self.state = self._phase.TDY
+        Y = (self.Y * self.mass + other.Y * other.mass)
+        if self.constant == 'UV':
+            U = self.int_energy + other.int_energy
+            V = self.volume + other.volume
+            if self.basis == 'mass':
+                self._phase.UVY = U / m, V / m, Y
+            else:
+                n = self.moles + other.moles
+                self._phase.UVY = U / n, V / n, Y
+        else:  # self.constant == 'HP'
+            dp_rel = 2 * abs(self.P - other.P) / (self.P + other.P)
+            if dp_rel > 1.0e-7:
+                raise ValueError('Cannot add Quantities at constant pressure when'
+                    f'pressure is not equal ({self.P} != {other.P})')
+
+            H = self.enthalpy + other.enthalpy
+            if self.basis == 'mass':
+                self._phase.HPY = H / m, None, Y
+            else:
+                n = self.moles + other.moles
+                self._phase.HPY = H / n, None, Y
+
+        self.state = self._phase.state
         self.mass = m
         return self
 
@@ -346,7 +378,7 @@ def _prop(attr):
 
     def setter(self, value):
         setattr(self.phase, attr, value)
-        self.state = self._phase.TDY
+        self.state = self._phase.state
 
     return property(getter, setter, doc=getattr(Solution, attr).__doc__)
 
@@ -358,6 +390,8 @@ def _method(orig):
 
 for _attr in dir(Solution):
     if _attr.startswith('_') or _attr in Quantity.__dict__ or _attr == 'state':
+        continue
+    if _attr.startswith('set_unnormalized'):
         continue
     else:
         _orig = getattr(Solution, _attr)
@@ -447,30 +481,30 @@ class SolutionArray(SolutionArrayBase):
         >>> s.reaction_equation(10)
         'CH4 + O <=> CH3 + OH'
 
-    Data represented by a `SolutionArray` can be extracted and saved to a CSV file
-    using the `write_csv` method::
+    Data represented by a `SolutionArray` can be extracted to a CSV file using the
+    `save` method::
 
-        >>> states.write_csv('somefile.csv', cols=('T', 'P', 'X', 'net_rates_of_progress'))
+        >>> states.save('somefile.csv', basis="mole')
 
-    As long as stored columns specify a valid thermodynamic state, the contents of
-    a `SolutionArray` can be restored using the `read_csv` method::
-
-        >>> states = ct.SolutionArray(gas)
-        >>> states.read_csv('somefile.csv')
-
-    As an alternative to comma separated export and import, data extracted from
-    `SolutionArray` objects can also be saved to and restored from YAML and HDF
-    container files using the `save` function::
+    As an alternative to the CSV format, `SolutionArray` objects can also be saved in
+    YAML or HDF formats, where the keyword argument ``id`` allows for saving and
+    accessing of multiple solutions in a single container file::
 
         >>> states.save('somefile.yaml', id='some_key')
 
-    and `restore` methods::
+    YAML and HDF files can be read back into `SolutionArray` objects using the
+    `restore` method::
 
         >>> states = ct.SolutionArray(gas)
         >>> states.restore('somefile.yaml', id='some_key')
 
-    For YAML and HDF export and import, the keyword argument ``id`` allows for saving
-    and accessing of multiple solutions in a single container file.
+    As long as stored columns in a CSV file specify a valid thermodynamic state, the
+    contents of a `SolutionArray` can be restored using the `read_csv` method, which
+    is specific to the Python API::
+
+        >>> states = ct.SolutionArray(gas)
+        >>> states.read_csv('somefile.csv')
+
     Note that `save` and `restore` for HDF requires Cantera to be compiled with HDF
     support, as it depends on external *HighFive* and *HDF5* libraries.
 
@@ -1162,7 +1196,14 @@ class SolutionArray(SolutionArrayBase):
 
         Additional arguments are passed on to `collect_data`. This method works
         only with 1D `SolutionArray` objects.
+
+        .. deprecated:: 3.0
+
+            Method to be removed after Cantera 3.0; superseded by `save`. Note that
+            `write_csv` does not support escaping of commas within string entries.
         """
+        warnings.warn("SolutionArray.write_csv: Superseded by 'save' and will be removed "
+                      "after Cantera 3.0.", DeprecationWarning, stacklevel=2)
         data_dict = self.collect_data(*args, cols=cols, tabular=True, **kwargs)
         data = np.hstack([d[:, np.newaxis] for d in data_dict.values()])
         labels = list(data_dict.keys())
@@ -1181,6 +1222,16 @@ class SolutionArray(SolutionArrayBase):
         The ``normalize`` argument is passed on to `restore_data` to normalize
         mole or mass fractions. By default, ``normalize`` is ``True``.
         """
+        try:
+            # pandas handles escaped entries correctly
+            _import_pandas()
+            df = _pandas.read_csv(filename)
+            self.from_pandas(df)
+            return
+        except ImportError:
+            pass
+
+        # fall back to numpy; this works unless CSV file contains escaped entries
         if np.lib.NumpyVersion(np.__version__) < "1.14.0":
             # bytestring needs to be converted for columns containing strings
             data = np.genfromtxt(filename, delimiter=',', deletechars='',
@@ -1225,57 +1276,81 @@ class SolutionArray(SolutionArrayBase):
         The ``normalize`` argument is passed on to `restore_data` to normalize
         mole or mass fractions. By default, ``normalize`` is ``True``.
         """
-
-        data = df.to_numpy(dtype=float)
-        labels = list(df.columns)
-
         data_dict = {}
-        for i, label in enumerate(labels):
-            data_dict[label] = data[:, i]
+        for label in list(df.columns):
+            data_dict[label] = df[label].values
+            if data_dict[label].dtype.type == np.object_:
+                # convert object columns to string
+                data_dict[label] = data_dict[label].astype('U')
         self.restore_data(data_dict, normalize)
 
-    def save(self, fname, name=None, key=None, description=None,
-             overwrite=False, compression=0):
+    def save(self, fname, name=None, sub=None, description=None, *,
+             overwrite=False, compression=0, basis=None):
         """
-        Save current `SolutionArray` and header to a container file.
+        Save current `SolutionArray` contents to a data file.
+
+        Data can be saved either in CSV format (extension ``*.csv``), YAML container
+        format (extension ``*.yaml``/``*.yml``) or HDF container format (extension
+        ``*.h5``/``*.hdf5``/``*.hdf``). The output format is automatically inferred from
+        the file extension.
+
+        CSV files preserve state data and auxiliary data for a single `SolutionArray` in
+        a comma-separated text format, container files may hold multiple `SolutionArray`
+        entries in an internal hierarchical structure. While YAML is a human-readable
+        text format, HDF is a binary format that supports compression and is recommended
+        for large datasets.
+
+        For container files (YAML and HDF), header information contains automatically
+        generated time stamps, version information and an optional description.
+        Container files also preserve `SolutionArray` metadata (example:
+        `SolutionArray` objects generated by `Sim1D` store simulation settings).
 
         :param fname:
-            Name of output container file (YAML or HDF)
+            Name of output file (CSV, YAML or HDF)
         :param name:
-            Identifier of root location within the container file; the root location
-            contains header data and a subgroup holding the actual `SolutionArray`.
-        :param key:
+            Identifier of storage location within the container file; this node/group
+            contains header information and a subgroup holding actual `SolutionArray`
+            data (YAML/HDF only).
+        :param sub:
             Name identifier for the subgroup holding the `SolutionArray` data and
-            metadata objects. If `None`, the subgroup name default to ``data``.
+            metadata objects. If `None`, the subgroup name defaults to ``data``
+            (YAML/HDF only).
         :param description:
-            Custom comment describing the dataset to be stored.
+            Custom comment describing the dataset to be stored (YAML/HDF only).
         :param overwrite:
-            Force overwrite if name exists; optional (default=`False`)
+            Force overwrite if file/name exists; optional (default=`False`)
         :param compression:
             Compression level (0-9); optional (default=0; HDF only)
+        :param basis:
+            Output mass (``Y``/``mass``) or mole (``Y``/``mass``) fractions;
+            if not specified (`None`), the native basis of the underlying `ThermoPhase`
+            manager is used.
 
         .. versionadded:: 3.0
         """
-        self._cxx_save(fname, name, key, description, overwrite, compression)
+        self._cxx_save(fname, name, sub, description, overwrite, compression, basis)
 
-    def restore(self, fname, name=None, key=None):
+    def restore(self, fname, name=None, sub=None):
         """
-        Retrieve `SolutionArray` and header from a container file.
+        Restore `SolutionArray` data and header information from a container file.
+
+        This method retrieves data from a YAML or HDF files that were previously saved
+        using the `save` method.
 
         :param fname:
             Name of container file (YAML or HDF)
         :param name:
-            Identifier of root location within the container file; the root location
-            contains header data and a subgroup holding the actual `SolutionArray`.
-        :param key:
+            Identifier of location within the container file; this node/group contains
+            header information and a subgroup holding actual `SolutionArray` data
+        :param sub:
             Name identifier for the subgroup holding the `SolutionArray` data and
-            metadata objects.
+            metadata objects. If `None`, the subgroup name defaults to ``data``
         :return:
             Dictionary holding `SolutionArray` meta data.
 
         .. versionadded:: 3.0
         """
-        meta = self._cxx_restore(fname, name, key)
+        meta = self._cxx_restore(fname, name, sub)
 
         # ensure self._indices and self._output_dummy are set
         self.shape = self._api_shape()
@@ -1355,14 +1430,14 @@ class SolutionArray(SolutionArrayBase):
             the call is redirected to `save` in order to prevent the creation of a file
             with legacy HDF format.
         """
-        warnings.warn("Method to be removed after Cantera 3.0; use 'save' instead.\n"
-            "Note that the call is redirected to 'save' in order to prevent the "
-            "creation of a file with legacy HDF format;\nas a consequence, "
-            "some options are no longer supported.", DeprecationWarning)
+        warnings.warn("SolutionArray.write_hdf: To be removed after Cantera 3.0; use "
+            "'save' instead.\n Note that the call is redirected to 'save' in order to "
+            "prevent the creation of a file with legacy HDF format;\nas a consequence, "
+            "some options are no longer supported.", DeprecationWarning, stacklevel=2)
 
         if group is None:
             raise KeyError("Missing required parameter 'group'.")
-        self.save(filename, name=group, key=subgroup)
+        self.save(filename, name=group, sub=subgroup)
         return group
 
     def read_hdf(self, filename, group=None, subgroup=None, force=False, normalize=True):
@@ -1401,8 +1476,8 @@ class SolutionArray(SolutionArrayBase):
         if _h5py is None:
             _import_h5py()
 
-        warnings.warn("Method to be removed after Cantera 3.0; use 'restore' instead.",
-            DeprecationWarning)
+        warnings.warn("SolutionArray.read_hdf: Method to be removed after Cantera 3.0; "
+                      "use 'restore' instead.", DeprecationWarning, stacklevel=2)
 
         with _h5py.File(filename, 'r') as hdf:
 

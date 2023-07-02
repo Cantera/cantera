@@ -29,6 +29,11 @@ void FlowReactor::getStateDae(double* y, double* ydot)
     // set the first component to the initial density
     y[0] = m_rho;
 
+    if (m_u < 0) {
+        throw CanteraError("FlowReactor::getStateDae",
+            "Set mass flow rate before initializing reactor");
+    }
+
     // set the second component to the initial speed
     y[1] = m_u;
 

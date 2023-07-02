@@ -438,8 +438,8 @@ cdef class ReactingSurface1D(Boundary1D):
     def __init__(self, _SolutionBase phase, name=None):
         self._weakref_proxy = _WeakrefProxy()
         if phase.phase_of_matter == "gas":
-            warnings.warn("Starting in Cantera 3.0, parameter 'phase' should "
-                "reference surface instead of gas phase.", DeprecationWarning)
+            warnings.warn("ReactingSurface1D: Starting in Cantera 3.0, parameter 'phase'"
+                " should reference surface instead of gas phase.", DeprecationWarning)
             super().__init__(phase)
             if name is not None:
                 self.name = name
@@ -477,8 +477,9 @@ cdef class ReactingSurface1D(Boundary1D):
             Method to be removed after Cantera 3.0; set `Kinetics` when instantiating
             `ReactingSurface1D` instead.
         """
-        warnings.warn("Method to be removed after Cantera 3.0; set 'Kinetics' when "
-            "instantiating 'ReactingSurface1D' instead.", DeprecationWarning)
+        warnings.warn("ReactingSurface1D.set_kinetics: Method to be removed after "
+            "Cantera 3.0; set 'Kinetics' when instantiating 'ReactingSurface1D' "
+            "instead.", DeprecationWarning)
         if pystr(kin.kinetics.kineticsType()) not in ("surface", "edge"):
             raise TypeError('Kinetics object must be derived from '
                             'InterfaceKinetics.')
@@ -535,12 +536,30 @@ cdef class _FlowBase(Domain1D):
 
             Method to be removed after Cantera 3.0. Replaceable by `transport_model`
         """
-        warnings.warn("Method to be removed after Cantera 3.0; use property "
-                      "'transport_model' instead.", DeprecationWarning)
+        warnings.warn("_FlowBase.set_transport: Method to be removed after Cantera 3.0;"
+                      " use property 'transport_model' instead.", DeprecationWarning)
         self._weakref_proxy = _WeakrefProxy()
         self.gas._references[self._weakref_proxy] = True
         self.gas = phase
         self.flow.setTransport(deref(self.gas.transport))
+
+    def set_default_tolerances(self):
+        """
+        Set all tolerances to their default values
+        """
+        super().set_default_tolerances()
+        if self.transport_model != "ionized-gas":
+            return
+
+        chargetol = {}
+        for S in self.gas.species():
+            if S.composition == {'E': 1.0}:
+                chargetol[S.name] = (1e-5, 1e-20)
+            elif S.charge != 0:
+                chargetol[S.name] = (1e-5, 1e-16)
+        self.set_steady_tolerances(**chargetol)
+        self.set_transient_tolerances(**chargetol)
+        self.have_user_tolerances = False
 
     property soret_enabled:
         """
@@ -605,8 +624,8 @@ cdef class _FlowBase(Domain1D):
         """
         def __get__(self):
             warnings.warn(
-                "Property getter to change after Cantera 3.0.\nFor new behavior, use "
-                "'get_settings3'.", DeprecationWarning)
+                "_FlowBase.settings: Property getter to change after Cantera 3.0.\n"
+                "For new behavior, use 'get_settings3'.", DeprecationWarning)
 
             out = {
                 'Domain1D_type': type(self).__name__,
@@ -635,8 +654,8 @@ cdef class _FlowBase(Domain1D):
 
             return out
         def __set__(self, meta):
-            warnings.warn("Property setter to be removed after Cantera 3.0. "
-                "Replaceable by individual setters.", DeprecationWarning)
+            warnings.warn("_FlowBase.settings: Property setter to be removed after "
+            "Cantera 3.0. Replaceable by individual setters.", DeprecationWarning)
 
             # boundary emissivities
             if 'emissivity_left' in meta or 'emissivity_right' in meta:
@@ -717,6 +736,49 @@ cdef class _FlowBase(Domain1D):
         """
         def __get__(self):
             return pystr(self.flow.flowType())
+
+    @property
+    def type(self):
+        """
+        Return the type of flow domain being represented.
+
+        Examples:
+        - ``free-flow``/``free-ion-flow``,
+        - ``axisymmetric-flow``/``axisymmetric-ion-flow``,
+        - ``unstrained-flow``/``unstrained-ion-flow``
+        """
+        return pystr(self.flow.type())
+
+    @property
+    def solving_stage(self):
+        """
+        Solving stage mode for handling ionized species (only relevant if transport
+        model is ``ionized-gas``):
+
+        - ``stage == 1``: the fluxes of charged species are set to zero
+        - ``stage == 2``: the electric field equation is solved, and the drift flux for
+          ionized species is evaluated
+        """
+        return self.flow.getSolvingStage()
+
+    @solving_stage.setter
+    def solving_stage(self, stage):
+        self.flow.setSolvingStage(stage)
+
+    @property
+    def electric_field_enabled(self):
+        """
+        Determines whether or not to solve the electric field equation (only relevant
+        if transport model is ``ionized-gas``).
+        """
+        return self.flow.doElectricField(0)
+
+    @electric_field_enabled.setter
+    def electric_field_enabled(self, enable):
+        if enable:
+            self.flow.solveElectricField()
+        else:
+            self.flow.fixElectricField()
 
 
 cdef class FreeFlow(_FlowBase):
@@ -814,8 +876,8 @@ cdef class IdealGasFlow(_FlowBase):
     _domain_type = "gas-flow"
 
     def __init__(self, *args, **kwargs):
-        warnings.warn("Class to be removed after Cantera 3.0; use 'FreeFlow', "
-                      "'AxisymmetricFlow' or 'UnstrainedFlow' instead.",
+        warnings.warn("Class 'IdealGasFlow' to be removed after Cantera 3.0; use "
+                      "'FreeFlow', 'AxisymmetricFlow' or 'UnstrainedFlow' instead.",
                       DeprecationWarning)
         super().__init__(*args, **kwargs)
 
@@ -825,8 +887,19 @@ cdef class IonFlow(_FlowBase):
     An ion flow domain.
 
     In an ion flow domain, the electric drift is added to the diffusion flux
+
+    .. deprecated:: 3.0
+
+        Class to be removed after Cantera 3.0; replaced by `FreeFlow`,
+        `AxisymmetricFlow` and `UnstrainedFlow`.
     """
     _domain_type = "ion-flow"
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn("Class 'IonFlow' to be removed after Cantera 3.0; use 'FreeFlow',"
+                      " 'AxisymmetricFlow' or 'UnstrainedFlow' instead.",
+                      DeprecationWarning)
+        super().__init__(*args, **kwargs)
 
     def set_solving_stage(self, stage):
         """
@@ -836,30 +909,9 @@ cdef class IonFlow(_FlowBase):
         - ``stage == 2``: the electric field equation is solved, and the drift flux for
           ionized species is evaluated
         """
-        (<CxxIonFlow*>self.flow).setSolvingStage(stage)
-
-    property electric_field_enabled:
-        """ Determines whether or not to solve the energy equation."""
-        def __get__(self):
-            return (<CxxIonFlow*>self.flow).doElectricField(0)
-        def __set__(self, enable):
-            if enable:
-                (<CxxIonFlow*>self.flow).solveElectricField()
-            else:
-                (<CxxIonFlow*>self.flow).fixElectricField()
-
-    def set_default_tolerances(self):
-        """ Set all tolerances to their default values """
-        super().set_default_tolerances()
-        chargetol = {}
-        for S in self.gas.species():
-            if S.composition == {'E': 1.0}:
-                chargetol[S.name] = (1e-5, 1e-20)
-            elif S.charge != 0:
-                chargetol[S.name] = (1e-5, 1e-16)
-        self.set_steady_tolerances(**chargetol)
-        self.set_transient_tolerances(**chargetol)
-        self.have_user_tolerances = False
+        warnings.warn("IonFlow.set_solving_stage: Method to be removed after Cantera "
+                      "3.0; use 'solving_stage' property instead.", DeprecationWarning)
+        self.solving_stage = stage
 
 
 cdef class Sim1D:
@@ -1122,7 +1174,8 @@ cdef class Sim1D:
             interface to the C++ core, except for `FlameBase.from_solution_array`,
             which itself is deprecated due to a pending removal of ``h5py`` support.
         """
-        warnings.warn("Method to be removed after Cantera 3.0.", DeprecationWarning)
+        warnings.warn("Sim1D.restore_data: Method to be removed after Cantera 3.0.",
+                      DeprecationWarning)
         idom = self.domain_index(domain)
         dom = self.domains[idom]
         T, P, Y = states
@@ -1537,20 +1590,39 @@ cdef class Sim1D:
             return self.sim.fixedTemperatureLocation()
 
     def save(self, filename='soln.yaml', name='solution', description=None,
-             loglevel=None, overwrite=False, compression=0):
+             loglevel=None, *, overwrite=False, compression=0, basis=None):
         """
-        Save the solution in YAML or HDF format.
+        Save current simulation data to a data file (CSV, YAML or HDF).
+
+        In order to save the content of the current object, individual domains are
+        converted to `SolutionArray` objects and saved using the `~SolutionArray.save`
+        method. For HDF and YAML output, all domains are written to a single container
+        file with shared header information. Simulation settings of individual domains
+        are preserved as meta data of the corresponding `SolutionArray` objects.
+        For CSV files, only state and auxiliary data of the main 1D domain are saved.
+
+        The complete state of the current object can be restored from HDF and YAML
+        container files using the `restore` method, while individual domains can be
+        loaded using `SolutionArray.restore` for further analysis. While CSV files do
+        not contain complete information, they can be used for setting initial states
+        of individual simulation objects (example: `~FreeFlame.set_initial_guess`).
 
         :param filename:
-            solution file
+            Name of output file (CSV, YAML or HDF)
         :param name:
-            solution name within the file
+            Identifier of storage location within the container file; this node/group
+            contains header information and multiple subgroups holding domain-specific
+            `SolutionArray` data (YAML/HDF only).
         :param description:
-            custom description text
+            Custom comment describing the dataset to be stored (YAML/HDF only).
         :param overwrite:
-            Force overwrite if name exists; optional (default=`False`)
+            Force overwrite if file and/or data entry exists; optional (default=`False`)
         :param compression:
-            compression level 0..9; optional (HDF only)
+            Compression level (0-9); optional (default=0; HDF only)
+        :param basis:
+            Output mass (``Y``/``mass``) or mole (``Y``/``mass``) fractions;
+            if not specified (`None`), the native basis of the underlying `ThermoPhase`
+            manager is used.
 
         >>> s.save(filename='save.yaml', name='energy_off',
         ...        description='solution with energy eqn. disabled')
@@ -1559,23 +1631,27 @@ cdef class Sim1D:
             Argument loglevel is no longer supported
         """
         if loglevel is not None:
-            warnings.warn("Argument 'loglevel' is deprecated and will be ignored.",
-                DeprecationWarning)
+            warnings.warn("Sim1D.save: Argument 'loglevel' is deprecated and will be "
+                "ignored.", DeprecationWarning)
         self.sim.save(stringify(str(filename)), stringify(name),
-                      stringify(description), overwrite, compression)
+                      stringify(description), overwrite, compression, stringify(basis))
 
     def restore(self, filename='soln.yaml', name='solution', loglevel=None):
-        """Set the solution vector to a previously-saved solution.
+        """Retrieve data and settings from a previously saved simulation.
+
+        This method restores a simulation object from YAML or HDF data previously saved
+        using the `save` method.
 
         :param filename:
-            solution file
+            Name of container file (YAML or HDF)
         :param name:
-            solution name within the file
+            Identifier of location within the container file; this node/group contains
+            header information and subgroups with domain-specific `SolutionArray` data
         :param loglevel:
             Amount of logging information to display while restoring,
             from 0 (disabled) to 2 (most verbose).
         :return:
-            dictionary containing meta data
+            Dictionary containing header information
 
         >>> s.restore(filename='save.yaml', name='energy_off')
 
@@ -1583,8 +1659,8 @@ cdef class Sim1D:
             Implemented return value for meta data; loglevel is no longer supported
         """
         if loglevel is not None:
-            warnings.warn("Argument 'loglevel' is deprecated and will be ignored.",
-                DeprecationWarning)
+            warnings.warn("Sim1D.restore: Argument 'loglevel' is deprecated and will be"
+                 " ignored.", DeprecationWarning)
         cdef CxxAnyMap header
         header = self.sim.restore(stringify(str(filename)), stringify(name))
         self._initialized = True

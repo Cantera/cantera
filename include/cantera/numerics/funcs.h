@@ -32,7 +32,7 @@ doublereal linearInterp(doublereal x, const vector_fp& xpts,
 
 //! Numerical integration of a function using the trapezoidal rule.
 /*!
- * Vector x contanins a monotonic sequence of grid points, and
+ * Vector x contains a monotonic sequence of grid points, and
  * Vector f contains function values defined at these points.
  * The size of x and f must be the same.
  *
@@ -46,7 +46,7 @@ double trapezoidal(const Eigen::ArrayXd& f, const Eigen::ArrayXd& x);
 //! For even number, Simpson's rule is used for the first
 //! N-2 intervals with a trapezoidal rule on the last interval.
 /*!
- * Vector x contanins a monotonic sequence of grid points, and
+ * Vector x contains a monotonic sequence of grid points, and
  * Vector f contains function values defined at these points.
  * The size of x and f must be the same.
  *
@@ -57,7 +57,7 @@ double simpson(const Eigen::ArrayXd& f, const Eigen::ArrayXd& x);
 
 //! Numerical integration of a function.
 /*!
- * Vector x contanins a monotonic sequence of grid points, and
+ * Vector x contains a monotonic sequence of grid points, and
  * Vector f contains function values defined at these points.
  * The size of x and f must be the same.
  *

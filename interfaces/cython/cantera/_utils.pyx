@@ -56,14 +56,14 @@ __sundials_version__ = '.'.join(str(get_sundials_version()))
 __version__ = pystr(CxxVersion())
 
 if __version__ != pystr(get_cantera_version_py()):
-    raise ImportError("Mismatch betweeen Cantera Python module version "
+    raise ImportError("Mismatch between Cantera Python module version "
         f"({pystr(get_cantera_version_py())}) and Cantera shared library "
         f"version ({__version__})")
 
 __git_commit__ = pystr(CxxGitCommit())
 
 if __git_commit__ != pystr(get_cantera_git_commit_py()):
-    raise ImportError("Mismatch betweeen Cantera Python module Git commit "
+    raise ImportError("Mismatch between Cantera Python module Git commit "
         f"({pystr(get_cantera_git_commit_py())}) and Cantera shared library "
         f"git commit ({__git_commit__})")
 

@@ -7,6 +7,7 @@
 #include "cantera/oneD/Boundary1D.h"
 #include "cantera/oneD/StFlow.h"
 #include "cantera/oneD/IonFlow.h"
+#include "cantera/transport/Transport.h"
 
 namespace Cantera
 {
@@ -44,17 +45,32 @@ DomainFactory::DomainFactory()
         return new IonFlow(solution, id);
     });
     reg("free-flow", [](shared_ptr<Solution> solution, const string& id) {
-        StFlow* ret = new StFlow(solution, id);
+        StFlow* ret;
+        if (solution->transport()->transportModel() == "ionized-gas") {
+            ret = new IonFlow(solution, id);
+        } else {
+            ret = new StFlow(solution, id);
+        }
         ret->setFreeFlow();
         return ret;
     });
     reg("axisymmetric-flow", [](shared_ptr<Solution> solution, const string& id) {
-        StFlow* ret = new StFlow(solution, id);
+        StFlow* ret;
+        if (solution->transport()->transportModel() == "ionized-gas") {
+            ret = new IonFlow(solution, id);
+        } else {
+            ret = new StFlow(solution, id);
+        }
         ret->setAxisymmetricFlow();
         return ret;
     });
     reg("unstrained-flow", [](shared_ptr<Solution> solution, const string& id) {
-        StFlow* ret = new StFlow(solution, id);
+        StFlow* ret;
+        if (solution->transport()->transportModel() == "ionized-gas") {
+            ret = new IonFlow(solution, id);
+        } else {
+            ret = new StFlow(solution, id);
+        }
         ret->setUnstrainedFlow();
         return ret;
     });

@@ -94,7 +94,7 @@ namespace Cantera
  *
  * where k is a species in the ith sublattice.
  *
- * The mole fraction vector is redefined witin the the LatticeSolidPhase object.
+ * The mole fraction vector is redefined within the the LatticeSolidPhase object.
  * Each of the mole fractions sum to one on each of the sublattices.  The
  * routine getMoleFraction() and setMoleFraction() have been redefined to use
  * this convention.
@@ -456,7 +456,7 @@ protected:
     //! Current value of the molar density
     double m_molar_density = 0.0;
 
-    //! Vector of sublattic ThermoPhase objects
+    //! Vector of sublattice ThermoPhase objects
     std::vector<shared_ptr<ThermoPhase>> m_lattice;
 
     //! Vector of mole fractions

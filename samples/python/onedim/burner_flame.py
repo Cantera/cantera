@@ -40,4 +40,4 @@ f.solve(loglevel)  # don't use 'auto' on subsequent solves
 f.show()
 f.save(output, name="multi", description="solution with multicomponent transport")
 
-f.write_csv('burner_flame.csv', quiet=False)
+f.save('burner_flame.csv.csv', basis="mole")

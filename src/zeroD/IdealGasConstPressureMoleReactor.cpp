@@ -138,7 +138,8 @@ Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian()
         std::vector<Eigen::Triplet<double>> species_trips(dnk_dnj.nonZeros());
         for (int k = 0; k < dnk_dnj.outerSize(); k++) {
             for (Eigen::SparseMatrix<double>::InnerIterator it(dnk_dnj, k); it; ++it) {
-                species_trips.emplace_back(it.row(), it.col(), it.value());
+                species_trips.emplace_back(static_cast<int>(it.row()),
+                                           static_cast<int>(it.col()), it.value());
             }
         }
         addSurfaceJacobian(species_trips);
@@ -168,7 +169,7 @@ Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian()
     for (int k = 0; k < dnk_dnj.outerSize(); k++) {
         for (Eigen::SparseMatrix<double>::InnerIterator it(dnk_dnj, k); it; ++it) {
             // gas phase species need the addition of  V / N * omega_dot
-            if (it.row() < m_nsp) {
+            if (static_cast<size_t>(it.row()) < m_nsp) {
                 it.valueRef() = it.value() + netProductionRates[it.row()] * molarVol;
             }
             m_jac_trips.emplace_back(static_cast<int>(it.row() + m_sidx),

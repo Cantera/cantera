@@ -153,7 +153,7 @@ public:
 
     virtual double Pp()=0;
 
-    //! Enthaply of a single-phase state
+    //! Enthalpy of a single-phase state
     double hp() {
         return up() + Pp()/Rho;
     }

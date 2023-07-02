@@ -339,6 +339,7 @@ class TestBlowersMaselRate(ReactionRateTests, utilities.CanteraTest):
         self.assertTrue(rate.allow_negative_pre_exponential_factor)
 
     @pytest.mark.xfail(reason="Change of reaction enthalpy is not considered")
+    @pytest.mark.filterwarnings("ignore:.*does not consider.*(enthalpy|electron).*:UserWarning")
     def test_derivative_ddT(self):
         super().test_derivative_ddT()
 
@@ -375,6 +376,7 @@ class TestTwoTempPlasmaRate(ReactionRateTests, utilities.CanteraTest):
         rate.allow_negative_pre_exponential_factor = True
         self.assertTrue(rate.allow_negative_pre_exponential_factor)
 
+    @pytest.mark.filterwarnings("ignore:.*does not consider.*(enthalpy|electron).*:UserWarning")
     def test_derivative_ddT(self):
         # check temperature derivative against numerical derivative
         deltaT = self.soln.derivative_settings["rtol-delta"]

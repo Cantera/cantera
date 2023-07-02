@@ -15,21 +15,25 @@ namespace Cantera
 class Solution;
 class ThermoPhase;
 
+//! A container class holding arrays of state information.
 /*!
- *  A container class providing a convenient interface for representing many
- *  thermodynamic states using the same Solution object. C++ SolutionArray objects are
- *  one-dimensional by design; while shape information for multi-dimensional arrays is
- *  stored, reshaping operations need to be implemented in high-level API's.
+ * SolutionArray objects provide a convenient interface for representing many
+ * thermodynamic states using the same Solution object. C++ SolutionArray objects are
+ * one-dimensional by design; while shape information for multi-dimensional arrays is
+ * stored, reshaping operations need to be implemented in high-level API's.
  *
- *  @since  New in Cantera 3.0.
- *  @warning This class is an experimental part of the %Cantera API and may be
- *      changed or removed without notice.
+ * The SolutionArray class implements the main interface for saving and restoring of
+ * Cantera simulation data. SolutionArray objects can be serialized to and from YAML and
+ * HDF container files using the save() and restore() methods. In addition, there is
+ * limited support for CSV files.
+ * @since  New in Cantera 3.0.
+ * @ingroup compobj
  */
 class SolutionArray
 {
 private:
     SolutionArray(const shared_ptr<Solution>& sol,
-                  size_t size,
+                  int size,
                   const AnyMap& meta);
 
     SolutionArray(const SolutionArray& arr, const vector<int>& indices);
@@ -45,7 +49,7 @@ public:
      *  @param meta  AnyMap holding SolutionArray meta data
      */
     static shared_ptr<SolutionArray> create(const shared_ptr<Solution>& sol,
-                                            size_t size=0,
+                                            int size=0,
                                             const AnyMap& meta={})
     {
         return shared_ptr<SolutionArray>(new SolutionArray(sol, size, meta));
@@ -68,11 +72,11 @@ public:
 
     //! Size of SolutionArray (number of entries)
     int size() const {
-        return m_size;
+        return static_cast<int>(m_size);
     }
 
     //! Resize SolutionArray objects with a single dimension (default).
-    void resize(size_t size);
+    void resize(int size);
 
     //! SolutionArray shape information used by high-level API's.
     vector<long int> apiShape() const {
@@ -84,8 +88,8 @@ public:
     void setApiShape(const vector<long int>& shape);
 
     //! Number of SolutionArray dimensions used by high-level API's.
-    size_t apiNdim() const {
-        return m_apiShape.size();
+    int apiNdim() const {
+        return static_cast<int>(m_apiShape.size());
     }
 
     /*!
@@ -144,18 +148,18 @@ public:
     /*!
      *  Update the buffered location used to access SolutionArray entries.
      */
-    void setLoc(size_t loc, bool restore=true);
+    void setLoc(int loc, bool restore=true);
 
     /*!
      *  Update state at given location to state of associated Solution object.
      */
-    void updateState(size_t loc);
+    void updateState(int loc);
 
     //! Retrieve the state vector for a given location.
-    vector<double> getState(size_t loc);
+    vector<double> getState(int loc);
 
     //! Set the state vector for a given location.
-    void setState(size_t loc, const vector<double>& state);
+    void setState(int loc, const vector<double>& state);
 
     //! Normalize mass/mole fractions
     void normalize();
@@ -180,114 +184,156 @@ public:
     vector<string> listExtra(bool all=true) const;
 
     //! Retrieve auxiliary data for a given location.
-    AnyMap getAuxiliary(size_t loc);
+    AnyMap getAuxiliary(int loc);
 
     //! Set auxiliary data for a given location.
-    void setAuxiliary(size_t loc, const AnyMap& data);
+    void setAuxiliary(int loc, const AnyMap& data);
 
     //! Append location entry at end of SolutionArray.
     void append(const vector<double>& state, const AnyMap& extra);
 
     /*!
-     *  Write header data to container file.
+     *  Write header data to a HDF container file.
      *
      *  @param fname  Name of HDF container file
-     *  @param id  Identifier of root location within the container file
-     *  @param desc  Description
-     *  @param overwrite  Force overwrite if id exists; optional (default=false)
+     *  @param name  Identifier of group holding header information
+     *  @param desc  Custom comment describing dataset
+     *  @param overwrite  Force overwrite if file/group exists; optional (default=false)
      */
-    static void writeHeader(const string& fname, const string& id, const string& desc,
+    static void writeHeader(const string& fname, const string& name, const string& desc,
                             bool overwrite=false);
 
     /*!
-     *  Write header data to AnyMap.
+     *  Write header data to AnyMap; used by YAML serialization.
      *
      *  @param root  Root node of AnyMap structure
-     *  @param id  Identifier of root location within the container file
-     *  @param desc  Description
-     *  @param overwrite  Force overwrite if id exists; optional (default=false)
+     *  @param name  Identifier of node holding header information
+     *  @param desc  Custom comment describing dataset
+     *  @param overwrite  Force overwrite if node exists; optional (default=false)
      */
-    static void writeHeader(AnyMap& root, const string& id, const string& desc,
+    static void writeHeader(AnyMap& root, const string& name, const string& desc,
                             bool overwrite=false);
 
     /*!
-     *  Write SolutionArray data to container file.
+     *  Write SolutionArray data to a CSV file.
+     *
+     *  @param fname  Name of CSV file
+     *  @param overwrite  Force overwrite if file exists; optional (default=false)
+     *  @param basis  Output mass ("Y"/"mass") or mole ("X"/"mole") fractions;
+     *      if omitted (default=""), the native basis of the underlying ThermoPhase
+     *      manager is used - @see nativeState
+     */
+    void writeEntry(const string& fname, bool overwrite=false, const string& basis="");
+
+    /*!
+     *  Write SolutionArray data to a HDF container file.
      *
      *  @param fname  Name of HDF container file
-     *  @param id  Identifier of root location within the container file
-     *  @param sub  Name identifier for the subgroup holding actual data
-     *  @param overwrite  Force overwrite if sub exists; optional (default=false)
+     *  @param name  Identifier of group holding header information
+     *  @param sub  Name identifier of subgroup holding SolutionArray data
+     *  @param overwrite  Force overwrite if subgroup exists; optional (default=false)
      *  @param compression  Compression level; optional (default=0; HDF only)
      */
-    void writeEntry(const string& fname, const string& id, const string& sub,
+    void writeEntry(const string& fname, const string& name, const string& sub,
                     bool overwrite=false, int compression=0);
 
     /*!
-     *  Write SolutionArray data to AnyMap.
+     *  Write SolutionArray data to AnyMap; used by YAML serialization.
      *
      *  @param root  Root node of AnyMap structure
-     *  @param id  Identifier of root location within the container file
-     *  @param sub  Name identifier for the subgroup holding actual data
-     *  @param overwrite  Force overwrite if sub exists; optional (default=false)
+     *  @param name  Identifier of node holding header information and subgroup
+     *  @param sub  Name identifier of subgroup holding SolutionArray data
+     *  @param overwrite  Force overwrite if subgroup exists; optional (default=false)
      */
-    void writeEntry(AnyMap& root, const string& id, const string& sub,
+    void writeEntry(AnyMap& root, const string& name, const string& sub,
                     bool overwrite=false);
 
     /*!
-     *  Save current SolutionArray and header to a container file.
+     *  Save current SolutionArray contents to a data file.
      *
-     *  @param fname  Name of output container file (YAML or HDF)
-     *  @param id  Identifier of root location within the container file
-     *  @param sub  Name identifier for the subgroup holding actual data
-     *  @param desc  Custom comment describing the dataset to be stored
-     *  @param overwrite  Force overwrite if sub exists; optional (default=false)
-     *  @param compression  Compression level; optional (default=0; HDF only)
+     *  Data can be saved either in CSV format (extension '*.csv'), YAML container
+     *  format (extension '*.yaml'/'*.yml') or HDF container format (extension
+     *  '*.h5'/'*.hdf5'/'*.hdf'). The output format is automatically inferred from the
+     *  file extension.
+     *
+     *  CSV files preserve state data and auxiliary data for a single SolutionArray in a
+     *  comma-separated text format, container files may hold multiple SolutionArray
+     *  entries in an internal hierarchical structure. While YAML is a human-readable
+     *  text format, HDF is a binary format that supports compression and is recommended
+     *  for large datasets.
+     *
+     *  For container files (YAML and HDF), header information contains automatically
+     *  generated time stamps, version information and an optional description.
+     *  Container files also preserve SolutionArray metadata (example: SolutionArray
+     *  objects generated by Sim1D hold simulation settings).
+     *
+     *  @param fname  Name of output file (CSV, YAML or HDF)
+     *  @param name  Identifier of location within the container file; this node/group
+     *      contains header information and a subgroup holding actual SolutionArray data
+     *      (YAML/HDF only)
+     *  @param sub  Name identifier for the subgroup holding the SolutionArray data and
+     *      metadata objects. If omitted (""), the subgroup name defaults to "data"
+     *      (YAML/HDF only)
+     *  @param desc  Custom comment describing dataset to be stored (YAML/HDF only)
+     *  @param overwrite  Force overwrite if file and/or data entry exists; optional
+     *      (default=false)
+     *  @param compression  Compression level (0-9); (default=0; HDF only)
+     *  @param basis  Output mass ("Y"/"mass") or mole ("X"/"mole") fractions;
+     *      if not specified (default=""), the native basis of the underlying
+     *      ThermoPhase manager is used - @see nativeState (CSV only)
      */
-    void save(const string& fname, const string& id, const string& sub,
-              const string& desc, bool overwrite=false, int compression=0);
+    void save(const string& fname, const string& name="", const string& sub="",
+              const string& desc="", bool overwrite=false, int compression=0,
+              const string& basis="");
 
     /*!
-     *  Read header data from container file.
+     *  Read header information from a HDF container file.
      *
      *  @param fname  Name of HDF container file
-     *  @param id  Identifier of root location within the container file
+     *  @param name  Identifier of group holding header information
      */
-    static AnyMap readHeader(const string& fname, const string& id);
+    static AnyMap readHeader(const string& fname, const string& name);
 
     /*!
-     *  Read header data from AnyMap.
+     *  Read header information from AnyMap; used by YAML serialization.
      *
      *  @param root  Root node of AnyMap structure
-     *  @param id  Identifier of root location within the container file
+     *  @param name  Identifier of node holding header information
      */
-    static AnyMap readHeader(const AnyMap& root, const string& id);
+    static AnyMap readHeader(const AnyMap& root, const string& name);
 
     /*!
-     *  Restore SolutionArray entry from a container file.
+     *  Restore SolutionArray data from a HDF container file.
      *
      *  @param fname  Name of HDF container file
-     *  @param id  Identifier of root location within the container file
-     *  @param sub  Name of the subgroup holding actual data
+     *  @param name  Identifier of group holding header information
+     *  @param sub  Name identifier of subgroup holding SolutionArray data
      */
-    void readEntry(const string& fname, const string& id, const string& sub);
+    void readEntry(const string& fname, const string& name, const string& sub);
 
     /*!
-     *  Restore SolutionArray entry from AnyMap.
+     *  Restore SolutionArray data from AnyMap; used by YAML serialization.
      *
      *  @param root  Root node of AnyMap structure
-     *  @param id  Identifier of root location within the container file
-     *  @param sub  Name of the subgroup holding actual data
+     *  @param name  Identifier of node holding header information
+     *  @param sub  Name identifier of subgroup holding SolutionArray data
      */
-    void readEntry(const AnyMap& root, const string& id, const string& sub);
+    void readEntry(const AnyMap& root, const string& name, const string& sub);
 
     /*!
-     *  Restore SolutionArray entry and header from a container file.
+     *  Restore SolutionArray data and header information from a container file.
+     *
+     *  This method retrieves data from a YAML or HDF files that were previously saved
+     *  using the @see save method.
      *
      *  @param fname  Name of container file (YAML or HDF)
-     *  @param id  Identifier of SolutionArray within the container file
-     *  @param sub  Name of the subgroup holding actual data
+     *  @param name  Identifier of location within the container file; this node/group
+     *      contains header information and a subgroup holding actual SolutionArray data
+     *  @param sub  Name identifier for the subgroup holding the SolutionArray data and
+     *      metadata objects. If omitted (""), the subgroup name defaults to "data"
+     *  @return  AnyMap containing header information
      */
-    AnyMap restore(const string& fname, const string& id, const string& sub);
+    AnyMap restore(const string& fname, const string& name, const string& sub="");
 
 protected:
     //! Service function used to resize SolutionArray

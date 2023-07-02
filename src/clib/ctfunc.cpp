@@ -7,7 +7,7 @@
 
 #include "cantera/clib/ctfunc.h"
 
-#include "cantera/numerics/Func1.h"
+#include "cantera/numerics/Func1Factory.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/stringUtils.h"
@@ -15,10 +15,8 @@
 
 using namespace Cantera;
 
-typedef Func1 func_t;
-
-typedef Cabinet<Func1> FuncCabinet;
-// Assign storage to the Cabinet<Func1> static member
+typedef SharedCabinet<Func1> FuncCabinet;
+// Assign storage to the SharedCabinet<Func1> static member
 template<> FuncCabinet* FuncCabinet::s_storage = 0;
 
 extern "C" {
@@ -28,73 +26,89 @@ extern "C" {
     int func_new(int type, size_t n, size_t lenp, const double* params)
     {
         try {
-            func_t* r=0;
-            size_t m = lenp;
+            shared_ptr<Func1> r;
+            int m = static_cast<int>(lenp);
+            int nn = static_cast<int>(n);
             if (type == SinFuncType) {
-                r = new Sin1(params[0]);
+                r = newFunc1("sin", params[0]);
             } else if (type == CosFuncType) {
-                r = new Cos1(params[0]);
+                r = newFunc1("cos", params[0]);
             } else if (type == ExpFuncType) {
-                r = new Exp1(params[0]);
+                r = newFunc1("exp", params[0]);
             } else if (type == PowFuncType) {
-                if (lenp < 1) {
-                    throw CanteraError("func_new",
-                                       "exponent for pow must be supplied");
-                }
-                r = new Pow1(params[0]);
+                r = newFunc1("pow", params[0]);
             } else if (type == ConstFuncType) {
-                r = new Const1(params[0]);
+                r = newFunc1("constant", params[0]);
             } else if (type == FourierFuncType) {
-                if (lenp < 2*n + 2) {
-                    throw CanteraError("func_new",
-                                       "not enough Fourier coefficients");
-                }
-                r = new Fourier1(n, params[n+1], params[0], params + 1,
-                                 params + n + 2);
+                vector<double> par(params, params + lenp);
+                r = newFunc1("Fourier", par);
             } else if (type == GaussianFuncType) {
-                if (lenp < 3) {
-                    throw CanteraError("func_new",
-                                       "not enough Gaussian coefficients");
-                }
-                r = new Gaussian(params[0], params[1], params[2]);
+                vector<double> par(params, params + lenp);
+                r = newFunc1("Gaussian", par);
             } else if (type == PolyFuncType) {
-                if (lenp < n + 1) {
-                    throw CanteraError("func_new",
-                                       "not enough polynomial coefficients");
-                }
-                r = new Poly1(n, params);
+                vector<double> par(params, params + lenp);
+                r = newFunc1("polynomial", par);
             } else if (type == ArrheniusFuncType) {
-                if (lenp < 3*n) {
-                    throw CanteraError("func_new",
-                                       "not enough Arrhenius coefficients");
-                }
-                r = new Arrhenius1(n, params);
+                vector<double> par(params, params + lenp);
+                r = newFunc1("Arrhenius", par);
             } else if (type == PeriodicFuncType) {
-                r = new Periodic1(FuncCabinet::item(n), params[0]);
+                r = newFunc1("periodic", FuncCabinet::at(nn), params[0]);
             } else if (type == SumFuncType) {
-                r = &newSumFunction(FuncCabinet::item(n).duplicate(),
-                                    FuncCabinet::item(m).duplicate());
+                r = newFunc1("sum", FuncCabinet::at(nn), FuncCabinet::at(m));
             } else if (type == DiffFuncType) {
-                r = &newDiffFunction(FuncCabinet::item(n).duplicate(),
-                                     FuncCabinet::item(m).duplicate());
+                r = newFunc1("diff", FuncCabinet::at(nn), FuncCabinet::at(m));
             } else if (type == ProdFuncType) {
-                r = &newProdFunction(FuncCabinet::item(n).duplicate(),
-                                     FuncCabinet::item(m).duplicate());
+                r = newFunc1("product", FuncCabinet::at(nn), FuncCabinet::at(m));
             } else if (type == RatioFuncType) {
-                r = &newRatioFunction(FuncCabinet::item(n).duplicate(),
-                                      FuncCabinet::item(m).duplicate());
+                r = newFunc1("ratio", FuncCabinet::at(nn), FuncCabinet::at(m));
             } else if (type == CompositeFuncType) {
-                r = &newCompositeFunction(FuncCabinet::item(n).duplicate(),
-                                          FuncCabinet::item(m).duplicate());
+                r = newFunc1("composite", FuncCabinet::at(nn), FuncCabinet::at(m));
             } else if (type == TimesConstantFuncType) {
-                r = &newTimesConstFunction(FuncCabinet::item(n).duplicate(), params[0]);
+                r = newFunc1("times-constant", FuncCabinet::at(nn), params[0]);
             } else if (type == PlusConstantFuncType) {
-                r = &newPlusConstFunction(FuncCabinet::item(n).duplicate(), params[0]);
+                r = newFunc1("plus-constant", FuncCabinet::at(nn), params[0]);
             } else {
-                throw CanteraError("func_new","unknown function type");
-                r = new Func1();
+                throw CanteraError("func_new", "unknown function type");
             }
             return FuncCabinet::add(r);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int func_new_basic(const char* type, double c)
+    {
+        try {
+            return FuncCabinet::add(newFunc1(type, c));
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int func_new_advanced(const char* type, size_t lenp, const double* params)
+    {
+        try {
+            vector<double> par(params, params + lenp);
+            return FuncCabinet::add(newFunc1(type, par));
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int func_new_compound(const char* type, int a, int b)
+    {
+        try {
+            return FuncCabinet::add(
+                newFunc1(type, FuncCabinet::at(a), FuncCabinet::at(b)));
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int func_new_modified(const char* type, int a, double c)
+    {
+        try {
+            return FuncCabinet::add(newFunc1(type, FuncCabinet::at(a), c));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -120,6 +134,15 @@ extern "C" {
         }
     }
 
+    int func_type(int i, size_t lennm, char* nm)
+    {
+        try {
+            return static_cast<int>(copyString(FuncCabinet::item(i).type(), nm, lennm));
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     double func_value(int i, double t)
     {
         try {
@@ -132,9 +155,7 @@ extern "C" {
     int func_derivative(int i)
     {
         try {
-            func_t* r = 0;
-            r = &FuncCabinet::item(i).derivative();
-            return FuncCabinet::add(r);
+            return FuncCabinet::add(FuncCabinet::at(i)->derivative3());
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -143,9 +164,7 @@ extern "C" {
     int func_duplicate(int i)
     {
         try {
-            func_t* r = 0;
-            r = &FuncCabinet::item(i).duplicate();
-            return FuncCabinet::add(r);
+            return FuncCabinet::add(FuncCabinet::at(i));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }

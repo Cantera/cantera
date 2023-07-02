@@ -67,11 +67,11 @@ cdef extern from "cantera/base/SolutionArray.h" namespace "Cantera":
     cdef cppclass CxxSolutionArray "Cantera::SolutionArray":
         shared_ptr[CxxSolutionArray] share(vector[int]&) except +translate_exception
         void reset() except +translate_exception
-        size_t size()
-        void resize(size_t) except +translate_exception
+        int size()
+        void resize(int) except +translate_exception
         vector[long int] apiShape() except +translate_exception
         void setApiShape(vector[long int]&) except +translate_exception
-        size_t apiNdim()
+        int apiNdim()
         string info(vector[string]&, int, int) except +translate_exception
         CxxAnyMap meta()
         void setMeta(CxxAnyMap&)
@@ -79,21 +79,21 @@ cdef extern from "cantera/base/SolutionArray.h" namespace "Cantera":
         cbool hasComponent(string&)
         CxxAnyValue getComponent(string&) except +translate_exception
         void setComponent(string&, CxxAnyValue&) except +translate_exception
-        void setLoc(size_t) except +translate_exception
-        void updateState(size_t) except +translate_exception
-        vector[double] getState(size_t) except +translate_exception
-        void setState(size_t, vector[double]&) except +translate_exception
+        void setLoc(int) except +translate_exception
+        void updateState(int) except +translate_exception
+        vector[double] getState(int) except +translate_exception
+        void setState(int, vector[double]&) except +translate_exception
         vector[string] listExtra()
         cbool hasExtra(string&)
         void addExtra(string&, cbool) except +translate_exception
-        CxxAnyMap getAuxiliary(size_t) except +translate_exception
-        void setAuxiliary(size_t, CxxAnyMap&) except +translate_exception
+        CxxAnyMap getAuxiliary(int) except +translate_exception
+        void setAuxiliary(int, CxxAnyMap&) except +translate_exception
         void append(vector[double]&, CxxAnyMap&) except +translate_exception
-        void save(string&, string&, string&, string&, cbool, int) except +translate_exception
+        void save(string&, string&, string&, string&, cbool, int, string&) except +translate_exception
         CxxAnyMap restore(string&, string&, string&) except +translate_exception
 
     cdef shared_ptr[CxxSolutionArray] CxxNewSolutionArray "Cantera::SolutionArray::create" (
-        shared_ptr[CxxSolution], size_t, CxxAnyMap&) except +translate_exception
+        shared_ptr[CxxSolution], int, CxxAnyMap&) except +translate_exception
 
 
 ctypedef void (*transportMethod1d)(CxxTransport*, double*) except +translate_exception

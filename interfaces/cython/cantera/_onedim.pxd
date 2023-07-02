@@ -69,6 +69,7 @@ cdef extern from "cantera/oneD/StFlow.h":
     cdef cppclass CxxStFlow "Cantera::StFlow" (CxxDomain1D):
         void setTransportModel(const string&) except +translate_exception
         void setTransport(CxxTransport&) except +translate_exception
+        string type()
         string transportModel()
         void setPressure(double)
         void enableRadiation(cbool)
@@ -76,6 +77,11 @@ cdef extern from "cantera/oneD/StFlow.h":
         double radiativeHeatLoss(size_t)
         double pressure()
         void setFixedTempProfile(vector[double]&, vector[double]&)
+        size_t getSolvingStage() except +translate_exception
+        void setSolvingStage(size_t) except +translate_exception
+        void solveElectricField() except +translate_exception
+        void fixElectricField() except +translate_exception
+        cbool doElectricField(size_t) except +translate_exception
         void setBoundaryEmissivities(double, double)
         double leftEmissivity()
         double rightEmissivity()
@@ -87,14 +93,6 @@ cdef extern from "cantera/oneD/StFlow.h":
         void setFreeFlow()
         void setAxisymmetricFlow()
         string flowType()
-
-
-cdef extern from "cantera/oneD/IonFlow.h":
-    cdef cppclass CxxIonFlow "Cantera::IonFlow" (CxxStFlow):
-        void setSolvingStage(int)
-        void solveElectricField()
-        void fixElectricField()
-        cbool doElectricField(size_t)
 
 
 cdef extern from "cantera/oneD/Sim1D.h":
@@ -114,7 +112,7 @@ cdef extern from "cantera/oneD/Sim1D.h":
         void refine(int) except +translate_exception
         void setRefineCriteria(size_t, double, double, double, double) except +translate_exception
         vector[double] getRefineCriteria(int) except +translate_exception
-        void save(string&, string&, string&, cbool, int) except +translate_exception
+        void save(string&, string&, string&, cbool, int, string&) except +translate_exception
         CxxAnyMap restore(string&, string&) except +translate_exception
         void writeStats(int) except +translate_exception
         void clearStats()

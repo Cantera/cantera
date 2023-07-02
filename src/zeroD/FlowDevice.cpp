@@ -47,9 +47,26 @@ void FlowDevice::setPressureFunction(Func1* f)
     m_pfunc = f;
 }
 
+double FlowDevice::evalPressureFunction()
+{
+    double delta_P = in().pressure() - out().pressure();
+    if (m_pfunc) {
+        return m_pfunc->eval(delta_P);
+    }
+    return delta_P;
+}
+
 void FlowDevice::setTimeFunction(Func1* g)
 {
     m_tfunc = g;
+}
+
+double FlowDevice::evalTimeFunction()
+{
+    if (m_tfunc) {
+        return m_tfunc->eval(m_time);
+    }
+    return 1.;
 }
 
 double FlowDevice::outletSpeciesMassFlowRate(size_t k)

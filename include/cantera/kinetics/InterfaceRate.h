@@ -84,9 +84,20 @@ struct InterfaceData : public BlowersMaselData
  * It is evident that this expression combines a regular modified Arrhenius rate
  * expression \f$ A T^b \exp \left( - \frac{E_a}{RT} \right) \f$ with coverage-related
  * terms, where the parameters \f$ (a_k, E_k, m_k) \f$ describe the dependency on the
- * surface coverage of species \f$ k, \theta_k \f$. The InterfaceRateBase class implements
- * terms related to coverage only, which allows for combinations with arbitrary rate
- * parameterizations (for example Arrhenius and BlowersMaselRate).
+ * surface coverage of species \f$ k, \theta_k \f$. In addition to the linear coverage
+ * dependence on the activation energy modifier \f$ E_k \f$, polynomial coverage
+ * dependence is also available. When the dependence parameter \f$ E_k \f$ is given as
+ * a scalar value, the linear dependency is applied whereas if a list of four values
+ * are given as \f$ [E^{(1)}_k, ..., E^{(4)}_k] \f$, a polynomial dependency is applied as
+ *  \f[
+ *      k_f = A T^b \exp \left( - \frac{E_a}{RT} \right)
+ *          \prod_k 10^{a_k \theta_k} \theta_k^{m_k}
+ *          \exp \left( \frac{- E^{(1)}_k \theta_k - E^{(2)}_k \theta_k^2
+ *          - E^{(3)}_k \theta_k^3 - E^{(4)}_k \theta_k^4}{RT} \right)
+ *  \f]
+ * The InterfaceRateBase class implements terms related to coverage only, which allows
+ * for combinations with arbitrary rate parameterizations (for example Arrhenius and
+ * BlowersMaselRate).
  */
 class InterfaceRateBase
 {
@@ -116,7 +127,7 @@ public:
     //! Add a coverage dependency for species *sp*, with exponential dependence
     //! *a*, power-law exponent *m*, and activation energy dependence *e*,
     //! where *e* is in Kelvin, that is, energy divided by the molar gas constant.
-    virtual void addCoverageDependence(const string& sp, double a, double m, double e);
+    virtual void addCoverageDependence(const string& sp, double a, double m, const vector_fp& e);
 
     //! Boolean indicating whether rate uses exchange current density formulation
     bool exchangeCurrentDensityFormulation() {
@@ -130,7 +141,7 @@ public:
 
     //! Set association with an ordered list of all species associated with a given
     //! `Kinetics` object.
-    void setSpecies(const std::vector<std::string>& species);
+    void setSpecies(const vector<string>& species);
 
     //! Update reaction rate parameters
     //! @param shared_data  data shared by all reactions of a given type
@@ -243,15 +254,19 @@ protected:
     map<size_t, size_t> m_indices;
     vector<string> m_cov; //!< Vector holding names of coverage species
     vector_fp m_ac; //!< Vector holding coverage-specific exponential dependence
-    vector_fp m_ec; //!< Vector holding coverage-specific activation energy dependence
+    //! Vector holding coverage-specific activation energy dependence as a
+    //! 5-membered array of polynomial coeffcients starting from 0th-order to
+    //! 4th-order coefficients
+    vector<vector_fp> m_ec;
+    vector<bool> m_lindep; //!< Vector holding boolean for linear dependence
     vector_fp m_mc; //!< Vector holding coverage-specific power-law exponents
 
 private:
     //! Pairs of species index and multipliers to calculate enthalpy change
-    std::vector<std::pair<size_t, double>> m_stoichCoeffs;
+    vector<pair<size_t, double>> m_stoichCoeffs;
 
     //! Pairs of phase index and net electric charges (same order as m_stoichCoeffs)
-    std::vector<std::pair<size_t, double>> m_netCharges;
+    vector<pair<size_t, double>> m_netCharges;
 };
 
 
@@ -286,7 +301,7 @@ public:
     }
 
     //! Get sticking species.
-    std::string stickingSpecies() const {
+    string stickingSpecies() const {
         return m_stickingSpecies;
     }
 
@@ -296,7 +311,7 @@ public:
      *  to be explicitly identified. Note that species have to be specified prior
      *  to adding a reaction to a Kinetics object.
      */
-    void setStickingSpecies(const std::string& stickingSpecies) {
+    void setStickingSpecies(const string& stickingSpecies) {
         m_stickingSpecies = stickingSpecies;
         m_explicitSpecies = true;
     }
@@ -345,7 +360,7 @@ public:
 protected:
     bool m_motzWise; //!< boolean indicating whether Motz & Wise correction is used
     bool m_explicitMotzWise; //!< Correction cannot be overriden by default
-    std::string m_stickingSpecies; //!< string identifying sticking species
+    string m_stickingSpecies; //!< string identifying sticking species
     bool m_explicitSpecies; //!< Boolean flag
     double m_surfaceOrder; //!< exponent applied to site density term
     double m_multiplier; //!< multiplicative factor in rate expression
@@ -376,7 +391,7 @@ public:
     }
 
     //! Identifier of reaction rate type
-    virtual const std::string type() const override {
+    virtual const string type() const override {
         return "interface-" + RateType::type();
     }
 
@@ -434,7 +449,7 @@ public:
         return RateType::activationEnergy() + m_ecov * GasConstant;
     }
 
-    void addCoverageDependence(const string& sp, double a, double m, double e) override {
+    void addCoverageDependence(const string& sp, double a, double m, const vector_fp& e) override {
         InterfaceRateBase::addCoverageDependence(sp, a, m, e);
         RateType::setCompositionDependence(true);
     }
@@ -467,7 +482,7 @@ public:
     }
 
     //! Identifier of reaction rate type
-    virtual const std::string type() const override {
+    virtual const string type() const override {
         return "sticking-" + RateType::type();
     }
 
@@ -512,7 +527,7 @@ public:
         StickingCoverage::setContext(rxn, kin);
     }
 
-    virtual void validate(const std::string &equation, const Kinetics& kin) override {
+    virtual void validate(const string &equation, const Kinetics& kin) override {
         RateType::validate(equation, kin);
         fmt::memory_buffer err_reactions;
         double T[] = {200.0, 500.0, 1000.0, 2000.0, 5000.0, 10000.0};

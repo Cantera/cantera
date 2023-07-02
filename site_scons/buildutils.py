@@ -1106,9 +1106,11 @@ def compiler_flag_list(
     """
     if not isinstance(flags, str):
         flags = " ".join(flags)
-    # split concatenated entries
-    flags = f" {flags}".split(" -")[1:]
-    flags = [f"-{flag}" for flag in flags]
+    # split concatenated entries. Options can start with "-", "/", or "$"
+    flags = re.findall(r"""(?:^|\ +)        # start of string or leading whitespace
+                       ([-/\$].+?)          # capture start of option
+                       (?=\ +[-/\$]|\ *$)   # start of next option or end of string
+                       """, flags, re.VERBOSE)
     cc_flags = []
     excludes = tuple(excludes)
     for flag in flags:

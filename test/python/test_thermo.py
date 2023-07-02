@@ -5,7 +5,7 @@ import cantera as ct
 from . import utilities
 from .utilities import allow_deprecated
 import pytest
-
+from pytest import approx
 
 class TestThermoPhase(utilities.CanteraTest):
     def setUp(self):
@@ -1610,6 +1610,7 @@ class TestQuantity(utilities.CanteraTest):
 
     def setUp(self):
         self.gas.TPX = 300, 101325, 'O2:1.0, N2:3.76'
+        self.gas.basis = 'mass'
 
     def test_mass_moles(self):
         q1 = ct.Quantity(self.gas, mass=5)
@@ -1637,6 +1638,33 @@ class TestQuantity(utilities.CanteraTest):
         self.assertNear(q1.enthalpy, q1.H)
         self.assertNear(q1.entropy, q1.S)
         self.assertNear(q1.gibbs, q1.G)
+
+    def test_set_equivalence_ratio(self):
+        q1 = ct.Quantity(self.gas, mass=3)
+        T1, P1 = q1.TP
+        q1.set_equivalence_ratio(2.0, 'CH4:1.0', 'O2:1.0, N2:3.76')
+        assert q1.T == approx(T1)
+        assert q1.P == approx(P1)
+        assert q1.X[q1.species_index('CH4')] == approx(1.0 / (1 + 4.76))
+
+    def test_set_mixture_fraction(self):
+        q1 = ct.Quantity(self.gas, mass=3)
+        T1, P1 = q1.TP
+        q1.set_mixture_fraction(1.0, 'CH3OH:1.0', 'O2:1.0, N2:3.76')
+        assert q1.T == approx(T1)
+        assert q1.P == approx(P1)
+        assert q1.mass == 3
+        assert q1.X[q1.species_index('CH3OH')] == approx(1.0)
+
+    def test_basis(self):
+        q1 = ct.Quantity(self.gas, mass=5)
+        T1, P1 = q1.TP
+        h1 = q1.h  # J/kg
+
+        q1.basis = 'molar'
+        assert q1.T == approx(T1)
+        assert q1.P == approx(P1)
+        assert q1.h == approx(h1 * q1.mean_molecular_weight)
 
     def test_multiply(self):
         q1 = ct.Quantity(self.gas, mass=5)
@@ -1681,6 +1709,38 @@ class TestQuantity(utilities.CanteraTest):
         self.assertNear(q1.V + q2.V, q3.V)
         self.assertArrayNear(q1.X*q1.moles + q2.X*q2.moles, q3.X*q3.moles)
 
+    def test_add_molar(self):
+        q1 = ct.Quantity(self.gas, mass=5)
+        q2 = ct.Quantity(self.gas, mass=5)
+        q2.TPX = 900, 101325, 'CH4:1.0'
+
+        q1.basis = 'molar'
+        q2.basis = 'molar'
+
+        # addition at constant UV
+        q3 = q1 + q2
+        assert q1.mass + q2.mass == approx(q3.mass)
+
+        assert q1.U + q2.U == approx(q3.U)
+        assert q1.V + q2.V == approx(q3.V)
+
+        # addition at constant HP
+        q1.constant = q2.constant = 'HP'
+        q4 = q1 + q2
+        assert q1.mass + q2.mass == approx(q4.mass)
+
+        assert q1.H + q2.H == approx(q4.H)
+        assert q4.P == approx(q1.P)
+        self.assertArrayNear(q1.X*q1.moles + q2.X*q2.moles, q4.X*q4.moles)
+
+    def test_add_errors(self):
+        q1 = ct.Quantity(self.gas, mass=5)
+        q2 = ct.Quantity(self.gas, mass=5)
+        q1.constant = q2.constant = 'HP'
+        q2.TP = q1.T, 1.2 * q1.P
+        with pytest.raises(ValueError, match="pressure is not equal"):
+            q3 = q1 + q2
+
     def test_equilibrate(self):
         self.gas.TPX = 300, 101325, 'CH4:1.0, O2:0.2, N2:1.0'
         q1 = ct.Quantity(self.gas)
@@ -1695,6 +1755,12 @@ class TestQuantity(utilities.CanteraTest):
         q1 = ct.Quantity(self.gas, mass =3)
         with self.assertRaises(AttributeError):
             q1.HPQ = self.gas.H, self.gas.P, 1
+
+        with pytest.raises(AttributeError):
+            q1.set_unnormalized_mass_fractions(np.ones(q1.n_species))
+
+        with pytest.raises(AttributeError):
+            q1.set_unnormalized_mole_fractions(np.ones(q1.n_species))
 
     def test_incompatible(self):
         gas2 = ct.Solution('h2o2.yaml', transport_model=None)
@@ -1932,7 +1998,7 @@ class TestSolutionArray(utilities.CanteraTest):
         self.assertEqual(Dkm.shape, (2,3,5,self.gas.n_species))
 
         for i,j,k in np.ndindex(TT.shape):
-            self.gas.TPX = T[k], P[i], X[j]
+            self.gas.TPX = T[k], P[i][0][0], X[j]
             self.assertNear(self.gas.enthalpy_mass, h[i,j,k])
             self.assertArrayNear(self.gas.reverse_rates_of_progress, ropr[i,j,k])
             self.assertArrayNear(self.gas.mix_diff_coeffs, Dkm[i,j,k])

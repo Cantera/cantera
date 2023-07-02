@@ -5,6 +5,7 @@
 #include "cantera/core.h"
 #include "cantera/onedim.h"
 #include "cantera/oneD/DomainFactory.h"
+#include "cantera/oneD/IonFlow.h"
 
 using namespace Cantera;
 
@@ -34,8 +35,7 @@ TEST(onedim, freeflame)
     double Tad = gas->temperature();
 
     // flow
-    auto flow = newDomain<StFlow>("gas-flow", sol, "flow");
-    flow->setFreeFlow();
+    auto flow = newDomain<StFlow>("free-flow", sol, "flow");
 
     // grid
     int nz = 21;
@@ -61,7 +61,7 @@ TEST(onedim, freeflame)
     // set up simulation
     vector<shared_ptr<Domain1D>> domains { inlet, flow, outlet };
     Sim1D flame(domains);
-    int dom = flame.domainIndex("flow");
+    int dom = static_cast<int>(flame.domainIndex("flow"));
     ASSERT_EQ(dom, 1);
 
     // set up initial guess
@@ -92,7 +92,7 @@ TEST(onedim, freeflame)
         flame.save("gtest-freeflame.h5", "cpp", "Solution from C++ interface", true);
     }
 
-    ASSERT_EQ(flow->nPoints(), nz + 1);
+    ASSERT_EQ(flow->nPoints(), static_cast<size_t>(nz + 1));
     size_t comp = flow->componentIndex("T");
     double Tprev = flame.value(dom, comp, 0);
     for (size_t n = 0; n < flow->nPoints(); n++) {
@@ -102,6 +102,30 @@ TEST(onedim, freeflame)
     }
 }
 
+TEST(onedim, flame_types)
+{
+    auto sol = newSolution("h2o2.yaml", "ohmech", "mixture-averaged");
+
+    auto free = newDomain<StFlow>("free-flow", sol, "flow");
+    ASSERT_EQ(free->type(), "free-flow");
+    auto symm = newDomain<StFlow>("axisymmetric-flow", sol, "flow");
+    ASSERT_EQ(symm->type(), "axisymmetric-flow");
+    auto burner = newDomain<StFlow>("unstrained-flow", sol, "flow");
+    ASSERT_EQ(burner->type(), "unstrained-flow");
+}
+
+TEST(onedim, ion_flame_types)
+{
+    auto sol = newSolution("ch4_ion.yaml", "", "");
+    ASSERT_EQ(sol->transport()->transportModel(), "ionized-gas");
+
+    auto free = newDomain<IonFlow>("free-flow", sol, "flow");
+    ASSERT_EQ(free->type(), "free-ion-flow");
+    auto symm = newDomain<IonFlow>("axisymmetric-flow", sol, "flow");
+    ASSERT_EQ(symm->type(), "axisymmetric-ion-flow");
+    auto burner = newDomain<IonFlow>("unstrained-flow", sol, "flow");
+    ASSERT_EQ(burner->type(), "unstrained-ion-flow");
+}
 
 int main(int argc, char** argv)
 {

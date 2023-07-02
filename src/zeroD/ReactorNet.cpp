@@ -28,6 +28,7 @@ ReactorNet::~ReactorNet()
 void ReactorNet::setInitialTime(double time)
 {
     m_time = time;
+    m_initial_time = time;
     m_integrator_init = false;
 }
 

@@ -9,7 +9,7 @@
 #include "Domain1D.h"
 #include "cantera/base/Array.h"
 #include "cantera/base/Solution.h"
-#include "cantera/thermo/IdealGasPhase.h"
+#include "cantera/thermo/ThermoPhase.h"
 #include "cantera/kinetics/Kinetics.h"
 
 namespace Cantera
@@ -81,12 +81,11 @@ public:
     }
 
     /**
-     * Set the thermo manager. Note that the flow equations assume
-     * the ideal gas equation.
+     * Set the thermo manager.
      *
      * @deprecated  To be removed after Cantera 3.0 (unused)
      */
-    void setThermo(IdealGasPhase& th);
+    void setThermo(ThermoPhase& th);
 
     virtual void setKinetics(shared_ptr<Kinetics> kin);
 
@@ -205,6 +204,26 @@ public:
     virtual string flowType() const;
 
     void solveEnergyEqn(size_t j=npos);
+
+    //! Get the solving stage (used by IonFlow specialization)
+    //! @since New in Cantera 3.0
+    virtual size_t getSolvingStage() const;
+
+    //! Solving stage mode for handling ionized species (used by IonFlow specialization)
+    //! - \c stage=1: the fluxes of charged species are set to zero
+    //! - \c stage=2: the electric field equation is solved, and the drift flux for
+    //!     ionized species is evaluated
+    virtual void setSolvingStage(const size_t stage);
+
+    //! Set to solve electric field in a point (used by IonFlow specialization)
+    virtual void solveElectricField(size_t j=npos);
+
+    //! Set to fix voltage in a point (used by IonFlow specialization)
+    virtual void fixElectricField(size_t j=npos);
+
+    //! Retrieve flag indicating whether electric field is solved or not (used by
+    //! IonFlow specialization)
+    virtual bool doElectricField(size_t j) const;
 
     //! Turn radiation on / off.
     /*!
@@ -330,6 +349,7 @@ protected:
             m_rho[j] = m_thermo->density();
             m_wtm[j] = m_thermo->meanMolecularWeight();
             m_cp[j] = m_thermo->cp_mass();
+            m_thermo->getPartialMolarEnthalpies(&m_hk(0, j));
         }
     }
 
@@ -425,6 +445,9 @@ protected:
     //! Update the diffusive mass fluxes.
     virtual void updateDiffFluxes(const doublereal* x, size_t j0, size_t j1);
 
+    //! Get the gradient of species specific molar enthalpies
+    virtual void grad_hk(const double* x, size_t j);
+
     //---------------------------------------------------------
     //             member data
     //---------------------------------------------------------
@@ -450,12 +473,18 @@ protected:
     Array2D m_dthermal;
     Array2D m_flux;
 
+    //! Array of size #m_nsp by #m_points for saving molar enthalpies
+    Array2D m_hk;
+
+    //! Array of size #m_nsp by #m_points -1 for saving enthalpy fluxes
+    Array2D m_dhk_dz;
+
     // production rates
     Array2D m_wdot;
 
     size_t m_nsp;
 
-    IdealGasPhase* m_thermo = nullptr;
+    ThermoPhase* m_thermo = nullptr;
     Kinetics* m_kin = nullptr;
     Transport* m_trans = nullptr;
 

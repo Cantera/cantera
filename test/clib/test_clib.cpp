@@ -68,11 +68,11 @@ TEST(ct, soln_objects)
 
     int thermo = soln_thermo(ref2);
     ASSERT_EQ(thermo, 2);
-    ASSERT_EQ(thermo_nSpecies(thermo), 10);
+    ASSERT_EQ(thermo_nSpecies(thermo), 10u);
 
     int kin = soln_kinetics(ref2);
     ASSERT_EQ(kin, 1);
-    ASSERT_EQ(kin_nReactions(kin), 29);
+    ASSERT_EQ(kin_nReactions(kin), 29u);
 
     int trans = soln_kinetics(ref2);
     ASSERT_EQ(trans, 1);
@@ -138,7 +138,7 @@ TEST(ct, new_interface_auto)
     int surf = soln_newInterface("ptcombust.yaml", "Pt_surf", 0, adj.data());
     ASSERT_EQ(surf, 1);
 
-    ASSERT_EQ(soln_nAdjacent(surf), 1);
+    ASSERT_EQ(soln_nAdjacent(surf), 1u);
     int gas = soln_adjacent(surf, 0);
     ASSERT_EQ(gas, 0);
 
@@ -156,7 +156,7 @@ TEST(ct, thermo)
     int thermo = thermo_newFromFile("gri30.yaml", "gri30");
     ASSERT_GE(thermo, 0);
     size_t nsp = thermo_nSpecies(thermo);
-    ASSERT_EQ(nsp, 53);
+    ASSERT_EQ(nsp, 53u);
 
     ret = thermo_setTemperature(thermo, 500);
     ASSERT_EQ(ret, 0);
@@ -179,7 +179,7 @@ TEST(ct, kinetics)
     ASSERT_GE(kin, 0);
 
     size_t nr = kin_nReactions(kin);
-    ASSERT_EQ(nr, 325);
+    ASSERT_EQ(nr, 325u);
 
     thermo_equilibrate(thermo, "HP", 0, 1e-9, 50000, 1000, 0);
     double T = thermo_temperature(thermo);

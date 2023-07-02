@@ -11,7 +11,7 @@ depends on variables other than time by capturing these variables from the
 enclosing scope. Also shows the use of a PressureController to create a constant
 pressure reactor with a fixed volume.
 
-Requires: cantera >= 2.5.0, matplotlib >= 2.0
+Requires: cantera >= 3.0, matplotlib >= 2.0
 Keywords: combustion, reactor network, well-stirred reactor, plotting
 """
 
@@ -54,11 +54,11 @@ def mdot(t):
 
 inlet_mfc = ct.MassFlowController(inlet, combustor, mdot=mdot)
 
-# A PressureController has a baseline mass flow rate matching the 'master'
+# A PressureController has a baseline mass flow rate matching the 'primary'
 # MassFlowController, with an additional pressure-dependent term. By explicitly
 # including the upstream mass flow rate, the pressure is kept constant without
 # needing to use a large value for 'K', which can introduce undesired stiffness.
-outlet_mfc = ct.PressureController(combustor, exhaust, master=inlet_mfc, K=0.01)
+outlet_mfc = ct.PressureController(combustor, exhaust, primary=inlet_mfc, K=0.01)
 
 # the simulation only contains one reactor
 sim = ct.ReactorNet([combustor])
@@ -69,7 +69,7 @@ states = ct.SolutionArray(gas, extra=['tres'])
 
 residence_time = 0.1  # starting residence time
 while combustor.T > 500:
-    sim.set_initial_time(0.0)  # reset the integrator
+    sim.initial_time = 0.0  # reset the integrator
     sim.advance_to_steady_state()
     print('tres = {:.2e}; T = {:.1f}'.format(residence_time, combustor.T))
     states.append(combustor.thermo.state, tres=residence_time)

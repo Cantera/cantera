@@ -42,18 +42,19 @@ public:
 
     virtual string type() const;
 
-    //! set the solving stage
-    virtual void setSolvingStage(const size_t phase);
+    virtual size_t getSolvingStage() const {
+        return m_stage;
+    }
+    virtual void setSolvingStage(const size_t stage);
 
     virtual void resize(size_t components, size_t points);
     virtual bool componentActive(size_t n) const;
 
     virtual void _finalize(const double* x);
-    //! set to solve electric field on a point
-    void solveElectricField(size_t j=npos);
-    //! set to fix voltage on a point
-    void fixElectricField(size_t j=npos);
-    bool doElectricField(size_t j) {
+
+    virtual void solveElectricField(size_t j=npos);
+    virtual void fixElectricField(size_t j=npos);
+    virtual bool doElectricField(size_t j) const {
         return m_do_electric_field[j];
     }
 
@@ -65,8 +66,8 @@ public:
      * "Calculation and analysis of the mobility and diffusion coefficient
      * of thermal electrons in methane/air premixed flames."
      * Combustion and flame 159.12 (2012): 3518-3521.
-     * If in the future the class GasTranport is improved, this method may
-     * be discard. This method specifies this profile.
+     * If in the future the class GasTransport is improved, this method may
+     * be discarded. This method specifies this profile.
     */
     void setElectronTransport(vector_fp& tfix,
                               vector_fp& diff_e,

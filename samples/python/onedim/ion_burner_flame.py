@@ -19,14 +19,13 @@ gas = ct.Solution('gri30_ion.yaml')
 gas.TPX = tburner, p, reactants
 mdot = 0.15 * gas.density
 
-f = ct.IonBurnerFlame(gas, width=width)
+f = ct.BurnerFlame(gas, width=width)
 f.burner.mdot = mdot
 f.set_refine_criteria(ratio=3.0, slope=0.05, curve=0.1)
 f.show()
 
-f.transport_model = 'ionized-gas'
 f.solve(loglevel, auto=True)
-f.solve(loglevel=loglevel, stage=2, enable_energy=True)
+f.solve(loglevel=loglevel, stage=2)
 
 if "native" in ct.hdf_support():
     output = Path() / "ion_burner_flame.h5"
@@ -36,4 +35,4 @@ output.unlink(missing_ok=True)
 
 f.save(output, name="mix", description="solution with mixture-averaged transport")
 
-f.write_csv('ion_burner_flame.csv', quiet=False)
+f.save('ion_burner_flame.csv', basis="mole", overwrite=True)

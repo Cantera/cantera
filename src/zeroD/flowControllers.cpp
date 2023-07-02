@@ -31,6 +31,13 @@ void MassFlowController::updateMassFlowRate(double time)
     m_mdot = std::max(mdot, 0.0);
 }
 
+void PressureController::setMaster(FlowDevice* master)
+{
+    warn_deprecated("PressureController::setMaster",
+        "To be removed after Cantera 3.0; replaced by setPrimary.");
+    m_primary = master;
+}
+
 void PressureController::updateMassFlowRate(double time)
 {
     if (!ready()) {
@@ -44,8 +51,8 @@ void PressureController::updateMassFlowRate(double time)
     } else {
         mdot *= delta_P;
     }
-    m_master->updateMassFlowRate(time);
-    mdot += m_master->massFlowRate();
+    m_primary->updateMassFlowRate(time);
+    mdot += m_primary->massFlowRate();
     m_mdot = std::max(mdot, 0.0);
 }
 

@@ -30,9 +30,9 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
     cdef cppclass CxxFlowDevice "Cantera::FlowDevice"
 
     # factories
-    cdef CxxReactorBase* newReactor(string) except +translate_exception
-    cdef CxxFlowDevice* newFlowDevice(string) except +translate_exception
-    cdef CxxWallBase* newWall(string) except +translate_exception
+    cdef shared_ptr[CxxReactorBase] newReactor3(string) except +translate_exception
+    cdef shared_ptr[CxxFlowDevice] newFlowDevice3(string) except +translate_exception
+    cdef shared_ptr[CxxWallBase] newWall3(string) except +translate_exception
 
     # reactors
     cdef cppclass CxxReactorBase "Cantera::ReactorBase":
@@ -94,8 +94,10 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         void setCoverages(int, double*)
         void setCoverages(int, Composition&) except +translate_exception
         void syncCoverages(int)
-        double vdot(double)
-        double Q(double)
+        double expansionRate() except +translate_exception
+        double vdot(double) except +translate_exception
+        double heatRate() except +translate_exception
+        double Q(double) except +translate_exception
 
         void addSensitivityReaction(int, size_t) except +translate_exception
         size_t nSensParams(int)
@@ -108,7 +110,9 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         double getHeatTransferCoeff()
         void setEmissivity(double) except +translate_exception
         double getEmissivity()
+        double velocity()
         void setVelocity(CxxFunc1*)
+        double heatFlux()
         void setHeatFlux(CxxFunc1*)
 
     # reactor surface
@@ -132,7 +136,9 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         double massFlowRate() except +translate_exception
         double massFlowRate(double) except +translate_exception
         cbool install(CxxReactorBase&, CxxReactorBase&) except +translate_exception
+        double evalPressureFunction() except +translate_exception
         void setPressureFunction(CxxFunc1*) except +translate_exception
+        double evalTimeFunction() except +translate_exception
         void setTimeFunction(CxxFunc1*) except +translate_exception
 
     cdef cppclass CxxMassFlowController "Cantera::MassFlowController" (CxxFlowDevice):
@@ -150,7 +156,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         CxxPressureController()
         double getPressureCoeff()
         void setPressureCoeff(double)
-        void setMaster(CxxFlowDevice*)
+        void setPrimary(CxxFlowDevice*)
 
     # reactor net
 
@@ -164,6 +170,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         double time() except +translate_exception
         double distance() except +translate_exception
         void setInitialTime(double)
+        double getInitialTime()
         void setTolerances(double, double)
         double rtol()
         double atol()
@@ -199,10 +206,10 @@ cdef extern from "cantera/zeroD/ReactorDelegator.h" namespace "Cantera":
     cdef cppclass CxxReactorAccessor "Cantera::ReactorAccessor":
         CxxReactorAccessor()
         void setNEq(size_t)
-        double vdot()
-        void setVdot(double)
-        double qdot()
-        void setQdot(double)
+        double expansionRate()
+        void setExpansionRate(double)
+        double heatRate()
+        void setHeatRate(double)
         void restoreThermoState() except +translate_exception
         void restoreSurfaceState(size_t) except +translate_exception
 
@@ -210,6 +217,7 @@ cdef extern from "cantera/zeroD/ReactorDelegator.h" namespace "Cantera":
 ctypedef CxxReactorAccessor* CxxReactorAccessorPtr
 
 cdef class ReactorBase:
+    cdef shared_ptr[CxxReactorBase] _reactor
     cdef CxxReactorBase* rbase
     cdef object _thermo
     cdef list _inlets
@@ -252,6 +260,7 @@ cdef class ReactorSurface:
     cdef Kinetics _kinetics
 
 cdef class WallBase:
+    cdef shared_ptr[CxxWallBase] _wall
     cdef CxxWallBase* wall
     cdef object _velocity_func
     cdef object _heat_flux_func
@@ -263,6 +272,7 @@ cdef class Wall(WallBase):
     pass
 
 cdef class FlowDevice:
+    cdef shared_ptr[CxxFlowDevice] _dev
     cdef CxxFlowDevice* dev
     cdef Func1 _rate_func
     cdef Func1 _time_func

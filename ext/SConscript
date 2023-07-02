@@ -34,6 +34,13 @@ def prep_gmock(env):
     return localenv
 
 
+def prep_yamlcpp(env):
+    localenv = prep_default(env)
+    if env['CC'] == 'cl':
+        # "class ... needs to have dll-interface to be used by clients of class ..."
+        localenv.Append(CCFLAGS='/wd4251')
+    return localenv
+
 ext_copies = []
 
 if not env['system_fmt']:

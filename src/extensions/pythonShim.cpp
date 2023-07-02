@@ -4,6 +4,7 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/base/ctexceptions.h"
+#include "cantera/base/stringUtils.h"
 
 #define BOOST_DLL_USE_STD_FS
 #ifdef __MINGW32__
@@ -12,7 +13,7 @@
 #include <boost/dll/alias.hpp>
 
 #include "Python.h"
-#include <codecvt>
+#include <filesystem>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -34,6 +35,33 @@ void checkPythonError(bool condition, const string& message) {
     }
 }
 
+#ifdef _WIN32
+void setPythonHome()
+{
+    string pythonhome = "PYTHONHOME=";
+    const char* old_pythonhome = getenv("PYTHONHOME");
+    if (old_pythonhome != nullptr && old_pythonhome[0] != '\0') {
+        // Use existing setting of PYTHONHOME
+        return;
+    }
+
+    const char* conda_prefix = getenv("CONDA_PREFIX");
+    if (conda_prefix != nullptr && std::filesystem::exists(conda_prefix)) {
+        pythonhome += conda_prefix;
+        _putenv(pythonhome.c_str());
+        return;
+    }
+
+    #ifdef CT_PYTHONHOME
+        string build_pythonhome = stripnonprint(string(CT_PYTHONHOME));
+        if (std::filesystem::exists(build_pythonhome)) {
+            pythonhome += build_pythonhome;
+            _putenv(pythonhome.c_str());
+        }
+    #endif
+}
+#endif
+
 }
 
 void loadCanteraPython()
@@ -54,20 +82,15 @@ void loadCanteraPython()
         #endif
         string path(venv_path);
         path += suffix;
-        wstring wpath = wstring_convert<codecvt_utf8<wchar_t>>().from_bytes(path);
+        wstring wpath = std::filesystem::path(path).wstring();
         PyStatus status = PyConfig_SetString(&pyconf, &pyconf.program_name,
                                                 wpath.c_str());
         checkPythonError(PyStatus_Exception(status), "PyConfig_SetString failed");
         Py_InitializeFromConfig(&pyconf);
     } else {
-        #if defined(CT_PYTHONHOME) && defined(_WIN32)
-            const char* old_pythonhome = getenv("PYTHONHOME");
-            if (old_pythonhome == nullptr || old_pythonhome[0] == '\0') {
-                string pythonhome = "PYTHONHOME=";
-                pythonhome += CT_PYTHONHOME;
-                _putenv(pythonhome.c_str());
-            }
-        #endif
+        #ifdef _WIN32
+            setPythonHome();
+      #endif
         Py_Initialize();
     }
     PyObject* pythonExt = PyImport_ImportModule("cantera");

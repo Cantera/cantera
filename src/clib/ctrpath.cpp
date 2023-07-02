@@ -16,8 +16,8 @@
 using namespace Cantera;
 using namespace std;
 
-typedef Cabinet<ReactionPathBuilder> BuilderCabinet;
-typedef Cabinet<ReactionPathDiagram> DiagramCabinet;
+typedef SharedCabinet<ReactionPathBuilder> BuilderCabinet;
+typedef SharedCabinet<ReactionPathDiagram> DiagramCabinet;
 template<> DiagramCabinet* DiagramCabinet::s_storage = 0;
 template<> BuilderCabinet* BuilderCabinet::s_storage = 0;
 
@@ -29,8 +29,7 @@ extern "C" {
     int rdiag_new()
     {
         try {
-            ReactionPathDiagram* d = new ReactionPathDiagram();
-            return DiagramCabinet::add(d);
+            return DiagramCabinet::add(make_shared<ReactionPathDiagram>());
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -41,15 +40,6 @@ extern "C" {
         try {
             DiagramCabinet::del(i);
             return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int rdiag_copy(int i)
-    {
-        try {
-            return DiagramCabinet::newCopy(i);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -258,8 +248,7 @@ extern "C" {
     int rbuild_new()
     {
         try {
-            ReactionPathBuilder* d = new ReactionPathBuilder();
-            return BuilderCabinet::add(d);
+            return BuilderCabinet::add(make_shared<ReactionPathBuilder>());
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }

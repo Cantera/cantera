@@ -50,7 +50,7 @@ double trapezoidal(const Eigen::ArrayXd& f, const Eigen::ArrayXd& x)
 //! Only for odd number of points. This function is used only
 //! by calling simpson.
 /*!
- * Vector x contanins a monotonic sequence of grid points, and
+ * Vector x contains a monotonic sequence of grid points, and
  * Vector f contains function values defined at these points.
  * The size of x and f must be the same.
  *

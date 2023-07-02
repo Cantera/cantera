@@ -5,7 +5,7 @@ methane over a platinum catalyst in a packed bed reactor. To avoid needing to so
 DAE system, the PFR is approximated as a chain of successive WSRs. See surf_pfr.py
 for a more advanced implementation that solves the DAE system directly.
 
-Requires: cantera >= 2.5.0
+Requires: cantera >= 3.0
 Keywords: catalysis, reactor network, surface chemistry, plug flow reactor,
           packed bed reactor
 """
@@ -95,7 +95,7 @@ m = ct.MassFlowController(upstream, r, mdot=mass_flow_rate)
 # We need an outlet to the downstream reservoir. This will determine the
 # pressure in the reactor. The value of K will only affect the transient
 # pressure difference.
-v = ct.PressureController(r, downstream, master=m, K=1e-5)
+v = ct.PressureController(r, downstream, primary=m, K=1e-5)
 
 sim = ct.ReactorNet([r])
 

@@ -21,7 +21,7 @@ namespace Cantera
 //! AdaptivePreconditioner a preconditioner designed for use with large
 //! mechanisms that leverages sparse solvers. It does this by pruning
 //! the preconditioner by a threshold value. It also neglects pressure
-//! dependence and thirdbody contributions in its formation and has a
+//! dependence and third body contributions in its formation and has a
 //! finite difference approximation for temperature.
 class AdaptivePreconditioner : public PreconditionerBase
 {
@@ -64,10 +64,10 @@ public:
     //! Get the threshold value for setting elements
     double threshold() { return m_threshold; }
 
-    //! Get ilut fill factor
+    //! Get ILUT fill factor
     double ilutFillFactor() { return m_fill_factor; }
 
-    //! Get ilut drop tolerance
+    //! Get ILUT drop tolerance
     double ilutDropTol() { return m_drop_tol; }
 
     //! Set the threshold value to compare elements against
@@ -98,10 +98,10 @@ public:
     void printJacobian();
 
 protected:
-    //! ilut fill factor
+    //! ILUT fill factor
     double m_fill_factor = 0;
 
-    //! ilut drop tolerance
+    //! ILUT drop tolerance
     double m_drop_tol = 0;
 
     //! Vector of triples representing the jacobian used in preconditioning

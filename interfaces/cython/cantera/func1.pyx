@@ -4,8 +4,10 @@
 import sys
 cimport numpy as np
 import numpy as np
+import warnings
 
 from ._utils cimport *
+
 
 cdef double func_callback(double t, void* obj, void** err) except? 0.0:
     """
@@ -65,33 +67,107 @@ cdef class Func1:
         self.exception = None
         self.callable = None
 
-    def __init__(self, c):
+    def __init__(self, c, *, init=True):
+        if init is False:
+            # used by 'create' classmethod
+            return
         if hasattr(c, '__call__'):
             # callback function
             self._set_callback(c)
-        else:
-            arr = np.array(c)
-            try:
-                if arr.ndim == 0:
-                    # handle constants or unsized numpy arrays
-                    k = float(c)
-                    self._set_callback(lambda t: k)
-                elif arr.size == 1:
-                    # handle lists, tuples or numpy arrays with a single element
-                    k = float(c[0])
-                    self._set_callback(lambda t: k)
-                else:
-                    raise TypeError
+            return
 
-            except TypeError:
-                raise TypeError(
-                    "'Func1' objects must be constructed from a number or "
-                    "a callable object") from None
+        cdef Func1 func
+        try:
+            arr = np.array(c)
+            if arr.ndim == 0:
+                # handle constants or unsized numpy arrays
+                k = float(c)
+            elif arr.size == 1:
+                # handle lists, tuples or numpy arrays with a single element
+                k = float(arr.flat[0])
+            else:
+                raise TypeError
+            func = Func1.cxx_functor("constant", k)
+            self._func = func._func
+            self.func = self._func.get()
+
+        except TypeError:
+            raise TypeError(
+                "'Func1' objects must be constructed from a number or "
+                "a callable object") from None
 
     cpdef void _set_callback(self, c) except *:
         self.callable = c
-        self._func.reset(new CxxFunc1(func_callback, <void*>self))
+        self._func.reset(new CxxFunc1Py(func_callback, <void*>self))
         self.func = self._func.get()
+
+    @property
+    def type(self):
+        """
+        Return the type of the underlying C++ functor object.
+
+        .. versionadded:: 3.0
+        """
+        return pystr(self.func.type())
+
+    @classmethod
+    def cxx_functor(cls, functor_type, *args):
+        """
+        Retrieve a C++ `Func1` functor (advanced feature).
+
+        For implemented functor types, see the Cantera C++ ``Func1`` documentation.
+
+        .. versionadded:: 3.0
+        """
+        cdef shared_ptr[CxxFunc1] func
+        cdef Func1 f0
+        cdef Func1 f1
+        cdef string cxx_string = stringify(functor_type)
+        cdef vector[double] arr
+        if len(args) == 0:
+            # simple functor with no parameter
+            func = CxxNewFunc1(cxx_string, 1.)
+        elif len(args) == 1:
+            if hasattr(args[0], "__len__"):
+                # advanced functor with array and no parameter
+                for v in args[0]:
+                    arr.push_back(v)
+                func = CxxNewFunc1(cxx_string, arr)
+            else:
+                # simple functor with scalar parameter
+                func = CxxNewFunc1(cxx_string, float(args[0]))
+        elif len(args) == 2:
+            if isinstance(args[0], Func1) and isinstance(args[1], Func1):
+                # compound functor
+                f0 = args[0]
+                f1 = args[1]
+                func = CxxNewFunc1(cxx_string, f0._func, f1._func)
+            elif isinstance(args[0], Func1):
+                # modified functor
+                f0 = args[0]
+                func = CxxNewFunc1(cxx_string, f0._func, float(args[1]))
+            else:
+                raise ValueError("Invalid arguments")
+        else:
+            raise ValueError("Invalid arguments")
+
+        cls_name = pystr(func.get().typeName()).split("::")[-1]
+        cdef Func1 out = type(
+            cls_name, (cls, ), {"__module__": cls.__module__})(None, init=False)
+        out._func = func
+        out.func = out._func.get()
+        return out
+
+    def write(self, name="t"):
+        """
+        Write a :math:`LaTeX` expression representing a functor.
+
+        :param name:
+            Name of the variable to be used.
+
+        .. versionadded:: 3.0
+        """
+        return pystr(self.func.write(stringify(name)))
 
     def __call__(self, t):
         return self.func.eval(t)
@@ -105,7 +181,48 @@ cdef class Func1:
         raise NotImplementedError(msg)
 
 
-cdef class TabulatedFunction(Func1):
+cdef class Tabulated1(Func1):
+    """
+    A `Tabulated1` object representing a tabulated function is defined by
+    sample points and corresponding function values. Inputs are specified by
+    two iterable objects containing sample point location and function values.
+    Between sample points, values are evaluated based on the optional argument
+    ``method``; options are ``'linear'`` (linear interpolation, default) or
+    ``'previous'`` (nearest previous value). Outside the sample interval, the
+    value at the closest end point is returned.
+
+    Examples for `Tabulated1` objects are::
+
+        >>> t1 = Tabulated1([0, 1, 2], [2, 1, 0])
+        >>> [t1(v) for v in [-0.5, 0, 0.5, 1.5, 2, 2.5]]
+        [2.0, 2.0, 1.5, 0.5, 0.0, 0.0]
+
+        >>> t2 = Tabulated1(np.array([0, 1, 2]), np.array([2, 1, 0]))
+        >>> [t2(v) for v in [-0.5, 0, 0.5, 1.5, 2, 2.5]]
+        [2.0, 2.0, 1.5, 0.5, 0.0, 0.0]
+
+    The optional ``method`` keyword argument changes the type of interpolation
+    from the ``'linear'`` default to ``'previous'``::
+
+        >>> t3 = Tabulated1([0, 1, 2], [2, 1, 0], method='previous')
+        >>> [t3(v) for v in [-0.5, 0, 0.5, 1.5, 2, 2.5]]
+        [2.0, 2.0, 2.0, 1.0, 0.0, 0.0]
+
+    .. versionadded:: 3.0
+    """
+
+    def __init__(self, time, fval, method='linear'):
+        cdef vector[double] arr
+        for v in time:
+            arr.push_back(v)
+        for v in fval:
+            arr.push_back(v)
+        cdef string cxx_string = stringify(f"tabulated-{method}")
+        self._func = CxxNewFunc1(cxx_string, arr)
+        self.func = self._func.get()
+
+
+cdef class TabulatedFunction(Tabulated1):
     """
     A `TabulatedFunction` object representing a tabulated function is defined by
     sample points and corresponding function values. Inputs are specified by
@@ -131,20 +248,13 @@ cdef class TabulatedFunction(Func1):
         >>> t3 = TabulatedFunction([0, 1, 2], [2, 1, 0], method='previous')
         >>> [t3(v) for v in [-0.5, 0, 0.5, 1.5, 2, 2.5]]
         [2.0, 2.0, 2.0, 1.0, 0.0, 0.0]
+
+    .. deprecated:: 3.0
+
+        To be removed after Cantera 3.0. Renamed to `Tabulated1`.
     """
-
-    def __init__(self, time, fval, method='linear'):
-        self._set_tables(time, fval, stringify(method))
-
-    cpdef void _set_tables(self, time, fval, string method) except *:
-        tt = np.asarray(time, dtype=np.double)
-        ff = np.asarray(fval, dtype=np.double)
-        if tt.size != ff.size:
-            raise ValueError("Sizes of arrays do not match "
-                             "({} vs {})".format(tt.size, ff.size))
-        elif tt.size == 0:
-            raise ValueError("Arrays must not be empty.")
-        cdef np.ndarray[np.double_t, ndim=1] tvec = tt
-        cdef np.ndarray[np.double_t, ndim=1] fvec = ff
-        self.func = <CxxFunc1*>(new CxxTabulated1(tt.size, &tvec[0], &fvec[0],
-                                                  method))
+    def __init__(self, *args, **kwargs):
+        warnings.warn(
+            "TabulatedFunction: To be removed after Cantera 3.0. "
+            "Renamed to 'Tabulated1'.", DeprecationWarning)
+        super().__init__(*args, **kwargs)

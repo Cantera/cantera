@@ -130,7 +130,8 @@ void MoleReactor::addSurfaceJacobian(vector<Eigen::Triplet<double>> &triplets)
                         scalar /= m_vol;
                     }
                     // push back scaled value triplet
-                    triplets.emplace_back(row, col, scalar * it.value());
+                    triplets.emplace_back(static_cast<int>(row), static_cast<int>(col),
+                                          scalar * it.value());
                 }
             }
         }
