@@ -1,6 +1,8 @@
 import os
+import sys
 from os.path import join as pjoin
 from buildutils import *
+from pathlib import Path
 
 Import('env', 'build', 'install')
 
@@ -33,12 +35,16 @@ elif localenv['OS'] == 'Darwin':
     linklibs += ['mx', 'mex', 'mat'] + env['LIBM']
     linkflags.extend(['-Wl,-exported_symbol,_mexFunction'])
 
-    if localenv['OS_BITS'] == 64:
-        matlab_libs = pjoin(localenv['matlab_path'], 'bin', 'maci64')
-        mexSuffix = '.mexmaci64'
+    matlab_path = Path(localenv["matlab_path"])
+    if (matlab_path / "bin" / "maca64").is_dir():
+        matlab_libs = (matlab_path / "bin" / "maca64").as_posix()
+        mexSuffix = ".mexmaca64"
+    elif (matlab_path / "bin" / "maci64").is_dir():
+        matlab_libs = (matlab_path / "bin" / "maci64").as_posix()
+        mexSuffix = ".mexmaci64"
     else:
-        matlab_libs = pjoin(localenv['matlab_path'], 'bin', 'macx86')
-        mexSuffix = '.mexmaci'
+        logger.error("Couldn't determine target architecture for Matlab toolbox")
+        sys.exit(1)
 
 elif os.name == 'posix':
     linklibs = list(env['cantera_libs'])
