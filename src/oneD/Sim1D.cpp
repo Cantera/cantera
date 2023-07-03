@@ -667,8 +667,8 @@ int Sim1D::setFixedTemperature(double t)
         if (d_free && !d_free->fixed_mdot()) {
             for (size_t m = 0; m < npnow - 1; m++) {
                 bool fixedpt = false;
-                double t1 = value(n, 2, m);
-                double t2 = value(n, 2, m + 1);
+                double t1 = value(n, c_offset_T, m);
+                double t2 = value(n, c_offset_T, m + 1);
                 // threshold to avoid adding new point too close to existing point
                 double thresh = min(1., 1.e-1 * (t2 - t1));
                 z1 = d.grid(m);
