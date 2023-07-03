@@ -53,6 +53,6 @@ output.unlink(missing_ok=True)
 sim.save(output, name="mix", description="solution with mixture-averaged transport")
 
 # write the velocity, temperature, and mole fractions to a CSV file
-sim.save("premixed_counterflow_flame.csv", basis="mole")
+sim.save("premixed_counterflow_flame.csv", basis="mole", overwrite=True)
 sim.show_stats()
 sim.show()
