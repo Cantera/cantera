@@ -59,7 +59,7 @@ f.save(yaml_filepath, name="solution", description="Initial methane flame")
 
 print("Save CSV")
 csv_filepath = output_path / "flame.csv"
-f.save(csv_filepath, basis="mole")
+f.save(csv_filepath, basis="mole", overwrite=True)
 
 if "native" in ct.hdf_support():
     # HDF is not a required dependency

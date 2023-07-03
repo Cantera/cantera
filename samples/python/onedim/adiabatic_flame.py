@@ -52,4 +52,4 @@ print(f"multicomponent flamespeed = {f.velocity[0]:7f} m/s")
 f.save(output, name="multi", description="solution with multicomponent transport")
 
 # write the velocity, temperature, density, and mole fractions to a CSV file
-f.save('adiabatic_flame.csv', basis="mole")
+f.save('adiabatic_flame.csv', basis="mole", overwrite=True)
