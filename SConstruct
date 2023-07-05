@@ -1548,13 +1548,21 @@ if env["use_hdf5"] and env["system_highfive"] in ("y", "default"):
 
     if conf.CheckLibWithHeader(
             "hdf5", "highfive/H5File.hpp", language="C++", autoadd=False):
-        env["system_highfive"] = True
 
         highfive_include = "<highfive/H5Version.hpp>"
         h5_version_source = get_expression_value(
             [highfive_include], "QUOTE(HIGHFIVE_VERSION)")
         retcode, h5_lib_version = conf.TryRun(h5_version_source, ".cpp")
         if retcode:
+            if parse_version(h5_lib_version) < parse_version("2.5"):
+                if env["system_highfive"] == "y":
+                    config_error(
+                        f"System HighFive version {h5_lib_version} is not "
+                        "supported; version 2.5 or higher is required.")
+                logger.info(
+                    f"System HighFive version {h5_lib_version} is not supported.")
+            else:
+                env["system_highfive"] = True
             env["HIGHFIVE_VERSION"] = h5_lib_version.strip()
         else:
             config_error("Detected invalid HighFive configuration.")
