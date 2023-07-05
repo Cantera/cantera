@@ -514,8 +514,6 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
             rsd[index(c_offset_E, 0)] = x[index(c_offset_E, j)];
         } else if (j == m_points - 1) {
             evalRightBoundary(x, rsd, diag, rdt);
-            // set residual of poisson's equ to zero
-            rsd[index(c_offset_E, j)] = x[index(c_offset_E, j)];
         } else { // interior points
             evalContinuity(j, x, rsd, diag, rdt);
             // set residual of poisson's equ to zero
@@ -1023,6 +1021,8 @@ void StFlow::evalRightBoundary(double* x, double* rsd, int* diag, double rdt)
     doublereal sum = 0.0;
     rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
     diag[index(c_offset_L, j)] = 0;
+    // set residual of poisson's equ to zero
+    rsd[index(c_offset_E, j)] = x[index(c_offset_E, j)];
     for (size_t k = 0; k < m_nsp; k++) {
         sum += Y(x,k,j);
         rsd[index(k+c_offset_Y,j)] = m_flux(k,j-1) + rho_u(x,j)*Y(x,k,j);
