@@ -195,7 +195,7 @@ void Inlet1D::eval(size_t jg, double* xg, double* rg,
         } else {
             // if the flow is a freely-propagating flame, mdot is not specified.
             // Set mdot equal to rho*u, and also set lambda to zero.
-            m_mdot = m_flow->density(0)*xb[0];
+            m_mdot = m_flow->density(0) * xb[c_offset_U];
             rb[c_offset_L] = xb[c_offset_L];
         }
 
