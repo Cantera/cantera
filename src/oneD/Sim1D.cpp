@@ -766,7 +766,7 @@ double Sim1D::fixedTemperatureLocation()
 
 void Sim1D::setFuelInternalBoundary(double temperature)
 {
-    double epsilon = 1e-5; // Precision threshold for being 'equal' to a temperature
+    double epsilon = 1e-3; // Precision threshold for being 'equal' to a temperature
     for (size_t n = 0; n < nDomains(); n++) {
         Domain1D& d = domain(n);
 
@@ -802,7 +802,7 @@ void Sim1D::setFuelInternalBoundary(double temperature)
 
 void Sim1D::setOxidizerInternalBoundary(double temperature)
 {
-    double epsilon = 1e-5; // Precision threshold for being 'equal' to a temperature
+    double epsilon = 1e-3; // Precision threshold for being 'equal' to a temperature
 
     for (size_t n = 0; n < nDomains(); n++) {
         Domain1D& d = domain(n);

@@ -592,17 +592,17 @@ void StFlow::evalContinuityEquation(double* x, double* rsd, int* diag, double rd
             -(rho_u(x,j+1) - rho_u(x,j))/m_dz[j]
             -(density(j+1)*V(x,j+1) + density(j)*V(x,j));
     } else {
-        if (grid(j) > m_zfixed) {
-            rsd[index(c_offset_U,j)] =
-                - (rho_u(x,j) - rho_u(x,j-1))/m_dz[j-1]
-                - (density(j-1)*V(x,j-1) + density(j)*V(x,j));
-        } else if (std::abs(grid(j) - m_zfixed) < epsilon) {
+        if (std::abs(grid(j) - m_zfixed) < epsilon) {
             if (m_do_energy[j]) {
                 rsd[index(c_offset_U,j)] = (T(x,j) - m_tfixed);
             } else {
                 rsd[index(c_offset_U,j)] = (rho_u(x,j)
                                             - m_rho[0]*0.3);
             }
+        } else if (grid(j) > m_zfixed) {
+            rsd[index(c_offset_U,j)] =
+                - (rho_u(x,j) - rho_u(x,j-1))/m_dz[j-1]
+                - (density(j-1)*V(x,j-1) + density(j)*V(x,j));
         } else if (grid(j) < m_zfixed) {
             rsd[index(c_offset_U,j)] =
                 - (rho_u(x,j+1) - rho_u(x,j))/m_dz[j]
@@ -675,18 +675,18 @@ void StFlow::evalLEquation(double* x, double* rsd, int* diag, double rdt, size_t
 {
     double epsilon = 1e-5; // Precision threshold for being 'equal' to a coordinate
     if (m_onePointControl) {
-        if (grid(j) > m_zFuel) {
-            rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
-        } else if (std::abs(grid(j) - m_zFuel) < epsilon ) {
+        if (std::abs(grid(j) - m_zFuel) < epsilon )  {
             rsd[index(c_offset_L, j)] = T(x,j) - m_tFuel;
+        } else if (grid(j) > m_zFuel) {
+            rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
         } else if (grid(j) < m_zFuel) {
             rsd[index(c_offset_L, j)] = lambda(x,j+1) - lambda(x,j);
         }
     } else if (m_twoPointControl) {
-        if (grid(j) > m_zFuel) {
-            rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
-        } else if (std::abs(grid(j) - m_zFuel) < epsilon ) {
+        if (std::abs(grid(j) - m_zFuel) < epsilon ) {
             rsd[index(c_offset_L, j)] = T(x,j) - m_tFuel;
+        } else if (grid(j) > m_zFuel) {
+            rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
         } else if (grid(j) < m_zFuel) {
             rsd[index(c_offset_L, j)] = lambda(x,j+1) - lambda(x,j);
         }
@@ -702,10 +702,10 @@ void StFlow::evalUoEquation(double* x, double* rsd, int* diag, double rdt, size_
     if (m_onePointControl) {
         rsd[index(c_offset_Uo, j)] = Uo(x,j) - Uo(x,j-1);
     } else if (m_twoPointControl) {
-        if (grid(j) > m_zOxid) {
-            rsd[index(c_offset_Uo, j)] = Uo(x,j) - Uo(x,j-1);
-        } else if (std::abs(grid(j) - m_zOxid) < epsilon) {
+        if (std::abs(grid(j) - m_zOxid) < epsilon) {
             rsd[index(c_offset_Uo, j)] = T(x,j) - m_tOxid;
+        } else if (grid(j) > m_zOxid) {
+            rsd[index(c_offset_Uo, j)] = Uo(x,j) - Uo(x,j-1);
         } else if (grid(j) < m_zOxid) {
             rsd[index(c_offset_Uo, j)] = Uo(x,j+1) - Uo(x,j);
         }

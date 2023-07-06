@@ -252,10 +252,12 @@ public:
     //! Return location of the point where temperature is fixed
     double fixedTemperatureLocation();
 
-    //! Set the fuel internal boundary location
+    //! Set the fuel internal boundary location. This is used for one/two-point
+    //! flame control for stagnation flows.
     void setFuelInternalBoundary(double temperature);
     
-    //! Set the oxidizer internal boundary location
+    //! Set the oxidizer internal boundary location. This is used for one/two-point
+    //! flame control for stagnation flows.
     void setOxidizerInternalBoundary(double temperature);
 
     /**
