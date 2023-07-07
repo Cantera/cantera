@@ -1,6 +1,5 @@
 /**
  * @file GasKinetics.h
- * @ingroup chemkinetics
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -24,7 +23,7 @@ namespace Cantera
  * Kinetics manager for elementary gas-phase chemistry. This kinetics manager
  * implements standard mass-action reaction rate expressions for low-density
  * gases.
- * @ingroup kinetics
+ * @ingroup kineticsmgr
  * @deprecated Replace with BulkKinetics. To be removed after Cantera 3.0.
  */
 class GasKinetics : public BulkKinetics

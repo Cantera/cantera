@@ -18,16 +18,6 @@ namespace Cantera
 
 class AnyMap;
 
-/**
- *  @defgroup surfaceGroup  Coverage-dependent rate parameterizations
- *
- *  This section describes the parameterizations used to describe rate
- *  parameterization that involve interfaces.
- *
- *  @ingroup chemkinetics
- */
-
-
 //! Data container holding shared data for reaction rate specification with interfaces
 /**
  * The data container InterfaceData holds precalculated data common to
@@ -98,6 +88,7 @@ struct InterfaceData : public BlowersMaselData
  * The InterfaceRateBase class implements terms related to coverage only, which allows
  * for combinations with arbitrary rate parameterizations (for example Arrhenius and
  * BlowersMaselRate).
+ * @ingroup surfaceGroup
  */
 class InterfaceRateBase
 {
@@ -273,6 +264,7 @@ private:
 //! Base class for rate parameterizations that implement sticking coefficients
 /**
  * The StickingCoverage class enhances Coverage to accommodate sticking coefficients.
+ * @ingroup surfaceGroup
  */
 class StickingCoverage : public InterfaceRateBase
 {
@@ -369,6 +361,7 @@ protected:
 
 
 //! A class template for interface reaction rate specifications
+//! @ingroup surfaceGroup
 template <class RateType, class DataType>
 class InterfaceRate : public RateType, public InterfaceRateBase
 {
@@ -455,11 +448,17 @@ public:
     }
 };
 
+//! Arrhenius-type interface reaction rate specifications
+//! @ingroup surfaceGroup
 using InterfaceArrheniusRate = InterfaceRate<ArrheniusRate, InterfaceData>;
+
+//! Blowers-Masel-type interface reaction rate specifications
+//! @ingroup surfaceGroup
 using InterfaceBlowersMaselRate = InterfaceRate<BlowersMaselRate, InterfaceData>;
 
 
 //! A class template for interface sticking rate specifications
+//! @ingroup surfaceGroup
 template <class RateType, class DataType>
 class StickingRate : public RateType, public StickingCoverage
 {
@@ -587,7 +586,12 @@ public:
     }
 };
 
+//! Arrhenius-type interface sticking rate specifications
+//! @ingroup surfaceGroup
 using StickingArrheniusRate = StickingRate<ArrheniusRate, InterfaceData>;
+
+//! Blowers-Masel-type interface sticking rate specifications
+//! @ingroup surfaceGroup
 using StickingBlowersMaselRate = StickingRate<BlowersMaselRate, InterfaceData>;
 
 }

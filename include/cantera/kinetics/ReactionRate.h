@@ -42,6 +42,7 @@ class Reaction;
 //!     partners, associated `DataType` containers should implement the methods
 //!     `perturbPressure(double deltaP)` and/or `perturbThirdBodies(double deltaM)`,
 //!     which allow for the calculation of numerical derivatives.
+//! @ingroup reactionGroup
 class ReactionRate
 {
 public:

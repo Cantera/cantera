@@ -26,7 +26,12 @@ class AnyMap;
  * @defgroup chemkinetics Chemical Kinetics
  */
 
+//! @defgroup reactionGroup Reactions and Reaction Rates
+//! Classes for handling reactions and reaction rates.
+//! @ingroup chemkinetics
+
 //! @defgroup kineticsmgr Kinetics Managers
+//! Classes implementing models for chemical kinetics.
 //! @section kinmodman Models and Managers
 //!
 //! A kinetics manager is a C++ class that implements a kinetics model; a
@@ -91,6 +96,10 @@ class AnyMap;
 //! (even if some do not participate in the reactions), the next 3 will be for
 //! phase 'b', and finally the net production rates for the surface species will
 //! occupy the last 5 locations.
+//! @ingroup chemkinetics
+
+//! @defgroup rateEvaluators Rate Evaluators
+//! These classes are used to evaluate the rates of reactions.
 //! @ingroup chemkinetics
 
 
@@ -1414,8 +1423,6 @@ protected:
      *
      *  @return 0.0 if the stoichiometries are not multiples of one another
      *    Otherwise, it returns the ratio of the stoichiometric coefficients.
-     *
-     * @ingroup kineticsmgr
      */
     double checkDuplicateStoich(std::map<int, double>& r1,
                                 std::map<int, double>& r2) const;

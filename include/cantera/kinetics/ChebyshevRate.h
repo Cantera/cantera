@@ -85,6 +85,8 @@ protected:
  * Chebyshev polynomials are not defined outside the interval (-1,1), and
  * therefore extrapolation of rates outside the range of temperatures and
  * pressures for which they are defined is strongly discouraged.
+ *
+ * @ingroup otherRateGroup
  */
 class ChebyshevRate final : public ReactionRate
 {

@@ -1,6 +1,5 @@
 /**
  * @file BulkKinetics.h
- * @ingroup chemkinetics
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -17,7 +16,7 @@ namespace Cantera
 {
 
 //! Specialization of Kinetics for chemistry in a single bulk phase
-//! @ingroup kinetics
+//! @ingroup kineticsmgr
 class BulkKinetics : public Kinetics
 {
 public:

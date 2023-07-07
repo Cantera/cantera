@@ -15,6 +15,7 @@ namespace Cantera
 
 //! Calculate and apply third-body effects on reaction rates, including non-
 //! unity third-body efficiencies.
+//! @ingroup rateEvaluators
 class ThirdBodyCalc
 {
 public:

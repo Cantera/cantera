@@ -12,16 +12,6 @@ namespace Cantera
 
 class AnyMap;
 
-/**
- *  @defgroup falloffGroup  Falloff Parameterizations
- *
- *  This section describes the parameterizations used to describe
- *  the fall-off in reaction rate constants due to intermolecular
- *  energy transfer.
- *  @ingroup chemkinetics
- */
-
-
 //! Data container holding shared data specific to Falloff rates
 /**
  * The data container `FalloffData` holds precalculated data common to
@@ -76,6 +66,7 @@ protected:
  * Base class for falloff rate calculators. Each instance of a subclass of FalloffRate
  * calculates the falloff reaction rate based on specific implementations of the
  * falloff function.
+ * @ingroup falloffGroup
  */
 class FalloffRate : public ReactionRate
 {
