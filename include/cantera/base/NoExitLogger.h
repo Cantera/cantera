@@ -10,7 +10,7 @@
 
 namespace Cantera {
 //! Logger that doesn't exit when an error is thrown.
-//! @ingroup textlogs
+//! @ingroup logGroup
 class NoExitLogger : public Logger {
 public:
     NoExitLogger() {}

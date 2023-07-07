@@ -35,8 +35,8 @@ namespace Cantera
  * here. At most one instance is created, and it is not destroyed until the
  * process terminates.
  *
- * @ingroup textlogs
  * @ingroup globalData
+ * @ingroup debugGroup
  */
 class Application
 {
@@ -60,13 +60,13 @@ protected:
          *
          * If only one argument is specified, that string is used as the
          * entire message.
-         * @ingroup errorhandling
+         * @ingroup errGroup
          */
         void addError(const std::string& r, const std::string& msg="");
 
         //! Return the number of errors that have been encountered so far.
         /*!
-         * @ingroup errorhandling
+         * @ingroup errGroup
          */
         int getErrorCount();
 
@@ -76,7 +76,7 @@ protected:
          * Application class. This routine eliminates the last exception to be
          * added to that stack.
          *
-         * @ingroup errorhandling
+         * @ingroup errGroup
          */
         void popError();
 
@@ -85,7 +85,7 @@ protected:
          * This routine will retrieve the last error message and return it in
          * the return string.
          *
-         * @ingroup errorhandling
+         * @ingroup errGroup
          */
         std::string lastErrorMessage();
 
@@ -99,7 +99,7 @@ protected:
          *
          * @param f ostream which will receive the error messages
          *
-         * @ingroup errorhandling
+         * @ingroup errGroup
          */
         void getErrors(std::ostream& f);
 
@@ -110,7 +110,7 @@ protected:
          * class. This routine writes out all of the error messages and then
          * clears them from internal storage.
          *
-         * @ingroup errorhandling
+         * @ingroup errGroup
          */
         void logErrors();
 
@@ -125,7 +125,7 @@ protected:
          * standard output stream.
          *
          * @param msg  c++ string to be written to the screen
-         * @ingroup textlogs
+         * @ingroup logGroup
          */
         void writelog(const std::string& msg);
 
@@ -136,7 +136,7 @@ protected:
         /*!
          * @param warning  String specifying type of warning; see Logger::warn()
          * @param msg  String to be written to the screen
-         * @ingroup textlogs
+         * @ingroup logGroup
          */
         void warnlog(const std::string& warning, const std::string& msg);
 
@@ -147,7 +147,7 @@ protected:
          *
          * @param logwriter Pointer to a logger object
          * @see Logger.
-         * @ingroup textlogs
+         * @ingroup logGroup
          */
         void setLogger(Logger* logwriter);
 
