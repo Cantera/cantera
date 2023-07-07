@@ -324,6 +324,7 @@ public:
     //! Sets the creationMoleNum's within the phase object
     /*!
      * @param n_k Pointer to a vector of n_k's
+     * @param creationGlobalRxnNumbers  Vector of global creation reaction numbers
      */
     void setCreationMoleNumbers(const double* const n_k, const std::vector<size_t> &creationGlobalRxnNumbers);
 
@@ -396,9 +397,6 @@ public:
      * @param spIndex local species index (0 to the number of species
      *                in the phase)
      * @param spGlobalIndex  Global species index (across all phases)
-     *
-     * @returns the VCS_SOLVE species index of the that species This changes as
-     *         rearrangements are carried out.
      */
     void setSpGlobalIndexVCS(const size_t spIndex, const size_t spGlobalIndex);
 
