@@ -18,12 +18,16 @@
 namespace Cantera
 {
 /**
- * @defgroup numerics  Numerical Utilities within Cantera
+ * @defgroup numerics  Numerical Utilities
  *
- * Cantera contains some capabilities for solving nonlinear equations and
- * integrating both ODE and DAE equation systems in time. This section describes
- * these capabilities.
- *
+ * @details Cantera contains some capabilities for solving nonlinear equations and
+ * integrating both ODE and DAE equation systems in time.
+ */
+
+/**
+ * @defgroup matrices  Matrix Handling
+ * Classes and methods implementing matrix operations.
+ * @ingroup numerics
  */
 
 //! A class for full (non-sparse) matrices with Fortran-compatible data storage,
@@ -45,7 +49,7 @@ namespace Cantera
  * m_printLevel. The default is for no reporting. If m_printLevel is nonzero,
  * the error condition is reported to Cantera's log file.
  *
- * @ingroup numerics
+ * @ingroup matrices
  */
 class DenseMatrix : public Array2D
 {

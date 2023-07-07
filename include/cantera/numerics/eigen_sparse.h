@@ -17,6 +17,7 @@
 
 namespace Cantera
 {
+//! @ingroup matrices
 typedef std::vector<Eigen::Triplet<double>> SparseTriplets;
 }
 

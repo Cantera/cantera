@@ -1,17 +1,19 @@
 /**
  *  @file utilities.h
- *  Various templated functions that carry out common vector
- *  operations (see \ref utils).
+ *  Various templated functions that carry out common vector and polynomial operations
+ *  (see \ref mathTemplates).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
 /**
- * @defgroup utils Templated Utility Functions
+ * @defgroup mathTemplates Templated Array and Polynomial Operations
  *
  * These are templates to perform various simple operations on arrays. Note that
  * the compiler will inline these, so using them carries no performance penalty.
+ *
+ * @ingroup numerics
  */
 
 #ifndef CT_UTILITIES_H
@@ -22,6 +24,10 @@
 
 namespace Cantera
 {
+/** @addtogroup mathTemplates
+ *  @{
+ */
+
 //! Templated Inner product of two vectors of length 4.
 /*!
  * If either \a x or \a y has length greater than 4, only the first 4 elements
@@ -163,6 +169,8 @@ R poly3(D x, R* c)
     return (((c[3]*x + c[2])*x + c[1])*x + c[0]);
 }
 
+/** @}*/
+
 //! Check to see that a number is finite (not NaN, +Inf or -Inf)
 void checkFinite(const double tmp);
 
@@ -187,6 +195,7 @@ const U& getValue(const std::map<T, U>& m, const T& key, const U& default_val) {
 }
 
 //! Get the size of a container, cast to a signed integer type
+//! @ingroup mathTemplates
 template <class T, class U=int>
 U len(const T& container) {
     return static_cast<U>(container.size());

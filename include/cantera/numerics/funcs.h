@@ -15,6 +15,13 @@
 namespace Cantera
 {
 
+/**
+ * @defgroup mathUtils  Numerical Integration and Interpolation
+ * Collection of numerical utility functions for integration, interpolation and data
+ * fitting.
+ * @ingroup numerics
+*/
+
 //! Linearly interpolate a function defined on a discrete grid.
 /*!
  * Vector xpts contains a monotonic sequence of grid points, and vector fpts
@@ -26,6 +33,7 @@ namespace Cantera
  * @param xpts value of the grid points
  * @param fpts value of the interpolant at the grid points
  * @returns the value of of the interpolated function at x.
+ * @ingroup mathUtils
  */
 doublereal linearInterp(doublereal x, const vector_fp& xpts,
                         const vector_fp& fpts);
@@ -38,6 +46,7 @@ doublereal linearInterp(doublereal x, const vector_fp& xpts,
  *
  * @param  f vector of function value
  * @param  x vector of function coordinate
+ * @ingroup mathUtils
  */
 double trapezoidal(const Eigen::ArrayXd& f, const Eigen::ArrayXd& x);
 
@@ -52,6 +61,7 @@ double trapezoidal(const Eigen::ArrayXd& f, const Eigen::ArrayXd& x);
  *
  * @param  f vector of function value
  * @param  x vector of function coordinate
+ * @ingroup mathUtils
  */
 double simpson(const Eigen::ArrayXd& f, const Eigen::ArrayXd& x);
 
@@ -64,6 +74,7 @@ double simpson(const Eigen::ArrayXd& f, const Eigen::ArrayXd& x);
  * @param  method method name
  * @param  f vector of function value
  * @param  x vector of function coordinate
+ * @ingroup mathUtils
  */
 double numericalQuadrature(const std::string& method,
                            const Eigen::ArrayXd& f,

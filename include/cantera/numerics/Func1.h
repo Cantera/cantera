@@ -43,6 +43,7 @@ class TimesConstant1;
 //! Functors implement functions of a single variable \f$ f(x) \f$.
 //! Functor objects can be combined to form compound expressions, which allows for
 //! the implementation of generic mathematical expressions.
+//! @ingroup numerics
 
 //! @defgroup func1simple Simple Functors
 //! Simple functors implement standard mathematical expressions with a single

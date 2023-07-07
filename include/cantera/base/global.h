@@ -4,8 +4,6 @@
  * inputfiles, logs, textlogs, (see \ref inputfiles, \ref logs, and
  * \ref textlogs).
  *
- * @ingroup utils
- *
  * These functions store some parameters in global storage that are accessible
  * at all times from the calling application. Contains module definitions for
  *     -  inputfiles  (see \ref inputfiles)
@@ -283,6 +281,7 @@ void setLogger(Logger* logwriter);
 void printStackTraceOnSegfault();
 
 //! Clip *value* such that lower <= value <= upper
+//! @ingroup mathTemplates
 template <class T>
 inline T clip(const T& value, const T& lower, const T& upper)
 {
@@ -290,6 +289,7 @@ inline T clip(const T& value, const T& lower, const T& upper)
 }
 
 //! Sign of a number. Returns -1 if x < 0, 1 if x > 0 and 0 if x == 0.
+//! @ingroup mathTemplates
 template <typename T> int sign(T x) {
     return (T(0) < x) - (x < T(0));
 }
