@@ -27,7 +27,7 @@ namespace Cantera
  * method of class MultiPhase, although there is no reason it cannot be used
  * directly in application programs if desired.
  *
- * @ingroup equil
+ * @ingroup equilGroup
  */
 class MultiPhaseEquil
 {

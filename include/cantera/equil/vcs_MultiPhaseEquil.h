@@ -25,7 +25,7 @@ namespace Cantera
  * argument, and the return parameters are contained in underlying ThermoPhase
  * objects.
  *
- * @ingroup equilfunctions
+ * @ingroup equilGroup
  */
 class vcs_MultiPhaseEquil
 {
