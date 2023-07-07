@@ -1,6 +1,0 @@
-/**
-\mainpage Cantera C++ Reference
-
-Use the menu at the top to view detailed documentation of the code.
-
-*/
