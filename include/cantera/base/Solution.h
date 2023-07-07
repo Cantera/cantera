@@ -17,8 +17,8 @@ class Kinetics;
 class Transport;
 class ExternalHandle;
 
-//! @defgroup compobj Composite Objects
-//! Composite objects create a high-level interface to Cantera's core objects.
+//! @defgroup compobj Objects Representing Phases
+//! High-level interface to %Cantera's core objects.
 
 //! A container class for chemically-reacting solutions.
 /*!

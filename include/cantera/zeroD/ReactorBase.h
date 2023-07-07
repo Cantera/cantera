@@ -15,9 +15,10 @@ namespace Cantera
 
 //! @defgroup ZeroD Zero-dimensional reactor networks
 //!
-//! See https://cantera.org/science/reactors.html for a description of the governing
-//! equations for specific reactor types and the methods used for solving networks of
-// interconnected reactors.
+//! See the [Reactor Science](https://cantera.org/science/reactors/reactors.html)
+//! section of the %Cantera website for a description of the governing equations for
+//! specific reactor types and the methods used for solving networks of interconnected
+//! reactors.
 
 class FlowDevice;
 class WallBase;
