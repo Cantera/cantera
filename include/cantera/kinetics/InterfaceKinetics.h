@@ -1,6 +1,5 @@
 /**
  * @file InterfaceKinetics.h
- * @ingroup chemkinetics
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -51,7 +50,7 @@ class ImplicitSurfChem;
  * kinetics operator. Nonexistent phases are deemed to be unstable by default,
  * but this can be changed.
  *
- *  @ingroup chemkinetics
+ * @ingroup kineticsmgr
  */
 class InterfaceKinetics : public Kinetics
 {

@@ -21,6 +21,7 @@ class Kinetics;
 //! Data container holding shared data used for ReactionRate calculation
 /**
  * The base class defines variables and methods used by all specializations.
+ * @ingroup reactionGroup
  */
 struct ReactionData
 {

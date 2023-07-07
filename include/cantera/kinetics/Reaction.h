@@ -20,8 +20,6 @@ class ThirdBody;
 class ArrheniusRate; // @todo  Remove after Cantera 3.0
 class FalloffRate; // @todo  Remove after Cantera 3.0
 
-//! @defgroup reactionGroup Reactions and reaction rates
-
 //! Abstract base class which stores data about a reaction and its rate
 //! parameterization so that it can be added to a Kinetics object.
 //! @ingroup reactionGroup
@@ -210,6 +208,7 @@ protected:
 
 
 //! A class for managing third-body efficiencies, including default values
+//! @ingroup reactionGroup
 class ThirdBody
 {
 public:

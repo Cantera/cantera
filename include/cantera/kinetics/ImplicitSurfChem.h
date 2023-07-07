@@ -51,7 +51,7 @@ namespace Cantera
  * phase with \f$ N_s \f$ surface sites, it consists of the surface coverages
  * \f$ \theta_k \f$ for \f$ k = 0, N_s - 1 \f$
  *
- * @ingroup  kineticsmgr
+ * @ingroup chemkinetics
  */
 class ImplicitSurfChem : public FuncEval
 {

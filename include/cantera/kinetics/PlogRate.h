@@ -71,6 +71,7 @@ protected:
  * the rate used in the interpolation formula is the sum of all the rates given
  * at that pressure. For pressures outside the given range, the rate expression
  * at the nearest pressure is used.
+ * @ingroup otherRateGroup
  */
 class PlogRate final : public ReactionRate
 {

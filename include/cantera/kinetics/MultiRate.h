@@ -16,6 +16,7 @@ namespace Cantera
 {
 
 //! A class template handling ReactionRate specializations.
+//! @ingroup rateEvaluators
 template <class RateType, class DataType>
 class MultiRate final : public MultiRateBase
 {

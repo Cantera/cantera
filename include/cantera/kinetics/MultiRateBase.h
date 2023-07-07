@@ -22,6 +22,7 @@ class Kinetics;
  * Because this class has no template parameters, the Kinetics object can store all of
  * these rate coefficient evaluators as a `vector<shared_ptr<MultiRateBase>>`. All of
  * the actual implementation for this capability is done in the MultiRate class.
+ * @ingroup rateEvaluators
  */
 class MultiRateBase
 {

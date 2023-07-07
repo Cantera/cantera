@@ -64,6 +64,7 @@ protected:
 //! Delegate methods of the ReactionRate class to external functions
 //!
 //! @since New in Cantera 3.0
+//! @ingroup otherRateGroup
 class ReactionRateDelegator : public Delegator, public ReactionRate
 {
 public:

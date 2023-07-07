@@ -33,20 +33,12 @@ struct ArrheniusData : public ReactionData
 };
 
 
-/**
- *  @defgroup arrheniusGroup  Arrhenius-type Parameterizations
- *
- *  This section describes the parameterizations used to describe the standard
- *  Arrhenius rate parameterization and derived models.
- *
- *  @ingroup chemkinetics
- */
-
 //! Base class for Arrhenius-type Parameterizations
 /*!
  * This base class provides a minimally functional interface that allows for parameter
  * access from derived classes as well as classes that use Arrhenius-type expressions
  * internally, for example FalloffRate and PlogRate.
+ * @ingroup arrheniusGroup
  */
 class ArrheniusBase : public ReactionRate
 {

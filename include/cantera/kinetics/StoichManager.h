@@ -119,6 +119,8 @@ namespace Cantera
  * non-zero entries of the sparse derivative matrix of the reaction rate-of-progress
  * vector, which itself is evaluated by the derivatives() method. The scale() method is
  * used to multiply rop entries by reaction order and a user-supplied factor.
+ *
+ * @ingroup rateEvaluators
  */
 
 /**

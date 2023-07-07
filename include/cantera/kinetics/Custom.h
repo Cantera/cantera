@@ -32,6 +32,7 @@ class Func1;
  *
  * @warning This class is an experimental part of the %Cantera API and
  *    may be changed or removed without notice.
+ * @ingroup otherRateGroup
  */
 class CustomFunc1Rate final : public ReactionRate
 {
