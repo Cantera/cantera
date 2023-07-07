@@ -28,6 +28,7 @@ namespace Cantera
  * @param[out] p  Array of polynomial coefficients, starting with the constant
  *     term. Length *deg+1*.
  * @returns the root mean squared error of the fit at the input points.
+ * @ingroup mathUtils
  */
 double polyfit(size_t n, size_t deg, const double* x, const double* y,
                const double* w, double* p);

@@ -25,6 +25,8 @@ namespace Cantera
  *     J(i,j) = data_start + index
  *         i = row
  *         j = column
+ *
+ * @ingroup matrices
  */
 class Array2D
 {

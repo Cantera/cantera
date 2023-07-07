@@ -1,7 +1,7 @@
 /**
  *  @file GeneralMatrix.h
  *   Declarations for the class GeneralMatrix which is a virtual base class for matrices handled by solvers
- *    (see class \ref numerics and \link Cantera::GeneralMatrix GeneralMatrix\endlink).
+ *    (see class \ref matrices and \link Cantera::GeneralMatrix GeneralMatrix\endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -18,6 +18,7 @@ namespace Cantera
 {
 
 //! Generic matrix
+//! @ingroup matrices
 class GeneralMatrix
 {
 public:

@@ -30,6 +30,8 @@ namespace Cantera
  * This class is a derived class of the base class GeneralMatrix. However,
  * within the oneD directory, the class is used as is, without reference to the
  * GeneralMatrix base type.
+ *
+ * @ingroup matrices
  */
 class BandMatrix : public GeneralMatrix
 {

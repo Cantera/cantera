@@ -16,6 +16,10 @@ namespace Cantera
 {
 
 /**
+ * @defgroup odeGroup  ODE and DAE Function Utilities
+*/
+
+/**
  *  Virtual base class for ODE/DAE right-hand-side function evaluators.
  *  Classes derived from FuncEval evaluate the right-hand-side function
  * \f$ \vec{F}(t,\vec{y})\f$ in
