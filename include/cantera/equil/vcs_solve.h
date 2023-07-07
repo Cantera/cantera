@@ -1,7 +1,7 @@
 /**
  * @file vcs_solve.h Header file for the internal object that holds the vcs
  *    equilibrium problem (see Class \link Cantera::VCS_SOLVE
- *    VCS_SOLVE\endlink and \ref equilfunctions ).
+ *    VCS_SOLVE\endlink and \ref equilGroup ).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -527,7 +527,7 @@ public:
      *       in the private data structure. All references to the species
      *       properties must employ the ind[] index vector.
      *    4. Initialization of arrays to zero.
-     *    5. Check to see if the problem is well posed (If all the element 
+     *    5. Check to see if the problem is well posed (If all the element
      *       abundances are zero, the algorithm will fail)
      *
      * @param printLvl Print level of the routine

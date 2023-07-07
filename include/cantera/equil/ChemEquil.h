@@ -52,7 +52,8 @@ public:
 };
 
 /**
- * @defgroup equil Chemical Equilibrium
+ * @defgroup equilGroup Chemical Equilibrium
+ * @details Classes and functions used for calculating chemical equilibrium.
  */
 
 /**
@@ -72,7 +73,7 @@ public:
  * non-zero mole fractions, precisely stoichiometric compositions (for example,
  * 2 H2 + O2). In general, if speed is important, this solver should be tried first,
  * and if it fails then use MultiPhaseEquil.
- * @ingroup equil
+ * @ingroup equilGroup
  */
 class ChemEquil
 {

@@ -294,7 +294,7 @@ public:
 
     //! Return the speed of sound. Units: m/s.
     /*!
-     * The speed of sound is defined as 
+     * The speed of sound is defined as
      * \f[
      * c = \sqrt{\left(\frac{\partial P}{\partial\rho}\right)_s}
      * \f]
@@ -1493,7 +1493,7 @@ public:
      *      log_level=0 suppresses diagnostics, and increasingly-verbose
      *      messages are written as loglevel increases.
      *
-     * @ingroup equilfunctions
+     * @ingroup equilGroup
      */
     void equilibrate(const std::string& XY, const std::string& solver="auto",
                      double rtol=1e-9, int max_steps=50000, int max_iter=100,

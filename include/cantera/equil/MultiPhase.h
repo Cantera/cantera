@@ -1,7 +1,7 @@
 /**
  * @file MultiPhase.h
  * Headers for the \link Cantera::MultiPhase MultiPhase\endlink
- * object that is used to set up multiphase equilibrium problems (see \ref equilfunctions).
+ * object that is used to set up multiphase equilibrium problems (see \ref equilGroup).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -16,9 +16,6 @@ namespace Cantera
 {
 
 class ThermoPhase;
-
-//! @defgroup equilfunctions Classes and functions used for calculating
-//!     chemical equilibrium.
 
 //! A class for multiphase mixtures. The mixture can contain any
 //! number of phases of any type.
@@ -54,7 +51,7 @@ class ThermoPhase;
  * of the species in all the phases that comprise the MultiPhase. The ordering
  * of species is contiguous with respect to the phase id.
  *
- * @ingroup equilfunctions
+ * @ingroup equilGroup
  */
 class MultiPhase
 {
@@ -359,7 +356,7 @@ public:
      *      log_level=0 suppresses diagnostics, and increasingly-verbose
      *      messages are written as loglevel increases.
      *
-     * @ingroup equilfunctions
+     * @ingroup equilGroup
      */
     void equilibrate(const std::string& XY, const std::string& solver="auto",
                      double rtol=1e-9, int max_steps=50000, int max_iter=100,
@@ -698,7 +695,7 @@ std::ostream& operator<<(std::ostream& s, MultiPhase& x);
  * @param[out] formRxnMatrix
  * @return      The number of components.
  *
- * @ingroup equilfunctions
+ * @ingroup equilGroup
  */
 size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
                      MultiPhase* mphase, std::vector<size_t>& orderVectorSpecies,
@@ -741,7 +738,7 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
  * @param[out] orderVectorElements Output vector containing the order of the
  *         elements that is necessary for calculation of the formula matrix.
  *
- * @ingroup equilfunctions
+ * @ingroup equilGroup
  */
 void ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
                    MultiPhase* mphase,
