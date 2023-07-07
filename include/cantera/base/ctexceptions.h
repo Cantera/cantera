@@ -2,7 +2,7 @@
  * @file ctexceptions.h
  *   Definitions for the classes that are
  *   thrown when %Cantera experiences an error condition
- *   (also contains errorhandling module text - see \ref errorhandling).
+ *   (also contains errorhandling module text - see \ref errGroup).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -18,11 +18,14 @@
 namespace Cantera
 {
 
+/**
+ * @defgroup debugGroup Errors & Diagnostics
+*/
+
 /*!
- * @defgroup errorhandling Error Handling
+ * @defgroup errGroup Errors
  *
- * \brief These classes and related functions are used to handle errors and
- *        unknown events within Cantera.
+ * @brief Handling of errors and unknown events within %Cantera.
  *
  * The general idea is that exceptions are thrown using the common base class
  * called CanteraError. Derived types of CanteraError characterize what type of
@@ -47,6 +50,7 @@ namespace Cantera
  * is thrown, with descriptive information indicating where the error occurred.
  * The Assert* checks are skipped if the NDEBUG preprocessor symbol is defined,
  * for example with the compiler option -DNDEBUG.
+ * @ingroup debugGroup
  */
 
 
@@ -56,7 +60,7 @@ namespace Cantera
  * from std::exception so that normal error handling operations from
  * applications may automatically handle the errors in their own way.
  *
- * @ingroup errorhandling
+ * @ingroup errGroup
  */
 class CanteraError : public std::exception
 {
@@ -126,7 +130,7 @@ private:
  * This error is thrown if a supplied length to a vector supplied to Cantera is
  * too small.
  *
- * @ingroup errorhandling
+ * @ingroup errGroup
  */
 class ArraySizeError : public CanteraError
 {
@@ -156,7 +160,7 @@ private:
 
 //! An array index is out of range.
 /*!
- *  @ingroup errorhandling
+ *  @ingroup errGroup
  */
 class IndexError : public CanteraError
 {
@@ -187,6 +191,7 @@ private:
 };
 
 //! An error indicating that an unimplemented function has been called
+//! @ingroup errGroup
 class NotImplementedError : public CanteraError
 {
 public:
@@ -238,7 +243,7 @@ public:
  *
  * @param expr  Boolean expression that must be true
  *
- * @ingroup errorhandling
+ * @ingroup errGroup
  */
 #ifndef AssertTrace
 #  define AssertTrace(expr)  ((expr) ? (void) 0 : throw CanteraError(STR_TRACE, std::string("failed assert: ") + #expr))
@@ -252,7 +257,7 @@ public:
  * @param expr  Boolean expression that must be true
  * @param procedure  Character string or std:string expression indicating the
  *     procedure where the assertion failed
- * @ingroup errorhandling
+ * @ingroup errGroup
  */
 #ifndef AssertThrow
 #  define AssertThrow(expr, procedure)   ((expr) ? (void) 0 : throw CanteraError(procedure, std::string("failed assert: ") + #expr))
@@ -269,7 +274,7 @@ public:
  * Additional arguments are passed on to the constructor for CanteraError to
  * generate a formatted error message.
  *
- * @ingroup errorhandling
+ * @ingroup errGroup
  */
 #ifndef AssertThrowMsg
 #  define AssertThrowMsg(expr, procedure, ...)  ((expr) ? (void) 0 : throw CanteraError(procedure + std::string(":\nfailed assert: \"") + std::string(#expr) + std::string("\""), __VA_ARGS__))
@@ -278,6 +283,7 @@ public:
 #endif
 
 //! Throw an exception if the specified exception is not a finite number.
+//! @ingroup errGroup
 #ifndef AssertFinite
 #  define AssertFinite(expr, procedure, ...) AssertThrowMsg(expr < BigNumber && expr > -BigNumber, procedure, __VA_ARGS__)
 #endif

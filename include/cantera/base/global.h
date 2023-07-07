@@ -1,14 +1,12 @@
 /**
  * @file global.h
  * This file contains definitions for utility functions and text for modules,
- * inputfiles, logs, textlogs, (see \ref inputfiles, \ref logs, and
- * \ref textlogs).
+ * inputfiles and logging, (see \ref inputfiles, and \ref logGroup).
  *
  * These functions store some parameters in global storage that are accessible
  * at all times from the calling application. Contains module definitions for
  *     -  inputfiles  (see \ref inputfiles)
- *     -  logs        (see \ref logs)
- *     -  textlogs    (see \ref textlogs)
+ *     -  text logs  (see \ref logGroup)
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -85,11 +83,6 @@ void loadExtensions(const AnyMap& node);
 //! @copydoc Application::searchPythonVersions
 void searchPythonVersions(const string& versions);
 
-//! Returns `true` if Cantera was loaded as a shared library in the current
-//! application. Returns `false` if it was statically linked.
-//! @since New in Cantera 3.0
-bool usingSharedLibrary();
-
 //! Delete and free all memory associated with the application
 /*!
  * Delete all global data.  It should be called at the end of the
@@ -100,37 +93,56 @@ void appdelete();
 //! @copydoc Application::thread_complete
 void thread_complete();
 
-//! Returns the Cantera version. This function when needing to access the version from a
-//! library, rather than the `CANTERA_VERSION` macro that is available at compile time.
+//! @defgroup globalSettings  Global Cantera Settings
+//! @brief Functions for accessing global %Cantera settings.
+//! @ingroup globalData
+
+//! @addtogroup globalSettings
+//! @{
+
+//! Returns `true` if %Cantera was loaded as a shared library in the current
+//! application. Returns `false` if it was statically linked.
+//! @since New in Cantera 3.0
+bool usingSharedLibrary();
+
+//! @name Cantera Version Information
+//! @{
+
+//! Returns the %Cantera version. This function is used to access the version from a
+//! library, rather than the \c CANTERA_VERSION macro that is available at compile time.
 //! @since New in Cantera 3.0
 string version();
 
-//! Returns the hash of the git commit from which Cantera was compiled, if known
+//! Returns the hash of the git commit from which %Cantera was compiled, if known
 std::string gitCommit();
 
-//! Returns true if Cantera was compiled in debug mode. Used for handling some cases
+//! @}
+
+//! Returns true if %Cantera was compiled in debug mode. Used for handling some cases
 //! where behavior tested in the test suite changes depending on whether the `NDEBUG`
 //! preprocessor macro is defined.
 bool debugModeEnabled();
 
-//! Returns true if Cantera was compiled with C++ HDF5 support.
+//! Returns true if %Cantera was compiled with C++ \c HDF5 support.
 //! @since  New in Cantera 3.0.
 bool usesHDF5();
 
+//! @}
+
 /*!
- * @defgroup logs Diagnostic Output
+ * @defgroup logGroup Logging
+ * @brief Logging and generation of diagnostic output.
  *
  * Writing diagnostic information to the screen or to a file. It is often
  * useful to be able to write diagnostic messages to the screen or to a file.
- * Cantera a set of procedures for this purpose designed to write text messages
+ * Cantera defines a set of procedures for this purpose designed to write text messages
  * to the screen to document the progress of a complex calculation, such as a
  * flame simulation.
+ * @ingroup debugGroup
  */
 
-/*!
- * @defgroup textlogs Writing messages to the screen
- * @ingroup logs
- */
+//! @addtogroup logGroup
+//! @{
 
 //! @copydoc Application::Messages::writelog(const std::string&)
 void writelog_direct(const std::string& msg);
@@ -152,7 +164,6 @@ inline void debuglog(const std::string& msg, int loglevel)
 //! writing directly to the standard output is that messages written with
 //! writelog will display correctly even when Cantera is used from MATLAB or
 //! other application that do not have a standard output stream.
-//! @ingroup textlogs
 template <typename... Args>
 void writelog(const std::string& fmt, const Args&... args) {
     if (sizeof...(args) == 0) {
@@ -172,7 +183,6 @@ void writelog(const std::string& fmt, const Args&... args) {
  *
  * @param fmt  c format string for the following arguments
  * @param args arguments used to interpolate the format string
- * @ingroup textlogs
  */
 template <typename... Args>
 void writelogf(const char* fmt, const Args& ... args) {
@@ -185,8 +195,19 @@ void writelogendl();
 void writeline(char repeat, size_t count,
                bool endl_after=true, bool endl_before=false);
 
+//! @} End of logging group
+
+//! @defgroup warnGroup  Warnings
+//! @ingroup debugGroup
+//! @brief Warnings raised by %Cantera
+//! @{
+
+//! @cond
+
 //! helper function passing deprecation warning to global handler
 void _warn_deprecated(const std::string& method, const std::string& extra="");
+
+//! @endcond
 
 //! Print a deprecation warning raised from *method*.
 /*!
@@ -205,12 +226,13 @@ void warn_deprecated(const std::string& method, const std::string& msg,
     }
 }
 
-//! @copydoc Application::suppress_deprecation_warnings
-void suppress_deprecation_warnings();
+//! @cond
 
 //! helper function passing generic warning to global handler
 void _warn(const std::string& warning,
            const std::string& method, const std::string& extra);
+
+//! @endcond
 
 //! Print a generic warning raised from *method*.
 /*!
@@ -246,6 +268,17 @@ void warn_user(const std::string& method, const std::string& msg,
     }
 }
 
+//! @} End of warnings group
+
+//! @addtogroup globalSettings
+//! @{
+
+//! @name Global Warning Settings
+//! @{
+
+//! @copydoc Application::suppress_deprecation_warnings
+void suppress_deprecation_warnings();
+
 //! @copydoc Application::make_deprecation_warnings_fatal
 void make_deprecation_warnings_fatal();
 
@@ -264,13 +297,18 @@ void suppress_warnings();
 //! @copydoc Application::warnings_suppressed
 bool warnings_suppressed();
 
+//! @} End of warning settings
+
 //! @copydoc Application::use_legacy_rate_constants
 void use_legacy_rate_constants(bool legacy=true);
 
 //! @copydoc Application::legacy_rate_constants_used
 bool legacy_rate_constants_used();
 
+// @} End of globalSettings group
+
 //! @copydoc Application::Messages::setLogger
+//! @ingroup logGroup
 void setLogger(Logger* logwriter);
 
 //! Enables printing a stacktrace to `std::err` if a segfault occurs. The Boost
@@ -278,6 +316,7 @@ void setLogger(Logger* logwriter);
 //! and risks deadlocking. However, it can be useful for debugging and is therefore
 //! enabled when running tests.
 //! @since New in Cantera 3.0
+//! @ingroup globalSettings
 void printStackTraceOnSegfault();
 
 //! Clip *value* such that lower <= value <= upper

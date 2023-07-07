@@ -9,7 +9,7 @@
 namespace Cantera {
 
 //! Logger that delegates to an external source via a callback to produce log output.
-//! @ingroup textlogs
+//! @ingroup logGroup
 class ExternalLogger : public Logger
 {
 public:
