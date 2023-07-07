@@ -47,13 +47,20 @@ using std::function;
 using std::pair;
 
 /*!
- * All physical constants are stored here.
- *
  * @defgroup physConstants Physical Constants
+ * @brief Physical constants used by %Cantera.
+ *
  * %Cantera uses the MKS system of units. The unit for moles
  * is defined to be the kmol. All values of physical constants
  * are consistent with the 2018 CODATA recommendations.
  * @ingroup globalData
+ */
+
+//! @addtogroup physConstants
+//! @{
+
+/**
+ * @name Numerical Constants
  * @{
  */
 
@@ -66,8 +73,8 @@ const double Sqrt2 = 1.41421356237309504880;
 //! @}
 //! @name Defined Constants
 //!
-//! These constants are defined by CODATA to have a particular value.
-//! https://physics.nist.gov/cuu/Constants/index.html
+//! These constants are defined by CODATA to have a particular value; see
+//! [NIST Reference on Constants, Units, and Uncertainty](https://physics.nist.gov/cuu/Constants/index.html).
 //! @{
 
 //! Avogadro's Number \f$ N_{\mathrm{A}} \f$ [number/kmol]
@@ -130,6 +137,9 @@ const double permeability_0 = 2 * fineStructureConstant * Planck / (ElectronChar
 const double epsilon_0 = 1.0 / (lightSpeed * lightSpeed * permeability_0);
 
 //! @}
+
+//! @}
+
 //! @name Thermodynamic Equilibrium Constraints
 //!
 //! Integer numbers representing pairs of thermodynamic variables
