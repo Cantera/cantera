@@ -999,7 +999,7 @@ void SolutionArray::writeEntry(const string& fname, bool overwrite, const string
     size_t last = names.size() - 1;
     vector<AnyValue> components;
     vector<bool> isSpecies;
-    std::stringstream header;
+    fmt::memory_buffer header;
     for (const auto& key : names) {
         string label = key;
         size_t col;
@@ -1032,13 +1032,11 @@ void SolutionArray::writeEntry(const string& fname, bool overwrite, const string
                 "Detected column name containing double quotes or line feeds: '{}'.",
                 label);
         }
+        string sep = (col == last) ? "" : ",";
         if (label.find(",") != string::npos) {
-            header << "\"" << label << "\"";
+            fmt_append(header, "\"{}\"{}", label, sep);
         } else {
-            header << label;
-        }
-        if (col != last) {
-            header << ",";
+            fmt_append(header, "{}{}", label, sep);
         }
     }
 
@@ -1052,11 +1050,15 @@ void SolutionArray::writeEntry(const string& fname, bool overwrite, const string
         std::remove(fname.c_str());
     }
     std::ofstream output(fname);
-    const auto default_precision = output.precision();
-    output << header.str() << std::endl << std::setprecision(9);
+    output << to_string(header) << std::endl;
 
+    size_t maxLen = npos;
     vector<double> buf(speciesNames.size(), 0.);
     for (int row = 0; row < static_cast<int>(m_size); row++) {
+        fmt::memory_buffer line;
+        if (maxLen != npos) {
+            line.reserve(maxLen);
+        }
         setLoc(row);
         if (mole) {
             m_sol->thermo()->getMoleFractions(buf.data());
@@ -1066,14 +1068,18 @@ void SolutionArray::writeEntry(const string& fname, bool overwrite, const string
 
         size_t idx = 0;
         for (size_t col = 0; col < components.size(); col++) {
+            string sep = (col == last) ? "" : ",";
             if (isSpecies[col]) {
-                output << buf[idx++];
+                fmt_append(line, "{:.9g}{}", buf[idx++], sep);
             } else {
                 auto& data = components[col];
                 if (data.isVector<double>()) {
-                    output << data.asVector<double>()[row];
+                    fmt_append(line, "{:.9g}{}", data.asVector<double>()[row], sep);
                 } else if (data.isVector<long int>()) {
-                    output << data.asVector<long int>()[row];
+                    fmt_append(line, "{}{}", data.asVector<long int>()[row], sep);
+                } else if (data.isVector<bool>()) {
+                    fmt_append(line, "{}{}",
+                               static_cast<bool>(data.asVector<bool>()[row]), sep);
                 } else {
                     auto value = data.asVector<string>()[row];
                     if (value.find("\"") != string::npos ||
@@ -1084,19 +1090,16 @@ void SolutionArray::writeEntry(const string& fname, bool overwrite, const string
                             "'{}'", value);
                     }
                     if (value.find(",") != string::npos) {
-                        output << "\"" << value << "\"";
+                        fmt_append(line, "\"{}\"{}", value, sep);
                     } else {
-                        output << value;
+                        fmt_append(line, "{}{}", value, sep);
                     }
                 }
             }
-            if (col != last) {
-                output << ",";
-            }
         }
-        output << std::endl;
+        output << to_string(line) << std::endl;
+        maxLen = std::max(maxLen, line.size());
     }
-    output << std::endl << std::setprecision(default_precision);
 }
 
 void SolutionArray::writeEntry(const string& fname, const string& name,
