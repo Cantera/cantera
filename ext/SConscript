@@ -48,7 +48,10 @@ if not env['system_fmt']:
     localenv = prep_default(env)
     localenv.Prepend(CPPPATH=Dir('#ext/fmt/include'))
     libraryTargets.extend(localenv.SharedObject(['fmt/src/format.cc', 'fmt/src/os.cc']))
-    for name in ('format.h', 'ostream.h', 'printf.h', 'core.h', 'format-inl.h'):
+    fmt_includes = [
+        'format.h', 'ostream.h', 'printf.h', 'core.h', 'compile.h', 'format-inl.h'
+    ]
+    for name in fmt_includes:
         ext_copies.extend(
             copyenv.Command("#include/cantera/ext/fmt/" + name,
                             "#ext/fmt/include/fmt/" + name,
