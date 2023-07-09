@@ -388,7 +388,7 @@ void emitFlowVector(YAML::Emitter& out, const vector<T>& v)
     out << YAML::Flow;
     out << YAML::BeginSeq;
     size_t width = 15; // wild guess, but no better value is available
-    for (const auto& x : v) {
+    for (const T& x : v) {
         string xstr = fmt::format("{}", x);
         // Wrap to the next line if this item would exceed the target line length
         if (width + xstr.size() > max_line_length) {
