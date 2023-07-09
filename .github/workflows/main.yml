@@ -409,7 +409,7 @@ jobs:
         if: failure() || success()
 
   multiple-sundials:
-    name: Sundials ${{ matrix.sundials-ver }}
+    name: Sundials ${{ matrix.sundials-ver }} / fmt ${{ matrix.fmt-ver }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
     env:
@@ -419,7 +419,15 @@ jobs:
         shell: bash -l {0}
     strategy:
       matrix:
-        sundials-ver: [ 3, 4, 5.8, 6.4.1 ]
+        include:
+        - sundials-ver: 3
+          fmt-ver: 7.1
+        - sundials-ver: 4
+          fmt-ver: 8.1
+        - sundials-ver: 5.8
+          fmt-ver: 9.1
+        - sundials-ver: 6.4.1
+          fmt-ver: 10
       fail-fast: false
     steps:
       - uses: actions/checkout@v3
@@ -438,8 +446,8 @@ jobs:
         # use boost-cpp rather than boost from conda-forge
         run: |
           conda install -q sundials=${{ matrix.sundials-ver }} scons numpy ruamel.yaml \
-          cython boost-cpp fmt eigen yaml-cpp h5py pandas libgomp openblas pytest \
-          highfive pint
+          cython boost-cpp fmt=${{ matrix.fmt-ver }} eigen yaml-cpp h5py pandas \
+          libgomp openblas pytest highfive pint
       - name: Build Cantera
         run: |
           scons build system_fmt=y system_eigen=y system_yamlcpp=y system_sundials=y \
@@ -470,7 +478,7 @@ jobs:
           test -f h2o2-test.ck
 
   windows-2022:
-    name: ${{ matrix.os }}, MSVC ${{ matrix.vs-toolset }}, Python ${{ matrix.python-version }}
+    name: ${{ matrix.os }}, MSVC ${{ matrix.vs-toolset }}, Python ${{ matrix.python-version }}, fmt ${{ matrix.fmt-ver }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     defaults:
@@ -481,6 +489,13 @@ jobs:
         os: ["windows-2022"]
         vs-toolset: ["14.1", "14.3"]
         python-version: ["3.8", "3.10", "3.11"]
+        include:
+        - python-version: 3.8
+          fmt-ver: 10
+        - python-version: 3.10
+          fmt-ver: 8.1
+        - python-version: 3.11
+          fmt-ver: 7.1
       fail-fast: false
     steps:
     - uses: actions/checkout@v3
@@ -501,7 +516,7 @@ jobs:
       # use boost-cpp rather than boost from conda-forge
       # Install SCons >=4.4.0 to make sure that MSVC_TOOLSET_VERSION variable is present
       run: |
-        mamba install -q '"scons>=4.4.0"' numpy cython ruamel.yaml boost-cpp eigen yaml-cpp h5py pandas pytest highfive pint
+        mamba install -q '"scons>=4.4.0"' numpy cython ruamel.yaml boost-cpp eigen yaml-cpp h5py pandas pytest highfive pint fmt=${{ matrix.fmt-ver }}
       shell: pwsh
     - name: Build Cantera
       run: scons build system_eigen=y system_yamlcpp=y system_highfive=y logging=debug
@@ -509,7 +524,7 @@ jobs:
       shell: pwsh
     - name: Upload shared library
       uses: actions/upload-artifact@v3
-      if: matrix.python-version == '3.10'
+      if: matrix.python-version == '3.10' && matrix.vs-toolset == '14.3'
       with:
         path: build/lib/cantera_shared.dll
         name: cantera_shared.dll
@@ -777,7 +792,9 @@ jobs:
     - name: Install Python dependencies
       run: python3 -m pip install ruamel.yaml
     - name: Install library dependencies with Conda (Windows)
-      run: mamba install -q yaml-cpp mkl highfive
+      # fmt needs to match the version of the windows-2022 runner selected to upload
+      # the cantera_shared.dll artifact
+      run: mamba install -q yaml-cpp mkl highfive fmt=8.1
       shell: pwsh
       if: matrix.os == 'windows-2022'
     - name: Install Brew dependencies (macOS)
