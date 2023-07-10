@@ -1206,7 +1206,6 @@ if env['system_fmt'] in ('y', 'default'):
         else:
             env['system_fmt'] = True
             logger.info(f"Using system installation of fmt library.")
-            logger.info(f"Using fmt version {fmt_lib_version}")
     elif env['system_fmt'] == 'y':
         config_error('Expected system installation of fmt library, but it '
             'could not be found.')
@@ -1236,7 +1235,9 @@ if env['system_fmt'] in ('n', 'default'):
     fmt_lib_version = split_version(fmt_lib_version)
     env['system_fmt'] = False
     logger.info(f"Using private installation of fmt library.")
-    logger.info(f"Using fmt version {fmt_lib_version}")
+
+env.Append(CPPDEFINES={"FMT_HEADER_ONLY": 1})
+logger.info(f"Using fmt version {fmt_lib_version}")
 
 # Check for yaml-cpp library and checkout submodule if needed
 if env['system_yamlcpp'] in ('y', 'default'):
