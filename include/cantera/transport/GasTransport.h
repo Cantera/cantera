@@ -233,15 +233,24 @@ protected:
      */
     void fitCollisionIntegrals(MMCollisionInt& integrals);
 
-    //! Generate polynomial fits to the viscosity and conductivity
+    //! Generate polynomial fits to the viscosity \f$ \eta \f$ and conductivity
+    //! \f$ \lambda \f$.
     /*!
      * If CK_mode, then the fits are of the form
      * \f[
-     *      \log(\eta(i)) = \sum_{n = 0}^3 a_n(i) (\log T)^n
+     *      \log(\eta(i)) = \sum_{n=0}^3 a_n(i) \, (\log T)^n
+     * \f]
+     * and
+     * \f[
+     *      \log(\lambda(i)) = \sum_{n=0}^3 b_n(i) \, (\log T)^n
      * \f]
      * Otherwise the fits are of the form
      * \f[
-     *      \eta(i)/sqrt(k_BT) = \sum_{n = 0}^4 a_n(i) (\log T)^n
+     *      \left(\eta(i)\right)^{1/2} = T^{1/4} \sum_{n=0}^4 a_n(i) \, (\log T)^n
+     * \f]
+     * and
+     * \f[
+     *      \lambda(i) = T^{1/2} \sum_{n=0}^4 b_n(i) \, (\log T)^n
      * \f]
      *
      * @param integrals interpolator for the collision integrals
@@ -252,11 +261,11 @@ protected:
     /*!
      * If CK_mode, then the fits are of the form
      * \f[
-     *      \log(D(i,j)) = \sum_{n = 0}^3 a_n(i,j) (\log T)^n
+     *      \log(D(i,j)) = \sum_{n=0}^3 c_n(i,j) \, (\log T)^n
      * \f]
      * Otherwise the fits are of the form
      * \f[
-     *      D(i,j)/sqrt(k_BT)) = \sum_{n = 0}^4 a_n(i,j) (\log T)^n
+     *      D(i,j) = T^{3/2} \sum_{n=0}^4 c_n(i,j) \, (\log T)^n
      * \f]
      *
      * @param integrals interpolator for the collision integrals
