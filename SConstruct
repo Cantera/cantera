@@ -869,6 +869,9 @@ elif env["CC"] == "cl": # Visual Studio
     config.select("cl")
 
 elif "icc" in env.subst("$CC"):
+    logger.warning("Support for the deprecated Intel compiler suite (icc/icpc) "
+                   "will be removed after Cantera 3.0.\nConsider using the new "
+                   "LLVM-based Intel oneAPI compilers (icx/icpx) instead.")
     config.select("icc")
 
 elif "icx" in env.subst("$CC"):
