@@ -71,7 +71,7 @@ Fields of a species ``thermo`` entry used by all models are:
 NASA 7-coefficient polynomials
 ------------------------------
 
-The polynomial form `described here <https://cantera.org/science/science-species.html#the-nasa-7-coefficient-polynomial-parameterization>`__,
+The polynomial form `described here <https://cantera.org/science/species-thermo.html#the-nasa-7-coefficient-polynomial-parameterization>`__,
 given for one or two temperature regions. Additional fields of a ``NASA7``
 thermo entry are:
 
@@ -104,7 +104,7 @@ Example::
 NASA 9-coefficient polynomials
 ------------------------------
 
-The polynomial form `described here <https://cantera.org/science/science-species.html#the-nasa-9-coefficient-polynomial-parameterization>`__,
+The polynomial form `described here <https://cantera.org/science/species-thermo.html#the-nasa-9-coefficient-polynomial-parameterization>`__,
 given for any number of temperature regions. Additional fields of a ``NASA9``
 thermo entry are:
 
@@ -140,7 +140,7 @@ Example::
 Shomate polynomials
 -------------------
 
-The polynomial form `described here <https://cantera.org/science/science-species.html#the-shomate-parameterization>`__,
+The polynomial form `described here <https://cantera.org/science/species-thermo.html#the-shomate-parameterization>`__,
 given for one or two temperature regions. Additional fields of a ``Shomate``
 thermo entry are:
 
@@ -173,7 +173,7 @@ Example::
 Constant heat capacity
 ----------------------
 
-The constant heat capacity model `described here <https://cantera.org/science/science-species.html#constant-heat-capacity>`__.
+The constant heat capacity model `described here <https://cantera.org/science/species-thermo.html#constant-heat-capacity>`__.
 Additional fields of a ``constant-cp`` thermo entry are:
 
 ``T0``

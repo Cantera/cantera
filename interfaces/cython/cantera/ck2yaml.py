@@ -209,7 +209,7 @@ class Nasa7:
     """
     Thermodynamic data parameterized as two seven-coefficient NASA
     polynomials.
-    See https://cantera.org/science/science-species.html#the-nasa-7-coefficient-polynomial-parameterization
+    See https://cantera.org/science/species-thermo.html#the-nasa-7-coefficient-polynomial-parameterization
     """
     def __init__(self, *, Tmin, Tmax, Tmid, low_coeffs, high_coeffs, note=''):
         self.Tmin = Tmin
@@ -240,7 +240,7 @@ class Nasa9:
     """
     Thermodynamic data parameterized as any number of nine-coefficient NASA
     polynomials.
-    See https://cantera.org/science/science-species.html#the-nasa-9-coefficient-polynomial-parameterization
+    See https://cantera.org/science/species-thermo.html#the-nasa-9-coefficient-polynomial-parameterization
 
     :param data:
         List of polynomials, where each polynomial is written as
