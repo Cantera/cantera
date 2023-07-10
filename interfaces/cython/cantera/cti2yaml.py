@@ -266,14 +266,14 @@ class species:
             The parameterization to use to compute the reference-state
             thermodynamic properties. This must be one of the entry types
             described in `Thermodynamic Property Models
-            <https://cantera.org/science/science-species.html#sec-thermo-models>`__.
+            <https://cantera.org/science/species-thermo.html#sec-thermo-models>`__.
             To specify multiple parameterizations, each for a different temperature range,
             group them in parentheses.
         :param transport:
             An entry specifying parameters to compute this species'
             contribution to the transport properties. This must be one of the
             entry types described in `Species Transport Coefficients
-            <https://cantera.org/science/science-species.html#species-transport-coefficients>`__,
+            <https://cantera.org/science/species-thermo.html#species-transport-coefficients>`__,
             and must be consistent with the transport model of the phase into which
             the species is imported. To specify parameters for multiple
             transport models, group the entries in parentheses.
