@@ -197,10 +197,11 @@ public:
     //! @param limit value for step size limit
     void setAdvanceLimit(const std::string& nm, const double limit);
 
-    //! Method to calculate the reactor specific jacobian
+    //! Calculate the Jacobian of a specific Reactor specialization.
     //! @warning Depending on the particular implementation, this may return an
     //! approximate Jacobian intended only for use in forming a preconditioner for
     //! iterative solvers.
+    //! @ingroup derivGroup
     //!
     //! @warning  This method is an experimental part of the %Cantera
     //! API and may be changed or removed without notice.

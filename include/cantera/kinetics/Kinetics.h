@@ -22,6 +22,9 @@ class Reaction;
 class Solution;
 class AnyMap;
 
+//! @defgroup derivGroup Derivative Calculations
+//! @details Methods for calculating analytical and/or numerical derivatives.
+
 /**
  * @defgroup chemkinetics Chemical Kinetics
  */
@@ -590,11 +593,15 @@ public:
     virtual void getNetProductionRates(doublereal* wdot);
 
     //! @}
-    //! @name Routines to Calculate Derivatives (Jacobians)
+
+    //! @addtogroup derivGroup
+    //! @{
+
+    //! @name Routines to Calculate Kinetics Derivatives (Jacobians)
     //!
-    //! Derivatives are calculated with respect to temperature, pressure, molar
-    //! concentrations and species mole fractions for forward/reverse/net rates of
-    //! progress as well as creation/destruction and net production of species.
+    //! Kinetics derivatives are calculated with respect to temperature, pressure,
+    //! molar concentrations and species mole fractions for forward/reverse/net rates
+    //! of progress as well as creation/destruction and net production of species.
     //!
     //! The following suffixes are used to indicate derivatives:
     //!  - `_ddT`: derivative with respect to temperature (a vector)
@@ -1064,6 +1071,8 @@ public:
     Eigen::SparseMatrix<double> netProductionRates_ddCi();
 
     //! @}
+    //! @} End of addtogroup derivGroup
+
     //! @name Reaction Mechanism Informational Query Routines
     //! @{
 

@@ -45,7 +45,8 @@ public:
     //!     superseded by addDomain() using shared_ptr<Domain1D>
     void addDomain(Domain1D* d);
 
-    //! Return a reference to the Jacobian evaluator.
+    //! Return a reference to the Jacobian evaluator of an OneDim object.
+    //! @ingroup derivGroup
     MultiJac& jacobian();
 
     //! Return a reference to the Newton iterator.
