@@ -3,8 +3,8 @@
 > **Note:** This is the **%Cantera C++ API** documentation; for general
 > information on %Cantera, refer to [**Cantera's main website**](https://cantera.org).
 
-Use the menu at the top to view detailed documentation of the code, or use the
-following shortcuts:
+Use sidebar or menu at the top to view detailed documentation of the code, or
+use the following shortcuts:
 
 * Overview of [**Cantera C++ Modules**](modules.html)
 * Index of [**Cantera C++ Classes**](classes.html)

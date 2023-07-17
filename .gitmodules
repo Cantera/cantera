@@ -16,3 +16,6 @@
 [submodule "ext/HighFive"]
 	path = ext/HighFive
 	url = https://github.com/BlueBrain/HighFive.git
+[submodule "ext/doxygen-awesome-css"]
+	path = ext/doxygen-awesome-css
+	url = https://github.com/jothepro/doxygen-awesome-css.git
