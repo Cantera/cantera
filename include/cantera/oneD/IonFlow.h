@@ -26,7 +26,7 @@ namespace Cantera
  * Pederson, Timothy, and R. C. Brown.
  * "Simulation of electric field effects in premixed methane flames."
  * Combustion and Flames 94.4(1993): 433-448.
- * @ingroup onedim
+ * @ingroup flowGroup
  */
 class IonFlow : public StFlow
 {

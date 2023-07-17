@@ -13,7 +13,7 @@ A topical overview is provided as follows:
 * @ref chemkinetics (reactions, rates of progress, reaction path analysis, ...)
 * @ref tranprops (diffusion, viscosity, thermal conductivity, ...)
 * @ref zerodGroup (reactors, walls, flow devices, ...)
-* @ref onedim (flames, flow domains, boundaries, ...)
+* @ref onedGroup (flames, flow domains, boundaries, ...)
 * @ref physConstants (universal constants, built into %Cantera for convenience)
 
 For fundamental scientific theory used for the implementation of %Cantera, refer to the
