@@ -2,10 +2,6 @@
  *  @file Integrator.h
  */
 
-/**
- * @defgroup intGroup Integrators for initial value problems
- */
-
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
@@ -335,6 +331,10 @@ private:
 };
 
 // defined in Integrators.cpp
+
+//! Create new Integrator object
+//! @param itype Integration mode; either \c CVODE or \c IDA
+//! @ingroup odeGroup
 Integrator* newIntegrator(const std::string& itype);
 
 } // namespace

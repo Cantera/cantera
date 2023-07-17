@@ -14,6 +14,8 @@
 namespace Cantera
 {
 
+//! @defgroup globalUtilFuncs Global Utility Functions
+
 //! The class provides the wall clock timer in seconds
 /*!
  * This routine relies on the ANSI C routine, clock(), for its basic operation.
