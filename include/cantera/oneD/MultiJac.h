@@ -17,8 +17,9 @@ namespace Cantera
  * residual function supplied by an instance of class OneDim. The residual
  * function may consist of several linked 1D domains, with different variables
  * in each domain.
-* @ingroup onedUtilsGroup
-  */
+ * @ingroup onedUtilsGroup
+ * @ingroup derivGroup
+ */
 class MultiJac : public BandMatrix
 {
 public:

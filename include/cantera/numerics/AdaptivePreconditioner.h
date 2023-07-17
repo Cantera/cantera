@@ -48,7 +48,8 @@ public:
     //! Prune preconditioner elements
     void prunePreconditioner();
 
-    //! Function used to return semi-analytical jacobian matrix
+    //! Return semi-analytical Jacobian of an AdaptivePreconditioner object.
+    //! @ingroup derivGroup
     Eigen::SparseMatrix<double> jacobian() {
         Eigen::SparseMatrix<double> jacobian_mat(m_dim, m_dim);
         jacobian_mat.setFromTriplets(m_jac_trips.begin(), m_jac_trips.end());
