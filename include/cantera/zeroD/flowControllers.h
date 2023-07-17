@@ -14,7 +14,8 @@ namespace Cantera
 
 /**
  * A class for mass flow controllers. The mass flow rate is constant or
- * specified as a function of time..
+ * specified as a function of time.
+ * @ingroup flowDeviceGroup
  */
 class MassFlowController : public FlowDevice
 {
@@ -59,6 +60,7 @@ public:
  * A class for flow controllers where the flow rate is equal to the flow rate
  * of a primary mass flow controller plus a correction proportional to the
  * pressure difference between the inlet and outlet.
+ * @ingroup flowDeviceGroup
  */
 class PressureController : public FlowDevice
 {
@@ -119,6 +121,7 @@ protected:
  * The default behavior is a linearly proportional to the pressure difference.
  * Note that real valves do not have this behavior, so this class does not
  * model real, physical valves.
+ * @ingroup flowDeviceGroup
  */
 class Valve : public FlowDevice
 {

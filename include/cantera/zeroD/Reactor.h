@@ -38,7 +38,7 @@ class AnyMap;
  *  - surface heat loss rate (W)
  *  - species surface production rates (kmol/s)
  *
- * @ingroup ZeroD
+ * @ingroup reactorGroup
  */
 class Reactor : public ReactorBase
 {

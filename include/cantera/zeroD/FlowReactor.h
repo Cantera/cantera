@@ -12,6 +12,7 @@ namespace Cantera
 {
 
 //! Adiabatic flow in a constant-area duct with homogeneous and heterogeneous reactions
+//! @ingroup reactorGroup
 class FlowReactor : public IdealGasReactor
 {
 public:

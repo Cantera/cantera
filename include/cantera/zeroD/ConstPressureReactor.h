@@ -18,6 +18,7 @@ namespace Cantera
  * pressure regulator, etc. Additional reactors may be connected to the other
  * end of the flow device, allowing construction of arbitrary reactor
  * networks.
+ * @ingroup reactorGroup
  */
 class ConstPressureReactor : public Reactor
 {

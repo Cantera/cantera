@@ -17,6 +17,7 @@ namespace Cantera
  * be connected to a "flow device" such as a mass flow controller, a pressure
  * regulator, etc. Additional reactors may be connected to the other end of the
  * flow device, allowing construction of arbitrary reactor networks.
+ * @ingroup reactorGroup
  */
 class IdealGasConstPressureReactor : public ConstPressureReactor
 {

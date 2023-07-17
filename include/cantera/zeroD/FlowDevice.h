@@ -18,7 +18,7 @@ class ReactorBase;
 /**
  * Base class for 'flow devices' (valves, pressure regulators, etc.)
  * connecting reactors.
- * @ingroup ZeroD
+ * @ingroup flowDeviceGroup
  */
 class FlowDevice
 {

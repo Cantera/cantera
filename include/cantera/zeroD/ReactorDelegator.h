@@ -54,6 +54,7 @@ public:
 };
 
 //! Delegate methods of the Reactor class to external functions
+//! @ingroup reactorGroup
 template <class R>
 class ReactorDelegator : public Delegator, public R, public ReactorAccessor
 {

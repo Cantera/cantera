@@ -12,7 +12,7 @@ A topical overview is provided as follows:
 * @ref thermoprops (temperature, pressure, energy, ...)
 * @ref chemkinetics (reactions, rates of progress, reaction path analysis, ...)
 * @ref tranprops (diffusion, viscosity, thermal conductivity, ...)
-* @ref ZeroD (reactors, walls, flow devices, ...)
+* @ref zerodGroup (reactors, walls, flow devices, ...)
 * @ref onedim (flames, flow domains, boundaries, ...)
 * @ref physConstants (universal constants, built into %Cantera for convenience)
 

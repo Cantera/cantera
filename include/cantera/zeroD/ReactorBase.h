@@ -13,9 +13,10 @@
 namespace Cantera
 {
 
-//! @defgroup ZeroD Zero-dimensional reactor networks
+//! @defgroup zerodGroup Zero-Dimensional Reactor Networks
 //!
-//! See the [Reactor Science](https://cantera.org/science/reactors/reactors.html)
+//! @details See the
+//! [Reactor Science](https://cantera.org/science/reactors/reactors.html)
 //! section of the %Cantera website for a description of the governing equations for
 //! specific reactor types and the methods used for solving networks of interconnected
 //! reactors.
@@ -44,7 +45,7 @@ struct SensitivityParameter
  * Base class for stirred reactors. Allows using any substance model, with
  * arbitrary inflow, outflow, heat loss/gain, surface chemistry, and volume
  * change.
- * @ingroup ZeroD
+ * @ingroup reactorGroup
  */
 class ReactorBase
 {

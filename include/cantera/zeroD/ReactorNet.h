@@ -24,7 +24,7 @@ class PreconditionerBase;
  *  means, for example Wall, MassFlowController, Valve, or PressureController; or
  *  reactors dependent on a single spatial variable (FlowReactor).
  *
- * @ingroup ZeroD
+ * @ingroup zerodGroup
  */
 class ReactorNet : public FuncEval
 {

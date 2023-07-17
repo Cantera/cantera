@@ -15,6 +15,7 @@ namespace Cantera
  * Class IdealGasReactor is a class for stirred reactors that is specifically
  * optimized for ideal gases. In this formulation, temperature replaces the
  * total internal energy as a state variable.
+ * @ingroup reactorGroup
  */
 class IdealGasReactor : public Reactor
 {
