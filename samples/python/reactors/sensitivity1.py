@@ -63,9 +63,9 @@ if '--plot' in sys.argv:
     plt.tight_layout()
 
     plt.figure(2)
-    plt.plot(states.t, states.s2, '-', states.t, states.s3, '-g')
-    plt.legend([sim.sensitivity_parameter_name(2), sim.sensitivity_parameter_name(3)],
-               'best')
+    plt.plot(states.t, states.s2, '-', label=sim.sensitivity_parameter_name(2))
+    plt.plot(states.t, states.s3, '-g', label=sim.sensitivity_parameter_name(3))
+    plt.legend(loc='best')
     plt.xlabel('Time (ms)')
     plt.ylabel('OH Sensitivity')
     plt.tight_layout()
