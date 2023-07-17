@@ -18,6 +18,8 @@
 namespace Cantera
 {
 
+//! @defgroup surfSolverGroup Surface Problem Solver
+
 //! Advances the surface coverages of the associated set of SurfacePhase
 //! objects in time
 /*!
@@ -51,7 +53,7 @@ namespace Cantera
  * phase with \f$ N_s \f$ surface sites, it consists of the surface coverages
  * \f$ \theta_k \f$ for \f$ k = 0, N_s - 1 \f$
  *
- * @ingroup chemkinetics
+ * @ingroup surfSolverGroup
  */
 class ImplicitSurfChem : public FuncEval
 {

@@ -12,6 +12,9 @@
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/numerics/DenseMatrix.h"
 
+//! @addtogroup surfSolverGroup
+//! @{
+
 //! @defgroup solvesp_methods Surface Problem Solver Methods
 //! @{
 
@@ -39,7 +42,7 @@ const int SFLUX_JACOBIAN = 3;
 //! whether it's converged to a steady state or not. This is a poor man's time
 //! stepping algorithm.
 const int SFLUX_TRANSIENT = 4;
-//! @}
+//! @} End of solvesp_method
 
 //! @defgroup solvesp_bulkFunc Surface Problem Bulk Phase Mode
 //! Functionality expected from the bulk phase. This changes the equations
@@ -54,7 +57,7 @@ const int BULK_DEPOSITION = 1;
 //! constant, and given by the initial conditions. This is also used whenever
 //! the condensed phase is part of the larger solution.
 const int BULK_ETCH = 2;
-//! @}
+//! @} End of solvesp_bulkFunc
 
 namespace Cantera
 {
@@ -486,5 +489,8 @@ private:
 public:
     int m_ioflag = 0;
 };
+
+//! @} End of surfSolverGroup
+
 }
 #endif
