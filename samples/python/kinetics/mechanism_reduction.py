@@ -92,6 +92,6 @@ for i, N in enumerate([40, 50, 60, 70, 80]):
     plt.title('Reduced mechanism ignition delay times\n'
               'K: number of species; R: number of reactions')
     plt.xlim(0, 20)
-    plt.tight_layout()
 
+plt.tight_layout()
 plt.show()
