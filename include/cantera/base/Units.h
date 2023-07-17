@@ -1,7 +1,7 @@
 /**
  * @file Units.h
  * Header for unit conversion utilities, which are used to translate
- * user input from input files (See \ref inputfiles and
+ * user input from input files (See \ref inputGroup and
  * class \link Cantera::Units Units\endlink).
  */
 
@@ -19,12 +19,17 @@ namespace Cantera
 class AnyValue;
 class AnyMap;
 
+//! @defgroup unitsGroup Unit Conversion
+//! Unit conversion utilities.
+//! @ingroup ioGroup
+
 //! A representation of the units associated with a dimensional quantity.
 /*!
  * Used for converting quantities between unit systems and checking for
  * dimensional consistency. Units objects are mainly used within UnitSystem
  * class to convert values from a user-specified Unit system to Cantera's
  * base units (SI + kmol).
+ * @ingroup unitsGroup
  */
 class Units
 {
@@ -94,6 +99,7 @@ private:
  *
  * @warning This class is an experimental part of the %Cantera API and
  *    may be changed or removed without notice.
+ * @ingroup unitsGroup
  */
 struct UnitStack
 {
@@ -157,7 +163,7 @@ struct UnitStack
  * expressed as either energy per quantity, energy (for example, eV), or temperature by
  * applying a factor of the Avogadro number or the gas constant where needed.
  *
- * @ingroup inputfiles
+ * @ingroup unitsGroup
  */
 class UnitSystem
 {

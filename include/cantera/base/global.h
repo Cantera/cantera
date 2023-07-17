@@ -1,11 +1,11 @@
 /**
  * @file global.h
  * This file contains definitions for utility functions and text for modules,
- * inputfiles and logging, (see \ref inputfiles, and \ref logGroup).
+ * inputfiles and logging, (see \ref inputGroup, and \ref logGroup).
  *
  * These functions store some parameters in global storage that are accessible
  * at all times from the calling application. Contains module definitions for
- *     -  inputfiles  (see \ref inputfiles)
+ *     -  inputfiles  (see \ref inputGroup)
  *     -  text logs  (see \ref logGroup)
  */
 
@@ -24,40 +24,47 @@ namespace Cantera
 class Logger;
 class AnyMap;
 
+//! @defgroup ioGroup File Input/Output
+//! @details Classes and functions used for reading and writing of %Cantera input files.
+
 /*!
- * @defgroup inputfiles Input File Handling
+ * @defgroup inputGroup Input File Handling
+ * @brief Handling of %Cantera input files.
  *
  * The properties of phases and interfaces are specified in text files. These
- * procedures handle various aspects of reading these files.
+ * procedures handle various aspects of reading these files. Input files should be read
+ * using the newSolution() or newInterface() service functions (see @ref compobj).
  *
  * For input files not specified by an absolute pathname, %Cantera searches
  * for input files along a path that includes platform-specific default
- * locations, and possibly user-specified locations.
+ * locations, and possibly user-specified locations:
  *
- * The current directory (".") is always searched first. Then, on Windows, the
- * registry is checked to find the Cantera installation directory, and the
- * 'data' subdirectory of the installation directory will be added to the search
- * path.
- *
- * On any platform, if environment variable CANTERA_DATA is set to a directory
- * name or a list of directory names separated with the OS-dependent path
- * separator (that is, ";" on Windows, ":" elsewhere), then these directories will
- * be added to the search path.
- *
- * Finally, the location where the data files were installed when
- * %Cantera was built is added to the search path.
- *
- * Additional directories may be added by calling function addDirectory.
+ *    - The current directory \c "." is always searched first. Then, on Windows, the
+ *      registry is checked to find the %Cantera installation directory, and the
+ *      \c data subdirectory of the installation directory will be added to the search
+ *      path.
+ *    - On any platform, if environment variable \c CANTERA_DATA is set to a directory
+ *      name or a list of directory names separated with the OS-dependent path
+ *      separator (that is, \c ";" on Windows, \c ":" elsewhere), then these directories
+ *      will be added to the search path.
+ *    - Finally, the location where the data files were installed when %Cantera was
+ *      built is added to the search path.
+ *    - Additional directories may be added dynamically by calling the addDirectory()
+ *      function.
  *
  * %Cantera input files are written using YAML syntax. For more information on using
- * YAML files in Cantera, see the
- * <a href="https://cantera.org/tutorials/yaml/defining-phases.html">YAML Users' Guide</a>
- * or the <a href="../../../../sphinx/html/yaml/index.html">YAML Input File API Reference</a>.
+ * YAML files in %Cantera, see the
+ * [YAML Users' Guide](https://cantera.org/tutorials/yaml/defining-phases.html)
+ * or the [YAML Input File API Reference](../../../../sphinx/html/yaml/index.html).
+ * %Cantera provides the
+ * [`ck2yaml`](https://cantera.org/tutorials/ck2yaml-tutorial.html)
+ * tool for converting Chemkin-format mechanisms to the YAML format. The utilities
+ * [`cti2yaml`](https://cantera.org/tutorials/legacy2yaml.html#cti2yaml) and
+ * [`ctml2yaml`](https://cantera.org/tutorials/legacy2yaml.html#ctml2yaml) should be
+ * used to convert legacy CTI and XML input files (from %Cantera 2.6 and earlier) to the
+ * YAML format.
  *
- * %Cantera provides the `ck2yaml` tool for converting Chemkin-format mechanisms to the
- * YAML format. The scripts `cti2yaml.py` and `ctml2yaml.py` can be used to convert
- * legacy CTI and XML input files (from Cantera 2.6 and earlier) to the YAML format.
- *
+ * @ingroup ioGroup
  * @{
  */
 
