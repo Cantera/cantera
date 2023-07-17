@@ -14,6 +14,11 @@
 namespace Cantera
 {
 
+//! @defgroup StringConversion String Conversion
+//! Utility functions for conversion of formatted strings.
+//! @ingroup globalUtilFuncs
+//! @{
+
 //! Convert a vector to a string (separated by commas)
 /*!
  * @param v     vector to be converted
@@ -141,6 +146,8 @@ std::string toLowerCopy(const std::string& input);
  *  when compared case insensitively (with default locale).
  */
 bool caseInsensitiveEquals(const std::string &input, const std::string &test);
+
+//! @}
 
 }
 

@@ -1,7 +1,5 @@
 /**
  * @file EdgeKinetics.h
- *
- * @ingroup electrochem
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
