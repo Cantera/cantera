@@ -17,7 +17,7 @@ class Kinetics;
 class Transport;
 class ExternalHandle;
 
-//! @defgroup compobj Objects Representing Phases
+//! @defgroup solnGroup Objects Representing Phases
 //! High-level interface to %Cantera's core objects.
 
 //! A container class for chemically-reacting solutions.
@@ -38,7 +38,7 @@ class ExternalHandle;
  * @code
  *    shared_ptr<Solution> sol = newSolution("gri30.yaml", "gri30");
  * @endcode
- * @ingroup compobj
+ * @ingroup solnGroup
  */
 class Solution : public std::enable_shared_from_this<Solution>
 {
@@ -182,7 +182,7 @@ protected:
  *                 phases kinetics. If empty, adjacent phases will be instantiated based
  *                 on the phase definition.
  * @returns an initialized Solution object.
- * @ingroup compobj
+ * @ingroup solnGroup
  */
 shared_ptr<Solution> newSolution(const std::string& infile, const std::string& name,
     const std::string& transport, const std::vector<std::string>& adjacent);
@@ -199,7 +199,7 @@ shared_ptr<Solution> newSolution(const std::string& infile, const std::string& n
  * @param adjacent vector containing adjacent Solution objects. If empty, adjacent
  *                 phases will be instantiated based on the phase definition.
  * @returns an initialized Solution object.
- * @ingroup compobj
+ * @ingroup solnGroup
  */
 shared_ptr<Solution> newSolution(const std::string& infile,
                                  const std::string& name="",
@@ -223,7 +223,7 @@ shared_ptr<Solution> newSolution(const std::string& infile,
  *                 a phase may be adjacent to multiple other phases but should be
  *                 instantiated only once.
  * @returns an initialized Solution object.
- * @ingroup compobj
+ * @ingroup solnGroup
  */
 shared_ptr<Solution> newSolution(
     const AnyMap& phaseNode, const AnyMap& rootNode=AnyMap(),

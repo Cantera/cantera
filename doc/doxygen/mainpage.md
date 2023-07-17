@@ -8,7 +8,7 @@ following shortcuts:
 
 A topical overview is provided as follows:
 
-* @ref compobj (interface to %Cantera core objects)
+* @ref solnGroup (interface to %Cantera core objects)
 * @ref thermoprops (temperature, pressure, energy, ...)
 * @ref chemkinetics (reactions, rates of progress, reaction path analysis, ...)
 * @ref tranprops (diffusion, viscosity, thermal conductivity, ...)

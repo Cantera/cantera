@@ -27,7 +27,7 @@ class ThermoPhase;
  * HDF container files using the save() and restore() methods. In addition, there is
  * limited support for CSV files.
  * @since  New in Cantera 3.0.
- * @ingroup compobj
+ * @ingroup solnGroup
  */
 class SolutionArray
 {
