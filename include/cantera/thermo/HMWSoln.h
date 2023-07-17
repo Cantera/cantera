@@ -582,8 +582,7 @@ class WaterProps;
  * interaction may involve charged species in the solution as well.
  *
  * An example phase definition specifying a number of the above species interaction
- * parameters is given in the
- * <a href="../../sphinx/html/yaml/phases.html#hmw-electrolyte">YAML API Reference</a>.
+ * parameters is given in the [YAML API Reference](@ref sec-yaml-HMW-electrolyte).
  *
  * ### Specification of the Debye-Huckel Constant
  *

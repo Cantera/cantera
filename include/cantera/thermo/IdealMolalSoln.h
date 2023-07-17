@@ -59,8 +59,7 @@ namespace Cantera
  * constants involving species in this phase.
  *
  * An example phase definition is given in the
- * <a href="../../sphinx/html/yaml/phases.html#ideal-molal-solution">
- * YAML API Reference</a>.
+ * [YAML API Reference](@ref sec-yaml-ideal-molal-solution).
  *
  * @ingroup thermoprops
  */

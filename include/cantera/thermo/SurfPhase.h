@@ -90,7 +90,7 @@ namespace Cantera
  * \f]
  *
  * An example phase definition is given in the
- * <a href="../../sphinx/html/yaml/phases.html#ideal-surface"> YAML API Reference</a>.
+ * [YAML API Reference](@ref sec-yaml-ideal-surface).
  *
  * @ingroup thermoprops
  */
