@@ -24,8 +24,13 @@ Emitter& operator<<(Emitter& out, const Cantera::AnyValue& rhs);
 namespace Cantera
 {
 
+//! @defgroup anyGroup Generic Containers
+//! Generic containers for storing data of any type.
+//! @ingroup ioGroup
+
 //! Base class defining common data possessed by both AnyMap and AnyValue
 //! objects.
+//! @ingroup anyGroup
 class AnyBase {
 public:
     AnyBase() = default;
@@ -75,6 +80,7 @@ class AnyMap;
  * - `bool`
  * - `std::string`
  * - `std::vector` of any of the above
+ * @ingroup anyGroup
  */
 class AnyValue : public AnyBase
 {
@@ -414,6 +420,7 @@ std::vector<AnyMap>& AnyValue::asVector<AnyMap>(size_t nMin, size_t nMax);
  *     // access using asVector<std::string>
  * }
  * ```
+ * @ingroup anyGroup
  */
 class AnyMap : public AnyBase
 {

@@ -18,7 +18,12 @@ class ThermoPhase;
 class Kinetics;
 class Transport;
 
+//! @defgroup serializeGroup Serialization
+//! Classes and functions related to serialization of %Cantera objects
+//! @ingroup ioGroup
+
 //! A class for generating full YAML input files from multiple data sources
+//! @ingroup serializeGroup
 class YamlWriter
 {
 public:

@@ -237,7 +237,7 @@ public:
 
     //!  Add a directory to the data file search path.
     /*!
-     * @ingroup inputfiles
+     * @ingroup inputGroup
      *
      * @param dir  String name for the directory to be added to the search path
      */
@@ -262,7 +262,7 @@ public:
      *
      * If the file is not found a CanteraError exception is thrown.
      *
-     * @ingroup inputfiles
+     * @ingroup inputGroup
      */
     std::string findInputFile(const std::string& name);
 
@@ -274,7 +274,7 @@ public:
      * @param sep Separator to use between directories in the string
      * @return A string of directories separated by the input sep
      *
-     * @ingroup inputfiles
+     * @ingroup inputGroup
      */
     std::string getDataDirectories(const std::string& sep) {
         return boost::algorithm::join(inputDirs, sep);
@@ -426,7 +426,7 @@ protected:
      * %Cantera was built is added to the search path.
      *
      * Additional directories may be added by calling function addDirectory.
-     * @ingroup inputfiles
+     * @ingroup inputGroup
      */
     void setDefaultDirectories();
 
