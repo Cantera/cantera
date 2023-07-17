@@ -19,7 +19,7 @@ namespace Cantera
 {
 
 /**
- * @defgroup debugGroup Errors & Diagnostics
+ * @defgroup debugGroup Errors and Diagnostics
 */
 
 /*!
