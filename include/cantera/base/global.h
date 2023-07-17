@@ -33,7 +33,7 @@ class AnyMap;
  *
  * The properties of phases and interfaces are specified in text files. These
  * procedures handle various aspects of reading these files. Input files should be read
- * using the newSolution() or newInterface() service functions (see @ref compobj).
+ * using the newSolution() or newInterface() service functions (see @ref solnGroup).
  *
  * For input files not specified by an absolute pathname, %Cantera searches
  * for input files along a path that includes platform-specific default
