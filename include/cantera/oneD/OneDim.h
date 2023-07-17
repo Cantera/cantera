@@ -21,7 +21,7 @@ class AnyMap;
 /**
  * Container class for multiple-domain 1D problems. Each domain is
  * represented by an instance of Domain1D.
- * @ingroup onedim
+ * @ingroup onedGroup
  */
 class OneDim
 {

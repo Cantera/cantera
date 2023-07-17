@@ -35,7 +35,7 @@ class SolutionArray;
 
 /**
  * Base class for one-dimensional domains.
- * @ingroup onedim
+ * @ingroup flowGroup
  */
 class Domain1D
 {

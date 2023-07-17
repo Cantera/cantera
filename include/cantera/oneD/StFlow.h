@@ -32,10 +32,14 @@ enum offset
 
 class Transport;
 
+//! @defgroup flowGroup Flow Domains
+//! One-dimensional flow domains.
+//! @ingroup onedGroup
+
 /**
  *  This class represents 1D flow domains that satisfy the one-dimensional
  *  similarity solution for chemically-reacting, axisymmetric flows.
- *  @ingroup onedim
+ *  @ingroup flowGroup
  */
 class StFlow : public Domain1D
 {

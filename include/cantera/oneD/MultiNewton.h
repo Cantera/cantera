@@ -11,10 +11,14 @@
 namespace Cantera
 {
 
+//! @defgroup onedUtilsGroup Utilities
+//! Utility classes and functions for one-dimensional problems.
+//! @ingroup onedGroup
+
 /**
  * Newton iterator for multi-domain, one-dimensional problems.
  * Used by class OneDim.
- * @ingroup onedim
+ * @ingroup onedUtilsGroup
  */
 class MultiNewton
 {
