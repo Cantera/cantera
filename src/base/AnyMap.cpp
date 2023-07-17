@@ -508,7 +508,11 @@ struct convert<Cantera::AnyValue> {
             if (types == Type::Integer) {
                 target = node.as<std::vector<long int>>();
             } else if (types == (Type::Integer | Type::Double) || types == Type::Double) {
-                target = node.as<vector_fp>();
+                vector_fp values;
+                for (const auto& elem : node) {
+                    values.push_back(fpValue(elem.as<string>()));
+                }
+                target = std::move(values);
             } else if (types == Type::String) {
                 target = node.as<std::vector<std::string>>();
             } else if (types == Type::Bool) {
@@ -524,7 +528,14 @@ struct convert<Cantera::AnyValue> {
                 if (subtypes == Type::Integer) {
                     target = node.as<std::vector<std::vector<long int>>>();
                 } else if (subtypes == (Type::Integer | Type::Double) || subtypes == Type::Double) {
-                    target = node.as<std::vector<std::vector<double>>>();
+                    vector<vector<double>> values;
+                    for (const auto& row : node) {
+                        values.emplace_back();
+                        for (const auto& value : row) {
+                            values.back().push_back(fpValue(value.as<string>()));
+                        }
+                    }
+                    target = std::move(values);
                 } else if (subtypes == Type::String) {
                     target = node.as<std::vector<std::vector<std::string>>>();
                 } else if (subtypes == Type::Bool) {

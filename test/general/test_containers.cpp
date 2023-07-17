@@ -286,6 +286,20 @@ TEST(AnyMap, conversion_to_anyvalue)
     EXPECT_EQ(n.at("strings").asVector<AnyValue>()[0].asString(), "foo");
 }
 
+TEST(AnyMap, read_subnormal)
+{
+    AnyMap m = AnyMap::fromYamlString(
+        "scalar: 4.940656458412465e-324\n"
+        "vector: [1.999999997714111, 1.482285197259138, 1.151630981915516,\n"
+        "2.957408463878464, 2.035192404627, -4.940656458412465e-324]\n"
+        "matrix: [[1.999999997714111, -4.940656458412465e-324, 1.151630981915516],\n"
+        "[2.957408463878464, 2.035192404627, 1.482285197259138]]");
+
+    EXPECT_DOUBLE_EQ(m["scalar"].asDouble(), 0.0);
+    EXPECT_DOUBLE_EQ(m["vector"].asVector<double>()[5], 0.0);
+    EXPECT_DOUBLE_EQ(m["matrix"].asVector<vector<double>>()[0][1], 0.0);
+}
+
 TEST(AnyMap, iterators)
 {
     AnyMap m = AnyMap::fromYamlString(
