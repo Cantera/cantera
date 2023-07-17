@@ -14,6 +14,7 @@ namespace Cantera
 /*!
  * IdealGasMoleReactor is a class for ideal gas constant-volume reactors which use a
  * state of moles.
+ * @ingroup reactorGroup
  */
 class IdealGasMoleReactor : public MoleReactor
 {

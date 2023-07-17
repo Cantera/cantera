@@ -19,7 +19,7 @@ class Func1;
 
 /**
  * Base class for 'walls' (walls, pistons, etc.) connecting reactors.
- * @ingroup ZeroD
+ * @ingroup wallGroup
  */
 class WallBase
 {
@@ -134,6 +134,7 @@ protected:
 /*!
  * Walls can move (changing the volume of the adjacent reactors) and allow heat
  * transfer between reactors.
+ * @ingroup wallGroup
  */
 class Wall : public WallBase
 {
