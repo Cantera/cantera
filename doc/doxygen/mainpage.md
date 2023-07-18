@@ -1,7 +1,7 @@
 # %Cantera C++ Reference
 
-> **Note:** This is the **%Cantera C++ API** documentation; for general
-> information on %Cantera, refer to [**Cantera's main website**](https://cantera.org).
+> **Note:** This is the **%Cantera Developer API** documentation; for general
+> information on %Cantera, refer to [**cantera.org**](https://cantera.org).
 
 Use sidebar or menu at the top to view detailed documentation of the code, or
 use the following shortcuts:
