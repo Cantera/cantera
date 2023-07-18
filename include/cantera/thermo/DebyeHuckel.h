@@ -71,10 +71,10 @@ class PDSS_Water;
  *
  * The enthalpy function is given by the following relation.
  *
- *       \f[
- *         h^\triangle_k(T,P) = h^{\triangle,ref}_k(T)
- *         + \tilde v \left( P - P_{ref} \right)
- *       \f]
+ * \f[
+ *      h^\triangle_k(T,P) = h^{\triangle,ref}_k(T)
+ *      + \tilde v \left( P - P_{ref} \right)
+ * \f]
  *
  * For an incompressible, stoichiometric substance, the molar internal energy is
  * independent of pressure. Since the thermodynamic properties are specified by
@@ -82,9 +82,9 @@ class PDSS_Water;
  * subtracted from the specified reference molar enthalpy to compute the molar
  * internal energy.
  *
- *       \f[
- *            u^\triangle_k(T,P) = h^{\triangle,ref}_k(T) - P_{ref} \tilde v
- *       \f]
+ * \f[
+ *      u^\triangle_k(T,P) = h^{\triangle,ref}_k(T) - P_{ref} \tilde v
+ * \f]
  *
  * The standard state heat capacity and entropy are independent of pressure. The
  * standard state Gibbs free energy is obtained from the enthalpy and entropy

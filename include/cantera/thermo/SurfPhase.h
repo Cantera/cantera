@@ -40,9 +40,9 @@ namespace Cantera
  * Therefore, The standard state internal energy for species *k* is equal to the
  * enthalpy for species *k*.
  *
- *       \f[
- *            u^o_k = h^o_k
- *       \f]
+ * \f[
+ *      u^o_k = h^o_k
+ * \f]
  *
  * Also, the standard state chemical potentials, entropy, and heat capacities
  * are independent of pressure. The standard state Gibbs free energy is obtained
@@ -51,43 +51,43 @@ namespace Cantera
  * ## Specification of Solution Thermodynamic Properties
  *
  * The activity of species defined in the phase is given by
- *       \f[
- *            a_k = \theta_k
- *       \f]
+ * \f[
+ *      a_k = \theta_k
+ * \f]
  *
  * The chemical potential for species *k* is equal to
- *       \f[
- *            \mu_k(T,P) = \mu^o_k(T) + R T \log(\theta_k)
- *       \f]
+ * \f[
+ *      \mu_k(T,P) = \mu^o_k(T) + R T \log(\theta_k)
+ * \f]
  *
  * Pressure is defined as an independent variable in this phase. However, it has
  * no effect on any quantities, as the molar concentration is a constant.
  *
  * The internal energy for species k is equal to the enthalpy for species *k*
- *       \f[
- *            u_k = h_k
- *       \f]
+ * \f[
+ *      u_k = h_k
+ * \f]
  *
  * The entropy for the phase is given by the following relation, which is
  * independent of the pressure:
  *
- *       \f[
- *            s_k(T,P) = s^o_k(T) - R \log(\theta_k)
- *       \f]
+ * \f[
+ *      s_k(T,P) = s^o_k(T) - R \log(\theta_k)
+ * \f]
  *
  * ## Application within Kinetics Managers
  *
  * The activity concentration,\f$  C^a_k \f$, used by the kinetics manager, is equal to
  * the actual concentration, \f$ C^s_k \f$, and is given by the following
  * expression.
- *       \f[
- *            C^a_k = C^s_k = \frac{\theta_k  n_0}{s_k}
- *       \f]
+ * \f[
+ *      C^a_k = C^s_k = \frac{\theta_k  n_0}{s_k}
+ * \f]
  *
  * The standard concentration for species *k* is:
- *        \f[
- *            C^0_k = \frac{n_0}{s_k}
- *        \f]
+ * \f[
+ *      C^0_k = \frac{n_0}{s_k}
+ * \f]
  *
  * An example phase definition is given in the
  * <a href="../../sphinx/html/yaml/phases.html#ideal-surface"> YAML API Reference</a>.

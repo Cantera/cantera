@@ -9,7 +9,6 @@
 #include "cantera/base/global.h"
 #include "cantera/base/ctexceptions.h"
 
-//! Namespace for classes implementing zero-dimensional reactor networks.
 namespace Cantera
 {
 
