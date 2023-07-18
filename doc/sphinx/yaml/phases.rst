@@ -75,7 +75,6 @@ and optionally reactions that can take place in that phase. The fields of a
 
     - :ref:`binary-solution-tabulated <sec-yaml-binary-solution-tabulated>`
     - :ref:`compound-lattice <sec-yaml-compound-lattice>`
-    - :ref:`constant-density <sec-yaml-constant-density>`
     - :ref:`Debye-Huckel <sec-yaml-Debye-Huckel>`
     - :ref:`edge <sec-yaml-edge>`
     - :ref:`electron-cloud <sec-yaml-electron-cloud>`
@@ -253,25 +252,6 @@ Example::
 
     thermo: compound-lattice
     composition: {Li7Si3(s): 1.0, Li7Si3-interstitial: 1.0}
-
-
-.. _sec-yaml-constant-density:
-
-``constant-density``
---------------------
-
-An incompressible phase with constant density, as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d9/de4/classCantera_1_1ConstDensityThermo.html#details>`__.
-
-Additional fields:
-
-``density``
-    The density of the phase
-
-Example::
-
-    thermo: constant-density
-    density: 0.7 g/cm^3
 
 
 .. _sec-yaml-Debye-Huckel:
