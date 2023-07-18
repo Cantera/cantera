@@ -6,7 +6,7 @@
 #include "cantera/kinetics/PlogRate.h"
 #include "cantera/thermo/ThermoPhase.h"
 
-//! @todo remove after Cantera 3.0 (only used for deprecation)
+// @todo remove after Cantera 3.0 (only used for deprecation)
 #include "cantera/kinetics/Kinetics.h"
 
 namespace Cantera
