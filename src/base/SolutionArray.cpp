@@ -273,7 +273,7 @@ vector<string> doubleColumn(string name, const vector<double>& comp,
         notation = fmt::format(" {{:>{}.{}f}}", over + maxLen, tail);
     } else {
         // all entries are integers
-        notation = fmt::format(" {{:>{}}}", over + maxLen);
+        notation = fmt::format(" {{:>{}.0f}}", over + maxLen);
     }
     maxLen = fmt::format(notation, 0.).size();
 
