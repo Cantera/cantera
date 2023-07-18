@@ -303,29 +303,29 @@ vector<string> integerColumn(string name, const vector<long int>& comp,
     if (csize <= rows) {
         for (const auto& val : comp) {
             data.push_back(val);
-            string name = boost::trim_copy(fmt::format(notation, val));
-            if (name[0] == '-') {
-                name = name.substr(1);
+            string formatted = boost::trim_copy(fmt::format(notation, val));
+            if (formatted[0] == '-') {
+                formatted = formatted.substr(1);
             }
-            maxLen = std::max(maxLen, name.size());
+            maxLen = std::max(maxLen, formatted.size());
         }
     } else {
         dots = (rows + 1) / 2;
         for (int row = 0; row < dots; row++) {
             data.push_back(comp[row]);
-            string name = boost::trim_copy(fmt::format(notation, comp[row]));
-            if (name[0] == '-') {
-                name = name.substr(1);
+            string formatted = boost::trim_copy(fmt::format(notation, comp[row]));
+            if (formatted[0] == '-') {
+                formatted = formatted.substr(1);
             }
-            maxLen = std::max(maxLen, name.size());
+            maxLen = std::max(maxLen, formatted.size());
         }
         for (int row = csize - rows / 2; row < csize; row++) {
             data.push_back(comp[row]);
-            string name = boost::trim_copy(fmt::format(notation, comp[row]));
-            if (name[0] == '-') {
-                name = name.substr(1);
+            string formatted = boost::trim_copy(fmt::format(notation, comp[row]));
+            if (formatted[0] == '-') {
+                formatted = formatted.substr(1);
             }
-            maxLen = std::max(maxLen, name.size());
+            maxLen = std::max(maxLen, formatted.size());
         }
     }
 
