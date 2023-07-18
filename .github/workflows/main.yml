@@ -45,7 +45,7 @@ jobs:
       run: |
         sudo apt update
         sudo apt install libboost-dev gfortran libopenmpi-dev libpython3-dev \
-        libblas-dev liblapack-dev libhdf5-dev
+        libblas-dev liblapack-dev libhdf5-dev libfmt-dev
         gcc --version
     - name: Upgrade pip
       run: python3 -m pip install -U pip setuptools wheel
@@ -58,7 +58,7 @@ jobs:
     - name: Build Cantera
       run: |
         python3 `which scons` build env_vars=all -j2 debug=n --debug=time \
-        hdf_libdir=$HDF5_LIBDIR hdf_include=$HDF5_INCLUDEDIR \
+        system_fmt=y hdf_libdir=$HDF5_LIBDIR hdf_include=$HDF5_INCLUDEDIR \
         cc_flags=-D_GLIBCXX_ASSERTIONS
     - name: Upload shared library
       uses: actions/upload-artifact@v3
@@ -801,7 +801,7 @@ jobs:
       run: brew install --display-times hdf5
       if: matrix.os == 'macos-11'
     - name: Install Apt dependencies (Ubuntu)
-      run: sudo apt install libhdf5-dev
+      run: sudo apt install libhdf5-dev libfmt-dev
       if: matrix.os == 'ubuntu-22.04'
     - name: Setup .NET Core SDK
       uses: actions/setup-dotnet@v2
