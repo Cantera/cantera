@@ -295,7 +295,7 @@ vector<string> integerColumn(string name, const vector<long int>& comp,
                              int rows, int width)
 {
     // extract data for processing
-    vector<double> data;
+    vector<long int> data;
     string notation = fmt::format("{{:{}}}", width);
     size_t maxLen = 2; // minimum column width is 2
     int csize = static_cast<int>(comp.size());
